@@ -1,0 +1,28 @@
+-- =============================================================
+-- NICHT AUSFÜHRBAR – Nur Vorlage / NOT EXECUTABLE – Template only
+-- Dieses File muss vollständig implementiert und geprüft werden.
+-- This file must be fully implemented and reviewed before execution.
+-- =============================================================
+--
+-- Zweck:     Erstinstallation von Modul {{ModuleName}}
+-- Modul:     {{ModuleName}} v{{Version}}
+-- Schema:    {{toolbelt_category}}
+-- Erfordert: SQL Server {{MinVersion}}+
+-- Erstellt:  {{YYYY-MM-DD}}
+-- =============================================================
+
+-- Preflight: SQL-Server-Version, Betriebssystem, Abhängigkeiten, Rechte prüfen
+-- {{Preflight-Logik implementieren}}
+
+-- Schema anlegen (falls nicht vorhanden)
+-- {{Schema-Erstellung implementieren}}
+
+-- Objekte anlegen
+-- {{Objekt-Erstellung implementieren}}
+
+-- Rechte vergeben
+-- {{Rechte implementieren}}
+
+-- =============================================================
+-- Ende Installation {{ModuleName}}
+-- =============================================================
