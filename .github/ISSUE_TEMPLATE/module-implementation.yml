@@ -1,0 +1,80 @@
+name: Modul-Implementierung
+description: Arbeitspaket für die Implementierung eines neuen Moduls
+title: "[Modul] "
+labels: ["modul", "implementierung"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Arbeitspaket für ein neues Modul. Vor dem Ausfüllen: `.ai/BACKLOG.md` und `AGENTS.md` lesen.
+
+  - type: input
+    id: modul_id
+    attributes:
+      label: Arbeitspaket-ID
+      description: Stabile ID aus .ai/BACKLOG.md (z. B. AP-2026-001)
+    validations:
+      required: true
+
+  - type: input
+    id: modul_schema
+    attributes:
+      label: Schema
+      description: "Ziel-Schema, z. B. toolbelt_string"
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Welche Objekte (USP, TVF, SVF, VW) werden implementiert?
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Abhängigkeiten
+      description: Abhängige Module oder externe Voraussetzungen.
+
+  - type: textarea
+    id: doku
+    attributes:
+      label: Dokumentation
+      description: Welche Dokumentationsdateien werden erstellt oder aktualisiert?
+    validations:
+      required: true
+
+  - type: textarea
+    id: tests
+    attributes:
+      label: Tests
+      description: Welche Tests sind geplant (API-Contract, Install, Upgrade, Uninstall, Collation, lokal/zentral)?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: install_upgrade_uninstall
+    attributes:
+      label: Lifecycle-Artefakte
+      options:
+        - label: Install-Skript vorgesehen
+        - label: Upgrade-Skript vorgesehen
+        - label: Uninstall-Skript vorgesehen
+
+  - type: textarea
+    id: akzeptanzkriterien
+    attributes:
+      label: Akzeptanzkriterien
+      description: Messbare Bedingungen für Definition of Done.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: datenschutz
+    attributes:
+      label: Datenschutzbestätigung
+      options:
+        - label: Dieser Issue enthält keine personenbezogenen Daten, keine realen Infrastrukturangaben, keine Secrets.
+          required: true

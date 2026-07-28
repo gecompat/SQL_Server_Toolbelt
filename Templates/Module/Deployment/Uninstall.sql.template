@@ -1,0 +1,26 @@
+-- =============================================================
+-- NICHT AUSFÜHRBAR – Nur Vorlage / NOT EXECUTABLE – Template only
+-- Dieses File muss vollständig implementiert und geprüft werden.
+-- This file must be fully implemented and reviewed before execution.
+-- =============================================================
+--
+-- Zweck:     Vollständige Deinstallation von Modul {{ModuleName}}
+-- Modul:     {{ModuleName}} v{{Version}}
+-- Schema:    {{toolbelt_category}}
+-- WARNUNG:   Entfernt alle Objekte des Moduls.
+--            Keine automatische Entfernung von Nutzerdaten ohne Warnung.
+-- Erstellt:  {{YYYY-MM-DD}}
+-- =============================================================
+
+-- Preflight: Abhängige Module prüfen; Abbruch wenn abhängige Module installiert
+-- {{Preflight-Logik implementieren}}
+
+-- Objekte entfernen
+-- {{Objekt-Entfernung implementieren}}
+
+-- Schema entfernen (nur wenn leer und kein anderes Modul nutzt es)
+-- {{Schema-Entfernung implementieren}}
+
+-- =============================================================
+-- Ende Deinstallation {{ModuleName}}
+-- =============================================================
