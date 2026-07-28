@@ -1,0 +1,87 @@
+name: Fehlerbericht
+description: Reproduzierbarer Fehlerbericht mit synthetischen Daten
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **Warnung:** Bitte ausschließlich synthetische, nicht produktive Beispieldaten verwenden.
+        **Keine Produktionsdaten, keine realen Server-/Datenbanknamen, keine Secrets, keine realen Logs oder Execution Plans.**
+
+  - type: dropdown
+    id: modul
+    attributes:
+      label: Betroffenes Modul / Objekt
+      description: Welches Modul oder SQL-Objekt ist betroffen?
+      options:
+        - Unbekannt / Allgemein
+        - Struktur / Dokumentation
+        - Sonstige (in Beschreibung angeben)
+    validations:
+      required: true
+
+  - type: input
+    id: sql_server_version
+    attributes:
+      label: SQL-Server-Version
+      description: "z. B. SQL Server 2019 CU24 (15.0.4375.4)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: betriebssystem
+    attributes:
+      label: Betriebssystem
+      options:
+        - Windows
+        - Linux
+        - Beides
+    validations:
+      required: true
+
+  - type: textarea
+    id: beschreibung
+    attributes:
+      label: Fehlerbeschreibung
+      description: Kurze Beschreibung des Problems.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduktion
+    attributes:
+      label: Reproduktionsschritte
+      description: |
+        Minimales, reproduzierbares Beispiel mit synthetischen Daten.
+        Keine realen Datenbankstrukturen, Kundendaten oder Konfigurationen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: erwartetes_verhalten
+    attributes:
+      label: Erwartetes Verhalten
+    validations:
+      required: true
+
+  - type: textarea
+    id: tatsaechliches_verhalten
+    attributes:
+      label: Tatsächliches Verhalten
+    validations:
+      required: true
+
+  - type: textarea
+    id: fehlermeldung
+    attributes:
+      label: Fehlermeldung (synthetisch)
+      description: Fehlermeldung, falls vorhanden. Bitte reale Pfade, Servernamen, Zeilennummern aus Produktionsumgebungen entfernen.
+
+  - type: checkboxes
+    id: datenschutz
+    attributes:
+      label: Datenschutzbestätigung
+      options:
+        - label: Dieser Issue enthält keine personenbezogenen Daten, keine realen Infrastrukturangaben (Server, Datenbank, Pfade, Domains), keine Secrets und keine realen Logs oder Execution Plans.
+          required: true

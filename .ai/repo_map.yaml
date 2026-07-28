@@ -1,0 +1,125 @@
+---
+# repo_map.yaml – Maschinenlesbare Repository-Rolle und Artefaktklassen
+# SQL Server Toolbelt
+# Letzte Aktualisierung: 2026-07-28
+
+repository:
+  name: SQL_Server_Toolbelt
+  owner: gecompat
+  purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
+  status: initializing
+  language_primary: T-SQL
+  languages_allowed: [T-SQL, C#, Python, Java, R]
+  sql_server_versions: ["2019", "2022"]
+  platforms: [Windows, Linux]
+
+sources_of_truth:
+  license: LICENSE.md
+  project_context: .ai/PROJECT_CONTEXT.md
+  project_rules: .ai/PROJECT_RULES.md
+  working_rules: .ai/WORKING_RULES.md
+  ai_entry_point: AGENTS.md
+  copilot_bridge: .github/copilot-instructions.md
+  usp_contract: Documentation/Standards/USP_CONTRACT.md
+  naming_conventions: Documentation/Standards/SQL_OBJECT_NAMING.md
+  decisions: Documentation/Architecture/DECISIONS.md
+  roadmap: .ai/ROADMAP.md
+  backlog: .ai/BACKLOG.md
+
+artifact_classes:
+  public:
+    description: Öffentlich sichtbare Dokumentation und Inhalte
+    paths:
+      - README.md
+      - LICENSE.md
+      - AGENTS.md
+      - CONTRIBUTING.md
+      - SECURITY.md
+      - CHANGELOG.md
+      - Documentation/
+      - Modules/
+      - Backlog/
+      - Tests/
+    allowed_content:
+      - Dokumentation
+      - Synthetic examples
+      - Templates (SQL.template, nicht ausführbar)
+    prohibited_content:
+      - Personenbezogene Daten
+      - Reale Infrastrukturnamen
+      - Secrets
+      - Runtime-Ausgaben
+
+  internal:
+    description: KI-Steuerungs- und Metadaten
+    paths:
+      - .ai/
+    allowed_content:
+      - Projektzweck und -regeln
+      - Arbeitsregeln
+      - Backlog und Roadmap
+      - Repo-Map
+
+  github_config:
+    description: GitHub-Konfiguration und Workflow-Steuerung
+    paths:
+      - .github/
+    allowed_content:
+      - Issue Templates
+      - PR Templates
+      - Copilot Instructions
+      - Agent-Definitionen
+
+  templates:
+    description: Nicht ausführbare Vorlagen für neue Module
+    paths:
+      - Templates/
+    note: SQL-Vorlagen haben Endung .sql.template und sind als nicht ausführbar gekennzeichnet
+
+  tests:
+    description: Test-Infrastruktur und -Richtlinien
+    paths:
+      - Tests/
+    note: Noch keine Runtime-CI oder Actions-Matrix; nur Anforderungen dokumentiert
+
+  generated:
+    description: Abgeleitete oder generierte Artefakte (nicht committen)
+    examples:
+      - bin/
+      - obj/
+      - *.dll
+      - *.log
+
+  runtime:
+    description: Laufzeitdaten (niemals committen)
+    prohibited:
+      - Query Plans
+      - Execution Logs
+      - Test Evidence mit Produktionsdaten
+      - Traces
+
+schemas:
+  pattern: "toolbelt_<category>"
+  examples:
+    - toolbelt_core
+    - toolbelt_string
+    - toolbelt_datetime
+    - toolbelt_conversion
+    - toolbelt_validation
+    - toolbelt_json
+    - toolbelt_xml
+    - toolbelt_metadata
+    - toolbelt_security
+
+object_naming:
+  stored_procedure: "USP_{CamelCase}"
+  inline_tvf: "TVF_{CamelCase}"
+  multi_statement_tvf: "TVF_{CamelCase}"
+  scalar_function: "SVF_{CamelCase}"
+  view: "VW_{CamelCase}"
+  tables: open_decision
+  synonyms: open_decision
+  assemblies: open_decision
+  triggers: open_decision
+  sequences: open_decision
+  types: open_decision

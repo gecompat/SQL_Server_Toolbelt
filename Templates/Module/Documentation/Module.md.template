@@ -1,0 +1,51 @@
+# {{ModuleName}}
+
+**Status:** `proposed` (not executed: keine Tests ausgeführt)
+
+## Zweck
+
+{{Kurze Beschreibung des Modulzwecks}}
+
+## Scope
+
+| Objekt | Typ | Schema | Beschreibung |
+|---|---|---|---|
+| {{ObjektName}} | {{USP/TVF/SVF/VW}} | {{toolbelt_category}} | {{Beschreibung}} |
+
+## Abhängigkeiten
+
+| Modul | Mindestversion |
+|---|---|
+| – | – |
+
+## Unterstützte Plattformen
+
+| Plattform | Status |
+|---|---|
+| SQL Server 2019 Windows | `not executed` |
+| SQL Server 2022 Windows | `not executed` |
+| SQL Server 2019 Linux | `not executed` |
+| SQL Server 2022 Linux | `not executed` |
+
+## Deployment-Modi
+
+| Modus | Status |
+|---|---|
+| Lokal (Zieldatenbank) | `not executed` |
+| Zentral (Toolbelt-Datenbank) | `not executed` |
+
+## Collation-Vertrag
+
+{{Beschreibung des Collation-Verhaltens}}
+
+## Einschränkungen
+
+{{Bekannte Grenzen und Einschränkungen}}
+
+## Primärquellen
+
+- {{Quelle 1}}
+
+## Teststatus
+
+Alle Tests: `not executed` (kein Runtime-Nachweis vorhanden)
