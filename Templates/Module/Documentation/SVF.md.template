@@ -1,0 +1,33 @@
+# {{SchemaName}}.SVF_{{ObjectName}}
+
+**Typ:** Scalar-valued Function  
+**Status:** `proposed`
+
+## Zweck
+
+{{Fachliche Beschreibung}}
+
+## Parameter und Rückgabewert
+
+| Element | Typ | Nullable | Beschreibung |
+|---|---|---:|---|
+| `@{{Parameter}}` | `{{Type}}` | {{ja/nein}} | {{Beschreibung}} |
+| Rückgabewert | `{{ReturnType}}` | {{ja/nein}} | {{Semantik}} |
+
+## Verwendung
+
+```sql
+SELECT {{SchemaName}}.SVF_{{ObjectName}}({{SyntheticArguments}}) AS ResultValue;
+```
+
+## Rechte, Dependencies und Plattformen
+
+{{Beschreibung}}
+
+## Performance und Collation
+
+{{Inlining, Aufrufhäufigkeit, Konvertierungen und Collation-Vertrag}}
+
+## Einschränkungen und Teststatus
+
+{{Bekannte Grenzen und tatsächliche Testmatrix}}

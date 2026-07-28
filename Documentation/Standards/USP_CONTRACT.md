@@ -1,12 +1,10 @@
 # USP-Vertrag – SQL Server Toolbelt
 
-Dieser Vertrag ist verbindlich für alle öffentlichen und internen Toolbelt-Stored-Procedures (USPs). Er wird dokumentiert, aber in diesem PR noch nicht implementiert.
-
----
+Dieser Vertrag ist verbindlich für öffentliche und interne Toolbelt-Stored-Procedures. Er ist als Architekturvertrag definiert; eine gemeinsame Runtime-Infrastruktur wird erst durch ein freigegebenes Arbeitspaket implementiert.
 
 ## 1. Standardparameter
 
-### Jede Toolbelt-USP (öffentlich oder intern)
+### Jede Toolbelt-USP
 
 ```sql
 @Hilfe bit = 0
@@ -18,57 +16,34 @@ Dieser Vertrag ist verbindlich für alle öffentlichen und internen Toolbelt-Sto
 @Debug tinyint = 0
 ```
 
-### Jede Toolbelt-USP mit fachlichem tabellarischem Resultset
+### Jede USP mit fachlichem tabellarischem Resultset
 
-Als letzte Standardparameter exakt in dieser Reihenfolge:
+Die letzten Standardparameter stehen exakt in dieser Reihenfolge:
 
 ```sql
-@ResultTable sysname  = NULL,
-@KeepData   bit       = 0,
-@Debug      tinyint   = 0,
-@Hilfe      bit       = 0
+@ResultTable sysname = NULL,
+@KeepData   bit      = 0,
+@Debug      tinyint  = 0,
+@Hilfe      bit      = 0
 ```
 
-### Infrastrukturprozeduren
+Infrastrukturprozeduren ohne eigenes fachliches Resultset erhalten keinen bedeutungslosen `@ResultTable`-Parameter. Eine zu bearbeitende Tabelle erhält einen eindeutigen fachlichen Parameternamen, beispielsweise `@ResultTableToAlter`.
 
-Infrastrukturprozeduren ohne eigenes Resultset erhalten keinen bedeutungslosen `@ResultTable`-Parameter. Sie verwenden fachlich eindeutige Namen, z. B. `@ResultTableToAlter`.
+## 2. Hilfevertrag
 
----
+Sobald `@Hilfe = 1` gilt:
 
-## 2. Hilfe-Verhalten (`@Hilfe = 1`)
+- wird ausschließlich das standardisierte Help-Resultset ausgegeben;
+- wird die fachliche Funktion nicht ausgeführt;
+- entstehen keine fachlichen Seiteneffekte;
+- werden fachliche Pflichtparameter nicht validiert;
+- werden `@ResultTable`, `@KeepData` und `@Debug` ignoriert;
+- wird keine ResultTable geprüft oder verändert;
+- werden keine Debug-Messages erzeugt.
 
-Bei `@Hilfe = 1`:
-- Ausschließlich das standardisierte Help-Resultset ausgeben (Struktur siehe Abschnitt 4).
-- Fachliche Funktion und Seiteneffekte **nicht** ausführen.
-- Pflichtparameter **nicht** fachlich validieren.
-- `@ResultTable`, `@KeepData`, `@Debug` ignorieren.
-- Keine ResultTable prüfen oder ändern.
-- Keine Debug-Messages erzeugen.
+Damit ein reiner Hilfeaufruf möglich ist, erhalten fachlich verpflichtende Parameter technische Defaults, normalerweise `NULL`. Das Help-Resultset kennzeichnet getrennt, ob ein Parameter bei `@Hilfe = 0` fachlich erforderlich ist.
 
-Für reine Hilfeaufrufe erhalten fachlich verpflichtende Parameter technische Defaults (meist `NULL`). Das Help-Resultset kennzeichnet diese Parameter als `IsRequired = 1` für `@Hilfe = 0`.
-
----
-
-## 3. Fachliches Resultset (`@Hilfe = 0`)
-
-- Höchstens ein fachliches Resultset.
-- Debug-Ausgaben sind **Messages**, keine Resultsets.
-- Keine unbeabsichtigten zusätzlichen `SELECT`-Resultsets.
-
-### Routing über `@ResultTable`
-
-| Wert | Verhalten |
-|---|---|
-| `@ResultTable IS NULL` | Normales `SELECT`; Ergebnis direkt zurückgeben. |
-| `@ResultTable = N'#Result1'` | Bereits vorhandene lokale Temp-Tabelle; Ergebnis dort einfügen; kein fachliches `SELECT`. Verschachtelte USPs verwenden ebenfalls deren `@ResultTable`. |
-
-Kein generisches verschachteltes `INSERT ... EXEC` bei `@ResultTable`.
-
----
-
-## 4. Help-Resultset (Struktur)
-
-Das Help-Resultset ist stabil, maschinenlesbar und KI-lesbar.
+## 3. Einheitliches Help-Resultset
 
 ```text
 HelpContractVersion  varchar(16)    NOT NULL
@@ -85,57 +60,113 @@ Description          nvarchar(max)  NOT NULL
 ExampleSql           nvarchar(max)  NULL
 ```
 
-### Pflicht-Sections
+Pflicht-Sections:
 
-| Section | Inhalt |
+- `DESCRIPTION` – fachliche Beschreibung;
+- `PARAMETER` – Name, Typ, technischer Default, fachliche Pflicht und Beschreibung;
+- `RESULT_COLUMN` – Definition des fachlichen Resultsets oder ausdrückliche Erklärung, dass kein fachliches Resultset existiert;
+- `EXAMPLE` – mindestens ein vollständiger Beispielaufruf.
+
+Optionale Sections: `ERROR`, `PERMISSION`, `LIMITATION`.
+
+Für eine USP mit fachlichem Resultset enthält `RESULT_COLUMN` je Resultspalte mindestens Reihenfolge, Name, Typ, Nullability und fachliche Bedeutung.
+
+Für eine Infrastruktur-USP ohne fachliches Resultset enthält `RESULT_COLUMN` genau einen deklarativen Eintrag mit `ItemName = NULL`, `SqlDataType = NULL`, `IsNullable = NULL` und einer eindeutigen Beschreibung, dass die USP kein fachliches Resultset liefert. OUTPUT-Parameter, Return Codes und Fehlersemantik werden in `PARAMETER`, `DESCRIPTION` und bei Bedarf `ERROR` dokumentiert.
+
+Das Format ist stabil, maschinenlesbar und für KI-Systeme ohne Quellcodeanalyse verständlich.
+
+## 4. Fachliches Resultset
+
+Bei `@Hilfe = 0` liefert eine USP höchstens ein fachliches Resultset.
+
+- Debug-Ausgaben sind Messages, keine Resultsets.
+- Unbeabsichtigte zusätzliche `SELECT`-Resultsets sind unzulässig.
+- Eine Tabelle garantiert keine Zeilenreihenfolge. Falls Reihenfolge fachlich relevant ist, enthält der Vertrag eine explizite Ordinal- oder Sortierspalte.
+
+## 5. Routing über `@ResultTable`
+
+| Wert | Verhalten |
 |---|---|
-| `DESCRIPTION` | Funktionsbeschreibung |
-| `PARAMETER` | Je Parameter: Name, Typ, technischer Default, fachliche Pflicht (`IsRequired`) |
-| `RESULT_COLUMN` | Resultset-Spalten: Reihenfolge, Name, Typ, Nullability, fachliche Beschreibung |
-| `EXAMPLE` | Mindestens ein vollständiger Beispielaufruf |
+| `@ResultTable IS NULL` | Fachliches Resultset normal mit `SELECT` ausgeben. |
+| lokaler Temp-Tabellenname, z. B. `N'#Result1'` | Resultset in die bereits vorhandene lokale Temp-Tabelle schreiben; kein fachliches `SELECT` ausgeben. |
 
-### Optionale Sections
+Weitere Regeln:
 
-`ERROR`, `PERMISSION`, `LIMITATION`
+- Globale Temp-Tabellen, permanente Tabellen und Tabellenvariablen gehören nicht zu diesem Vertrag.
+- Die USP kennt ihren eigenen Resultset-Vertrag und verwendet eine explizite Spaltenliste.
+- Verschachtelte USPs rufen andere USPs über deren `@ResultTable`-Vertrag auf.
+- Generisches verschachteltes `INSERT ... EXEC` ist nicht Bestandteil der Architektur.
+- Name und Datentyp einer vorhandenen Dummyspalte sind beliebig.
+- Eine leere Tabelle mit abweichendem Schema gilt als zur Anpassung freigegeben.
 
----
-
-## 5. `@KeepData`-Semantik
-
-Für Einfügeoperationen in eine `@ResultTable`:
+## 6. `@KeepData`
 
 | Zustand der Temp-Tabelle | `@KeepData = 0` | `@KeepData = 1` |
 |---|---|---|
-| Leer + passendes Schema | Einfügen | Einfügen |
-| Leer + unpassendes Schema | Schema anpassen, einfügen | Schema anpassen, einfügen |
-| Daten + passendes Schema | Daten ersetzen (Replace-Semantik) | Anfügen (Append-Semantik) |
-| Daten + unpassendes Schema | Daten entfernen, Schema anpassen, einfügen | Abbruch mit verständlicher Meldung |
+| leer, Schema passt | einfügen | einfügen |
+| leer, Schema passt nicht | Schema anpassen, einfügen | Schema anpassen, einfügen |
+| enthält Daten, Schema passt | vorhandene Daten ersetzen | Ergebnis anhängen |
+| enthält Daten, Schema passt nicht | Daten entfernen, Schema anpassen, einfügen | mit verständlichem Fehler abbrechen |
 
 `@KeepData = 0` ist ausdrücklich Replace-Semantik.
 
-**Bei passendem Schema:** Indizes und Constraints dürfen bestehen bleiben; sie gehören nicht zum Resultvertrag. Falls ein Index oder Constraint den Insert verhindert, ist der tatsächliche Fehler sauber weiterzugeben.
+### Passendes Schema
 
-**Bei nötigem Schemaumbau mit blockierendem Index, Constraint, Computed Column oder anderer Dependency:**
+- Vorhandene Indizes und Constraints dürfen bestehen bleiben.
+- Sie gehören nicht zum Resultset-Vertrag und werden nicht allein deshalb geprüft oder entfernt.
+- Verhindert ein Index oder Constraint den Insert, wird der tatsächliche Fehler mit angemessenem Kontext weitergegeben.
+
+### Notwendiger Schemaumbau
+
 - Vollständiger Preflight vor der ersten Mutation.
-- Vor erster Mutation abbrechen; nichts automatisch entfernen; keine Daten vorzeitig löschen.
-- Fehlermeldung nennt das blockierende Objekt und die benötigte Änderung.
+- Blockiert ein Index, Constraint, eine computed column oder eine andere Dependency die Änderung, erfolgt Abbruch.
+- Keine blockierende Dependency wird automatisch entfernt.
+- Daten werden nicht vorzeitig gelöscht.
+- Die Fehlermeldung nennt Zieltable, blockierendes Objekt und notwendige Änderung.
 
----
+## 7. Debug
 
-## 6. Debug-Verhalten (`@Debug`)
+| Wert | Grundbedeutung |
+|---:|---|
+| `0` | keine Debug-Ausgabe |
+| `1` | wesentliche Verarbeitungsschritte |
+| `2` | Entscheidungen, ermittelte Objekte und Zeilenzahlen |
+| `3` | Detailmetadaten und generiertes dynamisches SQL |
+| `4` bis `254` | für modulbezogene Stufen reserviert |
+| `255` | maximaler interner Trace; kein stabiler öffentlicher Detailvertrag |
 
-| Wert | Ausgabe |
-|---|---|
-| 0 | Keine Ausgabe |
-| 1 | Hauptschritte |
-| 2 | Entscheidungen, Objekte, Zeilenzahlen |
-| 3 | Detailmetadaten, generiertes SQL |
-| > 3 | Reserviert |
+Debug verwendet Messages, nicht `SELECT`-Resultsets. Vertrauliche Runtime-Werte dürfen diagnostisch erscheinen; echte Secrets werden nicht aktiv ausgegeben. Fehler werden mit `THROW` signalisiert; Debug-Messages ersetzen kein Error Handling.
 
-Nur RAISERROR/PRINT-Messages; keine Resultsets. Echte Secrets (Passwörter, Tokens, API-Keys, private Schlüssel) dürfen nie ausgegeben werden.
+## 8. Error Handling
 
----
+- Parameter und fachliche Voraussetzungen einmalig an geeigneten Grenzen prüfen.
+- `TRY/CATCH` verwenden, wenn Transaktionen, Cleanup, dynamisches SQL oder gekoppelte Mutationen dies erfordern.
+- Originalfehler und Cleanup-Fehler nicht verschleiern.
+- Kein zeilenweises oder nach jedem Einzelstatement wiederholtes Error Handling ohne fachlichen Nutzen.
+- Inline TVFs werden nicht wegen eines allgemeinen Error-Handling-Wunsches in Multi-statement TVFs umgebaut.
 
-## 7. Implementierungshinweis
+## 9. Pflicht-Contract-Tests
 
-Dieser Vertrag wird in diesem PR ausschließlich dokumentiert, nicht implementiert.
+Für jede Toolbelt-USP mindestens:
+
+1. Parameternamen, Datentypen, technische Defaults und Reihenfolge;
+2. reiner `@Hilfe = 1`-Aufruf ohne fachliche Pflichtparameter;
+3. stabile Help-Resultset-Struktur;
+4. Pflicht-Sections `DESCRIPTION`, `PARAMETER`, `RESULT_COLUMN` und `EXAMPLE`;
+5. für USPs ohne fachliches Resultset ein expliziter deklarativer `RESULT_COLUMN`-Eintrag;
+6. Help-Modus führt keine fachliche Funktion und keine Seiteneffekte aus;
+7. Help-Modus ignoriert `@Debug` und erzeugt keine Debug-Messages;
+8. Debug-Ausgabe ausschließlich als Messages;
+9. Fehlersemantik und Transaktionszustand.
+
+Für jede USP mit fachlichem tabellarischem Resultset zusätzlich:
+
+1. Help-Modus ignoriert `@ResultTable` und `@KeepData` und verändert keine Tabelle;
+2. `@ResultTable IS NULL` gibt genau ein fachliches Resultset aus;
+3. gesetzte `@ResultTable` gibt kein fachliches `SELECT` aus;
+4. beliebiger Dummyspaltenname und beliebiger Dummyspaltentyp;
+5. alle vier `@KeepData`-Konstellationen;
+6. passendes Schema mit zusätzlichen nicht blockierenden Indizes;
+7. blockierende Dependency führt vor der ersten Mutation zum Fehler;
+8. verschachtelter USP-Aufruf über `@ResultTable` ohne `INSERT ... EXEC`;
+9. Collation- und Datentypvertrag des Resultsets.

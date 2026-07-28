@@ -1,22 +1,21 @@
 name: Funktionskandidat
-description: Vorschlag für eine neue Toolbelt-Funktion oder einen Backlog-Kandidaten
+description: Vorschlag für eine Toolbelt-Funktion oder einen geprüften Backlog-Kandidaten
 title: "[Kandidat] "
 labels: ["kandidat", "backlog"]
 body:
   - type: markdown
     attributes:
       value: |
-        Vorschlag für einen neuen Backlog-Kandidaten. Bitte ausschließlich synthetische Beispieldaten verwenden. Keine realen Infrastruktur-, Log- oder Secret-Informationen.
+        Verwende ausschließlich synthetische oder öffentliche Informationen. Keine realen Personen-, Firmen-, Kunden-, Infrastruktur-, Runtime- oder Secret-Daten.
 
   - type: dropdown
     id: ziel_repo
     attributes:
       label: Ziel-Repository
-      description: In welches Repository gehört dieser Kandidat?
       options:
-        - SQL_Server_Toolbelt (wiederverwendbare Funktion)
-        - SQL_Server_Analyze (Analyse/Diagnose/Security)
-        - MAN_KANN_ES_AUCH_UEBERTREIBEN (theoretisch/akademisch)
+        - SQL_Server_Toolbelt
+        - SQL_Server_Analyze
+        - Man kann es auch übertreiben
     validations:
       required: true
 
@@ -34,6 +33,7 @@ body:
         - Metadata
         - Security
         - Core
+        - Analyse
         - Sonstige
     validations:
       required: true
@@ -42,7 +42,7 @@ body:
     id: luecke
     attributes:
       label: SQL-Server-Lücke
-      description: Was fehlt in SQL Server oder ist nur mit wiederkehrendem Boilerplate möglich?
+      description: Was fehlt ab SQL Server 2019 oder ist nur mit wiederkehrender Implementierung möglich?
     validations:
       required: true
 
@@ -53,8 +53,8 @@ body:
       options:
         - label: SQL Server 2019
         - label: SQL Server 2022
-        - label: Beide
-        - label: Andere (in Beschreibung angeben)
+        - label: SQL Server 2025
+        - label: spätere oder andere Version
 
   - type: dropdown
     id: native_later
@@ -62,7 +62,7 @@ body:
       label: Spätere native Funktion bekannt?
       options:
         - "Nein"
-        - "Ja (Version in Beschreibung angeben)"
+        - "Ja – Version und Quelle unten angeben"
         - "Unklar"
     validations:
       required: true
@@ -71,30 +71,36 @@ body:
     id: nutzen
     attributes:
       label: Nutzen und Use Case
-      description: Realistischer oder theoretischer Use Case; Mehrwert gegenüber Status quo.
+      description: Realistischer oder theoretischer Use Case und Mehrwert gegenüber dem Status quo.
     validations:
       required: true
 
   - type: textarea
-    id: primärquelle
+    id: evidence
     attributes:
-      label: Primärquelle
-      description: Link zur Microsoft-Dokumentation, offiziellen Release Notes oder anderen Primärquellen.
-
-  - type: dropdown
-    id: use_case_typ
-    attributes:
-      label: Use-Case-Typ
-      options:
-        - Realistisch (produktiver Einsatz wahrscheinlich)
-        - Theoretisch (akademisch oder experimentell)
+      label: Fakten, Vermutungen und offene Fragen
+      description: Dokumentierte Fakten und noch ungeprüfte Aussagen getrennt aufführen.
     validations:
       required: true
+
+  - type: textarea
+    id: duplikatpruefung
+    attributes:
+      label: Duplikatprüfung
+      description: Geprüfte Backlog-Listen und bei Analyze-Kandidaten das geprüfte Ziel-Repository.
+    validations:
+      required: true
+
+  - type: textarea
+    id: primaerquelle
+    attributes:
+      label: Primärquelle
+      description: Microsoft-Dokumentation, offizielle Release Notes oder andere belastbare Primärquelle.
 
   - type: checkboxes
     id: datenschutz
     attributes:
       label: Datenschutzbestätigung
       options:
-        - label: Dieser Issue enthält keine personenbezogenen Daten, keine realen Infrastrukturangaben, keine Secrets.
+        - label: Dieser Issue enthält keine personenbezogenen, internen Firmen-, Kunden-, Infrastruktur-, Runtime- oder Secret-Daten.
           required: true

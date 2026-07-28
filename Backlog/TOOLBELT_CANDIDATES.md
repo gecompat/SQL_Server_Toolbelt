@@ -1,55 +1,51 @@
 # Toolbelt-Kandidaten
 
-Kandidaten für wiederverwendbare Funktionen in `gecompat/SQL_Server_Toolbelt`.
-
-Ein Eintrag hier ist **keine Implementierungszusage**. Nur priorisierte Kandidaten werden als Arbeitspakete in `.ai/BACKLOG.md` übernommen.
+Kandidaten für wiederverwendbare Funktionen in `gecompat/SQL_Server_Toolbelt`. Ein Eintrag ist keine Implementierungszusage.
 
 Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
-
----
 
 ## TC-2026-001: String-Split mit mehreren Trennzeichen
 
 | Feld | Wert |
 |---|---|
-| **ID** | TC-2026-001 |
+| **ID** | `TC-2026-001` |
 | **Titel** | String-Split mit mehreren Trennzeichen |
-| **Ziel-Repo** | `SQL_Server_Toolbelt` |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
 | **Kategorie** | String |
-| **SQL-Server-Lücke** | `STRING_SPLIT` (SQL Server 2016+) unterstützt nur ein einzelnes Trennzeichen. Ordinal-Unterstützung erst ab SQL Server 2022 (Kompatibilitätslevel 130+). Keine native Unterstützung für mehrere Trennzeichen. |
-| **Betroffene Versionen** | SQL Server 2019, 2022 |
-| **Spätere native Funktion** | Unklar |
+| **SQL-Server-Lücke** | `STRING_SPLIT` verarbeitet ein einzelnes Separatorzeichen; ein allgemeiner Multi-Separator-Vertrag fehlt. Ordinal-Unterstützung ist versionsabhängig. |
+| **Betroffene Versionen** | SQL Server 2019, 2022, 2025 |
+| **Spätere native Funktion** | Unklar; vor Umsetzung erneut gegen die aktuelle Version prüfen. |
 | **Use-Case-Typ** | Realistisch |
-| **Nutzen** | Einheitliche Split-Funktion mit Ordinal und optionalem Multi-Separator-Support als TVF. |
-| **Mögliche Technologie** | T-SQL (Inline TVF bevorzugt) |
-| **Performance / Security** | Inline TVF ist parallelitätsfähig; Multi-statement TVF nicht. Keine Security-Risiken. |
-| **Plattformgrenzen** | Windows und Linux; keine Azure-Einschränkung bekannt |
-| **Dependencies** | keine |
+| **Nutzen** | Einheitlicher Split-Vertrag mit Reihenfolge und optional mehreren Separatoren. |
+| **Mögliche Technologie** | T-SQL; Inline TVF bevorzugt, falls der Vertrag set-basiert und optimizer-sichtbar umsetzbar ist. |
+| **Performance und Security** | Planung: Inline-Ansatz und alternative native Funktionen benchmarken. Keine offensichtliche Secret- oder Berechtigungsanforderung; abschließende Security-Prüfung offen. |
+| **Plattformgrenzen** | Windows und Linux voraussichtlich gleich; Azure nicht geprüft. |
+| **Dependencies** | keine bekannt |
+| **Duplikatprüfung** | Toolbelt-Backlogs geprüft; native SQL-Server-Funktionen vor Arbeitspaket erneut prüfen. |
 | **Status** | `proposed` |
-| **Primärquellen** | [STRING_SPLIT (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/string-split-transact-sql) |
-| **Prüfdatum** | 2026-07-28 |
-| **Nächster Schritt** | Arbeitspaket erstellen und priorisieren |
+| **Primärquellen** | https://learn.microsoft.com/sql/t-sql/functions/string-split-transact-sql |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Semantik für mehrere Separatoren, leere Tokens, Ordinal und Collation recherchieren; erst danach priorisieren. |
 
----
-
-## TC-2026-002: Datumsdifferenz in vollständigen Zeiteinheiten (Jahr/Monat/Tag)
+## TC-2026-002: Kalendarische Differenz in vollständigen Einheiten
 
 | Feld | Wert |
 |---|---|
-| **ID** | TC-2026-002 |
-| **Titel** | Datumsdifferenz in vollständigen Zeiteinheiten |
-| **Ziel-Repo** | `SQL_Server_Toolbelt` |
+| **ID** | `TC-2026-002` |
+| **Titel** | Kalendarische Differenz in vollständigen Jahren, Monaten und Tagen |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
 | **Kategorie** | Datetime |
-| **SQL-Server-Lücke** | `DATEDIFF` gibt keine vollständig korrekten kalendarischen Differenzen (z. B. für Alter in Jahren unter Berücksichtigung von Schaltjahren). |
-| **Betroffene Versionen** | SQL Server 2019, 2022 |
-| **Spätere native Funktion** | Nein |
+| **SQL-Server-Lücke** | `DATEDIFF` zählt Boundary-Übergänge und liefert keinen vollständigen fachlichen Kalenderperiodenvertrag. |
+| **Betroffene Versionen** | SQL Server 2019, 2022, 2025 |
+| **Spätere native Funktion** | Nach aktuellem Stand keine allgemeine vollständige Kalenderperiodenfunktion; vor Umsetzung erneut prüfen. |
 | **Use-Case-Typ** | Realistisch |
-| **Nutzen** | Korrekte Alters- und Periodenberechnungen ohne Boilerplate. |
-| **Mögliche Technologie** | T-SQL (Inline TVF oder SVF) |
-| **Performance / Security** | Keine nennenswerten Performance-Risiken bei einzelnen Werten. |
-| **Plattformgrenzen** | Keine |
-| **Dependencies** | keine |
+| **Nutzen** | Wiederverwendbare Alters- und Periodenberechnung mit dokumentierten Regeln für Monatsende und Schaltjahre. |
+| **Mögliche Technologie** | T-SQL; Inline TVF oder Scalar Function nach Performance- und Vertragsvergleich. |
+| **Performance und Security** | Performance für mengenorientierte Aufrufe offen; keine offensichtlichen besonderen Berechtigungen. |
+| **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz; Azure nicht geprüft. |
+| **Dependencies** | keine bekannt |
+| **Duplikatprüfung** | Toolbelt-Backlogs geprüft; SQL-Server-2025+-Funktionen vor Arbeitspaket erneut prüfen. |
 | **Status** | `proposed` |
-| **Primärquellen** | [DATEDIFF (Transact-SQL)](https://learn.microsoft.com/en-us/sql/t-sql/functions/datediff-transact-sql) |
-| **Prüfdatum** | 2026-07-28 |
-| **Nächster Schritt** | Arbeitspaket erstellen und priorisieren |
+| **Primärquellen** | https://learn.microsoft.com/sql/t-sql/functions/datediff-transact-sql |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Fachliche Semantik und Randwertmatrix definieren, anschließend Implementierungsvarianten benchmarken. |

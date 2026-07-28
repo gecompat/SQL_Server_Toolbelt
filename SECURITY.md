@@ -1,31 +1,34 @@
 # Sicherheitsrichtlinie – SQL Server Toolbelt
 
-## Unterstützte Versionen
+## Unterstützter Stand
 
-Dieses Repository befindet sich in der Initialisierungsphase. Es sind noch keine fachlichen Module implementiert. Sicherheitsmeldungen für den Grundaufbau (Struktur, Regeln, Dokumentation) werden bewertet.
+Der Repository-Grundaufbau ist initialisiert. Es sind noch keine fachlichen Module veröffentlicht. Sicherheitsmeldungen zum Grundaufbau, zu Regeln, Templates und später zu implementierten Modulen werden bewertet.
 
 ## Sicherheitslücken melden
 
-**Bitte keine öffentlichen Issues für Sicherheitslücken öffnen.**
+**Keine öffentlichen Issues für Sicherheitslücken öffnen.**
 
-Sicherheitslücken ausschließlich über die privaten Sicherheitskanäle von GitHub melden:  
-Einstellungen → Security → Report a vulnerability
+Verwende den privaten GitHub-Kanal des Repositorys:
 
-Meldung sollte enthalten:
-- Betroffene Komponente und Version
-- Reproduzierbare synthetische Beschreibung (keine Produktionsdaten, keine Secrets, keine realen Infrastrukturangaben)
-- Mögliche Auswirkungen
+`Settings` → `Security` → `Report a vulnerability`
 
-## Datenschutz-Hinweis
+Eine Meldung soll enthalten:
 
-Bitte keine personenbezogenen Daten, realen Infrastruktur-, Log- oder Secret-Informationen in Sicherheitsmeldungen oder Issues einfügen. Ausschließlich synthetische Beispieldaten verwenden.
+- betroffene Komponente und Version;
+- reproduzierbare synthetische Beschreibung;
+- erwartete und beobachtete Auswirkungen;
+- keine Produktionsdaten, realen Infrastrukturangaben oder Secrets.
 
-## Erwartete Reaktionszeit
+## Datenschutz
 
-Meldungen werden so bald wie möglich bewertet. Keine Reaktionszeitgarantie wird gegeben.
+Sicherheitsmeldungen dürfen keine personenbezogenen Daten, realen Kunden- oder Firmendaten, produktiven Logs, realen Execution Plans oder Secrets enthalten. Verwende synthetische Beispiele.
+
+## Reaktionszeit
+
+Meldungen werden so bald wie möglich bewertet. Es besteht keine garantierte Reaktionszeit.
 
 ## Geltende Regeln
 
-Details zu Datenschutz- und Sicherheitsanforderungen für Code und Beiträge:
-- [DATA_PRIVACY_AND_CONFIDENTIALITY.md](./Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md)
-- [CLR_SECURITY_AND_PORTABILITY.md](./Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md)
+- [Datenschutz und Vertraulichkeit](./Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md)
+- [CLR-Sicherheit und Portabilität](./Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md)
+- [Drittanbieter- und Quellenrichtlinie](./Documentation/Standards/THIRD_PARTY_AND_SOURCE_POLICY.md)

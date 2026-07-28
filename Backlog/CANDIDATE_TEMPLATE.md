@@ -1,27 +1,28 @@
 # Kandidaten-Vorlage
 
-Vorlage für neue Einträge in allen drei Backlog-Listen.
-
----
+Verwende diese Vorlage für alle drei Kandidatenlisten.
 
 ## TC-YYYY-NNN / AC-YYYY-NNN / UE-YYYY-NNN: {{Titel}}
 
 | Feld | Wert |
 |---|---|
-| **ID** | TC-YYYY-NNN (oder AC- / UE-) |
+| **ID** | `TC-YYYY-NNN`, `AC-YYYY-NNN` oder `UE-YYYY-NNN` |
 | **Titel** | {{Kurzer beschreibender Name}} |
-| **Ziel-Repo** | `SQL_Server_Toolbelt` / `SQL_Server_Analyze` / Theoretisch |
+| **Ziel-Repository** | `SQL_Server_Toolbelt`, `SQL_Server_Analyze` oder Übertreibungs-Liste |
 | **Kategorie** | {{String / Datetime / Conversion / Validation / JSON / XML / Metadata / Security / Core / Analyse / Sonstige}} |
-| **SQL-Server-Lücke** | {{Was fehlt in SQL Server ab 2019 oder ist versionsabhängig}} |
-| **Betroffene Versionen** | {{SQL Server 2019, 2022, beide, andere}} |
-| **Spätere native Funktion** | {{Ja (Version: X) / Nein / Unklar}} |
+| **SQL-Server-Lücke** | {{Was fehlt ab SQL Server 2019 oder ist versionsabhängig?}} |
+| **Betroffene Versionen** | {{SQL Server 2019, 2022, 2025, spätere Versionen}} |
+| **Spätere native Funktion** | {{Ja mit Version / Nein / Unklar}} |
 | **Use-Case-Typ** | {{Realistisch / Theoretisch}} |
-| **Nutzen** | {{Beschreibung des Mehrwerts}} |
-| **Mögliche Technologie** | {{T-SQL / CLR / Python / R / Java}} |
-| **Performance / Security** | {{Bekannte Überlegungen}} |
-| **Plattformgrenzen** | {{Windows, Linux, Azure-Einschränkungen}} |
-| **Dependencies** | {{Andere Module oder externe Abhängigkeiten}} |
+| **Nutzen** | {{Mehrwert oder akademischer Zweck}} |
+| **Mögliche Technologie** | {{T-SQL / SQL CLR / C# / Python / R / Java / extern}} |
+| **Performance und Security** | {{Dokumentierte Erkenntnisse, Vermutungen und offene Prüfungen getrennt}} |
+| **Plattformgrenzen** | {{Windows / Linux / Azure; ungeprüft ausdrücklich kennzeichnen}} |
+| **Dependencies** | {{Module oder externe Voraussetzungen}} |
+| **Duplikatprüfung** | {{Geprüfte Listen und gegebenenfalls Ziel-Repository}} |
 | **Status** | `proposed` |
-| **Primärquellen** | {{Links zu Microsoft-Dokumentation, Release Notes, usw.}} |
+| **Primärquellen** | {{Belastbare Links oder Referenzen}} |
 | **Prüfdatum** | {{YYYY-MM-DD}} |
-| **Nächster Schritt** | {{Konkreter nächster ausführbarer Schritt}} |
+| **Nächster Schritt** | {{Konkret ausführbare nächste Aktion}} |
+
+Ein Kandidat ist keine Implementierungszusage. Nicht belegte Aussagen werden als Vermutung oder offen gekennzeichnet.

@@ -1,26 +1,21 @@
 # GitHub Copilot Instructions
 
-Diese Datei ist eine **Brücke** zu den autoritativen Steuerungsdateien. Sie enthält keine Regelkopien.
+Diese Datei ist eine kurze Brücke zu den autoritativen Projektregeln und dupliziert sie nicht.
 
-## Autoritative Quellen
+## Vor jeder Arbeit lesen
 
-Lies vor jeder Arbeit in dieser Reihenfolge:
+1. [`AGENTS.md`](../AGENTS.md)
+2. [`.ai/PROJECT_RULES.md`](../.ai/PROJECT_RULES.md)
+3. [`.ai/WORKING_RULES.md`](../.ai/WORKING_RULES.md)
+4. [`.ai/PROJECT_CONTEXT.md`](../.ai/PROJECT_CONTEXT.md)
+5. relevante Dateien unter [`Documentation/Standards/`](../Documentation/Standards/) und [`Documentation/Architecture/`](../Documentation/Architecture/)
 
-1. [`AGENTS.md`](../AGENTS.md) – Einstieg, Regelpriorität, Stop-Gates
-2. [`.ai/PROJECT_RULES.md`](../.ai/PROJECT_RULES.md) – Architektur-, Coding-, Datenschutzregeln
-3. [`.ai/WORKING_RULES.md`](../.ai/WORKING_RULES.md) – Preflight, Branch, PR, Abschluss
-4. [`.ai/PROJECT_CONTEXT.md`](../.ai/PROJECT_CONTEXT.md) – Scope, Non-Goals, Grenzen
-5. [`Documentation/Standards/USP_CONTRACT.md`](../Documentation/Standards/USP_CONTRACT.md) – USP-Vertrag
-6. [`Documentation/Architecture/DECISIONS.md`](../Documentation/Architecture/DECISIONS.md) – Entscheidungen
+## Verbindliche Kurzregeln
 
-## Commit-Regel
+- Vor jeder Dateiänderung Datenschutz- und Secret-Stop-Gate aus `AGENTS.md` prüfen.
+- Kein fachliches SQL-Objekt ohne freigegebenes Arbeitspaket oder ausdrücklichen unmittelbaren Benutzerauftrag.
+- KI-generierte Commit Messages beginnen mit dem tatsächlichen KI-Namen; dies gilt auch für Plan- und Zwischencommits.
+- Öffentliche Verträge nur gemeinsam mit Dokumentation und Tests ändern.
+- Lizenzdatei und geschützten README-Lizenzblock nicht ohne ausdrücklichen Auftrag verändern.
 
-KI-generierte Commits beginnen mit `GitHub Copilot: <Beschreibung>`.
-
-## Datenschutz-Stop-Gate
-
-Vor jeder Dateiänderung: Datenschutz-Stop-Gate aus `AGENTS.md` prüfen. Im Zweifel stoppen.
-
-## Implementierungsverbot
-
-Kein fachliches SQL-Objekt ohne freigegebenes Arbeitspaket in `.ai/BACKLOG.md`.
+Für Backlog-Recherche steht das Custom-Agent-Profil [backlog-curator.agent.md](./agents/backlog-curator.agent.md) zur Verfügung.

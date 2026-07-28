@@ -1,0 +1,25 @@
+-- ============================================================================
+-- NICHT AUSFÜHRBAR – Scalar-valued-Function-Vorlage
+-- ============================================================================
+-- Objekt:          {{SchemaName}}.SVF_{{ObjectName}}
+-- Zweck:           {{Fachlicher Zweck}}
+-- Parameter:       {{Parameter und Typen}}
+-- Rückgabewert:    {{Datentyp und Semantik}}
+-- Dependencies:    {{Module oder Objekte}}
+-- Versionen:       {{SQL Server 2019/2022/2025}}
+-- Performance:     {{Inlining, Aufrufhäufigkeit und Konvertierungen}}
+-- Collation:       {{Caller oder invariant semantics}}
+-- Einschränkungen: {{Bekannte Grenzen}}
+-- ============================================================================
+
+CREATE OR ALTER FUNCTION {{SchemaName}}.SVF_{{ObjectName}}
+(
+    {{ParameterDefinitionen}}
+)
+RETURNS {{ReturnType}}
+AS
+BEGIN
+    -- Prüfe vor Verwendung einer Scalar UDF, ob eine Inline TVF oder ein
+    -- set-basierter Ausdruck den Aufruf im Abfrageplan besser abbildet.
+    RETURN {{ReturnExpression}};
+END;

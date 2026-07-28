@@ -1,14 +1,12 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
-Nur priorisierte Kandidaten aus den Backlog-Listen werden hier als konkrete Arbeitspakete geführt. Ein Eintrag hier ist noch keine Implementierungszusage; er wird erst mit Benutzerfreigabe aktiv.
+Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-## Arbeitspakete
+## Aktive Arbeitspakete
 
-Aktuell keine aktiven Arbeitspakete. Phase 0 (Repository-Grundaufbau) ist das laufende Vorhaben.
+Aktuell keine aktiven Arbeitspakete. Repository-Grundaufbau und Foundation-Korrektur sind abgeschlossen; fachliche Module wurden noch nicht freigegeben.
 
----
-
-## Vorlage für Arbeitspakete
+## Vorlage
 
 ```markdown
 ### AP-YYYY-NNN: <Titel>
@@ -16,20 +14,18 @@ Aktuell keine aktiven Arbeitspakete. Phase 0 (Repository-Grundaufbau) ist das la
 | Feld | Wert |
 |---|---|
 | ID | AP-YYYY-NNN |
-| Ziel | <Kurzbeschreibung des Ziels> |
-| Scope | <Betroffene Module, Schemas, Objekte> |
-| Dependencies | <Abhängige APs oder Module> |
-| Priorität | <hoch / mittel / niedrig> |
-| Status | <proposed / researched / planned / implemented / validated / ...> |
-| Akzeptanzkriterien | <Messbare Bedingungen für Done> |
-| Tests | <Welche Tests sind erforderlich und auf welchen Plattformen> |
+| Ziel | <Messbares Ziel> |
+| Scope | <Betroffene Module, Schemas und Objekte> |
+| Dependencies | <Arbeitspakete, Module oder externe Voraussetzungen> |
+| Priorität | <P0 / P1 / P2 / P3> |
+| Status | <proposed / researched / planned / implemented / validated / blocked / rejected> |
+| Akzeptanzkriterien | <Überprüfbare Done-Bedingungen> |
+| Tests | <Statische, Contract-, Runtime- und Plattformtests> |
 | Blocker | <Bekannte Blocker> |
-| Evidenz | <Links zu Commits, PRs, Testergebnissen> |
-| Nächster Schritt | <Konkreter nächster ausführbarer Schritt> |
+| Evidenz | <Commits, Pull Requests, Befehle, Workflows oder Testergebnisse> |
+| Nächster Schritt | <Konkret ausführbare nächste Aktion> |
 ```
 
----
+## Wiederaufnahme
 
-## Hinweis zu Chat-Gesprächen
-
-Ein Chat allein ist keine dauerhafte Source of Truth. Entscheidungen und Fortschritt müssen in diese Datei oder `Documentation/Architecture/DECISIONS.md` übernommen werden.
+Ein Chat allein ist keine dauerhafte Source of Truth. Entscheidungen, Prioritäten, Fortschritt und Blocker müssen in dieser Datei oder in `Documentation/Architecture/DECISIONS.md` nachvollziehbar festgehalten werden.

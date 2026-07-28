@@ -1,0 +1,30 @@
+-- ============================================================================
+-- NICHT AUSFÜHRBAR – Vorlage für eine Infrastruktur-USP ohne eigenes Resultset
+-- Alle Platzhalter ersetzen und Vertrag, Dokumentation sowie Tests anpassen.
+-- ============================================================================
+-- Objekt:          {{SchemaName}}.USP_{{ObjectName}}
+-- Zweck:           {{Infrastruktureller Zweck}}
+-- Dependencies:    {{Module oder Objekte}}
+-- Rechte:          {{Erforderliche Berechtigungen}}
+-- Versionen:       {{SQL Server 2019/2022/2025}}
+-- Plattformen:     {{Windows/Linux/Provider}}
+-- Fehlerverhalten: {{THROW-Codes und Transaktionsverhalten}}
+-- Performance:     {{Relevante Kosten}}
+-- Einschränkungen: {{Bekannte Grenzen}}
+-- ============================================================================
+
+CREATE OR ALTER PROCEDURE {{SchemaName}}.USP_{{ObjectName}}
+    {{FachlicheParameterMitTechnischenDefaultsUndAbschliessendemKomma}}
+    @Debug tinyint = 0,
+    @Hilfe bit     = 0
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Eine zu bearbeitende Tabelle erhält einen fachlich eindeutigen Parameter
+    -- wie @ResultTableToAlter. @ResultTable wird nicht als Output-Routing
+    -- vorgetäuscht, wenn die USP kein eigenes fachliches Resultset besitzt.
+    {{HelpImplementierung}}
+    {{ParameterValidierung}}
+    {{InfrastrukturImplementierung}}
+END;

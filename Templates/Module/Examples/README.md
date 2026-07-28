@@ -1,26 +1,35 @@
 # Beispiele – {{ModuleName}}
 
-Alle Beispiele verwenden ausschließlich synthetische Daten.
+Alle Beispiele verwenden ausschließlich synthetische Daten und entsprechen der tatsächlichen Implementierung.
 
-## Verwendungsbeispiel
+## Stored Procedure
 
 ```sql
--- Synthetisches Beispiel (nicht ausführbar ohne vollständige Installation)
--- {{Beschreibung des Beispiels}}
-
 EXEC toolbelt_{{category}}.USP_{{ObjectName}}
-    @{{Parameter1}} = {{BeispielWert}},
-    @Hilfe          = 0;
-```
+    @{{Parameter}} = {{SyntheticValue}};
 
-## Hilfe-Aufruf
-
-```sql
--- Help-Resultset abrufen (nicht ausführbar ohne vollständige Installation)
 EXEC toolbelt_{{category}}.USP_{{ObjectName}}
     @Hilfe = 1;
 ```
 
-## Hinweis
+## Table-valued Function
 
-Beispiele sind Vorlagen; vor Ausführung vollständige Installation erforderlich.
+```sql
+SELECT *
+FROM toolbelt_{{category}}.TVF_{{ObjectName}}({{SyntheticArguments}});
+```
+
+## Scalar-valued Function
+
+```sql
+SELECT toolbelt_{{category}}.SVF_{{ObjectName}}({{SyntheticArguments}}) AS ResultValue;
+```
+
+## View
+
+```sql
+SELECT *
+FROM toolbelt_{{category}}.VW_{{ObjectName}};
+```
+
+Entferne nicht zutreffende Abschnitte. Beispiele sind erst nach vollständiger Installation ausführbar.

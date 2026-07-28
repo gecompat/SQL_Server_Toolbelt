@@ -26,52 +26,55 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 
 # SQL Server Toolbelt
 
-[![Status: In Entwicklung – keine fachlichen Module implementiert](https://img.shields.io/badge/Status-In%20Entwicklung-yellow)](./CHANGELOG.md)
+[![Status: Grundaufbau abgeschlossen – keine fachlichen Module](https://img.shields.io/badge/Status-Grundaufbau%20abgeschlossen-yellow)](./CHANGELOG.md)
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
-[![SQL Server: ab 2019](https://img.shields.io/badge/SQL%20Server-ab%202019-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
+[![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
 
 ## Zweck
 
-SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL Server Database Engine ab Version 2019. Sie stellt Funktionen bereit, die SQL Server nicht nativ besitzt, erst in späteren Versionen bietet oder nur mit wiederkehrendem, fehleranfälligem Boilerplate ermöglicht.
+SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL Server Database Engine ab Version 2019. Sie stellt Funktionen bereit, die SQL Server nicht nativ besitzt, erst in späteren Versionen anbietet oder nur mit wiederkehrendem, fehleranfälligem Boilerplate ermöglicht.
 
 ## Scope
 
-- Wiederverwendbare SQL-Server-Objekte (Stored Procedures, Functions, Views), die fehlende oder versionsabhängige Funktionalität kapseln.
+- Wiederverwendbare Stored Procedures, Table-valued Functions, Scalar-valued Functions, Views und bei technischer Notwendigkeit weitere Komponenten.
 - T-SQL ist die bevorzugte Implementierungssprache.
-- C#, SQL CLR, Python, Java oder R sind zulässig, wenn sie technisch besser sind; Performance-, Security-, Deployment-, Plattform- und Wartungsauswirkungen sind dann zu begründen.
-- Lokale Installation in einer Zieldatenbank und zentrale Installation in einer dedizierten Toolbelt-Datenbank sind gleichwertige Modi.
+- C#, SQL CLR, Python, Java oder R sind zulässig, wenn sie fachlich oder technisch besser geeignet sind und die Entscheidung dokumentiert wird.
+- Lokale Installation in einer Zieldatenbank und zentrale Installation in einer dedizierten Toolbelt-Datenbank sind gleichwertige Designziele.
+- Cross-database-Verwendung wird angestrebt, soweit SQL-Server-Verträge und Plattformgrenzen dies zulassen.
 
 ## Non-Goals
 
-- Performance-, Konfigurations-, Diagnose- und Security-Analysen gehören in [`gecompat/SQL_Server_Analyze`](https://github.com/gecompat/SQL_Server_Analyze). Ideen dürfen hier im Backlog erfasst, aber nicht implementiert werden.
-- Azure SQL Database, Azure SQL Managed Instance und andere Azure-Produkte werden nicht automatisch unterstützt; Support wird später pro Modul bewertet.
-- Dieses Repository enthält keine Demo-Datenbanken, keine Produktionsdaten und keine lokalen Laufzeitausgaben.
+- Performance-, Konfigurations-, Diagnose- und Security-Analysen gehören in [`gecompat/SQL_Server_Analyze`](https://github.com/gecompat/SQL_Server_Analyze).
+- Azure SQL Database, Azure SQL Managed Instance und andere Azure-Produkte werden nicht automatisch unterstützt.
+- Das Repository enthält keine Produktionsdaten, Produktionsbackups oder realen Runtime-Ausgaben.
 
 ## Zielgruppe
 
-SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, getestete und dokumentierte Erweiterungsobjekte für SQL Server 2019 und neuer einsetzen möchten.
+SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte und testbare Erweiterungsobjekte einsetzen möchten.
 
 ## Aktueller Status
 
-**Noch keine fachlichen Module implementiert.** Dieses Repository enthält ausschließlich den Grundaufbau: Struktur, Regeln, Architektur, Templates, Backlogs und Dokumentation.
+**Der Repository-Grundaufbau ist abgeschlossen; fachliche Module sind noch nicht implementiert.**
+
+Vorhanden sind Architektur- und Engineering-Standards, der verbindliche USP-Vertrag, Modul- und Dokumentationstemplates sowie getrennte Backlog-Listen.
 
 ## Modulprinzip
 
-- Jedes Modul ist eine eigenständige Lifecycle-, Deployment- und Dokumentationseinheit.
-- Module besitzen versionierte Abhängigkeiten auf andere Module.
-- Jedes Modul liefert Install-, Upgrade- und Uninstall-Skripte.
-- Wiederverwendete Fachlogik existiert genau einmal; Wrapper verwenden die kanonische Implementierung.
-- Schemas folgen dem Muster `toolbelt_<category>` (z. B. `toolbelt_core`, `toolbelt_string`).
+- Ein Modul ist Lifecycle-, Deployment- und Dokumentationseinheit.
+- Module können einzelne zentrale Capabilities oder mehrere zusammengehörige Objekte enthalten.
+- Abhängigkeiten sind versioniert, werden vor der ersten Mutation geprüft und nicht automatisch nachinstalliert.
+- Wiederverwendete Fachlogik existiert genau einmal.
+- Öffentliche Objekte liegen in fachlichen Schemas nach `toolbelt_<category>`.
 
-Details: [Modul- und Deployment-Modell](./Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md)
+Details: [Modul- und Abhängigkeitsmodell](./Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md)
 
 ## Unterstützte SQL-Server-Versionen
 
-SQL Server 2019 und neuer. Windows und Linux (SQL Server on Linux). Ältere Versionen und Azure-Varianten sind kein Ziel; Ausnahmen werden pro Modul dokumentiert.
+Die konkrete Grundmatrix umfasst SQL Server 2019, 2022 und 2025. Windows- und Linux-Support sowie lokale, zentrale und Cross-database-Verwendung werden je Modul getrennt ausgewiesen und validiert.
 
-## T-SQL-First
+## T-SQL-first
 
-T-SQL ist bevorzugt. Alternativen werden nur eingesetzt, wenn sie technisch besser sind, und müssen explizit begründet werden. Details: [TSQL_ENGINEERING.md](./Documentation/Standards/TSQL_ENGINEERING.md)
+T-SQL ist bevorzugt. Alternative Technologien benötigen eine dokumentierte Begründung zu Performance, Security, Deployment, Plattform und Wartung. Details: [T-SQL-Engineering](./Documentation/Standards/TSQL_ENGINEERING.md)
 
 ## Navigation
 

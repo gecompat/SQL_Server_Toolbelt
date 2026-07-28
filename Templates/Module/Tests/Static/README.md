@@ -1,16 +1,19 @@
 # Statische Tests – {{ModuleName}}
 
-Statische Tests prüfen Codequalität, Vertragseinhaltung und Dokumentation ohne SQL-Server-Laufzeit.
+Statische Prüfungen validieren Codequalität, Verträge und Dokumentationskonsistenz ohne SQL-Server-Runtime.
 
 ## Prüfliste
 
-- [ ] Objekt-Header vorhanden und vollständig
-- [ ] Parameternamen und -typen gemäß Vertrag
-- [ ] Standardparameter in korrekter Reihenfolge (`@ResultTable`, `@KeepData`, `@Debug`, `@Hilfe`)
-- [ ] Keine nicht erlaubten Temp-Tabellennamen (`#Temp`, `#Result`, usw.)
-- [ ] Kein personenbezogenes Datum, keine Secrets
-- [ ] Collation-Vertrag dokumentiert
-- [ ] Namenskonventionen eingehalten
+- [ ] Zum Objekttyp passende Source- und Dokumentationsvorlage verwendet.
+- [ ] Objekt-Header vollständig und Kommentare fachlich nützlich.
+- [ ] Namenskonventionen und englische technische Identifier eingehalten.
+- [ ] USP-Standardparameter nur bei USPs und in korrekter Reihenfolge.
+- [ ] Help-Resultset und Resultset-Dokumentation konsistent.
+- [ ] Keine generischen internen Temp-Objektnamen.
+- [ ] Collation- und Datentypvertrag dokumentiert.
+- [ ] Modulmanifest ohne doppelte Sources of Truth.
+- [ ] Keine personenbezogenen Daten, internen Firmendaten, Runtime-Ausgaben oder Secrets.
+- [ ] Alle relativen Links und Lifecycle-Pfade gültig.
 
 ## Status
 

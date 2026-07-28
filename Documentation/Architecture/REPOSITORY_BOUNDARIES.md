@@ -1,36 +1,40 @@
 # Repository-Grenzen
 
-## Dieses Repository
+## SQL Server Toolbelt
 
-`gecompat/SQL_Server_Toolbelt` enthält ausschließlich:
-- Modulare, wiederverwendbare SQL-Server-Objekte (SQL Server 2019+)
-- Zugehörige Dokumentation, Templates, Tests und Backlogs
-- Grundaufbau (Regeln, Architektur, Standards)
+`gecompat/SQL_Server_Toolbelt` enthält:
 
-## Abgrenzung zu SQL_Server_Analyze
+- modulare, wiederverwendbare SQL-Server-Capabilities ab SQL Server 2019;
+- Source, Deployment, Dokumentation, Beispiele und Tests dieser Module;
+- Architektur-, Engineering- und AI-Steuerungsregeln;
+- getrennte Kandidaten-Backlogs.
 
-`gecompat/SQL_Server_Analyze` ist das zuständige Repository für:
-- Performance-Analysen
-- Konfigurations-Analysen
-- Diagnose-Analysen
-- Security Assessments
+## Abgrenzung zu SQL Server Analyze
 
-**Solche Inhalte werden in diesem Repository nicht implementiert.** Ideen dürfen im Backlog `Backlog/SQL_SERVER_ANALYZE_CANDIDATES.md` erfasst werden; dieses Repository ändert `gecompat/SQL_Server_Analyze` nicht.
+`gecompat/SQL_Server_Analyze` ist fachlich zuständig für:
 
-## Keine automatische Azure-Unterstützung
+- Performance- und Wait-Analysen;
+- Konfigurations- und Infrastrukturbeurteilung;
+- Diagnose laufender oder historischer Zustände;
+- Security Assessments und Findings.
 
-Azure SQL Database, Azure SQL Managed Instance und andere Azure-Produkte werden nicht automatisch unterstützt. Support wird später pro Modul bewertet und dokumentiert.
+Solche Inhalte werden nicht im Toolbelt implementiert. Vor Aufnahme eines Analyze-Kandidaten wird das Ziel-Repository nach Möglichkeit lesend auf vorhandene oder gleichwertige Funktionalität geprüft. Das Toolbelt-Repository ändert das Ziel-Repository nicht ohne ausdrücklichen Auftrag.
 
-## Keine Produktionsdaten
+## Azure
 
-Das Repository enthält keine:
-- Produktionsdaten oder -backups
-- Realen Servernamen, Datenbanknamen, Domainnamen oder Pfade
-- Realen Logs, Traces oder Query Plans
-- Personenbezogenen Daten
+Azure SQL Database, Azure SQL Managed Instance und andere Azure-Produkte sind nicht automatisch unterstützt. Jede Capability benötigt eine eigene Prüfung von verfügbaren Features, Berechtigungen, Deployment und Plattformgrenzen.
+
+## Verbotene Repository-Inhalte
+
+- Produktionsdaten oder -backups;
+- reale Personen-, Kunden- oder interne Firmendaten;
+- reale Server-, Datenbank-, Domain-, URL- oder Pfadangaben;
+- reale Logs, Traces, Execution Plans oder Runtime-Evidence;
+- Secrets und private Schlüssel.
 
 ## Cross-Repository-Regeln
 
-- Dieses Repository ändert keine andere Repositories.
-- Andere Repositories ändern dieses Repository nur über den normalen PR-Prozess.
-- Backlog-Kandidaten für andere Repositories werden in den jeweiligen Backlog-Dateien erfasst, ohne Änderungen im Ziel-Repository.
+- Kein anderes Repository ohne ausdrücklichen Auftrag ändern.
+- Fehlende Capability im zuständigen Repository als Gap dokumentieren, nicht stillschweigend dort implementieren.
+- Keine parallele allgemeine Implementierung derselben Capability in mehreren Repositories.
+- Austausch zwischen Repositories erfolgt über dokumentierte öffentliche Verträge oder geprüfte Backlog-Übergabe.

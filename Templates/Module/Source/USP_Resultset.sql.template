@@ -1,0 +1,37 @@
+-- ============================================================================
+-- NICHT AUSFÜHRBAR – Vorlage für eine USP mit fachlichem Resultset
+-- Alle Platzhalter ersetzen und Vertrag, Dokumentation sowie Tests anpassen.
+-- ============================================================================
+-- Objekt:          {{SchemaName}}.USP_{{ObjectName}}
+-- Zweck:           {{Fachlicher Zweck}}
+-- Öffentlicher Vertrag: Documentation/Standards/USP_CONTRACT.md
+-- Dependencies:    {{Module oder Objekte}}
+-- Rechte:          {{Erforderliche Berechtigungen}}
+-- Versionen:       {{SQL Server 2019/2022/2025}}
+-- Plattformen:     {{Windows/Linux/Provider}}
+-- Fehlerverhalten: {{THROW-Codes und Teilfehler}}
+-- Performance:     {{Relevante Kosten und Skalierungsgrenzen}}
+-- Einschränkungen: {{Bekannte Grenzen}}
+-- ============================================================================
+
+CREATE OR ALTER PROCEDURE {{SchemaName}}.USP_{{ObjectName}}
+    {{FachlicheParameterMitTechnischenDefaultsUndAbschliessendemKomma}}
+    @ResultTable sysname = NULL,
+    @KeepData   bit      = 0,
+    @Debug      tinyint  = 0,
+    @Hilfe      bit      = 0
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Der Help-Modus wird vor jeder fachlichen Validierung verarbeitet und darf
+    -- weder Seiteneffekte noch Änderungen an einer ResultTable auslösen.
+    {{HelpImplementierung}}
+
+    -- Fachliche Parameter werden genau einmal an der geeigneten Grenze geprüft.
+    {{ParameterValidierung}}
+
+    -- SELECT und ResultTable verwenden denselben kanonischen Datenkern. Eine
+    -- zweite Fachimplementierung für den alternativen Ausgabeweg ist unzulässig.
+    {{KanonischeImplementierungUndResultRouting}}
+END;

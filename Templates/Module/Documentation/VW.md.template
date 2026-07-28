@@ -1,0 +1,31 @@
+# {{SchemaName}}.VW_{{ObjectName}}
+
+**Typ:** View  
+**Status:** `proposed`
+
+## Zweck
+
+{{Fachliche Beschreibung}}
+
+## Spalten
+
+| Ordinal | Spalte | Typ | Nullable | Beschreibung |
+|---:|---|---|---:|---|
+| 1 | `{{ColumnName}}` | `{{Type}}` | {{ja/nein}} | {{Beschreibung}} |
+
+## Verwendung
+
+```sql
+SELECT *
+FROM {{SchemaName}}.VW_{{ObjectName}};
+```
+
+Die View garantiert keine Reihenfolge ohne `ORDER BY` im konsumierenden SELECT.
+
+## Rechte, Dependencies und Plattformen
+
+{{Beschreibung}}
+
+## Performance, Collation und Einschränkungen
+
+{{Joins, Filter, Collation-Vertrag, bekannte Grenzen und tatsächliche Testmatrix}}

@@ -1,58 +1,47 @@
 # Artefaktrollen – SQL Server Toolbelt
 
-Dieses Dokument definiert verbindlich die Rolle jedes Artefakttyps im Repository.
+Dieses Dokument definiert die Rolle der wesentlichen Repository-Artefakte.
 
-## Öffentliche Artefakte
+## Öffentliche und versionierte Artefakte
 
-Öffentlich sichtbar, versioniert, dauerhaft im Repository:
-
-| Artefakt | Beschreibung | Erlaubter Inhalt |
+| Artefakt | Rolle | Zulässiger Inhalt |
 |---|---|---|
-| `README.md` | Projektübersicht | Beschreibung, Scope, Navigation; kein KI-Metadaten-Link |
-| `LICENSE.md` | Lizenztext | Exakter Lizenztext; geschützt |
-| `AGENTS.md` | KI-Einstieg | Regelpriorität, Stop-Gates |
-| `CONTRIBUTING.md` | Mitwirken | Prozesse, Regeln |
-| `SECURITY.md` | Sicherheitsrichtlinie | Meldewege |
-| `CHANGELOG.md` | Änderungsprotokoll | Versions- und Änderungshistorie |
-| `Documentation/` | Architektur und Standards | Dokumentation, keine Runtime-Ausgaben |
-| `Modules/` | Implementierte Module | SQL-Objekte, Doku, Tests (wenn vorhanden) |
-| `Templates/` | Nicht ausführbare Vorlagen | `.sql.template`-Dateien, README |
-| `Backlog/` | Kandidatenlisten | Backlog-Einträge |
-| `Tests/` | Test-Infrastruktur | Testdokumentation, Testpläne |
+| `README.md` | öffentliche Projektübersicht | Zweck, Scope, Status und Navigation; keine internen AI-Arbeitsdetails |
+| `LICENSE.md` | rechtlich maßgeblicher Lizenztext | geschützter unveränderter Lizenzinhalt |
+| `AGENTS.md` | Einstieg für KI-Systeme | Regelpriorität, Scope und Stop-Gates |
+| `CONTRIBUTING.md` | Contribution-Prozess | Branch-, Pull-Request-, Datenschutz- und Qualitätsregeln |
+| `Documentation/` | Architektur und Standards | kanonische Entscheidungen und Fachregeln |
+| `Modules/` | implementierte Module | Source, Deployment, Dokumentation, Beispiele und Tests |
+| `Templates/` | nicht ausführbare Vorlagen | objekttypspezifische `.sql.template`- und Dokumentationsvorlagen |
+| `Backlog/` | Kandidatenlisten | recherchierte, aber nicht automatisch freigegebene Ideen |
+| `Tests/` | gemeinsame Testinfrastruktur | Testcode, synthetische Fixtures und Richtlinien |
 
-## Interne Artefakte
+## Interne Arbeitsartefakte
 
-KI-Steuerung und Metadaten; öffentlich im Repository, aber nicht in der README beworben:
+Diese Dateien sind öffentlich im Repository sichtbar, werden aber nicht als Benutzerreferenz beworben:
 
-| Artefakt | Beschreibung |
-|---|---|
-| `.ai/` | KI-Arbeitsartefakte: Kontext, Regeln, Roadmap, Backlog |
-| `.github/copilot-instructions.md` | Copilot-Brücke |
-| `.github/agents/` | Agent-Definitionen |
+- `.ai/` – Projektkontext, Regeln, Roadmap, Backlog und Repo-Map;
+- `.github/copilot-instructions.md` – Tool-spezifische Brücke;
+- `.github/agents/*.agent.md` – GitHub-Copilot-Custom-Agent-Profile.
+
+Interne Arbeitsartefakte dürfen keine neue fachliche Wahrheit erzeugen, die nicht in der passenden kanonischen Architektur-, Standard- oder Moduldatei dokumentiert ist.
 
 ## Generierte Artefakte
 
-Werden nicht committet:
+Nicht versionieren:
 
-- `bin/`, `obj/`, `dist/`, `*.dll`, `*.exe`, `*.nupkg`
-- Log-Dateien, temporäre Dateien
+- `bin/`, `obj/`, `dist/`;
+- DLLs, EXEs, NuGet-Pakete und Debug-Symbole;
+- temporäre Dateien und Logs;
+- automatisch erzeugte lokale Konfiguration.
 
 ## Runtime-Artefakte
 
-Niemals committen:
+Reale Query Plans, Execution Logs, Traces, Backups, Exporte und Test-Evidence aus produktiven oder internen Umgebungen werden nicht versioniert. Synthetische Fixtures sind nur in ausdrücklich vorgesehenen Testpfaden zulässig.
 
-- Query Plans, Execution Logs, Traces
-- Test-Evidence mit Produktionsdaten
-- Reale Datenbankbackups oder -exporte
+## Aktualisierungsfluss
 
-## Templates
-
-SQL-Vorlagen haben die Endung `.sql.template` und sind eindeutig als nicht ausführbar gekennzeichnet.
-
-## Verbotener Inhalt
-
-In allen Artefakten verboten:
-- Personenbezogene Daten
-- Reale Infrastrukturnamen (Server, Datenbank, Domain, Pfad)
-- Secrets (Passwörter, Tokens, API-Keys, Connection Strings)
-- Produktionsdaten, reale Logs oder Execution Plans
+- Architekturentscheidungen werden zuerst in `Documentation/Architecture/DECISIONS.md` festgehalten.
+- Öffentliche Verträge werden in Standards und objektspezifischer Dokumentation gepflegt.
+- Implementierung, Help, Beispiele, Tests, Manifest und Changelog werden gekoppelt aktualisiert.
+- Generierte oder abgeleitete Artefakte werden nicht unabhängig als zweite Source of Truth gepflegt.

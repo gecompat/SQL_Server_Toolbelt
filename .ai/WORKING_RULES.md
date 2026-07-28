@@ -1,74 +1,83 @@
 # WORKING_RULES.md – Arbeitsregeln für Entwickler und KI-Systeme
 
-## Preflight-Checkliste (vor jeder Arbeit)
+## Preflight vor jeder Änderung
 
-Vor der ersten Mutation einer Datei, einem Commit oder einem PR:
+1. Scope und Schreibziel bestimmen.
+2. Freigegebenes Arbeitspaket oder ausdrücklichen unmittelbaren Benutzerauftrag feststellen.
+3. `AGENTS.md`, `.ai/PROJECT_RULES.md`, `.ai/WORKING_RULES.md`, relevanten Kontext, Standards und Entscheidungen lesen.
+4. Abhängigkeiten und parallele Arbeiten prüfen.
+5. Datenschutz- und Secret-Stop-Gate durchführen.
+6. Neue Anforderungen auf Regelkonflikte prüfen.
 
-1. Ist der Scope klar abgegrenzt und im Arbeitspaket definiert?
-2. Gibt es ein freigegebenes Arbeitspaket in `.ai/BACKLOG.md`?
-3. Sind alle Abhängigkeiten erfüllt?
-4. Wurden alle autoritativen Dateien gelesen (AGENTS.md, PROJECT_RULES.md, WORKING_RULES.md)?
-5. Ist das Datenschutz-Stop-Gate geprüft?
-6. Wurden bestehende Regeln auf Konflikte geprüft?
+Ein unmittelbarer Benutzerauftrag gilt als Freigabe. Er muss vor dem Merge im Pull Request, Backlog oder Entscheidungsprotokoll nachvollziehbar dokumentiert sein.
 
 ## Konfliktprüfung
 
-Neue Regeln, Dateinamen, Schemas oder Objektnamen zuerst gegen folgende Quellen prüfen:
-- README, AGENTS.md, CONTRIBUTING.md
-- `.ai/PROJECT_RULES.md`, `.ai/PROJECT_CONTEXT.md`
-- `Documentation/Architecture/DECISIONS.md`
-- `Documentation/Standards/`
+Neue Regeln, Dateinamen, Schemas, Objektnamen und Verträge gegen folgende Quellen prüfen:
 
-Keine konkurrierenden oder doppelten Regeln anlegen. Unlösbare Konflikte dokumentieren, nichts ändern, Benutzer informieren.
+- README, `AGENTS.md`, `CONTRIBUTING.md`;
+- `.ai/PROJECT_RULES.md`, `.ai/PROJECT_CONTEXT.md`;
+- `Documentation/Architecture/DECISIONS.md`;
+- `Documentation/Standards/`.
+
+Keine konkurrierenden oder doppelten Regeln anlegen. Unlösbare Konflikte dokumentieren, nichts ändern und den Benutzer informieren.
 
 ## Kleinste sinnvolle Änderung
 
-- Minimaler Scope pro Branch/PR.
-- Unabhängige Änderungen nicht in einem PR zusammenfassen.
-- Keine spekulativen Änderungen oder Vorgriffe auf nicht freigegebene Arbeitspakete.
+- Ein Branch und ein Pull Request behandeln einen fachlich kohärenten Scope.
+- Keine unabhängigen Bereinigungen, Übersetzungen oder Formatierungsänderungen beimischen.
+- Große Vorhaben in überprüfbare Wellen mit eigenen Akzeptanzkriterien zerlegen.
 
 ## Gekoppelte Pflege
 
-Code-, Dokumentations- und Teständerungen gehören zusammen in einen PR:
-- Implementierung, Doku, Tests, Backlog- und Status-Aktualisierung immer synchron.
-- Kein Modul ohne vollständige Dokumentation und ausgeführte Pflichtprüfungen auf `implemented` oder `validated` setzen.
+Bei öffentlichen Funktionen gemeinsam prüfen und aktualisieren:
 
-## Branch-Regeln
+- Implementierung;
+- Parameter, Defaults und Resultsets;
+- Help- und Fehlervertrag;
+- Beispiele und öffentliche Dokumentation;
+- Modulmanifest und Lifecycle-Skripte;
+- statische, Runtime- und Contract-Tests;
+- Backlog, Status, Changelog und bekannte Einschränkungen.
 
-- Ein Branch = ein klarer Scope.
-- Branch-Name beschreibt Inhalt kurz und präzise.
-- Keine unabhängigen Änderungen in einem Branch/PR.
+## Branch-, Commit- und Pull-Request-Regeln
 
-## PR-Regeln
+- Branch-Name beschreibt den Scope kurz und eindeutig.
+- KI-generierte Commit Messages beginnen mit dem tatsächlichen KI-Namen.
+- Die Präfixregel gilt auch für automatisch angelegte Plan-, Initialisierungs- und Zwischencommits.
+- Pull-Request-Template vollständig ausfüllen.
+- Die ausführende KI erteilt sich keine eigene fachliche Freigabe. Ein ausdrücklicher Benutzerauftrag zum Merge ist eine gültige Freigabe.
+- Nach erfolgreichem Merge Zielbranch prüfen und Arbeitsbranch löschen, sofern er nicht weiter benötigt wird.
 
-- PR-Template ausfüllen: Scope, betroffene Verträge, Doku, Tests, Datenschutz, Lizenz.
-- PR nicht selbst mergen.
-- KI-generierte Commits beginnen mit `GitHub Copilot:` (oder zutreffendem KI-Namen).
+## Test- und Evidenzregel
 
-## Abschlussregeln
+Für jede tatsächlich ausgeführte Prüfung dokumentieren:
 
-Vor PR-Eröffnung prüfen:
-1. README beginnt exakt mit dem bilingualen Lizenzhinweis.
-2. LICENSE.md entspricht der Quelle; keine Open-Source-Lizenz.
-3. Keine fachlichen SQL-Objekte ohne freigegebenes Arbeitspaket.
-4. Alle Statusangaben wahr; nicht ausgeführte Tests als `not executed` gekennzeichnet.
-5. Kein personenbezogenes Datum, kein Secret, keine Infrastrukturangabe.
-6. Relative Links, Dateipfade und Repo-Map konsistent.
-7. Keine leeren Verzeichnisse ohne README oder Template.
+- Befehl, Tool oder Workflow;
+- geprüften Scope;
+- relevante SQL-Server-Version, Plattform oder Provider;
+- Ergebnis;
+- Ausführungsdatum;
+- bekannte Einschränkungen.
 
-## Entscheidungen dokumentieren
+Nicht ausgeführte Prüfungen als `not executed` oder `not applicable` kennzeichnen. Ein agenteninterner Review ohne reproduzierbare Ausgabe wird nicht als CI-Nachweis dargestellt.
 
-Dauerhafte Architektur- und Designentscheidungen in `Documentation/Architecture/DECISIONS.md` mit:
-- Stabiler ID (DEC-YYYY-NNN)
-- Datum
-- Status (`proposed`, `accepted`, `superseded`, `rejected`)
-- Begründung
-- Scope
-- Auswirkungen
-- Ersetzte Alternativen
+## Abschlussprüfung
+
+Vor dem Merge mindestens prüfen:
+
+1. vollständiger Branch-Diff;
+2. fachliche und vertragliche Konsistenz;
+3. relevante statische und verfügbare Runtime-Tests;
+4. Dokumentation, Links und Repo-Map;
+5. Datenschutz, Secrets und geschützte Lizenzblöcke;
+6. Statuswahrheit und offene Einschränkungen;
+7. keine leeren Verzeichnisse ohne erklärende Datei.
+
+## Entscheidungen
+
+Dauerhafte Entscheidungen in `Documentation/Architecture/DECISIONS.md` mit stabiler ID, Datum, Status, Entscheidung, Begründung, Scope, Auswirkungen, Alternativen und betroffenen Verträgen dokumentieren. Ersetzte Entscheidungen als `superseded` kennzeichnen, nicht rückwirkend umschreiben.
 
 ## Drittanbieter
 
-Vor Aufnahme eines Drittanbieters oder Samples: Lizenz-, Security-, Versions-, Wartungs-, Verfügbarkeits- und Exit-Prüfung. Quelle, Lizenz, Variante, Versionen und ggf. Prüfsumme dokumentieren. Keine erfundenen Kompatibilitätsangaben.
-
-Details: [THIRD_PARTY_AND_SOURCE_POLICY.md](../Documentation/Standards/THIRD_PARTY_AND_SOURCE_POLICY.md)
+Vor Aufnahme von Drittanbieterkomponenten oder Samples Lizenz, Security, Version, Wartungsstatus, Verfügbarkeit, Exit-Strategie und Auswirkungen auf öffentliche Verträge prüfen. Quelle und gegebenenfalls Prüfsumme dokumentieren.

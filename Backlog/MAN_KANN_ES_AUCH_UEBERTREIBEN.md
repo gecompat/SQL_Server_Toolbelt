@@ -1,31 +1,30 @@
 # Man kann es auch übertreiben
 
-Theoretische, akademische, absurde oder bewusst unterhaltsame Ideen. Technisch korrekt beschrieben – aber ohne Implementierungszusage und ohne Relevanzanspruch.
+Theoretische, akademische, absurde oder bewusst unterhaltsame Ideen. Technische Aussagen bleiben korrekt oder werden als Vermutung gekennzeichnet.
 
-> „Nur weil man etwas kann, muss man es nicht tun."
+> Nur weil man etwas kann, muss man es nicht tun.
 
 Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 
----
-
-## UE-2026-001: Vollständige Primzahlen-Tabelle in T-SQL (set-basiert, ohne Cursor)
+## UE-2026-001: Primzahlen-Sieb in reinem T-SQL
 
 | Feld | Wert |
 |---|---|
-| **ID** | UE-2026-001 |
-| **Titel** | Primzahlen-Sieb (Sieve of Eratosthenes) als reine T-SQL-TVF |
-| **Ziel-Repo** | Theoretisch (SQL Server Toolbelt, wenn jemand darauf besteht) |
-| **Kategorie** | Core / Mathematisch |
-| **SQL-Server-Lücke** | SQL Server hat keine eingebaute Primzahlenfunktion. (Zu Recht.) |
-| **Betroffene Versionen** | SQL Server 2019, 2022 |
-| **Spätere native Funktion** | Nein (und das ist gut so) |
+| **ID** | `UE-2026-001` |
+| **Titel** | Sieve of Eratosthenes als T-SQL-Capability |
+| **Ziel-Repository** | Übertreibungs-Liste |
+| **Kategorie** | Core / Mathematik |
+| **SQL-Server-Lücke** | SQL Server besitzt keine eingebaute Primzahlenfunktion. |
+| **Betroffene Versionen** | SQL Server 2019, 2022, 2025 |
+| **Spätere native Funktion** | Keine bekannt. |
 | **Use-Case-Typ** | Theoretisch |
-| **Nutzen** | Akademisches Experiment; demonstriert set-basierte Iteration in T-SQL. Kein produktiver Nutzen bekannt. |
-| **Mögliche Technologie** | T-SQL (Inline TVF mit rekursivem CTE) |
-| **Performance / Security** | TempDB-Belastung; bei großen Grenzen sehr langsam; kein Security-Risiko. |
-| **Plattformgrenzen** | Keine; gleichmäßig nutzlos auf allen Plattformen |
+| **Nutzen** | Akademisches Experiment und Demonstration set-basierter Grenzen; kein produktiver Nutzen belegt. |
+| **Mögliche Technologie** | T-SQL mit Zahlenreihe, rekursivem CTE oder vorberechneter Tabelle; konkrete Form offen. |
+| **Performance und Security** | Erwartet: rasch steigender CPU- und TempDB-Aufwand. Security-Auswirkungen nicht vertieft geprüft. |
+| **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
 | **Dependencies** | keine |
+| **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
 | **Status** | `curiosity` |
-| **Primärquellen** | [Sieve of Eratosthenes (Wikipedia)](https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes) |
-| **Prüfdatum** | 2026-07-28 |
-| **Nächster Schritt** | Keiner; außer man möchte auf einer Konferenz für Heiterkeit sorgen |
+| **Primärquellen** | https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Keiner, außer ein ausdrücklich freigegebenes akademisches Experiment verlangt es. |
