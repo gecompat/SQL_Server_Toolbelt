@@ -23,7 +23,7 @@ Eine zu bearbeitende Tabelle verwendet einen fachlich eindeutigen Parameternamen
 
 ## Help-Resultset
 
-Vertrag gemäß `Documentation/Standards/USP_CONTRACT.md`. Da kein fachliches Resultset existiert, werden keine fachlichen `RESULT_COLUMN`-Zeilen vorgetäuscht; Status- oder OUTPUT-Verträge werden eindeutig beschrieben.
+Vertrag gemäß `Documentation/Standards/USP_CONTRACT.md`. Da kein fachliches Resultset existiert, enthält `RESULT_COLUMN` genau einen deklarativen Eintrag mit leerem `ItemName`, leerem `SqlDataType` und der eindeutigen Beschreibung, dass kein fachliches Resultset geliefert wird. Status-, OUTPUT- und Fehlerverträge werden in den passenden Sections dokumentiert.
 
 ## Rechte und Dependencies
 

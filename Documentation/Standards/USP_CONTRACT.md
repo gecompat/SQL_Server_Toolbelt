@@ -64,10 +64,14 @@ Pflicht-Sections:
 
 - `DESCRIPTION` – fachliche Beschreibung;
 - `PARAMETER` – Name, Typ, technischer Default, fachliche Pflicht und Beschreibung;
-- `RESULT_COLUMN` – Reihenfolge, Name, Typ, Nullability und fachliche Bedeutung;
+- `RESULT_COLUMN` – Definition des fachlichen Resultsets oder ausdrückliche Erklärung, dass kein fachliches Resultset existiert;
 - `EXAMPLE` – mindestens ein vollständiger Beispielaufruf.
 
 Optionale Sections: `ERROR`, `PERMISSION`, `LIMITATION`.
+
+Für eine USP mit fachlichem Resultset enthält `RESULT_COLUMN` je Resultspalte mindestens Reihenfolge, Name, Typ, Nullability und fachliche Bedeutung.
+
+Für eine Infrastruktur-USP ohne fachliches Resultset enthält `RESULT_COLUMN` genau einen deklarativen Eintrag mit `ItemName = NULL`, `SqlDataType = NULL`, `IsNullable = NULL` und einer eindeutigen Beschreibung, dass die USP kein fachliches Resultset liefert. OUTPUT-Parameter, Return Codes und Fehlersemantik werden in `PARAMETER`, `DESCRIPTION` und bei Bedarf `ERROR` dokumentiert.
 
 Das Format ist stabil, maschinenlesbar und für KI-Systeme ohne Quellcodeanalyse verständlich.
 
@@ -143,19 +147,26 @@ Debug verwendet Messages, nicht `SELECT`-Resultsets. Vertrauliche Runtime-Werte 
 
 ## 9. Pflicht-Contract-Tests
 
-Für jede USP mit tabellarischem Resultset mindestens:
+Für jede Toolbelt-USP mindestens:
 
-1. Parameternamen, Datentypen, Defaults und Reihenfolge;
+1. Parameternamen, Datentypen, technische Defaults und Reihenfolge;
 2. reiner `@Hilfe = 1`-Aufruf ohne fachliche Pflichtparameter;
-3. Help-Resultset-Struktur und alle Pflicht-Sections;
-4. Help-Modus ignoriert `@ResultTable`, `@KeepData` und `@Debug` und verändert keine Tabelle;
-5. `@ResultTable IS NULL` gibt genau ein fachliches Resultset aus;
-6. gesetzte `@ResultTable` gibt kein fachliches `SELECT` aus;
-7. beliebiger Dummyspaltenname und beliebiger Dummyspaltentyp;
-8. alle vier `@KeepData`-Konstellationen;
-9. passendes Schema mit zusätzlichen nicht blockierenden Indizes;
-10. blockierende Dependency führt vor der ersten Mutation zum Fehler;
-11. verschachtelter USP-Aufruf über `@ResultTable` ohne `INSERT ... EXEC`;
-12. Collation- und Datentypvertrag des Resultsets;
-13. Debug-Ausgabe nur als Messages;
-14. Fehlersemantik und Transaktionszustand.
+3. stabile Help-Resultset-Struktur;
+4. Pflicht-Sections `DESCRIPTION`, `PARAMETER`, `RESULT_COLUMN` und `EXAMPLE`;
+5. für USPs ohne fachliches Resultset ein expliziter deklarativer `RESULT_COLUMN`-Eintrag;
+6. Help-Modus führt keine fachliche Funktion und keine Seiteneffekte aus;
+7. Help-Modus ignoriert `@Debug` und erzeugt keine Debug-Messages;
+8. Debug-Ausgabe ausschließlich als Messages;
+9. Fehlersemantik und Transaktionszustand.
+
+Für jede USP mit fachlichem tabellarischem Resultset zusätzlich:
+
+1. Help-Modus ignoriert `@ResultTable` und `@KeepData` und verändert keine Tabelle;
+2. `@ResultTable IS NULL` gibt genau ein fachliches Resultset aus;
+3. gesetzte `@ResultTable` gibt kein fachliches `SELECT` aus;
+4. beliebiger Dummyspaltenname und beliebiger Dummyspaltentyp;
+5. alle vier `@KeepData`-Konstellationen;
+6. passendes Schema mit zusätzlichen nicht blockierenden Indizes;
+7. blockierende Dependency führt vor der ersten Mutation zum Fehler;
+8. verschachtelter USP-Aufruf über `@ResultTable` ohne `INSERT ... EXEC`;
+9. Collation- und Datentypvertrag des Resultsets.
