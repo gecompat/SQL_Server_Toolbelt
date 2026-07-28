@@ -1,0 +1,31 @@
+-- =============================================================
+-- NICHT AUSFÜHRBAR – Nur Vorlage / NOT EXECUTABLE – Template only
+-- Dieses File muss vollständig implementiert und geprüft werden.
+-- This file must be fully implemented and reviewed before execution.
+-- =============================================================
+--
+-- Zweck:     Upgrade von Modul {{ModuleName}}
+-- Modul:     {{ModuleName}} v{{VorgängerVersion}} → v{{ZielVersion}}
+-- Schema:    {{toolbelt_category}}
+-- Erfordert: SQL Server {{MinVersion}}+
+-- Erstellt:  {{YYYY-MM-DD}}
+-- =============================================================
+
+-- Preflight: Vorgängerversion prüfen, Abhängigkeiten, Rechte
+-- {{Preflight-Logik implementieren}}
+
+-- Schema-Anpassungen
+-- {{Schema-Änderungen implementieren}}
+
+-- Objekte aktualisieren
+-- {{Objekt-Aktualisierung implementieren}}
+
+-- Rechte aktualisieren
+-- {{Rechte implementieren}}
+
+-- Versionseintrag aktualisieren
+-- {{Versions-Update implementieren}}
+
+-- =============================================================
+-- Ende Upgrade {{ModuleName}}
+-- =============================================================

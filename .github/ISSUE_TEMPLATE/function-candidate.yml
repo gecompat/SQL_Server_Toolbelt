@@ -1,0 +1,100 @@
+name: Funktionskandidat
+description: Vorschlag für eine neue Toolbelt-Funktion oder einen Backlog-Kandidaten
+title: "[Kandidat] "
+labels: ["kandidat", "backlog"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Vorschlag für einen neuen Backlog-Kandidaten. Bitte ausschließlich synthetische Beispieldaten verwenden. Keine realen Infrastruktur-, Log- oder Secret-Informationen.
+
+  - type: dropdown
+    id: ziel_repo
+    attributes:
+      label: Ziel-Repository
+      description: In welches Repository gehört dieser Kandidat?
+      options:
+        - SQL_Server_Toolbelt (wiederverwendbare Funktion)
+        - SQL_Server_Analyze (Analyse/Diagnose/Security)
+        - MAN_KANN_ES_AUCH_UEBERTREIBEN (theoretisch/akademisch)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kategorie
+    attributes:
+      label: Kategorie
+      options:
+        - String
+        - Datetime
+        - Conversion
+        - Validation
+        - JSON
+        - XML
+        - Metadata
+        - Security
+        - Core
+        - Sonstige
+    validations:
+      required: true
+
+  - type: textarea
+    id: luecke
+    attributes:
+      label: SQL-Server-Lücke
+      description: Was fehlt in SQL Server oder ist nur mit wiederkehrendem Boilerplate möglich?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: versionen
+    attributes:
+      label: Betroffene SQL-Server-Versionen
+      options:
+        - label: SQL Server 2019
+        - label: SQL Server 2022
+        - label: Beide
+        - label: Andere (in Beschreibung angeben)
+
+  - type: dropdown
+    id: native_later
+    attributes:
+      label: Spätere native Funktion bekannt?
+      options:
+        - "Nein"
+        - "Ja (Version in Beschreibung angeben)"
+        - "Unklar"
+    validations:
+      required: true
+
+  - type: textarea
+    id: nutzen
+    attributes:
+      label: Nutzen und Use Case
+      description: Realistischer oder theoretischer Use Case; Mehrwert gegenüber Status quo.
+    validations:
+      required: true
+
+  - type: textarea
+    id: primärquelle
+    attributes:
+      label: Primärquelle
+      description: Link zur Microsoft-Dokumentation, offiziellen Release Notes oder anderen Primärquellen.
+
+  - type: dropdown
+    id: use_case_typ
+    attributes:
+      label: Use-Case-Typ
+      options:
+        - Realistisch (produktiver Einsatz wahrscheinlich)
+        - Theoretisch (akademisch oder experimentell)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: datenschutz
+    attributes:
+      label: Datenschutzbestätigung
+      options:
+        - label: Dieser Issue enthält keine personenbezogenen Daten, keine realen Infrastrukturangaben, keine Secrets.
+          required: true

@@ -1,0 +1,56 @@
+# NICHT AUSFÜHRBAR – Nur Vorlage / NOT EXECUTABLE – Template only
+# Platzhalter ersetzen bevor dieses File als Manifest verwendet wird.
+# Replace placeholders before using this file as a manifest.
+
+module_id: "{{ModuleId}}"
+module_name: "{{ModuleName}}"
+schema: "toolbelt_{{category}}"
+version: "0.0.0"
+status: proposed
+
+description: "{{Kurze Beschreibung des Moduls}}"
+
+sql_server_versions:
+  - "2019"
+  - "2022"
+
+platforms:
+  - Windows
+  - Linux
+
+deployment_modes:
+  - local
+  - central
+
+dependencies: []
+# Beispiel:
+# dependencies:
+#   - module_id: "toolbelt_core"
+#     min_version: "1.0.0"
+
+schemas:
+  - "toolbelt_{{category}}"
+
+objects: []
+# Beispiel:
+# objects:
+#   - type: USP
+#     name: "USP_{{ObjectName}}"
+#     schema: "toolbelt_{{category}}"
+
+permissions_required: []
+
+collation_contract: "{{Beschreibung des Collation-Vertrags}}"
+
+resultset_contracts: []
+
+lifecycle:
+  install: "Deployment/Install.sql"
+  upgrade: "Deployment/Upgrade.sql"
+  uninstall: "Deployment/Uninstall.sql"
+
+tests:
+  static: "Tests/Static/"
+  runtime: "Tests/Runtime/"
+
+validation_status: "not executed"

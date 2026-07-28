@@ -1,0 +1,36 @@
+# SQL Server Toolbelt – .gitattributes
+
+# Standardzeilenenden für alle Textdateien
+* text=auto eol=lf
+
+# SQL-Dateien
+*.sql       text eol=lf
+*.template  text eol=lf
+
+# Markdown
+*.md        text eol=lf
+
+# YAML
+*.yml       text eol=lf
+*.yaml      text eol=lf
+
+# C# (für CLR-Projekte)
+*.cs        text eol=lf
+*.csproj    text eol=lf
+
+# Konfigurationsdateien
+*.json      text eol=lf
+*.xml       text eol=lf
+*.config    text eol=lf
+*.editorconfig text eol=lf
+.gitignore  text eol=lf
+.gitattributes text eol=lf
+
+# Binärdateien (kein Diff)
+*.dll       binary
+*.exe       binary
+*.png       binary
+*.jpg       binary
+*.ico       binary
+*.nupkg     binary
+*.snupkg    binary

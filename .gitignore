@@ -1,0 +1,85 @@
+# SQL Server Toolbelt – .gitignore
+
+# Betriebssystem-Artefakte
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Visual Studio / Visual Studio Code
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vscode/
+*.code-workspace
+
+# SSMS-Ausgabedateien
+*.sqlplan
+*.mddf
+*.ldf
+*.mdf
+
+# Build-Ausgaben
+bin/
+obj/
+out/
+dist/
+*.dll
+*.exe
+*.pdb
+*.nupkg
+*.snupkg
+
+# NuGet
+packages/
+*.nuspec
+
+# dotnet / .NET
+*.csproj.user
+project.lock.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.venv/
+venv/
+.env
+
+# Java / Maven / Gradle
+target/
+*.class
+*.jar
+*.war
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# Log- und Laufzeitdateien
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Lokale Runtime-Ausgaben (dürfen nicht ins Repository)
+*.sqlresults
+*.queryplan
+
+# Signing Keys (privat; niemals ins Repository)
+*.pfx
+*.p12
+*.pvk
+*.snk
+
+# Temporäre Dateien
+tmp/
+temp/
+
+# Secrets und Konfigurationsdateien mit Credentials
+*.env
+appsettings.Development.json
+appsettings.local.json
+secrets.json
