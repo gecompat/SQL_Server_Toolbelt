@@ -15,14 +15,14 @@ sql_server_versions:
 compatibility_levels: []
 
 platforms:
-  windows: not_executed
-  linux: not_executed
+  windows: "not executed"
+  linux: "not executed"
 
 providers:
   - id: default
     technology: T-SQL
     platforms: [Windows, Linux]
-    status: not_executed
+    status: "not executed"
 
 deployment_capabilities:
   local: true
@@ -70,4 +70,4 @@ tests:
   runtime: "Tests/Runtime/"
   contract: "Tests/Runtime/"
 
-validation_status: not_executed
+validation_status: "not executed"
