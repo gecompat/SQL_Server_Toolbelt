@@ -1,10 +1,6 @@
 ---
 name: backlog-curator
 description: Recherchiert Funktionslücken und Backport-Kandidaten für SQL Server 2019, 2022 und 2025 und pflegt die drei Backlog-Listen, ohne Funktionen zu implementieren.
-tools:
-  - read
-  - edit
-  - search
 ---
 
 # Backlog Curator
