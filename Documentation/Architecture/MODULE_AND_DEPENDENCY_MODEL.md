@@ -1,72 +1,70 @@
 # Modul- und Abhängigkeitsmodell
 
-## Modul-Definition
+## Moduldefinition
 
-Ein Modul ist eine eigenständige Lifecycle-, Deployment- und Dokumentationseinheit in SQL Server Toolbelt. Es kann eine zentrale Funktion oder mehrere zusammengehörige Objekte enthalten.
+Ein Modul ist eine eigenständige Lifecycle-, Deployment- und Dokumentationseinheit. Es kann eine einzelne zentrale Funktion oder mehrere fachlich zusammengehörige Objekte enthalten.
 
-## Modulstruktur
+Eine besonders grundlegende Capability darf selbst ein Modul bilden und von anderen Modulen verwendet werden.
+
+## Mindestbestandteile
 
 Jedes Modul enthält mindestens:
-- Manifest (geplant: `module.yaml`): Modul-ID, Version, Status, Plattformen, Schemas, Dependencies, Rechte
-- Installationsskript (`Install.sql`)
-- Upgradeskript (`Upgrade.sql`)
-- Deinstallationsskript (`Uninstall.sql`)
-- Dokumentation für jedes öffentliche Objekt
-- Dokumentation für interne Hilfsobjekte
+
+- `module.yaml` als Manifest;
+- Install-, Upgrade- und Uninstall-Skripte;
+- kanonische Source-Artefakte;
+- eigene Dokumentation für jedes öffentliche SQL-Objekt;
+- Dokumentation interner Hilfsobjekte;
+- synthetische Beispiele;
+- statische und Runtime-Testartefakte;
+- Primärquellen und bekannte Einschränkungen.
 
 ## Abhängigkeiten
 
-- Module dürfen versionierte Abhängigkeiten auf andere Module besitzen.
-- Vor der ersten Mutation: Preflight prüft alle Abhängigkeiten.
-- Fehlende oder ungeeignete Abhängigkeit → klare Meldung und vollständiger Abbruch.
-- Keine automatische Nachinstallation von Abhängigkeiten.
-- Keine Abhängigkeitszyklen erlaubt.
+- Abhängigkeiten deklarieren Modul-ID, Mindestversion und Installationsort.
+- Der vollständige Preflight erfolgt vor der ersten Mutation.
+- Fehlende oder ungeeignete Abhängigkeit führt zu klarer Meldung und vollständigem Abbruch.
+- Fehlende Module werden nicht automatisch nachinstalliert.
+- Zyklen sind unzulässig.
+- Eine Dependency wird nicht durch kopierte Objekte ersetzt.
 
 ## Kanonische Implementierung
 
-Wiederverwendete Fachlogik existiert genau einmal in der kanonischen Implementierung. Wrapper, alternative Ausgabeformen und Synonyme verwenden stets diese kanonische Implementierung; keine divergierenden Kopien.
+Wiederverwendete Fachlogik existiert genau einmal. Öffentliche Wrapper, alternative Provider, Synonyme und Ausgabeformen verwenden diesen kanonischen Kern. Eine zweite Fachimplementierung ist nur zulässig, wenn sie als eigener Provider denselben öffentlichen Vertrag erfüllt und technisch begründet ist.
 
 ## Schemas
 
-Schemas folgen dem Muster `toolbelt_<category>`. Erlaubte Beispiele:
-- `toolbelt_core`
-- `toolbelt_string`
-- `toolbelt_datetime`
-- `toolbelt_conversion`
-- `toolbelt_validation`
-- `toolbelt_json`
-- `toolbelt_xml`
-- `toolbelt_metadata`
-- `toolbelt_security`
+Öffentliche Objekte verwenden `toolbelt_<category>`. Ein Modul kann mehrere Schemas verwenden, wenn dies fachlich erforderlich und im Manifest dokumentiert ist.
 
-## Manifest-Felder (geplant, mindestens)
+## Manifestfelder
 
-Ein Modul-Manifest soll später enthalten:
-- Modul-ID und Version
-- Status (`proposed`, `implemented`, `validated`, usw.)
-- Unterstützte SQL-Server-Versionen
-- Betriebssysteme (Windows, Linux)
-- Deployment-Modi (lokal, zentral)
-- Schemas und Objekte
-- Dependencies (Modul, Mindestversion)
-- Erforderliche Rechte
-- Collation-Vertrag
-- Resultset-Verträge
-- Lifecycle-Artefakte (Install, Upgrade, Uninstall)
-- Tests und Validierungsstatus
+Mindestens:
 
-## Statuswerte
+- Modul-ID, Name, Version und Status;
+- unterstützte SQL-Server-Versionen und Compatibility Levels;
+- Windows-/Linux- und Provider-Matrix;
+- Deployment-Modi und Capability-Kennzeichnungen;
+- verwendete Schemas und öffentliche/interne Objekte;
+- Dependencies mit Ort und Mindestversion;
+- Berechtigungen;
+- Collation- und Datentypvertrag;
+- Resultset- und Help-Verträge;
+- CLR-`PERMISSION_SET` und Trust-Anforderungen, falls relevant;
+- Lifecycle-Artefakte;
+- Tests und tatsächlicher Validierungsstatus.
+
+## Status
 
 | Status | Bedeutung |
 |---|---|
-| `proposed` | Idee, kein Code |
-| `researched` | Recherchiert, kein Code |
-| `planned` | Arbeitspaket erstellt |
-| `implemented` | Code vorhanden, kein Runtime-Nachweis |
-| `validated` | Tatsächlich ausgeführte Prüfungen erfolgreich |
-| `experimental` | Funktionsfähig, nicht vollständig validiert |
-| `deprecated` | Veraltet, wird entfernt |
-| `unsupported` | Nicht unterstützte Konfiguration |
-| `not executed` | Test/Prüfung nicht ausgeführt |
-| `not applicable` | Nicht anwendbar |
-| `curiosity` | Theoretische Überlegung |
+| `proposed` | Idee ohne Code |
+| `researched` | recherchiert, noch nicht freigegeben |
+| `planned` | freigegebenes Arbeitspaket |
+| `implemented` | Code und statische Verträge vorhanden |
+| `validated` | relevante Prüfungen tatsächlich erfolgreich ausgeführt |
+| `experimental` | funktionsfähig, nicht vollständig validiert |
+| `deprecated` | zur Ablösung vorgesehen |
+| `unsupported` | bewusst nicht unterstützt |
+| `not executed` | Prüfung nicht ausgeführt |
+| `not applicable` | im konkreten Scope nicht anwendbar und begründet |
+| `curiosity` | theoretische Idee ohne Implementierungszusage |

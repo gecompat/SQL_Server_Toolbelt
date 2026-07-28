@@ -2,67 +2,94 @@
 
 ## Grundsatz
 
-Plan, Dokumentation, Manifest und Testcode sind **kein Runtime-Nachweis**. Nur tatsächlich ausgeführte erfolgreiche Prüfungen sind als `validated` zu kennzeichnen.
+Plan, Dokumentation, Manifest und vorhandener Testcode sind kein Runtime-Nachweis. Nur tatsächlich ausgeführte und erfolgreiche Prüfungen dürfen als `validated` oder bestanden bezeichnet werden.
 
-Nicht ausgeführte Tests sind explizit als `not executed` zu kennzeichnen.
-
-## Statuswerte für Tests
+## Teststatus
 
 | Status | Bedeutung |
 |---|---|
-| `validated` | Tatsächlich ausgeführt, erfolgreich abgeschlossen |
-| `not executed` | Geplant, aber noch nicht ausgeführt |
-| `not applicable` | Nicht anwendbar für diese Konfiguration |
-| `failed` | Ausgeführt, fehlgeschlagen; Blocker dokumentiert |
+| `validated` | tatsächlich ausgeführt und erfolgreich |
+| `not executed` | vorgesehen, aber nicht ausgeführt |
+| `not applicable` | im konkreten Scope fachlich nicht anwendbar und begründet |
+| `failed` | ausgeführt und fehlgeschlagen; Blocker dokumentiert |
 
-## Pflichtprüfungen je Modul
+## Evidenz für ausgeführte Prüfungen
 
-Für jedes implementierte Modul sind folgende Tests durchzuführen:
+Mindestens dokumentieren:
 
-### API-Contract-Tests
-- Parameternamen und -typen gemäß Vertrag
-- Resultset-Spalten und -typen gemäß Vertrag
-- `@Hilfe = 1`-Verhalten
-- `@Debug`-Verhalten
+- Befehl, Tool oder Workflow;
+- geprüften Scope;
+- SQL-Server-Version, Plattform und Provider;
+- Ergebnis;
+- Ausführungsdatum;
+- bekannte Einschränkungen.
 
-### Lifecycle-Tests
-- Install: Erstinstallation auf sauberem Zustand
-- Install: Idempotenz (Wiederholung ohne Fehler)
-- Upgrade: Von bekannter Vorgängerversion
-- Uninstall: Vollständige Entfernung
+Ein agenteninterner Review ohne reproduzierbare Ausgabe ist kein CI- oder Runtime-Nachweis.
 
-### Plattformtests (separat)
-- SQL Server 2019 Windows
-- SQL Server 2022 Windows
-- SQL Server 2019 Linux
-- SQL Server 2022 Linux
+## API- und Contract-Tests
 
-### Deployment-Tests (separat)
-- Lokale Installation (Zieldatenbank)
-- Zentrale Installation (Toolbelt-Datenbank)
-- Cross-database-Aufruf (wenn unterstützt)
+Für alle öffentlichen Objekte:
 
-### Collation-Tests
-- Verhalten bei unterschiedlichen Collations
-- Collation-Vertrag des Moduls validiert
+- Name, Schema, Typ und Sichtbarkeit;
+- Parameter, Datentypen, Reihenfolge und Defaults;
+- Resultset-Spalten, Datentypen, Nullability und Collation;
+- Fehler- und Berechtigungsvertrag;
+- Beispiele gegen den tatsächlichen Vertrag.
 
-### Datentests
-- Deterministische synthetische Daten
-- Keine Produktionsdaten
-- Randwerte und Fehlerwerte testen
+Für USPs zusätzlich:
+
+- `@Hilfe = 1` einschließlich Help-Resultset;
+- `@Debug` ausschließlich als Messages;
+- `@ResultTable IS NULL` mit genau einem fachlichen Resultset;
+- `@ResultTable` ohne fachliches `SELECT`;
+- beliebiger Dummyspaltenname und -typ;
+- alle vier `@KeepData`-Konstellationen;
+- passendes Schema mit zusätzlichen Indizes;
+- blockierende Dependencies vor der ersten Mutation;
+- verschachtelte Aufrufe ohne generisches `INSERT ... EXEC`;
+- kein Seiteneffekt im Help-Modus.
+
+## Lifecycle-Tests
+
+- Erstinstallation auf sauberem Zustand;
+- kontrollierte Wiederholung beziehungsweise Idempotenz;
+- Upgrade von jeder unterstützten Vorgängerversion;
+- Uninstall und Dependency-Schutz;
+- fehlerhafter Preflight ohne Teilmutation;
+- Recovery und Cleanup nach begonnenem Setup.
+
+## Versions- und Plattformmatrix
+
+Jede tatsächlich unterstützte Kombination wird separat bewertet:
+
+- SQL Server 2019, 2022 und 2025;
+- Windows und Linux;
+- lokale und zentrale Installation;
+- jeder alternative Provider;
+- Cross-database-Aufruf, wenn unterstützt.
+
+Ein erfolgreicher Test auf einer Version, Plattform oder einem Provider beweist keine andere Kombination. `not applicable` setzt eine dokumentierte Capability-Entscheidung voraus.
+
+## Collation- und Datentests
+
+- abweichende Server-, Toolbelt-, Zieldatenbank- und TempDB-Collations;
+- mindestens case-insensitive, case-sensitive und BIN2; UTF-8, soweit fachlich relevant;
+- deterministische synthetische Daten;
+- Randwerte, Fehlerwerte und leere Eingaben;
+- keine Produktionsdaten.
 
 ## Performance-Messungen
 
-- Ehrliche Messungen; keine spekulativen oder erfundenen Werte.
-- Messumgebung dokumentieren (SQL-Server-Version, Hardware-Klasse, Datenmenge).
-- Messungen sind als empirisch oder als Planung zu kennzeichnen.
+- vergleichbare Abfrage, Parameter, Daten- und Cache-Zustände;
+- Messumgebung und Datenmenge dokumentieren;
+- Warm-up-, Parallelitäts- und Hardwareeffekte nennen;
+- Einzellauf nicht als allgemeingültigen Benchmark darstellen;
+- Ergebnisse als empirisch kennzeichnen.
 
-## CI-Anforderungen (geplant)
+## CI
 
-- Schlanke, pfadbezogene CI für implementierte Module.
-- Keine große Actions-Matrix ohne konkreten Bedarf.
-- Noch keine Runtime-CI in diesem PR.
+CI bleibt schlank und pfadbezogen. Dokumentationsänderungen lösen keine unnötige Runtime-Vollmatrix aus. Teure oder spezielle Plattformtests dürfen manuell oder capability-spezifisch ausgeführt werden; fehlende Runner ergeben keinen grünen Nachweis.
 
-## Aktuelle Teststatus
+## Aktueller Stand
 
-Dieser Initial-PR enthält keine implementierten Module. Alle Module haben Status `not executed` oder `not applicable`.
+Es sind noch keine fachlichen Module implementiert. Runtime- und Lifecycle-Tests für Toolbelt-Funktionen sind daher derzeit `not executed` oder nach dokumentierter Begründung `not applicable`.

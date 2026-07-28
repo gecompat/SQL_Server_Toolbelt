@@ -1,51 +1,60 @@
-# {{ModuleName}}
+# {{ModuleName}} – Moduldokumentation
 
-**Status:** `proposed` (not executed: keine Tests ausgeführt)
+**Modul-ID:** `{{ModuleId}}`  
+**Version:** `{{Version}}`  
+**Status:** `proposed`
 
-## Zweck
+## Geschlossene SQL-Server-Lücke
 
-{{Kurze Beschreibung des Modulzwecks}}
+{{Beschreibung und betroffene Versionen}}
 
 ## Scope
 
-| Objekt | Typ | Schema | Beschreibung |
+| Objekt | Typ | Schema | Sichtbarkeit | Beschreibung |
+|---|---|---|---|---|
+| `{{ObjectName}}` | `{{USP/TVF/SVF/VW}}` | `toolbelt_{{category}}` | {{public/internal}} | {{Beschreibung}} |
+
+## Dependencies
+
+| Modul | Mindestversion | Ort | Begründung |
 |---|---|---|---|
-| {{ObjektName}} | {{USP/TVF/SVF/VW}} | {{toolbelt_category}} | {{Beschreibung}} |
+| – | – | – | keine |
 
-## Abhängigkeiten
+## Supportmatrix
 
-| Modul | Mindestversion |
-|---|---|
-| – | – |
+| Plattform | lokal | zentral | Status |
+|---|---:|---:|---|
+| SQL Server 2019 Windows | {{ja/nein}} | {{ja/nein}} | `not executed` |
+| SQL Server 2022 Windows | {{ja/nein}} | {{ja/nein}} | `not executed` |
+| SQL Server 2025 Windows | {{ja/nein}} | {{ja/nein}} | `not executed` |
+| SQL Server 2019 Linux | {{ja/nein}} | {{ja/nein}} | `not executed` |
+| SQL Server 2022 Linux | {{ja/nein}} | {{ja/nein}} | `not executed` |
+| SQL Server 2025 Linux | {{ja/nein}} | {{ja/nein}} | `not executed` |
 
-## Unterstützte Plattformen
+## Architektur und Provider
 
-| Plattform | Status |
-|---|---|
-| SQL Server 2019 Windows | `not executed` |
-| SQL Server 2022 Windows | `not executed` |
-| SQL Server 2019 Linux | `not executed` |
-| SQL Server 2022 Linux | `not executed` |
+{{Kanonische Implementierung, Wrapper, CLR oder externe Provider}}
 
-## Deployment-Modi
+## Collation- und Datentypvertrag
 
-| Modus | Status |
-|---|---|
-| Lokal (Zieldatenbank) | `not executed` |
-| Zentral (Toolbelt-Datenbank) | `not executed` |
+{{Beschreibung}}
 
-## Collation-Vertrag
+## Lifecycle
 
-{{Beschreibung des Collation-Verhaltens}}
+{{Install, Upgrade, Uninstall und Recovery}}
 
-## Einschränkungen
+## Security und Rechte
 
-{{Bekannte Grenzen und Einschränkungen}}
+{{Beschreibung}}
+
+## Performance und Einschränkungen
+
+{{Messbare Aspekte, Grenzen und Trade-offs}}
 
 ## Primärquellen
 
-- {{Quelle 1}}
+- {{Quelle}}
 
 ## Teststatus
 
-Alle Tests: `not executed` (kein Runtime-Nachweis vorhanden)
+{{Tatsächlich ausgeführte Prüfungen und nicht ausgeführte Matrix}}

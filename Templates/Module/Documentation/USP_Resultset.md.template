@@ -1,0 +1,54 @@
+# {{SchemaName}}.USP_{{ObjectName}}
+
+**Typ:** Stored Procedure mit fachlichem tabellarischem Resultset  
+**Status:** `proposed`
+
+## Zweck
+
+{{Fachliche Beschreibung}}
+
+## Parameter
+
+| Name | Typ | Technischer Default | Fachlich erforderlich | Beschreibung |
+|---|---|---|---|---|
+| `@{{Parameter}}` | `{{Type}}` | `NULL` | ja | {{Beschreibung}} |
+| `@ResultTable` | `sysname` | `NULL` | nein | Lokale Temp-Tabelle für das fachliche Resultset. |
+| `@KeepData` | `bit` | `0` | nein | Replace bei 0, Append bei kompatiblem Schema bei 1. |
+| `@Debug` | `tinyint` | `0` | nein | Debug-Messages nach dokumentierter Stufe. |
+| `@Hilfe` | `bit` | `0` | nein | Gibt ausschließlich das standardisierte Help-Resultset aus. |
+
+## Fachliches Resultset
+
+| Ordinal | Spalte | Typ | Nullable | Beschreibung |
+|---:|---|---|---:|---|
+| 1 | `{{ColumnName}}` | `{{Type}}` | {{ja/nein}} | {{Beschreibung}} |
+
+## Help-Resultset
+
+Vertrag gemäß `Documentation/Standards/USP_CONTRACT.md`. Dokumentiere alle `DESCRIPTION`-, `PARAMETER`-, `RESULT_COLUMN`- und `EXAMPLE`-Einträge.
+
+## Fehlerverhalten
+
+{{THROW-Codes, Validierung und Transaktionsverhalten}}
+
+## Rechte und Dependencies
+
+{{Berechtigungen und Modulabhängigkeiten}}
+
+## Performance und Collation
+
+{{Kosten, Skalierung, Datentyp- und Collation-Vertrag}}
+
+## Beispiele
+
+```sql
+EXEC {{SchemaName}}.USP_{{ObjectName}}
+    @{{Parameter}} = {{SyntheticValue}};
+
+EXEC {{SchemaName}}.USP_{{ObjectName}}
+    @Hilfe = 1;
+```
+
+## Teststatus
+
+{{Help-, Debug-, ResultTable-, KeepData-, Collation- und Plattformmatrix}}

@@ -1,16 +1,16 @@
 ---
 # repo_map.yaml – Maschinenlesbare Repository-Rolle und Artefaktklassen
 # SQL Server Toolbelt
-# Letzte Aktualisierung: 2026-07-28
+# Letzte Aktualisierung: 2026-07-29
 
 repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: initializing
+  status: foundation_initialized
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R]
-  sql_server_versions: ["2019", "2022"]
+  sql_server_versions: ["2019", "2022", "2025"]
   platforms: [Windows, Linux]
 
 sources_of_truth:
@@ -38,17 +38,18 @@ artifact_classes:
       - CHANGELOG.md
       - Documentation/
       - Modules/
+      - Templates/
       - Backlog/
       - Tests/
     allowed_content:
       - Dokumentation
-      - Synthetic examples
-      - Templates (SQL.template, nicht ausführbar)
+      - Synthetische Beispiele
+      - Nicht ausführbare Vorlagen mit Endung .sql.template
     prohibited_content:
       - Personenbezogene Daten
       - Reale Infrastrukturnamen
       - Secrets
-      - Runtime-Ausgaben
+      - Reale Runtime-Ausgaben
 
   internal:
     description: KI-Steuerungs- und Metadaten
@@ -66,15 +67,15 @@ artifact_classes:
       - .github/
     allowed_content:
       - Issue Templates
-      - PR Templates
+      - Pull-Request-Templates
       - Copilot Instructions
-      - Agent-Definitionen
+      - Custom-Agent-Profile mit YAML-Frontmatter
 
   templates:
     description: Nicht ausführbare Vorlagen für neue Module
     paths:
       - Templates/
-    note: SQL-Vorlagen haben Endung .sql.template und sind als nicht ausführbar gekennzeichnet
+    note: SQL-Vorlagen haben die Endung .sql.template und sind ausdrücklich als nicht ausführbar gekennzeichnet
 
   tests:
     description: Test-Infrastruktur und -Richtlinien
@@ -83,19 +84,20 @@ artifact_classes:
     note: Noch keine Runtime-CI oder Actions-Matrix; nur Anforderungen dokumentiert
 
   generated:
-    description: Abgeleitete oder generierte Artefakte (nicht committen)
+    description: Abgeleitete oder generierte Artefakte, die nicht versioniert werden
     examples:
       - bin/
       - obj/
-      - *.dll
-      - *.log
+      - dist/
+      - "*.dll"
+      - "*.log"
 
   runtime:
-    description: Laufzeitdaten (niemals committen)
+    description: Laufzeitdaten, die niemals versioniert werden
     prohibited:
       - Query Plans
       - Execution Logs
-      - Test Evidence mit Produktionsdaten
+      - Test-Evidence mit Produktionsdaten
       - Traces
 
 schemas:

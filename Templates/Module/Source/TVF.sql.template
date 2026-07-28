@@ -1,0 +1,27 @@
+-- ============================================================================
+-- NICHT AUSFÜHRBAR – Inline-Table-valued-Function-Vorlage
+-- Multi-statement TVFs nur verwenden, wenn eine Inline TVF fachlich nicht reicht.
+-- ============================================================================
+-- Objekt:          {{SchemaName}}.TVF_{{ObjectName}}
+-- Zweck:           {{Fachlicher Zweck}}
+-- Parameter:       {{Parameter und Typen}}
+-- Resultset:       {{Spalten und Typen}}
+-- Dependencies:    {{Module oder Objekte}}
+-- Versionen:       {{SQL Server 2019/2022/2025}}
+-- Performance:     {{SARGability, Cardinality und Parallelitätsaspekte}}
+-- Collation:       {{Caller oder invariant semantics}}
+-- Einschränkungen: {{Bekannte Grenzen}}
+-- ============================================================================
+
+CREATE OR ALTER FUNCTION {{SchemaName}}.TVF_{{ObjectName}}
+(
+    {{ParameterDefinitionen}}
+)
+RETURNS TABLE
+AS
+RETURN
+(
+    -- Die Inline-Implementierung bleibt für den Optimizer sichtbar. Vermeide
+    -- Materialisierung und pro Zeile ausgeführte unnötige Scalar-Logik.
+    {{SetBasierteSelectAnweisung}}
+);

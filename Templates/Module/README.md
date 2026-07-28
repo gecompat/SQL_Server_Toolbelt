@@ -1,25 +1,67 @@
-# Templates – SQL Server Toolbelt
+# {{ModuleName}}
 
-Dieses Verzeichnis enthält Vorlagen für neue Module und Objekte.
+**Modul-ID:** `{{ModuleId}}`  
+**Version:** `{{Version}}`  
+**Status:** `proposed`
 
-## Verwendung
+## Zweck
 
-1. Benötigten Ordner aus `Templates/Module/` kopieren.
-2. Platzhalter (`{{ModuleName}}`, `{{SchemaName}}`, usw.) ersetzen.
-3. Alle `.sql.template`-Dateien sind **nicht ausführbar**; `.sql` nicht anfügen ohne vollständige Implementierung.
+{{Fachliche Beschreibung des Moduls und der geschlossenen SQL-Server-Lücke.}}
 
-## Inhalt
+## Öffentliche Objekte
 
-| Vorlage | Beschreibung |
+| Objekt | Typ | Schema | Zweck |
+|---|---|---|---|
+| `{{ObjectName}}` | `{{USP/TVF/SVF/VW}}` | `toolbelt_{{category}}` | {{Kurzbeschreibung}} |
+
+## Abhängigkeiten
+
+| Modul | Mindestversion | Installationsort | Begründung |
+|---|---|---|---|
+| – | – | – | keine |
+
+## Deployment
+
+| Modus | Status | Hinweise |
+|---|---|---|
+| lokal | `not executed` | {{Hinweise}} |
+| zentral | `not executed` | {{Hinweise}} |
+| Cross-database | `not executed` | {{Hinweise oder begründetes not applicable}} |
+
+## Plattformen
+
+| Plattform | Status |
 |---|---|
-| `Module/README.md` | Modul-README-Vorlage |
-| `Module/module.yaml.template` | Modul-Manifest-Vorlage |
-| `Module/Documentation/Module.md.template` | Modul-Dokumentation |
-| `Module/Documentation/PublicObject.md.template` | Dokumentation eines öffentlichen Objekts |
-| `Module/Source/Object.sql.template` | SQL-Objekt-Vorlage (nicht ausführbar) |
-| `Module/Deployment/Install.sql.template` | Install-Skript-Vorlage (nicht ausführbar) |
-| `Module/Deployment/Upgrade.sql.template` | Upgrade-Skript-Vorlage (nicht ausführbar) |
-| `Module/Deployment/Uninstall.sql.template` | Uninstall-Skript-Vorlage (nicht ausführbar) |
-| `Module/Tests/Static/README.md` | Statische Testdokumentation |
-| `Module/Tests/Runtime/README.md` | Runtime-Testdokumentation |
-| `Module/Examples/README.md` | Beispiel-Vorlage |
+| SQL Server 2019 Windows | `not executed` |
+| SQL Server 2022 Windows | `not executed` |
+| SQL Server 2025 Windows | `not executed` |
+| SQL Server 2019 Linux | `not executed` |
+| SQL Server 2022 Linux | `not executed` |
+| SQL Server 2025 Linux | `not executed` |
+
+## Installation
+
+```sql
+:r .\Deployment\Install.sql
+```
+
+{{Installationshinweise und erforderliche Rechte.}}
+
+## Collation- und Datentypvertrag
+
+{{Caller- oder invariant semantics, verwendete String-Typen und bekannte Grenzen.}}
+
+## Dokumentation
+
+- Moduldetails: `Documentation/Module.md`
+- Öffentliche Objekte: `Documentation/`
+- Beispiele: `Examples/`
+- Tests: `Tests/`
+
+## Einschränkungen
+
+{{Bekannte Einschränkungen und nicht unterstützte Kombinationen.}}
+
+## Teststatus
+
+Kein Test gilt ohne tatsächliche Ausführung als `validated`.

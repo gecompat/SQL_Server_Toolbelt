@@ -1,63 +1,58 @@
 # ROADMAP.md – SQL Server Toolbelt
 
-## Status: In Entwicklung – keine fachlichen Module implementiert
+## Status
 
-Diese Roadmap ordnet Arbeitsphasen nach Priorität und Abhängigkeiten. Kein Eintrag hier ist eine Implementierungszusage; konkrete Arbeitspakete werden nach Priorisierung in `BACKLOG.md` übernommen.
+Repository-Grundaufbau und Foundation-Korrektur sind abgeschlossen. Es sind noch keine fachlichen Module implementiert.
 
----
+## Phase 0 – Repository-Grundaufbau
 
-## Phase 0 – Repository-Grundaufbau (aktuell)
+**Status:** `completed`  
+**Abschluss:** 2026-07-28
 
-**Ziel:** Struktur, Regeln, Architektur, Templates, Backlogs und Dokumentation als stabile Basis.
+Enthält Root-Dateien, AI-Steuerung, Architektur- und Standardsdokumentation, Modul-Templates, Backlog-Struktur und den USP-Vertrag.
 
-**Status:** `planned` → Initiales Setup per PR
+## Phase 0.1 – Foundation-Korrektur
+
+**Status:** `completed`  
+**Abschluss:** 2026-07-29
 
 Enthält:
-- Root-Dateien, AI-Metadaten, GitHub-Konfiguration
-- Architektur- und Standardsdokumentation
-- USP-Vertrag, Namenskonventionen, T-SQL-Regeln
-- Templates für neue Module
-- Backlog-Kandidaten
 
-**Abhängigkeiten:** keine
+- korrigiertes GitHub-Copilot-Custom-Agent-Profil;
+- objekttypspezifische SQL- und Dokumentations-Templates;
+- vollständige USP-Contract-Testanforderungen;
+- SQL Server 2025 in Support- und Testmatrizen;
+- präzisierte CLR-, Linux- und `TRUSTWORTHY`-Regeln;
+- vervollständigtes Entscheidungsprotokoll;
+- konsolidierte Status-, Sprach- und Contribution-Regeln.
 
----
-
-## Phase 1 – Erstes Kernmodul (geplant)
-
-**Ziel:** Ein validiertes `toolbelt_core`-Modul als Referenzimplementierung für das Modulprinzip.
+## Phase 1 – Erstes Kernmodul
 
 **Status:** `proposed`
 
-Voraussetzungen:
-- Phase 0 abgeschlossen und gemergt
-- Mindestens ein priorisierter Kandidat in `BACKLOG.md`
-- Abgestimmtes Arbeitspaket mit stabiler ID
+**Ziel:** Ein priorisiertes `toolbelt_core`-Modul als Referenzimplementierung für Modulabhängigkeiten, Lifecycle, Dokumentation und Tests.
 
-**Abhängigkeiten:** Phase 0
+**Voraussetzungen:**
 
----
+- mindestens ein priorisierter Kandidat in `.ai/BACKLOG.md`;
+- abgestimmter öffentlicher Vertrag;
+- freigegebenes Arbeitspaket;
+- geklärte Namenskonventionen für erstmals benötigte weitere Objekttypen.
 
-## Phase 2 – Weitere Module (geplant)
+## Phase 2 – Weitere Module
 
-**Ziel:** Schrittweise Implementierung weiterer Module aus dem Backlog.
+**Status:** `proposed`  
+**Abhängigkeit:** mindestens ein validiertes Referenzmodul.
 
-**Status:** `proposed`
+Schrittweise Umsetzung priorisierter Toolbelt-Kandidaten nach fachlicher Kategorie und Dependency-Reihenfolge.
 
-**Abhängigkeiten:** Phase 1
+## Phase 3 – Schlanke Test-Infrastruktur und CI
 
----
+**Status:** `proposed`  
+**Abhängigkeit:** mindestens ein implementiertes Modul mit konkreten Testpfaden.
 
-## Phase 3 – Test-Infrastruktur und CI (geplant)
+Pfadbezogene statische Prüfungen und capability-spezifische Runtime-Tests; keine pauschale Vollmatrix für reine Dokumentationsänderungen.
 
-**Ziel:** Schlanke, pfadbezogene CI-Pipeline für implementierte Module; keine große Actions-Matrix ohne konkreten Bedarf.
+## Repository-Grenze
 
-**Status:** `proposed`
-
-**Abhängigkeiten:** Phase 1 (mindestens ein validiertes Modul)
-
----
-
-## Hinweis
-
-Analyse-, Diagnose- und Security-Ideen für `gecompat/SQL_Server_Analyze` werden in `Backlog/SQL_SERVER_ANALYZE_CANDIDATES.md` gesammelt, aber nicht hier implementiert.
+Analyse-, Diagnose-, Performance-, Konfigurations- und Security-Assessment-Ideen für `gecompat/SQL_Server_Analyze` werden nur in `Backlog/SQL_SERVER_ANALYZE_CANDIDATES.md` gesammelt und nicht hier implementiert.

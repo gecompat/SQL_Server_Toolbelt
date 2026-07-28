@@ -1,0 +1,39 @@
+# {{SchemaName}}.TVF_{{ObjectName}}
+
+**Typ:** {{Inline / Multi-statement}} Table-valued Function  
+**Status:** `proposed`
+
+## Zweck
+
+{{Fachliche Beschreibung}}
+
+## Parameter
+
+| Name | Typ | Beschreibung |
+|---|---|---|
+| `@{{Parameter}}` | `{{Type}}` | {{Beschreibung}} |
+
+## Resultset
+
+| Ordinal | Spalte | Typ | Nullable | Beschreibung |
+|---:|---|---|---:|---|
+| 1 | `{{ColumnName}}` | `{{Type}}` | {{ja/nein}} | {{Beschreibung}} |
+
+## Verwendung
+
+```sql
+SELECT *
+FROM {{SchemaName}}.TVF_{{ObjectName}}({{SyntheticArguments}});
+```
+
+## Rechte, Dependencies und Plattformen
+
+{{Beschreibung}}
+
+## Performance und Collation
+
+{{Optimizer-Sichtbarkeit, SARGability, Cardinality und Collation-Vertrag}}
+
+## Einschränkungen und Teststatus
+
+{{Bekannte Grenzen und tatsächliche Testmatrix}}

@@ -1,37 +1,40 @@
 # Tests – SQL Server Toolbelt
 
-Dieses Verzeichnis enthält die Test-Infrastruktur und Testdokumentation.
+Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentation.
 
-## Aktueller Status
+## Aktueller Stand
 
-Noch keine Runtime-Tests ausgeführt. Dieses Repository befindet sich in der Initialisierungsphase.
+Der Repository-Grundaufbau ist abgeschlossen. Es sind noch keine fachlichen Module implementiert; deshalb wurden keine Toolbelt-Runtime-Tests ausgeführt.
 
-## Test-Anforderungen (geplant)
+## Pflicht-Testarten je Modul
 
-Für jedes implementierte Modul sind folgende Testtypen erforderlich:
-
-| Testtyp | Beschreibung |
+| Testtyp | Inhalt |
 |---|---|
-| API-Contract | Parameternamen/-typen, Resultset-Spalten, Help-Resultset |
-| Install | Erstinstallation, Idempotenz |
-| Upgrade | Von bekannter Vorgängerversion |
-| Uninstall | Vollständige Entfernung |
-| Collation | Verhalten bei unterschiedlichen Collations |
-| Lokal/Zentral | Deployment-Modus-spezifische Tests |
-| Plattform | Getrennt für Windows/Linux und SQL Server 2019/2022 |
+| statisch | Naming, Header, Datenschutz, Manifest, Links und Vertragskonsistenz |
+| API-Contract | Parameter, Defaults, Resultsets, Help, Fehler und Rechte |
+| USP-Contract | `@Hilfe`, `@Debug`, `@ResultTable`, `@KeepData`, verschachtelte Aufrufe |
+| Install | Erstinstallation und kontrollierte Wiederholung |
+| Upgrade | jede unterstützte Vorgängerversion |
+| Uninstall | vollständige Entfernung und Dependency-Schutz |
+| Collation | unterschiedliche Server-, Datenbank- und TempDB-Collations |
+| Deployment | lokal, zentral und Cross-database, soweit unterstützt |
+| Plattform | SQL Server 2019, 2022 und 2025; Windows und Linux getrennt |
+| Provider | jeder alternative Provider als eigener Nachweis |
+| Recovery | Cleanup und Zustand nach Fehlern |
 
 ## Testdaten
 
-- Ausschließlich deterministische synthetische Daten.
-- Keine Produktionsdaten, keine personenbezogenen Daten.
-- Keine realen Infrastrukturnamen.
+- ausschließlich deterministische synthetische Daten;
+- keine Produktionsdaten, personenbezogenen Daten oder internen Firmendaten;
+- keine realen Infrastruktur- oder Runtime-Angaben;
+- Rand- und Fehlerwerte ausdrücklich abdecken.
 
-## CI-Anforderungen (geplant, nicht implementiert)
+## Evidenz
 
-- Schlanke, pfadbezogene CI für implementierte Module.
-- Keine große Actions-Matrix ohne konkreten Bedarf.
-- Details: [TEST_AND_VALIDATION_POLICY.md](../Documentation/Standards/TEST_AND_VALIDATION_POLICY.md)
+Jede ausgeführte Prüfung nennt Befehl oder Workflow, Scope, Version, Plattform, Provider, Ergebnis, Datum und Einschränkungen. Nicht ausgeführte Prüfungen bleiben als `not executed` sichtbar.
 
-## Testvorlagen
+## CI
 
-Testvorlagen für neue Module: `Templates/Module/Tests/`
+CI wird erst mit konkreten Modulen aufgebaut und bleibt pfad- sowie capability-bezogen. Eine Dokumentationsänderung benötigt keine vollständige Runtime-Matrix.
+
+Details: [TEST_AND_VALIDATION_POLICY.md](../Documentation/Standards/TEST_AND_VALIDATION_POLICY.md)
