@@ -1,98 +1,89 @@
-# PROJECT_RULES.md – Kanonische Regeln
+# PROJECT_RULES.md – Kanonische Projektregeln
 
-## 1. Architekturregeln
+## 1. Architektur
 
-### 1.1 Modulprinzip
-- Modul = Lifecycle-, Deployment- und Dokumentationseinheit.
-- Module besitzen versionierte Abhängigkeiten; Preflight vor erster Mutation.
-- Fehlende oder ungeeignete Abhängigkeit: klare Meldung, vollständiger Abbruch, keine automatische Nachinstallation.
-- Keine Abhängigkeitszyklen.
-- Wiederverwendete Fachlogik existiert genau einmal; Wrapper verwenden die kanonische Implementierung.
+- Ein Modul ist Lifecycle-, Deployment- und Dokumentationseinheit.
+- Module deklarieren versionierte Abhängigkeiten; der Preflight erfolgt vor der ersten Mutation.
+- Fehlende oder ungeeignete Abhängigkeiten führen zu verständlicher Meldung und vollständigem Abbruch.
+- Abhängigkeiten werden nicht automatisch installiert; Zyklen sind unzulässig.
+- Wiederverwendete Fachlogik existiert genau einmal; Wrapper und Provider verwenden den kanonischen Kern.
+- Lokale und zentrale Installation sind gleichwertige Deployment-Modi, soweit technisch möglich.
+- Cross-database-Verwendung ist Designziel, keine pauschale Garantie.
 
-### 1.2 Deployment
-- Jedes Modul besitzt Install-, Upgrade- und Uninstall-Verträge.
-- Lokale (Zieldatenbank) und zentrale (Toolbelt-Datenbank) Deployment-Modi sind gleichwertig.
-- Cross-database-Verwendung ist Designziel, keine Garantie. Synonyme oder lokale Wrapper sind zulässig; Grenzen müssen dokumentiert sein.
-- Keine divergierenden lokalen und zentralen Fachimplementierungen.
+Details: [MODULE_AND_DEPENDENCY_MODEL.md](../Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md) und [DEPLOYMENT_MODEL.md](../Documentation/Architecture/DEPLOYMENT_MODEL.md)
 
-### 1.3 SQL-Namenskonventionen
+## 2. SQL-Namenskonventionen
+
 - Stored Procedure: `USP_{CamelCase}`
-- Inline/Multi-statement Table-valued Function: `TVF_{CamelCase}`
+- Inline oder Multi-statement Table-valued Function: `TVF_{CamelCase}`
 - Scalar-valued Function: `SVF_{CamelCase}`
 - View: `VW_{CamelCase}`
-- Schemas: `toolbelt_<category>` (z. B. `toolbelt_core`, `toolbelt_string`, `toolbelt_datetime`, `toolbelt_conversion`, `toolbelt_validation`, `toolbelt_json`, `toolbelt_xml`, `toolbelt_metadata`, `toolbelt_security`)
-- Keine allgemeinen Schemas wie `string`, `time`, `io`, `json`.
-- Neue Namen gegen aktuelle und zukünftige T-SQL-Keywords prüfen.
-- Tabellen, Synonyme, Assemblies, Trigger, Sequences, Types: noch keine Konvention; als offene Entscheidung in DECISIONS.md dokumentieren.
+- Schemas: `toolbelt_<category>`
+- Öffentliche und interne technische Identifier sind englisch.
+- Für bisher ungeregelte Objekttypen wird keine Konvention erfunden; der Benutzer entscheidet beim ersten Bedarf.
 
 Details: [SQL_OBJECT_NAMING.md](../Documentation/Standards/SQL_OBJECT_NAMING.md)
 
-## 2. Datenschutzregeln
+## 3. Datenschutz und Debug
 
-- Kein personenbezogenes Datum, keine Firmen-/Kundendaten, keine realen Infrastrukturnamen in Repository, Code, Beispielen, Tests, Commits, PRs, Issues.
-- Keine Secrets (Passwörter, Tokens, API-Keys, Connection Strings mit Credentials, private Schlüssel).
-- Keine Runtime-Ausgaben, Logs, Traces, Query Plans als Repository-Inhalt.
-- Erlaubt: synthetische Daten, `localhost`, Contoso, Fabrikam, AdventureWorks, WideWorldImporters.
-- `gecompat - Gerhard Pisch` ausschließlich für Copyright, Attribution, Lizenz.
-- Datenschutz-Stop-Gate: vor jeder Dateiänderung, jedem Commit und PR prüfen.
+- Keine personenbezogenen, internen Firmen-, Kunden-, Infrastruktur-, Produktions- oder realen Runtime-Daten in Repository-Artefakten.
+- Keine Secrets oder privaten Schlüssel.
+- Vertrauliche Runtime-Werte dürfen bei aktiviertem Debug diagnostisch ausgegeben werden.
+- Echte Secrets werden auch im Debug nicht aktiv ausgegeben.
+- Reale Debugausgaben werden nicht als Help, Beispiel, Test-Evidence, Issue-, Pull-Request- oder Repository-Inhalt gespeichert.
 
 Details: [DATA_PRIVACY_AND_CONFIDENTIALITY.md](../Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md)
 
-## 3. Coding-Regeln (T-SQL)
+## 4. T-SQL-Engineering
 
-- Set-basiert; Inline TVF klar vor Multi-statement TVF.
-- Error Handling an fachlichen/transaktionalen Grenzen; `TRY/CATCH` bei Cleanup, Transaktionen, dynamischem SQL; `THROW`.
-- SARGability, Cardinality Estimation, Parallelität, Memory Grants, TempDB, Compile-Verhalten, implizite Konvertierungen beachten.
-- `varchar`/`nvarchar` nach Semantik, Zeichenvorrat, Codepage, Collation; `nvarchar` kein pauschaler Default.
-- Collation-safe für eigene unterstützte Pfade.
-- Metadaten bevorzugt über Catalog Views (`sys.objects`, `sys.schemas`, usw.); `WITH (NOLOCK)` für read-only Catalog-Abfragen zulässig.
-- Lokale Temp-Tabelle einmalig mit `OBJECT_ID(N'tempdb..#Name', N'U')` auflösen, dann über `tempdb.sys.*`.
-- Keine Temp-Tabellennamen wie `#Temp`, `#Result`, `#Help`, `#Hilfe1`.
+- Set-basierte Lösungen bevorzugen.
+- Inline TVFs haben klaren Vorrang vor Multi-statement TVFs, wenn der Vertrag dies erlaubt.
+- Error Handling erfolgt an fachlichen und transaktionalen Grenzen, nicht nach jedem Statement.
+- SARGability, Cardinality Estimation, Parallelität, Memory Grants, TempDB, Compile-Verhalten und implizite Konvertierungen berücksichtigen.
+- `varchar` und `nvarchar` nach Semantik, Zeichenvorrat, Codepage, Collation, Speicher- und Konvertierungskosten wählen; `nvarchar` ist kein pauschaler Default.
+- Eigene unterstützte Pfade müssen Collation-safe sein.
+- Reguläre Metadaten bevorzugt über Catalog Views lesen; geeignete read-only Abfragen dürfen `WITH (NOLOCK)` verwenden.
+- Lokale Temp-Tabelle einmalig mit `OBJECT_ID(N'tempdb..#Name', N'U')` auflösen und danach über `tempdb.sys.*` sowie die ermittelte `object_id` weiterarbeiten.
+- Interne Temp-Objekte eindeutig benennen.
 
 Details: [TSQL_ENGINEERING.md](../Documentation/Standards/TSQL_ENGINEERING.md)
 
-## 4. USP-Vertrag
+## 5. USP-Vertrag
 
-Verbindlicher Vertrag für alle Toolbelt-USPs. Details: [USP_CONTRACT.md](../Documentation/Standards/USP_CONTRACT.md)
+Der vollständige Vertrag für `@Hilfe`, `@Debug`, `@ResultTable` und `@KeepData` steht in [USP_CONTRACT.md](../Documentation/Standards/USP_CONTRACT.md). Änderungen daran sind öffentliche Vertragsänderungen und erfordern gekoppelte Dokumentations- und Contract-Tests.
 
-## 5. Debug-Regeln
+## 6. CLR, Trust und Portabilität
 
-- `@Debug tinyint`: 0 keine Ausgabe; 1 Hauptschritte; 2 Entscheidungen/Zeilenzahlen; 3 Detailmetadaten/SQL; höhere Werte reserviert.
-- Nur Messages, keine Resultsets.
-- Echte Secrets (Passwörter, Tokens, Keys) nie ausgeben.
-
-## 6. CLR-Regeln
-
-- SQL CLR nur mit technischer Begründung; `SAFE` bevorzugt.
+- SQL CLR nur mit technischer Begründung.
+- `SAFE` bevorzugen; `EXTERNAL_ACCESS` und `UNSAFE` nur bei dokumentierter Notwendigkeit und nur auf unterstützten Plattformen.
 - `clr strict security` nicht regulär deaktivieren.
-- Default-Trust: kontrollierter SHA2-512-Hash oder Strong Name.
-- Keine privaten Signing Keys, PFX/P12/PVK oder SNK-Dateien im Repository.
-- `TRUSTWORTHY ON` keine reguläre Option; nur dokumentierte Last-Resort-Ausnahme.
+- Offizielle Release-Binaries bevorzugt über exakten SHA2-512-Hash autorisieren; Strong Name oder asymmetrischer Schlüssel sind Alternativen.
+- `TRUSTWORTHY ON` ist kein regulärer Installationsweg. Eine Last-Resort-Ausnahme erfordert Prüfung selektiver Alternativen, eigene Architekturentscheidung und ausdrückliche Benutzerfreigabe.
+- Für Windows-only-Funktionalität eine portable Alternative prüfen.
 
 Details: [CLR_SECURITY_AND_PORTABILITY.md](../Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md)
 
-## 7. Dokumentationsregeln
+## 7. Dokumentation
 
-- Codekommentare und technische Dokumentation: deutsch.
-- Englisch bleibt für SQL-Schlüsselwörter, Produkt-/API-/Objektnamen, etablierte Fachbegriffe.
-- Nicht triviale Codeblöcke erklären Zweck, Voraussetzungen, Seiteneffekte, Designgrund.
-- Kommentare erklären Absicht, nicht jede Zeile. Veraltete Kommentare gelten als Fehler.
-- Jedes öffentliche SQL-Objekt erhält einen Header.
-- Sachlich, präzise, ohne Marketing, Floskeln, erfundene Fakten oder künstliche Übersetzungen.
+- Codekommentare und technische Dokumentation sind deutsch.
+- Etablierte englische Fachbegriffe und alle technischen Identifier bleiben englisch.
+- Nicht triviale Codeblöcke erklären Absicht, Voraussetzungen, Seiteneffekte, Besonderheiten, Designgrund und relevante Performance- oder Plattformgrenzen.
+- Veraltete Kommentare gelten als Fehler.
+- Jedes öffentliche SQL-Objekt erhält eine eigene Dokumentationsseite und einen vollständigen Objekt-Header.
 
 Details: [CODE_DOCUMENTATION.md](../Documentation/Standards/CODE_DOCUMENTATION.md)
 
-## 8. Qualitätsregeln
+## 8. Qualität und Statuswahrheit
 
-- Statusangaben müssen wahr sein.
-- Plan/Doku/Testcode sind kein Runtime-Nachweis.
+- Statusangaben müssen dem nachweisbaren Stand entsprechen.
+- Plan, Dokumentation und vorhandener Testcode sind kein Runtime-Nachweis.
 - Nur tatsächlich ausgeführte erfolgreiche Prüfungen sind `validated`.
-- Einschränkungen ehrlich dokumentieren.
-- Keine erfundenen Kompatibilitätsangaben oder Quellen.
+- Test-Evidence nennt Befehl oder Workflow, Scope, Version oder Plattform, Ergebnis, Datum und Einschränkungen.
+- Keine erfundenen Fakten, Quellen, Kompatibilitätsangaben oder Testergebnisse.
 
-## 9. Neue Regeln und Entscheidungen
+## 9. Regeln und Entscheidungen
 
-- Neue Regeln zuerst gegen README, AGENTS, CONTRIBUTING, AI-Metadaten, Architekturentscheidungen und Standards prüfen.
-- Keine konkurrierenden oder doppelten Regeln anlegen.
-- Unlösbare Konflikte dokumentieren und nichts ändern.
-- Dauerhafte Entscheidungen mit stabiler ID, Datum, Status, Begründung, Scope, Auswirkungen und ersetzten Alternativen in DECISIONS.md dokumentieren.
+- Neue Anforderungen zuerst gegen README, AGENTS, CONTRIBUTING, AI-Metadaten, Standards und Entscheidungen prüfen.
+- Keine doppelte oder konkurrierende Regel anlegen.
+- Dauerhafte Entscheidungen mit stabiler ID in [DECISIONS.md](../Documentation/Architecture/DECISIONS.md) dokumentieren.
+- Unlösbare Konflikte führen bis zur Klärung zu keiner Änderung.

@@ -1,32 +1,42 @@
 # NICHT AUSFÜHRBAR – Nur Vorlage / NOT EXECUTABLE – Template only
-# Platzhalter ersetzen bevor dieses File als Manifest verwendet wird.
-# Replace placeholders before using this file as a manifest.
+# Alle Platzhalter ersetzen und das Manifest gegen den tatsächlichen Modulstand prüfen.
 
 module_id: "{{ModuleId}}"
 module_name: "{{ModuleName}}"
-schema: "toolbelt_{{category}}"
 version: "0.0.0"
 status: proposed
-
-description: "{{Kurze Beschreibung des Moduls}}"
+description: "{{Kurze fachliche Beschreibung}}"
 
 sql_server_versions:
   - "2019"
   - "2022"
+  - "2025"
+
+compatibility_levels: []
 
 platforms:
-  - Windows
-  - Linux
+  windows: not_executed
+  linux: not_executed
 
-deployment_modes:
-  - local
-  - central
+providers:
+  - id: default
+    technology: T-SQL
+    platforms: [Windows, Linux]
+    status: not_executed
+
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
 
 dependencies: []
 # Beispiel:
 # dependencies:
 #   - module_id: "toolbelt_core"
 #     min_version: "1.0.0"
+#     location: same_database
 
 schemas:
   - "toolbelt_{{category}}"
@@ -35,14 +45,20 @@ objects: []
 # Beispiel:
 # objects:
 #   - type: USP
-#     name: "USP_{{ObjectName}}"
 #     schema: "toolbelt_{{category}}"
+#     name: "USP_{{ObjectName}}"
+#     visibility: public
 
 permissions_required: []
-
-collation_contract: "{{Beschreibung des Collation-Vertrags}}"
-
+collation_contract: "{{Caller oder invariant semantics}}"
+data_type_contract: "{{varchar/nvarchar und weitere relevante Typentscheidungen}}"
+help_contract_version: "1.0"
 resultset_contracts: []
+
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
 
 lifecycle:
   install: "Deployment/Install.sql"
@@ -52,5 +68,6 @@ lifecycle:
 tests:
   static: "Tests/Static/"
   runtime: "Tests/Runtime/"
+  contract: "Tests/Runtime/"
 
-validation_status: "not executed"
+validation_status: not_executed

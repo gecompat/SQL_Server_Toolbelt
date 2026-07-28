@@ -4,41 +4,48 @@
 
 | Objekttyp | Präfix | Beispiel |
 |---|---|---|
-| Stored Procedure | `USP_` | `USP_StringSplit` |
-| Inline TVF | `TVF_` | `TVF_DateRange` |
-| Multi-statement TVF | `TVF_` | `TVF_ParseJson` |
+| Stored Procedure | `USP_` | `USP_PrepareResultTable` |
+| Inline Table-valued Function | `TVF_` | `TVF_DateRange` |
+| Multi-statement Table-valued Function | `TVF_` | `TVF_ParseDocument` |
 | Scalar-valued Function | `SVF_` | `SVF_TrimExtended` |
 | View | `VW_` | `VW_ModuleStatus` |
 
-## Schemas
+Nach dem Präfix folgt ein verständlicher `CamelCase`-Name.
 
-Schemas folgen dem Muster `toolbelt_<category>`:
+## Fachliche Schemas
 
-| Schema | Kategorie |
-|---|---|
-| `toolbelt_core` | Kernfunktionen |
-| `toolbelt_string` | String-Verarbeitung |
-| `toolbelt_datetime` | Datum- und Zeitfunktionen |
-| `toolbelt_conversion` | Typkonvertierungen |
-| `toolbelt_validation` | Validierungsfunktionen |
-| `toolbelt_json` | JSON-Verarbeitung |
-| `toolbelt_xml` | XML-Verarbeitung |
-| `toolbelt_metadata` | Metadatenabfragen |
-| `toolbelt_security` | Sicherheitsfunktionen |
+Schemas folgen `toolbelt_<category>`, beispielsweise:
 
-**Verboten:** Allgemeine oder potenziell kollidierende Schemanamen wie `string`, `time`, `io`, `json`, `xml`.
+- `toolbelt_core`
+- `toolbelt_string`
+- `toolbelt_datetime`
+- `toolbelt_conversion`
+- `toolbelt_validation`
+- `toolbelt_json`
+- `toolbelt_xml`
+- `toolbelt_metadata`
+- `toolbelt_security`
 
-## Sprache
+Unzulässig sind allgemeine oder potenziell kollidierende Schemas wie `string`, `time`, `io`, `json` oder `xml`.
 
-Öffentliche Identifier sind englisch. Interne Hilfsobjekte können deutsch benannt sein, sofern konsistent.
+## Sprache und Eindeutigkeit
 
-## Keyword-Prüfung
+Öffentliche und interne technische Identifier sind englisch. Dies gilt insbesondere für Schema-, Objekt-, Parameter-, Spalten-, Variablen-, Klassen- und Methodennamen.
 
-Neue Namen müssen gegen aktuelle und zukünftige T-SQL-Keywords geprüft werden. Öffentliche Objekte dürfen keine eckigen Klammern (`[` `]`) benötigen.
+Kommentare und technische Dokumentation sind deutsch. Etablierte englische Fachbegriffe bleiben englisch.
 
-## Offene Entscheidungen
+Namen dürfen sich nicht nur durch Groß-/Kleinschreibung, Akzente oder eine bestimmte Collation unterscheiden.
 
-Für folgende Objekttypen existiert noch keine Namenskonvention:
+## Reservierte Wörter
+
+Neue Schema-, Objekt- und Spaltennamen werden gegen aktuelle reservierte Wörter und dokumentierte Future Keywords geprüft. Ein öffentlicher Name darf keine eckigen Klammern benötigen, um regulär verwendbar zu sein.
+
+Vermeide unspezifische Verb-Namen wie `Read`, wenn ein präziser Name wie `LoadTextFile` oder `ParseTimestamp` die Semantik besser beschreibt.
+
+## Offene Objekttypen
+
+Für folgende Objekttypen besteht noch keine Konvention:
+
 - Tabellen
 - Synonyme
 - Assemblies
@@ -46,12 +53,4 @@ Für folgende Objekttypen existiert noch keine Namenskonvention:
 - Sequences
 - Types
 
-Keine Konvention erfinden. Bei erstem Bedarf: Benutzer fragen und in `Documentation/Architecture/DECISIONS.md` dokumentieren (DEC-2026-003).
-
-## Vollständiges Beispiel
-
-```sql
--- Schema: toolbelt_string
--- Objekt:  TVF_SplitString
--- Aufruf:  SELECT * FROM toolbelt_string.TVF_SplitString(N'a,b,c', N',')
-```
+Beim ersten tatsächlichen Bedarf ist der Benutzer zu fragen und `DEC-2026-003` zu aktualisieren oder zu ersetzen. Keine Präfixe spekulativ erfinden.

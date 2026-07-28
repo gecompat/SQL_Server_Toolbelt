@@ -1,56 +1,56 @@
 # Definition of Done je Modul
 
-Ein Modul gilt als vollständig implementiert und bereit für `validated`, wenn alle folgenden Kriterien erfüllt sind:
+Ein Modul darf als `implemented` markiert werden, wenn Implementierung, statische Verträge, Dokumentation und Lifecycle-Artefakte vollständig und konsistent sind. `validated` ist erst zulässig, wenn alle für den deklarierten Support erforderlichen Prüfungen tatsächlich erfolgreich ausgeführt wurden.
 
 ## Implementierung
 
-- [ ] Vollständige Implementierung aller im Modul enthaltenen Objekte
-- [ ] Konsistente Verträge gemäß [USP_CONTRACT.md](./USP_CONTRACT.md)
-- [ ] Namenskonventionen gemäß [SQL_OBJECT_NAMING.md](./SQL_OBJECT_NAMING.md) eingehalten
-- [ ] T-SQL-Regeln gemäß [TSQL_ENGINEERING.md](./TSQL_ENGINEERING.md) eingehalten
-- [ ] Kein Boilerplate ohne dokumentierten Zweck
+- [ ] Alle Modulobjekte vollständig implementiert.
+- [ ] Öffentliche Verträge und Namenskonventionen eingehalten.
+- [ ] Kanonische Fachlogik ohne unnötige Duplikation.
+- [ ] Set-basierte und Inline-Lösungen bevorzugt, soweit fachlich möglich.
+- [ ] Error Handling an geeigneten Grenzen.
+- [ ] Collation-, Datentyp-, Performance- und Plattformvertrag dokumentiert.
 
 ## Dokumentation
 
-- [ ] Modul-README vorhanden
-- [ ] Modul-Manifest vorhanden und vollständig
-- [ ] Jedes öffentliche SQL-Objekt hat eine eigene Dokumentationsdatei
-- [ ] Interne Hilfsobjekte sind dokumentiert
-- [ ] Mindestens ein vollständiger Beispielaufruf
-- [ ] Alle Einschränkungen ehrlich dokumentiert
+- [ ] Modul-README und vollständiges Manifest.
+- [ ] Eigene Dokumentationsseite für jedes öffentliche SQL-Objekt.
+- [ ] Interne Hilfsobjekte dokumentiert.
+- [ ] Codekommentare erklären Absicht und Besonderheiten auf Deutsch.
+- [ ] Synthetische Beispiele entsprechen der tatsächlichen Implementierung.
+- [ ] Rechte, Fehlerverhalten, Performance und Einschränkungen dokumentiert.
+- [ ] Primärquellen und Aussagegrenzen nachvollziehbar.
 
-## Lifecycle-Artefakte
+## Lifecycle
 
-- [ ] Install-Skript vorhanden und idempotent
-- [ ] Upgrade-Skript vorhanden
-- [ ] Uninstall-Skript vorhanden (vollständige Entfernung)
+- [ ] Install-Skript mit vollständigem Preflight.
+- [ ] Kontrolliert wiederholbare Installation.
+- [ ] Upgrade für unterstützte Vorgängerversionen.
+- [ ] Uninstall mit Dependency-Schutz und ohne fremde Daten zu entfernen.
+- [ ] Cleanup- und Recovery-Pfad geprüft.
 
 ## Tests
 
-- [ ] API-Contract-Tests ausgeführt und erfolgreich
-- [ ] Install/Upgrade/Uninstall-Tests ausgeführt und erfolgreich
-- [ ] Collation-Tests ausgeführt und erfolgreich
-- [ ] Lokale Deployment-Tests ausgeführt und erfolgreich
-- [ ] Zentrale Deployment-Tests ausgeführt und erfolgreich (falls unterstützt)
-- [ ] Alle nicht ausgeführten Tests als `not executed` gekennzeichnet
-- [ ] Keine Produktionsdaten in Tests
+- [ ] Statische und öffentliche API-Contract-Tests erfolgreich.
+- [ ] USP-Contract-Tests für `@Hilfe`, `@Debug`, `@ResultTable` und `@KeepData`, soweit zutreffend.
+- [ ] Install-, Wiederholungs-, Upgrade- und Uninstall-Tests erfolgreich.
+- [ ] Collation- und Datentests erfolgreich.
+- [ ] Lokale und zentrale Deployment-Tests entsprechend Capability.
+- [ ] Cross-database-Test oder begründetes `not applicable`.
+- [ ] SQL Server 2019, 2022 und 2025 entsprechend deklariertem Support geprüft.
+- [ ] Windows, Linux und alternative Provider getrennt bewertet.
+- [ ] Nicht ausgeführte Prüfungen sichtbar und begründet.
 
-## Datenschutz
+## Datenschutz und Security
 
-- [ ] Datenschutz-Stop-Gate geprüft
-- [ ] Keine personenbezogenen Daten, realen Infrastrukturnamen oder Secrets
+- [ ] Datenschutz- und Secret-Stop-Gate geprüft.
+- [ ] Keine realen Personen-, Firmen-, Kunden-, Infrastruktur- oder Runtime-Daten im Repository.
+- [ ] Keine privaten Schlüssel oder Secrets.
+- [ ] CLR- und `TRUSTWORTHY`-Ausnahmen ausdrücklich freigegeben, falls vorhanden.
 
-## Quellen
+## Status und Release
 
-- [ ] Primärquellen dokumentiert
-- [ ] Keine erfundenen Kompatibilitätsangaben oder Quellen
-
-## Backlog und Status
-
-- [ ] Status in `.ai/BACKLOG.md` aktualisiert
-- [ ] Status in `Modules/README.md` aktualisiert
-- [ ] `CHANGELOG.md` aktualisiert
-
-## Hinweis
-
-Dieser Initial-PR darf kein Modul als `implemented` oder `validated` ausweisen.
+- [ ] `.ai/BACKLOG.md`, `Modules/README.md` und `CHANGELOG.md` aktualisiert.
+- [ ] Manifeststatus stimmt mit tatsächlicher Evidenz überein.
+- [ ] Breaking Changes und Migrationspfad dokumentiert.
+- [ ] Keine offene Pflichtprüfung wird durch eine pauschale Erfolgsaussage verdeckt.

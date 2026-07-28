@@ -2,64 +2,59 @@
 
 ## Sprache
 
-- Codekommentare und technische Dokumentation sind **deutsch**.
+- Codekommentare und technische Dokumentation sind deutsch.
 - Etablierte englische Fachbegriffe bleiben englisch.
-- SQL-Schlüsselwörter, Produkt-, API-, Datei-, Schema-, Objekt-, Klassen- und Parameternamen bleiben englisch.
+- SQL-Schlüsselwörter sowie Datei-, Schema-, Objekt-, Parameter-, Spalten-, Variablen-, Klassen- und Methodennamen bleiben englisch.
 
 ## Kommentarstil
 
-- Kommentare erklären **Absicht und Randbedingungen**, nicht jede Zeile.
-- Nicht triviale Codeblöcke erklären bei Bedarf:
-  - Zweck
-  - Voraussetzungen
-  - Seiteneffekte
-  - Besonderheiten
-  - Designgrund
-  - Performance-Überlegungen
-  - Versionsabhängigkeiten und Plattformgrenzen
-  - Besondere Techniken
-- Veraltete Kommentare gelten als **Fehler** und sind sofort zu aktualisieren oder zu entfernen.
+Kommentare erklären Absicht und Randbedingungen, nicht lediglich die sichtbare Syntax.
 
-## Objekt-Header für öffentliche SQL-Objekte
+Nicht triviale Codeblöcke dokumentieren bei Bedarf:
 
-Jedes öffentliche SQL-Objekt erhält einen Header mit folgenden Abschnitten (soweit zutreffend):
+- fachlichen Zweck;
+- Voraussetzungen;
+- Seiteneffekte;
+- Besonderheiten und Risiken;
+- Designgrund und verworfene naheliegende Alternative;
+- Performance-Auswirkungen;
+- Versions-, Provider- und Plattformgrenzen;
+- Error-, Transaction- oder Cleanup-Verhalten.
+
+Veraltete Kommentare gelten als Fehler und werden zusammen mit der Implementierung aktualisiert oder entfernt.
+
+## Objekt-Header
+
+Jedes öffentliche SQL-Objekt erhält einen Header mit den zutreffenden Feldern:
 
 ```sql
--- =============================================================
--- Objekt:        <Schema.ObjektName>
--- Typ:           <Stored Procedure / TVF / SVF / View>
--- Zweck:         <Kurze Beschreibung>
--- Vertrag:       <Verweis auf USP_CONTRACT.md oder analog>
--- Parameter:     <Parameterliste mit Typen und Defaults>
--- Resultset:     <Spaltenbeschreibung>
--- Dependencies:  <Abhängige Objekte oder Module>
--- Rechte:        <Erforderliche Berechtigungen>
--- Versionen:     <SQL Server 2019+, Windows/Linux>
--- Fehlerverhalten: <Wie werden Fehler behandelt?>
--- Performance:   <Relevante Performance-Überlegungen>
+-- ============================================================================
+-- Objekt:          <Schema.ObjectName>
+-- Typ:             <Stored Procedure / TVF / SVF / View>
+-- Zweck:           <Fachliche Beschreibung>
+-- Vertrag:         <Verbindlicher Standard oder objektspezifische Dokumentation>
+-- Parameter:       <Namen, Typen und Defaults>
+-- Resultset:       <Spalten oder Rückgabewert>
+-- Dependencies:    <Module oder Objekte>
+-- Rechte:          <Erforderliche Berechtigungen>
+-- Versionen:       <SQL Server 2019/2022/2025>
+-- Plattformen:     <Windows/Linux/Provider>
+-- Fehlerverhalten: <THROW, Teilfehler und Transaktionszustand>
+-- Performance:     <Kosten und Skalierungsgrenzen>
 -- Einschränkungen: <Bekannte Grenzen>
--- Erstellt:      <Datum>
--- Geändert:      <Datum>
--- =============================================================
+-- ============================================================================
 ```
 
-Interne Hilfsobjekte erhalten einen vereinfachten Header; vollständige Dokumentation ist dennoch erforderlich.
+Interne Hilfsobjekte dürfen einen kürzeren Header verwenden, müssen Zweck, Dependencies, Besonderheiten und Fehlerverhalten aber weiterhin nachvollziehbar dokumentieren.
+
+## Dokumentationskopplung
+
+Kommentare, öffentliche Dokumentation, Help-Resultset, Beispiele und Tests müssen denselben Vertrag abbilden. Eine Änderung an Parametern, Resultspalten, Defaults oder Semantik aktualisiert alle gekoppelten Artefakte im selben Pull Request.
 
 ## Stil
 
-- Sachlich, präzise, professionell, vollständig.
-- Kein Marketing, keine Floskeln, keine erfundenen Fakten, keine erfundenen Quellen, keine erfundenen Testergebnisse.
-- Keine künstlichen Übersetzungen.
-- Aussagen nach Möglichkeit kennzeichnen als:
-  - dokumentiert
-  - empirisch
-  - Schlussfolgerung
-  - Planung
-  - Vermutung
-  - offen
-
-## Hauptsprache eines Dokuments
-
-Ein Dokument hat grundsätzlich eine Hauptsprache. Ausnahmen:
-- Der bilinguale README-Lizenzblock (Deutsch/Englisch)
-- Die mehrsprachige `LICENSE.md`
+- sachlich, präzise, professionell und vollständig;
+- keine Marketing-Sprache oder Floskeln;
+- keine erfundenen Fakten, Quellen oder Testergebnisse;
+- Unsicherheiten als dokumentiert, empirisch, Schlussfolgerung, Planung, Vermutung oder offen kennzeichnen;
+- ein Dokument besitzt grundsätzlich eine Hauptsprache, ausgenommen Lizenzfassungen.

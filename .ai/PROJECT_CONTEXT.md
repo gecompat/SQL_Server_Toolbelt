@@ -1,56 +1,68 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## Projektstatus
+
+Der Repository-Grundaufbau ist initialisiert und konsolidiert. Es sind noch keine fachlichen Module implementiert.
+
 ## Projektzweck
 
-SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL Server Database Engine ab Version 2019. Ziel ist es, Funktionen bereitzustellen, die SQL Server nicht nativ besitzt, erst in späteren Versionen bietet oder nur mit wiederkehrendem, fehleranfälligem Boilerplate ermöglicht.
+SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL Server Database Engine ab Version 2019. Sie stellt Funktionen bereit, die SQL Server nicht nativ besitzt, erst in späteren Versionen anbietet oder nur mit wiederkehrendem, fehleranfälligem Boilerplate ermöglicht.
 
 ## Nutzen
 
-- Wiederverwendbare, getestete und dokumentierte SQL-Server-Objekte.
-- Reduzierung von Boilerplate-Code für häufige Aufgaben.
-- Einheitliche Vertragsdefinitionen (USP, TVF, SVF, VW).
-- Klare Trennung von implementierter Funktion und Konfigurationsanalyse.
+- wiederverwendbare, getestete und dokumentierte SQL-Server-Objekte;
+- Reduzierung wiederkehrender Implementierungslogik;
+- stabile öffentliche Verträge und versionsbezogene Compatibility-Informationen;
+- lokale oder zentrale Installation, soweit die Capability dies erlaubt.
 
 ## Scope
 
-- SQL Server 2019 und neuer, Windows und Linux.
-- T-SQL bevorzugt; CLR, C#, Python, Java oder R nur mit technischer Begründung.
-- Lokale und zentrale Deployment-Modi gleichwertig.
-- Cross-database-Verwendung als Designziel, keine Garantie.
+- SQL Server 2019, 2022 und 2025; spätere Versionen werden nach Erscheinen ausdrücklich bewertet;
+- Windows und Linux, jeweils pro Modul und Provider ausgewiesen;
+- T-SQL bevorzugt;
+- SQL CLR, C#, Python, Java oder R nur mit technischer Begründung;
+- lokale und zentrale Deployment-Modi;
+- Cross-database-Verwendung als Designziel, nicht als pauschale Garantie.
 
 ## Non-Goals
 
-- Performance-, Konfigurations-, Diagnose- und Security-Analysen → `gecompat/SQL_Server_Analyze`.
-- Azure SQL Database, Azure SQL Managed Instance → kein automatischer Support.
-- Demo-Anwendungen, Produktionsdaten, Backups, Logs.
+- Performance-, Konfigurations-, Diagnose- und Security-Analysen; diese gehören in `gecompat/SQL_Server_Analyze`;
+- automatische Unterstützung von Azure SQL Database oder Azure SQL Managed Instance;
+- Demo-Anwendungen, Produktionsdaten, Produktionsbackups oder reale Runtime-Ausgaben;
+- ungeprüfte Drittanbieterabhängigkeiten.
 
 ## Repository-Grenzen
 
-- Dieses Repository ändert nicht `gecompat/SQL_Server_Analyze` oder andere Repositories.
-- Analyse-Ideen dürfen im Backlog `Backlog/SQL_SERVER_ANALYZE_CANDIDATES.md` erfasst werden.
+- Dieses Repository ändert kein anderes Repository ohne ausdrücklichen Auftrag.
+- Analyseideen dürfen in `Backlog/SQL_SERVER_ANALYZE_CANDIDATES.md` erfasst werden.
+- Vor einem Analyze-Kandidaten wird das Ziel-Repository nach Möglichkeit lesend auf vorhandene oder gleichwertige Funktionalität geprüft.
 
-## Plattformen
+## Plattformmatrix
 
-| Plattform | Status |
+| Plattform | Grundstatus |
 |---|---|
-| SQL Server 2019 (Windows) | Zielplattform |
-| SQL Server 2022 (Windows) | Zielplattform |
-| SQL Server 2019 (Linux) | Zielplattform |
-| SQL Server 2022 (Linux) | Zielplattform |
-| Azure SQL Database | Kein automatischer Support |
-| Azure SQL Managed Instance | Kein automatischer Support |
-| SQL Server < 2019 | Nicht unterstützt |
+| SQL Server 2019 Windows | Zielplattform |
+| SQL Server 2022 Windows | Zielplattform |
+| SQL Server 2025 Windows | Zielplattform |
+| SQL Server 2019 Linux | Zielplattform, modulabhängig |
+| SQL Server 2022 Linux | Zielplattform, modulabhängig |
+| SQL Server 2025 Linux | Zielplattform, modulabhängig |
+| Azure SQL Database | kein automatischer Support |
+| Azure SQL Managed Instance | kein automatischer Support |
+| SQL Server vor 2019 | nicht unterstützt |
 
-## Trennung von Status
+## Statusbegriffe
 
-- **geplant**: Im Backlog oder in der Roadmap erfasst; keine Implementierungszusage.
-- **implementiert**: Code vorhanden, aber nicht zwingend getestet.
-- **validiert**: Tatsächlich ausgeführte erfolgreiche Prüfungen auf Zielplattform.
-- **experimental**: Funktionsfähig, aber noch nicht vollständig validiert.
-- **deprecated**: Veraltet, wird in zukünftiger Version entfernt.
-- **unsupported**: Nicht unterstützte Konfiguration.
-- **not executed**: Test oder Prüfung nicht ausgeführt.
-- **not applicable**: Nicht anwendbar für diese Konfiguration.
-- **curiosity**: Theoretische oder akademische Überlegung ohne Implementierungszusage.
+- `proposed`: Idee ohne Implementierung.
+- `researched`: recherchiert, aber nicht zur Umsetzung freigegeben.
+- `planned`: freigegebenes oder vorbereitetes Arbeitspaket.
+- `implemented`: Code und statische Verträge vorhanden; Runtime-Nachweis kann fehlen.
+- `validated`: relevante Prüfungen tatsächlich erfolgreich ausgeführt.
+- `experimental`: funktionsfähig, aber nicht vollständig validiert.
+- `deprecated`: veraltet und zur Ablösung vorgesehen.
+- `unsupported`: bewusst nicht unterstützt.
+- `not executed`: vorgesehene Prüfung nicht ausgeführt.
+- `not applicable`: im konkreten Scope nicht anwendbar.
+- `curiosity`: theoretische oder unterhaltsame Idee ohne Implementierungszusage.
 
-Plan, Dokumentation, Manifest und Testcode sind **kein** Runtime-Nachweis.
+Plan, Dokumentation, Manifest und Testcode sind kein Runtime-Nachweis.

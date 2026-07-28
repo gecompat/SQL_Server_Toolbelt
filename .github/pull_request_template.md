@@ -1,50 +1,57 @@
 ## Scope
 
-<!-- Welche Module, Schemas oder Objekte sind betroffen? -->
+<!-- Welche Module, Schemas, Objekte oder Standards sind betroffen? -->
+
+## Auftrag und Freigabe
+
+<!-- Arbeitspaket-ID oder ausdrücklicher unmittelbarer Benutzerauftrag -->
 
 ## Betroffene Verträge
 
-<!-- Welche Verträge (USP, TVF, SVF, VW) oder Standards werden geändert oder eingeführt? -->
+<!-- Parameter, Resultsets, Help, Fehler, Manifest, Deployment oder andere Verträge -->
 
 ## Dokumentation
 
-- [ ] Neue oder geänderte Dokumentationsdateien aufgelistet
-- [ ] Links und Dateipfade geprüft und konsistent
+- [ ] Gekoppelte Dokumentationsdateien aktualisiert.
+- [ ] Relative Links und Dateipfade geprüft.
+- [ ] Objekttypspezifische Vorlage verwendet.
 
-## Tests
+## Tests und Evidenz
 
-- [ ] Welche Tests wurden tatsächlich ausgeführt?
-- [ ] Nicht ausgeführte Tests sind explizit als `not executed` gekennzeichnet.
+Ausgeführte Prüfungen:
 
-Ausgeführte Tests:
-<!-- Liste der tatsächlich ausgeführten Tests -->
+<!-- Je Prüfung: Befehl/Tool/Workflow, Scope, Version/Plattform/Provider, Datum, Ergebnis, Einschränkungen -->
 
-Nicht ausgeführte / nicht anwendbare Tests:
-<!-- Liste der nicht ausgeführten Tests mit Begründung -->
+Nicht ausgeführte oder nicht anwendbare Prüfungen:
 
-## Datenschutz
+<!-- Mit Grund und Auswirkung; not applicable nur mit Capability-Begründung -->
 
-- [ ] Keine personenbezogenen Daten, realen Infrastrukturangaben oder Secrets enthalten.
-- [ ] Datenschutz-Stop-Gate aus AGENTS.md geprüft.
+- [ ] Keine nicht ausgeführte Prüfung als bestanden oder `validated` dargestellt.
 
-## Secrets
+## Datenschutz und Secrets
 
-- [ ] Keine Secrets (Passwörter, Tokens, API-Keys, Connection Strings) enthalten.
+- [ ] Keine personenbezogenen, internen Firmen-, Kunden- oder Infrastrukturinformationen enthalten.
+- [ ] Keine realen Runtime-Ausgaben, Logs, Traces oder Execution Plans übernommen.
+- [ ] Keine Secrets oder privaten Schlüssel enthalten.
+- [ ] Datenschutz-Stop-Gate aus `AGENTS.md` geprüft.
 
 ## Lizenz
 
-- [ ] Der Lizenzblock am Anfang der README ist unverändert.
-- [ ] LICENSE.md ist unverändert.
+- [ ] Geschützter Lizenzblock am Anfang der README unverändert.
+- [ ] `LICENSE.md` unverändert, sofern keine ausdrückliche Lizenzänderung beauftragt wurde.
 
-## Breaking Changes
+## Breaking Changes und Migration
 
-<!-- Ja/Nein. Falls ja: Was ändert sich und wie müssen bestehende Installationen migriert werden? -->
+<!-- Nein oder Beschreibung mit Migrationspfad -->
 
-## Backlog / Status
+## Backlog, Entscheidungen und Status
 
-- [ ] Status in BACKLOG.md oder CHANGELOG.md aktualisiert.
-- [ ] Backlog-Kandidaten bei Bedarf aktualisiert.
+- [ ] `.ai/BACKLOG.md`, Roadmap oder Changelog bei Bedarf aktualisiert.
+- [ ] Dauerhafte Entscheidungen in `Documentation/Architecture/DECISIONS.md` dokumentiert.
+- [ ] Status entspricht der tatsächlich vorhandenen Evidenz.
 
-## Sonstiges
+## Abschluss
 
-<!-- Weitere relevante Informationen, Blocker, Abhängigkeiten -->
+- [ ] Vollständigen Branch-Diff geprüft.
+- [ ] Keine unabhängigen Änderungen aufgenommen.
+- [ ] Arbeitsbranch kann nach dem Merge gelöscht werden.

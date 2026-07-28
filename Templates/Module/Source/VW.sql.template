@@ -1,0 +1,18 @@
+-- ============================================================================
+-- NICHT AUSFÜHRBAR – View-Vorlage
+-- ============================================================================
+-- Objekt:          {{SchemaName}}.VW_{{ObjectName}}
+-- Zweck:           {{Fachlicher Zweck}}
+-- Resultset:       {{Spalten und Typen}}
+-- Dependencies:    {{Module oder Objekte}}
+-- Versionen:       {{SQL Server 2019/2022/2025}}
+-- Performance:     {{Prädikat-Pushdown, Joins und erwartete Nutzung}}
+-- Collation:       {{Caller oder invariant semantics}}
+-- Einschränkungen: {{Bekannte Grenzen}}
+-- ============================================================================
+
+CREATE OR ALTER VIEW {{SchemaName}}.VW_{{ObjectName}}
+AS
+    -- Die View enthält keine versteckte Sortiergarantie. Eine benötigte
+    -- Reihenfolge wird vom konsumierenden SELECT ausdrücklich angefordert.
+    {{SelectAnweisung}};

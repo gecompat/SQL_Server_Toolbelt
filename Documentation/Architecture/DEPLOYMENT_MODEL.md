@@ -2,57 +2,74 @@
 
 ## Deployment-Modi
 
-SQL Server Toolbelt unterstützt zwei gleichwertige Deployment-Modi:
+SQL Server Toolbelt unterscheidet zwei gleichwertige Modi, soweit eine Capability beide technisch unterstützt.
 
-### Lokale Installation (Zieldatenbank)
+### Lokale Installation
 
-- Module werden direkt in der Zieldatenbank installiert.
+- Modul wird direkt in einer fachlichen Zieldatenbank installiert.
 - Keine Abhängigkeit von einer separaten Toolbelt-Datenbank.
-- Geeignet für isolierte Umgebungen oder einzelne Datenbanken.
+- Erforderlich oder bevorzugt bei `SCHEMABINDING`, computed columns, Constraints, lokalen Types oder strikten Datenbankgrenzen.
 
-### Zentrale Installation (Toolbelt-Datenbank)
+### Zentrale Installation
 
-- Module werden in einer dedizierten Toolbelt-Datenbank installiert.
-- Andere Datenbanken können die Toolbelt-Objekte cross-database verwenden.
+- Modul wird in einer dedizierten Toolbelt-Datenbank installiert.
+- Andere Datenbanken verwenden Objekte über dreiteilige Namen, lokale Wrapper oder Synonyme.
+- Synonyme werden in der konsumierenden Datenbank angelegt und ersetzen keine Berechtigungs- oder Zielobjektprüfung.
 - Cross-database-Verwendung ist Designziel, keine Garantie.
-- Synonyme oder lokale Wrapper sind zulässig; ihre Grenzen müssen dokumentiert sein.
 
-## Keine divergierenden Implementierungen
+## Kanonische Implementierung
 
-Es darf keine unterschiedlichen lokalen und zentralen Fachimplementierungen geben. Die kanonische Implementierung existiert genau einmal; Synonyme und Wrapper verweisen darauf.
+Lokale und zentrale Modi dürfen keine voneinander abweichende Fachlogik enthalten. Deployment-Adapter, Wrapper oder Synonyme verwenden denselben kanonischen Kern.
+
+## Capability-Kennzeichnung
+
+Ein Modulmanifest kennzeichnet explizit:
+
+- `local`;
+- `central`;
+- `central_with_synonyms`;
+- `local_required`;
+- `central_preferred`.
+
+Nicht unterstützte Modi werden begründet; sie werden nicht stillschweigend als `not applicable` gesetzt.
+
+## Dependencies
+
+Abhängigkeiten liegen standardmäßig in derselben Installationsdatenbank. Cross-database-Dependencies müssen im Manifest ausdrücklich Ort, Datenbankparameter und Mindestversion deklarieren.
+
+Vor der ersten Mutation prüft der Installer:
+
+- SQL-Server-Version und Edition;
+- Betriebssystem und Provider;
+- Compatibility Level, soweit relevant;
+- Modulabhängigkeiten und Versionen;
+- Installationsort und Deployment-Modus;
+- erforderliche Rechte;
+- Collation- und Plattformgrenzen.
+
+Ein gescheiterter Preflight führt zu verständlicher Meldung und vollständigem Abbruch ohne Teilinstallation.
 
 ## Lifecycle-Artefakte
 
-Jedes Modul besitzt:
-
 | Artefakt | Zweck |
 |---|---|
-| `Install.sql` | Erstinstallation; idempotent; Preflight |
-| `Upgrade.sql` | Versionsupgrade; Preflight; kein Datenverlust ohne Warnung |
-| `Uninstall.sql` | Vollständige Entfernung; kein automatisches Löschen von Nutzerdaten |
+| `Install.sql` | Erstinstallation, Preflight und kontrollierte Registrierung |
+| `Upgrade.sql` | Upgrade von bekannten Vorgängerversionen |
+| `Uninstall.sql` | vollständige Entfernung der Modulobjekte unter Beachtung abhängiger Module |
 
-## Preflight-Anforderungen
+Install und Upgrade müssen kontrolliert wiederholbar sein. Uninstall entfernt keine fremden Objekte oder Nutzerdaten.
 
-Vor der ersten Mutation prüfen:
-- SQL-Server-Version und -Edition
-- Betriebssystem (Windows/Linux)
-- Vorhandensein und Version abhängiger Module
-- Erforderliche Rechte
-- Collation-Kompatibilität
+## Grundmatrix
 
-Bei gescheitertem Preflight: klare Fehlermeldung, vollständiger Abbruch, keine Mutation.
-
-## Unterstützte Plattformen
-
-| Plattform | Status |
+| Plattform | Grundstatus |
 |---|---|
-| SQL Server 2019 (Windows) | Zielplattform |
-| SQL Server 2022 (Windows) | Zielplattform |
-| SQL Server 2019 (Linux) | Zielplattform |
-| SQL Server 2022 (Linux) | Zielplattform |
-| Azure SQL Database | Nicht automatisch; pro Modul prüfen |
-| Azure SQL Managed Instance | Nicht automatisch; pro Modul prüfen |
+| SQL Server 2019 Windows | Zielplattform |
+| SQL Server 2022 Windows | Zielplattform |
+| SQL Server 2025 Windows | Zielplattform |
+| SQL Server 2019 Linux | Zielplattform, modulabhängig |
+| SQL Server 2022 Linux | Zielplattform, modulabhängig |
+| SQL Server 2025 Linux | Zielplattform, modulabhängig |
+| Azure SQL Database | nicht automatisch unterstützt |
+| Azure SQL Managed Instance | nicht automatisch unterstützt |
 
-## CI und Tests
-
-Noch keine Runtime-CI oder große Actions-Matrix. Anforderungen dokumentiert in [TEST_AND_VALIDATION_POLICY.md](../Standards/TEST_AND_VALIDATION_POLICY.md).
+Die tatsächliche Unterstützung wird je Modul, Deployment-Modus und Provider validiert.
