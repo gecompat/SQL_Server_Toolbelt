@@ -1,5 +1,5 @@
 -- ============================================================================
--- NICHT AUSFÜHRBAR – Stored-Procedure-Vorlage
+-- NICHT AUSFÜHRBAR – Vorlage für eine USP mit fachlichem Resultset
 -- Alle Platzhalter ersetzen und Vertrag, Dokumentation sowie Tests anpassen.
 -- ============================================================================
 -- Objekt:          {{SchemaName}}.USP_{{ObjectName}}
@@ -15,7 +15,7 @@
 -- ============================================================================
 
 CREATE OR ALTER PROCEDURE {{SchemaName}}.USP_{{ObjectName}}
-    {{FachlicheParameterMitTechnischenDefaults}},
+    {{FachlicheParameterMitTechnischenDefaultsUndAbschliessendemKomma}}
     @ResultTable sysname = NULL,
     @KeepData   bit      = 0,
     @Debug      tinyint  = 0,
@@ -31,7 +31,7 @@ BEGIN
     -- Fachliche Parameter werden genau einmal an der geeigneten Grenze geprüft.
     {{ParameterValidierung}}
 
-    -- Die kanonische Fachlogik darf nicht getrennt für SELECT und ResultTable
-    -- implementiert werden. Beide Ausgabewege verwenden denselben Datenkern.
-    {{KanonischeImplementierung}}
+    -- SELECT und ResultTable verwenden denselben kanonischen Datenkern. Eine
+    -- zweite Fachimplementierung für den alternativen Ausgabeweg ist unzulässig.
+    {{KanonischeImplementierungUndResultRouting}}
 END;

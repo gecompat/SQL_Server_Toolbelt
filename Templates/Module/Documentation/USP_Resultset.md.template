@@ -1,6 +1,6 @@
 # {{SchemaName}}.USP_{{ObjectName}}
 
-**Typ:** Stored Procedure  
+**Typ:** Stored Procedure mit fachlichem tabellarischem Resultset  
 **Status:** `proposed`
 
 ## Zweck
@@ -25,7 +25,7 @@
 
 ## Help-Resultset
 
-Vertrag gemäß `Documentation/Standards/USP_CONTRACT.md`. Beschreibe alle `DESCRIPTION`-, `PARAMETER`-, `RESULT_COLUMN`- und `EXAMPLE`-Einträge.
+Vertrag gemäß `Documentation/Standards/USP_CONTRACT.md`. Dokumentiere alle `DESCRIPTION`-, `PARAMETER`-, `RESULT_COLUMN`- und `EXAMPLE`-Einträge.
 
 ## Fehlerverhalten
 
@@ -51,4 +51,4 @@ EXEC {{SchemaName}}.USP_{{ObjectName}}
 
 ## Teststatus
 
-{{Matrix mit tatsächlich ausgeführten und nicht ausgeführten Prüfungen}}
+{{Help-, Debug-, ResultTable-, KeepData-, Collation- und Plattformmatrix}}

@@ -1,0 +1,48 @@
+# {{SchemaName}}.USP_{{ObjectName}}
+
+**Typ:** Infrastruktur-Stored-Procedure ohne eigenes fachliches Resultset  
+**Status:** `proposed`
+
+## Zweck
+
+{{Infrastrukturelle Beschreibung}}
+
+## Parameter
+
+| Name | Typ | Technischer Default | Fachlich erforderlich | Beschreibung |
+|---|---|---|---|---|
+| `@{{Parameter}}` | `{{Type}}` | `NULL` | ja | {{Beschreibung}} |
+| `@Debug` | `tinyint` | `0` | nein | Debug-Messages nach dokumentierter Stufe. |
+| `@Hilfe` | `bit` | `0` | nein | Gibt ausschließlich das standardisierte Help-Resultset aus. |
+
+Eine zu bearbeitende Tabelle verwendet einen fachlich eindeutigen Parameternamen, beispielsweise `@ResultTableToAlter`. Diese USP besitzt keinen `@ResultTable`-Output-Routing-Parameter.
+
+## Ergebnis- und Fehlervertrag
+
+{{Return Code, OUTPUT-Parameter, THROW-Codes und Transaktionsverhalten}}
+
+## Help-Resultset
+
+Vertrag gemäß `Documentation/Standards/USP_CONTRACT.md`. Da kein fachliches Resultset existiert, werden keine fachlichen `RESULT_COLUMN`-Zeilen vorgetäuscht; Status- oder OUTPUT-Verträge werden eindeutig beschrieben.
+
+## Rechte und Dependencies
+
+{{Berechtigungen und Modulabhängigkeiten}}
+
+## Performance, Seiteneffekte und Cleanup
+
+{{Mutationen, Locks, Transaktionen, Cleanup, Skalierung und bekannte Grenzen}}
+
+## Beispiele
+
+```sql
+EXEC {{SchemaName}}.USP_{{ObjectName}}
+    @{{Parameter}} = {{SyntheticValue}};
+
+EXEC {{SchemaName}}.USP_{{ObjectName}}
+    @Hilfe = 1;
+```
+
+## Teststatus
+
+{{Help-, Debug-, Fehler-, Transaktions-, Cleanup- und Plattformmatrix}}

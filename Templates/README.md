@@ -14,9 +14,10 @@ Dieses Verzeichnis enthält nicht ausführbare Vorlagen für neue Module und SQL
 
 | Typ | Source | Dokumentation |
 |---|---|---|
-| Stored Procedure | `Module/Source/USP.sql.template` | `Module/Documentation/USP.md.template` |
+| USP mit fachlichem Resultset | `Module/Source/USP_Resultset.sql.template` | `Module/Documentation/USP_Resultset.md.template` |
+| Infrastruktur-USP ohne eigenes Resultset | `Module/Source/USP_Infrastructure.sql.template` | `Module/Documentation/USP_Infrastructure.md.template` |
 | Table-valued Function | `Module/Source/TVF.sql.template` | `Module/Documentation/TVF.md.template` |
 | Scalar-valued Function | `Module/Source/SVF.sql.template` | `Module/Documentation/SVF.md.template` |
 | View | `Module/Source/VW.sql.template` | `Module/Documentation/VW.md.template` |
 
-Die generische Verwendung eines USP-Vertrags für TVFs, SVFs oder Views ist unzulässig. Jede Vorlage enthält nur die für ihren Objekttyp geltenden Vertragsabschnitte.
+Die generische Verwendung eines USP-Vertrags für TVFs, SVFs oder Views ist unzulässig. Infrastruktur-USPs erhalten keinen bedeutungslosen `@ResultTable`-Parameter.
