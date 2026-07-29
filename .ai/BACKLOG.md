@@ -13,12 +13,12 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Scope | Statuskorrekturen, getrennte Modulstatusdimensionen, Modulregistry, gekoppelte Dokumentationspfade, generierte Statusabschnitte, inkrementeller Validator, pfadbezogene CI und Pull-Request-Checkliste. |
 | Dependencies | aktueller `main`, implementiertes ResultTable-Modul und `DEC-2026-020`. |
 | Priorität | `P0` |
-| Status | `active` |
+| Status | `completed` |
 | Akzeptanzkriterien | Einmaliger Vollaudit erfolgreich; bekannte Statusdrift beseitigt; Runtime-CI nicht mehr durch reine Dokumentationsänderungen ausgelöst; Folgeprüfungen diff-basiert; geschützte Lizenzinhalte unverändert. |
 | Tests | Python-Standardbibliothek-Validator, modulspezifische statische Prüfung, Markdown-Linkprüfung, YAML-/Workflow-Strukturprüfung, Datenschutz-/Secret-Diffprüfung und GitHub Actions. |
 | Blocker | Keine. |
-| Evidenz | Lokaler vollständiger Baseline-Audit am 2026-07-29 erfolgreich; GitHub-Evidenz folgt vor Merge. |
-| Nächster Schritt | Finalen Branch-Diff und GitHub-Workflow prüfen, anschließend nach `main` mergen. |
+| Evidenz | Lokaler vollständiger Baseline-Audit am 2026-07-29 erfolgreich; [Documentation Consistency Run 30453805254](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30453805254) und [ResultTable Runtime Run 30453805186](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30453805186) vollständig erfolgreich. |
+| Nächster Schritt | Research-PR `#8` auf den aktuellen Dokumentationsvertrag bringen und als Welle 1 konsolidieren. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
