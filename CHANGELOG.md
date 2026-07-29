@@ -41,6 +41,11 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Serieller SQL-Server-2025-Linux-Workflow für Compatibility Levels 150, 160 und 170.
 - Architekturentscheidung `DEC-2026-021` für scopebezogene Qualitäts-Gates unabhängiger Module.
 - Erfolgreiche Base64-Runtime-Matrix auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich RFC-4648-, Fehler-, Größen-, Deployment- und Lifecycle-Contracts.
+- Modul `toolbelt.core.generate-series` mit portablen Inline TVFs für `int`- und `bigint`-Zahlenreihen.
+- Gemeinsamer `bigint`-Kern mit konstanten binär gestapelten Rowsets, zeilenzahlgesteuertem Row Goal und überlaufsicherer interner `decimal(38,0)`-Arithmetik.
+- Parametergesteuertes lokales und zentrales Generate-Series-Deployment, Uninstall, Objekt- und Moduldokumentation, synthetische Beispiele sowie statische, Contract-, Lifecycle-, Grenz- und Größenprüfungen.
+- Serieller SQL-Server-2025-Linux-Workflow für Generate-Series unter Compatibility Levels 150, 160 und 170.
+- Erfolgreiche Generate-Series-Runtime-Matrix auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich Semantik, nativer Parität, Fehlern, Grenzen, einer Million Werte, Row Goal, Join, `CROSS APPLY`, Deployment- und Lifecycle-Contracts.
 
 ### Geändert
 
@@ -68,7 +73,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - `TC-2026-012` als bevorzugten nächsten Besprechungskandidaten eingeordnet und `TC-2026-004` bis zur Grundsatzentscheidung über Typ-/Scale-Parität und Objektfamilie zurückgestellt; keine Implementierungsfreigabe erteilt.
 - Vier parallele ResultTable-Sitzungen mit identischen logischen lokalen Temp-Tabellennamen auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich validiert; invasiven DDL-Trigger-Harness als ungeeignete Recovery-Evidenz verworfen.
 - Das pauschale Phase-2-Gate eines vollständig validierten, fachlich unabhängigen Referenzmoduls durch ein scopebezogenes Gate ersetzt; konkrete Modulverträge, Eigenvalidierung und tatsächlich verwendete gemeinsame Infrastruktur bleiben verpflichtend.
-- `TC-2026-012` nach Benutzerfreigabe vom Research-Kandidaten zum implementierten Modul überführt; Runtime-Evidenz bleibt bis zur tatsächlichen Ausführung `not executed`.
+- `TC-2026-012` nach Benutzerfreigabe vom Research-Kandidaten zum implementierten und auf SQL Server 2025 Linux teilweise validierten Modul überführt.
+- `TC-2026-006` nach Benutzerfreigabe vom Research-Kandidaten zum implementierten und auf SQL Server 2025 Linux teilweise validierten Modul überführt.
+- Veralteten Backlogstatus des bereits gemergten Base64-Arbeitspakets von `active` auf `completed` korrigiert.
 
 ### Korrigiert
 
@@ -90,4 +97,4 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-Das erste fachliche SQL-Objekt ist implementiert und `partially validated`. Die GitHub-hosted Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; Windows und noch nicht automatisierte Pflichtfälle bleiben `not executed`.
+Drei Module sind implementiert und `partially validated`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und 2025 erfolgreich; Base64 und Generate-Series sind auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich. Windows und die jeweils offenen Releasefälle bleiben `not executed`.

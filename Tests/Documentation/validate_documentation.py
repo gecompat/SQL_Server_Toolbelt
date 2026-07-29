@@ -626,6 +626,27 @@ def validate_base64_runtime_workflow_scope() -> None:
             )
 
 
+def validate_generate_series_runtime_workflow_scope() -> None:
+    workflow = read(
+        REPOSITORY_ROOT
+        / ".github"
+        / "workflows"
+        / "generate-series-runtime.yml"
+    )
+    prohibited = (
+        '"Documentation/Architecture/**"',
+        '"Documentation/Standards/**"',
+        '"Modules/toolbelt.core.generate-series/Documentation/**"',
+        '"Modules/toolbelt.core.generate-series/Tests/**/*.md"',
+    )
+    for marker in prohibited:
+        if marker in workflow:
+            raise ValidationError(
+                "Generate-Series-Runtime-Matrix wird durch reine "
+                f"Dokumentation ausgelöst: {marker}"
+            )
+
+
 def run_result_table_static() -> None:
     script = (
         REPOSITORY_ROOT
@@ -670,6 +691,30 @@ def run_base64_static() -> None:
     if result.returncode != 0:
         raise ValidationError(
             "Statische Base64-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
+def run_generate_series_static() -> None:
+    script = (
+        REPOSITORY_ROOT
+        / "Modules"
+        / "toolbelt.core.generate-series"
+        / "Tests"
+        / "Static"
+        / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)),
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische Generate-Series-Prüfung fehlgeschlagen:\n"
             f"{result.stdout}{result.stderr}"
         )
 
@@ -733,6 +778,10 @@ def main() -> int:
         validate_base64_runtime_workflow_scope()
     if "base64_static" in checks:
         run_base64_static()
+    if "generate_series_runtime_workflow_scope" in checks:
+        validate_generate_series_runtime_workflow_scope()
+    if "generate_series_static" in checks:
+        run_generate_series_static()
 
     print("Dokumentations- und Konsistenzprüfung: erfolgreich")
     print(f"Modulmanifeste: {len(modules)}")
