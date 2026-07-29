@@ -51,11 +51,11 @@ Dauerhafte Entscheidungen werden mit stabiler ID dokumentiert. Historische Entsc
 |---|---|
 | Datum | 2026-07-28 |
 | Status | proposed |
-| Entscheidung | Für Tabellen, Synonyme, Assemblies, Trigger, Sequences und Types wird vor dem ersten Bedarf keine Namenskonvention erfunden. |
+| Entscheidung | Für persistente Tabellen, Synonyme, Assemblies, Trigger, Sequences und Types wird vor dem ersten Bedarf keine Namenskonvention erfunden. |
 | Begründung | Die Konvention soll anhand eines konkreten fachlichen Objekts entschieden werden. |
-| Scope | genannte SQL-Objekttypen |
-| Auswirkungen | Beim ersten Bedarf ist der Benutzer zu fragen und diese Entscheidung zu ersetzen oder anzunehmen. |
-| Alternativen | Spekulative Präfixe wurden verworfen. |
+| Scope | genannte persistente SQL-Objekttypen |
+| Auswirkungen | Beim ersten Bedarf ist der Benutzer zu fragen und diese Entscheidung zu ersetzen oder anzunehmen. Interne lokale Temp-Objekte sind gesondert in `DEC-2026-017` geregelt. |
+| Alternativen | Spekulative Präfixe für persistente Objekte wurden verworfen. |
 | Betroffene Verträge | `SQL_OBJECT_NAMING.md` |
 
 ## DEC-2026-004: Modul- und Dependency-Modell
@@ -174,3 +174,68 @@ Dauerhafte Entscheidungen werden mit stabiler ID dokumentiert. Historische Entsc
 | Auswirkungen | Windows-only-Capabilities benötigen eine Prüfung auf portable Alternativen; `not applicable` erfordert Begründung. |
 | Alternativen | Nur 2019/2022 und pauschale Plattformzusagen wurden verworfen. |
 | Betroffene Verträge | `DEPLOYMENT_MODEL.md`, `TEST_AND_VALIDATION_POLICY.md` |
+
+## DEC-2026-013: Erstes Kernmodul `toolbelt.core.result-table`
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-07-29 |
+| Status | accepted |
+| Entscheidung | Das erste geplante Kernmodul trägt die ID `toolbelt.core.result-table` und stellt in Version `1.0.0` ausschließlich `toolbelt_core.USP_PrepareResultTable` bereit. |
+| Begründung | ResultTable-Routing ist Voraussetzung für programmatisch verschachtelbare Toolbelt-USPs und eignet sich als erste Referenz für Lifecycle, Help, Deployment und Contract Tests. |
+| Scope | `AP-2026-002`, erstes `toolbelt_core`-Modul |
+| Auswirkungen | Die erste Version benötigt keine persistente Tabelle, kein Synonym, keine Assembly und keinen Type; `DEC-2026-003` bleibt daher für persistente Objekttypen offen. |
+| Alternativen | Ein breiteres allgemeines Core-Modul mit spekulativer Modulregistrierung wurde für die erste Welle verworfen. |
+| Betroffene Verträge | `RESULT_TABLE_MODULE_DESIGN.md`, `USP_CONTRACT.md` |
+
+## DEC-2026-014: Referenztabelle vor frei geliefertem `CREATE TABLE`-DDL
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-07-29 |
+| Status | accepted |
+| Entscheidung | Version `1.0.0` ermittelt das gewünschte Schema aus einer vorhandenen lokalen oder regulären Referenztabelle über `@LikeTable`. Ein öffentlicher `@CreateStmt`-Parameter wird für diese Version zurückgestellt. |
+| Begründung | Eine routinenspezifische Helper-Temp-Tabelle lässt SQL Server selbst Datentyp, Länge, Precision, Scale, Nullability und Collation auflösen und vermeidet in der ersten Version einen unvollständigen DDL-Sicherheitsparser. |
+| Scope | `toolbelt_core.USP_PrepareResultTable` und aufrufende Toolbelt-USPs |
+| Auswirkungen | Jede resultseterzeugende USP legt bei Bedarf eine eindeutig benannte Schema-Helper-Temp-Tabelle an und übergibt sie als `@LikeTable`. Die zuvor erwogene `@CreateStmt`-Capability bleibt ein möglicher späterer Ausbau, benötigt für fremdes DDL jedoch ScriptDOM oder einen gleichwertigen vollständigen Parser und einen eigenen Sicherheitsvertrag. |
+| Alternativen | Für Version `1.0.0` wurden Regex-/String-basierte Sicherheitsbewertung beliebigen DDLs und ungeprüfte Ausführung von `@CreateStmt` verworfen; die Capability als solche wird nicht dauerhaft ausgeschlossen. |
+| Betroffene Verträge | `RESULT_TABLE_MODULE_DESIGN.md`, `TSQL_ENGINEERING.md` |
+
+## DEC-2026-015: In-place-Schemaumbau mit vollständigem Preflight
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-07-29 |
+| Status | accepted |
+| Entscheidung | Eine abweichende lokale ResultTable wird nach vollständigem read-only Preflight mit einer temporären Anchor-Spalte in-place umgebaut; das Zielobjekt wird nicht gedroppt und neu erstellt. |
+| Begründung | Das vom Aufrufer erzeugte lokale Temp-Objekt muss in seinem ursprünglichen Scope erhalten bleiben. |
+| Scope | `@KeepData`-Replace-Pfad von `USP_PrepareResultTable` |
+| Auswirkungen | Blockierende Indizes, Constraints, computed columns, Trigger, user-created statistics oder andere Dependencies führen vor der ersten Mutation zum Abbruch; kein Blocker wird automatisch entfernt. |
+| Alternativen | Drop/Recreate des Zielobjekts und automatisches Entfernen fremder Dependencies wurden verworfen. |
+| Betroffene Verträge | `RESULT_TABLE_MODULE_DESIGN.md`, `RESULT_TABLE_CONTRACT_TEST_MATRIX.md` |
+
+## DEC-2026-016: Savepoint-fähiger Transaktionsvertrag und zentrale Verwendbarkeit
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-07-29 |
+| Status | accepted |
+| Entscheidung | Die ResultTable-Mutation verwendet eine eigene Transaktion oder bei vorhandener Caller-Transaktion einen Savepoint. Das Modul unterstützt lokale und zentrale Installation ohne Synonympflicht. |
+| Begründung | Fehler dürfen keinen halb umgebauten Zustand hinterlassen; zugleich darf eine Toolbelt-USP keine vollständige Caller-Transaktion committen oder zurückrollen. Lokale Temp-Tabellen derselben Session sind auch bei dreiteiligem Procedure-Aufruf nutzbar. |
+| Scope | Transaktions-, Fehler- und Deployment-Vertrag des ResultTable-Moduls |
+| Auswirkungen | Bei `XACT_STATE() = -1` bleibt der uncommittable Zustand sichtbar; die Procedure rethrowt den Originalfehler. Zentrale Deinstallation benötigt eine Betreiberbestätigung, weil beliebige externe Direktaufrufer nicht vollständig ermittelbar sind. |
+| Alternativen | Unbedingter Full Rollback, `TRUSTWORTHY ON`, Synonympflicht und separate lokale/ zentrale Fachimplementierungen wurden verworfen. |
+| Betroffene Verträge | `RESULT_TABLE_MODULE_DESIGN.md`, `DEPLOYMENT_MODEL.md` |
+
+## DEC-2026-017: Interne lokale Temp-Objekte verwenden `#tbx_`
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-07-29 |
+| Status | accepted |
+| Entscheidung | Interne lokale Temp-Tabellen verwenden den reservierten Präfix `#tbx_` sowie englische Modul-, Routine- und Rollenbestandteile; dynamische Arbeitsobjekte erhalten zusätzlich einen Invocation-spezifischen Suffix. |
+| Begründung | Eindeutige Namen vermeiden Kollisionen in verschachtelten, rekursiven und parallelen Aufrufkontexten und unterscheiden interne Objekte von Benutzer-ResultTables. |
+| Scope | interne lokale Temp-Objekte aller Module |
+| Auswirkungen | Benutzer-ResultTables dürfen nicht mit `#tbx_` beginnen. Routinenspezifische unveränderliche Schema-Helper dürfen bei Rekursion wiederverwendet und nur vom tatsächlichen Erzeuger entfernt werden. Die Namenskonvention persistenter Tabellen bleibt offen. |
+| Alternativen | Generische Namen wie `#Temp`, `#Result` und zufällige Namen ohne fachliche Zuordnung wurden verworfen. |
+| Betroffene Verträge | `SQL_OBJECT_NAMING.md`, `TSQL_ENGINEERING.md`, `RESULT_TABLE_MODULE_DESIGN.md` |
