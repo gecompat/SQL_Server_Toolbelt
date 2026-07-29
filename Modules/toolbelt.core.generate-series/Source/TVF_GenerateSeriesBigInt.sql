@@ -46,7 +46,7 @@ RETURN
         SELECT
               parameters.StartValue
             , parameters.StepValue
-            , RowCount = CASE
+            , RequestedRows = CASE
                   /*
                    * Eine Schrittweite 0 bleibt ein unveränderter Enginefehler.
                    * Die Division wird nur für diesen ungültigen Fall gewählt.
@@ -119,7 +119,7 @@ RETURN
         (
             COALESCE
             (
-                (SELECT counted.RowCount FROM CountedParameters AS counted)
+                (SELECT counted.RequestedRows FROM CountedParameters AS counted)
               , CONVERT(bigint, 0)
             )
         )

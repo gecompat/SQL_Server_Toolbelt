@@ -69,10 +69,15 @@ def main() -> int:
         "TOP",
         "ROW_NUMBER",
         "decimal(38, 0)",
+        "RequestedRows",
         "1 / parameters.StepValue",
     ):
         if marker not in bigint_source:
             raise ContractError(f"bigint-Kernbestandteil fehlt: {marker}")
+    if re.search(r",\s*RowCount\s*=", bigint_source, re.IGNORECASE):
+        raise ContractError(
+            "Der unquotierte Alias RowCount kollidiert mit dem ROWCOUNT-Keyword."
+        )
 
     require(
         int_source,
