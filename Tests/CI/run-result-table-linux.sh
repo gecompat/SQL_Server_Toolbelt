@@ -128,8 +128,9 @@ if [[ "${test_suite}" == "full" ]]; then
 
     collision_database="tbx_result_table_collision"
     create_database "${collision_database}"
+    run_query "${collision_database}" "CREATE SCHEMA [toolbelt_core];"
     run_query "${collision_database}" \
-        "CREATE SCHEMA [toolbelt_core]; EXEC(N'CREATE PROCEDURE [toolbelt_core].[USP_PrepareResultTable] AS SELECT 1 AS ForeignObject;');"
+        "CREATE PROCEDURE [toolbelt_core].[USP_PrepareResultTable] AS SELECT 1 AS ForeignObject;"
 
     if run_file "${collision_database}" "${deployment_directory}" Deploy.sql \
         -v DeploymentMode=local; then
