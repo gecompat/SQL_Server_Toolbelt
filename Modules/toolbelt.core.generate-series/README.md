@@ -6,7 +6,7 @@
 
 **Implementierung:** `implemented`
 
-**Validierung:** `not executed`
+**Validierung:** `partially validated`
 
 **Release:** `unreleased`
 
@@ -78,13 +78,15 @@ nicht gekürzt, sondern führt zu einem unveränderten Engine-Overflow.
 
 ## Plattform- und Teststatus
 
-Die statischen und Runtime-Testartefakte sind vorhanden, wurden im
-[Generate-Series-Runtime-Workflow](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/generate-series-runtime.yml)
-auf diesem Stand aber noch nicht ausgeführt. SQL Server 2025 Linux mit
-Compatibility Levels 150, 160 und 170 ist als erster Runtime-Scope
-vorgesehen. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben für
-die gezielte Releasevalidierung vorgesehen. Der aktuelle Status ist daher
-`not executed`.
+Der
+[Generate-Series-Runtime-Lauf 30496759324](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30496759324)
+war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich. Er deckt Semantik, native Parität bei 160/170, Fehler und
+Typgrenzen, eine Million Werte, einen äußeren Row Goal, Joins, `CROSS APPLY`
+sowie lokale, zentrale und Lifecycle-Verträge ab. Physische
+SQL-Server-2019-/2022- und Windows-Läufe bleiben für die gezielte
+Releasevalidierung offen. Der aktuelle Status ist daher
+`partially validated`.
 
 ## Dokumentation
 

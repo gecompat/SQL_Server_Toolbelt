@@ -140,7 +140,7 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Status** | `implemented` |
 | **Primärquellen** | [GENERATE_SERIES_MODULE_DESIGN.md](../Documentation/Architecture/GENERATE_SERIES_MODULE_DESIGN.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/generate-series-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | SQL Server 2025 mit Compatibility Levels 150/160/170 ausführen; danach gezielte physische 2019-/2022- und Windows-Releasevalidierung planen. |
+| **Nächster Schritt** | Gezielte physische SQL-Server-2019-/2022- und Windows-Releasevalidierung planen; der SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 ist erfolgreich. |
 
 ## TC-2026-007: Bit-Manipulationsfunktionen für SQL Server 2019
 

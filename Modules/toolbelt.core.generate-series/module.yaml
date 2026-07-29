@@ -2,7 +2,7 @@ module_id: "toolbelt.core.generate-series"
 module_name: "Portable Integer Series"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Erzeugt portable int- und bigint-Zahlenreihen auf SQL Server 2019, 2022 und 2025."
 
@@ -18,7 +18,7 @@ compatibility_levels:
 
 platforms:
   windows: "not executed"
-  linux: "not executed"
+  linux: "partially validated"
 
 providers:
   - id: tsql-inline
@@ -107,3 +107,7 @@ validation_evidence:
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/generate-series-runtime.yml"
     scope: "Workflow und Contract-Tests vorhanden; Runtime noch nicht ausgeführt"
     result: "not executed"
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30496759324"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; Semantik, native Parität, Fehler, Grenzen, eine Million Werte, Row Goal, Join, CROSS APPLY, lokale, zentrale und Lifecycle-Contracts"
+    result: "success"

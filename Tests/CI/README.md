@@ -35,8 +35,9 @@ erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
 `not executed`.
 
 Der
-[Generate-Series-Runtime-Workflow](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/generate-series-runtime.yml)
-ist angelegt. Eine tatsächliche Ausführung ist auf diesem Stand noch
+[Generate-Series-Runtime-Lauf 30496759324](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30496759324)
+war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
 `not executed`.
 
 ## Quellen

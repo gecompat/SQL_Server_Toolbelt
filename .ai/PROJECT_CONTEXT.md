@@ -13,9 +13,10 @@ Windows-Läufe bleiben `not executed`; das Modul ist deshalb
 `partially validated`.
 
 Das unabhängige Modul `toolbelt.core.generate-series` ist mit portablen
-Inline TVFs für `int` und `bigint` implementiert. Seine statischen und
-Runtime-Artefakte sind vorhanden; eine tatsächliche Runtime-Ausführung steht
-noch aus. Der Validierungsstatus ist deshalb `not executed`.
+Inline TVFs für `int` und `bigint` implementiert. Seine Runtime-Prüfung auf
+SQL Server 2025 mit Compatibility Levels 150, 160 und 170 war unter Linux
+erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
+`not executed`; das Modul ist deshalb `partially validated`.
 
 ## Projektzweck
 
