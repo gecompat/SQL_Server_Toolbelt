@@ -63,6 +63,10 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 | `RT-S-014` | kanonische Logik | keine zweite Schemavergleichs- oder DDL-Implementierung in Wrappern |
 | `RT-S-015` | Dokumentation | Modul-, Objekt-, Help-, Lifecycle-, Limitations- und Quellenartefakte konsistent |
 | `RT-S-016` | Datenschutz | keine realen Personen-, Firmen-, Infrastruktur-, Runtime- oder Secret-Daten |
+| `RT-S-017` | DDL-Vertrag | kein öffentlicher `@CreateStmt`-Parameter in Version `1.0.0`; kein ungeprüftes fremdes DDL |
+| `RT-S-018` | Namenssemantik | Metadatennamen werden mit dokumentierter invariant-binärer Semantik verglichen |
+| `RT-S-019` | Sessionzustand | Procedure verändert keine dauerhaften Caller-SET-Optionen |
+| `RT-S-020` | Ownership Marker | Schema- und Procedure-Extended-Properties sind im Install-/Upgrade-/Uninstall-Vertrag konsistent |
 
 ## 4. Help- und Parametervertrag
 
@@ -85,7 +89,7 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 | `RT-N-002` | permanenter Tabellenname | `51020` |
 | `RT-N-003` | globaler Temp-Name `##Result` | `51020` |
 | `RT-N-004` | mehrteiliger Temp-Name | `51020` |
-| `RT-N-005` | reservierter interner Präfix `#tbx_` | `51020` |
+| `RT-N-005` | reservierter interner Präfix `#tbx_` in beliebiger Groß-/Kleinschreibung | `51020` |
 | `RT-N-006` | Name länger als 116 Zeichen | `51020` |
 | `RT-N-007` | zulässiger Name, Tabelle fehlt | `51021` |
 | `RT-N-008` | zulässiger Name mit delimitierbarem Zeichen | sichere Auflösung oder dokumentierter Validierungsfehler; keine Injection |
@@ -109,6 +113,7 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 | `RT-L-011` | fehlende Metadatensichtbarkeit | verständlicher Fehler ohne Rechteausweitung |
 | `RT-L-012` | Target und LikeTable sind dasselbe Objekt | deterministisches Verhalten ohne DDL-Zyklus |
 | `RT-L-013` | Collation-unterschiedliche Quelldatenbank | Metadaten werden ohne Collation-Conflict gelesen |
+| `RT-L-014` | delimitierte Namen mit Leerzeichen, Punkt oder schließender Klammer | sicher geparst und mit `QUOTENAME` neu aufgebaut |
 
 ## 7. Unterstützte und nicht unterstützte Spaltenformen
 
@@ -132,6 +137,10 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 | `RT-T-016` | benutzerdefinierter CLR Type | `51024` vor Mutation |
 | `RT-T-017` | gemischte `varchar`-/`nvarchar`-Spalten | keine automatische Typkonvertierung |
 | `RT-T-018` | nullable und not nullable | Nullability exakt erhalten |
+| `RT-T-019` | verschlüsselte Spalte | `51024` vor Mutation |
+| `RT-T-020` | Legacy-LOB `text`, `ntext`, `image` | `51024` vor Mutation |
+| `RT-T-021` | nicht freigegebener neuer Systemtyp, beispielsweise nativer JSON- oder Vector-Typ | `51024` bis zu einer versionierten Contract-Erweiterung |
+| `RT-T-022` | Sparse-Spalte ohne Column Set | Werteshape wird kontrolliert als nicht-sparse Spalte normalisiert und dokumentiert |
 
 ## 8. Schema-Gleichheit
 
@@ -149,6 +158,7 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 | `RT-E-010` | Ziel besitzt Identity/computed/rowversion | Schema gilt als nicht einfügbar und abweichend |
 | `RT-E-011` | Schema passt, zusätzliche Nonclustered Indizes | Schema gilt als passend; Indizes bleiben bestehen |
 | `RT-E-012` | Schema passt, Check/Unique Constraint | Schema gilt als passend; Constraint bleibt bestehen |
+| `RT-E-013` | Spaltennamen unterscheiden sich nur in Case oder Akzent | invariant-binärer Vergleich erkennt die Abweichung |
 
 ## 9. `@KeepData`-Matrix
 
@@ -164,6 +174,8 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 | `RT-K-008` | Daten vorhanden, Schema weicht ab | `1` | `51025`, Tabelle vollständig unverändert |
 | `RT-K-009` | beliebiger Dummyspaltenname/-typ, leer | `0` | vollständige Anpassung auf Referenzschema |
 | `RT-K-010` | beliebiger Dummyspaltenname/-typ, Daten vorhanden | `0` | Replace-Semantik und vollständige Anpassung |
+| `RT-K-011` | passendes Schema, `TRUNCATE` zulässig | `0` | `TRUNCATE` darf verwendet und bei Debug ausgewiesen werden |
+| `RT-K-012` | passendes Schema, `TRUNCATE` nicht zulässig, `DELETE` zulässig | `0` | kontrollierter `DELETE`-Fallback |
 
 ## 10. Indizes, Constraints und Dependencies
 
@@ -204,6 +216,8 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 | `RT-X-005` | bestehende uncommittable Transaktion | `51028` oder Originalfehler; kein fälschlicher Commit/Rollback der Caller-Transaktion |
 | `RT-X-006` | Validierungsfehler vor Mutation | `@@TRANCOUNT` und Tabellenzustand unverändert |
 | `RT-X-007` | Engine-Fehler | ursprüngliche Fehlernummer/-meldung bleibt erkennbar |
+| `RT-X-008` | Caller-SET-Optionen vor/nach Aufruf | keine dauerhafte Veränderung durch die Procedure |
+| `RT-X-009` | rekursive/nested Mutationen mit Savepoints | Invocation-spezifische Savepoint-Namen kollidieren nicht |
 
 ## 13. Debug und Datenschutz
 
@@ -224,10 +238,11 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 |---|---|---|
 | `RT-R-001` | Parent-USP erzeugt Zieltable, Child-USP bereitet und befüllt sie | Ergebnis im Parent weiterverarbeitbar |
 | `RT-R-002` | drei verschachtelte USP-Ebenen | kein `INSERT ... EXEC`; alle Zieltabellen korrekt |
-| `RT-R-003` | rekursiver Aufruf derselben fachlichen USP | Schema-Helper wird wiederverwendet; nur Erzeuger droppt |
+| `RT-R-003` | rekursiver Aufruf derselben fachlichen USP | Schema-Helper wird bei passendem Shape wiederverwendet; nur Erzeuger droppt |
 | `RT-R-004` | verschiedene USPs mit eigenen Helper-Namen | keine logische Temp-Table-Kollision |
 | `RT-R-005` | zwei Sessions mit gleichen logischen Namen | vollständige Isolation |
 | `RT-R-006` | parallele MARS-Manipulation derselben Zieltable | ausdrücklich `unsupported`; Test dokumentiert die Grenze, kein Erfolg versprochen |
+| `RT-R-007` | vorhandene routinenspezifische Helper-Tabelle mit falschem Shape | keine stille Wiederverwendung; verständlicher Fehler vor ResultTable-Mutation |
 
 ## 15. Deployment und Plattform
 
@@ -258,6 +273,10 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 | `RT-C-008` | zentraler Uninstall ohne Bestätigung externer Konsumenten | Abbruch |
 | `RT-C-009` | Schema nach Uninstall nicht leer | Schema bleibt erhalten |
 | `RT-C-010` | Schema leer und als Toolbelt verwaltet | Schema darf kontrolliert entfernt werden |
+| `RT-C-011` | Schema-Extended-Properties | `Toolbelt.Managed` und `Toolbelt.SchemaCategory` korrekt gesetzt und geprüft |
+| `RT-C-012` | Procedure-Extended-Properties | ModuleId, ModuleVersion und ContractVersion korrekt gesetzt |
+| `RT-C-013` | Install trifft bekannte ältere Version | verweist kontrolliert auf Upgrade; kein stilles Überschreiben |
+| `RT-C-014` | Install trifft fremde oder unvollständige Marker | Abbruch vor Mutation |
 
 ## 17. Performance-Messungen
 
