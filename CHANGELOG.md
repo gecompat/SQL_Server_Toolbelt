@@ -8,6 +8,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
+- Deduplizierte Toolbelt-Research-Inbox mit 162 breit gefächerten Ideen und 82 öffentlichen Quellen; Mehrfachnennungen behalten ihre gemeinsamen Fundstellen.
 - Repository-Grundaufbau mit autoritativen Steuerungsdateien, Architektur, Standards, Templates und Backlogs.
 - Verbindlicher USP-Vertrag und SQL-Objekt-Namenskonventionen.
 - GitHub-Copilot-Custom-Agent für die Backlog-Pflege.
@@ -35,6 +36,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Geändert
 
+- Datenschutz- und Vertraulichkeitsregeln präzisiert: fachlich relevante öffentliche Organisations-/Projektnamen und Links sowie `gecompat` und `Gerhard Pisch` sind zulässig; personenbezogene/sensible Daten, interne/vertrauliche Informationen, Original-Tabelleninhalte, reale Runtime-Ausgaben und konkrete Remote-Runner-Hardwarewerte bleiben ausgeschlossen.
 - Bestehende Kandidaten zu Multi-Separator-Split und kalendarischer Differenz mit präziseren Versions-, Provider-, Performance- und Aussagegrenzen versehen.
 - Roadmap um die abgeschlossene Research-Welle, die abgeschlossene ResultTable-Designphase und die geplante Implementierungswelle ergänzt.
 - USP-Vertrag mit der kanonischen ResultTable-Runtime-Spezifikation und Testmatrix verknüpft.
