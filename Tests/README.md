@@ -34,9 +34,10 @@ Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 
 ## Testdaten
 
-- ausschließlich deterministische synthetische Daten;
-- keine Produktionsdaten, personenbezogenen Daten oder internen Firmendaten;
-- keine realen Infrastruktur- oder Runtime-Angaben;
+- ausschließlich deterministische synthetische Testdaten;
+- keine Produktions- oder Originaldaten, personenbezogenen oder sensiblen Daten sowie internen oder vertraulichen Informationen;
+- keine nicht öffentlichen Infrastrukturangaben, realen Runtime-Ausgaben oder konkreten Remote-Runner-Hardwarewerte;
+- fachlich relevante öffentliche Organisations-/Projektnamen und öffentliche Links sind zulässig;
 - Rand- und Fehlerwerte ausdrücklich abdecken.
 
 ## Evidenz
