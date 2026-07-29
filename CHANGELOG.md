@@ -36,6 +36,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - ResultTable-Contract-Tests für explizite Collations, das 1024-Spalten-Limit, Caller-/uncommittable-Transaktionen und einen reproduzierbaren synthetischen Performance-Workload.
 - Entscheidungsvorlage für das zweite Modul mit einem vertieften Vergleich von `TC-2026-004` und `TC-2026-012`, offenen Vertragsfragen, Provideroptionen, Testdimensionen und expliziten Implementierungs-Gates.
 - ResultTable-Multi-Session-Contract für vier parallele Sitzungen mit identischen logischen Temp-Tabellennamen.
+- Modul `toolbelt.conversion.base64` mit portablen Scalar UDFs für Base64- und Base64URL-Encoding/-Decoding.
+- Parametergesteuertes lokales und zentrales Base64-Deployment, Uninstall, Objekt- und Moduldokumentation, synthetische Beispiele sowie statische, Contract-, Lifecycle- und Größenprüfungen.
+- Serieller SQL-Server-2025-Linux-Workflow für Compatibility Levels 150, 160 und 170.
+- Architekturentscheidung `DEC-2026-021` für scopebezogene Qualitäts-Gates unabhängiger Module.
 
 ### Geändert
 
@@ -62,6 +66,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - SQL Server 2022 und 2025 in der GitHub-hosted Linux-Matrix von der reduzierten Kompatibilitätsprüfung auf die vollständige ResultTable-Suite umgestellt.
 - `TC-2026-012` als bevorzugten nächsten Besprechungskandidaten eingeordnet und `TC-2026-004` bis zur Grundsatzentscheidung über Typ-/Scale-Parität und Objektfamilie zurückgestellt; keine Implementierungsfreigabe erteilt.
 - Vier parallele ResultTable-Sitzungen mit identischen logischen lokalen Temp-Tabellennamen auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich validiert; invasiven DDL-Trigger-Harness als ungeeignete Recovery-Evidenz verworfen.
+- Das pauschale Phase-2-Gate eines vollständig validierten, fachlich unabhängigen Referenzmoduls durch ein scopebezogenes Gate ersetzt; konkrete Modulverträge, Eigenvalidierung und tatsächlich verwendete gemeinsame Infrastruktur bleiben verpflichtend.
+- `TC-2026-012` nach Benutzerfreigabe vom Research-Kandidaten zum implementierten Modul überführt; Runtime-Evidenz bleibt bis zur tatsächlichen Ausführung `not executed`.
 
 ### Korrigiert
 

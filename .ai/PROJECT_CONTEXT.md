@@ -2,7 +2,13 @@
 
 ## Projektstatus
 
-Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das erste Kernmodul `toolbelt.core.result-table` ist implementiert und teilweise validiert: Die GitHub-hosted Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; Windows und noch nicht automatisierte Pflichtfälle bleiben `not executed`.
+Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das Kernmodul
+`toolbelt.core.result-table` ist implementiert und teilweise validiert: Die
+GitHub-hosted Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich;
+Windows und noch nicht automatisierte Pflichtfälle bleiben `not executed`.
+Das unabhängige Modul `toolbelt.conversion.base64` ist implementiert; seine
+Runtime-Prüfung auf SQL Server 2025 mit Compatibility Levels 150, 160 und 170
+ist noch `not executed`.
 
 ## Projektzweck
 

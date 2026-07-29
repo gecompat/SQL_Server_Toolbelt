@@ -4,6 +4,25 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### AP-2026-008: Base64/Base64URL-Modul implementieren und validieren
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-008` |
+| Ziel | Den freigegebenen Vertrag von `TC-2026-012` als portables Conversion-Modul implementieren, dokumentieren und gezielt validieren. |
+| Scope | `toolbelt.conversion.base64` Version `1.0.0`; `SVF_Base64Encode` und `SVF_Base64Decode`; T-SQL/XML-Provider; lokales und zentrales Deployment; RFC-4648-, native Paritäts-, Fehler-, Größen- und Lifecycle-Tests. Kein CLR, keine Zeichenkodierung und keine Datei-I/O. |
+| Dependencies | Besprochener und am 2026-07-29 ausdrücklich freigegebener Funktionsvertrag; scopebezogenes Qualitäts-Gate aus `DEC-2026-021`; keine technische Abhängigkeit zu ResultTable. |
+| Priorität | `P1` |
+| Status | `active` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
+| Akzeptanzkriterien | Zwei öffentliche Scalar UDFs im Schema `toolbelt_conversion`; Standard- und URL-safe-Ausgabe; Decode beider Alphabete, optionales Padding und definierter Whitespace; unveränderte Providerfehler; keine String-zu-Binär-Konvertierung; vollständige gekoppelte Dokumentation und Lifecycle-Artefakte; SQL Server 2025 mit Compatibility Levels 150/160/170 erfolgreich. |
+| Tests | Statische Vertragsprüfung und ein serieller GitHub-hosted Linux-Workflow für SQL Server 2025 mit Compatibility Levels 150/160/170; physische 2019-/2022- und Windows-Läufe bleiben bis zur gezielten Releasevalidierung `not executed`. |
+| Blocker | Kein Implementierungsblocker. Runtime-Evidenz steht noch aus; bis dahin bleibt `validation_status: not executed`. |
+| Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.conversion.base64/`; Runtime-Workflow noch nicht ausgeführt. |
+| Nächster Schritt | Statische und Runtime-Checks ausführen, Evidenz und Status aktualisieren und erst danach mergen. |
+
 ### AP-2026-007: Entscheidungsvorbereitung für das zweite Modul
 
 | Feld | Wert |
@@ -16,9 +35,9 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Status | `completed` |
 | Akzeptanzkriterien | Bevorzugter Besprechungskandidat nachvollziehbar ausgewählt; Alternative mit konkretem Grund zurückgestellt; offene Benutzerentscheidungen und Pflichtprüfungen sichtbar; kein öffentlicher Funktionsvertrag oder Implementierungsrecht behauptet. |
 | Tests | Primärquellenabgleich gegen Microsoft Learn und RFC 4648; Kandidaten-, Backlog-, Roadmap-, Link-, Datenschutz- und Change-Impact-Prüfung. Runtime-Tests sind für diese reine Entscheidungsvorbereitung `not applicable`. |
-| Blocker | Keine für die Entscheidungsvorbereitung. Die Implementierung bleibt blockiert, bis der Benutzer den konkreten Funktionsvertrag besprochen und ausdrücklich freigegeben hat und mindestens ein Referenzmodul gemäß Roadmap vollständig `validated` ist. |
+| Blocker | Keine. Der konkrete Vertrag wurde am 2026-07-29 besprochen und freigegeben; das pauschale Referenzmodul-Gate wurde durch `DEC-2026-021` scopebezogen präzisiert. |
 | Evidenz | `Documentation/Research/SECOND_MODULE_SELECTION.md` und aktualisierte Kandidaten `TC-2026-004`/`TC-2026-012`; geprüft am 2026-07-29. |
-| Nächster Schritt | `TC-2026-012` anhand der dokumentierten Fragen mit dem Benutzer besprechen; bei Auswahl den Vertrag spezifizieren. Unabhängig davon die offenen ResultTable-Pflichtfälle weiter abbauen. |
+| Nächster Schritt | Abgeschlossen; Umsetzung erfolgt in `AP-2026-008`. Die offenen ResultTable-Pflichtfälle bleiben ein eigenes Arbeitspaket. |
 
 ### AP-2026-006: Dokumentationsbaseline und inkrementeller Drift-Schutz
 
