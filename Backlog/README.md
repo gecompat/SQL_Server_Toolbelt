@@ -15,6 +15,8 @@ Dieses Verzeichnis enthält drei getrennte Kandidatenlisten.
 2. Bei Analyze-Ideen nach Möglichkeit das Ziel-Repository lesend auf vorhandene Funktionalität prüfen.
 3. Fakten, Vermutungen und offene Fragen trennen.
 4. Kandidat mit Primärquelle und Prüfdatum eintragen.
-5. Kandidaten erst nach Priorisierung in `.ai/BACKLOG.md` als Arbeitspaket übernehmen.
+5. Ideen und Research-Kandidaten dürfen fortlaufend ergänzt werden; dadurch entsteht keine Implementierungszusage.
+6. Vor jeder Implementierung Zweck, öffentlichen Vertrag, Alternativen, Risiken und Scope der konkreten Funktion mit dem Benutzer besprechen.
+7. Kandidaten erst nach dieser Besprechung und ausdrücklicher Benutzerfreigabe in `.ai/BACKLOG.md` als aktives Implementierungsarbeitspaket übernehmen.
 
 Der GitHub-Copilot-Custom-Agent [backlog-curator.agent.md](../.github/agents/backlog-curator.agent.md) unterstützt diese Pflege bei expliziter Zuweisung. Er arbeitet nicht unbeaufsichtigt im Hintergrund.
