@@ -36,14 +36,15 @@ Version `1.0.0` unterstützt ausdrücklich nicht:
 - globale Temp-Tabellen;
 - Tabellenvariablen;
 - mehrere fachliche Resultsets je USP;
-- das Kopieren von Indizes, Constraints, Defaults, Triggern oder physischen Tabelleneigenschaften;
+- das Kopieren von Indizes, Constraints, Defaults, Triggern oder anderen physischen Tabelleneigenschaften;
 - frei vom Benutzer geliefertes und ungeprüft ausgeführtes `CREATE TABLE`-DDL;
 - Linked-Server- oder vierteilige Schemaquellen;
 - Views oder Synonyme als Schemaquelle;
 - eine eigene persistente Modulregistrierungstabelle;
-- CLR oder eine externe Runtime.
+- CLR oder eine externe Runtime;
+- nicht ausdrücklich in diesem Vertrag freigegebene neue oder versionsspezifische SQL-Datentypen.
 
-Eine spätere sichere Auswertung frei gelieferten DDLs kann mit Microsoft ScriptDOM untersucht werden. Sie ist kein Bestandteil dieses Moduls in Version `1.0.0`.
+Eine spätere sichere Auswertung frei gelieferten DDLs kann mit Microsoft ScriptDOM oder einem gleichwertigen vollständigen Parser untersucht werden. Die zuvor erwogene `@CreateStmt`-Capability wird nicht grundsätzlich verworfen, gehört aber nicht zu Version `1.0.0`.
 
 ## 3. Objektinventar
 
@@ -53,7 +54,7 @@ Die erste Version benötigt genau ein persistentes SQL-Objekt:
 |---|---|---|---|
 | öffentliche Framework-API | `toolbelt_core.USP_PrepareResultTable` | Stored Procedure | Prüft und bereitet eine lokale Temp-Tabelle entsprechend einer Referenztabelle vor. |
 
-Es werden in dieser Version keine Tabellen, Synonyme, Assemblies, Trigger, Sequences oder Types benötigt. Dadurch wird keine noch offene Namenskonvention aus `DEC-2026-003` vorweggenommen.
+Es werden in dieser Version keine persistente Tabelle, kein Synonym, keine Assembly, kein Trigger, keine Sequence und kein Type benötigt. Dadurch wird keine noch offene Namenskonvention aus `DEC-2026-003` vorweggenommen.
 
 Interne Arbeitsdaten werden in Table Variables oder eindeutig benannten lokalen Temp-Objekten gehalten. Es entsteht kein dauerhaftes Datenobjekt.
 
@@ -158,9 +159,9 @@ Vorgesehene Modulfehler:
 | `51028` | Der aktuelle Transaktionszustand erlaubt kein kontrolliertes Rollback. |
 | `51029` | Intern erzeugtes DDL überschreitet einen unterstützten Grenzwert oder ist unvollständig. |
 
-## 6. Warum Version 1 keinen `@CreateStmt`-Parameter besitzt
+## 6. Schemaquelle und zurückgestellter `@CreateStmt`-Pfad
 
-Die ursprüngliche Designoption sah zusätzlich `@CreateStmt nvarchar(max)` vor. Die erste Version verwendet diesen Parameter bewusst nicht.
+Die ursprüngliche Designoption sah zusätzlich `@CreateStmt nvarchar(max)` vor. Version `1.0.0` stellt diesen öffentlichen Parameter zurück, ohne die Capability für eine spätere Version auszuschließen.
 
 Stattdessen erzeugt die aufrufende Toolbelt-USP eine lokale, routinenspezifisch benannte Helper-Temp-Tabelle mit exakt dem gewünschten Resultsetschema und übergibt deren Namen über `@LikeTable`.
 
@@ -169,9 +170,9 @@ Beispielmuster:
 ```sql
 DECLARE @OwnsResultShape bit = 0;
 
-IF OBJECT_ID(N'tempdb..#tbx_string_split_ResultShape', N'U') IS NULL
+IF OBJECT_ID(N'tempdb..#tbx_String_Split_ResultShape', N'U') IS NULL
 BEGIN
-    CREATE TABLE #tbx_string_split_ResultShape
+    CREATE TABLE #tbx_String_Split_ResultShape
     (
           ItemOrdinal bigint        NOT NULL
         , ItemValue   varchar(8000) NULL
@@ -180,14 +181,18 @@ BEGIN
     SET @OwnsResultShape = 1;
 END;
 
+-- Eine bereits vorhandene Helper-Tabelle wird vor der Wiederverwendung gegen
+-- den erwarteten unveränderlichen Shape-Vertrag geprüft.
+{{ValidateExistingResultShape}}
+
 EXEC toolbelt_core.USP_PrepareResultTable
       @ResultTableToAlter = @ResultTable
-    , @LikeTable          = N'#tbx_string_split_ResultShape'
+    , @LikeTable          = N'#tbx_String_Split_ResultShape'
     , @KeepData           = @KeepData
     , @Debug              = @Debug;
 
 IF @OwnsResultShape = 1
-    DROP TABLE #tbx_string_split_ResultShape;
+    DROP TABLE #tbx_String_Split_ResultShape;
 ```
 
 Dieses Muster hat folgende Vorteile:
@@ -198,7 +203,14 @@ Dieses Muster hat folgende Vorteile:
 - rekursive Aufrufe derselben USP verwenden dieselbe unveränderliche Schema-Helper-Tabelle;
 - nur der tatsächliche Erzeuger entfernt die Helper-Tabelle.
 
-Helper-Temp-Tabellen sind routinenspezifisch zu benennen. Generische Namen wie `#Temp`, `#Result` oder `#Schema` sind unzulässig.
+Helper-Temp-Tabellen sind routinenspezifisch nach `SQL_OBJECT_NAMING.md` zu benennen. Generische Namen wie `#Temp`, `#Result` oder `#Schema` sind unzulässig.
+
+Ein späterer öffentlicher `@CreateStmt`-Pfad benötigt:
+
+- einen vollständigen T-SQL-Parser wie ScriptDOM;
+- einen expliziten Trust- und Berechtigungsvertrag;
+- eine eigene Testmatrix für zusätzliche Statements, Kommentare, Strings, delimitierte Identifier und Transaktionskontrolle;
+- eine separate Architekturentscheidung und Versionierung als Vertragsänderung.
 
 ## 7. Objektauflösung
 
@@ -223,6 +235,12 @@ Eine lokale `@LikeTable` wird auf dieselbe Weise einmalig in `tempdb` aufgelöst
 - geeignete read-only Catalog-Abfragen dürfen `WITH (NOLOCK)` verwenden;
 - nach der ID-Ermittlung werden Metadatenfunktionen nicht wiederholt in Prädikaten aufgerufen.
 
+### 7.4 Namensvergleich
+
+Technische Vergleiche von Datenbank-, Schema-, Objekt- und Spaltennamen verwenden eine explizite invariant-binäre Vergleichssemantik. Sie dürfen nicht zufällig von der Collation der Toolbelt-Datenbank, der Referenzdatenbank oder `tempdb` abhängen.
+
+Die konkrete BIN2-Collation wird bei der Implementierung aus einer auf allen Zielversionen verfügbaren Instanzcollation gewählt und in den Contract Tests verifiziert.
+
 ## 8. Normalisierte Spaltenmetadaten
 
 Die Implementierung normalisiert Referenz- und Zielspalten intern mindestens auf folgende Felder:
@@ -242,6 +260,9 @@ Die Implementierung normalisiert Referenz- und Zielspalten intern mindestens auf
 | `IsComputed` | computed column |
 | `GeneratedAlwaysType` | systemgenerierte Spalte |
 | `IsHidden` | versteckte Spalte |
+| `IsColumnSet` | XML-Column-Set-Eigenschaft |
+| `IsSparse` | Sparse-Eigenschaft zur bewussten Normalisierung |
+| `EncryptionType` | Always-Encrypted-Eigenschaft |
 | `IsAssemblyType` | CLR-basierter Typ |
 | `IsUserDefined` | Alias- oder User-defined Type |
 | `NormalizedTypeDeclaration` | sicher generierbares DDL-Fragment |
@@ -249,7 +270,17 @@ Die Implementierung normalisiert Referenz- und Zielspalten intern mindestens auf
 
 ### 8.1 Unterstützte Spalten
 
-Version `1.0.0` unterstützt gewöhnliche einfügbare Spalten auf Basis der SQL-Systemtypen.
+Version `1.0.0` verwendet eine ausdrückliche Whitelist gewöhnlicher einfügbarer Spalten auf Basis etablierter SQL-Systemtypen:
+
+- Ganzzahl- und Bit-Typen;
+- `decimal`/`numeric`, Money- und Gleitkommatypen;
+- Datum-/Zeittypen einschließlich Scale;
+- `char`, `varchar`, `nchar`, `nvarchar` einschließlich `max`;
+- `binary`, `varbinary` einschließlich `max`;
+- `uniqueidentifier`;
+- `sql_variant`;
+- untypisiertes `xml`;
+- `hierarchyid`, `geometry` und `geography`, wenn sie auf der Zielversion vorhanden sind.
 
 Zusätzliche Regeln:
 
@@ -258,12 +289,13 @@ Zusätzliche Regeln:
 - Zeichencollations werden ausdrücklich erhalten;
 - Alias Types werden auf den zugrunde liegenden Systemtyp normalisiert;
 - typisiertes XML wird als untypisiertes `xml` normalisiert;
-- die SQL-Server-Systemtypen `hierarchyid`, `geometry` und `geography` dürfen erhalten bleiben, wenn sie auf der Zielversion vorhanden sind;
 - `rowversion` beziehungsweise `timestamp` ist als Schemaquelle unzulässig, weil die Zielspalte explizit befüllt werden muss;
 - Identity-, computed-, hidden-, generated-always-, column-set- und verschlüsselte Spalten sind als Referenzschema unzulässig;
-- benutzerdefinierte CLR Types sind in Version `1.0.0` nicht unterstützt.
+- benutzerdefinierte CLR Types sind in Version `1.0.0` nicht unterstützt;
+- Legacy-LOB-Typen `text`, `ntext` und `image` sind nicht unterstützt;
+- neue versionsspezifische Typen wie ein nativer JSON- oder Vector-Typ sind erst nach einer eigenen Contract-Erweiterung unterstützt.
 
-Nicht unterstützte Formen führen vor jeder Mutation zu `51024`.
+Nicht freigegebene oder unbekannte Formen führen vor jeder Mutation zu `51024`. Eine spätere Typ-Erweiterung ist eine versionierte öffentliche Vertragsänderung.
 
 ## 9. Schema-Gleichheit
 
@@ -271,7 +303,7 @@ Ein Zieltable-Schema gilt nur dann als passend, wenn folgende Eigenschaften übe
 
 - Spaltenanzahl;
 - Spaltenreihenfolge;
-- Spaltenname;
+- Spaltenname unter der invariant-binären Namenssemantik;
 - normalisierter Systemtyp;
 - Länge;
 - Precision;
@@ -304,12 +336,12 @@ Vor der ersten Mutation werden vollständig geprüft:
 6. Vorhandensein von Zielzeilen;
 7. `@KeepData`-Konflikte;
 8. bei notwendigem Schemaumbau alle bekannten abhängigen Objekte;
-9. generierbares DDL;
+9. vollständige Generierbarkeit des DDLs;
 10. aktueller Transaktionszustand.
 
 Wenn ein Schemaumbau erforderlich ist, gelten als Blocker insbesondere:
 
-- Heap-unabhängige Indizes;
+- alle Indizes mit Abhängigkeit zu einer zu entfernenden oder zu ändernden Spalte;
 - Primary-, Unique-, Check- oder Foreign-Key-Constraints;
 - Default Constraints;
 - computed columns;
@@ -327,6 +359,8 @@ Kein Blocker wird automatisch entfernt. Ein erkannter Blocker führt mit `51026`
 - `@KeepData = 0`: vorhandene Zeilen mit dem effizientesten zulässigen Verfahren entfernen;
 - keine DDL-Operation ausführen;
 - Indizes und Constraints unverändert lassen.
+
+Das bevorzugte Löschverfahren ist `TRUNCATE TABLE`, soweit SQL Server und vorhandene Dependencies dies zulassen. Andernfalls darf kontrolliert `DELETE` verwendet werden. Das Verfahren wird bei `@Debug >= 2` als Message ausgewiesen.
 
 ### 11.2 Schema passt nicht
 
@@ -347,12 +381,13 @@ Eine zweite vollständige Metadatenabfrage unmittelbar vor der DDL-Ausführung i
 ## 12. Transaktionsvertrag
 
 - Bei `@@TRANCOUNT = 0` beginnt die Procedure unmittelbar vor der ersten Mutation eine eigene Transaktion.
-- Bei bestehender, committable Transaktion wird ein eindeutig benannter Savepoint verwendet.
+- Bei bestehender, committable Transaktion wird ein Invocation-spezifisch benannter Savepoint innerhalb des SQL-Server-Namenslimits verwendet.
 - Bei Erfolg wird nur eine selbst begonnene Transaktion committed.
 - Bei Fehler wird eine selbst begonnene Transaktion vollständig zurückgerollt.
 - Bei bestehender Transaktion und `XACT_STATE() = 1` wird zum eigenen Savepoint zurückgerollt.
 - Bei `XACT_STATE() = -1` ist ein Savepoint-Rollback nicht möglich; der Originalfehler wird weitergegeben und der uncommittable Zustand bleibt für den Aufrufer sichtbar.
 - Die Procedure committed oder rollt niemals eine vom Aufrufer gestartete vollständige Transaktion zurück.
+- Die Procedure verändert keine dauerhaften Session-SET-Optionen des Aufrufers. Erforderliche SET-Annahmen werden dokumentiert und getestet.
 - Error Handling erfolgt an diesen Grenzen und nicht nach jedem Einzelstatement.
 
 ## 13. Collation- und Datentypvertrag
@@ -367,8 +402,9 @@ Eine zweite vollständige Metadatenabfrage unmittelbar vor der DDL-Ausführung i
 ## 14. Rekursion, Verschachtelung und Parallelität
 
 - Verschachtelte Toolbelt-USPs verwenden `@ResultTable` statt `INSERT ... EXEC`.
-- Routinenspezifische Schema-Helper-Temp-Tabellen werden bei Rekursion wiederverwendet und nur vom tatsächlichen Erzeuger gedroppt.
-- Modulinterne dynamisch erzeugte Namen verwenden den Präfix `#tbx_` und einen Invocation-spezifischen Suffix.
+- Routinenspezifische Schema-Helper-Temp-Tabellen werden bei Rekursion nur dann wiederverwendet, wenn ihr tatsächliches Schema dem unveränderlichen Shape-Vertrag entspricht.
+- Nur der tatsächliche Erzeuger droppt eine wiederverwendete Helper-Tabelle.
+- Modulinterne dynamisch erzeugte Arbeitsnamen verwenden den Präfix `#tbx_` und einen Invocation-spezifischen Suffix.
 - Gleichzeitige DDL-Manipulation derselben Zieltable durch MARS oder parallele Batches derselben Session ist nicht unterstützt.
 - Unterschiedliche Sessions sind durch die SQL-Server-Suffixe lokaler Temp-Tabellen getrennt.
 
@@ -401,9 +437,13 @@ Ein zentral installiertes `USP_PrepareResultTable` kann die lokalen Temp-Tabelle
 ### Install
 
 - SQL Server 2019, 2022 oder 2025 prüfen;
-- Schema `toolbelt_core` kontrolliert anlegen oder als Toolbelt-Schema erkennen;
+- Schema `toolbelt_core` kontrolliert anlegen oder anhand seiner Toolbelt-Extended-Properties als verwaltet erkennen;
 - Kollision mit einem nicht als Toolbelt verwalteten Schema abbrechen;
-- Procedure anlegen;
+- Procedure anlegen oder eine identische bereits installierte Version kontrolliert verifizieren;
+- bei einer älteren oder unbekannten Version auf den Upgrade-Pfad verweisen und nicht stillschweigend überschreiben;
+- Extended Properties am Schema setzen:
+  - `Toolbelt.Managed = 1`;
+  - `Toolbelt.SchemaCategory = core`;
 - Extended Properties am Procedure-Objekt setzen:
   - `Toolbelt.ModuleId = toolbelt.core.result-table`;
   - `Toolbelt.ModuleVersion = 1.0.0`;
@@ -415,14 +455,15 @@ Ein zentral installiertes `USP_PrepareResultTable` kann die lokalen Temp-Tabelle
 - bekannte Vorgängerversion anhand der Extended Properties prüfen;
 - öffentliche Signatur und Help-Vertrag als Breaking-Change-Gate behandeln;
 - Procedure kontrolliert aktualisieren;
-- Modulversion erst nach erfolgreicher Objektaktualisierung setzen.
+- Modulversion erst nach erfolgreicher Objektaktualisierung setzen;
+- unbekannte oder fremde Marker vor jeder Mutation ablehnen.
 
 ### Uninstall
 
 - statische same-database Dependencies soweit möglich ermitteln;
 - keine fremden Objekte entfernen;
 - Procedure und ihre Extended Properties entfernen;
-- `toolbelt_core` nur entfernen, wenn es als Toolbelt-Schema markiert und vollständig leer ist;
+- `toolbelt_core` nur entfernen, wenn es durch `Toolbelt.Managed = 1` markiert und vollständig leer ist;
 - bei zentraler Installation kann die Abwesenheit beliebiger externer direkter Aufrufer nicht automatisch bewiesen werden. Der Uninstall-Pfad benötigt deshalb eine ausdrückliche Betreiberbestätigung, dass keine externen Konsumenten mehr vorhanden sind.
 
 ## 17. Implementierungswellen nach dieser Spezifikation
@@ -456,6 +497,7 @@ Ein zentral installiertes `USP_PrepareResultTable` kann die lokalen Temp-Tabelle
 - `sys.types`: https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-types-transact-sql?view=sql-server-ver17
 - `PARSENAME`: https://learn.microsoft.com/en-us/sql/t-sql/functions/parsename-transact-sql?view=sql-server-ver17
 - `QUOTENAME`: https://learn.microsoft.com/en-us/sql/t-sql/functions/quotename-transact-sql?view=sql-server-ver17
+- `sys.fn_helpcollations`: https://learn.microsoft.com/en-us/sql/relational-databases/system-functions/sys-fn-helpcollations-transact-sql?view=sql-server-ver17
 - `SAVE TRANSACTION`: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/save-transaction-transact-sql?view=sql-server-ver17
 - `XACT_STATE`: https://learn.microsoft.com/en-us/sql/t-sql/functions/xact-state-transact-sql?view=sql-server-ver17
 - `TRY...CATCH`: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver17
