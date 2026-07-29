@@ -19,6 +19,12 @@ SQL Server Toolbelt liefert modulare, wiederverwendbare SQL-Server-Objekte für 
 
 Performance-, Konfigurations-, Diagnose- und Security-Analysen gehören in `gecompat/SQL_Server_Analyze` und werden hier nicht implementiert. Geeignete Ideen werden ausschließlich als Backlog-Input erfasst.
 
+## Persönlicher Research-Input
+
+`Backlog/personal_Backlog_Bainstorm.md` ist ein vom Benutzer gepflegter Ideenpool. Vor jeder Backlog- oder Research-Aufgabe ist diese Datei als Hinweisquelle zu lesen und bei der Recherche zu berücksichtigen.
+
+Die Datei ist keine Source of Truth für Projektregeln, Prioritäten, öffentliche Verträge oder Implementierungsfreigaben. Vorhandene Inhalte werden niemals gelöscht oder stillschweigend umformuliert. KI-Systeme dürfen ergänzen, kommentieren und auf formale Kandidaten verweisen. Nicht mehr aktuelle Aussagen werden mit Markdown durchgestrichen und unmittelbar durch einen datierten Änderungskommentar mit Autor, Begründung und gegebenenfalls Nachfolger-ID ergänzt.
+
 ## Datenschutz-Stop-Gate
 
 **Vor jeder Dateiänderung, jedem Commit und jedem Pull Request ist zu prüfen:**
