@@ -105,6 +105,28 @@ if [[ "${test_suite}" == "full" ]]; then
     run_file "${local_database}" "${runtime_directory}" \
         BoundaryAndTransaction.Contract.sql
     run_file "${local_database}" "${runtime_directory}" \
+        Recovery.Contract.sql
+
+    multi_session_pids=()
+    for worker_id in 1 2 3 4; do
+        run_file "${local_database}" "${runtime_directory}" \
+            MultiSession.Contract.sql -v WorkerId="${worker_id}" &
+        multi_session_pids+=("$!")
+    done
+
+    multi_session_failed=0
+    for worker_pid in "${multi_session_pids[@]}"; do
+        if ! wait "${worker_pid}"; then
+            multi_session_failed=1
+        fi
+    done
+
+    if [[ "${multi_session_failed}" -ne 0 ]]; then
+        echo "Mindestens ein synthetischer Multi-Session-Worker ist fehlgeschlagen." >&2
+        exit 1
+    fi
+
+    run_file "${local_database}" "${runtime_directory}" \
         Performance.Workload.sql
 
     # CREATE OR ALTER durch das Release muss eine lokale Framework-Änderung bei

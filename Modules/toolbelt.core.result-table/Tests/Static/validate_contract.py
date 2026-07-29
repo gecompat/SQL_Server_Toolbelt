@@ -32,6 +32,10 @@ COLLATION_CONTRACT = MODULE_ROOT / "Tests" / "Runtime" / "Collation.Contract.sql
 BOUNDARY_TRANSACTION_CONTRACT = (
     MODULE_ROOT / "Tests" / "Runtime" / "BoundaryAndTransaction.Contract.sql"
 )
+RECOVERY_CONTRACT = MODULE_ROOT / "Tests" / "Runtime" / "Recovery.Contract.sql"
+MULTI_SESSION_CONTRACT = (
+    MODULE_ROOT / "Tests" / "Runtime" / "MultiSession.Contract.sql"
+)
 PERFORMANCE_WORKLOAD = (
     MODULE_ROOT / "Tests" / "Runtime" / "Performance.Workload.sql"
 )
@@ -99,6 +103,8 @@ def main() -> int:
             CENTRAL_CONTRACT,
             COLLATION_CONTRACT,
             BOUNDARY_TRANSACTION_CONTRACT,
+            RECOVERY_CONTRACT,
+            MULTI_SESSION_CONTRACT,
             PERFORMANCE_WORKLOAD,
             RUNTIME_WORKFLOW,
             LINUX_RUNNER,
@@ -257,6 +263,8 @@ def main() -> int:
         "USP_PrepareResultTable.Contract.sql",
         "Collation.Contract.sql",
         "BoundaryAndTransaction.Contract.sql",
+        "Recovery.Contract.sql",
+        "MultiSession.Contract.sql",
         "Performance.Workload.sql",
         "Central.Contract.sql",
     ):
@@ -290,6 +298,42 @@ def main() -> int:
             raise AssertionError(
                 f"Grenz-/Transaktions-Contract-Marker fehlt: {marker}"
             )
+
+    recovery_contract = files[RECOVERY_CONTRACT]
+    for marker in (
+        "tbx.ResultTable.InjectConversionFailure",
+        "CONVERT(int, @InvalidValue)",
+        "@ObservedError <> 245",
+        "@ObservedXactState <> 1",
+        "ROLLBACK TRANSACTION",
+        "OriginalValue",
+    ):
+        if marker not in recovery_contract:
+            raise AssertionError(
+                f"Recovery-Contract-Marker fehlt: {marker}"
+            )
+
+    multi_session_contract = files[MULTI_SESSION_CONTRACT]
+    for marker in (
+        "$(WorkerId)",
+        "WHILE @Iteration <= 24",
+        "#ResultTableParallel",
+        "#tbx_ResultTableParallel_ShapeA",
+        "#tbx_ResultTableParallel_ShapeB",
+        "WAITFOR DELAY '00:00:00.025'",
+    ):
+        if marker not in multi_session_contract:
+            raise AssertionError(
+                f"Multi-Session-Contract-Marker fehlt: {marker}"
+            )
+    if 'for worker_id in 1 2 3 4; do' not in linux_runner:
+        raise AssertionError(
+            "Der Linux-Adapter startet nicht alle vier Multi-Session-Worker."
+        )
+    if 'wait "${worker_pid}"' not in linux_runner:
+        raise AssertionError(
+            "Der Linux-Adapter wartet nicht kontrolliert auf die Multi-Session-Worker."
+        )
 
     performance_workload = files[PERFORMANCE_WORKLOAD]
     for marker in (

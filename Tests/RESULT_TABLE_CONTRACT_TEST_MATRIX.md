@@ -8,7 +8,7 @@
 | Implementierung | `AP-2026-003` |
 | Modul | `toolbelt.core.result-table` |
 | Objekt | `toolbelt_core.USP_PrepareResultTable` |
-| Testcode | statischer Validator, Runtime-/Lifecycle-Verträge sowie zusätzliche Collation-, 1024-Spalten-, Transaktions- und Performance-Workloads implementiert; Restfälle noch nicht vollständig automatisiert |
+| Testcode | statischer Validator, Runtime-/Lifecycle-Verträge sowie zusätzliche Collation-, 1024-Spalten-, Transaktions-, Recovery-, Multi-Session- und Performance-Workloads implementiert; Ausführung neuer Workloads bis zum grünen Workflow noch offen |
 | Runtime-Status | `partially validated` |
 
 Diese Matrix bleibt das verbindliche Validierungsinventar. Die erste Linux-Welle ist ausgeführt; offene Kombinationen behalten ihren eigenen Status `not executed`.

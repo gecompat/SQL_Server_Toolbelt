@@ -35,6 +35,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Kandidaten `TC-2026-025` bis `TC-2026-028` für kontrollierte PowerShell-Host-Automation, Python-Provider, versionsbezogene REST-/Web-Requests und getrennte KI-/Chat-Capabilities.
 - ResultTable-Contract-Tests für explizite Collations, das 1024-Spalten-Limit, Caller-/uncommittable-Transaktionen und einen reproduzierbaren synthetischen Performance-Workload.
 - Entscheidungsvorlage für das zweite Modul mit einem vertieften Vergleich von `TC-2026-004` und `TC-2026-012`, offenen Vertragsfragen, Provideroptionen, Testdimensionen und expliziten Implementierungs-Gates.
+- ResultTable-Recovery- und Multi-Session-Contracts für einen nach begonnener DDL-Kette injizierten Konvertierungsfehler sowie vier parallele Sitzungen mit identischen logischen Temp-Tabellennamen.
 
 ### Geändert
 
