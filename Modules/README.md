@@ -4,17 +4,19 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**Das erste Kernmodul ist implementiert und `partially validated`.**
+**Zwei Module sind implementiert; ihr Validierungsstand wird getrennt aus den Manifesten abgeleitet.**
 
 ## Implementierte Module
 
 <!-- BEGIN GENERATED:MODULE_STATUS_TABLE -->
 | Modul-ID | Name | Version | Schema | Implementierung | Validierung | Release | SQL Server |
 |---|---|---:|---|---|---|---|---|
+| `toolbelt.conversion.base64` | Base64 and Base64URL Conversion | `1.0.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.result-table` | Result Table Infrastructure | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 <!-- END GENERATED:MODULE_STATUS_TABLE -->
 
-Der Modulstatus belegt vorhandenen Code und erfolgreiche Linux-Evidenz. Er bedeutet noch keine vollständige Plattform- und Pflichtmatrixvalidierung.
+Der Modulstatus trennt vorhandenen Code von tatsächlich ausgeführter Evidenz.
+Er bedeutet keine pauschale Plattform- oder Pflichtmatrixvalidierung.
 
 ## Hinweise für neue Module
 

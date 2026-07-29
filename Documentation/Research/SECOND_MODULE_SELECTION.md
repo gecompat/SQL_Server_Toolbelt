@@ -5,22 +5,22 @@
 | Feld | Wert |
 |---|---|
 | Zweck | Entscheidungsvorlage für die Besprechung des zweiten fachlichen Moduls |
-| Status | `decision prepared` |
+| Status | `implemented; partially validated` |
 | Prüfdatum | 2026-07-29 |
 | Bevorzugter Kandidat | `TC-2026-012` – Base64-/Base64URL-Konvertierung |
 | Alternative | `TC-2026-004` – `DATETRUNC`-Kompatibilität |
-| Implementierungsfreigabe | Nicht erteilt |
-| Implementierungsblocker | Funktionsbezogene Benutzerentscheidung und ein vollständig validiertes Referenzmodul gemäß Roadmap |
+| Implementierungsfreigabe | Am 2026-07-29 ausdrücklich erteilt |
+| Implementierungsblocker | Keine; das scopebezogene Qualitäts-Gate ist in `DEC-2026-021` dokumentiert |
 
-Dieses Dokument ist eine Research- und Entscheidungsvorlage. Es definiert
-keinen öffentlichen SQL-Vertrag, autorisiert keine Implementierung und ersetzt
-weder ein späteres Moduldesign noch eine Contract-Testmatrix.
+Dieses Dokument hält die vorausgegangene Research- und Auswahlbegründung fest.
+Der verbindliche öffentliche Vertrag steht nun in
+`../Architecture/BASE64_MODULE_DESIGN.md`; die Pflichtprüfungen stehen in der
+modulspezifischen Contract-Testmatrix.
 
 ## Ergebnis
 
-`TC-2026-012` ist der bevorzugte Kandidat für die nächste
-funktionsbezogene Besprechung. Die Empfehlung ist keine automatische
-Priorisierung zur Implementierung.
+`TC-2026-012` wurde als zweites Modul ausgewählt, besprochen und freigegeben.
+Die Implementierung erfolgt in `toolbelt.conversion.base64`.
 
 Der zuvor naheliegende Kandidat `TC-2026-004` wird zurückgestellt. Die
 vertiefte Vertragsprüfung zeigt, dass ein einzelner T-SQL-Backport die native
@@ -69,8 +69,8 @@ explizit besprochen werden.
 
 ## Vorgeschlagener Besprechungsrahmen für Base64
 
-Die folgenden Punkte sind Vorschläge für die Benutzerbesprechung, keine
-bereits beschlossenen Verträge.
+Die folgenden Punkte bildeten den Besprechungsrahmen. Die getroffenen
+Entscheidungen sind im Moduldesign verbindlich dokumentiert.
 
 ### Öffentliche Oberfläche
 
@@ -83,8 +83,8 @@ Bevorzugte Ausgangsoption:
 - `NULL` ergibt `NULL`;
 - keine stillschweigende Zeichenkodierung von `nvarchar` oder `varchar`.
 
-Die endgültigen Objektnamen, Parameter und Rückgabetypen werden erst nach der
-Besprechung festgelegt.
+Die endgültigen Objektnamen, Parameter und Rückgabetypen wurden im
+Moduldesign festgelegt.
 
 ### Standard und URL-safe
 
@@ -152,15 +152,16 @@ Vertrag interpretiert werden.
 | Gate | Status | Erforderliche Aktion |
 |---|---|---|
 | Kandidatenvergleich | erfüllt | Dieses Dokument und die Kandidateneinträge aktuell halten |
-| Auswahlbesprechung | offen | `TC-2026-012` oder eine Alternative mit dem Benutzer auswählen |
-| Öffentlicher Funktionsvertrag | offen | Oberfläche, Modus, Fehler, Größen und Provider entscheiden |
-| Funktionsbezogene Implementierungsfreigabe | offen | Nach der Besprechung ausdrücklich erteilen oder ablehnen |
-| Validiertes Referenzmodul | offen | Pflichtmatrix von `toolbelt.core.result-table` abschließen oder die Roadmap-Abhängigkeit ausdrücklich ändern |
-| Implementierung | blockiert | Erst nach allen vorstehenden Gates beginnen |
+| Auswahlbesprechung | erfüllt | `TC-2026-012` ausgewählt |
+| Öffentlicher Funktionsvertrag | erfüllt | `BASE64_MODULE_DESIGN.md` |
+| Funktionsbezogene Implementierungsfreigabe | erfüllt | ausdrücklich am 2026-07-29 |
+| Scopebezogenes Qualitäts-Gate | erfüllt | `DEC-2026-021`; keine ResultTable-Abhängigkeit |
+| Implementierung | erfüllt | Modulartefakte vorhanden |
+| Runtime-Validierung | teilweise erfüllt | SQL Server 2025 Linux mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe offen |
 
-Falls das Referenzmodul-Gate länger blockiert bleibt, sind unabhängig davon
-weitere Research-, Dokumentations- und Testvorbereitungen zulässig. Es werden
-aber weder Modulmanifest noch persistente SQL-Objekte angelegt.
+Die offenen ResultTable-Pflichtfälle bleiben unabhängig bestehen. Sie werden
+nicht als Evidenz für das Base64-Modul verwendet und blockieren dessen
+unabhängige Contract-Prüfung nicht.
 
 ## Primärquellen
 

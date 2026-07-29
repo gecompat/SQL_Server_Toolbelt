@@ -2,6 +2,11 @@
 
 Ein Modul darf den `implementation_status: implemented` erhalten, wenn Implementierung, statische Verträge, Dokumentation und Lifecycle-Artefakte vollständig und konsistent sind. `validation_status: validated` ist erst zulässig, wenn alle für den deklarierten Support erforderlichen Prüfungen tatsächlich erfolgreich ausgeführt wurden.
 
+Gemäß `DEC-2026-021` ist jede tatsächlich verwendete gemeinsame Infrastruktur
+für den benötigten Vertrag ausreichend zu validieren. Ein fachlich
+unabhängiges Referenzmodul ist keine pauschale Voraussetzung; die vollständige
+Eigenvalidierung des neuen Moduls bleibt verpflichtend.
+
 ## Implementierung
 
 - [ ] Alle Modulobjekte vollständig implementiert.

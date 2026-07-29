@@ -4,6 +4,10 @@ Dieses Verzeichnis enthält schlanke Adapter für GitHub-hosted Testläufe. Die 
 
 `run-result-table-linux.sh` startet für den ResultTable-Vertrag einen offiziellen SQL-Server-Linux-Container, erzeugt ausschließlich synthetische Testdatenbanken und ruft die kanonischen Deploy-, Runtime- und Uninstall-Artefakte auf.
 
+`run-base64-linux.sh` verwendet einen SQL-Server-2025-Linux-Container und
+prüft den Base64-Vertrag seriell mit Compatibility Levels 150, 160 und 170
+sowie lokale, zentrale und Lifecycle-Pfade.
+
 Bash wird hier nur als Linux-CI-Orchestrierung verwendet. Es enthält keine zweite Implementierung der T-SQL-Fachlogik.
 
 Das Testkennwort:
@@ -18,6 +22,12 @@ Ein vorhandener Adapter oder Workflow ist kein Runtime-Nachweis. Nur eine tatsä
 ## Evidenz
 
 Der [aktuelle GitHub Actions Run 30459004717](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) war am 2026-07-29 für den statischen Vertrag sowie die vollständige Suite auf SQL Server 2019, 2022 und 2025 unter GitHub-hosted Linux erfolgreich. Der Scope umfasst vier parallele echte Sitzungen mit identischen logischen lokalen Temp-Tabellennamen. Die früheren Läufe und verbleibenden Grenzen stehen in der ResultTable-Testmatrix.
+
+Der
+[Base64-Runtime-Lauf 30493304673](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30493304673)
+war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
+`not executed`.
 
 ## Quellen
 

@@ -140,28 +140,44 @@ Die erste Version benötigt keine persistente Tabelle, kein Synonym, keine Assem
 
 ## Phase 2 – Weitere Module
 
-**Status:** `blocked`
-**Abhängigkeit:** mindestens ein validiertes Referenzmodul.
+**Status:** `in progress`
+**Abhängigkeit:** funktionsbezogene Freigabe und scopebezogen ausreichende
+Validierung aller tatsächlich verwendeten gemeinsamen Verträge.
 
 Schrittweise Umsetzung priorisierter Toolbelt-Kandidaten nach fachlicher Kategorie und Dependency-Reihenfolge.
 
 Die Entscheidungsvorbereitung `AP-2026-007` ist abgeschlossen.
-`TC-2026-012` (Base64/Base64URL) wird gegenüber `TC-2026-004`
-(`DATETRUNC`-Kompatibilität) als nächster Besprechungskandidat empfohlen. Die
-Begründung, offenen Vertragsfragen und Provideroptionen stehen in
-`Documentation/Research/SECOND_MODULE_SELECTION.md`.
+`TC-2026-012` (Base64/Base64URL) wurde gegenüber `TC-2026-004`
+(`DATETRUNC`-Kompatibilität) ausgewählt, besprochen und zur Implementierung
+freigegeben. Die Auswahlbegründung steht in
+`Documentation/Research/SECOND_MODULE_SELECTION.md`; der verbindliche Vertrag
+steht in `Documentation/Architecture/BASE64_MODULE_DESIGN.md`.
 
-Die Phase ist bewusst blockiert:
+Der Base64-Vertrag wurde am 2026-07-29 besprochen und ausdrücklich zur
+Implementierung freigegeben. `AP-2026-008` setzt ihn als unabhängiges Modul
+`toolbelt.conversion.base64` um. Das Modul verwendet weder ResultTable noch
+einen anderen noch unzureichend validierten gemeinsamen Runtime-Vertrag.
 
-- `toolbelt.core.result-table` ist noch `partially validated`, nicht
-  `validated`;
-- der öffentliche Vertrag des zweiten Moduls wurde noch nicht mit dem Benutzer
-  besprochen;
-- es liegt keine funktionsbezogene Implementierungsfreigabe vor.
+Das frühere pauschale Gate „mindestens ein vollständig validiertes
+Referenzmodul“ wird durch `DEC-2026-021` scopebezogen präzisiert. Jedes Modul
+benötigt weiterhin seine eigenen vollständigen Source-, Lifecycle-,
+Dokumentations-, Contract- und Testartefakte. Verwendete gemeinsame
+Infrastruktur muss für den konkret benötigten Vertrag ausreichend validiert
+sein. Statuswerte dürfen nur tatsächlich ausgeführte Evidenz abbilden.
 
-Bis diese Gates erfüllt sind, dürfen Research, Vertragsentwurf und Testplanung
-weitergeführt werden. Ein neues Modulmanifest oder persistentes SQL-Objekt wird
-nicht angelegt.
+Stand `toolbelt.conversion.base64`:
+
+- Implementierung, Manifest, Lifecycle, Dokumentation, Beispiele sowie
+  statische und Runtime-Contract-Tests vorhanden;
+- SQL Server 2025 mit Compatibility Levels 150, 160 und 170 als erste
+  serielle Runtime-Matrix vorgesehen;
+- physische SQL-Server-2019-/2022- und Windows-Prüfungen für die gezielte
+  Releasevalidierung vorgesehen;
+- SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
+  einschließlich RFC-4648-, Fehler-, Größen-, Deployment- und
+  Lifecycle-Contracts erfolgreich;
+- wegen der offenen physischen 2019-/2022- und Windows-Prüfungen
+  `validation_status: partially validated`.
 
 ## Phase 3 – Schlanke Test-Infrastruktur und CI
 

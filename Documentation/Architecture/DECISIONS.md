@@ -278,3 +278,16 @@ Dauerhafte Entscheidungen werden mit stabiler ID dokumentiert. Historische Entsc
 | Auswirkungen | Ein Modul verwendet getrennte Felder `implementation_status`, `validation_status` und `release_status`. Vollständige Audits bleiben auf Baseline, Release, Governance- oder Kopplungsänderungen sowie ausdrückliche Aufträge begrenzt. Reine Dokumentationsänderungen starten keine Runtime-Vollmatrix. |
 | Alternativen | Ein Sammelstatus, unabhängige manuelle Statuspflege, Vollscan bei jedem Commit und ungeprüfte Pfadheuristiken wurden verworfen. |
 | Betroffene Verträge | `.ai/repo_map.yaml`, `.ai/PROJECT_RULES.md`, `.ai/WORKING_RULES.md`, `ARTIFACT_ROLES.md`, `MODULE_AND_DEPENDENCY_MODEL.md`, `TEST_AND_VALIDATION_POLICY.md`, Modulmanifeste und GitHub-Actions-Workflows |
+
+## DEC-2026-021: Scopebezogenes Qualitäts-Gate für weitere Module
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-07-29 |
+| Status | accepted |
+| Entscheidung | Ein weiteres Modul benötigt nicht pauschal ein vollständig validiertes, fachlich unabhängiges Referenzmodul. Verbindlich sind die funktionsbezogene Besprechung und Freigabe, vollständige eigene Source-, Lifecycle-, Dokumentations- und Testartefakte sowie eine für den konkret verwendeten Vertrag ausreichende Validierung jeder gemeinsamen Infrastruktur. |
+| Begründung | Ein pauschales Gate koppelt unabhängige Capabilities ohne technische Ursache und blockiert sie durch offene Prüfungen fremder Verträge. Scopebezogene Gates erhalten die Qualitätsanforderung und machen den tatsächlichen Abhängigkeits- und Testumfang explizit. |
+| Scope | Phase 2, Modulplanung, Dependency-Preflight, Test- und Statuswahrheit |
+| Auswirkungen | `toolbelt.conversion.base64` kann ohne ResultTable-Abhängigkeit implementiert und eigenständig validiert werden. Ein Modul darf offene Pflichtfälle verwendeter gemeinsamer Infrastruktur nicht umgehen; nicht ausgeführte Tests bleiben sichtbar. |
+| Alternativen | Vollständige Validierung irgendeines Referenzmoduls als pauschale Voraussetzung; vollständig unabhängige Module ohne eigenes Qualitäts-Gate. |
+| Betroffene Verträge | `.ai/ROADMAP.md`, `.ai/BACKLOG.md`, `BASE64_MODULE_DESIGN.md`, `MODULE_DEFINITION_OF_DONE.md`, `TEST_AND_VALIDATION_POLICY.md` |

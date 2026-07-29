@@ -101,8 +101,15 @@ ausgeführt werden; fehlende Runner ergeben keinen grünen Nachweis.
 
 ## Aktueller Stand
 
-Das erste fachliche Modul hat `implementation_status: implemented`,
-`validation_status: partially validated` und `release_status: unreleased`. Der
-GitHub-hosted Linux-Lauf vom 2026-07-29 ist für SQL Server 2019, 2022 und 2025
-erfolgreich; Windows und die noch nicht automatisierten Matrixfälle bleiben
-`not executed`.
+`toolbelt.core.result-table` hat `implementation_status: implemented`,
+`validation_status: partially validated` und `release_status: unreleased`. Die
+GitHub-hosted Linux-Läufe vom 2026-07-29 sind für SQL Server 2019, 2022 und
+2025 erfolgreich; Windows und die noch nicht automatisierten Matrixfälle
+bleiben `not executed`.
+
+`toolbelt.conversion.base64` hat `implementation_status: implemented`,
+`validation_status: partially validated` und `release_status: unreleased`. SQL
+Server 2025 unter Linux ist mit Compatibility Levels 150, 160 und 170
+einschließlich RFC-4648-, Fehler-, Größen-, Deployment- und
+Lifecycle-Contracts erfolgreich. Physische SQL-Server-2019-/2022- und
+Windows-Läufe bleiben `not executed`.
