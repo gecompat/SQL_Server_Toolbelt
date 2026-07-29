@@ -65,6 +65,12 @@ Fragestellung: was ist die gewünschte Breite? - welche Funktionalitäten fallen
  
  # python am Host ausführen - Ergebnis entgegennehmen
  
+ # Rest Calls und Web Requests
+ 
+ # KI - Chat
+ 
+ 
+ 
  
  
  
