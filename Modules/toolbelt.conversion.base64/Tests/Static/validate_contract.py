@@ -66,6 +66,15 @@ def main() -> int:
     for marker in ("CHAR(32)", "CHAR(9)", "CHAR(13)", "CHAR(10)"):
         if marker not in decode:
             raise ContractError(f"Whitespace-Normalisierung fehlt: {marker}")
+    for marker in (
+        "Latin1_General_100_BIN2",
+        "@FirstPadding",
+        "@PaddingCount",
+        "@LengthRemainder",
+        "toolbelt.invalid.base64",
+    ):
+        if marker not in decode:
+            raise ContractError(f"Decode-Strukturvalidierung fehlt: {marker}")
     if "THROW 51" in encode or "THROW 51" in decode:
         raise ContractError("Scalar UDFs dürfen Providerfehler nicht umnummerieren.")
     if re.search(r"\bBASE64_(?:ENCODE|DECODE)\s*\(", encode + decode, re.I):

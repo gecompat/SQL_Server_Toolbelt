@@ -39,8 +39,11 @@ SVF_Base64Decode(@Value varchar(max))                     -> varbinary(max)
 Die erste Version verwendet die XML-Funktion `xs:base64Binary`. Sie ist auf
 allen Zielversionen verfügbar und benötigt weder CLR noch externe
 Abhängigkeiten. Decode kanonisiert Base64URL zu Standard-Base64, entfernt
-ausschließlich die vier freigegebenen Whitespace-Zeichen und ergänzt fehlendes
-Padding. Ein Rest von eins sowie sonstige Formatfehler werden nicht maskiert.
+ausschließlich die vier freigegebenen Whitespace-Zeichen, prüft Alphabet,
+Paddingposition, Paddinganzahl und Längenrest und ergänzt anschließend
+fehlendes Padding. Die explizite Strukturprüfung ist erforderlich, weil der
+XML-Provider bestimmte ungültige Zeichen permissiver als die native
+SQL-Server-2025-Funktion behandelt.
 
 SQL CLR bleibt eine mögliche spätere Provideralternative, wird aber erst bei
 einem reproduzierbaren Performancevorteil und nach eigener Security-,
@@ -50,8 +53,10 @@ Deployment- und Plattformentscheidung aufgenommen.
 
 Scalar UDFs unterstützen kein geeignetes `TRY...CATCH`/`THROW`-Mapping für
 stabile Toolbelt-Fehler. Die native SQL-Server-2025-Fehlernummer `9803` wird
-nicht imitiert. Der T-SQL/XML-Provider lehnt ungültige Eingaben mit seinem
-unveränderten Enginefehler ab.
+nicht imitiert. Strukturell ungültige Eingaben erzwingen mit einem festen
+synthetischen Sentinel einen unveränderten SQL-Engine-Konvertierungsfehler,
+ohne die Eingabe in der Fehlermeldung offenzulegen. Weitere Providerfehler
+bleiben ebenfalls unverändert.
 
 ## Abhängigkeit und Phase-2-Gate
 

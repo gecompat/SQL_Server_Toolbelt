@@ -21,9 +21,12 @@ Decodiert Standard-Base64 und Base64URL in Binärdaten.
 - vorhandenes oder fehlendes Padding;
 - Space, Tab, CR und LF an beliebigen Positionen.
 
-Andere Whitespace-Zeichen werden nicht entfernt. Ungültige Zeichen, Längen und
-Paddingkonstellationen werden an den XML-Provider weitergegeben; dessen
-Enginefehler wird nicht in eine Toolbelt-Fehlernummer umgeschrieben.
+Andere Whitespace-Zeichen werden nicht entfernt. Alphabet, Längenrest,
+Paddingposition und Paddinganzahl werden vor dem XML-Decode geprüft.
+Strukturelle Fehler erzeugen einen unveränderten SQL-Engine-
+Konvertierungsfehler mit festem synthetischem Sentinel; die Eingabe wird nicht
+in den Sentinel übernommen. Providerfehler werden ebenfalls nicht in eine
+Toolbelt-Fehlernummer umgeschrieben.
 
 ## Verwendung
 
@@ -49,7 +52,7 @@ Integrität.
 
 ## Einschränkungen und Teststatus
 
-Die Fehlernummern des XML-Providers unterscheiden sich von der nativen
+Die Fehlernummern des XML-/Engine-Providers unterscheiden sich von der nativen
 SQL-Server-2025-Funktion. Der Vertrag verspricht semantische Ablehnung, keine
 Imitation nativer Fehlernummern. Runtime-Tests sind im aktuellen Manifest noch
 `not executed`.

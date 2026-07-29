@@ -55,22 +55,86 @@ BEGIN
           , ''
         );
 
-    DECLARE @LengthRemainder tinyint =
-        CONVERT(tinyint, DATALENGTH(@NormalizedValue) % 4);
+    DECLARE
+          @ValueLength      bigint =
+              DATALENGTH(@NormalizedValue)
+        , @FirstPadding     bigint =
+              NULLIF(CHARINDEX('=', @NormalizedValue), 0)
+        , @PaddingCount     tinyint = 0
+        , @LengthRemainder  tinyint
+        , @InvalidFormat    bit = 0;
 
-    IF @LengthRemainder = 2
+    IF @NormalizedValue COLLATE Latin1_General_100_BIN2
+           LIKE '%[^A-Za-z0-9+/=]%'
+    BEGIN
+        SET @InvalidFormat = 1;
+    END;
+
+    IF @FirstPadding IS NOT NULL
+    BEGIN
+        SET @PaddingCount =
+            CONVERT(tinyint, @ValueLength - @FirstPadding + 1);
+
+        IF @PaddingCount NOT IN (1, 2)
+           OR REPLACE
+              (
+                  SUBSTRING
+                  (
+                        @NormalizedValue
+                      , @FirstPadding
+                      , @PaddingCount
+                  )
+                , '='
+                , ''
+              ) <> ''
+           OR @ValueLength % 4 <> 0
+           OR
+              (
+                  @PaddingCount = 1
+                  AND (@FirstPadding - 1) % 4 <> 3
+              )
+           OR
+              (
+                  @PaddingCount = 2
+                  AND (@FirstPadding - 1) % 4 <> 2
+              )
+        BEGIN
+            SET @InvalidFormat = 1;
+        END;
+    END;
+
+    SET @LengthRemainder =
+        CONVERT
+        (
+              tinyint
+            , ISNULL(@FirstPadding - 1, @ValueLength) % 4
+        );
+
+    IF @FirstPadding IS NULL AND @LengthRemainder = 1
+    BEGIN
+        SET @InvalidFormat = 1;
+    END;
+
+    IF @InvalidFormat = 1
+    BEGIN
+        /*
+         * Scalar UDFs können keinen stabilen Toolbelt-Fehler werfen. Ein
+         * fester synthetischer Sentinel erzwingt deshalb einen unveränderten
+         * SQL-Engine-Konvertierungsfehler, ohne Eingabedaten offenzulegen.
+         */
+        DECLARE @InvalidSentinel varchar(32) = 'toolbelt.invalid.base64';
+        RETURN CONVERT(varbinary(max), CONVERT(int, @InvalidSentinel));
+    END;
+
+    IF @FirstPadding IS NULL AND @LengthRemainder = 2
     BEGIN
         SET @NormalizedValue += '==';
     END;
-    ELSE IF @LengthRemainder = 3
+    ELSE IF @FirstPadding IS NULL AND @LengthRemainder = 3
     BEGIN
         SET @NormalizedValue += '=';
     END;
 
-    /*
-     * Rest 1, ungültige Zeichen und fehlerhaftes Padding werden bewusst an den
-     * Provider weitergegeben. Dessen Originalfehler bleibt unverändert.
-     */
     RETURN CAST(N'' AS xml).value
     (
           N'xs:base64Binary(sql:variable("@NormalizedValue"))'
