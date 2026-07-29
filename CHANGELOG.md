@@ -27,6 +27,11 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Inkrementeller Dokumentations- und Change-Impact-Validator ohne externe Python-Abhängigkeiten.
 - Eigener GitHub-Actions-Workflow für diff-basierte Dokumentationskonsistenz.
 - Architekturentscheidung `DEC-2026-020` zur Status- und Change-Impact-Steuerung.
+- Projektübergreifende Toolbelt-Landschaftsrecherche mit 16 direkten Libraries, Frameworks, Skriptkatalogen, Diagnose-, Maintenance- und Automationsprojekten.
+- Prior-Art-Vergleich für zweite Sessions und Parallelisierungsprovider sowie Architekturfolgen für Packaging, Discovery, Versionierung, Tests, Lizenzierung, Security und Repository-Grenzen.
+- Kandidaten `TC-2026-023` für einen abfragbaren Capability-/Versionskatalog und `TC-2026-024` für URI-Percent-Encoding/-Decoding.
+- Quellenbasierte Vorprüfung der persönlichen Brainstorm-Themen Zahlensysteme, Kompression/Archive, Datei-/Verzeichniszugriff, Anonymisierung und Objektklonen.
+- Kandidaten `TC-2026-025` bis `TC-2026-028` für kontrollierte PowerShell-Host-Automation, Python-Provider, versionsbezogene REST-/Web-Requests und getrennte KI-/Chat-Capabilities.
 
 ### Geändert
 
@@ -46,6 +51,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Modulstatus in getrennte Implementierungs-, Validierungs- und Release-Dimensionen aufgeteilt.
 - README- und Modulübersichtsstatus als aus Manifesten erzeugte Abschnitte gekennzeichnet.
 - ResultTable-Runtime-Workflow auf Source-, Deployment-, Manifest-, Runtime-Test- und CI-Adapteränderungen begrenzt.
+- Execution-Infrastructure-Kandidaten um konkrete Prior Art aus tSQLt, SQL Server Multi Thread und der SQL Server Maintenance Solution ergänzt.
+- Vorhandenen Base64-Kandidaten `TC-2026-012` anhand der nativen SQL-Server-2025-Semantik präzisiert.
+- Toolbelt-Landschaftsrecherche auf den implementierten ResultTable-/Dokumentationsstand und die aktuellen SQL-Server-2025-REST-/AI-Funktionen konsolidiert.
 
 ### Korrigiert
 
