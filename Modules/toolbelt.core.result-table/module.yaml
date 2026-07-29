@@ -98,7 +98,6 @@ tests:
   central: "Tests/Runtime/Central.Contract.sql"
   collation: "Tests/Runtime/Collation.Contract.sql"
   boundary_transaction: "Tests/Runtime/BoundaryAndTransaction.Contract.sql"
-  recovery: "Tests/Runtime/Recovery.Contract.sql"
   multi_session: "Tests/Runtime/MultiSession.Contract.sql"
   performance_workload: "Tests/Runtime/Performance.Workload.sql"
   github_hosted_linux: "../../.github/workflows/result-table-runtime.yml"

@@ -35,7 +35,6 @@ Die kanonische Spezifikation bleibt [RESULT_TABLE_MODULE_DESIGN.md](../../Docume
 | `Tests/Runtime/Central.Contract.sql` | dreiteiliger Aufruf aus einer konsumierenden Datenbank |
 | `Tests/Runtime/Collation.Contract.sql` | explizite CI-, CS-, BIN2- und UTF-8-Collation-Prüfungen |
 | `Tests/Runtime/BoundaryAndTransaction.Contract.sql` | 1024-Spalten- und Transaktionsgrenzfälle |
-| `Tests/Runtime/Recovery.Contract.sql` | synthetisch injizierter DDL-Fehler und Savepoint-Rollback |
 | `Tests/Runtime/MultiSession.Contract.sql` | parallele Isolation gleichnamiger lokaler Temp-Tabellen |
 | `Tests/Runtime/Performance.Workload.sql` | reproduzierbarer synthetischer CI-Workload ohne allgemeine Benchmark-Zusage |
 | `.github/workflows/result-table-runtime.yml` | pfadbezogene GitHub-hosted Linux-Matrix |

@@ -32,7 +32,6 @@ COLLATION_CONTRACT = MODULE_ROOT / "Tests" / "Runtime" / "Collation.Contract.sql
 BOUNDARY_TRANSACTION_CONTRACT = (
     MODULE_ROOT / "Tests" / "Runtime" / "BoundaryAndTransaction.Contract.sql"
 )
-RECOVERY_CONTRACT = MODULE_ROOT / "Tests" / "Runtime" / "Recovery.Contract.sql"
 MULTI_SESSION_CONTRACT = (
     MODULE_ROOT / "Tests" / "Runtime" / "MultiSession.Contract.sql"
 )
@@ -103,7 +102,6 @@ def main() -> int:
             CENTRAL_CONTRACT,
             COLLATION_CONTRACT,
             BOUNDARY_TRANSACTION_CONTRACT,
-            RECOVERY_CONTRACT,
             MULTI_SESSION_CONTRACT,
             PERFORMANCE_WORKLOAD,
             RUNTIME_WORKFLOW,
@@ -263,7 +261,6 @@ def main() -> int:
         "USP_PrepareResultTable.Contract.sql",
         "Collation.Contract.sql",
         "BoundaryAndTransaction.Contract.sql",
-        "Recovery.Contract.sql",
         "MultiSession.Contract.sql",
         "Performance.Workload.sql",
         "Central.Contract.sql",
@@ -297,20 +294,6 @@ def main() -> int:
         if marker not in boundary_contract:
             raise AssertionError(
                 f"Grenz-/Transaktions-Contract-Marker fehlt: {marker}"
-            )
-
-    recovery_contract = files[RECOVERY_CONTRACT]
-    for marker in (
-        "tbx.ResultTable.InjectConversionFailure",
-        "CONVERT(int, @InvalidValue)",
-        "@ObservedError <> 245",
-        "@ObservedXactState <> 1",
-        "ROLLBACK TRANSACTION",
-        "OriginalValue",
-    ):
-        if marker not in recovery_contract:
-            raise AssertionError(
-                f"Recovery-Contract-Marker fehlt: {marker}"
             )
 
     multi_session_contract = files[MULTI_SESSION_CONTRACT]

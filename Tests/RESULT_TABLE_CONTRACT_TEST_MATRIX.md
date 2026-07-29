@@ -8,7 +8,7 @@
 | Implementierung | `AP-2026-003` |
 | Modul | `toolbelt.core.result-table` |
 | Objekt | `toolbelt_core.USP_PrepareResultTable` |
-| Testcode | statischer Validator, Runtime-/Lifecycle-Verträge sowie zusätzliche Collation-, 1024-Spalten-, Transaktions-, Recovery-, Multi-Session- und Performance-Workloads implementiert; Ausführung neuer Workloads bis zum grünen Workflow noch offen |
+| Testcode | statischer Validator, Runtime-/Lifecycle-Verträge sowie zusätzliche Collation-, 1024-Spalten-, Transaktions-, Multi-Session- und Performance-Workloads implementiert; Ausführung des neuen Multi-Session-Workloads bis zum grünen Workflow noch offen |
 | Runtime-Status | `partially validated` |
 
 Diese Matrix bleibt das verbindliche Validierungsinventar. Die erste Linux-Welle ist ausgeführt; offene Kombinationen behalten ihren eigenen Status `not executed`.
@@ -96,6 +96,13 @@ Ausführung am 2026-07-29:
 Windows, echter Savepoint-Rollback nach einem Engine-Fehler, Multi-Session-/
 Parallelfälle und eine plattformübergreifend vergleichbare Performance-Baseline
 bleiben offen.
+
+Eine DDL-Trigger-Injektion wurde als Recovery-Harness verworfen: Der Trigger
+verändert selbst die Transaktionssemantik der zu prüfenden DDL-Anweisung und
+liefert deshalb keinen belastbaren Nachweis für den natürlichen
+Procedure-Fehlerpfad. Ein echter Savepoint-Rollback nach einem deterministischen
+Enginefehler bleibt `not executed`, bis ein nicht invasiver Fehlerpfad
+reproduzierbar verfügbar ist.
 
 ## 3. Statische Vertragsprüfungen
 

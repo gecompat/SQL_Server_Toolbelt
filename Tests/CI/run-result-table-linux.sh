@@ -104,8 +104,6 @@ if [[ "${test_suite}" == "full" ]]; then
         Collation.Contract.sql
     run_file "${local_database}" "${runtime_directory}" \
         BoundaryAndTransaction.Contract.sql
-    run_file "${local_database}" "${runtime_directory}" \
-        Recovery.Contract.sql
 
     multi_session_pids=()
     for worker_id in 1 2 3 4; do
