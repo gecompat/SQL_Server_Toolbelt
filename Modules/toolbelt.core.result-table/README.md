@@ -11,7 +11,7 @@
 | Release | `unreleased` |
 | Persistente Objekte | genau `toolbelt_core.USP_PrepareResultTable` |
 
-Die Procedure und alle gekoppelten Source-, Lifecycle-, Dokumentations- und Testartefakte sind implementiert. Die [erweiterte GitHub-hosted Linux-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30456207934) war am 2026-07-29 auf SQL Server 2019, 2022 und 2025 vollständig erfolgreich. Alle drei Versionen führten dieselbe vorhandene Vollsuite einschließlich lokaler und zentraler Nutzung, expliziter Collations, 1024-Spalten-Grenze, Transaktionspfade, Lifecycle und synthetischem Performance-Workload aus. Windows, echter Savepoint-Rollback nach Enginefehler, Multi-Session-/Parallelfälle und eine plattformübergreifend vergleichbare Performance-Baseline bleiben `not executed`; daher ist das Modul noch nicht vollständig `validated`.
+Die Procedure und alle gekoppelten Source-, Lifecycle-, Dokumentations- und Testartefakte sind implementiert. Die [aktuelle GitHub-hosted Linux-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) war am 2026-07-29 auf SQL Server 2019, 2022 und 2025 vollständig erfolgreich. Alle drei Versionen führten dieselbe Vollsuite einschließlich lokaler und zentraler Nutzung, expliziter Collations, 1024-Spalten-Grenze, Transaktionspfade, vier paralleler Sitzungen mit identischen logischen Temp-Tabellennamen, Lifecycle und synthetischem Performance-Workload aus. Windows, echter Savepoint-Rollback nach einem natürlichen Enginefehler und eine plattformübergreifend vergleichbare Performance-Baseline bleiben `not executed`; daher ist das Modul noch nicht vollständig `validated`.
 
 ## Zweck
 

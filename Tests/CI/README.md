@@ -17,7 +17,7 @@ Ein vorhandener Adapter oder Workflow ist kein Runtime-Nachweis. Nur eine tatsä
 
 ## Evidenz
 
-Der [erweiterte GitHub Actions Run 30456207934](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30456207934) war am 2026-07-29 für den statischen Vertrag sowie die vollständige vorhandene Suite auf SQL Server 2019, 2022 und 2025 unter GitHub-hosted Linux erfolgreich. Der genaue Scope, der frühere Basislauf und die verbleibenden Grenzen stehen in der ResultTable-Testmatrix.
+Der [aktuelle GitHub Actions Run 30459004717](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) war am 2026-07-29 für den statischen Vertrag sowie die vollständige Suite auf SQL Server 2019, 2022 und 2025 unter GitHub-hosted Linux erfolgreich. Der Scope umfasst vier parallele echte Sitzungen mit identischen logischen lokalen Temp-Tabellennamen. Die früheren Läufe und verbleibenden Grenzen stehen in der ResultTable-Testmatrix.
 
 ## Quellen
 

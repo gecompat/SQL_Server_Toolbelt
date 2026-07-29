@@ -111,3 +111,7 @@ validation_evidence:
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30456207934"
     scope: "SQL Server 2019, 2022 and 2025 full suite including Collation, 1024-column, transaction, central, lifecycle and synthetic performance workload contracts; GitHub-hosted Linux"
     result: "success"
+  - date: "2026-07-29"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717"
+    scope: "SQL Server 2019, 2022 and 2025 full suite including four concurrent sessions with identical logical local temp-table names; GitHub-hosted Linux"
+    result: "success"

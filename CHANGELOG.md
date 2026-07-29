@@ -61,6 +61,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Toolbelt-Landschaftsrecherche auf den implementierten ResultTable-/Dokumentationsstand und die aktuellen SQL-Server-2025-REST-/AI-Funktionen konsolidiert.
 - SQL Server 2022 und 2025 in der GitHub-hosted Linux-Matrix von der reduzierten Kompatibilitätsprüfung auf die vollständige ResultTable-Suite umgestellt.
 - `TC-2026-012` als bevorzugten nächsten Besprechungskandidaten eingeordnet und `TC-2026-004` bis zur Grundsatzentscheidung über Typ-/Scale-Parität und Objektfamilie zurückgestellt; keine Implementierungsfreigabe erteilt.
+- Vier parallele ResultTable-Sitzungen mit identischen logischen lokalen Temp-Tabellennamen auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich validiert; invasiven DDL-Trigger-Harness als ungeeignete Recovery-Evidenz verworfen.
 
 ### Korrigiert
 
