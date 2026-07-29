@@ -281,6 +281,7 @@ def main() -> int:
     for marker in (
         "SET QUOTED_IDENTIFIER ON;",
         "TOP (1024)",
+        "ROW_NUMBER() OVER (ORDER BY c.column_id) AS ColumnOrdinal",
         "C1024",
         "XACT_STATE() = -1",
         "@DoomedErrorNumber <> 51028",

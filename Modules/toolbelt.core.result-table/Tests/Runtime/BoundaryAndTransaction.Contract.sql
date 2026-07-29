@@ -72,10 +72,16 @@ IF OBJECT_ID(N'tempdb..[#ResultTableBoundary]', N'U') <> @BoundaryObjectId
    OR NOT EXISTS
    (
        SELECT 1
-       FROM tempdb.sys.columns AS c
-       WHERE c.object_id = @BoundaryObjectId
-         AND c.column_id = 1024
-         AND c.name COLLATE Latin1_General_100_BIN2 = N'C1024'
+       FROM
+       (
+           SELECT
+                 ROW_NUMBER() OVER (ORDER BY c.column_id) AS ColumnOrdinal
+               , c.name AS ColumnName
+           FROM tempdb.sys.columns AS c
+           WHERE c.object_id = @BoundaryObjectId
+       ) AS actual
+       WHERE actual.ColumnOrdinal = 1024
+         AND actual.ColumnName COLLATE Latin1_General_100_BIN2 = N'C1024'
    )
 BEGIN
     THROW 52310, N'Der Umbau auf exakt 1024 Spalten ist fehlgeschlagen.', 1;
