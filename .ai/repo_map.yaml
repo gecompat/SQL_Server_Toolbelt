@@ -21,6 +21,7 @@ sources_of_truth:
   ai_entry_point: AGENTS.md
   copilot_bridge: .github/copilot-instructions.md
   usp_contract: Documentation/Standards/USP_CONTRACT.md
+  privacy_policy: Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md
   naming_conventions: Documentation/Standards/SQL_OBJECT_NAMING.md
   decisions: Documentation/Architecture/DECISIONS.md
   result_table_module_design: Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md
@@ -53,6 +54,15 @@ research_inputs:
       - Backlog/SQL_SERVER_ANALYZE_CANDIDATES.md
       - Backlog/MAN_KANN_ES_AUCH_UEBERTREIBEN.md
       - .ai/BACKLOG.md
+  toolbelt_research_inbox:
+    path: Backlog/TOOLBELT_RESEARCH_INBOX.md
+    content_role: deduplicated_unfiltered_non_authoritative_research_input
+    required_for_backlog_research: true
+    may_define_rules: false
+    may_define_public_contracts: false
+    may_set_priority: false
+    may_authorize_implementation: false
+    formalization_destination: Backlog/TOOLBELT_CANDIDATES.md
 
 artifact_classes:
   public:
@@ -72,12 +82,18 @@ artifact_classes:
     allowed_content:
       - Dokumentation
       - Synthetische Beispiele
+      - Fachlich relevante öffentliche Organisations- und externe Projektnamen
+      - Öffentliche Quellen-, Projekt- und Dokumentations-URLs
+      - gecompat und Gerhard Pisch
       - Nicht ausführbare Vorlagen mit Endung .sql.template
     prohibited_content:
-      - Personenbezogene Daten
-      - Reale Infrastrukturnamen
+      - Personenbezogene oder sensible Daten
+      - Interne oder vertrauliche Firmen-, Kunden-, Organisations- und Projektdaten
+      - Nicht öffentliche Infrastrukturangaben
+      - Original-Tabelleninhalte und Produktionsdaten
       - Secrets
       - Reale Runtime-Ausgaben
+      - Konkrete Hardware-, Kapazitäts-, Inventar- oder Umgebungswerte von Remote Runnern
 
   internal:
     description: KI-Steuerungs- und Metadaten
@@ -126,8 +142,9 @@ artifact_classes:
     prohibited:
       - Query Plans
       - Execution Logs
-      - Test-Evidence mit Produktionsdaten
+      - Test-Evidence mit Produktions- oder Originaldaten
       - Traces
+      - Konkrete Hardware-, Kapazitäts-, Inventar- oder Umgebungswerte von Remote Runnern
 
 schemas:
   pattern: "toolbelt_<category>"
@@ -176,6 +193,7 @@ change_impact:
     - AGENTS.md
     - Documentation/Architecture/DECISIONS.md
     - Documentation/Architecture/ARTIFACT_ROLES.md
+    - Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md
     - Tests/Documentation/validate_documentation.py
     - .github/workflows/documentation-consistency.yml
     - Templates/Module/module.yaml.template
@@ -212,6 +230,11 @@ change_impact:
       checks:
         - brainstorm_history
         - markdown_links
+    research_inbox:
+      paths:
+        - Backlog/TOOLBELT_RESEARCH_INBOX.md
+      checks:
+        - markdown_links
     result_table_contract:
       paths:
         - Modules/toolbelt.core.result-table/**
@@ -239,6 +262,7 @@ change_impact:
         - AGENTS.md
         - Documentation/Architecture/ARTIFACT_ROLES.md
         - Documentation/Architecture/DECISIONS.md
+        - Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md
         - Tests/Documentation/**
         - .github/workflows/documentation-consistency.yml
         - .github/pull_request_template.md
