@@ -13,6 +13,8 @@
 ## Dokumentation
 
 - [ ] Gekoppelte Dokumentationsdateien aktualisiert.
+- [ ] Modulmanifest enthält alle gekoppelten Dokumentationspfade und Contract-Versionen.
+- [ ] Generierte Statusabschnitte sind aktuell.
 - [ ] Relative Links und Dateipfade geprüft.
 - [ ] Objekttypspezifische Vorlage verwendet.
 
@@ -21,6 +23,9 @@
 Ausgeführte Prüfungen:
 
 <!-- Je Prüfung: Befehl/Tool/Workflow, Scope, Version/Plattform/Provider, Datum, Ergebnis, Einschränkungen -->
+
+- [ ] Inkrementellen Change-Impact-Validator ausgeführt.
+- [ ] Vollaudit ausgeführt oder gemäß Repo-Map nicht erforderlich.
 
 Nicht ausgeführte oder nicht anwendbare Prüfungen:
 

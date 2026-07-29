@@ -1,6 +1,6 @@
 # Definition of Done je Modul
 
-Ein Modul darf als `implemented` markiert werden, wenn Implementierung, statische Verträge, Dokumentation und Lifecycle-Artefakte vollständig und konsistent sind. `validated` ist erst zulässig, wenn alle für den deklarierten Support erforderlichen Prüfungen tatsächlich erfolgreich ausgeführt wurden.
+Ein Modul darf den `implementation_status: implemented` erhalten, wenn Implementierung, statische Verträge, Dokumentation und Lifecycle-Artefakte vollständig und konsistent sind. `validation_status: validated` ist erst zulässig, wenn alle für den deklarierten Support erforderlichen Prüfungen tatsächlich erfolgreich ausgeführt wurden.
 
 ## Implementierung
 
@@ -14,6 +14,8 @@ Ein Modul darf als `implemented` markiert werden, wenn Implementierung, statisch
 ## Dokumentation
 
 - [ ] Modul-README und vollständiges Manifest.
+- [ ] Gekoppelte Modul-, Objekt-, Architektur- und Testdokumentation im Manifest registriert.
+- [ ] Verwendete Contract-Versionen im Manifest registriert.
 - [ ] Eigene Dokumentationsseite für jedes öffentliche SQL-Objekt.
 - [ ] Interne Hilfsobjekte dokumentiert.
 - [ ] Codekommentare erklären Absicht und Besonderheiten auf Deutsch.
@@ -52,6 +54,8 @@ Ein Modul darf als `implemented` markiert werden, wenn Implementierung, statisch
 ## Status und Release
 
 - [ ] `.ai/BACKLOG.md`, `Modules/README.md` und `CHANGELOG.md` aktualisiert.
-- [ ] Manifeststatus stimmt mit tatsächlicher Evidenz überein.
+- [ ] `implementation_status`, `validation_status` und `release_status` stimmen mit tatsächlichem Stand und Evidenz überein.
+- [ ] Generierte Statusabschnitte stimmen mit dem Manifest überein.
+- [ ] Inkrementeller Change-Impact-Validator erfolgreich.
 - [ ] Breaking Changes und Migrationspfad dokumentiert.
 - [ ] Keine offene Pflichtprüfung wird durch eine pauschale Erfolgsaussage verdeckt.

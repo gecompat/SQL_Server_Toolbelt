@@ -4,7 +4,9 @@
 module_id: "{{ModuleId}}"
 module_name: "{{ModuleName}}"
 version: "0.0.0"
-status: proposed
+implementation_status: proposed
+validation_status: "not executed"
+release_status: unreleased
 description: "{{Kurze fachliche Beschreibung}}"
 
 sql_server_versions:
@@ -66,9 +68,19 @@ lifecycle:
   release_manifest: "{{embedded oder Pfad}}"
   source_hash_role: "diagnostic_only"
 
+documentation:
+  module: "README.md"
+  public_objects: []
+  architecture: []
+  test_matrix: []
+  evidence: []
+
+contracts:
+  usp: "{{Version oder not applicable}}"
+  deployment: "1.0"
+  validation: "1.0"
+
 tests:
   static: "Tests/Static/"
   runtime: "Tests/Runtime/"
   contract: "Tests/Runtime/"
-
-validation_status: "not executed"
