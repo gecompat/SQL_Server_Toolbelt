@@ -75,6 +75,27 @@ def main() -> int:
         if deploy.count(f":r ../Source/{source}") != 1:
             raise ContractError(f"Deploy bindet {source} nicht exakt einmal ein.")
 
+    if re.search(r"PropertyOrdinal\s+int\s+IDENTITY", deploy, re.I):
+        raise ContractError(
+            "Objektproperties dürfen keine schleifenübergreifende IDENTITY "
+            "als Ordinal verwenden."
+        )
+    for ordinal, property_name in enumerate(
+        (
+            "Toolbelt.ModuleId",
+            "Toolbelt.ModuleVersion",
+            "Toolbelt.ContractVersion",
+            "Toolbelt.DeploymentMode",
+            "Toolbelt.SourceHash",
+        ),
+        start=1,
+    ):
+        require(
+            deploy,
+            rf"\(\s*{ordinal}\s*,\s*N'{re.escape(property_name)}'",
+            f"deterministisches Property-Ordinal {ordinal}",
+        )
+
     for object_name in ("SVF_Base64Encode", "SVF_Base64Decode"):
         for text, location in (
             (manifest, "Manifest"),

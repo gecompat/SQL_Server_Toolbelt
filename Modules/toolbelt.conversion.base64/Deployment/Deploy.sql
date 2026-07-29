@@ -367,7 +367,18 @@ BEGIN TRY
         , @ObjectCount   int = (SELECT COUNT(*) FROM @Objects)
         , @ObjectName    sysname
         , @ObjectId      int
-        , @SourceHash    varchar(64);
+        , @SourceHash    varchar(64)
+        , @PropertyOrdinal int
+        , @PropertyCount   int
+        , @PropertyName    sysname
+        , @PropertyValue   nvarchar(4000);
+
+    DECLARE @Properties TABLE
+    (
+          PropertyOrdinal int            NOT NULL PRIMARY KEY
+        , PropertyName    sysname        NOT NULL
+        , PropertyValue   nvarchar(4000) NOT NULL
+    );
 
     WHILE @ObjectOrdinal <= @ObjectCount
     BEGIN
@@ -390,26 +401,21 @@ BEGIN TRY
             , 2
         );
 
-        DECLARE @Properties TABLE
+        INSERT INTO @Properties
         (
-              PropertyOrdinal int IDENTITY(1, 1) NOT NULL
-            , PropertyName    sysname            NOT NULL
-            , PropertyValue   nvarchar(4000)     NOT NULL
-        );
-
-        INSERT INTO @Properties (PropertyName, PropertyValue)
+              PropertyOrdinal
+            , PropertyName
+            , PropertyValue
+        )
         VALUES
-              (N'Toolbelt.ModuleId', N'toolbelt.conversion.base64')
-            , (N'Toolbelt.ModuleVersion', @TargetVersion)
-            , (N'Toolbelt.ContractVersion', N'1.0')
-            , (N'Toolbelt.DeploymentMode', @DeploymentMode)
-            , (N'Toolbelt.SourceHash', CONVERT(nvarchar(4000), @SourceHash));
+              (1, N'Toolbelt.ModuleId', N'toolbelt.conversion.base64')
+            , (2, N'Toolbelt.ModuleVersion', @TargetVersion)
+            , (3, N'Toolbelt.ContractVersion', N'1.0')
+            , (4, N'Toolbelt.DeploymentMode', @DeploymentMode)
+            , (5, N'Toolbelt.SourceHash', CONVERT(nvarchar(4000), @SourceHash));
 
-        DECLARE
-              @PropertyOrdinal int = 1
-            , @PropertyCount   int = (SELECT COUNT(*) FROM @Properties)
-            , @PropertyName    sysname
-            , @PropertyValue   nvarchar(4000);
+        SET @PropertyOrdinal = 1;
+        SET @PropertyCount = (SELECT COUNT(*) FROM @Properties);
 
         WHILE @PropertyOrdinal <= @PropertyCount
         BEGIN
