@@ -6,6 +6,8 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 Der Repository-Grundaufbau ist abgeschlossen. Für das implementierte erste Kernmodul existieren statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte. Die SQL-Server-Runtime-Tests wurden mangels Runner noch nicht ausgeführt.
 
+Die erste pfadbezogene Runtime-Action verwendet GitHub-hosted Linux für SQL Server 2019, 2022 und 2025. Ihr Vorhandensein ist noch kein Ausführungsnachweis; der Status wird erst nach einem tatsächlich grünen Workflow aktualisiert.
+
 ## Pflicht-Testarten je Modul
 
 | Testtyp | Inhalt |
@@ -13,8 +15,7 @@ Der Repository-Grundaufbau ist abgeschlossen. Für das implementierte erste Kern
 | statisch | Naming, Header, Datenschutz, Manifest, Links und Vertragskonsistenz |
 | API-Contract | Parameter, Defaults, Resultsets, Help, Fehler und Rechte |
 | USP-Contract | `@Hilfe`, `@Debug`, `@ResultTable`, `@KeepData`, verschachtelte Aufrufe |
-| Install | Erstinstallation und kontrollierte Wiederholung |
-| Upgrade | jede unterstützte Vorgängerversion |
+| Deploy | Erstinstallation, kontrollierte Wiederholung und jede unterstützte Vorgängerversion |
 | Uninstall | vollständige Entfernung und Dependency-Schutz |
 | Collation | unterschiedliche Server-, Datenbank- und TempDB-Collations |
 | Deployment | lokal, zentral und Cross-database, soweit unterstützt |

@@ -45,7 +45,7 @@ Explizit übergebenes `NULL` für die optionalen Steuerparameter `@KeepData`, `@
 |---|---|---|
 | leer, Schema passt | keine Mutation | keine Mutation |
 | leer, Schema weicht ab | in-place anpassen | in-place anpassen |
-| Daten vorhanden, Schema passt | Daten mit `TRUNCATE`, ersatzweise `DELETE`, entfernen | Daten erhalten |
+| Daten vorhanden, Schema passt | Daten mit `TRUNCATE` entfernen | Daten erhalten |
 | Daten vorhanden, Schema weicht ab | Daten entfernen und in-place anpassen | Fehler `51025` vor jeder Mutation |
 
 Der Schemaumbau:
@@ -67,6 +67,7 @@ Die Zieltable wird nicht gedroppt und neu erstellt.
 
 Nicht unterstützt:
 
+- dieselbe lokale Temp-Tabelle als Ziel und Referenz;
 - globale Temp-Tabelle;
 - View oder Synonym;
 - Tabellenvariable;
@@ -110,7 +111,7 @@ Zeichenspalten erhalten ausdrücklich die Collation der Referenzspalte. Der Coll
 |---:|---|
 | `51020` | Zielname fehlt oder ist unzulässig. |
 | `51021` | Zieltable ist nicht sichtbar. |
-| `51022` | Referenzname fehlt oder besitzt eine unzulässige Form. |
+| `51022` | Referenzname fehlt, besitzt eine unzulässige Form oder bezeichnet dieselbe lokale Temp-Tabelle wie das Ziel. |
 | `51023` | Referenztabelle ist nicht sichtbar oder kein unterstützter Tabellentyp. |
 | `51024` | Referenzspalte ist nicht unterstützt oder nicht einfügbar. |
 | `51025` | `@KeepData = 1` verhindert den Schemaumbau. |
@@ -119,7 +120,7 @@ Zeichenspalten erhalten ausdrücklich die Collation der Referenzspalte. Der Coll
 | `51028` | Transaktionszustand oder Savepoint-Rollback ist nicht kontrollierbar. |
 | `51029` | Generiertes DDL ist unvollständig oder überschreitet das dokumentierte Limit. |
 
-Die Lifecycle-Skripte verwenden zusätzlich `51030` bis `51036` für Plattform-, Permission-, Ownership-, Source-Hash-, Bestätigungs- und Dependency-Gates.
+Die Lifecycle-Skripte verwenden zusätzlich `51030` bis `51039` für Plattform-, Permission-, Manifest-, Kollisions-, Bestätigungs-, Dependency- und Parallelitäts-Gates. Ein Source-Hash ist ausschließlich diagnostisch und verhindert kein erneutes Deployment.
 
 ## Transaktionen
 
@@ -137,7 +138,7 @@ Die Lifecycle-Skripte verwenden zusätzlich `51030` bis `51036` für Plattform-,
 | `1` | Hauptschritte |
 | `2` | Objekt-IDs, Daten- und Schemaentscheidung, Löschverfahren |
 | `3` | zusätzlich normalisierte Metadaten und DDL |
-| `4` bis `254` | reserviert; derzeit höchstens Stufe-2-Information |
+| `4` bis `254` | Verhalten wie Stufe `3` |
 | `255` | maximaler interner Trace |
 
 Messages werden mit sicherem Chunking ausgegeben und erzeugen kein zusätzliches Resultset.

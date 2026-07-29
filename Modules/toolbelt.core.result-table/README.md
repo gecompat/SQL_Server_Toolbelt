@@ -23,29 +23,31 @@ Die kanonische Spezifikation bleibt [RESULT_TABLE_MODULE_DESIGN.md](../../Docume
 | Pfad | Rolle |
 |---|---|
 | `Source/USP_PrepareResultTable.sql` | kanonische Procedure-Source |
-| `Deployment/Install.sql` | Erstinstallation und kontrollierte Wiederholung |
-| `Deployment/Upgrade.sql` | Upgrade-Gate; Version `1.0.0` besitzt noch keinen älteren unterstützten Vorgänger |
+| `Deployment/Deploy.sql` | parametergesteuerte Erst-, Upgrade- und Wiederholungsinstallation |
 | `Deployment/Uninstall.sql` | Dependency-geschützte Entfernung |
 | `Documentation/USP_PrepareResultTable.md` | öffentlicher Objektvertrag |
 | `Examples/PrepareResultTable.sql` | synthetisches Verwendungsbeispiel |
 | `Tests/Static/validate_contract.py` | reproduzierbare statische Vertragsprüfung |
 | `Tests/Runtime/USP_PrepareResultTable.Contract.sql` | synthetische Runtime-Contract-Tests |
 | `Tests/Runtime/Lifecycle.Contract.sql` | Lifecycle-Prüfungen nach Installation |
+| `Tests/Runtime/Compatibility.Smoke.sql` | reduzierte Versionskompatibilitätsprüfung |
+| `Tests/Runtime/Central.Contract.sql` | dreiteiliger Aufruf aus einer konsumierenden Datenbank |
+| `.github/workflows/result-table-runtime.yml` | pfadbezogene GitHub-hosted Linux-Matrix |
 
 ## Deployment
 
-Die Lifecycle-Skripte verwenden SQLCMD-Kommandos und binden die kanonische Source mit `:r` ein. Dadurch existiert die Procedure-Implementierung im Repository nur einmal.
+Die Lifecycle-Skripte verwenden SQLCMD-Kommandos. `Deploy.sql` bindet die kanonische Source mit `:r` ein; dadurch existiert die Procedure-Implementierung im Repository nur einmal. Das eingebettete Release-Manifest steuert Herkunft, Kollisionen und spätere Objektentfernungen. Lokale Änderungen an nachweislich aus dem installierten Release stammenden Framework-Objekten werden beim Deployment überschrieben. SQLCMD-Variablen sind beim Aufruf explizit mit `-v` anzugeben; eingebaute `:setvar`-Werte würden Kommandozeilenwerte überschreiben und sind deshalb nicht vorhanden.
 
 Aus dem Verzeichnis `Modules/toolbelt.core.result-table/Deployment`:
 
 ```text
-sqlcmd -S <server> -d <database> -E -b -i Install.sql -v DeploymentMode=local
+sqlcmd -S <server> -d <database> -E -b -i Deploy.sql -v DeploymentMode=local
 ```
 
 Zentrale Installation:
 
 ```text
-sqlcmd -S <server> -d <toolbelt-database> -E -b -i Install.sql -v DeploymentMode=central
+sqlcmd -S <server> -d <toolbelt-database> -E -b -i Deploy.sql -v DeploymentMode=central
 ```
 
 Deinstallation einer zentralen Installation erfordert die ausdrückliche Betreiberbestätigung:
@@ -60,6 +62,7 @@ Die Platzhalter sind absichtlich generisch. Keine Credentials oder realen Infras
 
 - Ziel ist ausschließlich eine bereits sichtbare lokale Temp-Tabelle.
 - Schemaquelle ist eine lokale Temp-Tabelle oder eine zwei-/dreiteilig benannte reguläre Tabelle.
+- Ziel- und Referenztabelle dürfen nicht identisch sein.
 - Views, Synonyme, Linked Server, permanente Ziele und globale Temp-Tabellen sind nicht unterstützt.
 - Ein Schemaumbau entfernt keine Dependencies automatisch.
 - Gleichzeitige DDL-Manipulation derselben Zieltable ist nicht unterstützt.

@@ -1,5 +1,5 @@
 -- ============================================================================
--- Read-only Lifecycle-Contract-Prüfung nach Install.sql oder Upgrade.sql
+-- Read-only Lifecycle-Contract-Prüfung nach Deploy.sql
 -- Daten: keine fachlichen oder realen Runtime-Daten
 -- Status im Repository: not executed
 -- ============================================================================
@@ -16,7 +16,9 @@ DECLARE
     , @ContractVersion nvarchar(64)
     , @DeploymentMode  nvarchar(16)
     , @SourceHash      varchar(64)
-    , @ActualHash      varchar(64);
+    , @ActualHash      varchar(64)
+    , @InstalledVersion nvarchar(64)
+    , @RegisteredMode   nvarchar(16);
 
 IF @SchemaId IS NULL OR @ProcedureId IS NULL
 BEGIN
@@ -84,6 +86,20 @@ WHERE ep.class = 1
   AND ep.major_id = @ProcedureId
   AND ep.minor_id = 0;
 
+SELECT @InstalledVersion = TRY_CONVERT(nvarchar(64), ep.value)
+FROM sys.extended_properties AS ep
+WHERE ep.class = 0
+  AND ep.major_id = 0
+  AND ep.minor_id = 0
+  AND ep.name = N'Toolbelt.Module.toolbelt.core.result-table.Version';
+
+SELECT @RegisteredMode = TRY_CONVERT(nvarchar(16), ep.value)
+FROM sys.extended_properties AS ep
+WHERE ep.class = 0
+  AND ep.major_id = 0
+  AND ep.minor_id = 0
+  AND ep.name = N'Toolbelt.Module.toolbelt.core.result-table.DeploymentMode';
+
 SET @ActualHash = CONVERT
 (
       varchar(64)
@@ -95,30 +111,46 @@ SET @ActualHash = CONVERT
     , 2
 );
 
-IF ISNULL(@Managed, 0) <> 1
-   OR ISNULL(@SchemaCategory, N'') COLLATE Latin1_General_100_BIN2 <> N'core'
+IF
+   (
+       NOT
+       (
+           @Managed IS NULL
+           AND @SchemaCategory IS NULL
+       )
+       AND NOT
+       (
+           ISNULL(@Managed, 0) = 1
+           AND ISNULL(@SchemaCategory, N'') COLLATE Latin1_General_100_BIN2 = N'core'
+       )
+   )
    OR ISNULL(@ModuleId, N'') COLLATE Latin1_General_100_BIN2
           <> N'toolbelt.core.result-table'
    OR ISNULL(@ModuleVersion, N'') COLLATE Latin1_General_100_BIN2 <> N'1.0.0'
    OR ISNULL(@ContractVersion, N'') COLLATE Latin1_General_100_BIN2 <> N'1.0'
    OR ISNULL(@DeploymentMode, N'') NOT IN (N'local', N'central')
+   OR ISNULL(@InstalledVersion, N'') COLLATE Latin1_General_100_BIN2 <> N'1.0.0'
+   OR ISNULL(@RegisteredMode, N'') COLLATE Latin1_General_100_BIN2
+          <> ISNULL(@DeploymentMode, N'') COLLATE Latin1_General_100_BIN2
    OR @SourceHash IS NULL
    OR @ActualHash IS NULL
    OR @SourceHash COLLATE Latin1_General_100_BIN2
           <> @ActualHash COLLATE Latin1_General_100_BIN2
 BEGIN
-    THROW 52101, N'Ownership-, Versions-, Deployment- oder Source-Hash-Marker sind inkonsistent.', 1;
+    THROW 52101, N'Release-, Objekt-, Deployment- oder diagnostische Source-Hash-Marker sind inkonsistent.', 1;
 END;
 
-IF
-(
-    SELECT COUNT(*)
-    FROM sys.objects AS o
-    WHERE o.schema_id = @SchemaId
-      AND o.is_ms_shipped = 0
-) <> 1
+IF NOT EXISTS
+   (
+       SELECT 1
+       FROM sys.objects AS o
+       WHERE o.object_id = @ProcedureId
+         AND o.schema_id = @SchemaId
+         AND o.type IN ('P', 'PC')
+         AND o.is_ms_shipped = 0
+   )
 BEGIN
-    THROW 52102, N'Das Modul besitzt nicht exakt das vereinbarte persistente Objekt.', 1;
+    THROW 52102, N'Das vereinbarte persistente Release-Objekt fehlt.', 1;
 END;
 
 PRINT N'ResultTable Lifecycle-Contract-Prüfung: erfolgreich';

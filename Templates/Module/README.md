@@ -39,13 +39,13 @@
 | SQL Server 2022 Linux | `not executed` |
 | SQL Server 2025 Linux | `not executed` |
 
-## Installation
+## Deployment
 
 ```sql
-:r .\Deployment\Install.sql
+:r .\Deployment\Deploy.sql
 ```
 
-{{Installationshinweise und erforderliche Rechte.}}
+{{DeploymentMode, Installationshinweise, unterstützte Vorgängerreleases und erforderliche Rechte.}}
 
 ## Collation- und Datentypvertrag
 

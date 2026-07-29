@@ -11,7 +11,7 @@ Eine besonders grundlegende Capability darf selbst ein Modul bilden und von ande
 Jedes Modul enthält mindestens:
 
 - `module.yaml` als Manifest;
-- Install-, Upgrade- und Uninstall-Skripte;
+- ein parametergesteuertes Deploy- und ein Uninstall-Skript;
 - kanonische Source-Artefakte;
 - eigene Dokumentation für jedes öffentliche SQL-Objekt;
 - Dokumentation interner Hilfsobjekte;
@@ -51,6 +51,7 @@ Mindestens:
 - Resultset- und Help-Verträge;
 - CLR-`PERMISSION_SET` und Trust-Anforderungen, falls relevant;
 - Lifecycle-Artefakte;
+- versionierte Release-Objektmanifeste und tatsächlicher Installationsstand;
 - Tests und tatsächlicher Validierungsstatus.
 
 ## Status

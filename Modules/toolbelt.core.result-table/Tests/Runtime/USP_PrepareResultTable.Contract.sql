@@ -123,6 +123,31 @@ CREATE TABLE #tbx_ResultTableContract_ResultShape
     , CreatedAt   datetime2(3)  NOT NULL
 );
 
+-- RT-L-012: Ziel und Referenz dürfen nicht dasselbe Temp-Objekt sein.
+BEGIN TRY
+    EXEC toolbelt_core.USP_PrepareResultTable
+          @ResultTableToAlter = N'#ResultTableTarget'
+        , @LikeTable          = N'#ResultTableTarget'
+        , @KeepData           = 0;
+    THROW 52017, N'Erwarteter Fehler 51022 wurde nicht ausgelöst.', 1;
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() <> 51022
+    BEGIN
+        THROW;
+    END;
+END CATCH;
+
+IF
+(
+    SELECT COUNT(*)
+    FROM tempdb.sys.columns
+    WHERE object_id = OBJECT_ID(N'tempdb..[#ResultTableTarget]', N'U')
+) <> 1
+BEGIN
+    THROW 52018, N'Der verbotene Selbstbezug hat die Zieltable verändert.', 1;
+END;
+
 DECLARE @TargetObjectIdBefore int =
     OBJECT_ID(N'tempdb..[#ResultTableTarget]', N'U');
 

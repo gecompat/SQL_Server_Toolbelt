@@ -19,7 +19,7 @@
 -- Fehlerverhalten: Vertragsfehler 51020 bis 51029; Engine-Fehler werden nach
 --                  transaktionsgerechtem Cleanup unverändert weitergegeben.
 -- Performance:     Ein read-only Metadaten-Preflight. DDL nur bei abweichendem
---                  Schema; bei passendem Schema optional TRUNCATE/DELETE.
+--                  Schema; bei passendem Schema optional TRUNCATE.
 -- Einschränkungen: Nur lokale Ziel-Temp-Tabellen und Tabellen als Schemaquelle.
 --                  Keine gleichzeitige DDL-Manipulation derselben Zieltable.
 -- ============================================================================
@@ -96,7 +96,7 @@ BEGIN
           , NULL )
         , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'PARAMETER', 2
           , N'@LikeTable', 'nvarchar(776)', 1, 0, N'NULL'
-          , N'Referenztabelle in der Form #LocalTemplate, Schema.Table oder Database.Schema.Table. Views, Synonyme, globale Temp-Tabellen und vierteilige Namen sind nicht unterstützt.'
+          , N'Referenztabelle in der Form #LocalTemplate, Schema.Table oder Database.Schema.Table. Ziel- und Referenztabelle dürfen nicht identisch sein. Views, Synonyme, globale Temp-Tabellen und vierteilige Namen sind nicht unterstützt.'
           , NULL )
         , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'PARAMETER', 3
           , N'@KeepData', 'bit', 0, 1, N'0'
@@ -124,7 +124,7 @@ BEGIN
           , NULL )
         , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'ERROR', 3
           , N'51022', NULL, NULL, NULL, NULL
-          , N'@LikeTable fehlt, ist mehrdeutig oder verwendet eine nicht unterstützte Namensform.'
+          , N'@LikeTable fehlt, ist mehrdeutig, verwendet eine nicht unterstützte Namensform oder bezeichnet dieselbe Temp-Tabelle wie das Ziel.'
           , NULL )
         , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'ERROR', 4
           , N'51023', NULL, NULL, NULL, NULL
@@ -160,7 +160,7 @@ BEGIN
           , NULL )
         , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'LIMITATION', 1
           , NULL, NULL, NULL, NULL, NULL
-          , N'Permanente oder globale Zieltabellen, Tabellenvariablen, Views, Synonyme, Linked Server, frei geliefertes DDL und parallele DDL-Manipulation derselben Zieltable sind nicht unterstützt.'
+          , N'Permanente oder globale Zieltabellen, Tabellenvariablen, identische Ziel- und Referenztabellen, Views, Synonyme, Linked Server, frei geliefertes DDL und parallele DDL-Manipulation derselben Zieltable sind nicht unterstützt.'
           , NULL )
         , ( '1.0', N'toolbelt_core', N'USP_PrepareResultTable', 'EXAMPLE', 1
           , NULL, NULL, NULL, NULL, NULL
@@ -342,17 +342,23 @@ WHERE s.name COLLATE Latin1_General_100_BIN2
                 , @ResolvedObjectId = @SourceObjectId OUTPUT;
         END TRY
         BEGIN CATCH
-            SET @ErrorMessage = N'Die reguläre Referenztabelle konnte nicht über sichtbare Catalog-Metadaten aufgelöst werden. Ursprünglicher Fehler: '
-                + CONVERT(nvarchar(20), ERROR_NUMBER())
-                + N'.';
-            SET @ErrorMessage = REPLACE(@ErrorMessage, N'%', N'%%');
-            THROW 51023, @ErrorMessage, 1;
+            /*
+             * Ein tatsächlich aufgetretener Engine-Fehler darf nicht als
+             * Toolbelt-Validierungsfehler erscheinen. Nur eine erfolgreich
+             * ausgeführte Suche ohne unterstütztes Objekt ergibt 51023.
+             */
+            THROW;
         END CATCH;
 
         IF @SourceObjectId IS NULL
         BEGIN
             THROW 51023, N'Die reguläre Referenztabelle ist nicht sichtbar, nicht vorhanden oder kein User Table.', 1;
         END;
+    END;
+
+    IF @SourceIsLocal = 1 AND @SourceObjectId = @TargetObjectId
+    BEGIN
+        THROW 51022, N'@ResultTableToAlter und @LikeTable dürfen nicht dieselbe lokale Temp-Tabelle bezeichnen.', 1;
     END;
 
     IF @Debug >= 1
@@ -902,7 +908,7 @@ SELECT @SourceMetadataDebug =
         RAISERROR(N'%s', 10, 1, @DebugChunk) WITH NOWAIT;
     END;
 
-    IF (@Debug = 3 OR @Debug = 255) AND @SourceMetadataDebug IS NOT NULL
+    IF @Debug >= 3 AND @SourceMetadataDebug IS NOT NULL
     BEGIN
         SET @DebugMessage = N'USP_PrepareResultTable: normalisierte Referenzmetadaten:'
             + NCHAR(10)
@@ -1075,8 +1081,7 @@ SELECT @SourceMetadataDebug =
         , @AddNewColumnsSql      nvarchar(max)
         , @DropAnchorSql         nvarchar(max)
         , @AddAfterAnchorSql     nvarchar(max)
-        , @TruncateSql           nvarchar(max)
-        , @DeleteSql             nvarchar(max);
+        , @TruncateSql           nvarchar(max);
 
     SET @AnchorColumnName = CONVERT(sysname, N'tbx_anchor_' + @InvocationToken);
 
@@ -1133,9 +1138,8 @@ SELECT @SourceMetadataDebug =
     END;
 
     SET @TruncateSql = N'TRUNCATE TABLE ' + @TargetQuotedName + N';';
-    SET @DeleteSql = N'DELETE FROM ' + @TargetQuotedName + N';';
 
-    IF @Debug = 3 OR @Debug = 255
+    IF @Debug >= 3
     BEGIN
         SET @DebugMessage = N'USP_PrepareResultTable: geplantes DDL:'
             + NCHAR(10)
@@ -1148,7 +1152,7 @@ SELECT @SourceMetadataDebug =
                            + @DropAnchorSql
                            + COALESCE(NCHAR(10) + @AddAfterAnchorSql, N'')
                   WHEN @TargetHasRows = 1 AND @KeepData = 0
-                      THEN @TruncateSql + N' -- DELETE-Fallback ist möglich.'
+                      THEN @TruncateSql
                   ELSE N'<keine Mutation>'
               END;
 
@@ -1179,24 +1183,14 @@ SELECT @SourceMetadataDebug =
 
         IF @TargetHasRows = 1 AND @KeepData = 0
         BEGIN
-            BEGIN TRY
-                EXEC sys.sp_executesql @TruncateSql;
-                SET @ClearMethod = 'TRUNCATE';
-            END TRY
-            BEGIN CATCH
-                /*
-                 * Lokale Temp-Tabellen sind üblicherweise truncatable. Der
-                 * kontrollierte DELETE-Fallback erhält jedoch die zugesagte
-                 * Replace-Semantik, falls eine Engine-Einschränkung greift.
-                 */
-                IF XACT_STATE() <> 1
-                BEGIN
-                    THROW;
-                END;
-
-                EXEC sys.sp_executesql @DeleteSql;
-                SET @ClearMethod = 'DELETE';
-            END CATCH;
+            /*
+             * Eine lokale ResultTable muss truncatable sein. Verhindert die
+             * Engine TRUNCATE dennoch, liegt ein nicht unterstützter Zustand
+             * vor. Der Originalfehler wird nach dem Rollback unverändert
+             * weitergegeben; ein DELETE-Fallback ist ausdrücklich unzulässig.
+             */
+            EXEC sys.sp_executesql @TruncateSql;
+            SET @ClearMethod = 'TRUNCATE';
         END;
 
         IF @SchemaMatches = 0

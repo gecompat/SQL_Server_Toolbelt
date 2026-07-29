@@ -14,18 +14,22 @@ from pathlib import Path
 
 
 MODULE_ROOT = Path(__file__).resolve().parents[2]
+REPOSITORY_ROOT = MODULE_ROOT.parents[1]
 SOURCE = MODULE_ROOT / "Source" / "USP_PrepareResultTable.sql"
 MANIFEST = MODULE_ROOT / "module.yaml"
 README = MODULE_ROOT / "README.md"
 OBJECT_DOC = MODULE_ROOT / "Documentation" / "USP_PrepareResultTable.md"
-INSTALL = MODULE_ROOT / "Deployment" / "Install.sql"
-UPGRADE = MODULE_ROOT / "Deployment" / "Upgrade.sql"
+DEPLOY = MODULE_ROOT / "Deployment" / "Deploy.sql"
 UNINSTALL = MODULE_ROOT / "Deployment" / "Uninstall.sql"
 EXAMPLE = MODULE_ROOT / "Examples" / "PrepareResultTable.sql"
 RUNTIME_CONTRACT = (
     MODULE_ROOT / "Tests" / "Runtime" / "USP_PrepareResultTable.Contract.sql"
 )
 LIFECYCLE_CONTRACT = MODULE_ROOT / "Tests" / "Runtime" / "Lifecycle.Contract.sql"
+COMPATIBILITY_SMOKE = MODULE_ROOT / "Tests" / "Runtime" / "Compatibility.Smoke.sql"
+CENTRAL_CONTRACT = MODULE_ROOT / "Tests" / "Runtime" / "Central.Contract.sql"
+RUNTIME_WORKFLOW = REPOSITORY_ROOT / ".github" / "workflows" / "result-table-runtime.yml"
+LINUX_RUNNER = REPOSITORY_ROOT / "Tests" / "CI" / "run-result-table-linux.sh"
 
 
 def read(path: Path) -> str:
@@ -79,12 +83,15 @@ def main() -> int:
             MANIFEST,
             README,
             OBJECT_DOC,
-            INSTALL,
-            UPGRADE,
+            DEPLOY,
             UNINSTALL,
             EXAMPLE,
             RUNTIME_CONTRACT,
             LIFECYCLE_CONTRACT,
+            COMPATIBILITY_SMOKE,
+            CENTRAL_CONTRACT,
+            RUNTIME_WORKFLOW,
+            LINUX_RUNNER,
         )
     }
 
@@ -119,6 +126,8 @@ def main() -> int:
         raise AssertionError("@CreateStmt ist in Contract-Version 1.0 unzulässig.")
     if re.search(r"\bINSERT\s+(?:INTO\s+)?[^;\n]+\s+EXEC(?:UTE)?\b", source, re.IGNORECASE):
         raise AssertionError("Die Source enthält ein unzulässiges INSERT ... EXEC.")
+    if re.search(r"@DeleteSql\b|\bDELETE\s+FROM\s+[\"'+@]", source, re.IGNORECASE):
+        raise AssertionError("Die Source enthält einen unzulässigen DELETE-Fallback.")
 
     for help_column in (
         "HelpContractVersion",
@@ -168,6 +177,9 @@ def main() -> int:
         "SAVE TRANSACTION @SavepointName",
         "ROLLBACK TRANSACTION @SavepointName",
         "RAISERROR(N'%s', 10, 1, @DebugChunk) WITH NOWAIT",
+        "@SourceIsLocal = 1 AND @SourceObjectId = @TargetObjectId",
+        "IF @Debug >= 3",
+        "SET @TruncateSql = N'TRUNCATE TABLE '",
         "@DropColumnBeforeAnchor",
         "@AddColumnAfterAnchor",
         "RETURN 0",
@@ -193,28 +205,63 @@ def main() -> int:
     if len(re.findall(r"^\s+- type:\s+USP\s*$", manifest, re.MULTILINE)) != 1:
         raise AssertionError("Das Manifest muss genau ein persistentes USP-Objekt führen.")
 
-    for lifecycle_path in (INSTALL, UPGRADE):
-        lifecycle = files[lifecycle_path]
-        if lifecycle.count(":r ../Source/USP_PrepareResultTable.sql") != 1:
+    workflow = files[RUNTIME_WORKFLOW]
+    for marker in (
+        "runs-on: ubuntu-latest",
+        "mcr.microsoft.com/mssql/server:2019-latest",
+        "mcr.microsoft.com/mssql/server:2022-latest",
+        "mcr.microsoft.com/mssql/server:2025-latest",
+        "Tests/CI/run-result-table-linux.sh",
+    ):
+        if marker not in workflow:
+            raise AssertionError(f"Runtime-Workflow-Marker fehlt: {marker}")
+    if "self-hosted" in workflow:
+        raise AssertionError("Der ResultTable-Workflow darf keinen Remote-Runner verwenden.")
+
+    deploy = files[DEPLOY]
+    if re.search(r"^\s*:setvar\b", deploy, re.MULTILINE | re.IGNORECASE):
+        raise AssertionError(
+            "Deploy.sql darf SQLCMD-Kommandozeilenparameter nicht mit :setvar überschreiben."
+        )
+    if deploy.count(":r ../Source/USP_PrepareResultTable.sql") != 1:
+        raise AssertionError(
+            "Deploy.sql bindet die kanonische Source nicht exakt einmal ein."
+        )
+    for marker in (
+        "#tbx_ResultTableReleaseObjects",
+        "Toolbelt.ModuleId",
+        "Toolbelt.ModuleVersion",
+        "Toolbelt.ContractVersion",
+        "Toolbelt.SourceHash",
+        "Toolbelt.Module.toolbelt.core.result-table.Version",
+        "sp_getapplock",
+        "CREATE OR ALTER",
+    ):
+        if marker not in deploy and marker != "CREATE OR ALTER":
+            raise AssertionError(f"Deploy.sql enthält den Pflichtmarker nicht: {marker}")
+        if marker == "CREATE OR ALTER" and marker not in source:
+            raise AssertionError("Die kanonische Source verwendet kein CREATE OR ALTER.")
+
+    for obsolete_path in (
+        MODULE_ROOT / "Deployment" / "Install.sql",
+        MODULE_ROOT / "Deployment" / "Upgrade.sql",
+    ):
+        if obsolete_path.exists():
             raise AssertionError(
-                f"{lifecycle_path.name} bindet die kanonische Source nicht exakt einmal ein."
+                f"Veraltetes separates Lifecycle-Skript vorhanden: {obsolete_path.name}"
             )
-        for marker in (
-            "Toolbelt.ModuleId",
-            "Toolbelt.ModuleVersion",
-            "Toolbelt.ContractVersion",
-            "Toolbelt.SourceHash",
-        ):
-            if marker not in lifecycle:
-                raise AssertionError(
-                    f"{lifecycle_path.name} pflegt Ownership-Marker {marker} nicht."
-                )
 
     uninstall = files[UNINSTALL]
+    if re.search(r"^\s*:setvar\b", uninstall, re.MULTILINE | re.IGNORECASE):
+        raise AssertionError(
+            "Uninstall.sql darf SQLCMD-Kommandozeilenparameter nicht mit :setvar überschreiben."
+        )
     for marker in (
         "ConfirmNoExternalConsumers",
         "sys.sql_expression_dependencies",
         "DROP PROCEDURE [toolbelt_core].[USP_PrepareResultTable]",
+        "Toolbelt.Module.toolbelt.core.result-table.Version",
+        "sp_getapplock",
         "DROP SCHEMA [toolbelt_core]",
     ):
         if marker not in uninstall:

@@ -44,6 +44,18 @@ Reale Runtime-Ausgaben, reale Servernamen und andere schutzwürdige Informatione
 
 Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` ausgewiesen werden.
 
+### Erste GitHub-hosted Validierungswelle
+
+Die pfadbezogene Action `.github/workflows/result-table-runtime.yml` verwendet ausschließlich GitHub-hosted Linux-Runner:
+
+- SQL Server 2019: vollständiger vorhandener Runtime-Contract sowie Deploy-, Wiederholungs-, zentrale Nutzungs-, Kollisions-, Schema-Wiederverwendungs- und Uninstall-Pfade;
+- SQL Server 2022 und 2025: reduzierter Compatibility-Smoke, Deploy-Wiederholung und Uninstall;
+- keine Remote- oder self-hosted Runner;
+- flüchtig generiertes und maskiertes Testkennwort;
+- ausschließlich synthetische Datenbank-, Objekt- und Testwerte.
+
+Diese erste Welle ändert die deklarierte Windows-Unterstützung nicht. Windows bleibt bis zu einer tatsächlichen separaten Ausführung `not executed`. Auch ein grüner Workflow setzt den Modulstatus erst dann auf `validated`, wenn alle für den deklarierten Support verpflichtenden Matrixpunkte nachweislich abgedeckt sind.
+
 ## 3. Statische Vertragsprüfungen
 
 | ID | Prüfung | Erwartung |
@@ -55,7 +67,7 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 | `RT-S-005` | Datentypen | `sysname`, `nvarchar(776)`, `bit`, `tinyint`, `bit` |
 | `RT-S-006` | Resultsets | kein fachliches Resultset bei `@Hilfe = 0` |
 | `RT-S-007` | Help-Contract | vollständige Pflicht-Sections einschließlich deklarativem `RESULT_COLUMN`-Eintrag |
-| `RT-S-008` | Error-Range | Modulfehler ausschließlich `51020` bis `51039` |
+| `RT-S-008` | Error-Range | Procedure-Vertragsfehler ausschließlich `51020` bis `51029`; Lifecycle-Fehler `51030` bis `51039` |
 | `RT-S-009` | dynamische Identifier | alle Identifier mit `QUOTENAME`; keine direkte Benutzereingabe in DDL |
 | `RT-S-010` | Metadatenzugriff | Ziel-Temp-Table einmalig mit `OBJECT_ID`; Folgezugriffe über `object_id` |
 | `RT-S-011` | Catalog Views | präzise Filter und geeignete read-only Zugriffe gemäß T-SQL-Standard |
@@ -112,7 +124,7 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 | `RT-L-009` | globale Temp-Tabelle | `51023` |
 | `RT-L-010` | Quelle fehlt | `51023` |
 | `RT-L-011` | fehlende Metadatensichtbarkeit | verständlicher Fehler ohne Rechteausweitung |
-| `RT-L-012` | Target und LikeTable sind dasselbe Objekt | deterministisches Verhalten ohne DDL-Zyklus |
+| `RT-L-012` | Target und LikeTable sind dasselbe lokale Temp-Objekt | `51022` vor jeder Mutation |
 | `RT-L-013` | Collation-unterschiedliche Quelldatenbank | Metadaten werden ohne Collation-Conflict gelesen |
 | `RT-L-014` | delimitierte Namen mit Leerzeichen, Punkt oder schließender Klammer | sicher geparst und mit `QUOTENAME` neu aufgebaut |
 
@@ -176,7 +188,7 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 | `RT-K-009` | beliebiger Dummyspaltenname/-typ, leer | `0` | vollständige Anpassung auf Referenzschema |
 | `RT-K-010` | beliebiger Dummyspaltenname/-typ, Daten vorhanden | `0` | Replace-Semantik und vollständige Anpassung |
 | `RT-K-011` | passendes Schema, `TRUNCATE` zulässig | `0` | `TRUNCATE` darf verwendet und bei Debug ausgewiesen werden |
-| `RT-K-012` | passendes Schema, `TRUNCATE` nicht zulässig, `DELETE` zulässig | `0` | kontrollierter `DELETE`-Fallback |
+| `RT-K-012` | passendes Schema, `TRUNCATE` schlägt unerwartet fehl | `0` | kein `DELETE`-Fallback; eigene Mutation zurückrollen und ursprünglichen Engine-Fehler weitergeben |
 
 ## 10. Indizes, Constraints und Dependencies
 
@@ -233,6 +245,7 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 | `RT-G-006` | vertrauliche synthetische Parameterwerte | dürfen diagnostisch erscheinen |
 | `RT-G-007` | als Secret klassifizierter synthetischer Wert | wird nicht aktiv wiederholt |
 | `RT-G-008` | Debug in Help-Modus | keine Debug-Message |
+| `RT-G-009` | `@Debug = 4` und `254` | jeweils mindestens derselbe Detailumfang wie Stufe `3` |
 
 ## 14. Verschachtelung und Rekursion
 
@@ -265,20 +278,24 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 
 | ID | Test | Erwartung |
 |---|---|---|
-| `RT-C-001` | Erstinstallation | Schema/Procedure/Extended Properties vollständig |
-| `RT-C-002` | Wiederholung derselben Installation | kontrolliert wiederholbar und ohne Teilzustand |
-| `RT-C-003` | Kollision mit fremdem `toolbelt_core`-Schema | Preflight-Abbruch vor Mutation |
-| `RT-C-004` | Upgrade von bekannter Vorgängerversion | Procedure und Extended Properties konsistent |
-| `RT-C-005` | Upgrade von unbekannter Version | Abbruch vor Mutation |
+| `RT-C-001` | Erstdeployment | Schema/Procedure/Release- und Objektmarker vollständig |
+| `RT-C-002` | Wiederholung derselben Version | alle Framework-Objekte erneut deployed; kein Teilzustand |
+| `RT-C-003` | vorhandenes unmarkiertes `toolbelt_core`-Schema ohne Zielnamenskollision | Schema kontrolliert wiederverwenden und nicht adoptieren |
+| `RT-C-004` | Deployment von bekannter Vorgängerversion | Release-Manifest, Procedure und Extended Properties konsistent |
+| `RT-C-005` | Deployment von unbekannter Version | Abbruch vor Mutation |
 | `RT-C-006` | Uninstall ohne Dependents | Procedure entfernt; fremde Objekte bleiben |
 | `RT-C-007` | Uninstall bei same-database Dependency | Abbruch oder explizite Bestätigung gemäß Lifecycle-Vertrag |
 | `RT-C-008` | zentraler Uninstall ohne Bestätigung externer Konsumenten | Abbruch |
 | `RT-C-009` | Schema nach Uninstall nicht leer | Schema bleibt erhalten |
 | `RT-C-010` | Schema leer und als Toolbelt verwaltet | Schema darf kontrolliert entfernt werden |
-| `RT-C-011` | Schema-Extended-Properties | `Toolbelt.Managed` und `Toolbelt.SchemaCategory` korrekt gesetzt und geprüft |
-| `RT-C-012` | Procedure-Extended-Properties | ModuleId, ModuleVersion und ContractVersion korrekt gesetzt |
-| `RT-C-013` | Install trifft bekannte ältere Version | verweist kontrolliert auf Upgrade; kein stilles Überschreiben |
-| `RT-C-014` | Install trifft fremde oder unvollständige Marker | Abbruch vor Mutation |
+| `RT-C-011` | Schema-Extended-Properties | neu angelegtes Schema wird markiert; bestehendes unmarkiertes Schema bleibt unmarkiert |
+| `RT-C-012` | Procedure-Extended-Properties | ModuleId, ModuleVersion, ContractVersion und DeploymentMode korrekt gesetzt |
+| `RT-C-013` | Source-Hash nach Deploy | gespeicherter Hash entspricht zunächst dem Objekttext und bleibt rein diagnostisch |
+| `RT-C-014` | lokal veränderte Framework-Procedure | erneutes Deploy überschreibt sie mit der Release-Source |
+| `RT-C-015` | Zielrelease enthält neuen Namen mit vorhandener frameworkfremder Kollision | Abbruch im Preflight vor jeder Mutation |
+| `RT-C-016` | bekanntes Vorgängerrelease enthält ein im Ziel weggefallenes Objekt | ausschließlich dieses manifestierte Framework-Objekt entfernen |
+| `RT-C-017` | Fehler während Lifecycle-Transaktion | vollständiger Rollback ohne halben Installationsstand |
+| `RT-C-018` | paralleles Deploy oder Uninstall desselben Moduls | Application Lock verhindert überlappende Mutation |
 
 ## 17. Performance-Messungen
 

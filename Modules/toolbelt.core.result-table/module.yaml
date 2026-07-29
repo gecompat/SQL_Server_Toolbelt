@@ -45,7 +45,7 @@ objects:
 permissions_required:
   - "EXECUTE auf toolbelt_core.USP_PrepareResultTable"
   - "Metadatensichtbarkeit auf reguläre Referenztabellen"
-  - "DDL-Rechte für Install, Upgrade und Uninstall"
+  - "DDL-Rechte für Deploy und Uninstall"
 
 collation_contract: "Technische Namen werden mit Latin1_General_100_BIN2 verglichen; Zeichenspalten behalten die Referenz-Collation."
 data_type_contract: "Explizite Whitelist gewöhnlicher einfügbarer SQL-Systemtypen; Alias Types werden normalisiert, neue und nicht freigegebene Typen abgelehnt."
@@ -65,15 +65,19 @@ clr:
   trust_method: null
 
 lifecycle:
-  install: "Deployment/Install.sql"
-  upgrade: "Deployment/Upgrade.sql"
+  deploy: "Deployment/Deploy.sql"
   uninstall: "Deployment/Uninstall.sql"
   execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
 
 tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/USP_PrepareResultTable.Contract.sql"
   contract: "Tests/Runtime/USP_PrepareResultTable.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  compatibility: "Tests/Runtime/Compatibility.Smoke.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/result-table-runtime.yml"
 
 validation_status: "not executed"
