@@ -58,4 +58,13 @@ mit/ohne Identiy
  
  # Regex Funktionen für SQL 2019, 2022
  zu prüfen is, ob die vorhandene SQL2025'er Regexfunktionen die gesamte (gewünschte) Breite abdecken  
-Fragestellung: was ist die gewünschte Breite? - welche Funktionalitäten fallen dir ein?
+Fragestellung: was ist die gewünschte Breite? - welche Funktionalitäten fallen dir ein?  
+  
+
+ # Powershell am Host ausführen - Ergebnis entgegennehmen
+ 
+ # python am Host ausführen - Ergebnis entgegennehmen
+ 
+ 
+ 
+ 
