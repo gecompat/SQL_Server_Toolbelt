@@ -2,7 +2,7 @@
 
 ## Projektstatus
 
-Der Repository-Grundaufbau ist initialisiert und konsolidiert. Es sind noch keine fachlichen Module implementiert.
+Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das erste Kernmodul `toolbelt.core.result-table` ist implementierungsreif spezifiziert, aber noch nicht implementiert oder zur Runtime validiert.
 
 ## Projektzweck
 
