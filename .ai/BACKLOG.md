@@ -15,13 +15,13 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Priorität | `P1` |
 | Status | `active` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Zwei öffentliche Scalar UDFs im Schema `toolbelt_conversion`; Standard- und URL-safe-Ausgabe; Decode beider Alphabete, optionales Padding und definierter Whitespace; unveränderte Providerfehler; keine String-zu-Binär-Konvertierung; vollständige gekoppelte Dokumentation und Lifecycle-Artefakte; SQL Server 2025 mit Compatibility Levels 150/160/170 erfolgreich. |
-| Tests | Statische Vertragsprüfung und ein serieller GitHub-hosted Linux-Workflow für SQL Server 2025 mit Compatibility Levels 150/160/170; physische 2019-/2022- und Windows-Läufe bleiben bis zur gezielten Releasevalidierung `not executed`. |
-| Blocker | Kein Implementierungsblocker. Runtime-Evidenz steht noch aus; bis dahin bleibt `validation_status: not executed`. |
-| Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.conversion.base64/`; Runtime-Workflow noch nicht ausgeführt. |
-| Nächster Schritt | Statische und Runtime-Checks ausführen, Evidenz und Status aktualisieren und erst danach mergen. |
+| Tests | Statische Vertragsprüfung und serieller GitHub-hosted SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben bis zur gezielten Releasevalidierung `not executed`. |
+| Blocker | Kein Merge-Blocker. Für `validated` fehlen physische SQL-Server-2019-/2022- und Windows-Evidenz sowie eine breitere Performancebewertung großer LOBs. |
+| Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.conversion.base64/`; [Base64 Runtime Run 30493304673](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30493304673) erfolgreich. |
+| Nächster Schritt | PR nach abschließenden Statuschecks mergen; physische 2019-/2022- und Windows-Läufe gezielt vor Release ausführen. |
 
 ### AP-2026-007: Entscheidungsvorbereitung für das zweite Modul
 

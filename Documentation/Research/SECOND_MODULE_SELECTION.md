@@ -5,7 +5,7 @@
 | Feld | Wert |
 |---|---|
 | Zweck | Entscheidungsvorlage für die Besprechung des zweiten fachlichen Moduls |
-| Status | `implemented; runtime validation pending` |
+| Status | `implemented; partially validated` |
 | Prüfdatum | 2026-07-29 |
 | Bevorzugter Kandidat | `TC-2026-012` – Base64-/Base64URL-Konvertierung |
 | Alternative | `TC-2026-004` – `DATETRUNC`-Kompatibilität |
@@ -157,7 +157,7 @@ Vertrag interpretiert werden.
 | Funktionsbezogene Implementierungsfreigabe | erfüllt | ausdrücklich am 2026-07-29 |
 | Scopebezogenes Qualitäts-Gate | erfüllt | `DEC-2026-021`; keine ResultTable-Abhängigkeit |
 | Implementierung | erfüllt | Modulartefakte vorhanden |
-| Runtime-Validierung | offen | SQL Server 2025, Compatibility Levels 150/160/170 ausführen |
+| Runtime-Validierung | teilweise erfüllt | SQL Server 2025 Linux mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe offen |
 
 Die offenen ResultTable-Pflichtfälle bleiben unabhängig bestehen. Sie werden
 nicht als Evidenz für das Base64-Modul verwendet und blockieren dessen

@@ -6,7 +6,7 @@
 
 **Implementierung:** `implemented`
 
-**Validierung:** `not executed`
+**Validierung:** `partially validated`
 
 **Release:** `unreleased`
 
@@ -70,12 +70,15 @@ nicht vertraulichen Daten zu messen.
 ## Plattform- und Teststatus
 
 Der portable Provider enthält keine bekannte Betriebssystemabhängigkeit.
-Runtime-Evidenz entsteht erst durch die tatsächliche Ausführung des
-[Base64-Runtime-Workflows](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/base64-runtime.yml).
-Die erste Matrix prüft SQL Server 2025 unter Linux mit Compatibility Levels
-150, 160 und 170. Physische
+Der
+[Base64-Runtime-Lauf 30493304673](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30493304673)
+war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich. Geprüft wurden RFC-4648-/Base64URL-Vektoren, Fehlerfälle,
+synthetische Größen bis 1 MiB, Wiederholungsdeployment, Fremdobjekt-Kollision,
+lokale und zentrale Nutzung sowie Uninstall. Physische
 SQL-Server-2019-/2022- und Windows-Läufe bleiben bis zur gezielten
-Releasevalidierung `not executed`.
+Releasevalidierung `not executed`; der Modulstatus ist deshalb nur
+`partially validated`.
 
 ## Dokumentation
 

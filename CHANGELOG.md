@@ -40,6 +40,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Parametergesteuertes lokales und zentrales Base64-Deployment, Uninstall, Objekt- und Moduldokumentation, synthetische Beispiele sowie statische, Contract-, Lifecycle- und Größenprüfungen.
 - Serieller SQL-Server-2025-Linux-Workflow für Compatibility Levels 150, 160 und 170.
 - Architekturentscheidung `DEC-2026-021` für scopebezogene Qualitäts-Gates unabhängiger Module.
+- Erfolgreiche Base64-Runtime-Matrix auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich RFC-4648-, Fehler-, Größen-, Deployment- und Lifecycle-Contracts.
 
 ### Geändert
 

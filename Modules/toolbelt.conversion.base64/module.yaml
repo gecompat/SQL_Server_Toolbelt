@@ -2,7 +2,7 @@ module_id: "toolbelt.conversion.base64"
 module_name: "Base64 and Base64URL Conversion"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Codiert varbinary(max) als Base64 oder Base64URL und decodiert beide RFC-4648-Alphabete."
 
@@ -18,7 +18,7 @@ compatibility_levels:
 
 platforms:
   windows: "not executed"
-  linux: "not executed"
+  linux: "partially validated"
 
 providers:
   - id: tsql-xml
@@ -101,3 +101,7 @@ validation_evidence:
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/base64-runtime.yml"
     scope: "Workflow und Contract-Tests vorhanden; Runtime noch nicht ausgeführt"
     result: "not executed"
+  - date: "2026-07-29"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30493304673"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; RFC-4648-, Fehler-, Größen-, lokale, zentrale und Lifecycle-Contracts"
+    result: "success"

@@ -173,7 +173,11 @@ Stand `toolbelt.conversion.base64`:
   serielle Runtime-Matrix vorgesehen;
 - physische SQL-Server-2019-/2022- und Windows-Prüfungen für die gezielte
   Releasevalidierung vorgesehen;
-- bis zum ersten erfolgreichen Runtime-Lauf `validation_status: not executed`.
+- SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
+  einschließlich RFC-4648-, Fehler-, Größen-, Deployment- und
+  Lifecycle-Contracts erfolgreich;
+- wegen der offenen physischen 2019-/2022- und Windows-Prüfungen
+  `validation_status: partially validated`.
 
 ## Phase 3 – Schlanke Test-Infrastruktur und CI
 

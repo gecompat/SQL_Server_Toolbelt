@@ -3,8 +3,9 @@
 ## Status
 
 Die Matrix ist der Pflichtscope für `toolbelt.conversion.base64` Version
-`1.0.0`. Testcode ist vorhanden; Runtime-Evidenz entsteht erst durch den
-[Base64-Runtime-Workflow](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/base64-runtime.yml).
+`1.0.0`. Der
+[SQL-Server-2025-Linux-Lauf 30493304673](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30493304673)
+war für die Compatibility Levels 150, 160 und 170 erfolgreich.
 
 ## Funktionsvertrag
 
@@ -35,9 +36,9 @@ Die Matrix ist der Pflichtscope für `toolbelt.conversion.base64` Version
 
 | Engine/Plattform | Compatibility | Status |
 |---|---:|---|
-| SQL Server 2025 Linux | 150 | `not executed` |
-| SQL Server 2025 Linux | 160 | `not executed` |
-| SQL Server 2025 Linux | 170 | `not executed` |
+| SQL Server 2025 Linux | 150 | `validated` im genannten Run |
+| SQL Server 2025 Linux | 160 | `validated` im genannten Run |
+| SQL Server 2025 Linux | 170 | `validated` im genannten Run |
 | SQL Server 2019 Linux | 150 | `not executed` – gezielte Releasevalidierung |
 | SQL Server 2022 Linux | 160 | `not executed` – gezielte Releasevalidierung |
 | Windows 2019/2022/2025 | passend | `not executed` – geeigneter Runner erforderlich |

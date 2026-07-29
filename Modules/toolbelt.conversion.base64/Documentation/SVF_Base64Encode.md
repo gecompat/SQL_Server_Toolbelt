@@ -46,6 +46,6 @@ nur aus ASCII-Zeichen. Große LOBs werden vollständig synchron materialisiert.
 
 ## Einschränkungen und Teststatus
 
-Base64 schützt weder Vertraulichkeit noch Integrität. Runtime-Tests sind im
-aktuellen Manifest noch `not executed`; vorhandener Testcode allein ist kein
-Nachweis.
+Base64 schützt weder Vertraulichkeit noch Integrität. SQL Server 2025 unter
+Linux ist mit Compatibility Levels 150, 160 und 170 erfolgreich geprüft.
+Physische 2019-/2022- und Windows-Läufe bleiben `not executed`.

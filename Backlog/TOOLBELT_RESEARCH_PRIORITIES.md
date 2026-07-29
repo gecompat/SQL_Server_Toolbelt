@@ -6,7 +6,7 @@ Stand: 2026-07-29
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** Das ResultTable-Kernmodul ist noch nicht vollständig validiert. `TC-2026-012` wurde besprochen, freigegeben und als Base64-Modul implementiert; Runtime-Evidenz steht noch aus. |
+| Aktueller Projektstand | **Dokumentiert:** Das ResultTable-Kernmodul ist noch nicht vollständig validiert. `TC-2026-012` wurde als Base64-Modul implementiert und auf SQL Server 2025 Linux mit Compatibility 150/160/170 erfolgreich geprüft. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
 | Implementierungsfreigabe | **Nicht erteilt:** Weder Rang noch Fokusgruppe autorisieren eine Implementierung oder definieren einen öffentlichen Vertrag. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
@@ -35,11 +35,11 @@ Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
 | Reihenfolge | Kandidat | Komplexität | Begründung |
 |---:|---|---:|---|
 | 1 | `TC-2026-003` – ResultTable-Routing | `L` | Bereits implementiertes Kernmodul; die offene Pflichtvalidierung ist das Gate für weitere Module und deshalb wichtiger als ein neuer Kandidat. |
-| 2 | `TC-2026-012` – Base64/Base64URL | `M` | Vertrag freigegeben und implementiert; als Nächstes gezielt validieren. |
+| 2 | `TC-2026-012` – Base64/Base64URL | `M` | Implementiert und auf SQL Server 2025 Linux teilweise validiert; physische 2019-/2022- und Windows-Läufe bleiben Releaseaufgabe. |
 
-**Hauptempfehlung:** Die offenen ResultTable-Pflichtfälle getrennt weiterführen
-und den implementierten Base64-Vertrag zunächst auf SQL Server 2025 mit den
-Compatibility Levels 150/160/170 validieren.
+**Hauptempfehlung:** Die offenen ResultTable-Pflichtfälle und die gezielte
+Base64-Releasevalidierung getrennt weiterführen; für die nächste
+Funktionsbesprechung genau einen Kandidaten aus F1 auswählen.
 
 ## F1 – Kleiner nutzerorientierter Konzentrationskorb
 
@@ -107,8 +107,8 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 
 Nach Abschluss beziehungsweise ausreichender Stabilisierung von `TC-2026-003` sollten nur diese Fragen besprochen werden:
 
-1. Runtime-Validierung und Evidenz für `TC-2026-012`.
-2. Danach Auswahl genau eines nächsten nutzerorientierten Kandidaten aus `TC-2026-006`, `RI-2026-011` und `TC-2026-001`.
+1. Auswahl genau eines nächsten nutzerorientierten Kandidaten aus `TC-2026-006`, `RI-2026-011` und `TC-2026-001`.
+2. Physische 2019-/2022- und Windows-Releasevalidierung für `TC-2026-012` gezielt einplanen.
 3. Optional Auswahl genau eines Qualitäts-Enablers, bevorzugt `RI-2026-138`.
 
 Alle übrigen Kandidaten bleiben bis zu dieser Auswahl Research-Input.
