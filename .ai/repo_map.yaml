@@ -28,6 +28,27 @@ sources_of_truth:
   roadmap: .ai/ROADMAP.md
   backlog: .ai/BACKLOG.md
 
+research_inputs:
+  personal_backlog_brainstorm:
+    path: Backlog/personal_Backlog_Bainstorm.md
+    content_role: user_authored_non_authoritative_research_input
+    required_for_backlog_research: true
+    may_define_rules: false
+    may_define_public_contracts: false
+    may_set_priority: false
+    may_authorize_implementation: false
+    existing_content_deletion_allowed: false
+    allowed_updates:
+      - append
+      - annotate
+      - strikethrough_with_dated_change_comment
+      - add_candidate_cross_reference
+    canonical_destinations:
+      - Backlog/TOOLBELT_CANDIDATES.md
+      - Backlog/SQL_SERVER_ANALYZE_CANDIDATES.md
+      - Backlog/MAN_KANN_ES_AUCH_UEBERTREIBEN.md
+      - .ai/BACKLOG.md
+
 artifact_classes:
   public:
     description: Öffentlich sichtbare Dokumentation und Inhalte

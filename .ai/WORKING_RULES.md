@@ -7,9 +7,10 @@
 3. Vor einer Implementierung die dokumentierte Besprechung von Zweck, Vertrag, Alternativen, Risiken und Scope sowie die anschließende ausdrückliche Benutzerfreigabe feststellen.
 4. Bei reiner Ideen-/Research-Pflege sicherstellen, dass weder ein Runtime-Objekt entsteht noch eine Implementierungsfreigabe behauptet wird.
 5. `AGENTS.md`, `.ai/PROJECT_RULES.md`, `.ai/WORKING_RULES.md`, relevanten Kontext, Standards und Entscheidungen lesen.
-6. Abhängigkeiten und parallele Arbeiten prüfen.
-7. Datenschutz- und Secret-Stop-Gate durchführen.
-8. Neue Anforderungen auf Regelkonflikte prüfen.
+6. Bei Backlog- oder Research-Aufgaben zusätzlich `Backlog/personal_Backlog_Bainstorm.md` lesen und als nicht autoritative Hinweisquelle berücksichtigen.
+7. Abhängigkeiten und parallele Arbeiten prüfen.
+8. Datenschutz- und Secret-Stop-Gate durchführen.
+9. Neue Anforderungen auf Regelkonflikte prüfen.
 
 Ein Funktionskandidat, ein Design oder ein geplantes Arbeitspaket gilt nicht als Implementierungsfreigabe. Die funktionsbezogene Besprechung und die anschließende ausdrückliche Freigabe müssen vor dem Merge im Pull Request, Backlog oder Entscheidungsprotokoll nachvollziehbar dokumentiert sein.
 
@@ -19,6 +20,10 @@ Ein Funktionskandidat, ein Design oder ein geplantes Arbeitspaket gilt nicht als
 - Research-Arbeit darf Primärquellen, technische Optionen, offene Fragen und eine Empfehlung dokumentieren.
 - Research-Arbeit implementiert keine Capability, legt keinen öffentlichen Runtime-Vertrag endgültig fest und aktiviert kein Arbeitspaket.
 - Vor einer späteren Implementierung wird jeder konkrete Funktionsvertrag einzeln mit dem Benutzer besprochen.
+- Gedanken aus `Backlog/personal_Backlog_Bainstorm.md` werden gegen bestehende Kandidaten und Primärquellen geprüft, bevor daraus ein formaler Kandidat entsteht.
+- Beim Überführen in eine kanonische Kandidatenliste bleibt der Originalgedanke erhalten; nach Möglichkeit wird im persönlichen Brainstorm ein Querverweis auf die neue Kandidaten-ID ergänzt.
+- Bestehender Brainstorm-Inhalt wird nicht gelöscht. Überholte Aussagen werden durchgestrichen und unmittelbar mit einem datierten Änderungskommentar, Autor beziehungsweise KI-Namen, Begründung und gegebenenfalls Nachfolger-ID versehen.
+- Ergänzungen in der persönlichen Datei dürfen frei formuliert sein. Verbindliche Felder, Status und Quellen werden erst in den kanonischen Kandidatenlisten normalisiert.
 
 ## Konfliktprüfung
 
