@@ -53,10 +53,10 @@ jobs:
             suite: "full"
           - version: "2022"
             image: "mcr.microsoft.com/mssql/server:2022-latest"
-            suite: "compatibility"
+            suite: "full"
           - version: "2025"
             image: "mcr.microsoft.com/mssql/server:2025-latest"
-            suite: "compatibility"
+            suite: "full"
 
     steps:
       - name: Checkout

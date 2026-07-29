@@ -162,7 +162,13 @@ Dokumentiert:
 - Maximal 1024 ResultTable-Spalten werden unterstützt. Am SQL-Server-Spaltenlimit
   teilt der Algorithmus den Umbau, damit die Anchor-Spalte keine 1025. Spalte erzeugt.
 
-Empirische Laufzeit-, CPU-, TempDB- und Skalierungsaussagen sind noch `not executed` und werden nicht behauptet.
+Ein reproduzierbarer synthetischer CI-Workload für No-Mutation, `TRUNCATE` und
+kleinen Schemaumbau wurde auf SQL Server 2019, 2022 und 2025 unter Linux
+erfolgreich ausgeführt. Seine Duration-, CPU-, Logical-Read- und
+TempDB-Nettoallokationswerte bleiben empirische Laufdaten des jeweiligen
+Workflows und begründen keine allgemeine Performance-Zusage. Eine
+plattformübergreifend vergleichbare Performance-Baseline ist weiterhin
+`not executed`.
 
 ## Beispiel
 

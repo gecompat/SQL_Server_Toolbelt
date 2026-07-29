@@ -78,14 +78,21 @@ run_file() {
 
 create_database() {
     local database_name="$1"
-    run_query master "CREATE DATABASE [${database_name}];"
+    local collation_name="${2:-}"
+
+    if [[ -n "${collation_name}" ]]; then
+        run_query master \
+            "CREATE DATABASE [${database_name}] COLLATE ${collation_name};"
+    else
+        run_query master "CREATE DATABASE [${database_name}];"
+    fi
 }
 
 deployment_directory="/workspace/Modules/toolbelt.core.result-table/Deployment"
 runtime_directory="/workspace/Modules/toolbelt.core.result-table/Tests/Runtime"
 local_database="tbx_result_table_local"
 
-create_database "${local_database}"
+create_database "${local_database}" "Latin1_General_100_CS_AS"
 run_file "${local_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
@@ -93,6 +100,12 @@ run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 if [[ "${test_suite}" == "full" ]]; then
     run_file "${local_database}" "${runtime_directory}" \
         USP_PrepareResultTable.Contract.sql
+    run_file "${local_database}" "${runtime_directory}" \
+        Collation.Contract.sql
+    run_file "${local_database}" "${runtime_directory}" \
+        BoundaryAndTransaction.Contract.sql
+    run_file "${local_database}" "${runtime_directory}" \
+        Performance.Workload.sql
 
     # CREATE OR ALTER durch das Release muss eine lokale Framework-Änderung bei
     # derselben Version bewusst überschreiben.
@@ -104,8 +117,8 @@ if [[ "${test_suite}" == "full" ]]; then
 
     central_database="tbx_result_table_central"
     consumer_database="tbx_result_table_consumer"
-    create_database "${central_database}"
-    create_database "${consumer_database}"
+    create_database "${central_database}" "Latin1_General_100_BIN2"
+    create_database "${consumer_database}" "Latin1_General_100_CS_AS"
     run_file "${central_database}" "${deployment_directory}" Deploy.sql \
         -v DeploymentMode=central
     run_file "${central_database}" "${runtime_directory}" Lifecycle.Contract.sql

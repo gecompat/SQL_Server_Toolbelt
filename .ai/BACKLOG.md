@@ -34,10 +34,10 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Exakt ein persistentes SQL-Objekt in Version `1.0.0`; öffentliche Signatur und Help-Vertrag vollständig; `@LikeTable`-Schemaquelle, `@KeepData`-Matrix, Preflight, in-place-Umbau, Savepoint- und Fehlervertrag implementiert; lokale und zentrale Installation; kontrolliert wiederholbare Lifecycle-Skripte; keine nicht freigegebenen weiteren persistenten Objekttypen; Dokumentation und Manifest konsistent; alle verfügbaren Pflichtprüfungen ausgeführt und nicht verfügbare Prüfungen ehrlich ausgewiesen. |
-| Tests | Statischer Vertrag und GitHub-hosted Linux-Matrix am 2026-07-29 erfolgreich: SQL Server 2019 mit vorhandener Vollsuite, SQL Server 2022 und 2025 mit Kompatibilitätssuiten. Windows und noch nicht automatisierte Pflichtfälle bleiben `not executed`. |
-| Blocker | Kein Merge-Blocker für den implementierten und teilweise validierten Stand. Für `validated` fehlen insbesondere Windows-Evidenz und die restlichen noch nicht automatisierten Matrixfälle. |
-| Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.core.result-table/`; [finaler GitHub Actions Run 30447442638](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447442638) erfolgreich. |
-| Nächster Schritt | Verbleibende Windows-, Collation-, Grenz- und Performancefälle aus der Testmatrix priorisieren und ausführen; erst danach auf `validated` setzen. |
+| Tests | Statischer Vertrag und erweiterte GitHub-hosted Linux-Matrix am 2026-07-29 erfolgreich: vollständige vorhandene Suite auf SQL Server 2019, 2022 und 2025 einschließlich Collation-, 1024-Spalten-, Transaktions-, Central-/Lifecycle- und synthetischem Performance-Workload. Windows und weitere Pflichtfälle bleiben `not executed`. |
+| Blocker | Kein Merge-Blocker für den implementierten und teilweise validierten Stand. Für `validated` fehlen insbesondere Windows-Evidenz, echter Savepoint-Rollback nach Enginefehler, Multi-Session-/Parallelfälle und eine vergleichbare Performance-Baseline. |
+| Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.core.result-table/`; [Basislauf 30447442638](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447442638) und [erweiterter Lauf 30456207934](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30456207934) erfolgreich. |
+| Nächster Schritt | Einen geeigneten Windows-Runner beziehungsweise eine freigegebene Windows-Testumgebung bereitstellen; unabhängig davon echte Fehler-Rollback- und Multi-Session-Fälle weiter automatisieren. Erst nach vollständiger Pflichtmatrix auf `validated` setzen. |
 
 ## Abgeschlossene Arbeitspakete
 
