@@ -55,3 +55,7 @@ mit/ohne Identiy
  # Thema tSQLt.NewConnection
  man sollte das m.M. so implementieren, dass man mehrere Wege (Provider) für die "Ochestrierung" wählen kann.
  jede Variante hat ihre eigenen Anwendungsfälle und es stehen auch nicht überall alle Wege zur Verfügung - evtl. vorhandene Architekturvorschriften 
+ 
+ # Regex Funktionen für SQL 2019, 2022
+ zu prüfen is, ob die vorhandene SQL2025'er Regexfunktionen die gesamte (gewünschte) Breite abdecken  
+Fragestellung: was ist die gewünschte Breite? - welche Funktionalitäten fallen dir ein?
