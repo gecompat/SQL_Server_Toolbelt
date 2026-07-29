@@ -35,6 +35,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Kandidaten `TC-2026-025` bis `TC-2026-028` für kontrollierte PowerShell-Host-Automation, Python-Provider, versionsbezogene REST-/Web-Requests und getrennte KI-/Chat-Capabilities.
 - ResultTable-Contract-Tests für explizite Collations, das 1024-Spalten-Limit, Caller-/uncommittable-Transaktionen und einen reproduzierbaren synthetischen Performance-Workload.
 - Entscheidungsvorlage für das zweite Modul mit einem vertieften Vergleich von `TC-2026-004` und `TC-2026-012`, offenen Vertragsfragen, Provideroptionen, Testdimensionen und expliziten Implementierungs-Gates.
+- ResultTable-Multi-Session-Contract für vier parallele Sitzungen mit identischen logischen Temp-Tabellennamen.
 
 ### Geändert
 
@@ -60,6 +61,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Toolbelt-Landschaftsrecherche auf den implementierten ResultTable-/Dokumentationsstand und die aktuellen SQL-Server-2025-REST-/AI-Funktionen konsolidiert.
 - SQL Server 2022 und 2025 in der GitHub-hosted Linux-Matrix von der reduzierten Kompatibilitätsprüfung auf die vollständige ResultTable-Suite umgestellt.
 - `TC-2026-012` als bevorzugten nächsten Besprechungskandidaten eingeordnet und `TC-2026-004` bis zur Grundsatzentscheidung über Typ-/Scale-Parität und Objektfamilie zurückgestellt; keine Implementierungsfreigabe erteilt.
+- Vier parallele ResultTable-Sitzungen mit identischen logischen lokalen Temp-Tabellennamen auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich validiert; invasiven DDL-Trigger-Harness als ungeeignete Recovery-Evidenz verworfen.
 
 ### Korrigiert
 

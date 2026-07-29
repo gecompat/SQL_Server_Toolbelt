@@ -32,6 +32,9 @@ COLLATION_CONTRACT = MODULE_ROOT / "Tests" / "Runtime" / "Collation.Contract.sql
 BOUNDARY_TRANSACTION_CONTRACT = (
     MODULE_ROOT / "Tests" / "Runtime" / "BoundaryAndTransaction.Contract.sql"
 )
+MULTI_SESSION_CONTRACT = (
+    MODULE_ROOT / "Tests" / "Runtime" / "MultiSession.Contract.sql"
+)
 PERFORMANCE_WORKLOAD = (
     MODULE_ROOT / "Tests" / "Runtime" / "Performance.Workload.sql"
 )
@@ -99,6 +102,7 @@ def main() -> int:
             CENTRAL_CONTRACT,
             COLLATION_CONTRACT,
             BOUNDARY_TRANSACTION_CONTRACT,
+            MULTI_SESSION_CONTRACT,
             PERFORMANCE_WORKLOAD,
             RUNTIME_WORKFLOW,
             LINUX_RUNNER,
@@ -222,9 +226,9 @@ def main() -> int:
         "Manifest-Release-Status ist nicht unreleased.",
     )
     require(
-        r"actions/runs/30456207934",
+        r"actions/runs/30459004717",
         manifest,
-        "Manifest verweist nicht auf den erweiterten erfolgreichen Linux-Lauf.",
+        "Manifest verweist nicht auf den aktuellen erfolgreichen Linux-Lauf.",
     )
     if len(re.findall(r"^\s+- type:\s+USP\s*$", manifest, re.MULTILINE)) != 1:
         raise AssertionError("Das Manifest muss genau ein persistentes USP-Objekt führen.")
@@ -257,6 +261,7 @@ def main() -> int:
         "USP_PrepareResultTable.Contract.sql",
         "Collation.Contract.sql",
         "BoundaryAndTransaction.Contract.sql",
+        "MultiSession.Contract.sql",
         "Performance.Workload.sql",
         "Central.Contract.sql",
     ):
@@ -290,6 +295,28 @@ def main() -> int:
             raise AssertionError(
                 f"Grenz-/Transaktions-Contract-Marker fehlt: {marker}"
             )
+
+    multi_session_contract = files[MULTI_SESSION_CONTRACT]
+    for marker in (
+        "$(WorkerId)",
+        "WHILE @Iteration <= 24",
+        "#ResultTableParallel",
+        "#tbx_ResultTableParallel_ShapeA",
+        "#tbx_ResultTableParallel_ShapeB",
+        "WAITFOR DELAY '00:00:00.025'",
+    ):
+        if marker not in multi_session_contract:
+            raise AssertionError(
+                f"Multi-Session-Contract-Marker fehlt: {marker}"
+            )
+    if 'for worker_id in 1 2 3 4; do' not in linux_runner:
+        raise AssertionError(
+            "Der Linux-Adapter startet nicht alle vier Multi-Session-Worker."
+        )
+    if 'wait "${worker_pid}"' not in linux_runner:
+        raise AssertionError(
+            "Der Linux-Adapter wartet nicht kontrolliert auf die Multi-Session-Worker."
+        )
 
     performance_workload = files[PERFORMANCE_WORKLOAD]
     for marker in (
