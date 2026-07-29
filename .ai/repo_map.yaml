@@ -25,6 +25,7 @@ sources_of_truth:
   decisions: Documentation/Architecture/DECISIONS.md
   result_table_module_design: Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md
   result_table_test_matrix: Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md
+  toolbelt_landscape_research: Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md
   roadmap: .ai/ROADMAP.md
   backlog: .ai/BACKLOG.md
 

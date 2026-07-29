@@ -2,7 +2,7 @@
 
 ## Status
 
-Repository-Grundaufbau, Foundation-Korrektur, zwei Backlog-Research-Wellen und die implementierungsreife Spezifikation des ersten Kernmoduls sind abgeschlossen. Es sind noch keine fachlichen SQL-Objekte implementiert.
+Repository-Grundaufbau, Foundation-Korrektur, zwei kandidatenbezogene Backlog-Research-Wellen, die projektübergreifende Toolbelt-Landschaftsrecherche und die implementierungsreife Spezifikation des ersten Kernmoduls sind abgeschlossen. Es sind im Stand dieses Branches noch keine fachlichen SQL-Objekte implementiert.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -53,6 +53,23 @@ Enthält:
 - Error Envelope, Cancellation, Correlation, Retry/Dead-letter und Worker-Leases;
 - sicheren Work-Type-Katalog anstelle einer ungeprüften Raw-SQL-Ausführung;
 - verbindliche Trennung zwischen fortlaufender Ideenpflege und funktionsbezogener Implementierungsfreigabe.
+
+## Phase 0.4 – Toolbelt-Landschaft und Prior Art
+
+**Status:** `completed`
+**Abschluss:** 2026-07-29
+
+Enthält:
+
+- systematische Einordnung von 16 direkten Libraries, Testframeworks, Skriptkatalogen, Diagnose-, Maintenance- und Automationsprojekten;
+- vertiefte Architekturbetrachtung von SDU Tools, SQL#, T-SQL Toolbox und SQLServerSpatialTools;
+- `tSQLt.NewConnection` als konkrete Prior Art für eine synchron geöffnete zweite Session;
+- Vergleich von Service Broker, SQL Server Agent, tabellenbasierter Queue und externem Orchestrator als Parallelisierungsprovider;
+- Packaging-, Discovery-, Versionierungs-, Test-, Lizenz-, Security- und Scope-Lehren;
+- Präzisierung des vorhandenen Base64-Kandidaten `TC-2026-012` anhand der nativen SQL-Server-2025-Semantik;
+- neue Kandidaten `TC-2026-023` für Runtime-Capability-Discovery und `TC-2026-024` für URI-Percent-Encoding/-Decoding;
+- quellenbasierte Scope-Vorprüfung der persönlichen Brainstorm-Themen Zahlensysteme, Kompression/Archive, Datei-/Verzeichniszugriff, Anonymisierung und Objektklonen;
+- Screening-Liste für weitere Funktionsrecherche ohne Implementierungs- oder Kandidatenstatus.
 
 ## Phase 1 – Erstes Kernmodul
 

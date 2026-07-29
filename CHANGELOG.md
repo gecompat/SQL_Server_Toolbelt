@@ -19,6 +19,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Folgearbeitspaket `AP-2026-003` für Implementierung und Validierung des ResultTable-Kernmoduls.
 - Zweite Research-Welle mit den Execution-Infrastructure-Kandidaten `TC-2026-014` bis `TC-2026-022`.
 - Kandidaten für transaktionsunabhängiges Logging, begrenzte Parallelisierung, Console-Ausgabe, Error Envelope, Cancellation, Correlation, Retry/Dead-letter, Worker-Leases und einen sicheren Work-Type-Katalog.
+- Projektübergreifende Toolbelt-Landschaftsrecherche mit 16 direkten Libraries, Frameworks, Skriptkatalogen, Diagnose-, Maintenance- und Automationsprojekten.
+- Prior-Art-Vergleich für zweite Sessions und Parallelisierungsprovider sowie Architekturfolgen für Packaging, Discovery, Versionierung, Tests, Lizenzierung, Security und Repository-Grenzen.
+- Kandidaten `TC-2026-023` für einen abfragbaren Capability-/Versionskatalog und `TC-2026-024` für URI-Percent-Encoding/-Decoding.
+- Quellenbasierte Vorprüfung der persönlichen Brainstorm-Themen Zahlensysteme, Kompression/Archive, Datei-/Verzeichniszugriff, Anonymisierung und Objektklonen.
 
 ### Geändert
 
@@ -31,6 +35,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Implementierungs-Gate präzisiert: Ideen dürfen fortlaufend dokumentiert werden; jede konkrete Funktion benötigt vor der Implementierung eine Besprechung und anschließende ausdrückliche Benutzerfreigabe.
 - `AP-2026-003` bis zur funktionsbezogenen Besprechung und Freigabe auf `blocked` gesetzt.
 - `Backlog/personal_Backlog_Bainstorm.md` als verpflichtend zu berücksichtigenden, nicht autoritativen und historisch zu erhaltenden Research-Input in AI-Regeln, Repo-Map, Backlog-Prozess und Curator-Agent eingebunden.
+- Execution-Infrastructure-Kandidaten um konkrete Prior Art aus tSQLt, SQL Server Multi Thread und der SQL Server Maintenance Solution ergänzt.
+- Vorhandenen Base64-Kandidaten `TC-2026-012` anhand der nativen SQL-Server-2025-Semantik präzisiert.
 
 ### Korrigiert
 

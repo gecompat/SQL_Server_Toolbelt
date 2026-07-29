@@ -270,15 +270,15 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Spätere native Funktion** | Ja: SQL Server 2025. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Standard- und URL-safe-Base64 für Binärdaten, Tokens ohne Secret-Inhalt, Integrationsformate und Tests. |
-| **Mögliche Technologie** | T-SQL/XML als dependency-freier Provider und `SAFE` SQL CLR als Performance-Provider vergleichen. |
-| **Performance und Security** | Große Werte dürfen nicht unnötig mehrfach materialisiert werden. Exakte RFC-4648-, Padding-, Whitespace- und Fehlersemantik festlegen. Debug darf Binärinhalte anzeigen, echte Secrets jedoch nicht aktiv ausgeben. |
+| **Mögliche Technologie** | Providervergleich: T-SQL/XML für Standard-Base64; kontrollierte T-SQL-Normalisierung für Base64URL; `SAFE` SQL CLR für große Werte nur bei messbarem Vorteil; nativer Provider ab SQL Server 2025. Ein Backport im Projektschema darf den nativen Namen nicht im Systemschema imitieren. |
+| **Performance und Security** | Native Semantik für Standard-/URL-safe-Alphabet, Padding, Whitespace-Toleranz, ungültige Zeichen, Formatfehler, `NULL`, Rückgabetyp und Längengrenzen als Contract-Matrix erfassen. Große LOBs dürfen nicht unnötig mehrfach oder als XML materialisiert werden. Dekodierte Inhalte bleiben untrusted binary data; Debug darf Binärinhalte anzeigen, echte Secrets jedoch nicht aktiv ausgeben. |
 | **Plattformgrenzen** | T-SQL portabel; CLR-Provider pro Plattform testen. |
 | **Dependencies** | Optional CLR-Infrastruktur. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
 | **Status** | `researched` |
-| **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/base64-encode-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/base64-decode-transact-sql?view=sql-server-ver17 |
+| **Primärquellen** | [SQL_SERVER_TOOLBELT_LANDSCAPE.md](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/base64-encode-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/base64-decode-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/xml/use-the-binary-base64-option?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Native SQL-Server-2025-Semantik als Testoracle erfassen und XML-/CLR-Provider hinsichtlich CPU, Speicher und LOB-Verhalten benchmarken. |
+| **Nächster Schritt** | Native SQL-Server-2025-Semantik als Testmatrix erfassen und T-SQL/XML-, CLR- und nativen Provider mit identischen Small-/LOB-, URL-safe- und Fehlervektoren vergleichen. |
 
 ## TC-2026-013: JSON-Aggregate für SQL Server 2019/2022
 
@@ -316,13 +316,13 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Spätere native Funktion** | Keine direkte autonome T-SQL-Transaktion dokumentiert. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Fehler-, Fortschritts- oder Audit-Ereignisse können erhalten bleiben, obwohl die fachliche Caller-Transaktion zurückgerollt wird oder uncommittable ist. |
-| **Mögliche Technologie** | Providervergleich erforderlich: reguläre SQL-CLR-Verbindung als zweite Session; bewusst konfigurierter Loopback-Linked-Server-RPC ohne Transaction Promotion; externer Logger; eingeschränkter Error-Log-Provider über `RAISERROR ... WITH LOG` beziehungsweise `xp_logevent`; Extended Events für beobachtbare Engine-Ereignisse. Service Broker ist für Commit-gekoppelte asynchrone Arbeit geeignet, aber nicht als rollback-unabhängiger Sender innerhalb derselben Transaktion. |
+| **Mögliche Technologie** | Providervergleich erforderlich: reguläre SQL-CLR-Verbindung als zweite Session; bewusst konfigurierter Loopback-Linked-Server-RPC ohne Transaction Promotion; externer Logger; eingeschränkter Error-Log-Provider über `RAISERROR ... WITH LOG` beziehungsweise `xp_logevent`; Extended Events für beobachtbare Engine-Ereignisse. Service Broker ist für Commit-gekoppelte asynchrone Arbeit geeignet, aber nicht als rollback-unabhängiger Sender innerhalb derselben Transaktion. `tSQLt.NewConnection` belegt als Apache-2.0-Prior-Art die synchrone Ausführung über eine separate SQL-CLR-Verbindung mit unterdrückter Ambient Transaction, legt aber keinen Toolbelt-Vertrag fest. |
 | **Performance und Security** | Eine zweite Session besitzt eigene Transaktion, `SET`-Optionen und Security Context und sieht keine lokalen Temp-Tabellen. Loopback kann sich an Locks der Caller-Transaktion selbst blockieren. SQL CLR benötigt Reauthentifizierung beziehungsweise kontrollierte Credentials und einen Trust-Vertrag. Error-Log-Provider sind längen- und berechtigungsbeschränkt; `RAISERROR ... WITH LOG` schreibt höchstens 440 Bytes. Payloads benötigen strikte Datenschutz-, Größen- und Secret-Regeln. |
 | **Plattformgrenzen** | T-SQL-Linked-Server-, SQL-CLR-, Error-Log- und externe Provider sind getrennt auf Windows/Linux, Edition, Providerverfügbarkeit und Betriebsfreigabe zu prüfen. Azure ist nicht automatisch unterstützt. |
 | **Dependencies** | Mögliche Dependencies zu Execution Correlation (`TC-2026-019`) und standardisiertem Error Envelope (`TC-2026-017`). Eine persistente Logtabelle würde vor Implementierung eine freigegebene Tabellen-Namenskonvention erfordern. |
 | **Duplikatprüfung** | Alle drei Backlog-Listen sowie vorhandene Architektur- und USP-Verträge geprüft; kein gleichwertiger Kandidat vorhanden. |
 | **Status** | `researched` |
-| **Primärquellen** | https://techcommunity.microsoft.com/blog/sqlserver/how-to-create-an-autonomous-transaction-in-sql-server-2008/383471<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/data-access/context-connection?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/database-engine/service-broker/transactional-messaging?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/language-elements/raiserror-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/xp-logevent-transact-sql?view=sql-server-ver17 |
+| **Primärquellen** | https://techcommunity.microsoft.com/blog/sqlserver/how-to-create-an-autonomous-transaction-in-sql-server-2008/383471<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/data-access/context-connection?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/database-engine/service-broker/transactional-messaging?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/language-elements/raiserror-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/xp-logevent-transact-sql?view=sql-server-ver17<br>https://tsqlt.org/125/tsqlt-build-9-release-notes/<br>https://github.com/tSQLt-org/tSQLt/blob/4a921d0dacfb1d66b3db124c58158c80e5e910e6/tSQLtCLR/tSQLtCLR/CommandExecutor.cs |
 | **Prüfdatum** | 2026-07-29 |
 | **Nächster Schritt** | Mit dem Benutzer zuerst Haltbarkeitsgarantie, synchrones/asynchrones Verhalten, zulässige Provider, Blockierungsverhalten, Payload und Security Context besprechen; erst danach einen öffentlichen Funktionsvertrag entwerfen. |
 
@@ -339,13 +339,13 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Spätere native Funktion** | Kein allgemeiner nativer Batch-Parallelisierer dokumentiert. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Unabhängige Arbeitspakete können mit begrenzter Parallelität, eigenem Status und anschließender Ergebnisaggregation abgearbeitet werden. |
-| **Mögliche Technologie** | Service Broker mit Internal Activation und `MAX_QUEUE_READERS` als T-SQL-naher Hauptkandidat; externer Orchestrator als portabler Provider; SQL Server Agent über `sp_start_job` nur für gröbere, vorab definierte Jobs. Eine SQL-CLR-Routine darf gemäß Projektregel keine eigenen Worker Threads erzwingen. |
+| **Mögliche Technologie** | Service Broker mit Internal Activation und `MAX_QUEUE_READERS` als T-SQL-naher Hauptkandidat; externer Orchestrator als portabler Provider; SQL Server Agent über `sp_start_job` für gröbere, vorab definierte Jobs; tabellenbasierter Queue-/Claiming-Kern mit getrenntem Worker-Provider. SQL Server Multi Thread und die Queue-Tabellen der SQL Server Maintenance Solution sind konkrete, unterschiedlich zugeschnittene Prior-Art-Beispiele. Eine SQL-CLR-Routine darf gemäß Projektregel keine eigenen Worker Threads erzwingen. |
 | **Performance und Security** | Parallelität muss hart begrenzt und gegen CPU, Memory Grants, TempDB, Locks und Logdurchsatz geschützt werden. Jede Session besitzt einen eigenen Transaktions- und Sessionzustand. Beliebiger SQL-Text wäre eine Code-Execution-Schnittstelle und ist kein sicherer Default; benannte und validierte Work-Types sind zu bevorzugen. Fehler-, Timeout-, Retry-, Idempotenz-, Result- und Cancellation-Semantik sind vor Objektentwurf festzulegen. |
 | **Plattformgrenzen** | Service Broker gilt für SQL Server und laut Dokumentation teilweise Managed Instance; SQL Server Agent ist editions- und dienstabhängig. Externe Provider sowie Windows/Linux sind getrennt zu validieren. |
 | **Dependencies** | `TC-2026-017` bis `TC-2026-022`; persistente Queue-/Statusobjekte benötigen eine zuvor freigegebene Tabellen-Namenskonvention. |
 | **Duplikatprüfung** | Alle Kandidatenlisten und Architekturregeln geprüft. Vorhandene Hinweise zur Query-Plan-Parallelität sind kein Work-Queue-Vertrag. |
 | **Status** | `researched` |
-| **Primärquellen** | https://learn.microsoft.com/en-us/sql/database-engine/service-broker/typical-uses-of-service-broker?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-queue-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/database-engine/service-broker/understanding-when-activation-occurs?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-start-job-transact-sql?view=sql-server-ver17 |
+| **Primärquellen** | https://learn.microsoft.com/en-us/sql/database-engine/service-broker/typical-uses-of-service-broker?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-queue-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/database-engine/service-broker/understanding-when-activation-occurs?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-start-job-transact-sql?view=sql-server-ver17<br>https://github.com/jobbish-sql/SQL-Server-Multi-Thread<br>https://github.com/olahallengren/sql-server-maintenance-solution/blob/main/Queue.sql |
 | **Prüfdatum** | 2026-07-29 |
 | **Nächster Schritt** | Mit dem Benutzer Use Cases, synchrones Warten versus Fire-and-forget, Work-Type-Vertrag, gewünschte Parallelitätsgrenze und zulässige Provider einzeln besprechen. |
 
@@ -509,3 +509,49 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-executesql-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/signing-stored-procedures-with-a-certificate?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/security/permissions-database-engine?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
 | **Nächster Schritt** | Mit dem Benutzer festlegen, ob ausschließlich Procedures oder auch deklarative Statement-Typen zugelassen werden sollen und wer Work Types registrieren darf. |
+
+## TC-2026-023: Abfragbarer Capability- und Versionskatalog
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-023` |
+| **Titel** | Installierte Toolbelt-Module und Capabilities zur Laufzeit eindeutig abfragen |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Core / Metadata |
+| **SQL-Server-Lücke** | SQL Server stellt Objektmetadaten, Extended Properties und Produktversionen bereit, kennt aber keinen Toolbelt-spezifischen Vertrag, der installierte Module, öffentliche Capabilities, Objektversionen, Provider, Supportgrenzen und Installationsvollständigkeit gemeinsam beschreibt. Repository-Manifeste beantworten diese Fragen nicht automatisch für eine konkrete Zieldatenbank. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Keine Toolbelt-spezifische native Funktion möglich. |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Benutzer, Installer, Tests und abhängige Module können feststellen, welche Capability in welcher Version tatsächlich installiert ist, ohne Objektlisten oder Dateistände heuristisch zu interpretieren. |
+| **Mögliche Technologie** | Deterministische Extended Properties plus View/TVF über Catalog Views; alternativ kontrollierter persistenter Modulkatalog. `module.yaml` bleibt Build-/Repository-Quelle, muss aber eine eindeutige Projektion in die Runtime-Metadaten erhalten. SDU Tools dient als öffentliches Produktmuster für abfragbare Tool- und Versionsinformation, nicht als Codequelle. |
+| **Performance und Security** | Katalogabfragen müssen rein lesend, günstig und ohne Sichtbarkeit von Secrets oder internen Deployment-Pfaden sein. Drift darf nicht als gesunder Installationsstatus erscheinen. Ein persistenter Katalog benötigt Ownership, Upgrade, Rollback, Reparatur und eine zuvor freigegebene Tabellen-Namenskonvention. |
+| **Plattformgrenzen** | T-SQL-Metadatenkern soll unter Windows und Linux gleich sein; zentrale und lokale Installation sowie eingeschränkte Metadatensicht sind getrennt zu testen. |
+| **Dependencies** | Modul-/Dependency-Modell, Lifecycle-Vertrag und mindestens ein implementiertes Referenzmodul; persistente Variante benötigt eine Tabellen-Namensentscheidung. |
+| **Duplikatprüfung** | Toolbelt-Kandidaten, Repository-Map, Modulmodell und ResultTable-Design geprüft. Manifeste dokumentieren den Sollstand, stellen aber noch keinen Runtime-Capability-Katalog bereit. |
+| **Status** | `researched` |
+| **Primärquellen** | [SQL_SERVER_TOOLBELT_LANDSCAPE.md](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://sqldownunder.com/sdutools/<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/extended-properties-catalog-views-sys-extended-properties?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Mit dem Benutzer die erforderlichen Abfragefälle und Drift-Semantik besprechen; danach Extended-Property-Projektion und persistente Registry als Alternativen entwerfen. |
+
+## TC-2026-024: URI-Percent-Encoding und -Decoding
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-024` |
+| **Titel** | RFC-3986-konformes Percent-Encoding und -Decoding für URI-Komponenten |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | String / Conversion |
+| **SQL-Server-Lücke** | SQL Server dokumentiert `STRING_ESCAPE` nur für JSON und bietet in SQL Server 2019, 2022 und 2025 keine allgemeine T-SQL-Funktion für das Percent-Encoding oder -Decoding einer URI-Komponente nach RFC 3986. Projektspezifische Ketten aus `REPLACE` behandeln Unicode, reservierte Zeichen und bereits kodierte Sequenzen häufig uneinheitlich. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Keine allgemeine dokumentierte URI-Percent-Encoding-Funktion; vor Umsetzung erneut prüfen. |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Werte für Pfadsegmente, Query-Komponenten und Integrationsschnittstellen können deterministisch als UTF-8-Octets kodiert und sicher dekodiert werden, ohne dass jedes Modul eigene, inkompatible Ersetzungsketten pflegt. |
+| **Mögliche Technologie** | T-SQL-Provider mit expliziter UTF-8-Konvertierung und byteweiser Verarbeitung; `SAFE` SQL CLR nur nach messbarem Performance- oder Korrektheitsvorteil. Encoding einer URI-Komponente und Decoding in Unicode sind getrennte öffentliche Verträge. `application/x-www-form-urlencoded`, vollständiges URL-Parsing, IRI-Normalisierung und Domain-/Punycode-Verarbeitung gehören nicht stillschweigend zur ersten Capability. |
+| **Performance und Security** | Vertrag für unreserved/reserved Characters, Groß-/Kleinschreibung hexadezimaler Triplets, `%20` gegenüber `+`, bereits kodierte Sequenzen, ungültige `%`-Triplets, UTF-8-Fehler, NUL, Surrogate und maximale Länge festlegen. Decoding darf keine automatische zweite Decoding-Runde auslösen; sonst können Delimiter- oder Validierungsregeln umgangen werden. Mengen- und LOB-Performance sind zu benchmarken. |
+| **Plattformgrenzen** | UTF-8-/T-SQL-Kern soll unter Windows und Linux identisch sein; Collation- und Compatibility-Level-Anforderungen sind explizit auszuweisen. CLR-Provider separat validieren. |
+| **Dependencies** | Keine harte Dependency; möglicher gemeinsamer UTF-8-/Binary-Konvertierungskern erst nach Abgleich mit `TC-2026-012`. |
+| **Duplikatprüfung** | Alle Toolbelt-Kandidaten geprüft. `TC-2026-012` behandelt Base64/Base64URL, nicht URI-Percent-Encoding; `TC-2026-009` behandelt JSON-Escaping. |
+| **Status** | `researched` |
+| **Primärquellen** | [SQL_SERVER_TOOLBELT_LANDSCAPE.md](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/string-escape-transact-sql?view=sql-server-ver17<br>https://datatracker.ietf.org/doc/html/rfc3986 |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Mit dem Benutzer zunächst URI-Komponente versus Form-Encoding und Encode-/Decode-Fehlersemantik festlegen; anschließend T-SQL- und CLR-Provider anhand von RFC-, Unicode-, Double-decoding- und LOB-Testvektoren vergleichen. |
