@@ -26,7 +26,11 @@ Details: [SQL_OBJECT_NAMING.md](../Documentation/Standards/SQL_OBJECT_NAMING.md)
 
 ## 3. Datenschutz und Debug
 
-- Keine personenbezogenen, internen Firmen-, Kunden-, Infrastruktur-, Produktions- oder realen Runtime-Daten in Repository-Artefakten.
+- Fachlich relevante, öffentlich bekannte Organisations- und externe Projektnamen sowie öffentliche Quellen-, Projekt- und Dokumentations-URLs sind zulässig.
+- `gecompat` und `Gerhard Pisch` sind für Repository-Inhalte ausdrücklich freigegeben.
+- Keine personenbezogenen oder sensiblen Daten und keine internen oder vertraulichen Firmen-, Kunden-, Organisations- oder Projektdaten.
+- Keine Original-Tabelleninhalte, Produktionsdaten, Backups, Exporte oder realen Runtime-Ausgaben in Repository-Artefakten.
+- Keine nicht öffentlichen Infrastrukturangaben und keine konkreten Hardware-, Kapazitäts-, Inventar- oder Umgebungswerte von Remote Runnern.
 - Keine Secrets oder privaten Schlüssel.
 - Vertrauliche Runtime-Werte dürfen bei aktiviertem Debug diagnostisch ausgegeben werden.
 - Echte Secrets werden auch im Debug nicht aktiv ausgegeben.
