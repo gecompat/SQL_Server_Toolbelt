@@ -11,10 +11,10 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | ID | `AP-2026-003` |
 | Ziel | Das implementierungsreif spezifizierte Modul `toolbelt.core.result-table` vollständig implementieren, dokumentieren, installieren, deinstallieren und auf den verfügbaren Zielplattformen validieren. |
 | Scope | Modulverzeichnis, `module.yaml`, `toolbelt_core.USP_PrepareResultTable`, Install-/Upgrade-/Uninstall-Skripte, Objekt- und Moduldokumentation, synthetische Beispiele sowie statische, Contract-, Runtime-, Collation-, Deployment- und Plattformtests. |
-| Dependencies | `AP-2026-002`, `RESULT_TABLE_MODULE_DESIGN.md`, `RESULT_TABLE_CONTRACT_TEST_MATRIX.md`, `DEC-2026-013` bis `DEC-2026-016`. |
+| Dependencies | `AP-2026-002`, `RESULT_TABLE_MODULE_DESIGN.md`, `RESULT_TABLE_CONTRACT_TEST_MATRIX.md`, `DEC-2026-013` bis `DEC-2026-017`. |
 | Priorität | `P0` |
 | Status | `planned` |
-| Akzeptanzkriterien | Exakt ein persistentes SQL-Objekt in Version `1.0.0`; öffentliche Signatur und Help-Vertrag vollständig; `@LikeTable`-Schemaquelle, `@KeepData`-Matrix, Preflight, in-place-Umbau, Savepoint- und Fehlervertrag implementiert; lokale und zentrale Installation; kontrolliert wiederholbare Lifecycle-Skripte; keine nicht freigegebenen weiteren Objekttypen; Dokumentation und Manifest konsistent; alle verfügbaren Pflichtprüfungen ausgeführt und nicht verfügbare Prüfungen ehrlich ausgewiesen. |
+| Akzeptanzkriterien | Exakt ein persistentes SQL-Objekt in Version `1.0.0`; öffentliche Signatur und Help-Vertrag vollständig; `@LikeTable`-Schemaquelle, `@KeepData`-Matrix, Preflight, in-place-Umbau, Savepoint- und Fehlervertrag implementiert; lokale und zentrale Installation; kontrolliert wiederholbare Lifecycle-Skripte; keine nicht freigegebenen weiteren persistenten Objekttypen; Dokumentation und Manifest konsistent; alle verfügbaren Pflichtprüfungen ausgeführt und nicht verfügbare Prüfungen ehrlich ausgewiesen. |
 | Tests | Vollständige Matrix aus `Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md`; SQL Server 2019, 2022 und 2025 sowie Windows/Linux und lokal/zentral getrennt, soweit die benötigten Runner tatsächlich vorhanden sind. |
 | Blocker | Kein fachlicher Blocker. Verfügbarkeit geeigneter Runtime-Runner ist vor der Validierungswelle zu prüfen; fehlende Runner ergeben `not executed`, keinen grünen Nachweis. |
 | Evidenz | Implementierungsreife Spezifikation und statisch validiertes Design aus `AP-2026-002`. |
@@ -32,10 +32,10 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Dependencies | `TC-2026-003`, `USP_CONTRACT.md`, Modul- und Deployment-Modell. |
 | Priorität | `P0` |
 | Status | `validated` |
-| Akzeptanzkriterien | Modul-ID und Scope festgelegt; einzige Procedure klassifiziert; keine ungeregelten weiteren Objekttypen benötigt; Referenztabellen- und Vertrauensgrenze definiert; Fehler-, Transaktions-, Collation-, Datentyp-, Install-, Upgrade- und Uninstall-Verträge dokumentiert; vollständige Testmatrix vorhanden. |
+| Akzeptanzkriterien | Modul-ID und Scope festgelegt; einzige Procedure klassifiziert; keine ungeregelten weiteren persistenten Objekttypen benötigt; Referenztabellen- und Vertrauensgrenze definiert; interne Temp-Namensregel festgelegt; Fehler-, Transaktions-, Collation-, Datentyp-, Install-, Upgrade- und Uninstall-Verträge dokumentiert; vollständige Testmatrix vorhanden. |
 | Tests | Statischer Abgleich gegen USP-Vertrag, T-SQL-Regeln, Modul-/Deployment-Modell, Namenskonventionen, Datenschutz, Supportmatrix und Architekturentscheidungen; Runtime-Tests für diese reine Designwelle `not applicable`. |
 | Blocker | Keine |
-| Evidenz | `Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md`, `Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md`, `DEC-2026-013` bis `DEC-2026-016`; geprüft am 2026-07-29. |
+| Evidenz | `Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md`, `Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md`, `DEC-2026-013` bis `DEC-2026-017`; geprüft am 2026-07-29. |
 | Nächster Schritt | `AP-2026-003` ausführen. |
 
 ### AP-2026-001: Backlog Research Wave 1
