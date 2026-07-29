@@ -4,23 +4,15 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**Noch keine fachlichen Module implementiert.**
-
-Das erste Kernmodul ist implementierungsreif spezifiziert. Seine Source-, Deployment- und Testartefakte werden erst im freigegebenen Implementierungsarbeitspaket unter `Modules/` angelegt.
+**Das erste Kernmodul ist implementiert; Runtime-Validierung ist `not executed`.**
 
 ## Implementierte Module
 
 | Modul-ID | Name | Schema | Status | SQL Server |
 |---|---|---|---|---|
-| – | – | – | – | – |
+| `toolbelt.core.result-table` | Result Table Infrastructure | `toolbelt_core` | `implemented`; Runtime `not executed` | 2019, 2022, 2025 |
 
-## Implementierungsreif geplante Module
-
-| Modul-ID | Name | Schema | Status | Spezifikation |
-|---|---|---|---|---|
-| `toolbelt.core.result-table` | Result Table Infrastructure | `toolbelt_core` | `planned` | [RESULT_TABLE_MODULE_DESIGN.md](../Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md) |
-
-Ein Design oder Manifest ist kein Runtime-Nachweis und wird nicht als implementiertes Modul geführt.
+Der Modulstatus belegt vorhandenen Code und statische Verträge, aber keine erfolgreiche SQL-Server-Ausführung.
 
 ## Hinweise für neue Module
 

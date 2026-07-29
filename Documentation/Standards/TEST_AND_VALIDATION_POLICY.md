@@ -92,4 +92,4 @@ CI bleibt schlank und pfadbezogen. Dokumentationsänderungen lösen keine unnöt
 
 ## Aktueller Stand
 
-Es sind noch keine fachlichen Module implementiert. Runtime- und Lifecycle-Tests für Toolbelt-Funktionen sind daher derzeit `not executed` oder nach dokumentierter Begründung `not applicable`.
+Das erste fachliche Modul ist implementiert und statisch geprüft. Seine Runtime- und Lifecycle-Tests sind mangels erreichbarer Runner weiterhin `not executed`; vorhandener Testcode ändert diesen Evidenzstatus nicht.

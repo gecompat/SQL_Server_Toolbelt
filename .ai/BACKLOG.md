@@ -13,12 +13,12 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Scope | Modulverzeichnis, `module.yaml`, `toolbelt_core.USP_PrepareResultTable`, Install-/Upgrade-/Uninstall-Skripte, Objekt- und Moduldokumentation, synthetische Beispiele sowie statische, Contract-, Runtime-, Collation-, Deployment- und Plattformtests. |
 | Dependencies | `AP-2026-002`, `RESULT_TABLE_MODULE_DESIGN.md`, `RESULT_TABLE_CONTRACT_TEST_MATRIX.md`, `DEC-2026-013` bis `DEC-2026-017`. |
 | Priorität | `P0` |
-| Status | `blocked` |
+| Status | `implemented` |
 | Akzeptanzkriterien | Exakt ein persistentes SQL-Objekt in Version `1.0.0`; öffentliche Signatur und Help-Vertrag vollständig; `@LikeTable`-Schemaquelle, `@KeepData`-Matrix, Preflight, in-place-Umbau, Savepoint- und Fehlervertrag implementiert; lokale und zentrale Installation; kontrolliert wiederholbare Lifecycle-Skripte; keine nicht freigegebenen weiteren persistenten Objekttypen; Dokumentation und Manifest konsistent; alle verfügbaren Pflichtprüfungen ausgeführt und nicht verfügbare Prüfungen ehrlich ausgewiesen. |
-| Tests | Vollständige Matrix aus `Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md`; SQL Server 2019, 2022 und 2025 sowie Windows/Linux und lokal/zentral getrennt, soweit die benötigten Runner tatsächlich vorhanden sind. |
-| Blocker | Vor Implementierung müssen Zweck, öffentlicher Vertrag, Alternativen, Risiken und Scope der konkreten Funktion mit dem Benutzer besprochen und anschließend ausdrücklich freigegeben werden. Verfügbarkeit geeigneter Runtime-Runner ist vor der Validierungswelle zusätzlich zu prüfen; fehlende Runner ergeben `not executed`, keinen grünen Nachweis. |
-| Evidenz | Implementierungsreife Spezifikation und statisch validiertes Design aus `AP-2026-002`. |
-| Nächster Schritt | `toolbelt_core.USP_PrepareResultTable` anhand der vorhandenen Spezifikation mit dem Benutzer besprechen, offene Vertragsentscheidungen festhalten und eine ausdrückliche Implementierungsfreigabe abwarten. |
+| Tests | `Modules/toolbelt.core.result-table/Tests/Static/validate_contract.py` am 2026-07-29 erfolgreich; synthetische Runtime- und Lifecycle-Contract-Skripte vorhanden. SQL-Server-Runtime, Install, Upgrade, Uninstall, Collation, Plattform und Deployment bleiben mangels Runner `not executed`. |
+| Blocker | Die Implementierungsfreigabe ist erfüllt. Für den Status `validated` fehlt ein erreichbarer Runner für die vollständige Matrix auf SQL Server 2019, 2022 und 2025 sowie Windows/Linux und lokal/zentral. Fehlende Runner ergeben `not executed`, keinen grünen Nachweis. |
+| Evidenz | Der Benutzer hat `USP_PrepareResultTable` am 2026-07-29 nach der ausführlichen Vertragsbesprechung ausdrücklich zum Beginn freigegeben. Kanonische Source, Manifest, Lifecycle, Dokumentation, Beispiele und Testartefakte liegen unter `Modules/toolbelt.core.result-table/`; die statische Vertragsprüfung ist erfolgreich. |
+| Nächster Schritt | Draft-Review abschließen und anschließend die vollständige Runtime-Matrix auf geeigneten, synthetisch betriebenen SQL-Server-Runnern ausführen; erst dann auf `validated` setzen. |
 
 ## Abgeschlossene Arbeitspakete
 

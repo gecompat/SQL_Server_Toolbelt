@@ -10,8 +10,10 @@
 | Modulname | Result Table Infrastructure |
 | Zielschema | `toolbelt_core` |
 | Zielversion | `1.0.0` |
-| Status | `planned` |
-| Runtime-Code | noch nicht implementiert |
+| Spezifikationsstatus | `validated` |
+| Implementierungsstatus | `implemented` |
+| Runtime-Validierung | `not executed` |
+| Implementierung | `Modules/toolbelt.core.result-table/` |
 
 Dieses Dokument ist die kanonische implementierungsreife Spezifikation für das erste `toolbelt_core`-Modul. Es präzisiert den allgemeinen USP-Vertrag, ersetzt ihn jedoch nicht.
 
@@ -375,6 +377,11 @@ Das bevorzugte Löschverfahren ist `TRUNCATE TABLE`, soweit SQL Server und vorha
 9. Eigene Transaktion committen.
 
 Die Zieltable wird nicht gedroppt und neu erstellt. Dadurch bleibt das vom Aufrufer erzeugte Temp-Objekt im ursprünglichen Scope erhalten.
+
+Bei exakt 1024 Quell- oder Zielspalten teilt die Implementierung den Umbau:
+Eine alte Spalte wird gegebenenfalls vor der Anchor-Spalte entfernt und die
+letzte neue Spalte erst nach deren Entfernung angelegt. Dadurch überschreitet
+der in-place-Umbau zu keinem Zeitpunkt das SQL-Server-Spaltenlimit.
 
 Eine zweite vollständige Metadatenabfrage unmittelbar vor der DDL-Ausführung ist nicht erforderlich. Der Aufrufvertrag setzt voraus, dass das lokale Zielobjekt während der synchronen Ausführung nicht parallel verändert wird. Der Erfolg der DDL ist autoritativ; Contract Tests prüfen anschließend den Endzustand.
 

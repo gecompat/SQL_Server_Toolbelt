@@ -2,7 +2,7 @@
 
 ## Projektstatus
 
-Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das erste Kernmodul `toolbelt.core.result-table` ist implementierungsreif spezifiziert, aber noch nicht implementiert oder zur Runtime validiert.
+Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das erste Kernmodul `toolbelt.core.result-table` ist implementiert und statisch geprüft. SQL-Server-Runtime-, Lifecycle-, Plattform- und Deployment-Validierung sind weiterhin `not executed`.
 
 ## Projektzweck
 

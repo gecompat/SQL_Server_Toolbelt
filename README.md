@@ -26,7 +26,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 
 # SQL Server Toolbelt
 
-[![Status: Erstes Kernmodul spezifiziert – noch keine Runtime-Implementierung](https://img.shields.io/badge/Status-Erstes%20Kernmodul%20spezifiziert-yellow)](./Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md)
+[![Status: Erstes Kernmodul implementiert – Runtime nicht ausgeführt](https://img.shields.io/badge/Status-Erstes%20Kernmodul%20implementiert-yellow)](./Modules/toolbelt.core.result-table/README.md)
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
 
@@ -54,9 +54,9 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau und die implementierungsreife Spezifikation des ersten Kernmoduls sind abgeschlossen; fachliche SQL-Objekte sind noch nicht implementiert.**
+**Der Repository-Grundaufbau ist abgeschlossen. Das erste Kernmodul ist implementiert und statisch geprüft; Runtime- und Plattformvalidierung sind noch nicht ausgeführt.**
 
-Das geplante Modul [`toolbelt.core.result-table`](./Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md) definiert die gemeinsame `@ResultTable`-/`@KeepData`-Infrastruktur. Seine verbindliche Testmatrix ist vorhanden, aber noch nicht ausgeführt.
+Das implementierte Modul [`toolbelt.core.result-table`](./Modules/toolbelt.core.result-table/README.md) stellt `toolbelt_core.USP_PrepareResultTable` als gemeinsame `@ResultTable`-/`@KeepData`-Infrastruktur bereit. Seine verbindliche Testmatrix und synthetische Testartefakte sind vorhanden; SQL-Server-Runtime-Evidenz bleibt `not executed`.
 
 ## Modulprinzip
 

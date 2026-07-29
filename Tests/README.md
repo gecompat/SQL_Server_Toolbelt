@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. Das erste Kernmodul ist implementierungsreif spezifiziert, aber noch nicht implementiert; deshalb wurden keine Toolbelt-Runtime-Tests ausgeführt.
+Der Repository-Grundaufbau ist abgeschlossen. Für das implementierte erste Kernmodul existieren statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte. Die SQL-Server-Runtime-Tests wurden mangels Runner noch nicht ausgeführt.
 
 ## Pflicht-Testarten je Modul
 
@@ -26,7 +26,7 @@ Der Repository-Grundaufbau ist abgeschlossen. Das erste Kernmodul ist implementi
 
 | Modul | Matrix | Status |
 |---|---|---|
-| `toolbelt.core.result-table` | [RESULT_TABLE_CONTRACT_TEST_MATRIX.md](./RESULT_TABLE_CONTRACT_TEST_MATRIX.md) | geplant; Runtime `not executed` |
+| `toolbelt.core.result-table` | [RESULT_TABLE_CONTRACT_TEST_MATRIX.md](./RESULT_TABLE_CONTRACT_TEST_MATRIX.md) | Testartefakte implementiert; Runtime `not executed` |
 
 Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 
@@ -43,6 +43,6 @@ Jede ausgeführte Prüfung nennt Befehl oder Workflow, Scope, Version, Plattform
 
 ## CI
 
-CI wird erst mit konkreten Modulen aufgebaut und bleibt pfad- sowie capability-bezogen. Eine Dokumentationsänderung benötigt keine vollständige Runtime-Matrix.
+Die erste capability-bezogene CI-/Runner-Anbindung ist noch offen. Eine Dokumentationsänderung benötigt keine vollständige Runtime-Matrix.
 
 Details: [TEST_AND_VALIDATION_POLICY.md](../Documentation/Standards/TEST_AND_VALIDATION_POLICY.md)

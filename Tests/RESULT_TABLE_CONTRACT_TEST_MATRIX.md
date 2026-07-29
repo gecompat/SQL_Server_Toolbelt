@@ -4,13 +4,14 @@
 
 | Feld | Wert |
 |---|---|
-| Arbeitspaket | `AP-2026-002` |
+| Spezifikation | `AP-2026-002` |
+| Implementierung | `AP-2026-003` |
 | Modul | `toolbelt.core.result-table` |
 | Objekt | `toolbelt_core.USP_PrepareResultTable` |
-| Testcode | noch nicht implementiert |
+| Testcode | statischer Validator und initiale synthetische Runtime-/Lifecycle-Contract-Skripte implementiert; Restfälle noch nicht vollständig automatisiert |
 | Runtime-Status | `not executed` |
 
-Diese Matrix ist verbindliche Grundlage für die spätere Implementierung. Ein vorhandener Testfall ist kein Runtime-Nachweis.
+Diese Matrix bleibt das verbindliche Validierungsinventar. Vorhandener oder statisch geprüfter Testcode ist kein Runtime-Nachweis.
 
 ## 1. Evidenz je Ausführung
 
@@ -204,6 +205,7 @@ Eine Kombination darf nur mit dokumentierter Begründung als `not applicable` au
 | `RT-A-005` | DDL-Fehler nach begonnener Mutation | vollständiges Rollback auf Ausgangszustand, soweit Transaktion committable |
 | `RT-A-006` | Zieltable bleibt nach erfolgreicher Procedure im Aufrufer-Scope sichtbar | `SELECT` auf Zieltable funktioniert |
 | `RT-A-007` | Zieltable wird nicht gedroppt/recreated | Objektidentität bleibt innerhalb des Aufrufs erhalten |
+| `RT-A-008` | Quell- oder Zieltable besitzt 1024 Spalten | geteilter Anchor-Umbau überschreitet zu keinem Zeitpunkt das SQL-Server-Spaltenlimit |
 
 ## 12. Transaktionen und Fehler
 
