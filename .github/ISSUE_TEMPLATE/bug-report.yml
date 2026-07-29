@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         ⚠️ **Warnung:** Bitte ausschließlich synthetische, nicht produktive Beispieldaten verwenden.
-        **Keine Produktionsdaten, keine realen Server-/Datenbanknamen, keine Secrets, keine realen Logs oder Execution Plans.**
+        **Keine Produktions- oder Originaldaten, keine nicht öffentlichen Server-/Datenbanknamen, keine konkreten Remote-Runner-Hardwarewerte, keine Secrets, keine realen Logs oder Execution Plans. Öffentliche relevante Organisations-/Projektnamen und Links sind zulässig.**
 
   - type: dropdown
     id: modul
@@ -54,7 +54,7 @@ body:
       label: Reproduktionsschritte
       description: |
         Minimales, reproduzierbares Beispiel mit synthetischen Daten.
-        Keine realen Datenbankstrukturen, Kundendaten oder Konfigurationen.
+        Keine realen Original-Datenbankstrukturen, Kunden-/Personendaten oder nicht öffentlichen Konfigurationen.
     validations:
       required: true
 
@@ -83,5 +83,5 @@ body:
     attributes:
       label: Datenschutzbestätigung
       options:
-        - label: Dieser Issue enthält keine personenbezogenen Daten, keine realen Infrastrukturangaben (Server, Datenbank, Pfade, Domains), keine Secrets und keine realen Logs oder Execution Plans.
+        - label: Dieser Issue enthält keine personenbezogenen/sensiblen oder internen/vertraulichen Daten, keine Original-Tabelleninhalte, keine nicht öffentlichen Infrastrukturangaben, keine konkreten Remote-Runner-Hardwarewerte, keine Secrets und keine realen Logs oder Execution Plans. Öffentliche relevante Organisations-/Projektnamen und Links sind zulässig.
           required: true
