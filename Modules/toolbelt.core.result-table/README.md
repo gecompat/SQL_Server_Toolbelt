@@ -11,7 +11,7 @@
 | Release | `unreleased` |
 | Persistente Objekte | genau `toolbelt_core.USP_PrepareResultTable` |
 
-Die Procedure und alle gekoppelten Source-, Lifecycle-, Dokumentations- und Testartefakte sind implementiert. Die [erweiterte GitHub-hosted Linux-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30456207934) war am 2026-07-29 auf SQL Server 2019, 2022 und 2025 vollständig erfolgreich. Alle drei Versionen führten dieselbe vorhandene Vollsuite einschließlich lokaler und zentraler Nutzung, expliziter Collations, 1024-Spalten-Grenze, Transaktionspfade, Lifecycle und synthetischem Performance-Workload aus. Windows, echter Savepoint-Rollback nach Enginefehler, Multi-Session-/Parallelfälle und eine plattformübergreifend vergleichbare Performance-Baseline bleiben `not executed`; daher ist das Modul noch nicht vollständig `validated`.
+Die Procedure und alle gekoppelten Source-, Lifecycle-, Dokumentations- und Testartefakte sind implementiert. Die [aktuelle GitHub-hosted Linux-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) war am 2026-07-29 auf SQL Server 2019, 2022 und 2025 vollständig erfolgreich. Alle drei Versionen führten dieselbe Vollsuite einschließlich lokaler und zentraler Nutzung, expliziter Collations, 1024-Spalten-Grenze, Transaktionspfade, vier paralleler Sitzungen mit identischen logischen Temp-Tabellennamen, Lifecycle und synthetischem Performance-Workload aus. Windows, echter Savepoint-Rollback nach einem natürlichen Enginefehler und eine plattformübergreifend vergleichbare Performance-Baseline bleiben `not executed`; daher ist das Modul noch nicht vollständig `validated`.
 
 ## Zweck
 
@@ -35,6 +35,7 @@ Die kanonische Spezifikation bleibt [RESULT_TABLE_MODULE_DESIGN.md](../../Docume
 | `Tests/Runtime/Central.Contract.sql` | dreiteiliger Aufruf aus einer konsumierenden Datenbank |
 | `Tests/Runtime/Collation.Contract.sql` | explizite CI-, CS-, BIN2- und UTF-8-Collation-Prüfungen |
 | `Tests/Runtime/BoundaryAndTransaction.Contract.sql` | 1024-Spalten- und Transaktionsgrenzfälle |
+| `Tests/Runtime/MultiSession.Contract.sql` | parallele Isolation gleichnamiger lokaler Temp-Tabellen |
 | `Tests/Runtime/Performance.Workload.sql` | reproduzierbarer synthetischer CI-Workload ohne allgemeine Benchmark-Zusage |
 | `.github/workflows/result-table-runtime.yml` | pfadbezogene GitHub-hosted Linux-Matrix |
 

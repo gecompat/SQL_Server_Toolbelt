@@ -8,7 +8,7 @@
 | Implementierung | `AP-2026-003` |
 | Modul | `toolbelt.core.result-table` |
 | Objekt | `toolbelt_core.USP_PrepareResultTable` |
-| Testcode | statischer Validator, Runtime-/Lifecycle-Verträge sowie zusätzliche Collation-, 1024-Spalten-, Transaktions- und Performance-Workloads implementiert; Restfälle noch nicht vollständig automatisiert |
+| Testcode | statischer Validator, Runtime-/Lifecycle-Verträge sowie zusätzliche Collation-, 1024-Spalten-, Transaktions-, Multi-Session- und Performance-Workloads implementiert und unter Linux ausgeführt |
 | Runtime-Status | `partially validated` |
 
 Diese Matrix bleibt das verbindliche Validierungsinventar. Die erste Linux-Welle ist ausgeführt; offene Kombinationen behalten ihren eigenen Status `not executed`.
@@ -93,9 +93,31 @@ Ausführung am 2026-07-29:
 - synthetischer No-Mutation-/`TRUNCATE`-/Schemaumbau-Workload erfolgreich;
 - Gesamtstatus bleibt `partially validated`.
 
-Windows, echter Savepoint-Rollback nach einem Engine-Fehler, Multi-Session-/
-Parallelfälle und eine plattformübergreifend vergleichbare Performance-Baseline
-bleiben offen.
+### Dritte GitHub-hosted Validierungswelle
+
+Die dritte Welle ergänzt vier gleichzeitig laufende echte `sqlcmd`-Sitzungen.
+Jede Sitzung verwendet identische logische Namen für ihre lokalen Temp-Tabellen,
+wechselt 24-mal zwischen zwei Shapes und prüft Objektidentität, eigene
+synthetische Daten sowie vollständige Isolation.
+
+Ausführung am 2026-07-29:
+
+- [GitHub Actions Run 30459004717](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717): erfolgreich;
+- statischer Vertrag sowie SQL Server 2019, 2022 und 2025 Linux: erfolgreich;
+- vier parallele Sessions je SQL-Server-Version: erfolgreich;
+- gleichnamige lokale ResultTable- und Helper-Tabellen blieben
+  sitzungsisoliert;
+- Gesamtstatus bleibt `partially validated`.
+
+Windows, echter Savepoint-Rollback nach einem natürlichen Enginefehler und
+eine plattformübergreifend vergleichbare Performance-Baseline bleiben offen.
+
+Eine DDL-Trigger-Injektion wurde als Recovery-Harness verworfen: Der Trigger
+verändert selbst die Transaktionssemantik der zu prüfenden DDL-Anweisung und
+liefert deshalb keinen belastbaren Nachweis für den natürlichen
+Procedure-Fehlerpfad. Ein echter Savepoint-Rollback nach einem deterministischen
+Enginefehler bleibt `not executed`, bis ein nicht invasiver Fehlerpfad
+reproduzierbar verfügbar ist.
 
 ## 3. Statische Vertragsprüfungen
 

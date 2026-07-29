@@ -6,7 +6,7 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 Der Repository-Grundaufbau ist abgeschlossen. Für das implementierte erste Kernmodul existieren statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte.
 
-Die erweiterte pfadbezogene Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 mit der vollständigen vorhandenen Suite für SQL Server 2019, 2022 und 2025 erfolgreich. Damit sind zusätzlich Collation-, 1024-Spalten-, Transaktions- und synthetische Performance-Workloads belegt; Windows und weitere Matrixfälle bleiben offen.
+Die aktuelle pfadbezogene Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 mit der vollständigen Suite für SQL Server 2019, 2022 und 2025 erfolgreich. Damit sind zusätzlich Collation-, 1024-Spalten-, Transaktions-, Multi-Session- und synthetische Performance-Workloads belegt; Windows und weitere Matrixfälle bleiben offen.
 
 ## Pflicht-Testarten je Modul
 

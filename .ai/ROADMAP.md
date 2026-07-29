@@ -132,8 +132,8 @@ Stand:
 - Source, Manifest, Lifecycle, Dokumentation, Beispiele sowie statische und synthetische Contract-Testartefakte vorhanden;
 - reproduzierbare statische Vertragsprüfung erfolgreich;
 - GitHub-hosted Linux: vollständige vorhandene Suite auf SQL Server 2019, 2022 und 2025 erfolgreich;
-- lokale und zentrale Nutzung, Wiederholungsdeployment, Fremdobjekt-Kollision, Uninstall, explizite Collations, 1024-Spalten-Grenze, Transaktionspfade und synthetischer Performance-Workload auf allen drei Linux-Versionen erfolgreich;
-- Windows, echter Savepoint-Rollback nach Enginefehler, Multi-Session-/Parallelfälle und eine plattformübergreifend vergleichbare Performance-Baseline offen;
+- lokale und zentrale Nutzung, Wiederholungsdeployment, Fremdobjekt-Kollision, Uninstall, explizite Collations, 1024-Spalten-Grenze, Transaktionspfade, vier parallele Sitzungen und synthetischer Performance-Workload auf allen drei Linux-Versionen erfolgreich;
+- Windows, echter Savepoint-Rollback nach einem natürlichen Enginefehler und eine plattformübergreifend vergleichbare Performance-Baseline offen;
 - Validierungsstatus deshalb `partially validated`, nicht vollständig `validated`.
 
 Die erste Version benötigt keine persistente Tabelle, kein Synonym, keine Assembly und keinen Type. Eine Entscheidung zu diesen offenen persistenten Namenskonventionen ist deshalb noch nicht erforderlich.
