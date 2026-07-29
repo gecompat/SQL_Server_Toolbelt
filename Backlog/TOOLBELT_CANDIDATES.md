@@ -127,20 +127,20 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Titel** | Zahlenreihen als Table-valued Function |
 | **Ziel-Repository** | `SQL_Server_Toolbelt` |
 | **Kategorie** | Core |
-| **SQL-Server-Lücke** | `GENERATE_SERIES` ist erst ab SQL Server 2022 und grundsätzlich ab Compatibility Level 160 verfügbar. SQL Server 2019 benötigt Hilfstabellen, rekursive CTEs oder projektspezifische Generatoren. |
+| **SQL-Server-Lücke** | `GENERATE_SERIES` ist erst ab SQL Server 2022 und grundsätzlich ab Compatibility Level 160 verfügbar. Die Database-scoped Configuration `ALLOW_BUILTIN_TVF_IN_ALL_COMPAT_LEVELS` kann die Compatibility-Grenze auf unterstützten Engines ausdrücklich aufheben; SQL Server 2019 benötigt weiterhin Hilfstabellen, rekursive CTEs oder projektspezifische Generatoren. |
 | **Betroffene Versionen** | SQL Server 2019; außerdem Datenbanken auf neueren Engines mit zu niedrigem Compatibility Level, sofern die native TVF nicht freigeschaltet ist. |
 | **Spätere native Funktion** | Ja: `GENERATE_SERIES` ab SQL Server 2022. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Einheitlicher, dokumentierter Zahlenreihenvertrag für Kalender, Datenexpansion, Tests und Mengenoperationen. |
-| **Mögliche Technologie** | T-SQL Inline TVFs für klar definierte numerische Typen oder ein performanter Streaming-Provider. Rekursive CTEs sind nur nach messbarer Eignung zu verwenden. |
-| **Performance und Security** | Cardinality Estimation, sehr große Reihen, negative Schritte, Overflow und Row-Goal-Verhalten benchmarken. Harte oder konfigurierbare Schutzgrenze prüfen. |
+| **Mögliche Technologie** | Als drittes Modul mit zwei portablen T-SQL Inline TVFs für `int` und `bigint` implementiert. Binär gestapelte konstante Rowsets und ein zeilenzahlgesteuerter Row Goal ersetzen rekursive CTEs, Systemkataloge und eine persistente Numbers-Tabelle. Der `int`-Wrapper verwendet den gemeinsamen `bigint`-Kern. |
+| **Performance und Security** | Sehr große Reihen bleiben Aufruferverantwortung; es gibt keine stille Kürzung. `decimal(38,0)` schützt interne Grenzarithmetik. Eine mathematische Zeilenzahl außerhalb `bigint` erzeugt einen Engine-Overflow. Cardinality Estimates, äußerer Row Goal, Joins, `CROSS APPLY` und eine Million synthetische Werte gehören zur Testmatrix. Keine besonderen Security-Rechte außer `SELECT`/`REFERENCES`. |
 | **Plattformgrenzen** | Windows und Linux sollen denselben Vertrag verwenden. |
-| **Dependencies** | Keine bekannte harte Dependency; persistente Numbers-Tabelle würde erstmals eine Tabellen-Namenskonvention erfordern. |
+| **Dependencies** | Keine Modulabhängigkeit. Der öffentliche Vertrag wurde am 2026-07-30 freigegeben. Eine persistente Numbers-Tabelle und damit eine neue Tabellen-Namenskonvention sind nicht erforderlich. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
-| **Status** | `researched` |
-| **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/generate-series-transact-sql?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Inline-T-SQL, persistente Numbers-Tabelle und Streaming-Ansatz mit identischer Testmatrix vergleichen; vor einer Tabelle Benutzerentscheidung zur Namenskonvention einholen. |
+| **Status** | `implemented` |
+| **Primärquellen** | [GENERATE_SERIES_MODULE_DESIGN.md](../Documentation/Architecture/GENERATE_SERIES_MODULE_DESIGN.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/generate-series-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | SQL Server 2025 mit Compatibility Levels 150/160/170 ausführen; danach gezielte physische 2019-/2022- und Windows-Releasevalidierung planen. |
 
 ## TC-2026-007: Bit-Manipulationsfunktionen für SQL Server 2019
 

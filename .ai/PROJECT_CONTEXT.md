@@ -12,6 +12,11 @@ war unter Linux erfolgreich. Physische SQL-Server-2019-/2022- und
 Windows-Läufe bleiben `not executed`; das Modul ist deshalb
 `partially validated`.
 
+Das unabhängige Modul `toolbelt.core.generate-series` ist mit portablen
+Inline TVFs für `int` und `bigint` implementiert. Seine statischen und
+Runtime-Artefakte sind vorhanden; eine tatsächliche Runtime-Ausführung steht
+noch aus. Der Validierungsstatus ist deshalb `not executed`.
+
 ## Projektzweck
 
 SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL Server Database Engine ab Version 2019. Sie stellt Funktionen bereit, die SQL Server nicht nativ besitzt, erst in späteren Versionen anbietet oder nur mit wiederkehrendem, fehleranfälligem Boilerplate ermöglicht.

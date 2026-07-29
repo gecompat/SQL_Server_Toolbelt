@@ -8,6 +8,11 @@ Dieses Verzeichnis enthält schlanke Adapter für GitHub-hosted Testläufe. Die 
 prüft den Base64-Vertrag seriell mit Compatibility Levels 150, 160 und 170
 sowie lokale, zentrale und Lifecycle-Pfade.
 
+`run-generate-series-linux.sh` verwendet einen SQL-Server-2025-Linux-
+Container und prüft den portablen Ganzzahlreihenvertrag seriell mit
+Compatibility Levels 150, 160 und 170 sowie lokale, zentrale und
+Lifecycle-Pfade.
+
 Bash wird hier nur als Linux-CI-Orchestrierung verwendet. Es enthält keine zweite Implementierung der T-SQL-Fachlogik.
 
 Das Testkennwort:
@@ -27,6 +32,11 @@ Der
 [Base64-Runtime-Lauf 30493304673](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30493304673)
 war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
+`not executed`.
+
+Der
+[Generate-Series-Runtime-Workflow](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/generate-series-runtime.yml)
+ist angelegt. Eine tatsächliche Ausführung ist auf diesem Stand noch
 `not executed`.
 
 ## Quellen
