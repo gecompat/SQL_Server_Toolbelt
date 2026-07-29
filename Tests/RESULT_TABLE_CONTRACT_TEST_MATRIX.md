@@ -8,7 +8,7 @@
 | Implementierung | `AP-2026-003` |
 | Modul | `toolbelt.core.result-table` |
 | Objekt | `toolbelt_core.USP_PrepareResultTable` |
-| Testcode | statischer Validator und initiale synthetische Runtime-/Lifecycle-Contract-Skripte implementiert; Restfälle noch nicht vollständig automatisiert |
+| Testcode | statischer Validator, Runtime-/Lifecycle-Verträge sowie zusätzliche Collation-, 1024-Spalten-, Transaktions- und Performance-Workloads implementiert; Restfälle noch nicht vollständig automatisiert |
 | Runtime-Status | `partially validated` |
 
 Diese Matrix bleibt das verbindliche Validierungsinventar. Die erste Linux-Welle ist ausgeführt; offene Kombinationen behalten ihren eigenen Status `not executed`.
@@ -63,6 +63,39 @@ Ausführung am 2026-07-29:
 - SQL Server 2022 und 2025 Linux: Kompatibilitätssuiten erfolgreich;
 - statischer Vertrag: erfolgreich;
 - Gesamtstatus: `partially validated`.
+
+### Zweite GitHub-hosted Validierungswelle
+
+Die zweite Welle erweitert denselben pfadbezogenen Linux-Workflow:
+
+- SQL Server 2019, 2022 und 2025 führen jeweils die vollständige vorhandene
+  Contract-, Lifecycle-, zentrale und Uninstall-Suite aus;
+- explizite CI-, CS-, BIN2- und UTF-8-Spaltencollations;
+- zentrale Installation mit unterschiedlichen Toolbelt- und
+  Consumer-Datenbankcollations sowie dreiteiliger Schemaquelle;
+- Umbau auf und von exakt 1024 Spalten;
+- erfolgreiche Caller-Transaktion und Abbruch vor Mutation in einer
+  uncommittable Transaktion;
+- reproduzierbarer synthetischer Workload für No-Mutation, `TRUNCATE` und
+  kleinen Schemaumbau.
+
+Ausführung am 2026-07-29:
+
+- [GitHub Actions Run 30456207934](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30456207934): erfolgreich;
+- SQL Server 2019, 2022 und 2025 Linux: jeweils vollständige vorhandene Suite
+  erfolgreich;
+- explizite CI-, CS-, BIN2- und UTF-8-Spaltencollations erfolgreich;
+- zentrale Installation mit unterschiedlicher Toolbelt-/Consumer-Collation
+  und dreiteiliger Schemaquelle erfolgreich;
+- Umbau auf und von exakt 1024 Spalten erfolgreich;
+- Caller-Transaktion sowie Abbruch vor Mutation in uncommittable Transaktion
+  erfolgreich;
+- synthetischer No-Mutation-/`TRUNCATE`-/Schemaumbau-Workload erfolgreich;
+- Gesamtstatus bleibt `partially validated`.
+
+Windows, echter Savepoint-Rollback nach einem Engine-Fehler, Multi-Session-/
+Parallelfälle und eine plattformübergreifend vergleichbare Performance-Baseline
+bleiben offen.
 
 ## 3. Statische Vertragsprüfungen
 

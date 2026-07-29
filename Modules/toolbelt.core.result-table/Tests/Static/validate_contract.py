@@ -28,6 +28,13 @@ RUNTIME_CONTRACT = (
 LIFECYCLE_CONTRACT = MODULE_ROOT / "Tests" / "Runtime" / "Lifecycle.Contract.sql"
 COMPATIBILITY_SMOKE = MODULE_ROOT / "Tests" / "Runtime" / "Compatibility.Smoke.sql"
 CENTRAL_CONTRACT = MODULE_ROOT / "Tests" / "Runtime" / "Central.Contract.sql"
+COLLATION_CONTRACT = MODULE_ROOT / "Tests" / "Runtime" / "Collation.Contract.sql"
+BOUNDARY_TRANSACTION_CONTRACT = (
+    MODULE_ROOT / "Tests" / "Runtime" / "BoundaryAndTransaction.Contract.sql"
+)
+PERFORMANCE_WORKLOAD = (
+    MODULE_ROOT / "Tests" / "Runtime" / "Performance.Workload.sql"
+)
 RUNTIME_WORKFLOW = REPOSITORY_ROOT / ".github" / "workflows" / "result-table-runtime.yml"
 LINUX_RUNNER = REPOSITORY_ROOT / "Tests" / "CI" / "run-result-table-linux.sh"
 
@@ -90,6 +97,9 @@ def main() -> int:
             LIFECYCLE_CONTRACT,
             COMPATIBILITY_SMOKE,
             CENTRAL_CONTRACT,
+            COLLATION_CONTRACT,
+            BOUNDARY_TRANSACTION_CONTRACT,
+            PERFORMANCE_WORKLOAD,
             RUNTIME_WORKFLOW,
             LINUX_RUNNER,
         )
@@ -212,9 +222,9 @@ def main() -> int:
         "Manifest-Release-Status ist nicht unreleased.",
     )
     require(
-        r"actions/runs/30447442638",
+        r"actions/runs/30456207934",
         manifest,
-        "Manifest verweist nicht auf den finalen erfolgreichen Linux-Lauf.",
+        "Manifest verweist nicht auf den erweiterten erfolgreichen Linux-Lauf.",
     )
     if len(re.findall(r"^\s+- type:\s+USP\s*$", manifest, re.MULTILINE)) != 1:
         raise AssertionError("Das Manifest muss genau ein persistentes USP-Objekt führen.")
@@ -231,12 +241,68 @@ def main() -> int:
             raise AssertionError(f"Runtime-Workflow-Marker fehlt: {marker}")
     if "self-hosted" in workflow:
         raise AssertionError("Der ResultTable-Workflow darf keinen Remote-Runner verwenden.")
+    if workflow.count('suite: "full"') != 3:
+        raise AssertionError(
+            "Alle drei Linux-Versionen müssen die vollständige Suite ausführen."
+        )
 
     runtime_contract = files[RUNTIME_CONTRACT]
     if "(5, N'CreatedAt', N'datetime2', 7, 23, 3, 0)" not in runtime_contract:
         raise AssertionError(
             "Der Runtime-Vertrag erwartet für datetime2(3) nicht Precision 23."
         )
+
+    linux_runner = files[LINUX_RUNNER]
+    for runtime_file in (
+        "USP_PrepareResultTable.Contract.sql",
+        "Collation.Contract.sql",
+        "BoundaryAndTransaction.Contract.sql",
+        "Performance.Workload.sql",
+        "Central.Contract.sql",
+    ):
+        if runtime_file not in linux_runner:
+            raise AssertionError(
+                f"Der Linux-Adapter führt das Pflichtartefakt nicht aus: {runtime_file}"
+            )
+
+    collation_contract = files[COLLATION_CONTRACT]
+    for marker in (
+        "Latin1_General_100_CS_AS",
+        "Latin1_General_100_BIN2",
+        "Latin1_General_100_BIN2_UTF8",
+        "RT-E-013",
+    ):
+        if marker not in collation_contract:
+            raise AssertionError(
+                f"Collation-Contract-Marker fehlt: {marker}"
+            )
+
+    boundary_contract = files[BOUNDARY_TRANSACTION_CONTRACT]
+    for marker in (
+        "SET QUOTED_IDENTIFIER ON;",
+        "TOP (1024)",
+        "ROW_NUMBER() OVER (ORDER BY c.column_id) AS ColumnOrdinal",
+        "C1024",
+        "XACT_STATE() = -1",
+        "@DoomedErrorNumber <> 51028",
+    ):
+        if marker not in boundary_contract:
+            raise AssertionError(
+                f"Grenz-/Transaktions-Contract-Marker fehlt: {marker}"
+            )
+
+    performance_workload = files[PERFORMANCE_WORKLOAD]
+    for marker in (
+        "NoMutation=50",
+        "Truncate=20",
+        "ReshapePairs=10",
+        "sys.dm_exec_sessions",
+        "tempdb.sys.dm_db_session_space_usage",
+    ):
+        if marker not in performance_workload:
+            raise AssertionError(
+                f"Performance-Workload-Marker fehlt: {marker}"
+            )
 
     deploy = files[DEPLOY]
     if re.search(r"^\s*:setvar\b", deploy, re.MULTILINE | re.IGNORECASE):
