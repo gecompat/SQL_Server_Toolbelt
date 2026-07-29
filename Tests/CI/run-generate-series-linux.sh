@@ -96,6 +96,10 @@ run_file "${local_database}" "${deployment_directory}" Deploy.sql \
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 
 for compatibility_level in 150 160 170; do
+    # Der relationale native Operator muss in einer neuen Session unter dem
+    # bereits aktiven Compatibility Level kompiliert werden.
+    run_query "${local_database}" \
+        "ALTER DATABASE [${local_database}] SET COMPATIBILITY_LEVEL = ${compatibility_level};"
     run_file "${local_database}" "${runtime_directory}" \
         GenerateSeries.Contract.sql \
         -v CompatibilityLevel="${compatibility_level}"

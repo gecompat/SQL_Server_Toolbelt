@@ -14,13 +14,17 @@ BEGIN
     THROW 52400, N'CompatibilityLevel muss 150, 160 oder 170 sein.', 1;
 END;
 
-DECLARE @SetCompatibilitySql nvarchar(max) =
-    N'ALTER DATABASE '
-    + QUOTENAME(DB_NAME())
-    + N' SET COMPATIBILITY_LEVEL = '
-    + CONVERT(nvarchar(3), @CompatibilityLevel)
-    + N';';
-EXEC sys.sp_executesql @SetCompatibilitySql;
+DECLARE @ActualCompatibilityLevel int =
+(
+    SELECT databases.compatibility_level
+    FROM sys.databases AS databases
+    WHERE databases.database_id = DB_ID()
+);
+
+IF @ActualCompatibilityLevel <> @CompatibilityLevel
+BEGIN
+    THROW 52416, N'Der Test muss in einer neuen Session mit dem erwarteten Compatibility Level gestartet werden.', 1;
+END;
 
 IF OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigInt', N'IF') IS NULL
    OR OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesInt', N'IF') IS NULL

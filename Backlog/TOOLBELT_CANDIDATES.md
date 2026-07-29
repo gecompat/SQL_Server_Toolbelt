@@ -127,7 +127,7 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Titel** | Zahlenreihen als Table-valued Function |
 | **Ziel-Repository** | `SQL_Server_Toolbelt` |
 | **Kategorie** | Core |
-| **SQL-Server-Lücke** | `GENERATE_SERIES` ist erst ab SQL Server 2022 und grundsätzlich ab Compatibility Level 160 verfügbar. Die Database-scoped Configuration `ALLOW_BUILTIN_TVF_IN_ALL_COMPAT_LEVELS` kann die Compatibility-Grenze auf unterstützten Engines ausdrücklich aufheben; SQL Server 2019 benötigt weiterhin Hilfstabellen, rekursive CTEs oder projektspezifische Generatoren. |
+| **SQL-Server-Lücke** | `GENERATE_SERIES` ist erst ab SQL Server 2022 und grundsätzlich ab Compatibility Level 160 verfügbar. Die derzeit auf Azure SQL Database und Fabric SQL Database begrenzte Database-scoped Configuration `ALLOW_BUILTIN_TVF_IN_ALL_COMPAT_LEVELS` ändert den SQL-Server-Supportscope nicht; SQL Server 2019 benötigt weiterhin Hilfstabellen, rekursive CTEs oder projektspezifische Generatoren. |
 | **Betroffene Versionen** | SQL Server 2019; außerdem Datenbanken auf neueren Engines mit zu niedrigem Compatibility Level, sofern die native TVF nicht freigeschaltet ist. |
 | **Spätere native Funktion** | Ja: `GENERATE_SERIES` ab SQL Server 2022. |
 | **Use-Case-Typ** | Realistisch |

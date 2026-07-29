@@ -81,10 +81,11 @@ Million Zeilen ist Contract-Evidenz, kein Produktionsbenchmark.
 ## Native Referenz und Portabilität
 
 SQL Server 2022 und 2025 stellen `GENERATE_SERIES` grundsätzlich ab
-Compatibility Level 160 bereit. Die dokumentierte
-Database-scoped Configuration `ALLOW_BUILTIN_TVF_IN_ALL_COMPAT_LEVELS` kann
-diese Grenze auf unterstützten Engines ausdrücklich aufheben. Die native
-Funktion wird im regulären Testscope nur bei Levels 160 und 170 als
+Compatibility Level 160 bereit. Die dokumentierte Database-scoped
+Configuration `ALLOW_BUILTIN_TVF_IN_ALL_COMPAT_LEVELS` kann diese Grenze
+derzeit in Azure SQL Database und Fabric SQL Database aufheben; sie ist keine
+SQL-Server-2025-Capability und erweitert nicht den Supportscope dieses Moduls.
+Die native Funktion wird im regulären Testscope nur bei Levels 160 und 170 als
 Semantikorakel verwendet. Der Runtime-Provider des Moduls bleibt auf allen
 Zielversionen und Compatibility Levels derselbe portable T-SQL-Code.
 

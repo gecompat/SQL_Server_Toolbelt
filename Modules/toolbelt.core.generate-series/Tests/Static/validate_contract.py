@@ -36,6 +36,9 @@ def main() -> int:
     module_documentation = read("README.md")
     matrix = read("Tests/GENERATE_SERIES_CONTRACT_TEST_MATRIX.md")
     runtime = read("Tests/Runtime/GenerateSeries.Contract.sql")
+    ci_adapter = (
+        MODULE_ROOT.parents[1] / "Tests" / "CI" / "run-generate-series-linux.sh"
+    ).read_text(encoding="utf-8")
 
     combined = "\n".join(
         (
@@ -169,9 +172,23 @@ def main() -> int:
         "CROSS APPLY",
         "GENERATE_SERIES",
         "DEFAULT",
+        "sys.databases",
     ):
         if marker not in runtime:
             raise ContractError(f"Runtime-Contract-Fall fehlt: {marker}")
+    if "SET COMPATIBILITY_LEVEL" in runtime:
+        raise ContractError(
+            "Der Contract-Test darf seinen Compilation-Context nicht selbst ändern."
+        )
+    for level in ("150", "160", "170"):
+        if (
+            f'SET COMPATIBILITY_LEVEL = ${{compatibility_level}}' not in ci_adapter
+            or level not in ci_adapter
+        ):
+            raise ContractError(
+                "Der CI-Adapter setzt die Compatibility Levels nicht vor "
+                "einer neuen Testsession."
+            )
 
     if "../../.github/workflows/generate-series-runtime.yml" not in manifest:
         raise ContractError("Runtime-Workflow ist im Manifest nicht gekoppelt.")
