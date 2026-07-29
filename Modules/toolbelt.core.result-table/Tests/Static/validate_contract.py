@@ -229,6 +229,7 @@ def main() -> int:
         )
     for marker in (
         "#tbx_ResultTableReleaseObjects",
+        "SET QUOTED_IDENTIFIER ON;",
         "Toolbelt.ModuleId",
         "Toolbelt.ModuleVersion",
         "Toolbelt.ContractVersion",

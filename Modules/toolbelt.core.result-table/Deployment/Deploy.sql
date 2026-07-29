@@ -11,6 +11,7 @@
 
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
+SET QUOTED_IDENTIFIER ON;
 
 IF OBJECT_ID(N'tempdb..#tbx_ResultTableReleaseObjects', N'U') IS NOT NULL
 BEGIN
