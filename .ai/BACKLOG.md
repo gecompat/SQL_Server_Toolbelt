@@ -4,6 +4,22 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### AP-2026-007: Entscheidungsvorbereitung für das zweite Modul
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-007` |
+| Ziel | Die nächsten kleinen Compatibility-Kandidaten so vergleichen, dass die funktionsbezogene Benutzerbesprechung ohne verdeckte Typ-, Provider- oder Fehlerentscheidungen geführt werden kann. |
+| Scope | Vertiefter Vergleich von `TC-2026-004` und `TC-2026-012`; dokumentierte Empfehlung, Vertragsfragen, Provideroptionen, Testdimensionen, Abhängigkeiten und Implementierungs-Gates. Keine SQL-Implementierung und kein Modulmanifest. |
+| Dependencies | `AP-2026-003`, `AP-2026-005`, funktionsbezogenes Implementierungs-Gate und Phase-2-Abhängigkeit aus der Roadmap. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Akzeptanzkriterien | Bevorzugter Besprechungskandidat nachvollziehbar ausgewählt; Alternative mit konkretem Grund zurückgestellt; offene Benutzerentscheidungen und Pflichtprüfungen sichtbar; kein öffentlicher Funktionsvertrag oder Implementierungsrecht behauptet. |
+| Tests | Primärquellenabgleich gegen Microsoft Learn und RFC 4648; Kandidaten-, Backlog-, Roadmap-, Link-, Datenschutz- und Change-Impact-Prüfung. Runtime-Tests sind für diese reine Entscheidungsvorbereitung `not applicable`. |
+| Blocker | Keine für die Entscheidungsvorbereitung. Die Implementierung bleibt blockiert, bis der Benutzer den konkreten Funktionsvertrag besprochen und ausdrücklich freigegeben hat und mindestens ein Referenzmodul gemäß Roadmap vollständig `validated` ist. |
+| Evidenz | `Documentation/Research/SECOND_MODULE_SELECTION.md` und aktualisierte Kandidaten `TC-2026-004`/`TC-2026-012`; geprüft am 2026-07-29. |
+| Nächster Schritt | `TC-2026-012` anhand der dokumentierten Fragen mit dem Benutzer besprechen; bei Auswahl den Vertrag spezifizieren. Unabhängig davon die offenen ResultTable-Pflichtfälle weiter abbauen. |
+
 ### AP-2026-006: Dokumentationsbaseline und inkrementeller Drift-Schutz
 
 | Feld | Wert |
@@ -18,7 +34,7 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Tests | Python-Standardbibliothek-Validator, modulspezifische statische Prüfung, Markdown-Linkprüfung, YAML-/Workflow-Strukturprüfung, Datenschutz-/Secret-Diffprüfung und GitHub Actions. |
 | Blocker | Keine. |
 | Evidenz | Lokaler vollständiger Baseline-Audit am 2026-07-29 erfolgreich; [Documentation Consistency Run 30453805254](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30453805254) und [ResultTable Runtime Run 30453805186](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30453805186) vollständig erfolgreich. |
-| Nächster Schritt | Research-PR `#8` auf den aktuellen Dokumentationsvertrag bringen und als Welle 1 konsolidieren. |
+| Nächster Schritt | Abgeschlossen; die laufende Dokumentationskonsistenz wird durch den inkrementellen Validator geschützt. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
