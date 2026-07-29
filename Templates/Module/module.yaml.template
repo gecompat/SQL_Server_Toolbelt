@@ -61,9 +61,10 @@ clr:
   trust_method: null
 
 lifecycle:
-  install: "Deployment/Install.sql"
-  upgrade: "Deployment/Upgrade.sql"
+  deploy: "Deployment/Deploy.sql"
   uninstall: "Deployment/Uninstall.sql"
+  release_manifest: "{{embedded oder Pfad}}"
+  source_hash_role: "diagnostic_only"
 
 tests:
   static: "Tests/Static/"

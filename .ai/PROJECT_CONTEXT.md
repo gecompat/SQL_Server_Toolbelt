@@ -2,7 +2,7 @@
 
 ## Projektstatus
 
-Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das erste Kernmodul `toolbelt.core.result-table` ist implementierungsreif spezifiziert, aber noch nicht implementiert oder zur Runtime validiert.
+Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das erste Kernmodul `toolbelt.core.result-table` ist implementiert und teilweise validiert: Die GitHub-hosted Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; Windows und noch nicht automatisierte Pflichtfälle bleiben `not executed`.
 
 ## Projektzweck
 
@@ -57,6 +57,7 @@ SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL 
 - `researched`: recherchiert, aber nicht zur Umsetzung freigegeben.
 - `planned`: freigegebenes oder vorbereitetes Arbeitspaket.
 - `implemented`: Code und statische Verträge vorhanden; Runtime-Nachweis kann fehlen.
+- `partially validated`: ein ausdrücklich abgegrenzter Pflichtscope wurde tatsächlich erfolgreich ausgeführt; weitere Pflichtkombinationen bleiben offen.
 - `validated`: relevante Prüfungen tatsächlich erfolgreich ausgeführt.
 - `experimental`: funktionsfähig, aber nicht vollständig validiert.
 - `deprecated`: veraltet und zur Ablösung vorgesehen.

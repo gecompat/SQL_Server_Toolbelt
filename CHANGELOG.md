@@ -19,6 +19,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Folgearbeitspaket `AP-2026-003` für Implementierung und Validierung des ResultTable-Kernmoduls.
 - Zweite Research-Welle mit den Execution-Infrastructure-Kandidaten `TC-2026-014` bis `TC-2026-022`.
 - Kandidaten für transaktionsunabhängiges Logging, begrenzte Parallelisierung, Console-Ausgabe, Error Envelope, Cancellation, Correlation, Retry/Dead-letter, Worker-Leases und einen sicheren Work-Type-Katalog.
+- Erstimplementierung von `toolbelt_core.USP_PrepareResultTable` mit Help-, Referenztabellen-, Typ-, Collation-, `@KeepData`-, Preflight-, in-place-DDL-, Debug-, Fehler- und Savepoint-Vertrag.
+- Modulmanifest, parametergesteuertes Deploy- und Uninstall-Skript, Objekt- und Moduldokumentation, synthetisches Beispiel sowie statische und synthetische Contract-Testartefakte für `toolbelt.core.result-table`.
+- Architekturentscheidung `DEC-2026-019` für gemeinsame Deployments, Release-Manifeste und kurze Mutationstransaktionen.
+- GitHub-hosted Linux-Validierung für SQL Server 2019, 2022 und 2025.
 
 ### Geändert
 
@@ -31,6 +35,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Implementierungs-Gate präzisiert: Ideen dürfen fortlaufend dokumentiert werden; jede konkrete Funktion benötigt vor der Implementierung eine Besprechung und anschließende ausdrückliche Benutzerfreigabe.
 - `AP-2026-003` bis zur funktionsbezogenen Besprechung und Freigabe auf `blocked` gesetzt.
 - `Backlog/personal_Backlog_Bainstorm.md` als verpflichtend zu berücksichtigenden, nicht autoritativen und historisch zu erhaltenden Research-Input in AI-Regeln, Repo-Map, Backlog-Prozess und Curator-Agent eingebunden.
+- `AP-2026-003` nach ausdrücklicher funktionsbezogener Benutzerfreigabe auf `implemented` gesetzt; weitere Funktionen bleiben ohne eigene Freigabe blockiert.
+- Anchor-Umbau am SQL-Server-Limit von 1024 Spalten in kontrollierte Teilschritte zerlegt.
+- Getrennte Install-/Upgrade-Pfade durch ein gemeinsames `Deploy.sql` mit `DeploymentMode`, Release-Manifest, Application Lock und objektgenauer Herkunftsprüfung ersetzt.
+- Source-Hashes von einem blockierenden Drift-Gate zu rein diagnostischer Information geändert.
 
 ### Korrigiert
 
@@ -42,7 +50,12 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Statusangaben nach dem initialen Merge aktualisiert.
 - Entscheidungsprotokoll, Contribution-Regel und technische Identifier-Sprache konsolidiert.
 - Bereits in `SQL_Server_Analyze` vorhandenen Unused-Index-Kandidaten aus dem offenen Analyze-Backlog entfernt.
+- Identische Ziel- und Referenz-Temp-Tabelle wird vor jeder Mutation mit `51022` abgelehnt.
+- Engine-Fehler beim Metadatenzugriff und bei `TRUNCATE` bleiben unverändert; der unzulässige `DELETE`-Fallback wurde entfernt.
+- Debug-Stufen `4` bis `254` liefern für `USP_PrepareResultTable` denselben Detailumfang wie Stufe `3`.
+- Deployment-Sessionoption und Objektartvergleich für XML- und Collation-stabile Ausführung korrigiert.
+- Runtime-Testmetadaten für `datetime2(3)` und CI-Kollisionsvorbereitung korrigiert.
 
 ### Status
 
-Keine fachlichen SQL-Objekte implementiert. Das erste Kernmodul ist implementierungsreif spezifiziert; Runtime-, Install-, Upgrade- und Uninstall-Validierung ist `not executed`.
+Das erste fachliche SQL-Objekt ist implementiert und `partially validated`. Die GitHub-hosted Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; Windows und noch nicht automatisierte Pflichtfälle bleiben `not executed`.

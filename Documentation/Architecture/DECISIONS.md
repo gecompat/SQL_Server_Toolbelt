@@ -252,3 +252,16 @@ Dauerhafte Entscheidungen werden mit stabiler ID dokumentiert. Historische Entsc
 | Auswirkungen | KI-Systeme dürfen ergänzen, kommentieren und Querverweise setzen. Die Datei ist keine Source of Truth für Regeln, Prioritäten, öffentliche Verträge oder Implementierungsfreigaben. Formale Ergebnisse verbleiben in den kanonischen Kandidatenlisten und in `.ai/BACKLOG.md`. |
 | Alternativen | Löschen nach Übernahme, stillschweigende redaktionelle Neufassung und Behandlung als kanonischer Fachbacklog wurden verworfen. |
 | Betroffene Verträge | `AGENTS.md`, `.ai/PROJECT_RULES.md`, `.ai/WORKING_RULES.md`, `.ai/repo_map.yaml`, `Backlog/README.md`, `backlog-curator.agent.md` |
+
+## DEC-2026-019: Parametergesteuertes Deployment mit Release-Manifesten
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-07-29 |
+| Status | accepted |
+| Entscheidung | Erstinstallation, Upgrade und Wiederholungsinstallation eines Moduls verwenden ein gemeinsames parametergesteuertes `Deploy.sql`. Lokaler und zentraler Modus wählen nur Installationsort und Metadatum. Versionierte Release-Manifeste bestimmen Framework-Herkunft, Kollisionen und entfernte Objekte. |
+| Begründung | Getrennte Install- und Upgrade-Implementierungen erzeugen unnötige Drift. Die Herkunft aus einem bekannten Vorgängerrelease ist eine belastbarere Lösch- und Überschreibgrenze als ein Source-Hash. |
+| Scope | alle Toolbelt-Module und ihre Lifecycle-Artefakte |
+| Auswirkungen | Framework-Objekte aus dem bekannten Vorgängerrelease werden auch nach lokalen Änderungen aktualisiert oder bei Wegfall entfernt. Neue Zielobjekte dürfen keine frameworkfremden Namenskollisionen überschreiben. Wiederholungsinstallation derselben Version deployed alle Release-Objekte erneut. Source-Hashes bleiben rein diagnostisch. Mutationstransaktionen beginnen erst nach dem Preflight und dauern nur bis zur atomaren Aktualisierung von Objekten und Installationsstand. |
+| Alternativen | getrennte Install-/Upgrade-Skripte sowie Drift-Blockade anhand von Source-Hashes wurden verworfen. |
+| Betroffene Verträge | `DEPLOYMENT_MODEL.md`, `MODULE_AND_DEPENDENCY_MODEL.md`, `MODULE_DEFINITION_OF_DONE.md`, Modulmanifest und Lifecycle-Tests |

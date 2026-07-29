@@ -53,11 +53,25 @@ Ein gescheiterter Preflight führt zu verständlicher Meldung und vollständigem
 
 | Artefakt | Zweck |
 |---|---|
-| `Install.sql` | Erstinstallation, Preflight und kontrollierte Registrierung |
-| `Upgrade.sql` | Upgrade von bekannten Vorgängerversionen |
+| `Deploy.sql` | parametergesteuerte Erstinstallation, Upgrade und Wiederholungsinstallation |
 | `Uninstall.sql` | vollständige Entfernung der Modulobjekte unter Beachtung abhängiger Module |
 
-Install und Upgrade müssen kontrolliert wiederholbar sein. Uninstall entfernt keine fremden Objekte oder Nutzerdaten.
+`Deploy.sql` erhält mindestens den Modus `local` oder `central`. Beide Modi verwenden dieselbe kanonische Fachimplementierung.
+
+Jedes Release führt ein versioniertes Objektmanifest. Daraus gelten folgende Regeln:
+
+- Objekte des bekannten installierten Releases dürfen unabhängig von lokalen Änderungen aktualisiert werden.
+- Bei erneuter Installation derselben Version werden alle Framework-Objekte erneut deployed.
+- Nur Objekte, die im installierten Release enthalten waren und im Zielrelease fehlen, dürfen im regulären Deployment entfernt werden.
+- Ein im Zielrelease neuer Objektname darf kein vorhandenes frameworkfremdes Objekt überschreiben.
+- Frameworkfremde Objekte werden weder geändert noch gelöscht.
+- Source-Hashes sind diagnostische Information und kein Deployment-Gate.
+
+Interne Framework-Tabellen verwenden explizite versionierte Migrationen. Kontrolliertes `TRUNCATE`/`DELETE`/`INSERT` ist nur für eindeutig Toolbelt-eigene interne Inhalte zulässig; unbekannte oder fachliche Daten werden nicht pauschal ersetzt.
+
+Preflight, Manifestvergleich und Deployment-Plan entstehen vor der ersten Mutation. Die Transaktion beginnt unmittelbar vor der ersten Änderung, umfasst die zusammengehörigen DDL-/DML-Schritte sowie die abschließende Versionsmarkierung und wird danach sofort beendet. Eine installationsbezogene Application Lock verhindert parallele Mutationen desselben Moduls.
+
+Uninstall entfernt keine fremden Objekte oder Nutzerdaten.
 
 ## Grundmatrix
 
