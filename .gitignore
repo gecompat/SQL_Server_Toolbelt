@@ -83,3 +83,6 @@ temp/
 appsettings.Development.json
 appsettings.local.json
 secrets.json
+
+# ghostwriter
+*.md.backup
