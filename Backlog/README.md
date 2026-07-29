@@ -1,11 +1,12 @@
 # Backlog – SQL Server Toolbelt
 
-Dieses Verzeichnis enthält drei kanonische Kandidatenlisten, eine deduplizierte Research-Inbox sowie einen vom Benutzer gepflegten persönlichen Brainstorm als Research-Input.
+Dieses Verzeichnis enthält drei kanonische Kandidatenlisten, eine deduplizierte Research-Inbox, eine grobe Fokuspriorisierung sowie einen vom Benutzer gepflegten persönlichen Brainstorm als Research-Input.
 
 | Datei | Inhalt |
 |---|---|
 | [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md) | formal beschriebene wiederverwendbare Toolbelt-Funktionen |
 | [TOOLBELT_RESEARCH_INBOX.md](./TOOLBELT_RESEARCH_INBOX.md) | breit recherchierte, deduplizierte und noch nicht priorisierte Toolbelt-Ideen mit Quellen |
+| [TOOLBELT_RESEARCH_PRIORITIES.md](./TOOLBELT_RESEARCH_PRIORITIES.md) | grobe, veränderbare Fokusgruppen nach Nutzen, Hebel, Abhängigkeiten und Komplexität |
 | [SQL_SERVER_ANALYZE_CANDIDATES.md](./SQL_SERVER_ANALYZE_CANDIDATES.md) | geprüfte Ideen für `gecompat/SQL_Server_Analyze` |
 | [MAN_KANN_ES_AUCH_UEBERTREIBEN.md](./MAN_KANN_ES_AUCH_UEBERTREIBEN.md) | theoretische, akademische oder bewusst unterhaltsame Ideen |
 | [personal_Backlog_Bainstorm.md](./personal_Backlog_Bainstorm.md) | freie Gedanken des Benutzers als verpflichtend zu berücksichtigende, nicht autoritative Research-Hinweise |
@@ -17,6 +18,13 @@ Dieses Verzeichnis enthält drei kanonische Kandidatenlisten, eine deduplizierte
 - Ein Inbox-Eintrag ist weder Priorisierung noch öffentlicher Vertrag, formaler `TC-`-Kandidat oder Implementierungsfreigabe.
 - Nach gemeinsamer Filterung werden ausgewählte Ideen mit [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md) formalisiert; die ursprüngliche `RI-`-ID bleibt als Herkunft erhalten.
 - Datenschutz- und Secret-Regeln gelten unverändert.
+
+## Rolle der Fokuspriorisierung
+
+- Die Priorisierung ist eine veränderbare Arbeits- und Konzentrationshilfe, keine endgültige Bewertung.
+- Sie darf `RI-`-Einträge gruppieren und formale `TC-`-Kandidaten in den aktuellen Projektkontext einordnen.
+- Sie ersetzt weder Research-Inbox noch kanonischen Backlog, definiert keinen öffentlichen Vertrag und erteilt keine Implementierungsfreigabe.
+- Quellen bleiben an den ursprünglichen `RI-`- und `TC-`-Einträgen erhalten.
 
 ## Rolle des persönlichen Brainstorms
 

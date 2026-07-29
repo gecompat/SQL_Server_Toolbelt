@@ -64,6 +64,16 @@ research_inputs:
     may_set_priority: false
     may_authorize_implementation: false
     formalization_destination: Backlog/TOOLBELT_CANDIDATES.md
+  toolbelt_research_priorities:
+    path: Backlog/TOOLBELT_RESEARCH_PRIORITIES.md
+    content_role: non_authoritative_rough_focus_and_selection_guide
+    depends_on:
+      - Backlog/TOOLBELT_RESEARCH_INBOX.md
+      - Backlog/TOOLBELT_CANDIDATES.md
+      - .ai/ROADMAP.md
+    may_define_rules: false
+    may_define_public_contracts: false
+    may_authorize_implementation: false
 
 artifact_classes:
   public:
@@ -234,6 +244,15 @@ change_impact:
     research_inbox:
       paths:
         - Backlog/TOOLBELT_RESEARCH_INBOX.md
+      checks:
+        - markdown_links
+    research_priorities:
+      paths:
+        - Backlog/TOOLBELT_RESEARCH_PRIORITIES.md
+        - Backlog/TOOLBELT_RESEARCH_INBOX.md
+        - Backlog/TOOLBELT_CANDIDATES.md
+        - Backlog/README.md
+        - .ai/ROADMAP.md
       checks:
         - markdown_links
     second_module_selection:
