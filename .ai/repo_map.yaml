@@ -121,7 +121,8 @@ object_naming:
   multi_statement_tvf: "TVF_{CamelCase}"
   scalar_function: "SVF_{CamelCase}"
   view: "VW_{CamelCase}"
-  tables: open_decision
+  internal_temp_table: "#tbx_<Module>_<Routine>_<Role>[_<Invocation>]"
+  persistent_tables: open_decision
   synonyms: open_decision
   assemblies: open_decision
   triggers: open_decision
