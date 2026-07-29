@@ -49,4 +49,9 @@ mit/ohne Identiy
 ...
 
  
+ # Excel-File direkt lesen und auswerten
+ durch unzip könnte man Excel Files direkt lesen und auswerten.
  
+ # Thema tSQLt.NewConnection
+ man sollte das m.M. so implementieren, dass man mehrere Wege (Provider) für die "Ochestrierung" wählen kann.
+ jede Variante hat ihre eigenen Anwendungsfälle und es stehen auch nicht überall alle Wege zur Verfügung - evtl. vorhandene Architekturvorschriften 
