@@ -6,6 +6,7 @@
 
 SET NOCOUNT ON;
 SET XACT_ABORT OFF;
+SET QUOTED_IDENTIFIER ON;
 
 -- RT-A-008:
 -- Der geteilte Anchor-Umbau muss sowohl eine 1024-spaltige Quelle als auch

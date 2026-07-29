@@ -279,6 +279,7 @@ def main() -> int:
 
     boundary_contract = files[BOUNDARY_TRANSACTION_CONTRACT]
     for marker in (
+        "SET QUOTED_IDENTIFIER ON;",
         "TOP (1024)",
         "C1024",
         "XACT_STATE() = -1",
