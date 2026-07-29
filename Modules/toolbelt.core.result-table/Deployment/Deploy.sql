@@ -387,7 +387,8 @@ BEGIN TRY
                    AND o.name COLLATE Latin1_General_100_BIN2
                           = t.ObjectName COLLATE Latin1_General_100_BIN2
                 WHERE t.ReleaseVersion = @TargetVersion
-                  AND o.type <> t.ObjectType
+                  AND o.type COLLATE Latin1_General_100_BIN2
+                        <> t.ObjectType COLLATE Latin1_General_100_BIN2
                   AND o.type IN ('P', 'PC', 'V', 'FN', 'FS', 'FT', 'IF', 'TF')
                 ORDER BY
                       s.name COLLATE Latin1_General_100_BIN2

@@ -230,6 +230,7 @@ def main() -> int:
     for marker in (
         "#tbx_ResultTableReleaseObjects",
         "SET QUOTED_IDENTIFIER ON;",
+        "o.type COLLATE Latin1_General_100_BIN2",
         "Toolbelt.ModuleId",
         "Toolbelt.ModuleVersion",
         "Toolbelt.ContractVersion",
