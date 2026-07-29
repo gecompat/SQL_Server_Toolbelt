@@ -23,9 +23,10 @@ Ein Modul darf als `implemented` markiert werden, wenn Implementierung, statisch
 
 ## Lifecycle
 
-- [ ] Install-Skript mit vollständigem Preflight.
-- [ ] Kontrolliert wiederholbare Installation.
-- [ ] Upgrade für unterstützte Vorgängerversionen.
+- [ ] Parametergesteuertes Deploy-Skript mit vollständigem Preflight.
+- [ ] Kontrolliert wiederholbare Erst-, Upgrade- und Wiederholungsinstallation.
+- [ ] Versionierte Release-Manifeste für unterstützte Vorgängerversionen.
+- [ ] Neue Namenskollisionen und entfernte Release-Objekte objektgenau behandelt.
 - [ ] Uninstall mit Dependency-Schutz und ohne fremde Daten zu entfernen.
 - [ ] Cleanup- und Recovery-Pfad geprüft.
 
@@ -33,7 +34,7 @@ Ein Modul darf als `implemented` markiert werden, wenn Implementierung, statisch
 
 - [ ] Statische und öffentliche API-Contract-Tests erfolgreich.
 - [ ] USP-Contract-Tests für `@Hilfe`, `@Debug`, `@ResultTable` und `@KeepData`, soweit zutreffend.
-- [ ] Install-, Wiederholungs-, Upgrade- und Uninstall-Tests erfolgreich.
+- [ ] Erst-, Wiederholungs-, Upgrade- und Uninstall-Tests erfolgreich.
 - [ ] Collation- und Datentests erfolgreich.
 - [ ] Lokale und zentrale Deployment-Tests entsprechend Capability.
 - [ ] Cross-database-Test oder begründetes `not applicable`.

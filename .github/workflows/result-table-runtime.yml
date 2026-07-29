@@ -1,0 +1,70 @@
+name: ResultTable Runtime
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/result-table-runtime.yml"
+      - "Documentation/Architecture/**"
+      - "Documentation/Standards/**"
+      - "Modules/toolbelt.core.result-table/**"
+      - "Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md"
+      - "Tests/CI/run-result-table-linux.sh"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/result-table-runtime.yml"
+      - "Documentation/Architecture/**"
+      - "Documentation/Standards/**"
+      - "Modules/toolbelt.core.result-table/**"
+      - "Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md"
+      - "Tests/CI/run-result-table-linux.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: result-table-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-contract:
+    name: Static contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate static contract
+        run: python3 Modules/toolbelt.core.result-table/Tests/Static/validate_contract.py
+
+  sql-server-linux:
+    name: SQL Server ${{ matrix.version }} Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - version: "2019"
+            image: "mcr.microsoft.com/mssql/server:2019-latest"
+            suite: "full"
+          - version: "2022"
+            image: "mcr.microsoft.com/mssql/server:2022-latest"
+            suite: "compatibility"
+          - version: "2025"
+            image: "mcr.microsoft.com/mssql/server:2025-latest"
+            suite: "compatibility"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Execute synthetic SQL Server tests
+        env:
+          TBX_SQL_IMAGE: ${{ matrix.image }}
+          TBX_TEST_SUITE: ${{ matrix.suite }}
+          TBX_SQL_VERSION: ${{ matrix.version }}
+        run: bash Tests/CI/run-result-table-linux.sh

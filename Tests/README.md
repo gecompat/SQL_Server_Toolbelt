@@ -4,7 +4,9 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. Das erste Kernmodul ist implementierungsreif spezifiziert, aber noch nicht implementiert; deshalb wurden keine Toolbelt-Runtime-Tests ausgeführt.
+Der Repository-Grundaufbau ist abgeschlossen. Für das implementierte erste Kernmodul existieren statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte.
+
+Die erste pfadbezogene Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 für SQL Server 2019, 2022 und 2025 erfolgreich. Damit ist der abgegrenzte Linux-Scope belegt; Windows und weitere Matrixfälle bleiben offen.
 
 ## Pflicht-Testarten je Modul
 
@@ -13,8 +15,7 @@ Der Repository-Grundaufbau ist abgeschlossen. Das erste Kernmodul ist implementi
 | statisch | Naming, Header, Datenschutz, Manifest, Links und Vertragskonsistenz |
 | API-Contract | Parameter, Defaults, Resultsets, Help, Fehler und Rechte |
 | USP-Contract | `@Hilfe`, `@Debug`, `@ResultTable`, `@KeepData`, verschachtelte Aufrufe |
-| Install | Erstinstallation und kontrollierte Wiederholung |
-| Upgrade | jede unterstützte Vorgängerversion |
+| Deploy | Erstinstallation, kontrollierte Wiederholung und jede unterstützte Vorgängerversion |
 | Uninstall | vollständige Entfernung und Dependency-Schutz |
 | Collation | unterschiedliche Server-, Datenbank- und TempDB-Collations |
 | Deployment | lokal, zentral und Cross-database, soweit unterstützt |
@@ -26,7 +27,7 @@ Der Repository-Grundaufbau ist abgeschlossen. Das erste Kernmodul ist implementi
 
 | Modul | Matrix | Status |
 |---|---|---|
-| `toolbelt.core.result-table` | [RESULT_TABLE_CONTRACT_TEST_MATRIX.md](./RESULT_TABLE_CONTRACT_TEST_MATRIX.md) | geplant; Runtime `not executed` |
+| `toolbelt.core.result-table` | [RESULT_TABLE_CONTRACT_TEST_MATRIX.md](./RESULT_TABLE_CONTRACT_TEST_MATRIX.md) | `partially validated`; Linux-Lauf erfolgreich |
 
 Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 
@@ -43,6 +44,6 @@ Jede ausgeführte Prüfung nennt Befehl oder Workflow, Scope, Version, Plattform
 
 ## CI
 
-CI wird erst mit konkreten Modulen aufgebaut und bleibt pfad- sowie capability-bezogen. Eine Dokumentationsänderung benötigt keine vollständige Runtime-Matrix.
+Die capability-bezogene GitHub-hosted Linux-CI ist aktiv. Eine Dokumentationsänderung benötigt keine vollständige Runtime-Matrix.
 
 Details: [TEST_AND_VALIDATION_POLICY.md](../Documentation/Standards/TEST_AND_VALIDATION_POLICY.md)

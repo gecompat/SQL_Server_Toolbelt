@@ -7,9 +7,9 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: first_module_designed
+  status: first_module_implemented
   language_primary: T-SQL
-  languages_allowed: [T-SQL, C#, Python, Java, R]
+  languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
   platforms: [Windows, Linux]
 
@@ -25,6 +25,8 @@ sources_of_truth:
   decisions: Documentation/Architecture/DECISIONS.md
   result_table_module_design: Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md
   result_table_test_matrix: Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md
+  result_table_runtime_workflow: .github/workflows/result-table-runtime.yml
+  result_table_module: Modules/toolbelt.core.result-table/module.yaml
   roadmap: .ai/ROADMAP.md
   backlog: .ai/BACKLOG.md
 
@@ -93,6 +95,7 @@ artifact_classes:
       - Pull-Request-Templates
       - Copilot Instructions
       - Custom-Agent-Profile mit YAML-Frontmatter
+      - Pfadbezogene GitHub-Actions-Workflows
 
   templates:
     description: Nicht ausführbare Vorlagen für neue Module

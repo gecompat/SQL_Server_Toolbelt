@@ -1,0 +1,36 @@
+-- =============================================================
+-- NICHT AUSFÜHRBAR – Nur Vorlage / NOT EXECUTABLE – Template only
+-- Dieses File muss vollständig implementiert und geprüft werden.
+-- This file must be fully implemented and reviewed before execution.
+-- =============================================================
+--
+-- Zweck:     Erst-, Upgrade- und Wiederholungsdeployment von {{ModuleName}}
+-- Modul:     {{ModuleName}} v{{Version}}
+-- Schema:    {{toolbelt_category}}
+-- Erfordert: SQL Server {{MinVersion}}+
+-- Parameter: DeploymentMode=local|central
+-- Erstellt:  {{YYYY-MM-DD}}
+-- =============================================================
+
+-- Read-only Preflight:
+-- {{Version, Plattform, Abhängigkeiten und Rechte prüfen}}
+-- {{installierte Modulversion und bekanntes Vorgängerrelease ermitteln}}
+-- {{Ziel- und Vorgängerobjektmanifest vergleichen}}
+-- {{neue frameworkfremde Namenskollisionen vor jeder Mutation ablehnen}}
+-- {{Deployment-Plan vollständig erzeugen}}
+
+-- Kurze atomare Mutation:
+-- {{Transaktion unmittelbar vor der ersten Änderung beginnen}}
+-- {{Application Lock und zweite Zustandsprüfung durchführen}}
+-- {{weggefallene Objekte ausschließlich anhand des Vorgängerrelease-Manifests entfernen}}
+-- {{kanonische Source mit CREATE OR ALTER einbinden}}
+-- {{interne Framework-Tabellen explizit migrieren}}
+-- {{Objektmarker und installierte Modulversion zuletzt aktualisieren}}
+-- {{Transaktion sofort committen}}
+
+-- Source-Hashes dürfen diagnostisch gespeichert werden, blockieren aber kein
+-- reguläres Upgrade und keine Wiederholungsinstallation.
+
+-- =============================================================
+-- Ende Deployment {{ModuleName}}
+-- =============================================================

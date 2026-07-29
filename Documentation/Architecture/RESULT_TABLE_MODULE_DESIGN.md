@@ -10,14 +10,16 @@
 | Modulname | Result Table Infrastructure |
 | Zielschema | `toolbelt_core` |
 | Zielversion | `1.0.0` |
-| Status | `planned` |
-| Runtime-Code | noch nicht implementiert |
+| Spezifikationsstatus | `validated` |
+| Implementierungsstatus | `implemented` |
+| Runtime-Validierung | `partially validated` |
+| Implementierung | `Modules/toolbelt.core.result-table/` |
 
 Dieses Dokument ist die kanonische implementierungsreife Spezifikation für das erste `toolbelt_core`-Modul. Es präzisiert den allgemeinen USP-Vertrag, ersetzt ihn jedoch nicht.
 
 ## 1. Zweck
 
-Das Modul stellt eine gemeinsame Infrastruktur bereit, mit der eine Toolbelt-USP ihr bekanntes tabellarisches Resultset in eine bereits vom Aufrufer erzeugte lokale Temp-Tabelle schreiben kann.
+Das Modul stellt eine gemeinsame Infrastruktur bereit, mit der eine aufrufende Procedure ihr bekanntes tabellarisches Resultset in eine bereits vom Aufrufer erzeugte lokale Temp-Tabelle schreiben kann. Die Procedure wird für Toolbelt-USPs bereitgestellt, beschränkt technisch aber nicht die Identität des Aufrufers.
 
 Die Infrastruktur bereitet ausschließlich die Zieltabelle vor. Die fachliche USP:
 
@@ -35,7 +37,7 @@ Version `1.0.0` unterstützt ausdrücklich nicht:
 - permanente Zieltabellen;
 - globale Temp-Tabellen;
 - Tabellenvariablen;
-- mehrere fachliche Resultsets je USP;
+- mehr als eine Zieltable oder mehr als ein Referenzschema je Aufruf;
 - das Kopieren von Indizes, Constraints, Defaults, Triggern oder anderen physischen Tabelleneigenschaften;
 - frei vom Benutzer geliefertes und ungeprüft ausgeführtes `CREATE TABLE`-DDL;
 - Linked-Server- oder vierteilige Schemaquellen;
@@ -98,6 +100,7 @@ Zulässige Formen:
 Regeln:
 
 - lokale Temp-Tabellen sind zulässig;
+- Ziel- und Referenztabelle dürfen nicht auf dasselbe lokale Temp-Objekt aufgelöst werden;
 - reguläre Tabellen müssen mindestens zweiteilig angegeben werden;
 - bei zentraler Installation ist für eine Tabelle in der konsumierenden Datenbank ein dreiteiliger Name erforderlich;
 - vierteilige Namen und Linked Server sind unzulässig;
@@ -124,7 +127,7 @@ Die Procedure selbst fügt keine fachlichen Resultzeilen ein.
 - `1`: Hauptschritte;
 - `2`: Entscheidungen, Objekt-IDs, Zeilenzahlen und erkannte Schemaabweichung;
 - `3`: normalisierte Metadaten und generiertes DDL;
-- `4` bis `254`: für spätere Detailstufen reserviert;
+- `4` bis `254`: Verhalten wie Stufe `3`;
 - `255`: maximaler interner Trace, kein stabiler öffentlicher Detailvertrag.
 
 Debug verwendet ausschließlich Messages. Echte Secrets werden nicht aktiv ausgegeben.
@@ -138,7 +141,7 @@ Bei `@Hilfe = 1` wird ausschließlich das standardisierte Help-Resultset ausgege
 `USP_PrepareResultTable` besitzt kein fachliches Resultset.
 
 - Erfolg: `RETURN 0`;
-- Validierungs- oder Vertragsfehler: `THROW` mit einem Modulfehler aus dem Bereich `51020` bis `51039`;
+- Validierungs- oder Vertragsfehler: `THROW` mit einem Modulfehler aus dem Bereich `51020` bis `51029`;
 - SQL-Server-Fehler während DDL oder Transaktion: ursprünglichen Fehler mit `THROW;` weitergeben;
 - keine zusätzlichen Status-`SELECT`s.
 
@@ -150,7 +153,7 @@ Vorgesehene Modulfehler:
 |---:|---|
 | `51020` | `@ResultTableToAlter` fehlt oder ist kein zulässiger lokaler Temp-Tabellenname. |
 | `51021` | Zieltable ist im aktuellen Session-Scope nicht sichtbar. |
-| `51022` | `@LikeTable` fehlt, ist mehrdeutig oder verwendet eine nicht unterstützte Namensform. |
+| `51022` | `@LikeTable` fehlt, ist mehrdeutig, verwendet eine nicht unterstützte Namensform oder bezeichnet dasselbe lokale Temp-Objekt wie das Ziel. |
 | `51023` | Referenztabelle ist nicht sichtbar oder kein unterstützter Tabellentyp. |
 | `51024` | Referenzschema enthält einen nicht unterstützten oder nicht einfügbaren Spaltentyp. |
 | `51025` | `@KeepData = 1` verhindert den erforderlichen Schemaumbau. |
@@ -356,11 +359,11 @@ Kein Blocker wird automatisch entfernt. Ein erkannter Blocker führt mit `51026`
 ### 11.1 Schema passt
 
 - `@KeepData = 1`: keine Mutation;
-- `@KeepData = 0`: vorhandene Zeilen mit dem effizientesten zulässigen Verfahren entfernen;
+- `@KeepData = 0`: vorhandene Zeilen mit `TRUNCATE TABLE` entfernen;
 - keine DDL-Operation ausführen;
 - Indizes und Constraints unverändert lassen.
 
-Das bevorzugte Löschverfahren ist `TRUNCATE TABLE`, soweit SQL Server und vorhandene Dependencies dies zulassen. Andernfalls darf kontrolliert `DELETE` verwendet werden. Das Verfahren wird bei `@Debug >= 2` als Message ausgewiesen.
+`TRUNCATE TABLE` ist das einzige zulässige Löschverfahren. Schlägt es fehl, liegt für dieses Modul ein nicht unterstützter Zustand vor. Es erfolgt kein `DELETE`-Fallback; die eigene Mutation wird zurückgerollt und der ursprüngliche Engine-Fehler mit `THROW;` weitergegeben. Das Verfahren wird bei `@Debug >= 2` als Message ausgewiesen.
 
 ### 11.2 Schema passt nicht
 
@@ -375,6 +378,11 @@ Das bevorzugte Löschverfahren ist `TRUNCATE TABLE`, soweit SQL Server und vorha
 9. Eigene Transaktion committen.
 
 Die Zieltable wird nicht gedroppt und neu erstellt. Dadurch bleibt das vom Aufrufer erzeugte Temp-Objekt im ursprünglichen Scope erhalten.
+
+Bei exakt 1024 Quell- oder Zielspalten teilt die Implementierung den Umbau:
+Eine alte Spalte wird gegebenenfalls vor der Anchor-Spalte entfernt und die
+letzte neue Spalte erst nach deren Entfernung angelegt. Dadurch überschreitet
+der in-place-Umbau zu keinem Zeitpunkt das SQL-Server-Spaltenlimit.
 
 Eine zweite vollständige Metadatenabfrage unmittelbar vor der DDL-Ausführung ist nicht erforderlich. Der Aufrufvertrag setzt voraus, dass das lokale Zielobjekt während der synchronen Ausführung nicht parallel verändert wird. Der Erfolg der DDL ist autoritativ; Contract Tests prüfen anschließend den Endzustand.
 
@@ -434,35 +442,33 @@ Ein zentral installiertes `USP_PrepareResultTable` kann die lokalen Temp-Tabelle
 
 ## 16. Lifecycle
 
-### Install
+### Deploy
 
-- SQL Server 2019, 2022 oder 2025 prüfen;
-- Schema `toolbelt_core` kontrolliert anlegen oder anhand seiner Toolbelt-Extended-Properties als verwaltet erkennen;
-- Kollision mit einem nicht als Toolbelt verwalteten Schema abbrechen;
-- Procedure anlegen oder eine identische bereits installierte Version kontrolliert verifizieren;
-- bei einer älteren oder unbekannten Version auf den Upgrade-Pfad verweisen und nicht stillschweigend überschreiben;
-- Extended Properties am Schema setzen:
-  - `Toolbelt.Managed = 1`;
-  - `Toolbelt.SchemaCategory = core`;
-- Extended Properties am Procedure-Objekt setzen:
-  - `Toolbelt.ModuleId = toolbelt.core.result-table`;
-  - `Toolbelt.ModuleVersion = 1.0.0`;
-  - `Toolbelt.ContractVersion = 1.0`;
-- keine Daten oder permanenten Hilfsobjekte anlegen.
+Ein einziges parametergesteuertes `Deploy.sql` übernimmt Erstinstallation, Upgrade und Wiederholungsinstallation:
 
-### Upgrade
+- `DeploymentMode=local|central` bestimmt Installationsort und Metadatum, nicht die Fachimplementierung;
+- SQL Server 2019, 2022 oder 2025 sowie Berechtigungen werden vor der ersten Mutation geprüft;
+- ein vorhandenes unmarkiertes Schema `toolbelt_core` darf wiederverwendet werden; Eigentümer und Berechtigungen werden nicht ungefragt verändert;
+- das Release enthält ein versioniertes Objektmanifest;
+- ein Zielobjekt, das im installierten Vorgängerrelease enthalten war, wird unabhängig von lokalen Änderungen aktualisiert;
+- bei erneuter Installation derselben Version werden alle Framework-Objekte des Releases erneut deployed;
+- ein im Ziel neu hinzukommender Objektname führt bei einer nicht aus dem Vorgängerrelease stammenden Kollision vor jeder Mutation zum Abbruch;
+- nur Objekte, die im bekannten installierten Release enthalten waren und im Zielrelease fehlen, werden entfernt;
+- frameworkfremde Objekte werden weder verändert noch gelöscht;
+- Source-Hashes dürfen diagnostisch gespeichert werden, sind aber kein Überschreib- oder Upgrade-Gate;
+- interne Framework-Tabellen würden über explizite versionierte Migrationen und, soweit fachlich zulässig, `TRUNCATE`/`DELETE`/`INSERT` gepflegt; Version `1.0.0` besitzt keine persistente Tabelle;
+- eine Application Lock und eine zweite Zustandsprüfung schützen die Mutation vor parallelen Deployments;
+- die Datenbanktransaktion beginnt unmittelbar vor der ersten Änderung und endet nach Objekt-, Manifest- und Versionsaktualisierung.
 
-- bekannte Vorgängerversion anhand der Extended Properties prüfen;
-- öffentliche Signatur und Help-Vertrag als Breaking-Change-Gate behandeln;
-- Procedure kontrolliert aktualisieren;
-- Modulversion erst nach erfolgreicher Objektaktualisierung setzen;
-- unbekannte oder fremde Marker vor jeder Mutation ablehnen.
+Extended Properties an Framework-Objekten dokumentieren mindestens Modul, Release, Contract und Deployment-Modus. Der installierte Modulstand wird zusätzlich datenbankweit markiert, damit auch weggefallene Objekte anhand des bekannten Vorgängerrelease-Manifests sicher bestimmt werden können.
+
+Wird `toolbelt_core` durch das Deployment neu angelegt, erhält es `Toolbelt.Managed = 1` und `Toolbelt.SchemaCategory = core`. Ein bereits vorhandenes Schema wird nicht adoptiert oder nachträglich als Toolbelt-Eigentum markiert.
 
 ### Uninstall
 
 - statische same-database Dependencies soweit möglich ermitteln;
 - keine fremden Objekte entfernen;
-- Procedure und ihre Extended Properties entfernen;
+- ausschließlich Objekte des installierten Release-Manifests und ihre Extended Properties entfernen;
 - `toolbelt_core` nur entfernen, wenn es durch `Toolbelt.Managed = 1` markiert und vollständig leer ist;
 - bei zentraler Installation kann die Abwesenheit beliebiger externer direkter Aufrufer nicht automatisch bewiesen werden. Der Uninstall-Pfad benötigt deshalb eine ausdrückliche Betreiberbestätigung, dass keine externen Konsumenten mehr vorhanden sind.
 
@@ -478,10 +484,13 @@ Ein zentral installiertes `USP_PrepareResultTable` kann die lokalen Temp-Tabelle
 ### Welle B – Contract- und Runtime-Tests
 
 - vollständige Matrix aus `Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md`;
-- SQL Server 2019, 2022 und 2025;
-- Windows und Linux getrennt, soweit Runner vorhanden;
+- GitHub-hosted Linux: vollständiger vorhandener Contract auf SQL Server 2019 und reduzierte Compatibility-Smokes auf SQL Server 2022 und 2025;
+- keine Remote-Runner für diese erste Welle;
+- Windows bleibt bis zu einer separaten tatsächlichen Ausführung `not executed`;
 - lokale und zentrale Installation;
 - unterschiedliche Server-, Toolbelt-, Zieldatenbank- und TempDB-Collations.
+
+Stand 2026-07-29: Die GitHub-hosted Linux-Welle ist erfolgreich ausgeführt. Die vollständige 2019-Suite und die reduzierten 2022-/2025-Suiten sind belegt; Windows und die restlichen Matrixfälle bleiben offen.
 
 ### Welle C – Validierung und Release
 

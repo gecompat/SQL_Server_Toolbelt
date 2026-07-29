@@ -10,15 +10,15 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 |---|---|
 | ID | `AP-2026-003` |
 | Ziel | Das implementierungsreif spezifizierte Modul `toolbelt.core.result-table` vollständig implementieren, dokumentieren, installieren, deinstallieren und auf den verfügbaren Zielplattformen validieren. |
-| Scope | Modulverzeichnis, `module.yaml`, `toolbelt_core.USP_PrepareResultTable`, Install-/Upgrade-/Uninstall-Skripte, Objekt- und Moduldokumentation, synthetische Beispiele sowie statische, Contract-, Runtime-, Collation-, Deployment- und Plattformtests. |
-| Dependencies | `AP-2026-002`, `RESULT_TABLE_MODULE_DESIGN.md`, `RESULT_TABLE_CONTRACT_TEST_MATRIX.md`, `DEC-2026-013` bis `DEC-2026-017`. |
+| Scope | Modulverzeichnis, `module.yaml`, `toolbelt_core.USP_PrepareResultTable`, parametergesteuertes Deploy- und Uninstall-Skript, Objekt- und Moduldokumentation, synthetische Beispiele sowie statische, Contract-, Runtime-, Collation-, Deployment- und Plattformtests. |
+| Dependencies | `AP-2026-002`, `RESULT_TABLE_MODULE_DESIGN.md`, `RESULT_TABLE_CONTRACT_TEST_MATRIX.md`, `DEC-2026-013` bis `DEC-2026-017` und `DEC-2026-019`. |
 | Priorität | `P0` |
-| Status | `blocked` |
+| Status | `implemented` |
 | Akzeptanzkriterien | Exakt ein persistentes SQL-Objekt in Version `1.0.0`; öffentliche Signatur und Help-Vertrag vollständig; `@LikeTable`-Schemaquelle, `@KeepData`-Matrix, Preflight, in-place-Umbau, Savepoint- und Fehlervertrag implementiert; lokale und zentrale Installation; kontrolliert wiederholbare Lifecycle-Skripte; keine nicht freigegebenen weiteren persistenten Objekttypen; Dokumentation und Manifest konsistent; alle verfügbaren Pflichtprüfungen ausgeführt und nicht verfügbare Prüfungen ehrlich ausgewiesen. |
-| Tests | Vollständige Matrix aus `Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md`; SQL Server 2019, 2022 und 2025 sowie Windows/Linux und lokal/zentral getrennt, soweit die benötigten Runner tatsächlich vorhanden sind. |
-| Blocker | Vor Implementierung müssen Zweck, öffentlicher Vertrag, Alternativen, Risiken und Scope der konkreten Funktion mit dem Benutzer besprochen und anschließend ausdrücklich freigegeben werden. Verfügbarkeit geeigneter Runtime-Runner ist vor der Validierungswelle zusätzlich zu prüfen; fehlende Runner ergeben `not executed`, keinen grünen Nachweis. |
-| Evidenz | Implementierungsreife Spezifikation und statisch validiertes Design aus `AP-2026-002`. |
-| Nächster Schritt | `toolbelt_core.USP_PrepareResultTable` anhand der vorhandenen Spezifikation mit dem Benutzer besprechen, offene Vertragsentscheidungen festhalten und eine ausdrückliche Implementierungsfreigabe abwarten. |
+| Tests | Statischer Vertrag und GitHub-hosted Linux-Matrix am 2026-07-29 erfolgreich: SQL Server 2019 mit vorhandener Vollsuite, SQL Server 2022 und 2025 mit Kompatibilitätssuiten. Windows und noch nicht automatisierte Pflichtfälle bleiben `not executed`. |
+| Blocker | Kein Merge-Blocker für den implementierten und teilweise validierten Stand. Für `validated` fehlen insbesondere Windows-Evidenz und die restlichen noch nicht automatisierten Matrixfälle. |
+| Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.core.result-table/`; [GitHub Actions Run 30447184377](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447184377) erfolgreich. |
+| Nächster Schritt | Verbleibende Windows-, Collation-, Grenz- und Performancefälle aus der Testmatrix priorisieren und ausführen; erst danach auf `validated` setzen. |
 
 ## Abgeschlossene Arbeitspakete
 
@@ -48,7 +48,7 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Dependencies | `TC-2026-003`, `USP_CONTRACT.md`, Modul- und Deployment-Modell. |
 | Priorität | `P0` |
 | Status | `validated` |
-| Akzeptanzkriterien | Modul-ID und Scope festgelegt; einzige Procedure klassifiziert; keine ungeregelten weiteren persistenten Objekttypen benötigt; Referenztabellen- und Vertrauensgrenze definiert; interne Temp-Namensregel festgelegt; Fehler-, Transaktions-, Collation-, Datentyp-, Install-, Upgrade- und Uninstall-Verträge dokumentiert; vollständige Testmatrix vorhanden. |
+| Akzeptanzkriterien | Modul-ID und Scope festgelegt; einzige Procedure klassifiziert; keine ungeregelten weiteren persistenten Objekttypen benötigt; Referenztabellen- und Vertrauensgrenze definiert; interne Temp-Namensregel festgelegt; Fehler-, Transaktions-, Collation-, Datentyp-, Deploy- und Uninstall-Verträge dokumentiert; vollständige Testmatrix vorhanden. |
 | Tests | Statischer Abgleich gegen USP-Vertrag, T-SQL-Regeln, Modul-/Deployment-Modell, Namenskonventionen, Datenschutz, Supportmatrix und Architekturentscheidungen; Runtime-Tests für diese reine Designwelle `not applicable`. |
 | Blocker | Keine |
 | Evidenz | `Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md`, `Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md`, `DEC-2026-013` bis `DEC-2026-017`; geprüft am 2026-07-29. |
