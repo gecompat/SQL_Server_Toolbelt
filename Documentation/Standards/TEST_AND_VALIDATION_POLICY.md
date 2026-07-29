@@ -9,6 +9,7 @@ Plan, Dokumentation, Manifest und vorhandener Testcode sind kein Runtime-Nachwei
 | Status | Bedeutung |
 |---|---|
 | `validated` | tatsächlich ausgeführt und erfolgreich |
+| `partially validated` | dokumentierter Teil des Pflichtscopes erfolgreich; weitere Pflichtkombinationen offen |
 | `not executed` | vorgesehen, aber nicht ausgeführt |
 | `not applicable` | im konkreten Scope fachlich nicht anwendbar und begründet |
 | `failed` | ausgeführt und fehlgeschlagen; Blocker dokumentiert |
@@ -92,4 +93,4 @@ CI bleibt schlank und pfadbezogen. Dokumentationsänderungen lösen keine unnöt
 
 ## Aktueller Stand
 
-Es sind noch keine fachlichen Module implementiert. Runtime- und Lifecycle-Tests für Toolbelt-Funktionen sind daher derzeit `not executed` oder nach dokumentierter Begründung `not applicable`.
+Das erste fachliche Modul ist `partially validated`. Der GitHub-hosted Linux-Lauf vom 2026-07-29 ist für SQL Server 2019, 2022 und 2025 erfolgreich; Windows und die noch nicht automatisierten Matrixfälle bleiben `not executed`.

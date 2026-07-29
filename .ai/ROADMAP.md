@@ -2,7 +2,7 @@
 
 ## Status
 
-Repository-Grundaufbau, Foundation-Korrektur, zwei Backlog-Research-Wellen und die implementierungsreife Spezifikation des ersten Kernmoduls sind abgeschlossen. Es sind noch keine fachlichen SQL-Objekte implementiert.
+Repository-Grundaufbau, Foundation-Korrektur, zwei Backlog-Research-Wellen und die Spezifikation des ersten Kernmoduls sind abgeschlossen. `toolbelt.core.result-table` ist implementiert und auf GitHub-hosted Linux für SQL Server 2019, 2022 und 2025 teilweise validiert.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -77,10 +77,10 @@ Ergebnis:
 
 ### Phase 1.2 – Implementierung und Validierung
 
-**Status:** `blocked`
+**Status:** `partially validated`
 **Arbeitspaket:** `AP-2026-003`
 
-Vor der Implementierung wird `toolbelt_core.USP_PrepareResultTable` mit dem Benutzer anhand der vorhandenen Spezifikation besprochen und anschließend ausdrücklich freigegeben. Design, Kandidatenstatus oder Arbeitspaket ersetzen diese funktionsbezogene Freigabe nicht.
+Der Benutzer hat `toolbelt_core.USP_PrepareResultTable` am 2026-07-29 nach der ausführlichen Vertragsbesprechung ausdrücklich zum Beginn freigegeben. Diese Freigabe gilt nur für diese Funktion; weitere Kandidaten bleiben am funktionsbezogenen Gate.
 
 Reihenfolge:
 
@@ -92,7 +92,17 @@ Reihenfolge:
 6. lokale und zentrale Runtime-Tests auf SQL Server 2019, 2022 und 2025 durchführen;
 7. Windows und Linux getrennt validieren, soweit geeignete Runner vorhanden sind;
 8. Collation-, Fehler-, Recovery- und Performance-Tests dokumentieren;
-9. erst nach tatsächlicher Evidenz den Status `implemented` beziehungsweise `validated` vergeben.
+9. `implemented` nach vollständigem Code und statischem Vertrag, `validated` ausschließlich nach tatsächlicher Runtime-Evidenz vergeben.
+
+Stand:
+
+- Schritte 1 bis 5 abgeschlossen;
+- Source, Manifest, Lifecycle, Dokumentation, Beispiele sowie statische und synthetische Contract-Testartefakte vorhanden;
+- reproduzierbare statische Vertragsprüfung erfolgreich;
+- GitHub-hosted Linux: SQL Server 2019 mit vorhandener Vollsuite und SQL Server 2022/2025 mit Kompatibilitätssuiten erfolgreich;
+- lokale und zentrale Nutzung, Wiederholungsdeployment, Fremdobjekt-Kollision und Uninstall im 2019-Lauf erfolgreich;
+- Windows und noch nicht automatisierte Collation-, Grenz-, Recovery- und Performancefälle offen;
+- Modulstatus deshalb `partially validated`, nicht vollständig `validated`.
 
 Die erste Version benötigt keine persistente Tabelle, kein Synonym, keine Assembly und keinen Type. Eine Entscheidung zu diesen offenen persistenten Namenskonventionen ist deshalb noch nicht erforderlich.
 
