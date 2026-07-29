@@ -1,0 +1,112 @@
+# Grobe Fokuspriorisierung der Toolbelt-Kandidaten
+
+Stand: 2026-07-29
+
+## Rolle und Verbindlichkeit
+
+| Aussage | Einordnung |
+|---|---|
+| Aktueller Projektstand | **Dokumentiert:** Das ResultTable-Kernmodul ist noch nicht vollständig validiert. `TC-2026-012` ist bereits als nächster Besprechungskandidat empfohlen. |
+| Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
+| Implementierungsfreigabe | **Nicht erteilt:** Weder Rang noch Fokusgruppe autorisieren eine Implementierung oder definieren einen öffentlichen Vertrag. |
+| Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
+
+Die Liste soll die 162 Research-Ideen nicht endgültig bewerten. Sie benennt einen kleinen Arbeitsvorrat, auf den sich die nächste Vertiefung konzentrieren kann. Neue Erkenntnisse, Abhängigkeiten oder Benutzerpräferenzen dürfen die Reihenfolge jederzeit ändern.
+
+## Bewertungsmaßstab
+
+- **Nutzen:** Häufigkeit und Breite realistischer Anwendungsfälle.
+- **Hebel:** Wiederverwendbarkeit als Grundlage für weitere Module, Tests oder sichere dynamische Verarbeitung.
+- **Komplexität:** Vertragsbreite, Provider, Security, Plattformmatrix, Performance und Testaufwand gemeinsam.
+- **Abhängigkeiten:** Kandidaten ohne große Vorarbeiten werden bevorzugt; Grundlagen dürfen trotz höherer Komplexität früh bleiben.
+- **Repository-Fit:** Allgemeine Toolbelt-Utilities vor Diagnose-, Assessment- oder vollständigen Plattformfunktionen.
+
+| Kürzel | Grobe Komplexität |
+|---|---|
+| `S` | klein und überwiegend deterministisch; begrenzter Vertrag |
+| `M` | mehrere Semantik- oder Kompatibilitätsentscheidungen; normale Testmatrix |
+| `L` | breiter Vertrag, mehrere Provider oder erhebliche Security-/Lifecycle-Fragen |
+| `XL` | Plattform- oder Frameworkcharakter mit mehreren gekoppelten Modulen |
+
+Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
+
+## F0 – Bereits eingeschlagener Pfad
+
+| Reihenfolge | Kandidat | Komplexität | Begründung |
+|---:|---|---:|---|
+| 1 | `TC-2026-003` – ResultTable-Routing | `L` | Bereits implementiertes Kernmodul; die offene Pflichtvalidierung ist das Gate für weitere Module und deshalb wichtiger als ein neuer Kandidat. |
+| 2 | `TC-2026-012` – Base64/Base64URL | `M` | Bereits dokumentiert als nächster Besprechungskandidat; klarer Standard, reale Versionslücke und überschaubare öffentliche Datengrenze. |
+
+**Hauptempfehlung:** Den ResultTable-Vertrag fertig validieren und parallel ausschließlich den Base64-Vertrag besprechen. Dadurch bleibt der laufende Pfad stabil, ohne die Auswahl der danach folgenden Kandidaten aufzuhalten.
+
+## F1 – Kleiner nutzerorientierter Konzentrationskorb
+
+Diese Kandidaten sollten nach `TC-2026-012` zuerst vertieft werden. Die Reihenfolge innerhalb des Korbs ist bewusst nur grob.
+
+| Rang | Kandidat | Komplexität | Warum früh | Wichtigster Vorbehalt |
+|---:|---|---:|---|---|
+| 1 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Sehr breit nutzbar und Grundlage für Kalender, Datenexpansion und Tests. | Provider- und Größenstrategie sowie mögliche persistente Numbers-Tabelle. |
+| 2 | `RI-2026-011` – sicheres Identifier- und Multipart-Name-Toolkit | `M` | Hoher Sicherheits- und Wiederverwendungshebel für Metadaten-, DDL- und Dynamic-SQL-Utilities. | Parsergrenzen und gültige ein- bis vierteilige Namen exakt definieren. |
+| 3 | `TC-2026-001` – Split mit mehreren Trennzeichen | `M` | Alltäglicher Nutzen, wenige Abhängigkeiten und gute Vergleichbarkeit über die Versionsmatrix. | Literal- und Regex-Semantik nicht vermischen. |
+| 4 | `RI-2026-075` – Semantic-Version Parser/Comparator | `S–M` | Deterministisch, standardisiert und direkt für Modul-/Capability-Versionen nützlich. | SemVer strikt von beliebigen Produktversionsformaten trennen. |
+| 5 | `RI-2026-055` – Ganzzahlen in frei definierbaren Zahlensystemen | `S–M` | Klar begrenzte, gut testbare Utility aus dem persönlichen Brainstorm mit wenig Infrastrukturbedarf. | Alphabet, Vorzeichen, Overflow und maximale Basis festlegen. |
+
+### Wichtigste Alternative
+
+Falls zuerst maximale Endnutzer-Sichtbarkeit statt Grundlagenhebel gewünscht ist, können `TC-2026-001` und `RI-2026-055` vor `RI-2026-011` gezogen werden. Der Trade-off: schneller sichtbare Einzelutilities, aber spätere Metadaten- und DDL-Kandidaten erhalten ihre gemeinsame sichere Namensbasis erst später.
+
+## F1-Q – Qualitäts-Enabler parallel, aber nicht alle zugleich
+
+| Rang | Kandidat | Komplexität | Hebel | Abhängigkeit oder Grenze |
+|---:|---|---:|---|---|
+| 1 | `RI-2026-138` – Contract-Test-Generator | `M–L` | Übersetzt Help-, Parameter-, Resultset-, Fehler- und KeepData-Verträge wiederverwendbar in Tests. | Erst sinnvoll, wenn der Referenzvertrag stabil und ausreichend validiert ist. |
+| 2 | `RI-2026-137` – Golden-/Snapshot-Resultset-Vergleich | `M` | Wiederverwendbarer Testbaustein für viele datenorientierte Module. | Kanonisierung, Reihenfolge, Collation und tolerante Felder explizit festlegen. |
+| 3 | `RI-2026-142` – Migration Idempotency Verifier | `M–L` | Schützt Deploy, Upgrade und Uninstall systematisch gegen Drift. | Benötigt synthetische Zustände und einen stabilen Lifecycle-Vertrag. |
+
+Empfehlung: höchstens einen Qualitäts-Enabler gleichzeitig mit einem nutzerorientierten Modul vertiefen. Zuerst `RI-2026-138`, sobald die ResultTable-Pflichtmatrix stabil ist.
+
+## F2 – Danach erneut auswählen
+
+| Kandidat | Komplexität | Einordnung |
+|---|---:|---|
+| `RI-2026-079` – Date Spine und Kalenderdimension | `M` | Hoher Nutzen, aber sinnvoll nach oder gemeinsam mit `TC-2026-006`. |
+| `RI-2026-041` – JSON Pointer | `M` | Kleiner standardisierter Kern für spätere JSON-Patch-Funktionen. |
+| `TC-2026-009` – JSON-Konstruktion und Pfadprüfung | `M` | Reale Versionslücke und gute Anschlussfähigkeit an weitere JSON-Utilities. |
+| `RI-2026-076` – Safe Cast mit Fehlerdetails | `M` | Nützlich für Import und Validierung; darf nicht nur `TRY_CONVERT` umbenennen. |
+| `RI-2026-097` – deterministisches Hash-Sampling | `S–M` | Einfacher, reproduzierbarer Baustein für Tests und Datenreduktion. |
+| `RI-2026-086` – `width_bucket` | `S–M` | Begrenzter mathematischer Vertrag und nützlich für Verteilungen. |
+| `TC-2026-024` – URI-Percent-Encoding | `M` | Standardisiert und breit interoperabel, aber weniger SQL-zentral als die F1-Kandidaten. |
+| `RI-2026-109` – RFC-4180-CSV Parser/Writer | `M–L` | Sehr praxisnah, jedoch wegen Streaming, Encoding und Dialekten deutlich breiter. |
+
+## F3 – Hoher möglicher Nutzen, vorerst wegen Komplexität zurückstellen
+
+| Kandidatenfamilie | Beispiele | Komplexität | Grund für später |
+|---|---|---:|---|
+| DDL- und Migrationsframework | `RI-2026-001` bis `RI-2026-004`, `RI-2026-010`, `RI-2026-012` | `L–XL` | Dependency-Auflösung, sichere DDL-Erzeugung, Drift und Destruktivität greifen ineinander. |
+| Regex, Fuzzy Matching und vollständige Unicode-Verarbeitung | `TC-2026-010`, `TC-2026-011`, `RI-2026-021` bis `RI-2026-030` | `L–XL` | Große Semantik-, Datenversions-, Performance- und Providerfläche. |
+| Breite JSON-/XML-Schemata und Patch-Systeme | `RI-2026-042` bis `RI-2026-054` | `L–XL` | Standards sind umfangreich; mehrere Funktionen bauen auf kleinen Kernen wie JSON Pointer auf. |
+| Execution- und Host-Plattform | `TC-2026-014` bis `TC-2026-022`, `TC-2026-025` bis `TC-2026-028`, `RI-2026-143` bis `RI-2026-150` | `XL` | Security, Secrets, Queues, Recovery, externe Laufzeiten und Betriebsverantwortung. |
+| Dateien, Archive, Office und analytische Bridges | `RI-2026-107` bis `RI-2026-124` | `L–XL` | Rechte, Plattformen, Streaming, Parser, Lizenzen und untrusted input. |
+| Pseudonymisierung und synthetische Datensysteme | `RI-2026-125` bis `RI-2026-136` | `L–XL` | Datenschutzwirkung, Re-Identifikation, Referenzkonsistenz und Fehlklassifikation. |
+| Probabilistische Datenstrukturen | `RI-2026-090` bis `RI-2026-095`, `RI-2026-158` | `L–XL` | Versionierte Binärformate, Merge-Verträge, Fehlergrenzen und Benchmarks. |
+
+Zurückstellen bedeutet nicht ablehnen. Diese Themen sollten jeweils in kleinere, unabhängig testbare Kerne zerlegt werden, bevor sie formale Kandidaten oder Implementierungsarbeitspakete werden.
+
+## F4 – Spezialnutzen oder noch unklarer Repository-Fit
+
+- Geodaten jenseits kleiner Konvertierungen: `RI-2026-099` bis `RI-2026-106`.
+- Volltext-, Template-, Diff-/Patch- und Formatierungsfamilien: `RI-2026-036` bis `RI-2026-040`, `RI-2026-141`.
+- Kryptografie-nahe Authentication-Utilities wie JWT, HOTP/TOTP und HMAC: `RI-2026-064` bis `RI-2026-066`.
+- Weit gedachte Frameworks wie Merkle Trees, Content-defined Chunking, Event Sourcing und Token Vault: `RI-2026-151` bis `RI-2026-162`.
+
+Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind ein konkreter Toolbelt-Anwendungsfall, die Repository-Grenze und ein deutlich kleinerer erster Slice zu klären.
+
+## Nächste Konzentrationsentscheidung
+
+Nach Abschluss beziehungsweise ausreichender Stabilisierung von `TC-2026-003` sollten nur diese Fragen besprochen werden:
+
+1. Vertrag und Implementierungsfreigabe für `TC-2026-012`.
+2. Danach Auswahl genau eines nächsten nutzerorientierten Kandidaten aus `TC-2026-006`, `RI-2026-011` und `TC-2026-001`.
+3. Optional Auswahl genau eines Qualitäts-Enablers, bevorzugt `RI-2026-138`.
+
+Alle übrigen Kandidaten bleiben bis zu dieser Auswahl Research-Input.
