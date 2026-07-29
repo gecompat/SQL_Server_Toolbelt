@@ -2,7 +2,7 @@
 
 ## Unterstützter Stand
 
-Der Repository-Grundaufbau ist initialisiert. Es sind noch keine fachlichen Module veröffentlicht. Sicherheitsmeldungen zum Grundaufbau, zu Regeln, Templates und später zu implementierten Modulen werden bewertet.
+Der Repository-Grundaufbau ist initialisiert. Das erste fachliche Modul ist implementiert, aber noch nicht zur Runtime validiert oder als stabile Version veröffentlicht. Sicherheitsmeldungen zum Grundaufbau, zu Regeln, Templates und Modulen werden bewertet.
 
 ## Sicherheitslücken melden
 
