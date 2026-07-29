@@ -7,10 +7,10 @@
 | Modul-ID | `toolbelt.core.result-table` |
 | Version | `1.0.0` |
 | Implementierung | `implemented` |
-| Runtime-Validierung | `not executed` |
+| Runtime-Validierung | `partially validated` |
 | Persistente Objekte | genau `toolbelt_core.USP_PrepareResultTable` |
 
-Die Procedure und alle gekoppelten Source-, Lifecycle-, Dokumentations- und Testartefakte sind implementiert. Der Status `implemented` ist kein Runtime-Nachweis. SQL Server 2019, 2022 und 2025 sowie Windows/Linux und lokale/zentrale Installation bleiben bis zur tatsächlichen Ausführung der Matrix getrennt `not executed`.
+Die Procedure und alle gekoppelten Source-, Lifecycle-, Dokumentations- und Testartefakte sind implementiert. Die [GitHub-hosted Linux-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447184377) war am 2026-07-29 auf SQL Server 2019, 2022 und 2025 erfolgreich. SQL Server 2019 führte die vorhandene Vollsuite einschließlich lokaler und zentraler Nutzung aus; 2022 und 2025 führten die reduzierte Kompatibilitätssuite aus. Windows und noch nicht automatisierte Pflichtfälle bleiben `not executed`, daher ist das Modul noch nicht vollständig `validated`.
 
 ## Zweck
 

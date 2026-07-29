@@ -15,10 +15,10 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Priorität | `P0` |
 | Status | `implemented` |
 | Akzeptanzkriterien | Exakt ein persistentes SQL-Objekt in Version `1.0.0`; öffentliche Signatur und Help-Vertrag vollständig; `@LikeTable`-Schemaquelle, `@KeepData`-Matrix, Preflight, in-place-Umbau, Savepoint- und Fehlervertrag implementiert; lokale und zentrale Installation; kontrolliert wiederholbare Lifecycle-Skripte; keine nicht freigegebenen weiteren persistenten Objekttypen; Dokumentation und Manifest konsistent; alle verfügbaren Pflichtprüfungen ausgeführt und nicht verfügbare Prüfungen ehrlich ausgewiesen. |
-| Tests | `Modules/toolbelt.core.result-table/Tests/Static/validate_contract.py` am 2026-07-29 erfolgreich; synthetische Runtime- und Lifecycle-Contract-Skripte vorhanden. SQL-Server-Runtime, Deploy, Uninstall, Collation und Plattform bleiben mangels Runner `not executed`. |
-| Blocker | Die Implementierungsfreigabe ist erfüllt. Für den Status `validated` fehlt ein erreichbarer Runner für die vollständige Matrix auf SQL Server 2019, 2022 und 2025 sowie Windows/Linux und lokal/zentral. Fehlende Runner ergeben `not executed`, keinen grünen Nachweis. |
-| Evidenz | Der Benutzer hat `USP_PrepareResultTable` am 2026-07-29 nach der ausführlichen Vertragsbesprechung ausdrücklich zum Beginn freigegeben. Kanonische Source, Manifest, Lifecycle, Dokumentation, Beispiele und Testartefakte liegen unter `Modules/toolbelt.core.result-table/`; die statische Vertragsprüfung ist erfolgreich. |
-| Nächster Schritt | Draft-Review abschließen und anschließend die vollständige Runtime-Matrix auf geeigneten, synthetisch betriebenen SQL-Server-Runnern ausführen; erst dann auf `validated` setzen. |
+| Tests | Statischer Vertrag und GitHub-hosted Linux-Matrix am 2026-07-29 erfolgreich: SQL Server 2019 mit vorhandener Vollsuite, SQL Server 2022 und 2025 mit Kompatibilitätssuiten. Windows und noch nicht automatisierte Pflichtfälle bleiben `not executed`. |
+| Blocker | Kein Merge-Blocker für den implementierten und teilweise validierten Stand. Für `validated` fehlen insbesondere Windows-Evidenz und die restlichen noch nicht automatisierten Matrixfälle. |
+| Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.core.result-table/`; [GitHub Actions Run 30447184377](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447184377) erfolgreich. |
+| Nächster Schritt | Verbleibende Windows-, Collation-, Grenz- und Performancefälle aus der Testmatrix priorisieren und ausführen; erst danach auf `validated` setzen. |
 
 ## Abgeschlossene Arbeitspakete
 

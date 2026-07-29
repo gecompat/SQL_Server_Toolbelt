@@ -198,9 +198,9 @@ def main() -> int:
     require(r'version:\s*"1\.0\.0"', manifest, "Manifestversion ist nicht 1.0.0.")
     require(r"status:\s*implemented", manifest, "Manifeststatus ist nicht implemented.")
     require(
-        r"validation_status:\s*\"not executed\"",
+        r"validation_status:\s*\"partially validated\"",
         manifest,
-        "Manifest behauptet einen nicht belegten Validierungsstatus.",
+        "Manifest bildet die belegte Teilvalidierung nicht ab.",
     )
     if len(re.findall(r"^\s+- type:\s+USP\s*$", manifest, re.MULTILINE)) != 1:
         raise AssertionError("Das Manifest muss genau ein persistentes USP-Objekt führen.")
@@ -290,7 +290,7 @@ def main() -> int:
 
     print("Statische ResultTable-Vertragsprüfung: erfolgreich")
     print(f"Geprüfte Artefakte: {len(files)}")
-    print("Runtime-Evidenz: not executed")
+    print("Runtime-Evidenz: partially validated")
     return 0
 
 

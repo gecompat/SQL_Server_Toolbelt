@@ -54,9 +54,9 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. Das erste Kernmodul ist implementiert und statisch geprüft; Runtime- und Plattformvalidierung sind noch nicht ausgeführt.**
+**Der Repository-Grundaufbau ist abgeschlossen. Das erste Kernmodul ist implementiert und auf GitHub-hosted Linux teilweise validiert.**
 
-Das implementierte Modul [`toolbelt.core.result-table`](./Modules/toolbelt.core.result-table/README.md) stellt `toolbelt_core.USP_PrepareResultTable` als gemeinsame `@ResultTable`-/`@KeepData`-Infrastruktur bereit. Seine verbindliche Testmatrix und synthetische Testartefakte sind vorhanden; SQL-Server-Runtime-Evidenz bleibt `not executed`.
+Das implementierte Modul [`toolbelt.core.result-table`](./Modules/toolbelt.core.result-table/README.md) stellt `toolbelt_core.USP_PrepareResultTable` als gemeinsame `@ResultTable`-/`@KeepData`-Infrastruktur bereit. Die Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; Windows und weitere Pflichtfälle bleiben offen.
 
 ## Modulprinzip
 

@@ -1,7 +1,7 @@
 -- ============================================================================
 -- Read-only Lifecycle-Contract-Prüfung nach Deploy.sql
 -- Daten: keine fachlichen oder realen Runtime-Daten
--- Status im Repository: not executed
+-- Status im Repository: SQL Server 2019/2022/2025 Linux am 2026-07-29 erfolgreich
 -- ============================================================================
 
 SET NOCOUNT ON;

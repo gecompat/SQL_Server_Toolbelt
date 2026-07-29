@@ -4,9 +4,9 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. Für das implementierte erste Kernmodul existieren statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte. Die SQL-Server-Runtime-Tests wurden mangels Runner noch nicht ausgeführt.
+Der Repository-Grundaufbau ist abgeschlossen. Für das implementierte erste Kernmodul existieren statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte.
 
-Die erste pfadbezogene Runtime-Action verwendet GitHub-hosted Linux für SQL Server 2019, 2022 und 2025. Ihr Vorhandensein ist noch kein Ausführungsnachweis; der Status wird erst nach einem tatsächlich grünen Workflow aktualisiert.
+Die erste pfadbezogene Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 für SQL Server 2019, 2022 und 2025 erfolgreich. Damit ist der abgegrenzte Linux-Scope belegt; Windows und weitere Matrixfälle bleiben offen.
 
 ## Pflicht-Testarten je Modul
 
@@ -27,7 +27,7 @@ Die erste pfadbezogene Runtime-Action verwendet GitHub-hosted Linux für SQL Ser
 
 | Modul | Matrix | Status |
 |---|---|---|
-| `toolbelt.core.result-table` | [RESULT_TABLE_CONTRACT_TEST_MATRIX.md](./RESULT_TABLE_CONTRACT_TEST_MATRIX.md) | Testartefakte implementiert; Runtime `not executed` |
+| `toolbelt.core.result-table` | [RESULT_TABLE_CONTRACT_TEST_MATRIX.md](./RESULT_TABLE_CONTRACT_TEST_MATRIX.md) | `partially validated`; Linux-Lauf erfolgreich |
 
 Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 
@@ -44,6 +44,6 @@ Jede ausgeführte Prüfung nennt Befehl oder Workflow, Scope, Version, Plattform
 
 ## CI
 
-Die erste capability-bezogene CI-/Runner-Anbindung ist noch offen. Eine Dokumentationsänderung benötigt keine vollständige Runtime-Matrix.
+Die capability-bezogene GitHub-hosted Linux-CI ist aktiv. Eine Dokumentationsänderung benötigt keine vollständige Runtime-Matrix.
 
 Details: [TEST_AND_VALIDATION_POLICY.md](../Documentation/Standards/TEST_AND_VALIDATION_POLICY.md)

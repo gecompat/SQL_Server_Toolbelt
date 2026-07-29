@@ -2,7 +2,7 @@
 
 ## Status
 
-Repository-Grundaufbau, Foundation-Korrektur, zwei Backlog-Research-Wellen und die Spezifikation des ersten Kernmoduls sind abgeschlossen. `toolbelt.core.result-table` ist implementiert und statisch geprüft; die SQL-Server-Runtime- und Plattformvalidierung ist `not executed`.
+Repository-Grundaufbau, Foundation-Korrektur, zwei Backlog-Research-Wellen und die Spezifikation des ersten Kernmoduls sind abgeschlossen. `toolbelt.core.result-table` ist implementiert und auf GitHub-hosted Linux für SQL Server 2019, 2022 und 2025 teilweise validiert.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -77,7 +77,7 @@ Ergebnis:
 
 ### Phase 1.2 – Implementierung und Validierung
 
-**Status:** `implemented`
+**Status:** `partially validated`
 **Arbeitspaket:** `AP-2026-003`
 
 Der Benutzer hat `toolbelt_core.USP_PrepareResultTable` am 2026-07-29 nach der ausführlichen Vertragsbesprechung ausdrücklich zum Beginn freigegeben. Diese Freigabe gilt nur für diese Funktion; weitere Kandidaten bleiben am funktionsbezogenen Gate.
@@ -99,8 +99,10 @@ Stand:
 - Schritte 1 bis 5 abgeschlossen;
 - Source, Manifest, Lifecycle, Dokumentation, Beispiele sowie statische und synthetische Contract-Testartefakte vorhanden;
 - reproduzierbare statische Vertragsprüfung erfolgreich;
-- Schritte 6 bis 8 mangels erreichbarer SQL-Server-Runner `not executed`;
-- Modulstatus deshalb `implemented`, nicht `validated`.
+- GitHub-hosted Linux: SQL Server 2019 mit vorhandener Vollsuite und SQL Server 2022/2025 mit Kompatibilitätssuiten erfolgreich;
+- lokale und zentrale Nutzung, Wiederholungsdeployment, Fremdobjekt-Kollision und Uninstall im 2019-Lauf erfolgreich;
+- Windows und noch nicht automatisierte Collation-, Grenz-, Recovery- und Performancefälle offen;
+- Modulstatus deshalb `partially validated`, nicht vollständig `validated`.
 
 Die erste Version benötigt keine persistente Tabelle, kein Synonym, keine Assembly und keinen Type. Eine Entscheidung zu diesen offenen persistenten Namenskonventionen ist deshalb noch nicht erforderlich.
 

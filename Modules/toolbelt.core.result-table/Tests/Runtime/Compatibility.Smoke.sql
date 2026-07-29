@@ -1,7 +1,7 @@
 -- ============================================================================
 -- Reduzierter Compatibility-Smoke für SQL Server 2022 und 2025
 -- Daten: ausschließlich synthetisch
--- Status im Repository: not executed
+-- Status im Repository: SQL Server 2022/2025 Linux am 2026-07-29 erfolgreich
 -- ============================================================================
 
 SET NOCOUNT ON;

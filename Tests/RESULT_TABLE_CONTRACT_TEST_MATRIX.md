@@ -9,9 +9,9 @@
 | Modul | `toolbelt.core.result-table` |
 | Objekt | `toolbelt_core.USP_PrepareResultTable` |
 | Testcode | statischer Validator und initiale synthetische Runtime-/Lifecycle-Contract-Skripte implementiert; Restfälle noch nicht vollständig automatisiert |
-| Runtime-Status | `not executed` |
+| Runtime-Status | `partially validated` |
 
-Diese Matrix bleibt das verbindliche Validierungsinventar. Vorhandener oder statisch geprüfter Testcode ist kein Runtime-Nachweis.
+Diese Matrix bleibt das verbindliche Validierungsinventar. Die erste Linux-Welle ist ausgeführt; offene Kombinationen behalten ihren eigenen Status `not executed`.
 
 ## 1. Evidenz je Ausführung
 
@@ -55,6 +55,14 @@ Die pfadbezogene Action `.github/workflows/result-table-runtime.yml` verwendet a
 - ausschließlich synthetische Datenbank-, Objekt- und Testwerte.
 
 Diese erste Welle ändert die deklarierte Windows-Unterstützung nicht. Windows bleibt bis zu einer tatsächlichen separaten Ausführung `not executed`. Auch ein grüner Workflow setzt den Modulstatus erst dann auf `validated`, wenn alle für den deklarierten Support verpflichtenden Matrixpunkte nachweislich abgedeckt sind.
+
+Ausführung am 2026-07-29:
+
+- [GitHub Actions Run 30447184377](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447184377): erfolgreich;
+- SQL Server 2019 Linux: vorhandene Vollsuite erfolgreich;
+- SQL Server 2022 und 2025 Linux: Kompatibilitätssuiten erfolgreich;
+- statischer Vertrag: erfolgreich;
+- Gesamtstatus: `partially validated`.
 
 ## 3. Statische Vertragsprüfungen
 

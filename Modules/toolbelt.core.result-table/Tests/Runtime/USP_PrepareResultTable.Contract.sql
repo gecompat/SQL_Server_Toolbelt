@@ -1,7 +1,7 @@
 -- ============================================================================
 -- Runtime-Contract-Tests für toolbelt_core.USP_PrepareResultTable
 -- Daten: ausschließlich synthetisch
--- Status im Repository: not executed
+-- Status im Repository: SQL Server 2019 Linux am 2026-07-29 erfolgreich
 -- Voraussetzung: Modul v1.0.0 ist in der aktuellen Datenbank installiert.
 -- ============================================================================
 

@@ -15,6 +15,10 @@ Das Testkennwort:
 
 Ein vorhandener Adapter oder Workflow ist kein Runtime-Nachweis. Nur eine tatsächlich erfolgreich abgeschlossene Action erzeugt Evidenz.
 
+## Evidenz
+
+Der [GitHub Actions Run 30447184377](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447184377) war am 2026-07-29 für den statischen Vertrag sowie SQL Server 2019, 2022 und 2025 auf GitHub-hosted Linux erfolgreich. Der genaue Scope und die verbleibenden Grenzen stehen in der ResultTable-Testmatrix.
+
 ## Quellen
 
 - Microsoft (2026): [Offizielle SQL-Server-Linux-Container und Tags](https://mcr.microsoft.com/product/mssql/server/about).

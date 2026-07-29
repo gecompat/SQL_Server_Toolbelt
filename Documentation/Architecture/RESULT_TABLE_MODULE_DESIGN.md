@@ -12,7 +12,7 @@
 | Zielversion | `1.0.0` |
 | Spezifikationsstatus | `validated` |
 | Implementierungsstatus | `implemented` |
-| Runtime-Validierung | `not executed` |
+| Runtime-Validierung | `partially validated` |
 | Implementierung | `Modules/toolbelt.core.result-table/` |
 
 Dieses Dokument ist die kanonische implementierungsreife Spezifikation für das erste `toolbelt_core`-Modul. Es präzisiert den allgemeinen USP-Vertrag, ersetzt ihn jedoch nicht.
@@ -489,6 +489,8 @@ Wird `toolbelt_core` durch das Deployment neu angelegt, erhält es `Toolbelt.Man
 - Windows bleibt bis zu einer separaten tatsächlichen Ausführung `not executed`;
 - lokale und zentrale Installation;
 - unterschiedliche Server-, Toolbelt-, Zieldatenbank- und TempDB-Collations.
+
+Stand 2026-07-29: Die GitHub-hosted Linux-Welle ist erfolgreich ausgeführt. Die vollständige 2019-Suite und die reduzierten 2022-/2025-Suiten sind belegt; Windows und die restlichen Matrixfälle bleiben offen.
 
 ### Welle C – Validierung und Release
 

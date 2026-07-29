@@ -3,7 +3,7 @@
 -- ============================================================================
 -- Zentraler Deployment-Contract über einen dreiteiligen Procedure-Aufruf
 -- Daten: ausschließlich synthetisch
--- Status im Repository: not executed
+-- Status im Repository: SQL Server 2019 Linux am 2026-07-29 erfolgreich
 -- ============================================================================
 
 SET NOCOUNT ON;

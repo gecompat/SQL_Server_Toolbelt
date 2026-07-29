@@ -4,15 +4,15 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**Das erste Kernmodul ist implementiert; Runtime-Validierung ist `not executed`.**
+**Das erste Kernmodul ist implementiert und `partially validated`.**
 
 ## Implementierte Module
 
 | Modul-ID | Name | Schema | Status | SQL Server |
 |---|---|---|---|---|
-| `toolbelt.core.result-table` | Result Table Infrastructure | `toolbelt_core` | `implemented`; Runtime `not executed` | 2019, 2022, 2025 |
+| `toolbelt.core.result-table` | Result Table Infrastructure | `toolbelt_core` | `implemented`; Runtime `partially validated` | 2019, 2022, 2025 |
 
-Der Modulstatus belegt vorhandenen Code und statische Verträge, aber keine erfolgreiche SQL-Server-Ausführung.
+Der Modulstatus belegt vorhandenen Code und erfolgreiche Linux-Evidenz. Er bedeutet noch keine vollständige Plattform- und Pflichtmatrixvalidierung.
 
 ## Hinweise für neue Module
 

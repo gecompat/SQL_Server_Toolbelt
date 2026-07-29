@@ -16,7 +16,7 @@ compatibility_levels:
 
 platforms:
   windows: "not executed"
-  linux: "not executed"
+  linux: "partially validated"
 
 providers:
   - id: default
@@ -80,4 +80,9 @@ tests:
   central: "Tests/Runtime/Central.Contract.sql"
   github_hosted_linux: "../../.github/workflows/result-table-runtime.yml"
 
-validation_status: "not executed"
+validation_status: "partially validated"
+validation_evidence:
+  - date: "2026-07-29"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447184377"
+    scope: "SQL Server 2019 full existing suite; SQL Server 2022 and 2025 compatibility suites; GitHub-hosted Linux"
+    result: "success"

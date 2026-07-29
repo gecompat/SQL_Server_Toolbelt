@@ -4,7 +4,7 @@
 
 **Version:** `1.0.0`
 
-**Status:** `implemented`; Runtime-Validierung `not executed`
+**Status:** `implemented`; Runtime-Validierung `partially validated`
 
 ## Zweck
 
