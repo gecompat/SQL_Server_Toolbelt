@@ -222,9 +222,9 @@ def main() -> int:
         "Manifest-Release-Status ist nicht unreleased.",
     )
     require(
-        r"actions/runs/30447442638",
+        r"actions/runs/30456207934",
         manifest,
-        "Manifest verweist nicht auf den finalen erfolgreichen Linux-Lauf.",
+        "Manifest verweist nicht auf den erweiterten erfolgreichen Linux-Lauf.",
     )
     if len(re.findall(r"^\s+- type:\s+USP\s*$", manifest, re.MULTILINE)) != 1:
         raise AssertionError("Das Manifest muss genau ein persistentes USP-Objekt führen.")

@@ -79,10 +79,23 @@ Die zweite Welle erweitert denselben pfadbezogenen Linux-Workflow:
 - reproduzierbarer synthetischer Workload für No-Mutation, `TRUNCATE` und
   kleinen Schemaumbau.
 
-Bis zum erfolgreichen GitHub-Lauf bleibt diese neue Welle `not executed`.
+Ausführung am 2026-07-29:
+
+- [GitHub Actions Run 30456207934](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30456207934): erfolgreich;
+- SQL Server 2019, 2022 und 2025 Linux: jeweils vollständige vorhandene Suite
+  erfolgreich;
+- explizite CI-, CS-, BIN2- und UTF-8-Spaltencollations erfolgreich;
+- zentrale Installation mit unterschiedlicher Toolbelt-/Consumer-Collation
+  und dreiteiliger Schemaquelle erfolgreich;
+- Umbau auf und von exakt 1024 Spalten erfolgreich;
+- Caller-Transaktion sowie Abbruch vor Mutation in uncommittable Transaktion
+  erfolgreich;
+- synthetischer No-Mutation-/`TRUNCATE`-/Schemaumbau-Workload erfolgreich;
+- Gesamtstatus bleibt `partially validated`.
+
 Windows, echter Savepoint-Rollback nach einem Engine-Fehler, Multi-Session-/
 Parallelfälle und eine plattformübergreifend vergleichbare Performance-Baseline
-bleiben unabhängig davon offen.
+bleiben offen.
 
 ## 3. Statische Vertragsprüfungen
 
