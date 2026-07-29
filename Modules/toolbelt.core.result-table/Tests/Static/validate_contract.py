@@ -196,11 +196,25 @@ def main() -> int:
         "Manifest-Modul-ID fehlt.",
     )
     require(r'version:\s*"1\.0\.0"', manifest, "Manifestversion ist nicht 1.0.0.")
-    require(r"status:\s*implemented", manifest, "Manifeststatus ist nicht implemented.")
+    require(
+        r"implementation_status:\s*implemented",
+        manifest,
+        "Manifest-Implementierungsstatus ist nicht implemented.",
+    )
     require(
         r"validation_status:\s*\"partially validated\"",
         manifest,
         "Manifest bildet die belegte Teilvalidierung nicht ab.",
+    )
+    require(
+        r"release_status:\s*unreleased",
+        manifest,
+        "Manifest-Release-Status ist nicht unreleased.",
+    )
+    require(
+        r"actions/runs/30447442638",
+        manifest,
+        "Manifest verweist nicht auf den finalen erfolgreichen Linux-Lauf.",
     )
     if len(re.findall(r"^\s+- type:\s+USP\s*$", manifest, re.MULTILINE)) != 1:
         raise AssertionError("Das Manifest muss genau ein persistentes USP-Objekt führen.")

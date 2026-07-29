@@ -1,7 +1,9 @@
 module_id: "toolbelt.core.result-table"
 module_name: "Result Table Infrastructure"
 version: "1.0.0"
-status: implemented
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
 description: "Bereitet vorhandene lokale Temp-Tabellen anhand eines Referenztabellenschemas für Toolbelt-USP-Resultsets vor."
 
 sql_server_versions:
@@ -71,6 +73,22 @@ lifecycle:
   release_manifest: "embedded"
   source_hash_role: "diagnostic_only"
 
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/USP_PrepareResultTable.md"
+  architecture:
+    - "../../Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md"
+  test_matrix:
+    - "../../Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "../../Tests/CI/README.md"
+
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+
 tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/USP_PrepareResultTable.Contract.sql"
@@ -80,9 +98,8 @@ tests:
   central: "Tests/Runtime/Central.Contract.sql"
   github_hosted_linux: "../../.github/workflows/result-table-runtime.yml"
 
-validation_status: "partially validated"
 validation_evidence:
   - date: "2026-07-29"
-    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447184377"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447442638"
     scope: "SQL Server 2019 full existing suite; SQL Server 2022 and 2025 compatibility suites; GitHub-hosted Linux"
     result: "success"

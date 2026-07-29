@@ -4,9 +4,11 @@
 
 Plan, Dokumentation, Manifest und vorhandener Testcode sind kein Runtime-Nachweis. Nur tatsächlich ausgeführte und erfolgreiche Prüfungen dürfen als `validated` oder bestanden bezeichnet werden.
 
-## Teststatus
+## Validierungsstatus
 
-| Status | Bedeutung |
+Der `validation_status` ist von Implementierungs- und Release-Status getrennt.
+
+| Wert | Bedeutung |
 |---|---|
 | `validated` | tatsächlich ausgeführt und erfolgreich |
 | `partially validated` | dokumentierter Teil des Pflichtscopes erfolgreich; weitere Pflichtkombinationen offen |
@@ -89,8 +91,18 @@ Ein erfolgreicher Test auf einer Version, Plattform oder einem Provider beweist 
 
 ## CI
 
-CI bleibt schlank und pfadbezogen. Dokumentationsänderungen lösen keine unnötige Runtime-Vollmatrix aus. Teure oder spezielle Plattformtests dürfen manuell oder capability-spezifisch ausgeführt werden; fehlende Runner ergeben keinen grünen Nachweis.
+CI bleibt schlank und pfadbezogen. Der Dokumentationsvalidator bestimmt seinen
+Scope aus dem Git-Diff, der Modulregistry und den expliziten Impact-Paketen.
+Dokumentationsänderungen lösen keine unnötige Runtime-Vollmatrix aus. Ein
+vollständiger Audit läuft nur bei Governance- oder Kopplungsänderungen, vor
+einem Release, beim manuellen Aufruf oder auf ausdrücklichen Auftrag. Teure
+oder spezielle Plattformtests dürfen manuell oder capability-spezifisch
+ausgeführt werden; fehlende Runner ergeben keinen grünen Nachweis.
 
 ## Aktueller Stand
 
-Das erste fachliche Modul ist `partially validated`. Der GitHub-hosted Linux-Lauf vom 2026-07-29 ist für SQL Server 2019, 2022 und 2025 erfolgreich; Windows und die noch nicht automatisierten Matrixfälle bleiben `not executed`.
+Das erste fachliche Modul hat `implementation_status: implemented`,
+`validation_status: partially validated` und `release_status: unreleased`. Der
+GitHub-hosted Linux-Lauf vom 2026-07-29 ist für SQL Server 2019, 2022 und 2025
+erfolgreich; Windows und die noch nicht automatisierten Matrixfälle bleiben
+`not executed`.

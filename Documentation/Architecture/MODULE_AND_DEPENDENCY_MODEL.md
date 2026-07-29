@@ -40,7 +40,8 @@ Wiederverwendete Fachlogik existiert genau einmal. Öffentliche Wrapper, alterna
 
 Mindestens:
 
-- Modul-ID, Name, Version und Status;
+- Modul-ID, Name und Version;
+- getrennte Implementierungs-, Validierungs- und Release-Statuswerte;
 - unterstützte SQL-Server-Versionen und Compatibility Levels;
 - Windows-/Linux- und Provider-Matrix;
 - Deployment-Modi und Capability-Kennzeichnungen;
@@ -54,18 +55,41 @@ Mindestens:
 - versionierte Release-Objektmanifeste und tatsächlicher Installationsstand;
 - Tests und tatsächlicher Validierungsstatus.
 
-## Status
+## Getrennte Statusdimensionen
 
-| Status | Bedeutung |
+Ein Modul verwendet niemals einen Sammelstatus. Das Manifest ist die
+autoritative Quelle für drei voneinander unabhängige Dimensionen.
+
+### Implementierungsstatus
+
+| Wert | Bedeutung |
 |---|---|
-| `proposed` | Idee ohne Code |
-| `researched` | recherchiert, noch nicht freigegeben |
-| `planned` | freigegebenes Arbeitspaket |
-| `implemented` | Code und statische Verträge vorhanden |
-| `validated` | relevante Prüfungen tatsächlich erfolgreich ausgeführt |
-| `experimental` | funktionsfähig, nicht vollständig validiert |
-| `deprecated` | zur Ablösung vorgesehen |
-| `unsupported` | bewusst nicht unterstützt |
-| `not executed` | Prüfung nicht ausgeführt |
-| `not applicable` | im konkreten Scope nicht anwendbar und begründet |
-| `curiosity` | theoretische Idee ohne Implementierungszusage |
+| `proposed` | Modulgerüst oder Vorschlag ohne vollständigen Code |
+| `researched` | fachlich recherchiert, noch nicht implementiert |
+| `planned` | funktionsbezogen freigegeben und zur Implementierung geplant |
+| `implemented` | Code, statische Verträge und gekoppelte Artefakte vorhanden |
+| `deprecated` | Implementierung ist zur Ablösung vorgesehen |
+| `unsupported` | Implementierung wird bewusst nicht unterstützt |
+
+### Validierungsstatus
+
+| Wert | Bedeutung |
+|---|---|
+| `validated` | deklarierter Pflichtscope tatsächlich vollständig erfolgreich |
+| `partially validated` | dokumentierter Teil des Pflichtscopes erfolgreich; Rest offen |
+| `not executed` | vorgesehene Prüfung nicht ausgeführt |
+| `not applicable` | im konkreten Scope fachlich nicht anwendbar und begründet |
+| `failed` | Prüfung ausgeführt und fehlgeschlagen |
+
+### Release-Status
+
+| Wert | Bedeutung |
+|---|---|
+| `unreleased` | noch keine veröffentlichte Version |
+| `preview` | ausdrücklich als Vorabversion veröffentlicht |
+| `released` | veröffentlichte unterstützte Version |
+| `deprecated` | veröffentlichte Version ist zur Ablösung vorgesehen |
+| `withdrawn` | Version wurde zurückgezogen |
+
+Backlog-, Kandidaten- und Roadmapstatus beschreiben Arbeitsfluss und Planung;
+sie ersetzen keine dieser Modulstatusdimensionen.

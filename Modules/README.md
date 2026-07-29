@@ -8,9 +8,11 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Implementierte Module
 
-| Modul-ID | Name | Schema | Status | SQL Server |
-|---|---|---|---|---|
-| `toolbelt.core.result-table` | Result Table Infrastructure | `toolbelt_core` | `implemented`; Runtime `partially validated` | 2019, 2022, 2025 |
+<!-- BEGIN GENERATED:MODULE_STATUS_TABLE -->
+| Modul-ID | Name | Version | Schema | Implementierung | Validierung | Release | SQL Server |
+|---|---|---:|---|---|---|---|---|
+| `toolbelt.core.result-table` | Result Table Infrastructure | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+<!-- END GENERATED:MODULE_STATUS_TABLE -->
 
 Der Modulstatus belegt vorhandenen Code und erfolgreiche Linux-Evidenz. Er bedeutet noch keine vollständige Plattform- und Pflichtmatrixvalidierung.
 

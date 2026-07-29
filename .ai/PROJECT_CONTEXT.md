@@ -53,17 +53,16 @@ SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL 
 
 ## Statusbegriffe
 
-- `proposed`: Idee ohne Implementierung.
-- `researched`: recherchiert, aber nicht zur Umsetzung freigegeben.
-- `planned`: freigegebenes oder vorbereitetes Arbeitspaket.
-- `implemented`: Code und statische Verträge vorhanden; Runtime-Nachweis kann fehlen.
-- `partially validated`: ein ausdrücklich abgegrenzter Pflichtscope wurde tatsächlich erfolgreich ausgeführt; weitere Pflichtkombinationen bleiben offen.
-- `validated`: relevante Prüfungen tatsächlich erfolgreich ausgeführt.
-- `experimental`: funktionsfähig, aber nicht vollständig validiert.
-- `deprecated`: veraltet und zur Ablösung vorgesehen.
-- `unsupported`: bewusst nicht unterstützt.
-- `not executed`: vorgesehene Prüfung nicht ausgeführt.
-- `not applicable`: im konkreten Scope nicht anwendbar.
-- `curiosity`: theoretische oder unterhaltsame Idee ohne Implementierungszusage.
+Arbeitspakete und Kandidaten verwenden einen Workflow-Status wie `proposed`,
+`researched`, `active`, `blocked`, `completed`, `rejected` oder `curiosity`.
 
-Plan, Dokumentation, Manifest und Testcode sind kein Runtime-Nachweis.
+Module trennen dagegen verbindlich:
+
+- `implementation_status`: Stand der Implementierung;
+- `validation_status`: tatsächlich belegter Testscope;
+- `release_status`: Veröffentlichungsstand.
+
+Die zulässigen Modulwerte und ihre Bedeutung stehen im
+[Modul- und Abhängigkeitsmodell](../Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md).
+Plan, Dokumentation, Manifest und vorhandener Testcode sind kein
+Runtime-Nachweis.
