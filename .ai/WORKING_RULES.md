@@ -3,13 +3,22 @@
 ## Preflight vor jeder Änderung
 
 1. Scope und Schreibziel bestimmen.
-2. Freigegebenes Arbeitspaket oder ausdrücklichen unmittelbaren Benutzerauftrag feststellen.
-3. `AGENTS.md`, `.ai/PROJECT_RULES.md`, `.ai/WORKING_RULES.md`, relevanten Kontext, Standards und Entscheidungen lesen.
-4. Abhängigkeiten und parallele Arbeiten prüfen.
-5. Datenschutz- und Secret-Stop-Gate durchführen.
-6. Neue Anforderungen auf Regelkonflikte prüfen.
+2. Änderung als reine Ideen-/Research-Pflege oder als Implementierung klassifizieren.
+3. Vor einer Implementierung die dokumentierte Besprechung von Zweck, Vertrag, Alternativen, Risiken und Scope sowie die anschließende ausdrückliche Benutzerfreigabe feststellen.
+4. Bei reiner Ideen-/Research-Pflege sicherstellen, dass weder ein Runtime-Objekt entsteht noch eine Implementierungsfreigabe behauptet wird.
+5. `AGENTS.md`, `.ai/PROJECT_RULES.md`, `.ai/WORKING_RULES.md`, relevanten Kontext, Standards und Entscheidungen lesen.
+6. Abhängigkeiten und parallele Arbeiten prüfen.
+7. Datenschutz- und Secret-Stop-Gate durchführen.
+8. Neue Anforderungen auf Regelkonflikte prüfen.
 
-Ein unmittelbarer Benutzerauftrag gilt als Freigabe. Er muss vor dem Merge im Pull Request, Backlog oder Entscheidungsprotokoll nachvollziehbar dokumentiert sein.
+Ein Funktionskandidat, ein Design oder ein geplantes Arbeitspaket gilt nicht als Implementierungsfreigabe. Die funktionsbezogene Besprechung und die anschließende ausdrückliche Freigabe müssen vor dem Merge im Pull Request, Backlog oder Entscheidungsprotokoll nachvollziehbar dokumentiert sein.
+
+## Ideen- und Research-Pflege
+
+- Ideen dürfen fortlaufend erfasst, recherchiert, abgegrenzt und priorisiert werden.
+- Research-Arbeit darf Primärquellen, technische Optionen, offene Fragen und eine Empfehlung dokumentieren.
+- Research-Arbeit implementiert keine Capability, legt keinen öffentlichen Runtime-Vertrag endgültig fest und aktiviert kein Arbeitspaket.
+- Vor einer späteren Implementierung wird jeder konkrete Funktionsvertrag einzeln mit dem Benutzer besprochen.
 
 ## Konfliktprüfung
 

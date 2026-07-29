@@ -302,3 +302,210 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/json-arrayagg-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/json-objectagg-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
 | **Nächster Schritt** | Preview-Vertrag und T-SQL-Fallback anhand fester JSON-Testvektoren vergleichen; gemeinsamen JSON-Kern vor Objektentwurf festlegen. |
+
+## TC-2026-014: Transaktionsunabhängige Ereignisprotokollierung
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-014` |
+| **Titel** | Logging, das einen Rollback der aufrufenden Transaktion überlebt |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Core |
+| **SQL-Server-Lücke** | SQL Server besitzt keinen direkten T-SQL-Vertrag für autonome Transaktionen. Ein regulärer Insert in eine Logtabelle und auch ein Service-Broker-`SEND` gehören zur aktuellen Transaktion und werden mit ihr zurückgerollt. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Keine direkte autonome T-SQL-Transaktion dokumentiert. |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Fehler-, Fortschritts- oder Audit-Ereignisse können erhalten bleiben, obwohl die fachliche Caller-Transaktion zurückgerollt wird oder uncommittable ist. |
+| **Mögliche Technologie** | Providervergleich erforderlich: reguläre SQL-CLR-Verbindung als zweite Session; bewusst konfigurierter Loopback-Linked-Server-RPC ohne Transaction Promotion; externer Logger; eingeschränkter Error-Log-Provider über `RAISERROR ... WITH LOG` beziehungsweise `xp_logevent`; Extended Events für beobachtbare Engine-Ereignisse. Service Broker ist für Commit-gekoppelte asynchrone Arbeit geeignet, aber nicht als rollback-unabhängiger Sender innerhalb derselben Transaktion. |
+| **Performance und Security** | Eine zweite Session besitzt eigene Transaktion, `SET`-Optionen und Security Context und sieht keine lokalen Temp-Tabellen. Loopback kann sich an Locks der Caller-Transaktion selbst blockieren. SQL CLR benötigt Reauthentifizierung beziehungsweise kontrollierte Credentials und einen Trust-Vertrag. Error-Log-Provider sind längen- und berechtigungsbeschränkt; `RAISERROR ... WITH LOG` schreibt höchstens 440 Bytes. Payloads benötigen strikte Datenschutz-, Größen- und Secret-Regeln. |
+| **Plattformgrenzen** | T-SQL-Linked-Server-, SQL-CLR-, Error-Log- und externe Provider sind getrennt auf Windows/Linux, Edition, Providerverfügbarkeit und Betriebsfreigabe zu prüfen. Azure ist nicht automatisch unterstützt. |
+| **Dependencies** | Mögliche Dependencies zu Execution Correlation (`TC-2026-019`) und standardisiertem Error Envelope (`TC-2026-017`). Eine persistente Logtabelle würde vor Implementierung eine freigegebene Tabellen-Namenskonvention erfordern. |
+| **Duplikatprüfung** | Alle drei Backlog-Listen sowie vorhandene Architektur- und USP-Verträge geprüft; kein gleichwertiger Kandidat vorhanden. |
+| **Status** | `researched` |
+| **Primärquellen** | https://techcommunity.microsoft.com/blog/sqlserver/how-to-create-an-autonomous-transaction-in-sql-server-2008/383471<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/data-access/context-connection?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/database-engine/service-broker/transactional-messaging?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/language-elements/raiserror-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/xp-logevent-transact-sql?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Mit dem Benutzer zuerst Haltbarkeitsgarantie, synchrones/asynchrones Verhalten, zulässige Provider, Blockierungsverhalten, Payload und Security Context besprechen; erst danach einen öffentlichen Funktionsvertrag entwerfen. |
+
+## TC-2026-015: Asynchrone Work-Queue und begrenzte Parallelisierung
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-015` |
+| **Titel** | Mehrere unabhängige Arbeiten in getrennten Sessions parallel ausführen |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Core |
+| **SQL-Server-Lücke** | T-SQL-Statements eines regulären Batches werden nacheinander gestartet. Query-Plan-Parallelität parallelisiert Operatoren einer Abfrage, stellt aber keinen allgemeinen Fan-out/Fan-in-Vertrag für mehrere unabhängige Statements oder Procedures bereit. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Kein allgemeiner nativer Batch-Parallelisierer dokumentiert. |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Unabhängige Arbeitspakete können mit begrenzter Parallelität, eigenem Status und anschließender Ergebnisaggregation abgearbeitet werden. |
+| **Mögliche Technologie** | Service Broker mit Internal Activation und `MAX_QUEUE_READERS` als T-SQL-naher Hauptkandidat; externer Orchestrator als portabler Provider; SQL Server Agent über `sp_start_job` nur für gröbere, vorab definierte Jobs. Eine SQL-CLR-Routine darf gemäß Projektregel keine eigenen Worker Threads erzwingen. |
+| **Performance und Security** | Parallelität muss hart begrenzt und gegen CPU, Memory Grants, TempDB, Locks und Logdurchsatz geschützt werden. Jede Session besitzt einen eigenen Transaktions- und Sessionzustand. Beliebiger SQL-Text wäre eine Code-Execution-Schnittstelle und ist kein sicherer Default; benannte und validierte Work-Types sind zu bevorzugen. Fehler-, Timeout-, Retry-, Idempotenz-, Result- und Cancellation-Semantik sind vor Objektentwurf festzulegen. |
+| **Plattformgrenzen** | Service Broker gilt für SQL Server und laut Dokumentation teilweise Managed Instance; SQL Server Agent ist editions- und dienstabhängig. Externe Provider sowie Windows/Linux sind getrennt zu validieren. |
+| **Dependencies** | `TC-2026-017` bis `TC-2026-022`; persistente Queue-/Statusobjekte benötigen eine zuvor freigegebene Tabellen-Namenskonvention. |
+| **Duplikatprüfung** | Alle Kandidatenlisten und Architekturregeln geprüft. Vorhandene Hinweise zur Query-Plan-Parallelität sind kein Work-Queue-Vertrag. |
+| **Status** | `researched` |
+| **Primärquellen** | https://learn.microsoft.com/en-us/sql/database-engine/service-broker/typical-uses-of-service-broker?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-queue-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/database-engine/service-broker/understanding-when-activation-occurs?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-start-job-transact-sql?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Mit dem Benutzer Use Cases, synchrones Warten versus Fire-and-forget, Work-Type-Vertrag, gewünschte Parallelitätsgrenze und zulässige Provider einzeln besprechen. |
+
+## TC-2026-016: Lange Console-Messages mit sofortiger Ausgabe
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-016` |
+| **Titel** | Gepufferte und ungepufferte Console-Ausgabe langer Texte |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Core |
+| **SQL-Server-Lücke** | `PRINT` begrenzt Ausgaben auf 8.000 Nicht-Unicode- beziehungsweise 4.000 Unicode-Zeichen und kann clientseitig verzögert erscheinen. `RAISERROR ... WITH NOWAIT` sendet sofort, ist aber auf höchstens 2.047 Zeichen pro Message begrenzt. Eine einheitliche, Unicode-sichere Chunking- und Severity-Semantik fehlt. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein bekannt |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Lange Debug-, Fortschritts- und generierte SQL-Texte können vollständig, geordnet und auf Wunsch sofort im Messages-Kanal ausgegeben werden, ohne zusätzliche Resultsets zu erzeugen. |
+| **Mögliche Technologie** | Kleine T-SQL-Infrastruktur-USP mit `PRINT`- und `RAISERROR`/`NOWAIT`-Provider, kontrolliertem Chunking, Zeilenumbruchbehandlung und optionaler Präfix-/Zeitstempelbildung. `THROW` bleibt echten Fehlern vorbehalten. |
+| **Performance und Security** | Message-Ausgabe ist langsam und darf nicht zeilenweise im Hot Path verwendet werden. Chunks dürfen Unicode-Zeichenpaare und Zeilen möglichst nicht unnötig zerlegen. Prozentzeichen müssen bei `RAISERROR` sicher als Daten behandelt werden. Debug darf diagnostische Werte, aber niemals aktiv ausgegebene Secrets enthalten. |
+| **Plattformgrenzen** | Engine-Verhalten voraussichtlich gleich; tatsächliche Darstellung, Pufferung und Reihenfolge hängen zusätzlich vom Client beziehungsweise Treiber ab und sind getrennt zu testen. |
+| **Dependencies** | USP- und Debug-Vertrag; mögliche Wiederverwendung durch `TC-2026-017` und spätere Module. |
+| **Duplikatprüfung** | Vorhandener Debug-Vertrag verlangt Messages, enthält aber keine wiederverwendbare Langtext- oder NOWAIT-Funktion. |
+| **Status** | `researched` |
+| **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/language-elements/print-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/language-elements/raiserror-transact-sql?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Mit dem Benutzer Provider, sofortige Ausgabe, Chunkgrenze, Zeilenbehandlung, Präfixe und Verhalten für NULL/Leertext besprechen. |
+
+## TC-2026-017: Standardisierter Error Envelope
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-017` |
+| **Titel** | Einheitliche Erfassung und Weitergabe von Fehlerkontext |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Core |
+| **SQL-Server-Lücke** | `TRY...CATCH` und die `ERROR_*`-Funktionen liefern den technischen Fehlerkontext, aber keinen projektweiten stabilen Envelope für Korrelation, Work-Item, Transaktionszustand, Retry-Klassifikation und optionale Console-/Logging-Ausgabe. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein bekannt |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Fehler können einheitlich erfasst, protokolliert, über Worker-Grenzen transportiert und dennoch mit erkennbarer Originalursache weitergegeben werden. |
+| **Mögliche Technologie** | T-SQL-Infrastruktur innerhalb eines `CATCH`: `ERROR_NUMBER`, `ERROR_SEVERITY`, `ERROR_STATE`, `ERROR_PROCEDURE`, `ERROR_LINE`, `ERROR_MESSAGE`, `XACT_STATE` und `@@TRANCOUNT`; strukturierter OUTPUT-/Result-Vertrag oder JSON nur nach Besprechung. Das eigentliche Rethrow bleibt mit parameterlosem `THROW;` an der aufrufenden CATCH-Grenze. |
+| **Performance und Security** | Originalfehler darf nicht von Logging- oder Cleanup-Fehlern überschrieben werden. Bei `XACT_STATE() = -1` sind nur Reads und vollständiger Rollback zulässig; reguläres Tabellenlogging in derselben Transaktion ist dann unmöglich. Fehlermeldungen können schutzwürdige Runtime-Werte enthalten und dürfen nicht ungeprüft persistiert werden. Retry-Klassifikation allein nach Fehlernummer ist nicht immer ausreichend. |
+| **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz im T-SQL-Kern; Logger-Provider getrennt bewerten. |
+| **Dependencies** | Optional `TC-2026-014`, `TC-2026-016` und `TC-2026-019`. |
+| **Duplikatprüfung** | `USP_CONTRACT.md` und `TSQL_ENGINEERING.md` definieren Grundregeln, aber keine wiederverwendbare Error-Envelope-Capability. |
+| **Status** | `researched` |
+| **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/language-elements/throw-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/xact-state-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/set-xact-abort-transact-sql?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Mit dem Benutzer gewünschte Felder, Rückgabeform, Klassifikation, Logger-/Console-Kopplung und verbindliche Rethrow-Semantik besprechen. |
+
+## TC-2026-018: Kontrollierter Abbruch einer Ausführungsgruppe
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-018` |
+| **Titel** | Laufende Worker bei Fehler, Timeout oder Benutzerabbruch gemeinsam stoppen |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Core |
+| **SQL-Server-Lücke** | SQL Server kennt `KILL` für einzelne Sessions und providerspezifische Stop-Mechanismen, aber keinen sicheren allgemeinen Gruppenabbruch für zusammengehörige Work-Items. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein bekannt |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Bei einem fehlgeschlagenen Teiljob können noch nicht gestartete Arbeiten gesperrt, aktive Worker kooperativ beendet und nur im notwendigen Eskalationsfall gezielt terminiert werden. |
+| **Mögliche Technologie** | Zweistufiges Modell: Cancellation-Status je ExecutionId, den Worker an definierten Grenzen prüfen; providerspezifisches Stoppen noch nicht gestarteter beziehungsweise Agent-Arbeit; optional privilegierter `KILL`-Fallback für eindeutig verifizierte Toolbelt-Sessions. |
+| **Performance und Security** | `KILL` benötigt `ALTER ANY CONNECTION`, kann die eigene Session nicht beenden und löst gegebenenfalls einen langen Rollback aus. Session IDs werden wiederverwendet; vor einem Kill müssen ExecutionId, SessionId und unveränderliche Verbindungsmerkmale erneut geprüft werden. `ALTER QUEUE ... STATUS = OFF` stoppt bereits aktive Activation-Procedures nicht. Ein globales „alle Prozesse abbrechen“ außerhalb der eigenen Ausführungsgruppe ist ausdrücklich kein zulässiger Vertrag. |
+| **Plattformgrenzen** | T-SQL-Kill-Semantik gilt für SQL Server; Agent-, Service-Broker- und externe Provider benötigen eigene Stop-Adapter. Azure nicht automatisch unterstützt. |
+| **Dependencies** | `TC-2026-015`, `TC-2026-019`, optional `TC-2026-021`; persistenter Status benötigt eine freigegebene Tabellen-Namenskonvention. |
+| **Duplikatprüfung** | Keine bestehende Toolbelt-Cancellation-Capability; Analyze-Funktionen zum Beobachten von Sessions wären kein mutierender Gruppenabbruch. |
+| **Status** | `researched` |
+| **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/language-elements/kill-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-queue-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-stop-job-transact-sql?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Mit dem Benutzer Fail-fast versus Weiterverarbeitung, kooperative Prüfpunkte, Grace Period, Kill-Berechtigung und Rollback-Warteverhalten besprechen. |
+
+## TC-2026-019: Execution Correlation und Session-Kontext-Propagation
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-019` |
+| **Titel** | Zusammengehörige Aufrufe und Worker sessionsicher korrelieren |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Core |
+| **SQL-Server-Lücke** | `SESSION_CONTEXT` speichert Schlüssel nur für die aktuelle logische Verbindung. Eine neu geöffnete Session übernimmt weder diese Werte noch Temp-Tabellen, `SET`-Optionen oder die Caller-Transaktion automatisch. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein bekannt |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | ExecutionId, ParentExecutionId, WorkItemId und ausgewählte sichere Kontextwerte können über Logs, Worker, Console und Cancellation hinweg eindeutig verbunden werden. |
+| **Mögliche Technologie** | T-SQL-Vertrag für GUID-basierte Correlation IDs und explizite Übergabe an jede neue Session; optional kontrolliertes Setzen über `sys.sp_set_session_context`. Keine automatische Übernahme beliebiger Caller-Kontextwerte. |
+| **Performance und Security** | `SESSION_CONTEXT` erlaubt höchstens 8.000 Bytes je Wert und insgesamt 1 MB je Session. Kontext darf keine Secrets oder ungeprüften personenbezogenen Werte transportieren. Read-only-Werte können innerhalb einer logischen Verbindung geschützt werden, müssen in einer neuen Session aber erneut gesetzt und autorisiert werden. Connection Pooling und MARS sind gesondert zu testen. |
+| **Plattformgrenzen** | T-SQL-Kern voraussichtlich plattformgleich; Client- und Pooling-Verhalten ist providerabhängig. |
+| **Dependencies** | Grundlage für `TC-2026-014`, `TC-2026-015`, `TC-2026-018` und `TC-2026-021`. |
+| **Duplikatprüfung** | Keine bestehende projektweite Execution-Correlation-Capability gefunden. |
+| **Status** | `researched` |
+| **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-set-session-context-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/session-context-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/data-access/context-connection?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Mit dem Benutzer minimale Felder, Ownership, Erzeugungsregeln, erlaubte Context Keys und Verhalten bei verschachtelten Aufrufen festlegen. |
+
+## TC-2026-020: Retry-, Idempotenz- und Dead-letter-Vertrag
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-020` |
+| **Titel** | Fehlgeschlagene asynchrone Arbeit kontrolliert wiederholen oder isolieren |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Core |
+| **SQL-Server-Lücke** | Service Broker erkennt Poison Messages und deaktiviert eine Queue nach wiederholten Rollbacks, liefert aber keinen anwendungsneutralen Vertrag für Retry-Klassifikation, Backoff, Idempotency Key, maximale Versuche und Dead-letter-Verarbeitung. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Kein allgemeiner nativer Work-Retry-Vertrag dokumentiert. |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Transiente Fehler können begrenzt wiederholt werden; permanente Fehler blockieren nicht unkontrolliert die gesamte Queue; doppelte fachliche Seiteneffekte werden vermieden. |
+| **Mögliche Technologie** | T-SQL-Statusmodell mit Retry-Klassifikation, deterministischem Idempotency Key, Attempt-Zähler, NextAttemptAt und Dead-letter-Zustand; providerspezifische Queue-Anbindung. |
+| **Performance und Security** | Wiederholungen dürfen keine Retry-Stürme erzeugen. Backoff benötigt Obergrenze und Jitter-Entscheidung. Payload und Error Envelope unterliegen Datenschutz- und Größenregeln. Idempotenz kann nicht generisch garantiert werden, wenn die fachliche Work Procedure keinen geeigneten Schlüsselvertrag besitzt. |
+| **Plattformgrenzen** | Kernvertrag portabel; Zeitplanung und Dead-letter-Transport sind providerabhängig. |
+| **Dependencies** | `TC-2026-015`, `TC-2026-017`, `TC-2026-019`; persistente Zustände benötigen eine freigegebene Tabellen-Namenskonvention. |
+| **Duplikatprüfung** | Kein entsprechender Kandidat vorhanden; Service-Broker-Poison-Handling ist eine Engine-Schutzfunktion, kein vollständiger Toolbelt-Vertrag. |
+| **Status** | `researched` |
+| **Primärquellen** | https://learn.microsoft.com/en-us/sql/database-engine/service-broker/handling-poison-messages?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/database-engine/service-broker/service-broker-application-outline?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/database-engine/service-broker/transactional-messaging?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Mit dem Benutzer Retry-Klassen, Idempotenzpflicht, Backoff, maximale Versuche und manuellen Requeue-Vertrag besprechen. |
+
+## TC-2026-021: Worker-Heartbeat, Lease und Orphan Recovery
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-021` |
+| **Titel** | Hängende oder verlorene Worker erkennen und Arbeit kontrolliert übernehmen |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Core |
+| **SQL-Server-Lücke** | Eine gestartete Session oder Activation-Procedure liefert keinen allgemeinen dauerhaften Business-Status, Heartbeat oder Lease-Vertrag. Sessionende, Agentabbruch und Infrastrukturfehler können sonst Work-Items ohne eindeutigen Besitzer hinterlassen. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein bekannt |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Ein Supervisor kann aktive, überfällige und verwaiste Arbeit unterscheiden, Status anzeigen und nur nach abgelaufener Lease eine kontrollierte Wiederaufnahme zulassen. |
+| **Mögliche Technologie** | T-SQL-Lease mit ExecutionId, WorkItemId, WorkerId, SessionId, LeaseUntil, LastHeartbeatAt und monotoner Ownership-Version; Abgleich mit providerspezifischen aktiven Tasks nur als zusätzliche Evidenz. |
+| **Performance und Security** | Heartbeats erzeugen zusätzliche Writes und Logvolumen; Intervall und Batch-Verhalten müssen begrenzt sein. SessionId allein ist wegen Wiederverwendung nicht hinreichend. Lease-Übernahme und fachliche Idempotenz müssen zusammenpassen. Reale Host-, Login- oder Programmnamen werden nicht als Repository-Testdaten gespeichert. |
+| **Plattformgrenzen** | Statuskern voraussichtlich plattformgleich; aktive Task-Metadaten und Agent-/Broker-Provider getrennt prüfen. |
+| **Dependencies** | `TC-2026-015`, `TC-2026-019`, `TC-2026-020`; persistente Zustände benötigen eine freigegebene Tabellen-Namenskonvention. |
+| **Duplikatprüfung** | Keine entsprechende Toolbelt-Capability gefunden. Diagnose vorhandener Sessions würde in `SQL_Server_Analyze` gehören; Ownership und Recovery des eigenen Work-Frameworks bleiben Toolbelt-Scope. |
+| **Status** | `researched` |
+| **Primärquellen** | https://learn.microsoft.com/en-us/sql/database-engine/service-broker/understanding-when-activation-occurs?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/language-elements/kill-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-set-session-context-transact-sql?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Mit dem Benutzer Statusmodell, Heartbeat-Intervall, Lease-Dauer, Ownership-Wechsel und Recovery-Verhalten besprechen. |
+
+## TC-2026-022: Sicherer Work-Type-Katalog statt beliebigem SQL-Text
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-022` |
+| **Titel** | Validierte benannte Arbeitspakete für parallele oder asynchrone Ausführung |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Core / Security |
+| **SQL-Server-Lücke** | SQL Server kann dynamisches SQL ausführen, stellt aber keinen anwendungsneutralen sicheren Vertrag bereit, der beliebige übergebene Statements automatisch auf Berechtigungen, Seiteneffekte, Transaktionsgrenzen und Idempotenz begrenzt. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein bekannt |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Ein Parallelisierungs-Framework kann ausschließlich registrierte Procedures beziehungsweise versionierte Work Types mit typisierten Parametern starten, anstatt eine allgemeine Remote-Code-Execution-Schnittstelle für SQL-Text anzubieten. |
+| **Mögliche Technologie** | T-SQL-Metadatenvertrag für WorkType, Zielprocedure, Parameter-Schema, Mindestversion, Timeout-, Retry-, Idempotenz- und Berechtigungsprofil; Werte werden parametrisiert, technische Identifier validiert und mit `QUOTENAME` behandelt. Frei übergebener SQL-Text bleibt standardmäßig ausgeschlossen. |
+| **Performance und Security** | Der Katalog ist selbst ein Security Boundary und benötigt kontrollierte Änderungsrechte, Dependency-Preflight und Versionierung. Modul-Signing oder gezielte `EXECUTE AS`-Alternativen sind vor Privilegienerweiterung zu vergleichen. Raw-SQL-Opt-in wäre eine separate Hochrisiko-Capability und keine versteckte Option. |
+| **Plattformgrenzen** | T-SQL-Kern voraussichtlich plattformgleich; Signierung, Provider und zentrale Installation getrennt validieren. |
+| **Dependencies** | `TC-2026-015`; persistenter Katalog benötigt eine freigegebene Tabellen-Namenskonvention und eigene Architekturentscheidung. |
+| **Duplikatprüfung** | Kein vorhandener Work-Type- oder Command-Registry-Kandidat. |
+| **Status** | `researched` |
+| **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-executesql-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/signing-stored-procedures-with-a-certificate?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/security/permissions-database-engine?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-29 |
+| **Nächster Schritt** | Mit dem Benutzer festlegen, ob ausschließlich Procedures oder auch deklarative Statement-Typen zugelassen werden sollen und wer Work Types registrieren darf. |

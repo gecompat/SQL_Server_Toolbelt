@@ -51,7 +51,14 @@ Die Regel gilt auch für automatisch angelegte Plan-, Initialisierungs- und Zwis
 
 ## Implementierungs-Gate
 
-Kein fachliches SQL-Objekt, keine Stored Procedure, Function, View, Assembly oder ResultTable-Helper-Prozedur darf ohne freigegebenes Arbeitspaket oder ausdrücklichen unmittelbaren Benutzerauftrag implementiert werden. Ein unmittelbarer Benutzerauftrag ist vor dem Merge in `.ai/BACKLOG.md`, im Pull Request oder in einer Architekturentscheidung nachvollziehbar festzuhalten.
+Ideen und recherchierte Funktionskandidaten dürfen fortlaufend in den getrennten Backlog-Listen erfasst und präzisiert werden. Ein Kandidat, ein Design oder ein geplantes Arbeitspaket ist jedoch keine Implementierungsfreigabe.
+
+Kein fachliches SQL-Objekt, keine Stored Procedure, Function, View, Assembly oder ResultTable-Helper-Prozedur darf implementiert werden, bevor:
+
+1. Zweck, öffentlicher Vertrag, Alternativen, Risiken und Scope der konkreten Funktion mit dem Benutzer besprochen wurden;
+2. der Benutzer anschließend die Implementierung dieser Funktion ausdrücklich freigegeben hat.
+
+Die Besprechung und Freigabe sind vor dem Merge in `.ai/BACKLOG.md`, im Pull Request oder in einer Architekturentscheidung nachvollziehbar festzuhalten. Eine pauschale Roadmap- oder Backlog-Freigabe ersetzt diese funktionsbezogene Freigabe nicht.
 
 ## Weitere autoritative Dokumente
 

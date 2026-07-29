@@ -2,11 +2,11 @@
 
 ## Status
 
-Repository-Grundaufbau, Foundation-Korrektur, erste Backlog-Research-Welle und die implementierungsreife Spezifikation des ersten Kernmoduls sind abgeschlossen. Es sind noch keine fachlichen SQL-Objekte implementiert.
+Repository-Grundaufbau, Foundation-Korrektur, zwei Backlog-Research-Wellen und die implementierungsreife Spezifikation des ersten Kernmoduls sind abgeschlossen. Es sind noch keine fachlichen SQL-Objekte implementiert.
 
 ## Phase 0 – Repository-Grundaufbau
 
-**Status:** `completed`  
+**Status:** `completed`
 **Abschluss:** 2026-07-28
 
 Enthält Root-Dateien, AI-Steuerung, Architektur- und Standardsdokumentation, Modul-Templates, Backlog-Struktur und den USP-Vertrag.
@@ -39,6 +39,21 @@ Enthält:
 - Primärquellen, Plattformgrenzen, Performance-/Security-Fragen und konkrete nächste Schritte;
 - Priorisierung der ResultTable-Infrastruktur als erstes Kernarbeitspaket.
 
+## Phase 0.3 – Backlog Research Wave 2: Execution Infrastructure
+
+**Status:** `completed`
+**Abschluss:** 2026-07-29
+
+Enthält:
+
+- Kandidaten `TC-2026-014` bis `TC-2026-022`;
+- transaktionsunabhängige Ereignisprotokollierung mit klarer Abgrenzung zu transactional Service-Broker-Messaging;
+- asynchrone Work Queue und begrenzte Parallelisierung;
+- lange beziehungsweise ungepufferte Console-Ausgabe;
+- Error Envelope, Cancellation, Correlation, Retry/Dead-letter und Worker-Leases;
+- sicheren Work-Type-Katalog anstelle einer ungeprüften Raw-SQL-Ausführung;
+- verbindliche Trennung zwischen fortlaufender Ideenpflege und funktionsbezogener Implementierungsfreigabe.
+
 ## Phase 1 – Erstes Kernmodul
 
 ### Phase 1.1 – Implementierungsreife Spezifikation
@@ -62,18 +77,22 @@ Ergebnis:
 
 ### Phase 1.2 – Implementierung und Validierung
 
-**Status:** `planned`  
+**Status:** `blocked`
 **Arbeitspaket:** `AP-2026-003`
+
+Vor der Implementierung wird `toolbelt_core.USP_PrepareResultTable` mit dem Benutzer anhand der vorhandenen Spezifikation besprochen und anschließend ausdrücklich freigegeben. Design, Kandidatenstatus oder Arbeitspaket ersetzen diese funktionsbezogene Freigabe nicht.
 
 Reihenfolge:
 
-1. Modulgerüst, Manifest, Procedure, Help und Lifecycle-Artefakte implementieren;
-2. Objekt- und Moduldokumentation sowie synthetische Beispiele fertigstellen;
-3. statische und Contract Tests ausführen;
-4. lokale und zentrale Runtime-Tests auf SQL Server 2019, 2022 und 2025 durchführen;
-5. Windows und Linux getrennt validieren, soweit geeignete Runner vorhanden sind;
-6. Collation-, Fehler-, Recovery- und Performance-Tests dokumentieren;
-7. erst nach tatsächlicher Evidenz den Status `implemented` beziehungsweise `validated` vergeben.
+1. Funktionsvertrag, Alternativen, Risiken und Scope mit dem Benutzer besprechen;
+2. ausdrückliche Implementierungsfreigabe dokumentieren;
+3. Modulgerüst, Manifest, Procedure, Help und Lifecycle-Artefakte implementieren;
+4. Objekt- und Moduldokumentation sowie synthetische Beispiele fertigstellen;
+5. statische und Contract Tests ausführen;
+6. lokale und zentrale Runtime-Tests auf SQL Server 2019, 2022 und 2025 durchführen;
+7. Windows und Linux getrennt validieren, soweit geeignete Runner vorhanden sind;
+8. Collation-, Fehler-, Recovery- und Performance-Tests dokumentieren;
+9. erst nach tatsächlicher Evidenz den Status `implemented` beziehungsweise `validated` vergeben.
 
 Die erste Version benötigt keine persistente Tabelle, kein Synonym, keine Assembly und keinen Type. Eine Entscheidung zu diesen offenen persistenten Namenskonventionen ist deshalb noch nicht erforderlich.
 

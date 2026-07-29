@@ -13,14 +13,30 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Scope | Modulverzeichnis, `module.yaml`, `toolbelt_core.USP_PrepareResultTable`, Install-/Upgrade-/Uninstall-Skripte, Objekt- und Moduldokumentation, synthetische Beispiele sowie statische, Contract-, Runtime-, Collation-, Deployment- und Plattformtests. |
 | Dependencies | `AP-2026-002`, `RESULT_TABLE_MODULE_DESIGN.md`, `RESULT_TABLE_CONTRACT_TEST_MATRIX.md`, `DEC-2026-013` bis `DEC-2026-017`. |
 | Priorität | `P0` |
-| Status | `planned` |
+| Status | `blocked` |
 | Akzeptanzkriterien | Exakt ein persistentes SQL-Objekt in Version `1.0.0`; öffentliche Signatur und Help-Vertrag vollständig; `@LikeTable`-Schemaquelle, `@KeepData`-Matrix, Preflight, in-place-Umbau, Savepoint- und Fehlervertrag implementiert; lokale und zentrale Installation; kontrolliert wiederholbare Lifecycle-Skripte; keine nicht freigegebenen weiteren persistenten Objekttypen; Dokumentation und Manifest konsistent; alle verfügbaren Pflichtprüfungen ausgeführt und nicht verfügbare Prüfungen ehrlich ausgewiesen. |
 | Tests | Vollständige Matrix aus `Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md`; SQL Server 2019, 2022 und 2025 sowie Windows/Linux und lokal/zentral getrennt, soweit die benötigten Runner tatsächlich vorhanden sind. |
-| Blocker | Kein fachlicher Blocker. Verfügbarkeit geeigneter Runtime-Runner ist vor der Validierungswelle zu prüfen; fehlende Runner ergeben `not executed`, keinen grünen Nachweis. |
+| Blocker | Vor Implementierung müssen Zweck, öffentlicher Vertrag, Alternativen, Risiken und Scope der konkreten Funktion mit dem Benutzer besprochen und anschließend ausdrücklich freigegeben werden. Verfügbarkeit geeigneter Runtime-Runner ist vor der Validierungswelle zusätzlich zu prüfen; fehlende Runner ergeben `not executed`, keinen grünen Nachweis. |
 | Evidenz | Implementierungsreife Spezifikation und statisch validiertes Design aus `AP-2026-002`. |
-| Nächster Schritt | Modulgerüst aus den objekttypspezifischen Templates erzeugen und Welle A mit Procedure, Help, Manifest und Lifecycle-Artefakten implementieren. |
+| Nächster Schritt | `toolbelt_core.USP_PrepareResultTable` anhand der vorhandenen Spezifikation mit dem Benutzer besprechen, offene Vertragsentscheidungen festhalten und eine ausdrückliche Implementierungsfreigabe abwarten. |
 
 ## Abgeschlossene Arbeitspakete
+
+### AP-2026-004: Backlog Research Wave 2 – Execution Infrastructure
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-004` |
+| Ziel | Die vom Benutzer angestoßenen Ideen zu zweiter Session, rollback-unabhängigem Logging, Parallelisierung, Error Handling, Console-Ausgabe und Gruppenabbruch quellenbasiert erfassen und um unmittelbar notwendige Supporting Capabilities ergänzen. |
+| Scope | `TC-2026-014` bis `TC-2026-022`; Toolbelt-Kandidaten für autonome Ereignisprotokollierung, Work Queue, Console, Error Envelope, Cancellation, Correlation, Retry/Dead-letter, Worker Lease und sicheren Work-Type-Katalog. |
+| Dependencies | Repository-Grundaufbau, Backlog-Curator-Regeln und funktionsbezogenes Implementierungs-Gate. |
+| Priorität | `P1` |
+| Status | `validated` |
+| Akzeptanzkriterien | Kandidaten besitzen stabile IDs, vollständige Felder, Primärquellen, klare Trennung dokumentierter Engine-Semantik von offenen Architekturentscheidungen sowie einen nächsten Besprechungsschritt; kein Runtime-Objekt und keine Implementierungsfreigabe werden erzeugt. |
+| Tests | Duplikatprüfung gegen alle drei Kandidatenlisten und bestehende Architekturverträge; Quellenprüfung gegen Microsoft Learn und den Microsoft SQL Server Blog; Datenschutz- und Secret-Gate. |
+| Blocker | Keine für die Research-Erfassung; jede spätere Funktion benötigt eine eigene Besprechung und ausdrückliche Benutzerfreigabe. |
+| Evidenz | `Backlog/TOOLBELT_CANDIDATES.md`, geprüft am 2026-07-29. Keine Runtime- oder Implementierungsvalidierung behauptet. |
+| Nächster Schritt | Kandidaten einzeln nach Nutzen und Abhängigkeiten mit dem Benutzer besprechen; keine automatische Aktivierung als Implementierungsarbeitspaket. |
 
 ### AP-2026-002: ResultTable-Infrastruktur implementierungsreif spezifizieren
 
