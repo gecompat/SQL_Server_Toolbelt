@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Verwende ausschließlich synthetische oder öffentliche Informationen. Keine realen Personen-, Firmen-, Kunden-, Infrastruktur-, Runtime- oder Secret-Daten.
+        Verwende synthetische oder fachlich relevante öffentliche Informationen. Öffentliche Organisations-/Projektnamen und Links sind zulässig. Keine personenbezogenen/sensiblen, internen/vertraulichen, Original-, nicht öffentlichen Infrastruktur-, realen Runtime-, Remote-Runner-Hardware- oder Secret-Daten.
 
   - type: dropdown
     id: ziel_repo
@@ -102,5 +102,5 @@ body:
     attributes:
       label: Datenschutzbestätigung
       options:
-        - label: Dieser Issue enthält keine personenbezogenen, internen Firmen-, Kunden-, Infrastruktur-, Runtime- oder Secret-Daten.
+        - label: Dieser Issue enthält keine personenbezogenen/sensiblen, internen/vertraulichen, Original-, nicht öffentlichen Infrastruktur-, realen Runtime-, konkreten Remote-Runner-Hardware- oder Secret-Daten. Öffentliche relevante Organisations-/Projektnamen und Links sind zulässig.
           required: true

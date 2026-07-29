@@ -35,9 +35,11 @@ Nicht ausgeführte oder nicht anwendbare Prüfungen:
 
 ## Datenschutz und Secrets
 
-- [ ] Keine personenbezogenen, internen Firmen-, Kunden- oder Infrastrukturinformationen enthalten.
-- [ ] Keine realen Runtime-Ausgaben, Logs, Traces oder Execution Plans übernommen.
+- [ ] Keine personenbezogenen/sensiblen oder internen/vertraulichen Informationen enthalten.
+- [ ] Keine Original-Tabelleninhalte, nicht öffentlichen Infrastrukturangaben, realen Runtime-Ausgaben, Logs, Traces oder Execution Plans übernommen.
+- [ ] Keine konkreten Hardware-, Kapazitäts-, Inventar- oder Umgebungswerte von Remote Runnern übernommen.
 - [ ] Keine Secrets oder privaten Schlüssel enthalten.
+- [ ] Öffentliche Organisations-/Projektnamen und Links sind fachlich relevant; `gecompat` und `Gerhard Pisch` sind ausdrücklich zulässig.
 - [ ] Datenschutz-Stop-Gate aus `AGENTS.md` geprüft.
 
 ## Lizenz

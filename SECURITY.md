@@ -17,11 +17,11 @@ Eine Meldung soll enthalten:
 - betroffene Komponente und Version;
 - reproduzierbare synthetische Beschreibung;
 - erwartete und beobachtete Auswirkungen;
-- keine Produktionsdaten, realen Infrastrukturangaben oder Secrets.
+- keine Produktions- oder Originaldaten, nicht öffentlichen Infrastrukturangaben, realen Runtime-/Runner-Hardwarewerten oder Secrets.
 
 ## Datenschutz
 
-Sicherheitsmeldungen dürfen keine personenbezogenen Daten, realen Kunden- oder Firmendaten, produktiven Logs, realen Execution Plans oder Secrets enthalten. Verwende synthetische Beispiele.
+Sicherheitsmeldungen dürfen keine personenbezogenen oder sensiblen Daten, internen oder vertraulichen Kunden-/Firmendaten, Original-Tabelleninhalte, produktiven Logs, realen Execution Plans, konkreten Remote-Runner-Hardwarewerte oder Secrets enthalten. Verwende synthetische Beispiele. Fachlich relevante öffentliche Organisations-/Projektnamen und öffentliche Links sind zulässig; `gecompat` und `Gerhard Pisch` sind ausdrücklich freigegeben.
 
 ## Reaktionszeit
 

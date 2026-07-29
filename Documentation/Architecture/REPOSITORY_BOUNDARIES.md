@@ -24,12 +24,18 @@ Solche Inhalte werden nicht im Toolbelt implementiert. Vor Aufnahme eines Analyz
 
 Azure SQL Database, Azure SQL Managed Instance und andere Azure-Produkte sind nicht automatisch unterstützt. Jede Capability benötigt eine eigene Prüfung von verfügbaren Features, Berechtigungen, Deployment und Plattformgrenzen.
 
-## Verbotene Repository-Inhalte
+## Öffentliche Referenzen und verbotene Repository-Inhalte
 
-- Produktionsdaten oder -backups;
-- reale Personen-, Kunden- oder interne Firmendaten;
-- reale Server-, Datenbank-, Domain-, URL- oder Pfadangaben;
+Fachlich relevante, öffentlich bekannte Organisations- und externe Projektnamen sowie öffentliche Quellen-, Projekt- und Dokumentations-URLs dürfen im Repository verwendet werden. `gecompat` und `Gerhard Pisch` sind ausdrücklich freigegeben.
+
+Verboten bleiben:
+
+- personenbezogene oder sensible Daten;
+- interne oder vertrauliche Firmen-, Kunden-, Organisations- oder Projektdaten;
+- Original-Tabelleninhalte aus realen Umgebungen, Produktionsdaten, Backups oder Exporte;
+- nicht öffentliche Server-, Datenbank-, Domain-, Endpoint-, URL-, Netzwerk- oder Pfadangaben;
 - reale Logs, Traces, Execution Plans oder Runtime-Evidence;
+- konkrete Hardware-, Kapazitäts-, Inventar- oder Umgebungswerte von Remote Runnern;
 - Secrets und private Schlüssel.
 
 ## Cross-Repository-Regeln

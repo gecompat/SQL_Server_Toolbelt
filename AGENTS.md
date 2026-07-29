@@ -29,16 +29,18 @@ Die Datei ist keine Source of Truth für Projektregeln, Prioritäten, öffentlic
 
 **Vor jeder Dateiänderung, jedem Commit und jedem Pull Request ist zu prüfen:**
 
-- keine personenbezogenen Daten oder nicht freigegebenen realen Namen;
-- keine internen Firmen-, Kunden- oder Organisationsdaten;
-- keine realen Host-, Server-, Datenbank-, Domain-, URL- oder Pfadangaben;
-- keine Produktionsdaten, Produktionsbackups, realen Logs, Traces oder Execution Plans;
+- keine personenbezogenen oder sensiblen Daten; reale Personennamen nur bei fachlicher Relevanz, rechtmäßiger Verwendung oder ausdrücklicher Freigabe;
+- keine internen oder vertraulichen Firmen-, Kunden-, Organisations- oder Projektdaten;
+- keine nicht öffentlichen Host-, Server-, Datenbank-, Domain-, Endpoint-, URL- oder Pfadangaben;
+- keine Original-Tabelleninhalte aus realen Umgebungen, Produktionsdaten, Produktionsbackups, Exporte, realen Logs, Traces oder Execution Plans;
 - keine Secrets wie Passwörter, Tokens, API-Keys, private Schlüssel oder Connection Strings mit Credentials;
-- keine realen Runtime-Ausgaben als Repository-Artefakte.
+- keine realen Runtime-Ausgaben sowie keine konkreten Hardware-, Kapazitäts-, Inventar- oder Umgebungswerte von Remote Runnern als Repository-Artefakte.
 
 Im Zweifel: **vor dem Schreiben stoppen und den Benutzer fragen.**
 
-Erlaubt sind synthetische Daten, `localhost`, `127.0.0.1`, Contoso, Fabrikam, AdventureWorks und WideWorldImporters. `gecompat - Gerhard Pisch` ist ausschließlich für Copyright, Attribution und Lizenz freigegeben.
+Erlaubt sind synthetische Daten, `localhost`, `127.0.0.1`, Contoso, Fabrikam, AdventureWorks und WideWorldImporters. Ebenfalls erlaubt sind fachlich relevante, öffentlich bekannte Organisations- und externe Projektnamen sowie öffentliche Quellen-, Projekt- und Dokumentations-URLs. `gecompat` und `Gerhard Pisch` sind für Repository-Inhalte ausdrücklich freigegeben.
+
+Eine öffentliche Organisation, ein öffentliches Projekt oder ein öffentlicher Link macht darin vorkommende personenbezogene, sensible, interne oder vertrauliche Daten nicht automatisch zulässig. Details regelt [DATA_PRIVACY_AND_CONFIDENTIALITY.md](./Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md).
 
 ## Geschützte Lizenzinhalte
 

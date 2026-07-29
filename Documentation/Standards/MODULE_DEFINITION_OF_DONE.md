@@ -47,7 +47,7 @@ Ein Modul darf den `implementation_status: implemented` erhalten, wenn Implement
 ## Datenschutz und Security
 
 - [ ] Datenschutz- und Secret-Stop-Gate geprüft.
-- [ ] Keine realen Personen-, Firmen-, Kunden-, Infrastruktur- oder Runtime-Daten im Repository.
+- [ ] Keine personenbezogenen/sensiblen, internen/vertraulichen, Original-, nicht öffentlichen Infrastruktur-, realen Runtime- oder konkreten Remote-Runner-Hardwaredaten im Repository; öffentliche relevante Organisations-/Projektnamen und Links sind zulässig.
 - [ ] Keine privaten Schlüssel oder Secrets.
 - [ ] CLR- und `TRUSTWORTHY`-Ausnahmen ausdrücklich freigegeben, falls vorhanden.
 

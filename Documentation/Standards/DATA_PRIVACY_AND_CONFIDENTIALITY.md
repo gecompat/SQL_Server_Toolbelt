@@ -1,65 +1,58 @@
 # Datenschutz und Vertraulichkeit
 
-## Stop-Gate
+## Zweck
 
-**Vor jeder Dateiänderung, jedem Commit und jedem PR ist diese Prüfung durchzuführen.**
+Diese Richtlinie trennt zulässige öffentliche Referenzen von personenbezogenen, sensiblen, internen und laufzeitbezogenen Daten. Öffentliche Namen und Links sind für Research, Attribution, Interoperabilität und technische Dokumentation ausdrücklich nutzbar; Originaldaten und nicht öffentliche Betriebsinformationen bleiben geschützt.
 
-Im Zweifel: **vor dem Schreiben stoppen und Benutzer fragen.**
+## Stop-Gate vor Repository-Änderungen
 
-## Verbotene Inhalte
+Vor jeder Dateiänderung, jedem Commit und jedem Pull Request ist zu prüfen:
 
-In Repository, Dokumentation, Code, Beispielen, Tests, Commits, PRs und Issues sind verboten:
+- Ist der Inhalt für Projektzweck, Quelle, Attribution, Dokumentation, Test oder Interoperabilität relevant?
+- Enthält er personenbezogene, sensible, interne, vertrauliche oder aus einer realen Laufzeit erhobene Daten?
+- Lässt sich derselbe Zweck mit synthetischen, redigierten oder aggregierten Angaben erreichen?
 
-### Personenbezogene Daten
-- Namen realer Personen (außer im Copyright- und Attributionsblock: `gecompat - Gerhard Pisch`)
-- E-Mail-Adressen, Telefonnummern, Adressen
-- Benutzernamen aus Produktivumgebungen
-- Daten aus DSGVO-Art.-9-Kategorien (Gesundheit, Religion, Ethnizität, politische Überzeugungen, biometrische Daten, Gewerkschaftszugehörigkeit, sexuelle Orientierung)
+Im Zweifel wird vor dem Schreiben gestoppt und der Benutzer gefragt.
 
-### Infrastrukturdaten
-- Reale Server-, Instanz- und Datenbanknamen
-- Reale Domainnamen, Hostnamen
-- Interne URLs, API-Endpunkte, Netzwerkpfade
-- IP-Adressen (außer `localhost` / `127.0.0.1`)
+## Zulässige Inhalte
 
-### Produktionsdaten
-- Datenbankbackups oder -exporte
-- Tabelleninhalt aus Produktivumgebungen
-- Reale Query Plans, Execution Logs, Traces
+Zulässig sind insbesondere:
 
-### Secrets
-- Passwörter
-- API-Keys, Tokens
-- OAuth-Tokens, Session-Cookies
-- Connection Strings mit Credentials
-- Private Schlüssel, PFX/P12/PVK/SNK-Dateien
+- fachlich relevante, öffentlich bekannte Organisationsnamen;
+- fachlich relevante Namen externer oder öffentlicher Projekte;
+- öffentliche Quellen-, Projekt-, Standard- und Dokumentations-URLs;
+- `gecompat` und `Gerhard Pisch`;
+- synthetische Daten und Beispiele;
+- `localhost`, `127.0.0.1`, Contoso, Fabrikam, AdventureWorks und WideWorldImporters;
+- öffentliche, statische Produkt- und Plattformdokumentation, sofern keine konkreten Laufzeitwerte übernommen werden.
 
-## Erlaubte Inhalte
+Die Nennung einer öffentlichen Organisation, eines externen Projekts oder einer öffentlichen URL ist keine Freigabe für darin vorkommende personenbezogene, sensible, interne oder vertrauliche Daten.
 
-- Synthetische Daten (fictional, klar als Beispiel erkennbar)
-- `localhost`, `127.0.0.1`
-- Öffentlich bekannte Beispieldatenbanken: Contoso, Fabrikam, AdventureWorks, WideWorldImporters
-- Ausdrücklich freigegebene Demo-Daten
-- `gecompat - Gerhard Pisch` ausschließlich für Copyright, Attribution, Lizenz
+## Unzulässige Repository-Inhalte
 
-## Debug-Ausgaben
+Nicht versioniert oder in Issues, Pull Requests, Beispielen, Help-Ausgaben oder Test-Evidence übernommen werden:
 
-Runtime-Debug darf diagnostisch notwendige technische Werte enthalten:
-- Datenbankname, Schemaname, Objektname (Systemkontext)
-- Parameterwerte
-- Metadaten
-- Generiertes SQL
-- Fehlerdetails
+- personenbezogene oder sensible Daten; reale Personennamen nur bei fachlicher Relevanz, rechtmäßiger Verwendung oder ausdrücklicher Freigabe;
+- interne oder vertrauliche Firmen-, Kunden-, Organisations- und Projektdaten;
+- nicht öffentliche Host-, Server-, Instanz-, Datenbank-, Domain-, Endpoint-, URL-, Netzwerk- oder Pfadangaben;
+- Original-Tabelleninhalte aus realen Umgebungen;
+- Produktionsdaten, Backups, Exporte oder unveränderte Ausschnitte daraus;
+- reale Logs, Traces, Execution Plans, Fehlerausgaben oder sonstige Runtime-Evidence;
+- konkrete Hardware-, Kapazitäts-, Inventar- oder Umgebungswerte von Remote Runnern, beispielsweise CPU-Modell oder -Anzahl, RAM, Datenträgerkapazität, freie Kapazität, Hardwareinventar, Hostnamen, Topologie oder tatsächliche Laufzeitpfade;
+- Passwörter, Tokens, API-Keys, private Schlüssel und Connection Strings mit Credentials.
 
-Runtime-Debug darf **niemals** enthalten:
-- Passwörter, Tokens, API-Keys
-- Private Schlüssel
-- Session-/OAuth-Tokens
-- Connection Strings mit Credentials
-- Zugriffscookies
+Öffentliche Workflow-Konfigurationen und allgemeine Plattformangaben sind zulässig, sofern sie keine konkreten, aus einem Runner ausgelesenen Hardware-, Kapazitäts-, Inventar- oder Umgebungswerte enthalten.
 
-**Reale Debug-Ausgaben dürfen nicht als Repository-, Help-, Beispiel-, Test-, Issue- oder PR-Inhalt übernommen werden.**
+## Debug und Laufzeit
 
-## Signing-Artefakte
+Vertrauliche Runtime-Werte dürfen bei ausdrücklich aktiviertem Debug diagnostisch in Resultsets oder über `OUTPUT` erscheinen, wenn dies für die Funktion notwendig und im öffentlichen Vertrag dokumentiert ist. Echte Secrets werden auch im Debug nicht aktiv ausgegeben.
 
-Private Signing Keys (`*.pfx`, `*.p12`, `*.pvk`, `*.snk`) dürfen nicht ins Repository. Details: [CLR_SECURITY_AND_PORTABILITY.md](../Architecture/CLR_SECURITY_AND_PORTABILITY.md)
+Reale Debugausgaben, Originaldaten und Runnerwerte werden nicht als Help, Beispiel, Test-Evidence, Issue-, Pull-Request- oder Repository-Inhalt gespeichert. Für dauerhafte Nachweise werden synthetische oder ausreichend redigierte Daten verwendet.
+
+## Entscheidungsregel
+
+Eine Angabe ist zulässig, wenn sie öffentlich, fachlich relevant und nicht personenbezogen, sensibel, intern, vertraulich oder eine konkrete reale Laufzeitausgabe ist. Bei Mischinhalten wird nur der erforderliche öffentliche Teil übernommen; der Rest wird redigiert oder synthetisch ersetzt.
+
+## Signaturartefakte
+
+Signaturzertifikate, asymmetrische Schlüssel und daraus abgeleitete Artefakte werden nicht als dauerhafte Secrets behandelt, müssen aber trotzdem begründet, dokumentiert und reproduzierbar erzeugt werden. Private Schlüssel aus realen Umgebungen bleiben verboten.

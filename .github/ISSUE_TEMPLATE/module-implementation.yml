@@ -76,5 +76,5 @@ body:
     attributes:
       label: Datenschutzbestätigung
       options:
-        - label: Dieser Issue enthält keine personenbezogenen Daten, keine realen Infrastrukturangaben, keine Secrets.
+        - label: Dieser Issue enthält keine personenbezogenen/sensiblen oder internen/vertraulichen Daten, keine Original-Tabelleninhalte, keine nicht öffentlichen Infrastrukturangaben, keine konkreten Remote-Runner-Hardwarewerte und keine Secrets. Öffentliche relevante Organisations-/Projektnamen und Links sind zulässig.
           required: true

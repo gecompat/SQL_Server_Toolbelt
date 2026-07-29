@@ -26,7 +26,7 @@ KI-generierte Commit Messages beginnen mit dem tatsächlichen KI-Namen, beispiel
 
 ## Datenschutz-Stop-Gate
 
-Vor jeder Dateiänderung und vor jedem Commit prüfen: keine personenbezogenen Daten, keine internen Firmen- oder Kundendaten, keine realen Infrastruktur- oder Runtime-Daten und keine Secrets. Details: [DATA_PRIVACY_AND_CONFIDENTIALITY.md](./Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md)
+Vor jeder Dateiänderung und vor jedem Commit prüfen: Öffentliche Organisations-/Projektnamen und öffentliche Quellenlinks sind bei fachlicher Relevanz zulässig. Personenbezogene oder sensible Daten, interne oder vertrauliche Informationen, Original-Tabelleninhalte, reale Runtime-Ausgaben, konkrete Remote-Runner-Hardwarewerte und Secrets sind nicht zulässig. `gecompat` und `Gerhard Pisch` sind ausdrücklich freigegeben. Details: [DATA_PRIVACY_AND_CONFIDENTIALITY.md](./Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md)
 
 ## Coding- und Namenskonventionen
 
