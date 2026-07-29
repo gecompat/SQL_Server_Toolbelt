@@ -140,6 +140,29 @@ BEGIN TRY
         THROW 52324, N'Der Savepoint-Rollback hat nicht exakt eine Ausgangsspalte wiederhergestellt.', 1;
     END;
 
+    IF EXISTS
+       (
+           SELECT 1
+           FROM tempdb.sys.columns AS c
+           WHERE c.object_id = @TargetObjectId
+             AND c.name COLLATE Latin1_General_100_BIN2 LIKE N'#tbx[_]%'
+       )
+    BEGIN
+        THROW 52325, N'Der Savepoint-Rollback hat die interne Anchor-Spalte zurückgelassen.', 1;
+    END;
+
+    IF EXISTS
+       (
+           SELECT 1
+           FROM tempdb.sys.columns AS c
+           WHERE c.object_id = @TargetObjectId
+             AND c.name COLLATE Latin1_General_100_BIN2 =
+                 N'ReplacementValue'
+       )
+    BEGIN
+        THROW 52326, N'Der Savepoint-Rollback hat die geplante Replacement-Spalte zurückgelassen.', 1;
+    END;
+
     IF NOT EXISTS
        (
            SELECT 1
@@ -148,7 +171,7 @@ BEGIN TRY
              AND c.name COLLATE Latin1_General_100_BIN2 = N'OriginalValue'
        )
     BEGIN
-        THROW 52325, N'Der Savepoint-Rollback hat den Namen der Ausgangsspalte nicht wiederhergestellt.', 1;
+        THROW 52327, N'Der Savepoint-Rollback hat einen unbekannten Spaltenzustand hinterlassen.', 1;
     END;
 
     IF NOT EXISTS
@@ -164,7 +187,7 @@ BEGIN TRY
              AND c.is_nullable = 1
        )
     BEGIN
-        THROW 52326, N'Der Savepoint-Rollback hat den Typ der Ausgangsspalte nicht wiederhergestellt.', 1;
+        THROW 52328, N'Der Savepoint-Rollback hat den Typ der Ausgangsspalte nicht wiederhergestellt.', 1;
     END;
 
     IF EXISTS
@@ -180,7 +203,7 @@ BEGIN TRY
              )
        )
     BEGIN
-        THROW 52327, N'Der Savepoint-Rollback hat eine Mutationsspalte zurückgelassen.', 1;
+        THROW 52329, N'Der Savepoint-Rollback hat eine nicht klassifizierte Mutationsspalte zurückgelassen.', 1;
     END;
 
     ROLLBACK TRANSACTION;
