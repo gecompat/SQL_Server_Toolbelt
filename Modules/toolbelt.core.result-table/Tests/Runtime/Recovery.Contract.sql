@@ -126,13 +126,21 @@ BEGIN TRY
     END;
 
     IF OBJECT_ID(N'tempdb..[#ResultTableRecovery]', N'U') <> @TargetObjectId
-       OR
-       (
-           SELECT COUNT(*)
-           FROM tempdb.sys.columns AS c
-           WHERE c.object_id = @TargetObjectId
-       ) <> 1
-       OR NOT EXISTS
+    BEGIN
+        THROW 52323, N'Der Savepoint-Rollback hat die Objektidentität verändert.', 1;
+    END;
+
+    IF
+    (
+        SELECT COUNT(*)
+        FROM tempdb.sys.columns AS c
+        WHERE c.object_id = @TargetObjectId
+    ) <> 1
+    BEGIN
+        THROW 52324, N'Der Savepoint-Rollback hat nicht exakt eine Ausgangsspalte wiederhergestellt.', 1;
+    END;
+
+    IF NOT EXISTS
        (
            SELECT 1
            FROM tempdb.sys.columns AS c
@@ -140,7 +148,11 @@ BEGIN TRY
              AND c.name COLLATE Latin1_General_100_BIN2 = N'OriginalValue'
              AND c.system_type_id = TYPE_ID(N'int')
        )
-       OR EXISTS
+    BEGIN
+        THROW 52325, N'Der Savepoint-Rollback hat Name oder Typ der Ausgangsspalte nicht wiederhergestellt.', 1;
+    END;
+
+    IF EXISTS
        (
            SELECT 1
            FROM tempdb.sys.columns AS c
@@ -153,7 +165,7 @@ BEGIN TRY
              )
        )
     BEGIN
-        THROW 52323, N'Der Savepoint-Rollback hat das Ausgangsschema nicht vollständig wiederhergestellt.', 1;
+        THROW 52326, N'Der Savepoint-Rollback hat eine Mutationsspalte zurückgelassen.', 1;
     END;
 
     ROLLBACK TRANSACTION;
