@@ -218,6 +218,12 @@ def main() -> int:
     if "self-hosted" in workflow:
         raise AssertionError("Der ResultTable-Workflow darf keinen Remote-Runner verwenden.")
 
+    runtime_contract = files[RUNTIME_CONTRACT]
+    if "(5, N'CreatedAt', N'datetime2', 7, 23, 3, 0)" not in runtime_contract:
+        raise AssertionError(
+            "Der Runtime-Vertrag erwartet für datetime2(3) nicht Precision 23."
+        )
+
     deploy = files[DEPLOY]
     if re.search(r"^\s*:setvar\b", deploy, re.MULTILINE | re.IGNORECASE):
         raise AssertionError(

@@ -192,7 +192,7 @@ VALUES
     , (2, N'ItemCode', N'varchar', 20, 0, 0, 0)
     , (3, N'ItemText', N'nvarchar', 200, 0, 0, 1)
     , (4, N'Amount', N'decimal', 9, 19, 4, 1)
-    , (5, N'CreatedAt', N'datetime2', 7, 27, 3, 0);
+    , (5, N'CreatedAt', N'datetime2', 7, 23, 3, 0);
 
 DECLARE @SchemaDifferenceCount int;
 
