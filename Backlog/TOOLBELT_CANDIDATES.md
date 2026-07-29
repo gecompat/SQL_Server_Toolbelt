@@ -86,15 +86,15 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Spätere native Funktion** | Ja: `DATETRUNC` ab SQL Server 2022. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Einheitlicher Vertrag für Truncation nach Jahr, Quartal, Monat, Tag, Woche und Zeitanteilen sowie sauberer Migrationspfad auf native Provider. |
-| **Mögliche Technologie** | T-SQL. Exakte Typ- und Scale-Erhaltung ist zu prüfen; gegebenenfalls typspezifische Funktionen statt eines irreführend allgemeinen Backports. |
-| **Performance und Security** | Muss SARGability-Auswirkungen dokumentieren. `week` hängt nativ von `@@DATEFIRST` ab; `iso_week` nicht. Keine besonderen Berechtigungen. |
+| **Mögliche Technologie** | T-SQL. Die native Funktion erhält Eingabetyp und Fractional Scale dynamisch, während eine skalare UDF einen festen Rückgabetyp benötigt. Deshalb nur nach expliziter Entscheidung zwischen bewusst vereinheitlichtem Rückgabetyp, typspezifischer Funktionsfamilie oder einem anderen Vertrag weiterführen. |
+| **Performance und Security** | Muss SARGability-Auswirkungen und Scalar-UDF-Inlining dokumentieren. `week` hängt nativ von `@@DATEFIRST` ab; `iso_week` nicht. `datepart` muss in einem Backport kontrolliert aufgelöst werden. T-SQL-UDFs erlauben weder dynamisches SQL noch `TRY...CATCH` oder `RAISERROR`; Fehlerparität ist daher eine offene Vertragsentscheidung. Keine besonderen Berechtigungen. |
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
-| **Dependencies** | Keine bekannt |
+| **Dependencies** | Grundsatzentscheidung zu Rückgabetyp, Objektfamilie, Datepart-Aliassen und Fehlervertrag; validiertes Referenzmodul gemäß Roadmap. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; TC-2026-002 und TC-2026-005 besitzen andere fachliche Verträge. |
 | **Status** | `researched` |
-| **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/datetrunc-transact-sql?view=sql-server-ver17 |
+| **Primärquellen** | [Auswahlvorbereitung für das zweite Modul](../Documentation/Research/SECOND_MODULE_SELECTION.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/datetrunc-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/user-defined-functions/create-user-defined-functions-database-engine?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/user-defined-functions/scalar-udf-inlining?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Unterstützten Datepart- und Datentypumfang festlegen und gegen SQL Server 2022/2025 als Referenz testen. |
+| **Nächster Schritt** | Zurückgestellt, bis der Benutzer Rückgabetyp beziehungsweise Objektfamilie, unterstützte Dateparts, `DATEFIRST`- und Fehlersemantik besprochen hat. Keine Implementierung aus dem Research-Status ableiten. |
 
 ## TC-2026-005: DATE_BUCKET-Kompatibilität für SQL Server 2019
 
@@ -270,15 +270,15 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Spätere native Funktion** | Ja: SQL Server 2025. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Standard- und URL-safe-Base64 für Binärdaten, Tokens ohne Secret-Inhalt, Integrationsformate und Tests. |
-| **Mögliche Technologie** | Providervergleich: T-SQL/XML für Standard-Base64; kontrollierte T-SQL-Normalisierung für Base64URL; `SAFE` SQL CLR für große Werte nur bei messbarem Vorteil; nativer Provider ab SQL Server 2025. Ein Backport im Projektschema darf den nativen Namen nicht im Systemschema imitieren. |
+| **Mögliche Technologie** | Bevorzugter Entscheidungskandidat für das zweite Modul. Providervergleich: T-SQL/XML für Standard-Base64; kontrollierte T-SQL-Normalisierung für Base64URL; `SAFE` SQL CLR für große Werte nur bei messbarem Vorteil; nativer Provider ab SQL Server 2025. Ein Backport im Projektschema darf den nativen Namen nicht im Systemschema imitieren. |
 | **Performance und Security** | Native Semantik für Standard-/URL-safe-Alphabet, Padding, Whitespace-Toleranz, ungültige Zeichen, Formatfehler, `NULL`, Rückgabetyp und Längengrenzen als Contract-Matrix erfassen. Große LOBs dürfen nicht unnötig mehrfach oder als XML materialisiert werden. Dekodierte Inhalte bleiben untrusted binary data; Debug darf Binärinhalte anzeigen, echte Secrets jedoch nicht aktiv ausgeben. |
 | **Plattformgrenzen** | T-SQL portabel; CLR-Provider pro Plattform testen. |
-| **Dependencies** | Optional CLR-Infrastruktur. |
+| **Dependencies** | Entscheidung zu öffentlicher Oberfläche, Standard/Base64URL, Padding, Whitespace, Fehlerklassen, Größenlimit und Provider; validiertes Referenzmodul gemäß Roadmap. CLR-Infrastruktur ausschließlich optional und nach Messnachweis. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
 | **Status** | `researched` |
-| **Primärquellen** | [SQL_SERVER_TOOLBELT_LANDSCAPE.md](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/base64-encode-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/base64-decode-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/xml/use-the-binary-base64-option?view=sql-server-ver17 |
+| **Primärquellen** | [SQL_SERVER_TOOLBELT_LANDSCAPE.md](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>[Auswahlvorbereitung für das zweite Modul](../Documentation/Research/SECOND_MODULE_SELECTION.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/base64-encode-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/base64-decode-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/xml/use-the-binary-base64-option?view=sql-server-ver17<br>https://www.rfc-editor.org/rfc/rfc4648 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Native SQL-Server-2025-Semantik als Testmatrix erfassen und T-SQL/XML-, CLR- und nativen Provider mit identischen Small-/LOB-, URL-safe- und Fehlervektoren vergleichen. |
+| **Nächster Schritt** | Bevorzugt mit dem Benutzer besprechen und die offenen Punkte aus `SECOND_MODULE_SELECTION.md` entscheiden. Erst danach ein Moduldesign und eine Contract-Testmatrix erstellen; keine Implementierung ohne eigene ausdrückliche Freigabe. |
 
 ## TC-2026-013: JSON-Aggregate für SQL Server 2019/2022
 

@@ -7,6 +7,9 @@ Backlog-Research-Wellen, die projektübergreifende
 Toolbelt-Landschaftsrecherche und die Spezifikation des ersten Kernmoduls sind
 abgeschlossen. `toolbelt.core.result-table` ist implementiert und auf
 GitHub-hosted Linux für SQL Server 2019, 2022 und 2025 teilweise validiert.
+Die Auswahlvorbereitung für das zweite Modul ist abgeschlossen; die
+Implementierung bleibt an den dokumentierten Qualitäts- und Freigabe-Gates
+blockiert.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -137,10 +140,28 @@ Die erste Version benötigt keine persistente Tabelle, kein Synonym, keine Assem
 
 ## Phase 2 – Weitere Module
 
-**Status:** `proposed`  
+**Status:** `blocked`
 **Abhängigkeit:** mindestens ein validiertes Referenzmodul.
 
 Schrittweise Umsetzung priorisierter Toolbelt-Kandidaten nach fachlicher Kategorie und Dependency-Reihenfolge.
+
+Die Entscheidungsvorbereitung `AP-2026-007` ist abgeschlossen.
+`TC-2026-012` (Base64/Base64URL) wird gegenüber `TC-2026-004`
+(`DATETRUNC`-Kompatibilität) als nächster Besprechungskandidat empfohlen. Die
+Begründung, offenen Vertragsfragen und Provideroptionen stehen in
+`Documentation/Research/SECOND_MODULE_SELECTION.md`.
+
+Die Phase ist bewusst blockiert:
+
+- `toolbelt.core.result-table` ist noch `partially validated`, nicht
+  `validated`;
+- der öffentliche Vertrag des zweiten Moduls wurde noch nicht mit dem Benutzer
+  besprochen;
+- es liegt keine funktionsbezogene Implementierungsfreigabe vor.
+
+Bis diese Gates erfüllt sind, dürfen Research, Vertragsentwurf und Testplanung
+weitergeführt werden. Ein neues Modulmanifest oder persistentes SQL-Objekt wird
+nicht angelegt.
 
 ## Phase 3 – Schlanke Test-Infrastruktur und CI
 
