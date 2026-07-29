@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 2 Module implementiert – 2 teilweise validiert](https://img.shields.io/badge/Status-2%20Module%20implementiert%20%7C%202%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 3 Module implementiert – 3 teilweise validiert](https://img.shields.io/badge/Status-3%20Module%20implementiert%20%7C%203%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. Zwei Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
+**Der Repository-Grundaufbau ist abgeschlossen. Drei Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
 
 Das implementierte Modul [`toolbelt.core.result-table`](./Modules/toolbelt.core.result-table/README.md) stellt `toolbelt_core.USP_PrepareResultTable` als gemeinsame `@ResultTable`-/`@KeepData`-Infrastruktur bereit. Die Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; Windows und weitere Pflichtfälle bleiben offen.
 
@@ -65,6 +65,12 @@ Das unabhängige Modul
 stellt portable Base64-/Base64URL-Konvertierung bereit. Seine erste
 SQL-Server-2025-Linux-Matrix mit Compatibility Levels 150, 160 und 170 ist
 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
+
+Das implementierte Modul
+[`toolbelt.core.generate-series`](./Modules/toolbelt.core.generate-series/README.md)
+stellt portable, typstabile Ganzzahlreihen für `int` und `bigint` bereit.
+Seine SQL-Server-2025-Linux-Matrix mit Compatibility Levels 150, 160 und 170
+ist erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
 
 ## Modulprinzip
 

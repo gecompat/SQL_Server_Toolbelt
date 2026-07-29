@@ -1,13 +1,13 @@
 ---
 # repo_map.yaml – Maschinenlesbare Repository-Rolle und Artefaktklassen
 # SQL Server Toolbelt
-# Letzte Aktualisierung: 2026-07-29
+# Letzte Aktualisierung: 2026-07-30
 
 repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: two_modules_implemented
+  status: three_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -31,6 +31,9 @@ sources_of_truth:
   base64_module_design: Documentation/Architecture/BASE64_MODULE_DESIGN.md
   base64_runtime_workflow: .github/workflows/base64-runtime.yml
   base64_module: Modules/toolbelt.conversion.base64/module.yaml
+  generate_series_module_design: Documentation/Architecture/GENERATE_SERIES_MODULE_DESIGN.md
+  generate_series_runtime_workflow: .github/workflows/generate-series-runtime.yml
+  generate_series_module: Modules/toolbelt.core.generate-series/module.yaml
   documentation_validator: Tests/Documentation/validate_documentation.py
   documentation_workflow: .github/workflows/documentation-consistency.yml
   toolbelt_landscape_research: Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md
@@ -191,6 +194,7 @@ module_registry:
   manifests:
     - Modules/toolbelt.core.result-table/module.yaml
     - Modules/toolbelt.conversion.base64/module.yaml
+    - Modules/toolbelt.core.generate-series/module.yaml
 
 change_impact:
   strategy: diff_first_registered_dependencies
@@ -292,6 +296,18 @@ change_impact:
       checks:
         - base64_static
         - markdown_links
+    generate_series_contract:
+      paths:
+        - Modules/toolbelt.core.generate-series/**
+        - Documentation/Architecture/GENERATE_SERIES_MODULE_DESIGN.md
+        - Documentation/Architecture/DEPLOYMENT_MODEL.md
+        - Documentation/Standards/TSQL_ENGINEERING.md
+        - Documentation/Standards/MODULE_DEFINITION_OF_DONE.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+        - Tests/CI/run-generate-series-linux.sh
+      checks:
+        - generate_series_static
+        - markdown_links
     runtime_workflow:
       paths:
         - .github/workflows/result-table-runtime.yml
@@ -304,6 +320,12 @@ change_impact:
       checks:
         - base64_runtime_workflow_scope
         - base64_static
+    generate_series_runtime_workflow:
+      paths:
+        - .github/workflows/generate-series-runtime.yml
+      checks:
+        - generate_series_runtime_workflow_scope
+        - generate_series_static
     governance:
       paths:
         - .ai/repo_map.yaml
@@ -325,3 +347,5 @@ change_impact:
         - result_table_static
         - base64_runtime_workflow_scope
         - base64_static
+        - generate_series_runtime_workflow_scope
+        - generate_series_static

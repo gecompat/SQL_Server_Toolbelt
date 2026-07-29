@@ -4,6 +4,25 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### AP-2026-009: Portable Ganzzahlreihen implementieren und validieren
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-009` |
+| Ziel | Den freigegebenen Vertrag von `TC-2026-006` als portables Core-Modul implementieren, dokumentieren und gezielt validieren. |
+| Scope | `toolbelt.core.generate-series` Version `1.0.0`; `TVF_GenerateSeriesInt` und `TVF_GenerateSeriesBigInt`; portable T-SQL Inline TVFs; lokales und zentrales Deployment; Richtungs-, Default-, NULL-, Fehler-, Grenz-, Größen-, Join-, `CROSS APPLY`-, native Paritäts- und Lifecycle-Tests. Keine Dezimaltypen, persistente Numbers-Tabelle oder SQL CLR. |
+| Dependencies | Besprochener und am 2026-07-30 ausdrücklich freigegebener Funktionsvertrag; scopebezogenes Qualitäts-Gate aus `DEC-2026-021`; keine technische Abhängigkeit zu einem anderen Toolbelt-Modul. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
+| Akzeptanzkriterien | Zwei öffentliche Inline TVFs im Schema `toolbelt_core`; typstabile `int`-/`bigint`-Resultsets; gemeinsamer `bigint`-Kern; richtungsabhängiger Default; keine stille Kürzung; Enginefehler bei Schritt `0` und nicht darstellbarer Zeilenzahl; vollständige gekoppelte Dokumentation und Lifecycle-Artefakte; SQL Server 2025 mit Compatibility Levels 150/160/170 erfolgreich. |
+| Tests | Statische Vertragsprüfung und serieller GitHub-hosted SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben bis zur gezielten Releasevalidierung `not executed`. |
+| Blocker | Kein Merge-Blocker. Für `validated` fehlen physische SQL-Server-2019-/2022- und Windows-Evidenz sowie eine breitere Performancebewertung sehr großer Reihen. |
+| Evidenz | Benutzerfreigabe vom 2026-07-30; kanonische Artefakte unter `Modules/toolbelt.core.generate-series/`; [Generate-Series Runtime Run 30496759324](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30496759324) erfolgreich. |
+| Nächster Schritt | Physische 2019-/2022- und Windows-Läufe gezielt vor Release ausführen. |
+
 ### AP-2026-008: Base64/Base64URL-Modul implementieren und validieren
 
 | Feld | Wert |
@@ -13,7 +32,7 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Scope | `toolbelt.conversion.base64` Version `1.0.0`; `SVF_Base64Encode` und `SVF_Base64Decode`; T-SQL/XML-Provider; lokales und zentrales Deployment; RFC-4648-, native Paritäts-, Fehler-, Größen- und Lifecycle-Tests. Kein CLR, keine Zeichenkodierung und keine Datei-I/O. |
 | Dependencies | Besprochener und am 2026-07-29 ausdrücklich freigegebener Funktionsvertrag; scopebezogenes Qualitäts-Gate aus `DEC-2026-021`; keine technische Abhängigkeit zu ResultTable. |
 | Priorität | `P1` |
-| Status | `active` |
+| Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
 | Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
@@ -21,7 +40,7 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Tests | Statische Vertragsprüfung und serieller GitHub-hosted SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben bis zur gezielten Releasevalidierung `not executed`. |
 | Blocker | Kein Merge-Blocker. Für `validated` fehlen physische SQL-Server-2019-/2022- und Windows-Evidenz sowie eine breitere Performancebewertung großer LOBs. |
 | Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.conversion.base64/`; [Base64 Runtime Run 30493304673](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30493304673) erfolgreich. |
-| Nächster Schritt | PR nach abschließenden Statuschecks mergen; physische 2019-/2022- und Windows-Läufe gezielt vor Release ausführen. |
+| Nächster Schritt | Physische 2019-/2022- und Windows-Läufe gezielt vor Release ausführen. |
 
 ### AP-2026-007: Entscheidungsvorbereitung für das zweite Modul
 

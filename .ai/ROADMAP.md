@@ -7,9 +7,11 @@ Backlog-Research-Wellen, die projektübergreifende
 Toolbelt-Landschaftsrecherche und die Spezifikation des ersten Kernmoduls sind
 abgeschlossen. `toolbelt.core.result-table` ist implementiert und auf
 GitHub-hosted Linux für SQL Server 2019, 2022 und 2025 teilweise validiert.
-Die Auswahlvorbereitung für das zweite Modul ist abgeschlossen; die
-Implementierung bleibt an den dokumentierten Qualitäts- und Freigabe-Gates
-blockiert.
+Das zweite Modul `toolbelt.conversion.base64` ist implementiert und auf
+SQL Server 2025 Linux teilweise validiert. Das dritte Modul
+`toolbelt.core.generate-series` ist ebenfalls implementiert und auf SQL
+Server 2025 Linux mit Compatibility Levels 150, 160 und 170 teilweise
+validiert; `AP-2026-009` ist abgeschlossen.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -176,6 +178,20 @@ Stand `toolbelt.conversion.base64`:
 - SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
   einschließlich RFC-4648-, Fehler-, Größen-, Deployment- und
   Lifecycle-Contracts erfolgreich;
+- wegen der offenen physischen 2019-/2022- und Windows-Prüfungen
+  `validation_status: partially validated`.
+
+Stand `toolbelt.core.generate-series`:
+
+- Vertrag am 2026-07-30 besprochen und ausdrücklich freigegeben;
+- zwei portable Inline TVFs für `int` und `bigint`, wobei der `int`-Wrapper
+  den gemeinsamen `bigint`-Kern verwendet;
+- Modulmanifest, Lifecycle, Dokumentation, Beispiele sowie statische und
+  Runtime-Contract-Artefakte vorhanden;
+- SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
+  einschließlich Semantik, nativer Parität, Fehlern, Grenzen, einer Million
+  Werten, Row Goal, Join, `CROSS APPLY`, Deployment- und Lifecycle-Contracts
+  erfolgreich;
 - wegen der offenen physischen 2019-/2022- und Windows-Prüfungen
   `validation_status: partially validated`.
 
