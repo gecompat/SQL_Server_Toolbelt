@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: foundation_initialized
+  status: first_module_designed
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -23,6 +23,8 @@ sources_of_truth:
   usp_contract: Documentation/Standards/USP_CONTRACT.md
   naming_conventions: Documentation/Standards/SQL_OBJECT_NAMING.md
   decisions: Documentation/Architecture/DECISIONS.md
+  result_table_module_design: Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md
+  result_table_test_matrix: Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md
   roadmap: .ai/ROADMAP.md
   backlog: .ai/BACKLOG.md
 
@@ -78,10 +80,10 @@ artifact_classes:
     note: SQL-Vorlagen haben die Endung .sql.template und sind ausdrücklich als nicht ausführbar gekennzeichnet
 
   tests:
-    description: Test-Infrastruktur und -Richtlinien
+    description: Test-Infrastruktur, verbindliche Testmatrizen und Richtlinien
     paths:
       - Tests/
-    note: Noch keine Runtime-CI oder Actions-Matrix; nur Anforderungen dokumentiert
+    note: Modulspezifische Matrizen sind Planungs- und Vertragsartefakte; Runtime-Evidenz entsteht erst durch tatsächliche Ausführung
 
   generated:
     description: Abgeleitete oder generierte Artefakte, die nicht versioniert werden
