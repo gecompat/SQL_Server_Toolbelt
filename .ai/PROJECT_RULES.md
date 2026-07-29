@@ -87,3 +87,14 @@ Details: [CODE_DOCUMENTATION.md](../Documentation/Standards/CODE_DOCUMENTATION.m
 - Keine doppelte oder konkurrierende Regel anlegen.
 - Dauerhafte Entscheidungen mit stabiler ID in [DECISIONS.md](../Documentation/Architecture/DECISIONS.md) dokumentieren.
 - Unlösbare Konflikte führen bis zur Klärung zu keiner Änderung.
+
+## 10. Persönlicher Brainstorm-Backlog
+
+- `Backlog/personal_Backlog_Bainstorm.md` ist bei jeder Funktionsrecherche und Backlog-Pflege als vom Benutzer gepflegte Hinweisquelle zu lesen.
+- Die Datei ist kein kanonischer Fachbacklog, keine Projektregel, keine Priorisierung und keine Implementierungsfreigabe.
+- Bestehende Inhalte dürfen weder gelöscht noch stillschweigend ersetzt oder semantisch geglättet werden.
+- KI-Systeme dürfen neue Gedanken, Recherchehinweise, Querverweise und Änderungskommentare ergänzen.
+- Wird ein Inhalt fachlich überholt, wird der betroffene Text mit Markdown `~~durchgestrichen~~`. Direkt anschließend folgt ein Änderungskommentar mit Datum, tatsächlichem Autor beziehungsweise KI-Namen, Begründung und gegebenenfalls der ID des Nachfolgers.
+- Wird ein Gedanke in eine kanonische Kandidatenliste überführt, bleibt der Originalgedanke erhalten und erhält nach Möglichkeit einen Querverweis auf `TC-`, `AC-` oder `UE-`-ID.
+- Formale Rechercheergebnisse werden weiterhin in den drei kanonischen Kandidatenlisten gepflegt. Der persönliche Brainstorm darf diese Listen und `.ai/BACKLOG.md` nicht ersetzen.
+- Datenschutz- und Secret-Regeln gelten auch für Ergänzungen in dieser Datei. Schutzwürdige Inhalte werden nicht in andere Artefakte kopiert.
