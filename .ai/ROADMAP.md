@@ -52,12 +52,13 @@ Ergebnis:
 - Modul-ID `toolbelt.core.result-table`;
 - einziges persistentes Objekt `toolbelt_core.USP_PrepareResultTable`;
 - öffentliche Signatur und Modulfehlerbereich;
-- Referenztabellen- statt frei geliefertem DDL-Vertrag;
-- normalisierte Spaltenmetadaten und unterstützte Typen;
-- vollständiger `@KeepData`-, Preflight-, in-place-DDL-, Transaktions- und Deployment-Vertrag;
-- Lifecycle- und Berechtigungsmodell;
+- Referenztabellenvertrag für Version `1.0.0`; ein sicherer `@CreateStmt`-Pfad bleibt als spätere parsergestützte Erweiterung möglich;
+- normalisierte Spaltenmetadaten, Typ-Whitelist und invariant-binäre Namenssemantik;
+- vollständiger `@KeepData`-, Preflight-, in-place-DDL-, Savepoint-, Transaktions- und Deployment-Vertrag;
+- interne Temp-Namenskonvention `#tbx_` ohne Festlegung persistenter Tabellennamen;
+- Lifecycle-, Ownership- und Berechtigungsmodell;
 - vollständige statische und Runtime-Testmatrix;
-- Architekturentscheidungen `DEC-2026-013` bis `DEC-2026-016`.
+- Architekturentscheidungen `DEC-2026-013` bis `DEC-2026-017`.
 
 ### Phase 1.2 – Implementierung und Validierung
 
@@ -74,7 +75,7 @@ Reihenfolge:
 6. Collation-, Fehler-, Recovery- und Performance-Tests dokumentieren;
 7. erst nach tatsächlicher Evidenz den Status `implemented` beziehungsweise `validated` vergeben.
 
-Die erste Version benötigt keine Tabelle, kein Synonym, keine Assembly und keinen Type. Eine Entscheidung zu diesen offenen Namenskonventionen ist deshalb noch nicht erforderlich.
+Die erste Version benötigt keine persistente Tabelle, kein Synonym, keine Assembly und keinen Type. Eine Entscheidung zu diesen offenen persistenten Namenskonventionen ist deshalb noch nicht erforderlich.
 
 ## Phase 2 – Weitere Module
 
