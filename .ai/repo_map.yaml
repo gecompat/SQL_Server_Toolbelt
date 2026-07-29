@@ -29,6 +29,7 @@ sources_of_truth:
   result_table_module: Modules/toolbelt.core.result-table/module.yaml
   documentation_validator: Tests/Documentation/validate_documentation.py
   documentation_workflow: .github/workflows/documentation-consistency.yml
+  toolbelt_landscape_research: Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md
   roadmap: .ai/ROADMAP.md
   backlog: .ai/BACKLOG.md
 

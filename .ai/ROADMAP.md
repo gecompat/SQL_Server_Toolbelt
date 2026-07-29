@@ -2,7 +2,11 @@
 
 ## Status
 
-Repository-Grundaufbau, Foundation-Korrektur, zwei Backlog-Research-Wellen und die Spezifikation des ersten Kernmoduls sind abgeschlossen. `toolbelt.core.result-table` ist implementiert und auf GitHub-hosted Linux für SQL Server 2019, 2022 und 2025 teilweise validiert.
+Repository-Grundaufbau, Foundation-Korrektur, zwei kandidatenbezogene
+Backlog-Research-Wellen, die projektübergreifende
+Toolbelt-Landschaftsrecherche und die Spezifikation des ersten Kernmoduls sind
+abgeschlossen. `toolbelt.core.result-table` ist implementiert und auf
+GitHub-hosted Linux für SQL Server 2019, 2022 und 2025 teilweise validiert.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -53,6 +57,25 @@ Enthält:
 - Error Envelope, Cancellation, Correlation, Retry/Dead-letter und Worker-Leases;
 - sicheren Work-Type-Katalog anstelle einer ungeprüften Raw-SQL-Ausführung;
 - verbindliche Trennung zwischen fortlaufender Ideenpflege und funktionsbezogener Implementierungsfreigabe.
+
+## Phase 0.4 – Toolbelt-Landschaft und Prior Art
+
+**Status:** `completed`
+**Abschluss:** 2026-07-29
+
+Enthält:
+
+- systematische Einordnung von 16 direkten Libraries, Testframeworks, Skriptkatalogen, Diagnose-, Maintenance- und Automationsprojekten;
+- vertiefte Architekturbetrachtung von SDU Tools, SQL#, T-SQL Toolbox und SQLServerSpatialTools;
+- `tSQLt.NewConnection` als konkrete Prior Art für eine synchron geöffnete zweite Session;
+- Vergleich von Service Broker, SQL Server Agent, tabellenbasierter Queue und externem Orchestrator als Parallelisierungsprovider;
+- Packaging-, Discovery-, Versionierungs-, Test-, Lizenz-, Security- und Scope-Lehren;
+- Präzisierung des vorhandenen Base64-Kandidaten `TC-2026-012` anhand der nativen SQL-Server-2025-Semantik;
+- neue Kandidaten `TC-2026-023` für Runtime-Capability-Discovery und `TC-2026-024` für URI-Percent-Encoding/-Decoding;
+- quellenbasierte Scope-Vorprüfung der persönlichen Brainstorm-Themen Zahlensysteme, Kompression/Archive, Datei-/Verzeichniszugriff, Anonymisierung und Objektklonen;
+- Kandidaten `TC-2026-025` bis `TC-2026-028` für kontrollierte PowerShell- und Python-Provider, versionsbezogene REST-Aufrufe sowie getrennte Embedding-/KI-/Chat-Verträge;
+- dokumentierte Ausschlussgrenze gegen Raw Script, beliebige Endpunkte und ungeprüfte KI-Ausgabe als ausführbaren Code;
+- Screening-Liste für weitere Funktionsrecherche ohne Implementierungs- oder Kandidatenstatus.
 
 ## Phase 1 – Erstes Kernmodul
 

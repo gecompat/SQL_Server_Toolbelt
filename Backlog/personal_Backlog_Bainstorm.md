@@ -1,4 +1,7 @@
 --- 
+
+> Recherche 2026-07-29 — ChatGPT: Zahlensysteme, Kompression/Archive, Datei-/Verzeichniszugriff, Anonymisierung und Objektklonen wurden gegen Primärquellen und Repository-Grenzen vorgeprüft. Ergebnis: [SQL_SERVER_TOOLBELT_LANDSCAPE.md](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md). Es wurde daraus noch keine Implementierungsfreigabe abgeleitet.
+
 # Konvertierung numerischer Ganzzahlen in variables Zahlensystem  
   z.B.  
 > - Binär (2)
@@ -48,7 +51,7 @@ Umbenennungsfunktionen
 mit/ohne Identiy
 ...
 
- 
+
  # Excel-File direkt lesen und auswerten
  durch unzip könnte man Excel Files direkt lesen und auswerten.
  
@@ -61,14 +64,22 @@ mit/ohne Identiy
 Fragestellung: was ist die gewünschte Breite? - welche Funktionalitäten fallen dir ein?  
   
 
- # Powershell am Host ausführen - Ergebnis entgegennehmen
- 
- # python am Host ausführen - Ergebnis entgegennehmen
- 
- # Rest Calls und Web Requests
- 
- # KI - Chat
- 
+~~ # Powershell am Host ausführen - Ergebnis entgegennehmen~~
+
+Änderungsvermerk 2026-07-29, Codex: Als `TC-2026-025` in den kanonischen Toolbelt-Backlog übernommen; Status `researched`. Beliebige Raw-Script-Ausführung bleibt ausdrücklich außerhalb des freigegebenen Scopes.
+
+~~ # python am Host ausführen - Ergebnis entgegennehmen~~
+
+Änderungsvermerk 2026-07-29, Codex: Als `TC-2026-026` in den kanonischen Toolbelt-Backlog übernommen; Status `researched`. In-database Python und allgemeine Host-Automation werden als getrennte Providerverträge behandelt.
+
+~~ # Rest Calls und Web Requests~~
+
+Änderungsvermerk 2026-07-29, Codex: Als `TC-2026-027` in den kanonischen Toolbelt-Backlog übernommen; Status `researched`. SQL Server 2025 und Compatibility-Provider für 2019/2022 bleiben getrennt.
+
+~~ # KI - Chat~~
+
+Änderungsvermerk 2026-07-29, Codex: Als `TC-2026-028` in den kanonischen Toolbelt-Backlog übernommen; Status `researched`. Embeddings und generative Chat-Aufrufe erhalten keinen gemeinsamen unspezifischen Vertrag.
+
  
  
  
