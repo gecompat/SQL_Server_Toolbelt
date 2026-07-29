@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. Es sind noch keine fachlichen Module implementiert; deshalb wurden keine Toolbelt-Runtime-Tests ausgeführt.
+Der Repository-Grundaufbau ist abgeschlossen. Das erste Kernmodul ist implementierungsreif spezifiziert, aber noch nicht implementiert; deshalb wurden keine Toolbelt-Runtime-Tests ausgeführt.
 
 ## Pflicht-Testarten je Modul
 
@@ -21,6 +21,14 @@ Der Repository-Grundaufbau ist abgeschlossen. Es sind noch keine fachlichen Modu
 | Plattform | SQL Server 2019, 2022 und 2025; Windows und Linux getrennt |
 | Provider | jeder alternative Provider als eigener Nachweis |
 | Recovery | Cleanup und Zustand nach Fehlern |
+
+## Modulspezifische Testmatrizen
+
+| Modul | Matrix | Status |
+|---|---|---|
+| `toolbelt.core.result-table` | [RESULT_TABLE_CONTRACT_TEST_MATRIX.md](./RESULT_TABLE_CONTRACT_TEST_MATRIX.md) | geplant; Runtime `not executed` |
+
+Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 
 ## Testdaten
 

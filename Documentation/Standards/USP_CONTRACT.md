@@ -99,6 +99,12 @@ Weitere Regeln:
 - Name und Datentyp einer vorhandenen Dummyspalte sind beliebig.
 - Eine leere Tabelle mit abweichendem Schema gilt als zur Anpassung freigegeben.
 
+### 5.1 Kanonische Runtime-Spezifikation
+
+Die implementierungsreife Spezifikation für die gemeinsame Vorbereitung der lokalen Temp-Tabelle steht in [RESULT_TABLE_MODULE_DESIGN.md](../Architecture/RESULT_TABLE_MODULE_DESIGN.md). Die verbindliche Testmatrix steht in [RESULT_TABLE_CONTRACT_TEST_MATRIX.md](../../Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md).
+
+Version `1.0.0` der Infrastruktur ermittelt das gewünschte Schema aus einer bereits vorhandenen Referenztabelle. Eine resultseterzeugende USP kann dazu eine routinenspezifisch benannte lokale Helper-Temp-Tabelle mit ihrem exakten Resultsetschema anlegen. Frei geliefertes `CREATE TABLE`-DDL wird nicht ungeprüft ausgeführt.
+
 ## 6. `@KeepData`
 
 | Zustand der Temp-Tabelle | `@KeepData = 0` | `@KeepData = 1` |
