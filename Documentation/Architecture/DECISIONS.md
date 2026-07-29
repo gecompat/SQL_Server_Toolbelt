@@ -239,3 +239,16 @@ Dauerhafte Entscheidungen werden mit stabiler ID dokumentiert. Historische Entsc
 | Auswirkungen | Benutzer-ResultTables dürfen nicht mit `#tbx_` beginnen. Routinenspezifische unveränderliche Schema-Helper dürfen bei Rekursion wiederverwendet und nur vom tatsächlichen Erzeuger entfernt werden. Die Namenskonvention persistenter Tabellen bleibt offen. |
 | Alternativen | Generische Namen wie `#Temp`, `#Result` und zufällige Namen ohne fachliche Zuordnung wurden verworfen. |
 | Betroffene Verträge | `SQL_OBJECT_NAMING.md`, `TSQL_ENGINEERING.md`, `RESULT_TABLE_MODULE_DESIGN.md` |
+
+## DEC-2026-018: Persönlicher Brainstorm als erhaltener Research-Input
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-07-29 |
+| Status | accepted |
+| Entscheidung | `Backlog/personal_Backlog_Bainstorm.md` wird vor jeder Funktionsrecherche und Backlog-Pflege als vom Benutzer gepflegte Hinweisquelle berücksichtigt. Bestehende Inhalte werden nicht gelöscht; Überholtes wird durchgestrichen und unmittelbar mit einem datierten Änderungskommentar versehen. |
+| Begründung | Freie Gedanken sollen als dauerhafte Rechercheimpulse erhalten bleiben, ohne die Struktur und Verbindlichkeit der kanonischen Kandidatenlisten zu erzwingen oder historische Hinweise zu verlieren. |
+| Scope | Funktionsrecherche, Backlog Curator, Backlog-Pflege und AI-Steuerung |
+| Auswirkungen | KI-Systeme dürfen ergänzen, kommentieren und Querverweise setzen. Die Datei ist keine Source of Truth für Regeln, Prioritäten, öffentliche Verträge oder Implementierungsfreigaben. Formale Ergebnisse verbleiben in den kanonischen Kandidatenlisten und in `.ai/BACKLOG.md`. |
+| Alternativen | Löschen nach Übernahme, stillschweigende redaktionelle Neufassung und Behandlung als kanonischer Fachbacklog wurden verworfen. |
+| Betroffene Verträge | `AGENTS.md`, `.ai/PROJECT_RULES.md`, `.ai/WORKING_RULES.md`, `.ai/repo_map.yaml`, `Backlog/README.md`, `backlog-curator.agent.md` |
