@@ -96,6 +96,9 @@ tests:
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   compatibility: "Tests/Runtime/Compatibility.Smoke.sql"
   central: "Tests/Runtime/Central.Contract.sql"
+  collation: "Tests/Runtime/Collation.Contract.sql"
+  boundary_transaction: "Tests/Runtime/BoundaryAndTransaction.Contract.sql"
+  performance_workload: "Tests/Runtime/Performance.Workload.sql"
   github_hosted_linux: "../../.github/workflows/result-table-runtime.yml"
 
 validation_evidence:
