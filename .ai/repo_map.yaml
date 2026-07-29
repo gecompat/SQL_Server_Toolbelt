@@ -31,6 +31,7 @@ sources_of_truth:
   documentation_validator: Tests/Documentation/validate_documentation.py
   documentation_workflow: .github/workflows/documentation-consistency.yml
   toolbelt_landscape_research: Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md
+  second_module_selection_research: Documentation/Research/SECOND_MODULE_SELECTION.md
   roadmap: .ai/ROADMAP.md
   backlog: .ai/BACKLOG.md
 
@@ -233,6 +234,14 @@ change_impact:
     research_inbox:
       paths:
         - Backlog/TOOLBELT_RESEARCH_INBOX.md
+      checks:
+        - markdown_links
+    second_module_selection:
+      paths:
+        - Documentation/Research/SECOND_MODULE_SELECTION.md
+        - Backlog/TOOLBELT_CANDIDATES.md
+        - .ai/BACKLOG.md
+        - .ai/ROADMAP.md
       checks:
         - markdown_links
     result_table_contract:
