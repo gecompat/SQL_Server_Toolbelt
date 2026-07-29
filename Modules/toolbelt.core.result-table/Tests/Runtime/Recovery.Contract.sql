@@ -146,10 +146,25 @@ BEGIN TRY
            FROM tempdb.sys.columns AS c
            WHERE c.object_id = @TargetObjectId
              AND c.name COLLATE Latin1_General_100_BIN2 = N'OriginalValue'
-             AND c.system_type_id = TYPE_ID(N'int')
        )
     BEGIN
-        THROW 52325, N'Der Savepoint-Rollback hat Name oder Typ der Ausgangsspalte nicht wiederhergestellt.', 1;
+        THROW 52325, N'Der Savepoint-Rollback hat den Namen der Ausgangsspalte nicht wiederhergestellt.', 1;
+    END;
+
+    IF NOT EXISTS
+       (
+           SELECT 1
+           FROM tempdb.sys.columns AS c
+           WHERE c.object_id = @TargetObjectId
+             AND c.name COLLATE Latin1_General_100_BIN2 = N'OriginalValue'
+             AND c.system_type_id = 56
+             AND c.max_length = 4
+             AND c.precision = 10
+             AND c.scale = 0
+             AND c.is_nullable = 1
+       )
+    BEGIN
+        THROW 52326, N'Der Savepoint-Rollback hat den Typ der Ausgangsspalte nicht wiederhergestellt.', 1;
     END;
 
     IF EXISTS
@@ -165,7 +180,7 @@ BEGIN TRY
              )
        )
     BEGIN
-        THROW 52326, N'Der Savepoint-Rollback hat eine Mutationsspalte zurückgelassen.', 1;
+        THROW 52327, N'Der Savepoint-Rollback hat eine Mutationsspalte zurückgelassen.', 1;
     END;
 
     ROLLBACK TRANSACTION;
