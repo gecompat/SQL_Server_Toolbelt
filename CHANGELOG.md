@@ -13,12 +13,17 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - GitHub-Copilot-Custom-Agent für die Backlog-Pflege.
 - Erste evidence-basierte Backlog-Research-Welle mit den Kandidaten `TC-2026-001` bis `TC-2026-013`.
 - Versionsbezogene Compatibility-Kandidaten für SQL Server 2019, 2022 und 2025 in den Bereichen Core, String, Datetime, JSON, Binary und Conversion.
-- Priorisiertes Arbeitspaket `AP-2026-002` für die implementierungsreife Spezifikation der ResultTable-Infrastruktur.
+- Implementierungsreife Spezifikation des ersten Kernmoduls `toolbelt.core.result-table`.
+- Verbindliche ResultTable-Contract-Testmatrix für Help, Schema, `@KeepData`, DDL, Transaktionen, Collation, Deployment und Plattformen.
+- Architekturentscheidungen `DEC-2026-013` bis `DEC-2026-016` für Modulscope, Schemaquelle, in-place-Umbau und Transaktionsvertrag.
+- Folgearbeitspaket `AP-2026-003` für Implementierung und Validierung des ResultTable-Kernmoduls.
 
 ### Geändert
 
 - Bestehende Kandidaten zu Multi-Separator-Split und kalendarischer Differenz mit präziseren Versions-, Provider-, Performance- und Aussagegrenzen versehen.
-- Roadmap um die abgeschlossene Research-Welle und das geplante erste `toolbelt_core`-Arbeitspaket ergänzt.
+- Roadmap um die abgeschlossene Research-Welle, die abgeschlossene ResultTable-Designphase und die geplante Implementierungswelle ergänzt.
+- USP-Vertrag mit der kanonischen ResultTable-Runtime-Spezifikation und Testmatrix verknüpft.
+- Repository-Map und Modulübersicht um das implementierungsreif geplante Kernmodul ergänzt.
 
 ### Korrigiert
 
@@ -33,4 +38,4 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-Keine fachlichen Module implementiert. Keine Runtime-Validierung von Toolbelt-Funktionen vorhanden.
+Keine fachlichen SQL-Objekte implementiert. Das erste Kernmodul ist implementierungsreif spezifiziert; Runtime-, Install-, Upgrade- und Uninstall-Validierung ist `not executed`.
