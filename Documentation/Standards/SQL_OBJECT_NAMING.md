@@ -28,6 +28,28 @@ Schemas folgen `toolbelt_<category>`, beispielsweise:
 
 Unzulässig sind allgemeine oder potenziell kollidierende Schemas wie `string`, `time`, `io`, `json` oder `xml`.
 
+## Interne lokale Temp-Objekte
+
+Interne lokale Temp-Tabellen verwenden den reservierten Präfix `#tbx_` und danach eine verständliche englische Kennzeichnung für Modul, Routine und Rolle.
+
+Beispiele:
+
+```text
+#tbx_Core_PrepareResultTable_Metadata
+#tbx_String_Split_ResultShape
+```
+
+Regeln:
+
+- generische Namen wie `#Temp`, `#Result`, `#Help` oder `#Schema` sind unzulässig;
+- dynamisch erzeugte Arbeitsobjekte erhalten zusätzlich einen Invocation-spezifischen Suffix;
+- eine routinenspezifische, unveränderliche Schema-Helper-Tabelle darf bei Rekursion wiederverwendet werden;
+- nur der tatsächliche Erzeuger entfernt eine wiederverwendete Helper-Tabelle;
+- Benutzer dürfen den reservierten Präfix `#tbx_` nicht als `@ResultTable` beziehungsweise `@ResultTableToAlter` verwenden;
+- lokale Temp-Tabellennamen bleiben einschließlich Präfix und Suffix innerhalb des SQL-Server-Limits.
+
+Diese Regel gilt nur für interne lokale Temp-Objekte. Die Namenskonvention für persistente Tabellen bleibt offen.
+
 ## Sprache und Eindeutigkeit
 
 Öffentliche und interne technische Identifier sind englisch. Dies gilt insbesondere für Schema-, Objekt-, Parameter-, Spalten-, Variablen-, Klassen- und Methodennamen.
@@ -42,9 +64,9 @@ Neue Schema-, Objekt- und Spaltennamen werden gegen aktuelle reservierte Wörter
 
 Vermeide unspezifische Verb-Namen wie `Read`, wenn ein präziser Name wie `LoadTextFile` oder `ParseTimestamp` die Semantik besser beschreibt.
 
-## Offene Objekttypen
+## Offene persistente Objekttypen
 
-Für folgende Objekttypen besteht noch keine Konvention:
+Für folgende persistente Objekttypen besteht noch keine Konvention:
 
 - Tabellen
 - Synonyme
