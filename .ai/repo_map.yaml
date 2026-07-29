@@ -122,7 +122,7 @@ object_naming:
   scalar_function: "SVF_{CamelCase}"
   view: "VW_{CamelCase}"
   internal_temp_table: "#tbx_<Module>_<Routine>_<Role>[_<Invocation>]"
-  persistent_tables: open_decision
+  tables: open_decision
   synonyms: open_decision
   assemblies: open_decision
   triggers: open_decision
