@@ -265,3 +265,16 @@ Dauerhafte Entscheidungen werden mit stabiler ID dokumentiert. Historische Entsc
 | Auswirkungen | Framework-Objekte aus dem bekannten Vorgängerrelease werden auch nach lokalen Änderungen aktualisiert oder bei Wegfall entfernt. Neue Zielobjekte dürfen keine frameworkfremden Namenskollisionen überschreiben. Wiederholungsinstallation derselben Version deployed alle Release-Objekte erneut. Source-Hashes bleiben rein diagnostisch. Mutationstransaktionen beginnen erst nach dem Preflight und dauern nur bis zur atomaren Aktualisierung von Objekten und Installationsstand. |
 | Alternativen | getrennte Install-/Upgrade-Skripte sowie Drift-Blockade anhand von Source-Hashes wurden verworfen. |
 | Betroffene Verträge | `DEPLOYMENT_MODEL.md`, `MODULE_AND_DEPENDENCY_MODEL.md`, `MODULE_DEFINITION_OF_DONE.md`, Modulmanifest und Lifecycle-Tests |
+
+## DEC-2026-020: Manifestzentrierte Status- und Change-Impact-Steuerung
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-07-29 |
+| Status | accepted |
+| Entscheidung | Jedes Modulmanifest ist die autoritative Quelle für Implementierungs-, Validierungs- und Release-Status sowie gekoppelte Dokumentationspfade und Contract-Versionen. Wiederholte Statusdarstellungen werden aus den registrierten Manifesten erzeugt. Konsistenzprüfungen beginnen mit dem Git-Diff und laden nur die in `.ai/repo_map.yaml` registrierten Impact-Pakete. |
+| Begründung | Unabhängig gepflegte Statusangaben und pauschale Repository-Scans erzeugen zugleich Drift und unnötigen Aufwand. Explizite Kopplungen machen den Prüfbereich deterministisch, sparsam und überprüfbar. |
+| Scope | Modulmanifeste, README-Status, Modulübersicht, Dokumentationsprüfung, Pull Requests und CI-Auslösung |
+| Auswirkungen | Ein Modul verwendet getrennte Felder `implementation_status`, `validation_status` und `release_status`. Vollständige Audits bleiben auf Baseline, Release, Governance- oder Kopplungsänderungen sowie ausdrückliche Aufträge begrenzt. Reine Dokumentationsänderungen starten keine Runtime-Vollmatrix. |
+| Alternativen | Ein Sammelstatus, unabhängige manuelle Statuspflege, Vollscan bei jedem Commit und ungeprüfte Pfadheuristiken wurden verworfen. |
+| Betroffene Verträge | `.ai/repo_map.yaml`, `.ai/PROJECT_RULES.md`, `.ai/WORKING_RULES.md`, `ARTIFACT_ROLES.md`, `MODULE_AND_DEPENDENCY_MODEL.md`, `TEST_AND_VALIDATION_POLICY.md`, Modulmanifeste und GitHub-Actions-Workflows |

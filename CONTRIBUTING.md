@@ -39,6 +39,16 @@ Vor jeder Dateiänderung und vor jedem Commit prüfen: keine personenbezogenen D
 
 Code, Dokumentation, Beispiele, Help-Vertrag, Tests, Backlog und Status werden gekoppelt gepflegt. Jedes Modul muss die Kriterien aus [MODULE_DEFINITION_OF_DONE.md](./Documentation/Standards/MODULE_DEFINITION_OF_DONE.md) erfüllen.
 
+Vor einem Pull Request wird der inkrementelle Change-Impact-Validator ausgeführt:
+
+```text
+python3 Tests/Documentation/validate_documentation.py --base origin/main --head HEAD
+```
+
+Er prüft nur die geänderten und explizit gekoppelten Artefakte. Ein vollständiger
+Audit mit `--all` ist für Releases sowie Änderungen an Governance,
+Kopplungsregeln oder Validator vorgesehen.
+
 ## Templates
 
 Die Vorlagen unter [Templates/](./Templates/) sind nicht ausführbar. Verwende immer die zum SQL-Objekttyp passende Source- und Dokumentationsvorlage.

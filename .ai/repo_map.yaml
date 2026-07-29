@@ -27,6 +27,8 @@ sources_of_truth:
   result_table_test_matrix: Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md
   result_table_runtime_workflow: .github/workflows/result-table-runtime.yml
   result_table_module: Modules/toolbelt.core.result-table/module.yaml
+  documentation_validator: Tests/Documentation/validate_documentation.py
+  documentation_workflow: .github/workflows/documentation-consistency.yml
   roadmap: .ai/ROADMAP.md
   backlog: .ai/BACKLOG.md
 
@@ -152,3 +154,97 @@ object_naming:
   triggers: open_decision
   sequences: open_decision
   types: open_decision
+
+module_registry:
+  manifests:
+    - Modules/toolbelt.core.result-table/module.yaml
+
+change_impact:
+  strategy: diff_first_registered_dependencies
+  full_scan_default: false
+  full_audit_reasons:
+    - initial_baseline
+    - release
+    - governance_change
+    - coupling_registry_change
+    - explicit_request
+  full_audit_paths:
+    - .ai/repo_map.yaml
+    - .ai/PROJECT_RULES.md
+    - .ai/WORKING_RULES.md
+    - AGENTS.md
+    - Documentation/Architecture/DECISIONS.md
+    - Documentation/Architecture/ARTIFACT_ROLES.md
+    - Tests/Documentation/validate_documentation.py
+    - .github/workflows/documentation-consistency.yml
+    - Templates/Module/module.yaml.template
+  packages:
+    documentation:
+      paths:
+        - "*.md"
+        - ".ai/*.md"
+        - ".github/**/*.md"
+        - "Backlog/**/*.md"
+        - "Documentation/**/*.md"
+        - "Modules/**/*.md"
+        - "Templates/**/*.md"
+        - "Tests/**/*.md"
+      checks:
+        - markdown_links
+    module_status:
+      paths:
+        - README.md
+        - SECURITY.md
+        - Modules/README.md
+        - Modules/*/module.yaml
+        - .ai/BACKLOG.md
+        - .ai/ROADMAP.md
+        - .ai/PROJECT_CONTEXT.md
+        - Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+      checks:
+        - generated_status
+        - markdown_links
+    personal_brainstorm:
+      paths:
+        - Backlog/personal_Backlog_Bainstorm.md
+      checks:
+        - brainstorm_history
+        - markdown_links
+    result_table_contract:
+      paths:
+        - Modules/toolbelt.core.result-table/**
+        - Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md
+        - Documentation/Architecture/DEPLOYMENT_MODEL.md
+        - Documentation/Standards/USP_CONTRACT.md
+        - Documentation/Standards/TSQL_ENGINEERING.md
+        - Documentation/Standards/MODULE_DEFINITION_OF_DONE.md
+        - Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md
+        - Tests/CI/run-result-table-linux.sh
+      checks:
+        - result_table_static
+        - markdown_links
+    runtime_workflow:
+      paths:
+        - .github/workflows/result-table-runtime.yml
+      checks:
+        - runtime_workflow_scope
+        - result_table_static
+    governance:
+      paths:
+        - .ai/repo_map.yaml
+        - .ai/PROJECT_RULES.md
+        - .ai/WORKING_RULES.md
+        - AGENTS.md
+        - Documentation/Architecture/ARTIFACT_ROLES.md
+        - Documentation/Architecture/DECISIONS.md
+        - Tests/Documentation/**
+        - .github/workflows/documentation-consistency.yml
+        - .github/pull_request_template.md
+        - Templates/Module/module.yaml.template
+      checks:
+        - generated_status
+        - markdown_links
+        - brainstorm_history
+        - runtime_workflow_scope
+        - result_table_static

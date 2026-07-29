@@ -4,20 +4,20 @@ on:
   pull_request:
     paths:
       - ".github/workflows/result-table-runtime.yml"
-      - "Documentation/Architecture/**"
-      - "Documentation/Standards/**"
-      - "Modules/toolbelt.core.result-table/**"
-      - "Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md"
+      - "Modules/toolbelt.core.result-table/module.yaml"
+      - "Modules/toolbelt.core.result-table/Source/**"
+      - "Modules/toolbelt.core.result-table/Deployment/**"
+      - "Modules/toolbelt.core.result-table/Tests/Runtime/**"
       - "Tests/CI/run-result-table-linux.sh"
   push:
     branches:
       - main
     paths:
       - ".github/workflows/result-table-runtime.yml"
-      - "Documentation/Architecture/**"
-      - "Documentation/Standards/**"
-      - "Modules/toolbelt.core.result-table/**"
-      - "Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md"
+      - "Modules/toolbelt.core.result-table/module.yaml"
+      - "Modules/toolbelt.core.result-table/Source/**"
+      - "Modules/toolbelt.core.result-table/Deployment/**"
+      - "Modules/toolbelt.core.result-table/Tests/Runtime/**"
       - "Tests/CI/run-result-table-linux.sh"
   workflow_dispatch:
 

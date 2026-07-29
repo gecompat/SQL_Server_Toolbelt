@@ -23,6 +23,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Modulmanifest, parametergesteuertes Deploy- und Uninstall-Skript, Objekt- und Moduldokumentation, synthetisches Beispiel sowie statische und synthetische Contract-Testartefakte für `toolbelt.core.result-table`.
 - Architekturentscheidung `DEC-2026-019` für gemeinsame Deployments, Release-Manifeste und kurze Mutationstransaktionen.
 - GitHub-hosted Linux-Validierung für SQL Server 2019, 2022 und 2025.
+- Manifestzentrierte Modulregistry mit gekoppelten Dokumentationspfaden und Contract-Versionen.
+- Inkrementeller Dokumentations- und Change-Impact-Validator ohne externe Python-Abhängigkeiten.
+- Eigener GitHub-Actions-Workflow für diff-basierte Dokumentationskonsistenz.
+- Architekturentscheidung `DEC-2026-020` zur Status- und Change-Impact-Steuerung.
 
 ### Geändert
 
@@ -39,6 +43,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Anchor-Umbau am SQL-Server-Limit von 1024 Spalten in kontrollierte Teilschritte zerlegt.
 - Getrennte Install-/Upgrade-Pfade durch ein gemeinsames `Deploy.sql` mit `DeploymentMode`, Release-Manifest, Application Lock und objektgenauer Herkunftsprüfung ersetzt.
 - Source-Hashes von einem blockierenden Drift-Gate zu rein diagnostischer Information geändert.
+- Modulstatus in getrennte Implementierungs-, Validierungs- und Release-Dimensionen aufgeteilt.
+- README- und Modulübersichtsstatus als aus Manifesten erzeugte Abschnitte gekennzeichnet.
+- ResultTable-Runtime-Workflow auf Source-, Deployment-, Manifest-, Runtime-Test- und CI-Adapteränderungen begrenzt.
 
 ### Korrigiert
 
@@ -55,6 +62,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Debug-Stufen `4` bis `254` liefern für `USP_PrepareResultTable` denselben Detailumfang wie Stufe `3`.
 - Deployment-Sessionoption und Objektartvergleich für XML- und Collation-stabile Ausführung korrigiert.
 - Runtime-Testmetadaten für `datetime2(3)` und CI-Kollisionsvorbereitung korrigiert.
+- Veraltete Runtime-Statusangaben in README, SECURITY und USP-Vertrag korrigiert.
+- ResultTable-Evidenz auf den finalen erfolgreichen Linux-Workflow aktualisiert.
 
 ### Status
 

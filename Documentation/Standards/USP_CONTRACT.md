@@ -1,6 +1,6 @@
 # USP-Vertrag – SQL Server Toolbelt
 
-Dieser Vertrag ist verbindlich für öffentliche und interne Toolbelt-Stored-Procedures. Er ist als Architekturvertrag definiert; eine gemeinsame Runtime-Infrastruktur wird erst durch ein freigegebenes Arbeitspaket implementiert.
+Dieser Vertrag ist verbindlich für öffentliche und interne Toolbelt-Stored-Procedures. Die gemeinsame ResultTable-Runtime-Infrastruktur ist mit `toolbelt_core.USP_PrepareResultTable` implementiert und teilweise validiert. Weitere gemeinsame Infrastruktur entsteht ausschließlich über ein eigenes freigegebenes Arbeitspaket.
 
 ## 1. Standardparameter
 

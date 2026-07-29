@@ -44,4 +44,15 @@ Reale Query Plans, Execution Logs, Traces, Backups, Exporte und Test-Evidence au
 - Architekturentscheidungen werden zuerst in `Documentation/Architecture/DECISIONS.md` festgehalten.
 - Öffentliche Verträge werden in Standards und objektspezifischer Dokumentation gepflegt.
 - Implementierung, Help, Beispiele, Tests, Manifest und Changelog werden gekoppelt aktualisiert.
-- Generierte oder abgeleitete Artefakte werden nicht unabhängig als zweite Source of Truth gepflegt.
+- Modulstatus, Versionen, Plattformen und Evidenz sind im jeweiligen `module.yaml` autoritativ.
+- Markierte Statusabschnitte in README und Modulübersicht werden aus den registrierten Manifesten erzeugt und nicht unabhängig gepflegt.
+- Narrative Dokumentation bleibt manuell; sie wird nicht automatisch überschrieben.
+- `.ai/repo_map.yaml` registriert Module, gekoppelte Artefakte und Change-Impact-Pakete.
+- Generierte oder abgeleitete Artefakte erzeugen keine zweite Source of Truth.
+
+## Prüfstrategie
+
+Die Standardprüfung beginnt mit den geänderten Pfaden und lädt nur registrierte
+Impact-Pakete sowie gekoppelte Modul-Artefakte. Ein vollständiger Audit erfolgt
+nur für Baseline, Release, Governance- oder Kopplungsänderungen sowie auf
+ausdrücklichen Auftrag.

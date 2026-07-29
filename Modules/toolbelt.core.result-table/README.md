@@ -8,9 +8,10 @@
 | Version | `1.0.0` |
 | Implementierung | `implemented` |
 | Runtime-Validierung | `partially validated` |
+| Release | `unreleased` |
 | Persistente Objekte | genau `toolbelt_core.USP_PrepareResultTable` |
 
-Die Procedure und alle gekoppelten Source-, Lifecycle-, Dokumentations- und Testartefakte sind implementiert. Die [GitHub-hosted Linux-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447184377) war am 2026-07-29 auf SQL Server 2019, 2022 und 2025 erfolgreich. SQL Server 2019 führte die vorhandene Vollsuite einschließlich lokaler und zentraler Nutzung aus; 2022 und 2025 führten die reduzierte Kompatibilitätssuite aus. Windows und noch nicht automatisierte Pflichtfälle bleiben `not executed`, daher ist das Modul noch nicht vollständig `validated`.
+Die Procedure und alle gekoppelten Source-, Lifecycle-, Dokumentations- und Testartefakte sind implementiert. Die [finale GitHub-hosted Linux-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447442638) war am 2026-07-29 auf SQL Server 2019, 2022 und 2025 erfolgreich. SQL Server 2019 führte die vorhandene Vollsuite einschließlich lokaler und zentraler Nutzung aus; 2022 und 2025 führten die reduzierte Kompatibilitätssuite aus. Windows und noch nicht automatisierte Pflichtfälle bleiben `not executed`, daher ist das Modul noch nicht vollständig `validated`.
 
 ## Zweck
 

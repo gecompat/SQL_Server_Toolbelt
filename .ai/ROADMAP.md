@@ -77,7 +77,13 @@ Ergebnis:
 
 ### Phase 1.2 – Implementierung und Validierung
 
-**Status:** `partially validated`
+**Arbeitsstatus:** `in progress`
+
+**Implementierungsstatus:** `implemented`
+
+**Validierungsstatus:** `partially validated`
+
+**Release-Status:** `unreleased`
 **Arbeitspaket:** `AP-2026-003`
 
 Der Benutzer hat `toolbelt_core.USP_PrepareResultTable` am 2026-07-29 nach der ausführlichen Vertragsbesprechung ausdrücklich zum Beginn freigegeben. Diese Freigabe gilt nur für diese Funktion; weitere Kandidaten bleiben am funktionsbezogenen Gate.
@@ -102,7 +108,7 @@ Stand:
 - GitHub-hosted Linux: SQL Server 2019 mit vorhandener Vollsuite und SQL Server 2022/2025 mit Kompatibilitätssuiten erfolgreich;
 - lokale und zentrale Nutzung, Wiederholungsdeployment, Fremdobjekt-Kollision und Uninstall im 2019-Lauf erfolgreich;
 - Windows und noch nicht automatisierte Collation-, Grenz-, Recovery- und Performancefälle offen;
-- Modulstatus deshalb `partially validated`, nicht vollständig `validated`.
+- Validierungsstatus deshalb `partially validated`, nicht vollständig `validated`.
 
 Die erste Version benötigt keine persistente Tabelle, kein Synonym, keine Assembly und keinen Type. Eine Entscheidung zu diesen offenen persistenten Namenskonventionen ist deshalb noch nicht erforderlich.
 
@@ -115,10 +121,15 @@ Schrittweise Umsetzung priorisierter Toolbelt-Kandidaten nach fachlicher Kategor
 
 ## Phase 3 – Schlanke Test-Infrastruktur und CI
 
-**Status:** `proposed`  
+**Status:** `in progress`
+
 **Abhängigkeit:** mindestens ein implementiertes Modul mit konkreten Testpfaden.
 
-Pfadbezogene statische Prüfungen und capability-spezifische Runtime-Tests; keine pauschale Vollmatrix für reine Dokumentationsänderungen.
+Der inkrementelle Dokumentations- und Change-Impact-Validator sowie die
+capability-spezifische ResultTable-Runtime-Matrix bilden den ersten vertikalen
+Slice. Weitere Module registrieren ihre gekoppelten Artefakte im Manifest und
+ihre Impact-Pfade in `.ai/repo_map.yaml`. Reine Dokumentationsänderungen lösen
+keine pauschale Runtime-Vollmatrix aus.
 
 ## Repository-Grenze
 

@@ -58,7 +58,7 @@ Diese erste Welle ändert die deklarierte Windows-Unterstützung nicht. Windows 
 
 Ausführung am 2026-07-29:
 
-- [GitHub Actions Run 30447184377](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447184377): erfolgreich;
+- [finaler GitHub Actions Run 30447442638](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447442638): erfolgreich;
 - SQL Server 2019 Linux: vorhandene Vollsuite erfolgreich;
 - SQL Server 2022 und 2025 Linux: Kompatibilitätssuiten erfolgreich;
 - statischer Vertrag: erfolgreich;

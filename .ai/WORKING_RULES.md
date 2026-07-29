@@ -54,6 +54,23 @@ Bei öffentlichen Funktionen gemeinsam prüfen und aktualisieren:
 - statische, Runtime- und Contract-Tests;
 - Backlog, Status, Changelog und bekannte Einschränkungen.
 
+Das Modulmanifest registriert die zugehörige Modul-, Objekt-, Architektur- und
+Testdokumentation sowie die verwendeten Contract-Versionen. Neue Kopplungen
+werden in `.ai/repo_map.yaml` ergänzt.
+
+## Change-Impact-Prüfung
+
+1. geänderte Pfade mit `git diff --name-only <base> <head>` bestimmen;
+2. nur passende Impact-Pakete aus `.ai/repo_map.yaml` und deren registrierte
+   Modul-Artefakte prüfen;
+3. Runtime-Tests ausschließlich bei Source-, Deployment-, Runtime-Test-,
+   Manifest- oder CI-Adapteränderungen starten;
+4. vollständigen Audit nur für Baseline, Release, Governance- oder
+   Kopplungsänderungen sowie auf ausdrücklichen Auftrag ausführen.
+
+Eine angeforderte tokensparende oder schnelle Arbeitsweise reduziert nicht die
+Prüftiefe des ermittelten Impact-Scopes.
+
 ## Branch-, Commit- und Pull-Request-Regeln
 
 - Branch-Name beschreibt den Scope kurz und eindeutig.

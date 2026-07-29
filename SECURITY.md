@@ -2,7 +2,7 @@
 
 ## Unterstützter Stand
 
-Der Repository-Grundaufbau ist initialisiert. Das erste fachliche Modul ist implementiert, aber noch nicht zur Runtime validiert oder als stabile Version veröffentlicht. Sicherheitsmeldungen zum Grundaufbau, zu Regeln, Templates und Modulen werden bewertet.
+Der Repository-Grundaufbau ist initialisiert. Das erste fachliche Modul ist implementiert und auf GitHub-hosted Linux `partially validated`, aber noch nicht als stabile Version veröffentlicht. Windows und weitere Pflichtfälle sind noch nicht ausgeführt. Sicherheitsmeldungen zum Grundaufbau, zu Regeln, Templates und Modulen werden bewertet.
 
 ## Sicherheitslücken melden
 

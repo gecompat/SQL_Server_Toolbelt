@@ -1,0 +1,40 @@
+name: Documentation Consistency
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: documentation-consistency-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  change-impact:
+    name: Incremental change impact
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate affected documentation packages
+        if: github.event_name != 'workflow_dispatch'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: >-
+          python3 Tests/Documentation/validate_documentation.py
+          --base "$BASE_SHA"
+          --head "$HEAD_SHA"
+
+      - name: Validate complete baseline
+        if: github.event_name == 'workflow_dispatch'
+        run: python3 Tests/Documentation/validate_documentation.py --all

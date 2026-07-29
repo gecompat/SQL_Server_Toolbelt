@@ -70,6 +70,8 @@ Details: [CLR_SECURITY_AND_PORTABILITY.md](../Documentation/Architecture/CLR_SEC
 - Nicht triviale Codeblöcke erklären Absicht, Voraussetzungen, Seiteneffekte, Besonderheiten, Designgrund und relevante Performance- oder Plattformgrenzen.
 - Veraltete Kommentare gelten als Fehler.
 - Jedes öffentliche SQL-Objekt erhält eine eigene Dokumentationsseite und einen vollständigen Objekt-Header.
+- Wiederholte Modulstatuswerte werden aus `module.yaml` abgeleitet; narrative Dokumentation bleibt manuell.
+- Module registrieren ihre gekoppelten Dokumentations- und Contract-Artefakte im Manifest.
 
 Details: [CODE_DOCUMENTATION.md](../Documentation/Standards/CODE_DOCUMENTATION.md)
 
@@ -87,6 +89,8 @@ Details: [CODE_DOCUMENTATION.md](../Documentation/Standards/CODE_DOCUMENTATION.m
 - Keine doppelte oder konkurrierende Regel anlegen.
 - Dauerhafte Entscheidungen mit stabiler ID in [DECISIONS.md](../Documentation/Architecture/DECISIONS.md) dokumentieren.
 - Unlösbare Konflikte führen bis zur Klärung zu keiner Änderung.
+- Die Konsistenzprüfung arbeitet standardmäßig diff-basiert über die in `.ai/repo_map.yaml` registrierten Impact-Pakete.
+- Vollständige Repository-Audits sind für Baseline, Release, Governance- oder Kopplungsänderungen sowie auf ausdrücklichen Auftrag vorgesehen.
 
 ## 10. Persönlicher Brainstorm-Backlog
 

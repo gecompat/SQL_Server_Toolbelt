@@ -22,6 +22,7 @@ Die erste pfadbezogene Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 
 | Plattform | SQL Server 2019, 2022 und 2025; Windows und Linux getrennt |
 | Provider | jeder alternative Provider als eigener Nachweis |
 | Recovery | Cleanup und Zustand nach Fehlern |
+| Dokumentationskonsistenz | diff-basierte Prüfung registrierter Status-, Link- und Kopplungsartefakte |
 
 ## Modulspezifische Testmatrizen
 
@@ -44,6 +45,9 @@ Jede ausgeführte Prüfung nennt Befehl oder Workflow, Scope, Version, Plattform
 
 ## CI
 
-Die capability-bezogene GitHub-hosted Linux-CI ist aktiv. Eine Dokumentationsänderung benötigt keine vollständige Runtime-Matrix.
+Die capability-bezogene GitHub-hosted Linux-CI ist aktiv. Der
+[Dokumentationsvalidator](./Documentation/README.md) prüft Pull Requests
+inkrementell. Eine Dokumentationsänderung benötigt keine vollständige
+Runtime-Matrix.
 
 Details: [TEST_AND_VALIDATION_POLICY.md](../Documentation/Standards/TEST_AND_VALIDATION_POLICY.md)

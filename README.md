@@ -26,7 +26,9 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 
 # SQL Server Toolbelt
 
-[![Status: Erstes Kernmodul implementiert – Runtime nicht ausgeführt](https://img.shields.io/badge/Status-Erstes%20Kernmodul%20implementiert-yellow)](./Modules/toolbelt.core.result-table/README.md)
+<!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
+[![Status: 1 Modul implementiert – 1 teilweise validiert](https://img.shields.io/badge/Status-1%20Modul%20implementiert%20%7C%201%20teilweise%20validiert-yellow)](./Modules/toolbelt.core.result-table/README.md)
+<!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
 
