@@ -2,7 +2,7 @@
 
 Breit angelegte, noch ungefilterte Ideensammlung für `gecompat/SQL_Server_Toolbelt`.
 
-Stand der Recherche: 2026-07-29
+Stand der Recherche: 2026-07-30
 
 ## Rolle und Status
 
@@ -60,11 +60,15 @@ Diese Treffer erzeugen bewusst keine Duplikate.
 | `RI-2026-013` | Constraint- und Index-Namensgenerator | Eindeutige, deterministische Namen aus Objektrolle und Bestand ableiten; maximale Identifierlänge beachten. | `SRC-PERSONAL` |
 | `RI-2026-014` | Relationaler `star`-/Spaltenprojektions-Generator | Include-/Exclude-Listen, Präfixe, Aliase und stabile Spaltenreihenfolge aus Metadaten erzeugen. | `SRC-DBT-UTILS` |
 | `RI-2026-015` | Generischer Key-Value-/Map-Adapter | Rowsets, JSON-Objekte und Key-Value-Paare verlustarm ineinander überführen; doppelte Keys explizit behandeln. | `SRC-DUCKDB-MAP`, `SRC-PG-JSON` |
-| `RI-2026-016` | Hierarchie- und Pfadoperationen | Materialized Paths parsen, Vorfahren/Nachfahren bestimmen, Pfade normalisieren und Zyklen prüfen. | `SRC-PG-CONTRIB` |
+| `RI-2026-016` | Hierarchie- und Pfadoperationen | Materialized Paths und `hierarchyid` kontrolliert verarbeiten, Vorfahren/Nachfahren bestimmen, Pfade normalisieren sowie Zyklen und maximale Traversal-Tiefe explizit behandeln. | `SRC-PG-CONTRIB`, `SRC-SQLSERVER-HIERARCHYID` |
 | `RI-2026-017` | Range-/Interval-Algebra | Überlappung, Enthaltensein, Schnitt, Differenz, Vereinigung und Lücken für numerische und zeitliche Intervalle vereinheitlichen. | `SRC-PG-RANGES` |
 | `RI-2026-018` | Dynamischer Crosstab mit Vertrag | PostgreSQL `tablefunc` als Inspiration für einen klar begrenzten, typisierten Crosstab-Provider prüfen. | `SRC-PG-CONTRIB` |
 | `RI-2026-019` | Resultset-Vertrag introspektieren | Metadaten eines Statements oder einer Procedure in ein stabiles maschinenlesbares Schema überführen und gegen Erwartungen vergleichen. | `SRC-SQLSERVER-OPENROWSET`, `SRC-DUCKDB-FUNCTIONS` |
 | `RI-2026-020` | Objekt-Herkunft und Deployment-Fingerprint | Toolbelt-eigene Objekte, Release-Zugehörigkeit und erwartete Definition zuverlässig identifizieren, ohne fremde Objekte zu beanspruchen. | `SRC-JCS`, `SRC-SQLSERVER-HASHBYTES` |
+| `RI-2026-163` | Standardisierte Session-Context-Helfer | Benannte Schlüssel für Correlation, Actor und Tenant kontrolliert setzen, lesen und optional schreibschützen; Ownership, Connection Pooling, `NULL`, Typen und RLS-Nutzung vom allgemeinen Logging trennen. | `SRC-SQLSERVER-SESSION-CONTEXT`, `SRC-SQLSERVER-RLS` |
+| `RI-2026-164` | Reservierung von Sequence-Ranges | `sys.sp_sequence_get_range` hinter einem typisierten Vertrag für Reservierung, Metadaten, Berechtigungen, Cycling und Erschöpfung kapseln; Protokollierung bleibt eine getrennte optionale Capability. | `SRC-SQLSERVER-SEQUENCE-RANGE` |
+| `RI-2026-165` | Read-only Schema- und Objektintrospektion | Spalten, Types, Module und deklarierte Dependencies als stabile Rowsets für Generatoren und Dokumentation bereitstellen; Metadatasichtbarkeit, unaufgelöste Referenzen und Cross-database-Grenzen ausdrücklich ausweisen. | `SRC-SQLSERVER-CATALOG`, `SRC-SQLSERVER-DEPENDENCIES` |
+| `RI-2026-166` | Sichere Dynamic-SQL-Primitiven | Objekt-/Spaltenexistenz, zulässige Sortierlisten und bereits gequotete Identifier als kleine validierende Primitive kapseln; keine allgemeine SQL-Erzeugung und keine freie Ausdruckssyntax. | `SRC-SQLSERVER-CATALOG`, `SRC-ORACLE-DBMS-ASSERT` |
 
 ## 2. Text, Unicode und Interoperabilität
 
@@ -90,6 +94,7 @@ Diese Treffer erzeugen bewusst keine Duplikate.
 | `RI-2026-038` | Diff/Patch für Text | Zeilen- oder tokenbasierte Differenz mit strukturiertem Resultset, optional Patch-Anwendung. | `SRC-DATAFUSION` |
 | `RI-2026-039` | Template Rendering mit strikt begrenzter Syntax | Platzhalter, Escaping und Missing-Value-Strategie ohne allgemeine Codeausführung definieren. | `SRC-DBT-UTILS` |
 | `RI-2026-040` | Formatstring- und Platzhalter-Validator | Templates vor Ausführung auf unbekannte, doppelte oder unescaped Platzhalter prüfen. | `SRC-DBT-UTILS` |
+| `RI-2026-167` | Resultset-Renderer für HTML und Markdown | Typisierte Rowsets mit stabiler Spaltenreihenfolge, `NULL`-, Längen- und Escaping-Regeln als HTML-Tabelle oder Markdown-Tabelle ausgeben; Mailversand, Persistenz und fachliche Reports bleiben außerhalb des Kernvertrags. | `SRC-SQLSERVER-FOR-XML` |
 
 ## 3. JSON, XML und semistrukturierte Daten
 
@@ -143,9 +148,9 @@ Diese Treffer erzeugen bewusst keine Duplikate.
 
 | ID | Verdichtete Idee | Nutzen und offene Abgrenzung | Quellen |
 |---|---|---|---|
-| `RI-2026-079` | Date Spine und Kalenderdimension | Datums-/Zeitpunkte in frei wählbarer Granularität sowie optional abgeleitete Kalenderattribute erzeugen. | `SRC-DBT-UTILS`, `SRC-PG-FUNCTIONS` |
+| `RI-2026-079` | Date Spine und Kalenderdimension | Datums-/Zeitpunkte für Tag, Woche, Monat oder Quartal mit frei wählbarem Schritt erzeugen; optional Periodenanfang/-ende, Jahr, Monat, ISO-Woche und Quartal ausgeben. | `SRC-DBT-UTILS`, `SRC-PG-FUNCTIONS` |
 | `RI-2026-080` | Business-Day-/Arbeitskalender-Engine | Wochenenden, benutzergepflegte Feiertage, Teilzeittage und Arbeitszeitfenster trennen; keine eingebaute „ewig aktuelle“ Feiertagswahrheit. | `SRC-RFC5545`, `SRC-CLDR-DATETIME` |
-| `RI-2026-081` | IANA-Time-Zone-Provider | IANA-TZDB-Namen und Windows-Time-Zone-Namen kontrolliert abbilden; Datenversion muss nachvollziehbar sein. | `SRC-IANA-TZ`, `SRC-RFC9557` |
+| `RI-2026-081` | Time-Zone-Konvertierung und Provider | Zeitzonen validieren und UTC-/Zonen-Konvertierungen mit `AT TIME ZONE` sowie `sys.time_zone_info` kapseln; DST-Lücken/-Überlappungen testen, IANA- und Windows-Namen kontrolliert abbilden und die Datenversion nachvollziehbar halten. | `SRC-SQLSERVER-TIMEZONE`, `SRC-IANA-TZ`, `SRC-RFC9557` |
 | `RI-2026-082` | RFC-3339/IXDTF Parser und Formatter | Internet-Zeitstempel mit Offset und optionaler Time-Zone-Annotation strikt verarbeiten. | `SRC-RFC3339`, `SRC-RFC9557` |
 | `RI-2026-083` | iCalendar RRULE expandieren | Wiederholungsregeln in konkrete Occurrences expandieren; Grenzen gegen unendliche oder riesige Folgen erzwingen. | `SRC-RFC5545` |
 | `RI-2026-084` | Duration-/Period-Parser | Kalenderperioden und exakte Zeitdauern nicht vermischen; ISO-/iCalendar-nahe Formen getrennt behandeln. | `SRC-RFC5545`, `SRC-RFC3339` |
@@ -163,6 +168,7 @@ Diese Treffer erzeugen bewusst keine Duplikate.
 | `RI-2026-096` | Reservoir Sampling | Unbekannt lange Ströme mit begrenztem Speicher zufällig sampeln; deterministischer Seed optional. | `SRC-RESERVOIR` |
 | `RI-2026-097` | Deterministisches Hash-Sampling | Reproduzierbare Stichprobe anhand stabiler Schlüssel statt Session-Zufall. | `SRC-SQLSERVER-HASHBYTES`, `SRC-DBT-UTILS` |
 | `RI-2026-098` | Entropie- und Verteilungsmaße | Shannon-Entropie, Gini, Konzentration und Skewness als Data-Quality-/Testutilities prüfen. | `SRC-PG-MATH`, `SRC-BQ-APPROX` |
+| `RI-2026-168` | Temporal-Query-Helfer | Wiederverwendbare, identifier-sichere Oberflächen für Current, `AS OF`, Zeitintervalle und History-Lesezugriffe auf system-versionierte Tabellen prüfen; Retention bleibt eine getrennte administrative Capability. | `SRC-SQLSERVER-TEMPORAL-QUERY`, `SRC-SQLSERVER-TEMPORAL-RETENTION` |
 
 ## 6. Geodaten
 
@@ -317,6 +323,16 @@ Alle Links sind öffentlich zugängliche technische Quellen. Externe Projekte si
 | `SRC-PARQUET` | [Apache Parquet – File Format](https://parquet.apache.org/docs/file-format/) |
 | `SRC-ARROW` | [Apache Arrow – Columnar Format](https://arrow.apache.org/docs/format/Columnar.html) |
 | `SRC-DATAFUSION` | [Apache DataFusion](https://github.com/apache/datafusion) |
+| `SRC-SQLSERVER-SESSION-CONTEXT` | [SQL Server – sp_set_session_context](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-set-session-context-transact-sql?view=sql-server-ver17) und [SESSION_CONTEXT](https://learn.microsoft.com/en-us/sql/t-sql/functions/session-context-transact-sql?view=sql-server-ver17) |
+| `SRC-SQLSERVER-RLS` | [SQL Server – Row-Level Security](https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17) |
+| `SRC-SQLSERVER-SEQUENCE-RANGE` | [SQL Server – sys.sp_sequence_get_range](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-sequence-get-range-transact-sql?view=sql-server-ver17) |
+| `SRC-SQLSERVER-CATALOG` | [SQL Server – Object Catalog Views](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/object-catalog-views-transact-sql?view=sql-server-ver17) |
+| `SRC-SQLSERVER-DEPENDENCIES` | [SQL Server – sys.sql_expression_dependencies](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-sql-expression-dependencies-transact-sql?view=sql-server-ver17) |
+| `SRC-SQLSERVER-FOR-XML` | [SQL Server – FOR XML](https://learn.microsoft.com/en-us/sql/relational-databases/xml/for-xml-sql-server?view=sql-server-ver17) |
+| `SRC-SQLSERVER-HIERARCHYID` | [SQL Server – hierarchyid data type method reference](https://learn.microsoft.com/en-us/sql/t-sql/data-types/hierarchyid-data-type-method-reference?view=sql-server-ver17) |
+| `SRC-SQLSERVER-TIMEZONE` | [SQL Server – AT TIME ZONE](https://learn.microsoft.com/en-us/sql/t-sql/queries/at-time-zone-transact-sql?view=sql-server-ver17) und [sys.time_zone_info](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-time-zone-info-transact-sql?view=sql-server-ver17) |
+| `SRC-SQLSERVER-TEMPORAL-QUERY` | [SQL Server – Query data in a system-versioned temporal table](https://learn.microsoft.com/en-us/sql/relational-databases/tables/querying-data-in-a-system-versioned-temporal-table?view=sql-server-ver17) |
+| `SRC-SQLSERVER-TEMPORAL-RETENTION` | [SQL Server – Manage historical data in system-versioned temporal tables](https://learn.microsoft.com/en-us/sql/relational-databases/tables/manage-retention-of-historical-data-in-system-versioned-temporal-tables?view=sql-server-ver17) |
 | `SRC-SQLSERVER-OPENROWSET` | [SQL Server – OPENROWSET BULK](https://learn.microsoft.com/en-us/sql/t-sql/functions/openrowset-bulk-transact-sql?view=sql-server-ver17) |
 | `SRC-SQLSERVER-COMPRESS` | [SQL Server – COMPRESS](https://learn.microsoft.com/en-us/sql/t-sql/functions/compress-transact-sql?view=sql-server-ver17) und [DECOMPRESS](https://learn.microsoft.com/en-us/sql/t-sql/functions/decompress-transact-sql?view=sql-server-ver17) |
 | `SRC-SQLSERVER-JSON` | [SQL Server – JSON Functions](https://learn.microsoft.com/en-us/sql/t-sql/functions/json-functions-transact-sql?view=sql-server-ver17) |
