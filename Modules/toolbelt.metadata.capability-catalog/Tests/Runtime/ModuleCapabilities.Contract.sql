@@ -28,7 +28,22 @@ IF NOT EXISTS
          AND DeploymentMode = N'local'
          AND MetadataStatus = 'valid'
    )
+BEGIN
+    SELECT
+          ModuleId
+        , ModuleVersion
+        , DeploymentMode
+        , MetadataStatus
+    FROM toolbelt_metadata.VW_ModuleCapabilities
+    WHERE ModuleId IN
+          (
+                N'toolbelt.core.console-message'
+              , N'toolbelt.metadata.capability-catalog'
+          )
+    ORDER BY ModuleId;
+
     THROW 52943, N'Gültige Toolbelt-Modulmarker werden falsch projiziert.', 1;
+END;
 
 EXEC sys.sp_addextendedproperty
       @name = N'Toolbelt.Module.toolbelt.synthetic.incomplete.Version'
