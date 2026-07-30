@@ -1,0 +1,92 @@
+module_id: "toolbelt.string.directional-trim"
+module_name: "Directional TRIM Compatibility"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Bietet die SQL-Server-2022-TRIM-Positionen portable für varchar und nvarchar."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150,160,170]
+platforms:
+  windows: "not executed"
+  linux: "partially validated"
+providers:
+  - id: tsql-inline
+    technology: T-SQL Inline TVF
+    platforms: [Windows,Linux]
+    status: implemented
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies:
+  - module_id: "toolbelt.core.generate-series"
+    minimum_version: "1.0.0"
+    objects: ["toolbelt_core.TVF_GenerateSeriesBigInt"]
+schemas:
+  - "toolbelt_string"
+objects:
+  - type: TVF
+    schema: "toolbelt_string"
+    name: "TVF_TrimDirectionalNvarchar"
+    visibility: public
+  - type: TVF
+    schema: "toolbelt_string"
+    name: "TVF_TrimDirectionalVarchar"
+    visibility: public
+permissions_required: ["SELECT oder REFERENCES auf den Inline Table-valued Functions", "DDL-Rechte für Deploy und Uninstall"]
+collation_contract: "Zeichenvergleich verwendet die Collation der Funktionsparameter; bei zentraler Installation ist die Collation der Toolbelt-Datenbank maßgeblich."
+data_type_contract: "Getrennte varchar(max)- und nvarchar(max)-Objekte erhalten den Rückgabetyp; Characters ist varchar(8000) beziehungsweise nvarchar(4000)."
+help_contract_version: "not applicable"
+resultset_contracts:
+  - name: "TVF_TrimDirectionalNvarchar"
+    columns: ["Value nvarchar(max)"]
+  - name: "TVF_TrimDirectionalVarchar"
+    columns: ["Value varchar(max)"]
+lifecycle_error_range: "51210-51219"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/TVF_TrimDirectionalNvarchar.md"
+    - "Documentation/TVF_TrimDirectionalVarchar.md"
+  architecture:
+    - "../../Documentation/Architecture/DIRECTIONAL_TRIM_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/DIRECTIONAL_TRIM_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "not applicable"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/DirectionalTrim.Contract.sql"
+  contract: "Tests/Runtime/DirectionalTrim.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/w1-portable-runtime.yml"
+validation_evidence:
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w1-portable-runtime.yml"
+    scope: "Workflow und Contract-Tests vorhanden; Runtime noch nicht ausgeführt"
+    result: "not executed"
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30552721606"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; Richtungs-, Typ-, Literal-, NULL-, NUL-, native Paritäts-, Wiederholungs-, lokaler, zentraler und Uninstall-Contract"
+    result: "success"

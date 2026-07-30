@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: seven_modules_implemented
+  status: ten_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -212,6 +212,9 @@ module_registry:
     - Modules/toolbelt.string.split-characters/module.yaml
     - Modules/toolbelt.validation.semantic-version/module.yaml
     - Modules/toolbelt.conversion.integer-base/module.yaml
+    - Modules/toolbelt.datetime.calendar-difference/module.yaml
+    - Modules/toolbelt.string.directional-trim/module.yaml
+    - Modules/toolbelt.conversion.uri-component/module.yaml
 
 change_impact:
   strategy: diff_first_registered_dependencies
@@ -371,6 +374,16 @@ change_impact:
         - Tests/CI/run-integer-base-linux.sh
       checks:
         - integer_base_static
+        - markdown_links
+    w1_portable_contracts:
+      paths:
+        - Modules/toolbelt.datetime.calendar-difference/**
+        - Modules/toolbelt.string.directional-trim/**
+        - Modules/toolbelt.conversion.uri-component/**
+        - Documentation/Architecture/CALENDAR_DIFFERENCE_MODULE_DESIGN.md
+        - Documentation/Architecture/DIRECTIONAL_TRIM_MODULE_DESIGN.md
+        - Documentation/Architecture/URI_COMPONENT_MODULE_DESIGN.md
+      checks:
         - markdown_links
     runtime_workflow:
       paths:

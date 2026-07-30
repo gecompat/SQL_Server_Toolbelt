@@ -61,6 +61,14 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Geändert
 
+- Welle `W1` implementiert: `TC-2026-002` als Calendar Difference,
+  `TC-2026-008` als Directional TRIM Compatibility und `TC-2026-024` als
+  RFC-3986-URI-Component-Percent-Encoding. Die drei Module besitzen
+  eigenständige Lifecycle-Artefakte, Objektseiten und synthetische
+  Contract-Tests. SQL Server 2025 Linux ist mit Compatibility Levels 150,
+  160 und 170 einschließlich Wiederholungsdeployment, zentraler Nutzung und
+  Uninstall erfolgreich; der Status ist `partially validated`.
+
 - Base64, Integer-Base und Semantic Versioning auf Modulversion `1.1.0`
   angehoben; Deployment, Upgrade, Uninstall, Objektverträge, Beispiele,
   Manifeste und Testmatrizen um die inline-TVF-Alternativen erweitert.
@@ -124,4 +132,4 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-Sieben Module sind implementiert und `partially validated`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und 2025 erfolgreich; Base64, Generate-Series, Identifier, Split-Characters, Semantic-Version und Integer-Base sind auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich. Windows und die jeweils offenen Releasefälle bleiben `not executed`.
+Zehn Module sind implementiert und `partially validated`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und 2025 erfolgreich; Base64, Generate-Series, Identifier, Split-Characters, Semantic-Version, Integer-Base, Calendar-Difference, Directional-TRIM und URI-Component sind auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich. Windows und die jeweils offenen Releasefälle bleiben `not executed`.

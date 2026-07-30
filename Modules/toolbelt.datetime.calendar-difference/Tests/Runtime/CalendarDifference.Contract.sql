@@ -1,0 +1,13 @@
+SET NOCOUNT ON;
+DECLARE @CompatibilityLevel int=TRY_CONVERT(int,N'$(CompatibilityLevel)');
+IF @CompatibilityLevel NOT IN(150,160,170) THROW 52700,N'CompatibilityLevel muss 150, 160 oder 170 sein.',1;
+IF (SELECT compatibility_level FROM sys.databases WHERE database_id=DB_ID())<>@CompatibilityLevel THROW 52701,N'Falscher Compatibility Level.',1;
+IF OBJECT_ID(N'toolbelt_datetime.TVF_CalendarDifference',N'IF') IS NULL THROW 52702,N'Die Funktion fehlt.',1;
+IF EXISTS(SELECT 1 FROM toolbelt_datetime.TVF_CalendarDifference('2020-02-29','2021-02-28') WHERE Sign<>1 OR Years<>1 OR Months<>0 OR Days<>0) THROW 52703,N'Die Schaltjahr-Anniversary-Regel ist falsch.',1;
+IF EXISTS(SELECT 1 FROM toolbelt_datetime.TVF_CalendarDifference('2024-02-29','2024-01-31') WHERE Sign<>-1 OR Years<>0 OR Months<>1 OR Days<>0) THROW 52704,N'Die negative Monatsende-Regel ist falsch.',1;
+IF EXISTS(SELECT 1 FROM toolbelt_datetime.TVF_CalendarDifference('2024-01-01','2024-01-01') WHERE Sign<>0 OR Years<>0 OR Months<>0 OR Days<>0) THROW 52705,N'Der Nullabstand ist falsch.',1;
+IF EXISTS(SELECT 1 FROM toolbelt_datetime.TVF_CalendarDifference('0001-01-01','9999-12-31') WHERE Sign<>1 OR Years<>9998 OR Months<>11 OR Days<>30) THROW 52706,N'Der unterstützte date-Grenzbereich ist falsch.',1;
+IF EXISTS(SELECT 1 FROM toolbelt_datetime.TVF_CalendarDifference(NULL,'2024-01-01') WHERE Sign IS NOT NULL OR Years IS NOT NULL OR Months IS NOT NULL OR Days IS NOT NULL) THROW 52707,N'NULL wird nicht vertragsgemäß weitergegeben.',1;
+DECLARE @Pairs TABLE(StartDate date NULL,EndDate date NULL);
+INSERT INTO @Pairs(StartDate,EndDate) VALUES('2024-01-31','2024-02-29'),('2024-01-01','2024-01-01'),(NULL,'2024-01-01');
+IF (SELECT COUNT(*) FROM @Pairs AS pairs OUTER APPLY toolbelt_datetime.TVF_CalendarDifference(pairs.StartDate,pairs.EndDate) AS difference)<>3 THROW 52708,N'OUTER APPLY erhält die Eingabezeilen nicht vollständig.',1;
