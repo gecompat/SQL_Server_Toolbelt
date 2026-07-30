@@ -715,10 +715,10 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
 | **Dependencies** | Keine Modulabhängigkeit. Der Umfang mit frei definierbarem Alphabet, positiven und negativen Ganzzahlen sowie mindestens Base 2 bis Base 36 wurde am 2026-07-30 besprochen und die Implementierung ausdrücklich freigegeben. |
 | **Duplikatprüfung** | Research-Inbox, persönlicher Brainstorm und formale Toolbelt-Kandidaten geprüft; Base64 kodiert Binärdaten und ist kein Duplikat. |
-| **Status** | `ready for development` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [Research-Inbox `RI-2026-055`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Persönlicher Brainstorm](./personal_Backlog_Bainstorm.md)<br>https://www.rfc-editor.org/info/rfc4648/ |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Als `AP-2026-013` implementieren; akzeptierten Alphabet-, Vorzeichen-, Fehler- und Overflow-Vertrag im Moduldesign und in der Contract-Testmatrix festhalten. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung später gezielt ausführen. |
 
 ## TC-2026-032: Erweiterter String-Split mit mehrzeichigen Separatoren, Escape und Quote
 

@@ -25,6 +25,10 @@ Kollision, Wiederholungsdeployment und Uninstall.
 lokale, zentrale, Kollisions- und Lifecycle-Pfade bei Compatibility Levels
 150, 160 und 170.
 
+`run-integer-base-linux.sh` prüft Alphabete von Basis 2 bis 93,
+Kanonizität, den vollständigen `bigint`-Bereich, Overflow sowie lokale,
+zentrale, Kollisions- und Lifecycle-Pfade bei denselben Compatibility Levels.
+
 Bash wird hier nur als Linux-CI-Orchestrierung verwendet. Es enthält keine zweite Implementierung der T-SQL-Fachlogik.
 
 Das Testkennwort:
@@ -66,6 +70,12 @@ erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
 
 Der
 [Semantic-Version Runtime Run 30517137373](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30517137373)
+war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
+`not executed`.
+
+Der
+[Integer-Base Runtime Run 30518087070](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30518087070)
 war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
 `not executed`.
