@@ -5,27 +5,11 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Entwicklungsbereite Arbeitspakete
 
-Die folgenden Funktionsverträge wurden am 2026-07-30 gemeinsam besprochen und
+Die folgenden verbleibenden Funktionsverträge wurden am 2026-07-30 gemeinsam besprochen und
 anschließend ausdrücklich zur sequenziellen Umsetzung freigegeben. Der Status
 `ready for development` bedeutet: Freigabe und Scope sind vorhanden, die
 Implementierung hat jedoch noch nicht begonnen. Beim tatsächlichen Start wird
 genau ein Paket auf `active` gesetzt.
-
-### AP-2026-010: Sicheres Identifier-Toolkit implementieren
-
-| Feld | Wert |
-|---|---|
-| ID | `AP-2026-010` |
-| Ziel | `TC-2026-029` als sichere, wiederverwendbare Basis für ein- bis vierteilige SQL-Identifier implementieren. |
-| Scope | Parsen, Validieren, Normalisieren und Quoten; ausschließlich Identifier, kein beliebiger SQL-Text und keine automatische Objekt- oder Berechtigungsprüfung. |
-| Dependencies | Besprochener und am 2026-07-30 freigegebener Vertrag; keine Modulabhängigkeit. |
-| Priorität | `P1` |
-| Status | `ready for development` |
-| Akzeptanzkriterien | Öffentliche Oberfläche und interne Kernlogik folgen einem einzigen dokumentierten Vertrag; ein bis vier Teile, Klammer-Escaping, leere/ungültige Teile, `NULL`, Whitespace, maximale Identifierlänge und binär eindeutige Prüfung sind abgedeckt; lokales/zentrales Deployment, Lifecycle, Hilfe, Dokumentation und synthetische Beispiele vollständig. |
-| Tests | Statisch und Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170; physische 2019-/2022- und Windows-Evidenz gezielt vor Release oder bei versionsgetrennter Logik. |
-| Blocker | Keine bekannten. |
-| Evidenz | Benutzerbesprechung und ausdrückliche Freigabe vom 2026-07-30; formaler Kandidat `TC-2026-029`. |
-| Nächster Schritt | Als erstes der vier Pakete auf `active` setzen, Moduldesign und Contract-Testmatrix dauerhaft festhalten, dann implementieren. |
 
 ### AP-2026-011: Multi-Separator-Split Version 1 implementieren
 
@@ -76,6 +60,25 @@ genau ein Paket auf `active` gesetzt.
 | Nächster Schritt | Nach `AP-2026-012` auf `active` setzen und implementieren. |
 
 ## Aktive Arbeitspakete
+
+### AP-2026-010: Identifier- und Multipart-Name-Toolkit implementieren
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-010` |
+| Ziel | Den aus `RI-2026-011` formalisierten und freigegebenen Vertrag `TC-2026-029` als portables Metadata-Modul implementieren, dokumentieren und gezielt validieren. |
+| Scope | `toolbelt.metadata.identifier` Version `1.0.0`; `TVF_ParseMultipartName` und `SVF_QuoteMultipartName`; ein- bis vierteilige Namen, `[...]`, `]]`, ausgelassene mittlere Teile, stabile Validation Codes, lokales und zentrales Deployment. Keine Objektauflösung, Berechtigungsprüfung, doppelten Anführungszeichen oder CLR. |
+| Dependencies | Vollständige Vertragsbesprechung und Sammelfreigabe des Benutzers vom 2026-07-30; scopebezogenes Qualitäts-Gate aus `DEC-2026-021`; keine technische Modulabhängigkeit. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
+| Akzeptanzkriterien | Zustandsbasierter kanonischer Parser; genau eine Ergebniszeile; rechtsbündige Teile; vollständige Escape-, Omission-, Längen-, Collation-, Wrapper-, Deployment- und Lifecycle-Contracts; Dokumentation und Change-Impact-Registry gekoppelt. |
+| Tests | Statischer Vertrag und SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben `not executed`. |
+| Blocker | Kein Merge-Blocker. Für `validated` fehlen physische SQL-Server-2019-/2022- und Windows-Evidenz. |
+| Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-029`; kanonische Artefakte unter `Modules/toolbelt.metadata.identifier/`; [Identifier Runtime Run 30514751834](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30514751834) erfolgreich. |
+| Nächster Schritt | Physische 2019-/2022- und Windows-Läufe gezielt vor Release ausführen. |
 
 ### AP-2026-009: Portable Ganzzahlreihen implementieren und validieren
 

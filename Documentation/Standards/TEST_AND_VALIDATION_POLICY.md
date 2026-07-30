@@ -113,3 +113,17 @@ Server 2025 unter Linux ist mit Compatibility Levels 150, 160 und 170
 einschließlich RFC-4648-, Fehler-, Größen-, Deployment- und
 Lifecycle-Contracts erfolgreich. Physische SQL-Server-2019-/2022- und
 Windows-Läufe bleiben `not executed`.
+
+`toolbelt.core.generate-series` hat `implementation_status: implemented`,
+`validation_status: partially validated` und `release_status: unreleased`.
+SQL Server 2025 unter Linux ist mit Compatibility Levels 150, 160 und 170
+einschließlich Semantik, Grenzen, Größe, Join, `CROSS APPLY`, Deployment und
+Lifecycle erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe
+bleiben `not executed`.
+
+`toolbelt.metadata.identifier` hat `implementation_status: implemented`,
+`validation_status: partially validated` und `release_status: unreleased`.
+SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 ist
+einschließlich Parser-, Quote-, Escape-, Omission-, Fehler-, Deployment- und
+Lifecycle-Contracts erfolgreich. Physische 2019-/2022- und Windows-Läufe
+bleiben `not executed`.

@@ -37,10 +37,11 @@ Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
 | 1 | `TC-2026-003` – ResultTable-Routing | `L` | Bereits implementiertes Kernmodul; die offene Pflichtvalidierung ist das Gate für weitere Module und deshalb wichtiger als ein neuer Kandidat. |
 | 2 | `TC-2026-012` – Base64/Base64URL | `M` | Implementiert und auf SQL Server 2025 Linux teilweise validiert; physische 2019-/2022- und Windows-Läufe bleiben Releaseaufgabe. |
 | 3 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
+| 4 | `TC-2026-029` – Identifier- und Multipart-Name-Toolkit | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
 
-**Hauptempfehlung:** Die offenen ResultTable-Pflichtfälle und die gezielte
-Base64-Releasevalidierung getrennt weiterführen; für die nächste
-Funktionsbesprechung genau einen Kandidaten aus F1 auswählen.
+**Hauptempfehlung:** Die offenen Releasevalidierungen getrennt weiterführen.
+Die drei verbleibenden F1-Verträge sind bereits gesammelt freigegeben und
+werden sequenziell umgesetzt.
 
 ## F1 – Kleiner nutzerorientierter Konzentrationskorb
 
@@ -49,14 +50,12 @@ besprochen und ausdrücklich zur aufeinanderfolgenden Implementierung freigegebe
 
 | Reihenfolge | Kandidat | Komplexität | Status | Wichtigste Scope-Grenze |
 |---:|---|---:|---|---|
-| 1 | `TC-2026-029` – sicheres Identifier- und Multipart-Name-Toolkit, aus `RI-2026-011` | `M` | `ready for development` | Syntaxsicherheit und Quoting; keine ungeprüfte Raw-SQL-Ausführung. |
-| 2 | `TC-2026-001` – Split mit mehreren einzelnen Trennzeichen | `M` | `ready for development` | Version 1 ohne mehrzeichige Separatoren, Quote und Escape; Ausbau separat in `TC-2026-032`. |
-| 3 | `TC-2026-030` – Semantic-Version Parser/Comparator, aus `RI-2026-075` | `S–M` | `ready for development` | Striktes SemVer 2.0.0, keine beliebigen Produktversionen. |
-| 4 | `TC-2026-031` – frei definierbare Zahlensysteme, aus `RI-2026-055` | `S–M` | `ready for development` | Ganzzahlen und explizites Alphabet; keine stillschweigende Alphabetnormalisierung. |
+| 1 | `TC-2026-001` – Split mit mehreren einzelnen Trennzeichen | `M` | `ready for development` | Version 1 ohne mehrzeichige Separatoren, Quote und Escape; Ausbau separat in `TC-2026-032`. |
+| 2 | `TC-2026-030` – Semantic-Version Parser/Comparator, aus `RI-2026-075` | `S–M` | `ready for development` | Striktes SemVer 2.0.0, keine beliebigen Produktversionen. |
+| 3 | `TC-2026-031` – frei definierbare Zahlensysteme, aus `RI-2026-055` | `S–M` | `ready for development` | Ganzzahlen und explizites Alphabet; keine stillschweigende Alphabetnormalisierung. |
 
-### Wichtigste Alternative
-
-Falls zuerst maximale Endnutzer-Sichtbarkeit statt Grundlagenhebel gewünscht ist, können `TC-2026-001` und `RI-2026-055` vor `RI-2026-011` gezogen werden. Der Trade-off: schneller sichtbare Einzelutilities, aber spätere Metadaten- und DDL-Kandidaten erhalten ihre gemeinsame sichere Namensbasis erst später.
+Die Reihenfolge ist durch die Sammelfreigabe vom 2026-07-30 festgelegt:
+Split, Semantic Versioning, anschließend frei definierbare Zahlensysteme.
 
 ## F1-Q – Qualitäts-Enabler parallel, aber nicht alle zugleich
 
@@ -106,6 +105,7 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 
 ## Nächste Ausführung
 
-Die freigegebene Reihenfolge lautet `AP-2026-010` bis `AP-2026-013`: Identifier-Toolkit, Multi-Separator-Split Version 1, Semantic Versioning und frei definierbare Zahlensysteme. Die Arbeitspakete dürfen ohne weitere Zwischenfreigabe nacheinander begonnen werden, solange kein neuer Vertragskonflikt entsteht. Dokumentation und betroffene Tests werden je Modul gekoppelt gepflegt.
-
-`TC-2026-032` bleibt als getrennte Split-Ausbaustufe im Research-Status. Alle übrigen Kandidaten bleiben Research-Input ohne Implementierungsfreigabe.
+`AP-2026-010` / `TC-2026-029` ist abgeschlossen. Danach folgen ohne weitere
+Zwischenfreigabe `AP-2026-011` bis `AP-2026-013`: Multi-Separator-Split
+Version 1, Semantic Versioning und frei definierbare Zahlensysteme.
+`TC-2026-032` bleibt als getrennte Split-Ausbaustufe im Research-Status.

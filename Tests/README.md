@@ -11,8 +11,10 @@ Testartefakte.
 Die ResultTable-Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 mit
 der vollständigen Suite für SQL Server 2019, 2022 und 2025 erfolgreich. Der
 Base64- und Generate-Series-Runtime-Workflows für SQL Server 2025 und
-Compatibility Levels 150, 160 und 170 waren erfolgreich. Physische
-SQL-Server-2019-/2022-, Windows- und weitere Matrixfälle bleiben offen.
+Compatibility Levels 150, 160 und 170 waren erfolgreich. Für das
+Identifier-Modul ist SQL Server 2025 Linux mit denselben Compatibility Levels
+ebenfalls erfolgreich. Physische SQL-Server-2019-/2022-, Windows- und weitere
+Matrixfälle bleiben offen.
 
 ## Pflicht-Testarten je Modul
 
@@ -37,6 +39,7 @@ SQL-Server-2019-/2022-, Windows- und weitere Matrixfälle bleiben offen.
 | `toolbelt.core.result-table` | [RESULT_TABLE_CONTRACT_TEST_MATRIX.md](./RESULT_TABLE_CONTRACT_TEST_MATRIX.md) | `partially validated`; Linux-Lauf erfolgreich |
 | `toolbelt.conversion.base64` | [BASE64_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.conversion.base64/Tests/BASE64_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.core.generate-series` | [GENERATE_SERIES_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.generate-series/Tests/GENERATE_SERIES_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
+| `toolbelt.metadata.identifier` | [IDENTIFIER_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.metadata.identifier/Tests/IDENTIFIER_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 
 Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 

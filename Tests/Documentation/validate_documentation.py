@@ -647,6 +647,24 @@ def validate_generate_series_runtime_workflow_scope() -> None:
             )
 
 
+def validate_identifier_runtime_workflow_scope() -> None:
+    workflow = read(
+        REPOSITORY_ROOT / ".github" / "workflows" / "identifier-runtime.yml"
+    )
+    prohibited = (
+        '"Documentation/Architecture/**"',
+        '"Documentation/Standards/**"',
+        '"Modules/toolbelt.metadata.identifier/Documentation/**"',
+        '"Modules/toolbelt.metadata.identifier/Tests/**/*.md"',
+    )
+    for marker in prohibited:
+        if marker in workflow:
+            raise ValidationError(
+                "Identifier-Runtime-Matrix wird durch reine Dokumentation "
+                f"ausgelöst: {marker}"
+            )
+
+
 def run_result_table_static() -> None:
     script = (
         REPOSITORY_ROOT
@@ -719,6 +737,30 @@ def run_generate_series_static() -> None:
         )
 
 
+def run_identifier_static() -> None:
+    script = (
+        REPOSITORY_ROOT
+        / "Modules"
+        / "toolbelt.metadata.identifier"
+        / "Tests"
+        / "Static"
+        / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)),
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische Identifier-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", help="Git-Basisref für die Impact-Ermittlung")
@@ -782,6 +824,10 @@ def main() -> int:
         validate_generate_series_runtime_workflow_scope()
     if "generate_series_static" in checks:
         run_generate_series_static()
+    if "identifier_runtime_workflow_scope" in checks:
+        validate_identifier_runtime_workflow_scope()
+    if "identifier_static" in checks:
+        run_identifier_static()
 
     print("Dokumentations- und Konsistenzprüfung: erfolgreich")
     print(f"Modulmanifeste: {len(modules)}")
