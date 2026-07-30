@@ -175,8 +175,9 @@ SELECT
                 OR parsed.ModuleId IS NULL
                 OR parsed.ModuleId COLLATE Latin1_General_100_BIN2
                        NOT LIKE N'toolbelt.%'
-                OR parsed.ModuleId COLLATE Latin1_General_100_BIN2
-                       LIKE N'%[^a-z0-9.-]%'
+                OR REPLACE(parsed.ModuleId, N'-', N'')
+                       COLLATE Latin1_General_100_BIN2
+                       LIKE N'%[^a-z0-9.]%'
                 OR parsed.ModuleId LIKE N'%..%'
                 OR RIGHT(parsed.ModuleId, 1) IN (N'.', N'-')
                 OR

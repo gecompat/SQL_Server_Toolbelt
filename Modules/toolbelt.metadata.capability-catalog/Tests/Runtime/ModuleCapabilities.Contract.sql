@@ -42,8 +42,9 @@ BEGIN
               END
         , ModuleCharactersAreValid =
               CASE
-                  WHEN ModuleId COLLATE Latin1_General_100_BIN2
-                           NOT LIKE N'%[^a-z0-9.-]%' THEN 1
+                  WHEN REPLACE(ModuleId, N'-', N'')
+                           COLLATE Latin1_General_100_BIN2
+                           NOT LIKE N'%[^a-z0-9.]%' THEN 1
                   ELSE 0
               END
         , VersionDotCount =
