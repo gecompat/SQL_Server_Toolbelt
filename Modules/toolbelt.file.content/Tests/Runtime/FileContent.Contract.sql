@@ -37,7 +37,7 @@ IF (SELECT COUNT(*) FROM @Parameters) <> 4
       (
           SELECT 1 FROM @Parameters
           WHERE ParameterId = 1 AND ParameterName = N'@FilePath'
-            AND TypeName = N'nvarchar' AND MaxLength = -1
+            AND TypeName = N'nvarchar' AND MaxLength = 8000
       )
    OR NOT EXISTS
       (
@@ -78,7 +78,7 @@ IF (SELECT COUNT(*) FROM @Parameters) <> 5
       (
           SELECT 1 FROM @Parameters
           WHERE ParameterId = 1 AND ParameterName = N'@FilePath'
-            AND TypeName = N'nvarchar' AND MaxLength = -1
+            AND TypeName = N'nvarchar' AND MaxLength = 8000
       )
    OR NOT EXISTS
       (
