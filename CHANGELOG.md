@@ -13,7 +13,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
   `OUTER APPLY`; die vorhandenen SVFs bleiben Convenience-Wrapper.
 - Kandidatenübergreifender Implementierungsplan für alle 46 Toolbelt-Kandidaten mit vorhandenen beziehungsweise vorgeschlagenen Modulen, öffentlichen Objektfamilien, Provider-Slices, Abhängigkeiten, Pflicht-Gates, Testschwerpunkten und Entwicklungswellen; ohne neue Implementierungsfreigabe.
 - Formale Kandidaten `TC-2026-033` bis `TC-2026-046` für ZIP-/Kompressionsprovider, kontrollierte Datei-/Verzeichniszugriffe, getrennte Pseudonymisierungsbausteine, Objektklonen, XLSX-Lesen und eine providerneutrale Second-Session-Abstraktion; alle ohne Implementierungsfreigabe im Status `researched`.
-- Deduplizierte Toolbelt-Research-Inbox mit 162 breit gefächerten Ideen und 82 öffentlichen Quellen; Mehrfachnennungen behalten ihre gemeinsamen Fundstellen.
+- Deduplizierte Toolbelt-Research-Inbox mit 168 breit gefächerten Ideen und 92 öffentlichen Quellen; Mehrfachnennungen behalten ihre gemeinsamen Fundstellen; Funktionsideen aus dem Projektchat „SQL Server Toolbelt Planung“ zu Session Context, Sequence-Ranges, Schema-Introspektion, sicheren Dynamic-SQL-Primitiven, Resultset-Rendering und Temporal Queries sind nachgetragen.
 - Repository-Grundaufbau mit autoritativen Steuerungsdateien, Architektur, Standards, Templates und Backlogs.
 - Verbindlicher USP-Vertrag und SQL-Objekt-Namenskonventionen.
 - GitHub-Copilot-Custom-Agent für die Backlog-Pflege.
