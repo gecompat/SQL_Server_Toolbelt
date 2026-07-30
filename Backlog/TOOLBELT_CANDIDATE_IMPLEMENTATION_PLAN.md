@@ -82,7 +82,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 | `W5` | `researched` | Session- und Ausführungsprovider | `046`, `014` | `017`, `019`, `022`; Provider- und Security-Entscheidung | Synchrone zweite Session und darauf aufbauendes rollback-unabhängiges Logging. |
 | `W6` | `researched` | Queue, Retry, Lease und Cancellation | `015`, `020`, `021`, `018` | `017`, `019`, `022`; Tabellenkonvention entschieden | Begrenzte, beobachtbare und wiederanlaufbare Work Queue. |
 | `W7` | `researched` | Datei- und Host-Provider | `037`, `038`, `025`, `026`, `027` | Execution-Basis, Root-/Endpoint-Allowlist und Identity-Vertrag | Kontrollierte Provider ohne Raw-Script- oder freie URL-Schnittstelle. |
-| `W8` | `active` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | Verarbeitungswelle 1 fuer `TC-2026-034` aktiv: V1A-Vertragsentwurf fuer In-memory-Extraktion einzelner Eintraege dokumentiert; Implementierung bleibt bis zur finalen Benutzerfreigabe gesperrt. |
+| `W8` | `active` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | V1A ist als T-SQL-`Stored`-Slice implementiert, jedoch ohne Runtime-Evidenz. Der optionale CLR-Providervertrag `AP-2026-021` für Deflate und Payload-CRC ist abgeschlossen; seine Implementierung bleibt bis zu einem separaten Spike und einer eigenen Freigabe gesperrt. |
 | `W9` | `researched` | Deterministische Pseudonymisierungsprimitive | `040`, `039`, `041`, `042`, `043` | Key-/Seed-, Kanonisierungs- und Datenschutzvertrag | Range-Primitive zuerst; darauf Lookup, Translation, Date Shift und Geo Jitter. |
 | `W10` | `researched` | Kontrolliertes DDL-Klonen | `044` | Identifier-Modul vorhanden; unterstützte Objektmenge festgelegt | Zuerst nur geprüftes Script, später optional getrennte Ausführung. |
 | `W11` | `researched` | KI-Capabilities | `028` | REST/Worker, Capability-Katalog, Credentials, Kosten- und Datengovernance | Embeddings und generative Aufrufe als getrennte Module. |
@@ -168,7 +168,7 @@ getrennt von den providerneutralen Contract-Tests ausgewiesen.
 | Kandidat | Vorgeschlagener Modul-/Capability-Slice | Vorgeschlagene öffentliche Objekte | Reihenfolge und Grenzen |
 |---|---|---|---|
 | `TC-2026-033` | `toolbelt.archive.zip-metadata` | `toolbelt_archive.USP_ListZipEntries`; eine TVF nur bei nachgewiesen reinem und begrenztem In-memory-Vertrag | `varbinary(max)` zuerst; ZIP64, Verschlüsselung, beschädigte Central Directory, Pfadnormalisierung, Entry-/Größenlimits und Zip Bombs testen. |
-| `TC-2026-034` | A: `toolbelt.archive.zip-memory`; B: `toolbelt.archive.zip-filesystem`; C: optionaler CLR-Provider-Slice | A: `USP_ExtractZipEntry`, `USP_CreateZipArchive`; B: `USP_ExtractZipArchiveToDirectory`, `USP_CreateZipArchiveFromFiles`; C: Providerobjektname nach Vertragswelle | A vor B und C. Filesystem-Slice hängt von `TC-2026-037` ab. CLR-Slice startet als separate Vertragswelle `AP-2026-021` und folgt den CLR-Sicherheitsregeln ohne pauschales `TRUSTWORTHY ON`. |
+| `TC-2026-034` | A: `toolbelt.archive.zip-memory`; B: `toolbelt.archive.zip-filesystem`; C: optionaler CLR-Provider-Slice | A: `USP_ExtractZipEntry`, `USP_CreateZipArchive`; B: `USP_ExtractZipArchiveToDirectory`, `USP_CreateZipArchiveFromFiles`; C: Providerobjektname erst im Implementierungs-Slice | A vor B und C. Filesystem-Slice hängt von `TC-2026-037` ab. `AP-2026-021` legt C auf In-memory, Method 0/8 und Payload-CRC fest. Der C#-Build, die `System.IO.Compression`-Abhängigkeitsprüfung, Assembly-Trust und Windows-/Linux-Evidenz bleiben ein eigener, ausdrücklich freizugebender Slice; kein pauschales `TRUSTWORTHY ON`. |
 | `TC-2026-035` | Bedingter Slice `toolbelt.compression.gzip-stream` | Nur bei belegter Lücke: `USP_GzipCompressStream`, `USP_GzipDecompressStream` | Vorheriger Spike gegen native `COMPRESS`/`DECOMPRESS`. Ohne klaren Streaming-/Datei-Use-Case Kandidat ablehnen oder in Dateiprovider integrieren. |
 | `TC-2026-036` | Pro tatsächlich benötigtem Format ein Modul `toolbelt.compression.<format>` | Formatbezogene Compress-/Decompress-Oberflächen; kein generisches „beliebiges Format“-Objekt | Erst Format und Use Case wählen. Lizenz, Supply Chain, Plattform, Wartung, Bomb-Limits und Exit-Strategie je Provider prüfen. |
 | `TC-2026-045` | `toolbelt.office.xlsx` | V1: `toolbelt_office.USP_ListXlsxWorksheets`, `USP_ReadXlsxCells`; später getrennt `USP_ImportXlsxTable` | V1 liefert stabiles zellorientiertes Schema. Tabellenförmige Typinferenz und Mutation folgen separat. Shared Strings, Styles, 1900/1904-Datumsmodus, Formeln, Fehlerzellen, Limits und Streaming testen. |
@@ -230,6 +230,6 @@ freigegebenen SQL-CLR-/Providervertrag außerhalb der Entwicklung.
 
 Parallel dazu kann `V0` die offenen physischen Releasevalidierungen der 17
 implementierten Module bündeln. Fuer `TC-2026-034` laeuft mit `AP-2026-020`
-die V1A-Implementierungswelle und mit `AP-2026-021` die CLR-
-Folgevertragswelle. CLR-Runtime-Implementierung startet erst nach separater
-Freigabe.
+die V1A-Implementierungswelle; `AP-2026-021` hat den CLR-Folgevertrag
+abgeschlossen. Die CLR-Runtime-Implementierung startet erst nach einem
+kontrollierten Spike und separater Freigabe.
