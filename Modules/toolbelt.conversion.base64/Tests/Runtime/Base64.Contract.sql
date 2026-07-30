@@ -324,18 +324,30 @@ BEGIN
           varbinary(max)
         , REPLICATE(CONVERT(varchar(max), 'A'), @ByteCount)
     );
-    SET @Encoded =
-        toolbelt_conversion.SVF_Base64Encode(@Synthetic, 0);
-    SET @Decoded =
-        toolbelt_conversion.SVF_Base64Decode(@Encoded);
+    SELECT @Encoded = encoded.EncodedValue
+    FROM toolbelt_conversion.TVF_Base64Encode(@Synthetic, 0) AS encoded;
+
+    SELECT @Decoded = decoded.DecodedValue
+    FROM toolbelt_conversion.TVF_Base64Decode(@Encoded) AS decoded;
 
     IF DATALENGTH(@Synthetic) <> @ByteCount
        OR DATALENGTH(@Decoded) <> @ByteCount
        OR @Decoded <> @Synthetic
+       OR
+          (
+              @ByteCount <= 6001
+              AND
+              (
+                  toolbelt_conversion.SVF_Base64Encode(@Synthetic, 0)
+                      <> @Encoded
+                  OR toolbelt_conversion.SVF_Base64Decode(@Encoded)
+                      <> @Decoded
+              )
+          )
     BEGIN
         CLOSE SizeCursor;
         DEALLOCATE SizeCursor;
-        THROW 52311, N'Ein synthetischer Größen-Roundtrip ist fehlgeschlagen.', 1;
+        THROW 52311, N'Ein synthetischer TVF-Größen-Roundtrip oder die SVF-Parität ist fehlgeschlagen.', 1;
     END;
 
     FETCH NEXT FROM SizeCursor INTO @ByteCount;

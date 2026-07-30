@@ -19,7 +19,7 @@ war für die Compatibility Levels 150, 160 und 170 erfolgreich.
 | Whitespace | Space, Tab, CR und LF; nicht freigegebener Whitespace als Fehler |
 | Fehler | ungültiges Zeichen, Länge Rest eins und ungültiges Padding |
 | Roundtrip | Encode → Decode für Standard und URL-safe |
-| Größen | 6.000, 6.001, 65.536 und 1.048.576 synthetische Bytes |
+| Größen | inline-TVF-Roundtrip mit 6.000, 6.001, 65.536 und 1.048.576 synthetischen Bytes; SVF-Parität bis 6.001 Bytes |
 | Native Parität | SQL Server 2025 als semantische Referenz |
 | API-Parität | SVF und inline TVF für Normal-, Grenz-, `NULL`- und Fehlerfälle |
 | Mengenverwendung | `OUTER APPLY`, exakt eine Ergebniszeile, Resultspalten |
