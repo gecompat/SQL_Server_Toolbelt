@@ -12,7 +12,15 @@ RETURN
 (
     WITH Utf8 AS
     (
-        SELECT Bytes = CONVERT(varbinary(max), CONVERT(varchar(max), @Value) COLLATE Latin1_General_100_BIN2_UTF8)
+        SELECT Bytes = CONVERT
+        (
+            varbinary(max),
+            CONVERT
+            (
+                varchar(max),
+                @Value COLLATE Latin1_General_100_BIN2_UTF8
+            )
+        )
     ),
     Encoded AS
     (

@@ -48,7 +48,7 @@ RETURN
     ),
     Utf8Validation AS
     (
-        SELECT IsUtf8=CONVERT(bit,CASE WHEN CONVERT(varbinary(max),CONVERT(varchar(max),decoded.TextValue) COLLATE Latin1_General_100_BIN2_UTF8)=CONVERT(varbinary(max),CONCAT('0x',COALESCE(bytes.HexValue,'')),1) THEN 1 ELSE 0 END)
+        SELECT IsUtf8=CONVERT(bit,CASE WHEN CONVERT(varbinary(max),CONVERT(varchar(max),decoded.TextValue COLLATE Latin1_General_100_BIN2_UTF8))=CONVERT(varbinary(max),CONCAT('0x',COALESCE(bytes.HexValue,'')),1) THEN 1 ELSE 0 END)
              , HasNul=CONVERT(bit,CASE WHEN EXISTS
                (
                    SELECT 1
