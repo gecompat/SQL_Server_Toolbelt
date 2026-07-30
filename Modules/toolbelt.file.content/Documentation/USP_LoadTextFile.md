@@ -45,12 +45,12 @@ CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadTextFile]
 
 | BOM | Encoding | Lesemodus |
 |---|---|---|
-| `EF BB BF` | UTF-8 | `SINGLE_CLOB`, dann `CAST` nach `nvarchar(max)` |
-| `FF FE` | UTF-16-LE | `SINGLE_NCLOB` |
+| `EF BB BF` | UTF-8 | `BULK INSERT` mit `CODEPAGE = 65001` |
+| `FF FE` | UTF-16-LE | `OPENROWSET(BULK..., SINGLE_NCLOB)` |
 | `FE FF` | UTF-16-BE | nicht unterstützt |
 | `00 00 FE FF` | UTF-32-LE | nicht unterstützt |
 | `FF FE 00 00` | UTF-32-BE | nicht unterstützt |
-| kein BOM | `@FallbackEncoding` | `SINGLE_CLOB` (Windows-1252) |
+| kein BOM | `@FallbackEncoding` | `BULK INSERT` mit `CODEPAGE = 1252` |
 
 ## Fehlercodes
 
