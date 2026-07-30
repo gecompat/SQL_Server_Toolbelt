@@ -2,7 +2,7 @@
 
 ## Projektstatus
 
-10 Module sind implementiert und `partially validated`; die verbindlichen
+13 Module sind implementiert und `partially validated`. Die verbindlichen
 Einzelstatus werden aus den jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das Kernmodul
@@ -54,6 +54,17 @@ Module sind auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und
 170 einschließlich Wiederholungsdeployment, zentraler Nutzung und Uninstall
 erfolgreich. Physische 2019-/2022- und Windows-Läufe bleiben `not executed`;
 die Module sind deshalb `partially validated`.
+
+W2a ist mit drei weiteren portablen Inline-TVF-Modulen implementiert:
+`toolbelt.datetime.truncate` bietet typgetrennte Truncation für `date`,
+`datetime2(7)` und `datetimeoffset(7)`, `toolbelt.datetime.bucket` ergänzt
+Origin-basierte Buckets derselben Typfamilie und
+`toolbelt.binary.bit-operations` portiert die fünf SQL-Server-2022-
+Bitoperationen für `bigint`. SQL Server 2025 Linux ist mit Compatibility
+Levels 150, 160 und 170
+einschließlich Wiederholungsdeployment, Lifecycle, zentraler Nutzung und
+Uninstall erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe
+bleiben offen; die Module sind deshalb `partially validated`.
 
 ## Projektzweck
 

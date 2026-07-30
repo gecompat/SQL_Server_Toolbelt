@@ -88,15 +88,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Ja: `DATETRUNC` ab SQL Server 2022. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Einheitlicher Vertrag für Truncation nach Jahr, Quartal, Monat, Tag, Woche und Zeitanteilen sowie sauberer Migrationspfad auf native Provider. |
-| **Mögliche Technologie** | T-SQL. Die native Funktion erhält Eingabetyp und Fractional Scale dynamisch, während eine skalare UDF einen festen Rückgabetyp benötigt. Deshalb nur nach expliziter Entscheidung zwischen bewusst vereinheitlichtem Rückgabetyp, typspezifischer Funktionsfamilie oder einem anderen Vertrag weiterführen. |
-| **Performance und Security** | Muss SARGability-Auswirkungen und Scalar-UDF-Inlining dokumentieren. `week` hängt nativ von `@@DATEFIRST` ab; `iso_week` nicht. `datepart` muss in einem Backport kontrolliert aufgelöst werden. T-SQL-UDFs erlauben weder dynamisches SQL noch `TRY...CATCH` oder `RAISERROR`; Fehlerparität ist daher eine offene Vertragsentscheidung. Keine besonderen Berechtigungen. |
+| **Mögliche Technologie** | Implementierte T-SQL-Inline-TVF-Familie für `date`, `datetime2(7)` und `datetimeoffset(7)`. Der `datetimeoffset(7)`-Kern wird relational wiederverwendet; keine Scalar UDF und keine duplizierte native Providerlogik. |
+| **Performance und Security** | Kanonische Inline TVFs bleiben für `APPLY` sichtbar. `week` folgt `@@DATEFIRST`, `iso_week` nicht. Parametrisierte Vertragsfehler werden über stabile Validation Codes ausgewiesen; echte Engine-Overflows bleiben unverändert. Keine besonderen Berechtigungen. |
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
-| **Dependencies** | Grundsatzentscheidung zu Rückgabetyp, Objektfamilie, Datepart-Aliassen und Fehlervertrag; danach vollständige scopebezogene Eigenvalidierung gemäß `DEC-2026-021`. |
+| **Dependencies** | Keine Modulabhängigkeit. Der typgetrennte W2a-Vertrag wurde am 2026-07-30 ausdrücklich freigegeben. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; TC-2026-002 und TC-2026-005 besitzen andere fachliche Verträge. |
-| **Status** | `researched` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [Auswahlvorbereitung für das zweite Modul](../Documentation/Research/SECOND_MODULE_SELECTION.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/datetrunc-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/user-defined-functions/create-user-defined-functions-database-engine?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/user-defined-functions/scalar-udf-inlining?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Zurückgestellt, bis der Benutzer Rückgabetyp beziehungsweise Objektfamilie, unterstützte Dateparts, `DATEFIRST`- und Fehlersemantik besprochen hat. Keine Implementierung aus dem Research-Status ableiten. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung ausführen. |
 
 ## TC-2026-005: DATE_BUCKET-Kompatibilität für SQL Server 2019
 
@@ -111,15 +111,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Ja: `DATE_BUCKET` ab SQL Server 2022. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Wiederverwendbare Zeitfenster für Aggregation, Telemetrie und Reporting ohne wiederholte fehleranfällige Berechnungen. |
-| **Mögliche Technologie** | T-SQL mit `DATEADD`/`DATEDIFF_BIG` und explizitem Origin-Vertrag. Exakte Typgleichheit zur nativen Funktion ist gesondert zu prüfen. |
-| **Performance und Security** | Overflow, negative Zeitdifferenzen, Wochenursprung und Datentypgrenzen testen. Ausdrucksverwendung in Prädikaten kann SARGability beeinflussen. |
+| **Mögliche Technologie** | Implementierte öffentliche T-SQL-Inline-TVF-Familie für `date`, `datetime2(7)` und `datetimeoffset(7)` mit `DATEADD`/`DATEDIFF_BIG`, typgleichem Origin und SQL-Server-2019-kompatibler Zerlegung großer Zeitabstände. `datetime2` und `datetimeoffset` verwenden einen internen einzeiligen MSTVF-Core als Optimizer-Grenze. |
+| **Performance und Security** | Negative Abstände werden mathematisch zum früheren Bucket abgerundet. Overflow, Origin-Zeitanteil, Monatsende und Datentypgrenzen sind Teil der Contract-Matrix. Der interne Core verhindert nachgewiesenen Enginefehler `8632`; Ausdrucksverwendung in Prädikaten und die MSTVF-Grenze können SARGability beziehungsweise Schätzung beeinflussen. |
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
-| **Dependencies** | Mögliche Wiederverwendung aus TC-2026-004, ohne doppelte Fachlogik. |
+| **Dependencies** | Keine Modulabhängigkeit: Bucketing ist kein Truncation-Wrapper. Der W2a-Vertrag wurde am 2026-07-30 ausdrücklich freigegeben. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
-| **Status** | `researched` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/date-bucket-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Paritätsmatrix für Dateparts, Bucketbreite, Origin, negative Abstände und Rückgabetyp erstellen. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung sowie gezielte Performance-Evidenz für die interne Optimizer-Grenze ausführen. |
 
 ## TC-2026-006: GENERATE_SERIES-Kompatibilität für SQL Server 2019
 
@@ -157,15 +157,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Ja: fünf Bit-Manipulationsfunktionen ab SQL Server 2022. |
 | **Use-Case-Typ** | Realistisch, aber eher technisch spezialisiert. |
 | **Nutzen** | Lesbare, wiederverwendbare Operationen für Flags, Masken und kompakte binäre Repräsentationen. |
-| **Mögliche Technologie** | T-SQL für Integer-Typen; SQL CLR prüfen, wenn `binary(n)`/`varbinary(n)` performant und speicherschonend unterstützt werden soll. |
-| **Performance und Security** | Bitnummerierung, Vorzeichen, Shift-Überlauf und Byte-Reihenfolge müssen exakt dokumentiert werden. CLR nur mit begründetem Providervergleich. |
+| **Mögliche Technologie** | Implementierte T-SQL-Inline-TVF-Familie für den vollständigen `bigint`-Bitraum. Vorzeichenlose Zwischenwerte verwenden `decimal(38,0)`; `BIT_COUNT` wertet exakt acht Bytes set-basiert aus. |
+| **Performance und Security** | Logische Shifts, negative Shiftweiten, Vorzeichenbit, Offset `0` bis `63` und Overflow-/Discard-Semantik sind explizit dokumentiert. CLR ist für den Bigint-Slice nicht erforderlich. |
 | **Plattformgrenzen** | T-SQL portabel; CLR-Provider pro Plattform ausweisen. |
-| **Dependencies** | Keine bekannt |
+| **Dependencies** | Keine Modulabhängigkeit. Der Bigint-Slice wurde am 2026-07-30 ausdrücklich freigegeben; `binary(n)`/`varbinary(n)` bleiben separat. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
-| **Status** | `researched` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/bit-manipulation-functions-overview?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Exakten Datentypumfang und Parität zu SQL Server 2022/2025 festlegen; Integer- und Binary-Provider getrennt benchmarken. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung ausführen; Binary-Provider erst nach eigener Vertragsbesprechung und Benchmarkentscheidung. |
 
 ## TC-2026-008: Richtungsabhängiges TRIM für SQL Server 2019
 

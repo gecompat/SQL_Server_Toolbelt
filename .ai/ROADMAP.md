@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 10 Module sind implementiert und `partially validated`; die
+abgeschlossen. 13 Module sind implementiert und `partially validated`. Die
 verbindlichen Einzelstatus werden aus den jeweiligen `module.yaml`-Manifesten
 abgeleitet.
 
@@ -270,14 +270,18 @@ ist auf demselben Pull-Request-Stand erfolgreich. Physische
 SQL-Server-2019-/2022- und Windows-Läufe bleiben gezielte
 Releasevalidierung.
 
-### Phase 2.3 – Nächste Compatibility-Welle
+### Phase 2.3 – W2a Compatibility-Welle
 
-**Status:** `researched`
+**Status:** `completed`; Runtime `partially validated`
 
-Die nächste vorgeschlagene Vertragsrunde ist `W2a` mit `TC-2026-004`,
-`TC-2026-005` und `TC-2026-007`. `TC-2026-009` und `TC-2026-013` bleiben als
-`W2b` getrennt, bis JSON-Aufrufoberfläche und Provider entschieden sind.
-Keine dieser Fokusangaben ist eine Implementierungsfreigabe.
+W2a mit `TC-2026-004`, `TC-2026-005` und `TC-2026-007` wurde am 2026-07-30
+ausdrücklich freigegeben und ist als drei Module implementiert. Die
+SQL-Server-2025-Linux-Runtime war mit Compatibility Levels 150, 160 und 170
+einschließlich Wiederholungsdeployment, Lifecycle, Central und Uninstall
+erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
+Releasevalidierung. Die nächste vorgeschlagene Vertragsrunde ist W2b mit
+`TC-2026-009` und `TC-2026-013`; JSON-Aufrufoberfläche und Provider sind noch
+nicht entschieden.
 
 ## Phase 3 – Schlanke Test-Infrastruktur und CI
 

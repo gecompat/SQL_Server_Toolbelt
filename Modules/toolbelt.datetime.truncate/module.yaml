@@ -1,0 +1,92 @@
+module_id: "toolbelt.datetime.truncate"
+module_name: "Date/Time Truncation Compatibility"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Stellt DATETRUNC-kompatible typgetrennte Inline TVFs für SQL Server 2019+ bereit."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150,160,170]
+platforms:
+  windows: "not executed"
+  linux: "partially validated"
+providers:
+  - id: tsql-inline
+    technology: T-SQL Inline TVF
+    platforms: [Windows,Linux]
+    status: implemented
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies: []
+schemas:
+  - "toolbelt_datetime"
+objects:
+  - type: TVF
+    schema: "toolbelt_datetime"
+    name: "TVF_TruncateDate"
+    visibility: public
+  - type: TVF
+    schema: "toolbelt_datetime"
+    name: "TVF_TruncateDateTime2"
+    visibility: public
+  - type: TVF
+    schema: "toolbelt_datetime"
+    name: "TVF_TruncateDateTimeOffset"
+    visibility: public
+permissions_required: ["SELECT oder REFERENCES auf den Inline Table-valued Functions", "DDL-Rechte für Deploy und Uninstall"]
+collation_contract: "Datepart-Schlüssel werden nach LOWER binär als dokumentierte ASCII-Werte verglichen."
+data_type_contract: "V1 besitzt getrennte Objekte für date, datetime2(7) und datetimeoffset(7); Typ und Scale sind je Objekt fest."
+help_contract_version: "not applicable"
+resultset_contracts:
+  - name: "TVF_TruncateDate"
+    columns: ["Value date", "IsValid bit", "ValidationCode tinyint"]
+  - name: "TVF_TruncateDateTime2"
+    columns: ["Value datetime2(7)", "IsValid bit", "ValidationCode tinyint"]
+  - name: "TVF_TruncateDateTimeOffset"
+    columns: ["Value datetimeoffset(7)", "IsValid bit", "ValidationCode tinyint"]
+lifecycle_error_range: "51230-51239"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/TVF_TruncateDate.md"
+    - "Documentation/TVF_TruncateDateTime2.md"
+    - "Documentation/TVF_TruncateDateTimeOffset.md"
+  architecture:
+    - "../../Documentation/Architecture/DATETIME_TRUNCATE_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/DATETIME_TRUNCATE_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "not applicable"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/DateTimeTruncate.Contract.sql"
+  contract: "Tests/Runtime/DateTimeTruncate.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/w2a-portable-runtime.yml"
+validation_evidence:
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30561236509"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; Truncation-Contract, native Parität, Wiederholungsdeployment, Lifecycle, Central und Uninstall"
+    result: "success"

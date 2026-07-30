@@ -1,0 +1,106 @@
+module_id: "toolbelt.binary.bit-operations"
+module_name: "Bigint Bit Operations Compatibility"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Portiert die SQL-Server-2022-Bitfunktionen als relationale bigint-APIs nach SQL Server 2019."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150,160,170]
+platforms:
+  windows: "not executed"
+  linux: "partially validated"
+providers:
+  - id: tsql-inline
+    technology: T-SQL Inline TVF
+    platforms: [Windows,Linux]
+    status: implemented
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies: []
+schemas:
+  - "toolbelt_binary"
+objects:
+  - type: TVF
+    schema: "toolbelt_binary"
+    name: "TVF_LeftShiftBigInt"
+    visibility: public
+  - type: TVF
+    schema: "toolbelt_binary"
+    name: "TVF_RightShiftBigInt"
+    visibility: public
+  - type: TVF
+    schema: "toolbelt_binary"
+    name: "TVF_BitCountBigInt"
+    visibility: public
+  - type: TVF
+    schema: "toolbelt_binary"
+    name: "TVF_GetBitBigInt"
+    visibility: public
+  - type: TVF
+    schema: "toolbelt_binary"
+    name: "TVF_SetBitBigInt"
+    visibility: public
+permissions_required: ["SELECT oder REFERENCES auf den Inline Table-valued Functions", "DDL-Rechte für Deploy und Uninstall"]
+collation_contract: "not applicable"
+data_type_contract: "V1 verarbeitet ausschließlich das vollständige 64-Bit-Zweierkomplementmuster von bigint; binary(n) und varbinary(n) bleiben ein separater Slice."
+help_contract_version: "not applicable"
+resultset_contracts:
+  - name: "TVF_LeftShiftBigInt"
+    columns: ["Value bigint"]
+  - name: "TVF_RightShiftBigInt"
+    columns: ["Value bigint"]
+  - name: "TVF_BitCountBigInt"
+    columns: ["Value bigint"]
+  - name: "TVF_GetBitBigInt"
+    columns: ["Value bit", "IsValid bit", "ValidationCode tinyint"]
+  - name: "TVF_SetBitBigInt"
+    columns: ["Value bigint", "IsValid bit", "ValidationCode tinyint"]
+lifecycle_error_range: "51250-51259"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/TVF_LeftShiftBigInt.md"
+    - "Documentation/TVF_RightShiftBigInt.md"
+    - "Documentation/TVF_BitCountBigInt.md"
+    - "Documentation/TVF_GetBitBigInt.md"
+    - "Documentation/TVF_SetBitBigInt.md"
+  architecture:
+    - "../../Documentation/Architecture/BIT_OPERATIONS_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/BIT_OPERATIONS_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "not applicable"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/BitOperations.Contract.sql"
+  contract: "Tests/Runtime/BitOperations.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/w2a-portable-runtime.yml"
+validation_evidence:
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30561236509"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; fünf Bigint-Bitoperationen, native Parität, Wiederholungsdeployment, Lifecycle, Central und Uninstall"
+    result: "success"
