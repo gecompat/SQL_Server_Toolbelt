@@ -29,6 +29,8 @@ def main() -> int:
                 raise RuntimeError(f"{name}: Pflichtmarker fehlt: {marker}")
     if any(token in parser for token in ("TRY_CONVERT(bigint", "REGEXP_", "OPENJSON")):
         raise RuntimeError("Parser enthält einen unzulässigen numerischen oder versionsgebundenen Provider.")
+    if "SET QUOTED_IDENTIFIER ON;" not in deploy or "QUOTED_SEMANTIC_VERSION" in deploy:
+        raise RuntimeError("Deploy enthält keine kanonische QUOTED_IDENTIFIER-Option.")
     workflow = (REPO / ".github/workflows/semantic-version-runtime.yml").read_text(encoding="utf-8")
     if "Documentation/**" in workflow:
         raise RuntimeError("Runtime-Workflow wird durch reine Dokumentation ausgelöst.")
