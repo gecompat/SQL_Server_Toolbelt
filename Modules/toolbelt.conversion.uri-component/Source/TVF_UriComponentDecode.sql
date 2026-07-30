@@ -124,13 +124,13 @@ RETURN
               (
                   STRING_AGG
                   (
-                      CONVERT(nvarchar(max),CASE
+                      CASE
                           WHEN sequences.CodePoint<=65535
-                              THEN NCHAR(sequences.CodePoint)
+                              THEN CONVERT(nvarchar(max),NCHAR(sequences.CodePoint))
                           ELSE
-                              NCHAR(55296+(sequences.CodePoint-65536)/1024)
-                              +NCHAR(56320+(sequences.CodePoint-65536)%1024)
-                      END),
+                              CONVERT(nvarchar(max),NCHAR(55296+(sequences.CodePoint-65536)/1024))
+                              +CONVERT(nvarchar(max),NCHAR(56320+(sequences.CodePoint-65536)%1024))
+                      END,
                       N''
                   ) WITHIN GROUP(ORDER BY sequences.StartPosition),
                   N''
