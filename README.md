@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 14 Module implementiert – 13 teilweise validiert](https://img.shields.io/badge/Status-14%20Module%20implementiert%20%7C%2013%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 14 Module implementiert – 14 teilweise validiert](https://img.shields.io/badge/Status-14%20Module%20implementiert%20%7C%2014%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -132,7 +132,8 @@ erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
 Das implementierte W2b-A-Modul
 [`toolbelt.json.path-exists`](./Modules/toolbelt.json.path-exists/README.md)
 prüft SQL/JSON-Pfade fehlerfrei auf Existenz und stellt den Backport-Slice von
-`TC-2026-009` bereit. Seine Runtime-Evidenz ist noch `not executed`;
+`TC-2026-009` bereit. SQL Server 2025 Linux ist mit Compatibility Levels 150,
+160 und 170 einschließlich Lifecycle, Central und Uninstall erfolgreich;
 Konstruktoren und JSON-Aggregate bleiben ausdrücklich zurückgestellt.
 
 ## Modulprinzip

@@ -208,10 +208,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. Azure nicht automatisch unterstützt. |
 | **Dependencies** | Der implementierte Path-Exists-Slice besitzt keine Modulabhängigkeit. Ein späterer Konstruktor-Slice benötigt einen eigenen Eingabe-, Typ- und Escaping-Vertrag. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; JSON-Aggregate werden separat in TC-2026-013 behandelt. |
-| **Status** | `implemented` (Slice A); Runtime `not executed`; Konstruktoren `researched` |
+| **Status** | `implemented` (Slice A); Runtime `partially validated`; Konstruktoren `researched` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/sql-server/what-s-new-in-sql-server-2022?view=sql-server-ver16<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/json-object-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/json-path-exists-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | `toolbelt.json.path-exists` auf SQL Server 2025 Linux ausführen und danach physische 2019-/2022-/Windows-Releasevalidierung planen. Konstruktoren erst nach einer eigenen Aufrufoberflächenentscheidung besprechen. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung für `toolbelt.json.path-exists` ausführen. Konstruktoren erst nach einer eigenen Aufrufoberflächenentscheidung besprechen. |
 
 ## TC-2026-010: Regular-Expression-Kompatibilitätsmodul
 

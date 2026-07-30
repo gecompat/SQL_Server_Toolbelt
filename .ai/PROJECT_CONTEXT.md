@@ -2,10 +2,8 @@
 
 ## Projektstatus
 
-14 Module sind implementiert. 13 sind `partially validated`;
-`toolbelt.json.path-exists` ist bis zum ersten Runtime-Lauf `not executed`.
-Die verbindlichen Einzelstatus werden aus den jeweiligen
-`module.yaml`-Manifesten abgeleitet.
+14 Module sind implementiert und `partially validated`. Die verbindlichen
+Einzelstatus werden aus den jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das Kernmodul
 `toolbelt.core.result-table` ist implementiert und teilweise validiert: Die
@@ -72,8 +70,10 @@ W2b-A ist als `toolbelt.json.path-exists` implementiert. Die
 Multi-statement TVF prüft Root-, Property-, Array-Index- und
 Array-Wildcard-Pfade, propagiert SQL `NULL` und liefert für ungültiges JSON
 oder ungültige Pfade fehlerfrei `0`. Konstruktoren aus `TC-2026-009` und
-JSON-Aggregate aus `TC-2026-013` bleiben zurückgestellt. Runtime-Evidenz ist
-noch `not executed`.
+JSON-Aggregate aus `TC-2026-013` bleiben zurückgestellt. SQL Server 2025
+Linux ist mit Compatibility Levels 150, 160 und 170 einschließlich nativer
+Parität, Wiederholungsdeployment, Lifecycle, Central und Uninstall
+erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
 
 ## Projektzweck
 

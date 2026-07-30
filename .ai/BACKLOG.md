@@ -2,29 +2,9 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-14 Module sind implementiert; 13 sind `partially validated`, das neue
-JSON-Path-Modul ist bis zum ersten Runtime-Lauf `not executed`.
+14 Module sind implementiert und `partially validated`.
 
 ## Aktive Arbeitspakete
-
-### AP-2026-017: W2b-A JSON Path Exists
-
-| Feld | Wert |
-|---|---|
-| ID | `AP-2026-017` |
-| Ziel | Den freigegebenen Pfadprüfungs-Slice von `TC-2026-009` als portables Modul für SQL Server 2019+ implementieren und prüfen. |
-| Scope | `toolbelt.json.path-exists` Version `1.0.0`; öffentliche `toolbelt_json.TVF_JsonPathExists`; Root-, Property-, Quote-, Array-Index- und Wildcard-Pfade; SQL-NULL-Propagation; fehlerfreies `0` bei ungültigem JSON oder Pfad; lokales und zentrales Deployment. Keine JSON-Konstruktoren, Aggregate, SQL CLR, Scalar-Wrapper oder SQL-Server-2025-Preview-Ranges/-Listen/`last`. |
-| Dependencies | Gemeinsame W2b-Vertragsrunde und ausdrückliche Benutzerfreigabe vom 2026-07-30; keine Runtime-Modulabhängigkeit. |
-| Priorität | `P1` |
-| Status | `active` |
-| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
-| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
-| Akzeptanzkriterien | `1`/`0`/SQL-`NULL` als `int`; JSON `null` zählt als vorhanden; case-sensitive BIN2-Keyvergleich; Pfad- und JSON-Fehler verlassen den Funktionsvertrag nicht; vollständige Source-, Lifecycle-, Dokumentations-, Contract- und CI-Artefakte; Status nur aus tatsächlicher Evidenz. |
-| Tests | Statische Prüfung sowie SQL-Server-2025-Linux-Workflow für Compatibility Levels 150/160/170 mit nativer Parität, synthetischen Fehler-/Collation-Fällen, Wiederholungsdeployment, Lifecycle, Central und Uninstall vorgesehen; Runtime noch `not executed`. |
-| Blocker | Kein Implementierungsblocker. Runtime-Evidenz muss vor dem Merge erfolgreich sein. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung. |
-| Evidenz | Benutzerfreigabe vom 2026-07-30; Moduldesign `JSON_PATH_EXISTS_MODULE_DESIGN.md`; kanonische Artefakte unter `Modules/toolbelt.json.path-exists/`. |
-| Nächster Schritt | W2b-JSON-Path-Workflow ausführen, Befunde eng begrenzt korrigieren und nur den grünen Stand nach `main` mergen. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
@@ -46,6 +26,25 @@ JSON-Path-Modul ist bis zum ersten Runtime-Lauf `not executed`.
 | Nächster Schritt | Einen geeigneten Windows-Runner beziehungsweise eine freigegebene Windows-Testumgebung bereitstellen; unabhängig davon einen nicht invasiven, deterministischen Enginefehler für den echten Savepoint-Rollback suchen. Erst nach vollständiger Pflichtmatrix auf `validated` setzen. |
 
 ## Abgeschlossene Arbeitspakete
+
+### AP-2026-017: W2b-A JSON Path Exists
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-017` |
+| Ziel | Den freigegebenen Pfadprüfungs-Slice von `TC-2026-009` als portables Modul für SQL Server 2019+ implementieren und prüfen. |
+| Scope | `toolbelt.json.path-exists` Version `1.0.0`; öffentliche `toolbelt_json.TVF_JsonPathExists`; Root-, Property-, Quote-, Array-Index- und Wildcard-Pfade; SQL-NULL-Propagation; fehlerfreies `0` bei ungültigem JSON oder Pfad; lokales und zentrales Deployment. Keine JSON-Konstruktoren, Aggregate, SQL CLR, Scalar-Wrapper oder SQL-Server-2025-Preview-Ranges/-Listen/`last`. |
+| Dependencies | Gemeinsame W2b-Vertragsrunde und ausdrückliche Benutzerfreigabe vom 2026-07-30; keine Runtime-Modulabhängigkeit. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
+| Akzeptanzkriterien | `1`/`0`/SQL-`NULL` als `int`; JSON `null` zählt als vorhanden; case-sensitive BIN2-Keyvergleich; Pfad- und JSON-Fehler verlassen den Funktionsvertrag nicht; vollständige Source-, Lifecycle-, Dokumentations-, Contract- und CI-Artefakte; Status nur aus tatsächlicher Evidenz. |
+| Tests | Statische Prüfung und SQL-Server-2025-Linux-Workflow für Compatibility Levels 150/160/170 mit nativer Parität, synthetischen Fehler-/Collation-Fällen, Wiederholungsdeployment, Lifecycle, Central und Uninstall erfolgreich. |
+| Blocker | Keine. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung. |
+| Evidenz | Benutzerfreigabe vom 2026-07-30; Moduldesign `JSON_PATH_EXISTS_MODULE_DESIGN.md`; kanonische Artefakte unter `Modules/toolbelt.json.path-exists/`; [W2b JSON Path Runtime 30568128943](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128943) und [Documentation Consistency 30568128932](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128932) erfolgreich. |
+| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung gezielt ausführen. |
 
 ### AP-2026-016: Portable W2a – Truncation, Bucketing und Bigint-Bitoperationen
 

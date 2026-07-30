@@ -13,7 +13,9 @@ Geplanter CI-Scope:
 - lokaler und zentraler Aufruf;
 - Uninstall.
 
-Runtime-Evidenz ist bis zum erfolgreichen Workflow `not executed`.
-
-Workflow:
-https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2b-json-path-runtime.yml
+Aktuelle Evidenz:
+[Run 30568128943](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128943)
+– SQL Server 2025 Linux mit Compatibility Levels 150/160/170 einschließlich
+Runtime, nativer Parität, Wiederholungsdeployment, Lifecycle, Central und
+Uninstall erfolgreich. Physische 2019-/2022- und Windows-Läufe bleiben
+`not executed`.

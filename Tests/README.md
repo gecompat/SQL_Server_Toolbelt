@@ -19,9 +19,9 @@ erfolgreich. Die drei W2a-Module sind dort einschließlich
 Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
 erfolgreich. Physische SQL-Server-2019-/2022-, Windows- und weitere
 modulspezifische Matrixfälle bleiben offen.
-Für `toolbelt.json.path-exists` sind die vollständigen statischen und
-synthetischen Runtime-Artefakte vorhanden; die Runtime ist noch
-`not executed`.
+`toolbelt.json.path-exists` ist dort einschließlich nativer Parität,
+Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
+erfolgreich.
 
 ## Pflicht-Testarten je Modul
 
@@ -56,7 +56,7 @@ synthetischen Runtime-Artefakte vorhanden; die Runtime ist noch
 | `toolbelt.datetime.truncate` | [DATETIME_TRUNCATE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.truncate/Tests/DATETIME_TRUNCATE_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.datetime.bucket` | [DATETIME_BUCKET_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.bucket/Tests/DATETIME_BUCKET_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.binary.bit-operations` | [BIT_OPERATIONS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.binary.bit-operations/Tests/BIT_OPERATIONS_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
-| `toolbelt.json.path-exists` | [JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.json.path-exists/Tests/JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md) | `not executed`; Workflow und Contract-Tests vorhanden |
+| `toolbelt.json.path-exists` | [JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.json.path-exists/Tests/JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 
 Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 

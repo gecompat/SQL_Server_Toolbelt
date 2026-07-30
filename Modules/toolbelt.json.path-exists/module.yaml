@@ -2,7 +2,7 @@ module_id: "toolbelt.json.path-exists"
 module_name: "JSON Path Exists"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Prüft SQL/JSON-Pfade auf SQL Server 2019+ ohne fachliche Fehler."
 sql_server_versions:
@@ -12,7 +12,7 @@ sql_server_versions:
 compatibility_levels: [150, 160, 170]
 platforms:
   windows: "not executed"
-  linux: "not executed"
+  linux: "partially validated"
 providers:
   - id: tsql-stateful
     technology: T-SQL Multi-statement TVF
@@ -75,6 +75,6 @@ tests:
   github_hosted_linux: "../../.github/workflows/w2b-json-path-runtime.yml"
 validation_evidence:
   - date: "2026-07-30"
-    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2b-json-path-runtime.yml"
-    scope: "Workflow und Contract-Tests vorhanden; Runtime noch nicht ausgeführt"
-    result: "not executed"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128943"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; Pfad-, JSON-, NULL-, Wildcard-, BIN2-, native Paritäts-, Wiederholungs-, Lifecycle-, Central- und Uninstall-Contract"
+    result: "success"

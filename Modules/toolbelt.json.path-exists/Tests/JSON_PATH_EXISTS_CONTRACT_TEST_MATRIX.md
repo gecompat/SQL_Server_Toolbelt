@@ -19,5 +19,6 @@ Die SQL-Server-2025-Preview-Pfade mit Array-Range, Indexliste und `last`
 werden ausschließlich als abgelehnte Eingaben getestet. Sie sind kein
 V1-Kompatibilitätsversprechen.
 
-Workflow:
-https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2b-json-path-runtime.yml
+Aktuelle Evidenz:
+[Run 30568128943](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128943)
+– SQL Server 2025 Linux mit Compatibility Levels 150/160/170 erfolgreich.

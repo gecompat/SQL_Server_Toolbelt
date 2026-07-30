@@ -110,6 +110,11 @@ Collation-Fälle, Wiederholungsdeployment, Central-Aufruf und Uninstall.
 Physische SQL-Server-2019-/2022- sowie Windows-Läufe bleiben gezielte
 Releasevalidierung.
 
+Aktuelle Evidenz:
+[Run 30568128943](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128943)
+– der beschriebene SQL-Server-2025-Linux-Scope ist erfolgreich;
+Modulstatus `partially validated`.
+
 ## Primärquellen
 
 - [Microsoft: JSON_PATH_EXISTS](https://learn.microsoft.com/en-us/sql/t-sql/functions/json-path-exists-transact-sql?view=sql-server-ver17)
