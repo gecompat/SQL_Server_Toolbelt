@@ -104,13 +104,31 @@ Ein späterer Implementierungs-Slice benötigt mindestens:
 eine minimale .NET-Framework-4.8-Assembly, die `System.IO.Compression` wirklich
 lädt, sowie getrennte Trust-, Deploy-, Verify- und Uninstall-Schritte.
 
-**Nicht belegt:** Der Spike wurde noch auf keiner SQL-Server-Version oder
-Plattform ausgeführt. Insbesondere ist damit keine Linux-Unterstützung und keine
-Produktionsfähigkeit von `System.IO.Compression` in SQL CLR nachgewiesen.
+**Dokumentierter Linux-Befund (2026-07-30 UTC):** Der Linux-Container-Test mit
+`mcr.microsoft.com/mssql/server:2022-latest` hat den Build, die explizite
+SHA2-512-Trust-Freigabe und die `SAFE`-Deployment-Voraussetzungen ausgeführt.
+`CREATE ASSEMBLY` ist danach reproduzierbar mit SQL Server-Fehler 10301
+fehlgeschlagen: Die direkte Abhängigkeit `System.IO.Compression,
+Version=4.2.0.0` war in der Testdatenbank nicht vorhanden und wurde nicht
+automatisch geladen. Die CLR-Procedure wurde daher nicht ausgeführt. Der
+vollständige Ablauf ist im
+[GitHub-Actions-Run 30587389803](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30587389803)
+nachvollziehbar.
+
+**Aussagegrenze:** Das Ergebnis belegt keine generelle Linux-Unfähigkeit von
+`SAFE`-SQL-CLR und keine generelle Unverträglichkeit von
+`System.IO.Compression`. Belegt ist allein, dass das derzeit gebaute Binary
+nicht ohne einen zusätzlichen, kontrollierten Abhängigkeits-Deploymentpfad
+registriert werden kann. Ob ein solcher Pfad technisch unterstützt,
+lifecycle-sicher, lizenzkonform und mit dem engen Sicherheitsvertrag vereinbar
+ist, bleibt offen.
 
 ## Nächster Schritt
 
-Den Spike gezielt auf SQL Server 2019, 2022 und 2025 unter Windows und Linux
-ausführen. Erst nach dokumentiertem Plattformbefund und einer neuen
-funktionsbezogenen Freigabe darf die produktive Deflate-/CRC-Implementierung
-beginnen.
+Zuerst einen separaten Abhängigkeits-Spike durchführen: Herkunft,
+vollständiges Abhängigkeitsgraph, SQL-CLR-Supportstatus, Lizenz,
+Sicherheitsfolgen, Trust-/Uninstall-Lifecycle und Windows-/Linux-Verhalten von
+`System.IO.Compression` prüfen. Ohne einen positiven Befund darf weder ein
+Abhängigkeits-Deployment noch die produktive Deflate-/CRC-Implementierung
+beginnen. Die übrigen SQL-Server-2019/2022/2025-Matrixläufe bleiben bis dahin
+`not executed`.

@@ -43,9 +43,102 @@ jobs:
           if (-not $msbuild) { throw 'MSBuild wurde nicht gefunden.' }
           & $msbuild Spikes/sql-clr-zip-provider/Source/Toolbelt.ZipClr.Spike.csproj `
             /t:Rebuild /p:Configuration=Release /p:Platform=AnyCPU /m:1
-      - name: Verify SHA2-512 manifest generation
+      - name: Create SHA2-512 trust manifest
         shell: pwsh
         run: >-
           ./Spikes/sql-clr-zip-provider/Scripts/New-TrustManifest.ps1
           -AssemblyPath ./Spikes/sql-clr-zip-provider/Source/bin/Release/Toolbelt.ZipClr.Spike.dll
           -OutputPath ./Spikes/sql-clr-zip-provider/Artifacts/Toolbelt.ZipClr.Spike.trust-manifest.json
+      - name: Upload deployment input
+        uses: actions/upload-artifact@v4
+        with:
+          name: sql-clr-zip-spike-deployment-input
+          if-no-files-found: error
+          path: |
+            Spikes/sql-clr-zip-provider/Source/bin/Release/Toolbelt.ZipClr.Spike.dll
+            Spikes/sql-clr-zip-provider/Artifacts/Toolbelt.ZipClr.Spike.trust-manifest.json
+
+  linux-runtime:
+    name: Linux SQL Server 2022 dependency gate
+    needs: build-net-framework
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download deployment input
+        uses: actions/download-artifact@v4
+        with:
+          name: sql-clr-zip-spike-deployment-input
+          path: .runtime/sql-clr-zip-spike
+      - name: Deploy and verify in disposable Linux SQL Server container
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sqlcmd_path=/opt/mssql-tools18/bin/sqlcmd
+          container_name=toolbelt-sql-clr-zip-spike
+          database_name=Toolbelt_ClrZipSpike
+          assembly_path=/var/opt/mssql/data/Toolbelt.ZipClr.Spike.dll
+          spike_root=Spikes/sql-clr-zip-provider
+          runtime_artifacts=.runtime/sql-clr-zip-spike
+
+          cleanup() {
+            docker rm --force "$container_name" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          os_version="$(. /etc/os-release && printf '%s' "$VERSION_ID")"
+          curl --fail --silent --show-error --location             "https://packages.microsoft.com/config/ubuntu/$os_version/packages-microsoft-prod.deb"             --output /tmp/packages-microsoft-prod.deb
+          sudo dpkg --install /tmp/packages-microsoft-prod.deb
+          rm --force /tmp/packages-microsoft-prod.deb
+          sudo apt-get update
+          sudo env ACCEPT_EULA=Y apt-get install --yes mssql-tools18
+
+          sa_password="$(openssl rand -hex 20)Aa1!"
+          docker run --detach --name "$container_name"             --publish 1433:1433             --env ACCEPT_EULA=Y             --env MSSQL_SA_PASSWORD="$sa_password"             mcr.microsoft.com/mssql/server:2022-latest >/dev/null
+
+          for attempt in {1..60}; do
+            if "$sqlcmd_path" -S localhost,1433 -U sa -P "$sa_password" -C -l 1 -b               -Q "SELECT 1;" >/dev/null 2>&1; then
+              break
+            fi
+            if [ "$attempt" -eq 60 ]; then
+              docker logs "$container_name"
+              exit 1
+            fi
+            sleep 2
+          done
+
+          # Nur die wegwerfbare CI-Instanz wird vorbereitet. Die Spike-Skripte
+          # selbst verändern weder Instanzoptionen noch Trust-Konfigurationen.
+          "$sqlcmd_path" -S localhost,1433 -U sa -P "$sa_password" -C -b             -Q "EXEC sys.sp_configure N'clr enabled', 1; RECONFIGURE;"
+          "$sqlcmd_path" -S localhost,1433 -U sa -P "$sa_password" -C -b             -Q "IF NOT EXISTS (SELECT 1 FROM sys.configurations WHERE name = N'clr strict security' AND value_in_use = 1) THROW 51480, N'clr strict security muss auf der CI-Testinstanz aktiviert bleiben.', 1;"
+          "$sqlcmd_path" -S localhost,1433 -U sa -P "$sa_password" -C -b             -Q "CREATE DATABASE [$database_name];"
+
+          assembly_file="$(find "$runtime_artifacts" -name Toolbelt.ZipClr.Spike.dll -print -quit)"
+          manifest_file="$(find "$runtime_artifacts" -name Toolbelt.ZipClr.Spike.trust-manifest.json -print -quit)"
+          test -n "$assembly_file"
+          test -n "$manifest_file"
+
+          assembly_hash="$(jq --raw-output '.sqlServerHexLiteral' "$manifest_file")"
+          assembly_description="$(jq --raw-output '.description' "$manifest_file")"
+          docker cp "$assembly_file" "$container_name:$assembly_path"
+
+          "$sqlcmd_path" -S localhost,1433 -U sa -P "$sa_password" -C -b -d master             -v "AssemblyHash=$assembly_hash" "AssemblyDescription=$assembly_description"             -i "$spike_root/Deployment/Add-TrustedAssembly.sql"
+          # System.IO.Compression ist keine direkt unterstützte SQL-CLR-Bibliothek.
+          # Der Gate bestätigt deshalb zunächst reproduzierbar, dass SQL Server
+          # die Abhängigkeit nicht stillschweigend auflöst.
+          deploy_log="$(mktemp)"
+          set +e
+          "$sqlcmd_path" -S localhost,1433 -U sa -P "$sa_password" -C -b -d "$database_name" -v "TestDatabase=$database_name" "AssemblyPath=$assembly_path" -i "$spike_root/Deployment/Deploy-TestDatabase.sql" 2>&1 | tee "$deploy_log"
+          deploy_status=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$deploy_status" -eq 0 ]; then
+            echo "::error title=Unexpected dependency resolution::CREATE ASSEMBLY succeeded. Update the documented Linux evidence before enabling a runtime-success path."
+            exit 1
+          fi
+          if ! grep --fixed-strings --quiet "references assembly 'system.io.compression" "$deploy_log" || ! grep --fixed-strings --quiet "which is not present in the current database" "$deploy_log"; then
+            echo "::error title=Unexpected deployment failure::The Linux dependency gate did not receive the documented missing-System.IO.Compression error."
+            exit "$deploy_status"
+          fi
+          echo "::notice title=Linux dependency gate confirmed::SQL Server did not implicitly resolve System.IO.Compression. No CLR routine was executed."
