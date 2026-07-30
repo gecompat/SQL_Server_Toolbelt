@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import re
+import struct
 import sys
 from pathlib import Path
 
@@ -16,6 +18,30 @@ def read(relative: str) -> str:
     if not path.is_file():
         raise RuntimeError(f"Pflichtartefakt fehlt: {relative}")
     return path.read_text(encoding="utf-8")
+
+
+def validate_zip_fixtures(relative: str) -> None:
+    """Prueft die EOCD-/Central-Directory-Beziehung synthetischer ZIP-BLOBs."""
+    fixtures = re.findall(r"0x([0-9A-Fa-f]+)", read(relative))
+    zip_fixtures = [value for value in fixtures if value.upper().startswith("504B0304")]
+    if not zip_fixtures:
+        raise RuntimeError(f"Synthetische ZIP-Fixture fehlt: {relative}")
+
+    for hex_value in zip_fixtures:
+        archive = bytes.fromhex(hex_value)
+        eocd_start = archive.rfind(b"PK\x05\x06")
+        if eocd_start < 0 or eocd_start + 22 > len(archive):
+            raise RuntimeError(f"Synthetische ZIP-Fixture hat kein vollstaendiges EOCD: {relative}")
+
+        comment_length = struct.unpack_from("<H", archive, eocd_start + 20)[0]
+        central_size, central_offset = struct.unpack_from("<II", archive, eocd_start + 12)
+
+        if eocd_start + 22 + comment_length != len(archive):
+            raise RuntimeError(f"Synthetische ZIP-Fixture hat eine inkonsistente EOCD-Laenge: {relative}")
+        if central_offset + central_size != eocd_start:
+            raise RuntimeError(f"Synthetische ZIP-Fixture hat ein inkonsistentes Central Directory: {relative}")
+        if archive[central_offset : central_offset + 4] != b"PK\x01\x02":
+            raise RuntimeError(f"Synthetische ZIP-Fixture beginnt nicht mit einem Central-Directory-Header: {relative}")
 
 
 def main() -> int:
@@ -61,6 +87,7 @@ def main() -> int:
         "THROW 51327",
         "THROW 51328",
         "toolbelt_core.USP_PrepareResultTable",
+        "#tbx_ZipMemory_ResultSource",
         "RETURN 0",
     ):
         if marker not in source:
@@ -68,6 +95,18 @@ def main() -> int:
 
     if "OPENROWSET" in source or "xp_cmdshell" in source:
         raise RuntimeError("Dateisystem- oder Shell-Zugriff ist im V1A-Scope unzulaessig.")
+
+    if "@ResultSource TABLE" in source:
+        raise RuntimeError(
+            "Der ResultTable-Pfad darf keine Table Variable als dynamischen Tabellenparameter verwenden."
+        )
+
+    for fixture_path in (
+        "Tests/Runtime/ZipMemory.Contract.sql",
+        "Tests/Runtime/Central.Contract.sql",
+        "Examples/ExtractZipEntryFromBinary.sql",
+    ):
+        validate_zip_fixtures(fixture_path)
 
     manifest = read("module.yaml")
     for marker in (
