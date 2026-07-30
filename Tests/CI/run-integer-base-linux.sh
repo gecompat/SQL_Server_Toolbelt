@@ -102,11 +102,27 @@ done
 
 # Wiederholungsdeployment stellt den kanonischen Frameworkstand wieder her.
 run_query "${local_database}" \
-    "ALTER FUNCTION [toolbelt_conversion].[SVF_IntegerToBase] (@Value bigint, @Alphabet varchar(93)) RETURNS varchar(65) AS BEGIN RETURN 'drift'; END;"
+    "ALTER FUNCTION [toolbelt_conversion].[TVF_IntegerToBase] (@Value bigint, @Alphabet varchar(93)) RETURNS TABLE AS RETURN (SELECT CONVERT(varchar(65), 'drift') AS EncodedValue);"
 run_file "${local_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 run_file "${local_database}" "${runtime_directory}" IntegerBase.Contract.sql \
+    -v CompatibilityLevel=170
+
+upgrade_database="tbx_integer_base_upgrade"
+create_database "${upgrade_database}"
+run_query "${upgrade_database}" \
+    "CREATE SCHEMA [toolbelt_conversion];"
+run_query "${upgrade_database}" \
+    "CREATE FUNCTION [toolbelt_conversion].[SVF_IntegerToBase] (@Value bigint, @Alphabet varchar(93)) RETURNS varchar(65) AS BEGIN RETURN 'legacy'; END;"
+run_query "${upgrade_database}" \
+    "CREATE FUNCTION [toolbelt_conversion].[SVF_TryBaseToInteger] (@EncodedValue varchar(65), @Alphabet varchar(93)) RETURNS bigint AS BEGIN RETURN NULL; END;"
+run_query "${upgrade_database}" \
+    "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.conversion.integer-base.Version', @value=N'1.0.0';"
+run_file "${upgrade_database}" "${deployment_directory}" Deploy.sql \
+    -v DeploymentMode=local
+run_file "${upgrade_database}" "${runtime_directory}" Lifecycle.Contract.sql
+run_file "${upgrade_database}" "${runtime_directory}" IntegerBase.Contract.sql \
     -v CompatibilityLevel=170
 
 central_database="tbx_integer_base_central"
@@ -121,7 +137,7 @@ run_file "${consumer_database}" "${runtime_directory}" Central.Contract.sql \
 run_file "${central_database}" "${deployment_directory}" Uninstall.sql \
     -v ConfirmNoExternalConsumers=1
 run_query "${central_database}" \
-    "IF OBJECT_ID(N'toolbelt_conversion.SVF_IntegerToBase') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_TryBaseToInteger') IS NOT NULL THROW 52840, N'Central Uninstall ließ Release-Objekte zurück.', 1;"
+    "IF OBJECT_ID(N'toolbelt_conversion.TVF_IntegerToBase') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.TVF_TryBaseToInteger') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_IntegerToBase') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_TryBaseToInteger') IS NOT NULL THROW 52840, N'Central Uninstall ließ Release-Objekte zurück.', 1;"
 
 existing_schema_database="tbx_integer_base_existing_schema"
 create_database "${existing_schema_database}"
@@ -139,7 +155,7 @@ create_database "${collision_database}"
 run_query "${collision_database}" \
     "CREATE SCHEMA [toolbelt_conversion];"
 run_query "${collision_database}" \
-    "CREATE FUNCTION [toolbelt_conversion].[SVF_IntegerToBase] (@Value bigint, @Alphabet varchar(93)) RETURNS varchar(65) AS BEGIN RETURN 'foreign'; END;"
+    "CREATE FUNCTION [toolbelt_conversion].[TVF_IntegerToBase] (@Value bigint, @Alphabet varchar(93)) RETURNS TABLE AS RETURN (SELECT CONVERT(varchar(65), 'foreign') AS EncodedValue);"
 
 if run_file "${collision_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local; then
@@ -153,6 +169,6 @@ run_query "${collision_database}" \
 run_file "${local_database}" "${deployment_directory}" Uninstall.sql \
     -v ConfirmNoExternalConsumers=0
 run_query "${local_database}" \
-    "IF OBJECT_ID(N'toolbelt_conversion.SVF_IntegerToBase') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_TryBaseToInteger') IS NOT NULL THROW 52843, N'Uninstall ließ Release-Objekte zurück.', 1;"
+    "IF OBJECT_ID(N'toolbelt_conversion.TVF_IntegerToBase') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.TVF_TryBaseToInteger') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_IntegerToBase') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_TryBaseToInteger') IS NOT NULL THROW 52843, N'Uninstall ließ Release-Objekte zurück.', 1;"
 
 echo "Integer-Base SQL Server 2025 Linux (Compatibility 150/160/170): erfolgreich"

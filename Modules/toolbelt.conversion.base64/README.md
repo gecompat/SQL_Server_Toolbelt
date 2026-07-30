@@ -2,7 +2,7 @@
 
 **Modul-ID:** `toolbelt.conversion.base64`
 
-**Version:** `1.0.0`
+**Version:** `1.1.0`
 
 **Implementierung:** `implemented`
 
@@ -21,6 +21,8 @@ unterstützten Hauptversionen.
 
 | Objekt | Typ | Schema | Zweck |
 |---|---|---|---|
+| `TVF_Base64Encode` | inline TVF | `toolbelt_conversion` | kanonischer relationaler Encode-Kern |
+| `TVF_Base64Decode` | inline TVF | `toolbelt_conversion` | kanonischer relationaler Decode-Kern |
 | `SVF_Base64Encode` | `SVF` | `toolbelt_conversion` | `varbinary(max)` als Base64 oder Base64URL codieren |
 | `SVF_Base64Decode` | `SVF` | `toolbelt_conversion` | Base64 oder Base64URL als `varbinary(max)` decodieren |
 
@@ -34,6 +36,8 @@ unterstützten Hauptversionen.
 - Zeichenketten werden nicht implizit in Binärdaten umgewandelt.
 - Ungültige Eingaben liefern unverändert den Fehler des T-SQL/XML-Providers.
 - Base64 ist eine Codierung, keine Verschlüsselung und kein Integritätsschutz.
+- Direkte Aufrufe der inline TVFs setzen wegen der expandierten XML-Methode
+  `SET QUOTED_IDENTIFIER ON` in der aufrufenden Sitzung voraus.
 
 Der optionale UDF-Parameter `@UrlSafe` besitzt den Default `0`. T-SQL verlangt
 bei Scalar UDFs dennoch ein Argument; für den Defaultpfad kann `DEFAULT`
@@ -61,8 +65,13 @@ erforderlich.
 
 ## Performance und Größen
 
-Der XML-Provider verarbeitet Werte synchron und verspricht kein Scalar-UDF-
-Inlining. Die `max`-Typen definieren die SQL-Schnittstelle, nicht eine
+Der XML-Provider verarbeitet Werte synchron. Für mengenorientierte Aufrufe
+sind die inline TVFs über `CROSS APPLY` oder `OUTER APPLY` zu bevorzugen; die
+SVFs bleiben Convenience-APIs und versprechen kein Scalar-UDF-Inlining. Die
+SVF-Wrapper sind bewusst nicht schemagebunden, damit der kanonische
+inline-TVF-Kern bei einem Wiederholungs- oder Upgrade-Deployment ersetzt
+werden kann. Die
+`max`-Typen definieren die SQL-Schnittstelle, nicht eine
 unbegrenzte praktische Größen- oder Performancegarantie. Set-basierte
 Massenaufrufe und große LOBs sind vor produktivem Einsatz mit repräsentativen,
 nicht vertraulichen Daten zu messen.
@@ -71,7 +80,7 @@ nicht vertraulichen Daten zu messen.
 
 Der portable Provider enthält keine bekannte Betriebssystemabhängigkeit.
 Der
-[Base64-Runtime-Lauf 30493304673](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30493304673)
+[Base64-Runtime-Lauf 30535377837](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377837)
 war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Geprüft wurden RFC-4648-/Base64URL-Vektoren, Fehlerfälle,
 synthetische Größen bis 1 MiB, Wiederholungsdeployment, Fremdobjekt-Kollision,
@@ -83,6 +92,8 @@ Releasevalidierung `not executed`; der Modulstatus ist deshalb nur
 ## Dokumentation
 
 - [Moduldesign](../../Documentation/Architecture/BASE64_MODULE_DESIGN.md)
+- [TVF_Base64Encode](./Documentation/TVF_Base64Encode.md)
+- [TVF_Base64Decode](./Documentation/TVF_Base64Decode.md)
 - [SVF_Base64Encode](./Documentation/SVF_Base64Encode.md)
 - [SVF_Base64Decode](./Documentation/SVF_Base64Decode.md)
 - [Contract-Testmatrix](./Tests/BASE64_CONTRACT_TEST_MATRIX.md)

@@ -8,6 +8,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
+- Sechs semantisch äquivalente inline-TVF-APIs für Base64, Integer-Base und
+  Semantic Versioning als kanonische relationale Kerne für `CROSS APPLY` und
+  `OUTER APPLY`; die vorhandenen SVFs bleiben Convenience-Wrapper.
 - Kandidatenübergreifender Implementierungsplan für alle 46 Toolbelt-Kandidaten mit vorhandenen beziehungsweise vorgeschlagenen Modulen, öffentlichen Objektfamilien, Provider-Slices, Abhängigkeiten, Pflicht-Gates, Testschwerpunkten und Entwicklungswellen; ohne neue Implementierungsfreigabe.
 - Formale Kandidaten `TC-2026-033` bis `TC-2026-046` für ZIP-/Kompressionsprovider, kontrollierte Datei-/Verzeichniszugriffe, getrennte Pseudonymisierungsbausteine, Objektklonen, XLSX-Lesen und eine providerneutrale Second-Session-Abstraktion; alle ohne Implementierungsfreigabe im Status `researched`.
 - Deduplizierte Toolbelt-Research-Inbox mit 162 breit gefächerten Ideen und 82 öffentlichen Quellen; Mehrfachnennungen behalten ihre gemeinsamen Fundstellen.
@@ -58,6 +61,11 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Geändert
 
+- Base64, Integer-Base und Semantic Versioning auf Modulversion `1.1.0`
+  angehoben; Deployment, Upgrade, Uninstall, Objektverträge, Beispiele,
+  Manifeste und Testmatrizen um die inline-TVF-Alternativen erweitert.
+- Inline-TVF-Remediation `AP-2026-014` nach erfolgreichen SQL-Server-2025-
+  Linux-Läufen mit Compatibility Levels 150, 160 und 170 abgeschlossen.
 - Datenschutz- und Vertraulichkeitsregeln präzisiert: fachlich relevante öffentliche Organisations-/Projektnamen und Links sowie `gecompat` und `Gerhard Pisch` sind zulässig; personenbezogene/sensible Daten, interne/vertrauliche Informationen, Original-Tabelleninhalte, reale Runtime-Ausgaben und konkrete Remote-Runner-Hardwarewerte bleiben ausgeschlossen.
 - Bestehende Kandidaten zu Multi-Separator-Split und kalendarischer Differenz mit präziseren Versions-, Provider-, Performance- und Aussagegrenzen versehen.
 - Roadmap um die abgeschlossene Research-Welle, die abgeschlossene ResultTable-Designphase und die geplante Implementierungswelle ergänzt.

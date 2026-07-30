@@ -5,6 +5,7 @@
 -- ============================================================================
 
 SET NOCOUNT ON;
+SET QUOTED_IDENTIFIER ON;
 
 DECLARE @CompatibilityLevel int =
     TRY_CONVERT(int, N'$(CompatibilityLevel)');
@@ -22,7 +23,9 @@ DECLARE @SetCompatibilitySql nvarchar(max) =
     + N';';
 EXEC sys.sp_executesql @SetCompatibilitySql;
 
-IF OBJECT_ID(N'toolbelt_conversion.SVF_Base64Encode', N'FN') IS NULL
+IF OBJECT_ID(N'toolbelt_conversion.TVF_Base64Encode', N'IF') IS NULL
+   OR OBJECT_ID(N'toolbelt_conversion.TVF_Base64Decode', N'IF') IS NULL
+   OR OBJECT_ID(N'toolbelt_conversion.SVF_Base64Encode', N'FN') IS NULL
    OR OBJECT_ID(N'toolbelt_conversion.SVF_Base64Decode', N'FN') IS NULL
 BEGIN
     THROW 52301, N'Die öffentlichen Base64-Funktionen fehlen.', 1;
@@ -129,6 +132,74 @@ BEGIN
     THROW 52304, N'NULL wird nicht vertragsgemäß weitergegeben.', 1;
 END;
 
+IF EXISTS
+   (
+       SELECT 1
+       FROM @Vectors AS vectors
+       CROSS APPLY toolbelt_conversion.TVF_Base64Encode
+                   (
+                         vectors.BinaryValue
+                       , DEFAULT
+                   ) AS encoded
+       CROSS APPLY toolbelt_conversion.TVF_Base64Decode
+                   (
+                       encoded.EncodedValue
+                   ) AS decoded
+       WHERE encoded.EncodedValue <> vectors.StandardBase64
+          OR decoded.DecodedValue <> vectors.BinaryValue
+          OR encoded.EncodedValue
+             <> toolbelt_conversion.SVF_Base64Encode
+                (
+                      vectors.BinaryValue
+                    , DEFAULT
+                )
+          OR decoded.DecodedValue
+             <> toolbelt_conversion.SVF_Base64Decode
+                (
+                    vectors.StandardBase64
+                )
+   )
+BEGIN
+    THROW 52313, N'Die SVF-/inline-TVF-Parität ist fehlgeschlagen.', 1;
+END;
+
+IF (SELECT COUNT(*) FROM toolbelt_conversion.TVF_Base64Encode(NULL, 0)) <> 1
+   OR EXISTS
+      (
+          SELECT 1
+          FROM toolbelt_conversion.TVF_Base64Encode(NULL, 0)
+          WHERE EncodedValue IS NOT NULL
+      )
+   OR (SELECT COUNT(*) FROM toolbelt_conversion.TVF_Base64Decode(NULL)) <> 1
+   OR EXISTS
+      (
+          SELECT 1
+          FROM toolbelt_conversion.TVF_Base64Decode(NULL)
+          WHERE DecodedValue IS NOT NULL
+      )
+BEGIN
+    THROW 52314, N'Der einzeilige NULL-Vertrag der inline TVFs ist fehlgeschlagen.', 1;
+END;
+
+DECLARE @ApplyInput TABLE
+(
+      ItemOrdinal int NOT NULL PRIMARY KEY
+    , BinaryValue varbinary(max) NULL
+);
+INSERT INTO @ApplyInput (ItemOrdinal, BinaryValue)
+VALUES (1, 0xCAFECAFE), (2, NULL);
+
+IF (SELECT COUNT(*)
+    FROM @ApplyInput AS source
+    OUTER APPLY toolbelt_conversion.TVF_Base64Encode
+                (
+                      source.BinaryValue
+                    , 1
+                ) AS encoded) <> 2
+BEGIN
+    THROW 52315, N'OUTER APPLY erhält die äußeren Zeilen nicht vollständig.', 1;
+END;
+
 IF toolbelt_conversion.SVF_Base64Encode(0xCAFECAFE, 0) <> 'yv7K/g=='
    OR toolbelt_conversion.SVF_Base64Encode(0xCAFECAFE, 1) <> 'yv7K_g'
    OR toolbelt_conversion.SVF_Base64Decode('yv7K/g==') <> 0xCAFECAFE
@@ -152,6 +223,8 @@ SET @ExpectedErrorObserved = 0;
 BEGIN TRY
     DECLARE @InvalidCharacter varbinary(max) =
         toolbelt_conversion.SVF_Base64Decode('qQ!!');
+    IF @InvalidCharacter IS NULL
+        SET @ExpectedErrorObserved = 0;
 END TRY
 BEGIN CATCH
     SET @ExpectedErrorObserved = 1;
@@ -165,6 +238,8 @@ SET @ExpectedErrorObserved = 0;
 BEGIN TRY
     DECLARE @InvalidLength varbinary(max) =
         toolbelt_conversion.SVF_Base64Decode('A');
+    IF @InvalidLength IS NULL
+        SET @ExpectedErrorObserved = 0;
 END TRY
 BEGIN CATCH
     SET @ExpectedErrorObserved = 1;
@@ -178,6 +253,8 @@ SET @ExpectedErrorObserved = 0;
 BEGIN TRY
     DECLARE @InvalidPadding varbinary(max) =
         toolbelt_conversion.SVF_Base64Decode('qQ===A');
+    IF @InvalidPadding IS NULL
+        SET @ExpectedErrorObserved = 0;
 END TRY
 BEGIN CATCH
     SET @ExpectedErrorObserved = 1;
@@ -191,6 +268,8 @@ SET @ExpectedErrorObserved = 0;
 BEGIN TRY
     DECLARE @InvalidWhitespace varbinary(max) =
         toolbelt_conversion.SVF_Base64Decode('q' + CHAR(11) + 'Q==');
+    IF @InvalidWhitespace IS NULL
+        SET @ExpectedErrorObserved = 0;
 END TRY
 BEGIN CATCH
     SET @ExpectedErrorObserved = 1;
@@ -198,6 +277,24 @@ END CATCH;
 IF @ExpectedErrorObserved = 0
 BEGIN
     THROW 52310, N'Nicht freigegebener Whitespace wurde akzeptiert.', 1;
+END;
+
+SET @ExpectedErrorObserved = 0;
+BEGIN TRY
+    DECLARE @InvalidTvfResult varbinary(max);
+
+    SELECT @InvalidTvfResult = decoded.DecodedValue
+    FROM toolbelt_conversion.TVF_Base64Decode('qQ!!') AS decoded;
+
+    IF @InvalidTvfResult IS NULL
+        SET @ExpectedErrorObserved = 0;
+END TRY
+BEGIN CATCH
+    SET @ExpectedErrorObserved = 1;
+END CATCH;
+IF @ExpectedErrorObserved = 0
+BEGIN
+    THROW 52316, N'Der inline-TVF-Pfad akzeptierte ein ungültiges Zeichen.', 1;
 END;
 
 DECLARE @Sizes TABLE
@@ -227,18 +324,30 @@ BEGIN
           varbinary(max)
         , REPLICATE(CONVERT(varchar(max), 'A'), @ByteCount)
     );
-    SET @Encoded =
-        toolbelt_conversion.SVF_Base64Encode(@Synthetic, 0);
-    SET @Decoded =
-        toolbelt_conversion.SVF_Base64Decode(@Encoded);
+    SELECT @Encoded = encoded.EncodedValue
+    FROM toolbelt_conversion.TVF_Base64Encode(@Synthetic, 0) AS encoded;
+
+    SELECT @Decoded = decoded.DecodedValue
+    FROM toolbelt_conversion.TVF_Base64Decode(@Encoded) AS decoded;
 
     IF DATALENGTH(@Synthetic) <> @ByteCount
        OR DATALENGTH(@Decoded) <> @ByteCount
        OR @Decoded <> @Synthetic
+       OR
+          (
+              @ByteCount <= 6001
+              AND
+              (
+                  toolbelt_conversion.SVF_Base64Encode(@Synthetic, 0)
+                      <> @Encoded
+                  OR toolbelt_conversion.SVF_Base64Decode(@Encoded)
+                      <> @Decoded
+              )
+          )
     BEGIN
         CLOSE SizeCursor;
         DEALLOCATE SizeCursor;
-        THROW 52311, N'Ein synthetischer Größen-Roundtrip ist fehlgeschlagen.', 1;
+        THROW 52311, N'Ein synthetischer TVF-Größen-Roundtrip oder die SVF-Parität ist fehlgeschlagen.', 1;
     END;
 
     FETCH NEXT FROM SizeCursor INTO @ByteCount;

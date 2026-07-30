@@ -8,6 +8,10 @@
 
 Decodiert Standard-Base64 und Base64URL in Binärdaten.
 
+Die SVF ist eine Convenience-API und delegiert an
+[`TVF_Base64Decode`](./TVF_Base64Decode.md). Für Spaltenwerte und
+mengenorientierte Abfragen ist die inline TVF über `APPLY` zu bevorzugen.
+
 ## Parameter und Rückgabewert
 
 | Element | Typ | Nullable | Beschreibung |

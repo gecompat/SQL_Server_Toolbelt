@@ -15,5 +15,24 @@ SELECT @Decoded =
 IF @Encoded <> '-FF' OR @Decoded <> -255
     THROW 52830, N'Der zentrale dreiteilige Integer-Base-Aufruf ist fehlgeschlagen.', 1;
 
+IF NOT EXISTS
+(
+    SELECT 1
+    FROM [$(ToolbeltDatabase)].toolbelt_conversion.TVF_IntegerToBase
+         (
+               -255
+             , @Alphabet
+         ) AS encoded
+    CROSS APPLY
+         [$(ToolbeltDatabase)].toolbelt_conversion.TVF_TryBaseToInteger
+         (
+               encoded.EncodedValue
+             , @Alphabet
+         ) AS decoded
+    WHERE encoded.EncodedValue = '-FF'
+      AND decoded.DecodedValue = -255
+)
+    THROW 52831, N'Der zentrale relationale Integer-Base-Aufruf ist fehlgeschlagen.', 1;
+
 PRINT N'Integer-Base Central-Contract-Prüfung: erfolgreich';
 GO

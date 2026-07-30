@@ -7,6 +7,8 @@ Status: `implemented`, `partially validated`, `unreleased`.
 
 Öffentliche Objekte:
 
+- `TVF_IntegerToBase` – kanonischer relationaler Encode-Kern;
+- `TVF_TryBaseToInteger` – kanonischer relationaler Decode-Kern;
 - `SVF_IntegerToBase` – codiert einen `bigint` als `varchar(65)`;
 - `SVF_TryBaseToInteger` – decodiert eine kanonische Darstellung oder liefert
   `NULL`.
@@ -21,8 +23,14 @@ Das Modul hat keine Abhängigkeit zu Base64 oder anderen Toolbelt-Modulen.
 Zwischenarithmetik mit `decimal(38,0)` deckt auch
 `-9223372036854775808` sicher ab.
 
+Modulversion `1.1.0` ergänzt die inline-TVF-APIs. Die vorhandenen SVFs
+delegieren an diese Kerne. Für mengenorientierte Aufrufe sind die TVFs mit
+`CROSS APPLY` oder `OUTER APPLY` zu bevorzugen. Die SVF-Wrapper sind bewusst
+nicht schemagebunden, damit Wiederholungs- und Upgrade-Deployments die
+kanonischen TVF-Kerne ersetzen können.
+
 Aktuelle Evidenz:
-[Integer-Base Runtime Run 30518087070](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30518087070)
+[Integer-Base Runtime Run 30535377860](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377860)
 war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben offen.
 

@@ -6,7 +6,7 @@
 |---|---|
 | Kandidat | `TC-2026-012` |
 | Modul | `toolbelt.conversion.base64` |
-| Version | `1.0.0` |
+| Version | `1.1.0` |
 | Vertrag besprochen | 2026-07-29 |
 | Implementierung freigegeben | 2026-07-29 durch ausdrückliches `.` des Benutzers |
 | Provider | T-SQL/XML |
@@ -22,9 +22,24 @@ außerhalb des Scopes.
 ## Öffentlicher Vertrag
 
 ```text
+TVF_Base64Encode(@Value varbinary(max), @UrlSafe bit = 0)
+    -> TABLE (EncodedValue varchar(max))
+TVF_Base64Decode(@Value varchar(max))
+    -> TABLE (DecodedValue varbinary(max))
 SVF_Base64Encode(@Value varbinary(max), @UrlSafe bit = 0) -> varchar(max)
 SVF_Base64Decode(@Value varchar(max))                     -> varbinary(max)
 ```
+
+Die inline TVFs sind die kanonischen relationalen Kerne und liefern immer
+genau eine Zeile. Die SVFs delegieren an diese Kerne und bleiben als
+Convenience-APIs erhalten. Für mengenorientierte Aufrufe ist `APPLY` zu
+bevorzugen. Direkte TVF-Aufrufe setzen `SET QUOTED_IDENTIFIER ON` voraus,
+weil SQL Server die XML-Methode aus dem inline expandierten Ausdruck im
+Kontext der aufrufenden Sitzung auswertet.
+
+Die Convenience-SVFs sind bewusst nicht schemagebunden. Andernfalls würde
+ihre Abhängigkeit ein `CREATE OR ALTER` des kanonischen TVF-Kerns beim
+Wiederholungs- und Upgrade-Deployment blockieren.
 
 - `NULL` bleibt `NULL`.
 - Standard-Base64 wird mit Padding erzeugt.
@@ -45,13 +60,19 @@ fehlendes Padding. Die explizite Strukturprüfung ist erforderlich, weil der
 XML-Provider bestimmte ungültige Zeichen permissiver als die native
 SQL-Server-2025-Funktion behandelt.
 
+Der Decode-Kern führt Alphabetabbildung, Whitespace-Entfernung,
+Paddingergänzung und binäre Formatprüfung in SQL aus. Der kanonische Wert wird
+als direktes XML-Dokument an `xs:base64Binary` übergeben. Dadurch entfällt der
+für große LOBs nachteiligere XQuery-Zugriff über eine relationale
+`sql:column`-Zwischenstufe.
+
 SQL CLR bleibt eine mögliche spätere Provideralternative, wird aber erst bei
 einem reproduzierbaren Performancevorteil und nach eigener Security-,
 Deployment- und Plattformentscheidung aufgenommen.
 
 ## Fehlervertrag
 
-Scalar UDFs unterstützen kein geeignetes `TRY...CATCH`/`THROW`-Mapping für
+SQL-Funktionen unterstützen kein geeignetes `TRY...CATCH`/`THROW`-Mapping für
 stabile Toolbelt-Fehler. Die native SQL-Server-2025-Fehlernummer `9803` wird
 nicht imitiert. Strukturell ungültige Eingaben erzwingen mit einem festen
 synthetischen Sentinel einen unveränderten SQL-Engine-Konvertierungsfehler,
@@ -83,6 +104,9 @@ materialisiert Ein- und Ausgabe und kann erheblichen Speicher- und CPU-Aufwand
 verursachen. Ein erfolgreicher Grenzwerttest ist kein allgemeiner
 Produktionsbenchmark. Große LOBs und set-basierte Massenaufrufe benötigen eine
 eigene Messung mit repräsentativen synthetischen oder freigegebenen Daten.
+Die inline TVF vermeidet den vertraglichen Zwang zu einem Scalar-UDF-Operator;
+ein konkreter Parallelitätsvorteil wird dennoch nur anhand eines
+reproduzierbaren Ausführungsplans behauptet.
 
 ## Primärquellen
 

@@ -6,11 +6,16 @@ SET NOCOUNT ON;
 
 DECLARE @ExpectedObjects TABLE
 (
-    ObjectName sysname NOT NULL PRIMARY KEY
+      ObjectName sysname NOT NULL PRIMARY KEY
+    , ObjectType char(2) NOT NULL
 );
 
-INSERT INTO @ExpectedObjects (ObjectName)
-VALUES (N'SVF_IntegerToBase'), (N'SVF_TryBaseToInteger');
+INSERT INTO @ExpectedObjects (ObjectName, ObjectType)
+VALUES
+      (N'TVF_IntegerToBase', 'IF')
+    , (N'TVF_TryBaseToInteger', 'IF')
+    , (N'SVF_IntegerToBase', 'FN')
+    , (N'SVF_TryBaseToInteger', 'FN');
 
 IF SCHEMA_ID(N'toolbelt_conversion') IS NULL
    OR EXISTS
@@ -22,7 +27,7 @@ IF SCHEMA_ID(N'toolbelt_conversion') IS NULL
                     QUOTENAME(N'toolbelt_conversion')
                     + N'.'
                     + QUOTENAME(expected.ObjectName),
-                    N'FN'
+                    expected.ObjectType
                 ) IS NULL
       )
 BEGIN
@@ -36,7 +41,7 @@ IF NOT EXISTS
        WHERE class = 0
          AND name =
              N'Toolbelt.Module.toolbelt.conversion.integer-base.Version'
-         AND TRY_CONVERT(nvarchar(64), value) = N'1.0.0'
+         AND TRY_CONVERT(nvarchar(64), value) = N'1.1.0'
    )
    OR NOT EXISTS
       (
