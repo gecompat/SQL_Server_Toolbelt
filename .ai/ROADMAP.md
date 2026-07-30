@@ -162,6 +162,18 @@ Validierung aller tatsächlich verwendeten gemeinsamen Verträge.
 
 Schrittweise Umsetzung priorisierter Toolbelt-Kandidaten nach fachlicher Kategorie und Dependency-Reihenfolge.
 
+### Phase 2.1 – Kandidatenübergreifende Objekt- und Wellenplanung
+
+**Status:** `completed`  
+**Abschluss:** 2026-07-30
+
+Der [Implementierungsplan für Toolbelt-Kandidaten](../Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md)
+ordnet alle 46 formalen Kandidaten vorhandenen oder vorgeschlagenen Modulen,
+öffentlichen Objektfamilien, Provider-Slices, Abhängigkeiten, Pflicht-Gates und
+Entwicklungswellen zu. Breite Kandidaten werden vor der Entwicklung in
+kleinste fachlich vollständige Arbeitspakete zerlegt. Der Plan erteilt keine
+Implementierungsfreigabe und legt noch keinen öffentlichen Runtime-Vertrag fest.
+
 Die Entscheidungsvorbereitung `AP-2026-007` ist abgeschlossen.
 `TC-2026-012` (Base64/Base64URL) wurde gegenüber `TC-2026-004`
 (`DATETRUNC`-Kompatibilität) ausgewählt, besprochen und zur Implementierung

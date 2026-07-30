@@ -8,6 +8,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
+- Kandidatenübergreifender Implementierungsplan für alle 46 Toolbelt-Kandidaten mit vorhandenen beziehungsweise vorgeschlagenen Modulen, öffentlichen Objektfamilien, Provider-Slices, Abhängigkeiten, Pflicht-Gates, Testschwerpunkten und Entwicklungswellen; ohne neue Implementierungsfreigabe.
 - Formale Kandidaten `TC-2026-033` bis `TC-2026-046` für ZIP-/Kompressionsprovider, kontrollierte Datei-/Verzeichniszugriffe, getrennte Pseudonymisierungsbausteine, Objektklonen, XLSX-Lesen und eine providerneutrale Second-Session-Abstraktion; alle ohne Implementierungsfreigabe im Status `researched`.
 - Deduplizierte Toolbelt-Research-Inbox mit 162 breit gefächerten Ideen und 82 öffentlichen Quellen; Mehrfachnennungen behalten ihre gemeinsamen Fundstellen.
 - Repository-Grundaufbau mit autoritativen Steuerungsdateien, Architektur, Standards, Templates und Backlogs.
@@ -96,6 +97,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Korrigiert
 
+- Kandidatenstatus und nächste Schritte von `TC-2026-003`, `TC-2026-006`, `TC-2026-012` und `TC-2026-029` an den nachweisbaren Implementierungs- und Validierungsstand angeglichen.
 - Custom-Agent-Profil auf gültige `.agent.md`-Struktur mit YAML-Frontmatter umgestellt.
 - Generische Objektvorlagen durch objekttypspezifische USP-, TVF-, SVF- und View-Vorlagen ersetzt.
 - USP-Vertrag und Teststandard um vollständige `@ResultTable`- und `@KeepData`-Contract-Tests ergänzt.

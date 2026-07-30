@@ -1,12 +1,12 @@
 # Grobe Fokuspriorisierung der Toolbelt-Kandidaten
 
-Stand: 2026-07-29
+Stand: 2026-07-30
 
 ## Rolle und Verbindlichkeit
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** ResultTable, Base64, Generate-Series, Identifier und Split Version 1 sind implementiert und `partially validated`. |
+| Aktueller Projektstand | **Dokumentiert:** ResultTable, Base64, Generate-Series, Identifier, Split Version 1, Semantic Versioning und Integer Base sind implementiert und `partially validated`. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
 | Implementierungsfreigabe | **Erteilt am 2026-07-30:** `TC-2026-029`, `TC-2026-001`, `TC-2026-030` und `TC-2026-031` sind abgeschlossen. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
@@ -109,3 +109,9 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 nächster Implementierungskandidat benötigt wieder Vertragsbesprechung und
 Freigabe.
 `TC-2026-032` bleibt als getrennte Split-Ausbaustufe im Research-Status.
+
+Der [kandidatenübergreifende Implementierungsplan](./TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md)
+empfiehlt für die nächste Vertragsbesprechung `TC-2026-024`
+(URI-Percent-Encoding/-Decoding); `TC-2026-002` (kalendarische Differenz) ist
+die wichtigste T-SQL-nahe Alternative. Diese Auswahlhilfe ist keine
+Implementierungsfreigabe.
