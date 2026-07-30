@@ -68,10 +68,10 @@ VALUES
       (1, N'IsValid', N'bit')
     , (2, N'ValidationCode', N'varchar')
     , (3, N'PartCount', N'tinyint')
-    , (4, N'ServerName', N'nvarchar')
-    , (5, N'DatabaseName', N'nvarchar')
-    , (6, N'SchemaName', N'nvarchar')
-    , (7, N'ObjectName', N'nvarchar')
+    , (4, N'ServerName', N'sysname')
+    , (5, N'DatabaseName', N'sysname')
+    , (6, N'SchemaName', N'sysname')
+    , (7, N'ObjectName', N'sysname')
     , (8, N'QuotedName', N'nvarchar');
 
 IF EXISTS

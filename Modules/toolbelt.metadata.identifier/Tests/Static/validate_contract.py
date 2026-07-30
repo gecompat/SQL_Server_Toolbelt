@@ -103,6 +103,7 @@ def main() -> int:
         "PART_TOO_LONG",
         "UNQUOTED_META_CHARACTER",
         "CROSS APPLY",
+        "N'sysname'",
     ):
         if marker not in runtime:
             raise ContractError(f"Runtime-Contract-Fall fehlt: {marker}")
