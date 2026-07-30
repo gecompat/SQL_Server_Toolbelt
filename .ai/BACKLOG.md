@@ -30,16 +30,16 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Feld | Wert |
 |---|---|
 | ID | `AP-2026-021` |
-| Ziel | Die CLR-Folgewelle fuer `TC-2026-034` als separaten Providervertrag starten und die Sicherheits-, Lifecycle- und Plattformgrenzen vor einer Implementierung festlegen. |
-| Scope | Keine Runtime-Implementierung in dieser Welle. Definiert werden nur Providervertrag, Assembly-Lifecycle, Security-/Trust-Modell, Fehler- und Testrahmen fuer einen optionalen CLR-Provider zur ZIP-Extraktion (Deflate/weitere Methoden). |
+| Ziel | Den separaten CLR-Providervertrag für `TC-2026-034` abschließen und die Sicherheits-, Lifecycle- und Plattformgrenzen vor einer Implementierung verbindlich festlegen. |
+| Scope | Keine Runtime-Implementierung. Der Vertrag begrenzt einen optionalen C#-SQL-CLR-Provider auf In-memory-Extraktion einzelner Entries mit ZIP Method 0 und 8, einschließlich Payload-CRC-Prüfung; Dateisystem, Verschlüsselungsentschlüsselung, Deflate64, ZIP-Erzeugung und weitere Formate bleiben ausgeschlossen. |
 | Dependencies | `AP-2026-020`, `TC-2026-034`, `Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md`, `Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md`, Datenschutz- und Lifecycle-Regeln. |
 | Priorität | `P1` |
-| Status | `active` |
-| Akzeptanzkriterien | Klarer Provider-Schnitt mit explizitem Non-Goal gegen Dateisystem-Default, dokumentierter Sicherheitsweg ohne pauschales `TRUSTWORTHY ON`, definierter Deployment-/Uninstall-Vertrag und begrenzte Fehlercodes fuer CLR-Lifecycle. |
-| Tests | Vertrags- und Designkonsistenz, dokumentierte Build-/Signaturstrategie, geplante Runtime-Matrix fuer SQL Server 2019/2022/2025 auf Windows/Linux; in dieser Welle keine Runtime-Evidenz behaupten. |
-| Blocker | Kein inhaltlicher Startblocker; offen sind konkrete Security-/Signing-Entscheidungen und der finale Providerzuschnitt. |
-| Evidenz | Benutzerauftrag vom 2026-07-30 zur Folgewelle fuer den CLR-Provider. |
-| Nächster Schritt | CLR-Providervertrag in der Architektur dokumentieren und danach eine separate Implementierungsfreigabe fuer den CLR-Slice einholen. |
+| Status | `completed` |
+| Akzeptanzkriterien | Klarer Provider-Schnitt mit explizitem Non-Goal gegen Dateisystem-Default, definiertem Methodensubset (0 und 8), expliziter Payload-CRC-Prüfung, dokumentiertem Sicherheitsweg ohne pauschales `TRUSTWORTHY ON` sowie definiertem Assembly-Lifecycle und Test-/Spike-Gates. |
+| Tests | Vertrags- und Designkonsistenz sowie dokumentierte Build-/Trust- und Runtime-Matrix. Diese Welle behauptet keine Runtime-Evidenz. |
+| Blocker | Kein Vertragsblocker. Vor jeder Implementierung ist ein kontrollierter Build-/Deployment-Spike für die CLR-Abhängigkeiten und anschließend eine eigene Benutzerfreigabe erforderlich. |
+| Evidenz | Benutzerauftrag vom 2026-07-30; Architekturvertrag `ZIP_CLR_PROVIDER_DESIGN.md`. |
+| Nächster Schritt | Separaten, kleinsten Implementierungs-Slice einschließlich C#-Assembly, Trust-Manifest und Windows-/Linux-Spike besprechen und ausdrücklich freigeben lassen. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
