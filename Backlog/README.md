@@ -54,6 +54,6 @@ Empfohlenes Änderungsmuster:
 7. Im persönlichen Brainstorm nach Möglichkeit einen Querverweis ergänzen, ohne Originalinhalt zu löschen.
 8. Ideen und Research-Kandidaten dürfen fortlaufend ergänzt werden; dadurch entsteht keine Implementierungszusage.
 9. Vor jeder Implementierung Zweck, öffentlichen Vertrag, Alternativen, Risiken und Scope der konkreten Funktion mit dem Benutzer besprechen.
-10. Kandidaten erst nach dieser Besprechung und ausdrücklicher Benutzerfreigabe in `.ai/BACKLOG.md` als aktives Implementierungsarbeitspaket übernehmen.
+10. Kandidaten erst nach dieser Besprechung und ausdrücklicher Benutzerfreigabe in `.ai/BACKLOG.md` als `ready for development` übernehmen. Beim tatsächlichen Beginn wird genau das bearbeitete Paket auf `active` gesetzt.
 
 Der GitHub-Copilot-Custom-Agent [backlog-curator.agent.md](../.github/agents/backlog-curator.agent.md) unterstützt diese Pflege bei expliziter Zuweisung. Er arbeitet nicht unbeaufsichtigt im Hintergrund.
