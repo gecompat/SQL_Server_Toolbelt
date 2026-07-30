@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-16 Module sind implementiert und `partially validated`.
+17 Module sind implementiert. 16 sind `partially validated`, ein Modul ist `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -16,11 +16,30 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Dependencies | Abgeschlossene Vertragswelle `AP-2026-019`, Kandidaten `TC-2026-033` und `TC-2026-034`, Moduldesign `ZIP_ARCHIVE_MODULE_DESIGN.md`, USP-Vertrag, Modul- und Lifecycle-Regeln. |
 | Priorität | `P1` |
 | Status | `active` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Ein oeffentliches Objekt mit stabilem Help-/Fehler-/Resultset-Vertrag; Duplicate-Entry-Semantik als expliziter Fehler; harte Default-Limits (`@MaxEntryBytes = 104857600`, `@MaxCompressionRatio = 200.00`); verschluesselte Eintraege liefern bei `@FailIfEncrypted = 0` einen expliziten Status ohne Payload; lokale und zentrale Lifecycle-Artefakte sowie statische und Runtime-Tests vorhanden. |
 | Tests | Statische Vertragspruefung, synthetische Negativfaelle (CRC, Format, Limits, verschluesselt), Lifecycle (Deploy/Uninstall/Wiederholung), SQL-Server-2025-Linux Runtime mit Compatibility Levels 150/160/170, danach physische 2019-/2022-/Windows-Releasevalidierung. |
-| Blocker | Kein offener Vertragsblocker. Noch offen sind nur Implementierung und Runtime-Evidenz. |
+| Blocker | Kein offener Vertragsblocker. Implementierung ist vorhanden; offen ist die Runtime-Evidenz. |
 | Evidenz | Benutzerfreigabe der verbleibenden V1A-Entscheidungen am 2026-07-30 (`beides`); Vertragsbasis in `Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md` und Kandidatenpflege erfolgt. |
-| Nächster Schritt | Modulgeruest, Manifest, Deploy/Uninstall, Objektdokumentation und ersten Runtime-faeigen In-memory-Extraktionspfad umsetzen. |
+| Nächster Schritt | SQL-Server-2025-Linux Runtime-Lauf fuer Contract, Lifecycle und Central ausfuehren; danach offene 2019-/2022-/Windows-Releasevalidierung planen. |
+
+### AP-2026-021: TC-2026-034 Verarbeitungswelle 3 (CLR-Provider Vertragswelle)
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-021` |
+| Ziel | Die CLR-Folgewelle fuer `TC-2026-034` als separaten Providervertrag starten und die Sicherheits-, Lifecycle- und Plattformgrenzen vor einer Implementierung festlegen. |
+| Scope | Keine Runtime-Implementierung in dieser Welle. Definiert werden nur Providervertrag, Assembly-Lifecycle, Security-/Trust-Modell, Fehler- und Testrahmen fuer einen optionalen CLR-Provider zur ZIP-Extraktion (Deflate/weitere Methoden). |
+| Dependencies | `AP-2026-020`, `TC-2026-034`, `Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md`, `Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md`, Datenschutz- und Lifecycle-Regeln. |
+| Priorität | `P1` |
+| Status | `active` |
+| Akzeptanzkriterien | Klarer Provider-Schnitt mit explizitem Non-Goal gegen Dateisystem-Default, dokumentierter Sicherheitsweg ohne pauschales `TRUSTWORTHY ON`, definierter Deployment-/Uninstall-Vertrag und begrenzte Fehlercodes fuer CLR-Lifecycle. |
+| Tests | Vertrags- und Designkonsistenz, dokumentierte Build-/Signaturstrategie, geplante Runtime-Matrix fuer SQL Server 2019/2022/2025 auf Windows/Linux; in dieser Welle keine Runtime-Evidenz behaupten. |
+| Blocker | Kein inhaltlicher Startblocker; offen sind konkrete Security-/Signing-Entscheidungen und der finale Providerzuschnitt. |
+| Evidenz | Benutzerauftrag vom 2026-07-30 zur Folgewelle fuer den CLR-Provider. |
+| Nächster Schritt | CLR-Providervertrag in der Architektur dokumentieren und danach eine separate Implementierungsfreigabe fuer den CLR-Slice einholen. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 

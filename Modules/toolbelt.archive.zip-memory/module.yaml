@@ -1,0 +1,83 @@
+module_id: "toolbelt.archive.zip-memory"
+module_name: "ZIP Memory Extraction"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "not executed"
+release_status: unreleased
+description: "Extrahiert einen einzelnen ZIP-Eintrag aus einem in-memory ZIP-Container (varbinary(max)) ohne Dateisystemzugriff."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "not executed"
+  linux: "not executed"
+providers:
+  - id: tsql-zip-stored
+    technology: "T-SQL Binary ZIP Parsing"
+    platforms: [Windows, Linux]
+    status: implemented
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies:
+  - module_id: "toolbelt.core.result-table"
+    minimum_version: "1.0.0"
+    reason: "ResultTable-Integration fuer den USP-Vertrag (@ResultTable, @KeepData)."
+schemas:
+  - "toolbelt_archive"
+objects:
+  - type: USP
+    schema: "toolbelt_archive"
+    name: "USP_ExtractZipEntryFromBinary"
+    visibility: public
+permissions_required:
+  - "EXECUTE auf toolbelt_archive.USP_ExtractZipEntryFromBinary"
+  - "EXECUTE auf toolbelt_core.USP_PrepareResultTable bei Nutzung von @ResultTable"
+  - "DDL-Rechte fuer Deploy und Uninstall"
+collation_contract: "Entry-Namen werden mit Latin1_General_100_BIN2 verglichen."
+data_type_contract: "ZIP-Container und Payload sind varbinary(max); Entry-Namen sind nvarchar(1024)."
+help_contract_version: "1.0"
+resultset_contracts:
+  - object: "toolbelt_archive.USP_ExtractZipEntryFromBinary"
+    kind: "data"
+    resultset: "EntryName nvarchar(1024), CompressedBytes bigint, UncompressedBytes bigint, CompressionMethod int, Crc32 int null, IsEncrypted bit, EntryPayload varbinary(max)"
+    return_code_success: 0
+    error_range: "51320-51329"
+lifecycle_error_range: "51330-51339"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/USP_ExtractZipEntryFromBinary.md"
+  architecture:
+    - "../../Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/ZipMemory.Contract.sql"
+  contract: "Tests/Runtime/ZipMemory.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/zip-memory-runtime.yml"
+validation_evidence: []

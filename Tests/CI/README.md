@@ -29,6 +29,11 @@ lokale, zentrale, Kollisions- und Lifecycle-Pfade bei Compatibility Levels
 Kanonizität, den vollständigen `bigint`-Bereich, Overflow sowie lokale,
 zentrale, Kollisions- und Lifecycle-Pfade bei denselben Compatibility Levels.
 
+`run-zip-memory-linux.sh` installiert zuerst `toolbelt.core.result-table` als
+Dependency und prueft danach den In-memory-ZIP-Vertrag fuer
+`toolbelt.archive.zip-memory` mit Compatibility Levels 150, 160 und 170 sowie
+lokale, zentrale, Lifecycle- und Uninstall-Pfade.
+
 Bash wird hier nur als Linux-CI-Orchestrierung verwendet. Es enthält keine zweite Implementierung der T-SQL-Fachlogik.
 
 Das Testkennwort:
