@@ -11,4 +11,4 @@ Der erste Slice akzeptiert ausschließlich `date` und liefert eine echte Kalende
 
 Die Anniversary-Regel entspricht `DATEADD`: nicht vorhandene Monatstage werden an den letzten Tag des Zielmonats geklammert. Negative Intervalle werden nicht komponentenweise negativ, sondern erhalten `Sign = -1`.
 
-Aktuelle Evidenz: [Run 30552721606](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30552721606) – SQL Server 2025 Linux mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben `not executed`.
+Aktuelle Evidenz: [Run 30553118399](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118399) – SQL Server 2025 Linux mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben `not executed`.

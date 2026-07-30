@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. Zehn Module sind implementiert und teilweise validiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
+**Der Repository-Grundaufbau ist abgeschlossen. 10 Module sind implementiert und teilweise validiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
 
 Das implementierte Modul [`toolbelt.core.result-table`](./Modules/toolbelt.core.result-table/README.md) stellt `toolbelt_core.USP_PrepareResultTable` als gemeinsame `@ResultTable`-/`@KeepData`-Infrastruktur bereit. Die Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; Windows und weitere Pflichtfälle bleiben offen.
 
@@ -97,6 +97,27 @@ codiert und decodiert den vollständigen `bigint`-Bereich mit frei
 definierbaren ASCII-Alphabeten. SQL Server 2025 Linux ist mit Compatibility
 Levels 150, 160 und 170 erfolgreich; physische 2019-/2022- und Windows-Läufe
 bleiben offen.
+
+Das implementierte Modul
+[`toolbelt.datetime.calendar-difference`](./Modules/toolbelt.datetime.calendar-difference/README.md)
+zerlegt `date`-Intervalle nach einer dokumentierten Anniversary-Regel.
+SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und 170
+einschließlich Lifecycle und zentraler Nutzung erfolgreich; physische
+2019-/2022- und Windows-Läufe bleiben offen.
+
+Das implementierte Modul
+[`toolbelt.string.directional-trim`](./Modules/toolbelt.string.directional-trim/README.md)
+stellt typstabile `varchar`-/`nvarchar`-TVFs für `LEADING`, `TRAILING` und
+`BOTH` bereit. SQL Server 2025 Linux ist mit Compatibility Levels 150, 160
+und 170 erfolgreich; weitere Collations sowie physische 2019-/2022- und
+Windows-Läufe bleiben offen.
+
+Das implementierte Modul
+[`toolbelt.conversion.uri-component`](./Modules/toolbelt.conversion.uri-component/README.md)
+codiert und decodiert RFC-3986-URI-Komponenten mit UTF-8 und strikter
+Validierung. SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und
+170 erfolgreich; LOB-/Performancegrenzen sowie physische 2019-/2022- und
+Windows-Läufe bleiben offen.
 
 ## Modulprinzip
 
