@@ -90,6 +90,7 @@ for level in 150 160 170; do
     ModuleCapabilities.Contract.sql -v CompatibilityLevel="${level}"
 done
 
+set +e
 console_output="$(
   docker exec \
     --workdir /workspace/Modules/toolbelt.core.console-message/Tests/Runtime \
@@ -97,6 +98,13 @@ console_output="$(
     -S localhost -U sa -P "${sa_password}" -C -b -f 65001 \
     -d "${database}" -i ConsoleOutput.Contract.sql 2>&1
 )"
+console_status=$?
+set -e
+
+if [[ "${console_status}" -ne 0 ]]; then
+  printf '%s\n' "${console_output}" >&2
+  exit "${console_status}"
+fi
 
 for marker in \
   "TBX-BUFFERED-BEGIN" \
