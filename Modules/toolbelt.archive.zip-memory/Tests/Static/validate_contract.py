@@ -61,6 +61,7 @@ def main() -> int:
         "THROW 51327",
         "THROW 51328",
         "toolbelt_core.USP_PrepareResultTable",
+        "#tbx_ZipMemory_ResultSource",
         "RETURN 0",
     ):
         if marker not in source:
@@ -68,6 +69,11 @@ def main() -> int:
 
     if "OPENROWSET" in source or "xp_cmdshell" in source:
         raise RuntimeError("Dateisystem- oder Shell-Zugriff ist im V1A-Scope unzulaessig.")
+
+    if "@ResultSource TABLE" in source:
+        raise RuntimeError(
+            "Der ResultTable-Pfad darf keine Table Variable als dynamischen Tabellenparameter verwenden."
+        )
 
     manifest = read("module.yaml")
     for marker in (

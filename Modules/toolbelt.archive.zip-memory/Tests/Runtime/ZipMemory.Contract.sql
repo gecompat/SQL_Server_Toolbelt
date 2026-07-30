@@ -67,6 +67,58 @@ IF NOT EXISTS
    )
     THROW 51394, N'Der Stored-Entry-Erfolgspfad ist falsch.', 1;
 
+CREATE TABLE #ZipResult
+(
+    IgnoredDummy nvarchar(1) NULL
+);
+
+EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
+      @ZipArchive = @ZipStored
+    , @EntryName = N'plain.txt'
+    , @ResultTable = N'#ZipResult'
+    , @KeepData = 0;
+
+IF NOT EXISTS
+   (
+       SELECT 1
+       FROM #ZipResult
+       WHERE EntryName = N'plain.txt'
+         AND EntryPayload = 0x48454C4C4F
+   )
+    THROW 51400, N'Der ResultTable-Pfad hat die Resultzeile nicht geschrieben.', 1;
+
+EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
+      @ZipArchive = @ZipStored
+    , @EntryName = N'plain.txt'
+    , @ResultTable = N'#ZipResult'
+    , @KeepData = 1;
+
+IF (SELECT COUNT(*) FROM #ZipResult) <> 2
+    THROW 51401, N'@KeepData = 1 hat die Resultzeile nicht angehaengt.', 1;
+
+BEGIN TRY
+    EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
+          @ZipArchive = @ZipStored
+        , @EntryName = N'plain.txt'
+        , @MaxEntryBytes = 4;
+    THROW 51402, N'Erwarteter Fehler 51325 wurde nicht ausgeloest.', 1;
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() <> 51325
+        THROW;
+END CATCH;
+
+BEGIN TRY
+    EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
+          @ZipArchive = 0x00000000000000000000000000000000000000000000
+        , @EntryName = N'plain.txt';
+    THROW 51403, N'Erwarteter Fehler 51321 wurde nicht ausgeloest.', 1;
+END TRY
+BEGIN CATCH
+    IF ERROR_NUMBER() <> 51321
+        THROW;
+END CATCH;
+
 BEGIN TRY
     EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
           @ZipArchive = @ZipStored
