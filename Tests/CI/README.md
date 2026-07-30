@@ -16,6 +16,11 @@ Lifecycle-Pfade.
 `run-identifier-linux.sh` prüft den Identifier-Vertrag mit denselben
 Compatibility Levels sowie lokale, zentrale, Kollisions- und Lifecycle-Pfade.
 
+`run-split-characters-linux.sh` installiert zuerst den Generate-Series-Kern
+und prüft danach den literalen Multi-Separator-Vertrag mit denselben
+Compatibility Levels, fehlender Dependency, lokaler und zentraler Nutzung,
+Kollision, Wiederholungsdeployment und Uninstall.
+
 Bash wird hier nur als Linux-CI-Orchestrierung verwendet. Es enthält keine zweite Implementierung der T-SQL-Fachlogik.
 
 Das Testkennwort:
@@ -45,6 +50,12 @@ erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
 
 Der
 [Identifier-Runtime-Lauf 30514751834](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30514751834)
+war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
+`not executed`.
+
+Der
+[Split-Characters Runtime Run 30516116708](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30516116708)
 war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
 `not executed`.

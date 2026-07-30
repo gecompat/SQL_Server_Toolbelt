@@ -1,0 +1,56 @@
+name: Split-Characters Runtime
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/split-characters-runtime.yml"
+      - "Modules/toolbelt.string.split-characters/module.yaml"
+      - "Modules/toolbelt.string.split-characters/Source/**"
+      - "Modules/toolbelt.string.split-characters/Deployment/**"
+      - "Modules/toolbelt.string.split-characters/Tests/Runtime/**"
+      - "Modules/toolbelt.string.split-characters/Tests/Static/**"
+      - "Modules/toolbelt.core.generate-series/module.yaml"
+      - "Modules/toolbelt.core.generate-series/Source/**"
+      - "Modules/toolbelt.core.generate-series/Deployment/**"
+      - "Tests/CI/run-split-characters-linux.sh"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/split-characters-runtime.yml"
+      - "Modules/toolbelt.string.split-characters/module.yaml"
+      - "Modules/toolbelt.string.split-characters/Source/**"
+      - "Modules/toolbelt.string.split-characters/Deployment/**"
+      - "Modules/toolbelt.string.split-characters/Tests/Runtime/**"
+      - "Modules/toolbelt.string.split-characters/Tests/Static/**"
+      - "Modules/toolbelt.core.generate-series/module.yaml"
+      - "Modules/toolbelt.core.generate-series/Source/**"
+      - "Modules/toolbelt.core.generate-series/Deployment/**"
+      - "Tests/CI/run-split-characters-linux.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: split-characters-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sql-server-2025-linux:
+    name: SQL Server 2025 Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate static contract
+        run: >-
+          python3
+          Modules/toolbelt.string.split-characters/Tests/Static/validate_contract.py
+
+      - name: Execute synthetic compatibility and lifecycle tests
+        env:
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Tests/CI/run-split-characters-linux.sh
