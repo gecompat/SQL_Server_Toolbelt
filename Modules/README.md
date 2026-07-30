@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**Sieben Module sind implementiert; ihr Validierungsstand wird getrennt aus den Manifesten abgeleitet.**
+**10 Module sind implementiert; ihr Validierungsstand wird getrennt aus den Manifesten abgeleitet.**
 
 ## Implementierte Module
 

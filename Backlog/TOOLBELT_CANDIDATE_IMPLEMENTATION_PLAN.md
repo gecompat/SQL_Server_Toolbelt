@@ -9,8 +9,8 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. Sieben
-  zugehörige Module sind implementiert und `partially validated`.
+- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 10 Module sind
+  implementiert und `partially validated`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -31,8 +31,8 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 | Gruppe | Kandidaten | Konsequenz |
 |---|---|---|
-| Implementiert, Runtime teilweise validiert | `TC-2026-001`, `TC-2026-003`, `TC-2026-006`, `TC-2026-012`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031` | Keine Neuimplementierung; offene Releasevalidierung gezielt abschließen. |
-| Kleine bis mittlere portable Kerne | `TC-2026-002`, `TC-2026-004`, `TC-2026-005`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009`, `TC-2026-016`, `TC-2026-023`, `TC-2026-024` | Je Kandidat zuerst Typ-, Fehler- und Resultvertrag festlegen; danach weitgehend unabhängige Module. |
+| Implementiert, Runtime teilweise validiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-006`, `TC-2026-008`, `TC-2026-012`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031` | Keine Neuimplementierung; offene Releasevalidierung gezielt abschließen. |
+| Kleine bis mittlere portable Kerne | `TC-2026-004`, `TC-2026-005`, `TC-2026-007`, `TC-2026-009`, `TC-2026-016`, `TC-2026-023` | Je Kandidat zuerst Typ-, Fehler- und Resultvertrag festlegen; danach weitgehend unabhängige Module. |
 | Parser-, CLR- oder breite Semantikmodule | `TC-2026-010`, `TC-2026-011`, `TC-2026-013`, `TC-2026-032` | Funktionsfamilien und Provider vor dem ersten Code begrenzen und benchmarken. |
 | Execution-Infrastruktur | `TC-2026-014` bis `TC-2026-022`, `TC-2026-046` | Als abhängige Plattform in mehreren Modulen entwickeln; kein monolithisches Sammelmodul. |
 | Externe Provider und Integrationen | `TC-2026-025` bis `TC-2026-028`, `TC-2026-037`, `TC-2026-038` | Allowlist-, Identity-, Secret-, Timeout-, Abbruch- und Plattformvertrag sind Pflicht-Gates. |
@@ -70,20 +70,21 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Entwicklungswellen und Abhängigkeiten
 
-| Welle | Inhalt | Kandidaten | Eintrittsbedingung | Ergebnis |
-|---|---|---|---|---|
-| `V0` | Offene Releasevalidierung | `001`, `003`, `006`, `012`, `029`, `030`, `031` | Geeignete physische Engines beziehungsweise Windows-Runner | Nachweisbare Erweiterung des Validierungsscopes; keine Codeänderung ohne Befund. |
-| `W1` | Kleine unabhängige T-SQL-Kerne | `002`, `008`, `024` | Einzelvertrag und Freigabe | Drei voneinander unabhängige Module. |
-| `W2` | Date/Time-, Bit- und JSON-Kompatibilität | `004`, `005`, `007`, `009`, `013` | Typfamilien und Paritätsumfang entschieden | Kleine, versionsbezogene Objektfamilien statt eines Compatibility-Monolithen. |
-| `W3` | String-Parser und Matching | `010`, `011`, `032` | Syntaxsubset, Limits und Providervergleich entschieden | Getrennte Regex-, Fuzzy- und Quote-/Escape-Module. |
-| `W4` | Execution-Grundlagen | `016`, `017`, `019`, `023`, `022` | Persistente Namenskonvention nur soweit tatsächlich benötigt | Console, Error Envelope, Correlation, Capability Discovery und Work-Type-Katalog. |
-| `W5` | Session- und Ausführungsprovider | `046`, `014` | `017`, `019`, `022`; Provider- und Security-Entscheidung | Synchrone zweite Session und darauf aufbauendes rollback-unabhängiges Logging. |
-| `W6` | Queue, Retry, Lease und Cancellation | `015`, `020`, `021`, `018` | `017`, `019`, `022`; Tabellenkonvention entschieden | Begrenzte, beobachtbare und wiederanlaufbare Work Queue. |
-| `W7` | Datei- und Host-Provider | `037`, `038`, `025`, `026`, `027` | Execution-Basis, Root-/Endpoint-Allowlist und Identity-Vertrag | Kontrollierte Provider ohne Raw-Script- oder freie URL-Schnittstelle. |
-| `W8` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | ZIP-Metadaten zuerst, Mutationen und weitere Formate getrennt, XLSX zellorientiert. |
-| `W9` | Deterministische Pseudonymisierungsprimitive | `040`, `039`, `041`, `042`, `043` | Key-/Seed-, Kanonisierungs- und Datenschutzvertrag | Range-Primitive zuerst; darauf Lookup, Translation, Date Shift und Geo Jitter. |
-| `W10` | Kontrolliertes DDL-Klonen | `044` | Identifier-Modul vorhanden; unterstützte Objektmenge festgelegt | Zuerst nur geprüftes Script, später optional getrennte Ausführung. |
-| `W11` | KI-Capabilities | `028` | REST/Worker, Capability-Katalog, Credentials, Kosten- und Datengovernance | Embeddings und generative Aufrufe als getrennte Module. |
+| Welle | Status | Inhalt | Kandidaten | Eintrittsbedingung | Ergebnis |
+|---|---|---|---|---|---|
+| `V0` | `planned` | Offene Releasevalidierung | `001`, `002`, `003`, `006`, `008`, `012`, `024`, `029`, `030`, `031` | Geeignete physische Engines beziehungsweise Windows-Runner | Nachweisbare Erweiterung des Validierungsscopes; keine Codeänderung ohne Befund. |
+| `W1` | `completed` | Kleine unabhängige T-SQL-Kerne | `002`, `008`, `024` | Einzelvertrag und Freigabe | Drei implementierte, auf SQL Server 2025 Linux teilweise validierte Module. |
+| `W2a` | `researched` | Date/Time- und Bigint-Bit-Kompatibilität | `004`, `005`, `007` | Typfamilien, Paritätsumfang und Fehlervertrag besprochen und freigegeben | Kleine, versionsbezogene Objektfamilien mit kanonischen inline TVFs. |
+| `W2b` | `researched` | JSON-Kompatibilität und Aggregate | `009`, `013` | Aufrufoberfläche, variable Eingaben und T-SQL-/CLR-Provider entschieden | JSON-Pfad/Konstruktoren und Aggregate als getrennte Slices. |
+| `W3` | `researched` | String-Parser und Matching | `010`, `011`, `032` | Syntaxsubset, Limits und Providervergleich entschieden | Getrennte Regex-, Fuzzy- und Quote-/Escape-Module. |
+| `W4` | `researched` | Execution-Grundlagen | `016`, `017`, `019`, `023`, `022` | Persistente Namenskonvention nur soweit tatsächlich benötigt | Console, Error Envelope, Correlation, Capability Discovery und Work-Type-Katalog. |
+| `W5` | `researched` | Session- und Ausführungsprovider | `046`, `014` | `017`, `019`, `022`; Provider- und Security-Entscheidung | Synchrone zweite Session und darauf aufbauendes rollback-unabhängiges Logging. |
+| `W6` | `researched` | Queue, Retry, Lease und Cancellation | `015`, `020`, `021`, `018` | `017`, `019`, `022`; Tabellenkonvention entschieden | Begrenzte, beobachtbare und wiederanlaufbare Work Queue. |
+| `W7` | `researched` | Datei- und Host-Provider | `037`, `038`, `025`, `026`, `027` | Execution-Basis, Root-/Endpoint-Allowlist und Identity-Vertrag | Kontrollierte Provider ohne Raw-Script- oder freie URL-Schnittstelle. |
+| `W8` | `researched` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | ZIP-Metadaten zuerst, Mutationen und weitere Formate getrennt, XLSX zellorientiert. |
+| `W9` | `researched` | Deterministische Pseudonymisierungsprimitive | `040`, `039`, `041`, `042`, `043` | Key-/Seed-, Kanonisierungs- und Datenschutzvertrag | Range-Primitive zuerst; darauf Lookup, Translation, Date Shift und Geo Jitter. |
+| `W10` | `researched` | Kontrolliertes DDL-Klonen | `044` | Identifier-Modul vorhanden; unterstützte Objektmenge festgelegt | Zuerst nur geprüftes Script, später optional getrennte Ausführung. |
+| `W11` | `researched` | KI-Capabilities | `028` | REST/Worker, Capability-Katalog, Credentials, Kosten- und Datengovernance | Embeddings und generative Aufrufe als getrennte Module. |
 
 Die Wellen sind eine Dependency-Reihenfolge, keine pauschale
 Implementierungsfreigabe. Innerhalb einer Welle wird nur ein ausdrücklich
@@ -96,27 +97,27 @@ freigegebenes Arbeitspaket aktiv.
 | Kandidat | Modul | Vorhandene öffentliche Objekte | Restarbeit |
 |---|---|---|---|
 | `TC-2026-001` | `toolbelt.string.split-characters` | `toolbelt_string.TVF_SplitByCharacters` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; `TC-2026-032` bleibt getrennt. |
+| `TC-2026-002` | `toolbelt.datetime.calendar-difference` | `toolbelt_datetime.TVF_CalendarDifference` | Physische SQL-Server-2019-/2022- und Windows-Evidenz sowie offene Kollisionsfälle. |
 | `TC-2026-003` | `toolbelt.core.result-table` | `toolbelt_core.USP_PrepareResultTable` | Windows, natürlicher Savepoint-Fehlerfall und vergleichbare plattformübergreifende Performance-Evidenz. |
 | `TC-2026-006` | `toolbelt.core.generate-series` | `toolbelt_core.TVF_GenerateSeriesBigInt`, `toolbelt_core.TVF_GenerateSeriesInt` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
-| `TC-2026-012` | `toolbelt.conversion.base64` | `toolbelt_conversion.SVF_Base64Encode`, `toolbelt_conversion.SVF_Base64Decode` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
+| `TC-2026-008` | `toolbelt.string.directional-trim` | `toolbelt_string.TVF_TrimDirectionalNvarchar`, `toolbelt_string.TVF_TrimDirectionalVarchar` | Weitere Collations und physische SQL-Server-2019-/2022- und Windows-Evidenz. |
+| `TC-2026-012` | `toolbelt.conversion.base64` | `toolbelt_conversion.TVF_Base64Encode`, `toolbelt_conversion.TVF_Base64Decode`, `toolbelt_conversion.SVF_Base64Encode`, `toolbelt_conversion.SVF_Base64Decode` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
+| `TC-2026-024` | `toolbelt.conversion.uri-component` | `toolbelt_conversion.TVF_UriComponentEncode`, `toolbelt_conversion.TVF_UriComponentDecode`, `toolbelt_conversion.SVF_UriComponentEncode`, `toolbelt_conversion.SVF_UriComponentDecode` | LOB-/Performancegrenzen und physische SQL-Server-2019-/2022- und Windows-Evidenz. |
 | `TC-2026-029` | `toolbelt.metadata.identifier` | `toolbelt_metadata.TVF_ParseMultipartName`, `toolbelt_metadata.SVF_QuoteMultipartName` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
-| `TC-2026-030` | `toolbelt.validation.semantic-version` | `toolbelt_validation.TVF_ParseSemanticVersion`, `toolbelt_validation.SVF_CompareSemanticVersion`, `toolbelt_validation.SVF_SemanticVersionSortKey` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
-| `TC-2026-031` | `toolbelt.conversion.integer-base` | `toolbelt_conversion.SVF_IntegerToBase`, `toolbelt_conversion.SVF_TryBaseToInteger` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
+| `TC-2026-030` | `toolbelt.validation.semantic-version` | `toolbelt_validation.TVF_ParseSemanticVersion`, `toolbelt_validation.TVF_CompareSemanticVersion`, `toolbelt_validation.TVF_SemanticVersionSortKey`, `toolbelt_validation.SVF_CompareSemanticVersion`, `toolbelt_validation.SVF_SemanticVersionSortKey` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
+| `TC-2026-031` | `toolbelt.conversion.integer-base` | `toolbelt_conversion.TVF_IntegerToBase`, `toolbelt_conversion.TVF_TryBaseToInteger`, `toolbelt_conversion.SVF_IntegerToBase`, `toolbelt_conversion.SVF_TryBaseToInteger` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
 
 ### Portable Fach- und Compatibility-Module
 
 | Kandidat | Vorgeschlagener Modul-Slice | Vorgeschlagene öffentliche Objekte | Zentrale Vertragsentscheidung | Testschwerpunkt |
 |---|---|---|---|---|
-| `TC-2026-002` | `toolbelt.datetime.calendar-difference` | `toolbelt_datetime.TVF_CalendarDifference` | Monatsende, Schaltjahr, negative Intervalle, Komponentenreihenfolge und Rückgabeanker. | Randtage, umgekehrte Intervalle, Datentypgrenzen, Mengenaufruf und native Gegenproben. |
-| `TC-2026-004` | `toolbelt.datetime.truncate` | Typfamilie wie `SVF_TruncateDate`, `SVF_TruncateDateTime2`, `SVF_TruncateDateTimeOffset`; nur tatsächlich freigegebene Typen | Native Typ-/Scale-Parität versus bewusst einheitlicher Rückgabetyp; Datepart-Aliasse, `DATEFIRST` und Fehler. | Parität zu `DATETRUNC` auf 2022/2025, Compatibility Levels, Scale, Week/ISO Week, Inlining. |
-| `TC-2026-005` | `toolbelt.datetime.bucket` | Typfamilie wie `SVF_DateBucketDateTime2` und `SVF_DateBucketDateTimeOffset`; Scope erst nach Typentscheidung | Dateparts, Width, Origin, negativer Abstand, Typ-/Scale-Parität und Beziehung zu `TC-2026-004`. | Parität zu `DATE_BUCKET`, Overflow, negative Werte, SARGability und Inlining. |
-| `TC-2026-007` | `toolbelt.binary.bit-operations` | Integer-Slice: `SVF_LeftShiftBigInt`, `SVF_RightShiftBigInt`, `SVF_BitCountBigInt`, `SVF_GetBitBigInt`, `SVF_SetBitBigInt`; Binary-Slice separat | Unterstützte Eingabetypen, Vorzeichen, Bitnummerierung, Byte-Reihenfolge und getrennte Binary-Provider. | Native Parität auf 2022/2025, Grenzbits, Shiftweiten, Overflow und Performance. |
-| `TC-2026-008` | `toolbelt.string.directional-trim` | Entweder `SVF_TrimExtended` mit bewusst festem Rückgabetyp oder getrennte `Varchar`-/`Nvarchar`-Objekte | Rückgabetyp, Collation, Zeichensatz, leerer Zeichensatz, LOB-Grenze und Position. | Native Parität auf 2022/2025, CI/CS/BIN2/UTF-8, NULL, leere und große Werte. |
-| `TC-2026-009` | Slice A `toolbelt.json.path-exists`; Slice B `toolbelt.json.constructors` | A: `SVF_JsonPathExists`; B: je ein Object-/Array-Konstruktor, genaue Oberfläche erst nach Eingabevertrag | Konstruktoren benötigen eine feste Repräsentation variabler Elemente; Null-, Typ-, Escaping- und Fehlerparität getrennt von Path Exists. | Native Parität, ungültige Pfade, Schlüssel-Injection, Unicode, JSON-Fragmente und LOBs. |
+| `TC-2026-004` | `toolbelt.datetime.truncate` | Kanonische Typfamilie wie `TVF_TruncateDate`, `TVF_TruncateDateTime2`, `TVF_TruncateDateTimeOffset`; semantisch äquivalente SVFs nur als Convenience-Wrapper | Native Typ-/Scale-Parität versus bewusst einheitlicher Rückgabetyp; Datepart-Aliasse, `DATEFIRST` und Fehler. | Parität zu `DATETRUNC` auf 2022/2025, Compatibility Levels, Scale, Week/ISO Week, Inlining. |
+| `TC-2026-005` | `toolbelt.datetime.bucket` | Kanonische Typfamilie wie `TVF_DateBucketDateTime2` und `TVF_DateBucketDateTimeOffset`; semantisch äquivalente SVFs nur als Convenience-Wrapper | Dateparts, Width, Origin, negativer Abstand, Typ-/Scale-Parität und Beziehung zu `TC-2026-004`. | Parität zu `DATE_BUCKET`, Overflow, negative Werte, SARGability und Inlining. |
+| `TC-2026-007` | `toolbelt.binary.bit-operations` | Bigint-Slice: kanonische `TVF_*BigInt`-Familie für Shift, Count, Get und Set mit semantisch äquivalenten SVF-Wrappern; Binary-Slice separat | Unterstützte Eingabetypen, Vorzeichen, Bitnummerierung, Byte-Reihenfolge und getrennte Binary-Provider. | Native Parität auf 2022/2025, Grenzbits, Shiftweiten, Overflow und Performance. |
+| `TC-2026-009` | Slice A `toolbelt.json.path-exists`; Slice B `toolbelt.json.constructors` | A: kanonische `TVF_JsonPathExists` und optionaler SVF-Wrapper; B: je ein Object-/Array-Konstruktor, genaue Oberfläche erst nach Eingabevertrag | Konstruktoren benötigen eine feste Repräsentation variabler Elemente; Null-, Typ-, Escaping- und Fehlerparität getrennt von Path Exists. | Native Parität, ungültige Pfade, Schlüssel-Injection, Unicode, JSON-Fragmente und LOBs. |
 | `TC-2026-013` | `toolbelt.json.aggregate` mit zwei getrennten Aggregat-Slices | Array- und Object-Aggregat-Oberfläche; Objekttyp und Name bleiben bis zur Providerentscheidung offen | T-SQL-Resultset-Procedure versus CLR User-defined Aggregate; Order, Duplicate Keys, NULL und Return Type. | Native Parität auf 2025, Reihenfolge, Escaping, große Gruppen, Memory Grants und Providervergleich. |
 | `TC-2026-016` | `toolbelt.core.console-message` | `toolbelt_core.USP_WriteConsoleMessage` | `PRINT` versus `RAISERROR ... NOWAIT`, Chunkgrenzen, Zeilenumbrüche, Präfix und NULL. | Sofortigkeit im Client, Unicode-/Längengrenzen, keine Resultsets, Help-/Debug-Vertrag. |
 | `TC-2026-023` | `toolbelt.metadata.capability-catalog` | `toolbelt_metadata.VW_ModuleCapabilities`; optional `TVF_ModuleCapabilities` für Filter | Extended Properties versus persistente Registry, Drift-Semantik und Projektion aus `module.yaml`. | Lokales/zentrales Deployment, fehlende/alte Metadaten, Versionvergleich und Dependency-Preflight. |
-| `TC-2026-024` | `toolbelt.conversion.uri-component` | `toolbelt_conversion.SVF_UriComponentEncode`, `toolbelt_conversion.SVF_UriComponentDecode` | Ausschließlich URI-Komponenten in Version 1; Form-Encoding, vollständige URL und IRI bleiben getrennt. | RFC-Testvektoren, UTF-8, ungültige Prozentfolgen, Double Decoding, NULL und LOBs. |
 
 ### Parser, Regex und Matching
 
@@ -215,15 +216,17 @@ stillschweigend zu V1.
 
 ## Nächste konkrete Auswahl
 
-Die Hauptempfehlung für die nächste Vertragsbesprechung ist
-`TC-2026-024` (URI-Percent-Encoding/-Decoding): klar standardisierbarer,
-portabler Scope, keine persistente Infrastruktur und direkter Nutzen als
-Dependency des späteren REST-Providers.
+Die Hauptempfehlung für die nächste gemeinsame Vertragsbesprechung ist `W2a`
+mit `TC-2026-004`, `TC-2026-005` und `TC-2026-007`. Der kleinste belastbare
+Version-1-Scope trennt Date/Time-Typfamilien und den `bigint`-Bit-Slice von
+späteren `binary(n)`-/`varbinary(n)`-Providern. Für alle geeigneten Scalar-APIs
+bleibt die inline TVF der kanonische relationale Kern.
 
-Die wichtigste Alternative ist `TC-2026-002` (kalendarische Differenz). Sie
-bleibt vollständig T-SQL-nah, benötigt aber mehr fachliche Entscheidungen zu
-Monatsende, negativen Intervallen und Komponentenzerlegung.
+`TC-2026-009` und `TC-2026-013` bilden `W2b`. Variable Konstruktorargumente,
+SQL/JSON-Pfadumfang und echte Aggregate benötigen zuerst eine eigene
+Aufrufoberflächen- und Providerentscheidung; sie werden nicht stillschweigend
+in `W2a` gezogen.
 
-Parallel dazu kann `V0` die offenen physischen Releasevalidierungen der sieben
-implementierten Module bündeln, ohne den Beginn eines neuen Moduls zu
-blockieren.
+Diese Auswahl ist keine Implementierungsfreigabe. Parallel dazu kann `V0` die
+offenen physischen Releasevalidierungen der 10 implementierten Module bündeln,
+ohne den Beginn eines neuen freigegebenen Moduls zu blockieren.

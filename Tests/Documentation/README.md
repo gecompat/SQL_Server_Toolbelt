@@ -3,6 +3,16 @@
 `validate_documentation.py` hält Status, Modulmanifeste, gekoppelte
 Dokumentation und Change-Impact-Regeln synchron.
 
+Die Prüfung vergleicht zusätzlich:
+
+- die aktuelle Modulzahl in README, Changelog, Roadmap, Projektkontext,
+  Testübersicht und Backlog-Plan mit der Manifest-Registry;
+- die Modulverzeichnisse in Root-README und Testmatrix mit allen registrierten
+  `module.yaml`-Manifesten;
+- die als implementiert geführten Kandidaten mit der
+  Implementiert-Tabelle des kandidatenübergreifenden Plans;
+- Statusverweise der Research-Inbox mit der kanonischen Kandidatenliste.
+
 ## Inkrementelle Prüfung
 
 ```bash

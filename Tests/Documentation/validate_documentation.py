@@ -25,6 +25,16 @@ MODULES_README = REPOSITORY_ROOT / "Modules" / "README.md"
 BRAINSTORM = "Backlog/personal_Backlog_Bainstorm.md"
 GENERATED_BADGE = "MODULE_STATUS_BADGE"
 GENERATED_TABLE = "MODULE_STATUS_TABLE"
+CURRENT_STATUS_FILES = (
+    "README.md",
+    "CHANGELOG.md",
+    "Modules/README.md",
+    "Tests/README.md",
+    ".ai/PROJECT_CONTEXT.md",
+    ".ai/ROADMAP.md",
+    "Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md",
+    "Backlog/TOOLBELT_RESEARCH_PRIORITIES.md",
+)
 
 # Geschützte Inhalte dürfen nur nach ausdrücklicher Freigabe gemeinsam mit
 # diesen Baselines geändert werden.
@@ -579,7 +589,7 @@ def validate_protected_content() -> None:
         )
 
 
-def validate_status_truth() -> None:
+def validate_status_truth(modules: list[dict[str, object]]) -> None:
     stale_patterns = {
         "README.md": r"Runtime nicht ausgeführt",
         "SECURITY.md": r"noch nicht zur Runtime validiert",
@@ -590,6 +600,141 @@ def validate_status_truth() -> None:
     for relative, pattern in stale_patterns.items():
         if re.search(pattern, read(REPOSITORY_ROOT / relative), re.IGNORECASE):
             raise ValidationError(f"Veraltete Statusaussage in {relative}: {pattern}")
+
+    implemented = sum(
+        module["implementation_status"] == "implemented" for module in modules
+    )
+    expected_claim = f"{implemented} Module sind implementiert"
+    count_pattern = re.compile(
+        r"\b(\d+)\s+Module\s+sind\s+implementiert\b",
+        re.MULTILINE,
+    )
+    for relative in CURRENT_STATUS_FILES:
+        text = read(REPOSITORY_ROOT / relative)
+        claims = [int(value) for value in count_pattern.findall(text)]
+        if not claims:
+            raise ValidationError(
+                f"Aktuelle Modulzahl fehlt in {relative}: {expected_claim}"
+            )
+        mismatches = sorted({value for value in claims if value != implemented})
+        if mismatches:
+            raise ValidationError(
+                f"Veraltete Modulzahl in {relative}: {mismatches}; "
+                f"Manifest-Realität: {implemented}"
+            )
+
+
+def candidate_statuses() -> dict[str, str]:
+    text = read(REPOSITORY_ROOT / "Backlog" / "TOOLBELT_CANDIDATES.md")
+    statuses: dict[str, str] = {}
+    for section in re.split(r"^## ", text, flags=re.MULTILINE)[1:]:
+        heading = section.splitlines()[0]
+        candidate_match = re.match(r"(TC-\d{4}-\d{3}):", heading)
+        if candidate_match is None:
+            continue
+        status_match = re.search(
+            r"^\| \*\*Status\*\* \| (.*?) \|$",
+            section,
+            re.MULTILINE,
+        )
+        if status_match is None:
+            raise ValidationError(
+                f"Kandidatenstatus fehlt: {candidate_match.group(1)}"
+            )
+        statuses[candidate_match.group(1)] = status_match.group(1).strip()
+    if not statuses:
+        raise ValidationError("Keine formalen Toolbelt-Kandidaten gefunden.")
+    return statuses
+
+
+def validate_inventory_truth(modules: list[dict[str, object]]) -> None:
+    module_ids = {str(module["id"]) for module in modules}
+
+    readme_ids = set(
+        re.findall(
+            r"\]\(\./Modules/(toolbelt\.[^/]+)/README\.md\)",
+            read(README),
+        )
+    )
+    if readme_ids != module_ids:
+        raise ValidationError(
+            "README-Modulinventar weicht von der Manifest-Registry ab: "
+            f"fehlend={sorted(module_ids - readme_ids)}, "
+            f"zusätzlich={sorted(readme_ids - module_ids)}"
+        )
+
+    tests_text = read(REPOSITORY_ROOT / "Tests" / "README.md")
+    tests_section = tests_text.split("## Modulspezifische Testmatrizen", 1)[-1]
+    tests_section = tests_section.split("\n## ", 1)[0]
+    test_ids = set(
+        re.findall(r"^\| `(toolbelt\.[^`]+)` \|", tests_section, re.MULTILINE)
+    )
+    if test_ids != module_ids:
+        raise ValidationError(
+            "Testmatrix-Inventar weicht von der Manifest-Registry ab: "
+            f"fehlend={sorted(module_ids - test_ids)}, "
+            f"zusätzlich={sorted(test_ids - module_ids)}"
+        )
+
+    statuses = candidate_statuses()
+    implemented_candidates = {
+        candidate
+        for candidate, status in statuses.items()
+        if status.startswith("`implemented`")
+    }
+    plan_text = read(
+        REPOSITORY_ROOT
+        / "Backlog"
+        / "TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md"
+    )
+    plan_section = plan_text.split("### Bereits implementierte Module", 1)[-1]
+    plan_section = plan_section.split("\n### ", 1)[0]
+    planned_candidates = set(
+        re.findall(r"^\| `(TC-\d{4}-\d{3})` \|", plan_section, re.MULTILINE)
+    )
+    if planned_candidates != implemented_candidates:
+        raise ValidationError(
+            "Implementiertes Kandidateninventar im Plan ist veraltet: "
+            f"fehlend={sorted(implemented_candidates - planned_candidates)}, "
+            f"zusätzlich={sorted(planned_candidates - implemented_candidates)}"
+        )
+
+    proposed_section = plan_text.split(
+        "### Portable Fach- und Compatibility-Module", 1
+    )[-1]
+    proposed_section = proposed_section.split("\n### ", 1)[0]
+    proposed_candidates = set(
+        re.findall(r"^\| `(TC-\d{4}-\d{3})` \|", proposed_section, re.MULTILINE)
+    )
+    duplicated_candidates = proposed_candidates & implemented_candidates
+    if duplicated_candidates:
+        raise ValidationError(
+            "Implementierte Kandidaten stehen weiterhin im vorgeschlagenen "
+            f"Compatibility-Inventar: {sorted(duplicated_candidates)}"
+        )
+
+    inbox_text = read(
+        REPOSITORY_ROOT / "Backlog" / "TOOLBELT_RESEARCH_INBOX.md"
+    )
+    inbox_section = inbox_text.split(
+        "## Formalisierte und freigegebene Einträge", 1
+    )[-1]
+    inbox_section = inbox_section.split("\n## ", 1)[0]
+    for candidate, status in re.findall(
+        r"^\| `RI-\d{4}-\d{3}` \| `(TC-\d{4}-\d{3})`.*? \| (.*?) \|$",
+        inbox_section,
+        re.MULTILINE,
+    ):
+        expected = statuses.get(candidate)
+        if expected is None:
+            raise ValidationError(
+                f"Research-Inbox verweist auf unbekannten Kandidaten: {candidate}"
+            )
+        if status.strip() != expected:
+            raise ValidationError(
+                f"Research-Inbox-Status ist veraltet: {candidate}: "
+                f"{status.strip()} statt {expected}"
+            )
 
 
 def validate_runtime_workflow_scope() -> None:
@@ -717,6 +862,24 @@ def validate_integer_base_runtime_workflow_scope() -> None:
             raise ValidationError(
                 "Integer-Base-Runtime wird durch reine Dokumentation "
                 f"ausgelöst: {marker}"
+            )
+
+
+def validate_w1_runtime_workflow_scope() -> None:
+    workflow = read(
+        REPOSITORY_ROOT / ".github" / "workflows" / "w1-portable-runtime.yml"
+    )
+    for marker in (
+        '"Documentation/Architecture/**"',
+        '"Documentation/Standards/**"',
+        '"Modules/toolbelt.datetime.calendar-difference/**"',
+        '"Modules/toolbelt.string.directional-trim/**"',
+        '"Modules/toolbelt.conversion.uri-component/**"',
+    ):
+        if marker in workflow:
+            raise ValidationError(
+                "W1-Runtime wird durch reine Dokumentation ausgelöst: "
+                f"{marker}"
             )
 
 
@@ -919,9 +1082,10 @@ def main() -> int:
 
     # Kleine unveränderliche Basisschutzprüfungen laufen immer.
     validate_protected_content()
-    validate_status_truth()
+    validate_status_truth(modules)
     validate_manifests(modules)
     validate_derived_backlog_status(modules)
+    validate_inventory_truth(modules)
 
     if "generated_status" in checks:
         validate_generated_status(modules, arguments.write)
@@ -959,6 +1123,8 @@ def main() -> int:
         validate_integer_base_runtime_workflow_scope()
     if "integer_base_static" in checks:
         run_integer_base_static()
+    if "w1_runtime_workflow_scope" in checks:
+        validate_w1_runtime_workflow_scope()
 
     print("Dokumentations- und Konsistenzprüfung: erfolgreich")
     print(f"Modulmanifeste: {len(modules)}")

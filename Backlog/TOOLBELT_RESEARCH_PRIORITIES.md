@@ -6,12 +6,12 @@ Stand: 2026-07-30
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** ResultTable, Base64, Generate-Series, Identifier, Split Version 1, Semantic Versioning und Integer Base sind implementiert und `partially validated`. |
+| Aktueller Projektstand | **Dokumentiert:** 10 Module sind implementiert und `partially validated`: ResultTable, Base64, Generate-Series, Identifier, Split Version 1, Semantic Versioning, Integer Base, Calendar Difference, Directional TRIM und URI Component. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
-| Implementierungsfreigabe | **Erteilt am 2026-07-30:** `TC-2026-029`, `TC-2026-001`, `TC-2026-030` und `TC-2026-031` sind abgeschlossen. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
+| Implementierungsfreigabe | **Abgeschlossen:** `TC-2026-029`, `TC-2026-001`, `TC-2026-030`, `TC-2026-031` sowie W1 mit `TC-2026-002`, `TC-2026-008` und `TC-2026-024` wurden nach ausdrücklicher Freigabe implementiert. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
 
-Die Liste soll die 162 Research-Ideen nicht endgültig bewerten. Sie benennt einen kleinen Arbeitsvorrat, auf den sich die nächste Vertiefung konzentrieren kann. Neue Erkenntnisse, Abhängigkeiten oder Benutzerpräferenzen dürfen die Reihenfolge jederzeit ändern.
+Die Liste soll die 168 Research-Ideen nicht endgültig bewerten. Sie benennt einen kleinen Arbeitsvorrat, auf den sich die nächste Vertiefung konzentrieren kann. Neue Erkenntnisse, Abhängigkeiten oder Benutzerpräferenzen dürfen die Reihenfolge jederzeit ändern.
 
 ## Bewertungsmaßstab
 
@@ -34,27 +34,31 @@ Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
 
 | Reihenfolge | Kandidat | Komplexität | Begründung |
 |---:|---|---:|---|
-| 1 | `TC-2026-003` – ResultTable-Routing | `L` | Bereits implementiertes Kernmodul; die offene Pflichtvalidierung ist das Gate für weitere Module und deshalb wichtiger als ein neuer Kandidat. |
+| 1 | `TC-2026-003` – ResultTable-Routing | `L` | Implementiertes Kernmodul; offene Windows-, Recovery- und Performancefälle bleiben eine getrennte Releasevalidierung und blockieren fachlich unabhängige Module nicht. |
 | 2 | `TC-2026-012` – Base64/Base64URL | `M` | Implementiert und auf SQL Server 2025 Linux teilweise validiert; physische 2019-/2022- und Windows-Läufe bleiben Releaseaufgabe. |
 | 3 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
 | 4 | `TC-2026-029` – Identifier- und Multipart-Name-Toolkit | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
 | 5 | `TC-2026-001` – Split mit mehreren einzelnen Trennzeichen | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert; breitere Quote-/Escape-Stufe bleibt getrennt. |
 | 6 | `TC-2026-030` – Semantic-Version Parser/Comparator | `S–M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
+| 7 | `TC-2026-031` – frei definierbare Zahlensysteme | `S–M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
+| 8 | `TC-2026-002` – kalendarische Differenz | `M` | Als W1-Modul implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
+| 9 | `TC-2026-008` – Directional TRIM | `S–M` | Als W1-Modul mit getrennten `varchar`-/`nvarchar`-TVFs implementiert und teilweise validiert. |
+| 10 | `TC-2026-024` – URI-Percent-Encoding | `M` | Als W1-Modul mit kanonischen inline TVFs und optionalen SVF-Wrappern implementiert und teilweise validiert. |
 
 **Hauptempfehlung:** Die offenen Releasevalidierungen getrennt weiterführen.
-Die vier gemeinsam freigegebenen F1-Verträge sind umgesetzt und teilweise
-validiert.
+Die beiden freigegebenen Entwicklungsgruppen bis einschließlich W1 sind
+umgesetzt und teilweise validiert.
 
-## F1 – Kleiner nutzerorientierter Konzentrationskorb
+## F1 – Abgeschlossene Sammelfreigaben
 
-Nach Abschluss von `TC-2026-006` wurden die folgenden vier Kandidaten gemeinsam
-besprochen und ausdrücklich zur aufeinanderfolgenden Implementierung freigegeben.
+Die freigegebenen Kandidaten wurden in zwei Gruppen umgesetzt:
 
-| Reihenfolge | Kandidat | Komplexität | Status | Wichtigste Scope-Grenze |
-|---:|---|---:|---|---|
-| 1 | `TC-2026-031` – frei definierbare Zahlensysteme, aus `RI-2026-055` | `S–M` | `implemented`; Runtime `partially validated` | Ganzzahlen und explizites Alphabet; keine stillschweigende Alphabetnormalisierung. |
+| Gruppe | Kandidaten | Status | Wichtigste Scope-Grenze |
+|---|---|---|---|
+| Sammelfreigabe 2026-07-30 | `TC-2026-029`, `TC-2026-001`, `TC-2026-030`, `TC-2026-031` | `completed`; Runtime `partially validated` | Identifier, Split Version 1, Semantic Versioning und Integer Base bleiben getrennte Module. |
+| Portable W1 | `TC-2026-002`, `TC-2026-008`, `TC-2026-024` | `completed`; Runtime `partially validated` | Calendar Difference, Directional TRIM und URI Component besitzen voneinander unabhängige Verträge. |
 
-Die Sammelfreigabe vom 2026-07-30 ist damit vollständig abgearbeitet.
+Beide Freigaben vom 2026-07-30 sind vollständig abgearbeitet.
 
 ## F1-Q – Qualitäts-Enabler parallel, aber nicht alle zugleich
 
@@ -64,19 +68,25 @@ Die Sammelfreigabe vom 2026-07-30 ist damit vollständig abgearbeitet.
 | 2 | `RI-2026-137` – Golden-/Snapshot-Resultset-Vergleich | `M` | Wiederverwendbarer Testbaustein für viele datenorientierte Module. | Kanonisierung, Reihenfolge, Collation und tolerante Felder explizit festlegen. |
 | 3 | `RI-2026-142` – Migration Idempotency Verifier | `M–L` | Schützt Deploy, Upgrade und Uninstall systematisch gegen Drift. | Benötigt synthetische Zustände und einen stabilen Lifecycle-Vertrag. |
 
-Empfehlung: höchstens einen Qualitäts-Enabler gleichzeitig mit einem nutzerorientierten Modul vertiefen. Zuerst `RI-2026-138`, sobald die ResultTable-Pflichtmatrix stabil ist.
+Empfehlung: höchstens einen Qualitäts-Enabler gleichzeitig mit einem
+nutzerorientierten Modul vertiefen. `RI-2026-138` wird erst formalisiert, wenn
+mehrere Module einen nachweisbar gemeinsamen, stabilen Generatorvertrag
+benötigen.
 
-## F2 – Danach erneut auswählen
+## F2 – Nächster Vertragsfokus
 
 | Kandidat | Komplexität | Einordnung |
 |---|---:|---|
-| `RI-2026-079` – Date Spine und Kalenderdimension | `M` | Hoher Nutzen, aber sinnvoll nach oder gemeinsam mit `TC-2026-006`. |
+| `TC-2026-004` – Date/Time-Truncation | `M` | W2a; Typfamilien, Scale, Datepart-Aliasse, `DATEFIRST` und Fehlervertrag gemeinsam festlegen. |
+| `TC-2026-005` – Date/Time-Bucketing | `M` | W2a nach abgestimmtem Date/Time-Typmodell; Width, Origin und negative Abstände explizit machen. |
+| `TC-2026-007` – Bit-Manipulation | `M` | W2a zunächst als `bigint`-Slice; `binary(n)`/`varbinary(n)` bleiben ein getrennter Provider-Slice. |
+| `RI-2026-079` – Date Spine und Kalenderdimension | `M` | Hoher Nutzen; die mögliche Generate-Series-Grundlage `TC-2026-006` ist bereits verfügbar. |
 | `RI-2026-041` – JSON Pointer | `M` | Kleiner standardisierter Kern für spätere JSON-Patch-Funktionen. |
-| `TC-2026-009` – JSON-Konstruktion und Pfadprüfung | `M` | Reale Versionslücke und gute Anschlussfähigkeit an weitere JSON-Utilities. |
+| `TC-2026-009` – JSON-Konstruktion und Pfadprüfung | `M–L` | W2b; variable Konstruktorargumente und der unterstützte SQL/JSON-Pfadumfang benötigen eine eigene Aufrufoberflächenentscheidung. |
+| `TC-2026-013` – JSON-Aggregate | `L` | W2b; Aggregatoberfläche sowie T-SQL-/CLR-Provider erst nach dem gemeinsamen JSON-Kern entscheiden. |
 | `RI-2026-076` – Safe Cast mit Fehlerdetails | `M` | Nützlich für Import und Validierung; darf nicht nur `TRY_CONVERT` umbenennen. |
 | `RI-2026-097` – deterministisches Hash-Sampling | `S–M` | Einfacher, reproduzierbarer Baustein für Tests und Datenreduktion. |
 | `RI-2026-086` – `width_bucket` | `S–M` | Begrenzter mathematischer Vertrag und nützlich für Verteilungen. |
-| `TC-2026-024` – URI-Percent-Encoding | `M` | Standardisiert und breit interoperabel, aber weniger SQL-zentral als die F1-Kandidaten. |
 | `RI-2026-109` – RFC-4180-CSV Parser/Writer | `M–L` | Sehr praxisnah, jedoch wegen Streaming, Encoding und Dialekten deutlich breiter. |
 
 ## F3 – Hoher möglicher Nutzen, vorerst wegen Komplexität zurückstellen
@@ -104,14 +114,14 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 
 ## Nächste Ausführung
 
-`AP-2026-010` bis `AP-2026-013` beziehungsweise `TC-2026-029`,
-`TC-2026-001`, `TC-2026-030` und `TC-2026-031` sind abgeschlossen. Ein
-nächster Implementierungskandidat benötigt wieder Vertragsbesprechung und
-Freigabe.
+`AP-2026-010` bis `AP-2026-015` beziehungsweise die sieben darin
+freigegebenen Kandidaten sind abgeschlossen. Ein nächster
+Implementierungskandidat benötigt wieder Vertragsbesprechung und Freigabe.
 `TC-2026-032` bleibt als getrennte Split-Ausbaustufe im Research-Status.
 
 Der [kandidatenübergreifende Implementierungsplan](./TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md)
-empfiehlt für die nächste Vertragsbesprechung `TC-2026-024`
-(URI-Percent-Encoding/-Decoding); `TC-2026-002` (kalendarische Differenz) ist
-die wichtigste T-SQL-nahe Alternative. Diese Auswahlhilfe ist keine
+empfiehlt für die nächste gemeinsame Vertragsbesprechung W2a mit
+`TC-2026-004`, `TC-2026-005` und `TC-2026-007`. `TC-2026-009` und
+`TC-2026-013` bleiben wegen ihrer offenen JSON-Aufrufoberfläche und
+Providerentscheidung in W2b. Diese Auswahlhilfe ist keine
 Implementierungsfreigabe.

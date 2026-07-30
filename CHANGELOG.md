@@ -113,6 +113,20 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Korrigiert
 
+- Modulzahl, Modulübersichten, Testinventar, Roadmap, Backlog, Research-Fokus
+  und den kandidatenübergreifenden Implementierungsplan auf die tatsächlich
+  vorhandenen 10 Module synchronisiert.
+- W1-Evidenz in Manifesten und gekoppelter Dokumentation auf den finalen
+  erfolgreichen Runtime-Lauf `30553118399` sowie den finalen
+  Dokumentationslauf `30553118014` vereinheitlicht.
+- Abgeschlossene Arbeitspakete aus dem aktiven Backlogabschnitt entfernt und
+  den noch aktiven ResultTable-Validierungsscope getrennt ausgewiesen.
+- Nächste Vertragsauswahl nach abgeschlossener W1 auf `W2a` mit
+  `TC-2026-004`, `TC-2026-005` und `TC-2026-007` aktualisiert; offene
+  JSON-Oberflächen bleiben getrennt in `W2b`.
+- Dokumentationsvalidator um manifestbasierte Prüfungen für Modulzahl,
+  README-/Testinventar, implementierte Kandidaten und Research-Inbox-Status
+  erweitert; W1-Runtime-Trigger auf Runtime- und Manifestpfade begrenzt.
 - Kandidatenstatus und nächste Schritte von `TC-2026-003`, `TC-2026-006`, `TC-2026-012` und `TC-2026-029` an den nachweisbaren Implementierungs- und Validierungsstand angeglichen.
 - Custom-Agent-Profil auf gültige `.agent.md`-Struktur mit YAML-Frontmatter umgestellt.
 - Generische Objektvorlagen durch objekttypspezifische USP-, TVF-, SVF- und View-Vorlagen ersetzt.
@@ -132,4 +146,4 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-Zehn Module sind implementiert und `partially validated`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und 2025 erfolgreich; Base64, Generate-Series, Identifier, Split-Characters, Semantic-Version, Integer-Base, Calendar-Difference, Directional-TRIM und URI-Component sind auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich. Windows und die jeweils offenen Releasefälle bleiben `not executed`.
+10 Module sind implementiert und `partially validated`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und 2025 erfolgreich; Base64, Generate-Series, Identifier, Split-Characters, Semantic-Version, Integer-Base, Calendar-Difference, Directional-TRIM und URI-Component sind auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich. Windows und die jeweils offenen Releasefälle bleiben `not executed`.
