@@ -24,7 +24,10 @@ EXEC toolbelt_core.USP_WriteConsoleMessage
       @Message = @Immediate
     , @Immediate = 1;
 
+DECLARE @Lines nvarchar(max) =
+    N'TBX-LINE-A' + NCHAR(13) + NCHAR(10) + N'TBX-LINE-B';
+
 EXEC toolbelt_core.USP_WriteConsoleMessage
-      @Message = N'TBX-LINE-A' + NCHAR(13) + NCHAR(10) + N'TBX-LINE-B'
+      @Message = @Lines
     , @Immediate = 1;
 GO
