@@ -11,16 +11,14 @@ explizit.
 
 - Version: `1.0.0`
 - Implementation: `implemented`
-- Validation: `not executed`
+- Validation: `partially validated`
 - Release: `unreleased`
 
-Die statische und dokumentarische Prüfung ist Teil dieses Slices. Eine
-erfolgreiche Runtime-Ausführung wird erst nach einem tatsächlich grünen
-Workflow als Evidenz ergänzt.
-
-Aktuelle Evidenz:
-[Split-Characters Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/split-characters-runtime.yml)
-ist vorhanden, aber noch `not executed`.
+Der
+[Split-Characters Runtime Run 30516116708](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30516116708)
+war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
+`not executed`.
 
 ## Öffentliche Oberfläche
 

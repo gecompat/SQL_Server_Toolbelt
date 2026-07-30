@@ -54,15 +54,15 @@ genau ein Paket auf `active` gesetzt.
 | Scope | `toolbelt.string.split-characters` Version `1.0.0`; `TVF_SplitByCharacters`; stabile Ordinals, definierte leere Tokens, einzelne Separatorzeichen, binärer Collation- und LOB-Vertrag; keine mehrzeichigen Separatoren, Quote- oder Escape-Semantik. |
 | Dependencies | `toolbelt.core.generate-series` Version `1.0.0`; vollständige Vertragsbesprechung und Sammelfreigabe vom 2026-07-30. |
 | Priorität | `P1` |
-| Status | `active` |
+| Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Literalvertrag bleibt von Regex getrennt; Token und Ordinal sind deterministisch; `NULL`, NUL, leerer Input, aufeinanderfolgende Separatoren, Separator am Rand, Collations und Größenklassen sind dokumentiert und getestet; vollständiger Lifecycle und gekoppelte Dokumentation. |
-| Tests | Statischer Vertrag und Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170; native SQL-Server-2025-Regexfunktion nur als enges Testoracle; spätere physische Releasematrix. |
-| Blocker | Keine für Version 1. |
-| Evidenz | Benutzerbesprechung und ausdrückliche Freigabe vom 2026-07-30; formaler Kandidat `TC-2026-001`; kanonische Artefakte unter `Modules/toolbelt.string.split-characters/`. |
-| Nächster Schritt | Lokale Prüfungen ausführen, PR-Runtime validieren und Status belastbar anheben. `TC-2026-032` bleibt Research ohne Implementierungsfreigabe. |
+| Tests | Statischer Vertrag und SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben `not executed`. |
+| Blocker | Kein Merge-Blocker. Für `validated` fehlen physische SQL-Server-2019-/2022- und Windows-Evidenz. |
+| Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-001`; kanonische Artefakte unter `Modules/toolbelt.string.split-characters/`; [Split-Characters Runtime Run 30516116708](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30516116708) erfolgreich. |
+| Nächster Schritt | Physische 2019-/2022- und Windows-Läufe gezielt vor Release ausführen. `TC-2026-032` bleibt Research ohne Implementierungsfreigabe. |
 
 ### AP-2026-010: Identifier- und Multipart-Name-Toolkit implementieren
 

@@ -22,10 +22,10 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Plattformgrenzen** | Windows und Linux voraussichtlich gleich. Azure nicht geprüft. |
 | **Dependencies** | `toolbelt.core.generate-series` Version `1.0.0` in derselben Datenbank. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; TC-2026-010 ist breiter und ersetzt diesen Literalvertrag nicht automatisch. |
-| **Status** | `implemented`; Runtime `not executed` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/string-split-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-split-to-table-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | `AP-2026-011` mit statischen, SQL-Server-2025-Linux- und Lifecycle-Prüfungen abschließen. Version 1 bleibt auf mehrere einzelne Trennzeichen ohne Quote-/Escape-Semantik begrenzt; die breitere Ausbaustufe ist separat als `TC-2026-032` erfasst. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung ausführen. Version 1 bleibt auf mehrere einzelne Trennzeichen ohne Quote-/Escape-Semantik begrenzt; die breitere Ausbaustufe ist separat als `TC-2026-032` erfasst. |
 
 ## TC-2026-002: Kalendarische Differenz in vollständigen Einheiten
 

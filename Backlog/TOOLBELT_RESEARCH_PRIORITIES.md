@@ -6,9 +6,9 @@ Stand: 2026-07-29
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** ResultTable, Base64, Generate-Series und Identifier sind implementiert und `partially validated`. Split Version 1 ist implementiert; Runtime ist noch `not executed`. |
+| Aktueller Projektstand | **Dokumentiert:** ResultTable, Base64, Generate-Series, Identifier und Split Version 1 sind implementiert und `partially validated`. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
-| Implementierungsfreigabe | **Erteilt am 2026-07-30:** `TC-2026-029` ist abgeschlossen, `TC-2026-001` aktiv; `TC-2026-030` und `TC-2026-031` sind danach `ready for development`. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
+| Implementierungsfreigabe | **Erteilt am 2026-07-30:** `TC-2026-029` und `TC-2026-001` sind abgeschlossen; `TC-2026-030` und `TC-2026-031` sind danach `ready for development`. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
 
 Die Liste soll die 162 Research-Ideen nicht endgültig bewerten. Sie benennt einen kleinen Arbeitsvorrat, auf den sich die nächste Vertiefung konzentrieren kann. Neue Erkenntnisse, Abhängigkeiten oder Benutzerpräferenzen dürfen die Reihenfolge jederzeit ändern.
@@ -38,11 +38,10 @@ Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
 | 2 | `TC-2026-012` – Base64/Base64URL | `M` | Implementiert und auf SQL Server 2025 Linux teilweise validiert; physische 2019-/2022- und Windows-Läufe bleiben Releaseaufgabe. |
 | 3 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
 | 4 | `TC-2026-029` – Identifier- und Multipart-Name-Toolkit | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
-| 5 | `TC-2026-001` – Split mit mehreren einzelnen Trennzeichen | `M` | Implementiert; Runtime noch `not executed`; breitere Quote-/Escape-Stufe bleibt getrennt. |
+| 5 | `TC-2026-001` – Split mit mehreren einzelnen Trennzeichen | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert; breitere Quote-/Escape-Stufe bleibt getrennt. |
 
 **Hauptempfehlung:** Die offenen Releasevalidierungen getrennt weiterführen.
-Split Version 1 wird aktuell validiert; die zwei danach verbleibenden
-F1-Verträge werden sequenziell umgesetzt.
+Die zwei verbleibenden F1-Verträge werden sequenziell umgesetzt.
 
 ## F1 – Kleiner nutzerorientierter Konzentrationskorb
 
@@ -55,8 +54,8 @@ besprochen und ausdrücklich zur aufeinanderfolgenden Implementierung freigegebe
 | 2 | `TC-2026-031` – frei definierbare Zahlensysteme, aus `RI-2026-055` | `S–M` | `ready for development` | Ganzzahlen und explizites Alphabet; keine stillschweigende Alphabetnormalisierung. |
 
 Die Reihenfolge ist durch die Sammelfreigabe vom 2026-07-30 festgelegt:
-Nach dem aktiven Split-Slice folgen Semantic Versioning und anschließend frei
-definierbare Zahlensysteme.
+Es folgen Semantic Versioning und anschließend frei definierbare
+Zahlensysteme.
 
 ## F1-Q – Qualitäts-Enabler parallel, aber nicht alle zugleich
 
@@ -106,8 +105,8 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 
 ## Nächste Ausführung
 
-`AP-2026-010` / `TC-2026-029` ist abgeschlossen. `AP-2026-011` /
-`TC-2026-001` ist aktiv. Danach folgen ohne weitere Zwischenfreigabe
+`AP-2026-010` / `TC-2026-029` und `AP-2026-011` / `TC-2026-001`
+sind abgeschlossen. Danach folgen ohne weitere Zwischenfreigabe
 `AP-2026-012` und `AP-2026-013`: Semantic Versioning und frei definierbare
 Zahlensysteme.
 `TC-2026-032` bleibt als getrennte Split-Ausbaustufe im Research-Status.

@@ -17,12 +17,10 @@
 | Dependency | Marker und Objekt erforderlich; fehlende Dependency blockiert | Test vorhanden |
 | Deployment | lokal, zentral, Wiederholung, Drift, Kollision | Test vorhanden |
 | Uninstall | Objektmarker, Source-Hash, externe Dependency, Schemaeigentum | Test vorhanden |
-| Plattform | SQL Server 2025 Linux, Compatibility 150/160/170 | `not executed` |
+| Plattform | SQL Server 2025 Linux, Compatibility 150/160/170 | erfolgreich |
 | Release-Matrix | physische SQL Server 2019/2022 und Windows | `not executed` |
 
-Eine vorhandene Testdatei ist keine Ausführungsevidenz. Der Status wird erst
-nach einem erfolgreichen Workflow angehoben.
-
-Aktuelle Evidenz:
-[Split-Characters Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/split-characters-runtime.yml)
-ist noch `not executed`.
+Der
+[Split-Characters Runtime Run 30516116708](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30516116708)
+war für SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich. Die Release-Matrix bleibt offen.

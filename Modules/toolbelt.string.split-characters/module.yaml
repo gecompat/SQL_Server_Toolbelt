@@ -2,7 +2,7 @@ module_id: "toolbelt.string.split-characters"
 module_name: "Literal Multi-Separator Split"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Teilt Unicode-Text portabel an einer Menge einzelner literal interpretierter Separatorzeichen."
 
@@ -18,7 +18,7 @@ compatibility_levels:
 
 platforms:
   windows: "not executed"
-  linux: "not executed"
+  linux: "partially validated"
 
 providers:
   - id: tsql-inline
@@ -104,3 +104,7 @@ validation_evidence:
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/split-characters-runtime.yml"
     scope: "Workflow und Contract-Tests vorhanden; Runtime noch nicht ausgeführt"
     result: "not executed"
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30516116708"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; Literal-, Leer-Token-, NULL-/NUL-, Collation-, LOB-, CROSS-APPLY-, Regex-Oracle-, Dependency-, lokale, zentrale und Lifecycle-Contracts"
+    result: "success"
