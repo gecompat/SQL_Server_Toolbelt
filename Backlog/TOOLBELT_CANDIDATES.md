@@ -792,7 +792,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `researched` |
 | **Primärquellen** | [Research-Inbox `RI-2026-113`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | V1A-Runtime-Evidenz erzeugen und parallel die CLR-Folgewelle `AP-2026-021` als separaten Providervertrag mit Security-/Lifecycle-Gates ausarbeiten. |
+| **Nächster Schritt** | V1A-Runtime-Evidenz erzeugen. Der CLR-Providervertrag `AP-2026-021` ist abgeschlossen; vor einem C#-Implementierungs-Slice sind der Build-/Deployment-Spike und eine separate Implementierungsfreigabe erforderlich. |
 
 ## TC-2026-035: Gzip-Stream- und Datei-Adapter
 

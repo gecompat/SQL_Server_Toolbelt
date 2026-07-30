@@ -69,6 +69,7 @@ sources_of_truth:
   console_message_module: Modules/toolbelt.core.console-message/module.yaml
   capability_catalog_module: Modules/toolbelt.metadata.capability-catalog/module.yaml
   zip_archive_module_design: Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md
+  zip_clr_provider_design: Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md
   zip_memory_runtime_workflow: .github/workflows/zip-memory-runtime.yml
   zip_memory_module: Modules/toolbelt.archive.zip-memory/module.yaml
   svf_inline_tvf_policy: Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
