@@ -20,9 +20,9 @@ Verwende diese Vorlage für alle drei Kandidatenlisten.
 | **Plattformgrenzen** | {{Windows / Linux / Azure; ungeprüft ausdrücklich kennzeichnen}} |
 | **Dependencies** | {{Module oder externe Voraussetzungen}} |
 | **Duplikatprüfung** | {{Geprüfte Listen und gegebenenfalls Ziel-Repository}} |
-| **Status** | `proposed` |
+| **Status** | `proposed` / `researched` / `ready for development` / `implemented` / `rejected` |
 | **Primärquellen** | {{Belastbare Links oder Referenzen}} |
 | **Prüfdatum** | {{YYYY-MM-DD}} |
 | **Nächster Schritt** | {{Konkret ausführbare nächste Aktion}} |
 
-Ein Kandidat ist keine Implementierungszusage. Nicht belegte Aussagen werden als Vermutung oder offen gekennzeichnet.
+`ready for development` darf nur nach dokumentierter Funktionsbesprechung und ausdrücklicher Benutzerfreigabe gesetzt werden. Der Status bedeutet, dass die Implementierung beginnen darf, nicht dass bereits Code oder Runtime-Evidenz vorhanden ist. Nicht belegte Aussagen werden als Vermutung oder offen gekennzeichnet.
