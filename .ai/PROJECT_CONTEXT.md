@@ -42,6 +42,16 @@ Windows-Läufe bleiben `not executed`.
 SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und 170
 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben `not executed`.
 
+`toolbelt.datetime.calendar-difference` zerlegt `date`-Intervalle nach einer
+dokumentierten Anniversary-Regel. `toolbelt.string.directional-trim` stellt
+typstabile `varchar`-/`nvarchar`-TVFs für `LEADING`, `TRAILING` und `BOTH`
+bereit. `toolbelt.conversion.uri-component` codiert und decodiert
+RFC-3986-URI-Komponenten mit expliziter UTF-8-Sequenzvalidierung. Die drei
+Module sind auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und
+170 einschließlich Wiederholungsdeployment, zentraler Nutzung und Uninstall
+erfolgreich. Physische 2019-/2022- und Windows-Läufe bleiben `not executed`;
+die Module sind deshalb `partially validated`.
+
 ## Projektzweck
 
 SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL Server Database Engine ab Version 2019. Sie stellt Funktionen bereit, die SQL Server nicht nativ besitzt, erst in späteren Versionen anbietet oder nur mit wiederkehrendem, fehleranfälligem Boilerplate ermöglicht.
