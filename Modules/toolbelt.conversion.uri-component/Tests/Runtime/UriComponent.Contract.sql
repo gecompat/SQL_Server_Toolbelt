@@ -7,7 +7,11 @@ IF (SELECT EncodedValue FROM toolbelt_conversion.TVF_UriComponentEncode(N'Kaffee
 IF EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(N'%252F') WHERE DecodedValue<>N'%2F' OR IsValid<>1 OR ValidationCode<>0) THROW 52724,N'Einmaliges Decoding ist falsch.',1;
 IF EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(N'%G0') WHERE IsValid<>0 OR ValidationCode<>11) THROW 52725,N'Ungültiges Prozent-Triplet ist falsch.',1;
 IF (SELECT EncodedValue FROM toolbelt_conversion.TVF_UriComponentEncode(N'€😀'))<>N'%E2%82%AC%F0%9F%98%80' THROW 52740,N'Das UTF-8-Encoding ist falsch.',1;
-IF EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(N'%E2%82%AC%F0%9F%98%80') WHERE DecodedValue<>N'€😀' OR IsValid<>1 OR ValidationCode<>0) THROW 52741,N'Das UTF-8-Decoding ist falsch.',1;
+IF EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(N'%E2%82%AC%F0%9F%98%80') WHERE DecodedValue<>N'€😀' OR IsValid<>1 OR ValidationCode<>0)
+BEGIN
+ SELECT DecodedValue,IsValid,ValidationCode FROM toolbelt_conversion.TVF_UriComponentDecode(N'%E2%82%AC%F0%9F%98%80');
+ THROW 52741,N'Das UTF-8-Decoding ist falsch.',1;
+END;
 IF EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(N'%C0%AF') WHERE IsValid<>0 OR ValidationCode<>12) THROW 52742,N'Nicht kanonisches UTF-8 wird nicht abgelehnt.',1;
 IF EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(N'%00') WHERE IsValid<>0 OR ValidationCode<>13) THROW 52743,N'Decodiertes NUL wird nicht abgelehnt.',1;
 IF EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(N'ä') WHERE IsValid<>0 OR ValidationCode<>10) THROW 52744,N'Unescaped Nicht-ASCII-Input wird nicht als IRI abgelehnt.',1;
