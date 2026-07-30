@@ -13,6 +13,19 @@ Stand der Recherche: 2026-07-29
 - Aussagen zur konkreten Machbarkeit unter SQL Server 2019, 2022 und 2025 sind, sofern nicht bereits in einem formalen Kandidaten geklärt, ausdrücklich **offen**.
 - Performance, Security, Lizenz, Plattformunterstützung und langfristige Wartbarkeit sind vor jeder Formalisierung einzeln zu prüfen.
 
+
+## Formalisierte und freigegebene Einträge
+
+Die Research-Zeilen bleiben als Herkunft unverändert erhalten. Folgende Ideen wurden
+am 2026-07-30 nach gemeinsamer Vertragsbesprechung formalisiert und ausdrücklich
+zur Implementierung freigegeben:
+
+| Research-ID | Formaler Kandidat | Status |
+|---|---|---|
+| `RI-2026-011` | `TC-2026-029` – Sicheres Identifier- und Multipart-Name-Toolkit | `ready for development` |
+| `RI-2026-075` | `TC-2026-030` – Semantic-Version Parser und Comparator | `ready for development` |
+| `RI-2026-055` | `TC-2026-031` – Ganzzahlen in frei definierbaren Zahlensystemen | `ready for development` |
+
 ## Bereits vorhandene Kandidaten – zusätzliche Fundstellen
 
 Diese Treffer erzeugen bewusst keine Duplikate.

@@ -2,6 +2,79 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
+
+## Entwicklungsbereite Arbeitspakete
+
+Die folgenden Funktionsverträge wurden am 2026-07-30 gemeinsam besprochen und
+anschließend ausdrücklich zur sequenziellen Umsetzung freigegeben. Der Status
+`ready for development` bedeutet: Freigabe und Scope sind vorhanden, die
+Implementierung hat jedoch noch nicht begonnen. Beim tatsächlichen Start wird
+genau ein Paket auf `active` gesetzt.
+
+### AP-2026-010: Sicheres Identifier-Toolkit implementieren
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-010` |
+| Ziel | `TC-2026-029` als sichere, wiederverwendbare Basis für ein- bis vierteilige SQL-Identifier implementieren. |
+| Scope | Parsen, Validieren, Normalisieren und Quoten; ausschließlich Identifier, kein beliebiger SQL-Text und keine automatische Objekt- oder Berechtigungsprüfung. |
+| Dependencies | Besprochener und am 2026-07-30 freigegebener Vertrag; keine Modulabhängigkeit. |
+| Priorität | `P1` |
+| Status | `ready for development` |
+| Akzeptanzkriterien | Öffentliche Oberfläche und interne Kernlogik folgen einem einzigen dokumentierten Vertrag; ein bis vier Teile, Klammer-Escaping, leere/ungültige Teile, `NULL`, Whitespace, maximale Identifierlänge und binär eindeutige Prüfung sind abgedeckt; lokales/zentrales Deployment, Lifecycle, Hilfe, Dokumentation und synthetische Beispiele vollständig. |
+| Tests | Statisch und Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170; physische 2019-/2022- und Windows-Evidenz gezielt vor Release oder bei versionsgetrennter Logik. |
+| Blocker | Keine bekannten. |
+| Evidenz | Benutzerbesprechung und ausdrückliche Freigabe vom 2026-07-30; formaler Kandidat `TC-2026-029`. |
+| Nächster Schritt | Als erstes der vier Pakete auf `active` setzen, Moduldesign und Contract-Testmatrix dauerhaft festhalten, dann implementieren. |
+
+### AP-2026-011: Multi-Separator-Split Version 1 implementieren
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-011` |
+| Ziel | `TC-2026-001` als portablen Split-Vertrag für mehrere einzelne Trennzeichen implementieren. |
+| Scope | Stabile Ordinals, definierte leere Tokens, mehrere einzelne Separatorzeichen und Collation-/Längenvertrag; keine mehrzeichigen Separatoren, Quote- oder Escape-Semantik. |
+| Dependencies | `AP-2026-010` nur als Reihenfolge, keine technische Modulabhängigkeit; besprochener und am 2026-07-30 freigegebener Vertrag. |
+| Priorität | `P1` |
+| Status | `ready for development` |
+| Akzeptanzkriterien | Literalvertrag bleibt von Regex getrennt; Token und Ordinal sind deterministisch; `NULL`, leerer Input, aufeinanderfolgende Separatoren, Separator am Rand, Collations und Größenklassen sind dokumentiert und getestet; vollständiger Lifecycle und gekoppelte Dokumentation. |
+| Tests | Statisch und Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170; native SQL-Server-2025-Regexfunktion nur als Paritäts-/Abgrenzungsprovider; spätere physische Releasematrix. |
+| Blocker | Keine für Version 1. |
+| Evidenz | Benutzerbesprechung und ausdrückliche Freigabe vom 2026-07-30; formaler Kandidat `TC-2026-001`. |
+| Nächster Schritt | Nach `AP-2026-010` auf `active` setzen und implementieren. Die Erweiterung mit mehrzeichigen Separatoren, Escape und Quote bleibt `TC-2026-032`. |
+
+### AP-2026-012: Semantic-Version Parser und Comparator implementieren
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-012` |
+| Ziel | `TC-2026-030` als strikt SemVer-2.0.0-konformen Parser und Comparator implementieren. |
+| Scope | Core-Version, Pre-release, Build Metadata, Validierung, Präzedenzvergleich und sortierbare Ausgabe; keine allgemeinen Produktversionsformate. |
+| Dependencies | `AP-2026-011` nur als Reihenfolge; keine technische Modulabhängigkeit; besprochener und am 2026-07-30 freigegebener Vertrag. |
+| Priorität | `P1` |
+| Status | `ready for development` |
+| Akzeptanzkriterien | SemVer-2.0.0-Grammatik und Präzedenz vollständig; Build Metadata beeinflusst den Vergleich nicht; beliebig lange numerische Komponenten werden ohne verlustbehaftete Konvertierung verglichen; offizielle und synthetische Positiv-/Negativvektoren, Lifecycle und Dokumentation vollständig. |
+| Tests | Statisch und Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170; physische Releasematrix später gezielt. |
+| Blocker | Keine bekannten. |
+| Evidenz | Benutzerbesprechung und ausdrückliche Freigabe vom 2026-07-30; formaler Kandidat `TC-2026-030`; SemVer 2.0.0. |
+| Nächster Schritt | Nach `AP-2026-011` auf `active` setzen und implementieren. |
+
+### AP-2026-013: Frei definierbare Zahlensysteme implementieren
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-013` |
+| Ziel | `TC-2026-031` als Integer-Encode-/Decode-Capability mit frei definierbarem Alphabet implementieren. |
+| Scope | Positive und negative Ganzzahlen, Null, explizites Alphabet, Base 2 bis mindestens Base 36, strikte Decode-Prüfung und Overflow-Vertrag. |
+| Dependencies | `AP-2026-012` nur als Reihenfolge; keine technische Modulabhängigkeit; besprochener und am 2026-07-30 freigegebener Vertrag. |
+| Priorität | `P1` |
+| Status | `ready for development` |
+| Akzeptanzkriterien | Encode/Decode verwenden denselben kanonischen Alphabetvertrag; Zeichen sind binär eindeutig; ungültiges Alphabet, ungültige Ziffer, Vorzeichen, `bigint`-Minimum, Null und Overflow sind dokumentiert und getestet; vollständiger Lifecycle und gekoppelte Dokumentation. |
+| Tests | Statisch und Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170; spätere physische 2019-/2022- und Windows-Releasevalidierung. |
+| Blocker | Keine bekannten. |
+| Evidenz | Benutzerbesprechung und ausdrückliche Freigabe vom 2026-07-30; formaler Kandidat `TC-2026-031`; persönlicher Brainstorm als Herkunft. |
+| Nächster Schritt | Nach `AP-2026-012` auf `active` setzen und implementieren. |
+
 ## Aktive Arbeitspakete
 
 ### AP-2026-009: Portable Ganzzahlreihen implementieren und validieren
@@ -171,7 +244,7 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Scope | <Betroffene Module, Schemas und Objekte> |
 | Dependencies | <Arbeitspakete, Module oder externe Voraussetzungen> |
 | Priorität | <P0 / P1 / P2 / P3> |
-| Status | <proposed / researched / active / blocked / completed / rejected> |
+| Status | <proposed / researched / ready for development / active / blocked / completed / rejected> |
 | Implementation Status | <nur für Module; aus module.yaml abgeleitet> |
 | Validation Status | <nur für Module; aus module.yaml abgeleitet> |
 | Release Status | <nur für Module; aus module.yaml abgeleitet> |
