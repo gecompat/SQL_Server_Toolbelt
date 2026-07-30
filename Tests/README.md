@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. Für alle drei implementierten Module
+Der Repository-Grundaufbau ist abgeschlossen. Für alle fünf implementierten Module
 existieren statische sowie synthetische Runtime- und Lifecycle-Contract-
 Testartefakte.
 
@@ -14,7 +14,8 @@ Base64- und Generate-Series-Runtime-Workflows für SQL Server 2025 und
 Compatibility Levels 150, 160 und 170 waren erfolgreich. Für das
 Identifier-Modul ist SQL Server 2025 Linux mit denselben Compatibility Levels
 ebenfalls erfolgreich. Physische SQL-Server-2019-/2022-, Windows- und weitere
-Matrixfälle bleiben offen.
+Matrixfälle bleiben offen. Split-Characters besitzt vollständige Testartefakte;
+seine Runtime ist noch `not executed`.
 
 ## Pflicht-Testarten je Modul
 
@@ -40,6 +41,7 @@ Matrixfälle bleiben offen.
 | `toolbelt.conversion.base64` | [BASE64_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.conversion.base64/Tests/BASE64_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.core.generate-series` | [GENERATE_SERIES_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.generate-series/Tests/GENERATE_SERIES_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.metadata.identifier` | [IDENTIFIER_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.metadata.identifier/Tests/IDENTIFIER_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
+| `toolbelt.string.split-characters` | [SPLIT_CHARACTERS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.string.split-characters/Tests/SPLIT_CHARACTERS_CONTRACT_TEST_MATRIX.md) | `not executed`; Runtime-Artefakte vorhanden |
 
 Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 

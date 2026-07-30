@@ -24,6 +24,13 @@ Lifecycle-, Dokumentations- und Testartefakte sind vorhanden. SQL Server 2025
 Linux mit Compatibility Levels 150, 160 und 170 ist erfolgreich; physische
 2019-/2022- und Windows-Läufe bleiben `not executed`.
 
+Das Modul `toolbelt.string.split-characters` implementiert einen literal
+interpretierten Multi-Separator-Vertrag mit stabilen Ordinals, definierter
+Leer-Token-Semantik und `nvarchar(max)`-Verarbeitung. Code, Lifecycle-,
+Dokumentations- und Testartefakte sind vorhanden; Runtime bleibt bis zum
+erfolgreichen SQL-Server-2025-Linux-Workflow `not executed`. Die breitere
+Quote-/Escape-Version bleibt getrennt als `TC-2026-032`.
+
 ## Projektzweck
 
 SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL Server Database Engine ab Version 2019. Sie stellt Funktionen bereit, die SQL Server nicht nativ besitzt, erst in späteren Versionen anbietet oder nur mit wiederkehrendem, fehleranfälligem Boilerplate ermöglicht.

@@ -11,22 +11,6 @@ anschließend ausdrücklich zur sequenziellen Umsetzung freigegeben. Der Status
 Implementierung hat jedoch noch nicht begonnen. Beim tatsächlichen Start wird
 genau ein Paket auf `active` gesetzt.
 
-### AP-2026-011: Multi-Separator-Split Version 1 implementieren
-
-| Feld | Wert |
-|---|---|
-| ID | `AP-2026-011` |
-| Ziel | `TC-2026-001` als portablen Split-Vertrag für mehrere einzelne Trennzeichen implementieren. |
-| Scope | Stabile Ordinals, definierte leere Tokens, mehrere einzelne Separatorzeichen und Collation-/Längenvertrag; keine mehrzeichigen Separatoren, Quote- oder Escape-Semantik. |
-| Dependencies | `AP-2026-010` nur als Reihenfolge, keine technische Modulabhängigkeit; besprochener und am 2026-07-30 freigegebener Vertrag. |
-| Priorität | `P1` |
-| Status | `ready for development` |
-| Akzeptanzkriterien | Literalvertrag bleibt von Regex getrennt; Token und Ordinal sind deterministisch; `NULL`, leerer Input, aufeinanderfolgende Separatoren, Separator am Rand, Collations und Größenklassen sind dokumentiert und getestet; vollständiger Lifecycle und gekoppelte Dokumentation. |
-| Tests | Statisch und Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170; native SQL-Server-2025-Regexfunktion nur als Paritäts-/Abgrenzungsprovider; spätere physische Releasematrix. |
-| Blocker | Keine für Version 1. |
-| Evidenz | Benutzerbesprechung und ausdrückliche Freigabe vom 2026-07-30; formaler Kandidat `TC-2026-001`. |
-| Nächster Schritt | Nach `AP-2026-010` auf `active` setzen und implementieren. Die Erweiterung mit mehrzeichigen Separatoren, Escape und Quote bleibt `TC-2026-032`. |
-
 ### AP-2026-012: Semantic-Version Parser und Comparator implementieren
 
 | Feld | Wert |
@@ -60,6 +44,25 @@ genau ein Paket auf `active` gesetzt.
 | Nächster Schritt | Nach `AP-2026-012` auf `active` setzen und implementieren. |
 
 ## Aktive Arbeitspakete
+
+### AP-2026-011: Multi-Separator-Split Version 1 implementieren
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-011` |
+| Ziel | `TC-2026-001` als portablen Split-Vertrag für mehrere einzelne Trennzeichen implementieren. |
+| Scope | `toolbelt.string.split-characters` Version `1.0.0`; `TVF_SplitByCharacters`; stabile Ordinals, definierte leere Tokens, einzelne Separatorzeichen, binärer Collation- und LOB-Vertrag; keine mehrzeichigen Separatoren, Quote- oder Escape-Semantik. |
+| Dependencies | `toolbelt.core.generate-series` Version `1.0.0`; vollständige Vertragsbesprechung und Sammelfreigabe vom 2026-07-30. |
+| Priorität | `P1` |
+| Status | `active` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
+| Akzeptanzkriterien | Literalvertrag bleibt von Regex getrennt; Token und Ordinal sind deterministisch; `NULL`, NUL, leerer Input, aufeinanderfolgende Separatoren, Separator am Rand, Collations und Größenklassen sind dokumentiert und getestet; vollständiger Lifecycle und gekoppelte Dokumentation. |
+| Tests | Statischer Vertrag und Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170; native SQL-Server-2025-Regexfunktion nur als enges Testoracle; spätere physische Releasematrix. |
+| Blocker | Keine für Version 1. |
+| Evidenz | Benutzerbesprechung und ausdrückliche Freigabe vom 2026-07-30; formaler Kandidat `TC-2026-001`; kanonische Artefakte unter `Modules/toolbelt.string.split-characters/`. |
+| Nächster Schritt | Lokale Prüfungen ausführen, PR-Runtime validieren und Status belastbar anheben. `TC-2026-032` bleibt Research ohne Implementierungsfreigabe. |
 
 ### AP-2026-010: Identifier- und Multipart-Name-Toolkit implementieren
 

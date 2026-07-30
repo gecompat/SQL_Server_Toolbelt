@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: four_modules_implemented
+  status: five_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -37,6 +37,9 @@ sources_of_truth:
   identifier_module_design: Documentation/Architecture/IDENTIFIER_MODULE_DESIGN.md
   identifier_runtime_workflow: .github/workflows/identifier-runtime.yml
   identifier_module: Modules/toolbelt.metadata.identifier/module.yaml
+  split_characters_module_design: Documentation/Architecture/SPLIT_CHARACTERS_MODULE_DESIGN.md
+  split_characters_runtime_workflow: .github/workflows/split-characters-runtime.yml
+  split_characters_module: Modules/toolbelt.string.split-characters/module.yaml
   documentation_validator: Tests/Documentation/validate_documentation.py
   documentation_workflow: .github/workflows/documentation-consistency.yml
   toolbelt_landscape_research: Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md
@@ -199,6 +202,7 @@ module_registry:
     - Modules/toolbelt.conversion.base64/module.yaml
     - Modules/toolbelt.core.generate-series/module.yaml
     - Modules/toolbelt.metadata.identifier/module.yaml
+    - Modules/toolbelt.string.split-characters/module.yaml
 
 change_impact:
   strategy: diff_first_registered_dependencies
@@ -324,6 +328,19 @@ change_impact:
       checks:
         - identifier_static
         - markdown_links
+    split_characters_contract:
+      paths:
+        - Modules/toolbelt.string.split-characters/**
+        - Modules/toolbelt.core.generate-series/**
+        - Documentation/Architecture/SPLIT_CHARACTERS_MODULE_DESIGN.md
+        - Documentation/Architecture/DEPLOYMENT_MODEL.md
+        - Documentation/Standards/TSQL_ENGINEERING.md
+        - Documentation/Standards/MODULE_DEFINITION_OF_DONE.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+        - Tests/CI/run-split-characters-linux.sh
+      checks:
+        - split_characters_static
+        - markdown_links
     runtime_workflow:
       paths:
         - .github/workflows/result-table-runtime.yml
@@ -348,6 +365,12 @@ change_impact:
       checks:
         - identifier_runtime_workflow_scope
         - identifier_static
+    split_characters_runtime_workflow:
+      paths:
+        - .github/workflows/split-characters-runtime.yml
+      checks:
+        - split_characters_runtime_workflow_scope
+        - split_characters_static
     governance:
       paths:
         - .ai/repo_map.yaml
@@ -373,3 +396,5 @@ change_impact:
         - generate_series_static
         - identifier_runtime_workflow_scope
         - identifier_static
+        - split_characters_runtime_workflow_scope
+        - split_characters_static
