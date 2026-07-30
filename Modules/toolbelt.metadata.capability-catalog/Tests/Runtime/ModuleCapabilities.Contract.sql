@@ -31,9 +31,60 @@ IF NOT EXISTS
 BEGIN
     SELECT
           ModuleId
-        , ModuleVersion
-        , DeploymentMode
+        , ModuleVersion = CONVERT(nvarchar(64), ModuleVersion)
+        , DeploymentMode = CONVERT(nvarchar(16), DeploymentMode)
         , MetadataStatus
+        , ModulePrefixIsValid =
+              CASE
+                  WHEN ModuleId COLLATE Latin1_General_100_BIN2
+                           LIKE N'toolbelt.%' THEN 1
+                  ELSE 0
+              END
+        , ModuleCharactersAreValid =
+              CASE
+                  WHEN ModuleId COLLATE Latin1_General_100_BIN2
+                           NOT LIKE N'%[^a-z0-9.-]%' THEN 1
+                  ELSE 0
+              END
+        , VersionDotCount =
+              LEN(ModuleVersion) - LEN(REPLACE(ModuleVersion, N'.', N''))
+        , VersionMajor = PARSENAME(ModuleVersion, 3)
+        , VersionMinor = PARSENAME(ModuleVersion, 2)
+        , VersionPatch = PARSENAME(ModuleVersion, 1)
+        , VersionBaseType =
+              (
+                  SELECT
+                      CONVERT
+                      (
+                          sysname,
+                          SQL_VARIANT_PROPERTY(ep.value, 'BaseType')
+                      )
+                  FROM sys.extended_properties AS ep
+                  WHERE ep.class = 0
+                    AND ep.major_id = 0
+                    AND ep.minor_id = 0
+                    AND ep.name =
+                          N'Toolbelt.Module.'
+                          + ModuleId
+                          + N'.Version'
+              )
+        , ModeBaseType =
+              (
+                  SELECT
+                      CONVERT
+                      (
+                          sysname,
+                          SQL_VARIANT_PROPERTY(ep.value, 'BaseType')
+                      )
+                  FROM sys.extended_properties AS ep
+                  WHERE ep.class = 0
+                    AND ep.major_id = 0
+                    AND ep.minor_id = 0
+                    AND ep.name =
+                          N'Toolbelt.Module.'
+                          + ModuleId
+                          + N'.DeploymentMode'
+              )
     FROM toolbelt_metadata.VW_ModuleCapabilities
     WHERE ModuleId IN
           (
