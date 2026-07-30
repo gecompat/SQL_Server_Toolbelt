@@ -117,7 +117,15 @@ run_file "${local_database}" "${runtime_directory}" SemanticVersion.Contract.sql
 upgrade_database="tbx_semantic_version_upgrade"
 create_database "${upgrade_database}"
 run_query "${upgrade_database}" \
-    "CREATE SCHEMA [toolbelt_validation]; CREATE FUNCTION [toolbelt_validation].[TVF_ParseSemanticVersion] (@Version varchar(8000)) RETURNS @Result TABLE (IsValid bit NOT NULL, ValidationCode varchar(32) NOT NULL, Major varchar(8000) NULL, Minor varchar(8000) NULL, Patch varchar(8000) NULL, PreRelease varchar(8000) NULL, BuildMetadata varchar(8000) NULL, CanonicalVersion varchar(8000) NULL) AS BEGIN RETURN; END; CREATE FUNCTION [toolbelt_validation].[SVF_CompareSemanticVersion] (@LeftVersion varchar(8000), @RightVersion varchar(8000)) RETURNS smallint AS BEGIN RETURN NULL; END; CREATE FUNCTION [toolbelt_validation].[SVF_SemanticVersionSortKey] (@Version varchar(8000)) RETURNS varbinary(max) AS BEGIN RETURN NULL; END; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.validation.semantic-version.Version', @value=N'1.0.0';"
+    "CREATE SCHEMA [toolbelt_validation];"
+run_query "${upgrade_database}" \
+    "CREATE FUNCTION [toolbelt_validation].[TVF_ParseSemanticVersion] (@Version varchar(8000)) RETURNS @Result TABLE (IsValid bit NOT NULL, ValidationCode varchar(32) NOT NULL, Major varchar(8000) NULL, Minor varchar(8000) NULL, Patch varchar(8000) NULL, PreRelease varchar(8000) NULL, BuildMetadata varchar(8000) NULL, CanonicalVersion varchar(8000) NULL) AS BEGIN RETURN; END;"
+run_query "${upgrade_database}" \
+    "CREATE FUNCTION [toolbelt_validation].[SVF_CompareSemanticVersion] (@LeftVersion varchar(8000), @RightVersion varchar(8000)) RETURNS smallint AS BEGIN RETURN NULL; END;"
+run_query "${upgrade_database}" \
+    "CREATE FUNCTION [toolbelt_validation].[SVF_SemanticVersionSortKey] (@Version varchar(8000)) RETURNS varbinary(max) AS BEGIN RETURN NULL; END;"
+run_query "${upgrade_database}" \
+    "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.validation.semantic-version.Version', @value=N'1.0.0';"
 run_file "${upgrade_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${upgrade_database}" "${runtime_directory}" Lifecycle.Contract.sql

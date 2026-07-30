@@ -18,6 +18,8 @@ Fehlermeldungen übernommen.
 ## Mengenorientierte Verwendung
 
 ```sql
+SET QUOTED_IDENTIFIER ON;
+
 SELECT
       source.ItemOrdinal
     , decoded.DecodedValue
@@ -31,6 +33,11 @@ OUTER APPLY
 
 Die inline TVF ist der kanonische relationale Kern. Die SVF bleibt für
 skalare Einzelaufrufe erhalten.
+
+Wegen der inline expandierten XML-Methode muss in der aufrufenden Sitzung
+`QUOTED_IDENTIFIER` eingeschaltet sein. Das Deployment setzt die Option für
+die Objekterstellung; der direkte TVF-Aufruf muss sie für seinen eigenen
+Batch ebenfalls einschalten.
 
 ## Grenzen
 

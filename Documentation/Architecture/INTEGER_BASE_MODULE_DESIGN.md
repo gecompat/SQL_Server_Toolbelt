@@ -12,7 +12,9 @@ reserviert.
 
 Die inline TVFs `TVF_IntegerToBase` und `TVF_TryBaseToInteger` sind die
 kanonischen relationalen Kerne. Die gleichnamigen `SVF_*`-Varianten bleiben
-als Convenience-APIs und delegieren vollständig an diese Kerne.
+als Convenience-APIs und delegieren vollständig an diese Kerne. Die Wrapper
+sind bewusst nicht schemagebunden, weil ihre Abhängigkeit andernfalls das
+Ersetzen der TVF-Kerne bei Wiederholungs- und Upgrade-Deployments blockiert.
 
 Encode verwendet Division und Modulo, Decode eine vor jeder
 Multiplikation geprüfte Akkumulation. `decimal(38,0)` hält die Magnitude des

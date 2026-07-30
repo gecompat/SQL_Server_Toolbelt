@@ -5,6 +5,7 @@
 -- ============================================================================
 
 SET NOCOUNT ON;
+SET QUOTED_IDENTIFIER ON;
 
 DECLARE @CompatibilityLevel int =
     TRY_CONVERT(int, N'$(CompatibilityLevel)');

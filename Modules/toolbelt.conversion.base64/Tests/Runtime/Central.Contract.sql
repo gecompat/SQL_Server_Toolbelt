@@ -4,6 +4,7 @@
 -- ============================================================================
 
 SET NOCOUNT ON;
+SET QUOTED_IDENTIFIER ON;
 
 DECLARE @Source varbinary(max) = 0xCAFECAFE;
 DECLARE @Encoded varchar(max);

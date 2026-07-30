@@ -90,6 +90,11 @@ def main() -> int:
         raise ContractError("Eine inline TVF darf nicht die zugehörige SVF aufrufen.")
     require(encode_svf, r"TVF_Base64Encode\s*\(", "Encode-SVF-Wrapper")
     require(decode_svf, r"TVF_Base64Decode\s*\(", "Decode-SVF-Wrapper")
+    if "WITH SCHEMABINDING" in encode_svf + decode_svf:
+        raise ContractError(
+            "SVF-Wrapper dürfen das Wiederholungsdeployment der TVF-Kerne "
+            "nicht durch SCHEMABINDING blockieren."
+        )
     if re.search(
         r"\bBASE64_(?:ENCODE|DECODE)\s*\(",
         encode_tvf + decode_tvf + encode_svf + decode_svf,
@@ -155,6 +160,11 @@ def main() -> int:
             raise ContractError(f"Inline-TVF-Runtimevertrag fehlt: {marker}")
     if "'IF'" not in read("Tests/Runtime/Lifecycle.Contract.sql"):
         raise ContractError("Lifecycle prüft den inline-TVF-Objekttyp nicht.")
+    if "SET QUOTED_IDENTIFIER ON;" not in runtime:
+        raise ContractError(
+            "Der direkte XML-basierte inline-TVF-Vertrag muss "
+            "QUOTED_IDENTIFIER einschalten."
+        )
 
     if "../../.github/workflows/base64-runtime.yml" not in manifest:
         raise ContractError("Runtime-Workflow ist im Manifest nicht gekoppelt.")

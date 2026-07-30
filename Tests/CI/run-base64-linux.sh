@@ -113,7 +113,13 @@ run_file "${local_database}" "${runtime_directory}" Base64.Contract.sql \
 upgrade_database="tbx_base64_upgrade"
 create_database "${upgrade_database}"
 run_query "${upgrade_database}" \
-    "CREATE SCHEMA [toolbelt_conversion]; CREATE FUNCTION [toolbelt_conversion].[SVF_Base64Encode] (@Value varbinary(max), @UrlSafe bit = 0) RETURNS varchar(max) AS BEGIN RETURN 'legacy'; END; CREATE FUNCTION [toolbelt_conversion].[SVF_Base64Decode] (@Value varchar(max)) RETURNS varbinary(max) AS BEGIN RETURN 0x; END; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.conversion.base64.Version', @value=N'1.0.0';"
+    "CREATE SCHEMA [toolbelt_conversion];"
+run_query "${upgrade_database}" \
+    "CREATE FUNCTION [toolbelt_conversion].[SVF_Base64Encode] (@Value varbinary(max), @UrlSafe bit = 0) RETURNS varchar(max) AS BEGIN RETURN 'legacy'; END;"
+run_query "${upgrade_database}" \
+    "CREATE FUNCTION [toolbelt_conversion].[SVF_Base64Decode] (@Value varchar(max)) RETURNS varbinary(max) AS BEGIN RETURN 0x; END;"
+run_query "${upgrade_database}" \
+    "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.conversion.base64.Version', @value=N'1.0.0';"
 run_file "${upgrade_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${upgrade_database}" "${runtime_directory}" Lifecycle.Contract.sql

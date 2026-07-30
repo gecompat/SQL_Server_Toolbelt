@@ -36,6 +36,8 @@ unterstützten Hauptversionen.
 - Zeichenketten werden nicht implizit in Binärdaten umgewandelt.
 - Ungültige Eingaben liefern unverändert den Fehler des T-SQL/XML-Providers.
 - Base64 ist eine Codierung, keine Verschlüsselung und kein Integritätsschutz.
+- Direkte Aufrufe der inline TVFs setzen wegen der expandierten XML-Methode
+  `SET QUOTED_IDENTIFIER ON` in der aufrufenden Sitzung voraus.
 
 Der optionale UDF-Parameter `@UrlSafe` besitzt den Default `0`. T-SQL verlangt
 bei Scalar UDFs dennoch ein Argument; für den Defaultpfad kann `DEFAULT`
@@ -66,6 +68,9 @@ erforderlich.
 Der XML-Provider verarbeitet Werte synchron. Für mengenorientierte Aufrufe
 sind die inline TVFs über `CROSS APPLY` oder `OUTER APPLY` zu bevorzugen; die
 SVFs bleiben Convenience-APIs und versprechen kein Scalar-UDF-Inlining. Die
+SVF-Wrapper sind bewusst nicht schemagebunden, damit der kanonische
+inline-TVF-Kern bei einem Wiederholungs- oder Upgrade-Deployment ersetzt
+werden kann. Die
 `max`-Typen definieren die SQL-Schnittstelle, nicht eine
 unbegrenzte praktische Größen- oder Performancegarantie. Set-basierte
 Massenaufrufe und große LOBs sind vor produktivem Einsatz mit repräsentativen,

@@ -23,6 +23,7 @@ war für die Compatibility Levels 150, 160 und 170 erfolgreich.
 | Native Parität | SQL Server 2025 als semantische Referenz |
 | API-Parität | SVF und inline TVF für Normal-, Grenz-, `NULL`- und Fehlerfälle |
 | Mengenverwendung | `OUTER APPLY`, exakt eine Ergebniszeile, Resultspalten |
+| Sitzungsoption | direkter inline-TVF-Aufruf mit `QUOTED_IDENTIFIER ON` |
 
 ## Lifecycle
 

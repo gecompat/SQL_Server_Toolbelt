@@ -25,7 +25,9 @@ Zwischenarithmetik mit `decimal(38,0)` deckt auch
 
 Modulversion `1.1.0` ergänzt die inline-TVF-APIs. Die vorhandenen SVFs
 delegieren an diese Kerne. Für mengenorientierte Aufrufe sind die TVFs mit
-`CROSS APPLY` oder `OUTER APPLY` zu bevorzugen.
+`CROSS APPLY` oder `OUTER APPLY` zu bevorzugen. Die SVF-Wrapper sind bewusst
+nicht schemagebunden, damit Wiederholungs- und Upgrade-Deployments die
+kanonischen TVF-Kerne ersetzen können.
 
 Aktuelle Evidenz:
 [Integer-Base Runtime Run 30518087070](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30518087070)

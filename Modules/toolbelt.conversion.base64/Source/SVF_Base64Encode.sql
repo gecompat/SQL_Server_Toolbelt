@@ -16,7 +16,6 @@ CREATE OR ALTER FUNCTION [toolbelt_conversion].[SVF_Base64Encode]
     , @UrlSafe bit = 0
 )
 RETURNS varchar(max)
-WITH SCHEMABINDING
 AS
 BEGIN
     DECLARE @EncodedValue varchar(max);

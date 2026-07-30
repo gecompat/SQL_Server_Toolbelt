@@ -3,6 +3,8 @@
 -- Keine Zeichenkodierung, Secrets oder Originaldaten
 -- ============================================================================
 
+SET QUOTED_IDENTIFIER ON;
+
 DECLARE @SyntheticValue varbinary(max) = 0xCAFECAFE;
 
 SELECT

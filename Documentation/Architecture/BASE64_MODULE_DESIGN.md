@@ -33,7 +33,13 @@ SVF_Base64Decode(@Value varchar(max))                     -> varbinary(max)
 Die inline TVFs sind die kanonischen relationalen Kerne und liefern immer
 genau eine Zeile. Die SVFs delegieren an diese Kerne und bleiben als
 Convenience-APIs erhalten. Für mengenorientierte Aufrufe ist `APPLY` zu
-bevorzugen.
+bevorzugen. Direkte TVF-Aufrufe setzen `SET QUOTED_IDENTIFIER ON` voraus,
+weil SQL Server die XML-Methode aus dem inline expandierten Ausdruck im
+Kontext der aufrufenden Sitzung auswertet.
+
+Die Convenience-SVFs sind bewusst nicht schemagebunden. Andernfalls würde
+ihre Abhängigkeit ein `CREATE OR ALTER` des kanonischen TVF-Kerns beim
+Wiederholungs- und Upgrade-Deployment blockieren.
 
 - `NULL` bleibt `NULL`.
 - Standard-Base64 wird mit Padding erzeugt.

@@ -15,7 +15,6 @@ CREATE OR ALTER FUNCTION [toolbelt_conversion].[SVF_Base64Decode]
     @Value varchar(max)
 )
 RETURNS varbinary(max)
-WITH SCHEMABINDING
 AS
 BEGIN
     DECLARE @DecodedValue varbinary(max);

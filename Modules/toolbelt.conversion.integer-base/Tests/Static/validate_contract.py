@@ -87,6 +87,11 @@ def main() -> int:
         raise ContractError("Eine inline TVF darf nicht die zugehörige SVF aufrufen.")
     require(encode_svf, r"TVF_IntegerToBase\s*\(", "Encode-SVF-Wrapper")
     require(decode_svf, r"TVF_TryBaseToInteger", "Decode-SVF-Wrapper")
+    if "WITH SCHEMABINDING" in encode_svf + decode_svf:
+        raise ContractError(
+            "SVF-Wrapper dürfen das Wiederholungsdeployment der TVF-Kerne "
+            "nicht durch SCHEMABINDING blockieren."
+        )
 
     for source in (
         "TVF_IntegerToBase.sql",

@@ -8,7 +8,6 @@ CREATE OR ALTER FUNCTION [toolbelt_conversion].[SVF_TryBaseToInteger]
     , @Alphabet varchar(93)
 )
 RETURNS bigint
-WITH SCHEMABINDING
 AS
 BEGIN
     DECLARE @DecodedValue bigint;

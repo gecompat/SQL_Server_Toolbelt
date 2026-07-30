@@ -17,6 +17,8 @@ wie `0`, entsprechend der bestehenden SVF.
 ## Mengenorientierte Verwendung
 
 ```sql
+SET QUOTED_IDENTIFIER ON;
+
 SELECT
       source.ItemOrdinal
     , encoded.EncodedValue
@@ -32,6 +34,11 @@ Die inline TVF ist der kanonische relationale Kern. Für mengenorientierte
 Aufrufe ist sie gegenüber `SVF_Base64Encode` zu bevorzugen. Ein
 Parallelitätsvorteil wird nur für den konkreten Ausführungsplan bewertet und
 nicht pauschal zugesagt.
+
+Wegen der inline expandierten XML-Methode muss in der aufrufenden Sitzung
+`QUOTED_IDENTIFIER` eingeschaltet sein. Das Deployment setzt die Option für
+die Objekterstellung; der direkte TVF-Aufruf muss sie für seinen eigenen
+Batch ebenfalls einschalten.
 
 ## Grenzen
 

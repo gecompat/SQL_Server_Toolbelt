@@ -8,7 +8,6 @@ CREATE OR ALTER FUNCTION [toolbelt_conversion].[SVF_IntegerToBase]
     , @Alphabet varchar(93)
 )
 RETURNS varchar(65)
-WITH SCHEMABINDING
 AS
 BEGIN
     DECLARE @EncodedValue varchar(65);

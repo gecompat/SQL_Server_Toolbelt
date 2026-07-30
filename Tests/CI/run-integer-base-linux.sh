@@ -112,7 +112,13 @@ run_file "${local_database}" "${runtime_directory}" IntegerBase.Contract.sql \
 upgrade_database="tbx_integer_base_upgrade"
 create_database "${upgrade_database}"
 run_query "${upgrade_database}" \
-    "CREATE SCHEMA [toolbelt_conversion]; CREATE FUNCTION [toolbelt_conversion].[SVF_IntegerToBase] (@Value bigint, @Alphabet varchar(93)) RETURNS varchar(65) AS BEGIN RETURN 'legacy'; END; CREATE FUNCTION [toolbelt_conversion].[SVF_TryBaseToInteger] (@EncodedValue varchar(65), @Alphabet varchar(93)) RETURNS bigint AS BEGIN RETURN NULL; END; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.conversion.integer-base.Version', @value=N'1.0.0';"
+    "CREATE SCHEMA [toolbelt_conversion];"
+run_query "${upgrade_database}" \
+    "CREATE FUNCTION [toolbelt_conversion].[SVF_IntegerToBase] (@Value bigint, @Alphabet varchar(93)) RETURNS varchar(65) AS BEGIN RETURN 'legacy'; END;"
+run_query "${upgrade_database}" \
+    "CREATE FUNCTION [toolbelt_conversion].[SVF_TryBaseToInteger] (@EncodedValue varchar(65), @Alphabet varchar(93)) RETURNS bigint AS BEGIN RETURN NULL; END;"
+run_query "${upgrade_database}" \
+    "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.conversion.integer-base.Version', @value=N'1.0.0';"
 run_file "${upgrade_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${upgrade_database}" "${runtime_directory}" Lifecycle.Contract.sql

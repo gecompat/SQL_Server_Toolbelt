@@ -6,8 +6,9 @@ Länge und binäre Ziffernfolge vermeiden numerischen Overflow.
 
 Version `1.1.0` stellt Comparator und Sort Key jeweils als inline TVF und als
 SVF-Wrapper bereit. Die inline TVFs sind die kanonischen relationalen Kerne;
-die SVFs delegieren vollständig an sie. Beide Kerne hängen ausschließlich vom
-Parser ab. Der Key codiert
+die nicht schemagebundenen SVFs delegieren vollständig an sie. Dadurch können
+Wiederholungs- und Upgrade-Deployments die kanonischen TVF-Kerne ersetzen.
+Beide Kerne hängen ausschließlich vom Parser ab. Der Key codiert
 Core-Komponenten mit Festbreiten-Längenpräfixen sowie Pre-release-Identifier
 mit getrennten numerischen/alphanumerischen Markern. Release steht über
 Pre-release; Build Metadata wird ignoriert.
