@@ -43,7 +43,7 @@ Batch ebenfalls einschalten.
 
 Der ASCII-Vertrag wird mit `Latin1_General_100_BIN2` geprüft. Große LOBs
 werden synchron verarbeitet; die Kanonisierung erfolgt innerhalb eines
-XQuery-Ausdrucks über `sql:variable`, damit kein zusätzlicher relationaler
-LOB für `sql:column` materialisiert werden muss. Physische
+direkten XML-Dokumentausdrucks, damit XQuery keinen relationalen LOB über
+`sql:column` lesen muss. Physische
 SQL-Server-2019-/2022- und Windows-Läufe bleiben bis zur Releasevalidierung
 `not executed`.

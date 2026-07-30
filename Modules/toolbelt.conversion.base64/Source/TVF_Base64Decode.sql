@@ -91,6 +91,8 @@ RETURN
     (
         SELECT
               NormalizedValue
+            , FirstPadding
+            , LengthRemainder
             , InvalidFormat =
               CASE
                   WHEN @Value IS NULL
@@ -131,6 +133,23 @@ RETURN
                   ELSE 0
               END
         FROM Validation
+    ),
+    Canonical AS
+    (
+        SELECT
+              NormalizedValue
+            , InvalidFormat
+            , CanonicalValue =
+              CASE
+                  WHEN @Value IS NULL OR InvalidFormat = 1
+                      THEN ''
+                  WHEN FirstPadding IS NULL AND LengthRemainder = 2
+                      THEN NormalizedValue + '=='
+                  WHEN FirstPadding IS NULL AND LengthRemainder = 3
+                      THEN NormalizedValue + '='
+                  ELSE NormalizedValue
+              END
+        FROM FormatCheck
     )
     SELECT DecodedValue =
         CONVERT
@@ -158,41 +177,19 @@ RETURN
                                        )
                                  )
                            )
-                  ELSE CAST(N'' AS xml).value
+                  ELSE CONVERT
                        (
-                           N'xs:base64Binary
-                           (
-                               concat
-                               (
-                                   translate
-                                   (
-                                       string(sql:variable("@Value")),
-                                       "-_ &#x9;&#xD;&#xA;",
-                                       "+/"
-                                   ),
-                                   substring
-                                   (
-                                       "==",
-                                       1,
-                                       (
-                                           4
-                                           - string-length
-                                             (
-                                                 translate
-                                                 (
-                                                     string(sql:variable("@Value")),
-                                                     "-_ &#x9;&#xD;&#xA;",
-                                                     "+/"
-                                                 )
-                                             ) mod 4
-                                       ) mod 4
-                                   )
-                               )
-                           )'
+                           xml
+                         , '<base64>'
+                           + CanonicalValue
+                           + '</base64>'
+                       ).value
+                       (
+                           N'xs:base64Binary((/base64/text())[1])'
                          , N'varbinary(max)'
                        )
               END
         )
-    FROM FormatCheck
+    FROM Canonical
 );
 GO
