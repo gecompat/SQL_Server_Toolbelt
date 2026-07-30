@@ -231,7 +231,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | `SAFE`-fähigen CLR-Kern und Linux-Verhalten prüfen; Windows-only-Provider nur bei messbarem Vorteil. |
 | **Dependencies** | CLR-Trust- und Portabilitätsregeln; möglicher Nutzen für TC-2026-001. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; TC-2026-001 ist ein engerer Split-Vertrag. |
-| **Status** | `researched` |
+| **Status** | `ready for development` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/regular-expressions/overview?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-split-to-table-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
 | **Nächster Schritt** | Fachlichen Mindestumfang und gewünschte Regex-Syntax festlegen; RE2-, .NET- und gegebenenfalls eingeschränkten T-SQL-Provider vergleichen. |
@@ -792,7 +792,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `researched` |
 | **Primärquellen** | [Research-Inbox `RI-2026-113`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Verarbeitungswelle 1 ist als V1A-Vertragsentwurf dokumentiert (`ZIP_ARCHIVE_MODULE_DESIGN.md`): In-memory-Extraktion einzelner Einträge ohne Dateisystempfade. Als naechstes die offenen Punkte (Create-Scope, verschluesselte Eintraege, Duplicate-Name-Semantik, harte Grenzwerte) mit dem Benutzer finalisieren und erst dann die Implementierung freigeben. |
+| **Nächster Schritt** | Implementierungswelle V1A starten: In-memory-Extraktion einzelner Eintraege umsetzen. Beschlossene Entscheidungen: `Create` nicht in V1A, Duplicate-Name als expliziter Fehler, Default-Limits `@MaxEntryBytes = 104857600` und `@MaxCompressionRatio = 200.00`, verschluesselte Eintraege liefern bei `@FailIfEncrypted = 0` einen expliziten Status ohne Payload. |
 
 ## TC-2026-035: Gzip-Stream- und Datei-Adapter
 

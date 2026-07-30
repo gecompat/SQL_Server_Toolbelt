@@ -6,21 +6,21 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
-### AP-2026-019: TC-2026-034 Verarbeitungswelle 1 (Vertragswelle)
+### AP-2026-020: TC-2026-034 Verarbeitungswelle 2 (Implementierungswelle V1A)
 
 | Feld | Wert |
 |---|---|
-| ID | `AP-2026-019` |
-| Ziel | Die erste Verarbeitungswelle fuer `TC-2026-034` als belastbare V1-Vertragsbasis abschliessen und die anschliessende Implementierungsfreigabe vorbereiten. |
-| Scope | Keine Runtime-Implementierung. V1A auf In-memory-Extraktion einzelner ZIP-Eintraege begrenzen, Dateisystempfade ausschliessen, Sicherheitsgrenzen und Ergebnisvertrag dokumentieren, Testmatrix und Lifecycle-Scope vorbereiten. |
-| Dependencies | `TC-2026-034`, `TC-2026-033`, `TC-2026-037`, `TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md`, `WORKING_RULES.md`, `PROJECT_RULES.md`. |
+| ID | `AP-2026-020` |
+| Ziel | Den freigegebenen V1A-Slice von `TC-2026-034` als erstes lauffaehiges ZIP-Modul implementieren, dokumentieren und mit Runtime-Evidenz belegen. |
+| Scope | `toolbelt.archive.zip-memory` Version `1.0.0` mit In-memory-Extraktion einzelner Eintraege aus `varbinary(max)`; kein Dateisystemzugriff, keine Archiv-Erzeugung, keine rekursive Entpackung, keine Passwortentschluesselung. |
+| Dependencies | Abgeschlossene Vertragswelle `AP-2026-019`, Kandidaten `TC-2026-033` und `TC-2026-034`, Moduldesign `ZIP_ARCHIVE_MODULE_DESIGN.md`, USP-Vertrag, Modul- und Lifecycle-Regeln. |
 | Priorität | `P1` |
 | Status | `active` |
-| Akzeptanzkriterien | Ein dokumentierter V1A-Vertrag liegt vor: Eingabe als `varbinary(max)`, kein direkter Dateisystemzugriff, explizite Nicht-Ziele, definierte Sicherheitsgrenzen gegen Zip Slip/Zip Bomb/Path Traversal, Ergebnis- und Fehlersemantik, Lifecycle-/Deployment-Scope, modulbezogene Testmatrix sowie ein freigabefähiges Moduldesign. |
-| Tests | Für diese Startphase `not applicable` für Runtime. Pflicht sind Quellen- und Vertragskonsistenzprüfung, Datenschutz-/Secret-Gate, Duplikatprüfung und ein nachvollziehbarer Entscheidungsnachweis pro offener Kernfrage. |
-| Blocker | Noch offen: finaler Umfang von `Create` in derselben Modulversion, Verhalten bei verschluesselten Eintraegen, Duplicate-Name-Semantik und harte Grenzwerte fuer Eintragszahl, dekomprimierte Groesse und Kompressionsverhaeltnis. |
-| Evidenz | Projektstart auf ausdruecklichen Benutzerauftrag vom 2026-07-30; erste Vertragswelle dokumentiert in `Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md` (Stand 2026-07-30). |
-| Nächster Schritt | Benutzerentscheid fuer die offenen V1A-Blocker einholen und danach das Implementierungsarbeitspaket fuer den In-memory-Extraktionsslice aktivieren. |
+| Akzeptanzkriterien | Ein oeffentliches Objekt mit stabilem Help-/Fehler-/Resultset-Vertrag; Duplicate-Entry-Semantik als expliziter Fehler; harte Default-Limits (`@MaxEntryBytes = 104857600`, `@MaxCompressionRatio = 200.00`); verschluesselte Eintraege liefern bei `@FailIfEncrypted = 0` einen expliziten Status ohne Payload; lokale und zentrale Lifecycle-Artefakte sowie statische und Runtime-Tests vorhanden. |
+| Tests | Statische Vertragspruefung, synthetische Negativfaelle (CRC, Format, Limits, verschluesselt), Lifecycle (Deploy/Uninstall/Wiederholung), SQL-Server-2025-Linux Runtime mit Compatibility Levels 150/160/170, danach physische 2019-/2022-/Windows-Releasevalidierung. |
+| Blocker | Kein offener Vertragsblocker. Noch offen sind nur Implementierung und Runtime-Evidenz. |
+| Evidenz | Benutzerfreigabe der verbleibenden V1A-Entscheidungen am 2026-07-30 (`beides`); Vertragsbasis in `Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md` und Kandidatenpflege erfolgt. |
+| Nächster Schritt | Modulgeruest, Manifest, Deploy/Uninstall, Objektdokumentation und ersten Runtime-faeigen In-memory-Extraktionspfad umsetzen. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
@@ -42,6 +42,22 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Nächster Schritt | Einen geeigneten Windows-Runner beziehungsweise eine freigegebene Windows-Testumgebung bereitstellen; unabhängig davon einen nicht invasiven, deterministischen Enginefehler für den echten Savepoint-Rollback suchen. Erst nach vollständiger Pflichtmatrix auf `validated` setzen. |
 
 ## Abgeschlossene Arbeitspakete
+
+### AP-2026-019: TC-2026-034 Verarbeitungswelle 1 (Vertragswelle)
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-019` |
+| Ziel | Die erste Verarbeitungswelle fuer `TC-2026-034` als belastbare V1-Vertragsbasis abschliessen und die anschliessende Implementierungsfreigabe vorbereiten. |
+| Scope | Keine Runtime-Implementierung. V1A auf In-memory-Extraktion einzelner ZIP-Eintraege begrenzen, Dateisystempfade ausschliessen, Sicherheitsgrenzen und Ergebnisvertrag dokumentieren, Testmatrix und Lifecycle-Scope vorbereiten. |
+| Dependencies | `TC-2026-034`, `TC-2026-033`, `TC-2026-037`, `TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md`, `WORKING_RULES.md`, `PROJECT_RULES.md`. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Akzeptanzkriterien | V1A-Vertrag ist dokumentiert, Nicht-Ziele sind explizit, Provider ist auf In-memory begrenzt, Sicherheits- und Testrahmen sind definiert. |
+| Tests | Vertragskonsistenz und Dokumentationsvalidator erfolgreich; Runtime fuer diese Welle `not applicable`. |
+| Blocker | Keine offenen Vertragsblocker nach Benutzerfreigabe. |
+| Evidenz | `ZIP_ARCHIVE_MODULE_DESIGN.md`, aktualisierte Kandidaten- und Planartefakte, Benutzerentscheid am 2026-07-30. |
+| Nächster Schritt | Implementierungswelle als `AP-2026-020` aktiv. |
 
 ### AP-2026-018: W2c Console Message und Capability Catalog
 

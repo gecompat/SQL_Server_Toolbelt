@@ -12,9 +12,9 @@ Eintraege aus einem ZIP-Archiv, das als `varbinary(max)` geliefert wird.
 ## Wellenstand
 
 - Kandidat: `TC-2026-034`
-- Welle: Verarbeitungswelle 1 (Vertragswelle)
-- Stand: Vertragsentwurf vorhanden, keine Runtime-Implementierung
-- Implementierungsfreigabe: offen (separate Benutzerentscheidung erforderlich)
+- Welle: Verarbeitungswelle 2 (Implementierungswelle V1A)
+- Stand: Vertragsbasis finalisiert, Implementierungswelle aktiviert
+- Implementierungsfreigabe: erteilt am 2026-07-30
 
 ## V1A-Scope
 
@@ -107,16 +107,14 @@ Begruendung:
 - `TC-2026-035` und `TC-2026-036`: Kompressionsverfahren bleiben getrennte
   Capabilities.
 
-## Offene Punkte vor Implementierungsfreigabe
+## Finalisierte V1A-Entscheidungen
 
-1. Soll ZIP-Erzeugung (Create) in dieselbe Modulversion oder in einen spaeteren
-   Slice verschoben werden?
-2. Wie ist Duplicate-Name-Semantik im Archiv vertraglich zu behandeln
-   (erster Treffer, letzter Treffer, expliziter Fehler)?
-3. Welche finalen Standardwerte gelten fuer `@MaxEntryBytes` und
-   `@MaxCompressionRatio`?
-4. Soll bei `@FailIfEncrypted = 0` ein verschluesselter Entry als harter Fehler,
-   als leeres Ergebnis oder als expliziter Status ausgegeben werden?
+1. `Create` bleibt ausserhalb von V1A und wird als spaeterer Slice behandelt.
+2. Duplicate Entry-Namen werden in V1A als expliziter Vertragsfehler behandelt.
+3. Default-Limits sind verbindlich: `@MaxEntryBytes = 104857600` und
+  `@MaxCompressionRatio = 200.00`.
+4. Bei `@FailIfEncrypted = 0` liefert ein verschluesselter Entry einen
+  expliziten Status ohne Payload, nicht still ein leeres Erfolgsergebnis.
 
 ## Testmatrix fuer Verarbeitungswelle 2 (Implementierung)
 
@@ -149,5 +147,5 @@ Begruendung:
 
 ## Naechster Schritt
 
-Nach Benutzerentscheid zu den offenen Punkten wird ein separates
-Implementierungsarbeitspaket fuer den V1A-In-memory-Extraktionsslice aktiviert.
+Implementierungswelle `AP-2026-020` ausfuehren: Modulgeruest, Manifest,
+Deploy/Uninstall, Objektvertrag und Runtime-faehigen Extraktionspfad umsetzen.
