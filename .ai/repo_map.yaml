@@ -72,6 +72,8 @@ sources_of_truth:
   zip_clr_provider_design: Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md
   zip_memory_runtime_workflow: .github/workflows/zip-memory-runtime.yml
   zip_memory_module: Modules/toolbelt.archive.zip-memory/module.yaml
+  sql_clr_zip_spike: Spikes/sql-clr-zip-provider/README.md
+  sql_clr_zip_spike_workflow: .github/workflows/sql-clr-zip-spike.yml
   svf_inline_tvf_policy: Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
   documentation_validator: Tests/Documentation/validate_documentation.py
   documentation_workflow: .github/workflows/documentation-consistency.yml

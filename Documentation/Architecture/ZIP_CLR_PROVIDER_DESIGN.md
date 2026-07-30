@@ -97,6 +97,20 @@ Ein späterer Implementierungs-Slice benötigt mindestens:
 - Microsoft (2026): [sys.sp_add_trusted_assembly](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sys-sp-add-trusted-assembly-transact-sql?view=sql-server-ver17).
 - PKWARE (2026): [ZIP File Format Specification (APPNOTE)](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT).
 
+## Build-/Deployment-Spike
+
+**Dokumentiert:** Der nichtproduktive Spike aus `AP-2026-022` liegt unter
+[`Spikes/sql-clr-zip-provider/`](../../Spikes/sql-clr-zip-provider/). Er enthält
+eine minimale .NET-Framework-4.8-Assembly, die `System.IO.Compression` wirklich
+lädt, sowie getrennte Trust-, Deploy-, Verify- und Uninstall-Schritte.
+
+**Nicht belegt:** Der Spike wurde noch auf keiner SQL-Server-Version oder
+Plattform ausgeführt. Insbesondere ist damit keine Linux-Unterstützung und keine
+Produktionsfähigkeit von `System.IO.Compression` in SQL CLR nachgewiesen.
+
 ## Nächster Schritt
 
-Kein Runtime-Code. Erst nach separater Freigabe: minimalen C#-Build-/Deployment-Spike ohne neues öffentliches Fachobjekt durchführen und seine Evidenz dokumentieren.
+Den Spike gezielt auf SQL Server 2019, 2022 und 2025 unter Windows und Linux
+ausführen. Erst nach dokumentiertem Plattformbefund und einer neuen
+funktionsbezogenen Freigabe darf die produktive Deflate-/CRC-Implementierung
+beginnen.

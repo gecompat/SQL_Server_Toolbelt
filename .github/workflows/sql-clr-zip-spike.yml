@@ -1,0 +1,51 @@
+name: SQL CLR ZIP Spike
+
+on:
+  pull_request:
+    paths:
+      - "Spikes/sql-clr-zip-provider/**"
+      - ".github/workflows/sql-clr-zip-spike.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Spikes/sql-clr-zip-provider/**"
+      - ".github/workflows/sql-clr-zip-spike.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sql-clr-zip-spike-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-contract:
+    name: Static contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 Spikes/sql-clr-zip-provider/Tests/Static/validate_spike.py
+
+  build-net-framework:
+    name: .NET Framework 4.8 build
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build minimal SAFE SQL CLR assembly
+        shell: pwsh
+        run: |
+          $msbuild = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" `
+            -latest -products * -requires Microsoft.Component.MSBuild `
+            -find 'MSBuild/**/Bin/MSBuild.exe' | Select-Object -First 1
+          if (-not $msbuild) { throw 'MSBuild wurde nicht gefunden.' }
+          & $msbuild Spikes/sql-clr-zip-provider/Source/Toolbelt.ZipClr.Spike.csproj `
+            /t:Rebuild /p:Configuration=Release /p:Platform=AnyCPU /m:1
+      - name: Verify SHA2-512 manifest generation
+        shell: pwsh
+        run: >-
+          ./Spikes/sql-clr-zip-provider/Scripts/New-TrustManifest.ps1
+          -AssemblyPath ./Spikes/sql-clr-zip-provider/Source/bin/Release/Toolbelt.ZipClr.Spike.dll
+          -OutputPath ./Spikes/sql-clr-zip-provider/Artifacts/Toolbelt.ZipClr.Spike.trust-manifest.json
