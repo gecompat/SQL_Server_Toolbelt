@@ -4,7 +4,9 @@
 
 # Konvertierung numerischer Ganzzahlen in variables Zahlensystem  
 
-> Überführung 2026-07-30 — Codex: Als `TC-2026-031` formalisiert, nach gemeinsamer Vertragsbesprechung freigegeben und in `AP-2026-013` implementiert; Runtime ist noch `not executed`. Der Originalgedanke bleibt als Herkunft erhalten.
+> Überführung 2026-07-30 — Codex: Als `TC-2026-031` formalisiert und nach gemeinsamer Vertragsbesprechung mit Status `ready for development` in `AP-2026-013` aufgenommen. Der Originalgedanke bleibt als Herkunft erhalten.  
+>
+> Statusaktualisierung 2026-07-30 — Codex: `AP-2026-013` ist implementiert; Runtime ist noch `not executed`.
   z.B.  
 > - Binär (2)
 > - Oktal (8)

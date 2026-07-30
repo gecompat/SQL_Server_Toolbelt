@@ -51,6 +51,7 @@ def main() -> int:
     require(encode, r"@Alphabet\s+varchar\(93\)", "Encode-Alphabet")
     require(encode, r"RETURNS\s+varchar\(65\)", "Encode-Rückgabetyp")
     require(encode, r"decimal\(38\s*,\s*0\)", "sichere Encode-Arithmetik")
+    require(encode, r"END;\s*GO\s*$", "Encode-Batchabschluss")
 
     require(
         decode,
@@ -61,6 +62,7 @@ def main() -> int:
     require(decode, r"@EncodedValue\s+varchar\(65\)", "Decode-Eingabe")
     require(decode, r"@Alphabet\s+varchar\(93\)", "Decode-Alphabet")
     require(decode, r"RETURNS\s+bigint", "Decode-Rückgabetyp")
+    require(decode, r"END;\s*GO\s*$", "Decode-Batchabschluss")
     for marker in (
         "Latin1_General_100_BIN2",
         "9223372036854775808",

@@ -65,3 +65,4 @@ BEGIN
 
     RETURN @Encoded;
 END;
+GO

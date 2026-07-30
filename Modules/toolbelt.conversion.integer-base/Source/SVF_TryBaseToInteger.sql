@@ -110,3 +110,4 @@ BEGIN
 
     RETURN CONVERT(bigint, @Accumulated);
 END;
+GO
