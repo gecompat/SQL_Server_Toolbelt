@@ -130,6 +130,7 @@ def main() -> int:
             "@LargeInput",
             "CROSS APPLY",
             "REGEXP_SPLIT_TO_TABLE",
+            "COLLATE DATABASE_DEFAULT",
         ),
         "Runtime",
     )

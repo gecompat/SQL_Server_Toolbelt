@@ -306,7 +306,7 @@ IF @CompatibilityLevel = 170
 BEGIN
     CREATE TABLE #tbx_NativeSplit
     (
-          Value   nvarchar(max) NOT NULL
+          Value   nvarchar(max) COLLATE DATABASE_DEFAULT NOT NULL
         , Ordinal bigint        NOT NULL
     );
 
