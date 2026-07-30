@@ -1,0 +1,130 @@
+module_id: "toolbelt.file.content"
+module_name: "File Content"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Liest Text- und Binärdateien aus dem Dateisystem über einen kontrollierten, allowlist-basierten Vertrag."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "not executed"
+  linux: "partially validated"
+providers:
+  - id: tsql-openrowset-bulk
+    technology: T-SQL OPENROWSET(BULK...)
+    platforms: [Windows, Linux]
+    status: "partially validated"
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies: []
+schemas:
+  - "toolbelt_file"
+objects:
+  - type: TABLE
+    schema: "toolbelt_file"
+    name: "FileContentRootAllowlist"
+    visibility: configuration
+  - type: USP
+    schema: "toolbelt_file"
+    name: "USP_LoadBinaryFile"
+    visibility: public
+  - type: USP
+    schema: "toolbelt_file"
+    name: "USP_LoadTextFile"
+    visibility: public
+permissions_required:
+  - "EXECUTE auf toolbelt_file.USP_LoadBinaryFile"
+  - "EXECUTE auf toolbelt_file.USP_LoadTextFile"
+  - "ADMINISTER BULK OPERATIONS oder ad-hoc Distributed Queries für OPENROWSET(BULK...)"
+  - "DDL-Rechte für Deploy und Uninstall"
+collation_contract: "Pfadvergleiche werden mit Latin1_General_100_BIN2 durchgeführt; Zeichensatz-Erkennung erfolgt über BOM-Heuristik."
+data_type_contract: "Binärer Inhalt ist varbinary(max); Text ist nvarchar(max); Metadaten sind kleine skalare Typen."
+help_contract_version: "1.0"
+resultset_contracts:
+  - object: "toolbelt_file.USP_LoadBinaryFile"
+    kind: "data"
+    resultset:
+      columns:
+        - name: "Content"
+          type: "varbinary(max)"
+          nullable: true
+        - name: "BytesRead"
+          type: "bigint"
+          nullable: false
+        - name: "IsValid"
+          type: "bit"
+          nullable: false
+        - name: "ValidationCode"
+          type: "int"
+          nullable: true
+        - name: "ValidationMessage"
+          type: "nvarchar(4000)"
+          nullable: true
+    return_code_success: 0
+    error_range: "51320-51329"
+  - object: "toolbelt_file.USP_LoadTextFile"
+    kind: "data"
+    resultset:
+      columns:
+        - name: "Content"
+          type: "nvarchar(max)"
+          nullable: true
+        - name: "BytesRead"
+          type: "bigint"
+          nullable: false
+        - name: "EncodingDetected"
+          type: "nvarchar(128)"
+          nullable: true
+        - name: "BomPresent"
+          type: "bit"
+          nullable: false
+        - name: "IsValid"
+          type: "bit"
+          nullable: false
+        - name: "ValidationCode"
+          type: "int"
+          nullable: true
+        - name: "ValidationMessage"
+          type: "nvarchar(4000)"
+          nullable: true
+    return_code_success: 0
+    error_range: "51320-51329"
+lifecycle_error_range: "51270-51279"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/USP_LoadBinaryFile.md"
+    - "Documentation/USP_LoadTextFile.md"
+  architecture:
+    - "../../Documentation/Architecture/FILE_CONTENT_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/FILE_CONTENT_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/FileContent.Contract.sql"
+  contract: "Tests/Runtime/FileContent.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
