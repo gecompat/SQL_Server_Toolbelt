@@ -4,6 +4,8 @@ Kandidaten für wiederverwendbare Funktionen in `gecompat/SQL_Server_Toolbelt`. 
 
 Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 
+Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md](./TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md)
+
 ## TC-2026-001: String-Split mit mehreren Trennzeichen
 
 | Feld | Wert |
@@ -68,10 +70,10 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Plattformgrenzen** | T-SQL-Kern soll unter Windows und Linux identisch funktionieren. |
 | **Dependencies** | Architekturvertrag in `Documentation/Standards/USP_CONTRACT.md`; voraussichtlich erstes `toolbelt_core`-Modul. |
 | **Duplikatprüfung** | Toolbelt-Backlogs und bestehende Foundation-Dokumentation geprüft; Vertrag vorhanden, Runtime-Implementierung fehlt bewusst. |
-| **Status** | `researched` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [USP_CONTRACT.md](../Documentation/Standards/USP_CONTRACT.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/object-id-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Als erstes Kernarbeitspaket priorisieren und Objektinventar, Schemaschnittstellen, Transaktionsgrenzen sowie Contract-Testmatrix implementierungsreif spezifizieren. |
+| **Nächster Schritt** | Windows-Validierung, natürlichen Savepoint-Rollback nach einem Enginefehler und eine vergleichbare plattformübergreifende Performance-Baseline gezielt nachholen. |
 
 ## TC-2026-004: DATETRUNC-Kompatibilität für SQL Server 2019
 
@@ -137,7 +139,7 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Plattformgrenzen** | Windows und Linux sollen denselben Vertrag verwenden. |
 | **Dependencies** | Keine Modulabhängigkeit. Der öffentliche Vertrag wurde am 2026-07-30 freigegeben. Eine persistente Numbers-Tabelle und damit eine neue Tabellen-Namenskonvention sind nicht erforderlich. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
-| **Status** | `implemented` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [GENERATE_SERIES_MODULE_DESIGN.md](../Documentation/Architecture/GENERATE_SERIES_MODULE_DESIGN.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/generate-series-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-30 |
 | **Nächster Schritt** | Gezielte physische SQL-Server-2019-/2022- und Windows-Releasevalidierung planen; der SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 ist erfolgreich. |
@@ -275,10 +277,10 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Plattformgrenzen** | T-SQL portabel; CLR-Provider pro Plattform testen. |
 | **Dependencies** | Keine Modulabhängigkeit. Der öffentliche Vertrag wurde am 2026-07-29 freigegeben; `DEC-2026-021` verlangt scopebezogene Eigenvalidierung statt eines fachlich unabhängigen ResultTable-Gates. CLR-Infrastruktur ausschließlich optional und nach Messnachweis. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
-| **Status** | `implemented` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [SQL_SERVER_TOOLBELT_LANDSCAPE.md](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>[Auswahlvorbereitung für das zweite Modul](../Documentation/Research/SECOND_MODULE_SELECTION.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/base64-encode-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/base64-decode-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/xml/use-the-binary-base64-option?view=sql-server-ver17<br>https://www.rfc-editor.org/rfc/rfc4648 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | SQL Server 2025 mit Compatibility Levels 150/160/170 ausführen; danach gezielte physische 2019-/2022- und Windows-Releasevalidierung planen. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung gezielt ausführen. |
 
 ## TC-2026-013: JSON-Aggregate für SQL Server 2019/2022
 
@@ -670,7 +672,7 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [Research-Inbox `RI-2026-011`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/quotename-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/parsename-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Als `AP-2026-010` implementieren; das Moduldesign hält die bereits akzeptierten Signaturen, Fehler- und Resultsetverträge vor dem ersten Runtime-Objekt dauerhaft fest. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung gezielt ausführen. |
 
 ## TC-2026-030: Semantic-Version Parser und Comparator
 
