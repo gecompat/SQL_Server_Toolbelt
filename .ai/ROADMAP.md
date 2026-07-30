@@ -16,6 +16,10 @@ validiert; `AP-2026-009` ist abgeschlossen. Das vierte Modul
 auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Das Modul ist wegen offener physischer 2019-/2022- und
 Windows-Läufe `partially validated`.
+Das fünfte Modul `toolbelt.string.split-characters` ist implementiert und auf
+SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 teilweise
+validiert. Die getrennte Ausbaustufe `TC-2026-032` bleibt Research ohne
+Implementierungsfreigabe.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -211,14 +215,26 @@ Stand `toolbelt.metadata.identifier`:
 - physische 2019-/2022- und Windows-Läufe offen, daher
   `validation_status: partially validated`.
 
+Stand `toolbelt.string.split-characters`:
+
+- freigegebener Vertrag `TC-2026-001`, aktives Arbeitspaket `AP-2026-011`;
+- Inline-TVF für mehrere einzelne literal interpretierte UTF-16-Codeeinheiten;
+- Dependency auf `toolbelt.core.generate-series` Version `1.0.0`;
+- Modulmanifest, Lifecycle, Dokumentation, Beispiele sowie statische und
+  Runtime-Contract-Artefakte vorhanden;
+- SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich;
+- physische 2019-/2022- und Windows-Läufe offen, daher
+  `validation_status: partially validated`;
+- mehrzeichige Separatorstrings, Quote und Escape bleiben `TC-2026-032`.
+
 Freigegebene weitere Entwicklungsfolge:
 
-1. `AP-2026-011` / `TC-2026-001` – Multi-Separator-Split Version 1;
-2. `AP-2026-012` / `TC-2026-030` – Semantic-Version Parser und Comparator;
-3. `AP-2026-013` / `TC-2026-031` – Ganzzahlen in frei definierbaren Zahlensystemen.
+1. `AP-2026-012` / `TC-2026-030` – Semantic-Version Parser und Comparator;
+2. `AP-2026-013` / `TC-2026-031` – Ganzzahlen in frei definierbaren Zahlensystemen.
 
-Die drei verbleibenden Arbeitspakete sind `ready for development` und dürfen
-ohne weitere Zwischenfreigabe nacheinander begonnen werden. Die breitere
+`AP-2026-011` ist abgeschlossen. Die zwei verbleibenden Arbeitspakete sind
+`ready for development` und dürfen ohne weitere Zwischenfreigabe nacheinander
+begonnen werden. Die breitere
 Split-Version mit mehrzeichigen Separatoren, Escape und Quote ist separat als
 `TC-2026-032` erfasst und nicht freigegeben.
 

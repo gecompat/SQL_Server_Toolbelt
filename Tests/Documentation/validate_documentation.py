@@ -665,6 +665,27 @@ def validate_identifier_runtime_workflow_scope() -> None:
             )
 
 
+def validate_split_characters_runtime_workflow_scope() -> None:
+    workflow = read(
+        REPOSITORY_ROOT
+        / ".github"
+        / "workflows"
+        / "split-characters-runtime.yml"
+    )
+    prohibited = (
+        '"Documentation/Architecture/**"',
+        '"Documentation/Standards/**"',
+        '"Modules/toolbelt.string.split-characters/Documentation/**"',
+        '"Modules/toolbelt.string.split-characters/Tests/**/*.md"',
+    )
+    for marker in prohibited:
+        if marker in workflow:
+            raise ValidationError(
+                "Split-Characters-Runtime-Matrix wird durch reine "
+                f"Dokumentation ausgelöst: {marker}"
+            )
+
+
 def run_result_table_static() -> None:
     script = (
         REPOSITORY_ROOT
@@ -761,6 +782,30 @@ def run_identifier_static() -> None:
         )
 
 
+def run_split_characters_static() -> None:
+    script = (
+        REPOSITORY_ROOT
+        / "Modules"
+        / "toolbelt.string.split-characters"
+        / "Tests"
+        / "Static"
+        / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)),
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische Split-Characters-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", help="Git-Basisref für die Impact-Ermittlung")
@@ -828,6 +873,10 @@ def main() -> int:
         validate_identifier_runtime_workflow_scope()
     if "identifier_static" in checks:
         run_identifier_static()
+    if "split_characters_runtime_workflow_scope" in checks:
+        validate_split_characters_runtime_workflow_scope()
+    if "split_characters_static" in checks:
+        run_split_characters_static()
 
     print("Dokumentations- und Konsistenzprüfung: erfolgreich")
     print(f"Modulmanifeste: {len(modules)}")
