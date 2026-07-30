@@ -49,14 +49,13 @@ RETURN
     Utf8Validation AS
     (
         SELECT IsUtf8=CONVERT(bit,CASE WHEN CONVERT(varbinary(max),CONVERT(varchar(max),decoded.TextValue) COLLATE Latin1_General_100_BIN2_UTF8)=CONVERT(varbinary(max),CONCAT('0x',COALESCE(bytes.HexValue,'')),1) THEN 1 ELSE 0 END)
-             , HasNul=CONVERT(bit,COALESCE
+             , HasNul=CONVERT(bit,CASE WHEN EXISTS
                (
-                   (
-                       SELECT MAX(CASE WHEN UNICODE(SUBSTRING(decoded.TextValue COLLATE Latin1_General_100_BIN2,positions.Value,1))=0 THEN 1 ELSE 0 END)
-                       FROM toolbelt_core.TVF_GenerateSeriesBigInt(1,CONVERT(bigint,DATALENGTH(decoded.TextValue)/2),1) AS positions
-                   ),
-                   0
-               ))
+                   SELECT 1
+                   FROM toolbelt_core.TVF_GenerateSeriesBigInt(1,CONVERT(bigint,DATALENGTH(decoded.TextValue)/2),1) AS positions
+                   WHERE UNICODE(SUBSTRING(decoded.TextValue COLLATE Latin1_General_100_BIN2,positions.Value,1))=0
+               )
+               THEN 1 ELSE 0 END)
         FROM Bytes AS bytes CROSS JOIN Decoded AS decoded
     )
     SELECT
