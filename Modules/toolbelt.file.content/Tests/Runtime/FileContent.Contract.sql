@@ -229,7 +229,7 @@ EXEC toolbelt_file.USP_LoadBinaryFile @FilePath = @FixturePath;
 IF NOT EXISTS
    (
        SELECT 1 FROM @BinaryResult
-       WHERE IsValid = 1 AND BytesRead = 6
+       WHERE IsValid = 1 AND BytesRead = 7
    )
     THROW 52936, N'Binärdatei konnte nicht korrekt gelesen werden.', 1;
 
