@@ -353,6 +353,8 @@ def validate_manifests(modules: list[dict[str, object]]) -> None:
         evidence_workflows = module["evidence_workflows"]
         assert isinstance(evidence_workflows, list)
         if not evidence_workflows:
+            if module["validation_status"] in {"not executed", "not applicable"}:
+                continue
             raise ValidationError(f"{module_id}: Validierungsevidenz fehlt.")
         current_evidence = evidence_workflows[-1]
         for key in ("module", "test_matrix", "evidence"):
@@ -922,6 +924,27 @@ def validate_w2b_json_path_runtime_workflow_scope() -> None:
             )
 
 
+def validate_w2c_runtime_workflow_scope() -> None:
+    workflow = read(
+        REPOSITORY_ROOT / ".github" / "workflows" / "w2c-runtime.yml"
+    )
+    for marker in (
+        '"Documentation/Architecture/**"',
+        '"Documentation/Standards/**"',
+        '"Modules/toolbelt.core.console-message/**"',
+        '"Modules/toolbelt.metadata.capability-catalog/**"',
+        '"Modules/toolbelt.core.console-message/Documentation/**"',
+        '"Modules/toolbelt.metadata.capability-catalog/Documentation/**"',
+        '"Modules/toolbelt.core.console-message/Tests/**/*.md"',
+        '"Modules/toolbelt.metadata.capability-catalog/Tests/**/*.md"',
+    ):
+        if marker in workflow:
+            raise ValidationError(
+                "W2c-Runtime wird durch reine Dokumentation ausgelöst: "
+                f"{marker}"
+            )
+
+
 def run_result_table_static() -> None:
     script = (
         REPOSITORY_ROOT
@@ -1102,6 +1125,46 @@ def run_json_path_exists_static() -> None:
         )
 
 
+def run_console_message_static() -> None:
+    script = (
+        REPOSITORY_ROOT / "Modules" / "toolbelt.core.console-message"
+        / "Tests" / "Static" / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)),
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische Console-Message-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
+def run_capability_catalog_static() -> None:
+    script = (
+        REPOSITORY_ROOT / "Modules" / "toolbelt.metadata.capability-catalog"
+        / "Tests" / "Static" / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)),
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische Capability-Catalog-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", help="Git-Basisref für die Impact-Ermittlung")
@@ -1190,6 +1253,12 @@ def main() -> int:
         validate_w2b_json_path_runtime_workflow_scope()
     if "json_path_exists_static" in checks:
         run_json_path_exists_static()
+    if "w2c_runtime_workflow_scope" in checks:
+        validate_w2c_runtime_workflow_scope()
+    if "console_message_static" in checks:
+        run_console_message_static()
+    if "capability_catalog_static" in checks:
+        run_capability_catalog_static()
 
     print("Dokumentations- und Konsistenzprüfung: erfolgreich")
     print(f"Modulmanifeste: {len(modules)}")

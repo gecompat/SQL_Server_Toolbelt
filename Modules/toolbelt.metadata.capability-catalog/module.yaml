@@ -1,0 +1,85 @@
+module_id: "toolbelt.metadata.capability-catalog"
+module_name: "Module Capability Catalog"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Projiziert Toolbelt-Modulversionen und Deployment-Modi aus Database-level Extended Properties."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "not executed"
+  linux: "partially validated"
+providers:
+  - id: tsql-catalog-view
+    technology: T-SQL View over sys.extended_properties
+    platforms: [Windows, Linux]
+    status: "partially validated"
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: true
+dependencies: []
+schemas:
+  - "toolbelt_metadata"
+objects:
+  - type: VW
+    schema: "toolbelt_metadata"
+    name: "VW_ModuleCapabilities"
+    visibility: public
+permissions_required:
+  - "SELECT auf toolbelt_metadata.VW_ModuleCapabilities"
+  - "Metadata Visibility auf die Extended Properties der aktuellen Datenbank"
+  - "DDL-Rechte für Deploy und Uninstall"
+collation_contract: "Markernamen, Modul-IDs und erlaubte Werte werden mit expliziten Latin1_General_100_BIN2-/CI_AS-Collations ausgewertet."
+data_type_contract: "ModuleId ist sysname; Markerwerte werden verlustvermeidend als nvarchar(4000) projiziert; MetadataStatus ist varchar(16)."
+help_contract_version: "not applicable"
+resultset_contracts:
+  - name: "VW_ModuleCapabilities"
+    columns:
+      - "ModuleId sysname"
+      - "ModuleVersion nvarchar(4000)"
+      - "DeploymentMode nvarchar(4000)"
+      - "MetadataStatus varchar(16)"
+lifecycle_error_range: "51280-51289"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/VW_ModuleCapabilities.md"
+  architecture:
+    - "../../Documentation/Architecture/CAPABILITY_CATALOG_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "not applicable"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/ModuleCapabilities.Contract.sql"
+  contract: "Tests/Runtime/ModuleCapabilities.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/w2c-runtime.yml"
+validation_evidence:
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; API-, gültiger, unvollständiger, ungültiger, Typ-, Markername-, Object-level-, Collation-, Read-only-, Wiederholungs-, Lifecycle-, Central- und Uninstall-Contract"
+    result: "success"

@@ -178,3 +178,19 @@ einschließlich nativer Parität, Root-, Property-, Quote-, Array-, Wildcard-,
 NULL-, Fehler-, BIN2-, Deployment-, Central-, Uninstall- und
 Lifecycle-Contracts erfolgreich. Physische SQL-Server-2019-/2022- und
 Windows-Läufe bleiben `not executed`.
+
+`toolbelt.core.console-message` hat `implementation_status: implemented`,
+`validation_status: partially validated` und `release_status: unreleased`.
+SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 ist
+einschließlich API-, Help-, Langtext-, PRINT-, RAISERROR/NOWAIT-, Unicode-,
+Zeilen-, Wiederholungs-, Lifecycle-, Central- und Uninstall-Contracts
+erfolgreich. Physische 2019-/2022-, Windows- und weitere Client-/Treiber-Läufe
+bleiben `not executed`.
+
+`toolbelt.metadata.capability-catalog` hat `implementation_status:
+implemented`, `validation_status: partially validated` und `release_status:
+unreleased`. SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
+ist einschließlich API-, Marker-, Drift-, Typ-, Object-level-, Collation-,
+Read-only-, Wiederholungs-, Lifecycle-, Central- und Uninstall-Contracts
+erfolgreich. Physische 2019-/2022-, Windows- und eingeschränkte
+Metadata-Visibility-Läufe bleiben `not executed`.

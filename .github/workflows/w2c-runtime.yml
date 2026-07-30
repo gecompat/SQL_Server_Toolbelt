@@ -1,0 +1,52 @@
+name: W2c Runtime
+
+on:
+  pull_request:
+    paths:
+      - "Modules/toolbelt.core.console-message/Source/**"
+      - "Modules/toolbelt.core.console-message/Deployment/**"
+      - "Modules/toolbelt.core.console-message/Tests/Runtime/**"
+      - "Modules/toolbelt.core.console-message/Tests/Static/**"
+      - "Modules/toolbelt.core.console-message/module.yaml"
+      - "Modules/toolbelt.metadata.capability-catalog/Source/**"
+      - "Modules/toolbelt.metadata.capability-catalog/Deployment/**"
+      - "Modules/toolbelt.metadata.capability-catalog/Tests/Runtime/**"
+      - "Modules/toolbelt.metadata.capability-catalog/Tests/Static/**"
+      - "Modules/toolbelt.metadata.capability-catalog/module.yaml"
+      - "Tests/CI/run-w2c-linux.sh"
+      - ".github/workflows/w2c-runtime.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Modules/toolbelt.core.console-message/Source/**"
+      - "Modules/toolbelt.core.console-message/Deployment/**"
+      - "Modules/toolbelt.core.console-message/Tests/Runtime/**"
+      - "Modules/toolbelt.core.console-message/Tests/Static/**"
+      - "Modules/toolbelt.core.console-message/module.yaml"
+      - "Modules/toolbelt.metadata.capability-catalog/Source/**"
+      - "Modules/toolbelt.metadata.capability-catalog/Deployment/**"
+      - "Modules/toolbelt.metadata.capability-catalog/Tests/Runtime/**"
+      - "Modules/toolbelt.metadata.capability-catalog/Tests/Static/**"
+      - "Modules/toolbelt.metadata.capability-catalog/module.yaml"
+      - "Tests/CI/run-w2c-linux.sh"
+      - ".github/workflows/w2c-runtime.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sql-server-2025-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+          python3
+          Modules/toolbelt.core.console-message/Tests/Static/validate_contract.py
+      - run: >-
+          python3
+          Modules/toolbelt.metadata.capability-catalog/Tests/Static/validate_contract.py
+      - env:
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Tests/CI/run-w2c-linux.sh
