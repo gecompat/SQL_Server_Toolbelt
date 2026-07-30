@@ -4,8 +4,45 @@
 
 - Set-basierte Operationen vor Cursor- oder Schleifenlösungen.
 - Inline Table-valued Functions klar vor Multi-statement Table-valued Functions, wenn der fachliche Vertrag dies erlaubt.
+- Für eine öffentliche Scalar-valued Function wird nach Möglichkeit eine
+  semantisch äquivalente inline Table-valued Function angeboten.
 - Kein Boilerplate ohne dokumentierten Zweck.
 - Öffentliche und interne technische Identifier sind englisch; Kommentare sind deutsch.
+
+## SVF und inline TVF
+
+- Die inline TVF ist der kanonische relationale Kern, wenn sich dieselbe
+  Fachlogik als ein relationaler Ausdruck implementieren lässt.
+- Die SVF darf zusätzlich als bequeme skalare Aufrufvariante bestehen. Sie
+  liest ihren Rückgabewert aus der kanonischen inline TVF oder verwendet einen
+  nachweislich gleichwertigen gemeinsamen Kern.
+- Eine inline TVF, die in ihrem `SELECT` lediglich die SVF aufruft, ist keine
+  Performancealternative und erfüllt diese Regel nicht.
+- Die inline TVF liefert bei skalarer Semantik genau eine Zeile und eine
+  fachlich benannte Ergebnisspalte. Dadurch bleiben `CROSS APPLY` und
+  `OUTER APPLY` eindeutig verwendbar.
+- Objektseite, Modul-README und Beispiele nennen die inline TVF als bevorzugte
+  mengenorientierte API. Die SVF bleibt für Einzelaufrufe und bestehende
+  skalare Aufrufstellen dokumentiert.
+- Contract-Tests prüfen Ergebnisparität, `NULL`- und Fehlersemantik sowie den
+  tatsächlichen Objekttyp. Ein behaupteter Parallelitätsvorteil benötigt einen
+  reproduzierbaren Plan- oder Runtime-Nachweis.
+- Ist keine sinnvolle inline-TVF-Implementierung möglich, dokumentiert das
+  Modul die technische Ursache und die geprüften Alternativen. Bloße
+  Implementierungsbequemlichkeit genügt nicht als Ausnahme.
+
+Nicht ge-inline-te Scalar UDFs verhindern Intra-query-Parallelität. SQL Server
+2019 und neuer kann geeignete T-SQL-Scalar-UDFs bei Compatibility Level 150
+oder höher automatisch in den aufrufenden Ausdruck einbetten und dadurch
+Parallelität wieder ermöglichen. Eligibility und tatsächliches Inlining sind
+jedoch kein stabiler Bibliotheksvertrag. Die relationale inline-TVF-API wird
+deshalb unabhängig davon angeboten.
+
+Primärquellen:
+
+- [Microsoft: Scalar UDF Inlining](https://learn.microsoft.com/en-us/sql/relational-databases/user-defined-functions/scalar-udf-inlining?view=sql-server-ver17)
+- [Microsoft: Query Processing Architecture Guide](https://learn.microsoft.com/en-us/sql/relational-databases/query-processing-architecture-guide?view=sql-server-ver17)
+- [Microsoft: CREATE FUNCTION](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql?view=sql-server-ver17)
 
 ## Error Handling
 
@@ -20,6 +57,8 @@
 - SARGability erhalten und implizite Konvertierungen vermeiden.
 - Cardinality Estimation und Optimizer-Sichtbarkeit berücksichtigen.
 - Keine unnötigen Parallelitätssperren; `MAXDOP` nur begründet.
+- Scalar-UDF-Inlining nicht als Ersatz für eine explizite relationale API
+  voraussetzen.
 - Memory Grants, Sorts, Hashes und Materialisierung großer Resultmengen prüfen.
 - TempDB bewusst und speicherschonend verwenden.
 - Parameter Sniffing, lokale Variablen und `RECOMPILE` bewusst einsetzen.
