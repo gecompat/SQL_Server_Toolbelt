@@ -20,10 +20,38 @@ run_file "${database}" /workspace/Modules/toolbelt.core.generate-series/Deployme
 run_file "${database}" /workspace/Modules/toolbelt.datetime.calendar-difference/Deployment Deploy.sql -v DeploymentMode=local
 run_file "${database}" /workspace/Modules/toolbelt.string.directional-trim/Deployment Deploy.sql -v DeploymentMode=local
 run_file "${database}" /workspace/Modules/toolbelt.conversion.uri-component/Deployment Deploy.sql -v DeploymentMode=local
+run_file "${database}" /workspace/Modules/toolbelt.datetime.calendar-difference/Tests/Runtime Lifecycle.Contract.sql
+run_file "${database}" /workspace/Modules/toolbelt.string.directional-trim/Tests/Runtime Lifecycle.Contract.sql
+run_file "${database}" /workspace/Modules/toolbelt.conversion.uri-component/Tests/Runtime Lifecycle.Contract.sql
 for level in 150 160 170; do
  run_query "${database}" "ALTER DATABASE [${database}] SET COMPATIBILITY_LEVEL = ${level};"
  run_file "${database}" /workspace/Modules/toolbelt.datetime.calendar-difference/Tests/Runtime CalendarDifference.Contract.sql -v CompatibilityLevel="${level}"
  run_file "${database}" /workspace/Modules/toolbelt.string.directional-trim/Tests/Runtime DirectionalTrim.Contract.sql -v CompatibilityLevel="${level}"
  run_file "${database}" /workspace/Modules/toolbelt.conversion.uri-component/Tests/Runtime UriComponent.Contract.sql -v CompatibilityLevel="${level}"
 done
+run_file "${database}" /workspace/Modules/toolbelt.datetime.calendar-difference/Deployment Deploy.sql -v DeploymentMode=local
+run_file "${database}" /workspace/Modules/toolbelt.string.directional-trim/Deployment Deploy.sql -v DeploymentMode=local
+run_file "${database}" /workspace/Modules/toolbelt.conversion.uri-component/Deployment Deploy.sql -v DeploymentMode=local
+run_file "${database}" /workspace/Modules/toolbelt.datetime.calendar-difference/Tests/Runtime Lifecycle.Contract.sql
+run_file "${database}" /workspace/Modules/toolbelt.string.directional-trim/Tests/Runtime Lifecycle.Contract.sql
+run_file "${database}" /workspace/Modules/toolbelt.conversion.uri-component/Tests/Runtime Lifecycle.Contract.sql
+
+central_database="tbx_w1_central"
+consumer_database="tbx_w1_consumer"
+run_query master "CREATE DATABASE [${central_database}] COLLATE Latin1_General_100_BIN2;"
+run_query master "CREATE DATABASE [${consumer_database}] COLLATE Latin1_General_100_CS_AS;"
+run_file "${central_database}" /workspace/Modules/toolbelt.core.generate-series/Deployment Deploy.sql -v DeploymentMode=central
+run_file "${central_database}" /workspace/Modules/toolbelt.datetime.calendar-difference/Deployment Deploy.sql -v DeploymentMode=central
+run_file "${central_database}" /workspace/Modules/toolbelt.string.directional-trim/Deployment Deploy.sql -v DeploymentMode=central
+run_file "${central_database}" /workspace/Modules/toolbelt.conversion.uri-component/Deployment Deploy.sql -v DeploymentMode=central
+run_file "${central_database}" /workspace/Modules/toolbelt.datetime.calendar-difference/Tests/Runtime Lifecycle.Contract.sql
+run_file "${central_database}" /workspace/Modules/toolbelt.string.directional-trim/Tests/Runtime Lifecycle.Contract.sql
+run_file "${central_database}" /workspace/Modules/toolbelt.conversion.uri-component/Tests/Runtime Lifecycle.Contract.sql
+run_file "${consumer_database}" /workspace/Modules/toolbelt.datetime.calendar-difference/Tests/Runtime Central.Contract.sql -v ToolbeltDatabase="${central_database}"
+run_file "${consumer_database}" /workspace/Modules/toolbelt.string.directional-trim/Tests/Runtime Central.Contract.sql -v ToolbeltDatabase="${central_database}"
+run_file "${consumer_database}" /workspace/Modules/toolbelt.conversion.uri-component/Tests/Runtime Central.Contract.sql -v ToolbeltDatabase="${central_database}"
+run_file "${central_database}" /workspace/Modules/toolbelt.conversion.uri-component/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=1
+run_file "${central_database}" /workspace/Modules/toolbelt.string.directional-trim/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=1
+run_file "${central_database}" /workspace/Modules/toolbelt.datetime.calendar-difference/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=1
+run_query "${central_database}" "IF OBJECT_ID(N'toolbelt_datetime.TVF_CalendarDifference') IS NOT NULL OR OBJECT_ID(N'toolbelt_string.TVF_TrimDirectionalNvarchar') IS NOT NULL OR OBJECT_ID(N'toolbelt_string.TVF_TrimDirectionalVarchar') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.TVF_UriComponentEncode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.TVF_UriComponentDecode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_UriComponentEncode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_UriComponentDecode') IS NOT NULL THROW 52739,N'Central Uninstall ließ W1-Objekte zurück.',1;"
 echo "W1 SQL Server 2025 Linux (Compatibility 150/160/170): erfolgreich"
