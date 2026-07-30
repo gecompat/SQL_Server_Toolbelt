@@ -1,0 +1,33 @@
+# Contract-Testmatrix `toolbelt.metadata.identifier`
+
+## Zielmatrix
+
+| Bereich | SQL Server 2019 | SQL Server 2022 | SQL Server 2025 |
+|---|---|---|---|
+| Compatibility Level 150 | `not executed` | `not executed` | erfolgreich |
+| Compatibility Level 160 | nicht anwendbar | `not executed` | erfolgreich |
+| Compatibility Level 170 | nicht anwendbar | nicht anwendbar | erfolgreich |
+| Windows | `not executed` | `not executed` | `not executed` |
+| Linux | `not executed` | `not executed` | `partially validated` |
+
+## Pflichtfälle
+
+- öffentliche Objekttypen, Parameter und Resultspalten;
+- ein- bis vierteilige Namen und rechtsbündige Zuordnung;
+- alle freigegebenen Auslassungsformen;
+- Punkte in `[...]` und `]]`-Escape;
+- `NULL`, leere Eingabe, äußere Leerzeichen und Steuerzeichen;
+- unvollständige/fehlerhafte Klammern und Text nach schließender Klammer;
+- mehr als vier Teile sowie 128-/129-Zeichen-Grenze;
+- unquoted Metazeichen;
+- collation-unabhängige Semantik;
+- Scalar-Wrapper und Parserparität;
+- lokales/zentrales Deployment, Wiederholung, Kollision und Uninstall.
+
+## Aktuelle Evidenz
+
+Der
+[Identifier-Runtime-Lauf 30514751834](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30514751834)
+war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Prüfungen bleiben
+`not executed`; der Modulstatus ist deshalb `partially validated`.

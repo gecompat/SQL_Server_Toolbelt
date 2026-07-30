@@ -18,6 +18,12 @@ SQL Server 2025 mit Compatibility Levels 150, 160 und 170 war unter Linux
 erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
 `not executed`; das Modul ist deshalb `partially validated`.
 
+Das Modul `toolbelt.metadata.identifier` implementiert einen zustandsbasierten
+Parser und einen Quote-Wrapper für ein- bis vierteilige SQL-Namen. Code,
+Lifecycle-, Dokumentations- und Testartefakte sind vorhanden. SQL Server 2025
+Linux mit Compatibility Levels 150, 160 und 170 ist erfolgreich; physische
+2019-/2022- und Windows-Läufe bleiben `not executed`.
+
 ## Projektzweck
 
 SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL Server Database Engine ab Version 2019. Sie stellt Funktionen bereit, die SQL Server nicht nativ besitzt, erst in späteren Versionen anbietet oder nur mit wiederkehrendem, fehleranfälligem Boilerplate ermöglicht.
