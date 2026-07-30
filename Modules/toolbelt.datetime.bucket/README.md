@@ -11,6 +11,11 @@ und 2025.
 | `toolbelt_datetime.TVF_DateBucketDateTime2` | Inline TVF | `datetime2(7)` |
 | `toolbelt_datetime.TVF_DateBucketDateTimeOffset` | Inline TVF | `datetimeoffset(7)` |
 
+`TVF_DateBucketDateTime2` und `TVF_DateBucketDateTimeOffset` verwenden
+intern den nicht öffentlichen, stets einzeiligen `TVF_DateBucketCore`. Diese
+bewusste Optimizer-Grenze verhindert SQL-Server-Fehler `8632`; die drei
+öffentlichen Verträge bleiben Inline TVFs.
+
 ```sql
 SELECT source.EventId, bucket.Value AS FifteenMinuteBucket
 FROM dbo.SyntheticEvents AS source

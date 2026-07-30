@@ -38,12 +38,14 @@ IF EXISTS
                    OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketDate')
                  , OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketDateTime2')
                  , OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketDateTimeOffset')
+                 , OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketCore')
              )
          AND referencing_id NOT IN
              (
                    OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketDate')
                  , OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketDateTime2')
                  , OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketDateTimeOffset')
+                 , OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketCore')
              )
    )
     THROW 51246, N'Die Deinstallation wird durch eine same-database Dependency blockiert.', 1;
@@ -53,6 +55,7 @@ BEGIN TRY
     DROP FUNCTION IF EXISTS [toolbelt_datetime].[TVF_DateBucketDate];
     DROP FUNCTION IF EXISTS [toolbelt_datetime].[TVF_DateBucketDateTime2];
     DROP FUNCTION IF EXISTS [toolbelt_datetime].[TVF_DateBucketDateTimeOffset];
+    DROP FUNCTION IF EXISTS [toolbelt_datetime].[TVF_DateBucketCore];
     EXEC sys.sp_dropextendedproperty @name = @VersionProperty;
     EXEC sys.sp_dropextendedproperty @name = @ModeProperty;
     COMMIT TRANSACTION;

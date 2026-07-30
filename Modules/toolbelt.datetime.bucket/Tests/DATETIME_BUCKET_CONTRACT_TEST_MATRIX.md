@@ -10,6 +10,7 @@
 | Grenzen | minimale und maximale Date/Time-Werte, Engine-Overflow unverändert |
 | Validation | Codes `10`, `11`, `12`; NULL-Propagation |
 | Parität | ausgewählte Vektoren gegen natives `DATE_BUCKET` auf 2022/2025 |
+| Optimizer | öffentliche Inline-TVFs vor internem einzeiligem Core; kein Fehler `8632` |
 | Lifecycle | Erstdeployment, Wiederholung, Kollision, Central, Uninstall |
 
 ## Evidenzstatus

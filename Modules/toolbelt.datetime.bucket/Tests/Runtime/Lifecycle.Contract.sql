@@ -3,6 +3,7 @@ SET NOCOUNT ON;
 IF OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketDate', N'IF') IS NULL
    OR OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketDateTime2', N'IF') IS NULL
    OR OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketDateTimeOffset', N'IF') IS NULL
+   OR OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketCore', N'TF') IS NULL
     THROW 52850, N'Die Bucket-Releaseobjekte fehlen.', 1;
 
 IF NOT EXISTS

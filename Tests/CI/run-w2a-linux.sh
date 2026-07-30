@@ -134,6 +134,7 @@ IF OBJECT_ID(N'toolbelt_datetime.TVF_TruncateDate') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketDate') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketDateTime2') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketDateTimeOffset') IS NOT NULL
+   OR OBJECT_ID(N'toolbelt_datetime.TVF_DateBucketCore') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_binary.TVF_LeftShiftBigInt') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_binary.TVF_RightShiftBigInt') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_binary.TVF_BitCountBigInt') IS NOT NULL

@@ -13,6 +13,14 @@ Version 1 besitzt keine Abhängigkeit zum Truncation-Modul. Beide Capabilities
 teilen keine Fachlogik: Truncation richtet sich an Kalendergrenzen,
 Bucketing an frei definierbare Breiten ab einem Origin.
 
+Die drei öffentlichen Objekte bleiben Inline TVFs. `datetime2(7)` und
+`datetimeoffset(7)` rufen den internen, stets einzeiligen
+`TVF_DateBucketCore` auf. Der Multi-Statement-Core bildet eine bewusste
+Optimizer-Grenze: Eine vollständige Inline-Expansion aller Datepart- und
+Grenzpfade überschreitet sonst das SQL-Server-Ausdruckslimit mit Fehler
+`8632`. `date` behält wegen seines kleineren Datepart-Sets einen direkten
+Inline-Ausdruck.
+
 ## Typ- und Origin-Vertrag
 
 | Objekt | Value, Origin und Ausgabe | Default-Origin |

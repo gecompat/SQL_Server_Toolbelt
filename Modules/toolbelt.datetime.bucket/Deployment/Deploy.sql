@@ -20,7 +20,8 @@ DECLARE @ReleaseObjects TABLE
 
 INSERT INTO @ReleaseObjects (ObjectName, ObjectType)
 VALUES
-      (N'TVF_DateBucketDateTimeOffset', 'IF')
+      (N'TVF_DateBucketCore', 'TF')
+    , (N'TVF_DateBucketDateTimeOffset', 'IF')
     , (N'TVF_DateBucketDateTime2', 'IF')
     , (N'TVF_DateBucketDate', 'IF');
 
@@ -80,6 +81,7 @@ BEGIN
         , @level0type = N'SCHEMA', @level0name = N'toolbelt_datetime';
 END;
 GO
+:r ../Source/TVF_DateBucketCore.sql
 :r ../Source/TVF_DateBucketDateTimeOffset.sql
 :r ../Source/TVF_DateBucketDateTime2.sql
 :r ../Source/TVF_DateBucketDate.sql

@@ -4,7 +4,7 @@ version: "1.0.0"
 implementation_status: implemented
 validation_status: "not executed"
 release_status: unreleased
-description: "Stellt DATE_BUCKET-kompatible typgetrennte Inline TVFs für SQL Server 2019+ bereit."
+description: "Stellt DATE_BUCKET-kompatible typgetrennte öffentliche Inline TVFs mit interner Optimizer-Grenze für SQL Server 2019+ bereit."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -14,8 +14,8 @@ platforms:
   windows: "not executed"
   linux: "not executed"
 providers:
-  - id: tsql-inline
-    technology: T-SQL Inline TVF
+  - id: tsql-relational
+    technology: Öffentliche T-SQL Inline TVFs mit internem einzeiligem MSTVF-Kern
     platforms: [Windows,Linux]
     status: implemented
 deployment_capabilities:
@@ -40,6 +40,10 @@ objects:
     schema: "toolbelt_datetime"
     name: "TVF_DateBucketDateTimeOffset"
     visibility: public
+  - type: TVF
+    schema: "toolbelt_datetime"
+    name: "TVF_DateBucketCore"
+    visibility: internal
 permissions_required: ["SELECT oder REFERENCES auf den Inline Table-valued Functions", "DDL-Rechte für Deploy und Uninstall"]
 collation_contract: "Datepart-Schlüssel werden nach LOWER binär als dokumentierte ASCII-Werte verglichen."
 data_type_contract: "V1 besitzt getrennte Objekte für date, datetime2(7) und datetimeoffset(7); Typ und Scale sind je Objekt fest, Origin hat denselben Typ wie Value."
