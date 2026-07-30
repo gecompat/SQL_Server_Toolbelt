@@ -12,4 +12,4 @@ CROSS APPLY toolbelt_datetime.TVF_CalendarDifference(source.StartDate, source.En
 
 Weitere Details: [Objektvertrag](./Documentation/TVF_CalendarDifference.md), [Moduldesign](../../Documentation/Architecture/CALENDAR_DIFFERENCE_MODULE_DESIGN.md) und [Testmatrix](./Tests/CALENDAR_DIFFERENCE_CONTRACT_TEST_MATRIX.md).
 
-Aktuelle Evidenz: [Run 30552721606](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30552721606) – SQL Server 2025 Linux mit Compatibility Levels 150/160/170 erfolgreich; Modulstatus `partially validated`.
+Aktuelle Evidenz: [Run 30553118399](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118399) – SQL Server 2025 Linux mit Compatibility Levels 150/160/170 erfolgreich; Modulstatus `partially validated`.

@@ -46,6 +46,13 @@ sources_of_truth:
   integer_base_module_design: Documentation/Architecture/INTEGER_BASE_MODULE_DESIGN.md
   integer_base_runtime_workflow: .github/workflows/integer-base-runtime.yml
   integer_base_module: Modules/toolbelt.conversion.integer-base/module.yaml
+  calendar_difference_module_design: Documentation/Architecture/CALENDAR_DIFFERENCE_MODULE_DESIGN.md
+  directional_trim_module_design: Documentation/Architecture/DIRECTIONAL_TRIM_MODULE_DESIGN.md
+  uri_component_module_design: Documentation/Architecture/URI_COMPONENT_MODULE_DESIGN.md
+  w1_portable_runtime_workflow: .github/workflows/w1-portable-runtime.yml
+  calendar_difference_module: Modules/toolbelt.datetime.calendar-difference/module.yaml
+  directional_trim_module: Modules/toolbelt.string.directional-trim/module.yaml
+  uri_component_module: Modules/toolbelt.conversion.uri-component/module.yaml
   svf_inline_tvf_policy: Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
   documentation_validator: Tests/Documentation/validate_documentation.py
   documentation_workflow: .github/workflows/documentation-consistency.yml
@@ -254,11 +261,17 @@ change_impact:
       paths:
         - README.md
         - SECURITY.md
+        - CHANGELOG.md
         - Modules/README.md
         - Modules/*/module.yaml
+        - Tests/README.md
         - .ai/BACKLOG.md
         - .ai/ROADMAP.md
         - .ai/PROJECT_CONTEXT.md
+        - Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md
+        - Backlog/TOOLBELT_CANDIDATES.md
+        - Backlog/TOOLBELT_RESEARCH_INBOX.md
+        - Backlog/TOOLBELT_RESEARCH_PRIORITIES.md
         - Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md
         - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
       checks:
@@ -383,8 +396,12 @@ change_impact:
         - Documentation/Architecture/CALENDAR_DIFFERENCE_MODULE_DESIGN.md
         - Documentation/Architecture/DIRECTIONAL_TRIM_MODULE_DESIGN.md
         - Documentation/Architecture/URI_COMPONENT_MODULE_DESIGN.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+        - Tests/CI/run-w1-linux.sh
+        - .github/workflows/w1-portable-runtime.yml
       checks:
         - markdown_links
+        - w1_runtime_workflow_scope
     runtime_workflow:
       paths:
         - .github/workflows/result-table-runtime.yml

@@ -2,6 +2,9 @@
 
 ## Projektstatus
 
+10 Module sind implementiert und `partially validated`; die verbindlichen
+Einzelstatus werden aus den jeweiligen `module.yaml`-Manifesten abgeleitet.
+
 Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das Kernmodul
 `toolbelt.core.result-table` ist implementiert und teilweise validiert: Die
 GitHub-hosted Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich;
