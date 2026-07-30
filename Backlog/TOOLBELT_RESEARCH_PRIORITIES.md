@@ -39,10 +39,10 @@ Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
 | 3 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
 | 4 | `TC-2026-029` – Identifier- und Multipart-Name-Toolkit | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
 | 5 | `TC-2026-001` – Split mit mehreren einzelnen Trennzeichen | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert; breitere Quote-/Escape-Stufe bleibt getrennt. |
-| 6 | `TC-2026-030` – Semantic-Version Parser/Comparator | `S–M` | Implementiert; Runtime noch `not executed`. |
+| 6 | `TC-2026-030` – Semantic-Version Parser/Comparator | `S–M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
 
 **Hauptempfehlung:** Die offenen Releasevalidierungen getrennt weiterführen.
-Semantic Versioning wird aktuell validiert; danach bleibt ein F1-Vertrag.
+Semantic Versioning ist teilweise validiert; es bleibt ein F1-Vertrag.
 
 ## F1 – Kleiner nutzerorientierter Konzentrationskorb
 
@@ -54,7 +54,7 @@ besprochen und ausdrücklich zur aufeinanderfolgenden Implementierung freigegebe
 | 1 | `TC-2026-031` – frei definierbare Zahlensysteme, aus `RI-2026-055` | `S–M` | `ready for development` | Ganzzahlen und explizites Alphabet; keine stillschweigende Alphabetnormalisierung. |
 
 Die Reihenfolge ist durch die Sammelfreigabe vom 2026-07-30 festgelegt:
-Nach dem aktiven SemVer-Slice folgen frei definierbare Zahlensysteme.
+Nach dem abgeschlossenen SemVer-Slice folgen frei definierbare Zahlensysteme.
 
 ## F1-Q – Qualitäts-Enabler parallel, aber nicht alle zugleich
 
@@ -104,8 +104,7 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 
 ## Nächste Ausführung
 
-`AP-2026-010` / `TC-2026-029` und `AP-2026-011` / `TC-2026-001`
-sind abgeschlossen. Danach folgen ohne weitere Zwischenfreigabe
-`AP-2026-012` ist aktiv. Danach folgt `AP-2026-013` für frei definierbare
-Zahlensysteme.
+`AP-2026-010` / `TC-2026-029`, `AP-2026-011` / `TC-2026-001` und
+`AP-2026-012` / `TC-2026-030` sind abgeschlossen. Ohne weitere
+Zwischenfreigabe folgt `AP-2026-013` für frei definierbare Zahlensysteme.
 `TC-2026-032` bleibt als getrennte Split-Ausbaustufe im Research-Status.

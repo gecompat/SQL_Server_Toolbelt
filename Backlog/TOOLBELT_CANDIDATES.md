@@ -691,10 +691,10 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
 | **Dependencies** | Keine Modulabhängigkeit. Der Standardumfang einschließlich Pre-release und Build Metadata wurde am 2026-07-30 besprochen und die Implementierung ausdrücklich freigegeben. |
 | **Duplikatprüfung** | Research-Inbox und formale Toolbelt-Kandidaten geprüft. |
-| **Status** | `implemented`; Runtime `not executed` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [Research-Inbox `RI-2026-075`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://semver.org/spec/v2.0.0.html |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | `AP-2026-012` mit statischer Prüfung und SQL-Server-2025-Linux-Runtime abschließen. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung später gezielt ausführen. |
 
 ## TC-2026-031: Ganzzahlen in frei definierbaren Zahlensystemen
 

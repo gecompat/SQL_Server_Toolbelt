@@ -5,4 +5,4 @@ Vergleicht zwei `varchar(8000)`-Werte nach SemVer 2.0.0. Ergebnis: `-1`, `0`,
 ignoriert. Zahlen werden über Länge und anschließend ASCII-binär verglichen.
 
 Aktuelle Evidenz:
-https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/semantic-version-runtime.yml
+https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30517137373

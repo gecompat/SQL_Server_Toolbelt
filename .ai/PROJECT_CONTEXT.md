@@ -33,8 +33,9 @@ Compatibility Levels 150, 160 und 170 ist erfolgreich; physische
 Quote-/Escape-Version bleibt getrennt als `TC-2026-032`.
 
 `toolbelt.validation.semantic-version` ist mit strengem SemVer-2.0.0-Parser,
-Comparator und binärem Sort Key implementiert. Runtime ist noch
-`not executed`.
+Comparator und binärem Sort Key implementiert. SQL Server 2025 Linux ist mit
+Compatibility Levels 150, 160 und 170 erfolgreich; physische 2019-/2022- und
+Windows-Läufe bleiben `not executed`.
 
 ## Projektzweck
 

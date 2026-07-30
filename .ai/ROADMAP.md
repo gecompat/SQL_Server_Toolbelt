@@ -21,7 +21,8 @@ SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 teilweise
 validiert. Die getrennte Ausbaustufe `TC-2026-032` bleibt Research ohne
 Implementierungsfreigabe.
 Das sechste Modul `toolbelt.validation.semantic-version` ist implementiert;
-Runtime ist noch `not executed`.
+SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und 170
+erfolgreich. Physische 2019-/2022- und Windows-Läufe bleiben offen.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -233,9 +234,8 @@ Freigegebene weitere Entwicklungsfolge:
 
 1. `AP-2026-013` / `TC-2026-031` – Ganzzahlen in frei definierbaren Zahlensystemen.
 
-`AP-2026-012` ist aktiv. Das danach verbleibende Arbeitspaket ist
-`ready for development` und darf ohne weitere Zwischenfreigabe begonnen
-werden. Die breitere
+`AP-2026-012` ist abgeschlossen. `AP-2026-013` ist das verbleibende
+Arbeitspaket und darf ohne weitere Zwischenfreigabe begonnen werden. Die breitere
 Split-Version mit mehrzeichigen Separatoren, Escape und Quote ist separat als
 `TC-2026-032` erfasst und nicht freigegeben.
 

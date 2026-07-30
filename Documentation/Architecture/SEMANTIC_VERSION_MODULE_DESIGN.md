@@ -10,5 +10,6 @@ mit getrennten numerischen/alphanumerischen Markern. Release steht über
 Pre-release; Build Metadata wird ignoriert.
 
 Lokales und zentrales Deployment folgen dem allgemeinen Lifecycle-Vertrag.
-Der Modulfehlerbereich ist `51080–51089`. Runtime-Evidenz ist bis zur
-tatsächlichen Workflow-Ausführung `not executed`.
+Der Modulfehlerbereich ist `51080–51089`. SQL Server 2025 Linux ist mit
+Compatibility Levels 150, 160 und 170 erfolgreich; physische
+SQL-Server-2019-/2022- und Windows-Läufe bleiben offen.

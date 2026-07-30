@@ -8,8 +8,8 @@
 | Größe | 2.000-stellige Core-Komponente ohne Overflow | vorhanden |
 | Sort Key | gleiche Reihenfolge wie Comparator | vorhanden |
 | Lifecycle | lokal, zentral, Drift, Kollision, Uninstall | vorhanden |
-| SQL Server 2025 Linux 150/160/170 | vollständige Suite | `not executed` |
+| SQL Server 2025 Linux 150/160/170 | vollständige Suite | erfolgreich |
 | SQL Server 2019/2022 und Windows | Release-Matrix | `not executed` |
 
 Aktuelle Evidenz:
-https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/semantic-version-runtime.yml
+https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30517137373

@@ -2,7 +2,7 @@ module_id: "toolbelt.validation.semantic-version"
 module_name: "Semantic Version Validation"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Parst, vergleicht und sortiert strikte Semantic-Version-2.0.0-Werte."
 
@@ -16,7 +16,7 @@ compatibility_levels:
   - 170
 platforms:
   windows: "not executed"
-  linux: "not executed"
+  linux: "partially validated"
 
 providers:
   - id: tsql-state-machine
@@ -106,6 +106,6 @@ tests:
 
 validation_evidence:
   - date: "2026-07-30"
-    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/semantic-version-runtime.yml"
-    scope: "Workflow und Contract-Tests vorhanden; Runtime noch nicht ausgeführt"
-    result: "not executed"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30517137373"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; Parser, Comparator, Sort Key, lokales und zentrales Deployment, Kollision und Lifecycle"
+    result: "success"

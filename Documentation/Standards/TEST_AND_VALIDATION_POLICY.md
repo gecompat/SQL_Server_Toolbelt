@@ -115,10 +115,11 @@ Dependency-, Deployment- und Lifecycle-Contracts erfolgreich. Physische
 2019-/2022- und Windows-Läufe bleiben `not executed`.
 
 `toolbelt.validation.semantic-version` hat `implementation_status:
-implemented`, `validation_status: not executed` und `release_status:
+implemented`, `validation_status: partially validated` und `release_status:
 unreleased`. Parser-, Comparator-, Sort-Key-, Deployment- und
-Lifecycle-Artefakte sind vorhanden; Runtime bleibt bis zur tatsächlichen
-Ausführung `not executed`.
+Lifecycle-Contracts sind auf SQL Server 2025 Linux mit Compatibility Levels
+150, 160 und 170 erfolgreich; physische SQL-Server-2019-/2022- und
+Windows-Läufe bleiben `not executed`.
 
 `toolbelt.conversion.base64` hat `implementation_status: implemented`,
 `validation_status: partially validated` und `release_status: unreleased`. SQL
