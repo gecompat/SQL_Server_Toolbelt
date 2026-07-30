@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 13 Module implementiert – 10 teilweise validiert](https://img.shields.io/badge/Status-13%20Module%20implementiert%20%7C%2010%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 13 Module implementiert – 13 teilweise validiert](https://img.shields.io/badge/Status-13%20Module%20implementiert%20%7C%2013%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -124,8 +124,10 @@ Die implementierten W2a-Module
 [`toolbelt.datetime.bucket`](./Modules/toolbelt.datetime.bucket/README.md) und
 [`toolbelt.binary.bit-operations`](./Modules/toolbelt.binary.bit-operations/README.md)
 stellen typgetrennte Date/Time-Truncation, Origin-basiertes Bucketing und die
-fünf Bitoperationen für `bigint` als kanonische Inline TVFs bereit. Ihre
-Runtime-Evidenz ist noch `not executed`.
+fünf Bitoperationen für `bigint` als kanonische relationale TVFs bereit.
+SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und 170
+einschließlich Wiederholungsdeployment, Lifecycle, Central und Uninstall
+erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
 
 ## Modulprinzip
 

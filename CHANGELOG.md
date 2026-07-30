@@ -11,7 +11,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - W2a mit typgetrennten Date/Time-Truncation- und Bucket-Inline-TVFs sowie
   Bigint-Shift-, Bit-Count-, Get-Bit- und Set-Bit-Funktionen. Die drei Module
   besitzen gekoppelte Lifecycle-, Central-, Contract-, Dokumentations- und
-  Runtime-Artefakte; Runtime bleibt bis zur Ausführung `not executed`.
+  Runtime-Artefakte. SQL Server 2025 Linux ist mit Compatibility Levels 150,
+  160 und 170 einschließlich Wiederholungsdeployment, Lifecycle, Central und
+  Uninstall erfolgreich; der Status ist `partially validated`.
 - Sechs semantisch äquivalente inline-TVF-APIs für Base64, Integer-Base und
   Semantic Versioning als kanonische relationale Kerne für `CROSS APPLY` und
   `OUTER APPLY`; die vorhandenen SVFs bleiben Convenience-Wrapper.
@@ -117,6 +119,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Korrigiert
 
+- Bucket-SQL-Alias und Optimizer-Expansion korrigiert. Die drei öffentlichen
+  Verträge bleiben Inline TVFs; ein interner einzeiliger Core verhindert den
+  in der Runtime nachgewiesenen SQL-Server-Fehler `8632`.
 - Modulzahl, Modulübersichten, Testinventar, Roadmap, Backlog, Research-Fokus
   und den kandidatenübergreifenden Implementierungsplan auf die tatsächlich
   vorhandenen 10 Module synchronisiert.
@@ -150,9 +155,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-13 Module sind implementiert. Zehn sind `partially validated`; die drei
-W2a-Module bleiben bis zur tatsächlichen Runtime-Ausführung `not executed`.
-ResultTable ist unter Linux auf SQL Server 2019, 2022 und 2025 erfolgreich;
-die übrigen bereits validierten Module sind auf SQL Server 2025 Linux mit
-Compatibility Levels 150, 160 und 170 erfolgreich. Windows und die jeweils
-offenen Releasefälle bleiben `not executed`.
+13 Module sind implementiert und `partially validated`. ResultTable ist unter
+Linux auf SQL Server 2019, 2022 und 2025 erfolgreich; die übrigen Module sind
+auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich. Windows und die jeweils offenen Releasefälle bleiben
+`not executed`.

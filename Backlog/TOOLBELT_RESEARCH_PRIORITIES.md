@@ -6,7 +6,7 @@ Stand: 2026-07-30
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** 13 Module sind implementiert. Zehn sind `partially validated`; Date/Time Truncation, Date/Time Bucket und Bigint Bit Operations sind bis zur W2a-Runtime `not executed`. |
+| Aktueller Projektstand | **Dokumentiert:** 13 Module sind implementiert und `partially validated`. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
 | Implementierungsfreigabe | **Abgeschlossen beziehungsweise aktiv:** Die bisher implementierten Einzelkandidaten, W1 und W2a wurden nach ausdrücklicher Freigabe umgesetzt. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
@@ -46,19 +46,20 @@ Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
 | 10 | `TC-2026-024` – URI-Percent-Encoding | `M` | Als W1-Modul mit kanonischen inline TVFs und optionalen SVF-Wrappern implementiert und teilweise validiert. |
 
 **Hauptempfehlung:** Die offenen Releasevalidierungen getrennt weiterführen.
-Die beiden freigegebenen Entwicklungsgruppen bis einschließlich W1 sind
+Die drei freigegebenen Entwicklungsgruppen bis einschließlich W2a sind
 umgesetzt und teilweise validiert.
 
 ## F1 – Abgeschlossene Sammelfreigaben
 
-Die freigegebenen Kandidaten wurden in zwei Gruppen umgesetzt:
+Die freigegebenen Kandidaten wurden in drei Gruppen umgesetzt:
 
 | Gruppe | Kandidaten | Status | Wichtigste Scope-Grenze |
 |---|---|---|---|
 | Sammelfreigabe 2026-07-30 | `TC-2026-029`, `TC-2026-001`, `TC-2026-030`, `TC-2026-031` | `completed`; Runtime `partially validated` | Identifier, Split Version 1, Semantic Versioning und Integer Base bleiben getrennte Module. |
 | Portable W1 | `TC-2026-002`, `TC-2026-008`, `TC-2026-024` | `completed`; Runtime `partially validated` | Calendar Difference, Directional TRIM und URI Component besitzen voneinander unabhängige Verträge. |
+| Portable W2a | `TC-2026-004`, `TC-2026-005`, `TC-2026-007` | `completed`; Runtime `partially validated` | Date/Time-Typfamilien und der Bigint-Bit-Slice bleiben von späteren Typ-/Providererweiterungen getrennt. |
 
-Beide Freigaben vom 2026-07-30 sind vollständig abgearbeitet.
+Alle drei Sammelfreigaben vom 2026-07-30 sind vollständig abgearbeitet.
 
 ## F1-Q – Qualitäts-Enabler parallel, aber nicht alle zugleich
 
@@ -111,8 +112,8 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 
 ## Nächste Ausführung
 
-`AP-2026-016` setzt die ausdrücklich freigegebene W2a um. Die drei Module sind
-implementiert; ihre Runtime-Evidenz steht noch aus. Ein weiterer
+`AP-2026-016` und die ausdrücklich freigegebene W2a sind abgeschlossen. Die
+drei Module sind auf SQL Server 2025 Linux teilweise validiert. Ein weiterer
 Implementierungskandidat benötigt wieder Vertragsbesprechung und Freigabe.
 `TC-2026-032` bleibt als getrennte Split-Ausbaustufe im Research-Status.
 

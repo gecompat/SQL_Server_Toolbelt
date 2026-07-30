@@ -2,10 +2,8 @@
 
 ## Projektstatus
 
-13 Module sind implementiert; zehn sind `partially validated`, die drei
-W2a-Module bis zur tatsächlichen Runtime-Ausführung `not executed`. Die
-verbindlichen Einzelstatus werden aus den jeweiligen
-`module.yaml`-Manifesten abgeleitet.
+13 Module sind implementiert und `partially validated`. Die verbindlichen
+Einzelstatus werden aus den jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das Kernmodul
 `toolbelt.core.result-table` ist implementiert und teilweise validiert: Die
@@ -62,8 +60,11 @@ W2a ist mit drei weiteren portablen Inline-TVF-Modulen implementiert:
 `datetime2(7)` und `datetimeoffset(7)`, `toolbelt.datetime.bucket` ergänzt
 Origin-basierte Buckets derselben Typfamilie und
 `toolbelt.binary.bit-operations` portiert die fünf SQL-Server-2022-
-Bitoperationen für `bigint`. Die W2a-Runtime ist noch `not executed`;
-physische SQL-Server-2019-/2022- und Windows-Läufe bleiben ebenfalls offen.
+Bitoperationen für `bigint`. SQL Server 2025 Linux ist mit Compatibility
+Levels 150, 160 und 170
+einschließlich Wiederholungsdeployment, Lifecycle, zentraler Nutzung und
+Uninstall erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe
+bleiben offen; die Module sind deshalb `partially validated`.
 
 ## Projektzweck
 

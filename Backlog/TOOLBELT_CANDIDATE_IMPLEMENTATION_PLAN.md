@@ -10,7 +10,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 ## Verbindlichkeit und Aussagegrenzen
 
 - **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 13 Module sind
-  implementiert; 10 sind `partially validated`, drei noch `not executed`.
+  implementiert und `partially validated`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -31,7 +31,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 | Gruppe | Kandidaten | Konsequenz |
 |---|---|---|
-| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-012`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031` | W2a-Runtime für `004`, `005`, `007`; übrige offene Releasevalidierung gezielt abschließen. |
+| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-012`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031` | Offene physische Zielversions-, Windows- und modulspezifische Releasevalidierung gezielt abschließen. |
 | Kleine bis mittlere portable Kerne | `TC-2026-009`, `TC-2026-016`, `TC-2026-023` | Je Kandidat zuerst Typ-, Fehler- und Resultvertrag festlegen; danach weitgehend unabhängige Module. |
 | Parser-, CLR- oder breite Semantikmodule | `TC-2026-010`, `TC-2026-011`, `TC-2026-013`, `TC-2026-032` | Funktionsfamilien und Provider vor dem ersten Code begrenzen und benchmarken. |
 | Execution-Infrastruktur | `TC-2026-014` bis `TC-2026-022`, `TC-2026-046` | Als abhängige Plattform in mehreren Modulen entwickeln; kein monolithisches Sammelmodul. |
@@ -72,9 +72,9 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 | Welle | Status | Inhalt | Kandidaten | Eintrittsbedingung | Ergebnis |
 |---|---|---|---|---|---|
-| `V0` | `planned` | Offene Releasevalidierung | `001`, `002`, `003`, `006`, `008`, `012`, `024`, `029`, `030`, `031` | Geeignete physische Engines beziehungsweise Windows-Runner | Nachweisbare Erweiterung des Validierungsscopes; keine Codeänderung ohne Befund. |
+| `V0` | `planned` | Offene Releasevalidierung | `001`, `002`, `003`, `004`, `005`, `006`, `007`, `008`, `012`, `024`, `029`, `030`, `031` | Geeignete physische Engines beziehungsweise Windows-Runner | Nachweisbare Erweiterung des Validierungsscopes; keine Codeänderung ohne Befund. |
 | `W1` | `completed` | Kleine unabhängige T-SQL-Kerne | `002`, `008`, `024` | Einzelvertrag und Freigabe | Drei implementierte, auf SQL Server 2025 Linux teilweise validierte Module. |
-| `W2a` | `implemented` | Date/Time- und Bigint-Bit-Kompatibilität | `004`, `005`, `007` | Typfamilien, Paritätsumfang und Fehlervertrag am 2026-07-30 freigegeben | Drei Module implementiert; Runtime noch `not executed`. |
+| `W2a` | `completed` | Date/Time- und Bigint-Bit-Kompatibilität | `004`, `005`, `007` | Typfamilien, Paritätsumfang und Fehlervertrag am 2026-07-30 freigegeben | Drei Module implementiert und auf SQL Server 2025 Linux teilweise validiert. |
 | `W2b` | `researched` | JSON-Kompatibilität und Aggregate | `009`, `013` | Aufrufoberfläche, variable Eingaben und T-SQL-/CLR-Provider entschieden | JSON-Pfad/Konstruktoren und Aggregate als getrennte Slices. |
 | `W3` | `researched` | String-Parser und Matching | `010`, `011`, `032` | Syntaxsubset, Limits und Providervergleich entschieden | Getrennte Regex-, Fuzzy- und Quote-/Escape-Module. |
 | `W4` | `researched` | Execution-Grundlagen | `016`, `017`, `019`, `023`, `022` | Persistente Namenskonvention nur soweit tatsächlich benötigt | Console, Error Envelope, Correlation, Capability Discovery und Work-Type-Katalog. |
@@ -106,9 +106,9 @@ freigegebenes Arbeitspaket aktiv.
 | `TC-2026-029` | `toolbelt.metadata.identifier` | `toolbelt_metadata.TVF_ParseMultipartName`, `toolbelt_metadata.SVF_QuoteMultipartName` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
 | `TC-2026-030` | `toolbelt.validation.semantic-version` | `toolbelt_validation.TVF_ParseSemanticVersion`, `toolbelt_validation.TVF_CompareSemanticVersion`, `toolbelt_validation.TVF_SemanticVersionSortKey`, `toolbelt_validation.SVF_CompareSemanticVersion`, `toolbelt_validation.SVF_SemanticVersionSortKey` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
 | `TC-2026-031` | `toolbelt.conversion.integer-base` | `toolbelt_conversion.TVF_IntegerToBase`, `toolbelt_conversion.TVF_TryBaseToInteger`, `toolbelt_conversion.SVF_IntegerToBase`, `toolbelt_conversion.SVF_TryBaseToInteger` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
-| `TC-2026-004` | `toolbelt.datetime.truncate` | `TVF_TruncateDate`, `TVF_TruncateDateTime2`, `TVF_TruncateDateTimeOffset` | W2a-Runtime; danach physische Zielversionen und Windows. |
-| `TC-2026-005` | `toolbelt.datetime.bucket` | `TVF_DateBucketDate`, `TVF_DateBucketDateTime2`, `TVF_DateBucketDateTimeOffset` | W2a-Runtime; danach physische Zielversionen und Windows. |
-| `TC-2026-007` | `toolbelt.binary.bit-operations` | `TVF_LeftShiftBigInt`, `TVF_RightShiftBigInt`, `TVF_BitCountBigInt`, `TVF_GetBitBigInt`, `TVF_SetBitBigInt` | W2a-Runtime; Binary-Slice bleibt getrennt. |
+| `TC-2026-004` | `toolbelt.datetime.truncate` | `TVF_TruncateDate`, `TVF_TruncateDateTime2`, `TVF_TruncateDateTimeOffset` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
+| `TC-2026-005` | `toolbelt.datetime.bucket` | `TVF_DateBucketDate`, `TVF_DateBucketDateTime2`, `TVF_DateBucketDateTimeOffset` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
+| `TC-2026-007` | `toolbelt.binary.bit-operations` | `TVF_LeftShiftBigInt`, `TVF_RightShiftBigInt`, `TVF_BitCountBigInt`, `TVF_GetBitBigInt`, `TVF_SetBitBigInt` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Binary-Slice bleibt getrennt. |
 
 ### Portable Fach- und Compatibility-Module
 
@@ -216,9 +216,10 @@ stillschweigend zu V1.
 
 ## Nächste konkrete Auswahl
 
-W2a mit `TC-2026-004`, `TC-2026-005` und `TC-2026-007` ist implementiert;
-die Runtime-Evidenz steht noch aus. Der Scope trennt Date/Time-Typfamilien und
-den `bigint`-Bit-Slice von späteren `binary(n)`-/`varbinary(n)`-Providern.
+W2a mit `TC-2026-004`, `TC-2026-005` und `TC-2026-007` ist implementiert und
+auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 teilweise
+validiert. Der Scope trennt Date/Time-Typfamilien und den `bigint`-Bit-Slice
+von späteren `binary(n)`-/`varbinary(n)`-Providern.
 
 Die Hauptempfehlung für die nächste Vertragsbesprechung ist W2b:
 `TC-2026-009` und `TC-2026-013`. Variable Konstruktorargumente,
@@ -226,5 +227,5 @@ SQL/JSON-Pfadumfang und echte Aggregate benötigen zuerst eine eigene
 Aufrufoberflächen- und Providerentscheidung.
 
 Diese Auswahl ist keine Implementierungsfreigabe. Parallel dazu kann `V0` die
-offenen physischen Releasevalidierungen der 10 implementierten Module bündeln,
+offenen physischen Releasevalidierungen der 13 implementierten Module bündeln,
 ohne den Beginn eines neuen freigegebenen Moduls zu blockieren.

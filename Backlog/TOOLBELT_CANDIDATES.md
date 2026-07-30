@@ -93,10 +93,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
 | **Dependencies** | Keine Modulabhängigkeit. Der typgetrennte W2a-Vertrag wurde am 2026-07-30 ausdrücklich freigegeben. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; TC-2026-002 und TC-2026-005 besitzen andere fachliche Verträge. |
-| **Status** | `implemented`; Runtime `not executed` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [Auswahlvorbereitung für das zweite Modul](../Documentation/Research/SECOND_MODULE_SELECTION.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/datetrunc-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/user-defined-functions/create-user-defined-functions-database-engine?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/user-defined-functions/scalar-udf-inlining?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | W2a-Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 ausführen; danach physische SQL-Server-2019-/2022- und Windows-Releasevalidierung planen. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung ausführen. |
 
 ## TC-2026-005: DATE_BUCKET-Kompatibilität für SQL Server 2019
 
@@ -111,15 +111,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Ja: `DATE_BUCKET` ab SQL Server 2022. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Wiederverwendbare Zeitfenster für Aggregation, Telemetrie und Reporting ohne wiederholte fehleranfällige Berechnungen. |
-| **Mögliche Technologie** | Implementierte T-SQL-Inline-TVF-Familie für `date`, `datetime2(7)` und `datetimeoffset(7)` mit `DATEADD`/`DATEDIFF_BIG`, typgleichem Origin und SQL-Server-2019-kompatibler Zerlegung großer Zeitabstände. |
-| **Performance und Security** | Negative Abstände werden mathematisch zum früheren Bucket abgerundet. Overflow, Origin-Zeitanteil, Monatsende und Datentypgrenzen sind Teil der Contract-Matrix. Ausdrucksverwendung in Prädikaten kann SARGability beeinflussen. |
+| **Mögliche Technologie** | Implementierte öffentliche T-SQL-Inline-TVF-Familie für `date`, `datetime2(7)` und `datetimeoffset(7)` mit `DATEADD`/`DATEDIFF_BIG`, typgleichem Origin und SQL-Server-2019-kompatibler Zerlegung großer Zeitabstände. `datetime2` und `datetimeoffset` verwenden einen internen einzeiligen MSTVF-Core als Optimizer-Grenze. |
+| **Performance und Security** | Negative Abstände werden mathematisch zum früheren Bucket abgerundet. Overflow, Origin-Zeitanteil, Monatsende und Datentypgrenzen sind Teil der Contract-Matrix. Der interne Core verhindert nachgewiesenen Enginefehler `8632`; Ausdrucksverwendung in Prädikaten und die MSTVF-Grenze können SARGability beziehungsweise Schätzung beeinflussen. |
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
 | **Dependencies** | Keine Modulabhängigkeit: Bucketing ist kein Truncation-Wrapper. Der W2a-Vertrag wurde am 2026-07-30 ausdrücklich freigegeben. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
-| **Status** | `implemented`; Runtime `not executed` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/date-bucket-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | W2a-Runtime einschließlich nativer Parität ausführen; danach physische SQL-Server-2019-/2022- und Windows-Releasevalidierung planen. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung sowie gezielte Performance-Evidenz für die interne Optimizer-Grenze ausführen. |
 
 ## TC-2026-006: GENERATE_SERIES-Kompatibilität für SQL Server 2019
 
@@ -162,10 +162,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | T-SQL portabel; CLR-Provider pro Plattform ausweisen. |
 | **Dependencies** | Keine Modulabhängigkeit. Der Bigint-Slice wurde am 2026-07-30 ausdrücklich freigegeben; `binary(n)`/`varbinary(n)` bleiben separat. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
-| **Status** | `implemented`; Runtime `not executed` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/bit-manipulation-functions-overview?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | W2a-Runtime und native Bigint-Parität ausführen; Binary-Provider erst nach eigener Vertragsbesprechung und Benchmarkentscheidung. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung ausführen; Binary-Provider erst nach eigener Vertragsbesprechung und Benchmarkentscheidung. |
 
 ## TC-2026-008: Richtungsabhängiges TRIM für SQL Server 2019
 

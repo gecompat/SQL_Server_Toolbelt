@@ -2,7 +2,7 @@ module_id: "toolbelt.datetime.bucket"
 module_name: "Date/Time Bucket Compatibility"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Stellt DATE_BUCKET-kompatible typgetrennte öffentliche Inline TVFs mit interner Optimizer-Grenze für SQL Server 2019+ bereit."
 sql_server_versions:
@@ -12,7 +12,7 @@ sql_server_versions:
 compatibility_levels: [150,160,170]
 platforms:
   windows: "not executed"
-  linux: "not executed"
+  linux: "partially validated"
 providers:
   - id: tsql-relational
     technology: Öffentliche T-SQL Inline TVFs mit internem einzeiligem MSTVF-Kern
@@ -91,6 +91,6 @@ tests:
   github_hosted_linux: "../../.github/workflows/w2a-portable-runtime.yml"
 validation_evidence:
   - date: "2026-07-30"
-    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2a-portable-runtime.yml"
-    scope: "Workflow sowie statische, Runtime-, Lifecycle- und Central-Contracts vorhanden; Runtime noch nicht ausgeführt"
-    result: "not executed"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30561236509"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; Bucket-Contract, native Parität, interner Optimizer-Core, Wiederholungsdeployment, Lifecycle, Central und Uninstall"
+    result: "success"

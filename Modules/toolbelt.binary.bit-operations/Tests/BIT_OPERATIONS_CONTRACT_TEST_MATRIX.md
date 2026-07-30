@@ -16,7 +16,8 @@
 
 ## Evidenzstatus
 
-Der Workflow und die Contract-Tests sind vorhanden; Runtime ist
-`not executed`.
+SQL Server 2025 Linux war mit Compatibility Levels 150, 160 und 170
+einschließlich Lifecycle, Central und Uninstall erfolgreich. Physische
+SQL-Server-2019-/2022- und Windows-Läufe bleiben `not executed`.
 
-[W2a Portable Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2a-portable-runtime.yml)
+[W2a Portable Runtime 30561236509](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30561236509)

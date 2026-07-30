@@ -2,10 +2,10 @@
 
 | Datum | Scope | Ergebnis | Einschränkung |
 |---|---|---|---|
-| 2026-07-30 | Statische, Runtime-, Lifecycle- und Central-Contracts angelegt | `not executed` | Noch keine SQL-Server-Runtime-Evidenz |
+| 2026-07-30 | SQL Server 2025 Linux; Compatibility 150/160/170; Contract, native Parität, Wiederholungsdeployment, Lifecycle, Central und Uninstall | `success` | Physische 2019-/2022- und Windows-Läufe offen |
 
 Workflow:
-[W2a Portable Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2a-portable-runtime.yml)
+[W2a Portable Runtime 30561236509](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30561236509)
 
 Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben bis zur
 tatsächlichen Ausführung `not executed`.

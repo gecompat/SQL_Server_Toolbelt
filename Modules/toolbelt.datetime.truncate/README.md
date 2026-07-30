@@ -48,4 +48,4 @@ erfordert `ConfirmNoExternalConsumers=1`.
 - [Moduldesign](../../Documentation/Architecture/DATETIME_TRUNCATE_MODULE_DESIGN.md)
 - [Contract-Testmatrix](./Tests/DATETIME_TRUNCATE_CONTRACT_TEST_MATRIX.md)
 - [Runtime-Evidenz](./Tests/README.md)
-- [W2a-Runtime-Workflow](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2a-portable-runtime.yml)
+- [W2a Portable Runtime 30561236509](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30561236509)
