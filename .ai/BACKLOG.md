@@ -37,9 +37,25 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Status | `completed` |
 | Akzeptanzkriterien | Klarer Provider-Schnitt mit explizitem Non-Goal gegen Dateisystem-Default, definiertem Methodensubset (0 und 8), expliziter Payload-CRC-Prüfung, dokumentiertem Sicherheitsweg ohne pauschales `TRUSTWORTHY ON` sowie definiertem Assembly-Lifecycle und Test-/Spike-Gates. |
 | Tests | Vertrags- und Designkonsistenz sowie dokumentierte Build-/Trust- und Runtime-Matrix. Diese Welle behauptet keine Runtime-Evidenz. |
-| Blocker | Kein Vertragsblocker. Vor jeder Implementierung ist ein kontrollierter Build-/Deployment-Spike für die CLR-Abhängigkeiten und anschließend eine eigene Benutzerfreigabe erforderlich. |
-| Evidenz | Benutzerauftrag vom 2026-07-30; Architekturvertrag `ZIP_CLR_PROVIDER_DESIGN.md`. |
-| Nächster Schritt | Separaten, kleinsten Implementierungs-Slice einschließlich C#-Assembly, Trust-Manifest und Windows-/Linux-Spike besprechen und ausdrücklich freigeben lassen. |
+| Blocker | Kein Vertragsblocker. Der kontrollierte Build-/Deployment-Spike ist als `AP-2026-022` bereitgestellt; vor einer produktiven Providerimplementierung bleibt eine eigene Benutzerfreigabe erforderlich. |
+| Evidenz | Benutzerauftrag vom 2026-07-30; Architekturvertrag `ZIP_CLR_PROVIDER_DESIGN.md`; Spike-Quellartefakte in `Spikes/sql-clr-zip-provider/`. |
+| Nächster Schritt | `AP-2026-022` gegen SQL Server 2019, 2022 und 2025 auf Windows und Linux ausführen, Abhängigkeits- und Plattformbefund festhalten und erst danach den produktiven Providervertrag erneut freigeben lassen. |
+
+### AP-2026-022: SQL CLR ZIP Build-/Deployment-Spike
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-022` |
+| Ziel | Die SQL-CLR-Abhängigkeit `System.IO.Compression` mit einer minimalen `SAFE`-Assembly kontrolliert bauen und gegen eine disposable Testdatenbank deploybar machen. |
+| Scope | C#-Projekt für .NET Framework 4.8, deterministische In-memory-ZIP-Probe, lokaler SHA2-512-Manifestgenerator, getrenntes administratives Trust-Opt-in, Deploy/Verify/Uninstall-Skripte, statische Prüfung und GitHub-hosted Windows-Build. Keine produktive ZIP-Funktion, keine API, kein Modulmanifest und keine Runtime-Evidenz. |
+| Dependencies | `AP-2026-021`, `ZIP_CLR_PROVIDER_DESIGN.md`, `CLR_SECURITY_AND_PORTABILITY.md`, .NET-Framework-4.8-Targeting-Pack, MSBuild, SQLCMD und eine disposable SQL-Server-Testinstanz. |
+| Priorität | `P1` |
+| Status | `active` |
+| Akzeptanzkriterien | Der Build referenziert tatsächlich `System.IO.Compression`; die Testassembly bleibt `SAFE`; der Trust-Hash wird erst aus dem konkreten Binary erzeugt; kein Skript aktiviert `clr`, deaktiviert `clr strict security`, setzt `TRUSTWORTHY ON` oder verwendet `EXTERNAL_ACCESS`/`UNSAFE`; Uninstall berührt keinen Trust-Eintrag. |
+| Tests | Statische Vertragsprüfung und Windows-GitHub-hosted .NET-Framework-Build sind vorbereitet. Deployment-Test je SQL-Version und Plattform ist `not executed`, bis eine disposable Zielinstanz verfügbar ist. |
+| Blocker | Lokale Ausführungsumgebung enthält weder MSBuild noch SQLCMD. GitHub-hosted Build und reale SQL-Server-Deployments wurden zum Erstellzeitpunkt nicht ausgeführt. |
+| Evidenz | `Spikes/sql-clr-zip-provider/README.md`, `Tests/Static/validate_spike.py`, `.github/workflows/sql-clr-zip-spike.yml`. |
+| Nächster Schritt | Pull-Request-Checks auswerten; anschließend nur nach erfolgreichem Build die Runtime-Matrix gezielt ausführen. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
