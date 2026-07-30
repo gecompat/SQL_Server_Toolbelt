@@ -45,12 +45,12 @@ CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadTextFile]
 
 | BOM | Encoding | Lesemodus |
 |---|---|---|
-| `EF BB BF` | UTF-8 | `BULK INSERT` mit `CODEPAGE = 65001` |
+| `EF BB BF` | UTF-8 | `OPENROWSET(BULK..., SINGLE_CLOB)` + `CAST` |
 | `FF FE` | UTF-16-LE | `OPENROWSET(BULK..., SINGLE_NCLOB)` |
 | `FE FF` | UTF-16-BE | nicht unterstützt |
 | `00 00 FE FF` | UTF-32-LE | nicht unterstützt |
 | `FF FE 00 00` | UTF-32-BE | nicht unterstützt |
-| kein BOM | `@FallbackEncoding` | `BULK INSERT` mit `CODEPAGE = 1252` |
+| kein BOM | `@FallbackEncoding` | `OPENROWSET(BULK..., SINGLE_CLOB)` + `CAST` |
 
 ## Fehlercodes
 
