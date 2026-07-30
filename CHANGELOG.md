@@ -46,6 +46,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Parametergesteuertes lokales und zentrales Generate-Series-Deployment, Uninstall, Objekt- und Moduldokumentation, synthetische Beispiele sowie statische, Contract-, Lifecycle-, Grenz- und Größenprüfungen.
 - Serieller SQL-Server-2025-Linux-Workflow für Generate-Series unter Compatibility Levels 150, 160 und 170.
 - Erfolgreiche Generate-Series-Runtime-Matrix auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich Semantik, nativer Parität, Fehlern, Grenzen, einer Million Werte, Row Goal, Join, `CROSS APPLY`, Deployment- und Lifecycle-Contracts.
+- Formale Kandidaten `TC-2026-029` bis `TC-2026-031` für sicheres Identifier-Handling, Semantic Versioning und frei definierbare Zahlensysteme.
+- Getrennte Split-Ausbaustufe `TC-2026-032` für mehrzeichige Separatoren, Escape und Quote.
 
 ### Geändert
 
@@ -76,6 +78,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - `TC-2026-012` nach Benutzerfreigabe vom Research-Kandidaten zum implementierten und auf SQL Server 2025 Linux teilweise validierten Modul überführt.
 - `TC-2026-006` nach Benutzerfreigabe vom Research-Kandidaten zum implementierten und auf SQL Server 2025 Linux teilweise validierten Modul überführt.
 - Veralteten Backlogstatus des bereits gemergten Base64-Arbeitspakets von `active` auf `completed` korrigiert.
+- `TC-2026-001`, `TC-2026-029`, `TC-2026-030` und `TC-2026-031` nach gemeinsamer Vertragsbesprechung und ausdrücklicher Freigabe vom 2026-07-30 auf `ready for development` gesetzt; sequenzielle Arbeitspakete `AP-2026-010` bis `AP-2026-013` angelegt.
 
 ### Korrigiert
 
