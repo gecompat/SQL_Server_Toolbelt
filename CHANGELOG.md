@@ -92,6 +92,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Modul `toolbelt.validation.semantic-version` mit striktem SemVer-2.0.0-Parser, Comparator und binärem Sort Key ohne numerischen Overflow.
 - Semantic-Version-Runtime-Matrix auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich Parser-, Präzedenz-, Sort-Key-, Größen-, Deployment- und Lifecycle-Contracts erfolgreich; Status auf `partially validated` angehoben.
 - Modul `toolbelt.conversion.integer-base` mit kanonischer Codierung und strikter Decodierung des vollständigen `bigint`-Bereichs für frei definierbare ASCII-Alphabete der Basen 2 bis 93.
+- Integer-Base-Runtime-Matrix auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich Alphabet-, Kanonizitäts-, Grenzwert-, Overflow-, Deployment- und Lifecycle-Contracts erfolgreich; Status auf `partially validated` angehoben.
 
 ### Korrigiert
 
@@ -113,4 +114,4 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-Sechs Module sind implementiert und `partially validated`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und 2025 erfolgreich; Base64, Generate-Series, Identifier, Split-Characters und Semantic-Version sind auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich. Windows und die jeweils offenen Releasefälle bleiben `not executed`.
+Sieben Module sind implementiert und `partially validated`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und 2025 erfolgreich; Base64, Generate-Series, Identifier, Split-Characters, Semantic-Version und Integer-Base sind auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich. Windows und die jeweils offenen Releasefälle bleiben `not executed`.

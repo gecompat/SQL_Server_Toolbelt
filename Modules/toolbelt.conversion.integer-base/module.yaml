@@ -2,7 +2,7 @@ module_id: "toolbelt.conversion.integer-base"
 module_name: "Integer Base Conversion"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Codiert bigint-Werte kanonisch mit einem frei definierbaren ASCII-Alphabet und decodiert sie ohne Overflow."
 
@@ -16,7 +16,7 @@ compatibility_levels:
   - 170
 platforms:
   windows: "not executed"
-  linux: "not executed"
+  linux: "partially validated"
 
 providers:
   - id: tsql-decimal-loop
@@ -91,6 +91,6 @@ tests:
 
 validation_evidence:
   - date: "2026-07-30"
-    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/integer-base-runtime.yml"
-    scope: "Workflow und Contract-Tests vorhanden; Runtime noch nicht ausgeführt"
-    result: "not executed"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30518087070"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; Alphabet, Kanonizität, bigint-Grenzen, Overflow, lokale, zentrale und Lifecycle-Contracts"
+    result: "success"

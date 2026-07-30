@@ -16,4 +16,4 @@ SELECT toolbelt_conversion.SVF_TryBaseToInteger
 ```
 
 Aktuelle Evidenz:
-https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/integer-base-runtime.yml
+https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30518087070

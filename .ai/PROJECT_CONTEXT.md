@@ -39,8 +39,8 @@ Windows-Läufe bleiben `not executed`.
 
 `toolbelt.conversion.integer-base` codiert und decodiert den vollständigen
 `bigint`-Bereich mit frei definierbaren binär eindeutigen ASCII-Alphabeten.
-Code, Lifecycle-, Dokumentations- und Testartefakte sind vorhanden; Runtime
-ist noch `not executed`.
+SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und 170
+erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben `not executed`.
 
 ## Projektzweck
 

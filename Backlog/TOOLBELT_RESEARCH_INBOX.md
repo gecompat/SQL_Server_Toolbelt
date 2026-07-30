@@ -24,7 +24,7 @@ zur Implementierung freigegeben:
 |---|---|---|
 | `RI-2026-011` | `TC-2026-029` – Sicheres Identifier- und Multipart-Name-Toolkit | `ready for development` |
 | `RI-2026-075` | `TC-2026-030` – Semantic-Version Parser und Comparator | `ready for development` |
-| `RI-2026-055` | `TC-2026-031` – Ganzzahlen in frei definierbaren Zahlensystemen | `implemented`; Runtime `not executed` |
+| `RI-2026-055` | `TC-2026-031` – Ganzzahlen in frei definierbaren Zahlensystemen | `implemented`; Runtime `partially validated` |
 
 ## Bereits vorhandene Kandidaten – zusätzliche Fundstellen
 

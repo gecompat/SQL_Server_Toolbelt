@@ -6,7 +6,7 @@
 
 > Überführung 2026-07-30 — Codex: Als `TC-2026-031` formalisiert und nach gemeinsamer Vertragsbesprechung mit Status `ready for development` in `AP-2026-013` aufgenommen. Der Originalgedanke bleibt als Herkunft erhalten.  
 >
-> Statusaktualisierung 2026-07-30 — Codex: `AP-2026-013` ist implementiert; Runtime ist noch `not executed`.
+> Statusaktualisierung 2026-07-30 — Codex: `AP-2026-013` ist implementiert und auf SQL Server 2025 Linux teilweise validiert.
   z.B.  
 > - Binär (2)
 > - Oktal (8)

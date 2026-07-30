@@ -9,8 +9,8 @@
 | Grenzen | vollständiger `bigint`-Bereich und Decode-Overflow | vorhanden |
 | Roundtrip | positive, negative und Grenzwerte | vorhanden |
 | Lifecycle | lokal, zentral, Drift, Kollision, Uninstall | vorhanden |
-| SQL Server 2025 Linux 150/160/170 | vollständige Suite | `not executed` |
+| SQL Server 2025 Linux 150/160/170 | vollständige Suite | erfolgreich |
 | SQL Server 2019/2022 und Windows | Release-Matrix | `not executed` |
 
 Aktuelle Evidenz:
-https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/integer-base-runtime.yml
+https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30518087070
