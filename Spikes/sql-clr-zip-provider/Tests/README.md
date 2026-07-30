@@ -3,7 +3,7 @@
 | Prüfung | Zweck | Status |
 |---|---|---|
 | `Static/validate_spike.py` | Prüft .NET-Framework-Target, `System.IO.Compression`, In-memory-Probe, `SAFE` und ausgeschlossene Trust-/Permission-Pfade. | ausführbar |
-| GitHub Actions Build | Baut die minimale .NET-Framework-4.8-Assembly auf Windows. | noch nicht ausgeführt |
+| GitHub Actions Build | Baut die minimale .NET-Framework-4.8-Assembly auf Windows. | erfolgreich ([Run 30586391868](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30586391868)) |
 | Deployment-Probe | Trust, `CREATE ASSEMBLY`, Procedure-Aufruf und Uninstall in einer disposable Testdatenbank. | nicht ausgeführt |
 
 Die Runtime-Probe muss für SQL Server 2019, 2022 und 2025 jeweils auf Windows

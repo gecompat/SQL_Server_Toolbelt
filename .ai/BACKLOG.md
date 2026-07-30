@@ -52,10 +52,10 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Priorität | `P1` |
 | Status | `active` |
 | Akzeptanzkriterien | Der Build referenziert tatsächlich `System.IO.Compression`; die Testassembly bleibt `SAFE`; der Trust-Hash wird erst aus dem konkreten Binary erzeugt; kein Skript aktiviert `clr`, deaktiviert `clr strict security`, setzt `TRUSTWORTHY ON` oder verwendet `EXTERNAL_ACCESS`/`UNSAFE`; Uninstall berührt keinen Trust-Eintrag. |
-| Tests | Statische Vertragsprüfung und Windows-GitHub-hosted .NET-Framework-Build sind vorbereitet. Deployment-Test je SQL-Version und Plattform ist `not executed`, bis eine disposable Zielinstanz verfügbar ist. |
-| Blocker | Lokale Ausführungsumgebung enthält weder MSBuild noch SQLCMD. GitHub-hosted Build und reale SQL-Server-Deployments wurden zum Erstellzeitpunkt nicht ausgeführt. |
-| Evidenz | `Spikes/sql-clr-zip-provider/README.md`, `Tests/Static/validate_spike.py`, `.github/workflows/sql-clr-zip-spike.yml`. |
-| Nächster Schritt | Pull-Request-Checks auswerten; anschließend nur nach erfolgreichem Build die Runtime-Matrix gezielt ausführen. |
+| Tests | Statische Vertragsprüfung und Windows-GitHub-hosted .NET-Framework-Build sind erfolgreich ([SQL CLR ZIP Spike Run 30586391868](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30586391868)); die Dokumentationsprüfung war ebenfalls erfolgreich ([Run 30586391850](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30586391850)). Deployment-Test je SQL-Version und Plattform bleibt `not executed`, bis eine disposable Zielinstanz verfügbar ist. |
+| Blocker | Kein Build- oder statischer Vertragsblocker. Für den Plattformbefund fehlen weiterhin die realen SQL-Server-Deployments auf Windows und Linux. |
+| Evidenz | `Spikes/sql-clr-zip-provider/README.md`, `Tests/Static/validate_spike.py`, `.github/workflows/sql-clr-zip-spike.yml`, [SQL CLR ZIP Spike Run 30586391868](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30586391868). |
+| Nächster Schritt | Die Runtime-Matrix auf disposable SQL Server 2019, 2022 und 2025 unter Windows und Linux gezielt ausführen; erst danach die produktive Providerimplementierung erneut zur Freigabe vorlegen. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
