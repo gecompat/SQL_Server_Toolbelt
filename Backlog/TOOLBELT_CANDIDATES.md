@@ -364,15 +364,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Nein bekannt |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Lange Debug-, Fortschritts- und generierte SQL-Texte können vollständig, geordnet und auf Wunsch sofort im Messages-Kanal ausgegeben werden, ohne zusätzliche Resultsets zu erzeugen. |
-| **Mögliche Technologie** | Kleine T-SQL-Infrastruktur-USP mit `PRINT`- und `RAISERROR`/`NOWAIT`-Provider, kontrolliertem Chunking, Zeilenumbruchbehandlung und optionaler Präfix-/Zeitstempelbildung. `THROW` bleibt echten Fehlern vorbehalten. |
+| **Mögliche Technologie** | Implementiert als `toolbelt_core.USP_WriteConsoleMessage`: `PRINT` mit 4.000-Codeunit-Chunks oder `RAISERROR(N'%s', 0, 1, ...) WITH NOWAIT` mit konservativen 2.000-Codeunit-Chunks. BIN2-basierte Grenzprüfung hält High-/Low-Surrogatpaare zusammen; Präfixe und Zeitstempel bleiben außerhalb von V1. |
 | **Performance und Security** | Message-Ausgabe ist langsam und darf nicht zeilenweise im Hot Path verwendet werden. Chunks dürfen Unicode-Zeichenpaare und Zeilen möglichst nicht unnötig zerlegen. Prozentzeichen müssen bei `RAISERROR` sicher als Daten behandelt werden. Debug darf diagnostische Werte, aber niemals aktiv ausgegebene Secrets enthalten. |
 | **Plattformgrenzen** | Engine-Verhalten voraussichtlich gleich; tatsächliche Darstellung, Pufferung und Reihenfolge hängen zusätzlich vom Client beziehungsweise Treiber ab und sind getrennt zu testen. |
 | **Dependencies** | USP- und Debug-Vertrag; mögliche Wiederverwendung durch `TC-2026-017` und spätere Module. |
 | **Duplikatprüfung** | Vorhandener Debug-Vertrag verlangt Messages, enthält aber keine wiederverwendbare Langtext- oder NOWAIT-Funktion. |
-| **Status** | `researched` |
+| **Status** | `implemented`; Runtime `not executed` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/language-elements/print-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/language-elements/raiserror-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Mit dem Benutzer Provider, sofortige Ausgabe, Chunkgrenze, Zeilenbehandlung, Präfixe und Verhalten für NULL/Leertext besprechen. |
+| **Nächster Schritt** | W2c-Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 ausführen; anschließend physische 2019-/2022-, Windows- sowie Client-/Treiber-Evidenz ergänzen. |
 
 ## TC-2026-017: Standardisierter Error Envelope
 
@@ -525,15 +525,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Keine Toolbelt-spezifische native Funktion möglich. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Benutzer, Installer, Tests und abhängige Module können feststellen, welche Capability in welcher Version tatsächlich installiert ist, ohne Objektlisten oder Dateistände heuristisch zu interpretieren. |
-| **Mögliche Technologie** | Deterministische Extended Properties plus View/TVF über Catalog Views; alternativ kontrollierter persistenter Modulkatalog. `module.yaml` bleibt Build-/Repository-Quelle, muss aber eine eindeutige Projektion in die Runtime-Metadaten erhalten. SDU Tools dient als öffentliches Produktmuster für abfragbare Tool- und Versionsinformation, nicht als Codequelle. |
+| **Mögliche Technologie** | Implementiert als read-only `toolbelt_metadata.VW_ModuleCapabilities` über Database-level Extended Properties. V1 verwendet keine persistente Registry, keine Runtime-Projektion aus `module.yaml` und keine zusätzliche Filter-TVF. |
 | **Performance und Security** | Katalogabfragen müssen rein lesend, günstig und ohne Sichtbarkeit von Secrets oder internen Deployment-Pfaden sein. Drift darf nicht als gesunder Installationsstatus erscheinen. Ein persistenter Katalog benötigt Ownership, Upgrade, Rollback, Reparatur und eine zuvor freigegebene Tabellen-Namenskonvention. |
 | **Plattformgrenzen** | T-SQL-Metadatenkern soll unter Windows und Linux gleich sein; zentrale und lokale Installation sowie eingeschränkte Metadatensicht sind getrennt zu testen. |
-| **Dependencies** | Modul-/Dependency-Modell, Lifecycle-Vertrag und mindestens ein implementiertes Referenzmodul; persistente Variante benötigt eine Tabellen-Namensentscheidung. |
+| **Dependencies** | Modul-/Dependency- und Lifecycle-Vertrag; keine Runtime-Modulabhängigkeit und keine Tabellen-Namensentscheidung in V1. |
 | **Duplikatprüfung** | Toolbelt-Kandidaten, Repository-Map, Modulmodell und ResultTable-Design geprüft. Manifeste dokumentieren den Sollstand, stellen aber noch keinen Runtime-Capability-Katalog bereit. |
-| **Status** | `researched` |
+| **Status** | `implemented`; Runtime `not executed` |
 | **Primärquellen** | [SQL_SERVER_TOOLBELT_LANDSCAPE.md](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://sqldownunder.com/sdutools/<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/extended-properties-catalog-views-sys-extended-properties?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Mit dem Benutzer die erforderlichen Abfragefälle und Drift-Semantik besprechen; danach Extended-Property-Projektion und persistente Registry als Alternativen entwerfen. |
+| **Nächster Schritt** | W2c-Runtime einschließlich gültiger, unvollständiger, ungültiger, falsch typisierter und Object-level Marker ausführen; danach physische 2019-/2022-, Windows- und eingeschränkte Metadata-Visibility prüfen. |
 
 ## TC-2026-024: URI-Percent-Encoding und -Decoding
 

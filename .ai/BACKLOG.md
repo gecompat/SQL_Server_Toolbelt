@@ -2,9 +2,29 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-14 Module sind implementiert und `partially validated`.
+16 Module sind implementiert; 14 sind `partially validated`, zwei
+`not executed`.
 
 ## Aktive Arbeitspakete
+
+### AP-2026-018: W2c Console Message und Capability Catalog
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-018` |
+| Ziel | Die freigegebenen Kandidaten `TC-2026-016` und `TC-2026-023` als zwei unabhängige portable Module implementieren und prüfen. |
+| Scope | `toolbelt.core.console-message` Version `1.0.0` mit `toolbelt_core.USP_WriteConsoleMessage`; `toolbelt.metadata.capability-catalog` Version `1.0.0` mit `toolbelt_metadata.VW_ModuleCapabilities`; lokale und zentrale Installation; keine Präfixe, Severity-Optionen, Registry, Filter-TVF oder `module.yaml`-Runtime-Abhängigkeit. |
+| Dependencies | W2c-Hauptempfehlung und ausdrückliche Benutzerfreigabe vom 2026-07-30; USP-, Modul-, Lifecycle- und Metadata-Verträge; keine Runtime-Modulabhängigkeit. |
+| Priorität | `P1` |
+| Status | `active` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
+| Akzeptanzkriterien | Unicode-sichere vollständige Message-Chunks mit PRINT oder NOWAIT; NULL ohne Ausgabe; kein fachliches Resultset; read-only Projektion kanonischer Database-level Marker; `valid`/`incomplete`/`invalid`; vollständige Source-, Lifecycle-, Dokumentations-, Contract- und CI-Artefakte; Status nur aus tatsächlicher Evidenz. |
+| Tests | Statische Verträge vorhanden; SQL-Server-2025-Linux-Workflow für Compatibility Levels 150/160/170, Capture-Marker, Wiederholungsdeployment, Lifecycle, Central und Uninstall noch `not executed`. |
+| Blocker | Kein Implementierungsblocker. Merge bleibt bis zu erfolgreicher Runtime- und Dokumentationsprüfung gesperrt. |
+| Evidenz | Benutzerfreigabe vom 2026-07-30; Moduldesigns `CONSOLE_MESSAGE_MODULE_DESIGN.md` und `CAPABILITY_CATALOG_MODULE_DESIGN.md`; kanonische Artefakte unter `Modules/toolbelt.core.console-message/` und `Modules/toolbelt.metadata.capability-catalog/`. |
+| Nächster Schritt | W2c-Runtime und Dokumentationskonsistenz im Pull Request ausführen; nur bei grünem finalem Head nach `main` mergen. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 

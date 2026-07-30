@@ -178,3 +178,14 @@ einschließlich nativer Parität, Root-, Property-, Quote-, Array-, Wildcard-,
 NULL-, Fehler-, BIN2-, Deployment-, Central-, Uninstall- und
 Lifecycle-Contracts erfolgreich. Physische SQL-Server-2019-/2022- und
 Windows-Läufe bleiben `not executed`.
+
+`toolbelt.core.console-message` hat `implementation_status: implemented`,
+`validation_status: not executed` und `release_status: unreleased`. Statische,
+synthetische Runtime-, Message-Capture-, Lifecycle- und Central-Artefakte sind
+vorhanden; es liegt noch keine tatsächliche Runtime-Evidenz vor.
+
+`toolbelt.metadata.capability-catalog` hat `implementation_status:
+implemented`, `validation_status: not executed` und `release_status:
+unreleased`. Statische, synthetische Marker-, Collation-, Lifecycle- und
+Central-Artefakte sind vorhanden; es liegt noch keine tatsächliche
+Runtime-Evidenz vor.

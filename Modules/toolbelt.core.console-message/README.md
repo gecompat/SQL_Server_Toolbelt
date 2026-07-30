@@ -1,0 +1,52 @@
+# Console Message
+
+**Modul-ID:** `toolbelt.core.console-message`
+**Version:** `1.0.0`
+**Implementierungsstatus:** `implemented`
+**Validierungsstatus:** `not executed`
+**Release-Status:** `unreleased`
+
+## Zweck
+
+Das Modul gibt lange Unicode-Texte vollständig und geordnet im
+SQL-Server-Messages-Kanal aus. Der Aufrufer wählt gepuffertes `PRINT` oder
+unmittelbares `RAISERROR ... WITH NOWAIT`.
+
+## Öffentliches Objekt
+
+| Objekt | Typ | Zweck |
+|---|---|---|
+| `toolbelt_core.USP_WriteConsoleMessage` | USP | Unicode-sichere, gechunkte Console-Ausgabe ohne fachliches Resultset. |
+
+## Abhängigkeiten
+
+Keine Runtime-Modulabhängigkeit.
+
+## Deployment
+
+`Deployment/Deploy.sql` benötigt die SQLCMD-Variable
+`DeploymentMode=local|central`. Lokales und zentrales Deployment verwenden
+dieselbe Implementierung. Zentral installierte Procedures werden mit
+dreiteiligem Namen ausgeführt.
+
+## Vertrag
+
+- `nvarchar(max)`-Payload;
+- `PRINT` mit höchstens 4.000 UTF-16-Codeunits je Chunk;
+- `RAISERROR(N'%s', 0, 1, ...) WITH NOWAIT` mit höchstens 2.000
+  UTF-16-Codeunits;
+- Supplementary Characters werden nicht zwischen Chunks getrennt;
+- `NULL` und Leertext erzeugen keine Ausgabe;
+- keine Präfixe, Zeitstempel, Severity-Optionen oder Resultsets.
+
+Der Client kann Message-Frame-Grenzen optisch als zusätzliche Zeilen
+darstellen. Die Procedure ist nicht für zeilenweise Hot-Path-Ausgabe gedacht.
+
+## Dokumentation
+
+- [Objektseite](Documentation/USP_WriteConsoleMessage.md)
+- [Architekturvertrag](../../Documentation/Architecture/CONSOLE_MESSAGE_MODULE_DESIGN.md)
+- [Beispiele](Examples/ConsoleMessage.sql)
+- [Testmatrix](Tests/CONSOLE_MESSAGE_CONTRACT_TEST_MATRIX.md)
+
+Kein Test gilt ohne tatsächliche Ausführung als erfolgreich.

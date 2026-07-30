@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: fourteen_modules_partially_validated
+  status: sixteen_modules_fourteen_partially_validated
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -63,6 +63,11 @@ sources_of_truth:
   json_path_exists_module_design: Documentation/Architecture/JSON_PATH_EXISTS_MODULE_DESIGN.md
   json_path_exists_runtime_workflow: .github/workflows/w2b-json-path-runtime.yml
   json_path_exists_module: Modules/toolbelt.json.path-exists/module.yaml
+  console_message_module_design: Documentation/Architecture/CONSOLE_MESSAGE_MODULE_DESIGN.md
+  capability_catalog_module_design: Documentation/Architecture/CAPABILITY_CATALOG_MODULE_DESIGN.md
+  w2c_runtime_workflow: .github/workflows/w2c-runtime.yml
+  console_message_module: Modules/toolbelt.core.console-message/module.yaml
+  capability_catalog_module: Modules/toolbelt.metadata.capability-catalog/module.yaml
   svf_inline_tvf_policy: Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
   documentation_validator: Tests/Documentation/validate_documentation.py
   documentation_workflow: .github/workflows/documentation-consistency.yml
@@ -237,6 +242,8 @@ module_registry:
     - Modules/toolbelt.datetime.bucket/module.yaml
     - Modules/toolbelt.binary.bit-operations/module.yaml
     - Modules/toolbelt.json.path-exists/module.yaml
+    - Modules/toolbelt.core.console-message/module.yaml
+    - Modules/toolbelt.metadata.capability-catalog/module.yaml
 
 change_impact:
   strategy: diff_first_registered_dependencies
@@ -442,6 +449,21 @@ change_impact:
         - markdown_links
         - json_path_exists_static
         - w2b_json_path_runtime_workflow_scope
+    w2c_contracts:
+      paths:
+        - Modules/toolbelt.core.console-message/**
+        - Modules/toolbelt.metadata.capability-catalog/**
+        - Documentation/Architecture/CONSOLE_MESSAGE_MODULE_DESIGN.md
+        - Documentation/Architecture/CAPABILITY_CATALOG_MODULE_DESIGN.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+        - Documentation/Standards/USP_CONTRACT.md
+        - Tests/CI/run-w2c-linux.sh
+        - .github/workflows/w2c-runtime.yml
+      checks:
+        - markdown_links
+        - console_message_static
+        - capability_catalog_static
+        - w2c_runtime_workflow_scope
     runtime_workflow:
       paths:
         - .github/workflows/result-table-runtime.yml
@@ -521,3 +543,6 @@ change_impact:
         - integer_base_static
         - json_path_exists_static
         - w2b_json_path_runtime_workflow_scope
+        - console_message_static
+        - capability_catalog_static
+        - w2c_runtime_workflow_scope

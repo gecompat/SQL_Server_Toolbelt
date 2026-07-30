@@ -9,8 +9,8 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 14 Module sind
-  implementiert und `partially validated`.
+- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 16 Module sind
+  implementiert; 14 sind `partially validated`, zwei `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -31,8 +31,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 | Gruppe | Kandidaten | Konsequenz |
 |---|---|---|
-| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031` | Offene physische Zielversions-, Windows- und modulspezifische Releasevalidierung gezielt abschließen. |
-| Kleine bis mittlere portable Kerne | `TC-2026-016`, `TC-2026-023` | Je Kandidat zuerst Typ-, Fehler- und Resultvertrag festlegen; danach weitgehend unabhängige Module. |
+| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-016`, `TC-2026-023`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031` | Capability-spezifische Runtime sowie offene physische Zielversions-, Windows- und modulspezifische Releasevalidierung gezielt abschließen. |
 | Parser-, CLR- oder breite Semantikmodule | `TC-2026-010`, `TC-2026-011`, `TC-2026-013`, `TC-2026-032` | Funktionsfamilien und Provider vor dem ersten Code begrenzen und benchmarken. |
 | Execution-Infrastruktur | `TC-2026-014` bis `TC-2026-022`, `TC-2026-046` | Als abhängige Plattform in mehreren Modulen entwickeln; kein monolithisches Sammelmodul. |
 | Externe Provider und Integrationen | `TC-2026-025` bis `TC-2026-028`, `TC-2026-037`, `TC-2026-038` | Allowlist-, Identity-, Secret-, Timeout-, Abbruch- und Plattformvertrag sind Pflicht-Gates. |
@@ -72,13 +71,14 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 | Welle | Status | Inhalt | Kandidaten | Eintrittsbedingung | Ergebnis |
 |---|---|---|---|---|---|
-| `V0` | `planned` | Offene Releasevalidierung | `001`, `002`, `003`, `004`, `005`, `006`, `007`, `008`, `009`, `012`, `024`, `029`, `030`, `031` | Geeignete physische Engines beziehungsweise Windows-Runner | Nachweisbare Erweiterung des Validierungsscopes; keine Codeänderung ohne Befund. |
+| `V0` | `planned` | Offene Releasevalidierung | `001`, `002`, `003`, `004`, `005`, `006`, `007`, `008`, `009`, `012`, `016`, `023`, `024`, `029`, `030`, `031` | Geeignete physische Engines beziehungsweise Windows-Runner | Nachweisbare Erweiterung des Validierungsscopes; keine Codeänderung ohne Befund. |
 | `W1` | `completed` | Kleine unabhängige T-SQL-Kerne | `002`, `008`, `024` | Einzelvertrag und Freigabe | Drei implementierte, auf SQL Server 2025 Linux teilweise validierte Module. |
 | `W2a` | `completed` | Date/Time- und Bigint-Bit-Kompatibilität | `004`, `005`, `007` | Typfamilien, Paritätsumfang und Fehlervertrag am 2026-07-30 freigegeben | Drei Module implementiert und auf SQL Server 2025 Linux teilweise validiert. |
 | `W2b-A` | `completed` | JSON-Pfadprüfung | `009` Slice A | Pfad-, NULL-, Fehler- und Providervertrag am 2026-07-30 freigegeben | `toolbelt.json.path-exists` implementiert und auf SQL Server 2025 Linux teilweise validiert. |
 | `W2b-B` | `deferred` | JSON-Konstruktoren und Aggregate | `009` Slice B, `013` | Variable Konstruktoroberfläche beziehungsweise stabiler Aggregat-/CLR-Provider entschieden | Keine Implementierung; Aggregate bleiben während Preview zurückgestellt. |
+| `W2c` | `active` | Console-Ausgabe und Runtime-Capability-Discovery | `016`, `023` | Provider-, Chunk-, Null-, Metadatenquellen- und Driftvertrag am 2026-07-30 freigegeben | Zwei Module implementiert; Runtime noch `not executed`. |
 | `W3` | `researched` | String-Parser und Matching | `010`, `011`, `032` | Syntaxsubset, Limits und Providervergleich entschieden | Getrennte Regex-, Fuzzy- und Quote-/Escape-Module. |
-| `W4` | `researched` | Execution-Grundlagen | `016`, `017`, `019`, `023`, `022` | Persistente Namenskonvention nur soweit tatsächlich benötigt | Console, Error Envelope, Correlation, Capability Discovery und Work-Type-Katalog. |
+| `W4` | `researched` | Weitere Execution-Grundlagen | `017`, `019`, `022` | Persistente Namenskonvention nur soweit tatsächlich benötigt | Error Envelope, Correlation und Work-Type-Katalog. |
 | `W5` | `researched` | Session- und Ausführungsprovider | `046`, `014` | `017`, `019`, `022`; Provider- und Security-Entscheidung | Synchrone zweite Session und darauf aufbauendes rollback-unabhängiges Logging. |
 | `W6` | `researched` | Queue, Retry, Lease und Cancellation | `015`, `020`, `021`, `018` | `017`, `019`, `022`; Tabellenkonvention entschieden | Begrenzte, beobachtbare und wiederanlaufbare Work Queue. |
 | `W7` | `researched` | Datei- und Host-Provider | `037`, `038`, `025`, `026`, `027` | Execution-Basis, Root-/Endpoint-Allowlist und Identity-Vertrag | Kontrollierte Provider ohne Raw-Script- oder freie URL-Schnittstelle. |
@@ -111,14 +111,14 @@ freigegebenes Arbeitspaket aktiv.
 | `TC-2026-005` | `toolbelt.datetime.bucket` | `TVF_DateBucketDate`, `TVF_DateBucketDateTime2`, `TVF_DateBucketDateTimeOffset` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
 | `TC-2026-007` | `toolbelt.binary.bit-operations` | `TVF_LeftShiftBigInt`, `TVF_RightShiftBigInt`, `TVF_BitCountBigInt`, `TVF_GetBitBigInt`, `TVF_SetBitBigInt` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Binary-Slice bleibt getrennt. |
 | `TC-2026-009` | `toolbelt.json.path-exists` | `toolbelt_json.TVF_JsonPathExists` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Konstruktoren bleiben getrennt. |
+| `TC-2026-016` | `toolbelt.core.console-message` | `toolbelt_core.USP_WriteConsoleMessage` | W2c-Runtime sowie physische 2019-/2022-, Windows- und Client-/Treiber-Evidenz. |
+| `TC-2026-023` | `toolbelt.metadata.capability-catalog` | `toolbelt_metadata.VW_ModuleCapabilities` | W2c-Runtime sowie physische 2019-/2022-, Windows- und eingeschränkte Metadata-Visibility. |
 
 ### Portable Fach- und Compatibility-Module
 
 | Kandidat | Vorgeschlagener Modul-Slice | Vorgeschlagene öffentliche Objekte | Zentrale Vertragsentscheidung | Testschwerpunkt |
 |---|---|---|---|---|
 | `TC-2026-013` | `toolbelt.json.aggregate` mit zwei getrennten Aggregat-Slices | Array- und Object-Aggregat-Oberfläche; Objekttyp und Name bleiben bis zur Providerentscheidung offen | T-SQL-Resultset-Procedure versus CLR User-defined Aggregate; Order, Duplicate Keys, NULL und Return Type. | Native Parität auf 2025, Reihenfolge, Escaping, große Gruppen, Memory Grants und Providervergleich. |
-| `TC-2026-016` | `toolbelt.core.console-message` | `toolbelt_core.USP_WriteConsoleMessage` | `PRINT` versus `RAISERROR ... NOWAIT`, Chunkgrenzen, Zeilenumbrüche, Präfix und NULL. | Sofortigkeit im Client, Unicode-/Längengrenzen, keine Resultsets, Help-/Debug-Vertrag. |
-| `TC-2026-023` | `toolbelt.metadata.capability-catalog` | `toolbelt_metadata.VW_ModuleCapabilities`; optional `TVF_ModuleCapabilities` für Filter | Extended Properties versus persistente Registry, Drift-Semantik und Projektion aus `module.yaml`. | Lokales/zentrales Deployment, fehlende/alte Metadaten, Versionvergleich und Dependency-Preflight. |
 
 ### Parser, Regex und Matching
 
@@ -217,18 +217,17 @@ stillschweigend zu V1.
 
 ## Nächste konkrete Auswahl
 
-W2b-A mit dem Path-Exists-Slice von `TC-2026-009` ist implementiert und auf
-SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 teilweise
-validiert ([Runtime-Lauf 30568128943](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128943)).
-Die freigegebene API ist `toolbelt_json.TVF_JsonPathExists`. Auf einen
-optionalen Scalar-Wrapper wird bewusst verzichtet, weil die zustandsbehaftete
-Traversierung keine semantisch gleichwertige Inline-TVF-Alternative erlaubt.
+W2c mit `TC-2026-016` und `TC-2026-023` ist ausdrücklich freigegeben und als
+`toolbelt.core.console-message` sowie
+`toolbelt.metadata.capability-catalog` implementiert. Die Runtime ist noch
+`not executed`; deshalb bleibt die Welle bis zum erfolgreichen
+SQL-Server-2025-Linux- und Dokumentationslauf `active`.
 
 JSON-Konstruktoren und `TC-2026-013` bilden W2b-B und bleiben zurückgestellt.
 Konstruktoren benötigen eine belastbare variable Eingabeoberfläche;
 JSON-Aggregate bleiben während des nativen Preview-Status und ohne
 freigegebenen SQL-CLR-/Providervertrag außerhalb der Entwicklung.
 
-Diese Auswahl ist keine Implementierungsfreigabe. Parallel dazu kann `V0` die
-offenen physischen Releasevalidierungen der 14 implementierten Module bündeln,
-ohne den Beginn eines neuen freigegebenen Moduls zu blockieren.
+Parallel dazu kann `V0` die offenen physischen Releasevalidierungen der 16
+implementierten Module bündeln. Ein nächster Funktionskandidat bleibt bis zu
+einer eigenen Vertragsbesprechung und Freigabe gesperrt.
