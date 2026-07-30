@@ -94,7 +94,7 @@ jobs:
           sudo apt-get update
           sudo env ACCEPT_EULA=Y apt-get install --yes mssql-tools18
 
-          sa_password="$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 28)Aa1!"
+          sa_password="$(openssl rand -hex 20)Aa1!"
           docker run --detach --name "$container_name"             --publish 1433:1433             --env ACCEPT_EULA=Y             --env MSSQL_SA_PASSWORD="$sa_password"             mcr.microsoft.com/mssql/server:2022-latest >/dev/null
 
           for attempt in {1..60}; do
