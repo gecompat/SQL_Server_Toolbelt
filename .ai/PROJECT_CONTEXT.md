@@ -2,9 +2,15 @@
 
 ## Projektstatus
 
-16 Module sind implementiert. 14 sind `partially validated`, die beiden
-W2c-Module `not executed`. Die verbindlichen Einzelstatus werden aus den
-jeweiligen `module.yaml`-Manifesten abgeleitet.
+16 Module sind implementiert und `partially validated`. Die verbindlichen
+Einzelstatus werden aus den jeweiligen `module.yaml`-Manifesten abgeleitet.
+
+Die W2c-Module `toolbelt.core.console-message` und
+`toolbelt.metadata.capability-catalog` sind auf SQL Server 2025 Linux mit
+Compatibility Levels 150, 160 und 170 einschließlich Langtext-/Unicode-,
+Marker-/Drift-, Wiederholungs-, Lifecycle-, Central- und Uninstall-Contracts
+erfolgreich. Physische SQL-Server-2019-/2022-, Windows- und
+modulspezifische Releasefälle bleiben `not executed`.
 
 Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das Kernmodul
 `toolbelt.core.result-table` ist implementiert und teilweise validiert: Die
@@ -81,8 +87,9 @@ W2c ist als `toolbelt.core.console-message` und
 verwendet Unicode-sichere `PRINT`- beziehungsweise
 `RAISERROR ... WITH NOWAIT`-Chunks. Die Capability-View liest ausschließlich
 Database-level Extended Properties und weist Marker als `valid`,
-`incomplete` oder `invalid` aus. Runtime, Central, Wiederholungsdeployment und
-Uninstall sind noch `not executed`.
+`incomplete` oder `invalid` aus. SQL Server 2025 Linux ist mit Compatibility
+Levels 150, 160 und 170 einschließlich Langtext-/Unicode-, Marker-/Drift-,
+Wiederholungs-, Lifecycle-, Central- und Uninstall-Contracts erfolgreich.
 
 ## Projektzweck
 

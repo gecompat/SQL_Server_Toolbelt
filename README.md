@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 16 Module implementiert – 14 teilweise validiert](https://img.shields.io/badge/Status-16%20Module%20implementiert%20%7C%2014%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 16 Module implementiert – 16 teilweise validiert](https://img.shields.io/badge/Status-16%20Module%20implementiert%20%7C%2016%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -141,8 +141,11 @@ Die implementierten W2c-Module
 und
 [`toolbelt.metadata.capability-catalog`](./Modules/toolbelt.metadata.capability-catalog/README.md)
 stellen Unicode-sichere lange Message-Ausgabe sowie eine read-only Sicht auf
-Database-level Toolbelt-Modulmarker bereit. Die Runtime ist noch
-`not executed`; der Merge bleibt bis zur erfolgreichen W2c-Matrix gesperrt.
+Database-level Toolbelt-Modulmarker bereit. SQL Server 2025 Linux ist mit
+Compatibility Levels 150, 160 und 170 einschließlich Langtext-/Unicode-,
+Marker-/Drift-, Lifecycle-, Central- und Uninstall-Contracts erfolgreich;
+physische Zielversions-, Windows- und modulspezifische Releasefälle bleiben
+offen.
 
 ## Modulprinzip
 

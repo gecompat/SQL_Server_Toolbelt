@@ -10,7 +10,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 ## Verbindlichkeit und Aussagegrenzen
 
 - **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 16 Module sind
-  implementiert; 14 sind `partially validated`, zwei `not executed`.
+  implementiert und `partially validated`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -76,7 +76,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 | `W2a` | `completed` | Date/Time- und Bigint-Bit-Kompatibilität | `004`, `005`, `007` | Typfamilien, Paritätsumfang und Fehlervertrag am 2026-07-30 freigegeben | Drei Module implementiert und auf SQL Server 2025 Linux teilweise validiert. |
 | `W2b-A` | `completed` | JSON-Pfadprüfung | `009` Slice A | Pfad-, NULL-, Fehler- und Providervertrag am 2026-07-30 freigegeben | `toolbelt.json.path-exists` implementiert und auf SQL Server 2025 Linux teilweise validiert. |
 | `W2b-B` | `deferred` | JSON-Konstruktoren und Aggregate | `009` Slice B, `013` | Variable Konstruktoroberfläche beziehungsweise stabiler Aggregat-/CLR-Provider entschieden | Keine Implementierung; Aggregate bleiben während Preview zurückgestellt. |
-| `W2c` | `active` | Console-Ausgabe und Runtime-Capability-Discovery | `016`, `023` | Provider-, Chunk-, Null-, Metadatenquellen- und Driftvertrag am 2026-07-30 freigegeben | Zwei Module implementiert; Runtime noch `not executed`. |
+| `W2c` | `completed` | Console-Ausgabe und Runtime-Capability-Discovery | `016`, `023` | Provider-, Chunk-, Null-, Metadatenquellen- und Driftvertrag am 2026-07-30 freigegeben | Zwei Module implementiert und auf SQL Server 2025 Linux teilweise validiert. |
 | `W3` | `researched` | String-Parser und Matching | `010`, `011`, `032` | Syntaxsubset, Limits und Providervergleich entschieden | Getrennte Regex-, Fuzzy- und Quote-/Escape-Module. |
 | `W4` | `researched` | Weitere Execution-Grundlagen | `017`, `019`, `022` | Persistente Namenskonvention nur soweit tatsächlich benötigt | Error Envelope, Correlation und Work-Type-Katalog. |
 | `W5` | `researched` | Session- und Ausführungsprovider | `046`, `014` | `017`, `019`, `022`; Provider- und Security-Entscheidung | Synchrone zweite Session und darauf aufbauendes rollback-unabhängiges Logging. |
@@ -111,8 +111,8 @@ freigegebenes Arbeitspaket aktiv.
 | `TC-2026-005` | `toolbelt.datetime.bucket` | `TVF_DateBucketDate`, `TVF_DateBucketDateTime2`, `TVF_DateBucketDateTimeOffset` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
 | `TC-2026-007` | `toolbelt.binary.bit-operations` | `TVF_LeftShiftBigInt`, `TVF_RightShiftBigInt`, `TVF_BitCountBigInt`, `TVF_GetBitBigInt`, `TVF_SetBitBigInt` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Binary-Slice bleibt getrennt. |
 | `TC-2026-009` | `toolbelt.json.path-exists` | `toolbelt_json.TVF_JsonPathExists` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Konstruktoren bleiben getrennt. |
-| `TC-2026-016` | `toolbelt.core.console-message` | `toolbelt_core.USP_WriteConsoleMessage` | W2c-Runtime sowie physische 2019-/2022-, Windows- und Client-/Treiber-Evidenz. |
-| `TC-2026-023` | `toolbelt.metadata.capability-catalog` | `toolbelt_metadata.VW_ModuleCapabilities` | W2c-Runtime sowie physische 2019-/2022-, Windows- und eingeschränkte Metadata-Visibility. |
+| `TC-2026-016` | `toolbelt.core.console-message` | `toolbelt_core.USP_WriteConsoleMessage` | Physische 2019-/2022-, Windows- und weitere Client-/Treiber-Evidenz. |
+| `TC-2026-023` | `toolbelt.metadata.capability-catalog` | `toolbelt_metadata.VW_ModuleCapabilities` | Physische 2019-/2022-, Windows- und eingeschränkte Metadata-Visibility. |
 
 ### Portable Fach- und Compatibility-Module
 
@@ -217,11 +217,11 @@ stillschweigend zu V1.
 
 ## Nächste konkrete Auswahl
 
-W2c mit `TC-2026-016` und `TC-2026-023` ist ausdrücklich freigegeben und als
+W2c mit `TC-2026-016` und `TC-2026-023` ist als
 `toolbelt.core.console-message` sowie
-`toolbelt.metadata.capability-catalog` implementiert. Die Runtime ist noch
-`not executed`; deshalb bleibt die Welle bis zum erfolgreichen
-SQL-Server-2025-Linux- und Dokumentationslauf `active`.
+`toolbelt.metadata.capability-catalog` implementiert und auf SQL Server 2025
+Linux mit Compatibility Levels 150/160/170 teilweise validiert. Physische
+Zielversions-, Windows- und modulspezifische Releasefälle bleiben offen.
 
 JSON-Konstruktoren und `TC-2026-013` bilden W2b-B und bleiben zurückgestellt.
 Konstruktoren benötigen eine belastbare variable Eingabeoberfläche;

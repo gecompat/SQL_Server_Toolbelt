@@ -13,7 +13,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
   `toolbelt.metadata.capability-catalog` für eine read-only Projektion
   gültiger, unvollständiger oder ungültiger Database-level Modulmarker.
   Source, Lifecycle, Central-, Contract-, Dokumentations- und
-  Runtime-Artefakte sind vorhanden; Runtime ist noch `not executed`.
+  Runtime-Artefakte sind vorhanden. SQL Server 2025 Linux ist mit
+  Compatibility Levels 150, 160 und 170 einschließlich Langtext-/Unicode-,
+  Marker-/Drift-, Wiederholungs-, Lifecycle-, Central- und
+  Uninstall-Contracts erfolgreich; beide Module sind `partially validated`.
 - W2b-A mit `toolbelt.json.path-exists`: fehlerfreie SQL/JSON-Pfadprüfung
   für SQL Server 2019+ mit Root-, Property-, Array-Index-, Quote- und
   Wildcard-Semantik, gekoppelte Lifecycle-, Central-, Contract-,
@@ -168,8 +171,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-16 Module sind implementiert; 14 sind `partially validated`, zwei
-`not executed`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und
+16 Module sind implementiert und `partially validated`. ResultTable ist unter
+Linux auf SQL Server 2019, 2022 und
 2025 erfolgreich; die übrigen bereits teilweise validierten Module sind
 auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Windows und die jeweils offenen Releasefälle bleiben

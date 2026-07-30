@@ -3,7 +3,7 @@
 **Modul-ID:** `toolbelt.metadata.capability-catalog`
 **Version:** `1.0.0`
 **Implementierungsstatus:** `implemented`
-**Validierungsstatus:** `not executed`
+**Validierungsstatus:** `partially validated`
 **Release-Status:** `unreleased`
 
 ## Zweck
@@ -45,4 +45,11 @@ inventarisiert.
 - [Beispiele](Examples/ModuleCapabilities.sql)
 - [Testmatrix](Tests/CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md)
 
-Kein Test gilt ohne tatsächliche Ausführung als erfolgreich.
+Die GitHub-hosted
+[W2c-Runtime 30573135975](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975)
+war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
+einschließlich Marker-, Drift-, Collation-, Wiederholungs-, Lifecycle-,
+Central- und Uninstall-Contracts erfolgreich.
+
+Physische SQL-Server-2019-/2022- und Windows-Läufe sowie eingeschränkte
+Metadata-Visibility bleiben Releasevalidierung.

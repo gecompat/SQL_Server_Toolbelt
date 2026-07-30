@@ -2,7 +2,7 @@ module_id: "toolbelt.metadata.capability-catalog"
 module_name: "Module Capability Catalog"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Projiziert Toolbelt-Modulversionen und Deployment-Modi aus Database-level Extended Properties."
 sql_server_versions:
@@ -12,12 +12,12 @@ sql_server_versions:
 compatibility_levels: [150, 160, 170]
 platforms:
   windows: "not executed"
-  linux: "not executed"
+  linux: "partially validated"
 providers:
   - id: tsql-catalog-view
     technology: T-SQL View over sys.extended_properties
     platforms: [Windows, Linux]
-    status: "not executed"
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: true
@@ -78,4 +78,8 @@ tests:
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   github_hosted_linux: "../../.github/workflows/w2c-runtime.yml"
-validation_evidence: []
+validation_evidence:
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; API-, gültiger, unvollständiger, ungültiger, Typ-, Markername-, Object-level-, Collation-, Read-only-, Wiederholungs-, Lifecycle-, Central- und Uninstall-Contract"
+    result: "success"

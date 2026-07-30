@@ -22,8 +22,9 @@ modulspezifische Matrixfälle bleiben offen.
 `toolbelt.json.path-exists` ist dort einschließlich nativer Parität,
 Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
 erfolgreich.
-Die W2c-Module besitzen vollständige statische und synthetische
-Runtime-Contract-Artefakte; ihre Runtime ist noch `not executed`.
+Die W2c-Module sind dort einschließlich Langtext-/Unicode-, Marker-/Drift-,
+Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
+erfolgreich.
 
 ## Pflicht-Testarten je Modul
 
@@ -59,8 +60,8 @@ Runtime-Contract-Artefakte; ihre Runtime ist noch `not executed`.
 | `toolbelt.datetime.bucket` | [DATETIME_BUCKET_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.bucket/Tests/DATETIME_BUCKET_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.binary.bit-operations` | [BIT_OPERATIONS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.binary.bit-operations/Tests/BIT_OPERATIONS_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.json.path-exists` | [JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.json.path-exists/Tests/JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
-| `toolbelt.core.console-message` | [CONSOLE_MESSAGE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.console-message/Tests/CONSOLE_MESSAGE_CONTRACT_TEST_MATRIX.md) | `not executed`; W2c-Runtime ausstehend |
-| `toolbelt.metadata.capability-catalog` | [CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.metadata.capability-catalog/Tests/CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md) | `not executed`; W2c-Runtime ausstehend |
+| `toolbelt.core.console-message` | [CONSOLE_MESSAGE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.console-message/Tests/CONSOLE_MESSAGE_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
+| `toolbelt.metadata.capability-catalog` | [CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.metadata.capability-catalog/Tests/CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 
 Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 

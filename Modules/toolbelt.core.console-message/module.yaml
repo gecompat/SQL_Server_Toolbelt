@@ -2,7 +2,7 @@ module_id: "toolbelt.core.console-message"
 module_name: "Console Message"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Gibt lange Unicode-Texte gepuffert oder unmittelbar im SQL-Server-Messages-Kanal aus."
 sql_server_versions:
@@ -12,16 +12,16 @@ sql_server_versions:
 compatibility_levels: [150, 160, 170]
 platforms:
   windows: "not executed"
-  linux: "not executed"
+  linux: "partially validated"
 providers:
   - id: tsql-print
     technology: T-SQL PRINT
     platforms: [Windows, Linux]
-    status: "not executed"
+    status: "partially validated"
   - id: tsql-raiserror-nowait
     technology: T-SQL RAISERROR WITH NOWAIT
     platforms: [Windows, Linux]
-    status: "not executed"
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: true
@@ -81,4 +81,8 @@ tests:
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   github_hosted_linux: "../../.github/workflows/w2c-runtime.yml"
-validation_evidence: []
+validation_evidence:
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; API-, Help-, NULL-, Langtext-, PRINT-, RAISERROR/NOWAIT-, Unicode-, Prozent-, Zeilen-, Wiederholungs-, Lifecycle-, Central- und Uninstall-Contract"
+    result: "success"

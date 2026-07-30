@@ -4,9 +4,9 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 16 Module sind implementiert; 14 sind `partially validated`,
-zwei `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
-`module.yaml`-Manifesten abgeleitet.
+abgeschlossen. 16 Module sind implementiert und `partially validated`. Die
+verbindlichen Einzelstatus werden aus den jeweiligen `module.yaml`-Manifesten
+abgeleitet.
 
 `toolbelt.core.result-table` ist auf GitHub-hosted Linux für SQL Server 2019,
 2022 und 2025 erfolgreich. Base64, Generate-Series, Identifier,
@@ -306,7 +306,7 @@ Releasevalidierung.
 
 ### Phase 2.5 – W2c Console Message und Capability Catalog
 
-**Status:** `active`; Runtime `not executed`
+**Status:** `completed`; Runtime `partially validated`
 
 **Arbeitspaket:** `AP-2026-018`
 
@@ -318,9 +318,12 @@ implementiert `toolbelt_metadata.VW_ModuleCapabilities` als read-only
 Projektion der Database-level Modulmarker.
 
 Source, Lifecycle, Dokumentation, Beispiele, statische und synthetische
-Runtime-Contracts sind vorhanden. Die SQL-Server-2025-Linux-Matrix mit
-Compatibility Levels 150/160/170 ist noch `not executed`; der Status wird
-erst nach tatsächlicher Workflow-Evidenz angehoben.
+Runtime-Contracts sind vorhanden. Die
+[W2c-Runtime 30573135975](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975)
+ist auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170
+einschließlich Langtext-/Unicode-, Marker-/Drift-, Wiederholungs-, Lifecycle-,
+Central- und Uninstall-Contracts erfolgreich. Physische 2019-/2022-,
+Windows- und modulspezifische Releasefälle bleiben offen.
 
 ## Phase 3 – Schlanke Test-Infrastruktur und CI
 

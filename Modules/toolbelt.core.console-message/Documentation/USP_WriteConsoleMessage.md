@@ -1,7 +1,7 @@
 # toolbelt_core.USP_WriteConsoleMessage
 
 **Typ:** Infrastruktur-Stored-Procedure ohne fachliches Resultset
-**Status:** `implemented`; Runtime `not executed`
+**Status:** `implemented`; Runtime `partially validated`
 
 ## Zweck
 
@@ -65,3 +65,9 @@ EXEC toolbelt_core.USP_WriteConsoleMessage @Hilfe = 1;
 Reihenfolge und Payload-Chunks sind Enginevertrag. Pufferung, Präfixe,
 Zeilenformatierung und Darstellung der Message-Frame-Grenzen hängen von
 Client beziehungsweise Treiber ab.
+
+Die [W2c-Runtime
+30573135975](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975)
+belegt den Enginevertrag auf SQL Server 2025 Linux mit Compatibility Levels
+150, 160 und 170. Physische Zielversions-, Windows- und weitere
+Client-/Treiber-Läufe bleiben offen.

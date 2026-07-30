@@ -1,7 +1,7 @@
 # toolbelt_metadata.VW_ModuleCapabilities
 
 **Typ:** View
-**Status:** `implemented`; Runtime `not executed`
+**Status:** `implemented`; Runtime `partially validated`
 
 ## Zweck
 
@@ -50,3 +50,9 @@ Properties der aktuellen Datenbank und mutiert nichts.
 Nicht enthalten sind Objektinventar, Provider, Plattformen, Dependencies,
 Supportmatrix, automatische Reparatur, Filter-TVF und persistente Registry.
 Prerelease- und Build-Versionen sind in V1 ungültige installierte Marker.
+
+Die [W2c-Runtime
+30573135975](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975)
+belegt den View-Vertrag auf SQL Server 2025 Linux mit Compatibility Levels
+150, 160 und 170. Physische Zielversions-, Windows- und eingeschränkte
+Metadata-Visibility-Läufe bleiben offen.

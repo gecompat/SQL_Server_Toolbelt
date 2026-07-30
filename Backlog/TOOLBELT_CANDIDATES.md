@@ -369,10 +369,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Engine-Verhalten voraussichtlich gleich; tatsächliche Darstellung, Pufferung und Reihenfolge hängen zusätzlich vom Client beziehungsweise Treiber ab und sind getrennt zu testen. |
 | **Dependencies** | USP- und Debug-Vertrag; mögliche Wiederverwendung durch `TC-2026-017` und spätere Module. |
 | **Duplikatprüfung** | Vorhandener Debug-Vertrag verlangt Messages, enthält aber keine wiederverwendbare Langtext- oder NOWAIT-Funktion. |
-| **Status** | `implemented`; Runtime `not executed` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/language-elements/print-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/language-elements/raiserror-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | W2c-Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 ausführen; anschließend physische 2019-/2022-, Windows- sowie Client-/Treiber-Evidenz ergänzen. |
+| **Nächster Schritt** | Physische 2019-/2022-, Windows- sowie weitere Client-/Treiber-Evidenz ergänzen; SQL Server 2025 Linux mit Compatibility Levels 150/160/170 ist erfolgreich. |
 
 ## TC-2026-017: Standardisierter Error Envelope
 
@@ -530,10 +530,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | T-SQL-Metadatenkern soll unter Windows und Linux gleich sein; zentrale und lokale Installation sowie eingeschränkte Metadatensicht sind getrennt zu testen. |
 | **Dependencies** | Modul-/Dependency- und Lifecycle-Vertrag; keine Runtime-Modulabhängigkeit und keine Tabellen-Namensentscheidung in V1. |
 | **Duplikatprüfung** | Toolbelt-Kandidaten, Repository-Map, Modulmodell und ResultTable-Design geprüft. Manifeste dokumentieren den Sollstand, stellen aber noch keinen Runtime-Capability-Katalog bereit. |
-| **Status** | `implemented`; Runtime `not executed` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [SQL_SERVER_TOOLBELT_LANDSCAPE.md](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://sqldownunder.com/sdutools/<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/extended-properties-catalog-views-sys-extended-properties?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | W2c-Runtime einschließlich gültiger, unvollständiger, ungültiger, falsch typisierter und Object-level Marker ausführen; danach physische 2019-/2022-, Windows- und eingeschränkte Metadata-Visibility prüfen. |
+| **Nächster Schritt** | Physische 2019-/2022-, Windows- und eingeschränkte Metadata-Visibility prüfen; die W2c-Marker-, Drift- und Object-level-Matrix auf SQL Server 2025 Linux ist erfolgreich. |
 
 ## TC-2026-024: URI-Percent-Encoding und -Decoding
 

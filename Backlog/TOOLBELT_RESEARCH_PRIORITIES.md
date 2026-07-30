@@ -6,7 +6,7 @@ Stand: 2026-07-30
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** 16 Module sind implementiert; 14 sind `partially validated`, zwei `not executed`. |
+| Aktueller Projektstand | **Dokumentiert:** 16 Module sind implementiert und `partially validated`. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
 | Implementierungsfreigabe | **Abgeschlossen beziehungsweise aktiv:** Die bisher implementierten Einzelkandidaten, W1, W2a, W2b-A und W2c wurden nach ausdrücklicher Freigabe umgesetzt. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
@@ -46,8 +46,8 @@ Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
 | 10 | `TC-2026-024` – URI-Percent-Encoding | `M` | Als W1-Modul mit kanonischen inline TVFs und optionalen SVF-Wrappern implementiert und teilweise validiert. |
 
 **Hauptempfehlung:** Die offenen Releasevalidierungen getrennt weiterführen.
-Die vier abgeschlossenen Entwicklungsgruppen bis einschließlich W2b-A sind
-teilweise validiert. W2c ist implementiert; Runtime bleibt `not executed`.
+Die fünf Entwicklungsgruppen bis einschließlich W2c sind teilweise
+validiert.
 
 ## F1 – Abgeschlossene Sammelfreigaben
 
@@ -59,10 +59,10 @@ Die freigegebenen Kandidaten wurden in fünf Gruppen umgesetzt:
 | Portable W1 | `TC-2026-002`, `TC-2026-008`, `TC-2026-024` | `completed`; Runtime `partially validated` | Calendar Difference, Directional TRIM und URI Component besitzen voneinander unabhängige Verträge. |
 | Portable W2a | `TC-2026-004`, `TC-2026-005`, `TC-2026-007` | `completed`; Runtime `partially validated` | Date/Time-Typfamilien und der Bigint-Bit-Slice bleiben von späteren Typ-/Providererweiterungen getrennt. |
 | Portable W2b-A | `TC-2026-009` Slice A | `completed`; Runtime `partially validated` | Nur Path Exists; Konstruktoren und Aggregate bleiben zurückgestellt. |
-| Portable W2c | `TC-2026-016`, `TC-2026-023` | `active`; Runtime `not executed` | Console ohne Präfix-/Severity-Optionen; Capability Discovery ohne Registry oder Filter-TVF. |
+| Portable W2c | `TC-2026-016`, `TC-2026-023` | `completed`; Runtime `partially validated` | Console ohne Präfix-/Severity-Optionen; Capability Discovery ohne Registry oder Filter-TVF. |
 
-Die ersten vier Sammelfreigaben vom 2026-07-30 sind vollständig abgearbeitet
-und teilweise validiert. W2c wartet auf tatsächliche Runtime-Evidenz.
+Die fünf Sammelfreigaben vom 2026-07-30 sind vollständig abgearbeitet und
+teilweise validiert.
 
 ## F1-Q – Qualitäts-Enabler parallel, aber nicht alle zugleich
 
@@ -115,12 +115,11 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 
 ## Nächste Ausführung
 
-`AP-2026-018` setzt die ausdrücklich freigegebene W2c um.
-`toolbelt.core.console-message` und
-`toolbelt.metadata.capability-catalog` sind implementiert; Runtime bleibt bis
-zum erfolgreichen SQL-Server-2025-Linux-Workflow `not executed`.
+`AP-2026-018` ist abgeschlossen. `toolbelt.core.console-message` und
+`toolbelt.metadata.capability-catalog` sind implementiert und auf SQL Server
+2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert.
 
 Der [kandidatenübergreifende Implementierungsplan](./TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md)
-führt W2c als aktive, implementierte Welle und `TC-2026-013` weiterhin
+führt W2c als abgeschlossene Welle und `TC-2026-013` weiterhin
 zurückgestellt. Diese Auswahlhilfe erteilt keine Freigabe für weitere
 Funktionen.

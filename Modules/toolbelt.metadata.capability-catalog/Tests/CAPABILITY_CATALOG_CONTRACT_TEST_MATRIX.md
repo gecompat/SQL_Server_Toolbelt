@@ -2,15 +2,16 @@
 
 | Bereich | Pflichtfall | Status |
 |---|---|---|
-| API | View-Typ und vier Spalten | `not executed` |
-| gültig | kanonische Modulmarker | `not executed` |
-| unvollständig | fehlender Version- oder Mode-Marker sichtbar | `not executed` |
-| ungültig | Version, Modus, Datentyp und Schreibweise | `not executed` |
-| Scope | Object-level Extended Property wird ignoriert | `not executed` |
-| Collation | CS-, CI- und BIN2-Datenbankpfade | `not executed` |
-| Read-only | keine Registry und keine Mutation durch die View | `not executed` |
-| Lifecycle | Erstinstallation, Wiederholung, Central, Uninstall | `not executed` |
-| Matrix | SQL Server 2025 Linux, Compatibility 150/160/170 | `not executed` |
+| API | View-Typ und vier Spalten | `success` – Run 30573135975 |
+| gültig | kanonische Modulmarker | `success` – Run 30573135975 |
+| unvollständig | fehlender Version- oder Mode-Marker sichtbar | `success` – Run 30573135975 |
+| ungültig | Version, Modus, Datentyp und Schreibweise | `success` – Run 30573135975 |
+| Scope | Object-level Extended Property wird ignoriert | `success` – Run 30573135975 |
+| Collation | CS-, CI- und BIN2-Datenbankpfade | `success` – Run 30573135975 |
+| Read-only | keine Registry und keine Mutation durch die View | `success` – Run 30573135975 |
+| Lifecycle | Erstinstallation, Wiederholung, Central, Uninstall | `success` – Run 30573135975 |
+| Matrix | SQL Server 2025 Linux, Compatibility 150/160/170 | `success` – [Run 30573135975](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975) |
 | Release | physische SQL Server 2019/2022 und Windows | `not executed` |
 
-Eine vorhandene Testmatrix ist noch kein Runtime-Nachweis.
+Physische SQL-Server-2019-/2022- und Windows-Läufe sowie eingeschränkte
+Metadata-Visibility bleiben `not executed`.
