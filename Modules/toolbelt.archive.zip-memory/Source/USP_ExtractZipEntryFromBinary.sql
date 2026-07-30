@@ -250,7 +250,7 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
     (
           EntryOrdinal int IDENTITY(1,1) NOT NULL
         , EntryName nvarchar(1024) NOT NULL
-        , LocalHeaderOffset int NOT NULL
+        , LocalHeaderOffset bigint NOT NULL
         , CompressionMethod int NOT NULL
         , GeneralPurposeFlags int NOT NULL
         , Crc32 int NOT NULL
@@ -274,12 +274,13 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
               @GpFlags int
             , @Method int
             , @Crc32 int
-            , @CompressedSize int
-            , @UncompressedSize int
+            , @CrcVal bigint
+            , @CompressedSize bigint
+            , @UncompressedSize bigint
             , @NameLength int
             , @ExtraLength int
             , @CommentLen int
-            , @LocalOffset int
+            , @LocalOffset bigint
             , @EntryNameBytes varbinary(1024)
             , @EntryNameValue nvarchar(1024)
             , @HeaderLength int;
@@ -290,27 +291,26 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
         SET @Method =
             CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 10), 1)))
             + CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 11), 1))) * 256;
-        SET @Crc32 =
-            CONVERT(int,
-                CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 16), 1)))
-              + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 17), 1))) * 256
-              + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 18), 1))) * 65536
-              + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 19), 1))) * 16777216
-            );
+        
+        SET @CrcVal =
+            CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 16), 1)))
+          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 17), 1))) * 256
+          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 18), 1))) * 65536
+          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 19), 1))) * 16777216;
+        SET @Crc32 = CONVERT(int, CASE WHEN @CrcVal >= 2147483648 THEN @CrcVal - 4294967296 ELSE @CrcVal END);
+
         SET @CompressedSize =
-            CONVERT(int,
-                CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 20), 1)))
-              + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 21), 1))) * 256
-              + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 22), 1))) * 65536
-              + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 23), 1))) * 16777216
-            );
+            CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 20), 1)))
+          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 21), 1))) * 256
+          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 22), 1))) * 65536
+          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 23), 1))) * 16777216;
+
         SET @UncompressedSize =
-            CONVERT(int,
-                CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 24), 1)))
-              + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 25), 1))) * 256
-              + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 26), 1))) * 65536
-              + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 27), 1))) * 16777216
-            );
+            CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 24), 1)))
+          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 25), 1))) * 256
+          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 26), 1))) * 65536
+          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 27), 1))) * 16777216;
+
         SET @NameLength =
             CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 28), 1)))
             + CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 29), 1))) * 256;
@@ -320,13 +320,12 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
         SET @CommentLen =
             CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 32), 1)))
             + CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 33), 1))) * 256;
+        
         SET @LocalOffset =
-            CONVERT(int,
-                CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 42), 1)))
-              + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 43), 1))) * 256
-              + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 44), 1))) * 65536
-              + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 45), 1))) * 16777216
-            );
+            CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 42), 1)))
+          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 43), 1))) * 256
+          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 44), 1))) * 65536
+          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 45), 1))) * 16777216;
 
         IF @NameLength < 1 OR @NameLength > 1024 OR @ExtraLength < 0 OR @CommentLen < 0
             THROW 51321, N'Entry-Metadaten sind ausserhalb der unterstuetzten Grenzen.', 1;
@@ -377,7 +376,7 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
 
     DECLARE
           @SelectedEntryName nvarchar(1024)
-        , @SelectedOffset int
+        , @SelectedOffset bigint
         , @SelectedMethod int
         , @SelectedFlags int
         , @SelectedCrc32 int
@@ -392,8 +391,9 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
         , @LocalFlags int
         , @LocalMethod int
         , @LocalCrc int
-        , @LocalCompressed int
-        , @LocalUncompressed int
+        , @LocalCrcVal bigint
+        , @LocalCompressed bigint
+        , @LocalUncompressed bigint
         , @LocalName nvarchar(1024)
         , @Payload varbinary(max) = NULL;
 
@@ -438,27 +438,26 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
     SET @LocalMethod =
         CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 8), 1)))
         + CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 9), 1))) * 256;
-    SET @LocalCrc =
-        CONVERT(int,
-            CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 14), 1)))
-          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 15), 1))) * 256
-          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 16), 1))) * 65536
-          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 17), 1))) * 16777216
-        );
+    
+    SET @LocalCrcVal =
+        CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 14), 1)))
+      + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 15), 1))) * 256
+      + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 16), 1))) * 65536
+      + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 17), 1))) * 16777216;
+    SET @LocalCrc = CONVERT(int, CASE WHEN @LocalCrcVal >= 2147483648 THEN @LocalCrcVal - 4294967296 ELSE @LocalCrcVal END);
+
     SET @LocalCompressed =
-        CONVERT(int,
-            CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 18), 1)))
-          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 19), 1))) * 256
-          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 20), 1))) * 65536
-          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 21), 1))) * 16777216
-        );
+        CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 18), 1)))
+      + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 19), 1))) * 256
+      + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 20), 1))) * 65536
+      + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 21), 1))) * 16777216;
+
     SET @LocalUncompressed =
-        CONVERT(int,
-            CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 22), 1)))
-          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 23), 1))) * 256
-          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 24), 1))) * 65536
-          + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 25), 1))) * 16777216
-        );
+        CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 22), 1)))
+      + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 23), 1))) * 256
+      + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 24), 1))) * 65536
+      + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 25), 1))) * 16777216;
+
     SET @LocalNameLen =
         CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 26), 1)))
         + CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 27), 1))) * 256;
