@@ -3,6 +3,8 @@
 > Recherche 2026-07-29 — ChatGPT: Zahlensysteme, Kompression/Archive, Datei-/Verzeichniszugriff, Anonymisierung und Objektklonen wurden gegen Primärquellen und Repository-Grenzen vorgeprüft. Ergebnis: [SQL_SERVER_TOOLBELT_LANDSCAPE.md](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md). Es wurde daraus noch keine Implementierungsfreigabe abgeleitet.
 
 # Konvertierung numerischer Ganzzahlen in variables Zahlensystem  
+
+> Überführung 2026-07-30 — Codex: Als `TC-2026-031` formalisiert und nach gemeinsamer Vertragsbesprechung mit Status `ready for development` in `AP-2026-013` aufgenommen. Der Originalgedanke bleibt als Herkunft erhalten.  
   z.B.  
 > - Binär (2)
 > - Oktal (8)
