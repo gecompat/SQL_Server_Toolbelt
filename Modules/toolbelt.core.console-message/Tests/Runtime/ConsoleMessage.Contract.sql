@@ -120,9 +120,13 @@ IF @ReturnCode <> 0
     THROW 52936, N'Der Leertext-Vertrag liefert einen falschen Return Code.', 1;
 
 DECLARE @LongBuffered nvarchar(max) =
-    N'BUFFERED|' + REPLICATE(N'α', 8500) + N'|END';
+      CONVERT(nvarchar(max), N'BUFFERED|')
+    + REPLICATE(CONVERT(nvarchar(max), N'α'), 8500)
+    + N'|END';
 DECLARE @LongImmediate nvarchar(max) =
-    N'IMMEDIATE|100 %|' + REPLICATE(N'β', 4500) + N'|END';
+      CONVERT(nvarchar(max), N'IMMEDIATE|100 %|')
+    + REPLICATE(CONVERT(nvarchar(max), N'β'), 4500)
+    + N'|END';
 
 EXEC @ReturnCode = toolbelt_core.USP_WriteConsoleMessage
       @Message = @LongBuffered
