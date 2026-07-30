@@ -6,21 +6,21 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
-### AP-2026-018: TC-2026-034 Projektstart und Umsetzungsplan
+### AP-2026-019: TC-2026-034 Verarbeitungswelle 1 (Vertragswelle)
 
 | Feld | Wert |
 |---|---|
-| ID | `AP-2026-018` |
-| Ziel | Das researched Kandidatenpaket `TC-2026-034` in einen implementierbaren, risikoarmen V1-Scope überführen und die funktionsbezogene Implementierungsfreigabe vorbereiten. |
-| Scope | Projektstart ohne Runtime-Implementierung: V1-Slice festlegen, Provideroptionen vergleichen, Sicherheits- und Plattformvertrag konkretisieren, Objektzuschnitt planen, Test- und Evidenzplan erstellen, offene Entscheidungen mit Benutzer abschließen. |
+| ID | `AP-2026-019` |
+| Ziel | Die erste Verarbeitungswelle fuer `TC-2026-034` als belastbare V1-Vertragsbasis abschliessen und die anschliessende Implementierungsfreigabe vorbereiten. |
+| Scope | Keine Runtime-Implementierung. V1A auf In-memory-Extraktion einzelner ZIP-Eintraege begrenzen, Dateisystempfade ausschliessen, Sicherheitsgrenzen und Ergebnisvertrag dokumentieren, Testmatrix und Lifecycle-Scope vorbereiten. |
 | Dependencies | `TC-2026-034`, `TC-2026-033`, `TC-2026-037`, `TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md`, `WORKING_RULES.md`, `PROJECT_RULES.md`. |
 | Priorität | `P1` |
 | Status | `active` |
-| Akzeptanzkriterien | Ein dokumentierter V1-Vertrag liegt vor: klar abgegrenzte Eingabe-/Ausgabeform, explizite Nicht-Ziele, definierte Sicherheitsgrenzen gegen Zip Slip/Zip Bomb/Path Traversal, Providerentscheidung mit Begründung, Ergebnis- und Fehlersemantik, Lifecycle-/Deployment-Scope, modulbezogene Testmatrix sowie ein freigabefähiges Moduldesign. |
+| Akzeptanzkriterien | Ein dokumentierter V1A-Vertrag liegt vor: Eingabe als `varbinary(max)`, kein direkter Dateisystemzugriff, explizite Nicht-Ziele, definierte Sicherheitsgrenzen gegen Zip Slip/Zip Bomb/Path Traversal, Ergebnis- und Fehlersemantik, Lifecycle-/Deployment-Scope, modulbezogene Testmatrix sowie ein freigabefähiges Moduldesign. |
 | Tests | Für diese Startphase `not applicable` für Runtime. Pflicht sind Quellen- und Vertragskonsistenzprüfung, Datenschutz-/Secret-Gate, Duplikatprüfung und ein nachvollziehbarer Entscheidungsnachweis pro offener Kernfrage. |
-| Blocker | Noch offen: endgültige Providerwahl (In-memory versus Dateisystem), V1-Funktionsgrenze (Extract/Create gemeinsam oder getrennt), erlaubte Zielpfade, Overwrite-/Atomicity-Regeln und Limits für Größe/Einträge/Kompressionsverhältnis. |
-| Evidenz | Projektstart auf ausdrücklichen Benutzerauftrag vom 2026-07-30; Kandidat `TC-2026-034` ist `researched` und im Implementierungsplan als eigener Slice geführt. |
-| Nächster Schritt | Vertragsrunde für V1 durchführen und in ein freizugebendes Moduldesign überführen; danach separates Implementierungsarbeitspaket anlegen oder `AP-2026-018` auf Implementierung erweitern. |
+| Blocker | Noch offen: finaler Umfang von `Create` in derselben Modulversion, Verhalten bei verschluesselten Eintraegen, Duplicate-Name-Semantik und harte Grenzwerte fuer Eintragszahl, dekomprimierte Groesse und Kompressionsverhaeltnis. |
+| Evidenz | Projektstart auf ausdruecklichen Benutzerauftrag vom 2026-07-30; erste Vertragswelle dokumentiert in `Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md` (Stand 2026-07-30). |
+| Nächster Schritt | Benutzerentscheid fuer die offenen V1A-Blocker einholen und danach das Implementierungsarbeitspaket fuer den In-memory-Extraktionsslice aktivieren. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 

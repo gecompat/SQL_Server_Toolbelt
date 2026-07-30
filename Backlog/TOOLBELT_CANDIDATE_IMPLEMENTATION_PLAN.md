@@ -82,7 +82,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 | `W5` | `researched` | Session- und Ausführungsprovider | `046`, `014` | `017`, `019`, `022`; Provider- und Security-Entscheidung | Synchrone zweite Session und darauf aufbauendes rollback-unabhängiges Logging. |
 | `W6` | `researched` | Queue, Retry, Lease und Cancellation | `015`, `020`, `021`, `018` | `017`, `019`, `022`; Tabellenkonvention entschieden | Begrenzte, beobachtbare und wiederanlaufbare Work Queue. |
 | `W7` | `researched` | Datei- und Host-Provider | `037`, `038`, `025`, `026`, `027` | Execution-Basis, Root-/Endpoint-Allowlist und Identity-Vertrag | Kontrollierte Provider ohne Raw-Script- oder freie URL-Schnittstelle. |
-| `W8` | `researched` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | ZIP-Metadaten zuerst, Mutationen und weitere Formate getrennt, XLSX zellorientiert. |
+| `W8` | `active` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | Verarbeitungswelle 1 fuer `TC-2026-034` aktiv: V1A-Vertragsentwurf fuer In-memory-Extraktion einzelner Eintraege dokumentiert; Implementierung bleibt bis zur finalen Benutzerfreigabe gesperrt. |
 | `W9` | `researched` | Deterministische Pseudonymisierungsprimitive | `040`, `039`, `041`, `042`, `043` | Key-/Seed-, Kanonisierungs- und Datenschutzvertrag | Range-Primitive zuerst; darauf Lookup, Translation, Date Shift und Geo Jitter. |
 | `W10` | `researched` | Kontrolliertes DDL-Klonen | `044` | Identifier-Modul vorhanden; unterstützte Objektmenge festgelegt | Zuerst nur geprüftes Script, später optional getrennte Ausführung. |
 | `W11` | `researched` | KI-Capabilities | `028` | REST/Worker, Capability-Katalog, Credentials, Kosten- und Datengovernance | Embeddings und generative Aufrufe als getrennte Module. |
@@ -229,5 +229,6 @@ JSON-Aggregate bleiben während des nativen Preview-Status und ohne
 freigegebenen SQL-CLR-/Providervertrag außerhalb der Entwicklung.
 
 Parallel dazu kann `V0` die offenen physischen Releasevalidierungen der 16
-implementierten Module bündeln. Ein nächster Funktionskandidat bleibt bis zu
-einer eigenen Vertragsbesprechung und Freigabe gesperrt.
+implementierten Module bündeln. Fuer `TC-2026-034` laeuft mit `AP-2026-019`
+die erste Verarbeitungswelle als Vertragsarbeit. Runtime-Implementierung
+startet erst nach finaler Scope- und Risikoentscheidung.
