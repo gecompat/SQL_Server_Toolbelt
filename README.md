@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 5 Module implementiert – 5 teilweise validiert](https://img.shields.io/badge/Status-5%20Module%20implementiert%20%7C%205%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 6 Module implementiert – 6 teilweise validiert](https://img.shields.io/badge/Status-6%20Module%20implementiert%20%7C%206%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. Fünf Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
+**Der Repository-Grundaufbau ist abgeschlossen. Sechs Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
 
 Das implementierte Modul [`toolbelt.core.result-table`](./Modules/toolbelt.core.result-table/README.md) stellt `toolbelt_core.USP_PrepareResultTable` als gemeinsame `@ResultTable`-/`@KeepData`-Infrastruktur bereit. Die Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; Windows und weitere Pflichtfälle bleiben offen.
 
@@ -84,6 +84,12 @@ teilt Unicode-Text an mehreren einzelnen literal interpretierten
 Separatorzeichen. SQL Server 2025 Linux ist mit Compatibility Levels 150, 160
 und 170 erfolgreich; die breitere Quote-/Escape-Ausbaustufe bleibt separat in
 `TC-2026-032`.
+
+Das implementierte Modul
+[`toolbelt.validation.semantic-version`](./Modules/toolbelt.validation.semantic-version/README.md)
+parst, vergleicht und sortiert strikte Semantic-Version-2.0.0-Werte.
+SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und 170
+erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
 
 ## Modulprinzip
 

@@ -686,6 +686,23 @@ def validate_split_characters_runtime_workflow_scope() -> None:
             )
 
 
+def validate_semantic_version_runtime_workflow_scope() -> None:
+    workflow = read(
+        REPOSITORY_ROOT / ".github" / "workflows" / "semantic-version-runtime.yml"
+    )
+    for marker in (
+        '"Documentation/Architecture/**"',
+        '"Documentation/Standards/**"',
+        '"Modules/toolbelt.validation.semantic-version/Documentation/**"',
+        '"Modules/toolbelt.validation.semantic-version/Tests/**/*.md"',
+    ):
+        if marker in workflow:
+            raise ValidationError(
+                "Semantic-Version-Runtime wird durch reine Dokumentation "
+                f"ausgelöst: {marker}"
+            )
+
+
 def run_result_table_static() -> None:
     script = (
         REPOSITORY_ROOT
@@ -806,6 +823,26 @@ def run_split_characters_static() -> None:
         )
 
 
+def run_semantic_version_static() -> None:
+    script = (
+        REPOSITORY_ROOT / "Modules" / "toolbelt.validation.semantic-version"
+        / "Tests" / "Static" / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)),
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische Semantic-Version-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", help="Git-Basisref für die Impact-Ermittlung")
@@ -877,6 +914,10 @@ def main() -> int:
         validate_split_characters_runtime_workflow_scope()
     if "split_characters_static" in checks:
         run_split_characters_static()
+    if "semantic_version_runtime_workflow_scope" in checks:
+        validate_semantic_version_runtime_workflow_scope()
+    if "semantic_version_static" in checks:
+        run_semantic_version_static()
 
     print("Dokumentations- und Konsistenzprüfung: erfolgreich")
     print(f"Modulmanifeste: {len(modules)}")

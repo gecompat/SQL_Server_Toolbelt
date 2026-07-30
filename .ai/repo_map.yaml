@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: five_modules_implemented
+  status: six_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -40,6 +40,9 @@ sources_of_truth:
   split_characters_module_design: Documentation/Architecture/SPLIT_CHARACTERS_MODULE_DESIGN.md
   split_characters_runtime_workflow: .github/workflows/split-characters-runtime.yml
   split_characters_module: Modules/toolbelt.string.split-characters/module.yaml
+  semantic_version_module_design: Documentation/Architecture/SEMANTIC_VERSION_MODULE_DESIGN.md
+  semantic_version_runtime_workflow: .github/workflows/semantic-version-runtime.yml
+  semantic_version_module: Modules/toolbelt.validation.semantic-version/module.yaml
   documentation_validator: Tests/Documentation/validate_documentation.py
   documentation_workflow: .github/workflows/documentation-consistency.yml
   toolbelt_landscape_research: Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md
@@ -203,6 +206,7 @@ module_registry:
     - Modules/toolbelt.core.generate-series/module.yaml
     - Modules/toolbelt.metadata.identifier/module.yaml
     - Modules/toolbelt.string.split-characters/module.yaml
+    - Modules/toolbelt.validation.semantic-version/module.yaml
 
 change_impact:
   strategy: diff_first_registered_dependencies
@@ -341,6 +345,15 @@ change_impact:
       checks:
         - split_characters_static
         - markdown_links
+    semantic_version_contract:
+      paths:
+        - Modules/toolbelt.validation.semantic-version/**
+        - Documentation/Architecture/SEMANTIC_VERSION_MODULE_DESIGN.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+        - Tests/CI/run-semantic-version-linux.sh
+      checks:
+        - semantic_version_static
+        - markdown_links
     runtime_workflow:
       paths:
         - .github/workflows/result-table-runtime.yml
@@ -371,6 +384,12 @@ change_impact:
       checks:
         - split_characters_runtime_workflow_scope
         - split_characters_static
+    semantic_version_runtime_workflow:
+      paths:
+        - .github/workflows/semantic-version-runtime.yml
+      checks:
+        - semantic_version_runtime_workflow_scope
+        - semantic_version_static
     governance:
       paths:
         - .ai/repo_map.yaml
@@ -398,3 +417,5 @@ change_impact:
         - identifier_static
         - split_characters_runtime_workflow_scope
         - split_characters_static
+        - semantic_version_runtime_workflow_scope
+        - semantic_version_static
