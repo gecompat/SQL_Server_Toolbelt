@@ -2,8 +2,9 @@
 
 ## Projektstatus
 
-16 Module sind implementiert und `partially validated`. Die verbindlichen
-Einzelstatus werden aus den jeweiligen `module.yaml`-Manifesten abgeleitet.
+17 Module sind implementiert. 16 sind `partially validated`, ein Modul ist
+`not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
+`module.yaml`-Manifesten abgeleitet.
 
 Die W2c-Module `toolbelt.core.console-message` und
 `toolbelt.metadata.capability-catalog` sind auf SQL Server 2025 Linux mit
@@ -90,6 +91,14 @@ Database-level Extended Properties und weist Marker als `valid`,
 `incomplete` oder `invalid` aus. SQL Server 2025 Linux ist mit Compatibility
 Levels 150, 160 und 170 einschließlich Langtext-/Unicode-, Marker-/Drift-,
 Wiederholungs-, Lifecycle-, Central- und Uninstall-Contracts erfolgreich.
+
+`toolbelt.archive.zip-memory` ist als V1A-In-memory-Slice implementiert und
+stellt `toolbelt_archive.USP_ExtractZipEntryFromBinary` bereit. Version
+`1.0.0` extrahiert einen einzelnen Entry aus einem ZIP-Container im Speicher,
+erzwingt Default-Limits fuer Entry-Groesse und Kompressionsverhaeltnis,
+behandelt Duplicate-Namen als expliziten Fehler und liefert bei
+`@FailIfEncrypted = 0` einen verschluesselten Status ohne Payload.
+Runtime-Evidenz ist noch `not executed`.
 
 ## Projektzweck
 

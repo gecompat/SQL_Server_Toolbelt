@@ -171,8 +171,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-16 Module sind implementiert und `partially validated`. ResultTable ist unter
-Linux auf SQL Server 2019, 2022 und
+17 Module sind implementiert. 16 sind `partially validated`, ein Modul ist
+`not executed`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und
 2025 erfolgreich; die übrigen bereits teilweise validierten Module sind
 auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Windows und die jeweils offenen Releasefälle bleiben

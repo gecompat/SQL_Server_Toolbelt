@@ -4,9 +4,9 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 16 Module sind implementiert und `partially validated`. Die
-verbindlichen Einzelstatus werden aus den jeweiligen `module.yaml`-Manifesten
-abgeleitet.
+abgeschlossen. 17 Module sind implementiert. 16 sind `partially validated`,
+ein Modul ist `not executed`. Die verbindlichen Einzelstatus werden aus den
+jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 `toolbelt.core.result-table` ist auf GitHub-hosted Linux für SQL Server 2019,
 2022 und 2025 erfolgreich. Base64, Generate-Series, Identifier,

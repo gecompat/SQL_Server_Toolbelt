@@ -9,8 +9,8 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 16 Module sind
-  implementiert und `partially validated`.
+- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 17 Module sind
+  implementiert; 16 sind `partially validated`, 1 ist `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -168,7 +168,7 @@ getrennt von den providerneutralen Contract-Tests ausgewiesen.
 | Kandidat | Vorgeschlagener Modul-/Capability-Slice | Vorgeschlagene öffentliche Objekte | Reihenfolge und Grenzen |
 |---|---|---|---|
 | `TC-2026-033` | `toolbelt.archive.zip-metadata` | `toolbelt_archive.USP_ListZipEntries`; eine TVF nur bei nachgewiesen reinem und begrenztem In-memory-Vertrag | `varbinary(max)` zuerst; ZIP64, Verschlüsselung, beschädigte Central Directory, Pfadnormalisierung, Entry-/Größenlimits und Zip Bombs testen. |
-| `TC-2026-034` | A: `toolbelt.archive.zip-memory`; B: `toolbelt.archive.zip-filesystem` | A: `USP_ExtractZipEntry`, `USP_CreateZipArchive`; B: `USP_ExtractZipArchiveToDirectory`, `USP_CreateZipArchiveFromFiles` | A vor B. Filesystem-Slice hängt von `TC-2026-037` ab. Zip Slip, Overwrite, Symlinks, atomare Ausgabe, Limits und Teilfehler sind Pflicht. |
+| `TC-2026-034` | A: `toolbelt.archive.zip-memory`; B: `toolbelt.archive.zip-filesystem`; C: optionaler CLR-Provider-Slice | A: `USP_ExtractZipEntry`, `USP_CreateZipArchive`; B: `USP_ExtractZipArchiveToDirectory`, `USP_CreateZipArchiveFromFiles`; C: Providerobjektname nach Vertragswelle | A vor B und C. Filesystem-Slice hängt von `TC-2026-037` ab. CLR-Slice startet als separate Vertragswelle `AP-2026-021` und folgt den CLR-Sicherheitsregeln ohne pauschales `TRUSTWORTHY ON`. |
 | `TC-2026-035` | Bedingter Slice `toolbelt.compression.gzip-stream` | Nur bei belegter Lücke: `USP_GzipCompressStream`, `USP_GzipDecompressStream` | Vorheriger Spike gegen native `COMPRESS`/`DECOMPRESS`. Ohne klaren Streaming-/Datei-Use-Case Kandidat ablehnen oder in Dateiprovider integrieren. |
 | `TC-2026-036` | Pro tatsächlich benötigtem Format ein Modul `toolbelt.compression.<format>` | Formatbezogene Compress-/Decompress-Oberflächen; kein generisches „beliebiges Format“-Objekt | Erst Format und Use Case wählen. Lizenz, Supply Chain, Plattform, Wartung, Bomb-Limits und Exit-Strategie je Provider prüfen. |
 | `TC-2026-045` | `toolbelt.office.xlsx` | V1: `toolbelt_office.USP_ListXlsxWorksheets`, `USP_ReadXlsxCells`; später getrennt `USP_ImportXlsxTable` | V1 liefert stabiles zellorientiertes Schema. Tabellenförmige Typinferenz und Mutation folgen separat. Shared Strings, Styles, 1900/1904-Datumsmodus, Formeln, Fehlerzellen, Limits und Streaming testen. |
@@ -228,7 +228,8 @@ Konstruktoren benötigen eine belastbare variable Eingabeoberfläche;
 JSON-Aggregate bleiben während des nativen Preview-Status und ohne
 freigegebenen SQL-CLR-/Providervertrag außerhalb der Entwicklung.
 
-Parallel dazu kann `V0` die offenen physischen Releasevalidierungen der 16
-implementierten Module bündeln. Fuer `TC-2026-034` laeuft mit `AP-2026-019`
-die erste Verarbeitungswelle als Vertragsarbeit. Runtime-Implementierung
-startet erst nach finaler Scope- und Risikoentscheidung.
+Parallel dazu kann `V0` die offenen physischen Releasevalidierungen der 17
+implementierten Module bündeln. Fuer `TC-2026-034` laeuft mit `AP-2026-020`
+die V1A-Implementierungswelle und mit `AP-2026-021` die CLR-
+Folgevertragswelle. CLR-Runtime-Implementierung startet erst nach separater
+Freigabe.

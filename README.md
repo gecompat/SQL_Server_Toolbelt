@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 16 Module implementiert – 16 teilweise validiert](https://img.shields.io/badge/Status-16%20Module%20implementiert%20%7C%2016%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 17 Module implementiert – 16 teilweise validiert](https://img.shields.io/badge/Status-17%20Module%20implementiert%20%7C%2016%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 16 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
+**Der Repository-Grundaufbau ist abgeschlossen. 17 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
 
 Das implementierte Modul [`toolbelt.core.result-table`](./Modules/toolbelt.core.result-table/README.md) stellt `toolbelt_core.USP_PrepareResultTable` als gemeinsame `@ResultTable`-/`@KeepData`-Infrastruktur bereit. Die Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; Windows und weitere Pflichtfälle bleiben offen.
 
@@ -146,6 +146,14 @@ Compatibility Levels 150, 160 und 170 einschließlich Langtext-/Unicode-,
 Marker-/Drift-, Lifecycle-, Central- und Uninstall-Contracts erfolgreich;
 physische Zielversions-, Windows- und modulspezifische Releasefälle bleiben
 offen.
+
+Das implementierte ZIP-V1A-Modul
+[`toolbelt.archive.zip-memory`](./Modules/toolbelt.archive.zip-memory/README.md)
+stellt eine kontrollierte In-memory-Extraktion einzelner ZIP-Eintraege aus
+`varbinary(max)` bereit. Version `1.0.0` erzwingt harte Default-Limits,
+behandelt Duplicate-Entry-Namen als expliziten Fehler und liefert bei
+`@FailIfEncrypted = 0` einen verschluesselten Status ohne Payload.
+Runtime-Evidenz ist aktuell noch `not executed`.
 
 ## Modulprinzip
 

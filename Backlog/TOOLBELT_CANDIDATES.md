@@ -254,7 +254,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Portablen `SAFE`-CLR-Provider prüfen; kein Windows-only-Zwang ohne Messnachweis. |
 | **Dependencies** | CLR-Grundmodul nur falls tatsächlich erforderlich. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
-| **Status** | `researched` |
+| **Status** | `active` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/fuzzy-string-match/overview?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
 | **Nächster Schritt** | Preview-Semantik, Algorithmen, Grenzwerte und Rückgabetypen erfassen; T-SQL und CLR mit festen Testvektoren vergleichen. |
@@ -300,7 +300,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | T-SQL portabel; native 2025-Preview separat ausweisen. |
 | **Dependencies** | Keine Abhängigkeit zum Path-Exists-Slice von `TC-2026-009`. Ein späterer Aggregatvertrag benötigt einen eigenen Escaping-/Typkern oder ausdrücklich freigegebenes SQL CLR. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; Konstruktoren und Pfadprüfung verbleiben in TC-2026-009. |
-| **Status** | `researched` |
+| **Status** | `active` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/json-arrayagg-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/json-objectagg-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
 | **Nächster Schritt** | Zurückgestellt, solange die nativen SQL-Server-2025-Aggregate Preview sind und kein Aggregat-/SQL-CLR-Providervertrag freigegeben wurde. Preview-Status vor einer erneuten Besprechung neu prüfen. |
@@ -792,7 +792,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `researched` |
 | **Primärquellen** | [Research-Inbox `RI-2026-113`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Implementierungswelle V1A starten: In-memory-Extraktion einzelner Eintraege umsetzen. Beschlossene Entscheidungen: `Create` nicht in V1A, Duplicate-Name als expliziter Fehler, Default-Limits `@MaxEntryBytes = 104857600` und `@MaxCompressionRatio = 200.00`, verschluesselte Eintraege liefern bei `@FailIfEncrypted = 0` einen expliziten Status ohne Payload. |
+| **Nächster Schritt** | V1A-Runtime-Evidenz erzeugen und parallel die CLR-Folgewelle `AP-2026-021` als separaten Providervertrag mit Security-/Lifecycle-Gates ausarbeiten. |
 
 ## TC-2026-035: Gzip-Stream- und Datei-Adapter
 
