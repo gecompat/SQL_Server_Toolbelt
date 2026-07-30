@@ -41,14 +41,15 @@ Aufrufer können die Funktionen dann über dreiteilige Namen referenzieren.
 
 ## Validierungsstatus
 
-`implementation_status: implemented`, `validation_status: not executed`,
+`implementation_status: implemented`, `validation_status: partially validated`,
 `release_status: unreleased`.
 
-Der Workflow
-[Identifier Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/identifier-runtime.yml)
-und die Contract-Tests sind vorhanden, wurden für diesen Stand aber noch nicht
-ausgeführt. SQL Server 2019/2022, Windows und Linux bleiben bis zu realer
-Evidenz `not executed`.
+Der
+[Identifier-Runtime-Lauf 30514751834](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30514751834)
+war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
+einschließlich Parser-, Quote-, Escape-, Omission-, Längen-, Fehler-,
+Deployment- und Lifecycle-Contracts erfolgreich. Physische SQL-Server-2019-/
+2022- und Windows-Läufe bleiben `not executed`.
 
 ## Quellen
 

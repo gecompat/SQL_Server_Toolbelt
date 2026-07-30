@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 4 Module implementiert – 3 teilweise validiert](https://img.shields.io/badge/Status-4%20Module%20implementiert%20%7C%203%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 4 Module implementiert – 4 teilweise validiert](https://img.shields.io/badge/Status-4%20Module%20implementiert%20%7C%204%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -75,7 +75,8 @@ ist erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
 Das implementierte Modul
 [`toolbelt.metadata.identifier`](./Modules/toolbelt.metadata.identifier/README.md)
 analysiert und begrenzt ein- bis vierteilige SQL-Namen. Runtime-Evidenz ist
-noch nicht ausgeführt und wird deshalb nicht als Validierung behauptet.
+auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
 
 ## Modulprinzip
 

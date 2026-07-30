@@ -13,7 +13,9 @@ SQL Server 2025 Linux teilweise validiert. Das dritte Modul
 Server 2025 Linux mit Compatibility Levels 150, 160 und 170 teilweise
 validiert; `AP-2026-009` ist abgeschlossen. Das vierte Modul
 `toolbelt.metadata.identifier` ist implementiert; seine Runtime-Evidenz steht
-noch aus und wird deshalb als `not executed` ausgewiesen.
+auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich. Das Modul ist wegen offener physischer 2019-/2022- und
+Windows-Läufe `partially validated`.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -205,7 +207,9 @@ Stand `toolbelt.metadata.identifier`:
 - zustandsbasierter Parser und Scalar-Wrapper für ein- bis vierteilige Namen;
 - Modulmanifest, Lifecycle, Dokumentation, Beispiele sowie statische und
   Runtime-Contract-Artefakte vorhanden;
-- Runtime noch nicht ausgeführt, daher `validation_status: not executed`.
+- SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich;
+- physische 2019-/2022- und Windows-Läufe offen, daher
+  `validation_status: partially validated`.
 
 Freigegebene weitere Entwicklungsfolge:
 

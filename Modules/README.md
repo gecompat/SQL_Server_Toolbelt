@@ -14,7 +14,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 | `toolbelt.conversion.base64` | Base64 and Base64URL Conversion | `1.0.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.generate-series` | Portable Integer Series | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.result-table` | Result Table Infrastructure | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.metadata.identifier` | Identifier and Multipart Name Toolkit | `1.0.0` | `toolbelt_metadata` | `implemented` | `not executed` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.metadata.identifier` | Identifier and Multipart Name Toolkit | `1.0.0` | `toolbelt_metadata` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 <!-- END GENERATED:MODULE_STATUS_TABLE -->
 
 Der Modulstatus trennt vorhandenen Code von tatsächlich ausgeführter Evidenz.

@@ -5,6 +5,7 @@
 `Central.Contract.sql` prüft dreiteilige Aufrufe aus einer getrennten
 synthetischen Konsumentendatenbank.
 
-Die statische Prüfung und der
-[Identifier-Runtime-Workflow](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/identifier-runtime.yml)
-sind vorhanden. Runtime-Evidenz ist noch `not executed`.
+Der
+[Identifier-Runtime-Lauf 30514751834](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30514751834)
+war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich. Weitere Zielversionen und Windows bleiben `not executed`.

@@ -70,15 +70,15 @@ genau ein Paket auf `active` gesetzt.
 | Scope | `toolbelt.metadata.identifier` Version `1.0.0`; `TVF_ParseMultipartName` und `SVF_QuoteMultipartName`; ein- bis vierteilige Namen, `[...]`, `]]`, ausgelassene mittlere Teile, stabile Validation Codes, lokales und zentrales Deployment. Keine Objektauflösung, Berechtigungsprüfung, doppelten Anführungszeichen oder CLR. |
 | Dependencies | Vollständige Vertragsbesprechung und Sammelfreigabe des Benutzers vom 2026-07-30; scopebezogenes Qualitäts-Gate aus `DEC-2026-021`; keine technische Modulabhängigkeit. |
 | Priorität | `P1` |
-| Status | `active` |
+| Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Zustandsbasierter kanonischer Parser; genau eine Ergebniszeile; rechtsbündige Teile; vollständige Escape-, Omission-, Längen-, Collation-, Wrapper-, Deployment- und Lifecycle-Contracts; Dokumentation und Change-Impact-Registry gekoppelt. |
-| Tests | Statischer Vertrag lokal erfolgreich; SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 vorbereitet, aber noch nicht ausgeführt. |
-| Blocker | Kein fachlicher Blocker. Runtime-Evidenz steht aus. |
-| Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-029`; kanonische Artefakte unter `Modules/toolbelt.metadata.identifier/`. |
-| Nächster Schritt | GitHub-Workflow ausführen, Fehler innerhalb des Vertrags korrigieren und nach grüner Evidenz integrieren. |
+| Tests | Statischer Vertrag und SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben `not executed`. |
+| Blocker | Kein Merge-Blocker. Für `validated` fehlen physische SQL-Server-2019-/2022- und Windows-Evidenz. |
+| Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-029`; kanonische Artefakte unter `Modules/toolbelt.metadata.identifier/`; [Identifier Runtime Run 30514751834](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30514751834) erfolgreich. |
+| Nächster Schritt | Physische 2019-/2022- und Windows-Läufe gezielt vor Release ausführen. |
 
 ### AP-2026-009: Portable Ganzzahlreihen implementieren und validieren
 

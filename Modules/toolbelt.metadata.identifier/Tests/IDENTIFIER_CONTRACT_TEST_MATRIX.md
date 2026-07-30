@@ -4,11 +4,11 @@
 
 | Bereich | SQL Server 2019 | SQL Server 2022 | SQL Server 2025 |
 |---|---|---|---|
-| Compatibility Level 150 | `not executed` | `not executed` | geplant |
-| Compatibility Level 160 | nicht anwendbar | `not executed` | geplant |
-| Compatibility Level 170 | nicht anwendbar | nicht anwendbar | geplant |
+| Compatibility Level 150 | `not executed` | `not executed` | erfolgreich |
+| Compatibility Level 160 | nicht anwendbar | `not executed` | erfolgreich |
+| Compatibility Level 170 | nicht anwendbar | nicht anwendbar | erfolgreich |
 | Windows | `not executed` | `not executed` | `not executed` |
-| Linux | `not executed` | `not executed` | geplant |
+| Linux | `not executed` | `not executed` | `partially validated` |
 
 ## Pflichtfälle
 
@@ -26,8 +26,8 @@
 
 ## Aktuelle Evidenz
 
-Der Workflow
-[Identifier Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/identifier-runtime.yml)
-und die synthetischen Contract-Tests sind vorhanden. Eine Runtime-Ausführung
-hat für diesen Stand noch nicht stattgefunden; der Status bleibt
-`not executed`.
+Der
+[Identifier-Runtime-Lauf 30514751834](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30514751834)
+war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
+erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Prüfungen bleiben
+`not executed`; der Modulstatus ist deshalb `partially validated`.

@@ -2,7 +2,7 @@ module_id: "toolbelt.metadata.identifier"
 module_name: "Identifier and Multipart Name Toolkit"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Analysiert und begrenzt ein- bis vierteilige SQL-Identifier ohne Objektauflösung."
 
@@ -18,7 +18,7 @@ compatibility_levels:
 
 platforms:
   windows: "not executed"
-  linux: "not executed"
+  linux: "partially validated"
 
 providers:
   - id: tsql-state-machine
@@ -111,3 +111,7 @@ validation_evidence:
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/identifier-runtime.yml"
     scope: "Workflow und Contract-Tests vorhanden; Runtime noch nicht ausgeführt"
     result: "not executed"
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30514751834"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; Parser-, Quote-, Escape-, Omission-, Längen-, Fehler-, lokale, zentrale und Lifecycle-Contracts"
+    result: "success"

@@ -37,7 +37,7 @@ Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
 | 1 | `TC-2026-003` – ResultTable-Routing | `L` | Bereits implementiertes Kernmodul; die offene Pflichtvalidierung ist das Gate für weitere Module und deshalb wichtiger als ein neuer Kandidat. |
 | 2 | `TC-2026-012` – Base64/Base64URL | `M` | Implementiert und auf SQL Server 2025 Linux teilweise validiert; physische 2019-/2022- und Windows-Läufe bleiben Releaseaufgabe. |
 | 3 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
-| 4 | `TC-2026-029` – Identifier- und Multipart-Name-Toolkit | `M` | Als `toolbelt.metadata.identifier` implementiert; Runtime-Evidenz steht noch aus. |
+| 4 | `TC-2026-029` – Identifier- und Multipart-Name-Toolkit | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
 
 **Hauptempfehlung:** Die offenen Releasevalidierungen getrennt weiterführen.
 Die drei verbleibenden F1-Verträge sind bereits gesammelt freigegeben und
@@ -105,7 +105,7 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 
 ## Nächste Ausführung
 
-`AP-2026-010` / `TC-2026-029` ist aktiv. Danach folgen ohne weitere
+`AP-2026-010` / `TC-2026-029` ist abgeschlossen. Danach folgen ohne weitere
 Zwischenfreigabe `AP-2026-011` bis `AP-2026-013`: Multi-Separator-Split
 Version 1, Semantic Versioning und frei definierbare Zahlensysteme.
 `TC-2026-032` bleibt als getrennte Split-Ausbaustufe im Research-Status.

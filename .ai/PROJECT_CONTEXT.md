@@ -20,8 +20,9 @@ erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
 
 Das Modul `toolbelt.metadata.identifier` implementiert einen zustandsbasierten
 Parser und einen Quote-Wrapper für ein- bis vierteilige SQL-Namen. Code,
-Lifecycle-, Dokumentations- und Testartefakte sind vorhanden; Runtime-Evidenz
-ist noch `not executed`.
+Lifecycle-, Dokumentations- und Testartefakte sind vorhanden. SQL Server 2025
+Linux mit Compatibility Levels 150, 160 und 170 ist erfolgreich; physische
+2019-/2022- und Windows-Läufe bleiben `not executed`.
 
 ## Projektzweck
 
