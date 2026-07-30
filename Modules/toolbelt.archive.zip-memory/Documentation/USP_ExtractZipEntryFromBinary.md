@@ -35,8 +35,8 @@ Bei `@Hilfe = 0` liefert die Procedure genau eine Zeile bei Erfolg:
 | `EntryName` | `nvarchar(1024)` | Exakter Entry-Name aus dem Central Directory. |
 | `CompressedBytes` | `bigint` | Komprimierte Groesse laut ZIP-Metadaten. |
 | `UncompressedBytes` | `bigint` | Unkomprimierte Groesse laut ZIP-Metadaten. |
-| `CompressionMethod` | `int` | ZIP Compression Method. Version 1.0.0 akzeptiert nur `0` fuer Payload-Extraktion. |
-| `Crc32` | `int NULL` | CRC32-Wert aus ZIP-Metadaten. |
+| `CompressionMethod` | `int` | ZIP Compression Method. Version 1.0.0 akzeptiert nur `0` (`Stored`) für Payload-Extraktion; Deflate (Method `8`) und weitere Methoden werden abgelehnt. |
+| `Crc32` | `int NULL` | CRC32-Wert aus ZIP-Metadaten. Er wird in Version 1.0.0 nicht über `EntryPayload` neu berechnet. |
 | `IsEncrypted` | `bit` | `1` falls Entry als verschluesselt markiert ist. |
 | `EntryPayload` | `varbinary(max)` | Extrahierter Payload. Bei `@FailIfEncrypted = 0` und verschluesseltem Entry `NULL`. |
 
@@ -64,6 +64,15 @@ Die Procedure verwendet den Bereich `51320-51329`:
 | `51327` | Compression Method ist fuer Payload-Extraktion nicht unterstuetzt. |
 | `51328` | Header- oder CRC-Konsistenz verletzt den Vertragsrahmen. |
 | `51329` | ResultTable-Integration ist nicht verfuegbar oder nicht ausfuehrbar. |
+
+## Technische Grenzen
+
+- Kein ZIP64-Support: Die Procedure verarbeitet nur die klassischen ZIP-
+  Header-/Offsetfelder.
+- Keine garantierte Dekodierung für die ZIP-Entry-Namenskodierungen UTF-8 oder
+  CP437.
+- `51328` steht für Header-/Metadateninkonsistenzen im implementierten
+  T-SQL-Slice, nicht für eine neu berechnete Payload-CRC-Prüfung.
 
 ## Sicherheit
 
