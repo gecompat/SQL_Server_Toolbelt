@@ -13,6 +13,10 @@ Eigenvalidierung des neuen Moduls bleibt verpflichtend.
 - [ ] Öffentliche Verträge und Namenskonventionen eingehalten.
 - [ ] Kanonische Fachlogik ohne unnötige Duplikation.
 - [ ] Set-basierte und Inline-Lösungen bevorzugt, soweit fachlich möglich.
+- [ ] Jede öffentliche SVF besitzt nach Möglichkeit eine äquivalente inline
+      TVF; andernfalls sind Ursache und geprüfte Alternativen dokumentiert.
+- [ ] Eine vorhandene inline-TVF-Alternative ruft nicht lediglich die SVF auf;
+      Ergebnisparität und Objekttyp sind getestet.
 - [ ] Error Handling an geeigneten Grenzen.
 - [ ] Collation-, Datentyp-, Performance- und Plattformvertrag dokumentiert.
 
