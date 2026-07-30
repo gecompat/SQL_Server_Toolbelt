@@ -17,7 +17,7 @@ das kann immer über die gleiche Logik laufen, es werden nur mehr oder weniger Z
 
 # ZIP
 
-> Überführung 2026-07-30 — Codex: Die Archiv- und Kompressionsideen wurden getrennt als `TC-2026-033` bis `TC-2026-036` formalisiert; Status jeweils `researched`. ZIP-Listing, ZIP-Extraktion/-Erzeugung, Gzip-Adapter und weitere Kompressionsprovider bleiben eigenständige Verträge.
+> Überführung 2026-07-30 — Codex: Die Archiv- und Kompressionsideen wurden getrennt als `TC-2026-033`, `TC-2026-034`, `TC-2026-035` und `TC-2026-036` formalisiert; Status jeweils `researched`. ZIP-Listing, ZIP-Extraktion/-Erzeugung, Gzip-Adapter und weitere Kompressionsprovider bleiben eigenständige Verträge.
 ## Untervariante
 ### ls ZIP    Inhalt der Files/Directories von Zip
 ### Unzip 
@@ -45,7 +45,7 @@ mit ich glaube 2026 gibt es decompress und compress (oder so ähnlich) - das ist
 
 # Anonymisierungsfunktionen
 
-> Überführung 2026-07-30 — Codex: In die getrennten Kandidaten `TC-2026-039` bis `TC-2026-043` für Hash-Lookup, Random Range, gesalzene Zeichentranslation, Date Shifting und Geo-Jittering überführt; Status jeweils `researched`. Die formalen Kandidaten verwenden bewusst den präziseren Begriff Pseudonymisierung, soweit keine Irreversibilität belegt ist.
+> Überführung 2026-07-30 — Codex: In die getrennten Kandidaten `TC-2026-039`, `TC-2026-040`, `TC-2026-041`, `TC-2026-042` und `TC-2026-043` für Hash-Lookup, Random Range, gesalzene Zeichentranslation, Date Shifting und Geo-Jittering überführt; Status jeweils `researched`. Die formalen Kandidaten verwenden bewusst den präziseren Begriff Pseudonymisierung, soweit keine Irreversibilität belegt ist.
 * HashLookup - aus Hashwert wird eine ID von LookupTabelle ermittelt und von dieser Tabelle der Wert genommen.
 * random_range
 * translate mit Salt
