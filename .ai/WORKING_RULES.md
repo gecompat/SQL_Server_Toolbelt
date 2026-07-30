@@ -74,7 +74,7 @@ Prüftiefe des ermittelten Impact-Scopes.
 ## Branch-, Commit- und Pull-Request-Regeln
 
 - Branch-Name beschreibt den Scope kurz und eindeutig.
-- KI-generierte Commit Messages beginnen mit dem tatsächlichen KI-Namen.
+- KI-generierte Commit Messages folgen der Vorgabe aus `AGENTS.md`: tatsächliches KI-System und, soweit zuverlässig ermittelbar, `LLM`, `ThinkingEffort` und `ContentSize` in eckiger Klammer vor der Zusammenfassung. Nicht ermittelbare Werte werden nicht erfunden und samt Label ausgelassen.
 - Die Präfixregel gilt auch für automatisch angelegte Plan-, Initialisierungs- und Zwischencommits.
 - Pull-Request-Template vollständig ausfüllen.
 - Die ausführende KI erteilt sich keine eigene fachliche Freigabe. Ein ausdrücklicher Benutzerauftrag zum Merge ist eine gültige Freigabe.

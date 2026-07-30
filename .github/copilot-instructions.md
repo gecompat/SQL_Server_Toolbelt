@@ -14,7 +14,7 @@ Diese Datei ist eine kurze Brücke zu den autoritativen Projektregeln und dupliz
 
 - Vor jeder Dateiänderung Datenschutz- und Secret-Stop-Gate aus `AGENTS.md` prüfen.
 - Kein fachliches SQL-Objekt ohne freigegebenes Arbeitspaket oder ausdrücklichen unmittelbaren Benutzerauftrag.
-- KI-generierte Commit Messages beginnen mit dem tatsächlichen KI-Namen; dies gilt auch für Plan- und Zwischencommits.
+- KI-generierte Commit Messages folgen dem Format aus `AGENTS.md`: KI-System sowie, wenn zuverlässig ermittelbar, `LLM`, `ThinkingEffort` und `ContentSize`; dies gilt auch für Plan- und Zwischencommits. Nicht verfügbare Werte nicht erfinden.
 - Öffentliche Verträge nur gemeinsam mit Dokumentation und Tests ändern.
 - Lizenzdatei und geschützten README-Lizenzblock nicht ohne ausdrücklichen Auftrag verändern.
 
