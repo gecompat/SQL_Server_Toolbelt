@@ -84,9 +84,36 @@ einschliesslich `@Hilfe`, `@Debug`, `@ResultTable` und `@KeepData`.
 - Harte Ablehnung bei Ueberschreitung von `@MaxEntryBytes`.
 - Harte Ablehnung bei Ueberschreitung von `@MaxCompressionRatio`.
 - Verschluesselte Eintraege werden bei `@FailIfEncrypted = 1` abgelehnt.
-- CRC- oder Strukturfehler fuehren zu kontrolliertem Fehler, nicht zu stiller
-  Teilverarbeitung.
+- Header- oder Metadateninkonsistenzen fuehren zu kontrolliertem Fehler, nicht
+  zu stiller Teilverarbeitung. V1A berechnet die CRC32 des extrahierten
+  Payloads nicht neu; deshalb wird für V1A keine Payload-CRC-Validierung
+  behauptet.
 - Keine Verarbeitung von nested ZIP-Containern in V1A.
+
+## Tatsaechliche V1A-Funktionsgrenzen
+
+Die implementierte Version `1.0.0` ist ein T-SQL-Binary-Parser mit engerem
+Umfang als die ursprüngliche Vertragsabsicht:
+
+- Payload-Extraktion ausschließlich für ZIP Compression Method `0` (`Stored`);
+- kein Deflate (Method `8`), Deflate64 oder anderes Verfahren;
+- kein ZIP64: verarbeitet werden nur die klassischen EOCD- und 32-Bit-
+  Größen-/Offsetfelder;
+- CRC32 wird als ZIP-Metadatum ausgegeben und zwischen ausgelesenen Headern
+  auf Konsistenz geprüft, nicht über den zurückgegebenen Payload neu berechnet;
+- die Byte-/Zeichen-Kodierung von Entry-Namen ist kein vollständiger UTF-8- oder
+  CP437-Dekodierungsvertrag.
+
+Diese Grenzen sind produktrelevant. Sie werden weder durch vorhandene Tests
+noch durch die Architektur als unterstützt behauptet.
+
+## Optionale CLR-Folgewelle
+
+`AP-2026-021` ist als reiner Providervertrag abgeschlossen. Er beschreibt einen
+C#-SQL-CLR-Slice für ZIP Method `0` und `8`, eine explizite Payload-CRC-Prüfung,
+Assembly-Trust und die erforderlichen Plattform-Spikes. Es entsteht daraus kein
+Runtime-Objekt und keine Implementierungsfreigabe. Details:
+[ZIP_CLR_PROVIDER_DESIGN.md](./ZIP_CLR_PROVIDER_DESIGN.md).
 
 ## Provider-Entscheidung fuer Welle 1
 
@@ -123,7 +150,8 @@ Begruendung:
 - gueltiger Einzel-Entry (klein, mittel, gross unterhalb Limit);
 - Entry nicht vorhanden;
 - leeres Archiv und ungueltige ZIP-Struktur;
-- ZIP64-Faelle im unterstuetzten Bereich;
+- ZIP64-Archive liegen ausserhalb des V1A-Vertrags und dürfen nicht als
+  unterstützt ausgewiesen werden;
 - Entry ueber `@MaxEntryBytes`;
 - Entry ueber `@MaxCompressionRatio`;
 - verschluesselter Entry mit `@FailIfEncrypted = 1`;
@@ -147,5 +175,6 @@ Begruendung:
 
 ## Naechster Schritt
 
-Implementierungswelle `AP-2026-020` ausfuehren: Modulgeruest, Manifest,
-Deploy/Uninstall, Objektvertrag und Runtime-faehigen Extraktionspfad umsetzen.
+V1A gezielt auf SQL Server 2025 Linux validieren. Ein optionaler CLR-Slice wird
+nur nach Build-/Deployment-Spike und separater Implementierungsfreigabe
+begonnen.
