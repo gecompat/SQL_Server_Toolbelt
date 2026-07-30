@@ -43,14 +43,14 @@ CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadTextFile]
 
 ## Unterstützte Encodings
 
-| BOM | Encoding | Codepage |
+| BOM | Encoding | Lesemodus |
 |---|---|---|
-| `EF BB BF` | UTF-8 | 65001 |
-| `FF FE` | UTF-16-LE | 1200 |
-| `FE FF` | UTF-16-BE | 1201 |
-| `00 00 FE FF` | UTF-32-LE | 12000 |
-| `FF FE 00 00` | UTF-32-BE | 12001 |
-| kein BOM | `@FallbackEncoding` | 1252 |
+| `EF BB BF` | UTF-8 | `SINGLE_CLOB`, dann `CAST` nach `nvarchar(max)` |
+| `FF FE` | UTF-16-LE | `SINGLE_NCLOB` |
+| `FE FF` | UTF-16-BE | nicht unterstützt |
+| `00 00 FE FF` | UTF-32-LE | nicht unterstützt |
+| `FF FE 00 00` | UTF-32-BE | nicht unterstützt |
+| kein BOM | `@FallbackEncoding` | `SINGLE_CLOB` (Windows-1252) |
 
 ## Fehlercodes
 
@@ -61,6 +61,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadTextFile]
 | `51322` | Pfad enthält verbotene relative Segmente oder Traversal. |
 | `51323` | Datei überschreitet `@MaxBytes`. |
 | `51324` | Fallback-Encoding wird nicht unterstützt. |
+| `51325` | Encoding wird nicht unterstützt (UTF-16-BE, UTF-32). |
 
 ## Beispiel
 

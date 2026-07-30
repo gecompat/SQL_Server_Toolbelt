@@ -861,10 +861,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Pfad-, ACL-, Encoding- und Dateisperrsemantik ist Windows-/Linux-spezifisch. `EXTERNAL_ACCESS`/`UNSAFE` ist unter SQL Server Linux nicht unterstützt. |
 | **Dependencies** | Sicherer Work-Type-Katalog `TC-2026-022`, Error Envelope `TC-2026-017`, optional Execution Correlation `TC-2026-019`. |
 | **Duplikatprüfung** | Directory Listing steht in `TC-2026-038`; Archive und Office-Formate erhalten eigene Verträge. |
-| **Status** | `researched` |
+| **Status** | `ready for development` |
 | **Primärquellen** | [Research-Inbox `RI-2026-107`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/relational-databases/import-export/import-bulk-data-by-using-bulk-insert-or-openrowset-bulk-sql-server?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/security/clr-integration-code-access-security?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Erlaubte Read-/Write-Operationen, Root-Allowlist, Identität, Encodingmodell, Größenlimits, Atomicity, Overwrite und Provider getrennt mit dem Benutzer festlegen. |
+| **Prüfdatum** | 2026-07-31 |
+| **Nächster Schritt** | Slice 1 (Lesen über OPENROWSET(BULK...)) ist implementiert als `toolbelt.file.content`. Schreib-Operationen und externer Worker-Provider bleiben für späteren Slice.
 
 ## TC-2026-038: Kontrolliertes Directory Listing
 

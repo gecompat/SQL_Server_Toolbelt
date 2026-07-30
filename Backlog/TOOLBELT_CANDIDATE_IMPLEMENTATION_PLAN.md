@@ -31,7 +31,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 | Gruppe | Kandidaten | Konsequenz |
 |---|---|---|
-| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-016`, `TC-2026-023`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031` | Capability-spezifische Runtime sowie offene physische Zielversions-, Windows- und modulspezifische Releasevalidierung gezielt abschließen. |
+| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-016`, `TC-2026-023`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031`, `TC-2026-037` Slice A | Capability-spezifische Runtime sowie offene physische Zielversions-, Windows- und modulspezifische Releasevalidierung gezielt abschließen. |
 | Parser-, CLR- oder breite Semantikmodule | `TC-2026-010`, `TC-2026-011`, `TC-2026-013`, `TC-2026-032` | Funktionsfamilien und Provider vor dem ersten Code begrenzen und benchmarken. |
 | Execution-Infrastruktur | `TC-2026-014` bis `TC-2026-022`, `TC-2026-046` | Als abhängige Plattform in mehreren Modulen entwickeln; kein monolithisches Sammelmodul. |
 | Externe Provider und Integrationen | `TC-2026-025` bis `TC-2026-028`, `TC-2026-037`, `TC-2026-038` | Allowlist-, Identity-, Secret-, Timeout-, Abbruch- und Plattformvertrag sind Pflicht-Gates. |
@@ -81,7 +81,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 | `W4` | `researched` | Weitere Execution-Grundlagen | `017`, `019`, `022` | Persistente Namenskonvention nur soweit tatsächlich benötigt | Error Envelope, Correlation und Work-Type-Katalog. |
 | `W5` | `researched` | Session- und Ausführungsprovider | `046`, `014` | `017`, `019`, `022`; Provider- und Security-Entscheidung | Synchrone zweite Session und darauf aufbauendes rollback-unabhängiges Logging. |
 | `W6` | `researched` | Queue, Retry, Lease und Cancellation | `015`, `020`, `021`, `018` | `017`, `019`, `022`; Tabellenkonvention entschieden | Begrenzte, beobachtbare und wiederanlaufbare Work Queue. |
-| `W7` | `researched` | Datei- und Host-Provider | `037`, `038`, `025`, `026`, `027` | Execution-Basis, Root-/Endpoint-Allowlist und Identity-Vertrag | Kontrollierte Provider ohne Raw-Script- oder freie URL-Schnittstelle. |
+| `W7` | `active` | Datei- und Host-Provider | `037` Slice A, `038`, `025`, `026`, `027` | Root-Allowlist, Pfad-/Encoding-Vertrag und Provider | `toolbelt.file.content` Slice A (Lesen über OPENROWSET(BULK...)) implementiert; Schreib-Operationen und externer Worker-Provider bleiben zurückgestellt. |
 | `W8` | `active` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | V1A ist als T-SQL-`Stored`-Slice implementiert, jedoch ohne Runtime-Evidenz. Der optionale CLR-Providervertrag `AP-2026-021` für Deflate und Payload-CRC ist abgeschlossen; seine Implementierung bleibt bis zu einem separaten Spike und einer eigenen Freigabe gesperrt. |
 | `W9` | `researched` | Deterministische Pseudonymisierungsprimitive | `040`, `039`, `041`, `042`, `043` | Key-/Seed-, Kanonisierungs- und Datenschutzvertrag | Range-Primitive zuerst; darauf Lookup, Translation, Date Shift und Geo Jitter. |
 | `W10` | `researched` | Kontrolliertes DDL-Klonen | `044` | Identifier-Modul vorhanden; unterstützte Objektmenge festgelegt | Zuerst nur geprüftes Script, später optional getrennte Ausführung. |
