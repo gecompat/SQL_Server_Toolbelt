@@ -792,7 +792,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `researched` |
 | **Primärquellen** | [Research-Inbox `RI-2026-113`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Version 1 auf eine klar begrenzte Eingabe-/Ausgabeform reduzieren und Pfad-Sandbox, Größenlimits, Verschlüsselung, Overwrite und Fehlerresultset festlegen. |
+| **Nächster Schritt** | Verarbeitungswelle 1 ist als V1A-Vertragsentwurf dokumentiert (`ZIP_ARCHIVE_MODULE_DESIGN.md`): In-memory-Extraktion einzelner Einträge ohne Dateisystempfade. Als naechstes die offenen Punkte (Create-Scope, verschluesselte Eintraege, Duplicate-Name-Semantik, harte Grenzwerte) mit dem Benutzer finalisieren und erst dann die Implementierung freigeben. |
 
 ## TC-2026-035: Gzip-Stream- und Datei-Adapter
 
