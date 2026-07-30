@@ -291,3 +291,16 @@ Dauerhafte Entscheidungen werden mit stabiler ID dokumentiert. Historische Entsc
 | Auswirkungen | `toolbelt.conversion.base64` kann ohne ResultTable-Abhängigkeit implementiert und eigenständig validiert werden. Ein Modul darf offene Pflichtfälle verwendeter gemeinsamer Infrastruktur nicht umgehen; nicht ausgeführte Tests bleiben sichtbar. |
 | Alternativen | Vollständige Validierung irgendeines Referenzmoduls als pauschale Voraussetzung; vollständig unabhängige Module ohne eigenes Qualitäts-Gate. |
 | Betroffene Verträge | `.ai/ROADMAP.md`, `.ai/BACKLOG.md`, `BASE64_MODULE_DESIGN.md`, `MODULE_DEFINITION_OF_DONE.md`, `TEST_AND_VALIDATION_POLICY.md` |
+
+## DEC-2026-022: Inline-TVF-Alternative für Scalar Functions
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-07-30 |
+| Status | accepted |
+| Entscheidung | Für jede öffentliche SVF wird nach Möglichkeit eine semantisch äquivalente inline TVF angeboten. Die inline TVF bildet den kanonischen relationalen Kern; die SVF bleibt als zusätzliche Convenience-API verfügbar. Ein TVF-Wrapper, der lediglich die SVF aufruft, erfüllt den Vertrag nicht. |
+| Begründung | Nicht ge-inline-te Scalar UDFs verhindern Intra-query-Parallelität und verbergen Fachlogik vor dem Optimizer. Eine inline TVF lässt sich über `CROSS APPLY` oder `OUTER APPLY` mengenorientiert einbinden. Scalar UDF Inlining ab SQL Server 2019 kann den Nachteil nur unter Voraussetzungen aufheben und ist kein stabiler API-Vertrag. |
+| Scope | Alle bestehenden und zukünftigen öffentlichen SVFs in T-SQL-Modulen |
+| Auswirkungen | Neue SVFs benötigen im Design eine inline-TVF-Prüfung. Bestehende Lücken werden im Audit und in `AP-2026-014` nachverfolgt. Dokumentation und Beispiele empfehlen die relationale API für mengenorientierte Abfragen. |
+| Alternativen | Nur SVFs anzubieten oder eine inline TVF als bloßen Aufruf-Wrapper um die SVF zu legen wurde verworfen. Der vollständige Verzicht auf SVFs wurde verworfen, weil die skalare API für Einzelaufrufe und bestehende Aufrufstellen nützlich bleibt. |
+| Betroffene Verträge | `TSQL_ENGINEERING.md`, `MODULE_DEFINITION_OF_DONE.md`, `SVF_INLINE_TVF_AUDIT.md` |

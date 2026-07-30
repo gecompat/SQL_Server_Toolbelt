@@ -42,6 +42,13 @@ Details: [DATA_PRIVACY_AND_CONFIDENTIALITY.md](../Documentation/Standards/DATA_P
 
 - Set-basierte Lösungen bevorzugen.
 - Inline TVFs haben klaren Vorrang vor Multi-statement TVFs, wenn der Vertrag dies erlaubt.
+- Für jede öffentliche SVF ist eine semantisch äquivalente inline TVF
+  bereitzustellen, sofern sich der Vertrag relational und ohne Aufruf der SVF
+  ausdrücken lässt. Die inline TVF ist dann der kanonische Kern; die SVF bleibt
+  als optionale Convenience-API erhalten.
+- Ein TVF-Wrapper, der intern lediglich die SVF aufruft, erfüllt diese Vorgabe
+  nicht. Die Dokumentation zeigt für mengenorientierte Verwendung bevorzugt
+  `CROSS APPLY` oder `OUTER APPLY`.
 - Error Handling erfolgt an fachlichen und transaktionalen Grenzen, nicht nach jedem Statement.
 - SARGability, Cardinality Estimation, Parallelität, Memory Grants, TempDB, Compile-Verhalten und implizite Konvertierungen berücksichtigen.
 - `varchar` und `nvarchar` nach Semantik, Zeichenvorrat, Codepage, Collation, Speicher- und Konvertierungskosten wählen; `nvarchar` ist kein pauschaler Default.

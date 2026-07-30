@@ -5,6 +5,22 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### AP-2026-014: Inline-TVF-Alternativen für bestehende SVFs
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-014` |
+| Ziel | Für alle fachlich geeigneten vorhandenen SVFs eine semantisch äquivalente inline-TVF-API bereitstellen und die inline TVF als kanonischen relationalen Kern verwenden. |
+| Scope | `toolbelt.conversion.base64`, `toolbelt.conversion.integer-base` und `toolbelt.validation.semantic-version`; sechs neue inline TVFs gemäß `SVF_INLINE_TVF_AUDIT.md`; vorhandene SVFs bleiben als Convenience-API erhalten. |
+| Dependencies | Benutzeranforderung vom 2026-07-30; `DEC-2026-022`; bestehende öffentliche Verträge der sechs SVFs. |
+| Priorität | `P0` |
+| Status | `active` |
+| Akzeptanzkriterien | Kein TVF-Wrapper ruft lediglich die SVF auf; Fachlogik besitzt genau einen kanonischen Kern; Parität, Objekttyp, `NULL`- und Fehlersemantik, lokale und zentrale Installation sowie Lifecycle sind getestet; Objekt- und Moduldokumentation zeigt `APPLY` als bevorzugte Mengenverwendung. |
+| Tests | Governance- und Bestandsaudit dokumentiert; Source-, Lifecycle- und Runtime-Prüfungen der Remediation noch `not executed`. |
+| Blocker | Keine fachliche Grundsatzfrage. Die sechs öffentlichen TVF-Verträge sind im Audit festgelegt; modulweise Implementierung und Runtime-Validierung stehen aus. |
+| Evidenz | `DEC-2026-022`, `Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md`; Microsoft-Dokumentation zu Scalar UDF Inlining und Query Processing. |
+| Nächster Schritt | Module einzeln refaktorieren und jeweils erst nach vollständiger Paritäts- und Lifecycle-Prüfung integrieren. |
+
 ### AP-2026-013: Frei definierbare Zahlensysteme implementieren
 
 | Feld | Wert |

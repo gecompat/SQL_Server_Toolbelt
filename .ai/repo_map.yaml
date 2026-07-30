@@ -46,6 +46,7 @@ sources_of_truth:
   integer_base_module_design: Documentation/Architecture/INTEGER_BASE_MODULE_DESIGN.md
   integer_base_runtime_workflow: .github/workflows/integer-base-runtime.yml
   integer_base_module: Modules/toolbelt.conversion.integer-base/module.yaml
+  svf_inline_tvf_policy: Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
   documentation_validator: Tests/Documentation/validate_documentation.py
   documentation_workflow: .github/workflows/documentation-consistency.yml
   toolbelt_landscape_research: Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md
@@ -228,6 +229,7 @@ change_impact:
     - AGENTS.md
     - Documentation/Architecture/DECISIONS.md
     - Documentation/Architecture/ARTIFACT_ROLES.md
+    - Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
     - Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md
     - Tests/Documentation/validate_documentation.py
     - .github/workflows/documentation-consistency.yml
@@ -304,6 +306,7 @@ change_impact:
       paths:
         - Modules/toolbelt.conversion.base64/**
         - Documentation/Architecture/BASE64_MODULE_DESIGN.md
+        - Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
         - Documentation/Architecture/DEPLOYMENT_MODEL.md
         - Documentation/Standards/TSQL_ENGINEERING.md
         - Documentation/Standards/MODULE_DEFINITION_OF_DONE.md
@@ -353,6 +356,7 @@ change_impact:
       paths:
         - Modules/toolbelt.validation.semantic-version/**
         - Documentation/Architecture/SEMANTIC_VERSION_MODULE_DESIGN.md
+        - Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
         - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
         - Tests/CI/run-semantic-version-linux.sh
       checks:
@@ -362,6 +366,7 @@ change_impact:
       paths:
         - Modules/toolbelt.conversion.integer-base/**
         - Documentation/Architecture/INTEGER_BASE_MODULE_DESIGN.md
+        - Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
         - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
         - Tests/CI/run-integer-base-linux.sh
       checks:
@@ -417,6 +422,9 @@ change_impact:
         - AGENTS.md
         - Documentation/Architecture/ARTIFACT_ROLES.md
         - Documentation/Architecture/DECISIONS.md
+        - Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
+        - Documentation/Standards/TSQL_ENGINEERING.md
+        - Documentation/Standards/MODULE_DEFINITION_OF_DONE.md
         - Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md
         - Tests/Documentation/**
         - .github/workflows/documentation-consistency.yml
