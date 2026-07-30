@@ -215,13 +215,25 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
         THROW 51321, N'EOCD-Signatur wurde im ZIP-Container nicht gefunden.', 1;
 
     SET @TotalEntries =
-        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 11), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 10), 1));
+        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 10), 1))
+        + CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 11), 1)) * 256;
     SET @CentralDirectorySize =
-        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 15), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 14), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 13), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 12), 1));
+        CONVERT(int,
+            CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 12), 1))
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 13), 1)) * 256
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 14), 1)) * 65536
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 15), 1)) * 16777216
+        );
     SET @CentralDirectoryOffset =
-        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 19), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 18), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 17), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 16), 1));
+        CONVERT(int,
+            CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 16), 1))
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 17), 1)) * 256
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 18), 1)) * 65536
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 19), 1)) * 16777216
+        );
     SET @CommentLength =
-        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 21), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 20), 1));
+        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 20), 1))
+        + CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @EocdStartPos + 21), 1)) * 256;
 
     IF @TotalEntries < 1
         THROW 51321, N'Das ZIP-Archiv enthaelt keine Entries.', 1;
@@ -273,23 +285,48 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
             , @HeaderLength int;
 
         SET @GpFlags =
-            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 9), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 8), 1));
+            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 8), 1))
+            + CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 9), 1)) * 256;
         SET @Method =
-            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 11), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 10), 1));
+            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 10), 1))
+            + CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 11), 1)) * 256;
         SET @Crc32 =
-            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 19), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 18), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 17), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 16), 1));
+            CONVERT(int,
+                CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 16), 1))
+              + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 17), 1)) * 256
+              + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 18), 1)) * 65536
+              + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 19), 1)) * 16777216
+            );
         SET @CompressedSize =
-            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 23), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 22), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 21), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 20), 1));
+            CONVERT(int,
+                CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 20), 1))
+              + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 21), 1)) * 256
+              + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 22), 1)) * 65536
+              + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 23), 1)) * 16777216
+            );
         SET @UncompressedSize =
-            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 27), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 26), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 25), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 24), 1));
+            CONVERT(int,
+                CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 24), 1))
+              + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 25), 1)) * 256
+              + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 26), 1)) * 65536
+              + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 27), 1)) * 16777216
+            );
         SET @NameLength =
-            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 29), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 28), 1));
+            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 28), 1))
+            + CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 29), 1)) * 256;
         SET @ExtraLength =
-            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 31), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 30), 1));
+            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 30), 1))
+            + CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 31), 1)) * 256;
         SET @CommentLen =
-            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 33), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 32), 1));
+            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 32), 1))
+            + CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 33), 1)) * 256;
         SET @LocalOffset =
-            CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 45), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 44), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 43), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 42), 1));
+            CONVERT(int,
+                CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 42), 1))
+              + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 43), 1)) * 256
+              + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 44), 1)) * 65536
+              + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 45), 1)) * 16777216
+            );
 
         IF @NameLength < 1 OR @NameLength > 1024 OR @ExtraLength < 0 OR @CommentLen < 0
             THROW 51321, N'Entry-Metadaten sind ausserhalb der unterstuetzten Grenzen.', 1;
@@ -396,19 +433,38 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
         THROW 51321, N'Der Local Header besitzt eine ungueltige Signatur.', 1;
 
     SET @LocalFlags =
-        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 7), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 6), 1));
+        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 6), 1))
+        + CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 7), 1)) * 256;
     SET @LocalMethod =
-        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 9), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 8), 1));
+        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 8), 1))
+        + CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 9), 1)) * 256;
     SET @LocalCrc =
-        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 17), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 16), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 15), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 14), 1));
+        CONVERT(int,
+            CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 14), 1))
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 15), 1)) * 256
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 16), 1)) * 65536
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 17), 1)) * 16777216
+        );
     SET @LocalCompressed =
-        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 21), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 20), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 19), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 18), 1));
+        CONVERT(int,
+            CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 18), 1))
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 19), 1)) * 256
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 20), 1)) * 65536
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 21), 1)) * 16777216
+        );
     SET @LocalUncompressed =
-        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 25), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 24), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 23), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 22), 1));
+        CONVERT(int,
+            CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 22), 1))
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 23), 1)) * 256
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 24), 1)) * 65536
+          + CONVERT(bigint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 25), 1)) * 16777216
+        );
     SET @LocalNameLen =
-        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 27), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 26), 1));
+        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 26), 1))
+        + CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 27), 1)) * 256;
     SET @LocalExtraLen =
-        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 29), 1) + SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 28), 1));
+        CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 28), 1))
+        + CONVERT(int, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 29), 1)) * 256;
 
     IF @LocalNameLen < 1 OR @LocalNameLen > 1024 OR @LocalExtraLen < 0
         THROW 51321, N'Der Local Header enthaelt ungueltige Feldlaengen.', 1;
