@@ -410,6 +410,12 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
 
     SET @IsEncrypted = CASE WHEN (@SelectedFlags & 1) = 1 THEN 1 ELSE 0 END;
 
+    IF @IsEncrypted = 1 AND @FailIfEncrypted = 1
+        THROW 51324, N'Der angeforderte Entry ist verschluesselt und laut Parameter abzulehnen.', 1;
+
+    IF @IsEncrypted = 0 AND @SelectedMethod <> 0
+        THROW 51327, N'Compression Method wird fuer Payload-Extraktion in Version 1.0.0 nicht unterstuetzt.', 1;
+
     IF @SelectedUncompressedBytes > @MaxEntryBytes
         THROW 51325, N'Der Entry ueberschreitet @MaxEntryBytes.', 1;
 
@@ -489,14 +495,8 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
        OR @LocalDataPos - 1 + @SelectedCompressedBytes > @ArchiveLength
         THROW 51321, N'Die Entry-Daten liegen ausserhalb des ZIP-Containers.', 1;
 
-    IF @IsEncrypted = 1 AND @FailIfEncrypted = 1
-        THROW 51324, N'Der angeforderte Entry ist verschluesselt und laut Parameter abzulehnen.', 1;
-
     IF @IsEncrypted = 0
     BEGIN
-        IF @SelectedMethod <> 0
-            THROW 51327, N'Compression Method wird fuer Payload-Extraktion in Version 1.0.0 nicht unterstuetzt.', 1;
-
         IF @SelectedCompressedBytes <> @SelectedUncompressedBytes
             THROW 51328, N'Stored-Entry hat inkonsistente Groessenangaben.', 1;
 
