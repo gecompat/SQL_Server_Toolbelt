@@ -165,7 +165,7 @@ BEGIN
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'LIMITATION', 1
           , NULL, NULL, NULL, NULL, NULL
-          , N'Dateigröße ist durch nvarchar(max) auf ca. 2 GB begrenzt. Encoding-Erkennung erfolgt über BOM. UTF-8 und Windows-1252 werden über BULK INSERT mit CODEPAGE gelesen; UTF-16-LE über OPENROWSET(BULK..., SINGLE_NCLOB). UTF-16-BE und UTF-32 werden nicht unterstützt.'
+          , N'Dateigröße ist durch nvarchar(max) auf ca. 2 GB begrenzt. Encoding-Erkennung erfolgt über BOM. UTF-16-LE wird über OPENROWSET(BULK..., SINGLE_NCLOB) gelesen. UTF-8 und Windows-1252 verwenden SINGLE_CLOB mit CAST; Nicht-ASCII-Zeichen werden auf Linux nicht nach Windows-1252 decodiert, weil SQL Server Linux CODEPAGE in BULK INSERT nicht unterstützt. UTF-16-BE und UTF-32 werden nicht unterstützt.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'EXAMPLE', 1
           , NULL, NULL, NULL, NULL, NULL
@@ -354,81 +354,57 @@ BEGIN
     END;
 
     /*
-     * Für UTF-8 und Windows-1252 verwenden wir BULK INSERT in eine temporäre
-     * Tabelle mit expliziter CODEPAGE. OPENROWSET(BULK...) ohne Formatfile
-     * unterstützt keine CODEPAGE-Option direkt.
      * Für UTF-16-LE verwenden wir OPENROWSET(BULK..., SINGLE_NCLOB).
+     * Für UTF-8 und Windows-1252 verwenden wir OPENROWSET(BULK..., SINGLE_CLOB)
+     * und CAST nach nvarchar(max). Das liefert für ASCII-Inhalte auf Windows
+     * und Linux identische Ergebnisse. Nicht-ASCII-Zeichen werden auf Linux
+     * nicht nach Windows-1252 decodiert, weil SQL Server Linux CODEPAGE in
+     * BULK INSERT nicht unterstützt. Dies ist eine dokumentierte Limitation
+     * des Version-1-Slices.
      */
-    IF @EncodingDetected IN (N'UTF-8', N'Windows-1252')
-    BEGIN
-        DECLARE @CodePage int = CASE @EncodingDetected
-                                    WHEN N'UTF-8' THEN 65001
-                                    ELSE 1252
-                                END;
+    SET @Sql = N'SET @Content = CAST((SELECT BulkColumn FROM OPENROWSET(BULK '
+               + QUOTENAME(@FilePath, N'''')
+               + N', '
+               + CASE @EncodingDetected
+                     WHEN N'UTF-16-LE' THEN N'SINGLE_NCLOB'
+                     ELSE N'SINGLE_CLOB'
+                 END
+               + N') AS x) AS nvarchar(max));';
 
-        CREATE TABLE #FileContent (BulkColumn nvarchar(max));
+    BEGIN TRY
+        EXEC sys.sp_executesql
+              @stmt = @Sql
+            , @params = N'@Content nvarchar(max) OUTPUT'
+            , @Content = @Content OUTPUT;
 
-        SET @Sql = N'BULK INSERT #FileContent FROM '
-                   + QUOTENAME(@FilePath, N'''')
-                   + N' WITH (CODEPAGE = '
-                   + CAST(@CodePage AS nvarchar(16))
-                   + N', DATAFILETYPE = ''char'');';
+        SET @BytesRead = DATALENGTH(@Content) * 2; -- NCHAR = 2 Byte pro Codeunit
 
-        BEGIN TRY
-            EXEC sys.sp_executesql @stmt = @Sql;
+        IF @MaxBytes IS NOT NULL AND @BytesRead > @MaxBytes
+        BEGIN
+            SELECT
+                  CAST(NULL AS nvarchar(max)) AS Content
+                , @BytesRead                  AS BytesRead
+                , @EncodingDetected           AS EncodingDetected
+                , @BomPresent                 AS BomPresent
+                , CAST(0 AS bit)              AS IsValid
+                , 51323                       AS ValidationCode
+                , N'Datei überschreitet @MaxBytes.' AS ValidationMessage;
+            RETURN 0;
+        END;
 
-            SELECT @Content = BulkColumn FROM #FileContent;
-            SET @BytesRead = DATALENGTH(@Content) * 2;
-
-            DROP TABLE #FileContent;
-        END TRY
-        BEGIN CATCH
-            IF OBJECT_ID(N'tempdb..#FileContent') IS NOT NULL
-                DROP TABLE #FileContent;
-            THROW;
-        END CATCH;
-    END
-    ELSE IF @EncodingDetected = N'UTF-16-LE'
-    BEGIN
-        SET @Sql = N'SET @Content = (SELECT BulkColumn FROM OPENROWSET(BULK '
-                   + QUOTENAME(@FilePath, N'''')
-                   + N', SINGLE_NCLOB) AS x);';
-
-        BEGIN TRY
-            EXEC sys.sp_executesql
-                  @stmt = @Sql
-                , @params = N'@Content nvarchar(max) OUTPUT'
-                , @Content = @Content OUTPUT;
-
-            SET @BytesRead = DATALENGTH(@Content) * 2;
-        END TRY
-        BEGIN CATCH
-            THROW;
-        END CATCH;
-    END;
-
-    IF @MaxBytes IS NOT NULL AND @BytesRead > @MaxBytes
-    BEGIN
         SELECT
-              CAST(NULL AS nvarchar(max)) AS Content
-            , @BytesRead                  AS BytesRead
-            , @EncodingDetected           AS EncodingDetected
-            , @BomPresent                 AS BomPresent
-            , CAST(0 AS bit)              AS IsValid
-            , 51323                       AS ValidationCode
-            , N'Datei überschreitet @MaxBytes.' AS ValidationMessage;
+              @Content        AS Content
+            , @BytesRead      AS BytesRead
+            , @EncodingDetected AS EncodingDetected
+            , @BomPresent     AS BomPresent
+            , CAST(1 AS bit)  AS IsValid
+            , NULL            AS ValidationCode
+            , NULL            AS ValidationMessage;
+
         RETURN 0;
-    END;
-
-    SELECT
-          @Content        AS Content
-        , @BytesRead      AS BytesRead
-        , @EncodingDetected AS EncodingDetected
-        , @BomPresent     AS BomPresent
-        , CAST(1 AS bit)  AS IsValid
-        , NULL            AS ValidationCode
-        , NULL            AS ValidationMessage;
-
-    RETURN 0;
+    END TRY
+    BEGIN CATCH
+        THROW;
+    END CATCH;
 END;
 GO
