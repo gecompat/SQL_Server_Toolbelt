@@ -958,7 +958,7 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Status** | `researched` |
 | **Primärquellen** | [Research-Inbox `RI-2026-126`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/relational-databases/security/dynamic-data-masking?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Gewünschte Reversibilität, Alphabete, Unicode-/Case-Regeln, Format­erhalt, Key-/Salt-Modell, Rotation und Validierungsnachweis besprechen. |
+| **Nächster Schritt** | Gewünschte Reversibilität, Alphabete, Unicode-/Case-Regeln, Formaterhalt, Key-/Salt-Modell, Rotation und Validierungsnachweis besprechen. |
 
 ## TC-2026-042: Deterministisches Date Shifting
 
