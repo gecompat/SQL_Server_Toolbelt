@@ -48,6 +48,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Erfolgreiche Generate-Series-Runtime-Matrix auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich Semantik, nativer Parität, Fehlern, Grenzen, einer Million Werte, Row Goal, Join, `CROSS APPLY`, Deployment- und Lifecycle-Contracts.
 - Formale Kandidaten `TC-2026-029` bis `TC-2026-031` für sicheres Identifier-Handling, Semantic Versioning und frei definierbare Zahlensysteme.
 - Getrennte Split-Ausbaustufe `TC-2026-032` für mehrzeichige Separatoren, Escape und Quote.
+- Modul `toolbelt.metadata.identifier` mit zustandsbasiertem Multipart-Parser und kanonischem Quote-Wrapper.
+- Unterstützung für ein- bis vierteilige Namen, `[...]`, `]]`-Escapes, ausgelassene mittlere Teile und stabile abstrakte Validation Codes.
+- Parametergesteuertes lokales und zentrales Identifier-Deployment, Uninstall, Objekt-/Moduldokumentation sowie statische, Contract-, Collation- und Lifecycle-Prüfungen.
 
 ### Geändert
 
@@ -78,7 +81,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - `TC-2026-012` nach Benutzerfreigabe vom Research-Kandidaten zum implementierten und auf SQL Server 2025 Linux teilweise validierten Modul überführt.
 - `TC-2026-006` nach Benutzerfreigabe vom Research-Kandidaten zum implementierten und auf SQL Server 2025 Linux teilweise validierten Modul überführt.
 - Veralteten Backlogstatus des bereits gemergten Base64-Arbeitspakets von `active` auf `completed` korrigiert.
-- `TC-2026-001`, `TC-2026-029`, `TC-2026-030` und `TC-2026-031` nach gemeinsamer Vertragsbesprechung und ausdrücklicher Freigabe vom 2026-07-30 auf `ready for development` gesetzt; sequenzielle Arbeitspakete `AP-2026-010` bis `AP-2026-013` angelegt.
+- `TC-2026-001`, `TC-2026-030` und `TC-2026-031` nach gemeinsamer Vertragsbesprechung und ausdrücklicher Freigabe vom 2026-07-30 auf `ready for development` gesetzt; Arbeitspakete `AP-2026-011` bis `AP-2026-013` angelegt.
+- `TC-2026-029` aus `RI-2026-011` als `AP-2026-010` implementiert; Runtime-Evidenz bleibt bis zur tatsächlichen Ausführung `not executed`.
 
 ### Korrigiert
 
@@ -100,4 +104,4 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-Drei Module sind implementiert und `partially validated`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und 2025 erfolgreich; Base64 und Generate-Series sind auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich. Windows und die jeweils offenen Releasefälle bleiben `not executed`.
+Vier Module sind implementiert. ResultTable, Base64 und Generate-Series sind `partially validated`; das Identifier-Modul ist mangels ausgeführter Runtime noch `not executed`. Windows und die jeweils offenen Releasefälle bleiben `not executed`.

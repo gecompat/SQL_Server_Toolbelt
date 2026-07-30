@@ -11,7 +11,9 @@ Das zweite Modul `toolbelt.conversion.base64` ist implementiert und auf
 SQL Server 2025 Linux teilweise validiert. Das dritte Modul
 `toolbelt.core.generate-series` ist ebenfalls implementiert und auf SQL
 Server 2025 Linux mit Compatibility Levels 150, 160 und 170 teilweise
-validiert; `AP-2026-009` ist abgeschlossen.
+validiert; `AP-2026-009` ist abgeschlossen. Das vierte Modul
+`toolbelt.metadata.identifier` ist implementiert; seine Runtime-Evidenz steht
+noch aus und wird deshalb als `not executed` ausgewiesen.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -195,19 +197,26 @@ Stand `toolbelt.core.generate-series`:
 - wegen der offenen physischen 2019-/2022- und Windows-Prüfungen
   `validation_status: partially validated`.
 
+Stand `toolbelt.metadata.identifier`:
 
-Freigegebene nächste Entwicklungsfolge:
+- vollständiger Funktionsvertrag am 2026-07-30 gemeinsam mit den drei
+  nachfolgenden Modulen besprochen und ausdrücklich freigegeben;
+- formaler Kandidat `TC-2026-029`, aktives Arbeitspaket `AP-2026-010`;
+- zustandsbasierter Parser und Scalar-Wrapper für ein- bis vierteilige Namen;
+- Modulmanifest, Lifecycle, Dokumentation, Beispiele sowie statische und
+  Runtime-Contract-Artefakte vorhanden;
+- Runtime noch nicht ausgeführt, daher `validation_status: not executed`.
 
-1. `AP-2026-010` / `TC-2026-029` – sicheres Identifier- und Multipart-Name-Toolkit;
-2. `AP-2026-011` / `TC-2026-001` – Multi-Separator-Split Version 1;
-3. `AP-2026-012` / `TC-2026-030` – Semantic-Version Parser und Comparator;
-4. `AP-2026-013` / `TC-2026-031` – Ganzzahlen in frei definierbaren Zahlensystemen.
+Freigegebene weitere Entwicklungsfolge:
 
-Alle vier Arbeitspakete sind `ready for development` und dürfen ohne weitere
-Zwischenfreigabe nacheinander begonnen werden. Pro Paket bleiben der
-inkrementelle Dokumentationsabgleich und die betroffene Testmatrix
-verpflichtend. Die breitere Split-Version mit mehrzeichigen Separatoren,
-Escape und Quote ist separat als `TC-2026-032` erfasst und nicht freigegeben.
+1. `AP-2026-011` / `TC-2026-001` – Multi-Separator-Split Version 1;
+2. `AP-2026-012` / `TC-2026-030` – Semantic-Version Parser und Comparator;
+3. `AP-2026-013` / `TC-2026-031` – Ganzzahlen in frei definierbaren Zahlensystemen.
+
+Die drei verbleibenden Arbeitspakete sind `ready for development` und dürfen
+ohne weitere Zwischenfreigabe nacheinander begonnen werden. Die breitere
+Split-Version mit mehrzeichigen Separatoren, Escape und Quote ist separat als
+`TC-2026-032` erfasst und nicht freigegeben.
 
 ## Phase 3 – Schlanke Test-Infrastruktur und CI
 

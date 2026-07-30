@@ -13,6 +13,10 @@ Container und prüft den portablen Ganzzahlreihenvertrag seriell mit
 Compatibility Levels 150, 160 und 170 sowie lokale, zentrale und
 Lifecycle-Pfade.
 
+`run-identifier-linux.sh` prüft den Identifier-Vertrag mit denselben
+Compatibility Levels sowie lokale, zentrale, Kollisions- und Lifecycle-Pfade.
+Eine erfolgreiche Runtime-Ausführung ist noch nicht dokumentiert.
+
 Bash wird hier nur als Linux-CI-Orchestrierung verwendet. Es enthält keine zweite Implementierung der T-SQL-Fachlogik.
 
 Das Testkennwort:
