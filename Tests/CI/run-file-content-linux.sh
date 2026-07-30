@@ -61,11 +61,9 @@ database="tbx_file_content"
 run_query master "CREATE DATABASE [${database}] COLLATE Latin1_General_100_CS_AS;"
 
 # ad hoc distributed queries aktivieren, damit OPENROWSET(BULK...) funktioniert.
-run_query master "
-  sp_configure 'show advanced options', 1;
-  RECONFIGURE;
-  sp_configure 'ad hoc distributed queries', 1;
-  RECONFIGURE;"
+# Jede sp_configure/RECONFIGURE-Kombination muss in einem eigenen Batch laufen.
+run_query master "sp_configure 'show advanced options', 1; RECONFIGURE;"
+run_query master "sp_configure 'ad hoc distributed queries', 1; RECONFIGURE;"
 
 deploy_file_content "${database}" local
 
