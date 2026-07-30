@@ -9,4 +9,4 @@ Die SVF delegiert an
 mengenorientierte Vergleiche ist die inline TVF mit `APPLY` zu bevorzugen.
 
 Aktuelle Evidenz:
-https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30517137373
+https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984

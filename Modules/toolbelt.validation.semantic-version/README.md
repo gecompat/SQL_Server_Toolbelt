@@ -22,7 +22,7 @@ an diese Kerne. Für mengenorientierte Aufrufe sind die TVFs mit `APPLY` zu
 bevorzugen.
 
 Aktuelle Evidenz:
-[Semantic-Version Runtime Run 30517137373](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30517137373)
+[Semantic-Version Runtime Run 30535377984](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984)
 war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben offen.
 

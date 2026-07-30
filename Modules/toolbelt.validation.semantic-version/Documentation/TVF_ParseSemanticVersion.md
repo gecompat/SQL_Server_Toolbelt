@@ -8,4 +8,4 @@ Die Funktion liefert genau eine Zeile mit `IsValid`, `ValidationCode`,
 und Pre-release-Identifier dürfen keine führenden Nullen besitzen.
 
 Aktuelle Evidenz:
-https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30517137373
+https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984

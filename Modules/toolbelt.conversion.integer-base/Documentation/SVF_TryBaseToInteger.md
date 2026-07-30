@@ -20,4 +20,4 @@ SELECT toolbelt_conversion.SVF_TryBaseToInteger
 ```
 
 Aktuelle Evidenz:
-https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30518087070
+https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377860

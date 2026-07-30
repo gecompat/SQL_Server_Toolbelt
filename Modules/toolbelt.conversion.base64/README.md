@@ -80,7 +80,7 @@ nicht vertraulichen Daten zu messen.
 
 Der portable Provider enthält keine bekannte Betriebssystemabhängigkeit.
 Der
-[Base64-Runtime-Lauf 30493304673](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30493304673)
+[Base64-Runtime-Lauf 30535377837](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377837)
 war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Geprüft wurden RFC-4648-/Base64URL-Vektoren, Fehlerfälle,
 synthetische Größen bis 1 MiB, Wiederholungsdeployment, Fremdobjekt-Kollision,

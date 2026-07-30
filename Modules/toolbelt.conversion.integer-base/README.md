@@ -30,7 +30,7 @@ nicht schemagebunden, damit Wiederholungs- und Upgrade-Deployments die
 kanonischen TVF-Kerne ersetzen können.
 
 Aktuelle Evidenz:
-[Integer-Base Runtime Run 30518087070](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30518087070)
+[Integer-Base Runtime Run 30535377860](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377860)
 war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben offen.
 
