@@ -209,4 +209,75 @@ IF NOT EXISTS
    )
     THROW 52935, N'Allowlist-Verletzung wird nicht erkannt.', 1;
 
+-- Echte Dateisystem-Tests (nur in CI mit vorbereiteten Fixtures).
+DECLARE @FixtureRoot nvarchar(4000) = N'/workspace/Modules/toolbelt.file.content/Tests/Runtime/fixtures';
+
+DECLARE @BinaryResult TABLE
+(
+      Content           varbinary(max) NULL
+    , BytesRead         bigint         NOT NULL
+    , IsValid           bit            NOT NULL
+    , ValidationCode    int            NULL
+    , ValidationMessage nvarchar(4000) NULL
+);
+
+INSERT INTO @BinaryResult
+EXEC toolbelt_file.USP_LoadBinaryFile
+      @FilePath = @FixtureRoot + N'/sample.bin';
+
+IF NOT EXISTS
+   (
+       SELECT 1 FROM @BinaryResult
+       WHERE IsValid = 1 AND BytesRead = 6
+   )
+    THROW 52936, N'Binärdatei konnte nicht korrekt gelesen werden.', 1;
+
+DECLARE @TextResult TABLE
+(
+      Content           nvarchar(max)  NULL
+    , BytesRead         bigint         NOT NULL
+    , EncodingDetected  nvarchar(128)  NULL
+    , BomPresent        bit            NOT NULL
+    , IsValid           bit            NOT NULL
+    , ValidationCode    int            NULL
+    , ValidationMessage nvarchar(4000) NULL
+);
+
+INSERT INTO @TextResult
+EXEC toolbelt_file.USP_LoadTextFile
+      @FilePath = @FixtureRoot + N'/utf8-bom.txt';
+
+IF NOT EXISTS
+   (
+       SELECT 1 FROM @TextResult
+       WHERE IsValid = 1 AND EncodingDetected = N'UTF-8' AND BomPresent = 1
+   )
+    THROW 52936, N'UTF-8-Datei mit BOM konnte nicht korrekt gelesen werden.', 1;
+
+DELETE FROM @TextResult;
+
+INSERT INTO @TextResult
+EXEC toolbelt_file.USP_LoadTextFile
+      @FilePath = @FixtureRoot + N'/ansi.txt';
+
+IF NOT EXISTS
+   (
+       SELECT 1 FROM @TextResult
+       WHERE IsValid = 1 AND EncodingDetected = N'Windows-1252' AND BomPresent = 0
+   )
+    THROW 52936, N'ANSI-Datei ohne BOM konnte nicht korrekt gelesen werden.', 1;
+
+DELETE FROM @TextResult;
+
+INSERT INTO @TextResult
+EXEC toolbelt_file.USP_LoadTextFile
+      @FilePath = @FixtureRoot + N'/utf16le-bom.txt';
+
+IF NOT EXISTS
+   (
+       SELECT 1 FROM @TextResult
+       WHERE IsValid = 1 AND EncodingDetected = N'UTF-16-LE' AND BomPresent = 1
+   )
+    THROW 52936, N'UTF-16-LE-Datei mit BOM konnte nicht korrekt gelesen werden.', 1;
+
 PRINT N'File Content Contract-Test: erfolgreich';

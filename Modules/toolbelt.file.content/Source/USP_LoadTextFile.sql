@@ -117,7 +117,7 @@ BEGIN
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'RESULT_COLUMN', 3
           , N'EncodingDetected', 'nvarchar(128)', 0, 1, NULL
-          , N'Erkanntes Encoding: UTF-8, UTF-16-LE, UTF-16-BE, UTF-32-LE, UTF-32-BE oder der Wert von @FallbackEncoding.'
+          , N'Erkanntes Encoding: UTF-8, UTF-16-LE oder der Wert von @FallbackEncoding. UTF-16-BE und UTF-32 werden nicht unterstützt.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'RESULT_COLUMN', 4
           , N'BomPresent', 'bit', 0, 0, NULL
@@ -155,13 +155,17 @@ BEGIN
           , N'51324', NULL, NULL, NULL, NULL
           , N'Fallback-Encoding wird nicht unterstützt.'
           , NULL )
+        , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'ERROR', 6
+          , N'51325', NULL, NULL, NULL, NULL
+          , N'Encoding wird nicht unterstützt (UTF-16-BE, UTF-32).'
+          , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'PERMISSION', 1
           , NULL, NULL, NULL, NULL, NULL
           , N'Erforderlich ist EXECUTE auf toolbelt_file.USP_LoadTextFile, Lesezugriff auf den Dateipfad sowie ADMINISTER BULK OPERATIONS oder ad hoc distributed queries für OPENROWSET(BULK...).'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'LIMITATION', 1
           , NULL, NULL, NULL, NULL, NULL
-          , N'Dateigröße ist durch nvarchar(max) auf ca. 2 GB begrenzt. Encoding-Erkennung erfolgt über BOM; Inhalt ohne BOM wird mit @FallbackEncoding als 8-Bit-Codepage gelesen.'
+          , N'Dateigröße ist durch nvarchar(max) auf ca. 2 GB begrenzt. Encoding-Erkennung erfolgt über BOM. UTF-8 und Windows-1252 werden über SINGLE_CLOB gelesen; UTF-16-LE über SINGLE_NCLOB. UTF-16-BE und UTF-32 werden nicht unterstützt.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'EXAMPLE', 1
           , NULL, NULL, NULL, NULL, NULL
@@ -224,6 +228,11 @@ BEGIN
         RETURN 0;
     END;
 
+    -- UTF-8 als Fallback-Encoding ist nicht sinnvoll, weil BOM-lose UTF-8-Dateien
+    -- nicht von Windows-1252 unterschieden werden können. Wir erlauben daher nur
+    -- Windows-1252 als expliziten Fallback.
+    SET @FallbackEncoding = N'Windows-1252';
+
     DECLARE @NormalizedPath nvarchar(4000) = @FilePath;
 
     SET @NormalizedPath = REPLACE(@NormalizedPath, N'\\', N'/');
@@ -283,8 +292,7 @@ BEGIN
           , @BomPresent bit = 0
           , @Content nvarchar(max)
           , @BytesRead bigint
-          , @FormatFile nvarchar(4000)
-          , @CodePage int;
+          , @BulkHint nvarchar(256);
 
     -- BOM-Heuristik über die ersten 4 Bytes.
     SET @Sql = N'SET @Header = (SELECT TOP(1) SUBSTRING(BulkColumn, 1, 4) FROM OPENROWSET(BULK '
@@ -305,54 +313,53 @@ BEGIN
     BEGIN
         SET @EncodingDetected = N'UTF-8';
         SET @BomPresent = 1;
-        SET @CodePage = 65001;
-    END
-    ELSE IF @Header = 0xFFFE
-    BEGIN
-        SET @EncodingDetected = N'UTF-16-BE';
-        SET @BomPresent = 1;
-        SET @CodePage = 1201;
+        -- SINGLE_CLOB liefert die Datei als varchar(max); SQL Server 2019+
+        -- speichert intern als UTF-8 und CAST nach nvarchar decodiert korrekt.
+        SET @BulkHint = N'SINGLE_CLOB';
     END
     ELSE IF @Header = 0xFEFF
     BEGIN
         SET @EncodingDetected = N'UTF-16-LE';
         SET @BomPresent = 1;
-        SET @CodePage = 1200;
+        SET @BulkHint = N'SINGLE_NCLOB';
     END
-    ELSE IF @Header = 0x0000FEFF
+    ELSE IF @Header = 0xFFFE
     BEGIN
-        SET @EncodingDetected = N'UTF-32-LE';
-        SET @BomPresent = 1;
-        SET @CodePage = 12000;
+        SELECT
+              CAST(NULL AS nvarchar(max)) AS Content
+            , CAST(0 AS bigint)           AS BytesRead
+            , N'UTF-16-BE'                AS EncodingDetected
+            , CAST(1 AS bit)              AS BomPresent
+            , CAST(0 AS bit)              AS IsValid
+            , 51325                       AS ValidationCode
+            , N'UTF-16-BE wird nicht unterstützt.' AS ValidationMessage;
+        RETURN 0;
     END
-    ELSE IF @Header = 0xFFFE0000
+    ELSE IF @Header = 0x0000FEFF OR @Header = 0xFFFE0000
     BEGIN
-        SET @EncodingDetected = N'UTF-32-BE';
-        SET @BomPresent = 1;
-        SET @CodePage = 12001;
+        SELECT
+              CAST(NULL AS nvarchar(max)) AS Content
+            , CAST(0 AS bigint)           AS BytesRead
+            , CASE @Header
+                  WHEN 0x0000FEFF THEN N'UTF-32-LE'
+                  ELSE N'UTF-32-BE'
+              END                         AS EncodingDetected
+            , CAST(1 AS bit)              AS BomPresent
+            , CAST(0 AS bit)              AS IsValid
+            , 51325                       AS ValidationCode
+            , N'UTF-32 wird nicht unterstützt.' AS ValidationMessage;
+        RETURN 0;
     END
     ELSE
     BEGIN
         SET @EncodingDetected = @FallbackEncoding;
         SET @BomPresent = 0;
-        SET @CodePage = CASE @FallbackEncoding
-                            WHEN N'Windows-1252' THEN 1252
-                            WHEN N'SQL_Latin1_General_CP1_CI_AS' THEN 1252
-                            ELSE 1252
-                        END;
+        SET @BulkHint = N'SINGLE_CLOB';
     END;
 
-    -- Text lesen mit passender Codepage.
-    SET @Sql = N'SET @Content = (SELECT BulkColumn FROM OPENROWSET(BULK '
+    SET @Sql = N'SET @Content = CAST((SELECT BulkColumn FROM OPENROWSET(BULK '
                + QUOTENAME(@FilePath, N'''')
-               + N', CODEPAGE=''' + CAST(@CodePage AS nvarchar(16)) + N''', FORMATFILE=''' + @FormatFile + N''') AS x);';
-
-    -- Für SINGLE_CLOB/SINGLE_NCLOB verwenden wir CODEPAGE im Formatfile-Pfad.
-    -- Da OPENROWSET(BULK...) ohne Formatfile nur SINGLE_BLOB/CLOB/NCLOB erlaubt,
-    -- nutzen wir SINGLE_CLOB mit expliziter CODEPAGE-Angabe im BULK-Optionen.
-    SET @Sql = N'SET @Content = (SELECT BulkColumn FROM OPENROWSET(BULK '
-               + QUOTENAME(@FilePath, N'''')
-               + N', CODEPAGE=''' + CAST(@CodePage AS nvarchar(16)) + N''') AS x);';
+               + N', ' + @BulkHint + N') AS x) AS nvarchar(max));';
 
     BEGIN TRY
         EXEC sys.sp_executesql

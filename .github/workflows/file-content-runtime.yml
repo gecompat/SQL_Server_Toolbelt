@@ -1,0 +1,39 @@
+name: File Content Runtime
+
+on:
+  pull_request:
+    paths:
+      - "Modules/toolbelt.file.content/Source/**"
+      - "Modules/toolbelt.file.content/Deployment/**"
+      - "Modules/toolbelt.file.content/Tests/Runtime/**"
+      - "Modules/toolbelt.file.content/Tests/Static/**"
+      - "Modules/toolbelt.file.content/module.yaml"
+      - "Tests/CI/run-file-content-linux.sh"
+      - ".github/workflows/file-content-runtime.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Modules/toolbelt.file.content/Source/**"
+      - "Modules/toolbelt.file.content/Deployment/**"
+      - "Modules/toolbelt.file.content/Tests/Runtime/**"
+      - "Modules/toolbelt.file.content/Tests/Static/**"
+      - "Modules/toolbelt.file.content/module.yaml"
+      - "Tests/CI/run-file-content-linux.sh"
+      - ".github/workflows/file-content-runtime.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sql-server-2025-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+          python3
+          Modules/toolbelt.file.content/Tests/Static/validate_contract.py
+      - env:
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Tests/CI/run-file-content-linux.sh

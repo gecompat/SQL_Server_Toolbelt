@@ -42,5 +42,6 @@
 | RT-001 | Binärdatei lesen | `Content` entspricht Dateiinhalt, `IsValid = 1` |
 | RT-002 | Textdatei UTF-8 mit BOM | `EncodingDetected = 'UTF-8'`, `BomPresent = 1` |
 | RT-003 | Textdatei Windows-1252 ohne BOM | `EncodingDetected = 'Windows-1252'`, `BomPresent = 0` |
+| RT-006 | Textdatei UTF-16-BE mit BOM | `IsValid = 0`, `ValidationCode = 51325` |
 | RT-004 | @MaxBytes überschritten | `IsValid = 0`, `ValidationCode = 51323` |
 | RT-005 | Nicht existierende Datei | Engine-Fehler propagiert (THROW) |

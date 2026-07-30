@@ -24,7 +24,7 @@ vorbehalten.
 
 - Schreiben von Dateien in Slice 1.
 - Rekursive Directory-Listing (siehe `TC-2026-038`).
-- Vollständige Codepage-Unterstützung; nur UTF-8/UTF-16/UTF-32-BOM sowie
+- Vollständige Codepage-Unterstützung; nur UTF-8/UTF-16-LE-BOM sowie
   Windows-1252 als Fallback.
 - Symlink-Auflösung oder ACL-Prüfung innerhalb von T-SQL.
 
@@ -83,6 +83,11 @@ werden nicht umklassifiziert und propagieren als `THROW`.
 Die ersten 4 Bytes der Datei werden als `SINGLE_BLOB` gelesen und auf BOMs
 geprüft. Dateien ohne BOM werden mit `@FallbackEncoding` gelesen. Im
 Version-1-Slice ist nur `Windows-1252` als Fallback erlaubt.
+
+- UTF-8 mit BOM: `SINGLE_CLOB`, dann `CAST(... AS nvarchar(max))`.
+- UTF-16-LE mit BOM: `SINGLE_NCLOB`.
+- UTF-16-BE und UTF-32: werden als nicht unterstützt zurückgewiesen
+  (`ValidationCode 51325`).
 
 ## Abhängigkeiten
 
