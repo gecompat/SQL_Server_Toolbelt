@@ -48,11 +48,19 @@ Eine öffentliche Organisation, ein öffentliches Projekt oder ein öffentlicher
 
 ## KI-Commit-Regel
 
-Jede vollständig oder überwiegend von einer KI erzeugte Commit Message beginnt mit dem Namen der tatsächlich verwendeten KI, beispielsweise:
+Jede vollständig oder überwiegend von einer KI erzeugte Commit Message beginnt mit dem Namen des tatsächlich verwendeten KI-Systems. Sind die konkrete LLM-Bezeichnung, der Thinking Effort und die Content Size für die Sitzung zuverlässig ermittelbar, stehen sie direkt nach dem KI-System in einer eckigen Klammer.
+
+Verbindliches Format:
 
 ```text
-GitHub Copilot: Initialize module template
-ChatGPT: Correct repository foundation
+<KI-System> [LLM: <Bezeichnung>; ThinkingEffort: <Wert>; ContentSize: <Wert>]: <Zusammenfassung>
+```
+
+Sind einzelne Zusatzwerte nicht zuverlässig ermittelbar, werden sie samt zugehörigem Label ausgelassen. Sie dürfen nicht geraten, geschätzt oder durch technische Platzhalter ersetzt werden. Beispielsweise:
+
+```text
+GitHub Copilot [LLM: <Bezeichnung>]: Initialize module template
+GitHub Copilot: Correct repository foundation
 ```
 
 Die Regel gilt auch für automatisch angelegte Plan-, Initialisierungs- und Zwischencommits. Menschliche Commits benötigen kein KI-Präfix.

@@ -6,6 +6,22 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### AP-2026-018: TC-2026-034 Projektstart und Umsetzungsplan
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-018` |
+| Ziel | Das researched Kandidatenpaket `TC-2026-034` in einen implementierbaren, risikoarmen V1-Scope überführen und die funktionsbezogene Implementierungsfreigabe vorbereiten. |
+| Scope | Projektstart ohne Runtime-Implementierung: V1-Slice festlegen, Provideroptionen vergleichen, Sicherheits- und Plattformvertrag konkretisieren, Objektzuschnitt planen, Test- und Evidenzplan erstellen, offene Entscheidungen mit Benutzer abschließen. |
+| Dependencies | `TC-2026-034`, `TC-2026-033`, `TC-2026-037`, `TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md`, `WORKING_RULES.md`, `PROJECT_RULES.md`. |
+| Priorität | `P1` |
+| Status | `active` |
+| Akzeptanzkriterien | Ein dokumentierter V1-Vertrag liegt vor: klar abgegrenzte Eingabe-/Ausgabeform, explizite Nicht-Ziele, definierte Sicherheitsgrenzen gegen Zip Slip/Zip Bomb/Path Traversal, Providerentscheidung mit Begründung, Ergebnis- und Fehlersemantik, Lifecycle-/Deployment-Scope, modulbezogene Testmatrix sowie ein freigabefähiges Moduldesign. |
+| Tests | Für diese Startphase `not applicable` für Runtime. Pflicht sind Quellen- und Vertragskonsistenzprüfung, Datenschutz-/Secret-Gate, Duplikatprüfung und ein nachvollziehbarer Entscheidungsnachweis pro offener Kernfrage. |
+| Blocker | Noch offen: endgültige Providerwahl (In-memory versus Dateisystem), V1-Funktionsgrenze (Extract/Create gemeinsam oder getrennt), erlaubte Zielpfade, Overwrite-/Atomicity-Regeln und Limits für Größe/Einträge/Kompressionsverhältnis. |
+| Evidenz | Projektstart auf ausdrücklichen Benutzerauftrag vom 2026-07-30; Kandidat `TC-2026-034` ist `researched` und im Implementierungsplan als eigener Slice geführt. |
+| Nächster Schritt | Vertragsrunde für V1 durchführen und in ein freizugebendes Moduldesign überführen; danach separates Implementierungsarbeitspaket anlegen oder `AP-2026-018` auf Implementierung erweitern. |
+
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
 | Feld | Wert |
