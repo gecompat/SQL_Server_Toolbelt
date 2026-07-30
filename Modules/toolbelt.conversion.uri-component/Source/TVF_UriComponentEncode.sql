@@ -30,7 +30,7 @@ RETURN
               OR SUBSTRING(utf8.Bytes, positions.Value, 1) BETWEEN 0x30 AND 0x39
               OR SUBSTRING(utf8.Bytes, positions.Value, 1) IN (0x2D,0x2E,0x5F,0x7E)
                 THEN CONVERT(varchar(1), SUBSTRING(utf8.Bytes, positions.Value, 1)) COLLATE Latin1_General_100_BIN2
-            ELSE '%' + SUBSTRING(master.dbo.fn_varbintohexstr(SUBSTRING(utf8.Bytes, positions.Value, 1)), 3, 2) END), '') WITHIN GROUP (ORDER BY positions.Value)
+            ELSE '%' + UPPER(SUBSTRING(master.dbo.fn_varbintohexstr(SUBSTRING(utf8.Bytes, positions.Value, 1)), 3, 2)) END), '') WITHIN GROUP (ORDER BY positions.Value)
         FROM Utf8 AS utf8
         CROSS APPLY toolbelt_core.TVF_GenerateSeriesBigInt(1, CONVERT(bigint, DATALENGTH(utf8.Bytes)), 1) AS positions
     )
