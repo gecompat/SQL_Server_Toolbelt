@@ -211,6 +211,7 @@ IF NOT EXISTS
 
 -- Echte Dateisystem-Tests (nur in CI mit vorbereiteten Fixtures).
 DECLARE @FixtureRoot nvarchar(4000) = N'/workspace/Modules/toolbelt.file.content/Tests/Runtime/fixtures';
+DECLARE @FixturePath nvarchar(4000);
 
 DECLARE @BinaryResult TABLE
 (
@@ -221,9 +222,9 @@ DECLARE @BinaryResult TABLE
     , ValidationMessage nvarchar(4000) NULL
 );
 
+SET @FixturePath = @FixtureRoot + N'/sample.bin';
 INSERT INTO @BinaryResult
-EXEC toolbelt_file.USP_LoadBinaryFile
-      @FilePath = @FixtureRoot + N'/sample.bin';
+EXEC toolbelt_file.USP_LoadBinaryFile @FilePath = @FixturePath;
 
 IF NOT EXISTS
    (
@@ -243,9 +244,9 @@ DECLARE @TextResult TABLE
     , ValidationMessage nvarchar(4000) NULL
 );
 
+SET @FixturePath = @FixtureRoot + N'/utf8-bom.txt';
 INSERT INTO @TextResult
-EXEC toolbelt_file.USP_LoadTextFile
-      @FilePath = @FixtureRoot + N'/utf8-bom.txt';
+EXEC toolbelt_file.USP_LoadTextFile @FilePath = @FixturePath;
 
 IF NOT EXISTS
    (
@@ -256,9 +257,9 @@ IF NOT EXISTS
 
 DELETE FROM @TextResult;
 
+SET @FixturePath = @FixtureRoot + N'/ansi.txt';
 INSERT INTO @TextResult
-EXEC toolbelt_file.USP_LoadTextFile
-      @FilePath = @FixtureRoot + N'/ansi.txt';
+EXEC toolbelt_file.USP_LoadTextFile @FilePath = @FixturePath;
 
 IF NOT EXISTS
    (
@@ -269,9 +270,9 @@ IF NOT EXISTS
 
 DELETE FROM @TextResult;
 
+SET @FixturePath = @FixtureRoot + N'/utf16le-bom.txt';
 INSERT INTO @TextResult
-EXEC toolbelt_file.USP_LoadTextFile
-      @FilePath = @FixtureRoot + N'/utf16le-bom.txt';
+EXEC toolbelt_file.USP_LoadTextFile @FilePath = @FixturePath;
 
 IF NOT EXISTS
    (
