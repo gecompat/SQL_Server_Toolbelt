@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**Sechs Module sind implementiert; ihr Validierungsstand wird getrennt aus den Manifesten abgeleitet.**
+**Sieben Module sind implementiert; ihr Validierungsstand wird getrennt aus den Manifesten abgeleitet.**
 
 ## Implementierte Module
 
@@ -12,6 +12,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 | Modul-ID | Name | Version | Schema | Implementierung | Validierung | Release | SQL Server |
 |---|---|---:|---|---|---|---|---|
 | `toolbelt.conversion.base64` | Base64 and Base64URL Conversion | `1.0.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.conversion.integer-base` | Integer Base Conversion | `1.0.0` | `toolbelt_conversion` | `implemented` | `not executed` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.generate-series` | Portable Integer Series | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.result-table` | Result Table Infrastructure | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.identifier` | Identifier and Multipart Name Toolkit | `1.0.0` | `toolbelt_metadata` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |

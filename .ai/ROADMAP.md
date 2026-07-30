@@ -23,6 +23,8 @@ Implementierungsfreigabe.
 Das sechste Modul `toolbelt.validation.semantic-version` ist implementiert;
 SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und 170
 erfolgreich. Physische 2019-/2022- und Windows-Läufe bleiben offen.
+Das siebte Modul `toolbelt.conversion.integer-base` ist implementiert;
+Runtime ist noch `not executed`.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -234,8 +236,7 @@ Freigegebene weitere Entwicklungsfolge:
 
 1. `AP-2026-013` / `TC-2026-031` – Ganzzahlen in frei definierbaren Zahlensystemen.
 
-`AP-2026-012` ist abgeschlossen. `AP-2026-013` ist das verbleibende
-Arbeitspaket und darf ohne weitere Zwischenfreigabe begonnen werden. Die breitere
+`AP-2026-012` ist abgeschlossen. `AP-2026-013` ist aktiv. Die breitere
 Split-Version mit mehrzeichigen Separatoren, Escape und Quote ist separat als
 `TC-2026-032` erfasst und nicht freigegeben.
 

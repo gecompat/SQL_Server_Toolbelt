@@ -8,7 +8,7 @@ Stand: 2026-07-29
 |---|---|
 | Aktueller Projektstand | **Dokumentiert:** ResultTable, Base64, Generate-Series, Identifier und Split Version 1 sind implementiert und `partially validated`. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
-| Implementierungsfreigabe | **Erteilt am 2026-07-30:** `TC-2026-029` und `TC-2026-001` sind abgeschlossen; `TC-2026-030` ist aktiv und `TC-2026-031` danach `ready for development`. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
+| Implementierungsfreigabe | **Erteilt am 2026-07-30:** `TC-2026-029`, `TC-2026-001` und `TC-2026-030` sind abgeschlossen; `TC-2026-031` ist aktiv. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
 
 Die Liste soll die 162 Research-Ideen nicht endgültig bewerten. Sie benennt einen kleinen Arbeitsvorrat, auf den sich die nächste Vertiefung konzentrieren kann. Neue Erkenntnisse, Abhängigkeiten oder Benutzerpräferenzen dürfen die Reihenfolge jederzeit ändern.
@@ -51,7 +51,7 @@ besprochen und ausdrücklich zur aufeinanderfolgenden Implementierung freigegebe
 
 | Reihenfolge | Kandidat | Komplexität | Status | Wichtigste Scope-Grenze |
 |---:|---|---:|---|---|
-| 1 | `TC-2026-031` – frei definierbare Zahlensysteme, aus `RI-2026-055` | `S–M` | `ready for development` | Ganzzahlen und explizites Alphabet; keine stillschweigende Alphabetnormalisierung. |
+| 1 | `TC-2026-031` – frei definierbare Zahlensysteme, aus `RI-2026-055` | `S–M` | `implemented`; Runtime `not executed` | Ganzzahlen und explizites Alphabet; keine stillschweigende Alphabetnormalisierung. |
 
 Die Reihenfolge ist durch die Sammelfreigabe vom 2026-07-30 festgelegt:
 Nach dem abgeschlossenen SemVer-Slice folgen frei definierbare Zahlensysteme.

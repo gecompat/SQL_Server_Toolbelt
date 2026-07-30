@@ -121,6 +121,12 @@ Lifecycle-Contracts sind auf SQL Server 2025 Linux mit Compatibility Levels
 150, 160 und 170 erfolgreich; physische SQL-Server-2019-/2022- und
 Windows-Läufe bleiben `not executed`.
 
+`toolbelt.conversion.integer-base` hat `implementation_status: implemented`,
+`validation_status: not executed` und `release_status: unreleased`.
+Alphabet-, Kanonizitäts-, Grenzwert-, Overflow-, Deployment- und
+Lifecycle-Artefakte sind vorhanden; Runtime bleibt bis zur tatsächlichen
+Ausführung `not executed`.
+
 `toolbelt.conversion.base64` hat `implementation_status: implemented`,
 `validation_status: partially validated` und `release_status: unreleased`. SQL
 Server 2025 unter Linux ist mit Compatibility Levels 150, 160 und 170

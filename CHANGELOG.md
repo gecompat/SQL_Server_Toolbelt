@@ -91,6 +91,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Split-Characters-Runtime-Matrix auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich Literal-, Leer-Token-, NULL-/NUL-, Collation-, LOB-, Dependency-, zentraler und Lifecycle-Contracts erfolgreich; Status auf `partially validated` angehoben.
 - Modul `toolbelt.validation.semantic-version` mit striktem SemVer-2.0.0-Parser, Comparator und binärem Sort Key ohne numerischen Overflow.
 - Semantic-Version-Runtime-Matrix auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich Parser-, Präzedenz-, Sort-Key-, Größen-, Deployment- und Lifecycle-Contracts erfolgreich; Status auf `partially validated` angehoben.
+- Modul `toolbelt.conversion.integer-base` mit kanonischer Codierung und strikter Decodierung des vollständigen `bigint`-Bereichs für frei definierbare ASCII-Alphabete der Basen 2 bis 93.
 
 ### Korrigiert
 

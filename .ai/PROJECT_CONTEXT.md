@@ -37,6 +37,11 @@ Comparator und binärem Sort Key implementiert. SQL Server 2025 Linux ist mit
 Compatibility Levels 150, 160 und 170 erfolgreich; physische 2019-/2022- und
 Windows-Läufe bleiben `not executed`.
 
+`toolbelt.conversion.integer-base` codiert und decodiert den vollständigen
+`bigint`-Bereich mit frei definierbaren binär eindeutigen ASCII-Alphabeten.
+Code, Lifecycle-, Dokumentations- und Testartefakte sind vorhanden; Runtime
+ist noch `not executed`.
+
 ## Projektzweck
 
 SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL Server Database Engine ab Version 2019. Sie stellt Funktionen bereit, die SQL Server nicht nativ besitzt, erst in späteren Versionen anbietet oder nur mit wiederkehrendem, fehleranfälligem Boilerplate ermöglicht.

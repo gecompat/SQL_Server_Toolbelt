@@ -25,6 +25,10 @@ Kollision, Wiederholungsdeployment und Uninstall.
 lokale, zentrale, Kollisions- und Lifecycle-Pfade bei Compatibility Levels
 150, 160 und 170.
 
+`run-integer-base-linux.sh` prüft Alphabete von Basis 2 bis 93,
+Kanonizität, den vollständigen `bigint`-Bereich, Overflow sowie lokale,
+zentrale, Kollisions- und Lifecycle-Pfade bei denselben Compatibility Levels.
+
 Bash wird hier nur als Linux-CI-Orchestrierung verwendet. Es enthält keine zweite Implementierung der T-SQL-Fachlogik.
 
 Das Testkennwort:

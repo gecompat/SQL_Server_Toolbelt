@@ -703,6 +703,23 @@ def validate_semantic_version_runtime_workflow_scope() -> None:
             )
 
 
+def validate_integer_base_runtime_workflow_scope() -> None:
+    workflow = read(
+        REPOSITORY_ROOT / ".github" / "workflows" / "integer-base-runtime.yml"
+    )
+    for marker in (
+        '"Documentation/Architecture/**"',
+        '"Documentation/Standards/**"',
+        '"Modules/toolbelt.conversion.integer-base/Documentation/**"',
+        '"Modules/toolbelt.conversion.integer-base/Tests/**/*.md"',
+    ):
+        if marker in workflow:
+            raise ValidationError(
+                "Integer-Base-Runtime wird durch reine Dokumentation "
+                f"ausgelöst: {marker}"
+            )
+
+
 def run_result_table_static() -> None:
     script = (
         REPOSITORY_ROOT
@@ -843,6 +860,26 @@ def run_semantic_version_static() -> None:
         )
 
 
+def run_integer_base_static() -> None:
+    script = (
+        REPOSITORY_ROOT / "Modules" / "toolbelt.conversion.integer-base"
+        / "Tests" / "Static" / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)),
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische Integer-Base-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", help="Git-Basisref für die Impact-Ermittlung")
@@ -918,6 +955,10 @@ def main() -> int:
         validate_semantic_version_runtime_workflow_scope()
     if "semantic_version_static" in checks:
         run_semantic_version_static()
+    if "integer_base_runtime_workflow_scope" in checks:
+        validate_integer_base_runtime_workflow_scope()
+    if "integer_base_static" in checks:
+        run_integer_base_static()
 
     print("Dokumentations- und Konsistenzprüfung: erfolgreich")
     print(f"Modulmanifeste: {len(modules)}")

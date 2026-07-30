@@ -1,0 +1,96 @@
+module_id: "toolbelt.conversion.integer-base"
+module_name: "Integer Base Conversion"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "not executed"
+release_status: unreleased
+description: "Codiert bigint-Werte kanonisch mit einem frei definierbaren ASCII-Alphabet und decodiert sie ohne Overflow."
+
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels:
+  - 150
+  - 160
+  - 170
+platforms:
+  windows: "not executed"
+  linux: "not executed"
+
+providers:
+  - id: tsql-decimal-loop
+    technology: T-SQL Scalar UDFs mit decimal(38,0)-Zwischenarithmetik
+    platforms: [Windows, Linux]
+    status: implemented
+
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+
+dependencies: []
+schemas:
+  - "toolbelt_conversion"
+objects:
+  - type: SVF
+    schema: "toolbelt_conversion"
+    name: "SVF_IntegerToBase"
+    visibility: public
+  - type: SVF
+    schema: "toolbelt_conversion"
+    name: "SVF_TryBaseToInteger"
+    visibility: public
+
+permissions_required:
+  - "SELECT oder REFERENCES auf den Scalar-valued Functions"
+  - "DDL-Rechte für Deploy und Uninstall"
+
+collation_contract: "Alphabet-Eindeutigkeit und Ziffernzuordnung verwenden Latin1_General_100_BIN2; Groß- und Kleinschreibung bleiben verschieden."
+data_type_contract: "bigint und varchar; Alphabet varchar(93), codierter Wert varchar(65); NULL und ungültige Werte liefern NULL."
+help_contract_version: "not applicable"
+resultset_contracts: []
+
+lifecycle_error_range: "51090-51099"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/SVF_IntegerToBase.md"
+    - "Documentation/SVF_TryBaseToInteger.md"
+  architecture:
+    - "../../Documentation/Architecture/INTEGER_BASE_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/INTEGER_BASE_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+
+contracts:
+  usp: "not applicable"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/IntegerBase.Contract.sql"
+  contract: "Tests/Runtime/IntegerBase.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/integer-base-runtime.yml"
+
+validation_evidence:
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/integer-base-runtime.yml"
+    scope: "Workflow und Contract-Tests vorhanden; Runtime noch nicht ausgeführt"
+    result: "not executed"
