@@ -100,44 +100,44 @@ RETURN
     SplitOffsets AS
     (
         SELECT
-              offsets.CanonicalDatePart
-            , offsets.UnitOffset
+              unit_offsets.CanonicalDatePart
+            , unit_offsets.UnitOffset
             , DayOffset = CONVERT
               (
                   int,
-                  CASE offsets.CanonicalDatePart
+                  CASE unit_offsets.CanonicalDatePart
                       WHEN 'hour' THEN
-                          offsets.UnitOffset / 24
+                          unit_offsets.UnitOffset / 24
                           - CASE
-                                WHEN offsets.UnitOffset < 0
-                                 AND offsets.UnitOffset % 24 <> 0 THEN 1
+                                WHEN unit_offsets.UnitOffset < 0
+                                 AND unit_offsets.UnitOffset % 24 <> 0 THEN 1
                                 ELSE 0
                             END
                       WHEN 'minute' THEN
-                          offsets.UnitOffset / 1440
+                          unit_offsets.UnitOffset / 1440
                           - CASE
-                                WHEN offsets.UnitOffset < 0
-                                 AND offsets.UnitOffset % 1440 <> 0 THEN 1
+                                WHEN unit_offsets.UnitOffset < 0
+                                 AND unit_offsets.UnitOffset % 1440 <> 0 THEN 1
                                 ELSE 0
                             END
                       WHEN 'second' THEN
-                          offsets.UnitOffset / 86400
+                          unit_offsets.UnitOffset / 86400
                           - CASE
-                                WHEN offsets.UnitOffset < 0
-                                 AND offsets.UnitOffset % 86400 <> 0 THEN 1
+                                WHEN unit_offsets.UnitOffset < 0
+                                 AND unit_offsets.UnitOffset % 86400 <> 0 THEN 1
                                 ELSE 0
                             END
                       WHEN 'millisecond' THEN
-                          offsets.UnitOffset / 86400000
+                          unit_offsets.UnitOffset / 86400000
                           - CASE
-                                WHEN offsets.UnitOffset < 0
-                                 AND offsets.UnitOffset % 86400000 <> 0 THEN 1
+                                WHEN unit_offsets.UnitOffset < 0
+                                 AND unit_offsets.UnitOffset % 86400000 <> 0 THEN 1
                                 ELSE 0
                             END
                       ELSE 0
                   END
               )
-        FROM UnitOffsets AS offsets
+        FROM UnitOffsets AS unit_offsets
     ),
     Candidate AS
     (
