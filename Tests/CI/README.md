@@ -21,6 +21,10 @@ und prüft danach den literalen Multi-Separator-Vertrag mit denselben
 Compatibility Levels, fehlender Dependency, lokaler und zentraler Nutzung,
 Kollision, Wiederholungsdeployment und Uninstall.
 
+`run-semantic-version-linux.sh` prüft Parser, Comparator, Sort Key sowie
+lokale, zentrale, Kollisions- und Lifecycle-Pfade bei Compatibility Levels
+150, 160 und 170.
+
 Bash wird hier nur als Linux-CI-Orchestrierung verwendet. Es enthält keine zweite Implementierung der T-SQL-Fachlogik.
 
 Das Testkennwort:

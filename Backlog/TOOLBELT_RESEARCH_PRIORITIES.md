@@ -8,7 +8,7 @@ Stand: 2026-07-29
 |---|---|
 | Aktueller Projektstand | **Dokumentiert:** ResultTable, Base64, Generate-Series, Identifier und Split Version 1 sind implementiert und `partially validated`. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
-| Implementierungsfreigabe | **Erteilt am 2026-07-30:** `TC-2026-029` und `TC-2026-001` sind abgeschlossen; `TC-2026-030` und `TC-2026-031` sind danach `ready for development`. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
+| Implementierungsfreigabe | **Erteilt am 2026-07-30:** `TC-2026-029` und `TC-2026-001` sind abgeschlossen; `TC-2026-030` ist aktiv und `TC-2026-031` danach `ready for development`. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
 
 Die Liste soll die 162 Research-Ideen nicht endgültig bewerten. Sie benennt einen kleinen Arbeitsvorrat, auf den sich die nächste Vertiefung konzentrieren kann. Neue Erkenntnisse, Abhängigkeiten oder Benutzerpräferenzen dürfen die Reihenfolge jederzeit ändern.
@@ -39,9 +39,10 @@ Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
 | 3 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
 | 4 | `TC-2026-029` – Identifier- und Multipart-Name-Toolkit | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
 | 5 | `TC-2026-001` – Split mit mehreren einzelnen Trennzeichen | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert; breitere Quote-/Escape-Stufe bleibt getrennt. |
+| 6 | `TC-2026-030` – Semantic-Version Parser/Comparator | `S–M` | Implementiert; Runtime noch `not executed`. |
 
 **Hauptempfehlung:** Die offenen Releasevalidierungen getrennt weiterführen.
-Die zwei verbleibenden F1-Verträge werden sequenziell umgesetzt.
+Semantic Versioning wird aktuell validiert; danach bleibt ein F1-Vertrag.
 
 ## F1 – Kleiner nutzerorientierter Konzentrationskorb
 
@@ -50,12 +51,10 @@ besprochen und ausdrücklich zur aufeinanderfolgenden Implementierung freigegebe
 
 | Reihenfolge | Kandidat | Komplexität | Status | Wichtigste Scope-Grenze |
 |---:|---|---:|---|---|
-| 1 | `TC-2026-030` – Semantic-Version Parser/Comparator, aus `RI-2026-075` | `S–M` | `ready for development` | Striktes SemVer 2.0.0, keine beliebigen Produktversionen. |
-| 2 | `TC-2026-031` – frei definierbare Zahlensysteme, aus `RI-2026-055` | `S–M` | `ready for development` | Ganzzahlen und explizites Alphabet; keine stillschweigende Alphabetnormalisierung. |
+| 1 | `TC-2026-031` – frei definierbare Zahlensysteme, aus `RI-2026-055` | `S–M` | `ready for development` | Ganzzahlen und explizites Alphabet; keine stillschweigende Alphabetnormalisierung. |
 
 Die Reihenfolge ist durch die Sammelfreigabe vom 2026-07-30 festgelegt:
-Es folgen Semantic Versioning und anschließend frei definierbare
-Zahlensysteme.
+Nach dem aktiven SemVer-Slice folgen frei definierbare Zahlensysteme.
 
 ## F1-Q – Qualitäts-Enabler parallel, aber nicht alle zugleich
 
@@ -107,6 +106,6 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 
 `AP-2026-010` / `TC-2026-029` und `AP-2026-011` / `TC-2026-001`
 sind abgeschlossen. Danach folgen ohne weitere Zwischenfreigabe
-`AP-2026-012` und `AP-2026-013`: Semantic Versioning und frei definierbare
+`AP-2026-012` ist aktiv. Danach folgt `AP-2026-013` für frei definierbare
 Zahlensysteme.
 `TC-2026-032` bleibt als getrennte Split-Ausbaustufe im Research-Status.

@@ -32,6 +32,10 @@ Compatibility Levels 150, 160 und 170 ist erfolgreich; physische
 2019-/2022- und Windows-Läufe bleiben `not executed`. Die breitere
 Quote-/Escape-Version bleibt getrennt als `TC-2026-032`.
 
+`toolbelt.validation.semantic-version` ist mit strengem SemVer-2.0.0-Parser,
+Comparator und binärem Sort Key implementiert. Runtime ist noch
+`not executed`.
+
 ## Projektzweck
 
 SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL Server Database Engine ab Version 2019. Sie stellt Funktionen bereit, die SQL Server nicht nativ besitzt, erst in späteren Versionen anbietet oder nur mit wiederkehrendem, fehleranfälligem Boilerplate ermöglicht.

@@ -667,7 +667,7 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
 | **Dependencies** | Keine Modulabhängigkeit. Die empfohlenen Vertragsgrenzen wurden am 2026-07-30 besprochen und die Implementierung ausdrücklich freigegeben. |
 | **Duplikatprüfung** | Research-Inbox und formale Toolbelt-Kandidaten geprüft; `RI-2026-013` behandelt die Erzeugung neuer Constraint-/Indexnamen und bleibt getrennt. |
-| **Status** | `ready for development` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [Research-Inbox `RI-2026-011`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/quotename-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/parsename-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-30 |
 | **Nächster Schritt** | Als `AP-2026-010` implementieren; das Moduldesign hält die bereits akzeptierten Signaturen, Fehler- und Resultsetverträge vor dem ersten Runtime-Objekt dauerhaft fest. |
@@ -691,10 +691,10 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
 | **Dependencies** | Keine Modulabhängigkeit. Der Standardumfang einschließlich Pre-release und Build Metadata wurde am 2026-07-30 besprochen und die Implementierung ausdrücklich freigegeben. |
 | **Duplikatprüfung** | Research-Inbox und formale Toolbelt-Kandidaten geprüft. |
-| **Status** | `ready for development` |
+| **Status** | `implemented`; Runtime `not executed` |
 | **Primärquellen** | [Research-Inbox `RI-2026-075`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://semver.org/spec/v2.0.0.html |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Als `AP-2026-012` implementieren; Parser-, Comparator-, Sortier- und Fehlermatrix aus dem akzeptierten SemVer-Vertrag ableiten. |
+| **Nächster Schritt** | `AP-2026-012` mit statischer Prüfung und SQL-Server-2025-Linux-Runtime abschließen. |
 
 ## TC-2026-031: Ganzzahlen in frei definierbaren Zahlensystemen
 

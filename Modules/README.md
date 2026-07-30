@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**Fünf Module sind implementiert; ihr Validierungsstand wird getrennt aus den Manifesten abgeleitet.**
+**Sechs Module sind implementiert; ihr Validierungsstand wird getrennt aus den Manifesten abgeleitet.**
 
 ## Implementierte Module
 
@@ -16,6 +16,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 | `toolbelt.core.result-table` | Result Table Infrastructure | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.identifier` | Identifier and Multipart Name Toolkit | `1.0.0` | `toolbelt_metadata` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.split-characters` | Literal Multi-Separator Split | `1.0.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.validation.semantic-version` | Semantic Version Validation | `1.0.0` | `toolbelt_validation` | `implemented` | `not executed` | `unreleased` | 2019, 2022, 2025 |
 <!-- END GENERATED:MODULE_STATUS_TABLE -->
 
 Der Modulstatus trennt vorhandenen Code von tatsächlich ausgeführter Evidenz.
