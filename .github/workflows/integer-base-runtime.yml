@@ -1,0 +1,50 @@
+name: IntegerBase Runtime
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/integer-base-runtime.yml"
+      - "Modules/toolbelt.conversion.integer-base/module.yaml"
+      - "Modules/toolbelt.conversion.integer-base/Source/**"
+      - "Modules/toolbelt.conversion.integer-base/Deployment/**"
+      - "Modules/toolbelt.conversion.integer-base/Tests/Runtime/**"
+      - "Modules/toolbelt.conversion.integer-base/Tests/Static/**"
+      - "Tests/CI/run-integer-base-linux.sh"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/integer-base-runtime.yml"
+      - "Modules/toolbelt.conversion.integer-base/module.yaml"
+      - "Modules/toolbelt.conversion.integer-base/Source/**"
+      - "Modules/toolbelt.conversion.integer-base/Deployment/**"
+      - "Modules/toolbelt.conversion.integer-base/Tests/Runtime/**"
+      - "Modules/toolbelt.conversion.integer-base/Tests/Static/**"
+      - "Tests/CI/run-integer-base-linux.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integer-base-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sql-server-2025-linux:
+    name: SQL Server 2025 Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate static contract
+        run: >-
+          python3
+          Modules/toolbelt.conversion.integer-base/Tests/Static/validate_contract.py
+
+      - name: Execute synthetic compatibility and lifecycle tests
+        env:
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Tests/CI/run-integer-base-linux.sh

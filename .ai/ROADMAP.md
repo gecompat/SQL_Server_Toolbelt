@@ -23,6 +23,9 @@ Implementierungsfreigabe.
 Das sechste Modul `toolbelt.validation.semantic-version` ist implementiert;
 SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und 170
 erfolgreich. Physische 2019-/2022- und Windows-Läufe bleiben offen.
+Das siebte Modul `toolbelt.conversion.integer-base` ist implementiert;
+SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und 170
+erfolgreich. Physische 2019-/2022- und Windows-Läufe bleiben offen.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -210,7 +213,7 @@ Stand `toolbelt.metadata.identifier`:
 
 - vollständiger Funktionsvertrag am 2026-07-30 gemeinsam mit den drei
   nachfolgenden Modulen besprochen und ausdrücklich freigegeben;
-- formaler Kandidat `TC-2026-029`, aktives Arbeitspaket `AP-2026-010`;
+- formaler Kandidat `TC-2026-029`, abgeschlossenes Arbeitspaket `AP-2026-010`;
 - zustandsbasierter Parser und Scalar-Wrapper für ein- bis vierteilige Namen;
 - Modulmanifest, Lifecycle, Dokumentation, Beispiele sowie statische und
   Runtime-Contract-Artefakte vorhanden;
@@ -220,7 +223,7 @@ Stand `toolbelt.metadata.identifier`:
 
 Stand `toolbelt.string.split-characters`:
 
-- freigegebener Vertrag `TC-2026-001`, aktives Arbeitspaket `AP-2026-011`;
+- freigegebener Vertrag `TC-2026-001`, abgeschlossenes Arbeitspaket `AP-2026-011`;
 - Inline-TVF für mehrere einzelne literal interpretierte UTF-16-Codeeinheiten;
 - Dependency auf `toolbelt.core.generate-series` Version `1.0.0`;
 - Modulmanifest, Lifecycle, Dokumentation, Beispiele sowie statische und
@@ -230,12 +233,8 @@ Stand `toolbelt.string.split-characters`:
   `validation_status: partially validated`;
 - mehrzeichige Separatorstrings, Quote und Escape bleiben `TC-2026-032`.
 
-Freigegebene weitere Entwicklungsfolge:
-
-1. `AP-2026-013` / `TC-2026-031` – Ganzzahlen in frei definierbaren Zahlensystemen.
-
-`AP-2026-012` ist abgeschlossen. `AP-2026-013` ist das verbleibende
-Arbeitspaket und darf ohne weitere Zwischenfreigabe begonnen werden. Die breitere
+Die freigegebene Entwicklungsfolge `AP-2026-010` bis `AP-2026-013` ist
+abgeschlossen. Die breitere
 Split-Version mit mehrzeichigen Separatoren, Escape und Quote ist separat als
 `TC-2026-032` erfasst und nicht freigegeben.
 

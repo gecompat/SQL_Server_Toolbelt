@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: six_modules_implemented
+  status: seven_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -43,6 +43,9 @@ sources_of_truth:
   semantic_version_module_design: Documentation/Architecture/SEMANTIC_VERSION_MODULE_DESIGN.md
   semantic_version_runtime_workflow: .github/workflows/semantic-version-runtime.yml
   semantic_version_module: Modules/toolbelt.validation.semantic-version/module.yaml
+  integer_base_module_design: Documentation/Architecture/INTEGER_BASE_MODULE_DESIGN.md
+  integer_base_runtime_workflow: .github/workflows/integer-base-runtime.yml
+  integer_base_module: Modules/toolbelt.conversion.integer-base/module.yaml
   documentation_validator: Tests/Documentation/validate_documentation.py
   documentation_workflow: .github/workflows/documentation-consistency.yml
   toolbelt_landscape_research: Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md
@@ -207,6 +210,7 @@ module_registry:
     - Modules/toolbelt.metadata.identifier/module.yaml
     - Modules/toolbelt.string.split-characters/module.yaml
     - Modules/toolbelt.validation.semantic-version/module.yaml
+    - Modules/toolbelt.conversion.integer-base/module.yaml
 
 change_impact:
   strategy: diff_first_registered_dependencies
@@ -354,6 +358,15 @@ change_impact:
       checks:
         - semantic_version_static
         - markdown_links
+    integer_base_contract:
+      paths:
+        - Modules/toolbelt.conversion.integer-base/**
+        - Documentation/Architecture/INTEGER_BASE_MODULE_DESIGN.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+        - Tests/CI/run-integer-base-linux.sh
+      checks:
+        - integer_base_static
+        - markdown_links
     runtime_workflow:
       paths:
         - .github/workflows/result-table-runtime.yml
@@ -390,6 +403,12 @@ change_impact:
       checks:
         - semantic_version_runtime_workflow_scope
         - semantic_version_static
+    integer_base_runtime_workflow:
+      paths:
+        - .github/workflows/integer-base-runtime.yml
+      checks:
+        - integer_base_runtime_workflow_scope
+        - integer_base_static
     governance:
       paths:
         - .ai/repo_map.yaml
@@ -419,3 +438,5 @@ change_impact:
         - split_characters_static
         - semantic_version_runtime_workflow_scope
         - semantic_version_static
+        - integer_base_runtime_workflow_scope
+        - integer_base_static
