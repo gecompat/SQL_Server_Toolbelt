@@ -61,6 +61,12 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Geändert
 
+- Welle `W1` implementiert: `TC-2026-002` als Calendar Difference,
+  `TC-2026-008` als Directional TRIM Compatibility und `TC-2026-024` als
+  RFC-3986-URI-Component-Percent-Encoding. Die drei Module besitzen
+  eigenständige Lifecycle-Artefakte, Objektseiten und synthetische
+  Contract-Tests; Runtime-Evidenz ist noch nicht ausgeführt.
+
 - Base64, Integer-Base und Semantic Versioning auf Modulversion `1.1.0`
   angehoben; Deployment, Upgrade, Uninstall, Objektverträge, Beispiele,
   Manifeste und Testmatrizen um die inline-TVF-Alternativen erweitert.

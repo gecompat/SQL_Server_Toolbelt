@@ -1,0 +1,98 @@
+module_id: "toolbelt.conversion.uri-component"
+module_name: "URI Component Percent-Encoding"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "not executed"
+release_status: unreleased
+description: "Codiert und decodiert RFC-3986-URI-Komponenten als UTF-8-Octets."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150,160,170]
+platforms:
+  windows: "not executed"
+  linux: "not executed"
+providers:
+  - id: tsql-utf8-inline
+    technology: T-SQL Inline TVF
+    platforms: [Windows,Linux]
+    status: implemented
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies:
+  - module_id: "toolbelt.core.generate-series"
+    minimum_version: "1.0.0"
+    objects: ["toolbelt_core.TVF_GenerateSeriesBigInt"]
+schemas:
+  - "toolbelt_conversion"
+objects:
+  - type: TVF
+    schema: "toolbelt_conversion"
+    name: "TVF_UriComponentEncode"
+    visibility: public
+  - type: TVF
+    schema: "toolbelt_conversion"
+    name: "TVF_UriComponentDecode"
+    visibility: public
+  - type: SVF
+    schema: "toolbelt_conversion"
+    name: "SVF_UriComponentEncode"
+    visibility: public
+  - type: SVF
+    schema: "toolbelt_conversion"
+    name: "SVF_UriComponentDecode"
+    visibility: public
+permissions_required: ["SELECT oder REFERENCES auf den Functions", "DDL-Rechte für Deploy und Uninstall"]
+collation_contract: "UTF-8-Konvertierung verwendet Latin1_General_100_BIN2_UTF8; die erzeugte Percent-Darstellung ist ASCII."
+data_type_contract: "Alle öffentlichen APIs akzeptieren und liefern nvarchar(max); Decode ist ein strikter ASCII-URI-Komponentenvertrag."
+help_contract_version: "not applicable"
+resultset_contracts:
+  - name: "TVF_UriComponentEncode"
+    columns: ["EncodedValue nvarchar(max)"]
+  - name: "TVF_UriComponentDecode"
+    columns: ["DecodedValue nvarchar(max)", "IsValid bit", "ValidationCode tinyint"]
+lifecycle_error_range: "51220-51229"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/TVF_UriComponentEncode.md"
+    - "Documentation/TVF_UriComponentDecode.md"
+    - "Documentation/SVF_UriComponentEncode.md"
+    - "Documentation/SVF_UriComponentDecode.md"
+  architecture:
+    - "../../Documentation/Architecture/URI_COMPONENT_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/URI_COMPONENT_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "not applicable"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/UriComponent.Contract.sql"
+  contract: "Tests/Runtime/UriComponent.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/w1-portable-runtime.yml"
+validation_evidence:
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w1-portable-runtime.yml"
+    scope: "Workflow und Contract-Tests vorhanden; Runtime noch nicht ausgeführt"
+    result: "not executed"

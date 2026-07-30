@@ -5,6 +5,25 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### AP-2026-015: Portable W1 – Calendar Difference, Directional TRIM und URI Component
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-015` |
+| Ziel | Die gemeinsam besprochenen Kandidaten `TC-2026-002`, `TC-2026-008` und `TC-2026-024` als drei unabhängige, portable Module implementieren. |
+| Scope | `toolbelt.datetime.calendar-difference`, `toolbelt.string.directional-trim` und `toolbelt.conversion.uri-component`; öffentliche inline TVFs, optionale URI-Scalar-APIs, Lifecycle, Dokumentation und synthetische Contract-Tests. |
+| Dependencies | Funktionsbezogene Besprechung und ausdrückliche Benutzerfreigabe vom 2026-07-30; für TRIM und URI `toolbelt.core.generate-series` Version `1.0.0`. |
+| Priorität | `P1` |
+| Status | `implemented` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
+| Akzeptanzkriterien | Anniversary-Regel, gerichtetes und typstabiles Trim sowie RFC-3986-Komponentenencoding sind explizit dokumentiert; keine implizite IRI-, Form-Encoding- oder Double-Decoding-Semantik. |
+| Tests | Statische Contract-Prüfungen vorhanden. Runtime-, Lifecycle- und physische Versionsmatrix noch nicht ausgeführt. |
+| Blocker | Kein Implementierungsblocker. Für Runtime-Evidenz wird ein SQL-Server-Runner benötigt. |
+| Evidenz | Benutzerfreigabe 2026-07-30; Modulare Artefakte unter `Modules/`; Runtime noch `not executed`. |
+| Nächster Schritt | Synthetische SQL-Server-2025-Linux-Matrix mit Compatibility Levels 150/160/170 ausführen und danach echte 2019/2022- sowie Windows-Smokes ergänzen. |
+
 ### AP-2026-014: Inline-TVF-Alternativen für bestehende SVFs
 
 | Feld | Wert |

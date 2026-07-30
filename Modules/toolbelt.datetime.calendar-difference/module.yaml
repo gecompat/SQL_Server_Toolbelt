@@ -1,0 +1,78 @@
+module_id: "toolbelt.datetime.calendar-difference"
+module_name: "Calendar Difference"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "not executed"
+release_status: unreleased
+description: "Zerlegt einen date-Abstand deterministisch in vollständige Kalenderjahre, -monate und Resttage."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "not executed"
+  linux: "not executed"
+providers:
+  - id: tsql-inline
+    technology: T-SQL Inline TVF
+    platforms: [Windows, Linux]
+    status: implemented
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies: []
+schemas:
+  - "toolbelt_datetime"
+objects:
+  - type: TVF
+    schema: "toolbelt_datetime"
+    name: "TVF_CalendarDifference"
+    visibility: public
+permissions_required: ["SELECT oder REFERENCES auf der Inline Table-valued Function", "DDL-Rechte für Deploy und Uninstall"]
+collation_contract: "not applicable"
+data_type_contract: "Akzeptiert ausschließlich date; Sign ist smallint, Years, Months und Days sind int."
+help_contract_version: "not applicable"
+resultset_contracts:
+  - name: "TVF_CalendarDifference"
+    columns: ["Sign smallint", "Years int", "Months int", "Days int"]
+lifecycle_error_range: "51200-51209"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/TVF_CalendarDifference.md"
+  architecture:
+    - "../../Documentation/Architecture/CALENDAR_DIFFERENCE_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/CALENDAR_DIFFERENCE_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "not applicable"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/CalendarDifference.Contract.sql"
+  contract: "Tests/Runtime/CalendarDifference.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/w1-portable-runtime.yml"
+validation_evidence:
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w1-portable-runtime.yml"
+    scope: "Workflow und Contract-Tests vorhanden; Runtime noch nicht ausgeführt"
+    result: "not executed"
