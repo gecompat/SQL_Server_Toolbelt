@@ -51,6 +51,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Modul `toolbelt.metadata.identifier` mit zustandsbasiertem Multipart-Parser und kanonischem Quote-Wrapper.
 - Unterstützung für ein- bis vierteilige Namen, `[...]`, `]]`-Escapes, ausgelassene mittlere Teile und stabile abstrakte Validation Codes.
 - Parametergesteuertes lokales und zentrales Identifier-Deployment, Uninstall, Objekt-/Moduldokumentation sowie statische, Contract-, Collation- und Lifecycle-Prüfungen.
+- Modul `toolbelt.string.split-characters` mit literalem Multi-Separator-Vertrag, stabilen Ordinals und definierter Leer-Token-Semantik.
+- Binärer Separatorvergleich, `nvarchar(max)`-Verarbeitung, Generate-Series-Dependency sowie lokales/zentrales Deployment und vollständige Lifecycle-Artefakte.
 
 ### Geändert
 
@@ -84,6 +86,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - `TC-2026-001`, `TC-2026-030` und `TC-2026-031` nach gemeinsamer Vertragsbesprechung und ausdrücklicher Freigabe vom 2026-07-30 auf `ready for development` gesetzt; Arbeitspakete `AP-2026-011` bis `AP-2026-013` angelegt.
 - `TC-2026-029` aus `RI-2026-011` als `AP-2026-010` implementiert und auf SQL Server 2025 Linux teilweise validiert.
 - Identifier-Runtime-Matrix auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich Parser-, Quote-, Escape-, Omission-, Längen-, Fehler-, Deployment- und Lifecycle-Contracts erfolgreich.
+- `TC-2026-001` als `AP-2026-011` implementiert; die breitere Split-Version mit Separatorstrings beliebiger Länge, frei definierbaren Quote-Zeichen und Escape bleibt getrennt als `TC-2026-032` im Research-Status.
 
 ### Korrigiert
 

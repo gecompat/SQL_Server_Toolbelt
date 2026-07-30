@@ -17,15 +17,15 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Spätere native Funktion** | Teilweise: `REGEXP_SPLIT_TO_TABLE` ab SQL Server 2025, Compatibility Level 170. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Einheitlicher Split-Vertrag mit definierter Token-Reihenfolge, kontrolliertem Verhalten für leere Tokens und optional mehreren Separatoren. |
-| **Mögliche Technologie** | T-SQL; Inline TVF bevorzugt, sofern der Vertrag set-basiert und optimizer-sichtbar umsetzbar ist. Für SQL Server 2025 ist ein nativer Regex-Provider zu prüfen. |
-| **Performance und Security** | Planung: Inline-T-SQL, native Provider und gegebenenfalls CLR benchmarken. Keine besonderen Berechtigungen erwartet. Collation-, Längen- und LOB-Verhalten sind ausdrücklich zu definieren. |
+| **Mögliche Technologie** | Implementierte T-SQL Inline-TVF mit `toolbelt.core.generate-series` als gemeinsamem Positionsprovider. SQL Server 2025 Regex bleibt ausschließlich enges Testoracle. |
+| **Performance und Security** | Synchrone lineare Verarbeitung ohne künstliche `nvarchar(max)`-Grenze; Separatorvergleich binär und literal; keine Regex-/SQL-Interpretation. Große LOBs bleiben eine bewusst dokumentierte Ressourcenfrage. |
 | **Plattformgrenzen** | Windows und Linux voraussichtlich gleich. Azure nicht geprüft. |
-| **Dependencies** | Keine bekannte harte Dependency; mögliche Wiederverwendung eines späteren Regex-Moduls prüfen. |
+| **Dependencies** | `toolbelt.core.generate-series` Version `1.0.0` in derselben Datenbank. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; TC-2026-010 ist breiter und ersetzt diesen Literalvertrag nicht automatisch. |
-| **Status** | `ready for development` |
+| **Status** | `implemented`; Runtime `not executed` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/string-split-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-split-to-table-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Als `AP-2026-011` in der freigegebenen Reihenfolge implementieren. Version 1 bleibt auf mehrere einzelne Trennzeichen ohne Quote-/Escape-Semantik begrenzt; die breitere Ausbaustufe ist separat als `TC-2026-032` erfasst. |
+| **Nächster Schritt** | `AP-2026-011` mit statischen, SQL-Server-2025-Linux- und Lifecycle-Prüfungen abschließen. Version 1 bleibt auf mehrere einzelne Trennzeichen ohne Quote-/Escape-Semantik begrenzt; die breitere Ausbaustufe ist separat als `TC-2026-032` erfasst. |
 
 ## TC-2026-002: Kalendarische Differenz in vollständigen Einheiten
 
@@ -742,5 +742,4 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Status** | `researched` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/string-split-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-split-to-table-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Nach Version 1 Separatorrepräsentation, längste-Treffer-Regel, Quote-/Escape-Modell, Fehlervertrag, maximale Eingabelänge und Providervergleich mit dem Benutzer besprechen. Keine Implementierungsfreigabe aus `TC-2026-001` ableiten. |
-
+| **Nächster Schritt** | Nach Version 1 Separatorrepräsentation für beliebig lange Separatorstrings, längste-Treffer-Regel, frei definierbare öffnende/schließende Quote-Zeichen oder -Strings, Escape-Modell, Fehlervertrag, maximale Eingabelänge und Providervergleich mit dem Benutzer besprechen. Keine Implementierungsfreigabe aus `TC-2026-001` ableiten. |
