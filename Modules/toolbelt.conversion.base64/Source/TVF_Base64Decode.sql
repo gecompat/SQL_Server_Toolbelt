@@ -150,6 +150,17 @@ RETURN
             , CASE
                   WHEN @Value IS NULL
                       THEN NULL
+                  WHEN CanonicalValue COLLATE Latin1_General_100_BIN2
+                           = 'toolbelt.invalid.base64'
+                      /*
+                       * Derselbe feste, eingabewertfreie Fehlerpfad wie in
+                       * der bisherigen SVF: varchar -> int muss scheitern.
+                       */
+                      THEN CONVERT
+                           (
+                                 varbinary(max)
+                               , CONVERT(int, CanonicalValue)
+                           )
                   ELSE CAST(N'' AS xml).value
                        (
                            N'xs:base64Binary(sql:column("Canonical.CanonicalValue"))'
