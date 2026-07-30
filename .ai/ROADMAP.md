@@ -195,6 +195,20 @@ Stand `toolbelt.core.generate-series`:
 - wegen der offenen physischen 2019-/2022- und Windows-Prüfungen
   `validation_status: partially validated`.
 
+
+Freigegebene nächste Entwicklungsfolge:
+
+1. `AP-2026-010` / `TC-2026-029` – sicheres Identifier- und Multipart-Name-Toolkit;
+2. `AP-2026-011` / `TC-2026-001` – Multi-Separator-Split Version 1;
+3. `AP-2026-012` / `TC-2026-030` – Semantic-Version Parser und Comparator;
+4. `AP-2026-013` / `TC-2026-031` – Ganzzahlen in frei definierbaren Zahlensystemen.
+
+Alle vier Arbeitspakete sind `ready for development` und dürfen ohne weitere
+Zwischenfreigabe nacheinander begonnen werden. Pro Paket bleiben der
+inkrementelle Dokumentationsabgleich und die betroffene Testmatrix
+verpflichtend. Die breitere Split-Version mit mehrzeichigen Separatoren,
+Escape und Quote ist separat als `TC-2026-032` erfasst und nicht freigegeben.
+
 ## Phase 3 – Schlanke Test-Infrastruktur und CI
 
 **Status:** `in progress`

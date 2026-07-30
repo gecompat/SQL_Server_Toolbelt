@@ -6,9 +6,9 @@ Stand: 2026-07-29
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** Das ResultTable-Kernmodul ist noch nicht vollständig validiert. `TC-2026-012` wurde als Base64-Modul implementiert und auf SQL Server 2025 Linux mit Compatibility 150/160/170 erfolgreich geprüft. |
+| Aktueller Projektstand | **Dokumentiert:** ResultTable, Base64 und Generate-Series sind implementiert und `partially validated`. Die vier anschließend besprochenen Funktionskandidaten sind zur Entwicklung freigegeben. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
-| Implementierungsfreigabe | **Nicht erteilt:** Weder Rang noch Fokusgruppe autorisieren eine Implementierung oder definieren einen öffentlichen Vertrag. |
+| Implementierungsfreigabe | **Erteilt am 2026-07-30:** Ausschließlich `TC-2026-029`, `TC-2026-001`, `TC-2026-030` und `TC-2026-031` sind nach der gemeinsamen Vertragsbesprechung `ready for development`. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
 
 Die Liste soll die 162 Research-Ideen nicht endgültig bewerten. Sie benennt einen kleinen Arbeitsvorrat, auf den sich die nächste Vertiefung konzentrieren kann. Neue Erkenntnisse, Abhängigkeiten oder Benutzerpräferenzen dürfen die Reihenfolge jederzeit ändern.
@@ -36,6 +36,7 @@ Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
 |---:|---|---:|---|
 | 1 | `TC-2026-003` – ResultTable-Routing | `L` | Bereits implementiertes Kernmodul; die offene Pflichtvalidierung ist das Gate für weitere Module und deshalb wichtiger als ein neuer Kandidat. |
 | 2 | `TC-2026-012` – Base64/Base64URL | `M` | Implementiert und auf SQL Server 2025 Linux teilweise validiert; physische 2019-/2022- und Windows-Läufe bleiben Releaseaufgabe. |
+| 3 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
 
 **Hauptempfehlung:** Die offenen ResultTable-Pflichtfälle und die gezielte
 Base64-Releasevalidierung getrennt weiterführen; für die nächste
@@ -43,15 +44,15 @@ Funktionsbesprechung genau einen Kandidaten aus F1 auswählen.
 
 ## F1 – Kleiner nutzerorientierter Konzentrationskorb
 
-Diese Kandidaten sollten nach `TC-2026-012` zuerst vertieft werden. Die Reihenfolge innerhalb des Korbs ist bewusst nur grob.
+Nach Abschluss von `TC-2026-006` wurden die folgenden vier Kandidaten gemeinsam
+besprochen und ausdrücklich zur aufeinanderfolgenden Implementierung freigegeben.
 
-| Rang | Kandidat | Komplexität | Warum früh | Wichtigster Vorbehalt |
+| Reihenfolge | Kandidat | Komplexität | Status | Wichtigste Scope-Grenze |
 |---:|---|---:|---|---|
-| 1 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Sehr breit nutzbar und Grundlage für Kalender, Datenexpansion und Tests. | Provider- und Größenstrategie sowie mögliche persistente Numbers-Tabelle. |
-| 2 | `RI-2026-011` – sicheres Identifier- und Multipart-Name-Toolkit | `M` | Hoher Sicherheits- und Wiederverwendungshebel für Metadaten-, DDL- und Dynamic-SQL-Utilities. | Parsergrenzen und gültige ein- bis vierteilige Namen exakt definieren. |
-| 3 | `TC-2026-001` – Split mit mehreren Trennzeichen | `M` | Alltäglicher Nutzen, wenige Abhängigkeiten und gute Vergleichbarkeit über die Versionsmatrix. | Literal- und Regex-Semantik nicht vermischen. |
-| 4 | `RI-2026-075` – Semantic-Version Parser/Comparator | `S–M` | Deterministisch, standardisiert und direkt für Modul-/Capability-Versionen nützlich. | SemVer strikt von beliebigen Produktversionsformaten trennen. |
-| 5 | `RI-2026-055` – Ganzzahlen in frei definierbaren Zahlensystemen | `S–M` | Klar begrenzte, gut testbare Utility aus dem persönlichen Brainstorm mit wenig Infrastrukturbedarf. | Alphabet, Vorzeichen, Overflow und maximale Basis festlegen. |
+| 1 | `TC-2026-029` – sicheres Identifier- und Multipart-Name-Toolkit, aus `RI-2026-011` | `M` | `ready for development` | Syntaxsicherheit und Quoting; keine ungeprüfte Raw-SQL-Ausführung. |
+| 2 | `TC-2026-001` – Split mit mehreren einzelnen Trennzeichen | `M` | `ready for development` | Version 1 ohne mehrzeichige Separatoren, Quote und Escape; Ausbau separat in `TC-2026-032`. |
+| 3 | `TC-2026-030` – Semantic-Version Parser/Comparator, aus `RI-2026-075` | `S–M` | `ready for development` | Striktes SemVer 2.0.0, keine beliebigen Produktversionen. |
+| 4 | `TC-2026-031` – frei definierbare Zahlensysteme, aus `RI-2026-055` | `S–M` | `ready for development` | Ganzzahlen und explizites Alphabet; keine stillschweigende Alphabetnormalisierung. |
 
 ### Wichtigste Alternative
 
@@ -103,12 +104,8 @@ Zurückstellen bedeutet nicht ablehnen. Diese Themen sollten jeweils in kleinere
 
 Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind ein konkreter Toolbelt-Anwendungsfall, die Repository-Grenze und ein deutlich kleinerer erster Slice zu klären.
 
-## Nächste Konzentrationsentscheidung
+## Nächste Ausführung
 
-Nach Abschluss beziehungsweise ausreichender Stabilisierung von `TC-2026-003` sollten nur diese Fragen besprochen werden:
+Die freigegebene Reihenfolge lautet `AP-2026-010` bis `AP-2026-013`: Identifier-Toolkit, Multi-Separator-Split Version 1, Semantic Versioning und frei definierbare Zahlensysteme. Die Arbeitspakete dürfen ohne weitere Zwischenfreigabe nacheinander begonnen werden, solange kein neuer Vertragskonflikt entsteht. Dokumentation und betroffene Tests werden je Modul gekoppelt gepflegt.
 
-1. Auswahl genau eines nächsten nutzerorientierten Kandidaten aus `TC-2026-006`, `RI-2026-011` und `TC-2026-001`.
-2. Physische 2019-/2022- und Windows-Releasevalidierung für `TC-2026-012` gezielt einplanen.
-3. Optional Auswahl genau eines Qualitäts-Enablers, bevorzugt `RI-2026-138`.
-
-Alle übrigen Kandidaten bleiben bis zu dieser Auswahl Research-Input.
+`TC-2026-032` bleibt als getrennte Split-Ausbaustufe im Research-Status. Alle übrigen Kandidaten bleiben Research-Input ohne Implementierungsfreigabe.
