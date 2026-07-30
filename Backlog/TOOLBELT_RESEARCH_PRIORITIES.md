@@ -84,12 +84,12 @@ Empfehlung: höchstens einen Qualitäts-Enabler gleichzeitig mit einem nutzerori
 
 | Kandidatenfamilie | Beispiele | Komplexität | Grund für später |
 |---|---|---:|---|
-| DDL- und Migrationsframework | `RI-2026-001` bis `RI-2026-004`, `RI-2026-010`, `RI-2026-012` | `L–XL` | Dependency-Auflösung, sichere DDL-Erzeugung, Drift und Destruktivität greifen ineinander. |
+| DDL- und Migrationsframework | `TC-2026-044`, `RI-2026-002` bis `RI-2026-004`, `RI-2026-010`, `RI-2026-012` | `L–XL` | Dependency-Auflösung, sichere DDL-Erzeugung, Drift und Destruktivität greifen ineinander. |
 | Regex, Fuzzy Matching und vollständige Unicode-Verarbeitung | `TC-2026-010`, `TC-2026-011`, `RI-2026-021` bis `RI-2026-030` | `L–XL` | Große Semantik-, Datenversions-, Performance- und Providerfläche. |
 | Breite JSON-/XML-Schemata und Patch-Systeme | `RI-2026-042` bis `RI-2026-054` | `L–XL` | Standards sind umfangreich; mehrere Funktionen bauen auf kleinen Kernen wie JSON Pointer auf. |
-| Execution- und Host-Plattform | `TC-2026-014` bis `TC-2026-022`, `TC-2026-025` bis `TC-2026-028`, `RI-2026-143` bis `RI-2026-150` | `XL` | Security, Secrets, Queues, Recovery, externe Laufzeiten und Betriebsverantwortung. |
-| Dateien, Archive, Office und analytische Bridges | `RI-2026-107` bis `RI-2026-124` | `L–XL` | Rechte, Plattformen, Streaming, Parser, Lizenzen und untrusted input. |
-| Pseudonymisierung und synthetische Datensysteme | `RI-2026-125` bis `RI-2026-136` | `L–XL` | Datenschutzwirkung, Re-Identifikation, Referenzkonsistenz und Fehlklassifikation. |
+| Execution- und Host-Plattform | `TC-2026-014` bis `TC-2026-022`, `TC-2026-025` bis `TC-2026-028`, `TC-2026-046`, `RI-2026-143` bis `RI-2026-150` | `XL` | Security, Secrets, Queues, Recovery, externe Laufzeiten und Betriebsverantwortung. |
+| Dateien, Archive, Office und analytische Bridges | `TC-2026-033` bis `TC-2026-038`, `TC-2026-045`, verbleibend `RI-2026-109` bis `RI-2026-124` | `L–XL` | Rechte, Plattformen, Streaming, Parser, Lizenzen und untrusted input. |
+| Pseudonymisierung und synthetische Datensysteme | `TC-2026-039` bis `TC-2026-043`, verbleibend `RI-2026-129` bis `RI-2026-136` | `L–XL` | Datenschutzwirkung, Re-Identifikation, Referenzkonsistenz und Fehlklassifikation. |
 | Probabilistische Datenstrukturen | `RI-2026-090` bis `RI-2026-095`, `RI-2026-158` | `L–XL` | Versionierte Binärformate, Merge-Verträge, Fehlergrenzen und Benchmarks. |
 
 Zurückstellen bedeutet nicht ablehnen. Diese Themen sollten jeweils in kleinere, unabhängig testbare Kerne zerlegt werden, bevor sie formale Kandidaten oder Implementierungsarbeitspakete werden.

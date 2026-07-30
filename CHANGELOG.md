@@ -8,6 +8,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
+- Formale Kandidaten `TC-2026-033` bis `TC-2026-046` für ZIP-/Kompressionsprovider, kontrollierte Datei-/Verzeichniszugriffe, getrennte Pseudonymisierungsbausteine, Objektklonen, XLSX-Lesen und eine providerneutrale Second-Session-Abstraktion; alle ohne Implementierungsfreigabe im Status `researched`.
 - Deduplizierte Toolbelt-Research-Inbox mit 162 breit gefächerten Ideen und 82 öffentlichen Quellen; Mehrfachnennungen behalten ihre gemeinsamen Fundstellen.
 - Repository-Grundaufbau mit autoritativen Steuerungsdateien, Architektur, Standards, Templates und Backlogs.
 - Verbindlicher USP-Vertrag und SQL-Objekt-Namenskonventionen.
