@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: ten_modules_implemented
+  status: thirteen_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -53,6 +53,13 @@ sources_of_truth:
   calendar_difference_module: Modules/toolbelt.datetime.calendar-difference/module.yaml
   directional_trim_module: Modules/toolbelt.string.directional-trim/module.yaml
   uri_component_module: Modules/toolbelt.conversion.uri-component/module.yaml
+  datetime_truncate_module_design: Documentation/Architecture/DATETIME_TRUNCATE_MODULE_DESIGN.md
+  datetime_bucket_module_design: Documentation/Architecture/DATETIME_BUCKET_MODULE_DESIGN.md
+  bit_operations_module_design: Documentation/Architecture/BIT_OPERATIONS_MODULE_DESIGN.md
+  w2a_portable_runtime_workflow: .github/workflows/w2a-portable-runtime.yml
+  datetime_truncate_module: Modules/toolbelt.datetime.truncate/module.yaml
+  datetime_bucket_module: Modules/toolbelt.datetime.bucket/module.yaml
+  bit_operations_module: Modules/toolbelt.binary.bit-operations/module.yaml
   svf_inline_tvf_policy: Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
   documentation_validator: Tests/Documentation/validate_documentation.py
   documentation_workflow: .github/workflows/documentation-consistency.yml
@@ -195,6 +202,7 @@ schemas:
     - toolbelt_xml
     - toolbelt_metadata
     - toolbelt_security
+    - toolbelt_binary
 
 object_naming:
   stored_procedure: "USP_{CamelCase}"
@@ -222,6 +230,9 @@ module_registry:
     - Modules/toolbelt.datetime.calendar-difference/module.yaml
     - Modules/toolbelt.string.directional-trim/module.yaml
     - Modules/toolbelt.conversion.uri-component/module.yaml
+    - Modules/toolbelt.datetime.truncate/module.yaml
+    - Modules/toolbelt.datetime.bucket/module.yaml
+    - Modules/toolbelt.binary.bit-operations/module.yaml
 
 change_impact:
   strategy: diff_first_registered_dependencies
@@ -402,6 +413,20 @@ change_impact:
       checks:
         - markdown_links
         - w1_runtime_workflow_scope
+    w2a_portable_contracts:
+      paths:
+        - Modules/toolbelt.datetime.truncate/**
+        - Modules/toolbelt.datetime.bucket/**
+        - Modules/toolbelt.binary.bit-operations/**
+        - Documentation/Architecture/DATETIME_TRUNCATE_MODULE_DESIGN.md
+        - Documentation/Architecture/DATETIME_BUCKET_MODULE_DESIGN.md
+        - Documentation/Architecture/BIT_OPERATIONS_MODULE_DESIGN.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+        - Tests/CI/run-w2a-linux.sh
+        - .github/workflows/w2a-portable-runtime.yml
+      checks:
+        - markdown_links
+        - w2a_runtime_workflow_scope
     runtime_workflow:
       paths:
         - .github/workflows/result-table-runtime.yml
@@ -444,6 +469,7 @@ change_impact:
       checks:
         - integer_base_runtime_workflow_scope
         - integer_base_static
+        - w2a_runtime_workflow_scope
     governance:
       paths:
         - .ai/repo_map.yaml

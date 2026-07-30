@@ -6,9 +6,9 @@ Stand: 2026-07-30
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** 10 Module sind implementiert und `partially validated`: ResultTable, Base64, Generate-Series, Identifier, Split Version 1, Semantic Versioning, Integer Base, Calendar Difference, Directional TRIM und URI Component. |
+| Aktueller Projektstand | **Dokumentiert:** 13 Module sind implementiert. Zehn sind `partially validated`; Date/Time Truncation, Date/Time Bucket und Bigint Bit Operations sind bis zur W2a-Runtime `not executed`. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
-| Implementierungsfreigabe | **Abgeschlossen:** `TC-2026-029`, `TC-2026-001`, `TC-2026-030`, `TC-2026-031` sowie W1 mit `TC-2026-002`, `TC-2026-008` und `TC-2026-024` wurden nach ausdrücklicher Freigabe implementiert. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
+| Implementierungsfreigabe | **Abgeschlossen beziehungsweise aktiv:** Die bisher implementierten Einzelkandidaten, W1 und W2a wurden nach ausdrücklicher Freigabe umgesetzt. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
 
 Die Liste soll die 168 Research-Ideen nicht endgültig bewerten. Sie benennt einen kleinen Arbeitsvorrat, auf den sich die nächste Vertiefung konzentrieren kann. Neue Erkenntnisse, Abhängigkeiten oder Benutzerpräferenzen dürfen die Reihenfolge jederzeit ändern.
@@ -77,9 +77,6 @@ benötigen.
 
 | Kandidat | Komplexität | Einordnung |
 |---|---:|---|
-| `TC-2026-004` – Date/Time-Truncation | `M` | W2a; Typfamilien, Scale, Datepart-Aliasse, `DATEFIRST` und Fehlervertrag gemeinsam festlegen. |
-| `TC-2026-005` – Date/Time-Bucketing | `M` | W2a nach abgestimmtem Date/Time-Typmodell; Width, Origin und negative Abstände explizit machen. |
-| `TC-2026-007` – Bit-Manipulation | `M` | W2a zunächst als `bigint`-Slice; `binary(n)`/`varbinary(n)` bleiben ein getrennter Provider-Slice. |
 | `RI-2026-079` – Date Spine und Kalenderdimension | `M` | Hoher Nutzen; die mögliche Generate-Series-Grundlage `TC-2026-006` ist bereits verfügbar. |
 | `RI-2026-041` – JSON Pointer | `M` | Kleiner standardisierter Kern für spätere JSON-Patch-Funktionen. |
 | `TC-2026-009` – JSON-Konstruktion und Pfadprüfung | `M–L` | W2b; variable Konstruktorargumente und der unterstützte SQL/JSON-Pfadumfang benötigen eine eigene Aufrufoberflächenentscheidung. |
@@ -114,14 +111,14 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 
 ## Nächste Ausführung
 
-`AP-2026-010` bis `AP-2026-015` beziehungsweise die sieben darin
-freigegebenen Kandidaten sind abgeschlossen. Ein nächster
+`AP-2026-016` setzt die ausdrücklich freigegebene W2a um. Die drei Module sind
+implementiert; ihre Runtime-Evidenz steht noch aus. Ein weiterer
 Implementierungskandidat benötigt wieder Vertragsbesprechung und Freigabe.
 `TC-2026-032` bleibt als getrennte Split-Ausbaustufe im Research-Status.
 
 Der [kandidatenübergreifende Implementierungsplan](./TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md)
-empfiehlt für die nächste gemeinsame Vertragsbesprechung W2a mit
-`TC-2026-004`, `TC-2026-005` und `TC-2026-007`. `TC-2026-009` und
-`TC-2026-013` bleiben wegen ihrer offenen JSON-Aufrufoberfläche und
-Providerentscheidung in W2b. Diese Auswahlhilfe ist keine
-Implementierungsfreigabe.
+führt W2a mit `TC-2026-004`, `TC-2026-005` und `TC-2026-007` nun als
+implementiert. Für die nächste gemeinsame Vertragsbesprechung werden
+`TC-2026-009` und `TC-2026-013` als W2b empfohlen; ihre JSON-
+Aufrufoberfläche und Providerentscheidung bleiben offen. Diese Auswahlhilfe
+ist keine Implementierungsfreigabe.

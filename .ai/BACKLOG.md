@@ -5,6 +5,25 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### AP-2026-016: Portable W2a – Truncation, Bucketing und Bigint-Bitoperationen
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-016` |
+| Ziel | Die gemeinsam geplanten Kandidaten `TC-2026-004`, `TC-2026-005` und `TC-2026-007` als drei portable Compatibility-Module implementieren und prüfen. |
+| Scope | `toolbelt.datetime.truncate`, `toolbelt.datetime.bucket` und `toolbelt.binary.bit-operations`; typgetrennte Date/Time-Inline-TVFs, Bigint-Shift/Count/Get/Set, Lifecycle, Central Deployment, Dokumentation und synthetische Contract-Tests. Keine Scalar UDFs, keine `datetime`-/`smalldatetime`-/`time`-Familie und kein `binary(n)`-/`varbinary(n)`-Provider. |
+| Dependencies | Funktionsbezogener W2a-Vorschlag im Implementierungsplan und ausdrückliche Benutzerfreigabe vom 2026-07-30; keine Runtime-Modulabhängigkeit. |
+| Priorität | `P1` |
+| Status | `active` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
+| Akzeptanzkriterien | Typstabile relationale APIs; dokumentierte Dateparts, Scale-7-, `DATEFIRST`-, Origin-, negative Floor-, Shift-, Vorzeichen- und Validation-Code-Semantik; lokale und zentrale Installation; Wiederholungsdeployment und Uninstall; native Parität auf SQL Server 2022/2025; Status nur aus tatsächlicher Evidenz. |
+| Tests | Statische, Runtime-, Lifecycle-, Central- und Uninstall-Contracts sowie SQL-Server-2025-Linux-Workflow für Compatibility Levels 150/160/170 sind angelegt, aber noch nicht ausgeführt. |
+| Blocker | Vor dem Merge muss der neue W2a-Runtime-Workflow erfolgreich sein. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben anschließende Releasevalidierung. |
+| Evidenz | Benutzerfreigabe vom 2026-07-30; Moduldesigns `DATETIME_TRUNCATE_MODULE_DESIGN.md`, `DATETIME_BUCKET_MODULE_DESIGN.md` und `BIT_OPERATIONS_MODULE_DESIGN.md`. |
+| Nächster Schritt | Statische Prüfungen und W2a-Runtime ausführen; bei erfolgreicher Evidenz auf `partially validated` und `completed` setzen. |
+
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
 | Feld | Wert |

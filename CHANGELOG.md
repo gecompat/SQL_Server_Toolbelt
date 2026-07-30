@@ -8,6 +8,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
+- W2a mit typgetrennten Date/Time-Truncation- und Bucket-Inline-TVFs sowie
+  Bigint-Shift-, Bit-Count-, Get-Bit- und Set-Bit-Funktionen. Die drei Module
+  besitzen gekoppelte Lifecycle-, Central-, Contract-, Dokumentations- und
+  Runtime-Artefakte; Runtime bleibt bis zur Ausführung `not executed`.
 - Sechs semantisch äquivalente inline-TVF-APIs für Base64, Integer-Base und
   Semantic Versioning als kanonische relationale Kerne für `CROSS APPLY` und
   `OUTER APPLY`; die vorhandenen SVFs bleiben Convenience-Wrapper.
@@ -121,9 +125,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
   Dokumentationslauf `30553118014` vereinheitlicht.
 - Abgeschlossene Arbeitspakete aus dem aktiven Backlogabschnitt entfernt und
   den noch aktiven ResultTable-Validierungsscope getrennt ausgewiesen.
-- Nächste Vertragsauswahl nach abgeschlossener W1 auf `W2a` mit
-  `TC-2026-004`, `TC-2026-005` und `TC-2026-007` aktualisiert; offene
-  JSON-Oberflächen bleiben getrennt in `W2b`.
+- W2a mit `TC-2026-004`, `TC-2026-005` und `TC-2026-007` nach
+  funktionsbezogener Freigabe implementiert; offene JSON-Oberflächen bleiben
+  getrennt in `W2b`.
 - Dokumentationsvalidator um manifestbasierte Prüfungen für Modulzahl,
   README-/Testinventar, implementierte Kandidaten und Research-Inbox-Status
   erweitert; W1-Runtime-Trigger auf Runtime- und Manifestpfade begrenzt.
@@ -146,4 +150,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-10 Module sind implementiert und `partially validated`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und 2025 erfolgreich; Base64, Generate-Series, Identifier, Split-Characters, Semantic-Version, Integer-Base, Calendar-Difference, Directional-TRIM und URI-Component sind auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich. Windows und die jeweils offenen Releasefälle bleiben `not executed`.
+13 Module sind implementiert. Zehn sind `partially validated`; die drei
+W2a-Module bleiben bis zur tatsächlichen Runtime-Ausführung `not executed`.
+ResultTable ist unter Linux auf SQL Server 2019, 2022 und 2025 erfolgreich;
+die übrigen bereits validierten Module sind auf SQL Server 2025 Linux mit
+Compatibility Levels 150, 160 und 170 erfolgreich. Windows und die jeweils
+offenen Releasefälle bleiben `not executed`.

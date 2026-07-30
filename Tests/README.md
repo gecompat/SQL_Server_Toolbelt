@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. 10 Module sind implementiert;
+Der Repository-Grundaufbau ist abgeschlossen. 13 Module sind implementiert;
 für alle existieren statische sowie synthetische Runtime- und
 Lifecycle-Contract-Testartefakte.
 
@@ -15,7 +15,8 @@ Compatibility Levels 150, 160 und 170 waren erfolgreich. Für das
 Identifier-Modul ist SQL Server 2025 Linux mit denselben Compatibility Levels
 ebenfalls erfolgreich. Split-Characters, Semantic-Version, Integer-Base,
 Calendar-Difference, Directional-TRIM und URI-Component sind dort ebenfalls
-erfolgreich. Physische SQL-Server-2019-/2022-, Windows- und weitere
+erfolgreich. Die drei W2a-Module sind implementiert, ihre Runtime ist noch
+`not executed`. Physische SQL-Server-2019-/2022-, Windows- und weitere
 modulspezifische Matrixfälle bleiben offen.
 
 ## Pflicht-Testarten je Modul
@@ -48,6 +49,9 @@ modulspezifische Matrixfälle bleiben offen.
 | `toolbelt.datetime.calendar-difference` | [CALENDAR_DIFFERENCE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.calendar-difference/Tests/CALENDAR_DIFFERENCE_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.string.directional-trim` | [DIRECTIONAL_TRIM_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.string.directional-trim/Tests/DIRECTIONAL_TRIM_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.conversion.uri-component` | [URI_COMPONENT_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.conversion.uri-component/Tests/URI_COMPONENT_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
+| `toolbelt.datetime.truncate` | [DATETIME_TRUNCATE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.truncate/Tests/DATETIME_TRUNCATE_CONTRACT_TEST_MATRIX.md) | `not executed`; W2a-Workflow angelegt |
+| `toolbelt.datetime.bucket` | [DATETIME_BUCKET_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.bucket/Tests/DATETIME_BUCKET_CONTRACT_TEST_MATRIX.md) | `not executed`; W2a-Workflow angelegt |
+| `toolbelt.binary.bit-operations` | [BIT_OPERATIONS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.binary.bit-operations/Tests/BIT_OPERATIONS_CONTRACT_TEST_MATRIX.md) | `not executed`; W2a-Workflow angelegt |
 
 Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 
