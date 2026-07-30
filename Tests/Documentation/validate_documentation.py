@@ -883,6 +883,24 @@ def validate_w1_runtime_workflow_scope() -> None:
             )
 
 
+def validate_w2a_runtime_workflow_scope() -> None:
+    workflow = read(
+        REPOSITORY_ROOT / ".github" / "workflows" / "w2a-portable-runtime.yml"
+    )
+    for marker in (
+        '"Documentation/Architecture/**"',
+        '"Documentation/Standards/**"',
+        '"Modules/toolbelt.datetime.truncate/**"',
+        '"Modules/toolbelt.datetime.bucket/**"',
+        '"Modules/toolbelt.binary.bit-operations/**"',
+    ):
+        if marker in workflow:
+            raise ValidationError(
+                "W2a-Runtime wird durch reine Dokumentation ausgelöst: "
+                f"{marker}"
+            )
+
+
 def run_result_table_static() -> None:
     script = (
         REPOSITORY_ROOT
@@ -1125,6 +1143,8 @@ def main() -> int:
         run_integer_base_static()
     if "w1_runtime_workflow_scope" in checks:
         validate_w1_runtime_workflow_scope()
+    if "w2a_runtime_workflow_scope" in checks:
+        validate_w2a_runtime_workflow_scope()
 
     print("Dokumentations- und Konsistenzprüfung: erfolgreich")
     print(f"Modulmanifeste: {len(modules)}")

@@ -1,0 +1,65 @@
+name: W2a Portable Runtime
+
+on:
+  pull_request:
+    paths:
+      - "Modules/toolbelt.datetime.truncate/Source/**"
+      - "Modules/toolbelt.datetime.truncate/Deployment/**"
+      - "Modules/toolbelt.datetime.truncate/Tests/Runtime/**"
+      - "Modules/toolbelt.datetime.truncate/Tests/Static/**"
+      - "Modules/toolbelt.datetime.truncate/module.yaml"
+      - "Modules/toolbelt.datetime.bucket/Source/**"
+      - "Modules/toolbelt.datetime.bucket/Deployment/**"
+      - "Modules/toolbelt.datetime.bucket/Tests/Runtime/**"
+      - "Modules/toolbelt.datetime.bucket/Tests/Static/**"
+      - "Modules/toolbelt.datetime.bucket/module.yaml"
+      - "Modules/toolbelt.binary.bit-operations/Source/**"
+      - "Modules/toolbelt.binary.bit-operations/Deployment/**"
+      - "Modules/toolbelt.binary.bit-operations/Tests/Runtime/**"
+      - "Modules/toolbelt.binary.bit-operations/Tests/Static/**"
+      - "Modules/toolbelt.binary.bit-operations/module.yaml"
+      - "Tests/CI/run-w2a-linux.sh"
+      - ".github/workflows/w2a-portable-runtime.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Modules/toolbelt.datetime.truncate/Source/**"
+      - "Modules/toolbelt.datetime.truncate/Deployment/**"
+      - "Modules/toolbelt.datetime.truncate/Tests/Runtime/**"
+      - "Modules/toolbelt.datetime.truncate/Tests/Static/**"
+      - "Modules/toolbelt.datetime.truncate/module.yaml"
+      - "Modules/toolbelt.datetime.bucket/Source/**"
+      - "Modules/toolbelt.datetime.bucket/Deployment/**"
+      - "Modules/toolbelt.datetime.bucket/Tests/Runtime/**"
+      - "Modules/toolbelt.datetime.bucket/Tests/Static/**"
+      - "Modules/toolbelt.datetime.bucket/module.yaml"
+      - "Modules/toolbelt.binary.bit-operations/Source/**"
+      - "Modules/toolbelt.binary.bit-operations/Deployment/**"
+      - "Modules/toolbelt.binary.bit-operations/Tests/Runtime/**"
+      - "Modules/toolbelt.binary.bit-operations/Tests/Static/**"
+      - "Modules/toolbelt.binary.bit-operations/module.yaml"
+      - "Tests/CI/run-w2a-linux.sh"
+      - ".github/workflows/w2a-portable-runtime.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sql-server-2025-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+          python3
+          Modules/toolbelt.datetime.truncate/Tests/Static/validate_contract.py
+      - run: >-
+          python3
+          Modules/toolbelt.datetime.bucket/Tests/Static/validate_contract.py
+      - run: >-
+          python3
+          Modules/toolbelt.binary.bit-operations/Tests/Static/validate_contract.py
+      - env:
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Tests/CI/run-w2a-linux.sh
