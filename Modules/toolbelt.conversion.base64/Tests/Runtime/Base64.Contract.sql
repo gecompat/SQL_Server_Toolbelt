@@ -223,6 +223,8 @@ SET @ExpectedErrorObserved = 0;
 BEGIN TRY
     DECLARE @InvalidCharacter varbinary(max) =
         toolbelt_conversion.SVF_Base64Decode('qQ!!');
+    IF @InvalidCharacter IS NULL
+        SET @ExpectedErrorObserved = 0;
 END TRY
 BEGIN CATCH
     SET @ExpectedErrorObserved = 1;
@@ -236,6 +238,8 @@ SET @ExpectedErrorObserved = 0;
 BEGIN TRY
     DECLARE @InvalidLength varbinary(max) =
         toolbelt_conversion.SVF_Base64Decode('A');
+    IF @InvalidLength IS NULL
+        SET @ExpectedErrorObserved = 0;
 END TRY
 BEGIN CATCH
     SET @ExpectedErrorObserved = 1;
@@ -249,6 +253,8 @@ SET @ExpectedErrorObserved = 0;
 BEGIN TRY
     DECLARE @InvalidPadding varbinary(max) =
         toolbelt_conversion.SVF_Base64Decode('qQ===A');
+    IF @InvalidPadding IS NULL
+        SET @ExpectedErrorObserved = 0;
 END TRY
 BEGIN CATCH
     SET @ExpectedErrorObserved = 1;
@@ -262,6 +268,8 @@ SET @ExpectedErrorObserved = 0;
 BEGIN TRY
     DECLARE @InvalidWhitespace varbinary(max) =
         toolbelt_conversion.SVF_Base64Decode('q' + CHAR(11) + 'Q==');
+    IF @InvalidWhitespace IS NULL
+        SET @ExpectedErrorObserved = 0;
 END TRY
 BEGIN CATCH
     SET @ExpectedErrorObserved = 1;
@@ -269,6 +277,24 @@ END CATCH;
 IF @ExpectedErrorObserved = 0
 BEGIN
     THROW 52310, N'Nicht freigegebener Whitespace wurde akzeptiert.', 1;
+END;
+
+SET @ExpectedErrorObserved = 0;
+BEGIN TRY
+    DECLARE @InvalidTvfResult varbinary(max);
+
+    SELECT @InvalidTvfResult = decoded.DecodedValue
+    FROM toolbelt_conversion.TVF_Base64Decode('qQ!!') AS decoded;
+
+    IF @InvalidTvfResult IS NULL
+        SET @ExpectedErrorObserved = 0;
+END TRY
+BEGIN CATCH
+    SET @ExpectedErrorObserved = 1;
+END CATCH;
+IF @ExpectedErrorObserved = 0
+BEGIN
+    THROW 52316, N'Der inline-TVF-Pfad akzeptierte ein ungültiges Zeichen.', 1;
 END;
 
 DECLARE @Sizes TABLE
