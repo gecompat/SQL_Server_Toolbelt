@@ -11,22 +11,6 @@ anschließend ausdrücklich zur sequenziellen Umsetzung freigegeben. Der Status
 Implementierung hat jedoch noch nicht begonnen. Beim tatsächlichen Start wird
 genau ein Paket auf `active` gesetzt.
 
-### AP-2026-012: Semantic-Version Parser und Comparator implementieren
-
-| Feld | Wert |
-|---|---|
-| ID | `AP-2026-012` |
-| Ziel | `TC-2026-030` als strikt SemVer-2.0.0-konformen Parser und Comparator implementieren. |
-| Scope | Core-Version, Pre-release, Build Metadata, Validierung, Präzedenzvergleich und sortierbare Ausgabe; keine allgemeinen Produktversionsformate. |
-| Dependencies | `AP-2026-011` nur als Reihenfolge; keine technische Modulabhängigkeit; besprochener und am 2026-07-30 freigegebener Vertrag. |
-| Priorität | `P1` |
-| Status | `ready for development` |
-| Akzeptanzkriterien | SemVer-2.0.0-Grammatik und Präzedenz vollständig; Build Metadata beeinflusst den Vergleich nicht; beliebig lange numerische Komponenten werden ohne verlustbehaftete Konvertierung verglichen; offizielle und synthetische Positiv-/Negativvektoren, Lifecycle und Dokumentation vollständig. |
-| Tests | Statisch und Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170; physische Releasematrix später gezielt. |
-| Blocker | Keine bekannten. |
-| Evidenz | Benutzerbesprechung und ausdrückliche Freigabe vom 2026-07-30; formaler Kandidat `TC-2026-030`; SemVer 2.0.0. |
-| Nächster Schritt | Nach `AP-2026-011` auf `active` setzen und implementieren. |
-
 ### AP-2026-013: Frei definierbare Zahlensysteme implementieren
 
 | Feld | Wert |
@@ -44,6 +28,25 @@ genau ein Paket auf `active` gesetzt.
 | Nächster Schritt | Nach `AP-2026-012` auf `active` setzen und implementieren. |
 
 ## Aktive Arbeitspakete
+
+### AP-2026-012: Semantic-Version Parser und Comparator implementieren
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-012` |
+| Ziel | `TC-2026-030` als strikt SemVer-2.0.0-konformen Parser, Comparator und Sort Key implementieren. |
+| Scope | `toolbelt.validation.semantic-version` Version `1.0.0`; ASCII `varchar(8000)`; Core, Pre-release, Build Metadata, Validierung, Präzedenzvergleich und binärer Sort Key; keine allgemeinen Produktversionsformate. |
+| Dependencies | Vollständige Vertragsbesprechung und Sammelfreigabe vom 2026-07-30; keine technische Modulabhängigkeit. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
+| Akzeptanzkriterien | SemVer-2.0.0-Grammatik und Präzedenz vollständig; Build Metadata beeinflusst Vergleich und Key nicht; beliebig lange numerische Komponenten ohne verlustbehaftete Konvertierung; offizielle und synthetische Vektoren, Lifecycle und Dokumentation vollständig. |
+| Tests | Statischer Vertrag und SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben `not executed`. |
+| Blocker | Keine bekannten. |
+| Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-030`; kanonische Artefakte unter `Modules/toolbelt.validation.semantic-version/`; erfolgreicher [Runtime-Lauf 30517137373](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30517137373). |
+| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung später gezielt ausführen. |
 
 ### AP-2026-011: Multi-Separator-Split Version 1 implementieren
 
