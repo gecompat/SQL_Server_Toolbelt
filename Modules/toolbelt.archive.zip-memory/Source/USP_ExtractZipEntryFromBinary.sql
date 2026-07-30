@@ -136,7 +136,7 @@ BEGIN
           , NULL )
         , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'LIMITATION', 1
           , NULL, NULL, NULL, NULL, NULL
-          , N'Version 1.0.0 unterstuetzt fuer Payload-Extraktion nur Compression Method 0 (Stored).' 
+          , N'Version 1.0.0 unterstuetzt fuer Payload-Extraktion nur Compression Method 0 (Stored).'
           , NULL )
         , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'EXAMPLE', 1
           , NULL, NULL, NULL, NULL, NULL
@@ -291,7 +291,7 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
         SET @Method =
             CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 10), 1)))
             + CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 11), 1))) * 256;
-        
+
         SET @CrcVal =
             CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 16), 1)))
           + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 17), 1))) * 256
@@ -320,7 +320,7 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
         SET @CommentLen =
             CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 32), 1)))
             + CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 33), 1))) * 256;
-        
+
         SET @LocalOffset =
             CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 42), 1)))
           + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @CursorPos + 43), 1))) * 256
@@ -444,7 +444,7 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
     SET @LocalMethod =
         CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 8), 1)))
         + CONVERT(int, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 9), 1))) * 256;
-    
+
     SET @LocalCrcVal =
         CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 14), 1)))
       + CONVERT(bigint, CONVERT(tinyint, SUBSTRING(@ZipArchive, CONVERT(int, @LocalHeaderPos + 15), 1))) * 256
@@ -511,7 +511,14 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
         );
     END;
 
-    DECLARE @Result TABLE
+    /*
+     * Der ResultTable-Vertrag kennt nur lokale Temp-Tabellen. Diese bleiben
+     * auch innerhalb von sp_executesql sichtbar; eine Table Variable dagegen
+     * kann nicht als inline definierter Tabellenparameter an sp_executesql
+     * uebergeben werden. Die interne Temp-Tabelle ist deshalb die gemeinsame
+     * Quelle fuer den normalen SELECT- und den dynamischen Insert-Pfad.
+     */
+    CREATE TABLE #tbx_ZipMemory_ResultSource
     (
           EntryName nvarchar(1024) NOT NULL
         , CompressedBytes bigint NOT NULL
@@ -522,7 +529,7 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
         , EntryPayload varbinary(max) NULL
     );
 
-    INSERT INTO @Result
+    INSERT INTO #tbx_ZipMemory_ResultSource
     (
           EntryName
         , CompressedBytes
@@ -553,7 +560,7 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
             , Crc32
             , IsEncrypted
             , EntryPayload
-        FROM @Result;
+        FROM #tbx_ZipMemory_ResultSource;
 
         RETURN 0;
     END;
@@ -597,20 +604,9 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
             , Crc32
             , IsEncrypted
             , EntryPayload
-        FROM @ResultSource;';
+        FROM #tbx_ZipMemory_ResultSource;';
 
-    EXEC sys.sp_executesql @InsertSql
-        , N'@ResultSource TABLE
-            (
-                  EntryName nvarchar(1024) NOT NULL
-                , CompressedBytes bigint NOT NULL
-                , UncompressedBytes bigint NOT NULL
-                , CompressionMethod int NOT NULL
-                , Crc32 int NULL
-                , IsEncrypted bit NOT NULL
-                , EntryPayload varbinary(max) NULL
-            )'
-        , @ResultSource = @Result;
+    EXEC sys.sp_executesql @InsertSql;
 
     RETURN 0;
 END;
