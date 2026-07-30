@@ -744,3 +744,339 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Prüfdatum** | 2026-07-30 |
 | **Nächster Schritt** | Nach Version 1 Separatorrepräsentation, längste-Treffer-Regel, Quote-/Escape-Modell, Fehlervertrag, maximale Eingabelänge und Providervergleich mit dem Benutzer besprechen. Keine Implementierungsfreigabe aus `TC-2026-001` ableiten. |
 
+## TC-2026-033: ZIP-Directory-Listing ohne Extraktion
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-033` |
+| **Herkunft** | `RI-2026-112` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | ZIP-Directory-Listing ohne Extraktion |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Archive / Metadata |
+| **SQL-Server-Lücke** | SQL Server besitzt keinen dokumentierten nativen Parser für das Central Directory eines ZIP-Archivs. `COMPRESS` und `DECOMPRESS` verwenden Gzip für Einzelwerte und stellen kein ZIP-Dateiverzeichnis bereit. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein; native Gzip-Wertkompression ist kein ZIP-Container. |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Archive können vor einer Extraktion inventarisiert und auf Eintragsnamen, Größen, Kompressionsmethode und auffällige Pfade geprüft werden. |
+| **Mögliche Technologie** | Providervergleich: In-memory-Parser für `varbinary(max)`, eng begrenztes SQL CLR oder externer Worker. Ein Dateipfad-Provider bleibt von der reinen Archivparser-Capability getrennt. |
+| **Performance und Security** | Central Directory, ZIP64, doppelte Namen, Pfadnormalisierung, verschachtelte Archive, Verschlüsselung, maximale Eintragszahl und Größenangaben sind untrusted input. Listing darf keine Extraktion oder Pfadfreigabe implizieren. |
+| **Plattformgrenzen** | Ein In-memory-Provider kann portabel sein; CLR- und Dateipfad-Provider benötigen eigene Windows-/Linux-Evidenz. |
+| **Dependencies** | Optional `TC-2026-037` für pfadbasierte Eingaben; keine File-I/O-Dependency für einen reinen `varbinary(max)`-Vertrag. |
+| **Duplikatprüfung** | Alle Toolbelt-Kandidaten und `RI-2026-112` geprüft. ZIP-Extraktion bleibt getrennt in `TC-2026-034`. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-112`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Eingabeform, unterstützte ZIP-Versionen, Metadaten-Resultset, Limits sowie Verhalten für beschädigte, verschlüsselte und mehrdeutige Archive mit dem Benutzer besprechen. |
+
+## TC-2026-034: ZIP-Archive kontrolliert extrahieren und erzeugen
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-034` |
+| **Herkunft** | `RI-2026-113` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | ZIP-Archive kontrolliert extrahieren und erzeugen |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Archive / External Resource |
+| **SQL-Server-Lücke** | SQL Server besitzt keinen nativen ZIP-Containervertrag zum Extrahieren einzelner Einträge in Binärwerte oder Dateien und zum Erzeugen vollständiger Archive. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein; `COMPRESS` und `DECOMPRESS` decken nur Gzip-komprimierte Werte ab. |
+| **Use-Case-Typ** | Realistisch, aber security- und ressourcenintensiv |
+| **Nutzen** | Einzelne Dateien, Streams oder vollständige Archive können über einen kontrollierten, auditierbaren Provider verarbeitet werden. |
+| **Mögliche Technologie** | Vorzugsweise externer Worker oder eng begrenzter .NET-Provider. In-memory- und Dateisystemoperationen werden als getrennte Oberflächen behandelt; beliebige Zielpfade sind kein zulässiger Default. |
+| **Performance und Security** | Zip Slip, Symlink-/Reparse-Point-Umgehung, Zip Bombs, hohe Kompressionsraten, CRC-Fehler, Verschlüsselung, Overwrite, Atomicity, Quotas und Cancellation benötigen harte Grenzen vor der ersten Extraktion. |
+| **Plattformgrenzen** | Externe und CLR-Provider sind je Plattform zu validieren. Pfad- und ACL-Semantik ist betriebssystemabhängig. |
+| **Dependencies** | `TC-2026-033` für Vorab-Listing; optional `TC-2026-037` für kontrollierte Datei-I/O. |
+| **Duplikatprüfung** | `TC-2026-033` listet nur Metadaten. Gzip und weitere Algorithmen stehen getrennt in `TC-2026-035` und `TC-2026-036`. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-113`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Version 1 auf eine klar begrenzte Eingabe-/Ausgabeform reduzieren und Pfad-Sandbox, Größenlimits, Verschlüsselung, Overwrite und Fehlerresultset festlegen. |
+
+## TC-2026-035: Gzip-Stream- und Datei-Adapter
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-035` |
+| **Herkunft** | `RI-2026-114` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | Gzip-Stream- und Datei-Adapter |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Compression / External Resource |
+| **SQL-Server-Lücke** | `COMPRESS` und `DECOMPRESS` unterstützen seit SQL Server 2016 Gzip für Werte, definieren aber keinen vollständigen Toolbelt-Vertrag für große Streams, Dateien, Offsetverarbeitung, Metadaten und kontrollierte External-Resource-I/O. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Teilweise bereits vorhanden: `COMPRESS` und `DECOMPRESS` für Gzip-komprimierte SQL-Werte. |
+| **Use-Case-Typ** | Realistisch, sofern ein nachweisbarer Stream- oder Datei-Use-Case über die nativen Funktionen hinaus besteht |
+| **Nutzen** | Große oder externe Gzip-Daten könnten mit expliziten Limits und Providersemantik verarbeitet werden, ohne die native In-memory-Funktion fälschlich als Archivframework darzustellen. |
+| **Mögliche Technologie** | Native Funktionen für passende In-memory-Werte bevorzugen. Einen zusätzlichen Streaming-/Dateiprovider nur nach Nutzen- und Benchmarknachweis vorsehen. |
+| **Performance und Security** | LOB-Materialisierung, maximale dekomprimierte Größe, Kompressionsbomben, fehlerhafte Header/Trailer, Checksummen, Streaming, Timeout und Speicherlimits sind Vertragsbestandteile. |
+| **Plattformgrenzen** | Native Wertfunktionen sind Engine-Funktionen. Jeder externe oder CLR-basierte Stream-/Dateiprovider benötigt eigene Windows-/Linux-Evidenz. |
+| **Dependencies** | Optional `TC-2026-037` für kontrollierte Datei-I/O. |
+| **Duplikatprüfung** | ZIP-Container stehen in `TC-2026-033`/`TC-2026-034`; weitere Algorithmen in `TC-2026-036`. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-114`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/compress-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/decompress-transact-sql?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Zuerst belegen, welcher reale Use Case von `COMPRESS`/`DECOMPRESS` nicht erfüllt wird; Kandidaten andernfalls als überflüssig ablehnen. |
+
+## TC-2026-036: Optionale Provider für weitere Kompressionsverfahren
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-036` |
+| **Herkunft** | `RI-2026-115` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | Optionale Provider für weitere Kompressionsverfahren |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Compression / Provider |
+| **SQL-Server-Lücke** | SQL Server stellt keinen allgemeinen Providervertrag für Deflate-, Brotli-, Zstandard-, bzip2-, 7z- oder weitere Kompressionsformate bereit. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein als allgemeiner Vertrag; Gzip-Wertkompression ist separat vorhanden. |
+| **Use-Case-Typ** | Realistisch, aber nur pro nachgewiesenem Formatbedarf |
+| **Nutzen** | Benötigte Formate können hinter einem versionierten Capability-Vertrag verarbeitet werden, ohne Algorithmen, Container und Dateisystemzugriff zu vermischen. |
+| **Mögliche Technologie** | Pro Format ein expliziter optionaler Provider. Standardbibliotheken bevorzugen; Drittanbieterkomponenten nur nach Lizenz-, Supply-Chain-, Wartungs- und Plattformprüfung. |
+| **Performance und Security** | Algorithmus-/Containerverwechslung, Bomben, unbounded Output, native Bibliotheken, CVEs, Lizenzierung, Versionierung, Checksummen und Streaming müssen je Provider getrennt bewertet werden. |
+| **Plattformgrenzen** | Jeder Provider besitzt eine eigene Windows-/Linux- und Runtime-Matrix; keine Portabilitätsannahme aus einem anderen Algorithmus ableiten. |
+| **Dependencies** | Providerfähiges Modulmodell; optional `TC-2026-037` für Dateizugriff. Keine pauschale Dependency auf ZIP. |
+| **Duplikatprüfung** | Gzip steht in `TC-2026-035`; ZIP-Container stehen in `TC-2026-033`/`TC-2026-034`. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-115`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md) |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Konkrete benötigte Formate und Use Cases priorisieren; erst danach je Format Bibliothek, Lizenz, Provider, Limits und Testvektoren festlegen. |
+
+## TC-2026-037: Kontrolliertes Lesen und Schreiben von Text- und Binärdateien
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-037` |
+| **Herkunft** | `RI-2026-107` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | Kontrolliertes Lesen und Schreiben von Text- und Binärdateien |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | External Resource / File |
+| **SQL-Server-Lücke** | `BULK INSERT` und `OPENROWSET(BULK...)` unterstützen Imports, bilden aber keinen allgemeinen sicheren Read-/Write-Vertrag für Binary/Text, Encoding, BOM, Offset, Atomicity und Ergebnisstatus. Bulk-Export ist regelmäßig ein externer Prozess. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Teilweise für Import; kein vollständiger symmetrischer Datei-I/O-Vertrag. |
+| **Use-Case-Typ** | Realistisch, aber hoch privilegiert |
+| **Nutzen** | Freigegebene Dateipfade können mit typisierten Operationen, kontrolliertem Encoding und nachvollziehbaren Limits verarbeitet werden. |
+| **Mögliche Technologie** | Bevorzugt externer Worker mit Root-Allowlist und typisierten Work Types. `OPENROWSET(BULK...)` kann ein begrenzter Read-Provider sein; SQL CLR mit `EXTERNAL_ACCESS` ist kein portabler Default. |
+| **Performance und Security** | Path Traversal, Symlinks/Reparse Points, ACLs, Service-Identität, TOCTOU, Overwrite, Atomic Replace, Encoding/BOM, maximale Größe, Partial Reads/Writes, Secrets und Audit sind Pflichtbestandteile. |
+| **Plattformgrenzen** | Pfad-, ACL-, Encoding- und Dateisperrsemantik ist Windows-/Linux-spezifisch. `EXTERNAL_ACCESS`/`UNSAFE` ist unter SQL Server Linux nicht unterstützt. |
+| **Dependencies** | Sicherer Work-Type-Katalog `TC-2026-022`, Error Envelope `TC-2026-017`, optional Execution Correlation `TC-2026-019`. |
+| **Duplikatprüfung** | Directory Listing steht in `TC-2026-038`; Archive und Office-Formate erhalten eigene Verträge. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-107`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/relational-databases/import-export/import-bulk-data-by-using-bulk-insert-or-openrowset-bulk-sql-server?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/security/clr-integration-code-access-security?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Erlaubte Read-/Write-Operationen, Root-Allowlist, Identität, Encodingmodell, Größenlimits, Atomicity, Overwrite und Provider getrennt mit dem Benutzer festlegen. |
+
+## TC-2026-038: Kontrolliertes Directory Listing
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-038` |
+| **Herkunft** | `RI-2026-108` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | Kontrolliertes Directory Listing |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | External Resource / File |
+| **SQL-Server-Lücke** | SQL Server besitzt keine dokumentierte allgemeine tabellarische API für ein portables Directory Listing mit klarer Pfad-, Symlink-, Rechte- und Fehlersemantik. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein als dokumentierter portabler Vertrag. |
+| **Use-Case-Typ** | Realistisch, aber hoch privilegiert |
+| **Nutzen** | Freigegebene Verzeichnisse können flach oder rekursiv mit definierten Metadaten und Limits inventarisiert werden. |
+| **Mögliche Technologie** | Externer Worker oder eng begrenzter Provider mit Root-Allowlist. Undokumentierte Extended Procedures werden nicht zur Vertragsgrundlage. |
+| **Performance und Security** | Path Traversal, Symlinks/Reparse Points, Mounts, versteckte Dateien, TOCTOU, Race Conditions, sehr große Verzeichnisse, Berechtigungsfehler, Sortierung und Resultset-Limits sind zu definieren. |
+| **Plattformgrenzen** | Pfadsyntax, Case-Semantik, Zeitstempel, Dateiattribute und Linkverhalten unterscheiden sich zwischen Windows und Linux. |
+| **Dependencies** | Sicherer Work-Type-Katalog `TC-2026-022`; gemeinsame Pfad-Sandbox mit `TC-2026-037` nur bei identischer Semantik. |
+| **Duplikatprüfung** | `TC-2026-037` liest oder schreibt Dateiinhalte; dieser Kandidat listet ausschließlich Verzeichnismetadaten. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-108`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/security/clr-integration-code-access-security?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Flach versus rekursiv, Metadatenspalten, Root-Allowlist, Linkverhalten, Sortierung, Limits, Paging und Provider besprechen. |
+
+## TC-2026-039: Deterministischer Hash-Lookup für synthetische Ersatzwerte
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-039` |
+| **Herkunft** | `RI-2026-125` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | Deterministischer Hash-Lookup für synthetische Ersatzwerte |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Pseudonymization / Test Data |
+| **SQL-Server-Lücke** | `HASHBYTES` erzeugt Hashwerte, bietet aber keinen versionierten Vertrag, der einen kanonisierten Schlüssel stabil einer freigegebenen synthetischen Lookup-Zeile zuordnet und referenzielle Konsistenz erhält. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein; `HASHBYTES` ist nur ein Primitive. |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Gleiche Eingangsschlüssel können reproduzierbar denselben synthetischen Ersatzwert erhalten, ohne Originalwerte in der Lookup-Tabelle zu speichern. |
+| **Mögliche Technologie** | Portables T-SQL ist möglich. Kanonisierung, Hashalgorithmus, Lookup-Reihenfolge, Mappingversion und Umgang mit Änderungen der Lookup-Menge müssen explizit sein. |
+| **Performance und Security** | Unkeyed Hashes schützen kleine Eingangsräume nicht vor Dictionary-Angriffen. Modulo-Bias, Kollisionen, Lookup-Drift, Eindeutigkeit, NULL, Case-/Accent-Semantik und Re-Identifikationsrisiko sind zu behandeln. |
+| **Plattformgrenzen** | T-SQL-Kern voraussichtlich plattformgleich; Collation- und Encodingvertrag darf nicht implizit von der Installation abhängen. |
+| **Dependencies** | Freigegebene synthetische Lookup-Daten und ein versionierter Mappingvertrag; Secret-/Key-Governance, falls ein keyed Verfahren gewählt wird. |
+| **Duplikatprüfung** | Von `TC-2026-040` bis `TC-2026-043` getrennt; dieser Kandidat wählt Lookup-Zeilen statt numerische, textuelle, zeitliche oder geografische Transformationen. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-125`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/hashbytes-transact-sql?view=sql-server-ver17<br>https://github.com/data-privacy-stack/presidio |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Kanonisierung, Hash-/Key-Vertrag, stabile Lookup-Ordnung, Lookup-Versionierung, Verteilungsanforderung und Umgang mit Lookup-Änderungen besprechen. |
+
+## TC-2026-040: Deterministischer Random-Range-Provider
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-040` |
+| **Herkunft** | `RI-2026-127` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | Deterministischer Random-Range-Provider |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Pseudonymization / Test Data |
+| **SQL-Server-Lücke** | `CRYPT_GEN_RANDOM` liefert Zufallsbytes, aber keinen reproduzierbaren, schlüsselabhängigen Range-Vertrag für Testdaten und Masking. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein als deterministischer Range-Vertrag. |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Ein Schlüssel, Seed und Wertebereich können reproduzierbare synthetische Werte erzeugen, ohne pro Aufruf persistenten Zustand zu benötigen. |
+| **Mögliche Technologie** | T-SQL-Kern auf kanonischem Hash möglich; kryptografisch sicherer PRF- oder externer Provider nur bei entsprechendem Schutzbedarf. |
+| **Performance und Security** | Modulo-Bias, negative Bereiche, inklusive/exklusive Grenzen, Overflow, Verteilung, Kollisionen, Seed-/Key-Lifecycle und Vorhersagbarkeit sind Teil des Vertrags. Nicht als Anonymisierungsgarantie darstellen. |
+| **Plattformgrenzen** | Portabler T-SQL-Kern möglich; Collation-/Encodingabhängigkeit der Schlüsselkanonisierung vermeiden. |
+| **Dependencies** | Gemeinsame kanonische Hash-/Key-Semantik mit `TC-2026-039` nur nach Vertragsabgleich. |
+| **Duplikatprüfung** | `TC-2026-039` wählt Lookup-Zeilen; `TC-2026-042` verschiebt Datumswerte; `TC-2026-043` arbeitet mit Geokoordinaten. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-127`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/crypt-gen-random-transact-sql?view=sql-server-ver17<br>https://faker.readthedocs.io/ |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Determinismus, Wertebereich, Verteilung, Seed-/Key-Modell, Datentypen, Fehler und kryptografischen Anspruch mit dem Benutzer festlegen. |
+
+## TC-2026-041: Gesalzene deterministische Zeichentranslation mit Case-Regeln
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-041` |
+| **Herkunft** | `RI-2026-126` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | Gesalzene deterministische Zeichentranslation mit Case-Regeln |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Pseudonymization / String |
+| **SQL-Server-Lücke** | SQL Server besitzt kein allgemeines versioniertes Verfahren, das Text deterministisch anhand eines Salt-/Key-Kontexts transformiert und dabei explizite Zeichensatz-, Längen-, Case- und Formatregeln einhält. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein; `TRANSLATE` definiert nur eine statische Zeichenabbildung. |
+| **Use-Case-Typ** | Realistisch, aber datenschutzkritisch |
+| **Nutzen** | Pseudonyme Textwerte können reproduzierbar und formatbewusst erzeugt werden, wenn referenzielle Konsistenz benötigt wird. |
+| **Mögliche Technologie** | Offen: T-SQL-Transformation für begrenzte Alphabete oder geprüfter externer Provider. Salt, geheimer Key und Mappingversion dürfen nicht begrifflich vermischt werden. |
+| **Performance und Security** | Ein Salt ist kein Secret. Reversible Substitution, kleine Alphabete, Häufigkeitsanalyse, Unicode-Grapheme, Case-/Accent-Semantik, Kollisionen, Formatlecks und Key-Rotation beeinflussen die Re-Identifizierbarkeit. |
+| **Plattformgrenzen** | T-SQL kann portabel sein; Unicode-, Collation- und Normalisierungssemantik muss installationsunabhängig festgelegt werden. |
+| **Dependencies** | Secret-/Key-Governance; optional gemeinsame deterministische Primitive mit `TC-2026-039`/`TC-2026-040`. |
+| **Duplikatprüfung** | Kein Ersatz für Hash-Lookup, Date Shifting oder Geo-Jittering. Dynamic Data Masking verändert gespeicherte Werte nicht. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-126`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/relational-databases/security/dynamic-data-masking?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Gewünschte Reversibilität, Alphabete, Unicode-/Case-Regeln, Format­erhalt, Key-/Salt-Modell, Rotation und Validierungsnachweis besprechen. |
+
+## TC-2026-042: Deterministisches Date Shifting
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-042` |
+| **Herkunft** | `RI-2026-128` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | Deterministisches Date Shifting |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Pseudonymization / Datetime |
+| **SQL-Server-Lücke** | SQL Server besitzt keinen wiederverwendbaren Vertrag, der Datums-/Zeitwerte pro Entität stabil innerhalb eines definierten Bereichs verschiebt und optional zeitliche Abstände erhält. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein; `DATEADD` ist nur ein Rechenprimitive. |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Zeitbezogene Test- oder pseudonymisierte Daten können reproduzierbar verschoben werden, ohne die ursprüngliche Zeitachse vollständig offenzulegen. |
+| **Mögliche Technologie** | T-SQL auf Basis eines deterministischen Offset-Providers; Mappinggranularität pro Entität, Gruppe oder Zeile explizit festlegen. |
+| **Performance und Security** | Datentypgrenzen, Overflow, Schaltjahre, Monatsende, Zeitzonen/DST, Genauigkeit, NULL, Reihenfolge, Intervallerhalt und Re-Identifikation durch bekannte Ereignisse sind zu prüfen. |
+| **Plattformgrenzen** | T-SQL-Kern plattformgleich; Zeitzonenprovider und Referenzdaten gegebenenfalls getrennt versionieren. |
+| **Dependencies** | Deterministischer Range-Provider `TC-2026-040` oder ein gleichwertiges kanonisches Offset-Primitive. |
+| **Duplikatprüfung** | Kein allgemeiner Datetime-Utility-Vertrag und kein Geo-Jittering; fachlicher Zweck ist Pseudonymisierung/Testdatenerzeugung. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-128`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/dateadd-transact-sql?view=sql-server-ver17<br>https://github.com/data-privacy-stack/presidio |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Offsetgranularität, Bereich, Determinismus, Intervallerhalt, Datentypen, Zeitzonen, Overflow und Datenschutzwirkung besprechen. |
+
+## TC-2026-043: Geografisches Jittering für synthetische oder pseudonymisierte Daten
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-043` |
+| **Herkunft** | `RI-2026-103` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | Geografisches Jittering für synthetische oder pseudonymisierte Daten |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Pseudonymization / Spatial |
+| **SQL-Server-Lücke** | SQL Server besitzt räumliche Typen und Methoden, aber keinen Datenschutzvertrag, der Koordinaten deterministisch oder zufällig innerhalb einer definierten Distanz verschiebt und die verbleibende Re-Identifizierbarkeit bewertet. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein als Pseudonymisierungsvertrag. |
+| **Use-Case-Typ** | Realistisch, aber datenschutzkritisch |
+| **Nutzen** | Synthetische oder freigegebene Geodaten können räumlich verfremdet werden, während eine definierte grobe Lagebeziehung erhalten bleibt. |
+| **Mögliche Technologie** | T-SQL-Spatial oder externer Geoprovider; planar und geodätisch, deterministisch und zufällig sowie Clipping/zulässige Gebiete getrennt behandeln. |
+| **Performance und Security** | Distanzverteilung, Pole/Datumsgrenze, SRID, ungültige Geometrien, Land-/Gebietsgrenzen, Dichte, bekannte Orte, wiederholte Beobachtungen und Kombination mit anderen Attributen beeinflussen Re-Identifikation. |
+| **Plattformgrenzen** | SQL-Spatial-Kern voraussichtlich plattformgleich; externe Geodaten und Bibliotheken benötigen eigene Lizenz- und Plattformprüfung. |
+| **Dependencies** | Optional `TC-2026-040` für deterministische Zufallsparameter; zulässige Gebiete oder Referenzdaten benötigen versionierten Lifecycle. |
+| **Duplikatprüfung** | Kein allgemeines Spatial-Analysemodul; Fokus liegt ausschließlich auf synthetischer beziehungsweise pseudonymisierender Transformation. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-103`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/spatial-geography/spatial-types-geography?view=sql-server-ver17<br>https://github.com/data-privacy-stack/presidio |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Geometrietyp, SRID, Distanzmodell, Verteilung, Determinismus, zulässige Gebiete und akzeptierte Datenschutzwirkung mit dem Benutzer festlegen. |
+
+## TC-2026-044: Framework zum kontrollierten Klonen von Tabellenobjekten
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-044` |
+| **Herkunft** | `RI-2026-001`, `RI-2026-013` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | Framework zum kontrollierten Klonen von Tabellenobjekten |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Metadata / DDL |
+| **SQL-Server-Lücke** | `SELECT...INTO` kopiert Daten und ausgewählte Spalteneigenschaften, aber keine vollständige Tabelle mit Indizes, Check-/Foreign-Key-/Default-Constraints, Triggern und allen Spezialmerkmalen. Ein sicherer allgemeiner Clone-Vertrag fehlt. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein als vollständiger, versionierter Clone-Vertrag; SMO/DacFx bieten externe Scripting-Bausteine. |
+| **Use-Case-Typ** | Realistisch, aber mit breiter DDL- und Dependency-Fläche |
+| **Nutzen** | Tabellenstrukturen könnten reproduzierbar mit ausgewählten abhängigen Objekten, eindeutiger Namensbildung und optionaler Identity-/Datenbehandlung geklont werden. |
+| **Mögliche Technologie** | Hauptoption: kontrollierte Skripterzeugung über SMO/DacFx oder einen eng begrenzten Metadatenkern. Version 1 sollte Script erzeugen und prüfen; automatische Ausführung ist eine getrennte Mutation. |
+| **Performance und Security** | Abhängigkeitsgraph, Schema-/Objektberechtigungen, Namenskollisionen, maximale Identifierlänge, Datenkopie, Identity, FK-Reihenfolge, Trigger, Partitionierung, Temporal, Memory-optimized, Ledger, Verschlüsselung, Extended Properties, Rollback und Drift sind explizit zu begrenzen. |
+| **Plattformgrenzen** | T-SQL-Metadaten sind weitgehend plattformgleich; SMO/DacFx-Provider und Spezialfeatures benötigen versions- und plattformspezifische Evidenz. |
+| **Dependencies** | Identifier-Toolkit `TC-2026-029`; Namensgenerator aus `RI-2026-013`; DDL-/Deployment- und Recovery-Vertrag vor jeder automatischen Mutation. |
+| **Duplikatprüfung** | Kein Duplikat zu ResultTable-Routing. `TC-2026-029` validiert Namen, klont aber keine Objekte. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-001`/`RI-2026-013`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/queries/select-into-clause-transact-sql?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Unterstützte Tabellentypen und abhängige Objekte, Script-only versus Execute, Daten/Identity, Namensregeln, Dependency-Reihenfolge und Recovery mit dem Benutzer festlegen. |
+
+## TC-2026-045: XLSX-Dateien direkt lesen
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-045` |
+| **Herkunft** | `RI-2026-116` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | XLSX-Dateien direkt lesen |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Office / Import |
+| **SQL-Server-Lücke** | SQL Server besitzt keinen nativen XLSX-Parser. XLSX ist ein ZIP-basierter Open-XML-Container; korrektes Lesen erfordert mehr als das Entpacken einzelner XML-Dateien. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein. |
+| **Use-Case-Typ** | Realistisch, aber format- und ressourcenintensiv |
+| **Nutzen** | Freigegebene Workbooks könnten ohne installierte Excel-Anwendung in tabellarische, typisierte Resultsets überführt werden. |
+| **Mögliche Technologie** | Bevorzugt externer Worker oder Open XML SDK. Ein direkter ZIP/XML-Provider ist nur sinnvoll, wenn Shared Strings, Styles, Zelltypen, Formeln, Datumsmodi und Streaming vollständig kontrolliert werden. |
+| **Performance und Security** | ZIP-/XML-Bomben, externe Beziehungen, Formeln versus cached values, sehr große Shared-String-Tabellen, Styles, 1900/1904-Datumsmodus, Merge Cells, Hidden Sheets, Limits und untrusted input sind zu behandeln. Keine Makroausführung. |
+| **Plattformgrenzen** | Open XML SDK ist grundsätzlich plattformfähig; Provider, Dateizugriff und Runtimeversion benötigen eigene Windows-/Linux-Evidenz. |
+| **Dependencies** | Optional `TC-2026-033`/`TC-2026-034` für einen internen Containerprovider und `TC-2026-037` für pfadbasierte Eingaben; keine erzwungene Dependency bei SDK-/Worker-Provider. |
+| **Duplikatprüfung** | CSV/Delimited Parsing und ein XLSX Writer sind getrennte Capabilities. Dieser Kandidat liest ausschließlich XLSX. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-116`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/openspecs/office_standards/ms-xlsx/2c5dee00-eff2-4b22-92b6-0738acd4475e<br>https://learn.microsoft.com/en-us/office/open-xml/open-xml-sdk |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Ersten Scope auf Sheets, Zelltypen und Resultsetform reduzieren; Formeln, Styles, Datumsmodi, Shared Strings, Streaming, Dateizugriff und Fehlerresultset besprechen. |
+
+## TC-2026-046: Provider-Abstraktion für kontrollierte zweite SQL-Sessions
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-046` |
+| **Herkunft** | `RI-2026-139` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | Provider-Abstraktion für kontrollierte zweite SQL-Sessions |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Core / Execution Provider |
+| **SQL-Server-Lücke** | SQL Server besitzt keinen allgemeinen Toolbelt-Vertrag, der eine zweite Session über austauschbare Provider öffnet, typisierte Arbeit ausführt und Ergebnis, Fehler, Timeout und Abbruch einheitlich zurückliefert. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein als einheitlicher Providervertrag. |
+| **Use-Case-Typ** | Realistisch als Infrastruktur für Logging, Parallelisierung und Orchestrierung |
+| **Nutzen** | SQL CLR, SQL Server Agent, Service Broker oder externe Runner könnten hinter einem Capability-Vertrag gewählt werden, ohne providerspezifische Details in jede Fachfunktion zu kopieren. |
+| **Mögliche Technologie** | Providervergleich anhand konkreter Semantik. `tSQLt.NewConnection` ist Prior Art für eine synchrone zweite CLR-Verbindung; Agent, Broker und externe Runner besitzen andere Transaktions-, Haltbarkeits- und Ergebnisverträge. |
+| **Performance und Security** | Security Context, Credentials, Ambient Transaction, Locks/Selbstblockierung, SET-Optionen, lokale Temp-Tabellen, Session Context, Resultset-Serialisierung, Timeout, Cancellation, Ressourcenlimits und Fehlerisolation sind providerabhängig. |
+| **Plattformgrenzen** | CLR-, Agent-, Broker- und externe Provider werden getrennt nach Windows/Linux, Edition, Installation und Betriebsfreigabe ausgewiesen. |
+| **Dependencies** | Execution Correlation `TC-2026-019`, Error Envelope `TC-2026-017`, Work-Type-Katalog `TC-2026-022`; fachliche Nutzer wie `TC-2026-014`/`TC-2026-015` bleiben getrennt. |
+| **Duplikatprüfung** | `TC-2026-014` definiert rollback-unabhängiges Logging und `TC-2026-015` eine Work Queue. Dieser Kandidat beschreibt ausschließlich die austauschbare Session-Erzeugungs-/Ausführungsschicht. |
+| **Status** | `researched` |
+| **Primärquellen** | [Research-Inbox `RI-2026-139`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://tsqlt.org/125/tsqlt-build-9-release-notes/<br>https://github.com/tSQLt-org/tSQLt/blob/4a921d0dacfb1d66b3db124c58158c80e5e910e6/tSQLtCLR/tSQLtCLR/CommandExecutor.cs |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Zuerst synchrone versus asynchrone Semantik, zulässige Provider, Work-Type-Grenze, Security Context, Transaktion, Resultsets, Timeout und Abbruch mit dem Benutzer festlegen. |
+
