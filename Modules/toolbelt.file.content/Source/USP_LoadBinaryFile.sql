@@ -209,7 +209,9 @@ BEGIN
     END;
 
     -- Pfad muss absolut sein: lokaler Buchstabe oder UNC.
-    IF @NormalizedPath NOT LIKE N'[A-Za-z]:/%' AND @NormalizedPath NOT LIKE N'//%'
+    IF @NormalizedPath NOT LIKE N'[A-Za-z]:/%'
+       AND @NormalizedPath NOT LIKE N'//%'
+       AND @NormalizedPath NOT LIKE N'/%'
     BEGIN
         SELECT
               CAST(NULL AS varbinary(max)) AS Content
