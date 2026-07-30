@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**13 Module sind implementiert; ihr Validierungsstand wird getrennt aus den Manifesten abgeleitet.**
+**14 Module sind implementiert und `partially validated`; ihr Einzelstatus wird aus den Manifesten abgeleitet.**
 
 ## Implementierte Module
 
@@ -20,6 +20,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 | `toolbelt.datetime.bucket` | Date/Time Bucket Compatibility | `1.0.0` | `toolbelt_datetime` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.datetime.calendar-difference` | Calendar Difference | `1.0.0` | `toolbelt_datetime` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.datetime.truncate` | Date/Time Truncation Compatibility | `1.0.0` | `toolbelt_datetime` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.json.path-exists` | JSON Path Exists | `1.0.0` | `toolbelt_json` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.identifier` | Identifier and Multipart Name Toolkit | `1.0.0` | `toolbelt_metadata` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.directional-trim` | Directional TRIM Compatibility | `1.0.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.split-characters` | Literal Multi-Separator Split | `1.0.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |

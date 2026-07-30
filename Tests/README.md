@@ -4,12 +4,12 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. 13 Module sind implementiert;
+Der Repository-Grundaufbau ist abgeschlossen. 14 Module sind implementiert;
 für alle existieren statische sowie synthetische Runtime- und
 Lifecycle-Contract-Testartefakte.
 
 Die ResultTable-Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 mit
-der vollständigen Suite für SQL Server 2019, 2022 und 2025 erfolgreich. Der
+der vollständigen Suite für SQL Server 2019, 2022 und 2025 erfolgreich.
 Die Base64- und Generate-Series-Runtime-Workflows für SQL Server 2025 und
 Compatibility Levels 150, 160 und 170 waren erfolgreich. Für das
 Identifier-Modul ist SQL Server 2025 Linux mit denselben Compatibility Levels
@@ -19,6 +19,9 @@ erfolgreich. Die drei W2a-Module sind dort einschließlich
 Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
 erfolgreich. Physische SQL-Server-2019-/2022-, Windows- und weitere
 modulspezifische Matrixfälle bleiben offen.
+`toolbelt.json.path-exists` ist dort einschließlich nativer Parität,
+Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
+erfolgreich.
 
 ## Pflicht-Testarten je Modul
 
@@ -53,6 +56,7 @@ modulspezifische Matrixfälle bleiben offen.
 | `toolbelt.datetime.truncate` | [DATETIME_TRUNCATE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.truncate/Tests/DATETIME_TRUNCATE_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.datetime.bucket` | [DATETIME_BUCKET_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.bucket/Tests/DATETIME_BUCKET_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.binary.bit-operations` | [BIT_OPERATIONS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.binary.bit-operations/Tests/BIT_OPERATIONS_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
+| `toolbelt.json.path-exists` | [JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.json.path-exists/Tests/JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 
 Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 

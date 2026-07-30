@@ -8,6 +8,13 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
+- W2b-A mit `toolbelt.json.path-exists`: fehlerfreie SQL/JSON-Pfadprüfung
+  für SQL Server 2019+ mit Root-, Property-, Array-Index-, Quote- und
+  Wildcard-Semantik, gekoppelte Lifecycle-, Central-, Contract-,
+  Dokumentations- und Runtime-Artefakte. SQL Server 2025 Linux ist mit
+  Compatibility Levels 150, 160 und 170 einschließlich nativer Parität,
+  Wiederholungsdeployment, Lifecycle, Central und Uninstall erfolgreich;
+  Konstruktoren und JSON-Aggregate bleiben getrennt zurückgestellt.
 - W2a mit typgetrennten Date/Time-Truncation- und Bucket-Inline-TVFs sowie
   Bigint-Shift-, Bit-Count-, Get-Bit- und Set-Bit-Funktionen. Die drei Module
   besitzen gekoppelte Lifecycle-, Central-, Contract-, Dokumentations- und
@@ -155,7 +162,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-13 Module sind implementiert und `partially validated`. ResultTable ist unter
+14 Module sind implementiert und `partially validated`. ResultTable ist unter
 Linux auf SQL Server 2019, 2022 und 2025 erfolgreich; die übrigen Module sind
 auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Windows und die jeweils offenen Releasefälle bleiben
