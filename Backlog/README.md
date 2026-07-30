@@ -5,6 +5,7 @@ Dieses Verzeichnis enthält drei kanonische Kandidatenlisten, eine deduplizierte
 | Datei | Inhalt |
 |---|---|
 | [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md) | formal beschriebene wiederverwendbare Toolbelt-Funktionen |
+| [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md](./TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md) | kandidatenübergreifender Objekt-, Dependency-, Test- und Wellenplan ohne automatische Implementierungsfreigabe |
 | [TOOLBELT_RESEARCH_INBOX.md](./TOOLBELT_RESEARCH_INBOX.md) | breit recherchierte, deduplizierte und noch nicht priorisierte Toolbelt-Ideen mit Quellen |
 | [TOOLBELT_RESEARCH_PRIORITIES.md](./TOOLBELT_RESEARCH_PRIORITIES.md) | grobe, veränderbare Fokusgruppen nach Nutzen, Hebel, Abhängigkeiten und Komplexität |
 | [SQL_SERVER_ANALYZE_CANDIDATES.md](./SQL_SERVER_ANALYZE_CANDIDATES.md) | geprüfte Ideen für `gecompat/SQL_Server_Analyze` |
