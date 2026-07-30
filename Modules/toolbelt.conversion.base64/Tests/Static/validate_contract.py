@@ -83,7 +83,8 @@ def main() -> int:
         "PaddingCount",
         "LengthRemainder",
         "toolbelt.invalid.base64",
-        "CONVERT(int, CanonicalValue)",
+        'string(sql:variable("@Value"))',
+        "InvalidFormat",
     ):
         if marker not in decode_tvf:
             raise ContractError(f"Decode-Strukturvalidierung fehlt: {marker}")

@@ -60,6 +60,12 @@ fehlendes Padding. Die explizite Strukturprüfung ist erforderlich, weil der
 XML-Provider bestimmte ungültige Zeichen permissiver als die native
 SQL-Server-2025-Funktion behandelt.
 
+Der Decode-Kern führt Alphabetabbildung, Whitespace-Entfernung und
+Paddingergänzung in einem XQuery-Ausdruck über `sql:variable` aus. Dadurch
+muss der kanonische LOB nicht als relationale `sql:column`-Zwischenstufe
+materialisiert werden; die binäre SQL-seitige Formatprüfung bleibt davon
+unverändert.
+
 SQL CLR bleibt eine mögliche spätere Provideralternative, wird aber erst bei
 einem reproduzierbaren Performancevorteil und nach eigener Security-,
 Deployment- und Plattformentscheidung aufgenommen.

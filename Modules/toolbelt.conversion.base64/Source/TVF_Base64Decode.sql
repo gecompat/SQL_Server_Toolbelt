@@ -87,60 +87,49 @@ RETURN
                   END
         FROM Shape
     ),
-    Canonical AS
+    FormatCheck AS
     (
-        SELECT CanonicalValue =
-            CONVERT
-            (
-                  varchar(max)
-                , CASE
-                      WHEN @Value IS NULL
-                          THEN ''
-                      WHEN HasInvalidCharacter = 1
-                        OR
+        SELECT
+              NormalizedValue
+            , InvalidFormat =
+              CASE
+                  WHEN @Value IS NULL
+                      THEN 0
+                  WHEN HasInvalidCharacter = 1
+                    OR
+                    (
+                        FirstPadding IS NOT NULL
+                        AND
                         (
-                            FirstPadding IS NOT NULL
-                            AND
-                            (
-                                PaddingCount NOT IN (1, 2)
-                                OR REPLACE
+                            PaddingCount NOT IN (1, 2)
+                            OR REPLACE
+                               (
+                                   SUBSTRING
                                    (
-                                       SUBSTRING
-                                       (
-                                             NormalizedValue
-                                           , FirstPadding
-                                           , PaddingCount
-                                       )
-                                     , '='
-                                     , ''
-                                   ) <> ''
-                                OR ValueLength % 4 <> 0
-                                OR
-                                   (
-                                       PaddingCount = 1
-                                       AND (FirstPadding - 1) % 4 <> 3
+                                         NormalizedValue
+                                       , FirstPadding
+                                       , PaddingCount
                                    )
-                                OR
-                                   (
-                                       PaddingCount = 2
-                                       AND (FirstPadding - 1) % 4 <> 2
-                                   )
-                            )
+                                 , '='
+                                 , ''
+                               ) <> ''
+                            OR ValueLength % 4 <> 0
+                            OR
+                               (
+                                   PaddingCount = 1
+                                   AND (FirstPadding - 1) % 4 <> 3
+                               )
+                            OR
+                               (
+                                   PaddingCount = 2
+                                   AND (FirstPadding - 1) % 4 <> 2
+                               )
                         )
-                        OR (FirstPadding IS NULL AND LengthRemainder = 1)
-                          /*
-                           * Der Sentinel erzwingt für fachlich ungültige
-                           * Eingaben einen unveränderten XML-Enginefehler,
-                           * ohne den Eingabewert offenzulegen.
-                           */
-                          THEN 'toolbelt.invalid.base64'
-                      WHEN FirstPadding IS NULL AND LengthRemainder = 2
-                          THEN NormalizedValue + '=='
-                      WHEN FirstPadding IS NULL AND LengthRemainder = 3
-                          THEN NormalizedValue + '='
-                      ELSE NormalizedValue
-                  END
-            )
+                    )
+                    OR (FirstPadding IS NULL AND LengthRemainder = 1)
+                      THEN 1
+                  ELSE 0
+              END
         FROM Validation
     )
     SELECT DecodedValue =
@@ -150,8 +139,7 @@ RETURN
             , CASE
                   WHEN @Value IS NULL
                       THEN NULL
-                  WHEN CanonicalValue COLLATE Latin1_General_100_BIN2
-                           = 'toolbelt.invalid.base64'
+                  WHEN InvalidFormat = 1
                       /*
                        * Derselbe feste, eingabewertfreie Fehlerpfad wie in
                        * der bisherigen SVF: varchar -> int muss scheitern.
@@ -159,15 +147,52 @@ RETURN
                       THEN CONVERT
                            (
                                  varbinary(max)
-                               , CONVERT(int, CanonicalValue)
+                               , CONVERT
+                                 (
+                                       int
+                                     , LEFT
+                                       (
+                                           'toolbelt.invalid.base64'
+                                           + ISNULL(NormalizedValue, '')
+                                         , 23
+                                       )
+                                 )
                            )
                   ELSE CAST(N'' AS xml).value
                        (
-                           N'xs:base64Binary(sql:column("Canonical.CanonicalValue"))'
+                           N'xs:base64Binary
+                           (
+                               concat
+                               (
+                                   translate
+                                   (
+                                       string(sql:variable("@Value")),
+                                       "-_ &#x9;&#xD;&#xA;",
+                                       "+/"
+                                   ),
+                                   substring
+                                   (
+                                       "==",
+                                       1,
+                                       (
+                                           4
+                                           - string-length
+                                             (
+                                                 translate
+                                                 (
+                                                     string(sql:variable("@Value")),
+                                                     "-_ &#x9;&#xD;&#xA;",
+                                                     "+/"
+                                                 )
+                                             ) mod 4
+                                       ) mod 4
+                                   )
+                               )
+                           )'
                          , N'varbinary(max)'
                        )
               END
         )
-    FROM Canonical
+    FROM FormatCheck
 );
 GO
