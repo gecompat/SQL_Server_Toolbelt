@@ -1,6 +1,6 @@
 module_id: "toolbelt.conversion.integer-base"
 module_name: "Integer Base Conversion"
-version: "1.0.0"
+version: "1.1.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
@@ -19,8 +19,8 @@ platforms:
   linux: "partially validated"
 
 providers:
-  - id: tsql-decimal-loop
-    technology: T-SQL Scalar UDFs mit decimal(38,0)-Zwischenarithmetik
+  - id: tsql-inline-relational
+    technology: T-SQL Inline TVFs mit rekursiver decimal(38,0)-Zwischenarithmetik und SVF-Wrappern
     platforms: [Windows, Linux]
     status: implemented
 
@@ -35,6 +35,14 @@ dependencies: []
 schemas:
   - "toolbelt_conversion"
 objects:
+  - type: TVF
+    schema: "toolbelt_conversion"
+    name: "TVF_IntegerToBase"
+    visibility: public
+  - type: TVF
+    schema: "toolbelt_conversion"
+    name: "TVF_TryBaseToInteger"
+    visibility: public
   - type: SVF
     schema: "toolbelt_conversion"
     name: "SVF_IntegerToBase"
@@ -68,6 +76,8 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
+    - "Documentation/TVF_IntegerToBase.md"
+    - "Documentation/TVF_TryBaseToInteger.md"
     - "Documentation/SVF_IntegerToBase.md"
     - "Documentation/SVF_TryBaseToInteger.md"
   architecture:
@@ -93,4 +103,8 @@ validation_evidence:
   - date: "2026-07-30"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30518087070"
     scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; Alphabet, Kanonizität, bigint-Grenzen, Overflow, lokale, zentrale und Lifecycle-Contracts"
+    result: "success"
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377860"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; Inline-TVF-/SVF-Parität, APPLY, bigint-Grenzen, Overflow, Upgrade, lokales und zentrales Deployment, Kollision und Lifecycle für Version 1.1.0"
     result: "success"

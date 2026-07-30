@@ -18,12 +18,12 @@ Parallelitätsnachteile bei.
 | Vorhandene SVF | Kanonischer relationaler Kern | Ergebnis | Maßnahme |
 |---|---|---|---|
 | `toolbelt_metadata.SVF_QuoteMultipartName` | `toolbelt_metadata.TVF_ParseMultipartName` | erfüllt | Keine Source-Änderung erforderlich; `OUTER APPLY` als bevorzugte Mengenverwendung deutlicher dokumentieren. |
-| `toolbelt_conversion.SVF_Base64Encode` | fehlt | offen, inline TVF technisch möglich | `TVF_Base64Encode` als primären relationalen Kern ergänzen; SVF darauf umstellen. |
-| `toolbelt_conversion.SVF_Base64Decode` | fehlt | offen, inline TVF technisch möglich | `TVF_Base64Decode` als primären relationalen Kern ergänzen; Fehler- und Leerzeilenvertrag explizit erhalten. |
-| `toolbelt_conversion.SVF_IntegerToBase` | fehlt | offen, inline TVF technisch möglich | `TVF_IntegerToBase` set-basiert beziehungsweise rekursiv implementieren; SVF darauf umstellen. |
-| `toolbelt_conversion.SVF_TryBaseToInteger` | fehlt | offen, inline TVF technisch möglich | `TVF_TryBaseToInteger` relational implementieren; kanonische und Overflow-Prüfung unverändert erhalten. |
-| `toolbelt_validation.SVF_CompareSemanticVersion` | Parser-TVF nur als Teilkern vorhanden | offen, inline TVF technisch möglich | `TVF_CompareSemanticVersion` auf dem Parservertrag aufbauen; SVF darauf umstellen. |
-| `toolbelt_validation.SVF_SemanticVersionSortKey` | Parser-TVF nur als Teilkern vorhanden | offen, inline TVF technisch möglich | `TVF_SemanticVersionSortKey` auf dem Parservertrag aufbauen; SVF darauf umstellen. |
+| `toolbelt_conversion.SVF_Base64Encode` | `toolbelt_conversion.TVF_Base64Encode` | erfüllt | SVF delegiert an den relationalen Kern. |
+| `toolbelt_conversion.SVF_Base64Decode` | `toolbelt_conversion.TVF_Base64Decode` | erfüllt | Fehler-, Leerzeilen- und LOB-Vertrag bleiben erhalten. |
+| `toolbelt_conversion.SVF_IntegerToBase` | `toolbelt_conversion.TVF_IntegerToBase` | erfüllt | Rekursiver relationaler Kern deckt den vollständigen `bigint`-Bereich ab. |
+| `toolbelt_conversion.SVF_TryBaseToInteger` | `toolbelt_conversion.TVF_TryBaseToInteger` | erfüllt | Kanonizität und Overflow-Prüfung bleiben erhalten. |
+| `toolbelt_validation.SVF_CompareSemanticVersion` | `toolbelt_validation.TVF_CompareSemanticVersion` | erfüllt | Relationaler Kern baut auf dem Parservertrag auf. |
+| `toolbelt_validation.SVF_SemanticVersionSortKey` | `toolbelt_validation.TVF_SemanticVersionSortKey` | erfüllt | Relationaler Kern baut auf dem Parservertrag auf. |
 
 Es existieren keine weiteren öffentlichen SVFs im Stand dieses Audits.
 
@@ -89,6 +89,17 @@ geeignet, wenn eine solche Eingabe die äußere Zeile bewusst filtern soll.
    sind;
 5. Compatibility Levels 150, 160 und 170 geprüft sind;
 6. ein Parallelitätsvorteil nur bei reproduzierbarer Evidenz behauptet wird.
+
+Alle sechs Kriterien sind erfüllt. `AP-2026-014` ist abgeschlossen.
+
+Runtime-Evidenz auf SQL Server 2025 Linux:
+
+- [Base64 Runtime 30535377837](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377837)
+- [Integer-Base Runtime 30535377860](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377860)
+- [Semantic-Version Runtime 30535377984](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984)
+
+Alle drei Läufe prüfen Compatibility Levels 150, 160 und 170. Physische
+SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung.
 
 ## Quellen
 

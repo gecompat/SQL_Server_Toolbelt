@@ -28,8 +28,10 @@ def require(text: str, pattern: str, description: str) -> None:
 
 
 def main() -> int:
-    encode = read("Source/SVF_IntegerToBase.sql")
-    decode = read("Source/SVF_TryBaseToInteger.sql")
+    encode_tvf = read("Source/TVF_IntegerToBase.sql")
+    decode_tvf = read("Source/TVF_TryBaseToInteger.sql")
+    encode_svf = read("Source/SVF_IntegerToBase.sql")
+    decode_svf = read("Source/SVF_TryBaseToInteger.sql")
     deploy = read("Deployment/Deploy.sql")
     uninstall = read("Deployment/Uninstall.sql")
     manifest = read("module.yaml")
@@ -37,48 +39,78 @@ def main() -> int:
     matrix = read("Tests/INTEGER_BASE_CONTRACT_TEST_MATRIX.md")
     runtime = read("Tests/Runtime/IntegerBase.Contract.sql")
 
-    combined = "\n".join((encode, decode, deploy, uninstall, manifest, documentation))
+    combined = "\n".join(
+        (
+            encode_tvf,
+            decode_tvf,
+            encode_svf,
+            decode_svf,
+            deploy,
+            uninstall,
+            manifest,
+            documentation,
+        )
+    )
     if "{{" in combined or "}}" in combined or "xs:base64Binary" in combined:
         raise ContractError("Ausführbare Artefakte enthalten Template-Reste.")
 
     require(
-        encode,
+        encode_tvf,
         r"CREATE\s+OR\s+ALTER\s+FUNCTION\s+\[toolbelt_conversion\]"
-        r"\.\[SVF_IntegerToBase\]",
+        r"\.\[TVF_IntegerToBase\]",
         "Encode-Objektname",
     )
-    require(encode, r"@Value\s+bigint", "Encode-bigint-Eingabe")
-    require(encode, r"@Alphabet\s+varchar\(93\)", "Encode-Alphabet")
-    require(encode, r"RETURNS\s+varchar\(65\)", "Encode-Rückgabetyp")
-    require(encode, r"decimal\(38\s*,\s*0\)", "sichere Encode-Arithmetik")
-    require(encode, r"END;\s*GO\s*$", "Encode-Batchabschluss")
+    require(encode_tvf, r"@Value\s+bigint", "Encode-bigint-Eingabe")
+    require(encode_tvf, r"@Alphabet\s+varchar\(93\)", "Encode-Alphabet")
+    require(encode_tvf, r"RETURNS\s+TABLE", "Encode-inline-TVF")
+    require(encode_tvf, r"decimal\(38\s*,\s*0\)", "sichere Encode-Arithmetik")
+    require(encode_tvf, r"\);\s*GO\s*$", "Encode-Batchabschluss")
 
     require(
-        decode,
+        decode_tvf,
         r"CREATE\s+OR\s+ALTER\s+FUNCTION\s+\[toolbelt_conversion\]"
-        r"\.\[SVF_TryBaseToInteger\]",
+        r"\.\[TVF_TryBaseToInteger\]",
         "Decode-Objektname",
     )
-    require(decode, r"@EncodedValue\s+varchar\(65\)", "Decode-Eingabe")
-    require(decode, r"@Alphabet\s+varchar\(93\)", "Decode-Alphabet")
-    require(decode, r"RETURNS\s+bigint", "Decode-Rückgabetyp")
-    require(decode, r"END;\s*GO\s*$", "Decode-Batchabschluss")
+    require(decode_tvf, r"@EncodedValue\s+varchar\(65\)", "Decode-Eingabe")
+    require(decode_tvf, r"@Alphabet\s+varchar\(93\)", "Decode-Alphabet")
+    require(decode_tvf, r"RETURNS\s+TABLE", "Decode-inline-TVF")
+    require(decode_tvf, r"\);\s*GO\s*$", "Decode-Batchabschluss")
     for marker in (
         "Latin1_General_100_BIN2",
         "9223372036854775808",
-        "FLOOR((@Limit - @Digit) / @Base)",
+        "MagnitudeLimit",
     ):
-        if marker not in decode:
+        if marker not in decode_tvf:
             raise ContractError(f"Decode-Grenzschutz fehlt: {marker}")
+    if "SVF_" in encode_tvf or "SVF_" in decode_tvf:
+        raise ContractError("Eine inline TVF darf nicht die zugehörige SVF aufrufen.")
+    require(encode_svf, r"TVF_IntegerToBase\s*\(", "Encode-SVF-Wrapper")
+    require(decode_svf, r"TVF_TryBaseToInteger", "Decode-SVF-Wrapper")
+    if "WITH SCHEMABINDING" in encode_svf + decode_svf:
+        raise ContractError(
+            "SVF-Wrapper dürfen das Wiederholungsdeployment der TVF-Kerne "
+            "nicht durch SCHEMABINDING blockieren."
+        )
 
-    for source in ("SVF_IntegerToBase.sql", "SVF_TryBaseToInteger.sql"):
+    for source in (
+        "TVF_IntegerToBase.sql",
+        "TVF_TryBaseToInteger.sql",
+        "SVF_IntegerToBase.sql",
+        "SVF_TryBaseToInteger.sql",
+    ):
         if deploy.count(f":r ../Source/{source}") != 1:
             raise ContractError(f"Deploy bindet {source} nicht exakt einmal ein.")
 
     if "SET QUOTED_IDENTIFIER ON;" not in deploy:
         raise ContractError("Deploy enthält keine kanonische QUOTED_IDENTIFIER-Option.")
 
-    for object_name in ("SVF_IntegerToBase", "SVF_TryBaseToInteger"):
+    for object_name in (
+        "TVF_IntegerToBase",
+        "TVF_TryBaseToInteger",
+        "SVF_IntegerToBase",
+        "SVF_TryBaseToInteger",
+    ):
         for text, location in (
             (manifest, "Manifest"),
             (deploy, "Deploy"),
@@ -90,7 +122,7 @@ def main() -> int:
 
     for marker in (
         '"51090-51099"',
-        "tsql-decimal-loop",
+        "tsql-inline-relational",
         "implementation_status: implemented",
     ):
         if marker not in manifest:
@@ -109,6 +141,11 @@ def main() -> int:
     ):
         if vector not in runtime:
             raise ContractError(f"Contract-Vektor fehlt: {vector}")
+    for marker in ("SVF-/inline-TVF-Parität", "OUTER APPLY"):
+        if marker not in runtime:
+            raise ContractError(f"Inline-TVF-Runtimevertrag fehlt: {marker}")
+    if "'IF'" not in read("Tests/Runtime/Lifecycle.Contract.sql"):
+        raise ContractError("Lifecycle prüft den inline-TVF-Objekttyp nicht.")
 
     print("Integer-Base statische Vertragsprüfung: erfolgreich")
     return 0

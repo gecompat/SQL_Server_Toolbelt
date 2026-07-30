@@ -14,12 +14,12 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Scope | `toolbelt.conversion.base64`, `toolbelt.conversion.integer-base` und `toolbelt.validation.semantic-version`; sechs neue inline TVFs gemäß `SVF_INLINE_TVF_AUDIT.md`; vorhandene SVFs bleiben als Convenience-API erhalten. |
 | Dependencies | Benutzeranforderung vom 2026-07-30; `DEC-2026-022`; bestehende öffentliche Verträge der sechs SVFs. |
 | Priorität | `P0` |
-| Status | `active` |
+| Status | `completed` |
 | Akzeptanzkriterien | Kein TVF-Wrapper ruft lediglich die SVF auf; Fachlogik besitzt genau einen kanonischen Kern; Parität, Objekttyp, `NULL`- und Fehlersemantik, lokale und zentrale Installation sowie Lifecycle sind getestet; Objekt- und Moduldokumentation zeigt `APPLY` als bevorzugte Mengenverwendung. |
-| Tests | Governance- und Bestandsaudit dokumentiert; Source-, Lifecycle- und Runtime-Prüfungen der Remediation noch `not executed`. |
-| Blocker | Keine fachliche Grundsatzfrage. Die sechs öffentlichen TVF-Verträge sind im Audit festgelegt; modulweise Implementierung und Runtime-Validierung stehen aus. |
-| Evidenz | `DEC-2026-022`, `Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md`; Microsoft-Dokumentation zu Scalar UDF Inlining und Query Processing. |
-| Nächster Schritt | Module einzeln refaktorieren und jeweils erst nach vollständiger Paritäts- und Lifecycle-Prüfung integrieren. |
+| Tests | Statische Modulverträge und vollständiger Dokumentationsaudit erfolgreich; Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich Parität, `APPLY`, Upgrade, Wiederholung, Kollision, zentralem Deployment und Uninstall erfolgreich. |
+| Blocker | Keine. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung. |
+| Evidenz | `DEC-2026-022`, `Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md`; [Base64 Runtime 30535377837](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377837), [Integer-Base Runtime 30535377860](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377860), [Semantic-Version Runtime 30535377984](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984), [Documentation Consistency 30535377863](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377863). |
+| Nächster Schritt | Physische Zielversions- und Windows-Läufe im Rahmen der Releasevalidierung ausführen. |
 
 ### AP-2026-013: Frei definierbare Zahlensysteme implementieren
 

@@ -9,6 +9,11 @@
 Codiert Binärdaten als Standard-Base64 oder als ungepaddetes Base64URL gemäß
 RFC 4648.
 
+Die SVF ist eine Convenience-API und delegiert an den kanonischen
+relationalen Kern
+[`TVF_Base64Encode`](./TVF_Base64Encode.md). Für Spaltenwerte und
+mengenorientierte Abfragen ist die inline TVF über `APPLY` zu bevorzugen.
+
 ## Parameter und Rückgabewert
 
 | Element | Typ | Nullable | Beschreibung |

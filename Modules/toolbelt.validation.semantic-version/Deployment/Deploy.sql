@@ -2,7 +2,7 @@
 
 -- ============================================================================
 -- Zweck:     Erst-, Upgrade- und Wiederholungsdeployment
--- Modul:     toolbelt.validation.semantic-version v1.0.0
+-- Modul:     toolbelt.validation.semantic-version v1.1.0
 -- Schema:    toolbelt_validation
 -- Erfordert: SQL Server 2019, 2022 oder 2025
 -- Modus:     SQLCMD; Ausführung aus diesem Deployment-Verzeichnis
@@ -43,7 +43,12 @@ INSERT INTO #tbx_SemanticVersionReleaseObjects
 VALUES
       (N'1.0.0', N'toolbelt_validation', N'TVF_ParseSemanticVersion', 'TF')
     , (N'1.0.0', N'toolbelt_validation', N'SVF_CompareSemanticVersion', 'FN')
-    , (N'1.0.0', N'toolbelt_validation', N'SVF_SemanticVersionSortKey', 'FN');
+    , (N'1.0.0', N'toolbelt_validation', N'SVF_SemanticVersionSortKey', 'FN')
+    , (N'1.1.0', N'toolbelt_validation', N'TVF_ParseSemanticVersion', 'TF')
+    , (N'1.1.0', N'toolbelt_validation', N'TVF_CompareSemanticVersion', 'IF')
+    , (N'1.1.0', N'toolbelt_validation', N'TVF_SemanticVersionSortKey', 'IF')
+    , (N'1.1.0', N'toolbelt_validation', N'SVF_CompareSemanticVersion', 'FN')
+    , (N'1.1.0', N'toolbelt_validation', N'SVF_SemanticVersionSortKey', 'FN');
 
 CREATE TABLE #tbx_SemanticVersionDeployState
 (
@@ -54,7 +59,7 @@ CREATE TABLE #tbx_SemanticVersionDeployState
 );
 
 DECLARE
-      @TargetVersion        nvarchar(64) = N'1.0.0'
+      @TargetVersion        nvarchar(64) = N'1.1.0'
     , @DeploymentMode       nvarchar(16) = LOWER(N'$(DeploymentMode)')
     , @InstalledVersion     nvarchar(64)
     , @VersionPropertyName  sysname =
@@ -328,6 +333,8 @@ END CATCH;
 GO
 
 :r ../Source/TVF_ParseSemanticVersion.sql
+:r ../Source/TVF_CompareSemanticVersion.sql
+:r ../Source/TVF_SemanticVersionSortKey.sql
 :r ../Source/SVF_CompareSemanticVersion.sql
 :r ../Source/SVF_SemanticVersionSortKey.sql
 
@@ -350,6 +357,8 @@ BEGIN TRY
 
     IF XACT_STATE() <> 1
        OR OBJECT_ID(N'toolbelt_validation.TVF_ParseSemanticVersion', N'TF') IS NULL
+       OR OBJECT_ID(N'toolbelt_validation.TVF_CompareSemanticVersion', N'IF') IS NULL
+       OR OBJECT_ID(N'toolbelt_validation.TVF_SemanticVersionSortKey', N'IF') IS NULL
        OR OBJECT_ID(N'toolbelt_validation.SVF_CompareSemanticVersion', N'FN') IS NULL
        OR OBJECT_ID(N'toolbelt_validation.SVF_SemanticVersionSortKey', N'FN') IS NULL
     BEGIN
@@ -365,6 +374,8 @@ BEGIN TRY
     INSERT INTO @Objects (ObjectName)
     VALUES
           (N'TVF_ParseSemanticVersion')
+        , (N'TVF_CompareSemanticVersion')
+        , (N'TVF_SemanticVersionSortKey')
         , (N'SVF_CompareSemanticVersion')
         , (N'SVF_SemanticVersionSortKey');
 

@@ -10,17 +10,21 @@ def read(path: str) -> str:
 
 def main() -> int:
     parser = read("Source/TVF_ParseSemanticVersion.sql")
-    comparator = read("Source/SVF_CompareSemanticVersion.sql")
-    sort_key = read("Source/SVF_SemanticVersionSortKey.sql")
+    comparator_tvf = read("Source/TVF_CompareSemanticVersion.sql")
+    sort_key_tvf = read("Source/TVF_SemanticVersionSortKey.sql")
+    comparator_svf = read("Source/SVF_CompareSemanticVersion.sql")
+    sort_key_svf = read("Source/SVF_SemanticVersionSortKey.sql")
     deploy = read("Deployment/Deploy.sql")
     runtime = read("Tests/Runtime/SemanticVersion.Contract.sql")
     manifest = read("module.yaml")
     required = {
         "parser": (parser, ["TVF_ParseSemanticVersion", "varchar(8000)", "CORE_LEADING_ZERO", "PRERELEASE_LEADING_ZERO", "Latin1_General_100_BIN2"]),
-        "comparator": (comparator, ["SVF_CompareSemanticVersion", "RETURNS smallint", "TVF_ParseSemanticVersion", "DATALENGTH"]),
-        "sort key": (sort_key, ["SVF_SemanticVersionSortKey", "RETURNS varbinary(max)", "CONVERT(binary(2)", "TVF_ParseSemanticVersion"]),
-        "deploy": (deploy, ["TVF_ParseSemanticVersion.sql", "SVF_CompareSemanticVersion.sql", "SVF_SemanticVersionSortKey.sql", "51088"]),
-        "runtime": (runtime, ["1.0.0-alpha", "1.0.0-rc.1", "@Huge", "CompatibilityLevel"]),
+        "comparator TVF": (comparator_tvf, ["TVF_CompareSemanticVersion", "RETURNS TABLE", "TVF_ParseSemanticVersion", "DATALENGTH", "ComparisonResult"]),
+        "sort key TVF": (sort_key_tvf, ["TVF_SemanticVersionSortKey", "RETURNS TABLE", "CONVERT", "TVF_ParseSemanticVersion", "SortKey"]),
+        "comparator SVF": (comparator_svf, ["SVF_CompareSemanticVersion", "RETURNS smallint", "TVF_CompareSemanticVersion"]),
+        "sort key SVF": (sort_key_svf, ["SVF_SemanticVersionSortKey", "RETURNS varbinary(max)", "TVF_SemanticVersionSortKey"]),
+        "deploy": (deploy, ["TVF_ParseSemanticVersion.sql", "TVF_CompareSemanticVersion.sql", "TVF_SemanticVersionSortKey.sql", "SVF_CompareSemanticVersion.sql", "SVF_SemanticVersionSortKey.sql", "51088"]),
+        "runtime": (runtime, ["1.0.0-alpha", "1.0.0-rc.1", "@Huge", "CompatibilityLevel", "SVF-/inline-TVF-Parität", "OUTER APPLY"]),
         "manifest": (manifest, ['module_id: "toolbelt.validation.semantic-version"', '"51080-51089"', "SemanticVersionSortKey"]),
     }
     for name, (text, markers) in required.items():
@@ -29,6 +33,10 @@ def main() -> int:
                 raise RuntimeError(f"{name}: Pflichtmarker fehlt: {marker}")
     if any(token in parser for token in ("TRY_CONVERT(bigint", "REGEXP_", "OPENJSON")):
         raise RuntimeError("Parser enthält einen unzulässigen numerischen oder versionsgebundenen Provider.")
+    if "SVF_" in comparator_tvf or "SVF_" in sort_key_tvf:
+        raise RuntimeError("Eine inline TVF darf nicht die zugehörige SVF aufrufen.")
+    if "'IF'" not in read("Tests/Runtime/Lifecycle.Contract.sql"):
+        raise RuntimeError("Lifecycle prüft den inline-TVF-Objekttyp nicht.")
     if "SET QUOTED_IDENTIFIER ON;" not in deploy or "QUOTED_SEMANTIC_VERSION" in deploy:
         raise RuntimeError("Deploy enthält keine kanonische QUOTED_IDENTIFIER-Option.")
     workflow = (REPO / ".github/workflows/semantic-version-runtime.yml").read_text(encoding="utf-8")

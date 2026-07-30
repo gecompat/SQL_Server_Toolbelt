@@ -11,13 +11,13 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 <!-- BEGIN GENERATED:MODULE_STATUS_TABLE -->
 | Modul-ID | Name | Version | Schema | Implementierung | Validierung | Release | SQL Server |
 |---|---|---:|---|---|---|---|---|
-| `toolbelt.conversion.base64` | Base64 and Base64URL Conversion | `1.0.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.conversion.integer-base` | Integer Base Conversion | `1.0.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.conversion.base64` | Base64 and Base64URL Conversion | `1.1.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.conversion.integer-base` | Integer Base Conversion | `1.1.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.generate-series` | Portable Integer Series | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.result-table` | Result Table Infrastructure | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.identifier` | Identifier and Multipart Name Toolkit | `1.0.0` | `toolbelt_metadata` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.split-characters` | Literal Multi-Separator Split | `1.0.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.validation.semantic-version` | Semantic Version Validation | `1.0.0` | `toolbelt_validation` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.validation.semantic-version` | Semantic Version Validation | `1.1.0` | `toolbelt_validation` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 <!-- END GENERATED:MODULE_STATUS_TABLE -->
 
 Der Modulstatus trennt vorhandenen Code von tatsächlich ausgeführter Evidenz.

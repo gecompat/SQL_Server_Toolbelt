@@ -2,7 +2,7 @@
 
 -- ============================================================================
 -- Zweck:     Erst-, Upgrade- und Wiederholungsdeployment
--- Modul:     toolbelt.conversion.integer-base v1.0.0
+-- Modul:     toolbelt.conversion.integer-base v1.1.0
 -- Schema:    toolbelt_conversion
 -- Erfordert: SQL Server 2019, 2022 oder 2025
 -- Modus:     SQLCMD; Ausführung aus diesem Deployment-Verzeichnis
@@ -42,7 +42,11 @@ INSERT INTO #tbx_IntegerBaseReleaseObjects
 )
 VALUES
       (N'1.0.0', N'toolbelt_conversion', N'SVF_IntegerToBase', 'FN')
-    , (N'1.0.0', N'toolbelt_conversion', N'SVF_TryBaseToInteger', 'FN');
+    , (N'1.0.0', N'toolbelt_conversion', N'SVF_TryBaseToInteger', 'FN')
+    , (N'1.1.0', N'toolbelt_conversion', N'TVF_IntegerToBase', 'IF')
+    , (N'1.1.0', N'toolbelt_conversion', N'TVF_TryBaseToInteger', 'IF')
+    , (N'1.1.0', N'toolbelt_conversion', N'SVF_IntegerToBase', 'FN')
+    , (N'1.1.0', N'toolbelt_conversion', N'SVF_TryBaseToInteger', 'FN');
 
 CREATE TABLE #tbx_IntegerBaseDeployState
 (
@@ -53,7 +57,7 @@ CREATE TABLE #tbx_IntegerBaseDeployState
 );
 
 DECLARE
-      @TargetVersion        nvarchar(64) = N'1.0.0'
+      @TargetVersion        nvarchar(64) = N'1.1.0'
     , @DeploymentMode       nvarchar(16) = LOWER(N'$(DeploymentMode)')
     , @InstalledVersion     nvarchar(64)
     , @VersionPropertyName  sysname =
@@ -326,6 +330,8 @@ BEGIN CATCH
 END CATCH;
 GO
 
+:r ../Source/TVF_IntegerToBase.sql
+:r ../Source/TVF_TryBaseToInteger.sql
 :r ../Source/SVF_IntegerToBase.sql
 :r ../Source/SVF_TryBaseToInteger.sql
 
@@ -347,6 +353,8 @@ BEGIN TRY
     FROM #tbx_IntegerBaseDeployState;
 
     IF XACT_STATE() <> 1
+       OR OBJECT_ID(N'toolbelt_conversion.TVF_IntegerToBase', N'IF') IS NULL
+       OR OBJECT_ID(N'toolbelt_conversion.TVF_TryBaseToInteger', N'IF') IS NULL
        OR OBJECT_ID(N'toolbelt_conversion.SVF_IntegerToBase', N'FN') IS NULL
        OR OBJECT_ID(N'toolbelt_conversion.SVF_TryBaseToInteger', N'FN') IS NULL
     BEGIN
@@ -360,7 +368,11 @@ BEGIN TRY
     );
 
     INSERT INTO @Objects (ObjectName)
-    VALUES (N'SVF_IntegerToBase'), (N'SVF_TryBaseToInteger');
+    VALUES
+          (N'TVF_IntegerToBase')
+        , (N'TVF_TryBaseToInteger')
+        , (N'SVF_IntegerToBase')
+        , (N'SVF_TryBaseToInteger');
 
     DECLARE
           @ObjectOrdinal int = 1

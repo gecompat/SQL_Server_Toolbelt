@@ -46,7 +46,8 @@ BEGIN
     RETURN;
 END;
 
-IF @InstalledVersion COLLATE Latin1_General_100_BIN2 <> N'1.0.0'
+IF @InstalledVersion COLLATE Latin1_General_100_BIN2
+       NOT IN (N'1.0.0', N'1.1.0')
 BEGIN
     THROW 51083, N'Die installierte Modulversion ist diesem Uninstall-Skript nicht bekannt.', 1;
 END;
@@ -68,12 +69,16 @@ FROM sys.sql_expression_dependencies AS dependencies
 WHERE dependencies.referenced_id IN
       (
           OBJECT_ID(N'toolbelt_validation.TVF_ParseSemanticVersion')
+        , OBJECT_ID(N'toolbelt_validation.TVF_CompareSemanticVersion')
+        , OBJECT_ID(N'toolbelt_validation.TVF_SemanticVersionSortKey')
         , OBJECT_ID(N'toolbelt_validation.SVF_CompareSemanticVersion')
         , OBJECT_ID(N'toolbelt_validation.SVF_SemanticVersionSortKey')
       )
   AND dependencies.referencing_id NOT IN
       (
           OBJECT_ID(N'toolbelt_validation.TVF_ParseSemanticVersion')
+        , OBJECT_ID(N'toolbelt_validation.TVF_CompareSemanticVersion')
+        , OBJECT_ID(N'toolbelt_validation.TVF_SemanticVersionSortKey')
         , OBJECT_ID(N'toolbelt_validation.SVF_CompareSemanticVersion')
         , OBJECT_ID(N'toolbelt_validation.SVF_SemanticVersionSortKey')
       )
@@ -141,6 +146,8 @@ BEGIN TRY
     VALUES
           (N'SVF_SemanticVersionSortKey')
         , (N'SVF_CompareSemanticVersion')
+        , (N'TVF_SemanticVersionSortKey')
+        , (N'TVF_CompareSemanticVersion')
         , (N'TVF_ParseSemanticVersion');
 
     DECLARE

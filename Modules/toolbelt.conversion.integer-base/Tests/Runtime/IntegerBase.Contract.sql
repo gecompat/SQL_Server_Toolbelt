@@ -15,7 +15,9 @@ DECLARE @SetCompatibilitySql nvarchar(max) =
     + CONVERT(nvarchar(3), @CompatibilityLevel) + N';';
 EXEC sys.sp_executesql @SetCompatibilitySql;
 
-IF OBJECT_ID(N'toolbelt_conversion.SVF_IntegerToBase', N'FN') IS NULL
+IF OBJECT_ID(N'toolbelt_conversion.TVF_IntegerToBase', N'IF') IS NULL
+   OR OBJECT_ID(N'toolbelt_conversion.TVF_TryBaseToInteger', N'IF') IS NULL
+   OR OBJECT_ID(N'toolbelt_conversion.SVF_IntegerToBase', N'FN') IS NULL
    OR OBJECT_ID(N'toolbelt_conversion.SVF_TryBaseToInteger', N'FN') IS NULL
     THROW 52801, N'Die öffentlichen Integer-Base-Funktionen fehlen.', 1;
 
@@ -197,6 +199,64 @@ IF toolbelt_conversion.SVF_IntegerToBase(1, 'aA') <> 'A'
    OR toolbelt_conversion.SVF_TryBaseToInteger('A', 'aA') <> 1
    OR toolbelt_conversion.SVF_TryBaseToInteger('a', 'aA') <> 0
     THROW 52811, N'Der binäre Case-Sensitivity-Vertrag ist fehlgeschlagen.', 1;
+
+IF EXISTS
+   (
+       SELECT 1
+       FROM @Values AS value_set
+       CROSS JOIN @Alphabets AS alphabet_set
+       CROSS APPLY toolbelt_conversion.TVF_IntegerToBase
+                   (
+                         value_set.Value
+                       , alphabet_set.Alphabet
+                   ) AS encoded
+       CROSS APPLY toolbelt_conversion.TVF_TryBaseToInteger
+                   (
+                         encoded.EncodedValue
+                       , alphabet_set.Alphabet
+                   ) AS decoded
+       WHERE encoded.EncodedValue
+             <> toolbelt_conversion.SVF_IntegerToBase
+                (
+                      value_set.Value
+                    , alphabet_set.Alphabet
+                )
+          OR decoded.DecodedValue <> value_set.Value
+          OR decoded.DecodedValue
+             <> toolbelt_conversion.SVF_TryBaseToInteger
+                (
+                      encoded.EncodedValue
+                    , alphabet_set.Alphabet
+                )
+   )
+    THROW 52812, N'Die SVF-/inline-TVF-Parität ist fehlgeschlagen.', 1;
+
+IF (SELECT COUNT(*)
+    FROM toolbelt_conversion.TVF_IntegerToBase(NULL, @Decimal)) <> 1
+   OR EXISTS
+      (
+          SELECT 1
+          FROM toolbelt_conversion.TVF_IntegerToBase(NULL, @Decimal)
+          WHERE EncodedValue IS NOT NULL
+      )
+   OR (SELECT COUNT(*)
+       FROM toolbelt_conversion.TVF_TryBaseToInteger(NULL, @Decimal)) <> 1
+   OR EXISTS
+      (
+          SELECT 1
+          FROM toolbelt_conversion.TVF_TryBaseToInteger(NULL, @Decimal)
+          WHERE DecodedValue IS NOT NULL
+      )
+    THROW 52813, N'Der einzeilige NULL-Vertrag der inline TVFs ist fehlgeschlagen.', 1;
+
+IF (SELECT COUNT(*)
+    FROM @Values AS source
+    OUTER APPLY toolbelt_conversion.TVF_IntegerToBase
+                (
+                      source.Value
+                    , @Hex
+                ) AS encoded) <> (SELECT COUNT(*) FROM @Values)
+    THROW 52814, N'OUTER APPLY erhält die äußeren Zeilen nicht vollständig.', 1;
 
 PRINT N'Integer-Base Contract-Tests für Compatibility Level '
     + CONVERT(nvarchar(3), @CompatibilityLevel) + N': erfolgreich';

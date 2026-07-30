@@ -46,7 +46,8 @@ BEGIN
     RETURN;
 END;
 
-IF @InstalledVersion COLLATE Latin1_General_100_BIN2 <> N'1.0.0'
+IF @InstalledVersion COLLATE Latin1_General_100_BIN2
+       NOT IN (N'1.0.0', N'1.1.0')
 BEGIN
     THROW 51093, N'Die installierte Modulversion ist diesem Uninstall-Skript nicht bekannt.', 1;
 END;
@@ -67,12 +68,16 @@ SELECT TOP (1)
 FROM sys.sql_expression_dependencies AS dependencies
 WHERE dependencies.referenced_id IN
       (
-          OBJECT_ID(N'toolbelt_conversion.SVF_IntegerToBase')
+          OBJECT_ID(N'toolbelt_conversion.TVF_IntegerToBase')
+        , OBJECT_ID(N'toolbelt_conversion.TVF_TryBaseToInteger')
+        , OBJECT_ID(N'toolbelt_conversion.SVF_IntegerToBase')
         , OBJECT_ID(N'toolbelt_conversion.SVF_TryBaseToInteger')
       )
   AND dependencies.referencing_id NOT IN
       (
-          OBJECT_ID(N'toolbelt_conversion.SVF_IntegerToBase')
+          OBJECT_ID(N'toolbelt_conversion.TVF_IntegerToBase')
+        , OBJECT_ID(N'toolbelt_conversion.TVF_TryBaseToInteger')
+        , OBJECT_ID(N'toolbelt_conversion.SVF_IntegerToBase')
         , OBJECT_ID(N'toolbelt_conversion.SVF_TryBaseToInteger')
       )
 ORDER BY
@@ -132,7 +137,11 @@ BEGIN TRY
     );
 
     INSERT INTO @ReleaseObjects (ObjectName)
-    VALUES (N'SVF_IntegerToBase'), (N'SVF_TryBaseToInteger');
+    VALUES
+          (N'SVF_IntegerToBase')
+        , (N'SVF_TryBaseToInteger')
+        , (N'TVF_IntegerToBase')
+        , (N'TVF_TryBaseToInteger');
 
     DECLARE
           @ObjectOrdinal int = 1

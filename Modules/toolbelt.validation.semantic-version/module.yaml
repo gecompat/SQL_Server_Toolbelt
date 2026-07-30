@@ -1,6 +1,6 @@
 module_id: "toolbelt.validation.semantic-version"
 module_name: "Semantic Version Validation"
-version: "1.0.0"
+version: "1.1.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
@@ -20,7 +20,7 @@ platforms:
 
 providers:
   - id: tsql-state-machine
-    technology: T-SQL Multi-statement TVF und Scalar UDFs
+    technology: T-SQL Parser-TVF, relationale Inline TVFs und SVF-Wrapper
     platforms: [Windows, Linux]
     status: implemented
 
@@ -38,6 +38,14 @@ objects:
   - type: TVF
     schema: "toolbelt_validation"
     name: "TVF_ParseSemanticVersion"
+    visibility: public
+  - type: TVF
+    schema: "toolbelt_validation"
+    name: "TVF_CompareSemanticVersion"
+    visibility: public
+  - type: TVF
+    schema: "toolbelt_validation"
+    name: "TVF_SemanticVersionSortKey"
     visibility: public
   - type: SVF
     schema: "toolbelt_validation"
@@ -83,6 +91,8 @@ documentation:
   module: "README.md"
   public_objects:
     - "Documentation/TVF_ParseSemanticVersion.md"
+    - "Documentation/TVF_CompareSemanticVersion.md"
+    - "Documentation/TVF_SemanticVersionSortKey.md"
     - "Documentation/SVF_CompareSemanticVersion.md"
     - "Documentation/SVF_SemanticVersionSortKey.md"
   architecture:
@@ -108,4 +118,8 @@ validation_evidence:
   - date: "2026-07-30"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30517137373"
     scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; Parser, Comparator, Sort Key, lokales und zentrales Deployment, Kollision und Lifecycle"
+    result: "success"
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; Inline-TVF-/SVF-Parität, APPLY, Präzedenz, Sort Key, Upgrade, lokales und zentrales Deployment, Kollision und Lifecycle für Version 1.1.0"
     result: "success"

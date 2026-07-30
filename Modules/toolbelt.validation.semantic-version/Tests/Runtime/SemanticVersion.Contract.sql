@@ -8,6 +8,8 @@ IF (SELECT compatibility_level FROM sys.databases WHERE database_id = DB_ID())
     THROW 52701, N'Unerwarteter Compatibility Level.', 1;
 
 IF OBJECT_ID(N'toolbelt_validation.TVF_ParseSemanticVersion', N'TF') IS NULL
+ OR OBJECT_ID(N'toolbelt_validation.TVF_CompareSemanticVersion', N'IF') IS NULL
+ OR OBJECT_ID(N'toolbelt_validation.TVF_SemanticVersionSortKey', N'IF') IS NULL
  OR OBJECT_ID(N'toolbelt_validation.SVF_CompareSemanticVersion', N'FN') IS NULL
  OR OBJECT_ID(N'toolbelt_validation.SVF_SemanticVersionSortKey', N'FN') IS NULL
     THROW 52702, N'Öffentliche SemVer-Funktionen fehlen.', 1;
@@ -108,6 +110,63 @@ IF EXISTS
     WHERE PreviousKey IS NOT NULL AND SortKey <= PreviousKey
 )
     THROW 52710, N'Der binäre Sort Key folgt nicht dem Comparator.', 1;
+
+IF EXISTS
+(
+    SELECT 1
+    FROM @Precedence AS current_version
+    JOIN @Precedence AS next_version
+      ON next_version.ExpectedOrdinal = current_version.ExpectedOrdinal + 1
+    CROSS APPLY toolbelt_validation.TVF_CompareSemanticVersion
+                (
+                      current_version.VersionValue
+                    , next_version.VersionValue
+                ) AS compared
+    CROSS APPLY toolbelt_validation.TVF_SemanticVersionSortKey
+                (
+                    current_version.VersionValue
+                ) AS sort_key
+    WHERE compared.ComparisonResult
+          <> toolbelt_validation.SVF_CompareSemanticVersion
+             (
+                   current_version.VersionValue
+                 , next_version.VersionValue
+             )
+       OR sort_key.SortKey
+          <> toolbelt_validation.SVF_SemanticVersionSortKey
+             (
+                 current_version.VersionValue
+             )
+)
+    THROW 52711, N'Die SVF-/inline-TVF-Parität ist fehlgeschlagen.', 1;
+
+IF (SELECT COUNT(*)
+    FROM toolbelt_validation.TVF_CompareSemanticVersion
+         ('invalid', '1.0.0')) <> 1
+ OR EXISTS
+(
+    SELECT 1
+    FROM toolbelt_validation.TVF_CompareSemanticVersion
+         ('invalid', '1.0.0')
+    WHERE ComparisonResult IS NOT NULL
+)
+ OR (SELECT COUNT(*)
+     FROM toolbelt_validation.TVF_SemanticVersionSortKey('invalid')) <> 1
+ OR EXISTS
+(
+    SELECT 1
+    FROM toolbelt_validation.TVF_SemanticVersionSortKey('invalid')
+    WHERE SortKey IS NOT NULL
+)
+    THROW 52712, N'Der einzeilige NULL-Vertrag der inline TVFs ist fehlgeschlagen.', 1;
+
+IF (SELECT COUNT(*)
+    FROM @Precedence AS source
+    OUTER APPLY toolbelt_validation.TVF_SemanticVersionSortKey
+                (
+                    source.VersionValue
+                ) AS sort_key) <> (SELECT COUNT(*) FROM @Precedence)
+    THROW 52713, N'OUTER APPLY erhält die äußeren Zeilen nicht vollständig.', 1;
 
 PRINT N'Semantic-Version Contract-Tests für Compatibility Level '
     + CONVERT(nvarchar(3), @CompatibilityLevel) + N': erfolgreich';
