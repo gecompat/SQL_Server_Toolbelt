@@ -523,37 +523,6 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
         , @KeepData           = @KeepData
         , @Debug              = @Debug;
 
-        CREATE TABLE #tbx_ZipMemory_ResultBuffer
-        (
-                    EntryName nvarchar(1024) NOT NULL
-                , CompressedBytes bigint NOT NULL
-                , UncompressedBytes bigint NOT NULL
-                , CompressionMethod int NOT NULL
-                , Crc32 int NULL
-                , IsEncrypted bit NOT NULL
-                , EntryPayload varbinary(max) NULL
-        );
-
-        INSERT INTO #tbx_ZipMemory_ResultBuffer
-        (
-                    EntryName
-                , CompressedBytes
-                , UncompressedBytes
-                , CompressionMethod
-                , Crc32
-                , IsEncrypted
-                , EntryPayload
-        )
-        SELECT
-                    EntryName
-                , CompressedBytes
-                , UncompressedBytes
-                , CompressionMethod
-                , Crc32
-                , IsEncrypted
-                , EntryPayload
-        FROM @Result;
-
     DECLARE @InsertSql nvarchar(max) =
         N'INSERT INTO ' + QUOTENAME(@ResultTable) + N'
         (
@@ -563,18 +532,29 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
             , CompressionMethod
             , Crc32
             , IsEncrypted
-        FROM #tbx_ZipMemory_ResultBuffer;';
+            , EntryPayload
         )
-    EXEC sys.sp_executesql @InsertSql;
+        SELECT
+              EntryName
+            , CompressedBytes
+            , UncompressedBytes
+            , CompressionMethod
+            , Crc32
+            , IsEncrypted
+            , EntryPayload
+        FROM @ResultSource;';
+
+    EXEC sys.sp_executesql @InsertSql
+        , N'@ResultSource TABLE
             (
-                  EntryName nvarchar(1024)
-                , CompressedBytes bigint
-                , UncompressedBytes bigint
-                , CompressionMethod int
-                , Crc32 int
-                , IsEncrypted bit
-                , EntryPayload varbinary(max)
-            ) READONLY'
+                  EntryName nvarchar(1024) NOT NULL
+                , CompressedBytes bigint NOT NULL
+                , UncompressedBytes bigint NOT NULL
+                , CompressionMethod int NOT NULL
+                , Crc32 int NULL
+                , IsEncrypted bit NOT NULL
+                , EntryPayload varbinary(max) NULL
+            )'
         , @ResultSource = @Result;
 
     RETURN 0;
