@@ -244,6 +244,8 @@ DECLARE @TextResult TABLE
     , ValidationMessage nvarchar(4000) NULL
 );
 
+-- UTF-8 mit BOM: Encoding wird erkannt, aber unter Linux kann SINGLE_CLOB
+-- den Inhalt nicht korrekt decodieren. Wir prüfen daher nur Metadaten.
 SET @FixturePath = @FixtureRoot + N'/utf8-bom.txt';
 INSERT INTO @TextResult
 EXEC toolbelt_file.USP_LoadTextFile @FilePath = @FixturePath;
@@ -253,10 +255,12 @@ IF NOT EXISTS
        SELECT 1 FROM @TextResult
        WHERE IsValid = 1 AND EncodingDetected = N'UTF-8' AND BomPresent = 1
    )
-    THROW 52936, N'UTF-8-Datei mit BOM konnte nicht korrekt gelesen werden.', 1;
+    THROW 52936, N'UTF-8-BOM-Erkennung schlug fehl.', 1;
 
 DELETE FROM @TextResult;
 
+-- ANSI/Windows-1252 ohne BOM: reiner ASCII-Inhalt, da Linux keine Codepage-
+-- Steuerung für BULK INSERT unterstützt.
 SET @FixturePath = @FixtureRoot + N'/ansi.txt';
 INSERT INTO @TextResult
 EXEC toolbelt_file.USP_LoadTextFile @FilePath = @FixturePath;
@@ -266,10 +270,12 @@ IF NOT EXISTS
        SELECT 1 FROM @TextResult
        WHERE IsValid = 1 AND EncodingDetected = N'Windows-1252' AND BomPresent = 0
    )
-    THROW 52936, N'ANSI-Datei ohne BOM konnte nicht korrekt gelesen werden.', 1;
+    THROW 52936, N'Windows-1252-Datei ohne BOM konnte nicht korrekt gelesen werden.', 1;
 
 DELETE FROM @TextResult;
 
+-- UTF-16-LE mit BOM: einzige Variante, die unter Windows und Linux korrekt
+-- decodiert wird.
 SET @FixturePath = @FixtureRoot + N'/utf16le-bom.txt';
 INSERT INTO @TextResult
 EXEC toolbelt_file.USP_LoadTextFile @FilePath = @FixturePath;
