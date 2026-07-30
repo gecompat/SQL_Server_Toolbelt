@@ -1,0 +1,88 @@
+module_id: "toolbelt.core.console-message"
+module_name: "Console Message"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Gibt lange Unicode-Texte gepuffert oder unmittelbar im SQL-Server-Messages-Kanal aus."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "not executed"
+  linux: "partially validated"
+providers:
+  - id: tsql-print
+    technology: T-SQL PRINT
+    platforms: [Windows, Linux]
+    status: "partially validated"
+  - id: tsql-raiserror-nowait
+    technology: T-SQL RAISERROR WITH NOWAIT
+    platforms: [Windows, Linux]
+    status: "partially validated"
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies: []
+schemas:
+  - "toolbelt_core"
+objects:
+  - type: USP
+    schema: "toolbelt_core"
+    name: "USP_WriteConsoleMessage"
+    visibility: public
+permissions_required:
+  - "EXECUTE auf toolbelt_core.USP_WriteConsoleMessage"
+  - "DDL-Rechte für Deploy und Uninstall"
+collation_contract: "Chunkgrenzen werden mit Latin1_General_100_BIN2 als UTF-16-Codeunits bestimmt; ein erkanntes Surrogatpaar wird nicht getrennt."
+data_type_contract: "Message ist nvarchar(max); PRINT verwendet höchstens 4.000, RAISERROR/NOWAIT höchstens 2.000 UTF-16-Codeunits je Chunk."
+help_contract_version: "1.0"
+resultset_contracts:
+  - object: "toolbelt_core.USP_WriteConsoleMessage"
+    kind: "infrastructure"
+    resultset: null
+    return_code_success: 0
+    error_range: null
+lifecycle_error_range: "51270-51279"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/USP_WriteConsoleMessage.md"
+  architecture:
+    - "../../Documentation/Architecture/CONSOLE_MESSAGE_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/CONSOLE_MESSAGE_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/ConsoleMessage.Contract.sql"
+  contract: "Tests/Runtime/ConsoleMessage.Contract.sql"
+  message_capture: "Tests/Runtime/ConsoleOutput.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/w2c-runtime.yml"
+validation_evidence:
+  - date: "2026-07-30"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975"
+    scope: "SQL Server 2025 Linux; Compatibility Levels 150, 160 und 170; API-, Help-, NULL-, Langtext-, PRINT-, RAISERROR/NOWAIT-, Unicode-, Prozent-, Zeilen-, Wiederholungs-, Lifecycle-, Central- und Uninstall-Contract"
+    result: "success"
