@@ -4,7 +4,8 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 13 Module sind implementiert und `partially validated`. Die
+abgeschlossen. 14 Module sind implementiert; 13 sind `partially validated`,
+das neue JSON-Path-Modul ist bis zum ersten Runtime-Lauf `not executed`. Die
 verbindlichen Einzelstatus werden aus den jeweiligen `module.yaml`-Manifesten
 abgeleitet.
 
@@ -279,9 +280,23 @@ ausdrücklich freigegeben und ist als drei Module implementiert. Die
 SQL-Server-2025-Linux-Runtime war mit Compatibility Levels 150, 160 und 170
 einschließlich Wiederholungsdeployment, Lifecycle, Central und Uninstall
 erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
-Releasevalidierung. Die nächste vorgeschlagene Vertragsrunde ist W2b mit
-`TC-2026-009` und `TC-2026-013`; JSON-Aufrufoberfläche und Provider sind noch
-nicht entschieden.
+Releasevalidierung.
+
+### Phase 2.4 – W2b-A JSON Path Exists
+
+**Status:** `active`; Runtime `not executed`
+
+**Arbeitspaket:** `AP-2026-017`
+
+Der Benutzer hat den empfohlenen V1-Scope am 2026-07-30 freigegeben.
+`TC-2026-009` wird zunächst ausschließlich als
+`toolbelt.json.path-exists` umgesetzt. Die öffentliche
+`TVF_JsonPathExists` bildet die fehlerfreie `1`/`0`/SQL-`NULL`-Semantik für
+Root-, Property-, Array-Index- und Wildcard-Pfade ab.
+
+JSON-Konstruktoren bleiben ein eigener, noch nicht freigegebener Slice.
+`TC-2026-013` bleibt zurückgestellt, solange die nativen Aggregate Preview
+sind und kein freigegebener SQL-CLR-/Providervertrag besteht.
 
 ## Phase 3 – Schlanke Test-Infrastruktur und CI
 

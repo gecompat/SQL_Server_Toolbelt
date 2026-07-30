@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: thirteen_modules_partially_validated
+  status: fourteen_modules_mixed_validation
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -60,6 +60,9 @@ sources_of_truth:
   datetime_truncate_module: Modules/toolbelt.datetime.truncate/module.yaml
   datetime_bucket_module: Modules/toolbelt.datetime.bucket/module.yaml
   bit_operations_module: Modules/toolbelt.binary.bit-operations/module.yaml
+  json_path_exists_module_design: Documentation/Architecture/JSON_PATH_EXISTS_MODULE_DESIGN.md
+  json_path_exists_runtime_workflow: .github/workflows/w2b-json-path-runtime.yml
+  json_path_exists_module: Modules/toolbelt.json.path-exists/module.yaml
   svf_inline_tvf_policy: Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
   documentation_validator: Tests/Documentation/validate_documentation.py
   documentation_workflow: .github/workflows/documentation-consistency.yml
@@ -233,6 +236,7 @@ module_registry:
     - Modules/toolbelt.datetime.truncate/module.yaml
     - Modules/toolbelt.datetime.bucket/module.yaml
     - Modules/toolbelt.binary.bit-operations/module.yaml
+    - Modules/toolbelt.json.path-exists/module.yaml
 
 change_impact:
   strategy: diff_first_registered_dependencies
@@ -427,6 +431,17 @@ change_impact:
       checks:
         - markdown_links
         - w2a_runtime_workflow_scope
+    w2b_json_path_contract:
+      paths:
+        - Modules/toolbelt.json.path-exists/**
+        - Documentation/Architecture/JSON_PATH_EXISTS_MODULE_DESIGN.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+        - Tests/CI/run-w2b-json-path-linux.sh
+        - .github/workflows/w2b-json-path-runtime.yml
+      checks:
+        - markdown_links
+        - json_path_exists_static
+        - w2b_json_path_runtime_workflow_scope
     runtime_workflow:
       paths:
         - .github/workflows/result-table-runtime.yml
@@ -504,3 +519,5 @@ change_impact:
         - semantic_version_static
         - integer_base_runtime_workflow_scope
         - integer_base_static
+        - json_path_exists_static
+        - w2b_json_path_runtime_workflow_scope

@@ -6,7 +6,7 @@ Stand: 2026-07-30
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** 13 Module sind implementiert und `partially validated`. |
+| Aktueller Projektstand | **Dokumentiert:** 14 Module sind implementiert; 13 sind `partially validated`, JSON Path Exists ist bis zum ersten Runtime-Lauf `not executed`. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
 | Implementierungsfreigabe | **Abgeschlossen beziehungsweise aktiv:** Die bisher implementierten Einzelkandidaten, W1 und W2a wurden nach ausdrücklicher Freigabe umgesetzt. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
@@ -58,8 +58,10 @@ Die freigegebenen Kandidaten wurden in drei Gruppen umgesetzt:
 | Sammelfreigabe 2026-07-30 | `TC-2026-029`, `TC-2026-001`, `TC-2026-030`, `TC-2026-031` | `completed`; Runtime `partially validated` | Identifier, Split Version 1, Semantic Versioning und Integer Base bleiben getrennte Module. |
 | Portable W1 | `TC-2026-002`, `TC-2026-008`, `TC-2026-024` | `completed`; Runtime `partially validated` | Calendar Difference, Directional TRIM und URI Component besitzen voneinander unabhängige Verträge. |
 | Portable W2a | `TC-2026-004`, `TC-2026-005`, `TC-2026-007` | `completed`; Runtime `partially validated` | Date/Time-Typfamilien und der Bigint-Bit-Slice bleiben von späteren Typ-/Providererweiterungen getrennt. |
+| Portable W2b-A | `TC-2026-009` Slice A | `active`; Runtime `not executed` | Nur Path Exists; Konstruktoren und Aggregate bleiben zurückgestellt. |
 
-Alle drei Sammelfreigaben vom 2026-07-30 sind vollständig abgearbeitet.
+Die ersten drei Sammelfreigaben vom 2026-07-30 sind vollständig
+abgearbeitet; W2b-A befindet sich bis zum grünen Runtime-Lauf in Arbeit.
 
 ## F1-Q – Qualitäts-Enabler parallel, aber nicht alle zugleich
 
@@ -80,8 +82,8 @@ benötigen.
 |---|---:|---|
 | `RI-2026-079` – Date Spine und Kalenderdimension | `M` | Hoher Nutzen; die mögliche Generate-Series-Grundlage `TC-2026-006` ist bereits verfügbar. |
 | `RI-2026-041` – JSON Pointer | `M` | Kleiner standardisierter Kern für spätere JSON-Patch-Funktionen. |
-| `TC-2026-009` – JSON-Konstruktion und Pfadprüfung | `M–L` | W2b; variable Konstruktorargumente und der unterstützte SQL/JSON-Pfadumfang benötigen eine eigene Aufrufoberflächenentscheidung. |
-| `TC-2026-013` – JSON-Aggregate | `L` | W2b; Aggregatoberfläche sowie T-SQL-/CLR-Provider erst nach dem gemeinsamen JSON-Kern entscheiden. |
+| `TC-2026-009` Slice B – JSON-Konstruktion | `M–L` | Path Exists ist als W2b-A implementiert; variable Konstruktorargumente benötigen weiterhin eine eigene Aufrufoberfläche. |
+| `TC-2026-013` – JSON-Aggregate | `L` | Zurückgestellt, solange die native Funktion Preview ist und Aggregatoberfläche sowie T-SQL-/CLR-Provider offen sind. |
 | `RI-2026-076` – Safe Cast mit Fehlerdetails | `M` | Nützlich für Import und Validierung; darf nicht nur `TRY_CONVERT` umbenennen. |
 | `RI-2026-097` – deterministisches Hash-Sampling | `S–M` | Einfacher, reproduzierbarer Baustein für Tests und Datenreduktion. |
 | `RI-2026-086` – `width_bucket` | `S–M` | Begrenzter mathematischer Vertrag und nützlich für Verteilungen. |
@@ -112,14 +114,12 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 
 ## Nächste Ausführung
 
-`AP-2026-016` und die ausdrücklich freigegebene W2a sind abgeschlossen. Die
-drei Module sind auf SQL Server 2025 Linux teilweise validiert. Ein weiterer
-Implementierungskandidat benötigt wieder Vertragsbesprechung und Freigabe.
-`TC-2026-032` bleibt als getrennte Split-Ausbaustufe im Research-Status.
+`AP-2026-017` setzt die ausdrücklich freigegebene W2b-A um.
+`toolbelt.json.path-exists` ist implementiert; Runtime ist noch
+`not executed`. Konstruktoren, JSON-Aggregate und `TC-2026-032` bleiben ohne
+eigene Freigabe außerhalb dieses Arbeitspakets.
 
 Der [kandidatenübergreifende Implementierungsplan](./TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md)
-führt W2a mit `TC-2026-004`, `TC-2026-005` und `TC-2026-007` nun als
-implementiert. Für die nächste gemeinsame Vertragsbesprechung werden
-`TC-2026-009` und `TC-2026-013` als W2b empfohlen; ihre JSON-
-Aufrufoberfläche und Providerentscheidung bleiben offen. Diese Auswahlhilfe
-ist keine Implementierungsfreigabe.
+führt `TC-2026-009` Slice A als W2b-A und `TC-2026-013` weiterhin
+zurückgestellt. Diese Auswahlhilfe erteilt keine Freigabe für Konstruktoren
+oder Aggregate.

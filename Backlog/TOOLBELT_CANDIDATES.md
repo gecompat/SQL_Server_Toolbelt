@@ -195,23 +195,23 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | Feld | Wert |
 |---|---|
 | **ID** | `TC-2026-009` |
-| **Titel** | Kompatibilitätsmodul für `JSON_OBJECT`, `JSON_ARRAY` und `JSON_PATH_EXISTS` |
+| **Titel** | Kompatibilitätsfamilie für `JSON_OBJECT`, `JSON_ARRAY` und `JSON_PATH_EXISTS` |
 | **Ziel-Repository** | `SQL_Server_Toolbelt` |
 | **Kategorie** | JSON |
 | **SQL-Server-Lücke** | SQL Server 2019 besitzt `FOR JSON`, `ISJSON`, `JSON_VALUE`, `JSON_QUERY`, `JSON_MODIFY` und `OPENJSON`, aber nicht die mit SQL Server 2022 eingeführten Konstruktoren `JSON_OBJECT`/`JSON_ARRAY` und die Pfadprüfung `JSON_PATH_EXISTS`. |
 | **Betroffene Versionen** | SQL Server 2019; 2022 und 2025 besitzen native Funktionen. |
 | **Spätere native Funktion** | Ja: SQL Server 2022. |
 | **Use-Case-Typ** | Realistisch |
-| **Nutzen** | Lesbare JSON-Konstruktion und Pfadprüfung mit einem stabilen Vertrag für ältere Installationen. |
-| **Mögliche Technologie** | T-SQL auf Basis von `FOR JSON`, `STRING_ESCAPE`, `JSON_VALUE`, `JSON_QUERY` und `OPENJSON`; exakte Null-, Escaping- und Typsemantik muss nachgebildet oder als bewusster Subset-Vertrag dokumentiert werden. |
-| **Performance und Security** | Doppeltes Escaping, Injection in JSON-Schlüssel, LOB-Materialisierung und mehrfache Parsingkosten prüfen. Keine ungeprüfte String-Konkatenation. |
+| **Nutzen** | Pfadprüfung mit einem stabilen Vertrag für ältere Installationen; JSON-Konstruktion bleibt ein getrennter späterer Slice. |
+| **Mögliche Technologie** | Slice A ist als zustandsbehaftete T-SQL-Multi-statement-TVF auf Basis von `ISJSON` und `OPENJSON` implementiert. Slice B für Konstruktoren bleibt zurückgestellt, weil T-SQL-UDFs keine variadische native Aufrufoberfläche besitzen. |
+| **Performance und Security** | Pfadtiefe und Wildcard-Fan-out materialisieren Frontier-Zustände; Property-Vergleich ist BIN2. Ungültige Pfade werden vor `OPENJSON` validiert. Doppeltes Escaping, Schlüssel-Injection und LOB-Materialisierung bleiben Pflichtfragen eines späteren Konstruktor-Slices. |
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. Azure nicht automatisch unterstützt. |
-| **Dependencies** | Mögliche gemeinsame JSON-Escaping-Kernlogik; keine Duplikate zwischen Konstruktoren. |
+| **Dependencies** | Der implementierte Path-Exists-Slice besitzt keine Modulabhängigkeit. Ein späterer Konstruktor-Slice benötigt einen eigenen Eingabe-, Typ- und Escaping-Vertrag. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; JSON-Aggregate werden separat in TC-2026-013 behandelt. |
-| **Status** | `researched` |
+| **Status** | `implemented` (Slice A); Runtime `not executed`; Konstruktoren `researched` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/sql-server/what-s-new-in-sql-server-2022?view=sql-server-ver16<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/json-object-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/json-path-exists-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Native Null-, Typ-, Escaping- und Fehlersemantik als Contract-Matrix erfassen und einen klaren Backport-Subset bestimmen. |
+| **Nächster Schritt** | `toolbelt.json.path-exists` auf SQL Server 2025 Linux ausführen und danach physische 2019-/2022-/Windows-Releasevalidierung planen. Konstruktoren erst nach einer eigenen Aufrufoberflächenentscheidung besprechen. |
 
 ## TC-2026-010: Regular-Expression-Kompatibilitätsmodul
 
@@ -298,12 +298,12 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Mögliche Technologie** | T-SQL auf Basis von `FOR JSON`, `STRING_AGG` und gemeinsamem JSON-Escaping-Kern; CLR-Aggregat nur nach deutlichem Vorteil. |
 | **Performance und Security** | Reihenfolge, `NULL ON NULL`/`ABSENT ON NULL`, Duplicate Keys, Max-Länge, Memory Grants und Escape-Korrektheit testen. Keine zweite unabhängige JSON-Konstruktionslogik neben TC-2026-009. |
 | **Plattformgrenzen** | T-SQL portabel; native 2025-Preview separat ausweisen. |
-| **Dependencies** | Gemeinsamer JSON-Escaping- und Typkonvertierungskern mit TC-2026-009. |
+| **Dependencies** | Keine Abhängigkeit zum Path-Exists-Slice von `TC-2026-009`. Ein späterer Aggregatvertrag benötigt einen eigenen Escaping-/Typkern oder ausdrücklich freigegebenes SQL CLR. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; Konstruktoren und Pfadprüfung verbleiben in TC-2026-009. |
 | **Status** | `researched` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/json-arrayagg-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/json-objectagg-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Preview-Vertrag und T-SQL-Fallback anhand fester JSON-Testvektoren vergleichen; gemeinsamen JSON-Kern vor Objektentwurf festlegen. |
+| **Nächster Schritt** | Zurückgestellt, solange die nativen SQL-Server-2025-Aggregate Preview sind und kein Aggregat-/SQL-CLR-Providervertrag freigegeben wurde. Preview-Status vor einer erneuten Besprechung neu prüfen. |
 
 ## TC-2026-014: Transaktionsunabhängige Ereignisprotokollierung
 
