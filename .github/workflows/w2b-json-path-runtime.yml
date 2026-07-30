@@ -1,0 +1,39 @@
+name: W2b JSON Path Runtime
+
+on:
+  pull_request:
+    paths:
+      - "Modules/toolbelt.json.path-exists/Source/**"
+      - "Modules/toolbelt.json.path-exists/Deployment/**"
+      - "Modules/toolbelt.json.path-exists/Tests/Runtime/**"
+      - "Modules/toolbelt.json.path-exists/Tests/Static/**"
+      - "Modules/toolbelt.json.path-exists/module.yaml"
+      - "Tests/CI/run-w2b-json-path-linux.sh"
+      - ".github/workflows/w2b-json-path-runtime.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Modules/toolbelt.json.path-exists/Source/**"
+      - "Modules/toolbelt.json.path-exists/Deployment/**"
+      - "Modules/toolbelt.json.path-exists/Tests/Runtime/**"
+      - "Modules/toolbelt.json.path-exists/Tests/Static/**"
+      - "Modules/toolbelt.json.path-exists/module.yaml"
+      - "Tests/CI/run-w2b-json-path-linux.sh"
+      - ".github/workflows/w2b-json-path-runtime.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sql-server-2025-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - run: >-
+          python3
+          Modules/toolbelt.json.path-exists/Tests/Static/validate_contract.py
+      - env:
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Tests/CI/run-w2b-json-path-linux.sh

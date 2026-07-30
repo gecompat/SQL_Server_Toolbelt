@@ -170,3 +170,11 @@ einschließlich RFC-3986-, Unicode-, UTF-8-, Fehler-, Einmal-Decoding-,
 SVF-/TVF-Paritäts-, Deployment- und Lifecycle-Contracts erfolgreich.
 LOB-/Performancegrenzen sowie physische 2019-/2022- und Windows-Läufe bleiben
 `not executed`.
+
+`toolbelt.json.path-exists` hat `implementation_status: implemented`,
+`validation_status: partially validated` und `release_status: unreleased`.
+SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 ist
+einschließlich nativer Parität, Root-, Property-, Quote-, Array-, Wildcard-,
+NULL-, Fehler-, BIN2-, Deployment-, Central-, Uninstall- und
+Lifecycle-Contracts erfolgreich. Physische SQL-Server-2019-/2022- und
+Windows-Läufe bleiben `not executed`.

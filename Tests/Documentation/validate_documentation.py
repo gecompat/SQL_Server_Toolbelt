@@ -901,6 +901,27 @@ def validate_w2a_runtime_workflow_scope() -> None:
             )
 
 
+def validate_w2b_json_path_runtime_workflow_scope() -> None:
+    workflow = read(
+        REPOSITORY_ROOT
+        / ".github"
+        / "workflows"
+        / "w2b-json-path-runtime.yml"
+    )
+    for marker in (
+        '"Documentation/Architecture/**"',
+        '"Documentation/Standards/**"',
+        '"Modules/toolbelt.json.path-exists/**"',
+        '"Modules/toolbelt.json.path-exists/Documentation/**"',
+        '"Modules/toolbelt.json.path-exists/Tests/**/*.md"',
+    ):
+        if marker in workflow:
+            raise ValidationError(
+                "W2b-JSON-Path-Runtime wird durch reine Dokumentation "
+                f"ausgelöst: {marker}"
+            )
+
+
 def run_result_table_static() -> None:
     script = (
         REPOSITORY_ROOT
@@ -1061,6 +1082,26 @@ def run_integer_base_static() -> None:
         )
 
 
+def run_json_path_exists_static() -> None:
+    script = (
+        REPOSITORY_ROOT / "Modules" / "toolbelt.json.path-exists"
+        / "Tests" / "Static" / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)),
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische JSON-Path-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--base", help="Git-Basisref für die Impact-Ermittlung")
@@ -1145,6 +1186,10 @@ def main() -> int:
         validate_w1_runtime_workflow_scope()
     if "w2a_runtime_workflow_scope" in checks:
         validate_w2a_runtime_workflow_scope()
+    if "w2b_json_path_runtime_workflow_scope" in checks:
+        validate_w2b_json_path_runtime_workflow_scope()
+    if "json_path_exists_static" in checks:
+        run_json_path_exists_static()
 
     print("Dokumentations- und Konsistenzprüfung: erfolgreich")
     print(f"Modulmanifeste: {len(modules)}")

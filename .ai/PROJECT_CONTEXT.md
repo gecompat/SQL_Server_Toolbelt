@@ -2,7 +2,7 @@
 
 ## Projektstatus
 
-13 Module sind implementiert und `partially validated`. Die verbindlichen
+14 Module sind implementiert und `partially validated`. Die verbindlichen
 Einzelstatus werden aus den jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das Kernmodul
@@ -65,6 +65,15 @@ Levels 150, 160 und 170
 einschließlich Wiederholungsdeployment, Lifecycle, zentraler Nutzung und
 Uninstall erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe
 bleiben offen; die Module sind deshalb `partially validated`.
+
+W2b-A ist als `toolbelt.json.path-exists` implementiert. Die
+Multi-statement TVF prüft Root-, Property-, Array-Index- und
+Array-Wildcard-Pfade, propagiert SQL `NULL` und liefert für ungültiges JSON
+oder ungültige Pfade fehlerfrei `0`. Konstruktoren aus `TC-2026-009` und
+JSON-Aggregate aus `TC-2026-013` bleiben zurückgestellt. SQL Server 2025
+Linux ist mit Compatibility Levels 150, 160 und 170 einschließlich nativer
+Parität, Wiederholungsdeployment, Lifecycle, Central und Uninstall
+erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
 
 ## Projektzweck
 
