@@ -11,4 +11,4 @@ FROM toolbelt_string.TVF_TrimDirectionalNvarchar(N'..Contoso..', N'.', 'LEADING'
 
 Weitere Details: [Unicode-Objektvertrag](./Documentation/TVF_TrimDirectionalNvarchar.md), [varchar-Objektvertrag](./Documentation/TVF_TrimDirectionalVarchar.md) und [Moduldesign](../../Documentation/Architecture/DIRECTIONAL_TRIM_MODULE_DESIGN.md).
 
-Aktuelle Evidenz: [W1 Portable Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w1-portable-runtime.yml) – `not executed`.
+Aktuelle Evidenz: [Run 30552721606](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30552721606) – SQL Server 2025 Linux mit Compatibility Levels 150/160/170 erfolgreich; Modulstatus `partially validated`.

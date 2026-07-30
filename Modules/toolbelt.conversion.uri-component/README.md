@@ -12,4 +12,4 @@ FROM toolbelt_conversion.TVF_UriComponentEncode(N'Kaffee & Tee') AS encoded;
 
 Details: [Encode](./Documentation/TVF_UriComponentEncode.md), [Decode](./Documentation/TVF_UriComponentDecode.md), [Moduldesign](../../Documentation/Architecture/URI_COMPONENT_MODULE_DESIGN.md).
 
-Aktuelle Evidenz: [W1 Portable Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w1-portable-runtime.yml) – `not executed`.
+Aktuelle Evidenz: [Run 30552721606](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30552721606) – SQL Server 2025 Linux mit Compatibility Levels 150/160/170 erfolgreich; Modulstatus `partially validated`.

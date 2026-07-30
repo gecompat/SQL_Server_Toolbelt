@@ -13,4 +13,4 @@ NUL und nicht kanonisches UTF-8 sind ungültig. Es gibt keine automatische zweit
 
 Quelle: [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986).
 
-Aktuelle Evidenz: [W1 Portable Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w1-portable-runtime.yml) – `not executed`.
+Aktuelle Evidenz: [Run 30552721606](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30552721606) – SQL Server 2025 Linux mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben `not executed`.

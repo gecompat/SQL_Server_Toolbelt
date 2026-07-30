@@ -2,10 +2,11 @@
 
 | Bereich | Synthetische Fälle | Status |
 |---|---|---|
-| Position | `LEADING`, `TRAILING`, `BOTH`, leerer Zeichensatz | vorgesehen |
-| Literalität | `%`, `_`, `[`, `]` und doppelte Zeichen | vorgesehen |
-| Datentypen | `varchar`, `nvarchar`, `NULL`, `NCHAR(0)` | vorgesehen |
-| Collation | CI, CS, BIN2 und UTF-8-varchar | vorgesehen |
-| Parität | SQL Server 2022/2025 bei Compatibility 160/170 | vorgesehen |
+| Position | `LEADING`, `TRAILING`, `BOTH`, leerer Zeichensatz | Richtungen erfolgreich; leerer Zeichensatz `not executed` |
+| Literalität | `%`, `_`, `[`, `]` und doppelte Zeichen | SQL Server 2025 Linux, Compatibility 150/160/170: erfolgreich |
+| Datentypen | `varchar`, `nvarchar`, `NULL`, `NCHAR(0)` | SQL Server 2025 Linux, Compatibility 150/160/170: erfolgreich |
+| Collation | CI, CS, BIN2 und UTF-8-varchar | CS erfolgreich; weitere Collations `not executed` |
+| Parität | SQL Server 2022/2025 bei Compatibility 160/170 | SQL Server 2025 Linux, Compatibility 160/170: erfolgreich |
+| Lifecycle | Erst-, Wiederholungs-, zentrale Nutzung und Uninstall | SQL Server 2025 Linux: erfolgreich; Kollision `not executed` |
 
-Aktuelle Evidenz: [W1 Portable Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w1-portable-runtime.yml) – `not executed`.
+Aktuelle Evidenz: [Run 30552721606](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30552721606).

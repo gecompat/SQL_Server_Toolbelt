@@ -47,10 +47,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. Azure nicht geprüft. |
 | **Dependencies** | Keine bekannt |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; TC-2026-004 und TC-2026-005 behandeln Truncation beziehungsweise Bucketing, nicht vollständige Kalenderperioden. |
-| **Status** | `implemented`; Runtime `not executed` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/datediff-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Synthetische Runtime- und Lifecycle-Matrix auf SQL Server 2025 mit Compatibility Levels 150/160/170 ausführen; echte 2019/2022- und Windows-Evidenz gezielt ergänzen. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Evidenz sowie die noch offenen Kollisionsfälle gezielt ergänzen. |
 
 ## TC-2026-003: Einheitliches ResultTable-Routing für Stored Procedures
 
@@ -185,10 +185,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
 | **Dependencies** | Keine bekannt |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
-| **Status** | `implemented`; Runtime `not executed` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/trim-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Synthetische Runtime-, Collation- und native Paritätsmatrix ausführen; echte 2019/2022- und Windows-Evidenz gezielt ergänzen. |
+| **Nächster Schritt** | Weitere Collations und physische SQL-Server-2019-/2022- und Windows-Evidenz gezielt ergänzen. |
 
 ## TC-2026-009: JSON-Konstruktion und Pfadprüfung für SQL Server 2019
 
@@ -553,10 +553,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | UTF-8-/T-SQL-Kern soll unter Windows und Linux identisch sein; Collation- und Compatibility-Level-Anforderungen sind explizit auszuweisen. CLR-Provider separat validieren. |
 | **Dependencies** | Keine harte Dependency; möglicher gemeinsamer UTF-8-/Binary-Konvertierungskern erst nach Abgleich mit `TC-2026-012`. |
 | **Duplikatprüfung** | Alle Toolbelt-Kandidaten geprüft. `TC-2026-012` behandelt Base64/Base64URL, nicht URI-Percent-Encoding; `TC-2026-009` behandelt JSON-Escaping. |
-| **Status** | `implemented`; Runtime `not executed` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [SQL_SERVER_TOOLBELT_LANDSCAPE.md](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/string-escape-transact-sql?view=sql-server-ver17<br>https://datatracker.ietf.org/doc/html/rfc3986 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | RFC-, Unicode-, Double-decoding-, Fehler- und LOB-Contract-Matrix auf SQL Server 2025 ausführen; CLR erst bei messbarem Vorteil erneut prüfen. |
+| **Nächster Schritt** | LOB- und Performancegrenzen sowie physische SQL-Server-2019-/2022- und Windows-Evidenz ergänzen; CLR erst bei messbarem Vorteil erneut prüfen. |
 
 ## TC-2026-025: Kontrollierte PowerShell-Host-Automation
 

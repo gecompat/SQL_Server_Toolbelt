@@ -14,15 +14,15 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Scope | `toolbelt.datetime.calendar-difference`, `toolbelt.string.directional-trim` und `toolbelt.conversion.uri-component`; öffentliche inline TVFs, optionale URI-Scalar-APIs, Lifecycle, Dokumentation und synthetische Contract-Tests. |
 | Dependencies | Funktionsbezogene Besprechung und ausdrückliche Benutzerfreigabe vom 2026-07-30; für TRIM und URI `toolbelt.core.generate-series` Version `1.0.0`. |
 | Priorität | `P1` |
-| Status | `implemented` |
+| Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Anniversary-Regel, gerichtetes und typstabiles Trim sowie RFC-3986-Komponentenencoding sind explizit dokumentiert; keine implizite IRI-, Form-Encoding- oder Double-Decoding-Semantik. |
-| Tests | Statische Contract-Prüfungen vorhanden. Runtime-, Lifecycle- und physische Versionsmatrix noch nicht ausgeführt. |
-| Blocker | Kein Implementierungsblocker. Für Runtime-Evidenz wird ein SQL-Server-Runner benötigt. |
-| Evidenz | Benutzerfreigabe 2026-07-30; Modulare Artefakte unter `Modules/`; Runtime noch `not executed`. |
-| Nächster Schritt | Synthetische SQL-Server-2025-Linux-Matrix mit Compatibility Levels 150/160/170 ausführen und danach echte 2019/2022- sowie Windows-Smokes ergänzen. |
+| Tests | Statische Contracts und GitHub-hosted SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; Anniversary-, Grenzwert-, Unicode-/UTF-8-, Fehler-, Paritäts-, Wiederholungs-, lokaler, zentraler und Uninstall-Scope geprüft. |
+| Blocker | Keine. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung. |
+| Evidenz | Benutzerfreigabe 2026-07-30; [W1 Portable Runtime 30552721606](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30552721606), [Documentation Consistency 30552721526](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30552721526). |
+| Nächster Schritt | Physische Zielversions- und Windows-Läufe sowie die noch offenen LOB-, Collation- und Kollisionsfälle im Rahmen der Releasevalidierung ausführen. |
 
 ### AP-2026-014: Inline-TVF-Alternativen für bestehende SVFs
 
