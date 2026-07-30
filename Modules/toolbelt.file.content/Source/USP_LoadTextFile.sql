@@ -252,7 +252,9 @@ BEGIN
         RETURN 0;
     END;
 
-    IF @NormalizedPath NOT LIKE N'[A-Za-z]:/%' AND @NormalizedPath NOT LIKE N'//%'
+    IF @NormalizedPath NOT LIKE N'[A-Za-z]:/%'
+       AND @NormalizedPath NOT LIKE N'//%'
+       AND @NormalizedPath NOT LIKE N'/%'
     BEGIN
         SELECT
               CAST(NULL AS nvarchar(max)) AS Content
