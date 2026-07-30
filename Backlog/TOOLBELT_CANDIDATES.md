@@ -22,10 +22,10 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Plattformgrenzen** | Windows und Linux voraussichtlich gleich. Azure nicht geprüft. |
 | **Dependencies** | Keine bekannte harte Dependency; mögliche Wiederverwendung eines späteren Regex-Moduls prüfen. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; TC-2026-010 ist breiter und ersetzt diesen Literalvertrag nicht automatisch. |
-| **Status** | `researched` |
+| **Status** | `ready for development` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/string-split-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-split-to-table-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Semantik für Separatorliste, leere Tokens, Ordinal, maximale Eingabelänge und Collation festlegen; danach Provider vergleichen. |
+| **Nächster Schritt** | Als `AP-2026-011` in der freigegebenen Reihenfolge implementieren. Version 1 bleibt auf mehrere einzelne Trennzeichen ohne Quote-/Escape-Semantik begrenzt; die breitere Ausbaustufe ist separat als `TC-2026-032` erfasst. |
 
 ## TC-2026-002: Kalendarische Differenz in vollständigen Einheiten
 
@@ -647,3 +647,100 @@ Vorlage: [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md)
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/statements/create-external-model-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/ai-generate-embeddings-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/sql-server/what-s-new-in-sql-server-2025?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-invoke-external-rest-endpoint-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
 | **Nächster Schritt** | Konkrete Use Cases zuerst in Embeddings, deterministische Extraktion/Klassifikation und generative Chat-Antworten trennen; danach Datenfreigabe, Modellprovider, Output-Schema, Kosten- und Fehlersicht besprechen. |
+
+## TC-2026-029: Sicheres Identifier- und Multipart-Name-Toolkit
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-029` |
+| **Herkunft** | `RI-2026-011` |
+| **Titel** | Sicheres Identifier- und Multipart-Name-Toolkit |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Metadata / Security |
+| **SQL-Server-Lücke** | SQL Server besitzt mit `QUOTENAME` und `PARSENAME` Einzelbausteine, aber keinen vollständigen wiederverwendbaren Vertrag zum sicheren Parsen, Validieren, Normalisieren und Quoten ein- bis vierteiliger SQL-Identifier. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Keine vollständige native Toolkit-Funktion bekannt. |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Gemeinsame sichere Namensbasis für Metadaten-, DDL- und Dynamic-SQL-Utilities. |
+| **Mögliche Technologie** | Portables T-SQL; Parser, Validator und Quoting-Funktionen mit binär eindeutiger Prüfung der Bestandteile. `QUOTENAME` darf als Quoting-Primitive dienen, ersetzt aber nicht den Gesamtvertrag. |
+| **Performance und Security** | Ungeprüfter SQL-Text, Kommentare, Ausdrücke und mehr als vier Teile bleiben ausgeschlossen. Leere Teile, Klammer-Escaping, Whitespace, maximale Identifierlänge, Collation und `NULL` sind Contract- und Testfälle. Das Toolkit bestätigt Syntax, nicht automatisch Existenz oder Berechtigung eines Objekts. |
+| **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
+| **Dependencies** | Keine Modulabhängigkeit. Die empfohlenen Vertragsgrenzen wurden am 2026-07-30 besprochen und die Implementierung ausdrücklich freigegeben. |
+| **Duplikatprüfung** | Research-Inbox und formale Toolbelt-Kandidaten geprüft; `RI-2026-013` behandelt die Erzeugung neuer Constraint-/Indexnamen und bleibt getrennt. |
+| **Status** | `ready for development` |
+| **Primärquellen** | [Research-Inbox `RI-2026-011`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/quotename-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/parsename-transact-sql?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Als `AP-2026-010` implementieren; das Moduldesign hält die bereits akzeptierten Signaturen, Fehler- und Resultsetverträge vor dem ersten Runtime-Objekt dauerhaft fest. |
+
+## TC-2026-030: Semantic-Version Parser und Comparator
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-030` |
+| **Herkunft** | `RI-2026-075` |
+| **Titel** | Semantic-Version Parser und Comparator |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Validation / Core |
+| **SQL-Server-Lücke** | SQL Server besitzt keinen nativen SemVer-2.0.0-Parser und keine standardkonforme Präzedenzlogik für Pre-release-Identifier. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Keine bekannt. |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Strikte Validierung, Vergleich und Sortierung von Modul-, Capability- und Paketversionen. |
+| **Mögliche Technologie** | Portables T-SQL mit gemeinsamem kanonischem Parserkern; Parse- und Compare-Oberflächen verwenden dieselbe Validierungs- und Präzedenzlogik. |
+| **Performance und Security** | SemVer 2.0.0 wird strikt von beliebigen Produktversionsformaten getrennt. Numerische Pre-release-Identifier, führende Nullen, ASCII-Zeichenvorrat, beliebig lange numerische Komponenten, Build Metadata und ungültige Eingaben benötigen explizite Tests ohne verlustbehaftete Integer-Konvertierung. |
+| **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
+| **Dependencies** | Keine Modulabhängigkeit. Der Standardumfang einschließlich Pre-release und Build Metadata wurde am 2026-07-30 besprochen und die Implementierung ausdrücklich freigegeben. |
+| **Duplikatprüfung** | Research-Inbox und formale Toolbelt-Kandidaten geprüft. |
+| **Status** | `ready for development` |
+| **Primärquellen** | [Research-Inbox `RI-2026-075`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://semver.org/spec/v2.0.0.html |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Als `AP-2026-012` implementieren; Parser-, Comparator-, Sortier- und Fehlermatrix aus dem akzeptierten SemVer-Vertrag ableiten. |
+
+## TC-2026-031: Ganzzahlen in frei definierbaren Zahlensystemen
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-031` |
+| **Herkunft** | `RI-2026-055` und `Backlog/personal_Backlog_Bainstorm.md` |
+| **Titel** | Ganzzahlen in frei definierbaren Zahlensystemen |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Conversion |
+| **SQL-Server-Lücke** | SQL Server besitzt keinen allgemeinen Vertrag, der Ganzzahlen mit einem frei vorgegebenen Alphabet in ein Zahlensystem kodiert und wieder strikt dekodiert. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Keine allgemeine native Funktion bekannt. |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Ein gemeinsamer Kern für Binär-, Oktal-, Hexadezimal-, Base36- und projektspezifische Integerdarstellungen. |
+| **Mögliche Technologie** | Portables T-SQL mit gemeinsamem Encode-/Decode-Kern und explizitem Alphabetparameter. |
+| **Performance und Security** | Alphabetlänge, binär eindeutige Zeichen, Vorzeichen, Null, Groß-/Kleinschreibung, ungültige Zeichen und `bigint`-Overflow sind Vertragsbestandteile. Keine stillschweigende Normalisierung des Alphabets. |
+| **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. |
+| **Dependencies** | Keine Modulabhängigkeit. Der Umfang mit frei definierbarem Alphabet, positiven und negativen Ganzzahlen sowie mindestens Base 2 bis Base 36 wurde am 2026-07-30 besprochen und die Implementierung ausdrücklich freigegeben. |
+| **Duplikatprüfung** | Research-Inbox, persönlicher Brainstorm und formale Toolbelt-Kandidaten geprüft; Base64 kodiert Binärdaten und ist kein Duplikat. |
+| **Status** | `ready for development` |
+| **Primärquellen** | [Research-Inbox `RI-2026-055`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Persönlicher Brainstorm](./personal_Backlog_Bainstorm.md)<br>https://www.rfc-editor.org/info/rfc4648/ |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Als `AP-2026-013` implementieren; akzeptierten Alphabet-, Vorzeichen-, Fehler- und Overflow-Vertrag im Moduldesign und in der Contract-Testmatrix festhalten. |
+
+## TC-2026-032: Erweiterter String-Split mit mehrzeichigen Separatoren, Escape und Quote
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-032` |
+| **Herkunft** | Benutzerergänzung zu `TC-2026-001` vom 2026-07-30 |
+| **Titel** | Erweiterter String-Split mit mehrzeichigen Separatoren, Escape und Quote |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | String |
+| **SQL-Server-Lücke** | Weder `STRING_SPLIT` noch ein einfacher Literal-Split-Vertrag decken gleichzeitig mehrere Separatoren beliebiger Länge, frei wählbare Quote-Zeichen und Escape-Semantik ab. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Teilweise Regex-Split ab SQL Server 2025; Quote- und Escape-Vertrag bleibt eigenständig. |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Kontrolliertes Tokenizing strukturierter Texte, deren Separatoren innerhalb gequoteter oder escapeter Bereiche nicht trennen dürfen. |
+| **Mögliche Technologie** | Offen: T-SQL-Parser, SQL CLR oder versionsbezogener Providervergleich. |
+| **Performance und Security** | Separatorpriorität bei Präfixüberschneidungen, Quote-/Escape-Zeichen beliebiger Länge, Verschachtelung, unvollständige Quotes, LOBs, Collation und Worst-case-Laufzeit müssen vor einer Freigabe definiert werden. Kein stilles Gleichsetzen mit CSV oder regulären Ausdrücken. |
+| **Plattformgrenzen** | T-SQL portabel; CLR oder native Provider separat auf Windows und Linux prüfen. |
+| **Dependencies** | Funktional getrennte Folgestufe zu `TC-2026-001`; darf Version 1 nicht nachträglich verbreitern. |
+| **Duplikatprüfung** | `TC-2026-001` und `TC-2026-010` geprüft; eigener Literal-/Parser-Vertrag erforderlich. |
+| **Status** | `researched` |
+| **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/string-split-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-split-to-table-transact-sql?view=sql-server-ver17 |
+| **Prüfdatum** | 2026-07-30 |
+| **Nächster Schritt** | Nach Version 1 Separatorrepräsentation, längste-Treffer-Regel, Quote-/Escape-Modell, Fehlervertrag, maximale Eingabelänge und Providervergleich mit dem Benutzer besprechen. Keine Implementierungsfreigabe aus `TC-2026-001` ableiten. |
+
