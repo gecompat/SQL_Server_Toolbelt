@@ -59,7 +59,7 @@ jobs:
             Spikes/sql-clr-zip-provider/Artifacts/Toolbelt.ZipClr.Spike.trust-manifest.json
 
   linux-runtime:
-    name: Linux SQL Server 2022 runtime
+    name: Linux SQL Server 2022 dependency gate
     needs: build-net-framework
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -124,7 +124,21 @@ jobs:
           docker cp "$assembly_file" "$container_name:$assembly_path"
 
           "$sqlcmd_path" -S localhost,1433 -U sa -P "$sa_password" -C -b -d master             -v "AssemblyHash=$assembly_hash" "AssemblyDescription=$assembly_description"             -i "$spike_root/Deployment/Add-TrustedAssembly.sql"
-          "$sqlcmd_path" -S localhost,1433 -U sa -P "$sa_password" -C -b -d "$database_name"             -v "TestDatabase=$database_name" "AssemblyPath=$assembly_path"             -i "$spike_root/Deployment/Deploy-TestDatabase.sql"
-          "$sqlcmd_path" -S localhost,1433 -U sa -P "$sa_password" -C -b -d "$database_name"             -v "TestDatabase=$database_name"             -i "$spike_root/Deployment/Verify-TestDatabase.sql"
-          "$sqlcmd_path" -S localhost,1433 -U sa -P "$sa_password" -C -b -d "$database_name"             -v "TestDatabase=$database_name"             -i "$spike_root/Deployment/Uninstall-TestDatabase.sql"
-          "$sqlcmd_path" -S localhost,1433 -U sa -P "$sa_password" -C -b -d master             -Q "DROP DATABASE [$database_name];"
+          # System.IO.Compression ist keine direkt unterstützte SQL-CLR-Bibliothek.
+          # Der Gate bestätigt deshalb zunächst reproduzierbar, dass SQL Server
+          # die Abhängigkeit nicht stillschweigend auflöst.
+          deploy_log="$(mktemp)"
+          set +e
+          "$sqlcmd_path" -S localhost,1433 -U sa -P "$sa_password" -C -b -d "$database_name" -v "TestDatabase=$database_name" "AssemblyPath=$assembly_path" -i "$spike_root/Deployment/Deploy-TestDatabase.sql" 2>&1 | tee "$deploy_log"
+          deploy_status=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$deploy_status" -eq 0 ]; then
+            echo "::error title=Unexpected dependency resolution::CREATE ASSEMBLY succeeded. Update the documented Linux evidence before enabling a runtime-success path."
+            exit 1
+          fi
+          if ! grep --fixed-strings --quiet "references assembly 'system.io.compression" "$deploy_log" || ! grep --fixed-strings --quiet "which is not present in the current database" "$deploy_log"; then
+            echo "::error title=Unexpected deployment failure::The Linux dependency gate did not receive the documented missing-System.IO.Compression error."
+            exit "$deploy_status"
+          fi
+          echo "::notice title=Linux dependency gate confirmed::SQL Server did not implicitly resolve System.IO.Compression. No CLR routine was executed."
