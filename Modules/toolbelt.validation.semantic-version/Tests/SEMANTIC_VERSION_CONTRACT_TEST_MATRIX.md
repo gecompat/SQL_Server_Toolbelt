@@ -7,8 +7,10 @@
 | Präzedenz | offizielle SemVer-Folge, ASCII, Build ignoriert | vorhanden |
 | Größe | 2.000-stellige Core-Komponente ohne Overflow | vorhanden |
 | Sort Key | gleiche Reihenfolge wie Comparator | vorhanden |
+| API-Parität | SVF und inline TVF, exakt eine Zeile, `OUTER APPLY` | vorhanden |
+| Upgrade | `1.0.0` auf `1.1.0`, Wiederholung, Kollision | vorhanden |
 | Lifecycle | lokal, zentral, Drift, Kollision, Uninstall | vorhanden |
-| SQL Server 2025 Linux 150/160/170 | vollständige Suite | erfolgreich |
+| SQL Server 2025 Linux 150/160/170 | Version `1.1.0` | `not executed` |
 | SQL Server 2019/2022 und Windows | Release-Matrix | `not executed` |
 
 Aktuelle Evidenz:

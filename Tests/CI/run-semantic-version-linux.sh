@@ -107,11 +107,21 @@ done
 # Eine lokale Änderung desselben bekannten Release-Objekts wird beim
 # Wiederholungsdeployment durch die kanonische Source ersetzt.
 run_query "${local_database}" \
-    "ALTER FUNCTION [toolbelt_validation].[SVF_CompareSemanticVersion] (@LeftVersion varchar(8000), @RightVersion varchar(8000)) RETURNS smallint AS BEGIN RETURN 0; END;"
+    "ALTER FUNCTION [toolbelt_validation].[TVF_CompareSemanticVersion] (@LeftVersion varchar(8000), @RightVersion varchar(8000)) RETURNS TABLE AS RETURN (SELECT CONVERT(smallint, 0) AS ComparisonResult);"
 run_file "${local_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 run_file "${local_database}" "${runtime_directory}" SemanticVersion.Contract.sql \
+    -v CompatibilityLevel=170
+
+upgrade_database="tbx_semantic_version_upgrade"
+create_database "${upgrade_database}"
+run_query "${upgrade_database}" \
+    "CREATE SCHEMA [toolbelt_validation]; CREATE FUNCTION [toolbelt_validation].[TVF_ParseSemanticVersion] (@Version varchar(8000)) RETURNS @Result TABLE (IsValid bit NOT NULL, ValidationCode varchar(32) NOT NULL, Major varchar(8000) NULL, Minor varchar(8000) NULL, Patch varchar(8000) NULL, PreRelease varchar(8000) NULL, BuildMetadata varchar(8000) NULL, CanonicalVersion varchar(8000) NULL) AS BEGIN RETURN; END; CREATE FUNCTION [toolbelt_validation].[SVF_CompareSemanticVersion] (@LeftVersion varchar(8000), @RightVersion varchar(8000)) RETURNS smallint AS BEGIN RETURN NULL; END; CREATE FUNCTION [toolbelt_validation].[SVF_SemanticVersionSortKey] (@Version varchar(8000)) RETURNS varbinary(max) AS BEGIN RETURN NULL; END; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.validation.semantic-version.Version', @value=N'1.0.0';"
+run_file "${upgrade_database}" "${deployment_directory}" Deploy.sql \
+    -v DeploymentMode=local
+run_file "${upgrade_database}" "${runtime_directory}" Lifecycle.Contract.sql
+run_file "${upgrade_database}" "${runtime_directory}" SemanticVersion.Contract.sql \
     -v CompatibilityLevel=170
 
 central_database="tbx_semantic_version_central"
@@ -127,7 +137,7 @@ run_file "${central_database}" "${deployment_directory}" Uninstall.sql \
     -v ConfirmNoExternalConsumers=1
 
 run_query "${central_database}" \
-    "IF OBJECT_ID(N'toolbelt_validation.TVF_ParseSemanticVersion') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.SVF_CompareSemanticVersion') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.SVF_SemanticVersionSortKey') IS NOT NULL THROW 52740, N'Central Uninstall ließ Release-Objekte zurück.', 1;"
+    "IF OBJECT_ID(N'toolbelt_validation.TVF_ParseSemanticVersion') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.TVF_CompareSemanticVersion') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.TVF_SemanticVersionSortKey') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.SVF_CompareSemanticVersion') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.SVF_SemanticVersionSortKey') IS NOT NULL THROW 52740, N'Central Uninstall ließ Release-Objekte zurück.', 1;"
 
 existing_schema_database="tbx_semantic_version_existing_schema"
 create_database "${existing_schema_database}"
@@ -145,7 +155,7 @@ create_database "${collision_database}"
 run_query "${collision_database}" \
     "CREATE SCHEMA [toolbelt_validation];"
 run_query "${collision_database}" \
-    "CREATE FUNCTION [toolbelt_validation].[TVF_ParseSemanticVersion] (@Version varchar(8000)) RETURNS TABLE AS RETURN (SELECT CONVERT(bit, 0) AS ForeignObject);"
+    "CREATE FUNCTION [toolbelt_validation].[TVF_CompareSemanticVersion] (@LeftVersion varchar(8000), @RightVersion varchar(8000)) RETURNS TABLE AS RETURN (SELECT CONVERT(smallint, 0) AS ComparisonResult);"
 
 if run_file "${collision_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local; then
@@ -159,6 +169,6 @@ run_query "${collision_database}" \
 run_file "${local_database}" "${deployment_directory}" Uninstall.sql \
     -v ConfirmNoExternalConsumers=0
 run_query "${local_database}" \
-    "IF OBJECT_ID(N'toolbelt_validation.TVF_ParseSemanticVersion') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.SVF_CompareSemanticVersion') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.SVF_SemanticVersionSortKey') IS NOT NULL THROW 52743, N'Uninstall ließ Release-Objekte zurück.', 1;"
+    "IF OBJECT_ID(N'toolbelt_validation.TVF_ParseSemanticVersion') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.TVF_CompareSemanticVersion') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.TVF_SemanticVersionSortKey') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.SVF_CompareSemanticVersion') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.SVF_SemanticVersionSortKey') IS NOT NULL THROW 52743, N'Uninstall ließ Release-Objekte zurück.', 1;"
 
 echo "Semantic-Version SQL Server 2025 Linux (Compatibility 150/160/170): erfolgreich"

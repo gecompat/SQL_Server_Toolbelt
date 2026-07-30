@@ -1,6 +1,6 @@
 module_id: "toolbelt.conversion.base64"
 module_name: "Base64 and Base64URL Conversion"
-version: "1.0.0"
+version: "1.1.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
@@ -39,6 +39,14 @@ schemas:
   - "toolbelt_conversion"
 
 objects:
+  - type: TVF
+    schema: "toolbelt_conversion"
+    name: "TVF_Base64Encode"
+    visibility: public
+  - type: TVF
+    schema: "toolbelt_conversion"
+    name: "TVF_Base64Decode"
+    visibility: public
   - type: SVF
     schema: "toolbelt_conversion"
     name: "SVF_Base64Encode"
@@ -74,6 +82,8 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
+    - "Documentation/TVF_Base64Encode.md"
+    - "Documentation/TVF_Base64Decode.md"
     - "Documentation/SVF_Base64Encode.md"
     - "Documentation/SVF_Base64Decode.md"
   architecture:
@@ -97,6 +107,10 @@ tests:
   github_hosted_linux: "../../.github/workflows/base64-runtime.yml"
 
 validation_evidence:
+  - date: "2026-07-30"
+    workflow: "not executed"
+    scope: "Inline-TVF-Parität, APPLY, Deployment-Upgrade und Lifecycle für Version 1.1.0"
+    result: "not executed"
   - date: "2026-07-29"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/base64-runtime.yml"
     scope: "Workflow und Contract-Tests vorhanden; Runtime noch nicht ausgeführt"

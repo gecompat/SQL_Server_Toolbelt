@@ -29,8 +29,10 @@ def require(text: str, pattern: str, description: str) -> None:
 
 
 def main() -> int:
-    encode = read("Source/SVF_Base64Encode.sql")
-    decode = read("Source/SVF_Base64Decode.sql")
+    encode_tvf = read("Source/TVF_Base64Encode.sql")
+    decode_tvf = read("Source/TVF_Base64Decode.sql")
+    encode_svf = read("Source/SVF_Base64Encode.sql")
+    decode_svf = read("Source/SVF_Base64Decode.sql")
     deploy = read("Deployment/Deploy.sql")
     uninstall = read("Deployment/Uninstall.sql")
     manifest = read("module.yaml")
@@ -39,48 +41,68 @@ def main() -> int:
     runtime = read("Tests/Runtime/Base64.Contract.sql")
 
     combined = "\n".join(
-        (encode, decode, deploy, uninstall, manifest, module_documentation)
+        (
+            encode_tvf,
+            decode_tvf,
+            encode_svf,
+            decode_svf,
+            deploy,
+            uninstall,
+            manifest,
+            module_documentation,
+        )
     )
     if "{{" in combined or "}}" in combined or "NICHT AUSFÜHRBAR" in combined:
         raise ContractError("Ausführbare Artefakte enthalten Template-Reste.")
 
     require(
-        encode,
+        encode_tvf,
         r"CREATE\s+OR\s+ALTER\s+FUNCTION\s+\[toolbelt_conversion\]"
-        r"\.\[SVF_Base64Encode\]",
+        r"\.\[TVF_Base64Encode\]",
         "Encode-Objektname",
     )
-    require(encode, r"@Value\s+varbinary\(max\)", "Encode-Binäreingabe")
-    require(encode, r"@UrlSafe\s+bit\s*=\s*0", "Encode-Default")
-    require(encode, r"RETURNS\s+varchar\(max\)", "Encode-Rückgabetyp")
-    require(encode, r"xs:base64Binary", "XML-Provider für Encode")
+    require(encode_tvf, r"@Value\s+varbinary\(max\)", "Encode-Binäreingabe")
+    require(encode_tvf, r"@UrlSafe\s+bit\s*=\s*0", "Encode-Default")
+    require(encode_tvf, r"RETURNS\s+TABLE", "Encode-inline-TVF")
+    require(encode_tvf, r"xs:base64Binary", "XML-Provider für Encode")
 
     require(
-        decode,
+        decode_tvf,
         r"CREATE\s+OR\s+ALTER\s+FUNCTION\s+\[toolbelt_conversion\]"
-        r"\.\[SVF_Base64Decode\]",
+        r"\.\[TVF_Base64Decode\]",
         "Decode-Objektname",
     )
-    require(decode, r"@Value\s+varchar\(max\)", "Decode-Texteingabe")
-    require(decode, r"RETURNS\s+varbinary\(max\)", "Decode-Rückgabetyp")
+    require(decode_tvf, r"@Value\s+varchar\(max\)", "Decode-Texteingabe")
+    require(decode_tvf, r"RETURNS\s+TABLE", "Decode-inline-TVF")
     for marker in ("CHAR(32)", "CHAR(9)", "CHAR(13)", "CHAR(10)"):
-        if marker not in decode:
+        if marker not in decode_tvf:
             raise ContractError(f"Whitespace-Normalisierung fehlt: {marker}")
     for marker in (
         "Latin1_General_100_BIN2",
-        "@FirstPadding",
-        "@PaddingCount",
-        "@LengthRemainder",
+        "FirstPadding",
+        "PaddingCount",
+        "LengthRemainder",
         "toolbelt.invalid.base64",
     ):
-        if marker not in decode:
+        if marker not in decode_tvf:
             raise ContractError(f"Decode-Strukturvalidierung fehlt: {marker}")
-    if "THROW 51" in encode or "THROW 51" in decode:
-        raise ContractError("Scalar UDFs dürfen Providerfehler nicht umnummerieren.")
-    if re.search(r"\bBASE64_(?:ENCODE|DECODE)\s*\(", encode + decode, re.I):
+    if "SVF_" in encode_tvf or "SVF_" in decode_tvf:
+        raise ContractError("Eine inline TVF darf nicht die zugehörige SVF aufrufen.")
+    require(encode_svf, r"TVF_Base64Encode\s*\(", "Encode-SVF-Wrapper")
+    require(decode_svf, r"TVF_Base64Decode\s*\(", "Decode-SVF-Wrapper")
+    if re.search(
+        r"\bBASE64_(?:ENCODE|DECODE)\s*\(",
+        encode_tvf + decode_tvf + encode_svf + decode_svf,
+        re.I,
+    ):
         raise ContractError("Portable Source darf native 2025-Funktionen nicht nutzen.")
 
-    for source in ("SVF_Base64Encode.sql", "SVF_Base64Decode.sql"):
+    for source in (
+        "TVF_Base64Encode.sql",
+        "TVF_Base64Decode.sql",
+        "SVF_Base64Encode.sql",
+        "SVF_Base64Decode.sql",
+    ):
         if deploy.count(f":r ../Source/{source}") != 1:
             raise ContractError(f"Deploy bindet {source} nicht exakt einmal ein.")
 
@@ -105,7 +127,12 @@ def main() -> int:
             f"deterministisches Property-Ordinal {ordinal}",
         )
 
-    for object_name in ("SVF_Base64Encode", "SVF_Base64Decode"):
+    for object_name in (
+        "TVF_Base64Encode",
+        "TVF_Base64Decode",
+        "SVF_Base64Encode",
+        "SVF_Base64Decode",
+    ):
         for text, location in (
             (manifest, "Manifest"),
             (deploy, "Deploy"),
@@ -123,6 +150,11 @@ def main() -> int:
     for vector in required_vectors:
         if vector not in runtime:
             raise ContractError(f"Contract-Vektor fehlt: {vector}")
+    for marker in ("SVF-/inline-TVF-Parität", "OUTER APPLY", "N'IF'"):
+        if marker not in runtime and marker != "N'IF'":
+            raise ContractError(f"Inline-TVF-Runtimevertrag fehlt: {marker}")
+    if "'IF'" not in read("Tests/Runtime/Lifecycle.Contract.sql"):
+        raise ContractError("Lifecycle prüft den inline-TVF-Objekttyp nicht.")
 
     if "../../.github/workflows/base64-runtime.yml" not in manifest:
         raise ContractError("Runtime-Workflow ist im Manifest nicht gekoppelt.")

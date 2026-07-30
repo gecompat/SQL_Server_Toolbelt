@@ -22,7 +22,9 @@ DECLARE @SetCompatibilitySql nvarchar(max) =
     + N';';
 EXEC sys.sp_executesql @SetCompatibilitySql;
 
-IF OBJECT_ID(N'toolbelt_conversion.SVF_Base64Encode', N'FN') IS NULL
+IF OBJECT_ID(N'toolbelt_conversion.TVF_Base64Encode', N'IF') IS NULL
+   OR OBJECT_ID(N'toolbelt_conversion.TVF_Base64Decode', N'IF') IS NULL
+   OR OBJECT_ID(N'toolbelt_conversion.SVF_Base64Encode', N'FN') IS NULL
    OR OBJECT_ID(N'toolbelt_conversion.SVF_Base64Decode', N'FN') IS NULL
 BEGIN
     THROW 52301, N'Die öffentlichen Base64-Funktionen fehlen.', 1;
@@ -127,6 +129,74 @@ IF toolbelt_conversion.SVF_Base64Encode(NULL, 0) IS NOT NULL
    OR toolbelt_conversion.SVF_Base64Decode(NULL) IS NOT NULL
 BEGIN
     THROW 52304, N'NULL wird nicht vertragsgemäß weitergegeben.', 1;
+END;
+
+IF EXISTS
+   (
+       SELECT 1
+       FROM @Vectors AS vectors
+       CROSS APPLY toolbelt_conversion.TVF_Base64Encode
+                   (
+                         vectors.BinaryValue
+                       , DEFAULT
+                   ) AS encoded
+       CROSS APPLY toolbelt_conversion.TVF_Base64Decode
+                   (
+                       encoded.EncodedValue
+                   ) AS decoded
+       WHERE encoded.EncodedValue <> vectors.StandardBase64
+          OR decoded.DecodedValue <> vectors.BinaryValue
+          OR encoded.EncodedValue
+             <> toolbelt_conversion.SVF_Base64Encode
+                (
+                      vectors.BinaryValue
+                    , DEFAULT
+                )
+          OR decoded.DecodedValue
+             <> toolbelt_conversion.SVF_Base64Decode
+                (
+                    vectors.StandardBase64
+                )
+   )
+BEGIN
+    THROW 52313, N'Die SVF-/inline-TVF-Parität ist fehlgeschlagen.', 1;
+END;
+
+IF (SELECT COUNT(*) FROM toolbelt_conversion.TVF_Base64Encode(NULL, 0)) <> 1
+   OR EXISTS
+      (
+          SELECT 1
+          FROM toolbelt_conversion.TVF_Base64Encode(NULL, 0)
+          WHERE EncodedValue IS NOT NULL
+      )
+   OR (SELECT COUNT(*) FROM toolbelt_conversion.TVF_Base64Decode(NULL)) <> 1
+   OR EXISTS
+      (
+          SELECT 1
+          FROM toolbelt_conversion.TVF_Base64Decode(NULL)
+          WHERE DecodedValue IS NOT NULL
+      )
+BEGIN
+    THROW 52314, N'Der einzeilige NULL-Vertrag der inline TVFs ist fehlgeschlagen.', 1;
+END;
+
+DECLARE @ApplyInput TABLE
+(
+      ItemOrdinal int NOT NULL PRIMARY KEY
+    , BinaryValue varbinary(max) NULL
+);
+INSERT INTO @ApplyInput (ItemOrdinal, BinaryValue)
+VALUES (1, 0xCAFECAFE), (2, NULL);
+
+IF (SELECT COUNT(*)
+    FROM @ApplyInput AS source
+    OUTER APPLY toolbelt_conversion.TVF_Base64Encode
+                (
+                      source.BinaryValue
+                    , 1
+                ) AS encoded) <> 2
+BEGIN
+    THROW 52315, N'OUTER APPLY erhält die äußeren Zeilen nicht vollständig.', 1;
 END;
 
 IF toolbelt_conversion.SVF_Base64Encode(0xCAFECAFE, 0) <> 'yv7K/g=='

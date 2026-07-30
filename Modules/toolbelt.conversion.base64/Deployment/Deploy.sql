@@ -2,7 +2,7 @@
 
 -- ============================================================================
 -- Zweck:     Erst-, Upgrade- und Wiederholungsdeployment
--- Modul:     toolbelt.conversion.base64 v1.0.0
+-- Modul:     toolbelt.conversion.base64 v1.1.0
 -- Schema:    toolbelt_conversion
 -- Erfordert: SQL Server 2019, 2022 oder 2025
 -- Modus:     SQLCMD; Ausführung aus diesem Deployment-Verzeichnis
@@ -42,7 +42,11 @@ INSERT INTO #tbx_Base64ReleaseObjects
 )
 VALUES
       (N'1.0.0', N'toolbelt_conversion', N'SVF_Base64Encode', 'FN')
-    , (N'1.0.0', N'toolbelt_conversion', N'SVF_Base64Decode', 'FN');
+    , (N'1.0.0', N'toolbelt_conversion', N'SVF_Base64Decode', 'FN')
+    , (N'1.1.0', N'toolbelt_conversion', N'TVF_Base64Encode', 'IF')
+    , (N'1.1.0', N'toolbelt_conversion', N'TVF_Base64Decode', 'IF')
+    , (N'1.1.0', N'toolbelt_conversion', N'SVF_Base64Encode', 'FN')
+    , (N'1.1.0', N'toolbelt_conversion', N'SVF_Base64Decode', 'FN');
 
 CREATE TABLE #tbx_Base64DeployState
 (
@@ -53,7 +57,7 @@ CREATE TABLE #tbx_Base64DeployState
 );
 
 DECLARE
-      @TargetVersion        nvarchar(64) = N'1.0.0'
+      @TargetVersion        nvarchar(64) = N'1.1.0'
     , @DeploymentMode       nvarchar(16) = LOWER(N'$(DeploymentMode)')
     , @InstalledVersion     nvarchar(64)
     , @VersionPropertyName  sysname =
@@ -326,6 +330,8 @@ BEGIN CATCH
 END CATCH;
 GO
 
+:r ../Source/TVF_Base64Encode.sql
+:r ../Source/TVF_Base64Decode.sql
 :r ../Source/SVF_Base64Encode.sql
 :r ../Source/SVF_Base64Decode.sql
 
@@ -347,6 +353,8 @@ BEGIN TRY
     FROM #tbx_Base64DeployState;
 
     IF XACT_STATE() <> 1
+       OR OBJECT_ID(N'toolbelt_conversion.TVF_Base64Encode', N'IF') IS NULL
+       OR OBJECT_ID(N'toolbelt_conversion.TVF_Base64Decode', N'IF') IS NULL
        OR OBJECT_ID(N'toolbelt_conversion.SVF_Base64Encode', N'FN') IS NULL
        OR OBJECT_ID(N'toolbelt_conversion.SVF_Base64Decode', N'FN') IS NULL
     BEGIN
@@ -360,7 +368,11 @@ BEGIN TRY
     );
 
     INSERT INTO @Objects (ObjectName)
-    VALUES (N'SVF_Base64Encode'), (N'SVF_Base64Decode');
+    VALUES
+          (N'TVF_Base64Encode')
+        , (N'TVF_Base64Decode')
+        , (N'SVF_Base64Encode')
+        , (N'SVF_Base64Decode');
 
     DECLARE
           @ObjectOrdinal int = 1

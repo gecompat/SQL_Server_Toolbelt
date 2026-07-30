@@ -1,5 +1,9 @@
 # `SVF_SemanticVersionSortKey`
 
+Die SVF delegiert an
+[`TVF_SemanticVersionSortKey`](./TVF_SemanticVersionSortKey.md). Für
+mengenorientierte Sortierungen ist die inline TVF mit `APPLY` zu bevorzugen.
+
 Liefert `varbinary(max)` mit derselben aufsteigenden Präzedenz wie der
 Comparator oder `NULL` für ungültige Eingabe. Build Metadata beeinflusst den
 Key nicht. Die Binärdarstellung ist ein technischer Modulwert, kein

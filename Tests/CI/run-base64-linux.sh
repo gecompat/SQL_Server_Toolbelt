@@ -103,11 +103,21 @@ done
 # Eine lokale Änderung desselben bekannten Release-Objekts wird beim
 # Wiederholungsdeployment bewusst durch die kanonische Source ersetzt.
 run_query "${local_database}" \
-    "ALTER FUNCTION [toolbelt_conversion].[SVF_Base64Encode] (@Value varbinary(max), @UrlSafe bit = 0) RETURNS varchar(max) AS BEGIN RETURN 'drift'; END;"
+    "ALTER FUNCTION [toolbelt_conversion].[TVF_Base64Encode] (@Value varbinary(max), @UrlSafe bit = 0) RETURNS TABLE AS RETURN (SELECT CONVERT(varchar(max), 'drift') AS EncodedValue);"
 run_file "${local_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 run_file "${local_database}" "${runtime_directory}" Base64.Contract.sql \
+    -v CompatibilityLevel=170
+
+upgrade_database="tbx_base64_upgrade"
+create_database "${upgrade_database}"
+run_query "${upgrade_database}" \
+    "CREATE SCHEMA [toolbelt_conversion]; CREATE FUNCTION [toolbelt_conversion].[SVF_Base64Encode] (@Value varbinary(max), @UrlSafe bit = 0) RETURNS varchar(max) AS BEGIN RETURN 'legacy'; END; CREATE FUNCTION [toolbelt_conversion].[SVF_Base64Decode] (@Value varchar(max)) RETURNS varbinary(max) AS BEGIN RETURN 0x; END; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.conversion.base64.Version', @value=N'1.0.0';"
+run_file "${upgrade_database}" "${deployment_directory}" Deploy.sql \
+    -v DeploymentMode=local
+run_file "${upgrade_database}" "${runtime_directory}" Lifecycle.Contract.sql
+run_file "${upgrade_database}" "${runtime_directory}" Base64.Contract.sql \
     -v CompatibilityLevel=170
 
 central_database="tbx_base64_central"
@@ -123,7 +133,7 @@ run_file "${central_database}" "${deployment_directory}" Uninstall.sql \
     -v ConfirmNoExternalConsumers=1
 
 run_query "${central_database}" \
-    "IF OBJECT_ID(N'toolbelt_conversion.SVF_Base64Encode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_Base64Decode') IS NOT NULL THROW 52340, N'Central Uninstall ließ Release-Objekte zurück.', 1;"
+    "IF OBJECT_ID(N'toolbelt_conversion.TVF_Base64Encode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.TVF_Base64Decode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_Base64Encode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_Base64Decode') IS NOT NULL THROW 52340, N'Central Uninstall ließ Release-Objekte zurück.', 1;"
 
 existing_schema_database="tbx_base64_existing_schema"
 create_database "${existing_schema_database}"
@@ -141,7 +151,7 @@ create_database "${collision_database}"
 run_query "${collision_database}" \
     "CREATE SCHEMA [toolbelt_conversion];"
 run_query "${collision_database}" \
-    "CREATE FUNCTION [toolbelt_conversion].[SVF_Base64Encode] (@Value varbinary(max), @UrlSafe bit = 0) RETURNS varchar(max) AS BEGIN RETURN 'foreign'; END;"
+    "CREATE FUNCTION [toolbelt_conversion].[TVF_Base64Encode] (@Value varbinary(max), @UrlSafe bit = 0) RETURNS TABLE AS RETURN (SELECT CONVERT(varchar(max), 'foreign') AS EncodedValue);"
 
 if run_file "${collision_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local; then
@@ -155,6 +165,6 @@ run_query "${collision_database}" \
 run_file "${local_database}" "${deployment_directory}" Uninstall.sql \
     -v ConfirmNoExternalConsumers=0
 run_query "${local_database}" \
-    "IF OBJECT_ID(N'toolbelt_conversion.SVF_Base64Encode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_Base64Decode') IS NOT NULL THROW 52343, N'Uninstall ließ Release-Objekte zurück.', 1;"
+    "IF OBJECT_ID(N'toolbelt_conversion.TVF_Base64Encode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.TVF_Base64Decode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_Base64Encode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_Base64Decode') IS NOT NULL THROW 52343, N'Uninstall ließ Release-Objekte zurück.', 1;"
 
 echo "Base64 SQL Server 2025 Linux (Compatibility 150/160/170): erfolgreich"
