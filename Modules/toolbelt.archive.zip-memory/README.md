@@ -56,8 +56,18 @@ Die SQLCMD-Variable `DeploymentMode` muss `local` oder `central` sein.
 
 ## Einschraenkungen
 
-Version 1.0.0 unterstuetzt nur ZIP-Eintraege mit Compression Method 0 (Stored).
-Andere Methoden werden kontrolliert mit einem Vertragsfehler abgelehnt.
+Version 1.0.0 unterstuetzt nur ZIP-Eintraege mit Compression Method `0`
+(`Stored`). Andere Methoden, insbesondere Deflate (Method `8`), werden
+kontrolliert mit einem Vertragsfehler abgelehnt.
+
+ZIP64 ist nicht Teil des Vertrags. CRC32 wird aus ZIP-Metadaten übernommen und
+auf Header-Konsistenz geprüft, aber nicht für den extrahierten Payload neu
+berechnet. Die Entry-Namensdekodierung hat keinen vollständigen UTF-8-/CP437-
+Kompatibilitätsvertrag.
+
+Der geplante, jedoch nicht implementierte C#-SQL-CLR-Provider ist getrennt in
+[ZIP_CLR_PROVIDER_DESIGN.md](../../Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md)
+dokumentiert.
 
 ## Teststatus
 
