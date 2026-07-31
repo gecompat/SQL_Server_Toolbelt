@@ -5,7 +5,10 @@ implementation_status: implemented
 validation_status: "not executed"
 release_status: unreleased
 description: "Windows-only filesystem operations through an EXTERNAL_ACCESS SQL CLR provider with root aliases, Caller impersonation and bounded streaming."
-sql_server_versions: ["2019", "2022", "2025"]
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
   windows: "not executed: manual runtime validation is required."
