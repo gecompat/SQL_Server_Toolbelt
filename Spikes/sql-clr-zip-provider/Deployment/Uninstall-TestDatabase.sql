@@ -4,7 +4,7 @@ SET NOCOUNT ON;
 IF DB_NAME() <> N'$(TestDatabase)'
     THROW 51472, N'Dieses Skript muss mit der angegebenen Testdatenbank als SQLCMD-Datenbank ausgefuehrt werden.', 1;
 
-IF OBJECT_ID(N'toolbelt_spike.USP_ProbeDeflatePrimitive', N'P') IS NOT NULL
+IF OBJECT_ID(N'toolbelt_spike.USP_ProbeDeflatePrimitive', N'PC') IS NOT NULL
     DROP PROCEDURE toolbelt_spike.USP_ProbeDeflatePrimitive;
 GO
 
