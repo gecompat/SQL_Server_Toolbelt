@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 17 Module sind implementiert. 16 sind `partially validated`,
+abgeschlossen. 18 Module sind implementiert. 17 sind `partially validated`,
 ein Modul ist `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
@@ -324,6 +324,16 @@ ist auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170
 einschließlich Langtext-/Unicode-, Marker-/Drift-, Wiederholungs-, Lifecycle-,
 Central- und Uninstall-Contracts erfolgreich. Physische 2019-/2022-,
 Windows- und modulspezifische Releasefälle bleiben offen.
+
+### Phase 2.6 – Windows Filesystem
+
+**Status:** `in progress`; Runtime `not executed`
+
+**Arbeitspaket:** `AP-2026-023`
+
+Die Windows-only Capability `toolbelt.filesystem.windows` stellt über eine `EXTERNAL_ACCESS`-SQL-CLR-Assembly Lesen/Schreiben von Text und Binary, explizite Codepages und Transcoding, Directory-Listing/Erzeugung sowie begrenztes Löschen bereit. `Caller` ist der Default; `ServiceAccount` ist eine explizite Alternative. Linux ist technisch `not applicable`.
+
+Der GitHub-Windows-Build prüft Assembly und statischen Vertrag. Der echte Deployment-/NTFS-/Impersonationstest ist bewusst manuell, verwendet ausschließlich einen synthetischen Root und bleibt bis zu dessen Rückmeldung `not executed`.
 
 ## Phase 3 – Schlanke Test-Infrastruktur und CI
 

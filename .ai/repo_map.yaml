@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: seventeen_modules_implemented
+  status: eighteen_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -72,6 +72,9 @@ sources_of_truth:
   zip_clr_provider_design: Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md
   zip_memory_runtime_workflow: .github/workflows/zip-memory-runtime.yml
   zip_memory_module: Modules/toolbelt.archive.zip-memory/module.yaml
+  windows_filesystem_module_design: Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md
+  windows_filesystem_module: Modules/toolbelt.filesystem.windows/module.yaml
+  windows_filesystem_build_workflow: .github/workflows/windows-filesystem-build.yml
   sql_clr_zip_spike: Spikes/sql-clr-zip-provider/README.md
   sql_clr_zip_spike_workflow: .github/workflows/sql-clr-zip-spike.yml
   svf_inline_tvf_policy: Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
@@ -251,6 +254,7 @@ module_registry:
     - Modules/toolbelt.core.console-message/module.yaml
     - Modules/toolbelt.metadata.capability-catalog/module.yaml
     - Modules/toolbelt.archive.zip-memory/module.yaml
+    - Modules/toolbelt.filesystem.windows/module.yaml
 
 change_impact:
   strategy: diff_first_registered_dependencies
@@ -456,6 +460,15 @@ change_impact:
         - markdown_links
         - json_path_exists_static
         - w2b_json_path_runtime_workflow_scope
+    windows_filesystem_contract:
+      paths:
+        - Modules/toolbelt.filesystem.windows/**
+        - Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md
+        - Documentation/Standards/USP_CONTRACT.md
+        - Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md
+        - .github/workflows/windows-filesystem-build.yml
+      checks:
+        - markdown_links
     w2c_contracts:
       paths:
         - Modules/toolbelt.core.console-message/**

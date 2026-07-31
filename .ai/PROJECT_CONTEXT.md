@@ -2,7 +2,7 @@
 
 ## Projektstatus
 
-17 Module sind implementiert. 16 sind `partially validated`, ein Modul ist
+18 Module sind implementiert. 17 sind `partially validated`, ein Modul ist
 `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 

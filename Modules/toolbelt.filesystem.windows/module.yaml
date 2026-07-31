@@ -1,0 +1,91 @@
+module_id: "toolbelt.filesystem.windows"
+module_name: "Windows Filesystem"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "not executed"
+release_status: unreleased
+description: "Windows-only filesystem operations through an EXTERNAL_ACCESS SQL CLR provider with root aliases, Caller impersonation and bounded streaming."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "not executed: manual runtime validation is required."
+  linux: "not applicable: SQL Server on Linux does not support EXTERNAL_ACCESS SQL CLR assemblies."
+providers:
+  - id: clr-windows-filesystem
+    technology: "C# SQL CLR .NET Framework 4.8; EXTERNAL_ACCESS; SqlContext.WindowsIdentity.Impersonate for Caller mode"
+    platforms: [Windows]
+    status: implemented
+deployment_capabilities:
+  local: true
+  central: false
+  central_with_synonyms: false
+  local_required: true
+  central_preferred: false
+dependencies:
+  - module_id: "toolbelt.core.result-table"
+    minimum_version: "1.0.0"
+    reason: "Public procedures implement the ResultTable contract."
+schemas:
+  - "toolbelt_filesystem"
+objects:
+  - { type: TABLE, schema: "toolbelt_filesystem", name: "FileSystemRoot", visibility: configuration }
+  - { type: ASSEMBLY, name: "Toolbelt_Filesystem_Windows", visibility: internal }
+  - { type: USP, schema: "toolbelt_filesystem", name: "USP_ReadBinaryFileChunk", visibility: public }
+  - { type: USP, schema: "toolbelt_filesystem", name: "USP_ReadTextFileChunk", visibility: public }
+  - { type: USP, schema: "toolbelt_filesystem", name: "USP_WriteBinaryFile", visibility: public }
+  - { type: USP, schema: "toolbelt_filesystem", name: "USP_WriteTextFile", visibility: public }
+  - { type: USP, schema: "toolbelt_filesystem", name: "USP_TranscodeTextFile", visibility: public }
+  - { type: USP, schema: "toolbelt_filesystem", name: "USP_ListDirectory", visibility: public }
+  - { type: USP, schema: "toolbelt_filesystem", name: "USP_CreateDirectory", visibility: public }
+  - { type: USP, schema: "toolbelt_filesystem", name: "USP_RemoveFile", visibility: public }
+  - { type: USP, schema: "toolbelt_filesystem", name: "USP_RemoveDirectory", visibility: public }
+permissions_required:
+  - "EXECUTE on the required public procedure"
+  - "A sysadmin must opt in to the exact SHA2-512 assembly hash."
+  - "Windows Authentication and NTFS rights for Caller; Caller is the default."
+  - "NTFS rights for the SQL Server service account only when ServiceAccount is explicitly selected."
+clr:
+  used: true
+  language: "C#"
+  target_framework: ".NET Framework 4.8"
+  assembly_sql_name: "Toolbelt_Filesystem_Windows"
+  assembly_file_name: "Toolbelt.Filesystem.Windows.dll"
+  permission_set: "EXTERNAL_ACCESS"
+  trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"
+  build_project: "Clr/Toolbelt.Filesystem.Windows.csproj"
+  release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
+  trust_removed_by_uninstall: false
+lifecycle:
+  trust_opt_in: "Deployment/Add-TrustedAssembly.sql"
+  deploy_template: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/USP_ReadBinaryFileChunk.md"
+    - "Documentation/USP_ReadTextFileChunk.md"
+    - "Documentation/USP_WriteBinaryFile.md"
+    - "Documentation/USP_WriteTextFile.md"
+    - "Documentation/USP_TranscodeTextFile.md"
+    - "Documentation/USP_ListDirectory.md"
+    - "Documentation/USP_CreateDirectory.md"
+    - "Documentation/USP_RemoveFile.md"
+    - "Documentation/USP_RemoveDirectory.md"
+    - "Documentation/WINDOWS_FILESYSTEM_PROCEDURES.md"
+  architecture:
+    - "../../Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/WindowsFilesystem.Contract.sql"
