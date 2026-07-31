@@ -1,15 +1,16 @@
 name: Temporary SQL CLR ZIP metadata patch
 
 on:
-  push:
-    branches:
-      - agent/fix-sql-clr-zip-provider
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: [main]
 
 permissions:
   contents: write
 
 jobs:
   patch-metadata:
+    if: github.head_ref == 'agent/fix-sql-clr-zip-provider'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
