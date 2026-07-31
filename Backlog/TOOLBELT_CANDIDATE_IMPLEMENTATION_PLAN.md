@@ -10,7 +10,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 ## Verbindlichkeit und Aussagegrenzen
 
 - **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 17 Module sind
-  implementiert; 16 sind `partially validated`, 1 ist `not executed`.
+  implementiert; 16 sind `partially validated`, 2 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
