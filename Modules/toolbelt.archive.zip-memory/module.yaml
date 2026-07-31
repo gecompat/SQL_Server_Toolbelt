@@ -2,7 +2,7 @@ module_id: "toolbelt.archive.zip-memory"
 module_name: "ZIP Memory Extraction"
 version: "1.1.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Extrahiert einen einzelnen ZIP-Entry aus einem In-memory-ZIP-Container über einen begrenzten SAFE-SQL-CLR-Provider für Methods 0 und 8 mit CRC32-Prüfung."
 sql_server_versions:
@@ -12,12 +12,12 @@ sql_server_versions:
 compatibility_levels: [150, 160, 170]
 platforms:
   windows: "not executed"
-  linux: "not executed"
+  linux: "partially validated"
 providers:
   - id: clr-zip-memory
     technology: "C# SQL CLR; eigener ZIP-Parser; DeflateStream aus System.dll; eigene CRC32"
     platforms: [Windows, Linux]
-    status: implemented
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: true
@@ -103,7 +103,12 @@ tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/ZipMemory.Contract.sql"
   contract: "Tests/Runtime/ZipMemory.Contract.sql"
+  encoding: "Tests/Runtime/Encoding.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   github_hosted_linux: "../../.github/workflows/zip-memory-runtime.yml"
-validation_evidence: []
+validation_evidence:
+  - date: "2026-07-31"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206"
+    scope: "Windows-.NET-Framework-4.8-Build; SQL Server 2019 Linux/Compatibility 150; SQL Server 2022 Linux/Compatibility 160; SQL Server 2025 Linux/Compatibility 150, 160 und 170; Trust, Stored, Deflate, Data Descriptor, UTF-8, CP437, CRC32, Größen-/Ratio-/Featurefehler, ResultTable, Wiederholungsdeployment, Central und Uninstall"
+    result: "success"
