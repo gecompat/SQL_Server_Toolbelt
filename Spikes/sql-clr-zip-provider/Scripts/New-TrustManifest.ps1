@@ -7,7 +7,7 @@ param(
     [Parameter(Mandatory)]
     [string]$OutputPath,
 
-    [string]$AssemblyDescription = 'SQL Server Toolbelt ZIP CLR deployment spike 0.1.0'
+    [string]$AssemblyDescription = 'SQL Server Toolbelt ZIP CLR deployment spike 0.2.0'
 )
 
 Set-StrictMode -Version Latest

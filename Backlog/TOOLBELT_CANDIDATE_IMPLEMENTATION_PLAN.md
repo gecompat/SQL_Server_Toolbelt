@@ -1,6 +1,6 @@
 # Implementierungsplan für Toolbelt-Kandidaten
 
-Stand: 2026-07-30
+Stand: 2026-07-31
 
 Dieser Plan zerlegt die Kandidaten aus
 [`TOOLBELT_CANDIDATES.md`](./TOOLBELT_CANDIDATES.md) in mögliche Module,
@@ -82,7 +82,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 | `W5` | `researched` | Session- und Ausführungsprovider | `046`, `014` | `017`, `019`, `022`; Provider- und Security-Entscheidung | Synchrone zweite Session und darauf aufbauendes rollback-unabhängiges Logging. |
 | `W6` | `researched` | Queue, Retry, Lease und Cancellation | `015`, `020`, `021`, `018` | `017`, `019`, `022`; Tabellenkonvention entschieden | Begrenzte, beobachtbare und wiederanlaufbare Work Queue. |
 | `W7` | `active` | Datei- und Host-Provider | `037` Slice A, `038`, `025`, `026`, `027` | Root-Allowlist, Pfad-/Encoding-Vertrag und Provider | `toolbelt.file.content` Slice A (Lesen über OPENROWSET(BULK...)) implementiert; Schreib-Operationen und externer Worker-Provider bleiben zurückgestellt. |
-| `W8` | `active` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | V1A ist als T-SQL-`Stored`-Slice implementiert, jedoch ohne Runtime-Evidenz. Der optionale CLR-Providervertrag `AP-2026-021` für Deflate und Payload-CRC ist abgeschlossen; der Build-/Deployment-Spike `AP-2026-022` ist statisch und im Windows-Build erfolgreich. Reale SQL-Server-Plattformevidenz und eine eigene Produktfreigabe bleiben Gates. |
+| `W8` | `active` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | V1A ist als T-SQL-`Stored`-Slice implementiert, jedoch ohne Runtime-Evidenz. Der optionale CLR-Providervertrag `AP-2026-021` ist abgeschlossen. Der korrigierte Build-/Deployment-Spike `AP-2026-022` verwendet Raw-Deflate über `DeflateStream` aus `System.dll`, eigene CRC32-Prüfung und ist auf SQL Server 2022 Linux positiv validiert; SQL Server 2019/2025 und Windows bleiben vor Produktfreigabe offen. |
 | `W9` | `researched` | Deterministische Pseudonymisierungsprimitive | `040`, `039`, `041`, `042`, `043` | Key-/Seed-, Kanonisierungs- und Datenschutzvertrag | Range-Primitive zuerst; darauf Lookup, Translation, Date Shift und Geo Jitter. |
 | `W10` | `researched` | Kontrolliertes DDL-Klonen | `044` | Identifier-Modul vorhanden; unterstützte Objektmenge festgelegt | Zuerst nur geprüftes Script, später optional getrennte Ausführung. |
 | `W11` | `researched` | KI-Capabilities | `028` | REST/Worker, Capability-Katalog, Credentials, Kosten- und Datengovernance | Embeddings und generative Aufrufe als getrennte Module. |

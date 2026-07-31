@@ -46,17 +46,16 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Feld | Wert |
 |---|---|
 | ID | `AP-2026-022` |
-| Ziel | Die SQL-CLR-Abhängigkeit `System.IO.Compression` mit einer minimalen `SAFE`-Assembly kontrolliert bauen und gegen eine disposable Testdatenbank deploybar machen. |
-| Scope | C#-Projekt für .NET Framework 4.8, deterministische In-memory-ZIP-Probe, lokaler SHA2-512-Manifestgenerator, getrenntes administratives Trust-Opt-in, Deploy/Verify/Uninstall-Skripte, statische Prüfung und GitHub-hosted Windows-Build. Keine produktive ZIP-Funktion, keine API, kein Modulmanifest und keine Runtime-Evidenz. |
+| Ziel | Den technisch kleinsten SQL-CLR-Providerpfad für ZIP Method 8 mit einer minimalen `SAFE`-Assembly kontrolliert bauen, deployen, ausführen und wieder entfernen. |
+| Scope | C#-Projekt für .NET Framework 4.8; Raw-Deflate über `DeflateStream` aus der unterstützten `System.dll`; eigene CRC32-Prüfung; SHA2-512-Trust-Manifest; binäres `CREATE ASSEMBLY`; getrennte Trust-, Deploy-, Verify- und Uninstall-Skripte; positiver SQL-Server-2022-Linux-Runtime-Gate. Keine produktive ZIP-Funktion, keine öffentliche API und kein Modulmanifest. |
 | Dependencies | `AP-2026-021`, `ZIP_CLR_PROVIDER_DESIGN.md`, `CLR_SECURITY_AND_PORTABILITY.md`, .NET-Framework-4.8-Targeting-Pack, MSBuild, SQLCMD und eine disposable SQL-Server-Testinstanz. |
 | Priorität | `P1` |
 | Status | `active` |
-| Akzeptanzkriterien | Der Build referenziert tatsächlich `System.IO.Compression`; die Testassembly bleibt `SAFE`; der Trust-Hash wird erst aus dem konkreten Binary erzeugt; kein Skript aktiviert `clr`, deaktiviert `clr strict security`, setzt `TRUSTWORTHY ON` oder verwendet `EXTERNAL_ACCESS`/`UNSAFE`; Uninstall berührt keinen Trust-Eintrag. |
-| Tests | Statische Vertragsprüfung und Windows-GitHub-hosted .NET-Framework-Build sind erfolgreich ([SQL CLR ZIP Spike Run 30586391868](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30586391868)); die Dokumentationsprüfung war ebenfalls erfolgreich ([Run 30586391850](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30586391850)). Deployment-Test je SQL-Version und Plattform bleibt `not executed`, bis eine disposable Zielinstanz verfügbar ist. |
-| Blocker | Kein Build- oder statischer Vertragsblocker. Für den Plattformbefund fehlen weiterhin die realen SQL-Server-Deployments auf Windows und Linux. |
-| Evidenz | `Spikes/sql-clr-zip-provider/README.md`, `Tests/Static/validate_spike.py`, `.github/workflows/sql-clr-zip-spike.yml`, [SQL CLR ZIP Spike Run 30586391868](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30586391868). |
-| Nächster Schritt | Die Runtime-Matrix auf disposable SQL Server 2019, 2022 und 2025 unter Windows und Linux gezielt ausführen; erst danach die produktive Providerimplementierung erneut zur Freigabe vorlegen. |
-
+| Akzeptanzkriterien | Keine direkte Referenz auf `System.IO.Compression.dll` oder `ZipArchive`; `DeflateStream` wird aus `System.dll` geladen; die Testassembly bleibt `SAFE`; der Trust-Hash entsteht aus dem konkreten Binary; Deployment benötigt keinen serverlokalen Buildpfad; tatsächlicher CLR-Aufruf prüft Payload und CRC32; kein Skript setzt `TRUSTWORTHY ON`, deaktiviert `clr strict security` oder verwendet `EXTERNAL_ACCESS`/`UNSAFE`; Uninstall berührt keinen Trust-Eintrag. |
+| Tests | Statische Vertragsprüfung, Windows-GitHub-hosted .NET-Framework-Build und positiver SQL-Server-2022-Linux-Lauf mit Trust, `CREATE ASSEMBLY`, Deflate-/CRC32-Ausführung und Uninstall sind erfolgreich. SQL Server 2019, SQL Server 2025 und Windows-Runtime bleiben separate Pflichtläufe vor Produktfreigabe. |
+| Blocker | Kein bekannter technischer Blocker für den korrigierten Deflate-/CRC32-Spike. Der frühere Fehler 10301 entstand durch den ungeeigneten `ZipArchive`-Pfad und die direkte Abhängigkeit von `System.IO.Compression.dll`. |
+| Evidenz | `Spikes/sql-clr-zip-provider/README.md`, `Source/ZipClrProbe.cs`, `Tests/Static/validate_spike.py`, `.github/workflows/sql-clr-zip-spike.yml` und SQL CLR ZIP Spike Run 30608612435. |
+| Nächster Schritt | SQL Server 2019, SQL Server 2025 und Windows gezielt validieren und erst anschließend die produktive Providerimplementierung erneut zur Freigabe vorlegen. |
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
 | Feld | Wert |

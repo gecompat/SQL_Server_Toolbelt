@@ -2,31 +2,27 @@
 
 | Prüfung | Zweck | Status |
 |---|---|---|
-| `Static/validate_spike.py` | Prüft .NET-Framework-Target, `System.IO.Compression`, In-memory-Probe, `SAFE` und ausgeschlossene Trust-/Permission-Pfade. | erfolgreich |
-| GitHub Actions Build | Baut die minimale .NET-Framework-4.8-Assembly auf Windows. | erfolgreich ([Run 30586391868](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30586391868)) |
-| Linux SQL Server 2022 dependency gate | Übernimmt das auf Windows gebaute Binary, startet eine disposable Linux-Containerinstanz und prüft die tatsächliche Auflösung der direkten CLR-Abhängigkeit. | **blockiert, reproduzierbar nachgewiesen** ([Run 30587389803](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30587389803), 2026-07-30 UTC) |
-| Deployment-Probe Windows | Trust, `CREATE ASSEMBLY`, Procedure-Aufruf und Uninstall in einer disposable Testdatenbank. | nicht ausgeführt |
+| `Static/validate_spike.py` | Prüft .NET-Framework-Target, ausschließliche Framework-Abhängigkeiten, Deflate-/CRC32-Probe, binäres Deployment, `SAFE` und ausgeschlossene Trust-/Permission-Pfade. | automatisiert |
+| GitHub Actions Build | Baut die minimale .NET-Framework-4.8-Assembly auf Windows und erzeugt das SHA2-512-Trust-Manifest. | automatisiert |
+| Linux SQL Server 2022 Runtime | Übernimmt das Windows-Binary, richtet eine disposable Linux-Containerinstanz ein und prüft Trust, `CREATE ASSEMBLY`, tatsächlichen CLR-Aufruf, Deflate-Payload, CRC32 und Uninstall. | automatisierter positiver Gate |
+| Deployment-Probe Windows | Trust, `CREATE ASSEMBLY`, Procedure-Aufruf und Uninstall auf einer Windows-SQL-Server-Instanz. | nicht ausgeführt |
+| Physische SQL-Versionen | Entsprechender Runtime-Lauf auf SQL Server 2019 und 2025. | nicht ausgeführt |
 
-## Linux-2022-Befund
+## Erwarteter Linux-Nachweis
 
-Die Testinstanz war ein Linux-Container aus
-`mcr.microsoft.com/mssql/server:2022-latest`. Das Binary wurde unter Windows
-mit .NET Framework 4.8 gebaut, per SHA2-512 vertraut und anschließend als
-`SAFE`-Assembly geladen. Die Instanz hatte `clr enabled = 1`; `clr strict
-security` blieb aktiviert.
+Die Assembly darf keine direkte Referenz auf `System.IO.Compression.dll`
+enthalten. `DeflateStream` muss zur Laufzeit aus `System, Version=4.0.0.0`
+geladen werden. Die Probe muss exakt den UTF-8-Payload
+`SQL Server Toolbelt CLR ZIP probe`, eine Länge von `33` Bytes und die CRC32
+`BD97DF6A` liefern.
 
-`CREATE ASSEMBLY` scheiterte reproduzierbar mit SQL Server-Fehler 10301:
-`System.IO.Compression, Version=4.2.0.0` ist in der Testdatenbank nicht
-vorhanden und wird nicht automatisch aus dem Container geladen. Deshalb wurden
-keine CLR-Procedure ausgeführt und kein positiver Runtime-Nachweis behauptet.
+Der CI-Job gilt nur dann als erfolgreich, wenn Deployment, tatsächliche
+Dekomprimierung, CRC32-Prüfung und Uninstall erfolgreich sind. Ein erwarteter
+Deployment-Fehlschlag ist kein positiver Test mehr.
 
-Der CI-Job gilt als erfolgreich, wenn genau diese Abhängigkeitsgrenze
-nachgewiesen wird. Ein unerwarteter Erfolg oder ein anderer Fehler lässt den Job
-fehlschlagen. Die Wegwerf-Instanz wird nach dem Job verworfen; nur dort wird
-`clr enabled` für den Test gesetzt. Der reguläre Spike und sein Installer
-ändern weiterhin keine Instanzoptionen.
+## Aussagegrenze
 
-Die Runtime-Probe muss für SQL Server 2019, 2022 und 2025 jeweils auf Windows
-und Linux separat erfolgen. Ein späterer positiver Linux-Nachweis benötigt
-einen separat geprüften, unterstützten und lifecycle-sicheren Weg für
-`System.IO.Compression` und dessen Abhängigkeiten.
+Der Runtime-Gate prüft den für ZIP Method 8 benötigten Deflate-/CRC32-Kern,
+nicht den Parser beliebiger ZIP-Container. ZIP-Header, Central Directory,
+Duplicate Names, Encryption Flags, ZIP64 und Ressourcenlimits bleiben Aufgabe
+des späteren produktiven Implementierungs-Slices.

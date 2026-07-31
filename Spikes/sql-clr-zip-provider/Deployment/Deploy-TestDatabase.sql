@@ -20,11 +20,15 @@ IF SCHEMA_ID(N'toolbelt_spike') IS NULL
     EXEC sys.sp_executesql N'CREATE SCHEMA toolbelt_spike;';
 GO
 
+-- Das aufrufende Skript ersetzt den AssemblyBits-Platzhalter in einer temporaeren Kopie
+-- durch das 0x-Hexliteral des exakt gehashten Binaries. Dadurch ist kein
+-- serverlokaler Dateipfad und kein Dateisystemzugriff des SQL-Server-Diensts
+-- erforderlich.
 CREATE ASSEMBLY [Toolbelt_ZipClr_Spike]
-FROM '$(AssemblyPath)'
+FROM $(AssemblyBits)
 WITH PERMISSION_SET = SAFE;
 GO
 
-CREATE PROCEDURE toolbelt_spike.USP_ProbeZipArchive
-AS EXTERNAL NAME [Toolbelt_ZipClr_Spike].[Toolbelt.ZipClr.Spike.ZipClrProbe].[ProbeZipArchive];
+CREATE PROCEDURE toolbelt_spike.USP_ProbeDeflatePrimitive
+AS EXTERNAL NAME [Toolbelt_ZipClr_Spike].[Toolbelt.ZipClr.Spike.ZipClrProbe].[ProbeDeflatePrimitive];
 GO
