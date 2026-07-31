@@ -64,18 +64,39 @@ function Invoke-SqlCmdFile {
 Invoke-SqlCmdFile -FilePath (Join-Path $spikeRoot 'Deployment/Add-TrustedAssembly.sql') `
     -Variables @("AssemblyHash=$($manifest.sqlServerHexLiteral)", "AssemblyDescription=$($manifest.description)")
 
-Invoke-SqlCmdFile -FilePath (Join-Path $spikeRoot 'Deployment/Deploy-TestDatabase.sql') `
-    -Variables @("TestDatabase=$TestDatabase", "AssemblyPath=$assemblyPath") `
-    -Database $TestDatabase
+$assemblyBytes = [IO.File]::ReadAllBytes($assemblyPath)
+$assemblyHex = '0x' + ([BitConverter]::ToString($assemblyBytes).Replace('-', ''))
+$deployTemplatePath = Join-Path $spikeRoot 'Deployment/Deploy-TestDatabase.sql'
+$deployTemplate = [IO.File]::ReadAllText($deployTemplatePath)
+if (-not $deployTemplate.Contains('$(AssemblyBits)')) {
+    throw 'Deploy-TestDatabase.sql enthaelt den erwarteten AssemblyBits-Platzhalter nicht.'
+}
 
-Invoke-SqlCmdFile -FilePath (Join-Path $spikeRoot 'Deployment/Verify-TestDatabase.sql') `
-    -Variables @("TestDatabase=$TestDatabase") `
-    -Database $TestDatabase
+$temporaryDeployScript = Join-Path ([IO.Path]::GetTempPath()) ("toolbelt-sql-clr-zip-{0}.sql" -f [Guid]::NewGuid().ToString('N'))
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[IO.File]::WriteAllText(
+    $temporaryDeployScript,
+    $deployTemplate.Replace('$(AssemblyBits)', $assemblyHex),
+    $utf8NoBom
+)
 
-if (-not $KeepTestObjects) {
-    Invoke-SqlCmdFile -FilePath (Join-Path $spikeRoot 'Deployment/Uninstall-TestDatabase.sql') `
+try {
+    Invoke-SqlCmdFile -FilePath $temporaryDeployScript `
         -Variables @("TestDatabase=$TestDatabase") `
         -Database $TestDatabase
+
+    Invoke-SqlCmdFile -FilePath (Join-Path $spikeRoot 'Deployment/Verify-TestDatabase.sql') `
+        -Variables @("TestDatabase=$TestDatabase") `
+        -Database $TestDatabase
+
+    if (-not $KeepTestObjects) {
+        Invoke-SqlCmdFile -FilePath (Join-Path $spikeRoot 'Deployment/Uninstall-TestDatabase.sql') `
+            -Variables @("TestDatabase=$TestDatabase") `
+            -Database $TestDatabase
+    }
+}
+finally {
+    Remove-Item -LiteralPath $temporaryDeployScript -Force -ErrorAction SilentlyContinue
 }
 
 Write-Output 'SQL CLR ZIP deployment spike abgeschlossen. Ein vorhandener Trust-Eintrag wurde absichtlich nicht entfernt.'
