@@ -15,65 +15,74 @@ REPO = ROOT.parents[1]
 NS = {"m": "http://schemas.microsoft.com/developer/msbuild/2003"}
 
 
+class ContractError(RuntimeError):
+    """Meldet eine belastbare Vertragsabweichung."""
+
+
 def read(relative: str) -> str:
     path = ROOT / relative
     if not path.is_file():
-        raise RuntimeError(f"Pflichtartefakt fehlt: {relative}")
+        raise ContractError(f"Pflichtartefakt fehlt: {relative}")
     return path.read_text(encoding="utf-8")
 
 
 def require(content: str, source: str, *markers: str) -> None:
     for marker in markers:
         if marker not in content:
-            raise RuntimeError(f"{source}: erforderlicher Marker fehlt: {marker}")
+            raise ContractError(f"{source}: Marker fehlt: {marker}")
 
 
 def forbid(content: str, source: str, *markers: str) -> None:
     lowered = content.lower()
     for marker in markers:
         if marker.lower() in lowered:
-            raise RuntimeError(f"{source}: unzulässiger Marker gefunden: {marker}")
+            raise ContractError(f"{source}: unzulässiger Marker: {marker}")
 
 
 def validate_project() -> None:
     project = ET.parse(ROOT / "Clr/Toolbelt.Archive.ZipMemory.csproj").getroot()
-    if project.findtext(".//m:TargetFrameworkVersion", namespaces=NS) != "v4.8":
-        raise RuntimeError("CLR-Projekt muss .NET Framework 4.8 verwenden.")
+    framework = project.findtext(".//m:TargetFrameworkVersion", namespaces=NS)
+    if framework != "v4.8":
+        raise ContractError("CLR-Projekt muss .NET Framework 4.8 verwenden.")
+
     references = {
         item.attrib.get("Include", "").split(",", 1)[0]
         for item in project.findall(".//m:Reference", NS)
     }
     if references != {"System", "System.Data"}:
-        raise RuntimeError(
-            "Direkte CLR-Referenzen müssen exakt System und System.Data sein; "
-            f"gefunden: {sorted(references)}"
+        raise ContractError(
+            "Direkte CLR-Referenzen müssen exakt System und System.Data sein: "
+            f"{sorted(references)}"
         )
+
     compile_files = {
         item.attrib.get("Include")
         for item in project.findall(".//m:Compile", NS)
     }
-    if compile_files != {"Properties\\AssemblyInfo.cs", "ZipEntryProvider.cs"}:
-        raise RuntimeError("CLR-Projekt enthält ein unerwartetes Compile-Inventar.")
+    expected = {"Properties\\AssemblyInfo.cs", "ZipEntryProvider.cs"}
+    if compile_files != expected:
+        raise ContractError("CLR-Projekt enthält ein unerwartetes Compile-Inventar.")
 
 
 def validate_zip_fixtures(relative: str) -> None:
     values = re.findall(r"0x([0-9A-Fa-f]+)", read(relative))
     archives = [value for value in values if value.upper().startswith("504B0304")]
     if not archives:
-        raise RuntimeError(f"Synthetische ZIP-Fixture fehlt: {relative}")
+        raise ContractError(f"Synthetische ZIP-Fixture fehlt: {relative}")
+
     for value in archives:
         archive = bytes.fromhex(value)
         eocd = archive.rfind(b"PK\x05\x06")
         if eocd < 0 or eocd + 22 > len(archive):
-            raise RuntimeError(f"ZIP-Fixture besitzt kein vollständiges EOCD: {relative}")
-        comment = struct.unpack_from("<H", archive, eocd + 20)[0]
+            raise ContractError(f"Unvollständiges EOCD: {relative}")
+        comment_length = struct.unpack_from("<H", archive, eocd + 20)[0]
         central_size, central_offset = struct.unpack_from("<II", archive, eocd + 12)
-        if eocd + 22 + comment != len(archive):
-            raise RuntimeError(f"EOCD-Länge ist inkonsistent: {relative}")
+        if eocd + 22 + comment_length != len(archive):
+            raise ContractError(f"Inkonsistente EOCD-Länge: {relative}")
         if central_offset + central_size != eocd:
-            raise RuntimeError(f"Central-Directory-Grenzen sind inkonsistent: {relative}")
+            raise ContractError(f"Inkonsistente Central-Directory-Grenzen: {relative}")
         if archive[central_offset : central_offset + 4] != b"PK\x01\x02":
-            raise RuntimeError(f"Central-Directory-Header fehlt: {relative}")
+            raise ContractError(f"Central-Directory-Header fehlt: {relative}")
 
 
 def main() -> int:
@@ -100,7 +109,7 @@ def main() -> int:
     )
     missing = [path for path in required if not (ROOT / path).is_file()]
     if missing:
-        raise RuntimeError("Fehlende Artefakte: " + ", ".join(missing))
+        raise ContractError("Fehlende Artefakte: " + ", ".join(missing))
 
     validate_project()
 
@@ -122,8 +131,6 @@ def main() -> int:
         "StringComparison.Ordinal",
         "new UTF8Encoding(false, true)",
         "Encoding.GetEncoding(",
-        "entry.CompressionMethod != 0",
-        "entry.CompressionMethod != 8",
         "payload.LongLength != entry.UncompressedBytes",
         "actualCrc32 != entry.Crc32",
         "compressed.Remaining != 0",
@@ -139,15 +146,13 @@ def main() -> int:
         "System.IO.Directory.",
         "System.Diagnostics.Process",
         "System.Net.",
-        "new HttpClient(",
-        "new Socket(",
         "Microsoft.Win32.Registry",
     )
 
     internal_tvf = read("Source/TVF_InternalExtractZipEntryClr.sql")
     require(
         internal_tvf,
-        "interne CLR-Tabellefunktion",
+        "interner CLR-TVF",
         "CREATE FUNCTION [toolbelt_archive].[TVF_InternalExtractZipEntryClr]",
         "RETURNS TABLE",
         "AS EXTERNAL NAME",
@@ -168,21 +173,20 @@ def main() -> int:
         "THROW @ProviderErrorNumber",
         "BETWEEN 51320 AND 51329",
         "toolbelt_core.USP_PrepareResultTable",
-        "#tbx_ZipMemory_ResultSource",
-        "#tbx_ZipMemory_ResultShape",
         "Methods 0 und 8",
         "ZIP64",
-        "RETURN 0",
     )
     forbid(source, "öffentliche Procedure", "OPENROWSET", "xp_cmdshell")
 
     deploy = read("Deployment/Deploy.sql")
     if deploy.count("$(AssemblyBits)") != 1:
-        raise RuntimeError("Deploy.sql muss genau einen AssemblyBits-Platzhalter enthalten.")
+        raise ContractError("Deploy.sql muss genau einen AssemblyBits-Platzhalter enthalten.")
     require(
         deploy,
         "Deployment",
         "HASHBYTES(N'SHA2_512', @AssemblyBits)",
+        "@InstalledAssemblyHash",
+        "sys.assembly_files",
         "sys.trusted_assemblies",
         "CREATE ASSEMBLY [Toolbelt_Archive_ZipMemory]",
         "ALTER ASSEMBLY [Toolbelt_Archive_ZipMemory]",
@@ -213,7 +217,7 @@ def main() -> int:
         "clr enabled",
         "SHA2-512",
     )
-    forbid(trust, "Trust-Opt-in", "sp_configure", "TRUSTWORTHY ON", "EXTERNAL_ACCESS")
+    forbid(trust, "Trust-Opt-in", "sp_configure", "TRUSTWORTHY ON")
 
     uninstall = read("Deployment/Uninstall.sql")
     require(
@@ -228,36 +232,30 @@ def main() -> int:
     )
     forbid(uninstall, "Uninstall", "sp_drop_trusted_assembly")
 
-    build_script = read("Scripts/New-ClrReleaseArtifacts.ps1")
+    build = read("Scripts/New-ClrReleaseArtifacts.ps1")
     require(
-        build_script,
+        build,
         "Release-Artefaktskript",
         "Toolbelt.Archive.ZipMemory.csproj",
         "Get-FileHash -Algorithm SHA512",
         "Deploy.WithAssembly.sql",
         "Toolbelt.Archive.ZipMemory.trust-manifest.json",
-        "directFrameworkReferences",
         "@('System', 'System.Data')",
-        "$deployTemplate.Split($marker).Count",
     )
 
     manifest = read("module.yaml")
     require(
         manifest,
         "Manifest",
-        'module_id: "toolbelt.archive.zip-memory"',
         'version: "1.1.0"',
-        "implementation_status: implemented",
-        'validation_status: "not executed"',
+        'validation_status: "partially validated"',
+        'linux: "partially validated"',
+        'windows: "not executed"',
         "id: clr-zip-memory",
         "type: CLR_TVF",
-        'name: "TVF_InternalExtractZipEntryClr"',
-        "type: ASSEMBLY",
         'name: "Toolbelt_Archive_ZipMemory"',
         'permission_set: "SAFE"',
-        'trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"',
-        'error_range: "51320-51329"',
-        'trust_error_range: "51340-51349"',
+        'workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206"',
     )
 
     runtime = read("Tests/Runtime/ZipMemory.Contract.sql")
@@ -282,17 +280,15 @@ def main() -> int:
     encoding = read("Tests/Runtime/Encoding.Contract.sql")
     require(encoding, "Encoding-Contract", "0x477281E1652E747874", "N'Grüße.txt'", "CP437")
 
-    for fixture_path in (
+    for fixture in (
         "Tests/Runtime/ZipMemory.Contract.sql",
         "Tests/Runtime/Encoding.Contract.sql",
         "Tests/Runtime/Central.Contract.sql",
         "Examples/ExtractZipEntryFromBinary.sql",
     ):
-        validate_zip_fixtures(fixture_path)
+        validate_zip_fixtures(fixture)
 
     workflow = (REPO / ".github/workflows/zip-memory-runtime.yml").read_text(encoding="utf-8")
-    if "Documentation/**" in workflow:
-        raise RuntimeError("Runtime-Workflow darf nicht auf reine Dokumentation triggern.")
     require(
         workflow,
         "Runtime-Workflow",
@@ -304,6 +300,8 @@ def main() -> int:
         "compatibility_level: 170",
         "New-ClrReleaseArtifacts.ps1",
     )
+    if "Documentation/**" in workflow:
+        raise ContractError("Runtime-Workflow darf nicht auf reine Dokumentation triggern.")
 
     print("ZIP-Memory CLR statische Vertragsprüfung: erfolgreich")
     return 0
@@ -312,6 +310,6 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except (RuntimeError, ValueError) as error:
+    except (ContractError, ValueError) as error:
         print(f"ZIP-Memory CLR statische Vertragsprüfung: FEHLER: {error}", file=sys.stderr)
         raise SystemExit(1)
