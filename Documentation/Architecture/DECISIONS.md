@@ -353,3 +353,17 @@ Die Runtime-Matrix muss den echten CLR-Aufruf, Stored, Deflate,
 Payload-CRC32, Limits, lokale und zentrale Installation sowie den
 vollständigen Datenbank-Uninstall prüfen. Windows-SQL-Server-Runtime
 bleibt ein separater Release-Nachweis.
+
+
+## DEC-2026-024: Windows-only Filesystem Provider
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-07-31 |
+| Status | accepted |
+| Entscheidung | Dateisystemzugriff ist ein lokales EXTERNAL_ACCESS-SQL-CLR-Modul für Windows. Default ist Caller über SqlContext.WindowsIdentity; ServiceAccount wird nur explizit verwendet. |
+| Begründung | Ein interaktiv angemeldeter Benutzer ist aus SQL Server nicht zuverlässig bestimmbar. Relative Pfade unter Root-Aliassen, Reparse-Point-Sperren und Staging begrenzen das Risiko. |
+| Scope | toolbelt.filesystem.windows; Text/Binary, Codepages, Transcoding, Directory-Operationen und rekursives Delete. |
+| Auswirkungen | Linux ist not applicable. TRUSTWORTHY ON, UNSAFE, xp_cmdshell und absolute/UNC-Pfade sind ausgeschlossen. Ein manueller Windows-Runtime-Nachweis ist verpflichtend. |
+| Alternativen | OPENROWSET(BULK) bleibt für portable read-only Nutzung ein separates Modul; es ersetzt keine kontrollierten Writes, Impersonation oder Directory-Verwaltung. |
+| Betroffene Verträge | CLR_SECURITY_AND_PORTABILITY.md, USP_CONTRACT.md, WINDOWS_FILESYSTEM_MODULE_DESIGN.md |
