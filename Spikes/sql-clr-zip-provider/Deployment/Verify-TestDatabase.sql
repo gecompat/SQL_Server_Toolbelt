@@ -13,8 +13,8 @@ IF NOT EXISTS
    )
     THROW 51470, N'Die erwartete SAFE-Assembly fehlt.', 1;
 
-IF OBJECT_ID(N'toolbelt_spike.USP_ProbeDeflatePrimitive', N'P') IS NULL
-    THROW 51471, N'Die erwartete Probe-Procedure fehlt.', 1;
+IF OBJECT_ID(N'toolbelt_spike.USP_ProbeDeflatePrimitive', N'PC') IS NULL
+    THROW 51471, N'Die erwartete CLR-Probe-Procedure fehlt.', 1;
 
 CREATE TABLE #ProbeResult
 (
