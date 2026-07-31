@@ -1,7 +1,21 @@
 SET NOCOUNT ON;
 
 IF OBJECT_ID(N'toolbelt_archive.USP_ExtractZipEntryFromBinary', N'P') IS NULL
-    THROW 51380, N'Lifecycle-Voraussetzung fehlt: Procedure ist nicht installiert.', 1;
+    THROW 51380, N'Lifecycle-Voraussetzung fehlt: öffentliche Procedure ist nicht installiert.', 1;
+
+IF OBJECT_ID(N'toolbelt_archive.TVF_InternalExtractZipEntryClr', N'FT') IS NULL
+    THROW 51380, N'Lifecycle-Voraussetzung fehlt: interne CLR-Tabellefunktion ist nicht installiert.', 1;
+
+DECLARE @AssemblyId int =
+    (
+        SELECT assembly_id
+        FROM sys.assemblies
+        WHERE name = N'Toolbelt_Archive_ZipMemory'
+          AND permission_set_desc = N'SAFE_ACCESS'
+    );
+
+IF @AssemblyId IS NULL
+    THROW 51380, N'Lifecycle-Voraussetzung fehlt: SAFE-CLR-ZIP-Assembly ist nicht installiert.', 1;
 
 IF NOT EXISTS
    (
@@ -11,9 +25,9 @@ IF NOT EXISTS
          AND major_id = 0
          AND minor_id = 0
          AND name = N'Toolbelt.Module.toolbelt.archive.zip-memory.Version'
-         AND TRY_CONVERT(nvarchar(64), value) = N'1.0.0'
+         AND TRY_CONVERT(nvarchar(64), value) = N'1.1.0'
    )
-    THROW 51381, N'Der erwartete Modulversionsmarker fehlt.', 1;
+    THROW 51381, N'Der erwartete Modulversionsmarker 1.1.0 fehlt.', 1;
 
 IF NOT EXISTS
    (
@@ -27,5 +41,51 @@ IF NOT EXISTS
    )
     THROW 51382, N'Der erwartete Deployment-Mode-Marker fehlt.', 1;
 
-PRINT N'ZIP Memory Lifecycle-Contract-Pruefung: erfolgreich';
+IF NOT EXISTS
+   (
+       SELECT 1
+       FROM sys.extended_properties
+       WHERE class = 5
+         AND major_id = @AssemblyId
+         AND minor_id = 0
+         AND name = N'Toolbelt.Managed'
+         AND TRY_CONVERT(bit, value) = 1
+   )
+    THROW 51383, N'Die CLR-ZIP-Assembly besitzt keinen Toolbelt-Managed-Marker.', 1;
+
+IF NOT EXISTS
+   (
+       SELECT 1
+       FROM sys.extended_properties
+       WHERE class = 5
+         AND major_id = @AssemblyId
+         AND minor_id = 0
+         AND name = N'Toolbelt.ModuleId'
+         AND TRY_CONVERT(nvarchar(128), value) = N'toolbelt.archive.zip-memory'
+   )
+    THROW 51383, N'Die CLR-ZIP-Assembly besitzt keinen korrekten Modulmarker.', 1;
+
+IF NOT EXISTS
+   (
+       SELECT 1
+       FROM sys.assembly_modules
+       WHERE assembly_id = @AssemblyId
+         AND object_id = OBJECT_ID(N'toolbelt_archive.TVF_InternalExtractZipEntryClr')
+   )
+    THROW 51384, N'Die interne CLR-Tabellefunktion ist nicht mit der erwarteten Assembly verknüpft.', 1;
+
+IF EXISTS
+   (
+       SELECT 1
+       FROM sys.assembly_references AS ar
+       INNER JOIN sys.assemblies AS referenced_assembly
+         ON referenced_assembly.assembly_id = ar.referenced_assembly_id
+       WHERE ar.assembly_id = @AssemblyId
+         AND referenced_assembly.name = N'System.IO.Compression'
+   )
+    THROW 51384, N'Die Assembly darf System.IO.Compression.dll nicht direkt referenzieren.', 1;
+
+PRINT N'ZIP Memory CLR Lifecycle-Contract-Prüfung: erfolgreich';
 GO
+
+:r Encoding.Contract.sql

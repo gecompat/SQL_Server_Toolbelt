@@ -1,179 +1,108 @@
-# SQL-CLR ZIP Provider Design (AP-2026-021)
+# SQL-CLR ZIP Provider Design (AP-2026-021/AP-2026-023)
 
 ## Status und Aussagegrenze
 
-**Dokumentiert:** `AP-2026-021` ist als Vertragswelle abgeschlossen. Dieser
-Entwurf implementiert keine produktive Assembly, keine öffentliche
-SQL-CLR-Routine und keinen Produkt-Deployment-Schritt. Der nichtproduktive
-Build-/Deployment-Spike liegt getrennt unter
-[`Spikes/sql-clr-zip-provider/`](../../Spikes/sql-clr-zip-provider/).
+**Implementiert und teilvalidiert:** Der Provider ist Bestandteil von
+`toolbelt.archive.zip-memory` Version `1.1.0`. Er ist interner Provider der
+bestehenden öffentlichen `toolbelt_archive.USP_ExtractZipEntryFromBinary` und
+keine allgemeine Kompressions-API.
 
-**Freigabestatus:** Der korrigierte Spike prüft den technisch notwendigen
-Deflate-/CRC32-Kern. Vor einer produktiven C#-Implementierung bleiben eine
-eigene funktionsbezogene Implementierungsfreigabe sowie die vollständige
-Security-, Limit-, Lifecycle- und Plattformmatrix erforderlich.
+Der GitHub-Actions-Lauf `30615544206` belegt Build und Runtime auf SQL Server
+2019, 2022 und 2025 unter Linux. Windows-SQL-Server-Runtime und echte
+Extremgrößen-Releasefälle bleiben offen.
 
-## Ziel
+## Scope
 
-Der optionale Provider schließt genau zwei Lücken des vorhandenen
-`toolbelt.archive.zip-memory`-Slices:
+Enthalten sind:
 
-- ZIP Compression Method `8` (`Deflate`) für die Extraktion eines einzelnen
-  In-memory-Entries;
-- explizite CRC32-Prüfung des tatsächlich dekomprimierten Payloads.
-
-ZIP Method `0` (`Stored`) darf derselbe Provider ebenfalls lesen, damit der
-spätere Slice einen konsistenten Prüfkern hat. Der bestehende T-SQL-Slice bleibt
-für seinen engen `Stored`-Vertrag eigenständig.
-
-## Strikte Scope-Grenze
-
-Enthalten sind ausschließlich:
-
-- Eingabe eines ZIP-Containers als `varbinary(max)`;
+- ZIP-Container als `varbinary(max)`;
 - Auswahl genau eines Entries;
-- Entry-Metadaten und Payload als SQL-Resultset;
 - Methods `0` und `8`;
-- begrenztes, streamorientiertes Lesen und Payload-CRC32-Prüfung;
-- strukturierte Toolbelt-Fehler für nicht unterstützte ZIP-Eigenschaften.
+- eigener klassischer ZIP-Parser;
+- UTF-8 gemäß Flag 11, sonst CP437;
+- begrenztes Lesen, tatsächliche Output-/Ratio-Prüfung und Payload-CRC32;
+- stabile Toolbelt-Fehler `51320–51329`.
 
-Ausgeschlossen sind:
+Ausgeschlossen sind Dateisystem, Netzwerk, Prozesse, Archiv-Erzeugung,
+Multi-Entry-/Verzeichnisextraktion, Verschlüsselungsentschlüsselung, ZIP64,
+Multi-Disk, Deflate64, weitere Methods und zusätzliche Central-Directory-
+Datensätze.
 
-- Dateisystemzugriff, Pfade, Netzwerk, Prozessstart und Host-APIs;
-- Archiv-Erzeugung und Multi-Entry-Create;
-- Extraktion ganzer Archive oder Verzeichnisse;
-- Verschlüsselungsentschlüsselung, Passwörter und Key-Material;
-- Deflate64, unbekannte Methoden und proprietäre ZIP-Erweiterungen;
-- weitere Kompressionsformate; Gzip, Brotli, Zstandard, bzip2 und 7z bleiben
-  getrennte Kandidaten;
-- eine stillschweigende Änderung des bestehenden öffentlichen
-  `USP_ExtractZipEntryFromBinary`-Vertrags.
+## Provider- und Namensentscheidung
 
-ZIP64 bleibt für den späteren Implementierungs-Slice ausdrücklich offen: Die
-künftige Routine darf ZIP64 weder behaupten noch akzeptieren, bevor Parsing,
-Grenzen und Testvektoren getrennt spezifiziert sind.
+Gemäß `DEC-2026-023`:
 
-## Provider- und Public-Contract-Regel
+- SQL-Assembly: `Toolbelt_Archive_ZipMemory`;
+- Binary: `Toolbelt.Archive.ZipMemory.dll`;
+- interner SQL-Provider: `toolbelt_archive.TVF_InternalExtractZipEntryClr`;
+- einzige öffentliche Extraktions-API bleibt
+  `toolbelt_archive.USP_ExtractZipEntryFromBinary`.
 
-Die C#-Assembly ist ein interner Provider, kein allgemeines
-Kompressionsframework. Ob sie durch eine neue öffentliche Procedure oder durch
-eine später versionierte, abwärtskompatible Erweiterung angesprochen wird, ist
-erst im Implementierungs-Slice zu entscheiden. Bis dahin gibt es keinen
-produktiven Assembly-, Klassen- oder öffentlichen Objektnamen.
+Die Namen gelten nur für dieses Modul und begründen keine globale CLR-
+Namenskonvention.
 
-Das neue Resultset darf keine unsicheren Dateipfade, Secrets oder
-Implementierungsdetails preisgeben. Für ResultTable-/Help-/Debug-Verhalten gilt
-weiterhin der zentrale USP-Vertrag.
+## C#- und Assemblyvertrag
 
-## Ressourcen- und Integritätsgrenzen
+- Ziel: .NET Framework 4.8;
+- direkte Referenzen ausschließlich `System` und `System.Data`;
+- `DeflateStream` aus `System.dll`;
+- kein `ZipArchive` und kein direkter Verweis auf
+  `System.IO.Compression.dll`;
+- eigener Central-/Local-Header-Parser und eigene CRC32-Berechnung;
+- `PERMISSION_SET = SAFE`.
 
-Die Implementierung muss vor einer teuren Dekomprimierung mindestens prüfen:
+## Ressourcen und Integrität
 
-- maximale Archivgröße;
-- maximale Anzahl von Entries, die zur eindeutigen Namensauflösung untersucht
-  werden;
-- maximale komprimierte und unkomprimierte Einzelgröße;
-- maximale Gesamtausgabe, falls mehrere interne Streams gelesen werden;
-- maximale Compression Ratio;
-- eindeutige Entry-Namen, Verschlüsselungsflag und Methodensubset.
+Vor der Dekomprimierung werden Archiv-, Entry-Count-, komprimierte und
+unkomprimierte Größe, Method, Verschlüsselungsflags, Duplicate Names und Ratio
+geprüft. Während des Lesens werden tatsächliche Ausgabemenge und reale Ratio
+erneut begrenzt. Danach müssen reale Länge und CRC32 mit dem Central Directory
+übereinstimmen.
 
-Während des Lesens gilt eine zweite, tatsächliche Begrenzung der ausgegebenen
-Bytes; ZIP-Metadaten allein sind keine vertrauenswürdige Größenangabe. Die CRC32
-ist über den dekomprimierten Byte-Stream neu zu berechnen und gegen die für den
-Entry erwartete CRC32 zu vergleichen. Fehlende, inkonsistente oder nicht
-passende Integritätsdaten führen zu einem stabilen Toolbelt-Fehler, nicht zu
-einer Teilantwort.
+Harte Providerlimits:
 
-Konkrete numerische Default-Limits und Fehlernummern werden erst gemeinsam mit
-der endgültigen öffentlichen Signatur festgelegt; sie dürfen nicht unbemerkt
-aus der T-SQL-Implementierung übernommen werden.
+- Archiv `268435456` Bytes;
+- komprimierter Entry `134217728` Bytes;
+- `10000` Entries.
 
-## C#- und Assembly-Gates
+## Trust und Deployment
 
-- Ziel ist C# für SQL CLR auf dem von SQL Server unterstützten
-  .NET-Framework-CLR, mit `PERMISSION_SET = SAFE` als beabsichtigtem
-  Minimalrecht.
-- Namespace und Assembly sind getrennt zu beurteilen: `DeflateStream` liegt im
-  Namespace `System.IO.Compression`, wird im .NET-Framework-4.8-Ziel jedoch aus
-  der von SQL Server unterstützten `System.dll` geladen.
-- `ZipArchive` wird für den Providerkern nicht verwendet. Es würde eine direkte
-  Referenz auf `System.IO.Compression.dll` erzeugen, die SQL Server nicht als
-  automatisch unterstützte Framework-Assembly bereitstellt und deren separater
-  Deployment-/Lifecycle-Pfad für diesen engen Scope unnötig wäre.
-- ZIP-Containerstrukturen werden daher kontrolliert im eigenen Providercode
-  geparst; ausschließlich der Raw-Deflate-Payload von Method 8 wird an
-  `DeflateStream` übergeben.
-- CRC32 wird über die tatsächlich ausgegebenen Bytes selbst berechnet. Die
-  Deflate-API ersetzt keine ZIP-Integritätsprüfung.
-- `clr strict security` bleibt aktiviert. Der reguläre Installationsweg
-  verwendet eine explizite serverseitige Vertrauensfreigabe der exakt
-  freigegebenen Release-Assembly (SHA2-512 via
-  `sys.sp_add_trusted_assembly`) oder einen dokumentierten gleichwertigen
-  Signaturweg.
-- `TRUSTWORTHY ON`, das Abschalten von `clr strict security`,
-  `EXTERNAL_ACCESS` und `UNSAFE` sind keine regulären Installationsalternativen.
-- Der Standardinstaller verändert keine Instanzkonfiguration und hinterlegt
-  keinen Trust-Eintrag stillschweigend. Er prüft Voraussetzungen und beendet
-  kontrolliert; ein administratives, klar dokumentiertes Trust-Skript bleibt
-  separat.
-- Das Assembly-Deployment muss ohne Zugriff des SQL-Server-Dienstkontos auf
-  einen Client- oder Buildpfad funktionieren. Der Spike verwendet deshalb
-  `CREATE ASSEMBLY ... FROM 0x...` mit den Bytes des exakt gehashten Binaries.
+`clr strict security` bleibt aktiviert. Der exakte Release-Hash wird als
+SHA2-512-Manifest erzeugt und über ein separates administratives Skript mit
+`sys.sp_add_trusted_assembly` freigegeben.
+
+Der Modulinstaller:
+
+- prüft `clr enabled` und `clr strict security`;
+- prüft den exakten Hash in `sys.trusted_assemblies`;
+- registriert die Assembly aus dem Binärliteral;
+- ändert keine Instanzoption und keine Trust-Liste;
+- verwendet weder `TRUSTWORTHY ON`, `EXTERNAL_ACCESS` noch `UNSAFE`.
 
 ## Lifecycle
 
-Ein späterer Implementierungs-Slice benötigt mindestens:
+Implementiert sind reproduzierbarer Build, Trust-Manifest, lokales und zentrales
+Deployment, Upgrade von `1.0.0`, inhaltlich idempotente Wiederholung über den
+SHA2-512-Vergleich des registrierten Assembly-Files sowie kontrollierter
+Uninstall. Der Uninstall entfernt keinen serverweiten Trust-Eintrag und keine
+fremden Objekte oder Assemblies.
 
-1. reproduzierbaren C#-Build inklusive Abhängigkeitsinventar und Lizenzprüfung;
-2. versioniertes SHA2-512-Trust-Manifest;
-3. Preflight für CLR-Aktivierung, Framework-Abhängigkeiten und Trust;
-4. idempotentes Installieren ohne Änderungen fremder Assemblies;
-5. Upgrade-/Rollback-Regeln mit klarer Verweigerung bei nicht auflösbaren
-   Abhängigkeiten;
-6. Uninstall, der Toolbelt-Assembly und -Objekte entfernt, aber keinen gemeinsam
-   verwendeten Trust-Eintrag oder fremde Assembly entfernt.
+## Validierung
 
-## Spike- und Testmatrix vor Implementierung
+Der Lauf `30615544206` war erfolgreich für:
 
-| Gate | Nachweis |
-|---|---|
-| Build | Reproduzierbarer .NET-Framework-4.8-Build; direkte Referenzen nur auf freigegebene Framework-Assemblies. |
-| Primitive | Raw-Deflate-Dekomprimierung über `System.dll`, exakter Payload und unabhängig berechnete CRC32. |
-| Deploy | Separate Testdatenbank; binäres `CREATE ASSEMBLY`, Trust, Wiederholung und Uninstall verhalten sich deterministisch. |
-| Plattform | SQL Server 2019, 2022 und 2025 auf Windows und Linux getrennt; fehlende Plattformunterstützung wird als nicht unterstützt, nicht als Fehler kaschiert. |
-| ZIP | Stored, Deflate, beschädigte Central/Local Header, CRC-Mismatch, Encryption Flag, Deflate64, unbekannte Method, Duplicate Name und ZIP64. |
-| Limits | Archiv-, Entry-, Output-, Ratio- und Entry-Count-Grenzen vor und während des Lesens. |
-| Lifecycle | Erstinstallation, Wiederholung, Upgrade, Uninstall und Central/Local-Deployment. |
-| Security | Kein Dateisystem-, Netzwerk- oder Prozesszugriff; keine automatische Änderung von `clr strict security`, `TRUSTWORTHY` oder Trust-Listen. |
+- Windows-.NET-Framework-4.8-Build;
+- SQL Server 2019 Linux / Compatibility 150;
+- SQL Server 2022 Linux / Compatibility 160;
+- SQL Server 2025 Linux / Compatibility 150, 160 und 170;
+- Stored, Deflate, Data Descriptor, UTF-8, CP437 und CRC32;
+- beschädigte Headerbeziehungen, Duplicate Names, Encryption Flag,
+  unbekannte Method, ZIP64-Sentinel, Größen-/Ratiofehler;
+- ResultTable, Wiederholungsdeployment, Central und Uninstall.
 
-## Build-/Deployment-Spike
-
-Der ursprüngliche Spike verwendete `ZipArchive`. Dadurch referenzierte das
-Binary `System.IO.Compression.dll`; der Linux-Test belegte folgerichtig nur den
-SQL-Server-Fehler 10301 wegen der fehlenden Assembly. Dieser Befund war korrekt,
-prüfte aber nicht den kleinsten technisch erforderlichen Providerweg.
-
-Der korrigierte Spike verwendet:
-
-- `DeflateStream` aus `System.dll`;
-- einen fest eingebetteten Raw-Deflate-Testvektor;
-- eine eigene CRC32-Berechnung;
-- ein Binärliteral für `CREATE ASSEMBLY`;
-- einen positiven SQL-Server-2022-Linux-Gate mit tatsächlichem CLR-Aufruf,
-  Ergebnisprüfung und Uninstall.
-
-Ein erfolgreicher Spike-Lauf belegt ausschließlich die technische
-Deploybarkeit dieses Deflate-/CRC32-Primitivs. Er ist kein Nachweis für einen
-sicheren Parser beliebiger ZIP-Container, keine vollständige Plattformmatrix
-und keine Produktfreigabe.
-
-## Nächster Schritt
-
-Zuerst den korrigierten Spike in GitHub Actions ausführen und den positiven
-SQL-Server-2022-Linux-Befund festhalten. Danach folgen die gezielten Runtime-
-Läufe auf SQL Server 2019 und 2025 sowie Windows. Erst anschließend darf der
-produktive Provider-Slice mit eigener Benutzerfreigabe, vollständigem
-ZIP-Parservertrag, Limits und Negativtestmatrix beginnen.
+Nicht ausgeführt sind die SQL-Server-Runtime unter Windows, echte Läufe an den
+maximalen Größen-/Entry-Count-Grenzen und eine breitere Interoperabilitätsmatrix
+realer ZIP-Erzeuger.
 
 ## Quellen
 
@@ -183,3 +112,5 @@ ZIP-Parservertrag, Limits und Negativtestmatrix beginnen.
 - Microsoft: [clr strict security](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/clr-strict-security?view=sql-server-ver17).
 - Microsoft: [sys.sp_add_trusted_assembly](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sys-sp-add-trusted-assembly-transact-sql?view=sql-server-ver17).
 - PKWARE: [ZIP File Format Specification (APPNOTE)](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT).
+
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206

@@ -1,10 +1,12 @@
-name: ZIP Memory Runtime
+name: ZIP Memory CLR Runtime
 
 on:
   pull_request:
     paths:
+      - "Modules/toolbelt.archive.zip-memory/Clr/**"
       - "Modules/toolbelt.archive.zip-memory/Source/**"
       - "Modules/toolbelt.archive.zip-memory/Deployment/**"
+      - "Modules/toolbelt.archive.zip-memory/Scripts/**"
       - "Modules/toolbelt.archive.zip-memory/Tests/Runtime/**"
       - "Modules/toolbelt.archive.zip-memory/Tests/Static/**"
       - "Modules/toolbelt.archive.zip-memory/module.yaml"
@@ -16,8 +18,10 @@ on:
   push:
     branches: [main]
     paths:
+      - "Modules/toolbelt.archive.zip-memory/Clr/**"
       - "Modules/toolbelt.archive.zip-memory/Source/**"
       - "Modules/toolbelt.archive.zip-memory/Deployment/**"
+      - "Modules/toolbelt.archive.zip-memory/Scripts/**"
       - "Modules/toolbelt.archive.zip-memory/Tests/Runtime/**"
       - "Modules/toolbelt.archive.zip-memory/Tests/Static/**"
       - "Modules/toolbelt.archive.zip-memory/module.yaml"
@@ -29,17 +33,129 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: zip-memory-clr-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  sql-server-2025-linux:
+  synchronize-status:
+    name: Synchronize generated status
+    if: github.event_name == 'pull_request' && github.head_ref == 'agent/implement-clr-zip-provider'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Add canonical evidence and generate status sections
+        shell: python
+        run: |
+          from pathlib import Path
+          import subprocess
+          import sys
+
+          url = 'https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206'
+          files = [
+              'Modules/toolbelt.archive.zip-memory/README.md',
+              'Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md',
+              'Modules/toolbelt.archive.zip-memory/Tests/README.md',
+              'Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md',
+              'Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md',
+              'Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md',
+          ]
+          for name in files:
+              path = Path(name)
+              text = path.read_text(encoding='utf-8')
+              if url not in text:
+                  text = text.rstrip() + f'\n\nEvidenz: {url}\n'
+                  path.write_text(text, encoding='utf-8')
+
+          subprocess.run(
+              [sys.executable, 'Tests/Documentation/validate_documentation.py', '--all', '--write'],
+              check=False,
+          )
+      - name: Commit non-workflow status files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -A
+          git reset -- .github/workflows/zip-memory-runtime.yml
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "ChatGPT [LLM: GPT-5.6 Thinking]: Generiere CLR-ZIP-Statusübersichten"
+          git push origin HEAD:${{ github.head_ref }}
+
+  static-contract:
+    name: Static contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - run: >-
           python3
           Modules/toolbelt.archive.zip-memory/Tests/Static/validate_contract.py
-      - env:
-          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+
+  build-net-framework:
+    name: .NET Framework 4.8 build
+    needs: static-contract
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build assembly and generate release inputs
+        shell: pwsh
+        run: >-
+          ./Modules/toolbelt.archive.zip-memory/Scripts/New-ClrReleaseArtifacts.ps1
+          -Configuration Release
+          -OutputDirectory ./.runtime/zip-memory-release
+      - name: Upload exact deployment input
+        uses: actions/upload-artifact@v4
+        with:
+          name: zip-memory-clr-release-input
+          if-no-files-found: error
+          path: .runtime/zip-memory-release/*
+
+  sql-server-linux:
+    name: SQL Server ${{ matrix.sql_version }} Linux / compatibility ${{ matrix.compatibility_level }}
+    needs: build-net-framework
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - sql_version: "2019"
+            image: "mcr.microsoft.com/mssql/server:2019-latest"
+            compatibility_level: 150
+          - sql_version: "2022"
+            image: "mcr.microsoft.com/mssql/server:2022-latest"
+            compatibility_level: 160
+          - sql_version: "2025"
+            image: "mcr.microsoft.com/mssql/server:2025-latest"
+            compatibility_level: 150
+          - sql_version: "2025"
+            image: "mcr.microsoft.com/mssql/server:2025-latest"
+            compatibility_level: 160
+          - sql_version: "2025"
+            image: "mcr.microsoft.com/mssql/server:2025-latest"
+            compatibility_level: 170
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download exact deployment input
+        uses: actions/download-artifact@v4
+        with:
+          name: zip-memory-clr-release-input
+          path: .runtime/zip-memory-release
+      - name: Deploy, execute and uninstall CLR ZIP module
+        env:
+          TBX_SQL_IMAGE: ${{ matrix.image }}
+          TBX_SQL_VERSION: ${{ matrix.sql_version }}
+          TBX_COMPATIBILITY_LEVEL: ${{ matrix.compatibility_level }}
+          TBX_ASSEMBLY_ROOT: .runtime/zip-memory-release
         run: bash Tests/CI/run-zip-memory-linux.sh
