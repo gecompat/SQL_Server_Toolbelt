@@ -87,3 +87,5 @@ IF EXISTS
 
 PRINT N'ZIP Memory CLR Lifecycle-Contract-Prüfung: erfolgreich';
 GO
+
+:r Encoding.Contract.sql
