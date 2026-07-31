@@ -28,7 +28,8 @@ dependencies:
   - module_id: "toolbelt.core.result-table"
     minimum_version: "1.0.0"
     reason: "Public procedures implement the ResultTable contract."
-schemas: ["toolbelt_filesystem"]
+schemas:
+  - "toolbelt_filesystem"
 objects:
   - { type: TABLE, schema: "toolbelt_filesystem", name: "FileSystemRoot", visibility: configuration }
   - { type: ASSEMBLY, name: "Toolbelt_Filesystem_Windows", visibility: internal }
@@ -75,9 +76,12 @@ documentation:
     - "Documentation/USP_RemoveFile.md"
     - "Documentation/USP_RemoveDirectory.md"
     - "Documentation/WINDOWS_FILESYSTEM_PROCEDURES.md"
-  architecture: ["../../Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md"]
-  test_matrix: ["Tests/WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md"]
-  evidence: ["Tests/README.md"]
+  architecture:
+    - "../../Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
 contracts:
   usp: "1.0"
   deployment: "1.0"
