@@ -8,6 +8,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
+- Windows-only Modul `toolbelt.filesystem.windows` mit EXTERNAL_ACCESS-SQL-CLR-Fassade für begrenztes Text-/Binary-I/O, explizite Codepages und Transcoding, Directory-Operationen und begrenztes rekursives Löschen. `Caller` ist der Default, `ServiceAccount` explizit; die Windows-SQL-Server-/NTFS-Runtime bleibt bis zum manuellen Nachweis `not executed`.
+
 - W2c mit `toolbelt.core.console-message` für Unicode-sichere lange
   `PRINT`-/`RAISERROR ... WITH NOWAIT`-Messages und
   `toolbelt.metadata.capability-catalog` für eine read-only Projektion
@@ -171,7 +173,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-17 Module sind implementiert. 16 sind `partially validated`, ein Modul ist
+18 Module sind implementiert. 16 sind `partially validated`, zwei Module sind
 `not executed`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und
 2025 erfolgreich; die übrigen bereits teilweise validierten Module sind
 auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
