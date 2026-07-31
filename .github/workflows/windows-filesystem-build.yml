@@ -1,0 +1,37 @@
+name: Windows Filesystem Build
+
+on:
+  pull_request:
+    paths:
+      - 'Modules/toolbelt.filesystem.windows/**'
+      - 'Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md'
+      - '.github/workflows/windows-filesystem-build.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Modules/toolbelt.filesystem.windows/**'
+      - 'Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md'
+
+jobs:
+  build-and-static-contract:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build .NET Framework SQL CLR assembly
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-not (Test-Path -LiteralPath $vswhere)) {
+            throw "Visual Studio locator was not found on the Windows runner."
+          }
+          $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
+          if ([string]::IsNullOrWhiteSpace($msbuild) -or -not (Test-Path -LiteralPath $msbuild)) {
+            throw "MSBuild.exe was not found through vswhere."
+          }
+          & $msbuild Modules/toolbelt.filesystem.windows/Clr/Toolbelt.Filesystem.Windows.csproj /p:Configuration=Release /p:Platform=AnyCPU
+          if ($LASTEXITCODE -ne 0) {
+            throw "MSBuild.exe failed with exit code $LASTEXITCODE."
+          }
+      - name: Validate static contract
+        shell: pwsh
+        run: python Modules/toolbelt.filesystem.windows/Tests/Static/validate_contract.py

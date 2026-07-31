@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-17 Module sind implementiert. 16 sind `partially validated`, ein Modul ist `not executed`.
+18 Module sind implementiert. 16 sind `partially validated`, zwei Module sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -74,6 +74,26 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Blocker | Kein Merge-Blocker für den implementierten und teilweise validierten Stand. Für `validated` fehlen insbesondere Windows-Evidenz, echter Savepoint-Rollback nach einem natürlichen Enginefehler und eine vergleichbare plattformübergreifende Performance-Baseline. |
 | Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.core.result-table/`; [Basislauf 30447442638](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447442638), [erweiterter Lauf 30456207934](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30456207934) und [Multi-Session-Lauf 30459004717](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) erfolgreich. |
 | Nächster Schritt | Einen geeigneten Windows-Runner beziehungsweise eine freigegebene Windows-Testumgebung bereitstellen; unabhängig davon einen nicht invasiven, deterministischen Enginefehler für den echten Savepoint-Rollback suchen. Erst nach vollständiger Pflichtmatrix auf `validated` setzen. |
+
+
+### AP-2026-023: Windows Filesystem SQL CLR
+
+| Feld | Wert |
+|---|---|
+| ID | AP-2026-023 |
+| Ziel | Windows-only Dateisystemzugriff als kontrolliertes SQL-CLR-Modul für Text/Binary, Codepages, Transcoding, Directory-Verwaltung und begrenztes rekursives Löschen implementieren. |
+| Scope | toolbelt.filesystem.windows, C#-.NET-Framework-4.8-Assembly, T-SQL-Fassade, Root-Alias-Konfiguration, Trust-/Deployment-Lifecycle, Dokumentation, Contract-Matrix und Windows-Build. |
+| Dependencies | toolbelt.core.result-table; separate administrative SHA2-512-Trust-Freigabe; Windows SQL Server mit kontrolliertem synthetischem Testroot. |
+| Priorität | P1 |
+| Status | active |
+| Implementation Status | implemented |
+| Validation Status | not executed |
+| Release Status | unreleased |
+| Akzeptanzkriterien | Caller ist Default und wird bei SQL Authentication abgelehnt; ServiceAccount ist explizit; absolute Pfade und Reparse Points sind gesperrt; I/O arbeitet begrenzt/gestreamt; Write nutzt atomare Staging-Dateien; rekursives Delete besitzt Tiefe-/Eintragslimits; Linux ist korrekt not applicable. |
+| Tests | Statischer Vertragscheck und GitHub-Windows-Build; manueller Windows-SQL-Server-/NTFS-Test für Deployment, beide Identitätsmodi, Codepages, Limits, Reparse Points, atomare Writes und rekursives Delete. |
+| Blocker | Runtime-Evidenz auf Windows ist noch nicht ausgeführt. |
+| Evidenz | Benutzerfreigabe am 2026-07-31; Modul- und Architekturartefakte im Pull Request. |
+| Nächster Schritt | Pull-Request-Checks ausführen; nach Merge den manuellen Windows-Test vorbereiten und dessen abstrahierte Ergebnisse erfassen. |
 
 ## Abgeschlossene Arbeitspakete
 
