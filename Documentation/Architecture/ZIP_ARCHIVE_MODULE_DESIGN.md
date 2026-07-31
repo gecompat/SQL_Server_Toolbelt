@@ -1,180 +1,129 @@
 # ZIP-Archiv-Moduldesign (TC-2026-034)
 
-## Zweck
+## Status
 
-Dieses Dokument beschreibt die erste Verarbeitungswelle fuer `TC-2026-034` als
-V1A-Vertragsentwurf. Ziel ist ein risikoarmer Einstieg in die ZIP-Capability,
-ohne Dateisystemzugriff und ohne automatische Extraktion ganzer Archive.
+**Implementiert:** `toolbelt.archive.zip-memory` Version `1.1.0` extrahiert
+genau einen benannten ZIP-Entry aus einem In-memory-Archiv über die bestehende
+öffentliche `toolbelt_archive.USP_ExtractZipEntryFromBinary`.
 
-Der Fokus liegt auf einer kontrollierten In-memory-Extraktion einzelner
-Eintraege aus einem ZIP-Archiv, das als `varbinary(max)` geliefert wird.
+**Teilvalidiert:** Der GitHub-Actions-Lauf `30615544206` war erfolgreich für SQL
+Server 2019, 2022 und 2025 unter Linux sowie für den Windows-.NET-Framework-4.8-
+Build. Auf SQL Server 2025 wurden die Compatibility Levels 150, 160 und 170
+geprüft. Windows-SQL-Server-Runtime und echte Extremgrößenläufe bleiben offen.
 
-## Wellenstand
+## Modulgrenze
 
-- Kandidat: `TC-2026-034`
-- Welle: Verarbeitungswelle 2 (Implementierungswelle V1A)
-- Stand: Vertragsbasis finalisiert, Implementierungswelle aktiviert
-- Implementierungsfreigabe: erteilt am 2026-07-30
+Das Modul verarbeitet ausschließlich `varbinary(max)` im Speicher. Es besitzt
+keine Dateisystem-, Netzwerk- oder Prozessschnittstelle und erzeugt keine
+Archive.
 
-## V1A-Scope
+| Artefakt | Rolle |
+|---|---|
+| `toolbelt_archive.USP_ExtractZipEntryFromBinary` | Einzige öffentliche Entry-Extraktions-API. |
+| `toolbelt_archive.TVF_InternalExtractZipEntryClr` | Interner CLR-Provider. |
+| `Toolbelt_Archive_ZipMemory` | Modulspezifische `SAFE`-Assembly. |
 
-### Enthalten
+## Öffentlicher Vertrag
 
-- genau ein Modul-Slice: In-memory-ZIP-Extraktion einzelner Eintraege;
-- Eingabe des ZIP-Containers als `varbinary(max)`;
-- Ergebnis als fachliches tabellarisches Resultset gemaess USP-Vertrag;
-- kontrollierte Pruefung auf untrusted input inklusive Grenzwerten.
+Die mit Version `1.0.0` eingeführte Signatur bleibt unverändert:
 
-### Ausgeschlossen
+- `@ZipArchive varbinary(max)`;
+- `@EntryName nvarchar(1024)`;
+- `@MaxEntryBytes bigint = 104857600`;
+- `@MaxCompressionRatio decimal(9,2) = 200.00`;
+- `@FailIfEncrypted bit = 1`;
+- `@ResultTable sysname = NULL`;
+- `@KeepData bit = 0`;
+- `@Debug tinyint = 0`;
+- `@Hilfe bit = 0`.
 
-- Dateisystempfade als Eingabe oder Ausgabe;
-- Extraktion kompletter Archive in Verzeichnisse;
-- ZIP-Erzeugung (Create) in derselben Welle;
-- unkontrollierte Weitergabe von Dateinamen als Pfadziele;
-- implizite Rekursion in verschachtelte Archive;
-- automatische Entschluesselung verschluesselter Eintraege.
-
-## Vorgeschlagener Modulzuschnitt (Arbeitsnamen)
-
-- Modul-ID: `toolbelt.archive.zip-memory`
-- Primaeres Objekt (Version 1A): `toolbelt_archive.USP_ExtractZipEntryFromBinary`
-
-Der Objektname ist ein Arbeitsname fuer die Vertragsrunde und noch kein
-finaler Runtime-Vertrag.
-
-## Geplanter USP-Vertrag (V1A-Arbeitsstand)
-
-### Eingabeparameter
-
-- `@ZipArchive varbinary(max) = NULL`
-- `@EntryName nvarchar(1024) = NULL`
-- `@MaxEntryBytes bigint = 104857600` (100 MiB)
-- `@MaxCompressionRatio decimal(9,2) = 200.00`
-- `@FailIfEncrypted bit = 1`
-- `@ResultTable sysname = NULL`
-- `@KeepData bit = 0`
-- `@Debug tinyint = 0`
-- `@Hilfe bit = 0`
-
-### Ergebnisvertrag (bei `@Hilfe = 0`)
-
-Genau ein fachliches Resultset mit einer Zeile bei Erfolg:
-
-- `EntryName nvarchar(1024)`
-- `CompressedBytes bigint`
-- `UncompressedBytes bigint`
-- `CompressionMethod int`
-- `Crc32 int NULL`
-- `IsEncrypted bit`
-- `EntryPayload varbinary(max)`
-
-Fehler werden mit stabiler, dokumentierter Semantik signalisiert. Bei gesetzter
+Das Resultset enthält `EntryName`, `CompressedBytes`, `UncompressedBytes`,
+`CompressionMethod`, `Crc32`, `IsEncrypted` und `EntryPayload`. Bei
 `@ResultTable` wird kein fachliches `SELECT` ausgegeben.
 
-### Hilfevertrag
+## Unterstützter ZIP-Scope
 
-Der USP-Vertrag aus `Documentation/Standards/USP_CONTRACT.md` gilt vollstaendig,
-einschliesslich `@Hilfe`, `@Debug`, `@ResultTable` und `@KeepData`.
+Version `1.1.0` unterstützt:
 
-## Sicherheits- und Robustheitsregeln (V1A)
+- Method `0` (`Stored`) und Method `8` (`Deflate`);
+- klassische EOCD-, Central-Directory- und Local-Header-Strukturen;
+- Local Header mit und ohne Data Descriptor;
+- UTF-8-Namen bei Flag 11, sonst CP437;
+- ordinalen case-sensitiven Namensvergleich;
+- Duplicate-Name-Erkennung;
+- CRC32-Neuberechnung über den tatsächlichen Payload.
 
-- Jeder Entry-Name wird als untrusted input behandelt.
-- Keine Pfadauflosung in Dateisystempfade, daher kein Schreibziel und keine
-  Dateisystem-Seiteneffekte.
-- Harte Ablehnung bei Ueberschreitung von `@MaxEntryBytes`.
-- Harte Ablehnung bei Ueberschreitung von `@MaxCompressionRatio`.
-- Verschluesselte Eintraege werden bei `@FailIfEncrypted = 1` abgelehnt.
-- Header- oder Metadateninkonsistenzen fuehren zu kontrolliertem Fehler, nicht
-  zu stiller Teilverarbeitung. V1A berechnet die CRC32 des extrahierten
-  Payloads nicht neu; deshalb wird für V1A keine Payload-CRC-Validierung
-  behauptet.
-- Keine Verarbeitung von nested ZIP-Containern in V1A.
+Nicht unterstützt werden ZIP64, Multi-Disk, Verschlüsselungsentschlüsselung,
+Deflate64, weitere Methods, zusätzliche Central-Directory-Datensätze,
+Archiv-Erzeugung, Multi-Entry-, Verzeichnis- oder rekursive Extraktion.
 
-## Tatsaechliche V1A-Funktionsgrenzen
+## Ressourcen- und Integritätsvertrag
 
-Die implementierte Version `1.0.0` ist ein T-SQL-Binary-Parser mit engerem
-Umfang als die ursprüngliche Vertragsabsicht:
+Default-Limits:
 
-- Payload-Extraktion ausschließlich für ZIP Compression Method `0` (`Stored`);
-- kein Deflate (Method `8`), Deflate64 oder anderes Verfahren;
-- kein ZIP64: verarbeitet werden nur die klassischen EOCD- und 32-Bit-
-  Größen-/Offsetfelder;
-- CRC32 wird als ZIP-Metadatum ausgegeben und zwischen ausgelesenen Headern
-  auf Konsistenz geprüft, nicht über den zurückgegebenen Payload neu berechnet;
-- die Byte-/Zeichen-Kodierung von Entry-Namen ist kein vollständiger UTF-8- oder
-  CP437-Dekodierungsvertrag.
+- `@MaxEntryBytes = 104857600`;
+- `@MaxCompressionRatio = 200.00`.
 
-Diese Grenzen sind produktrelevant. Sie werden weder durch vorhandene Tests
-noch durch die Architektur als unterstützt behauptet.
+Harte Providerlimits:
 
-## Optionale CLR-Folgewelle
+- Archivgröße `268435456` Bytes;
+- komprimierter Entry `134217728` Bytes;
+- maximal `10000` untersuchte Entries.
 
-`AP-2026-021` ist als reiner Providervertrag abgeschlossen. Er beschreibt einen
-C#-SQL-CLR-Slice für ZIP Method `0` und `8`, eine explizite Payload-CRC-Prüfung,
-Assembly-Trust und die erforderlichen Plattform-Spikes. Es entsteht daraus kein
-Runtime-Objekt und keine Implementierungsfreigabe. Details:
-[ZIP_CLR_PROVIDER_DESIGN.md](./ZIP_CLR_PROVIDER_DESIGN.md).
+Limits werden gegen Metadaten und während des tatsächlichen Lesens geprüft.
+Anschließend müssen reale Payload-Länge und neu berechnete CRC32 exakt mit dem
+Central Directory übereinstimmen. Der Deflate-Stream ist auf die deklarierte
+komprimierte Entry-Länge begrenzt.
 
-## Provider-Entscheidung fuer Welle 1
+## Sicherheit und Deployment
 
-V1A ist auf einen In-memory-Provider begrenzt.
+Die Assembly zielt auf .NET Framework 4.8 und referenziert direkt nur `System`
+und `System.Data`. `DeflateStream` stammt aus `System.dll`; `ZipArchive` und ein
+direkter Verweis auf `System.IO.Compression.dll` sind ausgeschlossen.
 
-Begruendung:
+Der reguläre Installer:
 
-- geringere Angriffsflaeche gegenueber Dateisystem-Providern;
-- frueher nutzbarer Kernvertrag ohne Pfad-/ACL-Abhaengigkeiten;
-- saubere Trennung zu `TC-2026-037` (Datei-I/O) und `TC-2026-038`
-  (Directory Listing).
+- verwendet `PERMISSION_SET = SAFE`;
+- prüft den exakten SHA2-512-Hash gegen `sys.trusted_assemblies`;
+- lädt das Binary aus einem SQL-Binäritliteral;
+- verändert weder `clr enabled`, `clr strict security`, `TRUSTWORTHY` noch die
+  Trust-Liste.
 
-## Abgrenzung zu Nachbar-Kandidaten
+Trust bleibt ein getrennter administrativer Opt-in. Der Uninstall entfernt
+keinen serverweiten Trust-Eintrag.
 
-- `TC-2026-033`: bleibt read-only Metadaten-Listing ohne Payload-Extraktion.
-- `TC-2026-034`: V1A ist nur In-memory-Extraktion einzelner Eintraege.
-- `TC-2026-037`: dateibasierte Ein-/Ausgabe bleibt separater Provider.
-- `TC-2026-035` und `TC-2026-036`: Kompressionsverfahren bleiben getrennte
-  Capabilities.
+## Lifecycle
 
-## Finalisierte V1A-Entscheidungen
+Unterstützt sind Upgrade von `1.0.0` auf `1.1.0`, lokale und zentrale
+Installation, inhaltlich idempotentes Wiederholungsdeployment, Dependency-
+Schutz und vollständiger Datenbank-Uninstall von Procedure, internem CLR-TVF
+und Assembly.
 
-1. `Create` bleibt ausserhalb von V1A und wird als spaeterer Slice behandelt.
-2. Duplicate Entry-Namen werden in V1A als expliziter Vertragsfehler behandelt.
-3. Default-Limits sind verbindlich: `@MaxEntryBytes = 104857600` und
-  `@MaxCompressionRatio = 200.00`.
-4. Bei `@FailIfEncrypted = 0` liefert ein verschluesselter Entry einen
-  expliziten Status ohne Payload, nicht still ein leeres Erfolgsergebnis.
+## Fehlerbereiche
 
-## Testmatrix fuer Verarbeitungswelle 2 (Implementierung)
+- Fach-/Providerfehler `51320–51329`;
+- Lifecycle `51330–51339`;
+- Trust-/CLR-Preflight `51340–51349`.
 
-### Pflichtfaelle
+Der CLR-Provider überträgt erwartete Fachfehler intern als Statuszeile; der
+T-SQL-Wrapper wirft daraus stabile Toolbelt-Fehler. Fehler `6522` ist kein
+öffentlicher Fachvertrag.
 
-- gueltiger Einzel-Entry (klein, mittel, gross unterhalb Limit);
-- Entry nicht vorhanden;
-- leeres Archiv und ungueltige ZIP-Struktur;
-- ZIP64-Archive liegen ausserhalb des V1A-Vertrags und dürfen nicht als
-  unterstützt ausgewiesen werden;
-- Entry ueber `@MaxEntryBytes`;
-- Entry ueber `@MaxCompressionRatio`;
-- verschluesselter Entry mit `@FailIfEncrypted = 1`;
-- CRC-Fehler;
-- duplicate Entry-Namen gemaess finaler Semantik;
-- kompletter USP-Hilfevertrag inklusive `@ResultTable` und `@KeepData`.
+## Validierung und offene Release-Gates
 
-### Lifecycle
+Erfolgreich geprüft wurden Stored, Deflate, Data Descriptor, UTF-8, CP437,
+Duplicate Names, Verschlüsselungsstatus, Größen-/Ratio-/Featurefehler,
+Headerinkonsistenz, CRC-Mismatch, ResultTable, Wiederholungsdeployment, Central
+und Uninstall.
 
-- lokale Installation, Wiederholungsdeployment, Uninstall;
-- zentrale Installation und Uninstall;
-- statische Vertragspruefung und modulbezogene Runtime-Evidenz.
+Offen bleiben:
 
-## Nicht-Ziele von V1A
+- SQL Server Runtime unter Windows;
+- echte 268-MiB-, 128-MiB- und 10000-Entry-Grenzläufe;
+- zusätzliche reale Archive verschiedener Erzeuger vor Release.
 
-- Dateiexport in Verzeichnisse;
-- rekursive Archiventpackung;
-- Entschluesselung passwortgeschuetzter Archive;
-- allgemeiner Binary-File-I/O-Adapter;
-- Performancegarantie fuer beliebige LOB-Groessen.
+## Abgrenzung
 
-## Naechster Schritt
-
-V1A gezielt auf SQL Server 2025 Linux validieren. Ein optionaler CLR-Slice wird
-nur nach Build-/Deployment-Spike und separater Implementierungsfreigabe
-begonnen.
+`TC-2026-033` bleibt Metadaten-Listing, `TC-2026-037` bleibt dateibasierte
+Ein-/Ausgabe. Archiv-Erzeugung und weitere Kompressionsformate bleiben eigene
+Capabilities.

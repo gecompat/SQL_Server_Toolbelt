@@ -2,18 +2,16 @@
 
 **Typ:** Stored Procedure mit fachlichem Einzelresultset  
 **Version:** `1.1.0`  
-**Status:** `implemented`; Runtime `not executed`
+**Status:** `implemented`; `partially validated`
 
 ## Zweck
 
 Extrahiert einen einzelnen, eindeutig benannten ZIP-Entry aus einem In-memory-
-ZIP-Container (`varbinary(max)`) ohne Dateisystemzugriff. Der interne
-`SAFE`-SQL-CLR-Provider unterstützt Compression Methods `0` (`Stored`) und `8`
-(`Deflate`) und prüft die CRC32 des tatsächlich ausgegebenen Payloads.
+ZIP-Container (`varbinary(max)`). Der interne `SAFE`-SQL-CLR-Provider
+unterstützt Methods `0` (`Stored`) und `8` (`Deflate`) und prüft die CRC32 des
+tatsächlich ausgegebenen Payloads.
 
 ## Signatur
-
-Die öffentliche Signatur bleibt gegenüber Version `1.0.0` unverändert:
 
 ```sql
 CREATE OR ALTER PROCEDURE [toolbelt_archive].[USP_ExtractZipEntryFromBinary]
@@ -30,93 +28,72 @@ CREATE OR ALTER PROCEDURE [toolbelt_archive].[USP_ExtractZipEntryFromBinary]
 )
 ```
 
-## Parameter
+Die öffentliche Signatur ist gegenüber Version `1.0.0` unverändert.
 
-| Parameter | Vertrag |
-|---|---|
-| `@ZipArchive` | Nicht leer; hartes Providerlimit `268435456` Bytes. |
-| `@EntryName` | Exakter ordinaler, case-sensitiver Vergleich; maximal 1024 Zeichen. UTF-8 gemäß Flag 11, sonst CP437. |
-| `@MaxEntryBytes` | Limit für deklarierte und tatsächlich ausgegebene Payload-Größe; `1` bis `2147483647`. Default `104857600`. |
-| `@MaxCompressionRatio` | Limit für deklarierte und tatsächliche Ratio `UncompressedBytes / CompressedBytes`; mindestens `1`. Default `200.00`. |
-| `@FailIfEncrypted` | `1`: Fehler `51324`; `0`: Metadaten und `IsEncrypted=1`, aber `EntryPayload=NULL`. |
-| `@ResultTable` | Optionale bestehende lokale Temp-Tabelle gemäß zentralem USP-Vertrag. |
-| `@KeepData` | `0`: ResultTable ersetzen; `1`: Resultzeile anhängen. |
-| `@Debug` | Standardisierter Debugparameter. |
-| `@Hilfe` | `1`: ausschließlich maschinenlesbarer Help-Vertrag; keine Validierung oder Extraktion. |
+## Ergebnis
 
-## Ergebnisvertrag
-
-Bei `@Hilfe = 0` liefert die Procedure genau eine Zeile bei Erfolg:
-
-| Spalte | Typ | Beschreibung |
+| Spalte | Typ | Bedeutung |
 |---|---|---|
-| `EntryName` | `nvarchar(1024)` | Exakter Entry-Name aus dem Central Directory. |
-| `CompressedBytes` | `bigint` | Komprimierte Größe aus dem Central Directory. |
-| `UncompressedBytes` | `bigint` | Deklarierte Größe, nach erfolgreicher Extraktion gegen die tatsächliche Ausgabe geprüft. |
-| `CompressionMethod` | `int` | `0` (`Stored`) oder `8` (`Deflate`). |
-| `Crc32` | `int NULL` | CRC32-Bitmuster des tatsächlichen Payloads. Nur beim verschlüsselten Statuspfad ohne Payload stammt der Wert ausschließlich aus den Metadaten. |
-| `IsEncrypted` | `bit` | `1`, wenn der Entry als verschlüsselt markiert ist. |
-| `EntryPayload` | `varbinary(max)` | Extrahierter Payload; bei erlaubtem verschlüsseltem Status `NULL`. |
+| `EntryName` | `nvarchar(1024)` | Exakter Name aus dem Central Directory. |
+| `CompressedBytes` | `bigint` | Komprimierte Größe. |
+| `UncompressedBytes` | `bigint` | Deklarierte und bei Extraktion bestätigte Payload-Größe. |
+| `CompressionMethod` | `int` | `0` oder `8`. |
+| `Crc32` | `int NULL` | CRC32-Bitmuster des tatsächlichen Payloads. |
+| `IsEncrypted` | `bit` | Verschlüsselungsflag. |
+| `EntryPayload` | `varbinary(max)` | Extrahierter Payload oder `NULL` beim erlaubten verschlüsselten Status. |
 
-Bei gesetztem `@ResultTable` wird kein fachliches `SELECT` ausgegeben; die
-Resultzeile wird in die vorbereitete Ziel-Temp-Tabelle geschrieben.
+Bei `@ResultTable` wird die Zeile in die vorbereitete lokale Temp-Tabelle
+geschrieben und kein fachliches `SELECT` ausgegeben.
 
-## ZIP-Parsing und Integrität
+## Semantik
 
-Der Provider:
-
-1. sucht und validiert den klassischen EOCD-Record;
-2. prüft Central-Directory-Grenzen und maximal `10000` Entries;
-3. löst den Namen ordinal eindeutig auf;
-4. gleicht Local Header und Central Directory für Name, Method und relevante
-   Flags ab;
-5. begrenzt den komprimierten Lesestream exakt auf die deklarierte Größe;
-6. dekomprimiert Method `8` mit `DeflateStream` aus `System.dll`;
-7. erzwingt Output-Größe und Compression Ratio während des Lesens erneut;
-8. vergleicht tatsächliche Bytezahl und neu berechnete CRC32 mit dem Central
-   Directory.
+- Entry-Namen werden ordinal und case-sensitive verglichen.
+- Flag 11 verwendet UTF-8, sonst CP437.
+- Duplicate Names liefern Fehler `51323`.
+- `@FailIfEncrypted = 1` liefert Fehler `51324`.
+- `@FailIfEncrypted = 0` liefert Metadaten und `IsEncrypted = 1`, aber keinen
+  Payload.
+- Größe und Compression Ratio werden vor und während des Lesens begrenzt.
+- Reale Bytezahl und neu berechnete CRC32 müssen den Metadaten entsprechen.
 
 ## Fehlervertrag
 
-Die Procedure verwendet den stabilen Bereich `51320–51329`:
-
 | Nummer | Bedeutung |
 |---:|---|
-| `51320` | Pflichtparameter oder Grenzparameter sind ungültig. |
-| `51321` | ZIP-Struktur, Headerbeziehung, Kodierung oder Stream ist ungültig beziehungsweise inkonsistent. |
-| `51322` | Der angeforderte Entry wurde nicht gefunden. |
-| `51323` | Der Entry-Name ist im Archiv nicht eindeutig. |
-| `51324` | Entry ist verschlüsselt und laut Parameter abzulehnen. |
-| `51325` | Archiv, Entry oder tatsächlicher Output überschreitet ein Größenlimit. |
-| `51326` | Deklarierte oder tatsächliche Compression Ratio überschreitet das Limit. |
-| `51327` | Feature nicht unterstützt, beispielsweise ZIP64, Multi-Disk oder Method außerhalb `0`/`8`. |
-| `51328` | Tatsächliche Größe oder CRC32 stimmt nicht mit dem Central Directory überein. |
-| `51329` | CLR-Provider oder ResultTable-Integration fehlt beziehungsweise liefert keinen gültigen Status. |
+| `51320` | Ungültige Parameter. |
+| `51321` | Ungültige oder inkonsistente ZIP-Struktur/Kodierung. |
+| `51322` | Entry nicht gefunden. |
+| `51323` | Duplicate Name. |
+| `51324` | Verschlüsselter Entry abgelehnt. |
+| `51325` | Größenlimit überschritten. |
+| `51326` | Compression-Ratio-Limit überschritten. |
+| `51327` | Nicht unterstütztes Feature, etwa ZIP64, Multi-Disk oder Method. |
+| `51328` | Tatsächliche Größe oder CRC32 stimmt nicht. |
+| `51329` | Interner Provider oder ResultTable-Dependency fehlt/ist inkonsistent. |
 
-Providerfehler werden intern als Statuszeile übertragen und vom T-SQL-Wrapper
-als Toolbelt-Fehler geworfen. Damit wird kein generischer CLR-Fehler `6522` als
-öffentlicher Fachvertrag verwendet.
+Erwartete Providerfehler werden intern als Status übertragen und vom T-SQL-
+Wrapper als Toolbelt-Fehler geworfen. CLR-Fehler `6522` ist kein öffentlicher
+Fachvertrag.
 
 ## Nicht unterstützt
 
-- ZIP64 und Multi-Disk;
-- Verschlüsselungsentschlüsselung;
-- Deflate64 oder andere Methods als `0` und `8`;
-- zusätzliche Central-Directory-Datensätze;
-- Archiv-Erzeugung, Multi-Entry- oder Verzeichnisextraktion;
-- Dateisystem-, Netzwerk- oder Prozesszugriff.
+ZIP64, Multi-Disk, Verschlüsselungsentschlüsselung, Deflate64, weitere Methods,
+zusätzliche Central-Directory-Datensätze, Archiv-Erzeugung, Multi-Entry- oder
+Verzeichnisextraktion sowie Dateisystem-, Netzwerk- oder Prozesszugriff.
 
-## Deployment und Berechtigungen
+## Deployment
 
-Die Procedure wird zusammen mit der internen CLR-Tabellefunktion und der
-Assembly `Toolbelt_Archive_ZipMemory` installiert. Die Assembly ist `SAFE` und
-muss vor dem Datenbankdeployment über den exakten SHA2-512-Hash serverweit
-vertraut werden. Der Modulinstaller verändert weder `clr enabled` noch
-`clr strict security` oder die Trust-Liste.
+Die Procedure wird gemeinsam mit
+`toolbelt_archive.TVF_InternalExtractZipEntryClr` und der `SAFE`-Assembly
+`Toolbelt_Archive_ZipMemory` installiert. Vor dem Datenbankdeployment muss der
+exakte SHA2-512-Hash serverweit freigegeben sein. Der Installer verändert keine
+Instanzoption und keine Trust-Liste.
 
-Für reguläre Aufrufe ist `EXECUTE` auf der Procedure erforderlich. Bei
-`@ResultTable` wird zusätzlich `EXECUTE` auf
-`toolbelt_core.USP_PrepareResultTable` benötigt.
+## Evidenz
+
+GitHub-Actions-Lauf `30615544206` war erfolgreich auf SQL Server 2019, 2022 und
+2025 unter Linux sowie für den Windows-.NET-Framework-4.8-Build. Windows-SQL-
+Server-Runtime und Release-Extremgrößenläufe bleiben offen.
 
 ## Beispiel
 
