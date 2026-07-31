@@ -90,7 +90,7 @@ documentation:
     - "../../Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md"
     - "../../Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md"
   decisions:
-    - "../../Documentation/Architecture/DECISIONS.md#dec-2026-023-clr-zip-provider-und-assemblyname"
+    - "../../Documentation/Architecture/DECISIONS.md"
   test_matrix:
     - "Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md"
   evidence:
