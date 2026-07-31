@@ -14,3 +14,5 @@
 | Recursive delete | MaxDepth/MaxEntries, Junction/Symlink und TOCTOU-Beobachtung | not executed |
 
 Der manuelle Test verwendet ausschließlich eine dedizierte, synthetische Teststruktur unter einem administrativ freigegebenen Root-Alias. Kein realer Pfad, Benutzername oder Testergebnis wird in das Repository geschrieben.
+
+Der detaillierte Ablauf und die datenschutzsichere Rückmeldung stehen im [manuellen Windows-Runtime-Testplan](./Manual_Windows_Runtime_Testplan.md).
