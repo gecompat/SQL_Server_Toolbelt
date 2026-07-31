@@ -127,3 +127,5 @@ Offen bleiben:
 `TC-2026-033` bleibt Metadaten-Listing, `TC-2026-037` bleibt dateibasierte
 Ein-/Ausgabe. Archiv-Erzeugung und weitere Kompressionsformate bleiben eigene
 Capabilities.
+
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206

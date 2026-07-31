@@ -112,3 +112,5 @@ realer ZIP-Erzeuger.
 - Microsoft: [clr strict security](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/clr-strict-security?view=sql-server-ver17).
 - Microsoft: [sys.sp_add_trusted_assembly](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sys-sp-add-trusted-assembly-transact-sql?view=sql-server-ver17).
 - PKWARE: [ZIP File Format Specification (APPNOTE)](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT).
+
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206

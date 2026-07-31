@@ -98,3 +98,5 @@ Server-Runtime und Release-Extremgrößenläufe bleiben offen.
 ## Beispiel
 
 Siehe `../Examples/ExtractZipEntryFromBinary.sql`.
+
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206

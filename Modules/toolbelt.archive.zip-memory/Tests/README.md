@@ -32,3 +32,5 @@ Geprüft wurden lokale und zentrale Installation, Wiederholungsdeployment, fachl
 - zusätzliche Interoperabilitätsläufe vor Release.
 
 Der Modulstatus ist `partially validated`.
+
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206

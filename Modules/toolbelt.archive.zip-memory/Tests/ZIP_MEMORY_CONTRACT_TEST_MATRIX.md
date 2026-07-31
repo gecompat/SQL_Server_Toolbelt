@@ -44,3 +44,5 @@
 `not executed` wird erst durch reproduzierbare CI- oder gezielte Release-Evidenz
 ersetzt. Einzelne offene Fälle verhindern keine wahrheitsgemäße
 `partially validated`-Einstufung, bleiben aber vor Release sichtbar.
+
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206

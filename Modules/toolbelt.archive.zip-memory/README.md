@@ -88,3 +88,5 @@ GitHub-Actions-Lauf `30615544206` war erfolgreich für:
 
 Offen bleiben Windows-SQL-Server-Runtime, echte Extremgrößenläufe und eine
 breitere Interoperabilitätsmatrix realer Archive vor Release.
+
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206
