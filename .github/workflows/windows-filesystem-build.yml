@@ -1,0 +1,25 @@
+name: Windows Filesystem Build
+
+on:
+  pull_request:
+    paths:
+      - 'Modules/toolbelt.filesystem.windows/**'
+      - 'Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md'
+      - '.github/workflows/windows-filesystem-build.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'Modules/toolbelt.filesystem.windows/**'
+      - 'Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md'
+
+jobs:
+  build-and-static-contract:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build .NET Framework SQL CLR assembly
+        shell: pwsh
+        run: msbuild Modules/toolbelt.filesystem.windows/Clr/Toolbelt.Filesystem.Windows.csproj /p:Configuration=Release /p:Platform=AnyCPU
+      - name: Validate static contract
+        shell: pwsh
+        run: python Modules/toolbelt.filesystem.windows/Tests/Static/validate_contract.py
