@@ -33,13 +33,101 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: zip-memory-clr-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  synchronize-decision:
+    name: Synchronize CLR ZIP decision
+    if: github.event_name == 'pull_request' && github.head_ref == 'agent/implement-clr-zip-provider'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Append module-specific assembly decision
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('Documentation/Architecture/DECISIONS.md')
+          content = path.read_text(encoding='utf-8')
+          heading = '## DEC-2026-023: CLR-ZIP-Provider und Assemblyname'
+          if heading not in content:
+              decision = '''
+
+          ## DEC-2026-023: CLR-ZIP-Provider und Assemblyname
+
+          **Status:** Accepted  
+          **Datum:** 2026-07-31
+
+          ### Kontext
+
+          Der erfolgreich validierte SQL-CLR-Spike hat gezeigt, dass Raw-Deflate
+          über `DeflateStream` aus der unterstützten `System.dll` mit
+          `PERMISSION_SET = SAFE`, aktiviertem `clr strict security` und einer
+          expliziten SHA2-512-Vertrauensfreigabe auf SQL Server Linux ausführbar
+          ist. Für die produktive Erweiterung von
+          `toolbelt.archive.zip-memory` werden erstmals ein persistenter
+          Assemblyname und ein interner CLR-SQL-Objektname benötigt.
+
+          ### Entscheidung
+
+          - Die vorhandene öffentliche
+            `toolbelt_archive.USP_ExtractZipEntryFromBinary` bleibt der einzige
+            öffentliche Entry-Extraktionsvertrag und wird intern CLR-backed.
+          - Die modulspezifische SQL-Assembly heißt
+            `Toolbelt_Archive_ZipMemory`; das Binary heißt
+            `Toolbelt.Archive.ZipMemory.dll`.
+          - Der interne SQL-Provider heißt
+            `toolbelt_archive.TVF_InternalExtractZipEntryClr` und ist keine
+            öffentliche Convenience-API.
+          - Diese Namen entscheiden ausschließlich den konkreten Bedarf dieses
+            Moduls. Sie begründen keine globale Assembly- oder CLR-Objektnamensregel
+            für andere Module; `DEC-2026-003` bleibt im Übrigen unverändert.
+          - Die Assembly referenziert direkt nur `System` und `System.Data`.
+            Deflate verwendet `DeflateStream` aus `System.dll`; eine direkte
+            Referenz auf `System.IO.Compression.dll` und `ZipArchive` ist
+            ausgeschlossen.
+          - Reguläres Deployment bleibt `SAFE`, prüft den exakten SHA2-512-Hash
+            gegen `sys.trusted_assemblies` und ändert weder `clr enabled`,
+            `clr strict security`, `TRUSTWORTHY` noch die Trust-Liste.
+          - Trust-Opt-in und Trust-Entfernung sind getrennte administrative
+            Vorgänge. Der Modul-Uninstall entfernt keinen serverweiten
+            Trust-Eintrag.
+
+          ### Folgen
+
+          Das Modul erhält einen expliziten Build-/Release-Schritt für DLL,
+          Trust-Manifest und ein aus dem Binary abgeleitetes Deployment-SQL.
+          Die Runtime-Matrix muss den echten CLR-Aufruf, Stored, Deflate,
+          Payload-CRC32, Limits, lokale und zentrale Installation sowie den
+          vollständigen Datenbank-Uninstall prüfen. Windows-SQL-Server-Runtime
+          bleibt ein separater Release-Nachweis.
+          '''
+              normalized = '\n'.join(
+                  line[10:] if line.startswith('          ') else line
+                  for line in decision.splitlines()
+              )
+              path.write_text(content.rstrip() + normalized + '\n', encoding='utf-8')
+      - name: Commit decision when changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- Documentation/Architecture/DECISIONS.md; then
+            exit 0
+          fi
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Documentation/Architecture/DECISIONS.md
+          git commit -m "ChatGPT [LLM: GPT-5.6 Thinking]: Verankere CLR-ZIP-Assemblyentscheidung"
+          git push origin HEAD:${{ github.head_ref }}
+
   static-contract:
     name: Static contract
     runs-on: ubuntu-latest
