@@ -1,13 +1,15 @@
 # toolbelt_archive.USP_ExtractZipEntryFromBinary
 
-**Typ:** Stored Procedure mit fachlichem Einzelresultset
-**Version:** `1.0.0`
-**Status:** `implemented`; Runtime `not executed`
+**Typ:** Stored Procedure mit fachlichem Einzelresultset  
+**Version:** `1.1.0`  
+**Status:** `implemented`; `partially validated`
 
 ## Zweck
 
-Extrahiert einen einzelnen benannten ZIP-Eintrag aus einem in-memory
-ZIP-Container (`varbinary(max)`) ohne Dateisystemzugriff.
+Extrahiert einen einzelnen, eindeutig benannten ZIP-Entry aus einem In-memory-
+ZIP-Container (`varbinary(max)`). Der interne `SAFE`-SQL-CLR-Provider
+unterstützt Methods `0` (`Stored`) und `8` (`Deflate`) und prüft die CRC32 des
+tatsächlich ausgegebenen Payloads.
 
 ## Signatur
 
@@ -26,60 +28,75 @@ CREATE OR ALTER PROCEDURE [toolbelt_archive].[USP_ExtractZipEntryFromBinary]
 )
 ```
 
-## Ergebnisvertrag
+Die öffentliche Signatur ist gegenüber Version `1.0.0` unverändert.
 
-Bei `@Hilfe = 0` liefert die Procedure genau eine Zeile bei Erfolg:
+## Ergebnis
 
-| Spalte | Typ | Beschreibung |
+| Spalte | Typ | Bedeutung |
 |---|---|---|
-| `EntryName` | `nvarchar(1024)` | Exakter Entry-Name aus dem Central Directory. |
-| `CompressedBytes` | `bigint` | Komprimierte Groesse laut ZIP-Metadaten. |
-| `UncompressedBytes` | `bigint` | Unkomprimierte Groesse laut ZIP-Metadaten. |
-| `CompressionMethod` | `int` | ZIP Compression Method. Version 1.0.0 akzeptiert nur `0` (`Stored`) für Payload-Extraktion; Deflate (Method `8`) und weitere Methoden werden abgelehnt. |
-| `Crc32` | `int NULL` | CRC32-Wert aus ZIP-Metadaten. Er wird in Version 1.0.0 nicht über `EntryPayload` neu berechnet. |
-| `IsEncrypted` | `bit` | `1` falls Entry als verschluesselt markiert ist. |
-| `EntryPayload` | `varbinary(max)` | Extrahierter Payload. Bei `@FailIfEncrypted = 0` und verschluesseltem Entry `NULL`. |
+| `EntryName` | `nvarchar(1024)` | Exakter Name aus dem Central Directory. |
+| `CompressedBytes` | `bigint` | Komprimierte Größe. |
+| `UncompressedBytes` | `bigint` | Deklarierte und bei Extraktion bestätigte Payload-Größe. |
+| `CompressionMethod` | `int` | `0` oder `8`. |
+| `Crc32` | `int NULL` | CRC32-Bitmuster des tatsächlichen Payloads. |
+| `IsEncrypted` | `bit` | Verschlüsselungsflag. |
+| `EntryPayload` | `varbinary(max)` | Extrahierter Payload oder `NULL` beim erlaubten verschlüsselten Status. |
 
-Bei gesetztem `@ResultTable` wird kein fachliches `SELECT` ausgegeben; die
-Resultzeile wird in die vorbereitete Ziel-Temp-Tabelle geschrieben.
+Bei `@ResultTable` wird die Zeile in die vorbereitete lokale Temp-Tabelle
+geschrieben und kein fachliches `SELECT` ausgegeben.
 
-## Help- und Parametervertrag
+## Semantik
 
-`@Hilfe`, `@Debug`, `@ResultTable` und `@KeepData` folgen dem USP-Vertrag aus
-`Documentation/Standards/USP_CONTRACT.md`.
+- Entry-Namen werden ordinal und case-sensitive verglichen.
+- Flag 11 verwendet UTF-8, sonst CP437.
+- Duplicate Names liefern Fehler `51323`.
+- `@FailIfEncrypted = 1` liefert Fehler `51324`.
+- `@FailIfEncrypted = 0` liefert Metadaten und `IsEncrypted = 1`, aber keinen
+  Payload.
+- Größe und Compression Ratio werden vor und während des Lesens begrenzt.
+- Reale Bytezahl und neu berechnete CRC32 müssen den Metadaten entsprechen.
 
 ## Fehlervertrag
 
-Die Procedure verwendet den Bereich `51320-51329`:
-
 | Nummer | Bedeutung |
 |---:|---|
-| `51320` | Pflichtparameter oder Grenzparameter sind ungueltig. |
-| `51321` | ZIP-Struktur ist ungueltig oder inkonsistent. |
-| `51322` | Der angeforderte Entry wurde nicht gefunden. |
-| `51323` | Der Entry-Name ist im Archiv nicht eindeutig. |
-| `51324` | Entry ist verschluesselt und laut Parameter abzulehnen. |
-| `51325` | Entry ueberschreitet `@MaxEntryBytes`. |
-| `51326` | Entry ueberschreitet `@MaxCompressionRatio`. |
-| `51327` | Compression Method ist fuer Payload-Extraktion nicht unterstuetzt. |
-| `51328` | Header- oder CRC-Konsistenz verletzt den Vertragsrahmen. |
-| `51329` | ResultTable-Integration ist nicht verfuegbar oder nicht ausfuehrbar. |
+| `51320` | Ungültige Parameter. |
+| `51321` | Ungültige oder inkonsistente ZIP-Struktur/Kodierung. |
+| `51322` | Entry nicht gefunden. |
+| `51323` | Duplicate Name. |
+| `51324` | Verschlüsselter Entry abgelehnt. |
+| `51325` | Größenlimit überschritten. |
+| `51326` | Compression-Ratio-Limit überschritten. |
+| `51327` | Nicht unterstütztes Feature, etwa ZIP64, Multi-Disk oder Method. |
+| `51328` | Tatsächliche Größe oder CRC32 stimmt nicht. |
+| `51329` | Interner Provider oder ResultTable-Dependency fehlt/ist inkonsistent. |
 
-## Technische Grenzen
+Erwartete Providerfehler werden intern als Status übertragen und vom T-SQL-
+Wrapper als Toolbelt-Fehler geworfen. CLR-Fehler `6522` ist kein öffentlicher
+Fachvertrag.
 
-- Kein ZIP64-Support: Die Procedure verarbeitet nur die klassischen ZIP-
-  Header-/Offsetfelder.
-- Keine garantierte Dekodierung für die ZIP-Entry-Namenskodierungen UTF-8 oder
-  CP437.
-- `51328` steht für Header-/Metadateninkonsistenzen im implementierten
-  T-SQL-Slice, nicht für eine neu berechnete Payload-CRC-Prüfung.
+## Nicht unterstützt
 
-## Sicherheit
+ZIP64, Multi-Disk, Verschlüsselungsentschlüsselung, Deflate64, weitere Methods,
+zusätzliche Central-Directory-Datensätze, Archiv-Erzeugung, Multi-Entry- oder
+Verzeichnisextraktion sowie Dateisystem-, Netzwerk- oder Prozesszugriff.
 
-- Keine Dateisystem-I/O, keine Pfadauflosung, keine rekursive Entpackung.
-- Harte Limits gegen uebergrosse Entries und unplausible Kompressionsverhaeltnisse.
-- Encrypted Entries werden kontrolliert behandelt.
+## Deployment
+
+Die Procedure wird gemeinsam mit
+`toolbelt_archive.TVF_InternalExtractZipEntryClr` und der `SAFE`-Assembly
+`Toolbelt_Archive_ZipMemory` installiert. Vor dem Datenbankdeployment muss der
+exakte SHA2-512-Hash serverweit freigegeben sein. Der Installer verändert keine
+Instanzoption und keine Trust-Liste.
+
+## Evidenz
+
+GitHub-Actions-Lauf `30615544206` war erfolgreich auf SQL Server 2019, 2022 und
+2025 unter Linux sowie für den Windows-.NET-Framework-4.8-Build. Windows-SQL-
+Server-Runtime und Release-Extremgrößenläufe bleiben offen.
 
 ## Beispiel
 
 Siehe `../Examples/ExtractZipEntryFromBinary.sql`.
+
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206

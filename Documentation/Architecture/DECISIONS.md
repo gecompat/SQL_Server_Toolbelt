@@ -304,3 +304,52 @@ Dauerhafte Entscheidungen werden mit stabiler ID dokumentiert. Historische Entsc
 | Auswirkungen | Neue SVFs benötigen im Design eine inline-TVF-Prüfung. Bestehende Lücken werden im Audit und in `AP-2026-014` nachverfolgt. Dokumentation und Beispiele empfehlen die relationale API für mengenorientierte Abfragen. |
 | Alternativen | Nur SVFs anzubieten oder eine inline TVF als bloßen Aufruf-Wrapper um die SVF zu legen wurde verworfen. Der vollständige Verzicht auf SVFs wurde verworfen, weil die skalare API für Einzelaufrufe und bestehende Aufrufstellen nützlich bleibt. |
 | Betroffene Verträge | `TSQL_ENGINEERING.md`, `MODULE_DEFINITION_OF_DONE.md`, `SVF_INLINE_TVF_AUDIT.md` |
+
+## DEC-2026-023: CLR-ZIP-Provider und Assemblyname
+
+**Status:** Accepted  
+**Datum:** 2026-07-31
+
+### Kontext
+
+Der erfolgreich validierte SQL-CLR-Spike hat gezeigt, dass Raw-Deflate
+über `DeflateStream` aus der unterstützten `System.dll` mit
+`PERMISSION_SET = SAFE`, aktiviertem `clr strict security` und einer
+expliziten SHA2-512-Vertrauensfreigabe auf SQL Server Linux ausführbar
+ist. Für die produktive Erweiterung von
+`toolbelt.archive.zip-memory` werden erstmals ein persistenter
+Assemblyname und ein interner CLR-SQL-Objektname benötigt.
+
+### Entscheidung
+
+- Die vorhandene öffentliche
+  `toolbelt_archive.USP_ExtractZipEntryFromBinary` bleibt der einzige
+  öffentliche Entry-Extraktionsvertrag und wird intern CLR-backed.
+- Die modulspezifische SQL-Assembly heißt
+  `Toolbelt_Archive_ZipMemory`; das Binary heißt
+  `Toolbelt.Archive.ZipMemory.dll`.
+- Der interne SQL-Provider heißt
+  `toolbelt_archive.TVF_InternalExtractZipEntryClr` und ist keine
+  öffentliche Convenience-API.
+- Diese Namen entscheiden ausschließlich den konkreten Bedarf dieses
+  Moduls. Sie begründen keine globale Assembly- oder CLR-Objektnamensregel
+  für andere Module; `DEC-2026-003` bleibt im Übrigen unverändert.
+- Die Assembly referenziert direkt nur `System` und `System.Data`.
+  Deflate verwendet `DeflateStream` aus `System.dll`; eine direkte
+  Referenz auf `System.IO.Compression.dll` und `ZipArchive` ist
+  ausgeschlossen.
+- Reguläres Deployment bleibt `SAFE`, prüft den exakten SHA2-512-Hash
+  gegen `sys.trusted_assemblies` und ändert weder `clr enabled`,
+  `clr strict security`, `TRUSTWORTHY` noch die Trust-Liste.
+- Trust-Opt-in und Trust-Entfernung sind getrennte administrative
+  Vorgänge. Der Modul-Uninstall entfernt keinen serverweiten
+  Trust-Eintrag.
+
+### Folgen
+
+Das Modul erhält einen expliziten Build-/Release-Schritt für DLL,
+Trust-Manifest und ein aus dem Binary abgeleitetes Deployment-SQL.
+Die Runtime-Matrix muss den echten CLR-Aufruf, Stored, Deflate,
+Payload-CRC32, Limits, lokale und zentrale Installation sowie den
+vollständigen Datenbank-Uninstall prüfen. Windows-SQL-Server-Runtime
+bleibt ein separater Release-Nachweis.

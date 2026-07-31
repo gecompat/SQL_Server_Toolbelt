@@ -1,10 +1,10 @@
 module_id: "toolbelt.archive.zip-memory"
 module_name: "ZIP Memory Extraction"
-version: "1.0.0"
+version: "1.1.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
-description: "Extrahiert einen einzelnen ZIP-Eintrag aus einem in-memory ZIP-Container (varbinary(max)) ohne Dateisystemzugriff."
+description: "Extrahiert einen einzelnen ZIP-Entry aus einem In-memory-ZIP-Container über einen begrenzten SAFE-SQL-CLR-Provider für Methods 0 und 8 mit CRC32-Prüfung."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -12,12 +12,12 @@ sql_server_versions:
 compatibility_levels: [150, 160, 170]
 platforms:
   windows: "not executed"
-  linux: "not executed"
+  linux: "partially validated"
 providers:
-  - id: tsql-zip-stored
-    technology: "T-SQL Binary ZIP Parsing"
+  - id: clr-zip-memory
+    technology: "C# SQL CLR; eigener ZIP-Parser; DeflateStream aus System.dll; eigene CRC32"
     platforms: [Windows, Linux]
-    status: implemented
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: true
@@ -27,7 +27,7 @@ deployment_capabilities:
 dependencies:
   - module_id: "toolbelt.core.result-table"
     minimum_version: "1.0.0"
-    reason: "ResultTable-Integration fuer den USP-Vertrag (@ResultTable, @KeepData)."
+    reason: "ResultTable-Integration für den USP-Vertrag (@ResultTable, @KeepData)."
 schemas:
   - "toolbelt_archive"
 objects:
@@ -35,11 +35,20 @@ objects:
     schema: "toolbelt_archive"
     name: "USP_ExtractZipEntryFromBinary"
     visibility: public
+  - type: CLR_TVF
+    schema: "toolbelt_archive"
+    name: "TVF_InternalExtractZipEntryClr"
+    visibility: internal
+  - type: ASSEMBLY
+    name: "Toolbelt_Archive_ZipMemory"
+    visibility: internal
 permissions_required:
   - "EXECUTE auf toolbelt_archive.USP_ExtractZipEntryFromBinary"
   - "EXECUTE auf toolbelt_core.USP_PrepareResultTable bei Nutzung von @ResultTable"
-  - "DDL-Rechte fuer Deploy und Uninstall"
-collation_contract: "Entry-Namen werden mit Latin1_General_100_BIN2 verglichen."
+  - "CREATE ASSEMBLY beziehungsweise ALTER ANY ASSEMBLY für Deploy"
+  - "CREATE FUNCTION, CREATE PROCEDURE und Schema-ALTER für Deploy"
+  - "sysadmin ausschließlich für das separate Trust-Opt-in"
+collation_contract: "Entry-Namen werden vom CLR-Provider ordinal und case-sensitive verglichen; UTF-8 gemäß Flag 11, sonst CP437."
 data_type_contract: "ZIP-Container und Payload sind varbinary(max); Entry-Namen sind nvarchar(1024)."
 help_contract_version: "1.0"
 resultset_contracts:
@@ -49,22 +58,39 @@ resultset_contracts:
     return_code_success: 0
     error_range: "51320-51329"
 lifecycle_error_range: "51330-51339"
+trust_error_range: "51340-51349"
 clr:
-  used: false
-  permission_set: null
-  trust_method: null
+  used: true
+  language: "C#"
+  target_framework: ".NET Framework 4.8"
+  assembly_sql_name: "Toolbelt_Archive_ZipMemory"
+  assembly_file_name: "Toolbelt.Archive.ZipMemory.dll"
+  permission_set: "SAFE"
+  trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"
+  direct_framework_references:
+    - "System"
+    - "System.Data"
+  disallowed_direct_reference:
+    - "System.IO.Compression.dll"
+  build_project: "Clr/Toolbelt.Archive.ZipMemory.csproj"
+  release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
 lifecycle:
-  deploy: "Deployment/Deploy.sql"
+  trust_opt_in: "Deployment/Add-TrustedAssembly.sql"
+  deploy_template: "Deployment/Deploy.sql"
   uninstall: "Deployment/Uninstall.sql"
   execution_mode: "SQLCMD"
-  release_manifest: "embedded"
+  release_manifest: "generated from the exact built assembly"
   source_hash_role: "diagnostic_only"
+  trust_removed_by_uninstall: false
 documentation:
   module: "README.md"
   public_objects:
     - "Documentation/USP_ExtractZipEntryFromBinary.md"
   architecture:
     - "../../Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md"
+    - "../../Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md"
+  decisions:
+    - "../../Documentation/Architecture/DECISIONS.md"
   test_matrix:
     - "Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md"
   evidence:
@@ -77,7 +103,12 @@ tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/ZipMemory.Contract.sql"
   contract: "Tests/Runtime/ZipMemory.Contract.sql"
+  encoding: "Tests/Runtime/Encoding.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   github_hosted_linux: "../../.github/workflows/zip-memory-runtime.yml"
-validation_evidence: []
+validation_evidence:
+  - date: "2026-07-31"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206"
+    scope: "Windows-.NET-Framework-4.8-Build; SQL Server 2019 Linux/Compatibility 150; SQL Server 2022 Linux/Compatibility 160; SQL Server 2025 Linux/Compatibility 150, 160 und 170; Trust, Stored, Deflate, Data Descriptor, UTF-8, CP437, CRC32, Größen-/Ratio-/Featurefehler, ResultTable, Wiederholungsdeployment, Central und Uninstall"
+    result: "success"

@@ -1,32 +1,36 @@
 SET NOCOUNT ON;
 
 DECLARE @ZipArchive varbinary(max) =
-    0x504B030414000000000000000000366444C1050000000500000009000000706C61696E2E74787448454C4C4F504B0102140014000000000000000000366444C10500000005000000090000000000000000000000000000000000706C61696E2E747874504B05060000000001000100370000002C0000000000;
+    0x504B0304140000000800000021502383920B18000000160000000C0000006465666C617465642E747874F370F5F1F157700BF2F75570F60952707175F3710C710500504B01021403140000000800000021502383920B18000000160000000C00000000000000000000008001000000006465666C617465642E747874504B050600000000010001003A000000420000000000;
 
 DECLARE @Result TABLE
 (
-      EntryName nvarchar(1024) NOT NULL
-    , CompressedBytes bigint NOT NULL
-    , UncompressedBytes bigint NOT NULL
-    , CompressionMethod int NOT NULL
-    , Crc32 int NULL
-    , IsEncrypted bit NOT NULL
-    , EntryPayload varbinary(max) NULL
+      EntryName         nvarchar(1024) NOT NULL
+    , CompressedBytes   bigint         NOT NULL
+    , UncompressedBytes bigint         NOT NULL
+    , CompressionMethod int            NOT NULL
+    , Crc32             int            NULL
+    , IsEncrypted       bit            NOT NULL
+    , EntryPayload      varbinary(max) NULL
 );
 
 INSERT INTO @Result
 EXEC [$(ToolbeltDatabase)].toolbelt_archive.USP_ExtractZipEntryFromBinary
       @ZipArchive = @ZipArchive
-    , @EntryName = N'plain.txt';
+    , @EntryName = N'deflated.txt';
 
 IF NOT EXISTS
    (
        SELECT 1
        FROM @Result
-       WHERE EntryName = N'plain.txt'
-         AND EntryPayload = 0x48454C4C4F
+       WHERE EntryName = N'deflated.txt'
+         AND CompressionMethod = 8
+         AND Crc32 = 194151203
+         AND IsEncrypted = 0
+         AND EntryPayload =
+             0x48454C4C4F2046524F4D20434C52204445464C415445
    )
-    THROW 51383, N'Der zentrale ZIP-Memory-Aufruf ist fehlgeschlagen.', 1;
+    THROW 51385, N'Der zentrale CLR-Deflate-Aufruf ist fehlgeschlagen.', 1;
 
-PRINT N'ZIP Memory Central-Contract-Pruefung: erfolgreich';
+PRINT N'ZIP Memory CLR Central-Contract-Prüfung: erfolgreich';
 GO
