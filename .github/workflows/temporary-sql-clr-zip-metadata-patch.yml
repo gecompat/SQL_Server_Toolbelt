@@ -1,0 +1,72 @@
+name: Temporary SQL CLR ZIP metadata patch
+
+on:
+  push:
+    branches:
+      - agent/fix-sql-clr-zip-provider
+
+permissions:
+  contents: write
+
+jobs:
+  patch-metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/fix-sql-clr-zip-provider
+          fetch-depth: 0
+
+      - name: Synchronize backlog and implementation plan
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          backlog_path = Path('.ai/BACKLOG.md')
+          backlog = backlog_path.read_text(encoding='utf-8')
+          replacement = '''### AP-2026-022: SQL CLR ZIP Build-/Deployment-Spike
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-022` |
+| Ziel | Den technisch kleinsten SQL-CLR-Providerpfad für ZIP Method 8 mit einer minimalen `SAFE`-Assembly kontrolliert bauen, deployen, ausführen und wieder entfernen. |
+| Scope | C#-Projekt für .NET Framework 4.8; Raw-Deflate über `DeflateStream` aus der unterstützten `System.dll`; eigene CRC32-Prüfung; SHA2-512-Trust-Manifest; binäres `CREATE ASSEMBLY`; getrennte Trust-, Deploy-, Verify- und Uninstall-Skripte; positiver SQL-Server-2022-Linux-Runtime-Gate. Keine produktive ZIP-Funktion, keine öffentliche API und kein Modulmanifest. |
+| Dependencies | `AP-2026-021`, `ZIP_CLR_PROVIDER_DESIGN.md`, `CLR_SECURITY_AND_PORTABILITY.md`, .NET-Framework-4.8-Targeting-Pack, MSBuild, SQLCMD und eine disposable SQL-Server-Testinstanz. |
+| Priorität | `P1` |
+| Status | `active` |
+| Akzeptanzkriterien | Keine direkte Referenz auf `System.IO.Compression.dll` oder `ZipArchive`; `DeflateStream` wird aus `System.dll` geladen; die Testassembly bleibt `SAFE`; der Trust-Hash entsteht aus dem konkreten Binary; Deployment benötigt keinen serverlokalen Buildpfad; tatsächlicher CLR-Aufruf prüft Payload und CRC32; kein Skript setzt `TRUSTWORTHY ON`, deaktiviert `clr strict security` oder verwendet `EXTERNAL_ACCESS`/`UNSAFE`; Uninstall berührt keinen Trust-Eintrag. |
+| Tests | Statische Vertragsprüfung, Windows-GitHub-hosted .NET-Framework-Build und positiver SQL-Server-2022-Linux-Lauf mit Trust, `CREATE ASSEMBLY`, Deflate-/CRC32-Ausführung und Uninstall. SQL Server 2019, SQL Server 2025 und Windows-Runtime bleiben separate Pflichtläufe vor Produktfreigabe. |
+| Blocker | Kein bekannter technischer Blocker für den korrigierten Deflate-/CRC32-Spike. Der frühere Fehler 10301 entstand durch den ungeeigneten `ZipArchive`-Pfad und die direkte Abhängigkeit von `System.IO.Compression.dll`. |
+| Evidenz | `Spikes/sql-clr-zip-provider/README.md`, `Source/ZipClrProbe.cs`, `Tests/Static/validate_spike.py`, `.github/workflows/sql-clr-zip-spike.yml` und der nach Merge dokumentierte GitHub-Actions-Lauf. |
+| Nächster Schritt | Korrigierten Workflow ausführen; danach SQL Server 2019, SQL Server 2025 und Windows gezielt validieren und erst anschließend die produktive Providerimplementierung erneut zur Freigabe vorlegen. |
+'''
+          pattern = re.compile(
+              r'### AP-2026-022: SQL CLR ZIP Build-/Deployment-Spike\n.*?(?=\n### AP-2026-003:)',
+              re.DOTALL,
+          )
+          backlog, count = pattern.subn(replacement.rstrip(), backlog)
+          if count != 1:
+              raise SystemExit(f'AP-2026-022 replacement count was {count}, expected 1')
+          backlog_path.write_text(backlog, encoding='utf-8')
+
+          plan_path = Path('Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md')
+          plan = plan_path.read_text(encoding='utf-8')
+          plan = plan.replace('Stand: 2026-07-30', 'Stand: 2026-07-31', 1)
+          w8 = '| `W8` | `active` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | V1A ist als T-SQL-`Stored`-Slice implementiert, jedoch ohne Runtime-Evidenz. Der optionale CLR-Providervertrag `AP-2026-021` ist abgeschlossen. Der korrigierte Build-/Deployment-Spike `AP-2026-022` verwendet Raw-Deflate über `DeflateStream` aus `System.dll`, eigene CRC32-Prüfung und einen positiven SQL-Server-2022-Linux-Runtime-Gate; SQL Server 2019/2025 und Windows bleiben vor Produktfreigabe offen. |'
+          plan, count = re.subn(r'^\| `W8` \|.*$', w8, plan, count=1, flags=re.MULTILINE)
+          if count != 1:
+              raise SystemExit(f'W8 replacement count was {count}, expected 1')
+          plan_path.write_text(plan, encoding='utf-8')
+
+      - name: Remove temporary workflow and commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/temporary-sql-clr-zip-metadata-patch.yml
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .ai/BACKLOG.md Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md
+          git commit -m "ChatGPT: Synchronisiere CLR-ZIP-Metadaten"
+          git push origin HEAD:agent/fix-sql-clr-zip-provider
