@@ -18,7 +18,8 @@ DECLARE
           TRY_CONVERT(int, SERVERPROPERTY(N'ProductMajorVersion'))
     , @AssemblyBits varbinary(max) =
           $(AssemblyBits)
-    , @AssemblyHash varbinary(64);
+    , @AssemblyHash varbinary(64)
+    , @InstalledAssemblyHash varbinary(64);
 
 IF @ProductMajorVersion NOT IN (15, 16, 17)
     THROW 51330, N'Dieses Modul unterstützt ausschließlich SQL Server 2019, 2022 und 2025.', 1;
@@ -77,6 +78,13 @@ WHERE class = 0
   AND minor_id = 0
   AND name = @VersionProperty;
 
+SELECT @InstalledAssemblyHash = HASHBYTES(N'SHA2_512', af.content)
+FROM sys.assemblies AS a
+INNER JOIN sys.assembly_files AS af
+  ON af.assembly_id = a.assembly_id
+ AND af.file_id = 1
+WHERE a.name = @AssemblyName;
+
 IF @InstalledVersion IS NOT NULL
    AND @InstalledVersion NOT IN (N'1.0.0', N'1.1.0')
     THROW 51333, N'Die installierte Modulversion ist diesem Deployment nicht bekannt.', 1;
@@ -113,7 +121,8 @@ IF EXISTS
        WHERE name = @AssemblyName
    )
 BEGIN
-    IF HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'ALTER ANY ASSEMBLY') <> 1
+    IF ISNULL(@InstalledAssemblyHash, 0x) <> @AssemblyHash
+       AND HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'ALTER ANY ASSEMBLY') <> 1
         THROW 51335, N'Für die vorhandene CLR-ZIP-Assembly fehlt ALTER ANY ASSEMBLY.', 1;
 END
 ELSE IF HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'CREATE ASSEMBLY') <> 1
@@ -153,22 +162,26 @@ BEGIN TRY
     DROP FUNCTION IF EXISTS
         [toolbelt_archive].[TVF_InternalExtractZipEntryClr];
 
-    DECLARE @AssemblyDdl nvarchar(max) =
-        CASE
-            WHEN EXISTS
-                 (
-                     SELECT 1
-                     FROM sys.assemblies
-                     WHERE name = @AssemblyName
-                 )
-                THEN N'ALTER ASSEMBLY [Toolbelt_Archive_ZipMemory]'
-            ELSE N'CREATE ASSEMBLY [Toolbelt_Archive_ZipMemory]'
-        END
-        + N' FROM '
-        + CONVERT(nvarchar(max), @AssemblyBits, 1)
-        + N' WITH PERMISSION_SET = SAFE;';
+    IF @InstalledAssemblyHash IS NULL
+       OR @InstalledAssemblyHash <> @AssemblyHash
+    BEGIN
+        DECLARE @AssemblyDdl nvarchar(max) =
+            CASE
+                WHEN EXISTS
+                     (
+                         SELECT 1
+                         FROM sys.assemblies
+                         WHERE name = @AssemblyName
+                     )
+                    THEN N'ALTER ASSEMBLY [Toolbelt_Archive_ZipMemory]'
+                ELSE N'CREATE ASSEMBLY [Toolbelt_Archive_ZipMemory]'
+            END
+            + N' FROM '
+            + CONVERT(nvarchar(max), @AssemblyBits, 1)
+            + N' WITH PERMISSION_SET = SAFE;';
 
-    EXEC sys.sp_executesql @AssemblyDdl;
+        EXEC sys.sp_executesql @AssemblyDdl;
+    END;
 END TRY
 BEGIN CATCH
     IF XACT_STATE() <> 0
