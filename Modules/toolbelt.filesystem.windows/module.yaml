@@ -61,7 +61,17 @@ lifecycle:
   execution_mode: "SQLCMD"
 documentation:
   module: "README.md"
-  public_objects: ["Documentation/WINDOWS_FILESYSTEM_PROCEDURES.md"]
+  public_objects:
+    - "Documentation/USP_ReadBinaryFileChunk.md"
+    - "Documentation/USP_ReadTextFileChunk.md"
+    - "Documentation/USP_WriteBinaryFile.md"
+    - "Documentation/USP_WriteTextFile.md"
+    - "Documentation/USP_TranscodeTextFile.md"
+    - "Documentation/USP_ListDirectory.md"
+    - "Documentation/USP_CreateDirectory.md"
+    - "Documentation/USP_RemoveFile.md"
+    - "Documentation/USP_RemoveDirectory.md"
+    - "Documentation/WINDOWS_FILESYSTEM_PROCEDURES.md"
   architecture: ["../../Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md"]
   test_matrix: ["Tests/WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md"]
   evidence: ["Tests/README.md"]
