@@ -147,13 +147,19 @@ Marker-/Drift-, Lifecycle-, Central- und Uninstall-Contracts erfolgreich;
 physische Zielversions-, Windows- und modulspezifische Releasefälle bleiben
 offen.
 
-Das implementierte ZIP-V1A-Modul
+Das implementierte ZIP-Memory-Modul
 [`toolbelt.archive.zip-memory`](./Modules/toolbelt.archive.zip-memory/README.md)
-stellt eine kontrollierte In-memory-Extraktion einzelner ZIP-Eintraege aus
-`varbinary(max)` bereit. Version `1.0.0` erzwingt harte Default-Limits,
-behandelt Duplicate-Entry-Namen als expliziten Fehler und liefert bei
-`@FailIfEncrypted = 0` einen verschluesselten Status ohne Payload.
-Runtime-Evidenz ist aktuell noch `not executed`.
+extrahiert einzelne ZIP-Einträge aus `varbinary(max)` mit Methoden `0`
+(Stored) und `8` (Deflate), Payload-CRC32 und harten Limits. Die Linux-Matrix
+ist teilweise validiert; Windows-Runtime bleibt offen.
+
+Das implementierte Windows-only Modul
+[`toolbelt.filesystem.windows`](./Modules/toolbelt.filesystem.windows/README.md)
+stellt kontrollierten `EXTERNAL_ACCESS`-SQL-CLR-Zugriff für begrenztes
+Text-/Binary-I/O, Codepages, Transcoding sowie Directory-Operationen bereit.
+`Caller` ist der Default, `ServiceAccount` explizit. Der Windows-SQL-Server-/
+NTFS-Runtime-Nachweis ist bewusst noch `not executed`; Linux ist nicht
+anwendbar.
 
 ## Modulprinzip
 
