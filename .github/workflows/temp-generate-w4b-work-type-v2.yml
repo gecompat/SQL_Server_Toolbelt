@@ -53,22 +53,14 @@ jobs:
           table_path = Path('Modules/toolbelt.core.work-type/Source/WorkType.sql')
           text = table_path.read_text(encoding='utf-8')
           inline_defaults = {
-              '        , [ParameterMode]          varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL':
-                  "        , [ParameterMode]          varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL CONSTRAINT [DF_WorkType_ParameterMode] DEFAULT ('NONE')",
-              '        , [DefaultTimeoutSeconds]  int NOT NULL':
-                  '        , [DefaultTimeoutSeconds]  int NOT NULL CONSTRAINT [DF_WorkType_DefaultTimeoutSeconds] DEFAULT (300)',
-              '        , [IsIdempotent]           bit NOT NULL':
-                  '        , [IsIdempotent]           bit NOT NULL CONSTRAINT [DF_WorkType_IsIdempotent] DEFAULT (0)',
-              '        , [IsEnabled]              bit NOT NULL':
-                  '        , [IsEnabled]              bit NOT NULL CONSTRAINT [DF_WorkType_IsEnabled] DEFAULT (1)',
-              '        , [CreatedAtUtc]           datetime2(7) NOT NULL':
-                  '        , [CreatedAtUtc]           datetime2(7) NOT NULL CONSTRAINT [DF_WorkType_CreatedAtUtc] DEFAULT (SYSUTCDATETIME())',
-              '        , [CreatedBy]              sysname NOT NULL':
-                  '        , [CreatedBy]              sysname NOT NULL CONSTRAINT [DF_WorkType_CreatedBy] DEFAULT (ORIGINAL_LOGIN())',
-              '        , [ModifiedAtUtc]          datetime2(7) NOT NULL':
-                  '        , [ModifiedAtUtc]          datetime2(7) NOT NULL CONSTRAINT [DF_WorkType_ModifiedAtUtc] DEFAULT (SYSUTCDATETIME())',
-              '        , [ModifiedBy]             sysname NOT NULL':
-                  '        , [ModifiedBy]             sysname NOT NULL CONSTRAINT [DF_WorkType_ModifiedBy] DEFAULT (ORIGINAL_LOGIN())',
+              '        , [ParameterMode]          varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL': "        , [ParameterMode]          varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL CONSTRAINT [DF_WorkType_ParameterMode] DEFAULT ('NONE')",
+              '        , [DefaultTimeoutSeconds]  int NOT NULL': '        , [DefaultTimeoutSeconds]  int NOT NULL CONSTRAINT [DF_WorkType_DefaultTimeoutSeconds] DEFAULT (300)',
+              '        , [IsIdempotent]           bit NOT NULL': '        , [IsIdempotent]           bit NOT NULL CONSTRAINT [DF_WorkType_IsIdempotent] DEFAULT (0)',
+              '        , [IsEnabled]              bit NOT NULL': '        , [IsEnabled]              bit NOT NULL CONSTRAINT [DF_WorkType_IsEnabled] DEFAULT (1)',
+              '        , [CreatedAtUtc]           datetime2(7) NOT NULL': '        , [CreatedAtUtc]           datetime2(7) NOT NULL CONSTRAINT [DF_WorkType_CreatedAtUtc] DEFAULT (SYSUTCDATETIME())',
+              '        , [CreatedBy]              sysname NOT NULL': '        , [CreatedBy]              sysname NOT NULL CONSTRAINT [DF_WorkType_CreatedBy] DEFAULT (ORIGINAL_LOGIN())',
+              '        , [ModifiedAtUtc]          datetime2(7) NOT NULL': '        , [ModifiedAtUtc]          datetime2(7) NOT NULL CONSTRAINT [DF_WorkType_ModifiedAtUtc] DEFAULT (SYSUTCDATETIME())',
+              '        , [ModifiedBy]             sysname NOT NULL': '        , [ModifiedBy]             sysname NOT NULL CONSTRAINT [DF_WorkType_ModifiedBy] DEFAULT (ORIGINAL_LOGIN())',
           }
           for old, new in inline_defaults.items():
               if text.count(old) != 1:
@@ -86,15 +78,8 @@ jobs:
 
           register_path = Path('Modules/toolbelt.core.work-type/Source/USP_RegisterWorkType.sql')
           register = register_path.read_text(encoding='utf-8')
-          old = """    IF @Debug > 0
-        RAISERROR(N'USP_RegisterWorkType: Registrierung verarbeitet; Änderung=%d.', 10, 1, @Changed) WITH NOWAIT;
-"""
-          new = """    IF @Debug > 0
-    BEGIN
-        DECLARE @ChangedForMessage int = CONVERT(int, @Changed);
-        RAISERROR(N'USP_RegisterWorkType: Registrierung verarbeitet; Änderung=%d.', 10, 1, @ChangedForMessage) WITH NOWAIT;
-    END;
-"""
+          old = "    IF @Debug > 0\n        RAISERROR(N'USP_RegisterWorkType: Registrierung verarbeitet; Änderung=%d.', 10, 1, @Changed) WITH NOWAIT;\n"
+          new = "    IF @Debug > 0\n    BEGIN\n        DECLARE @ChangedForMessage int = CONVERT(int, @Changed);\n        RAISERROR(N'USP_RegisterWorkType: Registrierung verarbeitet; Änderung=%d.', 10, 1, @ChangedForMessage) WITH NOWAIT;\n    END;\n"
           if register.count(old) != 1:
               raise SystemExit('Die erwartete Register-Debugmeldung wurde nicht eindeutig gefunden.')
           register_path.write_text(register.replace(old, new, 1), encoding='utf-8', newline='\n')
