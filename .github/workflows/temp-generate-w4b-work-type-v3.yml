@@ -55,6 +55,7 @@ jobs:
             .github/workflows/temp-generate-w4b-work-type.yml \
             .github/workflows/temp-generate-w4b-work-type-v2.yml \
             .github/workflows/temp-generate-w4b-work-type-v3.yml \
+            .github/workflows/w4b-work-type-runtime.yml \
             Tests/Documentation/generate_w4b_work_type.py \
             Tests/Documentation/patch_w4b_generation.py \
             Tests/Documentation/patch_w4b_runner_batch.py \
