@@ -132,12 +132,16 @@ def patch_transaction_test() -> None:
     path = Path("Modules/toolbelt.core.work-type/Tests/Runtime/WorkType.Contract.sql")
     text = path.read_text(encoding="utf-8")
     marker = (
+        "BEGIN CATCH\n"
+        "    IF ERROR_NUMBER() <> 51511 THROW;\n"
         "END CATCH;\n\n"
         "DELETE FROM @First;\n"
         "INSERT INTO @First\n"
         "EXEC toolbelt_core.USP_RegisterWorkType"
     )
     replacement = (
+        "BEGIN CATCH\n"
+        "    IF ERROR_NUMBER() <> 51511 THROW;\n"
         "END CATCH;\n\n"
         "IF @@TRANCOUNT <> 0 OR XACT_STATE() <> 0\n"
         "    THROW 52514, N'Validierungsfehler hinterließ einen offenen oder uncommittable Transaktionszustand.', 1;\n\n"
