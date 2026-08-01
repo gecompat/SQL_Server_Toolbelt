@@ -784,15 +784,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Nein; `COMPRESS` und `DECOMPRESS` decken nur Gzip-komprimierte Werte ab. |
 | **Use-Case-Typ** | Realistisch, aber security- und ressourcenintensiv |
 | **Nutzen** | Einzelne Dateien, Streams oder vollständige Archive können über einen kontrollierten, auditierbaren Provider verarbeitet werden. |
-| **Mögliche Technologie** | Vorzugsweise externer Worker oder eng begrenzter .NET-Provider. In-memory- und Dateisystemoperationen werden als getrennte Oberflächen behandelt; beliebige Zielpfade sind kein zulässiger Default. |
+| **Mögliche Technologie** | Implementiert als In-memory-SAFE-SQL-CLR-Provider `toolbelt.archive.zip-memory` Version `1.1.0` für genau einen benannten Entry, ZIP Methods 0 und 8 sowie eigene CRC32-Prüfung. Dateisystemextraktion und ZIP-Erzeugung bleiben getrennte spätere Slices. |
 | **Performance und Security** | Zip Slip, Symlink-/Reparse-Point-Umgehung, Zip Bombs, hohe Kompressionsraten, CRC-Fehler, Verschlüsselung, Overwrite, Atomicity, Quotas und Cancellation benötigen harte Grenzen vor der ersten Extraktion. |
 | **Plattformgrenzen** | Externe und CLR-Provider sind je Plattform zu validieren. Pfad- und ACL-Semantik ist betriebssystemabhängig. |
 | **Dependencies** | `TC-2026-033` für Vorab-Listing; optional `TC-2026-037` für kontrollierte Datei-I/O. |
 | **Duplikatprüfung** | `TC-2026-033` listet nur Metadaten. Gzip und weitere Algorithmen stehen getrennt in `TC-2026-035` und `TC-2026-036`. |
-| **Status** | `researched` |
+| **Status** | `implemented`; Runtime `partially validated`; ZIP-Erzeugung und vollständige Dateisystemextraktion offen |
 | **Primärquellen** | [Research-Inbox `RI-2026-113`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | V1A-Runtime-Evidenz erzeugen. Der CLR-Providervertrag `AP-2026-021` ist abgeschlossen; vor einem C#-Implementierungs-Slice sind der Build-/Deployment-Spike und eine separate Implementierungsfreigabe erforderlich. |
+| **Prüfdatum** | 2026-08-01 |
+| **Nächster Schritt** | Windows-SQL-Server-Runtime und echte Extremgrößen-/Ressourcengrenzen ergänzen. ZIP-Erzeugung nur nach eigener Vertrags- und Implementierungsfreigabe beginnen. |
 
 ## TC-2026-035: Gzip-Stream- und Datei-Adapter
 
@@ -856,15 +856,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Teilweise für Import; kein vollständiger symmetrischer Datei-I/O-Vertrag. |
 | **Use-Case-Typ** | Realistisch, aber hoch privilegiert |
 | **Nutzen** | Freigegebene Dateipfade können mit typisierten Operationen, kontrolliertem Encoding und nachvollziehbaren Limits verarbeitet werden. |
-| **Mögliche Technologie** | Bevorzugt externer Worker mit Root-Allowlist und typisierten Work Types. `OPENROWSET(BULK...)` kann ein begrenzter Read-Provider sein; SQL CLR mit `EXTERNAL_ACCESS` ist kein portabler Default. |
+| **Mögliche Technologie** | Zwei getrennte implementierte Provider: `toolbelt.file.content` als portabler Read-only-Slice über `OPENROWSET(BULK...)` und `toolbelt.filesystem.windows` als Windows-only EXTERNAL_ACCESS-SQL-CLR-Provider für begrenztes Lesen, Schreiben, Transcoding und Directory-Operationen. Ein externer plattformübergreifender Worker bleibt optional. |
 | **Performance und Security** | Path Traversal, Symlinks/Reparse Points, ACLs, Service-Identität, TOCTOU, Overwrite, Atomic Replace, Encoding/BOM, maximale Größe, Partial Reads/Writes, Secrets und Audit sind Pflichtbestandteile. |
 | **Plattformgrenzen** | Pfad-, ACL-, Encoding- und Dateisperrsemantik ist Windows-/Linux-spezifisch. `EXTERNAL_ACCESS`/`UNSAFE` ist unter SQL Server Linux nicht unterstützt. |
 | **Dependencies** | Sicherer Work-Type-Katalog `TC-2026-022`, Error Envelope `TC-2026-017`, optional Execution Correlation `TC-2026-019`. |
 | **Duplikatprüfung** | Directory Listing steht in `TC-2026-038`; Archive und Office-Formate erhalten eigene Verträge. |
-| **Status** | `ready for development` |
+| **Status** | `implemented`; `toolbelt.file.content` Runtime `partially validated`; `toolbelt.filesystem.windows` Runtime `not executed` |
 | **Primärquellen** | [Research-Inbox `RI-2026-107`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/relational-databases/import-export/import-bulk-data-by-using-bulk-insert-or-openrowset-bulk-sql-server?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/security/clr-integration-code-access-security?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-31 |
-| **Nächster Schritt** | Slice 1 (Lesen über OPENROWSET(BULK...)) ist implementiert als `toolbelt.file.content`. Schreib-Operationen und externer Worker-Provider bleiben für späteren Slice.
+| **Prüfdatum** | 2026-08-01 |
+| **Nächster Schritt** | Den manuellen Windows-Runtime-Test für `toolbelt.filesystem.windows` ausführen. Einen externen Worker nur bei einem nachgewiesenen plattformübergreifenden Use Case spezifizieren. |
 
 ## TC-2026-038: Kontrolliertes Directory Listing
 
@@ -880,15 +880,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Nein als dokumentierter portabler Vertrag. |
 | **Use-Case-Typ** | Realistisch, aber hoch privilegiert |
 | **Nutzen** | Freigegebene Verzeichnisse können flach oder rekursiv mit definierten Metadaten und Limits inventarisiert werden. |
-| **Mögliche Technologie** | Externer Worker oder eng begrenzter Provider mit Root-Allowlist. Undokumentierte Extended Procedures werden nicht zur Vertragsgrundlage. |
+| **Mögliche Technologie** | Windows-Provider implementiert als `toolbelt_filesystem.USP_ListDirectory` mit Root-Alias, optionaler Rekursion, `@MaxDepth`, `@MaxEntries`, Reparse-Point-Sperre sowie Caller-/ServiceAccount-Identität. Ein portabler Provider bleibt getrennt offen. |
 | **Performance und Security** | Path Traversal, Symlinks/Reparse Points, Mounts, versteckte Dateien, TOCTOU, Race Conditions, sehr große Verzeichnisse, Berechtigungsfehler, Sortierung und Resultset-Limits sind zu definieren. |
 | **Plattformgrenzen** | Pfadsyntax, Case-Semantik, Zeitstempel, Dateiattribute und Linkverhalten unterscheiden sich zwischen Windows und Linux. |
 | **Dependencies** | Sicherer Work-Type-Katalog `TC-2026-022`; gemeinsame Pfad-Sandbox mit `TC-2026-037` nur bei identischer Semantik. |
 | **Duplikatprüfung** | `TC-2026-037` liest oder schreibt Dateiinhalte; dieser Kandidat listet ausschließlich Verzeichnismetadaten. |
-| **Status** | `researched` |
+| **Status** | `implemented`; Windows-Provider Runtime `not executed`; portabler Provider offen |
 | **Primärquellen** | [Research-Inbox `RI-2026-108`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/security/clr-integration-code-access-security?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Flach versus rekursiv, Metadatenspalten, Root-Allowlist, Linkverhalten, Sortierung, Limits, Paging und Provider besprechen. |
+| **Prüfdatum** | 2026-08-01 |
+| **Nächster Schritt** | Manuellen Windows-Runtime-Test einschließlich ACL-, Reparse-Point-, Paging-/Limit- und Rekursionsfällen ausführen; einen portablen Provider nur bei konkretem Bedarf planen. |
 
 ## TC-2026-039: Deterministischer Hash-Lookup für synthetische Ersatzwerte
 

@@ -20,6 +20,8 @@ das kann immer über die gleiche Logik laufen, es werden nur mehr oder weniger Z
 # ZIP
 
 > Überführung 2026-07-30 — Codex: Die Archiv- und Kompressionsideen wurden getrennt als `TC-2026-033`, `TC-2026-034`, `TC-2026-035` und `TC-2026-036` formalisiert; Status jeweils `researched`. ZIP-Listing, ZIP-Extraktion/-Erzeugung, Gzip-Adapter und weitere Kompressionsprovider bleiben eigenständige Verträge.
+>
+> Statusaktualisierung 2026-08-01 — ChatGPT: Die kontrollierte In-memory-Extraktion eines benannten ZIP-Entries ist als `toolbelt.archive.zip-memory` Version `1.1.0` implementiert und auf SQL Server 2019, 2022 und 2025 unter Linux teilweise validiert. ZIP-Listing, ZIP-Erzeugung und vollständige Dateisystemextraktion bleiben eigenständige offene Slices.
 ## Untervariante
 ### ls ZIP    Inhalt der Files/Directories von Zip
 ### Unzip 
@@ -37,6 +39,8 @@ mit ich glaube 2026 gibt es decompress und compress (oder so ähnlich) - das ist
 # Read/Write File
 
 > Überführung 2026-07-30 — Codex: Als `TC-2026-037` formalisiert; Status `researched`. Read/Write, Encoding/BOM, Pfad-Sandbox, Identität und Plattformprovider bleiben vor einer Implementierungsfreigabe offen.
+>
+> Statusaktualisierung 2026-08-01 — ChatGPT: Der portable Read-only-Slice ist als `toolbelt.file.content` implementiert und auf SQL Server 2025 Linux teilweise validiert. Der Windows-only Read/Write-/Transcoding-Slice ist als `toolbelt.filesystem.windows` implementiert; der manuelle Windows-SQL-Server-/NTFS-Runtime-Test bleibt offen.
 * Binary / nonbinary
 * Encoding ANSI, Windows-1252, .... mit/ohne BOM
 * ...
@@ -44,6 +48,8 @@ mit ich glaube 2026 gibt es decompress und compress (oder so ähnlich) - das ist
 # Directory List
 
 > Überführung 2026-07-30 — Codex: Als `TC-2026-038` formalisiert; Status `researched`. Directory Listing bleibt von Dateiinhalt und undokumentierten Extended Procedures getrennt.
+>
+> Statusaktualisierung 2026-08-01 — ChatGPT: Das Windows-only Directory Listing ist als `toolbelt_filesystem.USP_ListDirectory` implementiert. Der manuelle Windows-Runtime-Test und ein optionaler portabler Provider bleiben offen.
 
 # Anonymisierungsfunktionen
 

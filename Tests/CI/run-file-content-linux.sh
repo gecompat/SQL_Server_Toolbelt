@@ -6,6 +6,36 @@ container_name="tbx-file-content-${GITHUB_RUN_ID:-local}"
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 echo "::add-mask::${sa_password}"
 
+workspace="${GITHUB_WORKSPACE:-$(pwd)}"
+fixture_root="${workspace}/.runtime/file-content-fixtures"
+rm -rf "${fixture_root}"
+mkdir -p "${fixture_root}"
+python3 - "${fixture_root}" <<'PY'
+import codecs
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+(root / "utf8-bom.txt").write_bytes(
+    codecs.BOM_UTF8 + "Hallo, Welt!\r\nDies ist ein UTF-8-Test.\r\n".encode("utf-8")
+)
+(root / "ansi.txt").write_bytes("Hallo, Welt!\r\nANSI-Test.\r\n".encode("cp1252"))
+(root / "utf16le-bom.txt").write_bytes(
+    codecs.BOM_UTF16_LE
+    + "Hallo, Welt!\r\nUTF-16-LE korrigiert.\r\n".encode("utf-16-le")
+)
+(root / "utf16be-bom.txt").write_bytes(
+    codecs.BOM_UTF16_BE + "UTF-16-BE-Test".encode("utf-16-be")
+)
+(root / "utf32le-bom.txt").write_bytes(
+    codecs.BOM_UTF32_LE + "UTF-32-LE-Test".encode("utf-32-le")
+)
+(root / "utf32be-bom.txt").write_bytes(
+    codecs.BOM_UTF32_BE + "UTF-32-BE-Test".encode("utf-32-be")
+)
+(root / "sample.bin").write_bytes(bytes((0x00, 0x01, 0x02, 0xFF, 0xFE, 0x10, 0x20)))
+PY
+
 cleanup() {
   docker rm -f "${container_name}" >/dev/null 2>&1 || true
 }
@@ -70,7 +100,7 @@ deploy_file_content "${database}" local
 # Allowlist für synthetische Testdateien vorbereiten.
 run_query "${database}" "
 INSERT INTO [toolbelt_file].[FileContentRootAllowlist] (RootPath, Description)
-VALUES (N'/workspace/Modules/toolbelt.file.content/Tests/Runtime/fixtures', N'Runtime-Test-Fixtures');"
+VALUES (N'/workspace/.runtime/file-content-fixtures', N'Runtime-Test-Fixtures');"
 
 run_file "${database}" \
   /workspace/Modules/toolbelt.file.content/Tests/Runtime \
@@ -81,7 +111,7 @@ for level in 150 160 170; do
     "ALTER DATABASE [${database}] SET COMPATIBILITY_LEVEL = ${level};"
   run_file "${database}" \
     /workspace/Modules/toolbelt.file.content/Tests/Runtime \
-    FileContent.Contract.sql -v CompatibilityLevel="${level}"
+    FileContent.Contract.sql -v CompatibilityLevel="${level}" FixtureRoot="/workspace/.runtime/file-content-fixtures"
 done
 
 run_file "${database}" \

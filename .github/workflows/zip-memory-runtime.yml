@@ -33,64 +33,13 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: zip-memory-clr-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  synchronize-status:
-    name: Synchronize generated status
-    if: github.event_name == 'pull_request' && github.head_ref == 'agent/implement-clr-zip-provider'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-      - name: Add canonical evidence and generate status sections
-        shell: python
-        run: |
-          from pathlib import Path
-          import subprocess
-          import sys
-
-          url = 'https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206'
-          files = [
-              'Modules/toolbelt.archive.zip-memory/README.md',
-              'Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md',
-              'Modules/toolbelt.archive.zip-memory/Tests/README.md',
-              'Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md',
-              'Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md',
-              'Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md',
-          ]
-          for name in files:
-              path = Path(name)
-              text = path.read_text(encoding='utf-8')
-              if url not in text:
-                  text = text.rstrip() + f'\n\nEvidenz: {url}\n'
-                  path.write_text(text, encoding='utf-8')
-
-          subprocess.run(
-              [sys.executable, 'Tests/Documentation/validate_documentation.py', '--all', '--write'],
-              check=False,
-          )
-      - name: Commit non-workflow status files
-        shell: bash
-        run: |
-          set -euo pipefail
-          git add -A
-          git reset -- .github/workflows/zip-memory-runtime.yml
-          if git diff --cached --quiet; then
-            exit 0
-          fi
-          git config user.name "ChatGPT"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "ChatGPT [LLM: GPT-5.6 Thinking]: Generiere CLR-ZIP-Statusübersichten"
-          git push origin HEAD:${{ github.head_ref }}
-
   static-contract:
     name: Static contract
     runs-on: ubuntu-latest

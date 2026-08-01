@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 18 Module implementiert – 17 teilweise validiert](https://img.shields.io/badge/Status-18%20Module%20implementiert%20%7C%2017%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 19 Module implementiert – 18 teilweise validiert](https://img.shields.io/badge/Status-19%20Module%20implementiert%20%7C%2018%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,14 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 18 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
+**Der Repository-Grundaufbau ist abgeschlossen. 19 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
+
+Das portable Modul
+[`toolbelt.file.content`](./Modules/toolbelt.file.content/README.md)
+liest freigegebene Text- und Binärdateien über einen Root-Allowlist-Vertrag.
+Die SQL-Server-2025-Linux-Matrix mit Compatibility Levels 150, 160 und
+170 ist erfolgreich; Windows und nicht-ASCII-spezifische Providergrenzen
+bleiben als getrennte Releasevalidierung sichtbar.
 
 Das implementierte Modul [`toolbelt.core.result-table`](./Modules/toolbelt.core.result-table/README.md) stellt `toolbelt_core.USP_PrepareResultTable` als gemeinsame `@ResultTable`-/`@KeepData`-Infrastruktur bereit. Die Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; Windows und weitere Pflichtfälle bleiben offen.
 
