@@ -1,0 +1,203 @@
+name: Temporary Finalize ResultTable Evidence
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/temp-finalize-result-table-evidence.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Synchronize ResultTable evidence and open gates
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from __future__ import annotations
+
+          import re
+          from pathlib import Path
+
+          URL = "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855"
+
+
+          def read(path: str) -> str:
+              return Path(path).read_text(encoding="utf-8")
+
+
+          def write(path: str, text: str) -> None:
+              Path(path).write_text(text, encoding="utf-8", newline="\n")
+
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              text = read(path)
+              if text.count(old) != 1:
+                  raise RuntimeError(f"{path}: erwarteter Text fehlt oder ist mehrfach vorhanden: {old}")
+              write(path, text.replace(old, new, 1))
+
+
+          def insert_once(path: str, marker: str, addition: str) -> None:
+              text = read(path)
+              if addition.strip() in text:
+                  return
+              if text.count(marker) != 1:
+                  raise RuntimeError(f"{path}: Einfügemarke fehlt oder ist mehrfach vorhanden: {marker}")
+              write(path, text.replace(marker, marker + addition, 1))
+
+
+          manifest = "Modules/toolbelt.core.result-table/module.yaml"
+          text = read(manifest)
+          if URL not in text:
+              text = text.rstrip() + (
+                  "\n  - date: \"2026-08-01\"\n"
+                  f"    workflow: \"{URL}\"\n"
+                  "    scope: \"SQL Server 2019, 2022 und 2025 Linux; vollständige Suite einschließlich natürlichem Enginefehler 2705 nach begonnener Mutation, Savepoint-Rollback von Schema und Daten sowie Erhalt der Caller-Transaktion\"\n"
+                  "    result: \"success\"\n"
+              )
+          write(manifest, text)
+
+          readme = "Modules/toolbelt.core.result-table/README.md"
+          replace_once(
+              readme,
+              "Windows, echter Savepoint-Rollback nach einem natürlichen Enginefehler und eine plattformübergreifend vergleichbare Performance-Baseline bleiben `not executed`; daher ist das Modul noch nicht vollständig `validated`.",
+              f"Der natürliche Savepoint-Rollback nach Enginefehler 2705 ist im [GitHub-Actions-Lauf 30692956855]({URL}) auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich. Windows und eine plattformübergreifend vergleichbare Performance-Baseline bleiben `not executed`; daher ist das Modul noch nicht vollständig `validated`.",
+          )
+          insert_once(
+              readme,
+              "| `Tests/Runtime/BoundaryAndTransaction.Contract.sql` | 1024-Spalten- und Transaktionsgrenzfälle |\n",
+              "| `Tests/Runtime/SavepointEngineError.Contract.sql` | natürlicher Enginefehler 2705 nach begonnener Mutation und vollständiger Savepoint-Rollback |\n",
+          )
+          insert_once(
+              readme,
+              "| `Tests/Runtime/Performance.Workload.sql` | reproduzierbarer synthetischer CI-Workload ohne allgemeine Benchmark-Zusage |\n",
+              "| `Tests/Manual_Windows_Runtime_Testplan.md` | manueller Windows-, Savepoint- und Performance-Nachweis mit abstrahierter Rückmeldung |\n",
+          )
+
+          object_doc = "Modules/toolbelt.core.result-table/Documentation/USP_PrepareResultTable.md"
+          insert_once(
+              object_doc,
+              "Eine\nplattformübergreifend vergleichbare Performance-Baseline ist weiterhin\n`not executed`.\n",
+              f"\nDer natürliche Fehlerpfad wurde im [GitHub-Actions-Lauf 30692956855]({URL}) auf SQL Server 2019, 2022 und 2025 unter Linux mit Enginefehler 2705 geprüft. Der Savepoint stellte Zielschema und vor `TRUNCATE` vorhandene Daten wieder her; Caller-Marker, `XACT_STATE()` und `@@TRANCOUNT` blieben erhalten.\n",
+          )
+
+          architecture = "Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md"
+          replace_once(
+              architecture,
+              "Stand 2026-07-29: Die GitHub-hosted Linux-Welle ist erfolgreich ausgeführt. Die vollständige 2019-Suite und die reduzierten 2022-/2025-Suiten sind belegt; Windows und die restlichen Matrixfälle bleiben offen.",
+              f"Stand 2026-08-01: Die vollständige Linux-Suite ist auf SQL Server 2019, 2022 und 2025 belegt. Der [Lauf 30692956855]({URL}) validiert zusätzlich einen natürlichen Enginefehler 2705 nach begonnener Mutation und den vollständigen Rollback zum Caller-Savepoint. Windows und eine plattformübergreifend vergleichbare Performance-Baseline bleiben offen.",
+          )
+
+          matrix = "Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md"
+          text = read(matrix)
+          pattern = re.compile(
+              r"Windows, echter Savepoint-Rollback nach einem natürlichen Enginefehler und\n"
+              r"eine plattformübergreifend vergleichbare Performance-Baseline bleiben offen\.\n\n"
+              r"Eine DDL-Trigger-Injektion wurde als Recovery-Harness verworfen:.*?"
+              r"reproduzierbar verfügbar ist\.\n",
+              re.DOTALL,
+          )
+          replacement = f"""### Vierte GitHub-hosted Validierungswelle\n\nDer [GitHub Actions Run 30692956855]({URL}) ergänzt einen natürlichen, nicht invasiven Enginefehler nach bereits begonnener ResultTable-Mutation:\n\n- case-sensitive Referenzspalten `CaseValue` und `casevalue` kollidieren beim DDL gegen die case-insensitive `tempdb`-Collation mit Enginefehler 2705;\n- die Procedure gibt den ursprünglichen Enginefehler unverändert weiter;\n- der Rollback zum eigenen Savepoint stellt das ursprüngliche Zielschema und die vor `TRUNCATE` vorhandenen Daten vollständig wieder her;\n- Änderungen des Callers vor dem Aufruf, `XACT_STATE()` und `@@TRANCOUNT` bleiben erhalten;\n- SQL Server 2019, 2022 und 2025 unter Linux: erfolgreich.\n\nWindows und eine plattformübergreifend vergleichbare Performance-Baseline bleiben offen. Der manuelle Ablauf steht in `Modules/toolbelt.core.result-table/Tests/Manual_Windows_Runtime_Testplan.md`.\n"""
+          text, changed = pattern.subn(replacement, text, count=1)
+          if changed != 1:
+              raise RuntimeError("ResultTable-Testmatrix: veralteter Savepoint-Abschnitt wurde nicht gefunden.")
+          row = "| `RT-X-010` | natürlicher Enginefehler 2705 nach bereits begonnenem DDL | ursprünglicher Fehler unverändert; Rollback zum Savepoint stellt Schema und Daten wieder her; Caller-Transaktion bleibt committable |\n"
+          marker = "| `RT-X-009` | rekursive/nested Mutationen mit Savepoints | Invocation-spezifische Savepoint-Namen kollidieren nicht |\n"
+          if row not in text:
+              if marker not in text:
+                  raise RuntimeError("ResultTable-Testmatrix: RT-X-009-Marke fehlt.")
+              text = text.replace(marker, marker + row, 1)
+          write(matrix, text)
+
+          manual = "Modules/toolbelt.core.result-table/Tests/Manual_Windows_Runtime_Testplan.md"
+          replace_once(
+              manual,
+              "Bestehende Linux-Evidenz: [vollständige SQL-Server-2019-/2022-/2025-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717). Diese Evidenz ersetzt keinen Windows-Lauf.",
+              f"Bestehende Linux-Evidenz: [vollständige SQL-Server-2019-/2022-/2025-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) sowie [natürlicher Savepoint-Enginefehler 2705]({URL}). Diese Evidenz ersetzt keinen Windows-Lauf.",
+          )
+
+          ci_readme = "Tests/CI/README.md"
+          insert_once(
+              ci_readme,
+              "Der [aktuelle GitHub Actions Run 30459004717](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) war am 2026-07-29 für den statischen Vertrag sowie die vollständige Suite auf SQL Server 2019, 2022 und 2025 unter GitHub-hosted Linux erfolgreich. Der Scope umfasst vier parallele echte Sitzungen mit identischen logischen lokalen Temp-Tabellennamen. Die früheren Läufe und verbleibenden Grenzen stehen in der ResultTable-Testmatrix.\n",
+              f"\nDer [GitHub Actions Run 30692956855]({URL}) war am 2026-08-01 für SQL Server 2019, 2022 und 2025 unter Linux erfolgreich und ergänzt den natürlichen Enginefehler 2705 nach begonnener Mutation einschließlich vollständigem Savepoint-Rollback von Schema und Daten.\n",
+          )
+
+          backlog = ".ai/BACKLOG.md"
+          replace_once(
+              backlog,
+              "| Tests | Statischer Vertrag und aktuelle GitHub-hosted Linux-Matrix am 2026-07-29 erfolgreich: vollständige Suite auf SQL Server 2019, 2022 und 2025 einschließlich Collation-, 1024-Spalten-, Transaktions-, Multi-Session-, Central-/Lifecycle- und synthetischem Performance-Workload. Windows und weitere Pflichtfälle bleiben `not executed`. |",
+              "| Tests | Statischer Vertrag und vollständige GitHub-hosted Linux-Matrix auf SQL Server 2019, 2022 und 2025 einschließlich Collation-, 1024-Spalten-, Transaktions-, natürlichem Savepoint-Enginefehler 2705, Multi-Session-, Central-/Lifecycle- und synthetischem Performance-Workload erfolgreich. Windows und weitere Plattformfälle bleiben `not executed`. |",
+          )
+          replace_once(
+              backlog,
+              "| Blocker | Kein Merge-Blocker für den implementierten und teilweise validierten Stand. Für `validated` fehlen insbesondere Windows-Evidenz, echter Savepoint-Rollback nach einem natürlichen Enginefehler und eine vergleichbare plattformübergreifende Performance-Baseline. |",
+              "| Blocker | Kein Merge-Blocker für den implementierten und teilweise validierten Stand. Für `validated` fehlen Windows-Evidenz und eine vergleichbare plattformübergreifende Performance-Baseline. |",
+          )
+          replace_once(
+              backlog,
+              "| Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.core.result-table/`; [Basislauf 30447442638](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447442638), [erweiterter Lauf 30456207934](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30456207934) und [Multi-Session-Lauf 30459004717](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) erfolgreich. |",
+              f"| Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.core.result-table/`; [Basislauf 30447442638](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447442638), [erweiterter Lauf 30456207934](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30456207934), [Multi-Session-Lauf 30459004717](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) und [Savepoint-Enginefehler-Lauf 30692956855]({URL}) erfolgreich. |",
+          )
+          replace_once(
+              backlog,
+              "| Nächster Schritt | Einen geeigneten Windows-Runner beziehungsweise eine freigegebene Windows-Testumgebung bereitstellen; unabhängig davon einen nicht invasiven, deterministischen Enginefehler für den echten Savepoint-Rollback suchen. Erst nach vollständiger Pflichtmatrix auf `validated` setzen. |",
+              "| Nächster Schritt | Manuellen Windows-Runtime- und Performance-Nachweis gemäß `Modules/toolbelt.core.result-table/Tests/Manual_Windows_Runtime_Testplan.md` ausführen. Erst nach vollständiger Pflichtmatrix auf `validated` setzen. |",
+          )
+
+          replace_once(
+              "Backlog/TOOLBELT_CANDIDATES.md",
+              "| **Nächster Schritt** | Windows-Validierung, natürlichen Savepoint-Rollback nach einem Enginefehler und eine vergleichbare plattformübergreifende Performance-Baseline gezielt nachholen. |",
+              "| **Nächster Schritt** | Windows-Validierung und eine vergleichbare plattformübergreifende Performance-Baseline gemäß manuellem Testplan gezielt nachholen; der natürliche Savepoint-Enginefehler ist auf SQL Server 2019, 2022 und 2025 Linux validiert. |",
+          )
+          replace_once(
+              "Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md",
+              "| `TC-2026-003` | `toolbelt.core.result-table` | `toolbelt_core.USP_PrepareResultTable` | Windows, natürlicher Savepoint-Fehlerfall und vergleichbare plattformübergreifende Performance-Evidenz. |",
+              "| `TC-2026-003` | `toolbelt.core.result-table` | `toolbelt_core.USP_PrepareResultTable` | Windows und vergleichbare plattformübergreifende Performance-Evidenz; natürlicher Savepoint-Fehlerfall 2705 ist auf SQL Server 2019/2022/2025 Linux validiert. |",
+          )
+          replace_once(
+              ".ai/ROADMAP.md",
+              "- Windows, echter Savepoint-Rollback nach einem natürlichen Enginefehler und eine plattformübergreifend vergleichbare Performance-Baseline offen;",
+              f"- natürlicher Savepoint-Rollback nach Enginefehler 2705 im [Lauf 30692956855]({URL}) auf SQL Server 2019, 2022 und 2025 Linux erfolgreich;\n- Windows und eine plattformübergreifend vergleichbare Performance-Baseline offen;",
+          )
+          replace_once(
+              "Tests/README.md",
+              "| `toolbelt.core.result-table` | [RESULT_TABLE_CONTRACT_TEST_MATRIX.md](./RESULT_TABLE_CONTRACT_TEST_MATRIX.md) | `partially validated`; Linux-Lauf erfolgreich |",
+              f"| `toolbelt.core.result-table` | [RESULT_TABLE_CONTRACT_TEST_MATRIX.md](./RESULT_TABLE_CONTRACT_TEST_MATRIX.md) | `partially validated`; natürlicher Savepoint-Enginefehler auf SQL Server 2019/2022/2025 Linux erfolgreich ([Run 30692956855]({URL})); Windows/Performance-Baseline offen |",
+          )
+
+          changelog = "CHANGELOG.md"
+          insert_once(
+              changelog,
+              "### Geändert\n\n",
+              f"- ResultTable-Contract um einen natürlichen Enginefehler 2705 nach begonnener Mutation erweitert; Savepoint-Rollback von Schema, Daten und Caller-Transaktion auf SQL Server 2019/2022/2025 Linux validiert ([Run 30692956855]({URL})).\n- Manuelle Windows-Runtime-Testpläne für ResultTable und ZIP Memory mit synthetischem Scope und abstrahierter Rückmeldung ergänzt.\n\n",
+          )
+          PY
+      - name: Validate repository consistency
+        run: |
+          python3 Modules/toolbelt.core.result-table/Tests/Static/validate_contract.py
+          python3 Modules/toolbelt.archive.zip-memory/Tests/Static/validate_contract.py
+          python3 Tests/Documentation/validate_documentation.py --all --write
+          python3 Tests/Documentation/validate_documentation.py --all
+      - name: Commit synchronized evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git reset -- .github/workflows/temp-finalize-result-table-evidence.yml
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "ChatGPT: Dokumentiere ResultTable-Savepoint-Evidenz"
+          git push origin HEAD:${{ github.head_ref }}
