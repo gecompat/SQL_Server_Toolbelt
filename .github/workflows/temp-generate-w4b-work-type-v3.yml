@@ -8,6 +8,7 @@ on:
       - .github/workflows/temp-generate-w4b-work-type-v3.yml
       - Tests/Documentation/generate_w4b_work_type.py
       - Tests/Documentation/patch_w4b_generation.py
+      - Tests/Documentation/patch_w4b_runner_batch.py
 
 permissions:
   contents: write
@@ -28,7 +29,9 @@ jobs:
       - name: Generate W4b module and repository metadata
         run: python3 Tests/Documentation/generate_w4b_work_type.py
       - name: Normalize generated artifacts
-        run: python3 Tests/Documentation/patch_w4b_generation.py generated
+        run: |
+          python3 Tests/Documentation/patch_w4b_generation.py generated
+          python3 Tests/Documentation/patch_w4b_runner_batch.py
       - name: Validate static contract
         run: python3 Modules/toolbelt.core.work-type/Tests/Static/validate_contract.py
       - name: Execute SQL Server 2025 Linux compatibility matrix
@@ -51,7 +54,8 @@ jobs:
             .github/workflows/temp-generate-w4b-work-type-v2.yml \
             .github/workflows/temp-generate-w4b-work-type-v3.yml \
             Tests/Documentation/generate_w4b_work_type.py \
-            Tests/Documentation/patch_w4b_generation.py
+            Tests/Documentation/patch_w4b_generation.py \
+            Tests/Documentation/patch_w4b_runner_batch.py
           if git diff --cached --quiet; then
             echo "Keine W4b-Änderungen zu committen."
             exit 0
