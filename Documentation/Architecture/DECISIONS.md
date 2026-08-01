@@ -50,7 +50,7 @@ Dauerhafte Entscheidungen werden mit stabiler ID dokumentiert. Historische Entsc
 | Feld | Wert |
 |---|---|
 | Datum | 2026-07-28 |
-| Status | proposed |
+| Status | superseded |
 | Entscheidung | Für persistente Tabellen, Synonyme, Assemblies, Trigger, Sequences und Types wird vor dem ersten Bedarf keine Namenskonvention erfunden. |
 | Begründung | Die Konvention soll anhand eines konkreten fachlichen Objekts entschieden werden. |
 | Scope | genannte persistente SQL-Objekttypen |
@@ -367,3 +367,18 @@ bleibt ein separater Release-Nachweis.
 | Auswirkungen | Linux ist not applicable. TRUSTWORTHY ON, UNSAFE, xp_cmdshell und absolute/UNC-Pfade sind ausgeschlossen. Ein manueller Windows-Runtime-Nachweis ist verpflichtend. |
 | Alternativen | OPENROWSET(BULK) bleibt für portable read-only Nutzung ein separates Modul; es ersetzt keine kontrollierten Writes, Impersonation oder Directory-Verwaltung. |
 | Betroffene Verträge | CLR_SECURITY_AND_PORTABILITY.md, USP_CONTRACT.md, WINDOWS_FILESYSTEM_MODULE_DESIGN.md |
+
+
+## DEC-2026-025: Persistente Tabellen, Constraints und Indizes
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-08-01 |
+| Status | accepted |
+| Entscheidung | Persistente Toolbelt-Tabellen verwenden im fachlichen `toolbelt_<category>`-Schema einen verständlichen singulären `CamelCase`-Namen ohne `TBL_`-Präfix. Constraints und Indizes werden explizit mit `PK_`, `UQ_`, `FK_`, `CK_`, `DF_` beziehungsweise `IX_` benannt. |
+| Begründung | Das Schema und der SQL-Objekttyp identifizieren eine Tabelle bereits eindeutig. Fachliche Namen bleiben lesbar; explizite Constraint-/Indexnamen ermöglichen stabile Deployments, Fehlerdiagnose und Upgrade-Skripte. |
+| Scope | Persistente Tabellen, ihre Constraints und Indizes; erster konkreter Einsatz ist `toolbelt_core.WorkType`. |
+| Auswirkungen | Tabellen sind standardmäßig intern, sofern das Manifest sie nicht ausdrücklich public erklärt. Spalten sind englisch und `CamelCase`; systemgenerierte Constraintnamen sind unzulässig. Direkter Tabellenzugriff ist kein impliziter API-Vertrag. |
+| Alternativen | `TBL_`-/`TB_`-Präfixe und unbenannte Constraints wurden verworfen. Pluralformen bleiben nur bei fachlich etablierten Sammelbegriffen zulässig. |
+| Betroffene Verträge | `SQL_OBJECT_NAMING.md`, `WORK_TYPE_MODULE_DESIGN.md`, `toolbelt.core.work-type` |
+

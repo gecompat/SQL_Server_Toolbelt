@@ -1,0 +1,37 @@
+name: W4b Work Type Runtime
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - Modules/toolbelt.core.work-type/**
+      - Documentation/Architecture/WORK_TYPE_MODULE_DESIGN.md
+      - Documentation/Architecture/DECISIONS.md
+      - Documentation/Standards/SQL_OBJECT_NAMING.md
+      - Tests/CI/run-w4b-work-type-linux.sh
+      - .github/workflows/w4b-work-type-runtime.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    name: Static contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Work Type
+        run: python3 Modules/toolbelt.core.work-type/Tests/Static/validate_contract.py
+
+  runtime:
+    name: SQL Server 2025 Linux / compatibility 150, 160 and 170
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute catalog, concurrency, lifecycle and central contracts
+        env:
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Tests/CI/run-w4b-work-type-linux.sh
