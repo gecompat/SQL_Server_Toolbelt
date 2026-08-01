@@ -22,6 +22,19 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
+      - name: Correct generator escaping
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('Tests/Documentation/generate_w4b_work_type.py')
+          text = path.read_text(encoding='utf-8')
+          old = "OR LEFT(LTRIM(@PayloadContractJson), 1) <> N'{'"
+          new = "OR LEFT(LTRIM(@PayloadContractJson), 1) <> N'{{'"
+          if text.count(old) != 1:
+              raise SystemExit('Die erwartete f-String-Klammer wurde nicht eindeutig gefunden.')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8', newline='\n')
+          PY
       - name: Generate W4b module and repository metadata
         run: python3 Tests/Documentation/generate_w4b_work_type.py
       - name: Validate static contract
