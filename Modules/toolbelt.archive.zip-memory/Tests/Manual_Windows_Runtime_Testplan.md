@@ -2,6 +2,8 @@
 
 Status: ausstehend. Dieser Testplan ergänzt die erfolgreiche Linux-Matrix um den erforderlichen Windows-SQL-Server-Runtime-Nachweis. Ein erfolgreicher .NET-Framework-Build allein ist keine Runtime-Evidenz.
 
+Bestehende Linux-Evidenz: [SQL-Server-2019-/2022-/2025-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206). Diese Evidenz ersetzt keinen Windows-SQL-Server-Runtime-Lauf.
+
 ## Sicherheitsrahmen
 
 - Ausschließlich eine dedizierte synthetische Testdatenbank verwenden.
