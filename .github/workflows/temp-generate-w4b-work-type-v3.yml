@@ -6,6 +6,8 @@ on:
       - main
     paths:
       - .github/workflows/temp-generate-w4b-work-type-v3.yml
+      - Tests/Documentation/generate_w4b_work_type.py
+      - Tests/Documentation/patch_w4b_generation.py
 
 permissions:
   contents: write
