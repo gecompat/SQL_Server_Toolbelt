@@ -44,6 +44,47 @@ jobs:
           PY
       - name: Generate W4b module and repository metadata
         run: python3 Tests/Documentation/generate_w4b_work_type.py
+      - name: Normalize generated default constraints
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          path = Path('Modules/toolbelt.core.work-type/Source/WorkType.sql')
+          text = path.read_text(encoding='utf-8')
+          inline_defaults = {
+              '        , [ParameterMode]          varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL':
+                  "        , [ParameterMode]          varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL CONSTRAINT [DF_WorkType_ParameterMode] DEFAULT ('NONE')",
+              '        , [DefaultTimeoutSeconds]  int NOT NULL':
+                  '        , [DefaultTimeoutSeconds]  int NOT NULL CONSTRAINT [DF_WorkType_DefaultTimeoutSeconds] DEFAULT (300)',
+              '        , [IsIdempotent]           bit NOT NULL':
+                  '        , [IsIdempotent]           bit NOT NULL CONSTRAINT [DF_WorkType_IsIdempotent] DEFAULT (0)',
+              '        , [IsEnabled]              bit NOT NULL':
+                  '        , [IsEnabled]              bit NOT NULL CONSTRAINT [DF_WorkType_IsEnabled] DEFAULT (1)',
+              '        , [CreatedAtUtc]           datetime2(7) NOT NULL':
+                  '        , [CreatedAtUtc]           datetime2(7) NOT NULL CONSTRAINT [DF_WorkType_CreatedAtUtc] DEFAULT (SYSUTCDATETIME())',
+              '        , [CreatedBy]              sysname NOT NULL':
+                  '        , [CreatedBy]              sysname NOT NULL CONSTRAINT [DF_WorkType_CreatedBy] DEFAULT (ORIGINAL_LOGIN())',
+              '        , [ModifiedAtUtc]          datetime2(7) NOT NULL':
+                  '        , [ModifiedAtUtc]          datetime2(7) NOT NULL CONSTRAINT [DF_WorkType_ModifiedAtUtc] DEFAULT (SYSUTCDATETIME())',
+              '        , [ModifiedBy]             sysname NOT NULL':
+                  '        , [ModifiedBy]             sysname NOT NULL CONSTRAINT [DF_WorkType_ModifiedBy] DEFAULT (ORIGINAL_LOGIN())',
+          }
+          for old, new in inline_defaults.items():
+              if text.count(old) != 1:
+                  raise SystemExit(f'Die erwartete Spaltendefinition wurde nicht eindeutig gefunden: {old}')
+              text = text.replace(old, new, 1)
+
+          text, removed = re.subn(
+              r"\n        , CONSTRAINT \[DF_WorkType_[^\]]+\]\n            DEFAULT \([^\n]+\) FOR \[[^\]]+\]",
+              '',
+              text,
+          )
+          if removed != 8:
+              raise SystemExit(f'Erwartet wurden acht table-level DEFAULT-Constraints, entfernt wurden {removed}.')
+          path.write_text(text, encoding='utf-8', newline='\n')
+          PY
       - name: Validate static contract
         run: python3 Modules/toolbelt.core.work-type/Tests/Static/validate_contract.py
       - name: Execute SQL Server 2025 Linux compatibility matrix
