@@ -1,0 +1,49 @@
+name: Temporary Apply W4a Repository State
+
+on:
+  push:
+    branches:
+      - agent/w4a-execution-foundations
+    paths:
+      - .github/workflows/temp-w4a-apply.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/w4a-execution-foundations
+          fetch-depth: 0
+      - name: Apply compressed W4a state
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar -xzf .runtime/w4a-payload.tar.gz -C .
+      - name: Validate static contracts and repository consistency
+        run: |
+          python3 Modules/toolbelt.core.execution-context/Tests/Static/validate_contract.py
+          python3 Modules/toolbelt.core.error-envelope/Tests/Static/validate_contract.py
+          python3 Tests/Documentation/validate_documentation.py --all
+      - name: Commit W4a implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git reset -- .runtime
+          git reset -- \
+            .github/workflows/temp-w4a-apply.yml \
+            .github/workflows/temp-w4a-snapshot.yml \
+            .github/workflows/temp-w4a-snapshot-pr.yml
+          if git diff --cached --quiet; then
+            echo "Keine W4a-Projektänderungen zu committen."
+            exit 0
+          fi
+          git commit -m "ChatGPT [LLM: GPT-5.6 Thinking]: Implementiere W4a Execution-Grundlagen"
+          git push origin HEAD:agent/w4a-execution-foundations
