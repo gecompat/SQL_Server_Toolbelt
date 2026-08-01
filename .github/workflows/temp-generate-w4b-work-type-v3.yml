@@ -9,6 +9,7 @@ on:
       - Tests/Documentation/generate_w4b_work_type.py
       - Tests/Documentation/patch_w4b_generation.py
       - Tests/Documentation/patch_w4b_runner_batch.py
+      - Tests/Documentation/patch_w4b_test_inventory.py
 
 permissions:
   contents: write
@@ -32,6 +33,7 @@ jobs:
         run: |
           python3 Tests/Documentation/patch_w4b_generation.py generated
           python3 Tests/Documentation/patch_w4b_runner_batch.py
+          python3 Tests/Documentation/patch_w4b_test_inventory.py
       - name: Validate static contract
         run: python3 Modules/toolbelt.core.work-type/Tests/Static/validate_contract.py
       - name: Execute SQL Server 2025 Linux compatibility matrix
@@ -55,7 +57,8 @@ jobs:
             .github/workflows/temp-generate-w4b-work-type-v3.yml \
             Tests/Documentation/generate_w4b_work_type.py \
             Tests/Documentation/patch_w4b_generation.py \
-            Tests/Documentation/patch_w4b_runner_batch.py
+            Tests/Documentation/patch_w4b_runner_batch.py \
+            Tests/Documentation/patch_w4b_test_inventory.py
           if git diff --cached --quiet; then
             echo "Keine W4b-Änderungen zu committen."
             exit 0
