@@ -1,0 +1,84 @@
+module_id: "toolbelt.core.error-envelope"
+module_name: "Error Envelope"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Standardisiert explizit aus einem CATCH übergebene SQL-Fehlerdaten ohne den unveränderten Rethrow des Aufrufers zu ersetzen."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels:
+  - 150
+  - 160
+  - 170
+platforms:
+  windows: "not executed"
+  linux: "partially validated"
+providers:
+  - id: default
+    technology: "T-SQL"
+    platforms: [Windows, Linux]
+    status: implemented
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: true
+dependencies:
+  - module_id: "toolbelt.core.result-table"
+    minimum_version: "1.0.0"
+    reason: "Optionale ResultTable-Ausgabe."
+schemas:
+  - "toolbelt_core"
+objects:
+  - type: USP
+    schema: "toolbelt_core"
+    name: "USP_CaptureErrorEnvelope"
+    visibility: public
+permissions_required:
+  - "EXECUTE auf toolbelt_core.USP_CaptureErrorEnvelope"
+  - "EXECUTE auf toolbelt_core.USP_PrepareResultTable bei Nutzung von @ResultTable"
+collation_contract: "Fehlermeldungen und Kontext bleiben nvarchar; Klassifikation ist ASCII-varchar."
+data_type_contract: "ERROR_*-Werte werden explizit übergeben; SESSION_CONTEXT liefert optional eine uniqueidentifier Execution-ID."
+help_contract_version: "1.0"
+resultset_contracts:
+  - object: "toolbelt_core.USP_CaptureErrorEnvelope"
+    kind: "data"
+    resultset: "CapturedAtUtc datetime2(7), ExecutionId uniqueidentifier null, ErrorClass varchar(16), ErrorNumber int, ErrorSeverity int, ErrorState int, ErrorProcedure nvarchar(776) null, ErrorLine int null, ErrorMessage nvarchar(4000), XactState smallint, TransactionCount int, DatabaseName sysname, SessionId int, AdditionalContext nvarchar(4000) null"
+    return_code_success: 0
+    error_range: "51400-51405"
+lifecycle_error_range: "51410-51413"
+clr:
+  used: false
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/USP_CaptureErrorEnvelope.md"
+  architecture:
+    - "../../Documentation/Architecture/ERROR_ENVELOPE_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/ERROR_ENVELOPE_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/ErrorEnvelope.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/w4a-execution-foundations-runtime.yml"
+validation_evidence:
+  - date: "2026-08-01"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948"
+    scope: "SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; Contract, ResultTable, Lifecycle, Central und Uninstall"
+    result: "success"

@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 19 Module sind implementiert. 18 sind `partially validated`,
+abgeschlossen. 21 Module sind implementiert. 20 sind `partially validated`,
 ein Modul ist `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
@@ -325,6 +325,18 @@ ist auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170
 einschließlich Langtext-/Unicode-, Marker-/Drift-, Wiederholungs-, Lifecycle-,
 Central- und Uninstall-Contracts erfolgreich. Physische 2019-/2022-,
 Windows- und modulspezifische Releasefälle bleiben offen.
+
+### Phase 2.9 – Error Envelope
+
+**Status:** `completed`; Runtime `partially validated`
+
+`toolbelt.core.error-envelope` standardisiert explizit aus einem CATCH übergebene Fehlerdaten, ohne `THROW;` oder persistentes Logging zu ersetzen. Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948.
+
+### Phase 2.10 – Execution Context
+
+**Status:** `completed`; Runtime `partially validated`
+
+`toolbelt.core.execution-context` verwaltet Execution-ID, Correlation-ID, Actor, Tenant und verschachtelten ScopeDepth über `SESSION_CONTEXT`. Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948.
 
 ### Phase 2.6 – Portable File Content
 

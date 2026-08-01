@@ -1,0 +1,95 @@
+module_id: "toolbelt.core.execution-context"
+module_name: "Execution Context"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Verwaltet eine sessiongebundene Execution- und Correlation-ID mit Actor, Tenant und verschachteltem ScopeDepth über SESSION_CONTEXT."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels:
+  - 150
+  - 160
+  - 170
+platforms:
+  windows: "not executed"
+  linux: "partially validated"
+providers:
+  - id: session-context
+    technology: "T-SQL SESSION_CONTEXT"
+    platforms: [Windows, Linux]
+    status: implemented
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: true
+dependencies: []
+schemas:
+  - "toolbelt_core"
+objects:
+  - {type: TVF, schema: "toolbelt_core", name: "TVF_CurrentExecutionContext", visibility: public}
+  - {type: SVF, schema: "toolbelt_core", name: "SVF_CurrentExecutionId", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_BeginExecution", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_SetExecutionContext", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_EndExecution", visibility: public}
+permissions_required:
+  - "EXECUTE beziehungsweise SELECT auf die öffentlichen Modulobjekte"
+collation_contract: "Actor und Tenant bleiben nvarchar; Execution- und Correlation-ID sind uniqueidentifier."
+data_type_contract: "Sessionwerte sind begrenzte sql_variant-kompatible Skalare; kein JSON- oder LOB-Zustand."
+help_contract_version: "1.0"
+resultset_contracts:
+  - object: "toolbelt_core.TVF_CurrentExecutionContext"
+    kind: "data"
+    resultset: "ExecutionId uniqueidentifier, CorrelationId uniqueidentifier, Actor nvarchar(256) null, Tenant nvarchar(256) null, StartedAtUtc datetime2(7), ScopeDepth int"
+  - object: "toolbelt_core.USP_BeginExecution"
+    kind: "infrastructure"
+    resultset: null
+    return_code_success: 0
+    error_range: "51420-51425"
+  - object: "toolbelt_core.USP_SetExecutionContext"
+    kind: "infrastructure"
+    resultset: null
+    return_code_success: 0
+    error_range: "51426-51429"
+  - object: "toolbelt_core.USP_EndExecution"
+    kind: "infrastructure"
+    resultset: null
+    return_code_success: 0
+    error_range: "51430-51432"
+lifecycle_error_range: "51440-51443"
+clr:
+  used: false
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/EXECUTION_CONTEXT_OBJECTS.md"
+  architecture:
+    - "../../Documentation/Architecture/EXECUTION_CONTEXT_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/EXECUTION_CONTEXT_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/ExecutionContext.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  multi_session: "Tests/Runtime/MultiSession.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/w4a-execution-foundations-runtime.yml"
+validation_evidence:
+  - date: "2026-08-01"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948"
+    scope: "SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; Context-Lifecycle, Verschachtelung, Ownership, Sessionisolation, Central und Uninstall"
+    result: "success"

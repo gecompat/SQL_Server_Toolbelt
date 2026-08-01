@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: nineteen_modules_implemented
+  status: twenty_one_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -256,6 +256,8 @@ module_registry:
     - Modules/toolbelt.json.path-exists/module.yaml
     - Modules/toolbelt.core.console-message/module.yaml
     - Modules/toolbelt.metadata.capability-catalog/module.yaml
+    - Modules/toolbelt.core.error-envelope/module.yaml
+    - Modules/toolbelt.core.execution-context/module.yaml
     - Modules/toolbelt.file.content/module.yaml
     - Modules/toolbelt.archive.zip-memory/module.yaml
     - Modules/toolbelt.filesystem.windows/module.yaml
@@ -464,6 +466,24 @@ change_impact:
         - markdown_links
         - json_path_exists_static
         - w2b_json_path_runtime_workflow_scope
+    error_envelope_contract:
+      paths:
+        - Modules/toolbelt.core.error-envelope/**
+        - Documentation/Architecture/ERROR_ENVELOPE_MODULE_DESIGN.md
+        - Documentation/Standards/USP_CONTRACT.md
+        - Tests/CI/run-w4a-execution-foundations-linux.sh
+        - .github/workflows/w4a-execution-foundations-runtime.yml
+      checks:
+        - markdown_links
+    execution_context_contract:
+      paths:
+        - Modules/toolbelt.core.execution-context/**
+        - Documentation/Architecture/EXECUTION_CONTEXT_MODULE_DESIGN.md
+        - Documentation/Standards/USP_CONTRACT.md
+        - Tests/CI/run-w4a-execution-foundations-linux.sh
+        - .github/workflows/w4a-execution-foundations-runtime.yml
+      checks:
+        - markdown_links
     file_content_contract:
       paths:
         - Modules/toolbelt.file.content/**

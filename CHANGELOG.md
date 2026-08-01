@@ -85,6 +85,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Geändert
 
+- W4a implementiert: `toolbelt.core.error-envelope` standardisiert explizite CATCH-Daten ohne Rethrow- oder Logging-Seiteneffekt.
+- W4a implementiert: `toolbelt.core.execution-context` stellt Begin/Set/End, inline TVF und SVF-Wrapper über `SESSION_CONTEXT` bereit.
+- Beide Module auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich Lifecycle, Central und Sessionisolation validiert (https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948).
+
 - ResultTable-Contract um einen natürlichen Enginefehler 2705 nach begonnener Mutation erweitert; Savepoint-Rollback von Schema, Daten und Caller-Transaktion auf SQL Server 2019/2022/2025 Linux validiert ([Run 30692956855](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855)).
 - Manuelle Windows-Runtime-Testpläne für ResultTable und ZIP Memory mit synthetischem Scope und abstrahierter Rückmeldung ergänzt.
 
@@ -182,7 +186,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-19 Module sind implementiert. 18 sind `partially validated`, ein Modul ist
+21 Module sind implementiert. 20 sind `partially validated`, ein Modul ist
 `not executed`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und
 2025 erfolgreich; die übrigen bereits teilweise validierten Module sind
 auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170

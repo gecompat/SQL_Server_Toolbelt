@@ -1,0 +1,54 @@
+name: W4a Execution Foundations Runtime
+
+on:
+  pull_request:
+    paths:
+      - "Modules/toolbelt.core.error-envelope/**"
+      - "Modules/toolbelt.core.execution-context/**"
+      - "Modules/toolbelt.core.result-table/**"
+      - "Documentation/Architecture/ERROR_ENVELOPE_MODULE_DESIGN.md"
+      - "Documentation/Architecture/EXECUTION_CONTEXT_MODULE_DESIGN.md"
+      - "Tests/CI/run-w4a-execution-foundations-linux.sh"
+      - ".github/workflows/w4a-execution-foundations-runtime.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Modules/toolbelt.core.error-envelope/**"
+      - "Modules/toolbelt.core.execution-context/**"
+      - "Modules/toolbelt.core.result-table/**"
+      - "Documentation/Architecture/ERROR_ENVELOPE_MODULE_DESIGN.md"
+      - "Documentation/Architecture/EXECUTION_CONTEXT_MODULE_DESIGN.md"
+      - "Tests/CI/run-w4a-execution-foundations-linux.sh"
+      - ".github/workflows/w4a-execution-foundations-runtime.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: w4a-execution-foundations-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-contracts:
+    name: Static contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Error Envelope
+        run: python3 Modules/toolbelt.core.error-envelope/Tests/Static/validate_contract.py
+      - name: Validate Execution Context
+        run: python3 Modules/toolbelt.core.execution-context/Tests/Static/validate_contract.py
+
+  sql-server-2025-linux:
+    name: SQL Server 2025 Linux / compatibility 150, 160 and 170
+    needs: static-contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute contracts, lifecycle, central and session isolation
+        env:
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Tests/CI/run-w4a-execution-foundations-linux.sh
