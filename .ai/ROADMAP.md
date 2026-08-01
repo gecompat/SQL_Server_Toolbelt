@@ -347,6 +347,15 @@ schließt Raw SQL aus und schützt Änderungen mit expliziten Flags und `rowvers
 Die erste persistente Tabellenkonvention ist in `DEC-2026-025` festgehalten.
 Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703294213.
 
+### Phase 2.11 – Work-Type-Katalog
+
+**Status:** `completed`; Runtime `partially validated`
+
+`toolbelt.core.work-type` registriert ausschließlich vorhandene Stored Procedures,
+schließt Raw SQL aus und schützt Änderungen mit expliziten Flags und `rowversion`.
+Die erste persistente Tabellenkonvention ist in `DEC-2026-025` festgehalten.
+Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193.
+
 ### Phase 2.6 – Portable File Content
 
 **Status:** `completed`; Runtime `partially validated`

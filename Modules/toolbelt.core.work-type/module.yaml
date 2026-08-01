@@ -96,6 +96,6 @@ tests:
   github_hosted_linux: "../../.github/workflows/w4b-work-type-runtime.yml"
 validation_evidence:
   - date: "2026-08-01"
-    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703294213"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193"
     scope: "SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; Registrierung, Update/RowVersion, Disable/Reactivation, Resolve, ResultTable, Concurrency, Redeploy, Central und Uninstall"
     result: "success"

@@ -6,6 +6,14 @@
 - Persistente Tabelle `toolbelt_core.WorkType` mit expliziten Constraint-/Indexnamen und `rowversion`.
 - Register, Disable, Resolve, View, ResultTable, Concurrency, Redeploy, Central und Data-Loss-Uninstall-Schutz.
 - `DEC-2026-025` schließt die Tabellen-/Constraint-/Index-Namenskonvention.
+- SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193.
+
+## 2026-08-01 – W4b Work-Type-Katalog
+
+- `toolbelt.core.work-type` Version `1.0.0` implementiert.
+- Persistente Tabelle `toolbelt_core.WorkType` mit expliziten Constraint-/Indexnamen und `rowversion`.
+- Register, Disable, Resolve, View, ResultTable, Concurrency, Redeploy, Central und Data-Loss-Uninstall-Schutz.
+- `DEC-2026-025` schließt die Tabellen-/Constraint-/Index-Namenskonvention.
 - SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703294213.
 
 Alle wesentlichen Änderungen an SQL Server Toolbelt werden hier dokumentiert.

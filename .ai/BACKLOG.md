@@ -60,6 +60,22 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Validation Status | `partially validated` |
 | Release Status | `unreleased` |
 | Tests | SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; Registrierung, Update/RowVersion, Disable/Reaktivierung, Resolve, ResultTable, vier parallele Sessions, Redeploy, Central und Data-Loss-Uninstall-Schutz. |
+| Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193 |
+| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Second-Session-Provider bleibt getrennte W5-Capability. |
+
+### AP-2026-027: TC-2026-022 Work-Type-Katalog
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-027` |
+| Ziel | Einen persistenten sicheren Katalog für benannte Stored-Procedure-Work-Types bereitstellen, ohne eine Raw-SQL-Ausführungsschnittstelle zu schaffen. |
+| Scope | `toolbelt.core.work-type` Version `1.0.0`, interne Tabelle `toolbelt_core.WorkType`, öffentliche Register-/Disable-/Resolve-USPs, `VW_WorkTypes`, lokale und zentrale Installation. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Implementation Status | `implemented` |
+| Validation Status | `partially validated` |
+| Release Status | `unreleased` |
+| Tests | SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; Registrierung, Update/RowVersion, Disable/Reaktivierung, Resolve, ResultTable, vier parallele Sessions, Redeploy, Central und Data-Loss-Uninstall-Schutz. |
 | Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703294213 |
 | Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Second-Session-Provider bleibt getrennte W5-Capability. |
 

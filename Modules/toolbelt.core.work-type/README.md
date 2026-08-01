@@ -19,4 +19,4 @@ Der persistente Katalog hält Handler, ParameterMode, deklarativen JSON-Payloadv
 
 Registrierung und Änderung sind administrative Vorgänge. Ein registrierender Principal muss `EXECUTE` auf die Zielprocedure besitzen. Der zukünftige Session-Provider erhält einen getrennten Berechtigungs- und Ausführungsvertrag.
 
-Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703294213
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193
