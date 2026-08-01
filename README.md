@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 21 Module implementiert – 20 teilweise validiert](https://img.shields.io/badge/Status-21%20Module%20implementiert%20%7C%2020%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 22 Module implementiert – 21 teilweise validiert](https://img.shields.io/badge/Status-22%20Module%20implementiert%20%7C%2021%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 21 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
+**Der Repository-Grundaufbau ist abgeschlossen. 22 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)
@@ -64,6 +64,13 @@ und
 [`toolbelt.core.execution-context`](./Modules/toolbelt.core.execution-context/README.md).
 Sie standardisieren explizit übergebene Fehlerdaten und verwalten eine
 sessiongebundene Execution-/Correlation-ID ohne persistente Tabellen.
+
+Der persistente
+[`toolbelt.core.work-type`](./Modules/toolbelt.core.work-type/README.md)
+registriert ausschließlich kontrollierte Stored-Procedure-Work-Types.
+Raw SQL bleibt ausgeschlossen; Änderungen sind über `rowversion`,
+explizite Update-/Reaktivierungsflags und Data-Loss-geschützten Uninstall
+abgesichert.
 
 Das portable Modul
 [`toolbelt.file.content`](./Modules/toolbelt.file.content/README.md)
