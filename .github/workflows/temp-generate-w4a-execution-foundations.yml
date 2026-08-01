@@ -1,0 +1,54 @@
+name: Temporary Generate W4a Execution Foundations
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/temp-generate-w4a-execution-foundations.yml
+      - Tests/Documentation/generate_w4a_execution_foundations.py
+
+permissions:
+  contents: write
+
+jobs:
+  generate-test-commit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      EVIDENCE_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Generate W4a modules and repository metadata
+        run: python3 Tests/Documentation/generate_w4a_execution_foundations.py
+      - name: Validate static contracts
+        run: |
+          python3 Modules/toolbelt.core.error-envelope/Tests/Static/validate_contract.py
+          python3 Modules/toolbelt.core.execution-context/Tests/Static/validate_contract.py
+      - name: Execute SQL Server 2025 Linux compatibility matrix
+        env:
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Tests/CI/run-w4a-execution-foundations-linux.sh
+      - name: Generate and validate repository status
+        run: |
+          python3 Tests/Documentation/validate_documentation.py --all --write
+          python3 Tests/Documentation/validate_documentation.py --all
+      - name: Commit consistent W4a state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git reset -- \
+            .github/workflows/temp-generate-w4a-execution-foundations.yml \
+            Tests/Documentation/generate_w4a_execution_foundations.py
+          if git diff --cached --quiet; then
+            echo "Keine W4a-Änderungen zu committen."
+            exit 0
+          fi
+          git commit -m "ChatGPT: Implementiere W4a Execution-Grundlagen"
+          git push origin HEAD:${{ github.head_ref }}
