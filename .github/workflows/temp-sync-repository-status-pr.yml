@@ -68,6 +68,10 @@ jobs:
               line[10:] if line.startswith('          ') else line
               for line in match.group('script').splitlines()
           )
+          script = script.replace(
+              r'field_pattern = rf"^\| \*\*{re.escape(field)}\*\* \|.*?\|$"',
+              r'field_pattern = rf"^\| \*\*{re.escape(field)}\*\* \|.*$"',
+          )
           exec(compile(script, 'temp-sync-repository-status.yml', 'exec'))
           PY
       - name: Validate File Content static contract
