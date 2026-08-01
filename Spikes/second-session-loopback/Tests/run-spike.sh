@@ -81,6 +81,19 @@ CREATE TABLE dbo.RemoteEvent
     , CreatedAtUtc datetime2(7) NOT NULL CONSTRAINT DF_RemoteEvent_CreatedAtUtc DEFAULT SYSUTCDATETIME()
 );
 GO
+CREATE TABLE dbo.SpikeParent
+(
+    Id int NOT NULL CONSTRAINT PK_SpikeParent PRIMARY KEY
+);
+GO
+CREATE TABLE dbo.SpikeChild
+(
+      Id int NOT NULL CONSTRAINT PK_SpikeChild PRIMARY KEY
+    , ParentId int NOT NULL
+    , CONSTRAINT FK_SpikeChild_SpikeParent
+        FOREIGN KEY(ParentId) REFERENCES dbo.SpikeParent(Id)
+);
+GO
 CREATE OR ALTER PROCEDURE dbo.USP_WriteRemoteEvent
       @SourceSessionId int
     , @EventName varchar(64)
@@ -176,14 +189,7 @@ IF NOT EXISTS
 SET XACT_ABORT ON;
 BEGIN TRY
     BEGIN TRANSACTION;
-    CREATE TABLE #Parent(Id int NOT NULL CONSTRAINT PK_Parent PRIMARY KEY);
-    CREATE TABLE #Child
-    (
-          Id int NOT NULL
-        , ParentId int NOT NULL
-        , CONSTRAINT FK_Child_Parent FOREIGN KEY(ParentId) REFERENCES #Parent(Id)
-    );
-    INSERT INTO #Child(Id, ParentId) VALUES (1, 999);
+    INSERT INTO dbo.SpikeChild(Id, ParentId) VALUES (1, 999);
     THROW 52613, N'Der synthetische Constraintfehler blieb aus.', 1;
 END TRY
 BEGIN CATCH
