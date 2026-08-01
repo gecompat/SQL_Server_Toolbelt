@@ -1,0 +1,95 @@
+name: Temporary Repository Status Synchronization PR
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/temp-sync-repository-status.yml
+      - .github/workflows/temp-sync-repository-status-pr.yml
+
+permissions:
+  contents: write
+
+jobs:
+  windows-filesystem-build:
+    name: Windows filesystem build and static contract
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build .NET Framework SQL CLR assembly
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-not (Test-Path -LiteralPath $vswhere)) {
+            throw "Visual Studio locator was not found on the Windows runner."
+          }
+          $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
+          if ([string]::IsNullOrWhiteSpace($msbuild) -or -not (Test-Path -LiteralPath $msbuild)) {
+            throw "MSBuild.exe was not found through vswhere."
+          }
+          & $msbuild Modules/toolbelt.filesystem.windows/Clr/Toolbelt.Filesystem.Windows.csproj /p:Configuration=Release /p:Platform=AnyCPU
+          if ($LASTEXITCODE -ne 0) {
+            throw "MSBuild.exe failed with exit code $LASTEXITCODE."
+          }
+      - name: Validate Windows filesystem static contract
+        shell: pwsh
+        run: python Modules/toolbelt.filesystem.windows/Tests/Static/validate_contract.py
+
+  synchronize:
+    name: Synchronize metadata, backlog and evidence
+    needs: windows-filesystem-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      EVIDENCE_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Execute embedded synchronization script
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          import textwrap
+
+          workflow = Path('.github/workflows/temp-sync-repository-status.yml').read_text(encoding='utf-8')
+          match = re.search(
+              r"python3 - <<'PY'\n(?P<script>.*?)\n          PY\n",
+              workflow,
+              flags=re.DOTALL,
+          )
+          if match is None:
+              raise SystemExit('Embedded synchronization script was not found.')
+          script = textwrap.dedent(match.group('script'))
+          exec(compile(script, 'temp-sync-repository-status.yml', 'exec'))
+          PY
+      - name: Validate File Content static contract
+        run: python3 Modules/toolbelt.file.content/Tests/Static/validate_contract.py
+      - name: Execute File Content SQL Server 2025 Linux matrix
+        env:
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Tests/CI/run-file-content-linux.sh
+      - name: Generate and validate repository status
+        run: |
+          python3 Tests/Documentation/validate_documentation.py --all --write
+          python3 Tests/Documentation/validate_documentation.py --all
+      - name: Commit synchronized repository state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git reset -- .github/workflows/temp-sync-repository-status.yml
+          git reset -- .github/workflows/temp-sync-repository-status-pr.yml
+          if git diff --cached --quiet; then
+            echo "No synchronized changes were produced."
+            exit 0
+          fi
+          git commit -m "ChatGPT: Synchronisiere Repository-Status und To-dos"
+          git push origin HEAD:${{ github.head_ref }}
