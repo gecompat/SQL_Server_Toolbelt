@@ -109,15 +109,17 @@ Ausführung am 2026-07-29:
   sitzungsisoliert;
 - Gesamtstatus bleibt `partially validated`.
 
-Windows, echter Savepoint-Rollback nach einem natürlichen Enginefehler und
-eine plattformübergreifend vergleichbare Performance-Baseline bleiben offen.
+### Vierte GitHub-hosted Validierungswelle
 
-Eine DDL-Trigger-Injektion wurde als Recovery-Harness verworfen: Der Trigger
-verändert selbst die Transaktionssemantik der zu prüfenden DDL-Anweisung und
-liefert deshalb keinen belastbaren Nachweis für den natürlichen
-Procedure-Fehlerpfad. Ein echter Savepoint-Rollback nach einem deterministischen
-Enginefehler bleibt `not executed`, bis ein nicht invasiver Fehlerpfad
-reproduzierbar verfügbar ist.
+Der [GitHub Actions Run 30692956855](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855) ergänzt einen natürlichen, nicht invasiven Enginefehler nach bereits begonnener ResultTable-Mutation:
+
+- case-sensitive Referenzspalten `CaseValue` und `casevalue` kollidieren beim DDL gegen die case-insensitive `tempdb`-Collation mit Enginefehler 2705;
+- die Procedure gibt den ursprünglichen Enginefehler unverändert weiter;
+- der Rollback zum eigenen Savepoint stellt das ursprüngliche Zielschema und die vor `TRUNCATE` vorhandenen Daten vollständig wieder her;
+- Änderungen des Callers vor dem Aufruf, `XACT_STATE()` und `@@TRANCOUNT` bleiben erhalten;
+- SQL Server 2019, 2022 und 2025 unter Linux: erfolgreich.
+
+Windows und eine plattformübergreifend vergleichbare Performance-Baseline bleiben offen. Der manuelle Ablauf steht in `Modules/toolbelt.core.result-table/Tests/Manual_Windows_Runtime_Testplan.md`.
 
 ## 3. Statische Vertragsprüfungen
 
@@ -295,6 +297,7 @@ reproduzierbar verfügbar ist.
 | `RT-X-007` | Engine-Fehler | ursprüngliche Fehlernummer/-meldung bleibt erkennbar |
 | `RT-X-008` | Caller-SET-Optionen vor/nach Aufruf | keine dauerhafte Veränderung durch die Procedure |
 | `RT-X-009` | rekursive/nested Mutationen mit Savepoints | Invocation-spezifische Savepoint-Namen kollidieren nicht |
+| `RT-X-010` | natürlicher Enginefehler 2705 nach bereits begonnenem DDL | ursprünglicher Fehler unverändert; Rollback zum Savepoint stellt Schema und Daten wieder her; Caller-Transaktion bleibt committable |
 
 ## 13. Debug und Datenschutz
 

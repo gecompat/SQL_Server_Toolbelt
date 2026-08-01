@@ -490,7 +490,7 @@ Wird `toolbelt_core` durch das Deployment neu angelegt, erhält es `Toolbelt.Man
 - lokale und zentrale Installation;
 - unterschiedliche Server-, Toolbelt-, Zieldatenbank- und TempDB-Collations.
 
-Stand 2026-07-29: Die GitHub-hosted Linux-Welle ist erfolgreich ausgeführt. Die vollständige 2019-Suite und die reduzierten 2022-/2025-Suiten sind belegt; Windows und die restlichen Matrixfälle bleiben offen.
+Stand 2026-08-01: Die vollständige Linux-Suite ist auf SQL Server 2019, 2022 und 2025 belegt. Der [Lauf 30692956855](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855) validiert zusätzlich einen natürlichen Enginefehler 2705 nach begonnener Mutation und den vollständigen Rollback zum Caller-Savepoint. Windows und eine plattformübergreifend vergleichbare Performance-Baseline bleiben offen.
 
 ### Welle C – Validierung und Release
 

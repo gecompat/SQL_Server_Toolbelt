@@ -118,3 +118,7 @@ validation_evidence:
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717"
     scope: "SQL Server 2019, 2022 and 2025 full suite including four concurrent sessions with identical logical local temp-table names; GitHub-hosted Linux"
     result: "success"
+  - date: "2026-08-01"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855"
+    scope: "SQL Server 2019, 2022 und 2025 Linux; vollständige Suite einschließlich natürlichem Enginefehler 2705 nach begonnener Mutation, Savepoint-Rollback von Schema und Daten sowie Erhalt der Caller-Transaktion"
+    result: "success"
