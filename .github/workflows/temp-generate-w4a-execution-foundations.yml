@@ -117,11 +117,47 @@ jobs:
               text = path.read_text(encoding='utf-8').rstrip()
               text += (
                   '\n\n## Ausgeführte Evidenz\n\n'
-                  f'- SQL Server 2025 Linux, Compatibility Levels 150, 160 und 170: erfolgreich.\n'
+                  '- SQL Server 2025 Linux, Compatibility Levels 150, 160 und 170: erfolgreich.\n'
                   f'- Workflow: {evidence_url}\n'
                   '- Windows und physische SQL-Server-2019-/2022-Läufe: `not executed`.\n'
               )
               path.write_text(text + '\n', encoding='utf-8', newline='\n')
+
+          plan = Path('Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md')
+          text = plan.read_text(encoding='utf-8')
+          insertion_marker = '| `TC-2026-016` | `toolbelt.core.console-message` | `toolbelt_core.USP_WriteConsoleMessage` | Physische 2019-/2022-, Windows- und weitere Client-/Treiber-Evidenz. |\n'
+          implemented_rows = (
+              '| `TC-2026-017` | `toolbelt.core.error-envelope` | `toolbelt_core.USP_CaptureErrorEnvelope` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Retry-Entscheidungen bleiben ausdrücklich außerhalb dieses Moduls. |\n'
+              '| `TC-2026-019` | `toolbelt.core.execution-context` | `toolbelt_core.TVF_CurrentExecutionContext`, `toolbelt_core.SVF_CurrentExecutionId`, `toolbelt_core.USP_BeginExecution`, `toolbelt_core.USP_SetExecutionContext`, `toolbelt_core.USP_EndExecution` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung sowie Connection-Pooling-Evidenz. |\n'
+          )
+          if '`TC-2026-017` | `toolbelt.core.error-envelope` | `toolbelt_core.USP_CaptureErrorEnvelope`' not in text.split('### Portable Fach- und Compatibility-Module', 1)[0]:
+              if text.count(insertion_marker) != 1:
+                  raise SystemExit('Implementierungsplan: Einfügemarke für W4a fehlt.')
+              text = text.replace(insertion_marker, insertion_marker + implemented_rows, 1)
+          text = re.sub(
+              r'^\| `TC-2026-017` \| `toolbelt\.core\.error-envelope` \|.*\n',
+              '',
+              text,
+              count=1,
+              flags=re.MULTILINE,
+          )
+          text = re.sub(
+              r'^\| `TC-2026-019` \| `toolbelt\.core\.execution-context` \|.*\n',
+              '',
+              text,
+              count=1,
+              flags=re.MULTILINE,
+          )
+          # Die beiden entfernten Planzeilen lagen im Abschnitt der noch vorgeschlagenen Execution-Module.
+          # Danach werden die kanonischen implementierten Zeilen erneut direkt vor TC-2026-023 eingesetzt,
+          # falls die generische Entfernung auch die neu eingefügten Zeilen getroffen hat.
+          implemented_anchor = '| `TC-2026-023` | `toolbelt.metadata.capability-catalog` |'
+          if '`TC-2026-017` | `toolbelt.core.error-envelope` | `toolbelt_core.USP_CaptureErrorEnvelope`' not in text.split('### Portable Fach- und Compatibility-Module', 1)[0]:
+              anchor_index = text.find(implemented_anchor)
+              if anchor_index < 0:
+                  raise SystemExit('Implementierungsplan: Anchor TC-2026-023 fehlt.')
+              text = text[:anchor_index] + implemented_rows + text[anchor_index:]
+          plan.write_text(text, encoding='utf-8', newline='\n')
           PY
       - name: Validate static contracts
         run: |
