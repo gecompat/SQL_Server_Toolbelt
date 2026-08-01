@@ -387,15 +387,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Nein bekannt |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Fehler können einheitlich erfasst, protokolliert, über Worker-Grenzen transportiert und dennoch mit erkennbarer Originalursache weitergegeben werden. |
-| **Mögliche Technologie** | T-SQL-Infrastruktur innerhalb eines `CATCH`: `ERROR_NUMBER`, `ERROR_SEVERITY`, `ERROR_STATE`, `ERROR_PROCEDURE`, `ERROR_LINE`, `ERROR_MESSAGE`, `XACT_STATE` und `@@TRANCOUNT`; strukturierter OUTPUT-/Result-Vertrag oder JSON nur nach Besprechung. Das eigentliche Rethrow bleibt mit parameterlosem `THROW;` an der aufrufenden CATCH-Grenze. |
+| **Mögliche Technologie** | Implementiert als `toolbelt.core.error-envelope` mit `toolbelt_core.USP_CaptureErrorEnvelope`; explizite ERROR_*-Parameter, kleine Klassifikation, direkte oder ResultTable-Ausgabe, kein persistentes Logging und kein Rethrow-Wrapper. |
 | **Performance und Security** | Originalfehler darf nicht von Logging- oder Cleanup-Fehlern überschrieben werden. Bei `XACT_STATE() = -1` sind nur Reads und vollständiger Rollback zulässig; reguläres Tabellenlogging in derselben Transaktion ist dann unmöglich. Fehlermeldungen können schutzwürdige Runtime-Werte enthalten und dürfen nicht ungeprüft persistiert werden. Retry-Klassifikation allein nach Fehlernummer ist nicht immer ausreichend. |
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz im T-SQL-Kern; Logger-Provider getrennt bewerten. |
 | **Dependencies** | Optional `TC-2026-014`, `TC-2026-016` und `TC-2026-019`. |
 | **Duplikatprüfung** | `USP_CONTRACT.md` und `TSQL_ENGINEERING.md` definieren Grundregeln, aber keine wiederverwendbare Error-Envelope-Capability. |
-| **Status** | `researched` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/language-elements/throw-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/xact-state-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/set-xact-abort-transact-sql?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Mit dem Benutzer gewünschte Felder, Rückgabeform, Klassifikation, Logger-/Console-Kopplung und verbindliche Rethrow-Semantik besprechen. |
+| **Prüfdatum** | 2026-08-01 |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; rollback-unabhängiges Logging erst nach Second-Session-Provider. |
 
 ## TC-2026-018: Kontrollierter Abbruch einer Ausführungsgruppe
 
@@ -433,15 +433,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Nein bekannt |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | ExecutionId, ParentExecutionId, WorkItemId und ausgewählte sichere Kontextwerte können über Logs, Worker, Console und Cancellation hinweg eindeutig verbunden werden. |
-| **Mögliche Technologie** | T-SQL-Vertrag für GUID-basierte Correlation IDs und explizite Übergabe an jede neue Session; optional kontrolliertes Setzen über `sys.sp_set_session_context`. Keine automatische Übernahme beliebiger Caller-Kontextwerte. |
+| **Mögliche Technologie** | Implementiert als `toolbelt.core.execution-context` über namespacete `SESSION_CONTEXT`-Schlüssel, Begin/Set/End, inline `TVF_CurrentExecutionContext` und SVF-Komfortwrapper. |
 | **Performance und Security** | `SESSION_CONTEXT` erlaubt höchstens 8.000 Bytes je Wert und insgesamt 1 MB je Session. Kontext darf keine Secrets oder ungeprüften personenbezogenen Werte transportieren. Read-only-Werte können innerhalb einer logischen Verbindung geschützt werden, müssen in einer neuen Session aber erneut gesetzt und autorisiert werden. Connection Pooling und MARS sind gesondert zu testen. |
 | **Plattformgrenzen** | T-SQL-Kern voraussichtlich plattformgleich; Client- und Pooling-Verhalten ist providerabhängig. |
 | **Dependencies** | Grundlage für `TC-2026-014`, `TC-2026-015`, `TC-2026-018` und `TC-2026-021`. |
 | **Duplikatprüfung** | Keine bestehende projektweite Execution-Correlation-Capability gefunden. |
-| **Status** | `researched` |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-set-session-context-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/session-context-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/data-access/context-connection?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Mit dem Benutzer minimale Felder, Ownership, Erzeugungsregeln, erlaubte Context Keys und Verhalten bei verschachtelten Aufrufen festlegen. |
+| **Prüfdatum** | 2026-08-01 |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; persistenter Execution-Status bleibt ein getrennter späterer Slice. |
 
 ## TC-2026-020: Retry-, Idempotenz- und Dead-letter-Vertrag
 
