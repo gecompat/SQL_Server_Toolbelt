@@ -85,6 +85,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Geändert
 
+- ResultTable-Contract um einen natürlichen Enginefehler 2705 nach begonnener Mutation erweitert; Savepoint-Rollback von Schema, Daten und Caller-Transaktion auf SQL Server 2019/2022/2025 Linux validiert ([Run 30692956855](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855)).
+- Manuelle Windows-Runtime-Testpläne für ResultTable und ZIP Memory mit synthetischem Scope und abstrahierter Rückmeldung ergänzt.
+
 - Modulregistry um das bereits vorhandene `toolbelt.file.content` ergänzt; Statusübersichten zeigen nun 19 implementierte, 18 teilweise validierte und ein nicht ausgeführtes Modul.
 - Dokumentationsvalidator erkennt künftig jedes vorhandene, aber nicht registrierte `Modules/*/module.yaml` sowie veraltete Registry-Einträge.
 - `toolbelt.file.content` im Wartungslauf https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356 auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 validiert und mit kanonischer Evidenz gekoppelt.
