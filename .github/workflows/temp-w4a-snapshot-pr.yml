@@ -1,0 +1,30 @@
+name: Temporary W4a Repository Snapshot PR
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/temp-w4a-snapshot-pr.yml
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package exact pull-request state
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .runtime
+          tar --exclude=.git --exclude=.runtime -czf .runtime/repository.tar.gz .
+      - name: Upload snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: w4a-repository-snapshot-pr
+          if-no-files-found: error
+          path: .runtime/repository.tar.gz
