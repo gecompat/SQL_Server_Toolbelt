@@ -1,9 +1,9 @@
 name: Temporary Apply W4a Repository State
 
 on:
-  push:
+  pull_request:
     branches:
-      - agent/w4a-execution-foundations
+      - main
     paths:
       - .github/workflows/temp-w4a-apply.yml
 
@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: agent/w4a-execution-foundations
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
       - name: Apply compressed W4a state
         shell: bash
@@ -46,4 +46,4 @@ jobs:
             exit 0
           fi
           git commit -m "ChatGPT [LLM: GPT-5.6 Thinking]: Implementiere W4a Execution-Grundlagen"
-          git push origin HEAD:agent/w4a-execution-foundations
+          git push origin HEAD:${{ github.head_ref }}
