@@ -128,6 +128,31 @@ def patch_register_debug() -> None:
     path.write_text(text, encoding="utf-8", newline="\n")
 
 
+def patch_uninstall() -> None:
+    path = Path("Modules/toolbelt.core.work-type/Deployment/Uninstall.sql")
+    text = path.read_text(encoding="utf-8")
+    old = (
+        "IF OBJECT_ID(N'toolbelt_core.WorkType', N'U') IS NOT NULL\n"
+        "   AND EXISTS (SELECT 1 FROM toolbelt_core.WorkType)\n"
+        "   AND @AllowDataLoss <> 1\n"
+        "    THROW 51549, N'Die WorkType-Tabelle enthält Daten; AllowDataLoss = 1 ist erforderlich.', 1;\n"
+    )
+    new = (
+        "DECLARE @WorkTypeHasData bit = 0;\n"
+        "IF OBJECT_ID(N'toolbelt_core.WorkType', N'U') IS NOT NULL\n"
+        "BEGIN\n"
+        "    EXEC sys.sp_executesql\n"
+        "          N'IF EXISTS (SELECT 1 FROM toolbelt_core.WorkType) SET @HasData = 1;'\n"
+        "        , N'@HasData bit OUTPUT'\n"
+        "        , @HasData = @WorkTypeHasData OUTPUT;\n"
+        "END;\n"
+        "IF @WorkTypeHasData = 1 AND @AllowDataLoss <> 1\n"
+        "    THROW 51549, N'Die WorkType-Tabelle enthält Daten; AllowDataLoss = 1 ist erforderlich.', 1;\n"
+    )
+    text = replace_once(text, old, new, "Data-Loss-Uninstall-Guard")
+    path.write_text(text, encoding="utf-8", newline="\n")
+
+
 def patch_transaction_test() -> None:
     path = Path("Modules/toolbelt.core.work-type/Tests/Runtime/WorkType.Contract.sql")
     text = path.read_text(encoding="utf-8")
@@ -168,6 +193,7 @@ def patch_runner() -> None:
         "fi\n"
     )
     new = (
+        "run_query \"${local_db}\" \"IF NOT EXISTS (SELECT 1 FROM toolbelt_core.WorkType WHERE WorkTypeName='test.uninstall') THROW 52552, N'Die Testzeile fehlt vor dem Data-Loss-Uninstall-Test.', 1;\"\n"
         "set +e\n"
         "uninstall \"${local_db}\" Modules/toolbelt.core.work-type 0 0 >/tmp/w4b-uninstall.out 2>&1\n"
         "uninstall_rc=$?\n"
@@ -194,6 +220,7 @@ def patch_generated() -> None:
         "Modules/toolbelt.core.work-type/Source/USP_DisableWorkType.sql",
         "TBX_WorkType_Disable",
     )
+    patch_uninstall()
     patch_transaction_test()
     patch_runner()
 
