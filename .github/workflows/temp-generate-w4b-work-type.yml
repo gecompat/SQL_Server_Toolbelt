@@ -44,15 +44,15 @@ jobs:
           PY
       - name: Generate W4b module and repository metadata
         run: python3 Tests/Documentation/generate_w4b_work_type.py
-      - name: Normalize generated default constraints
+      - name: Normalize generated T-SQL
         shell: bash
         run: |
           python3 - <<'PY'
           import re
           from pathlib import Path
 
-          path = Path('Modules/toolbelt.core.work-type/Source/WorkType.sql')
-          text = path.read_text(encoding='utf-8')
+          table_path = Path('Modules/toolbelt.core.work-type/Source/WorkType.sql')
+          text = table_path.read_text(encoding='utf-8')
           inline_defaults = {
               '        , [ParameterMode]          varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL':
                   "        , [ParameterMode]          varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL CONSTRAINT [DF_WorkType_ParameterMode] DEFAULT ('NONE')",
@@ -83,7 +83,22 @@ jobs:
           )
           if removed != 8:
               raise SystemExit(f'Erwartet wurden acht table-level DEFAULT-Constraints, entfernt wurden {removed}.')
-          path.write_text(text, encoding='utf-8', newline='\n')
+          table_path.write_text(text, encoding='utf-8', newline='\n')
+
+          register_path = Path('Modules/toolbelt.core.work-type/Source/USP_RegisterWorkType.sql')
+          register = register_path.read_text(encoding='utf-8')
+          old = """    IF @Debug > 0
+        RAISERROR(N'USP_RegisterWorkType: Registrierung verarbeitet; Änderung=%d.', 10, 1, @Changed) WITH NOWAIT;
+"""
+          new = """    IF @Debug > 0
+    BEGIN
+        DECLARE @ChangedForMessage int = CONVERT(int, @Changed);
+        RAISERROR(N'USP_RegisterWorkType: Registrierung verarbeitet; Änderung=%d.', 10, 1, @ChangedForMessage) WITH NOWAIT;
+    END;
+"""
+          if register.count(old) != 1:
+              raise SystemExit('Die erwartete Register-Debugmeldung wurde nicht eindeutig gefunden.')
+          register_path.write_text(register.replace(old, new, 1), encoding='utf-8', newline='\n')
           PY
       - name: Validate static contract
         run: python3 Modules/toolbelt.core.work-type/Tests/Static/validate_contract.py
