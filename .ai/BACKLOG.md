@@ -2,60 +2,10 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-18 Module sind implementiert. 16 sind `partially validated`, zwei Module sind `not executed`.
+19 Module sind implementiert. 18 sind `partially validated`, ein Modul ist `not executed`.
 
 ## Aktive Arbeitspakete
 
-### AP-2026-020: TC-2026-034 Verarbeitungswelle 2 (Implementierungswelle V1A)
-
-| Feld | Wert |
-|---|---|
-| ID | `AP-2026-020` |
-| Ziel | Den freigegebenen V1A-Slice von `TC-2026-034` als erstes lauffaehiges ZIP-Modul implementieren, dokumentieren und mit Runtime-Evidenz belegen. |
-| Scope | `toolbelt.archive.zip-memory` Version `1.0.0` mit In-memory-Extraktion einzelner Eintraege aus `varbinary(max)`; kein Dateisystemzugriff, keine Archiv-Erzeugung, keine rekursive Entpackung, keine Passwortentschluesselung. |
-| Dependencies | Abgeschlossene Vertragswelle `AP-2026-019`, Kandidaten `TC-2026-033` und `TC-2026-034`, Moduldesign `ZIP_ARCHIVE_MODULE_DESIGN.md`, USP-Vertrag, Modul- und Lifecycle-Regeln. |
-| Priorität | `P1` |
-| Status | `active` |
-| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
-| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
-| Akzeptanzkriterien | Ein oeffentliches Objekt mit stabilem Help-/Fehler-/Resultset-Vertrag; Duplicate-Entry-Semantik als expliziter Fehler; harte Default-Limits (`@MaxEntryBytes = 104857600`, `@MaxCompressionRatio = 200.00`); verschluesselte Eintraege liefern bei `@FailIfEncrypted = 0` einen expliziten Status ohne Payload; lokale und zentrale Lifecycle-Artefakte sowie statische und Runtime-Tests vorhanden. |
-| Tests | Statische Vertragspruefung, synthetische Negativfaelle (CRC, Format, Limits, verschluesselt), Lifecycle (Deploy/Uninstall/Wiederholung), SQL-Server-2025-Linux Runtime mit Compatibility Levels 150/160/170, danach physische 2019-/2022-/Windows-Releasevalidierung. |
-| Blocker | Kein offener Vertragsblocker. Implementierung ist vorhanden; offen ist die Runtime-Evidenz. |
-| Evidenz | Benutzerfreigabe der verbleibenden V1A-Entscheidungen am 2026-07-30 (`beides`); Vertragsbasis in `Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md` und Kandidatenpflege erfolgt. |
-| Nächster Schritt | SQL-Server-2025-Linux Runtime-Lauf fuer Contract, Lifecycle und Central ausfuehren; danach offene 2019-/2022-/Windows-Releasevalidierung planen. |
-
-### AP-2026-021: TC-2026-034 Verarbeitungswelle 3 (CLR-Provider Vertragswelle)
-
-| Feld | Wert |
-|---|---|
-| ID | `AP-2026-021` |
-| Ziel | Den separaten CLR-Providervertrag für `TC-2026-034` abschließen und die Sicherheits-, Lifecycle- und Plattformgrenzen vor einer Implementierung verbindlich festlegen. |
-| Scope | Keine Runtime-Implementierung. Der Vertrag begrenzt einen optionalen C#-SQL-CLR-Provider auf In-memory-Extraktion einzelner Entries mit ZIP Method 0 und 8, einschließlich Payload-CRC-Prüfung; Dateisystem, Verschlüsselungsentschlüsselung, Deflate64, ZIP-Erzeugung und weitere Formate bleiben ausgeschlossen. |
-| Dependencies | `AP-2026-020`, `TC-2026-034`, `Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md`, `Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md`, Datenschutz- und Lifecycle-Regeln. |
-| Priorität | `P1` |
-| Status | `completed` |
-| Akzeptanzkriterien | Klarer Provider-Schnitt mit explizitem Non-Goal gegen Dateisystem-Default, definiertem Methodensubset (0 und 8), expliziter Payload-CRC-Prüfung, dokumentiertem Sicherheitsweg ohne pauschales `TRUSTWORTHY ON` sowie definiertem Assembly-Lifecycle und Test-/Spike-Gates. |
-| Tests | Vertrags- und Designkonsistenz sowie dokumentierte Build-/Trust- und Runtime-Matrix. Diese Welle behauptet keine Runtime-Evidenz. |
-| Blocker | Kein Vertragsblocker. Der kontrollierte Build-/Deployment-Spike ist als `AP-2026-022` bereitgestellt; vor einer produktiven Providerimplementierung bleibt eine eigene Benutzerfreigabe erforderlich. |
-| Evidenz | Benutzerauftrag vom 2026-07-30; Architekturvertrag `ZIP_CLR_PROVIDER_DESIGN.md`; Spike-Quellartefakte in `Spikes/sql-clr-zip-provider/`. |
-| Nächster Schritt | `AP-2026-022` gegen SQL Server 2019, 2022 und 2025 auf Windows und Linux ausführen, Abhängigkeits- und Plattformbefund festhalten und erst danach den produktiven Providervertrag erneut freigeben lassen. |
-
-### AP-2026-022: SQL CLR ZIP Build-/Deployment-Spike
-
-| Feld | Wert |
-|---|---|
-| ID | `AP-2026-022` |
-| Ziel | Den technisch kleinsten SQL-CLR-Providerpfad für ZIP Method 8 mit einer minimalen `SAFE`-Assembly kontrolliert bauen, deployen, ausführen und wieder entfernen. |
-| Scope | C#-Projekt für .NET Framework 4.8; Raw-Deflate über `DeflateStream` aus der unterstützten `System.dll`; eigene CRC32-Prüfung; SHA2-512-Trust-Manifest; binäres `CREATE ASSEMBLY`; getrennte Trust-, Deploy-, Verify- und Uninstall-Skripte; positiver SQL-Server-2022-Linux-Runtime-Gate. Keine produktive ZIP-Funktion, keine öffentliche API und kein Modulmanifest. |
-| Dependencies | `AP-2026-021`, `ZIP_CLR_PROVIDER_DESIGN.md`, `CLR_SECURITY_AND_PORTABILITY.md`, .NET-Framework-4.8-Targeting-Pack, MSBuild, SQLCMD und eine disposable SQL-Server-Testinstanz. |
-| Priorität | `P1` |
-| Status | `active` |
-| Akzeptanzkriterien | Keine direkte Referenz auf `System.IO.Compression.dll` oder `ZipArchive`; `DeflateStream` wird aus `System.dll` geladen; die Testassembly bleibt `SAFE`; der Trust-Hash entsteht aus dem konkreten Binary; Deployment benötigt keinen serverlokalen Buildpfad; tatsächlicher CLR-Aufruf prüft Payload und CRC32; kein Skript setzt `TRUSTWORTHY ON`, deaktiviert `clr strict security` oder verwendet `EXTERNAL_ACCESS`/`UNSAFE`; Uninstall berührt keinen Trust-Eintrag. |
-| Tests | Statische Vertragsprüfung, Windows-GitHub-hosted .NET-Framework-Build und positiver SQL-Server-2022-Linux-Lauf mit Trust, `CREATE ASSEMBLY`, Deflate-/CRC32-Ausführung und Uninstall sind erfolgreich. SQL Server 2019, SQL Server 2025 und Windows-Runtime bleiben separate Pflichtläufe vor Produktfreigabe. |
-| Blocker | Kein bekannter technischer Blocker für den korrigierten Deflate-/CRC32-Spike. Der frühere Fehler 10301 entstand durch den ungeeigneten `ZipArchive`-Pfad und die direkte Abhängigkeit von `System.IO.Compression.dll`. |
-| Evidenz | `Spikes/sql-clr-zip-provider/README.md`, `Source/ZipClrProbe.cs`, `Tests/Static/validate_spike.py`, `.github/workflows/sql-clr-zip-spike.yml` und SQL CLR ZIP Spike Run 30608612435. |
-| Nächster Schritt | SQL Server 2019, SQL Server 2025 und Windows gezielt validieren und erst anschließend die produktive Providerimplementierung erneut zur Freigabe vorlegen. |
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
 | Feld | Wert |
@@ -85,17 +35,87 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Scope | toolbelt.filesystem.windows, C#-.NET-Framework-4.8-Assembly, T-SQL-Fassade, Root-Alias-Konfiguration, Trust-/Deployment-Lifecycle, Dokumentation, Contract-Matrix und Windows-Build. |
 | Dependencies | toolbelt.core.result-table; separate administrative SHA2-512-Trust-Freigabe; Windows SQL Server mit kontrolliertem synthetischem Testroot. |
 | Priorität | P1 |
-| Status | active |
-| Implementation Status | implemented |
-| Validation Status | not executed |
-| Release Status | unreleased |
+| Status | `active` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Caller ist Default und wird bei SQL Authentication abgelehnt; ServiceAccount ist explizit; absolute Pfade und Reparse Points sind gesperrt; I/O arbeitet begrenzt/gestreamt; Write nutzt atomare Staging-Dateien; rekursives Delete besitzt Tiefe-/Eintragslimits; Linux ist korrekt not applicable. |
 | Tests | Statischer Vertragscheck und GitHub-Windows-Build; manueller Windows-SQL-Server-/NTFS-Test für Deployment, beide Identitätsmodi, Codepages, Limits, Reparse Points, atomare Writes und rekursives Delete. |
 | Blocker | Runtime-Evidenz auf Windows ist noch nicht ausgeführt. |
-| Evidenz | Benutzerfreigabe am 2026-07-31; Modul- und Architekturartefakte im Pull Request. |
-| Nächster Schritt | Pull-Request-Checks ausführen; nach Merge den manuellen Windows-Test vorbereiten und dessen abstrahierte Ergebnisse erfassen. |
+| Evidenz | Benutzerfreigabe am 2026-07-31; Implementierung und Windows-Build-/Static-Contract-Artefakte auf `main`; Build-Nachweis im Wartungslauf https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356. |
+| Nächster Schritt | Manuellen Windows-SQL-Server-/NTFS-Runtime-Test gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` ausführen und ausschließlich abstrahierte Ergebnisse erfassen. |
 
 ## Abgeschlossene Arbeitspakete
+
+### AP-2026-024: TC-2026-037 File-Content-Slice 1
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-024` |
+| Ziel | Den portablen Read-only-Slice für kontrolliertes Text- und Binary-Lesen über `OPENROWSET(BULK...)` implementieren, registrieren und mit ausführbarer Evidenz belegen. |
+| Scope | `toolbelt.file.content` Version `1.0.0`, Root-Allowlist, `toolbelt_file.USP_LoadBinaryFile`, `toolbelt_file.USP_LoadTextFile`, lokales und zentrales Deployment, Dokumentation, statische sowie Runtime-/Lifecycle-Contracts. Keine Schreiboperationen und kein externer Worker. |
+| Dependencies | Keine Runtime-Modulabhängigkeit; administrative Bulk-Read-Berechtigung beziehungsweise Ad-hoc-Distributed-Queries entsprechend Deploymentvertrag. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
+| Akzeptanzkriterien | Absolute Pfade nur innerhalb freigegebener Roots; Traversal-Ablehnung; Text/Binary-Vertrag, BOM-/Encoding-Metadaten, Limits, Hilfe, Deployment und Uninstall vorhanden. |
+| Tests | SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; statischer Vertrag, synthetische UTF-8-/UTF-16-/ANSI-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall. |
+| Blocker | Kein Merge-Blocker. Windows sowie nicht-ASCII-spezifische Providergrenzen bleiben Releasevalidierung. |
+| Evidenz | Wartungslauf https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356. |
+| Nächster Schritt | Physische Windows-Evidenz nur capabilitybezogen beziehungsweise vor Release ergänzen; Schreiboperationen werden durch den getrennten Windows-Provider abgedeckt. |
+
+### AP-2026-022: SQL CLR ZIP Build-/Deployment-Spike
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-022` |
+| Ziel | Den technisch kleinsten SQL-CLR-Providerpfad für ZIP Method 8 mit einer minimalen `SAFE`-Assembly kontrolliert bauen, deployen, ausführen und wieder entfernen. |
+| Scope | C#-Projekt für .NET Framework 4.8; Raw-Deflate über `DeflateStream` aus der unterstützten `System.dll`; eigene CRC32-Prüfung; SHA2-512-Trust-Manifest; binäres `CREATE ASSEMBLY`; getrennte Trust-, Deploy-, Verify- und Uninstall-Skripte; positiver SQL-Server-2022-Linux-Runtime-Gate. Keine produktive ZIP-Funktion, keine öffentliche API und kein Modulmanifest. |
+| Dependencies | `AP-2026-021`, `ZIP_CLR_PROVIDER_DESIGN.md`, `CLR_SECURITY_AND_PORTABILITY.md`, .NET-Framework-4.8-Targeting-Pack, MSBuild, SQLCMD und eine disposable SQL-Server-Testinstanz. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Akzeptanzkriterien | Keine direkte Referenz auf `System.IO.Compression.dll` oder `ZipArchive`; `DeflateStream` wird aus `System.dll` geladen; die Testassembly bleibt `SAFE`; der Trust-Hash entsteht aus dem konkreten Binary; Deployment benötigt keinen serverlokalen Buildpfad; tatsächlicher CLR-Aufruf prüft Payload und CRC32; kein Skript setzt `TRUSTWORTHY ON`, deaktiviert `clr strict security` oder verwendet `EXTERNAL_ACCESS`/`UNSAFE`; Uninstall berührt keinen Trust-Eintrag. |
+| Tests | Statische Vertragsprüfung, Windows-GitHub-hosted .NET-Framework-Build und positiver SQL-Server-2022-Linux-Lauf mit Trust, `CREATE ASSEMBLY`, Deflate-/CRC32-Ausführung und Uninstall sind erfolgreich. SQL Server 2019, SQL Server 2025 und Windows-Runtime bleiben separate Pflichtläufe vor Produktfreigabe. |
+| Blocker | Kein bekannter technischer Blocker für den korrigierten Deflate-/CRC32-Spike. Der frühere Fehler 10301 entstand durch den ungeeigneten `ZipArchive`-Pfad und die direkte Abhängigkeit von `System.IO.Compression.dll`. |
+| Evidenz | `Spikes/sql-clr-zip-provider/README.md`, `Source/ZipClrProbe.cs`, `Tests/Static/validate_spike.py`, `.github/workflows/sql-clr-zip-spike.yml` und SQL CLR ZIP Spike Run 30608612435. |
+| Nächster Schritt | Historische Spike-Evidenz beibehalten; die produktive Implementierung und weitere Plattformvalidierung werden in `AP-2026-020` geführt. |
+
+### AP-2026-021: TC-2026-034 Verarbeitungswelle 3 (CLR-Provider Vertragswelle)
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-021` |
+| Ziel | Den separaten CLR-Providervertrag für `TC-2026-034` abschließen und die Sicherheits-, Lifecycle- und Plattformgrenzen vor einer Implementierung verbindlich festlegen. |
+| Scope | Keine Runtime-Implementierung. Der Vertrag begrenzt einen optionalen C#-SQL-CLR-Provider auf In-memory-Extraktion einzelner Entries mit ZIP Method 0 und 8, einschließlich Payload-CRC-Prüfung; Dateisystem, Verschlüsselungsentschlüsselung, Deflate64, ZIP-Erzeugung und weitere Formate bleiben ausgeschlossen. |
+| Dependencies | `AP-2026-020`, `TC-2026-034`, `Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md`, `Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md`, Datenschutz- und Lifecycle-Regeln. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Akzeptanzkriterien | Klarer Provider-Schnitt mit explizitem Non-Goal gegen Dateisystem-Default, definiertem Methodensubset (0 und 8), expliziter Payload-CRC-Prüfung, dokumentiertem Sicherheitsweg ohne pauschales `TRUSTWORTHY ON` sowie definiertem Assembly-Lifecycle und Test-/Spike-Gates. |
+| Tests | Vertrags- und Designkonsistenz sowie dokumentierte Build-/Trust- und Runtime-Matrix. Diese Welle behauptet keine Runtime-Evidenz. |
+| Blocker | Keine. Der Vertrag wurde durch die produktive SAFE-SQL-CLR-Implementierung erfüllt. |
+| Evidenz | Benutzerauftrag vom 2026-07-30; Architekturvertrag `ZIP_CLR_PROVIDER_DESIGN.md`; Spike-Quellartefakte in `Spikes/sql-clr-zip-provider/`. |
+| Nächster Schritt | Keine weitere Vertragswelle erforderlich; verbleibende Windows-Evidenz wird in `AP-2026-020` nachgeführt. |
+
+### AP-2026-020: TC-2026-034 Verarbeitungswelle 2 (Implementierungswelle V1A)
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-020` |
+| Ziel | Den freigegebenen V1A-Slice von `TC-2026-034` als erstes lauffaehiges ZIP-Modul implementieren, dokumentieren und mit Runtime-Evidenz belegen. |
+| Scope | `toolbelt.archive.zip-memory` Version `1.1.0` mit In-memory-Extraktion einzelner Eintraege aus `varbinary(max)`; kein Dateisystemzugriff, keine Archiv-Erzeugung, keine rekursive Entpackung, keine Passwortentschluesselung. |
+| Dependencies | Abgeschlossene Vertragswelle `AP-2026-019`, Kandidaten `TC-2026-033` und `TC-2026-034`, Moduldesign `ZIP_ARCHIVE_MODULE_DESIGN.md`, USP-Vertrag, Modul- und Lifecycle-Regeln. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
+| Akzeptanzkriterien | Ein oeffentliches Objekt mit stabilem Help-/Fehler-/Resultset-Vertrag; Duplicate-Entry-Semantik als expliziter Fehler; harte Default-Limits (`@MaxEntryBytes = 104857600`, `@MaxCompressionRatio = 200.00`); verschluesselte Eintraege liefern bei `@FailIfEncrypted = 0` einen expliziten Status ohne Payload; lokale und zentrale Lifecycle-Artefakte sowie statische und Runtime-Tests vorhanden. |
+| Tests | Windows-.NET-Framework-4.8-Build sowie SQL Server 2019, 2022 und 2025 unter Linux; auf SQL Server 2025 Compatibility Levels 150, 160 und 170. Trust, Stored, Deflate, Data Descriptor, Encoding, CRC32, Limits, ResultTable, Wiederholungsdeployment, Central und Uninstall erfolgreich. |
+| Blocker | Kein Merge-Blocker. Windows-SQL-Server-Runtime und echte Extremgrößen-/Ressourcenläufe bleiben offen. |
+| Evidenz | Produktives Modul `toolbelt.archive.zip-memory` Version `1.1.0`; Workflow [30615544206](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206) erfolgreich. |
+| Nächster Schritt | Windows-SQL-Server-Runtime gezielt ausführen; ZIP-Erzeugung und vollständige Dateisystemextraktion bleiben getrennte spätere Slices. |
 
 ### AP-2026-019: TC-2026-034 Verarbeitungswelle 1 (Vertragswelle)
 

@@ -57,3 +57,5 @@ besitzt `ADMINISTER BULK OPERATIONS`.
 - [Testmatrix](Tests/FILE_CONTENT_CONTRACT_TEST_MATRIX.md)
 
 Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung.
+
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356

@@ -230,6 +230,23 @@ def parse_repo_map() -> tuple[list[str], dict[str, dict[str, list[str]]], list[s
     return manifests, packages, full_audit_paths
 
 
+
+def validate_module_registry(manifest_paths: list[str]) -> None:
+    """Vergleicht die explizite Registry mit allen vorhandenen Modulmanifesten."""
+
+    discovered = sorted(
+        path.relative_to(REPOSITORY_ROOT).as_posix()
+        for path in (REPOSITORY_ROOT / "Modules").glob("*/module.yaml")
+    )
+    registered = sorted(manifest_paths)
+    missing = sorted(set(discovered) - set(registered))
+    stale = sorted(set(registered) - set(discovered))
+    if missing or stale:
+        raise ValidationError(
+  "Modulregistry und Dateisystem weichen voneinander ab: "
+  f"nicht registriert={missing}, ohne Manifest={stale}"
+        )
+
 def changed_paths(base: str, head: str) -> list[str]:
     output = run_git("diff", "--name-only", "--diff-filter=ACMRD", base, head)
     return sorted({line.strip() for line in output.splitlines() if line.strip()})
@@ -1188,6 +1205,7 @@ def main() -> int:
         raise ValidationError("Entweder --base oder --all ist erforderlich.")
 
     manifests, packages, full_audit_paths = parse_repo_map()
+    validate_module_registry(manifests)
     zero_base = bool(arguments.base) and not arguments.base.strip("0")
     changed = (
         []

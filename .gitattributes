@@ -34,7 +34,3 @@
 *.ico       binary
 *.nupkg     binary
 *.snupkg    binary
-
-# Runtime-Test-Fixtures für toolbelt.file.content (BOM/Encoding-Tests)
-# müssen bytegenau erhalten bleiben.
-Modules/toolbelt.file.content/Tests/Runtime/fixtures/*    binary

@@ -37,3 +37,7 @@ sqlcmd -S localhost -d master -i Modules/toolbelt.file.content/Tests/Runtime/Fil
   Contract-Test enthalten, um plattformunabhängige CI-Ausführung zu ermöglichen.
 - `OPENROWSET(BULK...)` erfordert `ad hoc distributed queries` oder
   `ADMINISTER BULK OPERATIONS`.
+
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356
+
+Die binären Runtime-Fixtures werden durch `Tests/CI/run-file-content-linux.sh` deterministisch und bytegenau unter `.runtime/file-content-fixtures` erzeugt. Sie werden nicht in Git gespeichert.
