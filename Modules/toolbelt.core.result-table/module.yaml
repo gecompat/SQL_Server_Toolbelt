@@ -81,6 +81,7 @@ documentation:
     - "../../Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md"
   test_matrix:
     - "../../Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md"
+    - "Tests/Manual_Windows_Runtime_Testplan.md"
   evidence:
     - "../../Tests/CI/README.md"
 
@@ -98,8 +99,10 @@ tests:
   central: "Tests/Runtime/Central.Contract.sql"
   collation: "Tests/Runtime/Collation.Contract.sql"
   boundary_transaction: "Tests/Runtime/BoundaryAndTransaction.Contract.sql"
+  savepoint_engine_error: "Tests/Runtime/SavepointEngineError.Contract.sql"
   multi_session: "Tests/Runtime/MultiSession.Contract.sql"
   performance_workload: "Tests/Runtime/Performance.Workload.sql"
+  manual_windows: "Tests/Manual_Windows_Runtime_Testplan.md"
   github_hosted_linux: "../../.github/workflows/result-table-runtime.yml"
 
 validation_evidence:
@@ -114,4 +117,8 @@ validation_evidence:
   - date: "2026-07-29"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717"
     scope: "SQL Server 2019, 2022 and 2025 full suite including four concurrent sessions with identical logical local temp-table names; GitHub-hosted Linux"
+    result: "success"
+  - date: "2026-08-01"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855"
+    scope: "SQL Server 2019, 2022 und 2025 Linux; vollständige Suite einschließlich natürlichem Enginefehler 2705 nach begonnener Mutation, Savepoint-Rollback von Schema und Daten sowie Erhalt der Caller-Transaktion"
     result: "success"

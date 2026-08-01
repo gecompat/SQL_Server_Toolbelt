@@ -98,7 +98,7 @@ freigegebenes Arbeitspaket aktiv.
 |---|---|---|---|
 | `TC-2026-001` | `toolbelt.string.split-characters` | `toolbelt_string.TVF_SplitByCharacters` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; `TC-2026-032` bleibt getrennt. |
 | `TC-2026-002` | `toolbelt.datetime.calendar-difference` | `toolbelt_datetime.TVF_CalendarDifference` | Physische SQL-Server-2019-/2022- und Windows-Evidenz sowie offene Kollisionsfälle. |
-| `TC-2026-003` | `toolbelt.core.result-table` | `toolbelt_core.USP_PrepareResultTable` | Windows, natürlicher Savepoint-Fehlerfall und vergleichbare plattformübergreifende Performance-Evidenz. |
+| `TC-2026-003` | `toolbelt.core.result-table` | `toolbelt_core.USP_PrepareResultTable` | Windows und vergleichbare plattformübergreifende Performance-Evidenz; natürlicher Savepoint-Fehlerfall 2705 ist auf SQL Server 2019/2022/2025 Linux validiert. |
 | `TC-2026-006` | `toolbelt.core.generate-series` | `toolbelt_core.TVF_GenerateSeriesBigInt`, `toolbelt_core.TVF_GenerateSeriesInt` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
 | `TC-2026-008` | `toolbelt.string.directional-trim` | `toolbelt_string.TVF_TrimDirectionalNvarchar`, `toolbelt_string.TVF_TrimDirectionalVarchar` | Weitere Collations und physische SQL-Server-2019-/2022- und Windows-Evidenz. |
 | `TC-2026-012` | `toolbelt.conversion.base64` | `toolbelt_conversion.TVF_Base64Encode`, `toolbelt_conversion.TVF_Base64Decode`, `toolbelt_conversion.SVF_Base64Encode`, `toolbelt_conversion.SVF_Base64Decode` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |

@@ -170,6 +170,8 @@ Workflows und begründen keine allgemeine Performance-Zusage. Eine
 plattformübergreifend vergleichbare Performance-Baseline ist weiterhin
 `not executed`.
 
+Der natürliche Fehlerpfad wurde im [GitHub-Actions-Lauf 30692956855](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855) auf SQL Server 2019, 2022 und 2025 unter Linux mit Enginefehler 2705 geprüft. Der Savepoint stellte Zielschema und vor `TRUNCATE` vorhandene Daten wieder her; Caller-Marker, `XACT_STATE()` und `@@TRANCOUNT` blieben erhalten.
+
 ## Beispiel
 
 Siehe [PrepareResultTable.sql](../Examples/PrepareResultTable.sql).

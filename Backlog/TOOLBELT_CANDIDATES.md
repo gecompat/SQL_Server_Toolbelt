@@ -73,7 +73,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [USP_CONTRACT.md](../Documentation/Standards/USP_CONTRACT.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/object-id-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Windows-Validierung, natürlichen Savepoint-Rollback nach einem Enginefehler und eine vergleichbare plattformübergreifende Performance-Baseline gezielt nachholen. |
+| **Nächster Schritt** | Windows-Validierung und eine vergleichbare plattformübergreifende Performance-Baseline gemäß manuellem Testplan gezielt nachholen; der natürliche Savepoint-Enginefehler ist auf SQL Server 2019, 2022 und 2025 Linux validiert. |
 
 ## TC-2026-004: DATETRUNC-Kompatibilität für SQL Server 2019
 
