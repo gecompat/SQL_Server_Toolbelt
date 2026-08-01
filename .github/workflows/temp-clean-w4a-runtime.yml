@@ -1,0 +1,49 @@
+name: Temporary Clean W4a Runtime Payloads
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/temp-clean-w4a-runtime.yml
+
+permissions:
+  contents: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Remove obsolete payload files
+        shell: bash
+        run: |
+          rm -f \
+            .runtime/w4a-payload.b64.00 \
+            .runtime/w4a-payload.b64.01 \
+            .runtime/w4a-payload.b64.02 \
+            .runtime/w4a-payload.b64.03 \
+            .runtime/w4a-payload.b64.04 \
+            .runtime/w4a-payload.b64.05 \
+            .runtime/w4a-payload.tar.gz
+      - name: Validate cleaned repository
+        run: |
+          python3 Modules/toolbelt.core.error-envelope/Tests/Static/validate_contract.py
+          python3 Modules/toolbelt.core.execution-context/Tests/Static/validate_contract.py
+          python3 Tests/Documentation/validate_documentation.py --all
+      - name: Commit cleanup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A .runtime
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "ChatGPT [LLM: GPT-5.6 Thinking]: Entferne temporäre W4a-Payloads"
+          git push origin HEAD:${{ github.head_ref }}
