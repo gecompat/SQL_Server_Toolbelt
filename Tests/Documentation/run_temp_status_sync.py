@@ -57,7 +57,7 @@ def main() -> int:
     inbox_replacement = "\n".join(inbox_lines)
     script, changes = re.subn(
         r"# Research-Inbox muss exakt.*?save\(inbox, text\)\n",
-        inbox_replacement,
+        lambda _match: inbox_replacement,
         script,
         count=1,
         flags=re.DOTALL,
