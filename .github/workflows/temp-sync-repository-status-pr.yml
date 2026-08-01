@@ -72,6 +72,39 @@ jobs:
               r'field_pattern = rf"^\| \*\*{re.escape(field)}\*\* \|.*?\|$"',
               r'field_pattern = rf"^\| \*\*{re.escape(field)}\*\* \|.*$"',
           )
+          inbox_replacement = r'''# Research-Inbox erhält die tatsächlich formalisierten und implementierten Providerstände.
+          inbox = "Backlog/TOOLBELT_RESEARCH_INBOX.md"
+          text = load(inbox)
+          rows = (
+              ("RI-2026-113", "TC-2026-034", "ZIP-Archive kontrolliert extrahieren und erzeugen", status_034),
+              ("RI-2026-107", "TC-2026-037", "Kontrolliertes Lesen und Schreiben von Text- und Binärdateien", status_037),
+              ("RI-2026-108", "TC-2026-038", "Kontrolliertes Directory Listing", status_038),
+          )
+          insertion_marker = "\n## Bereits vorhandene Kandidaten – zusätzliche Fundstellen\n"
+          for research_id, candidate, title, status in rows:
+              row = f"| `{research_id}` | `{candidate}` – {title} | {status} |"
+              pattern = rf"^\| `{re.escape(research_id)}` \| `{re.escape(candidate)}`.*$"
+              if re.search(pattern, text, flags=re.MULTILINE):
+                  text = re.sub(pattern, row, text, count=1, flags=re.MULTILINE)
+              else:
+                  if insertion_marker not in text:
+                      raise RuntimeError("Research inbox insertion marker missing")
+                  text = text.replace(insertion_marker, "\n" + row + insertion_marker, 1)
+          save(inbox, text)
+'''
+          inbox_replacement = '\n'.join(
+              line[10:] if line.startswith('          ') else line
+              for line in inbox_replacement.splitlines()
+          )
+          script, inbox_changes = re.subn(
+              r"# Research-Inbox muss exakt.*?save\(inbox, text\)\n",
+              inbox_replacement,
+              script,
+              count=1,
+              flags=re.DOTALL,
+          )
+          if inbox_changes != 1:
+              raise SystemExit('Research inbox patch block was not found.')
           exec(compile(script, 'temp-sync-repository-status.yml', 'exec'))
           PY
       - name: Validate File Content static contract
