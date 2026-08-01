@@ -22,6 +22,20 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
+      - name: Correct generated validator escaping
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('Tests/Documentation/generate_w4a_execution_foundations.py')
+          text = path.read_text(encoding='utf-8')
+          old = "all_source='\\n'.join((root/p).read_text('utf-8') for p in required if p.startswith('Source/'))"
+          new = "all_source='\\\\n'.join((root/p).read_text('utf-8') for p in required if p.startswith('Source/'))"
+          if text.count(old) != 1:
+              raise SystemExit('Der erwartete Execution-Context-Validatorausdruck wurde nicht eindeutig gefunden.')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8', newline='\n')
+          PY
       - name: Generate W4a modules and repository metadata
         run: python3 Tests/Documentation/generate_w4a_execution_foundations.py
       - name: Validate static contracts
@@ -44,7 +58,11 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git reset -- \
+            .runtime \
             .github/workflows/temp-generate-w4a-execution-foundations.yml \
+            .github/workflows/temp-w4a-apply.yml \
+            .github/workflows/temp-w4a-snapshot.yml \
+            .github/workflows/temp-w4a-snapshot-pr.yml \
             Tests/Documentation/generate_w4a_execution_foundations.py
           if git diff --cached --quiet; then
             echo "Keine W4a-Änderungen zu committen."
