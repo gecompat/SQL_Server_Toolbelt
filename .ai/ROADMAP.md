@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 21 Module sind implementiert. 20 sind `partially validated`,
+abgeschlossen. 22 Module sind implementiert. 21 sind `partially validated`,
 ein Modul ist `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
@@ -337,6 +337,15 @@ Windows- und modulspezifische Releasefälle bleiben offen.
 **Status:** `completed`; Runtime `partially validated`
 
 `toolbelt.core.execution-context` verwaltet Execution-ID, Correlation-ID, Actor, Tenant und verschachtelten ScopeDepth über `SESSION_CONTEXT`. Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948.
+
+### Phase 2.11 – Work-Type-Katalog
+
+**Status:** `completed`; Runtime `partially validated`
+
+`toolbelt.core.work-type` registriert ausschließlich vorhandene Stored Procedures,
+schließt Raw SQL aus und schützt Änderungen mit expliziten Flags und `rowversion`.
+Die erste persistente Tabellenkonvention ist in `DEC-2026-025` festgehalten.
+Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703294213.
 
 ### Phase 2.6 – Portable File Content
 

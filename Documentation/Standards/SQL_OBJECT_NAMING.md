@@ -48,7 +48,30 @@ Regeln:
 - Benutzer dürfen den reservierten Präfix `#tbx_` nicht als `@ResultTable` beziehungsweise `@ResultTableToAlter` verwenden;
 - lokale Temp-Tabellennamen bleiben einschließlich Präfix und Suffix innerhalb des SQL-Server-Limits.
 
-Diese Regel gilt nur für interne lokale Temp-Objekte. Die Namenskonvention für persistente Tabellen bleibt offen.
+Diese Regel gilt nur für interne lokale Temp-Objekte.
+
+## Persistente Tabellen, Constraints und Indizes
+
+Persistente Tabellen verwenden im fachlichen `toolbelt_<category>`-Schema einen verständlichen singulären `CamelCase`-Namen ohne Typpräfix.
+
+Beispiel:
+
+```text
+toolbelt_core.WorkType
+```
+
+Verbindliche Präfixe für abhängige Objekte:
+
+| Objekttyp | Präfix | Beispiel |
+|---|---|---|
+| Primary Key | `PK_` | `PK_WorkType` |
+| Unique Constraint | `UQ_` | `UQ_WorkType_WorkTypeName` |
+| Foreign Key | `FK_` | `FK_WorkItem_WorkType` |
+| Check Constraint | `CK_` | `CK_WorkType_ParameterMode` |
+| Default Constraint | `DF_` | `DF_WorkType_IsEnabled` |
+| regulärer Index | `IX_` | `IX_WorkType_IsEnabled_WorkTypeName` |
+
+Spalten sind englisch und `CamelCase`. Systemgenerierte Constraintnamen sind unzulässig. Eine persistente Tabelle ist standardmäßig ein internes Modulobjekt; ein öffentlicher Tabellenzugriff muss im Manifest ausdrücklich deklariert werden.
 
 ## Sprache und Eindeutigkeit
 
@@ -68,11 +91,10 @@ Vermeide unspezifische Verb-Namen wie `Read`, wenn ein präziser Name wie `LoadT
 
 Für folgende persistente Objekttypen besteht noch keine Konvention:
 
-- Tabellen
 - Synonyme
 - Assemblies
 - Trigger
 - Sequences
 - Types
 
-Beim ersten tatsächlichen Bedarf ist der Benutzer zu fragen und `DEC-2026-003` zu aktualisieren oder zu ersetzen. Keine Präfixe spekulativ erfinden.
+Beim ersten tatsächlichen Bedarf eines weiterhin offenen Objekttyps ist die Konvention als Architekturentscheidung festzuhalten. Keine Präfixe spekulativ erfinden.

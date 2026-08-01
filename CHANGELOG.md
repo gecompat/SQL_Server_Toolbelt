@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-08-01 – W4b Work-Type-Katalog
+
+- `toolbelt.core.work-type` Version `1.0.0` implementiert.
+- Persistente Tabelle `toolbelt_core.WorkType` mit expliziten Constraint-/Indexnamen und `rowversion`.
+- Register, Disable, Resolve, View, ResultTable, Concurrency, Redeploy, Central und Data-Loss-Uninstall-Schutz.
+- `DEC-2026-025` schließt die Tabellen-/Constraint-/Index-Namenskonvention.
+- SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703294213.
+
 Alle wesentlichen Änderungen an SQL Server Toolbelt werden hier dokumentiert.
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
@@ -186,7 +194,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-21 Module sind implementiert. 20 sind `partially validated`, ein Modul ist
+22 Module sind implementiert. 21 sind `partially validated`, ein Modul ist
 `not executed`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und
 2025 erfolgreich; die übrigen bereits teilweise validierten Module sind
 auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
