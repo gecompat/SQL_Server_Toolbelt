@@ -45,32 +45,50 @@ jobs:
           import re
           from pathlib import Path
 
-          manifests = (
-              Path('Modules/toolbelt.core.error-envelope/module.yaml'),
-              Path('Modules/toolbelt.core.execution-context/module.yaml'),
-          )
-          replacements = {
+          manifest_contracts = {
+              Path('Modules/toolbelt.core.error-envelope/module.yaml'): {
+                  'public_objects': ['Documentation/USP_CaptureErrorEnvelope.md'],
+                  'architecture': ['../../Documentation/Architecture/ERROR_ENVELOPE_MODULE_DESIGN.md'],
+                  'test_matrix': ['Tests/ERROR_ENVELOPE_CONTRACT_TEST_MATRIX.md'],
+                  'evidence': ['Tests/README.md'],
+              },
+              Path('Modules/toolbelt.core.execution-context/module.yaml'): {
+                  'public_objects': ['Documentation/EXECUTION_CONTEXT_OBJECTS.md'],
+                  'architecture': ['../../Documentation/Architecture/EXECUTION_CONTEXT_MODULE_DESIGN.md'],
+                  'test_matrix': ['Tests/EXECUTION_CONTEXT_CONTRACT_TEST_MATRIX.md'],
+                  'evidence': ['Tests/README.md'],
+              },
+          }
+          list_replacements = {
               'sql_server_versions': ['"2019"', '"2022"', '"2025"'],
               'compatibility_levels': ['150', '160', '170'],
               'schemas': ['"toolbelt_core"'],
           }
-          for path in manifests:
+
+          for path, documentation in manifest_contracts.items():
               text = path.read_text(encoding='utf-8')
-              for key, values in replacements.items():
+              for key, values in list_replacements.items():
                   pattern = rf'(?m)^{re.escape(key)}:\s*\[[^\n]*\]\s*$'
-                  block = key + ':\n' + ''.join(f'  - {value}\n' for value in values).rstrip('\n')
-                  text, changed = re.subn(pattern, block, text, count=1)
+                  block = key + ':\n' + '\n'.join(f'  - {value}' for value in values)
+                  text, changed = re.subn(pattern, lambda _match, value=block: value, text, count=1)
                   if changed != 1:
                       raise SystemExit(f'{path}: kompakte Liste {key} wurde nicht eindeutig gefunden.')
-              if re.search(r'(?m)^  evidence:\s*$', text) is None:
-                  marker = '\ncontracts:\n'
-                  if marker not in text:
-                      raise SystemExit(f'{path}: contracts-Marke für documentation.evidence fehlt.')
-                  text = text.replace(
-                      marker,
-                      '  evidence:\n    - "Tests/README.md"\n' + marker,
-                      1,
+
+              documentation_lines = ['documentation:', '  module: "README.md"']
+              for key in ('public_objects', 'architecture', 'test_matrix', 'evidence'):
+                  documentation_lines.append(f'  {key}:')
+                  documentation_lines.extend(
+                      f'    - "{value}"' for value in documentation[key]
                   )
+              documentation_block = '\n'.join(documentation_lines) + '\n'
+              text, changed = re.subn(
+                  r'(?ms)^documentation:\n.*?(?=^contracts:\n)',
+                  lambda _match, value=documentation_block: value,
+                  text,
+                  count=1,
+              )
+              if changed != 1:
+                  raise SystemExit(f'{path}: documentation-Block wurde nicht eindeutig gefunden.')
               path.write_text(text, encoding='utf-8', newline='\n')
           PY
       - name: Validate static contracts
@@ -103,5 +121,5 @@ jobs:
             echo "Keine W4a-Änderungen zu committen."
             exit 0
           fi
-          git commit -m "ChatGPT: Implementiere W4a Execution-Grundlagen"
+          git commit -m "ChatGPT [LLM: GPT-5.6 Thinking]: Implementiere W4a Execution-Grundlagen"
           git push origin HEAD:${{ github.head_ref }}
