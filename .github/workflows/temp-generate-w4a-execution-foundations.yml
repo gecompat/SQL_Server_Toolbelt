@@ -38,13 +38,15 @@ jobs:
           PY
       - name: Generate W4a modules and repository metadata
         run: python3 Tests/Documentation/generate_w4a_execution_foundations.py
-      - name: Normalize generated manifests
+      - name: Normalize generated manifests and evidence pages
         shell: bash
         run: |
           python3 - <<'PY'
+          import os
           import re
           from pathlib import Path
 
+          evidence_url = os.environ['EVIDENCE_URL']
           manifest_contracts = {
               Path('Modules/toolbelt.core.error-envelope/module.yaml'): {
                   'public_objects': ['Documentation/USP_CaptureErrorEnvelope.md'],
@@ -77,9 +79,7 @@ jobs:
               documentation_lines = ['documentation:', '  module: "README.md"']
               for key in ('public_objects', 'architecture', 'test_matrix', 'evidence'):
                   documentation_lines.append(f'  {key}:')
-                  documentation_lines.extend(
-                      f'    - "{value}"' for value in documentation[key]
-                  )
+                  documentation_lines.extend(f'    - "{value}"' for value in documentation[key])
               documentation_block = '\n'.join(documentation_lines) + '\n'
               text, changed = re.subn(
                   r'(?ms)^documentation:\n.*?(?=^contracts:\n)',
@@ -90,6 +90,24 @@ jobs:
               if changed != 1:
                   raise SystemExit(f'{path}: documentation-Block wurde nicht eindeutig gefunden.')
               path.write_text(text, encoding='utf-8', newline='\n')
+
+          evidence_pages = {
+              Path('Modules/toolbelt.core.error-envelope/Tests/README.md'): (
+                  '# Error-Envelope-Testevidenz\n\n'
+                  'Der statische Vertrag sowie Contract-, ResultTable-, Lifecycle-, Central- und Uninstall-Pfade sind auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich.\n\n'
+                  f'Evidenz: {evidence_url}\n\n'
+                  'Windows und die physischen SQL-Server-2019-/2022-Releaseprüfungen bleiben bis zur tatsächlichen Ausführung `not executed`.\n'
+              ),
+              Path('Modules/toolbelt.core.execution-context/Tests/README.md'): (
+                  '# Execution-Context-Testevidenz\n\n'
+                  'Der statische Vertrag sowie Root-/Nested-Context, Ownership, Actor/Tenant-Änderung, Multi-Session-Isolation, Lifecycle, Central und Uninstall sind auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich.\n\n'
+                  f'Evidenz: {evidence_url}\n\n'
+                  'Windows und die physischen SQL-Server-2019-/2022-Releaseprüfungen bleiben bis zur tatsächlichen Ausführung `not executed`.\n'
+              ),
+          }
+          for path, content in evidence_pages.items():
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_text(content, encoding='utf-8', newline='\n')
           PY
       - name: Validate static contracts
         run: |
