@@ -55,7 +55,6 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
-          import textwrap
 
           workflow = Path('.github/workflows/temp-sync-repository-status.yml').read_text(encoding='utf-8')
           match = re.search(
@@ -65,7 +64,10 @@ jobs:
           )
           if match is None:
               raise SystemExit('Embedded synchronization script was not found.')
-          script = textwrap.dedent(match.group('script'))
+          script = '\n'.join(
+              line[10:] if line.startswith('          ') else line
+              for line in match.group('script').splitlines()
+          )
           exec(compile(script, 'temp-sync-repository-status.yml', 'exec'))
           PY
       - name: Validate File Content static contract
