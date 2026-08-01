@@ -153,6 +153,36 @@ def patch_transaction_test() -> None:
     path.write_text(text, encoding="utf-8", newline="\n")
 
 
+def patch_runner() -> None:
+    path = Path("Tests/CI/run-w4b-work-type-linux.sh")
+    text = path.read_text(encoding="utf-8")
+    old = (
+        "set +e\n"
+        "uninstall \"${local_db}\" Modules/toolbelt.core.work-type 0 0 >/tmp/w4b-uninstall.out 2>&1\n"
+        "uninstall_rc=$?\n"
+        "set -e\n"
+        "if [[ \"${uninstall_rc}\" -eq 0 ]]; then\n"
+        "  cat /tmp/w4b-uninstall.out\n"
+        "  echo \"Uninstall ohne AllowDataLoss hätte fehlschlagen müssen.\" >&2\n"
+        "  exit 1\n"
+        "fi\n"
+    )
+    new = (
+        "set +e\n"
+        "uninstall \"${local_db}\" Modules/toolbelt.core.work-type 0 0 >/tmp/w4b-uninstall.out 2>&1\n"
+        "uninstall_rc=$?\n"
+        "set -e\n"
+        "cat /tmp/w4b-uninstall.out\n"
+        "if ! grep -q \"51549\" /tmp/w4b-uninstall.out; then\n"
+        "  echo \"Der erwartete Data-Loss-Fehler 51549 fehlt; Exitcode=${uninstall_rc}.\" >&2\n"
+        "  exit 1\n"
+        "fi\n"
+        "run_query \"${local_db}\" \"IF OBJECT_ID(N'toolbelt_core.WorkType', N'U') IS NULL OR NOT EXISTS (SELECT 1 FROM toolbelt_core.WorkType WHERE WorkTypeName='test.uninstall') THROW 52551, N'Der abgelehnte Uninstall veränderte Katalog oder Testzeile.', 1;\"\n"
+    )
+    text = replace_once(text, old, new, "Data-Loss-Uninstall-Test")
+    path.write_text(text, encoding="utf-8", newline="\n")
+
+
 def patch_generated() -> None:
     patch_table()
     patch_register_debug()
@@ -165,6 +195,7 @@ def patch_generated() -> None:
         "TBX_WorkType_Disable",
     )
     patch_transaction_test()
+    patch_runner()
 
 
 def main() -> None:
