@@ -81,6 +81,7 @@ documentation:
     - "../../Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md"
   test_matrix:
     - "../../Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md"
+    - "Tests/Manual_Windows_Runtime_Testplan.md"
   evidence:
     - "../../Tests/CI/README.md"
 
@@ -98,8 +99,10 @@ tests:
   central: "Tests/Runtime/Central.Contract.sql"
   collation: "Tests/Runtime/Collation.Contract.sql"
   boundary_transaction: "Tests/Runtime/BoundaryAndTransaction.Contract.sql"
+  savepoint_engine_error: "Tests/Runtime/SavepointEngineError.Contract.sql"
   multi_session: "Tests/Runtime/MultiSession.Contract.sql"
   performance_workload: "Tests/Runtime/Performance.Workload.sql"
+  manual_windows: "Tests/Manual_Windows_Runtime_Testplan.md"
   github_hosted_linux: "../../.github/workflows/result-table-runtime.yml"
 
 validation_evidence:
