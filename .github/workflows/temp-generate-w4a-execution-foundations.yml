@@ -38,7 +38,7 @@ jobs:
           PY
       - name: Generate W4a modules and repository metadata
         run: python3 Tests/Documentation/generate_w4a_execution_foundations.py
-      - name: Normalize generated manifest lists
+      - name: Normalize generated manifests
         shell: bash
         run: |
           python3 - <<'PY'
@@ -62,6 +62,15 @@ jobs:
                   text, changed = re.subn(pattern, block, text, count=1)
                   if changed != 1:
                       raise SystemExit(f'{path}: kompakte Liste {key} wurde nicht eindeutig gefunden.')
+              if re.search(r'(?m)^  evidence:\s*$', text) is None:
+                  marker = '\ncontracts:\n'
+                  if marker not in text:
+                      raise SystemExit(f'{path}: contracts-Marke für documentation.evidence fehlt.')
+                  text = text.replace(
+                      marker,
+                      '  evidence:\n    - "Tests/README.md"\n' + marker,
+                      1,
+                  )
               path.write_text(text, encoding='utf-8', newline='\n')
           PY
       - name: Validate static contracts
