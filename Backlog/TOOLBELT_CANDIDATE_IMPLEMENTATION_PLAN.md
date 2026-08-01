@@ -9,7 +9,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 19 Module sind implementiert; 18 sind `partially validated`, 1 ist `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 21 Module sind implementiert; 20 sind `partially validated`, 1 ist `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -77,7 +77,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 | `W2b-B` | `deferred` | JSON-Konstruktoren und Aggregate | `009` Slice B, `013` | Variable Konstruktoroberfläche beziehungsweise stabiler Aggregat-/CLR-Provider entschieden | Keine Implementierung; Aggregate bleiben während Preview zurückgestellt. |
 | `W2c` | `completed` | Console-Ausgabe und Runtime-Capability-Discovery | `016`, `023` | Provider-, Chunk-, Null-, Metadatenquellen- und Driftvertrag am 2026-07-30 freigegeben | Zwei Module implementiert und auf SQL Server 2025 Linux teilweise validiert. |
 | `W3` | `researched` | String-Parser und Matching | `010`, `011`, `032` | Syntaxsubset, Limits und Providervergleich entschieden | Getrennte Regex-, Fuzzy- und Quote-/Escape-Module. |
-| `W4` | `researched` | Weitere Execution-Grundlagen | `017`, `019`, `022` | Persistente Namenskonvention nur soweit tatsächlich benötigt | Error Envelope, Correlation und Work-Type-Katalog. |
+| `W4` | `active` | Weitere Execution-Grundlagen | `017`, `019`, `022` | Persistente Namenskonvention nur soweit tatsächlich benötigt | `toolbelt.core.error-envelope` und `toolbelt.core.execution-context` sind implementiert und auf SQL Server 2025 Linux teilweise validiert. Der persistente Work-Type-Katalog `TC-2026-022` bleibt als W4b offen. |
 | `W5` | `researched` | Session- und Ausführungsprovider | `046`, `014` | `017`, `019`, `022`; Provider- und Security-Entscheidung | Synchrone zweite Session und darauf aufbauendes rollback-unabhängiges Logging. |
 | `W6` | `researched` | Queue, Retry, Lease und Cancellation | `015`, `020`, `021`, `018` | `017`, `019`, `022`; Tabellenkonvention entschieden | Begrenzte, beobachtbare und wiederanlaufbare Work Queue. |
 | `W7` | `active` | Datei- und Host-Provider | `037`, `038`, `025`, `026`, `027` | Root-Allowlist, Pfad-/Encoding-Vertrag und Provider | `toolbelt.file.content` ist als portabler Read-only-Slice implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` implementiert Read/Write/Transcoding/Directory-Operationen; der manuelle Windows-Runtime-Nachweis bleibt offen. Externe Worker bleiben optional zurückgestellt. |
@@ -111,6 +111,8 @@ freigegebenes Arbeitspaket aktiv.
 | `TC-2026-007` | `toolbelt.binary.bit-operations` | `TVF_LeftShiftBigInt`, `TVF_RightShiftBigInt`, `TVF_BitCountBigInt`, `TVF_GetBitBigInt`, `TVF_SetBitBigInt` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Binary-Slice bleibt getrennt. |
 | `TC-2026-009` | `toolbelt.json.path-exists` | `toolbelt_json.TVF_JsonPathExists` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Konstruktoren bleiben getrennt. |
 | `TC-2026-016` | `toolbelt.core.console-message` | `toolbelt_core.USP_WriteConsoleMessage` | Physische 2019-/2022-, Windows- und weitere Client-/Treiber-Evidenz. |
+| `TC-2026-017` | `toolbelt.core.error-envelope` | `toolbelt_core.USP_CaptureErrorEnvelope` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Retry-Entscheidungen bleiben ausdrücklich außerhalb dieses Moduls. |
+| `TC-2026-019` | `toolbelt.core.execution-context` | `toolbelt_core.TVF_CurrentExecutionContext`, `toolbelt_core.SVF_CurrentExecutionId`, `toolbelt_core.USP_BeginExecution`, `toolbelt_core.USP_SetExecutionContext`, `toolbelt_core.USP_EndExecution` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung sowie Connection-Pooling-Evidenz. |
 | `TC-2026-023` | `toolbelt.metadata.capability-catalog` | `toolbelt_metadata.VW_ModuleCapabilities` | Physische 2019-/2022-, Windows- und eingeschränkte Metadata-Visibility. |
 | `TC-2026-034` | `toolbelt.archive.zip-memory` | `toolbelt_archive.USP_ExtractZipEntryFromBinary` | Windows-SQL-Server-Runtime und echte Extremgrößen; ZIP-Erzeugung bleibt ein separater Slice. |
 | `TC-2026-037` | `toolbelt.file.content`; `toolbelt.filesystem.windows` | `toolbelt_file.USP_LoadBinaryFile`, `toolbelt_file.USP_LoadTextFile`; Windows Read/Write/Transcoding-Procedures | File-Content-Windows-Releasevalidierung und manueller Windows-CLR-Runtime-Test; externer Worker nur bei Bedarf. |

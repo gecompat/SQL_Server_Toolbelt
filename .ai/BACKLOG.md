@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-19 Module sind implementiert. 18 sind `partially validated`, ein Modul ist `not executed`.
+21 Module sind implementiert. 20 sind `partially validated`, ein Modul ist `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -46,6 +46,38 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Nächster Schritt | Manuellen Windows-SQL-Server-/NTFS-Runtime-Test gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` ausführen und ausschließlich abstrahierte Ergebnisse erfassen. |
 
 ## Abgeschlossene Arbeitspakete
+
+### AP-2026-026: TC-2026-019 Execution Context
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-026` |
+| Ziel | Sessiongebundene Execution- und Correlation-Information ohne persistente Tabelle bereitstellen. |
+| Scope | `toolbelt.core.execution-context` Version `1.0.0`, Begin/Set/End, inline TVF, SVF-Wrapper, lokales und zentrales Deployment. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Implementation Status | `implemented` |
+| Validation Status | `partially validated` |
+| Release Status | `unreleased` |
+| Tests | SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170, vier parallele Sessions, Lifecycle, Central und Uninstall. |
+| Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948 |
+| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; persistenter Ausführungsstatus bleibt ein getrennter Slice. |
+
+### AP-2026-025: TC-2026-017 Error Envelope
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-025` |
+| Ziel | Explizit aus einem CATCH übergebene Fehlerdaten standardisieren, ohne den unveränderten Rethrow zu ersetzen. |
+| Scope | `toolbelt.core.error-envelope` Version `1.0.0`, direkte und ResultTable-Ausgabe, lokale und zentrale Installation. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Implementation Status | `implemented` |
+| Validation Status | `partially validated` |
+| Release Status | `unreleased` |
+| Tests | SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170, Klassifikation, ResultTable, Lifecycle, Central und Uninstall. |
+| Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948 |
+| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; persistentes Logging bleibt getrennt. |
 
 ### AP-2026-024: TC-2026-037 File-Content-Slice 1
 
