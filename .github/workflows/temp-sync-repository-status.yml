@@ -1,0 +1,686 @@
+name: Temporary Repository Status Synchronization
+
+on:
+  push:
+    branches:
+      - agent/synchronize-repository-status
+    paths:
+      - .github/workflows/temp-sync-repository-status.yml
+
+permissions:
+  contents: write
+
+jobs:
+  windows-filesystem-build:
+    name: Windows filesystem build and static contract
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build .NET Framework SQL CLR assembly
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          if (-not (Test-Path -LiteralPath $vswhere)) {
+            throw "Visual Studio locator was not found on the Windows runner."
+          }
+          $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
+          if ([string]::IsNullOrWhiteSpace($msbuild) -or -not (Test-Path -LiteralPath $msbuild)) {
+            throw "MSBuild.exe was not found through vswhere."
+          }
+          & $msbuild Modules/toolbelt.filesystem.windows/Clr/Toolbelt.Filesystem.Windows.csproj /p:Configuration=Release /p:Platform=AnyCPU
+          if ($LASTEXITCODE -ne 0) {
+            throw "MSBuild.exe failed with exit code $LASTEXITCODE."
+          }
+      - name: Validate Windows filesystem static contract
+        shell: pwsh
+        run: python Modules/toolbelt.filesystem.windows/Tests/Static/validate_contract.py
+
+  synchronize:
+    name: Synchronize metadata, backlog and evidence
+    needs: windows-filesystem-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      EVIDENCE_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/synchronize-repository-status
+          fetch-depth: 0
+
+      - name: Patch repository metadata and planning artifacts
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from __future__ import annotations
+
+          import os
+          import re
+          from pathlib import Path
+
+          ROOT = Path.cwd()
+          EVIDENCE_URL = os.environ["EVIDENCE_URL"]
+          TODAY = "2026-08-01"
+
+
+          def load(relative: str) -> str:
+              return (ROOT / relative).read_text(encoding="utf-8")
+
+
+          def save(relative: str, text: str) -> None:
+              (ROOT / relative).write_text(text, encoding="utf-8", newline="\n")
+
+
+          def replace_required(relative: str, old: str, new: str, *, count: int | None = None) -> None:
+              text = load(relative)
+              found = text.count(old)
+              if count is not None and found != count:
+                  raise RuntimeError(f"{relative}: expected {count} occurrences, found {found}: {old!r}")
+              if found == 0:
+                  raise RuntimeError(f"{relative}: required text not found: {old!r}")
+              save(relative, text.replace(old, new))
+
+
+          def regex_required(
+              relative: str,
+              pattern: str,
+              replacement: str,
+              *,
+              flags: int = 0,
+              minimum: int = 1,
+              maximum: int | None = None,
+          ) -> None:
+              text = load(relative)
+              updated, changed = re.subn(pattern, replacement, text, flags=flags)
+              if changed < minimum or (maximum is not None and changed > maximum):
+                  raise RuntimeError(
+                      f"{relative}: regex changed {changed}, expected {minimum}..{maximum}: {pattern}"
+                  )
+              save(relative, updated)
+
+
+          def update_current_counts(relative: str) -> None:
+              text = load(relative)
+              text = re.sub(
+                  r"\b18 Module sind\s*(?:\n\s*)?implementiert\b",
+                  "19 Module sind implementiert",
+                  text,
+              )
+              text = re.sub(
+                  r"\b17 sind `partially validated`",
+                  "18 sind `partially validated`",
+                  text,
+              )
+              text = re.sub(
+                  r"\b16 sind `partially validated`",
+                  "18 sind `partially validated`",
+                  text,
+              )
+              text = text.replace(
+                  "zwei Module sind `not executed`",
+                  "ein Modul ist `not executed`",
+              )
+              text = text.replace(
+                  "2 Module sind `not executed`",
+                  "1 Modul ist `not executed`",
+              )
+              save(relative, text)
+
+
+          # Zentrale Registry und Change-Impact-Kopplung.
+          repo_map = ".ai/repo_map.yaml"
+          text = load(repo_map)
+          text = text.replace("# Letzte Aktualisierung: 2026-07-30", f"# Letzte Aktualisierung: {TODAY}")
+          text = text.replace("status: eighteen_modules_implemented", "status: nineteen_modules_implemented")
+          if "file_content_module_design:" not in text:
+              marker = "  capability_catalog_module: Modules/toolbelt.metadata.capability-catalog/module.yaml\n"
+              addition = (
+                  marker
+                  + "  file_content_module_design: Documentation/Architecture/FILE_CONTENT_MODULE_DESIGN.md\n"
+                  + "  file_content_runtime_workflow: .github/workflows/file-content-runtime.yml\n"
+                  + "  file_content_module: Modules/toolbelt.file.content/module.yaml\n"
+              )
+              if marker not in text:
+                  raise RuntimeError("repo_map sources_of_truth insertion marker missing")
+              text = text.replace(marker, addition, 1)
+          registry_line = "    - Modules/toolbelt.file.content/module.yaml\n"
+          if registry_line not in text:
+              marker = "    - Modules/toolbelt.archive.zip-memory/module.yaml\n"
+              if marker not in text:
+                  raise RuntimeError("repo_map module registry insertion marker missing")
+              text = text.replace(marker, registry_line + marker, 1)
+          if "    file_content_contract:\n" not in text:
+              marker = "    windows_filesystem_contract:\n"
+              package = (
+                  "    file_content_contract:\n"
+                  "      paths:\n"
+                  "        - Modules/toolbelt.file.content/**\n"
+                  "        - Documentation/Architecture/FILE_CONTENT_MODULE_DESIGN.md\n"
+                  "        - Documentation/Standards/USP_CONTRACT.md\n"
+                  "        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md\n"
+                  "        - Tests/CI/run-file-content-linux.sh\n"
+                  "        - .github/workflows/file-content-runtime.yml\n"
+                  "      checks:\n"
+                  "        - markdown_links\n"
+              )
+              if marker not in text:
+                  raise RuntimeError("repo_map change impact insertion marker missing")
+              text = text.replace(marker, package + marker, 1)
+          save(repo_map, text)
+
+          # Validator muss verwaiste oder fehlende Module erkennen.
+          validator = "Tests/Documentation/validate_documentation.py"
+          text = load(validator)
+          if "def validate_module_registry(" not in text:
+              marker = "\ndef changed_paths(base: str, head: str) -> list[str]:\n"
+              function = '''
+
+def validate_module_registry(manifest_paths: list[str]) -> None:
+    """Vergleicht die explizite Registry mit allen vorhandenen Modulmanifesten."""
+
+    discovered = sorted(
+        path.relative_to(REPOSITORY_ROOT).as_posix()
+        for path in (REPOSITORY_ROOT / "Modules").glob("*/module.yaml")
+    )
+    registered = sorted(manifest_paths)
+    missing = sorted(set(discovered) - set(registered))
+    stale = sorted(set(registered) - set(discovered))
+    if missing or stale:
+        raise ValidationError(
+            "Modulregistry und Dateisystem weichen voneinander ab: "
+            f"nicht registriert={missing}, ohne Manifest={stale}"
+        )
+'''
+              if marker not in text:
+                  raise RuntimeError("validator insertion marker missing")
+              text = text.replace(marker, function + marker, 1)
+          call_marker = "    manifests, packages, full_audit_paths = parse_repo_map()\n"
+          if "    validate_module_registry(manifests)\n" not in text:
+              if call_marker not in text:
+                  raise RuntimeError("validator call marker missing")
+              text = text.replace(
+                  call_marker,
+                  call_marker + "    validate_module_registry(manifests)\n",
+                  1,
+              )
+          save(validator, text)
+
+          # ZIP-Workflow: branchspezifischen Self-Mutation-Job entfernen und Rechte reduzieren.
+          zip_workflow = ".github/workflows/zip-memory-runtime.yml"
+          text = load(zip_workflow)
+          text = text.replace("permissions:\n  contents: write", "permissions:\n  contents: read")
+          text, removed = re.subn(
+              r"\n  synchronize-status:\n.*?(?=\n  static-contract:\n)",
+              "",
+              text,
+              flags=re.DOTALL,
+          )
+          if removed not in (0, 1):
+              raise RuntimeError(f"Unexpected synchronize-status block count: {removed}")
+          save(zip_workflow, text)
+
+          # File-Content-Evidenz wird nach dem echten Runtime-Lauf final ergänzt.
+          module_path = "Modules/toolbelt.file.content/module.yaml"
+          text = load(module_path)
+          text = re.sub(
+              r'^validation_status:\s*"?[^"]+"?\s*$',
+              'validation_status: "partially validated"',
+              text,
+              count=1,
+              flags=re.MULTILINE,
+          )
+          if "validation_evidence:" in text:
+              text = re.sub(
+                  r"\nvalidation_evidence:\n.*\Z",
+                  "",
+                  text,
+                  flags=re.DOTALL,
+              )
+          text = text.rstrip() + (
+              "\nvalidation_evidence:\n"
+              f"  - date: \"{TODAY}\"\n"
+              f"    workflow: \"{EVIDENCE_URL}\"\n"
+              "    scope: \"SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; statischer Vertrag, Text/Binary-Fixtures, Allowlist, Lifecycle und Uninstall\"\n"
+              "    result: \"success\"\n"
+          )
+          save(module_path, text)
+
+          for relative in (
+              "Modules/toolbelt.file.content/README.md",
+              "Modules/toolbelt.file.content/Tests/FILE_CONTENT_CONTRACT_TEST_MATRIX.md",
+              "Modules/toolbelt.file.content/Tests/README.md",
+          ):
+              text = load(relative)
+              text = re.sub(r"\nEvidenz: https://github\.com/[^\n]+\n?\Z", "", text)
+              save(relative, text.rstrip() + f"\n\nEvidenz: {EVIDENCE_URL}\n")
+
+          # Aktuelle Statuszahlen; historische Abschnitte werden nicht pauschal umgeschrieben.
+          current_status_files = (
+              "README.md",
+              "CHANGELOG.md",
+              "Modules/README.md",
+              "Tests/README.md",
+              ".ai/PROJECT_CONTEXT.md",
+              ".ai/ROADMAP.md",
+              ".ai/BACKLOG.md",
+              "Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md",
+              "Backlog/TOOLBELT_RESEARCH_PRIORITIES.md",
+          )
+          for relative in current_status_files:
+              update_current_counts(relative)
+
+          # Root-README: das bisher unregistrierte Modul explizit in das Inventar aufnehmen.
+          readme = "README.md"
+          text = load(readme)
+          file_content_link = "[`toolbelt.file.content`](./Modules/toolbelt.file.content/README.md)"
+          if file_content_link not in text:
+              marker = "Das implementierte Modul [`toolbelt.core.result-table`](./Modules/toolbelt.core.result-table/README.md)"
+              paragraph = (
+                  "Das portable Modul\n"
+                  "[`toolbelt.file.content`](./Modules/toolbelt.file.content/README.md)\n"
+                  "liest freigegebene Text- und Binärdateien über einen Root-Allowlist-Vertrag.\n"
+                  "Die SQL-Server-2025-Linux-Matrix mit Compatibility Levels 150, 160 und\n"
+                  "170 ist erfolgreich; Windows und nicht-ASCII-spezifische Providergrenzen\n"
+                  "bleiben als getrennte Releasevalidierung sichtbar.\n\n"
+              )
+              if marker not in text:
+                  raise RuntimeError("README module insertion marker missing")
+              text = text.replace(marker, paragraph + marker, 1)
+          save(readme, text)
+
+          # Zentrale Testübersicht.
+          tests_readme = "Tests/README.md"
+          text = load(tests_readme)
+          if "`toolbelt.file.content`" not in text:
+              row_marker = "| `toolbelt.filesystem.windows` |"
+              row = (
+                  "| `toolbelt.file.content` | "
+                  "[FILE_CONTENT_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.file.content/Tests/FILE_CONTENT_CONTRACT_TEST_MATRIX.md) | "
+                  f"`partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich, Evidenz {EVIDENCE_URL} |\n"
+              )
+              if row_marker not in text:
+                  raise RuntimeError("Tests README row insertion marker missing")
+              text = text.replace(row_marker, row + row_marker, 1)
+          summary_marker = "Die W2c-Module sind dort einschließlich Langtext-/Unicode-, Marker-/Drift-,\nWiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls\nerfolgreich.\n"
+          if "Das Modul `toolbelt.file.content`" not in text:
+              addition = (
+                  summary_marker
+                  + "Das Modul `toolbelt.file.content` ist auf SQL Server 2025 Linux mit\n"
+                  + "Compatibility Levels 150, 160 und 170 einschließlich synthetischer\n"
+                  + "Text-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall erfolgreich.\n"
+              )
+              if summary_marker not in text:
+                  raise RuntimeError("Tests README summary marker missing")
+              text = text.replace(summary_marker, addition, 1)
+          save(tests_readme, text)
+
+          # Backlog-Arbeitspakete mit der Manifestrealität synchronisieren.
+          backlog = ".ai/BACKLOG.md"
+          text = load(backlog)
+
+          def take_block(source: str, heading: str) -> tuple[str, str]:
+              pattern = rf"(^### {re.escape(heading)}\n.*?)(?=^### |^## |\Z)"
+              match = re.search(pattern, source, flags=re.MULTILINE | re.DOTALL)
+              if match is None:
+                  raise RuntimeError(f"Backlog block not found: {heading}")
+              block = match.group(1).rstrip() + "\n\n"
+              return source[: match.start()] + source[match.end() :], block
+
+          moved: list[str] = []
+          for heading in (
+              "AP-2026-020: TC-2026-034 Verarbeitungswelle 2 (Implementierungswelle V1A)",
+              "AP-2026-021: TC-2026-034 Verarbeitungswelle 3 (CLR-Provider Vertragswelle)",
+              "AP-2026-022: SQL CLR ZIP Build-/Deployment-Spike",
+          ):
+              text, block = take_block(text, heading)
+              moved.append(block)
+
+          ap020, ap021, ap022 = moved
+          ap020 = ap020.replace("Version `1.0.0`", "Version `1.1.0`")
+          ap020 = re.sub(r"\| Status \| `active` \|", "| Status | `completed` |", ap020)
+          ap020 = re.sub(
+              r"\| Validation Status \| `not executed` – abgeleitet aus `module.yaml` \|",
+              "| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |",
+              ap020,
+          )
+          ap020 = re.sub(
+              r"\| Tests \|.*?\|\n",
+              "| Tests | Windows-.NET-Framework-4.8-Build sowie SQL Server 2019, 2022 und 2025 unter Linux; auf SQL Server 2025 Compatibility Levels 150, 160 und 170. Trust, Stored, Deflate, Data Descriptor, Encoding, CRC32, Limits, ResultTable, Wiederholungsdeployment, Central und Uninstall erfolgreich. |\n",
+              ap020,
+          )
+          ap020 = re.sub(
+              r"\| Blocker \|.*?\|\n",
+              "| Blocker | Kein Merge-Blocker. Windows-SQL-Server-Runtime und echte Extremgrößen-/Ressourcenläufe bleiben offen. |\n",
+              ap020,
+          )
+          ap020 = re.sub(
+              r"\| Evidenz \|.*?\|\n",
+              "| Evidenz | Produktives Modul `toolbelt.archive.zip-memory` Version `1.1.0`; Workflow [30615544206](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206) erfolgreich. |\n",
+              ap020,
+          )
+          ap020 = re.sub(
+              r"\| Nächster Schritt \|.*?\|\n",
+              "| Nächster Schritt | Windows-SQL-Server-Runtime gezielt ausführen; ZIP-Erzeugung und vollständige Dateisystemextraktion bleiben getrennte spätere Slices. |\n",
+              ap020,
+          )
+
+          ap021 = re.sub(
+              r"\| Blocker \|.*?\|\n",
+              "| Blocker | Keine. Der Vertrag wurde durch die produktive SAFE-SQL-CLR-Implementierung erfüllt. |\n",
+              ap021,
+          )
+          ap021 = re.sub(
+              r"\| Nächster Schritt \|.*?\|\n",
+              "| Nächster Schritt | Keine weitere Vertragswelle erforderlich; verbleibende Windows-Evidenz wird in `AP-2026-020` nachgeführt. |\n",
+              ap021,
+          )
+
+          ap022 = re.sub(r"\| Status \| `active` \|", "| Status | `completed` |", ap022)
+          ap022 = re.sub(
+              r"\| Nächster Schritt \|.*?\|\n",
+              "| Nächster Schritt | Historische Spike-Evidenz beibehalten; die produktive Implementierung und weitere Plattformvalidierung werden in `AP-2026-020` geführt. |\n",
+              ap022,
+          )
+
+          # AP-2026-023 bleibt wegen der echten Windows-Runtime aktiv, aber ohne PR-/Merge-Alttext.
+          text = text.replace("| Status | active |", "| Status | `active` |", 1)
+          text = text.replace("| Implementation Status | implemented |", "| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |", 1)
+          text = text.replace("| Validation Status | not executed |", "| Validation Status | `not executed` – abgeleitet aus `module.yaml` |", 1)
+          text = text.replace("| Release Status | unreleased |", "| Release Status | `unreleased` – abgeleitet aus `module.yaml` |", 1)
+          text = text.replace(
+              "| Evidenz | Benutzerfreigabe am 2026-07-31; Modul- und Architekturartefakte im Pull Request. |",
+              f"| Evidenz | Benutzerfreigabe am 2026-07-31; Implementierung und Windows-Build-/Static-Contract-Artefakte auf `main`; Build-Nachweis im Wartungslauf {EVIDENCE_URL}. |",
+          )
+          text = text.replace(
+              "| Nächster Schritt | Pull-Request-Checks ausführen; nach Merge den manuellen Windows-Test vorbereiten und dessen abstrahierte Ergebnisse erfassen. |",
+              "| Nächster Schritt | Manuellen Windows-SQL-Server-/NTFS-Runtime-Test gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` ausführen und ausschließlich abstrahierte Ergebnisse erfassen. |",
+          )
+
+          ap024 = f'''### AP-2026-024: TC-2026-037 File-Content-Slice 1
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-024` |
+| Ziel | Den portablen Read-only-Slice für kontrolliertes Text- und Binary-Lesen über `OPENROWSET(BULK...)` implementieren, registrieren und mit ausführbarer Evidenz belegen. |
+| Scope | `toolbelt.file.content` Version `1.0.0`, Root-Allowlist, `toolbelt_file.USP_LoadBinaryFile`, `toolbelt_file.USP_LoadTextFile`, lokales und zentrales Deployment, Dokumentation, statische sowie Runtime-/Lifecycle-Contracts. Keine Schreiboperationen und kein externer Worker. |
+| Dependencies | Keine Runtime-Modulabhängigkeit; administrative Bulk-Read-Berechtigung beziehungsweise Ad-hoc-Distributed-Queries entsprechend Deploymentvertrag. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
+| Akzeptanzkriterien | Absolute Pfade nur innerhalb freigegebener Roots; Traversal-Ablehnung; Text/Binary-Vertrag, BOM-/Encoding-Metadaten, Limits, Hilfe, Deployment und Uninstall vorhanden. |
+| Tests | SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; statischer Vertrag, synthetische UTF-8-/UTF-16-/ANSI-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall. |
+| Blocker | Kein Merge-Blocker. Windows sowie nicht-ASCII-spezifische Providergrenzen bleiben Releasevalidierung. |
+| Evidenz | Wartungslauf {EVIDENCE_URL}. |
+| Nächster Schritt | Physische Windows-Evidenz nur capabilitybezogen beziehungsweise vor Release ergänzen; Schreiboperationen werden durch den getrennten Windows-Provider abgedeckt. |
+
+'''
+
+          completed_marker = "## Abgeschlossene Arbeitspakete\n\n"
+          if completed_marker not in text:
+              raise RuntimeError("Backlog completed marker missing")
+          text = text.replace(
+              completed_marker,
+              completed_marker + ap024 + ap022 + ap021 + ap020,
+              1,
+          )
+          save(backlog, text)
+
+          # Kandidatenstatus und Providerrealität.
+          candidates = "Backlog/TOOLBELT_CANDIDATES.md"
+          text = load(candidates)
+
+          def patch_candidate(source: str, candidate: str, replacements: dict[str, str]) -> str:
+              pattern = rf"(^## {re.escape(candidate)}:.*?)(?=^## TC-|\Z)"
+              match = re.search(pattern, source, flags=re.MULTILINE | re.DOTALL)
+              if match is None:
+                  raise RuntimeError(f"Candidate section missing: {candidate}")
+              section = match.group(1)
+              for field, value in replacements.items():
+                  field_pattern = rf"^\| \*\*{re.escape(field)}\*\* \|.*?\|$"
+                  section, changed = re.subn(
+                      field_pattern,
+                      f"| **{field}** | {value} |",
+                      section,
+                      count=1,
+                      flags=re.MULTILINE,
+                  )
+                  if changed != 1:
+                      raise RuntimeError(f"{candidate}: field not replaced: {field}")
+              return source[: match.start()] + section + source[match.end() :]
+
+          status_034 = "`implemented`; Runtime `partially validated`; ZIP-Erzeugung und vollständige Dateisystemextraktion offen"
+          status_037 = "`implemented`; `toolbelt.file.content` Runtime `partially validated`; `toolbelt.filesystem.windows` Runtime `not executed`"
+          status_038 = "`implemented`; Windows-Provider Runtime `not executed`; portabler Provider offen"
+
+          text = patch_candidate(
+              text,
+              "TC-2026-034",
+              {
+                  "Mögliche Technologie": "Implementiert als In-memory-SAFE-SQL-CLR-Provider `toolbelt.archive.zip-memory` Version `1.1.0` für genau einen benannten Entry, ZIP Methods 0 und 8 sowie eigene CRC32-Prüfung. Dateisystemextraktion und ZIP-Erzeugung bleiben getrennte spätere Slices.",
+                  "Status": status_034,
+                  "Prüfdatum": TODAY,
+                  "Nächster Schritt": "Windows-SQL-Server-Runtime und echte Extremgrößen-/Ressourcengrenzen ergänzen. ZIP-Erzeugung nur nach eigener Vertrags- und Implementierungsfreigabe beginnen.",
+              },
+          )
+          text = patch_candidate(
+              text,
+              "TC-2026-037",
+              {
+                  "Mögliche Technologie": "Zwei getrennte implementierte Provider: `toolbelt.file.content` als portabler Read-only-Slice über `OPENROWSET(BULK...)` und `toolbelt.filesystem.windows` als Windows-only EXTERNAL_ACCESS-SQL-CLR-Provider für begrenztes Lesen, Schreiben, Transcoding und Directory-Operationen. Ein externer plattformübergreifender Worker bleibt optional.",
+                  "Status": status_037,
+                  "Prüfdatum": TODAY,
+                  "Nächster Schritt": "Den manuellen Windows-Runtime-Test für `toolbelt.filesystem.windows` ausführen. Einen externen Worker nur bei einem nachgewiesenen plattformübergreifenden Use Case spezifizieren.",
+              },
+          )
+          text = patch_candidate(
+              text,
+              "TC-2026-038",
+              {
+                  "Mögliche Technologie": "Windows-Provider implementiert als `toolbelt_filesystem.USP_ListDirectory` mit Root-Alias, optionaler Rekursion, `@MaxDepth`, `@MaxEntries`, Reparse-Point-Sperre sowie Caller-/ServiceAccount-Identität. Ein portabler Provider bleibt getrennt offen.",
+                  "Status": status_038,
+                  "Prüfdatum": TODAY,
+                  "Nächster Schritt": "Manuellen Windows-Runtime-Test einschließlich ACL-, Reparse-Point-, Paging-/Limit- und Rekursionsfällen ausführen; einen portablen Provider nur bei konkretem Bedarf planen.",
+              },
+          )
+          save(candidates, text)
+
+          # Research-Inbox muss exakt denselben Kandidatenstatus führen.
+          inbox = "Backlog/TOOLBELT_RESEARCH_INBOX.md"
+          text = load(inbox)
+          for candidate, status in {
+              "TC-2026-034": status_034,
+              "TC-2026-037": status_037,
+              "TC-2026-038": status_038,
+          }.items():
+              pattern = rf"(^\| `RI-\d{{4}}-\d{{3}}` \| `{candidate}`.*? \| )(.*?)( \|$)"
+              text, changed = re.subn(
+                  pattern,
+                  lambda match, value=status: match.group(1) + value + match.group(3),
+                  text,
+                  flags=re.MULTILINE,
+              )
+              if changed < 1:
+                  raise RuntimeError(f"Research inbox row missing: {candidate}")
+          save(inbox, text)
+
+          # Implementierungsplan: reale Provider und Wellenstände.
+          plan = "Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md"
+          text = load(plan)
+          text = text.replace("Stand: 2026-07-31", f"Stand: {TODAY}", 1)
+          old_implemented = "`TC-2026-030`, `TC-2026-031`, `TC-2026-037` Slice A"
+          new_implemented = "`TC-2026-030`, `TC-2026-031`, `TC-2026-034` Extraction-Slice, `TC-2026-037` Read-/Windows-Slices, `TC-2026-038` Windows-Slice"
+          if old_implemented not in text:
+              raise RuntimeError("Plan implemented group marker missing")
+          text = text.replace(old_implemented, new_implemented, 1)
+          text = text.replace(
+              "| Externe Provider und Integrationen | `TC-2026-025` bis `TC-2026-028`, `TC-2026-037`, `TC-2026-038` | Allowlist-, Identity-, Secret-, Timeout-, Abbruch- und Plattformvertrag sind Pflicht-Gates. |",
+              "| Externe Provider und Integrationen | `TC-2026-025` bis `TC-2026-028`; optionale portable Worker-Slices aus `TC-2026-037`/`TC-2026-038` | Allowlist-, Identity-, Secret-, Timeout-, Abbruch- und Plattformvertrag sind Pflicht-Gates; vorhandene Windows-/Read-only-Provider nicht duplizieren. |",
+          )
+          text = text.replace(
+              "| Archive, Kompression und Office | `TC-2026-033` bis `TC-2026-036`, `TC-2026-045` | In-memory-Verträge von Dateisystemverträgen trennen; untrusted input und Ressourcenlimits zuerst. |",
+              "| Archive, Kompression und Office | `TC-2026-033`, verbleibende Slices aus `TC-2026-034`, `TC-2026-035`, `TC-2026-036`, `TC-2026-045` | ZIP-Entry-Extraktion ist implementiert; Listing, Erzeugung, vollständige Dateisystemextraktion und weitere Formate bleiben getrennte Verträge. |",
+          )
+          text = text.replace(
+              "| `V0` | `planned` | Offene Releasevalidierung | `001`, `002`, `003`, `004`, `005`, `006`, `007`, `008`, `009`, `012`, `016`, `023`, `024`, `029`, `030`, `031` |",
+              "| `V0` | `planned` | Offene Releasevalidierung | `001`, `002`, `003`, `004`, `005`, `006`, `007`, `008`, `009`, `012`, `016`, `023`, `024`, `029`, `030`, `031`, `034`, `037`, `038` |",
+          )
+          text = re.sub(
+              r"^\| `W7` \|.*$",
+              "| `W7` | `active` | Datei- und Host-Provider | `037`, `038`, `025`, `026`, `027` | Root-Allowlist, Pfad-/Encoding-Vertrag und Provider | `toolbelt.file.content` ist als portabler Read-only-Slice implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` implementiert Read/Write/Transcoding/Directory-Operationen; der manuelle Windows-Runtime-Nachweis bleibt offen. Externe Worker bleiben optional zurückgestellt. |",
+              text,
+              count=1,
+              flags=re.MULTILINE,
+          )
+          text = re.sub(
+              r"^\| `W8` \|.*$",
+              "| `W8` | `active` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | `toolbelt.archive.zip-memory` Version `1.1.0` ist als SAFE-SQL-CLR-Provider für Methods 0/8 und CRC32 implementiert und auf SQL Server 2019/2022/2025 Linux teilweise validiert. Windows-Runtime, ZIP-Listing, ZIP-Erzeugung, vollständige Dateisystemextraktion und XLSX bleiben offen. |",
+              text,
+              count=1,
+              flags=re.MULTILINE,
+          )
+          table_marker = "| `TC-2026-023` | `toolbelt.metadata.capability-catalog` | `toolbelt_metadata.VW_ModuleCapabilities` | Physische 2019-/2022-, Windows- und eingeschränkte Metadata-Visibility. |\n"
+          if "| `TC-2026-034` | `toolbelt.archive.zip-memory` |" not in text:
+              additions = (
+                  table_marker
+                  + "| `TC-2026-034` | `toolbelt.archive.zip-memory` | `toolbelt_archive.USP_ExtractZipEntryFromBinary` | Windows-SQL-Server-Runtime und echte Extremgrößen; ZIP-Erzeugung bleibt ein separater Slice. |\n"
+                  + "| `TC-2026-037` | `toolbelt.file.content`; `toolbelt.filesystem.windows` | `toolbelt_file.USP_LoadBinaryFile`, `toolbelt_file.USP_LoadTextFile`; Windows Read/Write/Transcoding-Procedures | File-Content-Windows-Releasevalidierung und manueller Windows-CLR-Runtime-Test; externer Worker nur bei Bedarf. |\n"
+                  + "| `TC-2026-038` | `toolbelt.filesystem.windows` | `toolbelt_filesystem.USP_ListDirectory` | Manueller Windows-Runtime-Test; portabler Listing-Provider bleibt optional offen. |\n"
+              )
+              if table_marker not in text:
+                  raise RuntimeError("Plan implemented table insertion marker missing")
+              text = text.replace(table_marker, additions, 1)
+          save(plan, text)
+
+          # Roadmap: File-Content und produktive ZIP-Implementierung explizit aufnehmen.
+          roadmap = ".ai/ROADMAP.md"
+          text = load(roadmap)
+          text = text.replace("### Phase 2.6 – Windows Filesystem", "### Phase 2.8 – Windows Filesystem", 1)
+          if "### Phase 2.6 – Portable File Content" not in text:
+              marker = "### Phase 2.8 – Windows Filesystem\n"
+              sections = f'''### Phase 2.6 – Portable File Content
+
+**Status:** `completed`; Runtime `partially validated`
+
+**Arbeitspaket:** `AP-2026-024`
+
+`toolbelt.file.content` stellt einen portablen Read-only-Vertrag für Text- und
+Binärdateien über `OPENROWSET(BULK...)` und eine Root-Allowlist bereit. Der
+Wartungslauf [{EVIDENCE_URL}]({EVIDENCE_URL}) hat SQL Server 2025 Linux mit
+Compatibility Levels 150, 160 und 170 einschließlich synthetischer Fixtures,
+Allowlist, Lifecycle und Uninstall erfolgreich geprüft. Windows und
+nicht-ASCII-spezifische Providergrenzen bleiben Releasevalidierung.
+
+### Phase 2.7 – ZIP Memory SQL CLR
+
+**Status:** `completed`; Runtime `partially validated`
+
+**Arbeitspaket:** `AP-2026-020`
+
+`toolbelt.archive.zip-memory` Version `1.1.0` extrahiert genau einen benannten
+ZIP-Entry aus `varbinary(max)` über eine `SAFE` SQL-CLR-Assembly. Methods 0 und
+8, Data Descriptor, UTF-8/CP437, eigene CRC32, Limits, ResultTable, Central und
+Uninstall wurden im Workflow
+[30615544206](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206)
+auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich geprüft. Windows-
+SQL-Server-Runtime und echte Extremgrößen bleiben offen.
+
+'''
+              if marker not in text:
+                  raise RuntimeError("Roadmap Windows filesystem marker missing")
+              text = text.replace(marker, sections + marker, 1)
+          save(roadmap, text)
+
+          # Persönliche Ideenquelle: keine Löschung, sondern nachvollziehbare Teilstatus.
+          brainstorm = "Backlog/personal_Backlog_Bainstorm.md"
+          text = load(brainstorm)
+          updates = {
+              "# ZIP\n": (
+                  "# ZIP\n\n"
+                  "> Statusaktualisierung 2026-08-01 — ChatGPT: Die kontrollierte In-memory-Extraktion eines benannten ZIP-Entries ist als `toolbelt.archive.zip-memory` Version `1.1.0` implementiert und unter SQL Server 2019/2022/2025 Linux teilweise validiert. ZIP-Listing, ZIP-Erzeugung und vollständige Dateisystemextraktion bleiben eigenständige offene Slices.\n"
+              ),
+              "# Read/Write File\n": (
+                  "# Read/Write File\n\n"
+                  "> Statusaktualisierung 2026-08-01 — ChatGPT: Der portable Read-only-Slice ist als `toolbelt.file.content` implementiert und teilweise validiert. Der Windows-only Read/Write-/Transcoding-Slice ist als `toolbelt.filesystem.windows` implementiert; der manuelle Windows-Runtime-Test bleibt offen.\n"
+              ),
+              "# Directory List\n": (
+                  "# Directory List\n\n"
+                  "> Statusaktualisierung 2026-08-01 — ChatGPT: Das Windows-only Directory Listing ist als `toolbelt_filesystem.USP_ListDirectory` implementiert. Der manuelle Windows-Runtime-Test und ein optionaler portabler Provider bleiben offen.\n"
+              ),
+          }
+          for marker, replacement in updates.items():
+              if replacement.split("\n", 2)[1] in text:
+                  continue
+              if marker not in text:
+                  raise RuntimeError(f"Brainstorm marker missing: {marker.strip()}")
+              text = text.replace(marker, replacement, 1)
+          save(brainstorm, text)
+
+          # Changelog und Projektkontext.
+          changelog = "CHANGELOG.md"
+          text = load(changelog)
+          changed_marker = "### Geändert\n\n"
+          additions = (
+              "- Modulregistry um das bereits vorhandene `toolbelt.file.content` ergänzt; Statusübersichten zeigen nun 19 implementierte, 18 teilweise validierte und ein nicht ausgeführtes Modul.\n"
+              "- Dokumentationsvalidator erkennt künftig jedes vorhandene, aber nicht registrierte `Modules/*/module.yaml` sowie veraltete Registry-Einträge.\n"
+              f"- `toolbelt.file.content` im Wartungslauf {EVIDENCE_URL} auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 validiert und mit kanonischer Evidenz gekoppelt.\n"
+              "- ZIP-Backlog, Kandidaten, Implementierungsplan und Roadmap an die produktive CLR-Implementierung und die Linux-Matrix angepasst.\n"
+              "- Branchspezifischen Self-Mutation-Job aus dem ZIP-Workflow entfernt und Workflow-Berechtigung auf `contents: read` reduziert.\n"
+              "- Windows-Dateisystem-Arbeitspaket auf den tatsächlich verbleibenden manuellen Windows-SQL-Server-/NTFS-Runtime-Test reduziert.\n"
+          )
+          if additions.splitlines()[0] not in text:
+              if changed_marker not in text:
+                  raise RuntimeError("Changelog changed marker missing")
+              text = text.replace(changed_marker, changed_marker + additions, 1)
+          save(changelog, text)
+
+          project_context = ".ai/PROJECT_CONTEXT.md"
+          text = load(project_context)
+          if "toolbelt.file.content" not in text:
+              marker = "## Projektstatus\n"
+              addition = (
+                  "\n`toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.\n"
+              )
+              if marker not in text:
+                  raise RuntimeError("Project context status marker missing")
+              text = text.replace(marker, marker + addition, 1)
+          save(project_context, text)
+
+          # Windows-Dateisystem-Evidenzseite dokumentiert den erfolgreichen Build, nicht Runtime.
+          win_evidence = "Modules/toolbelt.filesystem.windows/Tests/README.md"
+          text = load(win_evidence)
+          build_note = f"\nDer .NET-Framework-4.8-Build und der statische Vertrag waren im Wartungslauf {EVIDENCE_URL} erfolgreich. Dies ist kein Windows-SQL-Server-/NTFS-Runtime-Nachweis.\n"
+          if EVIDENCE_URL not in text:
+              text = text.rstrip() + "\n" + build_note
+          save(win_evidence, text)
+          PY
+
+      - name: Validate File Content static contract
+        run: python3 Modules/toolbelt.file.content/Tests/Static/validate_contract.py
+
+      - name: Execute File Content SQL Server 2025 Linux matrix
+        env:
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Tests/CI/run-file-content-linux.sh
+
+      - name: Generate and validate repository status
+        run: |
+          python3 Tests/Documentation/validate_documentation.py --all --write
+          python3 Tests/Documentation/validate_documentation.py --all
+
+      - name: Commit synchronized repository state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "ChatGPT"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git reset -- .github/workflows/temp-sync-repository-status.yml
+          if git diff --cached --quiet; then
+            echo "No synchronized changes were produced."
+            exit 0
+          fi
+          git commit -m "ChatGPT: Synchronisiere Repository-Status und To-dos"
+          git push origin HEAD:agent/synchronize-repository-status
