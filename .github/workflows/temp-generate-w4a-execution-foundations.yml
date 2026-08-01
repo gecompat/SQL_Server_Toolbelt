@@ -38,6 +38,31 @@ jobs:
           PY
       - name: Generate W4a modules and repository metadata
         run: python3 Tests/Documentation/generate_w4a_execution_foundations.py
+      - name: Normalize generated manifest lists
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          manifests = (
+              Path('Modules/toolbelt.core.error-envelope/module.yaml'),
+              Path('Modules/toolbelt.core.execution-context/module.yaml'),
+          )
+          replacements = {
+              'sql_server_versions': ['"2019"', '"2022"', '"2025"'],
+              'compatibility_levels': ['150', '160', '170'],
+          }
+          for path in manifests:
+              text = path.read_text(encoding='utf-8')
+              for key, values in replacements.items():
+                  pattern = rf'(?m)^{re.escape(key)}:\s*\[[^\n]*\]\s*$'
+                  block = key + ':\n' + ''.join(f'  - {value}\n' for value in values).rstrip('\n')
+                  text, changed = re.subn(pattern, block, text, count=1)
+                  if changed != 1:
+                      raise SystemExit(f'{path}: kompakte Liste {key} wurde nicht eindeutig gefunden.')
+              path.write_text(text, encoding='utf-8', newline='\n')
+          PY
       - name: Validate static contracts
         run: |
           python3 Modules/toolbelt.core.error-envelope/Tests/Static/validate_contract.py
