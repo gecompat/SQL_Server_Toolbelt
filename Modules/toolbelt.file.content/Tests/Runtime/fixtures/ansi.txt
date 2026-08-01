@@ -1,2 +1,0 @@
-Hallo, Welt!
-Windows-1252 ohne BOM.

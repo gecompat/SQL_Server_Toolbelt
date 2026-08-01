@@ -1,13 +1,13 @@
 ---
 # repo_map.yaml – Maschinenlesbare Repository-Rolle und Artefaktklassen
 # SQL Server Toolbelt
-# Letzte Aktualisierung: 2026-07-30
+# Letzte Aktualisierung: 2026-08-01
 
 repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: eighteen_modules_implemented
+  status: nineteen_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -68,6 +68,9 @@ sources_of_truth:
   w2c_runtime_workflow: .github/workflows/w2c-runtime.yml
   console_message_module: Modules/toolbelt.core.console-message/module.yaml
   capability_catalog_module: Modules/toolbelt.metadata.capability-catalog/module.yaml
+  file_content_module_design: Documentation/Architecture/FILE_CONTENT_MODULE_DESIGN.md
+  file_content_runtime_workflow: .github/workflows/file-content-runtime.yml
+  file_content_module: Modules/toolbelt.file.content/module.yaml
   zip_archive_module_design: Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md
   zip_clr_provider_design: Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md
   zip_memory_runtime_workflow: .github/workflows/zip-memory-runtime.yml
@@ -253,6 +256,7 @@ module_registry:
     - Modules/toolbelt.json.path-exists/module.yaml
     - Modules/toolbelt.core.console-message/module.yaml
     - Modules/toolbelt.metadata.capability-catalog/module.yaml
+    - Modules/toolbelt.file.content/module.yaml
     - Modules/toolbelt.archive.zip-memory/module.yaml
     - Modules/toolbelt.filesystem.windows/module.yaml
 
@@ -460,6 +464,16 @@ change_impact:
         - markdown_links
         - json_path_exists_static
         - w2b_json_path_runtime_workflow_scope
+    file_content_contract:
+      paths:
+        - Modules/toolbelt.file.content/**
+        - Documentation/Architecture/FILE_CONTENT_MODULE_DESIGN.md
+        - Documentation/Standards/USP_CONTRACT.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+        - Tests/CI/run-file-content-linux.sh
+        - .github/workflows/file-content-runtime.yml
+      checks:
+        - markdown_links
     windows_filesystem_contract:
       paths:
         - Modules/toolbelt.filesystem.windows/**

@@ -210,7 +210,7 @@ IF NOT EXISTS
     THROW 52935, N'Allowlist-Verletzung wird nicht erkannt.', 1;
 
 -- Echte Dateisystem-Tests (nur in CI mit vorbereiteten Fixtures).
-DECLARE @FixtureRoot nvarchar(4000) = N'/workspace/Modules/toolbelt.file.content/Tests/Runtime/fixtures';
+DECLARE @FixtureRoot nvarchar(4000) = N'$(FixtureRoot)';
 DECLARE @FixturePath nvarchar(4000);
 
 DECLARE @BinaryResult TABLE
@@ -253,7 +253,7 @@ EXEC toolbelt_file.USP_LoadTextFile @FilePath = @FixturePath;
 IF NOT EXISTS
    (
        SELECT 1 FROM @TextResult
-       WHERE IsValid = 1 AND EncodingDetected = N'UTF-8' AND BomPresent = 1
+       WHERE IsValid = 1 AND EncodingDetected = N'UTF-8' AND BomPresent = 1 AND BytesRead = 43
    )
     THROW 52936, N'UTF-8-BOM-Erkennung schlug fehl.', 1;
 
@@ -268,7 +268,7 @@ EXEC toolbelt_file.USP_LoadTextFile @FilePath = @FixturePath;
 IF NOT EXISTS
    (
        SELECT 1 FROM @TextResult
-       WHERE IsValid = 1 AND EncodingDetected = N'Windows-1252' AND BomPresent = 0
+       WHERE IsValid = 1 AND EncodingDetected = N'Windows-1252' AND BomPresent = 0 AND BytesRead = 26
    )
     THROW 52936, N'Windows-1252-Datei ohne BOM konnte nicht korrekt gelesen werden.', 1;
 
@@ -283,8 +283,51 @@ EXEC toolbelt_file.USP_LoadTextFile @FilePath = @FixturePath;
 IF NOT EXISTS
    (
        SELECT 1 FROM @TextResult
-       WHERE IsValid = 1 AND EncodingDetected = N'UTF-16-LE' AND BomPresent = 1
+       WHERE IsValid = 1 AND EncodingDetected = N'UTF-16-LE' AND BomPresent = 1 AND BytesRead = 76
+         AND Content LIKE N'%UTF-16-LE korrigiert.%'
    )
     THROW 52936, N'UTF-16-LE-Datei mit BOM konnte nicht korrekt gelesen werden.', 1;
+
+DELETE FROM @TextResult;
+
+SET @FixturePath = @FixtureRoot + N'/utf16be-bom.txt';
+INSERT INTO @TextResult
+EXEC toolbelt_file.USP_LoadTextFile @FilePath = @FixturePath;
+
+IF NOT EXISTS
+   (
+       SELECT 1 FROM @TextResult
+       WHERE IsValid = 0 AND EncodingDetected = N'UTF-16-BE'
+         AND BomPresent = 1 AND ValidationCode = 51325 AND BytesRead > 0
+   )
+    THROW 52936, N'UTF-16-BE-BOM wurde nicht kontrolliert abgelehnt.', 1;
+
+DELETE FROM @TextResult;
+
+SET @FixturePath = @FixtureRoot + N'/utf32le-bom.txt';
+INSERT INTO @TextResult
+EXEC toolbelt_file.USP_LoadTextFile @FilePath = @FixturePath;
+
+IF NOT EXISTS
+   (
+       SELECT 1 FROM @TextResult
+       WHERE IsValid = 0 AND EncodingDetected = N'UTF-32-LE'
+         AND BomPresent = 1 AND ValidationCode = 51325 AND BytesRead > 0
+   )
+    THROW 52936, N'UTF-32-LE-BOM wurde nicht korrekt erkannt.', 1;
+
+DELETE FROM @TextResult;
+
+SET @FixturePath = @FixtureRoot + N'/utf32be-bom.txt';
+INSERT INTO @TextResult
+EXEC toolbelt_file.USP_LoadTextFile @FilePath = @FixturePath;
+
+IF NOT EXISTS
+   (
+       SELECT 1 FROM @TextResult
+       WHERE IsValid = 0 AND EncodingDetected = N'UTF-32-BE'
+         AND BomPresent = 1 AND ValidationCode = 51325 AND BytesRead > 0
+   )
+    THROW 52936, N'UTF-32-BE-BOM wurde nicht korrekt erkannt.', 1;
 
 PRINT N'File Content Contract-Test: erfolgreich';

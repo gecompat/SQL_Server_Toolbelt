@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 18 Module sind implementiert. 17 sind `partially validated`,
+abgeschlossen. 19 Module sind implementiert. 18 sind `partially validated`,
 ein Modul ist `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
@@ -325,7 +325,34 @@ einschließlich Langtext-/Unicode-, Marker-/Drift-, Wiederholungs-, Lifecycle-,
 Central- und Uninstall-Contracts erfolgreich. Physische 2019-/2022-,
 Windows- und modulspezifische Releasefälle bleiben offen.
 
-### Phase 2.6 – Windows Filesystem
+### Phase 2.6 – Portable File Content
+
+**Status:** `completed`; Runtime `partially validated`
+
+**Arbeitspaket:** `AP-2026-024`
+
+`toolbelt.file.content` stellt einen portablen Read-only-Vertrag für Text- und
+Binärdateien über `OPENROWSET(BULK...)` und eine Root-Allowlist bereit. Der
+Wartungslauf [https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356) hat SQL Server 2025 Linux mit
+Compatibility Levels 150, 160 und 170 einschließlich synthetischer Fixtures,
+Allowlist, Lifecycle und Uninstall erfolgreich geprüft. Windows und
+nicht-ASCII-spezifische Providergrenzen bleiben Releasevalidierung.
+
+### Phase 2.7 – ZIP Memory SQL CLR
+
+**Status:** `completed`; Runtime `partially validated`
+
+**Arbeitspaket:** `AP-2026-020`
+
+`toolbelt.archive.zip-memory` Version `1.1.0` extrahiert genau einen benannten
+ZIP-Entry aus `varbinary(max)` über eine `SAFE` SQL-CLR-Assembly. Methods 0 und
+8, Data Descriptor, UTF-8/CP437, eigene CRC32, Limits, ResultTable, Central und
+Uninstall wurden im Workflow
+[30615544206](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206)
+auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich geprüft. Windows-
+SQL-Server-Runtime und echte Extremgrößen bleiben offen.
+
+### Phase 2.8 – Windows Filesystem
 
 **Status:** `in progress`; Runtime `not executed`
 

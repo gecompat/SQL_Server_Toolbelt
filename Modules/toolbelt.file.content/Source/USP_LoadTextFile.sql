@@ -295,56 +295,74 @@ BEGIN
           , @Content nvarchar(max)
           , @BytesRead bigint;
 
-    -- BOM-Heuristik über die ersten 4 Bytes.
-    SET @Sql = N'SET @Header = (SELECT TOP(1) SUBSTRING(BulkColumn, 1, 4) FROM OPENROWSET(BULK '
+    -- BOM-Heuristik und exakte Dateigröße über denselben SINGLE_BLOB-Lesezugriff.
+    SET @Sql = N'SELECT TOP (1)'
+               + N' @Header = SUBSTRING(BulkColumn, 1, 4),'
+               + N' @BytesRead = DATALENGTH(BulkColumn)'
+               + N' FROM OPENROWSET(BULK '
                + QUOTENAME(@FilePath, N'''')
-               + N', SINGLE_BLOB) AS x);';
+               + N', SINGLE_BLOB) AS x;';
 
     BEGIN TRY
         EXEC sys.sp_executesql
               @stmt = @Sql
-            , @params = N'@Header varbinary(4) OUTPUT'
-            , @Header = @Header OUTPUT;
+            , @params = N'@Header varbinary(4) OUTPUT, @BytesRead bigint OUTPUT'
+            , @Header = @Header OUTPUT
+            , @BytesRead = @BytesRead OUTPUT;
     END TRY
     BEGIN CATCH
         THROW;
     END CATCH;
 
-    IF @Header = 0xEFBBBF
-    BEGIN
-        SET @EncodingDetected = N'UTF-8';
-        SET @BomPresent = 1;
-    END
-    ELSE IF @Header = 0xFEFF
-    BEGIN
-        SET @EncodingDetected = N'UTF-16-LE';
-        SET @BomPresent = 1;
-    END
-    ELSE IF @Header = 0xFFFE
+    IF @MaxBytes IS NOT NULL AND @BytesRead > @MaxBytes
     BEGIN
         SELECT
               CAST(NULL AS nvarchar(max)) AS Content
-            , CAST(0 AS bigint)           AS BytesRead
-            , N'UTF-16-BE'                AS EncodingDetected
-            , CAST(1 AS bit)              AS BomPresent
+            , @BytesRead                  AS BytesRead
+            , NULL                        AS EncodingDetected
+            , CAST(0 AS bit)              AS BomPresent
             , CAST(0 AS bit)              AS IsValid
-            , 51325                       AS ValidationCode
-            , N'UTF-16-BE wird nicht unterstützt.' AS ValidationMessage;
+            , 51323                       AS ValidationCode
+            , N'Datei überschreitet @MaxBytes.' AS ValidationMessage;
         RETURN 0;
-    END
-    ELSE IF @Header = 0x0000FEFF OR @Header = 0xFFFE0000
+    END;
+
+    -- Vierbyteige BOMs müssen vor den zweibyteigen Präfixen geprüft werden.
+    IF @Header = 0xFFFE0000 OR @Header = 0x0000FEFF
     BEGIN
         SELECT
               CAST(NULL AS nvarchar(max)) AS Content
-            , CAST(0 AS bigint)           AS BytesRead
+            , @BytesRead                  AS BytesRead
             , CASE @Header
-                  WHEN 0x0000FEFF THEN N'UTF-32-LE'
+                  WHEN 0xFFFE0000 THEN N'UTF-32-LE'
                   ELSE N'UTF-32-BE'
               END                         AS EncodingDetected
             , CAST(1 AS bit)              AS BomPresent
             , CAST(0 AS bit)              AS IsValid
             , 51325                       AS ValidationCode
             , N'UTF-32 wird nicht unterstützt.' AS ValidationMessage;
+        RETURN 0;
+    END
+    ELSE IF SUBSTRING(@Header, 1, 3) = 0xEFBBBF
+    BEGIN
+        SET @EncodingDetected = N'UTF-8';
+        SET @BomPresent = 1;
+    END
+    ELSE IF SUBSTRING(@Header, 1, 2) = 0xFFFE
+    BEGIN
+        SET @EncodingDetected = N'UTF-16-LE';
+        SET @BomPresent = 1;
+    END
+    ELSE IF SUBSTRING(@Header, 1, 2) = 0xFEFF
+    BEGIN
+        SELECT
+              CAST(NULL AS nvarchar(max)) AS Content
+            , @BytesRead                  AS BytesRead
+            , N'UTF-16-BE'                AS EncodingDetected
+            , CAST(1 AS bit)              AS BomPresent
+            , CAST(0 AS bit)              AS IsValid
+            , 51325                       AS ValidationCode
+            , N'UTF-16-BE wird nicht unterstützt.' AS ValidationMessage;
         RETURN 0;
     END
     ELSE
@@ -376,21 +394,6 @@ BEGIN
               @stmt = @Sql
             , @params = N'@Content nvarchar(max) OUTPUT'
             , @Content = @Content OUTPUT;
-
-        SET @BytesRead = DATALENGTH(@Content) * 2; -- NCHAR = 2 Byte pro Codeunit
-
-        IF @MaxBytes IS NOT NULL AND @BytesRead > @MaxBytes
-        BEGIN
-            SELECT
-                  CAST(NULL AS nvarchar(max)) AS Content
-                , @BytesRead                  AS BytesRead
-                , @EncodingDetected           AS EncodingDetected
-                , @BomPresent                 AS BomPresent
-                , CAST(0 AS bit)              AS IsValid
-                , 51323                       AS ValidationCode
-                , N'Datei überschreitet @MaxBytes.' AS ValidationMessage;
-            RETURN 0;
-        END;
 
         SELECT
               @Content        AS Content

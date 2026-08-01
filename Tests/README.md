@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. 18 Module sind implementiert;
+Der Repository-Grundaufbau ist abgeschlossen. 19 Module sind implementiert;
 für alle existieren statische sowie synthetische Runtime- und
 Lifecycle-Contract-Testartefakte.
 
@@ -25,6 +25,9 @@ erfolgreich.
 Die W2c-Module sind dort einschließlich Langtext-/Unicode-, Marker-/Drift-,
 Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
 erfolgreich.
+Das Modul `toolbelt.file.content` ist auf SQL Server 2025 Linux mit
+Compatibility Levels 150, 160 und 170 einschließlich synthetischer
+Text-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall erfolgreich.
 
 ## Pflicht-Testarten je Modul
 
@@ -47,6 +50,7 @@ erfolgreich.
 | Modul | Matrix | Status |
 |---|---|---|
 | `toolbelt.archive.zip-memory` | [ZIP_MEMORY_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md) | `partially validated`; Windows-Runtime offen |
+| `toolbelt.file.content` | [FILE_CONTENT_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.file.content/Tests/FILE_CONTENT_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich, Evidenz https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356 |
 | `toolbelt.filesystem.windows` | [WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.filesystem.windows/Tests/WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md) | `not executed`; manueller Windows-SQL-Server-/NTFS-Nachweis offen |
 | `toolbelt.core.result-table` | [RESULT_TABLE_CONTRACT_TEST_MATRIX.md](./RESULT_TABLE_CONTRACT_TEST_MATRIX.md) | `partially validated`; Linux-Lauf erfolgreich |
 | `toolbelt.conversion.base64` | [BASE64_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.conversion.base64/Tests/BASE64_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |

@@ -45,3 +45,5 @@
 | RT-006 | Textdatei UTF-16-BE mit BOM | `IsValid = 0`, `ValidationCode = 51325` |
 | RT-004 | @MaxBytes überschritten | `IsValid = 0`, `ValidationCode = 51323` |
 | RT-005 | Nicht existierende Datei | Engine-Fehler propagiert (THROW) |
+
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356

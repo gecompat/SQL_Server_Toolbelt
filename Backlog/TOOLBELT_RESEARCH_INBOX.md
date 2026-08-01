@@ -26,6 +26,9 @@ zur Implementierung freigegeben:
 | `RI-2026-075` | `TC-2026-030` – Semantic-Version Parser und Comparator | `implemented`; Runtime `partially validated` |
 | `RI-2026-055` | `TC-2026-031` – Ganzzahlen in frei definierbaren Zahlensystemen | `implemented`; Runtime `partially validated` |
 
+| `RI-2026-113` | `TC-2026-034` – ZIP-Archive kontrolliert extrahieren und erzeugen | `implemented`; Runtime `partially validated`; ZIP-Erzeugung und vollständige Dateisystemextraktion offen |
+| `RI-2026-107` | `TC-2026-037` – Kontrolliertes Lesen und Schreiben von Text- und Binärdateien | `implemented`; `toolbelt.file.content` Runtime `partially validated`; `toolbelt.filesystem.windows` Runtime `not executed` |
+| `RI-2026-108` | `TC-2026-038` – Kontrolliertes Directory Listing | `implemented`; Windows-Provider Runtime `not executed`; portabler Provider offen |
 ## Bereits vorhandene Kandidaten – zusätzliche Fundstellen
 
 Diese Treffer erzeugen bewusst keine Duplikate.

@@ -85,6 +85,12 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Geändert
 
+- Modulregistry um das bereits vorhandene `toolbelt.file.content` ergänzt; Statusübersichten zeigen nun 19 implementierte, 18 teilweise validierte und ein nicht ausgeführtes Modul.
+- Dokumentationsvalidator erkennt künftig jedes vorhandene, aber nicht registrierte `Modules/*/module.yaml` sowie veraltete Registry-Einträge.
+- `toolbelt.file.content` im Wartungslauf https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356 auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 validiert und mit kanonischer Evidenz gekoppelt.
+- ZIP-Backlog, Kandidaten, Implementierungsplan und Roadmap an die produktive CLR-Implementierung und die Linux-Matrix angepasst.
+- Branchspezifischen Self-Mutation-Job aus dem ZIP-Workflow entfernt und Workflow-Berechtigung auf `contents: read` reduziert.
+- Windows-Dateisystem-Arbeitspaket auf den tatsächlich verbleibenden manuellen Windows-SQL-Server-/NTFS-Runtime-Test reduziert.
 - Welle `W1` implementiert: `TC-2026-002` als Calendar Difference,
   `TC-2026-008` als Directional TRIM Compatibility und `TC-2026-024` als
   RFC-3986-URI-Component-Percent-Encoding. Die drei Module besitzen
@@ -173,7 +179,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-18 Module sind implementiert. 17 sind `partially validated`, ein Modul ist
+19 Module sind implementiert. 18 sind `partially validated`, ein Modul ist
 `not executed`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und
 2025 erfolgreich; die übrigen bereits teilweise validierten Module sind
 auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170

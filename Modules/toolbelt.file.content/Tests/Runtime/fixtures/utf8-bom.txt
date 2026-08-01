@@ -1,2 +1,0 @@
-﻿Hallo, Welt!
-Dies ist ein UTF-8-Test.

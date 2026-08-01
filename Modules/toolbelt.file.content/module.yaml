@@ -128,3 +128,8 @@ tests:
   runtime: "Tests/Runtime/FileContent.Contract.sql"
   contract: "Tests/Runtime/FileContent.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+validation_evidence:
+  - date: "2026-08-01"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356"
+    scope: "SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; statischer Vertrag, Text/Binary-Fixtures, Allowlist, Lifecycle und Uninstall"
+    result: "success"
