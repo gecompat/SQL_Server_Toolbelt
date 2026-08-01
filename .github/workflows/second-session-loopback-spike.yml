@@ -1,0 +1,25 @@
+name: Second Session Loopback Spike
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - Spikes/second-session-loopback/**
+      - .github/workflows/second-session-loopback-spike.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-sql-server-2025:
+    name: SQL Server 2025 Linux loopback RPC
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify rollback-independent synchronous second session
+        env:
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Spikes/second-session-loopback/Tests/run-spike.sh
