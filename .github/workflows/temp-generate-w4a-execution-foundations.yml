@@ -52,6 +52,7 @@ jobs:
           replacements = {
               'sql_server_versions': ['"2019"', '"2022"', '"2025"'],
               'compatibility_levels': ['150', '160', '170'],
+              'schemas': ['"toolbelt_core"'],
           }
           for path in manifests:
               text = path.read_text(encoding='utf-8')
