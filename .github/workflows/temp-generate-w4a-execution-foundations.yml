@@ -108,6 +108,20 @@ jobs:
           for path, content in evidence_pages.items():
               path.parent.mkdir(parents=True, exist_ok=True)
               path.write_text(content, encoding='utf-8', newline='\n')
+
+          matrices = (
+              Path('Modules/toolbelt.core.error-envelope/Tests/ERROR_ENVELOPE_CONTRACT_TEST_MATRIX.md'),
+              Path('Modules/toolbelt.core.execution-context/Tests/EXECUTION_CONTEXT_CONTRACT_TEST_MATRIX.md'),
+          )
+          for path in matrices:
+              text = path.read_text(encoding='utf-8').rstrip()
+              text += (
+                  '\n\n## Ausgeführte Evidenz\n\n'
+                  f'- SQL Server 2025 Linux, Compatibility Levels 150, 160 und 170: erfolgreich.\n'
+                  f'- Workflow: {evidence_url}\n'
+                  '- Windows und physische SQL-Server-2019-/2022-Läufe: `not executed`.\n'
+              )
+              path.write_text(text + '\n', encoding='utf-8', newline='\n')
           PY
       - name: Validate static contracts
         run: |
