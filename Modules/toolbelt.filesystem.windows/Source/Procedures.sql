@@ -1,4 +1,4 @@
-++SET ANSI_NULLS ON;
+SET ANSI_NULLS ON;
 GO
 SET QUOTED_IDENTIFIER ON;
 GO
@@ -10,7 +10,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
   , @RelativePath nvarchar(4000) = NULL
   , @ByteOffset bigint = 0
   , @MaxBytes int = 1048576
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ReadBinaryFileChunk];
 GO
@@ -22,7 +22,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_ReadTextFileChunk]
   , @ByteOffset bigint = 0
   , @MaxBytes int = 1048576
   , @EncodingName nvarchar(128) = NULL
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ReadTextFileChunk];
 GO
@@ -31,9 +31,9 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_WriteBinaryFile]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
-  , @Content varbinary(max) = NULL
+  , @Content varbinary(max)
   , @Overwrite bit = 0
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[WriteBinaryFile];
 GO
@@ -42,11 +42,11 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_WriteTextFile]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
-  , @Content nvarchar(max) = NULL
+  , @Content nvarchar(max)
   , @EncodingName nvarchar(128) = NULL
   , @WriteBom bit = 0
   , @Overwrite bit = 0
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[WriteTextFile];
 GO
@@ -61,7 +61,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_TranscodeTextFile]
   , @TargetEncodingName nvarchar(128) = NULL
   , @WriteBom bit = 0
   , @Overwrite bit = 0
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[TranscodeTextFile];
 GO
@@ -73,7 +73,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_ListDirectory]
   , @Recursive bit = 0
   , @MaxDepth int = 32
   , @MaxEntries int = 10000
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ListDirectory];
 GO
@@ -82,7 +82,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_CreateDirectory]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[CreateDirectory];
 GO
@@ -91,7 +91,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_RemoveFile]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[RemoveFile];
 GO
@@ -103,7 +103,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_RemoveDirectory]
   , @Recursive bit = 0
   , @MaxDepth int = 32
   , @MaxEntries int = 10000
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[RemoveDirectory];
 GO
@@ -542,4 +542,3 @@ BEGIN
         , @KeepData = @KeepData;
 END;
 GO
-
