@@ -259,6 +259,7 @@ module_registry:
     - Modules/toolbelt.core.error-envelope/module.yaml
     - Modules/toolbelt.core.execution-context/module.yaml
     - Modules/toolbelt.core.work-type/module.yaml
+    - Modules/toolbelt.core.second-session/module.yaml
     - Modules/toolbelt.file.content/module.yaml
     - Modules/toolbelt.archive.zip-memory/module.yaml
     - Modules/toolbelt.filesystem.windows/module.yaml
