@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-22 Module sind implementiert. 21 sind `partially validated`, ein Modul ist `not executed`.
+23 Module sind implementiert. 22 sind `partially validated`, ein Modul ist `not executed`.
 
 ## Aktive Arbeitspakete
 
