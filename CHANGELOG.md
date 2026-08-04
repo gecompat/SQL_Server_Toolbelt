@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-08-04 – W5a Second Session
+
+- `toolbelt.core.second-session` Version `1.0.0` implementiert.
+- Registrierte Work-Types laufen synchron über einen administrativ vorbereiteten
+  Loopback-Linked-Server in einer getrennten SQL-Server-Session; Raw SQL und
+  im Modul gespeicherte Credentials bleiben ausgeschlossen.
+- SQL-Server-2025-Linux-Loopback-Spike ist erfolgreich; physische SQL-Server-
+  2019-/2022- und Windows-Läufe bleiben `not executed`.
+
 ## 2026-08-01 – W4b Work-Type-Katalog
 
 - `toolbelt.core.work-type` Version `1.0.0` implementiert.
@@ -202,7 +211,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-22 Module sind implementiert. 21 sind `partially validated`, ein Modul ist
+23 Module sind implementiert. 22 sind `partially validated`, ein Modul ist
 `not executed`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und
 2025 erfolgreich; die übrigen bereits teilweise validierten Module sind
 auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
