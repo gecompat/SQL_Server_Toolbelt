@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: twenty_two_modules_implemented
+  status: twenty_three_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -259,6 +259,7 @@ module_registry:
     - Modules/toolbelt.core.error-envelope/module.yaml
     - Modules/toolbelt.core.execution-context/module.yaml
     - Modules/toolbelt.core.work-type/module.yaml
+    - Modules/toolbelt.core.second-session/module.yaml
     - Modules/toolbelt.file.content/module.yaml
     - Modules/toolbelt.archive.zip-memory/module.yaml
     - Modules/toolbelt.filesystem.windows/module.yaml
