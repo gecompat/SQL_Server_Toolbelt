@@ -4,6 +4,8 @@
 
 `toolbelt.core.second-session` Version `1.1.0` ist implementiert. Der Loopback-RPC-Provider ist auf SQL Server 2025 Linux technisch validiert; die vollständige Modulmatrix wird getrennt nachgeführt.
 
+Die manuelle Windows-Validierung über `System.Data.SqlClient` war am 2026-08-04 auf SQL Server 2025 erfolgreich; sie umfasste lokale und zentrale Bereitstellung, den Collation-übergreifenden Abgleich mit `master.sys.servers`, Provider-Probe, Contract-, Concurrency-, Central- und Lifecycle-Tests sowie geschützten und vollständigen Uninstall.
+
 ## Zweck
 
 Das Modul führt einen registrierten Work Type synchron in einer getrennten SQL-Server-Session aus. Dadurch kann ein Remote-Commit einen späteren Rollback oder einen bereits uncommittable Zustand der Caller-Transaktion überleben.
