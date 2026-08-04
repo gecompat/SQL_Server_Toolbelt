@@ -82,4 +82,15 @@ for dependency_contract in (
     if dependency_contract not in manifest:
         raise SystemExit("Second-Session-Abhängigkeitsvertrag fehlt oder ist falsch: " + dependency_contract.replace("\n", " / "))
 
+view_source = (root / "Source/VW_SecondSessionProviders.sql").read_text(encoding="utf-8")
+configure_source = (root / "Source/USP_ConfigureSecondSessionLoopback.sql").read_text(encoding="utf-8")
+for marker, text in (
+    ("s.name COLLATE Latin1_General_100_BIN2", view_source),
+    ("p.[LinkedServerName] COLLATE Latin1_General_100_BIN2", view_source),
+    ("s.name COLLATE Latin1_General_100_BIN2", configure_source),
+    ("@LinkedServerName COLLATE Latin1_General_100_BIN2", configure_source),
+):
+    if marker not in text:
+        raise SystemExit("Cross-Database-Collation-Vertrag fehlt: " + marker)
+
 print("Second Session statische Vertragsprüfung: erfolgreich")
