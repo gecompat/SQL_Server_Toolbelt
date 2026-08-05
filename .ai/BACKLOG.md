@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-23 Module sind implementiert. 22 sind `partially validated`, ein Modul ist `not executed`.
+24 Module sind implementiert. 23 sind `partially validated`, ein Modul ist `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -46,6 +46,22 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Nächster Schritt | Manuellen Windows-SQL-Server-/NTFS-Runtime-Test gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` ausführen und ausschließlich abstrahierte Ergebnisse erfassen. |
 
 ## Abgeschlossene Arbeitspakete
+
+### AP-2026-029: TC-2026-014 Rollback-independent Event Log
+
+| Feld | Wert |
+|---|---|
+| ID | `AP-2026-029` |
+| Ziel | Strukturierte Events synchron in einer zweiten Session persistieren, sodass sie Caller-Rollback und uncommittable Caller überleben. |
+| Scope | `toolbelt.core.event-log` Version `1.0.0`, EventLog-Tabelle, View, Writer, Retention, interner Work Type sowie Second Session `@SuppressResult`. |
+| Priorität | `P1` |
+| Status | `completed` |
+| Implementation Status | `implemented` |
+| Validation Status | `partially validated` |
+| Release Status | `unreleased` |
+| Tests | SQL Server 2025 Linux CL150/160/170; Rollback, uncommittable Caller, Context, Validierung, Retention, Concurrency, Redeploy, Central und Uninstall. |
+| Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410 |
+| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
 
 ### AP-2026-027: TC-2026-022 Work-Type-Katalog
 

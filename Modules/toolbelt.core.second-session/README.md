@@ -2,7 +2,7 @@
 
 ## Status
 
-`toolbelt.core.second-session` Version `1.0.0` ist implementiert. Der Loopback-RPC-Provider ist auf SQL Server 2025 Linux technisch validiert; die vollständige Modulmatrix wird getrennt nachgeführt.
+`toolbelt.core.second-session` Version `1.1.0` ist implementiert. Der Loopback-RPC-Provider ist auf SQL Server 2025 Linux technisch validiert; die vollständige Modulmatrix wird getrennt nachgeführt.
 
 ## Zweck
 
@@ -33,3 +33,7 @@ Handler-Resultsets werden mit `WITH RESULT SETS NONE` abgelehnt. Der Remote-Disp
 Die Standardausgabe ist auch bei `XACT_STATE() = -1` zulässig, weil die lokale Procedure nur liest und den nicht promovierten RPC ausführt. `@ResultTable` wird in diesem Zustand abgelehnt, da lokale Tabellenänderungen den Vertrag verletzen würden.
 
 Provider-Spike-Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703841095
+
+Version `1.1.0` ergänzt `@SuppressResult = 1` für erfolgreiche Infrastrukturaufrufe ohne lokales Resultset. Die Option ist insbesondere für rollback-unabhängige Side-Effect-Handler vorgesehen und kann nicht mit `@ResultTable` kombiniert werden.
+
+Evidenz Version `1.1.0`: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410
