@@ -4,6 +4,6 @@ Der Basisvertrag mit Registrierung, Update und `rowversion`, Disable/Reaktivieru
 
 Basis-Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193
 
-Version `1.1.0` ergänzt capabilitybezogene Tests für `USP_RemoveWorkType`: aktive Einträge, explizite Datenverlustfreigabe, stale `rowversion`, Caller-Savepoint und Rollback, uncommittable Caller, endgültige Entfernung sowie ResultTable-Ausgabe. Die konkrete Run-ID wird erst nach erfolgreicher Ausführung ergänzt.
+Version `1.1.0` ergänzt capabilitybezogene Tests für `USP_RemoveWorkType`: aktive Einträge, explizite Datenverlustfreigabe, stale `rowversion`, Caller-Savepoint und Rollback, uncommittable Caller, endgültige Entfernung sowie ResultTable-Ausgabe. Die capabilitybezogene Runtime-Matrix ist erfolgreich. Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31016136937
 
 Windows und physische SQL-Server-2019-/2022-Releaseprüfungen bleiben bis zur tatsächlichen Ausführung `not executed`.

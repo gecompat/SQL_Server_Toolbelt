@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-08-05 – Work-Type-Katalog 1.1.0
+
+- `toolbelt.core.work-type` um `toolbelt_core.USP_RemoveWorkType` erweitert.
+- Entfernung ist nur nach Disable, mit `@AllowDelete = 1` und optionaler `rowversion`-Prüfung zulässig.
+- Savepoint-, uncommittable-Caller-, ResultTable- und Lifecycle-Verträge werden capabilitybezogen getestet.
+
 ## 2026-08-04 – W5a Second Session
 
 - `toolbelt.core.second-session` Version `1.0.0` implementiert.

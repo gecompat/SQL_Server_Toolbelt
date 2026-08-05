@@ -106,3 +106,7 @@ validation_evidence:
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193"
     scope: "SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; Registrierung, Update/RowVersion, Disable/Reactivation, Resolve, ResultTable, Concurrency, Redeploy, Central und Uninstall"
     result: "success"
+  - date: "2026-08-05"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31016136937"
+    scope: "SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; Removal-Freigabe, Disable-Pflicht, RowVersion, Caller-Savepoint, uncommittable Caller, ResultTable und Lifecycle"
+    result: "success"

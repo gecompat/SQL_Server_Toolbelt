@@ -24,5 +24,5 @@
 
 - Basisvertrag Version `1.0.0`: SQL Server 2025 Linux, Compatibility Levels 150, 160 und 170 erfolgreich.
 - Basis-Workflow: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193
-- Removal-Version `1.1.0`: Evidenz wird mit dem capabilitybezogenen W4b-Runtime-Lauf ergänzt.
+- Removal-Version `1.1.0`: SQL Server 2025 Linux CL150/160/170 erfolgreich; Evidenz https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31016136937
 - Windows und physische SQL-Server-2019-/2022-Läufe: `not executed`.

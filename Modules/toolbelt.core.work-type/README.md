@@ -23,3 +23,5 @@ Version `1.1.0` ergänzt die kontrollierte Entfernung eines deaktivierten Work T
 Registrierung, Änderung, Deaktivierung und Entfernung sind administrative Vorgänge. Ein registrierender Principal muss `EXECUTE` auf die Zielprocedure besitzen. Ausführungsprovider erhalten einen getrennten Berechtigungs- und Ausführungsvertrag.
 
 Basis-Evidenz Version `1.0.0`: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193
+
+Removal-Evidenz Version `1.1.0`: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31016136937
