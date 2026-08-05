@@ -502,7 +502,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Nein bekannt |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Ein Parallelisierungs-Framework kann ausschließlich registrierte Procedures beziehungsweise versionierte Work Types mit typisierten Parametern starten, anstatt eine allgemeine Remote-Code-Execution-Schnittstelle für SQL-Text anzubieten. |
-| **Mögliche Technologie** | Implementiert als `toolbelt.core.work-type`: interne persistente Tabelle `toolbelt_core.WorkType`, ausschließlich vorhandene Stored Procedures, ParameterMode `NONE`/`JSON_PAYLOAD`, deklarativer JSON-Vertrag, `rowversion`, kontrolliertes Register/Disable/Resolve und öffentliche View. Raw SQL bleibt ausgeschlossen. |
+| **Mögliche Technologie** | Implementiert als persistenter T-SQL-Katalog `toolbelt.core.work-type`. Version `1.1.0` ergänzt die kontrollierte Entfernung deaktivierter Work Types über `USP_RemoveWorkType`; Raw SQL bleibt ausgeschlossen. |
 | **Performance und Security** | Der Katalog ist selbst ein Security Boundary und benötigt kontrollierte Änderungsrechte, Dependency-Preflight und Versionierung. Modul-Signing oder gezielte `EXECUTE AS`-Alternativen sind vor Privilegienerweiterung zu vergleichen. Raw-SQL-Opt-in wäre eine separate Hochrisiko-Capability und keine versteckte Option. |
 | **Plattformgrenzen** | T-SQL-Kern voraussichtlich plattformgleich; Signierung, Provider und zentrale Installation getrennt validieren. |
 | **Dependencies** | `toolbelt.core.result-table`; die persistente Tabellen-/Constraint-/Indexkonvention ist mit `DEC-2026-025` akzeptiert. `TC-2026-046` und `TC-2026-014` bauen darauf auf. |
@@ -510,7 +510,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-executesql-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/signing-stored-procedures-with-a-certificate?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/security/permissions-database-engine?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-08-01 |
-| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Providerberechtigungen und tatsächliche Ausführung bleiben getrennte W5-Verträge. |
+| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; abhängige Module verwenden für ihren Lifecycle Disable → Remove statt direkter Katalog-DML. |
 
 ## TC-2026-023: Abfragbarer Capability- und Versionskatalog
 
