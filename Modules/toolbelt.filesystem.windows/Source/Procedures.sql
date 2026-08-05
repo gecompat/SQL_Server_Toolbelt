@@ -170,6 +170,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([Content] varbinary(max) NULL, [BytesRead] int NOT NULL, [NextByteOffset] bigint NOT NULL, [EndOfFile] bit NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
@@ -177,7 +178,7 @@ BEGIN
           , @RelativePath
           , @ByteOffset
           , @MaxBytes
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -214,6 +215,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([Content] nvarchar(max) NULL, [BytesRead] int NOT NULL, [NextByteOffset] bigint NOT NULL, [EndOfFile] bit NOT NULL, [EncodingName] nvarchar(128) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_ReadTextFileChunk]
@@ -222,7 +224,7 @@ BEGIN
           , @ByteOffset
           , @MaxBytes
           , @EncodingName
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -258,6 +260,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([BytesWritten] bigint NOT NULL, [RootAlias] nvarchar(128) NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [State] varchar(16) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_WriteBinaryFile]
@@ -265,7 +268,7 @@ BEGIN
           , @RelativePath
           , @Content
           , @Overwrite
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -303,6 +306,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([BytesWritten] bigint NOT NULL, [RootAlias] nvarchar(128) NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [State] varchar(16) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_WriteTextFile]
@@ -312,7 +316,7 @@ BEGIN
           , @EncodingName
           , @WriteBom
           , @Overwrite
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -352,6 +356,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([BytesWritten] bigint NOT NULL, [RootAlias] nvarchar(128) NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [State] varchar(16) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_TranscodeTextFile]
@@ -363,7 +368,7 @@ BEGIN
           , @TargetEncodingName
           , @WriteBom
           , @Overwrite
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -400,6 +405,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([EntryOrdinal] bigint NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [EntryType] varchar(16) NOT NULL, [SizeBytes] bigint NOT NULL, [LastWriteTimeUtc] datetime2 NOT NULL, [IsReparsePoint] bit NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_ListDirectory]
@@ -408,7 +414,7 @@ BEGIN
           , @Recursive
           , @MaxDepth
           , @MaxEntries
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -442,12 +448,13 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([RootAlias] nvarchar(128) NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [State] varchar(16) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_CreateDirectory]
               @RootAlias
           , @RelativePath
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -481,12 +488,13 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([RootAlias] nvarchar(128) NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [State] varchar(16) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_RemoveFile]
               @RootAlias
           , @RelativePath
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -523,6 +531,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([RootAlias] nvarchar(128) NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [State] varchar(16) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_RemoveDirectory]
@@ -531,7 +540,7 @@ BEGIN
           , @Recursive
           , @MaxDepth
           , @MaxEntries
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
