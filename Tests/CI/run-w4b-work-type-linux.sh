@@ -72,6 +72,7 @@ run_file "${local_db}" /workspace/Modules/toolbelt.core.work-type/Tests/Runtime 
 for level in 150 160 170; do
   run_query "${local_db}" "ALTER DATABASE [${local_db}] SET COMPATIBILITY_LEVEL = ${level};"
   run_file "${local_db}" /workspace/Modules/toolbelt.core.work-type/Tests/Runtime WorkType.Contract.sql
+  run_file "${local_db}" /workspace/Modules/toolbelt.core.work-type/Tests/Runtime Remove.Contract.sql
 done
 
 # Concurrency: gleicher idempotenter Register-Aufruf aus vier echten Sessions.
