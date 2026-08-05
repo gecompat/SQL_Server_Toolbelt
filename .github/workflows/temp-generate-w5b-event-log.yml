@@ -8,6 +8,7 @@ on:
       - .github/workflows/temp-generate-w5b-event-log.yml
       - Tests/Documentation/generate_w5b_event_module.py
       - Tests/Documentation/patch_w5b_repository.py
+      - Tests/Documentation/fix_w5b_patch.py
       - Tests/CI/run-w5b-event-log-linux.sh
 
 permissions:
@@ -27,6 +28,8 @@ jobs:
           fetch-depth: 0
       - name: Generate modules
         run: python3 Tests/Documentation/generate_w5b_event_module.py
+      - name: Normalize repository patch
+        run: python3 Tests/Documentation/fix_w5b_patch.py
       - name: Couple repository metadata
         run: python3 Tests/Documentation/patch_w5b_repository.py
       - name: Validate static contracts
@@ -49,7 +52,8 @@ jobs:
           git reset -- \
             .github/workflows/temp-generate-w5b-event-log.yml \
             Tests/Documentation/generate_w5b_event_module.py \
-            Tests/Documentation/patch_w5b_repository.py
+            Tests/Documentation/patch_w5b_repository.py \
+            Tests/Documentation/fix_w5b_patch.py
           if git diff --cached --quiet; then
             echo "Keine dauerhaften W5b-Änderungen zu committen."
             exit 0
