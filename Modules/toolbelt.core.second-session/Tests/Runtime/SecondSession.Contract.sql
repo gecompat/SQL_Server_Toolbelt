@@ -296,6 +296,31 @@ BEGIN CATCH
         THROW;
 END CATCH;
 
+CREATE TABLE #SuppressedSecondSessionResult(Dummy int NULL);
+INSERT INTO #SuppressedSecondSessionResult
+EXEC toolbelt_core.USP_ExecuteWorkTypeInNewSession
+      @WorkTypeName = 'test.second-session.none'
+    , @SuppressResult = 1;
+IF EXISTS (SELECT 1 FROM #SuppressedSecondSessionResult)
+    THROW 52645, N'@SuppressResult erzeugte unerwartete Infrastrukturzeilen.', 1;
+DROP TABLE #SuppressedSecondSessionResult;
+
+BEGIN TRY
+    CREATE TABLE #InvalidSuppressResult(Dummy int NULL);
+    EXEC toolbelt_core.USP_ExecuteWorkTypeInNewSession
+          @WorkTypeName = 'test.second-session.none'
+        , @ResultTable = N'#InvalidSuppressResult'
+        , @SuppressResult = 1;
+    DROP TABLE #InvalidSuppressResult;
+    THROW 52646, N'@SuppressResult mit @ResultTable wurde nicht abgelehnt.', 1;
+END TRY
+BEGIN CATCH
+    IF OBJECT_ID(N'tempdb..#InvalidSuppressResult') IS NOT NULL
+        DROP TABLE #InvalidSuppressResult;
+    IF ERROR_NUMBER() = 52646 OR ERROR_NUMBER() <> 51620
+        THROW;
+END CATCH;
+
 CREATE TABLE #SecondSessionResult(Dummy int NULL);
 EXEC toolbelt_core.USP_ExecuteWorkTypeInNewSession
       @WorkTypeName = 'test.second-session.none'

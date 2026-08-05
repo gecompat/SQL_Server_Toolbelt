@@ -1,0 +1,38 @@
+name: W5b Event Log Runtime
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - Modules/toolbelt.core.event-log/**
+      - Modules/toolbelt.core.second-session/**
+      - Tests/CI/run-w5b-event-log-linux.sh
+      - .github/workflows/w5b-event-log-runtime.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    name: Static contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Second Session
+        run: python3 Modules/toolbelt.core.second-session/Tests/Static/validate_contract.py
+      - name: Validate Event Log
+        run: python3 Modules/toolbelt.core.event-log/Tests/Static/validate_contract.py
+
+  runtime:
+    name: SQL Server 2025 Linux / compatibility 150, 160 and 170
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Execute rollback-independent event-log contracts
+        env:
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Tests/CI/run-w5b-event-log-linux.sh

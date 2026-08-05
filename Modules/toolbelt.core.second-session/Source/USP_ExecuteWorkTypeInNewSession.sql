@@ -13,6 +13,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_core].[USP_ExecuteWorkTypeInNewSession]
     , @Tenant        nvarchar(256) = NULL
     , @ResultTable   sysname = NULL
     , @KeepData      bit = 0
+    , @SuppressResult bit = 0
     , @Debug         tinyint = 0
     , @Hilfe         bit = 0
 )
@@ -21,6 +22,7 @@ BEGIN
     SET NOCOUNT ON;
 
     SET @KeepData = ISNULL(@KeepData, 0);
+    SET @SuppressResult = ISNULL(@SuppressResult, 0);
     SET @Debug = ISNULL(@Debug, 0);
     SET @Hilfe = ISNULL(@Hilfe, 0);
 
@@ -50,7 +52,8 @@ BEGIN
             , ('PARAMETER', 5, N'@Actor', 'nvarchar(256)', 0, 1, NULL, N'Expliziter Actor; sonst aktiver Context oder ORIGINAL_LOGIN().', NULL)
             , ('PARAMETER', 6, N'@Tenant', 'nvarchar(256)', 0, 1, NULL, N'Optionaler Tenant-Kontext.', NULL)
             , ('PARAMETER', 7, N'@ResultTable', 'sysname', 0, 1, NULL, N'Optionale lokale Temp-Tabelle; in uncommittable Transaktionen nicht zulässig.', NULL)
-            , ('ERROR', 1, N'51610-51619', NULL, NULL, NULL, NULL, N'Provider-, Work-Type-, Payload- und ResultTable-Fehler.', NULL)
+            , ('PARAMETER', 8, N'@SuppressResult', 'bit', 0, 0, N'0', N'Bei 1 wird nach erfolgreicher Ausführung kein Infrastruktur-Resultset ausgegeben; nicht mit @ResultTable kombinierbar.', NULL)
+            , ('ERROR', 1, N'51610-51620', NULL, NULL, NULL, NULL, N'Provider-, Work-Type-, Payload- und ResultTable-Fehler.', NULL)
             , ('EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, N'Führt einen NONE-Handler in einer neuen Session aus.', N'EXEC toolbelt_core.USP_ExecuteWorkTypeInNewSession @WorkTypeName=''demo.noop'';')
         ) AS v(Section, Ordinal, ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue, Description, ExampleSql)
         ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'ERROR' THEN 3 ELSE 4 END, v.Ordinal;
@@ -61,6 +64,8 @@ BEGIN
         THROW 51610, N'@WorkTypeName ist erforderlich.', 1;
     IF @ResultTable IS NOT NULL AND XACT_STATE() = -1
         THROW 51611, N'@ResultTable ist in einer uncommittable Caller-Transaktion nicht zulässig.', 1;
+    IF @SuppressResult = 1 AND @ResultTable IS NOT NULL
+        THROW 51620, N'@SuppressResult = 1 kann nicht mit @ResultTable kombiniert werden.', 1;
 
     DECLARE
           @LinkedServerName sysname
@@ -172,6 +177,13 @@ BEGIN
 
     DECLARE @DurationMilliseconds decimal(19,3) =
         CONVERT(decimal(19,3), DATEDIFF_BIG(MICROSECOND, @RemoteStartedAtUtc, @RemoteCompletedAtUtc) / 1000.0);
+
+    IF @SuppressResult = 1
+    BEGIN
+        IF @Debug > 0
+            RAISERROR(N'USP_ExecuteWorkTypeInNewSession: Work Type wurde ohne Infrastruktur-Resultset ausgeführt.', 10, 1) WITH NOWAIT;
+        RETURN 0;
+    END;
 
     IF @ResultTable IS NULL
     BEGIN

@@ -9,7 +9,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 23 Module sind implementiert; 22 sind `partially validated`, 1 ist `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 24 Module sind implementiert; 23 sind `partially validated`, 1 ist `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -106,6 +106,7 @@ freigegebenes Arbeitspaket aktiv.
 | `TC-2026-005` | `toolbelt.datetime.bucket` | `TVF_DateBucketDate`, `TVF_DateBucketDateTime2`, `TVF_DateBucketDateTimeOffset` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
 | `TC-2026-007` | `toolbelt.binary.bit-operations` | `TVF_LeftShiftBigInt`, `TVF_RightShiftBigInt`, `TVF_BitCountBigInt`, `TVF_GetBitBigInt`, `TVF_SetBitBigInt` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Binary-Slice bleibt getrennt. |
 | `TC-2026-009` | `toolbelt.json.path-exists` | `toolbelt_json.TVF_JsonPathExists` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Konstruktoren bleiben getrennt. |
+| `TC-2026-014` | `toolbelt.core.event-log` | `toolbelt_core.USP_WriteEvent`, `VW_Events`, `USP_DeleteEventsBefore` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; betriebliche Loopback-Blockierungsprofile. |
 | `TC-2026-016` | `toolbelt.core.console-message` | `toolbelt_core.USP_WriteConsoleMessage` | Physische 2019-/2022-, Windows- und weitere Client-/Treiber-Evidenz. |
 | `TC-2026-017` | `toolbelt.core.error-envelope` | `toolbelt_core.USP_CaptureErrorEnvelope` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Retry-Entscheidungen bleiben ausdrücklich außerhalb dieses Moduls. |
 | `TC-2026-019` | `toolbelt.core.execution-context` | `toolbelt_core.TVF_CurrentExecutionContext`, `toolbelt_core.SVF_CurrentExecutionId`, `toolbelt_core.USP_BeginExecution`, `toolbelt_core.USP_SetExecutionContext`, `toolbelt_core.USP_EndExecution` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung sowie Connection-Pooling-Evidenz. |

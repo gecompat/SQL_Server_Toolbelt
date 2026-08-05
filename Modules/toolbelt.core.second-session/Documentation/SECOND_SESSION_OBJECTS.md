@@ -17,3 +17,7 @@ Löst den Work Type lokal auf, prüft Providerdrift und übergibt ausschließlic
 Die Ergebniszeile enthält Caller- und Remote-Session-ID, Caller-Transaktionszustand, Context-IDs, Handler-Returncode und Remote-Dauer. Ein Handlerfehler wird nicht in Erfolg umgewandelt.
 
 `@ResultTable` folgt dem allgemeinen USP-Vertrag, ist aber bei `XACT_STATE() = -1` nicht zulässig. Die direkte Standardausgabe bleibt in diesem Zustand verfügbar.
+
+## Resultsetfreie Infrastrukturaufrufe
+
+`USP_ExecuteWorkTypeInNewSession` unterstützt ab Version `1.1.0` `@SuppressResult = 1`. Der Remote-Handler und dessen Returncode werden vollständig ausgeführt und geprüft; lediglich das lokale Infrastruktur-Resultset entfällt. `@SuppressResult` und `@ResultTable` schließen einander aus.
