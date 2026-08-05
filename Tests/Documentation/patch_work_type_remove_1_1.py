@@ -115,6 +115,12 @@ if EVIDENCE_URL:
 """
         write(manifest_path, manifest)
 
+    module_readme_path = "Modules/toolbelt.core.work-type/README.md"
+    module_readme = read(module_readme_path)
+    if EVIDENCE_URL not in module_readme:
+        module_readme += f"\nRemoval-Evidenz Version `1.1.0`: {EVIDENCE_URL}\n"
+        write(module_readme_path, module_readme)
+
     evidence_path = "Modules/toolbelt.core.work-type/Tests/README.md"
     evidence = read(evidence_path)
     evidence = evidence.replace(
