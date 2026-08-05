@@ -1,10 +1,12 @@
 SET NOCOUNT ON;
+GO
 
 CREATE OR ALTER PROCEDURE toolbelt_core.USP_TestRemoveWorkType
 AS
 BEGIN
     SET NOCOUNT ON;
 END;
+GO
 
 EXEC toolbelt_core.USP_RegisterWorkType
       @WorkTypeName = 'test.remove'
@@ -144,3 +146,4 @@ END CATCH;
 
 DROP PROCEDURE toolbelt_core.USP_TestRemoveWorkType;
 PRINT N'Work Type Remove Contract: erfolgreich';
+GO
