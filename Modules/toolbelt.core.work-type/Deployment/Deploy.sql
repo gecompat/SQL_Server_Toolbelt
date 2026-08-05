@@ -57,6 +57,7 @@ VALUES
   (N'VW_WorkTypes', N'V')
 , (N'USP_RegisterWorkType', N'P')
 , (N'USP_DisableWorkType', N'P')
+, (N'USP_RemoveWorkType', N'P')
 , (N'USP_ResolveWorkType', N'P');
 
 IF EXISTS
@@ -84,6 +85,7 @@ GO
 :r ../Source/VW_WorkTypes.sql
 :r ../Source/USP_RegisterWorkType.sql
 :r ../Source/USP_DisableWorkType.sql
+:r ../Source/USP_RemoveWorkType.sql
 :r ../Source/USP_ResolveWorkType.sql
 GO
 
@@ -96,6 +98,7 @@ VALUES
 , (N'VW_WorkTypes', N'VIEW')
 , (N'USP_RegisterWorkType', N'PROCEDURE')
 , (N'USP_DisableWorkType', N'PROCEDURE')
+, (N'USP_RemoveWorkType', N'PROCEDURE')
 , (N'USP_ResolveWorkType', N'PROCEDURE');
 
 DECLARE @ObjectName sysname;
@@ -142,7 +145,7 @@ BEGIN
     )
         EXEC sys.sp_updateextendedproperty
               @name = N'Toolbelt.ModuleVersion'
-            , @value = N'1.0.0'
+            , @value = N'1.1.0'
             , @level0type = N'SCHEMA'
             , @level0name = N'toolbelt_core'
             , @level1type = @LevelType
@@ -150,7 +153,7 @@ BEGIN
     ELSE
         EXEC sys.sp_addextendedproperty
               @name = N'Toolbelt.ModuleVersion'
-            , @value = N'1.0.0'
+            , @value = N'1.1.0'
             , @level0type = N'SCHEMA'
             , @level0name = N'toolbelt_core'
             , @level1type = @LevelType
@@ -164,9 +167,9 @@ DEALLOCATE object_cursor;
 DECLARE @VersionProperty sysname = N'Toolbelt.Module.toolbelt.core.work-type.Version';
 DECLARE @ModeProperty sysname = N'Toolbelt.Module.toolbelt.core.work-type.DeploymentMode';
 IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = @VersionProperty)
-    EXEC sys.sp_updateextendedproperty @name = @VersionProperty, @value = N'1.0.0';
+    EXEC sys.sp_updateextendedproperty @name = @VersionProperty, @value = N'1.1.0';
 ELSE
-    EXEC sys.sp_addextendedproperty @name = @VersionProperty, @value = N'1.0.0';
+    EXEC sys.sp_addextendedproperty @name = @VersionProperty, @value = N'1.1.0';
 
 IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = @ModeProperty)
     EXEC sys.sp_updateextendedproperty @name = @ModeProperty, @value = @DeploymentMode;
