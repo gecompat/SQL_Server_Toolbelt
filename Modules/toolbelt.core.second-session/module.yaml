@@ -29,14 +29,14 @@ deployment_capabilities:
   central_preferred: true
 dependencies:
   - module_id: "toolbelt.core.result-table"
-    minimum_version: "1.1.0"
+    minimum_version: "1.0.0"
     reason: "Optionale ResultTable-Ausgabe."
   - module_id: "toolbelt.core.execution-context"
-    minimum_version: "1.1.0"
+    minimum_version: "1.0.0"
     reason: "Execution- und Correlation-Kontext in der Remote-Session."
   - module_id: "toolbelt.core.work-type"
     minimum_version: "1.1.0"
-    reason: "Allowlisted Stored-Procedure-Handler und ParameterMode."
+    reason: "Allowlisted Stored-Procedure-Handler, ParameterMode und kontrollierter Lifecycle."
 schemas:
   - "toolbelt_core"
 objects:
@@ -65,7 +65,7 @@ resultset_contracts:
     error_range: "51600-51609"
   - object: "toolbelt_core.USP_ExecuteWorkTypeInNewSession"
     kind: "data"
-    resultset: "genau eine Ausführungszeile mit Caller-/Remote-Session, Context, Returncode und Dauer"
+    resultset: "standardmäßig genau eine Ausführungszeile; bei @SuppressResult = 1 kein Infrastruktur-Resultset"
     return_code_success: 0
     error_range: "51610-51620"
   - object: "toolbelt_core.USP_DispatchWorkType"
@@ -107,7 +107,6 @@ validation_evidence:
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703841095"
     scope: "SQL Server 2025 Linux Provider-Spike; Caller-Rollback, uncommittable Caller, getrennte SPID, Remote-Fehlerrollback und Resultset-Ablehnung"
     result: "success"
-validation_evidence:
   - date: "2026-08-05"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410"
     scope: "Second Session 1.1.0: suppressiertes Infrastruktur-Resultset und Event-Log-Abhängigkeit auf SQL Server 2025 Linux CL150/160/170"
