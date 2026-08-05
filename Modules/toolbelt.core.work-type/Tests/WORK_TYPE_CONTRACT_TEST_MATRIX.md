@@ -9,7 +9,11 @@
 - kontrolliertes Update mit `@AllowUpdate`
 - Optimistic Concurrency über `rowversion`
 - Disable, idempotentes Disable und explizite Reaktivierung
-- direkte Ausgabe und ResultTable Replace/Append
+- Removal nur nach Disable und mit `@AllowDelete = 1`
+- Removal mit optionaler `rowversion`-Prüfung gegen konkurrierende Änderungen
+- Remove-Savepoint innerhalb einer Caller-Transaktion und Wiederherstellung durch Caller-Rollback
+- Ablehnung der Removal-Mutation bei `XACT_STATE() = -1`
+- direkte Ausgabe und ResultTable Replace/Append beziehungsweise Remove-Ausgabe
 - vier parallele Registrierungen desselben Work Types
 - Redeploy erhält persistente Katalogdaten
 - lokales und zentrales Deployment
@@ -18,6 +22,7 @@
 
 ## Ausgeführte Evidenz
 
-- SQL Server 2025 Linux, Compatibility Levels 150, 160 und 170: erfolgreich.
-- Workflow: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193
+- Basisvertrag Version `1.0.0`: SQL Server 2025 Linux, Compatibility Levels 150, 160 und 170 erfolgreich.
+- Basis-Workflow: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193
+- Removal-Version `1.1.0`: Evidenz wird mit dem capabilitybezogenen W4b-Runtime-Lauf ergänzt.
 - Windows und physische SQL-Server-2019-/2022-Läufe: `not executed`.
