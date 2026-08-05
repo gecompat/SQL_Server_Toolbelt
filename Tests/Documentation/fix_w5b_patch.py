@@ -18,7 +18,16 @@ new="""if phase.strip() not in roadmap:
 """
 if text.count(old)!=1:
     raise SystemExit(f'Erwarteter Roadmap-Patchblock wurde {text.count(old)}-mal gefunden.')
-path.write_text(text.replace(old,new,1),encoding='utf-8',newline='\n')
+text=text.replace(old,new,1)
+
+count_tuple_old="""for path in ('README.md','Modules/README.md','Tests/README.md','.ai/BACKLOG.md','.ai/ROADMAP.md','.ai/PROJECT_CONTEXT.md','Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md'):
+"""
+count_tuple_new="""for path in ('README.md','Modules/README.md','Tests/README.md','CHANGELOG.md','.ai/BACKLOG.md','.ai/ROADMAP.md','.ai/PROJECT_CONTEXT.md','Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md'):
+"""
+if text.count(count_tuple_old)!=1:
+    raise SystemExit(f'Erwartete Modulzahl-Dateiliste wurde {text.count(count_tuple_old)}-mal gefunden.')
+text=text.replace(count_tuple_old,count_tuple_new,1)
+path.write_text(text,encoding='utf-8',newline='\n')
 
 static_path=Path('Modules/toolbelt.core.second-session/Tests/Static/validate_contract.py')
 static=static_path.read_text(encoding='utf-8')
