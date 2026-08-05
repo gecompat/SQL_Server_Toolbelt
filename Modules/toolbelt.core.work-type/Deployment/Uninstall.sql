@@ -19,7 +19,7 @@ IF EXISTS
     (
         VALUES
           (N'WorkType'), (N'VW_WorkTypes'), (N'USP_RegisterWorkType')
-        , (N'USP_DisableWorkType'), (N'USP_ResolveWorkType')
+        , (N'USP_DisableWorkType'), (N'USP_RemoveWorkType'), (N'USP_ResolveWorkType')
     ) AS o(ObjectName)
     WHERE OBJECT_ID(N'toolbelt_core.' + o.ObjectName) IS NOT NULL
       AND NOT EXISTS
@@ -59,6 +59,7 @@ IF @WorkTypeHasData = 1 AND @AllowDataLoss <> 1
 BEGIN TRANSACTION;
 
 DROP PROCEDURE IF EXISTS [toolbelt_core].[USP_ResolveWorkType];
+DROP PROCEDURE IF EXISTS [toolbelt_core].[USP_RemoveWorkType];
 DROP PROCEDURE IF EXISTS [toolbelt_core].[USP_DisableWorkType];
 DROP PROCEDURE IF EXISTS [toolbelt_core].[USP_RegisterWorkType];
 DROP VIEW IF EXISTS [toolbelt_core].[VW_WorkTypes];

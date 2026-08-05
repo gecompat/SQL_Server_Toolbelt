@@ -1,6 +1,6 @@
 module_id: "toolbelt.core.work-type"
 module_name: "Work Type Catalog"
-version: "1.0.0"
+version: "1.1.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
@@ -38,6 +38,7 @@ objects:
   - {type: VIEW, schema: "toolbelt_core", name: "VW_WorkTypes", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_RegisterWorkType", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_DisableWorkType", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_RemoveWorkType", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_ResolveWorkType", visibility: public}
 permissions_required:
   - "EXECUTE auf die Verwaltungs- beziehungsweise Auflösungs-USPs entsprechend Betriebsrolle"
@@ -60,6 +61,11 @@ resultset_contracts:
     resultset: "genau eine aktuelle Work-Type-Zeile"
     return_code_success: 0
     error_range: "51520-51522"
+  - object: "toolbelt_core.USP_RemoveWorkType"
+    kind: "data"
+    resultset: "genau eine entfernte Work-Type-Zeile"
+    return_code_success: 0
+    error_range: "51523-51528"
   - object: "toolbelt_core.USP_ResolveWorkType"
     kind: "data"
     resultset: "genau eine aufgelöste Work-Type-Zeile"
@@ -90,6 +96,7 @@ contracts:
 tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/WorkType.Contract.sql"
+  remove: "Tests/Runtime/Remove.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   multi_session: "Tests/Runtime/Concurrency.Contract.sql"
@@ -98,4 +105,8 @@ validation_evidence:
   - date: "2026-08-01"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193"
     scope: "SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; Registrierung, Update/RowVersion, Disable/Reactivation, Resolve, ResultTable, Concurrency, Redeploy, Central und Uninstall"
+    result: "success"
+  - date: "2026-08-05"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31016136937"
+    scope: "SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; Removal-Freigabe, Disable-Pflicht, RowVersion, Caller-Savepoint, uncommittable Caller, ResultTable und Lifecycle"
     result: "success"
