@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-08-05 – W5b Event Log
+
+- `toolbelt.core.second-session` auf Version `1.1.0` mit `@SuppressResult` erweitert.
+- `toolbelt.core.event-log` Version `1.0.0` implementiert: rollback-unabhängiger Writer, Event-View, begrenzte Retention und sauberer Work-Type-Lifecycle.
+- SQL Server 2025 Linux CL150/160/170 einschließlich Rollback, uncommittable Caller, Concurrency, Central und Uninstall erfolgreich.
+
 ## 2026-08-05 – Work-Type-Katalog 1.1.0
 
 - `toolbelt.core.work-type` um `toolbelt_core.USP_RemoveWorkType` erweitert.
@@ -217,7 +223,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-23 Module sind implementiert. 22 sind `partially validated`, ein Modul ist
+24 Module sind implementiert. 23 sind `partially validated`, ein Modul ist
 `not executed`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und
 2025 erfolgreich; die übrigen bereits teilweise validierten Module sind
 auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170

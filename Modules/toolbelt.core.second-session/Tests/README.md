@@ -7,3 +7,5 @@ Provider-Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/3
 Die vollständige Modulmatrix für Konfiguration, Work-Type-Signaturen, Context-Propagation, ResultTable, Concurrency, Central, Lifecycle und Uninstall wird im dauerhaften W5a-Runtime-Workflow ausgeführt.
 
 Windows und physische SQL-Server-2019-/2022-Releaseprüfungen bleiben bis zur tatsächlichen Ausführung `not executed`.
+
+Version `1.1.0` mit resultsetfreier Ausführung: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410

@@ -29,3 +29,5 @@
 - SQL Server 2025 Linux Loopback-RPC-Spike: erfolgreich.
 - Workflow: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703841095
 - Vollständige Modulmatrix: wird mit dem produktiven Runtime-Workflow nachgeführt.
+
+- Version 1.1.0 / `@SuppressResult`: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410

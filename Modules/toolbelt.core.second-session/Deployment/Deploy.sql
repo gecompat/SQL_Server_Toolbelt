@@ -149,7 +149,7 @@ BEGIN
     )
         EXEC sys.sp_updateextendedproperty
               @name = N'Toolbelt.ModuleVersion'
-            , @value = N'1.0.0'
+            , @value = N'1.1.0'
             , @level0type = N'SCHEMA'
             , @level0name = N'toolbelt_core'
             , @level1type = @LevelType
@@ -157,7 +157,7 @@ BEGIN
     ELSE
         EXEC sys.sp_addextendedproperty
               @name = N'Toolbelt.ModuleVersion'
-            , @value = N'1.0.0'
+            , @value = N'1.1.0'
             , @level0type = N'SCHEMA'
             , @level0name = N'toolbelt_core'
             , @level1type = @LevelType
@@ -171,9 +171,9 @@ DEALLOCATE object_cursor;
 DECLARE @VersionProperty sysname = N'Toolbelt.Module.toolbelt.core.second-session.Version';
 DECLARE @ModeProperty sysname = N'Toolbelt.Module.toolbelt.core.second-session.DeploymentMode';
 IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = @VersionProperty)
-    EXEC sys.sp_updateextendedproperty @name = @VersionProperty, @value = N'1.0.0';
+    EXEC sys.sp_updateextendedproperty @name = @VersionProperty, @value = N'1.1.0';
 ELSE
-    EXEC sys.sp_addextendedproperty @name = @VersionProperty, @value = N'1.0.0';
+    EXEC sys.sp_addextendedproperty @name = @VersionProperty, @value = N'1.1.0';
 
 IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = @ModeProperty)
     EXEC sys.sp_updateextendedproperty @name = @ModeProperty, @value = @DeploymentMode;

@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 23 Module sind implementiert. 22 sind `partially validated`,
+abgeschlossen. 24 Module sind implementiert. 23 sind `partially validated`,
 ein Modul ist `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
@@ -355,6 +355,12 @@ Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/307032942
 schließt Raw SQL aus und schützt Änderungen mit expliziten Flags und `rowversion`.
 Die erste persistente Tabellenkonvention ist in `DEC-2026-025` festgehalten.
 Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193.
+
+### Phase 2.13 – Rollback-independent Event Log
+
+**Status:** `completed`; Runtime `partially validated`
+
+`toolbelt.core.event-log` persistiert strukturierte Events über die synchrone zweite Session. Caller-Rollback und uncommittable Caller sind auf SQL Server 2025 Linux CL150/160/170 nachgewiesen. Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410.
 
 ### Phase 2.6 – Portable File Content
 

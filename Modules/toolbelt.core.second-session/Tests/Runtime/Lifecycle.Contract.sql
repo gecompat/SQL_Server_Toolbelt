@@ -31,7 +31,7 @@ IF NOT EXISTS
     FROM sys.extended_properties
     WHERE class = 0
       AND name = N'Toolbelt.Module.toolbelt.core.second-session.Version'
-      AND CONVERT(nvarchar(32), value) = N'1.0.0'
+      AND CONVERT(nvarchar(32), value) = N'1.1.0'
 )
     THROW 52662, N'Second-Session-Modulmarker fehlt.', 1;
 
