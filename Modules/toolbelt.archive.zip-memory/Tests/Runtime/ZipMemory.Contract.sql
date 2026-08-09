@@ -48,6 +48,8 @@ DECLARE @Help TABLE
     , ExampleSql          nvarchar(max)  NULL
 );
 
+DECLARE @ZipUtf8EntryName nvarchar(50) = N'Gr' + NCHAR(252) + NCHAR(223) + N'e.txt';
+
 INSERT INTO @Help
 EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
       @ZipArchive = 0x00
@@ -185,13 +187,13 @@ DELETE FROM @Result;
 INSERT INTO @Result
 EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
       @ZipArchive = @ZipUtf8
-    , @EntryName = N'Grüße.txt';
+    , @EntryName = @ZipUtf8EntryName;
 
 IF NOT EXISTS
    (
        SELECT 1
        FROM @Result
-       WHERE EntryName = N'Grüße.txt'
+       WHERE EntryName = @ZipUtf8EntryName
          AND CompressionMethod = 8
          AND Crc32 = 612121086
          AND EntryPayload = 0xC396737465727265696368

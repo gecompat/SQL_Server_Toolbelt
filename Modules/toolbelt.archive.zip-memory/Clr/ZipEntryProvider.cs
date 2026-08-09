@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlTypes;
 using System.IO;
@@ -35,6 +36,12 @@ namespace Toolbelt.Archive.ZipMemory
             DataDescriptorFlag |
             StrongEncryptionFlag |
             Utf8Flag;
+
+        private const string PathSafe = "safe";
+        private const string PathAbsolute = "absolute";
+        private const string PathDriveQualified = "drive-qualified";
+        private const string PathParentTraversal = "parent-traversal";
+        private const string PathNonCanonical = "noncanonical";
 
         private static readonly Encoding Utf8Strict =
             new UTF8Encoding(false, true);
@@ -115,6 +122,72 @@ namespace Toolbelt.Archive.ZipMemory
             return new ProviderResult[] { result };
         }
 
+        [SqlFunction(
+            DataAccess = DataAccessKind.None,
+            SystemDataAccess = SystemDataAccessKind.None,
+            IsDeterministic = true,
+            IsPrecise = true,
+            FillRowMethodName = "FillListRow",
+            TableDefinition =
+                "ErrorNumber int, " +
+                "ErrorMessage nvarchar(4000), " +
+                "EntryOrdinal int, " +
+                "EntryName nvarchar(1024), " +
+                "IsDirectory bit, " +
+                "CompressedBytes bigint, " +
+                "UncompressedBytes bigint, " +
+                "CompressionMethod int, " +
+                "Crc32 int, " +
+                "IsEncrypted bit, " +
+                "IsExtractionSupported bit, " +
+                "DuplicateCount int, " +
+                "IsPathSafe bit, " +
+                "PathStatus varchar(32), " +
+                "LastModifiedAt datetime2(0)")]
+        public static IEnumerable ListZipEntriesFromBinary(
+            SqlBytes zipArchive,
+            SqlInt32 maxEntries)
+        {
+            ProviderListResult result;
+
+            try
+            {
+                return ListEntries(zipArchive, maxEntries);
+            }
+            catch (ZipProviderException exception)
+            {
+                result = ProviderListResult.Failure(
+                    exception.ErrorNumber,
+                    exception.Message);
+            }
+            catch (InvalidDataException)
+            {
+                result = ProviderListResult.Failure(
+                    51321,
+                    "Der ZIP-Container ist strukturell ungültig oder unvollständig.");
+            }
+            catch (DecoderFallbackException)
+            {
+                result = ProviderListResult.Failure(
+                    51321,
+                    "Ein ZIP-Entry-Name verwendet eine ungültige Zeichenkodierung.");
+            }
+            catch (EndOfStreamException)
+            {
+                result = ProviderListResult.Failure(
+                    51321,
+                    "Der ZIP-Container endet innerhalb einer benötigten Struktur.");
+            }
+            catch (IOException)
+            {
+                result = ProviderListResult.Failure(
+                    51321,
+                    "Der ZIP-Container konnte nicht vollständig gelesen werden.");
+            }
+
+            return new ProviderListResult[] { result };
+        }
+
         public static void FillRow(
             object value,
             out SqlInt32 errorNumber,
@@ -156,6 +229,75 @@ namespace Toolbelt.Archive.ZipMemory
             entryPayload = result.EntryPayload == null
                 ? SqlBytes.Null
                 : new SqlBytes(result.EntryPayload);
+        }
+
+        public static void FillListRow(
+            object value,
+            out SqlInt32 errorNumber,
+            out SqlString errorMessage,
+            out SqlInt32 entryOrdinal,
+            out SqlString entryName,
+            out SqlBoolean isDirectory,
+            out SqlInt64 compressedBytes,
+            out SqlInt64 uncompressedBytes,
+            out SqlInt32 compressionMethod,
+            out SqlInt32 crc32,
+            out SqlBoolean isEncrypted,
+            out SqlBoolean isExtractionSupported,
+            out SqlInt32 duplicateCount,
+            out SqlBoolean isPathSafe,
+            out SqlString pathStatus,
+            out SqlDateTime lastModifiedAt)
+        {
+            ProviderListResult result = (ProviderListResult)value;
+
+            errorNumber = result.ErrorNumber.HasValue
+                ? new SqlInt32(result.ErrorNumber.Value)
+                : SqlInt32.Null;
+            errorMessage = result.ErrorMessage == null
+                ? SqlString.Null
+                : new SqlString(result.ErrorMessage);
+            entryOrdinal = result.EntryOrdinal.HasValue
+                ? new SqlInt32(result.EntryOrdinal.Value)
+                : SqlInt32.Null;
+            entryName = result.EntryName == null
+                ? SqlString.Null
+                : new SqlString(result.EntryName);
+            isDirectory = result.IsDirectory.HasValue
+                ? new SqlBoolean(result.IsDirectory.Value)
+                : SqlBoolean.Null;
+            compressedBytes = result.CompressedBytes.HasValue
+                ? new SqlInt64(result.CompressedBytes.Value)
+                : SqlInt64.Null;
+            uncompressedBytes = result.UncompressedBytes.HasValue
+                ? new SqlInt64(result.UncompressedBytes.Value)
+                : SqlInt64.Null;
+            compressionMethod = result.CompressionMethod.HasValue
+                ? new SqlInt32(result.CompressionMethod.Value)
+                : SqlInt32.Null;
+            crc32 = result.Crc32.HasValue
+                ? new SqlInt32(result.Crc32.Value)
+                : SqlInt32.Null;
+            isEncrypted = result.IsEncrypted.HasValue
+                ? new SqlBoolean(result.IsEncrypted.Value)
+                : SqlBoolean.Null;
+            isExtractionSupported = result.IsExtractionSupported.HasValue
+                ? new SqlBoolean(result.IsExtractionSupported.Value)
+                : SqlBoolean.Null;
+            duplicateCount = result.DuplicateCount.HasValue
+                ? new SqlInt32(result.DuplicateCount.Value)
+                : SqlInt32.Null;
+            isPathSafe = result.IsPathSafe.HasValue
+                ? new SqlBoolean(result.IsPathSafe.Value)
+                : SqlBoolean.Null;
+            pathStatus = result.PathStatus == null
+                ? SqlString.Null
+                : new SqlString(result.PathStatus);
+
+            if (result.LastModifiedAt.HasValue)
+                lastModifiedAt = new SqlDateTime(result.LastModifiedAt.Value);
+            else
+                lastModifiedAt = SqlDateTime.Null;
         }
 
         private static ProviderResult Extract(
@@ -323,9 +465,114 @@ namespace Toolbelt.Archive.ZipMemory
             finally
             {
                 if (ownedCopy != null)
-                {
                     ownedCopy.Dispose();
+            }
+        }
+
+        private static IEnumerable ListEntries(
+            SqlBytes zipArchive,
+            SqlInt32 maxEntries)
+        {
+            if (zipArchive == null || zipArchive.IsNull || zipArchive.Length == 0)
+            {
+                throw new ZipProviderException(
+                    51320,
+                    "@ZipArchive muss einen nicht leeren ZIP-Container enthalten.");
+            }
+
+            if (maxEntries.IsNull ||
+                maxEntries.Value < 1 ||
+                maxEntries.Value > MaxEntries)
+            {
+                throw new ZipProviderException(
+                    51320,
+                    "@MaxEntries muss zwischen 1 und 10000 liegen.");
+            }
+
+            if (zipArchive.Length > MaxArchiveBytes)
+            {
+                throw new ZipProviderException(
+                    51325,
+                    "Der ZIP-Container überschreitet das harte Providerlimit von 268435456 Bytes.");
+            }
+
+            Stream source = zipArchive.Stream;
+            MemoryStream ownedCopy = null;
+
+            try
+            {
+                if (!source.CanSeek)
+                {
+                    ownedCopy = CopyToSeekableStream(
+                        source,
+                        zipArchive.Length);
+                    source = ownedCopy;
                 }
+
+                ArchiveReader reader = new ArchiveReader(
+                    source,
+                    zipArchive.Length);
+                EndOfCentralDirectory eocd =
+                    ReadEndOfCentralDirectory(reader);
+
+                if (eocd.TotalEntries == 0)
+                {
+                    return Array.Empty<ProviderListResult>();
+                }
+
+                if (eocd.TotalEntries > maxEntries.Value)
+                {
+                    throw new ZipProviderException(
+                        51325,
+                        "Das ZIP enthält mehr Entries als @MaxEntries zulässt.");
+                }
+
+                IList<EntryMetadata> entries = ReadEntries(reader, eocd);
+                if (entries.Count == 0)
+                {
+                    return Array.Empty<ProviderListResult>();
+                }
+
+                Dictionary<string, int> duplicateCounts =
+                    BuildDuplicateCounts(entries);
+
+                ProviderListResult[] result =
+                    new ProviderListResult[entries.Count];
+
+                for (int index = 0; index < entries.Count; index++)
+                {
+                    EntryMetadata entry = entries[index];
+                    bool isEncrypted =
+                        (entry.GeneralPurposeFlags &
+                            (EncryptionFlag | StrongEncryptionFlag)) != 0;
+                    string pathStatus = GetPathStatus(entry.EntryName);
+
+                    result[index] = ProviderListResult.Success(
+                        entry.EntryOrdinal,
+                        entry.EntryName,
+                        entry.IsDirectory,
+                        entry.CompressedBytes,
+                        entry.UncompressedBytes,
+                        entry.CompressionMethod,
+                        unchecked((int)entry.Crc32),
+                        isEncrypted,
+                        (entry.CompressionMethod == 0 ||
+                         entry.CompressionMethod == 8) &&
+                        !isEncrypted,
+                        duplicateCounts.ContainsKey(entry.EntryName)
+                            ? duplicateCounts[entry.EntryName]
+                            : 1,
+                        pathStatus == PathSafe,
+                        pathStatus,
+                        entry.LastModifiedAt);
+                }
+
+                return result;
+            }
+            finally
+            {
+                if (ownedCopy != null)
+                    ownedCopy.Dispose();
             }
         }
 
@@ -384,12 +631,47 @@ namespace Toolbelt.Archive.ZipMemory
             EndOfCentralDirectory eocd =
                 ReadEndOfCentralDirectory(reader);
 
-            if (eocd.TotalEntries == 0)
+            IList<EntryMetadata> entries = ReadEntries(reader, eocd);
+
+            EntryMetadata match = null;
+            int matchCount = 0;
+
+            for (int ordinal = 0; ordinal < entries.Count; ordinal++)
+            {
+                EntryMetadata entry = entries[ordinal];
+                if (String.Equals(
+                    entry.EntryName,
+                    requestedEntryName,
+                    StringComparison.Ordinal))
+                {
+                    matchCount++;
+                    if (matchCount > 1)
+                    {
+                        throw new ZipProviderException(
+                            51323,
+                            "Der angeforderte Entry-Name ist im ZIP-Archiv nicht eindeutig.");
+                    }
+                    match = entry;
+                }
+            }
+
+            if (match == null)
             {
                 throw new ZipProviderException(
                     51322,
                     "Der angeforderte ZIP-Entry wurde nicht gefunden.");
             }
+
+            return match;
+        }
+
+        private static IList<EntryMetadata> ReadEntries(
+            ArchiveReader reader,
+            EndOfCentralDirectory eocd)
+        {
+            long centralEnd =
+                eocd.CentralDirectoryOffset +
+                eocd.CentralDirectorySize;
 
             if (eocd.TotalEntries > MaxEntries)
             {
@@ -397,10 +679,6 @@ namespace Toolbelt.Archive.ZipMemory
                     51325,
                     "Das ZIP-Archiv überschreitet das harte Providerlimit von 10000 Entries.");
             }
-
-            long centralEnd =
-                eocd.CentralDirectoryOffset +
-                eocd.CentralDirectorySize;
 
             if (centralEnd != eocd.Offset)
             {
@@ -410,8 +688,7 @@ namespace Toolbelt.Archive.ZipMemory
             }
 
             long cursor = eocd.CentralDirectoryOffset;
-            EntryMetadata match = null;
-            int matchCount = 0;
+            List<EntryMetadata> entries = new List<EntryMetadata>(eocd.TotalEntries);
 
             for (int ordinal = 0;
                  ordinal < eocd.TotalEntries;
@@ -437,6 +714,8 @@ namespace Toolbelt.Archive.ZipMemory
                 int commentLength = reader.ReadUInt16(cursor + 32);
                 int diskStart = reader.ReadUInt16(cursor + 34);
                 uint localOffset = reader.ReadUInt32(cursor + 42);
+                int localFileTime = reader.ReadUInt16(cursor + 12);
+                int localFileDate = reader.ReadUInt16(cursor + 14);
 
                 if (compressed == UInt32.MaxValue ||
                     uncompressed == UInt32.MaxValue ||
@@ -468,32 +747,28 @@ namespace Toolbelt.Archive.ZipMemory
                 string decodedName =
                     DecodeEntryName(nameBytes, flags);
 
-                if (String.Equals(
-                    decodedName,
-                    requestedEntryName,
-                    StringComparison.Ordinal))
+                if (decodedName.Length > MaxEntryNameCharacters)
                 {
-                    matchCount++;
-
-                    if (matchCount > 1)
-                    {
-                        throw new ZipProviderException(
-                            51323,
-                            "Der angeforderte Entry-Name ist im ZIP-Archiv nicht eindeutig.");
-                    }
-
-                    match = new EntryMetadata(
-                        decodedName,
-                        nameBytes,
-                        localOffset,
-                        method,
-                        flags,
-                        crc32,
-                        compressed,
-                        uncompressed,
-                        eocd.CentralDirectoryOffset);
+                    throw new ZipProviderException(
+                        51320,
+                        "Ein Entry-Name überschreitet die maximale Länge von 1024 Zeichen.");
                 }
 
+                EntryMetadata entry = new EntryMetadata(
+                    ordinal + 1,
+                    decodedName,
+                    nameBytes,
+                    localOffset,
+                    method,
+                    flags,
+                    crc32,
+                    compressed,
+                    uncompressed,
+                    ConvertDosDateTime(localFileDate, localFileTime),
+                    eocd.CentralDirectoryOffset);
+
+                ValidateLocalHeader(reader, entry);
+                entries.Add(entry);
                 cursor += recordLength;
             }
 
@@ -504,101 +779,72 @@ namespace Toolbelt.Archive.ZipMemory
                     "Die Central-Directory-Größe ist inkonsistent.");
             }
 
-            if (match == null)
-            {
-                throw new ZipProviderException(
-                    51322,
-                    "Der angeforderte ZIP-Entry wurde nicht gefunden.");
-            }
-
-            return match;
+            return entries;
         }
 
-        private static EndOfCentralDirectory
-            ReadEndOfCentralDirectory(ArchiveReader reader)
+        private static Dictionary<string, int> BuildDuplicateCounts(
+            IList<EntryMetadata> entries)
         {
-            if (reader.Length < 22)
+            Dictionary<string, int> duplicateCounts =
+                new Dictionary<string, int>(StringComparer.Ordinal);
+
+            for (int index = 0; index < entries.Count; index++)
             {
-                throw new ZipProviderException(
-                    51321,
-                    "Der ZIP-Container ist zu kurz für einen gültigen EOCD-Record.");
+                string entryName = entries[index].EntryName;
+
+                int count;
+                if (!duplicateCounts.TryGetValue(entryName, out count))
+                {
+                    duplicateCounts.Add(entryName, 1);
+                }
+                else
+                {
+                    duplicateCounts[entryName] = count + 1;
+                }
             }
 
-            int tailLength =
-                (int)Math.Min(reader.Length, 65557L);
-            long tailOffset =
-                reader.Length - tailLength;
-            byte[] tail =
-                reader.ReadBytes(tailOffset, tailLength);
+            return duplicateCounts;
+        }
 
-            for (int index = tail.Length - 22;
-                 index >= 0;
-                 index--)
+        private static string GetPathStatus(string entryName)
+        {
+            if (entryName.Length > 2 &&
+                Char.IsLetter(entryName[0]) &&
+                entryName[1] == ':' &&
+                (entryName[2] == '/' || entryName[2] == '\\'))
             {
-                if (ReadUInt32(tail, index) !=
-                    EndOfCentralDirectorySignature)
-                {
-                    continue;
-                }
-
-                int commentLength =
-                    ReadUInt16(tail, index + 20);
-
-                if (index + 22 + commentLength !=
-                    tail.Length)
-                {
-                    continue;
-                }
-
-                long offset = tailOffset + index;
-                int diskNumber = ReadUInt16(tail, index + 4);
-                int centralDisk = ReadUInt16(tail, index + 6);
-                int entriesOnDisk = ReadUInt16(tail, index + 8);
-                int totalEntries = ReadUInt16(tail, index + 10);
-                uint centralSize = ReadUInt32(tail, index + 12);
-                uint centralOffset = ReadUInt32(tail, index + 16);
-
-                if (diskNumber != 0 ||
-                    centralDisk != 0 ||
-                    entriesOnDisk != totalEntries)
-                {
-                    throw new ZipProviderException(
-                        51327,
-                        "Multi-Disk-ZIP-Archive werden nicht unterstützt.");
-                }
-
-                if (entriesOnDisk == UInt16.MaxValue ||
-                    totalEntries == UInt16.MaxValue ||
-                    centralSize == UInt32.MaxValue ||
-                    centralOffset == UInt32.MaxValue)
-                {
-                    throw new ZipProviderException(
-                        51327,
-                        "ZIP64 wird von dieser Provider-Version nicht unterstützt.");
-                }
-
-                long centralEnd =
-                    (long)centralOffset +
-                    centralSize;
-
-                if (centralEnd > offset ||
-                    centralEnd > reader.Length)
-                {
-                    throw new ZipProviderException(
-                        51321,
-                        "Central Directory Offset oder Größe ist ungültig.");
-                }
-
-                return new EndOfCentralDirectory(
-                    offset,
-                    totalEntries,
-                    centralOffset,
-                    centralSize);
+                return PathDriveQualified;
             }
 
-            throw new ZipProviderException(
-                51321,
-                "EOCD-Signatur wurde im ZIP-Container nicht gefunden.");
+            if (entryName.Length > 0 &&
+                (entryName[0] == '/' || entryName[0] == '\\'))
+            {
+                return PathAbsolute;
+            }
+
+            if (entryName.IndexOf("../", StringComparison.Ordinal) >= 0 ||
+                entryName.IndexOf("..\\", StringComparison.Ordinal) >= 0 ||
+                entryName.IndexOf("/../", StringComparison.Ordinal) >= 0 ||
+                entryName.IndexOf("\\..\\", StringComparison.Ordinal) >= 0 ||
+                entryName.StartsWith("../", StringComparison.Ordinal) ||
+                entryName.StartsWith("..\\", StringComparison.Ordinal) ||
+                entryName.EndsWith("/..") ||
+                entryName.EndsWith("\\.."))
+            {
+                return PathParentTraversal;
+            }
+
+            if (entryName.IndexOf("\\", StringComparison.Ordinal) >= 0 ||
+                entryName.IndexOf("//", StringComparison.Ordinal) >= 0 ||
+                entryName.IndexOf("/./", StringComparison.Ordinal) >= 0 ||
+                entryName.IndexOf("\\.\\", StringComparison.Ordinal) >= 0 ||
+                entryName.IndexOf("/\\", StringComparison.Ordinal) >= 0 ||
+                entryName.IndexOf("\\/", StringComparison.Ordinal) >= 0)
+            {
+                return PathNonCanonical;
+            }
+
+            return PathSafe;
         }
 
         private static void ValidateLocalHeader(
@@ -825,6 +1071,38 @@ namespace Toolbelt.Archive.ZipMemory
             return ~crc;
         }
 
+        private static DateTime? ConvertDosDateTime(
+            int dosDate,
+            int dosTime)
+        {
+            int second = (dosTime & 0x1F) * 2;
+            int minute = (dosTime >> 5) & 0x3F;
+            int hour = (dosTime >> 11) & 0x1F;
+            int day = dosDate & 0x1F;
+            int month = (dosDate >> 5) & 0x0F;
+            int year = 1980 + ((dosDate >> 9) & 0x7F);
+
+            if (dosTime == 0 && dosDate == 0)
+                return null;
+
+            if (hour > 23 || minute > 59 || second > 59 ||
+                month < 1 || month > 12 ||
+                day < 1 || day > 31 ||
+                year > 2107)
+            {
+                return null;
+            }
+
+            try
+            {
+                return new DateTime(year, month, day, hour, minute, second);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return null;
+            }
+        }
+
         private static uint[] BuildCrcTable()
         {
             uint[] table = new uint[256];
@@ -891,6 +1169,93 @@ namespace Toolbelt.Archive.ZipMemory
                 ((uint)value[offset + 1] << 8) |
                 ((uint)value[offset + 2] << 16) |
                 ((uint)value[offset + 3] << 24);
+        }
+
+        private static EndOfCentralDirectory ReadEndOfCentralDirectory(
+            ArchiveReader reader)
+        {
+            if (reader.Length < 22)
+            {
+                throw new ZipProviderException(
+                    51321,
+                    "Der ZIP-Container ist zu kurz für einen gültigen EOCD-Record.");
+            }
+
+            int tailLength =
+                (int)Math.Min(reader.Length, 65557L);
+            long tailOffset =
+                reader.Length - tailLength;
+            byte[] tail =
+                reader.ReadBytes(tailOffset, tailLength);
+
+            for (int index = tail.Length - 22;
+                 index >= 0;
+                 index--)
+            {
+                if (ReadUInt32(tail, index) !=
+                    EndOfCentralDirectorySignature)
+                {
+                    continue;
+                }
+
+                int commentLength =
+                    ReadUInt16(tail, index + 20);
+
+                if (index + 22 + commentLength !=
+                    tail.Length)
+                {
+                    continue;
+                }
+
+                long offset = tailOffset + index;
+                int diskNumber = ReadUInt16(tail, index + 4);
+                int centralDisk = ReadUInt16(tail, index + 6);
+                int entriesOnDisk = ReadUInt16(tail, index + 8);
+                int totalEntries = ReadUInt16(tail, index + 10);
+                uint centralSize = ReadUInt32(tail, index + 12);
+                uint centralOffset = ReadUInt32(tail, index + 16);
+
+                if (diskNumber != 0 ||
+                    centralDisk != 0 ||
+                    entriesOnDisk != totalEntries)
+                {
+                    throw new ZipProviderException(
+                        51327,
+                        "Multi-Disk-ZIP-Archive werden nicht unterstützt.");
+                }
+
+                if (entriesOnDisk == UInt16.MaxValue ||
+                    totalEntries == UInt16.MaxValue ||
+                    centralSize == UInt32.MaxValue ||
+                    centralOffset == UInt32.MaxValue)
+                {
+                    throw new ZipProviderException(
+                        51327,
+                        "ZIP64 wird von dieser Provider-Version nicht unterstützt.");
+                }
+
+                long centralEnd =
+                    (long)centralOffset +
+                    centralSize;
+
+                if (centralEnd > offset ||
+                    centralEnd > reader.Length)
+                {
+                    throw new ZipProviderException(
+                        51321,
+                        "Central Directory Offset oder Größe ist ungültig.");
+                }
+
+                return new EndOfCentralDirectory(
+                    offset,
+                    totalEntries,
+                    centralOffset,
+                    centralSize);
+            }
+
+            throw new ZipProviderException(
+                51321,
+                "EOCD-Signatur wurde im ZIP-Container nicht gefunden.");
         }
 
         private sealed class ArchiveReader
@@ -1112,6 +1477,7 @@ namespace Toolbelt.Archive.ZipMemory
         private sealed class EntryMetadata
         {
             public EntryMetadata(
+                int entryOrdinal,
                 string entryName,
                 byte[] entryNameBytes,
                 long localHeaderOffset,
@@ -1120,8 +1486,10 @@ namespace Toolbelt.Archive.ZipMemory
                 uint crc32,
                 long compressedBytes,
                 long uncompressedBytes,
+                DateTime? lastModifiedAt,
                 long centralDirectoryOffset)
             {
+                EntryOrdinal = entryOrdinal;
                 EntryName = entryName;
                 EntryNameBytes = entryNameBytes;
                 LocalHeaderOffset = localHeaderOffset;
@@ -1130,10 +1498,12 @@ namespace Toolbelt.Archive.ZipMemory
                 Crc32 = crc32;
                 CompressedBytes = compressedBytes;
                 UncompressedBytes = uncompressedBytes;
+                LastModifiedAt = lastModifiedAt;
                 CentralDirectoryOffset =
                     centralDirectoryOffset;
             }
 
+            public int EntryOrdinal { get; private set; }
             public string EntryName { get; private set; }
             public byte[] EntryNameBytes { get; private set; }
             public long LocalHeaderOffset { get; private set; }
@@ -1142,8 +1512,18 @@ namespace Toolbelt.Archive.ZipMemory
             public uint Crc32 { get; private set; }
             public long CompressedBytes { get; private set; }
             public long UncompressedBytes { get; private set; }
+            public DateTime? LastModifiedAt { get; private set; }
             public long CentralDirectoryOffset { get; private set; }
             public long PayloadOffset { get; set; }
+
+            public bool IsDirectory
+            {
+                get
+                {
+                    return EntryName.EndsWith("/", StringComparison.Ordinal) ||
+                           EntryName.EndsWith("\\", StringComparison.Ordinal);
+                }
+            }
         }
 
         private sealed class ProviderResult
@@ -1187,6 +1567,69 @@ namespace Toolbelt.Archive.ZipMemory
                     Crc32 = crc32,
                     IsEncrypted = isEncrypted,
                     EntryPayload = entryPayload
+                };
+            }
+        }
+
+        private sealed class ProviderListResult
+        {
+            public int? ErrorNumber { get; private set; }
+            public string ErrorMessage { get; private set; }
+            public int? EntryOrdinal { get; private set; }
+            public string EntryName { get; private set; }
+            public bool? IsDirectory { get; private set; }
+            public long? CompressedBytes { get; private set; }
+            public long? UncompressedBytes { get; private set; }
+            public int? CompressionMethod { get; private set; }
+            public int? Crc32 { get; private set; }
+            public bool? IsEncrypted { get; private set; }
+            public bool? IsExtractionSupported { get; private set; }
+            public int? DuplicateCount { get; private set; }
+            public bool? IsPathSafe { get; private set; }
+            public string PathStatus { get; private set; }
+            public DateTime? LastModifiedAt { get; private set; }
+
+            public static ProviderListResult Failure(
+                int errorNumber,
+                string errorMessage)
+            {
+                return new ProviderListResult
+                {
+                    ErrorNumber = errorNumber,
+                    ErrorMessage = errorMessage
+                };
+            }
+
+            public static ProviderListResult Success(
+                int entryOrdinal,
+                string entryName,
+                bool isDirectory,
+                long compressedBytes,
+                long uncompressedBytes,
+                int compressionMethod,
+                int crc32,
+                bool isEncrypted,
+                bool isExtractionSupported,
+                int duplicateCount,
+                bool isPathSafe,
+                string pathStatus,
+                DateTime? lastModifiedAt)
+            {
+                return new ProviderListResult
+                {
+                    EntryOrdinal = entryOrdinal,
+                    EntryName = entryName,
+                    IsDirectory = isDirectory,
+                    CompressedBytes = compressedBytes,
+                    UncompressedBytes = uncompressedBytes,
+                    CompressionMethod = compressionMethod,
+                    Crc32 = crc32,
+                    IsEncrypted = isEncrypted,
+                    IsExtractionSupported = isExtractionSupported,
+                    DuplicateCount = duplicateCount,
+                    IsPathSafe = isPathSafe,
+                    PathStatus = pathStatus,
+                    LastModifiedAt = lastModifiedAt
                 };
             }
         }
