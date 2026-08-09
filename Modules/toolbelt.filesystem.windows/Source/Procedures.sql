@@ -1,4 +1,4 @@
-++SET ANSI_NULLS ON;
+SET ANSI_NULLS ON;
 GO
 SET QUOTED_IDENTIFIER ON;
 GO
@@ -10,7 +10,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
   , @RelativePath nvarchar(4000) = NULL
   , @ByteOffset bigint = 0
   , @MaxBytes int = 1048576
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ReadBinaryFileChunk];
 GO
@@ -22,7 +22,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_ReadTextFileChunk]
   , @ByteOffset bigint = 0
   , @MaxBytes int = 1048576
   , @EncodingName nvarchar(128) = NULL
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ReadTextFileChunk];
 GO
@@ -31,9 +31,9 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_WriteBinaryFile]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
-  , @Content varbinary(max) = NULL
+  , @Content varbinary(max)
   , @Overwrite bit = 0
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[WriteBinaryFile];
 GO
@@ -42,11 +42,11 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_WriteTextFile]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
-  , @Content nvarchar(max) = NULL
+  , @Content nvarchar(max)
   , @EncodingName nvarchar(128) = NULL
   , @WriteBom bit = 0
   , @Overwrite bit = 0
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[WriteTextFile];
 GO
@@ -61,7 +61,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_TranscodeTextFile]
   , @TargetEncodingName nvarchar(128) = NULL
   , @WriteBom bit = 0
   , @Overwrite bit = 0
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[TranscodeTextFile];
 GO
@@ -73,7 +73,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_ListDirectory]
   , @Recursive bit = 0
   , @MaxDepth int = 32
   , @MaxEntries int = 10000
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ListDirectory];
 GO
@@ -82,7 +82,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_CreateDirectory]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[CreateDirectory];
 GO
@@ -91,7 +91,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_RemoveFile]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[RemoveFile];
 GO
@@ -103,7 +103,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_RemoveDirectory]
   , @Recursive bit = 0
   , @MaxDepth int = 32
   , @MaxEntries int = 10000
-  , @ExecutionIdentity varchar(16) = 'Caller'
+  , @ExecutionIdentity nvarchar(16) = N'Caller'
 )
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[RemoveDirectory];
 GO
@@ -170,6 +170,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([Content] varbinary(max) NULL, [BytesRead] int NOT NULL, [NextByteOffset] bigint NOT NULL, [EndOfFile] bit NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
@@ -177,7 +178,7 @@ BEGIN
           , @RelativePath
           , @ByteOffset
           , @MaxBytes
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -214,6 +215,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([Content] nvarchar(max) NULL, [BytesRead] int NOT NULL, [NextByteOffset] bigint NOT NULL, [EndOfFile] bit NOT NULL, [EncodingName] nvarchar(128) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_ReadTextFileChunk]
@@ -222,7 +224,7 @@ BEGIN
           , @ByteOffset
           , @MaxBytes
           , @EncodingName
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -258,6 +260,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([BytesWritten] bigint NOT NULL, [RootAlias] nvarchar(128) NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [State] varchar(16) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_WriteBinaryFile]
@@ -265,7 +268,7 @@ BEGIN
           , @RelativePath
           , @Content
           , @Overwrite
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -303,6 +306,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([BytesWritten] bigint NOT NULL, [RootAlias] nvarchar(128) NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [State] varchar(16) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_WriteTextFile]
@@ -312,7 +316,7 @@ BEGIN
           , @EncodingName
           , @WriteBom
           , @Overwrite
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -352,6 +356,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([BytesWritten] bigint NOT NULL, [RootAlias] nvarchar(128) NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [State] varchar(16) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_TranscodeTextFile]
@@ -363,7 +368,7 @@ BEGIN
           , @TargetEncodingName
           , @WriteBom
           , @Overwrite
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -400,6 +405,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([EntryOrdinal] bigint NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [EntryType] varchar(16) NOT NULL, [SizeBytes] bigint NOT NULL, [LastWriteTimeUtc] datetime2 NOT NULL, [IsReparsePoint] bit NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_ListDirectory]
@@ -408,7 +414,7 @@ BEGIN
           , @Recursive
           , @MaxDepth
           , @MaxEntries
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -442,12 +448,13 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([RootAlias] nvarchar(128) NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [State] varchar(16) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_CreateDirectory]
               @RootAlias
           , @RelativePath
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -481,12 +488,13 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([RootAlias] nvarchar(128) NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [State] varchar(16) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_RemoveFile]
               @RootAlias
           , @RelativePath
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -523,6 +531,7 @@ BEGIN
         RETURN 0;
     END;
     CREATE TABLE #tbx_fs_result ([RootAlias] nvarchar(128) NOT NULL, [RelativePath] nvarchar(4000) NOT NULL, [State] varchar(16) NOT NULL);
+    DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);
     BEGIN TRY
         INSERT INTO #tbx_fs_result
         EXEC [toolbelt_filesystem].[CLR_RemoveDirectory]
@@ -531,7 +540,7 @@ BEGIN
           , @Recursive
           , @MaxDepth
           , @MaxEntries
-          , @ExecutionIdentity;
+          , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
         DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
@@ -542,4 +551,3 @@ BEGIN
         , @KeepData = @KeepData;
 END;
 GO
-

@@ -2,7 +2,7 @@ module_id: "toolbelt.filesystem.windows"
 module_name: "Windows Filesystem"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Windows-only filesystem operations through an EXTERNAL_ACCESS SQL CLR provider with root aliases, Caller impersonation and bounded streaming."
 sql_server_versions:
@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "not executed: manual runtime validation is required."
+  windows: "partially validated: CLR-Build, Trust, Deployment, Help, SQL-Authentication-Ablehnung sowie kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit WorkPath sind validiert; Windows-Caller-, NTFS- und weitere I/O-Tests bleiben offen."
   linux: "not applicable: SQL Server on Linux does not support EXTERNAL_ACCESS SQL CLR assemblies."
 providers:
   - id: clr-windows-filesystem
@@ -89,3 +89,12 @@ contracts:
 tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/WindowsFilesystem.Contract.sql"
+validation_evidence:
+  - date: "2026-08-04"
+    workflow: "Manuelle Windows-CLR-Preflight-Validierung"
+    scope: "SQL Server 2025 Windows; .NET-Framework-4.8-CLR-Build, SHA2-512-Trust, lokales Deployment, Help-Verträge aller öffentlichen Procedures und SQL-Authentication-Ablehnung im Caller-Modus ohne I/O-Spuren"
+    result: "success"
+  - date: "2026-08-05"
+    workflow: "Ergänzender Windows-CLR-Preflight-Lauf"
+    scope: "SQL Server 2025 Windows; kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem WorkPath"
+    result: "success"
