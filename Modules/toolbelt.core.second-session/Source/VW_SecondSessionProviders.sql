@@ -19,6 +19,7 @@ SELECT
     , CONVERT(bit, ISNULL(s.is_remote_proc_transaction_promotion_enabled, 1)) AS [RemoteProcTransactionPromotionEnabled]
 FROM [toolbelt_core].[SecondSessionProvider] AS p
 LEFT JOIN master.sys.servers AS s
-  ON s.name COLLATE DATABASE_DEFAULT = p.[LinkedServerName] COLLATE DATABASE_DEFAULT
+  ON s.name COLLATE Latin1_General_100_BIN2
+   = p.[LinkedServerName] COLLATE Latin1_General_100_BIN2
  AND s.is_linked = 1;
 GO

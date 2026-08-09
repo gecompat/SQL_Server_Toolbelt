@@ -30,4 +30,6 @@
 - Workflow: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703841095
 - Vollständige Modulmatrix: wird mit dem produktiven Runtime-Workflow nachgeführt.
 
+- SQL Server 2025 Windows, manuelle lokale Validierung vom 2026-08-04: erfolgreich; lokale und zentrale Bereitstellung, Collation-übergreifender Abgleich, Provider-Probe, Contract-, Concurrency-, Central- und Lifecycle-Tests sowie geschützter und vollständiger Uninstall.
+
 - Version 1.1.0 / `@SuppressResult`: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410

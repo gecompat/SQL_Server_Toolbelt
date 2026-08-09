@@ -68,7 +68,8 @@ BEGIN
         , @RpcOutEnabled = CONVERT(bit, s.is_rpc_out_enabled)
         , @PromotionEnabled = CONVERT(bit, s.is_remote_proc_transaction_promotion_enabled)
     FROM master.sys.servers AS s
-    WHERE s.name = @LinkedServerName
+    WHERE s.name COLLATE Latin1_General_100_BIN2
+        = @LinkedServerName COLLATE Latin1_General_100_BIN2
       AND s.is_linked = 1;
 
     IF @LinkedServerExists = 0
