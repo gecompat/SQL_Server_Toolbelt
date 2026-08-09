@@ -47,6 +47,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 - Windows-only Modul `toolbelt.filesystem.windows` mit EXTERNAL_ACCESS-SQL-CLR-Fassade für begrenztes Text-/Binary-I/O, explizite Codepages und Transcoding, Directory-Operationen und begrenztes rekursives Löschen. `Caller` ist der Default, `ServiceAccount` explizit; die Windows-SQL-Server-/NTFS-Runtime bleibt bis zum manuellen Nachweis `not executed`.
 
+- `toolbelt.archive.zip-memory` ergänzt den ZIP-Metadaten-Pfad (TC-2026-033) im CLR-Provider inklusive Testhärtung für nicht-ASCII-Entry-Namen (`Grüße.txt` als Unicode-Konkatenausdruck). Die SQL Server 2025 lokale Windows-Validierung (`localhost,1433`, `sa`) ist für lokale Runtime- und Smoke-Contracts erfolgreich.
+
 - W2c mit `toolbelt.core.console-message` für Unicode-sichere lange
   `PRINT`-/`RAISERROR ... WITH NOWAIT`-Messages und
   `toolbelt.metadata.capability-catalog` für eine read-only Projektion
