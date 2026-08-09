@@ -180,8 +180,11 @@ offen.
 Das implementierte ZIP-Memory-Modul
 [`toolbelt.archive.zip-memory`](./Modules/toolbelt.archive.zip-memory/README.md)
 extrahiert einzelne ZIP-Einträge aus `varbinary(max)` mit Methoden `0`
-(Stored) und `8` (Deflate), Payload-CRC32 und harten Limits. Die Linux-Matrix
-ist teilweise validiert; Windows-Runtime bleibt offen.
+(Stored) und `8` (Deflate), Payload-CRC32 und harten Limits. Für
+TC-2026-033 wurde der ZIP-Metadata-Pfad intern ergänzt; die
+Windows-Runtime ist lokal (localhost,1433, SQL 2025, `sa`) für
+`Runtime-`/`Smoke`-Contracts erfolgreich validiert. Die Linux-Matrix
+bleibt teilweise validiert.
 
 Das implementierte Windows-only Modul
 [`toolbelt.filesystem.windows`](./Modules/toolbelt.filesystem.windows/README.md)
