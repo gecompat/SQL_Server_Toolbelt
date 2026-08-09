@@ -72,6 +72,7 @@ sources_of_truth:
   file_content_runtime_workflow: .github/workflows/file-content-runtime.yml
   file_content_module: Modules/toolbelt.file.content/module.yaml
   zip_archive_module_design: Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md
+  zip_metadata_module_design: Documentation/Architecture/ZIP_METADATA_MODULE_DESIGN.md
   zip_clr_provider_design: Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md
   zip_memory_runtime_workflow: .github/workflows/zip-memory-runtime.yml
   zip_memory_module: Modules/toolbelt.archive.zip-memory/module.yaml

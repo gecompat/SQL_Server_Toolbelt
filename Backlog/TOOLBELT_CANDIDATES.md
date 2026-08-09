@@ -760,15 +760,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Nein; native Gzip-Wertkompression ist kein ZIP-Container. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Archive können vor einer Extraktion inventarisiert und auf Eintragsnamen, Größen, Kompressionsmethode und auffällige Pfade geprüft werden. |
-| **Mögliche Technologie** | Providervergleich: In-memory-Parser für `varbinary(max)`, eng begrenztes SQL CLR oder externer Worker. Ein Dateipfad-Provider bleibt von der reinen Archivparser-Capability getrennt. |
+| **Mögliche Technologie** | Freigegeben als Erweiterung von `toolbelt.archive.zip-memory` auf Version `1.2.0`: neue öffentliche `USP_ListZipEntriesFromBinary`, bestehende SAFE-Assembly und gemeinsam genutzter ZIP-Parserkern. Ein Dateipfad-Provider bleibt getrennt. |
 | **Performance und Security** | Central Directory, ZIP64, doppelte Namen, Pfadnormalisierung, verschachtelte Archive, Verschlüsselung, maximale Eintragszahl und Größenangaben sind untrusted input. Listing darf keine Extraktion oder Pfadfreigabe implizieren. |
 | **Plattformgrenzen** | Ein In-memory-Provider kann portabel sein; CLR- und Dateipfad-Provider benötigen eigene Windows-/Linux-Evidenz. |
-| **Dependencies** | Optional `TC-2026-037` für pfadbasierte Eingaben; keine File-I/O-Dependency für einen reinen `varbinary(max)`-Vertrag. |
+| **Dependencies** | `toolbelt.archive.zip-memory` 1.1.0 und `toolbelt.core.result-table` 1.0.0; keine File-I/O-Dependency für den freigegebenen `varbinary(max)`-Vertrag. |
 | **Duplikatprüfung** | Alle Toolbelt-Kandidaten und `RI-2026-112` geprüft. ZIP-Extraktion bleibt getrennt in `TC-2026-034`. |
-| **Status** | `researched` |
+| **Status** | `ready for development`; V1-Vertrag und Implementierung am 2026-08-09 ausdrücklich freigegeben |
 | **Primärquellen** | [Research-Inbox `RI-2026-112`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Eingabeform, unterstützte ZIP-Versionen, Metadaten-Resultset, Limits sowie Verhalten für beschädigte, verschlüsselte und mehrdeutige Archive mit dem Benutzer besprechen. |
+| **Prüfdatum** | 2026-08-09 |
+| **Nächster Schritt** | Freigegebenen Listing-only-Vertrag aus `ZIP_METADATA_MODULE_DESIGN.md` als `AP-2026-030` implementieren. |
 
 ## TC-2026-034: ZIP-Archive kontrolliert extrahieren und erzeugen
 
