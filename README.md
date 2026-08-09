@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 24 Module implementiert – 23 teilweise validiert](https://img.shields.io/badge/Status-24%20Module%20implementiert%20%7C%2023%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 24 Module implementiert – 24 teilweise validiert](https://img.shields.io/badge/Status-24%20Module%20implementiert%20%7C%2024%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -188,7 +188,11 @@ Das implementierte Windows-only Modul
 stellt kontrollierten `EXTERNAL_ACCESS`-SQL-CLR-Zugriff für begrenztes
 Text-/Binary-I/O, Codepages, Transcoding sowie Directory-Operationen bereit.
 `Caller` ist der Default, `ServiceAccount` explizit. Der Windows-SQL-Server-/
-NTFS-Runtime-Nachweis ist bewusst noch `not executed`; Linux ist nicht
+NTFS-Runtime-Nachweis ist teilweise ausgeführt: Der Lauf
+`Ergänzender Windows-CLR-Preflight-Lauf` bestätigte kontrolliertes
+ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem `WorkPath`.
+Windows-Authentication-,
+NTFS-ACL- und weitere I/O-Tests bleiben `not executed`; Linux ist nicht
 anwendbar.
 
 ## Modulprinzip
