@@ -19,16 +19,18 @@ DECLARE @Result TABLE
     , EntryPayload      varbinary(max) NULL
 );
 
+DECLARE @EntryNameUtf8 nvarchar(50) = N'Gr' + NCHAR(252) + NCHAR(223) + N'e.txt';
+
 INSERT INTO @Result
 EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
       @ZipArchive = @ZipCp437
-    , @EntryName = N'Grüße.txt';
+    , @EntryName = @EntryNameUtf8;
 
 IF NOT EXISTS
    (
        SELECT 1
        FROM @Result
-       WHERE EntryName = N'Grüße.txt'
+       WHERE EntryName = @EntryNameUtf8
          AND CompressionMethod = 8
          AND Crc32 = 612121086
          AND EntryPayload = 0xC396737465727265696368
