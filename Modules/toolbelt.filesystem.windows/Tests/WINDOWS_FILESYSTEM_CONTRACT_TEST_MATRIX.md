@@ -5,7 +5,7 @@
 | Build | .NET Framework 4.8, Release-Binary und SHA2-512 | erfolgreich: Manuelle Windows-CLR-Preflight-Validierung |
 | Deployment | `clr enabled`, `clr strict security`, Trust, `EXTERNAL_ACCESS` | erfolgreich: Manuelle Windows-CLR-Preflight-Validierung |
 | Caller | Windows Authentication, erlaubte und verweigerte NTFS-Rechte | not executed |
-| ServiceAccount | Kontrolliertes Erstellen eines Verzeichnisses und Schreiben einer Textdatei mit konfiguriertem `WorkPath` | erfolgreich: ergänzender Windows-CLR-Preflight-Lauf vom 2026-08-05 |
+| ServiceAccount | Kontrolliertes Erstellen eines Verzeichnisses und Schreiben einer Textdatei mit konfiguriertem `WorkPath` | erfolgreich: `Ergänzender Windows-CLR-Preflight-Lauf` vom 2026-08-05 |
 | SQL Authentication | `Caller` wird abgelehnt | erfolgreich: Manuelle Windows-CLR-Preflight-Validierung |
 | Binary/Text | Chunk-Grenze, UTF-8, UTF-16 LE/BE, Windows-1252 und ungültige Bytefolge | not executed |
 | Transcoding | Roundtrip und nicht repräsentierbares Zeichen | not executed |
@@ -17,4 +17,4 @@ Der manuelle Test verwendet ausschließlich eine dedizierte, synthetische Testst
 
 Der detaillierte Ablauf und die datenschutzsichere Rückmeldung stehen im [manuellen Windows-Runtime-Testplan](./Manual_Windows_Runtime_Testplan.md).
 
-Aktuelle Evidenz: Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 auf SQL Server 2025 unter Windows; Build, Trust, Deployment, Help und SQL-Authentication-Ablehnung erfolgreich. Ein ergänzender Windows-CLR-Preflight-Lauf vom 2026-08-05 bestätigte kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem `WorkPath`. Windows-Authentication-, NTFS-ACL- und weitere I/O-Tests bleiben offen.
+Aktuelle Evidenz: Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 auf SQL Server 2025 unter Windows; Build, Trust, Deployment, Help und SQL-Authentication-Ablehnung erfolgreich. Der Lauf `Ergänzender Windows-CLR-Preflight-Lauf` vom 2026-08-05 bestätigte kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem `WorkPath`. Windows-Authentication-, NTFS-ACL- und weitere I/O-Tests bleiben offen.
