@@ -20,6 +20,7 @@ sources_of_truth:
   working_rules: .ai/WORKING_RULES.md
   ai_entry_point: AGENTS.md
   copilot_bridge: .github/copilot-instructions.md
+  ai_cost_quality_policy: Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md
   usp_contract: Documentation/Standards/USP_CONTRACT.md
   privacy_policy: Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md
   naming_conventions: Documentation/Standards/SQL_OBJECT_NAMING.md
@@ -283,6 +284,7 @@ change_impact:
     - Documentation/Architecture/DECISIONS.md
     - Documentation/Architecture/ARTIFACT_ROLES.md
     - Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
+    - Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md
     - Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md
     - Tests/Documentation/validate_documentation.py
     - .github/workflows/documentation-consistency.yml
@@ -593,6 +595,7 @@ change_impact:
         - Documentation/Architecture/ARTIFACT_ROLES.md
         - Documentation/Architecture/DECISIONS.md
         - Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
+        - Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md
         - Documentation/Standards/TSQL_ENGINEERING.md
         - Documentation/Standards/MODULE_DEFINITION_OF_DONE.md
         - Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md
