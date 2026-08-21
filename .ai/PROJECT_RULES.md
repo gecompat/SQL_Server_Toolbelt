@@ -113,3 +113,11 @@ Details: [CODE_DOCUMENTATION.md](../Documentation/Standards/CODE_DOCUMENTATION.m
 - Wird ein Gedanke in eine kanonische Kandidatenliste überführt, bleibt der Originalgedanke erhalten und erhält nach Möglichkeit einen Querverweis auf `TC-`, `AC-` oder `UE-`-ID.
 - Formale Rechercheergebnisse werden weiterhin in den drei kanonischen Kandidatenlisten gepflegt. Der persönliche Brainstorm darf diese Listen und `.ai/BACKLOG.md` nicht ersetzen.
 - Datenschutz- und Secret-Regeln gelten auch für Ergänzungen in dieser Datei. Schutzwürdige Inhalte werden nicht in andere Artefakte kopiert.
+
+## 11. Kosten- und qualitätsoptimierte Verarbeitung
+
+Die vollständige anbieterneutrale Richtlinie für die Wahl von KI-System,
+Modell, Reasoning-Aufwand, Werkzeugen und lokaler Validierung steht in
+[AI_COST_AND_QUALITY_PROCESSING_POLICY.md](../Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md).
+Sie gilt für alle KI-Systeme und Ausführungsorte, soweit die jeweils
+beschriebenen Steuerungsmöglichkeiten tatsächlich verfügbar sind.

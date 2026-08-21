@@ -86,6 +86,7 @@ Die Besprechung und Freigabe sind vor dem Merge in `.ai/BACKLOG.md`, im Pull Req
 | [.ai/ROADMAP.md](./.ai/ROADMAP.md) | Roadmap nach Priorität und Abhängigkeiten |
 | [.ai/BACKLOG.md](./.ai/BACKLOG.md) | Priorisierte Arbeitspakete |
 | [.github/agents/backlog-curator.agent.md](./.github/agents/backlog-curator.agent.md) | GitHub-Copilot-Custom-Agent für die Backlog-Pflege |
+| [Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md](./Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md) | Anbieterneutrale Richtlinie zur kosten- und qualitätsoptimierten Verarbeitung |
 | [Documentation/Standards/USP_CONTRACT.md](./Documentation/Standards/USP_CONTRACT.md) | Verbindlicher USP-Vertrag |
 | [Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md](./Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md) | Datenschutz und Vertraulichkeit |
 | [Documentation/Architecture/DECISIONS.md](./Documentation/Architecture/DECISIONS.md) | Dauerhafte Architekturentscheidungen |
