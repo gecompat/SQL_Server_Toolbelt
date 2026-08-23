@@ -49,6 +49,17 @@ Erfinde keine Preise, Fähigkeiten, Kontingente oder Modellwechsel. Wenn keine z
 
 Ein lokales Modell ist nicht automatisch die günstigste Wahl. Berücksichtige auch Laufzeit, Hardwareverbrauch, Ergebnisqualität und mögliche Nacharbeit.
 
+## Semantische Zuordnung zur AI Repository Foundation
+
+Diese detaillierte Projektrichtlinie bleibt für die konkrete Auswahl autoritativ. Ihre Kategorien werden für projektübergreifende Vergleichbarkeit wie folgt auf die Foundation-Tiers abgebildet:
+
+- `LOCAL`: deterministische lokale Werkzeuge, Skripte, Builds und Tests ohne generatives Modell;
+- `ECONOMICAL`: „günstig und schnell“ für klar definierte, risikoarme und leicht überprüfbare Arbeit;
+- `BALANCED`: „ausgewogen“ für mehrere zusammenwirkende Verträge, Dateien oder nicht offensichtliche Diagnose;
+- `FRONTIER`: „leistungsfähig und teuer“ nur für ungelöste, kritische oder schwer überprüfbare Entscheidungen mit hohem Risiko.
+
+Konkrete Anbieter, Modelle, Preise, Kontingente und Produktfunktionen bleiben bedingte Runtime- beziehungsweise Projektfakten. Menschlicher Prüfaufwand fließt erst nach Festlegung des erforderlichen Capability-Tiers in die Ausführungsoptimierung ein und begründet allein keine Eskalation.
+
 ## Aufgaben zerlegen
 
 Wähle nicht pauschal ein Modell für die gesamte Aufgabe. Zerlege umfangreiche Aufgaben in sinnvolle, überprüfbare Teilschritte und wähle für jeden Schritt das kostengünstigste verfügbare System, das diesen Schritt voraussichtlich zuverlässig erledigen kann.

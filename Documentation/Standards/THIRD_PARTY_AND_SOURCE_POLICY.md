@@ -37,6 +37,21 @@ Für jeden Drittanbieter oder jede externe Quelle dokumentieren:
 | Aufgenommen | Datum |
 | Begründung | Warum diese externe Quelle? |
 
+## Aufgenommene Governance-Quelle
+
+| Feld | Inhalt |
+|---|---|
+| Name | AI Repository Foundation |
+| Quelle | `https://github.com/gecompat/AI_Repository_Foundation` |
+| Lizenz | MIT; vollständiger Hinweis unter `.ai/foundation/AI_REPOSITORY_FOUNDATION_NOTICE.md` |
+| Variante | Manifestierter Rules-only-Core und GitHub-Copilot-Discovery-Adapter |
+| Verwendete Version | `1.2.0`, Git-Commit `28e0e071fef421528d106676c99234d48be08b6b` |
+| Prüfsumme | Kein separates Binärartefakt; die Foundation-Integritätsprüfung vergleicht die übertragenen Dateien bytegenau mit dem festgelegten Quell-Checkout. |
+| Aufgenommen | 2026-08-23 |
+| Begründung | Anbieterneutrale, versionierte Governance-Baseline für Autorisierung, Sicherheit, Provenienz, Quellen, Dependencies und getrennte Validierungsebenen. |
+
+Die Integration führt keine Runtime-Abhängigkeit und keinen externen Dienst ein. Upgrades bleiben explizit und impact-basiert; bei einem späteren Entfernen müssen Foundation-Regeln, Discovery-Brücke und zugehörige Provenienz gemeinsam konsistent behandelt werden.
+
 ## Verbote
 
 - Keine erfundenen Kompatibilitätsangaben.
