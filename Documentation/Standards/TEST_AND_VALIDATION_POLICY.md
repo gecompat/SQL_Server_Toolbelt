@@ -16,6 +16,16 @@ Der `validation_status` ist von Implementierungs- und Release-Status getrennt.
 | `not applicable` | im konkreten Scope fachlich nicht anwendbar und begründet |
 | `failed` | ausgeführt und fehlgeschlagen; Blocker dokumentiert |
 
+## Foundation-Validierungsebenen
+
+Die Toolbelt-Statuswerte bleiben autoritativ und werden in drei voneinander getrennten Evidenzbereichen verwendet:
+
+- `FOUNDATION_INTEGRITY`: installierte Foundation-Struktur, Provenienz, Discovery und deterministische Foundation-Verträge;
+- `PROJECT_SEMANTIC`: Toolbelt-Regeln, Architektur, Dokumentationsverträge, Repo-Map, statische Konsistenz und projektspezifische Overrides;
+- `RUNTIME_EMPIRICAL`: Builds, SQL-Runtime-, Integrations-, Plattform- und manuelle Prüfungen.
+
+`validated` und `not executed` behalten die reservierten Foundation-Bedeutungen. `partially validated`, `not applicable` und `failed` sind dokumentierte projektspezifische Erweiterungen. `pending manual validation` darf verwendet werden, wenn ein ausführbarer manueller Plan gemäß `.ai/foundation/VALIDATION_POLICY.md` vorliegt. Eine erfolgreiche `FOUNDATION_INTEGRITY`-Prüfung ist kein Nachweis für `PROJECT_SEMANTIC` oder `RUNTIME_EMPIRICAL`.
+
 ## Evidenz für ausgeführte Prüfungen
 
 Mindestens dokumentieren:

@@ -382,3 +382,15 @@ bleibt ein separater Release-Nachweis.
 | Alternativen | `TBL_`-/`TB_`-Präfixe und unbenannte Constraints wurden verworfen. Pluralformen bleiben nur bei fachlich etablierten Sammelbegriffen zulässig. |
 | Betroffene Verträge | `SQL_OBJECT_NAMING.md`, `WORK_TYPE_MODULE_DESIGN.md`, `toolbelt.core.work-type` |
 
+## DEC-2026-026: AI Repository Foundation 1.2 als additive Governance-Baseline
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-08-23 |
+| Status | accepted |
+| Entscheidung | AI Repository Foundation 1.2 wird über den manifestierten Rules-only-Umfang unter `.ai/foundation/` integriert. `AGENTS.md` bleibt der kanonische Einstieg; die vorhandenen Toolbelt-Regeln bleiben für Projektfakten, Fachverträge und bewusst strengere Vorgaben autoritativ. Ausgewählt ist der vorhandene GitHub-Copilot-Adapter; Claude- und Gemini-Adapter bleiben unselektiert. |
+| Begründung | Die Foundation ergänzt portable Regeln für Autorisierung, Sicherheit, Provenienz, Quellen, Dependencies und getrennte Validierungsebenen, ohne reife projektspezifische Governance zu ersetzen. Der semantische Integrationsvertrag verhindert Textüberschreibung und Regelverlust. |
+| Scope | KI-Governance, Regel-Discovery, Modellrouting, Validierung, Datenschutz, Drittanbieter- und Quellenbehandlung |
+| Auswirkungen | Das funktionsbezogene Implementierungs-Gate und der strengere Datenschutz sind `PROJECT_STRONGER`. Die Toolbelt-Modellrichtlinie und ihre Foundation-Tier-Zuordnung sowie die erweiterten Validierungsstatus sind `COMPLEMENTARY`. KI-Commit-Regel, Sprache, Git-/Merge-Workflow und konkrete Prüfkommandos bleiben `PROJECT_SELECTABLE_OVERRIDE`. Der Copilot-Adapter ist eine reine Discovery-Brücke; das projektspezifische Backlog-Curator-Profil bleibt als ausgewählte Capability erhalten. Foundation-Integrität, Toolbelt-Semantik und Runtime-Evidenz werden getrennt berichtet. |
+| Alternativen | Vollständiges Ersetzen bestehender Regeln, Kopieren des Foundation-Repositories als Template, Änderung der Toolbelt-Root-Lizenz und parallele Governance in Tool-Adaptern wurden verworfen. |
+| Betroffene Verträge | `AGENTS.md`, `.ai/foundation/`, `.ai/repo_map.yaml`, `.github/copilot-instructions.md`, `AI_COST_AND_QUALITY_PROCESSING_POLICY.md`, `TEST_AND_VALIDATION_POLICY.md` |

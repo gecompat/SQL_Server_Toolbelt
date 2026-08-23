@@ -19,8 +19,11 @@ sources_of_truth:
   project_rules: .ai/PROJECT_RULES.md
   working_rules: .ai/WORKING_RULES.md
   ai_entry_point: AGENTS.md
+  foundation_ruleset_index: .ai/foundation/repo_map.yaml
   copilot_bridge: .github/copilot-instructions.md
   ai_cost_quality_policy: Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md
+  validation_policy: Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+  third_party_source_policy: Documentation/Standards/THIRD_PARTY_AND_SOURCE_POLICY.md
   usp_contract: Documentation/Standards/USP_CONTRACT.md
   privacy_policy: Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md
   naming_conventions: Documentation/Standards/SQL_OBJECT_NAMING.md
@@ -278,6 +281,21 @@ change_impact:
     - explicit_request
   full_audit_paths:
     - .ai/repo_map.yaml
+    - .ai/README.md
+    - .ai/foundation/FOUNDATION_RULESET.md
+    - .ai/foundation/AI_REPOSITORY_FOUNDATION_NOTICE.md
+    - .ai/foundation/PROJECT_RULES.md
+    - .ai/foundation/SEMANTIC_INTEGRATION_POLICY.md
+    - .ai/foundation/WORKING_RULES.md
+    - .ai/foundation/MODEL_ROUTING_POLICY.md
+    - .ai/foundation/VALIDATION_POLICY.md
+    - .ai/foundation/DATA_PRIVACY_AND_CONFIDENTIALITY.md
+    - .ai/foundation/SECURITY_AND_SAFE_OPERATIONS.md
+    - .ai/foundation/DOCUMENTATION_POLICY.md
+    - .ai/foundation/THIRD_PARTY_AND_LICENSING.md
+    - .ai/foundation/SOURCE_AND_EVIDENCE_POLICY.md
+    - .ai/foundation/DEPENDENCY_POLICY.md
+    - .ai/foundation/repo_map.yaml
     - .ai/PROJECT_RULES.md
     - .ai/WORKING_RULES.md
     - AGENTS.md
@@ -286,6 +304,8 @@ change_impact:
     - Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
     - Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md
     - Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md
+    - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+    - Documentation/Standards/THIRD_PARTY_AND_SOURCE_POLICY.md
     - Tests/Documentation/validate_documentation.py
     - .github/workflows/documentation-consistency.yml
     - Templates/Module/module.yaml.template
@@ -589,6 +609,8 @@ change_impact:
     governance:
       paths:
         - .ai/repo_map.yaml
+        - .ai/README.md
+        - .ai/foundation/**
         - .ai/PROJECT_RULES.md
         - .ai/WORKING_RULES.md
         - AGENTS.md
@@ -596,6 +618,8 @@ change_impact:
         - Documentation/Architecture/DECISIONS.md
         - Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
         - Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+        - Documentation/Standards/THIRD_PARTY_AND_SOURCE_POLICY.md
         - Documentation/Standards/TSQL_ENGINEERING.md
         - Documentation/Standards/MODULE_DEFINITION_OF_DONE.md
         - Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md
