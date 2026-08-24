@@ -4,7 +4,7 @@
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-24 Module sind implementiert. 23 sind `partially validated`, ein Modul ist
+24 Module sind implementiert. Alle 24 sind `partially validated`; 0 sind
 `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
@@ -99,8 +99,9 @@ stellt `toolbelt_archive.USP_ExtractZipEntryFromBinary` bereit. Version
 `1.0.0` extrahiert einen einzelnen Entry aus einem ZIP-Container im Speicher,
 erzwingt Default-Limits fuer Entry-Groesse und Kompressionsverhaeltnis,
 behandelt Duplicate-Namen als expliziten Fehler und liefert bei
-`@FailIfEncrypted = 0` einen verschluesselten Status ohne Payload.
-Runtime-Evidenz ist noch `not executed`.
+`@FailIfEncrypted = 0` einen verschluesselten Status ohne Payload. Version
+`1.2.0` ergänzt das Metadaten-Listing; dessen neue SQL-Runtime-Evidenz wird im
+zugehörigen Arbeitspaket getrennt nachgeführt.
 
 ## Projektzweck
 

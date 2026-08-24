@@ -51,12 +51,12 @@ New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $assemblyBytes = [IO.File]::ReadAllBytes($assemblyPath)
 $assemblyHex = [BitConverter]::ToString($assemblyBytes).Replace('-', '')
 $sha512 = (Get-FileHash -Algorithm SHA512 -LiteralPath $assemblyPath).Hash.ToUpperInvariant()
-$description = 'SQL Server Toolbelt toolbelt.archive.zip-memory CLR provider 1.1.0'
+$description = 'SQL Server Toolbelt toolbelt.archive.zip-memory CLR provider 1.2.0'
 
 $manifest = [ordered]@{
     schemaVersion = '1.0'
     moduleId = 'toolbelt.archive.zip-memory'
-    moduleVersion = '1.1.0'
+    moduleVersion = '1.2.0'
     assemblySqlName = 'Toolbelt_Archive_ZipMemory'
     assemblyFileName = [IO.Path]::GetFileName($assemblyPath)
     permissionSet = 'SAFE'

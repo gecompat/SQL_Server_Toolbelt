@@ -1,10 +1,10 @@
 module_id: "toolbelt.archive.zip-memory"
-module_name: "ZIP Memory Extraction"
-version: "1.1.0"
+module_name: "ZIP Memory Inspection"
+version: "1.2.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Extrahiert einen einzelnen ZIP-Entry aus einem In-memory-ZIP-Container über einen begrenzten SAFE-SQL-CLR-Provider für Methods 0 und 8 mit CRC32-Prüfung."
+description: "Listet ZIP-Metadaten und extrahiert einen einzelnen Entry aus einem In-memory-ZIP-Container über einen begrenzten SAFE-SQL-CLR-Provider."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -35,15 +35,24 @@ objects:
     schema: "toolbelt_archive"
     name: "USP_ExtractZipEntryFromBinary"
     visibility: public
+  - type: USP
+    schema: "toolbelt_archive"
+    name: "USP_ListZipEntriesFromBinary"
+    visibility: public
   - type: CLR_TVF
     schema: "toolbelt_archive"
     name: "TVF_InternalExtractZipEntryClr"
+    visibility: internal
+  - type: CLR_TVF
+    schema: "toolbelt_archive"
+    name: "TVF_InternalListZipEntriesClr"
     visibility: internal
   - type: ASSEMBLY
     name: "Toolbelt_Archive_ZipMemory"
     visibility: internal
 permissions_required:
   - "EXECUTE auf toolbelt_archive.USP_ExtractZipEntryFromBinary"
+  - "EXECUTE auf toolbelt_archive.USP_ListZipEntriesFromBinary"
   - "EXECUTE auf toolbelt_core.USP_PrepareResultTable bei Nutzung von @ResultTable"
   - "CREATE ASSEMBLY beziehungsweise ALTER ANY ASSEMBLY für Deploy"
   - "CREATE FUNCTION, CREATE PROCEDURE und Schema-ALTER für Deploy"
@@ -55,6 +64,11 @@ resultset_contracts:
   - object: "toolbelt_archive.USP_ExtractZipEntryFromBinary"
     kind: "data"
     resultset: "EntryName nvarchar(1024), CompressedBytes bigint, UncompressedBytes bigint, CompressionMethod int, Crc32 int null, IsEncrypted bit, EntryPayload varbinary(max)"
+    return_code_success: 0
+    error_range: "51320-51329"
+  - object: "toolbelt_archive.USP_ListZipEntriesFromBinary"
+    kind: "data"
+    resultset: "EntryOrdinal int, EntryName nvarchar(1024), IsDirectory bit, CompressedBytes bigint, UncompressedBytes bigint, CompressionMethod int, Crc32 int, IsEncrypted bit, IsExtractionSupported bit, DuplicateCount int, IsPathSafe bit, PathStatus varchar(32), LastModifiedAt datetime2(0) null"
     return_code_success: 0
     error_range: "51320-51329"
 lifecycle_error_range: "51330-51339"
@@ -86,9 +100,11 @@ documentation:
   module: "README.md"
   public_objects:
     - "Documentation/USP_ExtractZipEntryFromBinary.md"
+    - "Documentation/USP_ListZipEntriesFromBinary.md"
   architecture:
     - "../../Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md"
     - "../../Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md"
+    - "../../Documentation/Architecture/ZIP_METADATA_MODULE_DESIGN.md"
   decisions:
     - "../../Documentation/Architecture/DECISIONS.md"
   test_matrix:
@@ -110,6 +126,9 @@ tests:
   manual_windows: "Tests/Manual_Windows_Runtime_Testplan.md"
   github_hosted_linux: "../../.github/workflows/zip-memory-runtime.yml"
 validation_evidence:
+  - date: "2026-08-24"
+    scope: "Statische Vertragsprüfung und Windows-.NET-Framework-4.8-Build für Version 1.2.0 einschließlich ZIP-Metadaten-Listing; SQL-Runtime-Evidenz für den neuen Listing-Vertrag noch offen"
+    result: "partially validated"
   - date: "2026-07-31"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206"
     scope: "Windows-.NET-Framework-4.8-Build; SQL Server 2019 Linux/Compatibility 150; SQL Server 2022 Linux/Compatibility 160; SQL Server 2025 Linux/Compatibility 150, 160 und 170; Trust, Stored, Deflate, Data Descriptor, UTF-8, CP437, CRC32, Größen-/Ratio-/Featurefehler, ResultTable, Wiederholungsdeployment, Central und Uninstall"

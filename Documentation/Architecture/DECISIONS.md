@@ -394,3 +394,16 @@ bleibt ein separater Release-Nachweis.
 | Auswirkungen | Das funktionsbezogene Implementierungs-Gate und der strengere Datenschutz sind `PROJECT_STRONGER`. Die Toolbelt-Modellrichtlinie und ihre Foundation-Tier-Zuordnung sowie die erweiterten Validierungsstatus sind `COMPLEMENTARY`. KI-Commit-Regel, Sprache, Git-/Merge-Workflow und konkrete Prüfkommandos bleiben `PROJECT_SELECTABLE_OVERRIDE`. Der Copilot-Adapter ist eine reine Discovery-Brücke; das projektspezifische Backlog-Curator-Profil bleibt als ausgewählte Capability erhalten. Foundation-Integrität, Toolbelt-Semantik und Runtime-Evidenz werden getrennt berichtet. |
 | Alternativen | Vollständiges Ersetzen bestehender Regeln, Kopieren des Foundation-Repositories als Template, Änderung der Toolbelt-Root-Lizenz und parallele Governance in Tool-Adaptern wurden verworfen. |
 | Betroffene Verträge | `AGENTS.md`, `.ai/foundation/`, `.ai/repo_map.yaml`, `.github/copilot-instructions.md`, `AI_COST_AND_QUALITY_PROCESSING_POLICY.md`, `TEST_AND_VALIDATION_POLICY.md` |
+
+## DEC-2026-027: Statuswahrheit aus Manifesten und lokal begrenzte Ableitungen
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-08-24 |
+| Status | accepted |
+| Entscheidung | Modulstatus und aggregierte Statussummen werden ausschließlich aus den registrierten `module.yaml`-Manifesten abgeleitet. Eine als abgeleitet gekennzeichnete Backlog-Zeile muss innerhalb desselben AP-Abschnitts zum im `Scope` genannten Modul passen. AP- und Roadmap-Phasen-IDs sind dokumentweit eindeutig. |
+| Begründung | Eine dokumentweite Textsuche konnte einen falschen Status in einem Arbeitspaket durch einen richtigen Status an anderer Stelle verdecken. Manuell gepflegte Aggregatsummen und doppelte IDs erzeugten zusätzlich widersprüchliche Projektwahrheit. |
+| Scope | Modulmanifeste, aktuelle Statusdokumente, `.ai/BACKLOG.md`, `.ai/ROADMAP.md` und Dokumentationsvalidator |
+| Auswirkungen | Der vollständige Audit prüft Implementierungs-, Validierungs- und Releasewerte im lokalen AP-Abschnitt, Manifestaggregate sowie doppelte Planungs-IDs. Historische Changelog-Aussagen bleiben historische Evidenz und werden nicht umgeschrieben. |
+| Alternativen | Globale Textsuche, vollständig manuelle Summenpflege und nicht eindeutige wiederverwendete Planungs-IDs wurden verworfen. |
+| Betroffene Verträge | `Tests/Documentation/validate_documentation.py`, `.ai/BACKLOG.md`, `.ai/ROADMAP.md`, `Modules/README.md`, `PROJECT_CONTEXT.md` |

@@ -91,18 +91,23 @@ def main() -> int:
         "Clr/Properties/AssemblyInfo.cs",
         "Clr/ZipEntryProvider.cs",
         "Source/TVF_InternalExtractZipEntryClr.sql",
+        "Source/TVF_InternalListZipEntriesClr.sql",
         "Source/USP_ExtractZipEntryFromBinary.sql",
+        "Source/USP_ListZipEntriesFromBinary.sql",
         "Deployment/Add-TrustedAssembly.sql",
         "Deployment/Deploy.sql",
         "Deployment/Uninstall.sql",
         "Scripts/New-ClrReleaseArtifacts.ps1",
         "Examples/ExtractZipEntryFromBinary.sql",
+        "Examples/ListZipEntriesFromBinary.sql",
         "README.md",
         "Documentation/USP_ExtractZipEntryFromBinary.md",
+        "Documentation/USP_ListZipEntriesFromBinary.md",
         "Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md",
         "Tests/README.md",
         "Tests/Runtime/ZipMemory.Contract.sql",
         "Tests/Runtime/Encoding.Contract.sql",
+        "Tests/Runtime/Metadata.Contract.sql",
         "Tests/Runtime/Lifecycle.Contract.sql",
         "Tests/Runtime/Central.Contract.sql",
         "module.yaml",
@@ -119,6 +124,10 @@ def main() -> int:
         "CLR-Provider",
         "[SqlFunction(",
         'FillRowMethodName = "FillRow"',
+        'FillRowMethodName = "FillListRow"',
+        "ListZipEntriesFromBinary",
+        "BuildDuplicateCounts",
+        "GetPathStatus",
         "new DeflateStream(",
         "CompressionMode.Decompress",
         "ComputeCrc32",
@@ -161,6 +170,20 @@ def main() -> int:
         "[ExtractZipEntry]",
     )
 
+    internal_list_tvf = read("Source/TVF_InternalListZipEntriesClr.sql")
+    require(
+        internal_list_tvf,
+        "interner CLR-Metadaten-TVF",
+        "CREATE FUNCTION [toolbelt_archive].[TVF_InternalListZipEntriesClr]",
+        "RETURNS TABLE",
+        "IsExtractionSupported bit",
+        "PathStatus           nvarchar(32)",
+        "LastModifiedAt       datetime2(0)",
+        "AS EXTERNAL NAME",
+        "[Toolbelt_Archive_ZipMemory]",
+        "[ListZipEntriesFromBinary]",
+    )
+
     source = read("Source/USP_ExtractZipEntryFromBinary.sql")
     require(
         source,
@@ -178,6 +201,25 @@ def main() -> int:
     )
     forbid(source, "öffentliche Procedure", "OPENROWSET", "xp_cmdshell")
 
+    list_source = read("Source/USP_ListZipEntriesFromBinary.sql")
+    require(
+        list_source,
+        "öffentliche Metadaten-Procedure",
+        "CREATE OR ALTER PROCEDURE [toolbelt_archive].[USP_ListZipEntriesFromBinary]",
+        "@ZipArchive  varbinary(max) = NULL",
+        "@MaxEntries  int            = 10000",
+        "TVF_InternalListZipEntriesClr",
+        "THROW @ProviderErrorNumber",
+        "BETWEEN 51320 AND 51329",
+        "toolbelt_core.USP_PrepareResultTable",
+        "IsExtractionSupported",
+        "DuplicateCount",
+        "PathStatus",
+        "LastModifiedAt",
+        "ZIP64",
+    )
+    forbid(list_source, "öffentliche Metadaten-Procedure", "OPENROWSET", "xp_cmdshell")
+
     deploy = read("Deployment/Deploy.sql")
     if deploy.count("$(AssemblyBits)") != 1:
         raise ContractError("Deploy.sql muss genau einen AssemblyBits-Platzhalter enthalten.")
@@ -192,9 +234,11 @@ def main() -> int:
         "ALTER ASSEMBLY [Toolbelt_Archive_ZipMemory]",
         "WITH PERMISSION_SET = SAFE",
         ":r ../Source/TVF_InternalExtractZipEntryClr.sql",
+        ":r ../Source/TVF_InternalListZipEntriesClr.sql",
         ":r ../Source/USP_ExtractZipEntryFromBinary.sql",
-        "@InstalledVersion NOT IN (N'1.0.0', N'1.1.0')",
-        "@value = N'1.1.0'",
+        ":r ../Source/USP_ListZipEntriesFromBinary.sql",
+        "@InstalledVersion NOT IN (N'1.0.0', N'1.1.0', N'1.2.0')",
+        "@value = N'1.2.0'",
         "sp_getapplock",
     )
     forbid(
@@ -241,19 +285,22 @@ def main() -> int:
         "Deploy.WithAssembly.sql",
         "Toolbelt.Archive.ZipMemory.trust-manifest.json",
         "@('System', 'System.Data')",
+        "moduleVersion = '1.2.0'",
     )
 
     manifest = read("module.yaml")
     require(
         manifest,
         "Manifest",
-        'version: "1.1.0"',
+        'version: "1.2.0"',
         'validation_status: "partially validated"',
         'linux: "partially validated"',
         'windows: "not executed"',
         "id: clr-zip-memory",
         "type: CLR_TVF",
         'name: "Toolbelt_Archive_ZipMemory"',
+        'name: "USP_ListZipEntriesFromBinary"',
+        'name: "TVF_InternalListZipEntriesClr"',
         'permission_set: "SAFE"',
         'workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206"',
     )
@@ -265,7 +312,7 @@ def main() -> int:
         "CompressionMethod = 0",
         "CompressionMethod = 8",
         "descriptor.txt",
-        "Grüße.txt",
+        "@ZipUtf8EntryName",
         "@ZipDuplicate",
         "@ZipEncrypted",
         "@ZipBadCrc",
@@ -278,13 +325,39 @@ def main() -> int:
         require(runtime, "Runtime-Contract", f"ERROR_NUMBER() <> {number}")
 
     encoding = read("Tests/Runtime/Encoding.Contract.sql")
-    require(encoding, "Encoding-Contract", "0x477281E1652E747874", "N'Grüße.txt'", "CP437")
+    require(encoding, "Encoding-Contract", "0x477281E1652E747874", "@EntryNameUtf8", "CP437")
+
+    metadata = read("Tests/Runtime/Metadata.Contract.sql")
+    require(
+        metadata,
+        "Metadaten-Runtime-Contract",
+        "@ZipEmpty",
+        "@ZipDuplicate",
+        "@ZipEncrypted",
+        "@ZipUnsupported",
+        "@ZipPaths",
+        "@ZipUtf8",
+        "@ZipCp437",
+        "@ZipDescriptor",
+        "@ZipBadTime",
+        "@Zip64Sentinel",
+        "@ZipLocalNameMismatch",
+        "@ZipMultiDisk",
+        "DuplicateCount = 2",
+        "parent-traversal",
+        "drive-qualified",
+        "noncanonical",
+        "@MaxEntries = 1",
+        "@ResultTable = N'#ZipMetadataResult'",
+    )
 
     for fixture in (
         "Tests/Runtime/ZipMemory.Contract.sql",
         "Tests/Runtime/Encoding.Contract.sql",
+        "Tests/Runtime/Metadata.Contract.sql",
         "Tests/Runtime/Central.Contract.sql",
         "Examples/ExtractZipEntryFromBinary.sql",
+        "Examples/ListZipEntriesFromBinary.sql",
     ):
         validate_zip_fixtures(fixture)
 
