@@ -407,3 +407,16 @@ bleibt ein separater Release-Nachweis.
 | Auswirkungen | Der vollständige Audit prüft Implementierungs-, Validierungs- und Releasewerte im lokalen AP-Abschnitt, Manifestaggregate sowie doppelte Planungs-IDs. Historische Changelog-Aussagen bleiben historische Evidenz und werden nicht umgeschrieben. |
 | Alternativen | Globale Textsuche, vollständig manuelle Summenpflege und nicht eindeutige wiederverwendete Planungs-IDs wurden verworfen. |
 | Betroffene Verträge | `Tests/Documentation/validate_documentation.py`, `.ai/BACKLOG.md`, `.ai/ROADMAP.md`, `Modules/README.md`, `PROJECT_CONTEXT.md` |
+
+## DEC-2026-028: Foundation 1.4 und Bestandsschutz für Projektidentitäten
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-08-24 |
+| Status | accepted |
+| Entscheidung | AI Repository Foundation 1.4 wird als additive Weiterentwicklung der mit `DEC-2026-026` eingeführten Baseline übernommen. Alle bestehenden stabilen Toolbelt-Referenzen und ihre bisherigen Bedeutungen bleiben im Modus `PRESERVE` unverändert. Die optionalen Foundation-Referenz-Clients werden nicht ausgewählt. |
+| Begründung | Das Repository verwendet mehrere etablierte, fachlich getrennte Referenzfamilien, unter anderem `DEC`, `AP`, `TC`, `AC`, `UE`, `RI` und `SRC`. Eine rückwirkende Umbenennung erzeugte keinen gleichwertigen Nutzen und wäre ohne Alias- und Migrationsplan riskant. Die Bestandsaufnahme fand keine bereits dokumentierte, gemeinsame Registration Authority, die für Menschen und KI kollisionssicher neue finale Sequenzreferenzen vergibt. |
+| Scope | Foundation-Identitäts- und Registrierungsregeln, bestehende Planungs-, Entscheidungs-, Research- und Quellenreferenzen |
+| Auswirkungen | Historische Referenzen werden nicht umgedeutet, wiederverwendet oder aus dieser Integration heraus migriert. Vor der Einführung einer neuen finalen Referenzfamilie oder eines neuen automatisierten Allocators muss eine gesonderte Architekturentscheidung eine Registration Authority je überlappendem Scope sowie `DIRECT` oder `DEFERRED`, Kollisionsschutz, Recovery und dauerhafte Historie festlegen. Die hier übernommene Policy ist bis dahin ergänzende Governance und keine Ermächtigung, Sequenznummern aus Markdown, Git-Historie oder Modellgedächtnis zu erraten. |
+| Alternativen | Retroaktive UUID-/Präfixmigration, stillschweigende Fortsetzung einer vermuteten Vergaberegel, Auswahl der optionalen Python-/PowerShell-Clients ohne Projektentscheidung |
+| Betroffene Verträge | `.ai/foundation/PERSISTENT_IDENTITY_POLICY.md`, `.ai/foundation/ARTIFACT_REGISTRATION_POLICY.md`, `.ai/foundation/schemas/`, `.ai/repo_map.yaml`, `DEC-2026-026`, `Backlog/CANDIDATE_TEMPLATE.md`, `.github/agents/backlog-curator.agent.md` |
