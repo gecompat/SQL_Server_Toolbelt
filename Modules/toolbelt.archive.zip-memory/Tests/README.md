@@ -15,7 +15,7 @@ Alle Testarchive und Payloads sind synthetisch.
 
 ## Erfolgreiche Evidenz
 
-GitHub-Actions-Lauf `30615544206`:
+GitHub-Actions-Lauf `32701896453`:
 
 | Umgebung | Compatibility Level | Ergebnis |
 |---|---:|---|
@@ -26,18 +26,15 @@ GitHub-Actions-Lauf `30615544206`:
 | SQL Server 2025 Linux | 170 | erfolgreich |
 | Windows-.NET-Framework-4.8-Build | n/a | erfolgreich |
 
-Der Lauf `30615544206` belegt den Extraktionsvertrag aus `1.1.0`. Für `1.2.0`
-werden lokale und zentrale Installation, Versionsupgrade, Wiederholungsdeploy,
-Extraktions- und Listingverträge sowie Uninstall erneut durch die
-`zip-memory-runtime`-Matrix geprüft.
+Der Lauf belegt für `1.2.0` lokale und zentrale Installation, Upgrade-Marker,
+Wiederholungsdeploy, Extraktions- und Listingverträge sowie Uninstall.
 
 ## Offen
 
 - SQL-Server-Runtime unter Windows;
-- abgeschlossene CI-Runtime-Evidenz für den Listingvertrag `1.2.0`;
 - echte Läufe an den maximalen Archiv-, Entry- und Entry-Count-Grenzen;
 - zusätzliche Interoperabilitätsläufe vor Release.
 
 Der Modulstatus ist `partially validated`.
 
-Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453

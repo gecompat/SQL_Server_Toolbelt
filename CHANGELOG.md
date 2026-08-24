@@ -5,6 +5,10 @@
 - `toolbelt.archive.zip-memory` Version `1.2.0` stellt die neue
   Listing-API samt internem CLR-TVF, Lifecycle, Help, ResultTable,
   Local-/Central- und Struktur-/Encoding-/Pfadverträgen.
+- Windows-.NET-Framework-4.8-Build und SQL-Server-2019-/2022-/2025-Linux-
+  Runtime für Extraktion und Listing sind im
+  [GitHub-Actions-Lauf 32701896453](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453)
+  erfolgreich; Windows-Runtime und echte Extremgrößen bleiben offen.
 - Aggregierte Manifeststatus, Kandidatenplan und Roadmap sind konsolidiert;
   doppelte AP-/Phasenabschnitte entfernt und zukünftige Wellen mit expliziten
   Freigabegates verankert.
@@ -50,7 +54,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 - Windows-only Modul `toolbelt.filesystem.windows` mit EXTERNAL_ACCESS-SQL-CLR-Fassade für begrenztes Text-/Binary-I/O, explizite Codepages und Transcoding, Directory-Operationen und begrenztes rekursives Löschen. `Caller` ist der Default, `ServiceAccount` explizit; Build, Trust, Deployment, Help, SQL-Authentication-Ablehnung und kontrolliertes ServiceAccount-Schreiben sind validiert, die breitere Caller-/NTFS-/I/O-Matrix bleibt offen.
 
-- `toolbelt.archive.zip-memory` ergänzt den ZIP-Metadaten-Pfad (TC-2026-033) im CLR-Provider inklusive Testhärtung für nicht-ASCII-Entry-Namen (`Grüße.txt` als Unicode-Konkatenausdruck). Version `1.2.0` stellt ihn über `USP_ListZipEntriesFromBinary` bereit; die vollständige neue SQL-Runtime-Matrix wird capabilitybezogen ausgewiesen.
+- `toolbelt.archive.zip-memory` ergänzt den ZIP-Metadaten-Pfad (TC-2026-033) im CLR-Provider inklusive Testhärtung für nicht-ASCII-Entry-Namen (`Grüße.txt` als Unicode-Konkatenausdruck). Version `1.2.0` stellt ihn über `USP_ListZipEntriesFromBinary` bereit; die vollständige Linux-SQL-Runtime-Matrix ist erfolgreich.
 
 - W2c mit `toolbelt.core.console-message` für Unicode-sichere lange
   `PRINT`-/`RAISERROR ... WITH NOWAIT`-Messages und

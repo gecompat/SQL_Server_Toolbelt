@@ -347,13 +347,13 @@ nicht-ASCII-spezifische Providergrenzen bleiben Releasevalidierung.
 
 `toolbelt.archive.zip-memory` Version `1.2.0` extrahiert genau einen benannten
 ZIP-Entry und listet Central-Directory-Metadaten aus `varbinary(max)` über eine
-`SAFE` SQL-CLR-Assembly. Der Extraktionsvertrag mit Methods 0 und 8, Data
-Descriptor, UTF-8/CP437, eigener CRC32, Limits, ResultTable, Central und
-Uninstall wurde im Workflow
-[30615544206](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206)
-auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich geprüft. Der neue
-Listingvertrag wird mit `AP-2026-030` erneut durch dieselbe Matrix geführt;
-Windows-SQL-Server-Runtime und echte Extremgrößen bleiben offen.
+`SAFE` SQL-CLR-Assembly. Extraktions- und Listingvertrag mit Methods 0 und 8,
+Data Descriptor, UTF-8/CP437, eigener CRC32, Metadatenstatus, Limits,
+ResultTable, Central und Uninstall wurden im Workflow
+[32701896453](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453)
+auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich geprüft.
+Windows-SQL-Server-Runtime, reale Archive, echte Extremgrößen und ein
+vollständiger Upgradepfad aus einem realen 1.1.0-Stand bleiben offen.
 
 ### Phase 2.8 – Windows Filesystem
 
