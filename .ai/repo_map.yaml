@@ -20,6 +20,8 @@ sources_of_truth:
   working_rules: .ai/WORKING_RULES.md
   ai_entry_point: AGENTS.md
   foundation_ruleset_index: .ai/foundation/repo_map.yaml
+  foundation_identity_policy: .ai/foundation/PERSISTENT_IDENTITY_POLICY.md
+  foundation_artifact_registration_policy: .ai/foundation/ARTIFACT_REGISTRATION_POLICY.md
   copilot_bridge: .github/copilot-instructions.md
   ai_cost_quality_policy: Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md
   validation_policy: Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
@@ -286,6 +288,11 @@ change_impact:
     - .ai/foundation/AI_REPOSITORY_FOUNDATION_NOTICE.md
     - .ai/foundation/PROJECT_RULES.md
     - .ai/foundation/SEMANTIC_INTEGRATION_POLICY.md
+    - .ai/foundation/PERSISTENT_IDENTITY_POLICY.md
+    - .ai/foundation/ARTIFACT_REGISTRATION_POLICY.md
+    - .ai/foundation/schemas/artifact-record.schema.json
+    - .ai/foundation/schemas/artifact-registry.schema.json
+    - .ai/foundation/schemas/artifact-registration-request.schema.json
     - .ai/foundation/WORKING_RULES.md
     - .ai/foundation/MODEL_ROUTING_POLICY.md
     - .ai/foundation/VALIDATION_POLICY.md
