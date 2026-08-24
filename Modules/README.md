@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**24 Module sind implementiert. 23 sind `partially validated`, 1 ist
+**24 Module sind implementiert. Alle 24 sind `partially validated`; 0 sind
 `not executed`. Der Einzelstatus wird aus den Manifesten abgeleitet.**
 
 ## Implementierte Module
@@ -12,7 +12,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 <!-- BEGIN GENERATED:MODULE_STATUS_TABLE -->
 | Modul-ID | Name | Version | Schema | Implementierung | Validierung | Release | SQL Server |
 |---|---|---:|---|---|---|---|---|
-| `toolbelt.archive.zip-memory` | ZIP Memory Extraction | `1.1.0` | `toolbelt_archive` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.archive.zip-memory` | ZIP Memory Inspection | `1.2.0` | `toolbelt_archive` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.binary.bit-operations` | Bigint Bit Operations Compatibility | `1.0.0` | `toolbelt_binary` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.conversion.base64` | Base64 and Base64URL Conversion | `1.1.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.conversion.integer-base` | Integer Base Conversion | `1.1.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |

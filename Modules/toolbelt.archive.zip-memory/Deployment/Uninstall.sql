@@ -10,10 +10,14 @@ DECLARE
     , @ModeProperty sysname =
           N'Toolbelt.Module.toolbelt.archive.zip-memory.DeploymentMode'
     , @DeploymentMode nvarchar(16)
-    , @PublicObjectId int =
+    , @ExtractPublicObjectId int =
           OBJECT_ID(N'toolbelt_archive.USP_ExtractZipEntryFromBinary')
-    , @InternalObjectId int =
+    , @ListPublicObjectId int =
+          OBJECT_ID(N'toolbelt_archive.USP_ListZipEntriesFromBinary')
+    , @ExtractInternalObjectId int =
           OBJECT_ID(N'toolbelt_archive.TVF_InternalExtractZipEntryClr')
+    , @ListInternalObjectId int =
+          OBJECT_ID(N'toolbelt_archive.TVF_InternalListZipEntriesClr')
     , @AssemblyId int =
           (
               SELECT assembly_id
@@ -50,8 +54,20 @@ IF EXISTS
    (
        SELECT 1
        FROM sys.sql_expression_dependencies
-       WHERE referenced_id IN (@PublicObjectId, @InternalObjectId)
-         AND referencing_id NOT IN (@PublicObjectId, @InternalObjectId)
+       WHERE referenced_id IN
+             (
+                 ISNULL(@ExtractPublicObjectId, -1),
+                 ISNULL(@ListPublicObjectId, -1),
+                 ISNULL(@ExtractInternalObjectId, -1),
+                 ISNULL(@ListInternalObjectId, -1)
+             )
+         AND referencing_id NOT IN
+             (
+                 ISNULL(@ExtractPublicObjectId, -1),
+                 ISNULL(@ListPublicObjectId, -1),
+                 ISNULL(@ExtractInternalObjectId, -1),
+                 ISNULL(@ListInternalObjectId, -1)
+             )
    )
     THROW 51338, N'Die Deinstallation wird durch eine same-database Dependency blockiert.', 1;
 
@@ -61,7 +77,11 @@ IF @AssemblyId IS NOT NULL
            SELECT 1
            FROM sys.assembly_modules
            WHERE assembly_id = @AssemblyId
-             AND object_id <> ISNULL(@InternalObjectId, -1)
+             AND object_id NOT IN
+                 (
+                     ISNULL(@ExtractInternalObjectId, -1),
+                     ISNULL(@ListInternalObjectId, -1)
+                 )
        )
     THROW 51338, N'Die CLR-ZIP-Assembly wird von einem fremden SQL-Objekt verwendet.', 1;
 
@@ -80,8 +100,14 @@ BEGIN TRY
     DROP PROCEDURE IF EXISTS
         [toolbelt_archive].[USP_ExtractZipEntryFromBinary];
 
+    DROP PROCEDURE IF EXISTS
+        [toolbelt_archive].[USP_ListZipEntriesFromBinary];
+
     DROP FUNCTION IF EXISTS
         [toolbelt_archive].[TVF_InternalExtractZipEntryClr];
+
+    DROP FUNCTION IF EXISTS
+        [toolbelt_archive].[TVF_InternalListZipEntriesClr];
 
     IF EXISTS
        (

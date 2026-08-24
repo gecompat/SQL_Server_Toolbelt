@@ -9,7 +9,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 24 Module sind implementiert; 23 sind `partially validated`, 1 ist `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 24 Module sind implementiert; alle 24 sind `partially validated`, 0 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -26,11 +26,11 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 | Gruppe | Kandidaten | Konsequenz |
 |---|---|---|
-| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-016`, `TC-2026-017`, `TC-2026-019`, `TC-2026-022`, `TC-2026-023`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031`, `TC-2026-034` Extraction-Slice, `TC-2026-037` Read-/Windows-Slices, `TC-2026-038` Windows-Slice | Capability-spezifische Runtime sowie offene physische Zielversions-, Windows- und modulspezifische Releasevalidierung gezielt abschließen. |
+| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-014`, `TC-2026-016`, `TC-2026-017`, `TC-2026-019`, `TC-2026-022`, `TC-2026-023`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031`, `TC-2026-033`, `TC-2026-034` Extraction-Slice, `TC-2026-037` Read-/Windows-Slices, `TC-2026-038` Windows-Slice, `TC-2026-046` synchroner Slice | Capability-spezifische Runtime sowie offene physische Zielversions-, Windows- und modulspezifische Releasevalidierung gezielt abschließen. |
 | Parser-, CLR- oder breite Semantikmodule | `TC-2026-010`, `TC-2026-011`, `TC-2026-013`, `TC-2026-032` | Funktionsfamilien und Provider vor dem ersten Code begrenzen und benchmarken. |
-| Execution-Infrastruktur | `TC-2026-014` bis `TC-2026-022`, `TC-2026-046` | Als abhängige Plattform in mehreren Modulen entwickeln; kein monolithisches Sammelmodul. |
+| Execution-Infrastruktur | Verbleibende Slices `TC-2026-015`, `TC-2026-018`, `TC-2026-020`, `TC-2026-021` und zusätzliche Provider aus `TC-2026-046` | Queue in vertikalen Slices entwickeln; der synchrone Second-Session- und Event-Log-Pfad ist implementiert. |
 | Externe Provider und Integrationen | `TC-2026-025` bis `TC-2026-028`; optionale portable Worker-Slices aus `TC-2026-037`/`TC-2026-038` | Allowlist-, Identity-, Secret-, Timeout-, Abbruch- und Plattformvertrag sind Pflicht-Gates; vorhandene Windows-/Read-only-Provider nicht duplizieren. |
-| Archive, Kompression und Office | `TC-2026-033`, verbleibende Slices aus `TC-2026-034`, `TC-2026-035`, `TC-2026-036`, `TC-2026-045` | ZIP-Entry-Extraktion ist implementiert; Listing, Erzeugung, vollständige Dateisystemextraktion und weitere Formate bleiben getrennte Verträge. |
+| Archive, Kompression und Office | Verbleibende Slices aus `TC-2026-034`, `TC-2026-035`, `TC-2026-036`, `TC-2026-045` | ZIP-Entry-Extraktion und Listing sind implementiert; Erzeugung, vollständige Dateisystemextraktion und weitere Formate bleiben getrennte Verträge. |
 | Pseudonymisierung und synthetische Daten | `TC-2026-039` bis `TC-2026-043` | Gemeinsame deterministische Primitive zuerst; Datenschutzwirkung nicht als Anonymisierung behaupten. |
 | DDL-/Clone-Framework | `TC-2026-044` | Script-only vor automatischer Mutation; Dependency- und Recovery-Vertrag getrennt. |
 
@@ -66,7 +66,9 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 | Welle | Status | Inhalt | Kandidaten | Eintrittsbedingung | Ergebnis |
 |---|---|---|---|---|---|
-| `V0` | `planned` | Offene Releasevalidierung | `001`, `002`, `003`, `004`, `005`, `006`, `007`, `008`, `009`, `012`, `016`, `023`, `024`, `029`, `030`, `031`, `034`, `037`, `038` | Geeignete physische Engines beziehungsweise Windows-Runner | Nachweisbare Erweiterung des Validierungsscopes; keine Codeänderung ohne Befund. |
+| `V0a` | `planned` | Physische Linux-Zielversionen | alle portablen und Linux-fähigen Module | SQL Server 2019/2022 als echte Engines, synthetische Fixtures | Unterschiede zur bisherigen 2025-Compatibility-Matrix belegen; keine Statusanhebung ohne vollständige Pflichtfälle. |
+| `V0b` | `planned` | Windows-Hochrisiko- und Providerfälle | ResultTable, CLR-, Datei-, Second-Session- und Event-Module | kontrollierte lokale Windows-SQL-Server-Roots und abstrahierte Evidenz | Identity, NTFS, Trust, Recovery und Performance getrennt nachweisen. |
+| `V0c` | `planned` | Erste Releasekohorte | kleinste stabile, abhängigkeitsschwache Modulgruppe | versionierte Artefakte, Upgrade-/Uninstallnachweis und Releasekriterien | Reproduzierbare Manifeste und eine tatsächlich veröffentlichbare Kohorte statt pauschalem Repository-Release. |
 | `W1` | `completed` | Kleine unabhängige T-SQL-Kerne | `002`, `008`, `024` | Einzelvertrag und Freigabe | Drei implementierte, auf SQL Server 2025 Linux teilweise validierte Module. |
 | `W2a` | `completed` | Date/Time- und Bigint-Bit-Kompatibilität | `004`, `005`, `007` | Typfamilien, Paritätsumfang und Fehlervertrag am 2026-07-30 freigegeben | Drei Module implementiert und auf SQL Server 2025 Linux teilweise validiert. |
 | `W2b-A` | `completed` | JSON-Pfadprüfung | `009` Slice A | Pfad-, NULL-, Fehler- und Providervertrag am 2026-07-30 freigegeben | `toolbelt.json.path-exists` implementiert und auf SQL Server 2025 Linux teilweise validiert. |
@@ -74,10 +76,15 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 | `W2c` | `completed` | Console-Ausgabe und Runtime-Capability-Discovery | `016`, `023` | Provider-, Chunk-, Null-, Metadatenquellen- und Driftvertrag am 2026-07-30 freigegeben | Zwei Module implementiert und auf SQL Server 2025 Linux teilweise validiert. |
 | `W3` | `researched` | String-Parser und Matching | `010`, `011`, `032` | Syntaxsubset, Limits und Providervergleich entschieden | Getrennte Regex-, Fuzzy- und Quote-/Escape-Module. |
 | `W4` | `completed` | Weitere Execution-Grundlagen | `017`, `019`, `022` | Persistente Tabellenkonvention mit `DEC-2026-025`; Einzelverträge freigegeben | Error Envelope, Execution Context und Work-Type-Katalog sind implementiert und auf SQL Server 2025 Linux teilweise validiert. |
-| `W5` | `researched` | Session- und Ausführungsprovider | `046`, `014` | `017`, `019`, `022`; Provider- und Security-Entscheidung | Synchrone zweite Session und darauf aufbauendes rollback-unabhängiges Logging. |
-| `W6` | `researched` | Queue, Retry, Lease und Cancellation | `015`, `020`, `021`, `018` | `017`, `019`, `022`; Tabellenkonvention entschieden | Begrenzte, beobachtbare und wiederanlaufbare Work Queue. |
+| `W5a` | `completed` | Synchrone zweite Session und Event Log | `046` synchroner Slice, `014` | Work-Type, Execution Context und Error Envelope | `toolbelt.core.second-session` und rollback-unabhängiges `toolbelt.core.event-log` implementiert und teilweise validiert. |
+| `W5b` | `researched` | Zusätzliche Session- und Ausführungsprovider | verbleibender `046`-Scope | Konkreter Providerbedarf, eigener Security-/Lifecyclevertrag und Freigabe | Kein automatischer Ausbau; Agent, Broker und externe Worker bleiben getrennte Optionen. |
+| `W6` | `planned` | Queue, Retry, Lease und Cancellation | `015`, `021`, `020`, `018` | `017`, `019`, `022`; Tabellenkonvention entschieden; Einzelvertrag und Freigabe je Slice | `W6a` Claim/Complete/Fail, `W6b` Lease/Recovery, `W6c` Retry/Dead Letter/Idempotenz, `W6d` kooperative Cancellation. |
 | `W7` | `active` | Datei- und Host-Provider | `037`, `038`, `025`, `026`, `027` | Root-Allowlist, Pfad-/Encoding-Vertrag und Provider | `toolbelt.file.content` ist als portabler Read-only-Slice implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` implementiert Read/Write/Transcoding/Directory-Operationen; der manuelle Windows-Runtime-Nachweis bleibt offen. Externe Worker bleiben optional zurückgestellt. |
-| `W8` | `active` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | `toolbelt.archive.zip-memory` Version `1.1.0` ist implementiert und teilweise validiert. Der Listing-only-Slice `TC-2026-033` wurde am 2026-08-09 als Erweiterung auf Version `1.2.0` freigegeben. Windows-Runtime, ZIP-Erzeugung, vollständige Dateisystemextraktion und XLSX bleiben offen. |
+| `W8` | `completed` für ZIP Memory; Rest `researched` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | `toolbelt.archive.zip-memory` Version `1.2.0` enthält Extraktion und Listing. Windows-Runtime, ZIP-Erzeugung, vollständige Dateisystemextraktion und XLSX bleiben ohne Implementierungsfreigabe offen. |
+| `Q1` | `proposed` | Lifecycle- und Upgrade-Automation | `RI-2026-142`, danach Manifest-/Snapshot-Slices | Releasekohorte und versionsbezogene Artefaktform festlegen | Upgradepfade und wiederholbare Modulzustände vor weiteren breiten Features absichern. |
+| `D1` | `proposed` | Date Spine V1 | `RI-2026-079` auf Basis von `006`, `004`, `005` | Granularitäten, Grenzen, Inclusivity und Zeitzonenfreiheit besprechen | Kleiner relationaler Datumsspine-Vertrag ohne Kalender-/Feiertagslogik. |
+| `R1` | `proposed` | Regex V1 | `010` | RE2-Semantikspike, Limits und kleiner Funktionsslice besprechen | Zuerst `LIKE`, `INSTR`, `COUNT`; Replace/Substring/Split/Matches getrennt später. |
+| `R2025` | `proposed research` | SQL-Server-2025-GA-Delta | UNISTR, PRODUCT, DATEADD bigint, Vector-Scalar-Funktionen | Aktuellen GA-/Preview-Status aus Primärquellen bestätigen | Nur Deduplizierung und Kandidatenbewertung; keine Implementierung. |
 | `W9` | `researched` | Deterministische Pseudonymisierungsprimitive | `040`, `039`, `041`, `042`, `043` | Key-/Seed-, Kanonisierungs- und Datenschutzvertrag | Range-Primitive zuerst; darauf Lookup, Translation, Date Shift und Geo Jitter. |
 | `W10` | `researched` | Kontrolliertes DDL-Klonen | `044` | Identifier-Modul vorhanden; unterstützte Objektmenge festgelegt | Zuerst nur geprüftes Script, später optional getrennte Ausführung. |
 | `W11` | `researched` | KI-Capabilities | `028` | REST/Worker, Capability-Katalog, Credentials, Kosten- und Datengovernance | Embeddings und generative Aufrufe als getrennte Module. |
@@ -113,8 +120,10 @@ freigegebenes Arbeitspaket aktiv.
 | `TC-2026-022` | `toolbelt.core.work-type` | `toolbelt_core.USP_RegisterWorkType`, `USP_DisableWorkType`, `USP_RemoveWorkType`, `USP_ResolveWorkType`, `VW_WorkTypes` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Second-Session-Provider bleibt getrennt. |
 | `TC-2026-023` | `toolbelt.metadata.capability-catalog` | `toolbelt_metadata.VW_ModuleCapabilities` | Physische 2019-/2022-, Windows- und eingeschränkte Metadata-Visibility. |
 | `TC-2026-034` | `toolbelt.archive.zip-memory` | `toolbelt_archive.USP_ExtractZipEntryFromBinary` | Windows-SQL-Server-Runtime und echte Extremgrößen; ZIP-Erzeugung bleibt ein separater Slice. |
+| `TC-2026-033` | `toolbelt.archive.zip-memory` | `toolbelt_archive.USP_ListZipEntriesFromBinary` | Windows-SQL-Server-Runtime, reale Archive, echte Extremgrößen und vollständiger Upgradepfad aus einem realen 1.1.0-Stand. |
 | `TC-2026-037` | `toolbelt.file.content`; `toolbelt.filesystem.windows` | `toolbelt_file.USP_LoadBinaryFile`, `toolbelt_file.USP_LoadTextFile`; Windows Read/Write/Transcoding-Procedures | File-Content-Windows-Releasevalidierung und manueller Windows-CLR-Runtime-Test; externer Worker nur bei Bedarf. |
 | `TC-2026-038` | `toolbelt.filesystem.windows` | `toolbelt_filesystem.USP_ListDirectory` | Manueller Windows-Runtime-Test; portabler Listing-Provider bleibt optional offen. |
+| `TC-2026-046` | `toolbelt.core.second-session` | `toolbelt_core.USP_ExecuteWorkTypeInNewSession` | Physische 2019-/2022- und Windows-Releasevalidierung; zusätzliche Provider bleiben getrennte Forschungs- und Freigabeslices. |
 
 ### Portable Fach- und Compatibility-Module
 
@@ -136,7 +145,6 @@ freigegebenes Arbeitspaket aktiv.
 |---|---|---|---|
 | `TC-2026-017` | `toolbelt.core.error-envelope` | `toolbelt_core.USP_CaptureErrorEnvelope` | Rückgabeform, Klassifikation und Rethrow-Grenze entscheiden; keine persistente Tabelle erforderlich. |
 | `TC-2026-019` | `toolbelt.core.execution-context` | `USP_BeginExecution`, `USP_SetExecutionContext`, `SVF_CurrentExecutionId`, optional `USP_EndExecution` | Session-Context-Keys, Nested Ownership und Lebensdauer; persistenter Ausführungsstatus nur als getrennte Erweiterung. |
-| `TC-2026-046` | `toolbelt.core.second-session` plus getrennte Providerpakete | `USP_ExecuteWorkTypeInNewSession`; kein Raw-SQL-Parameter | Provideradapter für synchrone SQL-CLR-Verbindung, Agent, Broker oder externen Worker erfüllen nicht automatisch denselben Vertrag. Version 1 auf genau eine synchrone Semantik begrenzen; Assemblyname ist offen. |
 | `TC-2026-014` | `toolbelt.core.event-log` mit genau einem freigegebenen Provider in Version 1 | `USP_WriteEvent`; optional `VW_Events` und kontrollierte Retention-USP | Persistente Logtabelle und Providerartefakte benötigen Namens-/Retention-Entscheidung. Haltbarkeit, Blockierung und Fehlerverhalten müssen explizit sein. |
 | `TC-2026-015` | `toolbelt.core.work-queue` | `USP_EnqueueWork`, `USP_ClaimWork`, `USP_CompleteWork`, `USP_FailWork`, `USP_GetWorkStatus`, `VW_WorkQueue` | Queue-, Status- und Payloadtabellen, Aktivierungsprocedure sowie Workeradapter; Tabellen-/Triggernamen offen. Kein beliebiges SQL als Payload. |
 | `TC-2026-020` | `toolbelt.core.retry-policy` | `SVF_ComputeRetryDelay`, `USP_ScheduleRetry`, `USP_MoveToDeadLetter`, `USP_RequeueDeadLetter` | Verwendet Queuezustand; Retry-Klassen, Idempotency Key, Jitter, Max Attempts und manuelle Freigabe definieren. |
@@ -168,7 +176,6 @@ getrennt von den providerneutralen Contract-Tests ausgewiesen.
 
 | Kandidat | Vorgeschlagener Modul-/Capability-Slice | Vorgeschlagene öffentliche Objekte | Reihenfolge und Grenzen |
 |---|---|---|---|
-| `TC-2026-033` | Erweiterung `toolbelt.archive.zip-memory` 1.2.0 | `toolbelt_archive.USP_ListZipEntriesFromBinary` | Listing-only aus `varbinary(max)`; gemeinsamer SAFE-CLR-Parserkern; klassische Single-Disk-ZIPs; verdächtige Pfade, Verschlüsselung, Duplicates und unbekannte Methods als Resultat; ZIP64/Multi-Disk abgelehnt. |
 | `TC-2026-034` | A: `toolbelt.archive.zip-memory`; B: `toolbelt.archive.zip-filesystem`; C: optionaler CLR-Provider-Slice | A: `USP_ExtractZipEntry`, `USP_CreateZipArchive`; B: `USP_ExtractZipArchiveToDirectory`, `USP_CreateZipArchiveFromFiles`; C: Providerobjektname erst im Implementierungs-Slice | A vor B und C. Filesystem-Slice hängt von `TC-2026-037` ab. `AP-2026-021` legt C auf In-memory, Method 0/8 und Payload-CRC fest. Der C#-Build, die `System.IO.Compression`-Abhängigkeitsprüfung und der Assembly-Trust sind als Spike `AP-2026-022` statisch sowie im Windows-Build nachgewiesen. Reale Windows-/Linux-SQL-Server-Evidenz und die produktive Providerimplementierung bleiben getrennte, ausdrücklich freizugebende Slices; kein pauschales `TRUSTWORTHY ON`. |
 | `TC-2026-035` | Bedingter Slice `toolbelt.compression.gzip-stream` | Nur bei belegter Lücke: `USP_GzipCompressStream`, `USP_GzipDecompressStream` | Vorheriger Spike gegen native `COMPRESS`/`DECOMPRESS`. Ohne klaren Streaming-/Datei-Use-Case Kandidat ablehnen oder in Dateiprovider integrieren. |
 | `TC-2026-036` | Pro tatsächlich benötigtem Format ein Modul `toolbelt.compression.<format>` | Formatbezogene Compress-/Decompress-Oberflächen; kein generisches „beliebiges Format“-Objekt | Erst Format und Use Case wählen. Lizenz, Supply Chain, Plattform, Wartung, Bomb-Limits und Exit-Strategie je Provider prüfen. |

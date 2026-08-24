@@ -231,10 +231,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | `SAFE`-fähigen CLR-Kern und Linux-Verhalten prüfen; Windows-only-Provider nur bei messbarem Vorteil. |
 | **Dependencies** | CLR-Trust- und Portabilitätsregeln; möglicher Nutzen für TC-2026-001. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; TC-2026-001 ist ein engerer Split-Vertrag. |
-| **Status** | `ready for development` |
+| **Status** | `researched`; Vertrags- und Providerentscheidung offen |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/regular-expressions/overview?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-split-to-table-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Fachlichen Mindestumfang und gewünschte Regex-Syntax festlegen; RE2-, .NET- und gegebenenfalls eingeschränkten T-SQL-Provider vergleichen. |
+| **Nächster Schritt** | Zuerst RE2-Semantik und Limits der stabilen SQL-Server-2025-Funktionen gegen einen portablen Provider spiken; danach einen kleinen V1-Slice aus `LIKE`, `INSTR` und `COUNT` fachlich besprechen. Keine Implementierungsfreigabe aus dieser Priorisierung ableiten. |
 
 ## TC-2026-011: Fuzzy String Matching für SQL Server 2019/2022
 
@@ -254,7 +254,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Portablen `SAFE`-CLR-Provider prüfen; kein Windows-only-Zwang ohne Messnachweis. |
 | **Dependencies** | CLR-Grundmodul nur falls tatsächlich erforderlich. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
-| **Status** | `active` |
+| **Status** | `deferred`; SQL-Server-2025-Referenzfunktionen weiterhin Preview |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/fuzzy-string-match/overview?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
 | **Nächster Schritt** | Preview-Semantik, Algorithmen, Grenzwerte und Rückgabetypen erfassen; T-SQL und CLR mit festen Testvektoren vergleichen. |
@@ -300,7 +300,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | T-SQL portabel; native 2025-Preview separat ausweisen. |
 | **Dependencies** | Keine Abhängigkeit zum Path-Exists-Slice von `TC-2026-009`. Ein späterer Aggregatvertrag benötigt einen eigenen Escaping-/Typkern oder ausdrücklich freigegebenes SQL CLR. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; Konstruktoren und Pfadprüfung verbleiben in TC-2026-009. |
-| **Status** | `active` |
+| **Status** | `deferred`; native SQL-Server-2025-Aggregate weiterhin Preview |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/json-arrayagg-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/json-objectagg-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
 | **Nächster Schritt** | Zurückgestellt, solange die nativen SQL-Server-2025-Aggregate Preview sind und kein Aggregat-/SQL-CLR-Providervertrag freigegeben wurde. Preview-Status vor einer erneuten Besprechung neu prüfen. |
@@ -765,10 +765,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Ein In-memory-Provider kann portabel sein; CLR- und Dateipfad-Provider benötigen eigene Windows-/Linux-Evidenz. |
 | **Dependencies** | `toolbelt.archive.zip-memory` 1.1.0 und `toolbelt.core.result-table` 1.0.0; keine File-I/O-Dependency für den freigegebenen `varbinary(max)`-Vertrag. |
 | **Duplikatprüfung** | Alle Toolbelt-Kandidaten und `RI-2026-112` geprüft. ZIP-Extraktion bleibt getrennt in `TC-2026-034`. |
-| **Status** | `ready for development`; V1-Vertrag und Implementierung am 2026-08-09 ausdrücklich freigegeben |
+| **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [Research-Inbox `RI-2026-112`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT |
 | **Prüfdatum** | 2026-08-09 |
-| **Nächster Schritt** | Freigegebenen Listing-only-Vertrag aus `ZIP_METADATA_MODULE_DESIGN.md` als `AP-2026-030` implementieren. |
+| **Nächster Schritt** | Nach erfolgreicher SQL-Server-2019-/2022-/2025-Linux-Matrix für Version `1.2.0` Windows-Runtime, reale Archive, echte Extremgrößen und den vollständigen Upgradepfad aus einem realen 1.1.0-Stand ergänzen. |
 
 ## TC-2026-034: ZIP-Archive kontrolliert extrahieren und erzeugen
 
@@ -861,7 +861,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Pfad-, ACL-, Encoding- und Dateisperrsemantik ist Windows-/Linux-spezifisch. `EXTERNAL_ACCESS`/`UNSAFE` ist unter SQL Server Linux nicht unterstützt. |
 | **Dependencies** | Sicherer Work-Type-Katalog `TC-2026-022`, Error Envelope `TC-2026-017`, optional Execution Correlation `TC-2026-019`. |
 | **Duplikatprüfung** | Directory Listing steht in `TC-2026-038`; Archive und Office-Formate erhalten eigene Verträge. |
-| **Status** | `implemented`; `toolbelt.file.content` Runtime `partially validated`; `toolbelt.filesystem.windows` Runtime `not executed` |
+| **Status** | `implemented`; beide vorhandenen Module Runtime `partially validated`; optionale portable Worker-Slices offen |
 | **Primärquellen** | [Research-Inbox `RI-2026-107`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/relational-databases/import-export/import-bulk-data-by-using-bulk-insert-or-openrowset-bulk-sql-server?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/security/clr-integration-code-access-security?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-08-01 |
 | **Nächster Schritt** | Den manuellen Windows-Runtime-Test für `toolbelt.filesystem.windows` ausführen. Einen externen Worker nur bei einem nachgewiesenen plattformübergreifenden Use Case spezifizieren. |
@@ -885,7 +885,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Pfadsyntax, Case-Semantik, Zeitstempel, Dateiattribute und Linkverhalten unterscheiden sich zwischen Windows und Linux. |
 | **Dependencies** | Sicherer Work-Type-Katalog `TC-2026-022`; gemeinsame Pfad-Sandbox mit `TC-2026-037` nur bei identischer Semantik. |
 | **Duplikatprüfung** | `TC-2026-037` liest oder schreibt Dateiinhalte; dieser Kandidat listet ausschließlich Verzeichnismetadaten. |
-| **Status** | `implemented`; Windows-Provider Runtime `not executed`; portabler Provider offen |
+| **Status** | `implemented`; Windows-Provider Runtime `partially validated`; portabler Provider offen |
 | **Primärquellen** | [Research-Inbox `RI-2026-108`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/security/clr-integration-code-access-security?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-08-01 |
 | **Nächster Schritt** | Manuellen Windows-Runtime-Test einschließlich ACL-, Reparse-Point-, Paging-/Limit- und Rekursionsfällen ausführen; einen portablen Provider nur bei konkretem Bedarf planen. |
@@ -1077,7 +1077,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | CLR-, Agent-, Broker- und externe Provider werden getrennt nach Windows/Linux, Edition, Installation und Betriebsfreigabe ausgewiesen. |
 | **Dependencies** | Execution Correlation `TC-2026-019`, Error Envelope `TC-2026-017`, Work-Type-Katalog `TC-2026-022`; fachliche Nutzer wie `TC-2026-014`/`TC-2026-015` bleiben getrennt. |
 | **Duplikatprüfung** | `TC-2026-014` definiert rollback-unabhängiges Logging und `TC-2026-015` eine Work Queue. Dieser Kandidat beschreibt ausschließlich die austauschbare Session-Erzeugungs-/Ausführungsschicht. |
-| **Status** | `researched` |
+| **Status** | `implemented`; synchroner Second-Session-Slice Runtime `partially validated`; breitere Providerabstraktion `researched` |
 | **Primärquellen** | [Research-Inbox `RI-2026-139`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://tsqlt.org/125/tsqlt-build-9-release-notes/<br>https://github.com/tSQLt-org/tSQLt/blob/4a921d0dacfb1d66b3db124c58158c80e5e910e6/tSQLtCLR/tSQLtCLR/CommandExecutor.cs |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Zuerst synchrone versus asynchrone Semantik, zulässige Provider, Work-Type-Grenze, Security Context, Transaktion, Resultsets, Timeout und Abbruch mit dem Benutzer festlegen. |
+| **Nächster Schritt** | Den implementierten synchronen Loopback-Vertrag physisch auf SQL Server 2019/2022 und Windows validieren. Weitere Agent-, Broker- oder Worker-Provider nur nach eigenem Bedarf, Vertrag und Freigabe planen. |

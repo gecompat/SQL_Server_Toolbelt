@@ -1,14 +1,16 @@
-# ZIP Memory Extraction
+# ZIP Memory Inspection
 
 **Modul-ID:** `toolbelt.archive.zip-memory`  
-**Version:** `1.1.0`  
+**Version:** `1.2.0`
+
 **Status:** `implemented`; `partially validated`
 
 ## Zweck
 
-Das Modul extrahiert genau einen benannten ZIP-Entry aus einem In-memory-
-ZIP-Container (`varbinary(max)`) ohne Dateisystemzugriff. Der interne
-C#-SQL-CLR-Provider unterstützt Compression Methods `0` (`Stored`) und `8`
+Das Modul listet deklarierte Metadaten aller Entries und extrahiert optional
+genau einen benannten ZIP-Entry aus einem In-memory-ZIP-Container
+(`varbinary(max)`) ohne Dateisystemzugriff. Der interne C#-SQL-CLR-Provider
+unterstützt bei der Extraktion Compression Methods `0` (`Stored`) und `8`
 (`Deflate`) sowie CRC32-Prüfung über den tatsächlichen Payload.
 
 ## Objekte
@@ -16,7 +18,9 @@ C#-SQL-CLR-Provider unterstützt Compression Methods `0` (`Stored`) und `8`
 | Objekt | Rolle |
 |---|---|
 | `toolbelt_archive.USP_ExtractZipEntryFromBinary` | Einzige öffentliche Entry-Extraktions-API; Signatur gegenüber `1.0.0` unverändert. |
+| `toolbelt_archive.USP_ListZipEntriesFromBinary` | Öffentliche Metadatenliste in Central-Directory-Reihenfolge; liest keine Payloads. |
 | `toolbelt_archive.TVF_InternalExtractZipEntryClr` | Interner CLR-Provider. |
+| `toolbelt_archive.TVF_InternalListZipEntriesClr` | Interner CLR-Metadatenprovider. |
 | `Toolbelt_Archive_ZipMemory` | Modulspezifische `SAFE`-Assembly. |
 
 ## Abhängigkeit
@@ -37,8 +41,9 @@ Trust ist ein separater administrativer Opt-in über
 `clr enabled`, `clr strict security` und den exakten Hash in
 `sys.trusted_assemblies`, verändert diese Instanzzustände aber nicht.
 
-Der Uninstall entfernt Procedure, internen CLR-TVF und Assembly aus der
-Datenbank. Ein serverweiter Trust-Eintrag bleibt bewusst bestehen.
+Der Uninstall entfernt beide Procedures, beide internen CLR-TVFs und die
+Assembly aus der Datenbank. Ein serverweiter Trust-Eintrag bleibt bewusst
+bestehen.
 
 ## Providervertrag
 
@@ -50,6 +55,11 @@ Datenbank. Ein serverweiter Trust-Eintrag bleibt bewusst bestehen.
 - ordinaler case-sensitiver Namensvergleich;
 - Local Header mit und ohne Data Descriptor;
 - Duplicate-Name-, Header-, Größen-, Ratio- und CRC32-Prüfung.
+
+Das Listing behält die Central-Directory-Reihenfolge bei, zählt exakte
+Namensduplikate, markiert Directory-Einträge, unbekannte Methoden,
+Verschlüsselung und unsichere Pfade und dekodiert DOS-Zeitstempel. Diese
+Metadaten werden nicht durch Lesen des Payloads verifiziert.
 
 Default-Limits:
 
@@ -71,22 +81,26 @@ Dateisystem-, Netzwerk- oder Prozesszugriff.
 ## Dokumentation
 
 - Objekt: `Documentation/USP_ExtractZipEntryFromBinary.md`
+- Objekt: `Documentation/USP_ListZipEntriesFromBinary.md`
 - Architektur: `../../Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md`
 - CLR-Provider: `../../Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md`
 - Tests: `Tests/`
 
 ## Teststatus
 
-GitHub-Actions-Lauf `30615544206` war erfolgreich für:
+GitHub-Actions-Lauf `32701896453` war erfolgreich für Version `1.2.0`:
 
 - Windows-.NET-Framework-4.8-Build;
 - SQL Server 2019 Linux / Compatibility 150;
 - SQL Server 2022 Linux / Compatibility 160;
 - SQL Server 2025 Linux / Compatibility 150, 160 und 170;
 - Stored, Deflate, Data Descriptor, UTF-8, CP437, CRC32, Fehlerverträge,
-  ResultTable, Wiederholungsdeployment, Central und Uninstall.
+  Metadatenstatus für Duplikate, Verschlüsselung, Methoden, Directories, Pfade
+  und DOS-Zeit, ResultTable, Upgrade-Marker, Wiederholungsdeployment, Central
+  und Uninstall.
 
-Offen bleiben Windows-SQL-Server-Runtime, echte Extremgrößenläufe und eine
-breitere Interoperabilitätsmatrix realer Archive vor Release.
+Der Extraktions- und Listingvertrag ist in der Linux-Zielversionsmatrix
+erfolgreich. Windows-SQL-Server-Runtime, echte Extremgrößenläufe und eine
+breitere Interoperabilitätsmatrix realer Archive bleiben vor Release offen.
 
-Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453

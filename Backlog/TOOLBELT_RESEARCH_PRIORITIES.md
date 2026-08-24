@@ -1,12 +1,12 @@
 # Grobe Fokuspriorisierung der Toolbelt-Kandidaten
 
-Stand: 2026-07-30
+Stand: 2026-08-24
 
 ## Rolle und Verbindlichkeit
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** 24 Module sind implementiert; 23 sind `partially validated`, 1 ist `not executed`. |
+| Aktueller Projektstand | **Dokumentiert:** 24 Module sind implementiert; alle 24 sind `partially validated`, 0 sind `not executed`. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
 | Implementierungsfreigabe | **Abgeschlossen beziehungsweise aktiv:** Die bisher implementierten Einzelkandidaten, W1, W2a, W2b-A und W2c wurden nach ausdrücklicher Freigabe umgesetzt. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
@@ -115,11 +115,26 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 
 ## Nächste Ausführung
 
-`AP-2026-018` ist abgeschlossen. `toolbelt.core.console-message` und
-`toolbelt.metadata.capability-catalog` sind implementiert und auf SQL Server
-2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert.
+Die nächste sinnvolle Reihenfolge ist `V0a`/`V0b`/`V0c` für belastbare
+Releaseevidenz, parallel höchstens ein Qualitäts-Enabler `Q1`, danach der
+kleine Nutzerslice `D1`. `R1` beginnt ausschließlich mit einem Regex-
+Semantik-/Provider-Spike. `E1` wird nur in den getrennten Queue-Slices
+Claim/Complete/Fail, Lease/Recovery, Retry/Dead Letter/Idempotenz und
+kooperative Cancellation besprochen.
 
-Der [kandidatenübergreifende Implementierungsplan](./TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md)
-führt W2c als abgeschlossene Welle und `TC-2026-013` weiterhin
-zurückgestellt. Diese Auswahlhilfe erteilt keine Freigabe für weitere
-Funktionen.
+Die SQL-Server-2025-Delta-Prüfung verwendet aktuelle Microsoft-Primärquellen:
+
+- [SQL Server 2025 Release Notes](https://learn.microsoft.com/en-us/sql/sql-server/sql-server-2025-release-notes?view=sql-server-ver17)
+- [Regular Expressions](https://learn.microsoft.com/en-us/sql/relational-databases/regular-expressions/overview?view=sql-server-ver17)
+- [EDIT_DISTANCE](https://learn.microsoft.com/en-us/sql/t-sql/functions/edit-distance-transact-sql?view=sql-server-ver17)
+- [JSON_ARRAYAGG](https://learn.microsoft.com/en-us/sql/t-sql/functions/json-arrayagg-transact-sql?view=sql-server-ver17)
+- [JSON_OBJECTAGG](https://learn.microsoft.com/en-us/sql/t-sql/functions/json-objectagg-transact-sql?view=sql-server-ver17)
+- [UNISTR](https://learn.microsoft.com/en-us/sql/t-sql/functions/unistr-transact-sql?view=sql-server-ver17)
+- [PRODUCT](https://learn.microsoft.com/en-us/sql/t-sql/functions/product-aggregate-transact-sql?view=sql-server-ver17)
+- [DATEADD](https://learn.microsoft.com/en-us/sql/t-sql/functions/dateadd-transact-sql?view=sql-server-ver17)
+- [Vector Functions](https://learn.microsoft.com/en-us/sql/t-sql/functions/vector-functions-transact-sql?view=sql-server-ver17)
+
+Nach Stand 2026-08-24 bleiben Fuzzy Matching, JSON-Aggregate und Vector
+Index/Search Preview-Gates. Alle Wellen in diesem Abschnitt sind
+Priorisierungs- und Besprechungsvorschläge; sie erteilen keine
+Implementierungsfreigabe.

@@ -1,4 +1,4 @@
-# Tests – ZIP Memory CLR Extraction
+# Tests – ZIP Memory CLR Inspection
 
 Alle Testarchive und Payloads sind synthetisch.
 
@@ -7,12 +7,15 @@ Alle Testarchive und Payloads sind synthetisch.
 - `Static/validate_contract.py`: Build-, Referenz-, Objekt-, Lifecycle- und Dokumentationsvertrag.
 - `Runtime/ZipMemory.Contract.sql`: Stored, Deflate, Data Descriptor, UTF-8, ResultTable und Negativfälle.
 - `Runtime/Encoding.Contract.sql`: CP437-Entry-Name.
+- `Runtime/Metadata.Contract.sql`: leeres Archiv, Metadaten, Methoden- und
+  Verschlüsselungsstatus, Duplikate, Directory/Pfadsicherheit, Limits, Help und
+  ResultTable.
 - `Runtime/Lifecycle.Contract.sql`: Modulmarker, CLR-TVF und Assemblykopplung.
 - `Runtime/Central.Contract.sql`: Aufruf aus einer Consumer-Datenbank.
 
 ## Erfolgreiche Evidenz
 
-GitHub-Actions-Lauf `30615544206`:
+GitHub-Actions-Lauf `32701896453`:
 
 | Umgebung | Compatibility Level | Ergebnis |
 |---|---:|---|
@@ -23,7 +26,8 @@ GitHub-Actions-Lauf `30615544206`:
 | SQL Server 2025 Linux | 170 | erfolgreich |
 | Windows-.NET-Framework-4.8-Build | n/a | erfolgreich |
 
-Geprüft wurden lokale und zentrale Installation, Wiederholungsdeployment, fachliche Contracts und Uninstall.
+Der Lauf belegt für `1.2.0` lokale und zentrale Installation, Upgrade-Marker,
+Wiederholungsdeploy, Extraktions- und Listingverträge sowie Uninstall.
 
 ## Offen
 
@@ -33,4 +37,4 @@ Geprüft wurden lokale und zentrale Installation, Wiederholungsdeployment, fachl
 
 Der Modulstatus ist `partially validated`.
 
-Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453
