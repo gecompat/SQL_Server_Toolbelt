@@ -198,10 +198,18 @@ END CATCH;
 
 DECLARE @Help TABLE
 (
-      HelpContractVersion varchar(16), SchemaName sysname, ObjectName sysname
-    , Section varchar(32), Ordinal int, ItemName sysname, SqlDataType varchar(256)
-    , IsRequired bit, IsNullable bit, DefaultValue nvarchar(4000)
-    , Description nvarchar(max), ExampleSql nvarchar(max)
+      HelpContractVersion varchar(16)    NOT NULL
+    , SchemaName          sysname        NOT NULL
+    , ObjectName          sysname        NOT NULL
+    , Section             varchar(32)    NOT NULL
+    , Ordinal             int            NOT NULL
+    , ItemName            sysname        NULL
+    , SqlDataType         varchar(256)   NULL
+    , IsRequired          bit            NULL
+    , IsNullable          bit            NULL
+    , DefaultValue        nvarchar(4000) NULL
+    , Description         nvarchar(max)  NOT NULL
+    , ExampleSql          nvarchar(max)  NULL
 );
 
 INSERT INTO @Help
