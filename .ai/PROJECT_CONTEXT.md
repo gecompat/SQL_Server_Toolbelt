@@ -100,8 +100,10 @@ stellt `toolbelt_archive.USP_ExtractZipEntryFromBinary` bereit. Version
 erzwingt Default-Limits fuer Entry-Groesse und Kompressionsverhaeltnis,
 behandelt Duplicate-Namen als expliziten Fehler und liefert bei
 `@FailIfEncrypted = 0` einen verschluesselten Status ohne Payload. Version
-`1.2.0` ergänzt das Metadaten-Listing; dessen neue SQL-Runtime-Evidenz wird im
-zugehörigen Arbeitspaket getrennt nachgeführt.
+`1.2.0` ergänzt das Metadaten-Listing. Extraktion und Listing sind im
+[GitHub-Actions-Lauf 32701896453](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453)
+auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich; Windows-Runtime,
+reale Archive und echte Extremgrößen bleiben offen.
 
 ## Projektzweck
 

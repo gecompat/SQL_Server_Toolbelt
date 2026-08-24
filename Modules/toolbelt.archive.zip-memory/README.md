@@ -88,19 +88,19 @@ Dateisystem-, Netzwerk- oder Prozesszugriff.
 
 ## Teststatus
 
-GitHub-Actions-Lauf `30615544206` war erfolgreich für:
+GitHub-Actions-Lauf `32701896453` war erfolgreich für Version `1.2.0`:
 
 - Windows-.NET-Framework-4.8-Build;
 - SQL Server 2019 Linux / Compatibility 150;
 - SQL Server 2022 Linux / Compatibility 160;
 - SQL Server 2025 Linux / Compatibility 150, 160 und 170;
 - Stored, Deflate, Data Descriptor, UTF-8, CP437, CRC32, Fehlerverträge,
-  ResultTable, Wiederholungsdeployment, Central und Uninstall.
+  Metadatenstatus für Duplikate, Verschlüsselung, Methoden, Directories, Pfade
+  und DOS-Zeit, ResultTable, Upgrade-Marker, Wiederholungsdeployment, Central
+  und Uninstall.
 
-Für den Extraktionsvertrag liegt die unten genannte CI-Evidenz vor. Das neue
-Listing in `1.2.0` ist statisch und per Windows-.NET-Framework-Build zu prüfen;
-seine SQL-Runtime-Matrix, Windows-SQL-Server-Runtime, echte Extremgrößenläufe
-und eine breitere Interoperabilitätsmatrix realer Archive bleiben vor Release
-offen.
+Der Extraktions- und Listingvertrag ist in der Linux-Zielversionsmatrix
+erfolgreich. Windows-SQL-Server-Runtime, echte Extremgrößenläufe und eine
+breitere Interoperabilitätsmatrix realer Archive bleiben vor Release offen.
 
-Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206
+Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453

@@ -2,7 +2,7 @@
 
 Status: ausstehend. Dieser Testplan ergänzt die erfolgreiche Linux-Matrix um den erforderlichen Windows-SQL-Server-Runtime-Nachweis. Ein erfolgreicher .NET-Framework-Build allein ist keine Runtime-Evidenz.
 
-Bestehende Linux-Evidenz: [SQL-Server-2019-/2022-/2025-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206). Diese Evidenz ersetzt keinen Windows-SQL-Server-Runtime-Lauf.
+Bestehende Linux-Evidenz für Version `1.2.0`: [SQL-Server-2019-/2022-/2025-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453). Diese Evidenz ersetzt keinen Windows-SQL-Server-Runtime-Lauf.
 
 ## Sicherheitsrahmen
 
@@ -26,6 +26,7 @@ Bestehende Linux-Evidenz: [SQL-Server-2019-/2022-/2025-Matrix](https://github.co
 |---|---|---|
 | DEP-01 | Build, Trust-Opt-in und lokales Deployment | `SAFE`-Assembly und interne CLR-TVF werden erfolgreich angelegt; keine unzulässige Instanzänderung. |
 | ZIP-01 | `ZipMemory.Contract.sql` | Stored und Deflate, Data Descriptor, CRC32, Größen-/Ratio-/Featurefehler sowie Duplicate-/Encrypted-Semantik erfolgreich. |
+| META-01 | `Metadata.Contract.sql` | Geordnetes Listing, Metadatenstatus, UTF-8/CP437, Duplicate-, Directory-, Pfad-, Zeit-, Limit- und Strukturverträge erfolgreich. |
 | ENC-01 | `Encoding.Contract.sql` | UTF-8- und CP437-Entry-Namen werden gemäß ZIP-Flag und Vertrag ausgewertet. |
 | RESULT-01 | Direkte Ausgabe und `@ResultTable`/`@KeepData` | Ergebnisvertrag und ResultTable-Integration erfolgreich. |
 | LIFE-01 | `Lifecycle.Contract.sql` sowie wiederholtes Deployment | Wiederholung ist kontrolliert; Version, Marker und Objektbestand bleiben konsistent. |

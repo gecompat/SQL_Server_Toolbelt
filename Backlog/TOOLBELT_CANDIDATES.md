@@ -768,7 +768,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [Research-Inbox `RI-2026-112`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT |
 | **Prüfdatum** | 2026-08-09 |
-| **Nächster Schritt** | SQL-Server-2019-/2022-/2025-Linux-Matrix für Version `1.2.0` abschließen; danach Windows-Runtime, reale Archive und Extremgrößen ergänzen. |
+| **Nächster Schritt** | Nach erfolgreicher SQL-Server-2019-/2022-/2025-Linux-Matrix für Version `1.2.0` Windows-Runtime, reale Archive, echte Extremgrößen und den vollständigen Upgradepfad aus einem realen 1.1.0-Stand ergänzen. |
 
 ## TC-2026-034: ZIP-Archive kontrolliert extrahieren und erzeugen
 

@@ -66,8 +66,8 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Risiken | Untrusted Central-Directory-Metadaten, Encoding-Abweichungen, große Entry-Mengen, irreführende deklarierte Größen/CRC und die klare Trennung zwischen Listing und Extraktionsfreigabe. |
 | Tests | Statischer Vertrag; synthetische Struktur-/Encoding-/Pfad-/Duplicate-/Limitfälle; direkte Ausgabe und ResultTable; Local/Central; Upgrade 1.1.0→1.2.0; SQL Server 2019/2022/2025 Linux; Windows-Runtime später über SQL_Server_Lab. |
 | Freigabe | Fachvertrag und Implementierung dieses konkreten V1-Slices am 2026-08-09 ausdrücklich durch den Benutzer freigegeben. |
-| Evidenz | Modulartefakte unter `Modules/toolbelt.archive.zip-memory/`; statischer Vertragscheck und Windows-.NET-Framework-4.8-Build erfolgreich. Die neue SQL-Runtime-Matrix wird im Pull Request ausgeführt. |
-| Nächster Schritt | SQL-Server-2019-/2022-/2025-Linux-Matrix abschließen; anschließend Windows-SQL-Server-Runtime, reale Archive und Extremgrößen als Releaseevidenz ergänzen. |
+| Evidenz | Modulartefakte unter `Modules/toolbelt.archive.zip-memory/`; statischer Vertragscheck, Windows-.NET-Framework-4.8-Build und die vollständige SQL-Server-2019-/2022-/2025-Linux-Matrix einschließlich Listing und Extraktion sind im [GitHub-Actions-Lauf 32701896453](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453) erfolgreich. |
+| Nächster Schritt | Windows-SQL-Server-Runtime, reale Archive, echte Extremgrößen und den vollständigen Upgradepfad aus einem realen 1.1.0-Stand als Releaseevidenz ergänzen. |
 
 ### AP-2026-029: TC-2026-014 Rollback-independent Event Log
 
