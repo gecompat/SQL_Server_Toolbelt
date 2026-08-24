@@ -1,4 +1,4 @@
-# Contract-Testmatrix: ZIP Memory CLR Extraction
+# Contract-Testmatrix: ZIP Memory CLR Inspection
 
 | Bereich | Pflichtfall | Status |
 |---|---|---|
@@ -7,6 +7,7 @@
 | Trust | exakter SHA2-512-Hash; getrenntes administratives Opt-in | `not executed` |
 | Security | `SAFE`; kein Dateisystem, Netzwerk, Prozess, `TRUSTWORTHY`, `EXTERNAL_ACCESS` oder `UNSAFE` | `not executed` |
 | API | öffentliche Procedure behält Parameter, Reihenfolge und Resultset | `not executed` |
+| Listing API | Metadaten-Procedure behält Parameter, Reihenfolge und Resultset | `not executed` |
 | Intern | CLR-Tabellefunktion und Assembly bleiben interne Providerartefakte | `not executed` |
 | Help | vollständiger Help-Vertrag bei `@Hilfe = 1` | `not executed` |
 | Stored | gültiger Method-0-Entry wird extrahiert und CRC-geprüft | `not executed` |
@@ -29,10 +30,16 @@
 | Header | Local-/Central-Name, Method und relevante Flags müssen übereinstimmen | `not executed` |
 | Größenintegrität | tatsächliche Ausgabe entspricht deklarierter Größe | `not executed` |
 | CRC | CRC32 wird über den tatsächlichen Payload neu berechnet | `not executed` |
+| Leeres ZIP | gültiges leeres ZIP liefert leeres Resultset und Returncode 0 | `not executed` |
+| Listing | Central-Directory-Reihenfolge und deklarierte Metadaten | `not executed` |
+| Listing Status | unbekannte Methode und Verschlüsselung werden markiert, nicht abgelehnt | `not executed` |
+| Listing Names | ordinal/case-sensitive DuplicateCount; UTF-8 und CP437 | `not executed` |
+| Listing Paths | Directory, safe, absolute, drive-qualified, traversal und noncanonical | `not executed` |
+| Listing Time | gültige DOS-Zeit; ungültiger Wert wird NULL | `not executed` |
 | Bounded Read | Deflate darf keine Bytes außerhalb des Entry-Payloads konsumieren | `not executed` |
 | ResultTable | Replace und Append über `@ResultTable`/`@KeepData` | `not executed` |
 | Wiederholung | Deployment derselben Assembly ist idempotent | `not executed` |
-| Upgrade | Upgrade von bekanntem Modulstand `1.0.0` auf `1.1.0` | `not executed` |
+| Upgrade | Upgrade von bekanntem Modulstand `1.1.0` auf `1.2.0` | `not executed` |
 | Central | Aufruf aus Consumer-Datenbank gegen zentrale Toolbelt-Datenbank | `not executed` |
 | Uninstall | Procedure, CLR-TVF und Assembly entfernt; Trust bleibt bestehen | `not executed` |
 | SQL 2019 Linux | physische Engine, Compatibility 150 | `not executed` |

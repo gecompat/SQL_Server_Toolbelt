@@ -4,8 +4,8 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 24 Module sind implementiert. 23 sind `partially validated`,
-ein Modul ist `not executed`. Die verbindlichen Einzelstatus werden aus den
+abgeschlossen. 24 Module sind implementiert. Alle 24 sind
+`partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 `toolbelt.core.result-table` ist auf GitHub-hosted Linux für SQL Server 2019,
@@ -326,42 +326,6 @@ einschließlich Langtext-/Unicode-, Marker-/Drift-, Wiederholungs-, Lifecycle-,
 Central- und Uninstall-Contracts erfolgreich. Physische 2019-/2022-,
 Windows- und modulspezifische Releasefälle bleiben offen.
 
-### Phase 2.9 – Error Envelope
-
-**Status:** `completed`; Runtime `partially validated`
-
-`toolbelt.core.error-envelope` standardisiert explizit aus einem CATCH übergebene Fehlerdaten, ohne `THROW;` oder persistentes Logging zu ersetzen. Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948.
-
-### Phase 2.10 – Execution Context
-
-**Status:** `completed`; Runtime `partially validated`
-
-`toolbelt.core.execution-context` verwaltet Execution-ID, Correlation-ID, Actor, Tenant und verschachtelten ScopeDepth über `SESSION_CONTEXT`. Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948.
-
-### Phase 2.11 – Work-Type-Katalog
-
-**Status:** `completed`; Runtime `partially validated`
-
-`toolbelt.core.work-type` registriert ausschließlich vorhandene Stored Procedures,
-schließt Raw SQL aus und schützt Änderungen mit expliziten Flags und `rowversion`.
-Die erste persistente Tabellenkonvention ist in `DEC-2026-025` festgehalten.
-Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703294213.
-
-### Phase 2.11 – Work-Type-Katalog
-
-**Status:** `completed`; Runtime `partially validated`
-
-`toolbelt.core.work-type` registriert ausschließlich vorhandene Stored Procedures,
-schließt Raw SQL aus und schützt Änderungen mit expliziten Flags und `rowversion`.
-Die erste persistente Tabellenkonvention ist in `DEC-2026-025` festgehalten.
-Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193.
-
-### Phase 2.13 – Rollback-independent Event Log
-
-**Status:** `completed`; Runtime `partially validated`
-
-`toolbelt.core.event-log` persistiert strukturierte Events über die synchrone zweite Session. Caller-Rollback und uncommittable Caller sind auf SQL Server 2025 Linux CL150/160/170 nachgewiesen. Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410.
-
 ### Phase 2.6 – Portable File Content
 
 **Status:** `completed`; Runtime `partially validated`
@@ -381,23 +345,71 @@ nicht-ASCII-spezifische Providergrenzen bleiben Releasevalidierung.
 
 **Arbeitspaket:** `AP-2026-020`
 
-`toolbelt.archive.zip-memory` Version `1.1.0` extrahiert genau einen benannten
-ZIP-Entry aus `varbinary(max)` über eine `SAFE` SQL-CLR-Assembly. Methods 0 und
-8, Data Descriptor, UTF-8/CP437, eigene CRC32, Limits, ResultTable, Central und
-Uninstall wurden im Workflow
+`toolbelt.archive.zip-memory` Version `1.2.0` extrahiert genau einen benannten
+ZIP-Entry und listet Central-Directory-Metadaten aus `varbinary(max)` über eine
+`SAFE` SQL-CLR-Assembly. Der Extraktionsvertrag mit Methods 0 und 8, Data
+Descriptor, UTF-8/CP437, eigener CRC32, Limits, ResultTable, Central und
+Uninstall wurde im Workflow
 [30615544206](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206)
-auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich geprüft. Windows-
-SQL-Server-Runtime und echte Extremgrößen bleiben offen.
+auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich geprüft. Der neue
+Listingvertrag wird mit `AP-2026-030` erneut durch dieselbe Matrix geführt;
+Windows-SQL-Server-Runtime und echte Extremgrößen bleiben offen.
 
 ### Phase 2.8 – Windows Filesystem
 
-**Status:** `in progress`; Runtime `not executed`
+**Status:** `in progress`; Runtime `partially validated`
 
 **Arbeitspaket:** `AP-2026-023`
 
 Die Windows-only Capability `toolbelt.filesystem.windows` stellt über eine `EXTERNAL_ACCESS`-SQL-CLR-Assembly Lesen/Schreiben von Text und Binary, explizite Codepages und Transcoding, Directory-Listing/Erzeugung sowie begrenztes Löschen bereit. `Caller` ist der Default; `ServiceAccount` ist eine explizite Alternative. Linux ist technisch `not applicable`.
 
-Der GitHub-Windows-Build prüft Assembly und statischen Vertrag. Der echte Deployment-/NTFS-/Impersonationstest ist bewusst manuell, verwendet ausschließlich einen synthetischen Root und bleibt bis zu dessen Rückmeldung `not executed`.
+Windows-Build, Trust, Deployment, Help, SQL-Authentication-Ablehnung und ein
+kontrollierter ServiceAccount-Schreibpfad sind nachgewiesen. Caller-
+Impersonation und die breitere NTFS-/I/O-Matrix bleiben manuell offen.
+
+### Phase 2.9 – Error Envelope
+
+**Status:** `completed`; Runtime `partially validated`
+
+`toolbelt.core.error-envelope` standardisiert explizit aus einem CATCH
+übergebene Fehlerdaten, ohne `THROW;` oder persistentes Logging zu ersetzen.
+Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948.
+
+### Phase 2.10 – Execution Context
+
+**Status:** `completed`; Runtime `partially validated`
+
+`toolbelt.core.execution-context` verwaltet Execution-ID, Correlation-ID,
+Actor, Tenant und verschachtelten ScopeDepth über `SESSION_CONTEXT`.
+Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948.
+
+### Phase 2.11 – Work-Type-Katalog
+
+**Status:** `completed`; Runtime `partially validated`
+
+`toolbelt.core.work-type` registriert ausschließlich vorhandene Stored
+Procedures, schließt Raw SQL aus und schützt Änderungen mit expliziten Flags
+und `rowversion`. Die erste persistente Tabellenkonvention ist in
+`DEC-2026-025` festgehalten.
+Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193.
+
+### Phase 2.12 – Synchrone zweite Session
+
+**Status:** `completed`; Runtime `partially validated`
+
+`toolbelt.core.second-session` führt registrierte Work Types synchron über
+einen administrativ vorbereiteten Loopback-Linked-Server in einer getrennten
+Session aus. Raw SQL und im Modul gespeicherte Credentials bleiben
+ausgeschlossen. Physische 2019-/2022- und Windows-Evidenz ist offen.
+
+### Phase 2.13 – Rollback-independent Event Log
+
+**Status:** `completed`; Runtime `partially validated`
+
+`toolbelt.core.event-log` persistiert strukturierte Events über die synchrone
+zweite Session. Caller-Rollback und uncommittable Caller sind auf SQL Server
+2025 Linux CL150/160/170 nachgewiesen.
+Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410.
 
 ## Phase 3 – Schlanke Test-Infrastruktur und CI
 
@@ -410,6 +422,66 @@ capability-spezifische ResultTable-Runtime-Matrix bilden den ersten vertikalen
 Slice. Weitere Module registrieren ihre gekoppelten Artefakte im Manifest und
 ihre Impact-Pfade in `.ai/repo_map.yaml`. Reine Dokumentationsänderungen lösen
 keine pauschale Runtime-Vollmatrix aus.
+
+### Phase 4.1 – V0 Releasevalidierung in drei Slices
+
+**Status:** `planned`; keine Implementierungsfreigabe
+
+- `V0a`: portable und Linux-fähige Module auf physischen SQL-Server-2019- und
+  2022-Engines prüfen; Compatibility-Level-Läufe auf 2025 ersetzen keine
+  physische Zielversion.
+- `V0b`: Windows-Hochrisikofälle für CLR, Filesystem, ResultTable,
+  Second Session und Event Log mit synthetischen Daten und abstrakter Evidenz
+  ausführen.
+- `V0c`: eine kleine, stabile erste Releasekohorte mit versionierten
+  Artefakten, Upgrade, Wiederholungsdeployment und Uninstall festlegen.
+
+### Phase 4.2 – Q1 Lifecycle- und Upgrade-Automation
+
+**Status:** `proposed`; Vertragsbesprechung und Freigabe erforderlich
+
+Zuerst `RI-2026-142` als Migration-Idempotency-Verifier begrenzen. Golden
+Snapshots und Contract-Test-Generierung folgen erst, wenn mehrere Module einen
+nachweisbar gemeinsamen stabilen Vertrag besitzen.
+
+### Phase 4.3 – D1 Date Spine V1
+
+**Status:** `proposed`; Vertragsbesprechung und Freigabe erforderlich
+
+`RI-2026-079` nutzt die vorhandenen Generate-Series-, Truncate- und
+Bucket-Primitiven. Version 1 bleibt auf einen relationalen Tag-/Woche-/Monat-
+Spine mit expliziten Grenzen und ohne Feiertags-, Zeitzonen- oder persistente
+Kalenderdimension begrenzt.
+
+### Phase 4.4 – R1 Regex V1
+
+**Status:** `proposed`; Research- und Provider-Gate offen
+
+Vor Code wird die RE2-Semantik der stabilen SQL-Server-2025-Regexfunktionen
+gegen einen portablen Provider geprüft. Ein erster fachlicher Slice soll nur
+`LIKE`, `INSTR` und `COUNT` umfassen; Replace, Substring, Split und Matches
+bleiben getrennte Erweiterungen. Fuzzy Matching und JSON-Aggregate bleiben
+wegen Previewstatus zurückgestellt.
+
+### Phase 4.5 – E1 Work Queue in vertikalen Slices
+
+**Status:** `proposed`; Einzelvertrag und Freigabe je Slice erforderlich
+
+Die bereits implementierten Grundlagen Work Type, Error Envelope, Execution
+Context und Second Session tragen vier getrennte Slices: `E1a`
+Claim/Complete/Fail, `E1b` Lease/Orphan Recovery, `E1c` Retry/Dead Letter/
+Idempotenz und `E1d` kooperative Cancellation. Kein Slice autorisiert Raw SQL,
+automatisches `KILL` oder einen externen Worker.
+
+### Phase 4.6 – R2025 GA-Delta-Research
+
+**Status:** `proposed research`; keine Implementierungsfreigabe
+
+UNISTR, PRODUCT, DATEADD mit `bigint` und Vector-Scalar-Funktionen werden gegen
+vorhandene Kandidaten dedupliziert und nur bei belegter Lücke formalisiert.
+Vector Index/Search, Fuzzy Matching und JSON-Aggregate bleiben bis zu einer
+erneuten Primärquellenprüfung ihres Previewstatus außerhalb einer
+Implementierungswelle.
 
 ## Repository-Grenze
 

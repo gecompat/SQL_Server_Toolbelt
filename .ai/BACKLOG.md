@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-24 Module sind implementiert. 23 sind `partially validated`, ein Modul ist `not executed`.
+24 Module sind implementiert. Alle 24 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -12,7 +12,7 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 |---|---|
 | ID | `AP-2026-003` |
 | Ziel | Das implementierungsreif spezifizierte Modul `toolbelt.core.result-table` vollständig implementieren, dokumentieren, installieren, deinstallieren und auf den verfügbaren Zielplattformen validieren. |
-| Scope | Modulverzeichnis, `module.yaml`, `toolbelt_core.USP_PrepareResultTable`, parametergesteuertes Deploy- und Uninstall-Skript, Objekt- und Moduldokumentation, synthetische Beispiele sowie statische, Contract-, Runtime-, Collation-, Deployment- und Plattformtests. |
+| Scope | `toolbelt.core.result-table`; Modulverzeichnis, `module.yaml`, `toolbelt_core.USP_PrepareResultTable`, parametergesteuertes Deploy- und Uninstall-Skript, Objekt- und Moduldokumentation, synthetische Beispiele sowie statische, Contract-, Runtime-, Collation-, Deployment- und Plattformtests. |
 | Dependencies | `AP-2026-002`, `RESULT_TABLE_MODULE_DESIGN.md`, `RESULT_TABLE_CONTRACT_TEST_MATRIX.md`, `DEC-2026-013` bis `DEC-2026-017` und `DEC-2026-019`. |
 | Priorität | `P0` |
 | Status | `active` |
@@ -37,14 +37,16 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Priorität | P1 |
 | Status | `active` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `not executed` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Caller ist Default und wird bei SQL Authentication abgelehnt; ServiceAccount ist explizit; absolute Pfade und Reparse Points sind gesperrt; I/O arbeitet begrenzt/gestreamt; Write nutzt atomare Staging-Dateien; rekursives Delete besitzt Tiefe-/Eintragslimits; Linux ist korrekt not applicable. |
 | Tests | Statischer Vertragscheck und GitHub-Windows-Build; manueller Windows-SQL-Server-/NTFS-Test für Deployment, beide Identitätsmodi, Codepages, Limits, Reparse Points, atomare Writes und rekursives Delete. |
-| Blocker | Runtime-Evidenz auf Windows ist noch nicht ausgeführt. |
+| Blocker | Caller-Impersonation und die breitere manuelle NTFS-/I/O-Matrix sind noch nicht ausgeführt. |
 | Evidenz | Benutzerfreigabe am 2026-07-31; Implementierung und Windows-Build-/Static-Contract-Artefakte auf `main`; Build-Nachweis im Wartungslauf https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356. |
 | Nächster Schritt | Manuellen Windows-SQL-Server-/NTFS-Runtime-Test gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` ausführen und ausschließlich abstrahierte Ergebnisse erfassen. |
 
+
+## Abgeschlossene Arbeitspakete
 
 ### AP-2026-030: TC-2026-033 ZIP-Metadaten-Listing
 
@@ -55,18 +57,17 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Scope | `toolbelt.archive.zip-memory` Version `1.2.0`; neue öffentliche `toolbelt_archive.USP_ListZipEntriesFromBinary`; gemeinsamer SAFE-CLR-Parserkern; direkte Ausgabe sowie `@ResultTable`/`@KeepData`; klassische Single-Disk-ZIPs. |
 | Dependencies | Bestehendes `toolbelt.archive.zip-memory` 1.1.0, `toolbelt.core.result-table` 1.0.0 und freigegebener Vertrag `Documentation/Architecture/ZIP_METADATA_MODULE_DESIGN.md`. |
 | Priorität | `P1` |
-| Status | `active` |
-| Implementation Status | `planned` |
-| Validation Status | `not executed` |
-| Release Status | `unreleased` |
+| Status | `completed` |
+| Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
+| Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Listing-only aus `varbinary(max)`; Central-Directory-Reihenfolge; deklarierte Größen/CRC; Directory-, Encryption-, Extraction-Support-, Duplicate- und Path-Safety-Status; UTF-8/CP437; strikte Strukturprüfung; harte Limits; ZIP64/Multi-Disk abgelehnt; unbekannte Methoden und verdächtige Entries werden gelistet statt verworfen. |
 | Alternativen | Getrenntes Metadatenmodul, reine T-SQL-Implementierung und externer Worker wurden zugunsten der Erweiterung des vorhandenen SAFE-CLR-Moduls verworfen, damit der ZIP-Parserkern nur einmal existiert. |
 | Risiken | Untrusted Central-Directory-Metadaten, Encoding-Abweichungen, große Entry-Mengen, irreführende deklarierte Größen/CRC und die klare Trennung zwischen Listing und Extraktionsfreigabe. |
 | Tests | Statischer Vertrag; synthetische Struktur-/Encoding-/Pfad-/Duplicate-/Limitfälle; direkte Ausgabe und ResultTable; Local/Central; Upgrade 1.1.0→1.2.0; SQL Server 2019/2022/2025 Linux; Windows-Runtime später über SQL_Server_Lab. |
 | Freigabe | Fachvertrag und Implementierung dieses konkreten V1-Slices am 2026-08-09 ausdrücklich durch den Benutzer freigegeben. |
-| Nächster Schritt | Modulversion, CLR-Parserkern, öffentliche USP, Lifecycle, Dokumentation und Contract-Tests implementieren. |
-
-## Abgeschlossene Arbeitspakete
+| Evidenz | Modulartefakte unter `Modules/toolbelt.archive.zip-memory/`; statischer Vertragscheck und Windows-.NET-Framework-4.8-Build erfolgreich. Die neue SQL-Runtime-Matrix wird im Pull Request ausgeführt. |
+| Nächster Schritt | SQL-Server-2019-/2022-/2025-Linux-Matrix abschließen; anschließend Windows-SQL-Server-Runtime, reale Archive und Extremgrößen als Releaseevidenz ergänzen. |
 
 ### AP-2026-029: TC-2026-014 Rollback-independent Event Log
 
@@ -98,22 +99,6 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Release Status | `unreleased` |
 | Tests | SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; Registrierung, Update/RowVersion, Disable/Reaktivierung, Resolve, ResultTable, vier parallele Sessions, Redeploy, Central und Data-Loss-Uninstall-Schutz. |
 | Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193 |
-| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Second-Session-Provider bleibt getrennte W5-Capability. |
-
-### AP-2026-027: TC-2026-022 Work-Type-Katalog
-
-| Feld | Wert |
-|---|---|
-| ID | `AP-2026-027` |
-| Ziel | Einen persistenten sicheren Katalog für benannte Stored-Procedure-Work-Types bereitstellen, ohne eine Raw-SQL-Ausführungsschnittstelle zu schaffen. |
-| Scope | `toolbelt.core.work-type` Version `1.0.0`, interne Tabelle `toolbelt_core.WorkType`, öffentliche Register-/Disable-/Resolve-USPs, `VW_WorkTypes`, lokale und zentrale Installation. |
-| Priorität | `P1` |
-| Status | `completed` |
-| Implementation Status | `implemented` |
-| Validation Status | `partially validated` |
-| Release Status | `unreleased` |
-| Tests | SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; Registrierung, Update/RowVersion, Disable/Reaktivierung, Resolve, ResultTable, vier parallele Sessions, Redeploy, Central und Data-Loss-Uninstall-Schutz. |
-| Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703294213 |
 | Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Second-Session-Provider bleibt getrennte W5-Capability. |
 
 ### AP-2026-026: TC-2026-019 Execution Context
