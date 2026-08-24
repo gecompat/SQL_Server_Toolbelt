@@ -28,6 +28,6 @@ RETURNS TABLE
 )
 AS EXTERNAL NAME
     [Toolbelt_Archive_ZipMemory]
-    [Toolbelt.Archive.ZipMemory.ZipEntryProvider]
-    [ListZipEntriesFromBinary];
+    .[Toolbelt.Archive.ZipMemory.ZipEntryProvider]
+    .[ListZipEntriesFromBinary];
 GO
