@@ -32,5 +32,26 @@ IF NOT EXISTS
    )
     THROW 51385, N'Der zentrale CLR-Deflate-Aufruf ist fehlgeschlagen.', 1;
 
+DECLARE @Metadata TABLE
+(
+      EntryOrdinal int, EntryName nvarchar(1024), IsDirectory bit
+    , CompressedBytes bigint, UncompressedBytes bigint, CompressionMethod int
+    , Crc32 int, IsEncrypted bit, IsExtractionSupported bit, DuplicateCount int
+    , IsPathSafe bit, PathStatus varchar(32), LastModifiedAt datetime2(0)
+);
+
+INSERT INTO @Metadata
+EXEC [$(ToolbeltDatabase)].toolbelt_archive.USP_ListZipEntriesFromBinary
+    @ZipArchive = @ZipArchive;
+
+IF NOT EXISTS
+   (
+       SELECT 1 FROM @Metadata
+       WHERE EntryName = N'deflated.txt'
+         AND CompressionMethod = 8
+         AND IsExtractionSupported = 1
+   )
+    THROW 51385, N'Der zentrale CLR-Metadatenaufruf ist fehlgeschlagen.', 1;
+
 PRINT N'ZIP Memory CLR Central-Contract-Prüfung: erfolgreich';
 GO

@@ -32,6 +32,7 @@ CURRENT_STATUS_FILES = (
     "Tests/README.md",
     ".ai/PROJECT_CONTEXT.md",
     ".ai/ROADMAP.md",
+    ".ai/BACKLOG.md",
     "Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md",
     "Backlog/TOOLBELT_RESEARCH_PRIORITIES.md",
 )
@@ -387,24 +388,42 @@ def validate_manifests(modules: list[dict[str, object]]) -> None:
 
 def validate_derived_backlog_status(modules: list[dict[str, object]]) -> None:
     backlog = read(REPOSITORY_ROOT / ".ai" / "BACKLOG.md")
-    for module in modules:
-        module_id = str(module["id"])
-        if module_id not in backlog:
+    module_by_id = {str(module["id"]): module for module in modules}
+    sections = re.split(r"(?=^### AP-\d{4}-\d{3}:)", backlog, flags=re.MULTILINE)
+    for section in sections:
+        heading = re.match(r"^### (AP-\d{4}-\d{3}):", section)
+        if heading is None or "abgeleitet aus `module.yaml`" not in section:
             continue
-        expected = (
-            ("Implementation Status", module["implementation_status"]),
-            ("Validation Status", module["validation_status"]),
-            ("Release Status", module["release_status"]),
-        )
-        for label, value in expected:
-            pattern = (
-                rf"\|\s*{re.escape(label)}\s*\|\s*`{re.escape(str(value))}`"
-                rf"\s*[–-]\s*abgeleitet aus `module\.yaml`\s*\|"
+        scope_match = re.search(r"^\| Scope \| (.*?) \|$", section, re.MULTILINE)
+        if scope_match is None:
+            raise ValidationError(
+                f"{heading.group(1)}: abgeleitete Statuszeilen ohne Scope"
             )
-            if re.search(pattern, backlog) is None:
-                raise ValidationError(
-                    f"{module_id}: abgeleiteter Backlog-Status ist veraltet: {label}"
+        scoped_modules = [
+            module
+            for module_id, module in module_by_id.items()
+            if module_id in scope_match.group(1)
+        ]
+        if not scoped_modules:
+            raise ValidationError(
+                f"{heading.group(1)}: kein registriertes Modul im Scope"
+            )
+        for module in scoped_modules:
+            expected = (
+                ("Implementation Status", module["implementation_status"]),
+                ("Validation Status", module["validation_status"]),
+                ("Release Status", module["release_status"]),
+            )
+            for label, value in expected:
+                pattern = (
+                    rf"\|\s*{re.escape(label)}\s*\|\s*`{re.escape(str(value))}`"
+                    rf"\s*[–-]\s*abgeleitet aus `module\.yaml`\s*\|"
                 )
+                if re.search(pattern, section) is None:
+                    raise ValidationError(
+                        f"{heading.group(1)}/{module['id']}: abgeleiteter "
+                        f"Backlog-Status ist veraltet: {label}"
+                    )
 
 
 def status_badge(modules: list[dict[str, object]]) -> str:
@@ -623,6 +642,12 @@ def validate_status_truth(modules: list[dict[str, object]]) -> None:
     implemented = sum(
         module["implementation_status"] == "implemented" for module in modules
     )
+    partially_validated = sum(
+        module["validation_status"] == "partially validated" for module in modules
+    )
+    not_executed = sum(
+        module["validation_status"] == "not executed" for module in modules
+    )
     expected_claim = f"{implemented} Module sind implementiert"
     count_pattern = re.compile(
         r"\b(\d+)\s+Module\s+sind\s+implementiert\b",
@@ -640,6 +665,62 @@ def validate_status_truth(modules: list[dict[str, object]]) -> None:
             raise ValidationError(
                 f"Veraltete Modulzahl in {relative}: {mismatches}; "
                 f"Manifest-Realität: {implemented}"
+            )
+
+        partial_claims = [
+            int(value)
+            for value in re.findall(
+                r"\b(\d+)\s+sind\s+`partially validated`", text
+            )
+        ]
+        partial_claims.extend(
+            int(value)
+            for value in re.findall(
+                r"Status:\s*\d+\s+Module?\s+implementiert\s+[–-]\s*"
+                r"(\d+)\s+teilweise validiert",
+                text,
+            )
+        )
+        if any(value != partially_validated for value in partial_claims):
+            raise ValidationError(
+                f"Veraltete partially-validated-Summe in {relative}; "
+                f"Manifest-Realität: {partially_validated}"
+            )
+
+        not_executed_claims = [
+            int(value)
+            for value in re.findall(
+                r"\b(\d+)\s+(?:Module\s+)?(?:ist|sind)\s+`not executed`", text
+            )
+        ]
+        if re.search(r"\bein Modul ist\s+`not executed`", text):
+            not_executed_claims.append(1)
+        if any(value != not_executed for value in not_executed_claims):
+            raise ValidationError(
+                f"Veraltete not-executed-Summe in {relative}; "
+                f"Manifest-Realität: {not_executed}"
+            )
+
+
+def validate_unique_planning_ids() -> None:
+    checks = (
+        (".ai/BACKLOG.md", r"^### (AP-\d{4}-\d{3}):"),
+        (".ai/ROADMAP.md", r"^### (Phase\s+\d+(?:\.\d+)*)\s+[–-]"),
+    )
+    for relative, pattern in checks:
+        identifiers = re.findall(
+            pattern,
+            read(REPOSITORY_ROOT / relative),
+            re.MULTILINE,
+        )
+        duplicates = sorted(
+            identifier
+            for identifier in set(identifiers)
+            if identifiers.count(identifier) > 1
+        )
+        if duplicates:
+            raise ValidationError(
+                f"Doppelte Planungs-IDs in {relative}: {duplicates}"
             )
 
 
@@ -1223,6 +1304,7 @@ def main() -> int:
     # Kleine unveränderliche Basisschutzprüfungen laufen immer.
     validate_protected_content()
     validate_status_truth(modules)
+    validate_unique_planning_ids()
     validate_manifests(modules)
     validate_derived_backlog_status(modules)
     validate_inventory_truth(modules)

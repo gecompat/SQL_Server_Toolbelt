@@ -1,7 +1,7 @@
 # toolbelt_archive.USP_ExtractZipEntryFromBinary
 
 **Typ:** Stored Procedure mit fachlichem Einzelresultset  
-**Version:** `1.1.0`  
+**Modulversion:** `1.2.0`; **Objektvertrag:** unverändert seit `1.1.0`
 **Status:** `implemented`; `partially validated`
 
 ## Zweck

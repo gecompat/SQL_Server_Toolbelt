@@ -142,7 +142,7 @@ namespace Toolbelt.Archive.ZipMemory
                 "IsExtractionSupported bit, " +
                 "DuplicateCount int, " +
                 "IsPathSafe bit, " +
-                "PathStatus varchar(32), " +
+                "PathStatus nvarchar(32), " +
                 "LastModifiedAt datetime2(0)")]
         public static IEnumerable ListZipEntriesFromBinary(
             SqlBytes zipArchive,
@@ -247,7 +247,7 @@ namespace Toolbelt.Archive.ZipMemory
             out SqlInt32 duplicateCount,
             out SqlBoolean isPathSafe,
             out SqlString pathStatus,
-            out SqlDateTime lastModifiedAt)
+            out DateTime? lastModifiedAt)
         {
             ProviderListResult result = (ProviderListResult)value;
 
@@ -294,10 +294,7 @@ namespace Toolbelt.Archive.ZipMemory
                 ? SqlString.Null
                 : new SqlString(result.PathStatus);
 
-            if (result.LastModifiedAt.HasValue)
-                lastModifiedAt = new SqlDateTime(result.LastModifiedAt.Value);
-            else
-                lastModifiedAt = SqlDateTime.Null;
+            lastModifiedAt = result.LastModifiedAt;
         }
 
         private static ProviderResult Extract(
@@ -750,7 +747,7 @@ namespace Toolbelt.Archive.ZipMemory
                 if (decodedName.Length > MaxEntryNameCharacters)
                 {
                     throw new ZipProviderException(
-                        51320,
+                        51325,
                         "Ein Entry-Name überschreitet die maximale Länge von 1024 Zeichen.");
                 }
 

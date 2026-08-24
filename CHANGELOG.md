@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 2026-08-24 – ZIP-Metadaten-Listing und Statuswahrheit
+
+- `toolbelt.archive.zip-memory` Version `1.2.0` stellt die neue
+  Listing-API samt internem CLR-TVF, Lifecycle, Help, ResultTable,
+  Local-/Central- und Struktur-/Encoding-/Pfadverträgen.
+- Windows-.NET-Framework-4.8-Build und SQL-Server-2019-/2022-/2025-Linux-
+  Runtime für Extraktion und Listing sind im
+  [GitHub-Actions-Lauf 32701896453](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453)
+  erfolgreich; Windows-Runtime und echte Extremgrößen bleiben offen.
+- Aggregierte Manifeststatus, Kandidatenplan und Roadmap sind konsolidiert;
+  doppelte AP-/Phasenabschnitte entfernt und zukünftige Wellen mit expliziten
+  Freigabegates verankert.
+- Der Dokumentationsvalidator prüft abgeleitete AP-Status lokal im jeweiligen
+  Abschnitt, Manifestaggregate und eindeutige Planungs-IDs.
+
 ## 2026-08-05 – W5b Event Log
 
 - `toolbelt.core.second-session` auf Version `1.1.0` mit `@SuppressResult` erweitert.
@@ -29,14 +44,6 @@
 - `DEC-2026-025` schließt die Tabellen-/Constraint-/Index-Namenskonvention.
 - SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193.
 
-## 2026-08-01 – W4b Work-Type-Katalog
-
-- `toolbelt.core.work-type` Version `1.0.0` implementiert.
-- Persistente Tabelle `toolbelt_core.WorkType` mit expliziten Constraint-/Indexnamen und `rowversion`.
-- Register, Disable, Resolve, View, ResultTable, Concurrency, Redeploy, Central und Data-Loss-Uninstall-Schutz.
-- `DEC-2026-025` schließt die Tabellen-/Constraint-/Index-Namenskonvention.
-- SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703294213.
-
 Alle wesentlichen Änderungen an SQL Server Toolbelt werden hier dokumentiert.
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
@@ -45,9 +52,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
-- Windows-only Modul `toolbelt.filesystem.windows` mit EXTERNAL_ACCESS-SQL-CLR-Fassade für begrenztes Text-/Binary-I/O, explizite Codepages und Transcoding, Directory-Operationen und begrenztes rekursives Löschen. `Caller` ist der Default, `ServiceAccount` explizit; die Windows-SQL-Server-/NTFS-Runtime bleibt bis zum manuellen Nachweis `not executed`.
+- Windows-only Modul `toolbelt.filesystem.windows` mit EXTERNAL_ACCESS-SQL-CLR-Fassade für begrenztes Text-/Binary-I/O, explizite Codepages und Transcoding, Directory-Operationen und begrenztes rekursives Löschen. `Caller` ist der Default, `ServiceAccount` explizit; Build, Trust, Deployment, Help, SQL-Authentication-Ablehnung und kontrolliertes ServiceAccount-Schreiben sind validiert, die breitere Caller-/NTFS-/I/O-Matrix bleibt offen.
 
-- `toolbelt.archive.zip-memory` ergänzt den ZIP-Metadaten-Pfad (TC-2026-033) im CLR-Provider inklusive Testhärtung für nicht-ASCII-Entry-Namen (`Grüße.txt` als Unicode-Konkatenausdruck). Die SQL Server 2025 lokale Windows-Validierung (`localhost,1433`, `sa`) ist für lokale Runtime- und Smoke-Contracts erfolgreich.
+- `toolbelt.archive.zip-memory` ergänzt den ZIP-Metadaten-Pfad (TC-2026-033) im CLR-Provider inklusive Testhärtung für nicht-ASCII-Entry-Namen (`Grüße.txt` als Unicode-Konkatenausdruck). Version `1.2.0` stellt ihn über `USP_ListZipEntriesFromBinary` bereit; die vollständige Linux-SQL-Runtime-Matrix ist erfolgreich.
 
 - W2c mit `toolbelt.core.console-message` für Unicode-sichere lange
   `PRINT`-/`RAISERROR ... WITH NOWAIT`-Messages und
@@ -225,7 +232,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-24 Module sind implementiert. 23 sind `partially validated`, ein Modul ist
+24 Module sind implementiert. Alle 24 sind `partially validated`; 0 sind
 `not executed`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und
 2025 erfolgreich; die übrigen bereits teilweise validierten Module sind
 auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170

@@ -51,6 +51,8 @@ if actual_hash != manifest.get("sha512"):
     raise SystemExit("SHA2-512 des Binaries stimmt nicht mit dem Trust-Manifest überein.")
 if manifest.get("assemblySqlName") != "Toolbelt_Archive_ZipMemory":
     raise SystemExit("Trust-Manifest enthält einen unerwarteten SQL-Assemblynamen.")
+if manifest.get("moduleVersion") != "1.2.0":
+    raise SystemExit("Trust-Manifest enthält nicht die erwartete Modulversion 1.2.0.")
 if manifest.get("permissionSet") != "SAFE":
     raise SystemExit("Trust-Manifest enthält nicht das Permission Set SAFE.")
 if manifest.get("directFrameworkReferences") != ["System", "System.Data"]:
@@ -200,7 +202,15 @@ run_file "${local_database}" \
   -v "CompatibilityLevel=${compatibility_level}"
 
 # Wiederholungsdeployment derselben Release-Artefakte.
+run_query "${local_database}" \
+  "EXEC sys.sp_updateextendedproperty
+       @name = N'Toolbelt.Module.toolbelt.archive.zip-memory.Version',
+       @value = N'1.1.0';"
 deploy_zip_memory "${local_database}" local
+
+run_file "${local_database}" \
+  /workspace/Modules/toolbelt.archive.zip-memory/Tests/Runtime \
+  Lifecycle.Contract.sql
 
 central_database="tbx_zip_memory_central"
 consumer_database="tbx_zip_memory_consumer"
@@ -230,7 +240,9 @@ run_file "${central_database}" \
 
 run_query "${central_database}" "
 IF OBJECT_ID(N'toolbelt_archive.USP_ExtractZipEntryFromBinary') IS NOT NULL
+   OR OBJECT_ID(N'toolbelt_archive.USP_ListZipEntriesFromBinary') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_archive.TVF_InternalExtractZipEntryClr') IS NOT NULL
+   OR OBJECT_ID(N'toolbelt_archive.TVF_InternalListZipEntriesClr') IS NOT NULL
    OR EXISTS
       (
           SELECT 1
@@ -250,7 +262,9 @@ run_file "${local_database}" \
 
 run_query "${local_database}" "
 IF OBJECT_ID(N'toolbelt_archive.USP_ExtractZipEntryFromBinary') IS NOT NULL
+   OR OBJECT_ID(N'toolbelt_archive.USP_ListZipEntriesFromBinary') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_archive.TVF_InternalExtractZipEntryClr') IS NOT NULL
+   OR OBJECT_ID(N'toolbelt_archive.TVF_InternalListZipEntriesClr') IS NOT NULL
    OR EXISTS
       (
           SELECT 1

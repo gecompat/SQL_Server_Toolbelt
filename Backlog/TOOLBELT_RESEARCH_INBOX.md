@@ -25,10 +25,13 @@ zur Implementierung freigegeben:
 | `RI-2026-011` | `TC-2026-029` – Sicheres Identifier- und Multipart-Name-Toolkit | `implemented`; Runtime `partially validated` |
 | `RI-2026-075` | `TC-2026-030` – Semantic-Version Parser und Comparator | `implemented`; Runtime `partially validated` |
 | `RI-2026-055` | `TC-2026-031` – Ganzzahlen in frei definierbaren Zahlensystemen | `implemented`; Runtime `partially validated` |
-
+| `RI-2026-112` | `TC-2026-033` – ZIP Directory Listing | `implemented`; Runtime `partially validated` |
 | `RI-2026-113` | `TC-2026-034` – ZIP-Archive kontrolliert extrahieren und erzeugen | `implemented`; Runtime `partially validated`; ZIP-Erzeugung und vollständige Dateisystemextraktion offen |
-| `RI-2026-107` | `TC-2026-037` – Kontrolliertes Lesen und Schreiben von Text- und Binärdateien | `implemented`; `toolbelt.file.content` Runtime `partially validated`; `toolbelt.filesystem.windows` Runtime `not executed` |
-| `RI-2026-108` | `TC-2026-038` – Kontrolliertes Directory Listing | `implemented`; Windows-Provider Runtime `not executed`; portabler Provider offen |
+| `RI-2026-107` | `TC-2026-037` – Kontrolliertes Lesen und Schreiben von Text- und Binärdateien | `implemented`; beide vorhandenen Module Runtime `partially validated`; optionale portable Worker-Slices offen |
+| `RI-2026-108` | `TC-2026-038` – Kontrolliertes Directory Listing | `implemented`; Windows-Provider Runtime `partially validated`; portabler Provider offen |
+| `RI-2026-139` | `TC-2026-046` – Provider-Abstraktion für kontrollierte zweite SQL-Sessions | `implemented`; synchroner Second-Session-Slice Runtime `partially validated`; breitere Providerabstraktion `researched` |
+| `RI-2026-163` | `TC-2026-019` – Execution Context und Correlation | `implemented`; Runtime `partially validated` |
+
 ## Bereits vorhandene Kandidaten – zusätzliche Fundstellen
 
 Diese Treffer erzeugen bewusst keine Duplikate.

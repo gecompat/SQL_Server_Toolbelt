@@ -86,14 +86,16 @@ INNER JOIN sys.assembly_files AS af
 WHERE a.name = @AssemblyName;
 
 IF @InstalledVersion IS NOT NULL
-   AND @InstalledVersion NOT IN (N'1.0.0', N'1.1.0')
+   AND @InstalledVersion NOT IN (N'1.0.0', N'1.1.0', N'1.2.0')
     THROW 51333, N'Die installierte Modulversion ist diesem Deployment nicht bekannt.', 1;
 
 IF @InstalledVersion IS NULL
    AND
    (
        OBJECT_ID(N'toolbelt_archive.USP_ExtractZipEntryFromBinary') IS NOT NULL
+       OR OBJECT_ID(N'toolbelt_archive.USP_ListZipEntriesFromBinary') IS NOT NULL
        OR OBJECT_ID(N'toolbelt_archive.TVF_InternalExtractZipEntryClr') IS NOT NULL
+       OR OBJECT_ID(N'toolbelt_archive.TVF_InternalListZipEntriesClr') IS NOT NULL
        OR EXISTS
           (
               SELECT 1
@@ -162,6 +164,9 @@ BEGIN TRY
     DROP FUNCTION IF EXISTS
         [toolbelt_archive].[TVF_InternalExtractZipEntryClr];
 
+    DROP FUNCTION IF EXISTS
+        [toolbelt_archive].[TVF_InternalListZipEntriesClr];
+
     IF @InstalledAssemblyHash IS NULL
        OR @InstalledAssemblyHash <> @AssemblyHash
     BEGIN
@@ -191,7 +196,9 @@ END CATCH;
 GO
 
 :r ../Source/TVF_InternalExtractZipEntryClr.sql
+:r ../Source/TVF_InternalListZipEntriesClr.sql
 :r ../Source/USP_ExtractZipEntryFromBinary.sql
+:r ../Source/USP_ListZipEntriesFromBinary.sql
 
 SET NOCOUNT ON;
 
@@ -216,11 +223,11 @@ BEGIN TRY
        )
         EXEC sys.sp_updateextendedproperty
               @name = @VersionProperty
-            , @value = N'1.1.0';
+            , @value = N'1.2.0';
     ELSE
         EXEC sys.sp_addextendedproperty
               @name = @VersionProperty
-            , @value = N'1.1.0';
+            , @value = N'1.2.0';
 
     IF EXISTS
        (
