@@ -66,9 +66,9 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 | Welle | Status | Inhalt | Kandidaten | Eintrittsbedingung | Ergebnis |
 |---|---|---|---|---|---|
-| `V0a` | `planned` | Physische Linux-Zielversionen | alle portablen und Linux-fähigen Module | SQL Server 2019/2022 als echte Engines, synthetische Fixtures | Unterschiede zur bisherigen 2025-Compatibility-Matrix belegen; keine Statusanhebung ohne vollständige Pflichtfälle. |
-| `V0b` | `planned` | Windows-Hochrisiko- und Providerfälle | ResultTable, CLR-, Datei-, Second-Session- und Event-Module | kontrollierte lokale Windows-SQL-Server-Roots und abstrahierte Evidenz | Identity, NTFS, Trust, Recovery und Performance getrennt nachweisen. |
-| `V0c` | `planned` | Erste Releasekohorte | kleinste stabile, abhängigkeitsschwache Modulgruppe | versionierte Artefakte, Upgrade-/Uninstallnachweis und Releasekriterien | Reproduzierbare Manifeste und eine tatsächlich veröffentlichbare Kohorte statt pauschalem Repository-Release. |
+| `V0a` | `active`; Runtime durch Lab-Readiness blockiert | Physische Linux-Zielversionen | alle 23 portablen beziehungsweise Linux-fähigen Module | schema-valider SQL_Server_Lab-Vertrag mit `groupStatus = READY`, echte Engines 2019/2022/2025 und synthetische Fixtures | Unterschiede zur bisherigen 2025-Compatibility-Matrix belegen; keine Statusanhebung ohne vollständige Pflichtfälle. |
+| `V0b` | `active`; Runtime durch Lab-Readiness blockiert | Windows-Release- und Providerfälle | portable V0c-Kohorte sowie ResultTable, CLR-, Datei-, Second-Session- und Event-Module | schema-valider SQL_Server_Lab-Vertrag mit `groupStatus = READY`, kontrollierte Windows-SQL-Server-Roots und abstrahierte Evidenz | Zielversions-, Identity-, NTFS-, Trust-, Recovery- und Performanceverträge getrennt nachweisen. |
+| `V0c` | `active`; abhängig von `V0a`/`V0b` | Erste Releasekohorte | 16 portable Module aus Kernfolge, W1, W2a, W2b-A und W2c | vollständige Pflichtmatrix, versionierte Artefakte, Upgrade-/Uninstallnachweis und Releasekriterien | Veröffentlichungsfertige Kohorte; `release_status` bleibt bis zur tatsächlichen autorisierten Veröffentlichung `unreleased`. |
 | `W1` | `completed` | Kleine unabhängige T-SQL-Kerne | `002`, `008`, `024` | Einzelvertrag und Freigabe | Drei implementierte, auf SQL Server 2025 Linux teilweise validierte Module. |
 | `W2a` | `completed` | Date/Time- und Bigint-Bit-Kompatibilität | `004`, `005`, `007` | Typfamilien, Paritätsumfang und Fehlervertrag am 2026-07-30 freigegeben | Drei Module implementiert und auf SQL Server 2025 Linux teilweise validiert. |
 | `W2b-A` | `completed` | JSON-Pfadprüfung | `009` Slice A | Pfad-, NULL-, Fehler- und Providervertrag am 2026-07-30 freigegeben | `toolbelt.json.path-exists` implementiert und auf SQL Server 2025 Linux teilweise validiert. |
@@ -236,8 +236,33 @@ Konstruktoren benötigen eine belastbare variable Eingabeoberfläche;
 JSON-Aggregate bleiben während des nativen Preview-Status und ohne
 freigegebenen SQL-CLR-/Providervertrag außerhalb der Entwicklung.
 
-Parallel dazu kann `V0` die offenen physischen Releasevalidierungen der 17
-implementierten Module bündeln. Fuer `TC-2026-034` laeuft mit `AP-2026-020`
-die V1A-Implementierungswelle; `AP-2026-021` hat den CLR-Folgevertrag
-abgeschlossen. Die CLR-Runtime-Implementierung startet erst nach realer Windows-/Linux-
-SQL-Server-Evidenz für den kontrollierten Spike und separater Freigabe.
+Die am 2026-08-28 ausdrücklich freigegebene nächste Entwicklungsfolge ist
+`V0a` → `V0b` → `V0c`. `V0a` bündelt die physische Linux-Validierung der 23
+portablen beziehungsweise Linux-fähigen Module. `V0b` prüft die portable
+Releasekohorte auf Windows und ergänzt die Hochrisikofälle für ResultTable,
+SQL CLR, Datei-I/O, Second Session und Event Log.
+
+`V0c` ist verbindlich auf folgende 16 vorhandene Module begrenzt:
+
+- `toolbelt.core.result-table`;
+- `toolbelt.conversion.base64`;
+- `toolbelt.core.generate-series`;
+- `toolbelt.metadata.identifier`;
+- `toolbelt.string.split-characters`;
+- `toolbelt.validation.semantic-version`;
+- `toolbelt.conversion.integer-base`;
+- `toolbelt.datetime.calendar-difference`;
+- `toolbelt.string.directional-trim`;
+- `toolbelt.conversion.uri-component`;
+- `toolbelt.datetime.truncate`;
+- `toolbelt.datetime.bucket`;
+- `toolbelt.binary.bit-operations`;
+- `toolbelt.json.path-exists`;
+- `toolbelt.core.console-message`;
+- `toolbelt.metadata.capability-catalog`.
+
+Alle 24 Module bleiben bis zu neuer tatsächlicher Evidenz `partially
+validated` und `unreleased`. Der lokale SQL_Server_Lab-Vertrag war bei der
+Aktivierung schema-valide, aber die Gruppe noch `INCOMPLETE`; deshalb ist für
+`V0a` und `V0b` noch keine neue Runtime-Evidenz entstanden. Das Projekt
+startet, repariert oder löscht keine Lab-Ressourcen selbst.
