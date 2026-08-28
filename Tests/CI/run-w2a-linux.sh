@@ -2,6 +2,13 @@
 set -euo pipefail
 
 sql_image="${TBX_SQL_IMAGE:?TBX_SQL_IMAGE fehlt}"
+sql_version="${TBX_SQL_VERSION:-2025}"
+case "${sql_version}" in
+  2019) compatibility_levels="150" ;;
+  2022) compatibility_levels="160" ;;
+  2025) compatibility_levels="150 160 170" ;;
+  *) echo "Nicht unterstützte SQL-Version: ${sql_version}" >&2; exit 1 ;;
+esac
 container_name="tbx-w2a-${GITHUB_RUN_ID:-local}"
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 echo "::add-mask::${sa_password}"
@@ -81,7 +88,7 @@ run_lifecycle() {
 deploy_modules "${database}" local
 run_lifecycle "${database}"
 
-for level in 150 160 170; do
+for level in ${compatibility_levels}; do
   run_query "${database}" \
     "ALTER DATABASE [${database}] SET COMPATIBILITY_LEVEL = ${level};"
   run_file "${database}" \
@@ -142,4 +149,4 @@ IF OBJECT_ID(N'toolbelt_datetime.TVF_TruncateDate') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_binary.TVF_SetBitBigInt') IS NOT NULL
     THROW 52899, N'Central Uninstall ließ W2a-Objekte zurück.', 1;"
 
-echo "W2a SQL Server 2025 Linux (Compatibility 150/160/170): erfolgreich"
+echo "W2a SQL Server ${sql_version} (Compatibility ${compatibility_levels}): erfolgreich"

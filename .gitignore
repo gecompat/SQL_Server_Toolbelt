@@ -65,6 +65,7 @@ target/
 *.swp
 
 # Lokale Runtime-Ausgaben (dürfen nicht ins Repository)
+.runtime/
 *.sqlresults
 *.queryplan
 

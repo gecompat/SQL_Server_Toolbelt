@@ -107,4 +107,4 @@ jobs:
           TBX_SQL_VERSION: ${{ matrix.sql_version }}
           TBX_COMPATIBILITY_LEVEL: ${{ matrix.compatibility_level }}
           TBX_ASSEMBLY_ROOT: .runtime/zip-memory-release
-        run: bash Tests/CI/run-zip-memory-linux.sh
+        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-zip-memory-linux.sh

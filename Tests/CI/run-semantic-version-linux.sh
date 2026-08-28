@@ -5,6 +5,13 @@ set -euo pipefail
 # Ausschließlich synthetische Datenbanken und ein flüchtiges, maskiertes
 # Testkennwort. Es wird nicht als Artefakt gespeichert.
 sql_image="${TBX_SQL_IMAGE:?TBX_SQL_IMAGE fehlt}"
+sql_version="${TBX_SQL_VERSION:-2025}"
+case "${sql_version}" in
+  2019) compatibility_levels="150"; max_compatibility_level="150" ;;
+  2022) compatibility_levels="160"; max_compatibility_level="160" ;;
+  2025) compatibility_levels="150 160 170"; max_compatibility_level="170" ;;
+  *) echo "Nicht unterstützte SQL-Version: ${sql_version}" >&2; exit 1 ;;
+esac
 container_name="tbx-semantic-version-${GITHUB_RUN_ID:-local}"
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 
@@ -95,7 +102,7 @@ run_file "${local_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 
-for compatibility_level in 150 160 170; do
+for compatibility_level in ${compatibility_levels}; do
     # Jeder Compatibility Level erhält einen neuen Compilation-Context.
     run_query "${local_database}" \
         "ALTER DATABASE [${local_database}] SET COMPATIBILITY_LEVEL = ${compatibility_level};"
@@ -112,7 +119,7 @@ run_file "${local_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 run_file "${local_database}" "${runtime_directory}" SemanticVersion.Contract.sql \
-    -v CompatibilityLevel=170
+    -v CompatibilityLevel="${max_compatibility_level}"
 
 upgrade_database="tbx_semantic_version_upgrade"
 create_database "${upgrade_database}"
@@ -130,7 +137,7 @@ run_file "${upgrade_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${upgrade_database}" "${runtime_directory}" Lifecycle.Contract.sql
 run_file "${upgrade_database}" "${runtime_directory}" SemanticVersion.Contract.sql \
-    -v CompatibilityLevel=170
+    -v CompatibilityLevel="${max_compatibility_level}"
 
 central_database="tbx_semantic_version_central"
 consumer_database="tbx_semantic_version_consumer"
@@ -179,4 +186,4 @@ run_file "${local_database}" "${deployment_directory}" Uninstall.sql \
 run_query "${local_database}" \
     "IF OBJECT_ID(N'toolbelt_validation.TVF_ParseSemanticVersion') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.TVF_CompareSemanticVersion') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.TVF_SemanticVersionSortKey') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.SVF_CompareSemanticVersion') IS NOT NULL OR OBJECT_ID(N'toolbelt_validation.SVF_SemanticVersionSortKey') IS NOT NULL THROW 52743, N'Uninstall ließ Release-Objekte zurück.', 1;"
 
-echo "Semantic-Version SQL Server 2025 Linux (Compatibility 150/160/170): erfolgreich"
+echo "Semantic-Version SQL Server ${sql_version} (Compatibility ${compatibility_levels}): erfolgreich"

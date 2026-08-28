@@ -2,6 +2,13 @@
 set -euo pipefail
 
 sql_image="${TBX_SQL_IMAGE:?TBX_SQL_IMAGE fehlt}"
+sql_version="${TBX_SQL_VERSION:-2025}"
+case "${sql_version}" in
+  2019) compatibility_levels="150" ;;
+  2022) compatibility_levels="160" ;;
+  2025) compatibility_levels="150 160 170" ;;
+  *) echo "Nicht unterstützte SQL-Version: ${sql_version}" >&2; exit 1 ;;
+esac
 container_name="tbx-w1-${GITHUB_RUN_ID:-local}"
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 echo "::add-mask::${sa_password}"
@@ -23,7 +30,7 @@ run_file "${database}" /workspace/Modules/toolbelt.conversion.uri-component/Depl
 run_file "${database}" /workspace/Modules/toolbelt.datetime.calendar-difference/Tests/Runtime Lifecycle.Contract.sql
 run_file "${database}" /workspace/Modules/toolbelt.string.directional-trim/Tests/Runtime Lifecycle.Contract.sql
 run_file "${database}" /workspace/Modules/toolbelt.conversion.uri-component/Tests/Runtime Lifecycle.Contract.sql
-for level in 150 160 170; do
+for level in ${compatibility_levels}; do
  run_query "${database}" "ALTER DATABASE [${database}] SET COMPATIBILITY_LEVEL = ${level};"
  run_file "${database}" /workspace/Modules/toolbelt.datetime.calendar-difference/Tests/Runtime CalendarDifference.Contract.sql -v CompatibilityLevel="${level}"
  run_file "${database}" /workspace/Modules/toolbelt.string.directional-trim/Tests/Runtime DirectionalTrim.Contract.sql -v CompatibilityLevel="${level}"
@@ -54,4 +61,4 @@ run_file "${central_database}" /workspace/Modules/toolbelt.conversion.uri-compon
 run_file "${central_database}" /workspace/Modules/toolbelt.string.directional-trim/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=1
 run_file "${central_database}" /workspace/Modules/toolbelt.datetime.calendar-difference/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=1
 run_query "${central_database}" "IF OBJECT_ID(N'toolbelt_datetime.TVF_CalendarDifference') IS NOT NULL OR OBJECT_ID(N'toolbelt_string.TVF_TrimDirectionalNvarchar') IS NOT NULL OR OBJECT_ID(N'toolbelt_string.TVF_TrimDirectionalVarchar') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.TVF_UriComponentEncode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.TVF_UriComponentDecode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_UriComponentEncode') IS NOT NULL OR OBJECT_ID(N'toolbelt_conversion.SVF_UriComponentDecode') IS NOT NULL THROW 52739,N'Central Uninstall ließ W1-Objekte zurück.',1;"
-echo "W1 SQL Server 2025 Linux (Compatibility 150/160/170): erfolgreich"
+echo "W1 SQL Server ${sql_version} (Compatibility ${compatibility_levels}): erfolgreich"

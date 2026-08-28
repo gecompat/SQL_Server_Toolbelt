@@ -5,6 +5,13 @@ set -euo pipefail
 # Ausschließlich synthetische Datenbanken und ein flüchtiges, maskiertes
 # Testkennwort. Es wird nicht als Artefakt gespeichert.
 sql_image="${TBX_SQL_IMAGE:?TBX_SQL_IMAGE fehlt}"
+sql_version="${TBX_SQL_VERSION:-2025}"
+case "${sql_version}" in
+  2019) compatibility_levels="150"; max_compatibility_level="150" ;;
+  2022) compatibility_levels="160"; max_compatibility_level="160" ;;
+  2025) compatibility_levels="150 160 170"; max_compatibility_level="170" ;;
+  *) echo "Nicht unterstützte SQL-Version: ${sql_version}" >&2; exit 1 ;;
+esac
 container_name="tbx-generate-series-${GITHUB_RUN_ID:-local}"
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 
@@ -95,7 +102,7 @@ run_file "${local_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 
-for compatibility_level in 150 160 170; do
+for compatibility_level in ${compatibility_levels}; do
     # Der relationale native Operator muss in einer neuen Session unter dem
     # bereits aktiven Compatibility Level kompiliert werden.
     run_query "${local_database}" \
@@ -113,7 +120,7 @@ run_file "${local_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 run_file "${local_database}" "${runtime_directory}" GenerateSeries.Contract.sql \
-    -v CompatibilityLevel=170
+    -v CompatibilityLevel="${max_compatibility_level}"
 
 central_database="tbx_generate_series_central"
 consumer_database="tbx_generate_series_consumer"
@@ -162,4 +169,4 @@ run_file "${local_database}" "${deployment_directory}" Uninstall.sql \
 run_query "${local_database}" \
     "IF OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigInt') IS NOT NULL OR OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesInt') IS NOT NULL THROW 52443, N'Uninstall ließ Release-Objekte zurück.', 1;"
 
-echo "Generate-Series SQL Server 2025 Linux (Compatibility 150/160/170): erfolgreich"
+echo "Generate-Series SQL Server ${sql_version} (Compatibility ${compatibility_levels}): erfolgreich"

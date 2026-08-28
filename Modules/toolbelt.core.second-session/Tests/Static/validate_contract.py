@@ -46,7 +46,6 @@ for marker in (
     "USP_EndExecution",
     "JSON_PAYLOAD",
     "HAS_PERMS_BY_NAME",
-    "COLLATE DATABASE_DEFAULT",
     "@SuppressResult",
 ):
     if marker not in source:

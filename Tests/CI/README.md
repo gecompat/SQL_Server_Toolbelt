@@ -34,7 +34,64 @@ Dependency und prueft danach den In-memory-ZIP-Vertrag fuer
 `toolbelt.archive.zip-memory` mit Compatibility Levels 150, 160 und 170 sowie
 lokale, zentrale, Lifecycle- und Uninstall-Pfade.
 
+Der Adapter `run-lab-target.sh` wird ausschließlich vom lokalen
+SQL_Server_Lab-Orchestrator aktiviert. GitHub Actions und andere disposable
+Runner führen ohne `TBX_SQL_TARGET=lab` weiterhin den unveränderten
+Containerpfad aus. Der lokale Orchestrator führt keinen automatischen
+Runner-Fallback durch.
+
 Bash wird hier nur als Linux-CI-Orchestrierung verwendet. Es enthält keine zweite Implementierung der T-SQL-Fachlogik.
+
+## Lokaler Lab-Lauf aus PowerShell
+
+Für die lokale Entwicklung kann die geeignete CI-Testmatrix gegen die vom
+SQL_Server_Lab exportierten READY-Ziele gefahren werden. Voraussetzung sind
+Git Bash, `sqlcmd` und ein erreichbares Lab-Netz.
+
+Discovery-Reihenfolge:
+
+1. Prozessvariable `SQL_SERVER_LAB_TEST_ENV_FILE`;
+2. gleichnamige Benutzervariable;
+3. `SQL_SERVER_LAB_DATA_ROOT` aus Prozess- oder Benutzervariable plus
+   `Exports/TestUmgebung.json`.
+
+`SQL_SERVER_LAB_TEST_ENV_SCHEMA_FILE` kann das standardmäßig danebenliegende
+`TestUmgebung.schema.json` überschreiben. Der Vertrag wird vor jeder Verwendung
+gegen dieses Schema validiert; nur `groupStatus = READY` und Einträge mit
+`status = READY` werden verwendet. Ein gegebenenfalls über
+`SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE` bereitgestellter Zusatzvertrag ist
+ebenfalls zu beachten. Laufwerks-, Home- oder Repositorysuche sowie feste
+Lab-Pfade sind ausgeschlossen.
+
+Beispielaufrufe:
+
+```powershell
+pwsh Tests/CI/run-lab-local.ps1
+pwsh Tests/CI/run-lab-local.ps1 -Platforms linux,windows -Versions 2019,2022,2025 -LinuxPatches latest -WindowsPatches base -TestSuite full
+pwsh Tests/CI/run-lab-local.ps1 -RunScripts run-zip-memory-linux.sh
+```
+
+Die Matrix selektiert explizit nach `platform`, `sqlVersion` und `patch` und
+verwendet alle passenden READY-Einträge. Fehlt ein Ziel, wird dieser Scope als
+nicht ausgeführt behandelt; ein Wechsel auf eine andere Zielkombination findet
+nicht statt.
+
+Wichtige Anpassungen:
+
+- Vor dem Test werden `SELECT @@VERSION` und der Zustand von
+  `sys.databases` über eine echte SQL-Anmeldung geprüft.
+- Für ZIP-Memory werden `TBX_ASSEMBLY_ROOT` und der exakte Assembly-Hash aus
+  den lokal gebauten Release-Artefakten gesetzt.
+- Verbindungen verwenden ausschließlich Werte des ausgewählten Eintrags mit
+  `Encrypt=True` und `TrustServerCertificate=True`; `Encrypt=Strict` wird nicht
+  verwendet.
+- Verändernde Tests erhalten eindeutige Datenbanknamen mit zufälliger
+  Testlauf-ID. Der Adapter entfernt nur Datenbanken dieser ID. ZIP-Memory stellt
+  zusätzlich nur die von seinem Lauf geänderte CLR-/Trust-Konfiguration wieder
+  auf den vorherigen Zustand zurück.
+- Der Dateicontent-Lauf gehört nicht zur Standardmatrix, weil seine
+  serverseitigen Dateien zuerst explizit in jedem Ziel bereitgestellt werden
+  müssen.
 
 Das Testkennwort:
 

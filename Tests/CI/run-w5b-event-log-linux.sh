@@ -2,6 +2,13 @@
 set -euo pipefail
 
 sql_image="${TBX_SQL_IMAGE:?TBX_SQL_IMAGE fehlt}"
+sql_version="${TBX_SQL_VERSION:-2025}"
+case "${sql_version}" in
+  2019) compatibility_levels="150" ;;
+  2022) compatibility_levels="160" ;;
+  2025) compatibility_levels="150 160 170" ;;
+  *) echo "Nicht unterstützte SQL-Version: ${sql_version}" >&2; exit 1 ;;
+esac
 container_name="tbx-w5b-${GITHUB_RUN_ID:-local}"
 sa_password="TbxA1!$(openssl rand -hex 16)"
 linked_server="TBX_LOOPBACK"
@@ -80,7 +87,7 @@ run_query master "CREATE DATABASE [${local_db}] COLLATE Latin1_General_100_CS_AS
 deploy_stack "${local_db}" local
 run_file "${local_db}" /workspace/Modules/toolbelt.core.event-log/Tests/Runtime Lifecycle.Contract.sql
 
-for level in 150 160 170; do
+for level in ${compatibility_levels}; do
   run_query "${local_db}" "ALTER DATABASE [${local_db}] SET COMPATIBILITY_LEVEL=${level}; DELETE FROM toolbelt_core.EventLog;"
   run_file "${local_db}" /workspace/Modules/toolbelt.core.event-log/Tests/Runtime EventLog.Contract.sql
 done

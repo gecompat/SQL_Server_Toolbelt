@@ -49,4 +49,4 @@ jobs:
           Modules/toolbelt.metadata.capability-catalog/Tests/Static/validate_contract.py
       - env:
           TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
-        run: bash Tests/CI/run-w2c-linux.sh
+        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-w2c-linux.sh
