@@ -6,6 +6,37 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### V0a/V0b/V0c: Releasevalidierung und erste Releasekohorte
+
+| Feld | Wert |
+|---|---|
+| ID | `V0a`, `V0b`, `V0c`; keine neue sequenzielle `AP`-Referenz ohne reguläre Vergabe |
+| Ziel | Die vorhandenen Module auf physischen Zielversionen und Windows validieren und daraus eine veröffentlichungsfertige erste Kohorte bilden, ohne Runtime- oder Release-Status vorwegzunehmen. |
+| Scope | `V0a`: 23 portable beziehungsweise Linux-fähige Module auf SQL Server 2019/2022/2025 Linux. `V0b`: vollständige Windows-Matrix der V0c-Kohorte plus Hochrisikofälle für ResultTable, SQL CLR, Datei-I/O, Second Session und Event Log. `V0c`: 16 portable Module aus Kernfolge, W1, W2a, W2b-A und W2c. Keine neuen öffentlichen SQL-Objekte oder Signaturänderungen. |
+| Dependencies | Ausdrückliche Benutzerfreigabe vom 2026-08-28; schema-valider SQL_Server_Lab-Vertrag; `groupStatus = READY` und passende `READY`-Ziele vor jeder Runtime-Ausführung; vorhandene Modul-, Lifecycle- und Testverträge. |
+| Priorität | `P0` |
+| Status | `active`; Runtime durch `groupStatus = INCOMPLETE` blockiert |
+| Implementation Status | 24 Module `implemented` – aus `module.yaml` abgeleitet |
+| Validation Status | 24 Module `partially validated` – keine neue Evidenz aus der noch nicht ausführbaren Lab-Matrix |
+| Release Status | 24 Module `unreleased`; V0c bereitet nur die Veröffentlichung vor |
+| Akzeptanzkriterien | Linux- und Windows-Zielversionen tatsächlich geprüft; Dependency-Closure und versionierte Objektmanifeste konsistent; Erst-, Wiederholungs-, Upgrade-, Central- und Uninstall-Verträge für die Kohorte erfolgreich; modulspezifische Pflichtfälle ausgeführt; nicht verfügbare Kombinationen sichtbar; vollständiger Dokumentationsaudit erfolgreich. |
+| Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |
+| Blocker | Der am 2026-08-28 gelesene Lab-Vertrag ist schema-valide, aber die Gruppe und alle sechs Zielkombinationen sind `INCOMPLETE`. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. |
+| Evidenz | Benutzerfreigabe vom 2026-08-28; lokaler vollständiger Dokumentationsaudit und alle 16 statischen Modulvertragsprüfungen am 2026-08-28 erfolgreich; schema-valide Lab-Discovery ohne SQL-Preflight oder Runtime-Ausführung. Bestehende Runtime-Evidenz bleibt unverändert maßgeblich. |
+| Nächster Schritt | Nach externer Bereitstellung `groupStatus` und Zielstatus erneut prüfen, SQL-Preflight ausführen und V0a auf Linux 2019/2022/2025 starten. |
+
+Die V0c-Kohorte umfasst verbindlich:
+
+`toolbelt.core.result-table`, `toolbelt.conversion.base64`,
+`toolbelt.core.generate-series`, `toolbelt.metadata.identifier`,
+`toolbelt.string.split-characters`, `toolbelt.validation.semantic-version`,
+`toolbelt.conversion.integer-base`, `toolbelt.datetime.calendar-difference`,
+`toolbelt.string.directional-trim`, `toolbelt.conversion.uri-component`,
+`toolbelt.datetime.truncate`, `toolbelt.datetime.bucket`,
+`toolbelt.binary.bit-operations`, `toolbelt.json.path-exists`,
+`toolbelt.core.console-message` und
+`toolbelt.metadata.capability-catalog`.
+
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
 | Feld | Wert |

@@ -425,16 +425,38 @@ keine pauschale Runtime-Vollmatrix aus.
 
 ### Phase 4.1 – V0 Releasevalidierung in drei Slices
 
-**Status:** `planned`; keine Implementierungsfreigabe
+**Status:** `in progress`; am 2026-08-28 ausdrücklich freigegeben
 
-- `V0a`: portable und Linux-fähige Module auf physischen SQL-Server-2019- und
-  2022-Engines prüfen; Compatibility-Level-Läufe auf 2025 ersetzen keine
-  physische Zielversion.
-- `V0b`: Windows-Hochrisikofälle für CLR, Filesystem, ResultTable,
-  Second Session und Event Log mit synthetischen Daten und abstrakter Evidenz
-  ausführen.
-- `V0c`: eine kleine, stabile erste Releasekohorte mit versionierten
-  Artefakten, Upgrade, Wiederholungsdeployment und Uninstall festlegen.
+**Aktueller Runtime-Blocker:** Der über die vorgesehenen Umgebungsvariablen
+ermittelte SQL_Server_Lab-Vertrag ist schema-valide, besitzt derzeit jedoch
+`groupStatus = INCOMPLETE`. Bis Gruppe und ausgewählte Ziele `READY` sind,
+bleiben neue Runtime-Läufe `not executed`. Das Toolbelt-Projekt startet,
+repariert oder löscht keine Lab-Ressourcen selbst.
+
+- `V0a`: alle 23 portablen beziehungsweise Linux-fähigen Module auf physischen
+  SQL-Server-2019-, 2022- und 2025-Engines prüfen. Der lokale Lab-Adapter
+  verwendet die vorhandenen Runtime-Suites; `toolbelt.file.content` benötigt
+  separat bereitgestellte synthetische serverseitige Fixtures.
+- `V0b`: die portable V0c-Kohorte vollständig auf Windows 2019, 2022 und 2025
+  prüfen und die Hochrisikofälle für CLR, Filesystem, ResultTable, File
+  Content, Second Session und Event Log mit synthetischen Daten und
+  abstrahierter Evidenz ergänzen.
+- `V0c`: eine veröffentlichungsfertige Kohorte aus den 16 Modulen
+  `toolbelt.core.result-table`, `toolbelt.conversion.base64`,
+  `toolbelt.core.generate-series`, `toolbelt.metadata.identifier`,
+  `toolbelt.string.split-characters`, `toolbelt.validation.semantic-version`,
+  `toolbelt.conversion.integer-base`, `toolbelt.datetime.calendar-difference`,
+  `toolbelt.string.directional-trim`, `toolbelt.conversion.uri-component`,
+  `toolbelt.datetime.truncate`, `toolbelt.datetime.bucket`,
+  `toolbelt.binary.bit-operations`, `toolbelt.json.path-exists`,
+  `toolbelt.core.console-message` und
+  `toolbelt.metadata.capability-catalog` vorbereiten. Versionierte
+  Artefakte, unterstützte Upgrades, Wiederholungsdeployment, Central und
+  Uninstall gehören zum Pflichtscope. Bis zur tatsächlichen autorisierten
+  Veröffentlichung bleibt `release_status: unreleased`.
+
+V0 verändert keine öffentlichen SQL-Signaturen oder fachlichen Verträge.
+Neue Q1-/D1-Runtime-Objekte bleiben außerhalb dieser Freigabe.
 
 ### Phase 4.2 – Q1 Lifecycle- und Upgrade-Automation
 
