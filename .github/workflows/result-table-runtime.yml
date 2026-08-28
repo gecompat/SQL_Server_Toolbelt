@@ -67,4 +67,4 @@ jobs:
           TBX_SQL_IMAGE: ${{ matrix.image }}
           TBX_TEST_SUITE: ${{ matrix.suite }}
           TBX_SQL_VERSION: ${{ matrix.version }}
-        run: bash Tests/CI/run-result-table-linux.sh
+        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-result-table-linux.sh

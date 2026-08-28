@@ -2,6 +2,13 @@
 set -euo pipefail
 
 sql_image="${TBX_SQL_IMAGE:?TBX_SQL_IMAGE fehlt}"
+sql_version="${TBX_SQL_VERSION:-2025}"
+case "${sql_version}" in
+  2019) compatibility_levels="150" ;;
+  2022) compatibility_levels="160" ;;
+  2025) compatibility_levels="150 160 170" ;;
+  *) echo "Nicht unterstützte SQL-Version: ${sql_version}" >&2; exit 1 ;;
+esac
 container_name="tbx-w2c-${GITHUB_RUN_ID:-local}"
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 echo "::add-mask::${sa_password}"
@@ -79,7 +86,7 @@ run_file "${database}" \
   /workspace/Modules/toolbelt.metadata.capability-catalog/Tests/Runtime \
   Lifecycle.Contract.sql
 
-for level in 150 160 170; do
+for level in ${compatibility_levels}; do
   run_query "${database}" \
     "ALTER DATABASE [${database}] SET COMPATIBILITY_LEVEL = ${level};"
   run_file "${database}" \
@@ -116,8 +123,10 @@ for marker in \
   "🐼" \
   "TBX-LINE-A" \
   "TBX-LINE-B"; do
-  grep -Fq "${marker}" <<<"${console_output}" \
-    || { echo "Console-Ausgabemarker fehlt: ${marker}" >&2; exit 1; }
+  if ! LC_ALL=C grep -Fq "${marker}" <<<"${console_output}"; then
+    echo "Console-Ausgabemarker fehlt: ${marker}" >&2
+    exit 1
+  fi
 done
 
 deploy_console "${database}" local
@@ -164,4 +173,4 @@ IF OBJECT_ID(N'toolbelt_metadata.VW_ModuleCapabilities') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_core.USP_WriteConsoleMessage') IS NOT NULL
     THROW 52949, N'Lokaler Uninstall ließ W2c-Objekte zurück.', 1;"
 
-echo "W2c SQL Server 2025 Linux (Compatibility 150/160/170): erfolgreich"
+echo "W2c SQL Server ${sql_version} (Compatibility ${compatibility_levels}): erfolgreich"

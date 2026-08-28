@@ -12,10 +12,16 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import hashlib
+import os
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+
+# Unter Windows erben Python-Unterprozesse sonst häufig die lokale OEM-/ANSI-
+# Codepage, während dieser Validator UTF-8 erwartet.
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]

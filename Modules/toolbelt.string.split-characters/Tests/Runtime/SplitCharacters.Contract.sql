@@ -202,21 +202,36 @@ BEGIN
     THROW 52609, N'NUL in der Separatorliste muss eine leere Ergebnismenge liefern.', 1;
 END;
 
+DECLARE @ActualSingleSeparator TABLE
+(
+      Value   nvarchar(max) NOT NULL
+    , Ordinal bigint        NOT NULL PRIMARY KEY
+);
+DECLARE @ActualDuplicateSeparators TABLE
+(
+      Value   nvarchar(max) NOT NULL
+    , Ordinal bigint        NOT NULL PRIMARY KEY
+);
+
+INSERT INTO @ActualSingleSeparator (Value, Ordinal)
+SELECT Value, Ordinal
+FROM toolbelt_string.TVF_SplitByCharacters(N'A,B', N',', 1);
+
+INSERT INTO @ActualDuplicateSeparators (Value, Ordinal)
+SELECT Value, Ordinal
+FROM toolbelt_string.TVF_SplitByCharacters(N'A,B', N',,,', 1);
+
 IF EXISTS
    (
-       SELECT Value, Ordinal
-       FROM toolbelt_string.TVF_SplitByCharacters(N'A,B', N',,,', 1)
+       SELECT Value, Ordinal FROM @ActualDuplicateSeparators
        EXCEPT
-       SELECT Value, Ordinal
-       FROM toolbelt_string.TVF_SplitByCharacters(N'A,B', N',', 1)
+       SELECT Value, Ordinal FROM @ActualSingleSeparator
    )
    OR EXISTS
       (
-          SELECT Value, Ordinal
-          FROM toolbelt_string.TVF_SplitByCharacters(N'A,B', N',', 1)
+          SELECT Value, Ordinal FROM @ActualSingleSeparator
           EXCEPT
-          SELECT Value, Ordinal
-          FROM toolbelt_string.TVF_SplitByCharacters(N'A,B', N',,,', 1)
+          SELECT Value, Ordinal FROM @ActualDuplicateSeparators
       )
 BEGIN
     THROW 52610, N'Doppelte Separatorzeichen dürfen das Ergebnis nicht ändern.', 1;

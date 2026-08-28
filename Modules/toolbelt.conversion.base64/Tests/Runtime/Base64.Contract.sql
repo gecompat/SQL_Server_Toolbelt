@@ -366,28 +366,31 @@ DECLARE
     , @NativeUrlSafe  varchar(max)
     , @NativeDecoded  varbinary(max);
 
-EXEC sys.sp_executesql
-      N'SELECT
-              @Standard = BASE64_ENCODE(@Value, 0),
-              @UrlSafe = BASE64_ENCODE(@Value, 1);'
-    , N'@Value varbinary(max), @Standard varchar(max) OUTPUT, @UrlSafe varchar(max) OUTPUT'
-    , @Value = @ReferenceValue
-    , @Standard = @NativeStandard OUTPUT
-    , @UrlSafe = @NativeUrlSafe OUTPUT;
-
-EXEC sys.sp_executesql
-      N'SELECT @Decoded = BASE64_DECODE(@Value);'
-    , N'@Value varchar(max), @Decoded varbinary(max) OUTPUT'
-    , @Value = @NativeUrlSafe
-    , @Decoded = @NativeDecoded OUTPUT;
-
-IF @NativeStandard <>
-       toolbelt_conversion.SVF_Base64Encode(@ReferenceValue, 0)
-   OR @NativeUrlSafe <>
-       toolbelt_conversion.SVF_Base64Encode(@ReferenceValue, 1)
-   OR @NativeDecoded <> @ReferenceValue
+IF TRY_CONVERT(int, SERVERPROPERTY('ProductMajorVersion')) >= 17
 BEGIN
-    THROW 52312, N'Die semantische Parität zum nativen SQL-Server-2025-Provider ist fehlgeschlagen.', 1;
+    EXEC sys.sp_executesql
+          N'SELECT
+                  @Standard = BASE64_ENCODE(@Value, 0),
+                  @UrlSafe = BASE64_ENCODE(@Value, 1);'
+        , N'@Value varbinary(max), @Standard varchar(max) OUTPUT, @UrlSafe varchar(max) OUTPUT'
+        , @Value = @ReferenceValue
+        , @Standard = @NativeStandard OUTPUT
+        , @UrlSafe = @NativeUrlSafe OUTPUT;
+
+    EXEC sys.sp_executesql
+          N'SELECT @Decoded = BASE64_DECODE(@Value);'
+        , N'@Value varchar(max), @Decoded varbinary(max) OUTPUT'
+        , @Value = @NativeUrlSafe
+        , @Decoded = @NativeDecoded OUTPUT;
+
+    IF @NativeStandard <>
+           toolbelt_conversion.SVF_Base64Encode(@ReferenceValue, 0)
+       OR @NativeUrlSafe <>
+           toolbelt_conversion.SVF_Base64Encode(@ReferenceValue, 1)
+       OR @NativeDecoded <> @ReferenceValue
+    BEGIN
+        THROW 52312, N'Die semantische Parität zum nativen SQL-Server-2025-Provider ist fehlgeschlagen.', 1;
+    END;
 END;
 
 PRINT N'Base64 Contract-Tests für Compatibility Level '

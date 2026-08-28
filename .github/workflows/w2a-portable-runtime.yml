@@ -62,4 +62,4 @@ jobs:
           Modules/toolbelt.binary.bit-operations/Tests/Static/validate_contract.py
       - env:
           TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
-        run: bash Tests/CI/run-w2a-linux.sh
+        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-w2a-linux.sh

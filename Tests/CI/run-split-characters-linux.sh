@@ -5,6 +5,13 @@ set -euo pipefail
 # Ausschließlich synthetische Datenbanken und ein flüchtiges, maskiertes
 # Testkennwort. Es wird nicht als Artefakt gespeichert.
 sql_image="${TBX_SQL_IMAGE:?TBX_SQL_IMAGE fehlt}"
+sql_version="${TBX_SQL_VERSION:-2025}"
+case "${sql_version}" in
+  2019) compatibility_levels="150"; max_compatibility_level="150" ;;
+  2022) compatibility_levels="160"; max_compatibility_level="160" ;;
+  2025) compatibility_levels="150 160 170"; max_compatibility_level="170" ;;
+  *) echo "Nicht unterstützte SQL-Version: ${sql_version}" >&2; exit 1 ;;
+esac
 container_name="tbx-split-characters-${GITHUB_RUN_ID:-local}"
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 
@@ -108,7 +115,7 @@ run_file "${local_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 
-for compatibility_level in 150 160 170; do
+for compatibility_level in ${compatibility_levels}; do
     # Der native Regex-Operator wird nur bei Level 170 dynamisch in einer
     # neuen Session kompiliert.
     run_query "${local_database}" \
@@ -126,7 +133,7 @@ run_file "${local_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 run_file "${local_database}" "${runtime_directory}" SplitCharacters.Contract.sql \
-    -v CompatibilityLevel=170
+    -v CompatibilityLevel="${max_compatibility_level}"
 
 central_database="tbx_split_characters_central"
 consumer_database="tbx_split_characters_consumer"
@@ -181,4 +188,4 @@ run_file "${local_database}" "${deployment_directory}" Uninstall.sql \
 run_query "${local_database}" \
     "IF OBJECT_ID(N'toolbelt_string.TVF_SplitByCharacters') IS NOT NULL THROW 52643, N'Uninstall ließ das Split-Release-Objekt zurück.', 1;"
 
-echo "Split-Characters SQL Server 2025 Linux (Compatibility 150/160/170): erfolgreich"
+echo "Split-Characters SQL Server ${sql_version} (Compatibility ${compatibility_levels}): erfolgreich"

@@ -42,4 +42,15 @@ for marker in (
 if "SELECT @Message" in source:
     raise SystemExit("Die Console-Procedure darf kein Payload-Resultset erzeugen.")
 
+runner = root.parents[1] / "Tests/CI/run-w2c-linux.sh"
+if not runner.is_file():
+    raise SystemExit("W2c-CI-Runner fehlt.")
+
+runner_text = runner.read_text("utf-8")
+if 'LC_ALL=C grep -Fq "${marker}"' not in runner_text:
+    raise SystemExit(
+        "Die W2c-Markerprüfung muss für Supplementary Characters "
+        "byteorientiert unter LC_ALL=C laufen."
+    )
+
 print("Console Message statische Vertragsprüfung: erfolgreich")

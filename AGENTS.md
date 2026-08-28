@@ -37,6 +37,17 @@ SQL Server Toolbelt liefert modulare, wiederverwendbare SQL-Server-Objekte für 
 
 Performance-, Konfigurations-, Diagnose- und Security-Analysen gehören in `gecompat/SQL_Server_Analyze` und werden hier nicht implementiert. Geeignete Ideen werden ausschließlich als Backlog-Input erfasst.
 
+## Lokale SQL-Server-Tests
+
+SQL-Server-Integrations- und Kompatibilitätstests sollen vorrangig die lokalen
+SQL_Server_Lab-Testumgebungen verwenden. Der Vertrag wird portabel über
+`SQL_SERVER_LAB_TEST_ENV_FILE` ermittelt; Fallback ist
+`SQL_SERVER_LAB_DATA_ROOT/Exports/TestUmgebung.json`. Vor Verwendung muss er
+gegen das danebenliegende Schema validiert werden und `groupStatus = READY`
+besitzen. Zugangsdaten oder vollständige Connection Strings dürfen nicht
+protokolliert, kopiert oder committed werden. Falls vorhanden, ist zusätzlich
+der Prompt aus `SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE` zu befolgen.
+
 ## Persönlicher Research-Input
 
 `Backlog/personal_Backlog_Bainstorm.md` ist ein vom Benutzer gepflegter Ideenpool. Vor jeder Backlog- oder Research-Aufgabe ist diese Datei als Hinweisquelle zu lesen und bei der Recherche zu berücksichtigen.
