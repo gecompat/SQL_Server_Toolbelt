@@ -275,17 +275,19 @@ run_sqlcmd() {
                 shift
                 ;;
             *)
-                rewritten_value="$(rewrite_test_database_names "$(map_workspace_path "$1")")"
-                if [[ "${sqlcmd_variable_mode}" == "1" &&
-                      "${rewritten_value}" == *=* ]]; then
-                    variable_name="${rewritten_value%%=*}"
-                    variable_value="${rewritten_value#*=}"
+                if [[ "${sqlcmd_variable_mode}" == "1" && "$1" == *=* ]]; then
+                    variable_name="${1%%=*}"
+                    variable_value="${1#*=}"
                     if [[ ! "${variable_name}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
                         echo "Ungültiger SQLCMD-Variablenname im Lab-Adapter." >&2
                         return 64
                     fi
+                    variable_value="$(rewrite_test_database_names \
+                        "$(map_workspace_path "${variable_value}")")"
                     export "${variable_name}=${variable_value}"
                 else
+                    rewritten_value="$(rewrite_test_database_names \
+                        "$(map_workspace_path "$1")")"
                     parsed+=("${rewritten_value}")
                 fi
                 shift

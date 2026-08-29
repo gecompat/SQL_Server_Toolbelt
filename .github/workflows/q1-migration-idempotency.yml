@@ -1,0 +1,57 @@
+name: Q1 Migration Idempotency
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/q1-migration-idempotency.yml"
+      - "Tests/CI/run-q1-migration-idempotency.sh"
+      - "Tests/Quality/MigrationIdempotency/**"
+      - "Documentation/Architecture/MIGRATION_IDEMPOTENCY_VERIFIER_DESIGN.md"
+      - "Modules/toolbelt.core.generate-series/Deployment/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/q1-migration-idempotency.yml"
+      - "Tests/CI/run-q1-migration-idempotency.sh"
+      - "Tests/Quality/MigrationIdempotency/**"
+      - "Documentation/Architecture/MIGRATION_IDEMPOTENCY_VERIFIER_DESIGN.md"
+      - "Modules/toolbelt.core.generate-series/Deployment/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: q1-migration-idempotency-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-contract:
+    name: Static contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 Tests/Quality/MigrationIdempotency/validate_contract.py
+
+  sql-server-linux:
+    name: SQL Server ${{ matrix.version }} Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - version: "2019"
+            image: "mcr.microsoft.com/mssql/server:2019-latest"
+          - version: "2022"
+            image: "mcr.microsoft.com/mssql/server:2022-latest"
+          - version: "2025"
+            image: "mcr.microsoft.com/mssql/server:2025-latest"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify repeat deploy and uninstall
+        env:
+          TBX_SQL_IMAGE: ${{ matrix.image }}
+          TBX_SQL_VERSION: ${{ matrix.version }}
+        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-q1-migration-idempotency.sh

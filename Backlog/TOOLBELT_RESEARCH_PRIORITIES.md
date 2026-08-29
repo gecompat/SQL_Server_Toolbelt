@@ -116,8 +116,10 @@ Diese Ideen bleiben in der Research-Inbox erhalten. Vor einer Höherstufung sind
 ## Nächste Ausführung
 
 Die nächste sinnvolle Reihenfolge ist `V0a`/`V0b`/`V0c` für belastbare
-Releaseevidenz, parallel höchstens ein Qualitäts-Enabler `Q1`, danach der
-kleine Nutzerslice `D1`. `R1` beginnt ausschließlich mit einem Regex-
+Releaseevidenz. Der eng begrenzte Qualitäts-Enabler `Q1` ist am 2026-08-29
+für dependency-freie zustandslose T-SQL-Module implementiert und auf SQL
+Server 2019/2022/2025 unter Linux und Windows erfolgreich geprüft. Danach
+folgt der kleine Nutzerslice `D1`. `R1` beginnt ausschließlich mit einem Regex-
 Semantik-/Provider-Spike. `E1` wird nur in den getrennten Queue-Slices
 Claim/Complete/Fail, Lease/Recovery, Retry/Dead Letter/Idempotenz und
 kooperative Cancellation besprochen.
