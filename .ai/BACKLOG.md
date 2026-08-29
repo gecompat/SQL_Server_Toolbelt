@@ -37,6 +37,21 @@ Die V0c-Kohorte umfasst verbindlich:
 `toolbelt.core.console-message` und
 `toolbelt.metadata.capability-catalog`.
 
+### Q1: Migration-Idempotency-Verifier V1
+
+| Feld | Wert |
+|---|---|
+| ID | `Q1`; konkretisiert `RI-2026-142`, keine neue sequenzielle `AP`-Referenz ohne reguläre Vergabe |
+| Ziel | Wiederholungsdeployment und wiederholtes Uninstall anhand des effektiven SQL-Katalogzustands prüfen, ohne eine öffentliche Runtime-Capability zu installieren. |
+| Scope | Repository-interner SQLCMD-Verifier für eine isolierte synthetische Datenbank und ein dependency-freies, zustandsloses T-SQL-Modul. V1 vergleicht Schemas, Objekte, Definitionen, Spalten, Parameter, Toolbelt-Properties und Berechtigungen; zwei unabhängige Uninstall-Sitzungen und eine Restzustandsprüfung schließen den Lauf ab. Referenzmodul ist `toolbelt.core.generate-series`. |
+| Priorität | `P1`; als einzelner Qualitäts-Enabler parallel zu V0 zulässig |
+| Status | `completed` für den deklarierten V1-Scope |
+| Alternativen | Vorhandene Lifecycle-Tests allein erkennen keine stille Katalogdrift; Source-Hashes bilden nicht den gesamten effektiven Katalog ab; ein dauerhaft installiertes Verifier-Modul würde den Prüfzustand selbst verändern. |
+| Risiken und Grenzen | V1 unterstützt keine Tabellen, Assemblies, persistente Zustandsdaten, Dependency-Installation, historischen Upgradepfade, Central-Consumer oder parallele Migrationen. Abweichende Database-/Catalog-Collations bleiben ein eigener Lifecycle-Scope. |
+| Tests | Statischer Contract, vollständiger Dokumentationsaudit und tatsächliche Q1-Runtime am 2026-08-29 auf SQL Server 2019, 2022 und 2025 jeweils unter Linux und Windows erfolgreich. Jeder Zieltest bestand erst nach Wiederholungsdeployment ohne Katalogdrift, zweimaligem Uninstall, leerer Restzustandsprüfung und erfolgreichem Entfernen seiner synthetischen Testdatenbank. |
+| Evidenz | `Documentation/Architecture/MIGRATION_IDEMPOTENCY_VERIFIER_DESIGN.md`, `Tests/Quality/MigrationIdempotency/`, `Tests/CI/run-q1-migration-idempotency.sh` und `.github/workflows/q1-migration-idempotency.yml`; lokale SQL_Server_Lab-Matrix mit ausschließlich abstrahierter Evidenz. Keine Hosts, Credentials, Datenbanknamen, konkreten Buildnummern, Laufzeiten oder vollständigen Logs übernommen. |
+| Nächster Schritt | Q1 V1 stabil halten. Tabellen-/Zustands-, Upgrade-, Central- und Parallelitäts-Slices nur bei eigenem nachgewiesenem Bedarf erweitern; Golden Snapshots und Contract-Test-Generierung bleiben zurückgestellt. |
+
 ### D1: Date Spine V1 als nächste nutzerorientierte Funktionswelle
 
 | Feld | Wert |
@@ -51,7 +66,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Risiken | Grenz- und Inclusivity-Semantik, `DATEFIRST`-/Sprachabhängigkeit, ISO-Wochenbezug, Ergebnisgröße, Datentypen und ein unnötig breiter Kalendervertrag. |
 | Vor Implementierung festzulegen | Öffentliche Oberfläche und Resultset; inklusive beziehungsweise exklusive Endgrenze; Verhalten bei umgekehrten oder leeren Bereichen; Wochenanfang und ISO-Bezug; Zeilenlimit; Fehler- und `NULL`-Semantik. |
 | Benutzerauftrag | Am 2026-08-29 wurde angeordnet, die auf `origin/main` verankerte Auswahl zu vervollständigen und danach solche Funktionen autonom zu implementieren, deren Vertrag keine weitere Abstimmung benötigt. Dieser Auftrag ersetzt keine noch offene funktionsbezogene Vertragsentscheidung. |
-| Nächster Schritt | Zuerst den eng begrenzten `Q1`-Migration-Idempotency-Verifier spezifizieren. Danach den vollständigen D1-V1-Vertrag besprechen und ausdrücklich freigeben; erst anschließend Runtime-Objekte erzeugen. |
+| Nächster Schritt | `Q1` V1 ist abgeschlossen. Als nächstes den vollständigen D1-V1-Vertrag besprechen und ausdrücklich freigeben; erst anschließend Runtime-Objekte erzeugen. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
