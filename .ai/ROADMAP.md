@@ -518,13 +518,21 @@ Kalenderdimensionen bleiben außerhalb von V1.
 
 ### Phase 4.4 – R1 Regex V1
 
-**Status:** `proposed`; Research- und Provider-Gate offen
+**Status:** `R1a research completed`; Provider- und Implementierungs-Gate offen
 
-Vor Code wird die RE2-Semantik der stabilen SQL-Server-2025-Regexfunktionen
-gegen einen portablen Provider geprüft. Ein erster fachlicher Slice soll nur
-`LIKE`, `INSTR` und `COUNT` umfassen; Replace, Substring, Split und Matches
-bleiben getrennte Erweiterungen. Fuzzy Matching und JSON-Aggregate bleiben
-wegen Previewstatus zurückgestellt.
+R1a hat die native SQL-Server-2025-RE2-Semantik und die Provideroptionen ohne
+Runtime-API geprüft. `REGEXP_INSTR` und `REGEXP_COUNT` sind auf der physischen
+2025-Linux-Engine unter Compatibility 150/160/170 erfolgreich;
+`REGEXP_LIKE` benötigt 170. Der .NET-Framework-4.8-Regexkern ist wegen
+Semantikabweichungen und Backtracking kein Paritätsprovider. Native
+RE2-Wrapper benötigen plattformspezifischen nativen Code und scheitern am
+portablen `SAFE`-/Linux-Gate. Deshalb ist kein Runtime-Provider ausgewählt.
+
+Vor Code ist mit dem Benutzer zwischen exakter RE2-Parität, einem ausdrücklich
+engeren Toolbelt-Dialekt und einer reinen SQL-Server-2025-Fassade zu wählen.
+Ein möglicher erster fachlicher Slice bleibt auf `LIKE`, `INSTR` und `COUNT`
+begrenzt; Replace, Substring, Split und Matches bleiben getrennte
+Erweiterungen. Fuzzy Matching bleibt zurückgestellt.
 
 ### Phase 4.5 – E1 Work Queue in vertikalen Slices
 

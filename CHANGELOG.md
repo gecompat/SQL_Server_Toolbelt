@@ -144,6 +144,13 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Geändert
 
+- R1a dokumentiert und reproduziert die native SQL-Server-2025-RE2-Semantik
+  für einen möglichen `LIKE`-/`INSTR`-/`COUNT`-Slice. Der Spike nimmt keine
+  Dependency und keine Runtime-API auf: .NET Framework 4.8 ist semantisch
+  nicht RE2-paritätisch, native RE2-Wrapper verletzen das portable
+  `SAFE`-/Linux-Gate. Die Implementierung bleibt bis zur Richtungs- und
+  Vertragsfreigabe gesperrt.
+
 - W4a implementiert: `toolbelt.core.error-envelope` standardisiert explizite CATCH-Daten ohne Rethrow- oder Logging-Seiteneffekt.
 - W4a implementiert: `toolbelt.core.execution-context` stellt Begin/Set/End, inline TVF und SVF-Wrapper über `SESSION_CONTEXT` bereit.
 - Beide Module auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich Lifecycle, Central und Sessionisolation validiert (https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948).

@@ -27,6 +27,14 @@ SQL-Anmeldungs-Preflight nicht erreichbar; die Windows-Runtime blieb daher
 `toolbelt.json.path-exists` ist dort einschließlich nativer Parität,
 Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
 erfolgreich.
+
+Der R1a-Research-Slice unter [`Research/Regex`](./Research/Regex/README.md)
+vergleicht die native SQL-Server-2025-RE2-Semantik reproduzierbar mit .NET
+Framework 4.8. Er erzeugt kein Modul und keine öffentliche Runtime-API. Die
+native Linux-2025-Matrix unter Compatibility 150/160/170 und der lokale
+.NET-Framework-Harness sind erfolgreich; Windows-SQL-Runtime ist
+`not executed`.
+
 Die W2c-Module sind dort einschließlich Langtext-/Unicode-, Marker-/Drift-,
 Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
 erfolgreich.

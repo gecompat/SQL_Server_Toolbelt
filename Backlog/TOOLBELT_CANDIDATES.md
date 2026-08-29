@@ -226,15 +226,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Ja: SQL Server 2025 mit RE2-basierter Implementierung. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Wiederverwendbare Validierung, Suche, Extraktion, Ersetzung und Tokenisierung ohne externe Anwendungsschicht. |
-| **Mögliche Technologie** | SQL CLR ist wahrscheinlich geeigneter als reines T-SQL. .NET Regex ist nicht automatisch semantisch identisch zu RE2; ein exakter Kompatibilitätsanspruch benötigt bewusste Syntaxgrenze oder geprüften RE2-Provider. |
+| **Mögliche Technologie** | R1a hat drei verbleibende Richtungen identifiziert: exakter externer/native RE2-Provider, enger eigener Toolbelt-Dialekt auf .NET Framework mit Parser/Transformationen/Timeout oder reine SQL-Server-2025-Fassade. Der eingebaute .NET-Regexkern ist kein RE2-Paritätsprovider; native RE2-Wrapper sind nicht portabel als `SAFE`-SQL-CLR. |
 | **Performance und Security** | Pattern-Limits, ReDoS-Risiken, Timeout, Speicherverbrauch und LOB-Grenzen definieren. Native SQL-Server-2025-Regex folgt nicht der sprachlichen Collation-Semantik. Parallelitätsfähigkeit und Streaming für TVFs prüfen. |
 | **Plattformgrenzen** | `SAFE`-fähigen CLR-Kern und Linux-Verhalten prüfen; Windows-only-Provider nur bei messbarem Vorteil. |
-| **Dependencies** | CLR-Trust- und Portabilitätsregeln; möglicher Nutzen für TC-2026-001. |
+| **Dependencies** | Vor jeder Implementierung Provider-/Semantikentscheidung, CLR-Trust- und Portabilitätsregeln sowie ein eigener öffentlicher Vertrag; möglicher Nutzen für TC-2026-001 bleibt getrennt. R1a hat keine Drittanbieter-Dependency aufgenommen. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; TC-2026-001 ist ein engerer Split-Vertrag. |
-| **Status** | `researched`; Vertrags- und Providerentscheidung offen |
-| **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/regular-expressions/overview?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-split-to-table-transact-sql?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Zuerst RE2-Semantik und Limits der stabilen SQL-Server-2025-Funktionen gegen einen portablen Provider spiken; danach einen kleinen V1-Slice aus `LIKE`, `INSTR` und `COUNT` fachlich besprechen. Keine Implementierungsfreigabe aus dieser Priorisierung ableiten. |
+| **Status** | `researched`; R1a-Semantik-/Provider-Spike abgeschlossen, kein Runtime-Provider ausgewählt oder freigegeben |
+| **Primärquellen** | [R1a Research-Ergebnis](../Documentation/Research/REGEX_SEMANTICS_PROVIDER_SPIKE.md)<br>https://learn.microsoft.com/en-us/sql/relational-databases/regular-expressions/overview?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-like-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-instr-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-count-transact-sql?view=sql-server-ver17<br>https://github.com/google/re2 |
+| **Prüfdatum** | 2026-08-30 |
+| **Nächster Schritt** | Mit dem Benutzer zwischen exakter RE2-Parität, ausdrücklich engerem Toolbelt-Dialekt oder SQL-Server-2025-Fassade wählen. Danach den konkreten V1-Slice aus `LIKE`, `INSTR` und `COUNT` vollständig besprechen und ausdrücklich freigeben. |
 
 ## TC-2026-011: Fuzzy String Matching für SQL Server 2019/2022
 

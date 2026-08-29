@@ -1,0 +1,56 @@
+name: Regex Provider Spike
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/regex-provider-spike.yml"
+      - "Tests/Research/Regex/*.sql"
+      - "Tests/Research/Regex/*.cs"
+      - "Tests/Research/Regex/*.py"
+      - "Tests/Research/Regex/*.ps1"
+      - "Tests/Research/Regex/*.sh"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/regex-provider-spike.yml"
+      - "Tests/Research/Regex/*.sql"
+      - "Tests/Research/Regex/*.cs"
+      - "Tests/Research/Regex/*.py"
+      - "Tests/Research/Regex/*.ps1"
+      - "Tests/Research/Regex/*.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: regex-provider-spike-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: Research contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 Tests/Research/Regex/validate_research.py
+
+  dotnet-framework:
+    name: .NET Framework 4.8 semantics
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - shell: pwsh
+        run: pwsh Tests/Research/Regex/run-dotnet48-semantics.ps1
+
+  sql-server-2025:
+    name: SQL Server 2025 native semantics
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          TBX_SQL_VERSION: "2025"
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+        run: bash Tests/CI/run-lab-target.sh Tests/Research/Regex/run-sqlserver-2025.sh
