@@ -1024,6 +1024,23 @@ def validate_date_spine_runtime_workflow_scope() -> None:
             )
 
 
+def validate_regex_research_workflow_scope() -> None:
+    workflow = read(
+        REPOSITORY_ROOT / ".github" / "workflows" / "regex-provider-spike.yml"
+    )
+    for marker in (
+        '"Documentation/Research/**"',
+        '"Documentation/Research/REGEX_SEMANTICS_PROVIDER_SPIKE.md"',
+        '"Tests/Research/Regex/**"',
+        '"Tests/Research/Regex/*.md"',
+    ):
+        if marker in workflow:
+            raise ValidationError(
+                "Regex-Provider-Spike-Runtime wird durch reine Dokumentation "
+                f"ausgelöst: {marker}"
+            )
+
+
 def validate_w2b_json_path_runtime_workflow_scope() -> None:
     workflow = read(
         REPOSITORY_ROOT
@@ -1158,6 +1175,29 @@ def run_date_spine_static() -> None:
     if result.returncode != 0:
         raise ValidationError(
             "Statische Date-Spine-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
+def run_regex_research_static() -> None:
+    script = (
+        REPOSITORY_ROOT
+        / "Tests"
+        / "Research"
+        / "Regex"
+        / "validate_research.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)),
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische Regex-Research-Prüfung fehlgeschlagen:\n"
             f"{result.stdout}{result.stderr}"
         )
 
@@ -1380,6 +1420,10 @@ def main() -> int:
         validate_date_spine_runtime_workflow_scope()
     if "date_spine_static" in checks:
         run_date_spine_static()
+    if "regex_research_workflow_scope" in checks:
+        validate_regex_research_workflow_scope()
+    if "regex_research_static" in checks:
+        run_regex_research_static()
     if "identifier_runtime_workflow_scope" in checks:
         validate_identifier_runtime_workflow_scope()
     if "identifier_static" in checks:

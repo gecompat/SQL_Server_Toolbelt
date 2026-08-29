@@ -95,7 +95,7 @@ benötigen.
 | Kandidatenfamilie | Beispiele | Komplexität | Grund für später |
 |---|---|---:|---|
 | DDL- und Migrationsframework | `TC-2026-044`, `RI-2026-002` bis `RI-2026-004`, `RI-2026-010`, `RI-2026-012` | `L–XL` | Dependency-Auflösung, sichere DDL-Erzeugung, Drift und Destruktivität greifen ineinander. |
-| Regex, Fuzzy Matching und vollständige Unicode-Verarbeitung | `TC-2026-010`, `TC-2026-011`, `RI-2026-021` bis `RI-2026-030` | `L–XL` | Große Semantik-, Datenversions-, Performance- und Providerfläche. |
+| Regex, Fuzzy Matching und vollständige Unicode-Verarbeitung | `TC-2026-010`, `TC-2026-011`, `RI-2026-021` bis `RI-2026-030` | `L–XL` | R1a bestätigt die große Semantik-, Performance- und Providerfläche: kein portabler RE2-Paritätsprovider für SQL Server 2019/2022 ausgewählt. |
 | Breite JSON-/XML-Schemata und Patch-Systeme | `RI-2026-042` bis `RI-2026-054` | `L–XL` | Standards sind umfangreich; mehrere Funktionen bauen auf kleinen Kernen wie JSON Pointer auf. |
 | Execution- und Host-Plattform | `TC-2026-014` bis `TC-2026-022`, `TC-2026-025` bis `TC-2026-028`, `TC-2026-046`, `RI-2026-143` bis `RI-2026-150` | `XL` | Security, Secrets, Queues, Recovery, externe Laufzeiten und Betriebsverantwortung. |
 | Dateien, Archive, Office und analytische Bridges | `TC-2026-033` bis `TC-2026-038`, `TC-2026-045`, verbleibend `RI-2026-109` bis `RI-2026-124` | `L–XL` | Rechte, Plattformen, Streaming, Parser, Lizenzen und untrusted input. |
@@ -119,8 +119,10 @@ Die nächste sinnvolle Reihenfolge ist `V0a`/`V0b`/`V0c` für belastbare
 Releaseevidenz. Der eng begrenzte Qualitäts-Enabler `Q1` ist am 2026-08-29
 für dependency-freie zustandslose T-SQL-Module implementiert und auf SQL
 Server 2019/2022/2025 unter Linux und Windows erfolgreich geprüft. Danach
-folgt der kleine Nutzerslice `D1`. `R1` beginnt ausschließlich mit einem Regex-
-Semantik-/Provider-Spike. `E1` wird nur in den getrennten Queue-Slices
+folgte der kleine Nutzerslice `D1`. `R1a` hat den Regex-Semantik-/Provider-
+Spike ohne Runtime-API abgeschlossen; eine Implementierung wartet auf die
+Provider-/Semantikentscheidung und einen eigenen freigegebenen Vertrag. `E1`
+wird nur in den getrennten Queue-Slices
 Claim/Complete/Fail, Lease/Recovery, Retry/Dead Letter/Idempotenz und
 kooperative Cancellation besprochen.
 

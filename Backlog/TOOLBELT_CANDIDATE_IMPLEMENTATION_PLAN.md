@@ -83,7 +83,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 | `W8` | `completed` für ZIP Memory; Rest `researched` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | `toolbelt.archive.zip-memory` Version `1.2.0` enthält Extraktion und Listing. Windows-Runtime, ZIP-Erzeugung, vollständige Dateisystemextraktion und XLSX bleiben ohne Implementierungsfreigabe offen. |
 | `Q1` | `completed` für V1 | Lifecycle- und Upgrade-Automation | `RI-2026-142`; weitere Manifest-/Snapshot-Slices zurückgestellt | V1 auf isolierte dependency-freie zustandslose T-SQL-Module begrenzt | Kataloggenauer Wiederholungsdeploy, zwei unabhängige Uninstalls und Restzustandsprüfung sind auf SQL Server 2019/2022/2025 unter Linux und Windows erfolgreich. |
 | `D1` | `implemented`; Runtime `partially validated` | Date Spine V1 | `RI-2026-079` auf Basis von `006` und `004` | Vertrag am 2026-08-30 besprochen und ausdrücklich freigegeben | Drei portable Inline TVFs für Tag, ISO-Woche und Monat; Linux 2019/2022/2025 erfolgreich, Windows-Preflight derzeit nicht erreichbar. |
-| `R1` | `proposed` | Regex V1 | `010` | RE2-Semantikspike, Limits und kleiner Funktionsslice besprechen | Zuerst `LIKE`, `INSTR`, `COUNT`; Replace/Substring/Split/Matches getrennt später. |
+| `R1` | `R1a research completed`; Runtime-Gate offen | Regex V1 | `010` | Provider-/Semantikrichtung wählen und kleinen Funktionsslice besprechen | Kein portabler RE2-Paritätsprovider nachgewiesen; zuerst zwischen exakter RE2-Parität, engem Toolbelt-Dialekt und 2025-only-Fassade wählen. `LIKE`, `INSTR`, `COUNT` bleiben der mögliche erste Slice. |
 | `R2025` | `proposed research` | SQL-Server-2025-GA-Delta | UNISTR, PRODUCT, DATEADD bigint, Vector-Scalar-Funktionen | Aktuellen GA-/Preview-Status aus Primärquellen bestätigen | Nur Deduplizierung und Kandidatenbewertung; keine Implementierung. |
 | `W9` | `researched` | Deterministische Pseudonymisierungsprimitive | `040`, `039`, `041`, `042`, `043` | Key-/Seed-, Kanonisierungs- und Datenschutzvertrag | Range-Primitive zuerst; darauf Lookup, Translation, Date Shift und Geo Jitter. |
 | `W10` | `researched` | Kontrolliertes DDL-Klonen | `044` | Identifier-Modul vorhanden; unterstützte Objektmenge festgelegt | Zuerst nur geprüftes Script, später optional getrennte Ausführung. |
@@ -112,8 +112,10 @@ Welle.
 Der D1-Vertrag wurde am 2026-08-30 mit halboffenen Grenzen, leerer Menge für
 `NULL` sowie leere oder umgekehrte Bereiche, Montag-basierter ISO-Woche,
 nullbasiertem Ordinal und ohne künstliches Schutzlimit festgelegt und danach
-ausdrücklich freigegeben. `R1` beginnt weiterhin nur als
-Semantik-/Provider-Spike. `E1` bleibt in Claim/Complete/Fail, Lease/Recovery,
+ausdrücklich freigegeben. `R1a` hat den Semantik-/Provider-Spike ohne
+Runtime-API abgeschlossen; mangels portablem RE2-Paritätsprovider bleibt die
+Implementierung bis zu einer Richtungs- und Vertragsentscheidung gesperrt.
+`E1` bleibt in Claim/Complete/Fail, Lease/Recovery,
 Retry/Dead Letter/Idempotenz und kooperative Cancellation getrennt.
 
 ## Objekt- und Modulplan
