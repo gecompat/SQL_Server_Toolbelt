@@ -1,5 +1,9 @@
 # Contract-Testmatrix: Bigint Bit Operations
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 | Bereich | Pflichtfälle |
 |---|---|
 | Shift | links, rechts, negativ, `0`, `63`, `64`, größere Beträge, bigint-Min/Max |

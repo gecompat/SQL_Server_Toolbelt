@@ -1,5 +1,9 @@
 # CI-Testadapter
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 Dieses Verzeichnis enthält schlanke Adapter für GitHub-hosted Testläufe. Die fachlichen SQL-Tests verbleiben in den jeweiligen Modulverzeichnissen.
 
 `run-result-table-linux.sh` startet für den ResultTable-Vertrag einen offiziellen SQL-Server-Linux-Container, erzeugt ausschließlich synthetische Testdatenbanken und ruft die kanonischen Deploy-, Runtime- und Uninstall-Artefakte auf.
@@ -57,24 +61,32 @@ Discovery-Reihenfolge:
 
 `SQL_SERVER_LAB_TEST_ENV_SCHEMA_FILE` kann das standardmäßig danebenliegende
 `TestUmgebung.schema.json` überschreiben. Der Vertrag wird vor jeder Verwendung
-gegen dieses Schema validiert; nur `groupStatus = READY` und Einträge mit
-`status = READY` werden verwendet. Ein gegebenenfalls über
-`SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE` bereitgestellter Zusatzvertrag ist
-ebenfalls zu beachten. Laufwerks-, Home- oder Repositorysuche sowie feste
-Lab-Pfade sind ausgeschlossen.
+gegen dieses Schema validiert. Bei `groupStatus = READY` werden nur Einträge
+mit `status = READY` verwendet. Der projektspezifische Override vom 2026-08-29
+erlaubt bei `groupStatus = INCOMPLETE` außerdem explizit ausgewählte Einträge
+mit `runtimeStatus = READY` und `status = READY` beziehungsweise
+`GROUP_INCOMPLETE`. `groupStatus = EMPTY` sowie nicht einzeln bereite Ziele
+bleiben ausgeschlossen. Diese engere Einzelzielfreigabe hat für dieses
+Repository Vorrang vor einer widersprechenden gruppenweiten READY-Klausel in
+einem über `SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE` bereitgestellten
+Zusatzvertrag; dessen übrige Regeln sind weiterhin zu beachten. Laufwerks-,
+Home- oder Repositorysuche sowie feste Lab-Pfade sind ausgeschlossen.
 
 Beispielaufrufe:
 
 ```powershell
 pwsh Tests/CI/run-lab-local.ps1
+pwsh Tests/CI/run-lab-local.ps1 -Platforms linux -Versions 2019,2022,2025 -LinuxPatches latest -TestSuite full
 pwsh Tests/CI/run-lab-local.ps1 -Platforms linux,windows -Versions 2019,2022,2025 -LinuxPatches latest -WindowsPatches base -TestSuite full
 pwsh Tests/CI/run-lab-local.ps1 -RunScripts run-zip-memory-linux.sh
 ```
 
 Die Matrix selektiert explizit nach `platform`, `sqlVersion` und `patch` und
-verwendet alle passenden READY-Einträge. Fehlt ein Ziel, wird dieser Scope als
-nicht ausgeführt behandelt; ein Wechsel auf eine andere Zielkombination findet
-nicht statt.
+verwendet alle nach dem obigen Gruppen- und Einzelzielvertrag zulässigen
+Einträge. Fehlt ein Ziel oder ist sein eigener Runtime-Status nicht `READY`,
+wird dieser Scope als nicht ausgeführt behandelt; ein Wechsel auf eine andere
+Zielkombination findet nicht statt. Der Adapter startet oder repariert keine
+Lab-Ressource.
 
 Wichtige Anpassungen:
 

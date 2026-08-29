@@ -134,3 +134,7 @@ validation_evidence:
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453"
     scope: "Version 1.2.0; Windows-.NET-Framework-4.8-Build; SQL Server 2019 Linux/Compatibility 150; SQL Server 2022 Linux/Compatibility 160; SQL Server 2025 Linux/Compatibility 150, 160 und 170; ZIP-Extraktion und Metadaten-Listing, UTF-8/CP437, Data Descriptor, Duplicate-/Encryption-/Method-/Directory-/Pfad-/Zeitstatus, Struktur-/ZIP64-/Multi-Disk-/Limitfehler, direkte Ausgabe, ResultTable, Upgrade-Marker 1.1.0 auf 1.2.0, Wiederholungsdeployment, Central und Uninstall"
     result: "success"
+  - date: "2026-08-29"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Lokales SQL_Server_Lab; reproduzierbar neu gebautes und per exaktem SHA2-512 autorisiertes Releaseartefakt; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter"
+    result: "success"

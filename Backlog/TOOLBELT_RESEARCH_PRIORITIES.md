@@ -35,7 +35,7 @@ Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
 | Reihenfolge | Kandidat | Komplexität | Begründung |
 |---:|---|---:|---|
 | 1 | `TC-2026-003` – ResultTable-Routing | `L` | Implementiertes Kernmodul; offene Windows-, Recovery- und Performancefälle bleiben eine getrennte Releasevalidierung und blockieren fachlich unabhängige Module nicht. |
-| 2 | `TC-2026-012` – Base64/Base64URL | `M` | Implementiert und auf SQL Server 2025 Linux teilweise validiert; physische 2019-/2022- und Windows-Läufe bleiben Releaseaufgabe. |
+| 2 | `TC-2026-012` – Base64/Base64URL | `M` | Implementiert und auf physischen SQL-Server-2019-/2022-/2025-Linux-Zielen teilweise validiert; Windows-Läufe bleiben Releaseaufgabe. |
 | 3 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
 | 4 | `TC-2026-029` – Identifier- und Multipart-Name-Toolkit | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
 | 5 | `TC-2026-001` – Split mit mehreren einzelnen Trennzeichen | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert; breitere Quote-/Escape-Stufe bleibt getrennt. |

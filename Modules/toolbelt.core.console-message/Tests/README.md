@@ -1,5 +1,9 @@
 # Tests – Console Message
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 Alle Testpayloads sind synthetisch.
 
 `ConsoleMessage.Contract.sql` prüft API, Help, NULL-/Leertext und beide
@@ -14,5 +18,6 @@ Aktueller Runtime-Status: `partially validated`.
 war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich.
 
-Physische SQL-Server-2019-/2022- und Windows-Läufe sowie unterschiedliche
-Clients und Treiber bleiben getrennte Pflichtprüfungen.
+Der vollständige Adapter ist seit 2026-08-29 zusätzlich auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Windows-Läufe sowie
+unterschiedliche Clients und Treiber bleiben getrennte Pflichtprüfungen.

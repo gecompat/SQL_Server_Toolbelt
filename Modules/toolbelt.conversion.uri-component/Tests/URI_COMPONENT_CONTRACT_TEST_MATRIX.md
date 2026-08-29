@@ -1,5 +1,9 @@
 # URI Component Contract-Testmatrix
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 | Bereich | Synthetische Fälle | Status |
 |---|---|---|
 | RFC | unreserved, reserved, Leerzeichen und `%HH` in Großbuchstaben | Kernfälle erfolgreich; vollständige Zeichentabelle `not executed` |

@@ -1,5 +1,9 @@
 # Result Table Infrastructure
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 ## Status
 
 | Feld | Wert |
@@ -66,6 +70,10 @@ sqlcmd -S <server> -d <toolbelt-database> -E -b -i Uninstall.sql -v ConfirmNoExt
 Die Platzhalter sind absichtlich generisch. Keine Credentials oder realen Infrastrukturwerte werden im Repository gespeichert.
 
 ## Wesentliche Grenzen
+
+Der vollständige Moduladapter war am 2026-08-29 auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Windows- und
+modulspezifische Hochrisikofälle bleiben Releasevalidierung.
 
 - Ziel ist ausschließlich eine bereits sichtbare lokale Temp-Tabelle.
 - Schemaquelle ist eine lokale Temp-Tabelle oder eine zwei-/dreiteilig benannte reguläre Tabelle.

@@ -85,8 +85,8 @@ function Resolve-LabContract {
     }
 
     $contract = $json | ConvertFrom-Json
-    if ([string]$contract.groupStatus -cne 'READY') {
-        throw 'Die SQL_Server_Lab-Gruppe ist nicht READY.'
+    if ([string]$contract.groupStatus -cnotin @('READY', 'INCOMPLETE')) {
+        throw 'Die SQL_Server_Lab-Gruppe ist weder READY noch für einzeln bereite Ziele verwendbar.'
     }
 
     return [PSCustomObject]@{
@@ -249,11 +249,30 @@ foreach ($platform in $Platforms) {
     }
 }
 
+function Test-LabTargetReady {
+    param(
+        [Parameter(Mandatory)]$Contract,
+        [Parameter(Mandatory)]$Entry
+    )
+
+    if ([string]$Contract.groupStatus -ceq 'READY') {
+        return [string]$Entry.status -ceq 'READY'
+    }
+
+    # Ein INCOMPLETE-Gruppenstatus darf ein explizit ausgewähltes, tatsächlich
+    # bereites Einzelziel nicht verdecken. Andere Eintragsstatus bleiben
+    # ausgeschlossen, damit Providerfehler nicht als Gruppenfehler umgedeutet
+    # werden.
+    return [string]$Contract.groupStatus -ceq 'INCOMPLETE' -and
+        [string]$Entry.runtimeStatus -ceq 'READY' -and
+        [string]$Entry.status -cin @('READY', 'GROUP_INCOMPLETE')
+}
+
 $targets = [System.Collections.Generic.List[object]]::new()
 $missingSelectors = [System.Collections.Generic.List[string]]::new()
 foreach ($selector in $requestedSelectors) {
     $matches = @($lab.Contract.environments | Where-Object {
-        [string]$_.status -ceq 'READY' -and
+        (Test-LabTargetReady -Contract $lab.Contract -Entry $_) -and
         [string]$_.platform -ceq [string]$selector.Platform -and
         [string]$_.sqlVersion -ceq [string]$selector.Version -and
         [string]$_.patch -ceq [string]$selector.Patch
@@ -271,7 +290,7 @@ foreach ($selector in $requestedSelectors) {
 }
 
 if ($missingSelectors.Count -gt 0) {
-    throw ('Keine passenden READY-Ziele vorhanden: {0}' -f
+    throw ('Keine passenden einzeln bereiten Ziele vorhanden: {0}' -f
         ($missingSelectors -join ', '))
 }
 
