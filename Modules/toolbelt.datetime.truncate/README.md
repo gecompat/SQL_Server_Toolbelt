@@ -1,5 +1,9 @@
 # toolbelt.datetime.truncate
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 Portabler, typstabiler Teilvertrag von `DATETRUNC` für SQL Server 2019, 2022
 und 2025.
 
@@ -44,6 +48,10 @@ Lokale und zentrale Installation werden unterstützt. Zentrale Deinstallation
 erfordert `ConfirmNoExternalConsumers=1`.
 
 ## Dokumentation
+
+Der vollständige Moduladapter war am 2026-08-29 auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Windows-Läufe
+bleiben Releasevalidierung.
 
 - [Moduldesign](../../Documentation/Architecture/DATETIME_TRUNCATE_MODULE_DESIGN.md)
 - [Contract-Testmatrix](./Tests/DATETIME_TRUNCATE_CONTRACT_TEST_MATRIX.md)

@@ -4,4 +4,6 @@ Statischer Vertrag sowie SQL Server 2025 Linux mit Compatibility Levels 150, 160
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410
 
-Windows und physische SQL-Server-2019-/2022-Releaseprüfungen bleiben `not executed`.
+Der lokale physische Linux-Lauf vom 2026-08-29 war auf SQL Server 2025
+erfolgreich, scheiterte aber auf SQL Server 2019 und 2022 im gemeinsamen
+W5-Vertrag. Windows-Läufe bleiben `not executed`.

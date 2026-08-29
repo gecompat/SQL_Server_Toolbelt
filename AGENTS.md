@@ -43,10 +43,20 @@ SQL-Server-Integrations- und Kompatibilitätstests sollen vorrangig die lokalen
 SQL_Server_Lab-Testumgebungen verwenden. Der Vertrag wird portabel über
 `SQL_SERVER_LAB_TEST_ENV_FILE` ermittelt; Fallback ist
 `SQL_SERVER_LAB_DATA_ROOT/Exports/TestUmgebung.json`. Vor Verwendung muss er
-gegen das danebenliegende Schema validiert werden und `groupStatus = READY`
-besitzen. Zugangsdaten oder vollständige Connection Strings dürfen nicht
-protokolliert, kopiert oder committed werden. Falls vorhanden, ist zusätzlich
-der Prompt aus `SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE` zu befolgen.
+gegen das danebenliegende Schema validiert werden. Regulär wird eine Gruppe
+mit `groupStatus = READY` verwendet. Aufgrund der ausdrücklichen
+Benutzerfreigabe vom 2026-08-29 dürfen aus einer Gruppe mit
+`groupStatus = INCOMPLETE` einzelne, explizit nach Plattform, SQL-Version und
+Patch ausgewählte Systeme verwendet werden, wenn ihr `runtimeStatus` exakt
+`READY` und ihr `status` entweder `READY` oder `GROUP_INCOMPLETE` ist.
+`groupStatus = EMPTY`, gestoppte Einzelziele, implizite Ersatzwahl und ein
+automatischer Provider-Fallback bleiben ausgeschlossen. Dieser
+projektspezifische Override hat für dieses Repository Vorrang vor einer
+widersprechenden gruppenweiten READY-Klausel im Zusatzprompt. Das Projekt
+startet, repariert oder löscht keine Lab-Ressourcen selbst. Zugangsdaten oder
+vollständige Connection Strings dürfen nicht protokolliert, kopiert oder
+committed werden. Falls vorhanden, ist der übrige Prompt aus
+`SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE` zu befolgen.
 
 ## Persönlicher Research-Input
 

@@ -1,5 +1,9 @@
 # Semantic-Version Tests
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 Runtime: `partially validated`.
 
 Parser-, Präzedenz-, Build-Metadata-, Overflow-, Sort-Key-, Deployment-,
@@ -11,5 +15,6 @@ https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984
 SQL Server 2025 Linux war mit Compatibility Levels 150, 160 und 170
 erfolgreich. Geprüft wurden Version `1.1.0`, Inline-TVF-/SVF-Parität,
 `OUTER APPLY`, Präzedenz, Sort Key, Upgrade, Wiederholungsdeployment,
-Kollision, lokale und zentrale Nutzung sowie Uninstall. Physische
-SQL-Server-2019-/2022- und Windows-Läufe bleiben `not executed`.
+Kollision, lokale und zentrale Nutzung sowie Uninstall. Der vollständige
+Adapter ist seit 2026-08-29 auf physischen SQL-Server-2019-, 2022- und
+2025-Linux-Zielen erfolgreich; Windows-Läufe bleiben `not executed`.

@@ -1,5 +1,9 @@
 # toolbelt.binary.bit-operations
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 Portabler `bigint`-Backport der SQL-Server-2022-Bitfunktionen für SQL Server
 2019, 2022 und 2025.
 
@@ -34,6 +38,10 @@ sqlcmd -S <server> -d <database> -i Deploy.sql -v DeploymentMode=local
 ```
 
 ## Dokumentation
+
+Der vollständige Moduladapter war am 2026-08-29 auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Windows-Läufe
+bleiben Releasevalidierung.
 
 - [Moduldesign](../../Documentation/Architecture/BIT_OPERATIONS_MODULE_DESIGN.md)
 - [Contract-Testmatrix](./Tests/BIT_OPERATIONS_CONTRACT_TEST_MATRIX.md)

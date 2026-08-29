@@ -13,17 +13,17 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | ID | `V0a`, `V0b`, `V0c`; keine neue sequenzielle `AP`-Referenz ohne reguläre Vergabe |
 | Ziel | Die vorhandenen Module auf physischen Zielversionen und Windows validieren und daraus eine veröffentlichungsfertige erste Kohorte bilden, ohne Runtime- oder Release-Status vorwegzunehmen. |
 | Scope | `V0a`: 23 portable beziehungsweise Linux-fähige Module auf SQL Server 2019/2022/2025 Linux. `V0b`: vollständige Windows-Matrix der V0c-Kohorte plus Hochrisikofälle für ResultTable, SQL CLR, Datei-I/O, Second Session und Event Log. `V0c`: 16 portable Module aus Kernfolge, W1, W2a, W2b-A und W2c. Keine neuen öffentlichen SQL-Objekte oder Signaturänderungen. |
-| Dependencies | Ausdrückliche Benutzerfreigabe vom 2026-08-28; schema-valider SQL_Server_Lab-Vertrag; `groupStatus = READY` und passende `READY`-Ziele vor jeder Runtime-Ausführung; vorhandene Modul-, Lifecycle- und Testverträge. |
+| Dependencies | Ausdrückliche V0-Freigabe vom 2026-08-28 und Einzelzielfreigabe vom 2026-08-29; schema-valider SQL_Server_Lab-Vertrag; entweder `groupStatus = READY` oder explizit ausgewählte Einzelziele mit `runtimeStatus = READY` und zulässigem Eintragsstatus; vorhandene Modul-, Lifecycle- und Testverträge. |
 | Priorität | `P0` |
-| Status | `active`; Runtime durch `groupStatus = INCOMPLETE` blockiert |
+| Status | `active`; `V0a` ausführbar, `V0b` durch gestoppte Windows-Ziele blockiert |
 | Implementation Status | 24 Module `implemented` – aus `module.yaml` abgeleitet |
-| Validation Status | 24 Module `partially validated` – keine neue Evidenz aus der noch nicht ausführbaren Lab-Matrix |
+| Validation Status | 24 Module `partially validated`; die physische Linux-Matrix der 16 V0c-Module ist erfolgreich, Windows- und modulspezifische Restfälle bleiben offen. |
 | Release Status | 24 Module `unreleased`; V0c bereitet nur die Veröffentlichung vor |
 | Akzeptanzkriterien | Linux- und Windows-Zielversionen tatsächlich geprüft; Dependency-Closure und versionierte Objektmanifeste konsistent; Erst-, Wiederholungs-, Upgrade-, Central- und Uninstall-Verträge für die Kohorte erfolgreich; modulspezifische Pflichtfälle ausgeführt; nicht verfügbare Kombinationen sichtbar; vollständiger Dokumentationsaudit erfolgreich. |
 | Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |
-| Blocker | Der am 2026-08-28 gelesene Lab-Vertrag ist schema-valide, aber die Gruppe und alle sechs Zielkombinationen sind `INCOMPLETE`. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. |
-| Evidenz | Benutzerfreigabe vom 2026-08-28; lokaler vollständiger Dokumentationsaudit und alle 16 statischen Modulvertragsprüfungen am 2026-08-28 erfolgreich; schema-valide Lab-Discovery ohne SQL-Preflight oder Runtime-Ausführung. Bestehende Runtime-Evidenz bleibt unverändert maßgeblich. |
-| Nächster Schritt | Nach externer Bereitstellung `groupStatus` und Zielstatus erneut prüfen, SQL-Preflight ausführen und V0a auf Linux 2019/2022/2025 starten. |
+| Blocker | Kein Gruppenblocker mehr für einzeln bereite Linux-Ziele. Die Windows-Ziele sind weiterhin gestoppt und für `V0b` nicht ausführbar. Second Session und Event Log scheitern auf den physischen Linux-Zielen 2019 und 2022 im gemeinsamen W5-Vertrag; File Content benötigt noch separat bereitgestellte serverseitige Fixtures. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. |
+| Evidenz | V0-Freigabe vom 2026-08-28 und Einzelzielfreigabe vom 2026-08-29; lokaler vollständiger Dokumentationsaudit und alle 16 statischen Modulvertragsprüfungen am 2026-08-28 erfolgreich. Am 2026-08-29 bestanden alle 16 V0c-Module ihre vollständigen Adapter auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen. ZIP Memory und die W4-Module bestanden ebenfalls. Second Session und Event Log bestanden auf 2025, scheiterten jedoch jeweils auf 2019 und 2022; File Content wurde ohne serverseitige Fixtures nicht ausgeführt. Es werden keine Hosts, Credentials, konkreten Datenbanknamen, Laufzeiten oder vollständigen Logs übernommen. |
+| Nächster Schritt | Die W5-Fehler auf Linux 2019/2022 isolieren, File-Content-Fixtures extern bereitstellen und danach V0a vervollständigen; parallel bleibt die externe Bereitstellung der Windows-Ziele Voraussetzung für `V0b`. |
 
 Die V0c-Kohorte umfasst verbindlich:
 
@@ -112,9 +112,9 @@ Die V0c-Kohorte umfasst verbindlich:
 | Implementation Status | `implemented` |
 | Validation Status | `partially validated` |
 | Release Status | `unreleased` |
-| Tests | SQL Server 2025 Linux CL150/160/170; Rollback, uncommittable Caller, Context, Validierung, Retention, Concurrency, Redeploy, Central und Uninstall. |
+| Tests | SQL Server 2025 Linux CL150/160/170 erfolgreich; physische Linux-Läufe 2019 und 2022 scheitern im gemeinsamen W5-Vertrag. Rollback, uncommittable Caller, Context, Validierung, Retention, Concurrency, Redeploy, Central und Uninstall. |
 | Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410 |
-| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung. |
+| Nächster Schritt | W5-Fehler auf Linux 2019/2022 isolieren und Windows-Releasevalidierung ausführen. |
 
 ### AP-2026-027: TC-2026-022 Work-Type-Katalog
 
@@ -128,9 +128,9 @@ Die V0c-Kohorte umfasst verbindlich:
 | Implementation Status | `implemented` |
 | Validation Status | `partially validated` |
 | Release Status | `unreleased` |
-| Tests | SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; Registrierung, Update/RowVersion, Disable/Reaktivierung, Resolve, ResultTable, vier parallele Sessions, Redeploy, Central und Data-Loss-Uninstall-Schutz. |
-| Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193 |
-| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; Second-Session-Provider bleibt getrennte W5-Capability. |
+| Tests | Physische SQL-Server-2019-/2022-/2025-Linux-Läufe erfolgreich; Registrierung, Update/RowVersion, Disable/Reaktivierung, Resolve, ResultTable, vier parallele Sessions, Redeploy, Central und Data-Loss-Uninstall-Schutz. |
+| Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193 und lokaler physischer Linux-Lauf vom 2026-08-29 |
+| Nächster Schritt | Windows-Releasevalidierung; der physische Linux-Lauf 2019/2022/2025 ist erfolgreich. Second-Session-Provider bleibt getrennte W5-Capability. |
 
 ### AP-2026-026: TC-2026-019 Execution Context
 
@@ -144,9 +144,9 @@ Die V0c-Kohorte umfasst verbindlich:
 | Implementation Status | `implemented` |
 | Validation Status | `partially validated` |
 | Release Status | `unreleased` |
-| Tests | SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170, vier parallele Sessions, Lifecycle, Central und Uninstall. |
-| Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948 |
-| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; persistenter Ausführungsstatus bleibt ein getrennter Slice. |
+| Tests | Physische SQL-Server-2019-/2022-/2025-Linux-Läufe erfolgreich; vier parallele Sessions, Lifecycle, Central und Uninstall. |
+| Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948 und lokaler physischer Linux-Lauf vom 2026-08-29 |
+| Nächster Schritt | Windows-Releasevalidierung; der physische Linux-Lauf 2019/2022/2025 ist erfolgreich. Persistenter Ausführungsstatus bleibt ein getrennter Slice. |
 
 ### AP-2026-025: TC-2026-017 Error Envelope
 
@@ -160,9 +160,9 @@ Die V0c-Kohorte umfasst verbindlich:
 | Implementation Status | `implemented` |
 | Validation Status | `partially validated` |
 | Release Status | `unreleased` |
-| Tests | SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170, Klassifikation, ResultTable, Lifecycle, Central und Uninstall. |
-| Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948 |
-| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; persistentes Logging bleibt getrennt. |
+| Tests | Physische SQL-Server-2019-/2022-/2025-Linux-Läufe erfolgreich; Klassifikation, ResultTable, Lifecycle, Central und Uninstall. |
+| Evidenz | https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948 und lokaler physischer Linux-Lauf vom 2026-08-29 |
+| Nächster Schritt | Windows-Releasevalidierung; der physische Linux-Lauf 2019/2022/2025 ist erfolgreich. Persistentes Logging bleibt getrennt. |
 
 ### AP-2026-024: TC-2026-037 File-Content-Slice 1
 
@@ -264,10 +264,10 @@ Die V0c-Kohorte umfasst verbindlich:
 | Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Unicode-sichere vollständige Message-Chunks mit PRINT oder NOWAIT; NULL ohne Ausgabe; kein fachliches Resultset; read-only Projektion kanonischer Database-level Marker; `valid`/`incomplete`/`invalid`; vollständige Source-, Lifecycle-, Dokumentations-, Contract- und CI-Artefakte; Status nur aus tatsächlicher Evidenz. |
-| Tests | Statische Verträge und SQL-Server-2025-Linux-Workflow für Compatibility Levels 150/160/170 einschließlich Capture-Markern, Wiederholungsdeployment, Lifecycle, Central und Uninstall erfolgreich; physische 2019-/2022-, Windows- und modulspezifische Releasefälle bleiben `not executed`. |
-| Blocker | Kein Merge-Blocker. Für `validated` fehlen physische SQL-Server-2019-/2022- und Windows-Evidenz sowie weitere Client-/Treiber- beziehungsweise eingeschränkte Metadata-Visibility-Läufe. |
-| Evidenz | Benutzerfreigabe vom 2026-07-30; Moduldesigns `CONSOLE_MESSAGE_MODULE_DESIGN.md` und `CAPABILITY_CATALOG_MODULE_DESIGN.md`; kanonische Artefakte unter `Modules/toolbelt.core.console-message/` und `Modules/toolbelt.metadata.capability-catalog/`; [W2c Runtime 30573135975](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975) und [Documentation Consistency 30573136009](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573136009) erfolgreich. |
-| Nächster Schritt | Physische Zielversions-, Windows- und modulspezifische Releasevalidierung gezielt planen. |
+| Tests | Statische Verträge und SQL-Server-2025-Linux-Workflow für Compatibility Levels 150/160/170 einschließlich Capture-Markern, Wiederholungsdeployment, Lifecycle, Central und Uninstall erfolgreich; vollständige Adapter am 2026-08-29 auf physischen SQL-Server-2019-/2022-/2025-Linux-Zielen erfolgreich. |
+| Blocker | Kein Merge-Blocker. Für `validated` fehlen Windows-Evidenz sowie weitere Client-/Treiber- beziehungsweise eingeschränkte Metadata-Visibility-Läufe. |
+| Evidenz | Benutzerfreigabe vom 2026-07-30; Moduldesigns `CONSOLE_MESSAGE_MODULE_DESIGN.md` und `CAPABILITY_CATALOG_MODULE_DESIGN.md`; kanonische Artefakte unter `Modules/toolbelt.core.console-message/` und `Modules/toolbelt.metadata.capability-catalog/`; [W2c Runtime 30573135975](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975), [Documentation Consistency 30573136009](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573136009) und lokaler physischer Linux-Lauf vom 2026-08-29 erfolgreich. |
+| Nächster Schritt | Windows- und modulspezifische Releasevalidierung gezielt planen. |
 
 ### AP-2026-017: W2b-A JSON Path Exists
 
@@ -284,9 +284,9 @@ Die V0c-Kohorte umfasst verbindlich:
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | `1`/`0`/SQL-`NULL` als `int`; JSON `null` zählt als vorhanden; case-sensitive BIN2-Keyvergleich; Pfad- und JSON-Fehler verlassen den Funktionsvertrag nicht; vollständige Source-, Lifecycle-, Dokumentations-, Contract- und CI-Artefakte; Status nur aus tatsächlicher Evidenz. |
 | Tests | Statische Prüfung und SQL-Server-2025-Linux-Workflow für Compatibility Levels 150/160/170 mit nativer Parität, synthetischen Fehler-/Collation-Fällen, Wiederholungsdeployment, Lifecycle, Central und Uninstall erfolgreich. |
-| Blocker | Keine. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung. |
-| Evidenz | Benutzerfreigabe vom 2026-07-30; Moduldesign `JSON_PATH_EXISTS_MODULE_DESIGN.md`; kanonische Artefakte unter `Modules/toolbelt.json.path-exists/`; [W2b JSON Path Runtime 30568128943](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128943) und [Documentation Consistency 30568128932](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128932) erfolgreich. |
-| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung gezielt ausführen. |
+| Blocker | Keine. Windows-Läufe bleiben Releasevalidierung. |
+| Evidenz | Benutzerfreigabe vom 2026-07-30; Moduldesign `JSON_PATH_EXISTS_MODULE_DESIGN.md`; kanonische Artefakte unter `Modules/toolbelt.json.path-exists/`; [W2b JSON Path Runtime 30568128943](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128943), [Documentation Consistency 30568128932](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128932) und lokaler physischer Linux-Lauf vom 2026-08-29 erfolgreich. |
+| Nächster Schritt | Windows-Releasevalidierung gezielt ausführen. |
 
 ### AP-2026-016: Portable W2a – Truncation, Bucketing und Bigint-Bitoperationen
 
@@ -303,9 +303,9 @@ Die V0c-Kohorte umfasst verbindlich:
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Typstabile relationale APIs; dokumentierte Dateparts, Scale-7-, `DATEFIRST`-, Origin-, negative Floor-, Shift-, Vorzeichen- und Validation-Code-Semantik; lokale und zentrale Installation; Wiederholungsdeployment und Uninstall; native Parität auf SQL Server 2022/2025; Status nur aus tatsächlicher Evidenz. |
 | Tests | Statische Contracts und SQL-Server-2025-Linux-Workflow für Compatibility Levels 150/160/170 einschließlich Runtime, nativer Parität, Wiederholungsdeployment, Lifecycle, Central und Uninstall erfolgreich. |
-| Blocker | Keine. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung. |
-| Evidenz | Benutzerfreigabe vom 2026-07-30; Moduldesigns `DATETIME_TRUNCATE_MODULE_DESIGN.md`, `DATETIME_BUCKET_MODULE_DESIGN.md` und `BIT_OPERATIONS_MODULE_DESIGN.md`; [W2a Portable Runtime 30561236509](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30561236509), [Documentation Consistency 30561235177](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30561235177). |
-| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung sowie gezielte Bucket-Core-Performance-Evidenz ausführen. |
+| Blocker | Keine. Windows-Läufe bleiben Releasevalidierung. |
+| Evidenz | Benutzerfreigabe vom 2026-07-30; Moduldesigns `DATETIME_TRUNCATE_MODULE_DESIGN.md`, `DATETIME_BUCKET_MODULE_DESIGN.md` und `BIT_OPERATIONS_MODULE_DESIGN.md`; [W2a Portable Runtime 30561236509](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30561236509), [Documentation Consistency 30561235177](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30561235177) und lokaler physischer Linux-Lauf vom 2026-08-29. |
+| Nächster Schritt | Windows-Releasevalidierung sowie gezielte Bucket-Core-Performance-Evidenz ausführen. |
 
 ### AP-2026-015: Portable W1 – Calendar Difference, Directional TRIM und URI Component
 
@@ -322,9 +322,9 @@ Die V0c-Kohorte umfasst verbindlich:
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Anniversary-Regel, gerichtetes und typstabiles Trim sowie RFC-3986-Komponentenencoding sind explizit dokumentiert; keine implizite IRI-, Form-Encoding- oder Double-Decoding-Semantik. |
 | Tests | Statische Contracts und GitHub-hosted SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; Anniversary-, Grenzwert-, Unicode-/UTF-8-, Fehler-, Paritäts-, Wiederholungs-, lokaler, zentraler und Uninstall-Scope geprüft. |
-| Blocker | Keine. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung. |
-| Evidenz | Benutzerfreigabe 2026-07-30; [W1 Portable Runtime 30553118399](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118399), [Documentation Consistency 30553118014](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118014). |
-| Nächster Schritt | Physische Zielversions- und Windows-Läufe sowie die noch offenen LOB-, Collation- und Kollisionsfälle im Rahmen der Releasevalidierung ausführen. |
+| Blocker | Keine. Windows-Läufe bleiben Releasevalidierung. |
+| Evidenz | Benutzerfreigabe 2026-07-30; [W1 Portable Runtime 30553118399](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118399), [Documentation Consistency 30553118014](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118014) und lokaler physischer Linux-Lauf vom 2026-08-29. |
+| Nächster Schritt | Windows-Läufe sowie die noch offenen LOB-, Collation- und Kollisionsfälle im Rahmen der Releasevalidierung ausführen. |
 
 ### AP-2026-014: Inline-TVF-Alternativen für bestehende SVFs
 
@@ -338,9 +338,9 @@ Die V0c-Kohorte umfasst verbindlich:
 | Status | `completed` |
 | Akzeptanzkriterien | Kein TVF-Wrapper ruft lediglich die SVF auf; Fachlogik besitzt genau einen kanonischen Kern; Parität, Objekttyp, `NULL`- und Fehlersemantik, lokale und zentrale Installation sowie Lifecycle sind getestet; Objekt- und Moduldokumentation zeigt `APPLY` als bevorzugte Mengenverwendung. |
 | Tests | Statische Modulverträge und vollständiger Dokumentationsaudit erfolgreich; Runtime auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 einschließlich Parität, `APPLY`, Upgrade, Wiederholung, Kollision, zentralem Deployment und Uninstall erfolgreich. |
-| Blocker | Keine. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung. |
+| Blocker | Keine. Windows-Läufe bleiben Releasevalidierung. |
 | Evidenz | `DEC-2026-022`, `Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md`; [Base64 Runtime 30535377837](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377837), [Integer-Base Runtime 30535377860](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377860), [Semantic-Version Runtime 30535377984](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984), [Documentation Consistency 30535377863](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377863). |
-| Nächster Schritt | Physische Zielversions- und Windows-Läufe im Rahmen der Releasevalidierung ausführen. |
+| Nächster Schritt | Windows-Läufe im Rahmen der Releasevalidierung ausführen. |
 
 ### AP-2026-013: Frei definierbare Zahlensysteme implementieren
 
@@ -356,10 +356,10 @@ Die V0c-Kohorte umfasst verbindlich:
 | Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Encode/Decode verwenden denselben kanonischen Alphabetvertrag; Zeichen sind binär eindeutig; ungültiges Alphabet, ungültige Ziffer, Vorzeichen, `bigint`-Minimum, Null und Overflow sind dokumentiert und getestet; vollständiger Lifecycle und gekoppelte Dokumentation. |
-| Tests | Statischer Vertrag und SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben `not executed`. |
+| Tests | Statischer Vertrag, SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 und physischer Linux-Lauf 2019/2022/2025 vom 2026-08-29 erfolgreich; Windows-Läufe bleiben `not executed`. |
 | Blocker | Keine bekannten. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-031`; kanonische Artefakte unter `Modules/toolbelt.conversion.integer-base/`; erfolgreicher [Runtime-Lauf 30518087070](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30518087070); persönlicher Brainstorm als Herkunft. |
-| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung später gezielt ausführen. |
+| Nächster Schritt | Windows-Releasevalidierung später gezielt ausführen. |
 
 ### AP-2026-012: Semantic-Version Parser und Comparator implementieren
 
@@ -375,10 +375,10 @@ Die V0c-Kohorte umfasst verbindlich:
 | Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | SemVer-2.0.0-Grammatik und Präzedenz vollständig; Build Metadata beeinflusst Vergleich und Key nicht; beliebig lange numerische Komponenten ohne verlustbehaftete Konvertierung; offizielle und synthetische Vektoren, Lifecycle und Dokumentation vollständig. |
-| Tests | Statischer Vertrag und SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben `not executed`. |
+| Tests | Statischer Vertrag, SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 und physischer Linux-Lauf 2019/2022/2025 vom 2026-08-29 erfolgreich; Windows-Läufe bleiben `not executed`. |
 | Blocker | Keine bekannten. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-030`; kanonische Artefakte unter `Modules/toolbelt.validation.semantic-version/`; erfolgreicher [Runtime-Lauf 30517137373](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30517137373). |
-| Nächster Schritt | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung später gezielt ausführen. |
+| Nächster Schritt | Windows-Releasevalidierung später gezielt ausführen. |
 
 ### AP-2026-011: Multi-Separator-Split Version 1 implementieren
 
@@ -394,10 +394,10 @@ Die V0c-Kohorte umfasst verbindlich:
 | Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Literalvertrag bleibt von Regex getrennt; Token und Ordinal sind deterministisch; `NULL`, NUL, leerer Input, aufeinanderfolgende Separatoren, Separator am Rand, Collations und Größenklassen sind dokumentiert und getestet; vollständiger Lifecycle und gekoppelte Dokumentation. |
-| Tests | Statischer Vertrag und SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben `not executed`. |
-| Blocker | Kein Merge-Blocker. Für `validated` fehlen physische SQL-Server-2019-/2022- und Windows-Evidenz. |
+| Tests | Statischer Vertrag, SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 und physischer Linux-Lauf 2019/2022/2025 vom 2026-08-29 erfolgreich; Windows-Läufe bleiben `not executed`. |
+| Blocker | Kein Merge-Blocker. Für `validated` fehlt Windows-Evidenz. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-001`; kanonische Artefakte unter `Modules/toolbelt.string.split-characters/`; [Split-Characters Runtime Run 30516116708](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30516116708) erfolgreich. |
-| Nächster Schritt | Physische 2019-/2022- und Windows-Läufe gezielt vor Release ausführen. `TC-2026-032` bleibt Research ohne Implementierungsfreigabe. |
+| Nächster Schritt | Windows-Läufe gezielt vor Release ausführen. `TC-2026-032` bleibt Research ohne Implementierungsfreigabe. |
 
 ### AP-2026-010: Identifier- und Multipart-Name-Toolkit implementieren
 
@@ -413,10 +413,10 @@ Die V0c-Kohorte umfasst verbindlich:
 | Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Zustandsbasierter kanonischer Parser; genau eine Ergebniszeile; rechtsbündige Teile; vollständige Escape-, Omission-, Längen-, Collation-, Wrapper-, Deployment- und Lifecycle-Contracts; Dokumentation und Change-Impact-Registry gekoppelt. |
-| Tests | Statischer Vertrag und SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben `not executed`. |
-| Blocker | Kein Merge-Blocker. Für `validated` fehlen physische SQL-Server-2019-/2022- und Windows-Evidenz. |
+| Tests | Statischer Vertrag, SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 und physischer Linux-Lauf 2019/2022/2025 vom 2026-08-29 erfolgreich; Windows-Läufe bleiben `not executed`. |
+| Blocker | Kein Merge-Blocker. Für `validated` fehlt Windows-Evidenz. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-029`; kanonische Artefakte unter `Modules/toolbelt.metadata.identifier/`; [Identifier Runtime Run 30514751834](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30514751834) erfolgreich. |
-| Nächster Schritt | Physische 2019-/2022- und Windows-Läufe gezielt vor Release ausführen. |
+| Nächster Schritt | Windows-Läufe gezielt vor Release ausführen. |
 
 ### AP-2026-009: Portable Ganzzahlreihen implementieren und validieren
 
@@ -432,10 +432,10 @@ Die V0c-Kohorte umfasst verbindlich:
 | Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Zwei öffentliche Inline TVFs im Schema `toolbelt_core`; typstabile `int`-/`bigint`-Resultsets; gemeinsamer `bigint`-Kern; richtungsabhängiger Default; keine stille Kürzung; Enginefehler bei Schritt `0` und nicht darstellbarer Zeilenzahl; vollständige gekoppelte Dokumentation und Lifecycle-Artefakte; SQL Server 2025 mit Compatibility Levels 150/160/170 erfolgreich. |
-| Tests | Statische Vertragsprüfung und serieller GitHub-hosted SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben bis zur gezielten Releasevalidierung `not executed`. |
-| Blocker | Kein Merge-Blocker. Für `validated` fehlen physische SQL-Server-2019-/2022- und Windows-Evidenz sowie eine breitere Performancebewertung sehr großer Reihen. |
+| Tests | Statische Vertragsprüfung, serieller GitHub-hosted SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 und physischer Linux-Lauf 2019/2022/2025 vom 2026-08-29 erfolgreich; Windows-Läufe bleiben `not executed`. |
+| Blocker | Kein Merge-Blocker. Für `validated` fehlen Windows-Evidenz sowie eine breitere Performancebewertung sehr großer Reihen. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; kanonische Artefakte unter `Modules/toolbelt.core.generate-series/`; [Generate-Series Runtime Run 30496759324](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30496759324) erfolgreich. |
-| Nächster Schritt | Physische 2019-/2022- und Windows-Läufe gezielt vor Release ausführen. |
+| Nächster Schritt | Windows-Läufe gezielt vor Release ausführen. |
 
 ### AP-2026-008: Base64/Base64URL-Modul implementieren und validieren
 
@@ -451,10 +451,10 @@ Die V0c-Kohorte umfasst verbindlich:
 | Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Zwei öffentliche Scalar UDFs im Schema `toolbelt_conversion`; Standard- und URL-safe-Ausgabe; Decode beider Alphabete, optionales Padding und definierter Whitespace; unveränderte Providerfehler; keine String-zu-Binär-Konvertierung; vollständige gekoppelte Dokumentation und Lifecycle-Artefakte; SQL Server 2025 mit Compatibility Levels 150/160/170 erfolgreich. |
-| Tests | Statische Vertragsprüfung und serieller GitHub-hosted SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben bis zur gezielten Releasevalidierung `not executed`. |
-| Blocker | Kein Merge-Blocker. Für `validated` fehlen physische SQL-Server-2019-/2022- und Windows-Evidenz sowie eine breitere Performancebewertung großer LOBs. |
+| Tests | Statische Vertragsprüfung, serieller GitHub-hosted SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 und physischer Linux-Lauf 2019/2022/2025 vom 2026-08-29 erfolgreich; Windows-Läufe bleiben `not executed`. |
+| Blocker | Kein Merge-Blocker. Für `validated` fehlen Windows-Evidenz sowie eine breitere Performancebewertung großer LOBs. |
 | Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.conversion.base64/`; [Base64 Runtime Run 30493304673](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30493304673) erfolgreich. |
-| Nächster Schritt | Physische 2019-/2022- und Windows-Läufe gezielt vor Release ausführen. |
+| Nächster Schritt | Windows-Läufe gezielt vor Release ausführen. |
 
 ### AP-2026-007: Entscheidungsvorbereitung für das zweite Modul
 

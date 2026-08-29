@@ -99,7 +99,8 @@ Runtime-Evidenz auf SQL Server 2025 Linux:
 - [Semantic-Version Runtime 30535377984](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984)
 
 Alle drei Läufe prüfen Compatibility Levels 150, 160 und 170. Physische
-SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung.
+Die physischen SQL-Server-2019-/2022-/2025-Linux-Läufe waren am 2026-08-29
+erfolgreich. Windows-Läufe bleiben Releasevalidierung.
 
 ## Quellen
 

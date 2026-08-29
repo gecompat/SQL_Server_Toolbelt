@@ -1,5 +1,9 @@
 # Work Type Catalog
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 ## Status
 
 `toolbelt.core.work-type` Version `1.1.0` ist implementiert. Der bisherige Version-1.0-Vertrag ist auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 teilweise validiert; die neue kontrollierte Removal-Capability wird capabilitybezogen nachgewiesen.
@@ -25,3 +29,6 @@ Registrierung, Änderung, Deaktivierung und Entfernung sind administrative Vorg�
 Basis-Evidenz Version `1.0.0`: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193
 
 Removal-Evidenz Version `1.1.0`: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31016136937
+
+Der vollständige Moduladapter war am 2026-08-29 auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich.
