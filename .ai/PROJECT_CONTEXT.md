@@ -4,9 +4,18 @@
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-24 Module sind implementiert. Alle 24 sind `partially validated`; 0 sind
+25 Module sind implementiert. Alle 25 sind `partially validated`; 0 sind
 `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
+
+`toolbelt.datetime.date-spine` implementiert D1 mit drei öffentlichen Inline
+TVFs für Tag, ISO-Woche und Monat. Der halboffene Bereich liefert alle
+geschnittenen Perioden mit nullbasiertem Ordinal. Die vollständigen lokalen,
+zentralen, Lifecycle-, Dependency-, Kollisions-, Grenz-, `DATEFIRST`- und
+Skalierungsadapter sind auf physischen SQL-Server-2019-/2022-/2025-Linux-
+Zielen erfolgreich. Die ausgewählten Windows-Ziele waren beim SQL-Anmeldungs-
+Preflight nicht erreichbar; Windows bleibt `not executed` und das Modul
+`partially validated` sowie `unreleased`.
 
 Die W2c-Module `toolbelt.core.console-message` und
 `toolbelt.metadata.capability-catalog` sind auf physischen

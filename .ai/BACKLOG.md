@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-24 Module sind implementiert. Alle 24 sind `partially validated`; 0 sind `not executed`.
+25 Module sind implementiert. Alle 25 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -15,15 +15,15 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Scope | `V0a`: 23 portable beziehungsweise Linux-fähige Module auf SQL Server 2019/2022/2025 Linux. `V0b`: vollständige Windows-Matrix der V0c-Kohorte plus Hochrisikofälle für ResultTable, SQL CLR, Datei-I/O, Second Session und Event Log. `V0c`: 16 portable Module aus Kernfolge, W1, W2a, W2b-A und W2c. Keine neuen öffentlichen SQL-Objekte oder Signaturänderungen. |
 | Dependencies | Ausdrückliche V0-Freigabe vom 2026-08-28 und Einzelzielfreigabe vom 2026-08-29; schema-valider SQL_Server_Lab-Vertrag; entweder `groupStatus = READY` oder explizit ausgewählte Einzelziele mit `runtimeStatus = READY` und zulässigem Eintragsstatus; vorhandene Modul-, Lifecycle- und Testverträge. |
 | Priorität | `P0` |
-| Status | `active`; `V0a` ausführbar, `V0b` durch gestoppte Windows-Ziele blockiert |
-| Implementation Status | 24 Module `implemented` – aus `module.yaml` abgeleitet |
-| Validation Status | 24 Module `partially validated`; die physische Linux-Matrix der 16 V0c-Module ist erfolgreich, Windows- und modulspezifische Restfälle bleiben offen. |
-| Release Status | 24 Module `unreleased`; V0c bereitet nur die Veröffentlichung vor |
+| Status | `active`; `V0a` ausführbar, `V0b` durch derzeit nicht erreichbare Windows-Ziele blockiert |
+| Implementation Status | 25 Module `implemented` – aus `module.yaml` abgeleitet |
+| Validation Status | 25 Module `partially validated`; die physische Linux-Matrix der 16 V0c-Module und von D1 ist erfolgreich, Windows- und modulspezifische Restfälle bleiben offen. |
+| Release Status | 25 Module `unreleased`; V0c und D1 autorisieren keine tatsächliche Veröffentlichung. |
 | Akzeptanzkriterien | Linux- und Windows-Zielversionen tatsächlich geprüft; Dependency-Closure und versionierte Objektmanifeste konsistent; Erst-, Wiederholungs-, Upgrade-, Central- und Uninstall-Verträge für die Kohorte erfolgreich; modulspezifische Pflichtfälle ausgeführt; nicht verfügbare Kombinationen sichtbar; vollständiger Dokumentationsaudit erfolgreich. |
 | Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |
-| Blocker | Kein Gruppenblocker mehr für einzeln bereite Linux-Ziele. Die Windows-Ziele sind weiterhin gestoppt und für `V0b` nicht ausführbar. Second Session und Event Log scheitern auf den physischen Linux-Zielen 2019 und 2022 im gemeinsamen W5-Vertrag; File Content benötigt noch separat bereitgestellte serverseitige Fixtures. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. |
+| Blocker | Kein Gruppenblocker mehr für einzeln bereite Linux-Ziele. Die explizit ausgewählten Windows-Ziele waren zuletzt bereits beim SQL-Anmeldungs-Preflight nicht erreichbar und sind für `V0b` nicht ausführbar. Second Session und Event Log scheitern auf den physischen Linux-Zielen 2019 und 2022 im gemeinsamen W5-Vertrag; File Content benötigt noch separat bereitgestellte serverseitige Fixtures. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. |
 | Evidenz | V0-Freigabe vom 2026-08-28 und Einzelzielfreigabe vom 2026-08-29; lokaler vollständiger Dokumentationsaudit und alle 16 statischen Modulvertragsprüfungen am 2026-08-28 erfolgreich. Am 2026-08-29 bestanden alle 16 V0c-Module ihre vollständigen Adapter auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen. ZIP Memory und die W4-Module bestanden ebenfalls. Second Session und Event Log bestanden auf 2025, scheiterten jedoch jeweils auf 2019 und 2022; File Content wurde ohne serverseitige Fixtures nicht ausgeführt. Es werden keine Hosts, Credentials, konkreten Datenbanknamen, Laufzeiten oder vollständigen Logs übernommen. |
-| Nächster Schritt | Die W5-Fehler auf Linux 2019/2022 isolieren, File-Content-Fixtures extern bereitstellen und danach V0a vervollständigen; parallel bleibt die externe Bereitstellung der Windows-Ziele Voraussetzung für `V0b`. |
+| Nächster Schritt | Die W5-Fehler auf Linux 2019/2022 isolieren, File-Content-Fixtures extern bereitstellen und danach V0a vervollständigen; für `V0b` ist die externe Wiederherstellung der SQL-Erreichbarkeit der Windows-Ziele Voraussetzung. |
 
 Die V0c-Kohorte umfasst verbindlich:
 
@@ -57,16 +57,16 @@ Die V0c-Kohorte umfasst verbindlich:
 | Feld | Wert |
 |---|---|
 | ID | `D1`; keine neue sequenzielle `AP`-Referenz ohne reguläre Vergabe |
-| Ziel | Nach der V0-Releasevalidierung einen kleinen portablen relationalen Date-Spine-Vertrag als nächste neue Nutzerfunktion bereitstellen. `Q1` bleibt der vorgelagerte beziehungsweise parallel zulässige Qualitäts-Enabler und ist keine nutzerorientierte SQL-Capability. |
-| Scope | Ausschließlich Tag, Woche und Monat mit expliziten Grenzen auf Basis von `toolbelt.core.generate-series`, `toolbelt.datetime.truncate` und `toolbelt.datetime.bucket`. Keine Feiertage, Arbeitstage, Zeitzonen, DST, Locale-Texte, Geschäfts- oder Fiskalkalender und keine persistente Kalenderdimension. |
-| Dependencies | `RI-2026-079`; vorhandene Module `toolbelt.core.generate-series`, `toolbelt.datetime.truncate` und `toolbelt.datetime.bucket`; funktionsbezogenes Implementierungs-Gate. |
+| Ziel | Einen kleinen portablen relationalen Date-Spine-Vertrag als nächste neue Nutzerfunktion bereitstellen. `Q1` bleibt ein Qualitäts-Enabler und ist keine nutzerorientierte SQL-Capability. |
+| Scope | Drei öffentliche Inline TVFs für Tag, ISO-Woche und Monat. Der Bereich ist `[RangeStart, RangeEndExclusive)`; geliefert werden alle geschnittenen Perioden mit `Ordinal int` und `PeriodStart date`. `NULL`, leere und umgekehrte Bereiche liefern keine Zeilen. Keine Feiertage, Arbeitstage, Zeitzonen, DST, Locale-Texte, Geschäfts- oder Fiskalkalender und keine persistente Kalenderdimension. |
+| Dependencies | `RI-2026-079`; `toolbelt.core.generate-series` 1.0.0 und `toolbelt.datetime.truncate` 1.0.0 in derselben Datenbank. Datetime Bucket ist ausdrücklich keine künstliche Dependency. |
 | Priorität | `P1` nach `V0a`/`V0b`/`V0c`; parallel höchstens ein `Q1`-Qualitäts-Enabler |
-| Status | `proposed`; als nächste nutzerorientierte Funktionswelle ausgewählt, öffentlicher Vertrag noch nicht vollständig festgelegt |
-| Alternativen | JSON Pointer, JSON-Konstruktion, Safe Cast, deterministisches Hash-Sampling und `width_bucket` bleiben nachrangige F2-Kandidaten. Regex bleibt wegen Semantik-/Provider-Gate ein Research-Spike; Work Queue folgt wegen Transaktions-, Recovery- und Security-Risiken nur in getrennten späteren Slices. |
-| Risiken | Grenz- und Inclusivity-Semantik, `DATEFIRST`-/Sprachabhängigkeit, ISO-Wochenbezug, Ergebnisgröße, Datentypen und ein unnötig breiter Kalendervertrag. |
-| Vor Implementierung festzulegen | Öffentliche Oberfläche und Resultset; inklusive beziehungsweise exklusive Endgrenze; Verhalten bei umgekehrten oder leeren Bereichen; Wochenanfang und ISO-Bezug; Zeilenlimit; Fehler- und `NULL`-Semantik. |
-| Benutzerauftrag | Am 2026-08-29 wurde angeordnet, die auf `origin/main` verankerte Auswahl zu vervollständigen und danach solche Funktionen autonom zu implementieren, deren Vertrag keine weitere Abstimmung benötigt. Dieser Auftrag ersetzt keine noch offene funktionsbezogene Vertragsentscheidung. |
-| Nächster Schritt | `Q1` V1 ist abgeschlossen. Als nächstes den vollständigen D1-V1-Vertrag besprechen und ausdrücklich freigeben; erst anschließend Runtime-Objekte erzeugen. |
+| Status | `implemented`; Runtime `partially validated`, Release `unreleased` |
+| Alternativen | Eine öffentliche Grain-Parameterfunktion, eine USP, nur vollständig enthaltene Perioden und eine persistente Kalenderdimension wurden für V1 verworfen. Quartal, frei wählbarer Schritt, Periodenende und abgeleitete Kalenderattribute bleiben mögliche getrennte Erweiterungen. |
+| Risiken und Grenzen | Ergebnisgröße wächst linear; ohne `ORDER BY` keine Reihenfolgegarantie; ISO-Woche ist bewusst Montag-basiert und `DATEFIRST`-unabhängig; der maximale Kalendertag kann mangels darstellbarer Exklusivgrenze nach `9999-12-31` nicht eingeschlossen werden. |
+| Benutzerfreigabe | Zweck, öffentlicher Vertrag, Alternativen, Risiken und Scope wurden am 2026-08-30 besprochen. Der Benutzer hat die Umsetzung anschließend mit „lass es uns so machen“ ausdrücklich freigegeben. |
+| Tests | Statischer Vertrag sowie die vollständigen lokalen, zentralen, Lifecycle-, Dependency-, Kollisions-, Grenz-, `DATEFIRST`- und Skalierungsadapter waren am 2026-08-30 auf physischen SQL-Server-2019-/2022-/2025-Linux-Zielen erfolgreich. Die drei explizit ausgewählten Windows-Ziele waren bereits beim SQL-Anmeldungs-Preflight nicht erreichbar; Windows-Runtime bleibt `not executed`. Alle erzeugten synthetischen Datenbanken wurden entfernt, Lab-Systeme wurden nicht beendet. |
+| Nächster Schritt | PR- und CI-Abschluss; Windows-Runtime nach extern wiederhergestellter SQL-Erreichbarkeit nachholen. `release_status` bleibt bis zu einer ausdrücklich autorisierten Veröffentlichung `unreleased`. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 

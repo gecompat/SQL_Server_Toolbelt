@@ -1,0 +1,55 @@
+name: Date-Spine Runtime
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/date-spine-runtime.yml"
+      - "Modules/toolbelt.datetime.date-spine/module.yaml"
+      - "Modules/toolbelt.datetime.date-spine/Source/**"
+      - "Modules/toolbelt.datetime.date-spine/Deployment/**"
+      - "Modules/toolbelt.datetime.date-spine/Tests/Runtime/**"
+      - "Modules/toolbelt.datetime.date-spine/Tests/Static/**"
+      - "Tests/CI/run-date-spine-linux.sh"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/date-spine-runtime.yml"
+      - "Modules/toolbelt.datetime.date-spine/module.yaml"
+      - "Modules/toolbelt.datetime.date-spine/Source/**"
+      - "Modules/toolbelt.datetime.date-spine/Deployment/**"
+      - "Modules/toolbelt.datetime.date-spine/Tests/Runtime/**"
+      - "Modules/toolbelt.datetime.date-spine/Tests/Static/**"
+      - "Tests/CI/run-date-spine-linux.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: date-spine-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime:
+    name: SQL Server ${{ matrix.sql-version }} Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        sql-version: ["2019", "2022", "2025"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate static contract
+        run: >-
+          python3
+          Modules/toolbelt.datetime.date-spine/Tests/Static/validate_contract.py
+
+      - name: Execute synthetic compatibility and lifecycle tests
+        env:
+          TBX_SQL_VERSION: ${{ matrix.sql-version }}
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest
+        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-date-spine-linux.sh
