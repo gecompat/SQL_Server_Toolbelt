@@ -475,15 +475,25 @@ Neue Q1-/D1-Runtime-Objekte bleiben außerhalb dieser Freigabe.
 
 ### Phase 4.2 – Q1 Lifecycle- und Upgrade-Automation
 
-**Status:** `proposed`; Vertragsbesprechung und Freigabe erforderlich
+**Status:** `completed` für den eng begrenzten V1-Scope
 
 Zuerst `RI-2026-142` als Migration-Idempotency-Verifier begrenzen. Golden
 Snapshots und Contract-Test-Generierung folgen erst, wenn mehrere Module einen
 nachweisbar gemeinsamen stabilen Vertrag besitzen.
 
-`Q1` ist damit der nächste Qualitätsbaustein, aber keine neue
-nutzerorientierte SQL-Capability. Parallel zu einer Nutzerfunktion darf höchstens
-ein solcher Qualitäts-Enabler aktiv sein.
+`Q1` ist damit ein Qualitätsbaustein, aber keine neue nutzerorientierte
+SQL-Capability. Parallel zu einer Nutzerfunktion darf höchstens ein solcher
+Qualitäts-Enabler aktiv sein.
+
+V1 ist als repository-interner SQLCMD-Verifier für ein isoliertes,
+dependency-freies und zustandsloses T-SQL-Modul implementiert. Der effektive
+Katalog wird vor und nach dem Wiederholungsdeployment verglichen; zwei
+unabhängige Uninstall-Sitzungen und eine Restzustandsprüfung schließen den
+Lauf ab. Die physische SQL_Server_Lab-Matrix war am 2026-08-29 auf SQL Server
+2019, 2022 und 2025 jeweils unter Linux und Windows erfolgreich. Alle
+synthetischen Testdatenbanken wurden entfernt; die Lab-Systeme wurden weder
+gestartet noch beendet. Tabellen-/Zustands-, historische Upgrade-, Central-
+und Parallelitätsslices bleiben außerhalb von V1.
 
 ### Phase 4.3 – D1 Date Spine V1
 

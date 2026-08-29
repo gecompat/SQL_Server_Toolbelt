@@ -52,6 +52,13 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
+- Q1 Migration-Idempotency-Verifier für isolierte dependency-freie,
+  zustandslose T-SQL-Module. V1 vergleicht den effektiven Katalog vor und nach
+  einem Wiederholungsdeployment und prüft zwei unabhängige Uninstalls samt
+  leerem Restzustand. Die physische SQL-Server-2019-/2022-/2025-Matrix ist auf
+  Linux und Windows erfolgreich; alle synthetischen Testdatenbanken wurden
+  anschließend entfernt.
+
 - Windows-only Modul `toolbelt.filesystem.windows` mit EXTERNAL_ACCESS-SQL-CLR-Fassade für begrenztes Text-/Binary-I/O, explizite Codepages und Transcoding, Directory-Operationen und begrenztes rekursives Löschen. `Caller` ist der Default, `ServiceAccount` explizit; Build, Trust, Deployment, Help, SQL-Authentication-Ablehnung und kontrolliertes ServiceAccount-Schreiben sind validiert, die breitere Caller-/NTFS-/I/O-Matrix bleibt offen.
 
 - `toolbelt.archive.zip-memory` ergänzt den ZIP-Metadaten-Pfad (TC-2026-033) im CLR-Provider inklusive Testhärtung für nicht-ASCII-Entry-Namen (`Grüße.txt` als Unicode-Konkatenausdruck). Version `1.2.0` stellt ihn über `USP_ListZipEntriesFromBinary` bereit; die vollständige Linux-SQL-Runtime-Matrix ist erfolgreich.
