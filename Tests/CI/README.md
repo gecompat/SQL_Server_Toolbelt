@@ -23,6 +23,12 @@ Monatsspine einschließlich halboffener Grenzen, `DATEFIRST`-Unabhängigkeit,
 Skalierung, fehlender Dependencies, Kollisionen, Wiederholungsdeployment,
 Central-Aufruf und vollständigem Cleanup.
 
+Der Research-Adapter
+`../Research/Regex/run-sqlserver-2025.sh` prüft ausschließlich auf SQL Server
+2025 die native Regex-Semantik unter Compatibility 150, 160 und 170. Er wird
+nicht in der Standardmodulmatrix ausgeführt, installiert kein Modul und
+entfernt seine synthetische Datenbank vollständig.
+
 `run-identifier-linux.sh` prüft den Identifier-Vertrag mit denselben
 Compatibility Levels sowie lokale, zentrale, Kollisions- und Lifecycle-Pfade.
 
