@@ -46,6 +46,18 @@ Runner-Fallback durch.
 
 Bash wird hier nur als Linux-CI-Orchestrierung verwendet. Es enthält keine zweite Implementierung der T-SQL-Fachlogik.
 
+`run-q1-migration-idempotency.sh` führt den ersten eng begrenzten
+Migration-Idempotency-Vertrag aus. Er deployt das dependency-freie T-SQL-Modul
+`toolbelt.core.generate-series` in einer isolierten synthetischen Datenbank,
+vergleicht den effektiven Katalog vor und nach dem Wiederholungsdeployment und
+prüft ein zweimaliges Uninstall. Die Datenbank wird anschließend gezielt
+entfernt; ein Lab-Ziel wird weder gestartet noch beendet.
+
+Die Q1-Lab-Matrix war am 2026-08-29 auf SQL Server 2019, 2022 und 2025 jeweils
+unter Linux und Windows erfolgreich. Der abstrahierte Nachweis umfasst
+Wiederholungsdeployment, Kataloggleichheit, zwei unabhängige Uninstalls,
+Restzustandsprüfung und Cleanup der synthetischen Testdatenbank.
+
 ## Lokaler Lab-Lauf aus PowerShell
 
 Für die lokale Entwicklung kann die geeignete CI-Testmatrix gegen die vom

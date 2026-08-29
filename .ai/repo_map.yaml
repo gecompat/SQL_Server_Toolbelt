@@ -92,6 +92,8 @@ sources_of_truth:
   documentation_workflow: .github/workflows/documentation-consistency.yml
   toolbelt_landscape_research: Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md
   second_module_selection_research: Documentation/Research/SECOND_MODULE_SELECTION.md
+  migration_idempotency_verifier_design: Documentation/Architecture/MIGRATION_IDEMPOTENCY_VERIFIER_DESIGN.md
+  migration_idempotency_workflow: .github/workflows/q1-migration-idempotency.yml
   roadmap: .ai/ROADMAP.md
   backlog: .ai/BACKLOG.md
 
@@ -488,6 +490,22 @@ change_impact:
       checks:
         - markdown_links
         - w2a_runtime_workflow_scope
+    q1_migration_idempotency:
+      paths:
+        - Documentation/Architecture/MIGRATION_IDEMPOTENCY_VERIFIER_DESIGN.md
+        - Tests/Quality/MigrationIdempotency/**
+        - Tests/CI/run-q1-migration-idempotency.sh
+        - Tests/CI/run-lab-local.ps1
+        - Tests/CI/run-lab-target.sh
+        - Tests/CI/README.md
+        - .github/workflows/q1-migration-idempotency.yml
+        - Modules/toolbelt.core.generate-series/Deployment/**
+        - .ai/BACKLOG.md
+        - .ai/ROADMAP.md
+        - Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md
+        - Backlog/TOOLBELT_RESEARCH_PRIORITIES.md
+      checks:
+        - markdown_links
     w2b_json_path_contract:
       paths:
         - Modules/toolbelt.json.path-exists/**
