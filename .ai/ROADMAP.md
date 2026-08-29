@@ -481,6 +481,10 @@ Zuerst `RI-2026-142` als Migration-Idempotency-Verifier begrenzen. Golden
 Snapshots und Contract-Test-Generierung folgen erst, wenn mehrere Module einen
 nachweisbar gemeinsamen stabilen Vertrag besitzen.
 
+`Q1` ist damit der nächste Qualitätsbaustein, aber keine neue
+nutzerorientierte SQL-Capability. Parallel zu einer Nutzerfunktion darf höchstens
+ein solcher Qualitäts-Enabler aktiv sein.
+
 ### Phase 4.3 – D1 Date Spine V1
 
 **Status:** `proposed`; Vertragsbesprechung und Freigabe erforderlich
@@ -489,6 +493,16 @@ nachweisbar gemeinsamen stabilen Vertrag besitzen.
 Bucket-Primitiven. Version 1 bleibt auf einen relationalen Tag-/Woche-/Monat-
 Spine mit expliziten Grenzen und ohne Feiertags-, Zeitzonen- oder persistente
 Kalenderdimension begrenzt.
+
+`D1` ist die nächste eigentliche nutzerorientierte Funktionswelle. Gegenüber
+JSON-Konstruktion, Regex und Work Queue besitzt sie die kleinste bereits
+vorhandene Dependency-Closure, eine portable T-SQL-Basis und die begrenzteste
+Provider-, Security- und Recovery-Fläche. Vor Code sind öffentliche
+Oberfläche und Resultset, Inclusivity, umgekehrte beziehungsweise leere
+Bereiche, Wochenanfang und ISO-Bezug, Zeilenlimit sowie Fehler- und
+`NULL`-Semantik festzulegen. Feiertage, Arbeitstage, Zeitzonen, DST,
+Locale-Texte, Geschäfts- und Fiskalkalender sowie persistente
+Kalenderdimensionen bleiben außerhalb von V1.
 
 ### Phase 4.4 – R1 Regex V1
 

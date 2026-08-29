@@ -93,6 +93,29 @@ Die Wellen sind eine Dependency-Reihenfolge, keine pauschale
 Implementierungsfreigabe. Innerhalb einer Welle wird nur ein ausdrücklich
 freigegebenes Arbeitspaket aktiv.
 
+## Bestimmung der nächsten neuen Funktionswelle
+
+Die nächste sinnvolle Ausführung bleibt `V0a`/`V0b`/`V0c`, parallel höchstens
+ein Qualitäts-Enabler `Q1`, danach `D1`. `Q1` schützt Deploy-, Upgrade- und
+Uninstall-Verträge, ist jedoch keine neue nutzerorientierte SQL-Capability.
+Die nächste eigentliche Funktionswelle ist deshalb `D1` Date Spine V1.
+
+Die Auswahl von `D1` beruht auf der bereits implementierten Dependency-Closure
+aus Generate Series, Datetime Truncate und Datetime Bucket, dem hohen
+relationalen Nutzwert und einer gegenüber Regex, JSON-Konstruktion und Work
+Queue kleineren Semantik-, Provider-, Security- und Recovery-Fläche. V1 bleibt
+auf Tag, Woche und Monat mit expliziten Grenzen beschränkt. Feiertage,
+Arbeitstage, Zeitzonen, DST, Locale-Texte, Geschäfts- und Fiskalkalender sowie
+eine persistente Kalenderdimension sind ausdrücklich nicht Bestandteil dieser
+Welle.
+
+Vor einer Implementierung sind die öffentliche Oberfläche und ihr Resultset,
+inklusive beziehungsweise exklusive Endgrenzen, umgekehrte oder leere
+Bereiche, Wochenanfang und ISO-Bezug, ein Schutzlimit sowie Fehler- und
+`NULL`-Semantik funktionsbezogen festzulegen. `R1` beginnt weiterhin nur als
+Semantik-/Provider-Spike. `E1` bleibt in Claim/Complete/Fail, Lease/Recovery,
+Retry/Dead Letter/Idempotenz und kooperative Cancellation getrennt.
+
 ## Objekt- und Modulplan
 
 ### Bereits implementierte Module
