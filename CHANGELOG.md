@@ -52,6 +52,12 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
+- `toolbelt.datetime.date-spine` Version `1.0.0` mit drei portablen Inline
+  TVFs für Tages-, ISO-Wochen- und Monatsperioden eines halboffenen
+  `date`-Bereichs. Die vollständige Linux-Matrix auf SQL Server 2019, 2022 und
+  2025 ist erfolgreich; Windows blieb wegen nicht erreichbarer SQL-
+  Anmeldungs-Preflights `not executed`. Das Modul bleibt `unreleased`.
+
 - Q1 Migration-Idempotency-Verifier für isolierte dependency-freie,
   zustandslose T-SQL-Module. V1 vergleicht den effektiven Katalog vor und nach
   einem Wiederholungsdeployment und prüft zwei unabhängige Uninstalls samt
@@ -239,9 +245,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-24 Module sind implementiert. Alle 24 sind `partially validated`; 0 sind
-`not executed`. ResultTable ist unter Linux auf SQL Server 2019, 2022 und
-2025 erfolgreich; die übrigen bereits teilweise validierten Module sind
-auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
-erfolgreich. Windows und die jeweils offenen Releasefälle bleiben
-`not executed`.
+25 Module sind implementiert. Alle 25 sind `partially validated`; 0 sind
+`not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
+werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

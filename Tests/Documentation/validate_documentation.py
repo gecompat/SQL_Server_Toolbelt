@@ -1007,6 +1007,23 @@ def validate_w2a_runtime_workflow_scope() -> None:
             )
 
 
+def validate_date_spine_runtime_workflow_scope() -> None:
+    workflow = read(
+        REPOSITORY_ROOT / ".github" / "workflows" / "date-spine-runtime.yml"
+    )
+    for marker in (
+        '"Documentation/Architecture/**"',
+        '"Documentation/Standards/**"',
+        '"Modules/toolbelt.datetime.date-spine/Documentation/**"',
+        '"Modules/toolbelt.datetime.date-spine/Tests/**/*.md"',
+    ):
+        if marker in workflow:
+            raise ValidationError(
+                "Date-Spine-Runtime wird durch reine Dokumentation "
+                f"ausgelöst: {marker}"
+            )
+
+
 def validate_w2b_json_path_runtime_workflow_scope() -> None:
     workflow = read(
         REPOSITORY_ROOT
@@ -1117,6 +1134,30 @@ def run_generate_series_static() -> None:
     if result.returncode != 0:
         raise ValidationError(
             "Statische Generate-Series-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
+def run_date_spine_static() -> None:
+    script = (
+        REPOSITORY_ROOT
+        / "Modules"
+        / "toolbelt.datetime.date-spine"
+        / "Tests"
+        / "Static"
+        / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)),
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische Date-Spine-Prüfung fehlgeschlagen:\n"
             f"{result.stdout}{result.stderr}"
         )
 
@@ -1335,6 +1376,10 @@ def main() -> int:
         validate_generate_series_runtime_workflow_scope()
     if "generate_series_static" in checks:
         run_generate_series_static()
+    if "date_spine_runtime_workflow_scope" in checks:
+        validate_date_spine_runtime_workflow_scope()
+    if "date_spine_static" in checks:
+        run_date_spine_static()
     if "identifier_runtime_workflow_scope" in checks:
         validate_identifier_runtime_workflow_scope()
     if "identifier_static" in checks:

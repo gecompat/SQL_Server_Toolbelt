@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: twenty_four_modules_implemented
+  status: twenty_five_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -64,6 +64,9 @@ sources_of_truth:
   bit_operations_module_design: Documentation/Architecture/BIT_OPERATIONS_MODULE_DESIGN.md
   w2a_portable_runtime_workflow: .github/workflows/w2a-portable-runtime.yml
   datetime_truncate_module: Modules/toolbelt.datetime.truncate/module.yaml
+  date_spine_module_design: Documentation/Architecture/DATE_SPINE_MODULE_DESIGN.md
+  date_spine_runtime_workflow: .github/workflows/date-spine-runtime.yml
+  date_spine_module: Modules/toolbelt.datetime.date-spine/module.yaml
   datetime_bucket_module: Modules/toolbelt.datetime.bucket/module.yaml
   bit_operations_module: Modules/toolbelt.binary.bit-operations/module.yaml
   json_path_exists_module_design: Documentation/Architecture/JSON_PATH_EXISTS_MODULE_DESIGN.md
@@ -260,6 +263,7 @@ module_registry:
     - Modules/toolbelt.string.directional-trim/module.yaml
     - Modules/toolbelt.conversion.uri-component/module.yaml
     - Modules/toolbelt.datetime.truncate/module.yaml
+    - Modules/toolbelt.datetime.date-spine/module.yaml
     - Modules/toolbelt.datetime.bucket/module.yaml
     - Modules/toolbelt.binary.bit-operations/module.yaml
     - Modules/toolbelt.json.path-exists/module.yaml
@@ -416,6 +420,22 @@ change_impact:
         - Tests/CI/run-generate-series-linux.sh
       checks:
         - generate_series_static
+        - markdown_links
+    date_spine_contract:
+      paths:
+        - Modules/toolbelt.datetime.date-spine/**
+        - Modules/toolbelt.core.generate-series/**
+        - Modules/toolbelt.datetime.truncate/**
+        - Documentation/Architecture/DATE_SPINE_MODULE_DESIGN.md
+        - Documentation/Architecture/DEPLOYMENT_MODEL.md
+        - Documentation/Standards/TSQL_ENGINEERING.md
+        - Documentation/Standards/MODULE_DEFINITION_OF_DONE.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+        - Tests/CI/run-date-spine-linux.sh
+        - .github/workflows/date-spine-runtime.yml
+      checks:
+        - date_spine_static
+        - date_spine_runtime_workflow_scope
         - markdown_links
     identifier_contract:
       paths:
