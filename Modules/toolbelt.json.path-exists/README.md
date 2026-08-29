@@ -1,5 +1,9 @@
 # JSON Path Exists
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 Das Modul implementiert den freigegebenen Pfadprüfungs-Slice von
 `TC-2026-009` für SQL Server 2019 und neuer.
 
@@ -38,5 +42,6 @@ Details:
 Aktuelle Evidenz:
 [Run 30568128943](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128943)
 – SQL Server 2025 Linux mit Compatibility Levels 150/160/170 erfolgreich;
-physische 2019-/2022- und Windows-Läufe bleiben `not executed`. Modulstatus:
-`partially validated`.
+der vollständige Adapter ist seit 2026-08-29 zusätzlich auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Windows-Läufe
+bleiben `not executed`. Modulstatus: `partially validated`.

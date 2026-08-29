@@ -1,5 +1,9 @@
 # Portable Integer Series
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 **Modul-ID:** `toolbelt.core.generate-series`
 
 **Version:** `1.0.0`
@@ -83,9 +87,9 @@ Der
 war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Er deckt Semantik, native Parität bei 160/170, Fehler und
 Typgrenzen, eine Million Werte, einen äußeren Row Goal, Joins, `CROSS APPLY`
-sowie lokale, zentrale und Lifecycle-Verträge ab. Physische
-SQL-Server-2019-/2022- und Windows-Läufe bleiben für die gezielte
-Releasevalidierung offen. Der aktuelle Status ist daher
+sowie lokale, zentrale und Lifecycle-Verträge ab. Der vollständige Adapter
+ist am 2026-08-29 zusätzlich auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen
+erfolgreich. Windows-Läufe bleiben offen. Der aktuelle Status ist daher
 `partially validated`.
 
 ## Dokumentation

@@ -110,3 +110,7 @@ validation_evidence:
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31016136937"
     scope: "SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; Removal-Freigabe, Disable-Pflicht, RowVersion, Caller-Savepoint, uncommittable Caller, ResultTable und Lifecycle"
     result: "success"
+  - date: "2026-08-29"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger W4-Moduladapter"
+    result: "success"

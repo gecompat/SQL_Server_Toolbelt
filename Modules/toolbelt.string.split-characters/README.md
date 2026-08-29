@@ -1,5 +1,9 @@
 # toolbelt.string.split-characters
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 ## Zweck
 
 Das Modul teilt Unicode-Text an einer Menge einzelner literal
@@ -17,8 +21,9 @@ explizit.
 Der
 [Split-Characters Runtime Run 30516116708](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30516116708)
 war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
-erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
-`not executed`.
+erfolgreich. Der vollständige Adapter ist am 2026-08-29 zusätzlich auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich; Windows-Läufe
+bleiben `not executed`.
 
 ## Öffentliche Oberfläche
 

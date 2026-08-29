@@ -19,6 +19,6 @@ Parallelitätsvorteil wird nur anhand reproduzierbarer Ausführungspläne
 behauptet.
 
 Lokales und zentrales Deployment folgen dem allgemeinen Lifecycle-Vertrag.
-Der Modulfehlerbereich ist `51080–51089`. SQL Server 2025 Linux ist mit
-Compatibility Levels 150, 160 und 170 erfolgreich; physische
-SQL-Server-2019-/2022- und Windows-Läufe bleiben offen.
+Der Modulfehlerbereich ist `51080–51089`. Der vollständige Adapter ist auf
+physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich;
+Windows-Läufe bleiben offen.

@@ -1,5 +1,9 @@
 # ZIP Memory Inspection
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 **Modul-ID:** `toolbelt.archive.zip-memory`  
 **Version:** `1.2.0`
 
@@ -104,3 +108,5 @@ erfolgreich. Windows-SQL-Server-Runtime, echte Extremgrößenläufe und eine
 breitere Interoperabilitätsmatrix realer Archive bleiben vor Release offen.
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453
+und der lokale Lauf vom 2026-08-29 mit reproduzierbar neu gebautem, per
+exaktem SHA2-512 autorisiertem Releaseartefakt.

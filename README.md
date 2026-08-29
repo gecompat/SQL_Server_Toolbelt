@@ -92,21 +92,21 @@ Das implementierte Modul [`toolbelt.core.result-table`](./Modules/toolbelt.core.
 
 Das unabhängige Modul
 [`toolbelt.conversion.base64`](./Modules/toolbelt.conversion.base64/README.md)
-stellt portable Base64-/Base64URL-Konvertierung bereit. Seine erste
-SQL-Server-2025-Linux-Matrix mit Compatibility Levels 150, 160 und 170 ist
-erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
+stellt portable Base64-/Base64URL-Konvertierung bereit. Der vollständige
+Moduladapter ist auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen
+erfolgreich; Windows-Läufe bleiben offen.
 
 Das implementierte Modul
 [`toolbelt.core.generate-series`](./Modules/toolbelt.core.generate-series/README.md)
-stellt portable, typstabile Ganzzahlreihen für `int` und `bigint` bereit.
-Seine SQL-Server-2025-Linux-Matrix mit Compatibility Levels 150, 160 und 170
-ist erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
+stellt portable, typstabile Ganzzahlreihen für `int` und `bigint` bereit. Der
+vollständige Moduladapter ist auf physischen SQL-Server-2019-, 2022- und
+2025-Linux-Zielen erfolgreich; Windows-Läufe bleiben offen.
 
 Das implementierte Modul
 [`toolbelt.metadata.identifier`](./Modules/toolbelt.metadata.identifier/README.md)
-analysiert und begrenzt ein- bis vierteilige SQL-Namen. Runtime-Evidenz ist
-auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
-erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
+analysiert und begrenzt ein- bis vierteilige SQL-Namen. Der vollständige
+Moduladapter ist auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen
+erfolgreich; Windows-Läufe bleiben offen.
 
 Das implementierte Modul
 [`toolbelt.string.split-characters`](./Modules/toolbelt.string.split-characters/README.md)
@@ -117,37 +117,37 @@ und 170 erfolgreich; die breitere Quote-/Escape-Ausbaustufe bleibt separat in
 
 Das implementierte Modul
 [`toolbelt.validation.semantic-version`](./Modules/toolbelt.validation.semantic-version/README.md)
-parst, vergleicht und sortiert strikte Semantic-Version-2.0.0-Werte.
-SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und 170
-erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
+parst, vergleicht und sortiert strikte Semantic-Version-2.0.0-Werte. Der
+vollständige Moduladapter ist auf physischen SQL-Server-2019-, 2022- und
+2025-Linux-Zielen erfolgreich; Windows-Läufe bleiben offen.
 
 Das implementierte Modul
 [`toolbelt.conversion.integer-base`](./Modules/toolbelt.conversion.integer-base/README.md)
 codiert und decodiert den vollständigen `bigint`-Bereich mit frei
-definierbaren ASCII-Alphabeten. SQL Server 2025 Linux ist mit Compatibility
-Levels 150, 160 und 170 erfolgreich; physische 2019-/2022- und Windows-Läufe
-bleiben offen.
+definierbaren ASCII-Alphabeten. Der vollständige Moduladapter ist auf
+physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich;
+Windows-Läufe bleiben offen.
 
 Das implementierte Modul
 [`toolbelt.datetime.calendar-difference`](./Modules/toolbelt.datetime.calendar-difference/README.md)
-zerlegt `date`-Intervalle nach einer dokumentierten Anniversary-Regel.
-SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und 170
-einschließlich Lifecycle und zentraler Nutzung erfolgreich; physische
-2019-/2022- und Windows-Läufe bleiben offen.
+zerlegt `date`-Intervalle nach einer dokumentierten Anniversary-Regel. Der
+vollständige Moduladapter ist auf physischen SQL-Server-2019-, 2022- und
+2025-Linux-Zielen einschließlich Lifecycle und zentraler Nutzung erfolgreich;
+Windows-Läufe bleiben offen.
 
 Das implementierte Modul
 [`toolbelt.string.directional-trim`](./Modules/toolbelt.string.directional-trim/README.md)
 stellt typstabile `varchar`-/`nvarchar`-TVFs für `LEADING`, `TRAILING` und
-`BOTH` bereit. SQL Server 2025 Linux ist mit Compatibility Levels 150, 160
-und 170 erfolgreich; weitere Collations sowie physische 2019-/2022- und
-Windows-Läufe bleiben offen.
+`BOTH` bereit. Der vollständige Moduladapter ist auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich; weitere Collations
+und Windows-Läufe bleiben offen.
 
 Das implementierte Modul
 [`toolbelt.conversion.uri-component`](./Modules/toolbelt.conversion.uri-component/README.md)
 codiert und decodiert RFC-3986-URI-Komponenten mit UTF-8 und strikter
-Validierung. SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und
-170 erfolgreich; LOB-/Performancegrenzen sowie physische 2019-/2022- und
-Windows-Läufe bleiben offen.
+Validierung. Der vollständige Moduladapter ist auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich;
+LOB-/Performancegrenzen und Windows-Läufe bleiben offen.
 
 Die implementierten W2a-Module
 [`toolbelt.datetime.truncate`](./Modules/toolbelt.datetime.truncate/README.md),
@@ -155,9 +155,9 @@ Die implementierten W2a-Module
 [`toolbelt.binary.bit-operations`](./Modules/toolbelt.binary.bit-operations/README.md)
 stellen typgetrennte Date/Time-Truncation, Origin-basiertes Bucketing und die
 fünf Bitoperationen für `bigint` als kanonische relationale TVFs bereit.
-SQL Server 2025 Linux ist mit Compatibility Levels 150, 160 und 170
-einschließlich Wiederholungsdeployment, Lifecycle, Central und Uninstall
-erfolgreich; physische 2019-/2022- und Windows-Läufe bleiben offen.
+Die vollständigen Moduladapter sind auf physischen SQL-Server-2019-, 2022-
+und 2025-Linux-Zielen einschließlich Wiederholungsdeployment, Lifecycle,
+Central und Uninstall erfolgreich; Windows-Läufe bleiben offen.
 
 Das implementierte W2b-A-Modul
 [`toolbelt.json.path-exists`](./Modules/toolbelt.json.path-exists/README.md)
@@ -171,11 +171,11 @@ Die implementierten W2c-Module
 und
 [`toolbelt.metadata.capability-catalog`](./Modules/toolbelt.metadata.capability-catalog/README.md)
 stellen Unicode-sichere lange Message-Ausgabe sowie eine read-only Sicht auf
-Database-level Toolbelt-Modulmarker bereit. SQL Server 2025 Linux ist mit
-Compatibility Levels 150, 160 und 170 einschließlich Langtext-/Unicode-,
-Marker-/Drift-, Lifecycle-, Central- und Uninstall-Contracts erfolgreich;
-physische Zielversions-, Windows- und modulspezifische Releasefälle bleiben
-offen.
+Database-level Toolbelt-Modulmarker bereit. Die vollständigen Moduladapter
+sind auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen
+einschließlich Langtext-/Unicode-, Marker-/Drift-, Lifecycle-, Central- und
+Uninstall-Contracts erfolgreich; Windows- und modulspezifische Releasefälle
+bleiben offen.
 
 Das implementierte ZIP-Memory-Modul
 [`toolbelt.archive.zip-memory`](./Modules/toolbelt.archive.zip-memory/README.md)

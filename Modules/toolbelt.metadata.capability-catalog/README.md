@@ -1,5 +1,9 @@
 # Module Capability Catalog
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 **Modul-ID:** `toolbelt.metadata.capability-catalog`
 **Version:** `1.0.0`
 **Implementierungsstatus:** `implemented`
@@ -51,5 +55,6 @@ war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 einschließlich Marker-, Drift-, Collation-, Wiederholungs-, Lifecycle-,
 Central- und Uninstall-Contracts erfolgreich.
 
-Physische SQL-Server-2019-/2022- und Windows-Läufe sowie eingeschränkte
-Metadata-Visibility bleiben Releasevalidierung.
+Der vollständige Adapter ist seit 2026-08-29 zusätzlich auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Windows-Läufe und
+eingeschränkte Metadata-Visibility bleiben Releasevalidierung.

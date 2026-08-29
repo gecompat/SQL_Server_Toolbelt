@@ -1,5 +1,9 @@
 # Work-Type-Testevidenz
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 Der Basisvertrag mit Registrierung, Update und `rowversion`, Disable/Reaktivierung, Resolve, ResultTable, vier parallelen Sessions, Redeploy, Central, Lifecycle und Data-Loss-Uninstall-Schutz ist auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich.
 
 Basis-Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193

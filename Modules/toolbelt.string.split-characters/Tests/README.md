@@ -1,5 +1,9 @@
 # Tests für `toolbelt.string.split-characters`
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 ## Status
 
 Runtime: `partially validated`.
@@ -21,4 +25,6 @@ erfolgreich.
   Datenbanken, Compatibility Levels 150/160/170, Wiederholungsdeployment,
   fehlende Dependency, Kollision und Uninstall.
 
-Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben Releaseaufgaben.
+Der vollständige Adapter ist seit 2026-08-29 auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Windows-Läufe
+bleiben Releaseaufgaben.

@@ -1,5 +1,9 @@
 # Base64 and Base64URL Conversion
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 **Modul-ID:** `toolbelt.conversion.base64`
 
 **Version:** `1.1.0`
@@ -84,10 +88,10 @@ Der
 war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Geprüft wurden RFC-4648-/Base64URL-Vektoren, Fehlerfälle,
 synthetische Größen bis 1 MiB, Wiederholungsdeployment, Fremdobjekt-Kollision,
-lokale und zentrale Nutzung sowie Uninstall. Physische
-SQL-Server-2019-/2022- und Windows-Läufe bleiben bis zur gezielten
-Releasevalidierung `not executed`; der Modulstatus ist deshalb nur
-`partially validated`.
+lokale und zentrale Nutzung sowie Uninstall. Der vollständige Adapter ist am
+2026-08-29 zusätzlich auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen
+erfolgreich. Windows-Läufe bleiben `not executed`; der Modulstatus ist deshalb
+nur `partially validated`.
 
 ## Dokumentation
 
