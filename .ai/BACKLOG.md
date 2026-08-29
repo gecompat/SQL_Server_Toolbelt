@@ -37,6 +37,22 @@ Die V0c-Kohorte umfasst verbindlich:
 `toolbelt.core.console-message` und
 `toolbelt.metadata.capability-catalog`.
 
+### D1: Date Spine V1 als nächste nutzerorientierte Funktionswelle
+
+| Feld | Wert |
+|---|---|
+| ID | `D1`; keine neue sequenzielle `AP`-Referenz ohne reguläre Vergabe |
+| Ziel | Nach der V0-Releasevalidierung einen kleinen portablen relationalen Date-Spine-Vertrag als nächste neue Nutzerfunktion bereitstellen. `Q1` bleibt der vorgelagerte beziehungsweise parallel zulässige Qualitäts-Enabler und ist keine nutzerorientierte SQL-Capability. |
+| Scope | Ausschließlich Tag, Woche und Monat mit expliziten Grenzen auf Basis von `toolbelt.core.generate-series`, `toolbelt.datetime.truncate` und `toolbelt.datetime.bucket`. Keine Feiertage, Arbeitstage, Zeitzonen, DST, Locale-Texte, Geschäfts- oder Fiskalkalender und keine persistente Kalenderdimension. |
+| Dependencies | `RI-2026-079`; vorhandene Module `toolbelt.core.generate-series`, `toolbelt.datetime.truncate` und `toolbelt.datetime.bucket`; funktionsbezogenes Implementierungs-Gate. |
+| Priorität | `P1` nach `V0a`/`V0b`/`V0c`; parallel höchstens ein `Q1`-Qualitäts-Enabler |
+| Status | `proposed`; als nächste nutzerorientierte Funktionswelle ausgewählt, öffentlicher Vertrag noch nicht vollständig festgelegt |
+| Alternativen | JSON Pointer, JSON-Konstruktion, Safe Cast, deterministisches Hash-Sampling und `width_bucket` bleiben nachrangige F2-Kandidaten. Regex bleibt wegen Semantik-/Provider-Gate ein Research-Spike; Work Queue folgt wegen Transaktions-, Recovery- und Security-Risiken nur in getrennten späteren Slices. |
+| Risiken | Grenz- und Inclusivity-Semantik, `DATEFIRST`-/Sprachabhängigkeit, ISO-Wochenbezug, Ergebnisgröße, Datentypen und ein unnötig breiter Kalendervertrag. |
+| Vor Implementierung festzulegen | Öffentliche Oberfläche und Resultset; inklusive beziehungsweise exklusive Endgrenze; Verhalten bei umgekehrten oder leeren Bereichen; Wochenanfang und ISO-Bezug; Zeilenlimit; Fehler- und `NULL`-Semantik. |
+| Benutzerauftrag | Am 2026-08-29 wurde angeordnet, die auf `origin/main` verankerte Auswahl zu vervollständigen und danach solche Funktionen autonom zu implementieren, deren Vertrag keine weitere Abstimmung benötigt. Dieser Auftrag ersetzt keine noch offene funktionsbezogene Vertragsentscheidung. |
+| Nächster Schritt | Zuerst den eng begrenzten `Q1`-Migration-Idempotency-Verifier spezifizieren. Danach den vollständigen D1-V1-Vertrag besprechen und ausdrücklich freigeben; erst anschließend Runtime-Objekte erzeugen. |
+
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
 | Feld | Wert |
