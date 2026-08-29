@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. 24 Module sind implementiert;
+Der Repository-Grundaufbau ist abgeschlossen. 25 Module sind implementiert;
 für alle existieren statische sowie synthetische Runtime- und
 Lifecycle-Contract-Testartefakte.
 
@@ -19,6 +19,11 @@ erfolgreich. Die drei W2a-Module sind dort einschließlich
 Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
 erfolgreich. Physische SQL-Server-2019-/2022-, Windows- und weitere
 modulspezifische Matrixfälle bleiben offen.
+Das Date-Spine-Modul ist mit lokalen, zentralen, Lifecycle-, Dependency-,
+Kollisions-, Grenz-, `DATEFIRST`- und Skalierungsverträgen auf den physischen
+Linux-Zielen 2019, 2022 und 2025 erfolgreich. Die Windows-Ziele waren beim
+SQL-Anmeldungs-Preflight nicht erreichbar; die Windows-Runtime blieb daher
+`not executed`.
 `toolbelt.json.path-exists` ist dort einschließlich nativer Parität,
 Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
 erfolgreich.
@@ -65,6 +70,7 @@ Text-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall erfolgreich.
 | `toolbelt.validation.semantic-version` | [SEMANTIC_VERSION_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.validation.semantic-version/Tests/SEMANTIC_VERSION_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.conversion.integer-base` | [INTEGER_BASE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.conversion.integer-base/Tests/INTEGER_BASE_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.datetime.calendar-difference` | [CALENDAR_DIFFERENCE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.calendar-difference/Tests/CALENDAR_DIFFERENCE_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
+| `toolbelt.datetime.date-spine` | [DATE_SPINE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.date-spine/Tests/DATE_SPINE_CONTRACT_TEST_MATRIX.md) | `partially validated`; physische SQL-Server-2019-/2022-/2025-Linux-Ziele erfolgreich, Windows `not executed` |
 | `toolbelt.string.directional-trim` | [DIRECTIONAL_TRIM_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.string.directional-trim/Tests/DIRECTIONAL_TRIM_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.conversion.uri-component` | [URI_COMPONENT_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.conversion.uri-component/Tests/URI_COMPONENT_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.datetime.truncate` | [DATETIME_TRUNCATE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.truncate/Tests/DATETIME_TRUNCATE_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |

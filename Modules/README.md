@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**24 Module sind implementiert. Alle 24 sind `partially validated`; 0 sind
+**25 Module sind implementiert. Alle 25 sind `partially validated`; 0 sind
 `not executed`. Der Einzelstatus wird aus den Manifesten abgeleitet.**
 
 ## Implementierte Module
@@ -27,6 +27,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 | `toolbelt.core.work-type` | Work Type Catalog | `1.1.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.datetime.bucket` | Date/Time Bucket Compatibility | `1.0.0` | `toolbelt_datetime` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.datetime.calendar-difference` | Calendar Difference | `1.0.0` | `toolbelt_datetime` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.datetime.date-spine` | Relational Date Spine | `1.0.0` | `toolbelt_datetime` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.datetime.truncate` | Date/Time Truncation Compatibility | `1.0.0` | `toolbelt_datetime` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.file.content` | File Content | `1.0.0` | `toolbelt_file` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.filesystem.windows` | Windows Filesystem | `1.0.0` | `toolbelt_filesystem` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |

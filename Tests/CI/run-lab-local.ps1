@@ -9,6 +9,7 @@ param(
         'run-result-table-linux.sh',
         'run-base64-linux.sh',
         'run-generate-series-linux.sh',
+        'run-date-spine-linux.sh',
         'run-identifier-linux.sh',
         'run-split-characters-linux.sh',
         'run-semantic-version-linux.sh',

@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 24 Module sind implementiert. Alle 24 sind
+abgeschlossen. 25 Module sind implementiert. Alle 25 sind
 `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
@@ -444,8 +444,9 @@ ermittelte SQL_Server_Lab-Vertrag ist schema-valide. Seit der ausdrücklichen
 Benutzerfreigabe vom 2026-08-29 dürfen aus `groupStatus = INCOMPLETE`
 explizit ausgewählte Einzelziele mit `runtimeStatus = READY` und geeignetem
 Eintragsstatus verwendet werden. Damit ist die aktuelle Linux-Matrix für
-`V0a` ausführbar; die gestoppten Windows-Ziele bleiben für `V0b` `not
-executed`. Das Toolbelt-Projekt startet, repariert oder löscht keine
+`V0a` ausführbar; die beim SQL-Anmeldungs-Preflight nicht erreichbaren
+Windows-Ziele bleiben für `V0b` `not executed`. Das Toolbelt-Projekt startet,
+repariert oder löscht keine
 Lab-Ressourcen selbst.
 
 - `V0a`: alle 23 portablen beziehungsweise Linux-fähigen Module auf physischen
@@ -497,21 +498,22 @@ und Parallelitätsslices bleiben außerhalb von V1.
 
 ### Phase 4.3 – D1 Date Spine V1
 
-**Status:** `proposed`; Vertragsbesprechung und Freigabe erforderlich
+**Status:** `implemented`; Runtime `partially validated`, Release `unreleased`
 
-`RI-2026-079` nutzt die vorhandenen Generate-Series-, Truncate- und
-Bucket-Primitiven. Version 1 bleibt auf einen relationalen Tag-/Woche-/Monat-
-Spine mit expliziten Grenzen und ohne Feiertags-, Zeitzonen- oder persistente
-Kalenderdimension begrenzt.
+`RI-2026-079` nutzt die vorhandenen Generate-Series- und Truncate-Primitiven;
+Datetime Bucket ist keine künstliche Dependency. Version 1 bleibt auf drei
+relationale Inline TVFs für Tag, ISO-Woche und Monat mit halboffenen Grenzen
+und ohne Feiertags-, Zeitzonen- oder persistente Kalenderdimension begrenzt.
 
 `D1` ist die nächste eigentliche nutzerorientierte Funktionswelle. Gegenüber
 JSON-Konstruktion, Regex und Work Queue besitzt sie die kleinste bereits
 vorhandene Dependency-Closure, eine portable T-SQL-Basis und die begrenzteste
-Provider-, Security- und Recovery-Fläche. Vor Code sind öffentliche
-Oberfläche und Resultset, Inclusivity, umgekehrte beziehungsweise leere
-Bereiche, Wochenanfang und ISO-Bezug, Zeilenlimit sowie Fehler- und
-`NULL`-Semantik festzulegen. Feiertage, Arbeitstage, Zeitzonen, DST,
-Locale-Texte, Geschäfts- und Fiskalkalender sowie persistente
+Provider-, Security- und Recovery-Fläche. Der Vertrag wurde am 2026-08-30
+besprochen und anschließend ausdrücklich freigegeben. Der vollständige
+Adapter ist auf physischen SQL-Server-2019-/2022-/2025-Linux-Zielen
+erfolgreich. Die drei Windows-Ziele waren beim SQL-Anmeldungs-Preflight nicht
+erreichbar und bleiben `not executed`. Feiertage, Arbeitstage, Zeitzonen,
+DST, Locale-Texte, Geschäfts- und Fiskalkalender sowie persistente
 Kalenderdimensionen bleiben außerhalb von V1.
 
 ### Phase 4.4 – R1 Regex V1
