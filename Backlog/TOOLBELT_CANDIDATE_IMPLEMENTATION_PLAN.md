@@ -9,7 +9,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 24 Module sind implementiert; alle 24 sind `partially validated`, 0 sind `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 25 Module sind implementiert; alle 25 sind `partially validated`, 0 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -67,7 +67,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 | Welle | Status | Inhalt | Kandidaten | Eintrittsbedingung | Ergebnis |
 |---|---|---|---|---|---|
 | `V0a` | `active`; V0c-Kohorte auf Linux 2019/2022/2025 erfolgreich | Physische Linux-Zielversionen | alle 23 portablen beziehungsweise Linux-fähigen Module | schema-valider SQL_Server_Lab-Vertrag; explizit ausgewählte Ziele mit eigenem `runtimeStatus = READY`; echte Engines 2019/2022/2025 und synthetische Fixtures | W5-Fehler auf 2019/2022 isolieren und File Content mit serverseitigen Fixtures prüfen; keine Statusanhebung ohne vollständige Pflichtfälle. |
-| `V0b` | `active`; Windows-Ziele derzeit gestoppt | Windows-Release- und Providerfälle | portable V0c-Kohorte sowie ResultTable, CLR-, Datei-, Second-Session- und Event-Module | schema-valider SQL_Server_Lab-Vertrag, einzeln bereite Windows-Ziele, kontrollierte Windows-SQL-Server-Roots und abstrahierte Evidenz | Zielversions-, Identity-, NTFS-, Trust-, Recovery- und Performanceverträge getrennt nachweisen. |
+| `V0b` | `active`; Windows-Ziele beim SQL-Anmeldungs-Preflight nicht erreichbar | Windows-Release- und Providerfälle | portable V0c-Kohorte sowie ResultTable, CLR-, Datei-, Second-Session- und Event-Module | schema-valider SQL_Server_Lab-Vertrag, einzeln bereite Windows-Ziele, kontrollierte Windows-SQL-Server-Roots und abstrahierte Evidenz | Zielversions-, Identity-, NTFS-, Trust-, Recovery- und Performanceverträge getrennt nachweisen. |
 | `V0c` | `active`; abhängig von `V0a`/`V0b` | Erste Releasekohorte | 16 portable Module aus Kernfolge, W1, W2a, W2b-A und W2c | vollständige Pflichtmatrix, versionierte Artefakte, Upgrade-/Uninstallnachweis und Releasekriterien | Veröffentlichungsfertige Kohorte; `release_status` bleibt bis zur tatsächlichen autorisierten Veröffentlichung `unreleased`. |
 | `W1` | `completed` | Kleine unabhängige T-SQL-Kerne | `002`, `008`, `024` | Einzelvertrag und Freigabe | Drei implementierte, auf SQL Server 2025 Linux teilweise validierte Module. |
 | `W2a` | `completed` | Date/Time- und Bigint-Bit-Kompatibilität | `004`, `005`, `007` | Typfamilien, Paritätsumfang und Fehlervertrag am 2026-07-30 freigegeben | Drei Module implementiert und auf SQL Server 2025 Linux teilweise validiert. |
@@ -82,7 +82,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 | `W7` | `active` | Datei- und Host-Provider | `037`, `038`, `025`, `026`, `027` | Root-Allowlist, Pfad-/Encoding-Vertrag und Provider | `toolbelt.file.content` ist als portabler Read-only-Slice implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` implementiert Read/Write/Transcoding/Directory-Operationen; der manuelle Windows-Runtime-Nachweis bleibt offen. Externe Worker bleiben optional zurückgestellt. |
 | `W8` | `completed` für ZIP Memory; Rest `researched` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | `toolbelt.archive.zip-memory` Version `1.2.0` enthält Extraktion und Listing. Windows-Runtime, ZIP-Erzeugung, vollständige Dateisystemextraktion und XLSX bleiben ohne Implementierungsfreigabe offen. |
 | `Q1` | `completed` für V1 | Lifecycle- und Upgrade-Automation | `RI-2026-142`; weitere Manifest-/Snapshot-Slices zurückgestellt | V1 auf isolierte dependency-freie zustandslose T-SQL-Module begrenzt | Kataloggenauer Wiederholungsdeploy, zwei unabhängige Uninstalls und Restzustandsprüfung sind auf SQL Server 2019/2022/2025 unter Linux und Windows erfolgreich. |
-| `D1` | `proposed` | Date Spine V1 | `RI-2026-079` auf Basis von `006`, `004`, `005` | Granularitäten, Grenzen, Inclusivity und Zeitzonenfreiheit besprechen | Kleiner relationaler Datumsspine-Vertrag ohne Kalender-/Feiertagslogik. |
+| `D1` | `implemented`; Runtime `partially validated` | Date Spine V1 | `RI-2026-079` auf Basis von `006` und `004` | Vertrag am 2026-08-30 besprochen und ausdrücklich freigegeben | Drei portable Inline TVFs für Tag, ISO-Woche und Monat; Linux 2019/2022/2025 erfolgreich, Windows-Preflight derzeit nicht erreichbar. |
 | `R1` | `proposed` | Regex V1 | `010` | RE2-Semantikspike, Limits und kleiner Funktionsslice besprechen | Zuerst `LIKE`, `INSTR`, `COUNT`; Replace/Substring/Split/Matches getrennt später. |
 | `R2025` | `proposed research` | SQL-Server-2025-GA-Delta | UNISTR, PRODUCT, DATEADD bigint, Vector-Scalar-Funktionen | Aktuellen GA-/Preview-Status aus Primärquellen bestätigen | Nur Deduplizierung und Kandidatenbewertung; keine Implementierung. |
 | `W9` | `researched` | Deterministische Pseudonymisierungsprimitive | `040`, `039`, `041`, `042`, `043` | Key-/Seed-, Kanonisierungs- und Datenschutzvertrag | Range-Primitive zuerst; darauf Lookup, Translation, Date Shift und Geo Jitter. |
@@ -101,7 +101,7 @@ Uninstall-Verträge, ist jedoch keine neue nutzerorientierte SQL-Capability.
 Die nächste eigentliche Funktionswelle ist deshalb `D1` Date Spine V1.
 
 Die Auswahl von `D1` beruht auf der bereits implementierten Dependency-Closure
-aus Generate Series, Datetime Truncate und Datetime Bucket, dem hohen
+aus Generate Series und Datetime Truncate, dem hohen
 relationalen Nutzwert und einer gegenüber Regex, JSON-Konstruktion und Work
 Queue kleineren Semantik-, Provider-, Security- und Recovery-Fläche. V1 bleibt
 auf Tag, Woche und Monat mit expliziten Grenzen beschränkt. Feiertage,
@@ -109,10 +109,10 @@ Arbeitstage, Zeitzonen, DST, Locale-Texte, Geschäfts- und Fiskalkalender sowie
 eine persistente Kalenderdimension sind ausdrücklich nicht Bestandteil dieser
 Welle.
 
-Vor einer Implementierung sind die öffentliche Oberfläche und ihr Resultset,
-inklusive beziehungsweise exklusive Endgrenzen, umgekehrte oder leere
-Bereiche, Wochenanfang und ISO-Bezug, ein Schutzlimit sowie Fehler- und
-`NULL`-Semantik funktionsbezogen festzulegen. `R1` beginnt weiterhin nur als
+Der D1-Vertrag wurde am 2026-08-30 mit halboffenen Grenzen, leerer Menge für
+`NULL` sowie leere oder umgekehrte Bereiche, Montag-basierter ISO-Woche,
+nullbasiertem Ordinal und ohne künstliches Schutzlimit festgelegt und danach
+ausdrücklich freigegeben. `R1` beginnt weiterhin nur als
 Semantik-/Provider-Spike. `E1` bleibt in Claim/Complete/Fail, Lease/Recovery,
 Retry/Dead Letter/Idempotenz und kooperative Cancellation getrennt.
 
@@ -147,6 +147,7 @@ Retry/Dead Letter/Idempotenz und kooperative Cancellation getrennt.
 | `TC-2026-037` | `toolbelt.file.content`; `toolbelt.filesystem.windows` | `toolbelt_file.USP_LoadBinaryFile`, `toolbelt_file.USP_LoadTextFile`; Windows Read/Write/Transcoding-Procedures | File-Content-Windows-Releasevalidierung und manueller Windows-CLR-Runtime-Test; externer Worker nur bei Bedarf. |
 | `TC-2026-038` | `toolbelt.filesystem.windows` | `toolbelt_filesystem.USP_ListDirectory` | Manueller Windows-Runtime-Test; portabler Listing-Provider bleibt optional offen. |
 | `TC-2026-046` | `toolbelt.core.second-session` | `toolbelt_core.USP_ExecuteWorkTypeInNewSession` | Physische 2019-/2022- und Windows-Releasevalidierung; zusätzliche Provider bleiben getrennte Forschungs- und Freigabeslices. |
+| `D1` / `RI-2026-079` | `toolbelt.datetime.date-spine` | `toolbelt_datetime.TVF_DateSpineDay`, `TVF_DateSpineIsoWeek`, `TVF_DateSpineMonth` | Windows-Runtime nach wiederhergestellter SQL-Erreichbarkeit; Release bleibt unautorisiert. |
 
 ### Portable Fach- und Compatibility-Module
 
@@ -284,11 +285,12 @@ SQL CLR, Datei-I/O, Second Session und Event Log.
 - `toolbelt.core.console-message`;
 - `toolbelt.metadata.capability-catalog`.
 
-Alle 24 Module bleiben `partially validated` und `unreleased`. Der lokale
+Alle 25 Module bleiben `partially validated` und `unreleased`. Der lokale
 SQL_Server_Lab-Vertrag ist schema-valide. Durch die ausdrückliche
 Einzelzielfreigabe vom 2026-08-29 sind die laufenden Linux-Ziele trotz
-`groupStatus = INCOMPLETE` für `V0a` verwendbar; gestoppte Windows-Ziele
-bleiben ausgeschlossen. Am 2026-08-29 waren die vollständigen Adapter aller
+`groupStatus = INCOMPLETE` für `V0a` verwendbar; die beim SQL-Anmeldungs-
+Preflight nicht erreichbaren Windows-Ziele bleiben ausgeschlossen. Am
+2026-08-29 waren die vollständigen Adapter aller
 16 V0c-Module auf den physischen Linux-Zielen 2019/2022/2025 erfolgreich.
 Second Session und Event Log scheiterten auf 2019/2022, bestanden aber auf
 2025; File Content blieb ohne separat bereitgestellte serverseitige Fixtures

@@ -17,6 +17,12 @@ Container und prüft den portablen Ganzzahlreihenvertrag seriell mit
 Compatibility Levels 150, 160 und 170 sowie lokale, zentrale und
 Lifecycle-Pfade.
 
+`run-date-spine-linux.sh` installiert Generate Series und Datetime Truncate
+als explizite Dependencies und prüft danach Tages-, ISO-Wochen- und
+Monatsspine einschließlich halboffener Grenzen, `DATEFIRST`-Unabhängigkeit,
+Skalierung, fehlender Dependencies, Kollisionen, Wiederholungsdeployment,
+Central-Aufruf und vollständigem Cleanup.
+
 `run-identifier-linux.sh` prüft den Identifier-Vertrag mit denselben
 Compatibility Levels sowie lokale, zentrale, Kollisions- und Lifecycle-Pfade.
 

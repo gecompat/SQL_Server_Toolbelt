@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 24 Module implementiert – 24 teilweise validiert](https://img.shields.io/badge/Status-24%20Module%20implementiert%20%7C%2024%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 25 Module implementiert – 25 teilweise validiert](https://img.shields.io/badge/Status-25%20Module%20implementiert%20%7C%2025%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 24 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
+**Der Repository-Grundaufbau ist abgeschlossen. 25 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)
@@ -158,6 +158,13 @@ fünf Bitoperationen für `bigint` als kanonische relationale TVFs bereit.
 Die vollständigen Moduladapter sind auf physischen SQL-Server-2019-, 2022-
 und 2025-Linux-Zielen einschließlich Wiederholungsdeployment, Lifecycle,
 Central und Uninstall erfolgreich; Windows-Läufe bleiben offen.
+
+Das implementierte D1-Modul
+[`toolbelt.datetime.date-spine`](./Modules/toolbelt.datetime.date-spine/README.md)
+erzeugt Tages-, ISO-Wochen- und Monatsperioden für halboffene `date`-Bereiche.
+Der vollständige Adapter ist auf physischen SQL-Server-2019-/2022-/2025-
+Linux-Zielen erfolgreich; Windows blieb nach nicht erreichbarem SQL-
+Anmeldungs-Preflight `not executed`.
 
 Das implementierte W2b-A-Modul
 [`toolbelt.json.path-exists`](./Modules/toolbelt.json.path-exists/README.md)
