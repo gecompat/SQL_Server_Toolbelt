@@ -1,5 +1,9 @@
 # Error Envelope
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 ## Status
 
 `toolbelt.core.error-envelope` Version `1.0.0` ist implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 teilweise validiert.
@@ -19,3 +23,4 @@ Die Procedure führt bewusst keinen Rethrow aus. Nur `THROW;` im ursprünglichen
 - `Deployment/Deploy.sql` und `Deployment/Uninstall.sql`
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948
+sowie der erfolgreiche physische Linux-Lauf 2019/2022/2025 vom 2026-08-29.

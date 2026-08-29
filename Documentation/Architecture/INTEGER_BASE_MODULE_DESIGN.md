@@ -27,6 +27,6 @@ verarbeitet ausschließlich `bigint`; eine spätere `decimal(38,0)`-Oberfläche
 ist ein eigener Vertrag.
 
 Lokales und zentrales Deployment folgen dem allgemeinen Lifecycle-Vertrag.
-Der Modulfehlerbereich ist `51090–51099`. SQL Server 2025 Linux ist mit
-Compatibility Levels 150, 160 und 170 erfolgreich; physische
-SQL-Server-2019-/2022- und Windows-Läufe bleiben offen.
+Der Modulfehlerbereich ist `51090–51099`. Der vollständige Adapter ist auf
+physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich;
+Windows-Läufe bleiben offen.

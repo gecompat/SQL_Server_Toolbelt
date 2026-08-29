@@ -8,14 +8,14 @@ abgeschlossen. 24 Module sind implementiert. Alle 24 sind
 `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
-`toolbelt.core.result-table` ist auf GitHub-hosted Linux für SQL Server 2019,
-2022 und 2025 erfolgreich. Base64, Generate-Series, Identifier,
-Split-Characters, Semantic-Version, Integer-Base, Calendar-Difference,
-Directional-TRIM und URI-Component sind auf SQL Server 2025 Linux mit
-Compatibility Levels 150, 160 und 170 erfolgreich. Physische
-SQL-Server-2019-/2022- und Windows-Läufe sowie die jeweils ausgewiesenen
-modulspezifischen Restfälle bleiben offen. `TC-2026-032` bleibt eine getrennte
-Split-Ausbaustufe im Research-Status ohne Implementierungsfreigabe.
+Alle 16 Module der V0c-Kohorte sind am 2026-08-29 auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich gelaufen. Die
+Windows-Matrix und die jeweils ausgewiesenen modulspezifischen Restfälle
+bleiben offen. Second Session und Event Log scheitern außerhalb der
+Releasekohorte auf Linux 2019/2022 im gemeinsamen W5-Vertrag; File Content
+benötigt noch separat bereitgestellte serverseitige Fixtures. `TC-2026-032`
+bleibt eine getrennte Split-Ausbaustufe im Research-Status ohne
+Implementierungsfreigabe.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -190,12 +190,13 @@ Stand `toolbelt.conversion.base64`:
   statische und Runtime-Contract-Tests vorhanden;
 - SQL Server 2025 mit Compatibility Levels 150, 160 und 170 als erste
   serielle Runtime-Matrix ausgeführt;
-- physische SQL-Server-2019-/2022- und Windows-Prüfungen für die gezielte
-  Releasevalidierung vorgesehen;
+- vollständiger Adapter am 2026-08-29 auf physischen
+  SQL-Server-2019-/2022-/2025-Linux-Zielen erfolgreich;
+- Windows-Prüfungen für die gezielte Releasevalidierung vorgesehen;
 - SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
   einschließlich RFC-4648-, Fehler-, Größen-, Deployment- und
   Lifecycle-Contracts erfolgreich;
-- wegen der offenen physischen 2019-/2022- und Windows-Prüfungen
+- wegen der offenen Windows-Prüfungen
   `validation_status: partially validated`.
 
 Stand `toolbelt.core.generate-series`:
@@ -209,7 +210,9 @@ Stand `toolbelt.core.generate-series`:
   einschließlich Semantik, nativer Parität, Fehlern, Grenzen, einer Million
   Werten, Row Goal, Join, `CROSS APPLY`, Deployment- und Lifecycle-Contracts
   erfolgreich;
-- wegen der offenen physischen 2019-/2022- und Windows-Prüfungen
+- vollständiger Adapter am 2026-08-29 auf physischen
+  SQL-Server-2019-/2022-/2025-Linux-Zielen erfolgreich;
+- wegen der offenen Windows-Prüfungen
   `validation_status: partially validated`.
 
 Stand `toolbelt.metadata.identifier`:
@@ -220,8 +223,9 @@ Stand `toolbelt.metadata.identifier`:
 - zustandsbasierter Parser und Scalar-Wrapper für ein- bis vierteilige Namen;
 - Modulmanifest, Lifecycle, Dokumentation, Beispiele sowie statische und
   Runtime-Contract-Artefakte vorhanden;
-- SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich;
-- physische 2019-/2022- und Windows-Läufe offen, daher
+- vollständiger Adapter auf physischen SQL-Server-2019-/2022-/2025-Linux-Zielen
+  erfolgreich;
+- Windows-Läufe offen, daher
   `validation_status: partially validated`.
 
 Stand `toolbelt.string.split-characters`:
@@ -231,8 +235,9 @@ Stand `toolbelt.string.split-characters`:
 - Dependency auf `toolbelt.core.generate-series` Version `1.0.0`;
 - Modulmanifest, Lifecycle, Dokumentation, Beispiele sowie statische und
   Runtime-Contract-Artefakte vorhanden;
-- SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich;
-- physische 2019-/2022- und Windows-Läufe offen, daher
+- vollständiger Adapter auf physischen SQL-Server-2019-/2022-/2025-Linux-Zielen
+  erfolgreich;
+- Windows-Läufe offen, daher
   `validation_status: partially validated`;
 - mehrzeichige Separatorstrings, Quote und Escape bleiben `TC-2026-032`.
 
@@ -243,8 +248,8 @@ Split-Version mit mehrzeichigen Separatoren, Escape und Quote ist separat als
 
 `toolbelt.validation.semantic-version` und
 `toolbelt.conversion.integer-base` sind einschließlich kanonischer inline
-TVFs, SVF-Convenience-Wrappern, Lifecycle und SQL-Server-2025-Linux-Matrix mit
-Compatibility Levels 150, 160 und 170 implementiert und teilweise validiert.
+TVFs, SVF-Convenience-Wrappern und Lifecycle implementiert sowie auf
+physischen SQL-Server-2019-/2022-/2025-Linux-Zielen teilweise validiert.
 
 ### Phase 2.2 – Portable W1
 
@@ -267,9 +272,10 @@ Der finale [W1-Portable-Runtime-Lauf
 ist auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Die [Dokumentationskonsistenz
 30553118014](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118014)
-ist auf demselben Pull-Request-Stand erfolgreich. Physische
-SQL-Server-2019-/2022- und Windows-Läufe bleiben gezielte
-Releasevalidierung.
+ist auf demselben Pull-Request-Stand erfolgreich. Der vollständige Adapter
+aller drei Module war am 2026-08-29 auf physischen
+SQL-Server-2019-/2022-/2025-Linux-Zielen erfolgreich. Windows-Läufe bleiben
+gezielte Releasevalidierung.
 
 ### Phase 2.3 – W2a Compatibility-Welle
 
@@ -279,8 +285,9 @@ W2a mit `TC-2026-004`, `TC-2026-005` und `TC-2026-007` wurde am 2026-07-30
 ausdrücklich freigegeben und ist als drei Module implementiert. Die
 SQL-Server-2025-Linux-Runtime war mit Compatibility Levels 150, 160 und 170
 einschließlich Wiederholungsdeployment, Lifecycle, Central und Uninstall
-erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
-Releasevalidierung.
+erfolgreich. Die vollständigen Adapter waren am 2026-08-29 zusätzlich auf
+physischen SQL-Server-2019-/2022-/2025-Linux-Zielen erfolgreich.
+Windows-Läufe bleiben Releasevalidierung.
 
 ### Phase 2.4 – W2b-A JSON Path Exists
 
@@ -302,8 +309,9 @@ Der [W2b-JSON-Path-Runtime-Lauf
 30568128943](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30568128943)
 ist auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 einschließlich nativer Parität, Wiederholungsdeployment, Lifecycle, Central
-und Uninstall erfolgreich. Physische 2019-/2022- und Windows-Läufe bleiben
-Releasevalidierung.
+und Uninstall erfolgreich. Der vollständige Adapter war am 2026-08-29
+zusätzlich auf physischen SQL-Server-2019-/2022-/2025-Linux-Zielen
+erfolgreich. Windows-Läufe bleiben Releasevalidierung.
 
 ### Phase 2.5 – W2c Console Message und Capability Catalog
 
@@ -323,8 +331,10 @@ Runtime-Contracts sind vorhanden. Die
 [W2c-Runtime 30573135975](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975)
 ist auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170
 einschließlich Langtext-/Unicode-, Marker-/Drift-, Wiederholungs-, Lifecycle-,
-Central- und Uninstall-Contracts erfolgreich. Physische 2019-/2022-,
-Windows- und modulspezifische Releasefälle bleiben offen.
+Central- und Uninstall-Contracts erfolgreich. Die vollständigen Adapter waren
+am 2026-08-29 zusätzlich auf physischen
+SQL-Server-2019-/2022-/2025-Linux-Zielen erfolgreich. Windows- und
+modulspezifische Releasefälle bleiben offen.
 
 ### Phase 2.6 – Portable File Content
 
@@ -400,7 +410,8 @@ Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/307033391
 `toolbelt.core.second-session` führt registrierte Work Types synchron über
 einen administrativ vorbereiteten Loopback-Linked-Server in einer getrennten
 Session aus. Raw SQL und im Modul gespeicherte Credentials bleiben
-ausgeschlossen. Physische 2019-/2022- und Windows-Evidenz ist offen.
+ausgeschlossen. Der physische Linux-Lauf ist auf 2025 erfolgreich, scheitert
+aber auf 2019/2022 im gemeinsamen W5-Vertrag; Windows-Evidenz ist offen.
 
 ### Phase 2.13 – Rollback-independent Event Log
 
@@ -408,7 +419,8 @@ ausgeschlossen. Physische 2019-/2022- und Windows-Evidenz ist offen.
 
 `toolbelt.core.event-log` persistiert strukturierte Events über die synchrone
 zweite Session. Caller-Rollback und uncommittable Caller sind auf SQL Server
-2025 Linux CL150/160/170 nachgewiesen.
+2025 Linux CL150/160/170 nachgewiesen. Der physische Linux-Lauf scheitert
+jedoch auf 2019/2022 im gemeinsamen W5-Vertrag; Windows-Evidenz ist offen.
 Evidence: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410.
 
 ## Phase 3 – Schlanke Test-Infrastruktur und CI
@@ -427,11 +439,14 @@ keine pauschale Runtime-Vollmatrix aus.
 
 **Status:** `in progress`; am 2026-08-28 ausdrücklich freigegeben
 
-**Aktueller Runtime-Blocker:** Der über die vorgesehenen Umgebungsvariablen
-ermittelte SQL_Server_Lab-Vertrag ist schema-valide, besitzt derzeit jedoch
-`groupStatus = INCOMPLETE`. Bis Gruppe und ausgewählte Ziele `READY` sind,
-bleiben neue Runtime-Läufe `not executed`. Das Toolbelt-Projekt startet,
-repariert oder löscht keine Lab-Ressourcen selbst.
+**Aktuelles Runtime-Gate:** Der über die vorgesehenen Umgebungsvariablen
+ermittelte SQL_Server_Lab-Vertrag ist schema-valide. Seit der ausdrücklichen
+Benutzerfreigabe vom 2026-08-29 dürfen aus `groupStatus = INCOMPLETE`
+explizit ausgewählte Einzelziele mit `runtimeStatus = READY` und geeignetem
+Eintragsstatus verwendet werden. Damit ist die aktuelle Linux-Matrix für
+`V0a` ausführbar; die gestoppten Windows-Ziele bleiben für `V0b` `not
+executed`. Das Toolbelt-Projekt startet, repariert oder löscht keine
+Lab-Ressourcen selbst.
 
 - `V0a`: alle 23 portablen beziehungsweise Linux-fähigen Module auf physischen
   SQL-Server-2019-, 2022- und 2025-Engines prüfen. Der lokale Lab-Adapter

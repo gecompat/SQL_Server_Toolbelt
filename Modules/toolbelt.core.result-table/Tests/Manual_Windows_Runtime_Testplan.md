@@ -1,5 +1,9 @@
 # Manueller Windows-Runtime-Testplan
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 Status: ausstehend. Dieser Testplan ergänzt die automatisierte Linux-Matrix um den erforderlichen Windows-SQL-Server-Nachweis. Er erzeugt keine Runtime-Evidenz, solange die Tests nicht tatsächlich ausgeführt und bewertet wurden.
 
 Bestehende Linux-Evidenz: [vollständige SQL-Server-2019-/2022-/2025-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) sowie [natürlicher Savepoint-Enginefehler 2705](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855). Diese Evidenz ersetzt keinen Windows-Lauf.

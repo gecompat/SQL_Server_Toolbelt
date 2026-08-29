@@ -27,7 +27,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/string-split-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-split-to-table-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung ausführen. Version 1 bleibt auf mehrere einzelne Trennzeichen ohne Quote-/Escape-Semantik begrenzt; die breitere Ausbaustufe ist separat als `TC-2026-032` erfasst. |
+| **Nächster Schritt** | Windows-Releasevalidierung ausführen. Version 1 bleibt auf mehrere einzelne Trennzeichen ohne Quote-/Escape-Semantik begrenzt; die breitere Ausbaustufe ist separat als `TC-2026-032` erfasst. |
 
 ## TC-2026-002: Kalendarische Differenz in vollständigen Einheiten
 
@@ -50,7 +50,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/datediff-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Evidenz sowie die noch offenen Kollisionsfälle gezielt ergänzen. |
+| **Nächster Schritt** | Windows-Evidenz sowie die noch offenen Kollisionsfälle gezielt ergänzen. |
 
 ## TC-2026-003: Einheitliches ResultTable-Routing für Stored Procedures
 
@@ -96,7 +96,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [Auswahlvorbereitung für das zweite Modul](../Documentation/Research/SECOND_MODULE_SELECTION.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/datetrunc-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/user-defined-functions/create-user-defined-functions-database-engine?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/user-defined-functions/scalar-udf-inlining?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung ausführen. |
+| **Nächster Schritt** | Windows-Releasevalidierung ausführen. |
 
 ## TC-2026-005: DATE_BUCKET-Kompatibilität für SQL Server 2019
 
@@ -119,7 +119,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/date-bucket-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung sowie gezielte Performance-Evidenz für die interne Optimizer-Grenze ausführen. |
+| **Nächster Schritt** | Windows-Releasevalidierung sowie gezielte Performance-Evidenz für die interne Optimizer-Grenze ausführen. |
 
 ## TC-2026-006: GENERATE_SERIES-Kompatibilität für SQL Server 2019
 
@@ -142,7 +142,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [GENERATE_SERIES_MODULE_DESIGN.md](../Documentation/Architecture/GENERATE_SERIES_MODULE_DESIGN.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/generate-series-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Gezielte physische SQL-Server-2019-/2022- und Windows-Releasevalidierung planen; der SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 ist erfolgreich. |
+| **Nächster Schritt** | Gezielte Windows-Releasevalidierung planen; die physischen Linux-Läufe 2019/2022/2025 sind erfolgreich. |
 
 ## TC-2026-007: Bit-Manipulationsfunktionen für SQL Server 2019
 
@@ -165,7 +165,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/bit-manipulation-functions-overview?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung ausführen; Binary-Provider erst nach eigener Vertragsbesprechung und Benchmarkentscheidung. |
+| **Nächster Schritt** | Windows-Releasevalidierung ausführen; Binary-Provider erst nach eigener Vertragsbesprechung und Benchmarkentscheidung. |
 
 ## TC-2026-008: Richtungsabhängiges TRIM für SQL Server 2019
 
@@ -188,7 +188,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/trim-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Weitere Collations und physische SQL-Server-2019-/2022- und Windows-Evidenz gezielt ergänzen. |
+| **Nächster Schritt** | Weitere Collations und Windows-Evidenz gezielt ergänzen. |
 
 ## TC-2026-009: JSON-Konstruktion und Pfadprüfung für SQL Server 2019
 
@@ -211,7 +211,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented` (Slice A); Runtime `partially validated`; Konstruktoren `researched` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/sql-server/what-s-new-in-sql-server-2022?view=sql-server-ver16<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/json-object-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/json-path-exists-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung für `toolbelt.json.path-exists` ausführen. Konstruktoren erst nach einer eigenen Aufrufoberflächenentscheidung besprechen. |
+| **Nächster Schritt** | Windows-Releasevalidierung für `toolbelt.json.path-exists` ausführen. Konstruktoren erst nach einer eigenen Aufrufoberflächenentscheidung besprechen. |
 
 ## TC-2026-010: Regular-Expression-Kompatibilitätsmodul
 
@@ -280,7 +280,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [SQL_SERVER_TOOLBELT_LANDSCAPE.md](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>[Auswahlvorbereitung für das zweite Modul](../Documentation/Research/SECOND_MODULE_SELECTION.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/base64-encode-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/base64-decode-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/xml/use-the-binary-base64-option?view=sql-server-ver17<br>https://www.rfc-editor.org/rfc/rfc4648 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung gezielt ausführen. |
+| **Nächster Schritt** | Windows-Releasevalidierung gezielt ausführen. |
 
 ## TC-2026-013: JSON-Aggregate für SQL Server 2019/2022
 
@@ -441,7 +441,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-set-session-context-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/session-context-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/data-access/context-connection?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-08-01 |
-| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; persistenter Execution-Status bleibt ein getrennter späterer Slice. |
+| **Nächster Schritt** | Windows-Releasevalidierung; persistenter Execution-Status bleibt ein getrennter späterer Slice. |
 
 ## TC-2026-020: Retry-, Idempotenz- und Dead-letter-Vertrag
 
@@ -510,7 +510,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-executesql-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/security/authentication-access/signing-stored-procedures-with-a-certificate?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/security/permissions-database-engine?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-08-01 |
-| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; abhängige Module verwenden für ihren Lifecycle Disable → Remove statt direkter Katalog-DML. |
+| **Nächster Schritt** | Windows-Releasevalidierung; abhängige Module verwenden für ihren Lifecycle Disable → Remove statt direkter Katalog-DML. |
 
 ## TC-2026-023: Abfragbarer Capability- und Versionskatalog
 
@@ -556,7 +556,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [SQL_SERVER_TOOLBELT_LANDSCAPE.md](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/string-escape-transact-sql?view=sql-server-ver17<br>https://datatracker.ietf.org/doc/html/rfc3986 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | LOB- und Performancegrenzen sowie physische SQL-Server-2019-/2022- und Windows-Evidenz ergänzen; CLR erst bei messbarem Vorteil erneut prüfen. |
+| **Nächster Schritt** | LOB- und Performancegrenzen sowie Windows-Evidenz ergänzen; CLR erst bei messbarem Vorteil erneut prüfen. |
 
 ## TC-2026-025: Kontrollierte PowerShell-Host-Automation
 
@@ -672,7 +672,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [Research-Inbox `RI-2026-011`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/quotename-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/parsename-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung gezielt ausführen. |
+| **Nächster Schritt** | Windows-Releasevalidierung gezielt ausführen. |
 
 ## TC-2026-030: Semantic-Version Parser und Comparator
 
@@ -696,7 +696,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [Research-Inbox `RI-2026-075`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://semver.org/spec/v2.0.0.html |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung später gezielt ausführen. |
+| **Nächster Schritt** | Windows-Releasevalidierung später gezielt ausführen. |
 
 ## TC-2026-031: Ganzzahlen in frei definierbaren Zahlensystemen
 
@@ -720,7 +720,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `partially validated` |
 | **Primärquellen** | [Research-Inbox `RI-2026-055`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Persönlicher Brainstorm](./personal_Backlog_Bainstorm.md)<br>https://www.rfc-editor.org/info/rfc4648/ |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung später gezielt ausführen. |
+| **Nächster Schritt** | Windows-Releasevalidierung später gezielt ausführen. |
 
 ## TC-2026-032: Erweiterter String-Split mit mehrzeichigen Separatoren, Escape und Quote
 

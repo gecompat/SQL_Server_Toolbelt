@@ -157,7 +157,7 @@ Vertrag interpretiert werden.
 | Funktionsbezogene Implementierungsfreigabe | erfüllt | ausdrücklich am 2026-07-29 |
 | Scopebezogenes Qualitäts-Gate | erfüllt | `DEC-2026-021`; keine ResultTable-Abhängigkeit |
 | Implementierung | erfüllt | Modulartefakte vorhanden |
-| Runtime-Validierung | teilweise erfüllt | SQL Server 2025 Linux mit Compatibility Levels 150/160/170 erfolgreich; physische 2019-/2022- und Windows-Läufe offen |
+| Runtime-Validierung | teilweise erfüllt | Physische SQL-Server-2019-/2022-/2025-Linux-Läufe erfolgreich; Windows-Läufe offen |
 
 Die offenen ResultTable-Pflichtfälle bleiben unabhängig bestehen. Sie werden
 nicht als Evidenz für das Base64-Modul verwendet und blockieren dessen

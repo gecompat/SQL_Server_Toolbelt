@@ -1,5 +1,9 @@
 # Contract-Testmatrix: ZIP Memory CLR Inspection
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 | Bereich | Pflichtfall | Status |
 |---|---|---|
 | Build | .NET Framework 4.8; reproduzierbare Release-Artefakte | `success` |

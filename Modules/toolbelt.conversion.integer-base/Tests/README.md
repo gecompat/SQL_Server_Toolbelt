@@ -1,5 +1,9 @@
 # Integer-Base Tests
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 Runtime: `partially validated`.
 
 Signatur-, Alphabet-, Kanonizitäts-, Grenzwert-, Overflow-, Roundtrip-,
@@ -12,5 +16,6 @@ SQL Server 2025 Linux war mit Compatibility Levels 150, 160 und 170
 erfolgreich. Geprüft wurden Version `1.1.0`, Inline-TVF-/SVF-Parität,
 `OUTER APPLY`, der vollständige `bigint`-Bereich, Overflow, Upgrade,
 Wiederholungsdeployment, Kollision, lokale und zentrale Nutzung sowie
-Uninstall. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben `not
-executed`.
+Uninstall. Der vollständige Adapter ist seit 2026-08-29 auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich; Windows-Läufe
+bleiben `not executed`.

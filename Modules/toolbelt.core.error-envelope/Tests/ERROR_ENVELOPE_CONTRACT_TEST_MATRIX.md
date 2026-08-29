@@ -1,5 +1,9 @@
 # Error-Envelope-Contract-Testmatrix
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 - Help ohne Pflichtparameter und ohne Seiteneffekt
 - ENGINE-, TOOLBELT- und USER-Klassifikation
 - Originalwerte, Transaktionszustand und Sessionmetadaten
@@ -14,4 +18,3 @@
 - SQL Server 2025 Linux, Compatibility Levels 150, 160 und 170: erfolgreich.
 - Workflow: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948
 - Windows und physische SQL-Server-2019-/2022-Läufe: `not executed`.
-

@@ -1,5 +1,9 @@
 # toolbelt.datetime.bucket
 
+V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
+ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
+Windows- und modulspezifische Fälle bleiben unberührt.
+
 Portabler, typstabiler Teilvertrag von `DATE_BUCKET` für SQL Server 2019, 2022
 und 2025.
 
@@ -44,6 +48,10 @@ sqlcmd -S <server> -d <database> -i Deploy.sql -v DeploymentMode=local
 ```
 
 ## Dokumentation
+
+Der vollständige Moduladapter war am 2026-08-29 auf physischen
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Windows- und
+gezielte Optimizer-Performancefälle bleiben Releasevalidierung.
 
 - [Moduldesign](../../Documentation/Architecture/DATETIME_BUCKET_MODULE_DESIGN.md)
 - [Contract-Testmatrix](./Tests/DATETIME_BUCKET_CONTRACT_TEST_MATRIX.md)

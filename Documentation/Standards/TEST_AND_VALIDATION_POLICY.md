@@ -111,6 +111,11 @@ ausgeführt werden; fehlende Runner ergeben keinen grünen Nachweis.
 
 ## Aktueller Stand
 
+Am 2026-08-29 waren die vollständigen Adapter aller 16 V0c-Module auf
+physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Die
+folgenden Modulstatus bleiben dennoch `partially validated`, weil Windows-
+und modulspezifische Restfälle nicht vollständig ausgeführt sind.
+
 `toolbelt.core.result-table` hat `implementation_status: implemented`,
 `validation_status: partially validated` und `release_status: unreleased`. Die
 GitHub-hosted Linux-Läufe vom 2026-07-29 sind für SQL Server 2019, 2022 und
@@ -121,86 +126,78 @@ bleiben `not executed`.
 `validation_status: partially validated` und `release_status: unreleased`.
 SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 ist
 einschließlich Literal-, Leer-Token-, NULL-/NUL-, Collation-, LOB-,
-Dependency-, Deployment- und Lifecycle-Contracts erfolgreich. Physische
-2019-/2022- und Windows-Läufe bleiben `not executed`.
+Dependency-, Deployment- und Lifecycle-Contracts erfolgreich. Windows-Läufe
+bleiben `not executed`.
 
 `toolbelt.validation.semantic-version` hat `implementation_status:
 implemented`, `validation_status: partially validated` und `release_status:
 unreleased`. Parser-, Comparator-, Sort-Key-, Deployment- und
-Lifecycle-Contracts sind auf SQL Server 2025 Linux mit Compatibility Levels
-150, 160 und 170 erfolgreich; physische SQL-Server-2019-/2022- und
-Windows-Läufe bleiben `not executed`.
+Lifecycle-Contracts sind auf den physischen Linux-Zielen 2019/2022/2025
+erfolgreich; Windows-Läufe bleiben `not executed`.
 
 `toolbelt.conversion.integer-base` hat `implementation_status: implemented`,
 `validation_status: partially validated` und `release_status: unreleased`.
 Alphabet-, Kanonizitäts-, Grenzwert-, Overflow-, Deployment- und
-Lifecycle-Contracts sind auf SQL Server 2025 Linux mit Compatibility Levels
-150, 160 und 170 erfolgreich; physische SQL-Server-2019-/2022- und
-Windows-Läufe bleiben `not executed`.
+Lifecycle-Contracts sind auf den physischen Linux-Zielen 2019/2022/2025
+erfolgreich; Windows-Läufe bleiben `not executed`.
 
 `toolbelt.conversion.base64` hat `implementation_status: implemented`,
 `validation_status: partially validated` und `release_status: unreleased`. SQL
 Server 2025 unter Linux ist mit Compatibility Levels 150, 160 und 170
 einschließlich RFC-4648-, Fehler-, Größen-, Deployment- und
-Lifecycle-Contracts erfolgreich. Physische SQL-Server-2019-/2022- und
-Windows-Läufe bleiben `not executed`.
+Lifecycle-Contracts erfolgreich. Windows-Läufe bleiben `not executed`.
 
 `toolbelt.core.generate-series` hat `implementation_status: implemented`,
 `validation_status: partially validated` und `release_status: unreleased`.
 SQL Server 2025 unter Linux ist mit Compatibility Levels 150, 160 und 170
 einschließlich Semantik, Grenzen, Größe, Join, `CROSS APPLY`, Deployment und
-Lifecycle erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe
-bleiben `not executed`.
+Lifecycle erfolgreich. Windows-Läufe bleiben `not executed`.
 
 `toolbelt.metadata.identifier` hat `implementation_status: implemented`,
 `validation_status: partially validated` und `release_status: unreleased`.
 SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 ist
 einschließlich Parser-, Quote-, Escape-, Omission-, Fehler-, Deployment- und
-Lifecycle-Contracts erfolgreich. Physische 2019-/2022- und Windows-Läufe
-bleiben `not executed`.
+Lifecycle-Contracts erfolgreich. Windows-Läufe bleiben `not executed`.
 
 `toolbelt.datetime.calendar-difference` hat `implementation_status:
 implemented`, `validation_status: partially validated` und `release_status:
 unreleased`. SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 ist einschließlich Anniversary-, Grenzwert-, NULL-, `APPLY`-, Deployment- und
-Lifecycle-Contracts erfolgreich. Physische 2019-/2022- und Windows-Läufe
-bleiben `not executed`.
+Lifecycle-Contracts erfolgreich. Windows-Läufe bleiben `not executed`.
 
 `toolbelt.string.directional-trim` hat `implementation_status: implemented`,
 `validation_status: partially validated` und `release_status: unreleased`.
 SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 ist
 einschließlich Richtungs-, Typ-, Literal-, NULL-/NUL-, nativer Paritäts-,
-Deployment- und Lifecycle-Contracts erfolgreich. Weitere Collations sowie
-physische 2019-/2022- und Windows-Läufe bleiben `not executed`.
+Deployment- und Lifecycle-Contracts erfolgreich. Weitere Collations und
+Windows-Läufe bleiben `not executed`.
 
 `toolbelt.conversion.uri-component` hat `implementation_status: implemented`,
 `validation_status: partially validated` und `release_status: unreleased`.
 SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 ist
 einschließlich RFC-3986-, Unicode-, UTF-8-, Fehler-, Einmal-Decoding-,
 SVF-/TVF-Paritäts-, Deployment- und Lifecycle-Contracts erfolgreich.
-LOB-/Performancegrenzen sowie physische 2019-/2022- und Windows-Läufe bleiben
-`not executed`.
+LOB-/Performancegrenzen und Windows-Läufe bleiben `not executed`.
 
 `toolbelt.json.path-exists` hat `implementation_status: implemented`,
 `validation_status: partially validated` und `release_status: unreleased`.
 SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 ist
 einschließlich nativer Parität, Root-, Property-, Quote-, Array-, Wildcard-,
 NULL-, Fehler-, BIN2-, Deployment-, Central-, Uninstall- und
-Lifecycle-Contracts erfolgreich. Physische SQL-Server-2019-/2022- und
-Windows-Läufe bleiben `not executed`.
+Lifecycle-Contracts erfolgreich. Windows-Läufe bleiben `not executed`.
 
 `toolbelt.core.console-message` hat `implementation_status: implemented`,
 `validation_status: partially validated` und `release_status: unreleased`.
 SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 ist
 einschließlich API-, Help-, Langtext-, PRINT-, RAISERROR/NOWAIT-, Unicode-,
 Zeilen-, Wiederholungs-, Lifecycle-, Central- und Uninstall-Contracts
-erfolgreich. Physische 2019-/2022-, Windows- und weitere Client-/Treiber-Läufe
-bleiben `not executed`.
+erfolgreich. Windows- und weitere Client-/Treiber-Läufe bleiben `not
+executed`.
 
 `toolbelt.metadata.capability-catalog` hat `implementation_status:
 implemented`, `validation_status: partially validated` und `release_status:
 unreleased`. SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 ist einschließlich API-, Marker-, Drift-, Typ-, Object-level-, Collation-,
 Read-only-, Wiederholungs-, Lifecycle-, Central- und Uninstall-Contracts
-erfolgreich. Physische 2019-/2022-, Windows- und eingeschränkte
-Metadata-Visibility-Läufe bleiben `not executed`.
+erfolgreich. Windows- und eingeschränkte Metadata-Visibility-Läufe bleiben
+`not executed`.
