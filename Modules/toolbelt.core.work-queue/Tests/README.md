@@ -5,11 +5,12 @@ und Datenbanken. Sie prüft Vertrag, Parallelität, Redeployment, zentrale
 Installation, Datenverlustschutz und vollständigen Uninstall. Claim-Token und
 Payloadwerte werden nicht als Repository-Evidenz persistiert.
 
-Am 2026-08-30 war der vollständige Adapter auf physischen
-SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Die drei explizit
-ausgewählten Windows-Base-Ziele scheiterten bereits im SQL-Anmeldungs-
-Preflight; dort wurde keine Testmutation ausgeführt. Alle synthetischen
-Testdatenbanken der erfolgreichen und fehlgeschlagenen Adapterläufe wurden
-entfernt, die Lab-Umgebungen selbst blieben unberührt.
+Am 2026-08-30 war der vollständige E1b-Adapter auf physischen
+SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest
+erfolgreich. Der Scope umfasst Lease, Heartbeat, Recovery, Token-
+Invalidierung, aktiven Ablaufvertrag, vier echte Claim-Sessions, Central,
+Lifecycle sowie das erfolgreiche Upgrade `1.0.0 → 1.1.0` und dessen
+blockierenden Active-Claim-Preflight. Alle synthetischen Testdatenbanken
+wurden entfernt; die Lab-Umgebungen selbst blieben unberührt.
 
 Evidenzquelle: `local: Tests/CI/run-lab-local.ps1`.

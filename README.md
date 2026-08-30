@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 26 Module implementiert – 26 teilweise validiert](https://img.shields.io/badge/Status-26%20Module%20implementiert%20%7C%2026%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 26 Module implementiert – 25 teilweise validiert](https://img.shields.io/badge/Status-26%20Module%20implementiert%20%7C%2025%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -72,13 +72,13 @@ Raw SQL bleibt ausgeschlossen; Änderungen sind über `rowversion`,
 explizite Update-/Reaktivierungsflags und Data-Loss-geschützten Uninstall
 abgesichert.
 
-Der freigegebene E1a-Slice
+Die freigegebenen E1a-/E1b-Slices
 [`toolbelt.core.work-queue`](./Modules/toolbelt.core.work-queue/README.md)
-stellt Enqueue, atomaren tokengebundenen Claim, Complete, Fail und geschützte
-Statusoberflächen bereit. Die physische Linux-Matrix SQL Server 2019, 2022
-und 2025 ist erfolgreich; Windows blieb nach nicht erreichbarem SQL-
-Anmeldungs-Preflight `not executed`. Lease, Recovery, Retry, Dead Letter,
-Idempotenz und Cancellation bleiben getrennte, noch nicht freigegebene Slices.
+stellen Enqueue, atomaren Lease-Claim, Heartbeat, explizite Recovery, Complete,
+Fail und geschützte Statusoberflächen bereit. Die vollständige E1b-Matrix ist
+auf SQL Server 2019, 2022 und 2025 unter Windows und Linux erfolgreich; das
+Modul ist `validated`, aber `unreleased`. Retry, Dead Letter, Idempotenz und
+Cancellation bleiben getrennte, nicht implementierte Slices.
 
 [`toolbelt.core.second-session`](./Modules/toolbelt.core.second-session/README.md)
 führt registrierte Work-Types synchron über einen administrativ vorbereiteten

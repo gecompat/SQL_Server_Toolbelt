@@ -1,10 +1,10 @@
 module_id: "toolbelt.core.work-queue"
 module_name: "Transactional Work Queue"
-version: "1.0.0"
+version: "1.1.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: validated
 release_status: unreleased
-description: "Stellt den E1a-Slice einer persistenten Work Queue mit atomarem Claim und tokengebundenem Complete/Fail bereit."
+description: "Stellt eine persistente Work Queue mit atomarem Lease-Claim, Heartbeat, tokengebundenem Abschluss und expliziter Orphan Recovery bereit."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -14,7 +14,7 @@ compatibility_levels:
   - 160
   - 170
 platforms:
-  windows: "not executed"
+  windows: "validated"
   linux: "validated"
 providers:
   - id: persistent-tsql-queue
@@ -31,7 +31,7 @@ dependencies:
   - module_id: "toolbelt.core.result-table"
     minimum_version: "1.0.0"
     location: same_database
-    reason: "ResultTable-Ausgabe der fünf resultseterzeugenden USPs."
+    reason: "ResultTable-Ausgabe der sieben resultseterzeugenden USPs."
   - module_id: "toolbelt.core.work-type"
     minimum_version: "1.1.0"
     location: same_database
@@ -43,6 +43,8 @@ objects:
   - {type: VIEW, schema: "toolbelt_core", name: "VW_WorkQueue", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_EnqueueWork", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_ClaimWork", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_RenewWorkLease", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_RecoverExpiredWork", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_CompleteWork", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_FailWork", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_GetWorkStatus", visibility: public}
@@ -51,7 +53,7 @@ permissions_required:
   - "SELECT auf toolbelt_core.VW_WorkQueue für Statusleser"
   - "Claim-Worker benötigen Metadatensichtbarkeit auf registrierte Handler, regulär über EXECUTE auf diese Procedures"
 collation_contract: "Status, WorkTypeName und FailureCode verwenden Latin1_General_100_BIN2; Meldung und Payload bleiben nvarchar."
-data_type_contract: "WorkItemId ist bigint; ClaimToken uniqueidentifier; PayloadJson ist ein JSON-Objekt mit höchstens 65536 Bytes; FailureMessage umfasst höchstens 1000 Unicode-Codeeinheiten."
+data_type_contract: "WorkItemId und ClaimGeneration sind bigint; ClaimToken uniqueidentifier; Lease-Dauer 5 bis 86400 Sekunden; PayloadJson ist ein JSON-Objekt mit höchstens 65536 Bytes; FailureMessage umfasst höchstens 1000 Unicode-Codeeinheiten."
 help_contract_version: "1.0"
 resultset_contracts:
   - object: "toolbelt_core.VW_WorkQueue"
@@ -67,6 +69,16 @@ resultset_contracts:
     resultset: "null oder eine Claim-Zeile mit PayloadJson und ClaimToken"
     return_code_success: 0
     error_range: "51910-51918"
+  - object: "toolbelt_core.USP_RenewWorkLease"
+    kind: "data"
+    resultset: "genau eine erneuerte Lease-Zeile"
+    return_code_success: 0
+    error_range: "51950-51954"
+  - object: "toolbelt_core.USP_RecoverExpiredWork"
+    kind: "data"
+    resultset: "null bis @MaxItems Recovery-Zeilen ohne PayloadJson und ClaimToken"
+    return_code_success: 0
+    error_range: "51960-51964"
   - object: "toolbelt_core.USP_CompleteWork"
     kind: "data"
     resultset: "genau eine terminale Statuszeile"
@@ -106,6 +118,10 @@ contracts:
   usp: "1.0"
   deployment: "1.0"
   validation: "1.0"
+supported_upgrades:
+  - from: "1.0.0"
+    to: "1.1.0"
+    condition: "Keine WorkItem-Zeile befindet sich beim Preflight im Zustand CLAIMED."
 tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/WorkQueue.Contract.sql"
@@ -120,5 +136,9 @@ validation_evidence:
     result: "success"
   - date: "2026-08-30"
     workflow: "local: Tests/CI/run-lab-local.ps1"
-    scope: "Explizit ausgewählte SQL-Server-2019-, 2022- und 2025-Windows-Ziele; SQL-Anmeldungs-Preflight"
-    result: "not executed; Zielverbindungen waren vor der ersten Testmutation nicht erreichbar"
+    scope: "Historischer E1a-Lauf auf explizit ausgewählten SQL-Server-2019-, 2022- und 2025-Windows-Zielen; SQL-Anmeldungs-Preflight"
+    result: "not executed; durch die erfolgreiche E1b-Windows-Vollmatrix vom selben Datum überholt"
+  - date: "2026-08-30"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "E1b auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest; Lease, Heartbeat, explizite Recovery, abgelaufene Ownership, Upgrade 1.0.0 auf 1.1.0, blockierter Upgrade-Preflight bei aktivem Claim, Transaktionen, vier Sessions, ResultTable, Dependency, Kollision, Redeployment, Central, Datenverlustschutz, Uninstall und Cleanup"
+    result: "success"

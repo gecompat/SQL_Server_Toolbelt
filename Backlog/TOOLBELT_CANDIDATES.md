@@ -346,10 +346,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Service Broker gilt für SQL Server und laut Dokumentation teilweise Managed Instance; SQL Server Agent ist editions- und dienstabhängig. Externe Provider sowie Windows/Linux sind getrennt zu validieren. |
 | **Dependencies** | `TC-2026-017` bis `TC-2026-022`; persistente Queue-/Statusobjekte benötigen eine zuvor freigegebene Tabellen-Namenskonvention. |
 | **Duplikatprüfung** | Alle Kandidatenlisten und Architekturregeln geprüft. Vorhandene Hinweise zur Query-Plan-Parallelität sind kein Work-Queue-Vertrag. |
-| **Status** | `implemented` für E1a; Lease/Recovery, Retry/Dead Letter/Idempotenz, Cancellation und Worker bleiben getrennt `researched` |
+| **Status** | `implemented` für E1a und E1b; Runtime `validated`; Retry/Dead Letter/Idempotenz, Cancellation und Worker bleiben getrennt `researched` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/database-engine/service-broker/typical-uses-of-service-broker?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-queue-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/database-engine/service-broker/understanding-when-activation-occurs?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-start-job-transact-sql?view=sql-server-ver17<br>https://github.com/jobbish-sql/SQL-Server-Multi-Thread<br>https://github.com/olahallengren/sql-server-maintenance-solution/blob/main/Queue.sql |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | E1a stabil halten und nicht allein veröffentlichen. Als Nächstes E1b Lease/Orphan Recovery mit eigenem Zustands-, Zeit-, Ownership-, Recovery- und Migrationsvertrag besprechen; keine automatische Aktivierung. |
+| **Nächster Schritt** | E1b-Matrix und PR abschließen. Danach E1c Retry/Dead Letter/Idempotenz separat besprechen; keine automatische Aktivierung. |
 
 ## TC-2026-016: Lange Console-Messages mit sofortiger Ausgabe
 
@@ -479,15 +479,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Nein bekannt |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Ein Supervisor kann aktive, überfällige und verwaiste Arbeit unterscheiden, Status anzeigen und nur nach abgelaufener Lease eine kontrollierte Wiederaufnahme zulassen. |
-| **Mögliche Technologie** | T-SQL-Lease mit ExecutionId, WorkItemId, WorkerId, SessionId, LeaseUntil, LastHeartbeatAt und monotoner Ownership-Version; Abgleich mit providerspezifischen aktiven Tasks nur als zusätzliche Evidenz. |
+| **Mögliche Technologie** | Implementierte T-SQL-Lease direkt am Work Item mit ClaimToken, ClaimGeneration, LeaseUntilUtc und LastHeartbeatAtUtc. Explizite Recovery invalidiert den Claim und setzt auf QUEUED zurück; SessionId, automatische Aktivierung und providerspezifische Taskdiagnose bleiben ausgeschlossen. |
 | **Performance und Security** | Heartbeats erzeugen zusätzliche Writes und Logvolumen; Intervall und Batch-Verhalten müssen begrenzt sein. SessionId allein ist wegen Wiederverwendung nicht hinreichend. Lease-Übernahme und fachliche Idempotenz müssen zusammenpassen. Reale Host-, Login- oder Programmnamen werden nicht als Repository-Testdaten gespeichert. |
 | **Plattformgrenzen** | Statuskern voraussichtlich plattformgleich; aktive Task-Metadaten und Agent-/Broker-Provider getrennt prüfen. |
-| **Dependencies** | `TC-2026-015`, `TC-2026-019`, `TC-2026-020`; persistente Zustände benötigen eine freigegebene Tabellen-Namenskonvention. |
+| **Dependencies** | Implementierter E1a-Kern aus `TC-2026-015` und persistente Namenskonvention aus `DEC-2026-025`. Execution Context und Retry/Idempotenz sind keine E1b-Runtime-Dependencies. |
 | **Duplikatprüfung** | Keine entsprechende Toolbelt-Capability gefunden. Diagnose vorhandener Sessions würde in `SQL_Server_Analyze` gehören; Ownership und Recovery des eigenen Work-Frameworks bleiben Toolbelt-Scope. |
-| **Status** | `researched` |
+| **Status** | `implemented` als E1b-Slice in `toolbelt.core.work-queue` 1.1.0; Runtime `validated` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/database-engine/service-broker/understanding-when-activation-occurs?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/language-elements/kill-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-set-session-context-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Mit dem Benutzer Statusmodell, Heartbeat-Intervall, Lease-Dauer, Ownership-Wechsel und Recovery-Verhalten besprechen. |
+| **Nächster Schritt** | Pull Request und Merge abschließen; Retry/Idempotenz bleiben E1c. |
 
 ## TC-2026-022: Sicherer Work-Type-Katalog statt beliebigem SQL-Text
 
