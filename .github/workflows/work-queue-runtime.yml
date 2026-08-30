@@ -1,0 +1,46 @@
+name: Work-Queue Runtime
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/work-queue-runtime.yml"
+      - "Modules/toolbelt.core.work-queue/**"
+      - "Modules/toolbelt.core.work-type/**"
+      - "Modules/toolbelt.core.result-table/**"
+      - "Tests/CI/run-work-queue-linux.sh"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/work-queue-runtime.yml"
+      - "Modules/toolbelt.core.work-queue/**"
+      - "Modules/toolbelt.core.work-type/**"
+      - "Modules/toolbelt.core.result-table/**"
+      - "Tests/CI/run-work-queue-linux.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: work-queue-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime:
+    name: SQL Server ${{ matrix.sql-version }} Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        sql-version: ["2019", "2022", "2025"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate static contract
+        run: python3 Modules/toolbelt.core.work-queue/Tests/Static/validate_contract.py
+      - name: Execute synthetic contract, concurrency and lifecycle tests
+        env:
+          TBX_SQL_VERSION: ${{ matrix.sql-version }}
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest
+        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-work-queue-linux.sh

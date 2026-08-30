@@ -346,10 +346,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Service Broker gilt für SQL Server und laut Dokumentation teilweise Managed Instance; SQL Server Agent ist editions- und dienstabhängig. Externe Provider sowie Windows/Linux sind getrennt zu validieren. |
 | **Dependencies** | `TC-2026-017` bis `TC-2026-022`; persistente Queue-/Statusobjekte benötigen eine zuvor freigegebene Tabellen-Namenskonvention. |
 | **Duplikatprüfung** | Alle Kandidatenlisten und Architekturregeln geprüft. Vorhandene Hinweise zur Query-Plan-Parallelität sind kein Work-Queue-Vertrag. |
-| **Status** | `researched` |
+| **Status** | `implemented` für E1a; Lease/Recovery, Retry/Dead Letter/Idempotenz, Cancellation und Worker bleiben getrennt `researched` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/database-engine/service-broker/typical-uses-of-service-broker?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-queue-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/database-engine/service-broker/understanding-when-activation-occurs?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-start-job-transact-sql?view=sql-server-ver17<br>https://github.com/jobbish-sql/SQL-Server-Multi-Thread<br>https://github.com/olahallengren/sql-server-maintenance-solution/blob/main/Queue.sql |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Mit dem Benutzer Use Cases, synchrones Warten versus Fire-and-forget, Work-Type-Vertrag, gewünschte Parallelitätsgrenze und zulässige Provider einzeln besprechen. |
+| **Nächster Schritt** | E1a stabil halten und nicht allein veröffentlichen. Als Nächstes E1b Lease/Orphan Recovery mit eigenem Zustands-, Zeit-, Ownership-, Recovery- und Migrationsvertrag besprechen; keine automatische Aktivierung. |
 
 ## TC-2026-016: Lange Console-Messages mit sofortiger Ausgabe
 

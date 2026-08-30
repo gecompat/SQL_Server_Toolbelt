@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 25 Module sind implementiert. Alle 25 sind
+abgeschlossen. 26 Module sind implementiert. Alle 26 sind
 `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
@@ -449,7 +449,7 @@ Windows-Ziele bleiben für `V0b` `not executed`. Das Toolbelt-Projekt startet,
 repariert oder löscht keine
 Lab-Ressourcen selbst.
 
-- `V0a`: alle 23 portablen beziehungsweise Linux-fähigen Module auf physischen
+- `V0a`: alle 24 portablen beziehungsweise Linux-fähigen Module auf physischen
   SQL-Server-2019-, 2022- und 2025-Engines prüfen. Der lokale Lab-Adapter
   verwendet die vorhandenen Runtime-Suites; `toolbelt.file.content` benötigt
   separat bereitgestellte synthetische serverseitige Fixtures.
@@ -505,7 +505,7 @@ Datetime Bucket ist keine künstliche Dependency. Version 1 bleibt auf drei
 relationale Inline TVFs für Tag, ISO-Woche und Monat mit halboffenen Grenzen
 und ohne Feiertags-, Zeitzonen- oder persistente Kalenderdimension begrenzt.
 
-`D1` ist die nächste eigentliche nutzerorientierte Funktionswelle. Gegenüber
+`D1` wurde als nächste eigentliche nutzerorientierte Funktionswelle gewählt. Gegenüber
 JSON-Konstruktion, Regex und Work Queue besitzt sie die kleinste bereits
 vorhandene Dependency-Closure, eine portable T-SQL-Basis und die begrenzteste
 Provider-, Security- und Recovery-Fläche. Der Vertrag wurde am 2026-08-30
@@ -536,13 +536,21 @@ Erweiterungen. Fuzzy Matching bleibt zurückgestellt.
 
 ### Phase 4.5 – E1 Work Queue in vertikalen Slices
 
-**Status:** `proposed`; Einzelvertrag und Freigabe je Slice erforderlich
+**Status:** E1a `implemented`, Runtime `partially validated`, Release
+`unreleased`; E1b bis E1d benötigen weiterhin Einzelvertrag und Freigabe
 
 Die bereits implementierten Grundlagen Work Type, Error Envelope, Execution
 Context und Second Session tragen vier getrennte Slices: `E1a`
 Claim/Complete/Fail, `E1b` Lease/Orphan Recovery, `E1c` Retry/Dead Letter/
 Idempotenz und `E1d` kooperative Cancellation. Kein Slice autorisiert Raw SQL,
 automatisches `KILL` oder einen externen Worker.
+
+E1a umfasst als nutzbaren vertikalen Slice zusätzlich Enqueue und
+Statusoberflächen. Der atomare tokengebundene Claim, Caller-Transaktionen,
+Parallelität, Lifecycle und Central sind auf physischen Linux-Engines
+2019/2022/2025 erfolgreich. Windows blieb im SQL-Anmeldungs-Preflight
+`not executed`. Ein nach Claim abgebrochener Worker bleibt bis E1b dauerhaft
+`CLAIMED`; E1a darf daher noch nicht allein veröffentlicht werden.
 
 ### Phase 4.6 – R2025 GA-Delta-Research
 
