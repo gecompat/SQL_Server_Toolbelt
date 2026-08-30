@@ -4,8 +4,8 @@
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-26 Module sind implementiert. Alle 26 sind `partially validated`; 0 sind
-`not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
+26 Module sind implementiert. 1 ist `validated`, 25 sind `partially
+validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
 `toolbelt.datetime.date-spine` implementiert D1 mit drei öffentlichen Inline
@@ -17,13 +17,14 @@ Zielen erfolgreich. Die ausgewählten Windows-Ziele waren beim SQL-Anmeldungs-
 Preflight nicht erreichbar; Windows bleibt `not executed` und das Modul
 `partially validated` sowie `unreleased`.
 
-`toolbelt.core.work-queue` implementiert den ausdrücklich freigegebenen E1a-
-Slice mit Enqueue, atomarem Claim, tokengebundenem Complete/Fail und
-geschützten Statusoberflächen. Der vollständige Adapter ist auf physischen
-SQL-Server-2019-/2022-/2025-Linux-Zielen erfolgreich. Windows blieb nach dem
-SQL-Anmeldungs-Preflight `not executed`. Ohne den getrennt freizugebenden E1b-
-Slice Lease/Recovery ist die Queue nicht als allein betriebsfertig zu
-veröffentlichen.
+`toolbelt.core.work-queue` Version `1.1.0` implementiert die ausdrücklich
+freigegebenen E1a-/E1b-Slices mit Enqueue, atomarem Lease-Claim, Heartbeat,
+expliziter Recovery, tokengebundenem Complete/Fail und geschützten
+Statusoberflächen. E1a ist auf physischen SQL-Server-2019-/2022-/2025-Linux-
+Zielen erfolgreich. Die vollständige E1b-Pflichtmatrix ist auf SQL Server
+2019/2022/2025 unter Windows base und Linux latest erfolgreich; das Modul ist
+`validated` und `unreleased`. Recovery begründet keine Exactly-once- oder generische Idempotenzzusage;
+Retry/Dead Letter/Idempotenz bleibt E1c.
 
 Die W2c-Module `toolbelt.core.console-message` und
 `toolbelt.metadata.capability-catalog` sind auf physischen

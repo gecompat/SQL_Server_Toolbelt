@@ -52,15 +52,16 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
-- `toolbelt.core.work-queue` Version `1.0.0` implementiert den ausdrücklich
-  freigegebenen E1a-Slice mit Enqueue, atomarem tokengebundenem Claim,
-  Complete, Fail und Statusoberflächen ohne Payload-/Token-Leak. Die
-  physische Linux-Matrix SQL Server 2019, 2022 und 2025 ist einschließlich
-  vier echter Claim-Sessions, Caller-Transaktionen, Redeployment, Central,
-  Datenverlustschutz, Uninstall und Cleanup erfolgreich. Windows blieb nach
-  nicht erreichbarem SQL-Anmeldungs-Preflight `not executed`; Lease/Recovery,
-  Retry/Dead Letter/Idempotenz, Cancellation und automatische Worker bleiben
-  getrennte, nicht freigegebene Slices.
+- `toolbelt.core.work-queue` Version `1.1.0` ergänzt den E1a-Kern um den
+  ausdrücklich freigegebenen E1b-Slice: begrenzte Claim-Lease, monotone
+  Generation, tokengebundener Heartbeat, explizite Batch-Recovery und
+  aktive-Lease-Prüfung für Complete/Fail. Das echte Upgrade `1.0.0 → 1.1.0`
+  erhält QUEUED-/terminale Daten und blockiert bei aktiven Alt-Claims vor der
+  ersten Mutation. Der erste vollständige E1b-Lauf auf SQL Server 2025 Linux
+  war erfolgreich; anschließend bestand die vollständige physische Matrix
+  SQL Server 2019/2022/2025 unter Windows base und Linux latest. Das Modul ist
+  `validated`. Retry/Dead Letter/Idempotenz, Cancellation und Worker
+  bleiben getrennte Slices; das Modul bleibt `unreleased`.
 
 - `toolbelt.datetime.date-spine` Version `1.0.0` mit drei portablen Inline
   TVFs für Tages-, ISO-Wochen- und Monatsperioden eines halboffenen
@@ -262,7 +263,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-26 Module sind implementiert. Alle 26 sind `partially validated`; 0 sind
-`not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+26 Module sind implementiert. 1 ist `validated`, 25 sind `partially
+validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

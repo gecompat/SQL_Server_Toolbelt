@@ -47,6 +47,14 @@ BEGIN
           ('RESULT_COLUMN',12,N'FailureCode','varchar(64)',0,1,NULL,N'Stabiler case-sensitiver Fehlercode.',NULL),
           ('RESULT_COLUMN',13,N'FailureMessage','nvarchar(1000)',0,1,NULL,N'Optionale bereinigte Fehlermeldung.',NULL),
           ('RESULT_COLUMN',14,N'RowVersion','binary(8)',0,0,NULL,N'Aktueller Concurrency-Marker.',NULL),
+          ('RESULT_COLUMN',15,N'ClaimGeneration','bigint',0,0,NULL,N'Ownership-Generation des fehlgeschlagenen Claims.',NULL),
+          ('RESULT_COLUMN',16,N'LeaseDurationSeconds','int',0,1,NULL,N'Lease-Dauer des fehlgeschlagenen Claims.',NULL),
+          ('RESULT_COLUMN',17,N'LeaseUntilUtc','datetime2(7)',0,1,NULL,N'Lease-Grenze des fehlgeschlagenen Claims.',NULL),
+          ('RESULT_COLUMN',18,N'LastHeartbeatAtUtc','datetime2(7)',0,1,NULL,N'Letzter Heartbeat des fehlgeschlagenen Claims.',NULL),
+          ('RESULT_COLUMN',19,N'IsLeaseExpired','bit',0,0,NULL,N'Bei FAILED stets 0.',NULL),
+          ('RESULT_COLUMN',20,N'RecoveryCount','bigint',0,0,NULL,N'Kumulierte Recoveries vor diesem Abschluss.',NULL),
+          ('RESULT_COLUMN',21,N'LastRecoveredAtUtc','datetime2(7)',0,1,NULL,N'Zeitpunkt der letzten Recovery.',NULL),
+          ('RESULT_COLUMN',22,N'LastRecoveredBy','sysname',0,1,NULL,N'Original-Login der letzten Recovery.',NULL),
           ('ERROR',1,N'51925-51929',NULL,NULL,NULL,NULL,N'Parameter-, Zustands-, Token-, Transaktions- oder ResultTable-Fehler.',NULL),
           ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Markiert einen synthetischen Auftrag als fehlgeschlagen.',N'EXEC toolbelt_core.USP_FailWork @WorkItemId=1,@ClaimToken=''00000000-0000-0000-0000-000000000001'',@FailureCode=''DEMO.ERROR'';')
         )v(Section,Ordinal,ItemName,SqlDataType,IsRequired,IsNullable,DefaultValue,Description,ExampleSql)
@@ -59,27 +67,29 @@ BEGIN
     IF XACT_STATE()=-1 THROW 51929,N'Ein Work Item kann in einer uncommittable Caller-Transaktion nicht fehlgeschlagen gesetzt werden.',1;
 
     CREATE TABLE #tbx_WorkQueue_StatusShape
-    (WorkItemId bigint NOT NULL,WorkTypeName varchar(128) COLLATE Latin1_General_100_BIN2 NOT NULL,Status varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL,EnqueuedAtUtc datetime2(7) NOT NULL,EnqueuedBy sysname NOT NULL,ClaimedAtUtc datetime2(7) NULL,ClaimedBy sysname NULL,CompletedAtUtc datetime2(7) NULL,CompletedBy sysname NULL,FailedAtUtc datetime2(7) NULL,FailedBy sysname NULL,FailureCode varchar(64) COLLATE Latin1_General_100_BIN2 NULL,FailureMessage nvarchar(1000) NULL,RowVersion binary(8) NOT NULL);
+    (WorkItemId bigint NOT NULL,WorkTypeName varchar(128) COLLATE Latin1_General_100_BIN2 NOT NULL,Status varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL,EnqueuedAtUtc datetime2(7) NOT NULL,EnqueuedBy sysname NOT NULL,ClaimedAtUtc datetime2(7) NULL,ClaimedBy sysname NULL,CompletedAtUtc datetime2(7) NULL,CompletedBy sysname NULL,FailedAtUtc datetime2(7) NULL,FailedBy sysname NULL,FailureCode varchar(64) COLLATE Latin1_General_100_BIN2 NULL,FailureMessage nvarchar(1000) NULL,RowVersion binary(8) NOT NULL,ClaimGeneration bigint NOT NULL,LeaseDurationSeconds int NULL,LeaseUntilUtc datetime2(7) NULL,LastHeartbeatAtUtc datetime2(7) NULL,IsLeaseExpired bit NOT NULL,RecoveryCount bigint NOT NULL,LastRecoveredAtUtc datetime2(7) NULL,LastRecoveredBy sysname NULL);
     CREATE TABLE #tbx_WorkQueue_StatusResult
-    (WorkItemId bigint NOT NULL,WorkTypeName varchar(128) COLLATE Latin1_General_100_BIN2 NOT NULL,Status varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL,EnqueuedAtUtc datetime2(7) NOT NULL,EnqueuedBy sysname NOT NULL,ClaimedAtUtc datetime2(7) NULL,ClaimedBy sysname NULL,CompletedAtUtc datetime2(7) NULL,CompletedBy sysname NULL,FailedAtUtc datetime2(7) NULL,FailedBy sysname NULL,FailureCode varchar(64) COLLATE Latin1_General_100_BIN2 NULL,FailureMessage nvarchar(1000) NULL,RowVersion binary(8) NOT NULL);
-    DECLARE @InitialTranCount int=@@TRANCOUNT,@CurrentStatus varchar(16),@CurrentToken uniqueidentifier;
+    (WorkItemId bigint NOT NULL,WorkTypeName varchar(128) COLLATE Latin1_General_100_BIN2 NOT NULL,Status varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL,EnqueuedAtUtc datetime2(7) NOT NULL,EnqueuedBy sysname NOT NULL,ClaimedAtUtc datetime2(7) NULL,ClaimedBy sysname NULL,CompletedAtUtc datetime2(7) NULL,CompletedBy sysname NULL,FailedAtUtc datetime2(7) NULL,FailedBy sysname NULL,FailureCode varchar(64) COLLATE Latin1_General_100_BIN2 NULL,FailureMessage nvarchar(1000) NULL,RowVersion binary(8) NOT NULL,ClaimGeneration bigint NOT NULL,LeaseDurationSeconds int NULL,LeaseUntilUtc datetime2(7) NULL,LastHeartbeatAtUtc datetime2(7) NULL,IsLeaseExpired bit NOT NULL,RecoveryCount bigint NOT NULL,LastRecoveredAtUtc datetime2(7) NULL,LastRecoveredBy sysname NULL);
+    DECLARE @InitialTranCount int=@@TRANCOUNT,@CurrentStatus varchar(16),@CurrentToken uniqueidentifier,@LeaseUntilUtc datetime2(7),@NowUtc datetime2(7);
     IF @InitialTranCount=0 BEGIN TRANSACTION; ELSE SAVE TRANSACTION TBX_WorkQueue_Fail;
     BEGIN TRY
-        SELECT @CurrentStatus=Status,@CurrentToken=ClaimToken FROM toolbelt_core.WorkItem WITH(UPDLOCK,HOLDLOCK) WHERE WorkItemId=@WorkItemId;
+        SELECT @CurrentStatus=Status,@CurrentToken=ClaimToken,@LeaseUntilUtc=LeaseUntilUtc FROM toolbelt_core.WorkItem WITH(UPDLOCK,HOLDLOCK) WHERE WorkItemId=@WorkItemId;
         IF @CurrentStatus IS NULL THROW 51928,N'Das Work Item existiert nicht.',1;
         IF @CurrentStatus<>'CLAIMED' THROW 51928,N'Nur ein CLAIMED Work Item kann fehlgeschlagen gesetzt werden.',2;
         IF @CurrentToken<>@ClaimToken THROW 51928,N'@ClaimToken besitzt das Work Item nicht.',3;
+        SET @NowUtc=SYSUTCDATETIME();
+        IF @LeaseUntilUtc<=@NowUtc THROW 51928,N'Die Lease ist abgelaufen; nur Recovery darf den Claim verändern.',5;
         IF @ResultTable IS NOT NULL
         BEGIN
             IF OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P') IS NULL THROW 51929,N'Für @ResultTable fehlt toolbelt.core.result-table.',2;
             EXEC toolbelt_core.USP_PrepareResultTable @ResultTableToAlter=@ResultTable,@LikeTable=N'#tbx_WorkQueue_StatusShape',@KeepData=@KeepData;
         END;
-        UPDATE toolbelt_core.WorkItem SET Status='FAILED',FailedAtUtc=SYSUTCDATETIME(),FailedBy=ORIGINAL_LOGIN(),FailureCode=@FailureCode,FailureMessage=CONVERT(nvarchar(1000),@FailureMessage) WHERE WorkItemId=@WorkItemId AND Status='CLAIMED' AND ClaimToken=@ClaimToken;
+        UPDATE toolbelt_core.WorkItem SET Status='FAILED',FailedAtUtc=@NowUtc,FailedBy=ORIGINAL_LOGIN(),FailureCode=@FailureCode,FailureMessage=CONVERT(nvarchar(1000),@FailureMessage) WHERE WorkItemId=@WorkItemId AND Status='CLAIMED' AND ClaimToken=@ClaimToken AND LeaseUntilUtc>@NowUtc;
         IF @@ROWCOUNT<>1 THROW 51928,N'Der Claim-Zustand hat sich konkurrierend verändert.',4;
         INSERT INTO #tbx_WorkQueue_StatusResult SELECT * FROM toolbelt_core.VW_WorkQueue WHERE WorkItemId=@WorkItemId;
         IF @ResultTable IS NOT NULL
         BEGIN
-            DECLARE @InsertSql nvarchar(max)=N'INSERT INTO '+QUOTENAME(@ResultTable)+N' (WorkItemId,WorkTypeName,Status,EnqueuedAtUtc,EnqueuedBy,ClaimedAtUtc,ClaimedBy,CompletedAtUtc,CompletedBy,FailedAtUtc,FailedBy,FailureCode,FailureMessage,RowVersion) SELECT WorkItemId,WorkTypeName,Status,EnqueuedAtUtc,EnqueuedBy,ClaimedAtUtc,ClaimedBy,CompletedAtUtc,CompletedBy,FailedAtUtc,FailedBy,FailureCode,FailureMessage,RowVersion FROM #tbx_WorkQueue_StatusResult;';
+            DECLARE @InsertSql nvarchar(max)=N'INSERT INTO '+QUOTENAME(@ResultTable)+N' (WorkItemId,WorkTypeName,Status,EnqueuedAtUtc,EnqueuedBy,ClaimedAtUtc,ClaimedBy,CompletedAtUtc,CompletedBy,FailedAtUtc,FailedBy,FailureCode,FailureMessage,RowVersion,ClaimGeneration,LeaseDurationSeconds,LeaseUntilUtc,LastHeartbeatAtUtc,IsLeaseExpired,RecoveryCount,LastRecoveredAtUtc,LastRecoveredBy) SELECT WorkItemId,WorkTypeName,Status,EnqueuedAtUtc,EnqueuedBy,ClaimedAtUtc,ClaimedBy,CompletedAtUtc,CompletedBy,FailedAtUtc,FailedBy,FailureCode,FailureMessage,RowVersion,ClaimGeneration,LeaseDurationSeconds,LeaseUntilUtc,LastHeartbeatAtUtc,IsLeaseExpired,RecoveryCount,LastRecoveredAtUtc,LastRecoveredBy FROM #tbx_WorkQueue_StatusResult;';
             EXEC sys.sp_executesql @InsertSql;
         END;
         IF @InitialTranCount=0 COMMIT TRANSACTION;

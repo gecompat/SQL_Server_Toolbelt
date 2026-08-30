@@ -2,22 +2,26 @@
 
 | Bereich | Pflichtnachweis |
 |---|---|
-| Objektvertrag | Tabelle, View, fünf USPs, benannte Constraints/Indizes und Extended Properties |
-| Hilfe | alle fünf USPs; reine Hilfe ohne fachliche Pflichtparameter und ohne Seiteneffekt |
+| Objektvertrag | Tabelle, View, sieben USPs, benannte Constraints/Indizes und Extended Properties |
+| Hilfe | alle sieben USPs; reine Hilfe ohne Pflichtparameter oder Seiteneffekt |
 | Enqueue | aktive registrierte Work Types, NONE/JSON_PAYLOAD, 64-KiB-Grenze, fehlender/deaktivierter Handler |
-| Claim | null oder eine Zeile, bestmögliches FIFO, atomarer Token, kein Claim in Caller-Transaktion |
-| Ownership | fremder oder veralteter Token ändert keinen Zustand |
-| Complete/Fail | terminale Übergänge, FailureCode/-Message, keine erneute Beanspruchung |
+| Claim | null oder eine Zeile, bestmögliches FIFO, neuer Token und Generation, Leasegrenzen, keine Caller-Transaktion |
+| Heartbeat | nur aktiver eigener Claim, Verlängerung ab Engine-Zeit, keine Wiederbelebung, keine Caller-Transaktion |
+| Recovery | ausschließlich abgelaufene Claims, Batchgrenzen, kein implizites Claim-Recovery, Token-Invaliderung |
+| Ownership | fremder, veralteter oder recoverter Token ändert keinen Zustand; Generation steigt monoton |
+| Complete/Fail | nur während aktiver Lease, terminale Übergänge, FailureCode/-Message, keine erneute Beanspruchung |
 | Transaktion | Caller-Commit/-Rollback, Savepoints und keine Mutation bei `XACT_STATE()=-1` |
-| Status | GetWorkStatus und View ohne Payload und ClaimToken |
+| Status | GetWorkStatus und View mit Lease-/Recovery-Metadaten, ohne Payload und ClaimToken |
 | ResultTable | direkte Ausgabe, Dummyspalte, Replace/Append und Help-Ignorieren |
 | Parallelität | vier echte Sessions, genau ein erfolgreicher Claim desselben einzigen Items |
+| Upgrade | `1.0.0 → 1.1.0` mit QUEUED/terminalen Daten; aktiver E1a-Claim blockiert vor Mutation |
 | Lifecycle | Dependency-/Versions-/Kollisionsschutz, Erst-/Wiederholungsdeployment, Datenverlustgate, Central und Uninstall |
 | Matrix | SQL Server 2019/2022/2025 auf Windows und Linux, nur tatsächlich ausgeführte Ziele |
 
-Lease, Recovery, Retry, Dead Letter, Idempotency, Cancellation und Worker sind
-keine E1a-Tests und dürfen nicht aus dieser Matrix abgeleitet werden.
+Retry, Dead Letter, Idempotency, Cancellation, vollständige Attempt-Historie,
+Worker und automatische Recovery sind keine E1b-Tests.
 
-Ausgeführte physische Evidenz am 2026-08-30:
-`local: Tests/CI/run-lab-local.ps1` für Linux 2019, 2022 und 2025; Windows-
-Preflights `not executed` vor der ersten Mutation.
+Die vollständige Pflichtmatrix wurde am 2026-08-30 über
+`local: Tests/CI/run-lab-local.ps1` auf SQL Server 2019, 2022 und 2025 unter Windows
+base und Linux latest erfolgreich ausgeführt. Alle synthetischen Datenbanken
+wurden entfernt; die Lab-Umgebungen wurden nicht beendet.

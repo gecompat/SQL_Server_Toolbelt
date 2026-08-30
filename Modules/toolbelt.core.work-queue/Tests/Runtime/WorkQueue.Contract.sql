@@ -15,12 +15,14 @@ EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.queue.json',@Handler
 DECLARE @Help TABLE(HelpContractVersion varchar(16),SchemaName sysname,ObjectName sysname,Section varchar(32),Ordinal int,ItemName sysname NULL,SqlDataType varchar(256) NULL,IsRequired bit NULL,IsNullable bit NULL,DefaultValue nvarchar(4000) NULL,Description nvarchar(max),ExampleSql nvarchar(max) NULL);
 INSERT INTO @Help EXEC toolbelt_core.USP_EnqueueWork @Hilfe=1;
 INSERT INTO @Help EXEC toolbelt_core.USP_ClaimWork @Hilfe=1;
+INSERT INTO @Help EXEC toolbelt_core.USP_RenewWorkLease @Hilfe=1;
+INSERT INTO @Help EXEC toolbelt_core.USP_RecoverExpiredWork @Hilfe=1;
 INSERT INTO @Help EXEC toolbelt_core.USP_CompleteWork @Hilfe=1;
 INSERT INTO @Help EXEC toolbelt_core.USP_FailWork @Hilfe=1;
 INSERT INTO @Help EXEC toolbelt_core.USP_GetWorkStatus @Hilfe=1;
-IF (SELECT COUNT(DISTINCT ObjectName) FROM @Help)<>5 OR EXISTS
+IF (SELECT COUNT(DISTINCT ObjectName) FROM @Help)<>7 OR EXISTS
 (
-    SELECT n.ObjectName FROM (VALUES(N'USP_EnqueueWork'),(N'USP_ClaimWork'),(N'USP_CompleteWork'),(N'USP_FailWork'),(N'USP_GetWorkStatus'))n(ObjectName)
+    SELECT n.ObjectName FROM (VALUES(N'USP_EnqueueWork'),(N'USP_ClaimWork'),(N'USP_RenewWorkLease'),(N'USP_RecoverExpiredWork'),(N'USP_CompleteWork'),(N'USP_FailWork'),(N'USP_GetWorkStatus'))n(ObjectName)
     WHERE EXISTS(SELECT 1 FROM (VALUES('DESCRIPTION'),('PARAMETER'),('RESULT_COLUMN'),('EXAMPLE'))s(Section) WHERE NOT EXISTS(SELECT 1 FROM @Help h WHERE h.ObjectName=n.ObjectName AND h.Section=s.Section))
 )
     THROW 52900,N'Der Help-Vertrag ist unvollständig.',1;
@@ -117,6 +119,60 @@ EXEC toolbelt_core.USP_FailWork @WorkItemId=@FailRollbackId,@ClaimToken=@FailRol
 ROLLBACK TRANSACTION;
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@FailRollbackId AND Status='CLAIMED') THROW 52924,N'Fail überlebte den Caller-Rollback.',1;
 EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@FailRollbackId,@ClaimToken=@FailRollbackToken;
+
+-- E1b: Lease-Grenzen, Heartbeat, keine implizite Recovery und Token-Invaliderung.
+BEGIN TRY EXEC toolbelt_core.USP_ClaimWork @LeaseDurationSeconds=4; THROW 52940,N'Eine zu kurze Lease wurde akzeptiert.',1; END TRY
+BEGIN CATCH IF ERROR_NUMBER()=52940 OR ERROR_NUMBER()<>51911 THROW; END CATCH;
+
+EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='test.queue.none',@ResultTable=N'#Status';
+DECLARE @LeaseId bigint=(SELECT WorkItemId FROM #Status);
+EXEC toolbelt_core.USP_ClaimWork @LeaseDurationSeconds=5,@ResultTable=N'#Claim';
+DECLARE @LeaseToken uniqueidentifier=(SELECT ClaimToken FROM #Claim),@LeaseGeneration bigint=(SELECT ClaimGeneration FROM #Claim),@FirstLeaseUntil datetime2(7)=(SELECT LeaseUntilUtc FROM #Claim);
+IF @LeaseGeneration<>1 OR (SELECT LastHeartbeatAtUtc FROM #Claim)<>(SELECT ClaimedAtUtc FROM #Claim) THROW 52941,N'Der erste Lease-Claim ist inkonsistent.',1;
+
+WAITFOR DELAY '00:00:01';
+CREATE TABLE #Lease(Dummy int NULL);
+EXEC toolbelt_core.USP_RenewWorkLease @WorkItemId=@LeaseId,@ClaimToken=@LeaseToken,@ResultTable=N'#Lease';
+IF (SELECT LeaseUntilUtc FROM #Lease)<=@FirstLeaseUntil OR (SELECT ClaimGeneration FROM #Lease)<>1 THROW 52942,N'Der Heartbeat verlängerte die Lease nicht korrekt.',1;
+
+BEGIN TRANSACTION;
+BEGIN TRY EXEC toolbelt_core.USP_RenewWorkLease @WorkItemId=@LeaseId,@ClaimToken=@LeaseToken; THROW 52943,N'Heartbeat akzeptierte eine Caller-Transaktion.',1; END TRY
+BEGIN CATCH IF ERROR_NUMBER()=52943 OR ERROR_NUMBER()<>51950 BEGIN ROLLBACK; THROW; END; END CATCH;
+BEGIN TRY EXEC toolbelt_core.USP_RecoverExpiredWork; THROW 52944,N'Recovery akzeptierte eine Caller-Transaktion.',1; END TRY
+BEGIN CATCH IF ERROR_NUMBER()=52944 OR ERROR_NUMBER()<>51960 BEGIN ROLLBACK; THROW; END; END CATCH;
+ROLLBACK TRANSACTION;
+
+EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='test.queue.none',@ResultTable=N'#Status';
+DECLARE @LaterQueuedId bigint=(SELECT WorkItemId FROM #Status);
+WAITFOR DELAY '00:00:05.200';
+
+-- Claim darf den abgelaufenen Claim nicht implizit übernehmen, sondern nimmt das nächste QUEUED-Item.
+EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
+IF (SELECT WorkItemId FROM #Claim)<>@LaterQueuedId THROW 52945,N'Claim führte implizite Recovery aus oder verletzte FIFO unter QUEUED-Items.',1;
+DECLARE @LaterToken uniqueidentifier=(SELECT ClaimToken FROM #Claim);
+EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@LaterQueuedId,@ClaimToken=@LaterToken;
+
+BEGIN TRY EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@LeaseId,@ClaimToken=@LeaseToken; THROW 52946,N'Complete akzeptierte eine abgelaufene Lease.',1; END TRY
+BEGIN CATCH IF ERROR_NUMBER()=52946 OR ERROR_NUMBER()<>51922 THROW; END CATCH;
+BEGIN TRY EXEC toolbelt_core.USP_FailWork @WorkItemId=@LeaseId,@ClaimToken=@LeaseToken,@FailureCode='DEMO.EXPIRED'; THROW 52947,N'Fail akzeptierte eine abgelaufene Lease.',1; END TRY
+BEGIN CATCH IF ERROR_NUMBER()=52947 OR ERROR_NUMBER()<>51928 THROW; END CATCH;
+BEGIN TRY EXEC toolbelt_core.USP_RenewWorkLease @WorkItemId=@LeaseId,@ClaimToken=@LeaseToken; THROW 52948,N'Heartbeat belebte eine abgelaufene Lease wieder.',1; END TRY
+BEGIN CATCH IF ERROR_NUMBER()=52948 OR ERROR_NUMBER()<>51953 THROW; END CATCH;
+IF NOT EXISTS(SELECT 1 FROM toolbelt_core.VW_WorkQueue WHERE WorkItemId=@LeaseId AND Status='CLAIMED' AND IsLeaseExpired=1) THROW 52949,N'Der abgelaufene Claim ist nicht beobachtbar.',1;
+
+CREATE TABLE #Recovery(Dummy int NULL);
+EXEC toolbelt_core.USP_RecoverExpiredWork @MaxItems=1,@ResultTable=N'#Recovery';
+IF NOT EXISTS(SELECT 1 FROM #Recovery WHERE WorkItemId=@LeaseId AND Status='QUEUED' AND ClaimGeneration=1 AND RecoveryCount=1) THROW 52950,N'Die explizite Recovery ist inkonsistent.',1;
+IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@LeaseId AND ClaimToken IS NOT NULL) THROW 52951,N'Die Recovery invalidierte den alten ClaimToken nicht.',1;
+BEGIN TRY EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@LeaseId,@ClaimToken=@LeaseToken; THROW 52952,N'Ein invalidierter Token blieb verwendbar.',1; END TRY
+BEGIN CATCH IF ERROR_NUMBER()=52952 OR ERROR_NUMBER()<>51922 THROW; END CATCH;
+
+EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
+IF (SELECT WorkItemId FROM #Claim)<>@LeaseId OR (SELECT ClaimGeneration FROM #Claim)<>2 OR (SELECT ClaimToken FROM #Claim)=@LeaseToken THROW 52953,N'Der Claim nach Recovery besitzt keine neue Ownership.',1;
+DECLARE @RecoveredToken uniqueidentifier=(SELECT ClaimToken FROM #Claim);
+EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@LeaseId,@ClaimToken=@RecoveredToken;
+DROP TABLE #Recovery;
+DROP TABLE #Lease;
 
 DROP TABLE IF EXISTS dbo.TbxQueueChild;
 DROP TABLE IF EXISTS dbo.TbxQueueParent;

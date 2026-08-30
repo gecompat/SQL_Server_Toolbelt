@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 26 Module sind implementiert. Alle 26 sind
+abgeschlossen. 26 Module sind implementiert. 1 ist `validated`, 25 sind
 `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
@@ -518,7 +518,7 @@ Kalenderdimensionen bleiben außerhalb von V1.
 
 ### Phase 4.4 – R1 Regex V1
 
-**Status:** `R1a research completed`; Provider- und Implementierungs-Gate offen
+**Status:** `R1a research completed`; R1b-Vertrag besprochen und ausdrücklich freigegeben
 
 R1a hat die native SQL-Server-2025-RE2-Semantik und die Provideroptionen ohne
 Runtime-API geprüft. `REGEXP_INSTR` und `REGEXP_COUNT` sind auf der physischen
@@ -528,16 +528,17 @@ Semantikabweichungen und Backtracking kein Paritätsprovider. Native
 RE2-Wrapper benötigen plattformspezifischen nativen Code und scheitern am
 portablen `SAFE`-/Linux-Gate. Deshalb ist kein Runtime-Provider ausgewählt.
 
-Vor Code ist mit dem Benutzer zwischen exakter RE2-Parität, einem ausdrücklich
-engeren Toolbelt-Dialekt und einer reinen SQL-Server-2025-Fassade zu wählen.
-Ein möglicher erster fachlicher Slice bleibt auf `LIKE`, `INSTR` und `COUNT`
-begrenzt; Replace, Substring, Split und Matches bleiben getrennte
-Erweiterungen. Fuzzy Matching bleibt zurückgestellt.
+R1b verwendet nach der Benutzerentscheidung einen ausdrücklich engeren
+Toolbelt-Dialekt über `SAFE` SQL CLR und stellt IsMatch, Instr und Count bereit.
+Der Provider verspricht keine RE2-Parität oder lineare Laufzeit und erzwingt
+Parser-, Größen- und Timeoutgrenzen. Die Implementierung beginnt erst nach dem
+E1b-Merge in einem eigenen Branch. Replace, Substring, Split, Captures und
+Matches bleiben getrennte Erweiterungen; Fuzzy Matching bleibt zurückgestellt.
 
 ### Phase 4.5 – E1 Work Queue in vertikalen Slices
 
-**Status:** E1a `implemented`, Runtime `partially validated`, Release
-`unreleased`; E1b bis E1d benötigen weiterhin Einzelvertrag und Freigabe
+**Status:** E1a und E1b `implemented`, Runtime `validated`, Release
+`unreleased`; E1c und E1d benötigen weiterhin Einzelvertrag und Freigabe
 
 Die bereits implementierten Grundlagen Work Type, Error Envelope, Execution
 Context und Second Session tragen vier getrennte Slices: `E1a`
@@ -549,8 +550,11 @@ E1a umfasst als nutzbaren vertikalen Slice zusätzlich Enqueue und
 Statusoberflächen. Der atomare tokengebundene Claim, Caller-Transaktionen,
 Parallelität, Lifecycle und Central sind auf physischen Linux-Engines
 2019/2022/2025 erfolgreich. Windows blieb im SQL-Anmeldungs-Preflight
-`not executed`. Ein nach Claim abgebrochener Worker bleibt bis E1b dauerhaft
-`CLAIMED`; E1a darf daher noch nicht allein veröffentlicht werden.
+`not executed`. E1b ergänzt eine begrenzte Lease, Heartbeat, explizite
+Recovery, monotone Ownership-Generationen und ein vor aktiven E1a-Claims
+geschütztes Upgrade auf 1.1.0. Die vollständige physische Matrix auf SQL Server
+2019/2022/2025 unter Windows base und Linux latest ist erfolgreich. Recovery
+bleibt manuell und begründet keine Exactly-once- oder Idempotenzzusage.
 
 ### Phase 4.6 – R2025 GA-Delta-Research
 
