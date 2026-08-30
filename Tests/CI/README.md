@@ -23,6 +23,12 @@ Monatsspine einschließlich halboffener Grenzen, `DATEFIRST`-Unabhängigkeit,
 Skalierung, fehlender Dependencies, Kollisionen, Wiederholungsdeployment,
 Central-Aufruf und vollständigem Cleanup.
 
+`run-work-queue-linux.sh` installiert ResultTable und Work Type als explizite
+Dependencies und prüft den freigegebenen E1a-Vertrag: Enqueue, atomaren Claim,
+tokengebundenes Complete/Fail, Transaktionen, vier echte Claim-Sessions,
+Statusschutz, Redeployment, Central, Datenverlustgate und vollständiges
+Cleanup. Der Adapter startet, stoppt oder repariert keine Lab-Ressource.
+
 Der Research-Adapter
 `../Research/Regex/run-sqlserver-2025.sh` prüft ausschließlich auf SQL Server
 2025 die native Regex-Semantik unter Compatibility 150, 160 und 170. Er wird

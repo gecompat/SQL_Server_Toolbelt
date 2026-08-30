@@ -274,6 +274,7 @@ module_registry:
     - Modules/toolbelt.core.error-envelope/module.yaml
     - Modules/toolbelt.core.execution-context/module.yaml
     - Modules/toolbelt.core.work-type/module.yaml
+    - Modules/toolbelt.core.work-queue/module.yaml
     - Modules/toolbelt.core.second-session/module.yaml
     - Modules/toolbelt.core.event-log/module.yaml
     - Modules/toolbelt.file.content/module.yaml
@@ -579,6 +580,21 @@ change_impact:
         - Documentation/Standards/SQL_OBJECT_NAMING.md
         - Tests/CI/run-w4b-work-type-linux.sh
         - .github/workflows/w4b-work-type-runtime.yml
+      checks:
+        - markdown_links
+    work_queue_contract:
+      paths:
+        - Modules/toolbelt.core.work-queue/**
+        - Modules/toolbelt.core.work-type/**
+        - Modules/toolbelt.core.result-table/**
+        - Documentation/Architecture/WORK_QUEUE_MODULE_DESIGN.md
+        - Documentation/Architecture/DECISIONS.md
+        - Documentation/Standards/SQL_OBJECT_NAMING.md
+        - Documentation/Standards/USP_CONTRACT.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+        - Tests/CI/run-work-queue-linux.sh
+        - Tests/CI/run-lab-local.ps1
+        - .github/workflows/work-queue-runtime.yml
       checks:
         - markdown_links
     event_log_contract:

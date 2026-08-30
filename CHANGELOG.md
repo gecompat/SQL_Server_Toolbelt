@@ -52,6 +52,16 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
+- `toolbelt.core.work-queue` Version `1.0.0` implementiert den ausdrücklich
+  freigegebenen E1a-Slice mit Enqueue, atomarem tokengebundenem Claim,
+  Complete, Fail und Statusoberflächen ohne Payload-/Token-Leak. Die
+  physische Linux-Matrix SQL Server 2019, 2022 und 2025 ist einschließlich
+  vier echter Claim-Sessions, Caller-Transaktionen, Redeployment, Central,
+  Datenverlustschutz, Uninstall und Cleanup erfolgreich. Windows blieb nach
+  nicht erreichbarem SQL-Anmeldungs-Preflight `not executed`; Lease/Recovery,
+  Retry/Dead Letter/Idempotenz, Cancellation und automatische Worker bleiben
+  getrennte, nicht freigegebene Slices.
+
 - `toolbelt.datetime.date-spine` Version `1.0.0` mit drei portablen Inline
   TVFs für Tages-, ISO-Wochen- und Monatsperioden eines halboffenen
   `date`-Bereichs. Die vollständige Linux-Matrix auf SQL Server 2019, 2022 und
@@ -252,7 +262,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-25 Module sind implementiert. Alle 25 sind `partially validated`; 0 sind
+26 Module sind implementiert. Alle 26 sind `partially validated`; 0 sind
 `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

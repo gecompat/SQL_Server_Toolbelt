@@ -1,0 +1,124 @@
+module_id: "toolbelt.core.work-queue"
+module_name: "Transactional Work Queue"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Stellt den E1a-Slice einer persistenten Work Queue mit atomarem Claim und tokengebundenem Complete/Fail bereit."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels:
+  - 150
+  - 160
+  - 170
+platforms:
+  windows: "not executed"
+  linux: "validated"
+providers:
+  - id: persistent-tsql-queue
+    technology: "T-SQL table, procedures and view"
+    platforms: [Windows, Linux]
+    status: implemented
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: true
+dependencies:
+  - module_id: "toolbelt.core.result-table"
+    minimum_version: "1.0.0"
+    location: same_database
+    reason: "ResultTable-Ausgabe der fünf resultseterzeugenden USPs."
+  - module_id: "toolbelt.core.work-type"
+    minimum_version: "1.1.0"
+    location: same_database
+    reason: "Ausschließlich registrierte aktive Work Types und kontrollierte Handlerauflösung."
+schemas:
+  - "toolbelt_core"
+objects:
+  - {type: TABLE, schema: "toolbelt_core", name: "WorkItem", visibility: internal}
+  - {type: VIEW, schema: "toolbelt_core", name: "VW_WorkQueue", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_EnqueueWork", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_ClaimWork", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_CompleteWork", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_FailWork", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_GetWorkStatus", visibility: public}
+permissions_required:
+  - "EXECUTE auf den jeweils benötigten Work-Queue-USPs"
+  - "SELECT auf toolbelt_core.VW_WorkQueue für Statusleser"
+  - "Claim-Worker benötigen Metadatensichtbarkeit auf registrierte Handler, regulär über EXECUTE auf diese Procedures"
+collation_contract: "Status, WorkTypeName und FailureCode verwenden Latin1_General_100_BIN2; Meldung und Payload bleiben nvarchar."
+data_type_contract: "WorkItemId ist bigint; ClaimToken uniqueidentifier; PayloadJson ist ein JSON-Objekt mit höchstens 65536 Bytes; FailureMessage umfasst höchstens 1000 Unicode-Codeeinheiten."
+help_contract_version: "1.0"
+resultset_contracts:
+  - object: "toolbelt_core.VW_WorkQueue"
+    kind: "data"
+    resultset: "Queue-Status und Auditmetadaten ohne PayloadJson und ClaimToken"
+  - object: "toolbelt_core.USP_EnqueueWork"
+    kind: "data"
+    resultset: "genau eine Statuszeile"
+    return_code_success: 0
+    error_range: "51900-51908"
+  - object: "toolbelt_core.USP_ClaimWork"
+    kind: "data"
+    resultset: "null oder eine Claim-Zeile mit PayloadJson und ClaimToken"
+    return_code_success: 0
+    error_range: "51910-51918"
+  - object: "toolbelt_core.USP_CompleteWork"
+    kind: "data"
+    resultset: "genau eine terminale Statuszeile"
+    return_code_success: 0
+    error_range: "51920-51924"
+  - object: "toolbelt_core.USP_FailWork"
+    kind: "data"
+    resultset: "genau eine terminale Statuszeile"
+    return_code_success: 0
+    error_range: "51925-51929"
+  - object: "toolbelt_core.USP_GetWorkStatus"
+    kind: "data"
+    resultset: "genau eine Statuszeile"
+    return_code_success: 0
+    error_range: "51930-51934"
+lifecycle_error_range: "51940-51949"
+clr:
+  used: false
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/WORK_QUEUE_OBJECTS.md"
+  architecture:
+    - "../../Documentation/Architecture/WORK_QUEUE_MODULE_DESIGN.md"
+    - "../../Documentation/Architecture/DECISIONS.md"
+  test_matrix:
+    - "Tests/WORK_QUEUE_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/WorkQueue.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  multi_session: "Tests/Runtime/Concurrency.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/work-queue-runtime.yml"
+validation_evidence:
+  - date: "2026-08-30"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; E1a-Semantik, Transaktionen, vier echte Claim-Sessions, ResultTable, Dependency- und Kollisionspreflight, Redeployment, Central, Datenverlustschutz, Uninstall und Cleanup"
+    result: "success"
+  - date: "2026-08-30"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Explizit ausgewählte SQL-Server-2019-, 2022- und 2025-Windows-Ziele; SQL-Anmeldungs-Preflight"
+    result: "not executed; Zielverbindungen waren vor der ersten Testmutation nicht erreichbar"
