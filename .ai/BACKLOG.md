@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-25 Module sind implementiert. Alle 25 sind `partially validated`; 0 sind `not executed`.
+26 Module sind implementiert. Alle 26 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -12,13 +12,13 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 |---|---|
 | ID | `V0a`, `V0b`, `V0c`; keine neue sequenzielle `AP`-Referenz ohne reguläre Vergabe |
 | Ziel | Die vorhandenen Module auf physischen Zielversionen und Windows validieren und daraus eine veröffentlichungsfertige erste Kohorte bilden, ohne Runtime- oder Release-Status vorwegzunehmen. |
-| Scope | `V0a`: 23 portable beziehungsweise Linux-fähige Module auf SQL Server 2019/2022/2025 Linux. `V0b`: vollständige Windows-Matrix der V0c-Kohorte plus Hochrisikofälle für ResultTable, SQL CLR, Datei-I/O, Second Session und Event Log. `V0c`: 16 portable Module aus Kernfolge, W1, W2a, W2b-A und W2c. Keine neuen öffentlichen SQL-Objekte oder Signaturänderungen. |
+| Scope | `V0a`: 24 portable beziehungsweise Linux-fähige Module auf SQL Server 2019/2022/2025 Linux. `V0b`: vollständige Windows-Matrix der V0c-Kohorte plus Hochrisikofälle für ResultTable, SQL CLR, Datei-I/O, Second Session und Event Log. `V0c`: 16 portable Module aus Kernfolge, W1, W2a, W2b-A und W2c. Keine neuen öffentlichen SQL-Objekte oder Signaturänderungen. |
 | Dependencies | Ausdrückliche V0-Freigabe vom 2026-08-28 und Einzelzielfreigabe vom 2026-08-29; schema-valider SQL_Server_Lab-Vertrag; entweder `groupStatus = READY` oder explizit ausgewählte Einzelziele mit `runtimeStatus = READY` und zulässigem Eintragsstatus; vorhandene Modul-, Lifecycle- und Testverträge. |
 | Priorität | `P0` |
 | Status | `active`; `V0a` ausführbar, `V0b` durch derzeit nicht erreichbare Windows-Ziele blockiert |
-| Implementation Status | 25 Module `implemented` – aus `module.yaml` abgeleitet |
-| Validation Status | 25 Module `partially validated`; die physische Linux-Matrix der 16 V0c-Module und von D1 ist erfolgreich, Windows- und modulspezifische Restfälle bleiben offen. |
-| Release Status | 25 Module `unreleased`; V0c und D1 autorisieren keine tatsächliche Veröffentlichung. |
+| Implementation Status | 26 Module `implemented` – aus `module.yaml` abgeleitet |
+| Validation Status | 26 Module `partially validated`; die physische Linux-Matrix der 16 V0c-Module, von D1 und von E1a ist erfolgreich, Windows- und modulspezifische Restfälle bleiben offen. |
+| Release Status | 26 Module `unreleased`; V0c, D1 und E1a autorisieren keine tatsächliche Veröffentlichung. |
 | Akzeptanzkriterien | Linux- und Windows-Zielversionen tatsächlich geprüft; Dependency-Closure und versionierte Objektmanifeste konsistent; Erst-, Wiederholungs-, Upgrade-, Central- und Uninstall-Verträge für die Kohorte erfolgreich; modulspezifische Pflichtfälle ausgeführt; nicht verfügbare Kombinationen sichtbar; vollständiger Dokumentationsaudit erfolgreich. |
 | Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |
 | Blocker | Kein Gruppenblocker mehr für einzeln bereite Linux-Ziele. Die explizit ausgewählten Windows-Ziele waren zuletzt bereits beim SQL-Anmeldungs-Preflight nicht erreichbar und sind für `V0b` nicht ausführbar. Second Session und Event Log scheitern auf den physischen Linux-Zielen 2019 und 2022 im gemeinsamen W5-Vertrag; File Content benötigt noch separat bereitgestellte serverseitige Fixtures. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. |
@@ -52,7 +52,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Evidenz | `Documentation/Architecture/MIGRATION_IDEMPOTENCY_VERIFIER_DESIGN.md`, `Tests/Quality/MigrationIdempotency/`, `Tests/CI/run-q1-migration-idempotency.sh` und `.github/workflows/q1-migration-idempotency.yml`; lokale SQL_Server_Lab-Matrix mit ausschließlich abstrahierter Evidenz. Keine Hosts, Credentials, Datenbanknamen, konkreten Buildnummern, Laufzeiten oder vollständigen Logs übernommen. |
 | Nächster Schritt | Q1 V1 stabil halten. Tabellen-/Zustands-, Upgrade-, Central- und Parallelitäts-Slices nur bei eigenem nachgewiesenem Bedarf erweitern; Golden Snapshots und Contract-Test-Generierung bleiben zurückgestellt. |
 
-### D1: Date Spine V1 als nächste nutzerorientierte Funktionswelle
+### D1: Date Spine V1
 
 | Feld | Wert |
 |---|---|
@@ -83,6 +83,23 @@ Die V0c-Kohorte umfasst verbindlich:
 | Tests | Physischer SQL-Server-2025-Linux-Lauf mit Compatibility 150/160/170 und synthetischen Semantik-/Fehlervektoren am 2026-08-30 erfolgreich; .NET-Framework-4.8-Harness bestätigte die erwarteten Abweichungen. Die synthetische Datenbank und temporären Buildartefakte wurden entfernt; Windows-SQL-Runtime blieb `not executed`; Lab-Systeme wurden nicht beendet. |
 | Evidenz | `Documentation/Research/REGEX_SEMANTICS_PROVIDER_SPIKE.md`, `Tests/Research/Regex/` und `.github/workflows/regex-provider-spike.yml`. Keine Drittanbieterbibliothek oder Binärdatei wurde heruntergeladen oder aufgenommen. |
 | Nächster Schritt | Erst eine der drei Provider-/Semantikrichtungen mit dem Benutzer auswählen und danach Zweck, öffentlichen Vertrag, Alternativen, Risiken und Scope dieses konkreten Runtime-Slices besprechen. Bis dahin kein Regex-Modul implementieren. |
+
+### E1a: Work Queue Claim/Complete/Fail
+
+| Feld | Wert |
+|---|---|
+| ID | `E1a`; konkretisiert `TC-2026-015`, keine neue sequenzielle `AP`-Referenz ohne reguläre Vergabe |
+| Ziel | Einen kleinen persistenten Queue-Kern bereitstellen, der ausschließlich registrierte Work Types einreiht, atomar beansprucht und tokengebunden terminal abschließt. |
+| Scope | `toolbelt.core.work-queue` 1.0.0 mit `USP_EnqueueWork`, `USP_ClaimWork`, `USP_CompleteWork`, `USP_FailWork`, `USP_GetWorkStatus` und `VW_WorkQueue`. Zustände `QUEUED -> CLAIMED -> COMPLETED|FAILED`; Payload nur NONE oder JSON-Objekt bis 64 KiB; Statusoberflächen ohne Payload und ClaimToken. |
+| Dependencies | `toolbelt.core.result-table` 1.0.0 und `toolbelt.core.work-type` 1.1.0 in derselben Datenbank; persistente Namenskonvention aus `DEC-2026-025`. |
+| Priorität | `P1` nach D1 und R1a, als eigenständiger vertikaler Slice |
+| Status | `implemented`; Runtime `partially validated`, Release `unreleased` |
+| Alternativen | Service Broker, SQL Server Agent und externe Worker wurden nicht an E1a gekoppelt. Raw SQL oder Handlernamen in Payloads, öffentliche Claim-Token in Statusoberflächen und ein gemeinsamer Lease-/Retry-/Cancellation-Vertrag wurden verworfen. |
+| Risiken und Grenzen | Keine Lease, Recovery, Retry, Dead Letter, Idempotency Key, Cancellation, Resultpersistenz oder automatische Ausführung. Ein Worker-Abbruch nach Claim lässt das Item dauerhaft `CLAIMED`; keine Exactly-once- oder absolute Fairnesszusage. |
+| Benutzerfreigabe | Zweck, öffentlicher Vertrag, Alternativen, Risiken und Scope wurden am 2026-08-30 besprochen. Der Benutzer hat die Umsetzung anschließend mit „lass es uns so machen“ ausdrücklich nach D1 und R1a freigegeben. |
+| Tests | Statischer Vertrag sowie E1a-Semantik, Caller-Transaktionen, vier echte Claim-Sessions, ResultTable, Dependency-/Kollisionspreflight, Redeployment, Central, Datenverlustschutz, Uninstall und Cleanup waren am 2026-08-30 auf physischen SQL-Server-2019-/2022-/2025-Linux-Zielen erfolgreich. Die drei Windows-Base-Ziele waren bereits beim SQL-Anmeldungs-Preflight nicht erreichbar; Windows blieb `not executed`. |
+| Evidenz | `Documentation/Architecture/WORK_QUEUE_MODULE_DESIGN.md`, `Modules/toolbelt.core.work-queue/` und `.github/workflows/work-queue-runtime.yml`; ausschließlich synthetische Daten und abstrahierte Evidenz. |
+| Nächster Schritt | Eigenständigen PR und CI abschließen. E1b Lease/Recovery vor jeder alleinstehenden Veröffentlichung separat besprechen und ausdrücklich freigeben. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
