@@ -1,0 +1,96 @@
+module_id: "toolbelt.string.regex"
+module_name: "Bounded Regular Expressions"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: validated
+release_status: unreleased
+description: "Stellt IsMatch, Instr und Count für einen begrenzten Toolbelt-Regexdialekt über SAFE SQL CLR bereit."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels:
+  - 150
+  - 160
+  - 170
+platforms:
+  windows: validated
+  linux: validated
+providers:
+  - id: safe-clr-toolbelt-regex
+    technology: "C# SQL CLR; eigener Syntaxparser; System.Text.RegularExpressions mit festem Timeout"
+    platforms: [Windows, Linux]
+    status: validated
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies: []
+schemas:
+  - "toolbelt_string"
+objects:
+  - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexIsMatch", visibility: public}
+  - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexInstr", visibility: public}
+  - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexCount", visibility: public}
+  - {type: ASSEMBLY, name: "Toolbelt_String_Regex", visibility: internal}
+permissions_required:
+  - "SELECT oder REFERENCES auf den Regex-Skalarfunktionen"
+  - "CREATE ASSEMBLY beziehungsweise ALTER ANY ASSEMBLY für Deploy"
+  - "CREATE FUNCTION und Schema-ALTER für Deploy"
+  - "sysadmin ausschließlich für das separate Trust-Opt-in"
+collation_contract: "Matching ist ordinal zur Regexengine und unabhängig von der Datenbank-Collation; i verwendet CultureInvariant."
+data_type_contract: "Input und Pattern sind nvarchar(max), begrenzt auf 2 MiB beziehungsweise 8000 UTF-16-Bytes; Positionen und Counts sind int und UTF-16-basiert; Flags nvarchar(4)."
+help_contract_version: "not applicable"
+resultset_contracts: []
+lifecycle_error_range: "52030-52039"
+trust_error_range: "52040-52049"
+runtime_error_contract: "SQL error 6522 with stable TBX_REGEX_* prefix"
+clr:
+  used: true
+  language: "C#"
+  target_framework: ".NET Framework 4.8"
+  assembly_sql_name: "Toolbelt_String_Regex"
+  assembly_file_name: "Toolbelt.String.Regex.dll"
+  permission_set: "SAFE"
+  trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"
+  direct_framework_references:
+    - "System"
+    - "System.Data"
+  third_party_dependencies: []
+  build_project: "Clr/Toolbelt.String.Regex.csproj"
+  release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
+lifecycle:
+  trust_opt_in: "Deployment/Add-TrustedAssembly.sql"
+  deploy_template: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "generated from the exact built assembly"
+  source_hash_role: "diagnostic_only"
+  trust_removed_by_uninstall: false
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/REGEX_FUNCTIONS.md"
+  architecture:
+    - "../../Documentation/Architecture/REGEX_MODULE_DESIGN.md"
+  test_matrix:
+    - "Tests/REGEX_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "not applicable"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/Regex.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  central: "Tests/Runtime/Central.Contract.sql"
+  github_hosted_linux: "../../.github/workflows/regex-runtime.yml"
+validation_evidence:
+  - date: "2026-08-30"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "R1b auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest; SAFE CLR, exakter SHA2-512-Trust, Toolbelt-Dialekt, UTF-16, Grenzen, Timeout, Fehlerpräfixe, Erst- und Wiederholungsdeployment, Kollision, Central, Uninstall und Cleanup"
+    result: "success"

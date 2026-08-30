@@ -1,7 +1,10 @@
 # R1a Regex Research Tests
 
 Dieser Ordner reproduziert ausschließlich den R1a-Semantik-/Provider-Spike.
-Er installiert kein Toolbelt-Modul und definiert keine öffentliche Runtime-API.
+Er installiert selbst kein Toolbelt-Modul und definiert keine öffentliche
+Runtime-API. Das später separat besprochene und freigegebene R1b-Modul liegt
+unter `Modules/toolbelt.string.regex`; es ändert den historischen R1a-Scope
+nicht.
 
 ## SQL Server 2025
 
