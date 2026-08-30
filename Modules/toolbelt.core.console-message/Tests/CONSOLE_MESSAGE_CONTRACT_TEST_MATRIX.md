@@ -15,6 +15,7 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 | Unicode | Supplementary Character an Chunkgrenze | `success` – Run 30573135975 |
 | Zeilen | CRLF-Reihenfolge im Payload | `success` – Run 30573135975 |
 | Lifecycle | Erstinstallation, Wiederholung, Central, Uninstall | `success` – Run 30573135975 |
+| Project Adapter 0.1 | Install, versionsgleiches Update, Modul-/Help-Validierung, markergebundener Cleanup | `success` – `local: SQL_Server_Lab Project Adapter 0.1`; SQL Server 2025 Linux unter Docker und Podman, 2026-08-30 |
 | Matrix | SQL Server 2025 Linux, Compatibility 150/160/170 | `success` – [Run 30573135975](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30573135975) |
 | Release | physische SQL Server 2019/2022 und Windows | `not executed` |
 
