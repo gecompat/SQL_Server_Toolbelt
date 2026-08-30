@@ -62,3 +62,15 @@ Central- und Uninstall-Contracts erfolgreich.
 Der vollständige Adapter ist seit 2026-08-29 zusätzlich auf physischen
 SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Windows-Läufe sowie
 weitere Clients und Treiber bleiben Releasevalidierung.
+
+## SQL Server Lab Project Adapter
+
+Der [Project Adapter](TestLab/ProjectAdapter/README.md) implementiert den
+ADP-008-Piloten für den Vertragsstand 0.1. Seine ausführbaren SQL-Dateien
+werden deterministisch aus dem kanonischen Moduldeployment erzeugt. Der
+identische Lifecycle aus Installation, versionsgleichem Update, Validierung
+und markergebundenem Cleanup war am 2026-08-30 auf SQL Server 2025 Linux
+getrennt unter Docker und Podman erfolgreich
+(`local: SQL_Server_Lab Project Adapter 0.1`). Das Toolbelt-Repository verwaltet dabei keine
+Lab-Infrastruktur; sein Runner bindet ausschließlich einen bereits
+bereitgestellten Lab-Run.
