@@ -24,7 +24,8 @@ Skalierung, fehlender Dependencies, Kollisionen, Wiederholungsdeployment,
 Central-Aufruf und vollständigem Cleanup.
 
 `run-work-queue-linux.sh` installiert ResultTable und Work Type als explizite
-Dependencies und prüft den freigegebenen E1a-Vertrag: Enqueue, atomaren Claim,
+Dependencies und prüft den freigegebenen E1a-/E1b-Vertrag: Enqueue, atomaren Lease-Claim,
+Heartbeat, explizite Recovery, Upgrade,
 tokengebundenes Complete/Fail, Transaktionen, vier echte Claim-Sessions,
 Statusschutz, Redeployment, Central, Datenverlustgate und vollständiges
 Cleanup. Der Adapter startet, stoppt oder repariert keine Lab-Ressource.

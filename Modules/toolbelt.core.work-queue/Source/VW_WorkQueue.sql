@@ -20,6 +20,21 @@ AS
         , wi.FailureCode
         , wi.FailureMessage
         , CONVERT(binary(8), wi.RowVersion) AS RowVersion
+        , wi.ClaimGeneration
+        , wi.LeaseDurationSeconds
+        , wi.LeaseUntilUtc
+        , wi.LastHeartbeatAtUtc
+        , CONVERT
+          (
+              bit,
+              CASE
+                  WHEN wi.Status = 'CLAIMED' AND wi.LeaseUntilUtc <= SYSUTCDATETIME() THEN 1
+                  ELSE 0
+              END
+          ) AS IsLeaseExpired
+        , wi.RecoveryCount
+        , wi.LastRecoveredAtUtc
+        , wi.LastRecoveredBy
     FROM toolbelt_core.WorkItem AS wi
     JOIN toolbelt_core.WorkType AS wt
       ON wt.WorkTypeId = wi.WorkTypeId;

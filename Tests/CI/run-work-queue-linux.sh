@@ -18,16 +18,18 @@ central_db=tbx_work_queue_central
 consumer_db=tbx_work_queue_consumer
 dependency_db=tbx_work_queue_dependency
 collision_db=tbx_work_queue_collision
+upgrade_db=tbx_work_queue_upgrade
+upgrade_blocked_db=tbx_work_queue_upgrade_blocked
 sqlcmd_path=""
 
 cleanup() {
   if [[ -n "${sqlcmd_path}" ]]; then
-    for db in "${consumer_db}" "${central_db}" "${local_db}" "${dependency_db}" "${collision_db}"; do
+    for db in "${consumer_db}" "${central_db}" "${local_db}" "${dependency_db}" "${collision_db}" "${upgrade_db}" "${upgrade_blocked_db}"; do
       docker exec "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d master \
         -Q "IF DB_ID(N'${db}') IS NOT NULL BEGIN ALTER DATABASE [${db}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [${db}]; END;" >/dev/null 2>&1 || true
     done
   fi
-  rm -f /tmp/work-queue-dependency.out /tmp/work-queue-collision.out /tmp/work-queue-uninstall.out
+  rm -f /tmp/work-queue-dependency.out /tmp/work-queue-collision.out /tmp/work-queue-uninstall.out /tmp/work-queue-upgrade-blocked.out
   docker rm -f "${container_name}" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
@@ -74,6 +76,28 @@ set -e
 if [[ "${collision_rc}" -eq 0 ]] || ! grep -q "51944" /tmp/work-queue-collision.out; then
   echo "Der Fremdobjekt-Preflight ist inkonsistent." >&2; exit 1
 fi
+
+# Der echte 1.0.0-Tabellenvertrag wird mit QUEUED- und terminalen Daten
+# aufgebaut. Das Upgrade muss diese Daten erhalten; ein aktiver Alt-Claim
+# blockiert dagegen nachweislich vor der ersten Schemamutation.
+for db in "${upgrade_db}" "${upgrade_blocked_db}"; do
+  run_query master "CREATE DATABASE [${db}] COLLATE Latin1_General_100_CS_AS;"
+  deploy "${db}" Modules/toolbelt.core.result-table local
+  deploy "${db}" Modules/toolbelt.core.work-type local
+  run_file "${db}" /workspace/Modules/toolbelt.core.work-queue/Tests/Runtime UpgradeFrom1_0.Setup.sql
+done
+deploy "${upgrade_db}" Modules/toolbelt.core.work-queue local
+run_file "${upgrade_db}" /workspace/Modules/toolbelt.core.work-queue/Tests/Runtime UpgradeFrom1_0.Verify.sql
+
+run_query "${upgrade_blocked_db}" "UPDATE TOP(1) toolbelt_core.WorkItem SET Status='CLAIMED',ClaimedAtUtc=SYSUTCDATETIME(),ClaimedBy=N'synthetic-worker',ClaimToken='00000000-0000-0000-0000-000000000102' WHERE Status='QUEUED';"
+set +e
+deploy "${upgrade_blocked_db}" Modules/toolbelt.core.work-queue local >/tmp/work-queue-upgrade-blocked.out 2>&1
+upgrade_blocked_rc=$?
+set -e
+if [[ "${upgrade_blocked_rc}" -eq 0 ]] || ! grep -q "51948" /tmp/work-queue-upgrade-blocked.out; then
+  echo "Der aktive E1a-Claim blockierte das E1b-Upgrade nicht korrekt." >&2; exit 1
+fi
+run_query "${upgrade_blocked_db}" "IF COL_LENGTH(N'toolbelt_core.WorkItem',N'LeaseUntilUtc') IS NOT NULL OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.work-queue.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0') THROW 52975,N'Der abgelehnte Upgrade-Preflight mutierte den Vorgängerstand.',1;"
 
 run_query master "CREATE DATABASE [${local_db}] COLLATE Latin1_General_100_CS_AS;"
 deploy "${local_db}" Modules/toolbelt.core.result-table local
@@ -122,4 +146,8 @@ uninstall "${local_db}" Modules/toolbelt.core.work-queue 0 0
 uninstall "${local_db}" Modules/toolbelt.core.work-type 0 1
 uninstall "${local_db}" Modules/toolbelt.core.result-table 0 1
 
-echo "E1a Work Queue: erfolgreich"
+uninstall "${upgrade_db}" Modules/toolbelt.core.work-queue 0 1
+uninstall "${upgrade_db}" Modules/toolbelt.core.work-type 0 1
+uninstall "${upgrade_db}" Modules/toolbelt.core.result-table 0 1
+
+echo "E1b Work Queue Lease und Recovery: erfolgreich"
