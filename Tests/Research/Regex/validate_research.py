@@ -68,10 +68,7 @@ require(
     ".NET-Framework-Testvektoren",
 )
 
-for forbidden in (
-    ROOT / "Modules" / "toolbelt.string.regex",
-    ROOT / "Modules" / "toolbelt.string.regexp",
-):
+for forbidden in (ROOT / "Modules" / "toolbelt.string.regexp",):
     if forbidden.exists():
         raise SystemExit(f"R1a hat unerwartet ein Modul erzeugt: {forbidden.name}")
 

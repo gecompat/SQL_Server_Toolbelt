@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. 26 Module sind implementiert;
+Der Repository-Grundaufbau ist abgeschlossen. 27 Module sind implementiert;
 für alle existieren statische sowie synthetische Runtime- und
 Lifecycle-Contract-Testartefakte.
 
@@ -40,6 +40,12 @@ Framework 4.8. Er erzeugt kein Modul und keine öffentliche Runtime-API. Die
 native Linux-2025-Matrix unter Compatibility 150/160/170 und der lokale
 .NET-Framework-Harness sind erfolgreich; Windows-SQL-Runtime ist
 `not executed`.
+
+Das daraus getrennt freigegebene R1b-Modul `toolbelt.string.regex` ist mit
+seinem begrenzten Dialekt, SAFE-CLR-/SHA2-512-Vertrag, Grenzen, Timeout,
+Fehlerpräfixen und Lifecycle auf physischen SQL-Server-2019-/2022-/2025-
+Zielen unter Windows base und Linux latest erfolgreich. Es ist `validated`
+und `unreleased`.
 
 Die W2c-Module sind dort einschließlich Langtext-/Unicode-, Marker-/Drift-,
 Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
@@ -82,6 +88,7 @@ Text-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall erfolgreich.
 | `toolbelt.core.generate-series` | [GENERATE_SERIES_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.generate-series/Tests/GENERATE_SERIES_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.metadata.identifier` | [IDENTIFIER_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.metadata.identifier/Tests/IDENTIFIER_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.string.split-characters` | [SPLIT_CHARACTERS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.string.split-characters/Tests/SPLIT_CHARACTERS_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
+| `toolbelt.string.regex` | [REGEX_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.string.regex/Tests/REGEX_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige SQL-Server-2019-/2022-/2025-Matrix unter Windows base und Linux latest einschließlich SAFE CLR, Dialekt, Timeout, Lifecycle und Cleanup erfolgreich |
 | `toolbelt.validation.semantic-version` | [SEMANTIC_VERSION_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.validation.semantic-version/Tests/SEMANTIC_VERSION_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.conversion.integer-base` | [INTEGER_BASE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.conversion.integer-base/Tests/INTEGER_BASE_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.datetime.calendar-difference` | [CALENDAR_DIFFERENCE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.calendar-difference/Tests/CALENDAR_DIFFERENCE_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
