@@ -1,4 +1,4 @@
-# Work-Queue-Moduldesign – E1a
+# Work-Queue-Moduldesign – E1a und E1b
 
 ## Entscheidung und Freigabe
 
@@ -82,3 +82,62 @@ nicht als allein betriebsfertige Queue beworben werden.
 Lease/Heartbeat, Orphan Recovery, Retry, Dead Letter, Idempotency Key,
 Cancellation, Resultpersistenz, Worker-Orchestrierung, Service Broker, Agent,
 externe Runner und automatisches `KILL` sind ausdrücklich nicht E1a.
+
+## E1b – Entscheidung und Freigabe
+
+Lease, Heartbeat und Orphan Recovery wurden am 2026-08-30 unmittelbar nach
+E1a mit dem Benutzer besprochen. Festgelegt wurden Zweck, öffentlicher
+Vertrag, Alternativen, Risiken, Migration und ausgeschlossener Scope. Der
+Benutzer hat anschließend die markierte Formulierung „E1b und R1b wie
+besprochen implementieren“ als ausdrückliche Freigabe übermittelt. E1b wird
+vor R1b in einem eigenen Branch und Pull Request umgesetzt.
+
+## E1b-Vertrag
+
+Version `1.1.0` ergänzt den bestehenden Vertrag um:
+
+- eine Claim-Lease von standardmäßig 300 Sekunden mit Grenzen 5 bis 86.400;
+- `ClaimGeneration` als monotonen Ownership-Zähler je Work Item;
+- `USP_RenewWorkLease` für tokengebundene Heartbeats;
+- `USP_RecoverExpiredWork` für explizite Batches von 1 bis 1.000 abgelaufenen
+  Claims;
+- Lease-, Generation- und Recovery-Metadaten in den geschützten
+  Statusoberflächen.
+
+Engine-Zeit ist autoritativ. Eine Lease ist an ihrer exklusiven Grenze
+abgelaufen. Heartbeat, Complete und Fail prüfen Status, ClaimToken und
+Leasegrenze unter demselben Row Lock. Claim, Heartbeat und Recovery besitzen
+kurze eigene Transaktionen und akzeptieren keine Caller-Transaktion. Recovery
+ist weder automatisch noch in Claim eingebaut.
+
+Ein abgelaufener Claim bleibt bis zur expliziten Recovery sichtbar
+`CLAIMED`. Recovery löscht Token und aktuelle Claim-/Leasefelder, erhöht den
+Recovery-Zähler und setzt das Item auf `QUEUED`. Der nächste Claim erzeugt
+eine neue Generation und ein neues Token. Ein eigener `ORPHANED`-Status ist
+nicht erforderlich, weil Orphanhood lediglich aus einer abgelaufenen Lease
+abgeleitet werden kann und keine sichere Aussage über den tatsächlichen
+Worker-Zustand darstellt.
+
+## E1b-Migration
+
+Das Upgrade von `1.0.0` auf `1.1.0` ist nur zulässig, wenn keine Zeile
+`CLAIMED` ist. Der Preflight bricht andernfalls vor jeder Mutation ab. QUEUED-
+Items bleiben unverändert beanspruchbar; terminale Vorgängeritems erhalten
+historische Lease-Metadaten, ohne erneut ausführbar oder recoverbar zu werden.
+Erstinstallation, Upgrade und Wiederholungsdeployment verwenden weiterhin
+dasselbe transaktionale Deployment.
+
+## E1b-Alternativen und Risiken
+
+Ein persistenter `ORPHANED`-Zwischenstatus, implizite Recovery im Claim,
+SessionId als Ownership-Beweis, automatische Supervisor-Ausführung und `KILL`
+wurden verworfen. Eine globale feste Lease wäre zu unflexibel; eine
+unbegrenzte Caller-Lease würde die Betriebsgrenze wieder öffnen. Deshalb ist
+die Dauer je Claim wählbar, aber strikt begrenzt und für alle Heartbeats des
+Claims unveränderlich.
+
+Recovery kann eine fachliche Ausführung wiederholen, wenn der alte Worker den
+Seiteneffekt bereits gesetzt, aber nicht mehr rechtzeitig abgeschlossen hat.
+E1b garantiert daher weder Exactly-once noch generische Idempotenz. Retry,
+Backoff, Dead Letter, Idempotency Key, Cancellation, vollständige Attempt-
+Historie und Worker-Orchestrierung bleiben getrennte Slices.

@@ -9,7 +9,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 26 Module sind implementiert; alle 26 sind `partially validated`, 0 sind `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 46 Kandidaten. 26 Module sind implementiert; 1 ist `validated`, 25 sind `partially validated`, 0 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -66,7 +66,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 | Welle | Status | Inhalt | Kandidaten | Eintrittsbedingung | Ergebnis |
 |---|---|---|---|---|---|
-| `V0a` | `active`; V0c-Kohorte sowie D1 und E1a auf Linux 2019/2022/2025 erfolgreich | Physische Linux-Zielversionen | alle 24 portablen beziehungsweise Linux-fähigen Module | schema-valider SQL_Server_Lab-Vertrag; explizit ausgewählte Ziele mit eigenem `runtimeStatus = READY`; echte Engines 2019/2022/2025 und synthetische Fixtures | W5-Fehler auf 2019/2022 isolieren und File Content mit serverseitigen Fixtures prüfen; keine Statusanhebung ohne vollständige Pflichtfälle. |
+| `V0a` | `active`; V0c-Kohorte und D1 auf Linux, E1b auf Windows/Linux 2019/2022/2025 erfolgreich | Physische Linux-Zielversionen | alle 24 portablen beziehungsweise Linux-fähigen Module | schema-valider SQL_Server_Lab-Vertrag; explizit ausgewählte Ziele mit eigenem `runtimeStatus = READY`; echte Engines 2019/2022/2025 und synthetische Fixtures | W5-Fehler auf 2019/2022 isolieren und File Content mit serverseitigen Fixtures prüfen; keine Statusanhebung ohne vollständige Pflichtfälle. |
 | `V0b` | `active`; Windows-Ziele beim SQL-Anmeldungs-Preflight nicht erreichbar | Windows-Release- und Providerfälle | portable V0c-Kohorte sowie ResultTable, CLR-, Datei-, Second-Session- und Event-Module | schema-valider SQL_Server_Lab-Vertrag, einzeln bereite Windows-Ziele, kontrollierte Windows-SQL-Server-Roots und abstrahierte Evidenz | Zielversions-, Identity-, NTFS-, Trust-, Recovery- und Performanceverträge getrennt nachweisen. |
 | `V0c` | `active`; abhängig von `V0a`/`V0b` | Erste Releasekohorte | 16 portable Module aus Kernfolge, W1, W2a, W2b-A und W2c | vollständige Pflichtmatrix, versionierte Artefakte, Upgrade-/Uninstallnachweis und Releasekriterien | Veröffentlichungsfertige Kohorte; `release_status` bleibt bis zur tatsächlichen autorisierten Veröffentlichung `unreleased`. |
 | `W1` | `completed` | Kleine unabhängige T-SQL-Kerne | `002`, `008`, `024` | Einzelvertrag und Freigabe | Drei implementierte, auf SQL Server 2025 Linux teilweise validierte Module. |
@@ -78,12 +78,12 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 | `W4` | `completed` | Weitere Execution-Grundlagen | `017`, `019`, `022` | Persistente Tabellenkonvention mit `DEC-2026-025`; Einzelverträge freigegeben | Error Envelope, Execution Context und Work-Type-Katalog sind implementiert und auf SQL Server 2025 Linux teilweise validiert. |
 | `W5a` | `completed` | Synchrone zweite Session und Event Log | `046` synchroner Slice, `014` | Work-Type, Execution Context und Error Envelope | `toolbelt.core.second-session` und rollback-unabhängiges `toolbelt.core.event-log` implementiert und teilweise validiert. |
 | `W5b` | `researched` | Zusätzliche Session- und Ausführungsprovider | verbleibender `046`-Scope | Konkreter Providerbedarf, eigener Security-/Lifecyclevertrag und Freigabe | Kein automatischer Ausbau; Agent, Broker und externe Worker bleiben getrennte Optionen. |
-| `W6` | `W6a implemented`; Rest `planned` | Queue, Retry, Lease und Cancellation | `015`, `021`, `020`, `018` | W6a am 2026-08-30 besprochen und ausdrücklich freigegeben; Einzelvertrag und Freigabe für jeden weiteren Slice | `W6a` Enqueue/Claim/Complete/Fail/Status ist implementiert und auf Linux 2019/2022/2025 teilweise validiert; `W6b` Lease/Recovery, `W6c` Retry/Dead Letter/Idempotenz und `W6d` kooperative Cancellation bleiben offen. |
+| `W6` | `W6a/W6b implemented`; Runtime `validated`; Rest `planned` | Queue, Retry, Lease und Cancellation | `015`, `021`, `020`, `018` | W6a und W6b am 2026-08-30 getrennt besprochen und ausdrücklich freigegeben; Einzelvertrag und Freigabe für jeden weiteren Slice | `W6a` und `W6b` sind implementiert und auf Windows/Linux 2019/2022/2025 validiert; `W6c` Retry/Dead Letter/Idempotenz und `W6d` kooperative Cancellation bleiben offen. |
 | `W7` | `active` | Datei- und Host-Provider | `037`, `038`, `025`, `026`, `027` | Root-Allowlist, Pfad-/Encoding-Vertrag und Provider | `toolbelt.file.content` ist als portabler Read-only-Slice implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` implementiert Read/Write/Transcoding/Directory-Operationen; der manuelle Windows-Runtime-Nachweis bleibt offen. Externe Worker bleiben optional zurückgestellt. |
 | `W8` | `completed` für ZIP Memory; Rest `researched` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | `toolbelt.archive.zip-memory` Version `1.2.0` enthält Extraktion und Listing. Windows-Runtime, ZIP-Erzeugung, vollständige Dateisystemextraktion und XLSX bleiben ohne Implementierungsfreigabe offen. |
 | `Q1` | `completed` für V1 | Lifecycle- und Upgrade-Automation | `RI-2026-142`; weitere Manifest-/Snapshot-Slices zurückgestellt | V1 auf isolierte dependency-freie zustandslose T-SQL-Module begrenzt | Kataloggenauer Wiederholungsdeploy, zwei unabhängige Uninstalls und Restzustandsprüfung sind auf SQL Server 2019/2022/2025 unter Linux und Windows erfolgreich. |
 | `D1` | `implemented`; Runtime `partially validated` | Date Spine V1 | `RI-2026-079` auf Basis von `006` und `004` | Vertrag am 2026-08-30 besprochen und ausdrücklich freigegeben | Drei portable Inline TVFs für Tag, ISO-Woche und Monat; Linux 2019/2022/2025 erfolgreich, Windows-Preflight derzeit nicht erreichbar. |
-| `R1` | `R1a research completed`; Runtime-Gate offen | Regex V1 | `010` | Provider-/Semantikrichtung wählen und kleinen Funktionsslice besprechen | Kein portabler RE2-Paritätsprovider nachgewiesen; zuerst zwischen exakter RE2-Parität, engem Toolbelt-Dialekt und 2025-only-Fassade wählen. `LIKE`, `INSTR`, `COUNT` bleiben der mögliche erste Slice. |
+| `R1` | `R1a completed`; `R1b approved` | Regex V1 | `010` | E1b zuerst mergen; danach eigener R1b-Branch | Begrenzter Toolbelt-Dialekt über portables SAFE SQL CLR für IsMatch, Instr und Count; keine RE2-Paritätszusage, Replace/Split/Captures bleiben außerhalb. |
 | `R2025` | `proposed research` | SQL-Server-2025-GA-Delta | UNISTR, PRODUCT, DATEADD bigint, Vector-Scalar-Funktionen | Aktuellen GA-/Preview-Status aus Primärquellen bestätigen | Nur Deduplizierung und Kandidatenbewertung; keine Implementierung. |
 | `W9` | `researched` | Deterministische Pseudonymisierungsprimitive | `040`, `039`, `041`, `042`, `043` | Key-/Seed-, Kanonisierungs- und Datenschutzvertrag | Range-Primitive zuerst; darauf Lookup, Translation, Date Shift und Geo Jitter. |
 | `W10` | `researched` | Kontrolliertes DDL-Klonen | `044` | Identifier-Modul vorhanden; unterstützte Objektmenge festgelegt | Zuerst nur geprüftes Script, später optional getrennte Ausführung. |
@@ -96,8 +96,9 @@ freigegebenes Arbeitspaket aktiv.
 ## Bestimmung der nächsten neuen Funktionswelle
 
 Die Releasevalidierung `V0a`/`V0b`/`V0c` bleibt vorrangig. `Q1`, `D1`, R1a
-und E1a sind in ihrem deklarierten Scope abgeschlossen. Eine weitere
-Funktionsimplementierung ist derzeit nicht autonom freigegeben.
+und E1a sind in ihrem deklarierten Scope abgeschlossen. E1b und R1b wurden am
+2026-08-30 anschließend ausdrücklich zur sequenziellen Implementierung
+freigegeben; weitere Funktionsimplementierungen sind nicht pauschal autorisiert.
 
 Die Auswahl von `D1` beruhte auf der bereits implementierten Dependency-Closure
 aus Generate Series und Datetime Truncate, dem hohen
@@ -115,15 +116,12 @@ ausdrücklich freigegeben. `R1a` hat den Semantik-/Provider-Spike ohne
 Runtime-API abgeschlossen; mangels portablem RE2-Paritätsprovider bleibt die
 Implementierung bis zu einer Richtungs- und Vertragsentscheidung gesperrt.
 `E1a` ist nach eigener Vertragsbesprechung und Freigabe als
-Enqueue/Claim/Complete/Fail/Status-Slice implementiert. Lease/Recovery,
+Enqueue/Claim/Complete/Fail/Status-Slice implementiert. `E1b` ergänzt nach
+getrennter Besprechung und Freigabe Lease, Heartbeat und explizite Recovery.
 Retry/Dead Letter/Idempotenz und kooperative Cancellation bleiben getrennt
-und benötigen jeweils eine neue Freigabe.
-
-Als nächste Vertragsbesprechung wird E1b Lease/Orphan Recovery empfohlen,
-weil es die bewusst dokumentierte Betriebsgrenze eines dauerhaft `CLAIMED`
-bleibenden E1a-Items schließt. Alternativ kann zuerst die offene R1-
-Provider-/Semantikrichtung entschieden werden. Beide Wege benötigen vor Code
-erneut die funktionsbezogene Besprechung und ausdrückliche Freigabe.
+und benötigen jeweils eine neue Freigabe. Für R1b wurde der begrenzte
+Toolbelt-Dialekt mit portablem SAFE-CLR-Provider separat freigegeben; seine
+Umsetzung folgt erst nach dem E1b-Merge.
 
 ## Objekt- und Modulplan
 
@@ -157,7 +155,8 @@ erneut die funktionsbezogene Besprechung und ausdrückliche Freigabe.
 | `TC-2026-038` | `toolbelt.filesystem.windows` | `toolbelt_filesystem.USP_ListDirectory` | Manueller Windows-Runtime-Test; portabler Listing-Provider bleibt optional offen. |
 | `TC-2026-046` | `toolbelt.core.second-session` | `toolbelt_core.USP_ExecuteWorkTypeInNewSession` | Physische 2019-/2022- und Windows-Releasevalidierung; zusätzliche Provider bleiben getrennte Forschungs- und Freigabeslices. |
 | `D1` / `RI-2026-079` | `toolbelt.datetime.date-spine` | `toolbelt_datetime.TVF_DateSpineDay`, `TVF_DateSpineIsoWeek`, `TVF_DateSpineMonth` | Windows-Runtime nach wiederhergestellter SQL-Erreichbarkeit; Release bleibt unautorisiert. |
-| `TC-2026-015` | `toolbelt.core.work-queue` (E1a) | `toolbelt_core.USP_EnqueueWork`, `USP_ClaimWork`, `USP_CompleteWork`, `USP_FailWork`, `USP_GetWorkStatus`, `VW_WorkQueue` | Windows-Runtime und E1b Lease/Recovery; vor E1b keine alleinstehende Veröffentlichung. |
+| `TC-2026-015` | `toolbelt.core.work-queue` (E1a) | `toolbelt_core.USP_EnqueueWork`, `USP_ClaimWork`, `USP_CompleteWork`, `USP_FailWork`, `USP_GetWorkStatus`, `VW_WorkQueue` | Worker-Provider und E1c Retry/Idempotenz bleiben separat; tatsächliche Veröffentlichung ist nicht autorisiert. |
+| `TC-2026-021` | `toolbelt.core.work-queue` (E1b) | `toolbelt_core.USP_RenewWorkLease`, `USP_RecoverExpiredWork`; Lease- und Generationserweiterungen der E1a-Objekte | E1c Retry/Idempotenz bleibt separat; tatsächliche Veröffentlichung ist nicht autorisiert. |
 
 ### Portable Fach- und Compatibility-Module
 
@@ -294,7 +293,7 @@ SQL CLR, Datei-I/O, Second Session und Event Log.
 - `toolbelt.core.console-message`;
 - `toolbelt.metadata.capability-catalog`.
 
-Alle 26 Module bleiben `partially validated` und `unreleased`. Der lokale
+Ein Modul ist `validated`, 25 bleiben `partially validated`; alle 26 sind `unreleased`. Der lokale
 SQL_Server_Lab-Vertrag ist schema-valide. Durch die ausdrückliche
 Einzelzielfreigabe vom 2026-08-29 sind die laufenden Linux-Ziele trotz
 `groupStatus = INCOMPLETE` für `V0a` verwendbar; die beim SQL-Anmeldungs-

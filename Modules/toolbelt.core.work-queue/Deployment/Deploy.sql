@@ -2,7 +2,7 @@
 
 -- ============================================================================
 -- Zweck:     Erst- und Wiederholungsdeployment
--- Modul:     toolbelt.core.work-queue v1.0.0 (E1a)
+-- Modul:     toolbelt.core.work-queue v1.1.0 (E1b)
 -- Erfordert: toolbelt.core.result-table 1.0.0; toolbelt.core.work-type 1.1.0
 -- Modus:     SQLCMD; Ausführung aus diesem Deployment-Verzeichnis
 -- Parameter: DeploymentMode=local|central
@@ -36,10 +36,23 @@ VALUES
  ,(N'1.0.0',N'toolbelt_core',N'USP_FailWork',N'P',N'PROCEDURE')
  ,(N'1.0.0',N'toolbelt_core',N'USP_GetWorkStatus',N'P',N'PROCEDURE');
 
+INSERT INTO #tbx_WorkQueueReleaseObjects
+    (ReleaseVersion,SchemaName,ObjectName,ObjectType,LevelType)
+VALUES
+  (N'1.1.0',N'toolbelt_core',N'WorkItem',N'U',N'TABLE')
+ ,(N'1.1.0',N'toolbelt_core',N'VW_WorkQueue',N'V',N'VIEW')
+ ,(N'1.1.0',N'toolbelt_core',N'USP_EnqueueWork',N'P',N'PROCEDURE')
+ ,(N'1.1.0',N'toolbelt_core',N'USP_ClaimWork',N'P',N'PROCEDURE')
+ ,(N'1.1.0',N'toolbelt_core',N'USP_RenewWorkLease',N'P',N'PROCEDURE')
+ ,(N'1.1.0',N'toolbelt_core',N'USP_RecoverExpiredWork',N'P',N'PROCEDURE')
+ ,(N'1.1.0',N'toolbelt_core',N'USP_CompleteWork',N'P',N'PROCEDURE')
+ ,(N'1.1.0',N'toolbelt_core',N'USP_FailWork',N'P',N'PROCEDURE')
+ ,(N'1.1.0',N'toolbelt_core',N'USP_GetWorkStatus',N'P',N'PROCEDURE');
+
 CREATE TABLE #tbx_WorkQueueDeployState
 (TargetVersion nvarchar(64) NOT NULL,InstalledVersion nvarchar(64) NULL,DeploymentMode nvarchar(16) NOT NULL);
 
-DECLARE @TargetVersion nvarchar(64)=N'1.0.0';
+DECLARE @TargetVersion nvarchar(64)=N'1.1.0';
 DECLARE @DeploymentMode nvarchar(16)=LOWER(N'$(DeploymentMode)');
 DECLARE @VersionPropertyName sysname=N'Toolbelt.Module.toolbelt.core.work-queue.Version';
 DECLARE @InstalledVersion nvarchar(64);
@@ -63,7 +76,7 @@ IF ISNULL(@ResultTableVersion,N'') COLLATE Latin1_General_100_BIN2<>N'1.0.0'
 
 SELECT @InstalledVersion=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties
 WHERE class=0 AND name=@VersionPropertyName;
-IF @InstalledVersion IS NOT NULL AND @InstalledVersion COLLATE Latin1_General_100_BIN2<>N'1.0.0'
+IF @InstalledVersion IS NOT NULL AND @InstalledVersion COLLATE Latin1_General_100_BIN2 NOT IN(N'1.0.0',N'1.1.0')
     THROW 51943,N'Die installierte Modulversion ist diesem Deployment nicht als unterstütztes Release bekannt.',1;
 
 IF EXISTS
@@ -109,7 +122,31 @@ IF OBJECT_ID(N'toolbelt_core.WorkItem',N'U') IS NOT NULL
                = required.ColumnName COLLATE Latin1_General_100_BIN2
      )
  )
-    THROW 51943,N'Die vorhandene WorkItem-Tabelle entspricht nicht dem Version-1-Vertrag.',2;
+    THROW 51943,N'Die vorhandene WorkItem-Tabelle entspricht keinem unterstützten Work-Queue-Vertrag.',2;
+
+IF @InstalledVersion=N'1.1.0' AND EXISTS
+(
+    SELECT required.ColumnName FROM (VALUES
+      (N'ClaimGeneration'),(N'LeaseDurationSeconds'),(N'LeaseUntilUtc'),(N'LastHeartbeatAtUtc'),
+      (N'RecoveryCount'),(N'LastRecoveredAtUtc'),(N'LastRecoveredBy'))required(ColumnName)
+    WHERE NOT EXISTS
+    (
+        SELECT 1 FROM sys.columns c
+        WHERE c.object_id=OBJECT_ID(N'toolbelt_core.WorkItem')
+          AND c.name COLLATE Latin1_General_100_BIN2=required.ColumnName COLLATE Latin1_General_100_BIN2
+    )
+)
+    THROW 51943,N'Die vorhandene WorkItem-Tabelle entspricht nicht dem Version-1.1-Vertrag.',3;
+
+IF @InstalledVersion=N'1.0.0'
+BEGIN
+    DECLARE @HasActiveLegacyClaim bit=0;
+    EXEC sys.sp_executesql
+         N'IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE Status=''CLAIMED'') SET @Value=1;',
+         N'@Value bit OUTPUT',@Value=@HasActiveLegacyClaim OUTPUT;
+    IF @HasActiveLegacyClaim=1
+        THROW 51948,N'Das Upgrade auf E1b ist mit aktiven E1a-Claims nicht zulässig; diese müssen zuerst fachlich abgeschlossen werden.',4;
+END;
 
 IF HAS_PERMS_BY_NAME(N'toolbelt_core',N'SCHEMA',N'ALTER')<>1
  OR HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE PROCEDURE')<>1
@@ -140,6 +177,8 @@ GO
 :r ../Source/VW_WorkQueue.sql
 :r ../Source/USP_EnqueueWork.sql
 :r ../Source/USP_ClaimWork.sql
+:r ../Source/USP_RenewWorkLease.sql
+:r ../Source/USP_RecoverExpiredWork.sql
 :r ../Source/USP_CompleteWork.sql
 :r ../Source/USP_FailWork.sql
 :r ../Source/USP_GetWorkStatus.sql
@@ -168,7 +207,7 @@ BEGIN TRY
         DECLARE @Properties TABLE(PropertyName sysname NOT NULL,PropertyValue nvarchar(4000) NOT NULL);
         INSERT INTO @Properties VALUES
           (N'Toolbelt.ModuleId',N'toolbelt.core.work-queue'),(N'Toolbelt.ModuleVersion',@TargetVersion),
-          (N'Toolbelt.ContractVersion',N'1.0'),(N'Toolbelt.DeploymentMode',@DeploymentMode),
+          (N'Toolbelt.ContractVersion',N'1.1'),(N'Toolbelt.DeploymentMode',@DeploymentMode),
           (N'Toolbelt.SourceHash',COALESCE(CONVERT(nvarchar(4000),@SourceHash),N'PERSISTENT_TABLE'));
         DECLARE property_cursor CURSOR LOCAL FAST_FORWARD FOR SELECT PropertyName,PropertyValue FROM @Properties;
         OPEN property_cursor; FETCH NEXT FROM property_cursor INTO @PropertyName,@PropertyValue;

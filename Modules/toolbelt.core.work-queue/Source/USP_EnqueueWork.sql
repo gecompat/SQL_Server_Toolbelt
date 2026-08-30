@@ -54,6 +54,14 @@ BEGIN
             , ('RESULT_COLUMN', 12, N'FailureCode', 'varchar(64)', 0, 1, NULL, N'Stabiler Fehlercode; nach Enqueue NULL.', NULL)
             , ('RESULT_COLUMN', 13, N'FailureMessage', 'nvarchar(1000)', 0, 1, NULL, N'Optionale bereinigte Fehlermeldung; nach Enqueue NULL.', NULL)
             , ('RESULT_COLUMN', 14, N'RowVersion', 'binary(8)', 0, 0, NULL, N'Aktueller Concurrency-Marker.', NULL)
+            , ('RESULT_COLUMN', 15, N'ClaimGeneration', 'bigint', 0, 0, NULL, N'Nach Enqueue 0; wird bei jedem Claim erhöht.', NULL)
+            , ('RESULT_COLUMN', 16, N'LeaseDurationSeconds', 'int', 0, 1, NULL, N'Nach Enqueue NULL.', NULL)
+            , ('RESULT_COLUMN', 17, N'LeaseUntilUtc', 'datetime2(7)', 0, 1, NULL, N'Nach Enqueue NULL.', NULL)
+            , ('RESULT_COLUMN', 18, N'LastHeartbeatAtUtc', 'datetime2(7)', 0, 1, NULL, N'Nach Enqueue NULL.', NULL)
+            , ('RESULT_COLUMN', 19, N'IsLeaseExpired', 'bit', 0, 0, NULL, N'Nach Enqueue 0.', NULL)
+            , ('RESULT_COLUMN', 20, N'RecoveryCount', 'bigint', 0, 0, NULL, N'Nach Enqueue 0.', NULL)
+            , ('RESULT_COLUMN', 21, N'LastRecoveredAtUtc', 'datetime2(7)', 0, 1, NULL, N'Nach Enqueue NULL.', NULL)
+            , ('RESULT_COLUMN', 22, N'LastRecoveredBy', 'sysname', 0, 1, NULL, N'Nach Enqueue NULL.', NULL)
             , ('ERROR', 1, N'51900-51908', NULL, NULL, NULL, NULL, N'Work-Type-, Payload-, Transaktions- oder ResultTable-Fehler.', NULL)
             , ('EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, N'Reiht synthetische JSON-Arbeit ein.', N'EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName=''demo.json'', @PayloadJson=N''{"value":1}'';')
         ) AS v(Section, Ordinal, ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue, Description, ExampleSql)
@@ -84,6 +92,14 @@ BEGIN
         , FailureCode varchar(64) COLLATE Latin1_General_100_BIN2 NULL
         , FailureMessage nvarchar(1000) NULL
         , RowVersion binary(8) NOT NULL
+        , ClaimGeneration bigint NOT NULL
+        , LeaseDurationSeconds int NULL
+        , LeaseUntilUtc datetime2(7) NULL
+        , LastHeartbeatAtUtc datetime2(7) NULL
+        , IsLeaseExpired bit NOT NULL
+        , RecoveryCount bigint NOT NULL
+        , LastRecoveredAtUtc datetime2(7) NULL
+        , LastRecoveredBy sysname NULL
     );
     CREATE TABLE #tbx_WorkQueue_StatusResult
     (
@@ -101,6 +117,14 @@ BEGIN
         , FailureCode varchar(64) COLLATE Latin1_General_100_BIN2 NULL
         , FailureMessage nvarchar(1000) NULL
         , RowVersion binary(8) NOT NULL
+        , ClaimGeneration bigint NOT NULL
+        , LeaseDurationSeconds int NULL
+        , LeaseUntilUtc datetime2(7) NULL
+        , LastHeartbeatAtUtc datetime2(7) NULL
+        , IsLeaseExpired bit NOT NULL
+        , RecoveryCount bigint NOT NULL
+        , LastRecoveredAtUtc datetime2(7) NULL
+        , LastRecoveredBy sysname NULL
     );
 
     DECLARE @InitialTranCount int = @@TRANCOUNT;
@@ -161,8 +185,8 @@ BEGIN
         BEGIN
             DECLARE @InsertSql nvarchar(max) =
                 N'INSERT INTO ' + QUOTENAME(@ResultTable)
-                + N' (WorkItemId, WorkTypeName, Status, EnqueuedAtUtc, EnqueuedBy, ClaimedAtUtc, ClaimedBy, CompletedAtUtc, CompletedBy, FailedAtUtc, FailedBy, FailureCode, FailureMessage, RowVersion)'
-                + N' SELECT WorkItemId, WorkTypeName, Status, EnqueuedAtUtc, EnqueuedBy, ClaimedAtUtc, ClaimedBy, CompletedAtUtc, CompletedBy, FailedAtUtc, FailedBy, FailureCode, FailureMessage, RowVersion FROM #tbx_WorkQueue_StatusResult;';
+                + N' (WorkItemId, WorkTypeName, Status, EnqueuedAtUtc, EnqueuedBy, ClaimedAtUtc, ClaimedBy, CompletedAtUtc, CompletedBy, FailedAtUtc, FailedBy, FailureCode, FailureMessage, RowVersion, ClaimGeneration, LeaseDurationSeconds, LeaseUntilUtc, LastHeartbeatAtUtc, IsLeaseExpired, RecoveryCount, LastRecoveredAtUtc, LastRecoveredBy)'
+                + N' SELECT WorkItemId, WorkTypeName, Status, EnqueuedAtUtc, EnqueuedBy, ClaimedAtUtc, ClaimedBy, CompletedAtUtc, CompletedBy, FailedAtUtc, FailedBy, FailureCode, FailureMessage, RowVersion, ClaimGeneration, LeaseDurationSeconds, LeaseUntilUtc, LastHeartbeatAtUtc, IsLeaseExpired, RecoveryCount, LastRecoveredAtUtc, LastRecoveredBy FROM #tbx_WorkQueue_StatusResult;';
             EXEC sys.sp_executesql @InsertSql;
         END;
 
