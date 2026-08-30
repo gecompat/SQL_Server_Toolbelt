@@ -100,15 +100,22 @@ zip_clr_before=""
 zip_show_advanced_before=""
 zip_trust_before=""
 
-if [[ "$(basename "${run_script_path}")" == "run-zip-memory-linux.sh" ]]; then
-    if [[ -z "${TBX_ZIP_ASSEMBLY_HASH:-}" ]]; then
-        echo "TBX_ZIP_ASSEMBLY_HASH fehlt für den ZIP-Memory-Lauf." >&2
+clr_adapter="$(basename "${run_script_path}")"
+clr_hash=""
+if [[ "${clr_adapter}" == "run-zip-memory-linux.sh" || "${clr_adapter}" == "run-regex-linux.sh" ]]; then
+    if [[ "${clr_adapter}" == "run-zip-memory-linux.sh" ]]; then
+        clr_hash="${TBX_ZIP_ASSEMBLY_HASH:-}"
+    else
+        clr_hash="${TBX_REGEX_ASSEMBLY_HASH:-}"
+    fi
+    if [[ -z "${clr_hash}" ]]; then
+        echo "Der SHA2-512-Hash für den CLR-Lauf fehlt." >&2
         exit 65
     fi
 
     zip_clr_before="$(run_control_query "SET NOCOUNT ON; SELECT CONVERT(int, value_in_use) FROM sys.configurations WHERE name = N'clr enabled';" -h -1 -W 2>/dev/null | tr -d '[:space:]')"
     zip_show_advanced_before="$(run_control_query "SET NOCOUNT ON; SELECT CONVERT(int, value_in_use) FROM sys.configurations WHERE name = N'show advanced options';" -h -1 -W 2>/dev/null | tr -d '[:space:]')"
-    zip_trust_before="$(run_control_query "SET NOCOUNT ON; SELECT COUNT(*) FROM sys.trusted_assemblies WHERE hash = CONVERT(varbinary(64), N'${TBX_ZIP_ASSEMBLY_HASH}', 1);" -h -1 -W 2>/dev/null | tr -d '[:space:]')"
+    zip_trust_before="$(run_control_query "SET NOCOUNT ON; SELECT COUNT(*) FROM sys.trusted_assemblies WHERE hash = CONVERT(varbinary(64), N'${clr_hash}', 1);" -h -1 -W 2>/dev/null | tr -d '[:space:]')"
 fi
 
 lab_work_dir="$(mktemp -d)"
@@ -136,17 +143,17 @@ IF EXISTS (SELECT 1 FROM sys.servers WHERE name = @LinkedServer)
          @droplogins = N'droplogins';
 " >/dev/null 2>&1
 
-    if [[ "$(basename "${run_script_path}")" == "run-zip-memory-linux.sh" ]]; then
+    if [[ "${clr_adapter}" == "run-zip-memory-linux.sh" || "${clr_adapter}" == "run-regex-linux.sh" ]]; then
         if [[ "${zip_trust_before}" == "0" ]]; then
             run_control_query "
 IF EXISTS
    (
        SELECT 1
        FROM sys.trusted_assemblies
-       WHERE hash = CONVERT(varbinary(64), N'${TBX_ZIP_ASSEMBLY_HASH}', 1)
+       WHERE hash = CONVERT(varbinary(64), N'${clr_hash}', 1)
    )
     EXEC sys.sp_drop_trusted_assembly
-         @hash = CONVERT(varbinary(64), N'${TBX_ZIP_ASSEMBLY_HASH}', 1);
+         @hash = CONVERT(varbinary(64), N'${clr_hash}', 1);
 " >/dev/null 2>&1
         fi
 

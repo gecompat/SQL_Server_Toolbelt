@@ -2,6 +2,12 @@
 
 Stand: 2026-08-30
 
+> Nachgelagerter Status 2026-08-30: Nach Abschluss dieses Research-Scope
+> wurden ein enger Toolbelt-Dialekt und drei R1b-Funktionen separat besprochen,
+> ausdrücklich freigegeben und unter `Modules/toolbelt.string.regex`
+> implementiert. R1a selbst enthält weiterhin kein Runtime-Objekt und seine
+> Aussage gegen RE2-Parität bleibt unverändert.
+
 ## Ergebnis
 
 R1a ist als Research-Slice abgeschlossen. Für SQL Server 2019 und 2022 ist

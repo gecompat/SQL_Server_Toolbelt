@@ -23,10 +23,12 @@ param(
         'run-w5a-second-session-linux.sh',
         'run-w5b-event-log-linux.sh',
         'run-work-queue-linux.sh',
+        'run-regex-linux.sh',
         'run-q1-migration-idempotency.sh',
         'run-zip-memory-linux.sh'
     ),
     [string]$ZipMemoryAssemblyRoot = '.runtime/zip-memory-release',
+    [string]$RegexAssemblyRoot = '.runtime/regex-release',
     [switch]$StopOnFailure,
     [switch]$PreserveFailureLogs
 )
@@ -209,6 +211,17 @@ function Get-ZipCompatibilityLevels {
     }
 }
 
+function Get-RegexCompatibilityLevels {
+    param([Parameter(Mandatory)][string]$Version)
+
+    switch ($Version) {
+        '2019' { return @('150') }
+        '2022' { return @('160') }
+        '2025' { return @('150', '160', '170') }
+        default { throw 'Nicht unterstützte SQL-Version für Regex.' }
+    }
+}
+
 function Get-SafeFailureCause {
     param([Parameter(Mandatory)][System.Management.Automation.ErrorRecord]$ErrorRecord)
 
@@ -230,6 +243,13 @@ $resolvedZipReleaseRoot = Resolve-Path `
     -ErrorAction SilentlyContinue
 if ($null -ne $resolvedZipReleaseRoot) {
     $zipReleaseRoot = $resolvedZipReleaseRoot.Path
+}
+$regexReleaseRoot = $null
+$resolvedRegexReleaseRoot = Resolve-Path `
+    (Join-Path $repoRoot $RegexAssemblyRoot) `
+    -ErrorAction SilentlyContinue
+if ($null -ne $resolvedRegexReleaseRoot) {
+    $regexReleaseRoot = $resolvedRegexReleaseRoot.Path
 }
 $lab = Resolve-LabContract
 
@@ -318,6 +338,7 @@ $managedEnvironmentNames = @(
     'TBX_COMPATIBILITY_LEVEL',
     'TBX_ASSEMBLY_ROOT',
     'TBX_ZIP_ASSEMBLY_HASH',
+    'TBX_REGEX_ASSEMBLY_HASH',
     'GITHUB_RUN_ID',
     'GITHUB_WORKSPACE'
 )
@@ -365,6 +386,16 @@ try {
                     $compatibilityLevels = Get-ZipCompatibilityLevels -Version ([string]$target.sqlVersion)
                     $env:TBX_ASSEMBLY_ROOT = $zipReleaseRoot
                     $env:TBX_ZIP_ASSEMBLY_HASH = [string]$manifest.sqlServerHexLiteral
+                }
+                elseif ($runScript -ceq 'run-regex-linux.sh') {
+                    if ([string]::IsNullOrWhiteSpace($regexReleaseRoot)) {
+                        throw 'Die Regex-Release-Artefakte fehlen.'
+                    }
+                    $manifestPath = Join-Path $regexReleaseRoot 'Toolbelt.String.Regex.trust-manifest.json'
+                    $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+                    $compatibilityLevels = Get-RegexCompatibilityLevels -Version ([string]$target.sqlVersion)
+                    $env:TBX_ASSEMBLY_ROOT = $regexReleaseRoot
+                    $env:TBX_REGEX_ASSEMBLY_HASH = [string]$manifest.sqlServerHexLiteral
                 }
 
                 foreach ($compatibilityLevel in $compatibilityLevels) {
