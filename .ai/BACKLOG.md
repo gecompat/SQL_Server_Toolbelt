@@ -37,6 +37,21 @@ Die V0c-Kohorte umfasst verbindlich:
 `toolbelt.core.console-message` und
 `toolbelt.metadata.capability-catalog`.
 
+### ADP-008: SQL_Server_Lab Project-Adapter-Pilot
+
+| Feld | Wert |
+|---|---|
+| ID | `ADP-008`; externer Pilot aus dem kanonischen Backlog von `SQL_Server_Lab`, keine neue sequenzielle `AP`-Referenz |
+| Ziel | Ein vorhandenes versioniertes Toolbelt-Modul über den Project-Adapter-Vertrag 0.1 auf einem isolierten SQL-Server-2025-Container-Lab installieren, aktualisieren, validieren und deinstallieren. |
+| Scope | `toolbelt.core.console-message` 1.0.0; fünf reine T-SQL-Entrypoints; markergebundene synthetische Datenbank; deterministische Ableitung aus kanonischem Deploy, Source und Uninstall. Keine neue öffentliche SQL-API, keine Providerlogik und keine Verwaltung von Lab-Infrastruktur im Toolbelt-Repository. |
+| Status | `completed` für den deklarierten Pilot-Scope |
+| Alternativen | Ein neues Pilotmodul würde unnötig einen öffentlichen Vertrag erzeugen; kopierte, unabhängig gepflegte SQL-Dateien würden vom Moduldeployment abdriften; ein im Toolbelt gestarteter Lab-Run würde die Repository-Grenze verletzen. |
+| Risiken und Grenzen | Das Update ist ein versionsgleiches idempotentes Redeployment, weil für Version 1.0.0 kein historischer Upgradepfad existiert. Der Pilot belegt nur SQL Server 2025 Linux unter Docker und Podman und ändert den Modulstatus nicht. |
+| Benutzerfreigabe | Der Benutzer hat am 2026-08-30 den autonomen Abschluss der offenen Backlogpunkte, die Verwendung des vorhandenen Podman-Providers und das Überführen jedes konsistenten Blocks auf `origin/main` ausdrücklich beauftragt. |
+| Tests | Statischer Modul-/Generatorvertrag und Schema-/Resolverprüfung durch `SQL_Server_Lab`; echte getrennte SQL-Server-2025-Linux-Läufe unter Docker und Podman jeweils mit Install, Update, Validate, Adapter-Cleanup und anschließendem scopegebundenem Infrastruktur-Cleanup erfolgreich. |
+| Evidenz | `Modules/toolbelt.core.console-message/TestLab/ProjectAdapter/`; ausschließlich synthetische Daten und abstrahierte Ergebnisse, ohne Credentials, Ports, Run-IDs, Laufzeiten oder vollständige Runtime-Logs. |
+| Nächster Schritt | Pilotvertrag 0.1 stabil halten. Weitere Module, historische Upgradepfade oder ein breiterer Plattformscope benötigen einen eigenen begründeten Slice. |
+
 ### Q1: Migration-Idempotency-Verifier V1
 
 | Feld | Wert |

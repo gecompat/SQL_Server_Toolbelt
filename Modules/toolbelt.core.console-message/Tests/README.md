@@ -21,3 +21,12 @@ erfolgreich.
 Der vollständige Adapter ist seit 2026-08-29 zusätzlich auf physischen
 SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Windows-Läufe sowie
 unterschiedliche Clients und Treiber bleiben getrennte Pflichtprüfungen.
+
+Der Project-Adapter-Pilot ADP-008 ist am 2026-08-30 mit SQL Server 2025 Linux
+getrennt unter Docker und Podman erfolgreich
+(`local: SQL_Server_Lab Project Adapter 0.1`). Beide Läufe installierten das
+Modul, führten das versionsgleiche Update aus, validierten Modulmarker,
+öffentliche Signatur und Help-Vertrag und entfernten anschließend die
+markergebundene Adapterdatenbank sowie die scopegebundenen Lab-Ressourcen.
+Der Nachweis erweitert weder den offenen Windows- noch den Client-/Treiber-
+Scope und ändert deshalb den Status `partially validated` nicht.

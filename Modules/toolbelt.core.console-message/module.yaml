@@ -80,6 +80,8 @@ tests:
   message_capture: "Tests/Runtime/ConsoleOutput.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
+  project_adapter_static: "Tests/Static/validate_contract.py"
+  project_adapter_runtime: "TestLab/ProjectAdapter/Invoke-OnExistingLab.ps1"
   github_hosted_linux: "../../.github/workflows/w2c-runtime.yml"
 validation_evidence:
   - date: "2026-07-30"
@@ -89,4 +91,8 @@ validation_evidence:
   - date: "2026-08-29"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter mit lokalen, zentralen, Lifecycle- und Uninstall-Verträgen"
+    result: "success"
+  - date: "2026-08-30"
+    workflow: "local: SQL_Server_Lab Project Adapter 0.1"
+    scope: "SQL Server 2025 Linux unter Docker und Podman; Installation, versionsgleiches Update, Modul-/Help-Validierung, markergebundener Uninstall und vollständiger scopegebundener Cleanup"
     result: "success"

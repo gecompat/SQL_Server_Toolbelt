@@ -1,0 +1,30 @@
+{
+  "$schema": "https://github.com/gecompat/SQL_Server_Lab/raw/main/Schemas/project-adapter.schema.json",
+  "adapterContractVersion": "0.1",
+  "projectId": "sql-server-toolbelt-console-message",
+  "displayName": "SQL Server Toolbelt – Console Message",
+  "description": "Installiert, aktualisiert und validiert das versionierte Modul toolbelt.core.console-message in einer isolierten synthetischen Datenbank.",
+  "supportedLabCoreVersions": ["0.x"],
+  "requiredCapabilities": ["container-linux", "sqlcmd"],
+  "supportedSqlVersions": ["2019", "2022", "2025"],
+  "entrypoints": {
+    "preflight": "sql/preflight.sql",
+    "install": "sql/install.sql",
+    "update": "sql/update.sql",
+    "validate": "sql/validate.sql",
+    "cleanup": "sql/cleanup.sql"
+  },
+  "targetDatabase": "master",
+  "secretInputs": [],
+  "producedLocalArtifacts": [
+    "Markergebundene synthetische Datenbank ToolbeltConsoleMessageAdapter"
+  ],
+  "dataClassification": "SYNTHETIC",
+  "privacyExportPolicy": "SANITIZED_SUMMARY_ONLY",
+  "licenseNotice": "Synthetischer Repository-Inhalt; es gilt LICENSE.md im Repository-Root.",
+  "knownLimitations": [
+    "Der Pilot deckt ausschließlich das vorhandene Modul toolbelt.core.console-message 1.0.0 ab.",
+    "Der Update-Entrypoint belegt ein versionsgleiches, idempotentes Redeployment; ein historischer Versionssprung ist nicht Teil des Moduls.",
+    "Der Adapter unterstützt im Vertragsstand 0.1 ausschließlich Linux-Container über Docker oder Podman."
+  ]
+}
