@@ -52,6 +52,13 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
+- ADP-008 ergänzt für `toolbelt.core.console-message` einen Project Adapter
+  0.1 mit deterministisch aus den kanonischen Modulquellen erzeugten Install-,
+  Update- und Cleanup-Entrypoints. Der vorhandene Modulvertrag wurde auf SQL
+  Server 2025 Linux getrennt unter Docker und Podman end-to-end erfolgreich
+  ausgeführt; der Toolbelt-Runner bindet ausschließlich bestehende Lab-Runs
+  und verwaltet keine Provider-Infrastruktur.
+
 - `toolbelt.string.regex` Version `1.0.0` implementiert den ausdrücklich
   freigegebenen R1b-Slice mit `SVF_RegexIsMatch`, `SVF_RegexInstr` und
   `SVF_RegexCount`. Ein eigener Parser begrenzt den Toolbelt-Dialekt; Input,

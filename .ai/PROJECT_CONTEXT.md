@@ -33,6 +33,14 @@ Langtext-/Unicode-, Marker-/Drift-, Wiederholungs-, Lifecycle-, Central- und
 Uninstall-Contracts erfolgreich. Windows- und modulspezifische Releasefälle
 bleiben `not executed`.
 
+`toolbelt.core.console-message` stellt zusätzlich den ADP-008-Piloten für den
+Project-Adapter-Vertrag 0.1 von `SQL_Server_Lab` bereit. Der Adapter wird
+deterministisch aus den kanonischen Modulquellen erzeugt und war mit SQL Server
+2025 Linux getrennt unter Docker und Podman für Install, versionsgleiches
+Update, Modul-/Help-Validierung und markergebundenen Cleanup erfolgreich. Der
+Toolbelt-Runner verwaltet keine Lab-Infrastruktur und der Modulstatus bleibt
+wegen der offenen Windows- und Client-/Treiber-Matrix `partially validated`.
+
 Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das Kernmodul
 `toolbelt.core.result-table` ist implementiert und teilweise validiert: Die
 GitHub-hosted Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich;
