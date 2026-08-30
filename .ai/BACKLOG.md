@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-26 Module sind implementiert. 1 ist `validated`, 25 sind `partially validated`; 0 sind `not executed`.
+27 Module sind implementiert. 2 sind `validated`, 25 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -16,9 +16,9 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Dependencies | Ausdrückliche V0-Freigabe vom 2026-08-28 und Einzelzielfreigabe vom 2026-08-29; schema-valider SQL_Server_Lab-Vertrag; entweder `groupStatus = READY` oder explizit ausgewählte Einzelziele mit `runtimeStatus = READY` und zulässigem Eintragsstatus; vorhandene Modul-, Lifecycle- und Testverträge. |
 | Priorität | `P0` |
 | Status | `active`; `V0a` und `V0b` ausführbar; die E1b-Windows-Matrix belegt die aktuelle SQL-Erreichbarkeit der ausgewählten Base-Ziele |
-| Implementation Status | 26 Module `implemented` – aus `module.yaml` abgeleitet |
+| Implementation Status | 27 Module `implemented` – aus `module.yaml` abgeleitet |
 | Validation Status | 1 Modul `validated`, 25 Module `partially validated`; `toolbelt.core.work-queue` besitzt die vollständige Windows-/Linux-Matrix, bei anderen Modulen bleiben Windows- und modulspezifische Restfälle offen. |
-| Release Status | 26 Module `unreleased`; V0c, D1, E1a und E1b autorisieren keine tatsächliche Veröffentlichung. |
+| Release Status | 27 Module `unreleased`; V0c, D1, E1a, E1b und R1b autorisieren keine tatsächliche Veröffentlichung. |
 | Akzeptanzkriterien | Linux- und Windows-Zielversionen tatsächlich geprüft; Dependency-Closure und versionierte Objektmanifeste konsistent; Erst-, Wiederholungs-, Upgrade-, Central- und Uninstall-Verträge für die Kohorte erfolgreich; modulspezifische Pflichtfälle ausgeführt; nicht verfügbare Kombinationen sichtbar; vollständiger Dokumentationsaudit erfolgreich. |
 | Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |
 | Blocker | Kein Gruppenblocker für einzeln bereite Linux- oder Windows-Ziele. Second Session und Event Log scheitern auf den physischen Linux-Zielen 2019 und 2022 im gemeinsamen W5-Vertrag; File Content benötigt noch separat bereitgestellte serverseitige Fixtures. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. |
@@ -76,13 +76,28 @@ Die V0c-Kohorte umfasst verbindlich:
 | Ziel | Die native SQL-Server-2025-RE2-Semantik für einen möglichen ersten Slice aus `LIKE`, `INSTR` und `COUNT` gegen portable Provideroptionen prüfen, ohne eine Runtime-API zu implementieren. |
 | Scope | Native 2025-Semantik und Compatibility-Level-Verfügbarkeit; .NET-Framework-4.8-Vergleich; RE2-/CLR-/Linux-, Lizenz-, Wartungs- und Dependency-Gates. Replace, Substring, Split, Matches, Fuzzy Matching und jedes öffentliche SQL-Objekt bleiben außerhalb. |
 | Priorität | `P1` Research nach D1; blockiert keine fachlich unabhängige Welle |
-| Status | `completed` für den Research-Scope; Runtime-Implementierung weiterhin nicht freigegeben |
+| Status | `completed` für den Research-Scope; der getrennt freigegebene R1b-Slice ist inzwischen implementiert |
 | Ergebnis | SQL Server 2025 ist die kanonische RE2-Referenz. `REGEXP_INSTR` und `REGEXP_COUNT` liefen unter Compatibility 150/160/170, `REGEXP_LIKE` nur unter 170. Der eingebaute .NET-Framework-Regexkern weicht semantisch ab und besitzt keine lineare Laufzeitgarantie. Native RE2-Wrapper benötigen plattformspezifischen nativen Code und sind mit `SAFE`/SQL Server Linux unvereinbar. Kein portabler Paritätsprovider wurde ausgewählt oder aufgenommen. |
 | Alternativen | Exakter externer/native RE2-Provider; ausdrücklich engerer Toolbelt-Dialekt mit Parser, Transformationen und Timeout; reine SQL-Server-2025-Fassade. Reines T-SQL ist kein allgemeiner Regex-Provider. |
 | Risiken und Grenzen | Eine bloße Pattern-Blacklist erzeugt keine RE2-Parität. Zeichenklassen, Anker, Flags, ungültige Konstrukte, Input-/Patternlimits, Timeoutfehler, ReDoS und Providerdeployment benötigen je nach Richtung einen neuen öffentlichen Vertrag. |
 | Tests | Physischer SQL-Server-2025-Linux-Lauf mit Compatibility 150/160/170 und synthetischen Semantik-/Fehlervektoren am 2026-08-30 erfolgreich; .NET-Framework-4.8-Harness bestätigte die erwarteten Abweichungen. Die synthetische Datenbank und temporären Buildartefakte wurden entfernt; Windows-SQL-Runtime blieb `not executed`; Lab-Systeme wurden nicht beendet. |
 | Evidenz | `Documentation/Research/REGEX_SEMANTICS_PROVIDER_SPIKE.md`, `Tests/Research/Regex/` und `.github/workflows/regex-provider-spike.yml`. Keine Drittanbieterbibliothek oder Binärdatei wurde heruntergeladen oder aufgenommen. |
-| Nächster Schritt | Erst eine der drei Provider-/Semantikrichtungen mit dem Benutzer auswählen und danach Zweck, öffentlichen Vertrag, Alternativen, Risiken und Scope dieses konkreten Runtime-Slices besprechen. Bis dahin kein Regex-Modul implementieren. |
+| Nächster Schritt | R1b ist als eigener enger Toolbelt-Dialekt umgesetzt. Weitere Regex-APIs oder RE2-Parität benötigen neue Verträge und Freigaben. |
+
+### R1b: Begrenzter Regex-Runtime-Slice
+
+| Feld | Wert |
+|---|---|
+| ID | `R1b`; konkretisiert `TC-2026-010`, keine neue sequenzielle `AP`-Referenz ohne reguläre Vergabe |
+| Ziel | Portable Regex-Prüfung, Positionssuche und Zählung für SQL Server 2019, 2022 und 2025 mit bewusst kleiner, stabil dokumentierter Semantik. |
+| Scope | `toolbelt.string.regex` 1.0.0 mit `SVF_RegexIsMatch`, `SVF_RegexInstr`, `SVF_RegexCount`; eigener Dialektparser, UTF-16-Positionen, ASCII-Kurzklassen, `\p{L}`, Flags `c/i/m/s`, 2-MiB-/8.000-Byte-/1.000-Quantifier-Grenzen und fixer 250-ms-Timeout. |
+| Provider | Eine .NET-Framework-4.8-Assembly mit `SAFE`, direkten Referenzen nur auf System/System.Data und exaktem SHA2-512-Trust; keine Drittanbieter-/Native-Abhängigkeit, kein TRUSTWORTHY und keine automatische CLR-Konfiguration. |
+| Status | `implemented`; Runtime `validated`; Release `unreleased` |
+| Alternativen | Exakter RE2-/Native-Provider, SQL-Server-2025-Fassade und reines T-SQL wurden für R1b verworfen. |
+| Risiken und Grenzen | Keine RE2-Parität oder lineare Laufzeit, SARGability oder Parallelplanzusage. Backtracking bleibt trotz Parser und Timeout möglich. Replace, Substring, Captures, Split und Matches sind ausgeschlossen. |
+| Benutzerfreigabe | Zweck, Vertrag, Alternativen, Risiken, Scope und Reihenfolge wurden am 2026-08-30 besprochen. Der Benutzer hat anschließend „E1b und R1b wie besprochen implementieren“ ausdrücklich freigegeben. |
+| Evidenz | `Documentation/Architecture/REGEX_MODULE_DESIGN.md`, Modulvertrag und synthetischer Adapter; vollständige physische Matrix SQL Server 2019/2022/2025 unter Windows base und Linux latest. |
+| Nächster Schritt | Eigenen Pull Request mergen; tatsächliche Veröffentlichung bleibt unautorisiert. |
 
 ### E1a: Work Queue Claim/Complete/Fail
 

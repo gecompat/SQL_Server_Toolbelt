@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 26 Module sind implementiert. 1 ist `validated`, 25 sind
+abgeschlossen. 27 Module sind implementiert. 2 sind `validated`, 25 sind
 `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
@@ -518,7 +518,7 @@ Kalenderdimensionen bleiben außerhalb von V1.
 
 ### Phase 4.4 – R1 Regex V1
 
-**Status:** `R1a research completed`; R1b-Vertrag besprochen und ausdrücklich freigegeben
+**Status:** `R1a research completed`; R1b `implemented`, Runtime `validated`, Release `unreleased`
 
 R1a hat die native SQL-Server-2025-RE2-Semantik und die Provideroptionen ohne
 Runtime-API geprüft. `REGEXP_INSTR` und `REGEXP_COUNT` sind auf der physischen
@@ -531,9 +531,10 @@ portablen `SAFE`-/Linux-Gate. Deshalb ist kein Runtime-Provider ausgewählt.
 R1b verwendet nach der Benutzerentscheidung einen ausdrücklich engeren
 Toolbelt-Dialekt über `SAFE` SQL CLR und stellt IsMatch, Instr und Count bereit.
 Der Provider verspricht keine RE2-Parität oder lineare Laufzeit und erzwingt
-Parser-, Größen- und Timeoutgrenzen. Die Implementierung beginnt erst nach dem
-E1b-Merge in einem eigenen Branch. Replace, Substring, Split, Captures und
-Matches bleiben getrennte Erweiterungen; Fuzzy Matching bleibt zurückgestellt.
+Parser-, Größen- und Timeoutgrenzen. Die vollständige physische Matrix SQL
+Server 2019/2022/2025 unter Windows base und Linux latest ist erfolgreich.
+Replace, Substring, Split, Captures und Matches bleiben getrennte
+Erweiterungen; Fuzzy Matching bleibt zurückgestellt.
 
 ### Phase 4.5 – E1 Work Queue in vertikalen Slices
 

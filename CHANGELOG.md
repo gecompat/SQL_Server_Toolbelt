@@ -52,6 +52,17 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
+- `toolbelt.string.regex` Version `1.0.0` implementiert den ausdrücklich
+  freigegebenen R1b-Slice mit `SVF_RegexIsMatch`, `SVF_RegexInstr` und
+  `SVF_RegexCount`. Ein eigener Parser begrenzt den Toolbelt-Dialekt; Input,
+  Pattern, Quantifier und Laufzeit besitzen feste Grenzen. Die identische
+  .NET-Framework-4.8-Assembly läuft als `SAFE` SQL CLR ohne Drittanbieter-
+  oder Native-Abhängigkeit und wird ausschließlich per exaktem SHA2-512-Hash
+  autorisiert. Die vollständige physische Matrix SQL Server 2019/2022/2025
+  unter Windows base und Linux latest ist erfolgreich; das Modul ist
+  `validated` und `unreleased`. RE2-Parität, lineare Laufzeit, Replace,
+  Substring, Captures, Split und Matches werden nicht zugesagt.
+
 - `toolbelt.core.work-queue` Version `1.1.0` ergänzt den E1a-Kern um den
   ausdrücklich freigegebenen E1b-Slice: begrenzte Claim-Lease, monotone
   Generation, tokengebundener Heartbeat, explizite Batch-Recovery und
@@ -263,7 +274,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-26 Module sind implementiert. 1 ist `validated`, 25 sind `partially
+27 Module sind implementiert. 2 sind `validated`, 25 sind `partially
 validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

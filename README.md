@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 26 Module implementiert – 25 teilweise validiert](https://img.shields.io/badge/Status-26%20Module%20implementiert%20%7C%2025%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 27 Module implementiert – 25 teilweise validiert](https://img.shields.io/badge/Status-27%20Module%20implementiert%20%7C%2025%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 26 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
+**Der Repository-Grundaufbau ist abgeschlossen. 27 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)
@@ -122,6 +122,14 @@ teilt Unicode-Text an mehreren einzelnen literal interpretierten
 Separatorzeichen. SQL Server 2025 Linux ist mit Compatibility Levels 150, 160
 und 170 erfolgreich; die breitere Quote-/Escape-Ausbaustufe bleibt separat in
 `TC-2026-032`.
+
+Das implementierte R1b-Modul
+[`toolbelt.string.regex`](./Modules/toolbelt.string.regex/README.md) stellt
+IsMatch, Instr und Count für einen begrenzten, parsergesicherten
+Toolbelt-Regexdialekt über `SAFE` SQL CLR bereit. Die vollständige physische
+Matrix SQL Server 2019/2022/2025 unter Windows base und Linux latest ist
+erfolgreich. RE2-Parität, lineare Laufzeit und weitere Regex-APIs werden nicht
+behauptet; das Modul ist `validated` und `unreleased`.
 
 Das implementierte Modul
 [`toolbelt.validation.semantic-version`](./Modules/toolbelt.validation.semantic-version/README.md)

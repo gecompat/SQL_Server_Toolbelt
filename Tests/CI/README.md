@@ -36,6 +36,11 @@ Der Research-Adapter
 nicht in der Standardmodulmatrix ausgeführt, installiert kein Modul und
 entfernt seine synthetische Datenbank vollständig.
 
+`run-regex-linux.sh` prüft das daraus getrennt freigegebene R1b-Modul mit
+dem exakten, reproduzierbar gebauten SAFE-CLR-Releaseartefakt. Der Adapter
+deckt Dialekt, UTF-16-Positionen, Grenzen, festen Timeout, stabile
+Fehlerpräfixe, Kollisionsschutz, Redeployment, Central und Uninstall ab.
+
 `run-identifier-linux.sh` prüft den Identifier-Vertrag mit denselben
 Compatibility Levels sowie lokale, zentrale, Kollisions- und Lifecycle-Pfade.
 
@@ -110,6 +115,7 @@ pwsh Tests/CI/run-lab-local.ps1
 pwsh Tests/CI/run-lab-local.ps1 -Platforms linux -Versions 2019,2022,2025 -LinuxPatches latest -TestSuite full
 pwsh Tests/CI/run-lab-local.ps1 -Platforms linux,windows -Versions 2019,2022,2025 -LinuxPatches latest -WindowsPatches base -TestSuite full
 pwsh Tests/CI/run-lab-local.ps1 -RunScripts run-zip-memory-linux.sh
+pwsh Tests/CI/run-lab-local.ps1 -RunScripts run-regex-linux.sh -RegexAssemblyRoot .runtime/regex-release
 ```
 
 Die Matrix selektiert explizit nach `platform`, `sqlVersion` und `patch` und
@@ -123,15 +129,15 @@ Wichtige Anpassungen:
 
 - Vor dem Test werden `SELECT @@VERSION` und der Zustand von
   `sys.databases` über eine echte SQL-Anmeldung geprüft.
-- Für ZIP-Memory werden `TBX_ASSEMBLY_ROOT` und der exakte Assembly-Hash aus
-  den lokal gebauten Release-Artefakten gesetzt.
+- Für ZIP-Memory und Regex werden `TBX_ASSEMBLY_ROOT` und der jeweilige exakte
+  Assembly-Hash aus den lokal gebauten Release-Artefakten gesetzt.
 - Verbindungen verwenden ausschließlich Werte des ausgewählten Eintrags mit
   `Encrypt=True` und `TrustServerCertificate=True`; `Encrypt=Strict` wird nicht
   verwendet.
 - Verändernde Tests erhalten eindeutige Datenbanknamen mit zufälliger
-  Testlauf-ID. Der Adapter entfernt nur Datenbanken dieser ID. ZIP-Memory stellt
-  zusätzlich nur die von seinem Lauf geänderte CLR-/Trust-Konfiguration wieder
-  auf den vorherigen Zustand zurück.
+  Testlauf-ID. Der Adapter entfernt nur Datenbanken dieser ID. CLR-Adapter
+  stellen zusätzlich nur die von ihrem Lauf geänderte CLR-/Trust-Konfiguration
+  wieder auf den vorherigen Zustand zurück.
 - Der Dateicontent-Lauf gehört nicht zur Standardmatrix, weil seine
   serverseitigen Dateien zuerst explizit in jedem Ziel bereitgestellt werden
   müssen.

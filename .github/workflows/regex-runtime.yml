@@ -1,0 +1,90 @@
+name: Regex CLR Runtime
+
+on:
+  pull_request:
+    paths:
+      - "Modules/toolbelt.string.regex/Clr/**"
+      - "Modules/toolbelt.string.regex/Source/**"
+      - "Modules/toolbelt.string.regex/Deployment/**"
+      - "Modules/toolbelt.string.regex/Scripts/**"
+      - "Modules/toolbelt.string.regex/Tests/Runtime/**"
+      - "Modules/toolbelt.string.regex/Tests/Static/**"
+      - "Modules/toolbelt.string.regex/module.yaml"
+      - "Tests/CI/run-regex-linux.sh"
+      - ".github/workflows/regex-runtime.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Modules/toolbelt.string.regex/Clr/**"
+      - "Modules/toolbelt.string.regex/Source/**"
+      - "Modules/toolbelt.string.regex/Deployment/**"
+      - "Modules/toolbelt.string.regex/Scripts/**"
+      - "Modules/toolbelt.string.regex/Tests/Runtime/**"
+      - "Modules/toolbelt.string.regex/Tests/Static/**"
+      - "Modules/toolbelt.string.regex/module.yaml"
+      - "Tests/CI/run-regex-linux.sh"
+      - ".github/workflows/regex-runtime.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: regex-clr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-contract:
+    name: Static contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 Modules/toolbelt.string.regex/Tests/Static/validate_contract.py
+
+  build-net-framework:
+    name: .NET Framework 4.8 build
+    needs: static-contract
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build assembly and exact release input
+        shell: pwsh
+        run: >-
+          ./Modules/toolbelt.string.regex/Scripts/New-ClrReleaseArtifacts.ps1
+          -Configuration Release
+          -OutputDirectory ./.runtime/regex-release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: regex-clr-release-input
+          if-no-files-found: error
+          path: .runtime/regex-release/*
+
+  sql-server-linux:
+    name: SQL Server ${{ matrix.sql_version }} Linux / compatibility ${{ matrix.compatibility_level }}
+    needs: build-net-framework
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {sql_version: "2019", image: "mcr.microsoft.com/mssql/server:2019-latest", compatibility_level: 150}
+          - {sql_version: "2022", image: "mcr.microsoft.com/mssql/server:2022-latest", compatibility_level: 160}
+          - {sql_version: "2025", image: "mcr.microsoft.com/mssql/server:2025-latest", compatibility_level: 150}
+          - {sql_version: "2025", image: "mcr.microsoft.com/mssql/server:2025-latest", compatibility_level: 160}
+          - {sql_version: "2025", image: "mcr.microsoft.com/mssql/server:2025-latest", compatibility_level: 170}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: regex-clr-release-input
+          path: .runtime/regex-release
+      - name: Deploy, execute and uninstall Regex module
+        env:
+          TBX_SQL_IMAGE: ${{ matrix.image }}
+          TBX_SQL_VERSION: ${{ matrix.sql_version }}
+          TBX_COMPATIBILITY_LEVEL: ${{ matrix.compatibility_level }}
+          TBX_ASSEMBLY_ROOT: .runtime/regex-release
+        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-regex-linux.sh

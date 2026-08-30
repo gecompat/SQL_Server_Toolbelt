@@ -1041,6 +1041,23 @@ def validate_regex_research_workflow_scope() -> None:
             )
 
 
+def validate_regex_runtime_workflow_scope() -> None:
+    workflow = read(
+        REPOSITORY_ROOT / ".github" / "workflows" / "regex-runtime.yml"
+    )
+    for marker in (
+        '"Documentation/Architecture/**"',
+        '"Documentation/Research/**"',
+        '"Modules/toolbelt.string.regex/Documentation/**"',
+        '"Modules/toolbelt.string.regex/Tests/**/*.md"',
+    ):
+        if marker in workflow:
+            raise ValidationError(
+                "Regex-Runtime wird durch reine Dokumentation ausgelöst: "
+                f"{marker}"
+            )
+
+
 def validate_w2b_json_path_runtime_workflow_scope() -> None:
     workflow = read(
         REPOSITORY_ROOT
@@ -1198,6 +1215,30 @@ def run_regex_research_static() -> None:
     if result.returncode != 0:
         raise ValidationError(
             "Statische Regex-Research-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
+def run_regex_static() -> None:
+    script = (
+        REPOSITORY_ROOT
+        / "Modules"
+        / "toolbelt.string.regex"
+        / "Tests"
+        / "Static"
+        / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)),
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische Regex-Prüfung fehlgeschlagen:\n"
             f"{result.stdout}{result.stderr}"
         )
 
@@ -1424,6 +1465,10 @@ def main() -> int:
         validate_regex_research_workflow_scope()
     if "regex_research_static" in checks:
         run_regex_research_static()
+    if "regex_runtime_workflow_scope" in checks:
+        validate_regex_runtime_workflow_scope()
+    if "regex_static" in checks:
+        run_regex_static()
     if "identifier_runtime_workflow_scope" in checks:
         validate_identifier_runtime_workflow_scope()
     if "identifier_static" in checks:

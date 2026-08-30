@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: twenty_five_modules_implemented
+  status: twenty_seven_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -97,6 +97,9 @@ sources_of_truth:
   second_module_selection_research: Documentation/Research/SECOND_MODULE_SELECTION.md
   regex_semantics_provider_research: Documentation/Research/REGEX_SEMANTICS_PROVIDER_SPIKE.md
   regex_semantics_provider_workflow: .github/workflows/regex-provider-spike.yml
+  regex_module_design: Documentation/Architecture/REGEX_MODULE_DESIGN.md
+  regex_runtime_workflow: .github/workflows/regex-runtime.yml
+  regex_module: Modules/toolbelt.string.regex/module.yaml
   migration_idempotency_verifier_design: Documentation/Architecture/MIGRATION_IDEMPOTENCY_VERIFIER_DESIGN.md
   migration_idempotency_workflow: .github/workflows/q1-migration-idempotency.yml
   roadmap: .ai/ROADMAP.md
@@ -259,6 +262,7 @@ module_registry:
     - Modules/toolbelt.core.generate-series/module.yaml
     - Modules/toolbelt.metadata.identifier/module.yaml
     - Modules/toolbelt.string.split-characters/module.yaml
+    - Modules/toolbelt.string.regex/module.yaml
     - Modules/toolbelt.validation.semantic-version/module.yaml
     - Modules/toolbelt.conversion.integer-base/module.yaml
     - Modules/toolbelt.datetime.calendar-difference/module.yaml
@@ -478,6 +482,20 @@ change_impact:
         - Tests/CI/run-split-characters-linux.sh
       checks:
         - split_characters_static
+        - markdown_links
+    regex_contract:
+      paths:
+        - Modules/toolbelt.string.regex/**
+        - Documentation/Architecture/REGEX_MODULE_DESIGN.md
+        - Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md
+        - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
+        - Tests/CI/run-regex-linux.sh
+        - Tests/CI/run-lab-local.ps1
+        - Tests/CI/run-lab-target.sh
+        - .github/workflows/regex-runtime.yml
+      checks:
+        - regex_static
+        - regex_runtime_workflow_scope
         - markdown_links
     semantic_version_contract:
       paths:
