@@ -4,7 +4,7 @@
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-25 Module sind implementiert. Alle 25 sind `partially validated`; 0 sind
+26 Module sind implementiert. Alle 26 sind `partially validated`; 0 sind
 `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
@@ -16,6 +16,14 @@ Skalierungsadapter sind auf physischen SQL-Server-2019-/2022-/2025-Linux-
 Zielen erfolgreich. Die ausgewählten Windows-Ziele waren beim SQL-Anmeldungs-
 Preflight nicht erreichbar; Windows bleibt `not executed` und das Modul
 `partially validated` sowie `unreleased`.
+
+`toolbelt.core.work-queue` implementiert den ausdrücklich freigegebenen E1a-
+Slice mit Enqueue, atomarem Claim, tokengebundenem Complete/Fail und
+geschützten Statusoberflächen. Der vollständige Adapter ist auf physischen
+SQL-Server-2019-/2022-/2025-Linux-Zielen erfolgreich. Windows blieb nach dem
+SQL-Anmeldungs-Preflight `not executed`. Ohne den getrennt freizugebenden E1b-
+Slice Lease/Recovery ist die Queue nicht als allein betriebsfertig zu
+veröffentlichen.
 
 Die W2c-Module `toolbelt.core.console-message` und
 `toolbelt.metadata.capability-catalog` sind auf physischen

@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**25 Module sind implementiert. Alle 25 sind `partially validated`; 0 sind
+**26 Module sind implementiert. Alle 26 sind `partially validated`; 0 sind
 `not executed`. Der Einzelstatus wird aus den Manifesten abgeleitet.**
 
 ## Implementierte Module
@@ -24,6 +24,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 | `toolbelt.core.generate-series` | Portable Integer Series | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.result-table` | Result Table Infrastructure | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.second-session` | Second Session | `1.1.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.core.work-queue` | Transactional Work Queue | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.work-type` | Work Type Catalog | `1.1.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.datetime.bucket` | Date/Time Bucket Compatibility | `1.0.0` | `toolbelt_datetime` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.datetime.calendar-difference` | Calendar Difference | `1.0.0` | `toolbelt_datetime` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |

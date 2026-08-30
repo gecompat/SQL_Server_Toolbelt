@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 25 Module implementiert – 25 teilweise validiert](https://img.shields.io/badge/Status-25%20Module%20implementiert%20%7C%2025%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 26 Module implementiert – 26 teilweise validiert](https://img.shields.io/badge/Status-26%20Module%20implementiert%20%7C%2026%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 25 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
+**Der Repository-Grundaufbau ist abgeschlossen. 26 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)
@@ -71,6 +71,14 @@ registriert ausschließlich kontrollierte Stored-Procedure-Work-Types.
 Raw SQL bleibt ausgeschlossen; Änderungen sind über `rowversion`,
 explizite Update-/Reaktivierungsflags und Data-Loss-geschützten Uninstall
 abgesichert.
+
+Der freigegebene E1a-Slice
+[`toolbelt.core.work-queue`](./Modules/toolbelt.core.work-queue/README.md)
+stellt Enqueue, atomaren tokengebundenen Claim, Complete, Fail und geschützte
+Statusoberflächen bereit. Die physische Linux-Matrix SQL Server 2019, 2022
+und 2025 ist erfolgreich; Windows blieb nach nicht erreichbarem SQL-
+Anmeldungs-Preflight `not executed`. Lease, Recovery, Retry, Dead Letter,
+Idempotenz und Cancellation bleiben getrennte, noch nicht freigegebene Slices.
 
 [`toolbelt.core.second-session`](./Modules/toolbelt.core.second-session/README.md)
 führt registrierte Work-Types synchron über einen administrativ vorbereiteten

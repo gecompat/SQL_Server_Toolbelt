@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. 25 Module sind implementiert;
+Der Repository-Grundaufbau ist abgeschlossen. 26 Module sind implementiert;
 für alle existieren statische sowie synthetische Runtime- und
 Lifecycle-Contract-Testartefakte.
 
@@ -27,6 +27,12 @@ SQL-Anmeldungs-Preflight nicht erreichbar; die Windows-Runtime blieb daher
 `toolbelt.json.path-exists` ist dort einschließlich nativer Parität,
 Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
 erfolgreich.
+
+Die E1a Work Queue ist auf physischen SQL-Server-2019-, 2022- und
+2025-Linux-Zielen mit atomarem Claim, vier echten Worker-Sessions,
+Caller-Transaktionen, Redeployment, Central, Datenverlustschutz, Uninstall
+und Cleanup erfolgreich. Windows blieb nach fehlgeschlagenem SQL-Anmeldungs-
+Preflight `not executed`.
 
 Der R1a-Research-Slice unter [`Research/Regex`](./Research/Regex/README.md)
 vergleicht die native SQL-Server-2025-RE2-Semantik reproduzierbar mit .NET
@@ -71,6 +77,7 @@ Text-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall erfolgreich.
 | `toolbelt.file.content` | [FILE_CONTENT_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.file.content/Tests/FILE_CONTENT_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich, Evidenz https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356 |
 | `toolbelt.filesystem.windows` | [WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.filesystem.windows/Tests/WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md) | `not executed`; manueller Windows-SQL-Server-/NTFS-Nachweis offen |
 | `toolbelt.core.result-table` | [RESULT_TABLE_CONTRACT_TEST_MATRIX.md](./RESULT_TABLE_CONTRACT_TEST_MATRIX.md) | `partially validated`; natürlicher Savepoint-Enginefehler auf SQL Server 2019/2022/2025 Linux erfolgreich ([Run 30692956855](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855)); Windows/Performance-Baseline offen |
+| `toolbelt.core.work-queue` | [WORK_QUEUE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.work-queue/Tests/WORK_QUEUE_CONTRACT_TEST_MATRIX.md) | `partially validated`; physische SQL-Server-2019-/2022-/2025-Linux-Ziele einschließlich Parallelität/Lifecycle erfolgreich, Windows `not executed` |
 | `toolbelt.conversion.base64` | [BASE64_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.conversion.base64/Tests/BASE64_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.core.generate-series` | [GENERATE_SERIES_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.generate-series/Tests/GENERATE_SERIES_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.metadata.identifier` | [IDENTIFIER_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.metadata.identifier/Tests/IDENTIFIER_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |

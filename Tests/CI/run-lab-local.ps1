@@ -22,6 +22,7 @@ param(
         'run-w4b-work-type-linux.sh',
         'run-w5a-second-session-linux.sh',
         'run-w5b-event-log-linux.sh',
+        'run-work-queue-linux.sh',
         'run-q1-migration-idempotency.sh',
         'run-zip-memory-linux.sh'
     ),
