@@ -17,11 +17,11 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Priorität | `P0` |
 | Status | `active`; `V0a` und `V0b` ausführbar; die E1b-Windows-Matrix belegt die aktuelle SQL-Erreichbarkeit der ausgewählten Base-Ziele |
 | Implementation Status | 27 Module `implemented` – aus `module.yaml` abgeleitet |
-| Validation Status | 1 Modul `validated`, 25 Module `partially validated`; `toolbelt.core.work-queue` besitzt die vollständige Windows-/Linux-Matrix, bei anderen Modulen bleiben Windows- und modulspezifische Restfälle offen. |
+| Validation Status | 2 Module `validated`, 25 Module `partially validated`; `toolbelt.core.work-queue` und `toolbelt.string.regex` besitzen die vollständige Windows-/Linux-Matrix, bei anderen Modulen bleiben Windows- und modulspezifische Restfälle offen. |
 | Release Status | 27 Module `unreleased`; V0c, D1, E1a, E1b und R1b autorisieren keine tatsächliche Veröffentlichung. |
 | Akzeptanzkriterien | Linux- und Windows-Zielversionen tatsächlich geprüft; Dependency-Closure und versionierte Objektmanifeste konsistent; Erst-, Wiederholungs-, Upgrade-, Central- und Uninstall-Verträge für die Kohorte erfolgreich; modulspezifische Pflichtfälle ausgeführt; nicht verfügbare Kombinationen sichtbar; vollständiger Dokumentationsaudit erfolgreich. |
 | Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |
-| Blocker | Kein Gruppenblocker für einzeln bereite Linux- oder Windows-Ziele. Second Session und Event Log scheitern auf den physischen Linux-Zielen 2019 und 2022 im gemeinsamen W5-Vertrag; File Content benötigt noch separat bereitgestellte serverseitige Fixtures. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. |
+| Blocker | Kein Gruppenblocker für einzeln bereite Linux- oder Windows-Ziele. Second Session und Event Log scheitern auf den physischen Linux-Zielen 2019 und 2022 im gemeinsamen W5-Vertrag; File Content benötigt noch separat bereitgestellte serverseitige Fixtures. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. GitHub-hosted Linux-Runner bleiben unabhängig von der Lab-Verfügbarkeit ein reproduzierbarer Evidenzkanal; die W5a- und W5b-Workflows decken dort bislang ausschließlich SQL Server 2025 ab, sodass die gemeldeten 2019-/2022-Fehler dort noch nicht reproduziert sind. |
 | Evidenz | V0-Freigabe vom 2026-08-28 und Einzelzielfreigabe vom 2026-08-29; lokaler vollständiger Dokumentationsaudit und alle 16 statischen Modulvertragsprüfungen am 2026-08-28 erfolgreich. Am 2026-08-29 bestanden alle 16 V0c-Module ihre vollständigen Adapter auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen. Am 2026-08-30 bestand E1b zusätzlich die vollständige Windows-base-/Linux-latest-Matrix 2019/2022/2025. ZIP Memory und die W4-Module bestanden ebenfalls. Second Session und Event Log bestanden auf 2025, scheiterten jedoch jeweils auf 2019 und 2022; File Content wurde ohne serverseitige Fixtures nicht ausgeführt. Es werden keine Hosts, Credentials, konkreten Datenbanknamen, Laufzeiten oder vollständigen Logs übernommen. |
 | Nächster Schritt | Die W5-Fehler auf Linux 2019/2022 isolieren, File-Content-Fixtures extern bereitstellen und danach V0a vervollständigen; für `V0b` ist die externe Wiederherstellung der SQL-Erreichbarkeit der Windows-Ziele Voraussetzung. |
 
@@ -81,7 +81,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Risiken und Grenzen | Ergebnisgröße wächst linear; ohne `ORDER BY` keine Reihenfolgegarantie; ISO-Woche ist bewusst Montag-basiert und `DATEFIRST`-unabhängig; der maximale Kalendertag kann mangels darstellbarer Exklusivgrenze nach `9999-12-31` nicht eingeschlossen werden. |
 | Benutzerfreigabe | Zweck, öffentlicher Vertrag, Alternativen, Risiken und Scope wurden am 2026-08-30 besprochen. Der Benutzer hat die Umsetzung anschließend mit „lass es uns so machen“ ausdrücklich freigegeben. |
 | Tests | Statischer Vertrag sowie die vollständigen lokalen, zentralen, Lifecycle-, Dependency-, Kollisions-, Grenz-, `DATEFIRST`- und Skalierungsadapter waren am 2026-08-30 auf physischen SQL-Server-2019-/2022-/2025-Linux-Zielen erfolgreich. Die drei explizit ausgewählten Windows-Ziele waren bereits beim SQL-Anmeldungs-Preflight nicht erreichbar; Windows-Runtime bleibt `not executed`. Alle erzeugten synthetischen Datenbanken wurden entfernt, Lab-Systeme wurden nicht beendet. |
-| Nächster Schritt | PR- und CI-Abschluss; Windows-Runtime nach extern wiederhergestellter SQL-Erreichbarkeit nachholen. `release_status` bleibt bis zu einer ausdrücklich autorisierten Veröffentlichung `unreleased`. |
+| Nächster Schritt | Pull Request 61 ist auf `main` gemerged. Windows-Runtime nach extern wiederhergestellter SQL-Erreichbarkeit nachholen. `release_status` bleibt bis zu einer ausdrücklich autorisierten Veröffentlichung `unreleased`. |
 
 ### R1a: Regex-Semantik- und Provider-Spike
 
@@ -112,7 +112,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Risiken und Grenzen | Keine RE2-Parität oder lineare Laufzeit, SARGability oder Parallelplanzusage. Backtracking bleibt trotz Parser und Timeout möglich. Replace, Substring, Captures, Split und Matches sind ausgeschlossen. |
 | Benutzerfreigabe | Zweck, Vertrag, Alternativen, Risiken, Scope und Reihenfolge wurden am 2026-08-30 besprochen. Der Benutzer hat anschließend „E1b und R1b wie besprochen implementieren“ ausdrücklich freigegeben. |
 | Evidenz | `Documentation/Architecture/REGEX_MODULE_DESIGN.md`, Modulvertrag und synthetischer Adapter; vollständige physische Matrix SQL Server 2019/2022/2025 unter Windows base und Linux latest. |
-| Nächster Schritt | Eigenen Pull Request mergen; tatsächliche Veröffentlichung bleibt unautorisiert. |
+| Nächster Schritt | Pull Request 65 ist auf `main` gemerged; die tatsächliche Veröffentlichung bleibt unautorisiert. |
 
 ### E1a: Work Queue Claim/Complete/Fail
 
@@ -129,7 +129,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Benutzerfreigabe | Zweck, öffentlicher Vertrag, Alternativen, Risiken und Scope wurden am 2026-08-30 besprochen. Der Benutzer hat die Umsetzung anschließend mit „lass es uns so machen“ ausdrücklich nach D1 und R1a freigegeben. |
 | Tests | Statischer Vertrag sowie E1a-Semantik, Caller-Transaktionen, vier echte Claim-Sessions, ResultTable, Dependency-/Kollisionspreflight, Redeployment, Central, Datenverlustschutz, Uninstall und Cleanup waren am 2026-08-30 auf physischen SQL-Server-2019-/2022-/2025-Linux-Zielen erfolgreich. Die drei Windows-Base-Ziele waren bereits beim SQL-Anmeldungs-Preflight nicht erreichbar; Windows blieb `not executed`. |
 | Evidenz | `Documentation/Architecture/WORK_QUEUE_MODULE_DESIGN.md`, `Modules/toolbelt.core.work-queue/` und `.github/workflows/work-queue-runtime.yml`; ausschließlich synthetische Daten und abstrahierte Evidenz. |
-| Nächster Schritt | E1b ist separat freigegeben und wird als Version 1.1.0 umgesetzt. E1c Retry/Dead Letter/Idempotenz bleibt ohne eigene Freigabe offen. |
+| Nächster Schritt | Pull Request 63 ist auf `main` gemerged; E1b ist als Version 1.1.0 umgesetzt. E1c Retry/Dead Letter/Idempotenz bleibt ohne eigene Freigabe offen. |
 
 ### E1b: Work Queue Lease/Heartbeat/Orphan Recovery
 
@@ -144,7 +144,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Risiken und Grenzen | Recovery kann bereits erfolgte fachliche Seiteneffekte wiederholen. Keine Exactly-once-Garantie, generische Idempotenz, Retry, Dead Letter, Cancellation, Attempt-Historie oder Worker-Orchestrierung. |
 | Benutzerfreigabe | Zweck, Vertrag, Alternativen, Risiken, Scope und Reihenfolge wurden am 2026-08-30 besprochen. Der Benutzer hat anschließend „E1b und R1b wie besprochen implementieren“ ausdrücklich freigegeben. |
 | Evidenz | `Documentation/Architecture/WORK_QUEUE_MODULE_DESIGN.md`, Modulvertrag und synthetischer Runtime-/Upgrade-Adapter; vollständige physische Matrix SQL Server 2019/2022/2025 unter Windows base und Linux latest erfolgreich. |
-| Nächster Schritt | Eigenen Pull Request mergen; danach R1b gemäß eigener Freigabe. |
+| Nächster Schritt | Pull Request 64 ist auf `main` gemerged; R1b folgte mit Pull Request 65 gemäß eigener Freigabe. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 
