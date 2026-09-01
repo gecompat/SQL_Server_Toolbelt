@@ -9,6 +9,11 @@ case "${sql_version}" in
   2025) compatibility_levels="150 160 170" ;;
   *) echo "Nicht unterstützte SQL-Version: ${sql_version}" >&2; exit 1 ;;
 esac
+# encrypt=optional existiert erst ab MSOLEDBSQL 19; ältere Images kennen nur yes/no.
+case "${sql_version}" in
+  2019|2022) provider_encrypt="no" ;;
+  *) provider_encrypt="optional" ;;
+esac
 container_name="tbx-w5b-${GITHUB_RUN_ID:-local}"
 sa_password="TbxA1!$(openssl rand -hex 16)"
 linked_server="TBX_LOOPBACK"
@@ -47,12 +52,12 @@ deploy() { run_file "$1" "/workspace/$2/Deployment" Deploy.sql -v DeploymentMode
 uninstall() { run_file "$1" "/workspace/$2/Deployment" Uninstall.sql -v ConfirmNoExternalConsumers="$3" AllowDataLoss="$4"; }
 
 configure_linked_server() {
-  run_stdin master -v SaPassword="${sa_password}" LinkedServerName="${linked_server}" <<'SQL'
+  run_stdin master -v SaPassword="${sa_password}" LinkedServerName="${linked_server}" ProviderEncrypt="${provider_encrypt}" <<'SQL'
 :on error exit
 IF EXISTS (SELECT 1 FROM sys.servers WHERE name=N'$(LinkedServerName)')
     EXEC master.dbo.sp_dropserver @server=N'$(LinkedServerName)',@droplogins='droplogins';
 GO
-EXEC master.dbo.sp_addlinkedserver @server=N'$(LinkedServerName)',@srvproduct=N'',@provider=N'MSOLEDBSQL',@datasrc=N'localhost',@provstr=N'encrypt=optional';
+EXEC master.dbo.sp_addlinkedserver @server=N'$(LinkedServerName)',@srvproduct=N'',@provider=N'MSOLEDBSQL',@datasrc=N'localhost',@provstr=N'encrypt=$(ProviderEncrypt)';
 GO
 EXEC master.dbo.sp_addlinkedsrvlogin @rmtsrvname=N'$(LinkedServerName)',@useself=N'False',@locallogin=NULL,@rmtuser=N'sa',@rmtpassword=N'$(SaPassword)';
 GO
