@@ -78,8 +78,8 @@ bereitgestellten Lab-Run.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-30`
-- Nachweis: `local: SQL_Server_Lab Project Adapter 0.1`
-- Scope: SQL Server 2025 Linux unter Docker und Podman; Installation, versionsgleiches Update, Modul-/Help-Validierung, markergebundener Uninstall und vollständiger scopegebundener Cleanup
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2c-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger W2c-Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
