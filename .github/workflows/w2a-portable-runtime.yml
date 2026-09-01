@@ -46,9 +46,14 @@ permissions:
   contents: read
 
 jobs:
-  sql-server-2025-linux:
+  runtime:
+    name: SQL Server ${{ matrix.sql-version }} Linux
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        sql-version: ["2019", "2022", "2025"]
     steps:
       - uses: actions/checkout@v4
       - run: >-
@@ -61,5 +66,6 @@ jobs:
           python3
           Modules/toolbelt.binary.bit-operations/Tests/Static/validate_contract.py
       - env:
-          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+          TBX_SQL_VERSION: ${{ matrix.sql-version }}
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest
         run: bash Tests/CI/run-lab-target.sh Tests/CI/run-w2a-linux.sh
