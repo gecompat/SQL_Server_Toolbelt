@@ -11,8 +11,8 @@ W5-Vertrag. Windows-Läufe bleiben `not executed`.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-05`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410`
-- Scope: SQL Server 2025 Linux CL150/160/170; Caller-Rollback, uncommittable Caller, Context, Validation, Retention, Concurrency, Redeploy, Central und Uninstall
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w5b-event-log-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; erstmals auf allen drei Zielversionen erfolgreich, nachdem der Testadapter den Loopback-Provider versionsabhängig konfiguriert
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

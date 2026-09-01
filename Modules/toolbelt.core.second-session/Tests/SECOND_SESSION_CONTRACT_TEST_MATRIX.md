@@ -37,8 +37,8 @@
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-05`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410`
-- Scope: Second Session 1.1.0: suppressiertes Infrastruktur-Resultset und Event-Log-Abhängigkeit auf SQL Server 2025 Linux CL150/160/170
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w5a-second-session-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; erstmals auf allen drei Zielversionen erfolgreich, nachdem der Testadapter den Loopback-Provider versionsabhängig konfiguriert
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
