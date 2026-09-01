@@ -97,3 +97,12 @@ Das Modul entfernt seine Generate-Series-Dependency nicht.
 - [Beispiele](./Examples/SplitCharacters.sql)
 - [Contract-Testmatrix](./Tests/SPLIT_CHARACTERS_CONTRACT_TEST_MATRIX.md)
 - [Architekturdesign](../../Documentation/Architecture/SPLIT_CHARACTERS_MODULE_DESIGN.md)
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/split-characters-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

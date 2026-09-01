@@ -112,3 +112,7 @@ validation_evidence:
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter mit lokalen, zentralen, Lifecycle- und Uninstall-Verträgen"
     result: "success"
+  - date: "2026-09-01"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/split-characters-runtime.yml"
+    scope: "GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels"
+    result: "success"

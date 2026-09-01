@@ -32,3 +32,12 @@ Removal-Evidenz Version `1.1.0`: https://github.com/gecompat/SQL_Server_Toolbelt
 
 Der vollständige Moduladapter war am 2026-08-29 auf physischen
 SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w4b-work-type-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger W4b-Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

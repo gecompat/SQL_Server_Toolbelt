@@ -96,3 +96,7 @@ validation_evidence:
     workflow: "local: SQL_Server_Lab Project Adapter 0.1"
     scope: "SQL Server 2025 Linux unter Docker und Podman; Installation, versionsgleiches Update, Modul-/Help-Validierung, markergebundener Uninstall und vollständiger scopegebundener Cleanup"
     result: "success"
+  - date: "2026-09-01"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2c-runtime.yml"
+    scope: "GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger W2c-Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels"
+    result: "success"

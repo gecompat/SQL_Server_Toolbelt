@@ -47,3 +47,12 @@
 | RT-005 | Nicht existierende Datei | Engine-Fehler propagiert (THROW) |
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/file-content-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; erstmals auf allen drei Zielversionen erfolgreich, nachdem der Testadapter die Compatibility Levels aus der Zielversion ableitet
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

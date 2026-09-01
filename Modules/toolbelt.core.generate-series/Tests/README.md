@@ -15,3 +15,12 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 Die erfolgreiche physische Linux-Matrix belässt den Modulstatus auf
 `partially validated`. Für `validated` fehlen weiterhin die gezielten
 Windows-Läufe und modulspezifischen Releasefälle.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/generate-series-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

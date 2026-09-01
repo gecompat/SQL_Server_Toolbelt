@@ -110,3 +110,12 @@ breitere Interoperabilitätsmatrix realer Archive bleiben vor Release offen.
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453
 und der lokale Lauf vom 2026-08-29 mit reproduzierbar neu gebautem, per
 exaktem SHA2-512 autorisiertem Releaseartefakt.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-29`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Lokales SQL_Server_Lab; reproduzierbar neu gebautes und per exaktem SHA2-512 autorisiertes Releaseartefakt; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

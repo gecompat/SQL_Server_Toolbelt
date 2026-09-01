@@ -99,3 +99,12 @@ erfolgreich. Windows-Läufe bleiben offen. Der aktuelle Status ist daher
 - [TVF_GenerateSeriesInt](./Documentation/TVF_GenerateSeriesInt.md)
 - [Contract-Testmatrix](./Tests/GENERATE_SERIES_CONTRACT_TEST_MATRIX.md)
 - [Test-Evidenz](./Tests/README.md)
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/generate-series-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->
