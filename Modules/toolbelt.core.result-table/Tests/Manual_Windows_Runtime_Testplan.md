@@ -52,3 +52,12 @@ Nur folgende Felder übermitteln:
 | z. B. SAVE-01 | 2022 | 160 | pass | Enginefehler 2705 erwartet | Ziel und Caller-Transaktion vollständig wiederhergestellt |
 
 Keine realen Datenbanknamen, Hostnamen, Konten, Pfade, Screenshots, Hardwaredaten oder vollständigen Fehlermeldungen übermitteln. Bei Fehlern genügen Test-ID, SQL-Fehlernummer, gekürzte Fehlerkategorie und die Angabe, ob Schema, Daten oder Transaktionszustand unerwartet verändert wurden.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-29`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter mit lokalen, zentralen, Lifecycle- und Uninstall-Verträgen
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

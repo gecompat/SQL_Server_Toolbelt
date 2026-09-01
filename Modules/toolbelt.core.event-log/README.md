@@ -19,3 +19,12 @@ Das Modul speichert keinen frei ausführbaren SQL-Text. `DataJson` ist auf ein J
 Der interne Handler `USP_WriteEventInternal` wird als Work Type `toolbelt.event-log.write` registriert. Deploy und Uninstall verändern keinen Linked Server und keine Login-Mappings.
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-05`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410`
+- Scope: SQL Server 2025 Linux CL150/160/170; Caller-Rollback, uncommittable Caller, Context, Validation, Retention, Concurrency, Redeploy, Central und Uninstall
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

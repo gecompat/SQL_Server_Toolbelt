@@ -30,3 +30,12 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 - Basis-Workflow: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30703339193
 - Removal-Version `1.1.0`: SQL Server 2025 Linux CL150/160/170 erfolgreich; Evidenz https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31016136937
 - Windows und physische SQL-Server-2019-/2022-Läufe: `not executed`.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-29`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger W4-Moduladapter
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

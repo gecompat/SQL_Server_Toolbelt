@@ -70,3 +70,12 @@ erfolgreich; Windows-Läufe bleiben `not executed`.
   von `QUOTED_IDENTIFIER` abhängt.
 - Die Funktion bestätigt nicht, dass ein Name als reales SQL-Server-Objekt
   existiert.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-29`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter mit lokalen, zentralen, Lifecycle- und Uninstall-Verträgen
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

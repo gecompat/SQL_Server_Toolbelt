@@ -33,3 +33,12 @@
 - SQL Server 2025 Windows, manuelle lokale Validierung vom 2026-08-04: erfolgreich; lokale und zentrale Bereitstellung, Collation-übergreifender Abgleich, Provider-Probe, Contract-, Concurrency-, Central- und Lifecycle-Tests sowie geschützter und vollständiger Uninstall.
 
 - Version 1.1.0 / `@SuppressResult`: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-05`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410`
+- Scope: Second Session 1.1.0: suppressiertes Infrastruktur-Resultset und Event-Log-Abhängigkeit auf SQL Server 2025 Linux CL150/160/170
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

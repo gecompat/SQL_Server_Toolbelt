@@ -42,3 +42,12 @@ Wiederholungsdeploy, Extraktions- und Listingverträge sowie Uninstall.
 Der Modulstatus ist `partially validated`.
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-29`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Lokales SQL_Server_Lab; reproduzierbar neu gebautes und per exaktem SHA2-512 autorisiertes Releaseartefakt; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

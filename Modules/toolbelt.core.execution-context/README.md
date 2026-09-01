@@ -18,3 +18,12 @@ Connection-Pooling-Aufrufer müssen jedes erfolgreiche Begin mit End paaren. Das
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948
 sowie der erfolgreiche physische Linux-Lauf 2019/2022/2025 vom 2026-08-29.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-29`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger W4-Moduladapter
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

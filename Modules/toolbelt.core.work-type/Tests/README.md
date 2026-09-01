@@ -11,3 +11,12 @@ Basis-Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/3070
 Version `1.1.0` ergänzt capabilitybezogene Tests für `USP_RemoveWorkType`: aktive Einträge, explizite Datenverlustfreigabe, stale `rowversion`, Caller-Savepoint und Rollback, uncommittable Caller, endgültige Entfernung sowie ResultTable-Ausgabe. Die capabilitybezogene Runtime-Matrix ist erfolgreich. Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31016136937
 
 Windows und physische SQL-Server-2019-/2022-Releaseprüfungen bleiben bis zur tatsächlichen Ausführung `not executed`.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-29`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger W4-Moduladapter
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

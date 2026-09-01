@@ -30,3 +30,12 @@ Modul, führten das versionsgleiche Update aus, validierten Modulmarker,
 markergebundene Adapterdatenbank sowie die scopegebundenen Lab-Ressourcen.
 Der Nachweis erweitert weder den offenen Windows- noch den Client-/Treiber-
 Scope und ändert deshalb den Status `partially validated` nicht.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-30`
+- Nachweis: `local: SQL_Server_Lab Project Adapter 0.1`
+- Scope: SQL Server 2025 Linux unter Docker und Podman; Installation, versionsgleiches Update, Modul-/Help-Validierung, markergebundener Uninstall und vollständiger scopegebundener Cleanup
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

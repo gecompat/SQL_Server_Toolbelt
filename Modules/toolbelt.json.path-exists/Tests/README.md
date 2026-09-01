@@ -24,3 +24,12 @@ Runtime, nativer Parität, Wiederholungsdeployment, Lifecycle, Central und
 Uninstall erfolgreich. Der vollständige Adapter ist seit 2026-08-29
 zusätzlich auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen
 erfolgreich. Windows-Läufe bleiben `not executed`.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-29`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter mit lokalen, zentralen, Lifecycle- und Uninstall-Verträgen
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

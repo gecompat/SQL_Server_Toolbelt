@@ -45,3 +45,12 @@ SQL-Anmeldungs-Preflight nicht erreichbar; Windows-Runtime bleibt deshalb
 `not executed`.
 
 Evidenz 2026-08-30: `local: Tests/CI/run-lab-local.ps1`.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-30`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Explizit ausgewählte SQL-Server-2019-, 2022- und 2025-Windows-Ziele; SQL-Anmeldungs-Preflight
+- Ergebnis: `not executed; Zielverbindungen waren vor der ersten Testmutation nicht erreichbar`
+<!-- END GENERATED:MODULE_EVIDENCE -->

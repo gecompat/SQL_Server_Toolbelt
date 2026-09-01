@@ -74,3 +74,12 @@ getrennt unter Docker und Podman erfolgreich
 (`local: SQL_Server_Lab Project Adapter 0.1`). Das Toolbelt-Repository verwaltet dabei keine
 Lab-Infrastruktur; sein Runner bindet ausschließlich einen bereits
 bereitgestellten Lab-Run.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-30`
+- Nachweis: `local: SQL_Server_Lab Project Adapter 0.1`
+- Scope: SQL Server 2025 Linux unter Docker und Podman; Installation, versionsgleiches Update, Modul-/Help-Validierung, markergebundener Uninstall und vollständiger scopegebundener Cleanup
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

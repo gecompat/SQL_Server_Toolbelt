@@ -22,3 +22,12 @@ Die vollständige Pflichtmatrix wurde am 2026-08-30 über
 `local: Tests/CI/run-lab-local.ps1` erfolgreich ausgeführt. Alle Testdaten
 waren synthetisch; erzeugte Objekte und neue Trust-Einträge wurden entfernt,
 die Lab-Umgebungen nicht beendet.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-30`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: R1b auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest; SAFE CLR, exakter SHA2-512-Trust, Toolbelt-Dialekt, UTF-16, Grenzen, Timeout, Fehlerpräfixe, Erst- und Wiederholungsdeployment, Kollision, Central, Uninstall und Cleanup
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->
