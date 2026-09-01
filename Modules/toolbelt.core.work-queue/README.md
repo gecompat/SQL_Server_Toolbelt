@@ -46,3 +46,12 @@ Retry, Backoff, Dead Letter, Idempotency Keys, Cancellation, vollständige
 Attempt-Historie, Worker-Orchestrierung und automatisches `KILL` bleiben
 außerhalb von E1b. Ein Upgrade von `1.0.0` ist nur ohne aktive E1a-Claims
 zulässig und bricht sonst vor der ersten Mutation ab.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-30`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: E1b auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest; Lease, Heartbeat, explizite Recovery, abgelaufene Ownership, Upgrade 1.0.0 auf 1.1.0, blockierter Upgrade-Preflight bei aktivem Claim, Transaktionen, vier Sessions, ResultTable, Dependency, Kollision, Redeployment, Central, Datenverlustschutz, Uninstall und Cleanup
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

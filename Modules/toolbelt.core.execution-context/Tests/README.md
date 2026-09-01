@@ -9,3 +9,12 @@ Der statische Vertrag sowie Root-/Nested-Context, Ownership, Actor/Tenant-Änder
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30699604948
 
 Windows und die physischen SQL-Server-2019-/2022-Releaseprüfungen bleiben bis zur tatsächlichen Ausführung `not executed`.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-29`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger W4-Moduladapter
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

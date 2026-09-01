@@ -59,3 +59,12 @@ besitzt `ADMINISTER BULK OPERATIONS`.
 Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben Releasevalidierung.
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356`
+- Scope: SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170; statischer Vertrag, Text/Binary-Fixtures, Allowlist, Lifecycle und Uninstall
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

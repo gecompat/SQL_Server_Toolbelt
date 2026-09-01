@@ -32,3 +32,12 @@ Removal-Evidenz Version `1.1.0`: https://github.com/gecompat/SQL_Server_Toolbelt
 
 Der vollständige Moduladapter war am 2026-08-29 auf physischen
 SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-29`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger W4-Moduladapter
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

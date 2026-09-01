@@ -31,6 +31,8 @@ MODULES_README = REPOSITORY_ROOT / "Modules" / "README.md"
 BRAINSTORM = "Backlog/personal_Backlog_Bainstorm.md"
 GENERATED_BADGE = "MODULE_STATUS_BADGE"
 GENERATED_TABLE = "MODULE_STATUS_TABLE"
+GENERATED_EVIDENCE = "MODULE_EVIDENCE"
+EVIDENCE_HEADING = "## Aktuelle Validierungsevidenz"
 CURRENT_STATUS_FILES = (
     "README.md",
     "CHANGELOG.md",
@@ -172,6 +174,29 @@ def section_values(text: str, section: str) -> dict[str, str | list[str]]:
     raise ValidationError(f"Manifestabschnitt fehlt: {section}")
 
 
+def parse_evidence_entries(text: str) -> list[dict[str, str]]:
+    lines = text.splitlines()
+    start = None
+    for index, line in enumerate(lines):
+        if line.startswith("validation_evidence:"):
+            start = index + 1
+            break
+    if start is None:
+        return []
+    entries: list[dict[str, str]] = []
+    for line in lines[start:]:
+        if line.strip() and not line.startswith(" "):
+            break
+        opener = re.match(r'\s{2}-\s+(\w+):\s*"(.*)"\s*$', line)
+        if opener is not None:
+            entries.append({opener.group(1): opener.group(2)})
+            continue
+        follower = re.match(r'\s{4}(\w+):\s*"(.*)"\s*$', line)
+        if follower is not None and entries:
+            entries[-1][follower.group(1)] = follower.group(2)
+    return entries
+
+
 def parse_repo_map() -> tuple[list[str], dict[str, dict[str, list[str]]], list[str]]:
     """Liest Registry und Change-Impact-Pakete aus dem eingeschränkten YAML-Format."""
 
@@ -306,6 +331,7 @@ def load_modules(manifest_paths: list[str]) -> list[dict[str, object]]:
                 text,
                 re.MULTILINE,
             ),
+            "evidence_entries": parse_evidence_entries(text),
         }
         modules.append(module)
     return modules
@@ -508,6 +534,77 @@ def validate_generated_status(
                 f"Generierter Status ist veraltet: {path.relative_to(REPOSITORY_ROOT)}; "
                 "mit --write aktualisieren."
             )
+
+
+def module_evidence_block(module: dict[str, object]) -> str:
+    entries = module["evidence_entries"]
+    assert isinstance(entries, list)
+    entry = entries[-1]
+    missing = [key for key in ("date", "workflow", "scope", "result") if key not in entry]
+    if missing:
+        raise ValidationError(
+            f"{module['id']}: Evidenzeintrag ohne {', '.join(missing)}."
+        )
+    return "\n".join(
+        [
+            f"- Datum: `{entry['date']}`",
+            f"- Nachweis: `{entry['workflow']}`",
+            f"- Scope: {entry['scope']}",
+            f"- Ergebnis: `{entry['result']}`",
+        ]
+    )
+
+
+def evidence_documents(module: dict[str, object]) -> list[Path]:
+    documentation = module["documentation"]
+    assert isinstance(documentation, dict)
+    module_root = module["root"]
+    assert isinstance(module_root, Path)
+    targets: list[Path] = []
+    for key in ("module", "test_matrix", "evidence"):
+        values = documentation.get(key)
+        if values is None:
+            continue
+        paths = values if isinstance(values, list) else [values]
+        for relative in paths:
+            target = (module_root / str(relative)).resolve()
+            if target not in targets:
+                targets.append(target)
+    return targets
+
+
+def validate_generated_module_evidence(
+    modules: list[dict[str, object]], write_changes: bool
+) -> None:
+    begin = f"<!-- BEGIN GENERATED:{GENERATED_EVIDENCE} -->"
+    end = f"<!-- END GENERATED:{GENERATED_EVIDENCE} -->"
+    for module in modules:
+        entries = module["evidence_entries"]
+        assert isinstance(entries, list)
+        if not entries:
+            continue
+        generated = module_evidence_block(module)
+        for target in evidence_documents(module):
+            current = read(target)
+            if begin in current:
+                expected = replace_generated_block(
+                    current, GENERATED_EVIDENCE, generated
+                )
+            else:
+                padding = "" if current.endswith("\n\n") else "\n"
+                expected = (
+                    f"{current}{padding}{EVIDENCE_HEADING}\n\n"
+                    f"{begin}\n{generated}\n{end}\n"
+                )
+            if current == expected:
+                continue
+            if write_changes:
+                target.write_text(expected, encoding="utf-8", newline="\n")
+            else:
+                raise ValidationError(
+                    f"{module['id']}: generierte Evidenz ist veraltet in "
+                    f"{target.relative_to(REPOSITORY_ROOT)}; mit --write aktualisieren."
+                )
 
 
 def markdown_files_for_scope(
@@ -1433,6 +1530,7 @@ def main() -> int:
     validate_protected_content()
     validate_status_truth(modules)
     validate_unique_planning_ids()
+    validate_generated_module_evidence(modules, arguments.write)
     validate_manifests(modules)
     validate_derived_backlog_status(modules)
     validate_inventory_truth(modules)

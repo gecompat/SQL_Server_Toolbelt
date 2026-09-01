@@ -89,3 +89,12 @@ modulspezifische Hochrisikofälle bleiben Releasevalidierung.
 - Microsoft (2026): [sys.columns](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-columns-transact-sql?view=sql-server-ver17).
 - Microsoft (2026): [sys.types](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-types-transact-sql?view=sql-server-ver17).
 - Microsoft (2026): [SAVE TRANSACTION](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/save-transaction-transact-sql?view=sql-server-ver17).
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-29`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter mit lokalen, zentralen, Lifecycle- und Uninstall-Verträgen
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->
