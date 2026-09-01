@@ -9,13 +9,17 @@ abgeschlossen. 27 Module sind implementiert. 2 sind `validated`, 25 sind
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Alle 16 Module der V0c-Kohorte sind am 2026-08-29 auf physischen
-SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich gelaufen. Die
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich gelaufen. Seit
+2026-09-01 decken zusätzlich alle fünfzehn GitHub-hosted Modul-Runtime-
+Workflows dieselben drei Zielversionen unter Linux ab; die früheren W5- und
+File-Content-Fehler auf diesem Kanal waren Testadapterfehler und sind behoben.
+Damit existiert ein von der Lab-Verfügbarkeit unabhängiger Evidenzkanal. Die
 Windows-Matrix und die jeweils ausgewiesenen modulspezifischen Restfälle
-bleiben offen. Second Session und Event Log scheitern außerhalb der
-Releasekohorte auf Linux 2019/2022 im gemeinsamen W5-Vertrag; File Content
-benötigt noch separat bereitgestellte serverseitige Fixtures. `TC-2026-032`
-bleibt eine getrennte Split-Ausbaustufe im Research-Status ohne
-Implementierungsfreigabe.
+bleiben offen; GitHub-hosted Windows-Runner sind dafür kein Ersatz, weil die
+offiziellen Runner-Images keine SQL-Server-Engine enthalten. Ob die auf den
+physischen Linux-Zielen 2019 und 2022 gemeldeten W5-Fehler dieselbe Ursache
+haben, ist nicht belegt. `TC-2026-032` bleibt eine getrennte
+Split-Ausbaustufe im Research-Status ohne Implementierungsfreigabe.
 
 ## Phase 0 – Repository-Grundaufbau
 
