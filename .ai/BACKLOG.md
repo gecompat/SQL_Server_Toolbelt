@@ -156,7 +156,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Scope | `toolbelt.core.result-table`; Modulverzeichnis, `module.yaml`, `toolbelt_core.USP_PrepareResultTable`, parametergesteuertes Deploy- und Uninstall-Skript, Objekt- und Moduldokumentation, synthetische Beispiele sowie statische, Contract-, Runtime-, Collation-, Deployment- und Plattformtests. |
 | Dependencies | `AP-2026-002`, `RESULT_TABLE_MODULE_DESIGN.md`, `RESULT_TABLE_CONTRACT_TEST_MATRIX.md`, `DEC-2026-013` bis `DEC-2026-017` und `DEC-2026-019`. |
 | Priorität | `P0` |
-| Status | `active` |
+| Status | `active`; fachlich abgeschlossen, offen ist ausschließlich der Windows-Nachweis, der über `V0b` geführt wird |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
 | Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
@@ -164,7 +164,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Tests | Statischer Vertrag und vollständige GitHub-hosted Linux-Matrix auf SQL Server 2019, 2022 und 2025 einschließlich Collation-, 1024-Spalten-, Transaktions-, natürlichem Savepoint-Enginefehler 2705, Multi-Session-, Central-/Lifecycle- und synthetischem Performance-Workload erfolgreich. Windows und weitere Plattformfälle bleiben `not executed`. |
 | Blocker | Kein Merge-Blocker für den implementierten und teilweise validierten Stand. Für `validated` fehlen Windows-Evidenz und eine vergleichbare plattformübergreifende Performance-Baseline. |
 | Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.core.result-table/`; [Basislauf 30447442638](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447442638), [erweiterter Lauf 30456207934](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30456207934), [Multi-Session-Lauf 30459004717](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) und [Savepoint-Enginefehler-Lauf 30692956855](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855) erfolgreich. |
-| Nächster Schritt | Manuellen Windows-Runtime- und Performance-Nachweis gemäß `Modules/toolbelt.core.result-table/Tests/Manual_Windows_Runtime_Testplan.md` ausführen. Erst nach vollständiger Pflichtmatrix auf `validated` setzen. |
+| Nächster Schritt | Manuellen Windows-Runtime- und Performance-Nachweis gemäß `Modules/toolbelt.core.result-table/Tests/Manual_Windows_Runtime_Testplan.md` ausführen; die Terminierung hängt an `V0b`. Erst nach vollständiger Pflichtmatrix auf `validated` setzen. |
 
 
 ### AP-2026-023: Windows Filesystem SQL CLR
@@ -176,7 +176,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Scope | toolbelt.filesystem.windows, C#-.NET-Framework-4.8-Assembly, T-SQL-Fassade, Root-Alias-Konfiguration, Trust-/Deployment-Lifecycle, Dokumentation, Contract-Matrix und Windows-Build. |
 | Dependencies | toolbelt.core.result-table; separate administrative SHA2-512-Trust-Freigabe; Windows SQL Server mit kontrolliertem synthetischem Testroot. |
 | Priorität | P1 |
-| Status | `active` |
+| Status | `active`; fachlich abgeschlossen, offen ist ausschließlich der Windows-Nachweis, der über `V0b` geführt wird |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
 | Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
@@ -184,7 +184,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Tests | Statischer Vertragscheck und GitHub-Windows-Build; manueller Windows-SQL-Server-/NTFS-Test für Deployment, beide Identitätsmodi, Codepages, Limits, Reparse Points, atomare Writes und rekursives Delete. |
 | Blocker | Caller-Impersonation und die breitere manuelle NTFS-/I/O-Matrix sind noch nicht ausgeführt. |
 | Evidenz | Benutzerfreigabe am 2026-07-31; Implementierung und Windows-Build-/Static-Contract-Artefakte auf `main`; Build-Nachweis im Wartungslauf https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356. |
-| Nächster Schritt | Manuellen Windows-SQL-Server-/NTFS-Runtime-Test gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` ausführen und ausschließlich abstrahierte Ergebnisse erfassen. |
+| Nächster Schritt | Manuellen Windows-SQL-Server-/NTFS-Runtime-Test gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` ausführen und ausschließlich abstrahierte Ergebnisse erfassen; die Terminierung hängt an `V0b`. GitHub-hosted Windows-Runner sind kein Ersatz, weil die offiziellen Runner-Images keine SQL-Server-Engine enthalten. |
 
 
 ## Abgeschlossene Arbeitspakete
