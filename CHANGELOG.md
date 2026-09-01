@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-09-01 – GitHub-hosted Linux-Versionsmatrix
+
+- Alle fünfzehn bislang auf SQL Server 2025 beschränkten Modul-Runtime-Workflows
+  laufen jetzt über die Matrix 2019, 2022 und 2025. Die Adapter unter `Tests/CI/`
+  unterstützten diese Versionen bereits; nur die Workflows setzten `TBX_SQL_VERSION`
+  nicht und verwendeten ein fest verdrahtetes 2025-Image.
+- Zwei dadurch aufgedeckte Testadapterfehler sind behoben: der Loopback-Linked-Server
+  der W5-Adapter verwendete `encrypt=optional`, das erst ab MSOLEDBSQL 19 existiert,
+  und `run-file-content-linux.sh` setzte feste Compatibility Levels 150, 160 und 170.
+- Kein öffentliches SQL-Objekt, kein Vertrag und kein Modulmanifest wurde geändert.
+  Alle Module bleiben `partially validated`, weil die Windows-Matrix weiterhin offen ist.
+
 ## 2026-08-24 – ZIP-Metadaten-Listing und Statuswahrheit
 
 - `toolbelt.archive.zip-memory` Version `1.2.0` stellt die neue
