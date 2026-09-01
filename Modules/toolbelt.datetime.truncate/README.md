@@ -57,3 +57,12 @@ bleiben Releasevalidierung.
 - [Contract-Testmatrix](./Tests/DATETIME_TRUNCATE_CONTRACT_TEST_MATRIX.md)
 - [Runtime-Evidenz](./Tests/README.md)
 - [W2a Portable Runtime 30561236509](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30561236509)
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2a-portable-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger W2a-Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

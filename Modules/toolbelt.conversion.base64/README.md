@@ -102,3 +102,12 @@ nur `partially validated`.
 - [SVF_Base64Decode](./Documentation/SVF_Base64Decode.md)
 - [Contract-Testmatrix](./Tests/BASE64_CONTRACT_TEST_MATRIX.md)
 - [Test-Evidenz](./Tests/README.md)
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/base64-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

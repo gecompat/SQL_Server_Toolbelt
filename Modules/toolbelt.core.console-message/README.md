@@ -74,3 +74,12 @@ getrennt unter Docker und Podman erfolgreich
 (`local: SQL_Server_Lab Project Adapter 0.1`). Das Toolbelt-Repository verwaltet dabei keine
 Lab-Infrastruktur; sein Runner bindet ausschließlich einen bereits
 bereitgestellten Lab-Run.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2c-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger W2c-Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

@@ -12,3 +12,12 @@ Die Contract- und Lifecycle-Tests verwenden ausschließlich synthetische `date`-
 | 2026-08-29 | lokales SQL_Server_Lab | Physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter | `success` | Windows-Läufe bleiben `not executed` |
 
 Der Modulstatus ist `partially validated`.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w1-portable-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger W1-Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

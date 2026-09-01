@@ -47,3 +47,12 @@ Deployment aktiviert CLR nicht, verändert weder `clr strict security` noch
 `TRUSTWORTHY` und lädt keine Drittanbieterbibliothek. Der separate
 administrative Trust-Schritt autorisiert ausschließlich den exakten
 SHA2-512-Hash des reproduzierbar gebauten Releaseartefakts.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-30`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: R1b auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest; SAFE CLR, exakter SHA2-512-Trust, Toolbelt-Dialekt, UTF-16, Grenzen, Timeout, Fehlerpräfixe, Erst- und Wiederholungsdeployment, Kollision, Central, Uninstall und Cleanup
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

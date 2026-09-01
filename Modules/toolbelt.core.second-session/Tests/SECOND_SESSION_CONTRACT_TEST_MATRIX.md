@@ -33,3 +33,12 @@
 - SQL Server 2025 Windows, manuelle lokale Validierung vom 2026-08-04: erfolgreich; lokale und zentrale Bereitstellung, Collation-übergreifender Abgleich, Provider-Probe, Contract-, Concurrency-, Central- und Lifecycle-Tests sowie geschützter und vollständiger Uninstall.
 
 - Version 1.1.0 / `@SuppressResult`: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w5a-second-session-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; erstmals auf allen drei Zielversionen erfolgreich, nachdem der Testadapter den Loopback-Provider versionsabhängig konfiguriert
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

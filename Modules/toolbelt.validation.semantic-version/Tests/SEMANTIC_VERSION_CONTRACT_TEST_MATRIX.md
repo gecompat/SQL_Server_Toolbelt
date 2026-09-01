@@ -19,3 +19,12 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 
 Aktuelle Evidenz:
 https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/semantic-version-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

@@ -70,3 +70,12 @@ erfolgreich; Windows-Läufe bleiben `not executed`.
   von `QUOTED_IDENTIFIER` abhängt.
 - Die Funktion bestätigt nicht, dass ein Name als reales SQL-Server-Objekt
   existiert.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-09-01`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/identifier-runtime.yml`
+- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

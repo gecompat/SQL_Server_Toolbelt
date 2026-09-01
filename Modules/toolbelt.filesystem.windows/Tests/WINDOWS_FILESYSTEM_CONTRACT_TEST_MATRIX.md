@@ -18,3 +18,12 @@ Der manuelle Test verwendet ausschließlich eine dedizierte, synthetische Testst
 Der detaillierte Ablauf und die datenschutzsichere Rückmeldung stehen im [manuellen Windows-Runtime-Testplan](./Manual_Windows_Runtime_Testplan.md).
 
 Aktuelle Evidenz: Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 auf SQL Server 2025 unter Windows; Build, Trust, Deployment, Help und SQL-Authentication-Ablehnung erfolgreich. Der Lauf `Ergänzender Windows-CLR-Preflight-Lauf` vom 2026-08-05 bestätigte kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem `WorkPath`. Windows-Authentication-, NTFS-ACL- und weitere I/O-Tests bleiben offen.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-08-05`
+- Nachweis: `Ergänzender Windows-CLR-Preflight-Lauf`
+- Scope: SQL Server 2025 Windows; kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem WorkPath
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->
