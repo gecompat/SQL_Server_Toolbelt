@@ -41,14 +41,19 @@ jobs:
       - name: Validate Execution Context
         run: python3 Modules/toolbelt.core.execution-context/Tests/Static/validate_contract.py
 
-  sql-server-2025-linux:
-    name: SQL Server 2025 Linux / compatibility 150, 160 and 170
+  runtime:
+    name: SQL Server ${{ matrix.sql-version }} Linux
     needs: static-contracts
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        sql-version: ["2019", "2022", "2025"]
     steps:
       - uses: actions/checkout@v4
       - name: Execute contracts, lifecycle, central and session isolation
         env:
-          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:2025-latest
+          TBX_SQL_VERSION: ${{ matrix.sql-version }}
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest
         run: bash Tests/CI/run-lab-target.sh Tests/CI/run-w4a-execution-foundations-linux.sh

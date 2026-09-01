@@ -6,16 +6,24 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 
 Dieses Verzeichnis enthält schlanke Adapter für GitHub-hosted Testläufe. Die fachlichen SQL-Tests verbleiben in den jeweiligen Modulverzeichnissen.
 
+Die Modul-Adapter sind versionsparametrisch. `TBX_SQL_VERSION` wählt das
+Zielrelease und daraus die tatsächlich geprüften Compatibility Levels: `2019`
+prüft 150, `2022` prüft 160 und `2025` prüft 150, 160 und 170.
+`TBX_SQL_IMAGE` benennt den zugehörigen offiziellen Container. Ohne gesetzte
+Versionsvariable bleibt `2025` der Vorgabewert. Angaben zu Compatibility
+Levels in den folgenden Adapterbeschreibungen beziehen sich auf die jeweils
+ausgewählte Zielversion.
+
 `run-result-table-linux.sh` startet für den ResultTable-Vertrag einen offiziellen SQL-Server-Linux-Container, erzeugt ausschließlich synthetische Testdatenbanken und ruft die kanonischen Deploy-, Runtime- und Uninstall-Artefakte auf.
 
-`run-base64-linux.sh` verwendet einen SQL-Server-2025-Linux-Container und
-prüft den Base64-Vertrag seriell mit Compatibility Levels 150, 160 und 170
-sowie lokale, zentrale und Lifecycle-Pfade.
+`run-base64-linux.sh` verwendet einen offiziellen SQL-Server-Linux-Container
+der ausgewählten Zielversion und prüft den Base64-Vertrag seriell über deren
+Compatibility Levels sowie lokale, zentrale und Lifecycle-Pfade.
 
-`run-generate-series-linux.sh` verwendet einen SQL-Server-2025-Linux-
-Container und prüft den portablen Ganzzahlreihenvertrag seriell mit
-Compatibility Levels 150, 160 und 170 sowie lokale, zentrale und
-Lifecycle-Pfade.
+`run-generate-series-linux.sh` verwendet einen offiziellen
+SQL-Server-Linux-Container der ausgewählten Zielversion und prüft den
+portablen Ganzzahlreihenvertrag seriell über deren Compatibility Levels sowie
+lokale, zentrale und Lifecycle-Pfade.
 
 `run-date-spine-linux.sh` installiert Generate Series und Datetime Truncate
 als explizite Dependencies und prüft danach Tages-, ISO-Wochen- und
@@ -41,21 +49,21 @@ dem exakten, reproduzierbar gebauten SAFE-CLR-Releaseartefakt. Der Adapter
 deckt Dialekt, UTF-16-Positionen, Grenzen, festen Timeout, stabile
 Fehlerpräfixe, Kollisionsschutz, Redeployment, Central und Uninstall ab.
 
-`run-identifier-linux.sh` prüft den Identifier-Vertrag mit denselben
+`run-identifier-linux.sh` prüft den Identifier-Vertrag über dieselben
 Compatibility Levels sowie lokale, zentrale, Kollisions- und Lifecycle-Pfade.
 
 `run-split-characters-linux.sh` installiert zuerst den Generate-Series-Kern
-und prüft danach den literalen Multi-Separator-Vertrag mit denselben
+und prüft danach den literalen Multi-Separator-Vertrag über dieselben
 Compatibility Levels, fehlender Dependency, lokaler und zentraler Nutzung,
 Kollision, Wiederholungsdeployment und Uninstall.
 
 `run-semantic-version-linux.sh` prüft Parser, Comparator, Sort Key sowie
-lokale, zentrale, Kollisions- und Lifecycle-Pfade bei Compatibility Levels
-150, 160 und 170.
+lokale, zentrale, Kollisions- und Lifecycle-Pfade über dieselben
+Compatibility Levels.
 
 `run-integer-base-linux.sh` prüft Alphabete von Basis 2 bis 93,
 Kanonizität, den vollständigen `bigint`-Bereich, Overflow sowie lokale,
-zentrale, Kollisions- und Lifecycle-Pfade bei denselben Compatibility Levels.
+zentrale, Kollisions- und Lifecycle-Pfade über dieselben Compatibility Levels.
 
 `run-zip-memory-linux.sh` installiert zuerst `toolbelt.core.result-table` als
 Dependency und prueft danach den In-memory-ZIP-Vertrag fuer
