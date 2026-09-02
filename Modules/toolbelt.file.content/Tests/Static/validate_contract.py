@@ -36,6 +36,7 @@ for marker in (
     "51321",
     "51322",
     "51323",
+    "51326",
     "IsValid",
     "ValidationCode",
     "ValidationMessage",
@@ -59,11 +60,16 @@ for marker in (
     "BomPresent",
     "51324",
     "51325",
+    "51326",
     "IsValid",
     "ValidationCode",
     "ValidationMessage",
 ):
     if marker not in text_source:
         raise SystemExit(f"LoadTextFile-Vertragsmarker fehlt: {marker}")
+
+for source in (binary_source, text_source):
+    if "Datei konnte nicht ueber OPENROWSET gelesen werden. Engine-Meldung:" not in source:
+        raise SystemExit("OPENROWSET-Fehler muss einen Kontext vor der Engine-Meldung ausgeben.")
 
 print("File Content statische Vertragsprüfung: erfolgreich")

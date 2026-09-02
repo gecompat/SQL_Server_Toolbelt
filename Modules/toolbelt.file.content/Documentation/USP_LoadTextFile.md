@@ -62,6 +62,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadTextFile]
 | `51323` | Datei überschreitet `@MaxBytes`. |
 | `51324` | Fallback-Encoding wird nicht unterstützt. |
 | `51325` | Encoding wird nicht unterstützt (UTF-16-BE, UTF-32). |
+| `51326` | `OPENROWSET` konnte die Datei nicht lesen; die Engine-Meldung folgt mit Kontext. |
 
 ## Beispiel
 

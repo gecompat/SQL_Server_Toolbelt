@@ -16,6 +16,10 @@ Alle Procedures verwenden Root-Aliasse und relative Pfade. `@ExecutionIdentity =
 
 Der Provider verwendet strikte Encoder-/Decoder-Fallbacks. Nicht repräsentierbare Zeichen oder ungültige Bytefolgen führen zu einem Fehler; es gibt keine stille Ersetzung. Die unterstützte Codepage wird von .NET Framework/Windows bereitgestellt und ist vor Produktivnutzung am Zielsystem zu prüfen.
 
+Fehler aus dem CLR-Provider werden von jeder öffentlichen Fassade mit der
+betroffenen Dateisystemoperation eingeordnet; die technische Ursache folgt in
+der Fehlermeldung.
+
 ## Einschränkungen
 
 - SQL Server auf Linux ist nicht unterstützt, da `EXTERNAL_ACCESS` dort nicht verfügbar ist.

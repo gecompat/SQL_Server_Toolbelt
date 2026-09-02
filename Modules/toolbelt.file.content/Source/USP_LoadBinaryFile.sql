@@ -279,8 +279,9 @@ BEGIN
         RETURN 0;
     END TRY
     BEGIN CATCH
-        -- Engine-Fehler aus OPENROWSET werden nicht umklassifiziert.
-        THROW;
+      DECLARE @ProviderError nvarchar(2048) = N'Datei konnte nicht ueber OPENROWSET gelesen werden. Engine-Meldung: '
+        + REPLACE(LEFT(ERROR_MESSAGE(), 1700), N'%', N'%%');
+      THROW 51326, @ProviderError, 1;
     END CATCH;
 END;
 GO

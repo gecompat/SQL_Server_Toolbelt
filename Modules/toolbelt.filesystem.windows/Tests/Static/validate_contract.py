@@ -50,6 +50,8 @@ if procedures.count("DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarch
     raise SystemExit("Jede öffentliche Facade muss den ExecutionIdentity-Wert für das CLR-Binding materialisieren.")
 if "TBXFS:EntryLimitExceeded" not in procedures or "Die Verzeichnisausgabe ueberschreitet @MaxEntries" not in procedures:
     raise SystemExit("USP_ListDirectory muss bei der Eintragsgrenze eine verständliche Fehlermeldung ausgeben.")
+if procedures.count("Dateisystemprovider konnte") != 8:
+    raise SystemExit("Jede übrige öffentliche Dateisystem-Fassade muss ihren Providerfehler einordnen.")
 if "@Content varbinary(max) = NULL" in procedures[: procedures.index("CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_InternalEmitHelp]")]:
     raise SystemExit("CLR-varbinary(max)-Binding darf keinen Defaultwert verwenden.")
 if "@Content nvarchar(max) = NULL" in procedures[: procedures.index("CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_InternalEmitHelp]")]:

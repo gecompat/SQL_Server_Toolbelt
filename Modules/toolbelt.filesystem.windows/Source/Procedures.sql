@@ -181,7 +181,7 @@ BEGIN
           , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
-        DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
+      DECLARE @ProviderError nvarchar(2048) = N'Dateisystemprovider konnte den Binaer-Chunk nicht lesen. Ursache: ' + REPLACE(LEFT(ERROR_MESSAGE(), 1700), N'%', N'%%');
         THROW 51540, @ProviderError, 1;
     END CATCH;
     EXEC [toolbelt_filesystem].[USP_InternalRouteResult]
@@ -227,7 +227,7 @@ BEGIN
           , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
-        DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
+      DECLARE @ProviderError nvarchar(2048) = N'Dateisystemprovider konnte den Text-Chunk nicht lesen. Ursache: ' + REPLACE(LEFT(ERROR_MESSAGE(), 1700), N'%', N'%%');
         THROW 51540, @ProviderError, 1;
     END CATCH;
     EXEC [toolbelt_filesystem].[USP_InternalRouteResult]
@@ -271,7 +271,7 @@ BEGIN
           , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
-        DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
+      DECLARE @ProviderError nvarchar(2048) = N'Dateisystemprovider konnte die Binaerdatei nicht schreiben. Ursache: ' + REPLACE(LEFT(ERROR_MESSAGE(), 1700), N'%', N'%%');
         THROW 51540, @ProviderError, 1;
     END CATCH;
     EXEC [toolbelt_filesystem].[USP_InternalRouteResult]
@@ -319,7 +319,7 @@ BEGIN
           , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
-        DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
+      DECLARE @ProviderError nvarchar(2048) = N'Dateisystemprovider konnte die Textdatei nicht schreiben. Ursache: ' + REPLACE(LEFT(ERROR_MESSAGE(), 1700), N'%', N'%%');
         THROW 51540, @ProviderError, 1;
     END CATCH;
     EXEC [toolbelt_filesystem].[USP_InternalRouteResult]
@@ -371,7 +371,7 @@ BEGIN
           , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
-        DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
+      DECLARE @ProviderError nvarchar(2048) = N'Dateisystemprovider konnte die Textdatei nicht transkodieren. Ursache: ' + REPLACE(LEFT(ERROR_MESSAGE(), 1700), N'%', N'%%');
         THROW 51540, @ProviderError, 1;
     END CATCH;
     EXEC [toolbelt_filesystem].[USP_InternalRouteResult]
@@ -464,7 +464,7 @@ BEGIN
           , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
-        DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
+      DECLARE @ProviderError nvarchar(2048) = N'Dateisystemprovider konnte das Verzeichnis nicht erstellen. Ursache: ' + REPLACE(LEFT(ERROR_MESSAGE(), 1700), N'%', N'%%');
         THROW 51540, @ProviderError, 1;
     END CATCH;
     EXEC [toolbelt_filesystem].[USP_InternalRouteResult]
@@ -504,7 +504,7 @@ BEGIN
           , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
-        DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
+      DECLARE @ProviderError nvarchar(2048) = N'Dateisystemprovider konnte die Datei nicht entfernen. Ursache: ' + REPLACE(LEFT(ERROR_MESSAGE(), 1700), N'%', N'%%');
         THROW 51540, @ProviderError, 1;
     END CATCH;
     EXEC [toolbelt_filesystem].[USP_InternalRouteResult]
@@ -550,7 +550,7 @@ BEGIN
           , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
-        DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
+      DECLARE @ProviderError nvarchar(2048) = N'Dateisystemprovider konnte das Verzeichnis nicht entfernen. Ursache: ' + REPLACE(LEFT(ERROR_MESSAGE(), 1700), N'%', N'%%');
         THROW 51540, @ProviderError, 1;
     END CATCH;
     EXEC [toolbelt_filesystem].[USP_InternalRouteResult]
