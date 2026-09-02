@@ -311,9 +311,9 @@ BEGIN
             , @BytesRead = @BytesRead OUTPUT;
     END TRY
     BEGIN CATCH
-      DECLARE @ProviderError nvarchar(2048) = N'Datei konnte nicht ueber OPENROWSET gelesen werden. Engine-Meldung: '
+      DECLARE @HeaderProviderError nvarchar(2048) = N'Datei konnte nicht ueber OPENROWSET gelesen werden. Engine-Meldung: '
         + REPLACE(LEFT(ERROR_MESSAGE(), 1700), N'%', N'%%');
-      THROW 51326, @ProviderError, 1;
+      THROW 51326, @HeaderProviderError, 1;
     END CATCH;
 
     IF @MaxBytes IS NOT NULL AND @BytesRead > @MaxBytes
@@ -409,9 +409,9 @@ BEGIN
         RETURN 0;
     END TRY
     BEGIN CATCH
-      DECLARE @ProviderError nvarchar(2048) = N'Datei konnte nicht ueber OPENROWSET gelesen werden. Engine-Meldung: '
+      DECLARE @ContentProviderError nvarchar(2048) = N'Datei konnte nicht ueber OPENROWSET gelesen werden. Engine-Meldung: '
         + REPLACE(LEFT(ERROR_MESSAGE(), 1700), N'%', N'%%');
-      THROW 51326, @ProviderError, 1;
+      THROW 51326, @ContentProviderError, 1;
     END CATCH;
 END;
 GO
