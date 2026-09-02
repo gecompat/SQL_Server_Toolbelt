@@ -2,7 +2,7 @@
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
-DECLARE @AssemblyBits varbinary(max) = $(AssemblyBits), @AssemblyHash varbinary(64), @AssemblyDdl nvarchar(max);
+DECLARE @AssemblyBits varbinary(max) = $(AssemblyBits), @AssemblyHash varbinary(64), @InstalledAssemblyHash varbinary(64), @AssemblyDdl nvarchar(max);
 IF TRY_CONVERT(int, SERVERPROPERTY(N'ProductMajorVersion')) NOT IN (15, 16, 17)
     THROW 51530, N'Dieses Modul unterstützt SQL Server 2019, 2022 und 2025.', 1;
 IF NOT EXISTS (SELECT 1 FROM sys.configurations WHERE name = N'clr enabled' AND value_in_use = 1)
@@ -15,17 +15,25 @@ SET @AssemblyHash = HASHBYTES(N'SHA2_512', @AssemblyBits);
 IF NOT EXISTS (SELECT 1 FROM sys.trusted_assemblies WHERE hash = @AssemblyHash)
     THROW 51534, N'Der exakte SHA2-512-Hash der Assembly ist nicht per sys.sp_add_trusted_assembly freigegeben.', 1;
 
+SELECT @InstalledAssemblyHash = HASHBYTES(N'SHA2_512', af.content)
+FROM sys.assemblies AS a
+INNER JOIN sys.assembly_files AS af
+    ON af.assembly_id = a.assembly_id
+   AND af.file_id = 1
+WHERE a.name = N'Toolbelt_Filesystem_Windows';
+
 BEGIN TRY
     BEGIN TRANSACTION;
     DECLARE @LockResult int;
     EXEC @LockResult = sys.sp_getapplock @Resource = N'toolbelt.deploy.toolbelt.filesystem.windows', @LockMode = N'Exclusive', @LockOwner = N'Transaction', @LockTimeout = 0, @DbPrincipal = N'public';
     IF @LockResult < 0 THROW 51535, N'Ein paralleles Deployment dieses Moduls ist bereits aktiv.', 1;
     IF SCHEMA_ID(N'toolbelt_filesystem') IS NULL EXEC sys.sp_executesql N'CREATE SCHEMA [toolbelt_filesystem];';
-    IF EXISTS (SELECT 1 FROM sys.assemblies WHERE name = N'Toolbelt_Filesystem_Windows')
-        SET @AssemblyDdl = N'ALTER ASSEMBLY [Toolbelt_Filesystem_Windows] FROM ' + CONVERT(nvarchar(max), @AssemblyBits, 1) + N';';
-    ELSE
+    IF @InstalledAssemblyHash IS NULL
         SET @AssemblyDdl = N'CREATE ASSEMBLY [Toolbelt_Filesystem_Windows] FROM ' + CONVERT(nvarchar(max), @AssemblyBits, 1) + N' WITH PERMISSION_SET = EXTERNAL_ACCESS;';
-    EXEC sys.sp_executesql @AssemblyDdl;
+    ELSE IF @InstalledAssemblyHash <> @AssemblyHash
+        SET @AssemblyDdl = N'ALTER ASSEMBLY [Toolbelt_Filesystem_Windows] FROM ' + CONVERT(nvarchar(max), @AssemblyBits, 1) + N';';
+    IF @AssemblyDdl IS NOT NULL
+        EXEC sys.sp_executesql @AssemblyDdl;
 END TRY
 BEGIN CATCH
     IF XACT_STATE() <> 0 ROLLBACK TRANSACTION;

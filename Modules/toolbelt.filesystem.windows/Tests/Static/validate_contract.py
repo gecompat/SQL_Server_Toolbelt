@@ -24,6 +24,9 @@ if "SET @AssemblyHash = HASHBYTES(N'SHA2_512', @AssemblyBits);" not in trust_dep
     raise SystemExit("Trusted-Assembly-Hash muss vor dem Procedure-Aufruf materialisiert werden.")
 if "@hash = HASHBYTES(" in trust_deployment:
     raise SystemExit("Trusted-Assembly-Procedure darf keinen Funktionsausdruck als Parameter erhalten.")
+deployment = root.joinpath("Deployment/Deploy.sql").read_text(encoding="utf-8")
+if "@InstalledAssemblyHash" not in deployment or "ELSE IF @InstalledAssemblyHash <> @AssemblyHash" not in deployment:
+    raise SystemExit("Wiederholungsdeployment muss eine unveränderte Assembly ohne ALTER überspringen.")
 if procedures.startswith("+"):
     raise SystemExit("Procedures.sql darf vor dem ersten SET keinen SQL-fremden Prefix enthalten.")
 for binding in (
@@ -45,6 +48,8 @@ for binding in (
         raise SystemExit(f"CLR-Binding {binding} muss Assembly-Upgrades idempotent unterstützen.")
 if procedures.count("DECLARE @ClrExecutionIdentity nvarchar(16) = CONVERT(nvarchar(16), @ExecutionIdentity);") != 9:
     raise SystemExit("Jede öffentliche Facade muss den ExecutionIdentity-Wert für das CLR-Binding materialisieren.")
+if "TBXFS:EntryLimitExceeded" not in procedures or "Die Verzeichnisausgabe ueberschreitet @MaxEntries" not in procedures:
+    raise SystemExit("USP_ListDirectory muss bei der Eintragsgrenze eine verständliche Fehlermeldung ausgeben.")
 if "@Content varbinary(max) = NULL" in procedures[: procedures.index("CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_InternalEmitHelp]")]:
     raise SystemExit("CLR-varbinary(max)-Binding darf keinen Defaultwert verwenden.")
 if "@Content nvarchar(max) = NULL" in procedures[: procedures.index("CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_InternalEmitHelp]")]:
