@@ -183,6 +183,15 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Modul `toolbelt.string.split-characters` mit literalem Multi-Separator-Vertrag, stabilen Ordinals und definierter Leer-Token-Semantik.
 - Binärer Separatorvergleich, `nvarchar(max)`-Verarbeitung, Generate-Series-Dependency sowie lokales/zentrales Deployment und vollständige Lifecycle-Artefakte.
 
+### Behoben
+
+- `toolbelt.filesystem.windows` erkennt den `Caller`-Modus direkt über
+  `SqlContext.WindowsIdentity` und hängt nicht mehr von der Sichtbarkeit
+  serverweiter Login-Metadaten ab. Directory-Resultsets werden erst nach
+  Beendigung der Windows-Impersonation an SQL Server zurückgegeben.
+- Die internen CLR-Procedure-Bindings verwenden `CREATE OR ALTER`, sodass
+  Assembly-Upgrades ohne Objektkollision wiederholbar ausgeführt werden.
+
 ### Geändert
 
 - R1a dokumentiert und reproduziert die native SQL-Server-2025-RE2-Semantik

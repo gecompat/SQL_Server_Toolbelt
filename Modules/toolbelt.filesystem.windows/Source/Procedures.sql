@@ -4,7 +4,7 @@ SET QUOTED_IDENTIFIER ON;
 GO
 
 /* Internal CLR entry points. The public T-SQL facade owns Help and ResultTable. */
-CREATE PROCEDURE [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
+CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
@@ -15,7 +15,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_ReadBinaryFileChunk]
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ReadBinaryFileChunk];
 GO
 
-CREATE PROCEDURE [toolbelt_filesystem].[CLR_ReadTextFileChunk]
+CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ReadTextFileChunk]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
@@ -27,7 +27,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_ReadTextFileChunk]
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ReadTextFileChunk];
 GO
 
-CREATE PROCEDURE [toolbelt_filesystem].[CLR_WriteBinaryFile]
+CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteBinaryFile]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
@@ -38,7 +38,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_WriteBinaryFile]
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[WriteBinaryFile];
 GO
 
-CREATE PROCEDURE [toolbelt_filesystem].[CLR_WriteTextFile]
+CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_WriteTextFile]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
@@ -51,7 +51,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_WriteTextFile]
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[WriteTextFile];
 GO
 
-CREATE PROCEDURE [toolbelt_filesystem].[CLR_TranscodeTextFile]
+CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_TranscodeTextFile]
 (
     @SourceRootAlias sysname = NULL
   , @SourceRelativePath nvarchar(4000) = NULL
@@ -66,7 +66,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_TranscodeTextFile]
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[TranscodeTextFile];
 GO
 
-CREATE PROCEDURE [toolbelt_filesystem].[CLR_ListDirectory]
+CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_ListDirectory]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = N''
@@ -78,7 +78,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_ListDirectory]
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[ListDirectory];
 GO
 
-CREATE PROCEDURE [toolbelt_filesystem].[CLR_CreateDirectory]
+CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_CreateDirectory]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
@@ -87,7 +87,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_CreateDirectory]
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[CreateDirectory];
 GO
 
-CREATE PROCEDURE [toolbelt_filesystem].[CLR_RemoveFile]
+CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveFile]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
@@ -96,7 +96,7 @@ CREATE PROCEDURE [toolbelt_filesystem].[CLR_RemoveFile]
 AS EXTERNAL NAME [Toolbelt_Filesystem_Windows].[Toolbelt.Filesystem.Windows.WindowsFilesystemProvider].[RemoveFile];
 GO
 
-CREATE PROCEDURE [toolbelt_filesystem].[CLR_RemoveDirectory]
+CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[CLR_RemoveDirectory]
 (
     @RootAlias sysname = NULL
   , @RelativePath nvarchar(4000) = NULL
