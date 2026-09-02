@@ -5,6 +5,7 @@ source = (root / "Clr" / "WindowsFilesystemProvider.cs").read_text(encoding="utf
 procedures = (root / "Source" / "Procedures.sql").read_text(encoding="utf-8")
 manifest = (root / "module.yaml").read_text(encoding="utf-8")
 trust_deployment = (root / "Deployment" / "Add-TrustedAssembly.sql").read_text(encoding="utf-8")
+caller_smoke_test = (root / "Tests" / "Runtime" / "WindowsCallerListDirectory.Manual.sql").read_text(encoding="utf-8")
 
 for marker in ["SqlContext.WindowsIdentity", "ReparsePointForbidden", "MaxChunkBytes", "WriteAtomically", "EXTERNAL_ACCESS"]:
     if marker not in source + manifest:
@@ -52,6 +53,9 @@ if "TBXFS:EntryLimitExceeded" not in procedures or "Die Verzeichnisausgabe ueber
     raise SystemExit("USP_ListDirectory muss bei der Eintragsgrenze eine verständliche Fehlermeldung ausgeben.")
 if procedures.count("Dateisystemprovider konnte") != 8:
     raise SystemExit("Jede übrige öffentliche Dateisystem-Fassade muss ihren Providerfehler einordnen.")
+for marker in ("RootAlias \"__REQUIRED__\"", "USP_ListDirectory", "@ExecutionIdentity = 'Caller'", "@MaxEntries = 10000"):
+    if marker not in caller_smoke_test:
+        raise SystemExit(f"Manueller Caller-Smoke-Test enthält nicht: {marker}")
 if "@Content varbinary(max) = NULL" in procedures[: procedures.index("CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_InternalEmitHelp]")]:
     raise SystemExit("CLR-varbinary(max)-Binding darf keinen Defaultwert verwenden.")
 if "@Content nvarchar(max) = NULL" in procedures[: procedures.index("CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_InternalEmitHelp]")]:

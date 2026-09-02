@@ -17,6 +17,11 @@ Status: ausstehend. Dieser Testplan ist für die manuelle Ausführung auf einem 
 3. Getrennte NTFS-Rechte vorbereiten: ein Windows-Caller mit erlaubtem Zugriff, ein Windows-Caller ohne Zugriff und – nur für `ServiceAccount` – das SQL-Server-Dienstkonto.
 4. Vor jedem Testlauf `@Hilfe = 1` jeder öffentlichen Procedure ausführen und die Rückgabe auf Parameter- und Resultset-Vertrag prüfen.
 
+Für den read-only Einstieg steht
+`Tests/Runtime/WindowsCallerListDirectory.Manual.sql` bereit. Es wird im
+SQLCMD-Modus mit einem Betreiber-RootAlias ausgeführt und prüft `Caller` über
+`USP_ListDirectory`, ohne Dateien oder die Root-Konfiguration zu ändern.
+
 ## Testreihen
 
 | ID | Test | Erwartung |
