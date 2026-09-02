@@ -188,6 +188,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 - Öffentliche Filesystem-Fassaden ordnen CLR-Providerfehler jetzt der jeweils
   angeforderten Operation zu. Die `file.content`-Reader liefern bei
   `OPENROWSET`-Enginefehlern Fehler `51326` mit vorangestelltem Kontext.
+- Das Wiederholungsdeployment von `toolbelt.file.content` erhält die bestehende
+  Root-Allowlist einschließlich ihrer Daten und aktualisiert ihre Beschreibung
+  idempotent.
 - `toolbelt.filesystem.windows` erkennt den `Caller`-Modus direkt über
   `SqlContext.WindowsIdentity` und hängt nicht mehr von der Sichtbarkeit
   serverweiter Login-Metadaten ab. Directory-Resultsets werden erst nach

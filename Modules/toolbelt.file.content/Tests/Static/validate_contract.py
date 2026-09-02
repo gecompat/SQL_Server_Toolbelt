@@ -23,6 +23,14 @@ if missing:
     raise SystemExit("Fehlende Artefakte: " + ", ".join(missing))
 
 binary_source = (root / "Source/USP_LoadBinaryFile.sql").read_text("utf-8")
+allowlist_source = (root / "Source/FileContentRootAllowlist.sql").read_text("utf-8")
+for marker in (
+    "IF OBJECT_ID(N'toolbelt_file.FileContentRootAllowlist', N'U') IS NULL",
+    "sys.sp_updateextendedproperty",
+    "sys.sp_addextendedproperty",
+):
+    if marker not in allowlist_source:
+        raise SystemExit(f"Allowlist-Lifecycle-Marker fehlt: {marker}")
 for marker in (
     "CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadBinaryFile]",
     "@FilePath  nvarchar(4000)",
@@ -71,5 +79,7 @@ for marker in (
 for source in (binary_source, text_source):
     if "Datei konnte nicht ueber OPENROWSET gelesen werden. Engine-Meldung:" not in source:
         raise SystemExit("OPENROWSET-Fehler muss einen Kontext vor der Engine-Meldung ausgeben.")
+if "@HeaderProviderError" not in text_source or "@ContentProviderError" not in text_source:
+    raise SystemExit("Die beiden OPENROWSET-Fehlerpfade müssen eindeutige Variablen im Procedure-Scope verwenden.")
 
 print("File Content statische Vertragsprüfung: erfolgreich")
