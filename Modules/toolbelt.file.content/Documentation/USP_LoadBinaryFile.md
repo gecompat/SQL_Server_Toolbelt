@@ -45,6 +45,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadBinaryFile]
 | `51321` | Pfad liegt außerhalb der Root-Allowlist. |
 | `51322` | Pfad enthält verbotene relative Segmente oder Traversal. |
 | `51323` | Datei überschreitet `@MaxBytes`. |
+| `51326` | `OPENROWSET` konnte die Datei nicht lesen; die Engine-Meldung folgt mit Kontext. |
 
 ## Beispiel
 
