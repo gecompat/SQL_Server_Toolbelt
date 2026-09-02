@@ -417,7 +417,14 @@ BEGIN
           , @ClrExecutionIdentity;
     END TRY
     BEGIN CATCH
-        DECLARE @ProviderError nvarchar(2048) = REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%');
+      DECLARE @ProviderError nvarchar(2048) =
+        CASE
+          WHEN ERROR_MESSAGE() LIKE N'%TBXFS:EntryLimitExceeded%'
+            THEN N'Die Verzeichnisausgabe ueberschreitet @MaxEntries = '
+               + CONVERT(nvarchar(12), @MaxEntries)
+              + N'. Erhoehen Sie @MaxEntries oder grenzen Sie @RelativePath weiter ein.'
+          ELSE REPLACE(LEFT(ERROR_MESSAGE(), 1800), N'%', N'%%')
+        END;
         THROW 51540, @ProviderError, 1;
     END CATCH;
     EXEC [toolbelt_filesystem].[USP_InternalRouteResult]
