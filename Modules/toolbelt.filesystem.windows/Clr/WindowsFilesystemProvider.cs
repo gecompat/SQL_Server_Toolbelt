@@ -125,12 +125,22 @@ namespace Toolbelt.Filesystem.Windows
         public static void ListDirectory(string rootAlias, string relativePath, bool recursive, int maxDepth, int maxEntries, string executionIdentity)
         {
             if (maxDepth < 0 || maxEntries < 1) Fail("InvalidListLimit"); Root root = GetRoot(rootAlias, "AllowList"); string start = Resolve(root.RootPath, relativePath, true);
+            List<ListedEntry> entries = new List<ListedEntry>();
             RunAs(executionIdentity, delegate
             {
-                AssertNoReparsePoint(root.RootPath, start); SqlDataRecord row = Record("EntryOrdinal", SqlDbType.BigInt, "RelativePath", SqlDbType.NVarChar, 4000, "EntryType", SqlDbType.VarChar, 16, "SizeBytes", SqlDbType.BigInt, "LastWriteTimeUtc", SqlDbType.DateTime2, "IsReparsePoint", SqlDbType.Bit); SqlContext.Pipe.SendResultsStart(row);
-                try { long ordinal = 0; foreach (string item in Enumerate(start, recursive, maxDepth)) { if (++ordinal > maxEntries) Fail("EntryLimitExceeded"); FileAttributes attributes = File.GetAttributes(item); bool isDirectory = (attributes & FileAttributes.Directory) != 0, isReparse = (attributes & FileAttributes.ReparsePoint) != 0; row.SetInt64(0, ordinal); row.SetString(1, Relative(root.RootPath, item)); row.SetString(2, isDirectory ? "directory" : "file"); row.SetInt64(3, isDirectory ? 0 : new FileInfo(item).Length); row.SetDateTime(4, isDirectory ? Directory.GetLastWriteTimeUtc(item) : File.GetLastWriteTimeUtc(item)); row.SetBoolean(5, isReparse); SqlContext.Pipe.SendResultsRow(row); } }
-                finally { SqlContext.Pipe.SendResultsEnd(); }
+                AssertNoReparsePoint(root.RootPath, start); long ordinal = 0;
+                foreach (string item in Enumerate(start, recursive, maxDepth))
+                {
+                    if (++ordinal > maxEntries) Fail("EntryLimitExceeded");
+                    FileAttributes attributes = File.GetAttributes(item);
+                    bool isDirectory = (attributes & FileAttributes.Directory) != 0, isReparse = (attributes & FileAttributes.ReparsePoint) != 0;
+                    entries.Add(new ListedEntry { Ordinal = ordinal, RelativePath = Relative(root.RootPath, item), EntryType = isDirectory ? "directory" : "file", SizeBytes = isDirectory ? 0 : new FileInfo(item).Length, LastWriteTimeUtc = isDirectory ? Directory.GetLastWriteTimeUtc(item) : File.GetLastWriteTimeUtc(item), IsReparsePoint = isReparse });
+                }
             });
+            SqlDataRecord row = Record("EntryOrdinal", SqlDbType.BigInt, "RelativePath", SqlDbType.NVarChar, 4000, "EntryType", SqlDbType.VarChar, 16, "SizeBytes", SqlDbType.BigInt, "LastWriteTimeUtc", SqlDbType.DateTime2, "IsReparsePoint", SqlDbType.Bit);
+            SqlContext.Pipe.SendResultsStart(row);
+            try { foreach (ListedEntry entry in entries) { row.SetInt64(0, entry.Ordinal); row.SetString(1, entry.RelativePath); row.SetString(2, entry.EntryType); row.SetInt64(3, entry.SizeBytes); row.SetDateTime(4, entry.LastWriteTimeUtc); row.SetBoolean(5, entry.IsReparsePoint); SqlContext.Pipe.SendResultsRow(row); } }
+            finally { SqlContext.Pipe.SendResultsEnd(); }
         }
 
         [SqlProcedure]
@@ -145,8 +155,7 @@ namespace Toolbelt.Filesystem.Windows
         }
 
         private static Root GetRoot(string alias, string requiredFlag) { if (String.IsNullOrWhiteSpace(alias)) Fail("RootAliasRequired"); using (SqlConnection connection = new SqlConnection("context connection=true")) using (SqlCommand command = connection.CreateCommand()) { command.CommandText = "SELECT RootPath, WorkPath FROM toolbelt_filesystem.FileSystemRoot WHERE RootAlias = @Alias AND IsActive = 1 AND " + requiredFlag + " = 1;"; command.Parameters.Add("@Alias", SqlDbType.NVarChar, 128).Value = alias; connection.Open(); using (SqlDataReader reader = command.ExecuteReader()) { if (!reader.Read()) Fail("RootNotAuthorized"); return new Root { RootPath = reader.GetString(0), WorkPath = reader.IsDBNull(1) ? null : reader.GetString(1) }; } } }
-        private static void RunAs(string mode, Action action) { if (String.Equals(mode, "ServiceAccount", StringComparison.Ordinal)) { action(); return; } if (!String.Equals(mode, "Caller", StringComparison.Ordinal)) Fail("InvalidExecutionIdentity"); if (!CallerUsesWindowsAuthentication()) Fail("CallerWindowsAuthenticationRequired"); WindowsIdentity identity = SqlContext.WindowsIdentity; if (identity == null) Fail("CallerIdentityUnavailable"); WindowsImpersonationContext context = null; try { context = identity.Impersonate(); action(); } finally { if (context != null) context.Undo(); } }
-        private static bool CallerUsesWindowsAuthentication() { using (SqlConnection connection = new SqlConnection("context connection=true")) using (SqlCommand command = connection.CreateCommand()) { command.CommandText = "SELECT CONVERT(varchar(1), type) FROM sys.server_principals WHERE name = ORIGINAL_LOGIN();"; connection.Open(); object value = command.ExecuteScalar(); return value != null && value != DBNull.Value && (String.Equals(Convert.ToString(value), "U", StringComparison.Ordinal) || String.Equals(Convert.ToString(value), "G", StringComparison.Ordinal)); } }
+        private static void RunAs(string mode, Action action) { if (String.Equals(mode, "ServiceAccount", StringComparison.Ordinal)) { action(); return; } if (!String.Equals(mode, "Caller", StringComparison.Ordinal)) Fail("InvalidExecutionIdentity"); WindowsIdentity identity = SqlContext.WindowsIdentity; if (identity == null) Fail("CallerWindowsAuthenticationRequired"); WindowsImpersonationContext context = null; try { context = identity.Impersonate(); action(); } finally { if (context != null) context.Undo(); } }
         private static Encoding StrictEncoding(string name) { if (String.IsNullOrWhiteSpace(name)) Fail("EncodingRequired"); try { return Encoding.GetEncoding(name, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback); } catch (ArgumentException) { Fail("UnsupportedEncoding"); return null; } }
         private static string Resolve(string rootPath, string relativePath, bool allowEmpty) { if (String.IsNullOrWhiteSpace(rootPath) || relativePath == null || (!allowEmpty && relativePath.Length == 0)) Fail("InvalidPath"); if (Path.IsPathRooted(relativePath) || relativePath.IndexOf(':') >= 0) Fail("AbsolutePathForbidden"); string root = Path.GetFullPath(rootPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), candidate = Path.GetFullPath(Path.Combine(root, relativePath)); if (!candidate.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) && !Same(root, candidate)) Fail("PathOutsideRoot"); return candidate; }
         private static void AssertNoReparsePoint(string rootPath, string candidate) { string root = Path.GetFullPath(rootPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar); string current = root; if (Directory.Exists(current) && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0) Fail("ReparsePointForbidden"); foreach (string part in Relative(root, candidate).Split(new[] {'\\', '/'}, StringSplitOptions.RemoveEmptyEntries)) { current = Path.Combine(current, part); if ((Directory.Exists(current) || File.Exists(current)) && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0) Fail("ReparsePointForbidden"); } }
@@ -159,6 +168,7 @@ namespace Toolbelt.Filesystem.Windows
         private static bool Same(string left, string right) { return String.Equals(Path.GetFullPath(left).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), Path.GetFullPath(right).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), StringComparison.OrdinalIgnoreCase); }
         private static void Fail(string code) { throw new InvalidOperationException("TBXFS:" + code); }
         private sealed class Root { public string RootPath; public string WorkPath; }
+        private sealed class ListedEntry { public long Ordinal; public string RelativePath; public string EntryType; public long SizeBytes; public DateTime LastWriteTimeUtc; public bool IsReparsePoint; }
         private sealed class PathDepth { public string Path; public int Depth; }
     }
 }
