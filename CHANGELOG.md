@@ -308,7 +308,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-27 Module sind implementiert. 2 sind `validated`, 25 sind `partially
+28 Module sind implementiert. 2 sind `validated`, 26 sind `partially
 validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

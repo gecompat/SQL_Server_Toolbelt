@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. 27 Module sind implementiert;
+Der Repository-Grundaufbau ist abgeschlossen. 28 Module sind implementiert;
 für alle existieren statische sowie synthetische Runtime- und
 Lifecycle-Contract-Testartefakte.
 
@@ -101,6 +101,7 @@ Text-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall erfolgreich.
 | `toolbelt.json.path-exists` | [JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.json.path-exists/Tests/JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.core.console-message` | [CONSOLE_MESSAGE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.console-message/Tests/CONSOLE_MESSAGE_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
 | `toolbelt.metadata.capability-catalog` | [CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.metadata.capability-catalog/Tests/CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md) | `partially validated`; SQL Server 2025 Linux und Compatibility 150/160/170 erfolgreich |
+| `toolbelt.tsql.script-parser` | [TSQL_SCRIPT_PARSER_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.tsql.script-parser/Tests/TSQL_SCRIPT_PARSER_CONTRACT_TEST_MATRIX.md) | `partially validated`; .NET 4.8 Build und statische Verträge validiert |
 
 Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 

@@ -100,6 +100,8 @@ sources_of_truth:
   regex_module_design: Documentation/Architecture/REGEX_MODULE_DESIGN.md
   regex_runtime_workflow: .github/workflows/regex-runtime.yml
   regex_module: Modules/toolbelt.string.regex/module.yaml
+  tsql_script_parser_module_design: Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md
+  tsql_script_parser_module: Modules/toolbelt.tsql.script-parser/module.yaml
   migration_idempotency_verifier_design: Documentation/Architecture/MIGRATION_IDEMPOTENCY_VERIFIER_DESIGN.md
   migration_idempotency_workflow: .github/workflows/q1-migration-idempotency.yml
   roadmap: .ai/ROADMAP.md
@@ -284,6 +286,7 @@ module_registry:
     - Modules/toolbelt.file.content/module.yaml
     - Modules/toolbelt.archive.zip-memory/module.yaml
     - Modules/toolbelt.filesystem.windows/module.yaml
+    - Modules/toolbelt.tsql.script-parser/module.yaml
 
 change_impact:
   strategy: diff_first_registered_dependencies
@@ -641,6 +644,13 @@ change_impact:
         - Documentation/Standards/USP_CONTRACT.md
         - Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md
         - .github/workflows/windows-filesystem-build.yml
+      checks:
+        - markdown_links
+    tsql_script_parser_contract:
+      paths:
+        - Modules/toolbelt.tsql.script-parser/**
+        - Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md
+        - Documentation/Research/TSQL_SCRIPTDOM_PROVIDER_SPIKE.md
       checks:
         - markdown_links
     w2c_contracts:

@@ -231,7 +231,7 @@ Diese Treffer erzeugen bewusst keine Duplikate.
 | `RI-2026-137` | Golden-/Snapshot-Resultset-Vergleich | Resultsets kanonisieren und mit einer synthetischen erwarteten Fassung vergleichen; tolerante Felder deklarieren. | `SRC-JCS`, `SRC-DBT-UTILS` |
 | `RI-2026-138` | Contract-Test-Generator | Parameter-, Help-, Resultset-, Fehler- und KeepData-Verträge eines Toolbelt-Objekts in Testfälle übersetzen. | `SRC-DBT-UTILS` |
 | `RI-2026-139` | Provider-Abstraktion für zweite Sessions | `tSQLt.NewConnection`, Service Broker, SQL Agent oder externe Runner hinter einem Capability-Vertrag vergleichen. | `SRC-PERSONAL` |
-| `RI-2026-140` | T-SQL AST Parse/Lint/Rewrite | ScriptDOM-artigen Provider für sichere Identifier-Analyse, DDL-Inspection und begrenzte Transformation einsetzen. | `SRC-SCRIPTDOM` |
+| `RI-2026-140` | T-SQL AST Parse/Lint/Rewrite | ScriptDOM-artigen Provider für sichere Identifier-Analyse, DDL-Inspection und begrenzte Transformation einsetzen. Am 2026-09-03 als `TC-2026-047` formalisiert. | `SRC-SCRIPTDOM` |
 | `RI-2026-141` | SQL Formatter | Syntaxbaum-basiertes, idempotentes Formatting mit erhaltenen Kommentaren und konfigurierbarem Stil. | `SRC-SCRIPTDOM` |
 | `RI-2026-142` | Migration Idempotency Verifier | Deploy/Upgrade/Uninstall wiederholt in synthetischen Zuständen ausführen und Drift strukturiert melden. | `SRC-DBT-UTILS` |
 

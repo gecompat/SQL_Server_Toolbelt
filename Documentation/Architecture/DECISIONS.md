@@ -420,3 +420,16 @@ bleibt ein separater Release-Nachweis.
 | Auswirkungen | Historische Referenzen werden nicht umgedeutet, wiederverwendet oder aus dieser Integration heraus migriert. Vor der Einführung einer neuen finalen Referenzfamilie oder eines neuen automatisierten Allocators muss eine gesonderte Architekturentscheidung eine Registration Authority je überlappendem Scope sowie `DIRECT` oder `DEFERRED`, Kollisionsschutz, Recovery und dauerhafte Historie festlegen. Die hier übernommene Policy ist bis dahin ergänzende Governance und keine Ermächtigung, Sequenznummern aus Markdown, Git-Historie oder Modellgedächtnis zu erraten. |
 | Alternativen | Retroaktive UUID-/Präfixmigration, stillschweigende Fortsetzung einer vermuteten Vergaberegel, Auswahl der optionalen Python-/PowerShell-Clients ohne Projektentscheidung |
 | Betroffene Verträge | `.ai/foundation/PERSISTENT_IDENTITY_POLICY.md`, `.ai/foundation/ARTIFACT_REGISTRATION_POLICY.md`, `.ai/foundation/schemas/`, `.ai/repo_map.yaml`, `DEC-2026-026`, `Backlog/CANDIDATE_TEMPLATE.md`, `.github/agents/backlog-curator.agent.md` |
+
+## DEC-2026-029: T-SQL Script Parser Modularchitektur und Providerentscheidung
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-09-03 |
+| Status | accepted |
+| Entscheidung | Ein neues Modul `toolbelt.tsql.script-parser` wird im Schema `toolbelt_tsql` eingerichtet. Öffentliche Schnittstellen werden als CLR-Table-Valued-Functions (TVFs) für Knoten, Knoteneigenschaften, Tokenstrom und Parse-Fehler bereitgestellt. Als Parserkern wird `Microsoft.SqlServer.TransactSql.ScriptDom` (.NET Framework 4.8) evaluiert und eingesetzt. Das Modul liefert ausschließlich neutrale syntaktische Zerlegung (AST/Tokens/Fehler) ohne semantische Namens-/Aliasauflösung und ohne Code-Analyse (`DEC-2026-011`). |
+| Begründung | Für das geplante semantische Umschreiben von SQL-Statements auf Framework-GUIDs sowie die sichere DDL-Inspektion (`DEC-2026-014`) wird ein vollständiger T-SQL-AST benötigt. T-SQL allein kann keine vollständige SQL-Grammatik parsen. `ScriptDom` ist die offizielle Microsoft-Referenz für T-SQL-ASTs. TVFs streamen Zeilen speicherschonend und sind per `CROSS APPLY` direkt in T-SQL-Pipelines komponierbar. |
+| Scope | Modul `toolbelt.tsql.script-parser`, Schema `toolbelt_tsql`, Assembly `Toolbelt_Tsql_ScriptParser` und Drittanbieter-Assembly `Microsoft.SqlServer.TransactSql.ScriptDom` |
+| Auswirkungen | Die Schemakategorie `toolbelt_tsql` und der Assemblyname `Toolbelt_Tsql_ScriptParser` werden autorisiert. Das Deployment verwaltet ggf. zwei Assemblies mit SHA2-512-Trust. Vor Modul-Release wird die Ladbarkeit unter `SAFE` bzw. `EXTERNAL_ACCESS`/`UNSAFE` sowie auf Linux/Windows in einem Spike nachgewiesen. |
+| Alternativen | Reiner T-SQL-Parser (nicht grammatikvollständig), reiner Tokenizer ohne AST (für AST-Analyse unzureichend), Stored Procedures mit Temp-Tabellen (nicht per TVF/CROSS APPLY komponierbar), externes Parsen außerhalb der Datenbank. |
+| Betroffene Verträge | `SQL_OBJECT_NAMING.md`, `CLR_SECURITY_AND_PORTABILITY.md`, `THIRD_PARTY_AND_SOURCE_POLICY.md`, `TC-2026-047`, `.ai/BACKLOG.md`, `.ai/repo_map.yaml` |
