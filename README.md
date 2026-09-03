@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 27 Module implementiert – 25 teilweise validiert](https://img.shields.io/badge/Status-27%20Module%20implementiert%20%7C%2025%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 28 Module implementiert – 26 teilweise validiert](https://img.shields.io/badge/Status-28%20Module%20implementiert%20%7C%2026%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 27 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
+**Der Repository-Grundaufbau ist abgeschlossen. 28 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)
@@ -220,6 +220,14 @@ ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem `WorkPath`.
 Windows-Authentication-,
 NTFS-ACL- und weitere I/O-Tests bleiben `not executed`; Linux ist nicht
 anwendbar.
+
+Das implementierte Windows-only Modul
+[`toolbelt.tsql.script-parser`](./Modules/toolbelt.tsql.script-parser/README.md)
+stellt deterministische, rein lesende SQL-CLR Table-Valued Functions auf Basis
+von Microsoft ScriptDom (.NET Framework 4.8) bereit, um T-SQL-Statements
+syntaktisch in AST-Knoten, Knoteneigenschaften, einen verlustfreien Tokenstrom
+und strukturierte Fehlerlisten zu zerlegen. Der Modulstatus ist
+`partially validated` und `unreleased`; Linux ist nicht anwendbar.
 
 ## Modulprinzip
 

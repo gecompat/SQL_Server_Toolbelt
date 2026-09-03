@@ -2,9 +2,26 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-27 Module sind implementiert. 2 sind `validated`, 25 sind `partially validated`; 0 sind `not executed`.
+28 Module sind implementiert. 2 sind `validated`, 26 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
+
+### P1a: T-SQL Script Parser und AST-Provider
+
+| Feld | Wert |
+|---|---|
+| ID | `P1a`; konkretisiert `TC-2026-047`, keine neue sequenzielle `AP`-Referenz ohne reguläre Vergabe |
+| Ziel | Einen deterministischen, rein lesenden In-Database-T-SQL-Parser auf Basis von Microsoft ScriptDom (.NET Framework 4.8) als SQL-CLR Table-Valued Functions (TVFs) für AST-Knoten, Knoteneigenschaften, Tokenstrom und Parse-Fehler bereitstellen. |
+| Scope | Modul `toolbelt.tsql.script-parser` 1.0.0 mit `TVF_ParseScriptNodes`, `TVF_ParseScriptNodeProperties`, `TVF_TokenizeScript` und `TVF_ParseScriptErrors`. Schema `toolbelt_tsql`, Assembly `Toolbelt_Tsql_ScriptParser`. Keine automatische GUID-Ersetzung und keine semantische Namensauflösung im Kernmodul. |
+| Provider | C# .NET Framework 4.8 Assembly mit ScriptDom-Integration, SHA2-512-Trust, kein Datenzugriff (`DataAccessKind.None`), harte Limits für Eingabegröße und Schachtelungstiefe. |
+| Priorität | `P1` |
+| Status | `active` |
+| Alternativen | Reiner T-SQL-Parser (nicht grammatikvollständig), reiner Tokenizer ohne AST, Stored Procedures mit Temp-Tabellen und externes Parsen außerhalb der Datenbank wurden verworfen. |
+| Risiken und Grenzen | Permission Set (`SAFE` vs. `UNSAFE`) und Linux-Fähigkeit hängen vom Spike-Ergebnis der ScriptDom-Assembly ab; tiefe Rekursion erfordert Stack-Overflow-Wächter vor dem Parsen; jede TVF parst erneut (kein veränderlicher Cache-Zustand). |
+| Benutzerfreigabe | Zweck, Signatur, Fehlervertrag, Risiken und Scope wurden am 2026-09-03 besprochen. Der Benutzer hat die Umsetzung anschließend mit „halte den Plan im Repository fest und starte im Anschluss mit der Implementierung“ ausdrücklich freigegeben. |
+| Tests | Spike zu ScriptDom-Ladbarkeit, statische Vertragsprüfung, synthetische AST- und Token-Golden-Tests (SELECT, JOIN, CTE, MERGE, DDL, Kommentare, `GO`), Roundtrip-Tokens, Fehlerbehandlung, Lifecycle-, Deployment- und Kollisionstests. |
+| Evidenz | `Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md`, `Documentation/Architecture/DECISIONS.md` (`DEC-2026-029`), `Backlog/TOOLBELT_CANDIDATES.md` (`TC-2026-047`). |
+| Nächster Schritt | Spike-Prototyp und Modul-Scaffolding umsetzen. |
 
 ### V0a/V0b/V0c: Releasevalidierung und erste Releasekohorte
 

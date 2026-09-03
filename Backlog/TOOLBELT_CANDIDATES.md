@@ -1081,3 +1081,27 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Primärquellen** | [Research-Inbox `RI-2026-139`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://tsqlt.org/125/tsqlt-build-9-release-notes/<br>https://github.com/tSQLt-org/tSQLt/blob/4a921d0dacfb1d66b3db124c58158c80e5e910e6/tSQLtCLR/tSQLtCLR/CommandExecutor.cs |
 | **Prüfdatum** | 2026-07-30 |
 | **Nächster Schritt** | Den implementierten synchronen Loopback-Vertrag physisch auf SQL Server 2019/2022 und Windows validieren. Weitere Agent-, Broker- oder Worker-Provider nur nach eigenem Bedarf, Vertrag und Freigabe planen. |
+
+## TC-2026-047: T-SQL Script Parser und AST-Provider
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-047` |
+| **Herkunft** | `RI-2026-140` |
+| **Titel** | T-SQL Script Parser und AST-Provider |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | T-SQL / Metadata |
+| **SQL-Server-Lücke** | SQL Server besitzt keinen nativen In-Database-Vertrag, der beliebigen T-SQL-Code syntaktisch vollständig als Abstract Syntax Tree (AST), Tokenstrom oder strukturierte Fehlerliste in tabellarischer Form (TVF) bereitstellt. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Spätere native Funktion** | Nein. |
+| **Use-Case-Typ** | Realistisch als Infrastruktur für AST-Inspektion, DDL-Analyse, Identifier-Extraktion und Token-Rewriting |
+| **Nutzen** | T-SQL-Statements können syntaktisch exakt in Knoten, skalare Knoteneigenschaften und verlustfreie Tokenlisten zerlegt werden. Dient als Unterbau für Code-Transformationen (z. B. Identifier-Rewriting auf Framework-GUIDs), sichere DDL-Validierung (`@CreateStmt` in `toolbelt.core.result-table`) und Metadaten-Extraktion. |
+| **Mögliche Technologie** | SQL CLR Table-Valued Functions auf Basis von `Microsoft.SqlServer.TransactSql.ScriptDom` (.NET Framework 4.8) oder fallbackartigem Tokenizer. |
+| **Performance und Security** | Maximale Eingabelänge (z. B. 2 MiB / UTF-16), maximale Rekursionstiefe (Stack-Overflow-Wächter), deterministischer Timeout, keine Seiteneffekte, kein Datenbankzugriff (`DataAccessKind.None`), Syntaxfehler als Datenzeilen statt Engine-Abbrüchen. |
+| **Plattformgrenzen** | Windows und Linux; Abhängigkeit vom minimal erforderlichen CLR-Permission-Set von ScriptDom (SAFE vs. EXTERNAL_ACCESS/UNSAFE) im Spike zu verifizieren. |
+| **Dependencies** | Keine Modulabhängigkeit für die Kern-TVFs. `toolbelt.metadata.identifier` (`TC-2026-029`) bleibt kanonischer Parser für isolierte Multipart-Namen; semantische Namens- und Aliasauflösung bleibt ein getrennter Folgelayer. |
+| **Duplikatprüfung** | `TC-2026-029` zerlegt ausschließlich isolierte Multipart-Namen, keine Statements. `TC-2026-003` verweist auf ScriptDom als spätere DDL-Erweiterung. Analyze-Assessments (`DEC-2026-011`) bleiben ausgeschlossen. |
+| **Status** | `ready for development` |
+| **Primärquellen** | [Research-Inbox `RI-2026-140`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Microsoft SqlScriptDOM](https://github.com/microsoft/SqlScriptDOM)<br>[NuGet: Microsoft.SqlServer.TransactSql.ScriptDom](https://www.nuget.org/packages/Microsoft.SqlServer.TransactSql.ScriptDom) |
+| **Prüfdatum** | 2026-09-03 |
+| **Nächster Schritt** | Spike zur ScriptDom-Ladbarkeit und Performance abschließen; Moduldesign und CLR-TVFs implementieren. |
