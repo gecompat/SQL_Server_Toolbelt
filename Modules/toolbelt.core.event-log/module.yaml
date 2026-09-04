@@ -2,7 +2,7 @@ module_id: "toolbelt.core.event-log"
 module_name: "Rollback-independent Event Log"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: validated
 release_status: unreleased
 description: "Persistiert strukturierte Events synchron in einer zweiten SQL-Server-Session, unabhängig von Commit oder Rollback der Caller-Transaktion."
 sql_server_versions:
@@ -14,13 +14,13 @@ compatibility_levels:
   - 160
   - 170
 platforms:
-  windows: "not executed"
-  linux: "partially validated"
+  windows: validated
+  linux: validated
 providers:
   - id: loopback-rpc
     technology: "T-SQL linked-server RPC via toolbelt.core.second-session"
     platforms: [Windows, Linux]
-    status: implemented
+    status: validated
 deployment_capabilities:
   local: true
   central: true
@@ -103,4 +103,8 @@ validation_evidence:
   - date: "2026-09-01"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w5b-event-log-runtime.yml"
     scope: "GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; erstmals auf allen drei Zielversionen erfolgreich, nachdem der Testadapter den Loopback-Provider versionsabhängig konfiguriert"
+    result: "success"
+  - date: "2026-09-01"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; Provider-Probe, Caller-Rollback, uncommittable Caller, Kontext, Validierung, Retention, Konkurrenz, zentrales Deployment, Lifecycle und Uninstall"
     result: "success"

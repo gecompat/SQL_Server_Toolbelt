@@ -13,7 +13,7 @@
 - Redeploy erhält Events und Work-Type-Registrierung
 - lokale und zentrale Installation
 - Uninstall verweigert stillen Datenverlust und entfernt den eigenen Work Type
-- Windows und physische SQL-Server-2019-/2022-Läufe bleiben `not executed`
+- physische SQL-Server-2019-/2022-/2025-Ziele unter Windows base und Linux latest
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410
 
@@ -21,7 +21,7 @@ Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/3101828441
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-09-01`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w5b-event-log-runtime.yml`
-- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; erstmals auf allen drei Zielversionen erfolgreich, nachdem der Testadapter den Loopback-Provider versionsabhängig konfiguriert
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; Provider-Probe, Caller-Rollback, uncommittable Caller, Kontext, Validierung, Retention, Konkurrenz, zentrales Deployment, Lifecycle und Uninstall
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

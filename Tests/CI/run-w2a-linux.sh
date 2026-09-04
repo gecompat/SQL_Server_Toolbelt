@@ -102,6 +102,10 @@ for level in ${compatibility_levels}; do
     BitOperations.Contract.sql -v CompatibilityLevel="${level}"
 done
 
+run_file "${database}" \
+  /workspace/Modules/toolbelt.datetime.bucket/Tests/Runtime \
+  Optimizer.Workload.sql
+
 deploy_modules "${database}" local
 run_lifecycle "${database}"
 
@@ -148,5 +152,27 @@ IF OBJECT_ID(N'toolbelt_datetime.TVF_TruncateDate') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_binary.TVF_GetBitBigInt') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_binary.TVF_SetBitBigInt') IS NOT NULL
     THROW 52899, N'Central Uninstall ließ W2a-Objekte zurück.', 1;"
+
+collision_database=tbx_w2a_collision
+run_query master "CREATE DATABASE [${collision_database}] COLLATE Latin1_General_100_CS_AS;"
+run_query "${collision_database}" "CREATE SCHEMA toolbelt_datetime;"
+run_query "${collision_database}" "CREATE SCHEMA toolbelt_binary;"
+run_query "${collision_database}" "CREATE FUNCTION toolbelt_datetime.TVF_TruncateDate(@Value int) RETURNS TABLE AS RETURN SELECT @Value AS ForeignValue;"
+run_query "${collision_database}" "CREATE FUNCTION toolbelt_datetime.TVF_DateBucketDate(@Value int) RETURNS TABLE AS RETURN SELECT @Value AS ForeignValue;"
+run_query "${collision_database}" "CREATE FUNCTION toolbelt_binary.TVF_LeftShiftBigInt(@Value int) RETURNS TABLE AS RETURN SELECT @Value AS ForeignValue;"
+
+set +e
+truncate_collision_output="$(run_file "${collision_database}" /workspace/Modules/toolbelt.datetime.truncate/Deployment Deploy.sql -v DeploymentMode=local 2>&1)"
+truncate_collision_rc=$?
+bucket_collision_output="$(run_file "${collision_database}" /workspace/Modules/toolbelt.datetime.bucket/Deployment Deploy.sql -v DeploymentMode=local 2>&1)"
+bucket_collision_rc=$?
+bit_collision_output="$(run_file "${collision_database}" /workspace/Modules/toolbelt.binary.bit-operations/Deployment Deploy.sql -v DeploymentMode=local 2>&1)"
+bit_collision_rc=$?
+set -e
+
+[[ "${truncate_collision_rc}" -ne 0 && "${truncate_collision_output}" == *"51234"* ]] || { echo 'Truncate-Kollisionspreflight ist fehlgeschlagen.' >&2; exit 1; }
+[[ "${bucket_collision_rc}" -ne 0 && "${bucket_collision_output}" == *"51244"* ]] || { echo 'Bucket-Kollisionspreflight ist fehlgeschlagen.' >&2; exit 1; }
+[[ "${bit_collision_rc}" -ne 0 && "${bit_collision_output}" == *"51254"* ]] || { echo 'Bit-Operations-Kollisionspreflight ist fehlgeschlagen.' >&2; exit 1; }
+run_query "${collision_database}" "IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class=0 AND name IN (N'Toolbelt.Module.toolbelt.datetime.truncate.Version',N'Toolbelt.Module.toolbelt.datetime.bucket.Version',N'Toolbelt.Module.toolbelt.binary.bit-operations.Version')) THROW 52900,N'Ein abgelehntes W2a-Deployment hinterließ einen Modulmarker.',1;"
 
 echo "W2a SQL Server ${sql_version} (Compatibility ${compatibility_levels}): erfolgreich"

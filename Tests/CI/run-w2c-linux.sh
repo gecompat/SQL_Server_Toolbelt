@@ -97,6 +97,10 @@ for level in ${compatibility_levels}; do
     ModuleCapabilities.Contract.sql -v CompatibilityLevel="${level}"
 done
 
+run_file "${database}" \
+  /workspace/Modules/toolbelt.metadata.capability-catalog/Tests/Runtime \
+  MetadataVisibility.Contract.sql
+
 set +e
 console_output="$(
   docker exec \

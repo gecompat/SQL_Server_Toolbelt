@@ -113,6 +113,7 @@ def main() -> int:
     if (
         'validation_status: "not executed"' not in manifest
         and 'validation_status: "partially validated"' not in manifest
+        and "validation_status: validated" not in manifest
     ):
         raise ContractError("Manifest enthält keinen zulässigen Validierungsstatus.")
 

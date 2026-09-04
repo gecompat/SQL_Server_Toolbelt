@@ -2,7 +2,7 @@ module_id: "toolbelt.datetime.truncate"
 module_name: "Date/Time Truncation Compatibility"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: validated
 release_status: unreleased
 description: "Stellt DATETRUNC-kompatible typgetrennte Inline TVFs für SQL Server 2019+ bereit."
 sql_server_versions:
@@ -11,13 +11,13 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150,160,170]
 platforms:
-  windows: "not executed"
-  linux: "partially validated"
+  windows: validated
+  linux: validated
 providers:
   - id: tsql-inline
     technology: T-SQL Inline TVF
     platforms: [Windows,Linux]
-    status: implemented
+    status: validated
 deployment_capabilities:
   local: true
   central: true
@@ -97,4 +97,8 @@ validation_evidence:
   - date: "2026-09-01"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2a-portable-runtime.yml"
     scope: "GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger W2a-Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels"
+    result: "success"
+  - date: "2026-09-01"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger Moduladapter einschließlich nativer Parität, Kollisionsschutz, Lifecycle und Uninstall"
     result: "success"

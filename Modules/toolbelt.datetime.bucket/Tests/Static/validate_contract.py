@@ -15,6 +15,7 @@ required = [
     "Tests/DATETIME_BUCKET_CONTRACT_TEST_MATRIX.md",
     "Tests/README.md",
     "Tests/Runtime/DateTimeBucket.Contract.sql",
+    "Tests/Runtime/Optimizer.Workload.sql",
     "Tests/Runtime/Lifecycle.Contract.sql",
     "Tests/Runtime/Central.Contract.sql",
     "module.yaml",

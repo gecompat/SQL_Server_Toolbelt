@@ -111,6 +111,44 @@ ausgeführt werden; fehlende Runner ergeben keinen grünen Nachweis.
 
 ## Aktueller Stand
 
+Am 2026-09-01 waren die vollständigen automatisierten Adapter auf physischen
+SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest
+erfolgreich. Von 27 implementierten Modulen sind 20 `validated`, 7
+`partially validated` und 0 `not executed`; alle bleiben `unreleased`.
+
+`validated` sind `toolbelt.binary.bit-operations`,
+`toolbelt.conversion.integer-base`, `toolbelt.conversion.uri-component`,
+`toolbelt.core.error-envelope`, `toolbelt.core.event-log`,
+`toolbelt.core.execution-context`, `toolbelt.core.second-session`,
+`toolbelt.core.work-queue`, `toolbelt.core.work-type`,
+`toolbelt.datetime.bucket`, `toolbelt.datetime.calendar-difference`,
+`toolbelt.datetime.date-spine`, `toolbelt.datetime.truncate`,
+`toolbelt.json.path-exists`, `toolbelt.metadata.capability-catalog`,
+`toolbelt.metadata.identifier`, `toolbelt.string.directional-trim`,
+`toolbelt.string.regex`, `toolbelt.string.split-characters` und
+`toolbelt.validation.semantic-version`.
+
+Die sieben `partially validated`-Module bleiben bewusst begrenzt:
+
+- `toolbelt.core.result-table`: vergleichbare plattformübergreifende
+  Performance-Baseline;
+- `toolbelt.conversion.base64`: breitere Large-LOB-Performance-Evidenz;
+- `toolbelt.core.generate-series`: breitere Very-large-series-
+  Performance-Evidenz;
+- `toolbelt.core.console-message`: zusätzliche Client-/Treiber-, Buffering-
+  und Framing-Evidenz;
+- `toolbelt.file.content`: separat bereitgestellte serverseitige Fixtures und
+  nicht-ASCII-spezifische Providergrenzen;
+- `toolbelt.archive.zip-memory`: reale Archive, echte Extremgrößen,
+  historische Upgrades und Interoperabilität;
+- `toolbelt.filesystem.windows`: Caller-Impersonation, NTFS-ACLs und die
+  breitere manuelle I/O-Matrix.
+
+### Historischer Stand vom 2026-08-29
+
+Die folgenden Aussagen dokumentieren den damaligen Zwischenstand und sind
+durch den Stand vom 2026-09-01 ersetzt.
+
 Am 2026-08-29 waren die vollständigen Adapter aller 16 V0c-Module auf
 physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich. Die
 folgenden Modulstatus bleiben dennoch `partially validated`, weil Windows-

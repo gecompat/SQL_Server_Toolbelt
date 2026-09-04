@@ -2,7 +2,7 @@
 
 ## Status
 
-`toolbelt.core.second-session` Version `1.1.0` ist implementiert. Der Loopback-RPC-Provider ist auf SQL Server 2025 Linux technisch validiert; die vollständige Modulmatrix wird getrennt nachgeführt.
+`toolbelt.core.second-session` Version `1.1.0` ist implementiert und `validated`. Der vollständige Adapter ist auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich.
 
 Die manuelle Windows-Validierung über `System.Data.SqlClient` war am 2026-08-04 auf SQL Server 2025 erfolgreich; sie umfasste lokale und zentrale Bereitstellung, den Collation-übergreifenden Abgleich mit `master.sys.servers`, Provider-Probe, Contract-, Concurrency-, Central- und Lifecycle-Tests sowie geschützten und vollständigen Uninstall.
 
@@ -44,7 +44,7 @@ Evidenz Version `1.1.0`: https://github.com/gecompat/SQL_Server_Toolbelt/actions
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-09-01`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w5a-second-session-runtime.yml`
-- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; erstmals auf allen drei Zielversionen erfolgreich, nachdem der Testadapter den Loopback-Provider versionsabhängig konfiguriert
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; Provider-Probe, separate SPID, Caller-Rollback, uncommittable Caller, Fehlerrollback, Konkurrenz, zentrales Deployment, Lifecycle und Uninstall
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

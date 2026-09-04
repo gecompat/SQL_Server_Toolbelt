@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "not executed"
+  windows: "partially validated"
   linux: "partially validated"
 providers:
   - id: clr-zip-memory
@@ -137,4 +137,8 @@ validation_evidence:
   - date: "2026-08-29"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Lokales SQL_Server_Lab; reproduzierbar neu gebautes und per exaktem SHA2-512 autorisiertes Releaseartefakt; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter"
+    result: "success"
+  - date: "2026-09-01"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; reproduzierbar gebautes und per exaktem SHA2-512 autorisiertes Releaseartefakt; reale Archive, Extremgrößen, historische Upgrades und Interoperabilität bleiben offen"
     result: "success"
