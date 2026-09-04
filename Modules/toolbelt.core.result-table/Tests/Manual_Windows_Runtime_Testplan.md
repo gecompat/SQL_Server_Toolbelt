@@ -56,8 +56,8 @@ Keine realen Datenbanknamen, Hostnamen, Konten, Pfade, Screenshots, Hardwaredate
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-29`
+- Datum: `2026-09-01`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter mit lokalen, zentralen, Lifecycle- und Uninstall-Verträgen
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger automatisierter Moduladapter; vergleichbare plattformübergreifende Performance-Baseline bleibt offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

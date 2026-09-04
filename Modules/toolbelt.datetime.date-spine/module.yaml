@@ -2,7 +2,7 @@ module_id: "toolbelt.datetime.date-spine"
 module_name: "Relational Date Spine"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: validated
 release_status: unreleased
 description: "Erzeugt portable Tages-, ISO-Wochen- und Monatsperioden für halboffene date-Bereiche."
 
@@ -17,14 +17,14 @@ compatibility_levels:
   - 170
 
 platforms:
-  windows: "not executed"
+  windows: validated
   linux: "validated"
 
 providers:
   - id: tsql-inline
     technology: T-SQL Inline TVF
     platforms: [Windows, Linux]
-    status: implemented
+    status: validated
 
 deployment_capabilities:
   local: true
@@ -138,3 +138,7 @@ validation_evidence:
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Explizit ausgewählte SQL-Server-2019-, 2022- und 2025-Windows-Ziele; SQL-Anmeldungs-Preflight"
     result: "not executed; Zielverbindungen waren vor der ersten Testmutation nicht erreichbar"
+  - date: "2026-09-01"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; lokale und zentrale Installation, Compatibility Levels 150/160/170, Semantik, Grenzen, DATEFIRST, Skalierung, Dependency- und Kollisionsschutz, Lifecycle und Uninstall"
+    result: "success"

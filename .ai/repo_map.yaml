@@ -22,6 +22,8 @@ sources_of_truth:
   foundation_ruleset_index: .ai/foundation/repo_map.yaml
   foundation_identity_policy: .ai/foundation/PERSISTENT_IDENTITY_POLICY.md
   foundation_artifact_registration_policy: .ai/foundation/ARTIFACT_REGISTRATION_POLICY.md
+  foundation_upgrade_policy: .ai/foundation/UPGRADE_APPLICABILITY_POLICY.md
+  foundation_rule_context_cache_policy: .ai/foundation/RULE_CONTEXT_CACHE_POLICY.md
   copilot_bridge: .github/copilot-instructions.md
   ai_cost_quality_policy: Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md
   validation_policy: Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
@@ -306,9 +308,18 @@ change_impact:
     - .ai/foundation/SEMANTIC_INTEGRATION_POLICY.md
     - .ai/foundation/PERSISTENT_IDENTITY_POLICY.md
     - .ai/foundation/ARTIFACT_REGISTRATION_POLICY.md
+    - .ai/foundation/CENTRAL_ARTIFACT_REGISTRY_POLICY.md
+    - .ai/foundation/UPGRADE_APPLICABILITY_POLICY.md
+    - .ai/foundation/REPOSITORY_CONTINUITY_POLICY.md
+    - .ai/foundation/RULE_CONTEXT_CACHE_POLICY.md
+    - .ai/foundation/feature_catalog.json
     - .ai/foundation/schemas/artifact-record.schema.json
     - .ai/foundation/schemas/artifact-registry.schema.json
+    - .ai/foundation/schemas/artifact-registry-v2.schema.json
     - .ai/foundation/schemas/artifact-registration-request.schema.json
+    - .ai/foundation/schemas/feature-catalog.schema.json
+    - .ai/foundation/schemas/upgrade-assessment.schema.json
+    - .ai/foundation/schemas/rule-context-cache.schema.json
     - .ai/foundation/WORKING_RULES.md
     - .ai/foundation/MODEL_ROUTING_POLICY.md
     - .ai/foundation/VALIDATION_POLICY.md

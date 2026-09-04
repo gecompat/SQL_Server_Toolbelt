@@ -1,5 +1,7 @@
 # Base64-Contract-Testmatrix
 
+Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich; breitere Large-LOB-Performance-Evidenz bleibt offen. Der Modulstatus bleibt `partially validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen; datierte ältere Einträge bleiben historische Evidenz.
+
 V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
 ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
 Windows- und modulspezifische Fälle bleiben unberührt.
@@ -64,7 +66,7 @@ Ausgaben werden nicht als Repository-Evidenz gespeichert.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-09-01`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/base64-runtime.yml`
-- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger automatisierter Moduladapter; breitere Large-LOB-Performance-Evidenz bleibt offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -1,8 +1,6 @@
 # Work-Type-Testevidenz
 
-V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
-ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
-Windows- und modulspezifische Fälle bleiben unberührt.
+Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 Der Basisvertrag mit Registrierung, Update und `rowversion`, Disable/Reaktivierung, Resolve, ResultTable, vier parallelen Sessions, Redeploy, Central, Lifecycle und Data-Loss-Uninstall-Schutz ist auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170 erfolgreich.
 
@@ -16,7 +14,7 @@ Windows und physische SQL-Server-2019-/2022-Releaseprüfungen bleiben bis zur ta
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-09-01`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w4b-work-type-runtime.yml`
-- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger W4b-Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger W4-Moduladapter mit lokalem und zentralem Deployment, Transaktions-, Konkurrenz-, Lifecycle- und Uninstall-Tests
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

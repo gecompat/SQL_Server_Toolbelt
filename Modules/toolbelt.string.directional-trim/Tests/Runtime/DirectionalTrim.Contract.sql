@@ -8,6 +8,7 @@ IF (SELECT Value FROM toolbelt_string.TVF_TrimDirectionalNvarchar(N'..A..',N'.',
 IF (SELECT Value FROM toolbelt_string.TVF_TrimDirectionalVarchar('..A..','.','BOTH'))<>'A' THROW 52715,N'BOTH ist falsch.',1;
 IF (SELECT Value FROM toolbelt_string.TVF_TrimDirectionalNvarchar(N'%_[A]_%',N'%_[]','BOTH'))<>N'A' THROW 52716,N'Der Zeichensatz wird nicht literal interpretiert.',1;
 IF (SELECT Value FROM toolbelt_string.TVF_TrimDirectionalNvarchar(N'',N'.','BOTH'))<>N'' THROW 52717,N'Der Leerstring ist falsch.',1;
+IF (SELECT Value FROM toolbelt_string.TVF_TrimDirectionalNvarchar(N'..A..',N'','BOTH'))<>N'..A..' THROW 52727,N'Ein leerer Zeichensatz darf keine Zeichen entfernen.',1;
 IF EXISTS(SELECT 1 FROM toolbelt_string.TVF_TrimDirectionalNvarchar(NULL,N'.','BOTH') WHERE Value IS NOT NULL) THROW 52718,N'NULL wird nicht vertragsgemäß weitergegeben.',1;
 IF (SELECT Value FROM toolbelt_string.TVF_TrimDirectionalNvarchar(NCHAR(0)+N'A'+NCHAR(0),NCHAR(0),'BOTH'))<>NCHAR(0)+N'A'+NCHAR(0) THROW 52719,N'NUL darf nicht als Trim-Zeichen behandelt werden.',1;
 IF @CompatibilityLevel>=160

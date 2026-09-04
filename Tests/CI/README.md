@@ -1,8 +1,10 @@
 # CI-Testadapter
 
-V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
-ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
-Windows- und modulspezifische Fälle bleiben unberührt.
+V0-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt die
+vollständige automatisierte Adaptermatrix auf physischen SQL-Server-2019-,
+2022- und 2025-Zielen unter Windows base und Linux latest. Manuelle und
+extern bereitzustellende Spezialfälle bleiben in den jeweiligen
+Modultestmatrizen getrennt ausgewiesen.
 
 Dieses Verzeichnis enthält schlanke Adapter für GitHub-hosted Testläufe. Die fachlichen SQL-Tests verbleiben in den jeweiligen Modulverzeichnissen.
 
@@ -168,38 +170,38 @@ Der [GitHub Actions Run 30692956855](https://github.com/gecompat/SQL_Server_Tool
 Der
 [Base64-Runtime-Lauf 30493304673](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30493304673)
 war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
-erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
-`not executed`.
+erfolgreich. Die ergänzende lokale Windows-/Linux-Matrix 2019/2022/2025 war
+am 2026-09-01 erfolgreich; die breitere Large-LOB-Performance-Evidenz bleibt offen.
 
 Der
 [Generate-Series-Runtime-Lauf 30496759324](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30496759324)
 war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
-erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
-`not executed`.
+erfolgreich. Die ergänzende lokale Windows-/Linux-Matrix 2019/2022/2025 war
+am 2026-09-01 erfolgreich; die breitere Very-large-series-Performance-Evidenz bleibt offen.
 
 Der
 [Identifier-Runtime-Lauf 30514751834](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30514751834)
 war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
-erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
-`not executed`.
+erfolgreich. Die ergänzende lokale Windows-/Linux-Matrix 2019/2022/2025 war
+am 2026-09-01 erfolgreich; das Modul ist `validated`.
 
 Der
 [Split-Characters Runtime Run 30516116708](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30516116708)
 war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
-erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
-`not executed`.
+erfolgreich. Die ergänzende lokale Windows-/Linux-Matrix 2019/2022/2025 war
+am 2026-09-01 erfolgreich; das Modul ist `validated`.
 
 Der
 [Semantic-Version Runtime Run 30517137373](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30517137373)
 war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
-erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
-`not executed`.
+erfolgreich. Die ergänzende lokale Windows-/Linux-Matrix 2019/2022/2025 war
+am 2026-09-01 erfolgreich; das Modul ist `validated`.
 
 Der
 [Integer-Base Runtime Run 30518087070](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30518087070)
 war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
-erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
-`not executed`.
+erfolgreich. Die ergänzende lokale Windows-/Linux-Matrix 2019/2022/2025 war
+am 2026-09-01 erfolgreich; das Modul ist `validated`.
 
 ## Quellen
 
@@ -210,8 +212,8 @@ erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-29`
+- Datum: `2026-09-01`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter mit lokalen, zentralen, Lifecycle- und Uninstall-Verträgen
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger automatisierter Moduladapter; vergleichbare plattformübergreifende Performance-Baseline bleibt offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

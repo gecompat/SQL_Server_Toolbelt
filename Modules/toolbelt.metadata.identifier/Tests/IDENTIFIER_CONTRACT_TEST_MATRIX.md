@@ -1,18 +1,16 @@
 # Contract-Testmatrix `toolbelt.metadata.identifier`
 
-V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
-ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
-Windows- und modulspezifische Fälle bleiben unberührt.
+Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 ## Zielmatrix
 
 | Bereich | SQL Server 2019 | SQL Server 2022 | SQL Server 2025 |
 |---|---|---|---|
-| Compatibility Level 150 | `not executed` | `not executed` | erfolgreich |
-| Compatibility Level 160 | nicht anwendbar | `not executed` | erfolgreich |
+| Compatibility Level 150 | erfolgreich | erfolgreich | erfolgreich |
+| Compatibility Level 160 | nicht anwendbar | erfolgreich | erfolgreich |
 | Compatibility Level 170 | nicht anwendbar | nicht anwendbar | erfolgreich |
-| Windows | `not executed` | `not executed` | `not executed` |
-| Linux | `not executed` | `not executed` | `partially validated` |
+| Windows | erfolgreich | erfolgreich | erfolgreich |
+| Linux | erfolgreich | erfolgreich | erfolgreich |
 
 ## Pflichtfälle
 
@@ -40,7 +38,7 @@ erfolgreich. Physische SQL-Server-2019-/2022- und Windows-Prüfungen bleiben
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-09-01`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/identifier-runtime.yml`
-- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger Moduladapter mit lokalem und zentralem Deployment, Vertrags-, Lifecycle-, Kollisions- und Uninstall-Tests
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

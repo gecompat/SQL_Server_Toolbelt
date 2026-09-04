@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 28 Module implementiert – 26 teilweise validiert](https://img.shields.io/badge/Status-28%20Module%20implementiert%20%7C%2026%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 28 Module implementiert – 8 teilweise validiert](https://img.shields.io/badge/Status-28%20Module%20implementiert%20%7C%208%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,21 +56,22 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 28 Module sind implementiert; Runtime-Evidenz wird pro Modul getrennt ausgewiesen.**
+**Der Repository-Grundaufbau ist abgeschlossen. 28 Module sind implementiert; 20 sind `validated`, 8 sind `partially validated`, alle sind `unreleased`.**
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)
 und
 [`toolbelt.core.execution-context`](./Modules/toolbelt.core.execution-context/README.md).
 Sie standardisieren explizit übergebene Fehlerdaten und verwalten eine
-sessiongebundene Execution-/Correlation-ID ohne persistente Tabellen.
+sessiongebundene Execution-/Correlation-ID ohne persistente Tabellen. Beide
+sind auf Windows/Linux 2019/2022/2025 `validated`.
 
 Der persistente
 [`toolbelt.core.work-type`](./Modules/toolbelt.core.work-type/README.md)
 registriert ausschließlich kontrollierte Stored-Procedure-Work-Types.
 Raw SQL bleibt ausgeschlossen; Änderungen sind über `rowversion`,
 explizite Update-/Reaktivierungsflags und Data-Loss-geschützten Uninstall
-abgesichert.
+abgesichert. Das Modul ist auf Windows/Linux 2019/2022/2025 `validated`.
 
 Die freigegebenen E1a-/E1b-Slices
 [`toolbelt.core.work-queue`](./Modules/toolbelt.core.work-queue/README.md)
@@ -82,46 +83,51 @@ Cancellation bleiben getrennte, nicht implementierte Slices.
 
 [`toolbelt.core.second-session`](./Modules/toolbelt.core.second-session/README.md)
 führt registrierte Work-Types synchron über einen administrativ vorbereiteten
-Loopback-Linked-Server in einer getrennten SQL-Server-Session aus.
+Loopback-Linked-Server in einer getrennten SQL-Server-Session aus und ist auf
+Windows/Linux 2019/2022/2025 `validated`.
 
 [`toolbelt.core.event-log`](./Modules/toolbelt.core.event-log/README.md)
 persistiert strukturierte Events synchron in einer zweiten Session. Erfolgreiche
 Writes überleben Caller-Rollback und uncommittable Caller-Transaktionen; Linked
-Server und Login-Mappings bleiben administrativ außerhalb des Moduls.
+Server und Login-Mappings bleiben administrativ außerhalb des Moduls. Das
+Modul ist auf Windows/Linux 2019/2022/2025 `validated`.
 
 Das portable Modul
 [`toolbelt.file.content`](./Modules/toolbelt.file.content/README.md)
 liest freigegebene Text- und Binärdateien über einen Root-Allowlist-Vertrag.
-Die SQL-Server-2025-Linux-Matrix mit Compatibility Levels 150, 160 und
-170 ist erfolgreich; Windows und nicht-ASCII-spezifische Providergrenzen
-bleiben als getrennte Releasevalidierung sichtbar.
+Die SQL-Server-2025-Linux-Matrix mit Compatibility Levels 150, 160 und 170
+ist erfolgreich; Windows, separat bereitgestellte serverseitige Fixtures und
+nicht-ASCII-spezifische Providergrenzen bleiben als getrennte
+Releasevalidierung sichtbar.
 
-Das implementierte Modul [`toolbelt.core.result-table`](./Modules/toolbelt.core.result-table/README.md) stellt `toolbelt_core.USP_PrepareResultTable` als gemeinsame `@ResultTable`-/`@KeepData`-Infrastruktur bereit. Die Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; Windows und weitere Pflichtfälle bleiben offen.
+Das implementierte Modul [`toolbelt.core.result-table`](./Modules/toolbelt.core.result-table/README.md) stellt `toolbelt_core.USP_PrepareResultTable` als gemeinsame `@ResultTable`-/`@KeepData`-Infrastruktur bereit. Die Windows-/Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; eine vergleichbare plattformübergreifende Performance-Baseline bleibt offen.
 
 Das unabhängige Modul
 [`toolbelt.conversion.base64`](./Modules/toolbelt.conversion.base64/README.md)
 stellt portable Base64-/Base64URL-Konvertierung bereit. Der vollständige
-Moduladapter ist auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen
-erfolgreich; Windows-Läufe bleiben offen.
+Moduladapter ist auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter
+Windows base und Linux latest erfolgreich; breitere Large-LOB-Performance-
+Evidenz bleibt offen.
 
 Das implementierte Modul
 [`toolbelt.core.generate-series`](./Modules/toolbelt.core.generate-series/README.md)
 stellt portable, typstabile Ganzzahlreihen für `int` und `bigint` bereit. Der
 vollständige Moduladapter ist auf physischen SQL-Server-2019-, 2022- und
-2025-Linux-Zielen erfolgreich; Windows-Läufe bleiben offen.
+2025-Zielen unter Windows base und Linux latest erfolgreich; breitere
+Very-large-series-Performance-Evidenz bleibt offen.
 
 Das implementierte Modul
 [`toolbelt.metadata.identifier`](./Modules/toolbelt.metadata.identifier/README.md)
 analysiert und begrenzt ein- bis vierteilige SQL-Namen. Der vollständige
-Moduladapter ist auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen
-erfolgreich; Windows-Läufe bleiben offen.
+Moduladapter ist auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter
+Windows base und Linux latest erfolgreich; das Modul ist `validated`.
 
 Das implementierte Modul
 [`toolbelt.string.split-characters`](./Modules/toolbelt.string.split-characters/README.md)
 teilt Unicode-Text an mehreren einzelnen literal interpretierten
-Separatorzeichen. SQL Server 2025 Linux ist mit Compatibility Levels 150, 160
-und 170 erfolgreich; die breitere Quote-/Escape-Ausbaustufe bleibt separat in
-`TC-2026-032`.
+Separatorzeichen. Die Windows-/Linux-Matrix 2019/2022/2025 ist erfolgreich;
+das Modul ist `validated`. Die breitere Quote-/Escape-Ausbaustufe bleibt
+separat in `TC-2026-032`.
 
 Das implementierte R1b-Modul
 [`toolbelt.string.regex`](./Modules/toolbelt.string.regex/README.md) stellt
@@ -135,35 +141,36 @@ Das implementierte Modul
 [`toolbelt.validation.semantic-version`](./Modules/toolbelt.validation.semantic-version/README.md)
 parst, vergleicht und sortiert strikte Semantic-Version-2.0.0-Werte. Der
 vollständige Moduladapter ist auf physischen SQL-Server-2019-, 2022- und
-2025-Linux-Zielen erfolgreich; Windows-Läufe bleiben offen.
+2025-Zielen unter Windows base und Linux latest erfolgreich; das Modul ist
+`validated`.
 
 Das implementierte Modul
 [`toolbelt.conversion.integer-base`](./Modules/toolbelt.conversion.integer-base/README.md)
 codiert und decodiert den vollständigen `bigint`-Bereich mit frei
 definierbaren ASCII-Alphabeten. Der vollständige Moduladapter ist auf
-physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich;
-Windows-Läufe bleiben offen.
+physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und
+Linux latest erfolgreich; das Modul ist `validated`.
 
 Das implementierte Modul
 [`toolbelt.datetime.calendar-difference`](./Modules/toolbelt.datetime.calendar-difference/README.md)
 zerlegt `date`-Intervalle nach einer dokumentierten Anniversary-Regel. Der
 vollständige Moduladapter ist auf physischen SQL-Server-2019-, 2022- und
-2025-Linux-Zielen einschließlich Lifecycle und zentraler Nutzung erfolgreich;
-Windows-Läufe bleiben offen.
+2025-Zielen unter Windows base und Linux latest einschließlich Lifecycle,
+Kollisionsschutz und zentraler Nutzung erfolgreich; das Modul ist `validated`.
 
 Das implementierte Modul
 [`toolbelt.string.directional-trim`](./Modules/toolbelt.string.directional-trim/README.md)
 stellt typstabile `varchar`-/`nvarchar`-TVFs für `LEADING`, `TRAILING` und
-`BOTH` bereit. Der vollständige Moduladapter ist auf physischen
-SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich; weitere Collations
-und Windows-Läufe bleiben offen.
+`BOTH` bereit. Der vollständige Moduladapter ist auf physischen SQL-Server-
+2019-, 2022- und 2025-Zielen unter Windows base und Linux latest einschließlich
+CI-, CS- und UTF-8-Collations erfolgreich; das Modul ist `validated`.
 
 Das implementierte Modul
 [`toolbelt.conversion.uri-component`](./Modules/toolbelt.conversion.uri-component/README.md)
 codiert und decodiert RFC-3986-URI-Komponenten mit UTF-8 und strikter
-Validierung. Der vollständige Moduladapter ist auf physischen
-SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich;
-LOB-/Performancegrenzen und Windows-Läufe bleiben offen.
+Validierung. Der vollständige Moduladapter ist auf physischen SQL-Server-
+2019-, 2022- und 2025-Zielen unter Windows base und Linux latest einschließlich
+ASCII-, Unicode- und Large-Input-Fällen erfolgreich; das Modul ist `validated`.
 
 Die implementierten W2a-Module
 [`toolbelt.datetime.truncate`](./Modules/toolbelt.datetime.truncate/README.md),
@@ -172,22 +179,24 @@ Die implementierten W2a-Module
 stellen typgetrennte Date/Time-Truncation, Origin-basiertes Bucketing und die
 fünf Bitoperationen für `bigint` als kanonische relationale TVFs bereit.
 Die vollständigen Moduladapter sind auf physischen SQL-Server-2019-, 2022-
-und 2025-Linux-Zielen einschließlich Wiederholungsdeployment, Lifecycle,
-Central und Uninstall erfolgreich; Windows-Läufe bleiben offen.
+und 2025-Zielen unter Windows base und Linux latest einschließlich nativer
+Parität, Kollisionsschutz, Wiederholungsdeployment, Lifecycle, Central und
+Uninstall erfolgreich; die drei Module sind `validated`.
 
 Das implementierte D1-Modul
 [`toolbelt.datetime.date-spine`](./Modules/toolbelt.datetime.date-spine/README.md)
 erzeugt Tages-, ISO-Wochen- und Monatsperioden für halboffene `date`-Bereiche.
 Der vollständige Adapter ist auf physischen SQL-Server-2019-/2022-/2025-
-Linux-Zielen erfolgreich; Windows blieb nach nicht erreichbarem SQL-
-Anmeldungs-Preflight `not executed`.
+Zielen unter Windows base und Linux latest erfolgreich; das Modul ist
+`validated`.
 
 Das implementierte W2b-A-Modul
 [`toolbelt.json.path-exists`](./Modules/toolbelt.json.path-exists/README.md)
 prüft SQL/JSON-Pfade fehlerfrei auf Existenz und stellt den Backport-Slice von
-`TC-2026-009` bereit. SQL Server 2025 Linux ist mit Compatibility Levels 150,
-160 und 170 einschließlich Lifecycle, Central und Uninstall erfolgreich;
-Konstruktoren und JSON-Aggregate bleiben ausdrücklich zurückgestellt.
+`TC-2026-009` bereit. Die Windows-/Linux-Matrix 2019/2022/2025 ist
+einschließlich nativer Parität, Kollisionsschutz, Lifecycle, Central und
+Uninstall erfolgreich; das Modul ist `validated`. Konstruktoren und
+JSON-Aggregate bleiben ausdrücklich zurückgestellt.
 
 Die implementierten W2c-Module
 [`toolbelt.core.console-message`](./Modules/toolbelt.core.console-message/README.md)
@@ -195,19 +204,18 @@ und
 [`toolbelt.metadata.capability-catalog`](./Modules/toolbelt.metadata.capability-catalog/README.md)
 stellen Unicode-sichere lange Message-Ausgabe sowie eine read-only Sicht auf
 Database-level Toolbelt-Modulmarker bereit. Die vollständigen Moduladapter
-sind auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen
-einschließlich Langtext-/Unicode-, Marker-/Drift-, Lifecycle-, Central- und
-Uninstall-Contracts erfolgreich; Windows- und modulspezifische Releasefälle
-bleiben offen.
+sind auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base
+und Linux latest erfolgreich. Der Capability Catalog ist einschließlich
+eingeschränkter Metadatensichtbarkeit `validated`; Console Message bleibt
+wegen zusätzlicher Client-/Treiber- und Buffering-Grenzen `partially validated`.
 
 Das implementierte ZIP-Memory-Modul
 [`toolbelt.archive.zip-memory`](./Modules/toolbelt.archive.zip-memory/README.md)
 extrahiert einzelne ZIP-Einträge aus `varbinary(max)` mit Methoden `0`
 (Stored) und `8` (Deflate), Payload-CRC32 und harten Limits. Für
-TC-2026-033 wurde der ZIP-Metadata-Pfad intern ergänzt; die
-Windows-Runtime ist lokal (localhost,1433, SQL 2025, `sa`) für
-`Runtime-`/`Smoke`-Contracts erfolgreich validiert. Die Linux-Matrix
-bleibt teilweise validiert.
+TC-2026-033 wurde der ZIP-Metadata-Pfad intern ergänzt. Die automatisierte
+Windows-/Linux-Matrix 2019/2022/2025 ist erfolgreich; reale Archive, echte
+Extremgrößen, historische Upgrades und Interoperabilität bleiben offen.
 
 Das implementierte Windows-only Modul
 [`toolbelt.filesystem.windows`](./Modules/toolbelt.filesystem.windows/README.md)

@@ -1,8 +1,6 @@
 # Contract-Testmatrix JSON Path Exists
 
-V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
-ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
-Windows- und modulspezifische Fälle bleiben unberührt.
+Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 | Dimension | Pflichtfälle | Erwartung |
 |---|---|---|
@@ -17,7 +15,7 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 | Native Parität | SQL Server 2022+ für den gemeinsamen Scope | gleiche `1`/`0`/`NULL`-Ergebnisse |
 | Objektart | `TVF_JsonPathExists` | Multi-statement TVF (`TF`) |
 | Lifecycle | Erstinstallation, Wiederholung, Central, Uninstall | vollständig und ohne Restobjekt |
-| Plattform | SQL Server 2025 Linux, Compatibility 150/160/170 | zuerst CI; 2019/2022/Windows später |
+| Plattform | SQL Server 2019/2022/2025 unter Windows base und Linux latest | erfolgreich; Compatibility 150/160/170 versionsabhängig |
 
 Die SQL-Server-2025-Preview-Pfade mit Array-Range, Indexliste und `last`
 werden ausschließlich als abgelehnte Eingaben getestet. Sie sind kein
@@ -31,7 +29,7 @@ Aktuelle Evidenz:
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-09-01`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2b-json-path-runtime.yml`
-- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; Pfad-, JSON-, NULL-, Wildcard-, BIN2-, native Paritäts-, Kollisions-, Lifecycle- und Uninstall-Verträge
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
