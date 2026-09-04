@@ -57,8 +57,8 @@ Keine realen Datenbanknamen, Hashwerte, Pfade, Konten, Hostnamen, Archive, Datei
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-29`
+- Datum: `2026-09-01`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Lokales SQL_Server_Lab; reproduzierbar neu gebautes und per exaktem SHA2-512 autorisiertes Releaseartefakt; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; reproduzierbar gebautes und per exaktem SHA2-512 autorisiertes Releaseartefakt; reale Archive, Extremgrößen, historische Upgrades und Interoperabilität bleiben offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

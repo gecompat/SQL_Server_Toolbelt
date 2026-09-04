@@ -2,7 +2,7 @@ module_id: "toolbelt.conversion.uri-component"
 module_name: "URI Component Percent-Encoding"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: validated
 release_status: unreleased
 description: "Codiert und decodiert RFC-3986-URI-Komponenten als UTF-8-Octets."
 sql_server_versions:
@@ -11,13 +11,13 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150,160,170]
 platforms:
-  windows: "not executed"
-  linux: "partially validated"
+  windows: validated
+  linux: validated
 providers:
   - id: tsql-utf8-inline
     technology: T-SQL Inline TVF
     platforms: [Windows,Linux]
-    status: implemented
+    status: validated
 deployment_capabilities:
   local: true
   central: true
@@ -107,4 +107,8 @@ validation_evidence:
   - date: "2026-09-01"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w1-portable-runtime.yml"
     scope: "GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger W1-Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels"
+    result: "success"
+  - date: "2026-09-01"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; RFC-3986-ASCII-Raum, Unicode/UTF-8, ungültige Prozentsequenzen, synthetischer Large-Input-Roundtrip, Kollisionsschutz, Lifecycle und Uninstall"
     result: "success"

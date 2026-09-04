@@ -295,7 +295,7 @@ def main() -> int:
         'version: "1.2.0"',
         'validation_status: "partially validated"',
         'linux: "partially validated"',
-        'windows: "not executed"',
+        'windows: "partially validated"',
         "id: clr-zip-memory",
         "type: CLR_TVF",
         'name: "Toolbelt_Archive_ZipMemory"',

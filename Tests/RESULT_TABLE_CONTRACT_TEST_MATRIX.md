@@ -1,5 +1,12 @@
 # ResultTable-Contract-Testmatrix
 
+Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf
+physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und
+Linux latest erfolgreich. Eine vergleichbare plattformübergreifende
+Performance-Baseline bleibt offen; der Modulstatus bleibt `partially
+validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen;
+datierte ältere Einträge bleiben historische Evidenz.
+
 V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
 ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
 Windows- und modulspezifische Fälle bleiben unberührt.
@@ -394,8 +401,8 @@ Ein Einzellauf ist kein allgemeingültiger Benchmark.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-29`
+- Datum: `2026-09-01`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Lokales SQL_Server_Lab; physische SQL-Server-2019-, 2022- und 2025-Linux-Ziele; vollständiger Moduladapter mit lokalen, zentralen, Lifecycle- und Uninstall-Verträgen
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger automatisierter Moduladapter; vergleichbare plattformübergreifende Performance-Baseline bleibt offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

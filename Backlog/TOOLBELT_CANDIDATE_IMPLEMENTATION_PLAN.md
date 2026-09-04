@@ -9,7 +9,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 47 Kandidaten. 28 Module sind implementiert; 2 sind `validated`, 26 sind `partially validated`, 0 sind `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 47 Kandidaten. 28 Module sind implementiert; 20 sind `validated`, 8 sind `partially validated`, 0 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -26,7 +26,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 | Gruppe | Kandidaten | Konsequenz |
 |---|---|---|
-| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-014`, `TC-2026-016`, `TC-2026-017`, `TC-2026-019`, `TC-2026-022`, `TC-2026-023`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031`, `TC-2026-033`, `TC-2026-034` Extraction-Slice, `TC-2026-037` Read-/Windows-Slices, `TC-2026-038` Windows-Slice, `TC-2026-046` synchroner Slice | Capability-spezifische Runtime sowie offene physische Zielversions-, Windows- und modulspezifische Releasevalidierung gezielt abschließen. |
+| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-014`, `TC-2026-016`, `TC-2026-017`, `TC-2026-019`, `TC-2026-022`, `TC-2026-023`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031`, `TC-2026-033`, `TC-2026-034` Extraction-Slice, `TC-2026-037` Read-/Windows-Slices, `TC-2026-038` Windows-Slice, `TC-2026-046` synchroner Slice | 20 Module sind vollständig validiert; die sieben getrennt dokumentierten Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- und manuellen Sicherheitsgates benötigen externe Voraussetzungen oder Entscheidungen. |
 | Parser-, CLR- oder breite Semantikmodule | `TC-2026-010`, `TC-2026-011`, `TC-2026-013`, `TC-2026-032` | Funktionsfamilien und Provider vor dem ersten Code begrenzen und benchmarken. |
 | Execution-Infrastruktur | Verbleibende Slices `TC-2026-015`, `TC-2026-018`, `TC-2026-020`, `TC-2026-021` und zusätzliche Provider aus `TC-2026-046` | Queue in vertikalen Slices entwickeln; der synchrone Second-Session- und Event-Log-Pfad ist implementiert. |
 | Externe Provider und Integrationen | `TC-2026-025` bis `TC-2026-028`; optionale portable Worker-Slices aus `TC-2026-037`/`TC-2026-038` | Allowlist-, Identity-, Secret-, Timeout-, Abbruch- und Plattformvertrag sind Pflicht-Gates; vorhandene Windows-/Read-only-Provider nicht duplizieren. |
@@ -66,23 +66,23 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 | Welle | Status | Inhalt | Kandidaten | Eintrittsbedingung | Ergebnis |
 |---|---|---|---|---|---|
-| `V0a` | `active`; V0c-Kohorte und D1 auf Linux, E1b auf Windows/Linux 2019/2022/2025 erfolgreich | Physische Linux-Zielversionen | alle 24 portablen beziehungsweise Linux-fähigen Module | schema-valider SQL_Server_Lab-Vertrag; explizit ausgewählte Ziele mit eigenem `runtimeStatus = READY`; echte Engines 2019/2022/2025 und synthetische Fixtures | W5-Fehler auf 2019/2022 isolieren und File Content mit serverseitigen Fixtures prüfen; keine Statusanhebung ohne vollständige Pflichtfälle. |
-| `V0b` | `active`; Windows-Ziele beim SQL-Anmeldungs-Preflight nicht erreichbar | Windows-Release- und Providerfälle | portable V0c-Kohorte sowie ResultTable, CLR-, Datei-, Second-Session- und Event-Module | schema-valider SQL_Server_Lab-Vertrag, einzeln bereite Windows-Ziele, kontrollierte Windows-SQL-Server-Roots und abstrahierte Evidenz | Zielversions-, Identity-, NTFS-, Trust-, Recovery- und Performanceverträge getrennt nachweisen. |
+| `V0a` | automatisierte Linux-Matrix 2019/2022/2025 erfolgreich | Physische Linux-Zielversionen | alle portablen beziehungsweise Linux-fähigen Module | schema-valider SQL_Server_Lab-Vertrag; explizit ausgewählte Ziele mit eigenem `runtimeStatus = READY`; echte Engines 2019/2022/2025 und synthetische Fixtures | File Content weiterhin mit separat bereitgestellten serverseitigen Fixtures prüfen; keine Statusanhebung ohne vollständige Pflichtfälle. |
+| `V0b` | automatisierte Windows-Matrix 2019/2022/2025 erfolgreich; manuelle Spezialfälle offen | Windows-Release- und Providerfälle | portable V0c-Kohorte sowie ResultTable, CLR-, Datei-, Second-Session- und Event-Module | schema-valider SQL_Server_Lab-Vertrag, einzeln bereite Windows-Ziele, kontrollierte Windows-SQL-Server-Roots und abstrahierte Evidenz | Verbleibende Identity-, NTFS-, Trust-, Interoperabilitäts- und Performanceverträge getrennt nachweisen. |
 | `V0c` | `active`; abhängig von `V0a`/`V0b` | Erste Releasekohorte | 16 portable Module aus Kernfolge, W1, W2a, W2b-A und W2c | vollständige Pflichtmatrix, versionierte Artefakte, Upgrade-/Uninstallnachweis und Releasekriterien | Veröffentlichungsfertige Kohorte; `release_status` bleibt bis zur tatsächlichen autorisierten Veröffentlichung `unreleased`. |
-| `W1` | `completed` | Kleine unabhängige T-SQL-Kerne | `002`, `008`, `024` | Einzelvertrag und Freigabe | Drei implementierte, auf SQL Server 2025 Linux teilweise validierte Module. |
-| `W2a` | `completed` | Date/Time- und Bigint-Bit-Kompatibilität | `004`, `005`, `007` | Typfamilien, Paritätsumfang und Fehlervertrag am 2026-07-30 freigegeben | Drei Module implementiert und auf SQL Server 2025 Linux teilweise validiert. |
-| `W2b-A` | `completed` | JSON-Pfadprüfung | `009` Slice A | Pfad-, NULL-, Fehler- und Providervertrag am 2026-07-30 freigegeben | `toolbelt.json.path-exists` implementiert und auf SQL Server 2025 Linux teilweise validiert. |
+| `W1` | `completed`; Runtime `validated` | Kleine unabhängige T-SQL-Kerne | `002`, `008`, `024` | Einzelvertrag und Freigabe | Drei implementierte und auf Windows/Linux 2019/2022/2025 validierte Module. |
+| `W2a` | `completed`; Runtime `validated` | Date/Time- und Bigint-Bit-Kompatibilität | `004`, `005`, `007` | Typfamilien, Paritätsumfang und Fehlervertrag am 2026-07-30 freigegeben | Drei auf Windows/Linux 2019/2022/2025 validierte Module einschließlich nativer Parität, Kollisionsschutz und Bucket-Workload. |
+| `W2b-A` | `completed`; Runtime `validated` | JSON-Pfadprüfung | `009` Slice A | Pfad-, NULL-, Fehler- und Providervertrag am 2026-07-30 freigegeben | `toolbelt.json.path-exists` auf Windows/Linux 2019/2022/2025 validiert. |
 | `W2b-B` | `deferred` | JSON-Konstruktoren und Aggregate | `009` Slice B, `013` | Variable Konstruktoroberfläche beziehungsweise stabiler Aggregat-/CLR-Provider entschieden | Keine Implementierung; Aggregate bleiben während Preview zurückgestellt. |
-| `W2c` | `completed` | Console-Ausgabe und Runtime-Capability-Discovery | `016`, `023` | Provider-, Chunk-, Null-, Metadatenquellen- und Driftvertrag am 2026-07-30 freigegeben | Zwei Module implementiert und auf SQL Server 2025 Linux teilweise validiert. |
+| `W2c` | `completed`; Runtime gemischt | Console-Ausgabe und Runtime-Capability-Discovery | `016`, `023` | Provider-, Chunk-, Null-, Metadatenquellen- und Driftvertrag am 2026-07-30 freigegeben | Capability Catalog auf Windows/Linux 2019/2022/2025 validiert; Console Message wegen zusätzlicher Client-/Treibergrenzen teilweise validiert. |
 | `W3` | `R1b implemented`; Rest `researched` | String-Parser und Matching | `010`, `011`, `032` | R1b-Vertrag am 2026-08-30 freigegeben; weitere Einzelverträge offen | Regex IsMatch/Instr/Count implementiert und validiert; Fuzzy sowie Quote-/Escape-Module bleiben Research. |
-| `W4` | `completed` | Weitere Execution-Grundlagen | `017`, `019`, `022` | Persistente Tabellenkonvention mit `DEC-2026-025`; Einzelverträge freigegeben | Error Envelope, Execution Context und Work-Type-Katalog sind implementiert und auf SQL Server 2025 Linux teilweise validiert. |
-| `W5a` | `completed` | Synchrone zweite Session und Event Log | `046` synchroner Slice, `014` | Work-Type, Execution Context und Error Envelope | `toolbelt.core.second-session` und rollback-unabhängiges `toolbelt.core.event-log` implementiert und teilweise validiert. |
+| `W4` | `completed`; Runtime `validated` | Weitere Execution-Grundlagen | `017`, `019`, `022` | Persistente Tabellenkonvention mit `DEC-2026-025`; Einzelverträge freigegeben | Error Envelope, Execution Context und Work-Type-Katalog sind auf Windows/Linux 2019/2022/2025 validiert. |
+| `W5a` | `completed`; Runtime `validated` | Synchrone zweite Session und Event Log | `046` synchroner Slice, `014` | Work-Type, Execution Context und Error Envelope | `toolbelt.core.second-session` und rollback-unabhängiges `toolbelt.core.event-log` sind auf Windows/Linux 2019/2022/2025 validiert. |
 | `W5b` | `researched` | Zusätzliche Session- und Ausführungsprovider | verbleibender `046`-Scope | Konkreter Providerbedarf, eigener Security-/Lifecyclevertrag und Freigabe | Kein automatischer Ausbau; Agent, Broker und externe Worker bleiben getrennte Optionen. |
 | `W6` | `W6a/W6b implemented`; Runtime `validated`; Rest `planned` | Queue, Retry, Lease und Cancellation | `015`, `021`, `020`, `018` | W6a und W6b am 2026-08-30 getrennt besprochen und ausdrücklich freigegeben; Einzelvertrag und Freigabe für jeden weiteren Slice | `W6a` und `W6b` sind implementiert und auf Windows/Linux 2019/2022/2025 validiert; `W6c` Retry/Dead Letter/Idempotenz und `W6d` kooperative Cancellation bleiben offen. |
 | `W7` | `active` | Datei- und Host-Provider | `037`, `038`, `025`, `026`, `027` | Root-Allowlist, Pfad-/Encoding-Vertrag und Provider | `toolbelt.file.content` ist als portabler Read-only-Slice implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` implementiert Read/Write/Transcoding/Directory-Operationen; der manuelle Windows-Runtime-Nachweis bleibt offen. Externe Worker bleiben optional zurückgestellt. |
-| `W8` | `completed` für ZIP Memory; Rest `researched` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | `toolbelt.archive.zip-memory` Version `1.2.0` enthält Extraktion und Listing. Windows-Runtime, ZIP-Erzeugung, vollständige Dateisystemextraktion und XLSX bleiben ohne Implementierungsfreigabe offen. |
+| `W8` | `completed` für ZIP Memory; Rest `researched` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | `toolbelt.archive.zip-memory` Version `1.2.0` enthält Extraktion und Listing; die automatisierte Windows-/Linux-Matrix 2019/2022/2025 ist erfolgreich. Reale Archive, Extremgrößen, historische Upgrades und Interoperabilität bleiben Validierungsgates; ZIP-Erzeugung, vollständige Dateisystemextraktion und XLSX bleiben ohne Implementierungsfreigabe offen. |
 | `Q1` | `completed` für V1 | Lifecycle- und Upgrade-Automation | `RI-2026-142`; weitere Manifest-/Snapshot-Slices zurückgestellt | V1 auf isolierte dependency-freie zustandslose T-SQL-Module begrenzt | Kataloggenauer Wiederholungsdeploy, zwei unabhängige Uninstalls und Restzustandsprüfung sind auf SQL Server 2019/2022/2025 unter Linux und Windows erfolgreich. |
-| `D1` | `implemented`; Runtime `partially validated` | Date Spine V1 | `RI-2026-079` auf Basis von `006` und `004` | Vertrag am 2026-08-30 besprochen und ausdrücklich freigegeben | Drei portable Inline TVFs für Tag, ISO-Woche und Monat; Linux 2019/2022/2025 erfolgreich, Windows-Preflight derzeit nicht erreichbar. |
+| `D1` | `implemented`; Runtime `validated` | Date Spine V1 | `RI-2026-079` auf Basis von `006` und `004` | Vertrag am 2026-08-30 besprochen und ausdrücklich freigegeben | Drei portable Inline TVFs für Tag, ISO-Woche und Monat; Windows/Linux 2019/2022/2025 erfolgreich. |
 | `R1` | `R1a completed`; `R1b implemented and validated` | Regex V1 | `010` | Freigegebener Vertrag und vollständige physische Matrix erfüllt | Begrenzter Toolbelt-Dialekt über portables SAFE SQL CLR für IsMatch, Instr und Count; keine RE2-Paritätszusage, Replace/Split/Captures bleiben außerhalb. |
 | `R2025` | `proposed research` | SQL-Server-2025-GA-Delta | UNISTR, PRODUCT, DATEADD bigint, Vector-Scalar-Funktionen | Aktuellen GA-/Preview-Status aus Primärquellen bestätigen | Nur Deduplizierung und Kandidatenbewertung; keine Implementierung. |
 | `W9` | `researched` | Deterministische Pseudonymisierungsprimitive | `040`, `039`, `041`, `042`, `043` | Key-/Seed-, Kanonisierungs- und Datenschutzvertrag | Range-Primitive zuerst; darauf Lookup, Translation, Date Shift und Geo Jitter. |
@@ -130,32 +130,32 @@ physischen Windows-/Linux-Matrix validiert.
 
 | Kandidat | Modul | Vorhandene öffentliche Objekte | Restarbeit |
 |---|---|---|---|
-| `TC-2026-001` | `toolbelt.string.split-characters` | `toolbelt_string.TVF_SplitByCharacters` | Windows-Releasevalidierung; `TC-2026-032` bleibt getrennt. |
-| `TC-2026-002` | `toolbelt.datetime.calendar-difference` | `toolbelt_datetime.TVF_CalendarDifference` | Windows-Evidenz sowie offene Kollisionsfälle. |
-| `TC-2026-003` | `toolbelt.core.result-table` | `toolbelt_core.USP_PrepareResultTable` | Windows und vergleichbare plattformübergreifende Performance-Evidenz; natürlicher Savepoint-Fehlerfall 2705 ist auf SQL Server 2019/2022/2025 Linux validiert. |
-| `TC-2026-006` | `toolbelt.core.generate-series` | `toolbelt_core.TVF_GenerateSeriesBigInt`, `toolbelt_core.TVF_GenerateSeriesInt` | Windows-Releasevalidierung. |
-| `TC-2026-008` | `toolbelt.string.directional-trim` | `toolbelt_string.TVF_TrimDirectionalNvarchar`, `toolbelt_string.TVF_TrimDirectionalVarchar` | Weitere Collations und Windows-Evidenz. |
-| `TC-2026-012` | `toolbelt.conversion.base64` | `toolbelt_conversion.TVF_Base64Encode`, `toolbelt_conversion.TVF_Base64Decode`, `toolbelt_conversion.SVF_Base64Encode`, `toolbelt_conversion.SVF_Base64Decode` | Windows-Releasevalidierung. |
-| `TC-2026-024` | `toolbelt.conversion.uri-component` | `toolbelt_conversion.TVF_UriComponentEncode`, `toolbelt_conversion.TVF_UriComponentDecode`, `toolbelt_conversion.SVF_UriComponentEncode`, `toolbelt_conversion.SVF_UriComponentDecode` | LOB-/Performancegrenzen und Windows-Evidenz. |
-| `TC-2026-029` | `toolbelt.metadata.identifier` | `toolbelt_metadata.TVF_ParseMultipartName`, `toolbelt_metadata.SVF_QuoteMultipartName` | Windows-Releasevalidierung. |
-| `TC-2026-030` | `toolbelt.validation.semantic-version` | `toolbelt_validation.TVF_ParseSemanticVersion`, `toolbelt_validation.TVF_CompareSemanticVersion`, `toolbelt_validation.TVF_SemanticVersionSortKey`, `toolbelt_validation.SVF_CompareSemanticVersion`, `toolbelt_validation.SVF_SemanticVersionSortKey` | Windows-Releasevalidierung. |
-| `TC-2026-031` | `toolbelt.conversion.integer-base` | `toolbelt_conversion.TVF_IntegerToBase`, `toolbelt_conversion.TVF_TryBaseToInteger`, `toolbelt_conversion.SVF_IntegerToBase`, `toolbelt_conversion.SVF_TryBaseToInteger` | Windows-Releasevalidierung. |
-| `TC-2026-004` | `toolbelt.datetime.truncate` | `TVF_TruncateDate`, `TVF_TruncateDateTime2`, `TVF_TruncateDateTimeOffset` | Windows-Releasevalidierung. |
-| `TC-2026-005` | `toolbelt.datetime.bucket` | `TVF_DateBucketDate`, `TVF_DateBucketDateTime2`, `TVF_DateBucketDateTimeOffset` | Windows-Releasevalidierung. |
-| `TC-2026-007` | `toolbelt.binary.bit-operations` | `TVF_LeftShiftBigInt`, `TVF_RightShiftBigInt`, `TVF_BitCountBigInt`, `TVF_GetBitBigInt`, `TVF_SetBitBigInt` | Windows-Releasevalidierung; Binary-Slice bleibt getrennt. |
-| `TC-2026-009` | `toolbelt.json.path-exists` | `toolbelt_json.TVF_JsonPathExists` | Windows-Releasevalidierung; Konstruktoren bleiben getrennt. |
-| `TC-2026-014` | `toolbelt.core.event-log` | `toolbelt_core.USP_WriteEvent`, `VW_Events`, `USP_DeleteEventsBefore` | Physische SQL-Server-2019-/2022- und Windows-Releasevalidierung; betriebliche Loopback-Blockierungsprofile. |
-| `TC-2026-016` | `toolbelt.core.console-message` | `toolbelt_core.USP_WriteConsoleMessage` | Windows- und weitere Client-/Treiber-Evidenz. |
-| `TC-2026-017` | `toolbelt.core.error-envelope` | `toolbelt_core.USP_CaptureErrorEnvelope` | Windows-Releasevalidierung; Retry-Entscheidungen bleiben ausdrücklich außerhalb dieses Moduls. |
-| `TC-2026-019` | `toolbelt.core.execution-context` | `toolbelt_core.TVF_CurrentExecutionContext`, `toolbelt_core.SVF_CurrentExecutionId`, `toolbelt_core.USP_BeginExecution`, `toolbelt_core.USP_SetExecutionContext`, `toolbelt_core.USP_EndExecution` | Windows-Releasevalidierung sowie Connection-Pooling-Evidenz. |
-| `TC-2026-022` | `toolbelt.core.work-type` | `toolbelt_core.USP_RegisterWorkType`, `USP_DisableWorkType`, `USP_RemoveWorkType`, `USP_ResolveWorkType`, `VW_WorkTypes` | Windows-Releasevalidierung; Second-Session-Provider bleibt getrennt. |
-| `TC-2026-023` | `toolbelt.metadata.capability-catalog` | `toolbelt_metadata.VW_ModuleCapabilities` | Windows- und eingeschränkte Metadata-Visibility. |
-| `TC-2026-034` | `toolbelt.archive.zip-memory` | `toolbelt_archive.USP_ExtractZipEntryFromBinary` | Windows-SQL-Server-Runtime und echte Extremgrößen; ZIP-Erzeugung bleibt ein separater Slice. |
-| `TC-2026-033` | `toolbelt.archive.zip-memory` | `toolbelt_archive.USP_ListZipEntriesFromBinary` | Windows-SQL-Server-Runtime, reale Archive, echte Extremgrößen und vollständiger Upgradepfad aus einem realen 1.1.0-Stand. |
+| `TC-2026-001` | `toolbelt.string.split-characters` | `toolbelt_string.TVF_SplitByCharacters` | Keine autonome Validierung offen; `TC-2026-032` bleibt getrennt. |
+| `TC-2026-002` | `toolbelt.datetime.calendar-difference` | `toolbelt_datetime.TVF_CalendarDifference` | Keine autonome Validierung offen. |
+| `TC-2026-003` | `toolbelt.core.result-table` | `toolbelt_core.USP_PrepareResultTable` | Vergleichbare plattformübergreifende Performance-Evidenz mit vorgegebenen Abnahmekriterien. |
+| `TC-2026-006` | `toolbelt.core.generate-series` | `toolbelt_core.TVF_GenerateSeriesBigInt`, `toolbelt_core.TVF_GenerateSeriesInt` | Breitere Very-large-series-Performance-Evidenz mit Vergleichsbaseline. |
+| `TC-2026-008` | `toolbelt.string.directional-trim` | `toolbelt_string.TVF_TrimDirectionalNvarchar`, `toolbelt_string.TVF_TrimDirectionalVarchar` | Keine autonome Validierung offen. |
+| `TC-2026-012` | `toolbelt.conversion.base64` | `toolbelt_conversion.TVF_Base64Encode`, `toolbelt_conversion.TVF_Base64Decode`, `toolbelt_conversion.SVF_Base64Encode`, `toolbelt_conversion.SVF_Base64Decode` | Breitere Large-LOB-Performance-Evidenz mit Vergleichsbaseline. |
+| `TC-2026-024` | `toolbelt.conversion.uri-component` | `toolbelt_conversion.TVF_UriComponentEncode`, `toolbelt_conversion.TVF_UriComponentDecode`, `toolbelt_conversion.SVF_UriComponentEncode`, `toolbelt_conversion.SVF_UriComponentDecode` | Keine autonome Validierung offen. |
+| `TC-2026-029` | `toolbelt.metadata.identifier` | `toolbelt_metadata.TVF_ParseMultipartName`, `toolbelt_metadata.SVF_QuoteMultipartName` | Keine autonome Validierung offen. |
+| `TC-2026-030` | `toolbelt.validation.semantic-version` | `toolbelt_validation.TVF_ParseSemanticVersion`, `toolbelt_validation.TVF_CompareSemanticVersion`, `toolbelt_validation.TVF_SemanticVersionSortKey`, `toolbelt_validation.SVF_CompareSemanticVersion`, `toolbelt_validation.SVF_SemanticVersionSortKey` | Keine autonome Validierung offen. |
+| `TC-2026-031` | `toolbelt.conversion.integer-base` | `toolbelt_conversion.TVF_IntegerToBase`, `toolbelt_conversion.TVF_TryBaseToInteger`, `toolbelt_conversion.SVF_IntegerToBase`, `toolbelt_conversion.SVF_TryBaseToInteger` | Keine autonome Validierung offen. |
+| `TC-2026-004` | `toolbelt.datetime.truncate` | `TVF_TruncateDate`, `TVF_TruncateDateTime2`, `TVF_TruncateDateTimeOffset` | Keine autonome Validierung offen. |
+| `TC-2026-005` | `toolbelt.datetime.bucket` | `TVF_DateBucketDate`, `TVF_DateBucketDateTime2`, `TVF_DateBucketDateTimeOffset` | Keine autonome Validierung offen. |
+| `TC-2026-007` | `toolbelt.binary.bit-operations` | `TVF_LeftShiftBigInt`, `TVF_RightShiftBigInt`, `TVF_BitCountBigInt`, `TVF_GetBitBigInt`, `TVF_SetBitBigInt` | Keine autonome Validierung offen; Binary-Slice bleibt getrennt. |
+| `TC-2026-009` | `toolbelt.json.path-exists` | `toolbelt_json.TVF_JsonPathExists` | Keine autonome Validierung offen; Konstruktoren bleiben getrennt. |
+| `TC-2026-014` | `toolbelt.core.event-log` | `toolbelt_core.USP_WriteEvent`, `VW_Events`, `USP_DeleteEventsBefore` | Keine autonome Validierung offen; betriebliche Loopback-Blockierungsprofile wären ein getrennter Scope. |
+| `TC-2026-016` | `toolbelt.core.console-message` | `toolbelt_core.USP_WriteConsoleMessage` | Zusätzliche reale Client-/Treiber-, Buffering- und Framing-Evidenz. |
+| `TC-2026-017` | `toolbelt.core.error-envelope` | `toolbelt_core.USP_CaptureErrorEnvelope` | Keine autonome Validierung offen; Retry-Entscheidungen bleiben ausdrücklich außerhalb dieses Moduls. |
+| `TC-2026-019` | `toolbelt.core.execution-context` | `toolbelt_core.TVF_CurrentExecutionContext`, `toolbelt_core.SVF_CurrentExecutionId`, `toolbelt_core.USP_BeginExecution`, `toolbelt_core.USP_SetExecutionContext`, `toolbelt_core.USP_EndExecution` | Keine autonome Validierung offen; weitergehende Connection-Pooling-Zusagen wären ein getrennter Scope. |
+| `TC-2026-022` | `toolbelt.core.work-type` | `toolbelt_core.USP_RegisterWorkType`, `USP_DisableWorkType`, `USP_RemoveWorkType`, `USP_ResolveWorkType`, `VW_WorkTypes` | Keine autonome Validierung offen; zusätzliche Second-Session-Provider bleiben getrennt. |
+| `TC-2026-023` | `toolbelt.metadata.capability-catalog` | `toolbelt_metadata.VW_ModuleCapabilities` | Keine autonome Validierung offen. |
+| `TC-2026-034` | `toolbelt.archive.zip-memory` | `toolbelt_archive.USP_ExtractZipEntryFromBinary` | Reale Archive, echte Extremgrößen und Interoperabilität; ZIP-Erzeugung bleibt ein separater Slice. |
+| `TC-2026-033` | `toolbelt.archive.zip-memory` | `toolbelt_archive.USP_ListZipEntriesFromBinary` | Reale Archive, echte Extremgrößen, Interoperabilität und vollständiger Upgradepfad aus einem realen 1.1.0-Stand. |
 | `TC-2026-037` | `toolbelt.file.content`; `toolbelt.filesystem.windows` | `toolbelt_file.USP_LoadBinaryFile`, `toolbelt_file.USP_LoadTextFile`; Windows Read/Write/Transcoding-Procedures | File-Content-Windows-Releasevalidierung und manueller Windows-CLR-Runtime-Test; externer Worker nur bei Bedarf. |
 | `TC-2026-038` | `toolbelt.filesystem.windows` | `toolbelt_filesystem.USP_ListDirectory` | Manueller Windows-Runtime-Test; portabler Listing-Provider bleibt optional offen. |
-| `TC-2026-046` | `toolbelt.core.second-session` | `toolbelt_core.USP_ExecuteWorkTypeInNewSession` | Physische 2019-/2022- und Windows-Releasevalidierung; zusätzliche Provider bleiben getrennte Forschungs- und Freigabeslices. |
-| `D1` / `RI-2026-079` | `toolbelt.datetime.date-spine` | `toolbelt_datetime.TVF_DateSpineDay`, `TVF_DateSpineIsoWeek`, `TVF_DateSpineMonth` | Windows-Runtime nach wiederhergestellter SQL-Erreichbarkeit; Release bleibt unautorisiert. |
+| `TC-2026-046` | `toolbelt.core.second-session` | `toolbelt_core.USP_ExecuteWorkTypeInNewSession` | Keine autonome Validierung offen; zusätzliche Provider bleiben getrennte Forschungs- und Freigabeslices. |
+| `D1` / `RI-2026-079` | `toolbelt.datetime.date-spine` | `toolbelt_datetime.TVF_DateSpineDay`, `TVF_DateSpineIsoWeek`, `TVF_DateSpineMonth` | Keine autonome Validierung offen; Release bleibt unautorisiert. |
 | `TC-2026-015` | `toolbelt.core.work-queue` (E1a) | `toolbelt_core.USP_EnqueueWork`, `USP_ClaimWork`, `USP_CompleteWork`, `USP_FailWork`, `USP_GetWorkStatus`, `VW_WorkQueue` | Worker-Provider und E1c Retry/Idempotenz bleiben separat; tatsächliche Veröffentlichung ist nicht autorisiert. |
 | `TC-2026-021` | `toolbelt.core.work-queue` (E1b) | `toolbelt_core.USP_RenewWorkLease`, `USP_RecoverExpiredWork`; Lease- und Generationserweiterungen der E1a-Objekte | E1c Retry/Idempotenz bleibt separat; tatsächliche Veröffentlichung ist nicht autorisiert. |
 | `TC-2026-010` | `toolbelt.string.regex` (R1b) | `toolbelt_string.SVF_RegexIsMatch`, `SVF_RegexInstr`, `SVF_RegexCount` | Replace, Substring, Captures, Split und Matches bleiben separat; tatsächliche Veröffentlichung ist nicht autorisiert. |
@@ -260,20 +260,21 @@ stillschweigend zu V1.
 
 W2c mit `TC-2026-016` und `TC-2026-023` ist als
 `toolbelt.core.console-message` sowie
-`toolbelt.metadata.capability-catalog` implementiert und auf SQL Server 2025
-Linux mit Compatibility Levels 150/160/170 teilweise validiert. Physische
-Zielversions-, Windows- und modulspezifische Releasefälle bleiben offen.
+`toolbelt.metadata.capability-catalog` implementiert. Die automatisierte
+Windows-/Linux-Matrix 2019/2022/2025 ist erfolgreich; der Capability Catalog
+ist einschließlich eingeschränkter Metadatensichtbarkeit `validated`.
+Console Message bleibt wegen zusätzlicher realer Client-/Treiber-, Buffering-
+und Framing-Evidenz `partially validated`.
 
 JSON-Konstruktoren und `TC-2026-013` bilden W2b-B und bleiben zurückgestellt.
 Konstruktoren benötigen eine belastbare variable Eingabeoberfläche;
 JSON-Aggregate bleiben während des nativen Preview-Status und ohne
 freigegebenen SQL-CLR-/Providervertrag außerhalb der Entwicklung.
 
-Die am 2026-08-28 ausdrücklich freigegebene nächste Entwicklungsfolge ist
-`V0a` → `V0b` → `V0c`. `V0a` bündelt die physische Linux-Validierung der 23
-portablen beziehungsweise Linux-fähigen Module. `V0b` prüft die portable
-Releasekohorte auf Windows und ergänzt die Hochrisikofälle für ResultTable,
-SQL CLR, Datei-I/O, Second Session und Event Log.
+Die am 2026-08-28 ausdrücklich freigegebene Entwicklungsfolge `V0a` → `V0b`
+→ `V0c` hat ihre autonom ausführbare Windows-/Linux-Matrix abgeschlossen.
+Offen bleiben die sieben ausdrücklich abgegrenzten externen oder manuellen
+Gates; eine tatsächliche Veröffentlichung ist nicht autorisiert.
 
 `V0c` ist verbindlich auf folgende 16 vorhandene Module begrenzt:
 
@@ -294,14 +295,9 @@ SQL CLR, Datei-I/O, Second Session und Event Log.
 - `toolbelt.core.console-message`;
 - `toolbelt.metadata.capability-catalog`.
 
-2 Module sind `validated`, 25 bleiben `partially validated`; alle 27 sind `unreleased`. Der lokale
-SQL_Server_Lab-Vertrag ist schema-valide. Durch die ausdrückliche
-Einzelzielfreigabe vom 2026-08-29 sind die laufenden Linux-Ziele trotz
-`groupStatus = INCOMPLETE` für `V0a` verwendbar; die beim SQL-Anmeldungs-
-Preflight nicht erreichbaren Windows-Ziele bleiben ausgeschlossen. Am
-2026-08-29 waren die vollständigen Adapter aller
-16 V0c-Module auf den physischen Linux-Zielen 2019/2022/2025 erfolgreich.
-Second Session und Event Log scheiterten auf 2019/2022, bestanden aber auf
-2025; File Content blieb ohne separat bereitgestellte serverseitige Fixtures
-`not executed`. Das Projekt startet, repariert oder löscht keine
-Lab-Ressourcen selbst.
+20 Module sind `validated`, 8 bleiben `partially validated`; alle 28 sind `unreleased`. Der lokale
+SQL_Server_Lab-Vertrag ist schema-valide. Die vollständige automatisierte
+Matrix war am 2026-09-01 auf physischen SQL-Server-2019-/2022-/2025-Zielen
+unter Windows base und Linux latest erfolgreich. File Content bleibt ohne
+separat bereitgestellte serverseitige Fixtures in diesem Spezialscope offen.
+Das Projekt startet, repariert oder löscht keine Lab-Ressourcen selbst.

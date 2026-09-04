@@ -1,7 +1,7 @@
 # toolbelt_metadata.VW_ModuleCapabilities
 
 **Typ:** View
-**Status:** `implemented`; Runtime `partially validated`
+**Status:** `implemented`; Runtime `validated`
 
 ## Zweck
 

@@ -4,7 +4,7 @@
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-28 Module sind implementiert. 2 sind `validated`, 26 sind `partially
+28 Module sind implementiert. 20 sind `validated`, 8 sind `partially
 validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
@@ -12,10 +12,9 @@ validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 TVFs für Tag, ISO-Woche und Monat. Der halboffene Bereich liefert alle
 geschnittenen Perioden mit nullbasiertem Ordinal. Die vollständigen lokalen,
 zentralen, Lifecycle-, Dependency-, Kollisions-, Grenz-, `DATEFIRST`- und
-Skalierungsadapter sind auf physischen SQL-Server-2019-/2022-/2025-Linux-
-Zielen erfolgreich. Die ausgewählten Windows-Ziele waren beim SQL-Anmeldungs-
-Preflight nicht erreichbar; Windows bleibt `not executed` und das Modul
-`partially validated` sowie `unreleased`.
+Skalierungsadapter sind auf physischen SQL-Server-2019-/2022-/2025-Zielen
+unter Windows base und Linux latest erfolgreich. Das Modul ist `validated`
+und `unreleased`.
 
 `toolbelt.core.work-queue` Version `1.1.0` implementiert die ausdrücklich
 freigegebenen E1a-/E1b-Slices mit Enqueue, atomarem Lease-Claim, Heartbeat,
@@ -27,69 +26,73 @@ Zielen erfolgreich. Die vollständige E1b-Pflichtmatrix ist auf SQL Server
 Retry/Dead Letter/Idempotenz bleibt E1c.
 
 Die W2c-Module `toolbelt.core.console-message` und
-`toolbelt.metadata.capability-catalog` sind auf physischen
-SQL-Server-2019-, 2022- und 2025-Linux-Zielen einschließlich
+`toolbelt.metadata.capability-catalog` sind auf physischen SQL-Server-2019-,
+2022- und 2025-Zielen unter Windows base und Linux latest einschließlich
 Langtext-/Unicode-, Marker-/Drift-, Wiederholungs-, Lifecycle-, Central- und
-Uninstall-Contracts erfolgreich. Windows- und modulspezifische Releasefälle
-bleiben `not executed`.
+Uninstall-Contracts erfolgreich. Der Capability Catalog ist einschließlich
+eingeschränkter Metadatensichtbarkeit `validated`; Console Message bleibt
+wegen zusätzlicher Client-/Treiber- und Buffering-Grenzen `partially validated`.
 
 `toolbelt.core.console-message` stellt zusätzlich den ADP-008-Piloten für den
 Project-Adapter-Vertrag 0.1 von `SQL_Server_Lab` bereit. Der Adapter wird
 deterministisch aus den kanonischen Modulquellen erzeugt und war mit SQL Server
 2025 Linux getrennt unter Docker und Podman für Install, versionsgleiches
 Update, Modul-/Help-Validierung und markergebundenen Cleanup erfolgreich. Der
-Toolbelt-Runner verwaltet keine Lab-Infrastruktur und der Modulstatus bleibt
-wegen der offenen Windows- und Client-/Treiber-Matrix `partially validated`.
+Toolbelt-Runner verwaltet keine Lab-Infrastruktur. Die Windows-/Linux-Matrix
+2019/2022/2025 ist erfolgreich; der Modulstatus bleibt wegen zusätzlicher
+Client-/Treiber- und Buffering-Grenzen `partially validated`.
 
 Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das Kernmodul
 `toolbelt.core.result-table` ist implementiert und teilweise validiert: Die
-GitHub-hosted Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich;
-Windows und noch nicht automatisierte Pflichtfälle bleiben `not executed`.
+Windows-/Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; eine
+vergleichbare plattformübergreifende Performance-Baseline bleibt offen.
 Das unabhängige Modul `toolbelt.conversion.base64` ist implementiert; sein
 vollständiger Adapter ist auf physischen SQL-Server-2019-, 2022- und
-2025-Linux-Zielen erfolgreich. Windows-Läufe bleiben `not executed`; das
-Modul ist deshalb `partially validated`.
+2025-Zielen unter Windows base und Linux latest erfolgreich. Das Modul bleibt
+wegen der noch offenen breiteren Large-LOB-Performance-Evidenz `partially validated`.
 
 Das unabhängige Modul `toolbelt.core.generate-series` ist mit portablen
 Inline TVFs für `int` und `bigint` implementiert. Sein vollständiger Adapter
-ist auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich.
-Windows-Läufe bleiben `not executed`; das Modul ist deshalb `partially
-validated`.
+ist auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base
+und Linux latest erfolgreich. Das Modul bleibt wegen der noch offenen
+Very-large-series-Performance-Evidenz `partially validated`.
 
 Das Modul `toolbelt.metadata.identifier` implementiert einen zustandsbasierten
 Parser und einen Quote-Wrapper für ein- bis vierteilige SQL-Namen. Code,
 Lifecycle-, Dokumentations- und Testartefakte sind vorhanden. Der
 vollständige Adapter ist auf physischen SQL-Server-2019-, 2022- und
-2025-Linux-Zielen erfolgreich; Windows-Läufe bleiben `not executed`.
+2025-Zielen unter Windows base und Linux latest erfolgreich; das Modul ist
+`validated`.
 
 Das Modul `toolbelt.string.split-characters` implementiert einen literal
 interpretierten Multi-Separator-Vertrag mit stabilen Ordinals, definierter
 Leer-Token-Semantik und `nvarchar(max)`-Verarbeitung. Code, Lifecycle-,
 Dokumentations- und Testartefakte sind vorhanden. Der vollständige Adapter
-ist auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich;
-Windows-Läufe bleiben `not executed`. Die breitere Quote-/Escape-Version
+ist auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base
+und Linux latest erfolgreich; das Modul ist `validated`. Die breitere Quote-/Escape-Version
 bleibt getrennt als `TC-2026-032`.
 
 `toolbelt.validation.semantic-version` ist mit strengem SemVer-2.0.0-Parser,
 Comparator und binärem Sort Key implementiert. Der vollständige Adapter ist
-auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich;
-Windows-Läufe bleiben `not executed`.
+auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und
+Linux latest erfolgreich; das Modul ist `validated`.
 
 `toolbelt.conversion.integer-base` codiert und decodiert den vollständigen
 `bigint`-Bereich mit frei definierbaren binär eindeutigen ASCII-Alphabeten.
 Der vollständige Adapter ist auf physischen SQL-Server-2019-, 2022- und
-2025-Linux-Zielen erfolgreich; Windows-Läufe bleiben `not executed`.
+2025-Zielen unter Windows base und Linux latest erfolgreich; das Modul ist
+`validated`.
 
 `toolbelt.datetime.calendar-difference` zerlegt `date`-Intervalle nach einer
 dokumentierten Anniversary-Regel. `toolbelt.string.directional-trim` stellt
 typstabile `varchar`-/`nvarchar`-TVFs für `LEADING`, `TRAILING` und `BOTH`
 bereit. `toolbelt.conversion.uri-component` codiert und decodiert
 RFC-3986-URI-Komponenten mit expliziter UTF-8-Sequenzvalidierung. Die drei
-Module sind mit ihren vollständigen Adaptern auf physischen
-SQL-Server-2019-, 2022- und 2025-Linux-Zielen einschließlich
-Wiederholungsdeployment, zentraler Nutzung und Uninstall erfolgreich.
-Windows-Läufe bleiben `not executed`; die Module sind deshalb `partially
-validated`.
+Module sind mit ihren vollständigen Adaptern auf physischen SQL-Server-2019-,
+2022- und 2025-Zielen unter Windows base und Linux latest einschließlich
+Wiederholungsdeployment, zentraler Nutzung, Kollisionsschutz und Uninstall
+erfolgreich. Die zusätzlichen Collation- sowie ASCII-/Unicode-/Large-Input-
+Pflichtfälle sind ebenfalls erfolgreich; die Module sind `validated`.
 
 W2a ist mit drei weiteren portablen Inline-TVF-Modulen implementiert:
 `toolbelt.datetime.truncate` bietet typgetrennte Truncation für `date`,
@@ -97,28 +100,33 @@ W2a ist mit drei weiteren portablen Inline-TVF-Modulen implementiert:
 Origin-basierte Buckets derselben Typfamilie und
 `toolbelt.binary.bit-operations` portiert die fünf SQL-Server-2022-
 Bitoperationen für `bigint`. Die vollständigen Adapter sind auf physischen
-SQL-Server-2019-, 2022- und 2025-Linux-Zielen einschließlich
-Wiederholungsdeployment, Lifecycle, zentraler Nutzung und Uninstall
-erfolgreich. Windows-Läufe bleiben offen; die Module sind deshalb `partially
-validated`.
+SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest
+einschließlich Wiederholungsdeployment, Lifecycle, zentraler Nutzung,
+Kollisionsschutz, nativer Parität und Uninstall erfolgreich. Der Bucket-
+Optimizer-Workload umfasst zusätzlich 100.000 synthetische Zeilen; die drei
+Module sind `validated`.
 
 W2b-A ist als `toolbelt.json.path-exists` implementiert. Die
 Multi-statement TVF prüft Root-, Property-, Array-Index- und
 Array-Wildcard-Pfade, propagiert SQL `NULL` und liefert für ungültiges JSON
 oder ungültige Pfade fehlerfrei `0`. Konstruktoren aus `TC-2026-009` und
 JSON-Aggregate aus `TC-2026-013` bleiben zurückgestellt. Der vollständige
-Adapter ist auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen
-einschließlich nativer Parität, Wiederholungsdeployment, Lifecycle, Central
-und Uninstall erfolgreich; Windows-Läufe bleiben offen.
+Adapter ist auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter
+Windows base und Linux latest einschließlich nativer Parität,
+Wiederholungsdeployment, Kollisionsschutz, Lifecycle, Central und Uninstall
+erfolgreich; das Modul ist `validated`.
 
 W2c ist als `toolbelt.core.console-message` und
 `toolbelt.metadata.capability-catalog` implementiert. Die Console-USP
 verwendet Unicode-sichere `PRINT`- beziehungsweise
 `RAISERROR ... WITH NOWAIT`-Chunks. Die Capability-View liest ausschließlich
 Database-level Extended Properties und weist Marker als `valid`,
-`incomplete` oder `invalid` aus. SQL Server 2025 Linux ist mit Compatibility
-Levels 150, 160 und 170 einschließlich Langtext-/Unicode-, Marker-/Drift-,
+`incomplete` oder `invalid` aus. Die vollständige Windows-/Linux-Matrix
+2019/2022/2025 ist einschließlich Langtext-/Unicode-, Marker-/Drift-,
 Wiederholungs-, Lifecycle-, Central- und Uninstall-Contracts erfolgreich.
+Die eingeschränkte Metadatensichtbarkeit wurde ohne Rechteausweitung geprüft;
+der Capability Catalog ist `validated`. Console Message bleibt wegen der
+zusätzlichen Client-/Treibergrenzen `partially validated`.
 
 `toolbelt.archive.zip-memory` ist als V1A-In-memory-Slice implementiert und
 stellt `toolbelt_archive.USP_ExtractZipEntryFromBinary` bereit. Version
@@ -128,8 +136,10 @@ behandelt Duplicate-Namen als expliziten Fehler und liefert bei
 `@FailIfEncrypted = 0` einen verschluesselten Status ohne Payload. Version
 `1.2.0` ergänzt das Metadaten-Listing. Extraktion und Listing sind im
 [GitHub-Actions-Lauf 32701896453](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453)
-auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich; Windows-Runtime,
-reale Archive und echte Extremgrößen bleiben offen.
+auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich; die automatisierte
+Windows-/Linux-Matrix 2019/2022/2025 war am 2026-09-01 ebenfalls erfolgreich.
+Reale Archive, echte Extremgrößen, historische Upgrades und Interoperabilität
+bleiben offen.
 
 ## Projektzweck
 

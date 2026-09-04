@@ -19,8 +19,8 @@ nicht erreichbarer Zielverbindungen nicht ausgeführt.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-30`
+- Datum: `2026-09-01`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Explizit ausgewählte SQL-Server-2019-, 2022- und 2025-Windows-Ziele; SQL-Anmeldungs-Preflight
-- Ergebnis: `not executed; Zielverbindungen waren vor der ersten Testmutation nicht erreichbar`
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; lokale und zentrale Installation, Compatibility Levels 150/160/170, Semantik, Grenzen, DATEFIRST, Skalierung, Dependency- und Kollisionsschutz, Lifecycle und Uninstall
+- Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

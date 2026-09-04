@@ -1,8 +1,6 @@
 # Work-Type-Contract-Testmatrix
 
-V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
-ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
-Windows- und modulspezifische Fälle bleiben unberührt.
+Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 - kanonischer Work-Type-Name und Ablehnung von SQL-Text-/Identifier-Missbrauch
 - vorhandene Stored Procedure als einzig zulässiger Handlertyp
@@ -22,7 +20,7 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 - Redeploy erhält persistente Katalogdaten
 - lokales und zentrales Deployment
 - Uninstall verweigert stillen Datenverlust
-- Windows und physische SQL-Server-2019-/2022-Läufe bleiben `not executed`
+- Windows base und Linux latest auf SQL Server 2019/2022/2025 erfolgreich
 
 ## Ausgeführte Evidenz
 
@@ -35,7 +33,7 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-09-01`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w4b-work-type-runtime.yml`
-- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger W4b-Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger W4-Moduladapter mit lokalem und zentralem Deployment, Transaktions-, Konkurrenz-, Lifecycle- und Uninstall-Tests
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
