@@ -17,7 +17,7 @@ providers:
   - id: clr-windows-filesystem
     technology: "C# SQL CLR .NET Framework 4.8; EXTERNAL_ACCESS; SqlContext.WindowsIdentity.Impersonate for Caller mode"
     platforms: [Windows]
-    status: implemented
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: false

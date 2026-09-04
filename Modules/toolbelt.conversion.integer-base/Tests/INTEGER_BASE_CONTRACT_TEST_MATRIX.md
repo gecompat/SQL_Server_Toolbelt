@@ -1,8 +1,6 @@
 # Integer-Base Contract-Testmatrix
 
-V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
-ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
-Windows- und modulspezifische Fälle bleiben unberührt.
+Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 | Bereich | Fälle | Stand |
 |---|---|---|
@@ -16,7 +14,7 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 | Upgrade | `1.0.0` auf `1.1.0`, Wiederholung, Kollision | vorhanden |
 | Lifecycle | lokal, zentral, Drift, Kollision, Uninstall | vorhanden |
 | SQL Server 2025 Linux 150/160/170 | Version `1.1.0` | `success` |
-| SQL Server 2019/2022 und Windows | Release-Matrix | `not executed` |
+| SQL Server 2019/2022/2025 unter Windows base und Linux latest | Release-Matrix | erfolgreich |
 
 Aktuelle Evidenz:
 https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377860
@@ -25,7 +23,7 @@ https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377860
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-09-01`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/integer-base-runtime.yml`
-- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger Moduladapter mit lokalem und zentralem Deployment, Vertrags-, Lifecycle-, Kollisions- und Uninstall-Tests
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

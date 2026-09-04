@@ -62,6 +62,26 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [Unreleased]
 
+### Geändert
+
+- AI Repository Foundation von `1.4.0` auf den manifestierten Core `1.8.0`
+  aktualisiert. Semantische Upgrade-Bewertung, zentrales Registry-Profil,
+  Repository-Continuity und Rule-Context-Cache-Governance sind integriert;
+  optionale Foundation-Capabilities bleiben unselektiert.
+- Die vollständige lokale Adaptermatrix ist auf physischen SQL-Server-2019-,
+  2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich.
+  20 Module sind damit `validated`; sieben bleiben wegen ausdrücklich
+  abgegrenzter Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts-
+  oder manueller Sicherheitsgates `partially validated`.
+- Die W1-Pflichtfälle decken zusätzlich CI-/CS-/UTF-8-Collations, leere
+  Trim-Mengen, den vollständigen druckbaren ASCII-Raum, ungültige kurze
+  Prozentsequenzen, Large-Input-Roundtrip und Fremdobjektkollisionen ab.
+- W2a/W2b ergänzen Fremdobjektkollisionen sowie einen synthetischen
+  100.000-Zeilen-Bucket-Workload; der Capability Catalog prüft eingeschränkte
+  Metadatensichtbarkeit ohne Rechteausweitung.
+- Second Session und Event Log verwenden im Loopback-Providervertrag
+  `encrypt=no`, das von den eingesetzten OLE-DB-18-/19-Pfaden akzeptiert wird.
+
 ### Hinzugefügt
 
 - ADP-008 ergänzt für `toolbelt.core.console-message` einen Project Adapter

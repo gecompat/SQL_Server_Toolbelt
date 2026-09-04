@@ -7,7 +7,7 @@ die einen halboffenen `date`-Bereich schneiden.
 
 - Version: `1.0.0`
 - Implementierung: `implemented`
-- Validierung: `partially validated`
+- Validierung: `validated`
 - Release: `unreleased`
 - Provider: portable T-SQL Inline TVFs
 
@@ -39,18 +39,16 @@ Kalenderdimension. Ohne `ORDER BY` besteht keine Reihenfolgegarantie.
 Siehe [Moduldesign](../../Documentation/Architecture/DATE_SPINE_MODULE_DESIGN.md)
 und [Testmatrix](Tests/DATE_SPINE_CONTRACT_TEST_MATRIX.md).
 
-Die vollständige Modulmatrix ist auf den physischen Linux-Zielen 2019, 2022
-und 2025 erfolgreich. Die explizit ausgewählten Windows-Ziele waren beim
-SQL-Anmeldungs-Preflight nicht erreichbar; Windows-Runtime bleibt deshalb
-`not executed`.
+Die vollständige Modulmatrix ist auf physischen SQL-Server-2019-, 2022- und
+2025-Zielen unter Windows base und Linux latest erfolgreich.
 
 Evidenz 2026-08-30: `local: Tests/CI/run-lab-local.ps1`.
 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-30`
+- Datum: `2026-09-01`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Explizit ausgewählte SQL-Server-2019-, 2022- und 2025-Windows-Ziele; SQL-Anmeldungs-Preflight
-- Ergebnis: `not executed; Zielverbindungen waren vor der ersten Testmutation nicht erreichbar`
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; lokale und zentrale Installation, Compatibility Levels 150/160/170, Semantik, Grenzen, DATEFIRST, Skalierung, Dependency- und Kollisionsschutz, Lifecycle und Uninstall
+- Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

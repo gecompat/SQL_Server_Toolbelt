@@ -1,8 +1,6 @@
 # Contract-Testmatrix: Date/Time Truncation
 
-V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
-ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
-Windows- und modulspezifische Fälle bleiben unberührt.
+Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 | Bereich | Pflichtfälle |
 |---|---|
@@ -18,9 +16,8 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 
 ## Evidenzstatus
 
-SQL Server 2025 Linux war mit Compatibility Levels 150, 160 und 170
-einschließlich Lifecycle, Central und Uninstall erfolgreich. Physische
-SQL-Server-2019-/2022- und Windows-Läufe bleiben `not executed`.
+Windows/Linux 2019/2022/2025 waren einschließlich nativer Parität, Kollision,
+Lifecycle, Central und Uninstall erfolgreich.
 
 [W2a Portable Runtime 30561236509](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30561236509)
 
@@ -28,7 +25,7 @@ SQL-Server-2019-/2022- und Windows-Läufe bleiben `not executed`.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-09-01`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w2a-portable-runtime.yml`
-- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; vollständiger W2a-Moduladapter je Zielversion mit den dort zulässigen Compatibility Levels
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger Moduladapter einschließlich nativer Parität, Kollisionsschutz, Lifecycle und Uninstall
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

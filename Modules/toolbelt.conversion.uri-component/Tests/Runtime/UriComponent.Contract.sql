@@ -10,6 +10,8 @@ BEGIN
  THROW 52724,N'Einmaliges Decoding ist falsch.',1;
 END;
 IF EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(N'%G0') WHERE IsValid<>0 OR ValidationCode<>11) THROW 52725,N'Ungültiges Prozent-Triplet ist falsch.',1;
+IF EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(N'%') WHERE IsValid<>0 OR ValidationCode<>11) THROW 52748,N'Ein einzelnes Prozentzeichen wird nicht abgelehnt.',1;
+IF EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(N'%A') WHERE IsValid<>0 OR ValidationCode<>11) THROW 52749,N'Ein unvollständiges Prozent-Triplet wird nicht abgelehnt.',1;
 IF (SELECT EncodedValue FROM toolbelt_conversion.TVF_UriComponentEncode(N'€😀'))<>N'%E2%82%AC%F0%9F%98%80' THROW 52740,N'Das UTF-8-Encoding ist falsch.',1;
 IF EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(N'%E2%82%AC%F0%9F%98%80') WHERE DecodedValue<>N'€😀' OR IsValid<>1 OR ValidationCode<>0)
 BEGIN
@@ -22,3 +24,45 @@ IF EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(N'ä') WHERE 
 IF EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(NULL) WHERE DecodedValue IS NOT NULL OR IsValid IS NOT NULL OR ValidationCode IS NOT NULL) THROW 52745,N'NULL wird nicht vertragsgemäß weitergegeben.',1;
 IF (SELECT EncodedValue FROM toolbelt_conversion.TVF_UriComponentEncode(N''))<>N'' OR EXISTS(SELECT 1 FROM toolbelt_conversion.TVF_UriComponentDecode(N'') WHERE DecodedValue<>N'' OR IsValid<>1 OR ValidationCode<>0) THROW 52746,N'Der Leerstringvertrag ist falsch.',1;
 IF toolbelt_conversion.SVF_UriComponentEncode(N'€😀')<>(SELECT EncodedValue FROM toolbelt_conversion.TVF_UriComponentEncode(N'€😀')) OR toolbelt_conversion.SVF_UriComponentDecode(N'%E2%82%AC%F0%9F%98%80')<>(SELECT DecodedValue FROM toolbelt_conversion.TVF_UriComponentDecode(N'%E2%82%AC%F0%9F%98%80')) THROW 52747,N'Die SVF-/TVF-Parität ist falsch.',1;
+
+DECLARE @AsciiCode int = 32;
+WHILE @AsciiCode <= 126
+BEGIN
+    DECLARE @AsciiCharacter nchar(1) = NCHAR(@AsciiCode);
+    DECLARE @AsciiEncoded nvarchar(max) =
+    (
+        SELECT EncodedValue
+        FROM toolbelt_conversion.TVF_UriComponentEncode(@AsciiCharacter)
+    );
+    DECLARE @AsciiExpected nvarchar(3) = CASE
+        WHEN @AsciiCode BETWEEN 48 AND 57
+          OR @AsciiCode BETWEEN 65 AND 90
+          OR @AsciiCode BETWEEN 97 AND 122
+          OR @AsciiCode IN (45, 46, 95, 126)
+            THEN @AsciiCharacter
+        ELSE N'%' + SUBSTRING(N'0123456789ABCDEF', @AsciiCode / 16 + 1, 1)
+                   + SUBSTRING(N'0123456789ABCDEF', @AsciiCode % 16 + 1, 1)
+    END;
+    IF @AsciiEncoded COLLATE Latin1_General_100_BIN2
+       <> @AsciiExpected COLLATE Latin1_General_100_BIN2
+        THROW 52750,N'Die druckbare ASCII-Encoding-Tabelle ist unvollständig.',1;
+    SET @AsciiCode += 1;
+END;
+
+DECLARE @LargeValue nvarchar(max) =
+    REPLICATE(CONVERT(nvarchar(max), N'AZaz09-._~ '), 2048);
+DECLARE @LargeEncoded nvarchar(max) =
+(
+    SELECT EncodedValue
+    FROM toolbelt_conversion.TVF_UriComponentEncode(@LargeValue)
+);
+IF EXISTS
+(
+    SELECT 1
+    FROM toolbelt_conversion.TVF_UriComponentDecode(@LargeEncoded)
+    WHERE IsValid <> 1
+       OR ValidationCode <> 0
+       OR DecodedValue COLLATE Latin1_General_100_BIN2
+          <> @LargeValue COLLATE Latin1_General_100_BIN2
+)
+    THROW 52751,N'Der synthetische LOB-Roundtrip ist inkonsistent.',1;

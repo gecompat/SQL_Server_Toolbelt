@@ -6,7 +6,7 @@ Stand: 2026-08-24
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** 28 Module sind implementiert; 2 sind `validated`, 26 sind `partially validated`, 0 sind `not executed`. |
+| Aktueller Projektstand | **Dokumentiert:** 28 Module sind implementiert; 20 sind `validated`, 8 sind `partially validated`, 0 sind `not executed`. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
 | Implementierungsfreigabe | **Abgeschlossen beziehungsweise aktiv:** Die bisher implementierten Einzelkandidaten, W1, W2a, W2b-A und W2c wurden nach ausdrücklicher Freigabe umgesetzt. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
@@ -34,20 +34,20 @@ Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
 
 | Reihenfolge | Kandidat | Komplexität | Begründung |
 |---:|---|---:|---|
-| 1 | `TC-2026-003` – ResultTable-Routing | `L` | Implementiertes Kernmodul; offene Windows-, Recovery- und Performancefälle bleiben eine getrennte Releasevalidierung und blockieren fachlich unabhängige Module nicht. |
-| 2 | `TC-2026-012` – Base64/Base64URL | `M` | Implementiert und auf physischen SQL-Server-2019-/2022-/2025-Linux-Zielen teilweise validiert; Windows-Läufe bleiben Releaseaufgabe. |
-| 3 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
-| 4 | `TC-2026-029` – Identifier- und Multipart-Name-Toolkit | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
-| 5 | `TC-2026-001` – Split mit mehreren einzelnen Trennzeichen | `M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert; breitere Quote-/Escape-Stufe bleibt getrennt. |
-| 6 | `TC-2026-030` – Semantic-Version Parser/Comparator | `S–M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
-| 7 | `TC-2026-031` – frei definierbare Zahlensysteme | `S–M` | Implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
-| 8 | `TC-2026-002` – kalendarische Differenz | `M` | Als W1-Modul implementiert und auf SQL Server 2025 Linux mit Compatibility Levels 150/160/170 teilweise validiert. |
-| 9 | `TC-2026-008` – Directional TRIM | `S–M` | Als W1-Modul mit getrennten `varchar`-/`nvarchar`-TVFs implementiert und teilweise validiert. |
-| 10 | `TC-2026-024` – URI-Percent-Encoding | `M` | Als W1-Modul mit kanonischen inline TVFs und optionalen SVF-Wrappern implementiert und teilweise validiert. |
+| 1 | `TC-2026-003` – ResultTable-Routing | `L` | Implementiertes Kernmodul; eine vergleichbare plattformübergreifende Performance-Baseline bleibt als getrennte Releasevalidierung offen. |
+| 2 | `TC-2026-012` – Base64/Base64URL | `M` | Implementiert; Windows/Linux 2019/2022/2025 erfolgreich, breitere Large-LOB-Performance-Evidenz bleibt offen. |
+| 3 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Implementiert; Windows/Linux 2019/2022/2025 erfolgreich, breitere Very-large-series-Performance-Evidenz bleibt offen. |
+| 4 | `TC-2026-029` – Identifier- und Multipart-Name-Toolkit | `M` | Implementiert und auf Windows/Linux 2019/2022/2025 `validated`. |
+| 5 | `TC-2026-001` – Split mit mehreren einzelnen Trennzeichen | `M` | Implementiert und auf Windows/Linux 2019/2022/2025 `validated`; breitere Quote-/Escape-Stufe bleibt getrennt. |
+| 6 | `TC-2026-030` – Semantic-Version Parser/Comparator | `S–M` | Implementiert und auf Windows/Linux 2019/2022/2025 `validated`. |
+| 7 | `TC-2026-031` – frei definierbare Zahlensysteme | `S–M` | Implementiert und auf Windows/Linux 2019/2022/2025 `validated`. |
+| 8 | `TC-2026-002` – kalendarische Differenz | `M` | Als W1-Modul implementiert und auf Windows/Linux 2019/2022/2025 `validated`. |
+| 9 | `TC-2026-008` – Directional TRIM | `S–M` | Als W1-Modul mit getrennten `varchar`-/`nvarchar`-TVFs implementiert und auf Windows/Linux 2019/2022/2025 `validated`. |
+| 10 | `TC-2026-024` – URI-Percent-Encoding | `M` | Als W1-Modul mit kanonischen inline TVFs und optionalen SVF-Wrappern implementiert und auf Windows/Linux 2019/2022/2025 `validated`. |
 
-**Hauptempfehlung:** Die offenen Releasevalidierungen getrennt weiterführen.
-Die fünf Entwicklungsgruppen bis einschließlich W2c sind teilweise
-validiert.
+**Hauptempfehlung:** Die sieben ausdrücklich abgegrenzten offenen
+Releasevalidierungen getrennt weiterführen; vollständig validierte Module
+benötigen keine pauschale Wiederholung ihrer Windows-/Linux-Matrix.
 
 ## F1 – Abgeschlossene Sammelfreigaben
 

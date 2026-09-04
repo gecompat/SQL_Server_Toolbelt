@@ -108,4 +108,16 @@ run_query "${central_database}" "
 IF OBJECT_ID(N'toolbelt_json.TVF_JsonPathExists') IS NOT NULL
     THROW 52999, N'Central Uninstall ließ das JSON-Path-Objekt zurück.', 1;"
 
+collision_database=tbx_w2b_json_collision
+run_query master "CREATE DATABASE [${collision_database}] COLLATE Latin1_General_100_CS_AS;"
+run_query "${collision_database}" "CREATE SCHEMA toolbelt_json;"
+run_query "${collision_database}" "CREATE FUNCTION toolbelt_json.TVF_JsonPathExists(@Value int) RETURNS TABLE AS RETURN SELECT @Value AS ForeignValue;"
+
+set +e
+json_collision_output="$(deploy_module "${collision_database}" local 2>&1)"
+json_collision_rc=$?
+set -e
+[[ "${json_collision_rc}" -ne 0 && "${json_collision_output}" == *"51264"* ]] || { echo 'JSON-Path-Kollisionspreflight ist fehlgeschlagen.' >&2; exit 1; }
+run_query "${collision_database}" "IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.path-exists.Version') THROW 52998,N'Das abgelehnte JSON-Path-Deployment hinterließ einen Modulmarker.',1;"
+
 echo "W2b JSON Path SQL Server ${sql_version} (Compatibility ${compatibility_levels}): erfolgreich"

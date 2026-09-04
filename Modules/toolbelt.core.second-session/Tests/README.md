@@ -8,9 +8,11 @@ Die vollständige Modulmatrix für Konfiguration, Work-Type-Signaturen, Context-
 
 Die manuelle Windows-Validierung vom 2026-08-04 lief mit `System.Data.SqlClient` gegen SQL Server 2025 unter Windows erfolgreich. Sie umfasste lokale und zentrale Bereitstellung, einen Collation-übergreifenden Abgleich mit `master.sys.servers`, Provider-Probe, Contract-, Concurrency-, Central- und Lifecycle-Tests sowie geschützten und vollständigen Uninstall. Sie ist kein GitHub-Hosted-CI-Nachweis.
 
-Der lokale physische Linux-Lauf vom 2026-08-29 war auf SQL Server 2025
-erfolgreich, scheiterte aber auf SQL Server 2019 und 2022 im gemeinsamen
-W5-Vertrag. Windows 2019/2022 bleiben `not executed`.
+Die vollständige Plattformmatrix `local: Tests/CI/run-lab-local.ps1` war am
+2026-09-01 auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter
+Windows base und Linux latest erfolgreich. Sie umfasst Provider-Probe,
+separate SPID, Caller-Rollback, uncommittable Caller, Fehlerrollback,
+Konkurrenz, zentrales Deployment, Lifecycle und Uninstall.
 
 Version `1.1.0` mit resultsetfreier Ausführung: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410
 
@@ -18,7 +20,7 @@ Version `1.1.0` mit resultsetfreier Ausführung: https://github.com/gecompat/SQL
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-09-01`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/w5a-second-session-runtime.yml`
-- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; erstmals auf allen drei Zielversionen erfolgreich, nachdem der Testadapter den Loopback-Provider versionsabhängig konfiguriert
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; Provider-Probe, separate SPID, Caller-Rollback, uncommittable Caller, Fehlerrollback, Konkurrenz, zentrales Deployment, Lifecycle und Uninstall
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

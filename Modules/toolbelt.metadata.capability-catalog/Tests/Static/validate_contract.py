@@ -12,6 +12,7 @@ required = (
     "Tests/CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md",
     "Tests/README.md",
     "Tests/Runtime/ModuleCapabilities.Contract.sql",
+    "Tests/Runtime/MetadataVisibility.Contract.sql",
     "Tests/Runtime/Lifecycle.Contract.sql",
     "Tests/Runtime/Central.Contract.sql",
     "module.yaml",
