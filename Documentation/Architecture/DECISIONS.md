@@ -433,3 +433,16 @@ bleibt ein separater Release-Nachweis.
 | Auswirkungen | Die Schemakategorie `toolbelt_tsql` und der Assemblyname `Toolbelt_Tsql_ScriptParser` werden autorisiert. Das Deployment verwaltet ggf. zwei Assemblies mit SHA2-512-Trust. Vor Modul-Release wird die Ladbarkeit unter `SAFE` bzw. `EXTERNAL_ACCESS`/`UNSAFE` sowie auf Linux/Windows in einem Spike nachgewiesen. |
 | Alternativen | Reiner T-SQL-Parser (nicht grammatikvollständig), reiner Tokenizer ohne AST (für AST-Analyse unzureichend), Stored Procedures mit Temp-Tabellen (nicht per TVF/CROSS APPLY komponierbar), externes Parsen außerhalb der Datenbank. |
 | Betroffene Verträge | `SQL_OBJECT_NAMING.md`, `CLR_SECURITY_AND_PORTABILITY.md`, `THIRD_PARTY_AND_SOURCE_POLICY.md`, `TC-2026-047`, `.ai/BACKLOG.md`, `.ai/repo_map.yaml` |
+
+## DEC-2026-030: Vollständige AI Repository Foundation 1.17.2
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-09-09 |
+| Status | accepted |
+| Entscheidung | Die AI Repository Foundation 1.17.2 wird vollständig als manifestierter Core, alle Discovery-Adapter und alle ohne zusätzliche Projektentscheidung anwendbaren optionalen Referenz-Capabilities integriert. Bestehende Toolbelt-Governance, historische Identifier und die bisherigen Stop-Gates bleiben erhalten. |
+| Begründung | Der ausdrückliche Auftrag verlangt die vollständige Aktualisierung. Die Foundation ergänzt die vorhandene kosten- und qualitätsoptimierte KI-Arbeit um portable Verträge für Modellrouting, AI-Arbeitsorchestrierung, Runtime-Adapter, Ausführung, Provisionierung, Client-Integration und installierte Provenienz. |
+| Scope | `.ai/foundation/`, `AGENTS.md`, Discovery-Adapter, Foundation-Provenienz und zugehörige Governance-Dokumentation |
+| Auswirkungen | Die Referenz-Capabilities sind verfügbar, aber nicht konfiguriert: Sie erzeugen keine Runtime-Abhängigkeit, keinen Netzwerkzugriff, keinen Modell- oder Prompt-Transfer, keine Credentials, keine externen Effekte und keine GitHub-Administration. `artifact-registry-github` bleibt unselektiert, da das Repository keine zentral entschiedene Artifact Registry besitzt und dessen Workflow sonst Pull Requests blockieren würde. Solche Wirkungen bleiben an die jeweiligen projekt- und auftragsbezogenen Freigaben gebunden. Die bestehende Registration-Authority-Entscheidung aus `DEC-2026-028` bleibt unverändert. |
+| Alternativen | Core-only-Upgrade, Beibehaltung nur des Copilot-Adapters oder Konfiguration einer konkreten KI-Runtime wurden verworfen, weil sie den vollständigen Auftrag nicht erfüllen beziehungsweise zusätzliche nicht beauftragte externe Wirkungen auslösen würden. |
+| Betroffene Verträge | `AGENTS.md`, `.ai/foundation/FOUNDATION_RULESET.md`, `.ai/foundation/AI_WORK_ORCHESTRATION_POLICY.md`, `.ai/foundation/MODEL_ROUTING_POLICY.md`, `.ai/foundation/installation-provenance.json`, `THIRD_PARTY_AND_SOURCE_POLICY.md`, `.ai/repo_map.yaml`, `DEC-2026-028` |

@@ -1,0 +1,21 @@
+{
+  "allowed_execution_boundaries": ["PROCESS", "HOST"],
+  "authorization": {
+    "allow_local_adapter_synthesis": false,
+    "granted_authorities": ["filesystem:read"],
+    "remote_data_classes": []
+  },
+  "contract": "foundation-ai-work/v1",
+  "data_class": "INTERNAL",
+  "effects": ["LOCAL_READ"],
+  "input_handles": [{"handle_id": "source", "kind": "STDIN", "media_type": "text/plain"}],
+  "limits": {"max_cost_usd": 0, "max_network_mb": 0, "timeout_seconds": 30},
+  "output": {"format": "application/json"},
+  "quality": {"minimum_success_probability": 1},
+  "required_capabilities": ["documentation.check"],
+  "risk": "LOW",
+  "schema_version": 1,
+  "task_class": "documentation.validate",
+  "validation": {"allow_human": true, "independent_required": false, "required_capabilities": []},
+  "work_id": "example-documentation-check"
+}
