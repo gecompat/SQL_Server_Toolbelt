@@ -48,7 +48,7 @@ for attempt in $(seq 1 60); do
   sleep 2
 done
 
-run_query() { docker exec "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d "$1" -Q "SET ANSI_NULLS ON; SET QUOTED_IDENTIFIER ON; $2"; }
+run_query() { docker exec "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d "$1" -Q "$2"; }
 run_file() {
   local db="$1" workdir="$2" file="$3"; shift 3
   docker exec --workdir "${workdir}" "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i "${file}" "$@"
@@ -116,7 +116,7 @@ for worker in 1 2 3 4; do
 done
 for pid in "${workers[@]}"; do wait "${pid}"; done
 run_file "${local_db}" /workspace/Modules/toolbelt.core.work-queue/Tests/Runtime Concurrency.Verify.sql
-run_query "${local_db}" "DELETE wi FROM toolbelt_core.WorkItem wi JOIN toolbelt_core.WorkType wt ON wt.WorkTypeId=wi.WorkTypeId WHERE wt.WorkTypeName='test.queue.concurrent'; DELETE FROM toolbelt_core.WorkType WHERE WorkTypeName='test.queue.concurrent'; DROP PROCEDURE dbo.USP_TbxQueueConcurrent;"
+run_query "${local_db}" "SET ANSI_NULLS ON; SET QUOTED_IDENTIFIER ON; DELETE wi FROM toolbelt_core.WorkItem wi JOIN toolbelt_core.WorkType wt ON wt.WorkTypeId=wi.WorkTypeId WHERE wt.WorkTypeName='test.queue.concurrent'; DELETE FROM toolbelt_core.WorkType WHERE WorkTypeName='test.queue.concurrent'; DROP PROCEDURE dbo.USP_TbxQueueConcurrent;"
 
 run_query "${local_db}" "EXEC(N'CREATE OR ALTER PROCEDURE dbo.USP_TbxQueuePreserve AS BEGIN SET NOCOUNT ON; END;'); EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.queue.preserve',@HandlerSchema=N'dbo',@HandlerProcedure=N'USP_TbxQueuePreserve'; CREATE TABLE #S(Dummy int NULL); EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='test.queue.preserve',@ResultTable=N'#S';"
 deploy "${local_db}" Modules/toolbelt.core.work-queue local
@@ -130,7 +130,7 @@ if [[ "${uninstall_rc}" -eq 0 ]] || ! grep -q "51949" /tmp/work-queue-uninstall.
   echo "Der Datenverlustschutz ist inkonsistent." >&2; exit 1
 fi
 run_query "${local_db}" "IF OBJECT_ID(N'toolbelt_core.WorkItem',N'U') IS NULL OR NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem) THROW 52961,N'Der abgelehnte Uninstall veränderte Daten oder Objektbestand.',1;"
-run_query "${local_db}" "DELETE wi FROM toolbelt_core.WorkItem wi JOIN toolbelt_core.WorkType wt ON wt.WorkTypeId=wi.WorkTypeId WHERE wt.WorkTypeName='test.queue.preserve'; DELETE FROM toolbelt_core.WorkType WHERE WorkTypeName='test.queue.preserve'; DROP PROCEDURE dbo.USP_TbxQueuePreserve;"
+run_query "${local_db}" "SET ANSI_NULLS ON; SET QUOTED_IDENTIFIER ON; DELETE wi FROM toolbelt_core.WorkItem wi JOIN toolbelt_core.WorkType wt ON wt.WorkTypeId=wi.WorkTypeId WHERE wt.WorkTypeName='test.queue.preserve'; DELETE FROM toolbelt_core.WorkType WHERE WorkTypeName='test.queue.preserve'; DROP PROCEDURE dbo.USP_TbxQueuePreserve;"
 
 run_query master "CREATE DATABASE [${central_db}] COLLATE Latin1_General_100_BIN2; CREATE DATABASE [${consumer_db}] COLLATE Latin1_General_100_CS_AS;"
 deploy "${central_db}" Modules/toolbelt.core.result-table central
