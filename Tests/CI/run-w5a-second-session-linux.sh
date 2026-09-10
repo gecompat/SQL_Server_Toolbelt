@@ -93,7 +93,10 @@ EXEC master.dbo.sp_addlinkedserver
       @server = N'$(LinkedServerName)'
     , @srvproduct = N''
     , @provider = N'MSOLEDBSQL'
-    , @datasrc = N'localhost'
+    -- SQL Server 2019 und 2022 auf Linux binden localhost nicht auf jeder
+    -- Testumgebung an den TCP-Listener. Die numerische IPv4-Loopback-Adresse
+    -- hält den administrativ vorbereiteten Provider versionsübergreifend.
+    , @datasrc = N'127.0.0.1'
     , @provstr = N'encrypt=$(ProviderEncrypt)';
 GO
 EXEC master.dbo.sp_addlinkedsrvlogin
