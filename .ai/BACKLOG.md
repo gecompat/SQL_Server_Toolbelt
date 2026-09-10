@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-28 Module sind implementiert. 19 sind `validated`, 9 sind `partially validated`; 0 sind `not executed`.
+28 Module sind implementiert. 20 sind `validated`, 8 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -34,7 +34,7 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Priorität | `P0` |
 | Status | `active`; autonom ausführbare V0a-/V0b-Matrix abgeschlossen; sieben externe oder manuelle Rest-Gates bleiben offen |
 | Implementation Status | 28 Module `implemented` – aus `module.yaml` abgeleitet |
-| Validation Status | 19 Module `validated`, 9 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 19 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory, Windows Filesystem, Script Parser und Work Queue bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts-, Windows-v2- oder manuelle Sicherheitsfälle offen. |
+| Validation Status | 20 Module `validated`, 8 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 20 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory, Windows Filesystem und Script Parser bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuelle Sicherheitsfälle offen. |
 | Release Status | 28 Module `unreleased`; V0c, D1, E1a, E1b und R1b autorisieren keine tatsächliche Veröffentlichung. |
 | Akzeptanzkriterien | Linux- und Windows-Zielversionen tatsächlich geprüft; Dependency-Closure und versionierte Objektmanifeste konsistent; Erst-, Wiederholungs-, Upgrade-, Central- und Uninstall-Verträge für die Kohorte erfolgreich; modulspezifische Pflichtfälle ausgeführt; nicht verfügbare Kombinationen sichtbar; vollständiger Dokumentationsaudit erfolgreich. |
 | Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |
@@ -171,12 +171,12 @@ Die V0c-Kohorte umfasst verbindlich:
 | Ziel | Work Queue 2.0.0 um expliziten Retry mit Backoff, Dead Letter, Idempotenz und priorisierte gruppenbezogene Drain-Barriers erweitern. |
 | Scope | Neue Enqueue-Policy- und Barrier-USPs, Retry-/Dead-Letter-USPs, erweiterte Claim-/Statusoberflächen, persistente Retry- und Barrier-Metadaten, Upgrade von 1.0.0/1.1.0, Dokumentation und betroffene Tests. Keine Cancellation, Worker-Provider, Raw SQL, Systemzustandserkennung oder automatische Log-Shrink-Operation. |
 | Priorität | `P1`; nach E1b, vor E1d und allen Host-Providern |
-| Status | `implemented`; Runtime `partially validated`; Release `unreleased` |
+| Status | `implemented`; Runtime `validated`; Release `unreleased` |
 | Benutzerfreigabe | Zweck, Vertrag, Alternativen, Risiken und Scope wurden am 2026-09-10 besprochen. Der Benutzer hat anschließend mit „freigabe“ und dem ausdrücklichen Implementierungsauftrag die Umsetzung freigegeben. |
 | Kernvertrag | Priority `0..255`, Gruppe pro Auftrag, `DRAIN_BARRIER` mit exaktem Snapshot aktiver Claim-Generationen, parallele gleichpriorisierte Barriers, Retry ohne Jitter und `RETRY_WAIT`, Dead Letter sowie Idempotenz je Work Type und Key. |
 | Risiken und Grenzen | Barriers können eine Gruppe bewusst anhalten; deshalb ist ihre Enqueue-Procedure getrennt berechtigt. Lease-Ablauf beendet keinen Snapshot-Blocker. Idempotenz garantiert keine fachliche Exactly-once-Ausführung. |
-| Tests | Statischer Vertrag und GitHub Actions Work-Queue Runtime #34533724721 am 2026-09-10 erfolgreich auf synthetischen SQL Server 2019/2022/2025 Linux: öffentlicher Vertrag, Retry/Dead Letter, Idempotenz, Barriers, Parallelität, Upgrade und Lifecycle. Die lokale SQL_Server_Lab-Windows-v2-Matrix ist `not executed`; CU ist für diesen nicht patchgebundenen Vertrag irrelevant. |
-| Nächster Schritt | Den Windows-v2-Nachweis mit einem bereiten Ziel jeder SQL-Server-Version nachholen; erst dann den Runtime-Status auf `validated` anheben. E1d bleibt unautorisiert. |
+| Tests | Statischer Vertrag und GitHub Actions Work-Queue Runtime #34533724721 am 2026-09-10 erfolgreich auf synthetischen SQL Server 2019/2022/2025 Linux sowie lokaler SQL_Server_Lab-Adapter am 2026-09-11 erfolgreich auf bereiten Windows-2019-, 2022- und 2025-Zielen: öffentlicher Vertrag, Retry/Dead Letter, Idempotenz, Barriers, Parallelität, Upgrade und Lifecycle. CU ist für diesen nicht patchgebundenen Vertrag irrelevant. |
+| Nächster Schritt | Den validierten W6c-Scope stabil halten. E1d bleibt unautorisiert. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 

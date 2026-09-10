@@ -2,7 +2,7 @@ module_id: "toolbelt.core.work-queue"
 module_name: "Transactional Work Queue"
 version: "2.0.0"
 implementation_status: implemented
-validation_status: partially validated
+validation_status: validated
 release_status: unreleased
 description: "Stellt eine persistente Work Queue mit atomarem Lease-Claim, Retry, Dead Letter, Idempotenz und gruppenbezogenen Drain-Barriers bereit."
 sql_server_versions:
@@ -156,3 +156,7 @@ validation_evidence:
     workflow: "GitHub Actions: Work-Queue Runtime #34533724721"
     scope: "Work Queue 2.0.0 auf synthetischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen; öffentlicher Vertrag, Retry/Dead Letter, Idempotenz, Barrier- und Parallelitätsfälle, Upgrade, Lifecycle, Central, Redeployment, Uninstall und Cleanup"
     result: "success; Windows-v2-Matrix not executed"
+  - date: "2026-09-11"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Work Queue 2.0.0 auf physischen SQL-Server-2019-, 2022- und 2025-Windows-Zielen; öffentlicher Vertrag, Retry/Dead Letter, Idempotenz, Barrier- und Parallelitätsfälle, Upgrade, Lifecycle, Central, Redeployment, Uninstall und Cleanup"
+    result: "success"

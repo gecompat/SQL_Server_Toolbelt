@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 28 Module sind implementiert. 19 sind `validated`, 9 sind
+abgeschlossen. 28 Module sind implementiert. 20 sind `validated`, 8 sind
 `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
@@ -18,8 +18,7 @@ ermittelte OLE-DB-Provideroption. Sieben Bestandsmodule bleiben wegen
 ausdrücklich abgegrenzter Performance-, Client-/Treiber-, Fixture-,
 Interoperabilitäts- oder manueller Sicherheitsfälle `partially validated`;
 das neue Modul `toolbelt.tsql.script-parser` ist mangels Windows-SQL-Server-
-Runtime ebenfalls `partially validated`; Work Queue 2.0.0 benötigt den
-Windows-v2-Nachweis. File Content benötigt weiterhin
+Runtime ebenfalls `partially validated`. File Content benötigt weiterhin
 separat bereitgestellte serverseitige Fixtures. `TC-2026-032` bleibt eine
 getrennte Split-Ausbaustufe im Research-Status ohne Implementierungsfreigabe.
 
@@ -549,7 +548,7 @@ Erweiterungen; Fuzzy Matching bleibt zurückgestellt.
 
 ### Phase 4.5 – E1 Work Queue in vertikalen Slices
 
-**Status:** Work Queue 2.0.0 `implemented`, Runtime `partially validated`,
+**Status:** Work Queue 2.0.0 `implemented`, Runtime `validated`,
 Release `unreleased`; E1d benötigt weiterhin Einzelvertrag und Freigabe
 
 Die bereits implementierten Grundlagen Work Type, Error Envelope, Execution
@@ -570,8 +569,8 @@ geschütztes Upgrade auf 1.1.0. Die vollständige physische Matrix auf SQL Serve
 bleibt manuell und begründet keine Exactly-once- oder Idempotenzzusage. W6c
 ist als Work Queue 2.0.0 implementiert und enthält Retry und Dead Letter mit
 expliziter Workerentscheidung sowie priorisierte gruppenbezogene
-Drain-Barriers. Die Linux-Matrix 2019/2022/2025 ist erfolgreich; Windows-v2
-ist noch nicht ausgeführt. E1d bleibt getrennt und unautorisiert.
+Drain-Barriers. Die Matrix 2019/2022/2025 unter Windows und Linux ist
+erfolgreich. E1d bleibt getrennt und unautorisiert.
 
 ### Phase 4.6 – R2025 GA-Delta-Research
 

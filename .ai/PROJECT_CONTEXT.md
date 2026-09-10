@@ -4,7 +4,7 @@
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-28 Module sind implementiert. 19 sind `validated`, 9 sind `partially
+28 Module sind implementiert. 20 sind `validated`, 8 sind `partially
 validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
@@ -19,11 +19,10 @@ und `unreleased`.
 `toolbelt.core.work-queue` Version `2.0.0` implementiert die ausdrücklich
 freigegebenen E1a-/E1b-/W6c-Slices mit Enqueue, atomarem Lease-Claim,
 Heartbeat, expliziter Recovery, tokengebundenem Complete/Fail, Retry, Dead
-Letter, Idempotenz und gruppenbezogenen Drain-Barriers. Die v2-Linux-Matrix
-ist auf SQL Server 2019/2022/2025 erfolgreich; Windows-v2 ist `not executed`.
-Das Modul ist daher `partially validated` und `unreleased`. Recovery und Retry
-begründen keine Exactly-once- oder generische Idempotenzzusage; Cancellation
-bleibt ein getrennter Slice.
+Letter, Idempotenz und gruppenbezogenen Drain-Barriers. Die v2-Matrix ist auf
+SQL Server 2019/2022/2025 unter Windows und Linux erfolgreich. Das Modul ist
+`validated` und `unreleased`. Recovery und Retry begründen keine Exactly-once-
+oder generische Idempotenzzusage; Cancellation bleibt ein getrennter Slice.
 
 Die W2c-Module `toolbelt.core.console-message` und
 `toolbelt.metadata.capability-catalog` sind auf physischen SQL-Server-2019-,
