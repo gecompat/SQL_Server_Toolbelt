@@ -48,7 +48,7 @@ for attempt in $(seq 1 60); do
   sleep 2
 done
 
-run_query() { docker exec "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d "$1" -Q "$2"; }
+run_query() { docker exec "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d "$1" -Q "SET ANSI_NULLS ON; SET QUOTED_IDENTIFIER ON; $2"; }
 run_file() {
   local db="$1" workdir="$2" file="$3"; shift 3
   docker exec --workdir "${workdir}" "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i "${file}" "$@"
