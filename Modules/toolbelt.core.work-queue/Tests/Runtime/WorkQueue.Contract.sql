@@ -194,7 +194,6 @@ IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@RetryId AND
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
 SET @RetryToken=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=@RetryId AND Status='CLAIMED');
 IF @RetryToken IS NULL THROW 52965,N'Das requeuebare Item besitzt keinen aktiven ClaimToken.',1;
-PRINT N'W6C_COMPLETE_REQUEUED';
 EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@RetryId,@ClaimToken=@RetryToken;
 
 EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.queue.none',@ExecutionGroup='barrier',@Priority=0;
@@ -208,19 +207,16 @@ EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.queue.none',@Ex
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
 IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE ExecutionGroup='barrier' AND ExecutionMode='SHARED' AND Status='CLAIMED' AND WorkItemId<>@BarrierBlockerId) THROW 52958,N'Die Barrier sperrte neue Shared Claims ihrer Gruppe nicht.',1;
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.VW_WorkQueueBarrierBlockers WHERE BarrierWorkItemId=@BarrierId AND BlockingWorkItemId=@BarrierBlockerId AND IsResolved=0) THROW 52959,N'Der Barrier-Snapshot fehlt.',1;
-PRINT N'W6C_COMPLETE_BLOCKER';
 EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@BarrierBlockerId,@ClaimToken=@BarrierBlockerToken;
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@BarrierId AND Status='CLAIMED') THROW 52960,N'Die Barrier wurde nach ihrem Drain nicht geclaimt.',1;
 DECLARE @BarrierToken uniqueidentifier=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=@BarrierId AND Status='CLAIMED');
 IF @BarrierToken IS NULL THROW 52963,N'Die Barrier besitzt keinen aktiven ClaimToken.',1;
-PRINT N'W6C_COMPLETE_BARRIER';
 EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@BarrierId,@ClaimToken=@BarrierToken;
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE ExecutionGroup='barrier' AND ExecutionMode='SHARED' AND Status='CLAIMED') THROW 52961,N'Die Gruppe blieb nach Barrier-Abschluss blockiert.',1;
 DECLARE @PostBarrierId bigint=(SELECT WorkItemId FROM toolbelt_core.WorkItem WHERE ExecutionGroup='barrier' AND ExecutionMode='SHARED' AND Status='CLAIMED'),@PostBarrierToken uniqueidentifier=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE ExecutionGroup='barrier' AND ExecutionMode='SHARED' AND Status='CLAIMED');
 IF @PostBarrierId IS NULL OR @PostBarrierToken IS NULL THROW 52964,N'Der freigegebene Gruppenauftrag besitzt keinen aktiven ClaimToken.',1;
-PRINT N'W6C_COMPLETE_RELEASED';
 EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@PostBarrierId,@ClaimToken=@PostBarrierToken;
 
 DROP TABLE IF EXISTS dbo.TbxQueueChild;
@@ -247,6 +243,7 @@ DROP TABLE dbo.TbxQueueParent;
 DROP TABLE #ClaimAfterRestore;
 DROP TABLE #Claim;
 DROP TABLE #Status;
+DELETE b FROM toolbelt_core.WorkQueueBarrierBlocker b JOIN toolbelt_core.WorkItem wi ON wi.WorkItemId=b.BarrierWorkItemId JOIN toolbelt_core.WorkType wt ON wt.WorkTypeId=wi.WorkTypeId WHERE wt.WorkTypeName LIKE 'test.queue.%';
 DELETE wi FROM toolbelt_core.WorkItem wi JOIN toolbelt_core.WorkType wt ON wt.WorkTypeId=wi.WorkTypeId WHERE wt.WorkTypeName LIKE 'test.queue.%';
 DELETE FROM toolbelt_core.WorkType WHERE WorkTypeName LIKE 'test.queue.%';
 DROP PROCEDURE dbo.USP_TbxQueueNone;
