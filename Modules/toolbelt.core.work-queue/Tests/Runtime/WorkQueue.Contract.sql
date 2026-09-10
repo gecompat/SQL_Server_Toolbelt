@@ -209,11 +209,11 @@ IF NOT EXISTS(SELECT 1 FROM toolbelt_core.VW_WorkQueueBarrierBlockers WHERE Barr
 EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@BarrierBlockerId,@ClaimToken=@BarrierBlockerToken;
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
 IF NOT EXISTS(SELECT 1 FROM #Claim WHERE WorkItemId=@BarrierId) THROW 52960,N'Die Barrier wurde nach ihrem Drain nicht geclaimt.',1;
-DECLARE @BarrierToken uniqueidentifier=(SELECT ClaimToken FROM #Claim);
+DECLARE @BarrierToken uniqueidentifier=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=@BarrierId AND Status='CLAIMED');
 EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@BarrierId,@ClaimToken=@BarrierToken;
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
 IF NOT EXISTS(SELECT 1 FROM #Claim) THROW 52961,N'Die Gruppe blieb nach Barrier-Abschluss blockiert.',1;
-DECLARE @PostBarrierId bigint=(SELECT WorkItemId FROM #Claim),@PostBarrierToken uniqueidentifier=(SELECT ClaimToken FROM #Claim);
+DECLARE @PostBarrierId bigint=(SELECT WorkItemId FROM #Claim),@PostBarrierToken uniqueidentifier=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=(SELECT WorkItemId FROM #Claim) AND Status='CLAIMED');
 EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@PostBarrierId,@ClaimToken=@PostBarrierToken;
 
 DROP TABLE IF EXISTS dbo.TbxQueueChild;
