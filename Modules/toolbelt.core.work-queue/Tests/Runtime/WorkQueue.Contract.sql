@@ -182,18 +182,18 @@ DECLARE @RetryId bigint=(SELECT WorkItemId FROM toolbelt_core.WorkItem WHERE Ide
 EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.queue.none',@IdempotencyKey='retry-key',@ExecutionGroup='retry',@Priority=7,@MaxAttempts=2,@RetryBaseDelaySeconds=1,@RetryMaxDelaySeconds=1;
 IF (SELECT COUNT(*) FROM toolbelt_core.WorkItem WHERE IdempotencyKey='retry-key')<>1 THROW 52954,N'Idempotentes Enqueue legte eine zweite Zeile an.',1;
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
-DECLARE @RetryToken uniqueidentifier=(SELECT ClaimToken FROM #Claim);
+DECLARE @RetryToken uniqueidentifier=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=@RetryId AND Status='CLAIMED');
 EXEC toolbelt_core.USP_ScheduleWorkRetry @WorkItemId=@RetryId,@ClaimToken=@RetryToken,@FailureCode='TEST.RETRY';
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@RetryId AND Status='RETRY_WAIT' AND CycleAttemptCount=1) THROW 52955,N'Der erste Retry wurde nicht geplant.',1;
 WAITFOR DELAY '00:00:01.100';
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
-SET @RetryToken=(SELECT ClaimToken FROM #Claim);
+SET @RetryToken=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=@RetryId AND Status='CLAIMED');
 EXEC toolbelt_core.USP_ScheduleWorkRetry @WorkItemId=@RetryId,@ClaimToken=@RetryToken,@FailureCode='TEST.DEADLETTER';
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@RetryId AND Status='DEAD_LETTER' AND DeadLetteredAtUtc IS NOT NULL) THROW 52956,N'Dead Letter wurde nicht erzeugt.',1;
 EXEC toolbelt_core.USP_RequeueDeadLetter @WorkItemId=@RetryId,@RequeueReason=N'Synthetischer Vertragstest';
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@RetryId AND Status='QUEUED' AND RetryCycleNumber=2 AND CycleAttemptCount=0) THROW 52957,N'Dead-Letter-Requeue startete keinen neuen Zyklus.',1;
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
-SET @RetryToken=(SELECT ClaimToken FROM #Claim);
+SET @RetryToken=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=@RetryId AND Status='CLAIMED');
 EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@RetryId,@ClaimToken=@RetryToken;
 
 EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.queue.none',@ExecutionGroup='barrier',@Priority=0;
