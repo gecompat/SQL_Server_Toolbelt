@@ -1,10 +1,10 @@
 module_id: "toolbelt.core.work-queue"
 module_name: "Transactional Work Queue"
-version: "1.1.0"
+version: "2.0.0"
 implementation_status: implemented
 validation_status: validated
 release_status: unreleased
-description: "Stellt eine persistente Work Queue mit atomarem Lease-Claim, Heartbeat, tokengebundenem Abschluss und expliziter Orphan Recovery bereit."
+description: "Stellt eine persistente Work Queue mit atomarem Lease-Claim, Retry, Dead Letter, Idempotenz und gruppenbezogenen Drain-Barriers bereit."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -40,13 +40,20 @@ schemas:
   - "toolbelt_core"
 objects:
   - {type: TABLE, schema: "toolbelt_core", name: "WorkItem", visibility: internal}
+  - {type: TABLE, schema: "toolbelt_core", name: "WorkQueueScheduler", visibility: internal}
+  - {type: TABLE, schema: "toolbelt_core", name: "WorkQueueBarrierBlocker", visibility: internal}
   - {type: VIEW, schema: "toolbelt_core", name: "VW_WorkQueue", visibility: public}
+  - {type: VIEW, schema: "toolbelt_core", name: "VW_WorkQueueBarrierBlockers", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_EnqueueWork", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_EnqueueWorkWithPolicy", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_EnqueueBarrierWork", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_ClaimWork", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_RenewWorkLease", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_RecoverExpiredWork", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_CompleteWork", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_FailWork", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_ScheduleWorkRetry", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_RequeueDeadLetter", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_GetWorkStatus", visibility: public}
 permissions_required:
   - "EXECUTE auf den jeweils benötigten Work-Queue-USPs"
@@ -120,7 +127,10 @@ contracts:
   validation: "1.0"
 supported_upgrades:
   - from: "1.0.0"
-    to: "1.1.0"
+    to: "2.0.0"
+    condition: "Keine WorkItem-Zeile befindet sich beim Preflight im Zustand CLAIMED."
+  - from: "1.1.0"
+    to: "2.0.0"
     condition: "Keine WorkItem-Zeile befindet sich beim Preflight im Zustand CLAIMED."
 tests:
   static: "Tests/Static/validate_contract.py"

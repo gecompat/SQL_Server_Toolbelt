@@ -12,7 +12,7 @@ DECLARE @DeploymentMode nvarchar(16)=(SELECT TRY_CONVERT(nvarchar(16),value) FRO
 
 IF @ConfirmNoExternalConsumers IS NULL OR @AllowDataLoss IS NULL
     THROW 51948,N'ConfirmNoExternalConsumers und AllowDataLoss müssen jeweils 0 oder 1 sein.',1;
-IF @InstalledVersion IS NOT NULL AND @InstalledVersion COLLATE Latin1_General_100_BIN2 NOT IN(N'1.0.0',N'1.1.0')
+IF @InstalledVersion IS NOT NULL AND @InstalledVersion COLLATE Latin1_General_100_BIN2 NOT IN(N'1.0.0',N'1.1.0',N'2.0.0')
     THROW 51943,N'Die installierte Modulversion ist diesem Uninstall nicht bekannt.',3;
 IF @InstalledVersion IS NULL RETURN;
 IF @DeploymentMode NOT IN(N'local',N'central')
@@ -23,7 +23,7 @@ IF @DeploymentMode=N'central' AND @ConfirmNoExternalConsumers<>1
 IF EXISTS
 (
     SELECT 1 FROM (VALUES
-      (N'WorkItem'),(N'VW_WorkQueue'),(N'USP_EnqueueWork'),(N'USP_ClaimWork'),(N'USP_RenewWorkLease'),(N'USP_RecoverExpiredWork'),(N'USP_CompleteWork'),(N'USP_FailWork'),(N'USP_GetWorkStatus'))x(ObjectName)
+      (N'WorkItem'),(N'WorkQueueScheduler'),(N'WorkQueueBarrierBlocker'),(N'VW_WorkQueue'),(N'VW_WorkQueueBarrierBlockers'),(N'USP_EnqueueWork'),(N'USP_EnqueueWorkWithPolicy'),(N'USP_EnqueueBarrierWork'),(N'USP_ClaimWork'),(N'USP_RenewWorkLease'),(N'USP_RecoverExpiredWork'),(N'USP_CompleteWork'),(N'USP_FailWork'),(N'USP_ScheduleWorkRetry'),(N'USP_RequeueDeadLetter'),(N'USP_GetWorkStatus'))x(ObjectName)
     WHERE OBJECT_ID(N'toolbelt_core.'+QUOTENAME(x.ObjectName)) IS NOT NULL
       AND NOT EXISTS
       (
@@ -44,9 +44,9 @@ IF @ConfirmNoExternalConsumers<>1 AND EXISTS
 (
     SELECT 1 FROM sys.sql_expression_dependencies d
     WHERE d.referenced_id IN
-      (OBJECT_ID(N'toolbelt_core.WorkItem'),OBJECT_ID(N'toolbelt_core.VW_WorkQueue'),OBJECT_ID(N'toolbelt_core.USP_EnqueueWork'),OBJECT_ID(N'toolbelt_core.USP_ClaimWork'),OBJECT_ID(N'toolbelt_core.USP_RenewWorkLease'),OBJECT_ID(N'toolbelt_core.USP_RecoverExpiredWork'),OBJECT_ID(N'toolbelt_core.USP_CompleteWork'),OBJECT_ID(N'toolbelt_core.USP_FailWork'),OBJECT_ID(N'toolbelt_core.USP_GetWorkStatus'))
+      (OBJECT_ID(N'toolbelt_core.WorkItem'),OBJECT_ID(N'toolbelt_core.WorkQueueScheduler'),OBJECT_ID(N'toolbelt_core.WorkQueueBarrierBlocker'),OBJECT_ID(N'toolbelt_core.VW_WorkQueue'),OBJECT_ID(N'toolbelt_core.VW_WorkQueueBarrierBlockers'),OBJECT_ID(N'toolbelt_core.USP_EnqueueWork'),OBJECT_ID(N'toolbelt_core.USP_EnqueueWorkWithPolicy'),OBJECT_ID(N'toolbelt_core.USP_EnqueueBarrierWork'),OBJECT_ID(N'toolbelt_core.USP_ClaimWork'),OBJECT_ID(N'toolbelt_core.USP_RenewWorkLease'),OBJECT_ID(N'toolbelt_core.USP_RecoverExpiredWork'),OBJECT_ID(N'toolbelt_core.USP_CompleteWork'),OBJECT_ID(N'toolbelt_core.USP_FailWork'),OBJECT_ID(N'toolbelt_core.USP_ScheduleWorkRetry'),OBJECT_ID(N'toolbelt_core.USP_RequeueDeadLetter'),OBJECT_ID(N'toolbelt_core.USP_GetWorkStatus'))
       AND d.referencing_id NOT IN
-      (OBJECT_ID(N'toolbelt_core.WorkItem'),OBJECT_ID(N'toolbelt_core.VW_WorkQueue'),OBJECT_ID(N'toolbelt_core.USP_EnqueueWork'),OBJECT_ID(N'toolbelt_core.USP_ClaimWork'),OBJECT_ID(N'toolbelt_core.USP_RenewWorkLease'),OBJECT_ID(N'toolbelt_core.USP_RecoverExpiredWork'),OBJECT_ID(N'toolbelt_core.USP_CompleteWork'),OBJECT_ID(N'toolbelt_core.USP_FailWork'),OBJECT_ID(N'toolbelt_core.USP_GetWorkStatus'))
+      (OBJECT_ID(N'toolbelt_core.WorkItem'),OBJECT_ID(N'toolbelt_core.WorkQueueScheduler'),OBJECT_ID(N'toolbelt_core.WorkQueueBarrierBlocker'),OBJECT_ID(N'toolbelt_core.VW_WorkQueue'),OBJECT_ID(N'toolbelt_core.VW_WorkQueueBarrierBlockers'),OBJECT_ID(N'toolbelt_core.USP_EnqueueWork'),OBJECT_ID(N'toolbelt_core.USP_EnqueueWorkWithPolicy'),OBJECT_ID(N'toolbelt_core.USP_EnqueueBarrierWork'),OBJECT_ID(N'toolbelt_core.USP_ClaimWork'),OBJECT_ID(N'toolbelt_core.USP_RenewWorkLease'),OBJECT_ID(N'toolbelt_core.USP_RecoverExpiredWork'),OBJECT_ID(N'toolbelt_core.USP_CompleteWork'),OBJECT_ID(N'toolbelt_core.USP_FailWork'),OBJECT_ID(N'toolbelt_core.USP_ScheduleWorkRetry'),OBJECT_ID(N'toolbelt_core.USP_RequeueDeadLetter'),OBJECT_ID(N'toolbelt_core.USP_GetWorkStatus'))
       AND NOT EXISTS
       (
           SELECT 1 FROM sys.objects child
@@ -57,14 +57,21 @@ IF @ConfirmNoExternalConsumers<>1 AND EXISTS
     THROW 51948,N'Externe SQL-Abhängigkeiten blockieren den Uninstall; ConfirmNoExternalConsumers=1 ist erforderlich.',3;
 
 BEGIN TRANSACTION;
+DROP PROCEDURE IF EXISTS toolbelt_core.USP_RequeueDeadLetter;
+DROP PROCEDURE IF EXISTS toolbelt_core.USP_ScheduleWorkRetry;
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_RecoverExpiredWork;
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_RenewWorkLease;
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_GetWorkStatus;
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_FailWork;
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_CompleteWork;
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_ClaimWork;
+DROP PROCEDURE IF EXISTS toolbelt_core.USP_EnqueueBarrierWork;
+DROP PROCEDURE IF EXISTS toolbelt_core.USP_EnqueueWorkWithPolicy;
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_EnqueueWork;
+DROP VIEW IF EXISTS toolbelt_core.VW_WorkQueueBarrierBlockers;
 DROP VIEW IF EXISTS toolbelt_core.VW_WorkQueue;
+DROP TABLE IF EXISTS toolbelt_core.WorkQueueBarrierBlocker;
+DROP TABLE IF EXISTS toolbelt_core.WorkQueueScheduler;
 DROP TABLE IF EXISTS toolbelt_core.WorkItem;
 IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@VersionPropertyName) EXEC sys.sp_dropextendedproperty @name=@VersionPropertyName;
 IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@ModePropertyName) EXEC sys.sp_dropextendedproperty @name=@ModePropertyName;

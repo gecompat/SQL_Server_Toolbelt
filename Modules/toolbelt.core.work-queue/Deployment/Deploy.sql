@@ -2,7 +2,7 @@
 
 -- ============================================================================
 -- Zweck:     Erst- und Wiederholungsdeployment
--- Modul:     toolbelt.core.work-queue v1.1.0 (E1b)
+-- Modul:     toolbelt.core.work-queue v2.0.0 (W6c)
 -- Erfordert: toolbelt.core.result-table 1.0.0; toolbelt.core.work-type 1.1.0
 -- Modus:     SQLCMD; Ausführung aus diesem Deployment-Verzeichnis
 -- Parameter: DeploymentMode=local|central
@@ -49,10 +49,30 @@ VALUES
  ,(N'1.1.0',N'toolbelt_core',N'USP_FailWork',N'P',N'PROCEDURE')
  ,(N'1.1.0',N'toolbelt_core',N'USP_GetWorkStatus',N'P',N'PROCEDURE');
 
+INSERT INTO #tbx_WorkQueueReleaseObjects
+    (ReleaseVersion,SchemaName,ObjectName,ObjectType,LevelType)
+VALUES
+  (N'2.0.0',N'toolbelt_core',N'WorkItem',N'U',N'TABLE')
+ ,(N'2.0.0',N'toolbelt_core',N'WorkQueueScheduler',N'U',N'TABLE')
+ ,(N'2.0.0',N'toolbelt_core',N'WorkQueueBarrierBlocker',N'U',N'TABLE')
+ ,(N'2.0.0',N'toolbelt_core',N'VW_WorkQueue',N'V',N'VIEW')
+ ,(N'2.0.0',N'toolbelt_core',N'VW_WorkQueueBarrierBlockers',N'V',N'VIEW')
+ ,(N'2.0.0',N'toolbelt_core',N'USP_EnqueueWork',N'P',N'PROCEDURE')
+ ,(N'2.0.0',N'toolbelt_core',N'USP_EnqueueWorkWithPolicy',N'P',N'PROCEDURE')
+ ,(N'2.0.0',N'toolbelt_core',N'USP_EnqueueBarrierWork',N'P',N'PROCEDURE')
+ ,(N'2.0.0',N'toolbelt_core',N'USP_ClaimWork',N'P',N'PROCEDURE')
+ ,(N'2.0.0',N'toolbelt_core',N'USP_RenewWorkLease',N'P',N'PROCEDURE')
+ ,(N'2.0.0',N'toolbelt_core',N'USP_RecoverExpiredWork',N'P',N'PROCEDURE')
+ ,(N'2.0.0',N'toolbelt_core',N'USP_CompleteWork',N'P',N'PROCEDURE')
+ ,(N'2.0.0',N'toolbelt_core',N'USP_FailWork',N'P',N'PROCEDURE')
+ ,(N'2.0.0',N'toolbelt_core',N'USP_ScheduleWorkRetry',N'P',N'PROCEDURE')
+ ,(N'2.0.0',N'toolbelt_core',N'USP_RequeueDeadLetter',N'P',N'PROCEDURE')
+ ,(N'2.0.0',N'toolbelt_core',N'USP_GetWorkStatus',N'P',N'PROCEDURE');
+
 CREATE TABLE #tbx_WorkQueueDeployState
 (TargetVersion nvarchar(64) NOT NULL,InstalledVersion nvarchar(64) NULL,DeploymentMode nvarchar(16) NOT NULL);
 
-DECLARE @TargetVersion nvarchar(64)=N'1.1.0';
+DECLARE @TargetVersion nvarchar(64)=N'2.0.0';
 DECLARE @DeploymentMode nvarchar(16)=LOWER(N'$(DeploymentMode)');
 DECLARE @VersionPropertyName sysname=N'Toolbelt.Module.toolbelt.core.work-queue.Version';
 DECLARE @InstalledVersion nvarchar(64);
@@ -76,7 +96,7 @@ IF ISNULL(@ResultTableVersion,N'') COLLATE Latin1_General_100_BIN2<>N'1.0.0'
 
 SELECT @InstalledVersion=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties
 WHERE class=0 AND name=@VersionPropertyName;
-IF @InstalledVersion IS NOT NULL AND @InstalledVersion COLLATE Latin1_General_100_BIN2 NOT IN(N'1.0.0',N'1.1.0')
+IF @InstalledVersion IS NOT NULL AND @InstalledVersion COLLATE Latin1_General_100_BIN2 NOT IN(N'1.0.0',N'1.1.0',N'2.0.0')
     THROW 51943,N'Die installierte Modulversion ist diesem Deployment nicht als unterstütztes Release bekannt.',1;
 
 IF EXISTS
@@ -138,14 +158,14 @@ IF @InstalledVersion=N'1.1.0' AND EXISTS
 )
     THROW 51943,N'Die vorhandene WorkItem-Tabelle entspricht nicht dem Version-1.1-Vertrag.',3;
 
-IF @InstalledVersion=N'1.0.0'
+IF @InstalledVersion IN(N'1.0.0',N'1.1.0')
 BEGIN
     DECLARE @HasActiveLegacyClaim bit=0;
     EXEC sys.sp_executesql
          N'IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE Status=''CLAIMED'') SET @Value=1;',
          N'@Value bit OUTPUT',@Value=@HasActiveLegacyClaim OUTPUT;
     IF @HasActiveLegacyClaim=1
-        THROW 51948,N'Das Upgrade auf E1b ist mit aktiven E1a-Claims nicht zulässig; diese müssen zuerst fachlich abgeschlossen werden.',4;
+        THROW 51948,N'Das Upgrade auf Work Queue 2.0.0 ist mit aktiven Claims nicht zulässig; diese müssen zuerst fachlich abgeschlossen werden.',4;
 END;
 
 IF HAS_PERMS_BY_NAME(N'toolbelt_core',N'SCHEMA',N'ALTER')<>1
@@ -175,12 +195,17 @@ GO
 
 :r ../Source/WorkItem.sql
 :r ../Source/VW_WorkQueue.sql
+:r ../Source/VW_WorkQueueBarrierBlockers.sql
 :r ../Source/USP_EnqueueWork.sql
+:r ../Source/USP_EnqueueWorkWithPolicy.sql
+:r ../Source/USP_EnqueueBarrierWork.sql
 :r ../Source/USP_ClaimWork.sql
 :r ../Source/USP_RenewWorkLease.sql
 :r ../Source/USP_RecoverExpiredWork.sql
 :r ../Source/USP_CompleteWork.sql
 :r ../Source/USP_FailWork.sql
+:r ../Source/USP_ScheduleWorkRetry.sql
+:r ../Source/USP_RequeueDeadLetter.sql
 :r ../Source/USP_GetWorkStatus.sql
 
 SET NOCOUNT ON;

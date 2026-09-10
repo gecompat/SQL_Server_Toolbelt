@@ -2,11 +2,9 @@
 
 ## Status
 
-`toolbelt.core.work-queue` Version `1.1.0` erweitert den freigegebenen E1a-
-Kern um E1b Lease, Heartbeat und explizite Orphan Recovery. Die vollständige
-physische Matrix SQL Server 2019, 2022 und 2025 ist unter Windows base und
-Linux latest einschließlich Upgrade, Parallelität und Lifecycle erfolgreich.
-Das Modul ist `validated`, bleibt aber `unreleased`.
+`toolbelt.core.work-queue` Version `2.0.0` ergänzt den E1a-/E1b-Kern um
+persistierte Retry-Policies, Dead Letter, Idempotency Keys sowie priorisierte
+gruppenbezogene Drain-Barriers. Das Modul bleibt `unreleased`.
 
 Evidenz: `local: Tests/CI/run-lab-local.ps1`.
 
@@ -22,13 +20,18 @@ kein öffentlicher DML-Vertrag.
 ## Öffentliche Objekte
 
 - `toolbelt_core.USP_EnqueueWork`
+- `toolbelt_core.USP_EnqueueWorkWithPolicy`
+- `toolbelt_core.USP_EnqueueBarrierWork`
 - `toolbelt_core.USP_ClaimWork`
 - `toolbelt_core.USP_RenewWorkLease`
 - `toolbelt_core.USP_RecoverExpiredWork`
 - `toolbelt_core.USP_CompleteWork`
 - `toolbelt_core.USP_FailWork`
+- `toolbelt_core.USP_ScheduleWorkRetry`
+- `toolbelt_core.USP_RequeueDeadLetter`
 - `toolbelt_core.USP_GetWorkStatus`
 - `toolbelt_core.VW_WorkQueue`
+- `toolbelt_core.VW_WorkQueueBarrierBlockers`
 
 `ClaimToken` und `PayloadJson` erscheinen ausschließlich im Claim-Ergebnis,
 nicht in Statusabfrage, Recovery-Ausgabe oder View. Die Queue akzeptiert
@@ -42,10 +45,13 @@ Lease abläuft; sein späteres Complete oder Fail wird abgewiesen. Der Vertrag
 ist deshalb At-least-once-fähig, verspricht aber weder Exactly-once noch
 generische Idempotenz.
 
-Retry, Backoff, Dead Letter, Idempotency Keys, Cancellation, vollständige
-Attempt-Historie, Worker-Orchestrierung und automatisches `KILL` bleiben
-außerhalb von E1b. Ein Upgrade von `1.0.0` ist nur ohne aktive E1a-Claims
-zulässig und bricht sonst vor der ersten Mutation ab.
+Retry erfolgt ausschließlich durch Workerentscheidung oder Orphan-Recovery;
+`USP_FailWork` bleibt terminal. Ein Idempotency Key ist pro Work Type über die
+Lebenszeit des Items eindeutig. Barriers sperren nur ihre ExecutionGroup,
+warten auf den beim Enqueue gespeicherten Claim-Snapshot und präemptieren
+niemals laufende Arbeit. Cancellation, Worker-Orchestrierung, Erkennung von
+Systemzuständen und Log-Shrink bleiben außerhalb des Moduls. Ein Upgrade von
+`1.0.0` oder `1.1.0` ist nur ohne aktive Claims zulässig.
 
 ## Aktuelle Validierungsevidenz
 

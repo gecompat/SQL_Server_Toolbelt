@@ -57,6 +57,18 @@ BEGIN
 
     BEGIN TRY
         BEGIN TRANSACTION;
+        /* Der Scheduler-Lock schließt das Rennen zwischen Claim und Barrier-Snapshot. */
+        SELECT SchedulerId FROM toolbelt_core.WorkQueueScheduler WITH (UPDLOCK,HOLDLOCK) WHERE SchedulerId=1;
+        DECLARE @ArmedBarrier TABLE(WorkItemId bigint NOT NULL,BarrierEpoch bigint NOT NULL,ExecutionGroup varchar(128) COLLATE Latin1_General_100_BIN2 NOT NULL,Priority tinyint NOT NULL);
+        UPDATE wi SET Status='BARRIER_WAIT',BarrierEpoch=BarrierEpoch+1,NextAttemptAtUtc=NULL
+        OUTPUT inserted.WorkItemId,inserted.BarrierEpoch,inserted.ExecutionGroup,inserted.Priority INTO @ArmedBarrier
+        FROM toolbelt_core.WorkItem wi
+        WHERE wi.Status='RETRY_WAIT' AND wi.ExecutionMode='DRAIN_BARRIER' AND wi.NextAttemptAtUtc<=@NowUtc;
+        INSERT toolbelt_core.WorkQueueBarrierBlocker(BarrierWorkItemId,BarrierEpoch,BlockingWorkItemId,BlockingClaimGeneration)
+        SELECT armed.WorkItemId,armed.BarrierEpoch,blocker.WorkItemId,blocker.ClaimGeneration
+        FROM @ArmedBarrier armed
+        JOIN toolbelt_core.WorkItem blocker ON blocker.Status='CLAIMED' AND blocker.ExecutionGroup=armed.ExecutionGroup
+        WHERE NOT(blocker.ExecutionMode='DRAIN_BARRIER' AND blocker.Priority=armed.Priority);
         IF @ResultTable IS NOT NULL
         BEGIN
             IF OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P') IS NULL THROW 51918,N'Für @ResultTable fehlt toolbelt.core.result-table.',1;
@@ -70,13 +82,42 @@ BEGIN
             JOIN toolbelt_core.WorkType wt ON wt.WorkTypeId=wi.WorkTypeId AND wt.IsEnabled=1
             JOIN sys.schemas hs ON hs.name=wt.HandlerSchema
             JOIN sys.procedures hp ON hp.schema_id=hs.schema_id AND hp.name=wt.HandlerProcedure AND hp.is_ms_shipped=0
-            WHERE wi.Status='QUEUED'
-            ORDER BY wi.WorkItemId
+            WHERE
+            (
+                (wi.Status='QUEUED' OR (wi.Status='RETRY_WAIT' AND wi.NextAttemptAtUtc<=@NowUtc))
+                AND wi.ExecutionMode='SHARED'
+                AND NOT EXISTS
+                (
+                    SELECT 1 FROM toolbelt_core.WorkItem barrier
+                    WHERE barrier.ExecutionGroup=wi.ExecutionGroup
+                      AND barrier.ExecutionMode='DRAIN_BARRIER'
+                      AND barrier.Status IN('BARRIER_WAIT','CLAIMED')
+                )
+            )
+            OR
+            (
+                wi.Status='BARRIER_WAIT' AND wi.ExecutionMode='DRAIN_BARRIER'
+                AND NOT EXISTS
+                (
+                    SELECT 1 FROM toolbelt_core.WorkQueueBarrierBlocker b
+                    JOIN toolbelt_core.WorkItem blocker ON blocker.WorkItemId=b.BlockingWorkItemId
+                    WHERE b.BarrierWorkItemId=wi.WorkItemId AND b.BarrierEpoch=wi.BarrierEpoch
+                      AND blocker.Status='CLAIMED' AND blocker.ClaimGeneration=b.BlockingClaimGeneration
+                )
+                AND NOT EXISTS
+                (
+                    SELECT 1 FROM toolbelt_core.WorkItem otherBarrier
+                    WHERE otherBarrier.ExecutionGroup=wi.ExecutionGroup AND otherBarrier.ExecutionMode='DRAIN_BARRIER'
+                      AND otherBarrier.Status='CLAIMED' AND otherBarrier.Priority<>wi.Priority
+                )
+            )
+            ORDER BY wi.Priority DESC,CASE WHEN wi.Status='RETRY_WAIT' THEN wi.NextAttemptAtUtc ELSE wi.EnqueuedAtUtc END,wi.WorkItemId
         )
         UPDATE Candidate SET
               Status='CLAIMED',ClaimedAtUtc=@NowUtc,ClaimedBy=@ClaimedBy,ClaimToken=@ClaimToken
             , ClaimGeneration=ClaimGeneration+1,LeaseDurationSeconds=@LeaseDurationSeconds
             , LeaseUntilUtc=DATEADD(SECOND,@LeaseDurationSeconds,@NowUtc),LastHeartbeatAtUtc=@NowUtc
+            , CycleAttemptCount=CycleAttemptCount+1,NextAttemptAtUtc=NULL
         OUTPUT inserted.WorkItemId INTO @Claimed(WorkItemId);
 
         INSERT INTO #tbx_WorkQueue_ClaimResult
