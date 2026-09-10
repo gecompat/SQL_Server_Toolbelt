@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 28 Module implementiert – 8 teilweise validiert](https://img.shields.io/badge/Status-28%20Module%20implementiert%20%7C%208%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 28 Module implementiert – 9 teilweise validiert](https://img.shields.io/badge/Status-28%20Module%20implementiert%20%7C%209%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 28 Module sind implementiert; 20 sind `validated`, 8 sind `partially validated`, alle sind `unreleased`.**
+**Der Repository-Grundaufbau ist abgeschlossen. 28 Module sind implementiert; 19 sind `validated`, 9 sind `partially validated`, alle sind `unreleased`.**
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)
@@ -73,13 +73,14 @@ Raw SQL bleibt ausgeschlossen; Änderungen sind über `rowversion`,
 explizite Update-/Reaktivierungsflags und Data-Loss-geschützten Uninstall
 abgesichert. Das Modul ist auf Windows/Linux 2019/2022/2025 `validated`.
 
-Die freigegebenen E1a-/E1b-Slices
+Die freigegebenen E1a-/E1b-/W6c-Slices
 [`toolbelt.core.work-queue`](./Modules/toolbelt.core.work-queue/README.md)
 stellen Enqueue, atomaren Lease-Claim, Heartbeat, explizite Recovery, Complete,
-Fail und geschützte Statusoberflächen bereit. Die vollständige E1b-Matrix ist
-auf SQL Server 2019, 2022 und 2025 unter Windows und Linux erfolgreich; das
-Modul ist `validated`, aber `unreleased`. Retry, Dead Letter, Idempotenz und
-Cancellation bleiben getrennte, nicht implementierte Slices.
+Fail, Retry, Dead Letter, Idempotenz und gruppenbezogene Drain-Barriers bereit.
+Die v2-Linux-Matrix auf SQL Server 2019, 2022 und 2025 ist erfolgreich; der
+Windows-v2-Nachweis ist ausständig. Das Modul ist daher `partially validated`
+und `unreleased`. Cancellation bleibt ein getrennter, nicht implementierter
+Slice.
 
 [`toolbelt.core.second-session`](./Modules/toolbelt.core.second-session/README.md)
 führt registrierte Work-Types synchron über einen administrativ vorbereiteten

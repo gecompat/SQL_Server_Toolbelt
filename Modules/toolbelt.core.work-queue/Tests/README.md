@@ -5,21 +5,20 @@ und Datenbanken. Sie prüft Vertrag, Parallelität, Redeployment, zentrale
 Installation, Datenverlustschutz und vollständigen Uninstall. Claim-Token und
 Payloadwerte werden nicht als Repository-Evidenz persistiert.
 
-Am 2026-08-30 war der vollständige E1b-Adapter auf physischen
-SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest
-erfolgreich. Der Scope umfasst Lease, Heartbeat, Recovery, Token-
-Invalidierung, aktiven Ablaufvertrag, vier echte Claim-Sessions, Central,
-Lifecycle sowie das erfolgreiche Upgrade `1.0.0 → 1.1.0` und dessen
-blockierenden Active-Claim-Preflight. Alle synthetischen Testdatenbanken
-wurden entfernt; die Lab-Umgebungen selbst blieben unberührt.
+Am 2026-09-10 lief die Work-Queue-v2-Suite auf synthetischen SQL-Server-2019-,
+2022- und 2025-Linux-Zielen erfolgreich. Sie deckt Retry/Dead Letter,
+Idempotenz, Barrier-Snapshot und -Parallelität, Upgrade, Central, Lifecycle
+sowie Cleanup ab. Der Windows-v2-Nachweis ist nicht ausgeführt; frühere
+E1b-Windows-Evidenz belegt die v2-Erweiterung nicht. Alle synthetischen
+Testdatenbanken werden durch den Adapter entfernt.
 
-Evidenzquelle: `local: Tests/CI/run-lab-local.ps1`.
+Evidenzquelle: `GitHub Actions: Work-Queue Runtime #34533724721`.
 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-30`
-- Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: E1b auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest; Lease, Heartbeat, explizite Recovery, abgelaufene Ownership, Upgrade 1.0.0 auf 1.1.0, blockierter Upgrade-Preflight bei aktivem Claim, Transaktionen, vier Sessions, ResultTable, Dependency, Kollision, Redeployment, Central, Datenverlustschutz, Uninstall und Cleanup
-- Ergebnis: `success`
+- Datum: `2026-09-10`
+- Nachweis: `GitHub Actions: Work-Queue Runtime #34533724721`
+- Scope: Work Queue 2.0.0 auf synthetischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen; öffentlicher Vertrag, Retry/Dead Letter, Idempotenz, Barrier- und Parallelitätsfälle, Upgrade, Lifecycle, Central, Redeployment, Uninstall und Cleanup
+- Ergebnis: `success; Windows-v2-Matrix not executed`
 <!-- END GENERATED:MODULE_EVIDENCE -->
