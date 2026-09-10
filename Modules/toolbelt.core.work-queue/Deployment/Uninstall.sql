@@ -53,6 +53,16 @@ IF @ConfirmNoExternalConsumers<>1 AND EXISTS
           WHERE child.object_id=d.referencing_id
             AND child.parent_object_id=OBJECT_ID(N'toolbelt_core.WorkItem')
       )
+      AND NOT EXISTS
+      (
+          SELECT 1 FROM sys.extended_properties module_object
+          JOIN sys.objects referencing_object ON referencing_object.object_id=d.referencing_id
+          WHERE module_object.class=1
+            AND module_object.major_id=COALESCE(NULLIF(referencing_object.parent_object_id,0),referencing_object.object_id)
+            AND module_object.minor_id=0
+            AND module_object.name=N'Toolbelt.ModuleId'
+            AND CONVERT(nvarchar(256),module_object.value)=N'toolbelt.core.work-queue'
+      )
 )
     THROW 51948,N'Externe SQL-Abhängigkeiten blockieren den Uninstall; ConfirmNoExternalConsumers=1 ist erforderlich.',3;
 

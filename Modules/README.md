@@ -25,7 +25,7 @@ abgeleitet.**
 | `toolbelt.core.generate-series` | Portable Integer Series | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.result-table` | Result Table Infrastructure | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.second-session` | Second Session | `1.1.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.core.work-queue` | Transactional Work Queue | `1.1.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.core.work-queue` | Transactional Work Queue | `2.0.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.work-type` | Work Type Catalog | `1.1.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.datetime.bucket` | Date/Time Bucket Compatibility | `1.0.0` | `toolbelt_datetime` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.datetime.calendar-difference` | Calendar Difference | `1.0.0` | `toolbelt_datetime` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
