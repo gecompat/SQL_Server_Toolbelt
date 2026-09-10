@@ -1101,7 +1101,26 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Windows und Linux; Abhängigkeit vom minimal erforderlichen CLR-Permission-Set von ScriptDom (SAFE vs. EXTERNAL_ACCESS/UNSAFE) im Spike zu verifizieren. |
 | **Dependencies** | Keine Modulabhängigkeit für die Kern-TVFs. `toolbelt.metadata.identifier` (`TC-2026-029`) bleibt kanonischer Parser für isolierte Multipart-Namen; semantische Namens- und Aliasauflösung bleibt ein getrennter Folgelayer. |
 | **Duplikatprüfung** | `TC-2026-029` zerlegt ausschließlich isolierte Multipart-Namen, keine Statements. `TC-2026-003` verweist auf ScriptDom als spätere DDL-Erweiterung. Analyze-Assessments (`DEC-2026-011`) bleiben ausgeschlossen. |
-| **Status** | `ready for development` |
+| **Status** | `implemented`; Runtime `partially validated`; Windows-SQL-CLR-Runtime-Nachweis bleibt offen |
 | **Primärquellen** | [Research-Inbox `RI-2026-140`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Microsoft SqlScriptDOM](https://github.com/microsoft/SqlScriptDOM)<br>[NuGet: Microsoft.SqlServer.TransactSql.ScriptDom](https://www.nuget.org/packages/Microsoft.SqlServer.TransactSql.ScriptDom) |
 | **Prüfdatum** | 2026-09-03 |
-| **Nächster Schritt** | Spike zur ScriptDom-Ladbarkeit und Performance abschließen; Moduldesign und CLR-TVFs implementieren. |
+| **Nächster Schritt** | Den separaten Windows-SQL-CLR-Runtime-Nachweis abschließen; der implementierte Parser-Scope wird nicht erneut entwickelt. |
+
+## TC-2026-048: Priorisierte Ausführungsgruppen und Drain-Barriers
+
+| Feld | Wert |
+|---|---|
+| **ID** | `TC-2026-048` |
+| **Herkunft** | Benutzeranforderung vom 2026-09-10 |
+| **Titel** | Priorisierte Ausführungsgruppen und Drain-Barriers |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | Core / Work Queue |
+| **SQL-Server-Lücke** | SQL Server bietet keinen anwendungsneutralen Queue-Vertrag, der eine benannte Ausführungsgruppe gezielt leert, laufende Claims exakt abwartet und danach priorisierte Wartungsarbeit ausführt. |
+| **Betroffene Versionen** | SQL Server 2019, 2022 und 2025 |
+| **Nutzen** | Ein Supervisor kann bei Systemveränderungen kontrollierte, registrierte Wartungsarbeit vor der normalen Gruppenarbeit ausführen, ohne laufende Arbeit zu beenden. |
+| **Mögliche Technologie** | Persistente Gruppen-/Barrier-Metadaten, Snapshot aus `(WorkItemId, ClaimGeneration)` und kurzer Scheduler-Mutex innerhalb von `toolbelt.core.work-queue`. |
+| **Performance und Security** | Eine Barrier kann ihre Gruppe bewusst anhalten und benötigt deshalb eine getrennt berechtigte Enqueue-Procedure. Snapshot-Blocker enden nur durch expliziten Zustandswechsel; ein Lease-Ablauf genügt nicht. |
+| **Dependencies** | `TC-2026-015`, `TC-2026-020` und der Work-Type-Katalog `TC-2026-022`. |
+| **Status** | `approved`; gemeinsame Umsetzung mit `TC-2026-020` als W6c Work Queue 2.0.0 |
+| **Benutzerfreigabe** | Vertrag und Scope wurden am 2026-09-10 besprochen; der Benutzer hat die Umsetzung anschließend ausdrücklich freigegeben. |
+| **Nächster Schritt** | Work Queue 2.0.0 implementieren und nur den betroffenen SQL_Server_Lab-Contract-Scope ausführen. |

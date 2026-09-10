@@ -15,13 +15,13 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Scope | Modul `toolbelt.tsql.script-parser` 1.0.0 mit `TVF_ParseScriptNodes`, `TVF_ParseScriptNodeProperties`, `TVF_TokenizeScript` und `TVF_ParseScriptErrors`. Schema `toolbelt_tsql`, Assembly `Toolbelt_Tsql_ScriptParser`. Keine automatische GUID-Ersetzung und keine semantische Namensauflösung im Kernmodul. |
 | Provider | C# .NET Framework 4.8 Assembly mit ScriptDom-Integration, SHA2-512-Trust, kein Datenzugriff (`DataAccessKind.None`), harte Limits für Eingabegröße und Schachtelungstiefe. |
 | Priorität | `P1` |
-| Status | `active` |
+| Status | `implemented`; Runtime `partially validated` |
 | Alternativen | Reiner T-SQL-Parser (nicht grammatikvollständig), reiner Tokenizer ohne AST, Stored Procedures mit Temp-Tabellen und externes Parsen außerhalb der Datenbank wurden verworfen. |
 | Risiken und Grenzen | Permission Set (`SAFE` vs. `UNSAFE`) und Linux-Fähigkeit hängen vom Spike-Ergebnis der ScriptDom-Assembly ab; tiefe Rekursion erfordert Stack-Overflow-Wächter vor dem Parsen; jede TVF parst erneut (kein veränderlicher Cache-Zustand). |
 | Benutzerfreigabe | Zweck, Signatur, Fehlervertrag, Risiken und Scope wurden am 2026-09-03 besprochen. Der Benutzer hat die Umsetzung anschließend mit „halte den Plan im Repository fest und starte im Anschluss mit der Implementierung“ ausdrücklich freigegeben. |
 | Tests | Spike zu ScriptDom-Ladbarkeit, statische Vertragsprüfung, synthetische AST- und Token-Golden-Tests (SELECT, JOIN, CTE, MERGE, DDL, Kommentare, `GO`), Roundtrip-Tokens, Fehlerbehandlung, Lifecycle-, Deployment- und Kollisionstests. |
 | Evidenz | `Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md`, `Documentation/Architecture/DECISIONS.md` (`DEC-2026-029`), `Backlog/TOOLBELT_CANDIDATES.md` (`TC-2026-047`). |
-| Nächster Schritt | Spike-Prototyp und Modul-Scaffolding umsetzen. |
+| Nächster Schritt | Den separaten Windows-SQL-CLR-Runtime-Nachweis nachholen; keine weitere Parserimplementierung planen. |
 
 ### V0a/V0b/V0c: Releasevalidierung und erste Releasekohorte
 
@@ -33,9 +33,9 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Dependencies | Ausdrückliche V0-Freigabe vom 2026-08-28 und Einzelzielfreigabe vom 2026-08-29; schema-valider SQL_Server_Lab-Vertrag; entweder `groupStatus = READY` oder explizit ausgewählte Einzelziele mit `runtimeStatus = READY` und zulässigem Eintragsstatus; vorhandene Modul-, Lifecycle- und Testverträge. |
 | Priorität | `P0` |
 | Status | `active`; autonom ausführbare V0a-/V0b-Matrix abgeschlossen; sieben externe oder manuelle Rest-Gates bleiben offen |
-| Implementation Status | 27 Module `implemented` – aus `module.yaml` abgeleitet |
-| Validation Status | 20 Module `validated`, 7 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 20 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory und Windows Filesystem bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuelle Sicherheitsfälle offen. |
-| Release Status | 27 Module `unreleased`; V0c, D1, E1a, E1b und R1b autorisieren keine tatsächliche Veröffentlichung. |
+| Implementation Status | 28 Module `implemented` – aus `module.yaml` abgeleitet |
+| Validation Status | 20 Module `validated`, 8 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 20 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory, Windows Filesystem und Script Parser bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuelle Sicherheitsfälle offen. |
+| Release Status | 28 Module `unreleased`; V0c, D1, E1a, E1b und R1b autorisieren keine tatsächliche Veröffentlichung. |
 | Akzeptanzkriterien | Linux- und Windows-Zielversionen tatsächlich geprüft; Dependency-Closure und versionierte Objektmanifeste konsistent; Erst-, Wiederholungs-, Upgrade-, Central- und Uninstall-Verträge für die Kohorte erfolgreich; modulspezifische Pflichtfälle ausgeführt; nicht verfügbare Kombinationen sichtbar; vollständiger Dokumentationsaudit erfolgreich. |
 | Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |
 | Blocker | Kein Gruppenblocker für einzeln bereite Linux- oder Windows-Ziele. Die automatisierte Matrix ist vollständig grün. Offen bleiben ausschließlich die sieben modulspezifisch dokumentierten Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuellen Sicherheitsgates. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. |
@@ -161,7 +161,22 @@ Die V0c-Kohorte umfasst verbindlich:
 | Risiken und Grenzen | Recovery kann bereits erfolgte fachliche Seiteneffekte wiederholen. Keine Exactly-once-Garantie, generische Idempotenz, Retry, Dead Letter, Cancellation, Attempt-Historie oder Worker-Orchestrierung. |
 | Benutzerfreigabe | Zweck, Vertrag, Alternativen, Risiken, Scope und Reihenfolge wurden am 2026-08-30 besprochen. Der Benutzer hat anschließend „E1b und R1b wie besprochen implementieren“ ausdrücklich freigegeben. |
 | Evidenz | `Documentation/Architecture/WORK_QUEUE_MODULE_DESIGN.md`, Modulvertrag und synthetischer Runtime-/Upgrade-Adapter; vollständige physische Matrix SQL Server 2019/2022/2025 unter Windows base und Linux latest erfolgreich. |
-| Nächster Schritt | PR #64 ist gemergt; den freigegebenen V1.1.0-Scope stabil halten. E1c und E1d sowie die tatsächliche Veröffentlichung bleiben unautorisiert. |
+| Nächster Schritt | PR #64 ist gemergt; den freigegebenen V1.1.0-Scope stabil halten. E1c Retry/Dead Letter/Idempotenz und die priorisierten Gruppen-Barriers aus `TC-2026-048` sind am 2026-09-10 ausdrücklich freigegeben und werden gemeinsam als Work Queue v2 umgesetzt. E1d sowie die tatsächliche Veröffentlichung bleiben unautorisiert. |
+
+### W6c: Work Queue v2 – Retry, Idempotenz und priorisierte Gruppen-Barriers
+
+| Feld | Wert |
+|---|---|
+| ID | `W6c`; konkretisiert `TC-2026-020` und `TC-2026-048`, keine neue sequenzielle `AP`-Referenz ohne reguläre Vergabe |
+| Ziel | Work Queue 2.0.0 um expliziten Retry mit Backoff, Dead Letter, Idempotenz und priorisierte gruppenbezogene Drain-Barriers erweitern. |
+| Scope | Neue Enqueue-Policy- und Barrier-USPs, Retry-/Dead-Letter-USPs, erweiterte Claim-/Statusoberflächen, persistente Retry- und Barrier-Metadaten, Upgrade von 1.0.0/1.1.0, Dokumentation und betroffene Tests. Keine Cancellation, Worker-Provider, Raw SQL, Systemzustandserkennung oder automatische Log-Shrink-Operation. |
+| Priorität | `P1`; nach E1b, vor E1d und allen Host-Providern |
+| Status | `approved`; Implementierung ausstehend |
+| Benutzerfreigabe | Zweck, Vertrag, Alternativen, Risiken und Scope wurden am 2026-09-10 besprochen. Der Benutzer hat anschließend mit „freigabe“ und dem ausdrücklichen Implementierungsauftrag die Umsetzung freigegeben. |
+| Kernvertrag | Priority `0..255`, Gruppe pro Auftrag, `DRAIN_BARRIER` mit exaktem Snapshot aktiver Claim-Generationen, parallele gleichpriorisierte Barriers, Retry ohne Jitter und `RETRY_WAIT`, Dead Letter sowie Idempotenz je Work Type und Key. |
+| Risiken und Grenzen | Barriers können eine Gruppe bewusst anhalten; deshalb ist ihre Enqueue-Procedure getrennt berechtigt. Lease-Ablauf beendet keinen Snapshot-Blocker. Idempotenz garantiert keine fachliche Exactly-once-Ausführung. |
+| Tests | Statische und Runtime-Contracts, Multi-Session-Races, Upgrade, Lifecycle sowie lokale SQL_Server_Lab-Matrix SQL Server 2019/2022/2025 unter Windows und Linux; CU nur bei patchabhängigem Fall festlegen. |
+| Nächster Schritt | Einen kohärenten Implementierungs-PR für Work Queue 2.0.0 erstellen und nach erfolgreicher betroffener Matrix nach `origin/main` mergen. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 

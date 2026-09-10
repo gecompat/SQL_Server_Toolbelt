@@ -1,4 +1,16 @@
-# Work-Queue-Moduldesign – E1a und E1b
+# Work-Queue-Moduldesign – E1a, E1b und freigegebenes W6c
+
+## W6c – Work Queue 2.0.0
+
+W6c kombiniert Retry/Dead Letter/Idempotenz aus `TC-2026-020` mit priorisierten Gruppen-Barriers aus `TC-2026-048`. Zweck, öffentlicher Vertrag, Alternativen, Risiken und Scope wurden am 2026-09-10 besprochen; der Benutzer hat die Umsetzung anschließend ausdrücklich freigegeben.
+
+Jedes Work Item erhält eine binär verglichene `ExecutionGroup`, eine Priority von 0 bis 255 und den Modus `SHARED` oder `DRAIN_BARRIER`. Eine Barrier speichert beim Enqueue alle zu diesem Zeitpunkt `CLAIMED`-Generationen ihrer Gruppe. Neue normale Claims der Gruppe bleiben gesperrt, bis die gespeicherten Generationen durch Complete, Fail, Retry oder explizite Recovery enden. Lease-Ablauf allein beendet keinen Blocker.
+
+Gleichpriorisierte Barriers derselben Gruppe können parallel beansprucht werden, auch wenn sie später eingereiht wurden. Unterschiedlich priorisierte Barriers laufen nicht parallel; laufende Arbeit wird niemals präemptiv beendet. Andere Gruppen bleiben frei. Ein kurzer interner Scheduler-Mutex serialisiert Barrier-Snapshot und Claim-Auswahl, nicht die Arbeitsausführung.
+
+Retry ist eine explizite Worker-Entscheidung. `USP_FailWork` bleibt terminal. Die Retry-Policy wird beim Enqueue gespeichert: drei Versuche einschließlich Erstversuch, 60 Sekunden Basis, 3.600 Sekunden Maximum, exponentiell ohne Jitter. `USP_RecoverExpiredWork` verwendet dieselbe Policy. Ein Barrier-Retry wechselt nach `RETRY_WAIT`, gibt seine Gruppe frei und erhält beim nächsten fälligen Lauf einen neuen Snapshot. Dead-Letter-Requeue beginnt einen neuen Zyklus und erhält Lifetime-Attempts, letzte Fehlerinformation und Idempotency Key. Der Key ist innerhalb eines Work Types eindeutig, solange die WorkItem-Zeile existiert; gleiche Payload und Policy liefern das vorhandene Item.
+
+W6c umfasst keine Cancellation, Worker-Provider, Raw SQL, Systemzustandserkennung oder automatische Log-Shrink-Operationen. Ein Supervisor muss dafür einen separat registrierten und berechtigten Work Type einreihen.
 
 ## Entscheidung und Freigabe
 

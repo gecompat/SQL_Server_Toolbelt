@@ -549,13 +549,15 @@ Erweiterungen; Fuzzy Matching bleibt zurückgestellt.
 ### Phase 4.5 – E1 Work Queue in vertikalen Slices
 
 **Status:** E1a und E1b `implemented`, Runtime `validated`, Release
-`unreleased`; E1c und E1d benötigen weiterhin Einzelvertrag und Freigabe
+`unreleased`; W6c ist freigegeben, E1d benötigt weiterhin Einzelvertrag und
+Freigabe
 
 Die bereits implementierten Grundlagen Work Type, Error Envelope, Execution
 Context und Second Session tragen vier getrennte Slices: `E1a`
 Claim/Complete/Fail, `E1b` Lease/Orphan Recovery, `E1c` Retry/Dead Letter/
-Idempotenz und `E1d` kooperative Cancellation. Kein Slice autorisiert Raw SQL,
-automatisches `KILL` oder einen externen Worker.
+Idempotenz, `TC-2026-048` priorisierte Gruppen-Barriers und `E1d` kooperative
+Cancellation. Kein Slice autorisiert Raw SQL, automatisches `KILL` oder einen
+externen Worker.
 
 E1a umfasst als nutzbaren vertikalen Slice zusätzlich Enqueue und
 Statusoberflächen. Der atomare tokengebundene Claim, Caller-Transaktionen,
@@ -565,7 +567,11 @@ Parallelität, Lifecycle und Central sind auf physischen Linux-Engines
 Recovery, monotone Ownership-Generationen und ein vor aktiven E1a-Claims
 geschütztes Upgrade auf 1.1.0. Die vollständige physische Matrix auf SQL Server
 2019/2022/2025 unter Windows base und Linux latest ist erfolgreich. Recovery
-bleibt manuell und begründet keine Exactly-once- oder Idempotenzzusage.
+bleibt manuell und begründet keine Exactly-once- oder Idempotenzzusage. W6c
+ist am 2026-09-10 als gemeinsamer Work-Queue-2.0.0-Slice freigegeben: Retry
+und Dead Letter mit expliziter Workerentscheidung sowie priorisierte
+gruppenbezogene Drain-Barriers werden zusammen implementiert. E1d bleibt
+getrennt und unautorisiert.
 
 ### Phase 4.6 – R2025 GA-Delta-Research
 

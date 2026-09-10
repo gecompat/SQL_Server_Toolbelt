@@ -446,3 +446,16 @@ bleibt ein separater Release-Nachweis.
 | Auswirkungen | Die Referenz-Capabilities sind verfügbar, aber nicht konfiguriert: Sie erzeugen keine Runtime-Abhängigkeit, keinen Netzwerkzugriff, keinen Modell- oder Prompt-Transfer, keine Credentials, keine externen Effekte und keine GitHub-Administration. `artifact-registry-github` bleibt unselektiert, da das Repository keine zentral entschiedene Artifact Registry besitzt und dessen Workflow sonst Pull Requests blockieren würde. Solche Wirkungen bleiben an die jeweiligen projekt- und auftragsbezogenen Freigaben gebunden. Die bestehende Registration-Authority-Entscheidung aus `DEC-2026-028` bleibt unverändert. |
 | Alternativen | Core-only-Upgrade, Beibehaltung nur des Copilot-Adapters oder Konfiguration einer konkreten KI-Runtime wurden verworfen, weil sie den vollständigen Auftrag nicht erfüllen beziehungsweise zusätzliche nicht beauftragte externe Wirkungen auslösen würden. |
 | Betroffene Verträge | `AGENTS.md`, `.ai/foundation/FOUNDATION_RULESET.md`, `.ai/foundation/AI_WORK_ORCHESTRATION_POLICY.md`, `.ai/foundation/MODEL_ROUTING_POLICY.md`, `.ai/foundation/installation-provenance.json`, `THIRD_PARTY_AND_SOURCE_POLICY.md`, `.ai/repo_map.yaml`, `DEC-2026-028` |
+
+## DEC-2026-031: Work Queue v2 mit explizitem Retry und Gruppen-Barriers
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-09-10 |
+| Status | accepted |
+| Entscheidung | `toolbelt.core.work-queue` wird in W6c als Version 2.0.0 um expliziten Retry, Dead Letter, Idempotenz, Priorität und gruppenbezogene `DRAIN_BARRIER` erweitert. Der Worker klassifiziert Retry; `USP_FailWork` bleibt terminal. |
+| Begründung | Wiederholung, Dead Letter und Idempotenz benötigen denselben persistierten Queuezustand wie Lease und Claim. Systemveränderungen erfordern zusätzlich, dass ein höher priorisierter Wartungsauftrag laufende Arbeit einer definierten Gruppe geordnet abwartet, ohne sie zu beenden. |
+| Scope | `TC-2026-020`, `TC-2026-048`, WorkItem-Persistenz, Claim-Reihenfolge, Statusoberflächen, Deployment, Upgrade und Work-Queue-Contract-Tests. |
+| Auswirkungen | Retry-Policy ist pro Item unveränderlich: drei Versuche default, exponentieller Backoff ohne Jitter, Basis 60 und Maximum 3.600 Sekunden. Barriers speichern einen exakten Snapshot aus WorkItem und ClaimGeneration; Lease-Ablauf löst ihn nicht. Gleichpriorisierte Barriers dürfen parallel laufen, andere Gruppen bleiben frei. |
+| Alternativen | Automatische Fehlerklassifikation, dynamische statt persistierter Wartemenge, präemptives Beenden laufender Arbeit, globale Queue-Sperren über die gesamte Arbeitsdauer und ein separater Retry-Provider wurden verworfen. |
+| Betroffene Verträge | `WORK_QUEUE_MODULE_DESIGN.md`, `TC-2026-020`, `TC-2026-048`, `.ai/BACKLOG.md`, `toolbelt.core.work-queue` |
