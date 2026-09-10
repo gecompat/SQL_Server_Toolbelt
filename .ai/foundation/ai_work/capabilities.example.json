@@ -1,0 +1,21 @@
+{
+  "capabilities": [
+    {
+      "capability_id": "example-deterministic-doc-check",
+      "contract": "foundation-ai-work/v1",
+      "cost_model": {"currency": "USD", "estimated_cost": 0, "provenance": "CONFIGURED"},
+      "data_classes_allowed": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"],
+      "deterministic": true,
+      "execution_boundary": "PROCESS",
+      "functions": ["documentation.check"],
+      "health": {"checked_at": "2026-01-01T00:00:00Z", "expires_at": "2099-01-01T00:05:00Z", "state": "HEALTHY"},
+      "kind": "DETERMINISTIC_TOOL",
+      "protocol": "foundation-ai-adapter-jsonl/v1",
+      "provenance": {"observed_at": "2026-01-01T00:00:00Z", "source": "synthetic-example"},
+      "quality": {"observations": 0, "predicted_success": 1, "provenance": "CONFIGURED"},
+      "required_authorities": ["filesystem:read"],
+      "resources": {"disk_mb": 0, "network_mb": 0, "ram_mb": 16},
+      "schema_version": 1
+    }
+  ]
+}

@@ -24,7 +24,12 @@ sources_of_truth:
   foundation_artifact_registration_policy: .ai/foundation/ARTIFACT_REGISTRATION_POLICY.md
   foundation_upgrade_policy: .ai/foundation/UPGRADE_APPLICABILITY_POLICY.md
   foundation_rule_context_cache_policy: .ai/foundation/RULE_CONTEXT_CACHE_POLICY.md
+  foundation_ai_work_orchestration_policy: .ai/foundation/AI_WORK_ORCHESTRATION_POLICY.md
+  foundation_model_routing_policy: .ai/foundation/MODEL_ROUTING_POLICY.md
+  foundation_validation_policy: .ai/foundation/VALIDATION_POLICY.md
   copilot_bridge: .github/copilot-instructions.md
+  claude_bridge: CLAUDE.md
+  gemini_bridge: GEMINI.md
   ai_cost_quality_policy: Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md
   validation_policy: Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
   third_party_source_policy: Documentation/Standards/THIRD_PARTY_AND_SOURCE_POLICY.md

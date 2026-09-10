@@ -44,12 +44,12 @@ Für jeden Drittanbieter oder jede externe Quelle dokumentieren:
 | Name | AI Repository Foundation |
 | Quelle | `https://github.com/gecompat/AI_Repository_Foundation` |
 | Lizenz | MIT; vollständiger Hinweis unter `.ai/foundation/AI_REPOSITORY_FOUNDATION_NOTICE.md` |
-| Variante | Manifestierter Rules-only-Core und GitHub-Copilot-Discovery-Adapter |
-| Verwendete Version | `1.8.0`, Git-Commit `7ddc29988b23570f462e46ebf527f8dfdd05fd75` |
+| Variante | Vollständiger manifestierter Core, alle Discovery-Adapter und alle ohne zusätzliche Projektentscheidung anwendbaren optionalen Referenz-Capabilities; ohne Runtime-Konfiguration, Credentials oder externe Endpunkte |
+| Verwendete Version | `1.17.2`, Git-Commit `36d2cb20c2880b7cfaa6428db3716e6768e23964` |
 | Prüfsumme | Kein separates Binärartefakt; die Foundation-Integritätsprüfung vergleicht die übertragenen Dateien mit dem festgelegten Quell-Checkout. Ausschließlich UTF-8-LF-/CRLF-Unterschiede gelten dabei als semantisch gleich. |
 | Aufgenommen | 2026-08-23 |
-| Aktualisiert | 2026-09-04 |
-| Begründung | Anbieterneutrale, versionierte Governance-Baseline für Autorisierung, Sicherheit, Provenienz, Quellen, Dependencies und getrennte Validierungsebenen. |
+| Aktualisiert | 2026-09-09 |
+| Begründung | Anbieterneutrale, versionierte Governance-Baseline für Autorisierung, Sicherheit, Provenienz, Quellen, Dependencies, AI-Arbeitsorchestrierung, Modellrouting und getrennte Validierungsebenen. |
 
 Die Integration führt keine Runtime-Abhängigkeit und keinen externen Dienst ein. Upgrades bleiben explizit und impact-basiert; bei einem späteren Entfernen müssen Foundation-Regeln, Discovery-Brücke und zugehörige Provenienz gemeinsam konsistent behandelt werden.
 
@@ -65,7 +65,20 @@ Die Integration führt keine Runtime-Abhängigkeit und keinen externen Dienst ei
 | `semantic-integration` | `APPLY_DEFAULT` | Die additive Integration bleibt erhalten; projektspezifische Regeln, Adapter-Capability und `.ai/repo_map.yaml` werden nicht ersetzt. |
 | `semantic-upgrade-applicability` | `APPLY_DEFAULT` | Das vollständige Feature-Delta wurde anhand des Upstream-Katalogs am exakten Quell-Commit bewertet und hier dauerhaft dokumentiert. |
 
-Ausgewählt sind der manifestierte Core und der vorhandene GitHub-Copilot-Discovery-Adapter. Die optionalen Capabilities `artifact-registration-clients`, `artifact-registry-github` und `rule-context-cache` bleiben unselektiert.
+### Upgrade-Bewertung 1.8.0 auf 1.17.2
+
+| Feature | Klassifikation | Projektevidenz und Behandlung |
+|---|---|---|
+| `model-routing-interoperability` | `RECOMMENDED` | Die anbieterneutrale Kosten- und Qualitätsrichtlinie ordnet bereits zu den Foundation-Tiers zu. Das aktuelle dynamische Routing ergänzt frische Evidenz, Ablaufgrenzen und attestierte Ausführung. Der Referenzrouter wird auf ausdrücklichen Auftrag mitgeführt, bleibt aber ohne Runtime-Konfiguration inaktiv. |
+| `ai-work-orchestration` | `RECOMMENDED` | Das Repository wird für Entwicklung, Recherche und Dokumentation KI-unterstützt gepflegt. Die Control-Plane-Policy und Schemas ergänzen die bestehende Governance; konkrete Runtime-Auswahl und Effekte bleiben projekt- und auftragsgebunden. |
+| `ai-runtime-adapters` | `RECOMMENDED` | Die Referenzadapter sind ausgewählt, um eine spätere isolierte Integration zu ermöglichen. Es werden keine Endpunkte, Credential-Referenzen, Modelle oder Remote-Verarbeitung eingerichtet; dafür wäre weiterhin eine gesonderte Entscheidung nötig. |
+| `ai-work-execution` | `RECOMMENDED` | Der Executor wird als optionale Referenz übernommen. Checkpoints, Freigabequittungen und externe Effekte werden nicht konfiguriert oder autorisiert. |
+| `ai-host-preparation` | `NOT_APPLICABLE` | Es besteht kein konkreter Auftrag zur Laufzeit-Provisionierung, zum Download oder zur Installation eines KI-Runtimes. Die Referenz bleibt verfügbar, aber unkonfiguriert. |
+| `ai-client-integration` | `RECOMMENDED` | Codex und GitHub Copilot sind etablierte Clients; die Claude- und Gemini-Discovery-Brücken werden vollständig ergänzt. Client-spezifische Konfiguration, Prompt-Transfer und Modell-Attestierung bleiben an frische Evidenz und explizite Freigabe gebunden. |
+| `central-artifact-registry` | `RECOMMENDED` | Die Materialänderung wurde geprüft. Es gibt weiterhin keine gemeinsame Registration Authority; eine Einführung oder Migration bleibt eine gesonderte Architekturentscheidung. Die GitHub-Registry-Capability wird deshalb nicht installiert, weil sie ohne zentrale Registry jeden Pull Request blockieren würde. |
+| `installed-foundation-provenance` | `APPLY_DEFAULT` | Der manifestierte portable Hash- und Provenienzbeleg wird für alle ausgewählten Dateien erstellt und dient ausschließlich der Foundation-Integrität. |
+
+Ausgewählt sind der manifestierte Core, die Adapter `github-copilot`, `claude-code` und `gemini` sowie alle derzeit anwendbaren optionalen Referenz-Capabilities. Ausgenommen bleibt ausschließlich `artifact-registry-github`, bis eine zentrale Registry durch eine eigene Architekturentscheidung ausgewählt ist. Die Auswahl aktiviert keine Runtime, keinen externen Endpoint, keine Credentials, keine Ausführung und keine Repository-Administration.
 
 ## Verbote
 

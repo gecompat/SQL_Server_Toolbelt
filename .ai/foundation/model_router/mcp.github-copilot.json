@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "model-router": {
+      "args": [
+        "mcp"
+      ],
+      "command": "ai-model-router",
+      "tools": [
+        "*"
+      ],
+      "type": "local"
+    }
+  }
+}

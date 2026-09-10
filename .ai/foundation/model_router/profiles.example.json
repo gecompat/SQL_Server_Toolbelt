@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "router_defaults": {
+    "daily_evaluation_budget_usd": 0.25,
+    "failure_cost_usd": 0.5,
+    "latency_value_usd_per_second": 0.0001,
+    "minimum_evaluation_trials": 3,
+    "quality_prior_strength": 4,
+    "switching_cost_usd": 0.001,
+    "tier_quality_floors": {
+      "BALANCED": 0.7,
+      "ECONOMICAL": 0.5,
+      "FRONTIER": 0.85
+    }
+  },
+  "profiles": {
+    "ollama-cloud": {
+      "example-model-id": {
+        "assessment": "ASSESSED",
+        "capabilities": [
+          "text",
+          "tools"
+        ],
+        "context_window": 131072,
+        "latency_seconds_prior": 2.0,
+        "quality_prior": {
+          "*": 0.65,
+          "coding": 0.75
+        },
+        "reasoning_efforts": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "supported_tiers": [
+          "ECONOMICAL",
+          "BALANCED"
+        ]
+      }
+    }
+  }
+}
