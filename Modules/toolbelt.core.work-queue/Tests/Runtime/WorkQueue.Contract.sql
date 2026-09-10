@@ -170,9 +170,8 @@ BEGIN TRY EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@LeaseId,@ClaimToken=@
 BEGIN CATCH IF ERROR_NUMBER()=52952 OR ERROR_NUMBER()<>51922 THROW; END CATCH;
 
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
-IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@LeaseId AND Status='CLAIMED' AND ClaimGeneration=2 AND ClaimToken<>@LeaseToken) THROW 52953,N'Der Claim nach Recovery besitzt keine neue Ownership.',1;
-DECLARE @RecoveredToken uniqueidentifier=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=@LeaseId AND Status='CLAIMED');
-EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@LeaseId,@ClaimToken=@RecoveredToken;
+IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@LeaseId AND Status='CLAIMED') THROW 52953,N'Der Claim ignorierte die Retry-Verzögerung nach Recovery.',1;
+IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@LeaseId AND Status='RETRY_WAIT' AND NextAttemptAtUtc>SYSUTCDATETIME()) THROW 52966,N'Die Recovery-Retry-Verzögerung fehlt.',1;
 DROP TABLE #Recovery;
 DROP TABLE #Lease;
 
