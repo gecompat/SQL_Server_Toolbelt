@@ -199,7 +199,7 @@ EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@RetryId,@ClaimToken=@RetryToken
 EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.queue.none',@ExecutionGroup='barrier',@Priority=0;
 DECLARE @BarrierBlockerId bigint=(SELECT MAX(WorkItemId) FROM toolbelt_core.WorkItem WHERE ExecutionGroup='barrier');
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
-DECLARE @BarrierBlockerToken uniqueidentifier=(SELECT ClaimToken FROM #Claim);
+DECLARE @BarrierBlockerToken uniqueidentifier=(SELECT ClaimToken FROM toolbelt_core.WorkItem WHERE WorkItemId=@BarrierBlockerId AND Status='CLAIMED');
 EXEC toolbelt_core.USP_EnqueueBarrierWork @WorkTypeName='test.queue.none',@ExecutionGroup='barrier',@Priority=9;
 DECLARE @BarrierId bigint=(SELECT MAX(WorkItemId) FROM toolbelt_core.WorkItem WHERE ExecutionGroup='barrier' AND ExecutionMode='DRAIN_BARRIER');
 EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.queue.none',@ExecutionGroup='barrier',@Priority=255;
