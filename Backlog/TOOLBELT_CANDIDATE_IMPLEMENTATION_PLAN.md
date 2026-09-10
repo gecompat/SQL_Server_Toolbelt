@@ -9,7 +9,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 28 Module sind implementiert; 19 sind `validated`, 9 sind `partially validated`, 0 sind `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 28 Module sind implementiert; 20 sind `validated`, 8 sind `partially validated`, 0 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -78,7 +78,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 | `W4` | `completed`; Runtime `validated` | Weitere Execution-Grundlagen | `017`, `019`, `022` | Persistente Tabellenkonvention mit `DEC-2026-025`; Einzelverträge freigegeben | Error Envelope, Execution Context und Work-Type-Katalog sind auf Windows/Linux 2019/2022/2025 validiert. |
 | `W5a` | `completed`; Runtime `validated` | Synchrone zweite Session und Event Log | `046` synchroner Slice, `014` | Work-Type, Execution Context und Error Envelope | `toolbelt.core.second-session` und rollback-unabhängiges `toolbelt.core.event-log` sind auf Windows/Linux 2019/2022/2025 validiert. |
 | `W5b` | `researched` | Zusätzliche Session- und Ausführungsprovider | verbleibender `046`-Scope | Konkreter Providerbedarf, eigener Security-/Lifecyclevertrag und Freigabe | Kein automatischer Ausbau; Agent, Broker und externe Worker bleiben getrennte Optionen. |
-| `W6` | `W6c implemented`; Runtime `partially validated` | Queue, Retry, Lease, priorisierte Barriers und Cancellation | `015`, `021`, `020`, `048`, `018` | W6c am 2026-09-10 ausdrücklich freigegeben; Einzelvertrag und Freigabe für W6d | Work Queue 2.0.0 erweitert die Queue um Retry/Dead Letter/Idempotenz und priorisierte Gruppen-Barriers. Die v2-Linux-Matrix 2019/2022/2025 ist erfolgreich; Windows-v2 steht aus. W6d kooperative Cancellation bleibt offen. |
+| `W6` | `W6c implemented`; Runtime `validated` | Queue, Retry, Lease, priorisierte Barriers und Cancellation | `015`, `021`, `020`, `048`, `018` | W6c am 2026-09-10 ausdrücklich freigegeben; Einzelvertrag und Freigabe für W6d | Work Queue 2.0.0 erweitert die Queue um Retry/Dead Letter/Idempotenz und priorisierte Gruppen-Barriers. Die v2-Matrix 2019/2022/2025 unter Windows und Linux ist erfolgreich. W6d kooperative Cancellation bleibt offen. |
 | `W7` | `active` | Datei- und Host-Provider | `037`, `038`, `025`, `026`, `027` | Root-Allowlist, Pfad-/Encoding-Vertrag und Provider | `toolbelt.file.content` ist als portabler Read-only-Slice implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` implementiert Read/Write/Transcoding/Directory-Operationen; der manuelle Windows-Runtime-Nachweis bleibt offen. Externe Worker bleiben optional zurückgestellt. |
 | `W8` | `completed` für ZIP Memory; Rest `researched` | Archive und XLSX | `033`, `034`, `035`, `036`, `045` | Untrusted-input-Limits; Dateiprovider nur bei pfadbasiertem Scope | `toolbelt.archive.zip-memory` Version `1.2.0` enthält Extraktion und Listing; die automatisierte Windows-/Linux-Matrix 2019/2022/2025 ist erfolgreich. Reale Archive, Extremgrößen, historische Upgrades und Interoperabilität bleiben Validierungsgates; ZIP-Erzeugung, vollständige Dateisystemextraktion und XLSX bleiben ohne Implementierungsfreigabe offen. |
 | `Q1` | `completed` für V1 | Lifecycle- und Upgrade-Automation | `RI-2026-142`; weitere Manifest-/Snapshot-Slices zurückgestellt | V1 auf isolierte dependency-freie zustandslose T-SQL-Module begrenzt | Kataloggenauer Wiederholungsdeploy, zwei unabhängige Uninstalls und Restzustandsprüfung sind auf SQL Server 2019/2022/2025 unter Linux und Windows erfolgreich. |
@@ -158,7 +158,7 @@ physischen Windows-/Linux-Matrix validiert.
 | `D1` / `RI-2026-079` | `toolbelt.datetime.date-spine` | `toolbelt_datetime.TVF_DateSpineDay`, `TVF_DateSpineIsoWeek`, `TVF_DateSpineMonth` | Keine autonome Validierung offen; Release bleibt unautorisiert. |
 | `TC-2026-015` | `toolbelt.core.work-queue` (E1a) | `toolbelt_core.USP_EnqueueWork`, `USP_ClaimWork`, `USP_CompleteWork`, `USP_FailWork`, `USP_GetWorkStatus`, `VW_WorkQueue` | Worker-Provider und E1c Retry/Idempotenz bleiben separat; tatsächliche Veröffentlichung ist nicht autorisiert. |
 | `TC-2026-021` | `toolbelt.core.work-queue` (E1b) | `toolbelt_core.USP_RenewWorkLease`, `USP_RecoverExpiredWork`; Lease- und Generationserweiterungen der E1a-Objekte | E1c Retry/Idempotenz bleibt separat; tatsächliche Veröffentlichung ist nicht autorisiert. |
-| `TC-2026-048` | `toolbelt.core.work-queue` (W6c) | `toolbelt_core.USP_EnqueueBarrierWork`, `VW_WorkQueueBarrierBlockers`; Erweiterungen der Queue-Status- und Claim-Verträge | Work Queue 2.0.0 ist implementiert; v2-Linux erfolgreich, Windows-v2 `not executed`; kooperative Cancellation bleibt ein getrennter, unautorisierter Slice. |
+| `TC-2026-048` | `toolbelt.core.work-queue` (W6c) | `toolbelt_core.USP_EnqueueBarrierWork`, `VW_WorkQueueBarrierBlockers`; Erweiterungen der Queue-Status- und Claim-Verträge | Work Queue 2.0.0 ist auf Windows/Linux 2019/2022/2025 validiert; kooperative Cancellation bleibt ein getrennter, unautorisierter Slice. |
 | `TC-2026-047` | `toolbelt.tsql.script-parser` | `toolbelt_tsql.TVF_ParseScriptNodes`, `TVF_ParseScriptNodeProperties`, `TVF_TokenizeScript`, `TVF_ParseScriptErrors` | Der implementierte Parser bleibt `partially validated`; der separate Windows-SQL-CLR-Runtime-Nachweis ist offen. |
 | `TC-2026-010` | `toolbelt.string.regex` (R1b) | `toolbelt_string.SVF_RegexIsMatch`, `SVF_RegexInstr`, `SVF_RegexCount` | Replace, Substring, Captures, Split und Matches bleiben separat; tatsächliche Veröffentlichung ist nicht autorisiert. |
 
@@ -297,7 +297,7 @@ Gates; eine tatsächliche Veröffentlichung ist nicht autorisiert.
 - `toolbelt.core.console-message`;
 - `toolbelt.metadata.capability-catalog`.
 
-19 Module sind `validated`, 9 bleiben `partially validated`; alle 28 sind `unreleased`. Der lokale
+20 Module sind `validated`, 8 bleiben `partially validated`; alle 28 sind `unreleased`. Der lokale
 SQL_Server_Lab-Vertrag ist schema-valide. Die vollständige automatisierte
 Matrix war am 2026-09-01 auf physischen SQL-Server-2019-/2022-/2025-Zielen
 unter Windows base und Linux latest erfolgreich. File Content bleibt ohne

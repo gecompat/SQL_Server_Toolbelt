@@ -5,7 +5,7 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 ## Aktueller Stand
 
 Der Repository-Grundaufbau ist abgeschlossen. 28 Module sind implementiert;
-19 sind `validated`, 9 sind `partially validated`. Für alle existieren
+20 sind `validated`, 8 sind `partially validated`. Für alle existieren
 statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte.
 
 Die ResultTable-Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 mit

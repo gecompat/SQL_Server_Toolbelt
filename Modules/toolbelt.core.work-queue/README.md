@@ -6,9 +6,8 @@
 persistierte Retry-Policies, Dead Letter, Idempotency Keys sowie priorisierte
 gruppenbezogene Drain-Barriers. Das Modul bleibt `unreleased`.
 
-Die Work-Queue-v2-Suite ist auf SQL Server 2019, 2022 und 2025 unter Linux
-validiert. Der entsprechende Windows-v2-Nachweis ist noch ausstehend; das
-Modul ist deshalb `partially validated`.
+Die Work-Queue-v2-Suite ist auf SQL Server 2019, 2022 und 2025 unter Windows
+und Linux validiert.
 
 ## Zweck
 
@@ -58,8 +57,8 @@ Systemzuständen und Log-Shrink bleiben außerhalb des Moduls. Ein Upgrade von
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-10`
-- Nachweis: `GitHub Actions: Work-Queue Runtime #34533724721`
-- Scope: Work Queue 2.0.0 auf synthetischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen; öffentlicher Vertrag, Retry/Dead Letter, Idempotenz, Barrier- und Parallelitätsfälle, Upgrade, Lifecycle, Central, Redeployment, Uninstall und Cleanup
-- Ergebnis: `success; Windows-v2-Matrix not executed`
+- Datum: `2026-09-11`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1`
+- Scope: Work Queue 2.0.0 auf physischen SQL-Server-2019-, 2022- und 2025-Windows-Zielen; öffentlicher Vertrag, Retry/Dead Letter, Idempotenz, Barrier- und Parallelitätsfälle, Upgrade, Lifecycle, Central, Redeployment, Uninstall und Cleanup
+- Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
