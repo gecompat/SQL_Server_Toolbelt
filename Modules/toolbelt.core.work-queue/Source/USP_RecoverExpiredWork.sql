@@ -21,7 +21,7 @@ BEGIN
         SELECT CAST('1.0' AS varchar(16)) HelpContractVersion,CAST(N'toolbelt_core' AS sysname) SchemaName,CAST(N'USP_RecoverExpiredWork' AS sysname) ObjectName,
                v.Section,v.Ordinal,v.ItemName,v.SqlDataType,v.IsRequired,v.IsNullable,v.DefaultValue,v.Description,v.ExampleSql
         FROM (VALUES
-          (CAST('DESCRIPTION' AS varchar(32)),1,CAST(NULL AS sysname),CAST(NULL AS varchar(256)),CAST(NULL AS bit),CAST(NULL AS bit),CAST(NULL AS nvarchar(4000)),CAST(N'Setzt explizit höchstens @MaxItems abgelaufene Claims auf QUEUED zurück. Alte ClaimTokens werden atomar invalidiert; es findet keine automatische Ausführung statt.' AS nvarchar(max)),CAST(NULL AS nvarchar(max))),
+          (CAST('DESCRIPTION' AS varchar(32)),1,CAST(NULL AS sysname),CAST(NULL AS varchar(256)),CAST(NULL AS bit),CAST(NULL AS bit),CAST(NULL AS nvarchar(4000)),CAST(N'Plant für abgelaufene Claims nach der gespeicherten Retry-Policy RETRY_WAIT oder DEAD_LETTER. Alte ClaimTokens werden atomar invalidiert.' AS nvarchar(max)),CAST(NULL AS nvarchar(max))),
           ('PARAMETER',1,N'@MaxItems','int',0,0,N'100',N'Batchgrenze von 1 bis 1000.',NULL),
           ('PARAMETER',2,N'@ResultTable','sysname',0,1,NULL,N'Optionale lokale Temp-Tabelle für recoverte Items.',NULL),
           ('PARAMETER',3,N'@KeepData','bit',0,0,N'0',N'Steuert die ResultTable-Vorbereitung.',NULL),
@@ -29,7 +29,7 @@ BEGIN
           ('PARAMETER',5,N'@Hilfe','bit',0,0,N'0',N'1 gibt ausschließlich dieses Help-Resultset aus.',NULL),
           ('RESULT_COLUMN',1,N'WorkItemId','bigint',0,0,NULL,N'Eindeutige Queue-ID.',NULL),
           ('RESULT_COLUMN',2,N'WorkTypeName','varchar(128)',0,0,NULL,N'Kanonischer Work-Type-Name.',NULL),
-          ('RESULT_COLUMN',3,N'Status','varchar(16)',0,0,NULL,N'Nach Recovery stets QUEUED.',NULL),
+          ('RESULT_COLUMN',3,N'Status','varchar(16)',0,0,NULL,N'RETRY_WAIT oder DEAD_LETTER nach gespeicherter Policy.',NULL),
           ('RESULT_COLUMN',4,N'ClaimGeneration','bigint',0,0,NULL,N'Letzte invalidierte Ownership-Generation.',NULL),
           ('RESULT_COLUMN',5,N'RecoveryCount','bigint',0,0,NULL,N'Kumulierte Zahl kontrollierter Recoveries.',NULL),
           ('RESULT_COLUMN',6,N'LastRecoveredAtUtc','datetime2(7)',0,0,NULL,N'Engine-Zeit der Recovery.',NULL),
@@ -61,9 +61,12 @@ BEGIN
             ORDER BY LeaseUntilUtc,WorkItemId
         )
         UPDATE Expired SET
-              Status='QUEUED',ClaimedAtUtc=NULL,ClaimedBy=NULL,ClaimToken=NULL
+              Status=CASE WHEN CycleAttemptCount>=MaxAttempts THEN 'DEAD_LETTER' ELSE 'RETRY_WAIT' END,ClaimedAtUtc=NULL,ClaimedBy=NULL,ClaimToken=NULL
             , LeaseDurationSeconds=NULL,LeaseUntilUtc=NULL,LastHeartbeatAtUtc=NULL
             , RecoveryCount=RecoveryCount+1,LastRecoveredAtUtc=@NowUtc,LastRecoveredBy=@RecoveredBy
+            , NextAttemptAtUtc=CASE WHEN CycleAttemptCount>=MaxAttempts THEN NULL ELSE DATEADD(SECOND,CASE WHEN CycleAttemptCount>=31 OR RetryBaseDelaySeconds*POWER(CONVERT(float,2),CycleAttemptCount-1)>RetryMaxDelaySeconds THEN RetryMaxDelaySeconds ELSE CONVERT(int,RetryBaseDelaySeconds*POWER(CONVERT(float,2),CycleAttemptCount-1)) END,@NowUtc) END
+            , DeadLetteredAtUtc=CASE WHEN CycleAttemptCount>=MaxAttempts THEN @NowUtc ELSE DeadLetteredAtUtc END
+            , DeadLetteredBy=CASE WHEN CycleAttemptCount>=MaxAttempts THEN @RecoveredBy ELSE DeadLetteredBy END
         OUTPUT inserted.WorkItemId INTO @Recovered(WorkItemId);
 
         INSERT INTO #tbx_WorkQueue_RecoveryResult

@@ -179,7 +179,8 @@ BEGIN
         SET @WorkItemId = SCOPE_IDENTITY();
 
         INSERT INTO #tbx_WorkQueue_StatusResult
-        SELECT * FROM toolbelt_core.VW_WorkQueue WHERE WorkItemId = @WorkItemId;
+        SELECT WorkItemId,WorkTypeName,Status,EnqueuedAtUtc,EnqueuedBy,ClaimedAtUtc,ClaimedBy,CompletedAtUtc,CompletedBy,FailedAtUtc,FailedBy,FailureCode,FailureMessage,RowVersion,ClaimGeneration,LeaseDurationSeconds,LeaseUntilUtc,LastHeartbeatAtUtc,IsLeaseExpired,RecoveryCount,LastRecoveredAtUtc,LastRecoveredBy
+        FROM toolbelt_core.VW_WorkQueue WHERE WorkItemId = @WorkItemId;
 
         IF @ResultTable IS NOT NULL
         BEGIN

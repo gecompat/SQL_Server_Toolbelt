@@ -35,6 +35,25 @@ AS
         , wi.RecoveryCount
         , wi.LastRecoveredAtUtc
         , wi.LastRecoveredBy
+        , wi.ExecutionGroup
+        , wi.Priority
+        , wi.ExecutionMode
+        , wi.MaxAttempts
+        , wi.RetryBaseDelaySeconds
+        , wi.RetryMaxDelaySeconds
+        , wi.RetryCycleNumber
+        , wi.CycleAttemptCount
+        , wi.NextAttemptAtUtc
+        , wi.LastErrorCode
+        , wi.LastErrorMessage
+        , wi.LastRetryScheduledAtUtc
+        , wi.LastRetryScheduledBy
+        , wi.DeadLetteredAtUtc
+        , wi.DeadLetteredBy
+        , wi.LastRequeuedAtUtc
+        , wi.LastRequeuedBy
+        , wi.LastRequeueReason
+        , wi.BarrierEpoch
     FROM toolbelt_core.WorkItem AS wi
     JOIN toolbelt_core.WorkType AS wt
       ON wt.WorkTypeId = wi.WorkTypeId;
