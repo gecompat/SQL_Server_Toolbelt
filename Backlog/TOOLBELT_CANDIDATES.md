@@ -1121,6 +1121,6 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Mögliche Technologie** | Persistente Gruppen-/Barrier-Metadaten, Snapshot aus `(WorkItemId, ClaimGeneration)` und kurzer Scheduler-Mutex innerhalb von `toolbelt.core.work-queue`. |
 | **Performance und Security** | Eine Barrier kann ihre Gruppe bewusst anhalten und benötigt deshalb eine getrennt berechtigte Enqueue-Procedure. Snapshot-Blocker enden nur durch expliziten Zustandswechsel; ein Lease-Ablauf genügt nicht. |
 | **Dependencies** | `TC-2026-015`, `TC-2026-020` und der Work-Type-Katalog `TC-2026-022`. |
-| **Status** | `approved`; gemeinsame Umsetzung mit `TC-2026-020` als W6c Work Queue 2.0.0 |
+| **Status** | `implemented`; Runtime `partially validated`; gemeinsame Umsetzung mit `TC-2026-020` als W6c Work Queue 2.0.0 |
 | **Benutzerfreigabe** | Vertrag und Scope wurden am 2026-09-10 besprochen; der Benutzer hat die Umsetzung anschließend ausdrücklich freigegeben. |
-| **Nächster Schritt** | Work Queue 2.0.0 implementieren und nur den betroffenen SQL_Server_Lab-Contract-Scope ausführen. |
+| **Nächster Schritt** | Windows-v2-Nachweis auf je einem bereiten SQL-Server-2019-, 2022- und 2025-Ziel nachholen. Die kooperative Cancellation bleibt ein getrennter, unautorisierter Slice. |
