@@ -256,8 +256,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft. |
 | **Status** | `deferred`; SQL-Server-2025-Referenzfunktionen weiterhin Preview |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/fuzzy-string-match/overview?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Preview-Semantik, Algorithmen, Grenzwerte und Rückgabetypen erfassen; T-SQL und CLR mit festen Testvektoren vergleichen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Die [Architekturvorbereitung](../Documentation/Architecture/FUZZY_MATCH_PROPOSAL.md) empfiehlt einen ersten Levenshtein-Slice ohne Transpositionen. Die widersprüchliche Preview-Beschreibung zu `EDIT_DISTANCE` wird nicht als stabile Parität übernommen; konkrete Signatur, Eingabelimit und Provider bleiben der Funktionsbesprechung vorbehalten. |
 
 ## TC-2026-012: Base64 Encode/Decode für SQL Server 2019/2022
 
