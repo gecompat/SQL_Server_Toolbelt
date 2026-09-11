@@ -233,8 +233,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; TC-2026-001 ist ein engerer Split-Vertrag. |
 | **Status** | `implemented` für R1b; Runtime `validated`; Release `unreleased`; weitere Regex-Funktionen bleiben `researched` |
 | **Primärquellen** | [R1a Research-Ergebnis](../Documentation/Research/REGEX_SEMANTICS_PROVIDER_SPIKE.md)<br>https://learn.microsoft.com/en-us/sql/relational-databases/regular-expressions/overview?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-like-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-instr-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-count-transact-sql?view=sql-server-ver17<br>https://github.com/google/re2 |
-| **Prüfdatum** | 2026-08-30 |
-| **Nächster Schritt** | R1b per eigenem Pull Request mergen. Replace, Substring, Captures, Split und Matches nur nach getrenntem Vertrag und neuer Freigabe erwägen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | R1b ist gemergt. Die [Erweiterungsvorbereitung](../Documentation/Architecture/REGEX_EXTENSION_PROPOSAL.md) empfiehlt R2a mit Replace und Substring ohne Capture-Backreferences; Captures, Split und Matches bleiben ein getrennter R2b-Vertrag mit eigener Freigabe. |
 
 ## TC-2026-011: Fuzzy String Matching für SQL Server 2019/2022
 
