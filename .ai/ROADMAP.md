@@ -549,7 +549,7 @@ Erweiterungen; Fuzzy Matching bleibt zurückgestellt.
 ### Phase 4.5 – E1 Work Queue in vertikalen Slices
 
 **Status:** Work Queue 2.0.0 `implemented`, Runtime `validated`,
-Release `unreleased`; E1d ist als W6d separat freigegeben und in Umsetzung
+Release `unreleased`; E1d ist als W6d separat implementiert und validiert
 
 Die bereits implementierten Grundlagen Work Type, Error Envelope, Execution
 Context und Second Session tragen vier getrennte Slices: `E1a`
@@ -573,7 +573,7 @@ Drain-Barriers. Die Matrix 2019/2022/2025 unter Windows und Linux ist
 erfolgreich. E1d bleibt getrennt: W6d implementiert ausschließlich persistierte
 kooperative Cancellation ohne `KILL`, automatische Queue-Mutation oder
 Provider-Abbruch. Der Benutzer hat diesen Scope am 2026-09-11 ausdrücklich
-freigegeben; die Statusvalidierung folgt der betroffenen Runtime-Matrix.
+freigegeben; die betroffene Windows-/Linux-Runtime-Matrix ist erfolgreich.
 
 ### Phase 4.6 – R2025 GA-Delta-Research
 
