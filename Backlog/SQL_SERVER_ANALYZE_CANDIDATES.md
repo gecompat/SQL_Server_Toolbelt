@@ -1,8 +1,8 @@
 # SQL Server Analyze – Kandidaten
 
-Diese Liste enthält ausschließlich noch nicht im Ziel-Repository vorhandene Analyse-, Diagnose-, Performance-, Konfigurations- oder Security-Assessment-Ideen.
+Diese Liste enthält Analyse-, Diagnose-, Performance-, Konfigurations- oder Security-Assessment-Ideen ohne nachgewiesene gleichwertige Implementierung im Ziel-Repository. Bereits dort geplante Themen werden mit dem bestehenden Intake verknüpft; die Toolbelt-ID bleibt als Herkunft erhalten.
 
-**Dieses Repository ändert `gecompat/SQL_Server_Analyze` nicht.** Ein Eintrag ist keine Implementierungszusage für eines der beiden Repositories.
+**Änderungen an `gecompat/SQL_Server_Analyze` benötigen einen ausdrücklichen Cross-Repository-Auftrag.** Dieser liegt für die Dokumentations- und Backlog-Übergabe vom 2026-09-11 vor. Ein Eintrag oder diese Übergabe ist keine Implementierungszusage für eines der beiden Repositories.
 
 ## AC-2026-001: Read-only Security-Feature-Katalog
 
@@ -22,10 +22,12 @@ Diese Liste enthält ausschließlich noch nicht im Ziel-Repository vorhandene An
 | **Plattformgrenzen** | Windows und Linux voraussichtlich gleich; Azure-Produkte nicht automatisch aus dem SQL-Server-Vertrag ableiten. |
 | **Dependencies** | Bestehende Capability-Erkennung, Ausgabearten und Status-/Partial-Verträge von `SQL_Server_Analyze`. |
 | **Duplikatprüfung** | Root-README, Procedure-Referenz und Spezialfall-Architektur von `gecompat/SQL_Server_Analyze` am 2026-07-30 lesend geprüft. Vorhanden sind allgemeine Sicherheitskonfiguration, Verschlüsselungsanalyse und Spezialfeature-Inventur; ein expliziter kombinierter DDM-/RLS-/Klassifizierungs-/Berechtigungskatalog wurde in diesen öffentlichen Vertragsdokumenten nicht gefunden. |
+| **Aktualisierter Abgleich** | Am 2026-09-11 gegen Toolbelt `f4fe237` und Analyze `6e46adc` geprüft. Die [Analyze-Abdeckungsmatrix](https://github.com/gecompat/SQL_Server_Analyze/blob/main/Metadata/Quality/Diagnostic_Coverage_Landscape.csv) führt `PRINCIPALS_ROLE_PERMISSIONS`, `RLS_DYNAMIC_MASKING` und `SENSITIVITY_CLASSIFICATION` bereits als `RESEARCHED_NOT_IMPLEMENTED`. Es besteht Planungsüberschneidung, kein Nachweis eines implementierten kombinierten Berichts. |
+| **Kanonische Weiterführung** | [Analyze WI-0010 – Toolbelt-Übergabe](https://github.com/gecompat/SQL_Server_Analyze/blob/main/AI_Metadata/Internal_Documentation/Research/SQL_Server_Diagnostic_Coverage_Landscape.md#toolbelt-übergabe); die drei bestehenden CoverageKeys werden wiederverwendet. `AC-2026-001` bleibt Herkunftsreferenz und eröffnet kein paralleles Arbeitspaket. |
 | **Status** | `researched` |
 | **Primärquellen** | [SQL Server Analyze – README](https://github.com/gecompat/SQL_Server_Analyze/blob/main/README.md)<br>[SQL Server – Dynamic Data Masking](https://learn.microsoft.com/en-us/sql/relational-databases/security/dynamic-data-masking?view=sql-server-ver17)<br>[SQL Server – Row-Level Security](https://learn.microsoft.com/en-us/sql/relational-databases/security/row-level-security?view=sql-server-ver17)<br>[SQL Server – sys.sensitivity_classifications](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-sensitivity-classifications-transact-sql?view=sql-server-ver17)<br>[SQL Server – Permissions](https://learn.microsoft.com/en-us/sql/relational-databases/security/permissions-database-engine?view=sql-server-ver17) |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Im Ziel-Repository die SQL-Objekte und maschinenlesbaren Inventare vollständig auf gleichwertige Teilfunktionen prüfen; danach Scope und Resultset-Aufteilung mit dem Benutzer besprechen. Keine Implementierungsfreigabe ableiten. |
+| **Prüfdatum** | 2026-09-11; Erstprüfung 2026-07-30 |
+| **Nächster Schritt** | Unter Analyze `WI-0010` vor einer Priorisierung erneut die Teilabdeckung prüfen und mit dem Benutzer klären, ob bestehende Module erweitert oder getrennte Security-Berichte benötigt werden. Die gemeinsame Ausgabe, Resultset-Aufteilung, Metadatensichtbarkeit und Aussagegrenzen bleiben offene Vertragsfragen. Keine neue Procedure, Priorität oder Implementierungsfreigabe ableiten. |
 
 Vor einem neuen Eintrag:
 
