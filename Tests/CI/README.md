@@ -136,6 +136,13 @@ pwsh Tests/CI/run-lab-local.ps1 -RunScripts run-zip-memory-linux.sh
 pwsh Tests/CI/run-lab-local.ps1 -RunScripts run-regex-linux.sh -RegexAssemblyRoot .runtime/regex-release
 ```
 
+`run-file-content-linux.sh` ist bewusst kein SQL_Server_Lab-Adapter: Er
+erzeugt seine synthetischen Fixtures im Dateisystem eines eigenen Docker-SQL-
+Servers. Die lokale Lab-Matrix weist diesen Aufruf daher explizit zurück,
+statt fälschlich Lab-Evidenz zu behaupten. Eine spätere Lab-Validierung des
+File-Content-Moduls benötigt separat vorbereitete, serverseitige synthetische
+Fixtures und eine dafür freigegebene Identity-/Pfadkonfiguration.
+
 Die Matrix selektiert explizit nach `platform`, `sqlVersion` und `patch` und
 verwendet alle nach dem obigen Gruppen- und Einzelzielvertrag zulässigen
 Einträge. Fehlt ein Ziel oder ist sein eigener Runtime-Status nicht `READY`,
