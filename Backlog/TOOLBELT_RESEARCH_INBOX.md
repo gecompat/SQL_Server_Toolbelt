@@ -14,6 +14,12 @@ Stand der Recherche: 2026-07-30
 - Performance, Security, Lizenz, Plattformunterstützung und langfristige Wartbarkeit sind vor jeder Formalisierung einzeln zu prüfen.
 
 
+## Zuständigkeit der Diagnoseanteile
+
+Ergänzung vom 2026-09-11: Die Quell-IDs und ursprünglichen Ideen bleiben erhalten. Bei `RI-2026-140` bezeichnet der historische Sammelbegriff „Parse/Lint/Rewrite“ unterschiedliche Zuständigkeiten: Parsing, Referenzextraktion und definierte Transformation gehören Toolbelt; Linting und Bad-Practice-Bewertung gehören Analyze. Bei `RI-2026-002`, `009`, `019` und `165` bleiben allgemeine Vergleiche, Fingerprints und Introspektion Toolbelt-Themen. Laufende Schemaüberwachung, betriebliche Baseline-Bewertung und Findings gehören Analyze.
+
+Die Diagnoseanteile werden ausschließlich im [Analyze-Intake unter WI-0010](https://github.com/gecompat/SQL_Server_Analyze/blob/main/AI_Metadata/Internal_Documentation/Research/SQL_Server_Diagnostic_Coverage_Landscape.md#toolbelt-übergabe) präzisiert. Vor einer Formalisierung sind die dortigen Implementierungen und Planungen erneut abzugleichen. Diese Ergänzung erteilt keine Implementierungsfreigabe und verändert keine Prioritäten.
+
 ## Formalisierte und freigegebene Einträge
 
 Die Research-Zeilen bleiben als Herkunft unverändert erhalten. Folgende Ideen wurden
@@ -52,14 +58,14 @@ Diese Treffer erzeugen bewusst keine Duplikate.
 | ID | Verdichtete Idee | Nutzen und offene Abgrenzung | Quellen |
 |---|---|---|---|
 | `RI-2026-001` | Objekt-Clone-Framework | Tabellen samt Indizes, Constraints, Triggern, Defaults und optional Identity kontrolliert kopieren; Namensbildung und Dependency-Reihenfolge sind Kernfragen. | `SRC-PERSONAL`, `SRC-SNOWFLAKE-FUNCTIONS` |
-| `RI-2026-002` | Schema-Diff und Migrationsplan | Zwei Tabellen- oder Schemazustände vergleichen und einen überprüfbaren, möglichst nicht destruktiven Änderungsplan erzeugen. | `SRC-DBT-UTILS`, `SRC-SNOWFLAKE-FUNCTIONS` |
+| `RI-2026-002` | Schema-Diff und Migrationsplan | Zwei Tabellen- oder Schemazustände vergleichen und einen überprüfbaren, möglichst nicht destruktiven Änderungsplan erzeugen. Betriebliche Überwachung siehe [Diagnoseabgrenzung](#zuständigkeit-der-diagnoseanteile). | `SRC-DBT-UTILS`, `SRC-SNOWFLAKE-FUNCTIONS` |
 | `RI-2026-003` | Kanonisches `GET_DDL` | Reproduzierbares DDL für Tabellen, Views, Constraints, Indizes und weitere Objekte erzeugen, ohne SMO zwingend vorauszusetzen. | `SRC-SNOWFLAKE-FUNCTIONS`, `SRC-PG-FUNCTIONS` |
 | `RI-2026-004` | Dependency-Graph und topologische Reihenfolge | Objekt- oder Datenabhängigkeiten als DAG ermitteln, Zyklen markieren und Create/Drop/Load-Reihenfolgen ableiten. | `SRC-PG-FUNCTIONS`, `SRC-DATAFUSION` |
 | `RI-2026-005` | `union_relations` nach Spaltennamen | Tabellen mit abweichender Spaltenreihenfolge oder Teilmengen sicher vereinigen und Datentypen kontrolliert harmonisieren. | `SRC-DBT-UTILS`, `SRC-DUCKDB-FUNCTIONS` |
 | `RI-2026-006` | Dynamischer Pivot/Unpivot | Werte- und Spaltenlisten sicher ableiten, Identifier validieren und reproduzierbares Pivot-/Unpivot-SQL erzeugen. | `SRC-DBT-UTILS`, `SRC-PG-CONTRIB` |
 | `RI-2026-007` | Deduplizierungs-Framework | Duplikatgruppen über konfigurierbare Partitionierung erkennen und anhand einer expliziten Ranking-Regel genau einen Gewinner bestimmen. | `SRC-DBT-UTILS` |
 | `RI-2026-008` | Kanonischer Surrogate Key | Mehrere typisierte Werte einschließlich `NULL`, Leerstring, Collation und Datentypgrenzen kollisionsarm kanonisieren und hashen. | `SRC-DBT-UTILS`, `SRC-SQLSERVER-HASHBYTES`, `SRC-JCS` |
-| `RI-2026-009` | Tabellen-Fingerprint | Reihenfolgeunabhängigen Fingerprint über Schema oder Datenmengen berechnen; exakte und probabilistische Varianten trennen. | `SRC-SNOWFLAKE-FUNCTIONS`, `SRC-HLL`, `SRC-JCS` |
+| `RI-2026-009` | Tabellen-Fingerprint | Reihenfolgeunabhängigen Fingerprint über Schema oder Datenmengen berechnen; exakte und probabilistische Varianten trennen. Betriebliche Baseline-Bewertung siehe [Diagnoseabgrenzung](#zuständigkeit-der-diagnoseanteile). | `SRC-SNOWFLAKE-FUNCTIONS`, `SRC-HLL`, `SRC-JCS` |
 | `RI-2026-010` | Zeilen-Diff mit fachlichem Schlüssel | Insert/Update/Delete-Kandidaten zwischen zwei Rowsets inklusive Spaltenunterschieden ausgeben, ohne Änderungen auszuführen. | `SRC-DBT-UTILS` |
 | `RI-2026-011` | Sicheres Identifier- und Multipart-Name-Toolkit | Ein- bis vierteilige SQL-Namen parsen, normalisieren, quoten und gegen unerlaubte Bestandteile prüfen. | `SRC-ORACLE-DBMS-ASSERT`, `SRC-SQLSERVER-JSON` |
 | `RI-2026-012` | Dry-run-DML-Generator | Aus einem Delta reproduzierbare parametrisierte DML-Vorschläge erzeugen; niemals ungeprüft ausführen. | `SRC-DATAFUSION`, `SRC-DBT-UTILS` |
@@ -69,11 +75,11 @@ Diese Treffer erzeugen bewusst keine Duplikate.
 | `RI-2026-016` | Hierarchie- und Pfadoperationen | Materialized Paths und `hierarchyid` kontrolliert verarbeiten, Vorfahren/Nachfahren bestimmen, Pfade normalisieren sowie Zyklen und maximale Traversal-Tiefe explizit behandeln. | `SRC-PG-CONTRIB`, `SRC-SQLSERVER-HIERARCHYID` |
 | `RI-2026-017` | Range-/Interval-Algebra | Überlappung, Enthaltensein, Schnitt, Differenz, Vereinigung und Lücken für numerische und zeitliche Intervalle vereinheitlichen. | `SRC-PG-RANGES` |
 | `RI-2026-018` | Dynamischer Crosstab mit Vertrag | PostgreSQL `tablefunc` als Inspiration für einen klar begrenzten, typisierten Crosstab-Provider prüfen. | `SRC-PG-CONTRIB` |
-| `RI-2026-019` | Resultset-Vertrag introspektieren | Metadaten eines Statements oder einer Procedure in ein stabiles maschinenlesbares Schema überführen und gegen Erwartungen vergleichen. | `SRC-SQLSERVER-OPENROWSET`, `SRC-DUCKDB-FUNCTIONS` |
+| `RI-2026-019` | Resultset-Vertrag introspektieren | Metadaten eines Statements oder einer Procedure in ein stabiles maschinenlesbares Schema überführen und gegen Erwartungen vergleichen. Betriebliche Driftbewertung siehe [Diagnoseabgrenzung](#zuständigkeit-der-diagnoseanteile). | `SRC-SQLSERVER-OPENROWSET`, `SRC-DUCKDB-FUNCTIONS` |
 | `RI-2026-020` | Objekt-Herkunft und Deployment-Fingerprint | Toolbelt-eigene Objekte, Release-Zugehörigkeit und erwartete Definition zuverlässig identifizieren, ohne fremde Objekte zu beanspruchen. | `SRC-JCS`, `SRC-SQLSERVER-HASHBYTES` |
 | `RI-2026-163` | Standardisierte Session-Context-Helfer | Benannte Schlüssel für Correlation, Actor und Tenant kontrolliert setzen, lesen und optional schreibschützen; Ownership, Connection Pooling, `NULL`, Typen und RLS-Nutzung vom allgemeinen Logging trennen. | `SRC-SQLSERVER-SESSION-CONTEXT`, `SRC-SQLSERVER-RLS` |
 | `RI-2026-164` | Reservierung von Sequence-Ranges | `sys.sp_sequence_get_range` hinter einem typisierten Vertrag für Reservierung, Metadaten, Berechtigungen, Cycling und Erschöpfung kapseln; Protokollierung bleibt eine getrennte optionale Capability. | `SRC-SQLSERVER-SEQUENCE-RANGE` |
-| `RI-2026-165` | Read-only Schema- und Objektintrospektion | Spalten, Types, Module und deklarierte Dependencies als stabile Rowsets für Generatoren und Dokumentation bereitstellen; Metadatasichtbarkeit, unaufgelöste Referenzen und Cross-database-Grenzen ausdrücklich ausweisen. | `SRC-SQLSERVER-CATALOG`, `SRC-SQLSERVER-DEPENDENCIES` |
+| `RI-2026-165` | Read-only Schema- und Objektintrospektion | Spalten, Types, Module und deklarierte Dependencies als stabile Rowsets für Generatoren und Dokumentation bereitstellen; Metadatasichtbarkeit, unaufgelöste Referenzen und Cross-database-Grenzen ausdrücklich ausweisen. Betriebsdiagnose und Findings siehe [Diagnoseabgrenzung](#zuständigkeit-der-diagnoseanteile). | `SRC-SQLSERVER-CATALOG`, `SRC-SQLSERVER-DEPENDENCIES` |
 | `RI-2026-166` | Sichere Dynamic-SQL-Primitiven | Objekt-/Spaltenexistenz, zulässige Sortierlisten und bereits gequotete Identifier als kleine validierende Primitive kapseln; keine allgemeine SQL-Erzeugung und keine freie Ausdruckssyntax. | `SRC-SQLSERVER-CATALOG`, `SRC-ORACLE-DBMS-ASSERT` |
 
 ## 2. Text, Unicode und Interoperabilität
@@ -231,7 +237,7 @@ Diese Treffer erzeugen bewusst keine Duplikate.
 | `RI-2026-137` | Golden-/Snapshot-Resultset-Vergleich | Resultsets kanonisieren und mit einer synthetischen erwarteten Fassung vergleichen; tolerante Felder deklarieren. | `SRC-JCS`, `SRC-DBT-UTILS` |
 | `RI-2026-138` | Contract-Test-Generator | Parameter-, Help-, Resultset-, Fehler- und KeepData-Verträge eines Toolbelt-Objekts in Testfälle übersetzen. | `SRC-DBT-UTILS` |
 | `RI-2026-139` | Provider-Abstraktion für zweite Sessions | `tSQLt.NewConnection`, Service Broker, SQL Agent oder externe Runner hinter einem Capability-Vertrag vergleichen. | `SRC-PERSONAL` |
-| `RI-2026-140` | T-SQL AST Parse/Lint/Rewrite | ScriptDOM-artigen Provider für sichere Identifier-Analyse, DDL-Inspection und begrenzte Transformation einsetzen. Am 2026-09-03 als `TC-2026-047` formalisiert. | `SRC-SCRIPTDOM` |
+| `RI-2026-140` | T-SQL AST Parse/Lint/Rewrite | ScriptDOM-artigen Provider für sichere Identifier-Analyse, DDL-Inspection und begrenzte Transformation einsetzen. Am 2026-09-03 als `TC-2026-047` formalisiert. Linting und Bad-Practice-Bewertung sind davon ausgenommen; siehe [Diagnoseabgrenzung](#zuständigkeit-der-diagnoseanteile). | `SRC-SCRIPTDOM` |
 | `RI-2026-141` | SQL Formatter | Syntaxbaum-basiertes, idempotentes Formatting mit erhaltenen Kommentaren und konfigurierbarem Stil. | `SRC-SCRIPTDOM` |
 | `RI-2026-142` | Migration Idempotency Verifier | Deploy/Upgrade/Uninstall wiederholt in synthetischen Zuständen ausführen und Drift strukturiert melden. | `SRC-DBT-UTILS` |
 
