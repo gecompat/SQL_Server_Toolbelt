@@ -45,6 +45,20 @@ $LinuxPatches = @($LinuxPatches | ForEach-Object { $_ -split ',' })
 $WindowsPatches = @($WindowsPatches | ForEach-Object { $_ -split ',' })
 $RunScripts = @($RunScripts | ForEach-Object { $_ -split ',' })
 
+# Der File-Content-Adapter startet absichtlich einen eigenen Docker-SQL-Server
+# und legt seine Fixtures in dessen Dateisystem an. Er kann daher keinen
+# SQL_Server_Lab-Target prüfen; eine Ausführung über diesen Runner wäre keine
+# Lab-Evidenz und darf nicht stillschweigend erfolgen.
+$labUnsupportedRunScripts = @{
+    'run-file-content-linux.sh' =
+        'Der File-Content-Adapter benötigt serverseitig bereitgestellte Fixtures und ist nicht über SQL_Server_Lab ausführbar.'
+}
+foreach ($runScript in $RunScripts) {
+    if ($labUnsupportedRunScripts.ContainsKey($runScript)) {
+        throw $labUnsupportedRunScripts[$runScript]
+    }
+}
+
 function Get-EnvironmentVariableValue {
     param([Parameter(Mandatory)][string]$Name)
 
