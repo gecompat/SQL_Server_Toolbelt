@@ -959,10 +959,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | T-SQL kann portabel sein; Unicode-, Collation- und Normalisierungssemantik muss installationsunabhängig festgelegt werden. |
 | **Dependencies** | Secret-/Key-Governance; optional gemeinsame deterministische Primitive mit `TC-2026-039`/`TC-2026-040`. |
 | **Duplikatprüfung** | Kein Ersatz für Hash-Lookup, Date Shifting oder Geo-Jittering. Dynamic Data Masking verändert gespeicherte Werte nicht. |
-| **Status** | `researched` |
+| **Status** | `deferred`; kein konkreter Formaterhaltungsbedarf oder Reversibilitätsvertrag |
 | **Primärquellen** | [Research-Inbox `RI-2026-126`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/relational-databases/security/dynamic-data-masking?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Gewünschte Reversibilität, Alphabete, Unicode-/Case-Regeln, Formaterhalt, Key-/Salt-Modell, Rotation und Validierungsnachweis besprechen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Siehe [bedarfsabhängige Zurückstellung](../Documentation/Architecture/CHARACTER_PSEUDONYMIZATION_DECISION.md). Wiederaufnahme erst nach einem konkreten Formaterhaltungs-, Reversibilitäts- und Risikovertrag. |
 
 ## TC-2026-042: Deterministisches Date Shifting
 
