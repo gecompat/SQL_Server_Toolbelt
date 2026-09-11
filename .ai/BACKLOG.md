@@ -211,7 +211,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Tests | Statischer Vertrag und vollständige Windows-/Linux-Matrix auf SQL Server 2019, 2022 und 2025 einschließlich Collation-, 1024-Spalten-, Transaktions-, natürlichem Savepoint-Enginefehler 2705, Multi-Session-, Central-/Lifecycle- und synthetischem Performance-Workload erfolgreich. |
 | Blocker | Kein Merge-Blocker für den implementierten und teilweise validierten Stand. Für `validated` fehlt eine vergleichbare plattformübergreifende Performance-Baseline. |
 | Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.core.result-table/`; [Basislauf 30447442638](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447442638), [erweiterter Lauf 30456207934](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30456207934), [Multi-Session-Lauf 30459004717](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) und [Savepoint-Enginefehler-Lauf 30692956855](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855) erfolgreich. |
-| Nächster Schritt | Vergleichbare plattformübergreifende Performance-Baseline gemäß `Modules/toolbelt.core.result-table/Tests/Manual_Windows_Runtime_Testplan.md` erheben. Erst nach vollständiger Pflichtmatrix auf `validated` setzen. |
+| Nächster Schritt | Die vorhandene Performancebasis je Ziel flüchtig gegen `Performance.Workload.sql` vergleichen; Default ist höchstens 20 % Median-Regression und der Wert ist je Lauf steuerbar. Erst nach vollständiger Pflichtmatrix auf `validated` setzen. |
 
 
 ### AP-2026-023: Windows Filesystem SQL CLR
@@ -592,7 +592,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Tests | Statische Vertragsprüfung sowie vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Compatibility Levels 150/160/170 nach Zielversion erfolgreich. |
 | Blocker | Kein Merge-Blocker. Für `validated` fehlt eine breitere Performancebewertung sehr großer Reihen. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; kanonische Artefakte unter `Modules/toolbelt.core.generate-series/`; [Generate-Series Runtime Run 30496759324](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30496759324) erfolgreich. |
-| Nächster Schritt | Breitere Very-large-series-Performance-Evidenz erheben, sobald eine vergleichbare Baseline und Abnahmekriterien vorgegeben sind. |
+| Nächster Schritt | Breitere Very-large-series-Performance-Evidenz mit dem 10-Millionen-Workload gegen eine flüchtige Vergleichsbasis erheben; Default ist höchstens 20 % Median-Regression und je Lauf steuerbar. |
 
 ### AP-2026-008: Base64/Base64URL-Modul implementieren und validieren
 
@@ -611,7 +611,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Tests | Statische Vertragsprüfung sowie vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Compatibility Levels 150/160/170 nach Zielversion erfolgreich. |
 | Blocker | Kein Merge-Blocker. Für `validated` fehlt eine breitere Performancebewertung großer LOBs. |
 | Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.conversion.base64/`; [Base64 Runtime Run 30493304673](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30493304673) erfolgreich. |
-| Nächster Schritt | Breitere Large-LOB-Performance-Evidenz erheben, sobald eine vergleichbare Baseline und Abnahmekriterien vorgegeben sind. |
+| Nächster Schritt | Breitere Large-LOB-Performance-Evidenz mit dem 4-MiB-Workload gegen eine flüchtige Vergleichsbasis erheben; Default ist höchstens 20 % Median-Regression und je Lauf steuerbar. |
 
 ### AP-2026-007: Entscheidungsvorbereitung für das zweite Modul
 

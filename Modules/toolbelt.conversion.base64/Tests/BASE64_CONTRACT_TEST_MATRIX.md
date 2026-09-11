@@ -26,6 +26,7 @@ war für die Compatibility Levels 150, 160 und 170 erfolgreich.
 | Fehler | ungültiges Zeichen, Länge Rest eins und ungültiges Padding |
 | Roundtrip | Encode → Decode für Standard und URL-safe |
 | Größen | inline-TVF-Roundtrip mit 6.000, 6.001, 65.536 und 1.048.576 synthetischen Bytes; SVF-Parität bis 6.001 Bytes |
+| Performance | 4 MiB synthetischer Large-LOB-Roundtrip; ein Warm-up und fünf Messwiederholungen; gegen lokal gehaltene Basis höchstens 20 % Median-Regression, je Lauf überschreibbar |
 | Native Parität | SQL Server 2025 als semantische Referenz |
 | API-Parität | SVF und inline TVF für Normal-, Grenz-, `NULL`- und Fehlerfälle |
 | Mengenverwendung | `OUTER APPLY`, exakt eine Ergebniszeile, Resultspalten |
@@ -62,11 +63,20 @@ Release nicht.
 Alle Werte sind synthetisch. Decodierte Inhalte, Fehlerinputs und Runtime-
 Ausgaben werden nicht als Repository-Evidenz gespeichert.
 
+## Performance-Vergleich
+
+`Tests/Runtime/Performance.Workload.sql` verwendet die SQLCMD-Variablen
+`PerformanceBaselineMedianMilliseconds` und
+`PerformanceMaxMedianRegressionPercent`. Die Default-Grenze beträgt `20`.
+Ein Basiswert `0` deaktiviert nur die Regressionsentscheidung, nicht den
+synthetischen Workload. Basis und Messwerte bleiben beim Aufrufer und werden
+nicht gespeichert oder veröffentlicht.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
+- Datum: `2026-09-11`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger automatisierter Moduladapter; breitere Large-LOB-Performance-Evidenz bleibt offen
+- Scope: Physische SQL-Server-2025-Ziele unter Windows und Linux; vollständiger Moduladapter einschließlich explizit aktivierter synthetischer 4-MiB-Large-LOB-Workload ohne persistierte Basis
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

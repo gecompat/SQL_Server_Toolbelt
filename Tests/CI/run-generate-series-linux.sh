@@ -6,6 +6,9 @@ set -euo pipefail
 # Testkennwort. Es wird nicht als Artefakt gespeichert.
 sql_image="${TBX_SQL_IMAGE:?TBX_SQL_IMAGE fehlt}"
 sql_version="${TBX_SQL_VERSION:-2025}"
+performance_baseline_milliseconds="${TBX_PERFORMANCE_BASELINE_MEDIAN_MILLISECONDS:-0}"
+performance_max_regression_percent="${TBX_PERFORMANCE_MAX_MEDIAN_REGRESSION_PERCENT:-20}"
+run_performance_workload="${TBX_RUN_PERFORMANCE_WORKLOAD:-0}"
 case "${sql_version}" in
   2019) compatibility_levels="150"; max_compatibility_level="150" ;;
   2022) compatibility_levels="160"; max_compatibility_level="160" ;;
@@ -111,6 +114,15 @@ for compatibility_level in ${compatibility_levels}; do
         GenerateSeries.Contract.sql \
         -v CompatibilityLevel="${compatibility_level}"
 done
+
+if [[ "${run_performance_workload}" == "1" ]]; then
+    run_file "${local_database}" "${runtime_directory}" Performance.Workload.sql \
+        -v "PerformanceBaselineMedianMilliseconds=${performance_baseline_milliseconds}" \
+        -v "PerformanceMaxMedianRegressionPercent=${performance_max_regression_percent}"
+elif [[ "${run_performance_workload}" != "0" ]]; then
+    echo "TBX_RUN_PERFORMANCE_WORKLOAD muss 0 oder 1 sein." >&2
+    exit 1
+fi
 
 # Eine lokale Änderung desselben bekannten Release-Objekts wird beim
 # Wiederholungsdeployment durch die kanonische Source ersetzt.
