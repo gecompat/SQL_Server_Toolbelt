@@ -418,7 +418,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `researched` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/language-elements/kill-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-queue-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-stop-job-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Mit dem Benutzer Fail-fast versus Weiterverarbeitung, kooperative Prüfpunkte, Grace Period, Kill-Berechtigung und Rollback-Warteverhalten besprechen. |
+| **Nächster Schritt** | Den [W6d-Vertragsvorschlag](../Documentation/Architecture/EXECUTION_CANCELLATION_MODULE_DESIGN.md) mit dem Benutzer besprechen: Verhalten noch nicht beanspruchter Items, Prüfpunktsgrenze, Reaktivierung und die klare Trennung eines möglichen KILL-Fallbacks. |
 
 ## TC-2026-019: Execution Correlation und Session-Kontext-Propagation
 
