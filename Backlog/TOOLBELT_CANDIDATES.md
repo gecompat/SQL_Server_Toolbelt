@@ -815,10 +815,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Native Wertfunktionen sind Engine-Funktionen. Jeder externe oder CLR-basierte Stream-/Dateiprovider benötigt eigene Windows-/Linux-Evidenz. |
 | **Dependencies** | Optional `TC-2026-037` für kontrollierte Datei-I/O. |
 | **Duplikatprüfung** | ZIP-Container stehen in `TC-2026-033`/`TC-2026-034`; weitere Algorithmen in `TC-2026-036`. |
-| **Status** | `researched` |
+| **Status** | `deferred`; kein belegter Stream-/Datei-Use-Case über native Wertfunktionen hinaus |
 | **Primärquellen** | [Research-Inbox `RI-2026-114`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/compress-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/decompress-transact-sql?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Zuerst belegen, welcher reale Use Case von `COMPRESS`/`DECOMPRESS` nicht erfüllt wird; Kandidaten andernfalls als überflüssig ablehnen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Siehe [bedarfsabhängige Zurückstellung](../Documentation/Architecture/GZIP_PROVIDER_DECISION.md). Wiederaufnahme nur bei einem konkreten Stream-/Datei-Use-Case, den `COMPRESS`/`DECOMPRESS` und vorhandene Toolbelt-Slices nicht erfüllen. |
 
 ## TC-2026-036: Optionale Provider für weitere Kompressionsverfahren
 
