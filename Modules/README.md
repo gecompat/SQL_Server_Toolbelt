@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**28 Module sind implementiert. 20 sind `validated`, 8 sind `partially
+**29 Module sind implementiert. 21 sind `validated`, 8 sind `partially
 validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
 abgeleitet.**
 
@@ -21,6 +21,7 @@ abgeleitet.**
 | `toolbelt.core.console-message` | Console Message | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.error-envelope` | Error Envelope | `1.0.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.event-log` | Rollback-independent Event Log | `1.0.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.core.execution-cancel` | Cooperative Execution Cancellation | `1.0.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.execution-context` | Execution Context | `1.0.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.generate-series` | Portable Integer Series | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.result-table` | Result Table Infrastructure | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |

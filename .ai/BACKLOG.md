@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-28 Module sind implementiert. 20 sind `validated`, 8 sind `partially validated`; 0 sind `not executed`.
+29 Module sind implementiert. 21 sind `validated`, 8 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -33,9 +33,9 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Dependencies | Ausdrückliche V0-Freigabe vom 2026-08-28 und Einzelzielfreigabe vom 2026-08-29; schema-valider SQL_Server_Lab-Vertrag; entweder `groupStatus = READY` oder explizit ausgewählte Einzelziele mit `runtimeStatus = READY` und zulässigem Eintragsstatus; vorhandene Modul-, Lifecycle- und Testverträge. |
 | Priorität | `P0` |
 | Status | `active`; autonom ausführbare V0a-/V0b-Matrix abgeschlossen; sieben externe oder manuelle Rest-Gates bleiben offen |
-| Implementation Status | 28 Module `implemented` – aus `module.yaml` abgeleitet |
-| Validation Status | 20 Module `validated`, 8 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 20 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory, Windows Filesystem und Script Parser bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuelle Sicherheitsfälle offen. |
-| Release Status | 28 Module `unreleased`; V0c, D1, E1a, E1b und R1b autorisieren keine tatsächliche Veröffentlichung. |
+| Implementation Status | 29 Module `implemented` – aus `module.yaml` abgeleitet |
+| Validation Status | 21 Module `validated`, 8 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 21 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory, Windows Filesystem und Script Parser bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuelle Sicherheitsfälle offen. |
+| Release Status | 29 Module `unreleased`; V0c, D1, E1a, E1b, R1b und W6d autorisieren keine tatsächliche Veröffentlichung. |
 | Akzeptanzkriterien | Linux- und Windows-Zielversionen tatsächlich geprüft; Dependency-Closure und versionierte Objektmanifeste konsistent; Erst-, Wiederholungs-, Upgrade-, Central- und Uninstall-Verträge für die Kohorte erfolgreich; modulspezifische Pflichtfälle ausgeführt; nicht verfügbare Kombinationen sichtbar; vollständiger Dokumentationsaudit erfolgreich. |
 | Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |
 | Blocker | Kein Gruppenblocker für einzeln bereite Linux- oder Windows-Ziele. Die automatisierte Matrix ist vollständig grün. Offen bleiben ausschließlich die sieben modulspezifisch dokumentierten Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuellen Sicherheitsgates. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. |
@@ -161,7 +161,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Risiken und Grenzen | Recovery kann bereits erfolgte fachliche Seiteneffekte wiederholen. Keine Exactly-once-Garantie, generische Idempotenz, Retry, Dead Letter, Cancellation, Attempt-Historie oder Worker-Orchestrierung. |
 | Benutzerfreigabe | Zweck, Vertrag, Alternativen, Risiken, Scope und Reihenfolge wurden am 2026-08-30 besprochen. Der Benutzer hat anschließend „E1b und R1b wie besprochen implementieren“ ausdrücklich freigegeben. |
 | Evidenz | `Documentation/Architecture/WORK_QUEUE_MODULE_DESIGN.md`, Modulvertrag und synthetischer Runtime-/Upgrade-Adapter; vollständige physische Matrix SQL Server 2019/2022/2025 unter Windows base und Linux latest erfolgreich. |
-| Nächster Schritt | PR #64 ist gemergt; den freigegebenen V1.1.0-Scope stabil halten. E1c Retry/Dead Letter/Idempotenz und die priorisierten Gruppen-Barriers aus `TC-2026-048` sind am 2026-09-10 ausdrücklich freigegeben und werden gemeinsam als Work Queue v2 umgesetzt. E1d sowie die tatsächliche Veröffentlichung bleiben unautorisiert. |
+| Nächster Schritt | PR #64 ist gemergt; den freigegebenen V1.1.0-Scope stabil halten. E1c Retry/Dead Letter/Idempotenz und die priorisierten Gruppen-Barriers aus `TC-2026-048` sind als Work Queue v2 umgesetzt. E1d bleibt eine getrennte W6d-Welle; die tatsächliche Veröffentlichung bleibt unautorisiert. |
 
 ### W6c: Work Queue v2 – Retry, Idempotenz und priorisierte Gruppen-Barriers
 
@@ -176,7 +176,23 @@ Die V0c-Kohorte umfasst verbindlich:
 | Kernvertrag | Priority `0..255`, Gruppe pro Auftrag, `DRAIN_BARRIER` mit exaktem Snapshot aktiver Claim-Generationen, parallele gleichpriorisierte Barriers, Retry ohne Jitter und `RETRY_WAIT`, Dead Letter sowie Idempotenz je Work Type und Key. |
 | Risiken und Grenzen | Barriers können eine Gruppe bewusst anhalten; deshalb ist ihre Enqueue-Procedure getrennt berechtigt. Lease-Ablauf beendet keinen Snapshot-Blocker. Idempotenz garantiert keine fachliche Exactly-once-Ausführung. |
 | Tests | Statischer Vertrag und GitHub Actions Work-Queue Runtime #34533724721 am 2026-09-10 erfolgreich auf synthetischen SQL Server 2019/2022/2025 Linux sowie lokaler SQL_Server_Lab-Adapter am 2026-09-11 erfolgreich auf bereiten Windows-2019-, 2022- und 2025-Zielen: öffentlicher Vertrag, Retry/Dead Letter, Idempotenz, Barriers, Parallelität, Upgrade und Lifecycle. CU ist für diesen nicht patchgebundenen Vertrag irrelevant. |
-| Nächster Schritt | Den validierten W6c-Scope stabil halten. E1d bleibt unautorisiert. |
+| Nächster Schritt | Den validierten W6c-Scope stabil halten. W6d ist als getrennte kooperative Cancellation-Welle freigegeben. |
+
+### W6d: Kooperative Execution-Cancellation
+
+| Feld | Wert |
+|---|---|
+| ID | `W6d`; konkretisiert `TC-2026-018` |
+| Ziel | Eine irreversible, persistierte Cancellation-Anforderung pro `ExecutionId` bereitstellen, die Worker an eigenen Checkpoints auswerten können. |
+| Scope | Neues Modul `toolbelt.core.execution-cancel` 1.0.0 mit interner Persistenz, Status-TVF, Skalurfunktion, Anforderungs-USP, Lifecycle, Central-Deployment und gezielten Contract-Tests. Die Anforderung akzeptiert keine aktive Caller-Transaktion. |
+| Priorität | `P1`; nach W6c, vor Provider- oder Host-Abbrüchen |
+| Status | `implemented`; Runtime `validated`; Release `unreleased` |
+| Benutzerfreigabe | Zweck, Vertrag, Alternativen, Risiken und Scope wurden im Architekturdesign festgehalten. Der Benutzer hat am 2026-09-11 mit „do it“ die Implementierung ausdrücklich freigegeben. |
+| Kernvertrag | Wiederholte Anforderung ist idempotent und behält die erste Auditzeit. Öffentlicher Status enthält nur ExecutionId, Flag und UTC-Zeit. Worker entscheiden über terminalen oder retryfähigen Ausgang selbst. |
+| Risiken und Grenzen | Kein `KILL`, keine Sessionbeendigung, keine Transaktionsrücknahme, keine automatische Work-Queue-Mutation und keine Garantie für nicht kooperierende Provider. Die Checkpoint-Frequenz ist Work-Type-Vertrag. |
+| Tests | Öffentlicher Vertrag, Idempotenz, Context-Auflösung, Caller-Transaktion, Parallelität, Lifecycle, Central und Uninstall sowie die betroffene lokale SQL_Server_Lab-Matrix. CU ist nicht patchgebunden. |
+| Evidenz | Am 2026-09-11 erfolgreich: Statischer Vertrag sowie lokaler SQL_Server_Lab-Adapter für SQL Server 2019, 2022 und 2025 unter Linux und Windows mit öffentlichem Vertrag, Idempotenz, Transaktionsschutz, Parallelität, Lifecycle, Central und Uninstall. CU ist für diesen nicht patchgebundenen Vertrag irrelevant. |
+| Nächster Schritt | Den validierten W6d-Scope stabil halten; Queue-Mutation, `KILL` und Provider-Abbrüche bleiben getrennte Slices. |
 
 ### AP-2026-003: ResultTable-Kernmodul implementieren und validieren
 

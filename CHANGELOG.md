@@ -84,6 +84,12 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Hinzugefügt
 
+- `toolbelt.core.execution-cancel` Version 1.0.0 implementiert den
+  freigegebenen W6d-Slice: persistierte, irreversible kooperative
+  Cancellation je ExecutionId mit sicherer Status-TVF und Skalurfunktion.
+  Der Kern führt kein `KILL` aus, verändert keine Work-Queue-Zeilen und
+  akzeptiert keine aktive Caller-Transaktion.
+
 - ADP-008 ergänzt für `toolbelt.core.console-message` einen Project Adapter
   0.1 mit deterministisch aus den kanonischen Modulquellen erzeugten Install-,
   Update- und Cleanup-Entrypoints. Der vorhandene Modulvertrag wurde auf SQL
@@ -328,7 +334,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-28 Module sind implementiert. 2 sind `validated`, 26 sind `partially
+29 Module sind implementiert. 21 sind `validated`, 8 sind `partially
 validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

@@ -286,6 +286,7 @@ module_registry:
     - Modules/toolbelt.metadata.capability-catalog/module.yaml
     - Modules/toolbelt.core.error-envelope/module.yaml
     - Modules/toolbelt.core.execution-context/module.yaml
+    - Modules/toolbelt.core.execution-cancel/module.yaml
     - Modules/toolbelt.core.work-type/module.yaml
     - Modules/toolbelt.core.work-queue/module.yaml
     - Modules/toolbelt.core.second-session/module.yaml
@@ -607,6 +608,18 @@ change_impact:
         - Documentation/Standards/USP_CONTRACT.md
         - Tests/CI/run-w4a-execution-foundations-linux.sh
         - .github/workflows/w4a-execution-foundations-runtime.yml
+      checks:
+        - markdown_links
+    execution_cancellation_contract:
+      paths:
+        - Modules/toolbelt.core.execution-cancel/**
+        - Modules/toolbelt.core.execution-context/**
+        - Documentation/Architecture/EXECUTION_CANCELLATION_MODULE_DESIGN.md
+        - Documentation/Architecture/DECISIONS.md
+        - Documentation/Standards/USP_CONTRACT.md
+        - Tests/CI/run-w6d-execution-cancel-linux.sh
+        - Tests/CI/run-lab-local.ps1
+        - .github/workflows/w6d-execution-cancel-runtime.yml
       checks:
         - markdown_links
     work_type_contract:
