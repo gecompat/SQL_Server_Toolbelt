@@ -96,26 +96,35 @@ IF EXISTS
     THROW 51000, N'Die Testlauf-ID kollidiert mit einer vorhandenen Datenbank.', 1;
 " >/dev/null
 
-zip_clr_before=""
-zip_show_advanced_before=""
-zip_trust_before=""
+clr_enabled_before=""
+show_advanced_before=""
+trust_before=""
 
 clr_adapter="$(basename "${run_script_path}")"
 clr_hash=""
-if [[ "${clr_adapter}" == "run-zip-memory-linux.sh" || "${clr_adapter}" == "run-regex-linux.sh" ]]; then
+clr_dependency_hash=""
+clr_dependency_trust_before=""
+if [[ "${clr_adapter}" == "run-zip-memory-linux.sh" || "${clr_adapter}" == "run-regex-linux.sh" || "${clr_adapter}" == "run-script-parser-windows.sh" ]]; then
     if [[ "${clr_adapter}" == "run-zip-memory-linux.sh" ]]; then
         clr_hash="${TBX_ZIP_ASSEMBLY_HASH:-}"
     else
         clr_hash="${TBX_REGEX_ASSEMBLY_HASH:-}"
+        if [[ "${clr_adapter}" == "run-script-parser-windows.sh" ]]; then
+            clr_hash="${TBX_SCRIPT_PARSER_ASSEMBLY_HASH:-}"
+            clr_dependency_hash="${TBX_SCRIPT_PARSER_DEPENDENCY_HASH:-}"
+        fi
     fi
     if [[ -z "${clr_hash}" ]]; then
         echo "Der SHA2-512-Hash für den CLR-Lauf fehlt." >&2
         exit 65
     fi
 
-    zip_clr_before="$(run_control_query "SET NOCOUNT ON; SELECT CONVERT(int, value_in_use) FROM sys.configurations WHERE name = N'clr enabled';" -h -1 -W 2>/dev/null | tr -d '[:space:]')"
-    zip_show_advanced_before="$(run_control_query "SET NOCOUNT ON; SELECT CONVERT(int, value_in_use) FROM sys.configurations WHERE name = N'show advanced options';" -h -1 -W 2>/dev/null | tr -d '[:space:]')"
-    zip_trust_before="$(run_control_query "SET NOCOUNT ON; SELECT COUNT(*) FROM sys.trusted_assemblies WHERE hash = CONVERT(varbinary(64), N'${clr_hash}', 1);" -h -1 -W 2>/dev/null | tr -d '[:space:]')"
+    clr_enabled_before="$(run_control_query "SET NOCOUNT ON; SELECT CONVERT(int, value_in_use) FROM sys.configurations WHERE name = N'clr enabled';" -h -1 -W 2>/dev/null | tr -d '[:space:]')"
+    show_advanced_before="$(run_control_query "SET NOCOUNT ON; SELECT CONVERT(int, value_in_use) FROM sys.configurations WHERE name = N'show advanced options';" -h -1 -W 2>/dev/null | tr -d '[:space:]')"
+    trust_before="$(run_control_query "SET NOCOUNT ON; SELECT COUNT(*) FROM sys.trusted_assemblies WHERE hash = CONVERT(varbinary(64), N'${clr_hash}', 1);" -h -1 -W 2>/dev/null | tr -d '[:space:]')"
+    if [[ -n "${clr_dependency_hash}" ]]; then
+        clr_dependency_trust_before="$(run_control_query "SET NOCOUNT ON; SELECT COUNT(*) FROM sys.trusted_assemblies WHERE hash = CONVERT(varbinary(64), N'${clr_dependency_hash}', 1);" -h -1 -W 2>/dev/null | tr -d '[:space:]')"
+    fi
 fi
 
 lab_work_dir="$(mktemp -d)"
@@ -143,8 +152,8 @@ IF EXISTS (SELECT 1 FROM sys.servers WHERE name = @LinkedServer)
          @droplogins = N'droplogins';
 " >/dev/null 2>&1
 
-    if [[ "${clr_adapter}" == "run-zip-memory-linux.sh" || "${clr_adapter}" == "run-regex-linux.sh" ]]; then
-        if [[ "${zip_trust_before}" == "0" ]]; then
+    if [[ "${clr_adapter}" == "run-zip-memory-linux.sh" || "${clr_adapter}" == "run-regex-linux.sh" || "${clr_adapter}" == "run-script-parser-windows.sh" ]]; then
+        if [[ "${trust_before}" == "0" ]]; then
             run_control_query "
 IF EXISTS
    (
@@ -156,15 +165,18 @@ IF EXISTS
          @hash = CONVERT(varbinary(64), N'${clr_hash}', 1);
 " >/dev/null 2>&1
         fi
+        if [[ "${clr_dependency_trust_before}" == "0" ]]; then
+            run_control_query "IF EXISTS (SELECT 1 FROM sys.trusted_assemblies WHERE hash = CONVERT(varbinary(64), N'${clr_dependency_hash}', 1)) EXEC sys.sp_drop_trusted_assembly @hash = CONVERT(varbinary(64), N'${clr_dependency_hash}', 1);" >/dev/null 2>&1
+        fi
 
-        if [[ "${zip_clr_before}" == "0" ]]; then
+        if [[ "${clr_enabled_before}" == "0" ]]; then
             run_control_query "
 EXEC sys.sp_configure N'clr enabled', 0;
 RECONFIGURE;
 " >/dev/null 2>&1
         fi
 
-        if [[ "${zip_show_advanced_before}" == "0" ]]; then
+        if [[ "${show_advanced_before}" == "0" ]]; then
             run_control_query "
 EXEC sys.sp_configure N'show advanced options', 0;
 RECONFIGURE;

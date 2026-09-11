@@ -12,6 +12,7 @@
 | Umgebung | Scope | Ergebnis |
 |---|---|---|
 | Windows (.NET 4.8 MSBuild) | C# Assembly Build und Release-Skripte | `success` |
+| Lokales SQL_Server_Lab | SQL Server 2019, 2022 und 2025 unter Windows; Deployment, Feature, Central und Uninstall | `success` |
 | Statischer Validator | Artefakt- und Schnittstellenprüfung | `success` |
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

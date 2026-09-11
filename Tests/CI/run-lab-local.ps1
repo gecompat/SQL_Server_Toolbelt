@@ -303,8 +303,9 @@ foreach ($selector in $requestedSelectors) {
     })
 
     if ($matches.Count -eq 0) {
-        $missingSelectors.Add('{0}/{1}/{2}' -f
-            $selector.Platform, $selector.Version, $selector.Patch)
+        $missingSelectors.Add(
+            ('{0}/{1}/{2}' -f [string]$selector.Platform, [string]$selector.Version, [string]$selector.Patch)
+        )
         continue
     }
 
@@ -340,6 +341,8 @@ $managedEnvironmentNames = @(
     'TBX_ASSEMBLY_ROOT',
     'TBX_ZIP_ASSEMBLY_HASH',
     'TBX_REGEX_ASSEMBLY_HASH',
+    'TBX_SCRIPT_PARSER_ASSEMBLY_HASH',
+    'TBX_SCRIPT_PARSER_DEPENDENCY_HASH',
     'GITHUB_RUN_ID',
     'GITHUB_WORKSPACE'
 )
@@ -397,6 +400,25 @@ try {
                     $compatibilityLevels = Get-RegexCompatibilityLevels -Version ([string]$target.sqlVersion)
                     $env:TBX_ASSEMBLY_ROOT = $regexReleaseRoot
                     $env:TBX_REGEX_ASSEMBLY_HASH = [string]$manifest.sqlServerHexLiteral
+                }
+                elseif ($runScript -ceq 'run-script-parser-windows.sh') {
+                    if ([string]$target.platform -cne 'windows') {
+                        $notExecutedTests++
+                        continue
+                    }
+                    $scriptParserReleaseRoot = Join-Path $repoRoot '.runtime/script-parser-release'
+                    if (-not (Test-Path -LiteralPath $scriptParserReleaseRoot -PathType Container)) {
+                        & (Join-Path $repoRoot 'Modules/toolbelt.tsql.script-parser/Scripts/New-ClrReleaseArtifacts.ps1') `
+                            -Configuration Release -OutputDirectory $scriptParserReleaseRoot
+                        if ($LASTEXITCODE -ne 0) {
+                            throw 'Die ScriptParser-Release-Artefakte konnten nicht gebaut werden.'
+                        }
+                    }
+                    $manifestPath = Join-Path $scriptParserReleaseRoot 'Toolbelt.Tsql.ScriptParser.trust-manifest.json'
+                    $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+                    $env:TBX_ASSEMBLY_ROOT = $scriptParserReleaseRoot
+                    $env:TBX_SCRIPT_PARSER_ASSEMBLY_HASH = [string]$manifest.sqlServerHexLiteral
+                    $env:TBX_SCRIPT_PARSER_DEPENDENCY_HASH = [string]$manifest.scriptDomSqlServerHexLiteral
                 }
 
                 foreach ($compatibilityLevel in $compatibilityLevels) {

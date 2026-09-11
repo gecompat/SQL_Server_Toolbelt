@@ -116,6 +116,8 @@ def main() -> int:
         "Toolbelt.Module.toolbelt.tsql.script-parser.Version",
         "Toolbelt.Module.toolbelt.tsql.script-parser.DeploymentMode",
         "WITH PERMISSION_SET = UNSAFE;",
+        "$(ScriptDomAssemblyBits)",
+        "Microsoft.SqlServer.TransactSql.ScriptDom",
         ":r ../Source/TVF_ParseScriptNodes.sql",
         ":r ../Source/TVF_ParseScriptNodeProperties.sql",
         ":r ../Source/TVF_TokenizeScript.sql",
@@ -123,6 +125,8 @@ def main() -> int:
     )
     if deploy.count("$(AssemblyBits)") != 1:
         raise ContractError("Deploy.sql muss genau einen $(AssemblyBits)-Platzhalter enthalten.")
+    if deploy.count("$(ScriptDomAssemblyBits)") != 1:
+        raise ContractError("Deploy.sql muss genau einen $(ScriptDomAssemblyBits)-Platzhalter enthalten.")
 
     trust = read("Deployment/Add-TrustedAssembly.sql")
     require(
@@ -133,6 +137,7 @@ def main() -> int:
         "clr enabled",
         "clr strict security",
         "IS_SRVROLEMEMBER(N'sysadmin')",
+        "$(ScriptDomAssemblyHash)",
     )
 
     uninstall = read("Deployment/Uninstall.sql")
@@ -142,12 +147,23 @@ def main() -> int:
         ":On Error exit",
         "$(ConfirmNoExternalConsumers)",
         "DROP ASSEMBLY [Toolbelt_Tsql_ScriptParser];",
+        "DROP ASSEMBLY [Microsoft.SqlServer.TransactSql.ScriptDom];",
         "sys.sql_expression_dependencies",
     )
     forbid(
         uninstall,
         "Uninstall-Skript",
         "sp_drop_trusted_assembly",
+    )
+
+    artifact_script = read("Scripts/New-ClrReleaseArtifacts.ps1")
+    require(
+        artifact_script,
+        "Release-Artefakt-Skript",
+        "Microsoft.SqlServer.TransactSql.ScriptDom.dll",
+        "ScriptDomAssemblyBits",
+        "scriptDomSqlServerHexLiteral",
+        "Deploy.WithAssembly.sql darf keine externen SQLCMD-Includes enthalten.",
     )
 
     manifest = read("module.yaml")

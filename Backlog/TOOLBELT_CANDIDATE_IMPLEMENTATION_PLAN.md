@@ -9,7 +9,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 29 Module sind implementiert; 21 sind `validated`, 8 sind `partially validated`, 0 sind `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 29 Module sind implementiert; 22 sind `validated`, 7 sind `partially validated`, 0 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -160,7 +160,7 @@ physischen Windows-/Linux-Matrix validiert.
 | `TC-2026-015` | `toolbelt.core.work-queue` (E1a) | `toolbelt_core.USP_EnqueueWork`, `USP_ClaimWork`, `USP_CompleteWork`, `USP_FailWork`, `USP_GetWorkStatus`, `VW_WorkQueue` | Worker-Provider und E1c Retry/Idempotenz bleiben separat; tatsächliche Veröffentlichung ist nicht autorisiert. |
 | `TC-2026-021` | `toolbelt.core.work-queue` (E1b) | `toolbelt_core.USP_RenewWorkLease`, `USP_RecoverExpiredWork`; Lease- und Generationserweiterungen der E1a-Objekte | E1c Retry/Idempotenz bleibt separat; tatsächliche Veröffentlichung ist nicht autorisiert. |
 | `TC-2026-048` | `toolbelt.core.work-queue` (W6c) | `toolbelt_core.USP_EnqueueBarrierWork`, `VW_WorkQueueBarrierBlockers`; Erweiterungen der Queue-Status- und Claim-Verträge | Work Queue 2.0.0 ist auf Windows/Linux 2019/2022/2025 validiert; kooperative Cancellation bleibt ein getrennter, unautorisierter Slice. |
-| `TC-2026-047` | `toolbelt.tsql.script-parser` | `toolbelt_tsql.TVF_ParseScriptNodes`, `TVF_ParseScriptNodeProperties`, `TVF_TokenizeScript`, `TVF_ParseScriptErrors` | Der implementierte Parser bleibt `partially validated`; der separate Windows-SQL-CLR-Runtime-Nachweis ist offen. |
+| `TC-2026-047` | `toolbelt.tsql.script-parser` | `toolbelt_tsql.TVF_ParseScriptNodes`, `TVF_ParseScriptNodeProperties`, `TVF_TokenizeScript`, `TVF_ParseScriptErrors` | Der Parser ist auf physischen Windows-SQL-Server-2019-/2022-/2025-Zielen validiert. |
 | `TC-2026-010` | `toolbelt.string.regex` (R1b) | `toolbelt_string.SVF_RegexIsMatch`, `SVF_RegexInstr`, `SVF_RegexCount` | Replace, Substring, Captures, Split und Matches bleiben separat; tatsächliche Veröffentlichung ist nicht autorisiert. |
 
 ### Portable Fach- und Compatibility-Module
@@ -298,7 +298,7 @@ Gates; eine tatsächliche Veröffentlichung ist nicht autorisiert.
 - `toolbelt.core.console-message`;
 - `toolbelt.metadata.capability-catalog`.
 
-21 Module sind `validated`, 8 bleiben `partially validated`; alle 29 sind `unreleased`. Der lokale
+22 Module sind `validated`, 7 bleiben `partially validated`; alle 29 sind `unreleased`. Der lokale
 SQL_Server_Lab-Vertrag ist schema-valide. Die vollständige automatisierte
 Matrix war am 2026-09-01 auf physischen SQL-Server-2019-/2022-/2025-Zielen
 unter Windows base und Linux latest erfolgreich. File Content bleibt ohne

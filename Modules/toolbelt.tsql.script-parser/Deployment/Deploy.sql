@@ -8,8 +8,11 @@ SET XACT_ABORT ON;
 DECLARE
       @DeploymentMode sysname = N'$(DeploymentMode)'
     , @AssemblyBits varbinary(max) = $(AssemblyBits)
+    , @ScriptDomAssemblyBits varbinary(max) = $(ScriptDomAssemblyBits)
     , @AssemblyHash varbinary(64)
+    , @ScriptDomAssemblyHash varbinary(64)
     , @InstalledAssemblyHash varbinary(64)
+    , @InstalledScriptDomAssemblyHash varbinary(64)
     , @ProductMajorVersion int = TRY_CONVERT(int, SERVERPROPERTY(N'ProductMajorVersion'))
     , @LockResult int;
 
@@ -41,6 +44,7 @@ IF @AssemblyBits IS NULL OR DATALENGTH(@AssemblyBits) < 1024
     THROW 53102, N'AssemblyBits enthält kein plausibles CLR-Release-Binary.', 1;
 
 SET @AssemblyHash = HASHBYTES(N'SHA2_512', @AssemblyBits);
+SET @ScriptDomAssemblyHash = HASHBYTES(N'SHA2_512', @ScriptDomAssemblyBits);
 IF @AssemblyHash IS NULL
    OR NOT EXISTS
       (
@@ -49,6 +53,11 @@ IF @AssemblyHash IS NULL
           WHERE hash = @AssemblyHash
       )
     THROW 53114, N'Der exakte SHA2-512-Hash der ScriptParser-Assembly ist nicht in sys.trusted_assemblies freigegeben.', 1;
+IF @ScriptDomAssemblyBits IS NULL OR DATALENGTH(@ScriptDomAssemblyBits) < 1024
+    THROW 53115, N'ScriptDomAssemblyBits enthält kein plausibles CLR-Release-Binary.', 1;
+IF @ScriptDomAssemblyHash IS NULL
+   OR NOT EXISTS (SELECT 1 FROM sys.trusted_assemblies WHERE hash = @ScriptDomAssemblyHash)
+    THROW 53116, N'Der exakte SHA2-512-Hash der ScriptDom-Assembly ist nicht in sys.trusted_assemblies freigegeben.', 1;
 
 SELECT @InstalledAssemblyHash = HASHBYTES(N'SHA2_512', af.content)
 FROM sys.assemblies AS a
@@ -56,6 +65,17 @@ INNER JOIN sys.assembly_files AS af
     ON af.assembly_id = a.assembly_id
    AND af.file_id = 1
 WHERE a.name = N'Toolbelt_Tsql_ScriptParser';
+
+SELECT @InstalledScriptDomAssemblyHash = HASHBYTES(N'SHA2_512', af.content)
+FROM sys.assemblies AS a
+INNER JOIN sys.assembly_files AS af
+    ON af.assembly_id = a.assembly_id
+   AND af.file_id = 1
+WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom';
+
+IF @InstalledScriptDomAssemblyHash IS NOT NULL
+   AND @InstalledScriptDomAssemblyHash <> @ScriptDomAssemblyHash
+    THROW 53117, N'Die vorhandene ScriptDom-Assembly stimmt nicht mit dem freigegebenen Releaseartefakt überein.', 1;
 
 IF EXISTS
    (
@@ -115,6 +135,17 @@ BEGIN TRY
 
     IF @InstalledAssemblyHash IS NULL
     BEGIN
+        IF NOT EXISTS (SELECT 1 FROM sys.assemblies WHERE name = N'Microsoft.SqlServer.TransactSql.ScriptDom')
+        BEGIN
+            DECLARE @CreateScriptDomDdl nvarchar(max) =
+                N'CREATE ASSEMBLY [Microsoft.SqlServer.TransactSql.ScriptDom] FROM '
+                + CONVERT(nvarchar(max), @ScriptDomAssemblyBits, 1)
+                + N' WITH PERMISSION_SET = UNSAFE;';
+            EXEC sys.sp_executesql @CreateScriptDomDdl;
+            EXEC sys.sp_addextendedproperty
+                  @name = N'Toolbelt.ModuleId', @value = N'toolbelt.tsql.script-parser'
+                , @level0type = N'ASSEMBLY', @level0name = N'Microsoft.SqlServer.TransactSql.ScriptDom';
+        END
         DECLARE @CreateAssemblyDdl nvarchar(max) =
             N'CREATE ASSEMBLY [Toolbelt_Tsql_ScriptParser] FROM '
             + CONVERT(nvarchar(max), @AssemblyBits, 1)

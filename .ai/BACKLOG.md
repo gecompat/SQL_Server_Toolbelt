@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-29 Module sind implementiert. 21 sind `validated`, 8 sind `partially validated`; 0 sind `not executed`.
+29 Module sind implementiert. 22 sind `validated`, 7 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -15,13 +15,13 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Scope | Modul `toolbelt.tsql.script-parser` 1.0.0 mit `TVF_ParseScriptNodes`, `TVF_ParseScriptNodeProperties`, `TVF_TokenizeScript` und `TVF_ParseScriptErrors`. Schema `toolbelt_tsql`, Assembly `Toolbelt_Tsql_ScriptParser`. Keine automatische GUID-Ersetzung und keine semantische Namensauflösung im Kernmodul. |
 | Provider | C# .NET Framework 4.8 Assembly mit ScriptDom-Integration, SHA2-512-Trust, kein Datenzugriff (`DataAccessKind.None`), harte Limits für Eingabegröße und Schachtelungstiefe. |
 | Priorität | `P1` |
-| Status | `implemented`; Runtime `partially validated` |
+| Status | `completed`; Runtime `validated` |
 | Alternativen | Reiner T-SQL-Parser (nicht grammatikvollständig), reiner Tokenizer ohne AST, Stored Procedures mit Temp-Tabellen und externes Parsen außerhalb der Datenbank wurden verworfen. |
 | Risiken und Grenzen | Permission Set (`SAFE` vs. `UNSAFE`) und Linux-Fähigkeit hängen vom Spike-Ergebnis der ScriptDom-Assembly ab; tiefe Rekursion erfordert Stack-Overflow-Wächter vor dem Parsen; jede TVF parst erneut (kein veränderlicher Cache-Zustand). |
 | Benutzerfreigabe | Zweck, Signatur, Fehlervertrag, Risiken und Scope wurden am 2026-09-03 besprochen. Der Benutzer hat die Umsetzung anschließend mit „halte den Plan im Repository fest und starte im Anschluss mit der Implementierung“ ausdrücklich freigegeben. |
 | Tests | Spike zu ScriptDom-Ladbarkeit, statische Vertragsprüfung, synthetische AST- und Token-Golden-Tests (SELECT, JOIN, CTE, MERGE, DDL, Kommentare, `GO`), Roundtrip-Tokens, Fehlerbehandlung, Lifecycle-, Deployment- und Kollisionstests. |
 | Evidenz | `Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md`, `Documentation/Architecture/DECISIONS.md` (`DEC-2026-029`), `Backlog/TOOLBELT_CANDIDATES.md` (`TC-2026-047`). |
-| Nächster Schritt | Den separaten Windows-SQL-CLR-Runtime-Nachweis nachholen; keine weitere Parserimplementierung planen. |
+| Nächster Schritt | Keine autonome Parser-Validierung offen; keine weitere Parserimplementierung planen. |
 
 ### V0a/V0b/V0c: Releasevalidierung und erste Releasekohorte
 
@@ -34,7 +34,7 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Priorität | `P0` |
 | Status | `active`; autonom ausführbare V0a-/V0b-Matrix abgeschlossen; sieben externe oder manuelle Rest-Gates bleiben offen |
 | Implementation Status | 29 Module `implemented` – aus `module.yaml` abgeleitet |
-| Validation Status | 21 Module `validated`, 8 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 21 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory, Windows Filesystem und Script Parser bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuelle Sicherheitsfälle offen. |
+| Validation Status | 22 Module `validated`, 7 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 22 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory und Windows Filesystem bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuelle Sicherheitsfälle offen. |
 | Release Status | 29 Module `unreleased`; V0c, D1, E1a, E1b, R1b und W6d autorisieren keine tatsächliche Veröffentlichung. |
 | Akzeptanzkriterien | Linux- und Windows-Zielversionen tatsächlich geprüft; Dependency-Closure und versionierte Objektmanifeste konsistent; Erst-, Wiederholungs-, Upgrade-, Central- und Uninstall-Verträge für die Kohorte erfolgreich; modulspezifische Pflichtfälle ausgeführt; nicht verfügbare Kombinationen sichtbar; vollständiger Dokumentationsaudit erfolgreich. |
 | Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |

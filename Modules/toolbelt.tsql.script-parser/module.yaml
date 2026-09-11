@@ -2,7 +2,7 @@ module_id: "toolbelt.tsql.script-parser"
 module_name: "T-SQL Script Parser"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: validated
 release_status: unreleased
 description: "SQL-CLR-Provider auf Basis von Microsoft ScriptDom zur syntaktischen Zerlegung von T-SQL-Code in AST-Knoten, Knoteneigenschaften, Tokenstrom und Fehlerlisten."
 sql_server_versions:
@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "partially validated: CLR-Build, Release-Artefakterzeugung und statische Verträge validiert."
+  windows: "validated: physical SQL Server 2019, 2022 and 2025 runtime matrix completed."
   linux: "not applicable: SQL Server on Linux does not support UNSAFE SQL CLR assemblies."
 providers:
   - id: clr-tsql-scriptdom
@@ -73,6 +73,10 @@ tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/ScriptParser.Contract.sql"
 validation_evidence:
+  - date: "2026-09-11"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Physical Windows SQL Server 2019, 2022 and 2025; exact dual-assembly SHA2-512 trust, local and central deployment, CLR feature contracts and uninstall."
+    result: "success"
   - date: "2026-09-03"
     workflow: "statische Vertragsprüfung und Build-Validierung"
     scope: ".NET Framework 4.8 Assembly, ScriptDom-Integration, 4 CLR-TVFs, Deployment- und Lifecycle-Skripte"

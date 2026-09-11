@@ -1,0 +1,52 @@
+name: Script Parser CLR Build
+
+on:
+  pull_request:
+    paths:
+      - "Modules/toolbelt.tsql.script-parser/**"
+      - "Tests/CI/run-script-parser-windows.sh"
+      - "Tests/CI/run-lab-local.ps1"
+      - "Tests/CI/run-lab-target.sh"
+      - ".github/workflows/script-parser-build.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Modules/toolbelt.tsql.script-parser/**"
+      - "Tests/CI/run-script-parser-windows.sh"
+      - "Tests/CI/run-lab-local.ps1"
+      - "Tests/CI/run-lab-target.sh"
+      - ".github/workflows/script-parser-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-contract:
+    name: Static contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 Modules/toolbelt.tsql.script-parser/Tests/Static/validate_contract.py
+
+  build-release-artifact:
+    name: .NET Framework release artifact
+    needs: static-contract
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build complete deployment artifact
+        shell: pwsh
+        run: >-
+          ./Modules/toolbelt.tsql.script-parser/Scripts/New-ClrReleaseArtifacts.ps1
+          -Configuration Release
+          -OutputDirectory ./.runtime/script-parser-release
+      - name: Verify self-contained deployment script
+        shell: pwsh
+        run: >-
+          if (Select-String -LiteralPath ./.runtime/script-parser-release/Deploy.WithAssembly.sql -Pattern '^:r\s+' -Quiet) { throw 'Deploy artifact contains external SQLCMD includes.' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: script-parser-clr-release-input
+          if-no-files-found: error
+          path: .runtime/script-parser-release/*
