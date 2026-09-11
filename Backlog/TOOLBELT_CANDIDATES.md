@@ -1103,10 +1103,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Windows und Linux; Abhängigkeit vom minimal erforderlichen CLR-Permission-Set von ScriptDom (SAFE vs. EXTERNAL_ACCESS/UNSAFE) im Spike zu verifizieren. |
 | **Dependencies** | Keine Modulabhängigkeit für die Kern-TVFs. `toolbelt.metadata.identifier` (`TC-2026-029`) bleibt kanonischer Parser für isolierte Multipart-Namen; semantische Namens- und Aliasauflösung bleibt ein getrennter Folgelayer. |
 | **Duplikatprüfung** | `TC-2026-029` zerlegt ausschließlich isolierte Multipart-Namen, keine Statements. `TC-2026-003` verweist auf ScriptDom als spätere DDL-Erweiterung. Analyze-Assessments (`DEC-2026-011`) bleiben ausgeschlossen. |
-| **Status** | `implemented`; Runtime `partially validated`; Windows-SQL-CLR-Runtime-Nachweis bleibt offen |
+| **Status** | `implemented`; Runtime `validated`; physische Windows-SQL-CLR-Matrix 2019/2022/2025 erfolgreich |
 | **Primärquellen** | [Research-Inbox `RI-2026-140`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Microsoft SqlScriptDOM](https://github.com/microsoft/SqlScriptDOM)<br>[NuGet: Microsoft.SqlServer.TransactSql.ScriptDom](https://www.nuget.org/packages/Microsoft.SqlServer.TransactSql.ScriptDom) |
 | **Prüfdatum** | 2026-09-03 |
-| **Nächster Schritt** | Den separaten Windows-SQL-CLR-Runtime-Nachweis abschließen; der implementierte Parser-Scope wird nicht erneut entwickelt. |
+| **Nächster Schritt** | Keine autonome Parser-Validierung offen; der implementierte Parser-Scope wird nicht erneut entwickelt. |
 
 ## TC-2026-048: Priorisierte Ausführungsgruppen und Drain-Barriers
 

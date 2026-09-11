@@ -29,6 +29,8 @@ IF NOT EXISTS
 DECLARE
       @AssemblyHash varbinary(64) =
           CONVERT(varbinary(64), N'$(AssemblyHash)', 1)
+    , @ScriptDomAssemblyHash varbinary(64) =
+          CONVERT(varbinary(64), N'$(ScriptDomAssemblyHash)', 1)
     , @AssemblyDescription nvarchar(4000) =
           N'$(AssemblyDescription)';
 
@@ -36,6 +38,8 @@ IF @AssemblyHash IS NULL OR DATALENGTH(@AssemblyHash) <> 64
     THROW 53113, N'AssemblyHash muss ein SHA2-512-Hexliteral mit genau 64 Bytes sein.', 1;
 IF NULLIF(@AssemblyDescription, N'') IS NULL
     THROW 53114, N'AssemblyDescription darf nicht leer sein.', 1;
+IF @ScriptDomAssemblyHash IS NULL OR DATALENGTH(@ScriptDomAssemblyHash) <> 64
+    THROW 53115, N'ScriptDomAssemblyHash muss ein SHA2-512-Hexliteral mit genau 64 Bytes sein.', 1;
 
 IF NOT EXISTS
    (
@@ -46,4 +50,8 @@ IF NOT EXISTS
     EXEC sys.sp_add_trusted_assembly
           @hash = @AssemblyHash
         , @description = @AssemblyDescription;
+IF NOT EXISTS (SELECT 1 FROM sys.trusted_assemblies WHERE hash = @ScriptDomAssemblyHash)
+    EXEC sys.sp_add_trusted_assembly
+          @hash = @ScriptDomAssemblyHash
+        , @description = N'SQL Server Toolbelt ScriptDom dependency 18.x';
 GO

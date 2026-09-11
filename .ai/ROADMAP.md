@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 29 Module sind implementiert. 21 sind `validated`, 8 sind
+abgeschlossen. 29 Module sind implementiert. 22 sind `validated`, 7 sind
 `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
@@ -16,9 +16,8 @@ Linux ab; damit besteht ein von der Lab-Verfügbarkeit unabhängiger
 Evidenzkanal. Second Session und Event Log verwenden die versionsabhängig
 ermittelte OLE-DB-Provideroption. Sieben Bestandsmodule bleiben wegen
 ausdrücklich abgegrenzter Performance-, Client-/Treiber-, Fixture-,
-Interoperabilitäts- oder manueller Sicherheitsfälle `partially validated`;
-das neue Modul `toolbelt.tsql.script-parser` ist mangels Windows-SQL-Server-
-Runtime ebenfalls `partially validated`. File Content benötigt weiterhin
+Interoperabilitäts- oder manueller Sicherheitsfälle `partially validated`.
+Der Script Parser ist auf Windows SQL Server 2019, 2022 und 2025 validiert. File Content benötigt weiterhin
 separat bereitgestellte serverseitige Fixtures. `TC-2026-032` bleibt eine
 getrennte Split-Ausbaustufe im Research-Status ohne Implementierungsfreigabe.
 

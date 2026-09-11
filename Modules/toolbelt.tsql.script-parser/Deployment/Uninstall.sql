@@ -69,6 +69,13 @@ BEGIN TRY
     IF EXISTS (SELECT 1 FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
         DROP ASSEMBLY [Toolbelt_Tsql_ScriptParser];
 
+    IF EXISTS
+       (SELECT 1 FROM sys.assemblies AS a
+        INNER JOIN sys.extended_properties AS ep ON ep.class = 5 AND ep.major_id = a.assembly_id
+        WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom'
+          AND ep.name = N'Toolbelt.ModuleId' AND TRY_CONVERT(nvarchar(128), ep.value) = N'toolbelt.tsql.script-parser')
+        DROP ASSEMBLY [Microsoft.SqlServer.TransactSql.ScriptDom];
+
     IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = @VersionProperty)
         EXEC sys.sp_dropextendedproperty @name = @VersionProperty;
 
