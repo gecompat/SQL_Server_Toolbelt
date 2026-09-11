@@ -1057,8 +1057,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Duplikatprüfung** | CSV/Delimited Parsing und ein XLSX Writer sind getrennte Capabilities. Dieser Kandidat liest ausschließlich XLSX. |
 | **Status** | `researched` |
 | **Primärquellen** | [Research-Inbox `RI-2026-116`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/openspecs/office_standards/ms-xlsx/2c5dee00-eff2-4b22-92b6-0738acd4475e<br>https://learn.microsoft.com/en-us/office/open-xml/open-xml-sdk |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Ersten Scope auf Sheets, Zelltypen und Resultsetform reduzieren; Formeln, Styles, Datumsmodi, Shared Strings, Streaming, Dateizugriff und Fehlerresultset besprechen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Die [Architekturvorbereitung](../Documentation/Architecture/XLSX_READER_PROPOSAL.md) empfiehlt Binary-only-Eingabe und ein normalisiertes Zellresultat. Provider, Limits, Datums- und Formelvertrag bleiben Teil der konkreten Funktionsbesprechung. |
 
 ## TC-2026-046: Provider-Abstraktion für kontrollierte zweite SQL-Sessions
 
