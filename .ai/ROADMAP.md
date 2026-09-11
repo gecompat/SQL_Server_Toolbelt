@@ -576,13 +576,19 @@ freigegeben; die betroffene Windows-/Linux-Runtime-Matrix ist erfolgreich.
 
 ### Phase 4.6 – R2025 GA-Delta-Research
 
-**Status:** `proposed research`; keine Implementierungsfreigabe
+**Status:** `completed research`; keine Implementierungsfreigabe
 
 UNISTR, PRODUCT, DATEADD mit `bigint` und Vector-Scalar-Funktionen werden gegen
 vorhandene Kandidaten dedupliziert und nur bei belegter Lücke formalisiert.
 Vector Index/Search, Fuzzy Matching und JSON-Aggregate bleiben bis zu einer
 erneuten Primärquellenprüfung ihres Previewstatus außerhalb einer
 Implementierungswelle.
+
+Die [Delta-Recherche vom 2026-09-11](../Documentation/Research/SQL_SERVER_2025_DELTA_2026-09-11.md)
+formalisiert keinen neuen Implementierungskandidaten: `UNISTR` bleibt ein
+potenzieller eigener Interoperabilitätsslice; `PRODUCT`, `DATEADD bigint` und
+Vector-Scalar-Funktionen haben keine belegte portable Lücke. Vector Search
+bleibt Preview.
 
 ## Repository-Grenze
 
