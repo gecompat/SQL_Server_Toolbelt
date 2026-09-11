@@ -839,10 +839,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | Jeder Provider besitzt eine eigene Windows-/Linux- und Runtime-Matrix; keine Portabilitätsannahme aus einem anderen Algorithmus ableiten. |
 | **Dependencies** | Providerfähiges Modulmodell; optional `TC-2026-037` für Dateizugriff. Keine pauschale Dependency auf ZIP. |
 | **Duplikatprüfung** | Gzip steht in `TC-2026-035`; ZIP-Container stehen in `TC-2026-033`/`TC-2026-034`. |
-| **Status** | `researched` |
+| **Status** | `deferred`; kein konkretes Format und kein belegter Use Case ausgewählt |
 | **Primärquellen** | [Research-Inbox `RI-2026-115`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md) |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Konkrete benötigte Formate und Use Cases priorisieren; erst danach je Format Bibliothek, Lizenz, Provider, Limits und Testvektoren festlegen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Siehe [Gate für optionale Kompressionsprovider](../Documentation/Architecture/OPTIONAL_COMPRESSION_PROVIDER_GATE.md). Wiederaufnahme erst nach Auswahl eines konkreten Formats und eines belegten Use Cases. |
 
 ## TC-2026-037: Kontrolliertes Lesen und Schreiben von Text- und Binärdateien
 
