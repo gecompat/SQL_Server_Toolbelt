@@ -1033,8 +1033,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Duplikatprüfung** | Kein Duplikat zu ResultTable-Routing. `TC-2026-029` validiert Namen, klont aber keine Objekte. |
 | **Status** | `researched` |
 | **Primärquellen** | [Research-Inbox `RI-2026-001`/`RI-2026-013`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/queries/select-into-clause-transact-sql?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Unterstützte Tabellentypen und abhängige Objekte, Script-only versus Execute, Daten/Identity, Namensregeln, Dependency-Reihenfolge und Recovery mit dem Benutzer festlegen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Die [Architekturvorbereitung](../Documentation/Architecture/TABLE_CLONE_PROPOSAL.md) empfiehlt einen Script-only-Planer für eine enge Menge regulärer Tabellen. Ausführung, Datenkopie und breitere Objektklassen bleiben getrennte Entscheidungen. |
 
 ## TC-2026-045: XLSX-Dateien direkt lesen
 
