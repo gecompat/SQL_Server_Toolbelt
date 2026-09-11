@@ -580,8 +580,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Duplikatprüfung** | `TC-2026-015` beschreibt allgemeine Work-Queue-/Parallelisierung, aber keinen PowerShell-spezifischen Provider- und Ergebnisvertrag. |
 | **Status** | `researched` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/powershell/sql-server/run-windows-powershell-steps-in-sql-server-agent?view=sqlserver-ps<br>https://learn.microsoft.com/en-us/ssms/agent/create-a-powershell-script-job-step<br>https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/xp-cmdshell-server-configuration-option?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/xp-cmdshell-transact-sql?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Mit dem Benutzer konkrete erlaubte Host-Aufgaben, synchrones oder asynchrones Ergebnis, Provider, Identität, Output-Schema, Timeout und Abbruch besprechen; keine generische Script-Schnittstelle entwerfen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Das [gemeinsame Capability-Gate](../Documentation/Architecture/EXTERNAL_CAPABILITY_GATE_PROPOSAL.md) hält die erforderlichen Freigabeentscheidungen fest. PowerShell bleibt nach REST und datenorientiertem Python; keine generische Script-Schnittstelle entwerfen. |
 
 ## TC-2026-026: Kontrollierte Python-Ausführung
 
@@ -603,8 +603,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Duplikatprüfung** | Die Projektgrundregeln erlauben Python als begründete Technologie, enthalten aber noch keine Python-Capability oder einen Script-/Environment-Vertrag. |
 | **Status** | `researched` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/machine-learning/sql-server-machine-learning-services?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-execute-external-script-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/machine-learning/install/sql-machine-learning-services-windows-install-sql-2022?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Zuerst reale datenorientierte Use Cases von Host-Automation trennen; danach Input-/Output-Vertrag, erlaubte Packages, Runtimeversionen, Ressourcenlimits und Providerparität besprechen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Das [gemeinsame Capability-Gate](../Documentation/Architecture/EXTERNAL_CAPABILITY_GATE_PROPOSAL.md) trennt datenorientierte Python-Capabilities von Host-Automation. Input-/Output-Vertrag, Packages, Runtime, Limits und Providerparität bleiben funktionsbezogen zu entscheiden. |
 
 ## TC-2026-027: Externe REST-/Web-Requests mit Versionsprovider
 
@@ -626,8 +626,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Duplikatprüfung** | `TC-2026-024` kodiert URI-Komponenten, führt aber keinen Request aus. PowerShell-/Python-Kandidaten sind alternative externe Provider, kein HTTP-Vertrag. |
 | **Status** | `researched` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-invoke-external-rest-endpoint-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/sql-server/what-s-new-in-sql-server-2025?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/common-language-runtime-clr-integration-programming-concepts?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Mit dem Benutzer reale Endpunkte und Methoden, Sync/Async, erlaubte Authentifizierung, Payload-/Resultvertrag, Endpoint-Allowlist und gewünschten 2019/2022-Provider festlegen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Das [gemeinsame Capability-Gate](../Documentation/Architecture/EXTERNAL_CAPABILITY_GATE_PROPOSAL.md) priorisiert eine einzelne, synthetisch testbare HTTPS-Capability ohne freie URL-Eingabe. Endpoint, Methode, Authentifizierung, Payload-/Resultvertrag und 2019/2022-Provider bleiben funktionsbezogen zu entscheiden. |
 
 ## TC-2026-028: KI-/Chat-Provider mit Daten- und Modellgrenzen
 
