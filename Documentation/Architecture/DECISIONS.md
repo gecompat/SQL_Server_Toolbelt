@@ -459,3 +459,16 @@ bleibt ein separater Release-Nachweis.
 | Auswirkungen | Retry-Policy ist pro Item unveränderlich: drei Versuche default, exponentieller Backoff ohne Jitter, Basis 60 und Maximum 3.600 Sekunden. Barriers speichern einen exakten Snapshot aus WorkItem und ClaimGeneration; Lease-Ablauf löst ihn nicht. Gleichpriorisierte Barriers dürfen parallel laufen, andere Gruppen bleiben frei. |
 | Alternativen | Automatische Fehlerklassifikation, dynamische statt persistierter Wartemenge, präemptives Beenden laufender Arbeit, globale Queue-Sperren über die gesamte Arbeitsdauer und ein separater Retry-Provider wurden verworfen. |
 | Betroffene Verträge | `WORK_QUEUE_MODULE_DESIGN.md`, `TC-2026-020`, `TC-2026-048`, `.ai/BACKLOG.md`, `toolbelt.core.work-queue` |
+
+## DEC-2026-032: Persistierte kooperative Execution-Cancellation
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-09-11 |
+| Status | accepted |
+| Entscheidung | W6d führt `toolbelt.core.execution-cancel` 1.0.0 als persistenten, irreversiblen Cancellation-Indikator je `ExecutionId` ein. Worker prüfen den Indikator kooperativ und entscheiden selbst über ihren kontrollierten Ausgang. |
+| Begründung | Ein portabler T-SQL-Kern kann laufende Fremdarbeit nicht sicher beenden. Ein persistiertes Signal erlaubt geordnetes Reagieren ohne Session-Reuse-, Rollback- oder Berechtigungsrisiko eines globalen Abbruchs. |
+| Scope | `TC-2026-018`, ExecutionCancellation-Persistenz, Status-TVF, Skalurfunktion, Anforderungs-USP, Lifecycle und Contract-Tests. |
+| Auswirkungen | Die Anforderung akzeptiert keine aktive Caller-Transaktion, damit ihr Commit nicht später zurückgerollt wird. Sie verändert keine Work-Queue-Zeile, führt kein `KILL` aus und enthält keine automatische Recovery. Öffentlicher Status zeigt nur ID, Flag und UTC-Zeit. |
+| Alternativen | Queue-only-Sperre, sofortiges `KILL`, provider-spezifische Abbrüche und eine automatische Terminalisierung oder Retry-Mutation wurden verworfen. |
+| Betroffene Verträge | `EXECUTION_CANCELLATION_MODULE_DESIGN.md`, `TC-2026-018`, `.ai/BACKLOG.md`, `toolbelt.core.execution-cancel` |

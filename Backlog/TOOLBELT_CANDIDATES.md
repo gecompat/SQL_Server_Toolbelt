@@ -415,10 +415,12 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | T-SQL-Kill-Semantik gilt für SQL Server; Agent-, Service-Broker- und externe Provider benötigen eigene Stop-Adapter. Azure nicht automatisch unterstützt. |
 | **Dependencies** | `TC-2026-015`, `TC-2026-019`, optional `TC-2026-021`; persistenter Status benötigt eine freigegebene Tabellen-Namenskonvention. |
 | **Duplikatprüfung** | Keine bestehende Toolbelt-Cancellation-Capability; Analyze-Funktionen zum Beobachten von Sessions wären kein mutierender Gruppenabbruch. |
-| **Status** | `researched` |
+| **Status** | `implemented`; Runtime `validated`; Release `unreleased` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/language-elements/kill-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-queue-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-stop-job-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Den [W6d-Vertragsvorschlag](../Documentation/Architecture/EXECUTION_CANCELLATION_MODULE_DESIGN.md) mit dem Benutzer besprechen: Verhalten noch nicht beanspruchter Items, Prüfpunktsgrenze, Reaktivierung und die klare Trennung eines möglichen KILL-Fallbacks. |
+| **Benutzerfreigabe** | Zweck, Vertrag, Alternativen, Risiken und Scope wurden im W6d-Vertragsvorschlag besprochen. Der Benutzer hat am 2026-09-11 mit „do it“ die persistierte kooperative Cancellation ausdrücklich freigegeben. |
+| **Evidenz** | Am 2026-09-11 erfolgreich: statischer Vertrag und lokaler SQL_Server_Lab-Adapter für SQL Server 2019, 2022 und 2025 unter Linux und Windows. Der Scope umfasst Idempotenz, Transaktionsschutz, Parallelität, Lifecycle, Central und Uninstall. |
+| **Nächster Schritt** | Den validierten Kern stabil halten. Queue-Mutation, KILL und Provider-Abbrüche bleiben getrennte, nicht freigegebene Slices. |
 
 ## TC-2026-019: Execution Correlation und Session-Kontext-Propagation
 

@@ -2,9 +2,10 @@
 
 ## Status
 
-Dieser Entwurf dient ausschließlich der Vertragsbesprechung. Er ist keine
-Implementierungsfreigabe und legt keine öffentlichen SQL-Objekte endgültig
-fest. W6d bleibt bis zu einer ausdrücklichen Freigabe researched.
+W6d ist am 2026-09-11 ausdrücklich freigegeben. Dieser Vertrag ist für den
+ersten implementierten Slice verbindlich: `toolbelt.core.execution-cancel`
+1.0.0 mit `USP_RequestExecutionCancellation`,
+`TVF_ExecutionCancellationStatus` und `SVF_IsCancellationRequested`.
 
 ## Ziel
 
@@ -32,18 +33,21 @@ Dieser Slice führt weder KILL aus noch ordnet er eine automatische
 Work-Queue-Recovery an. Er ist für SQL Server 2019, 2022 und 2025 sowie Windows
 und Linux vorgesehen.
 
-## Offene Entscheidungen
+## Entschiedene Abgrenzung
 
-1. Soll eine Cancellation alle noch nicht beanspruchten Work Items derselben
-   ExecutionId terminalisieren, sie auf RETRY_WAIT setzen oder nur den
-   Worker-Prüfstatus signalisieren?
-2. Welcher maximale Zeitraum darf zwischen zwei verpflichtenden Prüfpunkten
-   liegen? Der Providervertrag muss diese Grenze je Work Type nachweisen.
-3. Darf ein berechtigter Administrator eine neue Ausführung mit derselben
-   ExecutionId beginnen, oder bleibt die Id dauerhaft gesperrt?
-4. Soll ein technischer KILL-Fallback überhaupt bereitgestellt werden? Falls
-   ja, ist er ein separater administrativer Slice mit eigener Berechtigung,
-   Session-Attestierung, Rollback-Beobachtung und eigenem Testplan.
+1. Cancellation signalisiert ausschließlich den Worker-Prüfstatus. Sie
+   terminalisiert und requeued keine noch nicht beanspruchten Queue-Items.
+2. Der Kern erzwingt keine Zeitgrenze zwischen Prüfpunkten. Jeder Work-Type-
+   Vertrag definiert seine begrenzten Arbeitsschritte und Checkpoints.
+3. Eine ExecutionId mit persistierter Anforderung bleibt dauerhaft cancelled;
+   eine neue Ausführung verwendet eine neue ExecutionId.
+4. Ein `KILL`-Fallback bleibt ein separater, nicht freigegebener
+   Administrationsslice mit eigener Berechtigung und Attestierung.
+
+Die Anforderung wird nur außerhalb einer aktiven Caller-Transaktion angenommen.
+Dadurch ist der kurze eigene Commit nicht von einem späteren Caller-Rollback
+abhängig. Grund und anfordernde Identität werden intern gespeichert; die
+öffentliche Statusabfrage beschränkt sich auf ID, Flag und UTC-Zeit.
 
 ## Alternativen
 
@@ -70,4 +74,3 @@ uncommittable Transaktionen, Sichtschutz, Work-Queue-Übergänge, Lifecycle,
 Upgrade, Central-Installation und Uninstall. Runtime-Ziele folgen der
 betroffenen SQL_Server_Lab-Matrix; ein CU ist nur bei einem patchgebundenen
 Testfall auszuwählen.
-

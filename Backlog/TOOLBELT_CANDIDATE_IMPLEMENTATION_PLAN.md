@@ -9,7 +9,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 28 Module sind implementiert; 20 sind `validated`, 8 sind `partially validated`, 0 sind `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 29 Module sind implementiert; 21 sind `validated`, 8 sind `partially validated`, 0 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -26,9 +26,9 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 | Gruppe | Kandidaten | Konsequenz |
 |---|---|---|
-| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-014`, `TC-2026-016`, `TC-2026-017`, `TC-2026-019`, `TC-2026-022`, `TC-2026-023`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031`, `TC-2026-033`, `TC-2026-034` Extraction-Slice, `TC-2026-037` Read-/Windows-Slices, `TC-2026-038` Windows-Slice, `TC-2026-046` synchroner Slice, `TC-2026-047` Parser-Slice, `TC-2026-048` Barrier-Slice | 19 Module sind vollständig validiert; die neun getrennt dokumentierten Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts-, Windows-v2- und manuellen Sicherheitsgates benötigen externe Voraussetzungen oder Entscheidungen. |
+| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-014`, `TC-2026-016`, `TC-2026-017`, `TC-2026-018`, `TC-2026-019`, `TC-2026-022`, `TC-2026-023`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031`, `TC-2026-033`, `TC-2026-034` Extraction-Slice, `TC-2026-037` Read-/Windows-Slices, `TC-2026-038` Windows-Slice, `TC-2026-046` synchroner Slice, `TC-2026-047` Parser-Slice, `TC-2026-048` Barrier-Slice | 21 Module sind vollständig validiert; die acht getrennt dokumentierten Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- und manuellen Sicherheitsgates benötigen externe Voraussetzungen oder Entscheidungen. |
 | Parser-, CLR- oder breite Semantikmodule | `TC-2026-010`, `TC-2026-011`, `TC-2026-013`, `TC-2026-032` | Funktionsfamilien und Provider vor dem ersten Code begrenzen und benchmarken. |
-| Execution-Infrastruktur | Verbleibende Slices `TC-2026-015`, `TC-2026-018`, `TC-2026-020`, `TC-2026-021` und zusätzliche Provider aus `TC-2026-046` | Queue in vertikalen Slices entwickeln; der synchrone Second-Session- und Event-Log-Pfad ist implementiert. |
+| Execution-Infrastruktur | Verbleibende Slices `TC-2026-015`, `TC-2026-020`, `TC-2026-021` und zusätzliche Provider aus `TC-2026-046` | Queue in vertikalen Slices entwickeln; der synchrone Second-Session- und Event-Log-Pfad sowie W6d-Cancellation sind implementiert. |
 | Externe Provider und Integrationen | `TC-2026-025` bis `TC-2026-028`; optionale portable Worker-Slices aus `TC-2026-037`/`TC-2026-038` | Allowlist-, Identity-, Secret-, Timeout-, Abbruch- und Plattformvertrag sind Pflicht-Gates; vorhandene Windows-/Read-only-Provider nicht duplizieren. |
 | Archive, Kompression und Office | Verbleibende Slices aus `TC-2026-034`, `TC-2026-035`, `TC-2026-036`, `TC-2026-045` | ZIP-Entry-Extraktion und Listing sind implementiert; Erzeugung, vollständige Dateisystemextraktion und weitere Formate bleiben getrennte Verträge. |
 | Pseudonymisierung und synthetische Daten | `TC-2026-039` bis `TC-2026-043` | Gemeinsame deterministische Primitive zuerst; Datenschutzwirkung nicht als Anonymisierung behaupten. |
@@ -147,6 +147,7 @@ physischen Windows-/Linux-Matrix validiert.
 | `TC-2026-014` | `toolbelt.core.event-log` | `toolbelt_core.USP_WriteEvent`, `VW_Events`, `USP_DeleteEventsBefore` | Keine autonome Validierung offen; betriebliche Loopback-Blockierungsprofile wären ein getrennter Scope. |
 | `TC-2026-016` | `toolbelt.core.console-message` | `toolbelt_core.USP_WriteConsoleMessage` | Zusätzliche reale Client-/Treiber-, Buffering- und Framing-Evidenz. |
 | `TC-2026-017` | `toolbelt.core.error-envelope` | `toolbelt_core.USP_CaptureErrorEnvelope` | Keine autonome Validierung offen; Retry-Entscheidungen bleiben ausdrücklich außerhalb dieses Moduls. |
+| `TC-2026-018` | `toolbelt.core.execution-cancel` | `toolbelt_core.USP_RequestExecutionCancellation`, `toolbelt_core.TVF_ExecutionCancellationStatus`, `toolbelt_core.SVF_IsCancellationRequested` | W6d ist auf Windows/Linux 2019/2022/2025 validiert. `KILL`, Queue-Mutation und Provider-Abbrüche sind getrennte Slices. |
 | `TC-2026-019` | `toolbelt.core.execution-context` | `toolbelt_core.TVF_CurrentExecutionContext`, `toolbelt_core.SVF_CurrentExecutionId`, `toolbelt_core.USP_BeginExecution`, `toolbelt_core.USP_SetExecutionContext`, `toolbelt_core.USP_EndExecution` | Keine autonome Validierung offen; weitergehende Connection-Pooling-Zusagen wären ein getrennter Scope. |
 | `TC-2026-022` | `toolbelt.core.work-type` | `toolbelt_core.USP_RegisterWorkType`, `USP_DisableWorkType`, `USP_RemoveWorkType`, `USP_ResolveWorkType`, `VW_WorkTypes` | Keine autonome Validierung offen; zusätzliche Second-Session-Provider bleiben getrennt. |
 | `TC-2026-023` | `toolbelt.metadata.capability-catalog` | `toolbelt_metadata.VW_ModuleCapabilities` | Keine autonome Validierung offen. |
@@ -184,7 +185,7 @@ physischen Windows-/Linux-Matrix validiert.
 | `TC-2026-014` | `toolbelt.core.event-log` mit genau einem freigegebenen Provider in Version 1 | `USP_WriteEvent`; optional `VW_Events` und kontrollierte Retention-USP | Persistente Logtabelle und Providerartefakte benötigen Namens-/Retention-Entscheidung. Haltbarkeit, Blockierung und Fehlerverhalten müssen explizit sein. |
 | `TC-2026-020` | `toolbelt.core.work-queue` (W6c) | `USP_EnqueueWorkWithPolicy`, `USP_ScheduleWorkRetry`, `USP_RequeueDeadLetter` | Zusammen mit `TC-2026-048` am 2026-09-10 freigegeben: Worker entscheidet Retry, Backoff ohne Jitter, drei Versuche default, Dead Letter und Idempotenz pro Work Type/Key. |
 | `TC-2026-021` | `toolbelt.core.worker-lease` | `USP_AcquireWorkLease`, `USP_HeartbeatWorkLease`, `USP_ReleaseWorkLease`, `USP_RecoverOrphanedWork`, `VW_WorkLeases` | Lease-/Heartbeat-Zustand benötigt persistente Tabellenkonvention; atomare Ownership-Version und Recovery zuerst spezifizieren. |
-| `TC-2026-018` | `toolbelt.core.execution-cancel` | `USP_RequestExecutionCancellation`, `SVF_IsCancellationRequested`; privilegierter `USP_StopExecutionGroup` nur als separater optionaler Slice | [Vertragsvorschlag](../Documentation/Architecture/EXECUTION_CANCELLATION_MODULE_DESIGN.md) offen zur Benutzerentscheidung: kooperative Prüfung ist Default; `KILL` verlangt eindeutige Sessionzuordnung und eigenes Berechtigungsmodell. |
+| `TC-2026-018` | `toolbelt.core.execution-cancel` | `USP_RequestExecutionCancellation`, `TVF_ExecutionCancellationStatus`, `SVF_IsCancellationRequested`; privilegierter `USP_StopExecutionGroup` nur als separater optionaler Slice | W6d ist am 2026-09-11 freigegeben und implementiert: kooperative Prüfung ist Default; `KILL`, Queue-Mutation und Provider-Abbrüche bleiben getrennt. |
 
 Pflichtprüfungen für diese Familie sind konkurrierende Worker, Doppelausführung,
 Crash zwischen Zustandsübergängen, Deadlocks, Caller-Transaktionen,
@@ -297,7 +298,7 @@ Gates; eine tatsächliche Veröffentlichung ist nicht autorisiert.
 - `toolbelt.core.console-message`;
 - `toolbelt.metadata.capability-catalog`.
 
-20 Module sind `validated`, 8 bleiben `partially validated`; alle 28 sind `unreleased`. Der lokale
+21 Module sind `validated`, 8 bleiben `partially validated`; alle 29 sind `unreleased`. Der lokale
 SQL_Server_Lab-Vertrag ist schema-valide. Die vollständige automatisierte
 Matrix war am 2026-09-01 auf physischen SQL-Server-2019-/2022-/2025-Zielen
 unter Windows base und Linux latest erfolgreich. File Content bleibt ohne

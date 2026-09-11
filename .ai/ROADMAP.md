@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 28 Module sind implementiert. 20 sind `validated`, 8 sind
+abgeschlossen. 29 Module sind implementiert. 21 sind `validated`, 8 sind
 `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
@@ -549,7 +549,7 @@ Erweiterungen; Fuzzy Matching bleibt zurückgestellt.
 ### Phase 4.5 – E1 Work Queue in vertikalen Slices
 
 **Status:** Work Queue 2.0.0 `implemented`, Runtime `validated`,
-Release `unreleased`; E1d benötigt weiterhin Einzelvertrag und Freigabe
+Release `unreleased`; E1d ist als W6d separat freigegeben und in Umsetzung
 
 Die bereits implementierten Grundlagen Work Type, Error Envelope, Execution
 Context und Second Session tragen vier getrennte Slices: `E1a`
@@ -570,7 +570,10 @@ bleibt manuell und begründet keine Exactly-once- oder Idempotenzzusage. W6c
 ist als Work Queue 2.0.0 implementiert und enthält Retry und Dead Letter mit
 expliziter Workerentscheidung sowie priorisierte gruppenbezogene
 Drain-Barriers. Die Matrix 2019/2022/2025 unter Windows und Linux ist
-erfolgreich. E1d bleibt getrennt und unautorisiert.
+erfolgreich. E1d bleibt getrennt: W6d implementiert ausschließlich persistierte
+kooperative Cancellation ohne `KILL`, automatische Queue-Mutation oder
+Provider-Abbruch. Der Benutzer hat diesen Scope am 2026-09-11 ausdrücklich
+freigegeben; die Statusvalidierung folgt der betroffenen Runtime-Matrix.
 
 ### Phase 4.6 – R2025 GA-Delta-Research
 

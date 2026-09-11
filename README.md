@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 28 Module implementiert – 8 teilweise validiert](https://img.shields.io/badge/Status-28%20Module%20implementiert%20%7C%208%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 29 Module implementiert – 8 teilweise validiert](https://img.shields.io/badge/Status-29%20Module%20implementiert%20%7C%208%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 28 Module sind implementiert; 20 sind `validated`, 8 sind `partially validated`, alle sind `unreleased`.**
+**Der Repository-Grundaufbau ist abgeschlossen. 29 Module sind implementiert; 21 sind `validated`, 8 sind `partially validated`, alle sind `unreleased`.**
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)
@@ -79,7 +79,13 @@ stellen Enqueue, atomaren Lease-Claim, Heartbeat, explizite Recovery, Complete,
 Fail, Retry, Dead Letter, Idempotenz und gruppenbezogene Drain-Barriers bereit.
 Die v2-Matrix auf SQL Server 2019, 2022 und 2025 unter Windows und Linux ist
 erfolgreich. Das Modul ist `validated` und `unreleased`. Cancellation bleibt
-ein getrennter, nicht implementierter Slice.
+ein getrennter Slice.
+
+[`toolbelt.core.execution-cancel`](./Modules/toolbelt.core.execution-cancel/README.md)
+stellt für W6d eine persistierte, irreversible kooperative Cancellation je
+ExecutionId bereit. Sie beendet keine Sessions und mutiert keine Work-Queue-
+Items. Die Windows-/Linux-Matrix SQL Server 2019/2022/2025 ist erfolgreich;
+das Modul ist `validated` und `unreleased`.
 
 [`toolbelt.core.second-session`](./Modules/toolbelt.core.second-session/README.md)
 führt registrierte Work-Types synchron über einen administrativ vorbereiteten
