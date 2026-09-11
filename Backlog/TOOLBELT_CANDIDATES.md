@@ -985,8 +985,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Duplikatprüfung** | Kein allgemeiner Datetime-Utility-Vertrag und kein Geo-Jittering; fachlicher Zweck ist Pseudonymisierung/Testdatenerzeugung. |
 | **Status** | `researched` |
 | **Primärquellen** | [Research-Inbox `RI-2026-128`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/dateadd-transact-sql?view=sql-server-ver17<br>https://github.com/data-privacy-stack/presidio |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Offsetgranularität, Bereich, Determinismus, Intervallerhalt, Datentypen, Zeitzonen, Overflow und Datenschutzwirkung besprechen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Die [Architekturvorbereitung](../Documentation/Architecture/DATE_SHIFTING_PROPOSAL.md) empfiehlt `datetime2` und einen pro Entität konstanten Tagesoffset. Bereich, Signatur, Abhängigkeit und Fehlervertrag bleiben funktionsbezogen zu entscheiden. |
 
 ## TC-2026-043: Geografisches Jittering für synthetische oder pseudonymisierte Daten
 
