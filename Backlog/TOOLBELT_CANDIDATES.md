@@ -1081,8 +1081,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Duplikatprüfung** | `TC-2026-014` definiert rollback-unabhängiges Logging und `TC-2026-015` eine Work Queue. Dieser Kandidat beschreibt ausschließlich die austauschbare Session-Erzeugungs-/Ausführungsschicht. |
 | **Status** | `implemented`; synchroner Second-Session-Slice Runtime `partially validated`; breitere Providerabstraktion `researched` |
 | **Primärquellen** | [Research-Inbox `RI-2026-139`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://tsqlt.org/125/tsqlt-build-9-release-notes/<br>https://github.com/tSQLt-org/tSQLt/blob/4a921d0dacfb1d66b3db124c58158c80e5e910e6/tSQLtCLR/tSQLtCLR/CommandExecutor.cs |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Den implementierten synchronen Loopback-Vertrag physisch auf SQL Server 2019/2022 und Windows validieren. Weitere Agent-, Broker- oder Worker-Provider nur nach eigenem Bedarf, Vertrag und Freigabe planen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Der synchrone Loopback-Vertrag ist auf Windows und Linux für SQL Server 2019, 2022 und 2025 validiert. Weitere Agent-, Broker- oder Worker-Provider nur nach eigenem Bedarf, Vertrag und funktionsbezogener Freigabe planen. |
 
 ## TC-2026-047: T-SQL Script Parser und AST-Provider
 
