@@ -913,8 +913,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Duplikatprüfung** | Von `TC-2026-040` bis `TC-2026-043` getrennt; dieser Kandidat wählt Lookup-Zeilen statt numerische, textuelle, zeitliche oder geografische Transformationen. |
 | **Status** | `researched` |
 | **Primärquellen** | [Research-Inbox `RI-2026-125`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/hashbytes-transact-sql?view=sql-server-ver17<br>https://github.com/data-privacy-stack/presidio |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Kanonisierung, Hash-/Key-Vertrag, stabile Lookup-Ordnung, Lookup-Versionierung, Verteilungsanforderung und Umgang mit Lookup-Änderungen besprechen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Die [gemeinsame Architekturvorbereitung](../Documentation/Architecture/PSEUDONYMIZATION_FOUNDATION_PROPOSAL.md) priorisiert einen versionierten, deterministischen Lookup auf einem Range-Primitive. Kanonisierung, Hash-/Bytekodierung, Lookup-Ordnung und Grenzen bleiben Teil der konkreten Funktionsbesprechung. |
 
 ## TC-2026-040: Deterministischer Random-Range-Provider
 
@@ -937,8 +937,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Duplikatprüfung** | `TC-2026-039` wählt Lookup-Zeilen; `TC-2026-042` verschiebt Datumswerte; `TC-2026-043` arbeitet mit Geokoordinaten. |
 | **Status** | `researched` |
 | **Primärquellen** | [Research-Inbox `RI-2026-127`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/crypt-gen-random-transact-sql?view=sql-server-ver17<br>https://faker.readthedocs.io/ |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Determinismus, Wertebereich, Verteilung, Seed-/Key-Modell, Datentypen, Fehler und kryptografischen Anspruch mit dem Benutzer festlegen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Die [gemeinsame Architekturvorbereitung](../Documentation/Architecture/PSEUDONYMIZATION_FOUNDATION_PROPOSAL.md) begrenzt V1 auf ein deterministisches Range-Primitive ohne Kryptografie- oder Anonymisierungsbehauptung. Wertebereich, Seed-/Key-Modell, Bytekodierung und Fehler bleiben Teil der konkreten Funktionsbesprechung. |
 
 ## TC-2026-041: Gesalzene deterministische Zeichentranslation mit Case-Regeln
 
