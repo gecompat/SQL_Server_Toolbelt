@@ -320,11 +320,14 @@ def main() -> int:
 
     performance_workload = files[PERFORMANCE_WORKLOAD]
     for marker in (
-        "NoMutation=50",
-        "Truncate=20",
-        "ReshapePairs=10",
-        "sys.dm_exec_sessions",
-        "tempdb.sys.dm_db_session_space_usage",
+        "@Iteration < 50",
+        "@Iteration < 20",
+        "@Iteration < 10",
+        "PerformanceBaselineMedianMilliseconds",
+        "PerformanceMaxMedianRegressionPercent",
+        "@SampleOrdinal < 6",
+        "@MedianMilliseconds",
+        "52121",
     ):
         if marker not in performance_workload:
             raise AssertionError(

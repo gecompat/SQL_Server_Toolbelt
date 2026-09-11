@@ -7,6 +7,9 @@ set -euo pipefail
 sql_image="${TBX_SQL_IMAGE:?TBX_SQL_IMAGE fehlt}"
 test_suite="${TBX_TEST_SUITE:?TBX_TEST_SUITE fehlt}"
 sql_version="${TBX_SQL_VERSION:?TBX_SQL_VERSION fehlt}"
+performance_baseline_milliseconds="${TBX_PERFORMANCE_BASELINE_MEDIAN_MILLISECONDS:-0}"
+performance_max_regression_percent="${TBX_PERFORMANCE_MAX_MEDIAN_REGRESSION_PERCENT:-20}"
+run_performance_workload="${TBX_RUN_PERFORMANCE_WORKLOAD:-0}"
 container_name="tbx-result-table-${sql_version}-${GITHUB_RUN_ID:-local}"
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 
@@ -126,8 +129,15 @@ if [[ "${test_suite}" == "full" ]]; then
         exit 1
     fi
 
-    run_file "${local_database}" "${runtime_directory}" \
-        Performance.Workload.sql
+    if [[ "${run_performance_workload}" == "1" ]]; then
+        run_file "${local_database}" "${runtime_directory}" \
+            Performance.Workload.sql \
+            -v "PerformanceBaselineMedianMilliseconds=${performance_baseline_milliseconds}" \
+            -v "PerformanceMaxMedianRegressionPercent=${performance_max_regression_percent}"
+    elif [[ "${run_performance_workload}" != "0" ]]; then
+        echo "TBX_RUN_PERFORMANCE_WORKLOAD muss 0 oder 1 sein." >&2
+        exit 1
+    fi
 
     # CREATE OR ALTER durch das Release muss eine lokale Framework-Änderung bei
     # derselben Version bewusst überschreiben.

@@ -39,6 +39,7 @@ def main() -> int:
     module_documentation = read("README.md")
     matrix = read("Tests/BASE64_CONTRACT_TEST_MATRIX.md")
     runtime = read("Tests/Runtime/Base64.Contract.sql")
+    performance_workload = read("Tests/Runtime/Performance.Workload.sql")
 
     combined = "\n".join(
         (
@@ -54,6 +55,16 @@ def main() -> int:
     )
     if "{{" in combined or "}}" in combined or "NICHT AUSFÜHRBAR" in combined:
         raise ContractError("Ausführbare Artefakte enthalten Template-Reste.")
+
+    for marker in (
+        "PerformanceBaselineMedianMilliseconds",
+        "PerformanceMaxMedianRegressionPercent",
+        "4194304",
+        "@SampleOrdinal < 6",
+        "52352",
+    ):
+        if marker not in performance_workload:
+            raise ContractError(f"Large-LOB-Performance-Workload fehlt: {marker}")
 
     require(
         encode_tvf,

@@ -27,6 +27,14 @@ SQL-Server-Linux-Container der ausgewählten Zielversion und prüft den
 portablen Ganzzahlreihenvertrag seriell über deren Compatibility Levels sowie
 lokale, zentrale und Lifecycle-Pfade.
 
+Die drei Performance-Workloads für Result Table, Base64 und Generate Series
+laufen nur mit `TBX_RUN_PERFORMANCE_WORKLOAD=1` und verwenden ausschließlich
+die flüchtigen Umgebungsvariablen
+`TBX_PERFORMANCE_BASELINE_MEDIAN_MILLISECONDS` und
+`TBX_PERFORMANCE_MAX_MEDIAN_REGRESSION_PERCENT`. Ohne Basiswert ist der
+Vergleich deaktiviert; die Default-Grenze beträgt 20 %. Die Adapter geben
+keine Messwerte aus und speichern sie nicht als Evidenz.
+
 `run-date-spine-linux.sh` installiert Generate Series und Datetime Truncate
 als explizite Dependencies und prüft danach Tages-, ISO-Wochen- und
 Monatsspine einschließlich halboffener Grenzen, `DATEFIRST`-Unabhängigkeit,
@@ -212,8 +220,8 @@ am 2026-09-01 erfolgreich; das Modul ist `validated`.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
+- Datum: `2026-09-11`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger automatisierter Moduladapter; vergleichbare plattformübergreifende Performance-Baseline bleibt offen
+- Scope: Physische SQL-Server-2025-Ziele unter Windows und Linux; vollständiger Moduladapter einschließlich explizit aktivierter synthetischer Performance-Workload ohne persistierte Basis
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -33,7 +33,7 @@ Bestehende Linux-Evidenz: [vollständige SQL-Server-2019-/2022-/2025-Matrix](htt
 | BND-01 | `BoundaryAndTransaction.Contract.sql` | 1024-Spalten-, Caller-Transaktions- und uncommittable-State-Verträge erfolgreich. |
 | SAVE-01 | `SavepointEngineError.Contract.sql` | Natürlicher Enginefehler 2705 wird unverändert weitergegeben; Zielschema, Zieldaten, Caller-Marker und Transaktionszähler werden zum Savepoint wiederhergestellt. |
 | CONC-01 | Vier parallele Aufrufe von `MultiSession.Contract.sql` mit unterschiedlichen `WorkerId`-Werten | Keine Namenskollisionen oder gegenseitigen Temp-Table-Effekte. |
-| PERF-01 | `Performance.Workload.sql`, mindestens drei Wiederholungen nach einem Warm-up | Kein funktionaler Fehler; Laufzeiten nur als abstrahierte Median-/Streuungswerte dokumentieren. Keine Hardware- oder Hostdaten erfassen. |
+| PERF-01 | `Performance.Workload.sql`, ein Warm-up und fünf Messwiederholungen | Kein funktionaler Fehler. Gegen eine lokal gehaltene Basis gilt standardmäßig höchstens 20 % Median-Regression; `PerformanceMaxMedianRegressionPercent` kann den Wert je Lauf überschreiben. Keine Laufzeit-, Hardware- oder Hostwerte dokumentieren. |
 | CENTRAL-01 | Zentrales Deployment in eine leere Toolbelt-Testdatenbank und `Central.Contract.sql` aus einer getrennten Consumer-Testdatenbank | Cross-database-Aufruf gemäß Vertrag erfolgreich. |
 | UNINSTALL-01 | `Deployment/Uninstall.sql` lokal und zentral | Release-Objekte vollständig entfernt; fremde beziehungsweise vorbestehende Schemata bleiben erhalten. |
 
@@ -53,11 +53,23 @@ Nur folgende Felder übermitteln:
 
 Keine realen Datenbanknamen, Hostnamen, Konten, Pfade, Screenshots, Hardwaredaten oder vollständigen Fehlermeldungen übermitteln. Bei Fehlern genügen Test-ID, SQL-Fehlernummer, gekürzte Fehlerkategorie und die Angabe, ob Schema, Daten oder Transaktionszustand unerwartet verändert wurden.
 
+## Performance-Vergleich
+
+`Performance.Workload.sql` erhält ausschließlich durch SQLCMD zwei flüchtige
+Eingaben: `PerformanceBaselineMedianMilliseconds` und
+`PerformanceMaxMedianRegressionPercent`. Der zweite Wert ist standardmäßig
+`20`; ein Basiswert `0` führt den funktionalen Workload ohne
+Regressionsentscheidung aus. Für eine Entscheidung wird die Basis mit
+demselben Workload auf dem Vergleichsstand und demselben Ziel ermittelt. Der
+Aufrufer übergibt nur die daraus abgeleitete Basis; weder Basis noch
+Messwerte werden in Dateien, Commits, Pull Requests oder Testevidenz
+gespeichert.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
+- Datum: `2026-09-11`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger automatisierter Moduladapter; vergleichbare plattformübergreifende Performance-Baseline bleibt offen
+- Scope: Physische SQL-Server-2025-Ziele unter Windows und Linux; vollständiger Moduladapter einschließlich explizit aktivierter synthetischer Performance-Workload ohne persistierte Basis
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

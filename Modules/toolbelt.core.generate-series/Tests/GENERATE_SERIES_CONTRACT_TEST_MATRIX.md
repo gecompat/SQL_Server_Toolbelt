@@ -25,6 +25,7 @@ war für die SQL-Server-2025-Linux-Matrix erfolgreich. Der Modulstatus ist
 | Fehler | Schritt `0`; Vorrang dieses Fehlers; Zeilenzahl außerhalb `bigint` |
 | Datentypen | `int`, `bigint` und Grenzwerte beider Typen |
 | Größen | eine Million synthetische Werte |
+| Performance | zehn Millionen synthetische Werte; ein Warm-up und fünf Messwiederholungen; gegen lokal gehaltene Basis höchstens 20 % Median-Regression, je Lauf überschreibbar |
 | Row Goal | äußerer `TOP (10)` gegen eine sehr große gültige Reihe |
 | relationale Nutzung | typstabiler Join und korreliertes `CROSS APPLY` |
 | native Parität | SQL Server 2025 bei Compatibility Levels 160 und 170 |
@@ -62,11 +63,20 @@ Alle Grenzwerte, Bereiche und relationalen Testdaten sind synthetisch.
 Runtime-Ausgaben und Runner-Eigenschaften werden nicht als Repository-Evidenz
 gespeichert.
 
+## Performance-Vergleich
+
+`Tests/Runtime/Performance.Workload.sql` verwendet die SQLCMD-Variablen
+`PerformanceBaselineMedianMilliseconds` und
+`PerformanceMaxMedianRegressionPercent`. Die Default-Grenze beträgt `20`.
+Ein Basiswert `0` deaktiviert nur die Regressionsentscheidung, nicht den
+synthetischen Workload. Basis und Messwerte bleiben beim Aufrufer und werden
+nicht gespeichert oder veröffentlicht.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
+- Datum: `2026-09-11`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger automatisierter Moduladapter; breitere Very-large-series-Performance-Evidenz bleibt offen
+- Scope: Physische SQL-Server-2025-Ziele unter Windows und Linux; vollständiger Moduladapter einschließlich explizit aktivierter synthetischer 10-Millionen-Performance-Workload ohne persistierte Basis
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

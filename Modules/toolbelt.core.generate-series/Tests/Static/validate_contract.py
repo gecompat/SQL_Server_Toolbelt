@@ -36,6 +36,7 @@ def main() -> int:
     module_documentation = read("README.md")
     matrix = read("Tests/GENERATE_SERIES_CONTRACT_TEST_MATRIX.md")
     runtime = read("Tests/Runtime/GenerateSeries.Contract.sql")
+    performance_workload = read("Tests/Runtime/Performance.Workload.sql")
     ci_adapter = (
         MODULE_ROOT.parents[1] / "Tests" / "CI" / "run-generate-series-linux.sh"
     ).read_text(encoding="utf-8")
@@ -52,6 +53,16 @@ def main() -> int:
     )
     if "{{" in combined or "}}" in combined or "NICHT AUSFÜHRBAR" in combined:
         raise ContractError("Ausführbare Artefakte enthalten Template-Reste.")
+
+    for marker in (
+        "PerformanceBaselineMedianMilliseconds",
+        "PerformanceMaxMedianRegressionPercent",
+        "10000000",
+        "@SampleOrdinal < 6",
+        "52452",
+    ):
+        if marker not in performance_workload:
+            raise ContractError(f"Very-large-series-Performance-Workload fehlt: {marker}")
 
     require(
         bigint_source,
