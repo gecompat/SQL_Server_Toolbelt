@@ -793,8 +793,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Duplikatprüfung** | `TC-2026-033` listet nur Metadaten. Gzip und weitere Algorithmen stehen getrennt in `TC-2026-035` und `TC-2026-036`. |
 | **Status** | `implemented`; Runtime `partially validated`; ZIP-Erzeugung und vollständige Dateisystemextraktion offen |
 | **Primärquellen** | [Research-Inbox `RI-2026-113`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT |
-| **Prüfdatum** | 2026-08-01 |
-| **Nächster Schritt** | Windows-SQL-Server-Runtime und echte Extremgrößen-/Ressourcengrenzen ergänzen. ZIP-Erzeugung nur nach eigener Vertrags- und Implementierungsfreigabe beginnen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Der [Vorschlag für ZIP-Erzeugung](../Documentation/Architecture/ZIP_CREATION_PROPOSAL.md) begrenzt den offenen Slice auf eine typisierte In-memory-Entryliste und Binaryoutput. ZIP-Erzeugung erst nach eigener Vertrags- und Implementierungsfreigabe beginnen; Datei-I/O bleibt getrennt. |
 
 ## TC-2026-035: Gzip-Stream- und Datei-Adapter
 
