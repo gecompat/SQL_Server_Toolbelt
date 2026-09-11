@@ -1,6 +1,6 @@
 # Implementierungsplan für Toolbelt-Kandidaten
 
-Stand: 2026-08-01
+Stand: 2026-09-11
 
 Dieser Plan zerlegt die Kandidaten aus
 [`TOOLBELT_CANDIDATES.md`](./TOOLBELT_CANDIDATES.md) in mögliche Module,
@@ -21,6 +21,22 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 - **Provider sind keine stillen Alternativimplementierungen:** Ein alternativer
   Provider erhält eine eigene Support-, Security-, Deployment- und
   Testmatrix. Kanonische Fachlogik wird nicht kopiert.
+
+## Vorbereitete Entscheidungsvorlagen
+
+Die folgenden Dokumente begrenzen offene Kandidaten und sind die Grundlage
+für eine spätere funktionsbezogene Besprechung. Sie sind keine
+Implementierungsfreigaben.
+
+| Kandidaten | Vorbereitung | Empfohlener nächster Schritt |
+|---|---|---|
+| `009` Slice B, `013` | [JSON-Konstruktoren](../Documentation/Architecture/JSON_CONSTRUCTOR_PROPOSAL.md), [JSON-Aggregate](../Documentation/Architecture/JSON_AGGREGATE_PROPOSAL.md) | Typed Constructor-Schnitt beziehungsweise CLR- oder Nicht-Backport-Entscheidung bestätigen. |
+| `010`, `011`, `032` | [Regex-Erweiterungen](../Documentation/Architecture/REGEX_EXTENSION_PROPOSAL.md), [Fuzzy Matching](../Documentation/Architecture/FUZZY_MATCH_PROPOSAL.md), [Advanced Split](../Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md) | Jeweiligen V1-Vertrag einzeln bestätigen. |
+| `025`–`027`, `028` | [Externes Capability-Gate](../Documentation/Architecture/EXTERNAL_CAPABILITY_GATE_PROPOSAL.md) | Eine einzelne allowlisted Capability mit Daten-, Provider- und Ergebnisvertrag auswählen. |
+| `034`, `045` | [ZIP-Erzeugung](../Documentation/Architecture/ZIP_CREATION_PROPOSAL.md), [XLSX-Reader](../Documentation/Architecture/XLSX_READER_PROPOSAL.md) | In-memory-Entryliste beziehungsweise Binary-only-Zellresultat bestätigen. |
+| `035`, `036`, `041`, `043` | [Gzip-Entscheidung](../Documentation/Architecture/GZIP_PROVIDER_DECISION.md), [Kompressionsprovider-Gate](../Documentation/Architecture/OPTIONAL_COMPRESSION_PROVIDER_GATE.md), [Zeichentranslation](../Documentation/Architecture/CHARACTER_PSEUDONYMIZATION_DECISION.md), [Geo-Jittering](../Documentation/Architecture/GEO_JITTERING_DECISION.md) | Nur bei konkretem nicht abgedecktem Use Case wieder aufnehmen. |
+| `039`, `040`, `042` | [Pseudonymisierungsgrundlage](../Documentation/Architecture/PSEUDONYMIZATION_FOUNDATION_PROPOSAL.md), [Date Shifting](../Documentation/Architecture/DATE_SHIFTING_PROPOSAL.md) | Range-/Lookup-V1 und danach den Date-Shifting-Schnitt einzeln bestätigen. |
+| `044` | [Tabellenklon](../Documentation/Architecture/TABLE_CLONE_PROPOSAL.md) | Script-only-V1 für eng begrenzte Tabellenmerkmale bestätigen. |
 
 ## Ergebnis der Bestandsprüfung
 
