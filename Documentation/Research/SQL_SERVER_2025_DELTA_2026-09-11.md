@@ -15,7 +15,7 @@
 |---|---|---|
 | `UNISTR` | SQL Server 2025; Unicode-Escapes, anpassbares Escape-Zeichen und UTF-8-Collationgrenzen für `char`/`varchar`. | Potenzieller eigener, portabler Unicode-Parser-Slice. Er wird nicht mit String-Split oder JSON-Escaping vermischt; Bedarf und Fehlervertrag sind noch offen. |
 | `PRODUCT` | SQL Server 2025; numerisches Aggregate, `DISTINCT` und Window-Form, mit typabhängigen Rückgaben. | Kein Kandidat: ein 2019-/2022-Backport benötigt einen eigenen Aggregat-/CLR-Vertrag und darf nicht aus der nativen Form abgeleitet werden. |
-| `DATEADD` mit `bigint` | Die aktuelle Seite beschreibt sowohl `int`- als auch `bigint`-Varianten, enthält aber weiterhin beide Grenzfallabschnitte. | Kein Kandidat: Vor einer Portabilitätsaussage ist ein gezielter SQL-Server-2025-Runtime-Spike nötig. Ein Wrapper ohne klaren Nutzen würde lediglich `DATEADD` duplizieren. |
+| `DATEADD` mit `bigint` | Die aktuelle Seite beschreibt sowohl `int`- als auch `bigint`-Varianten, enthält aber weiterhin beide Grenzfallabschnitte. Ein gezielter Lauf auf bereiten physischen SQL-Server-2025-Zielen unter Windows und Linux akzeptierte einen `bigint`-Wert oberhalb des `int`-Bereichs. | Kein Kandidat: Die 2025-Fähigkeit ist ausreichend belegt; ein 2019-/2022-Wrapper ohne klaren Nutzen würde lediglich `DATEADD` duplizieren. |
 | Vector-Scalar-Funktionen | `VECTOR_DISTANCE`, `VECTOR_NORM`, `VECTOR_NORMALIZE` und `VECTORPROPERTY` werden für SQL Server 2025 dokumentiert; `VECTOR_SEARCH` bleibt als Preview markiert. | Kein Kandidat: Vektortyp und 2019-/2022-Provider fehlen. Vector Search und Index bleiben außerhalb der Welle. |
 
 ## Folge
