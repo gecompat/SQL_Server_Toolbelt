@@ -1007,10 +1007,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | SQL-Spatial-Kern voraussichtlich plattformgleich; externe Geodaten und Bibliotheken benötigen eigene Lizenz- und Plattformprüfung. |
 | **Dependencies** | Optional `TC-2026-040` für deterministische Zufallsparameter; zulässige Gebiete oder Referenzdaten benötigen versionierten Lifecycle. |
 | **Duplikatprüfung** | Kein allgemeines Spatial-Analysemodul; Fokus liegt ausschließlich auf synthetischer beziehungsweise pseudonymisierender Transformation. |
-| **Status** | `researched` |
+| **Status** | `deferred`; räumlicher Zweck und verbleibendes Offenlegungsrisiko nicht entschieden |
 | **Primärquellen** | [Research-Inbox `RI-2026-103`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/spatial-geography/spatial-types-geography?view=sql-server-ver17<br>https://github.com/data-privacy-stack/presidio |
-| **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Geometrietyp, SRID, Distanzmodell, Verteilung, Determinismus, zulässige Gebiete und akzeptierte Datenschutzwirkung mit dem Benutzer festlegen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Siehe [bedarfsabhängige Zurückstellung](../Documentation/Architecture/GEO_JITTERING_DECISION.md). Wiederaufnahme erst nach einem konkreten räumlichen Zweck und einer akzeptierten Bewertung der verbleibenden Offenlegung. |
 
 ## TC-2026-044: Framework zum kontrollierten Klonen von Tabellenobjekten
 
