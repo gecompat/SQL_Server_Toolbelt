@@ -746,7 +746,7 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `researched` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/string-split-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-split-to-table-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Nach Version 1 Separatorrepräsentation für beliebig lange Separatorstrings, längste-Treffer-Regel, frei definierbare öffnende/schließende Quote-Zeichen oder -Strings, Escape-Modell, Fehlervertrag, maximale Eingabelänge und Providervergleich mit dem Benutzer besprechen. Keine Implementierungsfreigabe aus `TC-2026-001` ableiten. |
+| **Nächster Schritt** | Der [V1-Vorschlag](../Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md) begrenzt Separatoren, Quote, Escape, Fehler und T-SQL-Provider. Den daraus folgenden konkreten öffentlichen Vertrag mit dem Benutzer besprechen; keine Implementierungsfreigabe aus `TC-2026-001` ableiten. |
 
 ## TC-2026-033: ZIP-Directory-Listing ohne Extraktion
 
