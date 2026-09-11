@@ -302,8 +302,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; Konstruktoren und Pfadprüfung verbleiben in TC-2026-009. |
 | **Status** | `deferred`; native SQL-Server-2025-Aggregate weiterhin Preview |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/json-arrayagg-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/json-objectagg-transact-sql?view=sql-server-ver17 |
-| **Prüfdatum** | 2026-07-29 |
-| **Nächster Schritt** | Zurückgestellt, solange die nativen SQL-Server-2025-Aggregate Preview sind und kein Aggregat-/SQL-CLR-Providervertrag freigegeben wurde. Preview-Status vor einer erneuten Besprechung neu prüfen. |
+| **Prüfdatum** | 2026-09-11 |
+| **Nächster Schritt** | Die [Architekturvorbereitung](../Documentation/Architecture/JSON_AGGREGATE_PROPOSAL.md) grenzt den späteren Entscheidungspunkt auf portables SQL CLR oder keinen Backport ein. Zurückgestellt, solange die nativen SQL-Server-2025-Aggregate Preview sind und kein Aggregat-/SQL-CLR-Providervertrag freigegeben wurde. Preview-Status vor einer erneuten Besprechung neu prüfen. |
 
 ## TC-2026-014: Transaktionsunabhängige Ereignisprotokollierung
 
