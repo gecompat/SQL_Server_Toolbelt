@@ -35,6 +35,15 @@ die flüchtigen Umgebungsvariablen
 Vergleich deaktiviert; die Default-Grenze beträgt 20 %. Die Adapter geben
 keine Messwerte aus und speichern sie nicht als Evidenz.
 
+Für Generate Series ergänzt
+`TBX_PERFORMANCE_MAX_BATCH_MEDIAN_VARIANCE_PERCENT` ein Stabilitäts-Gate mit
+Default `20`. Drei unabhängige Batch-Mediane müssen innerhalb dieser Grenze
+liegen, bevor ein vorhandener Baseline-Vergleich stattfindet. Instabilität
+endet im lokalen Lab-Adapter als `NOT_EXECUTED` mit
+`PERFORMANCE_STABILITY_UNAVAILABLE`; sie ist kein erfolgreicher Nachweis und
+keine Statusaufwertung. Auch dafür werden keine Messwerte ausgegeben oder
+gespeichert.
+
 `run-date-spine-linux.sh` installiert Generate Series und Datetime Truncate
 als explizite Dependencies und prüft danach Tages-, ISO-Wochen- und
 Monatsspine einschließlich halboffener Grenzen, `DATEFIRST`-Unabhängigkeit,

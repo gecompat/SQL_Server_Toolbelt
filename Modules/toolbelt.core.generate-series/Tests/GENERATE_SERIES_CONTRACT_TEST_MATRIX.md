@@ -25,7 +25,7 @@ war für die SQL-Server-2025-Linux-Matrix erfolgreich. Der Modulstatus ist
 | Fehler | Schritt `0`; Vorrang dieses Fehlers; Zeilenzahl außerhalb `bigint` |
 | Datentypen | `int`, `bigint` und Grenzwerte beider Typen |
 | Größen | eine Million synthetische Werte |
-| Performance | zehn Millionen synthetische Werte; ein Warm-up und fünf Messwiederholungen; gegen lokal gehaltene Basis höchstens 20 % Median-Regression, je Lauf überschreibbar |
+| Performance | zehn Millionen synthetische Werte; drei unabhängige Serien mit je einem Warm-up und fünf Messwiederholungen; jede Serie liefert einen Median. Nur bei höchstens 20 % Streuung zwischen den Serien wird gegen eine lokal gehaltene Basis mit höchstens 20 % Median-Regression verglichen; beide Grenzen sind je Lauf überschreibbar. |
 | Row Goal | äußerer `TOP (10)` gegen eine sehr große gültige Reihe |
 | relationale Nutzung | typstabiler Join und korreliertes `CROSS APPLY` |
 | native Parität | SQL Server 2025 bei Compatibility Levels 160 und 170 |
@@ -67,10 +67,19 @@ gespeichert.
 
 `Tests/Runtime/Performance.Workload.sql` verwendet die SQLCMD-Variablen
 `PerformanceBaselineMedianMilliseconds` und
-`PerformanceMaxMedianRegressionPercent`. Die Default-Grenze beträgt `20`.
-Ein Basiswert `0` deaktiviert nur die Regressionsentscheidung, nicht den
-synthetischen Workload. Basis und Messwerte bleiben beim Aufrufer und werden
-nicht gespeichert oder veröffentlicht.
+`PerformanceMaxMedianRegressionPercent` sowie
+`PerformanceMaxBatchMedianVariancePercent`. Die Default-Grenzen betragen
+jeweils `20`. Ein Basiswert `0` deaktiviert nur die Regressionsentscheidung,
+nicht den synthetischen Workload oder das Stabilitäts-Gate. Überschreitet die
+Batch-Streuung ihre Grenze, klassifiziert der Lab-Adapter den Vergleich als
+`NOT_EXECUTED` mit `PERFORMANCE_STABILITY_UNAVAILABLE`; dies ist weder ein
+bestandener Performance-Nachweis noch eine Statusaufwertung. Basis und
+Messwerte bleiben beim Aufrufer und werden nicht gespeichert oder
+veröffentlicht.
+
+Der Benutzer hat dieses Stabilitäts-Gate am 2026-09-19 für den bestehenden
+Generate-Series-Performancevertrag freigegeben. Es ändert weder den
+öffentlichen SQL-Vertrag noch die bestehende Regressionsgrenze.
 
 ## Aktuelle Validierungsevidenz
 
