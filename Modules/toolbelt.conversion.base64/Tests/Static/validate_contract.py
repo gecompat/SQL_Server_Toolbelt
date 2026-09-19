@@ -40,6 +40,9 @@ def main() -> int:
     matrix = read("Tests/BASE64_CONTRACT_TEST_MATRIX.md")
     runtime = read("Tests/Runtime/Base64.Contract.sql")
     performance_workload = read("Tests/Runtime/Performance.Workload.sql")
+    ci_adapter = (
+        MODULE_ROOT.parents[1] / "Tests" / "CI" / "run-base64-linux.sh"
+    ).read_text(encoding="utf-8")
 
     combined = "\n".join(
         (
@@ -59,12 +62,25 @@ def main() -> int:
     for marker in (
         "PerformanceBaselineMedianMilliseconds",
         "PerformanceMaxMedianRegressionPercent",
+        "PerformanceMaxBatchMedianVariancePercent",
         "4194304",
         "@SampleOrdinal < 6",
+        "@BatchOrdinal <= 3",
         "52352",
+        "52453",
     ):
         if marker not in performance_workload:
             raise ContractError(f"Large-LOB-Performance-Workload fehlt: {marker}")
+
+    if performance_workload.index("52453") > performance_workload.index("52352"):
+        raise ContractError("Das Stabilitäts-Gate muss vor dem Regressionsvergleich liegen.")
+    for marker in (
+        "TBX_PERFORMANCE_MAX_BATCH_MEDIAN_VARIANCE_PERCENT",
+        "PERFORMANCE_STABILITY_UNAVAILABLE",
+        "exit 75",
+    ):
+        if marker not in ci_adapter:
+            raise ContractError(f"CI-Adapter kennt das Stabilitäts-Gate nicht: {marker}")
 
     require(
         encode_tvf,

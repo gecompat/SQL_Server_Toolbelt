@@ -325,14 +325,28 @@ def main() -> int:
         "@Iteration < 10",
         "PerformanceBaselineMedianMilliseconds",
         "PerformanceMaxMedianRegressionPercent",
+        "PerformanceMaxBatchMedianVariancePercent",
         "@SampleOrdinal < 6",
+        "@BatchOrdinal <= 3",
         "@MedianMilliseconds",
         "52121",
+        "52453",
     ):
         if marker not in performance_workload:
             raise AssertionError(
                 f"Performance-Workload-Marker fehlt: {marker}"
             )
+    if performance_workload.index("52453") > performance_workload.index("52121"):
+        raise AssertionError(
+            "Das Stabilitäts-Gate muss vor dem Regressionsvergleich liegen."
+        )
+    for marker in (
+        "TBX_PERFORMANCE_MAX_BATCH_MEDIAN_VARIANCE_PERCENT",
+        "PERFORMANCE_STABILITY_UNAVAILABLE",
+        "exit 75",
+    ):
+        if marker not in linux_runner:
+            raise AssertionError(f"Linux-Adapter kennt das Stabilitäts-Gate nicht: {marker}")
 
     deploy = files[DEPLOY]
     if re.search(r"^\s*:setvar\b", deploy, re.MULTILINE | re.IGNORECASE):

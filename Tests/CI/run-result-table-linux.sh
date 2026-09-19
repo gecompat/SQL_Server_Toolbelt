@@ -9,6 +9,7 @@ test_suite="${TBX_TEST_SUITE:?TBX_TEST_SUITE fehlt}"
 sql_version="${TBX_SQL_VERSION:?TBX_SQL_VERSION fehlt}"
 performance_baseline_milliseconds="${TBX_PERFORMANCE_BASELINE_MEDIAN_MILLISECONDS:-0}"
 performance_max_regression_percent="${TBX_PERFORMANCE_MAX_MEDIAN_REGRESSION_PERCENT:-20}"
+performance_max_batch_median_variance_percent="${TBX_PERFORMANCE_MAX_BATCH_MEDIAN_VARIANCE_PERCENT:-20}"
 run_performance_workload="${TBX_RUN_PERFORMANCE_WORKLOAD:-0}"
 container_name="tbx-result-table-${sql_version}-${GITHUB_RUN_ID:-local}"
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
@@ -130,10 +131,23 @@ if [[ "${test_suite}" == "full" ]]; then
     fi
 
     if [[ "${run_performance_workload}" == "1" ]]; then
-        run_file "${local_database}" "${runtime_directory}" \
+        performance_output="$(mktemp)"
+        if ! run_file "${local_database}" "${runtime_directory}" \
             Performance.Workload.sql \
             -v "PerformanceBaselineMedianMilliseconds=${performance_baseline_milliseconds}" \
-            -v "PerformanceMaxMedianRegressionPercent=${performance_max_regression_percent}"
+            -v "PerformanceMaxMedianRegressionPercent=${performance_max_regression_percent}" \
+            -v "PerformanceMaxBatchMedianVariancePercent=${performance_max_batch_median_variance_percent}" \
+            >"${performance_output}" 2>&1; then
+            if grep -q "Msg 52453" "${performance_output}"; then
+                rm -f "${performance_output}"
+                echo "PERFORMANCE_STABILITY_UNAVAILABLE" >&2
+                exit 75
+            fi
+            cat "${performance_output}" >&2
+            rm -f "${performance_output}"
+            exit 1
+        fi
+        rm -f "${performance_output}"
     elif [[ "${run_performance_workload}" != "0" ]]; then
         echo "TBX_RUN_PERFORMANCE_WORKLOAD muss 0 oder 1 sein." >&2
         exit 1
