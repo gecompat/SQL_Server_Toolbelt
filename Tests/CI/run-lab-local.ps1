@@ -306,15 +306,51 @@ function Test-LabTargetReady {
         [string]$Entry.status -cin @('READY', 'GROUP_INCOMPLETE')
 }
 
+function Get-LabTargetsForSelector {
+    param(
+        [Parameter(Mandatory)]$Contract,
+        [Parameter(Mandatory)]$Selector
+    )
+
+    $eligibleTargets = @($Contract.environments | Where-Object {
+        (Test-LabTargetReady -Contract $Contract -Entry $_) -and
+        [string]$_.platform -ceq [string]$Selector.Platform -and
+        [string]$_.sqlVersion -ceq [string]$Selector.Version
+    })
+
+    # Ein allgemeiner Windows-base-Lauf darf nach ausdrücklicher
+    # Projektfreigabe alle bereiten CUs derselben SQL-Version mitprüfen. Die
+    # stabile Sortierung hält die äquivalente Patchauswahl reproduzierbar,
+    # ohne auf eine andere SQL-Version oder Plattform auszuweichen.
+    if ([string]$Selector.Platform -ceq 'windows' -and
+        [string]$Selector.Patch -ceq 'base') {
+        $baseTargets = @($eligibleTargets | Where-Object {
+            [string]$_.patch -ceq 'base'
+        } | Sort-Object { [string]$_.key })
+        $cuTargets = @($eligibleTargets | Where-Object {
+            [string]$_.patch -match '^CU[0-9]+$'
+        } | Sort-Object {
+            [int](([string]$_.patch).Substring(2))
+        }, { [string]$_.key })
+        return @($baseTargets + $cuTargets)
+    }
+
+    # Für alle anderen Patchanforderungen, insbesondere explizite CUs, bleibt
+    # die Auswahl exakt.
+    $exactTargets = @($eligibleTargets | Where-Object {
+        [string]$_.patch -ceq [string]$Selector.Patch
+    })
+    if ($exactTargets.Count -gt 0) {
+        return $exactTargets
+    }
+
+    return @()
+}
+
 $targets = [System.Collections.Generic.List[object]]::new()
 $missingSelectors = [System.Collections.Generic.List[string]]::new()
 foreach ($selector in $requestedSelectors) {
-    $matches = @($lab.Contract.environments | Where-Object {
-        (Test-LabTargetReady -Contract $lab.Contract -Entry $_) -and
-        [string]$_.platform -ceq [string]$selector.Platform -and
-        [string]$_.sqlVersion -ceq [string]$selector.Version -and
-        [string]$_.patch -ceq [string]$selector.Patch
-    })
+    $matches = @(Get-LabTargetsForSelector -Contract $lab.Contract -Selector $selector)
 
     if ($matches.Count -eq 0) {
         $missingSelectors.Add(

@@ -57,8 +57,14 @@ Benutzerfreigabe vom 2026-08-29 dürfen aus einer Gruppe mit
 `groupStatus = INCOMPLETE` einzelne, explizit nach Plattform, SQL-Version und
 Patch ausgewählte Systeme verwendet werden, wenn ihr `runtimeStatus` exakt
 `READY` und ihr `status` entweder `READY` oder `GROUP_INCOMPLETE` ist.
-`groupStatus = EMPTY`, gestoppte Einzelziele, implizite Ersatzwahl und ein
-automatischer Provider-Fallback bleiben ausgeschlossen. Dieser
+`groupStatus = EMPTY`, gestoppte Einzelziele und ein automatischer
+Provider-Fallback bleiben ausgeschlossen. Für allgemeine Windows-Tests mit
+`patch = base` dürfen aufgrund der ausdrücklichen Benutzerfreigabe vom
+2026-09-19 bereite `CU<n>`-Ziele als äquivalenter Patchstand verwendet werden.
+Bereite `base`- und `CU<n>`-Ziele derselben Windows-/SQL-Version werden
+deterministisch gemeinsam ausgeführt; ein ausdrücklich angeforderter `CU<n>`-
+Patch bleibt immer exakt. Andere Ersatzwahlen bleiben ausgeschlossen.
+Dieser
 projektspezifische Override hat für dieses Repository Vorrang vor einer
 widersprechenden gruppenweiten READY-Klausel im Zusatzprompt. Das Projekt
 startet, repariert oder löscht keine Lab-Ressourcen selbst. Zugangsdaten oder
