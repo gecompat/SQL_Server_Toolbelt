@@ -154,10 +154,14 @@ Fixtures und eine dafür freigegebene Identity-/Pfadkonfiguration.
 
 Die Matrix selektiert explizit nach `platform`, `sqlVersion` und `patch` und
 verwendet alle nach dem obigen Gruppen- und Einzelzielvertrag zulässigen
-Einträge. Fehlt ein Ziel oder ist sein eigener Runtime-Status nicht `READY`,
-wird dieser Scope als nicht ausgeführt behandelt; ein Wechsel auf eine andere
-Zielkombination findet nicht statt. Der Adapter startet oder repariert keine
-Lab-Ressource.
+Einträge. Für einen allgemeinen Windows-`base`-Lauf gilt die ausdrücklich
+freigegebene Patchäquivalenz: Bereite `base`- und `CU<n>`-Ziele derselben
+Windows-/SQL-Version werden gemeinsam und deterministisch ausgeführt. Ein
+explizit angefordertes `CU<n>` bleibt exakt. Fehlt ein zulässiges Ziel oder ist
+sein eigener Runtime-Status nicht
+`READY`, wird dieser Scope als nicht ausgeführt behandelt; ein Wechsel auf eine
+andere Plattform oder SQL-Version findet nicht statt. Der Adapter startet oder
+repariert keine Lab-Ressource.
 
 Wichtige Anpassungen:
 
