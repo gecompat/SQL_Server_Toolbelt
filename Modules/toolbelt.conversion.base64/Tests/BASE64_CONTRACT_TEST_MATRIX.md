@@ -26,7 +26,7 @@ war für die Compatibility Levels 150, 160 und 170 erfolgreich.
 | Fehler | ungültiges Zeichen, Länge Rest eins und ungültiges Padding |
 | Roundtrip | Encode → Decode für Standard und URL-safe |
 | Größen | inline-TVF-Roundtrip mit 6.000, 6.001, 65.536 und 1.048.576 synthetischen Bytes; SVF-Parität bis 6.001 Bytes |
-| Performance | 4 MiB synthetischer Large-LOB-Roundtrip; ein Warm-up und fünf Messwiederholungen; gegen lokal gehaltene Basis höchstens 20 % Median-Regression, je Lauf überschreibbar |
+| Performance | 4 MiB synthetischer Large-LOB-Roundtrip; drei unabhängige Batches mit je Warm-up und fünf Messungen; Batch-Median-Spanne höchstens 20 %; Regression gegen optionale lokale Basis, je Lauf überschreibbar |
 | Native Parität | SQL Server 2025 als semantische Referenz |
 | API-Parität | SVF und inline TVF für Normal-, Grenz-, `NULL`- und Fehlerfälle |
 | Mengenverwendung | `OUTER APPLY`, exakt eine Ergebniszeile, Resultspalten |
@@ -67,10 +67,16 @@ Ausgaben werden nicht als Repository-Evidenz gespeichert.
 
 `Tests/Runtime/Performance.Workload.sql` verwendet die SQLCMD-Variablen
 `PerformanceBaselineMedianMilliseconds` und
-`PerformanceMaxMedianRegressionPercent`. Die Default-Grenze beträgt `20`.
-Ein Basiswert `0` deaktiviert nur die Regressionsentscheidung, nicht den
-synthetischen Workload. Basis und Messwerte bleiben beim Aufrufer und werden
-nicht gespeichert oder veröffentlicht.
+`PerformanceMaxMedianRegressionPercent` sowie
+`PerformanceMaxBatchMedianVariancePercent`. Beide Grenzwerte haben standardmäßig
+den Wert `20`. Der Workload bildet aus je fünf Messungen pro drei unabhängigen
+Batches einen Batch-Median und prüft vor einer optionalen Regression, ob deren
+Spanne stabil ist. Bei einer instabilen Spanne signalisiert der Adapter
+`NOT_EXECUTED` mit `PERFORMANCE_STABILITY_UNAVAILABLE`; das Stabilitäts-Gate
+kann keine Statusaufwertung begründen. Ein Basiswert `0` deaktiviert nur die
+Regressionsentscheidung, nicht den synthetischen Workload oder das
+Stabilitäts-Gate. Basis und Messwerte bleiben beim Aufrufer und werden nicht
+gespeichert oder veröffentlicht.
 
 ## Aktuelle Validierungsevidenz
 

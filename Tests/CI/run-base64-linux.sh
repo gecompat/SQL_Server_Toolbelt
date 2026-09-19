@@ -8,6 +8,7 @@ sql_image="${TBX_SQL_IMAGE:?TBX_SQL_IMAGE fehlt}"
 sql_version="${TBX_SQL_VERSION:-2025}"
 performance_baseline_milliseconds="${TBX_PERFORMANCE_BASELINE_MEDIAN_MILLISECONDS:-0}"
 performance_max_regression_percent="${TBX_PERFORMANCE_MAX_MEDIAN_REGRESSION_PERCENT:-20}"
+performance_max_batch_median_variance_percent="${TBX_PERFORMANCE_MAX_BATCH_MEDIAN_VARIANCE_PERCENT:-20}"
 run_performance_workload="${TBX_RUN_PERFORMANCE_WORKLOAD:-0}"
 case "${sql_version}" in
   2019) compatibility_levels="150"; max_compatibility_level="150" ;;
@@ -111,9 +112,22 @@ for compatibility_level in ${compatibility_levels}; do
 done
 
 if [[ "${run_performance_workload}" == "1" ]]; then
-    run_file "${local_database}" "${runtime_directory}" Performance.Workload.sql \
+    performance_output="$(mktemp)"
+    if ! run_file "${local_database}" "${runtime_directory}" Performance.Workload.sql \
         -v "PerformanceBaselineMedianMilliseconds=${performance_baseline_milliseconds}" \
-        -v "PerformanceMaxMedianRegressionPercent=${performance_max_regression_percent}"
+        -v "PerformanceMaxMedianRegressionPercent=${performance_max_regression_percent}" \
+        -v "PerformanceMaxBatchMedianVariancePercent=${performance_max_batch_median_variance_percent}" \
+        >"${performance_output}" 2>&1; then
+        if grep -q "Msg 52453" "${performance_output}"; then
+            rm -f "${performance_output}"
+            echo "PERFORMANCE_STABILITY_UNAVAILABLE" >&2
+            exit 75
+        fi
+        cat "${performance_output}" >&2
+        rm -f "${performance_output}"
+        exit 1
+    fi
+    rm -f "${performance_output}"
 elif [[ "${run_performance_workload}" != "0" ]]; then
     echo "TBX_RUN_PERFORMANCE_WORKLOAD muss 0 oder 1 sein." >&2
     exit 1

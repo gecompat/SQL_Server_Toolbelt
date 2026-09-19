@@ -82,6 +82,14 @@ unbegrenzte praktische Größen- oder Performancegarantie. Set-basierte
 Massenaufrufe und große LOBs sind vor produktivem Einsatz mit repräsentativen,
 nicht vertraulichen Daten zu messen.
 
+Der optionale synthetische 4-MiB-Large-LOB-Workload führt drei unabhängige
+Batches mit je einem Warm-up und fünf Messungen aus. Er verwendet deren
+Medianwerte nur innerhalb des Laufs und persistiert weder Messwerte noch eine
+Baseline. Die Batch-Median-Spanne darf standardmäßig 20 % nicht überschreiten;
+bei Instabilität wird der Lauf als `NOT_EXECUTED` mit
+`PERFORMANCE_STABILITY_UNAVAILABLE` eingeordnet. Ein Basiswert `0` deaktiviert
+nur den Regressionsvergleich, nicht dieses Stabilitäts-Gate.
+
 ## Plattform- und Teststatus
 
 Der portable Provider enthält keine bekannte Betriebssystemabhängigkeit.

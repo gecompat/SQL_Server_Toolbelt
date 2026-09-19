@@ -33,7 +33,7 @@ Bestehende Linux-Evidenz: [vollständige SQL-Server-2019-/2022-/2025-Matrix](htt
 | BND-01 | `BoundaryAndTransaction.Contract.sql` | 1024-Spalten-, Caller-Transaktions- und uncommittable-State-Verträge erfolgreich. |
 | SAVE-01 | `SavepointEngineError.Contract.sql` | Natürlicher Enginefehler 2705 wird unverändert weitergegeben; Zielschema, Zieldaten, Caller-Marker und Transaktionszähler werden zum Savepoint wiederhergestellt. |
 | CONC-01 | Vier parallele Aufrufe von `MultiSession.Contract.sql` mit unterschiedlichen `WorkerId`-Werten | Keine Namenskollisionen oder gegenseitigen Temp-Table-Effekte. |
-| PERF-01 | `Performance.Workload.sql`, ein Warm-up und fünf Messwiederholungen | Kein funktionaler Fehler. Gegen eine lokal gehaltene Basis gilt standardmäßig höchstens 20 % Median-Regression; `PerformanceMaxMedianRegressionPercent` kann den Wert je Lauf überschreiben. Keine Laufzeit-, Hardware- oder Hostwerte dokumentieren. |
+| PERF-01 | `Performance.Workload.sql`, drei unabhängige Batches mit je einem Warm-up und fünf Messwiederholungen | Nur bei höchstens 20 % Streuung der Batch-Mediane wird gegen eine lokal gehaltene Basis mit höchstens 20 % Median-Regression verglichen; beide Grenzen sind je Lauf überschreibbar. Instabilität ist `NOT_EXECUTED` mit `PERFORMANCE_STABILITY_UNAVAILABLE`, kein bestandener Nachweis und keine Statusaufwertung. Keine Laufzeit-, Hardware- oder Hostwerte dokumentieren. |
 | CENTRAL-01 | Zentrales Deployment in eine leere Toolbelt-Testdatenbank und `Central.Contract.sql` aus einer getrennten Consumer-Testdatenbank | Cross-database-Aufruf gemäß Vertrag erfolgreich. |
 | UNINSTALL-01 | `Deployment/Uninstall.sql` lokal und zentral | Release-Objekte vollständig entfernt; fremde beziehungsweise vorbestehende Schemata bleiben erhalten. |
 
@@ -55,15 +55,18 @@ Keine realen Datenbanknamen, Hostnamen, Konten, Pfade, Screenshots, Hardwaredate
 
 ## Performance-Vergleich
 
-`Performance.Workload.sql` erhält ausschließlich durch SQLCMD zwei flüchtige
+`Performance.Workload.sql` erhält ausschließlich durch SQLCMD drei flüchtige
 Eingaben: `PerformanceBaselineMedianMilliseconds` und
-`PerformanceMaxMedianRegressionPercent`. Der zweite Wert ist standardmäßig
-`20`; ein Basiswert `0` führt den funktionalen Workload ohne
-Regressionsentscheidung aus. Für eine Entscheidung wird die Basis mit
-demselben Workload auf dem Vergleichsstand und demselben Ziel ermittelt. Der
-Aufrufer übergibt nur die daraus abgeleitete Basis; weder Basis noch
-Messwerte werden in Dateien, Commits, Pull Requests oder Testevidenz
-gespeichert.
+`PerformanceMaxMedianRegressionPercent` und
+`PerformanceMaxBatchMedianVariancePercent`. Beide Grenzen sind standardmäßig
+`20`. Ein Basiswert `0` deaktiviert nur die Regressionsentscheidung, nicht
+den synthetischen Workload oder das Stabilitäts-Gate. Bei instabilen
+Batch-Medianen meldet der Adapter `NOT_EXECUTED` mit
+`PERFORMANCE_STABILITY_UNAVAILABLE`; dies kann keine Statusaufwertung
+begründen. Für eine Entscheidung wird die Basis mit demselben Workload auf
+dem Vergleichsstand und demselben Ziel ermittelt. Der Aufrufer übergibt nur
+die daraus abgeleitete Basis; weder Basis noch Messwerte werden in Dateien,
+Commits, Pull Requests oder Testevidenz gespeichert.
 
 ## Aktuelle Validierungsevidenz
 
