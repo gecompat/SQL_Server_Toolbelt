@@ -353,6 +353,7 @@ $managedEnvironmentNames = @(
     'TBX_RUN_PERFORMANCE_WORKLOAD',
     'TBX_PERFORMANCE_BASELINE_MEDIAN_MILLISECONDS',
     'TBX_PERFORMANCE_MAX_MEDIAN_REGRESSION_PERCENT',
+    'TBX_PERFORMANCE_MAX_BATCH_MEDIAN_VARIANCE_PERCENT',
     'TBX_SQL_IMAGE',
     'TBX_COMPATIBILITY_LEVEL',
     'TBX_ASSEMBLY_ROOT',
@@ -470,8 +471,22 @@ try {
                     $runFailed = $false
                     try {
                         & $bash $adapterBashPath $runScriptBashPath *> $logPath
-                        if ($LASTEXITCODE -ne 0) {
-                            throw "Testadapter meldete Exitcode $LASTEXITCODE."
+                        $adapterExitCode = $LASTEXITCODE
+                        if ($adapterExitCode -eq 75) {
+                            $notExecutedTests++
+                            $targetStatus = 'NOT_EXECUTED'
+                            $cause = 'PERFORMANCE_STABILITY_UNAVAILABLE'
+                            $adapterResults.Add([PSCustomObject]@{
+                                Key = [string]$target.key
+                                Adapter = $runScript
+                                Compatibility = if ($compatibilityLevel) { $compatibilityLevel } else { '-' }
+                                Status = 'NOT_EXECUTED'
+                                Cause = 'PERFORMANCE_STABILITY_UNAVAILABLE'
+                            })
+                            continue
+                        }
+                        if ($adapterExitCode -ne 0) {
+                            throw "Testadapter meldete Exitcode $adapterExitCode."
                         }
                         $passedTests++
                         $adapterResults.Add([PSCustomObject]@{

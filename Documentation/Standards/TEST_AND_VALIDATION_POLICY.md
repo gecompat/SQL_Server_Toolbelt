@@ -99,6 +99,14 @@ Ein erfolgreicher Test auf einer Version, Plattform oder einem Provider beweist 
 - Einzellauf nicht als allgemeingültigen Benchmark darstellen;
 - Ergebnisse als empirisch kennzeichnen.
 
+Ein Performance-Regressionsvergleich darf nur auf einer nachweislich stabilen
+Messumgebung beruhen. Wenn ein moduldefiniertes Stabilitäts-Gate die zulässige
+Streuung überschreitet, ist der Vergleich als `NOT_EXECUTED` beziehungsweise
+`INFRASTRUCTURE_UNAVAILABLE` auszuweisen. Das ist weder ein erfolgreicher
+Nachweis noch eine Statusaufwertung und ersetzt keinen tatsächlichen
+Regressionsvergleich. Baselines, Messwerte und Runnerdaten bleiben außerhalb
+der Repository-Evidenz.
+
 ## CI
 
 CI bleibt schlank und pfadbezogen. Der Dokumentationsvalidator bestimmt seinen
