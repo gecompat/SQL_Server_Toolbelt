@@ -1038,6 +1038,13 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 
 ## TC-2026-044: Framework zum kontrollierten Klonen von Tabellenobjekten
 
+> Stand 2026-10-01: Individuell freigegebener Script-only-V1 ist als
+> `toolbelt.metadata.table-clone` 1.0.0 implementiert und im ausgewählten
+> 2019-Linux-/2025-Windows-Scope teilweise validiert. Die historischen
+> breiteren Forschungsüberlegungen unten sind kein Umfangsversprechen.
+> Weitere individuell freigegebene Ausbauwellen stehen in `.ai/BACKLOG.md`,
+> sind aber nicht Bestandteil dieser V1-Implementierung.
+
 | Feld | Wert |
 |---|---|
 | **ID** | `TC-2026-044` |
@@ -1055,10 +1062,10 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Plattformgrenzen** | T-SQL-Metadaten sind weitgehend plattformgleich; SMO/DacFx-Provider und Spezialfeatures benötigen versions- und plattformspezifische Evidenz. |
 | **Dependencies** | Identifier-Toolkit `TC-2026-029`; Namensgenerator aus `RI-2026-013`; DDL-/Deployment- und Recovery-Vertrag vor jeder automatischen Mutation. |
 | **Duplikatprüfung** | Kein Duplikat zu ResultTable-Routing. `TC-2026-029` validiert Namen, klont aber keine Objekte. |
-| **Status** | `researched` |
+| **Status** | V1 `implemented`, Runtime `partially validated`, `unreleased`; breitere Folgeumfänge separat |
 | **Primärquellen** | [Research-Inbox `RI-2026-001`/`RI-2026-013`](./TOOLBELT_RESEARCH_INBOX.md)<br>[Landschaftsrecherche](../Documentation/Research/SQL_SERVER_TOOLBELT_LANDSCAPE.md)<br>https://learn.microsoft.com/en-us/sql/t-sql/queries/select-into-clause-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-09-11 |
-| **Nächster Schritt** | Die [Architekturvorbereitung](../Documentation/Architecture/TABLE_CLONE_PROPOSAL.md) empfiehlt einen Script-only-Planer für eine enge Menge regulärer Tabellen. Ausführung, Datenkopie und breitere Objektklassen bleiben getrennte Entscheidungen. |
+| **Nächster Schritt** | Script-only-V1 gemäß [Objektvertrag](../Modules/toolbelt.metadata.table-clone/Documentation/USP_ScriptTableClone.md) integriert halten; individuelle Folgefreigaben und Ausführungsreihenfolge ausschließlich gemäß `.ai/BACKLOG.md`, keine pauschale Cloneframework-Zusage. |
 
 ## TC-2026-045: XLSX-Dateien direkt lesen
 

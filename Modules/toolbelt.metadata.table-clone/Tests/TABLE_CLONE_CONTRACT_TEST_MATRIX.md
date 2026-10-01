@@ -14,6 +14,8 @@
 Keine realen Quell-DDL/Rohlogs als Evidence. Weitere Unsupportedfeatures benötigen
 zusätzliche gezielte synthetische Oracles vor Statusaufwertung; kein vollständiges
 SMO-/DacFx-Kompatibilitätsversprechen oder Produktions-/Parallelitätsnachweis.
+CHANGE_TRACKING, LOCK_ESCALATION und andere nicht gelistete Tabellenoptionen:
+Erhalt nicht qualifiziert, kein vollständiges Cloneframework.
 
 ## Aktuelle Validierungsevidenz
 

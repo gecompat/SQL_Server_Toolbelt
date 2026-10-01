@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-01 – Script-only Tabellenklon 1.0.0
+
+- `USP_ScriptTableClone` liefert deterministische begrenzte SameDB-DDL-
+  Vorschau für Spalten, Defaults, Checks, PK/UQ, Rowstore-Indizes und optionale
+  Identity; keine DDL-Ausführung oder Datenkopie durch die öffentliche API.
+- Unsupported atomar sichtbar, vollständiger Plan vor ResultTable-Mutation,
+  datenbankweite Metadatensicht, Lifecycle-Callertransaktionen nichtdoomend
+  abgewiesen und registrierte Typdrift kontrolliert repariert.
+- Finale synthetische Adapter auf 2019 Linux/latest und 2025 Windows/CU8
+  erfolgreich. Weitere Zielkombinationen, GitHub-Runtime und Lowpriv-CrossDB
+  offen; `partially validated`, `unreleased`. Keine Folgeausbauten enthalten.
+
 ## 2026-10-01 – JSON-Konstruktoren 1.0.0
 
 - Getrennte `USP_JsonArray` und `USP_JsonObject` mit einem gemeinsamen
@@ -397,7 +409,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-31 Module sind implementiert. 21 sind `validated`, 10 sind `partially
+32 Module sind implementiert. 21 sind `validated`, 11 sind `partially
 validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

@@ -61,8 +61,13 @@ Limits1024Spalten/128Indexmetadatenzeilen/2048Kindobjekte/2MiB Scripttext,
 vor LOB-Materialisierung Definitionsbytes prüfen; keine RAM/Wallclockgarantie.
 
 Quelle strukturell stabil halten. Vorschau ist Momentaufnahme; keine spätere
-Driftfreiheit, kein automatisches Recovery. Vollständiger Plan vor ResultTable-
-Mutation, kanonischer Helper, eigene Transaktion oder Caller-savepoint;
+Driftfreiheit, kein automatisches Recovery.
+CHANGE_TRACKING, LOCK_ESCALATION und sonstige nicht ausdrücklich gelistete
+Tabellenoptionen sind nicht als Erhalt qualifiziert. Dieser begrenzte
+Scriptplaner ist keine vollständige Tabellenkopie; solche Optionen benötigen
+einen gesonderten Vertrag und synthetische Oracles.
+Vollständiger Plan vor ResultTable-Mutation, kanonischer Helper, eigene
+Transaktion oder Caller-savepoint;
 niemals fremde Transaktion committen. Doomed Caller benötigt Callerrollback.
 Debug nur Messages. EXECUTE plus datenbankweite VIEW DEFINITION erforderlich:
 incoming-FKs in fremden Schemas dürfen durch Metadata Visibility nicht unsichtbar

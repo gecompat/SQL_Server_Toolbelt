@@ -2,9 +2,28 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-31 Module sind implementiert. 21 sind `validated`, 10 sind `partially validated`; 0 sind `not executed`.
+32 Module sind implementiert. 21 sind `validated`, 11 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
+
+### TC-2026-044: Script-only Tabellenklon V1 abgeschlossen
+
+Stand 2026-10-01: Die einzeln freigegebene `USP_ScriptTableClone` ist als
+`toolbelt.metadata.table-clone` 1.0.0 implementiert. Begrenzter SameDB-Scope:
+Spalten, Defaults, Checks, PK/UQ, gewöhnliche Rowstore-Indizes und optionale
+Identity-Eigenschaft; keine API-DDL-Ausführung oder Datenkopie.
+Unsupported-Features werden atomar abgewiesen. Datenbankweite VIEW DEFINITION
+ist für vollständige incoming-FK-/Kollisionssicht erforderlich; Lifecycle
+lehnt aktive Caller-Transaktionen vor SET-/Temp-DDL nichtdoomend ab.
+Vollständige finale Adapter auf 2019 Linux/latest CL150 und 2025 Windows/CU8
+CL150/160/170 erfolgreich, einschließlich Runtime/ResultTable/Transaktionen,
+Clientmetadaten, Rechte/hidden incoming FK, local/central, Typdrift,
+Marker/Sourcehash, Kollisionen und Uninstall. Weitere Zielkombinationen,
+GitHub-Runtime und niedrigprivilegiertes CrossDB waren zum Abschluss der
+lokalen Qualifikation 2026-10-01 nicht ausgeführt; PR-CI ist ein separater
+Nachweis und keine Aufwertung dieser lokalen Evidenz.
+Status `partially validated`, `unreleased`; keine Ausbauwelle1/2 oder
+Trigger-/Ausführungs-/Datenkopieimplementierung in diesem V1-Stand.
 
 ### Priorisierte Besprechung: Queue-Verarbeitung und Worker-Orchestrierung
 
