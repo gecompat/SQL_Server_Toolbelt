@@ -11,6 +11,17 @@ separat nach `origin/main` gemergt.
 
 ## Öffentlicher Vertrag
 
+R2a wurde am 2026-10-01 nach Vertragsbesprechung ausdrücklich freigegeben;
+die dauerhafte Freigabe steht in `.ai/BACKLOG.md`. Version 1.1.0 ergänzt
+Replace und Substring gemäß [Erweiterungsvertrag](./REGEX_EXTENSION_PROPOSAL.md).
+T-SQL-SVF-Fassaden erhalten max-Defaults, die direkt in CLR mit Fehler 1096
+unzulässig wären; interne CLR-Entry-Points sind nicht öffentliche APIs.
+Die Fassaden vereinheitlichen nach Unicode-Decoding die n-Collation-Metadaten;
+Caller-Vergleiche fremder Collations benötigen weiterhin bewusste Collation.
+Kein gleichwertiger rein relationaler Regexausdruck ist belegt; eine inline-
+TVF um die CLR-SVF wäre keine Erfüllung der Engineering-Regel. R2a verwendet
+den vorhandenen SAFE-Kern ohne zusätzliche Berechtigungen/Abhängigkeiten.
+
 `toolbelt.string.regex` 1.0.0 exportiert genau
 `SVF_RegexIsMatch`, `SVF_RegexInstr` und `SVF_RegexCount`. Der gemeinsame
 Vertrag umfasst den begrenzten Dialekt, UTF-16-Positionen, nicht überlappende

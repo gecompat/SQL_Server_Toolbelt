@@ -14,7 +14,7 @@ namespace Toolbelt.String.Regex
     /// The parser accepts only the documented grammar and translates ASCII
     /// shorthand classes before invoking the .NET Framework regex engine.
     /// </summary>
-    public static class RegexProvider
+    public static partial class RegexProvider
     {
         private const int MaxInputCodeUnits = 1048576;
         private const int MaxPatternBytes = 8000;

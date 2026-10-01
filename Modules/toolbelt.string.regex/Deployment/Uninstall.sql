@@ -13,6 +13,10 @@ DECLARE
     , @IsMatchId int = OBJECT_ID(N'toolbelt_string.SVF_RegexIsMatch')
     , @InstrId int = OBJECT_ID(N'toolbelt_string.SVF_RegexInstr')
     , @CountId int = OBJECT_ID(N'toolbelt_string.SVF_RegexCount')
+    , @ReplaceId int = OBJECT_ID(N'toolbelt_string.SVF_RegexReplace')
+    , @SubstringId int = OBJECT_ID(N'toolbelt_string.SVF_RegexSubstring')
+    , @ReplaceCoreId int = OBJECT_ID(N'toolbelt_string.SVF_RegexReplaceCore')
+    , @SubstringCoreId int = OBJECT_ID(N'toolbelt_string.SVF_RegexSubstringCore')
     , @AssemblyId int =
           (SELECT assembly_id FROM sys.assemblies WHERE name = N'Toolbelt_String_Regex');
 
@@ -37,8 +41,8 @@ IF @DeploymentMode = N'central' AND @ConfirmNoExternalConsumers <> 1
 IF EXISTS
    (
        SELECT 1 FROM sys.sql_expression_dependencies
-       WHERE referenced_id IN (ISNULL(@IsMatchId, -1), ISNULL(@InstrId, -1), ISNULL(@CountId, -1))
-         AND referencing_id NOT IN (ISNULL(@IsMatchId, -1), ISNULL(@InstrId, -1), ISNULL(@CountId, -1))
+       WHERE referenced_id IN (ISNULL(@IsMatchId, -1), ISNULL(@InstrId, -1), ISNULL(@CountId, -1), ISNULL(@ReplaceId, -1), ISNULL(@SubstringId, -1), ISNULL(@ReplaceCoreId, -1), ISNULL(@SubstringCoreId, -1))
+         AND referencing_id NOT IN (ISNULL(@IsMatchId, -1), ISNULL(@InstrId, -1), ISNULL(@CountId, -1), ISNULL(@ReplaceId, -1), ISNULL(@SubstringId, -1), ISNULL(@ReplaceCoreId, -1), ISNULL(@SubstringCoreId, -1))
    )
     THROW 52038, N'Die Deinstallation wird durch eine same-database Dependency blockiert.', 1;
 
@@ -47,7 +51,7 @@ IF @AssemblyId IS NOT NULL
        (
            SELECT 1 FROM sys.assembly_modules
            WHERE assembly_id = @AssemblyId
-             AND object_id NOT IN (ISNULL(@IsMatchId, -1), ISNULL(@InstrId, -1), ISNULL(@CountId, -1))
+             AND object_id NOT IN (ISNULL(@IsMatchId, -1), ISNULL(@InstrId, -1), ISNULL(@CountId, -1), ISNULL(@ReplaceId, -1), ISNULL(@SubstringId, -1), ISNULL(@ReplaceCoreId, -1), ISNULL(@SubstringCoreId, -1))
        )
     THROW 52038, N'Die Regex-Assembly wird von einem fremden SQL-Objekt verwendet.', 2;
 IF @AssemblyId IS NOT NULL
@@ -60,6 +64,10 @@ BEGIN TRY
     DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexIsMatch];
     DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexInstr];
     DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexCount];
+    DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexReplace];
+    DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexSubstring];
+    DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexReplaceCore];
+    DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexSubstringCore];
     IF EXISTS (SELECT 1 FROM sys.assemblies WHERE name = N'Toolbelt_String_Regex')
         DROP ASSEMBLY [Toolbelt_String_Regex];
 

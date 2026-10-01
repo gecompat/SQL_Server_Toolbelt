@@ -34,7 +34,7 @@ deploy = deploy_path.read_text(encoding="utf-8-sig")
 actual_hash = sha512(assembly).hexdigest().upper()
 assert actual_hash == manifest["sha512"]
 assert manifest["moduleId"] == "toolbelt.string.regex"
-assert manifest["moduleVersion"] == "1.0.0"
+assert manifest["moduleVersion"] == "1.1.0"
 assert manifest["assemblySqlName"] == "Toolbelt_String_Regex"
 assert manifest["permissionSet"] == "SAFE"
 assert manifest["directFrameworkReferences"] == ["System", "System.Data"]
@@ -112,12 +112,73 @@ deploy_regex "${local_database}" local
 run_query "${local_database}" "ALTER DATABASE [${local_database}] SET COMPATIBILITY_LEVEL=${compatibility_level};"
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Lifecycle.Contract.sql
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Regex.Contract.sql
+run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Transformations.Contract.sql
 deploy_regex "${local_database}" local
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Lifecycle.Contract.sql
 
 deploy_regex "${central_database}" central
 run_file "${consumer_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Central.Contract.sql \
   -v "ToolbeltDatabase=${central_database}"
+
+# Echtes Upgrade aus dem gepinnten R1b-Binary. Legacy-Trust wird im Labadapter
+# separat erfasst und nur bei eigener Neuerzeugung nach dem Lauf entfernt.
+legacy_root="${assembly_root_host}/legacy"
+legacy_container="${assembly_root_container}/legacy"
+legacy_hash="$(python3 - "${legacy_root}/Toolbelt.String.Regex.trust-manifest.json" "${legacy_root}/Toolbelt.String.Regex.dll" <<'PY'
+import json, sys
+from pathlib import Path
+from hashlib import sha512
+m = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8-sig"))
+assert m["moduleVersion"] == "1.0.0"
+assert m["sha512"] == sha512(Path(sys.argv[2]).read_bytes()).hexdigest().upper()
+print(m["sqlServerHexLiteral"])
+PY
+)"
+run_file master /workspace/Modules/toolbelt.string.regex/Deployment Add-TrustedAssembly.sql \
+  -v "AssemblyHash=${legacy_hash}" "AssemblyDescription=Toolbelt Regex R1b upgrade test"
+upgrade_database="tbx_regex_upgrade"
+run_query master "CREATE DATABASE [${upgrade_database}] COLLATE Latin1_General_100_CI_AS;"
+run_file "${upgrade_database}" "${legacy_container}" "${legacy_container}/Deploy.WithAssembly.sql" -v DeploymentMode=local
+run_query "${upgrade_database}" "IF toolbelt_string.SVF_RegexIsMatch(N'a1',N'\\d',N'c')<>1 THROW 52095,N'Legacy-Voraussetzung fehlt.',1;
+IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.string.regex.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0') THROW 52095,N'Legacy-Marker fehlt.',2;"
+run_query "${upgrade_database}" "EXEC(N'CREATE FUNCTION toolbelt_string.SVF_RegexReplace(@Input nvarchar(max)) RETURNS nvarchar(max) AS BEGIN RETURN N''foreign''; END');"
+collision_log="$(mktemp)"
+set +e
+deploy_regex "${upgrade_database}" local >"${collision_log}" 2>&1
+upgrade_collision_status=$?
+set -e
+[[ "${upgrade_collision_status}" -ne 0 ]] && grep -q "Msg 52033" "${collision_log}" || { echo "R2a-Upgrade-Kollision nicht korrekt zurückgewiesen." >&2; exit 1; }
+run_query "${upgrade_database}" "IF toolbelt_string.SVF_RegexReplace(N'x')<>N'foreign' OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.string.regex.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0') THROW 52095,N'Upgrade-Kollision hat mutiert.',3; DROP FUNCTION toolbelt_string.SVF_RegexReplace;"
+rm -f "${collision_log}"
+collision_log=""
+deploy_regex "${upgrade_database}" local
+run_file "${upgrade_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Lifecycle.Contract.sql
+run_file "${upgrade_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Regex.Contract.sql
+run_file "${upgrade_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Transformations.Contract.sql
+
+# Vier echte Sessions verwenden synthetische LOBs; nur der gemeinsame
+# Pass/Fail-Nachweis wird ausgegeben, keine Zeiten/Ergebnisse persistiert.
+lob_pids=()
+for worker in 1 2 3 4; do
+  run_query "${local_database}" "DECLARE @Value nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),N'a'),2097152);
+IF ISNULL(DATALENGTH(toolbelt_string.SVF_RegexReplace(@Value,N'Z',N'',1,0,N'c',N'large')),-1)<>4194304 THROW 52095,N'Concurrent Large-LOB-Vertrag falsch.',4;" >/dev/null &
+  lob_pids+=("$!")
+done
+lob_failed=0
+for pid in "${lob_pids[@]}"; do wait "${pid}" || lob_failed=1; done
+[[ "${lob_failed}" -eq 0 ]] || exit 1
+
+run_query "${upgrade_database}" "EXEC(N'CREATE VIEW dbo.RegexDependency AS SELECT toolbelt_string.SVF_RegexSubstring(N''x'',N''x'',1,1,N''c'',N''standard'') AS Value;');"
+collision_log="$(mktemp)"
+set +e
+run_file "${upgrade_database}" /workspace/Modules/toolbelt.string.regex/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=0 >"${collision_log}" 2>&1
+dependency_status=$?
+set -e
+[[ "${dependency_status}" -ne 0 ]] && grep -q "Msg 52038" "${collision_log}" || { echo "R2a-Uninstall-Dependency nicht geschützt." >&2; exit 1; }
+run_query "${upgrade_database}" "IF OBJECT_ID(N'toolbelt_string.SVF_RegexSubstring') IS NULL THROW 52095,N'Dependency-Schutz hat mutiert.',5; DROP VIEW dbo.RegexDependency;"
+rm -f "${collision_log}"
+collision_log=""
+run_file "${upgrade_database}" /workspace/Modules/toolbelt.string.regex/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=0
 
 run_query "${collision_database}" "EXEC(N'CREATE SCHEMA toolbelt_string');
 EXEC(N'CREATE FUNCTION toolbelt_string.SVF_RegexCount(@Input nvarchar(max),@Pattern nvarchar(max),@Start int,@Flags nvarchar(4)) RETURNS int AS BEGIN RETURN 0; END');"

@@ -14,6 +14,12 @@
 | Fehler | SQL 6522 mit stabilem `TBX_REGEX_*`-Präfix |
 | Lifecycle | exakter SHA2-512-Trust, Erst-/Wiederholungsdeployment, Kollision, Central, Uninstall, Cleanup |
 | Matrix | SQL Server 2019/2022/2025 auf Windows base und Linux latest |
+| R2a | Literal Replace, n-ter Gesamttreffer, DEFAULT/EXEC, NULL-Prio, Start/Occurrence, terminale und leere Treffer |
+| R2a-Grenzen | Quelle/Ersatz/Output 2/16 MiB, Pattern 8.000/8.001 Codeeinheiten, Gruppen 64/65, Alternation 1.024/1.025 |
+| Gesamtbudget | Framework-Whitebox qualifiziert Restbudget und viele Empty-Matches; SQL-ReDoS prüft Engine-Timeout |
+| Codepages | Klassisches/UTF-8-varchar vor Centralcall nach Unicode dekodiert; n-Collationvergleich ausdrücklich festgelegt |
+| Upgrade | Echtes gepinntes 1.0.0-Binary nach 1.1.0; neue Slotkollision ohne Mutation; Dependency-Schutz und interne Marker |
+| LOB-Concurrency | Vier echte Sitzungen mit synthetischen Large-LOBs; keine gemessene Performancezusage |
 
 RE2-Parität, lineare Laufzeit, SARGability, Parallelplanfähigkeit, Replace,
 Substring, Capture-Ausgabe, Split und Match-Resultsets sind keine R1b-Tests.

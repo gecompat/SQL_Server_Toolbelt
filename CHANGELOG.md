@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-01 – Regex R2a
+
+- `toolbelt.string.regex` 1.1.0 ergänzt ausdrücklich freigegebene
+  `SVF_RegexReplace` und `SVF_RegexSubstring`: literal Replacement, UTF-16,
+  max-Signaturen, Standard-/Large-Profil und begrenzter Ergebnisbau.
+- T-SQL-Fassaden erhalten max-Defaults vor internen SAFE-CLR-Kernen;
+  kooperatives Gesamtbudget und Restbudget ergänzen Engine-Timeouts.
+- Tests koppeln R1b-Regression, Profil-/Patterngrenzen, echte 1.0.0-Upgrades,
+  Central-/Codepage-Aufrufe, Dependency-Schutz und konkurrierende LOBs.
+- Alle Module bleiben `unreleased`; kein allgemeiner Benchmark oder
+  Native-RE2-/Streaming-/Parallelitätsvertrag wird eingeführt.
+
 ## 2026-09-01 – GitHub-hosted Linux-Versionsmatrix
 
 - Alle fünfzehn bislang auf SQL Server 2025 beschränkten Modul-Runtime-Workflows
