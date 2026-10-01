@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-01 – ZIP-Writer 1.3.0
+
+- `USP_CreateZipFromEntries` erzeugt begrenzte In-memory-ZIPs aus einer caller-lokalen Temp-Tabelle: Stored als Default, Deflate ausdrücklich wählbar, strikte UTF-8-Namen und atomare ResultTable-Ausgabe.
+- Reiner SAFE-CLR-Kern, Help-first, Lifecycle-/Upgrade-/Kollisionsschutz und unabhängige Frameworktests; keine Datei-I/O- oder ZIP64-Erweiterung.
+- Internes Empty-Payload-Marshalling des bestehenden Readers korrigiert; öffentliche SQL-Signaturen, Limits und encrypted NULL bleiben unverändert. Zusätzliche Readerkopien sind dokumentiert.
+- Ausgewählte Live-Tests auf SQL Server 2019 Linux und 2025 Windows/CU8 erfolgreich; höhere SQL-Live-Grenzen und reale Produktionsarchive bleiben offen. Status `partially validated`, `unreleased`.
+
 ## 2026-10-01 – Unquoting und Split-USP
 
 - `toolbelt.string.split-advanced` 1.1.0 ergänzt die einzeln freigegebenen
