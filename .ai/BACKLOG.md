@@ -289,8 +289,11 @@ unescaped closing Zeichen ist Fehler (`[a]]b]` → `a]b`,
 Quotezeichen und `\\`; kein `\n`/`\t`/Unicode-Escape, andere Folgen
 bleiben unverändert. Ohne Opt-in Backslash literal. Öffentliche Signatur,
 Parametername, Result-/Fehlervertrag und Inputlimits sind weiterhin
-Vorschläge; Rand-/Escapepriorität und aktive Quotezeichenmenge bei
-asymmetrischen Paaren noch zu präzisieren. Die bestätigte Semantik ist
+Vorschläge. Nachtrag 2026-10-01: Mit „do it“ hat der Benutzer die
+Randempfehlungen und Vertragsausarbeitung bestätigt: Backslash schützt
+opening und closing bei asymmetrischen Paaren; escaped letztes closing ist
+kein Delimiter, daher Explicit Fehler und Auto unverändert. Frühere
+offene Randpunkte sind ersetzt. Die bestätigte Semantik ist
 keine ausdrückliche konkrete Funktionsimplementierungsfreigabe.
 `USP_SplitAdvanced` soll ergänzend vorgesehen werden und führt kein
 automatisches Unquoting aus. Die Split-TVF bleibt Pflicht.
@@ -298,6 +301,20 @@ Die [konkreten Folgeslice-Vorschläge](../Documentation/Architecture/ADVANCED_ST
 halten Alternativen, Risiken, Dependencies, Testscope und noch offene
 Signatur-/Fehler-/Randfallentscheidungen fest. Status: `proposed` für diese
 Folgeslices, keine Implementierungsfreigabe; S2 ist davon getrennt `completed`.
+
+Zur gebündelten Freigabe vorbereitet, nicht implementiert:
+`TVF_UnquoteToken` mit Input/Qualifier/optionalem ClosingQualifier und
+Backslash-Opt-in; NULL-Qualifier Auto, leer Disabled, generische einzelne
+BMP-Paare in Explicit und klare typografische Defaultzuordnung vorgeschlagen.
+Vier Resultspalten, atomare symbolische Fehler, Originalpositionen,
+65.536-Codeunit-Zielgrenze und Prioritäten im
+[TVF-Vertragsvorschlag](../Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md#zur-gebündelten-freigabe-unquoting-tvf-vertragsvorschlag).
+Die optionale `USP_SplitAdvanced` ist mit vollständiger USP-Signatur,
+Value/Ordinal-Erfolgsschema, Kernprüfung vor ResultTable-Mutation, NULL-No-op,
+ResultTable-Dependency und Transaktions-/Testvertrag vorbereitet.
+API-/Fehler-/Grenzdetails sind Empfehlungen für die gemeinsame
+Funktionsfreigabe, keine zusätzlichen erfundenen Nutzerbeschlüsse.
+Tests erst nach Freigabe risikobasiert 2019 Linux/2025 Windows.
 
 ### TC-2026-034: In-memory-ZIP-Erzeugung
 
@@ -311,6 +328,14 @@ Hohe Writer-Ratio ist zulässig; notwendiges Readerlimit wird dokumentiert.
 Dies ist keine öffentliche Implementierungsfreigabe. Signatur, interner
 Transport, Fehler und technische Ceilings bleiben konkret zu besprechen;
 Datei-I/O bleibt verpflichtender späterer Slice mit eigenem Sicherheitsvertrag.
+Konkreter Writer-Vertragsvorschlag 2026-10-01 vorbereitet: caller-lokale
+Entries, vollständige `USP_CreateZipFromEntries`-Signatur, eine Archive-/
+Metadatenzeile, unabhängige Default-/Ceilinglimits, versionierter begrenzter
+Binary-Envelope, strikte UTF-16-/UTF-8-Namenprüfung vor Konvertierung,
+Fehlerpriorität und Finalisierung vor ResultTable-Mutation. Nur Vorschlag;
+numerische Fehlerzuordnung, SAFE/Memory und Plattformscope sind
+Umsetzungspflichten nach ausdrücklicher Funktionsfreigabe, keine
+heutige Runtime-Evidenz. Keine Deflate-Byteidentitätszusage.
 
 ### TC-2026-045: Begrenzter XLSX-Reader und verpflichtende Erweiterung
 
@@ -336,6 +361,12 @@ Qualifizierungsrichtung, keine endgültige Providerwahl. Nächster kleiner
 Schritt: Prüfplan und exakte SDK-Dependency-/Lizenz-/Hashliste festhalten;
 SAFE/Memory-only, Ressourcen und Plattformverhalten später in separat
 begrenztem Runtime-Scope nachweisen. Keine öffentliche Readerfreigabe.
+Praktischer Spikeplan im Proposal konkretisiert: synthetischer Non-SQL-
+Harness, once-index/bounded Parts, positive/negative/Grenz-/Parallelfixtures,
+beobachteter No-I/O-Nachweis oder INCONCLUSIVE, gepinnte Paket-/DLL-
+Hashqualifizierung erst bei später begrenzter Beschaffung. Heute keine
+Downloads, Hashes oder Runtimeprüfung und keine neue Harnesscodefreigabe.
+Worksheetliste und Zellreader bleiben getrennte öffentliche Vorschläge.
 
 ## Abgeschlossene Arbeitspakete
 

@@ -76,6 +76,49 @@ Lizenz, Trust, Secret-Grenzen und Windows-/Linux-Deployment entschieden.
 
 ## Grenzen und Testmatrix
 
+### Konkreter praktischer Spikeplan zur Besprechung
+
+Ergänzung 2026-10-01: ausschließlich Plan, heute keine neue Harness-/
+Providerimplementierung oder Runtimeprüfung. Vorgeschlagen: noch zu erstellender
+isolierter Non-SQL-Harness auf der vorhandenen .NET-Framework-4.8-/C#-7.3-Toolchain
+mit synthetischen Bytearrays und
+MemoryStreams, einmaligem Archivindex und begrenzten Partstreams. Vorhandenen
+ZIP-Kern qualifizieren, keine zweite ZIP-Parserkopie. Ein Harness-Erfolg
+beweist weder SQL-CLR-SAFE noch Linux- oder SQL-Deploymentfähigkeit.
+
+Fixtures: Stored/Deflate, Shared-/Inline-/Rich-Text, Unicode, sparse Zellen
+und explizite Emptywerte, Boolean/Error, Formeltext mit vorhandenem,
+fehlendem oder leerem Cache, hidden Sheets und 1900/1904-Metadaten.
+Negativfälle: CRC/Headerfehler, doppelte Parts/Zellkoordinaten,
+Relationships-/Stringreferenzfehler, externe/makrohaltige/verschlüsselte/
+ZIP64-Inhalte, DTD/XML-Fehler. Je Limit boundary-1/exact/+1 sowie
+ZIP-Bombs/many Parts, Wiederholung und konkurrierende Aufrufe.
+
+Bestehende vorgeschlagene Größen-/Part-/Sheet-/Zell-/Shared-String-/XML-
+Limits bleiben unverändert. Zusätzlich vorgeschlagen: 128 MiB gezählte
+Allokationen (kein Nachweis totaler Peak-Memory), 5 Sekunden kooperatives
+Parserbudget und 15 Sekunden Harness-Watchdog, keine SQL-Wallclockzusage.
+Beobachtung von Datei/Temp/Isolated Storage/Netzwerk/Prozesszugriff nur mit
+vorhandenen Werkzeugen ohne Installation/Rechteausweitung; Setup außerhalb
+des Messfensters. Fehlende/unklare Beobachtung ist INCONCLUSIVE, nicht
+Memory-only-PASS. Provider selbst benötigt keinen solchen Zugriff.
+
+SDK-Vergleich erst in später begrenzter Beschaffung: exaktes NuGet-
+Katalogpaket, packageHashAlgorithm/hash/size, SHA-512-Nupkg-Verifikation,
+net46-DLL-Einzelhashes und transitive Assemblyreferenzen. Heute kein Download
+und keine ermittelten Paket-/DLL-Hashes.
+[NuGet-Katalogvertrag](https://learn.microsoft.com/en-us/nuget/api/catalog-resource).
+Ein späterer SQL-CLR-Qualifizierungsscope beginnt risikobasiert auf 2019
+Linux/2025 Windows mit unveränderter strict security, ohne Hochprivilegierung.
+
+Zur späteren Readerbesprechung empfohlen, nicht freigegeben: getrennte
+Worksheetliste (SheetOrdinal/Name/Visibility/Date1904) und Zellen je
+gewähltem Sheet (Row/Column/StoredType, ValuePresent/Raw/Text,
+FormulaPresent/Text/Kind/SharedFormulaIndex, CachePresent/Value).
+Nur vorhandene sparse Zellen; keine Shared-Formula-Expansion, Styles/
+Anzeigeformat-/Datumsumrechnung oder Formelberechnung. Namen, finale
+Signaturen/Resulttypen und Fehler bleiben öffentliche Vertragsvorschläge.
+
 ### Quellengeprüfter Providervergleich vom 2026-10-01
 
 Der freigegebene read-only Quellenreview ist abgeschlossen; es wurden keine
