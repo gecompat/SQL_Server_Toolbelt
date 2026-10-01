@@ -42,9 +42,9 @@ Implementierungsfreigaben.
 
 | Gruppe | Kandidaten | Konsequenz |
 |---|---|---|
-| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-014`, `TC-2026-016`, `TC-2026-017`, `TC-2026-018`, `TC-2026-019`, `TC-2026-022`, `TC-2026-023`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031`, `TC-2026-033`, `TC-2026-034` Extraction-Slice, `TC-2026-037` Read-/Windows-Slices, `TC-2026-038` Windows-Slice, `TC-2026-046` synchroner Slice, `TC-2026-047` Parser-Slice, `TC-2026-048` Barrier-Slice | 21 Module sind vollständig validiert; die acht getrennt dokumentierten Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- und manuellen Sicherheitsgates benötigen externe Voraussetzungen oder Entscheidungen. |
+| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-014`, `TC-2026-015`, `TC-2026-016`, `TC-2026-017`, `TC-2026-018`, `TC-2026-019`, `TC-2026-020`, `TC-2026-021`, `TC-2026-022`, `TC-2026-023`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031`, `TC-2026-033`, `TC-2026-034` Extraction-Slice, `TC-2026-037` Read-/Windows-Slices, `TC-2026-038` Windows-Slice, `TC-2026-046` synchroner Slice, `TC-2026-047` Parser-Slice, `TC-2026-048` Barrier-Slice | 22 Module sind vollständig validiert; die sieben getrennt dokumentierten Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- und manuellen Sicherheitsgates benötigen externe Voraussetzungen oder Entscheidungen. |
 | Parser-, CLR- oder breite Semantikmodule | `TC-2026-010`, `TC-2026-011`, `TC-2026-013`, `TC-2026-032` | Funktionsfamilien und Provider vor dem ersten Code begrenzen und benchmarken. |
-| Execution-Infrastruktur | Verbleibende Slices `TC-2026-015`, `TC-2026-020`, `TC-2026-021` und zusätzliche Provider aus `TC-2026-046` | Queue in vertikalen Slices entwickeln; der synchrone Second-Session- und Event-Log-Pfad sowie W6d-Cancellation sind implementiert. |
+| Execution-Infrastruktur | Zusätzliche Session-/Worker-Provider aus `TC-2026-046` sowie separate `KILL`-, Queue-Mutations- und Provider-Abbruch-Slices aus `TC-2026-018` | Work Queue 2.0.0 mit Claim, Lease, Retry, Dead Letter, Idempotenz und Barriers sowie W6d-Cancellation sind implementiert und validiert. Der synchrone Second-Session- und Event-Log-Pfad ist ebenfalls implementiert; zusätzliche Provider und Abbruch-Slices benötigen eigene Verträge und Freigaben. |
 | Externe Provider und Integrationen | `TC-2026-025` bis `TC-2026-028`; optionale portable Worker-Slices aus `TC-2026-037`/`TC-2026-038` | Allowlist-, Identity-, Secret-, Timeout-, Abbruch- und Plattformvertrag sind Pflicht-Gates; vorhandene Windows-/Read-only-Provider nicht duplizieren. |
 | Archive, Kompression und Office | Verbleibende Slices aus `TC-2026-034`, `TC-2026-035`, `TC-2026-036`, `TC-2026-045` | ZIP-Entry-Extraktion und Listing sind implementiert; Erzeugung, vollständige Dateisystemextraktion und weitere Formate bleiben getrennte Verträge. |
 | Pseudonymisierung und synthetische Daten | `TC-2026-039` bis `TC-2026-043` | Gemeinsame deterministische Primitive zuerst; Datenschutzwirkung nicht als Anonymisierung behaupten. |
@@ -135,8 +135,12 @@ einen kleineren Toolbelt-Dialekt ohne RE2-Paritätszusage.
 `E1a` ist nach eigener Vertragsbesprechung und Freigabe als
 Enqueue/Claim/Complete/Fail/Status-Slice implementiert. `E1b` ergänzt nach
 getrennter Besprechung und Freigabe Lease, Heartbeat und explizite Recovery.
-Retry/Dead Letter/Idempotenz und kooperative Cancellation bleiben getrennt
-und benötigen jeweils eine neue Freigabe. R1b ist nach dem E1b-Merge mit
+Retry, Dead Letter, Idempotenz und priorisierte Gruppen-Barriers sind nach
+ausdrücklicher Freigabe vom 2026-09-10 als W6c in Work Queue 2.0.0 implementiert
+und validiert. Die kooperative Cancellation ist nach ausdrücklicher Freigabe
+vom 2026-09-11 als W6d implementiert und validiert. Zusätzliche Session-/Worker-
+Provider sowie `KILL`, Queue-Mutation und Provider-Abbrüche bleiben getrennte
+Slices mit eigenen Vertrags- und Freigabegrenzen. R1b ist nach dem E1b-Merge mit
 portablem SAFE-CLR-Provider implementiert und auf der vollständigen
 physischen Windows-/Linux-Matrix validiert.
 
