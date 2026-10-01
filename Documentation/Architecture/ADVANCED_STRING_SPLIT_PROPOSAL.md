@@ -55,9 +55,17 @@ Whitespace-/Textnormalisierung.
 
 Die vollständige Auto-Kandidatenliste und die Behandlung malformed innerer
 Qualifier bleiben offen. Konkrete Kandidatenpaare, Fehler für einzelne
-innere schließende Delimiter und Backslash als Literal wurden nur
+innere schließende Delimiter wurden nur
 vorgeschlagen, noch nicht vom Benutzer beschlossen. Keine implizite
 Übernahme dieser Vorschläge in eine Implementierung.
+
+Weitere Nutzerpräzisierung vom 2026-10-01: Ein zusätzlicher Backslash-Escape-
+Modus benötigt einen expliziten Opt-in-Parameter; er darf nicht automatisch
+aktiv sein. Ohne dieses Opt-in bleibt Backslash literal. Die Auflösung
+verdoppelter schließender Qualifier ist davon getrennte Quoting-Semantik
+und aktiviert keinen globalen Escape-Modus. Parametername und konkrete
+Backslash-Dekodierungsregeln bleiben offen; daraus entsteht keine
+Implementierungsfreigabe oder Änderung des bestehenden S2-Escape-Vertrags.
 
 Vorgeschlagen: BIN2-Vergleich, NULL-No-op, 65.536-Codeunit-Inputgrenze und atomare
 Errorrow-Form wie S2. Whitespace wird nicht getrimmt; ein reines Paar ergibt

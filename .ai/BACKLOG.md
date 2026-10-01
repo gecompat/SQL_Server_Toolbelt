@@ -274,6 +274,12 @@ schließende Qualifier werden nur im vollständig außen gequoteten Inneren
 aufgelöst. Keine globale Quoteentfernung/Normalisierung. Auto-Kandidatenliste
 und malformed Innenbehandlung bleiben offen; konkrete neue Vorschläge sind
 keine Entscheidungen. Dies ersetzt die zuvor offenen Randregeln.
+Weitere Präzisierung 2026-10-01: Ein zusätzlicher Backslash-Escape-Modus
+benötigt einen expliziten Opt-in-Parameter; ohne Opt-in bleibt Backslash
+literal. Doubled closing Qualifier bleiben getrennte Quoting-Semantik,
+kein impliziter globaler Escape-Modus. Parametername und konkrete
+Backslash-Dekodierungsregeln, Auto-Paarliste und malformed Innenbehandlung
+bleiben offen; keine Implementierungsfreigabe und keine S2-Vertragsänderung.
 `USP_SplitAdvanced` soll ergänzend vorgesehen werden und führt kein
 automatisches Unquoting aus. Die Split-TVF bleibt Pflicht.
 Die [konkreten Folgeslice-Vorschläge](../Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md#beschlossene-folgescope-grenzen-vom-2026-10-01)
