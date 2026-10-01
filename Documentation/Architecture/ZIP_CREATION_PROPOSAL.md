@@ -7,6 +7,19 @@ unverändert. Dieses Dokument bereitet eine getrennte Erzeugungsfunktion vor.
 Es autorisiert weder ein SQL-Objekt noch Datei-I/O, Archivschreiben oder eine
 Änderung am validierten Extraktionsvertrag.
 
+## Nutzeranforderung vom 2026-10-01
+
+Der Benutzer hat In-memory-ZIP-Erzeugung als Startscope bestätigt. Spätere
+Datei-I/O ist ein verpflichtender Roadmap-Folgeslice unter `TC-2026-034`,
+nicht lediglich eine unverbindliche Provideroption. Vor dessen Implementierung
+werden Dateioperationen, Roots, Identität, ACLs, Overwrite, Atomicity, Limits
+und Plattformunterstützung in einem eigenen Sicherheits-, Provider- und
+Funktionsvertrag besprochen und ausdrücklich freigegeben.
+
+Die bestätigte Reihenfolge autorisiert keine pauschale Datei-I/O und legt
+noch keinen fertigen öffentlichen Writervertrag fest. Die konkreten
+In-memory-Signaturen, Typdefinitionen, Grenzen und Provider bleiben offen.
+
 ## Empfohlener V1-Schnitt
 
 V1 erzeugt ein einzelnes ZIP-Binary im Speicher aus einer expliziten,

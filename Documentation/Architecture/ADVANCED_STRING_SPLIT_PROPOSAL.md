@@ -6,6 +6,18 @@
 funktionsbezogene Besprechung vor; es autorisiert weder ein Modul noch eine
 öffentliche SQL-Schnittstelle.
 
+## Nutzeranforderung vom 2026-10-01
+
+Der Benutzer verlangt eine öffentlich relationale Split-TVF als Pflicht.
+Eine USP darf ergänzend angeboten werden, ersetzt die TVF aber niemals.
+Unquoting wird als eigener späterer Funktionsslice unter diesem Kandidaten
+geführt; dafür liegt noch keine Implementierungsfreigabe vor. Originaltoken
+und spätere Transformation bleiben getrennte Verträge.
+
+Diese Anforderung legt noch keine konkrete Signatur, Fehlersemantik oder
+Implementierung fest. Insbesondere müssen die TVF-Fehlergrenzen und die
+mehrdeutige Quote-Zustandsregel unten vor einer Umsetzung geklärt werden.
+
 ## Problem
 
 `toolbelt.string.split-characters` verarbeitet bewusst einzelne, literal
@@ -17,7 +29,8 @@ Regex-Vertrag.
 ## Empfohlener V1-Schnitt
 
 Der erste Erweiterungsslice sollte ein neues, portables T-SQL-Modul sein und
-genau eine relationale TVF bereitstellen. Der Arbeitstitel
+eine kanonische relationale TVF bereitstellen; eine ergänzende USP ist
+optional. Der Arbeitstitel
 `toolbelt.string.split-advanced` und mögliche Objektnamen sind ausdrücklich
 nicht festgelegt.
 
