@@ -114,6 +114,15 @@ herstellen und neuen Orchestrator-Chat mit unveränderten Projektregeln und
 individuellen Freigaben zur autonomen Fortsetzung öffnen. Queue-Implementierung
 und andere noch nicht gestartete Wellen gehen an diesen Nachfolger.
 
+Nachfolgerstand 2026-10-02: Erste externe Worker-Welle `active` im isolierten
+Branch. Der [konkrete Providervertrag](../Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md)
+legt vor Source die bestehenden SQL-Schnittstellen, private Authentifizierung,
+endliche Laufbudgets, Handlerzulassung, claimgebundene Checkpoints,
+atomaren Complete-/Handlercommit und Testorakel fest. Keine neue öffentliche
+SQL-API; unabhängiger Vertragsreview durchgeführt, Runtime `not executed`.
+Die vorangehende Abschlussgrenze beschreibt den Vorgänger und verhindert
+keine bereits einzeln freigegebene Nachfolgerwelle.
+
 ### Individuell freigegebene weitere Wellen und Parser-Voraussetzung
 
 Benutzerfreigabe 2026-10-01: Nach gemeinsamer Besprechung der folgenden
