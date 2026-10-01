@@ -6,6 +6,30 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### R2a: Regex-Substring und Regex-Replace mit LOB-Profilen
+
+| Feld | Wert |
+|---|---|
+| ID | `R2a`; Slice zu `TC-2026-010`, keine neue sequenzielle Referenz |
+| Zweck und Scope | `toolbelt_string.SVF_RegexSubstring` und `toolbelt_string.SVF_RegexReplace` nach dem konkretisierten Vertrag in `Documentation/Architecture/REGEX_EXTENSION_PROPOSAL.md`: Gesamttreffer, literal Replacement, keine Captures; gemeinsamer SAFE-CLR-Kern; Standard-/Large-Profil; Typ-/Codepage- und LOB-Grenzen. Bestehende R1b-Signaturen bleiben unverändert. |
+| Benutzerfreigabe | Zweck, Vertrag, Alternativen, Risiken und Scope wurden am 2026-10-01 besprochen und in PR #114 konkretisiert. Auf die ausdrücklich benannte Freigabefrage für beide Regex-Funktionen und die Split-TVF antwortete der Benutzer: „ja, entwickle das und mach anschließenden PR-Merge“. Damit sind diese beiden Funktionen einschließlich scopebezogener Tests, gekoppelter Dokumentation und anschließendem geprüften PR-Merge freigegeben. |
+| Status | `active`; Implementierung und Runtime-Nachweis ausstehend |
+| Grenzen | 2-MiB-Standardprofil und 16-MiB-Large-Zielprofil, Pattern 8.000 UTF-16-Codeeinheiten; kooperative Budgets und Patternkomplexität müssen technisch qualifiziert werden. Keine harte Echtzeit-, Streaming-, Parallelitäts- oder Verarbeitung-bis-2-GB-Zusage. Verlustfreie Quellkonvertierung vor zentralem Aufruf; weitere Typwrapper nur bei belegtem Nutzen und abgestimmtem Vertrag. |
+| Tests | R1b-Regression, neue NULL-/Start-/Occurrence-/Empty-Match-Semantik, Literal Replacement, Grenzwerte, Gesamtbudget, Ergebnisexpansion, Unicode/Codepages, konkurrierende LOB-Aufrufe, Trust, Upgrade, lokales/zentraltes Deployment und Uninstall. Lab-Matrix nach tatsächlichem Source-/Providerimpact. |
+| Nächster Schritt | Freigegebenen Vertrag implementieren und qualifizieren; substantive Vertragsabweichungen vor Umsetzung besprechen. Keine automatische Freigabe für R2b, neue Captures oder Veröffentlichung. |
+
+### S2: Erweiterter Split als verpflichtende TVF
+
+| Feld | Wert |
+|---|---|
+| ID | `S2`; Slice zu `TC-2026-032`, keine neue sequenzielle Referenz |
+| Zweck und Scope | `toolbelt_string.TVF_SplitAdvanced` nach `Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md`: mehrere Separatorstrings, Quote/Escape, Originaltokens, 1-basierte Ordinals und atomare Geschäftsfehlerzeile statt Teiltokens. |
+| Benutzerfreigabe | Nach Vertragsbesprechung und Konkretisierung in PR #114 am 2026-10-01 ausdrücklich mit „ja, entwickle das und mach anschließenden PR-Merge“ freigegeben; die vorangehende Frage benannte `TVF_SplitAdvanced` einzeln neben den zwei Regex-Funktionen. |
+| Status | `active`; Implementierung und Runtime-Nachweis ausstehend |
+| Grenzen | Pure-T-SQL-TVF; Inline-TVF-Alternative prüfen, MSTVF-Ausnahme technisch begründen. Input 65.536 UTF-16-Codeeinheiten, JSON-Rohtext 16.384, höchstens 16 Separatoren mit je 64 Codeeinheiten als zu validierende Grenzen. Fehlerpriorität, NULL-No-op, Originaltokens und fünf Resultspalten gemäß Vertrag. |
+| Tests | Quote/Escape/Longest-Match, JSON-/Konfigurations- und Parserfehler, Fehlerpositionen/-priorität, keine Teiltokens, Ordinals, NULL/Empty/Trailing Spaces, Unicode/Collations, Grenzwerte, CROSS APPLY, lokales/zentraltes Deployment, Wiederholung, Kollision und Uninstall. |
+| Nächster Schritt | Freigegebene TVF implementieren und scopebezogen testen. Optionale USP, Unquoting, ZIP-Erzeugung, Datei-I/O und tatsächliche Veröffentlichung sind nicht durch diese Freigabe autorisiert. |
+
 ### P1a: T-SQL Script Parser und AST-Provider
 
 | Feld | Wert |
