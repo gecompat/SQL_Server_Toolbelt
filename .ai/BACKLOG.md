@@ -209,6 +209,18 @@ Keine Lab-Infrastrukturverwaltung oder pauschale Matrix-/Kapazitätszusage.
 Ein Blocker hält andere freigegebene unabhängige Wellen nicht an.
 ZIP-Datei-I/O und weitere Reservefunktionen werden separat besprochen.
 
+### Testkonfiguration für die freigegebenen Wellen
+
+Benutzerfreigabe 2026-10-01: Zunächst wurden notwendige Parameteränderungen
+am Testziel ausdrücklich beauftragt. Nach Besprechung eines Konflikts durch
+ausstehende Serverkonfiguration bestätigte der Benutzer: „du kannst die
+Testsysteme so konfigurieren, wie du willst verfüge frei darüber“.
+Die kanonische Abgrenzung, Koordination, Sicherheits- und
+Wiederherstellungsregeln stehen in [AGENTS.md](../AGENTS.md#autorisierte-sql-testparameter).
+Dies ist eine Testkonfigurationsfreigabe, keine zusätzliche fachliche API,
+Veröffentlichungsfreigabe oder Lab-Infrastrukturverwaltung. Dieser Eintrag
+behauptet keinen ausgeführten Runtime-Test und keine erfolgte Konfigurationsänderung.
+
 ### TC-2026-032 / TC-2026-034: Freigegebene Unquoting-, Split-USP- und ZIP-Writer-Folgeslices
 
 | Feld | Wert |
