@@ -1,5 +1,7 @@
 # XLSX SAFE-/Memory-only-Qualifizierung
 
+Aktuelle öffentliche Adapterevidenz: `local: Tests/Runtime/Invoke-LabContract.ps1`, 2026-10-02, Linux 2019/latest und Windows 2025/CU8 erfolgreich. Begrenzte Framework-/NoIO-/IL-Prüfungen bleiben von tatsächlicher SQL-SAFE-Evidenz getrennt.
+
 ## Scope und Freigabe
 
 Die bedingte Benutzerfreigabe vom 2026-10-01 für
@@ -143,3 +145,12 @@ Am 2026-10-01 quellengeprüft. CAS ist kein allgemeiner moderner
 Security-Sicherheitsmechanismus. Ein Katalogwert `SAFE` oder Hashtrust allein
 beweist unter strict security keinen vollständigen NoIO-Schutz; deshalb sind
 Sandbox, API-Prüfung und tatsächlicher SQL-Hostaufruf getrennt erforderlich.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-10-02`
+- Nachweis: `local: Tests/Runtime/Invoke-LabContract.ps1`
+- Scope: Finaler identischer Fixadapter Linux 2019/latest und Windows 2025/CU8: unveränderte CLR-Binaries, vollständiger öffentlicher Vertrag, interne Help-Modi 0/1 mit NOT NULL-Metadaten, XLSX-/ZIP-Lifecycle-Callerablehnung OFF/ON und XLSX-SQLCMD50000; bekannte Restmatrix unverändert offen.
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

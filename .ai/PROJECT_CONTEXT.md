@@ -2,9 +2,11 @@
 
 ## Projektstatus
 
+`toolbelt.file.xlsx-memory` 1.0.0 implementiert die einzeln freigegebenen begrenzten Binary-Raw-Reader für Worksheetliste und sparse Zellen. Der eigene SAFE-/Memory-only-XML-Kern verwendet die technische ZIP-Fassade 1.4.0 ohne Parserkopie. Finale synthetische Adapter auf Linux 2019/latest und Windows 2025/CU8 erfolgreich; große Ceiling-/Rechte-/übrige Zielmatrix offen, teilweise validiert und unveröffentlicht. Typ-/Anzeige-Folgewellen gehören nicht zu diesem Raw-Vertrag.
+
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-33 Module sind implementiert. 21 sind `validated`, 12 sind `partially
+34 Module sind implementiert. 21 sind `validated`, 13 sind `partially
 validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 

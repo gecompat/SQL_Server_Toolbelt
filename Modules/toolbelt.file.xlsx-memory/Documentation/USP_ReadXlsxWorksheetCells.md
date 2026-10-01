@@ -60,4 +60,3 @@ EXEC toolbelt_file.USP_ReadXlsxWorksheetCells @Hilfe = 1;
 -- @SyntheticWorkbook stammt ausschließlich aus einem synthetischen Testfixture.
 EXEC toolbelt_file.USP_ReadXlsxWorksheetCells @XlsxBinary = @SyntheticWorkbook, @SheetOrdinal = 1;
 ```
-

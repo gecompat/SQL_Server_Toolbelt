@@ -1,5 +1,7 @@
 # XLSX-Vertragsqualifizierung
 
+Aktuelle Evidenz: `local: Tests/Runtime/Invoke-LabContract.ps1`, 2026-10-02; Linux 2019/latest und Windows 2025/CU8 erfolgreich nach finaler EOF-Formatpflege. Der Runtime-Endstand ist danach eingefroren; historische Nachweise bleiben getrennt datiert.
+
 Stand: 2026-10-01. Die Nachweise verwenden ausschließlich synthetische Workbooks. Keine Lab-Adressen, Zugangsdaten, Datenbanknamen oder Originalausgaben werden gespeichert.
 
 ## Reproduzierbare Befehle
@@ -30,3 +32,12 @@ Abschließender Fixnachweis 2026-10-02: dieselben beiden Labselektoren und unver
 Die [Testmatrix](XLSX_CONTRACT_TEST_MATRIX.md) trennt konkrete Nachweise von offenen Fällen. Nicht sämtliche konfigurierten numerischen Ceilings wurden als reale große Archive ausgeschöpft. Peak-RAM, Produktionskapazität, minimale EXECUTE-Rechte, sämtliche unterstützten SQL-/Plattformkombinationen und hosted CI wurden nicht qualifiziert. Das Modul bleibt teilweise validiert und unveröffentlicht. Eine gebaute Pipeline ist kein ausgeführter CI-Nachweis.
 
 Exakte SHA2-512-Werte werden in den reproduzierbaren, lokal erzeugten Release-/Trustmanifesten geführt; der CI-Gate vergleicht sie mit den qualifizierten Binaries. Das kooperative Parserbudget ist keine Garantie für SQL-Marshalling oder Gesamtwallclock.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-10-02`
+- Nachweis: `local: Tests/Runtime/Invoke-LabContract.ps1`
+- Scope: Finaler identischer Fixadapter Linux 2019/latest und Windows 2025/CU8: unveränderte CLR-Binaries, vollständiger öffentlicher Vertrag, interne Help-Modi 0/1 mit NOT NULL-Metadaten, XLSX-/ZIP-Lifecycle-Callerablehnung OFF/ON und XLSX-SQLCMD50000; bekannte Restmatrix unverändert offen.
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

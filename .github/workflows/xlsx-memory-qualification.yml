@@ -3,14 +3,14 @@ on:
   pull_request:
     paths:
       - "Modules/toolbelt.file.xlsx-memory/**"
-      - "Modules/toolbelt.archive.zip-memory/Clr/**"
+      - "Modules/toolbelt.archive.zip-memory/**"
       - "Spikes/XlsxMemory/**"
       - ".github/workflows/xlsx-memory-qualification.yml"
   push:
     branches: [main]
     paths:
       - "Modules/toolbelt.file.xlsx-memory/**"
-      - "Modules/toolbelt.archive.zip-memory/Clr/**"
+      - "Modules/toolbelt.archive.zip-memory/**"
       - "Spikes/XlsxMemory/**"
       - ".github/workflows/xlsx-memory-qualification.yml"
   workflow_dispatch:
@@ -59,4 +59,3 @@ jobs:
 # Dieser Workflow qualifiziert begrenzte Framework-/IL-Evidenz, keinen SQL-Host.
 # Öffentliche SAFE-/Lifecycle-/Clientverträge verwenden den dokumentierten,
 # schema-validierten lokalen Labadapter; kein fehlender SQL-Lauf wird behauptet.
-

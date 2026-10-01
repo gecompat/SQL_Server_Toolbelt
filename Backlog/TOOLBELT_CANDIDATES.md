@@ -1069,6 +1069,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 
 ## TC-2026-045: XLSX-Dateien direkt lesen
 
+> Umsetzung 2026-10-02: Die individuell bedingt freigegebenen Raw-APIs sind nach erfolgreichen begrenzten NoIO-/IL- und tatsächlichen SAFE-Gates als `toolbelt.file.xlsx-memory` 1.0.0 implementiert; kanonische ZIP-Dependency 1.4.0. Finale Adapter auf Linux 2019/latest und Windows 2025/CU8 erfolgreich. [Testmatrix](../Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md) führt offene Grenzen; Status teilweise validiert und unveröffentlicht. Die nachfolgende datierte Vorfreigabebesprechung ist historisch; aktuelle Raw-Freigabe und separat freigegebene Typ-/Anzeige-Folgefunktionen stehen in `.ai/BACKLOG.md`.
+
 > Scope-Entscheidung 2026-10-01: Binary-/Raw-/Text-/Cache-Reader als erste
 > Richtung bestätigt; Text bedeutet aufgelöste Strings, keine formatierte
 > Anzeige. Anzeigeformat, Styles, Culture und Datumsbehandlung sind
@@ -1088,15 +1090,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Nein. |
 | **Use-Case-Typ** | Realistisch, aber format- und ressourcenintensiv |
 | **Nutzen** | Freigegebene Workbooks könnten ohne installierte Excel-Anwendung in tabellarische, typisierte Resultsets überführt werden. |
-| **Mögliche Technologie** | Bevorzugt externer Worker oder Open XML SDK. Ein direkter ZIP/XML-Provider ist nur sinnvoll, wenn Shared Strings, Styles, Zelltypen, Formeln, Datumsmodi und Streaming vollständig kontrolliert werden. |
+| **Mögliche Technologie** | Raw-Slice: begrenzter eigener SAFE-XML-Kern und kanonische ZIP-Fassade; kein SDK oder externer Worker. Typ-/Style-/Anzeigeinterpretation bleibt getrennt freigegebener Folgescope, kein Voll-Excel-Reader-Versprechen. |
 | **Performance und Security** | ZIP-/XML-Bomben, externe Beziehungen, Formeln versus cached values, sehr große Shared-String-Tabellen, Styles, 1900/1904-Datumsmodus, Merge Cells, Hidden Sheets, Limits und untrusted input sind zu behandeln. Keine Makroausführung. |
 | **Plattformgrenzen** | Open XML SDK ist grundsätzlich plattformfähig; Provider, Dateizugriff und Runtimeversion benötigen eigene Windows-/Linux-Evidenz. |
 | **Dependencies** | Optional `TC-2026-033`/`TC-2026-034` für einen internen Containerprovider und `TC-2026-037` für pfadbasierte Eingaben; keine erzwungene Dependency bei SDK-/Worker-Provider. |
 | **Duplikatprüfung** | CSV/Delimited Parsing und ein XLSX Writer sind getrennte Capabilities. Dieser Kandidat liest ausschließlich XLSX. |
-| **Status** | `researched` |
+| **Status** | `implemented`; Raw-Slice Runtime `partially validated`, `unreleased`; Typ-/Anzeige-Folgeslices separat freigegeben |
 | **Primärquellen** | [Research-Inbox `RI-2026-116`](./TOOLBELT_RESEARCH_INBOX.md)<br>https://learn.microsoft.com/en-us/openspecs/office_standards/ms-xlsx/2c5dee00-eff2-4b22-92b6-0738acd4475e<br>https://learn.microsoft.com/en-us/office/open-xml/open-xml-sdk |
 | **Prüfdatum** | 2026-09-11 |
-| **Nächster Schritt** | Die [Architekturvorbereitung](../Documentation/Architecture/XLSX_READER_PROPOSAL.md) empfiehlt Binary-only-Eingabe und ein normalisiertes Zellresultat. Provider, Limits, Datums- und Formelvertrag bleiben Teil der konkreten Funktionsbesprechung. |
+| **Nächster Schritt** | Raw-Slice ist abgeschlossen. Separat freigegebene Typ-/Anzeige-Funktionen gemäß `.ai/BACKLOG.md` im Nachfolgechat konkretisieren; offene Raw-Qualifikation gemäß Testmatrix, keine neue Welle in diesem Abschlusschat. |
 
 ## TC-2026-046: Provider-Abstraktion für kontrollierte zweite SQL-Sessions
 

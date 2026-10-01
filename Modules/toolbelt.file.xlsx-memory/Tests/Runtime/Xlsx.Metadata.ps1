@@ -86,4 +86,3 @@ function Test-XlsxMetadata {
  }
  'PASS: XLSX SQLClient SELECT field order/types/nullability/max, actual omitted defaults, public/internal Help modes and no extra resultsets/messages.'
 }
-

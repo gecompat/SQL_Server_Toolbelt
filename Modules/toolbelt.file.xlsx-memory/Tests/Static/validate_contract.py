@@ -52,4 +52,3 @@ for token in ("sp_configure", "TRUSTWORTHY ON", "GRANT ", "WITH OVERRIDE"):
 assert "ZipProviderException" not in provider, "Keine Kopplung an privaten ZIP-Fehlertyp."
 assert not (repo / "Spikes/XlsxMemory/XlsxQualification.cs").exists(), "Kein duplizierter Workbookkern."
 print("PASS: XLSX struktureller Source-/Compiler-/Lifecycle-/Dependencyvertrag; keine Runtimebehauptung.")
-

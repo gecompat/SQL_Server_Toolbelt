@@ -1,5 +1,7 @@
 # XLSX Binary Memory Reader
 
+Aktuelle Evidenz: `local: Tests/Runtime/Invoke-LabContract.ps1`, 2026-10-02, Linux 2019/latest und Windows 2025/CU8; begrenzter synthetischer vollständiger Adapter erfolgreich, offene Matrixfälle bleiben offen.
+
 Release 1.0.0 stellt zwei ausdrücklich freigegebene öffentliche USPs bereit:
 
 - `toolbelt_file.USP_ListXlsxWorksheets`: Worksheet-Reihenfolge, Name, Visibility und Date1904.
@@ -53,3 +55,11 @@ Erwartete Input-/XML-/Container-/Feature-/Ressourcenfehler liefern intern eine S
 
 Der aktuelle qualifizierte Scope steht in [Tests/README.md](Tests/README.md) und [Testmatrix](Tests/XLSX_CONTRACT_TEST_MATRIX.md). NoIO-Evidenz besteht aus adversarialem begrenztem Framework-Sandboxlauf, positiver IL/API-Allowlist und tatsächlichem SAFE-Hostlauf, nicht aus einer behaupteten vollständigen OS-Syscall-Beobachtung. Produktionsworkbooks, vollständige Peakmessung und nicht ausgeführte Matrixfälle bleiben offen.
 
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-10-02`
+- Nachweis: `local: Tests/Runtime/Invoke-LabContract.ps1`
+- Scope: Finaler identischer Fixadapter Linux 2019/latest und Windows 2025/CU8: unveränderte CLR-Binaries, vollständiger öffentlicher Vertrag, interne Help-Modi 0/1 mit NOT NULL-Metadaten, XLSX-/ZIP-Lifecycle-Callerablehnung OFF/ON und XLSX-SQLCMD50000; bekannte Restmatrix unverändert offen.
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

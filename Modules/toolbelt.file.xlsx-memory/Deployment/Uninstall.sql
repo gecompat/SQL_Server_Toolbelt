@@ -52,4 +52,3 @@ BEGIN CATCH
 END CATCH;
 GO
 -- Die kanonische ZIP-Dependency und instanzweiten Trust-Hashes bleiben bewusst erhalten.
-

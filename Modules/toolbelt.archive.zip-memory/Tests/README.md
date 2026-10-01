@@ -1,5 +1,7 @@
 # Tests – ZIP Memory CLR Inspection
 
+Release 1.4, 2026-10-02: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1` auf Linux 2019/latest und Windows 2025/CU8 erfolgreich. Qualifiziert sind echte ZIP-1.3-Assemblyhash-Upgrades, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende Deploy-/Uninstall-Callerablehnung OFF/ON. Unabhängige Writer-Frameworksuite erneut erfolgreich; bekannte übrige Matrix bleibt offen.
+
 ## Writer 1.3.0 (2026-10-01)
 
 `powershell -File Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Framework.ps1 -AssemblyPath .runtime/zip-memory-release/Toolbelt.Archive.ZipMemory.dll` prüft das echte Framework-Binary mit unabhängigem ZipArchive-, CRC- und Header-Oracle. Enthalten sind ein leerer Method-8-Entry, Stored-Identität, ungültige Envelopes, Namen und parallele Aufrufe. Synthetisch werden tatsächlich 32 MiB je Entry, 128 MiB Gesamtpayload, 1024 Entries und 2048 UTF-16-Codeeinheiten je Name gemeinsam verarbeitet. Die eigenständigen Budgetcaps für 136 MiB Envelope und 144 MiB Output werden als Parameterceilings akzeptiert; der maximale gültige Input bleibt darunter. Exakte Auslastung dieser beiden Caps wird nicht behauptet.
@@ -58,8 +60,8 @@ Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/3270189645
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
-- Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; reproduzierbar gebautes und per exaktem SHA2-512 autorisiertes Releaseartefakt; reale Archive, Extremgrößen, historische Upgrades und Interoperabilität bleiben offen
+- Datum: `2026-10-02`
+- Nachweis: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1`
+- Scope: Release 1.4.0: finaler identischer Linux-2019-/Windows-2025-CU8-Adapter nach EOF-Pflege; echte ZIP-1.3-Assemblyhash-Upgradefixture, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende ZIP-Deploy/Uninstall-Callerablehnung OFF/ON. Unabhängige Framework-Writerregression erneut erfolgreich; übrige Kapazitäts-/Plattformmatrix offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

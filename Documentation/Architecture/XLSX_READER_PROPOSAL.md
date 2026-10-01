@@ -19,7 +19,9 @@ beschriebenen Scope erfolgreich. Der tatsächliche interne SAFE-Hostnachweis
 ist auf SQL Server 2019 Linux und SQL Server 2025 Windows erfolgreich; nach
 diesem Gate entstanden die beiden freigegebenen öffentlichen Reader-USPs im
 Modul toolbelt.file.xlsx-memory. Öffentliche Vertrags-, Metadaten- und
-Lifecyclequalifizierung läuft getrennt vom begrenzten Gate. Die
+Lifecyclequalifizierung erfolgte getrennt vom begrenzten Gate. Der abschließende
+identische Adapter auf Linux 2019/latest und Windows 2025/CU8 ist am 2026-10-02
+erfolgreich, einschließlich Caller-Safety- und Help-Metadatenfixes. Die
 nachfolgenden Vorfreigabeaussagen bleiben als historische Entscheidungsgrundlage
 erhalten und ersetzen diesen datierten Aktivierungsnachtrag nicht.
 

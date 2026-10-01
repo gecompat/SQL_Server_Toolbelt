@@ -34,4 +34,3 @@ RETURNS TABLE
 )
 AS EXTERNAL NAME [Toolbelt_File_XlsxMemory].[Toolbelt.Xlsx.Qualification.XlsxEntryPoints].[ListSheets];
 GO
-

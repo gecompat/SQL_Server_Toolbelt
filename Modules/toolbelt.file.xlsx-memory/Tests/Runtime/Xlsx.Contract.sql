@@ -151,4 +151,3 @@ DROP TABLE #Checked;
 DROP TABLE #Wrong;
 DROP TABLE #Cells;
 DROP TABLE #Sheets;
-

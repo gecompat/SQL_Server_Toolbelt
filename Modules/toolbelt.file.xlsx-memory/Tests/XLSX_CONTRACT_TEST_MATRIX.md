@@ -1,5 +1,7 @@
 # XLSX-Testmatrix
 
+Aktuelle Evidenz: `local: Tests/Runtime/Invoke-LabContract.ps1`, 2026-10-02; Linux 2019/latest und Windows 2025/CU8 erfolgreich nach finaler EOF-Formatpflege.
+
 Stand: 2026-10-01; synthetische Fixtures, kein Produktionsdaten-Nachweis.
 
 Fixnachweis 2026-10-02: vollständiger identischer Adapter auf Linux 2019/latest und Windows 2025/CU8 erneut PASS, einschließlich interner Help-Modi 0/1, XLSX-/ZIP-Lifecycle-Callerablehnung bei XACT_ABORT OFF/ON und XLSX-SQLCMD-Fehlerstatus 50000. CLR-Binaries gegenüber den historischen Pässen unverändert. Die nachfolgenden offenen Matrixfälle bleiben offen.
@@ -29,3 +31,12 @@ Fixnachweis 2026-10-02: vollständiger identischer Adapter auf Linux 2019/latest
 Die als Windows-PASS aufgeführten öffentlichen Adapterfälle wurden abschließend mit identischem Binary auch auf Linux 2019/latest erfolgreich ausgeführt, einschließlich local/central/cross-database und der tatsächlichen ZIP-1.3-Upgradefixture. Die Framework-Prüfungen bleiben Framework-Evidenz, keine zusätzlichen SQL-Live-Ceilingmessungen.
 
 Der 128-MiB-Chargecap ist eine interne konservative Zählgrenze, kein vollständiger Speicherpeak. Outputstrings zählen vier Bytes je UTF-16-Codeeinheit und wiederholte Referenzen erneut. Nicht unterbrechbare Framework-/SQL-Operationen liegen außerhalb einer harten Zeitgarantie.
+
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-10-02`
+- Nachweis: `local: Tests/Runtime/Invoke-LabContract.ps1`
+- Scope: Finaler identischer Fixadapter Linux 2019/latest und Windows 2025/CU8: unveränderte CLR-Binaries, vollständiger öffentlicher Vertrag, interne Help-Modi 0/1 mit NOT NULL-Metadaten, XLSX-/ZIP-Lifecycle-Callerablehnung OFF/ON und XLSX-SQLCMD50000; bekannte Restmatrix unverändert offen.
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

@@ -52,4 +52,3 @@ EXEC toolbelt_file.USP_ListXlsxWorksheets @Hilfe = 1;
 -- @SyntheticWorkbook stammt ausschließlich aus einem synthetischen Testfixture.
 EXEC toolbelt_file.USP_ListXlsxWorksheets @XlsxBinary = @SyntheticWorkbook;
 ```
-
