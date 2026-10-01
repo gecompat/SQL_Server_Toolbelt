@@ -6,6 +6,66 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### Folgewellen: Capture-Replace, XLSX-Interpretation und unscharfer Textvergleich
+
+Benutzerentscheidungen 2026-10-01: Der Benutzer verlangt sämtliche
+Capture-Wiederholungen statt nur der letzten Capture je Gruppe. Die separat
+besprochene gruppenbezogene Replace-Erweiterung mit `$1`, `${Name}` und `$$`
+wurde ausdrücklich mit „ja“ bestätigt. Bestehendes literal Replacement
+bleibt davon getrennt und unverändert.
+
+Für XLSX wurde die Reihenfolge bestätigt: Typinterpretation als eigene
+Funktionen, danach Anzeigeformatierung. Der vorgeschlagene erste
+Formatierungsumfang wurde mit „ja“ bestätigt: Zahlen, Prozent,
+wissenschaftliche Schreibweise, Datum/Uhrzeit und Text, ausdrücklich
+gewählte Culture; keine Farben, bedingte Formatierung, Layoutauswertung oder
+Formelberechnung. Dies erweitert nicht stillschweigend die aktiven Raw-Reader.
+
+Für unscharfen Textvergleich beauftragte der Benutzer Levenshtein,
+Transposition und phonetischen Vergleich für Deutsch und Englisch.
+Zuerst sind zwei getrennte Distanzfunktionen vorgesehen: Levenshtein und
+eine exakt definierte Variante mit benachbarter Transposition. Hauptzweck
+sind Namen und kurze Bezeichnungen; längere Texte müssen ebenfalls
+berücksichtigt werden, gegebenenfalls über eine getrennte Variante.
+
+#### Individuell freigegebener Textvergleichsvertrag
+
+Implementierungsfreigabe 2026-10-01: Auf die ausdrückliche Frage
+„Passt dieser Vertrag einschließlich Longtext-Verhalten und Phonetikverfahren
+für die Implementierung?“ antwortete der Benutzer „ja“. Die vier getrennten
+Funktionen sind damit einzeln freigegeben, zuerst die beiden Distanzen,
+danach die beiden sprachbezogenen Phonetikverfahren:
+
+- Levenshtein: Einfügen, Löschen und Ersetzen kosten jeweils 1.
+- Optimal String Alignment (OSA): zusätzlich benachbarte Transposition
+  für 1; eingeschränkte Variante, kein uneingeschränktes Damerau-Levenshtein.
+- Unicode-Zeichen statt Bytes; Standard exakt und case-sensitive. Keine
+  automatische Entfernung von Akzenten, Leerzeichen oder Satzzeichen.
+  Optionale Normalisierung nur ausdrücklich gewählt und dokumentiert.
+- Dieselben Distanzfunktionen mit Standard-/Large-Profil, ohne Abschneiden.
+  Optionaler MaxDistance-Parameter: oberhalb der Schwelle ausdrücklich
+  „größer als Grenze“, kein erfundener exakter Abstand. Rechenaufwand
+  begrenzt; Ressourcenüberschreitung Fehler, keine stille Näherung.
+  Konkrete Grenzen durch synthetische Tests qualifizieren und dokumentieren.
+- Deutsch: Kölner Phonetik. Englisch: Double Metaphone mit primärem und
+  alternativem Code. Verfahren/Sprache ausdrücklich wählen, keine
+  automatische Spracherkennung; Phonetik getrennt von Editierdistanz.
+- Öffentliche Namen, Parameter-/Ergebnistypen, NULL-/Fehlersemantik und
+  technische Ressourcenprüfung innerhalb dieses Scopes vor Sourceumsetzung
+  schriftlich konkretisieren. Keine zusätzliche fachliche API oder
+  unbesprochene Normalisierungsoption ableiten; neue fachliche Entscheidung
+  rückfragen. Standardprojektgates, unabhängiger Review, scopebezogene
+  Lab-Tests, grüne CI und PR-Merge gelten unverändert.
+
+Status Textvergleich: `ready for development`; keine Runtime-Evidenz.
+Für Capture-/Replacement-Fehlerfälle, XLSX-Typ-/Styletransport und die
+unterstützte Formatgrammatik sind konkrete Einzelverträge weiterhin
+nachvollziehbar zu vervollständigen und erforderliche Entscheidungen zu
+besprechen. Deren Scopebestätigung ist nicht mit der obigen konkreten
+Textvergleichsfreigabe zu verwechseln.
+Keine neue Runtime-Implementierung oder Testevidenz durch diesen Eintrag;
+unabhängige bereits freigegebene Wellen laufen weiter.
+
 ### TC-2026-034 / TC-2026-039 / TC-2026-040 / TC-2026-042 / TC-2026-044: Freigegebene Reservewellen
 
 Benutzerfreigabe 2026-10-01: Nach der Einzelbesprechung der beiden
