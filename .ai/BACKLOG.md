@@ -271,15 +271,27 @@ beiden Rändern, sonst Fehler; verschiedene öffnende/schließende Delimiter
 sind zulässig. `[` oder `]` wählt `[]`. Automatische Erkennung lässt
 unvollständige apparent Quotation wie `“Hallo` unverändert; verdoppelte
 schließende Qualifier werden nur im vollständig außen gequoteten Inneren
-aufgelöst. Keine globale Quoteentfernung/Normalisierung. Auto-Kandidatenliste
-und malformed Innenbehandlung bleiben offen; konkrete neue Vorschläge sind
-keine Entscheidungen. Dies ersetzt die zuvor offenen Randregeln.
+aufgelöst. Keine globale Quoteentfernung/Normalisierung. Zu diesem
+historischen Stand waren Auto-Kandidatenliste und malformed Innenbehandlung
+noch offen; die nachfolgende Bestätigung ersetzt diese offenen Punkte.
+Die Präzisierung ersetzt die zuvor offenen Randregeln.
 Weitere Präzisierung 2026-10-01: Ein zusätzlicher Backslash-Escape-Modus
 benötigt einen expliziten Opt-in-Parameter; ohne Opt-in bleibt Backslash
 literal. Doubled closing Qualifier bleiben getrennte Quoting-Semantik,
-kein impliziter globaler Escape-Modus. Parametername und konkrete
-Backslash-Dekodierungsregeln, Auto-Paarliste und malformed Innenbehandlung
-bleiben offen; keine Implementierungsfreigabe und keine S2-Vertragsänderung.
+kein impliziter globaler Escape-Modus. Die damals offene Dekodierung wird
+nachfolgend konkretisiert; keine Implementierungsfreigabe oder S2-Änderung.
+Weitere Nutzerbestätigung 2026-10-01 „so wie du vorschlägst!“: Auto-Paare
+ASCII doppelt/einfach, `[]`, `“…”` (U+201C/U+201D), `„…“`
+(U+201E/U+201C); nur vollständige äußere Paare entfernen, sonst unverändert,
+nicht trimmen. Im Inneren doubled closing Delimiter dekodieren; einzelnes
+unescaped closing Zeichen ist Fehler (`[a]]b]` → `a]b`,
+`[a]b]` → Fehler). Opt-in-Backslash dekodiert nur Backslash vor aktivem
+Quotezeichen und `\\`; kein `\n`/`\t`/Unicode-Escape, andere Folgen
+bleiben unverändert. Ohne Opt-in Backslash literal. Öffentliche Signatur,
+Parametername, Result-/Fehlervertrag und Inputlimits sind weiterhin
+Vorschläge; Rand-/Escapepriorität und aktive Quotezeichenmenge bei
+asymmetrischen Paaren noch zu präzisieren. Die bestätigte Semantik ist
+keine ausdrückliche konkrete Funktionsimplementierungsfreigabe.
 `USP_SplitAdvanced` soll ergänzend vorgesehen werden und führt kein
 automatisches Unquoting aus. Die Split-TVF bleibt Pflicht.
 Die [konkreten Folgeslice-Vorschläge](../Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md#beschlossene-folgescope-grenzen-vom-2026-10-01)

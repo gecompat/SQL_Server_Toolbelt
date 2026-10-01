@@ -53,19 +53,55 @@ dekodiert. Beim Paar `[]` wird also ein inneres `]]` zu `]`.
 Dies ist keine rekursive Paarentfernung, globale Quoteentfernung oder
 Whitespace-/Textnormalisierung.
 
-Die vollständige Auto-Kandidatenliste und die Behandlung malformed innerer
-Qualifier bleiben offen. Konkrete Kandidatenpaare, Fehler für einzelne
-innere schließende Delimiter wurden nur
-vorgeschlagen, noch nicht vom Benutzer beschlossen. Keine implizite
-Übernahme dieser Vorschläge in eine Implementierung.
+Historischer Besprechungsstand vom 2026-10-01 vor der nachfolgenden
+Bestätigung: Auto-Kandidatenliste, malformed Innenbehandlung und konkrete
+Backslash-Dekodierung waren noch offen. Dieser Stand wird durch die unten
+datierte Nutzerbestätigung ersetzt, nicht als Implementierungsfreigabe
+umgedeutet.
 
 Weitere Nutzerpräzisierung vom 2026-10-01: Ein zusätzlicher Backslash-Escape-
 Modus benötigt einen expliziten Opt-in-Parameter; er darf nicht automatisch
 aktiv sein. Ohne dieses Opt-in bleibt Backslash literal. Die Auflösung
 verdoppelter schließender Qualifier ist davon getrennte Quoting-Semantik
-und aktiviert keinen globalen Escape-Modus. Parametername und konkrete
-Backslash-Dekodierungsregeln bleiben offen; daraus entsteht keine
+und aktiviert keinen globalen Escape-Modus. Der damals offene
+Dekodierungsumfang wird nachfolgend konkretisiert; Parametername bleibt offen.
+Daraus entsteht keine
 Implementierungsfreigabe oder Änderung des bestehenden S2-Escape-Vertrags.
+
+Weitere Semantikbestätigung vom 2026-10-01: Auf die drei konkreten
+Empfehlungen zu Auto-Paaren, Innenbehandlung und Opt-in-Backslash antwortete
+der Benutzer „so wie du vorschlägst!“. Damit sind folgende Regeln bestätigt,
+jedoch keine konkrete öffentliche Funktionsimplementierung freigegeben:
+
+| Auto-Paar | Öffnender Delimiter | Schließender Delimiter |
+|---|---|---|
+| ASCII doppelt | `"` U+0022 | `"` U+0022 |
+| ASCII einfach | `'` U+0027 | `'` U+0027 |
+| Eckige Klammern | `[` U+005B | `]` U+005D |
+| Typografisch | `“` U+201C | `”` U+201D |
+| Deutsch typografisch | `„` U+201E | `“` U+201C |
+
+Auto entfernt genau ein vollständiges, passendes äußeres Paar aus dieser
+Liste; sonst bleibt der Input unverändert. Es wird nicht getrimmt.
+Die Innenbehandlung dekodiert verdoppelte schließende Delimiter;
+ein einzelner unescaped schließender Delimiter im Inneren ist Fehler:
+`[a]]b]` ergibt `a]b`, `[a]b]` ergibt einen Fehler.
+Die Regel für expliziten Qualifier bleibt strenger: fehlende oder
+unpassende äußere Delimiter sind dort Fehler, nicht unveränderte Ausgabe.
+
+Der explizit aktivierte zusätzliche Backslash-Modus dekodiert ausschließlich
+Backslash vor aktivem Quotezeichen sowie `\\` zu einem Backslash.
+Keine `\n`-/`\t`-/Unicode-Escapeinterpretation; andere
+Backslashfolgen bleiben unverändert. Ohne Opt-in ist Backslash literal.
+Doubled closing Delimiter bleiben getrennte Quoting-Semantik, kein
+impliziter globaler Escape-Modus.
+
+Noch vor einer Implementierung zu präzisieren: öffentliche Signatur und
+Parametername, Result-/Fehlervertrag, Inputlimits sowie Priorität zwischen
+äußerer Randprüfung und Escapeinterpretation, wenn das letzte schließende
+Zeichen escaped erscheint. Auch die genaue Menge aktiver Quotezeichen für
+Backslash bei asymmetrischen Paaren wird nicht stillschweigend festgelegt.
+Dies sind sichtbare Restpunkte, keine neue Semantikentscheidung.
 
 Vorgeschlagen: BIN2-Vergleich, NULL-No-op, 65.536-Codeunit-Inputgrenze und atomare
 Errorrow-Form wie S2. Whitespace wird nicht getrimmt; ein reines Paar ergibt
