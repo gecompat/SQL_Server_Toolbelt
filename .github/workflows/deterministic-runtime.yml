@@ -1,0 +1,50 @@
+name: Deterministic Mapping Runtime
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/deterministic-runtime.yml"
+      - "Modules/toolbelt.pseudonymization.deterministic/module.yaml"
+      - "Modules/toolbelt.pseudonymization.deterministic/Source/**"
+      - "Modules/toolbelt.pseudonymization.deterministic/Deployment/**"
+      - "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/**"
+      - "Modules/toolbelt.pseudonymization.deterministic/Tests/Static/**"
+      - "Tests/CI/run-deterministic-linux.sh"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/deterministic-runtime.yml"
+      - "Modules/toolbelt.pseudonymization.deterministic/module.yaml"
+      - "Modules/toolbelt.pseudonymization.deterministic/Source/**"
+      - "Modules/toolbelt.pseudonymization.deterministic/Deployment/**"
+      - "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/**"
+      - "Modules/toolbelt.pseudonymization.deterministic/Tests/Static/**"
+      - "Tests/CI/run-deterministic-linux.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deterministic-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime:
+    name: SQL Server ${{ matrix.sql-version }} Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        sql-version: ["2019", "2022", "2025"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Statische deterministische Verträge prüfen
+        run: python3 Modules/toolbelt.pseudonymization.deterministic/Tests/Static/validate_contract.py
+      - name: Synthetische API-, Ressourcen- und Lifecycle-Verträge prüfen
+        env:
+          TBX_SQL_VERSION: ${{ matrix.sql-version }}
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest
+        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-deterministic-linux.sh

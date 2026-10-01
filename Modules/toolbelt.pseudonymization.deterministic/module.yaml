@@ -1,0 +1,113 @@
+module_id: "toolbelt.pseudonymization.deterministic"
+module_name: "Deterministic Synthetic Mapping"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Versionierter deterministischer bigint-Range, datetime2-Tagesoffset und synthetischer Pool-Lookup."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "not executed"
+  linux: "partially validated"
+providers:
+  - id: tsql-inline
+    technology: "T-SQL Inline TVF und USP"
+    platforms: [Windows, Linux]
+    status: "partially validated"
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies:
+  - module_id: "toolbelt.core.result-table"
+    min_version: "1.0.0"
+    location: same_database
+schemas:
+  - "toolbelt_pseudonymization"
+objects:
+  - type: TVF
+    schema: toolbelt_pseudonymization
+    name: TVF_DeterministicIntegerBytes
+    visibility: internal
+  - type: TVF
+    schema: toolbelt_pseudonymization
+    name: TVF_DeterministicRangeCore
+    visibility: internal
+  - type: TVF
+    schema: toolbelt_pseudonymization
+    name: TVF_DeterministicRange
+    visibility: public
+  - type: TVF
+    schema: toolbelt_pseudonymization
+    name: TVF_DeterministicDateShift
+    visibility: public
+  - type: USP
+    schema: toolbelt_pseudonymization
+    name: USP_DeterministicLookupCore
+    visibility: internal
+  - type: USP
+    schema: toolbelt_pseudonymization
+    name: USP_DeterministicLookup
+    visibility: public
+permissions_required: ["SELECT auf öffentlichen Inline-TVFs", "EXECUTE auf Lookup, ResultTable zusätzlich Helper-EXECUTE", "DDL-Rechte für Lifecycle"]
+collation_contract: "Key binär, keine Normalisierung; technisches Hex BIN2; Pooltext unverändert, Result NVARCHAR Latin1_General_100_BIN2."
+data_type_contract: "Key varbinary(max) bis 8000 Byte, volle bigint-Grenzen, datetime2(7), Pool Unicode."
+help_contract_version: "1.0"
+resultset_contracts:
+  - name: TVF_DeterministicRange
+    columns: ["Value bigint NULL", "ErrorCode int NOT NULL"]
+  - name: TVF_DeterministicDateShift
+    columns: ["Value datetime2(7) NULL", "ErrorCode int NOT NULL"]
+  - name: USP_DeterministicLookup
+    columns: ["InputOrdinal bigint NOT NULL", "LookupOrdinal bigint NULL", "Value nvarchar(max) NULL"]
+business_error_range: "54000-54009"
+lifecycle_error_range: "54020-54029"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: SQLCMD
+  release_manifest: "Deployment/ReleaseManifest.sql"
+  source_hash_role: diagnostic_only
+documentation:
+  module: README.md
+  public_objects:
+    - Documentation/TVF_DeterministicRange.md
+    - Documentation/TVF_DeterministicDateShift.md
+    - Documentation/USP_DeterministicLookup.md
+  architecture:
+    - ../../Documentation/Architecture/PSEUDONYMIZATION_FOUNDATION_PROPOSAL.md
+    - ../../Documentation/Architecture/DATE_SHIFTING_PROPOSAL.md
+  test_matrix:
+    - "Tests/CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: Tests/Static/validate_contract.py
+  runtime: Tests/Runtime/
+  contract: Tests/Runtime/Range.Contract.sql
+  lifecycle: Tests/Runtime/Lifecycle.Contract.sql
+  central: Tests/Runtime/Central.Contract.sql
+  github_hosted_linux: ../../.github/workflows/deterministic-runtime.yml
+validation_evidence:
+  - date: "2026-10-01"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Historischer Vor-Safetyfix-Stand: SQL Server 2019 Linux/latest CL150; API/Grenzen/Local/Central/Lifecycle; kein Nachweis der späteren Compilergrenzen- und Callertransaction-Guard-Fixes"
+    result: "success"
+  - date: "2026-10-02"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Finaler Safetyfix-Adapter SQL Server 2019 Linux/latest CL150; API/Fehler/Grenzen/Transaktionen, vier Caller-Temp-Eclipsing/Help-Fixtures, Installer-Callertransaction ON/OFF und SQLCMD-nonzero, Local-CS/Central-BIN2, administrative CrossDB-CI, direkte Minimalrechte und Clientmetadaten lokal/zentral, Wiederholung/Drift/Kollision/Dependency/Uninstall; finaler Windowsbaum und weitere physische Targets offen"
+    result: "success"
