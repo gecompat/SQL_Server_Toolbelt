@@ -148,11 +148,59 @@ Lab-Tests, erforderliche grüne CI und PR-Merge gelten unverändert.
 Zusätzlicher Benutzerauftrag 2026-10-01: „berücksichtige aber auch
 CLR-Aggregate zusätzlich!“ Deshalb portable SQL-CLR-JSON-Array-/Object-
 Aggregate ergänzend zu den USPs ausarbeiten, nicht durch diese ersetzen.
-Status CLR-Aggregate: Vertragsvorbereitung; keine erfundene Einzel-
-Implementierungsfreigabe vor Besprechung von Eingabe, expliziter Reihenfolge,
-NULL-/Duplicate-Regeln, serialisiertem Zustandslimit, SAFE-/Trust-/Naming-
-Vertrag und anschließender konkreter Bestätigung. Kein SDK-/Workerfallback,
-keine Rechteausweitung. Die bestehenden freigegebenen Wellen laufen weiter.
+Nach anschließender Einzelbesprechung bestätigte der Benutzer am 2026-10-01
+ausdrücklich „ja, freigegeben“ zur Implementierung der beiden Aggregate
+einschließlich Namenskonvention und gemeinsamer Kernumstellung:
+
+- `AGF_JsonArray` und `AGF_JsonObject` sind echte, direkt in SELECT/GROUP BY
+  verwendbare JSON-Aggregate; Namenskonvention `AGF_{CamelCase}` für diese
+  Objektart ausdrücklich freigegeben und im Namingstandard zu verankern.
+- Eingaben explizite Ordinal, ValueKind, Value; Object zusätzlich Key.
+  Reihenfolge nur über Ordinal, niemals SQL-Verarbeitungsreihenfolge.
+  Doppelte Ordinals Fehler. Bestehende JSON-Regeln: explizites JSON-null,
+  doppelte Object-Keys Fehler. Ergebnis nvarchar(max), leere Aggregation
+  [] beziehungsweise {}.
+- Begrenzte Profile für Einträge, Ergebnis und serialisierten Zwischenzustand
+  je Gruppe; kein Unlimited und keine globale Speicherzusage über alle Gruppen.
+- SAFE, memory-only, keine Datei-/Netzwerkzugriffe. Windows-/Linux-
+  Qualifikation einschließlich Merge und Serialisierung von Teilzuständen.
+- Gemeinsamer kanonischer JSON-Kern für Aggregate und Konstruktoren;
+  erforderliche interne Kernumstellung mit vollständigen Regressionstests,
+  öffentliche USP-Verträge unverändert. Kein zweiter ungeprüfter Escapingkern.
+- Konkrete Typen/Profile/NULL-/Fehlerprioritäten und serialisierte Zustands-
+  kodierung vor Sourceumsetzung dokumentieren, Grenzen synthetisch qualifizieren.
+  Kein SDK-/Workerfallback, keine Rechteausweitung oder Veröffentlichung.
+
+Status CLR-Aggregate: `ready for development`; keine Runtime-Evidenz.
+Die bestehenden freigegebenen Wellen laufen unabhängig weiter.
+
+### Individuell freigegebene Tabellenklon-Ausbauwellen 1 und 2
+
+Benutzerfreigabe 2026-10-01: Nach Besprechung des begrenzten Script-only-V1
+und der folgenden Ausbaustufen bestätigte der Benutzer die ausdrückliche
+Empfehlung, Wellen 1 und 2 als Nächstes konkret freizugeben, mit
+„ja, das passt so“. Keine Freigabe für Trigger, automatische Ausführung,
+Datenkopie oder beliebige weitere Objektklassen.
+
+- Welle 1: bestehende Script-only-Tabellenstruktur erweitern um berechnete
+  Spalten einschließlich PERSISTED, gefilterte Rowstore-Indizes und optional
+  Extended Properties. Nicht unterstützte Eigenschaften sichtbar ablehnen,
+  niemals stillschweigend weglassen. Keine Scriptausführung durch die API.
+- Welle 2: Foreign Keys und mehrere zusammengehörige Tabellen mit expliziter
+  Quell-/Zieltabellenzuordnung. Beziehungen zwischen geklonten Tabellen und
+  Selbstreferenzen zeigen auf neue Ziele. Referenzen auf nicht geklonte
+  Tabellen bleiben nur bei ausdrücklich gewählter Regel bestehen. Erst
+  Tabellen, dann Foreign Keys skripten, auch zyklische Beziehungen beachten.
+- Vor Sourceumsetzung konkrete Parameter, Mappingtransport, Ergebnisordinals,
+  Typ-/Index-/Propertygrenzen und FK-Regeln innerhalb dieses Scopes schriftlich
+  konkretisieren; neue fachliche Entscheidungen rückfragen. Keine stillschweigende
+  CrossDB-, Trigger-, Permissions-, Spezialtabellen- oder Mutationsausweitung.
+- Bestehenden Klonkern wiederverwenden; V1 zuerst unabhängig prüfen und
+  integrieren. Erweiterungen in getrennten überprüfbaren Wellen mit synthetischen
+  Strukturoracles, scopebezogenen Lab-Tests und grünen PR-Merges integrieren.
+
+Status: `ready for development`; keine Implementierungs-/Runtime-Evidenz
+für die beiden Ausbauwellen.
 
 ### TC-2026-034 / TC-2026-039 / TC-2026-040 / TC-2026-042 / TC-2026-044: Freigegebene Reservewellen
 
