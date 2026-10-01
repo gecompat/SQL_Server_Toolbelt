@@ -6,7 +6,13 @@ V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
 ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
 Windows- und modulspezifische Fälle bleiben unberührt.
 
-## Aktueller Stand
+## Evidenzhistorie
+
+Die Einschränkungen der datierten Einträge beschreiben den jeweiligen
+damaligen Stand. Die physischen Windows-/Linux-Plattformlücken für SQL Server
+2019, 2022 und 2025 wurden durch den im Modulmanifest dokumentierten Nachweis
+vom 2026-09-01 geschlossen. Die breitere
+Very-large-series-Performance-Evidenz bleibt offen.
 
 | Datum | Prüfung | Scope | Ergebnis | Einschränkung |
 |---|---|---|---|---|
@@ -14,9 +20,10 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 | 2026-07-30 | [Generate-Series Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/generate-series-runtime.yml) | Workflow, statische und Runtime-Contract-Artefakte angelegt | `not executed` | Ein vorhandener Workflow ist kein Runtime-Nachweis |
 | 2026-07-30 | [Generate-Series Runtime Run 30496759324](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30496759324) | SQL Server 2025 Linux; Compatibility Levels 150/160/170; Semantik, native Parität, Fehler, Grenzen, eine Million Werte, Row Goal, Join, `CROSS APPLY`, lokale, zentrale und Lifecycle-Contracts | `success` | Physische SQL-Server-2019-/2022- und Windows-Läufe bleiben offen |
 
-Die erfolgreiche physische Linux-Matrix belässt den Modulstatus auf
-`partially validated`. Für `validated` fehlen weiterhin die gezielten
-Windows-Läufe und modulspezifischen Releasefälle.
+Die erfolgreiche physische Windows-/Linux-Matrix belässt den Modulstatus auf
+`partially validated`. Für `validated` fehlt weiterhin die breitere
+Very-large-series-Performance-Evidenz einschließlich eines belastbaren
+Regressionsvergleichs.
 
 ## Aktuelle Validierungsevidenz
 

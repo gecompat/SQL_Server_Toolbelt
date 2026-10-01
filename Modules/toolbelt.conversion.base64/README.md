@@ -100,8 +100,10 @@ erfolgreich. Geprüft wurden RFC-4648-/Base64URL-Vektoren, Fehlerfälle,
 synthetische Größen bis 1 MiB, Wiederholungsdeployment, Fremdobjekt-Kollision,
 lokale und zentrale Nutzung sowie Uninstall. Der vollständige Adapter ist am
 2026-08-29 zusätzlich auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen
-erfolgreich. Windows-Läufe bleiben `not executed`; der Modulstatus ist deshalb
-nur `partially validated`.
+erfolgreich. Am 2026-09-01 war der vollständige automatisierte Moduladapter
+auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und
+Linux latest erfolgreich. Wegen der weiterhin offenen breiteren
+Large-LOB-Performance-Evidenz bleibt der Modulstatus `partially validated`.
 
 ## Dokumentation
 

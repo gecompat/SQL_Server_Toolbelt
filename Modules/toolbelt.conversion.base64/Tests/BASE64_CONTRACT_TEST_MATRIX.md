@@ -50,13 +50,19 @@ war für die Compatibility Levels 150, 160 und 170 erfolgreich.
 | SQL Server 2025 Linux | 150 | Version `1.1.0` erfolgreich |
 | SQL Server 2025 Linux | 160 | Version `1.1.0` erfolgreich |
 | SQL Server 2025 Linux | 170 | Version `1.1.0` erfolgreich |
-| SQL Server 2019 Linux | 150 | `not executed` – gezielte Releasevalidierung |
-| SQL Server 2022 Linux | 160 | `not executed` – gezielte Releasevalidierung |
-| Windows 2019/2022/2025 | passend | `not executed` – geeigneter Runner erforderlich |
+| SQL Server 2019 Linux | 150 | Vollständiger physischer Moduladapter unter Linux latest am 2026-09-01 erfolgreich |
+| SQL Server 2022 Linux | 160 | Vollständiger physischer Moduladapter unter Linux latest am 2026-09-01 erfolgreich |
+| Windows 2019/2022/2025 | passend | Vollständiger physischer Moduladapter unter Windows base am 2026-09-01 erfolgreich |
 
 Die Compatibility-Matrix dient als schneller Syntax-, Planungs- und
 Semantiktest. Sie ersetzt die gezielten physischen Versionsläufe vor einem
 Release nicht.
+
+Die physische Plattformmatrix ist mit dem im Modulmanifest dokumentierten
+Nachweis vom 2026-09-01 erfolgreich. Die breitere Large-LOB-Performance-Evidenz
+einschließlich eines belastbaren Regressionsvergleichs bleibt offen; der
+Plattformnachweis begründet weder eine vollständige Modulvalidierung noch
+eine Releasefreigabe.
 
 ## Datenschutz
 
