@@ -6,7 +6,13 @@ V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
 ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
 Windows- und modulspezifische Fälle bleiben unberührt.
 
-## Aktueller Stand
+## Evidenzhistorie
+
+Die Einschränkungen der datierten Einträge beschreiben den jeweiligen
+damaligen Stand. Die physischen Windows-/Linux-Plattformlücken für SQL Server
+2019, 2022 und 2025 wurden durch den im Modulmanifest dokumentierten Nachweis
+vom 2026-09-01 geschlossen. Die breitere Large-LOB-Performance-Evidenz bleibt
+offen.
 
 | Datum | Prüfung | Scope | Ergebnis | Einschränkung |
 |---|---|---|---|---|
