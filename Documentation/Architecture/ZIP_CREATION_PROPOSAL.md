@@ -20,6 +20,18 @@ Die bestätigte Reihenfolge autorisiert keine pauschale Datei-I/O und legt
 noch keinen fertigen öffentlichen Writervertrag fest. Die konkreten
 In-memory-Signaturen, Typdefinitionen, Grenzen und Provider bleiben offen.
 
+Präzisierung vom 2026-10-01: Der Benutzer hat den vorgeschlagenen
+In-memory-Schnitt mit konservativen Defaults bestätigt. Die caller-lokale
+`#Temp`-Eingabe verwendet logisch `Ordinal`, `EntryName` und `Payload`.
+`Stored` ist Default; `Deflate` ist explizit wählbar. Ressourcenparameter
+dürfen nach unten und nach oben angepasst werden, jedoch nur innerhalb
+separat technisch zu qualifizierender harter Grenzen. `0 = unlimited`
+ist nicht vorgesehen. Hohe Compression Ratios sind beim Writer erlaubt;
+notwendige Readerlimits werden ausdrücklich dokumentiert. Diese
+Richtungsbestätigung ist keine zusätzliche öffentliche
+Implementierungsfreigabe; Signatur, Transport, Fehler- und harter
+Ressourcenvertrag bleiben vor Umsetzung konkret zu besprechen.
+
 ## Empfohlener V1-Schnitt
 
 V1 erzeugt ein einzelnes ZIP-Binary im Speicher aus einer expliziten,
@@ -57,14 +69,21 @@ Writers. Reguläre Tabellen, globale Temps, freies SQL und persistentes Staging
 sind keine impliziten Alternativen. Ein Temp-Inputparameter und ein TVP sind
 unterschiedliche öffentliche Verträge und werden vor Implementierung entschieden.
 
-Ungemessene V1-Zielgrenzen zur Besprechung: 256 Entries, 1.024 UTF-16-
+Bestätigte konservative V1-Default-Zielwerte vom 2026-10-01, keine
+gemessenen Kapazitäten oder bereits qualifizierten harten Obergrenzen:
+256 Entries, 1.024 UTF-16-
 Codeeinheiten je Name, 16 MiB je Payload, 64 MiB Payloadsumme und 68 MiB
-Archivoutput; bei Binarytransport zusätzlich höchstens 68 MiB Envelope.
+Archivoutput; bei Binarytransport zusätzlich 68 MiB Envelope.
+Die konkreten Parameter und zulässigen Anhebungen müssen vom jeweils
+technisch qualifizierten Maximum begrenzt werden; niedrigere Werte bleiben
+möglich. Defaults, Callerlimits und unveränderbare technische Ceilings sind
+unterschiedliche Ebenen; kein Nullwert oder `0` wird hier als unbegrenzte
+Verarbeitung definiert.
 Ein kooperatives Writerbudget von 30 Sekunden ist ein Vorschlag, keine harte
 Echtzeit- oder gesamte SQL-Ausführungsfrist. Grenzen müssen vor großen Kopien
 und während Schreiben/Finalisierung technisch qualifiziert werden.
 
-`Stored` als Default und `Deflate` als explizite Wahl sind ein Vorschlag.
+`Stored` als Default und `Deflate` als explizite Wahl wurden bestätigt.
 Der Benutzer hat am 2026-10-01 gültige Deflate-Archive auch oberhalb des
 Readerdefaults `@MaxCompressionRatio = 200.00` gewählt. Dieses Readerlimit
 ist deshalb keine implizite Writergrenze. Das erforderliche, vom Caller
@@ -81,7 +100,7 @@ unberührt. Eine stille Änderung der angeforderten Methode ist nicht vereinbart
 | Payload | `varbinary(max)` ist zulässig; SQL-`NULL`-Payload ist Fehler, leere Payload ist ein regulärer Entry. |
 | Methode | `Stored` oder `Deflate`, pro Aufruf fest gewählt. Zusätzliche Methoden bleiben spätere Provider. |
 | Metadaten | Keine Caller-gesteuerten Dateizeiten, Attribute, Kommentare oder Extra Fields in V1; der Output bleibt reproduzierbar. |
-| Grenzen | Maximale Entryanzahl, einzelne Payloadgröße, Gesamtausgabegröße und Verhältnisgrenzen werden vor der Verarbeitung geprüft. |
+| Grenzen | Anpassbare konservative Callerlimits innerhalb separat qualifizierter harter Grenzen; kein `0 = unlimited`. Größen-/Anzahllimits werden vor großen Kopien und während Finalisierung geprüft. Hohe Ratio ist keine implizite Writerablehnung; das Readerlimit bleibt eigenständig. |
 | Ergebnis | Ein `varbinary(max)`-Archiv plus nicht sensible Metadaten; keine Persistierung und keine fachlichen Daten in Debug-/Fehlerausgaben. |
 
 V1 erzeugt keine verschlüsselten, ZIP64-, Multi-Disk-, symlink- oder

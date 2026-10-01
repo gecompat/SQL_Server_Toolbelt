@@ -6,6 +6,16 @@
 Funktionsbesprechung vor. Es autorisiert weder einen Dateizugriff noch einen
 Provider, ein SQL-Objekt oder die Verarbeitung eines realen Workbooks.
 
+Nachtrag 2026-10-01: Der Benutzer hat inzwischen ausschließlich den
+begrenzten Provider-Spike freigegeben. Dies ersetzt die zuvor fehlende
+Spike-Autorisierung, nicht die weiterhin ausstehende Freigabe einer
+öffentlichen Readerimplementierung. Der Spike untersucht SDK-/Dependency-/
+Lizenzkette, Memory-only-Verarbeitung, SAFE-Eignung und Plattformgrenzen mit
+synthetischen Minimalworkbooks; keine neuen öffentlichen SQL-Objekte,
+Hochprivilegierung, Datei-/Netzwerkzugriff des Workbook-Providers oder
+impliziter externer Fallback. Öffentliche Quellenrecherche bleibt zulässig;
+sie ist kein Workbook-Providerzugriff.
+
 ## Nutzerentscheidung und verpflichtender Folgescope vom 2026-10-01
 
 Der Benutzer hat den begrenzten Binary-/Raw-/Text-/Cache-Scope als erste
@@ -66,6 +76,54 @@ Lizenz, Trust, Secret-Grenzen und Windows-/Linux-Deployment entschieden.
 
 ## Grenzen und Testmatrix
 
+### Quellengeprüfter Providervergleich vom 2026-10-01
+
+Der freigegebene read-only Quellenreview ist abgeschlossen; es wurden keine
+Pakete installiert, SQL-Objekte erzeugt oder Runtime-/Labtests ausgeführt.
+Vergleichskandidat ist exakt `DocumentFormat.OpenXml 3.5.1` mit bewusst
+gepinntem `DocumentFormat.OpenXml.Framework 3.5.1`. Die NuGet-Metadaten
+weisen net46-Assets aus, die .NET Framework 4.8 bedienen können; der SDK
+deklariert Framework mindestens 3.5.1. Für dessen .NET-Framework-Assets sind
+keine zusätzlichen NuGet-Dependencies aufgeführt; das beweist keine
+vollständige SQL-CLR-Assemblykette. Der netstandard-Pfad verlangt dagegen
+`System.IO.Packaging >= 8.0.1`. Die MIT-Lizenz verlangt bei späterer
+Distribution den zugehörigen Notice; die Repository-Rootlizenz wird nicht
+verändert.
+
+Die gepinnte README nennt weiterhin `IsolatedStorageException` unter .NET
+Framework bei unzureichender AppDomain-Evidence. Das ist ein Risiko, kein
+Nachweis zwangsläufigen Diskspills im hier gewünschten Read-only-Binarypfad.
+Der offizielle Workaround mit Tempdatei, neuer AppDomain und veränderter
+Evidence passt nicht zum angestrebten Memory-only-/SAFE-Vertrag.
+Microsofts SQL-CLR-Liste unterstützt unter anderem `System`, `System.Data`
+und `System.Xml`; andere Assemblies benötigen Registrierung und
+Securityreview. Trustfreigabe beweist weder SAFE-Eignung noch Linuxfähigkeit.
+
+Der [bestehende ZIP-Kern](../../Modules/toolbelt.archive.zip-memory/Clr/ZipEntryProvider.cs)
+zielt auf .NET Framework 4.8 und verwendet `System`/`System.Data`.
+Er liest einen seekbaren `SqlBytes.Stream` direkt; nur für nichtseekbare
+Streams erstellt er eine vollständige Archivkopie. Extrahierte Payload wird
+im MemoryStream materialisiert und durch `ToArray` kopiert. Deshalb weder
+pauschale Vollarchivkopie noch copy-free XLSX-Verarbeitung behaupten.
+
+Research-Empfehlung, keine endgültige Providerentscheidung: einen begrenzten
+internen ZIP-/XML-Kern als portablen Kandidaten qualifizieren, Archivindex
+einmal aufbauen und Parts über begrenzte Streams lesen. Das reduziert
+potenzielle SDK-/Packaging-Abhängigkeiten, übernimmt aber eigene OPC-/
+Relationship-/Open-XML-Semantik und Wartungsrisiken. XML-DTD ist zu verbieten,
+Resolver zu deaktivieren; Tiefen-, Text-, Zell-, Shared-String-, Part- und
+Summenlimits sind vor unbeschränkter Materialisierung durchzusetzen.
+Externe Beziehungen werden nicht aufgelöst; kein externer Worker entsteht
+automatisch aus fehlender SAFE-Evidenz.
+
+Kleinster nächster Schritt innerhalb der Spikevorbereitung: den begrenzten
+ZIP-/XML-Prüfplan und exakte Dependency-/Lizenz-/Hashliste der SDK-Alternative
+gegen den Binary-only-Scope festhalten. Noch fehlend sind tatsächliche
+Assembly-/SAFE-/Plattformqualifizierung, Nachweis ohne Dateizugriff sowie
+Peak-Memory- und Parallelaufrufgrenzen. SQL-CLR-Deployment-/Runtimeversuche
+benötigen einen getrennt begrenzten Folgescope; öffentliche Readerobjekte
+bleiben ausdrücklich unfreigegeben.
+
 Ein begrenzter Provider-Spike soll zuerst die konkrete SDK-Version,
 Dependency-/Lizenzkette, Memory-only-Verarbeitung und erforderliche
 Assemblyrechte prüfen. Die offiziellen SDK-Hinweise nennen mögliche
@@ -106,6 +164,15 @@ Resultset-Schema, Limits, Errorvertrag und Provider als konkrete Funktion
 besprochen und freigegeben werden.
 
 ## Quellen
+
+Quellen des abgeschlossenen read-only Vergleichs vom 2026-10-01:
+
+- [Open XML SDK 3.5.1: NuGet-Targets und Dependencies](https://www.nuget.org/packages/DocumentFormat.OpenXml/3.5.1).
+- [Open XML Framework 3.5.1: NuGet-Targets und Dependencies](https://www.nuget.org/packages/DocumentFormat.OpenXml.Framework/3.5.1).
+- [Gepinnte MIT-Lizenz v3.5.1](https://raw.githubusercontent.com/dotnet/Open-XML-SDK/v3.5.1/LICENSE).
+- [Gepinnte README v3.5.1: bekannte Probleme](https://raw.githubusercontent.com/dotnet/Open-XML-SDK/v3.5.1/README.md).
+- [Offizieller Isolated-Storage-Workaround v3.5.1](https://raw.githubusercontent.com/dotnet/Open-XML-SDK/v3.5.1/samples/IsolatedStorageExceptionWorkaround/Program.cs).
+- [Microsoft: unterstützte .NET-Framework-Bibliotheken für SQL CLR](https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/database-objects/supported-net-framework-libraries?view=sql-server-ver17).
 
 - [Offizielles Open-XML-SDK: bekannte Probleme](https://github.com/dotnet/Open-XML-SDK#known-issues) – am 2026-10-01 geprüft; kein SQL-CLR-/SAFE-Nachweis.
 - [Microsoft: Open XML SDK](https://learn.microsoft.com/en-us/office/open-xml/open-xml-sdk)

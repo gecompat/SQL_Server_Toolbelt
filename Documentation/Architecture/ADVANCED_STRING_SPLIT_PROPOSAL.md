@@ -27,29 +27,42 @@ Der Benutzer hat zunächst das Entfernen eines äußeren Quote-Paars gewählt
 und danach die Innenbehandlung präzisiert: Verdoppelte Quotes werden im
 gequoteten Token dekodiert; `"hallo""du"""` wird `hallo"du"`.
 Die zuerst angenommene unveränderte Innenbehandlung war ein Missverständnis
-und ist durch diese Präzisierung ersetzt. Andere Escapeformen, ungequotete
-Tokens und Fehlerfälle sind noch offen. Die optionale `toolbelt_string.USP_SplitAdvanced` soll vorgesehen
+und ist durch diese Präzisierung ersetzt. Weitere Innen-/Escape-Regeln waren
+zu diesem Besprechungsstand noch offen; die nachfolgende Präzisierung
+ersetzt offene Randregeln, ohne S2 zu ändern.
+Die optionale `toolbelt_string.USP_SplitAdvanced` soll vorgesehen
 werden und führt kein automatisches Unquoting aus. Diese Auswahl ist keine
 Implementierungsfreigabe dieser Folgeslices; S2 bleibt separat freigegeben.
 
 ### Unquoting: Vorschlag zur weiteren Vertragsbesprechung
 
 Arbeitsname `toolbelt_string.TVF_UnquoteToken`: portabler relationaler
-T-SQL-Kern mit `@Input nvarchar(max)` und `@Quote nvarchar(max)`. Ein optionaler
-Scalar-Wrapper ist nicht automatisch Teil des Slices. Vorschlag: Nur wenn
-die erste und letzte UTF-16-Codeeinheit dem aktiven Quote-Zeichen entsprechen
-und mindestens zwei Codeeinheiten vorhanden sind, wird genau dieses Paar
-entfernt und jedes verdoppelte Quote im Inneren einmal dekodiert. Keine
-rekursive Paarentfernung und kein Entfernen von Quotes mitten in einem
-ungequoteten Token. Ob ungequotete Tokens unverändert bleiben, einzelne
-innere Quotes in gequoteten Tokens Fehler sind und Backslash-Escapes einen
-eigenen Modus erhalten, bleibt ausdrücklich zu bestätigen. Die Randprüfung
-und das Verhalten bei unvollständigem äußerem Paar sind noch offen.
+T-SQL-Kern. Inputtyp, öffentliche Qualifier-/Modusparameter und Resultset sind
+noch kein fertiger öffentlicher Vertrag. Ein optionaler Scalar-Wrapper ist
+nicht automatisch Teil des Slices.
 
-Vorgeschlagen: derselbe deaktivierbare Ein-Codeunit-Quote-Vertrag,
-BIN2-Vergleich, NULL-No-op, 65.536-Codeunit-Inputgrenze und atomare
+Präzisierung des Benutzers vom 2026-10-01, ersetzt die zuvor offene
+Randprüfung: Im expliziten Qualifier-Modus sind passende äußere Delimiter
+vorne und hinten Pflicht; fehlen sie oder passen sie nicht, ist das ein
+Fehler. Öffnender und schließender Delimiter dürfen verschieden sein.
+Ein explizites `[` oder `]` wählt dasselbe Paar `[]`.
+Automatische Erkennung dagegen lässt unvollständig apparent gequoteten Text
+wie `“Hallo` unverändert. Nur ein vollständig außen gequoteter Token wird
+entquotet; im Inneren werden verdoppelte schließende Qualifier einmal
+dekodiert. Beim Paar `[]` wird also ein inneres `]]` zu `]`.
+Dies ist keine rekursive Paarentfernung, globale Quoteentfernung oder
+Whitespace-/Textnormalisierung.
+
+Die vollständige Auto-Kandidatenliste und die Behandlung malformed innerer
+Qualifier bleiben offen. Konkrete Kandidatenpaare, Fehler für einzelne
+innere schließende Delimiter und Backslash als Literal wurden nur
+vorgeschlagen, noch nicht vom Benutzer beschlossen. Keine implizite
+Übernahme dieser Vorschläge in eine Implementierung.
+
+Vorgeschlagen: BIN2-Vergleich, NULL-No-op, 65.536-Codeunit-Inputgrenze und atomare
 Errorrow-Form wie S2. Whitespace wird nicht getrimmt; ein reines Paar ergibt
-leeren Text. Das Verhalten bei einem einzelnen Quote bleibt offen. Signatur,
+leeren Text. Parameterdarstellung für Auto-/expliziten Modus, deaktivierte
+Erkennung und einzelne Delimiter brauchen noch Konkretisierung. Signatur,
 Resultset, Fehler und Randfälle brauchen noch eine ausdrückliche
 funktionsbezogene Vertrags- und Implementierungsfreigabe.
 

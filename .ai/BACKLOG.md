@@ -266,26 +266,58 @@ Am 2026-10-01 hat der Benutzer Unquoting auf einen äußerlich gequoteten Token
 begrenzt und anschließend präzisiert: Das äußere Paar wird entfernt, innere
 verdoppelte Quotes werden dekodiert; `"hallo""du"""` wird `hallo"du"`.
 Die zuvor angenommene unveränderte Innenbehandlung wurde damit korrigiert.
-Backslash-Escapes, ungequotete Tokens und malformed Eingaben bleiben zu besprechen.
+Nachtrag 2026-10-01: Expliziter Qualifier verlangt passende Delimiter an
+beiden Rändern, sonst Fehler; verschiedene öffnende/schließende Delimiter
+sind zulässig. `[` oder `]` wählt `[]`. Automatische Erkennung lässt
+unvollständige apparent Quotation wie `“Hallo` unverändert; verdoppelte
+schließende Qualifier werden nur im vollständig außen gequoteten Inneren
+aufgelöst. Keine globale Quoteentfernung/Normalisierung. Auto-Kandidatenliste
+und malformed Innenbehandlung bleiben offen; konkrete neue Vorschläge sind
+keine Entscheidungen. Dies ersetzt die zuvor offenen Randregeln.
 `USP_SplitAdvanced` soll ergänzend vorgesehen werden und führt kein
 automatisches Unquoting aus. Die Split-TVF bleibt Pflicht.
 Die [konkreten Folgeslice-Vorschläge](../Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md#beschlossene-folgescope-grenzen-vom-2026-10-01)
 halten Alternativen, Risiken, Dependencies, Testscope und noch offene
 Signatur-/Fehler-/Randfallentscheidungen fest. Status: `proposed` für diese
-Folgeslices, keine Implementierungsfreigabe; S2 bleibt davon getrennt `active`.
+Folgeslices, keine Implementierungsfreigabe; S2 ist davon getrennt `completed`.
+
+### TC-2026-034: In-memory-ZIP-Erzeugung
+
+Richtungsbestätigung 2026-10-01: caller-lokale `#Temp` mit `Ordinal`,
+`EntryName`, `Payload`; `Stored` als Default, `Deflate` explizit wählbar.
+Konservative Default-Zielwerte aus dem
+[Writer-Vorschlag](../Documentation/Architecture/ZIP_CREATION_PROPOSAL.md)
+dürfen per Ressourcenparameter nach unten und oben innerhalb separat
+qualifizierter harter Grenzen angepasst werden; kein `0 = unlimited`.
+Hohe Writer-Ratio ist zulässig; notwendiges Readerlimit wird dokumentiert.
+Dies ist keine öffentliche Implementierungsfreigabe. Signatur, interner
+Transport, Fehler und technische Ceilings bleiben konkret zu besprechen;
+Datei-I/O bleibt verpflichtender späterer Slice mit eigenem Sicherheitsvertrag.
 
 ### TC-2026-045: Begrenzter XLSX-Reader und verpflichtende Erweiterung
 
 Am 2026-10-01 hat der Benutzer Binaryinput und Raw-/Text-/Cache-Werte als
 erste Readergrenze bestätigt. Text ist aufgelöster Shared-/Inline-Stringinhalt,
 keine formatierte Excel-Anzeige. Provider, Signaturen, Limits und Fehler sind
-noch offen; Status: `researched`, keine Implementierungsfreigabe.
+noch offen; Status: `researched`, keine öffentliche Readerfreigabe.
+Nachtrag 2026-10-01: Nur der begrenzte Provider-Spike ist freigegeben:
+SDK-/Dependency-/Lizenzprüfung, Memory-only-/SAFE-/Plattformmachbarkeit mit
+synthetischen Minimalworkbooks. Keine öffentliche SQL-Implementierung,
+Hochprivilegierung, Datei-/Netzwerkzugriff des Workbook-Providers oder
+automatischer externer Fallback; öffentliche Quellenrecherche bleibt zulässig.
 Anzeigeformat, Styles, explizite Culture und Datumsbehandlung müssen später
 als eigener Funktionsslice umgesetzt werden, sobald ihr Vertrag besprochen
 und ausdrücklich freigegeben ist. Dazu gehören 1900-/1904-Modus,
 1900-Schaltjahrsonderfall, Formatcodes sowie Datum/Zeit/Dauer-Abbildung.
 Der [Reader-Vorschlag](../Documentation/Architecture/XLSX_READER_PROPOSAL.md)
 führt Provider-Spike, ungemessene Zielgrenzen und die getrennte Folgestufe.
+Quellenreview vom 2026-10-01 abgeschlossen, keine Installation oder
+Runtime-/Labtests: SDK 3.5.1 mit Framework 3.5.1 bleibt Vergleichskandidat,
+nicht SAFE-/Linux-Nachweis. Begrenzter eigener ZIP-/XML-Kern ist empfohlene
+Qualifizierungsrichtung, keine endgültige Providerwahl. Nächster kleiner
+Schritt: Prüfplan und exakte SDK-Dependency-/Lizenz-/Hashliste festhalten;
+SAFE/Memory-only, Ressourcen und Plattformverhalten später in separat
+begrenztem Runtime-Scope nachweisen. Keine öffentliche Readerfreigabe.
 
 ## Abgeschlossene Arbeitspakete
 
