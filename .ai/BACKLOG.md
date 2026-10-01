@@ -6,6 +6,98 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### TC-2026-010 / TC-2026-009 / TC-2026-045: Freigegebene nächste Entwicklungswellen
+
+Benutzerfreigabe 2026-10-01: Nach Besprechung von Zweck, öffentlichen
+Verträgen, Alternativen, Risiken und Scope bestätigte der Benutzer zuerst
+Regex ohne Captures, JSON über caller-lokale #Temp und einen eigenen begrenzten
+SAFE-ZIP-/XML-Kern für XLSX mit „ja, das passt so“. Anschließend wurden die
+folgenden sechs APIs und Detailverträge einzeln benannt; auf die ausdrückliche
+Frage nach Implementierung, Prüfung und PR-Merge antwortete er „ok, passt so“.
+Nur diese Funktionen sind damit freigegeben, keine weiteren fachlichen APIs,
+Datei-I/O-, Capture-, SDK-/Worker-, Rechteausweitungs- oder Release-Slices.
+Status: `active`; noch keine neue Implementierungs- oder Runtime-Evidenz.
+
+#### Regex R2b: Gesamttreffer und Split
+
+- `toolbelt_string.TVF_RegexMatches`: Input/Pattern `nvarchar(max)`, Start,
+  bestehende Flags, Profil und MaxRows. Ergebnis `Ordinal bigint`,
+  `StartPosition bigint`, `Length bigint`, `Value nvarchar(max)`.
+  NULL-Input/Pattern oder kein Treffer: keine Zeilen. Leere Treffer gültig.
+- `toolbelt_string.TVF_RegexSplit`: Input/Pattern, Flags, Profil und MaxRows;
+  kein Startparameter, immer ganze Quelle. Gleiches Ergebnisschema; Treffer
+  sind nicht ausgegebene Separatoren. Kein Treffer: gesamte Quelle als Token;
+  leere Quelle ohne Separator-Treffer: ein leeres Token. Leere Rand-/
+  Zwischentokens erhalten. NULL-Input/Pattern: keine Zeilen.
+- Ordinals und Positionen 1-basiert, UTF-16-Codeeinheiten; keine Überlappung,
+  Captures, Backreferences oder Entquotierung. Leere Separator-Treffer
+  konsumieren kein Zeichen; Suche rückt eine Codeeinheit weiter.
+- Bestehender Dialekt und R2a-Profile: Pattern 8.000 Codeeinheiten,
+  standard 2 MiB/500 ms, large 16 MiB/2.000 ms. Ergebnistextsumme durch
+  Profil begrenzt. MaxRows Default 10.000, Ceiling 100.000. Keine implizite
+  Profilaufwertung, Truncation oder Unlimited-Option. Vollständige Prüfung/
+  Materialisierung vor Zeilenausgabe; Vertragsfehler oder Timeout ohne
+  verwertbare Teilmenge. Vorhandene R1b/R2a-Verträge unverändert.
+
+#### JSON Slice B: getrennte Konstruktor-USPs
+
+- `toolbelt_json.USP_JsonArray` und `toolbelt_json.USP_JsonObject`:
+  EntriesTable für caller-lokale #Temp, Ressourcenparameter und vollständiger
+  Standard-USP-Vertrag. Dieser ausdrücklich gewählte Transport ersetzt
+  prospektiv den bisherigen Table-Type-Vorschlag.
+- Ordinal int positiv/eindeutig, Lücken erlaubt; ValueKind nvarchar(max)
+  exakt string/number/boolean/null/json und Value nvarchar(max). Object
+  zusätzlich Key nvarchar(max): nicht NULL/leer, höchstens 1.024 Codeeinheiten.
+- string vollständig escapen; number strikte JSON-Literalgrammatik ohne
+  Culturekonvertierung; boolean exakt true/false; null verlangt SQL-NULL und
+  erzeugt JSON-null; json nur validiertes vollständiges Objekt/Array.
+  Sonstige SQL-NULL-Werte und ungültige Unicode-Surrogatfolgen sind Fehler.
+- Binär längensensitive unveränderte Keys, kein Trim/Normalisieren; doppelte
+  Keys Fehler. Ordinalreihenfolge; leere Tabelle ergibt [] bzw. {}. Ergebnis
+  genau eine Zeile/Spalte JsonValue nvarchar(max). Keine Typinferenz, Pretty
+  Print, Ausführung, JSON-Patch oder Aggregate.
+- Default 10.000 Einträge, jeweils 2 MiB Gesamtwert-/Ergebnistext; explizite
+  Ceilings 100.000 und 16 MiB. Positive Grenzen, kein Unlimited. Vollständige
+  Konstruktion vor ResultTable-Mutation, ein gemeinsamer Escaping-/Prüfkern.
+
+#### XLSX: bedingt freigegebene Binary-Reader
+
+- `toolbelt_file.USP_ListXlsxWorksheets`: Binary-Eingabe; SheetOrdinal,
+  SheetName, Visibility, Date1904.
+- `toolbelt_file.USP_ReadXlsxWorksheetCells`: Binary plus positiver
+  SheetOrdinal; nur vorhandene Zellen, nach Zeile/Spalte geordnet. Ergebnis
+  RowOrdinal, ColumnOrdinal, StoredType, ValuePresent, RawValue, TextValue,
+  FormulaPresent, FormulaText, FormulaKind, SharedFormulaIndex, CachePresent,
+  CacheValue. Fehlender SheetOrdinal ist Fehler; fehlende/leere Inhalte
+  unterscheidbar. Keine Rechteckauffüllung, Shared-Formula-Expansion,
+  Formelberechnung, Typinferenz, Styles-/Datums-/Anzeigeformatierung.
+- NULL-Binary: keine Zeilen. Beschädigte/nicht unterstützte Inhalte: Fehler,
+  keine stille Zellüberspringung. Standard-Hilfe/ResultTable; gewähltes
+  Ergebnis vollständig vor Ausgabe. Sheetliste ist kein Vollnachweis aller
+  nicht gelesenen Zellparts.
+- Qualifizierungsgrenzen: 16 MiB Archiv, 64 MiB entpackt, 16 MiB je Part,
+  256 Parts, 32 Sheets, 100.000 Zellen, 50.000 Shared Strings/8 MiB Text,
+  XML-Tiefe 64, Ratio 200. Ressourcenparameter zunächst nur reduzierend;
+  höhere Grenzen benötigen separate Qualifikation/Freigabe. Kooperatives
+  Parserbudget 5 Sekunden, keine harte SQL-Wallclockzusage.
+- Eigener begrenzter ZIP-/XML-Kern unter Wiederverwendung des kanonischen
+  ZIP-Parsers. Vor öffentlichen APIs SAFE-/Memory-only-Qualifikation; keine
+  DTDs, externen Beziehungen, Makros, Datei-/Netzwerkzugriffe, SDK-Beschaffung,
+  externe Worker oder Hochprivilegierung. Bei gescheiterter Qualifikation
+  wird nur XLSX blockiert, unabhängige freigegebene Wellen laufen weiter.
+- XLSX-Schema/Modulzuordnung und noch nicht benannte technische Details sind
+  Umsetzungsvorschläge, keine zusätzliche fachliche Scopeausweitung.
+
+#### Ausführung und Nachweise
+
+Agents melden Fertigstellung sofort an den Orchestrator. Je kohärenter Welle
+unabhängiger Review, synthetische Contract-/Grenz-/Lifecycle-Tests,
+risikobasierte SQL_Server_Lab-Auswahl (anfangs 2019 Linux/2025 Windows),
+grüne erforderliche CI und PR-Merge nach origin/main; Branchcleanup.
+Keine Lab-Infrastrukturverwaltung oder pauschale Matrix-/Kapazitätszusage.
+Ein Blocker hält andere freigegebene unabhängige Wellen nicht an.
+ZIP-Datei-I/O und weitere Reservefunktionen werden separat besprochen.
+
 ### TC-2026-032 / TC-2026-034: Freigegebene Unquoting-, Split-USP- und ZIP-Writer-Folgeslices
 
 | Feld | Wert |
