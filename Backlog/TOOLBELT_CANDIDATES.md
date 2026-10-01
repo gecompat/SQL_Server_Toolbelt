@@ -729,8 +729,8 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 > Nutzeranforderung 2026-10-01: Eine öffentliche Split-TVF ist Pflicht; eine
 > USP ist nur optional ergänzend und niemals Ersatz. Unquoting wird als
 > eigener späterer Funktionsslice unter diesem Kandidaten geführt und ist
-> noch nicht zur Implementierung freigegeben. Konkrete Signatur, Fehler- und
-> Quote-Semantik bleiben zu besprechen; der Status bleibt `researched`.
+> noch nicht zur Implementierung freigegeben. Historischer Anforderungsstand vor PR #114; anschließend wurden S2-Vertrag
+> und Implementierung am 2026-10-01 ausdrücklich freigegeben (.ai/BACKLOG.md).
 
 | Feld | Wert |
 |---|---|
@@ -744,15 +744,15 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Spätere native Funktion** | Teilweise Regex-Split ab SQL Server 2025; Quote- und Escape-Vertrag bleibt eigenständig. |
 | **Use-Case-Typ** | Realistisch |
 | **Nutzen** | Kontrolliertes Tokenizing strukturierter Texte, deren Separatoren innerhalb gequoteter oder escapeter Bereiche nicht trennen dürfen. |
-| **Mögliche Technologie** | Offen: T-SQL-Parser, SQL CLR oder versionsbezogener Providervergleich. |
+| **Mögliche Technologie** | S2: dependencyfreie T-SQL Multi-statement-TVF; begründete Inline-Ausnahme im Moduldesign. |
 | **Performance und Security** | Separatorpriorität bei Präfixüberschneidungen, Quote-/Escape-Zeichen beliebiger Länge, Verschachtelung, unvollständige Quotes, LOBs, Collation und Worst-case-Laufzeit müssen vor einer Freigabe definiert werden. Kein stilles Gleichsetzen mit CSV oder regulären Ausdrücken. |
 | **Plattformgrenzen** | T-SQL portabel; CLR oder native Provider separat auf Windows und Linux prüfen. |
 | **Dependencies** | Funktional getrennte Folgestufe zu `TC-2026-001`; darf Version 1 nicht nachträglich verbreitern. |
 | **Duplikatprüfung** | `TC-2026-001` und `TC-2026-010` geprüft; eigener Literal-/Parser-Vertrag erforderlich. |
-| **Status** | `researched` |
+| **Status** | S2 `implemented`; Runtime `partially validated`; spätere USP-/Unquoting-Slices offen |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/t-sql/functions/string-split-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-split-to-table-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-07-30 |
-| **Nächster Schritt** | Der [V1-Vorschlag](../Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md) begrenzt Separatoren, Quote, Escape, Fehler und T-SQL-Provider. Den daraus folgenden konkreten öffentlichen Vertrag mit dem Benutzer besprechen; keine Implementierungsfreigabe aus `TC-2026-001` ableiten. |
+| **Nächster Schritt** | S2 [TVF_SplitAdvanced](../Modules/toolbelt.string.split-advanced/Documentation/TVF_SplitAdvanced.md) implementiert; risikobasiert physisch 2019 Linux und 2025 Linux/Windows geprüft. USP/Unquoting benötigen separate Besprechung/Freigabe. |
 
 ## TC-2026-033: ZIP-Directory-Listing ohne Extraktion
 

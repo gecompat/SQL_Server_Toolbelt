@@ -2,6 +2,8 @@
 
 ## Status
 
+Nachtrag 2026-10-01: Der nachfolgend besprochene S2-Vertrag wurde ausdrücklich freigegeben und als [TVF_SplitAdvanced](../../Modules/toolbelt.string.split-advanced/Documentation/TVF_SplitAdvanced.md) implementiert. Die folgenden Vorschlagsformulierungen dokumentieren den historischen Entscheidungsstand vor PR #114/#115; aktueller Vertrag und Evidenz liegen im Modul. Optionale USP und Unquoting bleiben getrennt und unfreigegeben.
+
 `TC-2026-032` bleibt Research. Dieses Dokument bereitet die spätere
 funktionsbezogene Besprechung vor; es autorisiert weder ein Modul noch eine
 öffentliche SQL-Schnittstelle.
