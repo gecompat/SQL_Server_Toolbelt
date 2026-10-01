@@ -6,6 +6,31 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### Priorisierte Besprechung: Queue-Verarbeitung und Worker-Orchestrierung
+
+Benutzerauftrag 2026-10-01: Queue-Verarbeitung steht weit oben in der
+Wunschliste; als priorisiertes Thema aufnehmen und erforderliche Entscheidungen
+jetzt besprechen. Konkretisiert den offenen Worker-Scope von TC-2026-015 und
+die getrennten Provider von TC-2026-046; keine neue sequenzielle ID vergeben.
+
+- Vorhandenen validierten Work-Queue-2.0-Kern mit Work-Type-Katalog, Leases,
+  Retry/Dead Letter, Idempotency Keys und Drain-Barriers wiederverwenden.
+  Keine zweite Queue oder kopierte Claim-/Retrylogik.
+- Besprechungsziel: tatsächlich ausführender Worker mit begrenzter
+  Parallelität, unabhängigem Lease-Heartbeat während langer Handler,
+  kontrolliertem Shutdown, expliziter Recovery und nachvollziehbaren
+  Fehler-/Retryentscheidungen. Keine Exactly-once-Zusage.
+- Providerwahl, Betriebs-/Installationsgrenze, Handlertransaktionen,
+  Ergebnis-/Statusvertrag, Limits und Abbruchverhalten vor Implementierung
+  einzeln vereinbaren. SQL Server Agent, Service Broker und externer Worker
+  sind Alternativen, nicht automatisch gemeinsam freigegebene Provider.
+- Keine beliebige SQL-/Hostscript-Ausführung, Credentials im Repository,
+  automatische Rechtevergabe, KILL oder produktive Dienst-/Jobinstallation.
+
+Status: `proposed`, hohe Benutzerpriorität; Themenaufnahme ist noch keine
+funktionsbezogene Implementierungsfreigabe. Bestehende freigegebene Wellen
+laufen unabhängig weiter.
+
 ### Individuell freigegebene weitere Wellen und Parser-Voraussetzung
 
 Benutzerfreigabe 2026-10-01: Nach gemeinsamer Besprechung der folgenden
