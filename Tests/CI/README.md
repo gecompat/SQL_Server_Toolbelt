@@ -157,11 +157,23 @@ verwendet alle nach dem obigen Gruppen- und Einzelzielvertrag zulässigen
 Einträge. Für einen allgemeinen Windows-`base`-Lauf gilt die ausdrücklich
 freigegebene Patchäquivalenz: Bereite `base`- und `CU<n>`-Ziele derselben
 Windows-/SQL-Version werden gemeinsam und deterministisch ausgeführt. Ein
-explizit angefordertes `CU<n>` bleibt exakt. Fehlt ein zulässiges Ziel oder ist
+explizit angefordertes `CU<n>` bleibt hinsichtlich der CU-Nummer exakt;
+`CU32`, `Cu32` und `cu32` bezeichnen denselben Patchstand. Die Schreibweise
+anderer Patchbezeichnungen bleibt unverändert. Überlappende Anforderungen
+(beispielsweise `base` und `CU32`) führen ein Ziel anhand seines
+Vertragsschlüssels nur einmal aus. Fehlt ein zulässiges Ziel oder ist
 sein eigener Runtime-Status nicht
 `READY`, wird dieser Scope als nicht ausgeführt behandelt; ein Wechsel auf eine
 andere Plattform oder SQL-Version findet nicht statt. Der Adapter startet oder
 repariert keine Lab-Ressource.
+
+`python Tests/CI/validate_lab_selector.py` führt mit PowerShell 7 synthetische
+Verhaltenstests der echten Selektionsfunktionen aus. Die Funktionen werden
+über den PowerShell-AST geladen, ohne den Runner zu initialisieren oder ein
+Labziel zu kontaktieren. Geprüft werden CU-Schreibweisen, exakte Grenzen,
+numerische/stabile base-Auswahl, Bereitschaft und Deduplizierung. Der
+Documentation-Consistency-Workflow führt sie bei Änderungen an der Auswahl
+oder ihren Tests sowie bei einem manuellen vollständigen Audit aus.
 
 Wichtige Anpassungen:
 
