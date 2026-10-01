@@ -726,6 +726,12 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 
 ## TC-2026-032: Erweiterter String-Split mit mehrzeichigen Separatoren, Escape und Quote
 
+> Nutzeranforderung 2026-10-01: Eine öffentliche Split-TVF ist Pflicht; eine
+> USP ist nur optional ergänzend und niemals Ersatz. Unquoting wird als
+> eigener späterer Funktionsslice unter diesem Kandidaten geführt und ist
+> noch nicht zur Implementierung freigegeben. Konkrete Signatur, Fehler- und
+> Quote-Semantik bleiben zu besprechen; der Status bleibt `researched`.
+
 | Feld | Wert |
 |---|---|
 | **ID** | `TC-2026-032` |
@@ -773,6 +779,13 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Nächster Schritt** | Nach erfolgreicher SQL-Server-2019-/2022-/2025-Linux-Matrix für Version `1.2.0` Windows-Runtime, reale Archive, echte Extremgrößen und den vollständigen Upgradepfad aus einem realen 1.1.0-Stand ergänzen. |
 
 ## TC-2026-034: ZIP-Archive kontrolliert extrahieren und erzeugen
+
+> Nutzeranforderung 2026-10-01: In-memory-ZIP-Erzeugung ist als Startscope
+> bestätigt. Spätere Datei-I/O ist ein verpflichtender Roadmap-Folgeslice
+> unter diesem Kandidaten. Dafür sind vor Implementierung ein eigener
+> Sicherheits-, Provider- und Funktionsvertrag sowie eine ausdrückliche
+> funktionsbezogene Freigabe erforderlich; keine pauschale I/O-Freigabe.
+> Konkrete Writer-Signaturen, Typdefinitionen und Limits bleiben offen.
 
 | Feld | Wert |
 |---|---|

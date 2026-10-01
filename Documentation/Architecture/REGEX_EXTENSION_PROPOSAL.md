@@ -7,6 +7,22 @@ exportiert bewusst nur Is-Match, Instr und Count. Dieses Dokument bereitet
 einen späteren Erweiterungsslice vor. Es autorisiert keine Änderung des
 Moduls, keine Assembly und kein neues öffentliches SQL-Objekt.
 
+## Nutzeranforderung vom 2026-10-01
+
+Für die weitere R2a-Vertragsbesprechung sind `varchar` und `nvarchar`
+einschließlich ihrer `max`-Varianten zu berücksichtigen. Gezielte Varianten
+werden nur bei einem begründeten Semantik- oder Performance-Nutzen vorgesehen;
+eine pauschale Vervielfachung aller Signaturen ist nicht verlangt.
+
+Ein Patternumfang bis 8.000 Zeichen ist nach Nutzerangabe ausreichend.
+8.000 Zeichen sind nicht mit dem bisherigen R1b-Limit von 8.000 UTF-16-Bytes
+gleichzusetzen. Die konkrete Unicode-Zählweise und LOB-Ressourcenlimits für
+Quelle, Ersatztext und Ergebnis sind noch zu entscheiden. Die bestehenden
+R1b-Verträge werden durch diese Gesprächsanforderung nicht geändert.
+
+Diese datierte Anforderung ist noch kein fertiger öffentlicher Vertrag und
+autorisiert keine Implementierung der offenen Signaturen oder Limits.
+
 ## Ausgangslage
 
 SQL Server 2025 bietet zusätzlich Replace, Substring, Matches und
@@ -51,8 +67,8 @@ Transformationsvertrag klein und eindeutig. Capture-Gruppen und `\\1` bis
 | Substring | Startposition und occurrence sind 1-basiert; kein Treffer liefert SQL-`NULL`. Der erste Slice liefert den Gesamttreffer, keine Capture-Gruppe. |
 | Empty matches | Der Suchcursor rückt nach einem leeren Treffer um eine UTF-16-Codeeinheit vor, damit weder Replace noch Substring endlos laufen. |
 | SQL `NULL` | SQL-`NULL` in Quelle, Pattern oder Flags propagiert SQL-`NULL`; ungültige Parameter und Pattern bleiben stabile `TBX_REGEX_*`-Fehler. |
-| Grenzen | Höchstens 2 MiB Quelle und Ersatztext sowie 8.000 UTF-16-Bytes Pattern; eine künftige Erhöhung ist eine eigene Ressourcenentscheidung. |
-| Ergebnis | Textfunktionen geben `nvarchar(max)` zurück; Positionsfunktionen bleiben bei den bereits festgelegten UTF-16-Positionen. |
+| Grenzen | Nutzeranforderung vom 2026-10-01: bis 8.000 Zeichen Pattern ausreichend; Unicode-Zählweise und LOB-Ressourcenlimits für Quelle, Ersatztext und Ergebnis noch offen. Das bisherige R1b-Limit von 8.000 UTF-16-Bytes ist kein gleichwertiger R2a-Zeichenvertrag. |
+| Ergebnis | Nutzeranforderung vom 2026-10-01: `varchar`-/`nvarchar`- einschließlich `max`-Varianten berücksichtigen; konkrete Rückgabetypen und sinnvolle Varianten noch offen. Positionssemantik ist mit dem Unicode-Vertrag abzustimmen. |
 
 Die vorgeschlagene R2a-Semantik weicht bewusst an einzelnen Stellen von der
 SQL-Server-2025-Oberfläche ab, etwa bei fehlenden Capture-Backreferences. Das
@@ -83,8 +99,10 @@ bei patchgebundenen Tests erforderlich.
 
 Für eine spätere Implementierungsfreigabe wird der vorgeschlagene R2a-Schnitt
 zur Bestätigung vorgelegt: Replace und Substring, keine Capture-
-Backreferences, literal Replacement, gleiche Ressourcen- und
-Sicherheitsgrenzen wie R1b. R2b bleibt bewusst eine getrennte Entscheidung.
+Backreferences, literal Replacement und die Sicherheitsgrenzen von R1b.
+Die Typvarianten, Pattern-Zählweise und LOB-Ressourcenlimits werden gemäß der
+Nutzeranforderung vom 2026-10-01 separat konkretisiert. R2b bleibt bewusst
+eine getrennte Entscheidung.
 Danach können Zweck, konkrete Signaturen, Alternativen, Risiken und Scope der
 jeweiligen Funktionen verbindlich besprochen werden.
 
