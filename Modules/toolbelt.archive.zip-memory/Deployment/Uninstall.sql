@@ -1,4 +1,10 @@
 :On Error exit
+-- RAISERROR statt THROW: Caller-Transaktionen bei XACT_ABORT ON nicht beschädigen.
+IF @@TRANCOUNT<>0
+BEGIN
+    RAISERROR(N'TBX_ZIP_LIFECYCLE_CALLER_TRANSACTION: Uninstall benötigt einen eigenen Transaktionsscope.',16,1);
+    RETURN;
+END;
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
@@ -51,7 +57,7 @@ IF @DeploymentMode = N'central'
     THROW 51336, N'Bei zentraler Installation ist ConfirmNoExternalConsumers=1 erforderlich.', 1;
 
 DECLARE @InstalledVersion nvarchar(64)=(SELECT TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0 AND name=@VersionProperty);
-DECLARE @OwnWriter bit=CASE WHEN @InstalledVersion=N'1.3.0' THEN 1 ELSE 0 END;
+DECLARE @OwnWriter bit=CASE WHEN @InstalledVersion IN(N'1.3.0',N'1.4.0') THEN 1 ELSE 0 END;
 DECLARE @WriterPublicId int=CASE WHEN @OwnWriter=1 THEN OBJECT_ID(N'toolbelt_archive.USP_CreateZipFromEntries') END,
  @WriterNameId int=CASE WHEN @OwnWriter=1 THEN OBJECT_ID(N'toolbelt_archive.TVF_InternalZipWriterName') END,
  @WriterArchiveId int=CASE WHEN @OwnWriter=1 THEN OBJECT_ID(N'toolbelt_archive.TVF_InternalZipWriterArchive') END;

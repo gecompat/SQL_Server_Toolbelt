@@ -27,6 +27,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ZipEntryProvider.cs" />
     <Compile Include="ZipWriter.cs" />
+    <Compile Include="ArchiveSession.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,6 +1,6 @@
 module_id: "toolbelt.archive.zip-memory"
 module_name: "ZIP Memory Inspection"
-version: "1.3.0"
+version: "1.4.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
@@ -149,6 +149,10 @@ tests:
   manual_windows: "Tests/Manual_Windows_Runtime_Testplan.md"
   github_hosted_linux: "../../.github/workflows/zip-memory-runtime.yml"
 validation_evidence:
+  - date: "2026-10-01"
+    workflow: "local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1; Spikes/XlsxMemory/Run-FrameworkQualification.ps1"
+    scope: "Release 1.4.0 technische kanonische XLSX-Fassade; SQL Server 2019 Linux/latest und SQL Server 2025 Windows/CU8, echte gepinnte ZIP-1.3-Assemblyhash-Upgradefixture, SAFE local/central Lifecycle, bestehender Writer-SQL-Vertrag; unabhängige Framework-Writer-Regression und identische Gate-/Releasehashes. Übrige Matrix und Produktionskapazität nicht qualifiziert."
+    result: "success"
   - date: "2026-10-01"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Release 1.3.0; finaler Framework-4.8-Build und unabhängige Framework-Writer-Suite; SQL Server 2019 Linux / Compatibility 150 und SQL Server 2025 Windows / Compatibility 150, 160, 170; local/central Writer, tatsächliche 16-MiB-Standardpayloads Stored/Deflate, leere Reader-Payloads FT/SELECT/ResultTable, encrypted NULL, SQLClient-Metadaten, Parameter-/Input-/Limit-/Help-/Transaktionsfehler, echtes gepinntes 1.2.0-Binaryupgrade, drei neue Namenskollisionen, historischer Uninstall-Erhalt, Wiederdeploy und Uninstall; größere SQL-Live-Ceilings und Produktionsarchive bleiben offen"

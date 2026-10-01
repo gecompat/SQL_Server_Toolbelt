@@ -7,7 +7,19 @@ ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
 Windows- und modulspezifische Fälle bleiben unberührt.
 
 **Modul-ID:** `toolbelt.archive.zip-memory`  
-**Version:** `1.3.0`
+**Version:** `1.4.0`
+
+Release 1.4.0 ergänzt ausschließlich die technische .NET-Fassade
+`ZipEntryProvider.ArchiveSession` für den separat freigegebenen XLSX-Reader.
+Sie verwendet den kanonischen ZIP-Parser, Payloadprüfungen und CRC32 ohne
+Parserkopie. Es entsteht keine neue öffentliche ZIP-SQL-API; bestehende
+Reader-/Writerverträge und Ressourcenparameter bleiben unverändert. Ein
+referenzierender XLSX-Consumer blockiert den ZIP-Uninstall. Die echte
+1.3→1.4-Assemblyhash-Upgradefixture und Writer-Vertragsregression auf Windows
+2025/CU8 und Linux 2019/latest sind erfolgreich; dieser Scope ersetzt keine vollständige
+Plattform-/Kapazitätsqualifizierung.
+
+Deploy und Uninstall benötigen einen eigenen Transaktionsscope. Der frühe Guard lehnt vorhandene Caller-Transaktionen vor SET und DDL mit RAISERROR 50000 und `TBX_ZIP_LIFECYCLE_CALLER_TRANSACTION:` ab. Er verändert weder Caller-Arbeit noch XACT_ABORT und beschädigt den Scope auch bei XACT_ABORT ON nicht. SQLCMD beendet die Ablehnung über `:On Error exit` mit einem Fehlerstatus.
 
 Release 1.3.0 ergänzt den ausdrücklich freigegebenen [ZIP-Writer](Documentation/USP_CreateZipFromEntries.md): lokale Entrytabelle des Aufrufers, Stored oder Deflate, konservative unabhängige Ressourcenlimits, Binary-Envelope und datenzugriffsfreier SAFE-CLR-Kern. Die Readervertragsgrenzen bleiben unverändert. Die neue Writerqualifikation ist getrennt von den nachfolgenden historischen Readernachweisen zu betrachten.
 

@@ -1,6 +1,29 @@
 # Vorschlag: XLSX-Reader (`TC-2026-045`)
 
-## Status
+## Bedingte Implementierungsfreigabe vom 2026-10-01
+
+Nach den unten erhaltenen historischen Researchständen hat der Benutzer die
+beiden konkret besprochenen APIs `toolbelt_file.USP_ListXlsxWorksheets` und
+`toolbelt_file.USP_ReadXlsxWorksheetCells` samt Binary-/Sparse-/Raw-/Text-/
+Formel-/Cache- und Ressourcenvertrag ausdrücklich bedingt freigegeben.
+Die durable Freigabe steht im ersten aktiven Abschnitt von
+[BACKLOG.md](../../.ai/BACKLOG.md). Öffentliche Bindings bleiben an erfolgreiche
+SAFE-/Memory-only-Qualifizierung gebunden; kein SDK, Worker, Datei-/Netzwerkzugriff
+oder Rechteausweitung ist damit genehmigt.
+
+Der praktische [Qualifizierungsspike](../../Spikes/XlsxMemory/README.md)
+implementiert einen eigenen begrenzten XML-Kern mit einer technischen Fassade
+des vorhandenen kanonischen ZIP-Parsers. Framework-Harness, adversariale
+partiell vertraute Sandbox und eigene IL/API-Allowlist sind im dort exakt
+beschriebenen Scope erfolgreich. Der tatsächliche interne SAFE-Hostnachweis
+ist auf SQL Server 2019 Linux und SQL Server 2025 Windows erfolgreich; nach
+diesem Gate entstanden die beiden freigegebenen öffentlichen Reader-USPs im
+Modul toolbelt.file.xlsx-memory. Öffentliche Vertrags-, Metadaten- und
+Lifecyclequalifizierung läuft getrennt vom begrenzten Gate. Die
+nachfolgenden Vorfreigabeaussagen bleiben als historische Entscheidungsgrundlage
+erhalten und ersetzen diesen datierten Aktivierungsnachtrag nicht.
+
+## Historischer Researchstatus vor der bedingten Implementierungsfreigabe
 
 `TC-2026-045` bleibt Research. Dieses Dokument bereitet die spätere
 Funktionsbesprechung vor. Es autorisiert weder einen Dateizugriff noch einen

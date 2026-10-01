@@ -10,8 +10,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $moduleRoot = Split-Path -Parent $PSScriptRoot
-$projectPath = Join-Path $moduleRoot 'Clr/Toolbelt.Archive.ZipMemory.csproj'
-$assemblyPath = Join-Path $moduleRoot "Clr/bin/$Configuration/Toolbelt.Archive.ZipMemory.dll"
+$projectPath = Join-Path $moduleRoot 'Clr/Toolbelt.File.XlsxMemory.csproj'
+$assemblyPath = Join-Path $moduleRoot "Clr/bin/$Configuration/Toolbelt.File.XlsxMemory.dll"
 $deployTemplatePath = Join-Path $moduleRoot 'Deployment/Deploy.sql'
 
 $msbuild = Get-Command msbuild -ErrorAction SilentlyContinue
@@ -43,7 +43,7 @@ if ($null -eq $msbuild) {
 
 if ($LASTEXITCODE -ne 0 -or
     -not (Test-Path -LiteralPath $assemblyPath -PathType Leaf)) {
-    throw 'Der CLR-ZIP-Assembly-Build ist fehlgeschlagen oder das erwartete Binary fehlt.'
+    throw 'Der CLR-XLSX-Assembly-Build ist fehlgeschlagen oder das erwartete Binary fehlt.'
 }
 
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
@@ -51,24 +51,25 @@ New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $assemblyBytes = [IO.File]::ReadAllBytes($assemblyPath)
 $assemblyHex = [BitConverter]::ToString($assemblyBytes).Replace('-', '')
 $sha512 = (Get-FileHash -Algorithm SHA512 -LiteralPath $assemblyPath).Hash.ToUpperInvariant()
-$description = 'SQL Server Toolbelt toolbelt.archive.zip-memory CLR provider 1.4.0'
+$description = 'SQL Server Toolbelt toolbelt.file.xlsx-memory CLR provider 1.0.0'
 
 $manifest = [ordered]@{
     schemaVersion = '1.0'
-    moduleId = 'toolbelt.archive.zip-memory'
-    moduleVersion = '1.4.0'
-    assemblySqlName = 'Toolbelt_Archive_ZipMemory'
+    moduleId = 'toolbelt.file.xlsx-memory'
+    moduleVersion = '1.0.0'
+    assemblySqlName = 'Toolbelt_File_XlsxMemory'
     assemblyFileName = [IO.Path]::GetFileName($assemblyPath)
     permissionSet = 'SAFE'
-    directFrameworkReferences = @('System', 'System.Data')
+    directFrameworkReferences = @('System', 'System.Data', 'System.Xml')
+    directModuleReferences = @('Toolbelt.Archive.ZipMemory >= 1.4.0')
     sha512 = $sha512
     sqlServerHexLiteral = '0x' + $sha512
     description = $description
 }
 
-$manifestPath = Join-Path $OutputDirectory 'Toolbelt.Archive.ZipMemory.trust-manifest.json'
+$manifestPath = Join-Path $OutputDirectory 'Toolbelt.File.XlsxMemory.trust-manifest.json'
 $deployPath = Join-Path $OutputDirectory 'Deploy.WithAssembly.sql'
-$assemblyOutputPath = Join-Path $OutputDirectory 'Toolbelt.Archive.ZipMemory.dll'
+$assemblyOutputPath = Join-Path $OutputDirectory 'Toolbelt.File.XlsxMemory.dll'
 
 $deployTemplate = Get-Content -LiteralPath $deployTemplatePath -Raw
 $marker = '$(AssemblyBits)'
