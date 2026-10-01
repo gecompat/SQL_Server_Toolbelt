@@ -72,6 +72,37 @@ vollständige Connection Strings dürfen nicht protokolliert, kopiert oder
 committed werden. Falls vorhanden, ist der übrige Prompt aus
 `SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE` zu befolgen.
 
+### Autorisierte SQL-Testparameter
+
+Auf ausdrücklichen Benutzerauftrag vom 2026-10-01 dürfen die zuvor
+schema-validierten, ausdrücklich ausgewählten Testsysteme für die
+freigegebenen Entwicklungs- und Testwellen konfiguriert werden. Der Benutzer
+hat freie Verfügung über deren Testkonfiguration ausdrücklich bestätigt.
+Dies erlaubt insbesondere
+`clr enabled = 1` für freigegebene CLR-Tests, nicht die Verwaltung von
+Lab-Infrastruktur oder eine allgemeine Serveroptimierung.
+
+- Notwendigkeit und Ziel vor der Änderung prüfen; vorhandene Berechtigungen
+  nutzen, keine Rechte erteilen. Sicherheitsverträge bleiben unverändert:
+  kein Abschalten von `clr strict security`, kein `TRUSTWORTHY ON`, kein
+  `RECONFIGURE WITH OVERRIDE` und kein Serverneustart.
+- Vor `RECONFIGURE` alle ausstehenden Parameteränderungen prüfen und ihre
+  Auswirkungen in den Änderungsscope aufnehmen. Bereits vorgemerkte Änderungen
+  dürfen auf diesen Testsystemen mitaktiviert werden; auch deren Vorzustände
+  erfassen und wirksamen Zustand verifizieren. Keine implizite Übertragung der
+  Freigabe auf Produktionssysteme oder andere, nicht ausgewählte Ressourcen.
+- Vorzustand und eigener Änderungsscope nur in einem lokalen, nicht
+  versionierten Wiederherstellungsjournal festhalten; keine Secrets,
+  Connection Strings oder privaten Endpoints aufnehmen. Reale Parameterwerte
+  nicht in Repository, Pull Request oder öffentliche Evidenz übernehmen.
+- Änderungen zwischen Agents koordinieren und den wirksamen Zustand prüfen.
+  Wiederherstellung erst nach Abschluss aller betroffenen Testverbraucher
+  und nur bei weiterhin eindeutig eigenem, unverändertem Änderungsscope;
+  fremde zwischenzeitliche Änderungen nicht überschreiben.
+
+Diese eng begrenzte Freigabe ergänzt die Infrastrukturgrenze oben. Ein
+blockiertes Testziel stoppt keine unabhängige freigegebene Entwicklungswelle.
+
 ## Persönlicher Research-Input
 
 `Backlog/personal_Backlog_Bainstorm.md` ist ein vom Benutzer gepflegter Ideenpool. Vor jeder Backlog- oder Research-Aufgabe ist diese Datei als Hinweisquelle zu lesen und bei der Recherche zu berücksichtigen.
