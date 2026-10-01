@@ -6,7 +6,7 @@ Stand: 2026-08-24
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** 30 Module sind implementiert; 21 sind `validated`, 9 sind `partially validated`, 0 sind `not executed`. |
+| Aktueller Projektstand | **Dokumentiert:** 31 Module sind implementiert; 21 sind `validated`, 10 sind `partially validated`, 0 sind `not executed`. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
 | Implementierungsfreigabe | **Abgeschlossen beziehungsweise aktiv:** Die bisher implementierten Einzelkandidaten, W1, W2a, W2b-A und W2c wurden nach ausdrücklicher Freigabe umgesetzt. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
@@ -83,7 +83,7 @@ benötigen.
 |---|---:|---|
 | `RI-2026-079` – Date Spine und Kalenderdimension | `M` | Hoher Nutzen; die mögliche Generate-Series-Grundlage `TC-2026-006` ist bereits verfügbar. |
 | `RI-2026-041` – JSON Pointer | `M` | Kleiner standardisierter Kern für spätere JSON-Patch-Funktionen. |
-| `TC-2026-009` Slice B – JSON-Konstruktion | `M–L` | Path Exists ist als W2b-A implementiert; variable Konstruktorargumente benötigen weiterhin eine eigene Aufrufoberfläche. |
+| `TC-2026-009` Slice B – JSON-Konstruktion | `M–L` | Seit 2026-10-01 einzeln freigegeben und als Array-/Object-USPs mit #Temp-Eingabe implementiert; ausgewählter Lab-Scope erfolgreich, weitere Nachweise offen. |
 | `TC-2026-013` – JSON-Aggregate | `L` | Zurückgestellt, solange die native Funktion Preview ist und Aggregatoberfläche sowie T-SQL-/CLR-Provider offen sind. |
 | `RI-2026-076` – Safe Cast mit Fehlerdetails | `M` | Nützlich für Import und Validierung; darf nicht nur `TRY_CONVERT` umbenennen. |
 | `RI-2026-097` – deterministisches Hash-Sampling | `S–M` | Einfacher, reproduzierbarer Baustein für Tests und Datenreduktion. |

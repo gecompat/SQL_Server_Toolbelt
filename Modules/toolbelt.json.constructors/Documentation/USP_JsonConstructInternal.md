@@ -1,0 +1,12 @@
+# USP_JsonConstructInternal
+
+Interner kanonischer pure-T-SQL-Kern; keine zusätzliche öffentliche API.
+`@ObjectMode bit=NULL` wählt intern Array=0/Object=1. Danach EntriesTable,
+MaxEntries, MaxTotalValueBytes, MaxResultBytes, ResultTable, KeepData, Debug, Hilfe.
+Nur die öffentlichen Wrapper sind Anwendungsschnittstellen. Interne Help unterstützt
+denselben standardisierten Vertrag und mutiert nichts.
+
+Private Snapshot-/Fragment-/Ergebnistabellen; Eingabewerte niemals als SQL ausführen.
+Zahlen werden als Literalgrammatik geprüft, ohne numerische SQL-Konvertierung.
+Geordnete STRING_AGG-Fragmente vermeiden das wiederholte Anfügen an ein wachsendes
+Gesamt-LOB; dies ist keine Streaming-, Echtzeit- oder Parallelitätszusage.

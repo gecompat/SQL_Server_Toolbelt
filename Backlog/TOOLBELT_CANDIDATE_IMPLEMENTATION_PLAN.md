@@ -9,7 +9,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 30 Module sind implementiert; 21 sind `validated`, 9 sind `partially validated`, 0 sind `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 31 Module sind implementiert; 21 sind `validated`, 10 sind `partially validated`, 0 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -183,7 +183,7 @@ physischen Windows-/Linux-Matrix validiert.
 | `TC-2026-004` | `toolbelt.datetime.truncate` | `TVF_TruncateDate`, `TVF_TruncateDateTime2`, `TVF_TruncateDateTimeOffset` | Keine autonome Validierung offen. |
 | `TC-2026-005` | `toolbelt.datetime.bucket` | `TVF_DateBucketDate`, `TVF_DateBucketDateTime2`, `TVF_DateBucketDateTimeOffset` | Keine autonome Validierung offen. |
 | `TC-2026-007` | `toolbelt.binary.bit-operations` | `TVF_LeftShiftBigInt`, `TVF_RightShiftBigInt`, `TVF_BitCountBigInt`, `TVF_GetBitBigInt`, `TVF_SetBitBigInt` | Keine autonome Validierung offen; Binary-Slice bleibt getrennt. |
-| `TC-2026-009` | `toolbelt.json.path-exists` | `toolbelt_json.TVF_JsonPathExists` | Keine autonome Validierung offen; Konstruktoren bleiben getrennt. |
+| `TC-2026-009` | `toolbelt.json.path-exists`, `toolbelt.json.constructors` | `toolbelt_json.TVF_JsonPathExists`, `USP_JsonArray`, `USP_JsonObject` | Path Exists validiert; Konstruktoren im ausgewählten Linux-2019-/Windows-2025-Scope geprüft, weitere Ziele und gemappte CrossDB-Minimalrechte offen. |
 | `TC-2026-014` | `toolbelt.core.event-log` | `toolbelt_core.USP_WriteEvent`, `VW_Events`, `USP_DeleteEventsBefore` | Keine autonome Validierung offen; betriebliche Loopback-Blockierungsprofile wären ein getrennter Scope. |
 | `TC-2026-016` | `toolbelt.core.console-message` | `toolbelt_core.USP_WriteConsoleMessage` | Zusätzliche reale Client-/Treiber-, Buffering- und Framing-Evidenz. |
 | `TC-2026-017` | `toolbelt.core.error-envelope` | `toolbelt_core.USP_CaptureErrorEnvelope` | Keine autonome Validierung offen; Retry-Entscheidungen bleiben ausdrücklich außerhalb dieses Moduls. |

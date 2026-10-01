@@ -4,7 +4,7 @@
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-30 Module sind implementiert. 21 sind `validated`, 9 sind `partially
+31 Module sind implementiert. 21 sind `validated`, 10 sind `partially
 validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
@@ -115,8 +115,9 @@ Module sind `validated`.
 W2b-A ist als `toolbelt.json.path-exists` implementiert. Die
 Multi-statement TVF prüft Root-, Property-, Array-Index- und
 Array-Wildcard-Pfade, propagiert SQL `NULL` und liefert für ungültiges JSON
-oder ungültige Pfade fehlerfrei `0`. Konstruktoren aus `TC-2026-009` und
-JSON-Aggregate aus `TC-2026-013` bleiben zurückgestellt. Der vollständige
+oder ungültige Pfade fehlerfrei `0`. Der getrennte Konstruktor-Slice aus
+`TC-2026-009` ist inzwischen implementiert; JSON-Aggregate aus `TC-2026-013`
+bleiben zurückgestellt. Der vollständige
 Adapter ist auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter
 Windows base und Linux latest einschließlich nativer Parität,
 Wiederholungsdeployment, Kollisionsschutz, Lifecycle, Central und Uninstall
@@ -160,6 +161,15 @@ Materialisierung vor Ausgabe. Der neue Adapter besteht auf SQL Server 2019
 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170. Weitere R2b-Ziele,
 Lowpriv-CrossDB und SQL-100k-Durchsatz bleiben offen; `partially validated`,
 `unreleased`. Historische R1b-/R2a-Nachweise bleiben getrennt erhalten.
+
+`toolbelt.json.constructors` 1.0.0 implementiert die einzeln freigegebenen
+`USP_JsonArray` und `USP_JsonObject` aus caller-lokalen #Temp-Tabellen mit
+expliziten ValueKinds, einem kanonischen Prüf-/Escapingkern und atomarer
+ResultTable-Ausgabe. Der vollständige Adapter besteht auf SQL Server 2019
+Linux/latest und 2025 Windows/CU8 einschließlich Literal-/Unicode-/Limit-,
+CS-/CI-Namespace-, Clientmetadaten-, Transaktions- und Lifecycleverträgen.
+Weitere Ziele, gemappte CrossDB-Minimalrechte und Produktionskapazität bleiben
+offen; `partially validated`, `unreleased`.
 
 ## Projektzweck
 

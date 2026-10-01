@@ -1472,6 +1472,23 @@ def run_json_path_exists_static() -> None:
         )
 
 
+def run_json_constructors_static() -> None:
+    """Koppelt den neuen Konstruktorvertrag an dessen kanonischen Staticvalidator."""
+    script = (
+        REPOSITORY_ROOT / "Modules" / "toolbelt.json.constructors"
+        / "Tests" / "Static" / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)), cwd=REPOSITORY_ROOT,
+        check=False, capture_output=True, text=True, encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische JSON-Konstruktor-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
 def run_console_message_static() -> None:
     script = (
         REPOSITORY_ROOT / "Modules" / "toolbelt.core.console-message"
@@ -1617,6 +1634,8 @@ def main() -> int:
         validate_w2b_json_path_runtime_workflow_scope()
     if "json_path_exists_static" in checks:
         run_json_path_exists_static()
+    if "json_constructors_static" in checks:
+        run_json_constructors_static()
     if "w2c_runtime_workflow_scope" in checks:
         validate_w2c_runtime_workflow_scope()
     if "console_message_static" in checks:
