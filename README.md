@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 29 Module implementiert – 7 teilweise validiert](https://img.shields.io/badge/Status-29%20Module%20implementiert%20%7C%207%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 30 Module implementiert – 8 teilweise validiert](https://img.shields.io/badge/Status-30%20Module%20implementiert%20%7C%208%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 29 Module sind implementiert; 22 sind `validated`, 7 sind `partially validated`, alle sind `unreleased`.**
+**Der Repository-Grundaufbau ist abgeschlossen. 30 Module sind implementiert; 22 sind `validated`, 8 sind `partially validated`, alle sind `unreleased`.**
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)
@@ -133,7 +133,9 @@ Das implementierte Modul
 teilt Unicode-Text an mehreren einzelnen literal interpretierten
 Separatorzeichen. Die Windows-/Linux-Matrix 2019/2022/2025 ist erfolgreich;
 das Modul ist `validated`. Die breitere Quote-/Escape-Ausbaustufe bleibt
-separat in `TC-2026-032`.
+separat in `TC-2026-032`; S2 ist als
+[`toolbelt.string.split-advanced`](./Modules/toolbelt.string.split-advanced/README.md)
+implementiert und auf SQL Server 2019 Linux sowie 2025 Linux/Windows gezielt geprüft.
 
 Das implementierte R1b-Modul
 [`toolbelt.string.regex`](./Modules/toolbelt.string.regex/README.md) stellt

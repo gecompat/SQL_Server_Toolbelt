@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-29 Module sind implementiert. 22 sind `validated`, 7 sind `partially validated`; 0 sind `not executed`.
+30 Module sind implementiert. 22 sind `validated`, 8 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -25,10 +25,10 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | ID | `S2`; Slice zu `TC-2026-032`, keine neue sequenzielle Referenz |
 | Zweck und Scope | `toolbelt_string.TVF_SplitAdvanced` nach `Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md`: mehrere Separatorstrings, Quote/Escape, Originaltokens, 1-basierte Ordinals und atomare Geschäftsfehlerzeile statt Teiltokens. |
 | Benutzerfreigabe | Nach Vertragsbesprechung und Konkretisierung in PR #114 am 2026-10-01 ausdrücklich mit „ja, entwickle das und mach anschließenden PR-Merge“ freigegeben; die vorangehende Frage benannte `TVF_SplitAdvanced` einzeln neben den zwei Regex-Funktionen. |
-| Status | `active`; Implementierung und Runtime-Nachweis ausstehend |
+| Status | `completed` für freigegebenen S2-Scope; Runtime `partially validated` |
 | Grenzen | Pure-T-SQL-TVF; Inline-TVF-Alternative prüfen, MSTVF-Ausnahme technisch begründen. Input 65.536 UTF-16-Codeeinheiten, JSON-Rohtext 16.384, höchstens 16 Separatoren mit je 64 Codeeinheiten als zu validierende Grenzen. Fehlerpriorität, NULL-No-op, Originaltokens und fünf Resultspalten gemäß Vertrag. |
 | Tests | Quote/Escape/Longest-Match, JSON-/Konfigurations- und Parserfehler, Fehlerpositionen/-priorität, keine Teiltokens, Ordinals, NULL/Empty/Trailing Spaces, Unicode/Collations, Grenzwerte, CROSS APPLY, lokales/zentraltes Deployment, Wiederholung, Kollision und Uninstall. |
-| Nächster Schritt | Freigegebene TVF implementieren und scopebezogen testen. Optionale USP, Unquoting, ZIP-Erzeugung, Datei-I/O und tatsächliche Veröffentlichung sind nicht durch diese Freigabe autorisiert. |
+| Nächster Schritt | TVF implementiert; vollständiger Adapter auf physischen SQL Server 2019 Linux und 2025 Linux/Windows erfolgreich. Andere Zielkombinationen und GitHub-hosted Workflow nicht ausgeführt. Risikobasierte Testauswahl; keine automatische Erweiterung der Testmatrix. Optionale USP, Unquoting, ZIP-Erzeugung, Datei-I/O und tatsächliche Veröffentlichung sind nicht durch diese Freigabe autorisiert. |
 
 ### P1a: T-SQL Script Parser und AST-Provider
 
@@ -57,9 +57,9 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Dependencies | Ausdrückliche V0-Freigabe vom 2026-08-28 und Einzelzielfreigabe vom 2026-08-29; schema-valider SQL_Server_Lab-Vertrag; entweder `groupStatus = READY` oder explizit ausgewählte Einzelziele mit `runtimeStatus = READY` und zulässigem Eintragsstatus; vorhandene Modul-, Lifecycle- und Testverträge. |
 | Priorität | `P0` |
 | Status | `active`; autonom ausführbare V0a-/V0b-Matrix abgeschlossen; sieben externe oder manuelle Rest-Gates bleiben offen |
-| Implementation Status | 29 Module `implemented` – aus `module.yaml` abgeleitet |
-| Validation Status | 22 Module `validated`, 7 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 22 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory und Windows Filesystem bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuelle Sicherheitsfälle offen. |
-| Release Status | 29 Module `unreleased`; V0c, D1, E1a, E1b, R1b und W6d autorisieren keine tatsächliche Veröffentlichung. |
+| Implementation Status | 30 Module `implemented` – aus `module.yaml` abgeleitet |
+| Validation Status | 22 Module `validated`, 8 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 22 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory und Windows Filesystem bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuelle Sicherheitsfälle offen. Das neue S2-Modul Split Advanced ist zusätzlich nur im ausdrücklich risikobasiert ausgewählten Scope geprüft; weitere Zielkombinationen und niedrigprivilegierte Cross-DB-Aufrufe sind nicht ausgeführt. |
+| Release Status | 30 Module `unreleased`; V0c, D1, E1a, E1b, R1b und W6d autorisieren keine tatsächliche Veröffentlichung. |
 | Akzeptanzkriterien | Linux- und Windows-Zielversionen tatsächlich geprüft; Dependency-Closure und versionierte Objektmanifeste konsistent; Erst-, Wiederholungs-, Upgrade-, Central- und Uninstall-Verträge für die Kohorte erfolgreich; modulspezifische Pflichtfälle ausgeführt; nicht verfügbare Kombinationen sichtbar; vollständiger Dokumentationsaudit erfolgreich. |
 | Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |
 | Blocker | Kein Gruppenblocker für einzeln bereite Linux- oder Windows-Ziele. Die automatisierte Matrix ist vollständig grün. Offen bleiben ausschließlich die sieben modulspezifisch dokumentierten Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuellen Sicherheitsgates. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. |
@@ -607,7 +607,7 @@ führt Provider-Spike, ungemessene Zielgrenzen und die getrennte Folgestufe.
 | Tests | Statischer Vertrag sowie vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Compatibility Levels 150/160/170 nach Zielversion erfolgreich. |
 | Blocker | Kein Merge-Blocker; die vollständige Pflichtmatrix ist erfolgreich. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-001`; kanonische Artefakte unter `Modules/toolbelt.string.split-characters/`; [Split-Characters Runtime Run 30516116708](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30516116708) erfolgreich. |
-| Nächster Schritt | Keine autonome Validierung offen. `TC-2026-032` bleibt Research ohne Implementierungsfreigabe. |
+| Nächster Schritt | Keine autonome Validierung offen. S2 zu `TC-2026-032` ist separat freigegeben und implementiert; USP/Unquoting bleiben offen. |
 
 ### AP-2026-010: Identifier- und Multipart-Name-Toolkit implementieren
 

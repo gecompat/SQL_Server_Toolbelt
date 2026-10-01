@@ -1388,6 +1388,30 @@ def run_split_characters_static() -> None:
         )
 
 
+def run_split_advanced_static() -> None:
+    script = (
+        REPOSITORY_ROOT
+        / "Modules"
+        / "toolbelt.string.split-advanced"
+        / "Tests"
+        / "Static"
+        / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)),
+        cwd=REPOSITORY_ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische Split-Advanced-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
 def run_semantic_version_static() -> None:
     script = (
         REPOSITORY_ROOT / "Modules" / "toolbelt.validation.semantic-version"
@@ -1575,6 +1599,8 @@ def main() -> int:
         validate_split_characters_runtime_workflow_scope()
     if "split_characters_static" in checks:
         run_split_characters_static()
+    if "split_advanced_static" in checks:
+        run_split_advanced_static()
     if "semantic_version_runtime_workflow_scope" in checks:
         validate_semantic_version_runtime_workflow_scope()
     if "semantic_version_static" in checks:

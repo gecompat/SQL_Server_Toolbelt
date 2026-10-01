@@ -9,7 +9,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 29 Module sind implementiert; 22 sind `validated`, 7 sind `partially validated`, 0 sind `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 30 Module sind implementiert; 22 sind `validated`, 8 sind `partially validated`, 0 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -61,8 +61,8 @@ Implementierungsfreigaben.
 
 | Gruppe | Kandidaten | Konsequenz |
 |---|---|---|
-| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-014`, `TC-2026-015`, `TC-2026-016`, `TC-2026-017`, `TC-2026-018`, `TC-2026-019`, `TC-2026-020`, `TC-2026-021`, `TC-2026-022`, `TC-2026-023`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031`, `TC-2026-033`, `TC-2026-034` Extraction-Slice, `TC-2026-037` Read-/Windows-Slices, `TC-2026-038` Windows-Slice, `TC-2026-046` synchroner Slice, `TC-2026-047` Parser-Slice, `TC-2026-048` Barrier-Slice | 22 Module sind vollständig validiert; die sieben getrennt dokumentierten Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- und manuellen Sicherheitsgates benötigen externe Voraussetzungen oder Entscheidungen. |
-| Parser-, CLR- oder breite Semantikmodule | `TC-2026-010`, `TC-2026-011`, `TC-2026-013`, `TC-2026-032` | Funktionsfamilien und Provider vor dem ersten Code begrenzen und benchmarken. |
+| Implementiert | `TC-2026-001`, `TC-2026-002`, `TC-2026-003`, `TC-2026-004`, `TC-2026-005`, `TC-2026-006`, `TC-2026-007`, `TC-2026-008`, `TC-2026-009` Slice A, `TC-2026-012`, `TC-2026-014`, `TC-2026-015`, `TC-2026-016`, `TC-2026-017`, `TC-2026-018`, `TC-2026-019`, `TC-2026-020`, `TC-2026-021`, `TC-2026-022`, `TC-2026-023`, `TC-2026-024`, `TC-2026-029`, `TC-2026-030`, `TC-2026-031`, `TC-2026-032` S2, `TC-2026-033`, `TC-2026-034` Extraction-Slice, `TC-2026-037` Read-/Windows-Slices, `TC-2026-038` Windows-Slice, `TC-2026-046` synchroner Slice, `TC-2026-047` Parser-Slice, `TC-2026-048` Barrier-Slice | S2 ist zusätzlich risikobasiert teilweise validiert; 22 Bestandsmodule sind vollständig validiert; die sieben getrennt dokumentierten Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- und manuellen Sicherheitsgates benötigen externe Voraussetzungen oder Entscheidungen. |
+| Parser-, CLR- oder breite Semantikmodule | `TC-2026-010`, `TC-2026-011`, `TC-2026-013` | Funktionsfamilien und Provider vor dem ersten Code begrenzen und benchmarken. |
 | Execution-Infrastruktur | Zusätzliche Session-/Worker-Provider aus `TC-2026-046` sowie separate `KILL`-, Queue-Mutations- und Provider-Abbruch-Slices aus `TC-2026-018` | Work Queue 2.0.0 mit Claim, Lease, Retry, Dead Letter, Idempotenz und Barriers sowie W6d-Cancellation sind implementiert und validiert. Der synchrone Second-Session- und Event-Log-Pfad ist ebenfalls implementiert; zusätzliche Provider und Abbruch-Slices benötigen eigene Verträge und Freigaben. |
 | Externe Provider und Integrationen | `TC-2026-025` bis `TC-2026-028`; optionale portable Worker-Slices aus `TC-2026-037`/`TC-2026-038` | Allowlist-, Identity-, Secret-, Timeout-, Abbruch- und Plattformvertrag sind Pflicht-Gates; vorhandene Windows-/Read-only-Provider nicht duplizieren. |
 | Archive, Kompression und Office | Verbleibende Slices aus `TC-2026-034`, `TC-2026-035`, `TC-2026-036`, `TC-2026-045` | ZIP-Entry-Extraktion und Listing sind implementiert; Erzeugung, vollständige Dateisystemextraktion und weitere Formate bleiben getrennte Verträge. |
@@ -169,6 +169,7 @@ physischen Windows-/Linux-Matrix validiert.
 
 | Kandidat | Modul | Vorhandene öffentliche Objekte | Restarbeit |
 |---|---|---|---|
+| `TC-2026-032` S2 | `toolbelt.string.split-advanced` | `toolbelt_string.TVF_SplitAdvanced` | Freigegeben und implementiert; risikobasiert 2019 Linux und 2025 Linux/Windows geprüft, weitere Zielkombinationen nicht ausgeführt. USP/Unquoting bleiben spätere Einzelslices. |
 | `TC-2026-001` | `toolbelt.string.split-characters` | `toolbelt_string.TVF_SplitByCharacters` | Keine autonome Validierung offen; `TC-2026-032` bleibt getrennt. |
 | `TC-2026-002` | `toolbelt.datetime.calendar-difference` | `toolbelt_datetime.TVF_CalendarDifference` | Keine autonome Validierung offen. |
 | `TC-2026-003` | `toolbelt.core.result-table` | `toolbelt_core.USP_PrepareResultTable` | Vergleichbare plattformübergreifende Performance-Evidenz mit vorgegebenen Abnahmekriterien. |
@@ -213,7 +214,7 @@ physischen Windows-/Linux-Matrix validiert.
 | Kandidat | Vorgeschlagener Modul-Slice | Vorgeschlagene öffentliche Objekte | Zentrale Vertragsentscheidung | Testschwerpunkt |
 |---|---|---|---|---|
 | `TC-2026-011` | `toolbelt.string.fuzzy-match` | `SVF_EditDistance`, `SVF_EditDistanceSimilarity`, `SVF_JaroWinklerDistance`, `SVF_JaroWinklerSimilarity` | Exakte SQL-Server-2025-Semantik, maximale Länge, Unicode/Collation und T-SQL- versus CLR-Kern. | Native Parität, Symmetrie, Grenzwerte, lange Strings, Mengenaufruf und Benchmark. |
-| `TC-2026-032` | `toolbelt.string.split-quoted` | Arbeitsname `TVF_SplitQuotedText`; bei nicht-TVF-fähigem Provider eine resultseterzeugende USP statt einer erzwungenen TVF | Separatorstrings, Longest Match, öffnende/schließende Quote-Strings, Escape-Modell, fehlerhafte Eingabe und LOB-Limit. | Überlappende Separatoren, verschachtelte/unerlaubte Quotes, Escapes, leere Tokens, Ordinals, Unicode und Linearität. |
+
 
 ### Execution- und Provider-Infrastruktur
 
@@ -337,7 +338,7 @@ Gates; eine tatsächliche Veröffentlichung ist nicht autorisiert.
 - `toolbelt.core.console-message`;
 - `toolbelt.metadata.capability-catalog`.
 
-22 Module sind `validated`, 7 bleiben `partially validated`; alle 29 sind `unreleased`. Der lokale
+22 Module sind `validated`, 8 bleiben `partially validated`; alle 30 sind `unreleased`. Der lokale
 SQL_Server_Lab-Vertrag ist schema-valide. Die vollständige automatisierte
 Matrix war am 2026-09-01 auf physischen SQL-Server-2019-/2022-/2025-Zielen
 unter Windows base und Linux latest erfolgreich. File Content bleibt ohne
