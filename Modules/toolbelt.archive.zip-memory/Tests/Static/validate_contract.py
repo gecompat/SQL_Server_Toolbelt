@@ -59,7 +59,7 @@ def validate_project() -> None:
         item.attrib.get("Include")
         for item in project.findall(".//m:Compile", NS)
     }
-    expected = {"Properties\\AssemblyInfo.cs", "ZipEntryProvider.cs"}
+    expected = {"Properties\\AssemblyInfo.cs", "ZipEntryProvider.cs", "ZipWriter.cs"}
     if compile_files != expected:
         raise ContractError("CLR-Projekt enthält ein unerwartetes Compile-Inventar.")
 
@@ -237,8 +237,8 @@ def main() -> int:
         ":r ../Source/TVF_InternalListZipEntriesClr.sql",
         ":r ../Source/USP_ExtractZipEntryFromBinary.sql",
         ":r ../Source/USP_ListZipEntriesFromBinary.sql",
-        "@InstalledVersion NOT IN (N'1.0.0', N'1.1.0', N'1.2.0')",
-        "@value = N'1.2.0'",
+        "@InstalledVersion NOT IN (N'1.0.0', N'1.1.0', N'1.2.0', N'1.3.0')",
+        "@value = N'1.3.0'",
         "sp_getapplock",
     )
     forbid(
@@ -285,14 +285,14 @@ def main() -> int:
         "Deploy.WithAssembly.sql",
         "Toolbelt.Archive.ZipMemory.trust-manifest.json",
         "@('System', 'System.Data')",
-        "moduleVersion = '1.2.0'",
+        "moduleVersion = '1.3.0'",
     )
 
     manifest = read("module.yaml")
     require(
         manifest,
         "Manifest",
-        'version: "1.2.0"',
+        'version: "1.3.0"',
         'validation_status: "partially validated"',
         'linux: "partially validated"',
         'windows: "partially validated"',

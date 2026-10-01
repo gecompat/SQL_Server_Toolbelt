@@ -1,5 +1,15 @@
 # Tests – ZIP Memory CLR Inspection
 
+## Writer 1.3.0 (2026-10-01)
+
+`powershell -File Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Framework.ps1 -AssemblyPath .runtime/zip-memory-release/Toolbelt.Archive.ZipMemory.dll` prüft das echte Framework-Binary mit unabhängigem ZipArchive-, CRC- und Header-Oracle. Enthalten sind ein leerer Method-8-Entry, Stored-Identität, ungültige Envelopes, Namen und parallele Aufrufe. Synthetisch werden tatsächlich 32 MiB je Entry, 128 MiB Gesamtpayload, 1024 Entries und 2048 UTF-16-Codeeinheiten je Name gemeinsam verarbeitet. Die eigenständigen Budgetcaps für 136 MiB Envelope und 144 MiB Output werden als Parameterceilings akzeptiert; der maximale gültige Input bleibt darunter. Exakte Auslastung dieser beiden Caps wird nicht behauptet.
+
+`Writer.Contract.sql` deckt lokal und zentral Help, Input, NULLs, Ordinals, Namen, Limits, Fehleratomarität, Append, Schema-Blocker, XACT_ABORT OFF/ON, Ratio und Readergrenzen ab. Hinzu kommen tatsächliche 16-MiB-Standardpayloads mit Stored/Deflate und Hash-/Längenvergleich sowie 256 Entries mit Ordinals über 255. `Writer.Metadata.ps1` verwendet eine eigene SQLClient-Sitzung für tatsächliche SELECT-/Help-Typen, Nullability, Resultsets und Messages. Der Adapter baut eine echte gepinnte 1.2.0-Fixture separat, prüft Hashidentität, drei neue Namenskollisionen und deren Erhalt beim historischen Uninstall sowie Upgrade auf 1.3.0, Wiederdeploy und Uninstall. Eine Markerumschaltung gilt nicht als historischer Upgradebeweis.
+
+Abstrakte Endstand-Evidence vom 2026-10-01: Der vollständige Moduladapter war auf SQL Server 2019 unter Linux (Compatibility 150) und SQL Server 2025 unter Windows (Compatibility 150, 160 und 170) erfolgreich. Jeder Lauf umfasst lokale und zentrale Installation, die Writer- und SQLClient-Metadatenverträge, tatsächliche 16-MiB-Standardpayloads mit beiden Methoden, leere Stored-/Deflate-Payloads über direkte CLR-Tabellefunktion, öffentliche SELECT-Ausgabe und ResultTable, bestehende encrypted-NULL-Regressionen, Transaktionen und Fehleratomarität sowie echtes 1.2.0-Binaryupgrade, Kollisionen, Wiederdeploy und Uninstall. Build, Framework-Suite und statischer Modulvalidator waren am finalen Quellstand erfolgreich. Nichtöffentliche Laufzeitdaten wurden nicht als Repository-Artefakte gespeichert.
+
+Der Modulstatus bleibt `partially validated`: echte Produktionsarchive, globale Kapazitäts- oder Parallelitätsgrenzen und SQL-LOB-Ceilings oberhalb der Standardpayload sind nicht vollständig qualifiziert. Die größeren synthetischen Frameworkgrenzen sind ein separater Nachweis, keine allgemeine Serverkapazitätszusage.
+
 Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich; reale Archive, echte Extremgrößen, historische Upgrades und Interoperabilität bleiben offen. Der Modulstatus bleibt `partially validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen; datierte ältere Einträge bleiben historische Evidenz.
 
 V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt

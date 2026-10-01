@@ -51,8 +51,8 @@ if actual_hash != manifest.get("sha512"):
     raise SystemExit("SHA2-512 des Binaries stimmt nicht mit dem Trust-Manifest überein.")
 if manifest.get("assemblySqlName") != "Toolbelt_Archive_ZipMemory":
     raise SystemExit("Trust-Manifest enthält einen unerwarteten SQL-Assemblynamen.")
-if manifest.get("moduleVersion") != "1.2.0":
-    raise SystemExit("Trust-Manifest enthält nicht die erwartete Modulversion 1.2.0.")
+if manifest.get("moduleVersion") != "1.3.0":
+    raise SystemExit("Trust-Manifest enthält nicht die erwartete Modulversion 1.3.0.")
 if manifest.get("permissionSet") != "SAFE":
     raise SystemExit("Trust-Manifest enthält nicht das Permission Set SAFE.")
 if manifest.get("directFrameworkReferences") != ["System", "System.Data"]:
@@ -187,6 +187,32 @@ local_database="tbx_zip_memory"
 run_query master "CREATE DATABASE [${local_database}] COLLATE Latin1_General_100_CS_AS;"
 
 deploy_result_table "${local_database}" local
+# Echtes historisches Binary; keine Markerumschaltung als Upgrade-Evidence.
+legacy_root="${assembly_root_container}/legacy"
+[[ -f "${assembly_root_host}/legacy/Toolbelt.Archive.ZipMemory.dll" ]] || { echo "Historische 1.2.0-Fixture fehlt." >&2; exit 1; }
+readarray -t legacy_values < <(python3 - "${assembly_root_host}/legacy/Toolbelt.Archive.ZipMemory.trust-manifest.json" "${assembly_root_host}/legacy/Toolbelt.Archive.ZipMemory.dll" <<'PY'
+import json,sys,hashlib
+from pathlib import Path
+m=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8-sig'))
+if m['moduleVersion']!='1.2.0' or hashlib.sha512(Path(sys.argv[2]).read_bytes()).hexdigest().upper()!=m['sha512']:
+    raise SystemExit('Historische ZIP-Fixture widersprüchlich.')
+print(m['sqlServerHexLiteral']);print(m['description'])
+PY
+)
+run_file master /workspace/Modules/toolbelt.archive.zip-memory/Deployment Add-TrustedAssembly.sql -v "AssemblyHash=${legacy_values[0]}" "AssemblyDescription=${legacy_values[1]}"
+run_file "${local_database}" /workspace/Modules/toolbelt.archive.zip-memory/Deployment "${legacy_root}/Deploy.WithAssembly.sql" -v DeploymentMode=local
+run_query "${local_database}" "IF NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.name=N'Toolbelt_Archive_ZipMemory' AND HASHBYTES('SHA2_512',f.content)=CONVERT(varbinary(64),N'${legacy_values[0]}',1)) THROW 51485,N'Exaktes historisches 1.2.0-Binary fehlt.',1;"
+for collision_name in USP_CreateZipFromEntries TVF_InternalZipWriterName TVF_InternalZipWriterArchive; do
+  run_query "${local_database}" "CREATE PROCEDURE [toolbelt_archive].[${collision_name}] AS RETURN 0;"
+  # Selbst ein imitierter Marker macht kein1.2-Objekt zum Releaseinventar.
+  run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.archive.zip-memory',@level0type=N'SCHEMA',@level0name=N'toolbelt_archive',@level1type=N'PROCEDURE',@level1name=N'${collision_name}';"
+  if deploy_zip_memory "${local_database}" local; then echo "Unmarkierte Writerkollision wurde akzeptiert." >&2; exit 1; fi
+  run_query "${local_database}" "IF NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.name=N'Toolbelt_Archive_ZipMemory' AND HASHBYTES('SHA2_512',f.content)=CONVERT(varbinary(64),N'${legacy_values[0]}',1)) THROW 51485,N'Kollision mutierte Assembly vorUninstall.',4;"
+  run_file "${local_database}" /workspace/Modules/toolbelt.archive.zip-memory/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=0
+  run_query "${local_database}" "IF OBJECT_ID(N'toolbelt_archive.${collision_name}',N'P') IS NULL THROW 51485,N'Historisches Uninstall löschte fremden Writer.',3; DROP PROCEDURE [toolbelt_archive].[${collision_name}];"
+  run_file "${local_database}" /workspace/Modules/toolbelt.archive.zip-memory/Deployment "${legacy_root}/Deploy.WithAssembly.sql" -v DeploymentMode=local
+  run_query "${local_database}" "IF NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.name=N'Toolbelt_Archive_ZipMemory' AND HASHBYTES('SHA2_512',f.content)=CONVERT(varbinary(64),N'${legacy_values[0]}',1)) THROW 51485,N'Kollision mutierte historische Assembly.',2;"
+done
 deploy_zip_memory "${local_database}" local
 
 run_file "${local_database}" \
@@ -200,12 +226,9 @@ run_file "${local_database}" \
   /workspace/Modules/toolbelt.archive.zip-memory/Tests/Runtime \
   ZipMemory.Contract.sql \
   -v "CompatibilityLevel=${compatibility_level}"
+run_file "${local_database}" /workspace/Modules/toolbelt.archive.zip-memory/Tests/Runtime Writer.Contract.sql -v "ToolbeltDatabase=${local_database}"
 
 # Wiederholungsdeployment derselben Release-Artefakte.
-run_query "${local_database}" \
-  "EXEC sys.sp_updateextendedproperty
-       @name = N'Toolbelt.Module.toolbelt.archive.zip-memory.Version',
-       @value = N'1.1.0';"
 deploy_zip_memory "${local_database}" local
 
 run_file "${local_database}" \
@@ -228,6 +251,13 @@ run_file "${consumer_database}" \
   /workspace/Modules/toolbelt.archive.zip-memory/Tests/Runtime \
   Central.Contract.sql \
   -v "ToolbeltDatabase=${central_database}"
+run_file "${consumer_database}" /workspace/Modules/toolbelt.archive.zip-memory/Tests/Runtime Writer.Contract.sql -v "ToolbeltDatabase=${central_database}"
+if [[ "${TBX_SQL_TARGET:-}" == "lab" ]]; then
+  metadata_script="${workspace}/Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Metadata.ps1"
+  if command -v cygpath >/dev/null 2>&1; then metadata_script="$(cygpath -w "${metadata_script}")"; fi
+  pwsh -NoProfile -File "${metadata_script}" -Database "${local_database}_${TBX_TEST_DB_SUFFIX}"
+  pwsh -NoProfile -File "${metadata_script}" -Database "${consumer_database}_${TBX_TEST_DB_SUFFIX}" -ToolbeltDatabase "${central_database}_${TBX_TEST_DB_SUFFIX}"
+fi
 
 run_file "${central_database}" \
   /workspace/Modules/toolbelt.archive.zip-memory/Deployment \

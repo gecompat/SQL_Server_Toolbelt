@@ -1,10 +1,10 @@
 module_id: "toolbelt.archive.zip-memory"
 module_name: "ZIP Memory Inspection"
-version: "1.2.0"
+version: "1.3.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Listet ZIP-Metadaten und extrahiert einen einzelnen Entry aus einem In-memory-ZIP-Container über einen begrenzten SAFE-SQL-CLR-Provider."
+description: "Listet ZIP-Metadaten, extrahiert einen einzelnen Entry und erzeugt Stored-/Deflate-ZIPs aus caller-lokalen Entries über einen begrenzten SAFE-SQL-CLR-Provider."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -33,6 +33,18 @@ schemas:
 objects:
   - type: USP
     schema: "toolbelt_archive"
+    name: "USP_CreateZipFromEntries"
+    visibility: public
+  - type: CLR_TVF
+    schema: "toolbelt_archive"
+    name: "TVF_InternalZipWriterName"
+    visibility: internal
+  - type: CLR_TVF
+    schema: "toolbelt_archive"
+    name: "TVF_InternalZipWriterArchive"
+    visibility: internal
+  - type: USP
+    schema: "toolbelt_archive"
     name: "USP_ExtractZipEntryFromBinary"
     visibility: public
   - type: USP
@@ -51,6 +63,7 @@ objects:
     name: "Toolbelt_Archive_ZipMemory"
     visibility: internal
 permissions_required:
+  - "EXECUTE auf toolbelt_archive.USP_CreateZipFromEntries"
   - "EXECUTE auf toolbelt_archive.USP_ExtractZipEntryFromBinary"
   - "EXECUTE auf toolbelt_archive.USP_ListZipEntriesFromBinary"
   - "EXECUTE auf toolbelt_core.USP_PrepareResultTable bei Nutzung von @ResultTable"
@@ -58,9 +71,14 @@ permissions_required:
   - "CREATE FUNCTION, CREATE PROCEDURE und Schema-ALTER für Deploy"
   - "sysadmin ausschließlich für das separate Trust-Opt-in"
 collation_contract: "Entry-Namen werden vom CLR-Provider ordinal und case-sensitive verglichen; UTF-8 gemäß Flag 11, sonst CP437."
-data_type_contract: "ZIP-Container und Payload sind varbinary(max); Entry-Namen sind nvarchar(1024)."
+data_type_contract: "ZIP-Container/Payload varbinary(max); Readernamen nvarchar(1024), Writerinput nvarchar(max) mit expliziten UTF16Unit-Limits."
 help_contract_version: "1.0"
 resultset_contracts:
+  - object: "toolbelt_archive.USP_CreateZipFromEntries"
+    kind: "data"
+    resultset: "ArchivePayload varbinary(max), ArchiveBytes bigint, EntryCount int, TotalPayloadBytes bigint, CompressionMethod int; alle NOT NULL"
+    return_code_success: 0
+    error_range: "51350-51359"
   - object: "toolbelt_archive.USP_ExtractZipEntryFromBinary"
     kind: "data"
     resultset: "EntryName nvarchar(1024), CompressedBytes bigint, UncompressedBytes bigint, CompressionMethod int, Crc32 int null, IsEncrypted bit, EntryPayload varbinary(max)"
@@ -99,12 +117,14 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
+    - "Documentation/USP_CreateZipFromEntries.md"
     - "Documentation/USP_ExtractZipEntryFromBinary.md"
     - "Documentation/USP_ListZipEntriesFromBinary.md"
   architecture:
     - "../../Documentation/Architecture/ZIP_ARCHIVE_MODULE_DESIGN.md"
     - "../../Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md"
     - "../../Documentation/Architecture/ZIP_METADATA_MODULE_DESIGN.md"
+    - "../../Documentation/Architecture/ZIP_CREATION_PROPOSAL.md"
   decisions:
     - "../../Documentation/Architecture/DECISIONS.md"
   test_matrix:
@@ -123,9 +143,16 @@ tests:
   encoding: "Tests/Runtime/Encoding.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
+  writer: "Tests/Runtime/Writer.Contract.sql"
+  writer_framework: "Tests/Runtime/Writer.Framework.ps1"
+  writer_metadata: "Tests/Runtime/Writer.Metadata.ps1"
   manual_windows: "Tests/Manual_Windows_Runtime_Testplan.md"
   github_hosted_linux: "../../.github/workflows/zip-memory-runtime.yml"
 validation_evidence:
+  - date: "2026-10-01"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Release 1.3.0; finaler Framework-4.8-Build und unabhängige Framework-Writer-Suite; SQL Server 2019 Linux / Compatibility 150 und SQL Server 2025 Windows / Compatibility 150, 160, 170; local/central Writer, tatsächliche 16-MiB-Standardpayloads Stored/Deflate, leere Reader-Payloads FT/SELECT/ResultTable, encrypted NULL, SQLClient-Metadaten, Parameter-/Input-/Limit-/Help-/Transaktionsfehler, echtes gepinntes 1.2.0-Binaryupgrade, drei neue Namenskollisionen, historischer Uninstall-Erhalt, Wiederdeploy und Uninstall; größere SQL-Live-Ceilings und Produktionsarchive bleiben offen"
+    result: "success"
   - date: "2026-07-31"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206"
     scope: "Windows-.NET-Framework-4.8-Build; SQL Server 2019 Linux/Compatibility 150; SQL Server 2022 Linux/Compatibility 160; SQL Server 2025 Linux/Compatibility 150, 160 und 170; Trust, Stored, Deflate, Data Descriptor, UTF-8, CP437, CRC32, Größen-/Ratio-/Featurefehler, ResultTable, Wiederholungsdeployment, Central und Uninstall"

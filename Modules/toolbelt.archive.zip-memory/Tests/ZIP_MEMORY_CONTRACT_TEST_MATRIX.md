@@ -1,5 +1,19 @@
 # Contract-Testmatrix: ZIP Memory CLR Inspection
 
+## Writer 1.3.0: Zusatzscope
+
+| Scope | Oracle | Stand |
+|---|---|---|
+| Stored, Deflate, leere Payloads, Unicode, nachgestellte Leerzeichen, CRC und Header | unabhängiger Framework-ZipArchive plus bitweiser CRC | lokal PASS |
+| 32 MiB je Entry, 128 MiB Gesamtpayload, 1024 Entries und 2048 Name-Codeeinheiten | tatsächlich erzeugte und gelesene synthetische ZIPs | lokal PASS |
+| Konfiguration: 136 MiB Envelope und 144 MiB Output | unabhängige Budgetcaps, maximaler gültiger Input kleiner | keine exakte Auslastungszusage |
+| Vier parallele synthetische Aufrufe | Framework | lokal PASS, keine Serverkapazitätszusage |
+| Input, Limits, Help, Append, Transaktionen, Ratio, 16-MiB-Payloads sowie local/central | Writer.Contract.sql | SQL 2019 Linux / 150 und SQL 2025 Windows / 150, 160, 170: PASS |
+| Tatsächliche SQLClient-Metadaten und keine zusätzliche SELECT-Ausgabe | Writer.Metadata.ps1 | dieselben lokalen und zentralen Lab-Scopes: PASS |
+| Echtes 1.2.0-Binaryupgrade, drei neue Namenskollisionen, historischer Erhalt und Uninstall | Adapter plus Hash-Oracle | dieselben Lab-Scopes: PASS |
+
+Datierte Endstand-Evidence: 2026-10-01. Die vorhandenen encrypted-NULL-Regressionen und unveränderten Readergrenzen bestanden ebenfalls. SQL-Live-Ceilings oberhalb der 16-MiB-Standardpayload, Produktionsarchive und globale Kapazitäts-/Parallelitätszusagen bleiben ausdrücklich offen; `partially validated` bleibt erhalten. Keine privaten Host-, Build-, Ressourcen- oder Runtime-Logs werden gespeichert.
+
 Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich; reale Archive, echte Extremgrößen, historische Upgrades und Interoperabilität bleiben offen. Der Modulstatus bleibt `partially validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen; datierte ältere Einträge bleiben historische Evidenz.
 
 V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt

@@ -39,6 +39,16 @@ IF NOT EXISTS
    )
     THROW 51332, N'Die Dependency toolbelt.core.result-table ist nicht als Modul registriert.', 1;
 
+DECLARE @DependencyVersion nvarchar(64)=(SELECT TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0 AND name=@DependencyVersionProperty);
+IF @DependencyVersion IS NULL OR PARSENAME(@DependencyVersion,4) IS NOT NULL
+ OR TRY_CONVERT(int,PARSENAME(@DependencyVersion,3)) IS NULL OR TRY_CONVERT(int,PARSENAME(@DependencyVersion,3))<1
+ OR TRY_CONVERT(int,PARSENAME(@DependencyVersion,2)) IS NULL OR TRY_CONVERT(int,PARSENAME(@DependencyVersion,2))<0
+ OR TRY_CONVERT(int,PARSENAME(@DependencyVersion,1)) IS NULL OR TRY_CONVERT(int,PARSENAME(@DependencyVersion,1))<0
+ OR CONVERT(varbinary(128),@DependencyVersion)<>CONVERT(varbinary(128),CONCAT(TRY_CONVERT(int,PARSENAME(@DependencyVersion,3)),N'.',TRY_CONVERT(int,PARSENAME(@DependencyVersion,2)),N'.',TRY_CONVERT(int,PARSENAME(@DependencyVersion,1))))
+ OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable') AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),value))=CONVERT(varbinary(max),N'toolbelt.core.result-table'))
+ OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable') AND minor_id=0 AND name=N'Toolbelt.ModuleVersion' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),@DependencyVersion))
+ THROW 51332,N'Die ResultTable-Dependency >=1.0.0 besitzt keinen kanonischen übereinstimmenden Vertrag.',2;
+
 IF NOT EXISTS
    (
        SELECT 1
@@ -86,7 +96,7 @@ INNER JOIN sys.assembly_files AS af
 WHERE a.name = @AssemblyName;
 
 IF @InstalledVersion IS NOT NULL
-   AND @InstalledVersion NOT IN (N'1.0.0', N'1.1.0', N'1.2.0')
+   AND @InstalledVersion NOT IN (N'1.0.0', N'1.1.0', N'1.2.0', N'1.3.0')
     THROW 51333, N'Die installierte Modulversion ist diesem Deployment nicht bekannt.', 1;
 
 IF @InstalledVersion IS NULL
@@ -96,6 +106,9 @@ IF @InstalledVersion IS NULL
        OR OBJECT_ID(N'toolbelt_archive.USP_ListZipEntriesFromBinary') IS NOT NULL
        OR OBJECT_ID(N'toolbelt_archive.TVF_InternalExtractZipEntryClr') IS NOT NULL
        OR OBJECT_ID(N'toolbelt_archive.TVF_InternalListZipEntriesClr') IS NOT NULL
+       OR OBJECT_ID(N'toolbelt_archive.USP_CreateZipFromEntries') IS NOT NULL
+       OR OBJECT_ID(N'toolbelt_archive.TVF_InternalZipWriterName') IS NOT NULL
+       OR OBJECT_ID(N'toolbelt_archive.TVF_InternalZipWriterArchive') IS NOT NULL
        OR EXISTS
           (
               SELECT 1
@@ -104,6 +117,12 @@ IF @InstalledVersion IS NULL
           )
    )
     THROW 51334, N'Ein Zielobjekt oder die Assembly stammt nicht aus einem bekannten Toolbelt-Release.', 1;
+
+IF EXISTS(SELECT 1 FROM sys.objects o WHERE o.schema_id=SCHEMA_ID(N'toolbelt_archive')
+ AND o.name IN(N'USP_CreateZipFromEntries',N'TVF_InternalZipWriterName',N'TVF_InternalZipWriterArchive')
+ AND (@InstalledVersion<>N'1.3.0' OR @InstalledVersion IS NULL OR NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0
+ AND e.name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(128),e.value)=N'toolbelt.archive.zip-memory')))
+ THROW 51334,N'Ein Writerziel ist nicht als Toolbelt-ZIP-Objekt markiert.',2;
 
 IF SCHEMA_ID(N'toolbelt_archive') IS NULL
    AND HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'CREATE SCHEMA') <> 1
@@ -144,6 +163,12 @@ BEGIN TRY
     IF @LockResult < 0
         THROW 51337, N'Ein paralleles Deployment dieses Moduls ist bereits aktiv.', 1;
 
+    IF EXISTS(SELECT 1 FROM sys.objects o WHERE o.schema_id=SCHEMA_ID(N'toolbelt_archive')
+     AND o.name IN(N'USP_CreateZipFromEntries',N'TVF_InternalZipWriterName',N'TVF_InternalZipWriterArchive')
+     AND (@InstalledVersion<>N'1.3.0' OR @InstalledVersion IS NULL OR NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0
+     AND e.name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(128),e.value)=N'toolbelt.archive.zip-memory')))
+     THROW 51334,N'Writerziel kollidiert nach Deploymentlock.',3;
+
     IF SCHEMA_ID(N'toolbelt_archive') IS NULL
     BEGIN
         EXEC sys.sp_executesql N'CREATE SCHEMA [toolbelt_archive];';
@@ -166,6 +191,8 @@ BEGIN TRY
 
     DROP FUNCTION IF EXISTS
         [toolbelt_archive].[TVF_InternalListZipEntriesClr];
+    DROP FUNCTION IF EXISTS [toolbelt_archive].[TVF_InternalZipWriterName];
+    DROP FUNCTION IF EXISTS [toolbelt_archive].[TVF_InternalZipWriterArchive];
 
     IF @InstalledAssemblyHash IS NULL
        OR @InstalledAssemblyHash <> @AssemblyHash
@@ -199,6 +226,8 @@ GO
 :r ../Source/TVF_InternalListZipEntriesClr.sql
 :r ../Source/USP_ExtractZipEntryFromBinary.sql
 :r ../Source/USP_ListZipEntriesFromBinary.sql
+:r ../Source/ZipWriterClr.sql
+:r ../Source/USP_CreateZipFromEntries.sql
 
 SET NOCOUNT ON;
 
@@ -223,11 +252,11 @@ BEGIN TRY
        )
         EXEC sys.sp_updateextendedproperty
               @name = @VersionProperty
-            , @value = N'1.2.0';
+            , @value = N'1.3.0';
     ELSE
         EXEC sys.sp_addextendedproperty
               @name = @VersionProperty
-            , @value = N'1.2.0';
+            , @value = N'1.3.0';
 
     IF EXISTS
        (
@@ -290,6 +319,18 @@ BEGIN TRY
             , @level0type = N'ASSEMBLY'
             , @level0name = N'Toolbelt_Archive_ZipMemory';
 
+    DECLARE @ObjectName sysname,@ObjectType varchar(16),@Property sysname,@PropertyValue nvarchar(128);
+    DECLARE WriterMarkers CURSOR LOCAL FAST_FORWARD FOR
+    SELECT o.name,CASE WHEN o.type='P' THEN 'PROCEDURE' ELSE 'FUNCTION' END,p.Name,p.Value
+    FROM sys.objects o CROSS APPLY(VALUES(N'Toolbelt.ModuleId',N'toolbelt.archive.zip-memory'),(N'Toolbelt.ModuleVersion',N'1.3.0'),(N'Toolbelt.Visibility',CASE WHEN o.type='P' THEN N'public' ELSE N'internal' END))p(Name,Value)
+    WHERE o.schema_id=SCHEMA_ID(N'toolbelt_archive') AND o.name IN(N'USP_CreateZipFromEntries',N'TVF_InternalZipWriterName',N'TVF_InternalZipWriterArchive');
+    OPEN WriterMarkers; FETCH NEXT FROM WriterMarkers INTO @ObjectName,@ObjectType,@Property,@PropertyValue;
+    WHILE @@FETCH_STATUS=0 BEGIN
+      IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_archive.'+QUOTENAME(@ObjectName)) AND minor_id=0 AND name=@Property)
+       EXEC sys.sp_updateextendedproperty @name=@Property,@value=@PropertyValue,@level0type=N'SCHEMA',@level0name=N'toolbelt_archive',@level1type=@ObjectType,@level1name=@ObjectName;
+      ELSE EXEC sys.sp_addextendedproperty @name=@Property,@value=@PropertyValue,@level0type=N'SCHEMA',@level0name=N'toolbelt_archive',@level1type=@ObjectType,@level1name=@ObjectName;
+      FETCH NEXT FROM WriterMarkers INTO @ObjectName,@ObjectType,@Property,@PropertyValue;
+    END; CLOSE WriterMarkers; DEALLOCATE WriterMarkers;
     COMMIT TRANSACTION;
 END TRY
 BEGIN CATCH

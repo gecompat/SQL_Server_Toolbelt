@@ -7,7 +7,9 @@ ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
 Windows- und modulspezifische Fälle bleiben unberührt.
 
 **Modul-ID:** `toolbelt.archive.zip-memory`  
-**Version:** `1.2.0`
+**Version:** `1.3.0`
+
+Release 1.3.0 ergänzt den ausdrücklich freigegebenen [ZIP-Writer](Documentation/USP_CreateZipFromEntries.md): lokale Entrytabelle des Aufrufers, Stored oder Deflate, konservative unabhängige Ressourcenlimits, Binary-Envelope und datenzugriffsfreier SAFE-CLR-Kern. Die Readervertragsgrenzen bleiben unverändert. Die neue Writerqualifikation ist getrennt von den nachfolgenden historischen Readernachweisen zu betrachten.
 
 **Status:** `implemented`; `partially validated`
 

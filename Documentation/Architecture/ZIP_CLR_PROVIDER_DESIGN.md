@@ -1,5 +1,37 @@
 # SQL-CLR ZIP Provider Design (AP-2026-021/AP-2026-023)
 
+## Writer-Erweiterung und interne Kompatibilitätskorrektur (1.3.0)
+
+Der freigegebene Writer verarbeitet ein streng geprüftes Binary-Envelope
+ohne ContextConnection oder Datenbankzugriff. UTF-16 wird vor strengem
+UTF-8-Encoding validiert; erwartete Fehler liefern genau eine interne
+Statuszeile, die T-SQL in einen stabilen THROW übersetzt. Kein
+SQL6522-Messageparser und keine Trust-/Permission-Ausweitung sind zulässig.
+
+Der SQL-SAFE-Host hat HashSet mit HostProtectionException abgelehnt.
+Ein ordinales Dictionary aus mscorlib übernimmt denselben begrenzten
+Duplikatvertrag. Primärquelle zur Framework-Markierung:
+https://raw.githubusercontent.com/microsoft/referencesource/main/System.Core/System/Collections/Generic/HashSet.cs
+
+Envelope-Kapazität, Namensarrays, Output-Kapazität und ToArray sind begrenzt,
+aber kumulative Kopien; es gibt keine Streaming- oder MemoryGrant-Zusage.
+Das kooperative Budget prüft Copy, Parser, Kompression und Finalisierung,
+ohne native Kompressionsschritte hart unterbrechen zu können. Ein leerer
+Method-8-Entry erhält den gültigen raw-Deflate-Endblock `0300`. Stored ist
+byteidentisch reproduzierbar; Deflate ist über Framework/OS nicht garantiert
+byteidentisch. Header, CRC und Payload werden unabhängig geprüft.
+
+Der vorhandene Reader gab im SQL-Host eine erfolgreich geprüfte leere
+SqlBytes-Payload als NULL aus. Der interne FillRow-Typ SqlBinary erhält
+die bestehende SQL-`varbinary(max)`-Signatur und unterscheidet `0x` von
+tatsächlichem NULL. Der SqlBinary(byte[])-Konstruktor erzeugt tatsächlich eine
+zusätzliche begrenzte Payloadkopie; der Value-Getter kopiert bei Zugriff erneut.
+Beide Kopien zählen konservativ zum kumulativen Reader-Peak, ohne harte
+MemoryGrant-Zusage. Primärquelle:
+https://raw.githubusercontent.com/microsoft/referencesource/main/System.Data/System/Data/SQLTypes/SQLBinary.cs
+16-MiB-Roundtrips und encrypted-NULL-Regressionen werden separat geprüft.
+Die folgenden Abschnitte bleiben historische Reader-Architektur.
+
 ## Status und Aussagegrenze
 
 **Implementiert und teilvalidiert:** Der Provider ist Bestandteil von
