@@ -44,10 +44,9 @@ stillschweigend verändern.
 Die nächste Welle sollte in zwei getrennten Verträgen erfolgen:
 
 1. **R2a: skalare Transformationsfunktionen.** Ein neuer, klar benannter
-   Provider- oder Modul-Slice für Replace und Substring. Er übernimmt die
-   vorhandenen Größenlimits, den festen Timeout und die culture-invarianten
-   Flags nur, wenn die neue Capture-Grammatik diese Eigenschaften weiterhin
-   präzise tragen kann.
+   Slice für Replace und Substring im vorhandenen Modul. Die folgende
+   Entscheidungsvorlage konkretisiert Typen, Größenprofile und Zeitbudgets;
+   Pattern-Grunddialekt und culture-invariante Flags bleiben erhalten.
 2. **R2b: relationale Ergebnisse.** Captures, Matches und Regex-Split als
    eigene TVF- oder ResultTable-Entscheidung. Dieser Slice benötigt stabile
    Ordinals, leere Treffer, Capture-Nullwerte und ein Resultset-Schema; er
@@ -62,13 +61,126 @@ Transformationsvertrag klein und eindeutig. Capture-Gruppen und `\\1` bis
 
 | Aspekt | Vorschlag |
 |---|---|
-| Pattern-Dialekt | Derselbe begrenzte R1b-Grunddialekt; nur eine ausdrücklich spezifizierte Capture-Erweiterung darf davon abweichen. |
+| Pattern-Dialekt | Derselbe begrenzte R1b-Grunddialekt; keine Capture-Erweiterung in R2a. |
 | Replace | Startposition ist 1-basiert; `occurrence = 0` ersetzt alle, positive Werte genau den n-ten Treffer. Kein Treffer liefert den unveränderten Eingabetext. |
 | Substring | Startposition und occurrence sind 1-basiert; kein Treffer liefert SQL-`NULL`. Der erste Slice liefert den Gesamttreffer, keine Capture-Gruppe. |
-| Empty matches | Der Suchcursor rückt nach einem leeren Treffer um eine UTF-16-Codeeinheit vor, damit weder Replace noch Substring endlos laufen. |
-| SQL `NULL` | SQL-`NULL` in Quelle, Pattern oder Flags propagiert SQL-`NULL`; ungültige Parameter und Pattern bleiben stabile `TBX_REGEX_*`-Fehler. |
-| Grenzen | Nutzeranforderung vom 2026-10-01: bis 8.000 Zeichen Pattern ausreichend; Unicode-Zählweise und LOB-Ressourcenlimits für Quelle, Ersatztext und Ergebnis noch offen. Das bisherige R1b-Limit von 8.000 UTF-16-Bytes ist kein gleichwertiger R2a-Zeichenvertrag. |
-| Ergebnis | Nutzeranforderung vom 2026-10-01: `varchar`-/`nvarchar`- einschließlich `max`-Varianten berücksichtigen; konkrete Rückgabetypen und sinnvolle Varianten noch offen. Positionssemantik ist mit dem Unicode-Vertrag abzustimmen. |
+| Empty matches | Nach einem leeren Treffer rückt die Suche um eine UTF-16-Codeeinheit vor; am Inputende ist genau ein terminaler leerer Treffer möglich. Replace fügt dort den literal Replacement-Text einmal ein; Substring liefert für diesen Treffer einen leeren String. |
+| SQL `NULL` | Quelle oder Pattern `NULL`, bei Replace zusätzlich Replacement `NULL`, liefern unmittelbar SQL-`NULL`, bevor Flags, Profil oder Positionsparameter geprüft werden. Andernfalls ist Flags-`NULL` wie in R1b ein Fehler. |
+| Grenzen | Standard- und Large-Profil gemäß folgender Tabelle; Pattern höchstens 8.000 UTF-16-Codeeinheiten. Keine implizite Wahl eines größeren Profils. |
+| Ergebnis | Beide Funktionen liefern zunächst `nvarchar(max)`; Positionen zählen UTF-16-Codeeinheiten. Weitere Typvarianten benötigen einen belegten Nutzen und einen verlustfreien Konvertierungsvertrag. |
+
+### Öffentliche Signaturen zur Freigabe
+
+Diese Signaturen, Namen und Defaults sind **Vorschläge zur Freigabe**, weder
+implementiert noch validiert. Die Tabelle beschreibt den Vertrag und ist
+kein ausführbares SQL. Standard und Large sind Profile derselben API;
+separate Funktionsgenerationen oder Large-Pattern-Funktionen sind nicht
+vorgesehen.
+
+| Vorgeschlagenes Objekt | Parameter in Reihenfolge | Ergebnis |
+|---|---|---|
+| `toolbelt_string.SVF_RegexReplace` | `@Input nvarchar(max)`, `@Pattern nvarchar(max)`, `@Replacement nvarchar(max)`, `@Start int = 1`, `@Occurrence int = 0`, `@Flags nvarchar(max) = N'c'`, `@Profile nvarchar(max) = N'standard'` | `nvarchar(max)` |
+| `toolbelt_string.SVF_RegexSubstring` | `@Input nvarchar(max)`, `@Pattern nvarchar(max)`, `@Start int = 1`, `@Occurrence int = 1`, `@Flags nvarchar(max) = N'c'`, `@Profile nvarchar(max) = N'standard'` | `nvarchar(max)` |
+
+`@Profile` akzeptiert ausschließlich die exakten ASCII-Werte `standard`
+und `large`; `NULL`, andere Schreibweisen und zusätzliche Zeichen sind
+ungültig. Die ungekürzten Konfigurationsparameter erlauben die Prüfung vor
+einer stillen Kürzung am Parameterübergang und sind direkt CLR-kompatibel.
+Flags werden auf höchstens vier Codeeinheiten geprüft und übernehmen die
+R1b-Regeln für `c/i/m/s`, einschließlich
+Duplikatverbot, Ausschluss von `c` mit `i` und kulturinvariantem Matching.
+`@Start` muss positiv sein; Replace erlaubt `@Occurrence >= 0`, Substring
+verlangt `@Occurrence >= 1`. Positionsparameter-`NULL` ist ein Fehler, sofern
+nicht bereits der oben beschriebene Input-NULL-Kurzschluss greift.
+
+Bei nicht-NULL-Eingaben werden zuerst Profil, Parameter, Flags, Größen und
+Patterngültigkeit geprüft. Ein gültiger Start größer als `InputLength + 1`
+liefert danach bei Replace die unveränderte Quelle und bei Substring SQL-
+`NULL`; er verdeckt keine Vertragsfehler. `Start = InputLength + 1` erlaubt
+einen passenden terminalen leeren Treffer. Beim leeren Input ist Start 1
+dieselbe terminale Position. Es gibt keine überlappenden Treffer und keine
+Interpretation von `$1`, `\\1` oder ähnlichen Folgen im Replacement-Text.
+
+### LOB-Profile und Unicode-Zählweise zur Freigabe
+
+| Ressource | `standard` | `large` |
+|---|---|---|
+| Dekodierte Quelle | 2 MiB UTF-16 / 1.048.576 Codeeinheiten | 16 MiB UTF-16 / 8.388.608 Codeeinheiten |
+| Literal-Ersatztext | 2 MiB UTF-16 | 16 MiB UTF-16 |
+| Fertiges Ergebnis | 2 MiB UTF-16 | 16 MiB UTF-16 |
+| Pattern, beide Profile | 8.000 UTF-16-Codeeinheiten / 16.000 Bytes | gleiche Grenze |
+| Kooperatives Gesamtbudget | 500 ms | 2.000 ms |
+
+Alle Werte sind zu qualifizierende Vertragsvorschläge, keine gemessenen
+Leistungszusagen. Large wird ausdrücklich gewählt. Die SQL-Signatur `max`
+sagt keine Verarbeitung bis zur theoretischen SQL-LOB-Grenze von 2 GB zu.
+Die Ressourcenlimits gelten nach Unicode-Decoding, nicht für die ursprüngliche
+varchar-Bytezahl. Ersatztext, Quelle, Builder und fertiger Ergebnisstring
+können gleichzeitig Speicher belegen; das Outputlimit begrenzt daher nicht
+den gesamten Speicherverbrauch. Vor jedem Append wird die Ergebnisgröße mit
+überlaufgeprüfter Arithmetik geprüft. Überschreitung erzeugt einen stabilen
+Größenfehler, keine Truncation und kein Teilergebnis.
+
+Die vorgeschlagene Patternzählweise entspricht den vorhandenen Positionen:
+ein BMP-Zeichen zählt eine UTF-16-Codeeinheit, ein Supplementary-Zeichen mit
+Surrogate Pair zwei. Grapheme oder visuell wahrgenommene Zeichen sind nicht
+zugesagt. Die Alternative wären 8.000 Unicode-Skalarwerte mit zusätzlicher
+Validierung und bis zu 16.000 UTF-16-Codeeinheiten / 32.000 Bytes; sie ist
+eine gesonderte Entscheidung. Der R1b-Vertrag mit 8.000 **Bytes** bleibt
+unverändert. Für das vorgeschlagene R2a-Patternlimit wird `nvarchar(max)`
+verwendet; `nvarchar(8000)` wäre keine gültige bounded Typdeklaration.
+
+### Suchbudget und Komplexität
+
+Das kooperative Gesamtbudget beginnt vor Patternparser und Regex-Konstruktor
+und umfasst Konstruktion, vollständige Trefferenumeration und Ergebnisbau.
+Es wird vor und nach dem nicht unterbrechbaren Konstruktor sowie zwischen
+Such-/Append-Schritten geprüft. Ein Konstruktor, der das Budget überschreitet,
+führt nach seiner Rückkehr zum Timeoutfehler. Jeder Engine-Suchschritt erhält
+höchstens 250 ms und, soweit technisch möglich, höchstens das verbleibende
+Gesamtbudget. Die spätere Umsetzung muss nachweisen, wie die feste Timeout-
+Bindung eines Regex-Objekts das Restbudget bei `NextMatch` respektiert.
+
+Diese Grenzen garantieren keine harte Wall-Clock-Abbruchfrist während
+Kompilation, Speicherallokation, GC oder SQL-Scheduling. Vorgeschlagene
+zusätzliche Limits für Gruppenverschachtelung, Alternationsanzahl,
+Quantifier-Komplexität und übersetzte Patternlänge sind vor der Runtime-
+Implementierung konkret zu qualifizieren; ausreichende Werte sind bisher
+nicht belegt. Parser und Timeout begründen weiterhin keine lineare Laufzeit.
+Chunking begründet keine Regex-Parität: Chunkgrenzen verändern unter anderem
+Anker, grenzüberschreitende Treffer und unbeschränkte Quantifier.
+
+### Typfamilien, zentrale Verwendung und Performance
+
+Der gemeinsame CLR-Kern verarbeitet Unicode. `nvarchar` wird direkt
+übergeben; klassisches oder UTF-8-`varchar` wird am Caller ausdrücklich
+unter seiner Quell-Collation nach `nvarchar(max)` konvertiert, bevor der
+zentrale Cross-database-Aufruf erfolgt. Ein `varchar`-Parameter der zentralen
+Datenbank kann bereits vor dem Funktionskörper in eine andere Codepage
+konvertieren und Information verlieren. `varchar` ist zudem kein direkt
+zu `SqlString` gemappter SQL-CLR-Parametertyp. Ein einfacher v-Wrapper ist
+deshalb kein Nachweis sicherer zentraler Nutzung.
+
+Zuerst wird Unicode-Output vorgeschlagen. Typbewahrende varchar-Wrapper
+benötigen eine deklarierte Zielcodepage, nachgewiesene verlustfreie
+Konvertierung oder einen stabilen Fehler sowie Semantik- oder Messnutzen.
+Stille Ersatzzeichen und Abschneiden sind ausgeschlossen. Positionen zählen
+auch bei ursprünglichen UTF-8-/Codepagequellen den dekodierten UTF-16-Text.
+
+Bounded-/max-Varianten und Wrapper um denselben Kern schaffen keinen
+belegten Speedup. Der vorhandene `.Value`-Pfad materialisiert den tatsächlichen
+Text vollständig; eine `max`-Signatur bedeutet umgekehrt nicht, dass jeder
+Wert groß ist. Messungen sollen Vorfilter, Konvertierungskosten, LOB-
+Materialisierung, Ergebnisexpansion und konkurrierende Aufrufe berücksichtigen.
+Varianten entstehen erst bei nachvollziehbarem Nutzen; Parallelität,
+SARGability und Scalar-UDF-Inlining werden nicht zugesagt.
+
+Die Engineering-Regel verlangt einen äquivalenten inline-TVF-Kern, soweit
+die Fachlogik relational ausdrückbar ist. Für allgemeines Regex-Matching und
+Transformation im CLR-Provider ist derzeit kein rein relationaler Ausdruck
+belegt. Ein inline-TVF-Wrapper, der nur die CLR-SVF aufruft, erfüllt diese
+Regel nicht und ist keine Performancealternative. Eine spätere Implementierung
+muss die technische Ausnahme und geprüfte Alternativen ausdrücklich festhalten.
 
 Die vorgeschlagene R2a-Semantik weicht bewusst an einzelnen Stellen von der
 SQL-Server-2025-Oberfläche ab, etwa bei fehlenden Capture-Backreferences. Das
@@ -99,10 +211,12 @@ bei patchgebundenen Tests erforderlich.
 
 Für eine spätere Implementierungsfreigabe wird der vorgeschlagene R2a-Schnitt
 zur Bestätigung vorgelegt: Replace und Substring, keine Capture-
-Backreferences, literal Replacement und die Sicherheitsgrenzen von R1b.
-Die Typvarianten, Pattern-Zählweise und LOB-Ressourcenlimits werden gemäß der
-Nutzeranforderung vom 2026-10-01 separat konkretisiert. R2b bleibt bewusst
-eine getrennte Entscheidung.
+Backreferences, literal Replacement sowie die hier vorgeschlagenen
+Signaturen, Standard-/Large-Profile, Unicode-Zählweise und kooperativen
+Budgets. Die Freigabe steht weiterhin aus; dieses Dokument verändert weder
+Runtime-Code noch Modulstatus. Die Komplexitätsgrenzen und die Restbudget-
+Umsetzung müssen vor einer Runtime-Implementierung qualifiziert werden.
+R2b bleibt bewusst eine getrennte Entscheidung.
 Danach können Zweck, konkrete Signaturen, Alternativen, Risiken und Scope der
 jeweiligen Funktionen verbindlich besprochen werden.
 
@@ -112,4 +226,6 @@ jeweiligen Funktionen verbindlich besprochen werden.
 - [Microsoft: REGEXP_SUBSTR](https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-substr-transact-sql?view=sql-server-ver17)
 - [Microsoft: REGEXP_MATCHES](https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-matches-transact-sql?view=sql-server-ver17)
 - [Microsoft: REGEXP_SPLIT_TO_TABLE](https://learn.microsoft.com/en-us/sql/t-sql/functions/regexp-split-to-table-transact-sql?view=sql-server-ver17)
+- [Microsoft: CLR-Parametertypen](https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration-database-objects-types-net-framework/mapping-clr-parameter-data?view=sql-server-ver17)
+- [Microsoft: char und varchar](https://learn.microsoft.com/en-us/sql/t-sql/data-types/char-and-varchar-transact-sql?view=sql-server-ver17)
 - [bestehendes Regex-Moduldesign](./REGEX_MODULE_DESIGN.md)
