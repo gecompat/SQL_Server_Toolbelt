@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-30 Module sind implementiert. 21 sind `validated`, 9 sind `partially validated`; 0 sind `not executed`.
+31 Module sind implementiert. 21 sind `validated`, 10 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -188,14 +188,16 @@ Frage nach Implementierung, Prüfung und PR-Merge antwortete er „ok, passt so�
 Nur diese Funktionen sind damit freigegeben, keine weiteren fachlichen APIs,
 Datei-I/O-, Capture-, SDK-/Worker-, Rechteausweitungs- oder Release-Slices.
 Status: `active`; Regex R2b ist implementiert und im ausgewählten Lab-Scope
-geprüft. JSON und XLSX bleiben getrennte aktive Wellen.
+geprüft und über PR #127 integriert. JSON ist implementiert und im ausgewählten
+Lab-Scope geprüft; XLSX bleibt eine getrennte aktive Welle.
 
 #### Regex R2b: Gesamttreffer und Split
 
 Stand 2026-10-01: Version 1.2.0 implementiert; vollständiger Adapter auf
 SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 PASS.
 Unabhängiger Source-/Contract-/Lifecycle-Review sowie reproduzierter
-Framework-/Static-Vertrag erfolgreich; erforderliche PR-CI noch ausstehend.
+Framework-/Static-Vertrag erfolgreich; erforderliche PR-CI grün und über
+[PR #127](https://github.com/gecompat/SQL_Server_Toolbelt/pull/127) integriert.
 Weitere R2b-Ziele, Lowpriv-CrossDB und SQL-100k-Durchsatz bleiben offen.
 Modulstatus `partially validated`, `unreleased`; keine Capture-Freigabe.
 
@@ -219,6 +221,14 @@ Modulstatus `partially validated`, `unreleased`; keine Capture-Freigabe.
   verwertbare Teilmenge. Vorhandene R1b/R2a-Verträge unverändert.
 
 #### JSON Slice B: getrennte Konstruktor-USPs
+
+Stand 2026-10-01: `toolbelt.json.constructors` 1.0.0 implementiert.
+Vollständiger finaler Adapter auf SQL Server 2019 Linux/latest und 2025
+Windows/CU8 erfolgreich, einschließlich TF-Drift-Reparatur, reserviertem
+Caller-Tempnamespace vor Core-Kompilierung, Help-Bypass und tatsächlichen
+Client-LOB-Metadaten. Unabhängige Reviewbefunde korrigiert und in beiden
+finalen Läufen geprüft. Modulstatus `partially validated`, `unreleased`;
+weitere Ziele, gemappte CrossDB-Minimalrechte und Produktionskapazität offen.
 
 - `toolbelt_json.USP_JsonArray` und `toolbelt_json.USP_JsonObject`:
   EntriesTable für caller-lokale #Temp, Ressourcenparameter und vollständiger

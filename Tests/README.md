@@ -4,8 +4,8 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. 30 Module sind implementiert;
-21 sind `validated`, 9 sind `partially validated`. Für alle existieren
+Der Repository-Grundaufbau ist abgeschlossen. 31 Module sind implementiert;
+21 sind `validated`, 10 sind `partially validated`. Für alle existieren
 statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte.
 
 Die ResultTable-Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 mit
@@ -38,8 +38,9 @@ native Linux-2025-Matrix unter Compatibility 150/160/170 und der lokale
 Das daraus getrennt freigegebene R1b-Modul `toolbelt.string.regex` ist mit
 seinem begrenzten Dialekt, SAFE-CLR-/SHA2-512-Vertrag, Grenzen, Timeout,
 Fehlerpräfixen und Lifecycle auf physischen SQL-Server-2019-/2022-/2025-
-Zielen unter Windows base und Linux latest erfolgreich. Es ist `validated`
-und `unreleased`.
+Zielen unter Windows base und Linux latest erfolgreich. Dieser historische
+R1b-Nachweis ist vom aktuellen R2b-Stand 1.2.0 zu trennen: risikobasiert auf
+2019 Linux und 2025 Windows/CU8 geprüft, `partially validated`, `unreleased`.
 
 Die W2c-Module sind dort einschließlich Langtext-/Unicode-, Marker-/Drift-,
 Wiederholungsdeployment, Lifecycle, Central und Uninstall ebenfalls
@@ -84,7 +85,7 @@ Text-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall erfolgreich.
 | `toolbelt.metadata.identifier` | [IDENTIFIER_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.metadata.identifier/Tests/IDENTIFIER_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 |
 | `toolbelt.string.split-characters` | [SPLIT_CHARACTERS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.string.split-characters/Tests/SPLIT_CHARACTERS_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 |
 | `toolbelt.string.split-advanced` | [SPLIT_ADVANCED_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.string.split-advanced/Tests/SPLIT_ADVANCED_CONTRACT_TEST_MATRIX.md) | `partially validated`; risikobasiert 2019 Linux und 2025 Linux/Windows, andere Zielkombinationen nicht ausgeführt |
-| `toolbelt.string.regex` | [REGEX_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.string.regex/Tests/REGEX_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige SQL-Server-2019-/2022-/2025-Matrix unter Windows base und Linux latest einschließlich SAFE CLR, Dialekt, Timeout, Lifecycle und Cleanup erfolgreich |
+| `toolbelt.string.regex` | [REGEX_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.string.regex/Tests/REGEX_CONTRACT_TEST_MATRIX.md) | `partially validated`; R2b 1.2.0 auf 2019 Linux CL150 und 2025 Windows/CU8 CL150/160/170 erfolgreich; historische R1b-/R2a-Nachweise getrennt, weitere R2b-Ziele offen |
 | `toolbelt.validation.semantic-version` | [SEMANTIC_VERSION_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.validation.semantic-version/Tests/SEMANTIC_VERSION_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 |
 | `toolbelt.conversion.integer-base` | [INTEGER_BASE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.conversion.integer-base/Tests/INTEGER_BASE_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 |
 | `toolbelt.datetime.calendar-difference` | [CALENDAR_DIFFERENCE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.calendar-difference/Tests/CALENDAR_DIFFERENCE_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Kollisionsschutz |
@@ -95,6 +96,7 @@ Text-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall erfolgreich.
 | `toolbelt.datetime.bucket` | [DATETIME_BUCKET_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.datetime.bucket/Tests/DATETIME_BUCKET_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich 100.000-Zeilen-Workload und Kollisionsschutz |
 | `toolbelt.binary.bit-operations` | [BIT_OPERATIONS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.binary.bit-operations/Tests/BIT_OPERATIONS_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich nativer Parität und Kollisionsschutz |
 | `toolbelt.json.path-exists` | [JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.json.path-exists/Tests/JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich nativer Parität und Kollisionsschutz |
+| `toolbelt.json.constructors` | [JSON_CONSTRUCTOR_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.json.constructors/Tests/JSON_CONSTRUCTOR_CONTRACT_TEST_MATRIX.md) | `partially validated`; vollständiger neuer Adapter auf 2019 Linux/latest und 2025 Windows/CU8 erfolgreich; weitere Ziel-/Rechtekontexte und Produktionskapazität offen |
 | `toolbelt.core.console-message` | [CONSOLE_MESSAGE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.console-message/Tests/CONSOLE_MESSAGE_CONTRACT_TEST_MATRIX.md) | `partially validated`; automatisierte Windows-/Linux-Matrix 2019/2022/2025 erfolgreich; zusätzliche Client-/Treiber-, Buffering- und Framing-Evidenz offen |
 | `toolbelt.metadata.capability-catalog` | [CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.metadata.capability-catalog/Tests/CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich eingeschränkter Metadatensichtbarkeit ohne Rechteausweitung |
 | `toolbelt.tsql.script-parser` | [TSQL_SCRIPT_PARSER_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.tsql.script-parser/Tests/TSQL_SCRIPT_PARSER_CONTRACT_TEST_MATRIX.md) | `validated`; physische Windows-SQL-Server-Matrix 2019/2022/2025 für Build, Deployment, Feature, Central und Uninstall erfolgreich |

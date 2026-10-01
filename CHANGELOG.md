@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-01 – JSON-Konstruktoren 1.0.0
+
+- Getrennte `USP_JsonArray` und `USP_JsonObject` mit einem gemeinsamen
+  begrenzten Prüf-/Escapingkern, expliziten ValueKinds und caller-lokalen
+  Eingabetabellen. Keine Typinferenz, JSON-Aggregate oder SQL-Ausführung.
+- Atomare ResultTable-Ausgabe, Help-first, binär längensensitive Keys,
+  strikte Zahlen-/Boolean-/Fragment-/Unicode-Verträge und begrenzte LOBs.
+- Vollständige finale Adapter auf SQL Server 2019 Linux/latest und 2025
+  Windows/CU8 erfolgreich; Lifecycle-Typreparatur und Namespace-Compilegrenzen
+  nach unabhängigem Review nachgetestet. Weitere Ziele, gemappte CrossDB-
+  Minimalrechte und Produktionskapazität offen; teilweise validiert/unreleased.
+
 ## 2026-10-01 – Regex Matches und Split 1.2.0
 
 - `TVF_RegexMatches` und `TVF_RegexSplit` verwenden den bestehenden SAFE-CLR-
@@ -385,7 +397,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-30 Module sind implementiert. 21 sind `validated`, 9 sind `partially
+31 Module sind implementiert. 21 sind `validated`, 10 sind `partially
 validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

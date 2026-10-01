@@ -202,16 +202,16 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Betroffene Versionen** | SQL Server 2019; 2022 und 2025 besitzen native Funktionen. |
 | **Spätere native Funktion** | Ja: SQL Server 2022. |
 | **Use-Case-Typ** | Realistisch |
-| **Nutzen** | Pfadprüfung mit einem stabilen Vertrag für ältere Installationen; JSON-Konstruktion bleibt ein getrennter späterer Slice. |
-| **Mögliche Technologie** | Slice A ist als zustandsbehaftete T-SQL-Multi-statement-TVF auf Basis von `ISJSON` und `OPENJSON` implementiert. Slice B für Konstruktoren bleibt zurückgestellt, weil T-SQL-UDFs keine variadische native Aufrufoberfläche besitzen. |
+| **Nutzen** | Pfadprüfung sowie getrennte, explizit typisierte JSON-Array-/Object-Konstruktion für ältere Installationen. |
+| **Mögliche Technologie** | Slice A ist eine T-SQL-Multi-statement-TVF auf Basis von `ISJSON` und `OPENJSON`. Slice B ist nach Einzelbesprechung/-freigabe vom 2026-10-01 als getrennte USPs mit caller-lokaler #Temp-Eingabe implementiert; keine variadische UDF-Paritätszusage. |
 | **Performance und Security** | Pfadtiefe und Wildcard-Fan-out materialisieren Frontier-Zustände; Property-Vergleich ist BIN2. Ungültige Pfade werden vor `OPENJSON` validiert. Doppeltes Escaping, Schlüssel-Injection und LOB-Materialisierung bleiben Pflichtfragen eines späteren Konstruktor-Slices. |
 | **Plattformgrenzen** | Keine erwartete Windows-/Linux-Differenz. Azure nicht automatisch unterstützt. |
-| **Dependencies** | Der implementierte Path-Exists-Slice besitzt keine Modulabhängigkeit. Ein späterer Konstruktor-Slice benötigt einen eigenen Eingabe-, Typ- und Escaping-Vertrag. |
+| **Dependencies** | Path Exists ohne Modulabhängigkeit; Konstruktoren mit kanonischem Typ-/Escapingkern und ResultTable-Runtime mindestens 1.0.0 in derselben Datenbank. |
 | **Duplikatprüfung** | Toolbelt-Backlogs geprüft; JSON-Aggregate werden separat in TC-2026-013 behandelt. |
-| **Status** | `implemented` (Slice A); Runtime `partially validated`; Konstruktoren `researched` |
+| **Status** | `implemented` (Slices A/B); Path Exists `validated`; Konstruktoren `partially validated`, `unreleased` |
 | **Primärquellen** | https://learn.microsoft.com/en-us/sql/sql-server/what-s-new-in-sql-server-2022?view=sql-server-ver16<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/json-object-transact-sql?view=sql-server-ver17<br>https://learn.microsoft.com/en-us/sql/t-sql/functions/json-path-exists-transact-sql?view=sql-server-ver17 |
 | **Prüfdatum** | 2026-09-11 |
-| **Nächster Schritt** | Windows-Releasevalidierung für `toolbelt.json.path-exists` ausführen. Die [Konstruktorvorbereitung](../Documentation/Architecture/JSON_CONSTRUCTOR_PROPOSAL.md) empfiehlt getrennte typisierte Array-/Object-Table-Types; den konkreten öffentlichen Vertrag anschließend funktionsbezogen besprechen. |
+| **Nächster Schritt** | Konstruktoren sind im ausgewählten Linux-2019-/Windows-2025-CU8-Scope vollständig geprüft und bereit für geprüften PR-Merge. Weitere Ziele und gemappte CrossDB-Minimalrechte bleiben offen; keine automatische Release- oder Aggregatfreigabe. Vertragsbasis: [Konstruktorentscheidung](../Documentation/Architecture/JSON_CONSTRUCTOR_PROPOSAL.md). |
 
 ## TC-2026-010: Regular-Expression-Kompatibilitätsmodul
 

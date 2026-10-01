@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: twenty_eight_modules_implemented
+  status: thirty_one_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -82,6 +82,9 @@ sources_of_truth:
   json_path_exists_module_design: Documentation/Architecture/JSON_PATH_EXISTS_MODULE_DESIGN.md
   json_path_exists_runtime_workflow: .github/workflows/w2b-json-path-runtime.yml
   json_path_exists_module: Modules/toolbelt.json.path-exists/module.yaml
+  json_constructors_module: Modules/toolbelt.json.constructors/module.yaml
+  json_constructors_module_design: Documentation/Architecture/JSON_CONSTRUCTOR_PROPOSAL.md
+  json_constructors_runtime_workflow: .github/workflows/json-constructors-runtime.yml
   console_message_module_design: Documentation/Architecture/CONSOLE_MESSAGE_MODULE_DESIGN.md
   capability_catalog_module_design: Documentation/Architecture/CAPABILITY_CATALOG_MODULE_DESIGN.md
   w2c_runtime_workflow: .github/workflows/w2c-runtime.yml
@@ -286,6 +289,7 @@ module_registry:
     - Modules/toolbelt.datetime.bucket/module.yaml
     - Modules/toolbelt.binary.bit-operations/module.yaml
     - Modules/toolbelt.json.path-exists/module.yaml
+    - Modules/toolbelt.json.constructors/module.yaml
     - Modules/toolbelt.core.console-message/module.yaml
     - Modules/toolbelt.metadata.capability-catalog/module.yaml
     - Modules/toolbelt.core.error-envelope/module.yaml
@@ -609,6 +613,16 @@ change_impact:
         - markdown_links
         - json_path_exists_static
         - w2b_json_path_runtime_workflow_scope
+    json_constructors_contract:
+      paths:
+        - Modules/toolbelt.json.constructors/**
+        - Documentation/Architecture/JSON_CONSTRUCTOR_PROPOSAL.md
+        - Documentation/Standards/USP_CONTRACT.md
+        - Tests/CI/run-json-constructors-linux.sh
+        - .github/workflows/json-constructors-runtime.yml
+      checks:
+        - markdown_links
+        - json_constructors_static
     error_envelope_contract:
       paths:
         - Modules/toolbelt.core.error-envelope/**
@@ -805,5 +819,6 @@ change_impact:
         - json_path_exists_static
         - w2b_json_path_runtime_workflow_scope
         - console_message_static
+        - json_constructors_static
         - capability_catalog_static
         - w2c_runtime_workflow_scope
