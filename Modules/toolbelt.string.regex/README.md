@@ -2,6 +2,15 @@
 
 ## Status
 
+Version `1.2.0` ergänzt die einzeln freigegebenen relationalen
+[Matches](Documentation/TVF_RegexMatches.md)- und
+[Split](Documentation/TVF_RegexSplit.md)-TVFs ohne Captures. Der neue Runtime-
+Scope ist auf SQL Server 2025 Windows/CU8 bei CL150/160/170 und SQL Server
+2019 Linux/latest CL150 erfolgreich. Weitere R2b-Ziele bleiben offen;
+historische 1.1-Evidence gilt nur für R1b/R2a.
+Das Manifest bleibt `partially validated`, `unreleased`. Neue CLR-TVFs
+materialisieren begrenzt und atomar; Inline-Fassaden liefern max-Defaults.
+
 Version `1.1.0` ergänzt den am 2026-10-01 ausdrücklich freigegebenen R2a-
 Slice mit Substring und literal Replace. R1b-Signaturen bleiben unverändert.
 Die erweiterte R1b-/R2a-Matrix wurde am 2026-10-01 auf SQL Server 2019/2022/2025
@@ -13,7 +22,7 @@ Evidenz: `local: Tests/CI/run-lab-local.ps1`.
 
 ## Zweck
 
-Das Modul stellt fünf portable Skalarfunktionen für einen bewusst begrenzten
+Das Modul stellt fünf portable Skalarfunktionen und zwei relationale TVFs für einen bewusst begrenzten
 Toolbelt-Regexdialekt bereit:
 
 - `toolbelt_string.SVF_RegexIsMatch`;
@@ -21,6 +30,8 @@ Toolbelt-Regexdialekt bereit:
 - `toolbelt_string.SVF_RegexCount`.
 - [toolbelt_string.SVF_RegexReplace](./Documentation/SVF_RegexReplace.md);
 - [toolbelt_string.SVF_RegexSubstring](./Documentation/SVF_RegexSubstring.md).
+- [toolbelt_string.TVF_RegexMatches](./Documentation/TVF_RegexMatches.md);
+- [toolbelt_string.TVF_RegexSplit](./Documentation/TVF_RegexSplit.md).
 
 Ein eigener Parser akzeptiert ausschließlich den dokumentierten Dialekt und
 übersetzt ASCII-Kurzklassen kontrolliert für die .NET-Framework-4.8-
@@ -64,8 +75,8 @@ SHA2-512-Hash des reproduzierbar gebauten Releaseartefakts.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-30`
-- Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: R1b auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest; SAFE CLR, exakter SHA2-512-Trust, Toolbelt-Dialekt, UTF-16, Grenzen, Timeout, Fehlerpräfixe, Erst- und Wiederholungsdeployment, Kollision, Central, Uninstall und Cleanup
+- Datum: `2026-10-01`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1; Windows PowerShell: run-framework-relations.ps1`
+- Scope: R2b auf SQL Server 2025 Windows/CU8 bei CL150/160/170 und SQL Server 2019 Linux/latest CL150: vollständiger Regexadapter, Empty-/UTF16-/NULL-/Fehlerpriorität, 16 MiB Outputhash, strikte kleine Rowlimits, SQLClient-Schema/Metadata und SELECT-Atomicity bei Rowlimitfehler/Runtime-Timeout lokal und central, SELECT-Minimalrechte lokal/direkt zentral, genuine 1.0/1.1 Upgrade, vier neue Namenskollisionen mit imitiertem Marker, historischer Uninstall-Erhalt, 1.2 Reinstall/Marker/Dependency-Uninstall/Cleanup. Framework tatsächlich 100000 Zeilen; gezielte SQL-100k-Probe nur vollständige Ausgabe oder atomarer Timeout, keine SQL-100k-Durchsatzevidenz. Weitere R2b-Ziele und Lowpriv-CrossDB noch nicht ausgeführt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

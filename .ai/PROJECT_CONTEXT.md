@@ -4,7 +4,7 @@
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-30 Module sind implementiert. 22 sind `validated`, 8 sind `partially
+30 Module sind implementiert. 21 sind `validated`, 9 sind `partially
 validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
@@ -152,6 +152,14 @@ Der vollständige neue Adapter besteht auf SQL Server 2019 Linux CL150 und
 32-MiB-Entry-/128-MiB-Gesamtfixtures. Reale Archive, höhere SQL-Live-Grenzen,
 weitere Interoperabilität und Produktionskapazität bleiben offen;
 `partially validated`, `unreleased`, ohne Datei-I/O.
+
+`toolbelt.string.regex` 1.2.0 ergänzt die einzeln freigegebenen
+`TVF_RegexMatches` und `TVF_RegexSplit` ohne Captures oder Entquotierung.
+Beide verwenden den bestehenden SAFE-CLR-Kern mit begrenzter vollständiger
+Materialisierung vor Ausgabe. Der neue Adapter besteht auf SQL Server 2019
+Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170. Weitere R2b-Ziele,
+Lowpriv-CrossDB und SQL-100k-Durchsatz bleiben offen; `partially validated`,
+`unreleased`. Historische R1b-/R2a-Nachweise bleiben getrennt erhalten.
 
 ## Projektzweck
 

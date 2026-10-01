@@ -36,12 +36,12 @@ New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $assemblyBytes = [IO.File]::ReadAllBytes($assemblyPath)
 $assemblyHex = [BitConverter]::ToString($assemblyBytes).Replace('-', '')
 $sha512 = (Get-FileHash -Algorithm SHA512 -LiteralPath $assemblyPath).Hash.ToUpperInvariant()
-$description = 'SQL Server Toolbelt toolbelt.string.regex CLR provider 1.1.0'
+$description = 'SQL Server Toolbelt toolbelt.string.regex CLR provider 1.2.0'
 
 $manifest = [ordered]@{
     schemaVersion = '1.0'
     moduleId = 'toolbelt.string.regex'
-    moduleVersion = '1.1.0'
+    moduleVersion = '1.2.0'
     assemblySqlName = 'Toolbelt_String_Regex'
     assemblyFileName = [IO.Path]::GetFileName($assemblyPath)
     permissionSet = 'SAFE'
@@ -55,7 +55,7 @@ $manifestPath = Join-Path $OutputDirectory 'Toolbelt.String.Regex.trust-manifest
 $deployPath = Join-Path $OutputDirectory 'Deploy.WithAssembly.sql'
 $assemblyOutputPath = Join-Path $OutputDirectory 'Toolbelt.String.Regex.dll'
 $deployTemplate = Get-Content -LiteralPath $deployTemplatePath -Raw
-if (($deployTemplate.Split('$(AssemblyBits)').Count - 1) -ne 1) {
+if ([regex]::Matches($deployTemplate,[regex]::Escape('$(AssemblyBits)')).Count -ne 1) {
     throw 'Deployment/Deploy.sql muss genau einen AssemblyBits-Platzhalter enthalten.'
 }
 $deployScript = $deployTemplate.Replace('$(AssemblyBits)', '0x' + $assemblyHex)

@@ -52,7 +52,7 @@ INNER JOIN sys.assembly_files AS af
   ON af.assembly_id = a.assembly_id AND af.file_id = 1
 WHERE a.name = @AssemblyName;
 
-IF @InstalledVersion IS NOT NULL AND @InstalledVersion NOT IN (N'1.0.0', N'1.1.0')
+IF @InstalledVersion IS NOT NULL AND @InstalledVersion NOT IN (N'1.0.0', N'1.1.0', N'1.2.0')
     THROW 52032, N'Die installierte Modulversion ist diesem Deployment nicht bekannt.', 1;
 
 IF @InstalledVersion IS NULL
@@ -65,6 +65,10 @@ IF @InstalledVersion IS NULL
        OR OBJECT_ID(N'toolbelt_string.SVF_RegexSubstring') IS NOT NULL
        OR OBJECT_ID(N'toolbelt_string.SVF_RegexReplaceCore') IS NOT NULL
        OR OBJECT_ID(N'toolbelt_string.SVF_RegexSubstringCore') IS NOT NULL
+       OR OBJECT_ID(N'toolbelt_string.TVF_RegexMatches') IS NOT NULL
+       OR OBJECT_ID(N'toolbelt_string.TVF_RegexSplit') IS NOT NULL
+       OR OBJECT_ID(N'toolbelt_string.TVF_RegexMatchesCore') IS NOT NULL
+       OR OBJECT_ID(N'toolbelt_string.TVF_RegexSplitCore') IS NOT NULL
        OR EXISTS (SELECT 1 FROM sys.assemblies WHERE name = @AssemblyName)
    )
     THROW 52033, N'Ein Zielobjekt oder die Assembly stammt nicht aus einem bekannten Toolbelt-Release.', 1;
@@ -80,6 +84,14 @@ IF EXISTS (
             AND CONVERT(nvarchar(128), ep.value) = N'toolbelt.string.regex')
 )
     THROW 52033, N'Ein neues R2a-Zielobjekt ist fremd belegt.', 2;
+
+-- R2b-Plätze gehören keinem Vorgängerrelease, selbst mit imitiertem Marker.
+IF EXISTS(SELECT 1 FROM sys.objects o WHERE o.schema_id=SCHEMA_ID(N'toolbelt_string')
+ AND o.name IN(N'TVF_RegexMatches',N'TVF_RegexSplit',N'TVF_RegexMatchesCore',N'TVF_RegexSplitCore')
+ AND (@InstalledVersion IS NULL OR CONVERT(varbinary(128),@InstalledVersion)<>CONVERT(varbinary(128),N'1.2.0')
+ OR NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0
+ AND e.name=N'Toolbelt.ModuleId' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),e.value))=CONVERT(varbinary(max),N'toolbelt.string.regex'))))
+ THROW 52033,N'Ein neues R2b-Zielobjekt ist fremd belegt.',3;
 
 IF SCHEMA_ID(N'toolbelt_string') IS NULL
    AND HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'CREATE SCHEMA') <> 1
@@ -112,6 +124,13 @@ BEGIN TRY
     IF @LockResult < 0
         THROW 52035, N'Ein paralleles Deployment dieses Moduls ist bereits aktiv.', 1;
 
+    IF EXISTS(SELECT 1 FROM sys.objects o WHERE o.schema_id=SCHEMA_ID(N'toolbelt_string')
+     AND o.name IN(N'TVF_RegexMatches',N'TVF_RegexSplit',N'TVF_RegexMatchesCore',N'TVF_RegexSplitCore')
+     AND (@InstalledVersion IS NULL OR CONVERT(varbinary(128),@InstalledVersion)<>CONVERT(varbinary(128),N'1.2.0')
+     OR NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0
+     AND e.name=N'Toolbelt.ModuleId' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),e.value))=CONVERT(varbinary(max),N'toolbelt.string.regex'))))
+     THROW 52033,N'R2b-Zielobjekt kollidiert nach Deploymentlock.',4;
+
     IF SCHEMA_ID(N'toolbelt_string') IS NULL
     BEGIN
         EXEC sys.sp_executesql N'CREATE SCHEMA [toolbelt_string];';
@@ -123,6 +142,10 @@ BEGIN TRY
             , @level0type = N'SCHEMA', @level0name = N'toolbelt_string';
     END;
 
+    DROP FUNCTION IF EXISTS [toolbelt_string].[TVF_RegexMatches];
+    DROP FUNCTION IF EXISTS [toolbelt_string].[TVF_RegexSplit];
+    DROP FUNCTION IF EXISTS [toolbelt_string].[TVF_RegexMatchesCore];
+    DROP FUNCTION IF EXISTS [toolbelt_string].[TVF_RegexSplitCore];
     DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexIsMatch];
     DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexInstr];
     DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexCount];
@@ -150,6 +173,7 @@ END CATCH;
 GO
 
 :r ../Source/RegexFunctions.sql
+:r ../Source/RegexRelations.sql
 
 SET NOCOUNT ON;
 BEGIN TRY
@@ -163,9 +187,9 @@ BEGIN TRY
               N'Toolbelt.Module.toolbelt.string.regex.DeploymentMode';
 
     IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = @VersionProperty)
-        EXEC sys.sp_updateextendedproperty @name = @VersionProperty, @value = N'1.1.0';
+        EXEC sys.sp_updateextendedproperty @name = @VersionProperty, @value = N'1.2.0';
     ELSE
-        EXEC sys.sp_addextendedproperty @name = @VersionProperty, @value = N'1.1.0';
+        EXEC sys.sp_addextendedproperty @name = @VersionProperty, @value = N'1.2.0';
 
     IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = @ModeProperty)
         EXEC sys.sp_updateextendedproperty @name = @ModeProperty, @value = N'$(DeploymentMode)';
@@ -207,7 +231,7 @@ BEGIN TRY
         SELECT name
         FROM sys.objects
         WHERE schema_id = SCHEMA_ID(N'toolbelt_string')
-          AND name IN (N'SVF_RegexIsMatch', N'SVF_RegexInstr', N'SVF_RegexCount', N'SVF_RegexReplace', N'SVF_RegexSubstring', N'SVF_RegexReplaceCore', N'SVF_RegexSubstringCore');
+          AND name IN (N'SVF_RegexIsMatch', N'SVF_RegexInstr', N'SVF_RegexCount', N'SVF_RegexReplace', N'SVF_RegexSubstring', N'SVF_RegexReplaceCore', N'SVF_RegexSubstringCore', N'TVF_RegexMatches', N'TVF_RegexSplit', N'TVF_RegexMatchesCore', N'TVF_RegexSplitCore');
     OPEN FunctionCursor;
     FETCH NEXT FROM FunctionCursor INTO @FunctionName;
     WHILE @@FETCH_STATUS = 0
@@ -221,10 +245,10 @@ BEGIN TRY
             , @level0type = N'SCHEMA', @level0name = N'toolbelt_string'
             , @level1type = N'FUNCTION', @level1name = @FunctionName;
         EXEC sys.sp_addextendedproperty
-              @name = N'Toolbelt.ModuleVersion', @value = N'1.1.0'
+              @name = N'Toolbelt.ModuleVersion', @value = N'1.2.0'
             , @level0type = N'SCHEMA', @level0name = N'toolbelt_string'
             , @level1type = N'FUNCTION', @level1name = @FunctionName;
-        DECLARE @Visibility nvarchar(16) = CASE WHEN @FunctionName IN (N'SVF_RegexReplaceCore', N'SVF_RegexSubstringCore') THEN N'internal' ELSE N'public' END;
+        DECLARE @Visibility nvarchar(16) = CASE WHEN @FunctionName IN (N'SVF_RegexReplaceCore', N'SVF_RegexSubstringCore',N'TVF_RegexMatchesCore',N'TVF_RegexSplitCore') THEN N'internal' ELSE N'public' END;
         EXEC sys.sp_addextendedproperty
               @name = N'Toolbelt.Visibility', @value = @Visibility
             , @level0type = N'SCHEMA', @level0name = N'toolbelt_string'

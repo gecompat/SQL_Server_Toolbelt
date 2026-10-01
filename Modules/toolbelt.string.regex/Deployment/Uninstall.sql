@@ -35,6 +35,23 @@ FROM sys.extended_properties
 WHERE class = 0 AND major_id = 0 AND minor_id = 0
   AND name = @ModeProperty;
 
+-- Nur Release 1.2 besitzt die neuen TVF-Plätze; Vorgänger lassen fremde
+-- gleichnamige Objekte unberührt. Der öffentliche Wrapper ist eigene Dependency.
+DECLARE @InstalledVersion nvarchar(64)=(SELECT TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties
+ WHERE class=0 AND major_id=0 AND minor_id=0 AND name=@VersionProperty);
+DECLARE @OwnRelations bit=CASE WHEN CONVERT(varbinary(128),@InstalledVersion)=CONVERT(varbinary(128),N'1.2.0') THEN 1 ELSE 0 END;
+DECLARE @MatchesId int=CASE WHEN @OwnRelations=1 THEN OBJECT_ID(N'toolbelt_string.TVF_RegexMatches') END,
+ @SplitId int=CASE WHEN @OwnRelations=1 THEN OBJECT_ID(N'toolbelt_string.TVF_RegexSplit') END,
+ @MatchesCoreId int=CASE WHEN @OwnRelations=1 THEN OBJECT_ID(N'toolbelt_string.TVF_RegexMatchesCore') END,
+ @SplitCoreId int=CASE WHEN @OwnRelations=1 THEN OBJECT_ID(N'toolbelt_string.TVF_RegexSplitCore') END;
+IF @OwnRelations=1 AND EXISTS(SELECT 1 FROM sys.objects o WHERE o.object_id IN(@MatchesId,@SplitId,@MatchesCoreId,@SplitCoreId)
+ AND NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0
+ AND e.name=N'Toolbelt.ModuleId' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),e.value))=CONVERT(varbinary(max),N'toolbelt.string.regex')))
+ THROW 52038,N'R2b-Objekt besitzt keine passende Modulzuordnung.',4;
+IF EXISTS(SELECT 1 FROM sys.sql_expression_dependencies WHERE referenced_id IN(@MatchesId,@SplitId,@MatchesCoreId,@SplitCoreId)
+ AND referencing_id NOT IN(ISNULL(@MatchesId,-1),ISNULL(@SplitId,-1),ISNULL(@MatchesCoreId,-1),ISNULL(@SplitCoreId,-1)))
+ THROW 52038,N'R2b besitzt eine fremde same-database Dependency.',5;
+
 IF @DeploymentMode = N'central' AND @ConfirmNoExternalConsumers <> 1
     THROW 52036, N'Bei zentraler Installation ist ConfirmNoExternalConsumers=1 erforderlich.', 2;
 
@@ -51,7 +68,7 @@ IF @AssemblyId IS NOT NULL
        (
            SELECT 1 FROM sys.assembly_modules
            WHERE assembly_id = @AssemblyId
-             AND object_id NOT IN (ISNULL(@IsMatchId, -1), ISNULL(@InstrId, -1), ISNULL(@CountId, -1), ISNULL(@ReplaceId, -1), ISNULL(@SubstringId, -1), ISNULL(@ReplaceCoreId, -1), ISNULL(@SubstringCoreId, -1))
+             AND object_id NOT IN (ISNULL(@IsMatchId, -1), ISNULL(@InstrId, -1), ISNULL(@CountId, -1), ISNULL(@ReplaceId, -1), ISNULL(@SubstringId, -1), ISNULL(@ReplaceCoreId, -1), ISNULL(@SubstringCoreId, -1),ISNULL(@MatchesCoreId,-1),ISNULL(@SplitCoreId,-1))
        )
     THROW 52038, N'Die Regex-Assembly wird von einem fremden SQL-Objekt verwendet.', 2;
 IF @AssemblyId IS NOT NULL
@@ -61,6 +78,12 @@ IF @AssemblyId IS NOT NULL
 
 BEGIN TRY
     BEGIN TRANSACTION;
+    IF @OwnRelations=1 BEGIN
+      DROP FUNCTION IF EXISTS [toolbelt_string].[TVF_RegexMatches];
+      DROP FUNCTION IF EXISTS [toolbelt_string].[TVF_RegexSplit];
+      DROP FUNCTION IF EXISTS [toolbelt_string].[TVF_RegexMatchesCore];
+      DROP FUNCTION IF EXISTS [toolbelt_string].[TVF_RegexSplitCore];
+    END;
     DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexIsMatch];
     DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexInstr];
     DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexCount];

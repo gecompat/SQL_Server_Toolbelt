@@ -34,7 +34,7 @@ deploy = deploy_path.read_text(encoding="utf-8-sig")
 actual_hash = sha512(assembly).hexdigest().upper()
 assert actual_hash == manifest["sha512"]
 assert manifest["moduleId"] == "toolbelt.string.regex"
-assert manifest["moduleVersion"] == "1.1.0"
+assert manifest["moduleVersion"] == "1.2.0"
 assert manifest["assemblySqlName"] == "Toolbelt_String_Regex"
 assert manifest["permissionSet"] == "SAFE"
 assert manifest["directFrameworkReferences"] == ["System", "System.Data"]
@@ -56,9 +56,15 @@ assembly_description="${manifest_values[1]}"
 
 container_name="tbx-regex-${sql_version}-${compatibility_level}-${GITHUB_RUN_ID:-local}"
 collision_log=""
+r2a_hash=""
+r2a_trust_before=""
 sa_password="Tbx!$(openssl rand -hex 20)Aa1"
 echo "::add-mask::${sa_password}"
 cleanup() {
+  # Nur der genaue zusätzliche Vorgängerhash und nur bei eigener Registrierung.
+  if [[ "${r2a_trust_before}" == "0" && -n "${r2a_hash}" ]]; then
+    run_query master "IF EXISTS(SELECT 1 FROM sys.trusted_assemblies WHERE hash=CONVERT(varbinary(64),N'${r2a_hash}',1)) EXEC sys.sp_drop_trusted_assembly @hash=CONVERT(varbinary(64),N'${r2a_hash}',1);" >/dev/null 2>&1 || true
+  fi
   docker rm -f "${container_name}" >/dev/null 2>&1 || true
   [[ -z "${collision_log}" ]] || rm -f "${collision_log}"
 }
@@ -86,7 +92,8 @@ run_file() {
     -S localhost -U sa -P "${sa_password}" -C -b -d "${database}" -i "${file}" "$@"
 }
 run_query() {
-  docker exec "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d "$1" -Q "$2"
+  local database="$1" query="$2"; shift 2
+  docker exec "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d "${database}" "$@" -Q "${query}"
 }
 deploy_regex() {
   run_file "$1" /workspace/Modules/toolbelt.string.regex/Deployment \
@@ -113,12 +120,66 @@ run_query "${local_database}" "ALTER DATABASE [${local_database}] SET COMPATIBIL
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Lifecycle.Contract.sql
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Regex.Contract.sql
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Transformations.Contract.sql
+run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Relations.Contract.sql -v "ToolbeltDatabase=${local_database}"
+run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Relations.Rights.sql
 deploy_regex "${local_database}" local
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Lifecycle.Contract.sql
 
 deploy_regex "${central_database}" central
+run_file "${central_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Relations.Rights.sql
 run_file "${consumer_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Central.Contract.sql \
   -v "ToolbeltDatabase=${central_database}"
+run_file "${consumer_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Relations.Contract.sql -v "ToolbeltDatabase=${central_database}"
+if [[ "${TBX_SQL_TARGET:-}" == "lab" ]]; then
+  metadata_script="${workspace}/Modules/toolbelt.string.regex/Tests/Runtime/Relations.Metadata.ps1"
+  if command -v cygpath >/dev/null 2>&1; then metadata_script="$(cygpath -w "${metadata_script}")"; fi
+  pwsh -NoProfile -File "${metadata_script}" -Database "${local_database}_${TBX_TEST_DB_SUFFIX}"
+  pwsh -NoProfile -File "${metadata_script}" -Database "${consumer_database}_${TBX_TEST_DB_SUFFIX}" -ToolbeltDatabase "${central_database}_${TBX_TEST_DB_SUFFIX}"
+fi
+
+# Echter 1.1-Vorgänger neben unveränderter 1.0-Fixture; kein Markerfake.
+r2a_container="${assembly_root_container}/legacy-r2a"
+r2a_hash="$(python3 - "${assembly_root_host}/legacy-r2a/Toolbelt.String.Regex.trust-manifest.json" "${assembly_root_host}/legacy-r2a/Toolbelt.String.Regex.dll" <<'PY'
+import json,sys,hashlib
+from pathlib import Path
+m=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8-sig'))
+assert m['moduleVersion']=='1.1.0' and m['sha512']==hashlib.sha512(Path(sys.argv[2]).read_bytes()).hexdigest().upper()
+print(m['sqlServerHexLiteral'])
+PY
+)"
+r2a_trust_before="$(run_query master "SET NOCOUNT ON; SELECT COUNT(*) FROM sys.trusted_assemblies WHERE hash=CONVERT(varbinary(64),N'${r2a_hash}',1);" -h -1 -W | tr -d '[:space:]')"
+[[ "${r2a_trust_before}" == "0" || "${r2a_trust_before}" == "1" ]] || { echo "R2a-Testtrust-Voraussetzung unklar." >&2; exit 1; }
+run_file master /workspace/Modules/toolbelt.string.regex/Deployment Add-TrustedAssembly.sql -v "AssemblyHash=${r2a_hash}" "AssemblyDescription=Toolbelt Regex R2a upgrade test"
+r2b_upgrade_database="tbx_regex_r2b_upgrade"
+run_query master "CREATE DATABASE [${r2b_upgrade_database}] COLLATE Latin1_General_100_CI_AS;"
+run_file "${r2b_upgrade_database}" "${r2a_container}" "${r2a_container}/Deploy.WithAssembly.sql" -v DeploymentMode=local
+for relation_name in TVF_RegexMatches TVF_RegexSplit TVF_RegexMatchesCore TVF_RegexSplitCore; do
+  run_query "${r2b_upgrade_database}" "EXEC(N'CREATE FUNCTION toolbelt_string.${relation_name}() RETURNS TABLE AS RETURN SELECT CONVERT(int,7) AS ForeignValue;'); EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.string.regex',@level0type=N'SCHEMA',@level0name=N'toolbelt_string',@level1type=N'FUNCTION',@level1name=N'${relation_name}';"
+  collision_log="$(mktemp)"
+  set +e
+  deploy_regex "${r2b_upgrade_database}" local >"${collision_log}" 2>&1
+  relation_collision_status=$?
+  set -e
+  [[ "${relation_collision_status}" -ne 0 ]] && grep -q "Msg 52033" "${collision_log}" || { echo "R2b-Kollision nicht geschützt." >&2; exit 1; }
+  run_query "${r2b_upgrade_database}" "IF NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.name=N'Toolbelt_String_Regex' AND HASHBYTES('SHA2_512',f.content)=CONVERT(varbinary(64),N'${r2a_hash}',1)) THROW 52095,N'R2b-Kollision mutierte Originalassembly.',6;"
+  run_file "${r2b_upgrade_database}" /workspace/Modules/toolbelt.string.regex/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=0
+  run_query "${r2b_upgrade_database}" "IF OBJECT_ID(N'toolbelt_string.${relation_name}',N'IF') IS NULL THROW 52095,N'Vorgänger-Uninstall löschte fremde TVF.',7; DROP FUNCTION toolbelt_string.${relation_name};"
+  rm -f "${collision_log}";collision_log=""
+  run_file "${r2b_upgrade_database}" "${r2a_container}" "${r2a_container}/Deploy.WithAssembly.sql" -v DeploymentMode=local
+done
+deploy_regex "${r2b_upgrade_database}" local
+run_file "${r2b_upgrade_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Lifecycle.Contract.sql
+run_file "${r2b_upgrade_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Relations.Contract.sql -v "ToolbeltDatabase=${r2b_upgrade_database}"
+run_query "${r2b_upgrade_database}" "EXEC(N'CREATE VIEW dbo.RegexRelationDependency AS SELECT * FROM toolbelt_string.TVF_RegexMatches(N''x'',N''x'',DEFAULT,DEFAULT,DEFAULT,DEFAULT);');"
+collision_log="$(mktemp)"
+set +e
+run_file "${r2b_upgrade_database}" /workspace/Modules/toolbelt.string.regex/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=0 >"${collision_log}" 2>&1
+relation_dependency_status=$?
+set -e
+[[ "${relation_dependency_status}" -ne 0 ]] && grep -q "Msg 52038" "${collision_log}" || { echo "R2b-Dependency-Uninstall nicht geschützt." >&2; exit 1; }
+run_query "${r2b_upgrade_database}" "IF OBJECT_ID(N'toolbelt_string.TVF_RegexMatches',N'IF') IS NULL THROW 52095,N'Dependency-Schutz mutierte R2b.',8; DROP VIEW dbo.RegexRelationDependency;"
+rm -f "${collision_log}";collision_log=""
+run_file "${r2b_upgrade_database}" /workspace/Modules/toolbelt.string.regex/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=0
 
 # Echtes Upgrade aus dem gepinnten R1b-Binary. Legacy-Trust wird im Labadapter
 # separat erfasst und nur bei eigener Neuerzeugung nach dem Lauf entfernt.
