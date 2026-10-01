@@ -1,5 +1,33 @@
 # ZIP-Archiv-Moduldesign (TC-2026-034)
 
+## Erweiterung: ZIP-Writer, Release 1.3.0 (2026-10-01)
+
+Die ausdrückliche funktionsbezogene Freigabe nach PR #121 ergänzt
+`USP_CreateZipFromEntries`: vorhandene lokale Entrytabelle des Aufrufers,
+Stored als Default, Deflate explizit, positive unabhängig parametrisierte
+Ressourcenlimits und ein vollständig finalisiertes Binary-Resultset.
+Der öffentliche Vertrag steht in der Modul-Dokumentation; die historische
+Entscheidungsvorlage bleibt in `ZIP_CREATION_PROPOSAL.md` erhalten.
+Es gibt keine Datei-I/O-, XLSX-, TVP- oder ZIP64-Erweiterung.
+
+SQL prüft den Input vor großen Kopien, erstellt einen konsistenten Snapshot
+unter HOLDLOCK und serialisiert mit LOB-`.WRITE` in ein Binary-Envelope.
+Der Cursor ordnet ausschließlich den geprüften Snapshot; kein fachlicher
+Alternativparser entsteht. Snapshot, Envelope, CLR-Kopie und vollständiger
+Output tragen kumulativ zum Speicherbedarf bei. Locks und Log bleiben über
+Serialisierung und Kompression gehalten. ResultTable-Mutationen verwenden
+eine eigene Transaktion oder einen Caller-Savepoint; niemals wird die gesamte
+Callertransaktion automatisch zurückgerollt.
+
+Reader-Signaturen und 1024-Codeeinheiten-Namenslimit bleiben unverändert.
+Die interne SqlBinary-Ausgabe korrigiert ausschließlich den belegten
+SqlBytes-Marshallingfehler für erfolgreich geprüfte leere Payloads; echtes
+encrypted NULL bleibt erhalten. SqlBinary(byte[]) erzeugt eine zusätzliche
+begrenzte Reader-Payloadkopie; der Value-Getter kopiert bei Zugriff erneut.
+Diese Kopien zählen konservativ zum kumulativen Peak ohne MemoryGrant-Zusage.
+Die folgenden Abschnitte beschreiben den
+historischen Reader-Scope und bleiben als solche erhalten.
+
 ## Status
 
 **Implementiert:** `toolbelt.archive.zip-memory` Version `1.1.0` extrahiert

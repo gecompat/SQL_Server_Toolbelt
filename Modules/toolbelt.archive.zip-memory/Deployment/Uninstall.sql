@@ -50,6 +50,18 @@ IF @DeploymentMode = N'central'
    AND @ConfirmNoExternalConsumers <> 1
     THROW 51336, N'Bei zentraler Installation ist ConfirmNoExternalConsumers=1 erforderlich.', 1;
 
+DECLARE @InstalledVersion nvarchar(64)=(SELECT TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0 AND name=@VersionProperty);
+DECLARE @OwnWriter bit=CASE WHEN @InstalledVersion=N'1.3.0' THEN 1 ELSE 0 END;
+DECLARE @WriterPublicId int=CASE WHEN @OwnWriter=1 THEN OBJECT_ID(N'toolbelt_archive.USP_CreateZipFromEntries') END,
+ @WriterNameId int=CASE WHEN @OwnWriter=1 THEN OBJECT_ID(N'toolbelt_archive.TVF_InternalZipWriterName') END,
+ @WriterArchiveId int=CASE WHEN @OwnWriter=1 THEN OBJECT_ID(N'toolbelt_archive.TVF_InternalZipWriterArchive') END;
+IF @OwnWriter=1 AND EXISTS(SELECT 1 FROM sys.objects o WHERE o.object_id IN(@WriterPublicId,@WriterNameId,@WriterArchiveId)
+ AND NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0 AND e.name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(128),e.value)=N'toolbelt.archive.zip-memory'))
+ THROW 51338,N'Writerobjekt besitzt keine passende Modulzuordnung.',3;
+IF EXISTS(SELECT 1 FROM sys.sql_expression_dependencies WHERE referenced_id IN(@WriterPublicId,@WriterNameId,@WriterArchiveId)
+ AND referencing_id NOT IN(ISNULL(@WriterPublicId,-1),ISNULL(@WriterNameId,-1),ISNULL(@WriterArchiveId,-1)))
+ THROW 51338,N'Der ZIP-Writer wird durch eine same-database Dependency verwendet.',2;
+
 IF EXISTS
    (
        SELECT 1
@@ -80,7 +92,8 @@ IF @AssemblyId IS NOT NULL
              AND object_id NOT IN
                  (
                      ISNULL(@ExtractInternalObjectId, -1),
-                     ISNULL(@ListInternalObjectId, -1)
+                     ISNULL(@ListInternalObjectId, -1),
+                     ISNULL(@WriterNameId,-1), ISNULL(@WriterArchiveId,-1)
                  )
        )
     THROW 51338, N'Die CLR-ZIP-Assembly wird von einem fremden SQL-Objekt verwendet.', 1;
@@ -96,6 +109,11 @@ IF @AssemblyId IS NOT NULL
 
 BEGIN TRY
     BEGIN TRANSACTION;
+    IF @OwnWriter=1 BEGIN
+      DROP PROCEDURE IF EXISTS [toolbelt_archive].[USP_CreateZipFromEntries];
+      DROP FUNCTION IF EXISTS [toolbelt_archive].[TVF_InternalZipWriterName];
+      DROP FUNCTION IF EXISTS [toolbelt_archive].[TVF_InternalZipWriterArchive];
+    END;
 
     DROP PROCEDURE IF EXISTS
         [toolbelt_archive].[USP_ExtractZipEntryFromBinary];

@@ -57,18 +57,28 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Historical 1.2.0 release fixture
+        shell: pwsh
+        run: ./Modules/toolbelt.archive.zip-memory/Scripts/New-LegacyReleaseFixture.ps1
       - name: Build assembly and generate release inputs
         shell: pwsh
         run: >-
           ./Modules/toolbelt.archive.zip-memory/Scripts/New-ClrReleaseArtifacts.ps1
           -Configuration Release
           -OutputDirectory ./.runtime/zip-memory-release
+      - name: Independent Framework writer contract
+        shell: powershell
+        run: >-
+          ./Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Framework.ps1
+          -AssemblyPath ./.runtime/zip-memory-release/Toolbelt.Archive.ZipMemory.dll
       - name: Upload exact deployment input
         uses: actions/upload-artifact@v4
         with:
           name: zip-memory-clr-release-input
           if-no-files-found: error
-          path: .runtime/zip-memory-release/*
+          path: .runtime/zip-memory-release/**
 
   sql-server-linux:
     name: SQL Server ${{ matrix.sql_version }} Linux / compatibility ${{ matrix.compatibility_level }}

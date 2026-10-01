@@ -13,7 +13,7 @@ abgeleitet.**
 <!-- BEGIN GENERATED:MODULE_STATUS_TABLE -->
 | Modul-ID | Name | Version | Schema | Implementierung | Validierung | Release | SQL Server |
 |---|---|---:|---|---|---|---|---|
-| `toolbelt.archive.zip-memory` | ZIP Memory Inspection | `1.2.0` | `toolbelt_archive` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.archive.zip-memory` | ZIP Memory Inspection | `1.3.0` | `toolbelt_archive` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.binary.bit-operations` | Bigint Bit Operations Compatibility | `1.0.0` | `toolbelt_binary` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.conversion.base64` | Base64 and Base64URL Conversion | `1.1.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.conversion.integer-base` | Integer Base Conversion | `1.1.0` | `toolbelt_conversion` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |

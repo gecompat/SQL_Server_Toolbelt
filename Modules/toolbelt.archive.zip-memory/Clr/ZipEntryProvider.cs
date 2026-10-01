@@ -14,7 +14,7 @@ namespace Toolbelt.Archive.ZipMemory
     /// Interner SAFE-SQL-CLR-Provider für die begrenzte In-memory-Extraktion
     /// genau eines ZIP-Entries. Unterstützt ausschließlich Methods 0 und 8.
     /// </summary>
-    public static class ZipEntryProvider
+    public static partial class ZipEntryProvider
     {
         private const long MaxArchiveBytes = 268435456L;
         private const long MaxCompressedBytes = 134217728L;
@@ -198,7 +198,7 @@ namespace Toolbelt.Archive.ZipMemory
             out SqlInt32 compressionMethod,
             out SqlInt32 crc32,
             out SqlBoolean isEncrypted,
-            out SqlBytes entryPayload)
+            out SqlBinary entryPayload)
         {
             ProviderResult result = (ProviderResult)value;
 
@@ -226,9 +226,12 @@ namespace Toolbelt.Archive.ZipMemory
             isEncrypted = result.IsEncrypted.HasValue
                 ? new SqlBoolean(result.IsEncrypted.Value)
                 : SqlBoolean.Null;
+            // SqlBytes mit Länge0 wurde im SQL-CLR-Host als NULL marshalled.
+            // SqlBinary bildet die belegte vorhandene 0x-Semantik korrekt ab;
+            // echte null-Payload (z.B. erlaubte Encryption) bleibt SQL NULL.
             entryPayload = result.EntryPayload == null
-                ? SqlBytes.Null
-                : new SqlBytes(result.EntryPayload);
+                ? SqlBinary.Null
+                : new SqlBinary(result.EntryPayload);
         }
 
         public static void FillListRow(

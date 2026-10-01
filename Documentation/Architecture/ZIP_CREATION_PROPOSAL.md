@@ -1,5 +1,20 @@
 # Vorschlag: In-memory-ZIP-Erzeugung (`TC-2026-034`)
 
+## Aktueller Freigabe-/Implementierungsstand (2026-10-01)
+
+Nach Besprechung des PR-121-Vertrags erteilte der Benutzer ausdrücklich:
+„Unquoting, Split-USP und ZIP-Writer implementieren“. Der ZIP-Writer wird als
+`toolbelt_archive.USP_CreateZipFromEntries` in Modulrelease 1.3.0 umgesetzt.
+Der nachfolgende historische Vorschlagsstand bleibt nachvollziehbar erhalten;
+dessen damalige Nichtfreigabe beschreibt nicht den heutigen Stand.
+Öffentlicher Vertrag: `Modules/toolbelt.archive.zip-memory/Documentation/USP_CreateZipFromEntries.md`.
+Readerlimits/-signaturen bleiben unverändert; keine Datei-I/O/XLSX-Scopeerweiterung.
+Build- und Frameworktests sind getrennte Evidence, keine SQL-SAFE- oder Produktionszusage.
+Der finale Moduladapter bestand am 2026-10-01 auf SQL Server 2019 unter Linux
+(Compatibility 150) und SQL Server 2025 unter Windows (Compatibility 150,
+160 und 170), lokal und zentral. Der genaue abstrakte Scope und offene
+Grenzen stehen in der Modul-Testmatrix; `partially validated` bleibt erhalten.
+
 ## Status
 
 Die bestehende ZIP-Memory-Funktion extrahiert einen einzelnen Entry und bleibt

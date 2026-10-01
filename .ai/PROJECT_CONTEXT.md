@@ -144,8 +144,14 @@ behandelt Duplicate-Namen als expliziten Fehler und liefert bei
 [GitHub-Actions-Lauf 32701896453](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/32701896453)
 auf SQL Server 2019, 2022 und 2025 unter Linux erfolgreich; die automatisierte
 Windows-/Linux-Matrix 2019/2022/2025 war am 2026-09-01 ebenfalls erfolgreich.
-Reale Archive, echte Extremgrößen, historische Upgrades und Interoperabilität
-bleiben offen.
+Version `1.3.0` ergänzt den ausdrücklich freigegebenen begrenzten
+In-memory-Writer `USP_CreateZipFromEntries` mit Stored/Deflate und SAFE-CLR.
+Der vollständige neue Adapter besteht auf SQL Server 2019 Linux CL150 und
+2025 Windows/CU8 CL150/160/170 einschließlich echtem 1.2-Upgrade und
+16-MiB-Payloads. Frameworktests qualifizieren zusätzlich tatsächliche
+32-MiB-Entry-/128-MiB-Gesamtfixtures. Reale Archive, höhere SQL-Live-Grenzen,
+weitere Interoperabilität und Produktionskapazität bleiben offen;
+`partially validated`, `unreleased`, ohne Datei-I/O.
 
 ## Projektzweck
 

@@ -226,8 +226,12 @@ Das implementierte ZIP-Memory-Modul
 extrahiert einzelne ZIP-Einträge aus `varbinary(max)` mit Methoden `0`
 (Stored) und `8` (Deflate), Payload-CRC32 und harten Limits. Für
 TC-2026-033 wurde der ZIP-Metadata-Pfad intern ergänzt. Die automatisierte
-Windows-/Linux-Matrix 2019/2022/2025 ist erfolgreich; reale Archive, echte
-Extremgrößen, historische Upgrades und Interoperabilität bleiben offen.
+Windows-/Linux-Matrix 2019/2022/2025 des Readers ist erfolgreich. Version
+1.3.0 ergänzt `USP_CreateZipFromEntries` für begrenzte In-memory-Erzeugung
+mit Stored oder explizitem Deflate. Der neue vollständige Adapter ist auf
+SQL Server 2019 Linux und 2025 Windows/CU8 erfolgreich, einschließlich echtem
+1.2-Upgrade. Reale Archive, höhere SQL-Live-Grenzen und weitere
+Interoperabilitätsfälle bleiben offen; keine Datei-I/O-Erweiterung.
 
 Das implementierte Windows-only Modul
 [`toolbelt.filesystem.windows`](./Modules/toolbelt.filesystem.windows/README.md)

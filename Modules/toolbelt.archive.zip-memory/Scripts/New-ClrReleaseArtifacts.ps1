@@ -51,12 +51,12 @@ New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $assemblyBytes = [IO.File]::ReadAllBytes($assemblyPath)
 $assemblyHex = [BitConverter]::ToString($assemblyBytes).Replace('-', '')
 $sha512 = (Get-FileHash -Algorithm SHA512 -LiteralPath $assemblyPath).Hash.ToUpperInvariant()
-$description = 'SQL Server Toolbelt toolbelt.archive.zip-memory CLR provider 1.2.0'
+$description = 'SQL Server Toolbelt toolbelt.archive.zip-memory CLR provider 1.3.0'
 
 $manifest = [ordered]@{
     schemaVersion = '1.0'
     moduleId = 'toolbelt.archive.zip-memory'
-    moduleVersion = '1.2.0'
+    moduleVersion = '1.3.0'
     assemblySqlName = 'Toolbelt_Archive_ZipMemory'
     assemblyFileName = [IO.Path]::GetFileName($assemblyPath)
     permissionSet = 'SAFE'
@@ -72,7 +72,7 @@ $assemblyOutputPath = Join-Path $OutputDirectory 'Toolbelt.Archive.ZipMemory.dll
 
 $deployTemplate = Get-Content -LiteralPath $deployTemplatePath -Raw
 $marker = '$(AssemblyBits)'
-if (($deployTemplate.Split($marker).Count - 1) -ne 1) {
+if ([regex]::Matches($deployTemplate, [regex]::Escape($marker)).Count -ne 1) {
     throw 'Deployment/Deploy.sql muss genau einen AssemblyBits-Platzhalter enthalten.'
 }
 
