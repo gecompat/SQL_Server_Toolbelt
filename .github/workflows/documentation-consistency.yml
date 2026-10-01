@@ -38,3 +38,13 @@ jobs:
       - name: Validate complete baseline
         if: github.event_name == 'workflow_dispatch'
         run: python3 Tests/Documentation/validate_documentation.py --all
+
+      - name: Test synthetic Lab target selection
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = workflow_dispatch ] || git diff --name-only "$BASE_SHA" "$HEAD_SHA" | rg '^(Tests/CI/(run-lab-local\.ps1|test-lab-selector\.ps1|validate_lab_selector\.py)|\.github/workflows/documentation-consistency\.yml)$' > /dev/null; then
+            python3 Tests/CI/validate_lab_selector.py
+          fi

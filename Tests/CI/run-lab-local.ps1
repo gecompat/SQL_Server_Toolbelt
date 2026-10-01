@@ -293,6 +293,10 @@ function Test-LabTargetReady {
         [Parameter(Mandatory)]$Entry
     )
 
+    if ([string]$Entry.runtimeStatus -cne 'READY') {
+        return $false
+    }
+
     if ([string]$Contract.groupStatus -ceq 'READY') {
         return [string]$Entry.status -ceq 'READY'
     }
@@ -335,10 +339,14 @@ function Get-LabTargetsForSelector {
         return @($baseTargets + $cuTargets)
     }
 
-    # Für alle anderen Patchanforderungen, insbesondere explizite CUs, bleibt
-    # die Auswahl exakt.
+    # CU-Schreibweisen sind äquivalent; die Nummer bleibt exakt. Alle anderen
+    # Patchbezeichnungen behalten ihren bisherigen case-sensitiven Vertrag.
     $exactTargets = @($eligibleTargets | Where-Object {
-        [string]$_.patch -ceq [string]$Selector.Patch
+        if ([string]$Selector.Patch -match '^CU[0-9]+$') {
+            [string]$_.patch -ieq [string]$Selector.Patch
+        } else {
+            [string]$_.patch -ceq [string]$Selector.Patch
+        }
     })
     if ($exactTargets.Count -gt 0) {
         return $exactTargets
@@ -347,27 +355,42 @@ function Get-LabTargetsForSelector {
     return @()
 }
 
-$targets = [System.Collections.Generic.List[object]]::new()
-$missingSelectors = [System.Collections.Generic.List[string]]::new()
-foreach ($selector in $requestedSelectors) {
-    $matches = @(Get-LabTargetsForSelector -Contract $lab.Contract -Selector $selector)
+function Get-LabTargetsForSelectors {
+    param(
+        [Parameter(Mandatory)]$Contract,
+        [Parameter(Mandatory)][object[]]$Selectors
+    )
 
-    if ($matches.Count -eq 0) {
-        $missingSelectors.Add(
-            ('{0}/{1}/{2}' -f [string]$selector.Platform, [string]$selector.Version, [string]$selector.Patch)
-        )
-        continue
+    $targets = [System.Collections.Generic.List[object]]::new()
+    $seenKeys = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    $missingSelectors = [System.Collections.Generic.List[string]]::new()
+    foreach ($selector in $Selectors) {
+        $matches = @(Get-LabTargetsForSelector -Contract $Contract -Selector $selector)
+
+        if ($matches.Count -eq 0) {
+            $missingSelectors.Add(
+                ('{0}/{1}/{2}' -f [string]$selector.Platform, [string]$selector.Version, [string]$selector.Patch)
+            )
+            continue
+        }
+
+        foreach ($match in $matches) {
+            # Überlappende base-/CU-Auswahlen führen jedes Vertragsziel nur
+            # einmal aus. Die Reihenfolge des ersten Treffers bleibt erhalten.
+            if ($seenKeys.Add([string]$match.key)) {
+                $targets.Add($match)
+            }
+        }
     }
 
-    foreach ($match in $matches) {
-        $targets.Add($match)
+    if ($missingSelectors.Count -gt 0) {
+        throw ('Keine passenden einzeln bereiten Ziele vorhanden: {0}' -f
+            ($missingSelectors -join ', '))
     }
+    return $targets.ToArray()
 }
 
-if ($missingSelectors.Count -gt 0) {
-    throw ('Keine passenden einzeln bereiten Ziele vorhanden: {0}' -f
-        ($missingSelectors -join ', '))
-}
+$targets = @(Get-LabTargetsForSelectors -Contract $lab.Contract -Selectors $requestedSelectors.ToArray())
 
 $sql2025OnlyAdapters = @()
 
