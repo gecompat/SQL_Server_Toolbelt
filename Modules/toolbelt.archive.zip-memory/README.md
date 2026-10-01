@@ -1,5 +1,7 @@
 # ZIP Memory Inspection
 
+Aktueller Release-1.4-Nachweis: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1`, 2026-10-02, Linux 2019/latest und Windows 2025/CU8 erfolgreich; echte Upgradefixture, Writerregression und nichtdoomende Lifecycle-Callerablehnung. Historische Reader-/Writer-Matrix ersetzt keine weitere 1.4-Kapazitätsqualifikation.
+
 Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich; reale Archive, echte Extremgrößen, historische Upgrades und Interoperabilität bleiben offen. Der Modulstatus bleibt `partially validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen; datierte ältere Einträge bleiben historische Evidenz.
 
 V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
@@ -7,7 +9,19 @@ ausschließlich den im Modulmanifest genannten physischen Linux-Scope; offene
 Windows- und modulspezifische Fälle bleiben unberührt.
 
 **Modul-ID:** `toolbelt.archive.zip-memory`  
-**Version:** `1.3.0`
+**Version:** `1.4.0`
+
+Release 1.4.0 ergänzt ausschließlich die technische .NET-Fassade
+`ZipEntryProvider.ArchiveSession` für den separat freigegebenen XLSX-Reader.
+Sie verwendet den kanonischen ZIP-Parser, Payloadprüfungen und CRC32 ohne
+Parserkopie. Es entsteht keine neue öffentliche ZIP-SQL-API; bestehende
+Reader-/Writerverträge und Ressourcenparameter bleiben unverändert. Ein
+referenzierender XLSX-Consumer blockiert den ZIP-Uninstall. Die echte
+1.3→1.4-Assemblyhash-Upgradefixture und Writer-Vertragsregression auf Windows
+2025/CU8 und Linux 2019/latest sind erfolgreich; dieser Scope ersetzt keine vollständige
+Plattform-/Kapazitätsqualifizierung.
+
+Deploy und Uninstall benötigen einen eigenen Transaktionsscope. Der frühe Guard lehnt vorhandene Caller-Transaktionen vor SET und DDL mit RAISERROR 50000 und `TBX_ZIP_LIFECYCLE_CALLER_TRANSACTION:` ab. Er verändert weder Caller-Arbeit noch XACT_ABORT und beschädigt den Scope auch bei XACT_ABORT ON nicht. SQLCMD beendet die Ablehnung über `:On Error exit` mit einem Fehlerstatus.
 
 Release 1.3.0 ergänzt den ausdrücklich freigegebenen [ZIP-Writer](Documentation/USP_CreateZipFromEntries.md): lokale Entrytabelle des Aufrufers, Stored oder Deflate, konservative unabhängige Ressourcenlimits, Binary-Envelope und datenzugriffsfreier SAFE-CLR-Kern. Die Readervertragsgrenzen bleiben unverändert. Die neue Writerqualifikation ist getrennt von den nachfolgenden historischen Readernachweisen zu betrachten.
 
@@ -118,8 +132,8 @@ exaktem SHA2-512 autorisiertem Releaseartefakt.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
-- Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; reproduzierbar gebautes und per exaktem SHA2-512 autorisiertes Releaseartefakt; reale Archive, Extremgrößen, historische Upgrades und Interoperabilität bleiben offen
+- Datum: `2026-10-02`
+- Nachweis: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1`
+- Scope: Release 1.4.0: finaler identischer Linux-2019-/Windows-2025-CU8-Adapter nach EOF-Pflege; echte ZIP-1.3-Assemblyhash-Upgradefixture, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende ZIP-Deploy/Uninstall-Callerablehnung OFF/ON. Unabhängige Framework-Writerregression erneut erfolgreich; übrige Kapazitäts-/Plattformmatrix offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

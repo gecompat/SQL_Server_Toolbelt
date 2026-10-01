@@ -667,7 +667,8 @@ namespace Toolbelt.Archive.ZipMemory
 
         private static IList<EntryMetadata> ReadEntries(
             ArchiveReader reader,
-            EndOfCentralDirectory eocd)
+            EndOfCentralDirectory eocd,
+            Action checkpoint = null)
         {
             long centralEnd =
                 eocd.CentralDirectoryOffset +
@@ -694,6 +695,7 @@ namespace Toolbelt.Archive.ZipMemory
                  ordinal < eocd.TotalEntries;
                  ordinal++)
             {
+                if (checkpoint != null) checkpoint();
                 reader.RequireRange(cursor, 46);
 
                 if (reader.ReadUInt32(cursor) !=
@@ -937,7 +939,8 @@ namespace Toolbelt.Archive.ZipMemory
             ArchiveReader reader,
             EntryMetadata entry,
             long maxEntryBytes,
-            decimal maxCompressionRatio)
+            decimal maxCompressionRatio,
+            Action checkpoint = null)
         {
             using (BoundedReadStream compressed =
                 reader.OpenBoundedStream(
@@ -971,6 +974,7 @@ namespace Toolbelt.Archive.ZipMemory
 
                     while (true)
                     {
+                        if (checkpoint != null) checkpoint();
                         int read = payloadStream.Read(
                             buffer,
                             0,
@@ -1055,7 +1059,7 @@ namespace Toolbelt.Archive.ZipMemory
                 : Cp437Strict.GetString(value);
         }
 
-        private static uint ComputeCrc32(byte[] value)
+        private static uint ComputeCrc32(byte[] value, Action checkpoint = null)
         {
             uint crc = UInt32.MaxValue;
 
@@ -1063,6 +1067,7 @@ namespace Toolbelt.Archive.ZipMemory
                  index < value.Length;
                  index++)
             {
+                if (checkpoint != null && (index & 65535) == 0) checkpoint();
                 crc =
                     CrcTable[(int)((crc ^ value[index]) & 0xFFU)] ^
                     (crc >> 8);

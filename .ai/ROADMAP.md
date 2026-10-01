@@ -2,9 +2,11 @@
 
 ## Status
 
+XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4.0 sind implementiert; finale ausgewählte Linux-2019-/Windows-2025-Adapter erfolgreich. Die Raw-Welle ist abgeschlossen und teilweise validiert; separat freigegebene Typ-/Anzeige-Folgewellen verbleiben beim nächsten Orchestrator.
+
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 33 Module sind implementiert. 21 sind `validated`, 12 sind
+abgeschlossen. 34 Module sind implementiert. 21 sind `validated`, 13 sind
 `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 

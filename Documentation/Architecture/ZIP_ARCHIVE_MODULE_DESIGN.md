@@ -1,5 +1,17 @@
 # ZIP-Archiv-Moduldesign (TC-2026-034)
 
+## Technische Erweiterung, Release 1.4.0
+
+Die separat freigegebenen XLSX-Raw-Reader verwenden eine kanonische technische
+.NET-Fassade der ZIP-Assembly. Sie führt keinen neuen öffentlichen ZIP-SQL-
+Vertrag ein und ändert keine Reader-/Writerlimits. Der ZIP-Parser existiert
+weiterhin genau einmal. Assemblyversion, exakter Trusthash und Lifecycle
+werden gemeinsam aktualisiert; XLSX benötigt diese Releaseversion als
+same-database Assemblydependency. Fremde Assemblyconsumer blockieren den
+Uninstall. Die echte 1.3→1.4-Fixture prüft installierte Binaryhashes statt
+nur registrierte Versionsstrings. Historische Writerentscheidungen bleiben
+unverändert.
+
 ## Erweiterung: ZIP-Writer, Release 1.3.0 (2026-10-01)
 
 Die ausdrückliche funktionsbezogene Freigabe nach PR #121 ergänzt

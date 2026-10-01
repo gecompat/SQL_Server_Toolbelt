@@ -31,9 +31,9 @@ IF NOT EXISTS
          AND major_id = 0
          AND minor_id = 0
          AND name = N'Toolbelt.Module.toolbelt.archive.zip-memory.Version'
-         AND TRY_CONVERT(nvarchar(64), value) = N'1.3.0'
+         AND TRY_CONVERT(nvarchar(64), value) = N'1.4.0'
    )
-    THROW 51381, N'Der erwartete Modulversionsmarker 1.3.0 fehlt.', 1;
+    THROW 51381, N'Der erwartete Modulversionsmarker 1.4.0 fehlt.', 1;
 
 IF NOT EXISTS
    (

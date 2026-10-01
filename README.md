@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 33 Module implementiert – 12 teilweise validiert](https://img.shields.io/badge/Status-33%20Module%20implementiert%20%7C%2012%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 34 Module implementiert – 13 teilweise validiert](https://img.shields.io/badge/Status-34%20Module%20implementiert%20%7C%2013%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 33 Module sind implementiert; 21 sind `validated`, 12 sind `partially validated`, alle sind `unreleased`.**
+**Der Repository-Grundaufbau ist abgeschlossen. 34 Module sind implementiert; 21 sind `validated`, 13 sind `partially validated`, alle sind `unreleased`.**
 
 [`toolbelt.pseudonymization.deterministic`](./Modules/toolbelt.pseudonymization.deterministic/README.md)
 liefert versionierte synthetische Range-, DateShift- und Pool-Lookup-Werte.
@@ -254,6 +254,16 @@ mit Stored oder explizitem Deflate. Der neue vollständige Adapter ist auf
 SQL Server 2019 Linux und 2025 Windows/CU8 erfolgreich, einschließlich echtem
 1.2-Upgrade. Reale Archive, höhere SQL-Live-Grenzen und weitere
 Interoperabilitätsfälle bleiben offen; keine Datei-I/O-Erweiterung.
+
+Das implementierte Binary-XLSX-Modul
+[`toolbelt.file.xlsx-memory`](./Modules/toolbelt.file.xlsx-memory/README.md)
+liefert Worksheetmetadaten und sparse Raw/Text/Formula/Cache-Zellen ohne Datei-I/O,
+SDK oder Formelberechnung. Der begrenzte SAFE-XML-Kern verwendet den kanonischen
+ZIP-Parser aus Release 1.4.0. Finale lokale/zentralen Adapter auf Linux 2019/latest
+und Windows 2025/CU8 sowie begrenzte NoIO-/IL-Gates sind erfolgreich;
+Ressourcen-, Rechte- und übrige Plattformmatrix bleiben teilweise offen.
+Typinterpretation und Anzeigeformatierung sind getrennte freigegebene Folgescopes,
+keine Fähigkeiten dieses Raw-Readers.
 
 Das implementierte Windows-only Modul
 [`toolbelt.filesystem.windows`](./Modules/toolbelt.filesystem.windows/README.md)

@@ -1,0 +1,61 @@
+name: XLSX Memory Qualification
+on:
+  pull_request:
+    paths:
+      - "Modules/toolbelt.file.xlsx-memory/**"
+      - "Modules/toolbelt.archive.zip-memory/**"
+      - "Spikes/XlsxMemory/**"
+      - ".github/workflows/xlsx-memory-qualification.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Modules/toolbelt.file.xlsx-memory/**"
+      - "Modules/toolbelt.archive.zip-memory/**"
+      - "Spikes/XlsxMemory/**"
+      - ".github/workflows/xlsx-memory-qualification.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: xlsx-memory-qualification-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  qualification:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Structural contracts
+        shell: pwsh
+        run: |
+          python Modules/toolbelt.file.xlsx-memory/Tests/Static/validate_contract.py
+          if ($LASTEXITCODE) { throw 'XLSX static contract failed.' }
+          python Modules/toolbelt.archive.zip-memory/Tests/Static/validate_contract.py
+          if ($LASTEXITCODE) { throw 'ZIP static contract failed.' }
+      - name: Framework, synthetic semantics, limited NoIO and IL gates
+        shell: powershell
+        run: ./Spikes/XlsxMemory/Run-FrameworkQualification.ps1
+      - name: Build exact release inputs and pinned real ZIP predecessor
+        shell: pwsh
+        run: |
+          ./Modules/toolbelt.archive.zip-memory/Scripts/New-ClrReleaseArtifacts.ps1 -OutputDirectory .runtime/xlsx-candidate/zip
+          ./Modules/toolbelt.file.xlsx-memory/Scripts/New-ClrReleaseArtifacts.ps1 -OutputDirectory .runtime/xlsx-candidate/xlsx
+          ./Modules/toolbelt.file.xlsx-memory/Scripts/New-Zip13LegacyFixture.ps1
+      - name: Verify gate binaries equal release binaries
+        shell: pwsh
+        run: |
+          foreach ($pair in @(
+            @('Spikes/XlsxMemory/bin/Release/Toolbelt.Archive.ZipMemory.dll','.runtime/xlsx-candidate/zip/Toolbelt.Archive.ZipMemory.dll'),
+            @('Spikes/XlsxMemory/bin/Release/Toolbelt.File.XlsxMemory.dll','.runtime/xlsx-candidate/xlsx/Toolbelt.File.XlsxMemory.dll'))) {
+            if ((Get-FileHash $pair[0] -Algorithm SHA512).Hash -cne (Get-FileHash $pair[1] -Algorithm SHA512).Hash) { throw 'Qualification/release binary mismatch.' }
+          }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: xlsx-qualified-release-input
+          if-no-files-found: error
+          path: .runtime/xlsx-candidate/**
+# Dieser Workflow qualifiziert begrenzte Framework-/IL-Evidenz, keinen SQL-Host.
+# Öffentliche SAFE-/Lifecycle-/Clientverträge verwenden den dokumentierten,
+# schema-validierten lokalen Labadapter; kein fehlender SQL-Lauf wird behauptet.

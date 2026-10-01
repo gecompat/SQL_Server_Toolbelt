@@ -1,5 +1,7 @@
 # Contract-Testmatrix: ZIP Memory CLR Inspection
 
+Release 1.4, 2026-10-02: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1` auf Linux 2019/latest und Windows 2025/CU8 erfolgreich; echte ZIP-1.3-Assemblyhash-Upgradefixture, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende Lifecycle-Callerablehnung OFF/ON. Kein Ersatznachweis für offene Kapazitäts-/Plattformfälle.
+
 ## Writer 1.3.0: Zusatzscope
 
 | Scope | Oracle | Stand |
@@ -79,8 +81,8 @@ Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/3270189645
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
-- Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; reproduzierbar gebautes und per exaktem SHA2-512 autorisiertes Releaseartefakt; reale Archive, Extremgrößen, historische Upgrades und Interoperabilität bleiben offen
+- Datum: `2026-10-02`
+- Nachweis: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1`
+- Scope: Release 1.4.0: finaler identischer Linux-2019-/Windows-2025-CU8-Adapter nach EOF-Pflege; echte ZIP-1.3-Assemblyhash-Upgradefixture, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende ZIP-Deploy/Uninstall-Callerablehnung OFF/ON. Unabhängige Framework-Writerregression erneut erfolgreich; übrige Kapazitäts-/Plattformmatrix offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

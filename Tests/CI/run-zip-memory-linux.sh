@@ -51,8 +51,8 @@ if actual_hash != manifest.get("sha512"):
     raise SystemExit("SHA2-512 des Binaries stimmt nicht mit dem Trust-Manifest überein.")
 if manifest.get("assemblySqlName") != "Toolbelt_Archive_ZipMemory":
     raise SystemExit("Trust-Manifest enthält einen unerwarteten SQL-Assemblynamen.")
-if manifest.get("moduleVersion") != "1.3.0":
-    raise SystemExit("Trust-Manifest enthält nicht die erwartete Modulversion 1.3.0.")
+if manifest.get("moduleVersion") != "1.4.0":
+    raise SystemExit("Trust-Manifest enthält nicht die erwartete Modulversion 1.4.0.")
 if manifest.get("permissionSet") != "SAFE":
     raise SystemExit("Trust-Manifest enthält nicht das Permission Set SAFE.")
 if manifest.get("directFrameworkReferences") != ["System", "System.Data"]:

@@ -1,5 +1,18 @@
 # SQL-CLR ZIP Provider Design (AP-2026-021/AP-2026-023)
 
+## Technische Consumer-Fassade, Release 1.4.0
+
+Der freigegebene XLSX-Memory-Reader referenziert `ArchiveSession` aus der
+kanonischen ZIP-Assembly. EOCD-/Central-Directory-Parsing, lokale Header,
+begrenzte Dekompression und CRC32 werden wiederverwendet, nicht kopiert.
+Die Fassade bietet keine neue öffentliche SQL-API und keinen Datei-I/O-Pfad.
+Ein optionaler kooperativer Checkpoint begrenzt die eigenen Parser-/Payload-
+Schritte des Consumers; bestehende ZIP-SQL-Pfade verwenden unverändert keinen
+zusätzlichen Callback. Materialisierte Parts und ToArray-Kopien tragen zum
+kumulativen Peak bei. Der Consumer muss eigene Grenzen und zusätzliche
+Ergebnis-/Marshalling-Kopien berücksichtigen; keine MemoryGrant-Zusage.
+ZIP-Uninstall bleibt bei fremden referenzierenden Assemblies blockiert.
+
 ## Writer-Erweiterung und interne Kompatibilitätskorrektur (1.3.0)
 
 Der freigegebene Writer verarbeitet ein streng geprüftes Binary-Envelope

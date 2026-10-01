@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-33 Module sind implementiert. 21 sind `validated`, 12 sind `partially validated`; 0 sind `not executed`.
+34 Module sind implementiert. 21 sind `validated`, 13 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -24,6 +24,14 @@ Produktionskapazität bleiben offen; `partially validated`, `unreleased`.
 Historische Vor-Safetyfix-Nachweise vom 2026-10-01 bleiben getrennt erhalten.
 Die ursprüngliche Reservebesprechung unten bleibt unverändert; keine
 Translate-/Geo-/Fuzzy- oder andere Folgefreigabe aus diesem Abschluss ableiten.
+
+### TC-2026-045: Freigegebener XLSX-Raw-Reader abgeschlossen
+
+Stand 2026-10-02: Die bedingt einzeln freigegebenen `USP_ListXlsxWorksheets` und `USP_ReadXlsxWorksheetCells` sind als `toolbelt.file.xlsx-memory` 1.0.0 implementiert. Vor den öffentlichen Bindings wurden begrenzte Framework-NoIO-/IL-Gates und tatsächliche SAFE-Aufrufe erfolgreich qualifiziert. Der begrenzte eigene XML-Kern verwendet die kanonische technische ZIP-Fassade aus Release 1.4.0 ohne Parserkopie, SDK, Datei-/Netzwerkzugriff oder Rechteausweitung.
+
+Finale identische Adapter auf Linux 2019/latest und Windows 2025/CU8 erfolgreich: local/central/cross-database, sparse Raw/Text/Formula/Cache, NULL- und Help-Metadaten, 128-MiB-Outputcharge, atomare ResultTable-Fehler, Caller-Transaktionen, nichtdoomender XLSX-/ZIP-Lifecycle und echte ZIP-1.3→1.4-Upgradefixture. Framework und unabhängige ZIP-Writer-Regression erfolgreich. Weitere reale große Ceiling-Fixtures, minimale Rechte, sämtliche Zielkombinationen und Produktionskapazität bleiben gemäß [Testmatrix](../Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md) offen; `partially validated`, `unreleased`.
+
+Die bereits separat freigegebenen Typ-/Anzeige-Folgefunktionen bleiben `ready for development` für den Nachfolger; sie sind nicht Teil dieses Raw-Reader-Stands. Keine Veröffentlichung und keine neue Welle in dieser Abschlussphase.
 
 ### TC-2026-044: Script-only Tabellenklon V1 abgeschlossen
 

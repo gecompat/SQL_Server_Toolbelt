@@ -9,7 +9,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 33 Module sind implementiert; 21 sind `validated`, 12 sind `partially validated`, 0 sind `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 34 Module sind implementiert; 21 sind `validated`, 13 sind `partially validated`, 0 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -167,6 +167,8 @@ physischen Windows-/Linux-Matrix validiert.
 
 ### Bereits implementierte Module
 
+XLSX-Raw-Slice ergänzt am 2026-10-02: Die ältere Archive-/Office-Planung weiter unten bleibt historische Architekturvorbereitung; aktuelle Raw-Verträge und separat freigegebene Typ-/Anzeige-Folgefunktionen stehen in `.ai/BACKLOG.md`.
+
 | Kandidat | Modul | Vorhandene öffentliche Objekte | Restarbeit |
 |---|---|---|---|
 | `TC-2026-032` S2 | `toolbelt.string.split-advanced` | `toolbelt_string.TVF_SplitAdvanced` | Freigegeben und implementiert; risikobasiert 2019 Linux und 2025 Linux/Windows geprüft, weitere Zielkombinationen nicht ausgeführt. USP/Unquoting bleiben spätere Einzelslices. |
@@ -193,6 +195,7 @@ physischen Windows-/Linux-Matrix validiert.
 | `TC-2026-023` | `toolbelt.metadata.capability-catalog` | `toolbelt_metadata.VW_ModuleCapabilities` | Keine autonome Validierung offen. |
 | `TC-2026-034` | `toolbelt.archive.zip-memory` | `toolbelt_archive.USP_ExtractZipEntryFromBinary` | Reale Archive, echte Extremgrößen und Interoperabilität; ZIP-Erzeugung bleibt ein separater Slice. |
 | `TC-2026-033` | `toolbelt.archive.zip-memory` | `toolbelt_archive.USP_ListZipEntriesFromBinary` | Reale Archive, echte Extremgrößen, Interoperabilität und vollständiger Upgradepfad aus einem realen 1.1.0-Stand. |
+| `TC-2026-045` | `toolbelt.file.xlsx-memory` | `toolbelt_file.USP_ListXlsxWorksheets`, `USP_ReadXlsxWorksheetCells` | Finale Linux-2019-/Windows-2025-Raw-Verträge und begrenzte SAFE-/NoIO-/IL-Gates erfolgreich; reale große Ceilings, minimale Rechte und übrige Zielmatrix offen. Typ-/Anzeige-Folgefunktionen separat freigegeben. |
 | `TC-2026-037` | `toolbelt.file.content`; `toolbelt.filesystem.windows` | `toolbelt_file.USP_LoadBinaryFile`, `toolbelt_file.USP_LoadTextFile`; Windows Read/Write/Transcoding-Procedures | File-Content-Windows-Releasevalidierung und manueller Windows-CLR-Runtime-Test; externer Worker nur bei Bedarf. |
 | `TC-2026-038` | `toolbelt.filesystem.windows` | `toolbelt_filesystem.USP_ListDirectory` | Manueller Windows-Runtime-Test; portabler Listing-Provider bleibt optional offen. |
 | `TC-2026-046` | `toolbelt.core.second-session` | `toolbelt_core.USP_ExecuteWorkTypeInNewSession` | Keine autonome Validierung offen; zusätzliche Provider bleiben getrennte Forschungs- und Freigabeslices. |

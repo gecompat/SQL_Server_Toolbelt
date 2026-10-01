@@ -4,8 +4,8 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. 33 Module sind implementiert;
-21 sind `validated`, 12 sind `partially validated`. Für alle existieren
+Der Repository-Grundaufbau ist abgeschlossen. 34 Module sind implementiert;
+21 sind `validated`, 13 sind `partially validated`. Für alle existieren
 statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte.
 
 Die ResultTable-Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 mit
@@ -69,6 +69,7 @@ Text-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall erfolgreich.
 
 | Modul | Matrix | Status |
 |---|---|---|
+| `toolbelt.file.xlsx-memory` | [XLSX_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md) | `partially validated`; finale Linux-2019-/Windows-2025-Adapter einschließlich SAFE, local/central, Clientmetadaten, atomarer ResultTable und Lifecycle erfolgreich; große Ceiling-, minimale Rechte- und übrige Zielmatrix offen |
 | `toolbelt.archive.zip-memory` | [ZIP_MEMORY_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md) | `partially validated`; automatisierte Windows-/Linux-Matrix 2019/2022/2025 erfolgreich; reale Archive, Extremgrößen, historische Upgrades und Interoperabilität offen |
 | `toolbelt.core.event-log` | [EVENT_LOG_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.event-log/Tests/EVENT_LOG_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Rollback-, uncommittable-, Context-, Retention- und Concurrency-Verträgen |
 | `toolbelt.core.error-envelope` | [ERROR_ENVELOPE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.error-envelope/Tests/ERROR_ENVELOPE_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 |

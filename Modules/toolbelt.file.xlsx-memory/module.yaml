@@ -1,0 +1,122 @@
+module_id: "toolbelt.file.xlsx-memory"
+module_name: "XLSX Binary Memory Reader"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Begrenzter SAFE Binary-XLSX-Reader für Worksheets und sparse Rohtext-/String-/Formel-/Cachezellen."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "partially validated"
+  linux: "partially validated"
+providers:
+  - id: clr-xlsx-memory
+    technology: "Eigener System.Xml-Kern und kanonische ZIP-CLR-Fassade; .NET Framework 4.8"
+    platforms: [Windows, Linux]
+    status: "partially validated"
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies:
+  - module_id: "toolbelt.core.result-table"
+    minimum_version: "1.0.0"
+    reason: "Same-database ResultTable-Runtime."
+  - module_id: "toolbelt.archive.zip-memory"
+    minimum_version: "1.4.0"
+    reason: "Kanonische technische ZIP-Assembly ohne Parserkopie."
+schemas:
+  - "toolbelt_file"
+objects:
+  - type: USP
+    schema: toolbelt_file
+    name: USP_ListXlsxWorksheets
+    visibility: public
+  - type: USP
+    schema: toolbelt_file
+    name: USP_ReadXlsxWorksheetCells
+    visibility: public
+  - type: USP
+    schema: toolbelt_file
+    name: USP_InternalXlsxRead
+    visibility: internal
+  - type: CLR_TVF
+    schema: toolbelt_file
+    name: TVF_InternalXlsxSheets
+    visibility: internal
+  - type: CLR_TVF
+    schema: toolbelt_file
+    name: TVF_InternalXlsxCells
+    visibility: internal
+  - type: ASSEMBLY
+    name: Toolbelt_File_XlsxMemory
+    visibility: internal
+permissions_required:
+  - "EXECUTE auf den beiden öffentlichen USPs; ResultTable zusätzlich Helper-EXECUTE."
+  - "DDL-Rechte und bestehender exakter Hashtrust für Deployment; keine Rechteausweitung."
+collation_contract: "Unicode-Inhalte unverändert, ordinaler ZIP-/Relationshipvergleich, öffentliche Texte Latin1_General_100_BIN2."
+data_type_contract: "Input varbinary(max); Text/Rohwert/Formel/Cache nvarchar(max); Positionen int, Presence bit."
+help_contract_version: "1.0"
+resultset_contracts:
+  - name: USP_ListXlsxWorksheets
+    columns: ["SheetOrdinal int NOT NULL", "SheetName nvarchar(max) NOT NULL", "Visibility nvarchar(16) NOT NULL", "Date1904 bit NOT NULL"]
+  - name: USP_ReadXlsxWorksheetCells
+    columns: ["RowOrdinal int NOT NULL", "ColumnOrdinal int NOT NULL", "StoredType nvarchar(16) NOT NULL", "ValuePresent bit NOT NULL", "RawValue nvarchar(max) NULL", "TextValue nvarchar(max) NULL", "FormulaPresent bit NOT NULL", "FormulaText nvarchar(max) NULL", "FormulaKind nvarchar(16) NULL", "SharedFormulaIndex int NULL", "CachePresent bit NOT NULL", "CacheValue nvarchar(max) NULL"]
+lifecycle_error_range: "51530-51539"
+lifecycle_caller_guard: "RAISERROR 50000, TBX_XLSX_LIFECYCLE_CALLER_TRANSACTION vor SET/DDL; eigener Transaktionsscope erforderlich."
+clr:
+  used: true
+  language: "C#"
+  target_framework: ".NET Framework 4.8"
+  assembly_sql_name: Toolbelt_File_XlsxMemory
+  assembly_file_name: Toolbelt.File.XlsxMemory.dll
+  permission_set: SAFE
+  trust_method: "SHA2-512 via separates sys.sp_add_trusted_assembly Opt-in"
+  direct_framework_references: [System, System.Data, System.Xml]
+  build_project: "Clr/Toolbelt.File.XlsxMemory.csproj"
+  release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
+lifecycle:
+  trust_opt_in: "Deployment/Add-TrustedAssembly.sql"
+  deploy_template: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: SQLCMD
+  release_manifest: "generated from exact built assembly"
+  source_hash_role: diagnostic_only
+  trust_removed_by_uninstall: false
+documentation:
+  module: README.md
+  public_objects:
+    - "Documentation/USP_ListXlsxWorksheets.md"
+    - "Documentation/USP_ReadXlsxWorksheetCells.md"
+  architecture:
+    - "../../Documentation/Architecture/XLSX_READER_PROPOSAL.md"
+  test_matrix:
+    - "Tests/XLSX_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+    - "../../Spikes/XlsxMemory/README.md"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/Xlsx.Contract.sql"
+  contract: "Tests/Runtime/Xlsx.Contract.sql"
+  framework: "../../Spikes/XlsxMemory/Run-FrameworkQualification.ps1"
+  lab: "Tests/Runtime/Invoke-LabContract.ps1"
+validation_evidence:
+  - date: "2026-10-01"
+    workflow: "local: Tests/Runtime/Invoke-LabContract.ps1"
+    scope: "SQL Server 2019 Linux/latest und SQL Server 2025 Windows/CU8: identisches aktuelles Binary, local/central/cross-database, SAFE, NULL-/Help-/SELECT-Metadaten, Outputcharge, ResultTable, Transaktionen, Lifecycle und echte ZIP-1.3-Upgradefixture; übrige Matrix und tatsächliche große Ceiling-Fixtures teilweise offen."
+    result: "success"
+  - date: "2026-10-02"
+    workflow: "local: Tests/Runtime/Invoke-LabContract.ps1"
+    scope: "Finaler identischer Fixadapter Linux 2019/latest und Windows 2025/CU8: unveränderte CLR-Binaries, vollständiger öffentlicher Vertrag, interne Help-Modi 0/1 mit NOT NULL-Metadaten, XLSX-/ZIP-Lifecycle-Callerablehnung OFF/ON und XLSX-SQLCMD50000; bekannte Restmatrix unverändert offen."
+    result: "success"

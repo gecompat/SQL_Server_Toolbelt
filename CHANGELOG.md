@@ -12,6 +12,13 @@
   CL150/160/170 am 2026-10-02 erfolgreich. Weitere Targets, CrossDB-
   Minimalrechte und Produktionskapazität offen; teilweise validiert/unreleased.
 
+## 2026-10-02 – Begrenzter XLSX-Raw-Reader 1.0.0 und ZIP-Fassade 1.4.0
+
+- Individuell freigegebene Worksheetliste und sparse Raw/Text/Formula/Cache-Zellliste, SAFE und memory-only; kein SDK, File-I/O, Formula-Execution oder Typ-/Anzeige-Folgescope.
+- Kanonischer ZIP-Parser wird über eine technische .NET-Fassade wiederverwendet. Ressourcenlimits, kooperatives Budget und konservativer 128-MiB-Outputcharge vor Ausgabe; keine Peak-RAM- oder harte Wallclock-Zusage.
+- Finale synthetische Adapter auf Linux 2019/latest und Windows 2025/CU8 erfolgreich, einschließlich lokaler/zentraler Verwendung, Clientmetadaten, atomarer ResultTable, Caller-Scope, nichtdoomendem XLSX-/ZIP-Lifecycle und tatsächlichem ZIP-1.3-Upgrade. Begrenzte Framework-NoIO-/IL- sowie unabhängige Writer-Orakel erfolgreich.
+- Bekannte Restmatrix offen; teilweise validiert und unveröffentlicht. Tatsächliche Releaseveröffentlichung, weitere Plattformen und Kapazitätsqualifizierung werden nicht behauptet.
+
 ## 2026-10-01 – Script-only Tabellenklon 1.0.0
 
 - `USP_ScriptTableClone` liefert deterministische begrenzte SameDB-DDL-
@@ -421,7 +428,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-33 Module sind implementiert. 21 sind `validated`, 12 sind `partially
+34 Module sind implementiert. 21 sind `validated`, 13 sind `partially
 validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
