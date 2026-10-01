@@ -6,6 +6,101 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### Individuell freigegebene weitere Wellen und Parser-Voraussetzung
+
+Benutzerfreigabe 2026-10-01: Nach gemeinsamer Besprechung der folgenden
+fünf konkreten Themen bestätigte der Benutzer jede zugehörige Entscheidung
+einzeln mit „ja“. Die zusätzlich vorgeschlagene Parser-Härtung und
+systematische Syntaxqualifikation vor Trigger-Rewriting bestätigte er mit
+„ok, das machen wir so“. Keine pauschale Freigabe weiterer Objekte.
+
+#### Parser-Härtung und Syntaxqualifikation
+
+- Bestehenden ScriptDom-Parser härten und eine versionierte Testmatrix für
+  DML, DDL, Prozeduren/Funktionen/Trigger, Transaktionen, Security-Statements
+  und versionsabhängige Syntax aufbauen. Vor Trigger-Rewriting abschließen.
+- Festgestellte Schwachstellen gezielt adressieren: stiller Versionsfallback,
+  unbegrenzter NULL-Eingabebyteparameter, Tiefenprüfung erst nach Parser.Parse,
+  partielle ASTs bei Syntaxfehlern und widersprüchliche Dokumentationsdefaults.
+- Konkreten begrenzten Parameter-/Fehler-/Kompatibilitätsvertrag und
+  wirksamen vorgeschalteten Ressourcenwächter vor Sourceänderung dokumentieren
+  und qualifizieren. Keine vollständige Syntaxabdeckung nur aus Smoke-Tests
+  oder AST-Vorhandensein ableiten.
+- Parsen ist keine semantische Namens-/Aliasauflösung und keine sichere
+  Umschreibungsfreigabe. Der bestehende UNSAFE-/Windows-only-Vertrag bleibt
+  sichtbar; kein Linux-/Worker-/SDKfallback oder Trust-/Rechteausweitung.
+
+#### Trigger-Scriptklon
+
+- Bestehenden Scriptplaner optional für gewöhnliche T-SQL-DML-Trigger auf
+  gemappten diskbasierten Tabellen erweitern; weiterhin nur Scripttext.
+  Ereignisse, AFTER/INSTEAD OF und enabled/disabled-Zustand erhalten.
+- Name, Zielbindung und eindeutig auflösbare Tabellenverweise anhand des
+  expliziten Klon-Mappings umschreiben. Bestehenden Parser wiederverwenden;
+  Kommentare/Stringliterale unverändert, keine blinde Textersetzung.
+- Dynamisches SQL, verschlüsselte/CLR-Trigger, EXECUTE AS, mehrdeutige oder
+  externe Referenzen sichtbar ablehnen. Keine automatische Kopie referenzierter
+  Funktionen/Prozeduren. Parserfehler müssen vor Umschreibung ausgeschlossen sein.
+- Plattformgrenze des Parsers vererben, keine vorgetäuschte Linux-Fähigkeit.
+
+#### USP_ExecuteTableClone
+
+- Explizites Tabellen-Mapping/Planneroptionen und erwarteter Plan-Hash;
+  kein frei übergebener SQL-Text. Kanonischen Plan unmittelbar neu erzeugen
+  und vergleichen. Nur neue Ziele, kein DROP/Overwrite/Ändern vorhandener Ziele.
+- Eigene begrenzte Transaktion, fremde aktive Caller-Transaktion ablehnen;
+  Fehler rollen eigene SQL-Änderungen zurück. Keine Rechteausweitung.
+- DDL-Trigger/nicht kontrollierbare externe Nebenwirkungen sind Scopeblocker.
+  Toolbelt-Lock ist keine Driftgarantie gegen fremde DDL. Hash ist keine
+  Berechtigungsfreigabe; aktuelle Quell-/Ziel-/Callerrechte weiter prüfen.
+
+#### USP_CopyTableCloneData
+
+- Explizites SameDB-Mapping, nur leere kompatible Ziele. Keine freien SQL-
+  Filter, Merge/Upsert oder Überschreiben. Konsistenter Verbundsnapshot:
+  vorhandenes SNAPSHOT oder ausdrücklich gewählter SERIALIZABLE-Sperrmodus;
+  keine automatische Datenbankkonfiguration durch die öffentliche Funktion.
+- Identity erhalten oder neu vergeben ausdrücklich wählen. Neuvergabe bei
+  davon abhängigen Beziehungen ablehnen. Computed/rowversion nicht einfügen.
+- Zieltrigger fehlen oder sind disabled. Zyklische FKs nur über kontrollierte
+  Anlage nach Datenkopie, keine heimliche Constraint-Deaktivierung.
+- Zeilen-/Datenbudgets begrenzen, Fehler rollback eigener Zielwrites;
+  Ausgabe nur Counts/Status, keine Rohdatenlogs. Sessionzustand einschließlich
+  IDENTITY_INSERT sauber behandeln, fremden Zustand nicht überschreiben.
+
+#### TVF_DeterministicTranslate
+
+- Zweck ausdrücklich bestätigt: formaterhaltende Transformation synthetischer
+  Kennungen. Rückführbarkeit und verbleibende Länge-/Muster-/Häufigkeits-
+  offenlegung ausdrücklich akzeptiert; keine Anonymisierung/Verschlüsselung.
+- MappingVersion/Seed, explizite Alphabete zunächst ASCII-Buchstaben/Ziffern;
+  Groß-/Kleinschreibung und ausdrücklich erlaubte Trennzeichen erhalten.
+  Unbekannte Zeichen standardmäßig Fehler. Begrenzte Langtextverarbeitung,
+  kein Abschneiden. Erste Version nur Vorwärtstransformation, Abbildung
+  grundsätzlich rückführbar; keine zusätzliche Decode-API ableiten.
+
+#### TVF_DeterministicGeoJitter
+
+- Zweck ausdrücklich bestätigt: synthetische Testpunkte, SRID4326.
+  Entitätsschlüssel/MappingVersion/Seed bestimmen reproduzierbare Verschiebung.
+  Radius ausdrücklich in Metern, Default100m/Ceiling10km bestätigt.
+- Dokumentierte flächenorientierte Verteilung, keine bevorzugte Richtung;
+  Pole/Datumsgrenze/ungültige Koordinaten behandeln und Grenzen qualifizieren.
+  Entfernung nach dokumentierter SQL-geography-Näherungssemantik prüfen.
+- Kein Land-/Gebiets-Clipping; Wasser/außerhalb Verwaltungsgrenze akzeptiert.
+  Verknüpfbarkeit wiederholter Beobachtungen bleibt möglich; keine
+  Anonymisierungszusage, realen Geodaten oder zusätzlichen Spatial-APIs.
+
+Status dieser Wellen: `ready for development`; keine Implementierungs-/
+Runtime-Evidenz durch diesen Eintrag. Aktuelle V1-Wellen zuerst abschließen,
+danach unabhängige freie Agent-Slots nutzen. Öffentliche Typen, genaue
+Budgets, Fehler-/NULLsemantik und Dependencies innerhalb des besprochenen
+Scopes vor Source schriftlich konkretisieren und qualifizieren; neue
+fachliche Entscheidungen rückfragen. Unabhängiger Review, synthetische
+Tests, scopebezogenes Lab, grüne CI, PR-Merge und Branchcleanup unverändert.
+Die Freigabe erlaubt API-Implementierung und synthetische Qualifikation,
+keine autonome Ausführung/Kopie gegen beliebige reale Benutzerdatenbanken.
+
 ### Folgewellen: Capture-Replace, XLSX-Interpretation und unscharfer Textvergleich
 
 Benutzerentscheidungen 2026-10-01: Der Benutzer verlangt sämtliche
