@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**30 Module sind implementiert. 22 sind `validated`, 8 sind `partially
+**30 Module sind implementiert. 21 sind `validated`, 9 sind `partially
 validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
 abgeleitet.**
 
@@ -38,7 +38,7 @@ abgeleitet.**
 | `toolbelt.metadata.capability-catalog` | Module Capability Catalog | `1.0.0` | `toolbelt_metadata` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.identifier` | Identifier and Multipart Name Toolkit | `1.0.0` | `toolbelt_metadata` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.directional-trim` | Directional TRIM Compatibility | `1.0.0` | `toolbelt_string` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.string.regex` | Bounded Regular Expressions | `1.1.0` | `toolbelt_string` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.string.regex` | Bounded Regular Expressions | `1.2.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.split-advanced` | Quote/Escape Multi-Separator Split | `1.1.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.split-characters` | Literal Multi-Separator Split | `1.0.0` | `toolbelt_string` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.tsql.script-parser` | T-SQL Script Parser | `1.0.0` | `toolbelt_tsql` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |

@@ -1,10 +1,10 @@
 module_id: "toolbelt.string.regex"
 module_name: "Bounded Regular Expressions"
-version: "1.1.0"
+version: "1.2.0"
 implementation_status: implemented
-validation_status: validated
+validation_status: "partially validated"
 release_status: unreleased
-description: "Stellt IsMatch, Instr, Count sowie R2a Substring und Literal Replace für einen begrenzten Regexdialekt über SAFE SQL CLR bereit."
+description: "Stellt IsMatch, Instr, Count, Substring/Literal Replace sowie atomare Gesamttreffer-/Split-TVFs über den gemeinsamen SAFE-CLR-Regexkern bereit."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -14,13 +14,13 @@ compatibility_levels:
   - 160
   - 170
 platforms:
-  windows: validated
-  linux: validated
+  windows: "partially validated"
+  linux: "partially validated"
 providers:
   - id: safe-clr-toolbelt-regex
     technology: "C# SQL CLR; eigener Syntaxparser; System.Text.RegularExpressions mit festem Timeout"
     platforms: [Windows, Linux]
-    status: validated
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: true
@@ -31,6 +31,10 @@ dependencies: []
 schemas:
   - "toolbelt_string"
 objects:
+  - {type: TVF, schema: "toolbelt_string", name: "TVF_RegexMatches", visibility: public}
+  - {type: TVF, schema: "toolbelt_string", name: "TVF_RegexSplit", visibility: public}
+  - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_RegexMatchesCore", visibility: internal}
+  - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_RegexSplitCore", visibility: internal}
   - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexIsMatch", visibility: public}
   - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexInstr", visibility: public}
   - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexCount", visibility: public}
@@ -40,14 +44,21 @@ objects:
   - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexSubstringCore", visibility: internal}
   - {type: ASSEMBLY, name: "Toolbelt_String_Regex", visibility: internal}
 permissions_required:
+  - "SELECT auf den öffentlichen Regex-TVFs"
   - "SELECT oder REFERENCES auf den Regex-Skalarfunktionen"
   - "CREATE ASSEMBLY beziehungsweise ALTER ANY ASSEMBLY für Deploy"
   - "CREATE FUNCTION und Schema-ALTER für Deploy"
   - "sysadmin ausschließlich für das separate Trust-Opt-in"
 collation_contract: "Matching ist ordinal zur Regexengine und unabhängig von der Datenbank-Collation; i verwendet CultureInvariant."
-data_type_contract: "R1b unverändert: Input 2 MiB, Pattern 8000 UTF-16-Bytes, Flags nvarchar(4). R2a max-Texte: standard 2 MiB oder explizit large 16 MiB Quelle/Ersatz/Output; Pattern 8000 UTF-16-Codeeinheiten, Flags/Profile nvarchar(max) vor Validierung; Positionen int/UTF-16."
+data_type_contract: "R1b unverändert: Input 2 MiB, Pattern 8000 UTF-16-Bytes, Flags nvarchar(4). R2a max-Texte: standard 2 MiB oder explizit large 16 MiB Quelle/Ersatz/Output; Pattern 8000 UTF-16-Codeeinheiten, Flags/Profile nvarchar(max) vor Validierung; Positionen int/UTF-16. R2b verwendet dieselben Profile und Patterngrenzen; Ordinal/StartPosition/Length bigint in UTF-16-Codeeinheiten, Ergebnistextsumme profilbegrenzt und MaxRows default 10000/ceiling 100000, ohne Laufzeitgarantie."
 help_contract_version: "not applicable"
-resultset_contracts: []
+resultset_contracts:
+  - object: "toolbelt_string.TVF_RegexMatches"
+    resultset: "Ordinal bigint, StartPosition bigint, Length bigint, Value nvarchar(max); Metadaten nullable, alle Erfolgswerte nicht NULL"
+    max_rows: "default 10000; ceiling 100000"
+  - object: "toolbelt_string.TVF_RegexSplit"
+    resultset: "Ordinal bigint, StartPosition bigint, Length bigint, Value nvarchar(max); Metadaten nullable, alle Erfolgswerte nicht NULL"
+    max_rows: "default 10000; ceiling 100000"
 lifecycle_error_range: "52030-52039"
 trust_error_range: "52040-52049"
 runtime_error_contract: "SQL error 6522 with stable TBX_REGEX_* prefix"
@@ -79,6 +90,8 @@ documentation:
     - "Documentation/REGEX_FUNCTIONS.md"
     - "Documentation/SVF_RegexReplace.md"
     - "Documentation/SVF_RegexSubstring.md"
+    - "Documentation/TVF_RegexMatches.md"
+    - "Documentation/TVF_RegexSplit.md"
   architecture:
     - "../../Documentation/Architecture/REGEX_MODULE_DESIGN.md"
     - "../../Documentation/Architecture/REGEX_EXTENSION_PROPOSAL.md"
@@ -94,6 +107,10 @@ tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/Regex.Contract.sql"
   transformations: "Tests/Runtime/Transformations.Contract.sql"
+  relations: "Tests/Runtime/Relations.Contract.sql"
+  relations_framework: "Tests/Runtime/run-framework-relations.ps1"
+  relations_metadata: "Tests/Runtime/Relations.Metadata.ps1"
+  relations_rights: "Tests/Runtime/Relations.Rights.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   github_hosted_linux: "../../.github/workflows/regex-runtime.yml"
@@ -105,4 +122,8 @@ validation_evidence:
   - date: "2026-08-30"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "R1b auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest; SAFE CLR, exakter SHA2-512-Trust, Toolbelt-Dialekt, UTF-16, Grenzen, Timeout, Fehlerpräfixe, Erst- und Wiederholungsdeployment, Kollision, Central, Uninstall und Cleanup"
+    result: "success"
+  - date: "2026-10-01"
+    workflow: "local: Tests/CI/run-lab-local.ps1; Windows PowerShell: run-framework-relations.ps1"
+    scope: "R2b auf SQL Server 2025 Windows/CU8 bei CL150/160/170 und SQL Server 2019 Linux/latest CL150: vollständiger Regexadapter, Empty-/UTF16-/NULL-/Fehlerpriorität, 16 MiB Outputhash, strikte kleine Rowlimits, SQLClient-Schema/Metadata und SELECT-Atomicity bei Rowlimitfehler/Runtime-Timeout lokal und central, SELECT-Minimalrechte lokal/direkt zentral, genuine 1.0/1.1 Upgrade, vier neue Namenskollisionen mit imitiertem Marker, historischer Uninstall-Erhalt, 1.2 Reinstall/Marker/Dependency-Uninstall/Cleanup. Framework tatsächlich 100000 Zeilen; gezielte SQL-100k-Probe nur vollständige Ausgabe oder atomarer Timeout, keine SQL-100k-Durchsatzevidenz. Weitere R2b-Ziele und Lowpriv-CrossDB noch nicht ausgeführt."
     result: "success"

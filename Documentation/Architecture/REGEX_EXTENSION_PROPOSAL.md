@@ -1,5 +1,26 @@
 # Vorschlag: Regex-Erweiterungen nach R1b (`TC-2026-010`)
 
+## Freigegebener relationaler R2b-Slice (2026-10-01)
+
+Die ausdrückliche Benutzerbestätigung „ok, passt so“ nach Besprechung der
+sechs Detailverträge aktiviert ausschließlich `TVF_RegexMatches` und
+`TVF_RegexSplit` im Regexmodul; Freigabe in `.ai/BACKLOG.md`, nächster
+Entwicklungswellenabschnitt. Keine Captures, Backreferences oder Wrapper-
+Typfamilien. Die nachfolgenden älteren R2b-Nichtfreigabeformulierungen sind
+historisch und werden nicht auf die heutigen zwei APIs übertragen.
+
+Release1.2 liefert vier bigint/bigint/bigint/nvarchar(max)-Spalten über
+Inline-T-SQL-Fassaden vor intern markierten SAFE-CLR-TVFs. Kanonischer
+R2a-Kontext/Parser, NULL-Kurzschluss, MaxRows10000/Ceiling100000 und explizite
+Standard-/Large-Profile. Vor Enumeratorrückgabe vollständig materialisiert;
+keine verwertbaren Teilresultate bei Vertragsfehlern. Empty-Split verschiebt
+ausschließlich den Suchcursor, niemals den Tokenanfang um das Suchinkrement.
+Die exakten Signaturen, Prioritäten und Beispiele stehen in
+`Modules/toolbelt.string.regex/Documentation/TVF_RegexMatches.md` und
+`Modules/toolbelt.string.regex/Documentation/TVF_RegexSplit.md`.
+Build-/Test-Evidence bleibt im Manifest und der Modul-Testmatrix; dieser
+Eintrag ist weder Runtime-Nachweis noch vollständige Native-Paritätszusage.
+
 ## Status
 
 Aktualisierung 2026-10-01: Der folgende R2a-Vertrag wurde ausdrücklich zur

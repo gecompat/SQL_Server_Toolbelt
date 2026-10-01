@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-01 – Regex Matches und Split 1.2.0
+
+- `TVF_RegexMatches` und `TVF_RegexSplit` verwenden den bestehenden SAFE-CLR-
+  Dialektkern. Originaltexte, UTF-16-Positionen und leere Tokens bleiben
+  erhalten; keine Captures, Backreferences oder automatische Entquotierung.
+- Vollständige begrenzte Materialisierung vor Ausgabe, MaxRows und vorhandene
+  Standard-/Large-Budgets; Vertragsfehler und Timeout ohne Teilmenge.
+- Vollständige Adapter auf SQL Server 2019 Linux/latest CL150 und 2025
+  Windows/CU8 CL150/160/170 erfolgreich; echte 1.0-/1.1-Upgrades und lokale/
+  direkt zentrale Minimalrechte geprüft. Weitere Ziele, Lowpriv-CrossDB und
+  SQL-100k-Durchsatz offen; `partially validated`, `unreleased`.
+
 ## 2026-10-01 – ZIP-Writer 1.3.0
 
 - `USP_CreateZipFromEntries` erzeugt begrenzte In-memory-ZIPs aus einer caller-lokalen Temp-Tabelle: Stored als Default, Deflate ausdrücklich wählbar, strikte UTF-8-Namen und atomare ResultTable-Ausgabe.
@@ -373,7 +385,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-30 Module sind implementiert. 22 sind `validated`, 8 sind `partially
+30 Module sind implementiert. 21 sind `validated`, 9 sind `partially
 validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

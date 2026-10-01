@@ -1,12 +1,13 @@
 [CmdletBinding()]
-param([string]$OutputDirectory = '.runtime/regex-release/legacy')
+param([string]$OutputDirectory = '.runtime/regex-release/legacy',
+      [ValidateSet('1.0.0','1.1.0')][string]$ReleaseVersion = '1.0.0')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $repoRoot = (& git rev-parse --show-toplevel).Trim()
 # Öffentlicher, unveränderlicher Vorgängerstand. Kein nachgebauter Versionsmarker:
 # der Upgrade-Test installiert das tatsächlich aus R1b gebaute Binary.
-$revision = 'b3ab071efb218e6d3aee4542343db26d098e1dab'
-$sourceRoot = Join-Path $repoRoot '.runtime/regex-legacy-source'
+$revision = if($ReleaseVersion -eq '1.0.0'){'b3ab071efb218e6d3aee4542343db26d098e1dab'}else{'1b0f16c767b1c8a12c7fa0b3014108e6e120c23e'}
+$sourceRoot = Join-Path $repoRoot ".runtime/regex-legacy-source-$ReleaseVersion"
 New-Item -ItemType Directory -Force -Path $sourceRoot | Out-Null
 $archive = Join-Path $sourceRoot 'source.tar'
 & git archive --format=tar "--output=$archive" $revision Modules/toolbelt.string.regex
@@ -24,4 +25,6 @@ Copy-Item -LiteralPath (Join-Path $legacyModule 'Source/RegexFunctions.sql') -De
 $deployPath = Join-Path $outputPath 'Deploy.WithAssembly.sql'
 $scriptText = (Get-Content -LiteralPath $deployPath -Raw).Replace(':r ../Source/RegexFunctions.sql', ':r Source/RegexFunctions.sql')
 $scriptText | Set-Content -LiteralPath $deployPath -Encoding utf8
+$manifest=Get-Content -LiteralPath (Join-Path $outputPath 'Toolbelt.String.Regex.trust-manifest.json') -Raw | ConvertFrom-Json
+if($manifest.moduleVersion -ne $ReleaseVersion){throw 'Historischer Build hat nicht die gepinnte Releaseversion.'}
 Write-Output 'Regex Legacy-Upgrade-Testartefakte erzeugt.'

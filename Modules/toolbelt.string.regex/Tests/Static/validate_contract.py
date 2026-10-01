@@ -55,6 +55,14 @@ def main() -> int:
         "Clr/Properties/AssemblyInfo.cs",
         "Clr/RegexProvider.cs",
         "Clr/RegexTransformations.cs",
+        "Clr/RegexRelations.cs",
+        "Source/RegexRelations.sql",
+        "Documentation/TVF_RegexMatches.md",
+        "Documentation/TVF_RegexSplit.md",
+        "Tests/Runtime/Relations.Contract.sql",
+        "Tests/Runtime/run-framework-relations.ps1",
+        "Tests/Runtime/Relations.Metadata.ps1",
+        "Tests/Runtime/Relations.Rights.sql",
         "Source/RegexFunctions.sql",
         "Deployment/Add-TrustedAssembly.sql",
         "Deployment/Deploy.sql",
@@ -148,7 +156,20 @@ def main() -> int:
     require(build, "Build", "Get-FileHash -Algorithm SHA512", "Deploy.WithAssembly.sql", "Toolbelt.String.Regex.trust-manifest.json", "@('System', 'System.Data')")
 
     manifest = read("module.yaml")
-    require(manifest, "Manifest", 'version: "1.1.0"', 'permission_set: "SAFE"', "third_party_dependencies: []", 'workflow: "local: Tests/CI/run-lab-local.ps1"')
+    require(manifest, "Manifest", 'version: "1.2.0"', 'permission_set: "SAFE"', "third_party_dependencies: []", 'workflow: "local: Tests/CI/run-lab-local.ps1"')
+
+    relations = read("Clr/RegexRelations.cs")
+    require(relations, "R2b-Kern", "TransformationContext", "context.Search", "maxRows.Value > 100000",
+            "TBX_REGEX_TOO_MANY_ROWS", "TBX_REGEX_OUTPUT_TOO_LARGE", "tokenStart = match.Index + match.Length",
+            "FillRelationRow", "return rows;", "DataAccessKind.None", "SystemDataAccessKind.None")
+    forbid(relations, "R2b-Kern", "yield return", "new Regex(", "TranslatePattern(", "System.IO.", "System.Net.", "SqlConnection")
+    relation_source = read("Source/RegexRelations.sql")
+    require(relation_source, "R2b-Fassade", "TVF_RegexMatchesCore", "TVF_RegexSplitCore", "RETURNS TABLE\nAS RETURN",
+            "@MaxRows int = 10000", "COLLATE DATABASE_DEFAULT")
+    require(read("Tests/Runtime/Relations.Contract.sql"), "R2b-Oracles", "TBX_REGEX_TOO_MANY_ROWS", "ERROR_NUMBER()<>6522",
+            "8388608", "100000", "DATALENGTH(Value)=0", "Zero separator lost input")
+    require(deploy, "R2b-Lifecycle", ":r ../Source/RegexRelations.sql", "N'1.2.0'", "TVF_RegexMatchesCore", "TVF_RegexSplitCore")
+    require(uninstall, "R2b-Uninstall", "@OwnRelations", "IF @OwnRelations=1", "ISNULL(@MatchesCoreId,-1)")
 
     transforms = read("Clr/RegexTransformations.cs")
     require(transforms, "R2a", "RegexReplace", "RegexSubstring", "R2PatternCodeUnits = 8000",

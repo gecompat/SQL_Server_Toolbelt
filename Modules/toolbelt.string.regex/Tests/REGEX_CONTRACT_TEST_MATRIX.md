@@ -1,5 +1,22 @@
 # Regex-Contract-Testmatrix
 
+## R2b-Zusatzscope 1.2.0
+
+Framework-Build und relationaler Frameworkvertrag am 2026-10-01 PASS;
+keine SQL-SAFE-Evidence allein daraus. Der vollständige Adapter lief am
+2026-10-01 auf SQL Server 2025 Windows/CU8 bei CL150/160/170 und SQL Server
+2019 Linux/latest CL150 erfolgreich. Weitere R2b-Ziele und Lowpriv-CrossDB
+bleiben offen; SQL-100k-Durchsatz bleibt `not executed`.
+
+| Bereich | Pflichtnachweis |
+|---|---|
+| Gesamttreffer | Schema, Ordinals, Start/UTF16/kein Treffer/NULL/terminaler Leerwert |
+| Split | ganze Quelle, Originalbytes, leere Rand-/Zwischentokens, unabhängiger Suchcursor, Empty-Input, Anker, gemischte leere/konsumierte Separatoren |
+| Grenzen | Framework: echte 100000 Zeilen; SQL: gezielte High-Volume-Probe entweder vollständig oder exakt atomarer TBX_REGEX_TIMEOUT, keine 100k-Durchsatzgarantie; 16 MiB Quelle/Output; kleine MaxRows-Grenzfälle strikt; NULL/Flags/Patternpriorität |
+| SQLClient | tatsächliche vier Typen/max-Längen/nullable-Metadaten, nicht-NULL-Erfolgswerte, kein Zusatzresult/Message, Fehler vor erster verwertbarer Zeile |
+| Lifecycle | genuine 1.0 und 1.1, vier neue Namenskollisionen inklusive imitiertem Marker, Erhalt bei historischem Uninstall, 1.2-Reinstall, interne Marker und Dependency-Uninstall |
+| Rechte | lokale/direkt zentrale SELECT-Minimalrechte; kein pauschaler Lowpriv-CrossDB-Nachweis |
+
 | Bereich | Pflichtnachweis |
 |---|---|
 | CLR | .NET Framework 4.8, nur System/System.Data, SAFE, identischer Provider auf Windows/Linux |
@@ -32,8 +49,8 @@ die Lab-Umgebungen nicht beendet.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-30`
-- Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: R1b auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest; SAFE CLR, exakter SHA2-512-Trust, Toolbelt-Dialekt, UTF-16, Grenzen, Timeout, Fehlerpräfixe, Erst- und Wiederholungsdeployment, Kollision, Central, Uninstall und Cleanup
+- Datum: `2026-10-01`
+- Nachweis: `local: Tests/CI/run-lab-local.ps1; Windows PowerShell: run-framework-relations.ps1`
+- Scope: R2b auf SQL Server 2025 Windows/CU8 bei CL150/160/170 und SQL Server 2019 Linux/latest CL150: vollständiger Regexadapter, Empty-/UTF16-/NULL-/Fehlerpriorität, 16 MiB Outputhash, strikte kleine Rowlimits, SQLClient-Schema/Metadata und SELECT-Atomicity bei Rowlimitfehler/Runtime-Timeout lokal und central, SELECT-Minimalrechte lokal/direkt zentral, genuine 1.0/1.1 Upgrade, vier neue Namenskollisionen mit imitiertem Marker, historischer Uninstall-Erhalt, 1.2 Reinstall/Marker/Dependency-Uninstall/Cleanup. Framework tatsächlich 100000 Zeilen; gezielte SQL-100k-Probe nur vollständige Ausgabe oder atomarer Timeout, keine SQL-100k-Durchsatzevidenz. Weitere R2b-Ziele und Lowpriv-CrossDB noch nicht ausgeführt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

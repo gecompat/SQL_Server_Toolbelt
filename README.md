@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 30 Module implementiert – 8 teilweise validiert](https://img.shields.io/badge/Status-30%20Module%20implementiert%20%7C%208%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 30 Module implementiert – 9 teilweise validiert](https://img.shields.io/badge/Status-30%20Module%20implementiert%20%7C%209%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 30 Module sind implementiert; 22 sind `validated`, 8 sind `partially validated`, alle sind `unreleased`.**
+**Der Repository-Grundaufbau ist abgeschlossen. 30 Module sind implementiert; 21 sind `validated`, 9 sind `partially validated`, alle sind `unreleased`.**
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)
@@ -146,8 +146,11 @@ Das implementierte R1b-Modul
 IsMatch, Instr und Count für einen begrenzten, parsergesicherten
 Toolbelt-Regexdialekt über `SAFE` SQL CLR bereit. Die vollständige physische
 Matrix SQL Server 2019/2022/2025 unter Windows base und Linux latest ist
-erfolgreich. RE2-Parität, lineare Laufzeit und weitere Regex-APIs werden nicht
-behauptet; das Modul ist `validated` und `unreleased`.
+erfolgreich. Version 1.2.0 ergänzt Matches-/Split-TVFs über denselben Kern;
+der vollständige neue Adapter besteht auf SQL Server 2019 Linux/latest CL150
+und 2025 Windows/CU8 CL150/160/170. Weitere R2b-Ziele, Lowpriv-CrossDB und
+SQL-100k-Durchsatz bleiben offen. RE2-Parität und lineare Laufzeit werden nicht
+behauptet; die neue Modulversion ist `partially validated` und `unreleased`.
 
 Das implementierte Modul
 [`toolbelt.validation.semantic-version`](./Modules/toolbelt.validation.semantic-version/README.md)

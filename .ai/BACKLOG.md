@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-30 Module sind implementiert. 22 sind `validated`, 8 sind `partially validated`; 0 sind `not executed`.
+30 Module sind implementiert. 21 sind `validated`, 9 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -127,9 +127,17 @@ folgenden sechs APIs und Detailverträge einzeln benannt; auf die ausdrückliche
 Frage nach Implementierung, Prüfung und PR-Merge antwortete er „ok, passt so“.
 Nur diese Funktionen sind damit freigegeben, keine weiteren fachlichen APIs,
 Datei-I/O-, Capture-, SDK-/Worker-, Rechteausweitungs- oder Release-Slices.
-Status: `active`; noch keine neue Implementierungs- oder Runtime-Evidenz.
+Status: `active`; Regex R2b ist implementiert und im ausgewählten Lab-Scope
+geprüft. JSON und XLSX bleiben getrennte aktive Wellen.
 
 #### Regex R2b: Gesamttreffer und Split
+
+Stand 2026-10-01: Version 1.2.0 implementiert; vollständiger Adapter auf
+SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 PASS.
+Unabhängiger Source-/Contract-/Lifecycle-Review sowie reproduzierter
+Framework-/Static-Vertrag erfolgreich; erforderliche PR-CI noch ausstehend.
+Weitere R2b-Ziele, Lowpriv-CrossDB und SQL-100k-Durchsatz bleiben offen.
+Modulstatus `partially validated`, `unreleased`; keine Capture-Freigabe.
 
 - `toolbelt_string.TVF_RegexMatches`: Input/Pattern `nvarchar(max)`, Start,
   bestehende Flags, Profil und MaxRows. Ergebnis `Ordinal bigint`,
