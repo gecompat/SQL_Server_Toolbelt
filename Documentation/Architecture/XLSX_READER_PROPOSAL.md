@@ -6,6 +6,22 @@
 Funktionsbesprechung vor. Es autorisiert weder einen Dateizugriff noch einen
 Provider, ein SQL-Objekt oder die Verarbeitung eines realen Workbooks.
 
+## Nutzerentscheidung und verpflichtender Folgescope vom 2026-10-01
+
+Der Benutzer hat den begrenzten Binary-/Raw-/Text-/Cache-Scope als erste
+Richtung bestätigt. Anzeigeformat, Styles, Culture und Datumsbehandlung
+müssen als spätere Erweiterung dauerhaft im Backlog geführt werden. Das ist
+eine Scope-Entscheidung, keine Freigabe des noch offenen Providers, konkreter
+Reader-Signaturen oder einer Implementierung.
+
+V1-Text bedeutet aufgelösten Shared-/Inline-String-Inhalt, keine formatierte
+Excel-Anzeige. Numerischer Rohtext, Formeltext und vorhandener gespeicherter
+Cachewert bleiben getrennt. Die spätere Erweiterung muss Styles und
+Number-Formats, explizite Culture, 1900-/1904-Modus einschließlich des
+historischen 1900-Schaltjahrsonderfalls sowie typisierte Datums-/Zeit- und
+Dauerwerte besprechen. Sie ist verpflichtender Folgescope unter
+`TC-2026-045`, aber nicht stillschweigend Bestandteil von V1.
+
 ## Empfohlene erste Grenze
 
 V1 soll ein **datenbankseitig übergebenes XLSX-Binary** lesen und ein
@@ -15,7 +31,7 @@ Beziehungen und ein Writer gehören nicht zum Scope.
 
 Das Resultset enthält für jede vorhandene Zelle mindestens Sheet-Ordinal,
 Sheet-Name, Zeilen- und Spaltenordinal, gespeicherten Zelltyp, Rohwert und
-angezeigten Text. Damit bleibt die Ergebnisform unabhängig von einer
+aufgelösten Stringtext sowie getrennten Formeltext und Cachewert. Damit bleibt die Ergebnisform unabhängig von einer
 arbeitsmappenspezifischen Spaltenstruktur. Die Anwendung einer fachlichen
 Tabelle, automatische Header-Erkennung und Datentypinferenz erfolgen erst
 in späteren, getrennten Importverträgen.
@@ -50,6 +66,22 @@ Lizenz, Trust, Secret-Grenzen und Windows-/Linux-Deployment entschieden.
 
 ## Grenzen und Testmatrix
 
+Ein begrenzter Provider-Spike soll zuerst die konkrete SDK-Version,
+Dependency-/Lizenzkette, Memory-only-Verarbeitung und erforderliche
+Assemblyrechte prüfen. Die offiziellen SDK-Hinweise nennen mögliche
+Isolated-Storage-Probleme unter .NET Framework; `SAFE` und Verarbeitung ohne
+Diskspill sind deshalb nachzuweisen, nicht vorauszusetzen. Keine
+Hochprivilegierung oder externer Fallback entsteht automatisch aus dem Spike.
+Öffentliche SQL-Objekte und Labtests gehören nicht zu dieser vorbereitenden
+Dokumentationswelle.
+
+Ungemessene V1-Prüfgrenzen zur Besprechung: 16 MiB komprimiert, 64 MiB
+insgesamt dekomprimiert, 16 MiB je Part, 256 ZIP-Parts, 32 Worksheets,
+100.000 vorhandene Zellen, 50.000 Shared Strings mit insgesamt 8 MiB
+dekodiertem Text und XML-Tiefe 64. Eine Container-Ratio von 200 ist nur ein
+Vorschlag; sie kann gültige, stark repetitive Workbooks ausschließen.
+Die Zahlen sind keine Runtime-, Streaming- oder Performancezusage.
+
 Vor der Implementierung werden maximale komprimierte und dekomprimierte
 Containergröße, maximale Worksheets, Zellen, Zeilen, Spalten und
 Shared-Strings festgelegt. Die Verarbeitung muss Limits vor vollständiger
@@ -75,6 +107,7 @@ besprochen und freigegeben werden.
 
 ## Quellen
 
+- [Offizielles Open-XML-SDK: bekannte Probleme](https://github.com/dotnet/Open-XML-SDK#known-issues) – am 2026-10-01 geprüft; kein SQL-CLR-/SAFE-Nachweis.
 - [Microsoft: Open XML SDK](https://learn.microsoft.com/en-us/office/open-xml/open-xml-sdk)
 - [Microsoft: MS-XLSX](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-xlsx/2c5dee00-eff2-4b22-92b6-0738acd4475e)
 - [bestehender Candidate](../../Backlog/TOOLBELT_CANDIDATES.md#tc-2026-045-xlsx-dateien-direkt-lesen)

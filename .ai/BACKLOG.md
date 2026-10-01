@@ -258,6 +258,35 @@ Die V0c-Kohorte umfasst verbindlich:
 | Nächster Schritt | Manuellen Windows-SQL-Server-/NTFS-Runtime-Test gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` ausführen und ausschließlich abstrahierte Ergebnisse erfassen; die Terminierung hängt an `V0b`. GitHub-hosted Windows-Runner sind kein Ersatz, weil die offiziellen Runner-Images keine SQL-Server-Engine enthalten. |
 
 
+## Besprochene Folgescopes ohne Implementierungsfreigabe
+
+### TC-2026-032: Unquoting und optionale Split-USP
+
+Am 2026-10-01 hat der Benutzer Unquoting auf einen äußerlich gequoteten Token
+begrenzt und anschließend präzisiert: Das äußere Paar wird entfernt, innere
+verdoppelte Quotes werden dekodiert; `"hallo""du"""` wird `hallo"du"`.
+Die zuvor angenommene unveränderte Innenbehandlung wurde damit korrigiert.
+Backslash-Escapes, ungequotete Tokens und malformed Eingaben bleiben zu besprechen.
+`USP_SplitAdvanced` soll ergänzend vorgesehen werden und führt kein
+automatisches Unquoting aus. Die Split-TVF bleibt Pflicht.
+Die [konkreten Folgeslice-Vorschläge](../Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md#beschlossene-folgescope-grenzen-vom-2026-10-01)
+halten Alternativen, Risiken, Dependencies, Testscope und noch offene
+Signatur-/Fehler-/Randfallentscheidungen fest. Status: `proposed` für diese
+Folgeslices, keine Implementierungsfreigabe; S2 bleibt davon getrennt `active`.
+
+### TC-2026-045: Begrenzter XLSX-Reader und verpflichtende Erweiterung
+
+Am 2026-10-01 hat der Benutzer Binaryinput und Raw-/Text-/Cache-Werte als
+erste Readergrenze bestätigt. Text ist aufgelöster Shared-/Inline-Stringinhalt,
+keine formatierte Excel-Anzeige. Provider, Signaturen, Limits und Fehler sind
+noch offen; Status: `researched`, keine Implementierungsfreigabe.
+Anzeigeformat, Styles, explizite Culture und Datumsbehandlung müssen später
+als eigener Funktionsslice umgesetzt werden, sobald ihr Vertrag besprochen
+und ausdrücklich freigegeben ist. Dazu gehören 1900-/1904-Modus,
+1900-Schaltjahrsonderfall, Formatcodes sowie Datum/Zeit/Dauer-Abbildung.
+Der [Reader-Vorschlag](../Documentation/Architecture/XLSX_READER_PROPOSAL.md)
+führt Provider-Spike, ungemessene Zielgrenzen und die getrennte Folgestufe.
+
 ## Abgeschlossene Arbeitspakete
 
 ### AP-2026-030: TC-2026-033 ZIP-Metadaten-Listing
