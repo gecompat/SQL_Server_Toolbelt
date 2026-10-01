@@ -14,6 +14,8 @@ Nachweise und offene Workerhost-/SQL-Zielkombinationen stehen getrennt in
 der [Worker-Testmatrix](../../Workers/ExternalQueue/Tests/README.md).
 Die Windows-Host-Labprüfung vom 2026-10-02 besteht gegen SQL Server 2019
 Linux/latest und ausgewählte bereite SQL-Server-2025-Windows-Ziele.
+Der Linux-Workerhost besteht zusätzlich die vollständigen synthetischen
+SQL-2019-Runtime-Fixtures in der verlinkten PR-CI.
 Echte Commit-Transportfaults, Minimalrechte, Recoveryrennen und zentraler
 Deploymentmodus sind dadurch nicht vollständig qualifiziert.
 

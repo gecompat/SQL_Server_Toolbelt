@@ -126,7 +126,9 @@ qualifiziert, einschließlich echtem Heartbeat während langem Handler,
 Retry/Dead Letter, kooperativer Cancellation, Contextdrift, Slots und Drain.
 SQL-Readonly-Fehler 15664 zusätzlich auf beiden Zielen geprüft; finale
 vollständige Scheduling-Wiederholung auf Windows 2025/CU8 erfolgreich.
-Linux-Workerhost-PR-CI noch ausstehend.
+Linux-Workerhost-PR-CI gegen eine eigene synthetische SQL-2019-Instanz
+einschließlich langem Heartbeat und Cleanup erfolgreich; deterministische
+Fault-Verträge auf Windows und Linux erfolgreich.
 Runtime `partially validated`, `unreleased`; offene Grenzen stehen in der
 [Worker-Testmatrix](../Workers/ExternalQueue/Tests/README.md).
 Die vorangehende Abschlussgrenze beschreibt den Vorgänger und verhindert

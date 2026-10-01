@@ -19,7 +19,7 @@ Es simuliert keinen realen Transportverlust bei einem SQL-Commit.
 |---|---|---|---|
 | Windows | 2019 Linux/latest | Lokaler Lab-Adapter, vollständige synthetische Fixtures | erfolgreich am 2026-10-02 |
 | Windows | 2025 Windows/CU8, über allgemeinen base-Selektor mit erlaubter CU-Äquivalenz | Lokaler Lab-Adapter, vollständige synthetische Fixtures | finaler Source-Stand erfolgreich am 2026-10-02 |
-| Linux | 2019 Linux | CI-Adapter mit eigener synthetischer Instanz | `not executed` bis zur erfolgreichen PR-CI |
+| Linux | 2019 Linux | CI-Adapter mit eigener synthetischer Instanz | erfolgreich am 2026-10-02, [CI-Run](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/36939743866) |
 | Windows/Linux | übrige Versionen und Zielkombinationen | Getrennte weitere Qualifikation | `not executed` |
 
 Die [Fixtures](Runtime/Fixtures.sql) und der
@@ -41,6 +41,10 @@ der synthetische Effekt wird zurückgerollt. Mutable Contextdrift erzeugt
 einen ungeklärten Claim ohne Retry oder committed Effekt.
 Die vorherigen Volltests bleiben als eigener Nachweis erhalten; nach der
 engen Scheduling-Härtung besteht der finale vollständige Windows-2025-Lauf.
+Der CI-Run prüft denselben Worker-Source zusätzlich auf einem Linux-Host,
+einschließlich vollständiger synthetischer Runtime-Fixtures, unabhängigem
+60-Sekunden-Heartbeat und erfolgreichem Cleanup. Die deterministischen
+Fault-Verträge bestehen dort getrennt auf Windows und Linux.
 
 ## Offene Nachweise und Cleanup
 
