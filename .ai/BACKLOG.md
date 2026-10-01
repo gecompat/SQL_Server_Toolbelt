@@ -6,6 +6,37 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### Folgewellen: Capture-Replace, XLSX-Interpretation und unscharfer Textvergleich
+
+Benutzerentscheidungen 2026-10-01: Der Benutzer verlangt sämtliche
+Capture-Wiederholungen statt nur der letzten Capture je Gruppe. Die separat
+besprochene gruppenbezogene Replace-Erweiterung mit `$1`, `${Name}` und `$$`
+wurde ausdrücklich mit „ja“ bestätigt. Bestehendes literal Replacement
+bleibt davon getrennt und unverändert.
+
+Für XLSX wurde die Reihenfolge bestätigt: Typinterpretation als eigene
+Funktionen, danach Anzeigeformatierung. Der vorgeschlagene erste
+Formatierungsumfang wurde mit „ja“ bestätigt: Zahlen, Prozent,
+wissenschaftliche Schreibweise, Datum/Uhrzeit und Text, ausdrücklich
+gewählte Culture; keine Farben, bedingte Formatierung, Layoutauswertung oder
+Formelberechnung. Dies erweitert nicht stillschweigend die aktiven Raw-Reader.
+
+Für unscharfen Textvergleich beauftragte der Benutzer Levenshtein,
+Transposition und phonetischen Vergleich für Deutsch und Englisch.
+Zuerst sind zwei getrennte Distanzfunktionen vorgesehen: Levenshtein und
+eine exakt definierte Variante mit benachbarter Transposition. Hauptzweck
+sind Namen und kurze Bezeichnungen; längere Texte müssen ebenfalls
+berücksichtigt werden, gegebenenfalls über eine getrennte Variante.
+
+Status: Scopeentscheidungen bestätigt, konkrete Einzelverträge noch zu
+vervollständigen. Vor Implementierung sind öffentliche APIs, NULL-/Fehler-
+und Unicode-/Normalisierungssemantik, Capture-/Replacement-Fehlerfälle,
+XLSX-Typ-/Styletransport und unterstützte Formatgrammatik, Distanzvariante,
+Longtext-Ressourcenlimits sowie die sprachbezogenen Phonetikverfahren
+nachvollziehbar festzulegen und erforderliche Entscheidungen zu besprechen.
+Keine neue Runtime-Implementierung oder Testevidenz durch diesen Eintrag;
+unabhängige bereits freigegebene Wellen laufen weiter.
+
 ### TC-2026-034 / TC-2026-039 / TC-2026-040 / TC-2026-042 / TC-2026-044: Freigegebene Reservewellen
 
 Benutzerfreigabe 2026-10-01: Nach der Einzelbesprechung der beiden
