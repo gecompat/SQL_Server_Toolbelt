@@ -6,6 +6,68 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### Priorisierte Besprechung: Queue-Verarbeitung und Worker-Orchestrierung
+
+Benutzerauftrag 2026-10-01: Queue-Verarbeitung steht weit oben in der
+Wunschliste; als priorisiertes Thema aufnehmen und erforderliche Entscheidungen
+jetzt besprechen. Konkretisiert den offenen Worker-Scope von TC-2026-015 und
+die getrennten Provider von TC-2026-046; keine neue sequenzielle ID vergeben.
+
+- Vorhandenen validierten Work-Queue-2.0-Kern mit Work-Type-Katalog, Leases,
+  Retry/Dead Letter, Idempotency Keys und Drain-Barriers wiederverwenden.
+  Keine zweite Queue oder kopierte Claim-/Retrylogik.
+- Besprechungsziel: tatsächlich ausführender Worker mit begrenzter
+  Parallelität, unabhängigem Lease-Heartbeat während langer Handler,
+  kontrolliertem Shutdown, expliziter Recovery und nachvollziehbaren
+  Fehler-/Retryentscheidungen. Keine Exactly-once-Zusage.
+- Providerwahl, Betriebs-/Installationsgrenze, Handlertransaktionen,
+  Ergebnis-/Statusvertrag, Limits und Abbruchverhalten vor Implementierung
+  einzeln vereinbaren. SQL Server Agent, Service Broker und externer Worker
+  sind Alternativen, nicht automatisch gemeinsam freigegebene Provider.
+- Keine beliebige SQL-/Hostscript-Ausführung, Credentials im Repository,
+  automatische Rechtevergabe, KILL oder produktive Dienst-/Jobinstallation.
+
+#### Bestätigter Worker-Vertrag und Abschlussauftrag
+
+Einzelfreigabe 2026-10-01: Der Benutzer bestätigte ausdrücklich die vier
+besprochenen Queue-Punkte. Erster Provider: externer, manuell startbarer
+Windows-/Linux-Worker mit getrennten Handler-/Steuerverbindungen; nur
+registrierte NONE-/JSON_PAYLOAD-Handler, kein Raw SQL. SQL Server Agent und
+Service Broker bleiben separat auszuarbeitende Folgeprovider, nicht bereits
+freigegebene Implementierungen.
+
+- Ein Supervisor, Default ein Slot, konfigurierbar bis acht; keine implizite
+  Vervielfachung durch unabhängige Supervisoren. Lease zunächst 300 Sekunden,
+  Heartbeat alle 60 Sekunden; Lauf nach Zeit/Auftragszahl oder bis Queue leer
+  begrenzen. Kein automatischer Dienst-/Jobinstallationsauftrag.
+- Retry nur für ausdrücklich klassifizierte transiente Fehler und dafür
+  fachlich geeignete freigegebene Handler. Validierungs-/Rechte-/Unsupported-
+  Fehler terminal. Unbekannter Commit-Ausgang sichtbar ungeklärt, niemals
+  blind wiederholen. Recovery zuerst explizit, keine Exactly-once-Zusage.
+- Geschützte WorkItem-/ClaimGeneration-/ExecutionId-Zuordnung, kooperative
+  Handler-Checkpoints, kein KILL. Shutdown stoppt neue Claims, heartbeated
+  laufende Arbeit bis zum kontrollierten Ende; nach Gracefrist noch aktiv/
+  ungeklärt statt erfundenem Abbruch. Bestätigte Cancellation zunächst FAILED
+  mit eindeutigem Fehlercode; keine zusätzliche Queuezustandsmaschine.
+- Zunächst Status/Counts/Fehlercodes, keine beliebigen persistierten
+  Handlerresultsets. Konkrete Worker-/SQL-Schnittstellen, kurze Control-
+  Timeouts, Budgets, Authentifizierung und Testorakel innerhalb dieses Scopes
+  vor Source schriftlich konkretisieren; neue fachliche Grenzen rückfragen.
+- Dauerbetrieb, persistente Workerregistrierung, supervisorübergreifende
+  Slotgrenze und kontrollierter Neustart als zweite Welle vorgesehen.
+  Deren konkrete APIs und Dienst-/Jobinstallation separat konkretisieren;
+  keine automatische Betriebsfreigabe aus dieser Reihenfolge ableiten.
+
+Status erste Worker-Welle: `ready for development`, hohe Benutzerpriorität;
+keine Runtime-Evidenz. Späterer Benutzerauftrag derselben Besprechung:
+dieser Orchestrator finalisiert ausschließlich bereits laufende XLSX-Raw-,
+Clone-V1- und Deterministic-Range/DateShift/Lookup-Wellen samt Reviews,
+erforderlichen Fixes, Tests, PR-Merges und Branchcleanup. Keine neue
+Entwicklungswelle hier starten. Danach sauberen Übergabestand in origin/main
+herstellen und neuen Orchestrator-Chat mit unveränderten Projektregeln und
+individuellen Freigaben zur autonomen Fortsetzung öffnen. Queue-Implementierung
+und andere noch nicht gestartete Wellen gehen an diesen Nachfolger.
+
 ### Individuell freigegebene weitere Wellen und Parser-Voraussetzung
 
 Benutzerfreigabe 2026-10-01: Nach gemeinsamer Besprechung der folgenden
