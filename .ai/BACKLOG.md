@@ -28,12 +28,41 @@ eine exakt definierte Variante mit benachbarter Transposition. Hauptzweck
 sind Namen und kurze Bezeichnungen; längere Texte müssen ebenfalls
 berücksichtigt werden, gegebenenfalls über eine getrennte Variante.
 
-Status: Scopeentscheidungen bestätigt, konkrete Einzelverträge noch zu
-vervollständigen. Vor Implementierung sind öffentliche APIs, NULL-/Fehler-
-und Unicode-/Normalisierungssemantik, Capture-/Replacement-Fehlerfälle,
-XLSX-Typ-/Styletransport und unterstützte Formatgrammatik, Distanzvariante,
-Longtext-Ressourcenlimits sowie die sprachbezogenen Phonetikverfahren
-nachvollziehbar festzulegen und erforderliche Entscheidungen zu besprechen.
+#### Individuell freigegebener Textvergleichsvertrag
+
+Implementierungsfreigabe 2026-10-01: Auf die ausdrückliche Frage
+„Passt dieser Vertrag einschließlich Longtext-Verhalten und Phonetikverfahren
+für die Implementierung?“ antwortete der Benutzer „ja“. Die vier getrennten
+Funktionen sind damit einzeln freigegeben, zuerst die beiden Distanzen,
+danach die beiden sprachbezogenen Phonetikverfahren:
+
+- Levenshtein: Einfügen, Löschen und Ersetzen kosten jeweils 1.
+- Optimal String Alignment (OSA): zusätzlich benachbarte Transposition
+  für 1; eingeschränkte Variante, kein uneingeschränktes Damerau-Levenshtein.
+- Unicode-Zeichen statt Bytes; Standard exakt und case-sensitive. Keine
+  automatische Entfernung von Akzenten, Leerzeichen oder Satzzeichen.
+  Optionale Normalisierung nur ausdrücklich gewählt und dokumentiert.
+- Dieselben Distanzfunktionen mit Standard-/Large-Profil, ohne Abschneiden.
+  Optionaler MaxDistance-Parameter: oberhalb der Schwelle ausdrücklich
+  „größer als Grenze“, kein erfundener exakter Abstand. Rechenaufwand
+  begrenzt; Ressourcenüberschreitung Fehler, keine stille Näherung.
+  Konkrete Grenzen durch synthetische Tests qualifizieren und dokumentieren.
+- Deutsch: Kölner Phonetik. Englisch: Double Metaphone mit primärem und
+  alternativem Code. Verfahren/Sprache ausdrücklich wählen, keine
+  automatische Spracherkennung; Phonetik getrennt von Editierdistanz.
+- Öffentliche Namen, Parameter-/Ergebnistypen, NULL-/Fehlersemantik und
+  technische Ressourcenprüfung innerhalb dieses Scopes vor Sourceumsetzung
+  schriftlich konkretisieren. Keine zusätzliche fachliche API oder
+  unbesprochene Normalisierungsoption ableiten; neue fachliche Entscheidung
+  rückfragen. Standardprojektgates, unabhängiger Review, scopebezogene
+  Lab-Tests, grüne CI und PR-Merge gelten unverändert.
+
+Status Textvergleich: `ready for development`; keine Runtime-Evidenz.
+Für Capture-/Replacement-Fehlerfälle, XLSX-Typ-/Styletransport und die
+unterstützte Formatgrammatik sind konkrete Einzelverträge weiterhin
+nachvollziehbar zu vervollständigen und erforderliche Entscheidungen zu
+besprechen. Deren Scopebestätigung ist nicht mit der obigen konkreten
+Textvergleichsfreigabe zu verwechseln.
 Keine neue Runtime-Implementierung oder Testevidenz durch diesen Eintrag;
 unabhängige bereits freigegebene Wellen laufen weiter.
 
