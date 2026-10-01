@@ -1,0 +1,57 @@
+name: JSON Constructors Runtime
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/json-constructors-runtime.yml"
+      - "Modules/toolbelt.json.constructors/module.yaml"
+      - "Modules/toolbelt.json.constructors/Source/**"
+      - "Modules/toolbelt.json.constructors/Deployment/**"
+      - "Modules/toolbelt.json.constructors/Tests/Runtime/**"
+      - "Modules/toolbelt.json.constructors/Tests/Static/**"
+      - "Tests/CI/run-json-constructors-linux.sh"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/json-constructors-runtime.yml"
+      - "Modules/toolbelt.json.constructors/module.yaml"
+      - "Modules/toolbelt.json.constructors/Source/**"
+      - "Modules/toolbelt.json.constructors/Deployment/**"
+      - "Modules/toolbelt.json.constructors/Tests/Runtime/**"
+      - "Modules/toolbelt.json.constructors/Tests/Static/**"
+      - "Tests/CI/run-json-constructors-linux.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: json-constructors-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime:
+    name: SQL Server ${{ matrix.sql-version }} Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        sql-version: ["2019", "2022", "2025"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate static contract
+        run: >-
+          python3
+          Modules/toolbelt.json.constructors/Tests/Static/validate_contract.py
+
+      - name: Execute synthetic compatibility and lifecycle tests
+        env:
+          TBX_SQL_VERSION: ${{ matrix.sql-version }}
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest
+        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-json-constructors-linux.sh
