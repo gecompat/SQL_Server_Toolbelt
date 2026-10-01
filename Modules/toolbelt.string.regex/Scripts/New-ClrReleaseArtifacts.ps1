@@ -36,12 +36,12 @@ New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $assemblyBytes = [IO.File]::ReadAllBytes($assemblyPath)
 $assemblyHex = [BitConverter]::ToString($assemblyBytes).Replace('-', '')
 $sha512 = (Get-FileHash -Algorithm SHA512 -LiteralPath $assemblyPath).Hash.ToUpperInvariant()
-$description = 'SQL Server Toolbelt toolbelt.string.regex CLR provider 1.0.0'
+$description = 'SQL Server Toolbelt toolbelt.string.regex CLR provider 1.1.0'
 
 $manifest = [ordered]@{
     schemaVersion = '1.0'
     moduleId = 'toolbelt.string.regex'
-    moduleVersion = '1.0.0'
+    moduleVersion = '1.1.0'
     assemblySqlName = 'Toolbelt_String_Regex'
     assemblyFileName = [IO.Path]::GetFileName($assemblyPath)
     permissionSet = 'SAFE'

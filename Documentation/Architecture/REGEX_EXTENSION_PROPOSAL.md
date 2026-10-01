@@ -2,6 +2,22 @@
 
 ## Status
 
+Aktualisierung 2026-10-01: Der folgende R2a-Vertrag wurde ausdrücklich zur
+Implementierung freigegeben; dauerhafte Freigabe in `.ai/BACKLOG.md`, R2a.
+Die nachfolgenden Vorschlagsformulierungen dokumentieren die besprochene
+Entscheidungsvorlage. Ihre Aussage einer ausstehenden Freigabe ist für R2a
+durch diesen datierten Eintrag ersetzt; R2b bleibt separat und unfreigegeben.
+Version 1.1.0 setzt R2a um; tatsächliche Validierung ergibt sich ausschließlich
+aus Modulmanifest und reproduzierbaren Tests, nicht aus diesem Designdokument.
+
+Technische Qualifikation: Gruppen maximal 64, Alternation maximal 1.024 und
+übersetzte Pattern maximal 64.000 Codeeinheiten; Quantifiergrenze 1.000.
+Restbudget wird durch Wiederverwendung eines Regexobjekts bis zur notwendigen
+Verkleinerung seines Timeouts auf höchstens die Hälfte des Restbudgets umgesetzt.
+Neukonstruktion parst das übersetzte Pattern erneut. Public max-Defaults
+erfordern T-SQL-Fassaden vor intern markierten CLR-Kernen (SQL-Fehler 1096).
+Diese technischen Grenzen verändern die bestehenden R1b-Verträge nicht.
+
 Der bestehende R1b-Slice `toolbelt.string.regex` ist `validated` und
 exportiert bewusst nur Is-Match, Instr und Count. Dieses Dokument bereitet
 einen späteren Erweiterungsslice vor. Es autorisiert keine Änderung des

@@ -52,7 +52,7 @@ INNER JOIN sys.assembly_files AS af
   ON af.assembly_id = a.assembly_id AND af.file_id = 1
 WHERE a.name = @AssemblyName;
 
-IF @InstalledVersion IS NOT NULL AND @InstalledVersion <> N'1.0.0'
+IF @InstalledVersion IS NOT NULL AND @InstalledVersion NOT IN (N'1.0.0', N'1.1.0')
     THROW 52032, N'Die installierte Modulversion ist diesem Deployment nicht bekannt.', 1;
 
 IF @InstalledVersion IS NULL
@@ -61,9 +61,25 @@ IF @InstalledVersion IS NULL
        OBJECT_ID(N'toolbelt_string.SVF_RegexIsMatch') IS NOT NULL
        OR OBJECT_ID(N'toolbelt_string.SVF_RegexInstr') IS NOT NULL
        OR OBJECT_ID(N'toolbelt_string.SVF_RegexCount') IS NOT NULL
+       OR OBJECT_ID(N'toolbelt_string.SVF_RegexReplace') IS NOT NULL
+       OR OBJECT_ID(N'toolbelt_string.SVF_RegexSubstring') IS NOT NULL
+       OR OBJECT_ID(N'toolbelt_string.SVF_RegexReplaceCore') IS NOT NULL
+       OR OBJECT_ID(N'toolbelt_string.SVF_RegexSubstringCore') IS NOT NULL
        OR EXISTS (SELECT 1 FROM sys.assemblies WHERE name = @AssemblyName)
    )
     THROW 52033, N'Ein Zielobjekt oder die Assembly stammt nicht aus einem bekannten Toolbelt-Release.', 1;
+
+-- Neue Objektplätze können auch beim Upgrade bereits fremd belegt sein.
+IF EXISTS (
+    SELECT 1 FROM sys.objects AS o
+    WHERE o.schema_id = SCHEMA_ID(N'toolbelt_string')
+      AND o.name IN (N'SVF_RegexReplace', N'SVF_RegexSubstring', N'SVF_RegexReplaceCore', N'SVF_RegexSubstringCore')
+      AND NOT EXISTS (SELECT 1 FROM sys.extended_properties AS ep
+          WHERE ep.class = 1 AND ep.major_id = o.object_id AND ep.minor_id = 0
+            AND ep.name = N'Toolbelt.ModuleId'
+            AND CONVERT(nvarchar(128), ep.value) = N'toolbelt.string.regex')
+)
+    THROW 52033, N'Ein neues R2a-Zielobjekt ist fremd belegt.', 2;
 
 IF SCHEMA_ID(N'toolbelt_string') IS NULL
    AND HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'CREATE SCHEMA') <> 1
@@ -110,6 +126,10 @@ BEGIN TRY
     DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexIsMatch];
     DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexInstr];
     DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexCount];
+    DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexReplace];
+    DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexSubstring];
+    DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexReplaceCore];
+    DROP FUNCTION IF EXISTS [toolbelt_string].[SVF_RegexSubstringCore];
 
     IF @InstalledAssemblyHash IS NULL OR @InstalledAssemblyHash <> @AssemblyHash
     BEGIN
@@ -143,9 +163,9 @@ BEGIN TRY
               N'Toolbelt.Module.toolbelt.string.regex.DeploymentMode';
 
     IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = @VersionProperty)
-        EXEC sys.sp_updateextendedproperty @name = @VersionProperty, @value = N'1.0.0';
+        EXEC sys.sp_updateextendedproperty @name = @VersionProperty, @value = N'1.1.0';
     ELSE
-        EXEC sys.sp_addextendedproperty @name = @VersionProperty, @value = N'1.0.0';
+        EXEC sys.sp_addextendedproperty @name = @VersionProperty, @value = N'1.1.0';
 
     IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = @ModeProperty)
         EXEC sys.sp_updateextendedproperty @name = @ModeProperty, @value = N'$(DeploymentMode)';
@@ -187,7 +207,7 @@ BEGIN TRY
         SELECT name
         FROM sys.objects
         WHERE schema_id = SCHEMA_ID(N'toolbelt_string')
-          AND name IN (N'SVF_RegexIsMatch', N'SVF_RegexInstr', N'SVF_RegexCount');
+          AND name IN (N'SVF_RegexIsMatch', N'SVF_RegexInstr', N'SVF_RegexCount', N'SVF_RegexReplace', N'SVF_RegexSubstring', N'SVF_RegexReplaceCore', N'SVF_RegexSubstringCore');
     OPEN FunctionCursor;
     FETCH NEXT FROM FunctionCursor INTO @FunctionName;
     WHILE @@FETCH_STATUS = 0
@@ -201,11 +221,12 @@ BEGIN TRY
             , @level0type = N'SCHEMA', @level0name = N'toolbelt_string'
             , @level1type = N'FUNCTION', @level1name = @FunctionName;
         EXEC sys.sp_addextendedproperty
-              @name = N'Toolbelt.ModuleVersion', @value = N'1.0.0'
+              @name = N'Toolbelt.ModuleVersion', @value = N'1.1.0'
             , @level0type = N'SCHEMA', @level0name = N'toolbelt_string'
             , @level1type = N'FUNCTION', @level1name = @FunctionName;
+        DECLARE @Visibility nvarchar(16) = CASE WHEN @FunctionName IN (N'SVF_RegexReplaceCore', N'SVF_RegexSubstringCore') THEN N'internal' ELSE N'public' END;
         EXEC sys.sp_addextendedproperty
-              @name = N'Toolbelt.Visibility', @value = N'public'
+              @name = N'Toolbelt.Visibility', @value = @Visibility
             , @level0type = N'SCHEMA', @level0name = N'toolbelt_string'
             , @level1type = N'FUNCTION', @level1name = @FunctionName;
         FETCH NEXT FROM FunctionCursor INTO @FunctionName;

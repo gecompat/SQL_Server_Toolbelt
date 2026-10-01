@@ -12,6 +12,15 @@ Trust-Einträge; die Lab-Umgebungen wurden nicht beendet.
 
 Evidenz: `local: Tests/CI/run-lab-local.ps1`.
 
+R2a wird zusätzlich mit `Transformations.Contract.sql` geprüft. Für ein
+reproduzierbares echtes Upgrade zuerst `Scripts/New-LegacyTestArtifacts.ps1`
+nach dem aktuellen Releasebuild ausführen. Der gepinnte öffentliche Gitstand
+liefert das unveränderte Vorgängerbinary; vollständige Git-History ist nötig.
+`powershell Tests/Runtime/run-framework-transformations.ps1 -AssemblyPath
+<ReleaseBinary>` qualifiziert Restbudget und Enumeration unter .NET Framework.
+Diese Nachweise sind keine Last-/Durchsatzzusage. Runtime-Matrix, Upgrade und
+Concurrency werden vom bestehenden Regexadapter ausgeführt.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

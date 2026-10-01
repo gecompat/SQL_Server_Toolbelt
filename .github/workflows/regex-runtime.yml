@@ -49,17 +49,27 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Build assembly and exact release input
         shell: pwsh
         run: >-
           ./Modules/toolbelt.string.regex/Scripts/New-ClrReleaseArtifacts.ps1
           -Configuration Release
           -OutputDirectory ./.runtime/regex-release
+      - name: Build immutable predecessor for real upgrade test
+        shell: pwsh
+        run: ./Modules/toolbelt.string.regex/Scripts/New-LegacyTestArtifacts.ps1
+      - name: Qualify transformation total budget and enumeration
+        shell: powershell
+        run: >-
+          ./Modules/toolbelt.string.regex/Tests/Runtime/run-framework-transformations.ps1
+          -AssemblyPath ./.runtime/regex-release/Toolbelt.String.Regex.dll
       - uses: actions/upload-artifact@v4
         with:
           name: regex-clr-release-input
           if-no-files-found: error
-          path: .runtime/regex-release/*
+          path: .runtime/regex-release/**
 
   sql-server-linux:
     name: SQL Server ${{ matrix.sql_version }} Linux / compatibility ${{ matrix.compatibility_level }}

@@ -419,6 +419,7 @@ $managedEnvironmentNames = @(
     'TBX_ASSEMBLY_ROOT',
     'TBX_ZIP_ASSEMBLY_HASH',
     'TBX_REGEX_ASSEMBLY_HASH',
+    'TBX_REGEX_LEGACY_ASSEMBLY_HASH',
     'TBX_SCRIPT_PARSER_ASSEMBLY_HASH',
     'TBX_SCRIPT_PARSER_DEPENDENCY_HASH',
     'GITHUB_RUN_ID',
@@ -478,6 +479,8 @@ try {
                     $compatibilityLevels = Get-RegexCompatibilityLevels -Version ([string]$target.sqlVersion)
                     $env:TBX_ASSEMBLY_ROOT = $regexReleaseRoot
                     $env:TBX_REGEX_ASSEMBLY_HASH = [string]$manifest.sqlServerHexLiteral
+                    $legacyManifest = Get-Content -LiteralPath (Join-Path $regexReleaseRoot 'legacy/Toolbelt.String.Regex.trust-manifest.json') -Raw | ConvertFrom-Json
+                    $env:TBX_REGEX_LEGACY_ASSEMBLY_HASH = [string]$legacyManifest.sqlServerHexLiteral
                 }
                 elseif ($runScript -ceq 'run-script-parser-windows.sh') {
                     if ([string]$target.platform -cne 'windows') {

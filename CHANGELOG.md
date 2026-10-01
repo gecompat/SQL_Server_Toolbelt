@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-01 – Regex R2a
+
+- `toolbelt.string.regex` 1.1.0 ergänzt ausdrücklich freigegebene
+  `SVF_RegexReplace` und `SVF_RegexSubstring`: literal Replacement, UTF-16,
+  max-Signaturen, Standard-/Large-Profil und begrenzter Ergebnisbau.
+- T-SQL-Fassaden erhalten max-Defaults vor internen SAFE-CLR-Kernen;
+  kooperatives Gesamtbudget und Restbudget ergänzen Engine-Timeouts.
+- Tests koppeln R1b-Regression, Profil-/Patterngrenzen, echte 1.0.0-Upgrades,
+  Central-/Codepage-Aufrufe, Dependency-Schutz und konkurrierende LOBs.
+- Alle Module bleiben `unreleased`; kein allgemeiner Benchmark oder
+  Native-RE2-/Streaming-/Parallelitätsvertrag wird eingeführt.
+
 ## 2026-10-01 – S2 Quote/Escape Split
 
 - Neues dependencyfreies Modul `toolbelt.string.split-advanced` mit verpflichtender `TVF_SplitAdvanced`, Originaltokens, längstem Separator und atomarer Geschäftsfehlerzeile.

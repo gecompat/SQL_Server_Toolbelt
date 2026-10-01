@@ -109,6 +109,9 @@ if [[ "${clr_adapter}" == "run-zip-memory-linux.sh" || "${clr_adapter}" == "run-
         clr_hash="${TBX_ZIP_ASSEMBLY_HASH:-}"
     else
         clr_hash="${TBX_REGEX_ASSEMBLY_HASH:-}"
+        if [[ "${clr_adapter}" == "run-regex-linux.sh" ]]; then
+            clr_dependency_hash="${TBX_REGEX_LEGACY_ASSEMBLY_HASH:?Legacy-Upgrade-Hash fehlt}"
+        fi
         if [[ "${clr_adapter}" == "run-script-parser-windows.sh" ]]; then
             clr_hash="${TBX_SCRIPT_PARSER_ASSEMBLY_HASH:-}"
             clr_dependency_hash="${TBX_SCRIPT_PARSER_DEPENDENCY_HASH:-}"

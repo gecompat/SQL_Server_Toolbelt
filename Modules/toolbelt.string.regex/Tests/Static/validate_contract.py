@@ -54,14 +54,18 @@ def main() -> int:
         "Clr/Toolbelt.String.Regex.csproj",
         "Clr/Properties/AssemblyInfo.cs",
         "Clr/RegexProvider.cs",
+        "Clr/RegexTransformations.cs",
         "Source/RegexFunctions.sql",
         "Deployment/Add-TrustedAssembly.sql",
         "Deployment/Deploy.sql",
         "Deployment/Uninstall.sql",
         "Scripts/New-ClrReleaseArtifacts.ps1",
         "Documentation/REGEX_FUNCTIONS.md",
+        "Documentation/SVF_RegexReplace.md",
+        "Documentation/SVF_RegexSubstring.md",
         "Examples/Regex.sql",
         "Tests/Runtime/Regex.Contract.sql",
+        "Tests/Runtime/Transformations.Contract.sql",
         "Tests/Runtime/Lifecycle.Contract.sql",
         "Tests/Runtime/Central.Contract.sql",
         "Tests/REGEX_CONTRACT_TEST_MATRIX.md",
@@ -144,7 +148,17 @@ def main() -> int:
     require(build, "Build", "Get-FileHash -Algorithm SHA512", "Deploy.WithAssembly.sql", "Toolbelt.String.Regex.trust-manifest.json", "@('System', 'System.Data')")
 
     manifest = read("module.yaml")
-    require(manifest, "Manifest", 'version: "1.0.0"', "validation_status: validated", 'permission_set: "SAFE"', "third_party_dependencies: []", 'workflow: "local: Tests/CI/run-lab-local.ps1"')
+    require(manifest, "Manifest", 'version: "1.1.0"', 'permission_set: "SAFE"', "third_party_dependencies: []", 'workflow: "local: Tests/CI/run-lab-local.ps1"')
+
+    transforms = read("Clr/RegexTransformations.cs")
+    require(transforms, "R2a", "RegexReplace", "RegexSubstring", "R2PatternCodeUnits = 8000",
+            "8388608", "500 : 2000", "Stopwatch.StartNew()", "Math.Min(250, Remaining())",
+            "TBX_REGEX_OUTPUT_TOO_LARGE", "TBX_REGEX_PATTERN_TOO_COMPLEX", "context.Append",
+            "regex.Match(input, cursor)", "regexTimeout > Remaining()", "Remaining() / 2")
+    require(source, "R2a-Signaturen", "SVF_RegexReplace", "SVF_RegexSubstring",
+            "@Profile nvarchar(max) = N'standard'", "@Flags nvarchar(max) = N'c'")
+    require(read("Tests/Runtime/Transformations.Contract.sql"), "R2a-Runtime",
+            "8388609", "8001", "TBX_REGEX_OUTPUT_TOO_LARGE", "TBX_REGEX_TIMEOUT", "N'$1\\x'")
 
     runtime = read("Tests/Runtime/Regex.Contract.sql")
     require(runtime, "Runtime", "TBX_REGEX_INVALID_PATTERN", "TBX_REGEX_TIMEOUT", "1048577", "4001", "N'^(a|aa)+$'")

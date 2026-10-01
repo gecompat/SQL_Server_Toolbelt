@@ -2,21 +2,25 @@
 
 ## Status
 
-Version `1.0.0` implementiert den am 2026-08-30 ausdrücklich freigegebenen
-R1b-Slice. Die vollständige physische Matrix SQL Server 2019, 2022 und 2025
-ist unter Windows base und Linux latest erfolgreich. Das Modul ist
-`validated`, bleibt aber `unreleased`.
+Version `1.1.0` ergänzt den am 2026-10-01 ausdrücklich freigegebenen R2a-
+Slice mit Substring und literal Replace. R1b-Signaturen bleiben unverändert.
+Die erweiterte R1b-/R2a-Matrix wurde am 2026-10-01 auf SQL Server 2019/2022/2025
+unter Windows und Linux erfolgreich geprüft, einschließlich Upgrade,
+Central-Aufrufen, Vertragsgrenzen und parallelen Large-Aufrufen. Der aktuelle
+Stand steht im Manifest; dies ist keine Veröffentlichung.
 
 Evidenz: `local: Tests/CI/run-lab-local.ps1`.
 
 ## Zweck
 
-Das Modul stellt drei portable Skalarfunktionen für einen bewusst begrenzten
+Das Modul stellt fünf portable Skalarfunktionen für einen bewusst begrenzten
 Toolbelt-Regexdialekt bereit:
 
 - `toolbelt_string.SVF_RegexIsMatch`;
 - `toolbelt_string.SVF_RegexInstr`;
 - `toolbelt_string.SVF_RegexCount`.
+- [toolbelt_string.SVF_RegexReplace](./Documentation/SVF_RegexReplace.md);
+- [toolbelt_string.SVF_RegexSubstring](./Documentation/SVF_RegexSubstring.md).
 
 Ein eigener Parser akzeptiert ausschließlich den dokumentierten Dialekt und
 übersetzt ASCII-Kurzklassen kontrolliert für die .NET-Framework-4.8-
@@ -31,7 +35,10 @@ Bereichen und Negation, Gruppen, Alternation, `^`, `$`, `?`, `*`, `+`,
 `c`, `i`, `m`, `s`. Case-insensitive Matching ist kulturinvariant.
 
 Input ist auf 2 MiB UTF-16-Daten, Pattern auf 8.000 UTF-16-Bytes und jeder
-Aufruf fest auf 250 ms begrenzt. Ungültige Verträge und Timeouts erscheinen
+Engine-Suchschritt auf 250 ms begrenzt. R2a hat eigene 2-/16-MiB-Profile,
+8.000-Codeeinheiten-Pattern und kooperative Gesamtbudgets 500/2.000 ms.
+Details stehen im [Funktionsvertrag](./Documentation/REGEX_FUNCTIONS.md).
+Ungültige Verträge und Timeouts erscheinen
 als SQL-CLR-Fehler 6522 mit einem stabilen `TBX_REGEX_*`-Präfix.
 
 ## Aussagegrenzen
@@ -42,6 +49,12 @@ Gruppen, atomare und Balancing Groups sowie beliebige .NET-Syntax sind
 ausgeschlossen. Replace, Substring, Captures, Split und Match-Resultsets sind
 nicht Bestandteil von R1b. Bei großen Tabellen sollen selektive relationale
 Prädikate vor dem Regex-Aufruf angewendet werden.
+
+R2a verwendet T-SQL-SVF-Fassaden vor internen SAFE-CLR-Kernen, weil direkte
+CLR-max-Parameter keine Defaults unterstützen. Zusätzliche Aufrufkosten sind
+kein Speedup; keine ScheiniTVF oder Inlining-/Parallelitätszusage. Quelle,
+Builder und Ergebnis werden materialisiert. Unicode-Decoding einer varchar-
+Quelle geschieht unter ihrer Quell-Collation vor zentraler Nutzung.
 
 Deployment aktiviert CLR nicht, verändert weder `clr strict security` noch
 `TRUSTWORTHY` und lädt keine Drittanbieterbibliothek. Der separate

@@ -1,10 +1,10 @@
 module_id: "toolbelt.string.regex"
 module_name: "Bounded Regular Expressions"
-version: "1.0.0"
+version: "1.1.0"
 implementation_status: implemented
 validation_status: validated
 release_status: unreleased
-description: "Stellt IsMatch, Instr und Count für einen begrenzten Toolbelt-Regexdialekt über SAFE SQL CLR bereit."
+description: "Stellt IsMatch, Instr, Count sowie R2a Substring und Literal Replace für einen begrenzten Regexdialekt über SAFE SQL CLR bereit."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -34,6 +34,10 @@ objects:
   - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexIsMatch", visibility: public}
   - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexInstr", visibility: public}
   - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexCount", visibility: public}
+  - {type: SVF, schema: "toolbelt_string", name: "SVF_RegexReplace", visibility: public}
+  - {type: SVF, schema: "toolbelt_string", name: "SVF_RegexSubstring", visibility: public}
+  - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexReplaceCore", visibility: internal}
+  - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexSubstringCore", visibility: internal}
   - {type: ASSEMBLY, name: "Toolbelt_String_Regex", visibility: internal}
 permissions_required:
   - "SELECT oder REFERENCES auf den Regex-Skalarfunktionen"
@@ -41,7 +45,7 @@ permissions_required:
   - "CREATE FUNCTION und Schema-ALTER für Deploy"
   - "sysadmin ausschließlich für das separate Trust-Opt-in"
 collation_contract: "Matching ist ordinal zur Regexengine und unabhängig von der Datenbank-Collation; i verwendet CultureInvariant."
-data_type_contract: "Input und Pattern sind nvarchar(max), begrenzt auf 2 MiB beziehungsweise 8000 UTF-16-Bytes; Positionen und Counts sind int und UTF-16-basiert; Flags nvarchar(4)."
+data_type_contract: "R1b unverändert: Input 2 MiB, Pattern 8000 UTF-16-Bytes, Flags nvarchar(4). R2a max-Texte: standard 2 MiB oder explizit large 16 MiB Quelle/Ersatz/Output; Pattern 8000 UTF-16-Codeeinheiten, Flags/Profile nvarchar(max) vor Validierung; Positionen int/UTF-16."
 help_contract_version: "not applicable"
 resultset_contracts: []
 lifecycle_error_range: "52030-52039"
@@ -73,8 +77,11 @@ documentation:
   module: "README.md"
   public_objects:
     - "Documentation/REGEX_FUNCTIONS.md"
+    - "Documentation/SVF_RegexReplace.md"
+    - "Documentation/SVF_RegexSubstring.md"
   architecture:
     - "../../Documentation/Architecture/REGEX_MODULE_DESIGN.md"
+    - "../../Documentation/Architecture/REGEX_EXTENSION_PROPOSAL.md"
   test_matrix:
     - "Tests/REGEX_CONTRACT_TEST_MATRIX.md"
   evidence:
@@ -86,10 +93,15 @@ contracts:
 tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/Regex.Contract.sql"
+  transformations: "Tests/Runtime/Transformations.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   github_hosted_linux: "../../.github/workflows/regex-runtime.yml"
 validation_evidence:
+  - date: "2026-10-01"
+    workflow: "local: Tests/CI/run-lab-local.ps1; Windows PowerShell: run-framework-transformations.ps1"
+    scope: "R2a und unverändertes R1b auf SQL Server 2019/2022/2025 Windows und Linux, kompatible Stufen 150/160/170 gemäß Zielversion; Standard/Large, Pattern-/Komplexitäts-/Outputgrenzen, NULL-/Fehlerpriorität, Defaults, Central mit Classic/UTF8-Decoding, Restbudgetpfad, echtes 1.0-zu-1.1-Upgrade, Kollision/Rollback, parallele Large-Aufrufe, Dependency-Uninstall und Trust-Cleanup; Windows base nutzt freigegebene bereite CU-Äquivalente"
+    result: "success"
   - date: "2026-08-30"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "R1b auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest; SAFE CLR, exakter SHA2-512-Trust, Toolbelt-Dialekt, UTF-16, Grenzen, Timeout, Fehlerpräfixe, Erst- und Wiederholungsdeployment, Kollision, Central, Uninstall und Cleanup"

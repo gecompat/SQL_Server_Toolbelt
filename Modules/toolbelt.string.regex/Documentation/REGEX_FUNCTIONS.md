@@ -55,3 +55,56 @@ stabil mit `TBX_REGEX_INVALID_PATTERN`, `TBX_REGEX_INVALID_FLAGS`,
 Die Begrenzung macht eine Backtracking-Engine nicht linear. Regex-Prädikate
 sind nicht SARGable; selektive Schlüssel-, Bereichs- oder LIKE-Prädikate
 sollten den Kandidatensatz zuerst reduzieren.
+
+## R2a-Transformationsvertrag
+
+[Replace](./SVF_RegexReplace.md) und [Substring](./SVF_RegexSubstring.md)
+verwenden denselben Dialekt, kulturinvariante Flags und UTF-16-Positionen.
+Ihre max-Flags werden vor Gebrauch auf vier Codeeinheiten geprüft, Profil
+akzeptiert exakt die ASCII-Werte `standard` oder `large`. Andere Schreibweise,
+Trailing Spaces und NULL werden zurückgewiesen; der Input-NULL-Kurzschluss
+hat Vorrang. R1b bleibt bei seinen bisherigen Signaturen und Größenlimits.
+
+| Ressource | standard | large, ausdrücklich gewählt |
+|---|---|---|
+| Quelle/Ersatz/Output je | 2 MiB UTF-16 | 16 MiB UTF-16 |
+| Pattern | 8.000 UTF-16-Codeeinheiten | identisch |
+| Kooperatives Gesamtbudget | 500 ms | 2.000 ms |
+| Engine-Suchschritt | höchstens 250 ms | höchstens 250 ms |
+
+Gesamtbudget umfasst Parser, Konstruktor, Suche, Enumeration und Outputbau.
+Wenn die gebundene Enginegrenze nicht mehr ins Restbudget passt, wird eine
+Regexinstanz mit höchstens der Hälfte des Restbudgets konstruiert und bis zur
+nächsten nötigen Verkleinerung wiederverwendet; dabei parst .NET das bereits
+übersetzte Pattern erneut. Prüfung vor/nach Konstruktion und jedem Such-/Append-
+Schritt. Kein NextMatch mit unbegrenzter Gesamtenumeration. Nicht
+unterbrechbarer Konstruktor, GC, Allokation und SQL-Scheduling begründen
+keine harte Wall-Clock-Garantie. Die Deadline begrenzt auch viele billige
+Treffer; kein Teilergebnis bei Überschreitung.
+
+R2a begrenzt zusätzlich Gruppenverschachtelung auf 64 und Alternationszeichen
+außerhalb von Klassen/Escapes auf 1.024, übersetzte Pattern auf 64.000
+Codeeinheiten. Numerische Quantifier behalten die R1b-Grenze 1.000.
+Diese Sicherheitsgrenzen garantieren keine lineare Laufzeit. Pattern zählen
+UTF-16-Codeeinheiten, keine Grapheme oder Unicode-Skalarwerte. Ergebnisgröße
+wird vor jedem Append geprüft. `max` ist kein Versprechen bis 2 GB.
+
+Zusätzliche Präfixe: `TBX_REGEX_REPLACEMENT_TOO_LARGE`,
+`TBX_REGEX_OUTPUT_TOO_LARGE`, `TBX_REGEX_PATTERN_TOO_COMPLEX`. Input-/Pattern-,
+Flags-/Parameter- und Timeoutpräfixe bleiben stabil.
+
+`varchar` mit klassischer oder UTF-8-Codepage wird beim Caller unter seiner
+Quell-Collation ausdrücklich nach `nvarchar(max)` konvertiert, bevor eine
+zentrale Datenbank aufgerufen wird. Unicode-Output wird nicht still in eine
+andere Codepage zurückkonvertiert. Varchar-Wrapper und bounded/max-
+Performancevarianten sind ohne Verlustfreiheitsvertrag und Messnutzen nicht
+Teil von R2a. Quelle/Builder/Ergebnis werden materialisiert; LOB-Parallelität,
+Streaming und Native-RE2-Parität sind nicht zugesagt.
+
+SQL Server weist Defaultwerte auf CLR-max-Parametern mit Fehler 1096 zurück.
+Die öffentlichen R2a-SVFs sind daher T-SQL-Fassaden mit max-Defaults vor zwei
+intern markierten CLR-Kernen ohne Defaults. Diese Struktur bewahrt die
+ungekürzte Validierung und fügt Aufrufkosten hinzu; Inlining und Parallelität
+werden nicht zugesagt. SELECT-Aufrufe verwenden explizite DEFAULT-Platzhalter;
+EXEC erlaubt das Weglassen von Defaultparametern. Die internen Kerne sind
+keine weitere öffentliche API und werden mit dem Modul installiert/entfernt.
