@@ -27,9 +27,46 @@ die getrennten Provider von TC-2026-046; keine neue sequenzielle ID vergeben.
 - Keine beliebige SQL-/Hostscript-Ausführung, Credentials im Repository,
   automatische Rechtevergabe, KILL oder produktive Dienst-/Jobinstallation.
 
-Status: `proposed`, hohe Benutzerpriorität; Themenaufnahme ist noch keine
-funktionsbezogene Implementierungsfreigabe. Bestehende freigegebene Wellen
-laufen unabhängig weiter.
+#### Bestätigter Worker-Vertrag und Abschlussauftrag
+
+Einzelfreigabe 2026-10-01: Der Benutzer bestätigte ausdrücklich die vier
+besprochenen Queue-Punkte. Erster Provider: externer, manuell startbarer
+Windows-/Linux-Worker mit getrennten Handler-/Steuerverbindungen; nur
+registrierte NONE-/JSON_PAYLOAD-Handler, kein Raw SQL. SQL Server Agent und
+Service Broker bleiben separat auszuarbeitende Folgeprovider, nicht bereits
+freigegebene Implementierungen.
+
+- Ein Supervisor, Default ein Slot, konfigurierbar bis acht; keine implizite
+  Vervielfachung durch unabhängige Supervisoren. Lease zunächst 300 Sekunden,
+  Heartbeat alle 60 Sekunden; Lauf nach Zeit/Auftragszahl oder bis Queue leer
+  begrenzen. Kein automatischer Dienst-/Jobinstallationsauftrag.
+- Retry nur für ausdrücklich klassifizierte transiente Fehler und dafür
+  fachlich geeignete freigegebene Handler. Validierungs-/Rechte-/Unsupported-
+  Fehler terminal. Unbekannter Commit-Ausgang sichtbar ungeklärt, niemals
+  blind wiederholen. Recovery zuerst explizit, keine Exactly-once-Zusage.
+- Geschützte WorkItem-/ClaimGeneration-/ExecutionId-Zuordnung, kooperative
+  Handler-Checkpoints, kein KILL. Shutdown stoppt neue Claims, heartbeated
+  laufende Arbeit bis zum kontrollierten Ende; nach Gracefrist noch aktiv/
+  ungeklärt statt erfundenem Abbruch. Bestätigte Cancellation zunächst FAILED
+  mit eindeutigem Fehlercode; keine zusätzliche Queuezustandsmaschine.
+- Zunächst Status/Counts/Fehlercodes, keine beliebigen persistierten
+  Handlerresultsets. Konkrete Worker-/SQL-Schnittstellen, kurze Control-
+  Timeouts, Budgets, Authentifizierung und Testorakel innerhalb dieses Scopes
+  vor Source schriftlich konkretisieren; neue fachliche Grenzen rückfragen.
+- Dauerbetrieb, persistente Workerregistrierung, supervisorübergreifende
+  Slotgrenze und kontrollierter Neustart als zweite Welle vorgesehen.
+  Deren konkrete APIs und Dienst-/Jobinstallation separat konkretisieren;
+  keine automatische Betriebsfreigabe aus dieser Reihenfolge ableiten.
+
+Status erste Worker-Welle: `ready for development`, hohe Benutzerpriorität;
+keine Runtime-Evidenz. Späterer Benutzerauftrag derselben Besprechung:
+dieser Orchestrator finalisiert ausschließlich bereits laufende XLSX-Raw-,
+Clone-V1- und Deterministic-Range/DateShift/Lookup-Wellen samt Reviews,
+erforderlichen Fixes, Tests, PR-Merges und Branchcleanup. Keine neue
+Entwicklungswelle hier starten. Danach sauberen Übergabestand in origin/main
+herstellen und neuen Orchestrator-Chat mit unveränderten Projektregeln und
+individuellen Freigaben zur autonomen Fortsetzung öffnen. Queue-Implementierung
+und andere noch nicht gestartete Wellen gehen an diesen Nachfolger.
 
 ### Individuell freigegebene weitere Wellen und Parser-Voraussetzung
 
