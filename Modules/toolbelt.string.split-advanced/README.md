@@ -6,7 +6,7 @@ Modul `toolbelt.string.split-advanced`, Version 1.0.0, unreleased. S2 wurde am 2
 
 SQLCMD-Deployment: in Deployment `sqlcmd -d ToolbeltDemo -b -i Deploy.sql -v DeploymentMode=local`; zentral mit DeploymentMode=central. Dependencyfrei; SQL Server 2019+ mit Compatibility>=150. Fremdobjekte werden nicht übernommen; bekannte Releases werden markerbasiert ersetzt. Sourcehash ist nur diagnostisch.
 
-Uninstall: `sqlcmd -d ToolbeltDemo -b -i Uninstall.sql`; zentral ausschließlich mit `-v ConfirmNoExternalConsumers=1`. Lokale referenzierende Objekte verhindern Deinstallation. Betreiber müssen externe Verbraucher vor zentraler Deinstallation prüfen.
+Uninstall: `sqlcmd -d ToolbeltDemo -b -i Uninstall.sql -v ConfirmNoExternalConsumers=0`; zentral ausschließlich mit `-v ConfirmNoExternalConsumers=1`. Lokale referenzierende Objekte verhindern Deinstallation. Betreiber müssen externe Verbraucher vor zentraler Deinstallation prüfen.
 
 ## Aktuelle Validierungsevidenz
 

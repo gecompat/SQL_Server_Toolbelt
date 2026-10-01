@@ -4,7 +4,7 @@
 
 - Neues dependencyfreies Modul `toolbelt.string.split-advanced` mit verpflichtender `TVF_SplitAdvanced`, Originaltokens, längstem Separator und atomarer Geschäftsfehlerzeile.
 - Grenzen, UTF-16-/BIN2-Semantik, priorisierte Fehler, local/central Lifecycle, CI-/Lab-Adapter und synthetische Contracttests umgesetzt; optionaler USP und Unquoting nicht enthalten.
-- Risikobasierte physische Tests auf SQL Server 2019 Linux und 2025 Linux/Windows erfolgreich; weitere Zielkombinationen und GitHub-hosted Workflow nicht ausgeführt. Status `partially validated`, `unreleased`.
+- Risikobasierte physische Tests auf SQL Server 2019 Linux und 2025 Linux/Windows erfolgreich; weitere physische Zielkombinationen nicht ausgeführt. Die zusätzliche [GitHub-hosted Linux-Matrix 2019/2022/2025](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/36857332229) ist ebenfalls erfolgreich. Status `partially validated`, `unreleased`.
 
 ## 2026-09-01 – GitHub-hosted Linux-Versionsmatrix
 
@@ -340,7 +340,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-30 Module sind implementiert. 21 sind `validated`, 8 sind `partially
+29 Module sind implementiert. 21 sind `validated`, 8 sind `partially
 validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
