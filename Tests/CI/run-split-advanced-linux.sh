@@ -91,6 +91,7 @@ create_database() {
     else
         run_query master "CREATE DATABASE [${database_name}];"
     fi
+    run_file "${database_name}" "/workspace/Modules/toolbelt.core.result-table/Deployment" Deploy.sql -v DeploymentMode=local
 }
 
 
@@ -103,13 +104,25 @@ run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 for compatibility_level in ${compatibility_levels}; do
     run_query "${local_database}" "ALTER DATABASE [${local_database}] SET COMPATIBILITY_LEVEL = ${compatibility_level};"
     run_file "${local_database}" "${runtime_directory}" SplitAdvanced.Contract.sql
+run_file "${local_database}" "${runtime_directory}" UnquoteToken.Contract.sql
+run_file "${local_database}" "${runtime_directory}" SplitAdvancedUsp.Contract.sql
 done
+
+# Gleiches Release wird bei lokalem Drift erneut vollständig ersetzt.
+run_file "${local_database}" "${runtime_directory}" MinimumRights.Contract.sql
+if [[ "${TBX_SQL_TARGET:-runner}" == "lab" ]]; then
+    repo_root="$(git rev-parse --show-toplevel)"
+    pwsh -NoProfile -File "${repo_root}/Modules/toolbelt.string.split-advanced/Tests/Runtime/SelectMetadata.Contract.ps1" \
+        -Database "${local_database}_${TBX_TEST_DB_SUFFIX}"
+fi
 
 # Gleiches Release wird bei lokalem Drift erneut vollständig ersetzt.
 run_query "${local_database}" "ALTER FUNCTION toolbelt_string.TVF_SplitAdvanced (@Input nvarchar(max), @SeparatorsJson nvarchar(max), @Quote nvarchar(max)=N'', @Escape nvarchar(max)=N'', @KeepEmpty bit=1) RETURNS @r TABLE (Value nvarchar(max),Ordinal bigint,IsValid bit,ErrorCode varchar(64),ErrorPosition bigint) AS BEGIN INSERT @r VALUES(N'drift',1,1,NULL,NULL); RETURN; END;"
 run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 run_file "${local_database}" "${runtime_directory}" SplitAdvanced.Contract.sql
+run_file "${local_database}" "${runtime_directory}" UnquoteToken.Contract.sql
+run_file "${local_database}" "${runtime_directory}" SplitAdvancedUsp.Contract.sql
 
 # Typwechsel eines bekannten Release-Namens IF -> TF wird repariert.
 run_query "${local_database}" "DROP FUNCTION toolbelt_string.TVF_SplitAdvanced;"
@@ -117,6 +130,8 @@ run_query "${local_database}" "CREATE FUNCTION toolbelt_string.TVF_SplitAdvanced
 run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 run_file "${local_database}" "${runtime_directory}" SplitAdvanced.Contract.sql
+run_file "${local_database}" "${runtime_directory}" UnquoteToken.Contract.sql
+run_file "${local_database}" "${runtime_directory}" SplitAdvancedUsp.Contract.sql
 run_query "${local_database}" "CREATE USER TbxSplitReader WITHOUT LOGIN; GRANT SELECT ON OBJECT::toolbelt_string.TVF_SplitAdvanced TO TbxSplitReader; EXECUTE AS USER=N'TbxSplitReader'; IF (SELECT COUNT(*) FROM toolbelt_string.TVF_SplitAdvanced(N'a;b',N'['+NCHAR(34)+N';'+NCHAR(34)+N']',N'',N'',1))<>2 THROW 54544,N'Minimales SELECT-Recht falsch.',1; REVERT; DROP USER TbxSplitReader;"
 
 # Zusätzliche CI- und BIN2-Datenbankkontexte einschließlich zentraler Nutzung.
@@ -127,6 +142,9 @@ create_database "${consumer_database}" "Latin1_General_100_CI_AS"
 run_file "${central_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=central
 run_file "${central_database}" "${runtime_directory}" Lifecycle.Contract.sql
 run_file "${central_database}" "${runtime_directory}" SplitAdvanced.Contract.sql
+run_file "${central_database}" "${runtime_directory}" UnquoteToken.Contract.sql
+run_file "${central_database}" "${runtime_directory}" SplitAdvancedUsp.Contract.sql
+run_file "${central_database}" "${runtime_directory}" MinimumRights.Contract.sql
 run_query "${central_database}" "CREATE USER TbxSplitCentralReader WITHOUT LOGIN; GRANT SELECT ON OBJECT::toolbelt_string.TVF_SplitAdvanced TO TbxSplitCentralReader; EXECUTE AS USER=N'TbxSplitCentralReader'; IF (SELECT COUNT(*) FROM toolbelt_string.TVF_SplitAdvanced(N'a;b',N'['+NCHAR(34)+N';'+NCHAR(34)+N']',N'',N'',1))<>2 THROW 54545,N'Zentrales minimales SELECT-Recht falsch.',1; REVERT; DROP USER TbxSplitCentralReader;"
 run_file "${consumer_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
 run_file "${consumer_database}" "${runtime_directory}" SplitAdvanced.Contract.sql
@@ -153,6 +171,33 @@ if run_file "${collision_database}" "${deployment_directory}" Deploy.sql -v Depl
     echo "Fremde Zielnamenskollision wurde überschrieben." >&2; exit 1
 fi
 run_query "${collision_database}" "IF OBJECT_ID(N'toolbelt_string.TVF_SplitAdvanced',N'V') IS NULL OR EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.string.split-advanced.Version') THROW 54542,N'Kollisionspräflight veränderte Bestand.',1;"
+
+
+# Echter gepinnter 1.0-Installer samt Originalsource aus Git; generierter,
+# ignorierter Export außerhalb versionierter Quellen, keine historische Kopie im PR.
+legacy_commit="3bc644e964b8a35c4e38d3eb2d58e2b1b18631eb"
+repo_root="$(git rev-parse --show-toplevel)"
+mkdir -p "${repo_root}/.runtime"
+legacy_export="$(mktemp -d "${repo_root}/.runtime/split-advanced-v1.XXXXXX")"
+git archive "${legacy_commit}" -- Modules/toolbelt.string.split-advanced/Deployment/Deploy.sql \
+    Modules/toolbelt.string.split-advanced/Source/TVF_SplitAdvanced.sql | tar -x -C "${legacy_export}"
+legacy_directory="/workspace/.runtime/$(basename "${legacy_export}")/Modules/toolbelt.string.split-advanced/Deployment"
+upgrade_database="tbx_split_advanced_upgrade"
+create_database "${upgrade_database}"
+run_file "${upgrade_database}" "${legacy_directory}" Deploy.sql -v DeploymentMode=local
+for new_name in TVF_UnquoteToken USP_SplitAdvanced; do
+    run_query "${upgrade_database}" "CREATE VIEW toolbelt_string.${new_name} AS SELECT 17 AS ForeignValue;"
+    if run_file "${upgrade_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local; then
+        echo "Neuer Release-Name wurde fremd übernommen." >&2; exit 1
+    fi
+    run_query "${upgrade_database}" "IF OBJECT_ID(N'toolbelt_string.${new_name}',N'V') IS NULL OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.string.split-advanced.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0') THROW 54546,N'Upgrade-Kollision veränderte Bestand.',1; DROP VIEW toolbelt_string.${new_name};"
+done
+run_file "${upgrade_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
+run_file "${upgrade_database}" "${runtime_directory}" Lifecycle.Contract.sql
+run_file "${upgrade_database}" "${runtime_directory}" UnquoteToken.Contract.sql
+run_file "${upgrade_database}" "${runtime_directory}" SplitAdvancedUsp.Contract.sql
+run_file "${upgrade_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=0
+run_query "${upgrade_database}" "IF OBJECT_ID(N'toolbelt_string.TVF_UnquoteToken') IS NOT NULL OR OBJECT_ID(N'toolbelt_string.USP_SplitAdvanced') IS NOT NULL THROW 54547,N'Upgrade-Uninstall ließ neue Objekte zurück.',1;"
 
 # Eine lokale referenzierende View blockiert die Deinstallation.
 run_query "${local_database}" "CREATE VIEW toolbelt_string.VW_SplitAdvancedConsumer AS SELECT * FROM toolbelt_string.TVF_SplitAdvanced(N'a',N'['+NCHAR(34)+N';'+NCHAR(34)+N']',N'',N'',1);"

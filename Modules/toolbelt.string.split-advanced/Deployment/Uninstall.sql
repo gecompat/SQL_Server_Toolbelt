@@ -46,7 +46,7 @@ BEGIN
     RETURN;
 END;
 
-IF @InstalledVersion COLLATE Latin1_General_100_BIN2 <> N'1.0.0'
+IF @InstalledVersion COLLATE Latin1_General_100_BIN2 NOT IN (N'1.0.0',N'1.1.0')
 BEGIN
     THROW 51673, N'Die installierte Modulversion ist diesem Uninstall-Skript nicht bekannt.', 1;
 END;
@@ -67,12 +67,15 @@ SELECT TOP (1)
 FROM sys.sql_expression_dependencies AS dependencies
 WHERE dependencies.referenced_id IN
       (
-          OBJECT_ID(N'toolbelt_string.TVF_SplitAdvanced')
+          OBJECT_ID(N'toolbelt_string.TVF_SplitAdvanced'),
+          CASE WHEN @InstalledVersion=N'1.1.0' THEN OBJECT_ID(N'toolbelt_string.TVF_UnquoteToken') END,
+          CASE WHEN @InstalledVersion=N'1.1.0' THEN OBJECT_ID(N'toolbelt_string.USP_SplitAdvanced') END
       )
-  AND dependencies.referencing_id NOT IN
-      (
-          OBJECT_ID(N'toolbelt_string.TVF_SplitAdvanced')
-      )
+  AND NOT EXISTS
+      (SELECT 1 FROM sys.objects owned JOIN sys.schemas s ON owned.schema_id=s.schema_id
+       WHERE owned.object_id=dependencies.referencing_id AND s.name=N'toolbelt_string'
+       AND (owned.name=N'TVF_SplitAdvanced'
+            OR (@InstalledVersion=N'1.1.0' AND owned.name IN (N'TVF_UnquoteToken',N'USP_SplitAdvanced'))))
 ORDER BY
       OBJECT_SCHEMA_NAME(dependencies.referencing_id)
           COLLATE Latin1_General_100_BIN2
@@ -130,7 +133,10 @@ BEGIN TRY
     );
 
     INSERT INTO @ReleaseObjects (ObjectName)
-    VALUES (N'TVF_SplitAdvanced');
+    SELECT N'USP_SplitAdvanced' WHERE @InstalledVersion=N'1.1.0';
+    INSERT INTO @ReleaseObjects (ObjectName)
+    SELECT N'TVF_UnquoteToken' WHERE @InstalledVersion=N'1.1.0';
+    INSERT INTO @ReleaseObjects (ObjectName) VALUES (N'TVF_SplitAdvanced');
 
     DECLARE
           @ObjectOrdinal int = 1

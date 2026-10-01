@@ -2,6 +2,15 @@
 
 ## Status
 
+Aktueller Freigabenachtrag 2026-10-01 nach PR #121: Der Benutzer hat
+ausdrücklich „Unquoting, Split-USP und ZIP-Writer implementieren“ beauftragt.
+Damit ist der unten vollständig besprochene Vertrag für TVF_UnquoteToken
+und USP_SplitAdvanced zur Implementierung freigegeben. Die neuen APIs
+werden im bestehenden Split-Modul 1.1.0 umgesetzt; S2 bleibt unverändert.
+Frühere Formulierungen „unfreigegeben“, „Vorschlag“ oder „späterer Slice“
+im folgenden historischen Verlauf beschreiben den damaligen Stand,
+nicht eine aktuelle Sperre. ZIP liegt in eigenem Umsetzungsscope.
+
 Nachtrag 2026-10-01: Der nachfolgend besprochene S2-Vertrag wurde ausdrücklich freigegeben und als [TVF_SplitAdvanced](../../Modules/toolbelt.string.split-advanced/Documentation/TVF_SplitAdvanced.md) implementiert. Die folgenden Vorschlagsformulierungen dokumentieren den historischen Entscheidungsstand vor PR #114/#115; aktueller Vertrag und Evidenz liegen im Modul. Optionale USP und Unquoting bleiben getrennt und unfreigegeben.
 
 `TC-2026-032` bleibt Research. Dieses Dokument bereitet die spätere
