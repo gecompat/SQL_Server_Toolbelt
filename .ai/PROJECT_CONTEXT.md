@@ -4,7 +4,7 @@
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-32 Module sind implementiert. 21 sind `validated`, 11 sind `partially
+33 Module sind implementiert. 21 sind `validated`, 12 sind `partially
 validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
@@ -170,6 +170,14 @@ Linux/latest und 2025 Windows/CU8 einschließlich Literal-/Unicode-/Limit-,
 CS-/CI-Namespace-, Clientmetadaten-, Transaktions- und Lifecycleverträgen.
 Weitere Ziele, gemappte CrossDB-Minimalrechte und Produktionskapazität bleiben
 offen; `partially validated`, `unreleased`.
+
+`toolbelt.pseudonymization.deterministic` 1.0.0 implementiert die einzeln
+freigegebenen Range-/DateShift-/Lookup-Verträge ohne CLR oder I/O mit einem
+kanonischen SHA256-/Framing-/128-Rejection-Kern. Identische finale Adapter
+auf 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 sind am
+2026-10-02 erfolgreich, einschließlich Compilergrenzen-/Callertransaction-
+Safetyfixes. Weitere Targets, CrossDB-Minimalrechte und Produktionskapazität
+bleiben offen; `partially validated`, `unreleased`, keine Anonymisierungszusage.
 
 ## Projektzweck
 

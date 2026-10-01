@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-02 – Deterministic Range, DateShift und Lookup 1.0.0
+
+- Drei einzeln freigegebene synthetische Mapping-APIs mit einem gemeinsamen
+  versionierten SHA256-/128-Rejection-Kern; keine CLR-, I/O-, persistierte
+  Mapping- oder Anonymisierungsfunktion.
+- Atomare Standard-USP-Ausgabe, Help-first vor privater Temp-Compilergrenze,
+  versions-/ownershipgebundener Lifecycle und nichtdoomende frühe
+  Callertransaction-Abweisung ohne SET-Änderung.
+- Identische finale Adapter auf 2019 Linux/latest CL150 und 2025 Windows/CU8
+  CL150/160/170 am 2026-10-02 erfolgreich. Weitere Targets, CrossDB-
+  Minimalrechte und Produktionskapazität offen; teilweise validiert/unreleased.
+
 ## 2026-10-01 – Script-only Tabellenklon 1.0.0
 
 - `USP_ScriptTableClone` liefert deterministische begrenzte SameDB-DDL-
@@ -409,7 +421,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-32 Module sind implementiert. 21 sind `validated`, 11 sind `partially
+33 Module sind implementiert. 21 sind `validated`, 12 sind `partially
 validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

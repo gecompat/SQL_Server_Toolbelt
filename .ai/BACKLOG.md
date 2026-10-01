@@ -2,9 +2,28 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-32 Module sind implementiert. 21 sind `validated`, 11 sind `partially validated`; 0 sind `not executed`.
+33 Module sind implementiert. 21 sind `validated`, 12 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
+
+### TC-2026-039 / TC-2026-040 / TC-2026-042: Deterministic-Familie implementiert
+
+Stand 2026-10-02: Die am 2026-10-01 einzeln freigegebenen
+`TVF_DeterministicRange`, `TVF_DeterministicDateShift` und
+`USP_DeterministicLookup` sind als `toolbelt.pseudonymization.deterministic`
+1.0.0 implementiert. Ein versionierter SHA256-/Byteframing-Kern mit höchstens
+128 Rejection-Kandidaten; volle bigint-Grenzen, strikter Date-Overflow,
+caller-lokaler versionierter Pool und atomare Standard-ResultTable-Ausgabe.
+Identischer finaler Safetyfix-Adapter auf 2019 Linux/latest CL150 und
+2025 Windows/CU8 CL150/160/170 erfolgreich: Fach-/Grenz-/Fehlerverträge,
+Local/Central, direkte Minimalrechte, Clientmetadaten, alle vier privaten
+Tempnamen/Help, nichtdoomende Installer-Callertransaction-Guards ON/OFF,
+SQLCMD-nonzero, Wiederholung/Drift/Kollision/Dependency/Uninstall.
+Weitere Zielkombinationen, CrossDB-Minimalrechte, reale SQL-Exhaustion und
+Produktionskapazität bleiben offen; `partially validated`, `unreleased`.
+Historische Vor-Safetyfix-Nachweise vom 2026-10-01 bleiben getrennt erhalten.
+Die ursprüngliche Reservebesprechung unten bleibt unverändert; keine
+Translate-/Geo-/Fuzzy- oder andere Folgefreigabe aus diesem Abschluss ableiten.
 
 ### TC-2026-044: Script-only Tabellenklon V1 abgeschlossen
 

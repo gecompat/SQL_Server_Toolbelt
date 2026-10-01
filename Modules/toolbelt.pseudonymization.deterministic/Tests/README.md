@@ -40,7 +40,10 @@ erzeugen im separaten SQLCMD-Fixture einen nonzero Exit mit festem Prefix.
 Ein relativer Runner-Eingabepfad wurde korrigiert; die scharfen Fehleroracles
 wurden nicht gelockert. Cleanup der eigenen synthetischen Datenbanken erfolgt.
 
-Finaler Windows-Safetyfix-Nachweis steht noch aus. SQL2022 und weitere
+Der identische vollständige Safetyfix-Adapter ist auch auf SQL Server 2025
+Windows/CU8 CL150/160/170 am 2026-10-02 PASS; eigener Cleanup abgeschlossen.
+Der Source-/Deployment-/Runtime-/Adapterbaum blieb während beider finaler
+Läufe unverändert. SQL2022 und weitere
 physische Targets, CrossDB-Minimalrechte, Produktionskapazität,
 100000-Zeilen-Durchsatz und tatsächliche SQL-128-Reject-Exhaustion bleiben
 `not executed`; der erzwungene Exhaustion-Nachweis gilt nur für die Referenz.
@@ -60,7 +63,7 @@ pwsh -NoProfile -File Tests/CI/run-lab-local.ps1 -Versions 2019 -Platforms linux
 
 Die gezielte Windows-Befehlsvariante lautet `-Versions 2025 -Platforms windows
 -WindowsPatches CU8 -RunScripts run-deterministic-linux.sh -StopOnFailure`.
-Sie wird erst nach freiem koordiniertem Slot ausgeführt. Weitere physische
+Sie wurde nach freiem koordiniertem Slot ausgeführt. Weitere physische
 SQL-2022-/Plattform-, CrossDB-Minimalrechte- und Kapazitätsnachweise bleiben
 sichtbar getrennt. Keine harte Latenz- oder Parallelitätsgarantie.
 
@@ -78,6 +81,6 @@ Datenbanken; keine fremden Datenbanken, Temps oder Ressourcen entfernen.
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Finaler Safetyfix-Adapter SQL Server 2019 Linux/latest CL150; API/Fehler/Grenzen/Transaktionen, vier Caller-Temp-Eclipsing/Help-Fixtures, Installer-Callertransaction ON/OFF und SQLCMD-nonzero, Local-CS/Central-BIN2, administrative CrossDB-CI, direkte Minimalrechte und Clientmetadaten lokal/zentral, Wiederholung/Drift/Kollision/Dependency/Uninstall; finaler Windowsbaum und weitere physische Targets offen
+- Scope: Identischer finaler Safetyfix-Adapter SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170; API/Fehler/Grenzen/Transaktionen, vier Caller-Temp-Eclipsing/Help-Fixtures, Installer-Callertransaction ON/OFF und SQLCMD-nonzero, Local-CS/Central-BIN2, administrative CrossDB-CI, direkte Minimalrechte und Clientmetadaten lokal/zentral, Wiederholung/Drift/Kollision/Dependency/Uninstall; weitere physische Targets und CrossDB-Minimalrechte offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

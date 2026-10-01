@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "not executed"
+  windows: "partially validated"
   linux: "partially validated"
 providers:
   - id: tsql-inline
@@ -109,5 +109,5 @@ validation_evidence:
     result: "success"
   - date: "2026-10-02"
     workflow: "local: Tests/CI/run-lab-local.ps1"
-    scope: "Finaler Safetyfix-Adapter SQL Server 2019 Linux/latest CL150; API/Fehler/Grenzen/Transaktionen, vier Caller-Temp-Eclipsing/Help-Fixtures, Installer-Callertransaction ON/OFF und SQLCMD-nonzero, Local-CS/Central-BIN2, administrative CrossDB-CI, direkte Minimalrechte und Clientmetadaten lokal/zentral, Wiederholung/Drift/Kollision/Dependency/Uninstall; finaler Windowsbaum und weitere physische Targets offen"
+    scope: "Identischer finaler Safetyfix-Adapter SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170; API/Fehler/Grenzen/Transaktionen, vier Caller-Temp-Eclipsing/Help-Fixtures, Installer-Callertransaction ON/OFF und SQLCMD-nonzero, Local-CS/Central-BIN2, administrative CrossDB-CI, direkte Minimalrechte und Clientmetadaten lokal/zentral, Wiederholung/Drift/Kollision/Dependency/Uninstall; weitere physische Targets und CrossDB-Minimalrechte offen"
     result: "success"

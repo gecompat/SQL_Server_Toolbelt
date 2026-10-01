@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: thirty_two_modules_implemented
+  status: thirty_three_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -88,6 +88,8 @@ sources_of_truth:
   table_clone_module: Modules/toolbelt.metadata.table-clone/module.yaml
   table_clone_module_design: Documentation/Architecture/TABLE_CLONE_PROPOSAL.md
   table_clone_runtime_workflow: .github/workflows/table-clone-runtime.yml
+  deterministic_module: Modules/toolbelt.pseudonymization.deterministic/module.yaml
+  deterministic_runtime_workflow: .github/workflows/deterministic-runtime.yml
   console_message_module_design: Documentation/Architecture/CONSOLE_MESSAGE_MODULE_DESIGN.md
   capability_catalog_module_design: Documentation/Architecture/CAPABILITY_CATALOG_MODULE_DESIGN.md
   w2c_runtime_workflow: .github/workflows/w2c-runtime.yml
@@ -294,6 +296,7 @@ module_registry:
     - Modules/toolbelt.json.path-exists/module.yaml
     - Modules/toolbelt.json.constructors/module.yaml
     - Modules/toolbelt.metadata.table-clone/module.yaml
+    - Modules/toolbelt.pseudonymization.deterministic/module.yaml
     - Modules/toolbelt.core.console-message/module.yaml
     - Modules/toolbelt.metadata.capability-catalog/module.yaml
     - Modules/toolbelt.core.error-envelope/module.yaml
@@ -627,6 +630,17 @@ change_impact:
       checks:
         - markdown_links
         - json_constructors_static
+    deterministic_contract:
+      paths:
+        - Modules/toolbelt.pseudonymization.deterministic/**
+        - Documentation/Architecture/PSEUDONYMIZATION_FOUNDATION_PROPOSAL.md
+        - Documentation/Architecture/DATE_SHIFTING_PROPOSAL.md
+        - Documentation/Standards/USP_CONTRACT.md
+        - Tests/CI/run-deterministic-linux.sh
+        - .github/workflows/deterministic-runtime.yml
+      checks:
+        - markdown_links
+        - deterministic_static
     table_clone_contract:
       paths:
         - Modules/toolbelt.metadata.table-clone/**
@@ -836,4 +850,5 @@ change_impact:
         - json_constructors_static
         - capability_catalog_static
         - table_clone_static
+        - deterministic_static
         - w2c_runtime_workflow_scope

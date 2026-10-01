@@ -2,6 +2,9 @@
 
 Diese Matrix beschreibt Pflichtfälle, nicht deren automatische Erfüllung.
 Ausgeführte Teilprüfungen und Befehle: [Tests/README](README.md).
+Der identische finale Adapter bestand am 2026-10-02 außerdem unter
+SQL Server 2025 Windows/CU8 CL150/160/170. Die folgenden Linux-Fallnachweise
+gelten in diesem identischen Adapter auch dort, nicht für weitere Targets.
 
 | Scope | Pflichtfälle | Aktueller Nachweis |
 |---|---|---|
@@ -18,7 +21,7 @@ Ausgeführte Teilprüfungen und Befehle: [Tests/README](README.md).
 | Local/Central | identischer kanonischer Kern; direkt zentral und dreiteiliger Calleraufruf; abweichende Datenbank-/TempDB-Collations; ResultTable | local CS, central BIN2, administrative CrossDB-CI final Linux2019 PASS; CrossDB-Minimalrechte offen |
 | Lifecycle | Erstinstallation; gleiche Version; Source- und IF/TF/FN-Drift; fremde Namenskollision auch CI-Casing; malformed/unknown Marker; fehlende Dependency; own dependency ausgeschlossen; fremde Dependency blockiert; Central-Confirmation; SharedSchema bewahren | Deploy/Repeat/Source-/FN-Drift/Kollision/Dependency/Uninstall/Confirmation final Linux2019 PASS; TF-Drift und weitere Markerfälle offen |
 | Historisches Upgrade | jede unterstützte echte Vorgängerversion | not applicable: erstes Release, keine Vorgängerversion |
-| Plattformen | risikobasiert2019 Linux CL150 und2025 Windows CU8 CL150/160/170 | final2019 Linux PASS; finaler Safetyfix-Windowsbaum noch nicht ausgeführt |
+| Plattformen | risikobasiert2019 Linux CL150 und2025 Windows CU8 CL150/160/170 | identischer finaler Safetyfixbaum beide Targets PASS (2026-10-02) |
 | Weitere Scopegrenzen | SQL2022 und weitere physische Plattformen; CrossDB-Minimalrechte; Produktionskapazität und100000-Zeilen-Durchsatz | not executed; keine Ableitung aus Small- oder Referenztests |
 
 Row-/LOB-Grenzen begrenzen fachliche Arbeit, nicht den gesamten SQL-Memory-
@@ -30,6 +33,6 @@ Grant, TempDB-Verbrauch oder die Wallclock. Keine Performancevergleiche aus
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Finaler Safetyfix-Adapter SQL Server 2019 Linux/latest CL150; API/Fehler/Grenzen/Transaktionen, vier Caller-Temp-Eclipsing/Help-Fixtures, Installer-Callertransaction ON/OFF und SQLCMD-nonzero, Local-CS/Central-BIN2, administrative CrossDB-CI, direkte Minimalrechte und Clientmetadaten lokal/zentral, Wiederholung/Drift/Kollision/Dependency/Uninstall; finaler Windowsbaum und weitere physische Targets offen
+- Scope: Identischer finaler Safetyfix-Adapter SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170; API/Fehler/Grenzen/Transaktionen, vier Caller-Temp-Eclipsing/Help-Fixtures, Installer-Callertransaction ON/OFF und SQLCMD-nonzero, Local-CS/Central-BIN2, administrative CrossDB-CI, direkte Minimalrechte und Clientmetadaten lokal/zentral, Wiederholung/Drift/Kollision/Dependency/Uninstall; weitere physische Targets und CrossDB-Minimalrechte offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

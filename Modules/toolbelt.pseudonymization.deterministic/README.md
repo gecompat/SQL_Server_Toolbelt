@@ -4,9 +4,10 @@ Modul `toolbelt.pseudonymization.deterministic`, erster Release `1.0.0`,
 Schema `toolbelt_pseudonymization`. Individuelle Benutzerfreigabe für
 Range/DateShift/Lookup vom 2026-10-01 in der Reservewelle `.ai/BACKLOG.md`.
 Source-/Lifecycle-/Testartefakte implementiert; `partially validated`,
-`unreleased`. Finaler Safetyfix-Adapter auf SQL Server 2019 Linux CL150 am
-2026-10-02 erfolgreich; finaler Windowsbaum und zusätzliche physische Targets
-bleiben getrennt offen. Vor-Safetyfix-Erfolge sind ausschließlich historisch.
+`unreleased`. Identischer finaler Safetyfix-Adapter auf SQL Server 2019 Linux
+CL150 und 2025 Windows/CU8 CL150/160/170 am 2026-10-02 erfolgreich.
+Zusätzliche physische Targets bleiben getrennt offen. Vor-Safetyfix-Erfolge
+sind ausschließlich historisch.
 
 - [TVF_DeterministicRange](Documentation/TVF_DeterministicRange.md):
   geschlossener vollständiger bigint-Bereich, SHA256, begrenztes Rejection-
@@ -56,6 +57,6 @@ Sie ersetzt keine SELECT-Metadaten-, Lifecycle-, Resource- oder Rechteprüfung.
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Finaler Safetyfix-Adapter SQL Server 2019 Linux/latest CL150; API/Fehler/Grenzen/Transaktionen, vier Caller-Temp-Eclipsing/Help-Fixtures, Installer-Callertransaction ON/OFF und SQLCMD-nonzero, Local-CS/Central-BIN2, administrative CrossDB-CI, direkte Minimalrechte und Clientmetadaten lokal/zentral, Wiederholung/Drift/Kollision/Dependency/Uninstall; finaler Windowsbaum und weitere physische Targets offen
+- Scope: Identischer finaler Safetyfix-Adapter SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170; API/Fehler/Grenzen/Transaktionen, vier Caller-Temp-Eclipsing/Help-Fixtures, Installer-Callertransaction ON/OFF und SQLCMD-nonzero, Local-CS/Central-BIN2, administrative CrossDB-CI, direkte Minimalrechte und Clientmetadaten lokal/zentral, Wiederholung/Drift/Kollision/Dependency/Uninstall; weitere physische Targets und CrossDB-Minimalrechte offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
