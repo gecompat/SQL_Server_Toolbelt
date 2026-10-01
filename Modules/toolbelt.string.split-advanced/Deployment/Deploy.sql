@@ -2,7 +2,7 @@
 
 -- ============================================================================
 -- Zweck:     Erst-, Upgrade- und Wiederholungsdeployment
--- Modul:     toolbelt.string.split-advanced v1.0.0
+-- Modul:     toolbelt.string.split-advanced v1.1.0
 -- Schema:    toolbelt_string
 -- Erfordert: SQL Server 2019, 2022 oder 2025
 -- Modus:     SQLCMD; Ausführung aus diesem Deployment-Verzeichnis
@@ -41,7 +41,10 @@ INSERT INTO #tbx_SplitAdvancedReleaseObjects
     , ObjectType
 )
 VALUES
-      (N'1.0.0', N'toolbelt_string', N'TVF_SplitAdvanced', 'TF');
+      (N'1.0.0', N'toolbelt_string', N'TVF_SplitAdvanced', 'TF')
+    , (N'1.1.0', N'toolbelt_string', N'TVF_SplitAdvanced', 'TF')
+    , (N'1.1.0', N'toolbelt_string', N'TVF_UnquoteToken', 'TF')
+    , (N'1.1.0', N'toolbelt_string', N'USP_SplitAdvanced', 'P');
 
 CREATE TABLE #tbx_SplitAdvancedDeployState
 (
@@ -52,7 +55,7 @@ CREATE TABLE #tbx_SplitAdvancedDeployState
 );
 
 DECLARE
-      @TargetVersion        nvarchar(64) = N'1.0.0'
+      @TargetVersion        nvarchar(64) = N'1.1.0'
     , @DeploymentMode       nvarchar(16) = LOWER(N'$(DeploymentMode)')
     , @InstalledVersion     nvarchar(64)
     , @VersionPropertyName  sysname =
@@ -116,6 +119,27 @@ IF HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'CREATE FUNCTION') <> 1
 BEGIN
     THROW 51672, N'In der Installationsdatenbank fehlt CREATE FUNCTION.', 1;
 END;
+
+IF HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'CREATE PROCEDURE') <> 1
+    THROW 51672, N'In der Installationsdatenbank fehlt CREATE PROCEDURE.', 1;
+DECLARE @ResultTableVersion nvarchar(64);
+SELECT @ResultTableVersion=TRY_CONVERT(nvarchar(64),value)
+FROM sys.extended_properties
+WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.result-table.Version';
+DECLARE @ResultTableId int=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P'),
+        @DependencyMajor int=TRY_CONVERT(int,PARSENAME(@ResultTableVersion,3)),
+        @DependencyMinor int=TRY_CONVERT(int,PARSENAME(@ResultTableVersion,2)),
+        @DependencyPatch int=TRY_CONVERT(int,PARSENAME(@ResultTableVersion,1));
+IF @ResultTableId IS NULL OR @DependencyMajor IS NULL OR @DependencyMajor<1
+   OR @DependencyMinor IS NULL OR @DependencyMinor<0 OR @DependencyPatch IS NULL OR @DependencyPatch<0
+   OR CONVERT(varbinary(max),@ResultTableVersion)<>CONVERT(varbinary(max),
+      CONCAT(@DependencyMajor,N'.',@DependencyMinor,N'.',@DependencyPatch))
+   OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@ResultTableId
+      AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND TRY_CONVERT(nvarchar(128),value)=N'toolbelt.core.result-table')
+   OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=@ResultTableId
+      AND minor_id=0 AND name=N'Toolbelt.ModuleVersion'
+      AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),@ResultTableVersion))
+    THROW 51672,N'Die registrierte same-database Dependency toolbelt.core.result-table >=1.0.0 fehlt.',1;
 
 /*
  * Neue Zielnamen dürfen kein frameworkfremdes Objekt überschreiben. Ein Name
@@ -331,6 +355,8 @@ END CATCH;
 GO
 
 :r ../Source/TVF_SplitAdvanced.sql
+:r ../Source/TVF_UnquoteToken.sql
+:r ../Source/USP_SplitAdvanced.sql
 
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
@@ -351,6 +377,8 @@ BEGIN TRY
 
     IF XACT_STATE() <> 1
        OR OBJECT_ID(N'toolbelt_string.TVF_SplitAdvanced', N'TF') IS NULL
+       OR OBJECT_ID(N'toolbelt_string.TVF_UnquoteToken', N'TF') IS NULL
+       OR OBJECT_ID(N'toolbelt_string.USP_SplitAdvanced', N'P') IS NULL
     BEGIN
         THROW 51678, N'Die Framework-Funktionen wurden nicht vollständig innerhalb der Deployment-Transaktion angelegt.', 1;
     END;
@@ -362,8 +390,9 @@ BEGIN TRY
     );
 
     INSERT INTO @Objects (ObjectName)
-    VALUES (N'TVF_SplitAdvanced');
+    VALUES (N'TVF_SplitAdvanced'),(N'TVF_UnquoteToken'),(N'USP_SplitAdvanced');
 
+    DECLARE @Level1Type varchar(16);
     DECLARE
           @ObjectOrdinal int = 1
         , @ObjectCount   int = (SELECT COUNT(*) FROM @Objects)
@@ -392,6 +421,7 @@ BEGIN TRY
         (
             QUOTENAME(N'toolbelt_string') + N'.' + QUOTENAME(@ObjectName)
         );
+        SET @Level1Type=CASE WHEN @ObjectName=N'USP_SplitAdvanced' THEN 'PROCEDURE' ELSE 'FUNCTION' END;
         SET @SourceHash = CONVERT
         (
               varchar(64)
@@ -442,7 +472,7 @@ BEGIN TRY
                     , @value      = @PropertyValue
                     , @level0type = N'SCHEMA'
                     , @level0name = N'toolbelt_string'
-                    , @level1type = N'FUNCTION'
+                    , @level1type = @Level1Type
                     , @level1name = @ObjectName;
             END;
             ELSE
@@ -452,7 +482,7 @@ BEGIN TRY
                     , @value      = @PropertyValue
                     , @level0type = N'SCHEMA'
                     , @level0name = N'toolbelt_string'
-                    , @level1type = N'FUNCTION'
+                    , @level1type = @Level1Type
                     , @level1name = @ObjectName;
             END;
 

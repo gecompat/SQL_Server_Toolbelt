@@ -136,6 +136,10 @@ das Modul ist `validated`. Die breitere Quote-/Escape-Ausbaustufe bleibt
 separat in `TC-2026-032`; S2 ist als
 [`toolbelt.string.split-advanced`](./Modules/toolbelt.string.split-advanced/README.md)
 implementiert und auf SQL Server 2019 Linux sowie 2025 Linux/Windows gezielt geprüft.
+Version 1.1.0 ergänzt ausdrücklich freigegebenes, separates Unquoting und die
+prozedurale Split-Fassade mit Help und ResultTable. Der Split selbst gibt
+weiterhin Originaltokens zurück; die Folgeversion behält den begrenzten,
+risikobasierten Validierungsstatus ihrer Modul-Testmatrix.
 
 Das implementierte R1b-Modul
 [`toolbelt.string.regex`](./Modules/toolbelt.string.regex/README.md) stellt

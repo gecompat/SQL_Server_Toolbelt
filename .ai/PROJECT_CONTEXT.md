@@ -71,7 +71,12 @@ ist auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base
 und Linux latest erfolgreich; das Modul ist `validated`. Die breitere Quote-/Escape-Version
 ist seit 2026-10-01 als freigegebener S2-Slice `toolbelt.string.split-advanced`
 implementiert; risikobasiert 2019 Linux und 2025 Linux/Windows geprüft.
-Weitere Zielkombinationen sind nicht ausgeführt; USP/Unquoting bleiben getrennt.
+Die ausdrücklich freigegebene Folgeversion 1.1.0 ergänzt `TVF_UnquoteToken`
+und `USP_SplitAdvanced`. Der Split-Kern bleibt unverändert; Unquoting ist
+weiterhin ein separater, ausdrücklich aufzurufender Verarbeitungsschritt.
+Die USP benötigt die kanonische ResultTable-Runtime. Der risikobasierte
+Nachweis der Folgeversion und nicht ausgeführte Ziel-/Rechtekontexte werden
+in der Modul-Testmatrix ausgewiesen; keine pauschale Statusaufwertung.
 
 `toolbelt.validation.semantic-version` ist mit strengem SemVer-2.0.0-Parser,
 Comparator und binärem Sort Key implementiert. Der vollständige Adapter ist

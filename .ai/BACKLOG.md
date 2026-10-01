@@ -6,6 +6,19 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### TC-2026-032 / TC-2026-034: Freigegebene Unquoting-, Split-USP- und ZIP-Writer-Folgeslices
+
+| Feld | Wert |
+|---|---|
+| Referenzen | Vorhandene Kandidaten `TC-2026-032` und `TC-2026-034`; keine neue sequenzielle `AP`-Referenz. |
+| Benutzerfreigabe | Nach Besprechung von Zweck, konkreten Verträgen, Alternativen, Risiken und Scope hat der Benutzer am 2026-10-01 die Implementierung der drei einzeln benannten APIs `TVF_UnquoteToken`, `USP_SplitAdvanced` und `USP_CreateZipFromEntries` ausdrücklich freigegeben. Vertragsbasis ist [PR #121](https://github.com/gecompat/SQL_Server_Toolbelt/pull/121) mit `ADVANCED_STRING_SPLIT_PROPOSAL.md` und `ZIP_CREATION_PROPOSAL.md`. Die nachfolgend erhaltenen Vorfreigabebesprechungen sind historisch; dieser Nachtrag aktiviert ausschließlich diese drei Folgeslices. |
+| Zweck und Scope | `toolbelt_string.TVF_UnquoteToken` entfernt nur ein gültiges äußeres Paar und dekodiert innere doubled closing Qualifier sowie ausdrücklich aktivierte begrenzte Backslash-Escapes. `toolbelt_string.USP_SplitAdvanced` ist die ResultTable-/Help-Fassade des vorhandenen TVF-Kerns ohne automatisches Unquoting. `toolbelt_archive.USP_CreateZipFromEntries` erzeugt ein begrenztes In-memory-ZIP aus caller-lokalen Entries über einen versionierten Binary-Envelope und einen reinen SAFE-CLR-Writer; Stored als Default, Deflate explizit. |
+| Status | `active` für den ZIP-Writer. `TVF_UnquoteToken` und `USP_SplitAdvanced` sind in Modulversion 1.1.0 implementiert und im ausgewählten Lab-Scope erfolgreich geprüft; Modul weiterhin `partially validated`, `unreleased`. ZIP-Abschluss und geprüfter PR-Merge stehen noch aus. |
+| Dependencies und Grenzen | Kanonischer Split-Kern, bestehendes ZIP-Memory-Modul sowie ResultTable-Runtime für beide USPs; Dependency-Preflight vor Mutation. NULL-/Fehlerpriorität, UTF-16-/BIN2-Semantik, reservierter Außenrand, strikte Namenkodierung, begrenzte Ressourcen und atomare Ausgabe nach PR #121. Numerische Grenzen sind noch technisch zu qualifizieren; keine harte Echtzeit-, Streaming-, Parallelitäts- oder Deflate-Byteidentitätszusage. |
+| Tests | Am 2026-10-01 besteht der erweiterte Split-/Unquote-Adapter auf SQL Server 2019 Linux/latest und 2025 Windows/CU8: synthetische Rand-, Fehlerprioritäts-, Grenz-, ResultTable-/Help-, Own-/Callertransaktions-, Local-/Central-, Kollisions- und Uninstall-Fälle sowie clientseitige Metadaten und lokale Minimalrechte. Der echte 1.0-zu-1.1-Upgrade verwendet den gepinnten historischen Installer und Originalsource. ZIP-SAFE-/Memory-/Interoperabilitätsnachweise bleiben getrennt. Kein pauschaler Cross-DB-Minimalrechte- oder vollständiger neuer Matrixnachweis. |
+| Ausgeschlossen | XLSX-Reader, Datei-I/O, zusätzliche öffentliche APIs, Rechteausweitung und tatsächliche Veröffentlichung. Der separat freigegebene XLSX-Provider-Spike bleibt davon getrennt; verpflichtender späterer ZIP-Datei-I/O-Slice benötigt weiterhin seinen eigenen Sicherheitsvertrag und eine eigene Funktionsfreigabe. |
+| Nächster Schritt | Split-/Unquote-Zweig nach unabhängigem Review und CI über PR integrieren; ZIP-Writer einschließlich Lifecycle-/Framework-/SQL-Tests getrennt abschließen und danach ebenfalls geprüft über PR integrieren. Nur belegte Ergebnisse nachtragen. |
+
 ### R2a: Regex-Substring und Regex-Replace mit LOB-Profilen
 
 | Feld | Wert |
@@ -259,6 +272,11 @@ Die V0c-Kohorte umfasst verbindlich:
 
 
 ## Besprochene Folgescopes ohne Implementierungsfreigabe
+
+Die Vorfreigabebesprechungen zu `TC-2026-032` und `TC-2026-034` bleiben
+nachfolgend historisch sichtbar. Ihr damaliger Freigabestatus wird durch den
+aktuellen aktiven Nachtrag vom 2026-10-01 oben ersetzt; die übrigen
+Folgescopes sind dadurch nicht freigegeben.
 
 ### TC-2026-032: Unquoting und optionale Split-USP
 

@@ -1,10 +1,10 @@
 module_id: "toolbelt.string.split-advanced"
 module_name: "Quote/Escape Multi-Separator Split"
-version: "1.0.0"
+version: "1.1.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Zustandsbasierter Split mit Originaltokens, Quotes, Escape und atomarer Geschäftsfehlerzeile."
+description: "Zustandsbasierter Split mit Originaltokens, separate Unquoting-TVF und USP-ResultTable-Fassade."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -27,7 +27,10 @@ deployment_capabilities:
   central_with_synonyms: false
   local_required: false
   central_preferred: false
-dependencies: []
+dependencies:
+  - module_id: "toolbelt.core.result-table"
+    minimum_version: "1.0.0"
+    reason: "Same-database Runtime für USP-ResultTable; TVFs bleiben unabhängig."
 schemas:
   - "toolbelt_string"
 objects:
@@ -35,12 +38,21 @@ objects:
     schema: "toolbelt_string"
     name: "TVF_SplitAdvanced"
     visibility: public
+  - type: TVF
+    schema: "toolbelt_string"
+    name: "TVF_UnquoteToken"
+    visibility: public
+  - type: USP
+    schema: "toolbelt_string"
+    name: "USP_SplitAdvanced"
+    visibility: public
 permissions_required:
-  - "SELECT auf der TVF"
+  - "SELECT auf den TVFs"
+  - "EXECUTE auf USP und ResultTable-Helper; keine Rechteausweitung"
   - "DDL-Rechte für Deploy und Uninstall"
 collation_contract: "Latin1_General_100_BIN2; UTF-16-Codeeinheiten; Spaces bleiben signifikant."
-data_type_contract: "Input/JSON/Quote/Escape und Value nvarchar(max); Ordinal/ErrorPosition bigint; IsValid bit; ErrorCode varchar(64)."
-help_contract_version: "not applicable"
+data_type_contract: "Text/JSON/Quote/Escape/Qualifier/ClosingQualifier und Value nvarchar(max); Ordinal/ErrorPosition bigint; IsValid/BackslashEscape bit; ErrorCode varchar(64); USP-Erfolg Value/Ordinal NOT NULL."
+help_contract_version: "1.0"
 resultset_contracts:
   - name: "TVF_SplitAdvanced"
     columns:
@@ -49,6 +61,10 @@ resultset_contracts:
       - "IsValid bit"
       - "ErrorCode varchar(64)"
       - "ErrorPosition bigint"
+  - name: "TVF_UnquoteToken"
+    columns: ["Value nvarchar(max)", "IsValid bit", "ErrorCode varchar(64)", "ErrorPosition bigint"]
+  - name: "USP_SplitAdvanced"
+    columns: ["Value nvarchar(max) NOT NULL", "Ordinal bigint NOT NULL"]
 lifecycle_error_range: "51670-51679"
 clr:
   used: false
@@ -64,14 +80,17 @@ documentation:
   module: "README.md"
   public_objects:
     - "Documentation/TVF_SplitAdvanced.md"
+    - "Documentation/TVF_UnquoteToken.md"
+    - "Documentation/USP_SplitAdvanced.md"
   architecture:
     - "../../Documentation/Architecture/SPLIT_ADVANCED_MODULE_DESIGN.md"
+    - "../../Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md"
   test_matrix:
     - "Tests/SPLIT_ADVANCED_CONTRACT_TEST_MATRIX.md"
   evidence:
     - "Tests/README.md"
 contracts:
-  usp: "not applicable"
+  usp: "1.0"
   deployment: "1.0"
   validation: "1.0"
 tests:
@@ -80,6 +99,10 @@ tests:
   contract: "Tests/Runtime/SplitAdvanced.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
+  unquoting: "Tests/Runtime/UnquoteToken.Contract.sql"
+  usp_runtime: "Tests/Runtime/SplitAdvancedUsp.Contract.sql"
+  minimal_rights: "Tests/Runtime/MinimumRights.Contract.sql"
+  client_metadata: "Tests/Runtime/SelectMetadata.Contract.ps1"
   github_hosted_linux: "../../.github/workflows/split-advanced-runtime.yml"
 validation_evidence:
   - date: "2026-10-01"
@@ -89,4 +112,8 @@ validation_evidence:
   - date: "2026-10-01"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "SQL Server 2025 Linux: erweiterter vollständiger Adapter nach Review mit IF/TF-Driftkorrektur und Drift-Uninstall, nichtnullable IsValid-Metadaten und explizitem NULL-Oracle sowie SELECT-Minimalrechteproben lokal und direkt im zentralen Installationskontext. Niedrigprivilegierter Cross-DB-Aufruf mit mapped Caller nicht ausgeführt."
+    result: "success"
+  - date: "2026-10-01"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "1.1.0: SQL Server 2019 Linux/latest und SQL Server 2025 Windows/CU8; S2-Regression, Unquoting inklusive Dense65536, USP/Help/ResultTable/OwnTransaction/Savepoint/doomed Caller, echte 1.0-Installerupgradefixture aus gepinntem Git, neue Namenskollisionen, alle API-Marker/SourceHashes, lokale/zentral-DB-Minimalrechte, administrative Cross-DB-Aufrufe. Lab-only SqlClient-Metadaten/NOT-NULL/Resultsetprobe erfolgreich. Andere neue Version-/Plattformkombinationen, GitHub-1.1-Workflow und niedrigprivilegierter mapped Caller Cross-DB nicht ausgeführt."
     result: "success"

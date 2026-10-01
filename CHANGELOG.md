@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-10-01 – Unquoting und Split-USP
+
+- `toolbelt.string.split-advanced` 1.1.0 ergänzt die einzeln freigegebenen
+  `TVF_UnquoteToken` und `USP_SplitAdvanced`; der vorhandene Split-Kern bleibt
+  unverändert und unquotet niemals automatisch.
+- Unquoting behandelt explizite oder automatisch erkannte äußere Quote-Paare,
+  doubled closing Qualifier und nur ausdrücklich aktivierte Backslash-Escapes.
+  Fehler bleiben atomar; NULL, UTF-16-/BIN2-Grenzen und Fehlerpriorität sind
+  Bestandteil des öffentlichen Vertrags.
+- Die USP ergänzt Help, Debug-Messages und caller-lokale ResultTables mit
+  ResultTable-Dependency und callerfreundlichen Transaktionen/Savepoints.
+  Das Modul bleibt `partially validated` und `unreleased`; die konkrete
+  Ausführungsevidenz und offene Grenzen stehen in seiner Testmatrix.
+
 ## 2026-10-01 – Regex R2a
 
 - `toolbelt.string.regex` 1.1.0 ergänzt ausdrücklich freigegebene
