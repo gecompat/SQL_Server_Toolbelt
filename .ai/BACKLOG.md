@@ -58,7 +58,7 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Priorität | `P0` |
 | Status | `active`; autonom ausführbare V0a-/V0b-Matrix abgeschlossen; sieben externe oder manuelle Rest-Gates bleiben offen |
 | Implementation Status | 30 Module `implemented` – aus `module.yaml` abgeleitet |
-| Validation Status | 22 Module `validated`, 8 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 22 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory und Windows Filesystem bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuelle Sicherheitsfälle offen. |
+| Validation Status | 22 Module `validated`, 8 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 22 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory und Windows Filesystem bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuelle Sicherheitsfälle offen. Das neue S2-Modul Split Advanced ist zusätzlich nur im ausdrücklich risikobasiert ausgewählten Scope geprüft; weitere Zielkombinationen und niedrigprivilegierte Cross-DB-Aufrufe sind nicht ausgeführt. |
 | Release Status | 30 Module `unreleased`; V0c, D1, E1a, E1b, R1b und W6d autorisieren keine tatsächliche Veröffentlichung. |
 | Akzeptanzkriterien | Linux- und Windows-Zielversionen tatsächlich geprüft; Dependency-Closure und versionierte Objektmanifeste konsistent; Erst-, Wiederholungs-, Upgrade-, Central- und Uninstall-Verträge für die Kohorte erfolgreich; modulspezifische Pflichtfälle ausgeführt; nicht verfügbare Kombinationen sichtbar; vollständiger Dokumentationsaudit erfolgreich. |
 | Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |
@@ -257,6 +257,35 @@ Die V0c-Kohorte umfasst verbindlich:
 | Evidenz | Benutzerfreigabe am 2026-07-31; Implementierung und Windows-Build-/Static-Contract-Artefakte auf `main`; Build-Nachweis im Wartungslauf https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356. |
 | Nächster Schritt | Manuellen Windows-SQL-Server-/NTFS-Runtime-Test gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` ausführen und ausschließlich abstrahierte Ergebnisse erfassen; die Terminierung hängt an `V0b`. GitHub-hosted Windows-Runner sind kein Ersatz, weil die offiziellen Runner-Images keine SQL-Server-Engine enthalten. |
 
+
+## Besprochene Folgescopes ohne Implementierungsfreigabe
+
+### TC-2026-032: Unquoting und optionale Split-USP
+
+Am 2026-10-01 hat der Benutzer Unquoting auf einen äußerlich gequoteten Token
+begrenzt und anschließend präzisiert: Das äußere Paar wird entfernt, innere
+verdoppelte Quotes werden dekodiert; `"hallo""du"""` wird `hallo"du"`.
+Die zuvor angenommene unveränderte Innenbehandlung wurde damit korrigiert.
+Backslash-Escapes, ungequotete Tokens und malformed Eingaben bleiben zu besprechen.
+`USP_SplitAdvanced` soll ergänzend vorgesehen werden und führt kein
+automatisches Unquoting aus. Die Split-TVF bleibt Pflicht.
+Die [konkreten Folgeslice-Vorschläge](../Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md#beschlossene-folgescope-grenzen-vom-2026-10-01)
+halten Alternativen, Risiken, Dependencies, Testscope und noch offene
+Signatur-/Fehler-/Randfallentscheidungen fest. Status: `proposed` für diese
+Folgeslices, keine Implementierungsfreigabe; S2 bleibt davon getrennt `active`.
+
+### TC-2026-045: Begrenzter XLSX-Reader und verpflichtende Erweiterung
+
+Am 2026-10-01 hat der Benutzer Binaryinput und Raw-/Text-/Cache-Werte als
+erste Readergrenze bestätigt. Text ist aufgelöster Shared-/Inline-Stringinhalt,
+keine formatierte Excel-Anzeige. Provider, Signaturen, Limits und Fehler sind
+noch offen; Status: `researched`, keine Implementierungsfreigabe.
+Anzeigeformat, Styles, explizite Culture und Datumsbehandlung müssen später
+als eigener Funktionsslice umgesetzt werden, sobald ihr Vertrag besprochen
+und ausdrücklich freigegeben ist. Dazu gehören 1900-/1904-Modus,
+1900-Schaltjahrsonderfall, Formatcodes sowie Datum/Zeit/Dauer-Abbildung.
+Der [Reader-Vorschlag](../Documentation/Architecture/XLSX_READER_PROPOSAL.md)
+führt Provider-Spike, ungemessene Zielgrenzen und die getrennte Folgestufe.
 
 ## Abgeschlossene Arbeitspakete
 

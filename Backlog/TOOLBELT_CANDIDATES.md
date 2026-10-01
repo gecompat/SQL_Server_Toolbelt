@@ -729,8 +729,19 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 > Nutzeranforderung 2026-10-01: Eine öffentliche Split-TVF ist Pflicht; eine
 > USP ist nur optional ergänzend und niemals Ersatz. Unquoting wird als
 > eigener späterer Funktionsslice unter diesem Kandidaten geführt und ist
-> noch nicht zur Implementierung freigegeben. Historischer Anforderungsstand vor PR #114; anschließend wurden S2-Vertrag
-> und Implementierung am 2026-10-01 ausdrücklich freigegeben (.ai/BACKLOG.md).
+> noch nicht zur Implementierung freigegeben. Konkrete Signatur, Fehler- und
+> Quote-Semantik bleiben zu besprechen; der Folgescope bleibt `researched`.
+> Der S2-TVF-Vertrag ist davon getrennt ausdrücklich freigegeben und implementiert.
+>
+> Folgescope-Entscheidung 2026-10-01: Unquoting entfernt nur ein äußeres
+> Quote-Paar und dekodiert nach anschließender Nutzerpräzisierung verdoppelte
+> Quotes im Inneren: `"hallo""du"""` wird `hallo"du"`. Die zuerst angenommene
+> unveränderte Innenbehandlung ist korrigiert; weitere Escape-/Fehlerregeln
+> bleiben offen. Die optionale
+> `USP_SplitAdvanced` wird ohne automatisches Unquoting vorgesehen. Konkrete
+> Vorschläge stehen im [Split-Proposal](../Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md#beschlossene-folgescope-grenzen-vom-2026-10-01).
+> Diese Auswahl autorisiert keine Implementierung der Folgeslices; die
+> getrennte S2-Freigabe steht in `.ai/BACKLOG.md`.
 
 | Feld | Wert |
 |---|---|
@@ -1050,6 +1061,13 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Nächster Schritt** | Die [Architekturvorbereitung](../Documentation/Architecture/TABLE_CLONE_PROPOSAL.md) empfiehlt einen Script-only-Planer für eine enge Menge regulärer Tabellen. Ausführung, Datenkopie und breitere Objektklassen bleiben getrennte Entscheidungen. |
 
 ## TC-2026-045: XLSX-Dateien direkt lesen
+
+> Scope-Entscheidung 2026-10-01: Binary-/Raw-/Text-/Cache-Reader als erste
+> Richtung bestätigt; Text bedeutet aufgelöste Strings, keine formatierte
+> Anzeige. Anzeigeformat, Styles, Culture und Datumsbehandlung sind
+> verpflichtender späterer Folgescope unter diesem Kandidaten und in
+> `.ai/BACKLOG.md` festgehalten. Provider, Signaturen und Limits bleiben offen;
+> keine Implementierungsfreigabe. Siehe [Reader-Proposal](../Documentation/Architecture/XLSX_READER_PROPOSAL.md).
 
 | Feld | Wert |
 |---|---|

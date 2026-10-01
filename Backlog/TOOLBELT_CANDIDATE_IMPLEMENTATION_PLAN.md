@@ -24,6 +24,25 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Vorbereitete Entscheidungsvorlagen
 
+Folgescope-Entscheidungen vom 2026-10-01: `TC-2026-032` führt Unquoting nur
+für einen äußerlich gequoteten Token mit Entfernung des äußeren Paars und
+Dekodierung verdoppelter innerer Quotes nach Nutzerpräzisierung. Andere
+Escape-/Fehlerregeln bleiben offen. Eine
+optionale `USP_SplitAdvanced` verwendet Originaltokens und kein automatisches
+Unquoting. `TC-2026-045` beginnt mit Binary-/Raw-/Stringtext-/Cache-Scope;
+Anzeigeformat, Styles, Culture und Datumsbehandlung bleiben verpflichtende
+spätere Erweiterung. Diese Entscheidungen sind keine Implementierungsfreigaben
+der Folgeslices. Konkrete Vorschläge stehen in den verlinkten Proposals und
+im Abschnitt „Besprochene Folgescopes“ von `.ai/BACKLOG.md`.
+
+ZIP-Erzeugung hat drei logische Entryfelder; der Benutzer hat caller-lokale
+`#Temp`-Eingabe für lokale/zentrale Nutzung und Deflate ohne implizites
+Writer-Ratiolimit entsprechend dem Readerdefault gewählt. Das erforderliche
+explizite Readerlimit wird dokumentiert. Der CLR-Transport bleibt offen.
+Ein User-defined Table Type geht nicht direkt an eine
+managed SQL-CLR-Routine; das ZIP-Proposal vergleicht deshalb Binary-Envelope,
+Context-Connection-/Temp-Snapshot und einen vorgeschalteten T-SQL-TVP-Wrapper.
+
 Die folgenden Dokumente begrenzen offene Kandidaten und sind die Grundlage
 für eine spätere funktionsbezogene Besprechung. Sie sind keine
 Implementierungsfreigaben.

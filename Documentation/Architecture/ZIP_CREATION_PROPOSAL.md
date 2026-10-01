@@ -26,11 +26,51 @@ V1 erzeugt ein einzelnes ZIP-Binary im Speicher aus einer expliziten,
 typisierten Entry-Liste. Es schreibt keine Dateien, liest keine Pfade, nimmt
 keine bestehenden Archive entgegen und fügt ihnen keine Einträge hinzu.
 
-Die Entry-Liste soll als eigene öffentliche Table Type mit genau zwei Spalten
-festgelegt werden: eine positive Ordinalspalte und ein Name-Payload-Paar. Eine
-Table Type vermeidet das dynamische Auslesen einer Caller-Tabelle und ein JSON-
-oder Base64-Transportformat für Binärdaten. Ihr Name und die genaue
-Spaltendefinition bleiben bis zur Funktionsbesprechung offen.
+Die Entry-Liste besitzt logisch drei Felder: positive Ordinalspalte,
+Entryname und Binarypayload. Ein öffentlicher Table Type ist eine mögliche
+T-SQL-Eingabeoberfläche, aber kein direkt an SQL CLR übergebbarer Parameter.
+Type, Signatur und Transport bleiben bis zur Funktionsbesprechung offen.
+
+## Transportprüfung vom 2026-10-01
+
+Microsoft dokumentiert, dass ein User-defined Table Type nicht als TVP an eine
+im SQL Server ausgeführte managed Procedure oder Function übergeben werden
+kann. Ein TVP benötigt daher einen T-SQL-Wrapper mit eigener Übergabe an den
+CLR-Kern. Table Types und Treiberbindung sind datenbankgebunden; identische
+lokale und zentrale Typdefinitionen begründen keine pauschale
+Cross-database-Kompatibilität.
+
+Der Benutzer hat am 2026-10-01 die caller-lokale `#Temp`-Tabelleneingabe
+für lokale und zentrale Nutzung gewählt; kein öffentlicher TVP ist für V1
+vorgesehen. Die interne CLR-Übergabe ist noch offen. Die folgenden
+Alternativen bleiben Research, keine endgültige Implementierungswahl:
+
+| Alternative | Nutzen | Kosten und offene Nachweise |
+|---|---|---|
+| T-SQL validiert eine ausschließlich caller-lokale `#Temp`-Entrytabelle und serialisiert eine versionierte, längencodierte `varbinary(max)`-Nachricht an einen reinen Writer | Keine Datenbankabfrage im CLR-Kern; kein JSON/Base64; dieselben drei logischen Felder lokal und zentral | Zusätzliche Kopien und Serialisierungskosten; feste Byteordnung, Längen-/Overflowprüfung und Vorablimit auch für den Transport; keine Streamingzusage |
+| T-SQL validiert dieselbe `#Temp`-Eingabe, erzeugt einen eigenen Temp-Snapshot und übergibt dessen validierten Namen an einen CLR-Writer mit Context Connection | Kein Binary-Envelope; zeilenweises Lesen des Snapshots möglich | Zusätzliche TempDB-Mutation und Cleanup-/Reentrancy-Vertrag; ausschließlich gequoteter, geprüfter interner Tabellenname; SAFE-, Linux-, Berechtigungs- und Central-Nachweis offen |
+| T-SQL-TVP-Wrapper vor einer der beiden internen Übergaben | Statisch typisierte Eingabe | Öffentlicher Type und dessen Namenskonvention, datenbankbezogene Aufruf-/Clientadapter sowie getrennte Central-Tests erforderlich |
+
+Die Context Connection verwendet den ursprünglichen Session-/Transaktionskontext;
+das ist Primärquellenevidenz für die Machbarkeit, kein Runtime-Nachweis dieses
+Writers. Reguläre Tabellen, globale Temps, freies SQL und persistentes Staging
+sind keine impliziten Alternativen. Ein Temp-Inputparameter und ein TVP sind
+unterschiedliche öffentliche Verträge und werden vor Implementierung entschieden.
+
+Ungemessene V1-Zielgrenzen zur Besprechung: 256 Entries, 1.024 UTF-16-
+Codeeinheiten je Name, 16 MiB je Payload, 64 MiB Payloadsumme und 68 MiB
+Archivoutput; bei Binarytransport zusätzlich höchstens 68 MiB Envelope.
+Ein kooperatives Writerbudget von 30 Sekunden ist ein Vorschlag, keine harte
+Echtzeit- oder gesamte SQL-Ausführungsfrist. Grenzen müssen vor großen Kopien
+und während Schreiben/Finalisierung technisch qualifiziert werden.
+
+`Stored` als Default und `Deflate` als explizite Wahl sind ein Vorschlag.
+Der Benutzer hat am 2026-10-01 gültige Deflate-Archive auch oberhalb des
+Readerdefaults `@MaxCompressionRatio = 200.00` gewählt. Dieses Readerlimit
+ist deshalb keine implizite Writergrenze. Das erforderliche, vom Caller
+bewusst gesetzte Readerlimit für stärker komprimierte erzeugte Archive wird
+ausdrücklich dokumentiert. Absolute Ressourcen-/Größengrenzen bleiben davon
+unberührt. Eine stille Änderung der angeforderten Methode ist nicht vereinbart.
 
 ## Vertragsvorschlag
 
@@ -73,13 +113,17 @@ SQL_Server_Lab-Matrix für 2019, 2022 und 2025 auf Windows und Linux. CUs sind
 nur bei patchgebundenen Tests relevant.
 
 Vor einer Implementierungsfreigabe wird der V1-Schnitt bestätigt oder
-geändert: typisierte In-memory-Entryliste, zwei Methoden und ein Binaryoutput
-ohne Datei-I/O. Danach werden der öffentliche Table Type, die Signatur,
+geändert: In-memory-Entryliste mit drei logischen Feldern, gewählter
+Eingabe-/CLR-Transport, zwei Methoden und ein Binaryoutput ohne Datei-I/O.
+Danach werden gegebenenfalls der öffentliche Table Type, die Signatur,
 konkrete Grenzen, Fehlerbereich und die Providerentscheidung als Funktion
 besprochen und freigegeben.
 
 ## Quellen
 
+- [Microsoft: CLR-TVFs und TVP-Grenze](https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration-database-objects-user-defined-functions/clr-table-valued-functions?view=sql-server-ver17) – am 2026-10-01 geprüft.
+- [Microsoft: Context Connection](https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/data-access/context-connection) – am 2026-10-01 geprüft.
+- [Microsoft: OLE DB TVP-Type-Bindung](https://learn.microsoft.com/en-us/sql/connect/oledb/ole-db-table-valued-parameters/ole-db-table-valued-parameter-type-support-properties?view=sql-server-ver17) – am 2026-10-01 geprüft; Treibervertrag, keine Runtimevalidierung der Central-Alternative.
 - [PKWARE: ZIP APPNOTE](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT)
 - [bestehendes ZIP-Moduldesign](./ZIP_ARCHIVE_MODULE_DESIGN.md)
 - [bestehender Candidate](../../Backlog/TOOLBELT_CANDIDATES.md#tc-2026-034-zip-archive-kontrolliert-extrahieren-und-erzeugen)
