@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 32 Module implementiert – 11 teilweise validiert](https://img.shields.io/badge/Status-32%20Module%20implementiert%20%7C%2011%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 33 Module implementiert – 12 teilweise validiert](https://img.shields.io/badge/Status-33%20Module%20implementiert%20%7C%2012%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,13 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 32 Module sind implementiert; 21 sind `validated`, 11 sind `partially validated`, alle sind `unreleased`.**
+**Der Repository-Grundaufbau ist abgeschlossen. 33 Module sind implementiert; 21 sind `validated`, 12 sind `partially validated`, alle sind `unreleased`.**
+
+[`toolbelt.pseudonymization.deterministic`](./Modules/toolbelt.pseudonymization.deterministic/README.md)
+liefert versionierte synthetische Range-, DateShift- und Pool-Lookup-Werte.
+Der identische finale Adapter besteht auf SQL Server 2019 Linux/latest und
+2025 Windows/CU8; weitere Ziele, CrossDB-Minimalrechte und Kapazitätsnachweise
+bleiben offen. `partially validated`, `unreleased`; keine Anonymisierungszusage.
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)

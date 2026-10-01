@@ -1489,6 +1489,23 @@ def run_json_constructors_static() -> None:
         )
 
 
+def run_deterministic_static() -> None:
+    """Prüft den registrierten deterministischen Vertrag ohne SQL-Runtime."""
+    script = (
+        REPOSITORY_ROOT / "Modules" / "toolbelt.pseudonymization.deterministic"
+        / "Tests" / "Static" / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)), cwd=REPOSITORY_ROOT,
+        check=False, capture_output=True, text=True, encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische Deterministic-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
 def run_table_clone_static() -> None:
     script = (
         REPOSITORY_ROOT / "Modules" / "toolbelt.metadata.table-clone"
@@ -1654,6 +1671,8 @@ def main() -> int:
         run_json_constructors_static()
     if "table_clone_static" in checks:
         run_table_clone_static()
+    if "deterministic_static" in checks:
+        run_deterministic_static()
     if "w2c_runtime_workflow_scope" in checks:
         validate_w2c_runtime_workflow_scope()
     if "console_message_static" in checks:
