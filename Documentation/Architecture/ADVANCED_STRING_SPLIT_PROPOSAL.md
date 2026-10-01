@@ -96,12 +96,12 @@ Backslashfolgen bleiben unverändert. Ohne Opt-in ist Backslash literal.
 Doubled closing Delimiter bleiben getrennte Quoting-Semantik, kein
 impliziter globaler Escape-Modus.
 
-Noch vor einer Implementierung zu präzisieren: öffentliche Signatur und
-Parametername, Result-/Fehlervertrag, Inputlimits sowie Priorität zwischen
-äußerer Randprüfung und Escapeinterpretation, wenn das letzte schließende
-Zeichen escaped erscheint. Auch die genaue Menge aktiver Quotezeichen für
-Backslash bei asymmetrischen Paaren wird nicht stillschweigend festgelegt.
-Dies sind sichtbare Restpunkte, keine neue Semantikentscheidung.
+Nachtrag 2026-10-01: Mit „do it“ bestätigt der Benutzer die letzten zwei
+Randempfehlungen und Vertragsausarbeitung: Backslash schützt bei
+asymmetrischen Paaren opening und closing; escaped letztes closing bildet
+kein Randpaar, daher Explicit Fehler und Auto unverändert. Die zuvor offenen
+Randpunkte sind ersetzt. Der unten konkretisierte öffentliche Vertrag
+bleibt ein Vorschlag zur gebündelten Funktionsfreigabe, keine Implementierung.
 
 Vorgeschlagen: BIN2-Vergleich, NULL-No-op, 65.536-Codeunit-Inputgrenze und atomare
 Errorrow-Form wie S2. Whitespace wird nicht getrimmt; ein reines Paar ergibt
@@ -117,23 +117,187 @@ nicht eine vollständige CSV-Zeile. Tests sollen äußere/verdoppelte/ungepaarte
 Quotes, abgegrenzte Escapeformen, Leer-/NULL-Werte, Whitespace, mehrere Paare,
 Unicode, BIN2 und Grenzen abdecken.
 
-### Optionale USP: Vorschlag zur weiteren Vertragsbesprechung
+### Zur gebündelten Freigabe: Unquoting-TVF-Vertragsvorschlag
 
-`toolbelt_string.USP_SplitAdvanced` soll dieselben fachlichen Eingaben und
-Defaults wie S2 sowie den vollständigen Hilfe-/Debug-/ResultTable-/KeepData-
-Vertrag verwenden. Sie ruft ausschließlich den kanonischen TVF-Kern auf und
-gibt Originaltokens aus. Unquoting wird nur vom Caller ausdrücklich
-komponiert und ist weder Default noch versteckte Nachverarbeitung.
+Alle folgenden API-/Fehler-/Grenzdetails sind Empfehlungen vom 2026-10-01,
+keine Implementierungsfreigabe. Zweck: einen einzelnen Token entquoten;
+keine CSV-Zeile, kein neuer Tokenizer und kein Scalar-Wrapper.
 
-Vorschlag: Eine TVF-Errorrow wird vor ResultTable-Mutation in einen stabilen
-THROW übersetzt; vollständige Vorprüfung verhindert Teiltokens und
-Teiländerungen bei Geschäftsfehlern. Konkreter Fehlerbereich und
-Erfolgsschema bleiben zu bestätigen. Die TVF ist Pflicht und wird nicht
-ersetzt; Alternative bleibt der alleinige TVF-Aufruf. Aufwand und Risiken
-liegen in ResultTable-/Transaktions-/Fehlerkopplung, nicht in einer zweiten
-Tokenizerlogik. Tests umfassen TVF-Parität, Originaltokens, Fehlerübersetzung,
-unveränderte ResultTable bei Geschäftsfehlern, KeepData, Hilfe, Debug und
-Lifecycle. Implementierungsfreigabe steht aus.
+Signatur als Beschreibung, kein ausführbares SQL:
+
+~~~text
+toolbelt_string.TVF_UnquoteToken
+    @Input             nvarchar(max)
+    @Qualifier         nvarchar(max) = NULL
+    @ClosingQualifier  nvarchar(max) = NULL
+    @BackslashEscape   bit = 0
+~~~
+
+Für Auto ist nur Input fachlich zu konfigurieren; die übrigen
+Argumentpositionen benötigen beim SQL-TVF-Aufruf DEFAULT-Platzhalter.
+Kein zusätzlicher Modeparameter nötig. Beschreibendes Aufrufbeispiel:
+
+~~~text
+TVF_UnquoteToken(N'"Hallo"', DEFAULT, DEFAULT, DEFAULT)
+~~~
+
+max-Konfiguration verhindert stilles Abschneiden vor Validierung.
+
+| Konfiguration | Vorschlag |
+|---|---|
+| Qualifier NULL | Auto mit genau den fünf bestätigten Paaren; ClosingQualifier muss NULL sein |
+| Qualifier leer | Disabled: Originaltext unverändert, keine Innen-/Backslashdekodierung; ClosingQualifier muss NULL sein |
+| Qualifier nicht leer, ClosingQualifier NULL | Explicit: eine Nicht-Surrogate-BMP-Codeeinheit; `[`/`]` wählen `[]`, U+201C/U+201D das englische Paar U+201C/U+201D, U+201E das deutsche Paar U+201E/U+201C; sonst symmetrisch |
+| Beide nicht leer | Explicit: jeweils eine Nicht-Surrogate-BMP-Codeeinheit als ausdrückliches Öffnungs-/Schließpaar; etwa U+201C plus U+201C ohne automatische Umdeutung |
+| ClosingQualifier leer, überlange/Surrogate-/NUL-Konfiguration oder ClosingQualifier ohne Explicit | INVALID_CONFIGURATION |
+| BackslashEscape NULL | Entspricht 0; Opt-in nur beim Wert 1 |
+| Delimiter Backslash bei BackslashEscape=1 | INVALID_CONFIGURATION, keine Delimiter-/Escape-Ambiguität |
+
+Generische Explicit-Paare und typografische Defaults sind API-Vorschläge,
+keine zusätzlichen Nutzerbeschlüsse. Keine mehrzeichenlangen Delimiter.
+Auto bleibt auf die bestätigten fünf Paare beschränkt.
+
+**Resultsetvorschlag:** nicht-NULL-Input genau eine Zeile; NULL-Input früher
+No-op mit null Zeilen, selbst bei ungültiger Konfiguration.
+
+| Feld | Typ | Bedeutung |
+|---|---|---|
+| Value | nvarchar(max) NULL | vollständig transformierter oder unveränderter Token; Fehler NULL |
+| IsValid | bit NOT NULL | 1 Erfolg, 0 atomare Fehlerzeile |
+| ErrorCode | varchar(64) NULL | symbolischer Geschäftscode; Erfolg NULL |
+| ErrorPosition | bigint NULL | Originalposition ab 1; Konfiguration/Limit NULL |
+
+Keine Ordinalspalte für einen einzelnen Token. Empty: Auto/Disabled gültiger
+leerer Text, Explicit fehlendes Randpaar. Ein reines Randpaar ergibt leeren
+Text. Ein äußeres Paar benötigt mindestens zwei UTF-16-Codeeinheiten.
+Ein einzelnes ASCII-Quote bleibt in Auto unverändert; Explicit liefert
+OUTER_PAIR_REQUIRED an Position 1, ohne eine negative Bodylänge zu bilden.
+Auto ohne vollständiges Paar und Disabled geben Originaltext bytegetreu
+aus, auch bei BackslashEscape=1; kein Trimmen/Normalisieren. Vorgeschlagene
+Schutzregel: Input-NUL in allen Modi unzulässig. BIN2-Vergleich
+Latin1_General_100_BIN2, UTF-16-Codeeinheiten mit DATALENGTH/2 inklusive
+trailing Spaces; festes vorgeschlagenes Limit 65536, keine Kürzung.
+Supplementary-Paare bleiben Text, keine Delimiter oder Graphemzusage.
+
+**Prüf-/Dekodierungspriorität als vollständiger Vorschlag:**
+
+1. NULL-Input früh beenden; dann Konfiguration, Inputlimit, erstes Input-NUL.
+2. Disabled unverändert. Auto wählt nur anhand der ersten Codeeinheit,
+   nicht anhand späterer Zeichen oder nach Trimmen.
+3. Die äußersten Zeichen müssen das Paar bilden. Im Opt-in-Modus bestimmt
+   ein lexikalischer Scan ab Position 2 bis zum Ende, ob das letzte closing
+   escaped ist: Backslash plus opening/closing/Backslash konsumiert zwei
+   Codeeinheiten; andere Folgen bleiben literal. Doubled closing ist kein
+   Backslash-Escape. Escaped letztes closing: Explicit Fehler,
+   Auto unverändert, kein früheres Zeichen als Ersatzrand.
+4. Erst bei gültigem Paar beide Randzeichen reservieren. Body links nach
+   rechts: erkannte Opt-in-Backslashfolge vor doubled closing; zwei closing
+   vollständig im Body werden zu einem; einzelnes unescaped closing
+   ist Fehler. Opening im Body ist literal, sofern es nicht zugleich
+   closing ist. Keine Verschachtelung. Der reservierte äußere closing
+   darf niemals zweite Hälfte eines Body-Doubles sein.
+5. Andere Backslashfolgen und terminaler Body-Backslash bleiben literal;
+   kein Split-Dangling-Escape erben. Erst nach vollständigem Erfolg Value
+   publizieren; kein teilweise dekodierter Text.
+
+| Vorgeschlagener ErrorCode | Bedeutung/Position |
+|---|---|
+| INVALID_CONFIGURATION | ungültige Zeichenkonfiguration; NULL |
+| INPUT_LIMIT_EXCEEDED | über 65536; NULL |
+| NUL_NOT_ALLOWED | erstes Input-NUL; Originalposition |
+| OUTER_PAIR_REQUIRED | Explicit ohne gültigen Rand: Empty NULL, falsches erstes Zeichen 1, sonst letzte Originalposition |
+| UNESCAPED_CLOSING_QUALIFIER | einzelnes closing im Body; Originalposition |
+
+Konfiguration/Limit/NUL vor Randprüfung, Rand vor Body. Auto ohne Paar ist
+bewusst kein Body-Validator. Fehlerzeile Value=NULL/IsValid=0, keine Teilausgabe;
+Engine-/Ressourcenfehler bleiben Enginefehler. Codes sind Vorschläge, keine
+neuen Artefakt-IDs.
+
+Technikempfehlung: dependencyfreier T-SQL-Kern im Split-Advanced-Modul.
+Inline-Alternative prüfen; MSTVF-Ausnahme nur bei technisch begründeter
+bounded zustandsabhängiger Dekodierung/atomarer Ausgabe. Kein Scalar-Wrapper
+in diesem Slice. Lifecycle-/Registryversion erst nach Freigabe koppeln.
+
+Alternativen: reine Randentfernung erfüllt doubled-Semantik nicht; globale
+Quoteentfernung ist falsch; generischer C-/JSON-Unescape würde unerwünschte
+n/t/Unicodefolgen interpretieren; CSV/CLR erweitert Scope ohne Bedarf.
+Risiken: Escape-/Double-Präzedenz, typografische Ähnlichkeit, Fehlermissachtung
+und LOB-Kopierkosten; keine Streaming-/Durchsatz-/Parallelitätszusage.
+
+Geplante Tests, nicht ausgeführt: alle Auto-/Explicit-Paare, generische
+Paare, NULL/Empty/Disabled/Config, escaped letzter Rand, odd/even
+Backslash-Runs, opening/closing/Backslash-Escape, andere Folgen literal,
+doubled/single closing und reservierter Außenrand, unveränderte Nichttreffer,
+Whitespace/Surrogates/BIN2/NUL, 65536/65537, Fehlerpriorität/Originalpositionen,
+atomare Ausgabe/APPLY, Local/Central/Upgrade/Kollision/Uninstall und
+SELECT-Minimalrechte. Risikobasiert zuerst 2019 Linux und 2025 Windows;
+weitere Ziele nur bei Unterschieden oder Providerimpact. Niedrigprivilegiertes
+Cross-DB benötigt mapped Caller und getrennte Evidenz.
+
+### Optionale USP: konkreter Vertragsvorschlag zur Freigabe
+
+Nur Fassade des vorhandenen TVF-Kerns, keine zweite Parserlogik und kein
+Unquoting. Signatur als Beschreibung:
+
+~~~text
+toolbelt_string.USP_SplitAdvanced
+    @Input           nvarchar(max) = NULL
+    @SeparatorsJson  nvarchar(max) = NULL
+    @Quote           nvarchar(max) = N'"'
+    @Escape          nvarchar(max) = N'\'
+    @KeepEmpty       bit = 1
+    @ResultTable     sysname = NULL
+    @KeepData        bit = 0
+    @Debug           tinyint = 0
+    @Hilfe           bit = 0
+~~~
+
+Fachliche S2-Semantik unverändert; technische NULL-Defaults ermöglichen
+Help ohne Pflichtwerte. Erfolgsschema: Value nvarchar(max) NOT NULL,
+Ordinal bigint NOT NULL; Originaltokens und lückenlose Ordinals. Keine
+Errorrow-Spalten im Erfolgsschema, da Fehler als THROW. SELECT nach Ordinal,
+keine physische Reihenfolge in ResultTable.
+
+Vorschlag NULL-No-op: ResultTable=NULL leeres Erfolgsschema; gesetzte
+ResultTable völlig unverändert, selbst bei KeepData=0. Ein leeres
+Nicht-NULL-Splitergebnis unterliegt dagegen regulärem Replace/Append.
+Der Wrapper wertet die TVF einmal in einem privaten Snapshot aus, prüft alle
+Errorrows und wirft Geschäftsfehler vor Ausgabe/ResultTable-Mutation.
+Stabiler technisch zuzuordnender Wrapper-THROW mit symbolischem TVF-Code
+und Position, ohne Textinhalt. Keine numerische Reservierung durch dieses
+Dokument; kollisionsfreie Zuordnung ist Umsetzungspflicht.
+Engine-/ResultTablefehler behalten Originalnummer und Zustand.
+
+Der gesamte [USP-Vertrag](../Standards/USP_CONTRACT.md) gilt: vier
+Standardparameter zuletzt in vorgeschriebener Reihenfolge; Help ausschließlich
+standardisiertes Help-Resultset/Pflichtsections, kein fachlicher Aufruf,
+keine Validierung/Mutation/Debug. Debug nur Messages, keine extra Resultsets
+oder Input-/Tokeninhalte. KeepData/Debug/Hilfe NULL werden zu 0 normalisiert.
+
+ResultTable=NULL genau ein SELECT; sonst existierende caller-lokale Temp
+und explizite Spaltenliste, keine permanenten/globalen/variablen Tabellen,
+kein INSERT EXEC. Canonical helper USP_PrepareResultTable mindestens 1.0.0:
+Replace/Append, leere Schemaanpassung, voller Preflight vor Mutation,
+KeepData=1 bei befüllt-unpassendem Schema Fehler; keine Callerconstraints
+entfernen. Erwartete Business-/Preflightfehler lassen das Ziel unverändert.
+Insert-/Enginefehler: eigene Transaktion oder Savepoint im committable
+Caller-Kontext; nur eigenen Scope soweit technisch möglich zurückrollen,
+niemals Callertransaktion pauschal committen/rollbacken. Bei XACT_STATE=-1
+keine Savepointgarantie, Originalfehler weitergeben, Callerrollback nötig.
+
+Dependencies vorgeschlagen: TVF-Kern und ResultTable-Runtime für die USP;
+deklarierte Modul-/Lifecyclekopplung gehört zur späteren Freigabe, heute
+keine Manifeständerung. EXECUTE/SELECT/Cross-DB-Rechte minimal nachweisen,
+kein automatisches Grant/TRUSTWORTHY. Local/Central separat prüfen.
+
+Tests nach Freigabe: TVF-Parität/Originaltokens, alle Geschäftsfehler vor
+Zielmutation, NULL versus leeres Nicht-NULL-Ergebnis, beide Ausgabewege,
+vollständige Help-Schema-/Bypass-/Debugtests, alle KeepData-/Schemaszenarien,
+Dummyspalten/Constraints/Blocker, Callertransaktion/Savepoint/Enginefehler,
+Nested ResultTable, Collation/Central, Kollision/Upgrade/Uninstall. Zunächst
+2019 Linux/2025 Windows, dann scopebezogen. Alternative: direkter TVF-Aufruf.
+Risiken: Snapshotkopien, Mutation-/Transaktions-/Dependencykopplung;
+keine neue Parserfunktion. USP-Implementierungsfreigabe steht separat aus.
 
 ## Problem und bestehender V1-Schnitt
 
