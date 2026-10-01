@@ -58,11 +58,56 @@ danach die beiden sprachbezogenen Phonetikverfahren:
   Lab-Tests, grüne CI und PR-Merge gelten unverändert.
 
 Status Textvergleich: `ready for development`; keine Runtime-Evidenz.
-Für Capture-/Replacement-Fehlerfälle, XLSX-Typ-/Styletransport und die
-unterstützte Formatgrammatik sind konkrete Einzelverträge weiterhin
-nachvollziehbar zu vervollständigen und erforderliche Entscheidungen zu
-besprechen. Deren Scopebestätigung ist nicht mit der obigen konkreten
-Textvergleichsfreigabe zu verwechseln.
+#### Individuell freigegebene Capture-/Replace-Welle
+
+Implementierungsfreigabe 2026-10-01: Auf die ausdrückliche Frage
+„Passt dieser konkrete Scope für beide Wellen zur Implementierung?“
+antwortete der Benutzer „ja“. Dies bestätigt die folgende Capture-TVF und
+die getrennte gruppenbezogene Replace-Funktion nach Einzelbesprechung:
+
+- Alle Capture-Wiederholungen mit Match-, Gruppen- und Capture-Ordinal,
+  Gruppenname, Position, Länge und Wert ausgeben.
+- Nicht beteiligte Gruppen erkennbar mit Matched=0 und NULL für Position,
+  Länge und Wert. Tatsächlich leerer Capture davon unterscheidbar.
+- Replace unterstützt `$1`, `${Name}` und `$$`. Mehrfach erfasste Gruppe
+  verwendet beim Replace ihre letzte Capture; die TVF liefert alle.
+- Nicht beteiligte Gruppe ersetzt durch Leertext; unbekannte
+  Gruppenreferenz ist ein Fehler.
+- Bestehendes literales Replace unverändert. Keine Rückreferenzen im
+  Suchpattern durch diese Erweiterung.
+- Öffentliche Namen, genaue Typen, Zählweise, NULL-/Fehlerprioritäten und
+  Profile innerhalb dieses Scopes vor Sourceumsetzung schriftlich
+  konkretisieren; bestehende begrenzte SAFE-/LOB-Verträge weiterverwenden,
+  keine Unlimited-, stille Truncation- oder Teilausgabeoption.
+
+Status Capture/Replace: `ready for development`; keine Runtime-Evidenz.
+
+#### Individuell freigegebene XLSX-Typ-/Anzeige-Welle
+
+Dieselbe ausdrückliche Benutzerantwort „ja“ vom 2026-10-01 bestätigt
+separat die besprochene Typfunktion und Anzeigeformatierung:
+
+- Separate Typfunktion liefert typisierte Werte samt Status, Rohwert bleibt
+  erhalten. Zahlen nicht automatisch als Datum interpretieren: expliziter
+  Zieltyp oder unterstützter Zellformatcode erforderlich.
+- Datum, Uhrzeit und Dauer getrennt; Dauer darf über 24 Stunden liegen.
+  Workbook-Datumssystem 1900/1904 beachten. Ungültiges Excel-Schalttagsdatum
+  29.02.1900 liefert expliziten Sonderstatus, kein erfundenes SQL-Datum.
+- Anzeigeformatierung liefert Text plus Status. Unterstützter erster Scope
+  wie oben: Zahl, Prozent, wissenschaftlich, Datum/Uhrzeit und Text mit
+  ausdrücklich gewählter Culture. Nicht unterstützte Formatcodes sichtbar
+  melden, nicht stillschweigend annähern.
+- Gespeicherte Formel-Ergebnisse dürfen verarbeitet werden, niemals neue
+  Formelberechnung. Keine Farben, bedingte Formatierung oder Layoutauswertung.
+- Nach qualifiziertem Raw-Reader implementieren; Typ-/Styletransport,
+  unterstützte Formatgrammatik, SQL-Typ-/Überlauf-/NULLsemantik und begrenzte
+  Ressourcen innerhalb dieses Scopes schriftlich konkretisieren. Keine
+  Datei-/Netzwerk-, SDK-/Worker- oder Rechteausweitung ableiten.
+
+Status XLSX-Folgefunktionen: `ready for development`; keine Runtime-Evidenz.
+Für beide Wellen gelten unabhängiger Review, synthetische Contract-/Grenztests,
+scopebezogene Lab-Auswahl, erforderliche grüne CI und PR-Merge unverändert.
+Neue fachliche Entscheidungen außerhalb dieses Scopes weiterhin rückfragen.
 Keine neue Runtime-Implementierung oder Testevidenz durch diesen Eintrag;
 unabhängige bereits freigegebene Wellen laufen weiter.
 
