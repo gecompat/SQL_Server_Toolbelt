@@ -1489,6 +1489,22 @@ def run_json_constructors_static() -> None:
         )
 
 
+def run_table_clone_static() -> None:
+    script = (
+        REPOSITORY_ROOT / "Modules" / "toolbelt.metadata.table-clone"
+        / "Tests" / "Static" / "validate_contract.py"
+    )
+    result = subprocess.run(
+        (sys.executable, str(script)), cwd=REPOSITORY_ROOT,
+        check=False, capture_output=True, text=True, encoding="utf-8",
+    )
+    if result.returncode != 0:
+        raise ValidationError(
+            "Statische Table-Clone-Prüfung fehlgeschlagen:\n"
+            f"{result.stdout}{result.stderr}"
+        )
+
+
 def run_console_message_static() -> None:
     script = (
         REPOSITORY_ROOT / "Modules" / "toolbelt.core.console-message"
@@ -1636,6 +1652,8 @@ def main() -> int:
         run_json_path_exists_static()
     if "json_constructors_static" in checks:
         run_json_constructors_static()
+    if "table_clone_static" in checks:
+        run_table_clone_static()
     if "w2c_runtime_workflow_scope" in checks:
         validate_w2c_runtime_workflow_scope()
     if "console_message_static" in checks:

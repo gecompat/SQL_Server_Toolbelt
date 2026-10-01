@@ -1,0 +1,57 @@
+name: Table Clone Runtime
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/table-clone-runtime.yml"
+      - "Modules/toolbelt.metadata.table-clone/module.yaml"
+      - "Modules/toolbelt.metadata.table-clone/Source/**"
+      - "Modules/toolbelt.metadata.table-clone/Deployment/**"
+      - "Modules/toolbelt.metadata.table-clone/Tests/Runtime/**"
+      - "Modules/toolbelt.metadata.table-clone/Tests/Static/**"
+      - "Tests/CI/run-table-clone-linux.sh"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/table-clone-runtime.yml"
+      - "Modules/toolbelt.metadata.table-clone/module.yaml"
+      - "Modules/toolbelt.metadata.table-clone/Source/**"
+      - "Modules/toolbelt.metadata.table-clone/Deployment/**"
+      - "Modules/toolbelt.metadata.table-clone/Tests/Runtime/**"
+      - "Modules/toolbelt.metadata.table-clone/Tests/Static/**"
+      - "Tests/CI/run-table-clone-linux.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: table-clone-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  runtime:
+    name: SQL Server ${{ matrix.sql-version }} Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        sql-version: ["2019", "2022", "2025"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate static contract
+        run: >-
+          python3
+          Modules/toolbelt.metadata.table-clone/Tests/Static/validate_contract.py
+
+      - name: Execute synthetic compatibility and lifecycle tests
+        env:
+          TBX_SQL_VERSION: ${{ matrix.sql-version }}
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest
+        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-table-clone-linux.sh

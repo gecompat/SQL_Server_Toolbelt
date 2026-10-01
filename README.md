@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 31 Module implementiert – 10 teilweise validiert](https://img.shields.io/badge/Status-31%20Module%20implementiert%20%7C%2010%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 32 Module implementiert – 11 teilweise validiert](https://img.shields.io/badge/Status-32%20Module%20implementiert%20%7C%2011%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 31 Module sind implementiert; 21 sind `validated`, 10 sind `partially validated`, alle sind `unreleased`.**
+**Der Repository-Grundaufbau ist abgeschlossen. 32 Module sind implementiert; 21 sind `validated`, 11 sind `partially validated`, alle sind `unreleased`.**
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)
@@ -219,6 +219,12 @@ Temp-Tabellen mit expliziten Typen, strikter Prüfung und atomarer
 ResultTable-Ausgabe. Der vollständige finale Adapter besteht auf SQL Server
 2019 Linux/latest und 2025 Windows/CU8; weitere Ziele und gemappte CrossDB-
 Minimalrechte bleiben offen. Das Modul ist `partially validated`, `unreleased`.
+
+Der getrennte [Script-only Tabellenklon](./Modules/toolbelt.metadata.table-clone/README.md)
+liefert keine automatische Ausführung oder Datenkopie. Der Tabellenklon ist
+auf 2019 Linux und 2025 Windows/CU8 im begrenzten synthetischen Scope geprüft;
+weitere Zielkombinationen und Lowpriv-CrossDB bleiben offen, Status teilweise
+validiert und unveröffentlicht.
 
 Die implementierten W2c-Module
 [`toolbelt.core.console-message`](./Modules/toolbelt.core.console-message/README.md)

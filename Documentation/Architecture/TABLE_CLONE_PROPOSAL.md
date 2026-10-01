@@ -1,6 +1,25 @@
 # Vorschlag: Kontrollierter Tabellenklon (`TC-2026-044`)
 
-## Status
+## Freigegebener Script-only-V1, 2026-10-01
+
+Nach Einzelbesprechung hat der Benutzer Implementierung, Prüfung und PR-Merge
+mit „ja, ich gebe das alles frei“ ausdrücklich bestätigt; kanonischer erster
+Reservewellenabschnitt in `.ai/BACKLOG.md`, TC-2026-044.
+`USP_ScriptTableClone` ist ausschließlich same-database Preview, keine DDL-
+Ausführung oder Datenkopie. Der konkrete technische Vertrag steht im
+[Objektvertrag](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ScriptTableClone.md).
+T-SQL-Catalogkern plus Help-/Precompile-Fassade, keine SMO/CLR-Abhängigkeit.
+ResultTable nutzt kanonischen Helper; vollständige Vorschau vor Mutation.
+Unterstützte Typ-/Indexgrenzen und sichtbarer Unsupported-Abbruch sind dort
+präzisiert; Identity optional Seed/Increment, niemals aktueller Zähler.
+SHA256length-framed Constraintnamen umgehen Identifierüberlängen ohne stille
+Trunkierung, voll gequotete Identifier. Metadaten benötigen datenbankweite
+VIEW DEFINITION für vollständige incoming-FK-/Kollisionssicht;
+Quelle strukturell stabil halten, keine spätere Driftfreiheit.
+Test-DDL ausschließlich synthetisch; tatsächliche Evidenz separat im Manifest.
+Keine Veröffentlichung, keine zusätzlichen Clone-/Execute-/Copy-APIs.
+
+## Historischer Vorschlag vor Einzel-Freigabe (superseded für V1)
 
 `TC-2026-044` bleibt Research. Dieses Dokument bereitet die spätere
 Funktionsbesprechung vor. Es autorisiert keine DDL-Ausführung, keinen Zugriff
