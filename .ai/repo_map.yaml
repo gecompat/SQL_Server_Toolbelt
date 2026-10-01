@@ -757,6 +757,7 @@ change_impact:
       paths:
         - Modules/toolbelt.tsql.script-parser/**
         - Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md
+        - Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md
         - Documentation/Research/TSQL_SCRIPTDOM_PROVIDER_SPIKE.md
       checks:
         - markdown_links

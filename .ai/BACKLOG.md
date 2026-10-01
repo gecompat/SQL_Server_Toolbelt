@@ -158,6 +158,17 @@ systematische Syntaxqualifikation vor Trigger-Rewriting bestätigte er mit
   Umschreibungsfreigabe. Der bestehende UNSAFE-/Windows-only-Vertrag bleibt
   sichtbar; kein Linux-/Worker-/SDKfallback oder Trust-/Rechteausweitung.
 
+Nachfolgerstand 2026-10-02: Die einzeln freigegebene Parser-Härtung ist
+`active` im isolierten Branch. Vor Source wird der begrenzte gemeinsame
+Vertrag der vier vorhandenen TVFs als Major-Folgeversion konkretisiert:
+[begrenzter Hardening-Vertrag](../Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md).
+Der vorgeschaltete Ressourcenwächter wird zuerst in isolierten
+Framework-Prozessen auf dem exakt vorhandenen ScriptDom-Binarystand
+qualifiziert. Neue Grenzen und fehlende Nachweise bleiben ausdrücklich
+sichtbar; Trigger-Rewriting gehört weiterhin zur getrennten Folgewelle.
+SQL-Lab-Qualifikation ist für ausgewählte Windows-2019-/2025-base-Selektoren
+mit erlaubter CU-Äquivalenz vorgesehen, bisher `not executed`.
+
 #### Trigger-Scriptklon
 
 - Bestehenden Scriptplaner optional für gewöhnliche T-SQL-DML-Trigger auf

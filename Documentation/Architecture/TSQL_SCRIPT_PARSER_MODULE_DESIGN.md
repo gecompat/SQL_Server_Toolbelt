@@ -2,6 +2,8 @@
 
 ## Status und Freigabe
 
+Die freigegebene Hardening-Welle für die geplante Major-Version 2.0.0 wird im [TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md](TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md) konkretisiert. Für diese Welle ersetzt dieser Vertrag die nachstehenden Aussagen zu beliebigen Eingaben, Default-Tiefe, partiellem AST und garantiertem Schutz vor Prozessabstürzen; historische 1.0.0-Validierung gilt weiterhin nur für 1.0.0.
+
 - **Modul-ID:** `toolbelt.tsql.script-parser`
 - **Schema:** `toolbelt_tsql`
 - **Assembly:** `Toolbelt_Tsql_ScriptParser` / `Toolbelt.Tsql.ScriptParser.dll`
