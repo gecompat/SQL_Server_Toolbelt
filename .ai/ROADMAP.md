@@ -552,6 +552,16 @@ Erweiterungen; Fuzzy Matching bleibt zurückgestellt.
 
 ### Phase 4.5 – E1 Work Queue in vertikalen Slices
 
+Nachfolgerwelle 2026-10-02: Der am 2026-10-01 einzeln freigegebene erste
+[externe Worker](../Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md)
+ist `implemented`, Runtime `partially validated`, Release `unreleased`.
+Bestehende SQL-APIs, ein Supervisor mit 1–8 Slots und kooperative
+Cancellation/Drain sind umgesetzt. Die Windows-Host-Labtests gegen 2019
+Linux/latest und 2025 Windows/CU8 bestehen; Linux-Host-CI gegen eine eigene
+synthetische SQL-2019-Instanz ist ebenfalls erfolgreich.
+Einzeln abgegrenzte offene Nachweise stehen in der Worker-Testmatrix.
+Dauerbetrieb, persistente Registrierung sowie Agent/Broker bleiben getrennt.
+
 **Status:** Work Queue 2.0.0 `implemented`, Runtime `validated`,
 Release `unreleased`; E1d ist als W6d separat implementiert und validiert
 

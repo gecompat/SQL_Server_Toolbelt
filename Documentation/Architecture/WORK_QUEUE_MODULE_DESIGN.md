@@ -1,5 +1,14 @@
 # Work-Queue-Moduldesign – E1a, E1b und freigegebenes W6c
 
+## Separat freigegebener externer Worker
+
+Die Einzelfreigabe vom 2026-10-01 wird im
+[ersten externen Worker-Vertrag](EXTERNAL_QUEUE_WORKER_CONTRACT.md)
+vor Source konkretisiert. Der manuell gestartete Provider verwendet die
+vorhandenen Queue-, Work-Type-, Execution-Context- und Cancellation-APIs.
+Sein eigener Nachweis ist vom validierten SQL-Kern getrennt; Dienstbetrieb,
+Agent/Broker und persistente Workerregistrierung bleiben Folge-Scope.
+
 ## W6c – Work Queue 2.0.0
 
 W6c kombiniert Retry/Dead Letter/Idempotenz aus `TC-2026-020` mit priorisierten Gruppen-Barriers aus `TC-2026-048`. Zweck, öffentlicher Vertrag, Alternativen, Risiken und Scope wurden am 2026-09-10 besprochen; der Benutzer hat die Umsetzung anschließend ausdrücklich freigegeben.

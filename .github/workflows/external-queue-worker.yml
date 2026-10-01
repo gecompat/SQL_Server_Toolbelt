@@ -1,0 +1,85 @@
+name: External Queue Worker
+
+on:
+  pull_request:
+    paths:
+      - "Workers/ExternalQueue/**"
+      - "Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md"
+      - "Modules/toolbelt.core.work-queue/**"
+      - "Modules/toolbelt.core.work-type/**"
+      - "Modules/toolbelt.core.execution-context/**"
+      - "Modules/toolbelt.core.execution-cancel/**"
+      - "Tests/CI/run-external-queue-worker-lab.ps1"
+      - ".github/workflows/external-queue-worker.yml"
+  push:
+    branches: [main]
+    paths:
+      - "Workers/ExternalQueue/**"
+      - ".github/workflows/external-queue-worker.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: external-queue-worker-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fault-contract:
+    name: Worker fault contract (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Execute deterministic worker faults
+        shell: pwsh
+        run: ./Workers/ExternalQueue/Tests/Worker.Contract.ps1
+
+  linux-runtime:
+    name: Linux worker / SQL Server 2019
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Start disposable synthetic SQL target
+        shell: bash
+        run: |
+          set -euo pipefail
+          worker_password="Tbx!$(openssl rand -hex 18)Aa1"
+          echo "::add-mask::${worker_password}"
+          docker run -d --name tbx-external-worker-ci \
+            -e ACCEPT_EULA=Y -e MSSQL_PID=Developer \
+            -e MSSQL_SA_PASSWORD="${worker_password}" \
+            -p 127.0.0.1:1433:1433 \
+            mcr.microsoft.com/mssql/server:2019-latest >/dev/null
+          worker_connection="Data Source=127.0.0.1,1433;Initial Catalog=master;User ID=sa;Password=${worker_password};Encrypt=True;TrustServerCertificate=True;Connect Timeout=5"
+          echo "::add-mask::${worker_connection}"
+          echo "TBX_WORKER_TEST_CONNECTION_STRING=${worker_connection}" >> "$GITHUB_ENV"
+      - name: Wait for synthetic target
+        shell: pwsh
+        run: |
+          $ready = $false
+          for ($attempt = 0; $attempt -lt 60; $attempt++) {
+            $connection = [System.Data.SqlClient.SqlConnection]::new($env:TBX_WORKER_TEST_CONNECTION_STRING)
+            try { $connection.Open(); $ready = $true; break }
+            catch { Start-Sleep -Seconds 2 }
+            finally { $connection.Dispose() }
+          }
+          if (-not $ready) { throw 'WORKER.CI_TARGET_UNAVAILABLE' }
+      - name: Execute real Linux worker contracts
+        shell: pwsh
+        run: >-
+          ./Workers/ExternalQueue/Tests/Runtime/Invoke-Contract.ps1
+          -ConnectionStringEnvironmentVariable TBX_WORKER_TEST_CONNECTION_STRING
+          -ExpectedSqlVersion 2019
+      - name: Cleanup owned synthetic target
+        if: always()
+        shell: bash
+        run: docker rm -f tbx-external-worker-ci >/dev/null 2>&1 || true
