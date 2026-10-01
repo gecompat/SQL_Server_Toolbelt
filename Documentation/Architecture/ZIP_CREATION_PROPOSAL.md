@@ -167,6 +167,14 @@ UTF-8-Bytegrenzen, binäre Namensduplikate und Formatfelder prüfen, keine
 Casefold-/Normalisierung. Casevarianten könnten später auf Windows-Dateisystemen
 kollidieren; der In-memory-Writer ist kein Dateisystemvertrag.
 
+Kompatibilitätsgrenze des vorhandenen Readers: dessen interne Namensgrenze
+und öffentliche EntryName-Typen sind auf 1024 UTF-16-Codeeinheiten begrenzt.
+Eine vorgeschlagene Writer-Anhebung darüber kann gültige ZIP-Archive erzeugen,
+die dieser Reader weder listen noch extrahieren kann. Keine implizite
+Reader-Limiterweiterung; Roundtrip-Parität mit dem vorhandenen Reader gilt
+nur innerhalb seiner unveränderten Grenzen. Größere Namen benötigen einen
+unabhängigen Leser oder einen gesondert freigegebenen Reader-Folgeslice.
+
 **Transportempfehlung:** genau ein versionierter, längencodierter
 Little-Endian-Binary-Envelope, strikte UTF-8-Namen, kein JSON/Base64.
 T-SQL validiert privaten konsistenten Snapshot; CLR-Kern ohne Datenabfrage.
