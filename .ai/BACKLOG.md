@@ -6,6 +6,117 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### TC-2026-034 / TC-2026-039 / TC-2026-040 / TC-2026-042 / TC-2026-044: Freigegebene Reservewellen
+
+Benutzerfreigabe 2026-10-01: Nach der Einzelbesprechung der beiden
+ZIP-Datei-USPs bestätigte der Benutzer „ZIP passt“ und nahm Range sowie Date
+Shifting in die Planung auf. Anschließend wurden vier weitere APIs mit
+konkreten Verträgen einschließlich Lookup und Script-only-Tabellenklon
+besprochen. Auf die ausdrückliche Frage nach Implementierung, Prüfung und
+PR-Merge aller vier sowie der beiden ZIP-Datei-USPs antwortete er:
+„ja, ich gebe das alles frei“. Diese sechs Funktionen sind einzeln
+freigegeben; keine pauschale Freigabe weiterer Backlogthemen.
+Status: `ready for development`; noch keine Implementierungs-/Runtime-Evidenz.
+
+#### ZIP-Datei-I/O: zwei Windows-Fassaden
+
+- `USP_CreateZipFileFromEntries`: bestehender Entries-#Temp-/Writervertrag,
+  dann kontrolliertes Schreiben des vollständigen Archiv-Binary.
+- `USP_ExtractZipEntryToFile`: ZIP-Binary und genau ein benannter Entry,
+  dann kontrolliertes Schreiben; keine vollständige/rekursive Entpackung.
+- Bestehende kanonische ZIP-/Filesystemkerne wiederverwenden, kein zweiter
+  ZIP-Algorithmus. Windows-only zunächst; kein impliziter Linux-/Workerfallback.
+- Konfigurierter Root-Alias und relativer Dateipfad, Caller als Default,
+  ServiceAccount nur ausdrücklich gewählt. Overwrite Default aus, vorhandene
+  Datei Fehler. Zielverzeichnisse müssen bestehen; keine automatische Anlage.
+- Erst vollständige temporäre Datei, dann kontrollierte Veröffentlichung;
+  keine teilweise sichtbare Zieldatei. Fehler dürfen bestehende Zieldatei
+  nicht beschädigen. Geforderte Atomarität tatsächlich nachweisen, sonst
+  nur diesen Zweig blockieren, kein unsicherer Direct-Write-Fallback.
+- Aktive Caller-SQL-Transaktionen zunächst ablehnen, weil Dateischreiben
+  nicht durch SQL-Rollback rückgängig wird. Bestehende ZIP-Ressourcenlimits,
+  kein Unlimited. Standard-USP-Vertrag; Ausgabe nur Metadaten wie BytesWritten,
+  RootAlias, RelativePath, State, kein zusätzliches Archive-Binary.
+- Konkrete öffentliche Schemas, Ressourcennamen und Fehlernummern sind
+  technische Konkretisierung innerhalb dieses Scopes; keine neue Identitäts-,
+  Pfad-, Trust- oder Infrastrukturfreigabe. Tests nur synthetische Fixtures
+  in ausdrücklich zulässigen Testroots, keine Lab-Infrastrukturverwaltung.
+
+#### TVF_DeterministicRange
+
+- Eingaben Key varbinary(max), positive MappingVersion int, Seed bigint=0,
+  Min bigint und Max bigint. Nicht leerer Key höchstens 8.000 Bytes; keine
+  automatische Case-/Collation-/Unicode-Normalisierung. Caller kodiert Text.
+- Grenzen geschlossen, negative Bereiche und vollständiger bigint-Bereich.
+  Gleiche Eingaben liefern versionsstabil denselben Wert; Änderung von Seed,
+  MappingVersion oder Grenzen kann die Zuordnung ändern, nicht garantiert.
+- SHA-256, eindeutig gerahmte versionsgebundene Bytekodierung und
+  Rejection-Sampling statt einfacher Modulo-Verzerrung. Höchstens 128 Versuche,
+  danach expliziter Fehler; kein unbegrenztes Wiederholen.
+- Eine Ergebniszeile Value bigint und ErrorCode. NULL-Key ergibt NULL-Wert
+  ohne Fehler; ungültige Konfiguration Fehlercode und kein Wert. Technische
+  Fehlerprioritäten, Byteformat und Testvektoren dauerhaft dokumentieren.
+- Keine Secrets, persistierten Mappings, Eindeutigkeits-, Kryptografie- oder
+  Anonymisierungsgarantie. Portabler T-SQL-Kern bevorzugt; keine neuen CLR-/
+  externen Provider ohne gesonderte Autorisierung.
+
+#### TVF_DeterministicDateShift
+
+- datetime2(7), Entitätsschlüssel nach Rangevertrag, MappingVersion, Seed und
+  MaxDays int=365. Bereich inklusiv [-MaxDays,+MaxDays]; MaxDays von 0 bis
+  3.652.058. Ein kanonischer Range-Kern, keine zweite Hashimplementierung.
+- Gleiche Entität bei identischen Parametern erhält denselben Tagesoffset;
+  Uhrzeit/Präzision und zeitliche Abstände bleiben erhalten. MaxDays=0 identisch.
+- Datentypüberlauf ist Fehler, kein Clamp/Wraparound. Keine Zeitzonen-/DST-
+  Behandlung oder separate Offset-Diagnoseausgabe.
+- Eine Ergebniszeile Value datetime2(7), ErrorCode. NULL-Zeitwert oder -Key
+  ergibt NULL ohne Fehler; Konfiguration und Grenzen sonst strikt prüfen.
+
+#### USP_DeterministicLookup
+
+- Zwei caller-lokale #Temp-Tabellen: Eingaben Ordinal/Key, Pool Ordinal/Value.
+  Ordinals positiv/eindeutig mit zulässigen Lücken; Auswahl aus nach Ordinal
+  geordnetem Pool. Schlüssel nach Rangevertrag, Pooltext Unicode.
+- MappingVersion, Seed und ausdrücklich gewählte LookupVersion gehören zum
+  Mappingkontext. Unveränderter Pool/gleiche Eingaben liefern gleiche Auswahl.
+  Pooländerung benötigt neue LookupVersion; kein Speichern/Überwachen früherer
+  Pools. Keine Eins-zu-eins-Zusage; verschiedene Keys dürfen dasselbe erhalten.
+- Ausgabe InputOrdinal, LookupOrdinal, Value, keine Originalkeys. Leerer Pool
+  Fehler; NULL-Key erzeugt NULL-Zuordnung. Standard-USP-Vertrag, vollständige
+  Prüfung vor ResultTable-Mutation; gemeinsame Range-Grundlage.
+- Default je 10.000 Eingabe-/Poolzeilen, Ceiling je 100.000. Pooltext Default
+  2 MiB/Ceiling 16 MiB; Ergebnistext höchstens 16 MiB. Keine Anonymisierungs-
+  oder Re-Identifikationsschutzbehauptung, keine realen Daten als Testartefakte.
+
+#### USP_ScriptTableClone
+
+- Script-only-Planer für explizite Quell-/Ziel-Schema-/Tabellennamen in
+  derselben Datenbank, reguläre diskbasierte Tabellen. Keine DDL-Ausführung,
+  Datenkopie, datenbankübergreifende Quelle oder automatische Recovery.
+- Spalten, Nullability, Defaults, Checks, Primary-/Unique-Constraints und
+  gewöhnliche Rowstore-Indizes. Identity optional übernehmen, keine Daten
+  oder aktuellen Identity-Zähler.
+- Keine Foreign Keys, Trigger, Rechte, Extended Properties, Computed-/Sparse-
+  Spalten oder Temporal-/Ledger-/Graph-/Partitionierungsfeatures. Nicht
+  unterstützte Eigenschaften sichtbar melden; kein stilles Weglassen mit
+  behaupteter Vollständigkeit. Exakte Typ-/Indexgrenzen technisch dokumentieren.
+- Geordnete Zeilen: Reihenfolge, Objektart, Zielname, DDL-Text.
+  Deterministische kollisionsgeprüfte Namen, Identifierquoting und kein
+  Überschreiben existierender Ziele. Standard-USP-Vertrag; komplette Vorschau
+  vor Ausgabe. Plan ist eine Momentaufnahme, keine spätere Driftfreiheit.
+- Tests erzeugen/führen ausschließlich synthetische Test-DDL aus und
+  vergleichen Strukturen. Produktive API führt niemals den Scripttext aus.
+
+#### Reihenfolge und Ausweicharbeit
+
+Bereits aktive Regex-/JSON-/XLSX-Wellen zuerst unabhängig fortsetzen. Bei
+freien Agent-Slots Range vor DateShift/Lookup; Scriptplaner unabhängig;
+ZIP-Datei-I/O abhängig von qualifiziertem Filesystem-/Atomaritätsnachweis.
+Blocker stoppen ausschließlich abhängige Zweige. Agents melden sofort,
+Orchestrator prüft unabhängig und integriert grüne konsistente Stände über
+PR nach origin/main samt Branchcleanup. Keine Veröffentlichung, zusätzlichen
+fachlichen Funktionen oder Privilegien-/Lab-Infrastrukturänderungen.
+
 ### TC-2026-010 / TC-2026-009 / TC-2026-045: Freigegebene nächste Entwicklungswellen
 
 Benutzerfreigabe 2026-10-01: Nach Besprechung von Zweck, öffentlichen
