@@ -111,6 +111,49 @@ Neue fachliche Entscheidungen außerhalb dieses Scopes weiterhin rückfragen.
 Keine neue Runtime-Implementierung oder Testevidenz durch diesen Eintrag;
 unabhängige bereits freigegebene Wellen laufen weiter.
 
+### Individuell freigegebene Ergänzungen: Jaro-Winkler, Paarvergleich und gruppiertes JSON
+
+Benutzerfreigabe 2026-10-01: Nach Besprechung der folgenden vier konkreten
+Funktionen bestätigte der Benutzer die ausdrückliche Implementierungsfrage
+mit „ja“. Diese vier APIs sind einzeln freigegeben, zusätzlich zu den oben
+dokumentierten Wellen; keine pauschale Backlogfreigabe.
+
+- `TVF_JaroWinklerSimilarity`: Wert 0 bis 1, identisch 1; festes Präfixgewicht
+  0,1, höchstens vier Präfixzeichen, Bonus nur bei Jaro-Wert über 0,7.
+  Gemeinsame Unicode-/Normalisierungsgrundlage der Distanzfunktionen;
+  NULL-Eingabe ergibt NULL, zwei leere Texte 1. Begrenzte Standard-/Large-
+  Profile, keine Abschneidung oder Näherung.
+- `USP_CompareTextPairs`: caller-lokale #Temp mit eindeutiger PairOrdinal,
+  LeftText und RightText. Expliziter Algorithmus Levenshtein, OSA oder
+  Jaro-Winkler; Ausgabe PairOrdinal, Distanz beziehungsweise Ähnlichkeit
+  und Status. Bestehende Vergleichskerne wiederverwenden, Standard-USP-
+  Vertrag. Begrenzte Zeilen-/Text-/Arbeitsbudgets, vollständige Verarbeitung
+  vor ResultTable-Mutation. Keine automatische Kreuzkombination, kein
+  verstecktes Ranking oder automatisches Duplikatzusammenführen.
+- `USP_JsonArraysByGroup` und `USP_JsonObjectsByGroup`: bestehender Entries-
+  Vertrag plus positive GroupOrdinal; ein JSON-Ergebnis je vorhandener
+  Gruppe, Entry-Ordinal bestimmt Reihenfolge. Duplicate Keys innerhalb
+  einer Gruppe Fehler. Gemeinsame ValueKind-/Unicode-/Escapingkerne und
+  Ressourcenverträge wiederverwenden; Gesamtbudget über alle Gruppen,
+  keine Teilmutation bei Fehler. Kein dynamischer SQL-Eingabetext und keine
+  Typinferenz. Gruppierte USPs, keine direkt in GROUP BY verwendbaren
+  SQL-Aggregatobjekte.
+
+Status: `ready for development`; keine Implementierungs-/Runtime-Evidenz.
+Technische SQL-Typen, NULL-/Fehlerprioritäten, exakte Grenzen und Kopplung
+innerhalb dieses Scopes vor Sourceumsetzung dokumentieren und qualifizieren.
+Neue fachliche Entscheidungen rückfragen. Unabhängiger Review, scopebezogene
+Lab-Tests, erforderliche grüne CI und PR-Merge gelten unverändert.
+
+Zusätzlicher Benutzerauftrag 2026-10-01: „berücksichtige aber auch
+CLR-Aggregate zusätzlich!“ Deshalb portable SQL-CLR-JSON-Array-/Object-
+Aggregate ergänzend zu den USPs ausarbeiten, nicht durch diese ersetzen.
+Status CLR-Aggregate: Vertragsvorbereitung; keine erfundene Einzel-
+Implementierungsfreigabe vor Besprechung von Eingabe, expliziter Reihenfolge,
+NULL-/Duplicate-Regeln, serialisiertem Zustandslimit, SAFE-/Trust-/Naming-
+Vertrag und anschließender konkreter Bestätigung. Kein SDK-/Workerfallback,
+keine Rechteausweitung. Die bestehenden freigegebenen Wellen laufen weiter.
+
 ### TC-2026-034 / TC-2026-039 / TC-2026-040 / TC-2026-042 / TC-2026-044: Freigegebene Reservewellen
 
 Benutzerfreigabe 2026-10-01: Nach der Einzelbesprechung der beiden
