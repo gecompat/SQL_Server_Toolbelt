@@ -12,6 +12,12 @@
 - Alle Module bleiben `unreleased`; kein allgemeiner Benchmark oder
   Native-RE2-/Streaming-/Parallelitätsvertrag wird eingeführt.
 
+## 2026-10-01 – S2 Quote/Escape Split
+
+- Neues dependencyfreies Modul `toolbelt.string.split-advanced` mit verpflichtender `TVF_SplitAdvanced`, Originaltokens, längstem Separator und atomarer Geschäftsfehlerzeile.
+- Grenzen, UTF-16-/BIN2-Semantik, priorisierte Fehler, local/central Lifecycle, CI-/Lab-Adapter und synthetische Contracttests umgesetzt; optionaler USP und Unquoting nicht enthalten.
+- Risikobasierte physische Tests auf SQL Server 2019 Linux und 2025 Linux/Windows erfolgreich; weitere physische Zielkombinationen nicht ausgeführt. Die zusätzliche [GitHub-hosted Linux-Matrix 2019/2022/2025](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/36857332229) ist ebenfalls erfolgreich. Status `partially validated`, `unreleased`.
+
 ## 2026-09-01 – GitHub-hosted Linux-Versionsmatrix
 
 - Alle fünfzehn bislang auf SQL Server 2025 beschränkten Modul-Runtime-Workflows
@@ -346,7 +352,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-29 Module sind implementiert. 21 sind `validated`, 8 sind `partially
+30 Module sind implementiert. 22 sind `validated`, 8 sind `partially
 validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

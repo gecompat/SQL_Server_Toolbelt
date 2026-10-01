@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-29 Module sind implementiert. 22 sind `validated`, 7 sind `partially validated`; 0 sind `not executed`.
+30 Module sind implementiert. 22 sind `validated`, 8 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -13,10 +13,10 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | ID | `R2a`; Slice zu `TC-2026-010`, keine neue sequenzielle Referenz |
 | Zweck und Scope | `toolbelt_string.SVF_RegexSubstring` und `toolbelt_string.SVF_RegexReplace` nach dem konkretisierten Vertrag in `Documentation/Architecture/REGEX_EXTENSION_PROPOSAL.md`: Gesamttreffer, literal Replacement, keine Captures; gemeinsamer SAFE-CLR-Kern; Standard-/Large-Profil; Typ-/Codepage- und LOB-Grenzen. Bestehende R1b-Signaturen bleiben unverändert. |
 | Benutzerfreigabe | Zweck, Vertrag, Alternativen, Risiken und Scope wurden am 2026-10-01 besprochen und in PR #114 konkretisiert. Auf die ausdrücklich benannte Freigabefrage für beide Regex-Funktionen und die Split-TVF antwortete der Benutzer: „ja, entwickle das und mach anschließenden PR-Merge“. Damit sind diese beiden Funktionen einschließlich scopebezogener Tests, gekoppelter Dokumentation und anschließendem geprüften PR-Merge freigegeben. |
-| Status | `active`; Implementierung und Runtime-Nachweis ausstehend |
+| Status | `completed` für freigegebenen R2a-Scope; Version 1.1.0 `validated`, `unreleased` |
 | Grenzen | 2-MiB-Standardprofil und 16-MiB-Large-Zielprofil, Pattern 8.000 UTF-16-Codeeinheiten; kooperative Budgets und Patternkomplexität müssen technisch qualifiziert werden. Keine harte Echtzeit-, Streaming-, Parallelitäts- oder Verarbeitung-bis-2-GB-Zusage. Verlustfreie Quellkonvertierung vor zentralem Aufruf; weitere Typwrapper nur bei belegtem Nutzen und abgestimmtem Vertrag. |
 | Tests | R1b-Regression, neue NULL-/Start-/Occurrence-/Empty-Match-Semantik, Literal Replacement, Grenzwerte, Gesamtbudget, Ergebnisexpansion, Unicode/Codepages, konkurrierende LOB-Aufrufe, Trust, Upgrade, lokales/zentraltes Deployment und Uninstall. Lab-Matrix nach tatsächlichem Source-/Providerimpact. |
-| Nächster Schritt | Freigegebenen Vertrag implementieren und qualifizieren; substantive Vertragsabweichungen vor Umsetzung besprechen. Keine automatische Freigabe für R2b, neue Captures oder Veröffentlichung. |
+| Nächster Schritt | R2a implementiert und auf SQL Server 2019/2022/2025 Windows/Linux einschließlich echtem 1.0-zu-1.1-Upgrade, Standard-/Large-, Fehler-/Grenz-, Central-/Codepage-, Kollisions-/Rollback-, Parallelaufruf- und Lifecycle-Verträgen erfolgreich geprüft. T-SQL-Fassaden erhalten max-Defaults vor internen SAFE-CLR-Kernen; technischer SQL-CLR-Default-/Collation-Workaround dokumentiert. Keine automatische Freigabe für R2b, neue Captures oder Veröffentlichung. |
 
 ### S2: Erweiterter Split als verpflichtende TVF
 
@@ -25,10 +25,10 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | ID | `S2`; Slice zu `TC-2026-032`, keine neue sequenzielle Referenz |
 | Zweck und Scope | `toolbelt_string.TVF_SplitAdvanced` nach `Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md`: mehrere Separatorstrings, Quote/Escape, Originaltokens, 1-basierte Ordinals und atomare Geschäftsfehlerzeile statt Teiltokens. |
 | Benutzerfreigabe | Nach Vertragsbesprechung und Konkretisierung in PR #114 am 2026-10-01 ausdrücklich mit „ja, entwickle das und mach anschließenden PR-Merge“ freigegeben; die vorangehende Frage benannte `TVF_SplitAdvanced` einzeln neben den zwei Regex-Funktionen. |
-| Status | `active`; Implementierung und Runtime-Nachweis ausstehend |
+| Status | `completed` für freigegebenen S2-Scope; Runtime `partially validated` |
 | Grenzen | Pure-T-SQL-TVF; Inline-TVF-Alternative prüfen, MSTVF-Ausnahme technisch begründen. Input 65.536 UTF-16-Codeeinheiten, JSON-Rohtext 16.384, höchstens 16 Separatoren mit je 64 Codeeinheiten als zu validierende Grenzen. Fehlerpriorität, NULL-No-op, Originaltokens und fünf Resultspalten gemäß Vertrag. |
 | Tests | Quote/Escape/Longest-Match, JSON-/Konfigurations- und Parserfehler, Fehlerpositionen/-priorität, keine Teiltokens, Ordinals, NULL/Empty/Trailing Spaces, Unicode/Collations, Grenzwerte, CROSS APPLY, lokales/zentraltes Deployment, Wiederholung, Kollision und Uninstall. |
-| Nächster Schritt | Freigegebene TVF implementieren und scopebezogen testen. Optionale USP, Unquoting, ZIP-Erzeugung, Datei-I/O und tatsächliche Veröffentlichung sind nicht durch diese Freigabe autorisiert. |
+| Nächster Schritt | TVF implementiert; vollständiger Adapter auf physischen SQL Server 2019 Linux und 2025 Linux/Windows erfolgreich. Andere Zielkombinationen und GitHub-hosted Workflow nicht ausgeführt. Risikobasierte Testauswahl; keine automatische Erweiterung der Testmatrix. Optionale USP, Unquoting, ZIP-Erzeugung, Datei-I/O und tatsächliche Veröffentlichung sind nicht durch diese Freigabe autorisiert. |
 
 ### P1a: T-SQL Script Parser und AST-Provider
 
@@ -57,9 +57,9 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 | Dependencies | Ausdrückliche V0-Freigabe vom 2026-08-28 und Einzelzielfreigabe vom 2026-08-29; schema-valider SQL_Server_Lab-Vertrag; entweder `groupStatus = READY` oder explizit ausgewählte Einzelziele mit `runtimeStatus = READY` und zulässigem Eintragsstatus; vorhandene Modul-, Lifecycle- und Testverträge. |
 | Priorität | `P0` |
 | Status | `active`; autonom ausführbare V0a-/V0b-Matrix abgeschlossen; sieben externe oder manuelle Rest-Gates bleiben offen |
-| Implementation Status | 29 Module `implemented` – aus `module.yaml` abgeleitet |
-| Validation Status | 22 Module `validated`, 7 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 22 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory und Windows Filesystem bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuelle Sicherheitsfälle offen. |
-| Release Status | 29 Module `unreleased`; V0c, D1, E1a, E1b, R1b und W6d autorisieren keine tatsächliche Veröffentlichung. |
+| Implementation Status | 30 Module `implemented` – aus `module.yaml` abgeleitet |
+| Validation Status | 22 Module `validated`, 8 Module `partially validated`; die vollständige Windows-/Linux-Matrix ist für 22 Module belegt. Bei Result Table, Base64, Generate Series, Console Message, File Content, ZIP Memory und Windows Filesystem bleiben ausdrücklich abgegrenzte Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuelle Sicherheitsfälle offen. Das neue S2-Modul Split Advanced ist zusätzlich nur im ausdrücklich risikobasiert ausgewählten Scope geprüft; weitere Zielkombinationen und niedrigprivilegierte Cross-DB-Aufrufe sind nicht ausgeführt. |
+| Release Status | 30 Module `unreleased`; V0c, D1, E1a, E1b, R1b und W6d autorisieren keine tatsächliche Veröffentlichung. |
 | Akzeptanzkriterien | Linux- und Windows-Zielversionen tatsächlich geprüft; Dependency-Closure und versionierte Objektmanifeste konsistent; Erst-, Wiederholungs-, Upgrade-, Central- und Uninstall-Verträge für die Kohorte erfolgreich; modulspezifische Pflichtfälle ausgeführt; nicht verfügbare Kombinationen sichtbar; vollständiger Dokumentationsaudit erfolgreich. |
 | Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |
 | Blocker | Kein Gruppenblocker für einzeln bereite Linux- oder Windows-Ziele. Die automatisierte Matrix ist vollständig grün. Offen bleiben ausschließlich die sieben modulspezifisch dokumentierten Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuellen Sicherheitsgates. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. |
@@ -257,6 +257,35 @@ Die V0c-Kohorte umfasst verbindlich:
 | Evidenz | Benutzerfreigabe am 2026-07-31; Implementierung und Windows-Build-/Static-Contract-Artefakte auf `main`; Build-Nachweis im Wartungslauf https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356. |
 | Nächster Schritt | Manuellen Windows-SQL-Server-/NTFS-Runtime-Test gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` ausführen und ausschließlich abstrahierte Ergebnisse erfassen; die Terminierung hängt an `V0b`. GitHub-hosted Windows-Runner sind kein Ersatz, weil die offiziellen Runner-Images keine SQL-Server-Engine enthalten. |
 
+
+## Besprochene Folgescopes ohne Implementierungsfreigabe
+
+### TC-2026-032: Unquoting und optionale Split-USP
+
+Am 2026-10-01 hat der Benutzer Unquoting auf einen äußerlich gequoteten Token
+begrenzt und anschließend präzisiert: Das äußere Paar wird entfernt, innere
+verdoppelte Quotes werden dekodiert; `"hallo""du"""` wird `hallo"du"`.
+Die zuvor angenommene unveränderte Innenbehandlung wurde damit korrigiert.
+Backslash-Escapes, ungequotete Tokens und malformed Eingaben bleiben zu besprechen.
+`USP_SplitAdvanced` soll ergänzend vorgesehen werden und führt kein
+automatisches Unquoting aus. Die Split-TVF bleibt Pflicht.
+Die [konkreten Folgeslice-Vorschläge](../Documentation/Architecture/ADVANCED_STRING_SPLIT_PROPOSAL.md#beschlossene-folgescope-grenzen-vom-2026-10-01)
+halten Alternativen, Risiken, Dependencies, Testscope und noch offene
+Signatur-/Fehler-/Randfallentscheidungen fest. Status: `proposed` für diese
+Folgeslices, keine Implementierungsfreigabe; S2 bleibt davon getrennt `active`.
+
+### TC-2026-045: Begrenzter XLSX-Reader und verpflichtende Erweiterung
+
+Am 2026-10-01 hat der Benutzer Binaryinput und Raw-/Text-/Cache-Werte als
+erste Readergrenze bestätigt. Text ist aufgelöster Shared-/Inline-Stringinhalt,
+keine formatierte Excel-Anzeige. Provider, Signaturen, Limits und Fehler sind
+noch offen; Status: `researched`, keine Implementierungsfreigabe.
+Anzeigeformat, Styles, explizite Culture und Datumsbehandlung müssen später
+als eigener Funktionsslice umgesetzt werden, sobald ihr Vertrag besprochen
+und ausdrücklich freigegeben ist. Dazu gehören 1900-/1904-Modus,
+1900-Schaltjahrsonderfall, Formatcodes sowie Datum/Zeit/Dauer-Abbildung.
+Der [Reader-Vorschlag](../Documentation/Architecture/XLSX_READER_PROPOSAL.md)
+führt Provider-Spike, ungemessene Zielgrenzen und die getrennte Folgestufe.
 
 ## Abgeschlossene Arbeitspakete
 
@@ -578,7 +607,7 @@ Die V0c-Kohorte umfasst verbindlich:
 | Tests | Statischer Vertrag sowie vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Compatibility Levels 150/160/170 nach Zielversion erfolgreich. |
 | Blocker | Kein Merge-Blocker; die vollständige Pflichtmatrix ist erfolgreich. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-001`; kanonische Artefakte unter `Modules/toolbelt.string.split-characters/`; [Split-Characters Runtime Run 30516116708](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30516116708) erfolgreich. |
-| Nächster Schritt | Keine autonome Validierung offen. `TC-2026-032` bleibt Research ohne Implementierungsfreigabe. |
+| Nächster Schritt | Keine autonome Validierung offen. S2 zu `TC-2026-032` ist separat freigegeben und implementiert; USP/Unquoting bleiben offen. |
 
 ### AP-2026-010: Identifier- und Multipart-Name-Toolkit implementieren
 

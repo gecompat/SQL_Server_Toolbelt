@@ -12,6 +12,7 @@ param(
         'run-date-spine-linux.sh',
         'run-identifier-linux.sh',
         'run-split-characters-linux.sh',
+        'run-split-advanced-linux.sh',
         'run-semantic-version-linux.sh',
         'run-integer-base-linux.sh',
         'run-w1-linux.sh',

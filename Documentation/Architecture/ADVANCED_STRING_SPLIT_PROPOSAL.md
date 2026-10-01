@@ -2,6 +2,8 @@
 
 ## Status
 
+Nachtrag 2026-10-01: Der nachfolgend besprochene S2-Vertrag wurde ausdrücklich freigegeben und als [TVF_SplitAdvanced](../../Modules/toolbelt.string.split-advanced/Documentation/TVF_SplitAdvanced.md) implementiert. Die folgenden Vorschlagsformulierungen dokumentieren den historischen Entscheidungsstand vor PR #114/#115; aktueller Vertrag und Evidenz liegen im Modul. Optionale USP und Unquoting bleiben getrennt und unfreigegeben.
+
 `TC-2026-032` bleibt Research. Dieses Dokument bereitet die spätere
 funktionsbezogene Besprechung vor; es autorisiert weder ein Modul noch eine
 öffentliche SQL-Schnittstelle.
@@ -19,7 +21,64 @@ Implementierung fest. Die folgenden Konkretisierungen vom 2026-10-01 sind
 Entscheidungsvorschläge für Fehlerausgabe, Zustandsregeln und Zielgrenzen;
 sie sind weder implementiert noch runtime-validiert oder freigegeben.
 
-## Problem
+## Beschlossene Folgescope-Grenzen vom 2026-10-01
+
+Der Benutzer hat zunächst das Entfernen eines äußeren Quote-Paars gewählt
+und danach die Innenbehandlung präzisiert: Verdoppelte Quotes werden im
+gequoteten Token dekodiert; `"hallo""du"""` wird `hallo"du"`.
+Die zuerst angenommene unveränderte Innenbehandlung war ein Missverständnis
+und ist durch diese Präzisierung ersetzt. Andere Escapeformen, ungequotete
+Tokens und Fehlerfälle sind noch offen. Die optionale `toolbelt_string.USP_SplitAdvanced` soll vorgesehen
+werden und führt kein automatisches Unquoting aus. Diese Auswahl ist keine
+Implementierungsfreigabe dieser Folgeslices; S2 bleibt separat freigegeben.
+
+### Unquoting: Vorschlag zur weiteren Vertragsbesprechung
+
+Arbeitsname `toolbelt_string.TVF_UnquoteToken`: portabler relationaler
+T-SQL-Kern mit `@Input nvarchar(max)` und `@Quote nvarchar(max)`. Ein optionaler
+Scalar-Wrapper ist nicht automatisch Teil des Slices. Vorschlag: Nur wenn
+die erste und letzte UTF-16-Codeeinheit dem aktiven Quote-Zeichen entsprechen
+und mindestens zwei Codeeinheiten vorhanden sind, wird genau dieses Paar
+entfernt und jedes verdoppelte Quote im Inneren einmal dekodiert. Keine
+rekursive Paarentfernung und kein Entfernen von Quotes mitten in einem
+ungequoteten Token. Ob ungequotete Tokens unverändert bleiben, einzelne
+innere Quotes in gequoteten Tokens Fehler sind und Backslash-Escapes einen
+eigenen Modus erhalten, bleibt ausdrücklich zu bestätigen. Die Randprüfung
+und das Verhalten bei unvollständigem äußerem Paar sind noch offen.
+
+Vorgeschlagen: derselbe deaktivierbare Ein-Codeunit-Quote-Vertrag,
+BIN2-Vergleich, NULL-No-op, 65.536-Codeunit-Inputgrenze und atomare
+Errorrow-Form wie S2. Whitespace wird nicht getrimmt; ein reines Paar ergibt
+leeren Text. Das Verhalten bei einem einzelnen Quote bleibt offen. Signatur,
+Resultset, Fehler und Randfälle brauchen noch eine ausdrückliche
+funktionsbezogene Vertrags- und Implementierungsfreigabe.
+
+Alternative ausschließlich wörtliche Randentfernung reicht nach dem
+Nutzerbeispiel nicht aus. Globales Entfernen innerer Steuerquotes ist ebenfalls
+nicht der gewünschte Vertrag. Die Funktion dekodiert einen einzelnen Token,
+nicht eine vollständige CSV-Zeile. Tests sollen äußere/verdoppelte/ungepaarte
+Quotes, abgegrenzte Escapeformen, Leer-/NULL-Werte, Whitespace, mehrere Paare,
+Unicode, BIN2 und Grenzen abdecken.
+
+### Optionale USP: Vorschlag zur weiteren Vertragsbesprechung
+
+`toolbelt_string.USP_SplitAdvanced` soll dieselben fachlichen Eingaben und
+Defaults wie S2 sowie den vollständigen Hilfe-/Debug-/ResultTable-/KeepData-
+Vertrag verwenden. Sie ruft ausschließlich den kanonischen TVF-Kern auf und
+gibt Originaltokens aus. Unquoting wird nur vom Caller ausdrücklich
+komponiert und ist weder Default noch versteckte Nachverarbeitung.
+
+Vorschlag: Eine TVF-Errorrow wird vor ResultTable-Mutation in einen stabilen
+THROW übersetzt; vollständige Vorprüfung verhindert Teiltokens und
+Teiländerungen bei Geschäftsfehlern. Konkreter Fehlerbereich und
+Erfolgsschema bleiben zu bestätigen. Die TVF ist Pflicht und wird nicht
+ersetzt; Alternative bleibt der alleinige TVF-Aufruf. Aufwand und Risiken
+liegen in ResultTable-/Transaktions-/Fehlerkopplung, nicht in einer zweiten
+Tokenizerlogik. Tests umfassen TVF-Parität, Originaltokens, Fehlerübersetzung,
+unveränderte ResultTable bei Geschäftsfehlern, KeepData, Hilfe, Debug und
+Lifecycle. Implementierungsfreigabe steht aus.
+
+## Problem und bestehender V1-Schnitt
 
 `toolbelt.string.split-characters` verarbeitet bewusst einzelne, literal
 verglichene UTF-16-Codeeinheiten. Strukturierte Eingaben benötigen darüber

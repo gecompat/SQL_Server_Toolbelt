@@ -4,7 +4,7 @@
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 29 Module sind implementiert. 22 sind `validated`, 7 sind
+abgeschlossen. 30 Module sind implementiert. 22 sind `validated`, 8 sind
 `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
@@ -18,8 +18,10 @@ ermittelte OLE-DB-Provideroption. Sieben Bestandsmodule bleiben wegen
 ausdrücklich abgegrenzter Performance-, Client-/Treiber-, Fixture-,
 Interoperabilitäts- oder manueller Sicherheitsfälle `partially validated`.
 Der Script Parser ist auf Windows SQL Server 2019, 2022 und 2025 validiert. File Content benötigt weiterhin
-separat bereitgestellte serverseitige Fixtures. `TC-2026-032` bleibt eine
-getrennte Split-Ausbaustufe im Research-Status ohne Implementierungsfreigabe.
+separat bereitgestellte serverseitige Fixtures. S2 zu `TC-2026-032` wurde am
+2026-10-01 freigegeben und als `toolbelt.string.split-advanced` implementiert;
+risikobasiert sind 2019 Linux und 2025 Linux/Windows geprüft. Weitere
+Zielkombinationen sind nicht ausgeführt; USP und Unquoting bleiben getrennt.
 
 ## Phase 0 – Repository-Grundaufbau
 
@@ -248,7 +250,8 @@ Stand `toolbelt.string.split-characters`:
 Die freigegebene Entwicklungsfolge `AP-2026-010` bis `AP-2026-013` ist
 abgeschlossen. Die breitere
 Split-Version mit mehrzeichigen Separatoren, Escape und Quote ist separat als
-`TC-2026-032` erfasst und nicht freigegeben.
+`TC-2026-032` erfasst; dieser historische Phasenstand wurde durch die
+S2-Einzelfreigabe und Implementierung vom 2026-10-01 ergänzt.
 
 `toolbelt.validation.semantic-version` und
 `toolbelt.conversion.integer-base` sind einschließlich kanonischer inline
