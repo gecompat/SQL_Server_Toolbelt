@@ -114,12 +114,21 @@ herstellen und neuen Orchestrator-Chat mit unveränderten Projektregeln und
 individuellen Freigaben zur autonomen Fortsetzung öffnen. Queue-Implementierung
 und andere noch nicht gestartete Wellen gehen an diesen Nachfolger.
 
-Nachfolgerstand 2026-10-02: Erste externe Worker-Welle `active` im isolierten
-Branch. Der [konkrete Providervertrag](../Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md)
+Nachfolgerstand 2026-10-02: Erste externe Worker-Welle implementiert;
+finale PR-Qualifikation `active` im isolierten Branch.
+Der [konkrete Providervertrag](../Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md)
 legt vor Source die bestehenden SQL-Schnittstellen, private Authentifizierung,
 endliche Laufbudgets, Handlerzulassung, claimgebundene Checkpoints,
 atomaren Complete-/Handlercommit und Testorakel fest. Keine neue öffentliche
-SQL-API; unabhängiger Vertragsreview durchgeführt, Runtime `not executed`.
+SQL-API; unabhängiger Review und deterministische Fault-Orakel erfolgreich.
+Windows-Workerhost auf SQL Server 2019 Linux/latest und 2025 Windows/CU8
+qualifiziert, einschließlich echtem Heartbeat während langem Handler,
+Retry/Dead Letter, kooperativer Cancellation, Contextdrift, Slots und Drain.
+SQL-Readonly-Fehler 15664 zusätzlich auf beiden Zielen geprüft; finale
+vollständige Scheduling-Wiederholung auf Windows 2025/CU8 erfolgreich.
+Linux-Workerhost-PR-CI noch ausstehend.
+Runtime `partially validated`, `unreleased`; offene Grenzen stehen in der
+[Worker-Testmatrix](../Workers/ExternalQueue/Tests/README.md).
 Die vorangehende Abschlussgrenze beschreibt den Vorgänger und verhindert
 keine bereits einzeln freigegebene Nachfolgerwelle.
 

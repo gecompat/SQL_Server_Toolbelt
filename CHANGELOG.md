@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 2026-10-02 – Erster externer Queue-Worker
+
+- Manuell gestarteter PowerShell-Provider mit einem Supervisor, 1–8 Slots,
+  separaten Handler-/Controlverbindungen und bestehenden SQL-Kern-APIs.
+- Readonly-Claim-/Executionzuordnung, atomarer Handler-/Completecommit,
+  kooperative Checkpoints, Watchdog und Drain ohne forcierten Abbruch.
+- Retry ausschließlich explizit für geeignete Handler und transiente
+  Fehler nach bestätigtem Rollback; Dead Letter separat gezählt.
+  Ungeklärter Commit oder Ownershipverlust wird nicht blind wiederholt.
+- Windows-Host-Labtests gegen SQL Server 2019 Linux/latest und 2025
+  Windows/CU8 einschließlich tatsächlichem 60-Sekunden-Heartbeat erfolgreich.
+  [Worker-Testmatrix](Workers/ExternalQueue/Tests/README.md) trennt finale
+  Nachweise, Linux-Host-CI und offene Transport-/Rechte-/Recovery-/Central-
+  Qualifikationen. Teilweise validiert, unveröffentlicht; kein Dienstbetrieb.
+
 ## 2026-10-02 – Deterministic Range, DateShift und Lookup 1.0.0
 
 - Drei einzeln freigegebene synthetische Mapping-APIs mit einem gemeinsamen

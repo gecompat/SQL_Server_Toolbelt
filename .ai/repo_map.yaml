@@ -697,6 +697,10 @@ change_impact:
         - markdown_links
     work_queue_contract:
       paths:
+        - Workers/ExternalQueue/**
+        - Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md
+        - Tests/CI/run-external-queue-worker-lab.ps1
+        - .github/workflows/external-queue-worker.yml
         - Modules/toolbelt.core.work-queue/**
         - Modules/toolbelt.core.work-type/**
         - Modules/toolbelt.core.result-table/**

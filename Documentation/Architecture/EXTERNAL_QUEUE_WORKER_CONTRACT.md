@@ -7,8 +7,15 @@ Die ausdrückliche Einzelfreigabe vom 2026-10-01 steht im Abschnitt
 [BACKLOG.md](../../.ai/BACKLOG.md). Dieses Dokument konkretisiert vor Source
 den ersten, manuell gestarteten Windows-/Linux-Provider. Es führt keine neue
 öffentliche SQL-API, fachliche Handlerfreigabe oder Queuezustandsmaschine ein.
-Implementierung: `planned`; Runtime-Validierung: `not executed`;
+Implementierung: `implemented`; Runtime-Validierung: `partially validated`;
 Veröffentlichung: `unreleased`.
+
+Nachweise und offene Workerhost-/SQL-Zielkombinationen stehen getrennt in
+der [Worker-Testmatrix](../../Workers/ExternalQueue/Tests/README.md).
+Die Windows-Host-Labprüfung vom 2026-10-02 besteht gegen SQL Server 2019
+Linux/latest und ausgewählte bereite SQL-Server-2025-Windows-Ziele.
+Echte Commit-Transportfaults, Minimalrechte, Recoveryrennen und zentraler
+Deploymentmodus sind dadurch nicht vollständig qualifiziert.
 
 PowerShell 7 und `System.Data.SqlClient` verwenden vorhandene Projektmittel.
 Die konkrete Windows-/Linux-Treiberfunktion wird im Runtime-Test nachgewiesen;
@@ -61,6 +68,14 @@ Connection Strings, privaten Endpoints oder Laufzeitpfade werden gespeichert
 oder ausgegeben. Vorhandene Authentifizierung und Berechtigungen bleiben
 maßgeblich; der Worker erteilt keine Rechte und verwaltet keine Dienste,
 Jobs, Linked Server oder Lab-Ressourcen.
+
+Authentifizierung nutzt die vom SqlClient unterstützte SQL-Anmeldung oder
+bereits eingerichtete Integrated Security der privaten Konfiguration.
+`Encrypt=true` ist vor Verbindungsaufbau erforderlich; der Worker aktiviert
+keinen Zertifikats-Bypass. Ein ausdrücklich konfiguriertes
+`TrustServerCertificate` bleibt die Entscheidung des Aufrufers und wird
+nicht stillschweigend verändert. Ungeeignete Konfiguration scheitert mit
+abstraktem Code, ohne Credential- oder Endpointausgabe.
 
 Eine lokale explizite Liste exakter `WorkTypeName`-Werte erklärt die
 Worker-Eignung der ausgewählten Handler. Die Liste ist keine eigene
@@ -116,7 +131,8 @@ einem ungeklärten Controlausgang ohne Handlerdispatch oder Blindretry.
 Der Worker startet auf der frischen Handlerverbindung mit
 `USP_BeginExecution @AllowNested=0` den bestehenden Execution-Context.
 Zusätzlich setzt er ausschließlich die privaten technischen Sessionkeys
-`toolbelt.worker.work_item_id` und `toolbelt.worker.claim_generation` über
+`toolbelt.worker.work_item_id`, `toolbelt.worker.claim_generation` und
+`toolbelt.worker.execution_id` über
 `sys.sp_set_session_context` mit `@read_only=1`. Sie enthalten keine Tokens.
 Sie sind bis zum Ende dieser nicht wiederverwendeten Verbindung unveränderbar.
 
@@ -139,8 +155,9 @@ Die eigene Handlertransaktion verwendet `READ COMMITTED`. Handlercheckpoints
 lesen auf ihrer Verbindung aus `toolbelt_core.VW_WorkQueue` genau ihr
 WorkItemId: `Status='CLAIMED'`, exakte `ClaimGeneration` aus dem unveränderbaren
 Sessionkey und `IsLeaseExpired=0`. Zusätzlich prüfen sie
-`toolbelt_core.SVF_IsCancellationRequested
-(toolbelt_core.SVF_CurrentExecutionId())`.
+`toolbelt_core.SVF_IsCancellationRequested` für die immutable ExecutionId
+aus dem privaten Workerkey. Die bestehende mutable Execution-Context-ID
+muss mit ihr übereinstimmen; Drift führt zu ungeklärtem Ausgang ohne Retry.
 Vor Start und vor Commit werden dieselben Bedingungen geprüft.
 `SNAPSHOT` kann neue Cancellation oder Generationen verdecken;
 `REPEATABLE READ`/`SERIALIZABLE` können Heartbeats blockieren. Deshalb sind
@@ -157,8 +174,9 @@ synchrone Providergrenze ohne konfigurierbaren Command-Timeout. Die
 5-Sekunden-Steuergrenze ist daher keine Commit- oder Laufzeitgarantie.
 Vor jeder synchronen terminalen Commit-/Rollback-Grenze erneuert der
 Supervisor die Leases aktiver Slots;
-ein lang blockierender Commit kann dennoch deren nächste Heartbeats
-verzögern und wird nicht als durchgehend nachgewiesene Leasefähigkeit
+Lange synchrone Startup-/Controlcommands und ein blockierender Commit können
+dennoch deren nächste Heartbeats
+verzögern. Eine durchgehend gesicherte Leasefähigkeit wird deshalb nicht
 behauptet. Ein unbekanntes Transportergebnis bleibt ungeklärt.
 Die Cancellation ist kooperativ: Eine Anforderung nach dem letzten Checkpoint
 kann mit dem bereits begonnenen Abschluss konkurrieren.
@@ -177,7 +195,9 @@ Cancellation seiner gebundenen ExecutionId an einem eigenen Checkpoint
 eine lokale Opt-in-Handlerkonvention und keine neue öffentliche
 Toolbelt-SQL-Fehlerrange. Die Zulassung verbietet seine andere Verwendung.
 Alternativ erkennt der Worker die Cancellation selbst am Vor-/Nachcheckpoint
-und führt den kontrollierten Rollback aus. Nur nach solcher Bestätigung
+und führt den kontrollierten Rollback aus. Der Handler verwendet dafür die
+immutable Worker-ExecutionId und prüft die Übereinstimmung des bestehenden
+Execution-Contexts. Nur nach solcher Bestätigung
 und bestätigtem Rollback wird `USP_FailWork` terminal als `FAILED` mit
 `WORKER.CANCELLED` ausgeführt.
 Validierungs-, Rechte-, Unsupported- und andere permanente Fehler sind
@@ -224,7 +244,8 @@ Angaben; private Runtime-Ausgabe wird nicht ins Repository oder PR kopiert.
 
 ## Testorakel vor Merge
 
-Status dieser Orakel: `not executed`.
+Ausführungsstand je Scope: [Worker-Testmatrix](../../Workers/ExternalQueue/Tests/README.md).
+Die nachfolgenden Orakel sind der Vertrag und keine pauschale PASS-Zusage.
 
 1. Parameterdefaults und Grenzen; supervisorweites Claimlimit; maximal acht
    Slots; Stopannahme an Zeit-/Anzahllimit und leerer Queue.
