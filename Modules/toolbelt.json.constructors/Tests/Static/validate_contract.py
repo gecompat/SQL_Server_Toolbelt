@@ -2,7 +2,7 @@
 from pathlib import Path
 import re
 root = Path(__file__).resolve().parents[2]
-names = ['USP_JsonArray', 'USP_JsonObject', 'USP_JsonConstructInternal']
+names = ['USP_JsonArray', 'USP_JsonObject', 'USP_JsonArraysByGroup', 'USP_JsonObjectsByGroup', 'USP_JsonConstructInternal']
 for name in names:
     text = (root / 'Source' / (name + '.sql')).read_text(encoding='utf-8')
     assert 'CREATE OR ALTER PROCEDURE toolbelt_json.' + name in text
@@ -27,12 +27,32 @@ uninstall = (root / 'Deployment/Uninstall.sql').read_text(encoding='utf-8')
 for name in names:
     assert '../Source/' + name + '.sql' in deploy
     assert name in uninstall
-assert '1.1.0' not in deploy + uninstall
+assert '1.1.0' in deploy and '1.1.0' in uninstall
+assert 'JSON_LIFECYCLE_CALLER_TRANSACTION:' in deploy and 'JSON_LIFECYCLE_CALLER_TRANSACTION:' in uninstall
 assert 'toolbelt_string' not in deploy + uninstall
-assert "WHEN objects.type IN ('FN', 'FS', 'FT', 'IF', 'TF')" in deploy
-assert "AND objects.type IN ('P', 'PC', 'V', 'FN', 'FS', 'FT', 'IF', 'TF')" in deploy
+assert "AND o.type='P'" in deploy
+assert "Release-Ownership ist inkohärent" in deploy
 for relative in ['Tests/Runtime/JsonConstructors.Contract.sql', 'Tests/Runtime/Lifecycle.Contract.sql',
                  'Tests/Runtime/Central.Contract.sql', 'Tests/JSON_CONSTRUCTOR_CONTRACT_TEST_MATRIX.md',
                  'Tests/README.md', 'README.md', 'module.yaml']:
     assert (root / relative).exists(), relative
+# Der unveränderte Scannerblock ist die einzige fachliche Unicode-/Literalimplementierung.
+import subprocess
+base = '435340a25b10ef5dccd60bf892727bd7e4e45be6'
+relative = 'Modules/toolbelt.json.constructors/Source/USP_JsonConstructInternal.sql'
+old = subprocess.check_output(['git', 'show', f'{base}:{relative}'], cwd=root.parents[1]).decode('utf-8').replace('\r\n','\n')
+start='  -- UTF-16-Codeeinheiten';end='  INSERT #tbx_JsonConstructor_Fragments'
+assert core.split(start,1)[1].split(end,1)[0] == old.split(start,1)[1].split(end,1)[0]
+assert '@MaxResultBytes bigint=NULL,@GroupMode bit=0,@ResultTable' in core
+assert 'GROUP BY GroupOrdinal,Ordinal' in core
+assert 'GROUP BY GroupOrdinal,CONVERT(varbinary(2048),[Key]),DATALENGTH([Key])' in core
+assert 'ORDER BY GroupOrdinal,Ordinal' in core
+assert '4*@PreGroups+2*(@PreCount-@PreGroups)' in core
+assert core.count('CREATE TABLE #tbx_JsonConstructor_GroupResult(')==1
+for name in names[:-1]:
+    text=(root/'Source'/f'{name}.sql').read_text(encoding='utf-8')
+    assert '#tbx_JsonConstructor_GroupResult' in text
+    if name.endswith('ByGroup'): assert '@GroupMode=1' in text
+for relative in ('JsonGroups.Contract.sql','JsonGroups.Boundaries.sql','InstalledMetadata.Contract.sql'):
+    assert (root/'Tests/Runtime'/relative).exists()
 print('JSON Constructors Static: source/contract/lifecycle coupling PASS (no runtime evidence).')

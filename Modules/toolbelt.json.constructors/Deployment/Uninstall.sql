@@ -1,250 +1,99 @@
 :On Error exit
-
--- ============================================================================
--- Zweck:     Kontrollierte Deinstallation von toolbelt.json.constructors
--- Modus:     SQLCMD
--- Parameter: ConfirmNoExternalConsumers=0|1
--- ============================================================================
-
+-- Historischer/aktueller Uninstall entfernt ausschließlich kohärent eigene Slots.
+IF @@TRANCOUNT>0
+BEGIN
+ RAISERROR(N'JSON_LIFECYCLE_CALLER_TRANSACTION: aktive Callertransaktion ist ausgeschlossen.',16,1);
+ RETURN;
+END;
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
-
-DECLARE
-      @ConfirmNoExternalConsumers bit =
-          TRY_CONVERT(bit, N'$(ConfirmNoExternalConsumers)')
-    , @VersionPropertyName sysname =
-          N'Toolbelt.Module.toolbelt.json.constructors.Version'
-    , @ModePropertyName sysname =
-          N'Toolbelt.Module.toolbelt.json.constructors.DeploymentMode'
-    , @InstalledVersion nvarchar(64)
-    , @DeploymentMode nvarchar(16)
-    , @ReferencingSchema sysname
-    , @ReferencingObject sysname;
-
-IF @ConfirmNoExternalConsumers IS NULL
-BEGIN
-    THROW 53625, N'Die SQLCMD-Variable ConfirmNoExternalConsumers muss 0 oder 1 sein.', 1;
-END;
-
-SELECT @InstalledVersion = TRY_CONVERT(nvarchar(64), ep.value)
-FROM sys.extended_properties AS ep
-WHERE ep.class = 0
-  AND ep.major_id = 0
-  AND ep.minor_id = 0
-  AND ep.name = @VersionPropertyName;
-
-SELECT @DeploymentMode = TRY_CONVERT(nvarchar(16), ep.value)
-FROM sys.extended_properties AS ep
-WHERE ep.class = 0
-  AND ep.major_id = 0
-  AND ep.minor_id = 0
-  AND ep.name = @ModePropertyName;
-
-IF @InstalledVersion IS NULL
-BEGIN
-    PRINT N'toolbelt.json.constructors ist nicht als installiert registriert; keine Änderung erforderlich.';
-    RETURN;
-END;
-
-IF @InstalledVersion COLLATE Latin1_General_100_BIN2 NOT IN (N'1.0.0')
-BEGIN
-    THROW 53623, N'Die installierte Modulversion ist diesem Uninstall-Skript nicht bekannt.', 1;
-END;
-
-IF @DeploymentMode NOT IN (N'local', N'central')
-BEGIN
-    THROW 53623, N'Der registrierte Deployment-Modus fehlt oder ist ungültig.', 1;
-END;
-
-IF @DeploymentMode = N'central' AND @ConfirmNoExternalConsumers <> 1
-BEGIN
-    THROW 53625, N'Bei zentraler Installation ist ConfirmNoExternalConsumers=1 als ausdrückliche Betreiberbestätigung erforderlich.', 1;
-END;
-
-SELECT TOP (1)
-      @ReferencingSchema = OBJECT_SCHEMA_NAME(dependencies.referencing_id)
-    , @ReferencingObject = OBJECT_NAME(dependencies.referencing_id)
-FROM sys.sql_expression_dependencies AS dependencies
-WHERE dependencies.referenced_id IN
-      (
-          OBJECT_ID(N'toolbelt_json.USP_JsonConstructInternal'),
-          CASE WHEN @InstalledVersion=N'1.0.0' THEN OBJECT_ID(N'toolbelt_json.USP_JsonObject') END,
-          CASE WHEN @InstalledVersion=N'1.0.0' THEN OBJECT_ID(N'toolbelt_json.USP_JsonArray') END
-      )
-  AND NOT EXISTS
-      (SELECT 1 FROM sys.objects owned JOIN sys.schemas s ON owned.schema_id=s.schema_id
-       WHERE owned.object_id=dependencies.referencing_id AND s.name=N'toolbelt_json'
-       AND (owned.name=N'USP_JsonConstructInternal'
-            OR (@InstalledVersion=N'1.0.0' AND owned.name IN (N'USP_JsonObject',N'USP_JsonArray'))))
-ORDER BY
-      OBJECT_SCHEMA_NAME(dependencies.referencing_id)
-          COLLATE Latin1_General_100_BIN2
-    , OBJECT_NAME(dependencies.referencing_id)
-          COLLATE Latin1_General_100_BIN2;
-
-IF @ReferencingObject IS NOT NULL
-BEGIN
-    DECLARE @DependencyMessage nvarchar(2048) =
-        N'Die Deinstallation wird durch same-database Dependency '
-        + COALESCE(QUOTENAME(@ReferencingSchema), N'<ohne Schema>')
-        + N'.'
-        + COALESCE(QUOTENAME(@ReferencingObject), N'<unbekannt>')
-        + N' blockiert.';
-    SET @DependencyMessage = REPLACE(@DependencyMessage, N'%', N'%%');
-    THROW 53626, @DependencyMessage, 1;
-END;
-
+DECLARE @Confirmation nvarchar(max)=N'$(ConfirmNoExternalConsumers)',@Version nvarchar(max),@Mode nvarchar(max),
+ @Registered bit,@ModeRegistered bit,@Pass int=0,@Count int,@SchemaId int,@LockResult int,
+ @InitialVersion varbinary(max),@InitialMode varbinary(max),@InitialSchemaId int,@Id int,@Name sysname,@Sql nvarchar(max);
+DECLARE @Slots TABLE(Id int PRIMARY KEY,Name sysname COLLATE DATABASE_DEFAULT NOT NULL,ObjectId int NULL);
+INSERT @Slots VALUES(1,N'USP_JsonConstructInternal',NULL),(2,N'USP_JsonArray',NULL),(3,N'USP_JsonObject',NULL),
+ (4,N'USP_JsonArraysByGroup',NULL),(5,N'USP_JsonObjectsByGroup',NULL);
+IF CONVERT(varbinary(max),@Confirmation) NOT IN(CONVERT(varbinary(max),N'0'),CONVERT(varbinary(max),N'1'))
+ THROW 53625,N'JSON lifecycle: Consumer-Bestätigung ist ungültig.',1;
 BEGIN TRY
-    BEGIN TRANSACTION;
-
-    DECLARE @LockResult int;
-
-    EXEC @LockResult = sys.sp_getapplock
-          @Resource    = N'toolbelt.deploy.toolbelt.json.constructors'
-        , @LockMode    = N'Exclusive'
-        , @LockOwner   = N'Transaction'
-        , @LockTimeout = 0
-        , @DbPrincipal = N'public';
-
-    IF @LockResult < 0
-    BEGIN
-        THROW 53627, N'Ein paralleles Deployment von toolbelt.json.constructors ist bereits aktiv.', 1;
-    END;
-
-    DECLARE @CurrentInstalledVersion nvarchar(64);
-
-    SELECT @CurrentInstalledVersion = TRY_CONVERT(nvarchar(64), ep.value)
-    FROM sys.extended_properties AS ep
-    WHERE ep.class = 0
-      AND ep.major_id = 0
-      AND ep.minor_id = 0
-      AND ep.name = @VersionPropertyName;
-
-    IF ISNULL(@CurrentInstalledVersion, N'') COLLATE Latin1_General_100_BIN2
-           <> @InstalledVersion COLLATE Latin1_General_100_BIN2
-    BEGIN
-        THROW 53627, N'Der installierte Modulstand hat sich seit dem Uninstall-Preflight verändert.', 1;
-    END;
-
-    DECLARE @ReleaseObjects TABLE
-    (
-          ObjectOrdinal int IDENTITY(1, 1) NOT NULL
-        , ObjectName    sysname            NOT NULL
-    );
-
-    INSERT INTO @ReleaseObjects (ObjectName)
-    SELECT N'USP_JsonArray' WHERE @InstalledVersion=N'1.0.0';
-    INSERT INTO @ReleaseObjects (ObjectName)
-    SELECT N'USP_JsonObject' WHERE @InstalledVersion=N'1.0.0';
-    INSERT INTO @ReleaseObjects (ObjectName) VALUES (N'USP_JsonConstructInternal');
-
-    DECLARE
-          @ObjectOrdinal int = 1
-        , @ObjectCount   int = (SELECT COUNT(*) FROM @ReleaseObjects)
-        , @ObjectName    sysname
-        , @ObjectId      int
-        , @ObjectType    char(2)
-        , @DropSql       nvarchar(max);
-
-    WHILE @ObjectOrdinal <= @ObjectCount
-    BEGIN
-        SELECT @ObjectName = ObjectName
-        FROM @ReleaseObjects
-        WHERE ObjectOrdinal = @ObjectOrdinal;
-
-        SET @ObjectId = OBJECT_ID
-        (
-            QUOTENAME(N'toolbelt_json') + N'.' + QUOTENAME(@ObjectName)
-        );
-
-        IF @ObjectId IS NOT NULL
-        BEGIN
-            SELECT @ObjectType = type
-            FROM sys.objects
-            WHERE object_id = @ObjectId;
-
-            SET @DropSql =
-                CASE
-                    WHEN @ObjectType IN ('P', 'PC') THEN N'DROP PROCEDURE '
-                    WHEN @ObjectType = 'V' THEN N'DROP VIEW '
-                    WHEN @ObjectType IN ('FN', 'FS', 'FT', 'IF', 'TF')
-                        THEN N'DROP FUNCTION '
-                    ELSE NULL
-                END
-                + QUOTENAME(N'toolbelt_json')
-                + N'.'
-                + QUOTENAME(@ObjectName)
-                + N';';
-
-            IF @DropSql IS NULL
-            BEGIN
-                THROW 53623, N'Ein Release-Objekt besitzt einen nicht unterstützten lokal veränderten Objekttyp.', 1;
-            END;
-
-            EXEC sys.sp_executesql @DropSql;
-        END;
-
-        SET @ObjectOrdinal += 1;
-    END;
-
-    EXEC sys.sp_dropextendedproperty @name = @VersionPropertyName;
-    EXEC sys.sp_dropextendedproperty @name = @ModePropertyName;
-
-    DECLARE
-          @SchemaId int = SCHEMA_ID(N'toolbelt_json')
-        , @SchemaManaged int
-        , @SchemaCategory nvarchar(128);
-
-    IF @SchemaId IS NOT NULL
-    BEGIN
-        SELECT
-              @SchemaManaged = MAX
-              (
-                  CASE WHEN ep.name = N'Toolbelt.Managed'
-                      THEN TRY_CONVERT(int, ep.value) END
-              )
-            , @SchemaCategory = MAX
-              (
-                  CASE WHEN ep.name = N'Toolbelt.SchemaCategory'
-                      THEN TRY_CONVERT(nvarchar(128), ep.value) END
-              )
-        FROM sys.extended_properties AS ep
-        WHERE ep.class = 3
-          AND ep.major_id = @SchemaId
-          AND ep.minor_id = 0;
-
-        IF ISNULL(@SchemaManaged, 0) = 1
-           AND ISNULL(@SchemaCategory, N'')
-                   COLLATE Latin1_General_100_BIN2 = N'json'
-           AND NOT EXISTS
-               (
-                   SELECT 1 FROM sys.objects WHERE schema_id = @SchemaId
-               )
-           AND NOT EXISTS
-               (
-                   SELECT 1
-                   FROM sys.types
-                   WHERE schema_id = @SchemaId AND is_user_defined = 1
-               )
-           AND NOT EXISTS
-               (
-                   SELECT 1
-                   FROM sys.xml_schema_collections
-                   WHERE schema_id = @SchemaId AND xml_collection_id > 0
-               )
-        BEGIN
-            DROP SCHEMA [toolbelt_json];
-        END;
-    END;
-
-    COMMIT TRANSACTION;
+ WHILE @Pass<2
+ BEGIN
+  IF COALESCE(TRY_CONVERT(int,SERVERPROPERTY(N'ProductMajorVersion')),0) NOT IN(15,16,17)
+   THROW 53620,N'JSON lifecycle: SQL-Version wird nicht unterstützt.',1;
+  IF COALESCE((SELECT compatibility_level FROM sys.databases WHERE database_id=DB_ID()),0)<150
+   THROW 53629,N'JSON lifecycle: Compatibility Level wird nicht unterstützt.',1;
+  SELECT @Version=NULL,@Mode=NULL,@Registered=0,@ModeRegistered=0,@SchemaId=SCHEMA_ID(N'toolbelt_json');
+  SELECT @Registered=1,@Version=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties
+   WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.constructors.Version';
+  SELECT @ModeRegistered=1,@Mode=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties
+   WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.constructors.DeploymentMode';
+  IF @Pass=1 AND(@Registered=0 OR COALESCE(CONVERT(varbinary(max),@Version),0x)<>@InitialVersion
+   OR COALESCE(CONVERT(varbinary(max),@Mode),0x)<>@InitialMode OR COALESCE(@SchemaId,-1)<>@InitialSchemaId)
+   THROW 53627,N'JSON lifecycle: Zustand hat sich unter Lock verändert.',1;
+  IF @Registered=0 AND @ModeRegistered=0 RETURN;
+  IF @Registered=0 OR @ModeRegistered=0 OR @SchemaId IS NULL OR @Version IS NULL OR @Mode IS NULL
+   OR CONVERT(varbinary(max),@Version) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0'))
+   OR CONVERT(varbinary(max),@Mode) NOT IN(CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central'))
+  BEGIN
+   IF @Pass=1 THROW 53627,N'JSON lifecycle: Releasezustand unter Lock ist inkohärent.',1;
+   THROW 53623,N'JSON lifecycle: Releasezustand ist unbekannt oder inkohärent.',1;
+  END;
+  IF CONVERT(varbinary(max),@Mode)=CONVERT(varbinary(max),N'central') AND @Confirmation=N'0'
+   THROW 53625,N'JSON lifecycle: zentrale Consumer-Bestätigung fehlt.',1;
+  IF COALESCE(HAS_PERMS_BY_NAME(N'toolbelt_json',N'SCHEMA',N'ALTER'),0)<>1
+   THROW 53622,N'JSON lifecycle: erforderliche Uninstallrechte fehlen.',1;
+  SET @Count=CASE WHEN CONVERT(varbinary(max),@Version)=CONVERT(varbinary(max),N'1.0.0') THEN 3 ELSE 5 END;
+  UPDATE @Slots SET ObjectId=CASE WHEN Id<=@Count THEN OBJECT_ID(N'toolbelt_json.'+QUOTENAME(Name)) ELSE NULL END;
+  IF EXISTS(SELECT 1 FROM @Slots s WHERE s.Id<=@Count AND NOT EXISTS
+   (SELECT 1 FROM sys.objects o WHERE o.object_id=s.ObjectId AND o.type='P'
+    AND CONVERT(varbinary(256),o.name)=CONVERT(varbinary(256),s.Name)
+    AND EXISTS(SELECT 1 FROM sys.extended_properties ep WHERE ep.class=1 AND ep.major_id=o.object_id AND ep.minor_id=0
+     AND ep.name=N'Toolbelt.ModuleId' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),ep.value))=CONVERT(varbinary(max),N'toolbelt.json.constructors'))
+    AND EXISTS(SELECT 1 FROM sys.extended_properties ep WHERE ep.class=1 AND ep.major_id=o.object_id AND ep.minor_id=0
+     AND ep.name=N'Toolbelt.ModuleVersion' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),ep.value))=CONVERT(varbinary(max),@Version))
+    AND EXISTS(SELECT 1 FROM sys.extended_properties ep WHERE ep.class=1 AND ep.major_id=o.object_id AND ep.minor_id=0
+     AND ep.name=N'Toolbelt.DeploymentMode' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),ep.value))=CONVERT(varbinary(max),@Mode))))
+  BEGIN
+   IF @Pass=1 THROW 53627,N'JSON lifecycle: Ownership unter Lock ist inkohärent.',1;
+   THROW 53623,N'JSON lifecycle: Release-Ownership ist inkohärent.',1;
+  END;
+  IF EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d JOIN @Slots target ON target.ObjectId=d.referenced_id
+   WHERE target.Id<=@Count AND NOT EXISTS(SELECT 1 FROM @Slots source WHERE source.Id<=@Count AND source.ObjectId=d.referencing_id))
+   THROW 53626,N'JSON lifecycle: same-database Dependency blockiert Uninstall.',1;
+  IF @Pass=0
+  BEGIN
+   SELECT @InitialVersion=CONVERT(varbinary(max),@Version),@InitialMode=CONVERT(varbinary(max),@Mode),@InitialSchemaId=@SchemaId;
+   BEGIN TRANSACTION;
+   EXEC @LockResult=sys.sp_getapplock @Resource=N'toolbelt.deploy.toolbelt.json.constructors',@LockMode=N'Exclusive',
+    @LockOwner=N'Transaction',@LockTimeout=0,@DbPrincipal=N'public';
+   IF @LockResult IS NULL OR @LockResult<0 THROW 53627,N'JSON lifecycle: AppLock ist nicht verfügbar.',1;
+  END;
+  SET @Pass+=1;
+ END;
+ -- Zukunftsslots bei installiertem 1.0 gehören nicht zu diesem Dropplan.
+ SET @Id=@Count;
+ WHILE @Id>=1
+ BEGIN
+  SELECT @Name=Name FROM @Slots WHERE Id=@Id;
+  SET @Sql=N'DROP PROCEDURE [toolbelt_json].'+QUOTENAME(@Name)+N';';
+  EXEC sys.sp_executesql @Sql;
+  SET @Id-=1;
+ END;
+ EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.json.constructors.Version';
+ EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.json.constructors.DeploymentMode';
+ -- Unmarkiertes oder nichtleeres fremdes Schema niemals entfernen.
+ IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=3 AND major_id=@SchemaId AND minor_id=0
+   AND name=N'Toolbelt.Managed' AND TRY_CONVERT(int,value)=1)
+  AND EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=3 AND major_id=@SchemaId AND minor_id=0
+   AND name=N'Toolbelt.SchemaCategory' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'json'))
+  AND NOT EXISTS(SELECT 1 FROM sys.objects WHERE schema_id=@SchemaId)
+  AND NOT EXISTS(SELECT 1 FROM sys.types WHERE schema_id=@SchemaId AND is_user_defined=1)
+  AND NOT EXISTS(SELECT 1 FROM sys.xml_schema_collections WHERE schema_id=@SchemaId AND xml_collection_id>0)
+  DROP SCHEMA [toolbelt_json];
+ COMMIT TRANSACTION;
 END TRY
 BEGIN CATCH
-    IF XACT_STATE() <> 0
-    BEGIN
-        ROLLBACK TRANSACTION;
-    END;
-
-    THROW;
+ IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
+ THROW;
 END CATCH;
 GO

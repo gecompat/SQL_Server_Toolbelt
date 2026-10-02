@@ -326,7 +326,10 @@ Der Benutzer hat den empfohlenen V1-Scope am 2026-07-30 freigegeben.
 `TVF_JsonPathExists` bildet die fehlerfreie `1`/`0`/SQL-`NULL`-Semantik für
 Root-, Property-, Array-Index- und Wildcard-Pfade ab.
 
-JSON-Konstruktoren bleiben ein eigener, noch nicht freigegebener Slice.
+Historischer Stand dieser W2b-Planung: JSON-Konstruktoren waren ein eigener, noch nicht freigegebener Slice. Die spätere Einzelfreigabe und Umsetzung der USPs sowie der aktuellen gruppierten 1.1-Welle steht im BACKLOG und Modulmanifest; Aggregate bleiben ein getrennter Scope.
+
+Gruppierte JSON-USPs 1.1.0 am 2026-10-02: ausgewählte API-/100000-/16-MiB-/Clientprüfungen lokal/zentral erfolgreich innerhalb insgesamt fehlgeschlagener früherer Adapter. Finale fokussierte Metadaten-/Upgrade-/Lifecycle-/Central-/Bereinigungsadapter auf Linux 2019/latest und Windows 2025/CU8 erfolgreich; deren Runtime-Auswahl enthielt ausschließlich InstalledMetadata.Contract.sql. Neue Minimalrechte einschließlich VIEW DEFINITION/SELECT-Entscheidung bleiben offen; aktuelle CI wird als separater PR-Mergegate nachgewiesen. Details und Fehlerhistorie in der [Testmatrix](../Modules/toolbelt.json.constructors/Tests/JSON_CONSTRUCTOR_CONTRACT_TEST_MATRIX.md); teilweise validiert und unveröffentlicht.
+
 `TC-2026-013` bleibt zurückgestellt, solange die nativen Aggregate Preview
 sind und kein freigegebener SQL-CLR-/Providervertrag besteht.
 

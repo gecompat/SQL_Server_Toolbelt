@@ -2,6 +2,8 @@
 
 ## Projektstatus
 
+`toolbelt.json.constructors` 1.1.0 implementiert die beiden einzeln freigegebenen Gruppen-USPs über den gemeinsamen T-SQL-Kern. Auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 bestanden lokal und zentral die API-/100000-/16-MiB-/Clientprüfungen als Teil insgesamt fehlgeschlagener früherer Läufe. Die finalen fokussierten Läufe mit ausschließlich InstalledMetadata.Contract.sql als Runtime-Auswahl bestanden Metadaten, genuine 1.0-Upgrades, Lifecycle, Central und eigene Bereinigung. Neue Minimalrechte und die Benutzerentscheidung zu VIEW DEFINITION/SELECT bleiben offen; aktuelle CI wird als separater PR-Mergegate nachgewiesen. Teilweise validiert und unveröffentlicht; historische 1.0-Evidenz bleibt getrennt.
+
 `toolbelt.string.regex` 1.3.0 ergänzt die einzeln freigegebenen Capture-
 Wiederholungen und getrenntes Gruppen-Replace. Nach zusätzlicher Freigabe
 der erwarteten exakten Binaryhashbindung bestanden die finalen Gesamtadapter
