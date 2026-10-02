@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-34 Module sind implementiert. 21 sind `validated`, 13 sind `partially validated`; 0 sind `not executed`.
+34 Module sind implementiert. 20 sind `validated`, 14 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -157,6 +157,24 @@ systematische Syntaxqualifikation vor Trigger-Rewriting bestätigte er mit
 - Parsen ist keine semantische Namens-/Aliasauflösung und keine sichere
   Umschreibungsfreigabe. Der bestehende UNSAFE-/Windows-only-Vertrag bleibt
   sichtbar; kein Linux-/Worker-/SDKfallback oder Trust-/Rechteausweitung.
+
+Nachfolgerstand 2026-10-02: Die einzeln freigegebene Parser-Härtung ist
+`active` im isolierten Branch. Vor Source wird der begrenzte gemeinsame
+Vertrag der vier vorhandenen TVFs als Major-Folgeversion konkretisiert:
+[begrenzter Hardening-Vertrag](../Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md).
+Der vorgeschaltete Ressourcenwächter wird zuerst in isolierten
+Framework-Prozessen auf dem exakt vorhandenen ScriptDom-Binarystand
+qualifiziert. Neue Grenzen und fehlende Nachweise bleiben ausdrücklich
+sichtbar; Trigger-Rewriting gehört weiterhin zur getrennten Folgewelle.
+Der eingefrorene Wächterkandidat bestand 82 isolierte Framework-Fälle;
+der integrierte Provider anschließend 245 begrenzte Kindprozesse,
+unabhängig wiederholt. Windows 2025/CU8 CL150/160/170 bestand lokale/zentrale
+Nutzung, echten 1.0-Upgrade, Wiederholung, Grenzen/Syntax, Caller-TX/SET-Erhalt,
+Kollisionsschutz und eigenes DB-/Trust-Cleanup. Windows 2019 bleibt vor
+Mutation konfigurationsbedingt blockiert; eine fachfremde Pending-Konfiguration
+wird nicht blind mitaktiviert. Windows 2022, minimale Rechte und tatsächliche
+Ausgabeceilings bleiben offen; Helperquoten ersetzen diese Nachweise nicht.
+Status der 2.0-Welle: `partially validated`, `unreleased`.
 
 #### Trigger-Scriptklon
 
@@ -705,13 +723,13 @@ behauptet keinen ausgeführten Runtime-Test und keine erfolgte Konfigurationsän
 | Scope | Modul `toolbelt.tsql.script-parser` 1.0.0 mit `TVF_ParseScriptNodes`, `TVF_ParseScriptNodeProperties`, `TVF_TokenizeScript` und `TVF_ParseScriptErrors`. Schema `toolbelt_tsql`, Assembly `Toolbelt_Tsql_ScriptParser`. Keine automatische GUID-Ersetzung und keine semantische Namensauflösung im Kernmodul. |
 | Provider | C# .NET Framework 4.8 Assembly mit ScriptDom-Integration, SHA2-512-Trust, kein Datenzugriff (`DataAccessKind.None`), harte Limits für Eingabegröße und Schachtelungstiefe. |
 | Priorität | `P1` |
-| Status | `completed`; Runtime `validated` |
+| Status | Historisch 1.0.0 `completed`/`validated`; die am 2026-10-01 separat freigegebene 2.0-Härtung ist `active`/`partially validated`, siehe [Nachfolgervertrag](../Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md). |
 | Alternativen | Reiner T-SQL-Parser (nicht grammatikvollständig), reiner Tokenizer ohne AST, Stored Procedures mit Temp-Tabellen und externes Parsen außerhalb der Datenbank wurden verworfen. |
-| Risiken und Grenzen | Permission Set (`SAFE` vs. `UNSAFE`) und Linux-Fähigkeit hängen vom Spike-Ergebnis der ScriptDom-Assembly ab; tiefe Rekursion erfordert Stack-Overflow-Wächter vor dem Parsen; jede TVF parst erneut (kein veränderlicher Cache-Zustand). |
+| Risiken und Grenzen | Windows-only/UNSAFE; iterativer Wächter vor ScriptDom und empirische Qualifikation sind keine universelle Stack-, Laufzeit- oder Heap-Garantie. Tokenize bleibt ausschließlich lexikalisch; AST-Funktionen parsen je Aufruf ohne veränderlichen Cache. |
 | Benutzerfreigabe | Zweck, Signatur, Fehlervertrag, Risiken und Scope wurden am 2026-09-03 besprochen. Der Benutzer hat die Umsetzung anschließend mit „halte den Plan im Repository fest und starte im Anschluss mit der Implementierung“ ausdrücklich freigegeben. |
 | Tests | Spike zu ScriptDom-Ladbarkeit, statische Vertragsprüfung, synthetische AST- und Token-Golden-Tests (SELECT, JOIN, CTE, MERGE, DDL, Kommentare, `GO`), Roundtrip-Tokens, Fehlerbehandlung, Lifecycle-, Deployment- und Kollisionstests. |
 | Evidenz | `Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md`, `Documentation/Architecture/DECISIONS.md` (`DEC-2026-029`), `Backlog/TOOLBELT_CANDIDATES.md` (`TC-2026-047`). |
-| Nächster Schritt | Keine autonome Parser-Validierung offen; keine weitere Parserimplementierung planen. |
+| Nächster Schritt | Die frühere 1.0-Abschlussgrenze gilt historisch. Nur die separat freigegebene 2.0-Härtung mit ehrlichen Qualifikationsgrenzen abschließen; weitere APIs benötigen jeweils Freigabe. |
 
 ### V0a/V0b/V0c: Releasevalidierung und erste Releasekohorte
 

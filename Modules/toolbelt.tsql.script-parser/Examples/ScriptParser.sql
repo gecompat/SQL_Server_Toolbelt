@@ -38,7 +38,7 @@ INNER JOIN toolbelt_tsql.TVF_ParseScriptNodeProperties(@Sql, 160, 1, 2097152, 25
     ON p.NodeId = n.NodeId
 ORDER BY p.NodeId, p.PropertyName;
 
--- 4. Verlustfreier Tokenstrom (Grundlage für GUID-Rewriting)
+-- 4. Verlustfreier Tokenstrom; keine semantische Rewriting-Freigabe.
 SELECT
       TokenIndex
     , TokenType

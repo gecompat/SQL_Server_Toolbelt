@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 34 Module implementiert – 13 teilweise validiert](https://img.shields.io/badge/Status-34%20Module%20implementiert%20%7C%2013%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 34 Module implementiert – 14 teilweise validiert](https://img.shields.io/badge/Status-34%20Module%20implementiert%20%7C%2014%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -56,7 +56,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 ## Aktueller Status
 
-**Der Repository-Grundaufbau ist abgeschlossen. 34 Module sind implementiert; 21 sind `validated`, 13 sind `partially validated`, alle sind `unreleased`.**
+**Der Repository-Grundaufbau ist abgeschlossen. 34 Module sind implementiert; 20 sind `validated`, 14 sind `partially validated`, 0 sind `not executed`, alle sind `unreleased`.**
 
 [`toolbelt.pseudonymization.deterministic`](./Modules/toolbelt.pseudonymization.deterministic/README.md)
 liefert versionierte synthetische Range-, DateShift- und Pool-Lookup-Werte.
@@ -283,7 +283,11 @@ stellt deterministische, rein lesende SQL-CLR Table-Valued Functions auf Basis
 von Microsoft ScriptDom (.NET Framework 4.8) bereit, um T-SQL-Statements
 syntaktisch in AST-Knoten, Knoteneigenschaften, einen verlustfreien Tokenstrom
 und strukturierte Fehlerlisten zu zerlegen. Der Modulstatus ist
-`validated` und `unreleased`; die physische Windows-Matrix für SQL Server 2019, 2022 und 2025 ist erfolgreich, Linux ist nicht anwendbar.
+für 2.0.0 `partially validated` und `unreleased`: integrierte Framework-Prüfungen
+und Windows SQL Server 2025/CU8 CL150/160/170 sind erfolgreich. Windows 2019
+ist konfigurationsbedingt blockiert; Windows 2022 und weitere ausdrücklich
+benannte Qualifikationen bleiben offen. Historische 1.0.0-Evidenz gilt nur
+für 1.0.0; Linux ist nicht anwendbar.
 
 ## Modulprinzip
 

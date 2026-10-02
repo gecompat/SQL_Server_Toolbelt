@@ -9,6 +9,6 @@ using System.Security;
 [assembly: AssemblyCopyright("Copyright © Gerhard Pisch")]
 [assembly: ComVisible(false)]
 [assembly: Guid("B1F8C9E2-7D3A-4F5E-9B2C-1A6E8D4F0C3B")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyFileVersion("2.0.0.0")]
 [assembly: SecurityRules(SecurityRuleSet.Level2)]

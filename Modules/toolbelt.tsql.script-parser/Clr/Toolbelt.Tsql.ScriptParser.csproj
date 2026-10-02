@@ -25,14 +25,20 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.SqlServer.TransactSql.ScriptDom">
-      <HintPath Condition="Exists('$(ScriptDomDllPath)')">$(ScriptDomDllPath)</HintPath>
-      <HintPath Condition="!Exists('$(ScriptDomDllPath)') and Exists('C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\Extensions\Application\Microsoft.SqlServer.TransactSql.ScriptDom.dll')">C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\Extensions\Application\Microsoft.SqlServer.TransactSql.ScriptDom.dll</HintPath>
-      <HintPath Condition="!Exists('$(ScriptDomDllPath)') and Exists('C:\Program Files\Microsoft SQL Server Management Studio 21\Release\Common7\IDE\Extensions\Application\Microsoft.SqlServer.TransactSql.ScriptDom.dll')">C:\Program Files\Microsoft SQL Server Management Studio 21\Release\Common7\IDE\Extensions\Application\Microsoft.SqlServer.TransactSql.ScriptDom.dll</HintPath>
+      <HintPath>$(ScriptDomDllPath)</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScriptParserProvider.cs" />
+    <Compile Include="PreparseGuard.cs" />
   </ItemGroup>
+  <Target Name="RequireExplicitScriptDom" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(ScriptDomDllPath)')" Text="Explicit pinned ScriptDomDllPath required." />
+    <GetFileHash Files="$(ScriptDomDllPath)" Algorithm="SHA512">
+      <Output TaskParameter="Items" ItemName="PinnedScriptDom" />
+    </GetFileHash>
+    <Error Condition="'%(PinnedScriptDom.FileHash)' != '24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0'" Text="ScriptDom pin mismatch." />
+  </Target>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

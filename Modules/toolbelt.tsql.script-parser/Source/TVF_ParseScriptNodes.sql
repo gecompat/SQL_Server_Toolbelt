@@ -12,9 +12,11 @@
 -- Rechte:          SELECT auf die Funktion
 -- Versionen:       SQL Server 2019, 2022, 2025
 -- Plattformen:     Windows
--- Fehlerverhalten: Syntaxfehler unterdrücken den Baum nicht zwingend; Limits werfen TBX_TSQLPARSE_*
--- Performance:     In-Memory Streaming ohne Zwischenpersistenz
--- Einschränkungen: CLR UNSAFE erforderlich; Windows-only.
+-- Fehlerverhalten: Syntaxfehler liefern keinen partiellen AST; Limits werfen TBX_TSQLPARSE_*
+-- Performance:     Begrenzte atomare Materialisierung im Speicher ohne Zwischenpersistenz
+-- Einschränkungen: CLR UNSAFE erforderlich; Windows-only; konservativer Rohtextwächter.
+-- NULL/Defaults:   NULL-Text ergibt null Zeilen; Version NULL=160, Bytes NULL=2097152, Tiefe NULL=100.
+-- Grenzen:         Versionen 80,90,100,110,120,130,140,150,160,170; Bytes 1..2097152; Tiefe 1..256; kein Versionsfallback.
 -- ============================================================================
 SET ANSI_NULLS ON;
 GO
@@ -24,9 +26,9 @@ GO
 CREATE FUNCTION [toolbelt_tsql].[TVF_ParseScriptNodes]
 (
       @SqlText            nvarchar(max)
-    , @TSqlVersion        int = NULL
+    , @TSqlVersion        int = 160
     , @QuotedIdentifiers  bit = 1
-    , @MaxInputBytes      int = NULL
+    , @MaxInputBytes      int = 2097152
     , @MaxNestingDepth    int = 100
 )
 RETURNS TABLE

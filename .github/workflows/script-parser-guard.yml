@@ -1,0 +1,29 @@
+name: Script parser guard and static contract
+on:
+  pull_request:
+    paths:
+      - 'Modules/toolbelt.tsql.script-parser/**'
+      - 'Tests/CI/run-script-parser-lab.ps1'
+      - '.github/workflows/script-parser-guard.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  guard:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Static contract
+        run: python Modules/toolbelt.tsql.script-parser/Tests/Static/validate_contract.py
+      - name: Shared guard without ScriptDom dependency
+        shell: pwsh
+        run: ./Modules/toolbelt.tsql.script-parser/Tests/Framework/Invoke-Guard.ps1
+      - name: Lab adapter syntax without SQL execution
+        shell: pwsh
+        run: |
+          $tokens = $null; $errors = $null
+          [void][Management.Automation.Language.Parser]::ParseFile(
+            (Join-Path $PWD 'Tests/CI/run-script-parser-lab.ps1'), [ref]$tokens, [ref]$errors)
+          if ($errors.Count) { throw 'LAB_ADAPTER_SYNTAX_INVALID' }
+# This finite guard check does not qualify the pinned ScriptDom binary or SQL CLR hosts.

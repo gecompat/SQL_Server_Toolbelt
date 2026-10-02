@@ -756,7 +756,10 @@ change_impact:
     tsql_script_parser_contract:
       paths:
         - Modules/toolbelt.tsql.script-parser/**
+        - Tests/CI/run-script-parser-lab.ps1
+        - .github/workflows/script-parser-guard.yml
         - Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md
+        - Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md
         - Documentation/Research/TSQL_SCRIPTDOM_PROVIDER_SPIKE.md
       checks:
         - markdown_links

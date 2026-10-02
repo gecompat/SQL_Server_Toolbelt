@@ -10,10 +10,10 @@ Liest alle skalaren Eigenschaften (z. B. Bezeichnernamen, Literalwerte, Enums, B
 toolbelt_tsql.TVF_ParseScriptNodeProperties
 (
       @SqlText            nvarchar(max)
-    , @TSqlVersion        int = NULL       -- NULL = automatischer Fallback (Standard 160); 80..170
+    , @TSqlVersion        int = 160        -- NULL = 160; exakt 80,90,100,110,120,130,140,150,160,170
     , @QuotedIdentifiers  bit = 1
-    , @MaxInputBytes      int = NULL       -- NULL = unbegrenzt
-    , @MaxNestingDepth    int = 100        -- NULL = Standard 100
+    , @MaxInputBytes      int = 2097152    -- NULL = 2097152; explizit 1..2097152
+    , @MaxNestingDepth    int = 100        -- NULL = 100; explizit 1..256
 )
 ```
 
@@ -23,5 +23,13 @@ toolbelt_tsql.TVF_ParseScriptNodeProperties
 |---|---|---|
 | `NodeId` | `int` | Verweis auf die `NodeId` in `TVF_ParseScriptNodes` |
 | `PropertyName` | `nvarchar(128)` | Name der skalaren Eigenschaft (z. B. `Value`, `QuoteType`, `BaseTime`) |
-| `PropertyKind` | `nvarchar(32)` | Eigenschaftstyp: `Identifier`, `String`, `Number`, `Boolean`, `Enum` |
+| `PropertyKind` | `nvarchar(32)` | Eigenschaftstyp: `String`, `Number`, `Boolean`, `Enum` oder `Value` |
 | `PropertyValue` | `nvarchar(max) NULL` | Extrahierter skalarer Wert als Textdarstellung |
+
+## Gemeinsamer Vertrag 2.0.0
+
+NULL-Text liefert vor jeder anderen Parameterprüfung null Zeilen. Für nicht NULL-Text gelten gemeinsame strikte Parameterprüfung, vorgeschalteter Rohtextwächter und atomare begrenzte Ausgabe gemäß [Hardening-Vertrag](../../../Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md). UTF-16-Codeeinheiten bestimmen Eingabegröße und Offsets; NULL bei QuotedIdentifiers bedeutet true. Unbekannte Parser-Versionen werden zurückgewiesen.
+
+Nur erfolgreich geparste ASTs liefern Eigenschaften, maximal 131.072 Zeilen. NodeIds stimmen bei gleichen Argumenten mit Nodes überein; Reihenfolge und skalare Formatierung sind kulturunabhängig. Ein Grenzfehler liefert keine Teilmenge.
+
+Alle Ausgaben unterliegen außerdem 16.777.216 verrechneten Bytes pro Aufruf und den bestehenden Spaltenbreiten. CLR-Grenzfehler verwenden die stabilen Präfixe des Hardening-Vertrags, regulär im SQL-Fehler-6522-Wrapper. Eingereichter SQL-Text wird nicht in Grenzmeldungen aufgenommen. Windows-only und UNSAFE bleiben unverändert; Parsing erteilt keine sichere Rewriting-Freigabe.
