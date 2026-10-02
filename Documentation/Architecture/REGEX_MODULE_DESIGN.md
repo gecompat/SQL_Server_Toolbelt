@@ -11,6 +11,12 @@ separat nach `origin/main` gemergt.
 
 ## Öffentlicher Vertrag
 
+Die am 2026-10-01 separat freigegebene Capture-/gruppenbezogene
+Replace-Folgewelle wird vor Source im
+[Capture-/Replace-Vertrag](./REGEX_CAPTURE_REPLACE_CONTRACT.md)
+konkretisiert und qualifiziert. Der neue Capture-Modus verändert keine
+bisherige öffentliche API oder deren nicht-capturing Grammatikmodus.
+
 R2a wurde am 2026-10-01 nach Vertragsbesprechung ausdrücklich freigegeben;
 die dauerhafte Freigabe steht in `.ai/BACKLOG.md`. Version 1.1.0 ergänzt
 Replace und Substring gemäß [Erweiterungsvertrag](./REGEX_EXTENSION_PROPOSAL.md).

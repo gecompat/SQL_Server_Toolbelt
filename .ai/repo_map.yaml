@@ -539,6 +539,7 @@ change_impact:
         - Modules/toolbelt.string.regex/**
         - Documentation/Architecture/REGEX_MODULE_DESIGN.md
         - Documentation/Architecture/REGEX_EXTENSION_PROPOSAL.md
+        - Documentation/Architecture/REGEX_CAPTURE_REPLACE_CONTRACT.md
         - Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md
         - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
         - Tests/CI/run-regex-linux.sh

@@ -323,6 +323,20 @@ die getrennte gruppenbezogene Replace-Funktion nach Einzelbesprechung:
 
 Status Capture/Replace: `ready for development`; keine Runtime-Evidenz.
 
+Nachfolgerstand 2026-10-02: Vor-Source-Konkretisierung der bereits einzeln
+freigegebenen zwei APIs ist `active` im isolierten Branch. Der
+[Capture-/Replace-Vertragskandidat](../Documentation/Architecture/REGEX_CAPTURE_REPLACE_CONTRACT.md)
+legt Signaturen, Gruppen-/Capture-Ordinals, Sentinelzeilen, Replacement-
+Syntax und Fehlerpriorität fest. Ein zusätzliches konservatives
+Capture-Historienprofil wird zunächst privat und synthetisch qualifiziert;
+MaxRows/Textlimits allein schützen nicht vor bereits intern gespeicherten
+Captures. Keine Sourceimplementierung oder SQL-Evidenz durch diesen Eintrag.
+Die bisherigen sieben Regex-APIs und deren Nachweise bleiben unverändert.
+Vor-Source-Gate anschließend erfolgreich: exakt präzisierter Strukturkandidat
+bestand neun begrenzte Framework-Kinder mit 7608 Assertions, unabhängig
+wiederholt; Semantikreview PASS. Die integrierte Source und SQL-SAFE-Runtime
+bleiben separat zu qualifizieren; keine Heap-/Backtracking-Garantie.
+
 #### Individuell freigegebene XLSX-Typ-/Anzeige-Welle
 
 Dieselbe ausdrückliche Benutzerantwort „ja“ vom 2026-10-01 bestätigt

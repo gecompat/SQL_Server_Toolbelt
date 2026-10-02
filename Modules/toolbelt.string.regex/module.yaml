@@ -95,6 +95,7 @@ documentation:
   architecture:
     - "../../Documentation/Architecture/REGEX_MODULE_DESIGN.md"
     - "../../Documentation/Architecture/REGEX_EXTENSION_PROPOSAL.md"
+    - "../../Documentation/Architecture/REGEX_CAPTURE_REPLACE_CONTRACT.md"
   test_matrix:
     - "Tests/REGEX_CONTRACT_TEST_MATRIX.md"
   evidence:
