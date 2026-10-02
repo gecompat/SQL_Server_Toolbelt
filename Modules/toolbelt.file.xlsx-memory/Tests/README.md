@@ -1,6 +1,37 @@
 # XLSX-Vertragsqualifizierung
 
-Aktuelle Evidenz: `local: Tests/Runtime/Invoke-LabContract.ps1`, 2026-10-02; Linux 2019/latest und Windows 2025/CU8 erfolgreich nach finaler EOF-Formatpflege. Der Runtime-Endstand ist danach eingefroren; historische Nachweise bleiben getrennt datiert.
+## Additive 1.1-Typwelle – 2026-10-02
+
+Frameworkqualifikation: 19311 Assertions in drei Kulturen PASS. Der begrenzte unabhängige Scannervergleich führte 12370 Vergleiche ohne Abweichung aus. Aktuelle Releasebuild-/IL-/NoIO-Prüfungen sind separate Offline-Evidenz, keine Heapgarantie.
+
+XLSX 1.1.0 ergänzt die einzeln freigegebene `TVF_InterpretXlsxCell` im bestehenden SAFE-Provider. Der finale öffentliche Typadapter bestand am 2026-10-02 auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral: drei Types-Runtime-Fixtures, exakte Zahlen-/100-ns-/NULL-/Clientmetadaten, clean/genuine 1.0/Repeat, Caller-TX OFF/ON intakt und doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, Sichtbarkeitsprädikate, Uninstall und eigene Bereinigung. Raw→Type-Komposition wurde nach den API-CL-Schleifen auf der jeweils letzten CL (2019:150, 2025:170) sowie separat im zentralen Caller geprüft. Keine Konfigurations- oder Rechteänderungen. Die öffentliche Pfadfassung bestand nach ihrem unabhängig geprüften Port auf beiden ausgewählten Targets einschließlich frischer eigener Bereinigungsprüfungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Minimalrechte, weitere physische Ziele und Heap-/Produktionskapazität bleiben offen. `partially validated`, `unreleased`; historische Raw-1.0-Evidenz bleibt getrennt.
+
+Die drei ausgeführten SQL-Dateien sind `Types.Contract.sql`, `Types.Safety.sql` und `Types.Lifecycle.sql`. `Types.Metadata.ps1` sowie zusätzliche native Nullability-/Sichtbarkeits-/Lifecycleorakel werden vom Adapter separat ausgeführt. Die Workbook-Komposition liegt in `Types.Composition.sql`, `Types.Composition.xlsx` und `Invoke-TypesComposition.ps1`; sie verwendet neun synthetische Raw-Zellen, bytegenaue Echos, unveränderte Formel-/Cachetrennung sowie Number42 mit Precision2/Scale0. Die Fixture enthält sechs XML-Parts aus der vorhandenen synthetischen Frameworkoracle, sortierte Stored-ZIP-Entries und feste synthetische Zeitstempel; keine realen Workbooks. Der Typkern und sieben bestehende Raw-Source-Dateien bleiben gegenüber der qualifizierten Revision unverändert.
+
+### Öffentlicher reproduzierbarer Typadapter
+
+`Tests/CI/run-xlsx-types-lab.ps1` benötigt vorher gebaute aktuelle und unveränderte genuine-1.0-Artefakte. Die beiden Generatoren sind `Scripts/New-ClrReleaseArtifacts.ps1` und `Scripts/New-Xlsx10LegacyFixture.ps1`. Alle Verzeichnisse werden über Parameter übergeben, nicht aus privaten Pfaden abgeleitet.
+
+```powershell
+pwsh -NoProfile -File Tests/CI/run-xlsx-types-lab.ps1 -Platform linux -Version 2019 -Patch latest -ReleaseDirectory $release -LegacyDirectory $legacy -ExpectedDriverSHA256 $driverHash -ExpectedAssemblySHA512 $assemblyHash -ExpectedLegacyProvenanceSHA256 $legacyHash -ExpectedPromptSHA256 $promptHash -OptInExactTrust
+pwsh -NoProfile -File Tests/CI/run-xlsx-types-lab.ps1 -Platform windows -Version 2025 -Patch cu8 -ReleaseDirectory $release -LegacyDirectory $legacy -ExpectedDriverSHA256 $driverHash -ExpectedAssemblySHA512 $assemblyHash -ExpectedLegacyProvenanceSHA256 $legacyHash -ExpectedPromptSHA256 $promptHash -OptInExactTrust
+```
+
+Die Hashargumente werden aus den konkret überprüften Dateien ermittelt; Beispielvariablen sind keine vorgegebene Freigabe. Vor Ausführung sind aktueller Labexport/Schema, ausdrücklich ausgewählter READY-Selektor, Zusatzprompt und Artefakte zu prüfen. `OptInExactTrust` ist standardmäßig aus; der Test setzt vorhandene Berechtigungen und bereits wirksame CLR-Konfiguration voraus. Keine Rechte- oder Konfigurationsänderungen. Private Journale enthalten nur eigenen Wiederherstellungsscope; öffentliche Evidence enthält keine Journale oder Infrastrukturwerte. Preexisting Trust wird nie entfernt; frische DB-/Trustidentitäten und fremde Consumer werden vor Cleanup geprüft. Unklarer Cleanup blockiert PASS. Der Driver pinnt alle konsumierten Helfer/Includes sowie die drei Kompositionsinputs vor und nach Ausführung. SQL und Workbook werden im Kompositionshelfer aus geprüften Byte-Snapshots konsumiert.
+
+Die public-Portierung ändert nur Argument-/Pfadermittlung, Repository-Dateinamen und zugehörige Pins; deren Rücksubstitution ergibt exakt den qualifizierten privaten Driver/Helper. Die öffentliche Pfadfassung besteht auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral samt voller Qualifikation und anschließenden frischen eigenen Bereinigungsprüfungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft.
+
+### Historische 1.1-Adapterfehler
+
+- `EXACT_TRUST`, SQL214/State191: MAX-Argumente des Testadapters; feste lokale Hash64-/Description4000-Argumente geschlossen. Frischer eigener Abwesenheitsaudit war separat erfolgreich, kein Gesamt-PASS des Fehllaufs.
+- `CALLER_local_ON_False`, SQL51592/State3: nested-EXEC-Testtopologie; Engineeffekt wurde ohne Toolbelt reproduziert. Direkte intakte Clientbatches und inline doomed Witness-Topologie ersetzen den Oracle, ohne Produktänderung oder Lockerung.
+- `ROLLBACK_local`, SCRIPT_FAILED: unanchored Commit-Seam traf auch zwei Raw-USP-Commits in Includes. Exakte zeilenverankerte Installerstelle geschlossen; eingebundene Raw-Commits unverändert.
+
+Frühere FAILED-Läufe bleiben FAILED; eigene Bereinigung wurde jeweils separat geprüft. Der finale private Adapter bestand auf beiden ausgewählten Targets samt anschließender frischer eigener Cleanup-Prüfung. Keine privaten Fehlertexte oder Runtime-Inventare werden versioniert.
+
+## Historische 1.0-Raw-Evidenz
+
+Historische 1.0-Evidenz: `local: Tests/Runtime/Invoke-LabContract.ps1`, 2026-10-02; Linux 2019/latest und Windows 2025/CU8 erfolgreich nach finaler EOF-Formatpflege. Der damalige Runtime-Endstand ist getrennt erhalten; kein 1.1-PASS.
 
 Stand: 2026-10-01. Die Nachweise verwenden ausschließlich synthetische Workbooks. Keine Lab-Adressen, Zugangsdaten, Datenbanknamen oder Originalausgaben werden gespeichert.
 
@@ -37,7 +68,7 @@ Exakte SHA2-512-Werte werden in den reproduzierbaren, lokal erzeugten Release-/T
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
-- Nachweis: `local: Tests/Runtime/Invoke-LabContract.ps1`
-- Scope: Finaler identischer Fixadapter Linux 2019/latest und Windows 2025/CU8: unveränderte CLR-Binaries, vollständiger öffentlicher Vertrag, interne Help-Modi 0/1 mit NOT NULL-Metadaten, XLSX-/ZIP-Lifecycle-Callerablehnung OFF/ON und XLSX-SQLCMD50000; bekannte Restmatrix unverändert offen.
+- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1`
+- Scope: Finaler identischer öffentlicher XLSX1.1-Adapter Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 jeweils local/central: drei Types-Fixtures, SQL-/Client-/native Nullability, clean/genuine1.0/repeat, CallerOFF/ON intakt/doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, synthetische0/NULL-Sichtbarkeitsgates, Consumer/Uninstall; RawType nach API-Schleifen auf letzterCL150/170 plus zentralerCaller. Voller PASS samt frischen eigenen Cleanup-Audits. Keine Konfigurations-/Rechteänderungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Lowpriv-Rechte, übrige physische Targets und Heap/Produktionskapazität offen. Historische FAILED-Adapterstände bleiben getrennt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

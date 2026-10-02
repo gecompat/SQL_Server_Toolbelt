@@ -106,6 +106,7 @@ sources_of_truth:
   zip_memory_module: Modules/toolbelt.archive.zip-memory/module.yaml
   xlsx_memory_module: Modules/toolbelt.file.xlsx-memory/module.yaml
   xlsx_reader_proposal: Documentation/Architecture/XLSX_READER_PROPOSAL.md
+  xlsx_cell_type_contract: Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md
   xlsx_memory_qualification_workflow: .github/workflows/xlsx-memory-qualification.yml
   windows_filesystem_module_design: Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md
   windows_filesystem_module: Modules/toolbelt.filesystem.windows/module.yaml
@@ -760,7 +761,9 @@ change_impact:
         - Modules/toolbelt.archive.zip-memory/**
         - Spikes/XlsxMemory/**
         - Documentation/Architecture/XLSX_READER_PROPOSAL.md
+        - Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md
         - .github/workflows/xlsx-memory-qualification.yml
+        - Tests/CI/run-xlsx-types-lab.ps1
         - Documentation/Standards/USP_CONTRACT.md
         - Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md
       checks:

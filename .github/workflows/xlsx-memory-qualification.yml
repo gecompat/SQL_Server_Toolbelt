@@ -5,6 +5,8 @@ on:
       - "Modules/toolbelt.file.xlsx-memory/**"
       - "Modules/toolbelt.archive.zip-memory/**"
       - "Spikes/XlsxMemory/**"
+      - "Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md"
+      - "Tests/CI/run-xlsx-types-lab.ps1"
       - ".github/workflows/xlsx-memory-qualification.yml"
   push:
     branches: [main]
@@ -12,6 +14,8 @@ on:
       - "Modules/toolbelt.file.xlsx-memory/**"
       - "Modules/toolbelt.archive.zip-memory/**"
       - "Spikes/XlsxMemory/**"
+      - "Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md"
+      - "Tests/CI/run-xlsx-types-lab.ps1"
       - ".github/workflows/xlsx-memory-qualification.yml"
   workflow_dispatch:
 permissions:
@@ -34,15 +38,24 @@ jobs:
           if ($LASTEXITCODE) { throw 'XLSX static contract failed.' }
           python Modules/toolbelt.archive.zip-memory/Tests/Static/validate_contract.py
           if ($LASTEXITCODE) { throw 'ZIP static contract failed.' }
+          foreach ($path in @('Tests/CI/run-xlsx-types-lab.ps1','Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-TypesComposition.ps1')) {
+            $errors=$null; $tokens=$null
+            [Management.Automation.Language.Parser]::ParseFile($path,[ref]$tokens,[ref]$errors) | Out-Null
+            if ($errors.Count) { throw 'XLSX adapter parse failed.' }
+          }
       - name: Framework, synthetic semantics, limited NoIO and IL gates
         shell: powershell
         run: ./Spikes/XlsxMemory/Run-FrameworkQualification.ps1
+      - name: V3 cell type exact numeric and temporal golden corpus
+        shell: pwsh
+        run: ./Modules/toolbelt.file.xlsx-memory/Tests/Framework/Invoke-Types.ps1
       - name: Build exact release inputs and pinned real ZIP predecessor
         shell: pwsh
         run: |
           ./Modules/toolbelt.archive.zip-memory/Scripts/New-ClrReleaseArtifacts.ps1 -OutputDirectory .runtime/xlsx-candidate/zip
           ./Modules/toolbelt.file.xlsx-memory/Scripts/New-ClrReleaseArtifacts.ps1 -OutputDirectory .runtime/xlsx-candidate/xlsx
           ./Modules/toolbelt.file.xlsx-memory/Scripts/New-Zip13LegacyFixture.ps1
+          ./Modules/toolbelt.file.xlsx-memory/Scripts/New-Xlsx10LegacyFixture.ps1 -OutputDirectory .runtime/xlsx-candidate/xlsx10
       - name: Verify gate binaries equal release binaries
         shell: pwsh
         run: |
