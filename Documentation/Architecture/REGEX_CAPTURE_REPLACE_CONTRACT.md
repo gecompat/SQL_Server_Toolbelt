@@ -249,7 +249,7 @@ Snapshots und die Credential-Quelle einer zweiten Testconnection; die
 korrigierten finalen Adapter ersetzen deren Ergebnis nicht rückwirkend.
 Weitere Ziele, neue Capture-Minimalrechte, ältere 1.0-/1.1-Capture-Upgrades,
 tatsächliche große SQL-Capture-Ausgabe und 100k-SQL-Durchsatz bleiben offen.
-CI steht aus; teilweise validiert und unveröffentlicht.
+Die aktuelle CI wird separat als PR-Mergegate nachgewiesen; teilweise validiert und unveröffentlicht.
 
 ## Primärquellen
 

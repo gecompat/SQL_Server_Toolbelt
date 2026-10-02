@@ -12,7 +12,8 @@ Gesamtadapter auf beiden Zielen lokal und zentral einschließlich echtem
 1.2-Upgrade, Wiederdeployment, Caller-Transaktionen/Optionserhalt, AppLock,
 Rollback, Kollisionen, Dependencies, Uninstall und eigenem DB-/Trustcleanup.
 Neue Capture-Minimalrechte, weitere Ziele und die tatsächliche große SQL-
-Capture-Ausgabegrenze bleiben offen; CI steht noch aus. Der Status bleibt
+Capture-Ausgabegrenze bleiben offen. Die aktuelle CI wird separat als
+PR-Mergegate nachgewiesen. Der Status bleibt
 teilweise validiert und unveröffentlicht.
 
 
@@ -101,6 +102,6 @@ werden unter AppLock erneut geprüft. Diese Erwartung ersetzt keine Trustfreigab
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
 - Nachweis: `local: Tests/CI/run-regex-captures-lab.ps1; Windows PowerShell: Tests/Framework/run-framework-captures.ps1`
-- Scope: Finaler Capture/Replace-Gesamtadapter lokal/zentral auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170: sieben alte und zwei neue APIs, unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, echter 1.2-zu-1.3-Upgrade, Reinstall, explizite erwartete SHA2_512-Binaryhashbindung, Caller-TX/SET-Erhalt, AppLock, post-DROP-Rollback, Versions-/Marker-/Future-Slot-/Schema-Kollisionen, Dependencies, Uninstall und verifiziertes eigenes DB-/Trustcleanup. Framework tatsächlich 100000 Captures und Standard/Large. Frühere API-only- und fehlgeschlagene Adapterstände bleiben historische Evidenz. Neue Capture-Minimalrechte, weitere Ziele, ältere 1.0/1.1-Capture-Upgrades, tatsächliche große SQL-Capture-Ausgabe und SQL-100k-Durchsatz nicht ausgeführt; CI ausstehend, teilweise validiert/unreleased.
+- Scope: Finaler Capture/Replace-Gesamtadapter lokal/zentral auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170: sieben alte und zwei neue APIs, unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, echter 1.2-zu-1.3-Upgrade, Reinstall, explizite erwartete SHA2_512-Binaryhashbindung, Caller-TX/SET-Erhalt, AppLock, post-DROP-Rollback, Versions-/Marker-/Future-Slot-/Schema-Kollisionen, Dependencies, Uninstall und verifiziertes eigenes DB-/Trustcleanup. Framework tatsächlich 100000 Captures und Standard/Large. Frühere API-only- und fehlgeschlagene Adapterstände bleiben historische Evidenz. Neue Capture-Minimalrechte, weitere Ziele, ältere 1.0/1.1-Capture-Upgrades, tatsächliche große SQL-Capture-Ausgabe und SQL-100k-Durchsatz nicht ausgeführt; aktueller CI-Nachweis separat als PR-Mergegate erforderlich, teilweise validiert/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

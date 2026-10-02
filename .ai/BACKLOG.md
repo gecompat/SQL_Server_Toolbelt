@@ -392,8 +392,7 @@ unverarbeiteter historischer SQLCMD-Direktive, einem optionsverändernden
 Snapshot und der Credential-Quelle der zweiten Testverbindung; diese
 Fixture-/Adapterfehler wurden behoben und bleiben historische Fehlernachweise.
 Neue Capture-Minimalrechte, weitere Zielmatrix, tatsächliche große SQL-
-Capture-Ausgabegrenze und SQL-100k-Durchsatz sind nicht ausgeführt. CI steht
-noch aus; `partially validated`, `unreleased`, keine Mergebehauptung.
+Capture-Ausgabegrenze und SQL-100k-Durchsatz sind nicht ausgeführt. Die aktuelle CI wird separat als PR-Mergegate nachgewiesen; `partially validated`, `unreleased`, keine Mergebehauptung.
 
 #### Individuell freigegebene XLSX-Typ-/Anzeige-Welle
 

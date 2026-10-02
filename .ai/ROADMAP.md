@@ -569,7 +569,8 @@ ausdrücklich freigegebene erwartete Binaryhashbindung ersetzt die unzuverlässi
 CLR-Versionsableitung. Finale Gesamtadapter auf Linux 2019/latest CL150 und
 Windows 2025/CU8 CL150/160/170 lokal/zentral einschließlich echtem 1.2-Upgrade,
 Lifecycle und eigenem Cleanup erfolgreich. Capture-Minimalrechte, übrige Ziele,
-ältere Capture-Upgrades und große SQL-Ausgabe bleiben offen; CI ausstehend,
+ältere Capture-Upgrades und große SQL-Ausgabe bleiben offen. Die aktuelle CI
+wird separat als PR-Mergegate nachgewiesen;
 teilweise validiert und unveröffentlicht.
 
 ### Phase 4.5 – E1 Work Queue in vertikalen Slices

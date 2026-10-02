@@ -15,7 +15,7 @@
   führten zu korrigierter Vorgänger-SQLCMD-Normalisierung, optionsneutralem
   Snapshot und sicherer Credential-Quelle der zweiten Testverbindung.
 - Neue Capture-Minimalrechte, weitere Ziele, ältere Capture-Upgrades und
-  tatsächliche große SQL-Capture-Ausgabe offen. CI ausstehend; teilweise
+  tatsächliche große SQL-Capture-Ausgabe offen. Aktuelle CI wird separat als PR-Mergegate nachgewiesen; teilweise
   validiert und unveröffentlicht, keine Heap-/Backtracking-/Durchsatzgarantie.
 
 ## 2026-10-02 – Parser-Härtung 2.0.0 in Arbeit

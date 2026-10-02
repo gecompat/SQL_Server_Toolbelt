@@ -168,7 +168,8 @@ Zielen bestehen lokal/zentral einschließlich echtem 1.2-Upgrade, expliziter
 erwarteter Binaryhashbindung, Caller-TX/Optionserhalt, AppLock, Rollback,
 Kollisionen, Dependencies, Uninstall und eigenem DB-/Trustcleanup.
 Neue Capture-Minimalrechte, weitere Ziele, große SQL-Capture-Ausgabe und
-SQL-100k-Durchsatz bleiben offen; CI steht aus. Teilweise validiert, unveröffentlicht.
+SQL-100k-Durchsatz bleiben offen. Der Nachweis der aktuellen CI erfolgt separat
+als PR-Mergegate. Teilweise validiert, unveröffentlicht.
 
 Das implementierte Modul
 [`toolbelt.validation.semantic-version`](./Modules/toolbelt.validation.semantic-version/README.md)

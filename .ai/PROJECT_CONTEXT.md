@@ -9,7 +9,8 @@ auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral:
 API-/SQLClient-Verträge, echter 1.2-Upgrade, Reinstall, Caller-TX/SET-Erhalt,
 AppLock, Rollback, Kollisions-/Dependency-Erhalt, Uninstall und eigenes
 DB-/Trustcleanup. Neue Capture-Minimalrechte, weitere Ziele, ältere Capture-
-Upgrades und tatsächliche große SQL-Ausgabe bleiben offen; CI ausstehend,
+Upgrades und tatsächliche große SQL-Ausgabe bleiben offen. Die aktuelle CI
+wird separat als PR-Mergegate nachgewiesen;
 `partially validated`, `unreleased`. Historische API-only-/Adapterfehlerstände
 werden in der Modul-Testdokumentation von den finalen Nachweisen getrennt.
 
