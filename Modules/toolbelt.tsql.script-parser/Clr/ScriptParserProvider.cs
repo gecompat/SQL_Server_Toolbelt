@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.IO;
 using System.Reflection;
+using System.Globalization;
 using Microsoft.SqlServer.Server;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 
@@ -42,31 +43,7 @@ namespace Toolbelt.Tsql.ScriptParser
             SqlInt32 maxInputBytes,
             SqlInt32 maxNestingDepth)
         {
-            if (sqlText.IsNull) yield break;
-
-            string sql = ValidateAndGetString(sqlText, maxInputBytes);
-            int version = tSqlVersion.IsNull ? 160 : tSqlVersion.Value;
-            bool quoted = quotedIdentifiers.IsNull || quotedIdentifiers.Value;
-            int maxDepth = maxNestingDepth.IsNull ? DefaultMaxNestingDepth : maxNestingDepth.Value;
-
-            TSqlParser parser = CreateParser(version, quoted);
-            IList<ParseError> errors;
-            TSqlFragment fragment;
-            using (StringReader reader = new StringReader(sql))
-            {
-                fragment = parser.Parse(reader, out errors);
-            }
-
-            if (fragment == null) yield break;
-
-            int nodeIdCounter = 0;
-            List<AstNodeRow> rows = new List<AstNodeRow>();
-            TraverseAst(fragment, null, 0, 0, null, null, ref nodeIdCounter, maxDepth, rows);
-
-            foreach (AstNodeRow row in rows)
-            {
-                yield return row;
-            }
+            return BuildResult(sqlText, tSqlVersion, quotedIdentifiers, maxInputBytes, maxNestingDepth, OutputKind.Nodes);
         }
 
         public static void FillNodeRow(
@@ -119,31 +96,7 @@ namespace Toolbelt.Tsql.ScriptParser
             SqlInt32 maxInputBytes,
             SqlInt32 maxNestingDepth)
         {
-            if (sqlText.IsNull) yield break;
-
-            string sql = ValidateAndGetString(sqlText, maxInputBytes);
-            int version = tSqlVersion.IsNull ? 160 : tSqlVersion.Value;
-            bool quoted = quotedIdentifiers.IsNull || quotedIdentifiers.Value;
-            int maxDepth = maxNestingDepth.IsNull ? DefaultMaxNestingDepth : maxNestingDepth.Value;
-
-            TSqlParser parser = CreateParser(version, quoted);
-            IList<ParseError> errors;
-            TSqlFragment fragment;
-            using (StringReader reader = new StringReader(sql))
-            {
-                fragment = parser.Parse(reader, out errors);
-            }
-
-            if (fragment == null) yield break;
-
-            int nodeIdCounter = 0;
-            List<AstPropertyRow> propertyRows = new List<AstPropertyRow>();
-            TraverseProperties(fragment, ref nodeIdCounter, maxDepth, 0, propertyRows);
-
-            foreach (AstPropertyRow row in propertyRows)
-            {
-                yield return row;
-            }
+            return BuildResult(sqlText, tSqlVersion, quotedIdentifiers, maxInputBytes, maxNestingDepth, OutputKind.Properties);
         }
 
         public static void FillPropertyRow(
@@ -180,34 +133,7 @@ namespace Toolbelt.Tsql.ScriptParser
             SqlInt32 maxInputBytes,
             SqlInt32 maxNestingDepth)
         {
-            if (sqlText.IsNull) yield break;
-
-            string sql = ValidateAndGetString(sqlText, maxInputBytes);
-            int version = tSqlVersion.IsNull ? 160 : tSqlVersion.Value;
-            bool quoted = quotedIdentifiers.IsNull || quotedIdentifiers.Value;
-
-            TSqlParser parser = CreateParser(version, quoted);
-            IList<ParseError> errors;
-            TSqlFragment fragment;
-            using (StringReader reader = new StringReader(sql))
-            {
-                fragment = parser.Parse(reader, out errors);
-            }
-
-            if (fragment?.ScriptTokenStream != null)
-            {
-                int index = 0;
-                foreach (TSqlParserToken token in fragment.ScriptTokenStream)
-                {
-                    yield return new ScriptTokenRow(
-                        index++,
-                        token.TokenType.ToString(),
-                        token.Text ?? string.Empty,
-                        token.Offset,
-                        token.Line,
-                        token.Column);
-                }
-            }
+            return BuildResult(sqlText, tSqlVersion, quotedIdentifiers, maxInputBytes, maxNestingDepth, OutputKind.Tokens);
         }
 
         public static void FillTokenRow(
@@ -248,33 +174,7 @@ namespace Toolbelt.Tsql.ScriptParser
             SqlInt32 maxInputBytes,
             SqlInt32 maxNestingDepth)
         {
-            if (sqlText.IsNull) yield break;
-
-            string sql = ValidateAndGetString(sqlText, maxInputBytes);
-            int version = tSqlVersion.IsNull ? 160 : tSqlVersion.Value;
-            bool quoted = quotedIdentifiers.IsNull || quotedIdentifiers.Value;
-
-            TSqlParser parser = CreateParser(version, quoted);
-            IList<ParseError> errors;
-            using (StringReader reader = new StringReader(sql))
-            {
-                parser.Parse(reader, out errors);
-            }
-
-            if (errors != null)
-            {
-                int ordinal = 1;
-                foreach (ParseError err in errors)
-                {
-                    yield return new ScriptErrorRow(
-                        ordinal++,
-                        err.Number,
-                        err.Message ?? string.Empty,
-                        err.Offset,
-                        err.Line,
-                        err.Column);
-                }
-            }
+            return BuildResult(sqlText, tSqlVersion, quotedIdentifiers, maxInputBytes, maxNestingDepth, OutputKind.Errors);
         }
 
         public static void FillErrorRow(
@@ -299,25 +199,148 @@ namespace Toolbelt.Tsql.ScriptParser
 
         #region AST Traversal and Helpers
 
-        private static string ValidateAndGetString(SqlChars sqlText, SqlInt32 maxInputBytes)
+        private enum OutputKind { Nodes, Properties, Tokens, Errors }
+
+        // A call returns its list only after all validation and accounting succeeds.
+        private static IEnumerable BuildResult(SqlChars input, SqlInt32 versionArg, SqlBoolean quotedArg,
+            SqlInt32 bytesArg, SqlInt32 depthArg, OutputKind kind)
         {
-            if (!maxInputBytes.IsNull)
+            var rows = new List<object>();
+            if (input.IsNull) return rows;
+            int version = versionArg.IsNull ? 160 : versionArg.Value;
+            if (version != 80 && version != 90 && version != 100 && version != 110 && version != 120 &&
+                version != 130 && version != 140 && version != 150 && version != 160 && version != 170)
+                throw new ArgumentException("TBX_TSQLPARSE_INVALID_VERSION");
+            int bytes = bytesArg.IsNull ? 2097152 : bytesArg.Value;
+            if (bytes < 1 || bytes > 2097152) throw new ArgumentException("TBX_TSQLPARSE_INVALID_MAX_BYTES");
+            int depth = depthArg.IsNull ? DefaultMaxNestingDepth : depthArg.Value;
+            if (depth < 1 || depth > 256) throw new ArgumentException("TBX_TSQLPARSE_INVALID_MAX_DEPTH");
+            if (checked(input.Length * 2L) > bytes) throw new InvalidOperationException("TBX_TSQLPARSE_INPUT_TOO_LARGE");
+            string sql = input.ToSqlString().Value;
+            int atoms, structure, comments;
+            string guard = PreparseGuard.Guard(sql, depth, out atoms, out structure, out comments);
+            if (guard != "ACCEPT") throw new InvalidOperationException(guard);
+            TSqlParser parser = CreateParser(version, quotedArg.IsNull || quotedArg.Value);
+            IList<ParseError> errors;
+            IList<TSqlParserToken> tokens;
+            using (var reader = new StringReader(sql)) tokens = parser.GetTokenStream(reader, out errors);
+            if (tokens.Count > 8192) throw new InvalidOperationException("TBX_TSQLPARSE_OUTPUT_LIMIT");
+            var budget = new OutputBudget(kind == OutputKind.Nodes ? 32768 : kind == OutputKind.Properties ? 131072 : kind == OutputKind.Tokens ? 8192 : 256, 16777216);
+            if (errors.Count != 0) { if (kind == OutputKind.Errors) AddErrors(errors, rows, budget); return rows; }
+            if (kind == OutputKind.Tokens)
             {
-                int maxBytes = maxInputBytes.Value;
-                if (maxBytes <= 0)
+                int index = 0;
+                foreach (var token in tokens)
                 {
-                    throw new ArgumentException("TBX_TSQLPARSE_INVALID_MAX_BYTES: MaxInputBytes muss größer als 0 sein.");
+                    string type = token.TokenType.ToString(), value = token.Text ?? string.Empty;
+                    CheckWidth(type, 64); budget.Add(type, value);
+                    rows.Add(new ScriptTokenRow(index++, type, value, token.Offset, token.Line, token.Column));
                 }
-
-                long byteCount = sqlText.Length * sizeof(char);
-                if (byteCount > maxBytes)
-                {
-                    throw new InvalidOperationException(
-                        string.Format("TBX_TSQLPARSE_INPUT_TOO_LARGE: Eingabe überschreitet das Limit von {0} Bytes.", maxBytes));
-                }
+                return rows;
             }
+            TSqlFragment fragment = parser.Parse(tokens, out errors);
+            if (errors.Count != 0) { if (kind == OutputKind.Errors) AddErrors(errors, rows, budget); return rows; }
+            if (fragment != null) Walk(fragment, depth, kind, rows, budget);
+            return rows;
+        }
 
-            return sqlText.ToSqlString().Value;
+        private static void AddErrors(IList<ParseError> errors, List<object> rows, OutputBudget budget)
+        {
+            int ordinal = 1;
+            foreach (var error in errors)
+            {
+                string message = error.Message ?? string.Empty;
+                CheckWidth(message, 4000); budget.Add(message);
+                rows.Add(new ScriptErrorRow(ordinal++, error.Number, message, error.Offset, error.Line, error.Column));
+            }
+        }
+
+        private static void CheckWidth(string value, int width)
+        {
+            if (value != null && value.Length > width) throw new InvalidOperationException("TBX_TSQLPARSE_OUTPUT_LIMIT");
+        }
+
+        private sealed class OutputBudget
+        {
+            private readonly int rowLimit;
+            private readonly long byteLimit;
+            private int rows;
+            private long bytes;
+            internal OutputBudget(int rowLimit, long byteLimit) { this.rowLimit = rowLimit; this.byteLimit = byteLimit; }
+            internal void Add(params string[] values)
+            {
+                long next = checked(bytes + 128L);
+                foreach (string value in values) if (value != null) next = checked(next + value.Length * 2L);
+                if (rows >= rowLimit || next > byteLimit) throw new InvalidOperationException("TBX_TSQLPARSE_OUTPUT_LIMIT");
+                rows++; bytes = next;
+            }
+        }
+
+        private sealed class WorkItem
+        {
+            internal TSqlFragment Fragment;
+            internal int? Parent, Index;
+            internal int Depth, Sibling;
+            internal string Property;
+        }
+
+        // Both outputs use the same deterministic preorder, sorted by ordinal property name.
+        private static void Walk(TSqlFragment root, int maxDepth, OutputKind kind, List<object> rows, OutputBudget budget)
+        {
+            var pending = new Stack<WorkItem>();
+            pending.Push(new WorkItem { Fragment = root });
+            int id = 0;
+            while (pending.Count > 0)
+            {
+                WorkItem item = pending.Pop();
+                if (item.Depth > maxDepth) throw new InvalidOperationException("TBX_TSQLPARSE_MAX_DEPTH_EXCEEDED");
+                int currentId = checked(++id);
+                TSqlFragment fragment = item.Fragment;
+                if (kind == OutputKind.Nodes)
+                {
+                    string type = fragment.GetType().Name;
+                    CheckWidth(type, 128); CheckWidth(item.Property, 128); budget.Add(type, item.Property);
+                    rows.Add(new AstNodeRow(currentId, item.Parent, item.Depth, item.Sibling, item.Property, item.Index,
+                        type, fragment.StartOffset, fragment.StartLine, fragment.StartColumn, fragment.FragmentLength,
+                        fragment.FirstTokenIndex, fragment.LastTokenIndex));
+                }
+                var children = new List<WorkItem>();
+                PropertyInfo[] properties = fragment.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                Array.Sort(properties, (a, b) => StringComparer.Ordinal.Compare(a.Name, b.Name));
+                foreach (var property in properties)
+                {
+                    if (property.GetIndexParameters().Length != 0 || property.Name == "ScriptTokenStream" ||
+                        property.Name == "FirstTokenIndex" || property.Name == "LastTokenIndex" || property.Name == "StartOffset" ||
+                        property.Name == "FragmentLength" || property.Name == "StartLine" || property.Name == "StartColumn") continue;
+                    object value = property.GetValue(fragment, null);
+                    if (value == null) continue;
+                    if (typeof(TSqlFragment).IsAssignableFrom(property.PropertyType))
+                    {
+                        children.Add(new WorkItem { Fragment = (TSqlFragment)value, Parent = currentId, Depth = item.Depth + 1,
+                            Sibling = children.Count, Property = property.Name });
+                    }
+                    else if (typeof(IEnumerable).IsAssignableFrom(property.PropertyType) && property.PropertyType != typeof(string))
+                    {
+                        int index = 0;
+                        foreach (object child in (IEnumerable)value)
+                        {
+                            var childFragment = child as TSqlFragment;
+                            if (childFragment != null) children.Add(new WorkItem { Fragment = childFragment, Parent = currentId,
+                                Depth = item.Depth + 1, Sibling = children.Count, Property = property.Name, Index = index });
+                            index++;
+                        }
+                    }
+                    else if (kind == OutputKind.Properties)
+                    {
+                        string propertyKind = property.PropertyType.IsEnum ? "Enum" : property.PropertyType == typeof(bool) ? "Boolean" :
+                            property.PropertyType == typeof(string) ? "String" : property.PropertyType.IsPrimitive ? "Number" : "Value";
+                        string formatted = value is IFormattable ? ((IFormattable)value).ToString(null, CultureInfo.InvariantCulture) : value.ToString();
+                        CheckWidth(property.Name, 128); CheckWidth(propertyKind, 32); budget.Add(property.Name, propertyKind, formatted);
+                        rows.Add(new AstPropertyRow(currentId, property.Name, propertyKind, formatted));
+                    }
+                }
+                for (int i = children.Count - 1; i >= 0; i--) pending.Push(children[i]);
+            }
         }
 
         private static TSqlParser CreateParser(int version, bool quotedIdentifiers)
@@ -345,152 +368,7 @@ namespace Toolbelt.Tsql.ScriptParser
                 case 170:
                     return new TSql170Parser(quotedIdentifiers);
                 default:
-                    return new TSql160Parser(quotedIdentifiers);
-            }
-        }
-
-        private static void TraverseAst(
-            TSqlFragment fragment,
-            int? parentId,
-            int depth,
-            int siblingOrdinal,
-            string propertyName,
-            int? propertyIndex,
-            ref int nodeIdCounter,
-            int maxDepth,
-            List<AstNodeRow> rows)
-        {
-            if (fragment == null) return;
-            if (depth > maxDepth)
-            {
-                throw new InvalidOperationException(
-                    string.Format("TBX_TSQLPARSE_MAX_DEPTH_EXCEEDED: Schachtelungstiefe überschreitet {0}.", maxDepth));
-            }
-
-            int currentId = ++nodeIdCounter;
-            rows.Add(new AstNodeRow(
-                currentId,
-                parentId,
-                depth,
-                siblingOrdinal,
-                propertyName,
-                propertyIndex,
-                fragment.GetType().Name,
-                fragment.StartOffset,
-                fragment.StartLine,
-                fragment.StartColumn,
-                fragment.FragmentLength,
-                fragment.FirstTokenIndex,
-                fragment.LastTokenIndex));
-
-            PropertyInfo[] props = fragment.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            int childSibling = 0;
-            foreach (PropertyInfo prop in props)
-            {
-                if (prop.GetIndexParameters().Length > 0)
-                {
-                    continue;
-                }
-
-                if (prop.Name == "ScriptTokenStream" || prop.Name == "FirstTokenIndex" || prop.Name == "LastTokenIndex" ||
-                    prop.Name == "StartOffset" || prop.Name == "FragmentLength" || prop.Name == "StartLine" || prop.Name == "StartColumn")
-                {
-                    continue;
-                }
-
-                if (typeof(TSqlFragment).IsAssignableFrom(prop.PropertyType))
-                {
-                    TSqlFragment child = prop.GetValue(fragment, null) as TSqlFragment;
-                    if (child != null)
-                    {
-                        TraverseAst(child, currentId, depth + 1, childSibling++, prop.Name, null, ref nodeIdCounter, maxDepth, rows);
-                    }
-                }
-                else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
-                {
-                    IEnumerable list = prop.GetValue(fragment, null) as IEnumerable;
-                    if (list != null)
-                    {
-                        int listIndex = 0;
-                        foreach (object item in list)
-                        {
-                            TSqlFragment childItem = item as TSqlFragment;
-                            if (childItem != null)
-                            {
-                                TraverseAst(childItem, currentId, depth + 1, childSibling++, prop.Name, listIndex, ref nodeIdCounter, maxDepth, rows);
-                            }
-                            listIndex++;
-                        }
-                    }
-                }
-            }
-        }
-
-        private static void TraverseProperties(
-            TSqlFragment fragment,
-            ref int nodeIdCounter,
-            int maxDepth,
-            int depth,
-            List<AstPropertyRow> propertyRows)
-        {
-            if (fragment == null) return;
-            if (depth > maxDepth)
-            {
-                throw new InvalidOperationException("TBX_TSQLPARSE_MAX_DEPTH_EXCEEDED");
-            }
-
-            int currentId = ++nodeIdCounter;
-
-            PropertyInfo[] props = fragment.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            List<TSqlFragment> childFragments = new List<TSqlFragment>();
-
-            foreach (PropertyInfo prop in props)
-            {
-                if (prop.GetIndexParameters().Length > 0)
-                {
-                    continue;
-                }
-
-                if (prop.Name == "ScriptTokenStream" || prop.Name == "FirstTokenIndex" || prop.Name == "LastTokenIndex" ||
-                    prop.Name == "StartOffset" || prop.Name == "FragmentLength" || prop.Name == "StartLine" || prop.Name == "StartColumn")
-                {
-                    continue;
-                }
-
-                if (typeof(TSqlFragment).IsAssignableFrom(prop.PropertyType))
-                {
-                    TSqlFragment child = prop.GetValue(fragment, null) as TSqlFragment;
-                    if (child != null) childFragments.Add(child);
-                }
-                else if (typeof(IEnumerable).IsAssignableFrom(prop.PropertyType) && prop.PropertyType != typeof(string))
-                {
-                    IEnumerable list = prop.GetValue(fragment, null) as IEnumerable;
-                    if (list != null)
-                    {
-                        foreach (object item in list)
-                        {
-                            if (item is TSqlFragment childItem) childFragments.Add(childItem);
-                        }
-                    }
-                }
-                else
-                {
-                    object val = prop.GetValue(fragment, null);
-                    if (val != null)
-                    {
-                        string kind = prop.PropertyType.IsEnum ? "Enum" :
-                                      prop.PropertyType == typeof(bool) ? "Boolean" :
-                                      prop.PropertyType == typeof(string) ? "String" :
-                                      prop.PropertyType.IsPrimitive ? "Number" : "Value";
-
-                        propertyRows.Add(new AstPropertyRow(currentId, prop.Name, kind, val.ToString()));
-                    }
-                }
-            }
-
-            foreach (TSqlFragment child in childFragments)
-            {
-                TraverseProperties(child, ref nodeIdCounter, maxDepth, depth + 1, propertyRows);
+                    throw new ArgumentException("TBX_TSQLPARSE_INVALID_VERSION");
             }
         }
 

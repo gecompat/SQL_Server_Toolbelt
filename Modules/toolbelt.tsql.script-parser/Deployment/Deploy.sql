@@ -1,4 +1,10 @@
 :On Error exit
+IF @@TRANCOUNT <> 0
+BEGIN
+    RAISERROR(N'Der ScriptParser-Lifecycle erlaubt keine vorhandene Caller-Transaktion.', 16, 1);
+    RETURN;
+END;
+
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
@@ -14,7 +20,8 @@ DECLARE
     , @InstalledAssemblyHash varbinary(64)
     , @InstalledScriptDomAssemblyHash varbinary(64)
     , @ProductMajorVersion int = TRY_CONVERT(int, SERVERPROPERTY(N'ProductMajorVersion'))
-    , @LockResult int;
+    , @LockResult int
+    , @InstalledVersion nvarchar(64);
 
 IF @ProductMajorVersion NOT IN (15, 16, 17)
     THROW 53100, N'Dieses Modul unterstützt ausschließlich SQL Server 2019, 2022 und 2025.', 1;
@@ -77,28 +84,59 @@ IF @InstalledScriptDomAssemblyHash IS NOT NULL
    AND @InstalledScriptDomAssemblyHash <> @ScriptDomAssemblyHash
     THROW 53117, N'Die vorhandene ScriptDom-Assembly stimmt nicht mit dem freigegebenen Releaseartefakt überein.', 1;
 
-IF EXISTS
-   (
-       SELECT 1
-       FROM sys.objects AS o
-       INNER JOIN sys.schemas AS s
-           ON s.schema_id = o.schema_id
-       LEFT JOIN sys.extended_properties AS ep
-           ON ep.class = 1
-          AND ep.major_id = o.object_id
-          AND ep.minor_id = 0
-          AND ep.name = N'Toolbelt.Managed'
-       WHERE s.name = N'toolbelt_tsql'
-         AND o.name IN
-             (
-                   N'TVF_ParseScriptNodes'
-                 , N'TVF_ParseScriptNodeProperties'
-                 , N'TVF_TokenizeScript'
-                 , N'TVF_ParseScriptErrors'
-             )
-         AND (ep.value IS NULL OR ep.value <> 1)
-   )
-    THROW 53103, N'Ein nicht vom Toolbelt verwaltetes Objekt kollidiert mit dem Zielbestand.', 1;
+    -- Ownership und Version unmittelbar vor Mutation erneut prüfen.
+    SET @InstalledVersion = NULL;
+    SELECT @InstalledVersion = TRY_CONVERT(nvarchar(64), value)
+    FROM sys.extended_properties
+    WHERE class = 0 AND major_id = 0 AND minor_id = 0
+      AND name = N'Toolbelt.Module.toolbelt.tsql.script-parser.Version';
+
+    IF EXISTS (SELECT 1 FROM sys.extended_properties
+               WHERE class = 0 AND major_id = 0 AND minor_id = 0
+                 AND name = N'Toolbelt.Module.toolbelt.tsql.script-parser.Version')
+       AND (@InstalledVersion IS NULL OR @InstalledVersion NOT IN (N'1.0.0', N'2.0.0'))
+        THROW 53119, N'Die installierte ScriptParser-Version wird von diesem Lifecycle nicht unterstützt.', 1;
+
+    IF EXISTS
+       (SELECT 1 FROM sys.objects AS o
+        INNER JOIN sys.schemas AS s ON s.schema_id = o.schema_id
+        LEFT JOIN sys.extended_properties AS managed
+          ON managed.class = 1 AND managed.major_id = o.object_id AND managed.minor_id = 0 AND managed.name = N'Toolbelt.Managed'
+        LEFT JOIN sys.extended_properties AS moduleId
+          ON moduleId.class = 1 AND moduleId.major_id = o.object_id AND moduleId.minor_id = 0 AND moduleId.name = N'Toolbelt.ModuleId'
+        LEFT JOIN sys.extended_properties AS version
+          ON version.class = 1 AND version.major_id = o.object_id AND version.minor_id = 0 AND version.name = N'Toolbelt.ModuleVersion'
+        WHERE s.name = N'toolbelt_tsql'
+          AND o.name IN (N'TVF_ParseScriptNodes', N'TVF_ParseScriptNodeProperties', N'TVF_TokenizeScript', N'TVF_ParseScriptErrors')
+          AND (o.type <> N'FT' OR TRY_CONVERT(int, managed.value) IS NULL OR TRY_CONVERT(int, managed.value) <> 1
+               OR TRY_CONVERT(nvarchar(128), moduleId.value) IS NULL OR TRY_CONVERT(nvarchar(128), moduleId.value) <> N'toolbelt.tsql.script-parser'
+               OR @InstalledVersion IS NULL OR TRY_CONVERT(nvarchar(64), version.value) IS NULL
+               OR TRY_CONVERT(nvarchar(64), version.value) <> @InstalledVersion))
+        THROW 53118, N'Der Funktionsbestand besitzt keine kohärente ScriptParser-Ownership.', 1;
+
+    IF EXISTS
+       (SELECT 1 FROM sys.assemblies AS a
+        LEFT JOIN sys.extended_properties AS managed
+          ON managed.class = 5 AND managed.major_id = a.assembly_id AND managed.minor_id = 0 AND managed.name = N'Toolbelt.Managed'
+        LEFT JOIN sys.extended_properties AS moduleId
+          ON moduleId.class = 5 AND moduleId.major_id = a.assembly_id AND moduleId.minor_id = 0 AND moduleId.name = N'Toolbelt.ModuleId'
+        WHERE a.name = N'Toolbelt_Tsql_ScriptParser'
+          AND (@InstalledVersion IS NULL OR TRY_CONVERT(int, managed.value) IS NULL OR TRY_CONVERT(int, managed.value) <> 1
+               OR TRY_CONVERT(nvarchar(128), moduleId.value) IS NULL
+               OR TRY_CONVERT(nvarchar(128), moduleId.value) <> N'toolbelt.tsql.script-parser'))
+        THROW 53118, N'Die Provider-Assembly besitzt keine kohärente ScriptParser-Ownership.', 2;
+
+    IF @InstalledVersion IS NOT NULL
+       AND (NOT EXISTS (SELECT 1 FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+            OR (SELECT COUNT(*) FROM sys.objects WHERE schema_id = SCHEMA_ID(N'toolbelt_tsql')
+                AND name IN (N'TVF_ParseScriptNodes', N'TVF_ParseScriptNodeProperties', N'TVF_TokenizeScript', N'TVF_ParseScriptErrors')) <> 4)
+        THROW 53118, N'Der markierte ScriptParser-Modulbestand ist unvollständig.', 3;
+    IF @InstalledVersion IS NOT NULL
+       AND NOT EXISTS (SELECT 1 FROM sys.extended_properties
+                       WHERE class = 0 AND major_id = 0 AND minor_id = 0
+                         AND name = N'Toolbelt.Module.toolbelt.tsql.script-parser.DeploymentMode'
+                         AND TRY_CONVERT(nvarchar(16), value) IN (N'local', N'central'))
+        THROW 53118, N'Der DeploymentMode-Marker ist nicht kohärent.', 4;
 
 BEGIN TRY
     BEGIN TRANSACTION;
@@ -112,6 +150,69 @@ BEGIN TRY
 
     IF @LockResult < 0
         THROW 53104, N'Ein paralleles Deployment dieses Moduls ist bereits aktiv.', 1;
+    -- Ownership und Version unmittelbar vor Mutation erneut prüfen.
+    SET @InstalledVersion = NULL;
+    SELECT @InstalledVersion = TRY_CONVERT(nvarchar(64), value)
+    FROM sys.extended_properties
+    WHERE class = 0 AND major_id = 0 AND minor_id = 0
+      AND name = N'Toolbelt.Module.toolbelt.tsql.script-parser.Version';
+
+    IF EXISTS (SELECT 1 FROM sys.extended_properties
+               WHERE class = 0 AND major_id = 0 AND minor_id = 0
+                 AND name = N'Toolbelt.Module.toolbelt.tsql.script-parser.Version')
+       AND (@InstalledVersion IS NULL OR @InstalledVersion NOT IN (N'1.0.0', N'2.0.0'))
+        THROW 53119, N'Die installierte ScriptParser-Version wird von diesem Lifecycle nicht unterstützt.', 1;
+
+    IF EXISTS
+       (SELECT 1 FROM sys.objects AS o
+        INNER JOIN sys.schemas AS s ON s.schema_id = o.schema_id
+        LEFT JOIN sys.extended_properties AS managed
+          ON managed.class = 1 AND managed.major_id = o.object_id AND managed.minor_id = 0 AND managed.name = N'Toolbelt.Managed'
+        LEFT JOIN sys.extended_properties AS moduleId
+          ON moduleId.class = 1 AND moduleId.major_id = o.object_id AND moduleId.minor_id = 0 AND moduleId.name = N'Toolbelt.ModuleId'
+        LEFT JOIN sys.extended_properties AS version
+          ON version.class = 1 AND version.major_id = o.object_id AND version.minor_id = 0 AND version.name = N'Toolbelt.ModuleVersion'
+        WHERE s.name = N'toolbelt_tsql'
+          AND o.name IN (N'TVF_ParseScriptNodes', N'TVF_ParseScriptNodeProperties', N'TVF_TokenizeScript', N'TVF_ParseScriptErrors')
+          AND (o.type <> N'FT' OR TRY_CONVERT(int, managed.value) IS NULL OR TRY_CONVERT(int, managed.value) <> 1
+               OR TRY_CONVERT(nvarchar(128), moduleId.value) IS NULL OR TRY_CONVERT(nvarchar(128), moduleId.value) <> N'toolbelt.tsql.script-parser'
+               OR @InstalledVersion IS NULL OR TRY_CONVERT(nvarchar(64), version.value) IS NULL
+               OR TRY_CONVERT(nvarchar(64), version.value) <> @InstalledVersion))
+        THROW 53118, N'Der Funktionsbestand besitzt keine kohärente ScriptParser-Ownership.', 1;
+
+    IF EXISTS
+       (SELECT 1 FROM sys.assemblies AS a
+        LEFT JOIN sys.extended_properties AS managed
+          ON managed.class = 5 AND managed.major_id = a.assembly_id AND managed.minor_id = 0 AND managed.name = N'Toolbelt.Managed'
+        LEFT JOIN sys.extended_properties AS moduleId
+          ON moduleId.class = 5 AND moduleId.major_id = a.assembly_id AND moduleId.minor_id = 0 AND moduleId.name = N'Toolbelt.ModuleId'
+        WHERE a.name = N'Toolbelt_Tsql_ScriptParser'
+          AND (@InstalledVersion IS NULL OR TRY_CONVERT(int, managed.value) IS NULL OR TRY_CONVERT(int, managed.value) <> 1
+               OR TRY_CONVERT(nvarchar(128), moduleId.value) IS NULL
+               OR TRY_CONVERT(nvarchar(128), moduleId.value) <> N'toolbelt.tsql.script-parser'))
+        THROW 53118, N'Die Provider-Assembly besitzt keine kohärente ScriptParser-Ownership.', 2;
+
+    IF @InstalledVersion IS NOT NULL
+       AND (NOT EXISTS (SELECT 1 FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+            OR (SELECT COUNT(*) FROM sys.objects WHERE schema_id = SCHEMA_ID(N'toolbelt_tsql')
+                AND name IN (N'TVF_ParseScriptNodes', N'TVF_ParseScriptNodeProperties', N'TVF_TokenizeScript', N'TVF_ParseScriptErrors')) <> 4)
+        THROW 53118, N'Der markierte ScriptParser-Modulbestand ist unvollständig.', 3;
+    IF @InstalledVersion IS NOT NULL
+       AND NOT EXISTS (SELECT 1 FROM sys.extended_properties
+                       WHERE class = 0 AND major_id = 0 AND minor_id = 0
+                         AND name = N'Toolbelt.Module.toolbelt.tsql.script-parser.DeploymentMode'
+                         AND TRY_CONVERT(nvarchar(16), value) IN (N'local', N'central'))
+        THROW 53118, N'Der DeploymentMode-Marker ist nicht kohärent.', 4;
+    SET @InstalledAssemblyHash = NULL;
+    SET @InstalledScriptDomAssemblyHash = NULL;
+    SELECT @InstalledAssemblyHash = HASHBYTES(N'SHA2_512', af.content)
+    FROM sys.assemblies AS a INNER JOIN sys.assembly_files AS af ON af.assembly_id = a.assembly_id AND af.file_id = 1
+    WHERE a.name = N'Toolbelt_Tsql_ScriptParser';
+    SELECT @InstalledScriptDomAssemblyHash = HASHBYTES(N'SHA2_512', af.content)
+    FROM sys.assemblies AS a INNER JOIN sys.assembly_files AS af ON af.assembly_id = a.assembly_id AND af.file_id = 1
+    WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom';
+    IF @InstalledScriptDomAssemblyHash IS NOT NULL AND @InstalledScriptDomAssemblyHash <> @ScriptDomAssemblyHash
+        THROW 53117, N'Die vorhandene ScriptDom-Assembly stimmt nicht mit dem freigegebenen Releaseartefakt überein.', 1;
 
     IF SCHEMA_ID(N'toolbelt_tsql') IS NULL
     BEGIN
@@ -186,11 +287,11 @@ BEGIN TRY
        )
         EXEC sys.sp_updateextendedproperty
               @name = N'Toolbelt.Module.toolbelt.tsql.script-parser.Version'
-            , @value = N'1.0.0';
+            , @value = N'2.0.0';
     ELSE
         EXEC sys.sp_addextendedproperty
               @name = N'Toolbelt.Module.toolbelt.tsql.script-parser.Version'
-            , @value = N'1.0.0';
+            , @value = N'2.0.0';
 
     IF EXISTS
        (
@@ -287,12 +388,12 @@ BEGIN TRY
             WHERE class = 1 AND major_id = OBJECT_ID(N'toolbelt_tsql.' + @FunctionName) AND name = N'Toolbelt.ModuleVersion'
         )
             EXEC sys.sp_updateextendedproperty
-                  @name = N'Toolbelt.ModuleVersion', @value = N'1.0.0'
+                  @name = N'Toolbelt.ModuleVersion', @value = N'2.0.0'
                 , @level0type = N'SCHEMA', @level0name = N'toolbelt_tsql'
                 , @level1type = N'FUNCTION', @level1name = @FunctionName;
         ELSE
             EXEC sys.sp_addextendedproperty
-                  @name = N'Toolbelt.ModuleVersion', @value = N'1.0.0'
+                  @name = N'Toolbelt.ModuleVersion', @value = N'2.0.0'
                 , @level0type = N'SCHEMA', @level0name = N'toolbelt_tsql'
                 , @level1type = N'FUNCTION', @level1name = @FunctionName;
 

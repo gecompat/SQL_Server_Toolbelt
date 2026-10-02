@@ -6,8 +6,7 @@ XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 34 Module sind implementiert. 21 sind `validated`, 13 sind
-`partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
+abgeschlossen. 34 Module sind implementiert. 20 sind `validated`, 14 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Die vollständige lokale Adaptermatrix war am 2026-09-01 auf physischen
@@ -19,7 +18,12 @@ Evidenzkanal. Second Session und Event Log verwenden die versionsabhängig
 ermittelte OLE-DB-Provideroption. Sieben Bestandsmodule bleiben wegen
 ausdrücklich abgegrenzter Performance-, Client-/Treiber-, Fixture-,
 Interoperabilitäts- oder manueller Sicherheitsfälle `partially validated`.
-Der Script Parser ist auf Windows SQL Server 2019, 2022 und 2025 validiert. File Content benötigt weiterhin
+Script Parser 1.0.0 war auf Windows SQL Server 2019, 2022 und 2025 validiert;
+die einzeln freigegebene Härtung 2.0.0 ist aktiv und `partially validated`:
+245 integrierte Framework-Kindprozesse und Windows 2025/CU8 CL150/160/170
+bestanden; Windows 2019 ist konfigurationsbedingt blockiert, Windows 2022 offen.
+Der vor Source qualifizierte Wächterkandidat ersetzt keine integrierte
+Framework- oder Live-SQL-Abnahme. File Content benötigt weiterhin
 separat bereitgestellte serverseitige Fixtures. S2 zu `TC-2026-032` wurde am
 2026-10-01 freigegeben und als `toolbelt.string.split-advanced` implementiert;
 risikobasiert sind 2019 Linux und 2025 Linux/Windows geprüft. Weitere

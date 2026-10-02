@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## 2026-10-02 – Parser-Härtung 2.0.0 in Arbeit
+
+- Konkreter begrenzter Vertrag für die vier bestehenden TVFs vor Source
+  dokumentiert und unabhängig geprüft. Der eingefrorene Wächterkandidat
+  bestand 82 isolierte Framework-Kindprozesse mit exakter Dependency,
+  einschließlich unabhängiger Wiederholung.
+- Strikte Versionen und endliche Eingabegrenzen, vorgeschaltete
+  Komplexitätsprüfung, keine partiellen ASTs und atomare begrenzte Ausgaben
+  bilden die geplante Major-Inkompatibilität gegenüber 1.0.0.
+- 245 integrierte Framework-Kindprozesse sowie Windows 2025/CU8 CL150/160/170
+  bestanden: lokaler/zentraler Modus, echter 1.0-Upgrade, Wiederholung,
+  Grenzen/Syntax, Caller-TX/SET-Erhalt, Kollisionsschutz und eigenes Cleanup.
+- Zusätzlicher finaler Live-Lauf bestand saubere Erstinstallation,
+  Fremdschema-/Shared-Dependency-Erhalt, Lock-Contention und eigene
+  Transaktionswiederherstellung nach injiziertem post-DROP-Fehler.
+- Windows 2019 bleibt wegen fachfremder Pending-Konfiguration blockiert;
+  Windows 2022, minimale Rechte und tatsächliche Ausgabeceilings sind offen.
+  Accounting-Helper ersetzen keine SQL-Ceilingqualifikation.
+  Historische 1.0.0-Evidenz bleibt erhalten; 2.0 ist teilweise validiert.
+  Kein Dependency-Upgrade, Trigger-Rewriting oder Release.
+
 ## 2026-10-02 – Erster externer Queue-Worker
 
 - Manuell gestarteter PowerShell-Provider mit einem Supervisor, 1–8 Slots,
@@ -443,7 +464,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-34 Module sind implementiert. 21 sind `validated`, 13 sind `partially
+34 Module sind implementiert. 20 sind `validated`, 14 sind `partially
 validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

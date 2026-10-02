@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**34 Module sind implementiert. 21 sind `validated`, 13 sind `partially
+**34 Module sind implementiert. 20 sind `validated`, 14 sind `partially
 validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
 abgeleitet.**
 
@@ -45,7 +45,7 @@ abgeleitet.**
 | `toolbelt.string.regex` | Bounded Regular Expressions | `1.2.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.split-advanced` | Quote/Escape Multi-Separator Split | `1.1.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.split-characters` | Literal Multi-Separator Split | `1.0.0` | `toolbelt_string` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.tsql.script-parser` | T-SQL Script Parser | `1.0.0` | `toolbelt_tsql` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.tsql.script-parser` | T-SQL Script Parser | `2.0.0` | `toolbelt_tsql` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.validation.semantic-version` | Semantic Version Validation | `1.1.0` | `toolbelt_validation` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 <!-- END GENERATED:MODULE_STATUS_TABLE -->
 

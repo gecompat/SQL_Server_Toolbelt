@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import sys
+import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -48,6 +49,39 @@ def validate_project() -> None:
     expected = {"System", "System.Core", "System.Data", "System.Xml", "Microsoft.SqlServer.TransactSql.ScriptDom"}
     if references != expected:
         raise ContractError(f"Unerwartete direkte Referenzen: {sorted(references)}")
+    content = read("Clr/Toolbelt.Tsql.ScriptParser.csproj")
+    require(content, "Build", "$(ScriptDomDllPath)", 'Algorithm="SHA512"', 'Compile Include="PreparseGuard.cs"')
+    forbid(content, "Build", "Program Files", "Management Studio", "PackageReference")
+
+
+def validate_hardening(provider: str) -> None:
+    require(provider, "Provider", "PreparseGuard.Guard(sql, depth", "GetTokenStream", "parser.Parse(tokens, out errors)",
+            "new Stack<WorkItem>", "StringComparer.Ordinal", "CultureInfo.InvariantCulture", "16777216",
+            "32768", "131072", "256", "2097152", "TBX_TSQLPARSE_INVALID_VERSION", "TBX_TSQLPARSE_INVALID_MAX_DEPTH",
+            "TBX_TSQLPARSE_OUTPUT_LIMIT")
+    forbid(provider, "Provider", "yield return", "TraverseAst(", "TraverseProperties(")
+    if not provider.index("PreparseGuard.Guard(") < provider.index("TSqlParser parser = CreateParser(") < provider.index("parser.GetTokenStream(") < provider.index("parser.Parse(tokens"):
+        raise ContractError("Guard/Lexer/Parser-Reihenfolge verletzt.")
+    for method in ("ParseScriptNodes", "ParseScriptNodeProperties", "TokenizeScript", "ParseScriptErrors"):
+        match = re.search(r"public static IEnumerable " + method + r"\([^}]+\}", provider)
+        if match is None or "return BuildResult(" not in match.group():
+            raise ContractError("TVF umgeht gemeinsame Materialisierung: " + method)
+    guard = read("Clr/PreparseGuard.cs")
+    require(guard, "Guard", "AtomLimit=512", "StructureLimit=32", "CommentLimit=16", "rawUnits", "8192",
+            "Math.Min(StructureLimit,requestedDepth)", "UnicodeCategory.DecimalDigitNumber")
+    forbid(guard, "Guard", "ScriptDom", "Parse(", "GetTokenStream", "stack.Push('{')")
+
+
+def validate_lifecycle(content: str, name: str) -> None:
+    match = re.search(r"IF @@TRANCOUNT <> 0\s*BEGIN\s*RAISERROR\([^;]+;\s*RETURN;\s*END;?", content)
+    if not match or match.end() > content.index("SET NOCOUNT") or match.end() > content.index("SET XACT_ABORT"):
+        raise ContractError(name + ": Caller-Transaktionsguard fehlt vor SET.")
+    require(content, name, "N'1.0.0', N'2.0.0'", "Toolbelt.Managed", "Toolbelt.ModuleId", "Toolbelt.ModuleVersion", "sp_getapplock")
+    lock = content.index("sp_getapplock")
+    drop = content.index("DROP FUNCTION")
+    for marker in ("Toolbelt.Managed", "Toolbelt.ModuleId", "Toolbelt.ModuleVersion"):
+        if marker not in content[lock:drop]:
+            raise ContractError(name + ": Ownership unter Applock nicht erneut geprüft.")
 
 
 def main() -> int:
@@ -105,6 +139,7 @@ def main() -> int:
         "Microsoft.Win32.Registry",
         "DllImport",
     )
+    validate_hardening(provider)
 
     deploy = read("Deployment/Deploy.sql")
     require(
@@ -127,6 +162,7 @@ def main() -> int:
         raise ContractError("Deploy.sql muss genau einen $(AssemblyBits)-Platzhalter enthalten.")
     if deploy.count("$(ScriptDomAssemblyBits)") != 1:
         raise ContractError("Deploy.sql muss genau einen $(ScriptDomAssemblyBits)-Platzhalter enthalten.")
+    validate_lifecycle(deploy, "Deploy")
 
     trust = read("Deployment/Add-TrustedAssembly.sql")
     require(
@@ -155,6 +191,13 @@ def main() -> int:
         "Uninstall-Skript",
         "sp_drop_trusted_assembly",
     )
+    validate_lifecycle(uninstall, "Uninstall")
+    for name in ("TVF_ParseScriptNodes", "TVF_ParseScriptNodeProperties", "TVF_TokenizeScript", "TVF_ParseScriptErrors"):
+        source = read("Source/" + name + ".sql")
+        for parameter, value in (("TSqlVersion", "160"), ("MaxInputBytes", "2097152"), ("MaxNestingDepth", "100")):
+            if not re.search(r"@" + parameter + r"\s+int\s*=\s*" + value + r"\b", source, re.I):
+                raise ContractError(name + ": Default verletzt: " + parameter)
+        forbid(source, name, "streaming", "partiellen AST liefern")
 
     artifact_script = read("Scripts/New-ClrReleaseArtifacts.ps1")
     require(
@@ -164,7 +207,10 @@ def main() -> int:
         "ScriptDomAssemblyBits",
         "scriptDomSqlServerHexLiteral",
         "Deploy.WithAssembly.sql darf keine externen SQLCMD-Includes enthalten.",
+        "sourceFingerprintSha256", "deploymentFingerprintSha256", "guardProfile", "Assert-ScriptDomPin", "18.0.56.2",
     )
+    require(read("Clr/Properties/AssemblyInfo.cs"), "Assembly-Version", 'AssemblyVersion("2.0.0.0")', 'AssemblyFileVersion("2.0.0.0")')
+    require(read("Tests/Framework/Invoke-Contract.ps1"), "Framework-Gate", "FRAMEWORK_CHILD_TIMEOUT", "RELEASE_FINGERPRINT_MISMATCH", "TrustManifestPath", "sqlExecuted = $false")
 
     manifest = read("module.yaml")
     require(
