@@ -1,6 +1,15 @@
 # XLSX Binary Memory Reader
 
-Aktuelle Evidenz: `local: Tests/Runtime/Invoke-LabContract.ps1`, 2026-10-02, Linux 2019/latest und Windows 2025/CU8; begrenzter synthetischer vollständiger Adapter erfolgreich, offene Matrixfälle bleiben offen.
+Release1.1 ergänzt die einzeln freigegebene
+[TVF_InterpretXlsxCell](Documentation/TVF_InterpretXlsxCell.md). Der vorhandene
+Raw-Kern und seine fünf SQL-Sources bleiben bytegleich. Neuer Zellkern:
+Offline-Frameworktests drei Kulturen /19311 Assertions bestanden; die
+ausgewählte native 1.1-Qualifikation ist erfolgreich. Öffentlicher
+Adapterport ist erfolgreich; aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft; siehe
+[genauen Nachweisscope](Tests/README.md) und
+[konkreten Vertrag](../../Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md).
+
+Historische 1.0-Evidenz: `local: Tests/Runtime/Invoke-LabContract.ps1`, 2026-10-02, Linux 2019/latest und Windows 2025/CU8; damaliger begrenzter synthetischer vollständiger Raw-Adapter erfolgreich, offene Matrixfälle bleiben offen. Keine Übertragung auf 1.1.
 
 Release 1.0.0 stellt zwei ausdrücklich freigegebene öffentliche USPs bereit:
 
@@ -43,7 +52,7 @@ Deploy und Uninstall benötigen einen eigenen Transaktionsscope. Ein vorhandener
 
 Dependencies sind die kompatible Major-1-Linie von `toolbelt.archive.zip-memory` ab 1.4.0 und `toolbelt.core.result-table` ab 1.0.0, in derselben Installationsdatenbank. Eine zukünftige Majorversion wird nicht automatisch als kompatibel akzeptiert. Die XLSX-Assembly referenziert die kanonische ZIP-Assembly; ZIP kann bei vorhandenem XLSX-Consumer nicht deinstalliert werden.
 
-Build: `Scripts/New-ClrReleaseArtifacts.ps1` mit vorhandener Framework-4.8-Toolchain. Exakter SHA2-512-Trust ist separates administratives Opt-in; Deployment verändert keine Instanzoption, Rechte, strict security oder TRUSTWORTHY. SQLCMD-Deployment verwendet DeploymentMode local/central. Zentraler Uninstall benötigt ConfirmNoExternalConsumers=1. Eigene Objekt-/Releasezuordnung wird geprüft; fremde Consumer blockieren. Trust und Dependencies bleiben erhalten.
+Build: `Scripts/New-ClrReleaseArtifacts.ps1` mit vorhandener Framework-4.8-Toolchain. Exakter SHA2-512-Trust ist separates administratives Opt-in; Deployment verändert keine Instanzoption, Rechte, strict security oder TRUSTWORTHY. SQLCMD-Deployment verwendet DeploymentMode local/central. Zentraler Uninstall benötigt ConfirmNoExternalConsumers=1. Eigene Objekt-/Releasezuordnung wird geprüft; fremde Consumer blockieren. Trust und Dependencies bleiben erhalten. Nach konkreter Benutzerfreigabe vom 2026-10-02 verlangen beide Lifecycle-Skripte vorhandenes Datenbank-VIEW DEFINITION und SELECT auf sys.sql_expression_dependencies vor Mutation und erneut unter AppLock; 0/NULL/unklar blockiert 51535/State 2.
 
 ## ResultTable und Fehler
 
@@ -59,7 +68,7 @@ Der aktuelle qualifizierte Scope steht in [Tests/README.md](Tests/README.md) und
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
-- Nachweis: `local: Tests/Runtime/Invoke-LabContract.ps1`
-- Scope: Finaler identischer Fixadapter Linux 2019/latest und Windows 2025/CU8: unveränderte CLR-Binaries, vollständiger öffentlicher Vertrag, interne Help-Modi 0/1 mit NOT NULL-Metadaten, XLSX-/ZIP-Lifecycle-Callerablehnung OFF/ON und XLSX-SQLCMD50000; bekannte Restmatrix unverändert offen.
+- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1`
+- Scope: Finaler identischer öffentlicher XLSX1.1-Adapter Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 jeweils local/central: drei Types-Fixtures, SQL-/Client-/native Nullability, clean/genuine1.0/repeat, CallerOFF/ON intakt/doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, synthetische0/NULL-Sichtbarkeitsgates, Consumer/Uninstall; RawType nach API-Schleifen auf letzterCL150/170 plus zentralerCaller. Voller PASS samt frischen eigenen Cleanup-Audits. Keine Konfigurations-/Rechteänderungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Lowpriv-Rechte, übrige physische Targets und Heap/Produktionskapazität offen. Historische FAILED-Adapterstände bleiben getrennt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

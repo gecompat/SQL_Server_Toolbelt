@@ -1,10 +1,10 @@
 module_id: "toolbelt.file.xlsx-memory"
 module_name: "XLSX Binary Memory Reader"
-version: "1.0.0"
+version: "1.1.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Begrenzter SAFE Binary-XLSX-Reader für Worksheets und sparse Rohtext-/String-/Formel-/Cachezellen."
+description: "Begrenzter SAFE Binary-XLSX-Reader und additive invariante Einzelzell-Typinterpretation."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -57,9 +57,19 @@ objects:
   - type: ASSEMBLY
     name: Toolbelt_File_XlsxMemory
     visibility: internal
+  - type: CLR_TVF
+    schema: toolbelt_file
+    name: TVF_InternalInterpretXlsxCell
+    visibility: internal
+  - type: TVF
+    schema: toolbelt_file
+    name: TVF_InterpretXlsxCell
+    visibility: public
 permissions_required:
   - "EXECUTE auf den beiden öffentlichen USPs; ResultTable zusätzlich Helper-EXECUTE."
   - "DDL-Rechte und bestehender exakter Hashtrust für Deployment; keine Rechteausweitung."
+  - "Lifecycle: vorhandenes Datenbank-VIEW DEFINITION und SELECT auf sys.sql_expression_dependencies; unklare Sicht blockiert 51535/2, keine Rechtevergabe."
+  - "Vorhandenes SELECT auf TVF_InterpretXlsxCell; keine Berechtigungserteilung."
 collation_contract: "Unicode-Inhalte unverändert, ordinaler ZIP-/Relationshipvergleich, öffentliche Texte Latin1_General_100_BIN2."
 data_type_contract: "Input varbinary(max); Text/Rohwert/Formel/Cache nvarchar(max); Positionen int, Presence bit."
 help_contract_version: "1.0"
@@ -94,8 +104,10 @@ documentation:
   public_objects:
     - "Documentation/USP_ListXlsxWorksheets.md"
     - "Documentation/USP_ReadXlsxWorksheetCells.md"
+    - "Documentation/TVF_InterpretXlsxCell.md"
   architecture:
     - "../../Documentation/Architecture/XLSX_READER_PROPOSAL.md"
+    - "../../Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md"
   test_matrix:
     - "Tests/XLSX_CONTRACT_TEST_MATRIX.md"
   evidence:
@@ -111,12 +123,33 @@ tests:
   contract: "Tests/Runtime/Xlsx.Contract.sql"
   framework: "../../Spikes/XlsxMemory/Run-FrameworkQualification.ps1"
   lab: "Tests/Runtime/Invoke-LabContract.ps1"
+  types_lab: "../../Tests/CI/run-xlsx-types-lab.ps1"
+  types_composition: "Tests/Runtime/Types.Composition.sql"
+  types_composition_helper: "Tests/Runtime/Invoke-TypesComposition.ps1"
+  types_composition_fixture: "Tests/Runtime/Types.Composition.xlsx"
 validation_evidence:
+  - date: "2026-10-02"
+    workflow: "local: Tests/Framework/Invoke-Types.ps1"
+    scope: "Additiver 1.1-Zellkern: drei Kulturen jeweils 652 unabhängige API-/370 Numeric-/Temporal-Goldens, 6437 Assertions; keine SQL-/FillRow-/SAFE-/Lifecycle-/Heapqualifikation. Historische 1.0-Raw-Evidenz bleibt getrennt."
+    result: "success"
   - date: "2026-10-01"
     workflow: "local: Tests/Runtime/Invoke-LabContract.ps1"
-    scope: "SQL Server 2019 Linux/latest und SQL Server 2025 Windows/CU8: identisches aktuelles Binary, local/central/cross-database, SAFE, NULL-/Help-/SELECT-Metadaten, Outputcharge, ResultTable, Transaktionen, Lifecycle und echte ZIP-1.3-Upgradefixture; übrige Matrix und tatsächliche große Ceiling-Fixtures teilweise offen."
+    scope: "Historischer XLSX-1.0-Raw-Release: SQL Server 2019 Linux/latest und SQL Server 2025 Windows/CU8, identisches damaliges Binary, local/central/cross-database, SAFE, NULL-/Help-/SELECT-Metadaten, Outputcharge, ResultTable, Transaktionen, Lifecycle und echte ZIP-1.3-Upgradefixture; kein 1.1-Typnachweis."
     result: "success"
   - date: "2026-10-02"
     workflow: "local: Tests/Runtime/Invoke-LabContract.ps1"
-    scope: "Finaler identischer Fixadapter Linux 2019/latest und Windows 2025/CU8: unveränderte CLR-Binaries, vollständiger öffentlicher Vertrag, interne Help-Modi 0/1 mit NOT NULL-Metadaten, XLSX-/ZIP-Lifecycle-Callerablehnung OFF/ON und XLSX-SQLCMD50000; bekannte Restmatrix unverändert offen."
+    scope: "Historischer XLSX-1.0-Raw-Release: finaler identischer Fixadapter Linux 2019/latest und Windows 2025/CU8 mit damaligen CLR-Binaries, Raw-Vertrag, interne Help-Modi 0/1 mit NOT NULL-Metadaten, XLSX-/ZIP-Lifecycle-Callerablehnung OFF/ON und XLSX-SQLCMD50000; kein 1.1-Typnachweis."
+    result: "success"
+
+  - date: "2026-10-02"
+    workflow: "local: private native preparation of Tests/CI/run-xlsx-types-lab.ps1"
+    scope: "XLSX1.1: Linux2019/latest CL150 + Windows2025/CU8 CL150/160/170 local/central; drei Types-Fixtures, SQL/clientnullable, clean/genuine1.0/repeat, CallerOFF/ON intakt/doomed, AppLock, postDROP/preCOMMIT, historische Zukunftsslots, synthetische0/NULL-Sichtbarkeitsgates, Uninstall/eigeneCleanup; RawType einmal nach API-Schleifen lastCL und zentralerCaller. Keine Konfigurations-/Rechteänderungen. Dieser frühere private Nachweis ersetzt keinen öffentlichen Pfadtest; finale öffentliche Evidenz folgt separat. CI, tatsächliche Minimalrechte, weitere physische Ziele und Heap bleiben offen."
+    result: "success"
+  - date: "2026-10-02"
+    workflow: "local: Tests/CI/run-xlsx-types-lab.ps1"
+    scope: "Öffentlicher finaler Adapter Linux2019/latest CL150 local/central: alle drei Types-Fixtures und unveränderte volle API/Client/Nullable/clean/genuine1.0/repeat/Caller/AppLock/Rollback/historicalFuture/visibility/consumer/uninstall/RawType-Prüfungen samt frischem eigenen Cleanup-Audit PASS. Keine Konfigurations-/Rechteänderungen. Historischer Zwischenstand vor der öffentlichen Windows-Ausführung; deren finaler Nachweis folgt separat. Aktuelle CI, tatsächliche Minimalrechte/weitere Ziele/Heap offen."
+    result: "success"
+  - date: "2026-10-02"
+    workflow: "local: Tests/CI/run-xlsx-types-lab.ps1"
+    scope: "Finaler identischer öffentlicher XLSX1.1-Adapter Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 jeweils local/central: drei Types-Fixtures, SQL-/Client-/native Nullability, clean/genuine1.0/repeat, CallerOFF/ON intakt/doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, synthetische0/NULL-Sichtbarkeitsgates, Consumer/Uninstall; RawType nach API-Schleifen auf letzterCL150/170 plus zentralerCaller. Voller PASS samt frischen eigenen Cleanup-Audits. Keine Konfigurations-/Rechteänderungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Lowpriv-Rechte, übrige physische Targets und Heap/Produktionskapazität offen. Historische FAILED-Adapterstände bleiben getrennt."
     result: "success"

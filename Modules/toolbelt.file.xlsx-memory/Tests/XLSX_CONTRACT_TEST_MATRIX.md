@@ -1,6 +1,23 @@
 # XLSX-Testmatrix
 
-Aktuelle Evidenz: `local: Tests/Runtime/Invoke-LabContract.ps1`, 2026-10-02; Linux 2019/latest und Windows 2025/CU8 erfolgreich nach finaler EOF-Formatpflege.
+## Neue 1.1-Typwelle
+
+| Bereich | Tatsächlich ausgeführter Scope | Ergebnis / Grenze |
+|---|---|---|
+| Zellkern | de-DE/en-US/tr-TR, API-/Numeric-/Temporal-Goldens | 19311 Assertions PASS; kein Heapnachweis |
+| Finite Scanner | unabhängiger Vergleich mit historischer Number-/ISO-Grammatik | 12370 Vergleiche PASS |
+| Native API/Metadaten | Linux 2019/latest CL150; Windows 2025/CU8 CL150/160/170, jeweils local/central | drei Types-Fixtures + Client-/native Nullability PASS im privaten finalen Adapter |
+| Lifecycle | clean/genuine1.0/repeat, Caller OFF/ON intakt/doomed, AppLock, postDROP/preCOMMIT, Kollisionen, historische Zukunftsslots, Consumer/Uninstall | PASS; doomed inline Witness-Topologie, keine SQLCMD-Prozessbehauptung |
+| Sichtbarkeit | 0/NULL-Prädikatinjektionen vor/unter AppLock, 51535/2 | PASS synthetisch; tatsächliche Lowpriv-Rollen NOT_EXECUTED |
+| Raw→Type | neun synthetische Zellen nach API-CL-Schleifen (2019 CL150, 2025 CL170), zusätzlich zentraler Caller | PASS; kein erneuter vollständiger Raw-Reader-Grenzlauf |
+| Eigener Cleanup | frischer schema-/identitätsgebundener eigener Abwesenheitsaudit nach finalem Lauf | PASS; keine Konfigurations-/Rechteänderungen |
+| Öffentlicher Adapterport | reproduzierbare Repository-Pfade, bytegleiche fachliche Prüftexte | unabhängiger Review und finale öffentliche Läufe beider ausgewählten Targets vollständig PASS samt frischen eigenen Cleanup-Audits |
+| CI | aktueller exakter PR-Head | separat als Mergegate geprüft; keine CI-PASSbehauptung aus dem Nativenachweis |
+| Offen | weitere physische Targets, tatsächliche Minimalrechte, Heap-/Produktionskapazität | NOT_EXECUTED; partially validated/unreleased |
+
+Historische FAILED-Adapterstände (214 Trustargument, 51592/3 Caller-Testtopologie, SCRIPT_FAILED expandedCommit-Seam) und ihre separate eigene Bereinigung stehen im Tests-README. Kein Fehllauf wird umgewertet. Alle folgenden Raw-Readernachweise beziehen sich auf den historischen 1.0-Release mit damaligem Binary, nicht pauschal auf den neuen 1.1-Provider.
+
+Historische1.0-Evidenz: `local: Tests/Runtime/Invoke-LabContract.ps1`, 2026-10-02; Linux 2019/latest und Windows 2025/CU8 erfolgreich nach finaler EOF-Formatpflege.
 
 Stand: 2026-10-01; synthetische Fixtures, kein Produktionsdaten-Nachweis.
 
@@ -36,7 +53,7 @@ Der 128-MiB-Chargecap ist eine interne konservative Zählgrenze, kein vollständ
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
-- Nachweis: `local: Tests/Runtime/Invoke-LabContract.ps1`
-- Scope: Finaler identischer Fixadapter Linux 2019/latest und Windows 2025/CU8: unveränderte CLR-Binaries, vollständiger öffentlicher Vertrag, interne Help-Modi 0/1 mit NOT NULL-Metadaten, XLSX-/ZIP-Lifecycle-Callerablehnung OFF/ON und XLSX-SQLCMD50000; bekannte Restmatrix unverändert offen.
+- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1`
+- Scope: Finaler identischer öffentlicher XLSX1.1-Adapter Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 jeweils local/central: drei Types-Fixtures, SQL-/Client-/native Nullability, clean/genuine1.0/repeat, CallerOFF/ON intakt/doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, synthetische0/NULL-Sichtbarkeitsgates, Consumer/Uninstall; RawType nach API-Schleifen auf letzterCL150/170 plus zentralerCaller. Voller PASS samt frischen eigenen Cleanup-Audits. Keine Konfigurations-/Rechteänderungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Lowpriv-Rechte, übrige physische Targets und Heap/Produktionskapazität offen. Historische FAILED-Adapterstände bleiben getrennt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

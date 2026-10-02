@@ -447,12 +447,32 @@ separat die besprochene Typfunktion und Anzeigeformatierung:
   Ressourcen innerhalb dieses Scopes schriftlich konkretisieren. Keine
   Datei-/Netzwerk-, SDK-/Worker- oder Rechteausweitung ableiten.
 
-Status XLSX-Folgefunktionen: `ready for development`; keine Runtime-Evidenz.
+Historischer Vorbereitungsstand der XLSX-Folgefunktionen: `ready for development`; damals keine Runtime-Evidenz. Der aktuelle Typstand folgt datiert unten; Anzeigeformatierung bleibt separat.
+Am 2026-10-02 bestätigte der Benutzer zusätzlich die konkret besprochene
+V3-Typentscheidung mit „Xlsx typeninterpretation -> freigegeben“: genau eine
+`toolbelt_file.TVF_InterpretXlsxCell`, sieben Parameter / 14 Spalten,
+exaktes SqlDecimal im sql_variant, enge ISO-/100-ns-/Serial60-Regeln und
+atomarer Echoverzicht bei Ressourcenfehler 3 beziehungsweise NULL-Bindungs-
+fallback 11. Der [kanonische Vor-Source-Vertrag](../Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md)
+hält die konkrete Semantik und getrennte private Framework-/technische
+Hostevidenz fest. Root prüfte und schloss anschließend den konkreten
+Vertragsfreeze; die Sourceumsetzung dieser V3-Welle ist freigegeben.
+Die ausgewählte Modul-Runtimequalifikation ist erfolgreich; öffentlicher
+Adapterport ist erfolgreich; aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Anzeigeformatierung
+bleibt eine separate bereits freigegebene Welle.
+Zusätzliche konkrete Freigabe 2026-10-02: Der Benutzer antwortete auf die
+separate Lifecyclefrage „Ja, XLSX-Lifecycle-Sichtbarkeitsgate freigeben“.
+Vorhandenes Datenbank-VIEW DEFINITION und SELECT auf
+sys.sql_expression_dependencies werden vor Mutation und unter AppLock
+verlangt; 0/NULL/unklar blockiert 51535/State 2. Keine Rechtevergabe.
 Für beide Wellen gelten unabhängiger Review, synthetische Contract-/Grenztests,
 scopebezogene Lab-Auswahl, erforderliche grüne CI und PR-Merge unverändert.
 Neue fachliche Entscheidungen außerhalb dieses Scopes weiterhin rückfragen.
-Keine neue Runtime-Implementierung oder Testevidenz durch diesen Eintrag;
-unabhängige bereits freigegebene Wellen laufen weiter.
+Der damalige Freigabeeintrag allein war kein Runtime-Nachweis. Der folgende
+datierte Umsetzungsnachweis hält die tatsächlich geprüfte Typwelle getrennt
+von Anzeigeformatierung und den anderen freigegebenen Wellen fest.
+
+XLSX 1.1.0 ergänzt die einzeln freigegebene `TVF_InterpretXlsxCell` im bestehenden SAFE-Provider. Der finale öffentliche Typadapter bestand am 2026-10-02 auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral: drei Types-Runtime-Fixtures, exakte Zahlen-/100-ns-/NULL-/Clientmetadaten, clean/genuine 1.0/Repeat, Caller-TX OFF/ON intakt und doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, Sichtbarkeitsprädikate, Uninstall und eigene Bereinigung. Raw→Type-Komposition wurde nach den API-CL-Schleifen auf der jeweils letzten CL (2019:150, 2025:170) sowie separat im zentralen Caller geprüft. Keine Konfigurations- oder Rechteänderungen. Die öffentliche Pfadfassung bestand nach ihrem unabhängig geprüften Port auf beiden ausgewählten Targets einschließlich frischer eigener Bereinigungsprüfungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Minimalrechte, weitere physische Ziele und Heap-/Produktionskapazität bleiben offen. `partially validated`, `unreleased`; historische Raw-1.0-Evidenz bleibt getrennt.
 
 ### Individuell freigegebene Ergänzungen: Jaro-Winkler, Paarvergleich und gruppiertes JSON
 
