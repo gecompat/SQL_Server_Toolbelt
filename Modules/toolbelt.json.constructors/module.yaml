@@ -1,6 +1,6 @@
 module_id: "toolbelt.json.constructors"
 module_name: "JSON Constructors"
-version: "1.0.0"
+version: "1.1.0"
 implementation_status: implemented
 validation_status: partially validated
 release_status: unreleased
@@ -41,15 +41,25 @@ objects:
     visibility: public
   - type: USP
     schema: "toolbelt_json"
+    name: "USP_JsonArraysByGroup"
+    visibility: public
+  - type: USP
+    schema: "toolbelt_json"
+    name: "USP_JsonObjectsByGroup"
+    visibility: public
+  - type: USP
+    schema: "toolbelt_json"
     name: "USP_JsonConstructInternal"
     visibility: internal
-permissions_required: ["EXECUTE auf der öffentlichen USP", "Helper-EXECUTE für ResultTable", "DDL-Rechte für Deployment"]
+permissions_required: ["EXECUTE auf der öffentlichen USP", "Helper-EXECUTE für ResultTable", "DDL-Rechte für Deployment", "Uninstall: ALTER auf toolbelt_json, VIEW DEFINITION auf der Datenbank und SELECT auf sys.sql_expression_dependencies"]
 collation_contract: "Exakte UTF-16-/BIN2-ValueKinds und längensensitive Keys; Ergebnis Latin1_General_100_BIN2."
 data_type_contract: "Ordinal int; ValueKind/Value/Key nvarchar(max); JsonValue nvarchar(max) NOT NULL."
 help_contract_version: "1.0"
 resultset_contracts:
   - {name: "USP_JsonArray", columns: ["JsonValue nvarchar(max) NOT NULL"]}
   - {name: "USP_JsonObject", columns: ["JsonValue nvarchar(max) NOT NULL"]}
+  - {name: "USP_JsonArraysByGroup", columns: ["GroupOrdinal int NOT NULL", "JsonValue nvarchar(max) NOT NULL"]}
+  - {name: "USP_JsonObjectsByGroup", columns: ["GroupOrdinal int NOT NULL", "JsonValue nvarchar(max) NOT NULL"]}
 lifecycle_error_range: "53620-53629"
 clr:
   used: false
@@ -66,10 +76,13 @@ documentation:
   public_objects:
     - "Documentation/USP_JsonArray.md"
     - "Documentation/USP_JsonObject.md"
+    - "Documentation/USP_JsonArraysByGroup.md"
+    - "Documentation/USP_JsonObjectsByGroup.md"
   internal_objects:
     - "Documentation/USP_JsonConstructInternal.md"
   architecture:
     - "../../Documentation/Architecture/JSON_CONSTRUCTOR_PROPOSAL.md"
+    - "../../Documentation/Architecture/JSON_GROUP_CONSTRUCTORS_CONTRACT.md"
   test_matrix:
     - "Tests/JSON_CONSTRUCTOR_CONTRACT_TEST_MATRIX.md"
   evidence:
@@ -79,12 +92,15 @@ contracts:
   deployment: "1.0"
   validation: "1.0"
 tests:
+  groups: "Tests/Runtime/JsonGroups.Contract.sql"
+  groups_boundaries: "Tests/Runtime/JsonGroups.Boundaries.sql"
+  installed_metadata: "Tests/Runtime/InstalledMetadata.Contract.sql"
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/JsonConstructors.Contract.sql"
   contract: "Tests/Runtime/JsonConstructors.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
-  lab: "../../Tests/CI/run-json-constructors-linux.sh"
+  lab: "../../Tests/CI/run-json-groups-lab.ps1"
   minimum_rights: "Tests/Runtime/MinimumRights.Contract.sql"
   select_metadata: "Tests/Runtime/SelectMetadata.Contract.ps1"
   collation: "Tests/Runtime/Collation.Contract.sql"
@@ -92,5 +108,24 @@ tests:
 validation_evidence:
   - date: "2026-10-01"
     workflow: "local: Tests/CI/run-lab-local.ps1"
-    scope: "Physische SQL Server 2019 Linux/latest und 2025 Windows/CU8; local/central, Typ-/Literal-/Unicode-/Grenz-/Help-/ResultTable-/Transaktions-/Clientmetadaten-, CS/CI-Namespace-, lokale Minimalrechte-, Repeat-/Marker-/Hash-/TF-Drift-/Kollisions-/Uninstall-Contracts; 16 MiB Ergebnis und 100000 Entries. Weitere Ziele, GitHub und CrossDB-Minimalrechte nicht ausgefuehrt."
+    scope: "Historische Version 1.0.0, kein Nachweis gruppierter 1.1-APIs: Physische SQL Server 2019 Linux/latest und 2025 Windows/CU8; local/central, Typ-/Literal-/Unicode-/Grenz-/Help-/ResultTable-/Transaktions-/Clientmetadaten-, CS/CI-Namespace-, lokale Minimalrechte-, Repeat-/Marker-/Hash-/TF-Drift-/Kollisions-/Uninstall-Contracts; 16 MiB Ergebnis und 100000 Entries. Weitere Ziele, GitHub und CrossDB-Minimalrechte nicht ausgefuehrt."
+    result: "success"
+
+  - date: "2026-10-02"
+    workflow: "local: offline JSON-Gruppen-Vertragsprüfung"
+    scope: "Version 1.1.0: fünf Source- und neun Runtime-Fixtures im begrenzten ScriptDom-Syntaxlauf, Modulstatic, PowerShell-AST, Bash-Syntax und vollständiger Dokumentationsaudit erfolgreich. Keine native SQL-/Boundary-/Client-/Lifecycle-/Rechte-/CI-Evidenz; historische 1.0-Nachweise getrennt."
+    result: "success"
+
+  - date: "2026-10-02"
+    workflow: "local: Tests/CI/run-json-groups-lab.ps1 (historischer Gesamtfehler)"
+    scope: "Version 1.1.0: Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral. Alle fünf ausgewählten Runtime-Fixtures einschließlich alter Regression, Gruppen, tatsächlicher 100000-/16-MiB-Grenzen und InstalledMetadata sowie Clientmetadaten erfolgreich. Gesamtadapter später FAILED am Central-Orakel 54600/45 wegen column_id-Lücke; kein vollständiger Adapter-PASS. Frühere Oracle-/Adapterfehler 53609/4, 206 und 3998 bleiben historische Fehlversuche."
+    result: "failed"
+  - date: "2026-10-02"
+    workflow: "local: Tests/CI/run-json-groups-lab.ps1 (final fokussiert)"
+    scope: "Version 1.1.0: Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral. Runtime-Auswahl ausschließlich InstalledMetadata.Contract.sql; Metadaten, genuine unveränderte 1.0-Upgrades, Repeat, Rollback/Postlock/AppLock, Marker/Future-Typen/Dependencies, committable/doomed Caller mit ON/OFF, Central-Bestätigung, tatsächlicher Consumer am höchsten ausgewählten CL, Uninstall und eigene Bereinigung PASS. Journale unabhängig als abgeschlossen geprüft; keine Konfigurations-/Rechteänderung. API-/100000-/16-MiB-/Clientteilnachweise aus früheren insgesamt fehlgeschlagenen Läufen separat, kein finaler Default-All-PASS. Neue Minimalrechte und VIEW DEFINITION/SELECT-Benutzerentscheidung offen; aktuelle CI als separater PR-Mergegate, weitere Ziele/Kapazität offen. Partially validated, unreleased."
+    result: "success"
+
+  - date: "2026-10-02"
+    workflow: "local: Tests/CI/run-json-groups-lab.ps1 (Uninstall-Metadatenvoraussetzung)"
+    scope: "Neue fail-closed Uninstall-Voraussetzung VIEW DEFINITION/SELECT: fokussierter Adapter Exit0 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral; Runtime-Auswahl nur InstalledMetadata.Contract.sql, gekoppelte genuine1.0-/Repeat-/Rollback-/AppLock-/Caller-/Marker-/Future-/Dependency-/Client-/Central-/Uninstallprüfungen PASS. Beide Journale COMPLETE, alle eigenen Datenbanken entfernt, keine Konfigurations-/Rechteänderung. Kein Default-All-PASS, keine tatsächliche Minimalrechtequalifikation; negative synthetische Predicate-Injektionen und neue Exact-head-CI noch nicht ausgeführt. Historische Nachweise bleiben unverändert."
     result: "success"

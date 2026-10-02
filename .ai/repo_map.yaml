@@ -84,6 +84,7 @@ sources_of_truth:
   json_path_exists_module: Modules/toolbelt.json.path-exists/module.yaml
   json_constructors_module: Modules/toolbelt.json.constructors/module.yaml
   json_constructors_module_design: Documentation/Architecture/JSON_CONSTRUCTOR_PROPOSAL.md
+  json_groups_contract: Documentation/Architecture/JSON_GROUP_CONSTRUCTORS_CONTRACT.md
   json_constructors_runtime_workflow: .github/workflows/json-constructors-runtime.yml
   table_clone_module: Modules/toolbelt.metadata.table-clone/module.yaml
   table_clone_module_design: Documentation/Architecture/TABLE_CLONE_PROPOSAL.md
@@ -631,6 +632,8 @@ change_impact:
       paths:
         - Modules/toolbelt.json.constructors/**
         - Documentation/Architecture/JSON_CONSTRUCTOR_PROPOSAL.md
+        - Documentation/Architecture/JSON_GROUP_CONSTRUCTORS_CONTRACT.md
+        - Tests/CI/run-json-groups-lab.ps1
         - Documentation/Standards/USP_CONTRACT.md
         - Tests/CI/run-json-constructors-linux.sh
         - .github/workflows/json-constructors-runtime.yml

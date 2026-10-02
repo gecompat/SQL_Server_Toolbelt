@@ -55,6 +55,7 @@ BEGIN
  OR OBJECT_ID(N'tempdb..#tbx_JsonConstructor_Fragments',N'U') IS NOT NULL
  OR OBJECT_ID(N'tempdb..#tbx_JsonConstructor_Units',N'U') IS NOT NULL
  OR OBJECT_ID(N'tempdb..#tbx_JsonConstructor_Result',N'U') IS NOT NULL
+ OR OBJECT_ID(N'tempdb..#tbx_JsonConstructor_GroupResult',N'U') IS NOT NULL
  THROW 53601,N'JSON: reservierter interner Temp-Namespace ist im Caller belegt.',5;
  EXEC toolbelt_json.USP_JsonConstructInternal @ObjectMode=0,@EntriesTable=@EntriesTable,@MaxEntries=@MaxEntries,
  @MaxTotalValueBytes=@MaxTotalValueBytes,@MaxResultBytes=@MaxResultBytes,@ResultTable=@ResultTable,@KeepData=@KeepData,@Debug=@Debug;

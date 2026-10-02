@@ -10,6 +10,7 @@ on:
       - "Modules/toolbelt.json.constructors/Tests/Runtime/**"
       - "Modules/toolbelt.json.constructors/Tests/Static/**"
       - "Tests/CI/run-json-constructors-linux.sh"
+      - "Tests/CI/run-json-groups-lab.ps1"
   push:
     branches:
       - main
@@ -21,6 +22,7 @@ on:
       - "Modules/toolbelt.json.constructors/Tests/Runtime/**"
       - "Modules/toolbelt.json.constructors/Tests/Static/**"
       - "Tests/CI/run-json-constructors-linux.sh"
+      - "Tests/CI/run-json-groups-lab.ps1"
   workflow_dispatch:
 
 permissions:
@@ -49,6 +51,10 @@ jobs:
         run: >-
           python3
           Modules/toolbelt.json.constructors/Tests/Static/validate_contract.py
+
+      - name: Echte unveränderte 1.0-Upgradequellen paketieren
+        shell: pwsh
+        run: ./Modules/toolbelt.json.constructors/Deployment/New-LegacyTestArtifacts.ps1 -OutputDirectory .runtime/json-constructors-legacy
 
       - name: Execute synthetic compatibility and lifecycle tests
         env:

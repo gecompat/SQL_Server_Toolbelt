@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-10-02 – Gruppierte JSON-Konstruktoren 1.1.0
+
+- Zwei individuell freigegebene USPs liefern GroupOrdinal und JsonValue je vorhandener Gruppe; gemeinsame globale Budgets und atomare Ausgabe.
+- Ein bestehender T-SQL-Prüf-/Escapingkern mit GroupMode; alte öffentliche Signaturen und ungruppierte Emptyverträge bleiben erhalten.
+- Strikter fünfteiliger Lifecycle für 1.0/1.1, Caller-TX-Guard vor SET und echter unveränderter 1.0-Vorgänger als Testartefakt.
+- Offline-Syntax, statische Kopplung und Dokumentationsaudit erfolgreich. API-/100000-/16-MiB-/Clientprüfungen auf Linux 2019/latest und Windows 2025/CU8 lokal/zentral erfolgreich als Teil früherer insgesamt fehlgeschlagener Läufe; finale fokussierte Metadaten-/Lifecycle-/Central-/Upgrade-/Bereinigungsadapter erfolgreich.
+- Historische Oraclefehler 53609/4, Kollisionsfehler 206, Caller-Batchfehler 3998 und Central-Orakelfehler 54600/45 bleiben als fehlgeschlagene Läufe erhalten. Neue Minimalrechte einschließlich offener VIEW DEFINITION/SELECT-Entscheidung und separater aktueller CI-/PR-Mergegate offen. Teilweise validiert und unveröffentlicht.
+
 ## 2026-10-02 – Deterministic GeoJitter 1.2.0 implementiert, teilweise validiert
 
 - Die einzeln freigegebene Inline-TVF erhält vor Source einen unabhängig
