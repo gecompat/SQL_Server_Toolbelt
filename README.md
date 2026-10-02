@@ -169,6 +169,15 @@ und 2025 Windows/CU8 CL150/160/170. Weitere R2b-Ziele, Lowpriv-CrossDB und
 SQL-100k-Durchsatz bleiben offen. RE2-Parität und lineare Laufzeit werden nicht
 behauptet; die neue Modulversion ist `partially validated` und `unreleased`.
 
+Version 1.3.0 ergänzt sämtliche Capture-Wiederholungen und getrenntes
+gruppenbezogenes Replace. Die finalen Gesamtadapter auf denselben beiden
+Zielen bestehen lokal/zentral einschließlich echtem 1.2-Upgrade, expliziter
+erwarteter Binaryhashbindung, Caller-TX/Optionserhalt, AppLock, Rollback,
+Kollisionen, Dependencies, Uninstall und eigenem DB-/Trustcleanup.
+Neue Capture-Minimalrechte, weitere Ziele, große SQL-Capture-Ausgabe und
+SQL-100k-Durchsatz bleiben offen. Der Nachweis der aktuellen CI erfolgt separat
+als PR-Mergegate. Teilweise validiert, unveröffentlicht.
+
 Das implementierte Modul
 [`toolbelt.validation.semantic-version`](./Modules/toolbelt.validation.semantic-version/README.md)
 parst, vergleicht und sortiert strikte Semantic-Version-2.0.0-Werte. Der

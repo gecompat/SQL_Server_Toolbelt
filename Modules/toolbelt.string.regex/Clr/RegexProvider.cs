@@ -275,7 +275,15 @@ namespace Toolbelt.String.Regex
             bool multiline,
             bool ignoreCase)
         {
+            return TranslatePattern(pattern, multiline, ignoreCase, null);
+        }
+
+        private static string TranslatePattern(string pattern, bool multiline,
+            bool ignoreCase, CapturePlan captures)
+        {
             var output = new StringBuilder(pattern.Length + 16);
+            var frames = captures == null ? null : new Stack<CaptureFrame>();
+            CaptureFrame frame = captures == null ? null : new CaptureFrame(captures);
             var parentBranches = new Stack<bool>();
             bool branchHasTerm = false;
             bool canQuantify = false;
@@ -292,6 +300,7 @@ namespace Toolbelt.String.Regex
                             output,
                             false,
                             ignoreCase);
+                        if (frame != null) frame.Add(new CaptureSummary(1, 0));
                         branchHasTerm = true;
                         canQuantify = true;
                         break;
@@ -301,12 +310,20 @@ namespace Toolbelt.String.Regex
                             ref index,
                             output,
                             ignoreCase);
+                        if (frame != null) frame.Add(new CaptureSummary(1, 0));
                         branchHasTerm = true;
                         canQuantify = true;
                         break;
                     case '(':
                         parentBranches.Push(branchHasTerm);
-                        output.Append("(?:");
+                        if (captures == null) output.Append("(?:");
+                        else
+                        {
+                            CaptureDeclaration declaration = captures.Declare(pattern, ref index);
+                            output.Append("(?<").Append(declaration.EngineName).Append('>');
+                            frames.Push(frame);
+                            frame = new CaptureFrame(captures);
+                        }
                         branchHasTerm = false;
                         canQuantify = false;
                         break;
@@ -317,6 +334,13 @@ namespace Toolbelt.String.Regex
                         }
                         output.Append(')');
                         parentBranches.Pop();
+                        if (frame != null)
+                        {
+                            CaptureSummary summary = frame.Finish();
+                            summary.History = captures.HistoryAdd(summary.History, 1);
+                            frame = frames.Pop();
+                            frame.Add(summary);
+                        }
                         branchHasTerm = true;
                         canQuantify = true;
                         break;
@@ -326,6 +350,7 @@ namespace Toolbelt.String.Regex
                             throw InvalidPattern();
                         }
                         output.Append('|');
+                        if (frame != null) frame.Alternate();
                         branchHasTerm = false;
                         canQuantify = false;
                         break;
@@ -337,6 +362,7 @@ namespace Toolbelt.String.Regex
                             throw InvalidPattern();
                         }
                         output.Append(current);
+                        if (frame != null) frame.Quantify(current == '+' ? 1 : 0, current == '?' ? 1 : -1);
                         canQuantify = false;
                         break;
                     case '{':
@@ -344,21 +370,26 @@ namespace Toolbelt.String.Regex
                         {
                             throw InvalidPattern();
                         }
-                        AppendBoundedQuantifier(pattern, ref index, output);
+                        int minimum, maximum;
+                        AppendBoundedQuantifier(pattern, ref index, output, out minimum, out maximum);
+                        if (frame != null) frame.Quantify(minimum, maximum);
                         canQuantify = false;
                         break;
                     case '^':
                         output.Append('^');
+                        if (frame != null) frame.Add(new CaptureSummary(0, 0));
                         branchHasTerm = true;
                         canQuantify = false;
                         break;
                     case '$':
                         output.Append(multiline ? "$" : "\\z");
+                        if (frame != null) frame.Add(new CaptureSummary(0, 0));
                         branchHasTerm = true;
                         canQuantify = false;
                         break;
                     case '.':
                         output.Append('.');
+                        if (frame != null) frame.Add(new CaptureSummary(1, 0));
                         branchHasTerm = true;
                         canQuantify = true;
                         break;
@@ -367,6 +398,7 @@ namespace Toolbelt.String.Regex
                         throw InvalidPattern();
                     default:
                         output.Append(DotNetRegex.Escape(current.ToString()));
+                        if (frame != null) frame.Add(new CaptureSummary(1, 0));
                         branchHasTerm = true;
                         canQuantify = true;
                         break;
@@ -378,6 +410,7 @@ namespace Toolbelt.String.Regex
             {
                 throw InvalidPattern();
             }
+            if (frame != null) captures.ValidateHistory(frame.Finish());
             return output.ToString();
         }
 
@@ -591,9 +624,16 @@ namespace Toolbelt.String.Regex
             ref int index,
             StringBuilder output)
         {
+            int minimum, maximum;
+            AppendBoundedQuantifier(pattern, ref index, output, out minimum, out maximum);
+        }
+
+        private static void AppendBoundedQuantifier(string pattern, ref int index,
+            StringBuilder output, out int minimum, out int maximum)
+        {
             int cursor = index + 1;
-            int minimum = ReadNumber(pattern, ref cursor);
-            int maximum = minimum;
+            minimum = ReadNumber(pattern, ref cursor);
+            maximum = minimum;
             bool openMaximum = false;
             if (cursor < pattern.Length && pattern[cursor] == ',')
             {
@@ -626,6 +666,7 @@ namespace Toolbelt.String.Regex
             }
             output.Append('}');
             index = cursor;
+            if (openMaximum) maximum = -1;
         }
 
         private static int ReadNumber(string pattern, ref int cursor)

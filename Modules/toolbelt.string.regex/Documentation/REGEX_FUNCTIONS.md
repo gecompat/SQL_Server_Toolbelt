@@ -1,5 +1,12 @@
 # Regex-Funktionsvertrag
 
+Zusätzlicher Capturemodus ab 1.3.0:
+[TVF_RegexCaptures](TVF_RegexCaptures.md) und
+[SVF_RegexReplaceGroups](SVF_RegexReplaceGroups.md). Diese zwei separat
+freigegebenen APIs erlauben normale und benannte Captures, sämtliche
+Wiederholungen beziehungsweise strikt gebundene Gruppenreferenzen.
+Die folgenden bisherigen R1b-/R2a-/R2b-Verträge bleiben unverändert.
+
 ## Gemeinsame Parameter
 
 `@Input nvarchar(max)` und `@Pattern nvarchar(max)` propagieren `NULL`.

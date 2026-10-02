@@ -56,6 +56,15 @@ def main() -> int:
         "Clr/RegexProvider.cs",
         "Clr/RegexTransformations.cs",
         "Clr/RegexRelations.cs",
+        "Clr/RegexCaptures.cs",
+        "Source/RegexCaptures.sql",
+        "Documentation/TVF_RegexCaptures.md",
+        "Documentation/SVF_RegexReplaceGroups.md",
+        "Tests/Runtime/Captures.Contract.sql",
+        "Tests/Runtime/Captures.Metadata.ps1",
+        "Tests/Runtime/Captures.Central.sql",
+        "Tests/Runtime/Lifecycle.Snapshot.sql",
+        "Tests/Runtime/Lifecycle.CollisionFixture.sql",
         "Source/RegexRelations.sql",
         "Documentation/TVF_RegexMatches.md",
         "Documentation/TVF_RegexSplit.md",
@@ -149,14 +158,29 @@ def main() -> int:
     forbid(trust, "Trust", "sp_configure", "TRUSTWORTHY ON")
 
     uninstall = read("Deployment/Uninstall.sql")
-    require(uninstall, "Uninstall", "DROP FUNCTION IF EXISTS", "DROP ASSEMBLY", "ConfirmNoExternalConsumers")
+    require(uninstall, "Uninstall", "DROP FUNCTION", "DROP ASSEMBLY", "ConfirmNoExternalConsumers")
     forbid(uninstall, "Uninstall", "sp_drop_trusted_assembly")
+    forbid(read("Tests/Runtime/Lifecycle.Snapshot.sql"), "Optionsneutraler Snapshot",
+           "SET NOCOUNT", "SET XACT_ABORT", "BEGIN TRAN", "COMMIT", "ROLLBACK")
+    for label, lifecycle in (("Deploy", deploy), ("Uninstall", uninstall)):
+        require(lifecycle, label + " exakte Binarybindung",
+                "$(ExpectedInstalledAssemblyHash)", "DATALENGTH(@ExpectedInstalledAssemblyHashText) <> 260",
+                "Latin1_General_100_BIN2 LIKE N'%[^0-9A-Fa-f]%'",
+                "TRY_CONVERT(varbinary(max), @ExpectedInstalledAssemblyHashText, 1) IS NULL",
+                "HASHBYTES(N'SHA2_512', f.content)", "f.file_id = 1", "THROW 52046", "THROW 52047",
+                "@InstalledAssemblyHash <> @ExpectedInstalledAssemblyHash", "@ExpectedAbsence = 1")
+        forbid(lifecycle, label + " keine Versionsinferenz", "LOWER(a.clr_name)", "@InstalledVersion + N'.0,'")
+        comparison = lifecycle.index("@InstalledAssemblyHash <> @ExpectedInstalledAssemblyHash")
+        if not lifecycle.index("WHILE @Pass <= 2") < comparison < lifecycle.index("SET @Pass += 1;"):
+            raise ContractError(label + ": Hashprüfung fehlt im wiederholten Preflight.")
+        if comparison > lifecycle.index("DROP FUNCTION"):
+            raise ContractError(label + ": Hashprüfung muss vor destruktiver DDL liegen.")
 
     build = read("Scripts/New-ClrReleaseArtifacts.ps1")
     require(build, "Build", "Get-FileHash -Algorithm SHA512", "Deploy.WithAssembly.sql", "Toolbelt.String.Regex.trust-manifest.json", "@('System', 'System.Data')")
 
     manifest = read("module.yaml")
-    require(manifest, "Manifest", 'version: "1.2.0"', 'permission_set: "SAFE"', "third_party_dependencies: []", 'workflow: "local: Tests/CI/run-lab-local.ps1"')
+    require(manifest, "Manifest", 'version: "1.3.0"', 'permission_set: "SAFE"', "third_party_dependencies: []", 'workflow: "local: Tests/CI/run-lab-local.ps1"')
 
     relations = read("Clr/RegexRelations.cs")
     require(relations, "R2b-Kern", "TransformationContext", "context.Search", "maxRows.Value > 100000",
@@ -169,7 +193,21 @@ def main() -> int:
     require(read("Tests/Runtime/Relations.Contract.sql"), "R2b-Oracles", "TBX_REGEX_TOO_MANY_ROWS", "ERROR_NUMBER()<>6522",
             "8388608", "100000", "DATALENGTH(Value)=0", "Zero separator lost input")
     require(deploy, "R2b-Lifecycle", ":r ../Source/RegexRelations.sql", "N'1.2.0'", "TVF_RegexMatchesCore", "TVF_RegexSplitCore")
-    require(uninstall, "R2b-Uninstall", "@OwnRelations", "IF @OwnRelations=1", "ISNULL(@MatchesCoreId,-1)")
+    require(uninstall, "Versionsgebundener Uninstall", "@Release >= 12", "TVF_RegexMatchesCore", "TVF_RegexSplitCore")
+    for label, lifecycle in (("Deploy", deploy), ("Uninstall", uninstall)):
+        require(lifecycle, label, "@@TRANCOUNT", "RAISERROR", "RETURN", "@Pass", "sp_getapplock",
+                "toolbelt.deploy.toolbelt.string.regex", "Toolbelt.Managed", "Toolbelt.ModuleId", "Toolbelt.ModuleVersion",
+                "N'1.3.0'", "TVF_RegexCaptures", "SVF_RegexReplaceGroups")
+        if lifecycle.index("@@TRANCOUNT") > lifecycle.index("SET XACT_ABORT"):
+            raise ContractError(f"{label}: Caller-Transaktion muss vor Sessionoptionen geprüft werden.")
+    captures = read("Clr/RegexCaptures.cs")
+    require(captures, "Capture-Kern", "TransformationContext", "RegexCaptures", "RegexReplaceGroups",
+            "TBX_REGEX_INVALID_REPLACEMENT", "TBX_REGEX_TOO_MANY_ROWS", "TBX_REGEX_OUTPUT_TOO_LARGE")
+    forbid(captures, "Capture-Kern", "yield return", "new Regex(", "System.IO.", "System.Net.", "SqlConnection")
+    require(provider, "Gemeinsamer Captureparser", "TranslatePattern")
+    require(captures, "Capture-Historiengate", "TBX_REGEX_CAPTURE_HISTORY_LIMIT")
+    require(read("Source/RegexCaptures.sql"), "Capture-Fassaden", "TVF_RegexCapturesCore", "SVF_RegexReplaceGroupsCore",
+            "@MaxRows int = 10000", "COLLATE DATABASE_DEFAULT", "@Occurrence int = 0")
 
     transforms = read("Clr/RegexTransformations.cs")
     require(transforms, "R2a", "RegexReplace", "RegexSubstring", "R2PatternCodeUnits = 8000",

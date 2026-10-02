@@ -9,6 +9,7 @@ on:
       - "Modules/toolbelt.string.regex/Scripts/**"
       - "Modules/toolbelt.string.regex/Tests/Runtime/**"
       - "Modules/toolbelt.string.regex/Tests/Static/**"
+      - "Modules/toolbelt.string.regex/Tests/Framework/**"
       - "Modules/toolbelt.string.regex/module.yaml"
       - "Tests/CI/run-regex-linux.sh"
       - ".github/workflows/regex-runtime.yml"
@@ -21,6 +22,7 @@ on:
       - "Modules/toolbelt.string.regex/Scripts/**"
       - "Modules/toolbelt.string.regex/Tests/Runtime/**"
       - "Modules/toolbelt.string.regex/Tests/Static/**"
+      - "Modules/toolbelt.string.regex/Tests/Framework/**"
       - "Modules/toolbelt.string.regex/module.yaml"
       - "Tests/CI/run-regex-linux.sh"
       - ".github/workflows/regex-runtime.yml"
@@ -74,6 +76,16 @@ jobs:
         shell: powershell
         run: >-
           ./Modules/toolbelt.string.regex/Tests/Runtime/run-framework-relations.ps1
+          -AssemblyPath ./.runtime/regex-release/Toolbelt.String.Regex.dll
+      - name: Build immutable R2b predecessor
+        shell: pwsh
+        run: >-
+          ./Modules/toolbelt.string.regex/Scripts/New-LegacyTestArtifacts.ps1
+          -ReleaseVersion 1.2.0 -OutputDirectory ./.runtime/regex-release/legacy-r2b
+      - name: Qualify captures and grouped replacement
+        shell: powershell
+        run: >-
+          ./Modules/toolbelt.string.regex/Tests/Framework/run-framework-captures.ps1
           -AssemblyPath ./.runtime/regex-release/Toolbelt.String.Regex.dll
       - uses: actions/upload-artifact@v4
         with:

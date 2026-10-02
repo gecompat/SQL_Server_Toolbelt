@@ -119,6 +119,7 @@ sources_of_truth:
   regex_semantics_provider_research: Documentation/Research/REGEX_SEMANTICS_PROVIDER_SPIKE.md
   regex_semantics_provider_workflow: .github/workflows/regex-provider-spike.yml
   regex_module_design: Documentation/Architecture/REGEX_MODULE_DESIGN.md
+  regex_capture_replace_contract: Documentation/Architecture/REGEX_CAPTURE_REPLACE_CONTRACT.md
   regex_runtime_workflow: .github/workflows/regex-runtime.yml
   regex_module: Modules/toolbelt.string.regex/module.yaml
   tsql_script_parser_module_design: Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md
@@ -539,9 +540,11 @@ change_impact:
         - Modules/toolbelt.string.regex/**
         - Documentation/Architecture/REGEX_MODULE_DESIGN.md
         - Documentation/Architecture/REGEX_EXTENSION_PROPOSAL.md
+        - Documentation/Architecture/REGEX_CAPTURE_REPLACE_CONTRACT.md
         - Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md
         - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
         - Tests/CI/run-regex-linux.sh
+        - Tests/CI/run-regex-captures-lab.ps1
         - Tests/CI/run-lab-local.ps1
         - Tests/CI/run-lab-target.sh
         - .github/workflows/regex-runtime.yml

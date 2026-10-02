@@ -571,6 +571,16 @@ Server 2019/2022/2025 unter Windows base und Linux latest ist erfolgreich.
 Replace, Substring, Split, Captures und Matches bleiben getrennte
 Erweiterungen; Fuzzy Matching bleibt zurückgestellt.
 
+Einzelfreigabe 2026-10-01, Nachweis 2026-10-02: Regex 1.3.0 implementiert
+sämtliche Capture-Wiederholungen und getrenntes Gruppen-Replace. Die später
+ausdrücklich freigegebene erwartete Binaryhashbindung ersetzt die unzuverlässige
+CLR-Versionsableitung. Finale Gesamtadapter auf Linux 2019/latest CL150 und
+Windows 2025/CU8 CL150/160/170 lokal/zentral einschließlich echtem 1.2-Upgrade,
+Lifecycle und eigenem Cleanup erfolgreich. Capture-Minimalrechte, übrige Ziele,
+ältere Capture-Upgrades und große SQL-Ausgabe bleiben offen. Die aktuelle CI
+wird separat als PR-Mergegate nachgewiesen;
+teilweise validiert und unveröffentlicht.
+
 ### Phase 4.5 – E1 Work Queue in vertikalen Slices
 
 Nachfolgerwelle 2026-10-02: Der am 2026-10-01 einzeln freigegebene erste

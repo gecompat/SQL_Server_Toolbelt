@@ -11,6 +11,24 @@
 - Der finale synthetische Geo-Adapter besteht auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Ausgeführt wurden ausdrücklich `GeoJitter.Contract.sql`, `GeoJitter.Safety.sql` und `InstalledMetadata.Contract.sql`, dazu SQL-/Clientmetadaten, echte 1.0.0-/1.1.0-Upgrades, Erstinstallation/Wiederholung, Caller-TX-/SET-Erhalt, Snapshot-Faults, Zukunftsslot-Erhalt, Uninstall und eigene Bereinigung. Der ursprüngliche Geo-Vertrag besteht unverändert in fünf unpartitionierten Batches mit 504 Orakeln. Die sieben bisherigen Source-Dateien bleiben bytegleich; dies ist kein erneuter finaler Runtime-Nachweis aller bisherigen APIs. Keine Konfigurations- oder Rechteänderungen. Neue Minimalrechte, weitere physische Ziele und ein exakt 129-Byte-UDT bleiben offen. Aktuelle CI wird als separater PR-Mergegate am exakten Head nachgewiesen. `partially validated`, `unreleased`.
 - Historische Zwischenstände vom 2026-10-02: Die ursprüngliche Ausdrucksform und kleinere Zwischenkandidaten scheiterten mit SQL-Fehler 701; ein späterer Lauf endete mit Timeout -2. Diese Läufe bleiben fehlgeschlagen, eine allgemeine Compilerursache ist nicht nachgewiesen. Der historische Vector-Facts-Kandidat bestand auf Linux mit einer vorübergehenden Partitionierung: 72 Gruppen mit je sieben Radiuswerten, zusammen dieselben 504 Orakel, eingebettet in 78 Batches einschließlich Metadaten/Goldens/Defaults, Setup, globalem Coverage-Orakel und Wiederholung. Dieser Zwischenbeleg ersetzt den finalen Nachweis der ursprünglichen fünf Batches nicht.
 
+## 2026-10-02 – Regex-Captures und gruppenbezogenes Replace 1.3.0
+
+- Zwei einzeln freigegebene APIs über den gemeinsamen SAFE-CLR-Kern:
+  alle Capture-Wiederholungen mit stabilen Gruppenordinals und getrenntes
+  Replace mit strikten `$1`-/`${Name}`-/`$$`-Referenzen.
+- Zusätzlich ausdrücklich freigegebene erwartete SHA2_512-Binaryhashbindung
+  für Deploy/Uninstall; keine historische CLR-Versionsableitung oder Hashfallback.
+- Finale Gesamtadapter auf Linux 2019/latest CL150 und Windows 2025/CU8
+  CL150/160/170 lokal/zentral erfolgreich: API-/Clientverträge, echter
+  1.2-Upgrade, Reinstall, Caller-TX/SET-Erhalt, AppLock, Rollback,
+  Kollisions-/Dependency-Erhalt, Uninstall und eigenes DB-/Trustcleanup.
+- Frühere API-only-Nachweise bleiben getrennt; fehlgeschlagene Gesamtversuche
+  führten zu korrigierter Vorgänger-SQLCMD-Normalisierung, optionsneutralem
+  Snapshot und sicherer Credential-Quelle der zweiten Testverbindung.
+- Neue Capture-Minimalrechte, weitere Ziele, ältere Capture-Upgrades und
+  tatsächliche große SQL-Capture-Ausgabe offen. Aktuelle CI wird separat als PR-Mergegate nachgewiesen; teilweise
+  validiert und unveröffentlicht, keine Heap-/Backtracking-/Durchsatzgarantie.
+
 ## 2026-10-02 – Parser-Härtung 2.0.0 in Arbeit
 
 - Konkreter begrenzter Vertrag für die vier bestehenden TVFs vor Source
