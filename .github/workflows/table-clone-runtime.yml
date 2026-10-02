@@ -10,6 +10,7 @@ on:
       - "Modules/toolbelt.metadata.table-clone/Tests/Runtime/**"
       - "Modules/toolbelt.metadata.table-clone/Tests/Static/**"
       - "Tests/CI/run-table-clone-linux.sh"
+      - "Tests/CI/run-table-clone-wave1-lab.ps1"
   push:
     branches:
       - main
@@ -21,6 +22,7 @@ on:
       - "Modules/toolbelt.metadata.table-clone/Tests/Runtime/**"
       - "Modules/toolbelt.metadata.table-clone/Tests/Static/**"
       - "Tests/CI/run-table-clone-linux.sh"
+      - "Tests/CI/run-table-clone-wave1-lab.ps1"
   workflow_dispatch:
 
 permissions:
@@ -54,4 +56,4 @@ jobs:
         env:
           TBX_SQL_VERSION: ${{ matrix.sql-version }}
           TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest
-        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-table-clone-linux.sh
+        run: bash Tests/CI/run-table-clone-linux.sh

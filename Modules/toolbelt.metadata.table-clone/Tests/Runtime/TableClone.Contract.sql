@@ -24,7 +24,7 @@ INSERT dbo.SyntheticCloneSource(Code,Amount) VALUES('one',1),('two',2);
 CREATE TABLE #ClonePlan(Dummy int);
 EXEC toolbelt_metadata.USP_ScriptTableClone N'dbo',N'SyntheticCloneSource',N'dbo',N'SyntheticCloneTarget',1,@ResultTable=N'#ClonePlan';
 IF OBJECT_ID(N'dbo.SyntheticCloneTarget') IS NOT NULL THROW 54900,N'Planner executed DDL.',1;
-IF (SELECT COUNT(*) FROM #ClonePlan)<>7 OR EXISTS(SELECT 1 FROM #ClonePlan WHERE Ordinal IS NULL OR ScriptText IS NULL)
+IF (SELECT COUNT(*) FROM #ClonePlan)<>14 OR EXISTS(SELECT 1 FROM #ClonePlan WHERE Ordinal IS NULL OR ScriptText IS NULL)
     THROW 54900,N'Incomplete plan.',2;
 CREATE TABLE #CloneRepeat(Dummy int);
 EXEC toolbelt_metadata.USP_ScriptTableClone N'dbo',N'SyntheticCloneSource',N'dbo',N'SyntheticCloneTarget',1,@ResultTable=N'#CloneRepeat';
@@ -84,9 +84,9 @@ EXEC toolbelt_metadata.USP_ScriptTableClone N'dbo',N'SyntheticCloneSource',N'dbo
 IF EXISTS(SELECT 1 FROM #CloneNoIdentity WHERE ObjectKind='TABLE' AND ScriptText LIKE N'%IDENTITY(%') THROW 54900,N'Identity0 retained identity.',11;
 -- Replace/Append sowie leeres unpassendes, befülltes unpassendes und blocked Schema.
 EXEC toolbelt_metadata.USP_ScriptTableClone N'dbo',N'SyntheticCloneSource',N'dbo',N'SyntheticCloneWithoutIdentity',0,@ResultTable=N'#CloneNoIdentity',@KeepData=1;
-IF (SELECT COUNT(*) FROM #CloneNoIdentity)<>14 THROW 54900,N'Append failed.',12;
+IF (SELECT COUNT(*) FROM #CloneNoIdentity)<>28 THROW 54900,N'Append failed.',12;
 EXEC toolbelt_metadata.USP_ScriptTableClone N'dbo',N'SyntheticCloneSource',N'dbo',N'SyntheticCloneWithoutIdentity',0,@ResultTable=N'#CloneNoIdentity',@KeepData=0;
-IF (SELECT COUNT(*) FROM #CloneNoIdentity)<>7 THROW 54900,N'Replace failed.',13;
+IF (SELECT COUNT(*) FROM #CloneNoIdentity)<>14 THROW 54900,N'Replace failed.',13;
 CREATE TABLE #CloneWrong(Dummy int); INSERT #CloneWrong VALUES(19);
 BEGIN TRY EXEC toolbelt_metadata.USP_ScriptTableClone N'dbo',N'SyntheticCloneSource',N'dbo',N'UnusedClone',@ResultTable=N'#CloneWrong',@KeepData=1; THROW 54900,N'Wrong append accepted.',14; END TRY
 BEGIN CATCH IF ERROR_NUMBER()<>51025 THROW; END CATCH;
@@ -125,15 +125,6 @@ BEGIN TRY EXEC toolbelt_metadata.USP_ScriptTableClone N'dbo',N'SyntheticSequenti
 BEGIN CATCH IF ERROR_NUMBER()<>53903 THROW; END CATCH;
 IF (SELECT Dummy FROM #CloneBlocked)<>29 THROW 54900,N'Sequential-key rejection mutated target.',43;
 DROP TABLE dbo.SyntheticSequential;
-CREATE TABLE dbo.SyntheticUnsupported(Id int,Calculated AS Id+1);
-BEGIN TRY EXEC toolbelt_metadata.USP_ScriptTableClone N'dbo',N'SyntheticUnsupported',N'dbo',N'UnusedClone',@ResultTable=N'#CloneBlocked'; THROW 54900,N'Computed accepted.',22; END TRY
-BEGIN CATCH IF ERROR_NUMBER()<>53903 THROW; END CATCH;
-IF (SELECT Dummy FROM #CloneBlocked)<>29 THROW 54900,N'Unsupported mutated target.',23;
-DROP TABLE dbo.SyntheticUnsupported;
-CREATE TABLE dbo.SyntheticUnsupported(Id int); CREATE INDEX IX_SyntheticUnsupported ON dbo.SyntheticUnsupported(Id) WHERE Id>0;
-BEGIN TRY EXEC toolbelt_metadata.USP_ScriptTableClone N'dbo',N'SyntheticUnsupported',N'dbo',N'UnusedClone'; THROW 54900,N'Filtered index accepted.',24; END TRY
-BEGIN CATCH IF ERROR_NUMBER()<>53903 THROW; END CATCH;
-DROP TABLE dbo.SyntheticUnsupported;
 CREATE TABLE dbo.SyntheticUnsupported(Id int SPARSE NULL);
 BEGIN TRY EXEC toolbelt_metadata.USP_ScriptTableClone N'dbo',N'SyntheticUnsupported',N'dbo',N'UnusedClone'; THROW 54900,N'Sparse accepted.',25; END TRY
 BEGIN CATCH IF ERROR_NUMBER()<>53903 THROW; END CATCH;
@@ -171,7 +162,7 @@ CREATE TABLE dbo.SyntheticQuoted([a]]b] nvarchar(4) NULL);
 CREATE TABLE #CloneQuoted(Dummy int);
 DECLARE @QuotedTarget nvarchar(max)=N'clone]; THROW 54900,N''injection'',1;--';
 EXEC toolbelt_metadata.USP_ScriptTableClone N'dbo',N'SyntheticQuoted',N'dbo',@QuotedTarget,@ResultTable=N'#CloneQuoted';
-SELECT @Script=ScriptText FROM #CloneQuoted WHERE Ordinal=1; EXEC sys.sp_executesql @Script;
+SELECT @Script=ScriptText FROM #CloneQuoted WHERE Ordinal=8; EXEC sys.sp_executesql @Script;
 IF OBJECT_ID(QUOTENAME(N'dbo')+N'.'+QUOTENAME(@QuotedTarget),N'U') IS NULL THROW 54900,N'Identifier quoting failed.',28;
 SET @Script=N'DROP TABLE dbo.'+QUOTENAME(@QuotedTarget); EXEC sys.sp_executesql @Script;
 DROP TABLE dbo.SyntheticQuoted;
@@ -179,7 +170,7 @@ DROP TABLE dbo.SyntheticQuoted;
 SET @Long=REPLICATE(N'x',128);
 CREATE TABLE dbo.SyntheticQuoted(Id int);
 EXEC toolbelt_metadata.USP_ScriptTableClone N'dbo',N'SyntheticQuoted',N'dbo',@Long,@ResultTable=N'#CloneQuoted';
-SELECT @Script=ScriptText FROM #CloneQuoted WHERE Ordinal=1; EXEC sys.sp_executesql @Script;
+SELECT @Script=ScriptText FROM #CloneQuoted WHERE Ordinal=8; EXEC sys.sp_executesql @Script;
 SET @Script=N'DROP TABLE dbo.'+QUOTENAME(@Long); EXEC sys.sp_executesql @Script;
 DROP TABLE dbo.SyntheticQuoted;
 -- Deterministische Constraint-Kollision im Zielschema.

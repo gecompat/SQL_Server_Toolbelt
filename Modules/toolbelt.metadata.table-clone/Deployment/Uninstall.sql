@@ -15,6 +15,11 @@ END;
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
+IF COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'VIEW DEFINITION'),0)<>1
+   OR COALESCE(HAS_PERMS_BY_NAME(N'sys.sql_expression_dependencies',N'OBJECT',N'SELECT'),0)<>1
+    THROW 53926,N'TableClone: vollständige Lifecycle-Dependency-Metadatensicht fehlt.',2;
+
+
 DECLARE
       @ConfirmNoExternalConsumers bit =
           TRY_CONVERT(bit, N'$(ConfirmNoExternalConsumers)')
@@ -22,8 +27,8 @@ DECLARE
           N'Toolbelt.Module.toolbelt.metadata.table-clone.Version'
     , @ModePropertyName sysname =
           N'Toolbelt.Module.toolbelt.metadata.table-clone.DeploymentMode'
-    , @InstalledVersion nvarchar(64)
-    , @DeploymentMode nvarchar(16)
+    , @InstalledVersion nvarchar(max)
+    , @DeploymentMode nvarchar(max)
     , @ReferencingSchema sysname
     , @ReferencingObject sysname;
 
@@ -32,14 +37,14 @@ BEGIN
     THROW 53925, N'Die SQLCMD-Variable ConfirmNoExternalConsumers muss 0 oder 1 sein.', 1;
 END;
 
-SELECT @InstalledVersion = TRY_CONVERT(nvarchar(64), ep.value)
+SELECT @InstalledVersion = TRY_CONVERT(nvarchar(max), ep.value)
 FROM sys.extended_properties AS ep
 WHERE ep.class = 0
   AND ep.major_id = 0
   AND ep.minor_id = 0
   AND ep.name = @VersionPropertyName;
 
-SELECT @DeploymentMode = TRY_CONVERT(nvarchar(16), ep.value)
+SELECT @DeploymentMode = TRY_CONVERT(nvarchar(max), ep.value)
 FROM sys.extended_properties AS ep
 WHERE ep.class = 0
   AND ep.major_id = 0
@@ -48,16 +53,19 @@ WHERE ep.class = 0
 
 IF @InstalledVersion IS NULL
 BEGIN
+    IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name IN(@VersionPropertyName,@ModePropertyName))
+       OR OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone') IS NOT NULL OR OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal') IS NOT NULL
+        THROW 53923,N'TableClone: fremder oder inkohärenter Releasebestand.',1;
     PRINT N'toolbelt.metadata.table-clone ist nicht als installiert registriert; keine Änderung erforderlich.';
     RETURN;
 END;
 
-IF @InstalledVersion COLLATE Latin1_General_100_BIN2 <> N'1.0.0'
+IF CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'2.0.0'))
 BEGIN
     THROW 53923, N'Die installierte Modulversion ist diesem Uninstall-Skript nicht bekannt.', 1;
 END;
 
-IF @DeploymentMode NOT IN (N'local', N'central')
+IF @DeploymentMode IS NULL OR CONVERT(varbinary(max),@DeploymentMode) NOT IN(CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central'))
 BEGIN
     THROW 53923, N'Der registrierte Deployment-Modus fehlt oder ist ungültig.', 1;
 END;
@@ -67,6 +75,14 @@ BEGIN
     THROW 53925, N'Bei zentraler Installation ist ConfirmNoExternalConsumers=1 als ausdrückliche Betreiberbestätigung erforderlich.', 1;
 END;
 
+    IF EXISTS(SELECT 1 FROM (VALUES(N'USP_ScriptTableClone'),(N'USP_ScriptTableCloneInternal')) r(Name)
+       LEFT JOIN sys.objects o ON o.schema_id=SCHEMA_ID(N'toolbelt_metadata') AND o.name=r.Name COLLATE DATABASE_DEFAULT
+       WHERE o.object_id IS NULL OR o.type<>'P' OR NOT EXISTS(SELECT 1 FROM sys.extended_properties modeep WHERE modeep.class=1 AND modeep.major_id=o.object_id AND modeep.minor_id=0 AND modeep.name=N'Toolbelt.DeploymentMode'
+          AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),modeep.value))=CONVERT(varbinary(max),(SELECT TRY_CONVERT(nvarchar(max),dbmode.value) FROM sys.extended_properties dbmode WHERE dbmode.class=0 AND dbmode.major_id=0 AND dbmode.minor_id=0 AND dbmode.name=N'Toolbelt.Module.toolbelt.metadata.table-clone.DeploymentMode'))) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0
+         AND e.name=N'Toolbelt.ModuleId' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),N'toolbelt.metadata.table-clone'))
+       OR NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0
+         AND e.name=N'Toolbelt.ModuleVersion' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),@InstalledVersion)))
+        THROW 53923,N'TableClone: Releaseobjektmarker nicht kohärent.',1;
 SELECT TOP (1)
       @ReferencingSchema = OBJECT_SCHEMA_NAME(dependencies.referencing_id)
     , @ReferencingObject = OBJECT_NAME(dependencies.referencing_id)
@@ -110,25 +126,44 @@ BEGIN TRY
         , @LockTimeout = 0
         , @DbPrincipal = N'public';
 
-    IF @LockResult < 0
+    IF COALESCE(@LockResult,-999) < 0
     BEGIN
         THROW 53927, N'Ein paralleles Deployment von toolbelt.metadata.table-clone ist bereits aktiv.', 1;
     END;
 
-    DECLARE @CurrentInstalledVersion nvarchar(64);
+    IF COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'VIEW DEFINITION'),0)<>1
+       OR COALESCE(HAS_PERMS_BY_NAME(N'sys.sql_expression_dependencies',N'OBJECT',N'SELECT'),0)<>1
+        THROW 53926,N'TableClone: vollständige Lifecycle-Dependency-Metadatensicht fehlt.',2;
 
-    SELECT @CurrentInstalledVersion = TRY_CONVERT(nvarchar(64), ep.value)
+
+    DECLARE @CurrentInstalledVersion nvarchar(max);
+
+    SELECT @CurrentInstalledVersion = TRY_CONVERT(nvarchar(max), ep.value)
     FROM sys.extended_properties AS ep
     WHERE ep.class = 0
       AND ep.major_id = 0
       AND ep.minor_id = 0
       AND ep.name = @VersionPropertyName;
 
-    IF ISNULL(@CurrentInstalledVersion, N'') COLLATE Latin1_General_100_BIN2
-           <> @InstalledVersion COLLATE Latin1_General_100_BIN2
+    IF (@CurrentInstalledVersion IS NULL AND @InstalledVersion IS NOT NULL) OR (@CurrentInstalledVersion IS NOT NULL AND @InstalledVersion IS NULL)
+       OR CONVERT(varbinary(max),@CurrentInstalledVersion)<>CONVERT(varbinary(max),@InstalledVersion)
     BEGIN
         THROW 53927, N'Der installierte Modulstand hat sich seit dem Uninstall-Preflight verändert.', 1;
     END;
+
+    IF EXISTS(SELECT 1 FROM (VALUES(N'USP_ScriptTableClone'),(N'USP_ScriptTableCloneInternal')) r(Name)
+       LEFT JOIN sys.objects o ON o.schema_id=SCHEMA_ID(N'toolbelt_metadata') AND o.name=r.Name COLLATE DATABASE_DEFAULT
+       WHERE o.object_id IS NULL OR o.type<>'P' OR NOT EXISTS(SELECT 1 FROM sys.extended_properties modeep WHERE modeep.class=1 AND modeep.major_id=o.object_id AND modeep.minor_id=0 AND modeep.name=N'Toolbelt.DeploymentMode'
+          AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),modeep.value))=CONVERT(varbinary(max),(SELECT TRY_CONVERT(nvarchar(max),dbmode.value) FROM sys.extended_properties dbmode WHERE dbmode.class=0 AND dbmode.major_id=0 AND dbmode.minor_id=0 AND dbmode.name=N'Toolbelt.Module.toolbelt.metadata.table-clone.DeploymentMode'))) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0
+         AND e.name=N'Toolbelt.ModuleId' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),N'toolbelt.metadata.table-clone'))
+       OR NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0
+         AND e.name=N'Toolbelt.ModuleVersion' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),@InstalledVersion)))
+        THROW 53923,N'TableClone: Releaseobjektmarker nicht kohärent.',1;    IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@ModePropertyName
+       AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),@DeploymentMode))
+        THROW 53927,N'TableClone: Modemarker seit Preflight verändert.',1;
+    IF EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d WHERE d.referenced_id IN(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone'),OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal'))
+       AND NOT EXISTS(SELECT 1 FROM (VALUES(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone')),(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal'))) own(Id) WHERE own.Id=d.referencing_id))
+        THROW 53926,N'TableClone: fremde same-database Dependency.',1;
 
     DECLARE @ReleaseObjects TABLE
     (
@@ -215,8 +250,7 @@ BEGIN TRY
           AND ep.minor_id = 0;
 
         IF ISNULL(@SchemaManaged, 0) = 1
-           AND ISNULL(@SchemaCategory, N'')
-                   COLLATE Latin1_General_100_BIN2 = N'metadata'
+           AND CONVERT(varbinary(max),@SchemaCategory)=CONVERT(varbinary(max),N'metadata')
            AND NOT EXISTS
                (
                    SELECT 1 FROM sys.objects WHERE schema_id = @SchemaId

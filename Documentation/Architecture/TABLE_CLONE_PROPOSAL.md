@@ -1,5 +1,17 @@
 # Vorschlag: Kontrollierter Tabellenklon (`TC-2026-044`)
 
+## Individuell freigegebene Welle 1: Reviewentwurf vom 2026-10-02
+
+Der [W1-Vor-Source-Vertrag](TABLE_CLONE_WAVE1_CONTRACT.md) konkretisiert
+Computed/PERSISTED, gefilterte Rowstore-Indizes und optionale Extended
+Properties im bestehenden ScriptOnly-Kern. Die bestätigte Parameterposition
+und sieben SESSION_OPTION-Zeilen führen zur geplanten Version 2.0.0.
+Das Computed-only-Metadatengate und die eng begrenzte Extended-Property-
+Batchausnahme wurden am 2026-10-02 einzeln freigegeben; der unabhängige
+Vor-Source-Review ist abgeschlossen. W1 ist als 2.0.0 implementiert und teilweise validiert: Die finalen öffentlichen Adapter vom 2026-10-03 bestanden auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 lokal und zentral. Siehe [aktuellen W1-Vertrag und Scope-Nachweis](TABLE_CLONE_WAVE1_CONTRACT.md#gezielter-öffentlicher-runtime-nachweis-2026-10-03). CI am geprüften Head 76888216 bestanden; tatsächliche Minimalrechte und weitere physische Ziele bleiben offen.
+Die folgenden V1- und Researchabschnitte bleiben
+historisch unverändert, Welle 2 gehört nicht zu diesem Vertrag.
+
 ## Freigegebener Script-only-V1, 2026-10-01
 
 Nach Einzelbesprechung hat der Benutzer Implementierung, Prüfung und PR-Merge
