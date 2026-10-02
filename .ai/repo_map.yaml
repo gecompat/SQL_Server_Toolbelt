@@ -543,6 +543,7 @@ change_impact:
         - Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md
         - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
         - Tests/CI/run-regex-linux.sh
+        - Tests/CI/run-regex-captures-lab.ps1
         - Tests/CI/run-lab-local.ps1
         - Tests/CI/run-lab-target.sh
         - .github/workflows/regex-runtime.yml

@@ -2,6 +2,17 @@
 
 ## Status
 
+Version `1.3.0` implementiert die einzeln freigegebenen
+[Capture-TVF](Documentation/TVF_RegexCaptures.md) und das getrennte
+[Gruppen-Replace](Documentation/SVF_RegexReplaceGroups.md). Framework und
+API-/SQLClient-Verträge lokal/zentral sind auf Windows2025 CU8 CL150/160/170
+und Linux2019 latest CL150 erfolgreich. Der Lifecycle bleibt wegen des
+fehlenden belastbaren Releaseversionsnachweises aus dem unsigned CLR-Katalog
+blockiert; Upgrade/Wiederdeployment/Uninstall sind kein PASS. Die zusätzliche
+Deployment-Hashgrenze benötigt Benutzerentscheidung. Der Status bleibt
+teilweise validiert und unveröffentlicht.
+
+
 Version `1.2.0` ergänzt die einzeln freigegebenen relationalen
 [Matches](Documentation/TVF_RegexMatches.md)- und
 [Split](Documentation/TVF_RegexSplit.md)-TVFs ohne Captures. Der neue Runtime-
@@ -22,7 +33,7 @@ Evidenz: `local: Tests/CI/run-lab-local.ps1`.
 
 ## Zweck
 
-Das Modul stellt fünf portable Skalarfunktionen und zwei relationale TVFs für einen bewusst begrenzten
+Das Modul stellt sechs portable Skalarfunktionen und drei relationale TVFs für einen bewusst begrenzten
 Toolbelt-Regexdialekt bereit:
 
 - `toolbelt_string.SVF_RegexIsMatch`;
@@ -31,7 +42,9 @@ Toolbelt-Regexdialekt bereit:
 - [toolbelt_string.SVF_RegexReplace](./Documentation/SVF_RegexReplace.md);
 - [toolbelt_string.SVF_RegexSubstring](./Documentation/SVF_RegexSubstring.md).
 - [toolbelt_string.TVF_RegexMatches](./Documentation/TVF_RegexMatches.md);
-- [toolbelt_string.TVF_RegexSplit](./Documentation/TVF_RegexSplit.md).
+- [toolbelt_string.TVF_RegexSplit](./Documentation/TVF_RegexSplit.md);
+- [toolbelt_string.TVF_RegexCaptures](./Documentation/TVF_RegexCaptures.md);
+- [toolbelt_string.SVF_RegexReplaceGroups](./Documentation/SVF_RegexReplaceGroups.md).
 
 Ein eigener Parser akzeptiert ausschließlich den dokumentierten Dialekt und
 übersetzt ASCII-Kurzklassen kontrolliert für die .NET-Framework-4.8-
@@ -55,7 +68,8 @@ als SQL-CLR-Fehler 6522 mit einem stabilen `TBX_REGEX_*`-Präfix.
 ## Aussagegrenzen
 
 Das Modul verspricht weder RE2-Parität noch lineare Laufzeit, SARGability oder
-Parallelplanfähigkeit. Backreferences, Lookaround, benannte und bedingte
+Parallelplanfähigkeit. Benannte Captures sind ausschließlich im neuen Capturemodus erlaubt.
+Backreferences, Lookaround und bedingte
 Gruppen, atomare und Balancing Groups sowie beliebige .NET-Syntax sind
 ausgeschlossen. Replace, Substring, Captures, Split und Match-Resultsets sind
 nicht Bestandteil von R1b. Bei großen Tabellen sollen selektive relationale
@@ -75,8 +89,8 @@ SHA2-512-Hash des reproduzierbar gebauten Releaseartefakts.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-01`
-- Nachweis: `local: Tests/CI/run-lab-local.ps1; Windows PowerShell: run-framework-relations.ps1`
-- Scope: R2b auf SQL Server 2025 Windows/CU8 bei CL150/160/170 und SQL Server 2019 Linux/latest CL150: vollständiger Regexadapter, Empty-/UTF16-/NULL-/Fehlerpriorität, 16 MiB Outputhash, strikte kleine Rowlimits, SQLClient-Schema/Metadata und SELECT-Atomicity bei Rowlimitfehler/Runtime-Timeout lokal und central, SELECT-Minimalrechte lokal/direkt zentral, genuine 1.0/1.1 Upgrade, vier neue Namenskollisionen mit imitiertem Marker, historischer Uninstall-Erhalt, 1.2 Reinstall/Marker/Dependency-Uninstall/Cleanup. Framework tatsächlich 100000 Zeilen; gezielte SQL-100k-Probe nur vollständige Ausgabe oder atomarer Timeout, keine SQL-100k-Durchsatzevidenz. Weitere R2b-Ziele und Lowpriv-CrossDB noch nicht ausgeführt.
+- Datum: `2026-10-02`
+- Nachweis: `local: Tests/CI/run-regex-captures-lab.ps1 -ApiQualificationOnly; Windows PowerShell: Tests/Framework/run-framework-captures.ps1`
+- Scope: Capture/Replace API-only lokal/zentral auf Windows2025 CU8 CL150/160/170 und Linux2019 latest CL150; unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, alte sieben APIs, exact installed Binaryhash und eigener DB-/Trustcleanup. Framework 100000 Captures und Standard/Large. Lifecycle/Upgrade/Reinstall/Uninstall blockiert wegen unsigned CLR-Katalogversionsnachweis; zusätzliche Hashgrenze wartet auf Benutzerentscheidung. Weitere Matrix, neue Mindestberechtigungen und SQL-Large-Capturegrenze offen; keine 100k-SQL-Durchsatzzusage.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

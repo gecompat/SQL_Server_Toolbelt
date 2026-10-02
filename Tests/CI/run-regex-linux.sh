@@ -34,7 +34,7 @@ deploy = deploy_path.read_text(encoding="utf-8-sig")
 actual_hash = sha512(assembly).hexdigest().upper()
 assert actual_hash == manifest["sha512"]
 assert manifest["moduleId"] == "toolbelt.string.regex"
-assert manifest["moduleVersion"] == "1.2.0"
+assert manifest["moduleVersion"] == "1.3.0"
 assert manifest["assemblySqlName"] == "Toolbelt_String_Regex"
 assert manifest["permissionSet"] == "SAFE"
 assert manifest["directFrameworkReferences"] == ["System", "System.Data"]
@@ -121,6 +121,7 @@ run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runt
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Regex.Contract.sql
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Transformations.Contract.sql
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Relations.Contract.sql -v "ToolbeltDatabase=${local_database}"
+run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Captures.Contract.sql -v "ToolbeltDatabase=${local_database}"
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Relations.Rights.sql
 deploy_regex "${local_database}" local
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Lifecycle.Contract.sql
@@ -130,6 +131,7 @@ run_file "${central_database}" /workspace/Modules/toolbelt.string.regex/Tests/Ru
 run_file "${consumer_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Central.Contract.sql \
   -v "ToolbeltDatabase=${central_database}"
 run_file "${consumer_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Relations.Contract.sql -v "ToolbeltDatabase=${central_database}"
+run_file "${consumer_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Captures.Central.sql -v "ToolbeltDatabase=${central_database}"
 if [[ "${TBX_SQL_TARGET:-}" == "lab" ]]; then
   metadata_script="${workspace}/Modules/toolbelt.string.regex/Tests/Runtime/Relations.Metadata.ps1"
   if command -v cygpath >/dev/null 2>&1; then metadata_script="$(cygpath -w "${metadata_script}")"; fi
@@ -180,6 +182,36 @@ set -e
 run_query "${r2b_upgrade_database}" "IF OBJECT_ID(N'toolbelt_string.TVF_RegexMatches',N'IF') IS NULL THROW 52095,N'Dependency-Schutz mutierte R2b.',8; DROP VIEW dbo.RegexRelationDependency;"
 rm -f "${collision_log}";collision_log=""
 run_file "${r2b_upgrade_database}" /workspace/Modules/toolbelt.string.regex/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=0
+
+# Gepinnte echte 1.2-Assembly: neue Captureplätze sind vor Upgrade fremd.
+r2b_container="${assembly_root_container}/legacy-r2b"
+r2b_hash="$(python3 - "${assembly_root_host}/legacy-r2b/Toolbelt.String.Regex.trust-manifest.json" "${assembly_root_host}/legacy-r2b/Toolbelt.String.Regex.dll" <<'PY'
+import json,sys,hashlib
+from pathlib import Path
+m=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8-sig'))
+assert m['moduleVersion']=='1.2.0' and m['sha512']==hashlib.sha512(Path(sys.argv[2]).read_bytes()).hexdigest().upper()
+print(m['sqlServerHexLiteral'])
+PY
+)"
+run_file master /workspace/Modules/toolbelt.string.regex/Deployment Add-TrustedAssembly.sql -v "AssemblyHash=${r2b_hash}" "AssemblyDescription=Toolbelt Regex Capture upgrade test"
+capture_upgrade_database="tbx_regex_capture_upgrade"
+run_query master "CREATE DATABASE [${capture_upgrade_database}] COLLATE Latin1_General_100_CS_AS;"
+run_file "${capture_upgrade_database}" "${r2b_container}" "${r2b_container}/Deploy.WithAssembly.sql" -v DeploymentMode=local
+run_file "${capture_upgrade_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Lifecycle.CollisionFixture.sql -v FaultCase=ImitatedNewSlot
+collision_log="$(mktemp)"
+set +e
+deploy_regex "${capture_upgrade_database}" local >"${collision_log}" 2>&1
+capture_collision_status=$?
+set -e
+[[ "${capture_collision_status}" -ne 0 ]] && grep -q "Msg 52033" "${collision_log}" || { echo "Capture-Upgrade-Kollision nicht geschützt." >&2; exit 1; }
+run_file "${capture_upgrade_database}" /workspace/Modules/toolbelt.string.regex/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=0
+run_query "${capture_upgrade_database}" "IF toolbelt_string.SVF_RegexReplaceGroups()<>73 THROW 52095,N'Historischer Uninstall entfernte fremden Captureplatz.',9; DROP FUNCTION toolbelt_string.SVF_RegexReplaceGroups; DROP SCHEMA toolbelt_string;"
+rm -f "${collision_log}"; collision_log=""
+run_file "${capture_upgrade_database}" "${r2b_container}" "${r2b_container}/Deploy.WithAssembly.sql" -v DeploymentMode=local
+deploy_regex "${capture_upgrade_database}" local
+run_file "${capture_upgrade_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Lifecycle.Contract.sql
+run_file "${capture_upgrade_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Captures.Contract.sql -v "ToolbeltDatabase=${capture_upgrade_database}"
+run_file "${capture_upgrade_database}" /workspace/Modules/toolbelt.string.regex/Deployment Uninstall.sql -v ConfirmNoExternalConsumers=0
 
 # Echtes Upgrade aus dem gepinnten R1b-Binary. Legacy-Trust wird im Labadapter
 # separat erfasst und nur bei eigener Neuerzeugung nach dem Lauf entfernt.

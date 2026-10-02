@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Configuration = 'Release',
+    [ValidateSet('Release')][string]$Configuration = 'Release',
     [string]$OutputDirectory =
         (Join-Path (Split-Path -Parent $PSScriptRoot) 'Artifacts')
 )
@@ -13,6 +13,30 @@ $projectPath = Join-Path $moduleRoot 'Clr/Toolbelt.String.Regex.csproj'
 $assemblyPath = Join-Path $moduleRoot "Clr/bin/$Configuration/Toolbelt.String.Regex.dll"
 $deployTemplatePath = Join-Path $moduleRoot 'Deployment/Deploy.sql'
 
+# Releaseartefakte benötigen ein leeres Ziel und exakt denselben Quellstand
+# vor/nach Build. Pfade im Manifest sind ausschließlich modulrelativ.
+if (Test-Path -LiteralPath $OutputDirectory) {
+    if (-not (Test-Path -LiteralPath $OutputDirectory -PathType Container) -or
+        @(Get-ChildItem -LiteralPath $OutputDirectory -Force).Count -ne 0) {
+        throw 'Releaseziel muss neu oder leer sein; vorhandene Artefakte werden nicht wiederverwendet.'
+    }
+}
+$sourcePaths = @(
+    'Clr/Toolbelt.String.Regex.csproj', 'Clr/Properties/AssemblyInfo.cs',
+    'Clr/RegexProvider.cs', 'Clr/RegexTransformations.cs', 'Clr/RegexRelations.cs',
+    'Clr/RegexCaptures.cs', 'Source/RegexFunctions.sql', 'Source/RegexRelations.sql',
+    'Source/RegexCaptures.sql', 'Deployment/Deploy.sql', 'Deployment/Uninstall.sql',
+    'Scripts/New-ClrReleaseArtifacts.ps1'
+)
+function Get-ReleaseSourceFingerprints {
+    foreach ($relativePath in $sourcePaths) {
+        [ordered]@{ path = $relativePath; sha256 =
+            (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $moduleRoot $relativePath)).Hash }
+    }
+}
+$sourceFingerprints = @(Get-ReleaseSourceFingerprints)
+$sourceSnapshot = ConvertTo-Json -InputObject $sourceFingerprints -Compress
+
 $msbuild = Get-Command msbuild -ErrorAction SilentlyContinue
 if ($null -eq $msbuild) {
     $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
@@ -24,6 +48,12 @@ if ($null -eq $msbuild) {
     }
 }
 if ($null -eq $msbuild) {
+    $ssmsBuild = Join-Path $env:ProgramFiles 'Microsoft SQL Server Management Studio 22/Release/MSBuild/Current/Bin/MSBuild.exe'
+    if (Test-Path -LiteralPath $ssmsBuild -PathType Leaf) {
+        $msbuild = [pscustomobject]@{ Source = $ssmsBuild }
+    }
+}
+if ($null -eq $msbuild) {
     throw 'MSBuild und das .NET-Framework-4.8-Targeting-Pack werden benötigt.'
 }
 
@@ -32,16 +62,19 @@ if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $assemblyPath -PathType
     throw 'Der CLR-Regex-Assembly-Build ist fehlgeschlagen.'
 }
 
+if ((ConvertTo-Json -InputObject @(Get-ReleaseSourceFingerprints) -Compress) -cne $sourceSnapshot) {
+    throw 'Releasequellen wurden während des Builds verändert.'
+}
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 $assemblyBytes = [IO.File]::ReadAllBytes($assemblyPath)
 $assemblyHex = [BitConverter]::ToString($assemblyBytes).Replace('-', '')
 $sha512 = (Get-FileHash -Algorithm SHA512 -LiteralPath $assemblyPath).Hash.ToUpperInvariant()
-$description = 'SQL Server Toolbelt toolbelt.string.regex CLR provider 1.2.0'
+$description = 'SQL Server Toolbelt toolbelt.string.regex CLR provider 1.3.0'
 
 $manifest = [ordered]@{
     schemaVersion = '1.0'
     moduleId = 'toolbelt.string.regex'
-    moduleVersion = '1.2.0'
+    moduleVersion = '1.3.0'
     assemblySqlName = 'Toolbelt_String_Regex'
     assemblyFileName = [IO.Path]::GetFileName($assemblyPath)
     permissionSet = 'SAFE'
@@ -49,6 +82,7 @@ $manifest = [ordered]@{
     sha512 = $sha512
     sqlServerHexLiteral = '0x' + $sha512
     description = $description
+    sourceFingerprints = $sourceFingerprints
 }
 
 $manifestPath = Join-Path $OutputDirectory 'Toolbelt.String.Regex.trust-manifest.json'
@@ -60,6 +94,11 @@ if ([regex]::Matches($deployTemplate,[regex]::Escape('$(AssemblyBits)')).Count -
 }
 $deployScript = $deployTemplate.Replace('$(AssemblyBits)', '0x' + $assemblyHex)
 
+# Unmittelbar vor dem Schreiben erneut prüfen; ein anderer Agent darf den
+# gekoppelten Source-/Lifecycle-Stand nicht unbemerkt austauschen.
+if ((ConvertTo-Json -InputObject @(Get-ReleaseSourceFingerprints) -Compress) -cne $sourceSnapshot) {
+    throw 'Releasequellen wurden vor dem Artefaktschreiben verändert.'
+}
 [IO.File]::Copy($assemblyPath, $assemblyOutputPath, $true)
 $manifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $manifestPath -Encoding utf8
 $deployScript | Set-Content -LiteralPath $deployPath -Encoding utf8

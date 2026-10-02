@@ -337,6 +337,17 @@ bestand neun begrenzte Framework-Kinder mit 7608 Assertions, unabhängig
 wiederholt; Semantikreview PASS. Die integrierte Source und SQL-SAFE-Runtime
 bleiben separat zu qualifizieren; keine Heap-/Backtracking-Garantie.
 
+Implementierungsstand 2026-10-02: zwei freigegebene APIs im Branch umgesetzt,
+integrierte Framework-Suite und unabhängiger Source-Review erfolgreich.
+Begrenzte API-only-Labproben einschließlich SQLClient-Metadaten/Atomicity
+lokal/zentral auf Windows2025 CU8 CL150/160/170 und Linux2019 latest CL150
+erfolgreich; eigene Datenbanken/Trusthashes vollständig bereinigt. Lifecycle
+ist blockiert: unsigned CLR-Katalogidentität belegt keine tatsächliche
+Releaseversion. Vorgeschlagene zusätzliche erwartete Hashgrenze wartet auf
+Benutzerentscheidung. Kein Upgrade-/Reinstall-/Uninstall-PASS, keine grüne
+CI oder Mergebehauptung. Weitere Matrix, neue Mindestberechtigungsnachweise
+und tatsächliche Large-Capture-Outputgrenze in SQL noch nicht ausgeführt.
+
 #### Individuell freigegebene XLSX-Typ-/Anzeige-Welle
 
 Dieselbe ausdrückliche Benutzerantwort „ja“ vom 2026-10-01 bestätigt

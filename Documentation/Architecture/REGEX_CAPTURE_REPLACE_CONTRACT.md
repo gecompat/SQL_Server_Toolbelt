@@ -32,6 +32,14 @@ Backtracking-, Heap- oder Durchsatznachweis.
 
 ## Öffentliche Signaturen
 
+Laufende Validierung 2026-10-02: Integrierte Framework-Suite und begrenzte
+API-/SQLClient-Proben lokal/zentral auf Windows2025 und Linux2019 erfolgreich.
+Der Lifecycle bleibt blockiert: die tatsächliche Releaseversion ist aus der
+unsigned SQL-Katalogidentität nicht belastbar zu gewinnen. Der unten geplante
+historische CLR-Versionsnachweis ist damit noch nicht erfüllt. Eine zusätzliche
+exakte erwartete Assemblyhashgrenze benötigt Benutzerentscheidung; weder
+Marker allein noch fehlende Evidenz werden als PASS behandelt.
+
 | Objekt | Parameter in Reihenfolge | Ergebnis |
 |---|---|---|
 | `toolbelt_string.TVF_RegexCaptures` | `@Input nvarchar(max)`, `@Pattern nvarchar(max)`, `@Start int = 1`, `@Flags nvarchar(max) = N'c'`, `@Profile nvarchar(max) = N'standard'`, `@MaxRows int = 10000` | normalisierte Capture-Zeilen |
