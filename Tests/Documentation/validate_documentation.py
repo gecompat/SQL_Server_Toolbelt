@@ -1316,6 +1316,13 @@ def run_regex_research_static() -> None:
         )
 
 
+def run_edit_distance_static() -> None:
+    script = REPOSITORY_ROOT / "Modules/toolbelt.string.edit-distance/Tests/Static/validate_contract.py"
+    result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+                            check=False, capture_output=True, text=True, encoding="utf-8")
+    if result.returncode != 0:
+        raise ValidationError("Statische Editierdistanz-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
+
 def run_regex_static() -> None:
     script = (
         REPOSITORY_ROOT
@@ -1639,6 +1646,8 @@ def main() -> int:
         run_regex_research_static()
     if "regex_runtime_workflow_scope" in checks:
         validate_regex_runtime_workflow_scope()
+    if "edit_distance_static" in checks:
+        run_edit_distance_static()
     if "regex_static" in checks:
         run_regex_static()
     if "identifier_runtime_workflow_scope" in checks:

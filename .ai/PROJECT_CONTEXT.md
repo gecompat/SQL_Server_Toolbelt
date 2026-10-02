@@ -26,7 +26,7 @@ werden in der Modul-Testdokumentation von den finalen Nachweisen getrennt.
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-34 Module sind implementiert. 20 sind `validated`, 14 sind `partially
+35 Module sind implementiert. 20 sind `validated`, 15 sind `partially
 validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
@@ -274,3 +274,5 @@ Die zulässigen Modulwerte und ihre Bedeutung stehen im
 [Modul- und Abhängigkeitsmodell](../Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md).
 Plan, Dokumentation, Manifest und vorhandener Testcode sind kein
 Runtime-Nachweis.
+
+`toolbelt.string.edit-distance` 1.0.0 ergänzt die genau zwei freigegebenen Distanz-TVFs mit eigenem portablem SAFE-CLR-Provider. Der Vor-Source-Vertrag und die zusätzliche Providerfreigabe sind dokumentiert. Offline Framework-/Matrixprüfungen und Releasebuild bestanden. Finale Gesamtadapter am 2026-10-02 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral sowie separatem SC-UTF8-Consumer bestanden. API-/Budget-/1000-Paar-/Client- und InstalledMetadata-, NULL-Modemarker-, AppLock-, Caller-TX/SET-, post-DROP-Rollback-, Kollisions-/Dependency-, Reinstall-/Uninstall- und eigene Bereinigungsorakel erfolgreich; Konfigurations- und Rechteänderungen jeweils 0. Tatsächliche Minimalrechte, übrige physische Ziele und Heap-/Produktionskapazität sind nicht nachgewiesen; aktuelle CI wird als separater PR-Mergegate nachgewiesen. Teilweise validiert und unveröffentlicht.

@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-10-02 – Levenshtein-/OSA-Provider 1.0.0, gezielt nativ teilweise qualifiziert
+
+- Dedizierter portabler SAFE-CLR-Provider für genau die beiden einzeln
+  freigegebenen Distanzfunktionen; zusätzliche Assembly-/Lifecyclefreigabe
+  und Vor-Source-Vertrag dokumentiert. Jaro und Phonetik bleiben getrennt.
+- Gemeinsame Unicode-Scalarvalidierung und zwei-/drei-Zeilen-DP, Standard/Large,
+  strikter MaxDistance-/Fehlerprioritätsvertrag ohne Kürzung oder Näherung.
+- Offline Vollmatrixreferenz 21185 und Framework 81380 Assertions erfolgreich,
+  einschließlich tatsächlicher 1M-/16M-DP und Large-Bandberechnung; Releasebuild
+  erfolgreich. Finale Gesamtadapter am 2026-10-02 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral sowie separatem SC-UTF8-Consumer bestanden. API-/Budget-/1000-Paar-/Client- und InstalledMetadata-, NULL-Modemarker-, AppLock-, Caller-TX/SET-, post-DROP-Rollback-, Kollisions-/Dependency-, Reinstall-/Uninstall- und eigene Bereinigungsorakel erfolgreich; Konfigurations- und Rechteänderungen jeweils 0. Tatsächliche Minimalrechte, übrige physische Ziele und Heap-/Produktionskapazität sind nicht nachgewiesen; aktuelle CI wird als separater PR-Mergegate nachgewiesen.
+- Historischer erster Linux-Lauf SQL468/State9 im Metadaten-Fixture wurde
+  vollständig bereinigt; korrigierter neuer Gesamtadapter separat erfolgreich;
+  teilweise validiert und unveröffentlicht.
+
 ## 2026-10-02 – Gruppierte JSON-Konstruktoren 1.1.0
 
 - Zwei individuell freigegebene USPs liefern GroupOrdinal und JsonValue je vorhandener Gruppe; gemeinsame globale Budgets und atomare Ausgabe.
@@ -518,7 +532,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-34 Module sind implementiert. 20 sind `validated`, 14 sind `partially
+35 Module sind implementiert. 20 sind `validated`, 15 sind `partially
 validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

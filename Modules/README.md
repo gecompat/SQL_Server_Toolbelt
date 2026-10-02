@@ -4,7 +4,7 @@ Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module v
 
 ## Aktueller Status
 
-**34 Module sind implementiert. 20 sind `validated`, 14 sind `partially
+**35 Module sind implementiert. 20 sind `validated`, 15 sind `partially
 validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
 abgeleitet.**
 
@@ -42,6 +42,7 @@ abgeleitet.**
 | `toolbelt.metadata.table-clone` | Script-only Table Clone | `1.0.0` | `toolbelt_metadata` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.pseudonymization.deterministic` | Deterministic Synthetic Mapping | `1.2.0` | `toolbelt_pseudonymization` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.directional-trim` | Directional TRIM Compatibility | `1.0.0` | `toolbelt_string` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.string.edit-distance` | Bounded Unicode Edit Distance | `1.0.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.regex` | Bounded Regular Expressions | `1.3.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.split-advanced` | Quote/Escape Multi-Separator Split | `1.1.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.split-characters` | Literal Multi-Separator Split | `1.0.0` | `toolbelt_string` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |

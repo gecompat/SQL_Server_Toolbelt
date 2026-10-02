@@ -1,0 +1,30 @@
+name: Edit Distance CLR Offline
+on:
+  pull_request:
+    paths: ["Modules/toolbelt.string.edit-distance/**", "Documentation/Architecture/EDIT_DISTANCE_CONTRACT.md", ".github/workflows/edit-distance-runtime.yml"]
+  push:
+    branches: [main]
+    paths: ["Modules/toolbelt.string.edit-distance/**", ".github/workflows/edit-distance-runtime.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: edit-distance-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  offline:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Static contract
+        run: python -B Modules/toolbelt.string.edit-distance/Tests/Static/validate_contract.py
+      - name: Framework contract
+        shell: pwsh
+        run: Modules/toolbelt.string.edit-distance/Tests/Framework/run-framework-distance.ps1
+      - name: Exact Release build
+        shell: pwsh
+        run: Modules/toolbelt.string.edit-distance/Scripts/New-ClrReleaseArtifacts.ps1 -OutputDirectory "$env:RUNNER_TEMP/EditDistanceRelease"

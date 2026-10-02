@@ -1,0 +1,113 @@
+module_id: "toolbelt.string.edit-distance"
+module_name: "Bounded Unicode Edit Distance"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Levenshtein und eingeschränktes Optimal String Alignment über einen gemeinsamen begrenzten Unicode-Scalar-SAFE-CLR-Kern."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels:
+  - 150
+  - 160
+  - 170
+platforms:
+  windows: "partially validated"
+  linux: "partially validated"
+providers:
+  - id: safe-clr-edit-distance
+    technology: "C#; bandierte zwei-/drei-Zeilen-DP"
+    platforms: [Windows, Linux]
+    status: "partially validated"
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies: []
+schemas:
+  - "toolbelt_string"
+objects:
+  - {type: TVF, schema: "toolbelt_string", name: "TVF_LevenshteinDistance", visibility: public}
+  - {type: TVF, schema: "toolbelt_string", name: "TVF_OsaDistance", visibility: public}
+  - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_LevenshteinDistanceCore", visibility: internal}
+  - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_OsaDistanceCore", visibility: internal}
+  - {type: ASSEMBLY, name: "Toolbelt_String_EditDistance", visibility: internal}
+permissions_required:
+  - "SELECT auf den öffentlichen TVFs"
+  - "CREATE FUNCTION, CREATE ASSEMBLY und Schema-ALTER für Deployment"
+  - "ALTER ANY ASSEMBLY bei Binarywechsel"
+  - "VIEW DEFINITION auf Datenbank und SELECT auf sys.sql_expression_dependencies für Lifecycle"
+  - "sysadmin ausschließlich für separates Hash-Trust-Opt-in"
+collation_contract: "Unicode Scalars, ordinal; keine Culture-/Collationnormalisierung"
+data_type_contract: "Texte/Profile nvarchar(max); MaxDistance int=NULL einschließlich INT_MAX; Profile standard/large exakt; keine Kürzung"
+help_contract_version: "not applicable"
+resultset_contracts:
+  - object: "toolbelt_string.TVF_LevenshteinDistance"
+    resultset: "Distance int nullable, ExceedsMaxDistance bit nullable, ErrorCode int logisch nicht NULL; Metadaten nullable"
+    max_rows: "exactly one"
+  - object: "toolbelt_string.TVF_OsaDistance"
+    resultset: "Distance int nullable, ExceedsMaxDistance bit nullable, ErrorCode int logisch nicht NULL; Metadaten nullable"
+    max_rows: "exactly one"
+lifecycle_error_range: "55030-55039; 55046-55047 installed binary binding"
+trust_error_range: "55040-55049"
+runtime_error_contract: "Resultcodes 0..6; technische CLR-Fehler sind kein Fachresultat"
+clr:
+  used: true
+  language: "C#"
+  target_framework: ".NET Framework 4.8"
+  assembly_sql_name: "Toolbelt_String_EditDistance"
+  assembly_file_name: "Toolbelt.String.EditDistance.dll"
+  permission_set: "SAFE"
+  trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"
+  direct_framework_references: ["System", "System.Data"]
+  third_party_dependencies: []
+  build_project: "Clr/Toolbelt.String.EditDistance.csproj"
+  release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
+lifecycle:
+  trust_opt_in: "Deployment/Add-TrustedAssembly.sql"
+  deploy_template: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "generated from exact built assembly"
+  source_hash_role: "diagnostic_only"
+  trust_removed_by_uninstall: false
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/TVF_LevenshteinDistance.md"
+    - "Documentation/TVF_OsaDistance.md"
+  architecture:
+    - "../../Documentation/Architecture/EDIT_DISTANCE_CONTRACT.md"
+  test_matrix:
+    - "Tests/EDIT_DISTANCE_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+  examples:
+    - "Examples/EditDistance.sql"
+contracts:
+  usp: "not applicable"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  framework: "Tests/Framework/run-framework-distance.ps1"
+  runtime: "Tests/Runtime/Distance.Contract.sql"
+  boundaries: "Tests/Runtime/Distance.Boundaries.sql"
+  metadata: "Tests/Runtime/InstalledMetadata.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  lab: "Tests/Runtime/Invoke-LabContract.ps1"
+  github_hosted: "../../.github/workflows/edit-distance-runtime.yml"
+validation_evidence:
+  - date: "2026-10-02"
+    workflow: "local: Tests/Framework/run-framework-distance.ps1; Scripts/New-ClrReleaseArtifacts.ps1"
+    scope: "Python 21185 Assertions; neun Frameworkkinder 81380 Assertions; Release Framework 4.8; keine SQL-/Metadata-/Lifecycle-/Minimalrechte-Evidenz; aktuelle CI als separater PR-Mergegate"
+    result: "success"
+
+  - date: "2026-10-02"
+    workflow: "local: Tests/Runtime/Invoke-LabContract.ps1; unabhängiger Root-Bereinigungsaudit"
+    scope: "Finale Gesamtadapter am 2026-10-02 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral sowie separatem SC-UTF8-Consumer bestanden. API-/Budget-/1000-Paar-/Client- und InstalledMetadata-, NULL-Modemarker-, AppLock-, Caller-TX/SET-, post-DROP-Rollback-, Kollisions-/Dependency-, Reinstall-/Uninstall- und eigene Bereinigungsorakel erfolgreich; Konfigurations- und Rechteänderungen jeweils 0. Tatsächliche Minimalrechte, übrige physische Ziele und Heap-/Produktionskapazität sind nicht nachgewiesen; aktuelle CI wird als separater PR-Mergegate nachgewiesen."
+    result: "success"

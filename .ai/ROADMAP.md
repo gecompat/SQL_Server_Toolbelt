@@ -23,7 +23,7 @@ XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 34 Module sind implementiert. 20 sind `validated`, 14 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
+abgeschlossen. 35 Module sind implementiert. 20 sind `validated`, 15 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Die vollständige lokale Adaptermatrix war am 2026-09-01 auf physischen
@@ -642,3 +642,5 @@ bleibt Preview.
 ## Repository-Grenze
 
 Analyse-, Diagnose-, Performance-, Konfigurations- und Security-Assessment-Ideen für `gecompat/SQL_Server_Analyze` werden nur in `Backlog/SQL_SERVER_ANALYZE_CANDIDATES.md` gesammelt und nicht hier implementiert.
+
+`toolbelt.string.edit-distance` 1.0.0 ergänzt die genau zwei freigegebenen Distanz-TVFs mit eigenem portablem SAFE-CLR-Provider. Der Vor-Source-Vertrag und die zusätzliche Providerfreigabe sind dokumentiert. Offline Framework-/Matrixprüfungen und Releasebuild bestanden. Finale Gesamtadapter am 2026-10-02 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral sowie separatem SC-UTF8-Consumer bestanden. API-/Budget-/1000-Paar-/Client- und InstalledMetadata-, NULL-Modemarker-, AppLock-, Caller-TX/SET-, post-DROP-Rollback-, Kollisions-/Dependency-, Reinstall-/Uninstall- und eigene Bereinigungsorakel erfolgreich; Konfigurations- und Rechteänderungen jeweils 0. Tatsächliche Minimalrechte, übrige physische Ziele und Heap-/Produktionskapazität sind nicht nachgewiesen; aktuelle CI wird als separater PR-Mergegate nachgewiesen. Teilweise validiert und unveröffentlicht.

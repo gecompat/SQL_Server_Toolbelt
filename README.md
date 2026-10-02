@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 34 Module implementiert – 14 teilweise validiert](https://img.shields.io/badge/Status-34%20Module%20implementiert%20%7C%2014%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 35 Module implementiert – 15 teilweise validiert](https://img.shields.io/badge/Status-35%20Module%20implementiert%20%7C%2015%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -58,7 +58,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 `toolbelt.json.constructors` 1.1.0 implementiert die beiden einzeln freigegebenen Gruppen-USPs über den gemeinsamen T-SQL-Kern. Auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 bestanden lokal und zentral die API-/100000-/16-MiB-/Clientprüfungen als Teil insgesamt fehlgeschlagener früherer Läufe. Die finalen fokussierten Läufe mit ausschließlich InstalledMetadata.Contract.sql als Runtime-Auswahl bestanden Metadaten, genuine 1.0-Upgrades, Lifecycle, Central und eigene Bereinigung. Neue Minimalrechte bleiben offen; die Uninstall-Voraussetzung VIEW DEFINITION/SELECT wurde am 2026-10-02 einzeln freigegeben und die neue Gateumsetzung bestand fokussierte native Lifecycle-Läufe, negative CI-Injektionen bleiben offen; aktuelle CI wird als separater PR-Mergegate nachgewiesen. Teilweise validiert und unveröffentlicht; historische 1.0-Evidenz bleibt getrennt.
 
-**Der Repository-Grundaufbau ist abgeschlossen. 34 Module sind implementiert; 20 sind `validated`, 14 sind `partially validated`, 0 sind `not executed`, alle sind `unreleased`.**
+**Der Repository-Grundaufbau ist abgeschlossen. 35 Module sind implementiert; 20 sind `validated`, 15 sind `partially validated`, 0 sind `not executed`, alle sind `unreleased`.**
 
 [`toolbelt.pseudonymization.deterministic`](./Modules/toolbelt.pseudonymization.deterministic/README.md)
 liefert versionierte synthetische Range-, DateShift- und Pool-Lookup-Werte;
@@ -159,6 +159,16 @@ Version 1.1.0 ergänzt ausdrücklich freigegebenes, separates Unquoting und die
 prozedurale Split-Fassade mit Help und ResultTable. Der Split selbst gibt
 weiterhin Originaltokens zurück; die Folgeversion behält den begrenzten,
 risikobasierten Validierungsstatus ihrer Modul-Testmatrix.
+
+Das Modul
+[`toolbelt.string.edit-distance`](./Modules/toolbelt.string.edit-distance/README.md)
+implementiert die einzeln freigegebenen Levenshtein-/OSA-TVFs mit gemeinsamem
+portablen SAFE-CLR-Kern. Unicode Scalars, Standard/Large und MaxDistance sind
+begrenzt und ohne Kürzung. Offline Framework-/Matrixprüfungen und Releasebuild
+bestanden; native Gesamtadapter auf Linux 2019/latest CL150 und Windows
+2025/CU8 CL150/160/170 lokal/zentral einschließlich eigenem Cleanup bestanden.
+Tatsächliche Minimalrechte und übrige physische Ziele bleiben offen. Teilweise validiert, unveröffentlicht; aktuelle CI als
+separater PR-Mergegate.
 
 Das implementierte R1b-Modul
 [`toolbelt.string.regex`](./Modules/toolbelt.string.regex/README.md) stellt
