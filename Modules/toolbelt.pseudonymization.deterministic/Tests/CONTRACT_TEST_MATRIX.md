@@ -1,5 +1,25 @@
 # Contract-Testmatrix: deterministische Zuordnung
 
+## Additiver GeoJitter-Slice 1.2.0
+
+| Scope | Pflichtfälle | Nachweis am 2026-10-02 |
+|---|---|---|
+| Modell/Framing | bestehender Range-V1-Kern, zwei Kontexte, Kugelkappen-CDF, unabhängige Winkel-/Metrikreferenz, feste Koordinaten | private Vorqualifikation 10.685 Assertions; integrierte unabhängige Referenz 6.367 Assertions PASS; kein SQL-Nachweis |
+| Native Operanden | Invalid/Empty/non-Point/SRID/Z/M, sichere Kette, tatsächliche 128-/größere UDTs | Vor-Source-Primitive und finale Safety-API auf beiden ausgewählten Plattformen PASS; exakt 129-Byte-UDT unbeobachtet |
+| API/Metadaten | Geo-Vertrag mit ursprünglichen fünf Batches/504 Orakeln, Safety, InstalledMetadata sowie Clientmetadaten | Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral PASS; ausdrücklich drei Runtime-Fixtures |
+| Lifecycle | echte 1.0-/1.1-Upgrades, acht Slots, Erst-/Wiederholungsinstallation, Caller-TX/SET, Snapshot-Faults, Zukunftsslots, Uninstall | beide finalen ausgewählten Adapter PASS; eigene Datenbanken bereinigt, keine Konfigurations-/Rechteänderungen |
+| Rechte/Matrix/CI | neue Minimalrechte, übrige physische Matrix, aktueller Head | offen; aktuelle CI als separater PR-Mergegate am exakten Head nachzuweisen |
+
+Der finale synthetische Geo-Adapter besteht auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Ausgeführt wurden ausdrücklich `GeoJitter.Contract.sql`, `GeoJitter.Safety.sql` und `InstalledMetadata.Contract.sql`, dazu SQL-/Clientmetadaten, echte 1.0.0-/1.1.0-Upgrades, Erstinstallation/Wiederholung, Caller-TX-/SET-Erhalt, Snapshot-Faults, Zukunftsslot-Erhalt, Uninstall und eigene Bereinigung. Der ursprüngliche Geo-Vertrag besteht unverändert in fünf unpartitionierten Batches mit 504 Orakeln. Die sieben bisherigen Source-Dateien bleiben bytegleich; dies ist kein erneuter finaler Runtime-Nachweis aller bisherigen APIs. Keine Konfigurations- oder Rechteänderungen. Neue Minimalrechte, weitere physische Ziele und ein exakt 129-Byte-UDT bleiben offen. Aktuelle CI wird als separater PR-Mergegate am exakten Head nachgewiesen. `partially validated`, `unreleased`.
+
+Historische Zwischenstände vom 2026-10-02: Die ursprüngliche Ausdrucksform und kleinere Zwischenkandidaten scheiterten mit SQL-Fehler 701; ein späterer Lauf endete mit Timeout -2. Diese Läufe bleiben fehlgeschlagen, eine allgemeine Compilerursache ist nicht nachgewiesen. Der historische Vector-Facts-Kandidat bestand auf Linux mit einer vorübergehenden Partitionierung: 72 Gruppen mit je sieben Radiuswerten, zusammen dieselben 504 Orakel, eingebettet in 78 Batches einschließlich Metadaten/Goldens/Defaults, Setup, globalem Coverage-Orakel und Wiederholung. Dieser Zwischenbeleg ersetzt den finalen Nachweis der ursprünglichen fünf Batches nicht.
+
+## Translate: nachfolgender CI-Abschluss
+
+[PR #140](https://github.com/gecompat/SQL_Server_Toolbelt/pull/140) belegt
+Merge und sieben erfolgreiche Prüfungen am finalen 1.1-Head. Die folgende
+Matrix bewahrt den davor dokumentierten Lab-Snapshot. Kein Geo-Nachweis.
+
 ## Additiver Translate-Slice 1.1.0
 
 | Scope | Pflichtfälle | Nachweis am 2026-10-02 |
@@ -54,7 +74,7 @@ Grant, TempDB-Verbrauch oder die Wallclock. Keine Performancevergleiche aus
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-deterministic-translate-lab.ps1`
-- Scope: Version 1.1.0: vollständiger Linux2019/latest CL150 local/central; bestehende APIregressionen, Translate/21Safetybatches/vier Caller-Collations/echte2MiB+16MiB/Metadaten, genuine1.0Upgrade/FirstInstall/Repeat/CallerTX/Snapshot-Faults/fremdeFutureSlots/historischerUninstall/CrossDB/ownCleanup; Windows2025/CU8 vollständiger central-Adapter CL150/160/170 PASS; lokale APIs/Safety im früheren insgesamt fehlgeschlagenen Lauf bestanden, separater korrigierter lokaler Metadaten-/Lifecycleadapter PASS; keine neuen Lab-Grants/Serverkonfiguration, weitere Targets/Minimalrechte/CI offen
+- Nachweis: `local: Tests/CI/run-deterministic-geo-lab.ps1`
+- Scope: Version 1.2.0: Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 lokal/zentral PASS; ausdrücklich GeoJitter.Contract.sql (ursprüngliche fünf unpartitionierte Batches/504 Orakel), GeoJitter.Safety.sql, InstalledMetadata.Contract.sql plus Client-/SQLmetadaten, echte1.0/1.1-Upgrades, FirstInstall/Repeat/CallerTX-SET/Snapshot-Faults/FutureSlots/Uninstall/ownCleanup; alte sieben Source-Dateien bytegleich, kein erneuter finaler Vollfamilien-Runtime-Nachweis; keine Konfigurations-/Rechteänderungen, neue Minimalrechte/weitere Targets/exakt129ByteUDT offen; aktueller CI-/PR-Mergegate am exakten Head separat nachzuweisen; unreleased
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

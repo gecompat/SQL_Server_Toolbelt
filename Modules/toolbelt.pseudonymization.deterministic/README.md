@@ -2,6 +2,8 @@
 
 Modul `toolbelt.pseudonymization.deterministic`, erster Release `1.0.0`,
 additiver Translate-Slice `1.1.0` implementiert.
+Die additive GeoJitter-Welle `1.2.0` ergänzt genau eine Inline-TVF.
+Der finale synthetische Geo-Adapter besteht auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Ausgeführt wurden ausdrücklich `GeoJitter.Contract.sql`, `GeoJitter.Safety.sql` und `InstalledMetadata.Contract.sql`, dazu SQL-/Clientmetadaten, echte 1.0.0-/1.1.0-Upgrades, Erstinstallation/Wiederholung, Caller-TX-/SET-Erhalt, Snapshot-Faults, Zukunftsslot-Erhalt, Uninstall und eigene Bereinigung. Der ursprüngliche Geo-Vertrag besteht unverändert in fünf unpartitionierten Batches mit 504 Orakeln. Die sieben bisherigen Source-Dateien bleiben bytegleich; dies ist kein erneuter finaler Runtime-Nachweis aller bisherigen APIs. Keine Konfigurations- oder Rechteänderungen. Neue Minimalrechte, weitere physische Ziele und ein exakt 129-Byte-UDT bleiben offen. Aktuelle CI wird als separater PR-Mergegate am exakten Head nachgewiesen. `partially validated`, `unreleased`.
 Schema `toolbelt_pseudonymization`. Individuelle Benutzerfreigabe für
 Range/DateShift/Lookup vom 2026-10-01 in der Reservewelle `.ai/BACKLOG.md`.
 Source-/Lifecycle-/Testartefakte implementiert; `partially validated`,
@@ -10,13 +12,19 @@ Source-/Lifecycle-/Testartefakte implementiert; `partially validated`,
 2019/latest CL150 local/central und Windows 2025/CU8 central CL150/160/170.
 Windows local: API-/Safetyfälle im früheren Gesamtfehllauf bestanden;
 separate korrigierte Lifecycle-/Metadatenprüfung erfolgreich. Der ursprüngliche
-Gesamtfehllauf bleibt ein Fehllauf. Aktuelle CI und neue Minimalrechte offen.
+Gesamtfehllauf bleibt ein Fehllauf. Neue Minimalrechte bleiben offen;
+aktuelle CI wird als separater PR-Mergegate am exakten Head nachgewiesen.
 Zusätzliche physische Targets bleiben getrennt offen. Vor-Safetyfix-Erfolge
 sind ausschließlich historisch.
 
 - [TVF_DeterministicRange](Documentation/TVF_DeterministicRange.md):
   geschlossener vollständiger bigint-Bereich, SHA256, begrenztes Rejection-
   Sampling und explizit versioniertes Byteformat.
+- [TVF_DeterministicGeoJitter](Documentation/TVF_DeterministicGeoJitter.md):
+  synthetische 2D-Points mit SRID 4326, binärer Entitätsschlüssel,
+  MappingVersion/Seed, flächenorientierte konservative Kugelkappe und
+  strikte native Radiusnachbedingung; kein Clipping oder Privacy-Versprechen.
+  [Kanonischer Vertrag](../../Documentation/Architecture/DETERMINISTIC_GEO_JITTER_CONTRACT.md).
 - [TVF_DeterministicTranslate](Documentation/TVF_DeterministicTranslate.md):
   einzeln freigegebene formaterhaltende ASCII-Vorwärtstransformation,
   casegekoppelte bijektive Substitution mit expliziten Separatoren und
@@ -70,7 +78,7 @@ Sie ersetzt keine SELECT-Metadaten-, Lifecycle-, Resource- oder Rechteprüfung.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-deterministic-translate-lab.ps1`
-- Scope: Version 1.1.0: vollständiger Linux2019/latest CL150 local/central; bestehende APIregressionen, Translate/21Safetybatches/vier Caller-Collations/echte2MiB+16MiB/Metadaten, genuine1.0Upgrade/FirstInstall/Repeat/CallerTX/Snapshot-Faults/fremdeFutureSlots/historischerUninstall/CrossDB/ownCleanup; Windows2025/CU8 vollständiger central-Adapter CL150/160/170 PASS; lokale APIs/Safety im früheren insgesamt fehlgeschlagenen Lauf bestanden, separater korrigierter lokaler Metadaten-/Lifecycleadapter PASS; keine neuen Lab-Grants/Serverkonfiguration, weitere Targets/Minimalrechte/CI offen
+- Nachweis: `local: Tests/CI/run-deterministic-geo-lab.ps1`
+- Scope: Version 1.2.0: Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 lokal/zentral PASS; ausdrücklich GeoJitter.Contract.sql (ursprüngliche fünf unpartitionierte Batches/504 Orakel), GeoJitter.Safety.sql, InstalledMetadata.Contract.sql plus Client-/SQLmetadaten, echte1.0/1.1-Upgrades, FirstInstall/Repeat/CallerTX-SET/Snapshot-Faults/FutureSlots/Uninstall/ownCleanup; alte sieben Source-Dateien bytegleich, kein erneuter finaler Vollfamilien-Runtime-Nachweis; keine Konfigurations-/Rechteänderungen, neue Minimalrechte/weitere Targets/exakt129ByteUDT offen; aktueller CI-/PR-Mergegate am exakten Head separat nachzuweisen; unreleased
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

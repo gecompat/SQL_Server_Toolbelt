@@ -2,6 +2,12 @@
 
 ## Projektstatus
 
+Die additive GeoJitter-Welle 1.2.0 im vorhandenen deterministischen Modul
+ist nach Einzelfreigabe vom 2026-10-01 aktiv. Der unabhängig geprüfte
+[Vor-Source-Vertrag](../Documentation/Architecture/DETERMINISTIC_GEO_JITTER_CONTRACT.md)
+begrenzt sie auf synthetische 2D-Points/SRID 4326. Modellreferenz und sichere
+native Operanden qualifiziert. Der finale synthetische Geo-Adapter besteht auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Ausgeführt wurden ausdrücklich `GeoJitter.Contract.sql`, `GeoJitter.Safety.sql` und `InstalledMetadata.Contract.sql`, dazu SQL-/Clientmetadaten, echte 1.0.0-/1.1.0-Upgrades, Erstinstallation/Wiederholung, Caller-TX-/SET-Erhalt, Snapshot-Faults, Zukunftsslot-Erhalt, Uninstall und eigene Bereinigung. Der ursprüngliche Geo-Vertrag besteht unverändert in fünf unpartitionierten Batches mit 504 Orakeln. Die sieben bisherigen Source-Dateien bleiben bytegleich; dies ist kein erneuter finaler Runtime-Nachweis aller bisherigen APIs. Keine Konfigurations- oder Rechteänderungen. Neue Minimalrechte, weitere physische Ziele und ein exakt 129-Byte-UDT bleiben offen. Aktuelle CI wird als separater PR-Mergegate am exakten Head nachgewiesen. `partially validated`, `unreleased`. Keine neue Spatial-API oder Privacy-Zusage.
+
 `toolbelt.string.regex` 1.3.0 ergänzt die einzeln freigegebenen Capture-
 Wiederholungen und getrenntes Gruppen-Replace. Nach zusätzlicher Freigabe
 der erwarteten exakten Binaryhashbindung bestanden die finalen Gesamtadapter

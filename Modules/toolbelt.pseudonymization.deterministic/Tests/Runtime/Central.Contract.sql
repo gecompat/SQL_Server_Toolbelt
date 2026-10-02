@@ -1,5 +1,10 @@
 -- Administrative dreiteilige Baseline; kein CrossDB-Minimalrechtebeweis.
 SET NOCOUNT ON;
+-- Native Geography bleibt auf dem Server; keine Client-UDT-Deserialisierung.
+IF NOT EXISTS(SELECT 1 FROM [$(CentralDb)].toolbelt_pseudonymization.TVF_DeterministicGeoJitter(geography::Point(0,0,4326),0x01,1,DEFAULT,DEFAULT) AS result
+ WHERE ErrorCode=0 AND result.Value.STIsValid()=1 AND result.Value.STSrid=4326
+ AND result.Value.STDistance(geography::Point(0,0,4326))<=100)
+ THROW 54090,N'Deterministic: dreiteiliger GeoJittervertrag verletzt.',1;
 IF NOT EXISTS(SELECT 1 FROM [$(CentralDb)].toolbelt_pseudonymization.TVF_DeterministicTranslate(N'Aa09 - ',1,0,N'- ',DEFAULT)
  WHERE ErrorCode=0 AND CONVERT(varbinary(max),Value)=CONVERT(varbinary(max),N'Ss64 - '))
     THROW 54090,N'Deterministic: dreiteiliger Translatevektor verletzt.',1;

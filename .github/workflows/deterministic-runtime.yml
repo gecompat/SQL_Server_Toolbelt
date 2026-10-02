@@ -11,6 +11,7 @@ on:
       - "Modules/toolbelt.pseudonymization.deterministic/Tests/Static/**"
       - "Tests/CI/run-deterministic-linux.sh"
       - "Tests/CI/run-deterministic-translate-lab.ps1"
+      - "Tests/CI/run-deterministic-geo-lab.ps1"
   push:
     branches: [main]
     paths:
@@ -22,6 +23,7 @@ on:
       - "Modules/toolbelt.pseudonymization.deterministic/Tests/Static/**"
       - "Tests/CI/run-deterministic-linux.sh"
       - "Tests/CI/run-deterministic-translate-lab.ps1"
+      - "Tests/CI/run-deterministic-geo-lab.ps1"
   workflow_dispatch:
 
 permissions:
@@ -33,13 +35,20 @@ concurrency:
 
 jobs:
   runtime:
-    name: SQL Server ${{ matrix.sql-version }} Linux
+    name: SQL Server ${{ matrix.sql-version }} Linux CL${{ matrix.compatibility-level }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
+      max-parallel: 3
       matrix:
-        sql-version: ["2019", "2022", "2025"]
+        include:
+          - {sql-version: "2019", compatibility-level: "150"}
+          - {sql-version: "2022", compatibility-level: "150"}
+          - {sql-version: "2022", compatibility-level: "160"}
+          - {sql-version: "2025", compatibility-level: "150"}
+          - {sql-version: "2025", compatibility-level: "160"}
+          - {sql-version: "2025", compatibility-level: "170"}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,8 +59,12 @@ jobs:
       - name: Echte unveränderte 1.0-Upgradequellen paketieren
         shell: pwsh
         run: ./Modules/toolbelt.pseudonymization.deterministic/Deployment/New-LegacyTestArtifacts.ps1 -OutputDirectory .runtime/deterministic-legacy
+      - name: Echte unveränderte 1.1-Upgradequellen paketieren
+        shell: pwsh
+        run: ./Modules/toolbelt.pseudonymization.deterministic/Deployment/New-LegacyTestArtifacts.ps1 -Version 1.1.0 -OutputDirectory .runtime/deterministic-legacy11
       - name: Synthetische API-, Ressourcen- und Lifecycle-Verträge prüfen
         env:
           TBX_SQL_VERSION: ${{ matrix.sql-version }}
+          TBX_SQL_COMPATIBILITY_LEVEL: ${{ matrix.compatibility-level }}
           TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest
         run: bash Tests/CI/run-deterministic-linux.sh

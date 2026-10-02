@@ -1,10 +1,10 @@
 module_id: "toolbelt.pseudonymization.deterministic"
 module_name: "Deterministic Synthetic Mapping"
-version: "1.1.0"
+version: "1.2.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Versionierter deterministischer bigint-Range, datetime2-Tagesoffset, synthetischer Pool-Lookup und formaterhaltende ASCII-Translation."
+description: "Versionierter deterministischer bigint-Range, datetime2-Tagesoffset, synthetischer Pool-Lookup, formaterhaltende ASCII-Translation und begrenzter synthetischer geography-Point-Offset."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -31,6 +31,10 @@ dependencies:
 schemas:
   - "toolbelt_pseudonymization"
 objects:
+  - type: TVF
+    schema: toolbelt_pseudonymization
+    name: TVF_DeterministicGeoJitter
+    visibility: public
   - type: TVF
     schema: toolbelt_pseudonymization
     name: TVF_DeterministicTranslate
@@ -61,9 +65,11 @@ objects:
     visibility: public
 permissions_required: ["SELECT auf öffentlichen Inline-TVFs", "EXECUTE auf Lookup, ResultTable zusätzlich Helper-EXECUTE", "DDL-Rechte für Lifecycle"]
 collation_contract: "Key binär, keine Normalisierung; technisches Hex und Translateoperanden BIN2; Pooltext unverändert, Result NVARCHAR Latin1_General_100_BIN2."
-data_type_contract: "Key varbinary(max) bis 8000 Byte, volle bigint-Grenzen, datetime2(7), Pool Unicode; Translate nvarchar(max), feste ASCII-Alphabete, 33 Separatoren, 2/16MiB UTF-16."
+data_type_contract: "Key varbinary(max) bis 8000 Byte, volle bigint-Grenzen, datetime2(7), Pool Unicode; Translate nvarchar(max), feste ASCII-Alphabete, 33 Separatoren, 2/16MiB UTF-16; GeoJitter geography 2D-Point/SRID4326, 128 serialisierte Bytes, Radius 1..10000 Meter."
 help_contract_version: "1.0"
 resultset_contracts:
+  - name: TVF_DeterministicGeoJitter
+    columns: ["Value geography NULL", "ErrorCode int NOT NULL"]
   - name: TVF_DeterministicTranslate
     columns: ["Value nvarchar(max) NULL", "ErrorCode int NOT NULL"]
   - name: TVF_DeterministicRange
@@ -87,11 +93,13 @@ lifecycle:
 documentation:
   module: README.md
   public_objects:
+    - Documentation/TVF_DeterministicGeoJitter.md
     - Documentation/TVF_DeterministicTranslate.md
     - Documentation/TVF_DeterministicRange.md
     - Documentation/TVF_DeterministicDateShift.md
     - Documentation/USP_DeterministicLookup.md
   architecture:
+    - ../../Documentation/Architecture/DETERMINISTIC_GEO_JITTER_CONTRACT.md
     - ../../Documentation/Architecture/DETERMINISTIC_TRANSLATE_CONTRACT.md
     - ../../Documentation/Architecture/CHARACTER_PSEUDONYMIZATION_DECISION.md
     - ../../Documentation/Architecture/PSEUDONYMIZATION_FOUNDATION_PROPOSAL.md
@@ -112,8 +120,10 @@ tests:
   central: Tests/Runtime/Central.Contract.sql
   translate: Tests/Runtime/Translate.Contract.sql
   translate_safety: Tests/Runtime/Translate.Safety.sql
+  geo: Tests/Runtime/GeoJitter.Contract.sql
+  geo_safety: Tests/Runtime/GeoJitter.Safety.sql
   installed_metadata: Tests/Runtime/InstalledMetadata.Contract.sql
-  lab: ../../Tests/CI/run-deterministic-translate-lab.ps1
+  lab: ../../Tests/CI/run-deterministic-geo-lab.ps1
   github_hosted_linux: ../../.github/workflows/deterministic-runtime.yml
 validation_evidence:
   - date: "2026-10-01"
@@ -128,3 +138,8 @@ validation_evidence:
     workflow: "local: Tests/CI/run-deterministic-translate-lab.ps1"
     scope: "Version 1.1.0: vollständiger Linux2019/latest CL150 local/central; bestehende APIregressionen, Translate/21Safetybatches/vier Caller-Collations/echte2MiB+16MiB/Metadaten, genuine1.0Upgrade/FirstInstall/Repeat/CallerTX/Snapshot-Faults/fremdeFutureSlots/historischerUninstall/CrossDB/ownCleanup; Windows2025/CU8 vollständiger central-Adapter CL150/160/170 PASS; lokale APIs/Safety im früheren insgesamt fehlgeschlagenen Lauf bestanden, separater korrigierter lokaler Metadaten-/Lifecycleadapter PASS; keine neuen Lab-Grants/Serverkonfiguration, weitere Targets/Minimalrechte/CI offen"
     result: "success"
+
+  - date: "2026-10-02"
+    workflow: "local: Tests/CI/run-deterministic-geo-lab.ps1"
+    result: "success"
+    scope: "Version 1.2.0: Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 lokal/zentral PASS; ausdrücklich GeoJitter.Contract.sql (ursprüngliche fünf unpartitionierte Batches/504 Orakel), GeoJitter.Safety.sql, InstalledMetadata.Contract.sql plus Client-/SQLmetadaten, echte1.0/1.1-Upgrades, FirstInstall/Repeat/CallerTX-SET/Snapshot-Faults/FutureSlots/Uninstall/ownCleanup; alte sieben Source-Dateien bytegleich, kein erneuter finaler Vollfamilien-Runtime-Nachweis; keine Konfigurations-/Rechteänderungen, neue Minimalrechte/weitere Targets/exakt129ByteUDT offen; aktueller CI-/PR-Mergegate am exakten Head separat nachzuweisen; unreleased"
