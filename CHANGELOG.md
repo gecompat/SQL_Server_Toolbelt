@@ -36,6 +36,23 @@
   Nachweise, erfolgreiche Linux-Host-CI auf SQL 2019 und offene Transport-/Rechte-/Recovery-/Central-
   Qualifikationen. Teilweise validiert, unveröffentlicht; kein Dienstbetrieb.
 
+## 2026-10-02 – Deterministic Translate 1.1.0
+
+- Additive echte Inline-TVF für formaterhaltende synthetische ASCII-Kennungen:
+  casegekoppelte bijektive Buchstaben-/Ziffernabbildung, explizite Separatoren,
+  Standard 2 MiB/Large 16 MiB, bytegenaue Fehlerpriorität und sichere native
+  Operanden. Bestehende sechs Slots unverändert, keine weitere Dependency.
+- Integrierte Referenzsuite und unabhängige Reviews erfolgreich. Vollständige
+  Adapter auf Linux 2019/latest local/central und Windows 2025/CU8 central
+  CL150/160/170 bestanden, einschließlich aller sieben Slots, Metadaten,
+  echtem 1.0-Upgrade, Fehler-/Lifecyclefällen, Uninstall und eigenem Cleanup.
+- Windows local: API-/Safetyfälle im früheren Gesamtfehllauf bestanden;
+  separate korrigierte Metadaten-/Lifecycleprüfung erfolgreich. Dieser
+  Teilnachweis ist kein nachträgliches PASS des ursprünglichen Gesamtlaufs.
+- Keine Serverkonfiguration oder Rechteausweitung. Neue Minimalrechte,
+  weitere physische Targets, Kapazität und aktuelle CI offen; teilweise
+  validiert und unveröffentlicht, kein Merge- oder Releaseabschluss behauptet.
+
 ## 2026-10-02 – Deterministic Range, DateShift und Lookup 1.0.0
 
 - Drei einzeln freigegebene synthetische Mapping-APIs mit einem gemeinsamen

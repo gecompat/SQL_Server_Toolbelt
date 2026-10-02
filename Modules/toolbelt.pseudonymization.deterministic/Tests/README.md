@@ -4,7 +4,63 @@ Alle Fixtures sind synthetisch. Verbindliche Restfälle stehen in der
 [Contract-Testmatrix](CONTRACT_TEST_MATRIX.md). Keine SQL-Konfiguration,
 Infrastrukturverwaltung, CLR-Registrierung oder Rechteausweitung erforderlich.
 
+## Translate 1.1.0: aktuelle Qualifikation
+
+Vor Source: 5.540 privat begrenzte Pythonassertions, unabhängig wiederholt;
+48 separate Read-only-Nativassertions sind ausschließlich Primitivevidenz.
+Die integrierte statische Referenzsuite besteht mit 1.746 zusätzlichen
+Translateassertions. Unabhängiger Source-/Lifecycle- und Safetyreview erfolgreich.
+
+`Tests/CI/run-deterministic-translate-lab.ps1` besteht vollständig auf Linux
+2019/latest CL150 local/central: bestehende APIregressionen, neuer Translate-
+Vertrag, 21 unabhängige Safetybatches mit je einem TVF-Verweis, echte 2-/16-MiB-
+LOBs, fünf Fälle je vier Caller-Collations, SQL-/Clientmetadaten, echter
+1.0→1.1-Upgrade, Erstinstallation/Wiederholung, CallerTX ON/OFF, Katalog-
+Snapshots bei Marker-/Dependency-/Confirm-Abweisung, fremde Zukunftsslots
+und historischer Uninstall-Erhalt, administrative CrossDB-Aufrufe.
+
+Windows 2025/CU8: lokale API-/Safetyfälle CL150/160/170 erfolgreich. Der frühe
+Gesamtadapter scheiterte anschließend am bekannten offenen Dependency-Temp-
+Constraint; kein Gesamt-PASS. Nach Sessionkorrektur besteht der separate
+lokale Metadaten-/Lifecycleadapter. Der vollständige zentrale Windows-Adapter
+besteht danach unverändert auf CL150/160/170: alle sieben Slots, Safety-/
+LOB-/Collationfälle, Metadaten, echtes 1.0-Upgrade, Erstinstallation/
+Wiederholung, CallerTX, Snapshot-Faults/Zukunftsslots und Uninstall.
+Source unverändert; abgeschlossene eigene Läufe vollständig bereinigt.
+
+Neue direkte/CrossDB-Minimalrechte, weitere physische Targets und aktuelle CI
+bleiben offen. Teilweise validiert, unveröffentlicht; keine neue Konfiguration
+oder Grants und keine Produktionskapazitätszusage.
+
+Die ersten Adapterfehler waren keine bestandenen Läufe: API-Dateien brauchen
+getrennte Sessions wie SQLCMD; der Dependencyinstaller muss seine Session
+beenden. Der ursprüngliche große Safetybatch lieferte keinen Abschlussnachweis;
+die unveränderten Orakel werden einzeln ausgeführt, ohne Timeouterhöhung.
+Keine gemessene Compileursache oder Performancezusage daraus ableiten.
+
+Reproduzieren: zunächst echte unveränderte 1.0-Quellen mit
+`Deployment/New-LegacyTestArtifacts.ps1 -OutputDirectory <neues privates Verzeichnis>`
+paketieren; dann `pwsh -NoProfile -File Tests/CI/run-deterministic-translate-lab.ps1
+-Platform linux -Version 2019 -Patch latest -LegacyDirectory <Fixtureverzeichnis>`.
+Windows explizit `-Platform windows -Version 2025 -Patch CU8`.
+`RuntimeTests` und `DeploymentModes` dürfen gezielte Nachprüfungen einschränken;
+der PASS-Text nennt die tatsächlich ausgewählten Teilscopes.
+
+Der Native-Driver validiert das benachbarte Labschema und den öffentlichen
+Legacycommit vor Netzwerkzugriff, koordiniert ausgewählte Targets und führt
+keine Grants/Serverkonfiguration/Truständerung durch. Restorejournal außerhalb
+Git, nur bestätigte eigene GUID-Datenbanken, plain DROP nach Dispose aller
+eigenen Sessions; unklarer CREATE oder gescheiterter Cleanup bleibt blockiert.
+Disposable CI verwendet direkt `run-deterministic-linux.sh`, dessen Labroute
+gesperrt ist; bestehende Rechtetests ausschließlich dort. Weitere physische
+Targets, neue Lab-Minimalrechte/CrossDB-Minimalrechte, Produktionskapazität
+und erforderliche grüne CI offen. Modul partially validated, unreleased.
+
 ## Historische Teilprüfungen am 2026-10-01
+
+Die folgenden Befehle gehören zum damaligen 1.0-Stand. Der heutige
+disposable CI-Adapter verweigert den generischen Labpfad; für 1.1 den
+Native-Driver oben verwenden, für historische Wiederholung den echten Gitstand.
 
 - `python Modules/toolbelt.pseudonymization.deterministic/Tests/Static/validate_contract.py`:
   PASS für unabhängige SHA256-/Byteformat-Referenzvektoren und Range-Sourceguards.
@@ -80,7 +136,7 @@ Datenbanken; keine fremden Datenbanken, Temps oder Ressourcen entfernen.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Identischer finaler Safetyfix-Adapter SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170; API/Fehler/Grenzen/Transaktionen, vier Caller-Temp-Eclipsing/Help-Fixtures, Installer-Callertransaction ON/OFF und SQLCMD-nonzero, Local-CS/Central-BIN2, administrative CrossDB-CI, direkte Minimalrechte und Clientmetadaten lokal/zentral, Wiederholung/Drift/Kollision/Dependency/Uninstall; weitere physische Targets und CrossDB-Minimalrechte offen
+- Nachweis: `local: Tests/CI/run-deterministic-translate-lab.ps1`
+- Scope: Version 1.1.0: vollständiger Linux2019/latest CL150 local/central; bestehende APIregressionen, Translate/21Safetybatches/vier Caller-Collations/echte2MiB+16MiB/Metadaten, genuine1.0Upgrade/FirstInstall/Repeat/CallerTX/Snapshot-Faults/fremdeFutureSlots/historischerUninstall/CrossDB/ownCleanup; Windows2025/CU8 vollständiger central-Adapter CL150/160/170 PASS; lokale APIs/Safety im früheren insgesamt fehlgeschlagenen Lauf bestanden, separater korrigierter lokaler Metadaten-/Lifecycleadapter PASS; keine neuen Lab-Grants/Serverkonfiguration, weitere Targets/Minimalrechte/CI offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

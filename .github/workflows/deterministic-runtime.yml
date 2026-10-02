@@ -10,6 +10,7 @@ on:
       - "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/**"
       - "Modules/toolbelt.pseudonymization.deterministic/Tests/Static/**"
       - "Tests/CI/run-deterministic-linux.sh"
+      - "Tests/CI/run-deterministic-translate-lab.ps1"
   push:
     branches: [main]
     paths:
@@ -20,6 +21,7 @@ on:
       - "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/**"
       - "Modules/toolbelt.pseudonymization.deterministic/Tests/Static/**"
       - "Tests/CI/run-deterministic-linux.sh"
+      - "Tests/CI/run-deterministic-translate-lab.ps1"
   workflow_dispatch:
 
 permissions:
@@ -41,10 +43,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Statische deterministische Verträge prüfen
         run: python3 Modules/toolbelt.pseudonymization.deterministic/Tests/Static/validate_contract.py
+      - name: Echte unveränderte 1.0-Upgradequellen paketieren
+        shell: pwsh
+        run: ./Modules/toolbelt.pseudonymization.deterministic/Deployment/New-LegacyTestArtifacts.ps1 -OutputDirectory .runtime/deterministic-legacy
       - name: Synthetische API-, Ressourcen- und Lifecycle-Verträge prüfen
         env:
           TBX_SQL_VERSION: ${{ matrix.sql-version }}
           TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest
-        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-deterministic-linux.sh
+        run: bash Tests/CI/run-deterministic-linux.sh

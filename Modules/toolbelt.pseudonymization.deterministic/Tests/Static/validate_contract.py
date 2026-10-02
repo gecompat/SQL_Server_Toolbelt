@@ -2,6 +2,7 @@
 from pathlib import Path
 import re
 from reference_vectors import run
+from validate_translate import main as validate_translate
 
 MODULE = Path(__file__).resolve().parents[2]
 SOURCES = MODULE / "Source"
@@ -61,6 +62,7 @@ def main():
     for expected in ["README.md", "Tests/README.md", "Tests/CONTRACT_TEST_MATRIX.md", "Tests/Runtime/Lifecycle.Contract.sql", "Tests/Runtime/Central.Contract.sql", "Tests/Runtime/Lookup.Boundaries.sql", "Tests/Runtime/SelectMetadata.Contract.ps1"]:
         assert (MODULE / expected).is_file(), expected
     run()
+    validate_translate()
     print("PASS: Familien-Source-/Lifecycle-Staticguards; kein SQL-Runtime-Nachweis")
 
 

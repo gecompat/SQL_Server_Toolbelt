@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Im Lab liefert der bestehende schema-validierte Adapter den Docker-Shim;
-# echte disposable Container entstehen ausschließlich im Runnerpfad.
+# Lab verwendet den eigenen schema-validierten Native-Driver ohne Grants,
+# Serverkonfiguration oder erzwungenen Cleanup. Hier nur disposable CI.
+if [[ "${TBX_SQL_TARGET:-runner}" == "lab" ]]; then
+  echo "DEDICATED_TRANSLATE_LAB_DRIVER_REQUIRED" >&2
+  exit 65
+fi
 sql_version="${TBX_SQL_VERSION:-2025}"
 case "${sql_version}" in
   2019) levels="150" ;;
@@ -63,12 +67,19 @@ metadata() {
   fi
 }
 module=/workspace/Modules/toolbelt.pseudonymization.deterministic
+legacy=/workspace/.runtime/deterministic-legacy
 database=tbx_deterministic
 query master "CREATE DATABASE [${database}] COLLATE Latin1_General_100_CS_AS;"
 file "${database}" /workspace/Modules/toolbelt.core.result-table/Deployment Deploy.sql -v DeploymentMode=local
+file "${database}" "${legacy}/Deployment" Deploy.sql -v DeploymentMode=local
+query "${database}" "IF (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_pseudonymization'))<>6 OR OBJECT_ID(N'toolbelt_pseudonymization.TVF_DeterministicTranslate') IS NOT NULL THROW 54090,N'Genuine1.0 inventory failed.',1;"
+file "${database}" "${module}/Tests/Runtime" Range.Contract.sql
+file "${database}" "${module}/Tests/Runtime" DateShift.Contract.sql
 file "${database}" "${module}/Deployment" Deploy.sql -v DeploymentMode=local
 for level in ${levels}; do
   query "${database}" "ALTER DATABASE [${database}] SET COMPATIBILITY_LEVEL=${level};"
+  file "${database}" "${module}/Tests/Runtime" Translate.Contract.sql
+  file "${database}" "${module}/Tests/Runtime" Translate.Safety.sql -v ToolbeltDatabase="${database}"
   file "${database}" "${module}/Tests/Runtime" Range.Contract.sql
   file "${database}" "${module}/Tests/Runtime" DateShift.Contract.sql
   file "${database}" "${module}/Tests/Runtime" Lookup.Contract.sql
@@ -84,16 +95,16 @@ done
 query "${database}" "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.SourceHash',@value=N'synthetic-drift',@level0type=N'SCHEMA',@level0name=N'toolbelt_pseudonymization',@level1type=N'FUNCTION',@level1name=N'TVF_DeterministicRange';"
 file "${database}" "${module}/Deployment" Deploy.sql -v DeploymentMode=local
 file "${database}" "${module}/Tests/Runtime" Lifecycle.Contract.sql
-query "${database}" "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.pseudonymization.deterministic.Version',@value=N'1.0.0 ';"
+query "${database}" "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.pseudonymization.deterministic.Version',@value=N'1.1.0 ';"
 expect_failure "${database}" "${module}/Deployment" Deploy.sql 54023 -v DeploymentMode=local
-query "${database}" "IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.pseudonymization.deterministic.Version' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),N'1.0.0 ')) THROW 54090,N'Unknown version preflight mutated marker.',1; EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.pseudonymization.deterministic.Version',@value=N'1.0.0';"
+query "${database}" "IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.pseudonymization.deterministic.Version' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(64),value))=CONVERT(varbinary(max),N'1.1.0 ')) THROW 54090,N'Unknown version preflight mutated marker.',1; EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.pseudonymization.deterministic.Version',@value=N'1.1.0';"
 query "${database}" "CREATE VIEW dbo.SyntheticDeterministicDependency AS SELECT Value FROM toolbelt_pseudonymization.TVF_DeterministicRange(0x01,1,0,1,2);"
 expect_failure "${database}" "${module}/Deployment" Uninstall.sql 54027 -v ConfirmNoExternalConsumers=0
 query "${database}" "IF OBJECT_ID(N'dbo.SyntheticDeterministicDependency',N'V') IS NULL OR OBJECT_ID(N'toolbelt_pseudonymization.TVF_DeterministicRange',N'IF') IS NULL THROW 54090,N'Dependent preflight mutated objects.',1; DROP VIEW dbo.SyntheticDeterministicDependency;"
 # Eigener Function-kind-Drift, kein erfundener Vorgänger-Upgrade.
 query "${database}" "DROP FUNCTION toolbelt_pseudonymization.TVF_DeterministicRange;"
 query "${database}" "CREATE FUNCTION toolbelt_pseudonymization.TVF_DeterministicRange(@Key varbinary(max),@MappingVersion int,@Seed bigint,@Min bigint,@Max bigint) RETURNS bigint AS BEGIN RETURN 7; END;"
-query "${database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.pseudonymization.deterministic',@level0type=N'SCHEMA',@level0name=N'toolbelt_pseudonymization',@level1type=N'FUNCTION',@level1name=N'TVF_DeterministicRange'; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'1.0.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_pseudonymization',@level1type=N'FUNCTION',@level1name=N'TVF_DeterministicRange';"
+query "${database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.pseudonymization.deterministic',@level0type=N'SCHEMA',@level0name=N'toolbelt_pseudonymization',@level1type=N'FUNCTION',@level1name=N'TVF_DeterministicRange'; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'1.1.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_pseudonymization',@level1type=N'FUNCTION',@level1name=N'TVF_DeterministicRange';"
 file "${database}" "${module}/Deployment" Deploy.sql -v DeploymentMode=local
 file "${database}" "${module}/Tests/Runtime" Range.Contract.sql
 file "${database}" "${module}/Tests/Runtime" Lifecycle.Contract.sql
@@ -104,9 +115,13 @@ central=tbx_deterministic_central
 consumer=tbx_deterministic_consumer
 query master "CREATE DATABASE [${central}] COLLATE Latin1_General_100_BIN2; CREATE DATABASE [${consumer}] COLLATE Latin1_General_100_CI_AS;"
 file "${central}" /workspace/Modules/toolbelt.core.result-table/Deployment Deploy.sql -v DeploymentMode=central
+file "${central}" "${legacy}/Deployment" Deploy.sql -v DeploymentMode=central
+query "${central}" "IF (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_pseudonymization'))<>6 THROW 54090,N'Genuine central1.0 inventory failed.',1;"
 file "${central}" "${module}/Deployment" Deploy.sql -v DeploymentMode=central
 for level in ${levels}; do
   query "${central}" "ALTER DATABASE [${central}] SET COMPATIBILITY_LEVEL=${level};"
+  file "${central}" "${module}/Tests/Runtime" Translate.Contract.sql
+  file "${central}" "${module}/Tests/Runtime" Translate.Safety.sql -v ToolbeltDatabase="${central}"
   file "${central}" "${module}/Tests/Runtime" Range.Contract.sql
   file "${central}" "${module}/Tests/Runtime" DateShift.Contract.sql
   file "${central}" "${module}/Tests/Runtime" Lookup.Contract.sql
@@ -118,6 +133,20 @@ metadata "${central}"
 expect_failure "${central}" "${module}/Deployment" Uninstall.sql 54026 -v ConfirmNoExternalConsumers=0
 query "${central}" "IF OBJECT_ID(N'toolbelt_pseudonymization.TVF_DeterministicRange',N'IF') IS NULL THROW 54090,N'Central confirmation preflight mutated objects.',1;"
 file "${central}" "${module}/Deployment" Uninstall.sql -v ConfirmNoExternalConsumers=1
+# Neue Release-Slots dürfen selbst mit nachgeahmten alten Markern nicht adoptiert
+# werden. Historischer Uninstall bewahrt den fremden Zukunftsslot.
+for fault in FutureSlot ImitatedFutureSlot; do
+  faultdb="tbx_deterministic_${fault}"
+  query master "CREATE DATABASE [${faultdb}] COLLATE Latin1_General_100_CS_AS;"
+  file "${faultdb}" /workspace/Modules/toolbelt.core.result-table/Deployment Deploy.sql -v DeploymentMode=local
+  file "${faultdb}" "${legacy}/Deployment" Deploy.sql -v DeploymentMode=local
+  file "${faultdb}" "${module}/Tests/Runtime" Lifecycle.CollisionFixture.sql -v FaultCase="${fault}"
+  query "${faultdb}" "SELECT CONVERT(varbinary(max),OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_pseudonymization.TVF_DeterministicTranslate'))) AS DefinitionBytes INTO dbo.SyntheticFutureBefore;"
+  expect_failure "${faultdb}" "${module}/Deployment" Deploy.sql 54024 -v DeploymentMode=local
+  query "${faultdb}" "IF (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_pseudonymization'))<>7 OR NOT EXISTS(SELECT 1 FROM dbo.SyntheticFutureBefore WHERE DefinitionBytes=CONVERT(varbinary(max),OBJECT_DEFINITION(OBJECT_ID(N'toolbelt_pseudonymization.TVF_DeterministicTranslate')))) THROW 54090,N'Future-slot rejection mutated objects.',1;"
+  file "${faultdb}" "${module}/Deployment" Uninstall.sql -v ConfirmNoExternalConsumers=0
+  query "${faultdb}" "IF (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_pseudonymization'))<>1 OR NOT EXISTS(SELECT 1 FROM toolbelt_pseudonymization.TVF_DeterministicTranslate() WHERE Value=N'Contoso' AND ErrorCode=73) THROW 54090,N'Historical uninstall did not preserve foreign future slot.',1;"
+done
 collision=tbx_deterministic_collision
 query master "CREATE DATABASE [${collision}] COLLATE Latin1_General_100_CI_AS;"
 file "${collision}" /workspace/Modules/toolbelt.core.result-table/Deployment Deploy.sql -v DeploymentMode=local
