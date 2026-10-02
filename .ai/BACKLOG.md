@@ -247,6 +247,16 @@ Status der 2.0-Welle: `partially validated`, `unreleased`.
 
 #### TVF_DeterministicGeoJitter
 
+- Fortschritt 2026-10-02: Der [begrenzte Vor-Source-Vertrag](../Documentation/Architecture/DETERMINISTIC_GEO_JITTER_CONTRACT.md)
+  konkretisiert die einzeln freigegebene Funktion additiv als Version 1.2.0.
+  Unabhängig wiederholte Modellreferenz: 10.685 Assertions. Native Read-only-
+  Qualifikation auf Linux 2019/latest und Windows 2025/CU8: je 1.458
+  Modellfälle; korrigierte sichere Operandenkette mit 32 Variablen- und neun
+  direkten Literalfixtures in jeweils drei Abfrageformen erfolgreich.
+  Tatsächliche 128-Byte- und größere Non-Point-UDTs sind geprüft; ein exakt
+  129-Byte-UDT wurde nicht beobachtet und wird nicht als PASS gewertet.
+  Öffentliche API, Metadaten, Lifecycle und CI sind dadurch noch nicht geprüft.
+
 - Zweck ausdrücklich bestätigt: synthetische Testpunkte, SRID4326.
   Entitätsschlüssel/MappingVersion/Seed bestimmen reproduzierbare Verschiebung.
   Radius ausdrücklich in Metern, Default100m/Ceiling10km bestätigt.
