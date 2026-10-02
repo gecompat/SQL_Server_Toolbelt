@@ -6,7 +6,7 @@ freigegebenen beiden USPs. Geplante additive Modulversion: `1.1.0` in
 Vor-Source-Gate wurde nach unabhängigem Kandidatenreview und Rootreview am
 2026-10-02 abgeschlossen; dieses Dokument behauptet weder Installation noch SQL-Validierung.
 
-Additiver Umsetzungsstand 2026-10-02: `toolbelt.json.constructors` 1.1.0 implementiert die beiden einzeln freigegebenen Gruppen-USPs über den gemeinsamen T-SQL-Kern. Auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 bestanden lokal und zentral die API-/100000-/16-MiB-/Clientprüfungen als Teil insgesamt fehlgeschlagener früherer Läufe. Die finalen fokussierten Läufe mit ausschließlich InstalledMetadata.Contract.sql als Runtime-Auswahl bestanden Metadaten, genuine 1.0-Upgrades, Lifecycle, Central und eigene Bereinigung. Neue Minimalrechte und die Benutzerentscheidung zu VIEW DEFINITION/SELECT bleiben offen; aktuelle CI wird als separater PR-Mergegate nachgewiesen. Teilweise validiert und unveröffentlicht; historische 1.0-Evidenz bleibt getrennt. Die vorstehende offene Sourcebeschreibung gehört zum historischen Vor-Source-Gate; normative Vertragsregeln sind unverändert.
+Additiver Umsetzungsstand 2026-10-02: `toolbelt.json.constructors` 1.1.0 implementiert die beiden einzeln freigegebenen Gruppen-USPs über den gemeinsamen T-SQL-Kern. Auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 bestanden lokal und zentral die API-/100000-/16-MiB-/Clientprüfungen als Teil insgesamt fehlgeschlagener früherer Läufe. Die finalen fokussierten Läufe mit ausschließlich InstalledMetadata.Contract.sql als Runtime-Auswahl bestanden Metadaten, genuine 1.0-Upgrades, Lifecycle, Central und eigene Bereinigung. Neue Minimalrechte bleiben offen; die Uninstall-Voraussetzung VIEW DEFINITION/SELECT wurde am 2026-10-02 einzeln freigegeben und die neue Gateumsetzung bestand fokussierte native Lifecycle-Läufe, negative CI-Injektionen bleiben offen; aktuelle CI wird als separater PR-Mergegate nachgewiesen. Teilweise validiert und unveröffentlicht; historische 1.0-Evidenz bleibt getrennt. Die vorstehende offene Sourcebeschreibung gehört zum historischen Vor-Source-Gate; normative Vertragsregeln sind unverändert.
 
 ## 1. Freigabe, Zweck und Grenzen
 
@@ -293,6 +293,27 @@ privaten Namen oder Inhalte. Die vorhandene Nummernzuordnung bleibt erhalten:
 Der Caller-Reject verwendet einen festen Text, damit der Adapter `50000/1`
 eindeutig zuordnen kann; Enginefehler werden unverändert weitergegeben.
 
+### Freigegebene Uninstall-Metadatensichtbarkeit (2026-10-02)
+
+Der Benutzer hat ausdrücklich freigegeben, dass Uninstall vorhandenes
+`VIEW DEFINITION` auf der Installationsdatenbank und `SELECT` auf
+`sys.sql_expression_dependencies` voraussetzt und fehlende Sichtbarkeit als
+`53622/1` blockiert. Beide `HAS_PERMS_BY_NAME`-Prüfungen müssen exakt `1`
+ergeben; `0` und `NULL` werden abgewiesen. Die Prüfung erfolgt vor der
+Dependencyabfrage sowohl im Preflight als auch erneut unter derselben AppLock,
+vor der ersten Objektmutation. Das Skript erteilt keine Rechte.
+
+Am 2026-10-02 bestand die neue Gateumsetzung den fokussierten nativen
+Adapter auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170,
+jeweils lokal und zentral mit ausschließlich InstalledMetadata.Contract.sql
+und den gekoppelten Lifecycle-/Client-/Consumerprüfungen. Beide Läufe
+beendeten sich erfolgreich mit vollständiger eigener Bereinigung und ohne
+Konfigurations- oder Rechteänderung. Dies ist kein neuer Default-All-PASS.
+Statische Predicate-/Reihenfolgeprüfungen und die neuen synthetischen
+CI-Predicate-Injektionen ersetzen keinen tatsächlichen Minimalrechte-Nachweis.
+Die negativen Injektionen und vollständige gekoppelte CI am neuen PR-Head
+sind noch nicht ausgeführt. Frühere SQL-/CI-Nachweise bleiben getrennt.
+
 Die ResultTable-Dependency bleibt registriert `>=1.0.0` in derselben
 Installationsdatenbank, ohne automatische Installation oder Berechtigungserteilung.
 
@@ -358,6 +379,6 @@ Die finalen fokussierten Läufe wählten ausdrücklich nur `-RuntimeTests Instal
 
 Frühere fehlgeschlagene Läufe bleiben erhalten: 53609/4 im Escape-Budget-Orakel, 206 im Kollisionsfixture, 3998 im Caller-Batch und 54600/45 im Central-Orakel. Die jeweiligen Test-/Adapterkorrekturen ändern keinen Corevertrag.
 
-Neue Minimalrechte und die Benutzerentscheidung zu `VIEW DEFINITION`/`SELECT`, weitere Zielkombinationen und Produktions-/Parallelkapazität bleiben offen. Aktuelle CI wird als separater PR-Mergegate nachgewiesen. Status `partially validated`, `unreleased`. Historische 1.0-Evidenz im Modulmanifest und in der Modultestmatrix gilt ausschließlich für die damaligen drei Slots.
+Neue Minimalrechte, weitere Zielkombinationen und Produktions-/Parallelkapazität bleiben offen. Die Uninstall-Voraussetzung `VIEW DEFINITION`/`SELECT` wurde am 2026-10-02 einzeln freigegeben; die neue Gateumsetzung bestand fokussierte native Lifecycle-Läufe, negative CI-Injektionen bleiben offen. Aktuelle CI wird als separater PR-Mergegate nachgewiesen. Status `partially validated`, `unreleased`. Historische 1.0-Evidenz im Modulmanifest und in der Modultestmatrix gilt ausschließlich für die damaligen drei Slots.
 
 Reproduzierbarer Adapter: `Tests/CI/run-json-groups-lab.ps1`; genaue Abgrenzung in der [Modultestmatrix](../../Modules/toolbelt.json.constructors/Tests/JSON_CONSTRUCTOR_CONTRACT_TEST_MATRIX.md).

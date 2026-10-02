@@ -113,6 +113,28 @@ expect_failure() {
         echo "Unexpected SQL error category." >&2; exit 1
     fi
 }
+# Synthetische Predicate-Injektion, kein tatsächlicher Lowpriv-Nachweis.
+# Pass 0 verwendet echte Rechte; erst unter AppLock wird 0 bzw. NULL injiziert.
+run_uninstall_metadata_injection() {
+    local database_name="$1" permission="$2" injected="$3"
+    python3 - "${permission}" "${injected}" <<'PYSQL' | docker exec -i "${container_name}" "${sqlcmd_path}" \
+        -S localhost -U sa -P "${sa_password}" -C -b -d "${database_name}"
+from pathlib import Path
+import sys
+source = Path('Modules/toolbelt.json.constructors/Deployment/Uninstall.sql').read_text(encoding='utf-8')
+expressions = {
+    'view': "HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'VIEW DEFINITION')",
+    'select': "HAS_PERMS_BY_NAME(N'sys.sql_expression_dependencies',N'OBJECT',N'SELECT')",
+}
+expression = expressions[sys.argv[1]]
+value = sys.argv[2]
+assert value in ('0', 'NULL') and source.count(expression) == 1
+source = source.replace(expression, f'CASE WHEN @Pass=1 THEN {value} ELSE {expression} END')
+source = source.replace('$(ConfirmNoExternalConsumers)', '0')
+assert '$(' not in source
+print(source)
+PYSQL
+}
 legacy_directory="/workspace/.runtime/json-constructors-legacy/Deployment"
 local_database="tbx_json_constructor_local"
 central_database="tbx_json_constructor_central"
@@ -175,6 +197,15 @@ done
 run_query "${local_database}" "CREATE USER TbxJsonCaller WITHOUT LOGIN; GRANT EXECUTE ON OBJECT::toolbelt_json.USP_JsonArray TO TbxJsonCaller; GRANT EXECUTE ON OBJECT::toolbelt_json.USP_JsonObject TO TbxJsonCaller; GRANT EXECUTE ON OBJECT::toolbelt_core.USP_PrepareResultTable TO TbxJsonCaller;"
 run_file "${local_database}" "${runtime_directory}" MinimumRights.Contract.sql
 run_query "${local_database}" "DROP USER TbxJsonCaller;"
+for permission in view select; do
+  for injected in 0 NULL; do
+    expect_failure 53622 run_uninstall_metadata_injection "${local_database}" "${permission}" "${injected}"
+    # Eigene TX wurde zurückgerollt: Definitionen, Marker und fünf Slots intakt.
+    run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
+    run_file "${local_database}" "${runtime_directory}" InstalledMetadata.Contract.sql
+  done
+done
+
 run_query "${local_database}" "CREATE PROCEDURE dbo.USP_SyntheticJsonConsumer AS EXEC toolbelt_json.USP_JsonArray @Hilfe=1;"
 expect_failure 53626 run_file "${local_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=0
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql

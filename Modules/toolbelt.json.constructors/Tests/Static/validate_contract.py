@@ -56,3 +56,20 @@ for name in names[:-1]:
 for relative in ('JsonGroups.Contract.sql','JsonGroups.Boundaries.sql','InstalledMetadata.Contract.sql'):
     assert (root/'Tests/Runtime'/relative).exists()
 print('JSON Constructors Static: source/contract/lifecycle coupling PASS (no runtime evidence).')
+
+# Metadatensichtbarkeit ist eine Voraussetzung, keine Berechtigungserteilung.
+metadata_gate = "  IF COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'VIEW DEFINITION'),0)<>1\n   OR COALESCE(HAS_PERMS_BY_NAME(N'sys.sql_expression_dependencies',N'OBJECT',N'SELECT'),0)<>1\n   THROW 53622,N'JSON lifecycle: erforderliche Metadatenrechte für Uninstall fehlen.',1;"
+assert metadata_gate in uninstall
+assert uninstall.index('WHILE @Pass<2') < uninstall.index(metadata_gate) < uninstall.index('FROM sys.sql_expression_dependencies') < uninstall.index('IF @Pass=0')
+assert uninstall.index('SET @Pass+=1') < uninstall.index('DROP PROCEDURE')
+assert not re.search(r'(?im)^\s*(GRANT|DENY|REVOKE)\b', uninstall)
+for view in (None, 0, 1):
+    for select in (None, 0, 1):
+        rejects = (0 if view is None else view) != 1 or (0 if select is None else select) != 1
+        assert rejects == (view != 1 or select != 1)
+print('JSON Uninstall metadata gate: both-pass ordering/NULL rejection/no rights changes PASS (static only).')
+
+ci = (root.parents[1] / 'Tests/CI/run-json-constructors-linux.sh').read_text(encoding='utf-8')
+assert 'for permission in view select;' in ci and 'for injected in 0 NULL;' in ci
+assert 'CASE WHEN @Pass=1 THEN {value} ELSE {expression} END' in ci
+assert 'expect_failure 53622 run_uninstall_metadata_injection' in ci

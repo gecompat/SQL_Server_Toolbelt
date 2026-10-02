@@ -51,7 +51,7 @@ objects:
     schema: "toolbelt_json"
     name: "USP_JsonConstructInternal"
     visibility: internal
-permissions_required: ["EXECUTE auf der öffentlichen USP", "Helper-EXECUTE für ResultTable", "DDL-Rechte für Deployment"]
+permissions_required: ["EXECUTE auf der öffentlichen USP", "Helper-EXECUTE für ResultTable", "DDL-Rechte für Deployment", "Uninstall: ALTER auf toolbelt_json, VIEW DEFINITION auf der Datenbank und SELECT auf sys.sql_expression_dependencies"]
 collation_contract: "Exakte UTF-16-/BIN2-ValueKinds und längensensitive Keys; Ergebnis Latin1_General_100_BIN2."
 data_type_contract: "Ordinal int; ValueKind/Value/Key nvarchar(max); JsonValue nvarchar(max) NOT NULL."
 help_contract_version: "1.0"
@@ -123,4 +123,9 @@ validation_evidence:
   - date: "2026-10-02"
     workflow: "local: Tests/CI/run-json-groups-lab.ps1 (final fokussiert)"
     scope: "Version 1.1.0: Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral. Runtime-Auswahl ausschließlich InstalledMetadata.Contract.sql; Metadaten, genuine unveränderte 1.0-Upgrades, Repeat, Rollback/Postlock/AppLock, Marker/Future-Typen/Dependencies, committable/doomed Caller mit ON/OFF, Central-Bestätigung, tatsächlicher Consumer am höchsten ausgewählten CL, Uninstall und eigene Bereinigung PASS. Journale unabhängig als abgeschlossen geprüft; keine Konfigurations-/Rechteänderung. API-/100000-/16-MiB-/Clientteilnachweise aus früheren insgesamt fehlgeschlagenen Läufen separat, kein finaler Default-All-PASS. Neue Minimalrechte und VIEW DEFINITION/SELECT-Benutzerentscheidung offen; aktuelle CI als separater PR-Mergegate, weitere Ziele/Kapazität offen. Partially validated, unreleased."
+    result: "success"
+
+  - date: "2026-10-02"
+    workflow: "local: Tests/CI/run-json-groups-lab.ps1 (Uninstall-Metadatenvoraussetzung)"
+    scope: "Neue fail-closed Uninstall-Voraussetzung VIEW DEFINITION/SELECT: fokussierter Adapter Exit0 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral; Runtime-Auswahl nur InstalledMetadata.Contract.sql, gekoppelte genuine1.0-/Repeat-/Rollback-/AppLock-/Caller-/Marker-/Future-/Dependency-/Client-/Central-/Uninstallprüfungen PASS. Beide Journale COMPLETE, alle eigenen Datenbanken entfernt, keine Konfigurations-/Rechteänderung. Kein Default-All-PASS, keine tatsächliche Minimalrechtequalifikation; negative synthetische Predicate-Injektionen und neue Exact-head-CI noch nicht ausgeführt. Historische Nachweise bleiben unverändert."
     result: "success"

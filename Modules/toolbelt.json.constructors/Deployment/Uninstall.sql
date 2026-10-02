@@ -40,6 +40,10 @@ BEGIN TRY
   END;
   IF CONVERT(varbinary(max),@Mode)=CONVERT(varbinary(max),N'central') AND @Confirmation=N'0'
    THROW 53625,N'JSON lifecycle: zentrale Consumer-Bestätigung fehlt.',1;
+  -- Vor der Dependencyabfrage, im Preflight und erneut unter derselben AppLock.
+  IF COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'VIEW DEFINITION'),0)<>1
+   OR COALESCE(HAS_PERMS_BY_NAME(N'sys.sql_expression_dependencies',N'OBJECT',N'SELECT'),0)<>1
+   THROW 53622,N'JSON lifecycle: erforderliche Metadatenrechte für Uninstall fehlen.',1;
   IF COALESCE(HAS_PERMS_BY_NAME(N'toolbelt_json',N'SCHEMA',N'ALTER'),0)<>1
    THROW 53622,N'JSON lifecycle: erforderliche Uninstallrechte fehlen.',1;
   SET @Count=CASE WHEN CONVERT(varbinary(max),@Version)=CONVERT(varbinary(max),N'1.0.0') THEN 3 ELSE 5 END;

@@ -1,5 +1,19 @@
 # JSON Constructor Testmatrix
 
+## Neue Uninstall-Metadatenvoraussetzung (2026-10-02)
+
+Die einzeln freigegebene fail-closed Voraussetzung wurde nach Umsetzung mit
+`Tests/CI/run-json-groups-lab.ps1 -RuntimeTests InstalledMetadata.Contract.sql`
+auf Linux 2019/latest und Windows 2025 exakt CU8 jeweils lokal/zentral erneut
+geprüft. Beide tatsächlichen Prozesse Exit0; gekoppelte Lifecycle-/Client-/
+Consumerprüfungen erfolgreich, private Journale COMPLETE, alle eigenen
+Datenbanken entfernt, keine Konfigurations- oder Rechteänderung.
+Kein neuer Default-All-PASS und kein tatsächlicher Missing-rights-Nachweis.
+Vier neue CI-Injektionen ersetzen je eine Permissionpredicate erst in Pass 1
+unter AppLock durch 0 bzw. NULL und verlangen 53622 sowie anschließend intakte
+Lifecycle-/InstalledMetadata-Verträge. Diese negativen Injektionen und neue
+Exact-head-CI sind noch nicht ausgeführt.
+
 ## Additive Gruppenwelle 1.1.0
 
 Vor-Source-Gate als Commit `412dbdd3` festgehalten. Genau zwei neue Fassaden verwenden den bestehenden Kern mit GroupMode.
@@ -10,7 +24,7 @@ Die finalen fokussierten Läufe wählten ausdrücklich nur `-RuntimeTests Instal
 
 Frühere fehlgeschlagene Läufe bleiben erhalten: 53609/4 im Escape-Budget-Orakel, 206 im Kollisionsfixture, 3998 im Caller-Batch und 54600/45 im Central-Orakel. Die jeweiligen Test-/Adapterkorrekturen ändern keinen Corevertrag.
 
-Neue Minimalrechte und die Benutzerentscheidung zu `VIEW DEFINITION`/`SELECT`, weitere Zielkombinationen und Produktions-/Parallelkapazität bleiben offen. Aktuelle CI wird als separater PR-Mergegate nachgewiesen. Status `partially validated`, `unreleased`. Historische 1.0-Evidenz unten gilt ausschließlich für die damaligen drei Slots.
+Neue Minimalrechte, weitere Zielkombinationen und Produktions-/Parallelkapazität bleiben offen. Die Uninstall-Voraussetzung `VIEW DEFINITION`/`SELECT` wurde am 2026-10-02 einzeln freigegeben; die neue Gateumsetzung bestand fokussierte native Lifecycle-Läufe, negative CI-Injektionen bleiben offen. Aktuelle CI wird als separater PR-Mergegate nachgewiesen. Status `partially validated`, `unreleased`. Historische 1.0-Evidenz unten gilt ausschließlich für die damaligen drei Slots.
 
 ## Historische Ausführung 1.0.0
 
@@ -36,7 +50,7 @@ beweist keine niedrigprivilegierten gemappten Callerrechte.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-json-groups-lab.ps1 (final fokussiert)`
-- Scope: Version 1.1.0: Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral. Runtime-Auswahl ausschließlich InstalledMetadata.Contract.sql; Metadaten, genuine unveränderte 1.0-Upgrades, Repeat, Rollback/Postlock/AppLock, Marker/Future-Typen/Dependencies, committable/doomed Caller mit ON/OFF, Central-Bestätigung, tatsächlicher Consumer am höchsten ausgewählten CL, Uninstall und eigene Bereinigung PASS. Journale unabhängig als abgeschlossen geprüft; keine Konfigurations-/Rechteänderung. API-/100000-/16-MiB-/Clientteilnachweise aus früheren insgesamt fehlgeschlagenen Läufen separat, kein finaler Default-All-PASS. Neue Minimalrechte und VIEW DEFINITION/SELECT-Benutzerentscheidung offen; aktuelle CI als separater PR-Mergegate, weitere Ziele/Kapazität offen. Partially validated, unreleased.
+- Nachweis: `local: Tests/CI/run-json-groups-lab.ps1 (Uninstall-Metadatenvoraussetzung)`
+- Scope: Neue fail-closed Uninstall-Voraussetzung VIEW DEFINITION/SELECT: fokussierter Adapter Exit0 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral; Runtime-Auswahl nur InstalledMetadata.Contract.sql, gekoppelte genuine1.0-/Repeat-/Rollback-/AppLock-/Caller-/Marker-/Future-/Dependency-/Client-/Central-/Uninstallprüfungen PASS. Beide Journale COMPLETE, alle eigenen Datenbanken entfernt, keine Konfigurations-/Rechteänderung. Kein Default-All-PASS, keine tatsächliche Minimalrechtequalifikation; negative synthetische Predicate-Injektionen und neue Exact-head-CI noch nicht ausgeführt. Historische Nachweise bleiben unverändert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
