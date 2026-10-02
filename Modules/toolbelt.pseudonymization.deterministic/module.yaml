@@ -85,6 +85,8 @@ documentation:
     - Documentation/TVF_DeterministicDateShift.md
     - Documentation/USP_DeterministicLookup.md
   architecture:
+    - ../../Documentation/Architecture/DETERMINISTIC_TRANSLATE_CONTRACT.md
+    - ../../Documentation/Architecture/CHARACTER_PSEUDONYMIZATION_DECISION.md
     - ../../Documentation/Architecture/PSEUDONYMIZATION_FOUNDATION_PROPOSAL.md
     - ../../Documentation/Architecture/DATE_SHIFTING_PROPOSAL.md
   test_matrix:

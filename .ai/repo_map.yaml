@@ -637,6 +637,8 @@ change_impact:
     deterministic_contract:
       paths:
         - Modules/toolbelt.pseudonymization.deterministic/**
+        - Documentation/Architecture/DETERMINISTIC_TRANSLATE_CONTRACT.md
+        - Documentation/Architecture/CHARACTER_PSEUDONYMIZATION_DECISION.md
         - Documentation/Architecture/PSEUDONYMIZATION_FOUNDATION_PROPOSAL.md
         - Documentation/Architecture/DATE_SHIFTING_PROPOSAL.md
         - Documentation/Standards/USP_CONTRACT.md

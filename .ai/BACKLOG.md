@@ -216,6 +216,13 @@ Status der 2.0-Welle: `partially validated`, `unreleased`.
 
 #### TVF_DeterministicTranslate
 
+- Fortschritt 2026-10-02: [kanonischer Vor-Source-Vertrag](../Documentation/Architecture/DETERMINISTIC_TRANSLATE_CONTRACT.md)
+  konkretisiert den freigegebenen Slice additiv im bestehenden Modul als
+  1.1.0. Unabhängig wiederholte private Referenzqualifikation: 5.540 Assertions;
+  getrennte Read-only-Nativprimitive: 48 Assertions, Linux 2019/latest und
+  Windows 2025/CU8. Unabhängiger Semantikreview erfolgreich. SQL-API,
+  Lifecycle, Metadaten, Rechte und CI dadurch noch nicht qualifiziert.
+
 - Zweck ausdrücklich bestätigt: formaterhaltende Transformation synthetischer
   Kennungen. Rückführbarkeit und verbleibende Länge-/Muster-/Häufigkeits-
   offenlegung ausdrücklich akzeptiert; keine Anonymisierung/Verschlüsselung.

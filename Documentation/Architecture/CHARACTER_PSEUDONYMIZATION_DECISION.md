@@ -1,5 +1,15 @@
 # Zeichentranslation: bedarfsabhängig zurückgestellt (`TC-2026-041`)
 
+## Begrenzte Wiederaufnahme am 2026-10-02
+
+Die Einzel-Freigabe vom 2026-10-01 in `.ai/BACKLOG.md` erfüllt die
+Wiederaufnahmebedingungen für synthetische ASCII-Kennungen. Dieser enge
+Vorwärtsslice wird durch den
+[DeterministicTranslate-Vertrag](DETERMINISTIC_TRANSLATE_CONTRACT.md)
+konkretisiert. Die folgende ursprüngliche Zurückstellung bleibt als
+Historie erhalten; allgemeine Textmaskierung, weitere Alphabete und Decode
+bleiben außerhalb der Freigabe. Die Risiken bleiben unverändert gültig.
+
 ## Ergebnis
 
 `TC-2026-041` wird zurückgestellt. Eine zeichenweise deterministische
