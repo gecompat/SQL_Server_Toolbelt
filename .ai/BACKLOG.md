@@ -575,8 +575,26 @@ Datenkopie oder beliebige weitere Objektklassen.
   integrieren. Erweiterungen in getrennten überprüfbaren Wellen mit synthetischen
   Strukturoracles, scopebezogenen Lab-Tests und grünen PR-Merges integrieren.
 
-Status: `ready for development`; keine Implementierungs-/Runtime-Evidenz
-für die beiden Ausbauwellen.
+Status Welle1: `implemented`, `partially validated`, `unreleased`; Welle2 bleibt getrennt und nicht implementiert.
+
+Änderungsvermerk 2026-10-02 — Codex: Die zusätzliche Benutzerantwort
+„Tabellenkopf Welle1 Ja“ bestätigt für Welle 1 `@IncludeExtendedProperties`
+vor dem Standardtail (bisherige Positionen 6..9 werden 7..10) und sieben
+einzelne `SESSION_OPTION`-Zeilen vor `TABLE`. Der
+[Vor-Source-Reviewvertrag](../Documentation/Architecture/TABLE_CLONE_WAVE1_CONTRACT.md)
+plant deshalb eine kohärente Modulversion 2.0.0 mit denselben zwei USP-Slots,
+keinen neuen fachlichen APIs und unverändertem ScriptOnly-Scope.
+Das Computed-only-Voraussetzungsgate für vorhandenes SELECT auf
+`sys.sql_expression_dependencies` ist eine zusätzliche konkrete
+Vertragsgrenze; die JSON-Uninstall-Freigabe wird nicht auf Clone übertragen.
+Zusätzlich ist ausschließlich für EXTENDED_PROPERTY eine Zeile als
+typisierter DECLARE+EXEC-Batch statt einer einzelnen Anweisung vorgeschlagen.
+Nach gesonderter konkreter Besprechung bestätigte der Benutzer am 2026-10-02
+„beides ja“ für das Computed-only-Gate mit 53901/3 und die begrenzte
+EXTENDED_PROPERTY-Batchausnahme. Der vollständige Vertrag und die gekoppelten
+Discovery-/Backlogänderungen wurden vor Source unabhängig durch Root geprüft;
+das Sourcegate ist geschlossen. Der nachfolgende W1-Nachweis ist separat dokumentiert; Welle 2 bleibt
+unverändert getrennt.
 
 ### TC-2026-034 / TC-2026-039 / TC-2026-040 / TC-2026-042 / TC-2026-044: Freigegebene Reservewellen
 
@@ -1693,3 +1711,11 @@ Worksheetliste und Zellreader bleiben getrennte öffentliche Vorschläge.
 ## Wiederaufnahme
 
 Ein Chat allein ist keine dauerhafte Source of Truth. Entscheidungen, Prioritäten, Fortschritt und Blocker müssen in dieser Datei oder in `Documentation/Architecture/DECISIONS.md` nachvollziehbar festgehalten werden.
+
+### Clone W1: zusätzliche Lifecycle-Sichtbarkeit einzeln freigegeben
+
+Am 2026-10-02 bestätigte der Benutzer nach konkreter Besprechung: "Ja, Lifecycle-Sichtbarkeitsgate freigeben". Bestehendes DB-VIEW DEFINITION und SELECT auf sys.sql_expression_dependencies werden für Deploy/Uninstall vor Änderungen und unter AppLock vorausgesetzt; fehlender oder unklarer Nachweis blockiert53926/2. Keine GRANT-Aktion. Computed-only53901/3 bleibt getrennt. Die finalen öffentlichen Adapter vom 2026-10-03 bestanden die native Lifecycle-Nachqualifikation einschließlich 0-/NULL-Predicate-Injektionen vor Änderungen und unter AppLock. CI am finalen Head sowie ein tatsächlicher Lowpriv-Principal bleiben offen.
+
+### Tabellenklon W1: finaler öffentlicher Scope 2026-10-03
+
+Am 2026-10-03 bestanden die finalen öffentlichen Adapter auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Vier Runtime-Fixtures einschließlich 27 Propertytypen und separater 18-datetimeoffset-Produktpfadregression, Client-/Lifecycle-/Caller-TX-/SET-/AppLock-/Rollback-/Kollisions-/Dependency-/Atomikorakel sowie genuine 1.0-Upgrades und eigene Bereinigung sind qualifiziert. Inputs und Genuine-Blobs sind hashgebunden; tatsächlicher Exit, vollständige Kanäle, exakt gebundenes Journal und frischer Cleanup-Audit wurden zusammen geprüft. Keine Konfigurations-, Rechte-, Trust- oder Infrastrukturänderungen. Der Zähler32 ist nur der Visibility-Teilbereich. Tatsächliche Minimalrechte mit eigenem Principal, übrige physische Ziele und aktueller CI-Head bleiben NOT_EXECUTED. Teilweise validiert und unveröffentlicht.

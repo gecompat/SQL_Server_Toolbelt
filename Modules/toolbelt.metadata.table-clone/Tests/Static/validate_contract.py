@@ -10,7 +10,7 @@ deploy = (MOD / 'Deployment/Deploy.sql').read_text(encoding='utf-8')
 uninstall = (MOD / 'Deployment/Uninstall.sql').read_text(encoding='utf-8')
 params = [('SourceSchema','nvarchar(max)','NULL'),('SourceTable','nvarchar(max)','NULL'),
           ('TargetSchema','nvarchar(max)','NULL'),('TargetTable','nvarchar(max)','NULL'),
-          ('IncludeIdentity','bit','0'),('ResultTable','sysname','NULL'),('KeepData','bit','0'),
+          ('IncludeIdentity','bit','0'),('IncludeExtendedProperties','bit','0'),('ResultTable','sysname','NULL'),('KeepData','bit','0'),
           ('Debug','tinyint','0'),('Hilfe','bit','0')]
 signature = public.split('AS\nBEGIN',1)[0]
 actual = re.findall(r'@(\w+)\s+(nvarchar\(max\)|sysname|bit|tinyint)\s*=\s*(NULL|0)',signature)
@@ -37,3 +37,72 @@ for path in ['README.md','module.yaml','Tests/Runtime/TableClone.Contract.sql','
     assert (MOD/path).is_file(), path
 assert not re.search(r'\b(?:THEN|ELSE|WHEN)\d',public+core)
 print('TableClone static source/contract/lifecycle coupling PASS (no runtime evidence).')
+
+assert core.index('Computed-Dependency-Metadatensicht') < core.index('sys.sql_expression_dependencies d')
+assert "VALUES(8,'TABLE'" in core
+assert 'SET NUMERIC_ROUNDABORT OFF;' in core
+assert 'PERSISTED' in core and 'EXTENDED_PROPERTY' in core
+# Technische Predicate-Injektionen gegen beide echten Lifecycle-Gatepositionen.
+# Keine tatsächliche eingeschränkte Sicherheitsidentität und kein SQL-Nachweis.
+for lifecycle in (deploy, uninstall):
+    gate_predicates = ["COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'VIEW DEFINITION'),0)<>1",
+        "COALESCE(HAS_PERMS_BY_NAME(N'sys.sql_expression_dependencies',N'OBJECT',N'SELECT'),0)<>1"]
+    for predicate in gate_predicates:
+        positions = [m.start() for m in re.finditer(re.escape(predicate), lifecycle)]
+        assert len(positions) == 2
+        assert positions[0] < lifecycle.index('sys.sql_expression_dependencies d') if 'sys.sql_expression_dependencies d' in lifecycle else positions[0] < lifecycle.index('FROM sys.sql_expression_dependencies')
+        assert positions[1] > lifecycle.index('sys.sp_getapplock')
+        for position in positions:
+            for result in ('0', 'NULL'):
+                injected = lifecycle[:position] + f'COALESCE({result},0)<>1' + lifecycle[position+len(predicate):]
+                assert injected.count(predicate) == 1
+                assert "vollständige Lifecycle-Dependency-Metadatensicht fehlt.',2" in injected
+print('Lifecycle metadata gates: two passes / sixteen 0-NULL injection forms PASS (offline only).')
+for lifecycle in (deploy,uninstall):
+    assert 'CONVERT(varbinary(max),@CurrentInstalledVersion)<>CONVERT(varbinary(max),@InstalledVersion)' in lifecycle
+    assert 'ISNULL(@CurrentInstalledVersion' not in lifecycle
+    assert lifecycle.count("o.type<>'P'") == 2
+assert 'CONVERT(varbinary(max),@SchemaCategory)=CONVERT(varbinary(max),N\'metadata\')' in uninstall
+assert deploy.count('name IN(@VersionPropertyName,') == 2
+# Optionale Level2-Metadaten müssen trotz ANSI_NULL_DFLT_OFF NULL zulassen.
+owners = re.search(r'DECLARE @Owners TABLE\((.*?)\);', core, re.S).group(1)
+owner_columns = re.findall(r'(\w+)\s+(?:int|sysname|nvarchar\(\d+\))\s+(NOT NULL|NULL)', owners)
+assert owner_columns == [('Class','NOT NULL'),('MajorId','NOT NULL'),('MinorId','NOT NULL'),
+    ('SortKind','NOT NULL'),('SourceOrdinal','NOT NULL'),('Level1Type','NOT NULL'),
+    ('Level1Name','NOT NULL'),('Level2Type','NULL'),('Level2Name','NULL'),('TargetName','NOT NULL')]
+datetime_literal = "WHEN @EpBase=N'datetime' THEN N'N'''+CONVERT(nvarchar(128),CONVERT(datetime,@EpValue),126)+N''''"
+assert datetime_literal in core
+assert core.index(datetime_literal) < core.index("WHEN @EpBase IN(N'date',N'time',N'datetime',N'smalldatetime',N'datetime2')")
+assert "WHEN @EpBase=N'datetimeoffset' THEN N'N'''+CONVERT(nvarchar(128),CONVERT(datetimeoffset(7),@EpValue),121)+N''''" in core
+wave1 = (MOD/'Tests/Runtime/Wave1.Contract.sql').read_text(encoding='utf-8-sig')
+assert 'CONVERT(nvarchar(20),e.value)' not in wave1
+for expected_value in ("N'column'", 'expected.Name', "N'index'"):
+    assert f'CONVERT(varbinary(max),e.value)=CONVERT(varbinary(max),{expected_value})' in wave1
+assert "Property owner mapping differs.',10" in wave1
+permission = (MOD/'Tests/Runtime/Wave1.PermissionPredicate.sql').read_text(encoding='utf-8-sig')
+assert 'EXEC sys.sp_executesql @Original;' not in permission
+assert 'SET @Changed=REPLACE(@AlterOriginal,@Needle' in permission
+assert 'DATALENGTH(@Prefix)/2+1' in permission and 'STUFF(@Original,@HeaderPosition,DATALENGTH(@Header)/2' in permission
+assert 'CREATE OR ALTER PROCEDURE toolbelt_metadata.USP_ScriptTableCloneInternal' in permission
+assert 'ALTER PROCEDURE toolbelt_metadata.USP_ScriptTableCloneInternal' in permission
+assert permission.index('SET XACT_ABORT OFF;') < permission.index('BEGIN TRANSACTION;')
+assert '@@TRANCOUNT<>1 OR XACT_STATE()<>1' in permission
+assert 'AND uses_ansi_nulls=@Ansi AND uses_quoted_identifier=@Quoted' in permission
+assert "name=N'Toolbelt.SourceHash' AND value IS NOT NULL" in permission
+assert permission.count('IF @OriginalXactAbort=1 SET XACT_ABORT ON; ELSE SET XACT_ABORT OFF;') == 2
+
+# Separate DTO18-Regression; bestehende Wave1.Contract.sql bleibt unveraendert.
+dto = (MOD/'Tests/Runtime/Wave1.DateTimeOffset.sql').read_text(encoding='utf-8')
+dto_rows = re.findall(r"INSERT @DtoCases VALUES\(N'([^']+)',([037]),[0-9]+,[0-9]+,CONVERT\(sql_variant,CONVERT\(datetimeoffset\(([037])\),N'2001-02-03T12:34:56\.([0-9]{7})([+-][0-9]{2}:[0-9]{2})'\)\)\);", dto)
+assert len(dto_rows) == 18 and len({r[0] for r in dto_rows}) == 18
+assert all(r[1] == r[2] for r in dto_rows)
+assert {(r[1],r[3],r[4]) for r in dto_rows} == {(p,f,o) for p in ('0','3','7') for f in ('1234567','9999999') for o in ('+00:00','+05:30','-12:34')}
+assert dto.count('EXEC toolbelt_metadata.USP_ScriptTableClone ') == 1
+assert '@IncludeExtendedProperties=1' in dto and 'WITHIN GROUP(ORDER BY Ordinal)' in dto
+assert dto.count('EXCEPT SELECT') == 4
+for field in ('BaseType','Precision','Scale','MaxLength','Collation'):
+    assert dto.lower().count("sql_variant_property(value,'" + field.lower() + "')") >= 8
+assert 'ExpectedSecond' in dto and 'ExpectedNanosecond' in dto
+assert 'COUNT(DISTINCT CONVERT(varbinary(256),Name))' in dto
+assert 'COUNT(*) FROM #Wave1DtoPlan)<>26' in dto and "Ordinal=8 AND ObjectKind='TABLE'" in dto
+assert 'wave1_datetimeoffset: "Tests/Runtime/Wave1.DateTimeOffset.sql"' in (MOD/'module.yaml').read_text(encoding='utf-8')

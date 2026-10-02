@@ -671,8 +671,10 @@ change_impact:
       paths:
         - Modules/toolbelt.metadata.table-clone/**
         - Documentation/Architecture/TABLE_CLONE_PROPOSAL.md
+        - Documentation/Architecture/TABLE_CLONE_WAVE1_CONTRACT.md
         - Documentation/Standards/USP_CONTRACT.md
         - Tests/CI/run-table-clone-linux.sh
+        - Tests/CI/run-table-clone-wave1-lab.ps1
         - .github/workflows/table-clone-runtime.yml
       checks:
         - markdown_links

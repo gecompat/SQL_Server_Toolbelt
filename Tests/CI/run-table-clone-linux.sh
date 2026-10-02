@@ -13,6 +13,8 @@ case "${sql_version}" in
   *) echo "Nicht unterstützte SQL-Version: ${sql_version}" >&2; exit 1 ;;
 esac
 container_name="tbx-table-clone-${GITHUB_RUN_ID:-local}"
+legacy_directory="${RUNNER_TEMP:-${TMPDIR:-/tmp}}/tbx-clone-v1-${GITHUB_RUN_ID:-local}"
+pwsh -NoProfile -File Modules/toolbelt.metadata.table-clone/Deployment/New-LegacyTestArtifacts.ps1 -OutputDirectory "${legacy_directory}"
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 
 echo "::add-mask::${sa_password}"
@@ -29,6 +31,7 @@ docker run --detach \
     --env MSSQL_PID=Developer \
     --env MSSQL_SA_PASSWORD="${sa_password}" \
     --volume "${GITHUB_WORKSPACE:-$(pwd)}:/workspace:ro" \
+    --volume "${legacy_directory}:/legacy:ro" \
     "${sql_image}" >/dev/null
 
 sqlcmd_path=""
@@ -116,17 +119,28 @@ for compatibility_level in ${compatibility_levels}; do
     run_query "${local_database}" "ALTER DATABASE [${local_database}] SET COMPATIBILITY_LEVEL = ${compatibility_level};"
     run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
     run_file "${local_database}" "${runtime_directory}" TableClone.Contract.sql
+    run_file "${local_database}" "${runtime_directory}" Wave1.Contract.sql
+    run_file "${local_database}" "${runtime_directory}" Wave1.DateTimeOffset.sql
 done
 run_file "${local_database}" "${runtime_directory}" MinimumRights.Contract.sql
+# Neue Byte- und Predicategrenzen einmal lokal; keine doppelte Vollmatrix.
+run_file "${local_database}" "${runtime_directory}" Wave1.Bytes.sql
+run_file "${local_database}" "${runtime_directory}" Wave1.PermissionPredicate.sql
 run_query "${local_database}" "CREATE TABLE #TBX_TableClone_Plan(UnexpectedColumn int); BEGIN TRY EXEC toolbelt_metadata.USP_ScriptTableClone; THROW 54920,N'Namespaceguard fehlt.',8; END TRY BEGIN CATCH IF ERROR_NUMBER()<>53908 THROW; END CATCH; EXEC toolbelt_metadata.USP_ScriptTableClone @Hilfe=1,@Debug=255,@ResultTable=N'invalid';"
 if [[ "${TBX_SQL_TARGET:-runner}" == "lab" ]]; then
     repo_root="$(git rev-parse --show-toplevel)"
     pwsh -NoProfile -File "${repo_root}/Modules/toolbelt.metadata.table-clone/Tests/Runtime/SelectMetadata.Contract.ps1" \
         -Database "${local_database}_${TBX_TEST_DB_SUFFIX}"
 fi
-# Echter registrierter P->TF-Typdrift und Wiederholungsdeployment.
+# Wrong-kind bleibt trotz imitierter Id/Version unangetastet; danach explizite eigene Fixture-Restaurierung.
 run_query "${local_database}" "DROP PROCEDURE toolbelt_metadata.USP_ScriptTableClone;"
 run_query "${local_database}" "CREATE FUNCTION toolbelt_metadata.USP_ScriptTableClone() RETURNS @r TABLE(Value int) AS BEGIN RETURN; END;"
+run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.metadata.table-clone',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone'; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'2.0.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone';"
+expect_failure 53923 run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
+run_query "${local_database}" "IF OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone',N'TF') IS NULL THROW 54920,N'Wrong-kind wurde verändert.',11; DROP FUNCTION toolbelt_metadata.USP_ScriptTableClone;"
+run_file "${local_database}" "/workspace/Modules/toolbelt.metadata.table-clone/Source" USP_ScriptTableClone.sql
+run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.metadata.table-clone',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'PROCEDURE',@level1name=N'USP_ScriptTableClone'; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'2.0.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'PROCEDURE',@level1name=N'USP_ScriptTableClone';"
+run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.DeploymentMode',@value=N'local',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'PROCEDURE',@level1name=N'USP_ScriptTableClone';"
 run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 run_file "${local_database}" "${runtime_directory}" TableClone.Contract.sql
@@ -137,6 +151,9 @@ create_database "${consumer_database}" "Latin1_General_100_CI_AS"
 run_file "${central_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=central
 run_file "${central_database}" "${runtime_directory}" Lifecycle.Contract.sql
 run_file "${central_database}" "${runtime_directory}" TableClone.Contract.sql
+run_file "${central_database}" "${runtime_directory}" Wave1.Contract.sql
+run_file "${central_database}" "${runtime_directory}" Wave1.DateTimeOffset.sql
+run_file "${central_database}" "${runtime_directory}" Wave1.PermissionPredicate.sql
 run_file "${consumer_database}" "${runtime_directory}" Central.Contract.sql -v ToolbeltDatabase="${central_database}"
 expect_failure 53925 run_file "${central_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=0
 run_file "${central_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=1
@@ -157,3 +174,14 @@ for object_name in USP_ScriptTableClone USP_ScriptTableCloneInternal; do
     expect_failure 53924 run_file "${collision_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
     run_query "${collision_database}" "IF OBJECT_ID(N'toolbelt_metadata.${object_name}',N'P') IS NULL OR EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.metadata.table-clone.Version') THROW 54920,N'Kollision verändert Fremdbestand.',10;"
 done
+
+# Genuine1.0 wurde unverändert aus dem öffentlichen Pin gewonnen.
+legacy_database="tbx_table_clone_legacy"
+create_database "${legacy_database}" "Latin1_General_100_CS_AS"
+run_file "${legacy_database}" "/legacy/Deployment" Deploy.sql -v DeploymentMode=local
+run_query "${legacy_database}" "IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.metadata.table-clone.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0') OR (SELECT COUNT(*) FROM sys.parameters WHERE object_id=OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone'))<>9 THROW 54920,N'Genuine V1 metadata fehlt.',20; EXEC toolbelt_metadata.USP_ScriptTableClone @Hilfe=1;"
+run_file "${legacy_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
+run_file "${legacy_database}" "${runtime_directory}" Lifecycle.Contract.sql
+run_file "${legacy_database}" "${runtime_directory}" Wave1.Contract.sql
+run_file "${legacy_database}" "${runtime_directory}" Wave1.PermissionPredicate.sql
+run_file "${legacy_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=0
