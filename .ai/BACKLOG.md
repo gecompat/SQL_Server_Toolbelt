@@ -457,6 +457,15 @@ innerhalb dieses Scopes vor Sourceumsetzung dokumentieren und qualifizieren.
 Neue fachliche Entscheidungen rückfragen. Unabhängiger Review, scopebezogene
 Lab-Tests, erforderliche grüne CI und PR-Merge gelten unverändert.
 
+Vor-Source-Präzisierung 2026-10-02, Codex: Für ausschließlich die beiden
+gruppierten JSON-USPs konkretisiert der
+[kanonische Vertrag](../Documentation/Architecture/JSON_GROUP_CONSTRUCTORS_CONTRACT.md)
+Signaturen, globale Budgets, Resultschemas, Fehlerpriorität und notwendige
+gekoppelte Lifecycle-Grenzen. Vorbereitung `active`; technisches Vor-Source-Gate
+nach unabhängigem Kandidatenreview und Rootreview abgeschlossen, Umsetzung offen.
+111 private Assertions betreffen ausschließlich Gruppen vorvalidierter
+synthetischer Fragmente, keine SQL-/Escaping-/Lifecycle-Validierung.
+
 Zusätzlicher Benutzerauftrag 2026-10-01: „berücksichtige aber auch
 CLR-Aggregate zusätzlich!“ Deshalb portable SQL-CLR-JSON-Array-/Object-
 Aggregate ergänzend zu den USPs ausarbeiten, nicht durch diese ersetzen.
