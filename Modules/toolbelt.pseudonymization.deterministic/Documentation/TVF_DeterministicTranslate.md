@@ -1,6 +1,7 @@
 # toolbelt_pseudonymization.TVF_DeterministicTranslate
 
-**Typ:** Inline Table-valued Function  
+**Typ:** Inline Table-valued Function
+
 **Status:** `implemented`; Validierung entsprechend Testmatrix, `unreleased`.
 
 ## Zweck und Verwendung
