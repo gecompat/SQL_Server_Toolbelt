@@ -247,6 +247,28 @@ Status der 2.0-Welle: `partially validated`, `unreleased`.
 
 #### TVF_DeterministicGeoJitter
 
+- Fortschritt 2026-10-02: Der [begrenzte Vor-Source-Vertrag](../Documentation/Architecture/DETERMINISTIC_GEO_JITTER_CONTRACT.md)
+  konkretisiert die einzeln freigegebene Funktion additiv als Version 1.2.0.
+  Unabhängig wiederholte Modellreferenz: 10.685 Assertions. Native Read-only-
+  Qualifikation auf Linux 2019/latest und Windows 2025/CU8: je 1.458
+  Modellfälle; korrigierte sichere Operandenkette mit 32 Variablen- und neun
+  direkten Literalfixtures in jeweils drei Abfrageformen erfolgreich.
+  Tatsächliche 128-Byte- und größere Non-Point-UDTs sind geprüft; ein exakt
+  129-Byte-UDT wurde nicht beobachtet und wird nicht als PASS gewertet.
+  Öffentliche API, Metadaten, Lifecycle und CI sind dadurch noch nicht geprüft.
+
+- Historischer integrierter Zwischenstand 2026-10-02: Lokales echtes 1.0.0-Upgrade auf
+  1.2.0 und Katalogmetadaten bestanden; der Geo-API-Aufruf auf Linux 2019
+  scheitert mit SQL-Fehler 701. Auch der isolierte Einzelaufruf scheitert,
+  einschließlich einer kleinen SafeKey-Entkopplung. Kein Geo-API-PASS und
+  kein vollständiger Lifecycle-/CI-Nachweis. Eigene Testdatenbanken sind
+  bereinigt; keine Konfigurations- oder Rechteänderungen. Die Ursache ist
+  nicht nachgewiesen.
+
+- Finaler Fortschritt 2026-10-02: Der finale synthetische Geo-Adapter besteht auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Ausgeführt wurden ausdrücklich `GeoJitter.Contract.sql`, `GeoJitter.Safety.sql` und `InstalledMetadata.Contract.sql`, dazu SQL-/Clientmetadaten, echte 1.0.0-/1.1.0-Upgrades, Erstinstallation/Wiederholung, Caller-TX-/SET-Erhalt, Snapshot-Faults, Zukunftsslot-Erhalt, Uninstall und eigene Bereinigung. Der ursprüngliche Geo-Vertrag besteht unverändert in fünf unpartitionierten Batches mit 504 Orakeln. Die sieben bisherigen Source-Dateien bleiben bytegleich; dies ist kein erneuter finaler Runtime-Nachweis aller bisherigen APIs. Keine Konfigurations- oder Rechteänderungen. Neue Minimalrechte, weitere physische Ziele und ein exakt 129-Byte-UDT bleiben offen. Aktuelle CI wird als separater PR-Mergegate am exakten Head nachgewiesen. `partially validated`, `unreleased`.
+
+- Historische Zwischenstände vom 2026-10-02: Die ursprüngliche Ausdrucksform und kleinere Zwischenkandidaten scheiterten mit SQL-Fehler 701; ein späterer Lauf endete mit Timeout -2. Diese Läufe bleiben fehlgeschlagen, eine allgemeine Compilerursache ist nicht nachgewiesen. Der historische Vector-Facts-Kandidat bestand auf Linux mit einer vorübergehenden Partitionierung: 72 Gruppen mit je sieben Radiuswerten, zusammen dieselben 504 Orakel, eingebettet in 78 Batches einschließlich Metadaten/Goldens/Defaults, Setup, globalem Coverage-Orakel und Wiederholung. Dieser Zwischenbeleg ersetzt den finalen Nachweis der ursprünglichen fünf Batches nicht.
+
 - Zweck ausdrücklich bestätigt: synthetische Testpunkte, SRID4326.
   Entitätsschlüssel/MappingVersion/Seed bestimmen reproduzierbare Verschiebung.
   Radius ausdrücklich in Metern, Default100m/Ceiling10km bestätigt.

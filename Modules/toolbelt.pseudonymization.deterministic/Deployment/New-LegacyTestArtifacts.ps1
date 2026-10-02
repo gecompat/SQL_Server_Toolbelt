@@ -1,8 +1,11 @@
 [CmdletBinding()]
-param([Parameter(Mandatory)][string]$OutputDirectory)
+param(
+    [Parameter(Mandatory)][string]$OutputDirectory,
+    [ValidateSet('1.0.0','1.1.0')][string]$Version='1.0.0'
+)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-$revision = '9c77df2761db469ed9b2c20b48a4c909c69f7700'
+$revision = if($Version -eq '1.0.0') {'9c77df2761db469ed9b2c20b48a4c909c69f7700'} else {'76851e45f407089e062792c010176ae35a0ee77b'}
 $repoRoot = (& git -C $PSScriptRoot rev-parse --show-toplevel).Trim()
 if ($LASTEXITCODE -ne 0) { throw 'LEGACY_REPOSITORY_UNAVAILABLE' }
 $output = [IO.Path]::GetFullPath($OutputDirectory)
@@ -27,6 +30,6 @@ foreach ($directory in @('Deployment','Source')) {
 $hashes = @(Get-ChildItem -LiteralPath $output -Recurse -File | Sort-Object FullName | ForEach-Object {
     [ordered]@{path=[IO.Path]::GetRelativePath($output,$_.FullName).Replace('\','/');sha256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash}
 })
-[ordered]@{moduleId='toolbelt.pseudonymization.deterministic';moduleVersion='1.0.0';publicCommit=$revision;files=$hashes} |
+[ordered]@{moduleId='toolbelt.pseudonymization.deterministic';moduleVersion=$Version;publicCommit=$revision;files=$hashes} |
     ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $output 'legacy-provenance.json') -Encoding utf8
-Write-Output 'PASS: genuine deterministic 1.0 SQLCMD fixture packaged'
+Write-Output ('PASS: genuine deterministic ' + $Version + ' SQLCMD fixture packaged')

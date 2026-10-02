@@ -8,6 +8,17 @@
 - Offline-Syntax, statische Kopplung und Dokumentationsaudit erfolgreich. API-/100000-/16-MiB-/Clientprüfungen auf Linux 2019/latest und Windows 2025/CU8 lokal/zentral erfolgreich als Teil früherer insgesamt fehlgeschlagener Läufe; finale fokussierte Metadaten-/Lifecycle-/Central-/Upgrade-/Bereinigungsadapter erfolgreich.
 - Historische Oraclefehler 53609/4, Kollisionsfehler 206, Caller-Batchfehler 3998 und Central-Orakelfehler 54600/45 bleiben als fehlgeschlagene Läufe erhalten. Neue Minimalrechte einschließlich offener VIEW DEFINITION/SELECT-Entscheidung und separater aktueller CI-/PR-Mergegate offen. Teilweise validiert und unveröffentlicht.
 
+## 2026-10-02 – Deterministic GeoJitter 1.2.0 implementiert, teilweise validiert
+
+- Die einzeln freigegebene Inline-TVF erhält vor Source einen unabhängig
+  geprüften begrenzten Vertrag für synthetische 2D-Points/SRID 4326,
+  Entitätsparameter und Radius 1–10000 m (Default 100 m).
+- Modellreferenz und sichere native Operanden auf ausgewählten Lab-Zielen
+  qualifiziert; echte 128-Byte-/größere UDTs getrennt vom unbeobachteten
+  129-Byte-Fall. Keine zusätzliche Spatial-API oder Anonymisierungszusage.
+- Der finale synthetische Geo-Adapter besteht auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Ausgeführt wurden ausdrücklich `GeoJitter.Contract.sql`, `GeoJitter.Safety.sql` und `InstalledMetadata.Contract.sql`, dazu SQL-/Clientmetadaten, echte 1.0.0-/1.1.0-Upgrades, Erstinstallation/Wiederholung, Caller-TX-/SET-Erhalt, Snapshot-Faults, Zukunftsslot-Erhalt, Uninstall und eigene Bereinigung. Der ursprüngliche Geo-Vertrag besteht unverändert in fünf unpartitionierten Batches mit 504 Orakeln. Die sieben bisherigen Source-Dateien bleiben bytegleich; dies ist kein erneuter finaler Runtime-Nachweis aller bisherigen APIs. Keine Konfigurations- oder Rechteänderungen. Neue Minimalrechte, weitere physische Ziele und ein exakt 129-Byte-UDT bleiben offen. Aktuelle CI wird als separater PR-Mergegate am exakten Head nachgewiesen. `partially validated`, `unreleased`.
+- Historische Zwischenstände vom 2026-10-02: Die ursprüngliche Ausdrucksform und kleinere Zwischenkandidaten scheiterten mit SQL-Fehler 701; ein späterer Lauf endete mit Timeout -2. Diese Läufe bleiben fehlgeschlagen, eine allgemeine Compilerursache ist nicht nachgewiesen. Der historische Vector-Facts-Kandidat bestand auf Linux mit einer vorübergehenden Partitionierung: 72 Gruppen mit je sieben Radiuswerten, zusammen dieselben 504 Orakel, eingebettet in 78 Batches einschließlich Metadaten/Goldens/Defaults, Setup, globalem Coverage-Orakel und Wiederholung. Dieser Zwischenbeleg ersetzt den finalen Nachweis der ursprünglichen fünf Batches nicht.
+
 ## 2026-10-02 – Regex-Captures und gruppenbezogenes Replace 1.3.0
 
 - Zwei einzeln freigegebene APIs über den gemeinsamen SAFE-CLR-Kern:

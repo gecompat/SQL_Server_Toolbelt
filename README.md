@@ -67,8 +67,15 @@ Der vollständige Translate-Adapter besteht auf SQL Server 2019 Linux/latest
 local/central und 2025 Windows/CU8 central CL150/160/170. Windows local ist
 durch erfolgreiche API-/Safetyfälle und die separate korrigierte Metadaten-/
 Lifecycleprüfung belegt; der frühere Gesamtfehllauf bleibt davon getrennt.
-Weitere Ziele, neue Minimalrechte-, Kapazitätsnachweise und aktuelle CI bleiben
-offen. `partially validated`, `unreleased`; keine Anonymisierungszusage.
+Die sieben abschließenden 1.1-CI-Prüfungen und der Merge sind in
+[PR #140](https://github.com/gecompat/SQL_Server_Toolbelt/pull/140) belegt.
+Version 1.2.0 ergänzt die einzeln freigegebene synthetische GeoJitter-TVF;
+Finale Geo-API-/Safety-/Metadaten- und Lifecycleadapter bestehen auf Linux
+2019/latest und Windows 2025/CU8 lokal und zentral; drei ausgewählte Runtime-Fixtures
+und der ursprüngliche fünfteilige Geo-Vertrag mit 504 Orakeln sind geprüft.
+Aktuelle CI wird als separater PR-Mergegate am exakten Head nachgewiesen. Weitere Ziele, neue Minimalrechte-
+und Kapazitätsnachweise bleiben offen. `partially validated`, `unreleased`;
+keine Anonymisierungszusage.
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)

@@ -47,9 +47,9 @@ IF @DependencyId IS NULL OR @Major IS NULL OR @Major<1 OR @Minor IS NULL OR @Min
     SELECT @Version=NULL,@Installed=0;
     SELECT @Version=TRY_CONVERT(nvarchar(64),value),@Installed=1 FROM sys.extended_properties
     WHERE class=0 AND major_id=0 AND minor_id=0 AND name=@VersionProperty;
-    IF @Installed=1 AND (@Version IS NULL OR CONVERT(varbinary(max),@Version) NOT IN (CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0')))
+    IF @Installed=1 AND (@Version IS NULL OR CONVERT(varbinary(max),@Version) NOT IN (CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0'),CONVERT(varbinary(max),N'1.2.0')))
         THROW 54023,N'Deterministic installed release is unknown or malformed.',1;
-    SET @Release=CASE CONVERT(varbinary(max),@Version) WHEN CONVERT(varbinary(max),N'1.0.0') THEN 10 WHEN CONVERT(varbinary(max),N'1.1.0') THEN 11 ELSE 0 END;
+    SET @Release=CASE CONVERT(varbinary(max),@Version) WHEN CONVERT(varbinary(max),N'1.0.0') THEN 10 WHEN CONVERT(varbinary(max),N'1.1.0') THEN 11 WHEN CONVERT(varbinary(max),N'1.2.0') THEN 12 ELSE 0 END;
     IF @Installed=1 AND NOT EXISTS (SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@ModeProperty
         AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(16),value)) IN (CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central')))
         THROW 54023,N'Deterministic installed mode is missing or malformed.',2;
@@ -101,17 +101,18 @@ GO
 :r ../Source/USP_DeterministicLookupCore.sql
 :r ../Source/USP_DeterministicLookup.sql
 :r ../Source/DeterministicTranslate.sql
+:r ../Source/DeterministicGeoJitter.sql
 BEGIN TRY
     IF @@TRANCOUNT<>1 THROW 54029,N'Deterministic: eigene Deploymenttransaktion fehlt oder wurde verschachtelt.',1;
     DECLARE @ObjectOrdinal int=1,@ObjectName sysname,@Visibility nvarchar(16),@ObjectLevelType varchar(16),@Property sysname,@Value sql_variant,
         @ModuleId nvarchar(128)=N'toolbelt.pseudonymization.deterministic',@Mode nvarchar(16)=N'$(DeploymentMode)',@ObjectId int;
-    WHILE @ObjectOrdinal<=7
+    WHILE @ObjectOrdinal<=8
     BEGIN
         SELECT @ObjectName=ObjectName,@Visibility=Visibility FROM #tbx_Deterministic_Release WHERE ObjectOrdinal=@ObjectOrdinal;
         SET @ObjectLevelType=CASE WHEN @ObjectName IN(N'USP_DeterministicLookup',N'USP_DeterministicLookupCore') THEN 'PROCEDURE' ELSE 'FUNCTION' END;
         SET @ObjectId=OBJECT_ID(N'toolbelt_pseudonymization.'+QUOTENAME(@ObjectName));
         DECLARE @Properties TABLE(PropertyOrdinal int,PropertyName sysname,PropertyValue sql_variant);
-        INSERT @Properties VALUES (1,N'Toolbelt.ModuleId',@ModuleId),(2,N'Toolbelt.ModuleVersion',N'1.1.0'),
+        INSERT @Properties VALUES (1,N'Toolbelt.ModuleId',@ModuleId),(2,N'Toolbelt.ModuleVersion',N'1.2.0'),
             (3,N'Toolbelt.ContractVersion',N'1.0'),(4,N'Toolbelt.DeploymentMode',@Mode),(5,N'Toolbelt.Visibility',@Visibility),
             (6,N'Toolbelt.SourceHash',CONVERT(varchar(64),HASHBYTES('SHA2_256',OBJECT_DEFINITION(@ObjectId)),2));
         DECLARE @PropertyOrdinal int=1;
@@ -128,8 +129,8 @@ BEGIN TRY
     END;
     DECLARE @VersionProperty sysname=N'Toolbelt.Module.toolbelt.pseudonymization.deterministic.Version',@ModeProperty sysname=N'Toolbelt.Module.toolbelt.pseudonymization.deterministic.DeploymentMode';
     IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@VersionProperty)
-        EXEC sys.sp_updateextendedproperty @name=@VersionProperty,@value=N'1.1.0';
-    ELSE EXEC sys.sp_addextendedproperty @name=@VersionProperty,@value=N'1.1.0';
+        EXEC sys.sp_updateextendedproperty @name=@VersionProperty,@value=N'1.2.0';
+    ELSE EXEC sys.sp_addextendedproperty @name=@VersionProperty,@value=N'1.2.0';
     IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@ModeProperty)
         EXEC sys.sp_updateextendedproperty @name=@ModeProperty,@value=@Mode;
     ELSE EXEC sys.sp_addextendedproperty @name=@ModeProperty,@value=@Mode;
