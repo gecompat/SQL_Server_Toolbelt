@@ -246,8 +246,7 @@ ist kein semantischer Roundtripnachweis. Externe DDL bleibt reine Testfixture.
 W1-Source und der ausgewählte öffentliche Runtime-Scope sind umgesetzt und teilweise validiert; V1-Nachweise bleiben getrennt.
 Kein konkreter SQL-Host, private Pfade, Inventar, reale Katalogwerte oder
 Credentials gehören in Repository-Evidenz. Die echte scopebezogene Labqualifikation
-bestand in den beiden unten dokumentierten finalen öffentlichen Läufen. CI am
-finalen Head, tatsächliche Minimalrechte und weitere Ziele bleiben getrennte offene Gates.
+bestand in den beiden unten dokumentierten finalen öffentlichen Läufen. CI am geprüften Head 76888216 bestanden; tatsächliche Minimalrechte und weitere physische Ziele bleiben getrennte offene Gates.
 
 ## Primärquellen und Alternativen
 
@@ -273,4 +272,4 @@ Managed1 und byteexakte SchemaCategory=metadata begründen ausschließlich das b
 
 ## Gezielter öffentlicher Runtime-Nachweis 2026-10-03
 
-Am 2026-10-03 bestanden die finalen öffentlichen Adapter auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Vier Runtime-Fixtures einschließlich 27 Propertytypen und separater 18-datetimeoffset-Produktpfadregression, Client-/Lifecycle-/Caller-TX-/SET-/AppLock-/Rollback-/Kollisions-/Dependency-/Atomikorakel sowie genuine 1.0-Upgrades und eigene Bereinigung sind qualifiziert. Inputs und Genuine-Blobs sind hashgebunden; tatsächlicher Exit, vollständige Kanäle, exakt gebundenes Journal und frischer Cleanup-Audit wurden zusammen geprüft. Keine Konfigurations-, Rechte-, Trust- oder Infrastrukturänderungen. Der Zähler32 ist nur der Visibility-Teilbereich. Tatsächliche Minimalrechte mit eigenem Principal, übrige physische Ziele und aktueller CI-Head bleiben NOT_EXECUTED. Teilweise validiert und unveröffentlicht.
+Am 2026-10-03 bestanden die finalen öffentlichen Adapter auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Vier Runtime-Fixtures einschließlich 27 Propertytypen und separater 18-datetimeoffset-Produktpfadregression, Client-/Lifecycle-/Caller-TX-/SET-/AppLock-/Rollback-/Kollisions-/Dependency-/Atomikorakel sowie genuine 1.0-Upgrades und eigene Bereinigung sind qualifiziert. Inputs und Genuine-Blobs sind hashgebunden; tatsächlicher Exit, vollständige Kanäle, exakt gebundenes Journal und frischer Cleanup-Audit wurden zusammen geprüft. Keine Konfigurations-, Rechte-, Trust- oder Infrastrukturänderungen. Der Zähler32 ist nur der Visibility-Teilbereich. CI am geprüften PR-Head 76888216 bestanden: alle sieben Checks SUCCESS einschließlich SQL Server 2019/2022/2025 Linux. Tatsächliche Minimalrechte mit eigenem Principal und weitere physische Ziele bleiben NOT_EXECUTED. Teilweise validiert und unveröffentlicht.
