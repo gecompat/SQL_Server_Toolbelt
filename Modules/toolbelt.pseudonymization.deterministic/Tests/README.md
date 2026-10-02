@@ -171,3 +171,25 @@ Datenbanken; keine fremden Datenbanken, Temps oder Ressourcen entfernen.
 - Scope: Version 1.2.0: Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 lokal/zentral PASS; ausdrücklich GeoJitter.Contract.sql (ursprüngliche fünf unpartitionierte Batches/504 Orakel), GeoJitter.Safety.sql, InstalledMetadata.Contract.sql plus Client-/SQLmetadaten, echte1.0/1.1-Upgrades, FirstInstall/Repeat/CallerTX-SET/Snapshot-Faults/FutureSlots/Uninstall/ownCleanup; alte sieben Source-Dateien bytegleich, kein erneuter finaler Vollfamilien-Runtime-Nachweis; keine Konfigurations-/Rechteänderungen, neue Minimalrechte/weitere Targets/exakt129ByteUDT offen; aktueller CI-/PR-Mergegate am exakten Head separat nachzuweisen; unreleased
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+
+## Geo-PR-CI: getrennte Version-/Compatibility-Paare
+
+Der historische CI-Lauf [36972696140](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/36972696140)
+am damaligen PR-Head bestand SQL 2019 und 2022. SQL 2025 wurde nach
+Überschreiten der maximalen Joblaufzeit von 30 Minuten abgebrochen; ein
+vollständiger SQL-2025-CI-Nachweis fehlt für diesen Head. Daraus wird kein
+algorithmischer Fehler abgeleitet.
+
+Die folgende CI-Aufteilung enthält sechs explizite Paare: 2019/150,
+2022/150, 2022/160, 2025/150, 2025/160 und 2025/170. Jeder Job führt den
+vollständigen bisherigen Ablauf aus. Der gewählte CL gilt für die bestehenden
+API-CL-Schleifen; frühe Vorgängerprüfungen und nachgelagerte Lifecycle-/Fault-
+Aufrufe behalten ihren bisherigen Datenbank-/Default-CL-Kontext. Runtime-Fixtures
+und SQL-Source bleiben unverändert. Das Limit bleibt 30 Minuten je Job,
+maximal drei Jobs laufen parallel. `TBX_SQL_COMPATIBILITY_LEVEL` wählt
+optional genau ein unterstütztes Paar, validiert vor Docker; ohne Variable
+behält der Bash-Adapter seine bisherige Levelauswahl. Synthetische Phasenlabels
+nennen Modus, Vorgänger, CL und Fixture ohne Verbindungs- oder Inventarangaben.
+Aktuelle CI wird als separater PR-Mergegate am exakten neuen Head nachgewiesen;
+die Aufteilung allein ist kein erfolgreicher Runtime-Nachweis.
