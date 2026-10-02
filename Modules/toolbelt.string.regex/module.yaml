@@ -1,10 +1,10 @@
 module_id: "toolbelt.string.regex"
 module_name: "Bounded Regular Expressions"
-version: "1.2.0"
+version: "1.3.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Stellt IsMatch, Instr, Count, Substring/Literal Replace sowie atomare Gesamttreffer-/Split-TVFs über den gemeinsamen SAFE-CLR-Regexkern bereit."
+description: "Stellt IsMatch, Instr, Count, Substring/Literal Replace sowie atomare Gesamttreffer-/Split-/Capture-TVFs und getrenntes Gruppen-Replace über den gemeinsamen SAFE-CLR-Regexkern bereit."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -31,6 +31,10 @@ dependencies: []
 schemas:
   - "toolbelt_string"
 objects:
+  - {type: TVF, schema: "toolbelt_string", name: "TVF_RegexCaptures", visibility: public}
+  - {type: SVF, schema: "toolbelt_string", name: "SVF_RegexReplaceGroups", visibility: public}
+  - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_RegexCapturesCore", visibility: internal}
+  - {type: CLR_SVF, schema: "toolbelt_string", name: "SVF_RegexReplaceGroupsCore", visibility: internal}
   - {type: TVF, schema: "toolbelt_string", name: "TVF_RegexMatches", visibility: public}
   - {type: TVF, schema: "toolbelt_string", name: "TVF_RegexSplit", visibility: public}
   - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_RegexMatchesCore", visibility: internal}
@@ -53,13 +57,16 @@ collation_contract: "Matching ist ordinal zur Regexengine und unabhängig von de
 data_type_contract: "R1b unverändert: Input 2 MiB, Pattern 8000 UTF-16-Bytes, Flags nvarchar(4). R2a max-Texte: standard 2 MiB oder explizit large 16 MiB Quelle/Ersatz/Output; Pattern 8000 UTF-16-Codeeinheiten, Flags/Profile nvarchar(max) vor Validierung; Positionen int/UTF-16. R2b verwendet dieselben Profile und Patterngrenzen; Ordinal/StartPosition/Length bigint in UTF-16-Codeeinheiten, Ergebnistextsumme profilbegrenzt und MaxRows default 10000/ceiling 100000, ohne Laufzeitgarantie."
 help_contract_version: "not applicable"
 resultset_contracts:
+  - object: "toolbelt_string.TVF_RegexCaptures"
+    resultset: "MatchOrdinal bigint, GroupOrdinal int, CaptureOrdinal bigint, GroupName nvarchar(128), Matched bit, StartPosition bigint, Length bigint, Value nvarchar(max); nullable metadata, sentinel last three NULL"
+    max_rows: "default 10000; ceiling 100000; GroupName plus Value cumulative text charge"
   - object: "toolbelt_string.TVF_RegexMatches"
     resultset: "Ordinal bigint, StartPosition bigint, Length bigint, Value nvarchar(max); Metadaten nullable, alle Erfolgswerte nicht NULL"
     max_rows: "default 10000; ceiling 100000"
   - object: "toolbelt_string.TVF_RegexSplit"
     resultset: "Ordinal bigint, StartPosition bigint, Length bigint, Value nvarchar(max); Metadaten nullable, alle Erfolgswerte nicht NULL"
     max_rows: "default 10000; ceiling 100000"
-lifecycle_error_range: "52030-52039"
+lifecycle_error_range: "52030-52039; 52046-52047 expected installed binary hash"
 trust_error_range: "52040-52049"
 runtime_error_contract: "SQL error 6522 with stable TBX_REGEX_* prefix"
 clr:
@@ -87,6 +94,8 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
+    - "Documentation/TVF_RegexCaptures.md"
+    - "Documentation/SVF_RegexReplaceGroups.md"
     - "Documentation/REGEX_FUNCTIONS.md"
     - "Documentation/SVF_RegexReplace.md"
     - "Documentation/SVF_RegexSubstring.md"
@@ -95,6 +104,7 @@ documentation:
   architecture:
     - "../../Documentation/Architecture/REGEX_MODULE_DESIGN.md"
     - "../../Documentation/Architecture/REGEX_EXTENSION_PROPOSAL.md"
+    - "../../Documentation/Architecture/REGEX_CAPTURE_REPLACE_CONTRACT.md"
   test_matrix:
     - "Tests/REGEX_CONTRACT_TEST_MATRIX.md"
   evidence:
@@ -111,6 +121,10 @@ tests:
   relations_framework: "Tests/Runtime/run-framework-relations.ps1"
   relations_metadata: "Tests/Runtime/Relations.Metadata.ps1"
   relations_rights: "Tests/Runtime/Relations.Rights.sql"
+  captures: "Tests/Runtime/Captures.Contract.sql"
+  captures_metadata: "Tests/Runtime/Captures.Metadata.ps1"
+  captures_central: "Tests/Runtime/Captures.Central.sql"
+  captures_lab: "../../Tests/CI/run-regex-captures-lab.ps1"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   github_hosted_linux: "../../.github/workflows/regex-runtime.yml"
@@ -126,4 +140,13 @@ validation_evidence:
   - date: "2026-10-01"
     workflow: "local: Tests/CI/run-lab-local.ps1; Windows PowerShell: run-framework-relations.ps1"
     scope: "R2b auf SQL Server 2025 Windows/CU8 bei CL150/160/170 und SQL Server 2019 Linux/latest CL150: vollständiger Regexadapter, Empty-/UTF16-/NULL-/Fehlerpriorität, 16 MiB Outputhash, strikte kleine Rowlimits, SQLClient-Schema/Metadata und SELECT-Atomicity bei Rowlimitfehler/Runtime-Timeout lokal und central, SELECT-Minimalrechte lokal/direkt zentral, genuine 1.0/1.1 Upgrade, vier neue Namenskollisionen mit imitiertem Marker, historischer Uninstall-Erhalt, 1.2 Reinstall/Marker/Dependency-Uninstall/Cleanup. Framework tatsächlich 100000 Zeilen; gezielte SQL-100k-Probe nur vollständige Ausgabe oder atomarer Timeout, keine SQL-100k-Durchsatzevidenz. Weitere R2b-Ziele und Lowpriv-CrossDB noch nicht ausgeführt."
+    result: "success"
+
+  - date: "2026-10-02"
+    workflow: "local: Tests/CI/run-regex-captures-lab.ps1 -ApiQualificationOnly; Windows PowerShell: Tests/Framework/run-framework-captures.ps1"
+    scope: "Capture/Replace API-only lokal/zentral auf Windows2025 CU8 CL150/160/170 und Linux2019 latest CL150; unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, alte sieben APIs, exact installed Binaryhash und eigener DB-/Trustcleanup. Framework 100000 Captures und Standard/Large. Lifecycle/Upgrade/Reinstall/Uninstall blockiert wegen unsigned CLR-Katalogversionsnachweis; zusätzliche Hashgrenze wartet auf Benutzerentscheidung. Weitere Matrix, neue Mindestberechtigungen und SQL-Large-Capturegrenze offen; keine 100k-SQL-Durchsatzzusage."
+    result: "success"
+  - date: "2026-10-02"
+    workflow: "local: Tests/CI/run-regex-captures-lab.ps1; Windows PowerShell: Tests/Framework/run-framework-captures.ps1"
+    scope: "Finaler Capture/Replace-Gesamtadapter lokal/zentral auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170: sieben alte und zwei neue APIs, unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, echter 1.2-zu-1.3-Upgrade, Reinstall, explizite erwartete SHA2_512-Binaryhashbindung, Caller-TX/SET-Erhalt, AppLock, post-DROP-Rollback, Versions-/Marker-/Future-Slot-/Schema-Kollisionen, Dependencies, Uninstall und verifiziertes eigenes DB-/Trustcleanup. Framework tatsächlich 100000 Captures und Standard/Large. Frühere API-only- und fehlgeschlagene Adapterstände bleiben historische Evidenz. Neue Capture-Minimalrechte, weitere Ziele, ältere 1.0/1.1-Capture-Upgrades, tatsächliche große SQL-Capture-Ausgabe und SQL-100k-Durchsatz nicht ausgeführt; aktueller CI-Nachweis separat als PR-Mergegate erforderlich, teilweise validiert/unreleased."
     result: "success"

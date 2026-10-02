@@ -28,6 +28,7 @@
     <Compile Include="RegexProvider.cs" />
     <Compile Include="RegexTransformations.cs" />
     <Compile Include="RegexRelations.cs" />
+    <Compile Include="RegexCaptures.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

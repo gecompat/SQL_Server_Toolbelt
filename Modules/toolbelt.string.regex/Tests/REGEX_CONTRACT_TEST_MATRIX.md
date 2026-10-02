@@ -1,5 +1,25 @@
 # Regex-Contract-Testmatrix
 
+## Capture-/Replace-Zusatzscope 1.3.0
+
+| Bereich | Pflichtnachweis |
+|---|---|
+| Captures | Linksöffnende gemischte Gruppenordinals, Namen, alle Wiederholungen, Backtracking entfernt verworfene Captures, Sentinel/Empty, UTF16, Start und terminale Treffer |
+| Replace | Strikte `$1`/`${Name}`/`$$`, ganze Ordinalziffernfolge, letzter Capture, unmatched leer, unbekannte Referenzen vor Suche, NULL/Fehlerpriorität, altes literales Replace unverändert |
+| History | Konservative L-basierte saturierte Pfadformel vor Enginekonstruktion, finite-nullable/Zeroquantifier/Alternation/Nesting, unbounded-nullable-Capture abweisen; keine Heap-/Backtrackingzusage |
+| Grenzen | Framework tatsächlich 100000 Captures, verschachtelte 99099 Captures, Standard/Large Name-plus-Value-Charge, atomare Rückgabe, gemeinsame Budgetprüfung |
+| SQLClient | Acht nullable Spalten, Typen/Größen/Parameterreihenfolge, Defaults, kein Zusatzresult/Message, Fehler ohne erste verwertbare Zeile |
+| Lifecycle | Frische Ownership-Prüfung unter gemeinsamem AppLock, Caller-TX/Optionserhalt, Failure-Rollback, versionsgebundene 3/7/11/15 Slots, genuine 1.2 Upgrade, fremde künftige Slots und Schema, Marker/Dependency/Uninstall/Cleanup |
+
+Integrierte Framework-Suite und finaler Gesamtadapter am 2026-10-02 erfolgreich:
+Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral,
+einschließlich echtem 1.2-Upgrade, Reinstall, erwarteter Binaryhashbindung,
+Caller-TX/Optionserhalt, AppLock, post-DROP-Rollback, Kollisionen, Dependencies,
+Uninstall und eigenem DB-/Trustcleanup. Neue Capture-Minimalrechte, weitere
+Ziele und die tatsächliche große SQL-Capture-Ausgabegrenze bleiben offen;
+Die aktuelle CI wird separat als PR-Mergegate nachgewiesen. Historische Matrixnachweise
+qualifizieren keine neu hinzugefügte Capture-API.
+
 ## R2b-Zusatzscope 1.2.0
 
 Framework-Build und relationaler Frameworkvertrag am 2026-10-01 PASS;
@@ -49,8 +69,8 @@ die Lab-Umgebungen nicht beendet.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-01`
-- Nachweis: `local: Tests/CI/run-lab-local.ps1; Windows PowerShell: run-framework-relations.ps1`
-- Scope: R2b auf SQL Server 2025 Windows/CU8 bei CL150/160/170 und SQL Server 2019 Linux/latest CL150: vollständiger Regexadapter, Empty-/UTF16-/NULL-/Fehlerpriorität, 16 MiB Outputhash, strikte kleine Rowlimits, SQLClient-Schema/Metadata und SELECT-Atomicity bei Rowlimitfehler/Runtime-Timeout lokal und central, SELECT-Minimalrechte lokal/direkt zentral, genuine 1.0/1.1 Upgrade, vier neue Namenskollisionen mit imitiertem Marker, historischer Uninstall-Erhalt, 1.2 Reinstall/Marker/Dependency-Uninstall/Cleanup. Framework tatsächlich 100000 Zeilen; gezielte SQL-100k-Probe nur vollständige Ausgabe oder atomarer Timeout, keine SQL-100k-Durchsatzevidenz. Weitere R2b-Ziele und Lowpriv-CrossDB noch nicht ausgeführt.
+- Datum: `2026-10-02`
+- Nachweis: `local: Tests/CI/run-regex-captures-lab.ps1; Windows PowerShell: Tests/Framework/run-framework-captures.ps1`
+- Scope: Finaler Capture/Replace-Gesamtadapter lokal/zentral auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170: sieben alte und zwei neue APIs, unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, echter 1.2-zu-1.3-Upgrade, Reinstall, explizite erwartete SHA2_512-Binaryhashbindung, Caller-TX/SET-Erhalt, AppLock, post-DROP-Rollback, Versions-/Marker-/Future-Slot-/Schema-Kollisionen, Dependencies, Uninstall und verifiziertes eigenes DB-/Trustcleanup. Framework tatsächlich 100000 Captures und Standard/Large. Frühere API-only- und fehlgeschlagene Adapterstände bleiben historische Evidenz. Neue Capture-Minimalrechte, weitere Ziele, ältere 1.0/1.1-Capture-Upgrades, tatsächliche große SQL-Capture-Ausgabe und SQL-100k-Durchsatz nicht ausgeführt; aktueller CI-Nachweis separat als PR-Mergegate erforderlich, teilweise validiert/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

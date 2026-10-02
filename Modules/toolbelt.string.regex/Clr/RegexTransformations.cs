@@ -72,6 +72,22 @@ namespace Toolbelt.String.Regex
                 regex = Construct(regexTimeout);
             }
 
+            internal CapturePlan InitializeCaptures(string pattern, int inputLength)
+            {
+                if (pattern.Length > R2PatternCodeUnits)
+                    throw Error("TBX_REGEX_PATTERN_TOO_LARGE", "Pattern darf höchstens 8000 UTF-16-Codeeinheiten enthalten.");
+                CheckComplexity(pattern);
+                var captures = new CapturePlan(inputLength);
+                Pattern = TranslatePattern(pattern,
+                    (Options & RegexOptions.Multiline) != 0,
+                    (Options & RegexOptions.IgnoreCase) != 0, captures);
+                if (Pattern.Length > R2TranslatedCodeUnits)
+                    throw Error("TBX_REGEX_PATTERN_TOO_LARGE", "Das übersetzte Pattern ist zu groß.");
+                regexTimeout = Math.Min(250, Remaining());
+                regex = Construct(regexTimeout);
+                return captures;
+            }
+
             private DotNetRegex Construct(int milliseconds)
             {
                 Remaining();

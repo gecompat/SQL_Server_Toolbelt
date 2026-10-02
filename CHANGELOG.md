@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## 2026-10-02 – Regex-Captures und gruppenbezogenes Replace 1.3.0
+
+- Zwei einzeln freigegebene APIs über den gemeinsamen SAFE-CLR-Kern:
+  alle Capture-Wiederholungen mit stabilen Gruppenordinals und getrenntes
+  Replace mit strikten `$1`-/`${Name}`-/`$$`-Referenzen.
+- Zusätzlich ausdrücklich freigegebene erwartete SHA2_512-Binaryhashbindung
+  für Deploy/Uninstall; keine historische CLR-Versionsableitung oder Hashfallback.
+- Finale Gesamtadapter auf Linux 2019/latest CL150 und Windows 2025/CU8
+  CL150/160/170 lokal/zentral erfolgreich: API-/Clientverträge, echter
+  1.2-Upgrade, Reinstall, Caller-TX/SET-Erhalt, AppLock, Rollback,
+  Kollisions-/Dependency-Erhalt, Uninstall und eigenes DB-/Trustcleanup.
+- Frühere API-only-Nachweise bleiben getrennt; fehlgeschlagene Gesamtversuche
+  führten zu korrigierter Vorgänger-SQLCMD-Normalisierung, optionsneutralem
+  Snapshot und sicherer Credential-Quelle der zweiten Testverbindung.
+- Neue Capture-Minimalrechte, weitere Ziele, ältere Capture-Upgrades und
+  tatsächliche große SQL-Capture-Ausgabe offen. Aktuelle CI wird separat als PR-Mergegate nachgewiesen; teilweise
+  validiert und unveröffentlicht, keine Heap-/Backtracking-/Durchsatzgarantie.
+
 ## 2026-10-02 – Parser-Härtung 2.0.0 in Arbeit
 
 - Konkreter begrenzter Vertrag für die vier bestehenden TVFs vor Source
