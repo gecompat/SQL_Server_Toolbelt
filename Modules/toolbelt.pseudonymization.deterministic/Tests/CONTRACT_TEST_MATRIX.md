@@ -5,12 +5,12 @@
 | Scope | Pflichtfälle | Nachweis am 2026-10-02 |
 |---|---|---|
 | Format/Mapping | feste 22-Byte-Frames, signed Grenzen, 36 logische Mappingeingaben, Digest-/Ordinalranking, Casekopplung und Bijektion | private Vorqualifikation unabhängig wiederholt 5.540 Assertions; integrierte Referenzsuite 1.746 Assertions; feste SQL-Vektoren Linux2019 und Windows2025 lokal PASS |
-| API/Metadaten | echter IF-Typ, fünf Parameter/Defaults, genau eine nullable Value-/nicht-nullable ErrorCode-Zeile, nvarchar(max)/BIN2 | SQL- und Clientmetadaten Linux2019 local/central und Windows2025 local PASS |
-| Fehler/Optimizer | NULL zuerst, vollständige Fehlerpriorität, bytegenaue Profile/Separatoren, sichere native Operanden, Konstanten/APPLY/äußerer CASE | 21 getrennte unabhängige Safetybatches Linux2019 local/central und Windows2025 local CL150/160/170 PASS |
+| API/Metadaten | echter IF-Typ, fünf Parameter/Defaults, genau eine nullable Value-/nicht-nullable ErrorCode-Zeile, nvarchar(max)/BIN2 | SQL- und Clientmetadaten Linux2019 local/central und Windows2025 central CL150/160/170 sowie separat korrigierter local-Adapter PASS |
+| Fehler/Optimizer | NULL zuerst, vollständige Fehlerpriorität, bytegenaue Profile/Separatoren, sichere native Operanden, Konstanten/APPLY/äußerer CASE | 21 getrennte unabhängige Safetybatches Linux2019 local/central und Windows2025 local/central CL150/160/170 PASS; local-APIteil im früheren Gesamtfehllauf |
 | Collation | Caller BIN2, CS_AS, CI_AS_SC, CI_AS_SC_UTF8; NUL/Surrogates/trailing Spaces | je fünf integrierte Fälle pro Collation in Safetyfixture PASS im obigen Scope |
 | Budgets | 33/+1 Separatoren; Standard 2MiB und large 16MiB exakt/+1; letzte unbekannte Codeunit; vollständige Ausgabebytes | tatsächliche SQL-LOBs und Hash-/Längenorakel PASS im obigen Scope; keine Heap-/Zeit-/Produktionskapazitätszusage |
-| Lifecycle | genuine unverändertes 1.0 mit sechs Slots →1.1 mit sieben Slots; frische Installation/Wiederholung; CallerTX ON/OFF; Marker-/Dependency-/Confirm-Snapshots; Zukunftsslots selbst mit imitierten Markern ablehnen; historischer Uninstall bewahrt fremden Slot | Linux2019 local/central und Windows2025 local PASS; genuine Fixture gegen öffentlichen Commit geprüft |
-| Central | identischer Source, administrative dreiteilige Aufrufe aus CI_AS_SC_UTF8-Consumer, Original-Clientmetadaten/Help/Tempguard | Linux2019 PASS; Windows2025 central läuft noch |
+| Lifecycle | genuine unverändertes 1.0 mit sechs Slots →1.1 mit sieben Slots; frische Installation/Wiederholung; CallerTX ON/OFF; Marker-/Dependency-/Confirm-Snapshots; Zukunftsslots selbst mit imitierten Markern ablehnen; historischer Uninstall bewahrt fremden Slot | Linux2019 local/central und Windows2025 central sowie separat korrigierter local-Adapter PASS; genuine Fixture gegen öffentlichen Commit geprüft |
+| Central | identischer Source, administrative dreiteilige Aufrufe aus CI_AS_SC_UTF8-Consumer, Original-Clientmetadaten/Help/Tempguard | vollständiger Adapter Linux2019 CL150 und Windows2025 CL150/160/170 PASS |
 | Rechte/weitere Targets | neue direkte/CrossDB-Minimalrechte; weitere physische Windows-/Linux-Ziele | im neuen Labscope not executed, keine Grants; historische 1.0-Rechtebelege qualifizieren Translate nicht |
 | CI/Release | erforderliche grüne CI auf aktuellem Head; keine Veröffentlichung | CI noch offen, unreleased |
 
@@ -55,6 +55,6 @@ Grant, TempDB-Verbrauch oder die Wallclock. Keine Performancevergleiche aus
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
 - Nachweis: `local: Tests/CI/run-deterministic-translate-lab.ps1`
-- Scope: Version 1.1.0: vollständiger Linux2019/latest CL150 local/central; bestehende APIregressionen, Translate/21Safetybatches/vier Caller-Collations/echte2MiB+16MiB/Metadaten, genuine1.0Upgrade/FirstInstall/Repeat/CallerTX/Snapshot-Faults/fremdeFutureSlots/historischerUninstall/CrossDB/ownCleanup; Windows2025/CU8 lokale APIs/Safety CL150/160/170 und separater korrigierter Metadaten-/Lifecycleadapter PASS, central noch offen; keine neuen Lab-Grants/Serverkonfiguration, weitere Targets/Minimalrechte/CI offen
+- Scope: Version 1.1.0: vollständiger Linux2019/latest CL150 local/central; bestehende APIregressionen, Translate/21Safetybatches/vier Caller-Collations/echte2MiB+16MiB/Metadaten, genuine1.0Upgrade/FirstInstall/Repeat/CallerTX/Snapshot-Faults/fremdeFutureSlots/historischerUninstall/CrossDB/ownCleanup; Windows2025/CU8 vollständiger central-Adapter CL150/160/170 PASS; lokale APIs/Safety im früheren insgesamt fehlgeschlagenen Lauf bestanden, separater korrigierter lokaler Metadaten-/Lifecycleadapter PASS; keine neuen Lab-Grants/Serverkonfiguration, weitere Targets/Minimalrechte/CI offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

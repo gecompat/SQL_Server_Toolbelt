@@ -22,8 +22,15 @@ und historischer Uninstall-Erhalt, administrative CrossDB-Aufrufe.
 Windows 2025/CU8: lokale API-/Safetyfälle CL150/160/170 erfolgreich. Der frühe
 Gesamtadapter scheiterte anschließend am bekannten offenen Dependency-Temp-
 Constraint; kein Gesamt-PASS. Nach Sessionkorrektur besteht der separate
-lokale Metadaten-/Lifecycleadapter. Zentraler Windows-Adapter noch in Prüfung.
+lokale Metadaten-/Lifecycleadapter. Der vollständige zentrale Windows-Adapter
+besteht danach unverändert auf CL150/160/170: alle sieben Slots, Safety-/
+LOB-/Collationfälle, Metadaten, echtes 1.0-Upgrade, Erstinstallation/
+Wiederholung, CallerTX, Snapshot-Faults/Zukunftsslots und Uninstall.
 Source unverändert; abgeschlossene eigene Läufe vollständig bereinigt.
+
+Neue direkte/CrossDB-Minimalrechte, weitere physische Targets und aktuelle CI
+bleiben offen. Teilweise validiert, unveröffentlicht; keine neue Konfiguration
+oder Grants und keine Produktionskapazitätszusage.
 
 Die ersten Adapterfehler waren keine bestandenen Läufe: API-Dateien brauchen
 getrennte Sessions wie SQLCMD; der Dependencyinstaller muss seine Session
@@ -130,6 +137,6 @@ Datenbanken; keine fremden Datenbanken, Temps oder Ressourcen entfernen.
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
 - Nachweis: `local: Tests/CI/run-deterministic-translate-lab.ps1`
-- Scope: Version 1.1.0: vollständiger Linux2019/latest CL150 local/central; bestehende APIregressionen, Translate/21Safetybatches/vier Caller-Collations/echte2MiB+16MiB/Metadaten, genuine1.0Upgrade/FirstInstall/Repeat/CallerTX/Snapshot-Faults/fremdeFutureSlots/historischerUninstall/CrossDB/ownCleanup; Windows2025/CU8 lokale APIs/Safety CL150/160/170 und separater korrigierter Metadaten-/Lifecycleadapter PASS, central noch offen; keine neuen Lab-Grants/Serverkonfiguration, weitere Targets/Minimalrechte/CI offen
+- Scope: Version 1.1.0: vollständiger Linux2019/latest CL150 local/central; bestehende APIregressionen, Translate/21Safetybatches/vier Caller-Collations/echte2MiB+16MiB/Metadaten, genuine1.0Upgrade/FirstInstall/Repeat/CallerTX/Snapshot-Faults/fremdeFutureSlots/historischerUninstall/CrossDB/ownCleanup; Windows2025/CU8 vollständiger central-Adapter CL150/160/170 PASS; lokale APIs/Safety im früheren insgesamt fehlgeschlagenen Lauf bestanden, separater korrigierter lokaler Metadaten-/Lifecycleadapter PASS; keine neuen Lab-Grants/Serverkonfiguration, weitere Targets/Minimalrechte/CI offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

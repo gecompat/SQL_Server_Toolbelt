@@ -144,3 +144,25 @@ Primärquellen:
 - [Microsoft: TRANSLATE](https://learn.microsoft.com/en-us/sql/t-sql/functions/translate-transact-sql?view=sql-server-ver17)
 - [Microsoft: HASHBYTES](https://learn.microsoft.com/en-us/sql/t-sql/functions/hashbytes-transact-sql?view=sql-server-ver17)
 - [Microsoft: REPLICATE](https://learn.microsoft.com/en-us/sql/t-sql/functions/replicate-transact-sql?view=sql-server-ver17)
+## Integrierte Qualifikation 2026-10-02
+
+Die neue Inline-TVF und der gekoppelte 1.1-Lifecycle sind implementiert.
+Die versionierte Referenzsuite besteht 1.746 zusätzliche Translateassertions;
+unabhängige Source-, Lifecycle- und Datenschutzreviews sind erfolgreich.
+Der vollständige synthetische Adapter `Tests/CI/run-deterministic-translate-lab.ps1`
+besteht auf schema-validierten, ausgewählten SQL_Server_Lab-Zielen:
+Linux 2019/latest CL150 local/central und Windows 2025/CU8 CL150/160/170
+central. Geprüft sind bestehende APIregressionen, Translatevektoren,
+21 Safetybatches, vier Caller-Collations, tatsächliche 2-/16-MiB-Grenzen,
+SQL-/Clientmetadaten, echtes unverändertes 1.0-Upgrade, FirstInstall,
+Wiederholung, Callertransaktionen, unveränderte Fehlersnapshots,
+fremde Zukunftsslots, historischer Uninstall, CrossDB und eigener Cleanup.
+Windows local: API-/Safetyfälle bestanden im früheren insgesamt fehlgeschlagenen
+Lauf; anschließend bestand der separate korrigierte Metadaten-/Lifecycleadapter.
+Dies ist kein Gesamt-PASS des früheren Fehllaufs. Keine Serverkonfiguration
+oder Rechte wurden für diese Labprüfungen geändert.
+
+Die vorstehende Vor-Source-Evidenz bleibt ein historisch getrennter Nachweis.
+Erforderliche CI auf dem finalen PR-Head sowie neue direkte/CrossDB-Minimalrechte
+sind noch offen; weitere physische Ziele und Produktionskapazität sind nicht
+qualifiziert. Der Modulstatus bleibt `partially validated`, `unreleased`.

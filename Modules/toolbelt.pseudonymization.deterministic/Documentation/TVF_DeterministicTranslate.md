@@ -76,3 +76,10 @@ Mappingrelationen bleiben klein; der Optimizer kann Ausdrücke wiederholt
 auswerten. Status, tatsächlich ausgeführte SQL-API-/Lifecycle-/Metadaten-
 Qualifikation und verbleibende Fälle stehen in der
 [Testmatrix](../Tests/CONTRACT_TEST_MATRIX.md).
+
+Am 2026-10-02 bestehen vollständige Adapter auf Linux 2019/latest CL150
+local/central und Windows 2025/CU8 CL150/160/170 central. Windows local:
+API-/Safetyfälle im früheren Gesamtfehllauf bestanden; separate korrigierte
+Metadaten-/Lifecycleprüfung erfolgreich. Aktuelle CI, neue Minimalrechte,
+weitere physische Targets und Kapazität bleiben offen. Teilweise validiert,
+unveröffentlicht; der frühere Fehllauf wird nicht als Gesamt-PASS geführt.
