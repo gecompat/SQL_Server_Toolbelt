@@ -36,27 +36,14 @@ DECLARE @PrefixLf nvarchar(max)=N'-- Kanonischer Catalog-/Scriptkern; keine Ausf
  @Prefix nvarchar(max),@Eol nvarchar(2),@Header nvarchar(256),@HeaderPosition int,@AlterOriginal nvarchar(max);
 DECLARE @ObservedPrefix nvarchar(max)=NCHAR(10)+NCHAR(10)+@PrefixLf,
  @ObservedHeader nvarchar(256)=N'CREATE   PROCEDURE toolbelt_metadata.USP_ScriptTableCloneInternal'+NCHAR(10);
--- Begrenzter Diagnose-Witness; bestehende Prefixannahme und Ablehnung bleiben unverändert.
-DECLARE @KnownPrefixForms TABLE(FormCode varchar(32) NOT NULL,Signature nvarchar(max) NOT NULL);
-INSERT @KnownPrefixForms(FormCode,Signature)
-SELECT CONVERT(varchar(32),e.EolCode+'_L'+CONVERT(varchar(1),l.LeadingCount)+'_'+h.HeaderCode),
- REPLICATE(e.Eol,l.LeadingCount)+REPLACE(@PrefixLf,NCHAR(10),e.Eol)+h.HeaderText+e.Eol
-FROM (VALUES('LF',CONVERT(nvarchar(2),NCHAR(10))),('CRLF',CONVERT(nvarchar(2),NCHAR(13)+NCHAR(10))))e(EolCode,Eol)
-CROSS JOIN(VALUES(0),(1),(2))l(LeadingCount)
-CROSS JOIN(VALUES
- ('CREATE',N'CREATE PROCEDURE toolbelt_metadata.USP_ScriptTableCloneInternal'),
- ('ORALTER',N'CREATE OR ALTER PROCEDURE toolbelt_metadata.USP_ScriptTableCloneInternal'),
- ('TRIPLE',N'CREATE   PROCEDURE toolbelt_metadata.USP_ScriptTableCloneInternal'))h(HeaderCode,HeaderText);
-SELECT CONVERT(bit,CASE WHEN @Original IS NULL THEN 0 ELSE 1 END) AS WitnessPresent,
- CONVERT(int,COUNT(*)) AS KnownMatchCount,
- CONVERT(varchar(32),CASE WHEN COUNT(*)=1 THEN MAX(FormCode) WHEN COUNT(*)=0 THEN 'NONE' ELSE 'AMBIGUOUS' END) AS ClosedForm
-FROM @KnownPrefixForms
-WHERE DATALENGTH(@Original)>=DATALENGTH(Signature)
- AND SUBSTRING(CONVERT(varbinary(max),@Original),1,DATALENGTH(Signature))=CONVERT(varbinary(max),Signature);
 IF DATALENGTH(@Original)>=DATALENGTH(@ObservedPrefix+@ObservedHeader)
  AND SUBSTRING(CONVERT(varbinary(max),@Original),1,DATALENGTH(@ObservedPrefix+@ObservedHeader))
  =CONVERT(varbinary(max),@ObservedPrefix+@ObservedHeader)
  SELECT @Prefix=@ObservedPrefix,@Eol=NCHAR(10),@Header=@ObservedHeader;
+ELSE IF DATALENGTH(@Original)>=DATALENGTH(NCHAR(10)+@PrefixLf+@ObservedHeader)
+ AND SUBSTRING(CONVERT(varbinary(max),@Original),1,DATALENGTH(NCHAR(10)+@PrefixLf+@ObservedHeader))
+ =CONVERT(varbinary(max),NCHAR(10)+@PrefixLf+@ObservedHeader)
+ SELECT @Prefix=NCHAR(10)+@PrefixLf,@Eol=NCHAR(10),@Header=@ObservedHeader;
 ELSE IF CONVERT(varbinary(max),LEFT(@Original,DATALENGTH(@PrefixLf)/2))=CONVERT(varbinary(max),@PrefixLf)
  SELECT @Prefix=@PrefixLf,@Eol=NCHAR(10);
 ELSE IF CONVERT(varbinary(max),LEFT(@Original,DATALENGTH(REPLACE(@PrefixLf,NCHAR(10),NCHAR(13)+NCHAR(10)))/2))
