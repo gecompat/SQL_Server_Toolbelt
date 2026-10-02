@@ -37,7 +37,7 @@ IF EXISTS (SELECT 1 FROM @Expected x LEFT JOIN sys.objects o
               CONVERT(varbinary(max),CASE WHEN RIGHT(x.Name,4)=N'Core' THEN N'internal' ELSE N'public' END)))
     THROW 52086, N'Das vollständige 15-Slot-Manifest oder seine Marker sind nicht kohärent.', 1;
 DECLARE @AssemblyId int=(SELECT assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_String_Regex'
- AND permission_set_desc=N'SAFE_ACCESS' AND LOWER(clr_name) LIKE N'toolbelt.string.regex, version=1.3.0.0,%');
+ AND permission_set_desc=N'SAFE_ACCESS' AND is_user_defined=1);
 IF @AssemblyId IS NULL OR EXISTS (SELECT 1 FROM sys.assembly_modules m JOIN @Expected x
  ON OBJECT_ID(N'toolbelt_string.'+x.Name)=m.object_id WHERE m.assembly_id<>@AssemblyId)
  OR NOT EXISTS (SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@AssemblyId AND minor_id=0
@@ -47,4 +47,7 @@ IF @AssemblyId IS NULL OR EXISTS (SELECT 1 FROM sys.assembly_modules m JOIN @Exp
  OR NOT EXISTS (SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@AssemblyId AND minor_id=0
  AND name=N'Toolbelt.ModuleVersion' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'1.3.0'))
  THROW 52084,N'Die SAFE-Assembly oder ihre Zuordnung ist nicht kohärent.',1;
+IF NOT EXISTS (SELECT 1 FROM sys.assembly_files WHERE assembly_id=@AssemblyId AND file_id=1
+ AND HASHBYTES(N'SHA2_512',content)=CONVERT(varbinary(64),N'$(ExpectedInstalledAssemblyHash)',1))
+ THROW 52084,N'Die installierten Assemblybytes entsprechen nicht dem qualifizierten Releasebinary.',2;
 PRINT N'Regex-Lifecycle-Contract erfolgreich.';

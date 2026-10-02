@@ -6,10 +6,13 @@ Version `1.3.0` implementiert die einzeln freigegebenen
 [Capture-TVF](Documentation/TVF_RegexCaptures.md) und das getrennte
 [Gruppen-Replace](Documentation/SVF_RegexReplaceGroups.md). Framework und
 API-/SQLClient-Verträge lokal/zentral sind auf Windows2025 CU8 CL150/160/170
-und Linux2019 latest CL150 erfolgreich. Der Lifecycle bleibt wegen des
-fehlenden belastbaren Releaseversionsnachweises aus dem unsigned CLR-Katalog
-blockiert; Upgrade/Wiederdeployment/Uninstall sind kein PASS. Die zusätzliche
-Deployment-Hashgrenze benötigt Benutzerentscheidung. Der Status bleibt
+und Linux2019 latest CL150 erfolgreich. Nach der ausdrücklichen Freigabe der
+exakten erwarteten Binaryhashbindung vom 2026-10-02 bestanden die finalen
+Gesamtadapter auf beiden Zielen lokal und zentral einschließlich echtem
+1.2-Upgrade, Wiederdeployment, Caller-Transaktionen/Optionserhalt, AppLock,
+Rollback, Kollisionen, Dependencies, Uninstall und eigenem DB-/Trustcleanup.
+Neue Capture-Minimalrechte, weitere Ziele und die tatsächliche große SQL-
+Capture-Ausgabegrenze bleiben offen; CI steht noch aus. Der Status bleibt
 teilweise validiert und unveröffentlicht.
 
 
@@ -86,11 +89,18 @@ Deployment aktiviert CLR nicht, verändert weder `clr strict security` noch
 administrative Trust-Schritt autorisiert ausschließlich den exakten
 SHA2-512-Hash des reproduzierbar gebauten Releaseartefakts.
 
+Deploy und Uninstall benötigen zusätzlich `ExpectedInstalledAssemblyHash`:
+`0x` plus 128 Hexzeichen des tatsächlich installierten, offline verifizierten
+Binaries. Nur geprüfte Modul-/Assembly-Abwesenheit erlaubt ausdrücklich `0x`.
+Historische Releases 1.0 bis 1.3 haben keinen automatischen Hash-Fallback;
+unbekannte Versionen oder abweichende Hashes blockieren vor Mutation und
+werden unter AppLock erneut geprüft. Diese Erwartung ersetzt keine Trustfreigabe.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-regex-captures-lab.ps1 -ApiQualificationOnly; Windows PowerShell: Tests/Framework/run-framework-captures.ps1`
-- Scope: Capture/Replace API-only lokal/zentral auf Windows2025 CU8 CL150/160/170 und Linux2019 latest CL150; unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, alte sieben APIs, exact installed Binaryhash und eigener DB-/Trustcleanup. Framework 100000 Captures und Standard/Large. Lifecycle/Upgrade/Reinstall/Uninstall blockiert wegen unsigned CLR-Katalogversionsnachweis; zusätzliche Hashgrenze wartet auf Benutzerentscheidung. Weitere Matrix, neue Mindestberechtigungen und SQL-Large-Capturegrenze offen; keine 100k-SQL-Durchsatzzusage.
+- Nachweis: `local: Tests/CI/run-regex-captures-lab.ps1; Windows PowerShell: Tests/Framework/run-framework-captures.ps1`
+- Scope: Finaler Capture/Replace-Gesamtadapter lokal/zentral auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170: sieben alte und zwei neue APIs, unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, echter 1.2-zu-1.3-Upgrade, Reinstall, explizite erwartete SHA2_512-Binaryhashbindung, Caller-TX/SET-Erhalt, AppLock, post-DROP-Rollback, Versions-/Marker-/Future-Slot-/Schema-Kollisionen, Dependencies, Uninstall und verifiziertes eigenes DB-/Trustcleanup. Framework tatsächlich 100000 Captures und Standard/Large. Frühere API-only- und fehlgeschlagene Adapterstände bleiben historische Evidenz. Neue Capture-Minimalrechte, weitere Ziele, ältere 1.0/1.1-Capture-Upgrades, tatsächliche große SQL-Capture-Ausgabe und SQL-100k-Durchsatz nicht ausgeführt; CI ausstehend, teilweise validiert/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

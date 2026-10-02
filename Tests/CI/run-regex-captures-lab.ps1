@@ -14,6 +14,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $moduleRoot = Join-Path $repoRoot 'Modules/toolbelt.string.regex'
+$script:CaptureStage = 'PREFLIGHT'
+$script:CaptureBatch = 0
 
 # Nur kanonische, lesende Discovery verwenden; keinen allgemeinen Runner starten.
 $parseErrors = $null; $parseTokens = $null
@@ -30,7 +32,8 @@ foreach ($name in @('Get-EnvironmentVariableValue','Resolve-LabContract',
 }
 
 function Invoke-CaptureSql {
-    param([Data.SqlClient.SqlConnection]$Connection,[string]$Text,[switch]$Scalar)
+    param([Data.SqlClient.SqlConnection]$Connection,[string]$Text,[switch]$Scalar,[int]$BatchNumber=0)
+    $script:CaptureBatch=$BatchNumber
     $command = $Connection.CreateCommand()
     $command.CommandTimeout = 90
     $command.CommandText = $Text
@@ -59,15 +62,24 @@ function Read-CaptureScript {
 }
 
 function Invoke-CaptureBatches {
-    param([Data.SqlClient.SqlConnection]$Connection,[string]$Text)
+    param([Data.SqlClient.SqlConnection]$Connection,[string]$Text,[string]$Stage)
+    if($Stage){
+        if($Stage -cnotmatch '^[A-Z][A-Z0-9_]*$'){throw 'INVALID_DIAGNOSTIC_STAGE'}
+        $script:CaptureStage=$Stage
+    }
     # Erster SQL-Fehler stoppt alle folgenden Batches wie :On Error exit.
+    $batchNumber=0
     foreach ($batch in [regex]::Split($Text, '(?im)^\s*GO\s*(?:--[^\r\n]*)?\r?$')) {
-        if (-not [string]::IsNullOrWhiteSpace($batch)) { Invoke-CaptureSql $Connection $batch }
+        if (-not [string]::IsNullOrWhiteSpace($batch)) {
+            $batchNumber++
+            Invoke-CaptureSql $Connection $batch -BatchNumber $batchNumber
+        }
     }
 }
 
 function Get-CaptureSnapshot {
     param([Data.SqlClient.SqlConnection]$Connection)
+    $script:CaptureBatch=0
     $command = $Connection.CreateCommand()
     $command.CommandText = Get-Content -LiteralPath (Join-Path $moduleRoot 'Tests/Runtime/Lifecycle.Snapshot.sql') -Raw
     $command.CommandTimeout = 90
@@ -92,7 +104,8 @@ function Assert-CaptureRejected {
         while ($failure.InnerException) { $failure = $failure.InnerException }
         if ($failure -isnot [Data.SqlClient.SqlException] -or $failure.Number -ne $Expected) {
             $number=if ($failure -is [Data.SqlClient.SqlException]) {$failure.Number} else {0}
-            throw ('EXPECTED_LIFECYCLE_ERROR_MISMATCH_EXPECTED_' + $Expected + '_ACTUAL_' + $number)
+            $line=if ($failure -is [Data.SqlClient.SqlException]) {$failure.LineNumber} else {0}
+            throw ('EXPECTED_LIFECYCLE_ERROR_MISMATCH_EXPECTED_' + $Expected + '_ACTUAL_' + $number + '_STAGE_' + $script:CaptureStage + '_BATCH_' + $script:CaptureBatch + '_LINE_' + $line)
         }
         $caught = $true
     }
@@ -207,6 +220,7 @@ if ($PreviousReleaseDirectory) {
     $previous = Get-Content -LiteralPath (Join-Path $PreviousReleaseDirectory 'Toolbelt.String.Regex.trust-manifest.json') -Raw | ConvertFrom-Json
     if ($provenance.sourceCommit -cne '1b838df8e54a211b16f7f1c303c21b66b673940e' -or
         $previous.moduleVersion -cne '1.2.0' -or $previous.permissionSet -cne 'SAFE' -or
+        $previous.sqlServerHexLiteral -cne ('0x' + $previous.sha512) -or
         (Get-FileHash -LiteralPath (Join-Path $PreviousReleaseDirectory 'Toolbelt.String.Regex.dll') -Algorithm SHA512).Hash -cne $previous.sha512 -or
         $provenance.providerSha512 -cne $previous.sha512 -or
         (Get-FileHash -LiteralPath (Join-Path $PreviousReleaseDirectory 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash -cne $provenance.fixtureDeploySha256) {
@@ -226,6 +240,11 @@ if ($PreviousReleaseDirectory) {
         $previousDeploy = $previousDeploy.Replace($include[0].Value,$source.TrimEnd())
     }
     if ($previousDeploy -match '(?m)^:r\s+') { throw 'GENUINE_PREDECESSOR_UNRESOLVED_INCLUDE' }
+    # SQLClient erhält T-SQL; der Batchrunner bewahrt die Stop-on-error-Semantik.
+    $previousDeploy = [regex]::Replace($previousDeploy,'(?im)^:On Error exit\s*$','')
+    if($previousDeploy -match '\$\((?!DeploymentMode\))' -or $previousDeploy -match '(?m)^:'){
+        throw 'GENUINE_PREDECESSOR_UNRESOLVED_SQLCMD'
+    }
 }
 try { $lab = Resolve-LabContract } catch { throw 'LAB_CONTRACT_INVALID_OR_UNAVAILABLE' }
 $promptPath = Get-EnvironmentVariableValue 'SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE'
@@ -317,7 +336,7 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
         $consumer=[Data.SqlClient.SqlConnection]::new($builder.ConnectionString); $consumer.Open()
         $modes=if($ApiQualificationOnly){@($ApiDeploymentMode)}else{@('local','central')}
         foreach ($mode in $modes) {
-            $variables=@{DeploymentMode=$mode;ConfirmNoExternalConsumers='1';ToolbeltDatabase=$database}
+            $variables=@{DeploymentMode=$mode;ConfirmNoExternalConsumers='1';ToolbeltDatabase=$database;ExpectedInstalledAssemblyHash='0x'}
             $deploy=Read-CaptureScript (Join-Path $ReleaseDirectory 'Deploy.WithAssembly.sql') $variables
             $uninstall=Read-CaptureScript (Join-Path $moduleRoot 'Deployment/Uninstall.sql') $variables
             Invoke-CaptureSql $consumer 'CREATE SCHEMA toolbelt_string AUTHORIZATION dbo;'
@@ -326,7 +345,10 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
             Assert-CaptureRejected $consumer $deploy 52033
             if ((Get-CaptureSnapshot $consumer) -cne $foreignState) { throw 'FOREIGN_SCHEMA_PREFLIGHT_MUTATED_SCOPE' }
             Invoke-CaptureSql $consumer 'DROP TABLE toolbelt_string.ContosoForeignSentinel; DROP SCHEMA toolbelt_string;'
-            Invoke-CaptureBatches $consumer $deploy
+            Invoke-CaptureBatches $consumer $deploy -Stage 'FRESH_DEPLOY'
+            $variables.ExpectedInstalledAssemblyHash=$manifest.sqlServerHexLiteral
+            $deploy=Read-CaptureScript (Join-Path $ReleaseDirectory 'Deploy.WithAssembly.sql') $variables
+            $uninstall=Read-CaptureScript (Join-Path $moduleRoot 'Deployment/Uninstall.sql') $variables
             if ($ApiQualificationOnly) {
                 # Begrenzter separater Nachweis ohne Wiederdeployment/Upgrade/
                 # Uninstall. Gesamt-Lifecycle bleibt ausdrücklich unqualifiziert.
@@ -355,13 +377,17 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
                 }
                 continue
             }
-            Invoke-CaptureBatches $consumer (Read-CaptureScript (Join-Path $moduleRoot 'Tests/Runtime/Lifecycle.Contract.sql') $variables)
-            Invoke-CaptureBatches $consumer $uninstall
+            Invoke-CaptureBatches $consumer (Read-CaptureScript (Join-Path $moduleRoot 'Tests/Runtime/Lifecycle.Contract.sql') $variables) -Stage 'FRESH_LIFECYCLE'
+            Invoke-CaptureBatches $consumer $uninstall -Stage 'FRESH_UNINSTALL'
             if ($previous) {
                 $old=$previousDeploy.Replace('$(DeploymentMode)',$mode)
-                Invoke-CaptureBatches $consumer $old
+                Invoke-CaptureBatches $consumer $old -Stage 'PREDECESSOR_DEPLOY'
+                $variables.ExpectedInstalledAssemblyHash=$previous.sqlServerHexLiteral
+                $deploy=Read-CaptureScript (Join-Path $ReleaseDirectory 'Deploy.WithAssembly.sql') $variables
+                $uninstall=Read-CaptureScript (Join-Path $moduleRoot 'Deployment/Uninstall.sql') $variables
                 if ([string](Invoke-CaptureSql $consumer "SELECT CONVERT(nvarchar(64),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.string.regex.Version';" -Scalar) -cne '1.2.0') { throw 'TRUE_UPGRADE_PREDECESSOR_MISSING' }
                 foreach ($slotCase in @('ForeignNewSlot','ImitatedNewSlot')) {
+                    $script:CaptureStage='HISTORICAL_COLLISION'
                     Invoke-CaptureBatches $consumer (Read-CaptureScript (Join-Path $moduleRoot 'Tests/Runtime/Lifecycle.CollisionFixture.sql') @{FaultCase=$slotCase})
                     $collisionState=Get-CaptureSnapshot $consumer
                     Assert-CaptureRejected $consumer $deploy 52033
@@ -369,22 +395,61 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
                     Invoke-CaptureBatches $consumer $uninstall
                     if ([int](Invoke-CaptureSql $consumer 'SELECT toolbelt_string.SVF_RegexReplaceGroups();' -Scalar) -ne 73) { throw 'HISTORICAL_UNINSTALL_REMOVED_FOREIGN_SLOT' }
                     Invoke-CaptureSql $consumer 'DROP FUNCTION toolbelt_string.SVF_RegexReplaceGroups; DROP SCHEMA toolbelt_string;'
-                    Invoke-CaptureBatches $consumer $old
+                    Invoke-CaptureBatches $consumer $old -Stage 'PREDECESSOR_REINSTALL'
                 }
             }
-            Invoke-CaptureBatches $consumer $deploy
-            Invoke-CaptureBatches $consumer $deploy
+            else {
+                $variables.ExpectedInstalledAssemblyHash='0x'
+                $deploy=Read-CaptureScript (Join-Path $ReleaseDirectory 'Deploy.WithAssembly.sql') $variables
+            }
+            Invoke-CaptureBatches $consumer $deploy -Stage 'UPGRADE_OR_FRESH_DEPLOY'
+            $variables.ExpectedInstalledAssemblyHash=$manifest.sqlServerHexLiteral
+            $deploy=Read-CaptureScript (Join-Path $ReleaseDirectory 'Deploy.WithAssembly.sql') $variables
+            $uninstall=Read-CaptureScript (Join-Path $moduleRoot 'Deployment/Uninstall.sql') $variables
+            Invoke-CaptureBatches $consumer $deploy -Stage 'REPEAT_DEPLOY'
+            # Falsche Erwartung darf weder bei Deploy noch bei Uninstall mutieren.
+            $hashState=Get-CaptureSnapshot $consumer
+            $script:CaptureStage='HASH_REJECTION'
+            $wrongHash='0x'+('0'*128)
+            if ($wrongHash -ceq $manifest.sqlServerHexLiteral) { $wrongHash='0x'+('F'*128) }
+            $hashCases=@(
+                @{Text='';Error=52046}, @{Text='0x';Error=52046},
+                @{Text='0x00';Error=52046}, @{Text='0x'+('G'*128);Error=52046},
+                @{Text=$manifest.sqlServerHexLiteral+' ';Error=52046},
+                @{Text=$wrongHash;Error=52047})
+            foreach($hashCase in $hashCases){
+                $faultVariables=$variables.Clone()
+                $faultVariables.ExpectedInstalledAssemblyHash=$hashCase.Text
+                foreach($path in @((Join-Path $ReleaseDirectory 'Deploy.WithAssembly.sql'),(Join-Path $moduleRoot 'Deployment/Uninstall.sql'))){
+                    Assert-CaptureRejected $consumer (Read-CaptureScript $path $faultVariables) $hashCase.Error
+                    if((Get-CaptureSnapshot $consumer) -cne $hashState){throw 'HASH_REJECTION_MUTATED_SCOPE'}
+                }
+            }
+            # Nur Testinjektion: nach AppLock eine andere Erwartung setzen;
+            # der zweite Katalogdurchlauf muss vor jedem Drop erneut vergleichen.
+            foreach($script in @($deploy,$uninstall)){
+                $script:CaptureStage='HASH_LOCK_RECHECK'
+                $hashAnchor='SET @Pass += 1;'
+                if([regex]::Matches($script,[regex]::Escape($hashAnchor)).Count -ne 1){throw 'HASH_RECHECK_ANCHOR_NOT_UNIQUE'}
+                $fault=$script.Replace($hashAnchor,"IF @Pass=1 SET @ExpectedInstalledAssemblyHash=$wrongHash;`n"+$hashAnchor)
+                Assert-CaptureRejected $consumer $fault 52047
+                if((Get-CaptureSnapshot $consumer) -cne $hashState){throw 'HASH_RECHECK_MUTATED_SCOPE'}
+            }
             $levels = switch ($Version) { '2019' {@(150)} '2022' {@(150,160)} '2025' {@(150,160,170)} }
             foreach ($level in $levels) {
                 Invoke-CaptureSql $master ('ALTER DATABASE [' + $database + '] SET COMPATIBILITY_LEVEL=' + $level + ';')
                 foreach ($name in @('Regex.Contract.sql','Transformations.Contract.sql','Relations.Contract.sql','Captures.Contract.sql','Lifecycle.Contract.sql')) {
-                    Invoke-CaptureBatches $consumer (Read-CaptureScript (Join-Path $moduleRoot ('Tests/Runtime/' + $name)) $variables)
+                    $contractStage='API_'+$name.Replace('.Contract.sql','').ToUpperInvariant()
+                    Invoke-CaptureBatches $consumer (Read-CaptureScript (Join-Path $moduleRoot ('Tests/Runtime/' + $name)) $variables) -Stage $contractStage
                 }
                 & (Join-Path $moduleRoot 'Tests/Runtime/Captures.Metadata.ps1') -Connection $consumer -ToolbeltDatabase $database
                 if (-not $?) { throw 'CAPTURE_METADATA_GATE_FAILED' }
             }
+            $script:CaptureStage='CALLER_TRANSACTION'
             Assert-CallerTransaction $consumer $deploy $uninstall
-            $holder=[Data.SqlClient.SqlConnection]::new($consumer.ConnectionString)
+            # Geöffnete Connections verbergen Credentials; der private Builder bleibt die Quelle.
+            $holder=[Data.SqlClient.SqlConnection]::new($builder.ConnectionString)
+            $script:CaptureStage='LOCK_CONTENTION'
             try {
                 $holder.Open()
                 $lockResult=Invoke-CaptureSql $holder "BEGIN TRAN; DECLARE @Result int; EXEC @Result=sys.sp_getapplock @Resource=N'toolbelt.deploy.toolbelt.string.regex',@LockMode=N'Exclusive',@LockOwner=N'Transaction',@LockTimeout=0,@DbPrincipal=N'public'; SELECT @Result;" -Scalar
@@ -397,6 +462,7 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
             } finally { if ($holder.State -eq 'Open') { Invoke-CaptureSql $holder 'IF @@TRANCOUNT>0 ROLLBACK;' }; $holder.Dispose() }
             # Kontrollierter Fehler nach dem ersten Drop prüft Transaktionsrollback.
             foreach ($script in @($deploy,$uninstall)) {
+                $script:CaptureStage='POST_DROP_ROLLBACK'
                 $anchor='IF @Release >= 10 DROP FUNCTION [toolbelt_string].[SVF_RegexCount];'
                 if ([regex]::Matches($script,[regex]::Escape($anchor)).Count -ne 1) { throw 'ROLLBACK_INJECTION_ANCHOR_NOT_UNIQUE' }
                 $before=Get-CaptureSnapshot $consumer
@@ -405,6 +471,7 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
             }
             # Marker-/Versionsfehler müssen den vollständigen Katalog erhalten.
             foreach ($case in @('UnknownVersion','MissingVersion','ForeignFunctionMarker','ForeignProviderMarker','InconsistentFunctionVersion')) {
+                $script:CaptureStage='MARKER_COLLISION'
                 $before=Get-CaptureSnapshot $consumer
                 Invoke-CaptureBatches $consumer (Read-CaptureScript (Join-Path $moduleRoot 'Tests/Runtime/Lifecycle.CollisionFixture.sql') @{FaultCase=$case})
                 $fault=Get-CaptureSnapshot $consumer
@@ -421,6 +488,7 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
                 if ((Get-CaptureSnapshot $consumer) -cne $before) { throw 'COLLISION_FIXTURE_RESTORE_MISMATCH' }
             }
             Invoke-CaptureBatches $consumer (Read-CaptureScript (Join-Path $moduleRoot 'Tests/Runtime/Lifecycle.CollisionFixture.sql') @{FaultCase='Dependency'})
+            $script:CaptureStage='DEPENDENCY_REJECTION'
             $dependencyState=Get-CaptureSnapshot $consumer
             Assert-CaptureRejected $consumer $uninstall 52038
             if ((Get-CaptureSnapshot $consumer) -cne $dependencyState) { throw 'DEPENDENCY_PREFLIGHT_MUTATED_METADATA' }
@@ -437,7 +505,7 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
                 if (-not $?) { throw 'CAPTURE_CENTRAL_METADATA_GATE_FAILED' }
                 $callerConnection.Dispose(); $callerConnection=$null
             }
-            Invoke-CaptureBatches $consumer $uninstall
+            Invoke-CaptureBatches $consumer $uninstall -Stage 'FINAL_UNINSTALL'
         }
         if (-not $ApiQualificationOnly -and [int](Invoke-CaptureSql $consumer "SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_string') AND type IN(N'FT',N'FS',N'FN',N'IF');" -Scalar) -ne 0) { throw 'UNINSTALL_OWNED_OBJECTS_REMAIN' }
         $completed=$true
@@ -451,7 +519,9 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
         }
         $failure = $_.Exception
         while ($failure) {
-            if ($failure -is [Data.SqlClient.SqlException]) { throw ('CAPTURE_SQL_FAILED_' + $failure.Number) }
+            if ($failure -is [Data.SqlClient.SqlException]) {
+                throw ('CAPTURE_SQL_FAILED_' + $failure.Number + '_STAGE_' + $script:CaptureStage + '_BATCH_' + $script:CaptureBatch + '_LINE_' + $failure.LineNumber)
+            }
             if ($failure.Message -cmatch '^[A-Z][A-Z0-9_]+$') { throw $failure.Message }
             if (-not $failure.InnerException) { break }
             $failure = $failure.InnerException

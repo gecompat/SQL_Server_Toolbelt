@@ -337,7 +337,7 @@ bestand neun begrenzte Framework-Kinder mit 7608 Assertions, unabhängig
 wiederholt; Semantikreview PASS. Die integrierte Source und SQL-SAFE-Runtime
 bleiben separat zu qualifizieren; keine Heap-/Backtracking-Garantie.
 
-Implementierungsstand 2026-10-02: zwei freigegebene APIs im Branch umgesetzt,
+Historischer API-only-Zwischenstand 2026-10-02: zwei freigegebene APIs im Branch umgesetzt,
 integrierte Framework-Suite und unabhängiger Source-Review erfolgreich.
 Begrenzte API-only-Labproben einschließlich SQLClient-Metadaten/Atomicity
 lokal/zentral auf Windows2025 CU8 CL150/160/170 und Linux2019 latest CL150
@@ -347,6 +347,33 @@ Releaseversion. Vorgeschlagene zusätzliche erwartete Hashgrenze wartet auf
 Benutzerentscheidung. Kein Upgrade-/Reinstall-/Uninstall-PASS, keine grüne
 CI oder Mergebehauptung. Weitere Matrix, neue Mindestberechtigungsnachweise
 und tatsächliche Large-Capture-Outputgrenze in SQL noch nicht ausgeführt.
+
+Zusätzliche Einzelfreigabe 2026-10-02: Der Benutzer beantwortete die offene
+technische Hashgrenze ausdrücklich mit „Ja, exakte Hashbindung freigeben“.
+Deploy und Uninstall erhalten `ExpectedInstalledAssemblyHash`: den expliziten
+SHA2_512-Hash der tatsächlich installierten, offline verifizierten Binarybytes
+als `0x` plus 128 Hexzeichen. Bekannte installierte Releases 1.0 bis 1.3
+erfordern den exakten Vergleich mit `sys.assembly_files.file_id = 1`, erneut
+unter AppLock. Unbekannte Versionen, unbekannte oder abweichende Hashes bleiben
+blockiert; keine Ableitung aus `clr_name`, Versionsannahme oder Hash-Fallback.
+Nur vollständig geprüfte Modul-/Assembly-Abwesenheit erlaubt ausdrücklich
+`0x`. Diese Freigabe erweitert weder APIs noch Trust, Konfiguration oder Rechte.
+Der vorherige Blockierungsstand bleibt historische Evidenz; zum Zeitpunkt
+dieser Freigabe standen neue Lifecycle- und CI-Nachweise weiterhin aus.
+
+Finaler Nachweis 2026-10-02: Derselbe korrigierte Gesamtadapter bestand auf
+Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal und
+zentral. Umfasst die sieben alten und zwei neuen APIs, SQLClient-Metadaten,
+atomare Fehler, echten 1.2-zu-1.3-Upgrade, Reinstall, explizite Binaryhashbindung,
+Caller-Transaktionen/Optionserhalt, AppLock, post-DROP-Rollback, Versions-/
+Marker-/Future-Slot-/Schema-Kollisionen, Dependencies, Uninstall und verifiziertes
+eigenes Datenbank-/Trustcleanup. Frühere Gesamtadapterversuche scheiterten an
+unverarbeiteter historischer SQLCMD-Direktive, einem optionsverändernden
+Snapshot und der Credential-Quelle der zweiten Testverbindung; diese
+Fixture-/Adapterfehler wurden behoben und bleiben historische Fehlernachweise.
+Neue Capture-Minimalrechte, weitere Zielmatrix, tatsächliche große SQL-
+Capture-Ausgabegrenze und SQL-100k-Durchsatz sind nicht ausgeführt. CI steht
+noch aus; `partially validated`, `unreleased`, keine Mergebehauptung.
 
 #### Individuell freigegebene XLSX-Typ-/Anzeige-Welle
 

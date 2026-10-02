@@ -11,8 +11,13 @@
 | SQLClient | Acht nullable Spalten, Typen/Größen/Parameterreihenfolge, Defaults, kein Zusatzresult/Message, Fehler ohne erste verwertbare Zeile |
 | Lifecycle | Frische Ownership-Prüfung unter gemeinsamem AppLock, Caller-TX/Optionserhalt, Failure-Rollback, versionsgebundene 3/7/11/15 Slots, genuine 1.2 Upgrade, fremde künftige Slots und Schema, Marker/Dependency/Uninstall/Cleanup |
 
-Integrierte Framework-Suite am 2026-10-02 erfolgreich. SQL-/Minimalrechte-/
-weitere Zielmatrix werden getrennt ausgewiesen; historische Matrixnachweise
+Integrierte Framework-Suite und finaler Gesamtadapter am 2026-10-02 erfolgreich:
+Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral,
+einschließlich echtem 1.2-Upgrade, Reinstall, erwarteter Binaryhashbindung,
+Caller-TX/Optionserhalt, AppLock, post-DROP-Rollback, Kollisionen, Dependencies,
+Uninstall und eigenem DB-/Trustcleanup. Neue Capture-Minimalrechte, weitere
+Ziele und die tatsächliche große SQL-Capture-Ausgabegrenze bleiben offen;
+CI steht aus. Historische Matrixnachweise
 qualifizieren keine neu hinzugefügte Capture-API.
 
 ## R2b-Zusatzscope 1.2.0
@@ -65,7 +70,7 @@ die Lab-Umgebungen nicht beendet.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-regex-captures-lab.ps1 -ApiQualificationOnly; Windows PowerShell: Tests/Framework/run-framework-captures.ps1`
-- Scope: Capture/Replace API-only lokal/zentral auf Windows2025 CU8 CL150/160/170 und Linux2019 latest CL150; unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, alte sieben APIs, exact installed Binaryhash und eigener DB-/Trustcleanup. Framework 100000 Captures und Standard/Large. Lifecycle/Upgrade/Reinstall/Uninstall blockiert wegen unsigned CLR-Katalogversionsnachweis; zusätzliche Hashgrenze wartet auf Benutzerentscheidung. Weitere Matrix, neue Mindestberechtigungen und SQL-Large-Capturegrenze offen; keine 100k-SQL-Durchsatzzusage.
+- Nachweis: `local: Tests/CI/run-regex-captures-lab.ps1; Windows PowerShell: Tests/Framework/run-framework-captures.ps1`
+- Scope: Finaler Capture/Replace-Gesamtadapter lokal/zentral auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170: sieben alte und zwei neue APIs, unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, echter 1.2-zu-1.3-Upgrade, Reinstall, explizite erwartete SHA2_512-Binaryhashbindung, Caller-TX/SET-Erhalt, AppLock, post-DROP-Rollback, Versions-/Marker-/Future-Slot-/Schema-Kollisionen, Dependencies, Uninstall und verifiziertes eigenes DB-/Trustcleanup. Framework tatsächlich 100000 Captures und Standard/Large. Frühere API-only- und fehlgeschlagene Adapterstände bleiben historische Evidenz. Neue Capture-Minimalrechte, weitere Ziele, ältere 1.0/1.1-Capture-Upgrades, tatsächliche große SQL-Capture-Ausgabe und SQL-100k-Durchsatz nicht ausgeführt; CI ausstehend, teilweise validiert/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

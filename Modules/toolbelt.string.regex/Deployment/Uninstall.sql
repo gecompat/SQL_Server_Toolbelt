@@ -34,6 +34,22 @@ INSERT @Slots(Name, SinceRelease, Kind) VALUES
 DECLARE @ConfirmNoExternalConsumers bit = TRY_CONVERT(bit, N'$(ConfirmNoExternalConsumers)');
 IF @ConfirmNoExternalConsumers IS NULL OR N'$(ConfirmNoExternalConsumers)' NOT IN (N'0', N'1')
     THROW 52036, N'ConfirmNoExternalConsumers muss 0 oder 1 sein.', 1;
+-- Explizite Offline-Erwartung; niemals aus dem aktuellen Katalog ableiten.
+DECLARE @ExpectedInstalledAssemblyHashText nvarchar(max) = N'$(ExpectedInstalledAssemblyHash)',
+        @ExpectedInstalledAssemblyHash varbinary(64), @ExpectedAbsence bit = 0;
+IF CONVERT(varbinary(max), @ExpectedInstalledAssemblyHashText) = CONVERT(varbinary(max), N'0x')
+    SET @ExpectedAbsence = 1;
+ELSE
+BEGIN
+    IF @ExpectedInstalledAssemblyHashText IS NULL
+       OR DATALENGTH(@ExpectedInstalledAssemblyHashText) <> 260
+       OR CONVERT(varbinary(max), LEFT(@ExpectedInstalledAssemblyHashText, 2)) <> CONVERT(varbinary(max), N'0x')
+       OR SUBSTRING(@ExpectedInstalledAssemblyHashText, 3, 128) COLLATE Latin1_General_100_BIN2 LIKE N'%[^0-9A-Fa-f]%'
+       OR TRY_CONVERT(varbinary(max), @ExpectedInstalledAssemblyHashText, 1) IS NULL
+       OR DATALENGTH(TRY_CONVERT(varbinary(max), @ExpectedInstalledAssemblyHashText, 1)) <> 64
+        THROW 52046, N'ExpectedInstalledAssemblyHash muss 0x oder exakt 128 Hexzeichen nach 0x enthalten.', 1;
+    SET @ExpectedInstalledAssemblyHash = TRY_CONVERT(varbinary(64), @ExpectedInstalledAssemblyHashText, 1);
+END;
 BEGIN TRY
     WHILE @Pass <= 2
     BEGIN
@@ -58,7 +74,7 @@ BEGIN TRY
             THROW 52032, N'Die installierte Modulversion ist nicht bekannt.', 1;
         SELECT @AssemblyId = a.assembly_id,
                @InstalledAssemblyHash = HASHBYTES(N'SHA2_512', f.content)
-        FROM sys.assemblies a JOIN sys.assembly_files f
+        FROM sys.assemblies a LEFT JOIN sys.assembly_files f
           ON f.assembly_id = a.assembly_id AND f.file_id = 1
         WHERE a.name = N'Toolbelt_String_Regex';
         UPDATE s SET ObjectId = o.object_id FROM @Slots s
@@ -94,12 +110,16 @@ BEGIN TRY
               AND e.major_id = o.object_id AND e.minor_id = 0 AND e.name = N'Toolbelt.ModuleVersion'
               AND CONVERT(varbinary(max), TRY_CONVERT(nvarchar(max), e.value)) = CONVERT(varbinary(max), @InstalledVersion))))
             THROW 52033, N'Das installierte Release-Objektmanifest ist nicht kohärent.', 3;
-        -- Historische Assemblies haben keinen ModuleVersion-Marker. Ihre CLR-Version bleibt maßgeblich.
+        -- Historische Releasebytes werden explizit gebunden, nicht aus clr_name erschlossen.
+        IF @Release = 0 AND @ExpectedAbsence = 0
+           OR @Release > 0 AND @ExpectedAbsence = 1
+            THROW 52046, N'Die erwartete Assembly-Anwesenheit passt nicht zum geprüften Modulzustand.', 2;
+        IF @Release > 0 AND (@InstalledAssemblyHash IS NULL
+            OR @InstalledAssemblyHash <> @ExpectedInstalledAssemblyHash)
+            THROW 52047, N'Der installierte Assemblyhash entspricht nicht der expliziten Offline-Erwartung.', 1;
         IF @Release > 0 AND (@AssemblyId IS NULL OR @InstalledAssemblyHash IS NULL
           OR NOT EXISTS (SELECT 1 FROM sys.assemblies a WHERE a.assembly_id = @AssemblyId
-              AND a.permission_set_desc = N'SAFE_ACCESS' AND a.is_user_defined = 1
-              AND LEFT(LOWER(a.clr_name), LEN(N'toolbelt.string.regex, version=' + @InstalledVersion + N'.0,'))
-                    COLLATE Latin1_General_100_BIN2 = N'toolbelt.string.regex, version=' + @InstalledVersion + N'.0,')
+              AND a.permission_set_desc = N'SAFE_ACCESS' AND a.is_user_defined = 1)
           OR NOT EXISTS (SELECT 1 FROM sys.extended_properties e WHERE e.class = 5
               AND e.major_id = @AssemblyId AND e.minor_id = 0 AND e.name = N'Toolbelt.Managed' AND TRY_CONVERT(int, e.value) = 1)
           OR NOT EXISTS (SELECT 1 FROM sys.extended_properties e WHERE e.class = 5
@@ -108,7 +128,7 @@ BEGIN TRY
           OR (@Release = 13 AND NOT EXISTS (SELECT 1 FROM sys.extended_properties e WHERE e.class = 5
               AND e.major_id = @AssemblyId AND e.minor_id = 0 AND e.name = N'Toolbelt.ModuleVersion'
               AND CONVERT(varbinary(max), TRY_CONVERT(nvarchar(max), e.value)) = CONVERT(varbinary(max), @InstalledVersion))))
-            THROW 52033, N'Die installierte Assembly-Zuordnung oder CLR-Version ist nicht kohärent.', 4;
+            THROW 52033, N'Die installierte Assembly-Zuordnung ist nicht kohärent.', 4;
         IF EXISTS (SELECT 1 FROM sys.sql_expression_dependencies d
               JOIN @Slots s ON s.ObjectId = d.referenced_id AND s.SinceRelease <= @Release
               WHERE NOT EXISTS (SELECT 1 FROM @Slots own WHERE own.ObjectId = d.referencing_id AND own.SinceRelease <= @Release))

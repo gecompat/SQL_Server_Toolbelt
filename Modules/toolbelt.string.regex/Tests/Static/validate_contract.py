@@ -160,6 +160,21 @@ def main() -> int:
     uninstall = read("Deployment/Uninstall.sql")
     require(uninstall, "Uninstall", "DROP FUNCTION", "DROP ASSEMBLY", "ConfirmNoExternalConsumers")
     forbid(uninstall, "Uninstall", "sp_drop_trusted_assembly")
+    forbid(read("Tests/Runtime/Lifecycle.Snapshot.sql"), "Optionsneutraler Snapshot",
+           "SET NOCOUNT", "SET XACT_ABORT", "BEGIN TRAN", "COMMIT", "ROLLBACK")
+    for label, lifecycle in (("Deploy", deploy), ("Uninstall", uninstall)):
+        require(lifecycle, label + " exakte Binarybindung",
+                "$(ExpectedInstalledAssemblyHash)", "DATALENGTH(@ExpectedInstalledAssemblyHashText) <> 260",
+                "Latin1_General_100_BIN2 LIKE N'%[^0-9A-Fa-f]%'",
+                "TRY_CONVERT(varbinary(max), @ExpectedInstalledAssemblyHashText, 1) IS NULL",
+                "HASHBYTES(N'SHA2_512', f.content)", "f.file_id = 1", "THROW 52046", "THROW 52047",
+                "@InstalledAssemblyHash <> @ExpectedInstalledAssemblyHash", "@ExpectedAbsence = 1")
+        forbid(lifecycle, label + " keine Versionsinferenz", "LOWER(a.clr_name)", "@InstalledVersion + N'.0,'")
+        comparison = lifecycle.index("@InstalledAssemblyHash <> @ExpectedInstalledAssemblyHash")
+        if not lifecycle.index("WHILE @Pass <= 2") < comparison < lifecycle.index("SET @Pass += 1;"):
+            raise ContractError(label + ": Hashprüfung fehlt im wiederholten Preflight.")
+        if comparison > lifecycle.index("DROP FUNCTION"):
+            raise ContractError(label + ": Hashprüfung muss vor destruktiver DDL liegen.")
 
     build = read("Scripts/New-ClrReleaseArtifacts.ps1")
     require(build, "Build", "Get-FileHash -Algorithm SHA512", "Deploy.WithAssembly.sql", "Toolbelt.String.Regex.trust-manifest.json", "@('System', 'System.Data')")

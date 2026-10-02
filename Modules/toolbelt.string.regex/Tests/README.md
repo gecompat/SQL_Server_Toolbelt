@@ -29,14 +29,30 @@ Der tatsächliche Datenbank-Assemblyhash entsprach dem vorher Framework-
 qualifizierten Binary. Alle eigenen Datenbanken und neuen Trusteinträge
 wurden überprüft entfernt; keine Parameteraktivierung oder Rechtevergabe.
 
-Der vollständige Lifecycle-Gate ist **blockiert**: unsigned `clr_name`
+Der vollständige Lifecycle-Gate war vor der zusätzlichen Freigabe **blockiert**: unsigned `clr_name`
 liefert im geprüften Kontext keine tatsächliche Releaseversion. Das bestehende
-1.3-Versionspreflight bleibt fail-closed; eine zusätzliche erwartete Hashbindung
-ist vorgeschlagen und noch nicht freigegeben. API-only ist kein Upgrade-,
+historische CLR-Versionserwartung blieb fail-closed; die zusätzliche erwartete Hashbindung
+ist seit der Benutzerantwort „Ja, exakte Hashbindung freigeben“ vom 2026-10-02
+freigegeben. Die Adapter binden die offline geprüften installierten Binarybytes
+explizit, prüfen Format-/Abwesenheits-/Mismatch-Fehler sowie den zweiten
+Vergleich unter AppLock.
+API-only ist kein Upgrade-,
 Wiederdeployment-, Caller-TX-/Lock-/Rollback- oder Uninstall-Nachweis.
 Weitere SQL-Versionen, neue Minimalrechte/CrossDB-Mappings und die tatsächliche
 16-MiB-Capture-Outputgrenze in SQL sind noch nicht ausgeführt. Keine
 100k-SQL-Capture-Durchsatzbehauptung.
+
+Finaler Gesamtadapter vom 2026-10-02: Linux 2019/latest CL150 und Windows
+2025/CU8 CL150/160/170 jeweils lokal und zentral erfolgreich. Der echte
+1.2-Upgrade, Wiederdeployment, Caller-TX mit allen ON/OFF-Kombinationen,
+Lock-Contention, post-DROP-Rollback, Ownership-/Future-Slot-/Dependency-
+Erhalt, Uninstall und eigenes DB-/Trustcleanup bestanden ebenfalls.
+Historische fehlgeschlagene Gesamtversuche betrafen eine nicht normalisierte
+SQLCMD-Direktive des Vorgängers, `SET NOCOUNT ON` im Snapshot und die nach
+Open credentialbereinigte Connection-String-Quelle des Lock-Halters. Die
+finalen Adapter beseitigen diese Testfehler; die früheren Läufe sind kein PASS.
+Neue Capture-Minimalrechte, weitere Ziele, tatsächliche große SQL-Capture-
+Ausgabe und SQL-100k-Durchsatz bleiben `not executed`; CI ist noch ausstehend.
 
 ## R2b (1.2.0)
 
@@ -71,7 +87,7 @@ Concurrency werden vom bestehenden Regexadapter ausgeführt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-regex-captures-lab.ps1 -ApiQualificationOnly; Windows PowerShell: Tests/Framework/run-framework-captures.ps1`
-- Scope: Capture/Replace API-only lokal/zentral auf Windows2025 CU8 CL150/160/170 und Linux2019 latest CL150; unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, alte sieben APIs, exact installed Binaryhash und eigener DB-/Trustcleanup. Framework 100000 Captures und Standard/Large. Lifecycle/Upgrade/Reinstall/Uninstall blockiert wegen unsigned CLR-Katalogversionsnachweis; zusätzliche Hashgrenze wartet auf Benutzerentscheidung. Weitere Matrix, neue Mindestberechtigungen und SQL-Large-Capturegrenze offen; keine 100k-SQL-Durchsatzzusage.
+- Nachweis: `local: Tests/CI/run-regex-captures-lab.ps1; Windows PowerShell: Tests/Framework/run-framework-captures.ps1`
+- Scope: Finaler Capture/Replace-Gesamtadapter lokal/zentral auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170: sieben alte und zwei neue APIs, unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, echter 1.2-zu-1.3-Upgrade, Reinstall, explizite erwartete SHA2_512-Binaryhashbindung, Caller-TX/SET-Erhalt, AppLock, post-DROP-Rollback, Versions-/Marker-/Future-Slot-/Schema-Kollisionen, Dependencies, Uninstall und verifiziertes eigenes DB-/Trustcleanup. Framework tatsächlich 100000 Captures und Standard/Large. Frühere API-only- und fehlgeschlagene Adapterstände bleiben historische Evidenz. Neue Capture-Minimalrechte, weitere Ziele, ältere 1.0/1.1-Capture-Upgrades, tatsächliche große SQL-Capture-Ausgabe und SQL-100k-Durchsatz nicht ausgeführt; CI ausstehend, teilweise validiert/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

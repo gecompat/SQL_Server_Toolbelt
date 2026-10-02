@@ -2,6 +2,17 @@
 
 ## Projektstatus
 
+`toolbelt.string.regex` 1.3.0 ergänzt die einzeln freigegebenen Capture-
+Wiederholungen und getrenntes Gruppen-Replace. Nach zusätzlicher Freigabe
+der erwarteten exakten Binaryhashbindung bestanden die finalen Gesamtadapter
+auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral:
+API-/SQLClient-Verträge, echter 1.2-Upgrade, Reinstall, Caller-TX/SET-Erhalt,
+AppLock, Rollback, Kollisions-/Dependency-Erhalt, Uninstall und eigenes
+DB-/Trustcleanup. Neue Capture-Minimalrechte, weitere Ziele, ältere Capture-
+Upgrades und tatsächliche große SQL-Ausgabe bleiben offen; CI ausstehend,
+`partially validated`, `unreleased`. Historische API-only-/Adapterfehlerstände
+werden in der Modul-Testdokumentation von den finalen Nachweisen getrennt.
+
 `toolbelt.file.xlsx-memory` 1.0.0 implementiert die einzeln freigegebenen begrenzten Binary-Raw-Reader für Worksheetliste und sparse Zellen. Der eigene SAFE-/Memory-only-XML-Kern verwendet die technische ZIP-Fassade 1.4.0 ohne Parserkopie. Finale synthetische Adapter auf Linux 2019/latest und Windows 2025/CU8 erfolgreich; große Ceiling-/Rechte-/übrige Zielmatrix offen, teilweise validiert und unveröffentlicht. Typ-/Anzeige-Folgewellen gehören nicht zu diesem Raw-Vertrag.
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.

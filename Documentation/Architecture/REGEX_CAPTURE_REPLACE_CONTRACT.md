@@ -34,11 +34,15 @@ Backtracking-, Heap- oder Durchsatznachweis.
 
 Laufende Validierung 2026-10-02: Integrierte Framework-Suite und begrenzte
 API-/SQLClient-Proben lokal/zentral auf Windows2025 und Linux2019 erfolgreich.
-Der Lifecycle bleibt blockiert: die tatsächliche Releaseversion ist aus der
+Historischer Blockierungsstand vor der zusätzlichen Freigabe: Die tatsächliche Releaseversion ist aus der
 unsigned SQL-Katalogidentität nicht belastbar zu gewinnen. Der unten geplante
 historische CLR-Versionsnachweis ist damit noch nicht erfüllt. Eine zusätzliche
 exakte erwartete Assemblyhashgrenze benötigt Benutzerentscheidung; weder
 Marker allein noch fehlende Evidenz werden als PASS behandelt.
+
+Zusätzliche Benutzerentscheidung 2026-10-02: „Ja, exakte Hashbindung freigeben“.
+Die nachstehende explizite erwartete Hashgrenze ist damit zur Implementierung
+freigegeben. Diese Entscheidung ist kein Lifecycle- oder SQL-Runtime-PASS.
 
 | Objekt | Parameter in Reihenfolge | Ergebnis |
 |---|---|---|
@@ -203,7 +207,22 @@ zum installierten Release nicht gehört. Vorhandene eigene Slots benötigen
 Managed/ModuleId und passende Function-ModuleVersion; fremde oder unbekannte
 Zuordnung blockiert vor Mutation. Alte Assembly-Releases besitzen keinen
 ModuleVersion-Marker: deren vorhandene Managed/ModuleId-Zuordnung und
-bekannte CLR-Version werden geprüft, kein neuer historischer Marker erfunden.
+exakte erwartete Binarybytes werden geprüft, kein neuer historischer Marker erfunden.
+Beide SQLCMD-Skripte verlangen `ExpectedInstalledAssemblyHash` als exakt
+`0x` plus 128 ASCII-Hexzeichen (`0-9`, `a-f`, `A-F`): SHA2_512 mit 64 Bytes
+aus dem tatsächlich installierten, offline verifizierten Releasebinary.
+Die Erwartung ist vom Hash des neu gelieferten `AssemblyBits` getrennt.
+Sie wird gegen `sys.assembly_files.file_id = 1` vor Mutation und erneut unter
+AppLock geprüft. Für jedes bekannte installierte Release 1.0.0 bis 1.3.0
+ist ein exakter Treffer Pflicht. Kein `clr_name`-Versionsvergleich, geratener
+historischer Hash, automatischer Fallback oder Adoptionsweg ist zulässig.
+Nur geprüfte Modul-/Assembly-Abwesenheit erlaubt den expliziten Text `0x`.
+Fehlendes oder syntaktisch ungültiges Format sowie eine für den Zustand
+ungeeignete Abwesenheitserwartung liefern Fehler 52046; ein anderer oder
+nicht verfügbarer installierter Hash liefert 52047. Unbekannte Versionsmarker
+bleiben nach der Formatprüfung und vor dem Hashvergleich mit 52032 blockiert;
+bestehende Ownership-/Dependency-Prüfungen
+bleiben erhalten. SHA256-Sourcefingerprints sind kein Ersatz für Binaryhashes.
 Eine fremde Schemazuordnung wird nicht adoptiert und ein fremdes Schema
 bei Uninstall nicht entfernt. Serverweiter Trust bleibt separater administrativer
 Lifecycle; Tests verwenden bestehende Rechte und private Restorejournale.
@@ -218,6 +237,19 @@ Scopebezogenes schema-validiertes Lab auf Linux 2019 und Windows 2025,
 local/central, Clientmetadaten/Rechte, echter 1.2-Upgrade, ältere unterstützte
 Upgrades, Reinstall, Kollisionen, Caller-Transaktionen und Cleanup folgen.
 Fehlende Tests bleiben not executed und blockieren eine pauschale Aufwertung.
+
+Finaler Nachweis 2026-10-02: Der Gesamtadapter bestand auf Linux 2019/latest
+CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal und zentral. API-/
+Clientverträge, echter 1.2-Upgrade, Reinstall, explizite erwartete Binaryhashes,
+Caller-TX/SET-Erhalt, AppLock, post-DROP-Rollback, Schema-/Marker-/Future-Slot-
+Kollisionen, Dependencies, Uninstall und verifiziertes eigenes DB-/Trustcleanup
+sind in diesem begrenzten Scope erfolgreich. Frühere fehlgeschlagene Läufe
+betrafen die historische SQLCMD-Normalisierung, die Optionsmutation des
+Snapshots und die Credential-Quelle einer zweiten Testconnection; die
+korrigierten finalen Adapter ersetzen deren Ergebnis nicht rückwirkend.
+Weitere Ziele, neue Capture-Minimalrechte, ältere 1.0-/1.1-Capture-Upgrades,
+tatsächliche große SQL-Capture-Ausgabe und 100k-SQL-Durchsatz bleiben offen.
+CI steht aus; teilweise validiert und unveröffentlicht.
 
 ## Primärquellen
 

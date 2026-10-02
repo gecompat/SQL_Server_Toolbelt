@@ -1,4 +1,3 @@
-SET NOCOUNT ON;
 -- Vergleich vor/nach abgewiesenem Lifecycle: nur deterministische Katalog-Digests.
 DECLARE @Objects nvarchar(max), @Properties nvarchar(max), @Assemblies nvarchar(max), @Dependencies nvarchar(max);
 SELECT @Objects=CONVERT(nvarchar(max),(SELECT o.object_id AS id,o.name,o.type,
