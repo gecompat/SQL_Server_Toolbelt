@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-34 Module sind implementiert. 20 sind `validated`, 14 sind `partially validated`; 0 sind `not executed`.
+35 Module sind implementiert. 20 sind `validated`, 15 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -341,6 +341,15 @@ danach die beiden sprachbezogenen Phonetikverfahren:
   Lab-Tests, grüne CI und PR-Merge gelten unverändert.
 
 Status Textvergleich: `ready for development`; keine Runtime-Evidenz.
+
+Ergänzende konkrete Providerfreigabe 2026-10-02: Auf die Frage nach dem
+besprochenen dedizierten portablen SAFE-CLR-Provider für Levenshtein und OSA
+antwortete der Benutzer „Lebenshtein/OSA assembly -> ja“. Dies autorisiert
+nur diesen Provider und seinen Lifecycle für die beiden bereits einzeln
+freigegebenen Distanzfunktionen. Jaro und Phonetik werden dadurch nicht in
+diesen Provider aufgenommen. Der [Vor-Source-Vertrag für Editierdistanzen](../Documentation/Architecture/EDIT_DISTANCE_CONTRACT.md)
+konkretisiert Scalar-Semantik, Profile, Schwellen, Ergebnis- und Fehlerpriorität,
+Metadaten sowie den separaten Deployment-/Trustvertrag. Root hat den vollständigen Vor-Source-Vertrag einschließlich nullable SQL-Metadaten bei logisch nicht-NULL ErrorCode am selben Tag geprüft und vor Runtime-Source geschlossen. Die Implementierung ist teilweise validiert und unveröffentlicht. Finale Gesamtadapter am 2026-10-02 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral sowie separatem SC-UTF8-Consumer bestanden. API-/Budget-/1000-Paar-/Client- und InstalledMetadata-, NULL-Modemarker-, AppLock-, Caller-TX/SET-, post-DROP-Rollback-, Kollisions-/Dependency-, Reinstall-/Uninstall- und eigene Bereinigungsorakel erfolgreich; Konfigurations- und Rechteänderungen jeweils 0. Tatsächliche Minimalrechte, übrige physische Ziele und Heap-/Produktionskapazität sind nicht nachgewiesen; aktuelle CI wird als separater PR-Mergegate nachgewiesen. Der erste Linux-Lauf SQL468/State9 im Metadaten-Fixture bleibt als vollständig bereinigter Fehlerlauf getrennt; der korrigierte neue Adapter bestand.
 #### Individuell freigegebene Capture-/Replace-Welle
 
 Implementierungsfreigabe 2026-10-01: Auf die ausdrückliche Frage
