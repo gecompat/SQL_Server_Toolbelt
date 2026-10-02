@@ -1,4 +1,4 @@
--- Releases 1.0.0 / 1.1.0: sechs historische Slots und ein neuer Translate-Slot.
+-- Releases 1.0.0 / 1.1.0 / 1.2.0: sechs historische Slots, Translate und GeoJitter.
 IF OBJECT_ID(N'tempdb..#tbx_Deterministic_Release',N'U') IS NOT NULL
     THROW 54024, N'Deterministic: reserved lifecycle temp name is already visible.', 1;
 CREATE TABLE #tbx_Deterministic_Release
@@ -10,5 +10,6 @@ INSERT #tbx_Deterministic_Release VALUES
     (4,N'TVF_DeterministicDateShift','IF',N'public',10),
     (5,N'USP_DeterministicLookupCore','P',N'internal',10),
     (6,N'USP_DeterministicLookup','P',N'public',10),
-    (7,N'TVF_DeterministicTranslate','IF',N'public',11);
+    (7,N'TVF_DeterministicTranslate','IF',N'public',11),
+    (8,N'TVF_DeterministicGeoJitter','IF',N'public',12);
 GO

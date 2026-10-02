@@ -2,6 +2,12 @@
 
 ## Projektstatus
 
+Die additive GeoJitter-Welle 1.2.0 im vorhandenen deterministischen Modul
+ist nach Einzelfreigabe vom 2026-10-01 aktiv. Der unabhängig geprüfte
+[Vor-Source-Vertrag](../Documentation/Architecture/DETERMINISTIC_GEO_JITTER_CONTRACT.md)
+begrenzt sie auf synthetische 2D-Points/SRID 4326. Modellreferenz und sichere
+native Operanden qualifiziert. Der finale synthetische Geo-Adapter besteht auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Ausgeführt wurden ausdrücklich `GeoJitter.Contract.sql`, `GeoJitter.Safety.sql` und `InstalledMetadata.Contract.sql`, dazu SQL-/Clientmetadaten, echte 1.0.0-/1.1.0-Upgrades, Erstinstallation/Wiederholung, Caller-TX-/SET-Erhalt, Snapshot-Faults, Zukunftsslot-Erhalt, Uninstall und eigene Bereinigung. Der ursprüngliche Geo-Vertrag besteht unverändert in fünf unpartitionierten Batches mit 504 Orakeln. Die sieben bisherigen Source-Dateien bleiben bytegleich; dies ist kein erneuter finaler Runtime-Nachweis aller bisherigen APIs. Keine Konfigurations- oder Rechteänderungen. Neue Minimalrechte, weitere physische Ziele und ein exakt 129-Byte-UDT bleiben offen. Aktuelle CI wird als separater PR-Mergegate am exakten Head nachgewiesen. `partially validated`, `unreleased`. Keine neue Spatial-API oder Privacy-Zusage.
+
 `toolbelt.file.xlsx-memory` 1.0.0 implementiert die einzeln freigegebenen begrenzten Binary-Raw-Reader für Worksheetliste und sparse Zellen. Der eigene SAFE-/Memory-only-XML-Kern verwendet die technische ZIP-Fassade 1.4.0 ohne Parserkopie. Finale synthetische Adapter auf Linux 2019/latest und Windows 2025/CU8 erfolgreich; große Ceiling-/Rechte-/übrige Zielmatrix offen, teilweise validiert und unveröffentlicht. Typ-/Anzeige-Folgewellen gehören nicht zu diesem Raw-Vertrag.
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.

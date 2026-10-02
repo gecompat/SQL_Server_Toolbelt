@@ -5,8 +5,17 @@ in [.ai/BACKLOG.md](../../.ai/BACKLOG.md) dokumentiert. Dieser Vertrag
 konkretisiert Typen, Grenzen, Fehler und Modell innerhalb dieses Scopes;
 er behauptet keine zusätzliche Benutzerfreigabe. Die Vor-Source-Qualifikation
 ist für den ausgewählten akzeptierten Punktbereich abgeschlossen. Source,
-öffentliche API, Clientmetadaten, Lifecycle, Rechte und CI sind noch offen;
-der Vertragsfreeze benötigt den unabhängigen Review.
+öffentliche API, Clientmetadaten, Lifecycle, Rechte und CI waren im damaligen
+Vor-Source-Stand noch offen. Der unabhängige Vertragsfreeze wurde vor Source
+als Commit `ebd7292` festgehalten.
+
+## Integrierter Nachweis vom 2026-10-02
+
+Der finale synthetische Geo-Adapter besteht auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Ausgeführt wurden ausdrücklich `GeoJitter.Contract.sql`, `GeoJitter.Safety.sql` und `InstalledMetadata.Contract.sql`, dazu SQL-/Clientmetadaten, echte 1.0.0-/1.1.0-Upgrades, Erstinstallation/Wiederholung, Caller-TX-/SET-Erhalt, Snapshot-Faults, Zukunftsslot-Erhalt, Uninstall und eigene Bereinigung. Der ursprüngliche Geo-Vertrag besteht unverändert in fünf unpartitionierten Batches mit 504 Orakeln. Die sieben bisherigen Source-Dateien bleiben bytegleich; dies ist kein erneuter finaler Runtime-Nachweis aller bisherigen APIs. Keine Konfigurations- oder Rechteänderungen. Neue Minimalrechte, weitere physische Ziele und ein exakt 129-Byte-UDT bleiben offen. Aktuelle CI wird als separater PR-Mergegate am exakten Head nachgewiesen. `partially validated`, `unreleased`.
+
+Der gültige Mappingzweig enthält zwei bestehende RangeCore-Ausdrücke. Der komplementäre Konfigurationszweig bewahrt die ursprüngliche Fehlerpriorität. Relationale Aggregationen reduzieren wiederholte numerische Ausdrücke; daraus folgt keine Zusage einer physischen Ausführungsanzahl, Optimizer-Reihenfolge oder Pruning-Barriere. Die sichere Operandenkette und alle Formeln bleiben maßgeblich.
+
+Historische Zwischenstände vom 2026-10-02: Die ursprüngliche Ausdrucksform und kleinere Zwischenkandidaten scheiterten mit SQL-Fehler 701; ein späterer Lauf endete mit Timeout -2. Diese Läufe bleiben fehlgeschlagen, eine allgemeine Compilerursache ist nicht nachgewiesen. Der historische Vector-Facts-Kandidat bestand auf Linux mit einer vorübergehenden Partitionierung: 72 Gruppen mit je sieben Radiuswerten, zusammen dieselben 504 Orakel, eingebettet in 78 Batches einschließlich Metadaten/Goldens/Defaults, Setup, globalem Coverage-Orakel und Wiederholung. Dieser Zwischenbeleg ersetzt den finalen Nachweis der ursprünglichen fünf Batches nicht.
 
 ## Zweck und öffentliche Form
 
@@ -212,7 +221,12 @@ abweichende native Methoden oder Budgetbehandlung erfordern gezielte neue
 Qualifikation. Die genaue 129-Byte-UDT-Evidenzlücke bleibt sichtbar und wird
 nicht durch einen Ersatzfall oder erfundenen Zeugen geschlossen.
 
-## Vor Merge erforderliche integrierte Gates
+## Integrierter Qualifikationskatalog und verbleibender Mergegate
+
+Der finale ausgewählte Nachweis oben schließt die ausgeführten API-/
+Metadaten-/Lifecyclefälle. Der folgende Katalog bewahrt den geplanten Scope;
+weitere physische Ziele und neue Minimalrechte sind nicht ausgeführt.
+Aktuelle CI und PR-Merge bleiben separate Gates am exakten Head.
 
 Öffentliche echte Inline-API mit Parametern/Defaults/Ordinals/Nullability;
 alle kombinierten Fehlerprioritäten; tatsächliche native Invalid-/Budgetfälle

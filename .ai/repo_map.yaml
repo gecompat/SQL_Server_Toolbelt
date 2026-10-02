@@ -637,6 +637,8 @@ change_impact:
     deterministic_contract:
       paths:
         - Modules/toolbelt.pseudonymization.deterministic/**
+        - Documentation/Architecture/DETERMINISTIC_GEO_JITTER_CONTRACT.md
+        - Documentation/Architecture/GEO_JITTERING_DECISION.md
         - Documentation/Architecture/DETERMINISTIC_TRANSLATE_CONTRACT.md
         - Documentation/Architecture/CHARACTER_PSEUDONYMIZATION_DECISION.md
         - Documentation/Architecture/PSEUDONYMIZATION_FOUNDATION_PROPOSAL.md
@@ -644,6 +646,7 @@ change_impact:
         - Documentation/Standards/USP_CONTRACT.md
         - Tests/CI/run-deterministic-linux.sh
         - Tests/CI/run-deterministic-translate-lab.ps1
+        - Tests/CI/run-deterministic-geo-lab.ps1
         - .github/workflows/deterministic-runtime.yml
       checks:
         - markdown_links

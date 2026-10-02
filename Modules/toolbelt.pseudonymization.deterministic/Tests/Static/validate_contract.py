@@ -3,6 +3,7 @@ from pathlib import Path
 import re
 from reference_vectors import run
 from validate_translate import main as validate_translate
+from validate_geo import main as validate_geo
 
 MODULE = Path(__file__).resolve().parents[2]
 SOURCES = MODULE / "Source"
@@ -63,6 +64,7 @@ def main():
         assert (MODULE / expected).is_file(), expected
     run()
     validate_translate()
+    validate_geo()
     print("PASS: Familien-Source-/Lifecycle-Staticguards; kein SQL-Runtime-Nachweis")
 
 

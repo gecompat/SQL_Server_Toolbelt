@@ -9,7 +9,15 @@ bestandene API-/Safetyfälle und eine separate korrigierte Metadaten-/
 Lifecycleprüfung belegt, ohne den früheren Gesamtfehllauf umzuwerten.
 Aktuelle CI, neue Minimalrechte, weitere physische Targets und Kapazität
 bleiben offen; `partially validated`, `unreleased`. GeoJitter ist eine
-getrennt freigegebene Folgefunktion und hierdurch nicht implementiert.
+getrennt freigegebene Folgefunktion; der folgende additive Stand ist davon getrennt.
+
+Version 1.2.0 implementiert GeoJitter. Finale ausgewählte Adapter bestehen auf
+Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral:
+drei Geo-/Safety-/Metadaten-Runtime-Fixtures, ursprüngliche fünf Batches mit
+504 Orakeln sowie Clientmetadaten, echte 1.0-/1.1-Upgrades und Lifecycle.
+Neue Minimalrechte, weitere Ziele und exakt 129-Byte-UDT bleiben offen.
+Aktuelle CI wird als separater PR-Mergegate am exakten Head nachgewiesen;
+`partially validated`, `unreleased`.
 
 XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4.0 sind implementiert; finale ausgewählte Linux-2019-/Windows-2025-Adapter erfolgreich. Die Raw-Welle ist abgeschlossen und teilweise validiert; separat freigegebene Typ-/Anzeige-Folgewellen verbleiben beim nächsten Orchestrator.
 

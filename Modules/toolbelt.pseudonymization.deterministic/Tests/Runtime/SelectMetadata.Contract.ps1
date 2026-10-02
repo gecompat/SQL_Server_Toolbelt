@@ -50,6 +50,26 @@ try {
             if(-not $reader.Read() -or $reader.IsDBNull(0) -or $reader.GetInt32(1) -ne 0 -or $reader.Read() -or $reader.NextResult()) { throw 'TVF: genau eine Erfolgszeile erforderlich.' }
         } finally {$reader.Dispose();$command.Dispose()}
     }
+    # UDT-Metadaten ohne GetSchemaTable/GetValue oder SQLTypes-Abhängigkeit.
+    $probeStage='GEO_METADATA'
+    foreach($geoCase in @(
+        @{Arguments='geography::Point(0,0,4326),0x01,1,DEFAULT,DEFAULT';NullValue=$false;Code=0},
+        @{Arguments='NULL,NULL,NULL,NULL,NULL';NullValue=$true;Code=0},
+        @{Arguments='geography::Point(0,0,4326),0x01,1,0,0';NullValue=$true;Code=14}
+    )){
+        $command=$connection.CreateCommand();$command.CommandTimeout=120
+        $command.CommandText='SELECT Value,ErrorCode FROM toolbelt_pseudonymization.TVF_DeterministicGeoJitter('+$geoCase.Arguments+');'
+        $reader=$command.ExecuteReader()
+        try{
+            if($reader.FieldCount -ne 2 -or $reader.GetName(0) -cne 'Value' -or $reader.GetName(1) -cne 'ErrorCode' -or
+               $reader.GetDataTypeName(0) -cne ($Database+'.sys.geography') -or $reader.GetDataTypeName(1) -cne 'int'){throw 'GEO_CLIENT_METADATA'}
+            if(-not $reader.Read() -or $reader.IsDBNull(0) -ne $geoCase.NullValue -or $reader.GetInt32(1) -ne $geoCase.Code -or
+               $reader.Read() -or $reader.NextResult()){throw 'GEO_CLIENT_ROW'}
+        }finally{$reader.Dispose();$command.Dispose()}
+    }
+    $command=$connection.CreateCommand();$command.CommandTimeout=120
+    $command.CommandText="SELECT COUNT(*) FROM sys.dm_exec_describe_first_result_set(N'SELECT Value,ErrorCode FROM toolbelt_pseudonymization.TVF_DeterministicGeoJitter(geography::Point(0,0,4326),0x01,1,DEFAULT,DEFAULT);',NULL,0) WHERE (column_ordinal=1 AND name=N'Value' AND system_type_id=240 AND user_type_name=N'geography' AND is_nullable=1) OR (column_ordinal=2 AND name=N'ErrorCode' AND system_type_id=56 AND is_nullable=0);"
+    try{if([int]$command.ExecuteScalar() -ne 2){throw 'GEO_SERVER_METADATA'}}finally{$command.Dispose()}
     foreach ($mode in @('nonnull','null','empty')) {
         $probeStage='LOOKUP_' + $mode
         $command=$connection.CreateCommand(); $command.CommandTimeout=120

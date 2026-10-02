@@ -30,10 +30,10 @@ BEGIN
         DROP TABLE #tbx_Deterministic_Release;
         RETURN;
     END;
-    IF @Version IS NULL OR CONVERT(varbinary(max),@Version) NOT IN (CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0'))
+    IF @Version IS NULL OR CONVERT(varbinary(max),@Version) NOT IN (CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0'),CONVERT(varbinary(max),N'1.2.0'))
         OR @Mode IS NULL OR CONVERT(varbinary(max),@Mode) NOT IN (CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central'))
         THROW 54023,N'Deterministic registered release/mode is unknown or malformed.',1;
-    SET @Release=CASE CONVERT(varbinary(max),@Version) WHEN CONVERT(varbinary(max),N'1.0.0') THEN 10 ELSE 11 END;
+    SET @Release=CASE CONVERT(varbinary(max),@Version) WHEN CONVERT(varbinary(max),N'1.0.0') THEN 10 WHEN CONVERT(varbinary(max),N'1.1.0') THEN 11 ELSE 12 END;
     IF @Mode=N'central' AND @Confirm<>N'1'
         THROW 54026,N'Central uninstall requires explicit external-consumer confirmation.',2;
     IF SCHEMA_ID(N'toolbelt_pseudonymization') IS NOT NULL AND ISNULL(HAS_PERMS_BY_NAME(N'toolbelt_pseudonymization',N'SCHEMA',N'ALTER'),0)<>1
