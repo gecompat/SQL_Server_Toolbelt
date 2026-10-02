@@ -192,6 +192,17 @@ auf 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 sind am
 Safetyfixes. Weitere Targets, CrossDB-Minimalrechte und Produktionskapazität
 bleiben offen; `partially validated`, `unreleased`, keine Anonymisierungszusage.
 
+Die additive Version 1.1.0 ergänzt die einzeln freigegebene echte Inline-TVF
+`TVF_DeterministicTranslate`: ASCII-Buchstaben/Ziffern, casegekoppelte Bijektion,
+explizite Separatoren und begrenzte Standard-/Large-Profile. Der vollständige
+Adapter besteht auf Linux 2019/latest CL150 local/central und Windows 2025/CU8
+CL150/160/170 central, einschließlich aller sieben API-/Kernslots, Metadaten,
+echtem 1.0-Upgrade, Kollisions-/Lifecyclefällen und eigenem Cleanup. Windows
+local: API-/Safetyfälle im früheren insgesamt fehlgeschlagenen Lauf bestanden;
+separate korrigierte Metadaten-/Lifecycleprüfung erfolgreich. Neue direkte/
+CrossDB-Minimalrechte, weitere physische Targets, Produktionskapazität und
+aktuelle CI bleiben offen; teilweise validiert und unveröffentlicht.
+
 ## Projektzweck
 
 SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL Server Database Engine ab Version 2019. Sie stellt Funktionen bereit, die SQL Server nicht nativ besitzt, erst in späteren Versionen anbietet oder nur mit wiederkehrendem, fehleranfälligem Boilerplate ermöglicht.

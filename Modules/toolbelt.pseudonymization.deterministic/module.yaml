@@ -1,10 +1,10 @@
 module_id: "toolbelt.pseudonymization.deterministic"
 module_name: "Deterministic Synthetic Mapping"
-version: "1.0.0"
+version: "1.1.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Versionierter deterministischer bigint-Range, datetime2-Tagesoffset und synthetischer Pool-Lookup."
+description: "Versionierter deterministischer bigint-Range, datetime2-Tagesoffset, synthetischer Pool-Lookup und formaterhaltende ASCII-Translation."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -33,6 +33,10 @@ schemas:
 objects:
   - type: TVF
     schema: toolbelt_pseudonymization
+    name: TVF_DeterministicTranslate
+    visibility: public
+  - type: TVF
+    schema: toolbelt_pseudonymization
     name: TVF_DeterministicIntegerBytes
     visibility: internal
   - type: TVF
@@ -56,10 +60,12 @@ objects:
     name: USP_DeterministicLookup
     visibility: public
 permissions_required: ["SELECT auf öffentlichen Inline-TVFs", "EXECUTE auf Lookup, ResultTable zusätzlich Helper-EXECUTE", "DDL-Rechte für Lifecycle"]
-collation_contract: "Key binär, keine Normalisierung; technisches Hex BIN2; Pooltext unverändert, Result NVARCHAR Latin1_General_100_BIN2."
-data_type_contract: "Key varbinary(max) bis 8000 Byte, volle bigint-Grenzen, datetime2(7), Pool Unicode."
+collation_contract: "Key binär, keine Normalisierung; technisches Hex und Translateoperanden BIN2; Pooltext unverändert, Result NVARCHAR Latin1_General_100_BIN2."
+data_type_contract: "Key varbinary(max) bis 8000 Byte, volle bigint-Grenzen, datetime2(7), Pool Unicode; Translate nvarchar(max), feste ASCII-Alphabete, 33 Separatoren, 2/16MiB UTF-16."
 help_contract_version: "1.0"
 resultset_contracts:
+  - name: TVF_DeterministicTranslate
+    columns: ["Value nvarchar(max) NULL", "ErrorCode int NOT NULL"]
   - name: TVF_DeterministicRange
     columns: ["Value bigint NULL", "ErrorCode int NOT NULL"]
   - name: TVF_DeterministicDateShift
@@ -81,10 +87,13 @@ lifecycle:
 documentation:
   module: README.md
   public_objects:
+    - Documentation/TVF_DeterministicTranslate.md
     - Documentation/TVF_DeterministicRange.md
     - Documentation/TVF_DeterministicDateShift.md
     - Documentation/USP_DeterministicLookup.md
   architecture:
+    - ../../Documentation/Architecture/DETERMINISTIC_TRANSLATE_CONTRACT.md
+    - ../../Documentation/Architecture/CHARACTER_PSEUDONYMIZATION_DECISION.md
     - ../../Documentation/Architecture/PSEUDONYMIZATION_FOUNDATION_PROPOSAL.md
     - ../../Documentation/Architecture/DATE_SHIFTING_PROPOSAL.md
   test_matrix:
@@ -101,6 +110,10 @@ tests:
   contract: Tests/Runtime/Range.Contract.sql
   lifecycle: Tests/Runtime/Lifecycle.Contract.sql
   central: Tests/Runtime/Central.Contract.sql
+  translate: Tests/Runtime/Translate.Contract.sql
+  translate_safety: Tests/Runtime/Translate.Safety.sql
+  installed_metadata: Tests/Runtime/InstalledMetadata.Contract.sql
+  lab: ../../Tests/CI/run-deterministic-translate-lab.ps1
   github_hosted_linux: ../../.github/workflows/deterministic-runtime.yml
 validation_evidence:
   - date: "2026-10-01"
@@ -109,5 +122,9 @@ validation_evidence:
     result: "success"
   - date: "2026-10-02"
     workflow: "local: Tests/CI/run-lab-local.ps1"
-    scope: "Identischer finaler Safetyfix-Adapter SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170; API/Fehler/Grenzen/Transaktionen, vier Caller-Temp-Eclipsing/Help-Fixtures, Installer-Callertransaction ON/OFF und SQLCMD-nonzero, Local-CS/Central-BIN2, administrative CrossDB-CI, direkte Minimalrechte und Clientmetadaten lokal/zentral, Wiederholung/Drift/Kollision/Dependency/Uninstall; weitere physische Targets und CrossDB-Minimalrechte offen"
+    scope: "Historische Version 1.0.0: identischer finaler Safetyfix-Adapter SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170; API/Fehler/Grenzen/Transaktionen, vier Caller-Temp-Eclipsing/Help-Fixtures, Installer-Callertransaction ON/OFF und SQLCMD-nonzero, Local-CS/Central-BIN2, administrative CrossDB-CI, direkte Minimalrechte und Clientmetadaten lokal/zentral, Wiederholung/Drift/Kollision/Dependency/Uninstall; kein Translate-/1.1-Nachweis, weitere physische Targets und CrossDB-Minimalrechte offen"
+    result: "success"
+  - date: "2026-10-02"
+    workflow: "local: Tests/CI/run-deterministic-translate-lab.ps1"
+    scope: "Version 1.1.0: vollständiger Linux2019/latest CL150 local/central; bestehende APIregressionen, Translate/21Safetybatches/vier Caller-Collations/echte2MiB+16MiB/Metadaten, genuine1.0Upgrade/FirstInstall/Repeat/CallerTX/Snapshot-Faults/fremdeFutureSlots/historischerUninstall/CrossDB/ownCleanup; Windows2025/CU8 vollständiger central-Adapter CL150/160/170 PASS; lokale APIs/Safety im früheren insgesamt fehlgeschlagenen Lauf bestanden, separater korrigierter lokaler Metadaten-/Lifecycleadapter PASS; keine neuen Lab-Grants/Serverkonfiguration, weitere Targets/Minimalrechte/CI offen"
     result: "success"

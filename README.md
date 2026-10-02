@@ -59,10 +59,14 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 **Der Repository-Grundaufbau ist abgeschlossen. 34 Module sind implementiert; 20 sind `validated`, 14 sind `partially validated`, 0 sind `not executed`, alle sind `unreleased`.**
 
 [`toolbelt.pseudonymization.deterministic`](./Modules/toolbelt.pseudonymization.deterministic/README.md)
-liefert versionierte synthetische Range-, DateShift- und Pool-Lookup-Werte.
-Der identische finale Adapter besteht auf SQL Server 2019 Linux/latest und
-2025 Windows/CU8; weitere Ziele, CrossDB-Minimalrechte und Kapazitätsnachweise
-bleiben offen. `partially validated`, `unreleased`; keine Anonymisierungszusage.
+liefert versionierte synthetische Range-, DateShift- und Pool-Lookup-Werte;
+Version 1.1.0 ergänzt die formaterhaltende ASCII-Translation.
+Der vollständige Translate-Adapter besteht auf SQL Server 2019 Linux/latest
+local/central und 2025 Windows/CU8 central CL150/160/170. Windows local ist
+durch erfolgreiche API-/Safetyfälle und die separate korrigierte Metadaten-/
+Lifecycleprüfung belegt; der frühere Gesamtfehllauf bleibt davon getrennt.
+Weitere Ziele, neue Minimalrechte-, Kapazitätsnachweise und aktuelle CI bleiben
+offen. `partially validated`, `unreleased`; keine Anonymisierungszusage.
 
 Die Execution-Grundlagen bestehen aus
 [`toolbelt.core.error-envelope`](./Modules/toolbelt.core.error-envelope/README.md)

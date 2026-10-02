@@ -2,6 +2,15 @@
 
 ## Status
 
+`toolbelt.pseudonymization.deterministic` 1.1.0 ergänzt die einzeln freigegebene
+ASCII-Translation. Vollständige Adapter auf Linux 2019/latest local/central
+und Windows 2025/CU8 central CL150/160/170 erfolgreich; Windows local durch
+bestandene API-/Safetyfälle und eine separate korrigierte Metadaten-/
+Lifecycleprüfung belegt, ohne den früheren Gesamtfehllauf umzuwerten.
+Aktuelle CI, neue Minimalrechte, weitere physische Targets und Kapazität
+bleiben offen; `partially validated`, `unreleased`. GeoJitter ist eine
+getrennt freigegebene Folgefunktion und hierdurch nicht implementiert.
+
 XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4.0 sind implementiert; finale ausgewählte Linux-2019-/Windows-2025-Adapter erfolgreich. Die Raw-Welle ist abgeschlossen und teilweise validiert; separat freigegebene Typ-/Anzeige-Folgewellen verbleiben beim nächsten Orchestrator.
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,

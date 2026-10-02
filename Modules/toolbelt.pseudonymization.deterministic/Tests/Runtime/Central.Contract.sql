@@ -1,5 +1,8 @@
 -- Administrative dreiteilige Baseline; kein CrossDB-Minimalrechtebeweis.
 SET NOCOUNT ON;
+IF NOT EXISTS(SELECT 1 FROM [$(CentralDb)].toolbelt_pseudonymization.TVF_DeterministicTranslate(N'Aa09 - ',1,0,N'- ',DEFAULT)
+ WHERE ErrorCode=0 AND CONVERT(varbinary(max),Value)=CONVERT(varbinary(max),N'Ss64 - '))
+    THROW 54090,N'Deterministic: dreiteiliger Translatevektor verletzt.',1;
 IF NOT EXISTS(SELECT 1 FROM [$(CentralDb)].toolbelt_pseudonymization.TVF_DeterministicRange(0x010203,1,DEFAULT,-10,10) WHERE Value=-9 AND ErrorCode=0)
     THROW 54090,N'Deterministic: dreiteiliger Rangevektor verletzt.',1;
 IF NOT EXISTS(SELECT 1 FROM [$(CentralDb)].toolbelt_pseudonymization.TVF_DeterministicDateShift(CONVERT(datetime2(7),'2026-01-01'),0x010203,1,DEFAULT,0) WHERE Value=CONVERT(datetime2(7),'2026-01-01') AND ErrorCode=0)

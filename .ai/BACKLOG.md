@@ -216,6 +216,26 @@ Status der 2.0-Welle: `partially validated`, `unreleased`.
 
 #### TVF_DeterministicTranslate
 
+- Fortschritt 2026-10-02: [kanonischer Vor-Source-Vertrag](../Documentation/Architecture/DETERMINISTIC_TRANSLATE_CONTRACT.md)
+  konkretisiert den freigegebenen Slice additiv im bestehenden Modul als
+  1.1.0. Unabhängig wiederholte private Referenzqualifikation: 5.540 Assertions;
+  getrennte Read-only-Nativprimitive: 48 Assertions, Linux 2019/latest und
+  Windows 2025/CU8. Unabhängiger Semantikreview erfolgreich. SQL-API,
+  Lifecycle, Metadaten, Rechte und CI dadurch noch nicht qualifiziert.
+
+- Integrierter Fortschritt 2026-10-02: Source/Lifecycle implementiert;
+  statische Referenzsuite mit 1.746 Translateassertions und unabhängige
+  Reviews erfolgreich. Vollständiger synthetischer Adapter auf Linux
+  2019/latest CL150 local/central und Windows 2025/CU8 CL150/160/170 central
+  bestanden: alle sieben Slots, Fehler-/Safety-/LOB-/Collationfälle,
+  SQL-/Clientmetadaten, echtes 1.0-Upgrade, Wiederholung, Callertransaktionen,
+  Kollisionen/Zukunftsslots, Uninstall und eigener Cleanup. Windows local:
+  API-/Safetyfälle im früheren Gesamtfehllauf bestanden; separate korrigierte
+  Metadaten-/Lifecycleprüfung erfolgreich. Kein Gesamt-PASS des Fehllaufs.
+  Keine Serverkonfiguration/Grants; neue Minimalrechte, weitere physische
+  Targets, Kapazität und aktuelle CI offen. `partially validated`,
+  `unreleased`; kein Merge- oder Veröffentlichungsnachweis.
+
 - Zweck ausdrücklich bestätigt: formaterhaltende Transformation synthetischer
   Kennungen. Rückführbarkeit und verbleibende Länge-/Muster-/Häufigkeits-
   offenlegung ausdrücklich akzeptiert; keine Anonymisierung/Verschlüsselung.
