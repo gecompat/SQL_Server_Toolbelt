@@ -11,6 +11,7 @@ $builder['Password'] = $env:TBX_SQL_PASSWORD
 $builder['Encrypt'] = $true
 $builder['TrustServerCertificate'] = $true
 $builder['Connect Timeout'] = 15
+$builder['Pooling'] = $false
 $connection = [System.Data.SqlClient.SqlConnection]::new($builder.ConnectionString)
 $messages = [System.Collections.Generic.List[string]]::new()
 $connection.add_InfoMessage({param($sender,$event) $messages.Add($event.Message)}.GetNewClosure())
@@ -37,14 +38,14 @@ function Unwrap-SqlException($Failure) {
 $probeStage='CONNECT'
 try {
     $connection.Open()
-    foreach ($api in @('TVF_DeterministicRange','TVF_DeterministicDateShift')) {
+    foreach ($api in @('TVF_DeterministicRange','TVF_DeterministicDateShift','TVF_DeterministicTranslate')) {
         $probeStage=$api
         $command=$connection.CreateCommand(); $command.CommandTimeout=120
-        $arguments=if($api -eq 'TVF_DeterministicRange') {'0x010203,1,DEFAULT,-10,10'} else {"CONVERT(datetime2(7),'2026-01-02T03:04:05.1234567'),0x010203,1,DEFAULT,DEFAULT"}
+        $arguments=if($api -eq 'TVF_DeterministicRange') {'0x010203,1,DEFAULT,-10,10'} elseif($api -eq 'TVF_DeterministicTranslate'){"N'Ab09',1,DEFAULT,DEFAULT,DEFAULT"} else {"CONVERT(datetime2(7),'2026-01-02T03:04:05.1234567'),0x010203,1,DEFAULT,DEFAULT"}
         $command.CommandText="SELECT Value,ErrorCode FROM toolbelt_pseudonymization.$api($arguments);"
         $reader=$command.ExecuteReader()
         try {
-            $type=if($api -eq 'TVF_DeterministicRange') {'bigint'} else {'datetime2'}
+            $type=if($api -eq 'TVF_DeterministicRange') {'bigint'} elseif($api -eq 'TVF_DeterministicTranslate'){'nvarchar'} else {'datetime2'}
             Assert-Columns $reader @('Value','ErrorCode') @($type,'int') @($true,$false)
             if(-not $reader.Read() -or $reader.IsDBNull(0) -or $reader.GetInt32(1) -ne 0 -or $reader.Read() -or $reader.NextResult()) { throw 'TVF: genau eine Erfolgszeile erforderlich.' }
         } finally {$reader.Dispose();$command.Dispose()}

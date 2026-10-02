@@ -643,6 +643,7 @@ change_impact:
         - Documentation/Architecture/DATE_SHIFTING_PROPOSAL.md
         - Documentation/Standards/USP_CONTRACT.md
         - Tests/CI/run-deterministic-linux.sh
+        - Tests/CI/run-deterministic-translate-lab.ps1
         - .github/workflows/deterministic-runtime.yml
       checks:
         - markdown_links

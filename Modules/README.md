@@ -40,7 +40,7 @@ abgeleitet.**
 | `toolbelt.metadata.capability-catalog` | Module Capability Catalog | `1.0.0` | `toolbelt_metadata` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.identifier` | Identifier and Multipart Name Toolkit | `1.0.0` | `toolbelt_metadata` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.table-clone` | Script-only Table Clone | `1.0.0` | `toolbelt_metadata` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.pseudonymization.deterministic` | Deterministic Synthetic Mapping | `1.0.0` | `toolbelt_pseudonymization` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.pseudonymization.deterministic` | Deterministic Synthetic Mapping | `1.1.0` | `toolbelt_pseudonymization` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.directional-trim` | Directional TRIM Compatibility | `1.0.0` | `toolbelt_string` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.regex` | Bounded Regular Expressions | `1.2.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.split-advanced` | Quote/Escape Multi-Separator Split | `1.1.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |

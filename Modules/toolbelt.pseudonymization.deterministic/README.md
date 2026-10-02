@@ -1,17 +1,28 @@
 # Deterministische synthetische Zuordnung
 
 Modul `toolbelt.pseudonymization.deterministic`, erster Release `1.0.0`,
+additiver Translate-Slice `1.1.0` in Entwicklung.
 Schema `toolbelt_pseudonymization`. Individuelle Benutzerfreigabe für
 Range/DateShift/Lookup vom 2026-10-01 in der Reservewelle `.ai/BACKLOG.md`.
 Source-/Lifecycle-/Testartefakte implementiert; `partially validated`,
-`unreleased`. Identischer finaler Safetyfix-Adapter auf SQL Server 2019 Linux
-CL150 und 2025 Windows/CU8 CL150/160/170 am 2026-10-02 erfolgreich.
+`unreleased`. Der historische 1.0-Safetyfix-Adapter besteht auf SQL Server
+2019 Linux und 2025 Windows/CU8. Translate 1.1 besteht vollständig auf Linux
+2019/latest CL150 local/central. Windows2025/CU8 local CL150/160/170
+einschließlich korrigiertem Lifecycle-/Metadatenadapter erfolgreich;
+der zentrale Windows-Scope ist noch in Prüfung.
 Zusätzliche physische Targets bleiben getrennt offen. Vor-Safetyfix-Erfolge
 sind ausschließlich historisch.
 
 - [TVF_DeterministicRange](Documentation/TVF_DeterministicRange.md):
   geschlossener vollständiger bigint-Bereich, SHA256, begrenztes Rejection-
   Sampling und explizit versioniertes Byteformat.
+- [TVF_DeterministicTranslate](Documentation/TVF_DeterministicTranslate.md):
+  einzeln freigegebene formaterhaltende ASCII-Vorwärtstransformation,
+  casegekoppelte bijektive Substitution mit expliziten Separatoren und
+  begrenzten Standard-/Large-Profilen. Der
+  [Vor-Source-Vertrag](../../Documentation/Architecture/DETERMINISTIC_TRANSLATE_CONTRACT.md)
+  ist vor Source qualifiziert; tatsächliche integrierte Nachweise und
+  offene Teilscopes sind in der Testmatrix getrennt ausgewiesen.
 - [TVF_DeterministicDateShift](Documentation/TVF_DeterministicDateShift.md):
   Entity-bezogener Tagesoffset, datetime2(7), strikter Overflow.
 - [USP_DeterministicLookup](Documentation/USP_DeterministicLookup.md):
@@ -32,7 +43,8 @@ Uninstall.sql mit ConfirmNoExternalConsumers=0|1. DDL-Rechte separat vom
 Caller. Deploy und Uninstall verweigern eine bereits offene Callertransaktion
 vor SET-Optionen und Temp-DDL mit RAISERROR 50000, State 1 und dem Prefix
 `DETERMINISTIC_LIFECYCLE_CALLER_TRANSACTION:`; SQLCMD muss nonzero enden.
-Erste Version, deshalb kein historischer Vorgänger/Upgradebeleg.
+Für Version 1.0 gab es keinen historischen Vorgänger. Version 1.1 benötigt
+den echten 1.0→1.1-Upgradebeleg; vorhandene 1.0-Nachweise ersetzen ihn nicht.
 Wiederholung repariert eigenen Source-Drift, Hashes sind nur diagnostisch.
 Unbekannte Releases und fremde Namens-/Ownershipkollisionen scheitern
 vor Mutation. Application Lock/Transaktion sichern konkurrierenden
@@ -56,7 +68,7 @@ Sie ersetzt keine SELECT-Metadaten-, Lifecycle-, Resource- oder Rechteprüfung.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Identischer finaler Safetyfix-Adapter SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170; API/Fehler/Grenzen/Transaktionen, vier Caller-Temp-Eclipsing/Help-Fixtures, Installer-Callertransaction ON/OFF und SQLCMD-nonzero, Local-CS/Central-BIN2, administrative CrossDB-CI, direkte Minimalrechte und Clientmetadaten lokal/zentral, Wiederholung/Drift/Kollision/Dependency/Uninstall; weitere physische Targets und CrossDB-Minimalrechte offen
+- Nachweis: `local: Tests/CI/run-deterministic-translate-lab.ps1`
+- Scope: Version 1.1.0: vollständiger Linux2019/latest CL150 local/central; bestehende APIregressionen, Translate/21Safetybatches/vier Caller-Collations/echte2MiB+16MiB/Metadaten, genuine1.0Upgrade/FirstInstall/Repeat/CallerTX/Snapshot-Faults/fremdeFutureSlots/historischerUninstall/CrossDB/ownCleanup; Windows2025/CU8 lokale APIs/Safety CL150/160/170 und separater korrigierter Metadaten-/Lifecycleadapter PASS, central noch offen; keine neuen Lab-Grants/Serverkonfiguration, weitere Targets/Minimalrechte/CI offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
