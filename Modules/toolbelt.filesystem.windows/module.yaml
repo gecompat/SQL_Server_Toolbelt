@@ -89,6 +89,8 @@ contracts:
 tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/WindowsFilesystem.Contract.sql"
+  framework: "Tests/Framework/Invoke-NoOverwrite.ps1"
+  framework_controls: "Tests/Framework/Test-WitnessControls.ps1"
 validation_evidence:
   - date: "2026-08-04"
     workflow: "Manuelle Windows-CLR-Preflight-Validierung"
@@ -97,4 +99,13 @@ validation_evidence:
   - date: "2026-08-05"
     workflow: "Ergänzender Windows-CLR-Preflight-Lauf"
     scope: "SQL Server 2025 Windows; kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem WorkPath"
+    result: "success"
+
+  - date: "2026-10-03"
+    workflow: "NoOverwrite-Projektbuild und historische Offline-Helperqualifikation"
+    scope: "Aktueller .NET-Framework-4.8-Projektbuild und Releaseartefakt erfolgreich; historischer privater Helper: neun synthetische Fälle/254 Assertions. Historischer Vorbereitungsstand; korrigierte Binary im SQL-Caller-/NTFS-Kontext offen."
+    result: "success"
+  - date: "2026-10-03"
+    workflow: "Portierter NoOverwrite-Frameworktest und private Prozesskontrollen"
+    scope: "Aktueller sourcegebundener Fixed-only-Harness: neun Fälle/254 Assertions, Staging-/Zielerhalt und eigene Bereinigung erfolgreich; vier private tatsächliche Prozesskontrollen für Nonzero, Timeout, Capturegrenze und Postpin-Drift erfolgreich. Aktueller Projektbuild/Releaseartefakt mit Assemblyversion1.0.0.0 ebenfalls erfolgreich. Offline-Scope ohne SQL, Caller-/NTFS-Nachweis; CI am exakten PR-Head separat."
     result: "success"

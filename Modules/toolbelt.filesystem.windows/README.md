@@ -19,8 +19,14 @@ Der SQL-Server benötigt für die Laufzeit stattdessen die in den Deployment-Dok
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-05`
-- Nachweis: `Ergänzender Windows-CLR-Preflight-Lauf`
-- Scope: SQL Server 2025 Windows; kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem WorkPath
+- Datum: `2026-10-03`
+- Nachweis: `Portierter NoOverwrite-Frameworktest und private Prozesskontrollen`
+- Scope: Aktueller sourcegebundener Fixed-only-Harness: neun Fälle/254 Assertions, Staging-/Zielerhalt und eigene Bereinigung erfolgreich; vier private tatsächliche Prozesskontrollen für Nonzero, Timeout, Capturegrenze und Postpin-Drift erfolgreich. Aktueller Projektbuild/Releaseartefakt mit Assemblyversion1.0.0.0 ebenfalls erfolgreich. Offline-Scope ohne SQL, Caller-/NTFS-Nachweis; CI am exakten PR-Head separat.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## NoOverwrite-Regression
+
+Bei `@Overwrite = 0` veröffentlicht der Provider ausschließlich per nicht überschreibendem `File.Move`. Auch ein erst während des Staging-Schreibens erzeugtes Ziel wird nicht ersetzt; der frühere Existenzcheck allein ist keine Veröffentlichungsbarriere. `@Overwrite = 1` behält den bisherigen Move-/Replace-Pfad. Fehlgeschlagenes Schreiben räumt die eigene Staging-Datei auf; ein vorhandenes Ziel bleibt bei NoOverwrite unverändert. Dies ist keine allgemeine NTFS-, Power-Loss- oder Caller-Impersonation-Garantie.
+
+Der aktuelle Provider hat am 2026-10-03 den .NET-Framework-4.8-Projektbuild und die Releaseartefakt-Erzeugung bestanden. Die historische private Helperqualifikation umfasste neun synthetische Fälle und 254 Assertions; sie ersetzt keinen Nachweis des neuen öffentlichen Test-Runners. Der sourcegebundene [Offline-Regressionstest](./Tests/Framework/README.md) bestand tatsächlich neun Fälle/254 Assertions einschließlich eigener Bereinigung und abschließender Pins. Vier zusätzliche private Prozesskontrollen bestanden Nonzero, Timeout, Capturegrenze und Postpin-Drift. Aktuelle CI wird separat am exakten PR-Head nachgewiesen. Neue SQL-Caller-/NTFS-Tests der korrigierten Binary sind nicht ausgeführt. Modulversion1.0.0, `partially validated` und `unreleased` bleiben erhalten.

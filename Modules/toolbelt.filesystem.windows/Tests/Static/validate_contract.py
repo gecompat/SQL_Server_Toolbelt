@@ -60,4 +60,25 @@ if "@Content varbinary(max) = NULL" in procedures[: procedures.index("CREATE OR 
     raise SystemExit("CLR-varbinary(max)-Binding darf keinen Defaultwert verwenden.")
 if "@Content nvarchar(max) = NULL" in procedures[: procedures.index("CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_InternalEmitHelp]")]:
     raise SystemExit("CLR-nvarchar(max)-Binding darf keinen Defaultwert verwenden.")
+
+# Drei öffentliche Schreibpfade leiten denselben unveränderten Boolwert weiter.
+for call, expected_count in (
+    ("WriteAtomically(root, target, overwrite, delegate(FileStream output)", 2),
+    ("WriteAtomically(targetRoot, targetPath, overwrite, delegate(FileStream destination)", 1),
+):
+    if source.count(call) != expected_count:
+        raise SystemExit("NoOverwrite muss in allen drei Schreibpfaden weitergegeben werden.")
+helper = source[source.index("private static void WriteAtomically("):source.index("private static SqlDataRecord Record(")]
+if "Root root, string target, bool overwrite, Action<FileStream> write" not in helper:
+    raise SystemExit("Atomarer Schreibhelper benötigt den ursprünglichen Overwrite-Boolwert.")
+publication = "if (!overwrite) File.Move(staging, target); else if (File.Exists(target)) File.Replace(staging, target, null, true); else File.Move(staging, target);"
+if publication not in helper or helper.count("File.Replace(") != 1:
+    raise SystemExit("NoOverwrite darf weder Exists/Replace noch einen Fallback verwenden; true bleibt unverändert.")
+if "finally { if (File.Exists(staging)) File.Delete(staging); }" not in helper:
+    raise SystemExit("Eigene Stagingdatei muss auch nach fehlgeschlagener Veröffentlichung bereinigt werden.")
+for framework_file in ("NoOverwriteHarness.cs", "Invoke-NoOverwrite.ps1", "Test-WitnessControls.ps1"):
+    if not root.joinpath("Tests/Framework", framework_file).is_file():
+        raise SystemExit("NoOverwrite-Offline-Regressionsquelle fehlt: " + framework_file)
+if 'version: "1.0.0"' not in manifest or "release_status: unreleased" not in manifest:
+    raise SystemExit("Enger unreleased-NoOverwrite-Fix darf keine Version oder Freigabe erfinden.")
 print("Windows filesystem static contract passed.")
