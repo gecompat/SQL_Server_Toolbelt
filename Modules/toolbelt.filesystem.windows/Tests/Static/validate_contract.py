@@ -68,7 +68,7 @@ if "@Content nvarchar(max) = NULL" in procedures[: procedures.index("CREATE OR A
 
 # Drei öffentliche Schreibpfade leiten denselben unveränderten Boolwert weiter.
 for call, expected_count in (
-    ("WriteAtomically(root, target, overwrite, delegate(FileStream output)", 2),
+    ("WriteAtomicallyScoped(root, target, overwrite, delegate(FileStream output)", 2),
     ("WriteAtomically(targetRoot, targetPath, overwrite, delegate(FileStream destination)", 1),
 ):
     if source.count(call) != expected_count:
@@ -79,11 +79,44 @@ if "Root root, string target, bool overwrite, Action<FileStream> write" not in h
 publication = "if (!overwrite) File.Move(staging, target); else if (File.Exists(target)) File.Replace(staging, target, null, true); else File.Move(staging, target);"
 if publication not in helper or helper.count("File.Replace(") != 1:
     raise SystemExit("NoOverwrite darf weder Exists/Replace noch einen Fallback verwenden; true bleibt unverändert.")
-if "finally { if (File.Exists(staging)) File.Delete(staging); }" not in helper:
+if "if (ownStage)" not in helper or "filesystem(delegate { if (File.Exists(staging)) File.Delete(staging); });" not in helper:
     raise SystemExit("Eigene Stagingdatei muss auch nach fehlgeschlagener Veröffentlichung bereinigt werden.")
+if "WriteAtomicallyScoped(root, target, overwrite, write, delegate(Action action) { action(); });" not in helper:
+    raise SystemExit("Historischer Helper muss denselben atomaren Publikationskern verwenden.")
+copy = source[source.index("private static long CopyBinaryContent("):source.index("private static void WriteAtomically(")]
+if copy.count("content.Read(") != 2 or copy.count("filesystem(delegate { output.Write(") != 3:
+    raise SystemExit("SQL-LOB-Reads bleiben außerhalb, alle drei Chunk-/BOM-Writes innerhalb der FS-Scope.")
+for marker in (
+    "FilesystemExecution execution = new FilesystemExecution(executionIdentity);",
+    "identity = GetCallerIdentity();",
+    "if (!restored) { identityFailure.Throw(); return; }",
+    "if (context == null) { restored = false; identityFailure = failure; }",
+    "context.Undo();",
+    "filesystem(delegate { output.Flush(true); });",
+    "filesystem(delegate { output.Dispose(); });",
+    "if (failure == null) filesystem(delegate { if (!overwrite) File.Move(staging, target);",
+    "if (failure != null) failure.Throw();",
+):
+    if marker not in source:
+        raise SystemExit("Streaming-/Identitätsscope oder Erstfehlerschutz fehlt: " + marker)
 for framework_file in ("NoOverwriteHarness.cs", "Invoke-NoOverwrite.ps1", "Test-WitnessControls.ps1"):
     if not root.joinpath("Tests/Framework", framework_file).is_file():
         raise SystemExit("NoOverwrite-Offline-Regressionsquelle fehlt: " + framework_file)
 if 'version: "1.0.0"' not in manifest or "release_status: unreleased" not in manifest:
     raise SystemExit("Enger unreleased-NoOverwrite-Fix darf keine Version oder Freigabe erfinden.")
+
+# Gemeinsamer Caller-Guard: keine wrapper-only Pruefung oder Metadatenrechte.
+if source.count("GetCallerIdentity();") != 2 or source.count("SqlContext.WindowsIdentity;") != 1:
+    raise SystemExit("Beide Caller-Pfade muessen dieselbe Authentifizierung pruefen.")
+auth = source[source.index("private static WindowsIdentity GetCallerIdentity()"):source.index("private static void RunAs(")]
+if "SELECT CONVERT(nvarchar(40), CONNECTIONPROPERTY('auth_scheme'));" not in auth:
+    raise SystemExit("Requestbezogene Authentifizierung fehlt.")
+if "scheme as string" not in auth or "Trim(" in auth or "ToUpper" in auth:
+    raise SystemExit("Auth-Modi muessen exakt typisiert und ordinal sein.")
+for mode in ("NTLM", "KERBEROS", "DIGEST", "BASIC", "NEGOTIATE"):
+    if f'String.Equals(value, "{mode}", StringComparison.Ordinal)' not in auth:
+        raise SystemExit("Geschlossener Windows-Auth-Modus fehlt.")
+if auth.count("String.Equals(value,") != 5 or "Impersonate(" in auth or "sys.dm_" in auth:
+    raise SystemExit("Caller-Auth-Guard darf weder I/O noch DMV-Abhaengigkeit erweitern.")
+
 print("Windows filesystem static contract passed.")
