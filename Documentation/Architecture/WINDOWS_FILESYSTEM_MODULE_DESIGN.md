@@ -25,3 +25,9 @@ Lesen liefert maximal 16 MiB pro Aufruf und gibt die nächste Byteposition zurü
 ## Plattform und Trust
 
 Die Installation prüft `clr enabled` und `clr strict security`, ändert aber keine Instanzoption. Ein sysadmin muss den SHA2-512-Hash exakt per `sys.sp_add_trusted_assembly` autorisieren. `TRUSTWORTHY ON`, `UNSAFE` und `xp_cmdshell` sind ausgeschlossen. SQL Server auf Linux unterstützt den erforderlichen `EXTERNAL_ACCESS`-Pfad nicht und ist daher `not applicable`.
+
+## NoOverwrite-Veröffentlichung
+
+Bei `@Overwrite = 0` veröffentlicht der Provider ausschließlich per nicht überschreibendem `File.Move`. Auch ein erst während des Staging-Schreibens erzeugtes Ziel wird nicht ersetzt; der frühere Existenzcheck allein ist keine Veröffentlichungsbarriere. `@Overwrite = 1` behält den bisherigen Move-/Replace-Pfad. Fehlgeschlagenes Schreiben räumt die eigene Staging-Datei auf; ein vorhandenes Ziel bleibt bei NoOverwrite unverändert. Dies ist keine allgemeine NTFS-, Power-Loss- oder Caller-Impersonation-Garantie.
+
+Die eng begrenzte Korrektur ändert ausschließlich die Weitergabe des bestehenden Overwrite-Flags und die Veröffentlichung im kanonischen Helper. Öffentliche SQL-Verträge, Lifecycle, Identitätsmodi und Version bleiben unverändert. Ein Offline-Helpertest beobachtet synthetische konkurrierende Zielerzeugung; die Windows-SQL-/NTFS-Matrix bleibt ein eigener Nachweis.

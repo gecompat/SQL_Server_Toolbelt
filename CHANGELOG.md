@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 2026-10-03 – Windows Filesystem NoOverwrite-Korrektur / 1.0.0 unreleased
+
+- Binary-/Textschreiben und Transcoding geben das bestehende Overwrite-Flag an den kanonischen Helper weiter. NoOverwrite veröffentlicht ausschließlich per nicht überschreibendem Move und erhält auch ein während des Staging-Schreibens erzeugtes Ziel; der Overwrite=true-Pfad bleibt unverändert. Keine neue API, Lifecycle- oder Versionsänderung.
+- Aktueller .NET-Framework-4.8-Projektbuild und Releaseartefakt-Erzeugung erfolgreich. Historischer privater Helpernachweis: neun synthetische Fälle/254 Assertions. Der aktuelle sourcegebundene Fixed-only-Harness bestand tatsächlich neun Fälle/254 Assertions einschließlich eigener Bereinigung und abschließender Pins; vier private tatsächliche Prozesskontrollen bestanden Nonzero, Timeout, Capturegrenze und Postpin-Drift. Windows-CI ist gekoppelt und bleibt ein separater Mergegate am exakten PR-Head. Die korrigierte Binary im SQL-Caller-/NTFS-Kontext ist nicht qualifiziert; `partially validated`, `unreleased`.
+
 ## 2026-10-03 – Script-only Tabellenklon Welle1 / 2.0.0
 
 - Bestehende zwei USP-Slots erweitern die rein textuelle Vorschau um Computed/PERSISTED, gefilterte Rowstore-Indizes und optionale typisierte Extended Properties. Zehn Parameter einschließlich `IncludeExtendedProperties` an Position6 vor dem Standardtail verschieben die bisherigen Positionen6..9 auf7..10; sieben einzelne SET-Zeilen vor TABLE begründen die dokumentierte Signaturversion2.0.0. Keine Scriptausführung oder Datenkopie durch die API; Welle2 bleibt getrennt.

@@ -77,7 +77,7 @@ namespace Toolbelt.Filesystem.Windows
             {
                 AssertNoReparsePoint(root.RootPath, Path.GetDirectoryName(target));
                 if (!overwrite && File.Exists(target)) Fail("TargetExists");
-                WriteAtomically(root, target, delegate(FileStream output)
+                WriteAtomically(root, target, overwrite, delegate(FileStream output)
                 {
                     byte[] buffer = new byte[BufferBytes]; long offset = 0;
                     while (offset < content.Length) { int expected = (int)Math.Min(buffer.Length, content.Length - offset); long read = content.Read(offset, buffer, 0, expected); if (read <= 0) Fail("SourceReadFailed"); output.Write(buffer, 0, (int)read); offset += read; written += read; }
@@ -93,7 +93,7 @@ namespace Toolbelt.Filesystem.Windows
             RunAs(executionIdentity, delegate
             {
                 AssertNoReparsePoint(root.RootPath, Path.GetDirectoryName(target)); if (!overwrite && File.Exists(target)) Fail("TargetExists");
-                WriteAtomically(root, target, delegate(FileStream output)
+                WriteAtomically(root, target, overwrite, delegate(FileStream output)
                 {
                     if (writeBom) { byte[] preamble = encoding.GetPreamble(); output.Write(preamble, 0, preamble.Length); written += preamble.Length; }
                     char[] characters = new char[32768]; long offset = 0;
@@ -111,7 +111,7 @@ namespace Toolbelt.Filesystem.Windows
             RunAs(executionIdentity, delegate
             {
                 AssertNoReparsePoint(source.RootPath, sourcePath); AssertNoReparsePoint(targetRoot.RootPath, Path.GetDirectoryName(targetPath)); if (!overwrite && File.Exists(targetPath)) Fail("TargetExists");
-                WriteAtomically(targetRoot, targetPath, delegate(FileStream destination)
+                WriteAtomically(targetRoot, targetPath, overwrite, delegate(FileStream destination)
                 {
                     if (writeBom) { byte[] preamble = output.GetPreamble(); destination.Write(preamble, 0, preamble.Length); written += preamble.Length; }
                     using (StreamReader reader = new StreamReader(new FileStream(sourcePath, FileMode.Open, FileAccess.Read, FileShare.Read), input, false, 32768, false))
@@ -160,7 +160,7 @@ namespace Toolbelt.Filesystem.Windows
         private static string Resolve(string rootPath, string relativePath, bool allowEmpty) { if (String.IsNullOrWhiteSpace(rootPath) || relativePath == null || (!allowEmpty && relativePath.Length == 0)) Fail("InvalidPath"); if (Path.IsPathRooted(relativePath) || relativePath.IndexOf(':') >= 0) Fail("AbsolutePathForbidden"); string root = Path.GetFullPath(rootPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), candidate = Path.GetFullPath(Path.Combine(root, relativePath)); if (!candidate.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) && !Same(root, candidate)) Fail("PathOutsideRoot"); return candidate; }
         private static void AssertNoReparsePoint(string rootPath, string candidate) { string root = Path.GetFullPath(rootPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar); string current = root; if (Directory.Exists(current) && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0) Fail("ReparsePointForbidden"); foreach (string part in Relative(root, candidate).Split(new[] {'\\', '/'}, StringSplitOptions.RemoveEmptyEntries)) { current = Path.Combine(current, part); if ((Directory.Exists(current) || File.Exists(current)) && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0) Fail("ReparsePointForbidden"); } }
         private static IEnumerable<string> Enumerate(string start, bool recursive, int maxDepth) { Queue<PathDepth> queue = new Queue<PathDepth>(); queue.Enqueue(new PathDepth { Path = start, Depth = 0 }); while (queue.Count != 0) { PathDepth current = queue.Dequeue(); foreach (string item in Directory.EnumerateFileSystemEntries(current.Path)) { yield return item; FileAttributes attributes = File.GetAttributes(item); if (recursive && (attributes & FileAttributes.Directory) != 0 && (attributes & FileAttributes.ReparsePoint) == 0 && current.Depth < maxDepth) queue.Enqueue(new PathDepth { Path = item, Depth = current.Depth + 1 }); } } }
-        private static void WriteAtomically(Root root, string target, Action<FileStream> write) { string stagingDirectory = String.IsNullOrWhiteSpace(root.WorkPath) ? Path.GetDirectoryName(target) : Resolve(root.RootPath, root.WorkPath, false); AssertNoReparsePoint(root.RootPath, stagingDirectory); string staging = Path.Combine(stagingDirectory, ".tbx-" + Guid.NewGuid().ToString("N") + ".part"); try { using (FileStream output = new FileStream(staging, FileMode.CreateNew, FileAccess.Write, FileShare.None)) { write(output); output.Flush(true); } if (File.Exists(target)) File.Replace(staging, target, null, true); else File.Move(staging, target); } finally { if (File.Exists(staging)) File.Delete(staging); } }
+        private static void WriteAtomically(Root root, string target, bool overwrite, Action<FileStream> write) { string stagingDirectory = String.IsNullOrWhiteSpace(root.WorkPath) ? Path.GetDirectoryName(target) : Resolve(root.RootPath, root.WorkPath, false); AssertNoReparsePoint(root.RootPath, stagingDirectory); string staging = Path.Combine(stagingDirectory, ".tbx-" + Guid.NewGuid().ToString("N") + ".part"); try { using (FileStream output = new FileStream(staging, FileMode.CreateNew, FileAccess.Write, FileShare.None)) { write(output); output.Flush(true); } if (!overwrite) File.Move(staging, target); else if (File.Exists(target)) File.Replace(staging, target, null, true); else File.Move(staging, target); } finally { if (File.Exists(staging)) File.Delete(staging); } }
         private static SqlDataRecord Record(params object[] definition) { List<SqlMetaData> metadata = new List<SqlMetaData>(); for (int i = 0; i < definition.Length;) { string name = (string)definition[i++]; SqlDbType type = (SqlDbType)definition[i++]; long length = 0; if (i < definition.Length && (definition[i] is int || definition[i] is long)) length = Convert.ToInt64(definition[i++]); metadata.Add(length == 0 ? new SqlMetaData(name, type) : new SqlMetaData(name, type, length)); } return new SqlDataRecord(metadata.ToArray()); }
         private static void SendWrite(long bytes, string rootAlias, string relativePath) { SqlDataRecord row = Record("BytesWritten", SqlDbType.BigInt, "RootAlias", SqlDbType.NVarChar, 128, "RelativePath", SqlDbType.NVarChar, 4000, "State", SqlDbType.VarChar, 16); row.SetInt64(0, bytes); row.SetString(1, rootAlias); row.SetString(2, relativePath); row.SetString(3, "completed"); SqlContext.Pipe.Send(row); }
         private static void SendAction(string rootAlias, string relativePath, string state) { SqlDataRecord row = Record("RootAlias", SqlDbType.NVarChar, 128, "RelativePath", SqlDbType.NVarChar, 4000, "State", SqlDbType.VarChar, 16); row.SetString(0, rootAlias); row.SetString(1, relativePath); row.SetString(2, state); SqlContext.Pipe.Send(row); }

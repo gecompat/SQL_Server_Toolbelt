@@ -35,3 +35,16 @@ jobs:
       - name: Validate static contract
         shell: pwsh
         run: python Modules/toolbelt.filesystem.windows/Tests/Static/validate_contract.py
+      - name: Validate synthetic witness controls
+        shell: pwsh
+        run: ./Modules/toolbelt.filesystem.windows/Tests/Framework/Test-WitnessControls.ps1
+      - name: Run bounded current-provider NoOverwrite regression
+        shell: pwsh
+        run: |
+          $framework = "Modules/toolbelt.filesystem.windows/Tests/Framework"
+          $runner = Join-Path $framework "Invoke-NoOverwrite.ps1"
+          $runnerHash = (Get-FileHash -LiteralPath $runner -Algorithm SHA256).Hash
+          $providerHash = (Get-FileHash -LiteralPath "Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs" -Algorithm SHA256).Hash
+          $harnessHash = (Get-FileHash -LiteralPath (Join-Path $framework "NoOverwriteHarness.cs") -Algorithm SHA256).Hash
+          & $runner -ExpectedRunnerSHA256 $runnerHash -ExpectedProviderSHA256 $providerHash -ExpectedHarnessSHA256 $harnessHash
+          if ($LASTEXITCODE -ne 0) { throw "FS_NO_OVERWRITE_CI_FAILED" }

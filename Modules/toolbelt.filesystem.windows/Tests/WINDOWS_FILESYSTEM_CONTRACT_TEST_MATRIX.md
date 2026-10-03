@@ -22,8 +22,22 @@ Aktuelle Evidenz: Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 auf 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-08-05`
-- Nachweis: `Ergänzender Windows-CLR-Preflight-Lauf`
-- Scope: SQL Server 2025 Windows; kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem WorkPath
+- Datum: `2026-10-03`
+- Nachweis: `Portierter NoOverwrite-Frameworktest und private Prozesskontrollen`
+- Scope: Aktueller sourcegebundener Fixed-only-Harness: neun Fälle/254 Assertions, Staging-/Zielerhalt und eigene Bereinigung erfolgreich; vier private tatsächliche Prozesskontrollen für Nonzero, Timeout, Capturegrenze und Postpin-Drift erfolgreich. Aktueller Projektbuild/Releaseartefakt mit Assemblyversion1.0.0.0 ebenfalls erfolgreich. Offline-Scope ohne SQL, Caller-/NTFS-Nachweis; CI am exakten PR-Head separat.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## NoOverwrite-Korrektur 2026-10-03
+
+| Kategorie | Nachweis | Status |
+|---|---|---|
+| Aktueller Projektbuild/Releaseartefakt | .NET Framework 4.8; unveränderte Assemblyversion1.0.0.0; exakte Binary-/Hexbindung privat geprüft | erfolgreich, Offline-Scope |
+| Historischer Helper | neun synthetische Fälle, 254 Assertions; Zielerzeugung während Staging, false/true und eigene Fehlerbereinigung | erfolgreich, historischer privater Offline-Scope |
+| Portierter Fixed-only-Harness | aktueller Provider; neun Fälle/254 Assertions; vollständiger Witness, tatsächlicher Exit0, eigene Bereinigung und abschließende Pins | erfolgreich, Offline-Scope 2026-10-03 |
+| Private Prozesskontrollen | Nonzero, Timeout, Capturegrenze und Postpin-Drift; eigene Children beendet/disposed, feste Fehlercodes | erfolgreich, vier tatsächliche Kontrollen 2026-10-03 |
+| Witness-Prädikate | elf synthetische Kontrollen; keine Prozessausführung | erfolgreich, getrennte Parserkontrolle |
+| Aktuelle Windows-CI | Projektbuild, Static, Witness-Kontrollen und Fixed-only-Harness | separater Mergegate am exakten PR-Head; Nachweis im PR |
+| Korrigierte Binary im SQL-Caller-/NTFS-Kontext | Windows Authentication, NTFS-ACLs und reale Veröffentlichungssemantik | not executed |
+
+Keine allgemeine Statusaufwertung; `partially validated`, `unreleased`. Die historische Helper-Assertionzahl ist kein behauptetes Ergebnis des portierten Harness.

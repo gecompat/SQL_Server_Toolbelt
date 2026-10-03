@@ -771,6 +771,10 @@ change_impact:
       checks:
         - markdown_links
     windows_filesystem_contract:
+      entrypoints:
+        - Modules/toolbelt.filesystem.windows/Tests/Framework/Invoke-NoOverwrite.ps1
+        - Modules/toolbelt.filesystem.windows/Tests/Framework/NoOverwriteHarness.cs
+        - Modules/toolbelt.filesystem.windows/Tests/Framework/Test-WitnessControls.ps1
       paths:
         - Modules/toolbelt.filesystem.windows/**
         - Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md
