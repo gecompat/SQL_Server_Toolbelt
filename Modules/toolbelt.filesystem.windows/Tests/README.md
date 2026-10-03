@@ -4,6 +4,10 @@ Die Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 war auf SQL Server
 
 Windows-Authentication-, NTFS-ACL- und weitere I/O-Tests bleiben `not executed`. Reale Pfade, Benutzer, NTFS-ACLs, Runtime-Ausgaben und Inhalte bleiben außerhalb des Repositorys.
 
+Ein begrenzter nativer Windows-/SQL-Server-2025-Test vom 2026-10-03 bestätigte Installation und Wiederholung, scheiterte aber am Help-Metadatenvertrag: `IsRequired` war `int` statt `bit`. Der SQL-Fix typisiert die fünf Parameterzeilen ausdrücklich als `bit`, damit auch `IsNullable` seinen vertraglichen Typ behält. Der korrigierte Stand bestand anschließend die Prüfung der zwölf CLR-Spaltentypen, sieben Help-Zeilen und zulässigen NULL-Werte für `USP_WriteBinaryFile @Hilfe=1`. Dies ist ein begrenzter Help-Nachweis, kein vollständiger Modulnachweis.
+
+Der nachfolgende Caller-Dateischreibaufruf scheiterte mit `51540/1`; seine konkrete Providerursache wird getrennt untersucht. Alle eigenen Testressourcen wurden bereinigt; jeweils eine separate frische Prüfung bestätigte dies. Caller-/NTFS-/I/O-Nachweise bleiben offen. Die fehlgeschlagenen Gesamtläufe werden nicht als Erfolg gewertet.
+
 Der .NET-Framework-4.8-Build und der statische Vertrag waren im Wartungslauf https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356 erfolgreich. Dies ist kein Windows-SQL-Server-/NTFS-Runtime-Nachweis.
 
 ## Aktuelle Validierungsevidenz

@@ -30,6 +30,11 @@ if "@InstalledAssemblyHash" not in deployment or "ELSE IF @InstalledAssemblyHash
     raise SystemExit("Wiederholungsdeployment muss eine unveränderte Assembly ohne ALTER überspringen.")
 if procedures.startswith("+"):
     raise SystemExit("Procedures.sql darf vor dem ersten SET keinen SQL-fremden Prefix enthalten.")
+help_parameters = [line for line in procedures.splitlines() if "UNION ALL SELECT" in line and "'PARAMETER'" in line]
+if len(help_parameters) != 5 or any(
+    ", CAST(0 AS bit), CAST(1 AS bit)," not in line for line in help_parameters
+):
+    raise SystemExit("Help-Flags müssen in jedem UNION-Zweig bit bleiben; int-Literale verbreitern die Metadaten.")
 for binding in (
     "CLR_ReadBinaryFileChunk",
     "CLR_ReadTextFileChunk",

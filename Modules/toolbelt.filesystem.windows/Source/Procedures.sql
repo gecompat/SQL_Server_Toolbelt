@@ -116,11 +116,11 @@ AS
 BEGIN
     SET NOCOUNT ON;
     SELECT CAST('1.0' AS varchar(16)) AS HelpContractVersion, CAST(N'toolbelt_filesystem' AS sysname) AS SchemaName, @ObjectName AS ObjectName, CAST('DESCRIPTION' AS varchar(32)) AS Section, 1 AS Ordinal, CAST(NULL AS sysname) AS ItemName, CAST(NULL AS varchar(256)) AS SqlDataType, CAST(NULL AS bit) AS IsRequired, CAST(NULL AS bit) AS IsNullable, CAST(NULL AS nvarchar(4000)) AS DefaultValue, @Description AS Description, @ExampleSql AS ExampleSql
-    UNION ALL SELECT '1.0', N'toolbelt_filesystem', @ObjectName, 'PARAMETER', 1, N'@ExecutionIdentity', 'varchar(16)', 0, 1, N'''Caller''', N'Caller (Default) impersoniert den Windows-authentifizierten SQL-Caller; ServiceAccount verwendet das SQL-Server-Dienstkonto. Caller wird bei SQL Authentication abgelehnt.', NULL
-    UNION ALL SELECT '1.0', N'toolbelt_filesystem', @ObjectName, 'PARAMETER', 2, N'@ResultTable', 'sysname', 0, 1, N'NULL', N'Optionale vorhandene lokale Temp-Tabelle für das fachliche Resultset.', NULL
-    UNION ALL SELECT '1.0', N'toolbelt_filesystem', @ObjectName, 'PARAMETER', 3, N'@KeepData', 'bit', 0, 1, N'0', N'Gilt ausschließlich mit @ResultTable.', NULL
-    UNION ALL SELECT '1.0', N'toolbelt_filesystem', @ObjectName, 'PARAMETER', 4, N'@Debug', 'tinyint', 0, 1, N'0', N'Steuert Debug-Messages; es wird kein zusätzliches Resultset erzeugt.', NULL
-    UNION ALL SELECT '1.0', N'toolbelt_filesystem', @ObjectName, 'PARAMETER', 5, N'@Hilfe', 'bit', 0, 1, N'0', N'1 liefert ausschließlich dieses Help-Resultset.', NULL
+    UNION ALL SELECT '1.0', N'toolbelt_filesystem', @ObjectName, 'PARAMETER', 1, N'@ExecutionIdentity', 'varchar(16)', CAST(0 AS bit), CAST(1 AS bit), N'''Caller''', N'Caller (Default) impersoniert den Windows-authentifizierten SQL-Caller; ServiceAccount verwendet das SQL-Server-Dienstkonto. Caller wird bei SQL Authentication abgelehnt.', NULL
+    UNION ALL SELECT '1.0', N'toolbelt_filesystem', @ObjectName, 'PARAMETER', 2, N'@ResultTable', 'sysname', CAST(0 AS bit), CAST(1 AS bit), N'NULL', N'Optionale vorhandene lokale Temp-Tabelle für das fachliche Resultset.', NULL
+    UNION ALL SELECT '1.0', N'toolbelt_filesystem', @ObjectName, 'PARAMETER', 3, N'@KeepData', 'bit', CAST(0 AS bit), CAST(1 AS bit), N'0', N'Gilt ausschließlich mit @ResultTable.', NULL
+    UNION ALL SELECT '1.0', N'toolbelt_filesystem', @ObjectName, 'PARAMETER', 4, N'@Debug', 'tinyint', CAST(0 AS bit), CAST(1 AS bit), N'0', N'Steuert Debug-Messages; es wird kein zusätzliches Resultset erzeugt.', NULL
+    UNION ALL SELECT '1.0', N'toolbelt_filesystem', @ObjectName, 'PARAMETER', 5, N'@Hilfe', 'bit', CAST(0 AS bit), CAST(1 AS bit), N'0', N'1 liefert ausschließlich dieses Help-Resultset.', NULL
     UNION ALL SELECT '1.0', N'toolbelt_filesystem', @ObjectName, 'LIMITATION', 1, NULL, NULL, NULL, NULL, NULL, N'Windows-only; Linux ist nicht anwendbar. Absolute Pfade, UNC, Reparse Points und Root-Löschung sind gesperrt.', NULL;
 END;
 GO
