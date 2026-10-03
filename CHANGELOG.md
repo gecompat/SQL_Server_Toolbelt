@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## 2026-10-03 – Jaro-Winkler im bestehenden SAFE-Provider 1.1.0, teilweise validiert
+
+- Individuelle Funktionsfreigabe und konkrete Erweiterung der bestehenden Assembly
+  auf 1.1.0 kanonisch festgehalten; genau eine öffentliche IF und eine interne FT.
+- UnicodeScalar als einziger physischer Helfer; bestehende Distanzverträge bleiben.
+- Bekannte 1.0-/1.1-Lifecycle-Releases mit vier/sechs Slots, genuine historische
+  Blobpaketierung und neue harte Golden-/Metadaten-/Clientfixtures vorbereitet.
+- Neue 1.1-/genuine 1.0-Releasebuilds, vollständige Distanz-/Jaro-Frameworkregression,
+  Pythonreferenz und beide IL-Metadatengates separat bestanden.
+- Private, source-/binarygebundene native Gesamtadapter auf Linux 2019/latest
+  CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral und SC-UTF8 bestanden:
+  genuine Upgrade, sechs Slots, API/Client/Lifecycle/Caller/AppLock/Faults und
+  unabhängige eigene DB-/Trustbereinigung. Keine Config-/Rechte-/Owneränderung.
+- Doomed-Guardnachweis im eigenen DB-Prozedurkontext des ganzen originalen
+  Firstbatch; kein vollständiger SQLCMD-doomed-Nachweis. Minimalrechte, weitere
+  physische Ziele und Heap offen; aktuelle CI separat am PR-Head.
+  `partially validated`, `unreleased`; frühere 1.0-Evidenz bleibt historisch.
+
 ## 2026-10-03 – Windows Filesystem NoOverwrite-Korrektur / 1.0.0 unreleased
 
 - Binary-/Textschreiben und Transcoding geben das bestehende Overwrite-Flag an den kanonischen Helper weiter. NoOverwrite veröffentlicht ausschließlich per nicht überschreibendem Move und erhält auch ein während des Staging-Schreibens erzeugtes Ziel; der Overwrite=true-Pfad bleibt unverändert. Keine neue API, Lifecycle- oder Versionsänderung.

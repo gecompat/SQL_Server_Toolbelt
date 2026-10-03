@@ -79,3 +79,16 @@ Primärquellen: [Unicode-Scalar-/Surrogate-Definition](https://www.unicode.org/v
 ## Additiver Evidenznachtrag 2026-10-02
 
 Finale Gesamtadapter am 2026-10-02 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral sowie separatem SC-UTF8-Consumer bestanden. API-/Budget-/1000-Paar-/Client- und InstalledMetadata-, NULL-Modemarker-, AppLock-, Caller-TX/SET-, post-DROP-Rollback-, Kollisions-/Dependency-, Reinstall-/Uninstall- und eigene Bereinigungsorakel erfolgreich; Konfigurations- und Rechteänderungen jeweils 0. Tatsächliche Minimalrechte, übrige physische Ziele und Heap-/Produktionskapazität sind nicht nachgewiesen; aktuelle CI wird als separater PR-Mergegate nachgewiesen. Beide finalen Läufe hielten sämtliche Quellpins unverändert; je drei eigene Datenbanken und eigener Trust wurden anschließend unabhängig als entfernt bestätigt. Der erste Linux-Lauf SQL468/State9 im Metadaten-Fixture ist ein bereinigter Fehlerlauf, kein PASS. Die korrigierte Collationprüfung wurde im neuen Gesamtadapter ausgeführt. IL-NoIO-/NoPInvoke-/Allowlistprüfung am tatsächlichen Releasebinary separat bestanden. Die historischen Vor-Source-Gates und Algorithmenbelege oben bleiben erhalten; öffentliche Signaturen, Fehlerpriorität und Budgets sind unverändert. Synthetische Rechtepredikate qualifizieren keinen tatsächlichen Lowpriv-Kontext.
+
+## Additive Assemblyfreigabe 2026-10-03
+
+Der Benutzer hat die bestehende Assembly ausdrücklich auf 1.1.0 erweitert.
+Der eigenständige [Jaro-Winkler-Vertrag](JARO_WINKLER_CONTRACT.md) ergänzt eine
+öffentliche IF und eine interne FT. Die vier bestehenden 1.0-Slots und deren
+öffentliche Verträge bleiben unverändert. UnicodeScalar CountStrict und
+DecodeValidated haben einen einzigen physischen internen Besitzer; DP und
+Threshold-/Budget-/Fehlerverträge werden nicht geändert. Genuine 1.0-Upgrades
+und vollständige Levenshtein-/OSA-Regression wurden für die ausgewählten
+1.1-Scope separat qualifiziert; siehe die
+[aktuelle Testmatrix](../../Modules/toolbelt.string.edit-distance/Tests/EDIT_DISTANCE_TEST_MATRIX.md).
+Die bisherige 1.0-Evidenz wird nicht auf den neuen 1.1-Build übertragen.

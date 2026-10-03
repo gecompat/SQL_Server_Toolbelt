@@ -22,7 +22,8 @@ if (Test-Path -LiteralPath $OutputDirectory) {
     }
 }
 $sourcePaths = @('Clr/Toolbelt.String.EditDistance.csproj', 'Clr/Properties/AssemblyInfo.cs',
- 'Clr/DistanceKernel.cs', 'Clr/DistanceProvider.cs', 'Source/EditDistance.sql',
+ 'Clr/UnicodeScalar.cs', 'Clr/DistanceKernel.cs', 'Clr/DistanceProvider.cs',
+ 'Clr/JaroKernel.cs', 'Clr/JaroProvider.cs', 'Source/EditDistance.sql', 'Source/JaroWinkler.sql',
  'Deployment/Deploy.sql', 'Deployment/Uninstall.sql', 'Scripts/New-ClrReleaseArtifacts.ps1')
 function Get-ReleaseSourceFingerprints {
     foreach ($relativePath in $sourcePaths) {
@@ -68,12 +69,12 @@ $assemblyHex = [BitConverter]::ToString($assemblyBytes).Replace('-', '')
 $hasher = [Security.Cryptography.SHA512]::Create()
 try { $sha512 = [BitConverter]::ToString($hasher.ComputeHash($assemblyBytes)).Replace('-', '') }
 finally { $hasher.Dispose() }
-$description = 'SQL Server Toolbelt toolbelt.string.edit-distance CLR provider 1.0.0'
+$description = 'SQL Server Toolbelt toolbelt.string.edit-distance CLR provider 1.1.0'
 
 $manifest = [ordered]@{
     schemaVersion = '1.0'
     moduleId = 'toolbelt.string.edit-distance'
-    moduleVersion = '1.0.0'
+    moduleVersion = '1.1.0'
     assemblySqlName = 'Toolbelt_String_EditDistance'
     assemblyFileName = [IO.Path]::GetFileName($assemblyPath)
     permissionSet = 'SAFE'

@@ -1,7 +1,7 @@
 name: Edit Distance CLR Offline
 on:
   pull_request:
-    paths: ["Modules/toolbelt.string.edit-distance/**", "Documentation/Architecture/EDIT_DISTANCE_CONTRACT.md", ".github/workflows/edit-distance-runtime.yml"]
+    paths: ["Modules/toolbelt.string.edit-distance/**", "Documentation/Architecture/EDIT_DISTANCE_CONTRACT.md", "Documentation/Architecture/JARO_WINKLER_CONTRACT.md", ".github/workflows/edit-distance-runtime.yml"]
   push:
     branches: [main]
     paths: ["Modules/toolbelt.string.edit-distance/**", ".github/workflows/edit-distance-runtime.yml"]
@@ -17,6 +17,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -28,3 +30,9 @@ jobs:
       - name: Exact Release build
         shell: pwsh
         run: Modules/toolbelt.string.edit-distance/Scripts/New-ClrReleaseArtifacts.ps1 -OutputDirectory "$env:RUNNER_TEMP/EditDistanceRelease"
+      - name: Genuine 1.0 source and Release build
+        shell: pwsh
+        run: |
+          $legacy = "$env:RUNNER_TEMP/EditDistanceLegacySource"
+          Modules/toolbelt.string.edit-distance/Scripts/New-LegacyTestArtifacts.ps1 -OutputDirectory $legacy
+          & "$legacy/Scripts/New-ClrReleaseArtifacts.ps1" -OutputDirectory "$env:RUNNER_TEMP/EditDistanceLegacyRelease"

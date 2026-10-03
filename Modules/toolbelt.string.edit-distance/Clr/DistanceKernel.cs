@@ -12,31 +12,6 @@ internal static class DistanceKernel
     }
 
 
-    private static int ScalarCount(string text)
-    {
-        int count = 0;
-        for (int i=0; i<text.Length; i++,count++)
-        {
-            char ch=text[i];
-            if (Char.IsHighSurrogate(ch))
-            {
-                if (i+1==text.Length || !Char.IsLowSurrogate(text[i+1])) throw new ArgumentException("UTF16");
-                i++;
-            }
-            else if (Char.IsLowSurrogate(ch)) throw new ArgumentException("UTF16");
-        }
-        return count;
-    }
-    private static int[] Decode(string text,int count)
-    {
-        int[] values=new int[count]; int j=0;
-        for(int i=0;i<text.Length;i++)
-        {
-            values[j++]=Char.ConvertToUtf32(text,i);
-            if(Char.IsHighSurrogate(text[i])) i++;
-        }
-        return values;
-    }
     public static long PlannedCells(int n,int m,int? threshold)
     {
         if(!threshold.HasValue) return checked((long)n*m);
@@ -54,13 +29,13 @@ internal static class DistanceKernel
         long work=large?16777216L:1048576L;
         if(left.Length>units || right.Length>units) {result.Error=3;return result;}
         int n,m;
-        try {n=ScalarCount(left);m=ScalarCount(right);} catch(ArgumentException) {result.Error=4;return result;}
+        try {n=Toolbelt.String.Unicode.UnicodeScalar.CountStrict(left);m=Toolbelt.String.Unicode.UnicodeScalar.CountStrict(right);} catch(ArgumentException) {result.Error=4;return result;}
         if(n>limit || m>limit) {result.Error=5;return result;}
         if(threshold.HasValue && Math.Abs(n-m)>threshold.Value) {result.Exceeds=true;return result;}
         result.PredictedCells=PlannedCells(n,m,threshold);
         if(result.PredictedCells>work) {result.Error=6;return result;}
         if(n==0 || m==0) {result.Distance=Math.Max(n,m);result.Exceeds=false;return result;}
-        int[] a=Decode(left,n),b=Decode(right,m);
+        int[] a=Toolbelt.String.Unicode.UnicodeScalar.DecodeValidated(left,n),b=Toolbelt.String.Unicode.UnicodeScalar.DecodeValidated(right,m);
         int k=threshold.HasValue?Math.Min(threshold.Value,Math.Max(n,m)):Math.Max(n,m);
         int inf=Math.Max(n,m)+1;
         int[] previous=new int[m+1],current=new int[m+1],older=osa?new int[m+1]:null;

@@ -1,10 +1,10 @@
 module_id: "toolbelt.string.edit-distance"
 module_name: "Bounded Unicode Edit Distance"
-version: "1.0.0"
+version: "1.1.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Levenshtein und eingeschränktes Optimal String Alignment über einen gemeinsamen begrenzten Unicode-Scalar-SAFE-CLR-Kern."
+description: "Jaro-Winkler, Levenshtein und eingeschränktes Optimal String Alignment über einen gemeinsamen begrenzten Unicode-Scalar-SAFE-CLR-Kern."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -31,6 +31,8 @@ dependencies: []
 schemas:
   - "toolbelt_string"
 objects:
+  - {type: TVF, schema: "toolbelt_string", name: "TVF_JaroWinklerSimilarity", visibility: public}
+  - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_JaroWinklerSimilarityCore", visibility: internal}
   - {type: TVF, schema: "toolbelt_string", name: "TVF_LevenshteinDistance", visibility: public}
   - {type: TVF, schema: "toolbelt_string", name: "TVF_OsaDistance", visibility: public}
   - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_LevenshteinDistanceCore", visibility: internal}
@@ -46,6 +48,9 @@ collation_contract: "Unicode Scalars, ordinal; keine Culture-/Collationnormalisi
 data_type_contract: "Texte/Profile nvarchar(max); MaxDistance int=NULL einschließlich INT_MAX; Profile standard/large exakt; keine Kürzung"
 help_contract_version: "not applicable"
 resultset_contracts:
+  - object: "toolbelt_string.TVF_JaroWinklerSimilarity"
+    resultset: "Similarity float(53) nullable, ErrorCode int logically not NULL; physical metadata nullable allowed"
+    max_rows: "exactly one"
   - object: "toolbelt_string.TVF_LevenshteinDistance"
     resultset: "Distance int nullable, ExceedsMaxDistance bit nullable, ErrorCode int logisch nicht NULL; Metadaten nullable"
     max_rows: "exactly one"
@@ -80,14 +85,17 @@ documentation:
   public_objects:
     - "Documentation/TVF_LevenshteinDistance.md"
     - "Documentation/TVF_OsaDistance.md"
+    - "Documentation/TVF_JaroWinklerSimilarity.md"
   architecture:
     - "../../Documentation/Architecture/EDIT_DISTANCE_CONTRACT.md"
+    - "../../Documentation/Architecture/JARO_WINKLER_CONTRACT.md"
   test_matrix:
     - "Tests/EDIT_DISTANCE_TEST_MATRIX.md"
   evidence:
     - "Tests/README.md"
   examples:
     - "Examples/EditDistance.sql"
+    - "Examples/JaroWinkler.sql"
 contracts:
   usp: "not applicable"
   deployment: "1.0"
@@ -110,4 +118,9 @@ validation_evidence:
   - date: "2026-10-02"
     workflow: "local: Tests/Runtime/Invoke-LabContract.ps1; unabhängiger Root-Bereinigungsaudit"
     scope: "Finale Gesamtadapter am 2026-10-02 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral sowie separatem SC-UTF8-Consumer bestanden. API-/Budget-/1000-Paar-/Client- und InstalledMetadata-, NULL-Modemarker-, AppLock-, Caller-TX/SET-, post-DROP-Rollback-, Kollisions-/Dependency-, Reinstall-/Uninstall- und eigene Bereinigungsorakel erfolgreich; Konfigurations- und Rechteänderungen jeweils 0. Tatsächliche Minimalrechte, übrige physische Ziele und Heap-/Produktionskapazität sind nicht nachgewiesen; aktuelle CI wird als separater PR-Mergegate nachgewiesen."
+    result: "success"
+
+  - date: "2026-10-03"
+    workflow: "private bounded Root qualification adapters; public Framework/runtime fixtures; independent read-only cleanup audits"
+    scope: "Separate neue 1.1-/genuine 1.0-Builds, vollständige Distanz-/Jaro-Frameworkregression und Python 21185, beide Artefakt-IL-Metadatengates. Private native Gesamtadapter auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral und SC-UTF8 bestanden: genuine Upgrades, sechs Slots, API/Client/Metadata/Lifecycle/Caller/AppLock/Faults/Kollision/Dependency/Hash/Sichtbarkeit und unabhängige eigene 3DB/2Trust-Bereinigung. Healthy-Guard direkt; doomed ganzer originaler Firstbatch in eigener DB-Prozedur, kein vollständiger SQLCMD-doomed-Nachweis. Keine Konfigurations-/Rechte-/Owner-/Infrastrukturänderungen. Tatsächliche Minimalrechte, weitere physische Ziele, Heap und aktuelle PR-Head-CI bleiben getrennte offene Gates. Historische 1.0-Evidenz bleibt getrennt."
     result: "success"

@@ -24,7 +24,7 @@ for name in ('Deploy.sql','Uninstall.sql'):
  assert text.index("N'VIEW DEFINITION'") > text.index('WHILE @Pass <= 2')
  assert 'p.user_type_id<>p.system_type_id' in text and 'c.user_type_id<>c.system_type_id' in text
  assert 'ExpectedInstalledAssemblyHash' in text and 'HASHBYTES(N\'SHA2_512\', f.content)' in text
- assert "N'1.1.0'" not in text and "N'1.3.0'" not in text
+ assert "N'1.0.0'" in text and "N'1.1.0'" in text and "N'1.3.0'" not in text
  for n in ('TVF_LevenshteinDistance','TVF_OsaDistance','TVF_LevenshteinDistanceCore','TVF_OsaDistanceCore'):
   assert n in text
  assert 'GRANT ' not in text and 'RECONFIGURE' not in text and 'sp_add_trusted_assembly' not in text
@@ -32,4 +32,15 @@ for name in ('Deploy.sql','Uninstall.sql'):
 for path in module.rglob('*'):
  if path.is_file() and path.suffix in ('.cs','.sql','.md','.py','.ps1','.yaml') and not any(x in path.parts for x in ('obj','bin','__pycache__')):
   text=path.read_text(encoding='utf-8');assert '\ufffd' not in text,str(path)
-print('PASS edit-distance static')
+
+jaro=(module/'Source/JaroWinkler.sql').read_text(encoding='utf-8')
+assert re.findall(r'CREATE FUNCTION toolbelt_string\.(\w+)',jaro)==['TVF_JaroWinklerSimilarityCore','TVF_JaroWinklerSimilarity']
+assert 'Similarity float(53)' in jaro and "@Profile nvarchar(max)=N'standard'" in jaro
+assert '[Toolbelt_String_EditDistance].[Toolbelt.String.EditDistance.JaroProvider].[Evaluate]' in jaro
+for relative in ('Clr/UnicodeScalar.cs','Clr/JaroKernel.cs','Clr/JaroProvider.cs'):
+ text=(module/relative).read_text(encoding='utf-8')
+ assert not re.search(r'\b(File|Directory|Process|Thread|Task|Registry|SqlConnection|SqlCommand)\b',text)
+assert 'IsPrecise=false' in (module/'Clr/JaroProvider.cs').read_text(encoding='utf-8')
+assert kernel.count('UnicodeScalar.CountStrict(')==2 and kernel.count('UnicodeScalar.DecodeValidated(')==2
+assert 'private static int ScalarCount' not in kernel
+print('PASS edit-distance and Jaro static')
