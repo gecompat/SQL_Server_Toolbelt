@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.IO;
+using System.Runtime.ExceptionServices;
 using System.Security.Principal;
 using System.Text;
 using Microsoft.SqlServer.Server;
@@ -73,16 +74,16 @@ namespace Toolbelt.Filesystem.Windows
         public static void WriteBinaryFile(string rootAlias, string relativePath, SqlBytes content, bool overwrite, string executionIdentity)
         {
             if (content.IsNull) Fail("ContentRequired"); Root root = GetRoot(rootAlias, "AllowWrite"); string target = Resolve(root.RootPath, relativePath, false); long written = 0;
-            RunAs(executionIdentity, delegate
+            FilesystemExecution execution = new FilesystemExecution(executionIdentity);
+            execution.Run(delegate
             {
                 AssertNoReparsePoint(root.RootPath, Path.GetDirectoryName(target));
                 if (!overwrite && File.Exists(target)) Fail("TargetExists");
-                WriteAtomically(root, target, overwrite, delegate(FileStream output)
-                {
-                    byte[] buffer = new byte[BufferBytes]; long offset = 0;
-                    while (offset < content.Length) { int expected = (int)Math.Min(buffer.Length, content.Length - offset); long read = content.Read(offset, buffer, 0, expected); if (read <= 0) Fail("SourceReadFailed"); output.Write(buffer, 0, (int)read); offset += read; written += read; }
-                });
             });
+            // SQL-backed LOBs erst nach Undo lesen; jede Dateiaktion bleibt bei
+            // derselben zuvor erfassten Identitaet. Kein ganzes LOB materialisieren.
+            WriteAtomicallyScoped(root, target, overwrite, delegate(FileStream output)
+            { written = CopyBinaryContent(content, output, execution.Run); }, execution.Run);
             SendWrite(written, rootAlias, relativePath);
         }
 
@@ -90,16 +91,13 @@ namespace Toolbelt.Filesystem.Windows
         public static void WriteTextFile(string rootAlias, string relativePath, SqlChars content, string encodingName, bool writeBom, bool overwrite, string executionIdentity)
         {
             if (content.IsNull) Fail("ContentRequired"); Encoding encoding = StrictEncoding(encodingName); Root root = GetRoot(rootAlias, "AllowWrite"); string target = Resolve(root.RootPath, relativePath, false); long written = 0;
-            RunAs(executionIdentity, delegate
+            FilesystemExecution execution = new FilesystemExecution(executionIdentity);
+            execution.Run(delegate
             {
                 AssertNoReparsePoint(root.RootPath, Path.GetDirectoryName(target)); if (!overwrite && File.Exists(target)) Fail("TargetExists");
-                WriteAtomically(root, target, overwrite, delegate(FileStream output)
-                {
-                    if (writeBom) { byte[] preamble = encoding.GetPreamble(); output.Write(preamble, 0, preamble.Length); written += preamble.Length; }
-                    char[] characters = new char[32768]; long offset = 0;
-                    while (offset < content.Length) { int expected = (int)Math.Min(characters.Length, content.Length - offset); long read = content.Read(offset, characters, 0, expected); if (read <= 0) Fail("SourceReadFailed"); byte[] encoded = encoding.GetBytes(characters, 0, (int)read); output.Write(encoded, 0, encoded.Length); offset += read; written += encoded.Length; }
-                });
             });
+            WriteAtomicallyScoped(root, target, overwrite, delegate(FileStream output)
+            { written = CopyTextContent(content, encoding, writeBom, output, execution.Run); }, execution.Run);
             SendWrite(written, rootAlias, relativePath);
         }
 
@@ -155,12 +153,152 @@ namespace Toolbelt.Filesystem.Windows
         }
 
         private static Root GetRoot(string alias, string requiredFlag) { if (String.IsNullOrWhiteSpace(alias)) Fail("RootAliasRequired"); using (SqlConnection connection = new SqlConnection("context connection=true")) using (SqlCommand command = connection.CreateCommand()) { command.CommandText = "SELECT RootPath, WorkPath FROM toolbelt_filesystem.FileSystemRoot WHERE RootAlias = @Alias AND IsActive = 1 AND " + requiredFlag + " = 1;"; command.Parameters.Add("@Alias", SqlDbType.NVarChar, 128).Value = alias; connection.Open(); using (SqlDataReader reader = command.ExecuteReader()) { if (!reader.Read()) Fail("RootNotAuthorized"); return new Root { RootPath = reader.GetString(0), WorkPath = reader.IsDBNull(1) ? null : reader.GetString(1) }; } } }
-        private static void RunAs(string mode, Action action) { if (String.Equals(mode, "ServiceAccount", StringComparison.Ordinal)) { action(); return; } if (!String.Equals(mode, "Caller", StringComparison.Ordinal)) Fail("InvalidExecutionIdentity"); WindowsIdentity identity = SqlContext.WindowsIdentity; if (identity == null) Fail("CallerWindowsAuthenticationRequired"); WindowsImpersonationContext context = null; try { context = identity.Impersonate(); action(); } finally { if (context != null) context.Undo(); } }
+        // Requestbezogene Authentifizierung vor jedem Caller-Enter pruefen.
+        // Contextzugriff und Dispose muessen vor Identity-Erfassung abgeschlossen sein.
+        private static WindowsIdentity GetCallerIdentity()
+        {
+            object scheme;
+            using (SqlConnection connection = new SqlConnection("context connection=true"))
+            {
+                connection.Open();
+                using (SqlCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = "SELECT CONVERT(nvarchar(40), CONNECTIONPROPERTY('auth_scheme'));";
+                    scheme = command.ExecuteScalar();
+                }
+            }
+            if (!IsWindowsAuthenticationScheme(scheme)) Fail("CallerWindowsAuthenticationRequired");
+            WindowsIdentity identity = SqlContext.WindowsIdentity;
+            if (identity == null) Fail("CallerWindowsAuthenticationRequired");
+            return identity;
+        }
+        private static bool IsWindowsAuthenticationScheme(object scheme)
+        {
+            string value = scheme as string;
+            return String.Equals(value, "NTLM", StringComparison.Ordinal)
+                || String.Equals(value, "KERBEROS", StringComparison.Ordinal)
+                || String.Equals(value, "DIGEST", StringComparison.Ordinal)
+                || String.Equals(value, "BASIC", StringComparison.Ordinal)
+                || String.Equals(value, "NEGOTIATE", StringComparison.Ordinal);
+        }
+        private static void RunAs(string mode, Action action) { if (String.Equals(mode, "ServiceAccount", StringComparison.Ordinal)) { action(); return; } if (!String.Equals(mode, "Caller", StringComparison.Ordinal)) Fail("InvalidExecutionIdentity"); WindowsIdentity identity = GetCallerIdentity(); WindowsImpersonationContext context = null; try { context = identity.Impersonate(); action(); } finally { if (context != null) context.Undo(); } }
         private static Encoding StrictEncoding(string name) { if (String.IsNullOrWhiteSpace(name)) Fail("EncodingRequired"); try { return Encoding.GetEncoding(name, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback); } catch (ArgumentException) { Fail("UnsupportedEncoding"); return null; } }
         private static string Resolve(string rootPath, string relativePath, bool allowEmpty) { if (String.IsNullOrWhiteSpace(rootPath) || relativePath == null || (!allowEmpty && relativePath.Length == 0)) Fail("InvalidPath"); if (Path.IsPathRooted(relativePath) || relativePath.IndexOf(':') >= 0) Fail("AbsolutePathForbidden"); string root = Path.GetFullPath(rootPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), candidate = Path.GetFullPath(Path.Combine(root, relativePath)); if (!candidate.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) && !Same(root, candidate)) Fail("PathOutsideRoot"); return candidate; }
         private static void AssertNoReparsePoint(string rootPath, string candidate) { string root = Path.GetFullPath(rootPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar); string current = root; if (Directory.Exists(current) && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0) Fail("ReparsePointForbidden"); foreach (string part in Relative(root, candidate).Split(new[] {'\\', '/'}, StringSplitOptions.RemoveEmptyEntries)) { current = Path.Combine(current, part); if ((Directory.Exists(current) || File.Exists(current)) && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0) Fail("ReparsePointForbidden"); } }
         private static IEnumerable<string> Enumerate(string start, bool recursive, int maxDepth) { Queue<PathDepth> queue = new Queue<PathDepth>(); queue.Enqueue(new PathDepth { Path = start, Depth = 0 }); while (queue.Count != 0) { PathDepth current = queue.Dequeue(); foreach (string item in Directory.EnumerateFileSystemEntries(current.Path)) { yield return item; FileAttributes attributes = File.GetAttributes(item); if (recursive && (attributes & FileAttributes.Directory) != 0 && (attributes & FileAttributes.ReparsePoint) == 0 && current.Depth < maxDepth) queue.Enqueue(new PathDepth { Path = item, Depth = current.Depth + 1 }); } } }
-        private static void WriteAtomically(Root root, string target, bool overwrite, Action<FileStream> write) { string stagingDirectory = String.IsNullOrWhiteSpace(root.WorkPath) ? Path.GetDirectoryName(target) : Resolve(root.RootPath, root.WorkPath, false); AssertNoReparsePoint(root.RootPath, stagingDirectory); string staging = Path.Combine(stagingDirectory, ".tbx-" + Guid.NewGuid().ToString("N") + ".part"); try { using (FileStream output = new FileStream(staging, FileMode.CreateNew, FileAccess.Write, FileShare.None)) { write(output); output.Flush(true); } if (!overwrite) File.Move(staging, target); else if (File.Exists(target)) File.Replace(staging, target, null, true); else File.Move(staging, target); } finally { if (File.Exists(staging)) File.Delete(staging); } }
+        private static long CopyBinaryContent(SqlBytes content, FileStream output, Action<Action> filesystem)
+        {
+            byte[] buffer = new byte[BufferBytes]; long offset = 0, written = 0;
+            while (offset < content.Length)
+            {
+                int expected = (int)Math.Min(buffer.Length, content.Length - offset);
+                long read = content.Read(offset, buffer, 0, expected);
+                if (read <= 0) Fail("SourceReadFailed");
+                filesystem(delegate { output.Write(buffer, 0, (int)read); });
+                offset += read; written += read;
+            }
+            return written;
+        }
+        private static long CopyTextContent(SqlChars content, Encoding encoding, bool writeBom, FileStream output, Action<Action> filesystem)
+        {
+            long written = 0;
+            if (writeBom) { byte[] preamble = encoding.GetPreamble(); filesystem(delegate { output.Write(preamble, 0, preamble.Length); }); written += preamble.Length; }
+            char[] characters = new char[32768]; long offset = 0;
+            while (offset < content.Length)
+            {
+                int expected = (int)Math.Min(characters.Length, content.Length - offset);
+                long read = content.Read(offset, characters, 0, expected);
+                if (read <= 0) Fail("SourceReadFailed");
+                byte[] encoded = encoding.GetBytes(characters, 0, (int)read);
+                filesystem(delegate { output.Write(encoded, 0, encoded.Length); });
+                offset += read; written += encoded.Length;
+            }
+            return written;
+        }
+        // Alte Helper-Signatur bleibt fuer Transcode und dessen Regression erhalten.
+        private static void WriteAtomically(Root root, string target, bool overwrite, Action<FileStream> write)
+        { WriteAtomicallyScoped(root, target, overwrite, write, delegate(Action action) { action(); }); }
+        private static void WriteAtomicallyScoped(Root root, string target, bool overwrite, Action<FileStream> write, Action<Action> filesystem)
+        {
+            string stagingDirectory = String.IsNullOrWhiteSpace(root.WorkPath) ? Path.GetDirectoryName(target) : Resolve(root.RootPath, root.WorkPath, false);
+            string staging = Path.Combine(stagingDirectory, ".tbx-" + Guid.NewGuid().ToString("N") + ".part");
+            FileStream output = null; bool ownStage = false; ExceptionDispatchInfo failure = null;
+            List<string> secondaryFailures = new List<string>(2);
+            try
+            {
+                filesystem(delegate { AssertNoReparsePoint(root.RootPath, stagingDirectory); output = new FileStream(staging, FileMode.CreateNew, FileAccess.Write, FileShare.None); ownStage = true; });
+                write(output);
+                filesystem(delegate { output.Flush(true); });
+            }
+            catch (Exception exception) { failure = ExceptionDispatchInfo.Capture(exception); }
+            finally
+            {
+                if (output != null)
+                    try { filesystem(delegate { output.Dispose(); }); }
+                    catch (Exception exception) { if (failure == null) failure = ExceptionDispatchInfo.Capture(exception); else secondaryFailures.Add("DISPOSE_FAILED"); }
+            }
+            try
+            {
+                // Nur nach erfolgreichem Schreiben, Flush und Dispose publizieren.
+                if (failure == null) filesystem(delegate { if (!overwrite) File.Move(staging, target); else if (File.Exists(target)) File.Replace(staging, target, null, true); else File.Move(staging, target); });
+            }
+            catch (Exception exception) { if (failure == null) failure = ExceptionDispatchInfo.Capture(exception); }
+            finally
+            {
+                if (ownStage)
+                    try { filesystem(delegate { if (File.Exists(staging)) File.Delete(staging); }); }
+                    catch (Exception exception) { if (failure == null) failure = ExceptionDispatchInfo.Capture(exception); else secondaryFailures.Add("CLEANUP_FAILED"); }
+            }
+            if (failure != null)
+            {
+                // Nur feste interne Codes; keine zweiten Exceptionmessages oder Pfade.
+                if (secondaryFailures.Count != 0)
+                    try { failure.SourceException.Data["Toolbelt.Filesystem.SecondaryFailures"] = secondaryFailures.ToArray(); }
+                    catch { /* Ein Diagnosefehler darf den urspruenglichen Fehler nicht ersetzen. */ }
+                failure.Throw();
+            }
+        }
+        private sealed class FilesystemExecution
+        {
+            private readonly WindowsIdentity identity;
+            private readonly bool serviceAccount;
+            private bool restored = true;
+            private ExceptionDispatchInfo identityFailure;
+            public FilesystemExecution(string mode)
+            {
+                serviceAccount = String.Equals(mode, "ServiceAccount", StringComparison.Ordinal);
+                if (serviceAccount) return;
+                if (!String.Equals(mode, "Caller", StringComparison.Ordinal)) Fail("InvalidExecutionIdentity");
+                identity = GetCallerIdentity();
+            }
+            public void Run(Action action)
+            {
+                // Nach ungewissem Undo niemals unter ServiceAccount weiterarbeiten.
+                if (!restored) { identityFailure.Throw(); return; }
+                if (serviceAccount) { action(); return; }
+                WindowsImpersonationContext context = null; ExceptionDispatchInfo failure = null;
+                try
+                {
+                    context = identity.Impersonate();
+                    if (context == null) Fail("InvalidExecutionIdentity");
+                    action();
+                }
+                catch (Exception exception)
+                {
+                    failure = ExceptionDispatchInfo.Capture(exception);
+                    if (context == null) { restored = false; identityFailure = failure; }
+                }
+                finally
+                {
+                    if (context != null)
+                        try { context.Undo(); }
+                        catch (Exception exception) { restored = false; identityFailure = ExceptionDispatchInfo.Capture(exception); if (failure == null) failure = identityFailure; }
+                }
+                // Lokaler Catch beendet die erste Exception-Suche vor Undo;
+                // fremde Exceptionfilter sehen erst den wiederhergestellten Kontext.
+                if (failure != null) failure.Throw();
+            }
+        }
         private static SqlDataRecord Record(params object[] definition) { List<SqlMetaData> metadata = new List<SqlMetaData>(); for (int i = 0; i < definition.Length;) { string name = (string)definition[i++]; SqlDbType type = (SqlDbType)definition[i++]; long length = 0; if (i < definition.Length && (definition[i] is int || definition[i] is long)) length = Convert.ToInt64(definition[i++]); metadata.Add(length == 0 ? new SqlMetaData(name, type) : new SqlMetaData(name, type, length)); } return new SqlDataRecord(metadata.ToArray()); }
         private static void SendWrite(long bytes, string rootAlias, string relativePath) { SqlDataRecord row = Record("BytesWritten", SqlDbType.BigInt, "RootAlias", SqlDbType.NVarChar, 128, "RelativePath", SqlDbType.NVarChar, 4000, "State", SqlDbType.VarChar, 16); row.SetInt64(0, bytes); row.SetString(1, rootAlias); row.SetString(2, relativePath); row.SetString(3, "completed"); SqlContext.Pipe.Send(row); }
         private static void SendAction(string rootAlias, string relativePath, string state) { SqlDataRecord row = Record("RootAlias", SqlDbType.NVarChar, 128, "RelativePath", SqlDbType.NVarChar, 4000, "State", SqlDbType.VarChar, 16); row.SetString(0, rootAlias); row.SetString(1, relativePath); row.SetString(2, state); SqlContext.Pipe.Send(row); }

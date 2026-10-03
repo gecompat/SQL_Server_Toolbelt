@@ -17,14 +17,14 @@ Der manuelle Test verwendet ausschließlich eine dedizierte, synthetische Testst
 
 Der detaillierte Ablauf und die datenschutzsichere Rückmeldung stehen im [manuellen Windows-Runtime-Testplan](./Manual_Windows_Runtime_Testplan.md).
 
-Aktuelle Evidenz: Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 auf SQL Server 2025 unter Windows; Build, Trust, Deployment, Help und SQL-Authentication-Ablehnung erfolgreich. Der Lauf `Ergänzender Windows-CLR-Preflight-Lauf` vom 2026-08-05 bestätigte kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem `WorkPath`. Windows-Authentication-, NTFS-ACL- und weitere I/O-Tests bleiben offen.
+Aktuelle Evidenz: Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 auf SQL Server 2025 unter Windows; Build, Trust, Deployment, Help und SQL-Authentication-Ablehnung erfolgreich. Der Lauf `Ergänzender Windows-CLR-Preflight-Lauf` vom 2026-08-05 bestätigte kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem `WorkPath`. Für diesen historischen Stand blieben Windows-Authentication-, NTFS-ACL- und weitere I/O-Tests offen; den aktuellen begrenzten Nachweis beschreibt der folgende Evidenzabschnitt.
 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-03`
-- Nachweis: `Portierter NoOverwrite-Frameworktest und private Prozesskontrollen`
-- Scope: Aktueller sourcegebundener Fixed-only-Harness: neun Fälle/254 Assertions, Staging-/Zielerhalt und eigene Bereinigung erfolgreich; vier private tatsächliche Prozesskontrollen für Nonzero, Timeout, Capturegrenze und Postpin-Drift erfolgreich. Aktueller Projektbuild/Releaseartefakt mit Assemblyversion1.0.0.0 ebenfalls erfolgreich. Offline-Scope ohne SQL, Caller-/NTFS-Nachweis; CI am exakten PR-Head separat.
+- Datum: `2026-10-04`
+- Nachweis: `Private native Zwei-Fall-Caller-Authentifizierungsprobe`
+- Scope: SQL Server 2025/CU8 Windows; Windows-Caller schreibt drei synthetische Bytes, SQL-Authentication mit 51540/1 vor I/O abgewiesen. Eigene DB/Root/Trustbereinigung und frische Prüfung; keine Konfigurations-/Rechte-/Owneränderungen. Alle neun direkten EntryPoints, NTFS-Matrix, ServiceAccount-Regression und Races bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -32,12 +32,29 @@ Aktuelle Evidenz: Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 auf 
 
 | Kategorie | Nachweis | Status |
 |---|---|---|
-| Aktueller Projektbuild/Releaseartefakt | .NET Framework 4.8; unveränderte Assemblyversion1.0.0.0; exakte Binary-/Hexbindung privat geprüft | erfolgreich, Offline-Scope |
+| Projektbuild/Releaseartefakt vor der Streaming-Identitätskorrektur | .NET Framework 4.8; unveränderte Assemblyversion1.0.0.0; exakte Binary-/Hexbindung privat geprüft | erfolgreich, Offline-Scope |
 | Historischer Helper | neun synthetische Fälle, 254 Assertions; Zielerzeugung während Staging, false/true und eigene Fehlerbereinigung | erfolgreich, historischer privater Offline-Scope |
-| Portierter Fixed-only-Harness | aktueller Provider; neun Fälle/254 Assertions; vollständiger Witness, tatsächlicher Exit0, eigene Bereinigung und abschließende Pins | erfolgreich, Offline-Scope 2026-10-03 |
+| Portierter Fixed-only-Harness | Providerstand vor der Streaming-Identitätskorrektur; neun Fälle/254 Assertions; vollständiger Witness, tatsächlicher Exit0, eigene Bereinigung und abschließende Pins | erfolgreich, Offline-Scope 2026-10-03 |
 | Private Prozesskontrollen | Nonzero, Timeout, Capturegrenze und Postpin-Drift; eigene Children beendet/disposed, feste Fehlercodes | erfolgreich, vier tatsächliche Kontrollen 2026-10-03 |
 | Witness-Prädikate | elf synthetische Kontrollen; keine Prozessausführung | erfolgreich, getrennte Parserkontrolle |
 | Aktuelle Windows-CI | Projektbuild, Static, Witness-Kontrollen und Fixed-only-Harness | separater Mergegate am exakten PR-Head; Nachweis im PR |
 | Korrigierte Binary im SQL-Caller-/NTFS-Kontext | Windows Authentication, NTFS-ACLs und reale Veröffentlichungssemantik | not executed |
 
 Keine allgemeine Statusaufwertung; `partially validated`, `unreleased`. Die historische Helper-Assertionzahl ist kein behauptetes Ergebnis des portierten Harness.
+
+## Streaming-Identitätskorrektur 2026-10-03
+
+| Kategorie | Nachweis | Status |
+|---|---|---|
+| Privater C#-Sourcebuild | Gebundene aktuelle Providerquelle und feste Frameworkreferenzen; tatsächlicher Exit0 und leere Compilerkanäle | erfolgreich, begrenzter Offline-Scope |
+| Aktueller Framework-Harness | Neun NoOverwrite-Fälle plus sieben Copy-/Staging-Sequenzfälle; synthetischer Executor, keine tatsächliche Windows-Identität | erfolgreich, begrenzter Offline-Scope |
+| Projektbuild/kanonisches Releaseartefakt dieses Stands | Vollständige aktuelle Buildkopplung | not executed |
+| Enter/Undo/Poison, SQL-gestreamte Inhalte und NTFS | Tatsächliche Caller-Identität und SQL-/Windows-Runtime | not executed |
+
+## Aktueller begrenzter Nachweis 2026-10-04
+
+Der aktuelle Provider bestand einen privaten begrenzten produktiven C#-Sourcebuild und den sourcegebundenen Frameworklauf: neun NoOverwrite-Fälle/270 Assertions sowie sieben Streaming-Fälle/188 Assertions; darin enthalten ist die reine Caller-Policyprüfung mit fünf erlaubten und zehn abgewiesenen Werten. Vollständige Captures, Exit0, eigene Bereinigung und abschließende Sourcepins wurden geprüft. Die synthetischen Sequenzfälle beweisen keine echte Impersonation.
+
+Die private native Zwei-Fall-Authentifizierungsprüfung auf SQL Server 2025/CU8 unter Windows bestand: Windows-Caller (NTLM) schrieb drei synthetische Bytes über `USP_WriteBinaryFile`; SQL-Authentifizierung wurde mit `51540/1` und `CallerWindowsAuthenticationRequired` vor Datei-/Staging-I/O abgewiesen. Eigene DB-, Root- und Trustbereinigung und eine separate frische Prüfung bestanden, ohne Konfigurations-, Rechte- oder Owneränderungen. Dieser begrenzte Probe-Scope ist kein vollständiger Produkttest.
+
+Aktueller kanonischer Projektbuild/Releaseartefakt, direkte CLR-/RunAs-Qualifikation aller neun Einstiegspunkte, vollständige NTFS-/Caller-/ServiceAccount-Matrix, Races, weitere Ziele und aktuelle Head-CI bleiben separate offene Gates. Status `partially validated`, Version1.0.0 und `unreleased` bleiben erhalten; frühere Nachweise sind historisch.

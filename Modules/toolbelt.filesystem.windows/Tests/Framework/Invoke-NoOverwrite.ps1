@@ -8,7 +8,7 @@ param(
  [string]$EvidenceDirectory
 )
 $ErrorActionPreference='Stop'; Set-StrictMode -Version Latest
-$record=[ordered]@{Scope='OFFLINE_HELPER_ONLY';Status='PREPARING';Failure=$null;SecondaryFailures=@();Phases=@();Inputs=@();Assertions=$null;Cases=$null;CleanupVerified=$false;FinalPinsPassed=$false;SqlExecuted=$false;NativeProviderQualified=$false}
+$record=[ordered]@{Scope='OFFLINE_HELPER_ONLY';Status='PREPARING';Failure=$null;SecondaryFailures=@();Phases=@();Inputs=@();Assertions=$null;Cases=$null;StreamingCases=$null;StreamingAssertions=$null;CleanupVerified=$false;FinalPinsPassed=$false;SqlExecuted=$false;NativeProviderQualified=$false}
 $pins=[Collections.Generic.List[object]]::new();$work=$null;$harnessTemp=$null;$executable=$null;$success=$false;$ownEvidenceCreated=$false
 function Set-TestFailure($State,[string]$Code){
  if($null-eq$State.Failure){$State.Failure=$Code}else{$State.SecondaryFailures+=,$Code}
@@ -23,11 +23,11 @@ function Assert-TestPins{
  foreach($pin in $pins){if((Get-FileHash -LiteralPath $pin.Path -Algorithm SHA256).Hash-cne$pin.SHA256){throw 'FS_TEST_POST_PIN'}}
 }
 function Test-NoOverwriteWitness([string]$Text){
- $match=[regex]::Match($Text,'\APASS FIXED_HELPER CASES=(\d+) STAGING_CREATE_ACTIONS=(\d+) SENTINEL_CREATE_ACTIONS=(\d+) DISTINCT_OWN_PATHS=(\d+) MAX_SIMULTANEOUS_OWN_FILES=(\d+) ASSERTIONS=(\d+) CLEANUP_VERIFIED=1 OFFLINE_ONLY\r?\n\z')
+ $match=[regex]::Match($Text,'\APASS FIXED_HELPER CASES=(\d+) STAGING_CREATE_ACTIONS=(\d+) SENTINEL_CREATE_ACTIONS=(\d+) DISTINCT_OWN_PATHS=(\d+) MAX_SIMULTANEOUS_OWN_FILES=(\d+) ASSERTIONS=(\d+) STREAMING_CASES=(\d+) STREAMING_ASSERTIONS=(\d+) CLEANUP_VERIFIED=1 OFFLINE_ONLY\r?\n\z')
  if(-not$match.Success){throw 'FS_TEST_WITNESS_SHAPE'}
- $v=@();for($i=1;$i-le6;$i++){$n=0;if(-not[int]::TryParse($match.Groups[$i].Value,[ref]$n)){throw 'FS_TEST_WITNESS_INTEGER'};$v+=,$n}
- if($v[0]-ne9-or$v[1]-ne9-or$v[2]-ne5-or$v[3]-ne10-or$v[4]-lt1-or$v[4]-gt2-or$v[5]-le0){throw 'FS_TEST_WITNESS_VALUE'}
- [pscustomobject]@{Cases=$v[0];Assertions=$v[5]}
+ $v=@();for($i=1;$i-le8;$i++){$n=0;if(-not[int]::TryParse($match.Groups[$i].Value,[ref]$n)){throw 'FS_TEST_WITNESS_INTEGER'};$v+=,$n}
+ if($v[0]-ne9-or$v[1]-ne9-or$v[2]-ne5-or$v[3]-ne10-or$v[4]-lt1-or$v[4]-gt2-or$v[5]-le0-or$v[6]-ne7-or$v[7]-le0-or$v[7]-gt4096){throw 'FS_TEST_WITNESS_VALUE'}
+ [pscustomobject]@{Cases=$v[0];Assertions=$v[5];StreamingCases=$v[6];StreamingAssertions=$v[7]}
 }
 function Invoke-TestChild([string]$Phase,[string]$File,[string[]]$Arguments,[int]$Seconds){
  # Zwei aktive ReadAsync-Puffer begrenzen jeden Kanal bereits beim Lesen.
@@ -114,7 +114,7 @@ try{
  Invoke-TestChild 'Harness' $executable @() 15
  if([IO.File]::ReadAllBytes((Join-Path $work 'Harness.stderr.bin')).Length-ne0){throw 'FS_TEST_HARNESS_STDERR'}
  $result=Test-NoOverwriteWitness ([Text.UTF8Encoding]::new($false,$true).GetString([IO.File]::ReadAllBytes((Join-Path $work 'Harness.stdout.bin'))))
- $record.Assertions=$result.Assertions;$record.Cases=$result.Cases;$success=$true
+ $record.Assertions=$result.Assertions;$record.Cases=$result.Cases;$record.StreamingCases=$result.StreamingCases;$record.StreamingAssertions=$result.StreamingAssertions;$success=$true
 }catch{Set-TestFailure $record 'FS_NO_OVERWRITE_OFFLINE_FAILED';$success=$false}finally{
  # Der Harness löscht seine eigenen bekannten Dateien. Unbekannte Reste niemals rekursiv löschen.
  try{if($harnessTemp-and[IO.Directory]::Exists($harnessTemp)){
