@@ -1,5 +1,18 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## Aktive Jaro-Erweiterung 2026-10-03
+
+Die ausdrücklich freigegebene bestehende SAFE-Assembly wird auf 1.1.0 erweitert:
+TVF_JaroWinklerSimilarity plus interner FT, sechs Slots, gemeinsamer physischer
+UnicodeScalar-Helfer. Der kanonische Jaro-Vertrag beschreibt genau drei Parameter,
+float(53)/int und feste Profile. Neue Releasebuilds, Frameworkregression und beide
+IL-Metadatengates bestanden separat. Die privaten 1.1-Gesamtadapter bestanden
+auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral
+sowie mit SC-UTF8-Consumer einschließlich genuine 1.0-Upgrades und frischer
+unabhängiger eigener DB-/Trustbereinigung. Frühere 1.0-Evidenz bleibt historisch.
+Minimalrechte, weitere Ziele und Heap bleiben offen; CI ist ein separater
+PR-Head-Mergegate. Teilweise validiert und unveröffentlicht.
+
 ## Projektstatus
 
 `toolbelt.json.constructors` 1.1.0 implementiert die beiden einzeln freigegebenen Gruppen-USPs über den gemeinsamen T-SQL-Kern. Auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 bestanden lokal und zentral die API-/100000-/16-MiB-/Clientprüfungen als Teil insgesamt fehlgeschlagener früherer Läufe. Die finalen fokussierten Läufe mit ausschließlich InstalledMetadata.Contract.sql als Runtime-Auswahl bestanden Metadaten, genuine 1.0-Upgrades, Lifecycle, Central und eigene Bereinigung. Neue Minimalrechte bleiben offen; die Uninstall-Voraussetzung VIEW DEFINITION/SELECT wurde am 2026-10-02 einzeln freigegeben und die neue Gateumsetzung bestand fokussierte native Lifecycle-Läufe, negative CI-Injektionen bleiben offen; aktuelle CI wird als separater PR-Mergegate nachgewiesen. Teilweise validiert und unveröffentlicht; historische 1.0-Evidenz bleibt getrennt.

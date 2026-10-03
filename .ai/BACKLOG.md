@@ -475,6 +475,25 @@ von Anzeigeformatierung und den anderen freigegebenen Wellen fest.
 XLSX 1.1.0 ergänzt die einzeln freigegebene `TVF_InterpretXlsxCell` im bestehenden SAFE-Provider. Der finale öffentliche Typadapter bestand am 2026-10-02 auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral: drei Types-Runtime-Fixtures, exakte Zahlen-/100-ns-/NULL-/Clientmetadaten, clean/genuine 1.0/Repeat, Caller-TX OFF/ON intakt und doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, Sichtbarkeitsprädikate, Uninstall und eigene Bereinigung. Raw→Type-Komposition wurde nach den API-CL-Schleifen auf der jeweils letzten CL (2019:150, 2025:170) sowie separat im zentralen Caller geprüft. Keine Konfigurations- oder Rechteänderungen. Die öffentliche Pfadfassung bestand nach ihrem unabhängig geprüften Port auf beiden ausgewählten Targets einschließlich frischer eigener Bereinigungsprüfungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Minimalrechte, weitere physische Ziele und Heap-/Produktionskapazität bleiben offen. `partially validated`, `unreleased`; historische Raw-1.0-Evidenz bleibt getrennt.
 
 ### Individuell freigegebene Ergänzungen: Jaro-Winkler, Paarvergleich und gruppiertes JSON
+Konkrete zusätzliche Jaro-Providerfreigabe 2026-10-03: Nach Besprechung der
+Scalar-Sourceownership, Varianten, Profile, Binary-/Versions- und vollständigen
+Distanz-/Lifecycle-Regressionswirkung antwortete der Benutzer ausdrücklich
+„Ja, bestehende Assembly auf 1.1.0 erweitern“. Dies autorisiert genau die
+additive Jaro-TVF und den internen Transport im vorhandenen SAFE-Provider
+`toolbelt.string.edit-distance` 1.1.0 (vier auf sechs Slots), gemeinsame interne
+`UnicodeScalar`-Source und neuen exakten Releasehash. Levenshtein/OSA-Verträge
+bleiben unverändert. Keine neue Assembly, SVF, Paar-/Phonetik-API. Der
+[Jaro-Vertrag](../Documentation/Architecture/JARO_WINKLER_CONTRACT.md) ist vor
+Source festgehalten. Neue 1.1-/genuine 1.0-Builds, vollständige Frameworkregression
+und beide IL-Metadatengates bestanden separat. Die privaten 1.1-Gesamtadapter
+bestanden am 2026-10-03 auf Linux 2019/latest CL150 und Windows 2025/CU8
+CL150/160/170 lokal/zentral sowie mit SC-UTF8-Consumer: genuine Upgrades,
+Runtime-/Client-/Lifecycle- und eigene DB-/Trustbereinigung samt frischem
+unabhängigem Audit. Doomed-Guards qualifizieren den vollständigen originalen
+Firstbatch in einer eigenen DB-Prozedur, keinen vollständigen SQLCMD-Lauf.
+Keine Konfigurations-, Rechte-, Owner- oder Infrastrukturänderungen.
+Minimalrechte, weitere Ziele und Heap bleiben offen; aktuelle CI separat am
+PR-Head. Teilweise validiert, unveröffentlicht; historische 1.0-Evidenz getrennt.
 
 Benutzerfreigabe 2026-10-01: Nach Besprechung der folgenden vier konkreten
 Funktionen bestätigte der Benutzer die ausdrückliche Implementierungsfrage

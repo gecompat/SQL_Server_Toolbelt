@@ -19,7 +19,9 @@ INSERT @Slots(Name, SinceRelease, Kind) VALUES
     (N'TVF_LevenshteinDistance', 10, 'IF'),
     (N'TVF_OsaDistance', 10, 'IF'),
     (N'TVF_LevenshteinDistanceCore', 10, 'FT'),
-    (N'TVF_OsaDistanceCore', 10, 'FT');
+    (N'TVF_OsaDistanceCore', 10, 'FT'),
+    (N'TVF_JaroWinklerSimilarity', 11, 'IF'),
+    (N'TVF_JaroWinklerSimilarityCore', 11, 'FT');
 DECLARE @DeploymentMode nvarchar(16) = N'$(DeploymentMode)',
         @AssemblyBits varbinary(max) = $(AssemblyBits), @AssemblyHash varbinary(64);
 IF TRY_CONVERT(int, SERVERPROPERTY(N'ProductMajorVersion')) NOT IN (15, 16, 17)
@@ -64,7 +66,8 @@ BEGIN TRY
         FROM sys.extended_properties
         WHERE class = 0 AND major_id = 0 AND minor_id = 0 AND name = @ModeProperty;
         SET @Release = CASE CONVERT(varbinary(max), @InstalledVersion)
-            WHEN CONVERT(varbinary(max), N'1.0.0') THEN 10 ELSE 0 END;
+            WHEN CONVERT(varbinary(max), N'1.0.0') THEN 10
+            WHEN CONVERT(varbinary(max), N'1.1.0') THEN 11 ELSE 0 END;
         IF @Release = 0 AND EXISTS (SELECT 1 FROM sys.extended_properties
             WHERE class = 0 AND major_id = 0 AND minor_id = 0 AND name = @VersionProperty)
             THROW 55032, N'Die installierte Modulversion ist nicht bekannt.', 1;
@@ -95,7 +98,8 @@ BEGIN TRY
         IF @Release > 0 AND EXISTS
           (SELECT 1 FROM @Slots s LEFT JOIN sys.objects o ON o.object_id = s.ObjectId
            WHERE s.SinceRelease <= @Release AND
-           (o.object_id IS NULL OR o.type COLLATE DATABASE_DEFAULT <> s.Kind COLLATE DATABASE_DEFAULT
+           (o.object_id IS NULL OR CONVERT(varbinary(max),o.name)<>CONVERT(varbinary(max),s.Name)
+            OR o.type COLLATE DATABASE_DEFAULT <> s.Kind COLLATE DATABASE_DEFAULT
             OR NOT EXISTS (SELECT 1 FROM sys.extended_properties e WHERE e.class = 1
               AND e.major_id = o.object_id AND e.minor_id = 0 AND e.name = N'Toolbelt.Managed'
               AND TRY_CONVERT(int, e.value) = 1)
@@ -104,7 +108,11 @@ BEGIN TRY
               AND CONVERT(varbinary(max), TRY_CONVERT(nvarchar(max), e.value)) = CONVERT(varbinary(max), N'toolbelt.string.edit-distance'))
             OR NOT EXISTS (SELECT 1 FROM sys.extended_properties e WHERE e.class = 1
               AND e.major_id = o.object_id AND e.minor_id = 0 AND e.name = N'Toolbelt.ModuleVersion'
-              AND CONVERT(varbinary(max), TRY_CONVERT(nvarchar(max), e.value)) = CONVERT(varbinary(max), @InstalledVersion))))
+              AND CONVERT(varbinary(max), TRY_CONVERT(nvarchar(max), e.value)) = CONVERT(varbinary(max), @InstalledVersion))
+            OR NOT EXISTS (SELECT 1 FROM sys.extended_properties e WHERE e.class=1
+              AND e.major_id=o.object_id AND e.minor_id=0 AND e.name=N'Toolbelt.Visibility'
+              AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=
+                  CONVERT(varbinary(max),CASE WHEN s.Kind='FT' THEN N'internal' ELSE N'public' END))))
             THROW 55033, N'Das installierte Release-Objektmanifest ist nicht kohärent.', 3;
         -- Historische Releasebytes werden explizit gebunden, nicht aus clr_name erschlossen.
         IF @Release = 0 AND @ExpectedAbsence = 0
@@ -115,27 +123,32 @@ BEGIN TRY
             THROW 55047, N'Der installierte Assemblyhash entspricht nicht der expliziten Offline-Erwartung.', 1;
         IF @Release > 0 AND EXISTS
           (SELECT 1 FROM @Slots s JOIN sys.assembly_modules m ON m.object_id=s.ObjectId
-           WHERE s.Kind='FT' AND (CONVERT(varbinary(max),m.assembly_class) <> CONVERT(varbinary(max),N'Toolbelt.String.EditDistance.DistanceProvider')
+           WHERE s.SinceRelease<=@Release AND s.Kind='FT' AND (CONVERT(varbinary(max),m.assembly_class) <> CONVERT(varbinary(max),CASE WHEN s.Name=N'TVF_JaroWinklerSimilarityCore' THEN N'Toolbelt.String.EditDistance.JaroProvider' ELSE N'Toolbelt.String.EditDistance.DistanceProvider' END)
              OR CONVERT(varbinary(max),m.assembly_method) <> CONVERT(varbinary(max),CASE s.Name
-                WHEN N'TVF_LevenshteinDistanceCore' THEN N'Levenshtein' ELSE N'Osa' END)
+                WHEN N'TVF_LevenshteinDistanceCore' THEN N'Levenshtein' WHEN N'TVF_JaroWinklerSimilarityCore' THEN N'Evaluate' ELSE N'Osa' END)
              OR m.null_on_null_input<>0))
             THROW 55033, N'Der CLR-Kern besitzt eine falsche EntryPoint- oder NULL-Bindung.', 8;
         IF @Release > 0 AND EXISTS
-          (SELECT 1 FROM @Slots s WHERE
-            (SELECT COUNT(*) FROM sys.parameters p WHERE p.object_id=s.ObjectId AND p.parameter_id>0)<>4
-            OR (SELECT COUNT(*) FROM sys.columns c WHERE c.object_id=s.ObjectId)<>3
+          (SELECT 1 FROM @Slots s WHERE s.SinceRelease<=@Release AND
+            ((SELECT COUNT(*) FROM sys.parameters p WHERE p.object_id=s.ObjectId AND p.parameter_id>0)
+                 <>CASE WHEN s.SinceRelease=11 THEN 3 ELSE 4 END
+            OR (SELECT COUNT(*) FROM sys.columns c WHERE c.object_id=s.ObjectId)
+                 <>CASE WHEN s.SinceRelease=11 THEN 2 ELSE 3 END
             OR EXISTS(SELECT 1 FROM sys.parameters p WHERE p.object_id=s.ObjectId AND
-              (p.user_type_id<>p.system_type_id OR (p.parameter_id=3 AND p.max_length<>4) OR
-               ((p.parameter_id=1 AND (p.name<>N'@LeftText' OR TYPE_NAME(p.system_type_id)<>N'nvarchar' OR p.max_length<>-1))
-               OR(p.parameter_id=2 AND(p.name<>N'@RightText' OR TYPE_NAME(p.system_type_id)<>N'nvarchar' OR p.max_length<>-1))
-               OR(p.parameter_id=3 AND(p.name<>N'@MaxDistance' OR TYPE_NAME(p.system_type_id)<>N'int'))
-               OR(p.parameter_id=4 AND(p.name<>N'@Profile' OR TYPE_NAME(p.system_type_id)<>N'nvarchar' OR p.max_length<>-1)))))
+              (p.user_type_id<>p.system_type_id
+               OR (p.parameter_id=1 AND(CONVERT(varbinary(max),p.name)<>CONVERT(varbinary(max),N'@LeftText') OR TYPE_NAME(p.system_type_id)<>N'nvarchar' OR p.max_length<>-1))
+               OR (p.parameter_id=2 AND(CONVERT(varbinary(max),p.name)<>CONVERT(varbinary(max),N'@RightText') OR TYPE_NAME(p.system_type_id)<>N'nvarchar' OR p.max_length<>-1))
+               OR (s.SinceRelease=10 AND p.parameter_id=3 AND(CONVERT(varbinary(max),p.name)<>CONVERT(varbinary(max),N'@MaxDistance') OR TYPE_NAME(p.system_type_id)<>N'int' OR p.max_length<>4))
+               OR (s.SinceRelease=10 AND p.parameter_id=4 AND(CONVERT(varbinary(max),p.name)<>CONVERT(varbinary(max),N'@Profile') OR TYPE_NAME(p.system_type_id)<>N'nvarchar' OR p.max_length<>-1))
+               OR (s.SinceRelease=11 AND p.parameter_id=3 AND(CONVERT(varbinary(max),p.name)<>CONVERT(varbinary(max),N'@Profile') OR TYPE_NAME(p.system_type_id)<>N'nvarchar' OR p.max_length<>-1))))
             OR EXISTS(SELECT 1 FROM sys.columns c WHERE c.object_id=s.ObjectId AND
-              (c.user_type_id<>c.system_type_id OR (c.column_id IN(1,3) AND c.max_length<>4) OR (c.column_id=2 AND c.max_length<>1) OR
-               ((c.column_id=1 AND(c.name<>N'Distance' OR TYPE_NAME(c.system_type_id)<>N'int'))
-               OR(c.column_id=2 AND(c.name<>N'ExceedsMaxDistance' OR TYPE_NAME(c.system_type_id)<>N'bit'))
-               OR(c.column_id=3 AND(c.name<>N'ErrorCode' OR TYPE_NAME(c.system_type_id)<>N'int'))))))
-            THROW 55033, N'Die vier Parameter-/Resultset-Metadaten sind nicht kohärent.', 9;
+              (c.user_type_id<>c.system_type_id
+               OR (s.SinceRelease=10 AND ((c.column_id=1 AND(CONVERT(varbinary(max),c.name)<>CONVERT(varbinary(max),N'Distance') OR TYPE_NAME(c.system_type_id)<>N'int' OR c.max_length<>4))
+                 OR(c.column_id=2 AND(CONVERT(varbinary(max),c.name)<>CONVERT(varbinary(max),N'ExceedsMaxDistance') OR TYPE_NAME(c.system_type_id)<>N'bit' OR c.max_length<>1))
+                 OR(c.column_id=3 AND(CONVERT(varbinary(max),c.name)<>CONVERT(varbinary(max),N'ErrorCode') OR TYPE_NAME(c.system_type_id)<>N'int' OR c.max_length<>4))))
+               OR (s.SinceRelease=11 AND ((c.column_id=1 AND(CONVERT(varbinary(max),c.name)<>CONVERT(varbinary(max),N'Similarity') OR TYPE_NAME(c.system_type_id)<>N'float' OR c.max_length<>8 OR c.precision<>53))
+                 OR(c.column_id=2 AND(CONVERT(varbinary(max),c.name)<>CONVERT(varbinary(max),N'ErrorCode') OR TYPE_NAME(c.system_type_id)<>N'int' OR c.max_length<>4))))))))
+            THROW 55033, N'Die Parameter-/Resultset-Metadaten des installierten Releases sind nicht kohärent.', 9;
         IF @Release > 0 AND (@AssemblyId IS NULL OR @InstalledAssemblyHash IS NULL
           OR NOT EXISTS (SELECT 1 FROM sys.assemblies a WHERE a.assembly_id = @AssemblyId
               AND a.permission_set_desc = N'SAFE_ACCESS' AND a.is_user_defined = 1)
@@ -144,7 +157,7 @@ BEGIN TRY
           OR NOT EXISTS (SELECT 1 FROM sys.extended_properties e WHERE e.class = 5
               AND e.major_id = @AssemblyId AND e.minor_id = 0 AND e.name = N'Toolbelt.ModuleId'
               AND CONVERT(varbinary(max), TRY_CONVERT(nvarchar(max), e.value)) = CONVERT(varbinary(max), N'toolbelt.string.edit-distance'))
-          OR (@Release = 10 AND NOT EXISTS (SELECT 1 FROM sys.extended_properties e WHERE e.class = 5
+          OR (@Release IN (10,11) AND NOT EXISTS (SELECT 1 FROM sys.extended_properties e WHERE e.class = 5
               AND e.major_id = @AssemblyId AND e.minor_id = 0 AND e.name = N'Toolbelt.ModuleVersion'
               AND CONVERT(varbinary(max), TRY_CONVERT(nvarchar(max), e.value)) = CONVERT(varbinary(max), @InstalledVersion))))
             THROW 55033, N'Die installierte Assembly-Zuordnung ist nicht kohärent.', 4;
@@ -202,13 +215,19 @@ BEGIN TRY
         EXEC sys.sp_addextendedproperty @name = N'Toolbelt.SchemaCategory', @value = N'string',
              @level0type = N'SCHEMA', @level0name = N'toolbelt_string';
     END;
-    IF @Release = 10
+    IF @Release IN (10,11)
     BEGIN
+        IF @Release=11
+        BEGIN
+            DROP FUNCTION [toolbelt_string].[TVF_JaroWinklerSimilarity];
+            DROP FUNCTION [toolbelt_string].[TVF_JaroWinklerSimilarityCore];
+        END;
         DROP FUNCTION [toolbelt_string].[TVF_LevenshteinDistance];
         DROP FUNCTION [toolbelt_string].[TVF_OsaDistance];
         DROP FUNCTION [toolbelt_string].[TVF_LevenshteinDistanceCore];
         DROP FUNCTION [toolbelt_string].[TVF_OsaDistanceCore];
-    END;    IF @InstalledAssemblyHash IS NULL OR @InstalledAssemblyHash <> @AssemblyHash
+    END;
+    IF @InstalledAssemblyHash IS NULL OR @InstalledAssemblyHash <> @AssemblyHash
     BEGIN
         DECLARE @AssemblyDdl nvarchar(max) =
             CASE WHEN @AssemblyId IS NULL THEN N'CREATE' ELSE N'ALTER' END
@@ -224,6 +243,7 @@ END CATCH;
 GO
 
 :r ../Source/EditDistance.sql
+:r ../Source/JaroWinkler.sql
 
 SET NOCOUNT ON;
 BEGIN TRY
@@ -238,9 +258,9 @@ BEGIN TRY
         , @DeploymentMode nvarchar(16) = N'$(DeploymentMode)';
 
     IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = @VersionProperty)
-        EXEC sys.sp_updateextendedproperty @name = @VersionProperty, @value = N'1.0.0';
+        EXEC sys.sp_updateextendedproperty @name = @VersionProperty, @value = N'1.1.0';
     ELSE
-        EXEC sys.sp_addextendedproperty @name = @VersionProperty, @value = N'1.0.0';
+        EXEC sys.sp_addextendedproperty @name = @VersionProperty, @value = N'1.1.0';
 
     IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = @ModeProperty)
         EXEC sys.sp_updateextendedproperty @name = @ModeProperty, @value = @DeploymentMode;
@@ -279,10 +299,10 @@ BEGIN TRY
 
     IF EXISTS (SELECT 1 FROM sys.extended_properties e JOIN sys.assemblies a ON a.assembly_id = e.major_id
                WHERE e.class = 5 AND e.name = N'Toolbelt.ModuleVersion' AND a.name = N'Toolbelt_String_EditDistance')
-        EXEC sys.sp_updateextendedproperty @name = N'Toolbelt.ModuleVersion', @value = N'1.0.0',
+        EXEC sys.sp_updateextendedproperty @name = N'Toolbelt.ModuleVersion', @value = N'1.1.0',
              @level0type = N'ASSEMBLY', @level0name = N'Toolbelt_String_EditDistance';
     ELSE
-        EXEC sys.sp_addextendedproperty @name = N'Toolbelt.ModuleVersion', @value = N'1.0.0',
+        EXEC sys.sp_addextendedproperty @name = N'Toolbelt.ModuleVersion', @value = N'1.1.0',
              @level0type = N'ASSEMBLY', @level0name = N'Toolbelt_String_EditDistance';
 
     DECLARE @FunctionName sysname;
@@ -290,7 +310,7 @@ BEGIN TRY
         SELECT name
         FROM sys.objects
         WHERE schema_id = SCHEMA_ID(N'toolbelt_string')
-          AND name IN (N'TVF_LevenshteinDistance', N'TVF_OsaDistance', N'TVF_LevenshteinDistanceCore', N'TVF_OsaDistanceCore');
+          AND name IN (N'TVF_LevenshteinDistance', N'TVF_OsaDistance', N'TVF_LevenshteinDistanceCore', N'TVF_OsaDistanceCore', N'TVF_JaroWinklerSimilarity', N'TVF_JaroWinklerSimilarityCore');
     OPEN FunctionCursor;
     FETCH NEXT FROM FunctionCursor INTO @FunctionName;
     WHILE @@FETCH_STATUS = 0
@@ -304,10 +324,10 @@ BEGIN TRY
             , @level0type = N'SCHEMA', @level0name = N'toolbelt_string'
             , @level1type = N'FUNCTION', @level1name = @FunctionName;
         EXEC sys.sp_addextendedproperty
-              @name = N'Toolbelt.ModuleVersion', @value = N'1.0.0'
+              @name = N'Toolbelt.ModuleVersion', @value = N'1.1.0'
             , @level0type = N'SCHEMA', @level0name = N'toolbelt_string'
             , @level1type = N'FUNCTION', @level1name = @FunctionName;
-        DECLARE @Visibility nvarchar(16) = CASE WHEN @FunctionName IN (N'TVF_LevenshteinDistanceCore', N'TVF_OsaDistanceCore') THEN N'internal' ELSE N'public' END;
+        DECLARE @Visibility nvarchar(16) = CASE WHEN @FunctionName IN (N'TVF_LevenshteinDistanceCore', N'TVF_OsaDistanceCore', N'TVF_JaroWinklerSimilarityCore') THEN N'internal' ELSE N'public' END;
         EXEC sys.sp_addextendedproperty
               @name = N'Toolbelt.Visibility', @value = @Visibility
             , @level0type = N'SCHEMA', @level0name = N'toolbelt_string'

@@ -13,6 +13,6 @@
     <DebugType>none</DebugType><Optimize>true</Optimize><OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup><Reference Include="System"/><Reference Include="System.Data"/></ItemGroup>
-  <ItemGroup><Compile Include="DistanceKernel.cs"/><Compile Include="DistanceProvider.cs"/><Compile Include="Properties\AssemblyInfo.cs"/></ItemGroup>
+  <ItemGroup><Compile Include="UnicodeScalar.cs"/><Compile Include="DistanceKernel.cs"/><Compile Include="JaroKernel.cs"/><Compile Include="JaroProvider.cs"/><Compile Include="DistanceProvider.cs"/><Compile Include="Properties\AssemblyInfo.cs"/></ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
 </Project>

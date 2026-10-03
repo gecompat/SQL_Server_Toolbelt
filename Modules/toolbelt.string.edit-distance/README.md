@@ -1,13 +1,18 @@
 # Begrenzte Editierdistanzen
 
-`toolbelt.string.edit-distance` Version 1.0.0 stellt genau zwei öffentliche
+`toolbelt.string.edit-distance` Version 1.1.0 stellt genau drei öffentliche
 Funktionen bereit: [Levenshtein](Documentation/TVF_LevenshteinDistance.md) und
-[Optimal String Alignment](Documentation/TVF_OsaDistance.md). Beide verwenden
+[Optimal String Alignment](Documentation/TVF_OsaDistance.md) und
+[Jaro-Winkler](Documentation/TVF_JaroWinklerSimilarity.md). Sie verwenden
 den gemeinsamen portablen SAFE-CLR-Kern und Unicode Scalars ohne Normalisierung.
 Der [kanonische Vor-Source-Vertrag](../../Documentation/Architecture/EDIT_DISTANCE_CONTRACT.md)
 legt Profile, Ergebniszeile, Fehlerpriorität und Lifecycle fest.
 
-Status: implementiert, teilweise offline qualifiziert und unveröffentlicht.
+Status 1.1: teilweise validiert und unveröffentlicht; neue private Gesamtadapter
+auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170
+lokal/zentral samt SC-UTF8-Consumer und unabhängigem Cleanup bestanden.
+Jaro-Vertrag und Assemblyerweiterung sind ausdrücklich freigegeben. Die folgende
+historische Evidenz betrifft ausschließlich 1.0; sie qualifiziert 1.1 nicht.
 Finale Gesamtadapter am 2026-10-02 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral sowie separatem SC-UTF8-Consumer bestanden. API-/Budget-/1000-Paar-/Client- und InstalledMetadata-, NULL-Modemarker-, AppLock-, Caller-TX/SET-, post-DROP-Rollback-, Kollisions-/Dependency-, Reinstall-/Uninstall- und eigene Bereinigungsorakel erfolgreich; Konfigurations- und Rechteänderungen jeweils 0. Tatsächliche Minimalrechte, übrige physische Ziele und Heap-/Produktionskapazität sind nicht nachgewiesen; aktuelle CI wird als separater PR-Mergegate nachgewiesen.
 
 ## Aufruf
@@ -50,10 +55,22 @@ Siehe [Tests](Tests/README.md) und [synthetische Beispiele](Examples/EditDistanc
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-02`
-- Nachweis: `local: Tests/Runtime/Invoke-LabContract.ps1; unabhängiger Root-Bereinigungsaudit`
-- Scope: Finale Gesamtadapter am 2026-10-02 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral sowie separatem SC-UTF8-Consumer bestanden. API-/Budget-/1000-Paar-/Client- und InstalledMetadata-, NULL-Modemarker-, AppLock-, Caller-TX/SET-, post-DROP-Rollback-, Kollisions-/Dependency-, Reinstall-/Uninstall- und eigene Bereinigungsorakel erfolgreich; Konfigurations- und Rechteänderungen jeweils 0. Tatsächliche Minimalrechte, übrige physische Ziele und Heap-/Produktionskapazität sind nicht nachgewiesen; aktuelle CI wird als separater PR-Mergegate nachgewiesen.
+- Datum: `2026-10-03`
+- Nachweis: `private bounded Root qualification adapters; public Framework/runtime fixtures; independent read-only cleanup audits`
+- Scope: Separate neue 1.1-/genuine 1.0-Builds, vollständige Distanz-/Jaro-Frameworkregression und Python 21185, beide Artefakt-IL-Metadatengates. Private native Gesamtadapter auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral und SC-UTF8 bestanden: genuine Upgrades, sechs Slots, API/Client/Metadata/Lifecycle/Caller/AppLock/Faults/Kollision/Dependency/Hash/Sichtbarkeit und unabhängige eigene 3DB/2Trust-Bereinigung. Healthy-Guard direkt; doomed ganzer originaler Firstbatch in eigener DB-Prozedur, kein vollständiger SQLCMD-doomed-Nachweis. Keine Konfigurations-/Rechte-/Owner-/Infrastrukturänderungen. Tatsächliche Minimalrechte, weitere physische Ziele, Heap und aktuelle PR-Head-CI bleiben getrennte offene Gates. Historische 1.0-Evidenz bleibt getrennt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
-Deployment/Uninstall setzt vorhandenes VIEW DEFINITION auf der Datenbank und SELECT auf sys.sql_expression_dependencies voraus. Fehlende oder unbekannte Metadatensicht blockiert vor Mutation; der Lifecycle erteilt diese Rechte nicht. FT-Bindung und vier Parameter-/drei Resultspalten werden bei vorhandenem Release erneut unter AppLock geprüft; versionsgleiche öffentliche SQL-Source bleibt reparierbar.
+Deployment/Uninstall setzt vorhandenes VIEW DEFINITION auf der Datenbank und SELECT auf sys.sql_expression_dependencies voraus. Fehlende oder unbekannte Metadatensicht blockiert vor Mutation; der Lifecycle erteilt diese Rechte nicht. FT-Bindung und releaseabhängige Parameter-/Resultspalten werden bei vorhandenem Release erneut unter AppLock geprüft; versionsgleiche öffentliche SQL-Source bleibt reparierbar.
+
+## Erweiterung 1.1
+
+Jaro hat drei nvarchar(max)-Parameter und Similarity float(53)/ErrorCode int.
+Der [Jaro-Vertrag](../../Documentation/Architecture/JARO_WINKLER_CONTRACT.md)
+beschreibt feste Profile, reale halbe Transpositionen und rationalen Bonusvergleich.
+Genuine 1.0-Quellen werden durch Scripts/New-LegacyTestArtifacts.ps1 unverändert
+aus dem gepinnten öffentlichen Blob bereitgestellt; Paketierung beweist keinen Build.
+Vier bekannte 1.0-Slots und sechs bekannte 1.1-Slots werden byteexakt geprüft.
+Die bisherigen öffentlichen Labadapter besitzen historische Cleanupgrenzen.
+Die neue 1.1-Nativeevidenz stammt aus einem separat geprüften privaten, vollständig
+gepinnten Ownscopeadapter; Einzelheiten und Grenzen stehen in [Tests](Tests/README.md).

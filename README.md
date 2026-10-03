@@ -162,11 +162,12 @@ risikobasierten Validierungsstatus ihrer Modul-Testmatrix.
 
 Das Modul
 [`toolbelt.string.edit-distance`](./Modules/toolbelt.string.edit-distance/README.md)
-implementiert die einzeln freigegebenen Levenshtein-/OSA-TVFs mit gemeinsamem
-portablen SAFE-CLR-Kern. Unicode Scalars, Standard/Large und MaxDistance sind
-begrenzt und ohne Kürzung. Offline Framework-/Matrixprüfungen und Releasebuild
-bestanden; native Gesamtadapter auf Linux 2019/latest CL150 und Windows
-2025/CU8 CL150/160/170 lokal/zentral einschließlich eigenem Cleanup bestanden.
+implementiert in 1.1.0 die einzeln freigegebenen Levenshtein-/OSA-/Jaro-Winkler-TVFs
+mit gemeinsamem portablen SAFE-CLR-Kern. Unicode Scalars und feste Profile sind
+begrenzt und ohne Kürzung. Neue Offline Framework-/Matrixprüfungen, Releasebuilds
+und IL-Metadatengates bestanden; private native 1.1-Gesamtadapter auf Linux
+2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral samt
+SC-UTF8 und unabhängiger eigener DB-/Trustbereinigung bestanden.
 Tatsächliche Minimalrechte und übrige physische Ziele bleiben offen. Teilweise validiert, unveröffentlicht; aktuelle CI als
 separater PR-Mergegate.
 

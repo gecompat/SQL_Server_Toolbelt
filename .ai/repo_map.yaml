@@ -542,6 +542,7 @@ change_impact:
       paths:
         - Modules/toolbelt.string.edit-distance/**
         - Documentation/Architecture/EDIT_DISTANCE_CONTRACT.md
+        - Documentation/Architecture/JARO_WINKLER_CONTRACT.md
         - .github/workflows/edit-distance-runtime.yml
       checks:
         - edit_distance_static

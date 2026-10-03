@@ -25,10 +25,10 @@ try{
  $release=(Resolve-Path -LiteralPath $ReleaseRoot).Path
  $manifest=Get-Content -LiteralPath (Join-Path $release 'Toolbelt.String.EditDistance.trust-manifest.json') -Raw|ConvertFrom-Json
  $binary=Join-Path $release 'Toolbelt.String.EditDistance.dll'
- if($manifest.moduleId-cne'toolbelt.string.edit-distance'-or$manifest.moduleVersion-cne'1.0.0'-or$manifest.permissionSet-cne'SAFE'-or$manifest.assemblySqlName-cne'Toolbelt_String_EditDistance'){throw 'RELEASE_IDENTITY'}
+ if($manifest.moduleId-cne'toolbelt.string.edit-distance'-or$manifest.moduleVersion-cne'1.1.0'-or$manifest.permissionSet-cne'SAFE'-or$manifest.assemblySqlName-cne'Toolbelt_String_EditDistance'){throw 'RELEASE_IDENTITY'}
  $hash=(Get-FileHash -LiteralPath $binary -Algorithm SHA512).Hash
  if($manifest.sha512-cne$hash-or$manifest.sqlServerHexLiteral-cne('0x'+$hash)){throw 'RELEASE_HASH'}
- $expected=@('Clr/Toolbelt.String.EditDistance.csproj','Clr/Properties/AssemblyInfo.cs','Clr/DistanceKernel.cs','Clr/DistanceProvider.cs','Source/EditDistance.sql','Deployment/Deploy.sql','Deployment/Uninstall.sql','Scripts/New-ClrReleaseArtifacts.ps1')
+ $expected=@('Clr/Toolbelt.String.EditDistance.csproj','Clr/Properties/AssemblyInfo.cs','Clr/UnicodeScalar.cs','Clr/DistanceKernel.cs','Clr/DistanceProvider.cs','Clr/JaroKernel.cs','Clr/JaroProvider.cs','Source/EditDistance.sql','Source/JaroWinkler.sql','Deployment/Deploy.sql','Deployment/Uninstall.sql','Scripts/New-ClrReleaseArtifacts.ps1')
  if(@($manifest.sourceFingerprints).Count-ne$expected.Count){throw 'RELEASE_SOURCES'}
  foreach($relative in $expected){$pin=@($manifest.sourceFingerprints|Where-Object path -CEQ $relative);if($pin.Count-ne1-or$pin[0].sha256-cne(Get-FileHash -LiteralPath (Join-Path $moduleRoot $relative) -Algorithm SHA256).Hash){throw 'RELEASE_SOURCE_HASH'}}
  $bits='0x'+[BitConverter]::ToString([IO.File]::ReadAllBytes($binary)).Replace('-','')
@@ -72,6 +72,13 @@ function Test-DistanceClientSchema([Data.SqlClient.SqlConnection]$Connection,[st
    if(-not$reader.Read()-or$reader.IsDBNull(2)-or$reader.GetInt32(2)-ne0-or$reader.GetBoolean(1)-or$reader.GetInt32(0)-ne$(if($name-eq'TVF_OsaDistance'){1}else{2})-or$reader.Read()){throw 'CLIENT_VALUES'}
   }finally{$reader.Dispose()}}finally{$cmd.Dispose()}
  }
+}
+function Test-JaroClientSchema([Data.SqlClient.SqlConnection]$Connection,[string]$Prefix){
+ $cmd=$Connection.CreateCommand();$cmd.CommandText='SELECT * FROM '+$Prefix+"toolbelt_string.TVF_JaroWinklerSimilarity(N'ABC',N'ACB',DEFAULT);";$cmd.CommandTimeout=30
+ try{$reader=$cmd.ExecuteReader();try{
+  if($reader.FieldCount-ne2-or$reader.GetName(0)-cne'Similarity'-or$reader.GetName(1)-cne'ErrorCode'-or$reader.GetFieldType(0)-ne[double]-or$reader.GetFieldType(1)-ne[int]){throw 'JARO_CLIENT_METADATA'}
+  if(-not$reader.Read()-or$reader.IsDBNull(0)-or$reader.IsDBNull(1)-or$reader.GetInt32(1)-ne0-or[Math]::Abs($reader.GetDouble(0)-5.0/9)-gt1e-12-or$reader.Read()-or$reader.NextResult()){throw 'JARO_CLIENT_VALUES'}
+ }finally{$reader.Dispose()}}finally{$cmd.Dispose()}
 }
 function Invoke-DistanceSource([Data.SqlClient.SqlConnection]$Connection,[string]$Source){
  foreach($batch in [regex]::Split($Source,'(?im)^\s*GO\s*$')){if(-not[string]::IsNullOrWhiteSpace($batch)){Invoke-DistanceSql $Connection $batch}}
@@ -150,9 +157,9 @@ foreach($target in $targets){
    $levels=switch($Version){'2019'{@(150)}'2022'{@(150,160)}'2025'{@(150,160,170)}}
    foreach($level in $levels){
     Invoke-DistanceSql $work ('ALTER DATABASE CURRENT SET COMPATIBILITY_LEVEL='+$level+';')
-    foreach($fixture in @('Distance.Contract.sql','Distance.Boundaries.sql','InstalledMetadata.Contract.sql','Lifecycle.Contract.sql')){$phase='API_'+$mode+'_'+$level+'_'+$fixture;Invoke-DistanceFile $work (Join-Path $PSScriptRoot $fixture) $variables}
+    foreach($fixture in @('Distance.Contract.sql','Distance.Boundaries.sql','Jaro.Contract.sql','Jaro.Boundaries.sql','InstalledMetadata.Contract.sql','Lifecycle.Contract.sql')){$phase='API_'+$mode+'_'+$level+'_'+$fixture;Invoke-DistanceFile $work (Join-Path $PSScriptRoot $fixture) $variables}
    }
-   $phase='CLIENT_METADATA';Test-DistanceClientSchema $work ''
+   $phase='CLIENT_METADATA';Test-DistanceClientSchema $work '';Test-JaroClientSchema $work ''
    $phase='REINSTALL';Invoke-DistanceFile $work (Join-Path $moduleRoot 'Deployment/Deploy.sql') $variables
    $phase='CALLER_TRANSACTION'
    foreach($abort in @('OFF','ON')){foreach($count in @('OFF','ON')){
@@ -195,8 +202,8 @@ foreach($target in $targets){
     foreach($file in @('Deploy.sql','Uninstall.sql')){Test-DistanceFailure $work (Join-Path $moduleRoot ('Deployment/'+$file)) $variables $expectedFailure}
     $restoreCase=if($case-eq'alias-parameter'){'wrong-kind'}else{$case}
     switch($restoreCase){
-     'unknown-version'{Invoke-DistanceSql $work "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.string.edit-distance.Version',@value=N'1.0.0';"}
-     'padded-version'{Invoke-DistanceSql $work "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.string.edit-distance.Version',@value=N'1.0.0';"}
+     'unknown-version'{Invoke-DistanceSql $work "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.string.edit-distance.Version',@value=N'1.1.0';"}
+     'padded-version'{Invoke-DistanceSql $work "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.string.edit-distance.Version',@value=N'1.1.0';"}
      'missing-marker'{Invoke-DistanceSql $work "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Managed',@value=1,@level0type=N'SCHEMA',@level0name=N'toolbelt_string',@level1type=N'FUNCTION',@level1name=N'TVF_OsaDistance';"}
      'external-dependency'{Invoke-DistanceSql $work 'DROP VIEW dbo.ToolbeltDistanceFixtureConsumer;'}
      'wrong-kind'{
@@ -205,7 +212,7 @@ foreach($target in $targets){
       $facade=@([regex]::Split((Expand-DistanceSql (Join-Path $moduleRoot 'Source/EditDistance.sql') @{}),'(?im)^\s*GO\s*$')|Where-Object{$_-match'CREATE FUNCTION toolbelt_string\.TVF_OsaDistance\s*\('})
       if($facade.Count-ne1){throw 'RESTORE_FACADE_ANCHOR'}
       Invoke-DistanceSql $work $facade[0]
-      foreach($property in @(@('Toolbelt.Managed',1),@('Toolbelt.ModuleId','toolbelt.string.edit-distance'),@('Toolbelt.ModuleVersion','1.0.0'),@('Toolbelt.Visibility','public'))){
+      foreach($property in @(@('Toolbelt.Managed',1),@('Toolbelt.ModuleId','toolbelt.string.edit-distance'),@('Toolbelt.ModuleVersion','1.1.0'),@('Toolbelt.Visibility','public'))){
        Invoke-DistanceSql $work ("EXEC sys.sp_addextendedproperty @name=N'"+$property[0]+"',@value="+$(if($property[0]-eq'Toolbelt.Managed'){'1'}else{"N'"+$property[1]+"'"})+",@level0type=N'SCHEMA',@level0name=N'toolbelt_string',@level1type=N'FUNCTION',@level1name=N'TVF_OsaDistance';")
       }
      }
@@ -230,7 +237,7 @@ foreach($target in $targets){
      $consumer.Open();Invoke-DistanceSql $consumer ("EXEC sys.sp_addextendedproperty @name=N'Toolbelt.DistanceQualification.RunToken',@value=N'"+$run+"';")
      $consumerEntry.MarkerWritten=$true;Save-DistanceJournal
      Invoke-DistanceSql $consumer ('ALTER DATABASE CURRENT SET COMPATIBILITY_LEVEL='+$levels[-1]+';')
-     Test-DistanceClientSchema $consumer ('['+$name+'].')
+     Test-DistanceClientSchema $consumer ('['+$name+'].');Test-JaroClientSchema $consumer ('['+$name+'].')
     }finally{$consumer.Dispose();$consumerBuilder.Clear()}
    }
    $phase='SHARED_SCHEMA_PRESERVATION'
