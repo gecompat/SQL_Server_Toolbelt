@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: thirty_six_modules_implemented
+  status: thirty_seven_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -105,6 +105,8 @@ sources_of_truth:
   zip_clr_provider_design: Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md
   zip_memory_runtime_workflow: .github/workflows/zip-memory-runtime.yml
   zip_memory_module: Modules/toolbelt.archive.zip-memory/module.yaml
+  zip_files_module: Modules/toolbelt.archive.zip-files/module.yaml
+  zip_files_contract: Documentation/Architecture/ZIP_FILES_CONTRACT.md
   xlsx_memory_module: Modules/toolbelt.file.xlsx-memory/module.yaml
   xlsx_reader_proposal: Documentation/Architecture/XLSX_READER_PROPOSAL.md
   xlsx_cell_type_contract: Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md
@@ -318,6 +320,7 @@ module_registry:
     - Modules/toolbelt.core.event-log/module.yaml
     - Modules/toolbelt.file.content/module.yaml
     - Modules/toolbelt.archive.zip-memory/module.yaml
+    - Modules/toolbelt.archive.zip-files/module.yaml
     - Modules/toolbelt.file.xlsx-memory/module.yaml
     - Modules/toolbelt.filesystem.windows/module.yaml
     - Modules/toolbelt.tsql.script-parser/module.yaml
@@ -784,6 +787,17 @@ change_impact:
         - Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md
       checks:
         - markdown_links
+    zip_files_contract:
+      entrypoints:
+        - Modules/toolbelt.archive.zip-files/Tests/Static/validate_contract.py
+      paths:
+        - Modules/toolbelt.archive.zip-files/**
+        - Documentation/Architecture/ZIP_FILES_CONTRACT.md
+        - Documentation/Standards/SQL_OBJECT_NAMING.md
+        - Documentation/Standards/USP_CONTRACT.md
+      checks:
+        - markdown_links
+        - generated_status
     windows_filesystem_contract:
       entrypoints:
         - Modules/toolbelt.filesystem.windows/Tests/Framework/Invoke-NoOverwrite.ps1

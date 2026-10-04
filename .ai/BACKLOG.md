@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-36 Module sind implementiert. 20 sind `validated`, 16 sind `partially validated`; 0 sind `not executed`.
+37 Module sind implementiert. 20 sind `validated`, 17 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -653,6 +653,20 @@ freigegeben; keine pauschale Freigabe weiterer Backlogthemen.
 Status: `ready for development`; noch keine Implementierungs-/Runtime-Evidenz.
 
 #### ZIP-Datei-I/O: zwei Windows-Fassaden
+
+Umsetzung 2026-10-04: [toolbelt.archive.zip-files 1.0.0](../Modules/toolbelt.archive.zip-files/README.md)
+implementiert ausschließlich diese zwei freigegebenen T-SQL-Fassaden.
+[Vertrag](../Documentation/Architecture/ZIP_FILES_CONTRACT.md), Signaturen,
+ResultTable-Brücken und neue technische Fehler 54620–54624 sind gekoppelt.
+Genau drei feste Brücken-Temps wurden für den bestehenden ResultTable-
+Interoperabilitätskonflikt ausdrücklich genehmigt; keine Core-/Provideränderung.
+Begrenzte native Teilnachweise auf Windows2025/CU8 CL170 local: elf frühere
+erfolgreiche Fälle und zwei gezielt erfolgreiche AppLock-Aliasfälle mit identischen
+Produktbytes; kein gemeinsamer 13-Fälle-Erfolgslauf. Eigene Bereinigung frisch geprüft.
+Vollständige NTFS-/Rechte-/Race-/Zielmatrix- und aktuelle Head-CI-Qualifikation offen;
+partially validated, unveröffentlicht.
+Die übrigen Reservefunktionen in diesem Abschnitt bleiben getrennt.
+
 
 - `USP_CreateZipFileFromEntries`: bestehender Entries-#Temp-/Writervertrag,
   dann kontrolliertes Schreiben des vollständigen Archiv-Binary.
