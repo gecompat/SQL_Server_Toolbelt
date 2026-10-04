@@ -354,6 +354,7 @@ T-SQL ist bevorzugt. Alternative Technologien benötigen eine dokumentierte Begr
 | Architektur | [Documentation/Architecture/](./Documentation/Architecture/) |
 | Standards | [Documentation/Standards/](./Documentation/Standards/) |
 | Module | [Modules/](./Modules/) |
+| Beispiele für alle öffentlichen APIs | [Beispielkatalog](./Documentation/Reference/API_CATALOG.md) |
 | Templates | [Templates/](./Templates/) |
 | Backlogs | [Backlog/](./Backlog/) |
 | Tests | [Tests/](./Tests/) |

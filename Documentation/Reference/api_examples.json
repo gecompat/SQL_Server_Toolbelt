@@ -1,0 +1,1968 @@
+{
+  "toolbelt_archive.USP_CreateZipFileFromEntries": {
+    "summary": "Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBinaryFile. Datei und SQL-Ausgabe sind nicht gemeinsam atomar.",
+    "examples": [
+      "CREATE TABLE #Entries(Ordinal int,EntryName nvarchar(max),Payload varbinary(max)); INSERT #Entries VALUES(1,N'hello.txt',0x4869); EXEC toolbelt_archive.USP_CreateZipFileFromEntries @EntryTable=N'#Entries',@RootAlias=N'ContosoOutput',@RelativePath=N'hello.zip';"
+    ],
+    "requirements": [
+      "Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte."
+    ],
+    "parameter_notes": {
+      "@EntryTable": "Vorhandene lokale Entrytabelle: Ordinal int, EntryName nvarchar(max), Payload varbinary(max).",
+      "@RootAlias": "Vorhandener freigegebener Filesystem-Root-Alias.",
+      "@RelativePath": "Expliziter relativer Zielpfad; Zielverzeichnis muss bestehen.",
+      "@CompressionMethod": "Stored oder Deflate; kanonischer Writervertrag.",
+      "@MaxEntries": "Positiv, höchstens 1024 Entries.",
+      "@MaxEntryNameCodeUnits": "Positiv, höchstens 2048 UTF-16-Codeeinheiten; Reader bleibt bei 1024.",
+      "@MaxEntryBytes": "Positiv, höchstens 33554432 Payloadbytes je Entry.",
+      "@MaxTotalPayloadBytes": "Positiv, höchstens 134217728 Payloadbytes insgesamt.",
+      "@MaxArchiveBytes": "Positiv, höchstens 150994944 Archivbytes.",
+      "@MaxEnvelopeBytes": "Positiv, höchstens 142606336 Envelopebytes.",
+      "@WriterBudgetMilliseconds": "1 bis 60000; kooperatives Writerbudget, keine harte Gesamtfrist.",
+      "@Overwrite": "Unverändert an WriteBinaryFile; Default lehnt vorhandenes Ziel ab.",
+      "@ExecutionIdentity": "Caller: Windows-Authentifizierung; ServiceAccount nur explizit, kein Fallback.",
+      "@ResultTable": "NULL: ein SELECT; sonst vorhandene lokale Caller-Temp, ohne Resultset.",
+      "@KeepData": "0 Replace, 1 Append; SQL-Publikation erst nach Dateipublikation.",
+      "@Debug": "Nur Messages ohne Pfade, Entrynamen oder Payloads.",
+      "@Hilfe": "1 ignoriert alle anderen Parameter, Dependencies und Transaktionen."
+    }
+  },
+  "toolbelt_archive.USP_ExtractZipEntryToFile": {
+    "summary": "Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBinaryFile. Datei und SQL-Ausgabe sind nicht gemeinsam atomar.",
+    "examples": [
+      "EXEC toolbelt_archive.USP_ExtractZipEntryToFile @ZipArchive=0x504B03041400000000000000210000000000000000000000000009000000656D7074792E747874504B0102140014000000000000002100000000000000000000000000090000000000000000000000000000000000656D7074792E747874504B0506000000000100010037000000270000000000,@EntryName=N'empty.txt',@RootAlias=N'ContosoOutput',@RelativePath=N'empty.txt';"
+    ],
+    "requirements": [
+      "Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte."
+    ],
+    "parameter_notes": {
+      "@ZipArchive": "ZIP-Binary; harte Readergrenze 268435456 Bytes.",
+      "@EntryName": "Exakter ordinaler Entryname; kein abgeleiteter Dateipfad.",
+      "@RootAlias": "Vorhandener freigegebener Filesystem-Root-Alias.",
+      "@RelativePath": "Expliziter relativer Zielpfad; Zielverzeichnis muss bestehen.",
+      "@MaxEntryBytes": "1 bis 2147483647 unkomprimierte Entrybytes; geerbte Obergrenze, kein Kapazitätsnachweis.",
+      "@MaxCompressionRatio": "Mindestens 1; kanonische deklarierte und tatsächliche Readerprüfung.",
+      "@Overwrite": "Unverändert an WriteBinaryFile; kein Direct-Write-Fallback.",
+      "@ExecutionIdentity": "Caller als Default; ServiceAccount nur explizit gewählt.",
+      "@ResultTable": "NULL: ein SELECT; sonst vorhandene lokale Caller-Temp, ohne Resultset.",
+      "@KeepData": "0 Replace, 1 Append; SQL-Publikation erst nach Dateipublikation.",
+      "@Debug": "Nur Messages ohne Pfade, Entrynamen oder Payloads.",
+      "@Hilfe": "1 ignoriert alle anderen Parameter, Dependencies und Transaktionen."
+    }
+  },
+  "toolbelt_archive.USP_CreateZipFromEntries": {
+    "summary": "Erzeugt ein begrenztes ZIP aus Ordinal int, EntryName nvarchar(max), Payload varbinary(max) einer vorhandenen caller-lokalen Temp-Tabelle.",
+    "examples": [
+      "CREATE TABLE #ZipInput(Ordinal int, EntryName nvarchar(max), Payload varbinary(max)); INSERT #ZipInput VALUES(1,N'hello.txt',0x4869); EXEC toolbelt_archive.USP_CreateZipFromEntries @EntryTable=N'#ZipInput';"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@EntryTable": "Vorhandene lokale Temp-Tabelle, kein freies SQL.",
+      "@CompressionMethod": "Exakt Stored oder Deflate; Default Stored.",
+      "@MaxEntries": "Positiv, höchstens 1024 Entries.",
+      "@MaxEntryNameCodeUnits": "Positiv, höchstens 2048 UTF-16-Codeeinheiten; Reader bleibt 1024.",
+      "@MaxEntryBytes": "Positiv, höchstens 33554432 Payloadbytes je Entry.",
+      "@MaxTotalPayloadBytes": "Positiv, höchstens 134217728 Payloadbytes insgesamt.",
+      "@MaxArchiveBytes": "Positiv, höchstens 150994944 Outputbytes inklusive ZIP-Header.",
+      "@MaxEnvelopeBytes": "Positiv, höchstens 142606336 Transportbytes inklusive Namen/Framing.",
+      "@WriterBudgetMilliseconds": "1 bis 60000, kooperatives CLR-Budget; keine SQL-End-to-End-Frist.",
+      "@ResultTable": "NULL: SELECT, sonst vorhandene lokale Temp-Tabelle; nicht identisch zum Input.",
+      "@KeepData": "0 Replace; 1 Append nach USP-Vertrag.",
+      "@Debug": "Nur Messages ohne Payloads oder Entrynamen.",
+      "@Hilfe": "1: ausschließlich diese Hilfe, keine fachlichen Prüfungen/Mutation."
+    }
+  },
+  "toolbelt_archive.USP_ExtractZipEntryFromBinary": {
+    "summary": "Extrahiert einen einzelnen benannten ZIP-Entry aus einem varbinary(max)-Archiv im Speicher. Der interne SAFE-CLR-Provider unterstützt ZIP Methods 0 und 8 und prüft die CRC32 des tatsächlichen Payloads.",
+    "examples": [
+      "-- Vollständiges synthetisches ZIP mit hello.txt und dem Text Hi.\nDECLARE @ZipArchive varbinary(max)=0x504B0304140000000000000021580E0E174D02000000020000000900000068656C6C6F2E7478744869504B01021400140000000000000021580E0E174D020000000200000009000000000000000000000080010000000068656C6C6F2E747874504B0506000000000100010037000000290000000000;\nEXEC toolbelt_archive.USP_ExtractZipEntryFromBinary @ZipArchive=@ZipArchive, @EntryName=N'hello.txt';"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@ZipArchive": "ZIP-Container als In-memory-BLOB. Das harte Providerlimit beträgt 268435456 Bytes.",
+      "@EntryName": "Exakter Entry-Name. Der CLR-Provider vergleicht ordinal und case-sensitive.",
+      "@MaxEntryBytes": "Obere Grenze für die tatsächlich ausgegebene unkomprimierte Entry-Größe.",
+      "@MaxCompressionRatio": "Obere Grenze für tatsächliche und deklarierte UncompressedBytes/CompressedBytes.",
+      "@FailIfEncrypted": "1 lehnt verschlüsselte Entries ab. 0 liefert IsEncrypted=1 und keinen Payload.",
+      "@ResultTable": "Optionale bestehende lokale Temp-Tabelle für den USP-ResultTable-Pfad.",
+      "@KeepData": "Gilt nur mit @ResultTable und wird an USP_PrepareResultTable weitergegeben.",
+      "@Debug": "Standardisierter USP-Debugparameter.",
+      "@Hilfe": "1 liefert ausschließlich dieses Help-Resultset."
+    }
+  },
+  "toolbelt_archive.USP_ListZipEntriesFromBinary": {
+    "summary": "Listet deklarierte Metadaten aller Central-Directory-Entries eines klassischen Single-Disk-ZIP aus varbinary(max), ohne Payloads zu lesen oder zu dekomprimieren.",
+    "examples": [
+      "-- Vollständiges synthetisches ZIP mit hello.txt und dem Text Hi.\nDECLARE @ZipArchive varbinary(max)=0x504B0304140000000000000021580E0E174D02000000020000000900000068656C6C6F2E7478744869504B01021400140000000000000021580E0E174D020000000200000009000000000000000000000080010000000068656C6C6F2E747874504B0506000000000100010037000000290000000000;\nEXEC toolbelt_archive.USP_ListZipEntriesFromBinary @ZipArchive=@ZipArchive;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@ZipArchive": "Nicht leerer ZIP-Container im Speicher; hartes Limit 268435456 Bytes.",
+      "@MaxEntries": "Zulässige Zahl der Entries zwischen 1 und dem harten Limit 10000.",
+      "@ResultTable": "Optionale bestehende lokale Temp-Tabelle für den ResultTable-Pfad.",
+      "@KeepData": "Gilt nur mit @ResultTable und steuert Replace oder Append.",
+      "@Debug": "Standardisierter USP-Debugparameter.",
+      "@Hilfe": "1 liefert ausschließlich dieses Help-Resultset."
+    }
+  },
+  "toolbelt_binary.TVF_BitCountBigInt": {
+    "summary": "Zählt gesetzte Bits im bigint-Wert.",
+    "examples": [
+      "SELECT * FROM toolbelt_binary.TVF_BitCountBigInt(255);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ."
+    }
+  },
+  "toolbelt_binary.TVF_GetBitBigInt": {
+    "summary": "Liest das Bit an einer nullbasierten Position.",
+    "examples": [
+      "SELECT * FROM toolbelt_binary.TVF_GetBitBigInt(255, 3);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@BitOffset": "Nullbasierte Bitposition 0–63."
+    }
+  },
+  "toolbelt_binary.TVF_LeftShiftBigInt": {
+    "summary": "Verschiebt die Bits eines bigint-Werts nach links.",
+    "examples": [
+      "SELECT * FROM toolbelt_binary.TVF_LeftShiftBigInt(255, 2);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@ShiftAmount": "Anzahl der Bitpositionen der Verschiebung."
+    }
+  },
+  "toolbelt_binary.TVF_RightShiftBigInt": {
+    "summary": "Verschiebt die Bits eines bigint-Werts logisch nach rechts.",
+    "examples": [
+      "SELECT * FROM toolbelt_binary.TVF_RightShiftBigInt(255, 2);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@ShiftAmount": "Anzahl der Bitpositionen der Verschiebung."
+    }
+  },
+  "toolbelt_binary.TVF_SetBitBigInt": {
+    "summary": "Setzt oder löscht ein Bit an einer nullbasierten Position.",
+    "examples": [
+      "SELECT * FROM toolbelt_binary.TVF_SetBitBigInt(255, 3, 1);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@BitOffset": "Nullbasierte Bitposition 0–63.",
+      "@BitValue": "0 löscht, 1 setzt das Bit."
+    }
+  },
+  "toolbelt_conversion.SVF_Base64Decode": {
+    "summary": "Decodiert Base64-Text zu Binärdaten.",
+    "examples": [
+      "SELECT toolbelt_conversion.SVF_Base64Decode(N'SGk=') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Base64- oder Base64URL-Text; keine implizite Zeichenkodierung des decodierten Ergebnisses."
+    }
+  },
+  "toolbelt_conversion.SVF_Base64Encode": {
+    "summary": "Codiert Binärdaten als Base64 oder Base64URL.",
+    "examples": [
+      "SELECT toolbelt_conversion.SVF_Base64Encode(0x4869, 0) AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu codierende Bytes; keine Zeichenkodierung.",
+      "@UrlSafe": "0 = Standard-Base64; 1 = Base64URL beim Encoding."
+    }
+  },
+  "toolbelt_conversion.TVF_Base64Decode": {
+    "summary": "Decodiert Base64-Text zu Binärdaten.",
+    "examples": [
+      "SELECT * FROM toolbelt_conversion.TVF_Base64Decode(N'SGk=');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ."
+    }
+  },
+  "toolbelt_conversion.TVF_Base64Encode": {
+    "summary": "Codiert Binärdaten als Base64 oder Base64URL.",
+    "examples": [
+      "SELECT * FROM toolbelt_conversion.TVF_Base64Encode(0x4869, 0);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@UrlSafe": "0 = Standard-Base64; 1 = Base64URL beim Encoding."
+    }
+  },
+  "toolbelt_conversion.SVF_IntegerToBase": {
+    "summary": "Codiert einen bigint-Wert in einem frei festgelegten Zahlensystem.",
+    "examples": [
+      "SELECT toolbelt_conversion.SVF_IntegerToBase(255, '0123456789ABCDEF') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@Alphabet": "2–93 binär eindeutige ASCII-Zeichen; Minus ist für das Vorzeichen reserviert."
+    }
+  },
+  "toolbelt_conversion.SVF_TryBaseToInteger": {
+    "summary": "Decodiert einen Text anhand des angegebenen Alphabets in bigint.",
+    "examples": [
+      "SELECT toolbelt_conversion.SVF_TryBaseToInteger('FF', '0123456789ABCDEF') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@EncodedValue": "Zahlentext im gewählten Alphabet.",
+      "@Alphabet": "2–93 binär eindeutige ASCII-Zeichen; Minus ist für das Vorzeichen reserviert."
+    }
+  },
+  "toolbelt_conversion.TVF_IntegerToBase": {
+    "summary": "Codiert einen bigint-Wert in einem frei festgelegten Zahlensystem.",
+    "examples": [
+      "SELECT * FROM toolbelt_conversion.TVF_IntegerToBase(255, '0123456789ABCDEF');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@Alphabet": "2–93 binär eindeutige ASCII-Zeichen; Minus ist für das Vorzeichen reserviert."
+    }
+  },
+  "toolbelt_conversion.TVF_TryBaseToInteger": {
+    "summary": "Decodiert einen Text anhand des angegebenen Alphabets in bigint.",
+    "examples": [
+      "SELECT * FROM toolbelt_conversion.TVF_TryBaseToInteger('FF', '0123456789ABCDEF');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@EncodedValue": "Zahlentext im gewählten Alphabet.",
+      "@Alphabet": "2–93 binär eindeutige ASCII-Zeichen; Minus ist für das Vorzeichen reserviert."
+    }
+  },
+  "toolbelt_conversion.SVF_UriComponentDecode": {
+    "summary": "Decodiert eine Runde von Prozent-Escapes und prüft die UTF-8-Sequenz.",
+    "examples": [
+      "SELECT toolbelt_conversion.SVF_UriComponentDecode(N'a%20b%2F%C3%A4') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ."
+    }
+  },
+  "toolbelt_conversion.SVF_UriComponentEncode": {
+    "summary": "Codiert eine URI-Komponente mit UTF-8 und Prozent-Escapes nach RFC 3986.",
+    "examples": [
+      "SELECT toolbelt_conversion.SVF_UriComponentEncode(N'a b/ä') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ."
+    }
+  },
+  "toolbelt_conversion.TVF_UriComponentDecode": {
+    "summary": "Decodiert eine Runde von Prozent-Escapes und prüft die UTF-8-Sequenz.",
+    "examples": [
+      "SELECT * FROM toolbelt_conversion.TVF_UriComponentDecode(N'a%20b%2F%C3%A4');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ."
+    }
+  },
+  "toolbelt_conversion.TVF_UriComponentEncode": {
+    "summary": "Codiert eine URI-Komponente mit UTF-8 und Prozent-Escapes nach RFC 3986.",
+    "examples": [
+      "SELECT * FROM toolbelt_conversion.TVF_UriComponentEncode(N'a b/ä');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ."
+    }
+  },
+  "toolbelt_core.USP_WriteConsoleMessage": {
+    "summary": "Gibt einen langen Unicode-Text vollständig im Messages-Kanal aus. Gepufferte Ausgabe verwendet PRINT; unmittelbare Ausgabe verwendet RAISERROR mit Severity 0 und NOWAIT.",
+    "examples": [
+      "EXEC toolbelt_core.USP_WriteConsoleMessage\n      @Message = N'Schritt 1 abgeschlossen.'\n    , @Immediate = 1;",
+      "EXEC toolbelt_core.USP_WriteConsoleMessage\n      @Message = N'Gepufferte Ausgabe'\n    , @Immediate = 0;\n\nEXEC toolbelt_core.USP_WriteConsoleMessage\n      @Message = N'Fortschritt: 100 %'\n    , @Immediate = 1;\n\nEXEC toolbelt_core.USP_WriteConsoleMessage @Hilfe = 1;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Message": "Auszugebender Text. NULL und Leertext erzeugen keine Ausgabe. Vorhandene Zeilenumbrüche bleiben innerhalb der Message-Frames erhalten.",
+      "@Immediate": "0 verwendet PRINT in Chunks bis 4.000 UTF-16-Codeunits. 1 verwendet RAISERROR mit Severity 0, konservativen 2.000-Codeunit-Chunks und WITH NOWAIT.",
+      "@Debug": "Standardparameter des USP-Vertrags. Version 1 erzeugt bewusst keine zusätzlichen Debug-Messages, damit der Payload unverändert bleibt.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus und ignoriert alle anderen Parameter."
+    }
+  },
+  "toolbelt_core.USP_CaptureErrorEnvelope": {
+    "summary": "Erzeugt aus explizit im aufrufenden CATCH gelesenen ERROR_*-Werten genau eine standardisierte Fehlerzeile. Die Procedure führt keinen Rethrow aus; der Aufrufer verwendet anschließend THROW; im ursprünglichen CATCH.",
+    "examples": [
+      "BEGIN TRY\n    THROW 50000,N'Synthetischer Beispielfehler',1;\nEND TRY\nBEGIN CATCH\n    DECLARE @Number int=ERROR_NUMBER(), @Severity int=ERROR_SEVERITY(),\n            @State int=ERROR_STATE(), @Line int=ERROR_LINE(),\n            @Procedure nvarchar(128)=ERROR_PROCEDURE(),\n            @Message nvarchar(4000)=ERROR_MESSAGE();\n    EXEC toolbelt_core.USP_CaptureErrorEnvelope\n      @ErrorNumber=@Number, @ErrorSeverity=@Severity, @ErrorState=@State,\n      @ErrorProcedure=@Procedure, @ErrorLine=@Line, @ErrorMessage=@Message;\nEND CATCH;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@ErrorNumber": "ERROR_NUMBER() aus dem aufrufenden CATCH.",
+      "@ErrorSeverity": "ERROR_SEVERITY() aus dem aufrufenden CATCH.",
+      "@ErrorState": "ERROR_STATE() aus dem aufrufenden CATCH.",
+      "@ErrorProcedure": "ERROR_PROCEDURE() aus dem aufrufenden CATCH.",
+      "@ErrorLine": "ERROR_LINE() aus dem aufrufenden CATCH.",
+      "@ErrorMessage": "ERROR_MESSAGE() aus dem aufrufenden CATCH.",
+      "@ExecutionId": "Optionale Execution-ID; NULL liest den aktiven Toolbelt Execution Context.",
+      "@AdditionalContext": "Optionale synthetische oder bereits bereinigte Zusatzinformation.",
+      "@ResultTable": "Optionale lokale Temp-Tabelle für das Ergebnis.",
+      "@KeepData": "Steuert die ResultTable-Vorbereitung.",
+      "@Debug": "Erzeugt bei Werten größer 0 eine abstrakte Informationsmeldung.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus."
+    }
+  },
+  "toolbelt_core.USP_DeleteEventsBefore": {
+    "summary": "Löscht alte Events in explizit begrenzten Batches. Die Procedure führt keine automatische Zeitplanung aus.",
+    "examples": [
+      "DECLARE @n bigint; EXEC toolbelt_core.USP_DeleteEventsBefore @BeforeOccurredAtUtc='2026-01-01', @BatchSize=1000, @MaxBatches=5, @DeletedRows=@n OUTPUT;"
+    ],
+    "requirements": [
+      "Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten."
+    ],
+    "parameter_notes": {
+      "@BeforeOccurredAtUtc": "Nur Events mit älterem OccurredAtUtc werden gelöscht.",
+      "@BatchSize": "1 bis 10000 Zeilen je Batch.",
+      "@MaxBatches": "1 bis 100 Batches je Aufruf.",
+      "@DeletedRows": "OUTPUT: Anzahl der gelöschten Eventzeilen.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.USP_WriteEvent": {
+    "summary": "Schreibt ein strukturiertes Event synchron über toolbelt.core.second-session. Der Remote-Commit ist unabhängig von Commit oder Rollback der Caller-Transaktion.",
+    "examples": [
+      "EXEC toolbelt_core.USP_WriteEvent @EventName='demo.completed', @Message=N'Synthetic example';"
+    ],
+    "requirements": [
+      "Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten."
+    ],
+    "parameter_notes": {
+      "@EventName": "Kanonischer Eventname in lowercase ASCII.",
+      "@EventLevel": "TRACE, DEBUG, INFO, WARNING, ERROR oder CRITICAL.",
+      "@Category": "Optionale Eventkategorie.",
+      "@Message": "Begrenzte menschenlesbare Meldung; keine ungeprüften Secrets persistieren.",
+      "@DataJson": "Begrenztes JSON-Objekt bis 32 KiB UTF-16-Speicher.",
+      "@OccurredAtUtc": "Fachlicher Ereigniszeitpunkt in UTC.",
+      "@ExecutionId": "Execution-ID; NULL-Verhalten hängt vom konkreten Objektvertrag ab.",
+      "@CorrelationId": "Korrelations-ID für zusammengehörige Ausführungen/Events.",
+      "@Actor": "Actor-Kennung des Ausführungskontexts.",
+      "@Tenant": "Tenant-Kennung des Ausführungskontexts.",
+      "@SourceDatabaseName": "Optionale Datenbankkennzeichnung des Events.",
+      "@SourceSchemaName": "Optionale Schemakennzeichnung des Events.",
+      "@SourceObjectName": "Optionale Objektkennzeichnung des Events.",
+      "@ErrorNumber": "Nummer des ursprünglichen SQL-Fehlers.",
+      "@ErrorSeverity": "Severity des ursprünglichen SQL-Fehlers.",
+      "@ErrorState": "State des ursprünglichen SQL-Fehlers.",
+      "@ErrorProcedure": "Procedure des ursprünglichen SQL-Fehlers.",
+      "@ErrorLine": "Zeilennummer des ursprünglichen SQL-Fehlers.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.VW_Events": {
+    "summary": "Zeigt protokollierte Toolbelt-Events.",
+    "examples": [
+      "SELECT TOP (20) * FROM toolbelt_core.VW_Events;"
+    ],
+    "requirements": [],
+    "parameter_notes": {}
+  },
+  "toolbelt_core.SVF_IsCancellationRequested": {
+    "summary": "Prüft, ob für eine Ausführung ein kooperativer Abbruch angefordert wurde.",
+    "examples": [
+      "SELECT toolbelt_core.SVF_IsCancellationRequested(NULL) AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@ExecutionId": "Execution-ID; NULL-Verhalten hängt vom konkreten Objektvertrag ab."
+    }
+  },
+  "toolbelt_core.TVF_ExecutionCancellationStatus": {
+    "summary": "Liest den registrierten kooperativen Abbruchstatus einer Ausführung.",
+    "examples": [
+      "SELECT * FROM toolbelt_core.TVF_ExecutionCancellationStatus(NULL);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@ExecutionId": "Execution-ID; NULL-Verhalten hängt vom konkreten Objektvertrag ab."
+    }
+  },
+  "toolbelt_core.USP_RequestExecutionCancellation": {
+    "summary": "Persistiert eine irreversible kooperative Cancellation-Anforderung. Die Procedure beendet keine Session und verändert keine Work-Queue-Einträge.",
+    "examples": [
+      "EXEC toolbelt_core.USP_RequestExecutionCancellation @CancellationReason=N'planned maintenance';",
+      "EXEC toolbelt_core.USP_RequestExecutionCancellation\n    @CancellationReason = N'planned maintenance';\n\nSELECT *\nFROM toolbelt_core.TVF_ExecutionCancellationStatus\n    (toolbelt_core.SVF_CurrentExecutionId());"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@ExecutionId": "Zielausführung; ohne Wert wird die aktuelle sessiongebundene ExecutionId verwendet.",
+      "@CancellationReason": "Optionaler, nicht sensibler Grund. Nur die erste Anforderung speichert ihn.",
+      "@Debug": "Gibt eine Fortschrittsmeldung aus.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.SVF_CurrentExecutionId": {
+    "summary": "Liest die Execution-ID der aktuellen Session.",
+    "examples": [
+      "SELECT toolbelt_core.SVF_CurrentExecutionId() AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {}
+  },
+  "toolbelt_core.TVF_CurrentExecutionContext": {
+    "summary": "Liest den Toolbelt-Ausführungskontext der aktuellen Session.",
+    "examples": [
+      "SELECT * FROM toolbelt_core.TVF_CurrentExecutionContext();"
+    ],
+    "requirements": [],
+    "parameter_notes": {}
+  },
+  "toolbelt_core.USP_BeginExecution": {
+    "summary": "Beginnt einen sessiongebundenen Toolbelt Execution Context oder erhöht bei erlaubter Verschachtelung dessen ScopeDepth. Die Execution-ID wird als OUTPUT zurückgegeben.",
+    "examples": [
+      "DECLARE @Id uniqueidentifier; EXEC toolbelt_core.USP_BeginExecution @ExecutionId=@Id OUTPUT;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@ExecutionId": "Execution-ID; NULL-Verhalten hängt vom konkreten Objektvertrag ab.",
+      "@CorrelationId": "Korrelations-ID für zusammengehörige Ausführungen/Events.",
+      "@Actor": "Actor-Kennung des Ausführungskontexts.",
+      "@Tenant": "Tenant-Kennung des Ausführungskontexts.",
+      "@AllowNested": "1 erlaubt verschachtelte Execution Contexts; 0 lehnt sie ab.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.USP_EndExecution": {
+    "summary": "Verringert den ScopeDepth eines aktiven Contexts und löscht bei Tiefe 1 alle Toolbelt-Sessionwerte.",
+    "examples": [
+      "-- Voraussetzung: aktiver Context in derselben Session.\nDECLARE @Id uniqueidentifier=toolbelt_core.SVF_CurrentExecutionId();\nEXEC toolbelt_core.USP_EndExecution @ExpectedExecutionId=@Id;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@ExpectedExecutionId": "Muss der aktiven Execution-ID entsprechen.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.USP_SetExecutionContext": {
+    "summary": "Ändert Correlation-ID, Actor oder Tenant eines aktiven Contexts. Die erwartete Execution-ID verhindert Änderungen an einem fremden oder veralteten Sessionzustand.",
+    "examples": [
+      "-- Voraussetzung: in derselben Session zuvor USP_BeginExecution aufrufen.\nDECLARE @Id uniqueidentifier=toolbelt_core.SVF_CurrentExecutionId();\nEXEC toolbelt_core.USP_SetExecutionContext @ExpectedExecutionId=@Id, @Actor=N'Contoso example', @Tenant=N'Fabrikam';"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@ExpectedExecutionId": "Muss der aktiven Execution-ID entsprechen.",
+      "@CorrelationId": "Korrelations-ID für zusammengehörige Ausführungen/Events.",
+      "@Actor": "Actor-Kennung des Ausführungskontexts.",
+      "@Tenant": "Tenant-Kennung des Ausführungskontexts.",
+      "@ClearActor": "1 löscht den Actor; nicht zugleich mit @Actor verwenden.",
+      "@ClearTenant": "1 löscht den Tenant; nicht zugleich mit @Tenant verwenden.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.TVF_GenerateSeriesBigInt": {
+    "summary": "Erzeugt eine Folge von bigint-Werten einschließlich erreichbarem Endwert.",
+    "examples": [
+      "SELECT * FROM toolbelt_core.TVF_GenerateSeriesBigInt(1, 5, 1);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Start": "Erster bigint-Wert der Reihe.",
+      "@Stop": "Inklusive bigint-Ober- oder Untergrenze, sofern erreichbar.",
+      "@Step": "Schrittweite; NULL beziehungsweise DEFAULT löst die Richtung automatisch auf."
+    }
+  },
+  "toolbelt_core.TVF_GenerateSeriesInt": {
+    "summary": "Erzeugt eine Folge von int-Werten einschließlich erreichbarem Endwert.",
+    "examples": [
+      "SELECT * FROM toolbelt_core.TVF_GenerateSeriesInt(1, 5, 1);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Start": "Erster int-Wert der Reihe.",
+      "@Stop": "Inklusive int-Ober- oder Untergrenze, sofern erreichbar.",
+      "@Step": "Schrittweite; NULL beziehungsweise DEFAULT löst die Richtung automatisch auf."
+    }
+  },
+  "toolbelt_core.USP_PrepareResultTable": {
+    "summary": "Bereitet eine vorhandene lokale Temp-Tabelle anhand des Spaltenschemas einer vorhandenen Referenztabelle vor. Die Procedure fügt keine fachlichen Resultzeilen ein.",
+    "examples": [
+      "CREATE TABLE #Result (Dummy int NULL);\nCREATE TABLE #ResultShape (ItemOrdinal bigint NOT NULL, ItemValue varchar(100) NULL);\n\nEXEC toolbelt_core.USP_PrepareResultTable\n      @ResultTableToAlter = N'#Result'\n    , @LikeTable          = N'#ResultShape'\n    , @KeepData           = 0;\nDROP TABLE #Result, #ResultShape;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@ResultTableToAlter": "Vorhandene lokale Ziel-Temp-Tabelle. Der Name beginnt mit genau einem #, ist höchstens 116 Zeichen lang und verwendet nicht den reservierten Präfix #tbx_.",
+      "@LikeTable": "Referenztabelle in der Form #LocalTemplate, Schema.Table oder Database.Schema.Table. Ziel- und Referenztabelle dürfen nicht identisch sein. Views, Synonyme, globale Temp-Tabellen und vierteilige Namen sind nicht unterstützt.",
+      "@KeepData": "0 verwendet Replace-Semantik. 1 erhält vorhandene Daten nur bei bereits passendem Schema; andernfalls wird vor jeder Mutation mit Fehler 51025 abgebrochen.",
+      "@Debug": "Steuert Debug-Messages. Die Stufen 1 bis 3 liefern zunehmend Details; 255 ist der maximale interne Trace. Debug erzeugt kein Resultset.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus und ignoriert alle anderen Parameter."
+    }
+  },
+  "toolbelt_core.USP_ConfigureSecondSessionLoopback": {
+    "summary": "Verknüpft das Modul mit einem bereits administrativ eingerichteten Loopback-Linked-Server. Das Modul legt weder Linked Server noch Login-Mappings oder Credentials an.",
+    "examples": [
+      "EXEC toolbelt_core.USP_ConfigureSecondSessionLoopback @LinkedServerName=N'TBX_LOOPBACK';"
+    ],
+    "requirements": [
+      "Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten."
+    ],
+    "parameter_notes": {
+      "@LinkedServerName": "Vorhandener Linked Server mit rpc out und deaktivierter Remote-Transaction-Promotion.",
+      "@Enabled": "Aktiviert oder deaktiviert den Provider.",
+      "@ExpectedRowVersion": "Optionale Optimistic-Concurrency-Prüfung.",
+      "@ResultTable": "Optionale lokale Temp-Tabelle für die Konfigurationszeile.",
+      "@KeepData": "0 = Ergebnis ersetzen, 1 = an vorhandene kompatible Ergebnisdaten anhängen.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.USP_ExecuteWorkTypeInNewSession": {
+    "summary": "Führt einen registrierten Work Type synchron in einer getrennten SQL-Server-Session aus. Raw SQL ist ausgeschlossen; der Provider muss rpc out aktiv und Remote-Transaction-Promotion deaktiviert haben.",
+    "examples": [
+      "EXEC toolbelt_core.USP_ExecuteWorkTypeInNewSession @WorkTypeName='demo.noop';"
+    ],
+    "requirements": [
+      "Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten."
+    ],
+    "parameter_notes": {
+      "@WorkTypeName": "Kanonischer Name aus toolbelt.core.work-type.",
+      "@PayloadJson": "JSON-Objekt nur für Work Types mit ParameterMode JSON_PAYLOAD.",
+      "@ExecutionId": "Explizite Execution-ID; sonst aktiver Context oder neue ID.",
+      "@CorrelationId": "Explizite Correlation-ID; sonst aktiver Context oder Execution-ID.",
+      "@Actor": "Expliziter Actor; sonst aktiver Context oder ORIGINAL_LOGIN().",
+      "@Tenant": "Optionaler Tenant-Kontext.",
+      "@ResultTable": "Optionale lokale Temp-Tabelle; in uncommittable Transaktionen nicht zulässig.",
+      "@KeepData": "0 = Ergebnis ersetzen, 1 = an vorhandene kompatible Ergebnisdaten anhängen.",
+      "@SuppressResult": "Bei 1 wird nach erfolgreicher Ausführung kein Infrastruktur-Resultset ausgegeben; nicht mit @ResultTable kombinierbar.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.VW_SecondSessionProviders": {
+    "summary": "Zeigt konfigurierte Second-Session-Provider.",
+    "examples": [
+      "SELECT TOP (20) * FROM toolbelt_core.VW_SecondSessionProviders;"
+    ],
+    "requirements": [],
+    "parameter_notes": {}
+  },
+  "toolbelt_core.USP_ClaimWork": {
+    "summary": "Beansprucht atomar höchstens das älteste beanspruchbare Work Item und eröffnet eine zeitlich begrenzte Lease. Abgelaufene Claims werden nicht implizit übernommen.",
+    "examples": [
+      "EXEC toolbelt_core.USP_ClaimWork @LeaseDurationSeconds=300;"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@LeaseDurationSeconds": "Lease-Dauer von 5 bis 86400 Sekunden.",
+      "@ResultTable": "Optionale lokale Temp-Tabelle für die Claim-Zeile.",
+      "@KeepData": "Steuert die ResultTable-Vorbereitung.",
+      "@Debug": "Erzeugt eine abstrakte Informationsmeldung.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus."
+    }
+  },
+  "toolbelt_core.USP_CompleteWork": {
+    "summary": "Schließt genau ein CLAIMED Work Item mit dem passenden ClaimToken als COMPLETED ab. Ein fachliches Arbeitsergebnis wird in E1a nicht gespeichert.",
+    "examples": [
+      "-- WorkItemId und ClaimToken durch den eigenen aktuellen Claim ersetzen;\n-- Beispielkonstanten sind keine gültige Claim-Berechtigung.\nEXEC toolbelt_core.USP_CompleteWork @WorkItemId=1, @ClaimToken='00000000-0000-0000-0000-000000000001';"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@WorkItemId": "Eindeutige Queue-ID.",
+      "@ClaimToken": "Vom erfolgreichen Claim zurückgegebenes Ownership-Token.",
+      "@ResultTable": "Optionale lokale Temp-Tabelle für die Statuszeile.",
+      "@KeepData": "Steuert die ResultTable-Vorbereitung.",
+      "@Debug": "Erzeugt bei Werten größer 0 eine abstrakte Informationsmeldung.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus."
+    }
+  },
+  "toolbelt_core.USP_EnqueueBarrierWork": {
+    "summary": "Reiht DRAIN_BARRIER-Arbeit ein, die vor ihrem exklusiven Claim die relevanten aktiven Claims derselben ExecutionGroup abwartet; Retry-Policy und optionaler Idempotency Key bleiben gebunden.",
+    "examples": [
+      "-- Voraussetzung: registrierter passender Handler; Barrier hat Seiteneffekte auf Claims.\nEXEC toolbelt_core.USP_EnqueueBarrierWork\n @WorkTypeName='demo.noop', @PayloadJson=NULL, @ExecutionGroup=N'example-group', @Priority=10;"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@WorkTypeName": "Name eines vorhandenen, passenden registrierten Work Types.",
+      "@PayloadJson": "JSON-Objekt-Payload gemäß dem registrierten Handlervertrag.",
+      "@ExecutionGroup": "Binär verglichene Queuegruppe; Barriers beziehen sich auf diese Gruppe.",
+      "@Priority": "0–255; höhere Priorität wird zuerst berücksichtigt.",
+      "@IdempotencyKey": "Optionaler binär verglichener Schlüssel, je Work Type eindeutig solange das Item existiert.",
+      "@MaxAttempts": "Maximale Versuchszahl der gespeicherten Retrypolicy.",
+      "@RetryBaseDelaySeconds": "Basis des exponentiellen Retry-Backoffs.",
+      "@RetryMaxDelaySeconds": "Obergrenze des Retry-Backoffs.",
+      "@ResultTable": "NULL = Resultset; sonst Name einer vorhandenen lokalen #Temp-Tabelle.",
+      "@KeepData": "0 = Ergebnis ersetzen, 1 = an vorhandene kompatible Ergebnisdaten anhängen.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.USP_EnqueueWork": {
+    "summary": "Reiht genau ein Work Item für einen registrierten, aktiven Work Type ein. Es wird niemals SQL-Text entgegengenommen oder ausgeführt.",
+    "examples": [
+      "EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='demo.json', @PayloadJson=N'{\"value\":1}';"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@WorkTypeName": "Kanonischer Name eines aktiven Work Types.",
+      "@PayloadJson": "Bei JSON_PAYLOAD ein JSON-Objekt mit höchstens 64 KiB; bei NONE ausschließlich NULL.",
+      "@ResultTable": "Optionale lokale Temp-Tabelle für die Statuszeile.",
+      "@KeepData": "Steuert die ResultTable-Vorbereitung.",
+      "@Debug": "Erzeugt bei Werten größer 0 eine abstrakte Informationsmeldung.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus."
+    }
+  },
+  "toolbelt_core.USP_EnqueueWorkWithPolicy": {
+    "summary": "Reiht je nach ExecutionMode SHARED- oder DRAIN_BARRIER-Arbeit mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein.",
+    "examples": [
+      "-- Voraussetzung: aktiver, ausführbarer Work Type demo.noop.\nEXEC toolbelt_core.USP_EnqueueWorkWithPolicy\n @WorkTypeName='demo.noop', @PayloadJson=NULL, @IdempotencyKey=N'example-1',\n @Priority=10, @ExecutionGroup=N'example-group', @MaxAttempts=3,\n @RetryBaseDelaySeconds=60, @RetryMaxDelaySeconds=3600, @ExecutionMode='SHARED';"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@WorkTypeName": "Name eines vorhandenen, passenden registrierten Work Types.",
+      "@PayloadJson": "JSON-Objekt-Payload gemäß dem registrierten Handlervertrag.",
+      "@IdempotencyKey": "Optionaler binär verglichener Schlüssel, je Work Type eindeutig solange das Item existiert.",
+      "@Priority": "0–255; höhere Priorität wird zuerst berücksichtigt.",
+      "@ExecutionGroup": "Binär verglichene Queuegruppe; Barriers beziehen sich auf diese Gruppe.",
+      "@MaxAttempts": "Maximale Versuchszahl der gespeicherten Retrypolicy.",
+      "@RetryBaseDelaySeconds": "Basis des exponentiellen Retry-Backoffs.",
+      "@RetryMaxDelaySeconds": "Obergrenze des Retry-Backoffs.",
+      "@ExecutionMode": "SHARED oder DRAIN_BARRIER gemäß Queuevertrag.",
+      "@ResultTable": "NULL = Resultset; sonst Name einer vorhandenen lokalen #Temp-Tabelle.",
+      "@KeepData": "0 = Ergebnis ersetzen, 1 = an vorhandene kompatible Ergebnisdaten anhängen.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.USP_FailWork": {
+    "summary": "Schließt genau ein CLAIMED Work Item mit passendem ClaimToken als FAILED ab. Gespeichert werden nur ein stabiler Code und eine optionale bereinigte Kurzmeldung.",
+    "examples": [
+      "-- WorkItemId und ClaimToken durch den eigenen aktuellen Claim ersetzen;\n-- Beispielkonstanten sind keine gültige Claim-Berechtigung.\nEXEC toolbelt_core.USP_FailWork @WorkItemId=1,@ClaimToken='00000000-0000-0000-0000-000000000001',@FailureCode='DEMO.ERROR';"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@WorkItemId": "Eindeutige Queue-ID.",
+      "@ClaimToken": "Vom Claim zurückgegebenes Ownership-Token.",
+      "@FailureCode": "Case-sensitiver ASCII-Code aus Buchstaben, Ziffern, Punkt, Unterstrich und Bindestrich.",
+      "@FailureMessage": "Vom Aufrufer bereinigte Meldung mit höchstens 1000 Unicode-Codeeinheiten; keine Logs oder Stack Traces.",
+      "@ResultTable": "Optionale lokale Temp-Tabelle für die Statuszeile.",
+      "@KeepData": "Steuert die ResultTable-Vorbereitung.",
+      "@Debug": "Erzeugt bei Werten größer 0 eine abstrakte Informationsmeldung.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus."
+    }
+  },
+  "toolbelt_core.USP_GetWorkStatus": {
+    "summary": "Liefert genau eine Statuszeile für ein Work Item. Payload und ClaimToken werden bewusst nicht offengelegt.",
+    "examples": [
+      "EXEC toolbelt_core.USP_GetWorkStatus @WorkItemId=1;"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@WorkItemId": "Eindeutige Queue-ID.",
+      "@ResultTable": "Optionale lokale Temp-Tabelle für die Statuszeile.",
+      "@KeepData": "Steuert die ResultTable-Vorbereitung.",
+      "@Debug": "Erzeugt bei Werten größer 0 eine abstrakte Informationsmeldung.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus."
+    }
+  },
+  "toolbelt_core.USP_RecoverExpiredWork": {
+    "summary": "Plant für abgelaufene Claims nach der gespeicherten Retry-Policy RETRY_WAIT oder DEAD_LETTER. Alte ClaimTokens werden atomar invalidiert.",
+    "examples": [
+      "EXEC toolbelt_core.USP_RecoverExpiredWork @MaxItems=100;"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@MaxItems": "Batchgrenze von 1 bis 1000.",
+      "@ResultTable": "Optionale lokale Temp-Tabelle für recoverte Items.",
+      "@KeepData": "Steuert die ResultTable-Vorbereitung.",
+      "@Debug": "Erzeugt eine abstrakte Informationsmeldung.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus."
+    }
+  },
+  "toolbelt_core.USP_RenewWorkLease": {
+    "summary": "Verlängert eine noch aktive Lease mit passendem ClaimToken um ihre beim Claim festgelegte Dauer ab Engine-Zeit. Eine abgelaufene Lease wird nicht wiederbelebt.",
+    "examples": [
+      "-- WorkItemId und ClaimToken durch den eigenen aktuellen Claim ersetzen;\n-- Beispielkonstanten sind keine gültige Claim-Berechtigung.\nEXEC toolbelt_core.USP_RenewWorkLease @WorkItemId=1,@ClaimToken='00000000-0000-0000-0000-000000000001';"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@WorkItemId": "Eindeutige Queue-ID.",
+      "@ClaimToken": "Geheimes Ownership-Token des aktiven Claims.",
+      "@ResultTable": "Optionale lokale Temp-Tabelle für die Lease-Zeile.",
+      "@KeepData": "Steuert die ResultTable-Vorbereitung.",
+      "@Debug": "Erzeugt eine abstrakte Informationsmeldung.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus."
+    }
+  },
+  "toolbelt_core.USP_RequeueDeadLetter": {
+    "summary": "Beginnt für ein Dead-Letter-Item einen neuen Retry-Zyklus.",
+    "examples": [
+      "-- Eine tatsächliche eigene DEAD_LETTER-ID einsetzen.\nDECLARE @WorkItemId bigint=NULL;\nEXEC toolbelt_core.USP_RequeueDeadLetter @WorkItemId=@WorkItemId, @RequeueReason=N'Synthetischer Wiederholungsversuch';"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@WorkItemId": "ID des tatsächlich angelegten Work Items.",
+      "@ExpectedRowVersion": "Erwartete rowversion zur optimistischen Konkurrenzprüfung.",
+      "@RequeueReason": "Grund für den neuen Retryzyklus eines DEAD_LETTER-Items.",
+      "@ResultTable": "NULL = Resultset; sonst Name einer vorhandenen lokalen #Temp-Tabelle.",
+      "@KeepData": "0 = Ergebnis ersetzen, 1 = an vorhandene kompatible Ergebnisdaten anhängen.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.USP_ScheduleWorkRetry": {
+    "summary": "Plant einen tokengebundenen Retry oder verschiebt nach Dead Letter.",
+    "examples": [
+      "-- ID und Token stammen aus dem eigenen aktuellen Claim.\nDECLARE @WorkItemId bigint=NULL, @ClaimToken uniqueidentifier=NULL; -- tatsächliche Claimwerte einsetzen\nEXEC toolbelt_core.USP_ScheduleWorkRetry @WorkItemId=@WorkItemId, @ClaimToken=@ClaimToken,\n @FailureCode='EXAMPLE_RETRY', @FailureMessage=N'Synthetischer Testfehler';"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@WorkItemId": "ID des tatsächlich angelegten Work Items.",
+      "@ClaimToken": "Das tatsächlich vom Claim zurückgelieferte Token; kein frei erfundenes Token.",
+      "@FailureCode": "Stabiler ASCII-Fehlercode des Workers.",
+      "@FailureMessage": "Bereinigter Worker-Fehlertext, höchstens 1000 Unicode-Codeeinheiten.",
+      "@ResultTable": "NULL = Resultset; sonst Name einer vorhandenen lokalen #Temp-Tabelle.",
+      "@KeepData": "0 = Ergebnis ersetzen, 1 = an vorhandene kompatible Ergebnisdaten anhängen.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.VW_WorkQueue": {
+    "summary": "Zeigt Queue-Status und Auditmetadaten ohne Payload und ClaimToken.",
+    "examples": [
+      "SELECT TOP (20) * FROM toolbelt_core.VW_WorkQueue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {}
+  },
+  "toolbelt_core.VW_WorkQueueBarrierBlockers": {
+    "summary": "Zeigt aktive Claim-Generationen, die eine Gruppenbarriere blockieren.",
+    "examples": [
+      "SELECT TOP (20) * FROM toolbelt_core.VW_WorkQueueBarrierBlockers;"
+    ],
+    "requirements": [],
+    "parameter_notes": {}
+  },
+  "toolbelt_core.USP_DisableWorkType": {
+    "summary": "Deaktiviert einen registrierten Work Type idempotent und erhält seine Konfiguration.",
+    "examples": [
+      "EXEC toolbelt_core.USP_DisableWorkType @WorkTypeName='demo.noop';"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@WorkTypeName": "Name eines vorhandenen, passenden registrierten Work Types.",
+      "@DisabledReason": "Grund für die Deaktivierung.",
+      "@ExpectedRowVersion": "Erwartete rowversion zur optimistischen Konkurrenzprüfung.",
+      "@ResultTable": "NULL = Resultset; sonst Name einer vorhandenen lokalen #Temp-Tabelle.",
+      "@KeepData": "0 = Ergebnis ersetzen, 1 = an vorhandene kompatible Ergebnisdaten anhängen.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.USP_RegisterWorkType": {
+    "summary": "Registriert ausschließlich eine vorhandene Stored Procedure als benannten Work Type. SQL-Text wird weder angenommen noch gespeichert.",
+    "examples": [
+      "EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='demo.noop', @HandlerSchema=N'dbo', @HandlerProcedure=N'USP_DemoNoop';"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@WorkTypeName": "Kanonischer kleingeschriebener Work-Type-Name.",
+      "@HandlerSchema": "Schema der vorhandenen Zielprocedure in derselben Datenbank.",
+      "@HandlerProcedure": "Name der vorhandenen Zielprocedure.",
+      "@ParameterMode": "NONE oder JSON_PAYLOAD.",
+      "@PayloadContractJson": "JSON-Objekt mit deklarativem Payloadvertrag; wird nicht als Code ausgeführt.",
+      "@DefaultTimeoutSeconds": "Standardtimeout des registrierten Work Types.",
+      "@IsIdempotent": "Deklarative Handlerkennzeichnung; ersetzt keine fachliche Idempotenzimplementierung.",
+      "@Description": "Beschreibung des registrierten Work Types.",
+      "@AllowUpdate": "Erlaubt eine Änderung einer vorhandenen Registrierung.",
+      "@Reactivate": "Reaktiviert einen deaktivierten Work Type.",
+      "@ExpectedRowVersion": "Optionale Optimistic-Concurrency-Prüfung.",
+      "@ResultTable": "Optionale lokale Temp-Tabelle für die Ergebniszeile.",
+      "@KeepData": "0 = Ergebnis ersetzen, 1 = an vorhandene kompatible Ergebnisdaten anhängen.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.USP_RemoveWorkType": {
+    "summary": "Entfernt ausschließlich einen bereits deaktivierten Work Type. Die explizite Datenverlustfreigabe und optionale RowVersion-Prüfung verhindern versehentliche oder konkurrierende Löschungen.",
+    "examples": [
+      "EXEC toolbelt_core.USP_RemoveWorkType @WorkTypeName='demo.noop', @AllowDelete=1;"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@WorkTypeName": "Kanonischer Name des zu entfernenden Work Types.",
+      "@ExpectedRowVersion": "Optionale Optimistic-Concurrency-Prüfung.",
+      "@AllowDelete": "Muss für die irreversible Entfernung ausdrücklich 1 sein.",
+      "@ResultTable": "Optionale lokale Temp-Tabelle für die entfernte Katalogzeile.",
+      "@KeepData": "0 = Ergebnis ersetzen, 1 = an vorhandene kompatible Ergebnisdaten anhängen.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.USP_ResolveWorkType": {
+    "summary": "Löst einen registrierten Work Type auf und kann Enabled-, Existenz- und Caller-EXECUTE-Vertrag erzwingen.",
+    "examples": [
+      "EXEC toolbelt_core.USP_ResolveWorkType @WorkTypeName='demo.noop';"
+    ],
+    "requirements": [
+      "Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern."
+    ],
+    "parameter_notes": {
+      "@WorkTypeName": "Name eines vorhandenen, passenden registrierten Work Types.",
+      "@RequireEnabled": "1 verlangt einen aktiven Work Type.",
+      "@RequireExecutableByCaller": "1 prüft die vorhandene Ausführbarkeit des Handlers.",
+      "@ResultTable": "NULL = Resultset; sonst Name einer vorhandenen lokalen #Temp-Tabelle.",
+      "@KeepData": "0 = Ergebnis ersetzen, 1 = an vorhandene kompatible Ergebnisdaten anhängen.",
+      "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+    }
+  },
+  "toolbelt_core.VW_WorkTypes": {
+    "summary": "Zeigt registrierte Work Types und deren Konfiguration.",
+    "examples": [
+      "SELECT TOP (20) * FROM toolbelt_core.VW_WorkTypes;"
+    ],
+    "requirements": [],
+    "parameter_notes": {}
+  },
+  "toolbelt_datetime.TVF_DateBucketDate": {
+    "summary": "Ordnet einen date-Wert einem originbezogenen Zeit-Bucket zu.",
+    "examples": [
+      "SELECT * FROM toolbelt_datetime.TVF_DateBucketDate('day', 7, CONVERT(date,'2024-07-19'), CONVERT(date,'2024-01-01'));"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@DatePart": "Unterstützte Zeiteinheit gemäß Objektvertrag; Beispiele verwenden day.",
+      "@Width": "Positive ganzzahlige Bucketbreite.",
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@Origin": "Zeitlicher Referenzpunkt für die Bucket-Grenzen."
+    }
+  },
+  "toolbelt_datetime.TVF_DateBucketDateTime2": {
+    "summary": "Ordnet einen datetime2-Wert einem originbezogenen Zeit-Bucket zu.",
+    "examples": [
+      "SELECT * FROM toolbelt_datetime.TVF_DateBucketDateTime2('day', 7, CONVERT(datetime2(7),'2024-07-19T14:35:42'), CONVERT(datetime2(7),'2024-01-01'));"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@DatePart": "Unterstützte Zeiteinheit gemäß Objektvertrag; Beispiele verwenden day.",
+      "@Width": "Positive ganzzahlige Bucketbreite.",
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@Origin": "Zeitlicher Referenzpunkt für die Bucket-Grenzen."
+    }
+  },
+  "toolbelt_datetime.TVF_DateBucketDateTimeOffset": {
+    "summary": "Ordnet einen datetimeoffset-Wert einem originbezogenen Zeit-Bucket zu.",
+    "examples": [
+      "SELECT * FROM toolbelt_datetime.TVF_DateBucketDateTimeOffset('day', 7, CONVERT(datetimeoffset(7),'2024-07-19T14:35:42+02:00'), CONVERT(datetimeoffset(7),'2024-01-01'));"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@DatePart": "Unterstützte Zeiteinheit gemäß Objektvertrag; Beispiele verwenden day.",
+      "@Width": "Positive ganzzahlige Bucketbreite.",
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@Origin": "Zeitlicher Referenzpunkt für die Bucket-Grenzen."
+    }
+  },
+  "toolbelt_datetime.TVF_CalendarDifference": {
+    "summary": "Zerlegt ein Datumsintervall nach der Anniversary-Regel in Kalenderjahre, Monate und Tage.",
+    "examples": [
+      "SELECT * FROM toolbelt_datetime.TVF_CalendarDifference(CONVERT(date,'2024-01-31'), CONVERT(date,'2025-03-02'));"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@StartDate": "Startdatum des Intervalls.",
+      "@EndDate": "Enddatum des Intervalls."
+    }
+  },
+  "toolbelt_datetime.TVF_DateSpineDay": {
+    "summary": "Liefert alle Tage, die einen halboffenen Zeitraum schneiden.",
+    "examples": [
+      "SELECT * FROM toolbelt_datetime.TVF_DateSpineDay(CONVERT(date,'2024-01-15'), CONVERT(date,'2024-03-01'));"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@RangeStart": "Einschließliche untere Intervallgrenze.",
+      "@RangeEndExclusive": "Ausschließliche obere Intervallgrenze."
+    }
+  },
+  "toolbelt_datetime.TVF_DateSpineIsoWeek": {
+    "summary": "Liefert alle ISO-Wochen, die einen halboffenen Zeitraum schneiden.",
+    "examples": [
+      "SELECT * FROM toolbelt_datetime.TVF_DateSpineIsoWeek(CONVERT(date,'2024-01-15'), CONVERT(date,'2024-03-01'));"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@RangeStart": "Einschließliche untere Intervallgrenze.",
+      "@RangeEndExclusive": "Ausschließliche obere Intervallgrenze."
+    }
+  },
+  "toolbelt_datetime.TVF_DateSpineMonth": {
+    "summary": "Liefert alle Monate, die einen halboffenen Zeitraum schneiden.",
+    "examples": [
+      "SELECT * FROM toolbelt_datetime.TVF_DateSpineMonth(CONVERT(date,'2024-01-15'), CONVERT(date,'2024-03-01'));"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@RangeStart": "Einschließliche untere Intervallgrenze.",
+      "@RangeEndExclusive": "Ausschließliche obere Intervallgrenze."
+    }
+  },
+  "toolbelt_datetime.TVF_TruncateDate": {
+    "summary": "Kürzt einen date-Wert auf den Beginn der ausgewählten Kalenderperiode.",
+    "examples": [
+      "SELECT * FROM toolbelt_datetime.TVF_TruncateDate('day', CONVERT(date,'2024-07-19'));"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@DatePart": "Unterstützte Zeiteinheit gemäß Objektvertrag; Beispiele verwenden day.",
+      "@Value": "Eingabedatum im SQL-Typ date."
+    }
+  },
+  "toolbelt_datetime.TVF_TruncateDateTime2": {
+    "summary": "Kürzt einen datetime2-Wert auf den Beginn der gewählten Zeiteinheit.",
+    "examples": [
+      "SELECT * FROM toolbelt_datetime.TVF_TruncateDateTime2('day', CONVERT(datetime2(7),'2024-07-19T14:35:42'));"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@DatePart": "Unterstützte Zeiteinheit gemäß Objektvertrag; Beispiele verwenden day.",
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ."
+    }
+  },
+  "toolbelt_datetime.TVF_TruncateDateTimeOffset": {
+    "summary": "Kürzt einen datetimeoffset-Wert auf die gewählte Zeiteinheit und erhält den Offset.",
+    "examples": [
+      "SELECT * FROM toolbelt_datetime.TVF_TruncateDateTimeOffset('day', CONVERT(datetimeoffset(7),'2024-07-19T14:35:42+02:00'));"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@DatePart": "Unterstützte Zeiteinheit gemäß Objektvertrag; Beispiele verwenden day.",
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ."
+    }
+  },
+  "toolbelt_file.USP_LoadBinaryFile": {
+    "summary": "Liest eine Datei als varbinary(max) über OPENROWSET(BULK...). Der Pfad muss unter einem Eintrag der Root-Allowlist liegen.",
+    "examples": [
+      "-- Voraussetzung: passende Allowlist und eigene synthetische Datei.\nEXEC toolbelt_file.USP_LoadBinaryFile @FilePath=N'C:\\ExampleRoot\\sample.bin', @MaxBytes=1048576;"
+    ],
+    "requirements": [
+      "Vorhandene Datei unter einem konfigurierten Allowlist-Root und passende SQL-/Dateirechte."
+    ],
+    "parameter_notes": {
+      "@FilePath": "Absoluter Pfad zur Datei. UNC-Pfade sind erlaubt. Relative Pfade, ..-Segmente und Pfade außerhalb der Allowlist werden abgelehnt.",
+      "@MaxBytes": "Optionales Limit. Wenn die gelesene Datei mehr Bytes enthält, wird ein Validierungsfehler zurückgegeben, der Inhalt bleibt jedoch NULL.",
+      "@Debug": "Standardparameter des USP-Vertrags. Version 1 erzeugt keine Debug-Messages.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus und ignoriert alle anderen Parameter."
+    }
+  },
+  "toolbelt_file.USP_LoadTextFile": {
+    "summary": "Liest eine Textdatei als nvarchar(max) über OPENROWSET(BULK...). Erkennt BOM und decodiert entsprechend; Inhalt ohne BOM wird mit @FallbackEncoding gelesen.",
+    "examples": [
+      "-- Voraussetzung: passende Allowlist und eigene synthetische Datei.\nEXEC toolbelt_file.USP_LoadTextFile @FilePath=N'C:\\ExampleRoot\\sample.txt', @MaxBytes=1048576;"
+    ],
+    "requirements": [
+      "Vorhandene Datei unter einem konfigurierten Allowlist-Root und passende SQL-/Dateirechte."
+    ],
+    "parameter_notes": {
+      "@FilePath": "Absoluter Pfad zur Datei. UNC-Pfade sind erlaubt. Relative Pfade, ..-Segmente und Pfade außerhalb der Allowlist werden abgelehnt.",
+      "@FallbackEncoding": "Codepage für Dateien ohne BOM. Unterstützt werden Windows-1252 und SQL_Latin1_General_CP1_CI_AS äquivalente 8-Bit-Codepages.",
+      "@MaxBytes": "Optionales Limit. Wenn die gelesene Datei mehr Bytes enthält, wird ein Validierungsfehler zurückgegeben, der Inhalt bleibt jedoch NULL.",
+      "@Debug": "Standardparameter des USP-Vertrags. Version 1 erzeugt keine Debug-Messages.",
+      "@Hilfe": "1 gibt ausschließlich dieses Help-Resultset aus und ignoriert alle anderen Parameter."
+    }
+  },
+  "toolbelt_file.TVF_FormatXlsxCell": {
+    "summary": "Formatiert eine XLSX-Einzelzelle mit den unterstützten Literalformaten und Kulturen.",
+    "examples": [
+      "SELECT * FROM toolbelt_file.TVF_FormatXlsxCell(N'n', 1, N'1.235', NULL, N'number', N'0.00', 0, N'de-DE');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@StoredType": "XLSX-Raw-Zelltyp, z. B. n, s, inlineStr, b, e oder d.",
+      "@ValuePresent": "Kennzeichnet, ob der XLSX-Rohwert tatsächlich vorhanden ist.",
+      "@RawValue": "Rohwert aus der XLSX-Raw-Reader-Ausgabe.",
+      "@TextValue": "Bereits aufgelöster XLSX-Textwert.",
+      "@TargetType": "Gewünschte XLSX-Interpretation, z. B. number, text oder date; siehe endlichen Vertrag.",
+      "@FormatCode": "Expliziter unterstützter XLSX-Literalformatcode; siehe endlichen Objektvertrag.",
+      "@Date1904": "0 = Excel-Datumssystem 1900; 1 = 1904.",
+      "@CultureName": "en-US, de-DE oder tr-TR."
+    }
+  },
+  "toolbelt_file.TVF_InterpretXlsxCell": {
+    "summary": "Interpretiert den zuvor gelesenen Rohwert einer XLSX-Zelle als begrenzten, typisierten Wert.",
+    "examples": [
+      "SELECT * FROM toolbelt_file.TVF_InterpretXlsxCell(N'n', 1, N'1.235', NULL, N'number', N'0.00', 0);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@StoredType": "XLSX-Raw-Zelltyp, z. B. n, s, inlineStr, b, e oder d.",
+      "@ValuePresent": "Kennzeichnet, ob der XLSX-Rohwert tatsächlich vorhanden ist.",
+      "@RawValue": "Rohwert aus der XLSX-Raw-Reader-Ausgabe.",
+      "@TextValue": "Bereits aufgelöster XLSX-Textwert.",
+      "@TargetType": "Gewünschte XLSX-Interpretation, z. B. number, text oder date; siehe endlichen Vertrag.",
+      "@FormatCode": "Expliziter unterstützter XLSX-Literalformatcode; siehe endlichen Objektvertrag.",
+      "@Date1904": "0 = Excel-Datumssystem 1900; 1 = 1904."
+    }
+  },
+  "toolbelt_file.USP_ListXlsxWorksheets": {
+    "summary": "Begrenzter SAFE Binary-XLSX-Reader; atomarer gewählter Snapshot, keine Datei-/Netzwerkzugriffe, Formelberechnung oder Typinferenz.",
+    "examples": [
+      "EXEC toolbelt_file.USP_ListXlsxWorksheets @Hilfe = 1;\n-- @SyntheticWorkbook stammt ausschließlich aus einem synthetischen Testfixture.\nEXEC toolbelt_file.USP_ListXlsxWorksheets @XlsxBinary = @SyntheticWorkbook;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@XlsxBinary": "NULL liefert keine Zeilen und verändert kein ResultTable.",
+      "@MaxArchiveBytes": "Containerbytes, höchstens 16 MiB.",
+      "@MaxPartBytes": "Unkomprimierte Bytes je Part, höchstens 16 MiB.",
+      "@MaxTotalUncompressedBytes": "Deklarierte Gesamtbytes, höchstens 64 MiB.",
+      "@MaxParts": "ZIP-Parts, höchstens 256.",
+      "@MaxSheets": "Worksheets, höchstens 32.",
+      "@MaxCells": "Vorhandene Zellen im gewählten Sheet, höchstens 100000.",
+      "@MaxSharedStrings": "Shared Strings, höchstens 50000.",
+      "@MaxSharedStringBytes": "Dekodierter Shared-String-UTF16-Text, höchstens 8 MiB.",
+      "@MaxXmlDepth": "XML-Tiefe, höchstens 64.",
+      "@MaxCompressionRatio": "Maximales deklarierter Ratio, höchstens 200.",
+      "@BudgetMilliseconds": "Kooperatives Gesamtbudget, höchstens 5000 ms; keine harte Wallclockzusage.",
+      "@ResultTable": "Vorhandene caller-lokale Temp-Tabelle, sonst SELECT.",
+      "@KeepData": "Replace 0 oder Append 1; NULL entspricht 0.",
+      "@Debug": "Nur Messages ohne Workbookinhalte.",
+      "@Hilfe": "Ausschließlich standardisierte Hilfe."
+    }
+  },
+  "toolbelt_file.USP_ReadXlsxWorksheetCells": {
+    "summary": "Begrenzter SAFE Binary-XLSX-Reader; atomarer gewählter Snapshot, keine Datei-/Netzwerkzugriffe, Formelberechnung oder Typinferenz.",
+    "examples": [
+      "EXEC toolbelt_file.USP_ReadXlsxWorksheetCells @Hilfe = 1;\n-- @SyntheticWorkbook stammt ausschließlich aus einem synthetischen Testfixture.\nEXEC toolbelt_file.USP_ReadXlsxWorksheetCells @XlsxBinary = @SyntheticWorkbook, @SheetOrdinal = 1;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@XlsxBinary": "NULL liefert keine Zeilen und verändert kein ResultTable.",
+      "@SheetOrdinal": "Positive Worksheetposition aus ListXlsxWorksheets.",
+      "@MaxArchiveBytes": "Containerbytes, höchstens 16 MiB.",
+      "@MaxPartBytes": "Unkomprimierte Bytes je Part, höchstens 16 MiB.",
+      "@MaxTotalUncompressedBytes": "Deklarierte Gesamtbytes, höchstens 64 MiB.",
+      "@MaxParts": "ZIP-Parts, höchstens 256.",
+      "@MaxSheets": "Worksheets, höchstens 32.",
+      "@MaxCells": "Vorhandene Zellen im gewählten Sheet, höchstens 100000.",
+      "@MaxSharedStrings": "Shared Strings, höchstens 50000.",
+      "@MaxSharedStringBytes": "Dekodierter Shared-String-UTF16-Text, höchstens 8 MiB.",
+      "@MaxXmlDepth": "XML-Tiefe, höchstens 64.",
+      "@MaxCompressionRatio": "Maximales deklarierter Ratio, höchstens 200.",
+      "@BudgetMilliseconds": "Kooperatives Gesamtbudget, höchstens 5000 ms; keine harte Wallclockzusage.",
+      "@ResultTable": "Vorhandene caller-lokale Temp-Tabelle, sonst SELECT.",
+      "@KeepData": "Replace 0 oder Append 1; NULL entspricht 0.",
+      "@Debug": "Nur Messages ohne Workbookinhalte.",
+      "@Hilfe": "Ausschließlich standardisierte Hilfe."
+    }
+  },
+  "toolbelt_filesystem.USP_CreateDirectory": {
+    "summary": "Erstellt ein Verzeichnis unter einem freigegebenen Root.",
+    "examples": [
+      "-- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.\n-- Caller erfordert Windows Authentication; bei SQL-Authentifizierung\n-- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.\nEXEC toolbelt_filesystem.USP_CreateDirectory\n @RootAlias=N'ExampleRoot', @RelativePath=N'example-dir', @ExecutionIdentity=N'Caller';"
+    ],
+    "requirements": [
+      "Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte."
+    ],
+    "parameter_notes": {
+      "@RootAlias": "Betreiberseitig konfigurierter Root-Alias; keine beliebigen Pfade.",
+      "@RelativePath": "Relativer Pfad im Root-Alias; keine Traversierung.",
+      "@ExecutionIdentity": "Caller (Default) impersoniert den Windows-authentifizierten SQL-Caller; ServiceAccount verwendet das SQL-Server-Dienstkonto. Caller wird bei SQL Authentication abgelehnt.",
+      "@ResultTable": "Optionale vorhandene lokale Temp-Tabelle für das fachliche Resultset.",
+      "@KeepData": "Gilt ausschließlich mit @ResultTable.",
+      "@Debug": "Steuert Debug-Messages; es wird kein zusätzliches Resultset erzeugt.",
+      "@Hilfe": "1 liefert ausschließlich dieses Help-Resultset."
+    }
+  },
+  "toolbelt_filesystem.USP_ListDirectory": {
+    "summary": "Listet Verzeichniseinträge unter einem freigegebenen Root mit harten Grenzen.",
+    "examples": [
+      "-- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.\n-- Caller erfordert Windows Authentication; bei SQL-Authentifizierung\n-- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.\nEXEC toolbelt_filesystem.USP_ListDirectory\n @RootAlias=N'ExampleRoot', @RelativePath=N'', @Recursive=0, @MaxEntries=100, @ExecutionIdentity=N'Caller';"
+    ],
+    "requirements": [
+      "Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte."
+    ],
+    "parameter_notes": {
+      "@RootAlias": "Betreiberseitig konfigurierter Root-Alias; keine beliebigen Pfade.",
+      "@RelativePath": "Relativer Pfad im Root-Alias; keine Traversierung.",
+      "@Recursive": "1 arbeitet rekursiv, 0 nur im gewählten Verzeichnis.",
+      "@MaxDepth": "Maximale rekursive Verzeichnistiefe.",
+      "@MaxEntries": "Maximale Anzahl zu bearbeitender Einträge.",
+      "@ExecutionIdentity": "Caller (Default) impersoniert den Windows-authentifizierten SQL-Caller; ServiceAccount verwendet das SQL-Server-Dienstkonto. Caller wird bei SQL Authentication abgelehnt.",
+      "@ResultTable": "Optionale vorhandene lokale Temp-Tabelle für das fachliche Resultset.",
+      "@KeepData": "Gilt ausschließlich mit @ResultTable.",
+      "@Debug": "Steuert Debug-Messages; es wird kein zusätzliches Resultset erzeugt.",
+      "@Hilfe": "1 liefert ausschließlich dieses Help-Resultset."
+    }
+  },
+  "toolbelt_filesystem.USP_ReadBinaryFileChunk": {
+    "summary": "Liest einen begrenzten Binär-Chunk aus einer per RootAlias freigegebenen Datei.",
+    "examples": [
+      "-- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.\n-- Caller erfordert Windows Authentication; bei SQL-Authentifizierung\n-- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.\nEXEC toolbelt_filesystem.USP_ReadBinaryFileChunk\n @RootAlias=N'ExampleRoot', @RelativePath=N'example.bin', @ByteOffset=0, @MaxBytes=1024, @ExecutionIdentity=N'Caller';"
+    ],
+    "requirements": [
+      "Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte."
+    ],
+    "parameter_notes": {
+      "@RootAlias": "Betreiberseitig konfigurierter Root-Alias; keine beliebigen Pfade.",
+      "@RelativePath": "Relativer Pfad im Root-Alias; keine Traversierung.",
+      "@ByteOffset": "Byteoffset für den zu lesenden Chunk.",
+      "@MaxBytes": "Maximale Bytes des einzelnen Leseaufrufs.",
+      "@ExecutionIdentity": "Caller (Default) impersoniert den Windows-authentifizierten SQL-Caller; ServiceAccount verwendet das SQL-Server-Dienstkonto. Caller wird bei SQL Authentication abgelehnt.",
+      "@ResultTable": "Optionale vorhandene lokale Temp-Tabelle für das fachliche Resultset.",
+      "@KeepData": "Gilt ausschließlich mit @ResultTable.",
+      "@Debug": "Steuert Debug-Messages; es wird kein zusätzliches Resultset erzeugt.",
+      "@Hilfe": "1 liefert ausschließlich dieses Help-Resultset."
+    }
+  },
+  "toolbelt_filesystem.USP_ReadTextFileChunk": {
+    "summary": "Liest einen begrenzten Text-Chunk mit expliziter Codepage und liefert die nächste Byte-Position.",
+    "examples": [
+      "-- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.\n-- Caller erfordert Windows Authentication; bei SQL-Authentifizierung\n-- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.\nEXEC toolbelt_filesystem.USP_ReadTextFileChunk\n @RootAlias=N'ExampleRoot', @RelativePath=N'example.txt', @ByteOffset=0, @MaxBytes=1024, @EncodingName=N'utf-8', @ExecutionIdentity=N'Caller';"
+    ],
+    "requirements": [
+      "Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte."
+    ],
+    "parameter_notes": {
+      "@RootAlias": "Betreiberseitig konfigurierter Root-Alias; keine beliebigen Pfade.",
+      "@RelativePath": "Relativer Pfad im Root-Alias; keine Traversierung.",
+      "@ByteOffset": "Byteoffset für den zu lesenden Chunk.",
+      "@MaxBytes": "Maximale Bytes des einzelnen Leseaufrufs.",
+      "@EncodingName": "Encoding gemäß Providervertrag, z. B. utf-8.",
+      "@ExecutionIdentity": "Caller (Default) impersoniert den Windows-authentifizierten SQL-Caller; ServiceAccount verwendet das SQL-Server-Dienstkonto. Caller wird bei SQL Authentication abgelehnt.",
+      "@ResultTable": "Optionale vorhandene lokale Temp-Tabelle für das fachliche Resultset.",
+      "@KeepData": "Gilt ausschließlich mit @ResultTable.",
+      "@Debug": "Steuert Debug-Messages; es wird kein zusätzliches Resultset erzeugt.",
+      "@Hilfe": "1 liefert ausschließlich dieses Help-Resultset."
+    }
+  },
+  "toolbelt_filesystem.USP_RemoveDirectory": {
+    "summary": "Entfernt ein Verzeichnis; rekursives Entfernen ist explizit und begrenzt.",
+    "examples": [
+      "-- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.\n-- Caller erfordert Windows Authentication; bei SQL-Authentifizierung\n-- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.\nEXEC toolbelt_filesystem.USP_RemoveDirectory\n @RootAlias=N'ExampleRoot', @RelativePath=N'own-example-dir', @Recursive=0, @ExecutionIdentity=N'Caller';"
+    ],
+    "requirements": [
+      "Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte."
+    ],
+    "parameter_notes": {
+      "@RootAlias": "Betreiberseitig konfigurierter Root-Alias; keine beliebigen Pfade.",
+      "@RelativePath": "Relativer Pfad im Root-Alias; keine Traversierung.",
+      "@Recursive": "1 arbeitet rekursiv, 0 nur im gewählten Verzeichnis.",
+      "@MaxDepth": "Maximale rekursive Verzeichnistiefe.",
+      "@MaxEntries": "Maximale Anzahl zu bearbeitender Einträge.",
+      "@ExecutionIdentity": "Caller (Default) impersoniert den Windows-authentifizierten SQL-Caller; ServiceAccount verwendet das SQL-Server-Dienstkonto. Caller wird bei SQL Authentication abgelehnt.",
+      "@ResultTable": "Optionale vorhandene lokale Temp-Tabelle für das fachliche Resultset.",
+      "@KeepData": "Gilt ausschließlich mit @ResultTable.",
+      "@Debug": "Steuert Debug-Messages; es wird kein zusätzliches Resultset erzeugt.",
+      "@Hilfe": "1 liefert ausschließlich dieses Help-Resultset."
+    }
+  },
+  "toolbelt_filesystem.USP_RemoveFile": {
+    "summary": "Entfernt eine Datei unter einem freigegebenen Root.",
+    "examples": [
+      "-- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.\n-- Caller erfordert Windows Authentication; bei SQL-Authentifizierung\n-- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.\nEXEC toolbelt_filesystem.USP_RemoveFile\n @RootAlias=N'ExampleRoot', @RelativePath=N'own-example.bin', @ExecutionIdentity=N'Caller';"
+    ],
+    "requirements": [
+      "Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte."
+    ],
+    "parameter_notes": {
+      "@RootAlias": "Betreiberseitig konfigurierter Root-Alias; keine beliebigen Pfade.",
+      "@RelativePath": "Relativer Pfad im Root-Alias; keine Traversierung.",
+      "@ExecutionIdentity": "Caller (Default) impersoniert den Windows-authentifizierten SQL-Caller; ServiceAccount verwendet das SQL-Server-Dienstkonto. Caller wird bei SQL Authentication abgelehnt.",
+      "@ResultTable": "Optionale vorhandene lokale Temp-Tabelle für das fachliche Resultset.",
+      "@KeepData": "Gilt ausschließlich mit @ResultTable.",
+      "@Debug": "Steuert Debug-Messages; es wird kein zusätzliches Resultset erzeugt.",
+      "@Hilfe": "1 liefert ausschließlich dieses Help-Resultset."
+    }
+  },
+  "toolbelt_filesystem.USP_TranscodeTextFile": {
+    "summary": "Konvertiert eine Textdatei gestreamt zwischen zwei expliziten Codepages.",
+    "examples": [
+      "-- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.\n-- Caller erfordert Windows Authentication; bei SQL-Authentifizierung\n-- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.\nEXEC toolbelt_filesystem.USP_TranscodeTextFile\n @SourceRootAlias=N'ExampleRoot', @SourceRelativePath=N'input.txt', @SourceEncodingName=N'utf-8', @TargetRootAlias=N'ExampleRoot', @TargetRelativePath=N'output.txt', @TargetEncodingName=N'utf-16', @Overwrite=0, @ExecutionIdentity=N'Caller';"
+    ],
+    "requirements": [
+      "Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte."
+    ],
+    "parameter_notes": {
+      "@SourceRootAlias": "Konfigurierter Root-Alias der Quelldatei.",
+      "@SourceRelativePath": "Relativer Pfad der Quelldatei.",
+      "@SourceEncodingName": "Encoding der Quelldatei.",
+      "@TargetRootAlias": "Konfigurierter Root-Alias der Zieldatei.",
+      "@TargetRelativePath": "Relativer Pfad der Zieldatei.",
+      "@TargetEncodingName": "Encoding der Zieldatei.",
+      "@WriteBom": "1 schreibt einen BOM soweit das Encoding dies vorsieht; 0 unterdrückt ihn.",
+      "@Overwrite": "0 verweigert Überschreiben vorhandener Dateien; 1 erlaubt es.",
+      "@ExecutionIdentity": "Caller (Default) impersoniert den Windows-authentifizierten SQL-Caller; ServiceAccount verwendet das SQL-Server-Dienstkonto. Caller wird bei SQL Authentication abgelehnt.",
+      "@ResultTable": "Optionale vorhandene lokale Temp-Tabelle für das fachliche Resultset.",
+      "@KeepData": "Gilt ausschließlich mit @ResultTable.",
+      "@Debug": "Steuert Debug-Messages; es wird kein zusätzliches Resultset erzeugt.",
+      "@Hilfe": "1 liefert ausschließlich dieses Help-Resultset."
+    }
+  },
+  "toolbelt_filesystem.USP_WriteBinaryFile": {
+    "summary": "Schreibt Binärdaten gestreamt in eine atomar veröffentlichte Zieldatei.",
+    "examples": [
+      "-- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.\n-- Caller erfordert Windows Authentication; bei SQL-Authentifizierung\n-- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.\nEXEC toolbelt_filesystem.USP_WriteBinaryFile\n @RootAlias=N'ExampleRoot', @RelativePath=N'example.bin', @Content=0x4869, @Overwrite=0, @ExecutionIdentity=N'Caller';"
+    ],
+    "requirements": [
+      "Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte."
+    ],
+    "parameter_notes": {
+      "@RootAlias": "Betreiberseitig konfigurierter Root-Alias; keine beliebigen Pfade.",
+      "@RelativePath": "Relativer Pfad im Root-Alias; keine Traversierung.",
+      "@Content": "Zu schreibender Binary- oder Textinhalt.",
+      "@Overwrite": "0 verweigert Überschreiben vorhandener Dateien; 1 erlaubt es.",
+      "@ExecutionIdentity": "Caller (Default) impersoniert den Windows-authentifizierten SQL-Caller; ServiceAccount verwendet das SQL-Server-Dienstkonto. Caller wird bei SQL Authentication abgelehnt.",
+      "@ResultTable": "Optionale vorhandene lokale Temp-Tabelle für das fachliche Resultset.",
+      "@KeepData": "Gilt ausschließlich mit @ResultTable.",
+      "@Debug": "Steuert Debug-Messages; es wird kein zusätzliches Resultset erzeugt.",
+      "@Hilfe": "1 liefert ausschließlich dieses Help-Resultset."
+    }
+  },
+  "toolbelt_filesystem.USP_WriteTextFile": {
+    "summary": "Schreibt Text gestreamt mit expliziter Codepage und optionalem BOM.",
+    "examples": [
+      "-- Voraussetzung: bewusst konfigurierter ExampleRoot und NTFS-Rechte.\n-- Caller erfordert Windows Authentication; bei SQL-Authentifizierung\n-- ServiceAccount nur bewusst und mit passenden Dienstkonto-Rechten wählen.\nEXEC toolbelt_filesystem.USP_WriteTextFile\n @RootAlias=N'ExampleRoot', @RelativePath=N'example.txt', @Content=N'Contoso', @EncodingName=N'utf-8', @WriteBom=0, @Overwrite=0, @ExecutionIdentity=N'Caller';"
+    ],
+    "requirements": [
+      "Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte."
+    ],
+    "parameter_notes": {
+      "@RootAlias": "Betreiberseitig konfigurierter Root-Alias; keine beliebigen Pfade.",
+      "@RelativePath": "Relativer Pfad im Root-Alias; keine Traversierung.",
+      "@Content": "Zu schreibender Binary- oder Textinhalt.",
+      "@EncodingName": "Encoding gemäß Providervertrag, z. B. utf-8.",
+      "@WriteBom": "1 schreibt einen BOM soweit das Encoding dies vorsieht; 0 unterdrückt ihn.",
+      "@Overwrite": "0 verweigert Überschreiben vorhandener Dateien; 1 erlaubt es.",
+      "@ExecutionIdentity": "Caller (Default) impersoniert den Windows-authentifizierten SQL-Caller; ServiceAccount verwendet das SQL-Server-Dienstkonto. Caller wird bei SQL Authentication abgelehnt.",
+      "@ResultTable": "Optionale vorhandene lokale Temp-Tabelle für das fachliche Resultset.",
+      "@KeepData": "Gilt ausschließlich mit @ResultTable.",
+      "@Debug": "Steuert Debug-Messages; es wird kein zusätzliches Resultset erzeugt.",
+      "@Hilfe": "1 liefert ausschließlich dieses Help-Resultset."
+    }
+  },
+  "toolbelt_json.AGF_JsonArray": {
+    "summary": "Aggregiert typisierte JSON-Einträge in Ordinal-Reihenfolge zu einem JSON-Array.",
+    "examples": [
+      "DECLARE @Entries TABLE(Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max),Profile tinyint);\nINSERT @Entries VALUES(2,N'number',N'2',1),(1,N'string',N'Contoso',1);\nSELECT toolbelt_json.AGF_JsonArray(Ordinal,ValueKind,[Value],Profile) AS JsonValue FROM @Entries;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Ordinal": "Positives, innerhalb der Gruppe eindeutiges int-Ordinal.",
+      "@ValueKind": "string, number, boolean, null, array oder object.",
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@Profile": "JSON-Aggregate: 1 oder 2, innerhalb jeder Gruppe identisch."
+    }
+  },
+  "toolbelt_json.AGF_JsonObject": {
+    "summary": "Aggregiert typisierte Einträge mit eindeutigen Schlüsseln zu einem JSON-Objekt.",
+    "examples": [
+      "DECLARE @Entries TABLE(Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max),Profile tinyint);\nINSERT @Entries VALUES(1,N'name',N'string',N'Contoso',1),(2,N'count',N'number',N'2',1);\nSELECT toolbelt_json.AGF_JsonObject(Ordinal,[Key],ValueKind,[Value],Profile) AS JsonValue FROM @Entries;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Ordinal": "Positives, innerhalb der Gruppe eindeutiges int-Ordinal.",
+      "@Key": "JSON-Objektschlüssel, je Gruppe eindeutige längensensitive UTF-16-Identität.",
+      "@ValueKind": "string, number, boolean, null, array oder object.",
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@Profile": "JSON-Aggregate: 1 oder 2, innerhalb jeder Gruppe identisch."
+    }
+  },
+  "toolbelt_json.USP_JsonArray": {
+    "summary": "JSON-Array aus Ordinal/ValueKind/Value; vollständig validiert und atomar geroutet.",
+    "examples": [
+      "CREATE TABLE #Entries(Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));\nINSERT #Entries VALUES(1,N'string',N'Contoso'),(2,N'number',N'42');\nEXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#Entries';\nDROP TABLE #Entries;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@EntriesTable": "Bestehende caller-lokale #Temp, exakte erforderliche Typen, zusätzliche Spalten ignoriert.",
+      "@MaxEntries": "Positive Grenze bis 100000; Ordinals positiv/eindeutig, Lücken erlaubt.",
+      "@MaxTotalValueBytes": "Summe DATALENGTH(Value), SQL-NULL zählt 0; höchstens 16777216.",
+      "@MaxResultBytes": "Exakte UTF-16-Ergebnisbytes einschließlich Escapes/Keys/Syntax; höchstens 16777216.",
+      "@ResultTable": "NULL: SELECT; sonst bestehende lokale Temp-Tabelle, nicht Eingabeobjekt.",
+      "@KeepData": "Replace=0, Append=1; NULL entspricht 0.",
+      "@Debug": "Nur Messages ohne Payloadinhalte; NULL entspricht 0.",
+      "@Hilfe": "Help zuerst; ignoriert sämtliche anderen Parameter ohne Seiteneffekte."
+    }
+  },
+  "toolbelt_json.USP_JsonArraysByGroup": {
+    "summary": "JSON-Array aus GroupOrdinal/Ordinal/ValueKind/Value; vollständig validiert und atomar geroutet.",
+    "examples": [
+      "CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));\nINSERT #Entries VALUES(1,1,N'string',N'Contoso'),(2,1,N'number',N'42');\nEXEC toolbelt_json.USP_JsonArraysByGroup @EntriesTable=N'#Entries';\nDROP TABLE #Entries;",
+      "CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));\nINSERT #Entries VALUES(1,1,N'string',N'Contoso'),(2,1,N'number',N'42');\nEXEC toolbelt_json.USP_JsonArraysByGroup\n @EntriesTable = N'#Entries', @MaxEntries = 10000,\n @MaxTotalValueBytes = 2097152, @MaxResultBytes = 2097152,\n @ResultTable = NULL, @KeepData = 0, @Debug = 0, @Hilfe = 0;\nDROP TABLE #Entries;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@EntriesTable": "Bestehende caller-lokale #Temp, exakte erforderliche Typen, zusätzliche Spalten ignoriert.",
+      "@MaxEntries": "Positive Grenze bis 100000; GroupOrdinal positiv; (GroupOrdinal,Ordinal) eindeutig; globale Grenze.",
+      "@MaxTotalValueBytes": "Summe DATALENGTH(Value), SQL-NULL zählt 0; höchstens 16777216.",
+      "@MaxResultBytes": "Exakte UTF-16-Ergebnisbytes einschließlich Escapes/Keys/Syntax; höchstens 16777216.",
+      "@ResultTable": "NULL: SELECT; sonst bestehende lokale Temp-Tabelle, nicht Eingabeobjekt.",
+      "@KeepData": "Replace=0, Append=1; NULL entspricht 0.",
+      "@Debug": "Nur Messages ohne Payloadinhalte; NULL entspricht 0.",
+      "@Hilfe": "Help zuerst; ignoriert sämtliche anderen Parameter ohne Seiteneffekte."
+    }
+  },
+  "toolbelt_json.USP_JsonObject": {
+    "summary": "JSON-Object aus Ordinal/ValueKind/Value/Key; vollständig validiert und atomar geroutet.",
+    "examples": [
+      "CREATE TABLE #Entries(Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));\nINSERT #Entries VALUES(1,N'name',N'string',N'Contoso'),(2,N'count',N'number',N'42');\nEXEC toolbelt_json.USP_JsonObject @EntriesTable=N'#Entries';\nDROP TABLE #Entries;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@EntriesTable": "Bestehende caller-lokale #Temp, exakte erforderliche Typen, zusätzliche Spalten ignoriert.",
+      "@MaxEntries": "Positive Grenze bis 100000; Ordinals positiv/eindeutig, Lücken erlaubt.",
+      "@MaxTotalValueBytes": "Summe DATALENGTH(Value), SQL-NULL zählt 0; höchstens 16777216.",
+      "@MaxResultBytes": "Exakte UTF-16-Ergebnisbytes einschließlich Escapes/Keys/Syntax; höchstens 16777216.",
+      "@ResultTable": "NULL: SELECT; sonst bestehende lokale Temp-Tabelle, nicht Eingabeobjekt.",
+      "@KeepData": "Replace=0, Append=1; NULL entspricht 0.",
+      "@Debug": "Nur Messages ohne Payloadinhalte; NULL entspricht 0.",
+      "@Hilfe": "Help zuerst; ignoriert sämtliche anderen Parameter ohne Seiteneffekte."
+    }
+  },
+  "toolbelt_json.USP_JsonObjectsByGroup": {
+    "summary": "JSON-Object aus GroupOrdinal/Ordinal/ValueKind/Value/Key; vollständig validiert und atomar geroutet.",
+    "examples": [
+      "CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));\nINSERT #Entries VALUES(1,1,N'name',N'string',N'Contoso'),(2,1,N'count',N'number',N'42');\nEXEC toolbelt_json.USP_JsonObjectsByGroup @EntriesTable=N'#Entries';\nDROP TABLE #Entries;",
+      "CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));\nINSERT #Entries VALUES(1,1,N'name',N'string',N'Contoso'),(2,1,N'count',N'number',N'42');\nEXEC toolbelt_json.USP_JsonObjectsByGroup\n @EntriesTable = N'#Entries', @MaxEntries = 10000,\n @MaxTotalValueBytes = 2097152, @MaxResultBytes = 2097152,\n @ResultTable = NULL, @KeepData = 0, @Debug = 0, @Hilfe = 0;\nDROP TABLE #Entries;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@EntriesTable": "Bestehende caller-lokale #Temp, exakte erforderliche Typen, zusätzliche Spalten ignoriert.",
+      "@MaxEntries": "Positive Grenze bis 100000; GroupOrdinal positiv; (GroupOrdinal,Ordinal) eindeutig; globale Grenze.",
+      "@MaxTotalValueBytes": "Summe DATALENGTH(Value), SQL-NULL zählt 0; höchstens 16777216.",
+      "@MaxResultBytes": "Exakte UTF-16-Ergebnisbytes einschließlich Escapes/Keys/Syntax; höchstens 16777216.",
+      "@ResultTable": "NULL: SELECT; sonst bestehende lokale Temp-Tabelle, nicht Eingabeobjekt.",
+      "@KeepData": "Replace=0, Append=1; NULL entspricht 0.",
+      "@Debug": "Nur Messages ohne Payloadinhalte; NULL entspricht 0.",
+      "@Hilfe": "Help zuerst; ignoriert sämtliche anderen Parameter ohne Seiteneffekte."
+    }
+  },
+  "toolbelt_json.TVF_JsonPathExists": {
+    "summary": "Prüft, ob ein unterstützter Pfad in einem JSON-Dokument existiert.",
+    "examples": [
+      "SELECT * FROM toolbelt_json.TVF_JsonPathExists(N'{\"items\":[1,2]}', N'$.items[0]');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Json": "Zu prüfendes JSON-Dokument; SQL-NULL in Json oder Path liefert PathExists=NULL, ungültiges JSON liefert0.",
+      "@Path": "Begrenzter JSON-Pfad mit $, Schlüsseln, nullbasierten Array-Indizes oder Wildcards; maximal4000 UTF-16-Codeeinheiten. Keine Ranges, Indexlisten oder last."
+    }
+  },
+  "toolbelt_metadata.VW_ModuleCapabilities": {
+    "summary": "Zeigt installierte Modulversionen und Deployment-Modi und kennzeichnet unvollständige oder ungültige Modulmarker.",
+    "examples": [
+      "SELECT ModuleId, ModuleVersion, DeploymentMode, MetadataStatus\nFROM toolbelt_metadata.VW_ModuleCapabilities\nORDER BY ModuleId;"
+    ],
+    "requirements": [],
+    "parameter_notes": {}
+  },
+  "toolbelt_metadata.SVF_QuoteMultipartName": {
+    "summary": "Validiert einen mehrteiligen SQL-Namen und quotiert seine Komponenten.",
+    "examples": [
+      "SELECT toolbelt_metadata.SVF_QuoteMultipartName(N'dbo.[Order Items]') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@MultipartName": "Ein- bis vierteiliger SQL-Name mit unterstützter Quote-Syntax."
+    }
+  },
+  "toolbelt_metadata.TVF_ParseMultipartName": {
+    "summary": "Zerlegt und validiert ein- bis vierteilige SQL-Identifier.",
+    "examples": [
+      "SELECT * FROM toolbelt_metadata.TVF_ParseMultipartName(N'dbo.[Order Items]');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@MultipartName": "Ein- bis vierteiliger SQL-Name mit unterstützter Quote-Syntax."
+    }
+  },
+  "toolbelt_metadata.USP_CopyTableCloneData": {
+    "summary": "Kopiert einen begrenzten SameDB-Tabellenverbund atomar in bereits vorhandene leere formgleiche Ziele; keine Strukturkopie oder Rechtevergabe.",
+    "examples": [
+      "CREATE TABLE #CopyMap\n(\n MapOrdinal int NOT NULL,\n SourceSchema nvarchar(max) NOT NULL, SourceTable nvarchar(max) NOT NULL,\n TargetSchema nvarchar(max) NOT NULL, TargetTable nvarchar(max) NOT NULL\n);\n-- Eigene synthetische Tabellen bestehen bereits; SyntheticClone ist leer und formgleich.\nINSERT #CopyMap VALUES (1,N'dbo',N'SyntheticSource',N'dbo',N'SyntheticClone');\nEXEC toolbelt_metadata.USP_CopyTableCloneData\n @TableMap=N'#CopyMap', @IdentityMode='KEEP', @ConsistencyMode='SERIALIZABLE';\nDROP TABLE #CopyMap;"
+    ],
+    "requirements": [
+      "Vorhandene reguläre SameDB-Quellen und leere formgleiche Ziele, keine aktive Callertransaktion. SERIALIZABLE hält Quellsperren; SNAPSHOT benötigt eine bereits aktivierte Datenbankoption.",
+      "Vorhandene DB-Metadatensicht und Source-/Target-Rechte; fehlende FKs verlangen zusätzlich Server-DDL-Sicht und DDL-Rechte. KEEP benötigt vorhandenes Identity-ALTER. Aktive Targettrigger, RLS und nicht tabellenlokale Ausführung blockieren.",
+      "Verändert Zielinhalte und kann fehlende gemappte FKs erzeugen. Identity-Zähler können trotz Rollback fortgeschritten bleiben; kein RESEED oder Identitätszuordnungsversprechen."
+    ],
+    "parameter_notes": {
+      "@TableMap": "Fachlich erforderliche bestehende lokale fünfspaltige Map: 1..64 positive eindeutige MapOrdinals und vier nvarchar(max) NOT NULL-Identifier.",
+      "@IdentityMode": "Fachlich erforderlich, byteexakt KEEP oder REGENERATE; REGENERATE bei identityabhängigen Beziehungen ausgeschlossen.",
+      "@ConsistencyMode": "Fachlich erforderlich, byteexakt SNAPSHOT oder SERIALIZABLE; keine automatische Konfiguration.",
+      "@RowLimit": "Positives globales Zeilenbudget, höchstens 100000; nur absenkbar.",
+      "@PayloadByteLimit": "Positives globales DATALENGTH-Budget der transportierten SQL-Werte, höchstens 16777216 Bytes; nur absenkbar. NULL zählt0.",
+      "@ResultTable": "NULL liefert eine fünfspaltige Erfolgszeile; sonst bestehende lokale Ausgabe-Temp-Tabelle ohne fachliches SELECT.",
+      "@KeepData": "0 Replace, 1 Append; NULL entspricht0.",
+      "@Debug": "Nur Messages, keine Zusatzresultsets.",
+      "@Hilfe": "1 liefert ausschließlich Hilfe und umgeht fachliche Pflichtparameter."
+    }
+  },
+  "toolbelt_metadata.USP_ExecuteTableClone": {
+    "summary": "Erzeugt den V3-Plan neu und führt nur dessen hashgebundene DDL für neue same-database Ziele aus; keine Datenkopie.",
+    "examples": [
+      "-- Voraussetzung: eigene Quelltabelle und neues Ziel in vorhandenen Schemas.\n-- Den Vorschauplan mit identischen Optionen erzeugen und seinen Hash\n-- nach dem kanonischen Client-Framing berechnen; keine Konstante erfinden.\nDECLARE @CalculatedPlanHash varbinary(max)=NULL; -- berechneten 32-Byte-Hash einsetzen\nEXEC toolbelt_metadata.USP_ExecuteTableClone\n @SourceSchema=N'dbo', @SourceTable=N'SyntheticSource',\n @TargetSchema=N'dbo', @TargetTable=N'SyntheticClone',\n @ExpectedPlanHash=@CalculatedPlanHash, @ForeignKeyMode='CREATE';"
+    ],
+    "requirements": [
+      "Erzeugt neue Tabellen. @CalculatedPlanHash ist ein notwendiger Platzhalter für die externe kanonische Hashberechnung; der Beispielaufruf ist bis dahin nicht ausführbar."
+    ],
+    "parameter_notes": {
+      "@SourceSchema": "V3-Einzelquelle; im Mapmodus NULL.",
+      "@SourceTable": "V3-Einzelquelle; im Mapmodus NULL.",
+      "@TargetSchema": "Bestehendes Installationsdatenbankschema; im Mapmodus NULL.",
+      "@TargetTable": "Neuer Zielname; im Mapmodus NULL.",
+      "@IncludeIdentity": "Unveränderte V3-Identityoption.",
+      "@IncludeExtendedProperties": "Unveränderte V3-Propertyoption.",
+      "@TableMap": "NULL bewahrt Einzelmodus; sonst einmaliger Snapshot der fünfspaltigen V3-Map, 1..64 Zeilen.",
+      "@ExternalReferenceRule": "Byteexakt REJECT oder im Mapmodus KEEP.",
+      "@ExpectedPlanHash": "Exakt 32 Bytes des dokumentierten Hashlayouts v1, alle Planzeilen und Installationsdatenbank gebunden.",
+      "@ForeignKeyMode": "Byteexakt CREATE oder DEFER; DEFER lässt nur FOREIGN_KEY und FOREIGN_KEY_STATE aus, beide bleiben gehasht.",
+      "@ResultTable": "NULL liefert eine Erfolgszeile; sonst caller-lokale ResultTable.",
+      "@KeepData": "0 Replace, 1 Append; NULL entspricht0.",
+      "@Debug": "Nur Messages, keine Zusatzresultsets.",
+      "@Hilfe": "Help vor sämtlichen Fachprüfungen."
+    }
+  },
+  "toolbelt_metadata.USP_ScriptTableClone": {
+    "summary": "Vollständige DDL-Vorschau innerhalb des begrenzten unterstützten Strukturumfangs; niemals DDL-Ausführung oder Datenkopie. Unsupported führt zum Abbruch.",
+    "examples": [
+      "EXEC toolbelt_metadata.USP_ScriptTableClone @SourceSchema=N'dbo',@SourceTable=N'SyntheticSource',@TargetSchema=N'dbo',@TargetTable=N'SyntheticClone';",
+      "EXEC toolbelt_metadata.USP_ScriptTableClone @SourceSchema=N'dbo',@SourceTable=N'SyntheticSource',@TargetSchema=N'dbo',@TargetTable=N'SyntheticClone',@IncludeTriggers=1;"
+    ],
+    "requirements": [
+      "Vorhandene synthetische Quelltabelle und sichtbares Zielschema; Zielname darf noch nicht existieren. IncludeTriggers=1 verlangt Windows und den separat installierten Parser 2.0."
+    ],
+    "parameter_notes": {
+      "@SourceSchema": "Explizites Schema in Installationsdatenbank, 1-128 UTF-16-Codeeinheiten.",
+      "@SourceTable": "Explizite reguläre diskbasierte Tabelle; VIEW DEFINITION erforderlich.",
+      "@TargetSchema": "Bestehendes sichtbares Schema derselben Datenbank.",
+      "@TargetTable": "Noch nicht existierender Zielname; keine automatische Namenswahl.",
+      "@IncludeIdentity": "1 übernimmt Seed/Increment; 0 entfernt Identity-Eigenschaft ausdrücklich, niemals aktuellen Zähler.",
+      "@IncludeExtendedProperties": "1 plant unterstützte Properties typgetreu; 0 lehnt relevante Properties ab.",
+      "@TableMap": "NULL ist W1-Einzelmodus; sonst fünfspaltige lokale Map mit 1-64 eindeutigen positiven MapOrdinals und vier nvarchar(max) NOT NULL-Identifiern.",
+      "@ExternalReferenceRule": "Byteexakt REJECT oder KEEP; KEEP nur im Mapmodus für sichtbare externe Referenzziele.",
+      "@ResultTable": "NULL liefert SELECT; sonst bestehende caller-lokale Temp-Tabelle.",
+      "@KeepData": "0 Replace, 1 Append; NULL entspricht0.",
+      "@Debug": "Nur Messages; keine persistierte Quellmetadaten-Ausgabe.",
+      "@Hilfe": "1 umgeht sämtliche Prüfungen und Seiteneffekte.",
+      "@IncludeTriggers": "0: Trigger bleiben ein Abbruchgrund. 1: begrenzte DML-Trigger-Preview auf Windows mit separat installiertem Parser 2.0; manuelle Prüfung der DDL erforderlich."
+    }
+  },
+  "toolbelt_pseudonymization.TVF_DeterministicDateShift": {
+    "summary": "Verschiebt ein Datum deterministisch um eine begrenzte Anzahl Tage.",
+    "examples": [
+      "SELECT * FROM toolbelt_pseudonymization.TVF_DeterministicDateShift(CONVERT(datetime2(7),'2024-07-19T14:35:42'), 0x01020304, 1, 42, 7);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@Key": "Vom Caller kanonisierte Binärbytes; 1–8000 Byte für den Range-Kern.",
+      "@MappingVersion": "Positive int-Kontextversion der deterministischen Abbildung.",
+      "@Seed": "Nicht-NULL bigint-Seed; Default 0. Beispiel: 42.",
+      "@MaxDays": "Maximale absolute Datumsverschiebung in Tagen."
+    }
+  },
+  "toolbelt_pseudonymization.TVF_DeterministicGeoJitter": {
+    "summary": "Verschiebt einen synthetischen 2D-Geography-Point im SRID 4326 deterministisch innerhalb eines Radius.",
+    "examples": [
+      "SELECT * FROM toolbelt_pseudonymization.TVF_DeterministicGeoJitter(geography::Point(48.2,16.3,4326), 0x01020304, 1, 42, 25);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@Key": "Vom Caller kanonisierte Binärbytes; 1–8000 Byte für den Range-Kern.",
+      "@MappingVersion": "Positive int-Kontextversion der deterministischen Abbildung.",
+      "@Seed": "Nicht-NULL bigint-Seed; Default 0. Beispiel: 42.",
+      "@RadiusMeters": "Ganzzahlig 1–10000 Meter; nur synthetische 2D-Points/SRID 4326."
+    }
+  },
+  "toolbelt_pseudonymization.TVF_DeterministicRange": {
+    "summary": "Ordnet einen Schlüssel deterministisch einem ganzzahligen Zielbereich zu.",
+    "examples": [
+      "SELECT * FROM toolbelt_pseudonymization.TVF_DeterministicRange(0x01020304, 1, 42, 1, 100);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Key": "Vom Caller kanonisierte Binärbytes; 1–8000 Byte für den Range-Kern.",
+      "@MappingVersion": "Positive int-Kontextversion der deterministischen Abbildung.",
+      "@Seed": "Nicht-NULL bigint-Seed; Default 0. Beispiel: 42.",
+      "@Min": "Inklusive untere bigint-Bereichsgrenze.",
+      "@Max": "Inklusive obere bigint-Bereichsgrenze."
+    }
+  },
+  "toolbelt_pseudonymization.TVF_DeterministicTranslate": {
+    "summary": "Übersetzt ASCII-Buchstaben und Ziffern deterministisch über eine bijektive Abbildung.",
+    "examples": [
+      "SELECT * FROM toolbelt_pseudonymization.TVF_DeterministicTranslate(N'  Contoso-123  ', 1, 42, N'- ', N'standard');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@MappingVersion": "Positive int-Kontextversion der deterministischen Abbildung.",
+      "@Seed": "Nicht-NULL bigint-Seed; Default 0. Beispiel: 42.",
+      "@AllowedSeparators": "Separatorzeichen, die bei der Übersetzung unverändert bleiben.",
+      "@Profile": "standard oder large; genaue Limits stehen im Objektvertrag."
+    }
+  },
+  "toolbelt_pseudonymization.USP_DeterministicLookup": {
+    "summary": "Deterministischer synthetischer Lookup; explizite Poolversion, kein Anonymisierungs- oder Eins-zu-eins-Schutz.",
+    "examples": [
+      "CREATE TABLE #Input(Ordinal bigint, [Key] varbinary(max)); CREATE TABLE #Pool(Ordinal bigint, [Value] nvarchar(max)); INSERT #Input VALUES(10,0x010203); INSERT #Pool VALUES(20,N'synthetic'); EXEC toolbelt_pseudonymization.USP_DeterministicLookup @InputTable=N'#Input',@LookupTable=N'#Pool',@MappingVersion=1,@LookupVersion=1;\nDROP TABLE #Input, #Pool;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@InputTable": "Caller-lokale #Temp: Ordinal bigint, Key varbinary(max).",
+      "@LookupTable": "Caller-lokale #Temp: Ordinal bigint, Value nvarchar(max); Pool nach Ordinal.",
+      "@MappingVersion": "Positive Mapping-Kontextversion.",
+      "@Seed": "Öffentlicher Varianten-Seed, kein Secret.",
+      "@LookupVersion": "Positive, ausdrücklich gewählte Poolversion; bei Pooländerung ändern.",
+      "@MaxInputRows": "Positive Grenze bis 100000 Eingaben.",
+      "@MaxLookupRows": "Positive Grenze bis 100000 Poolzeilen.",
+      "@MaxLookupTextBytes": "Positive Gesamttextbytegrenze bis 16777216.",
+      "@MaxResultBytes": "Positive Gesamt-Ergebnistextbytegrenze bis 16777216.",
+      "@ResultTable": "NULL: genau ein SELECT; sonst vorhandene lokale ResultTable.",
+      "@KeepData": "0 Replace, 1 Append; NULL wie 0.",
+      "@Debug": "Nur Phasen-/Metadaten-Messages, keine Keys, Werte, Seeds oder Hashes.",
+      "@Hilfe": "Help zuerst, ohne fachliche Prüfung/Mutation/Messages."
+    }
+  },
+  "toolbelt_string.TVF_TrimDirectionalNvarchar": {
+    "summary": "Entfernt ausgewählte Zeichen links, rechts oder beidseitig aus einem Unicode-Text.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_TrimDirectionalNvarchar(N'  Contoso-123  ', N' ', 'BOTH');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@Characters": "Menge der zu entfernenden Zeichen.",
+      "@Direction": "LEADING, TRAILING oder BOTH."
+    }
+  },
+  "toolbelt_string.TVF_TrimDirectionalVarchar": {
+    "summary": "Entfernt ausgewählte Zeichen links, rechts oder beidseitig aus einem varchar-Text.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_TrimDirectionalVarchar('  Contoso  ', N' ', 'BOTH');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Value": "Zu verarbeitender Wert im ausgewiesenen SQL-Typ.",
+      "@Characters": "Menge der zu entfernenden Zeichen.",
+      "@Direction": "LEADING, TRAILING oder BOTH."
+    }
+  },
+  "toolbelt_string.TVF_JaroWinklerSimilarity": {
+    "summary": "Berechnet einen Jaro-Winkler-Ähnlichkeitsscore zwischen 0 und 1 über Unicode Scalars.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_JaroWinklerSimilarity(N'kitten', N'sitting', N'standard');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@LeftText": "Linker Unicode-Vergleichstext.",
+      "@RightText": "Rechter Unicode-Vergleichstext.",
+      "@Profile": "standard oder large; genaue Limits stehen im Objektvertrag."
+    }
+  },
+  "toolbelt_string.TVF_LevenshteinDistance": {
+    "summary": "Berechnet die begrenzte Levenshtein-Editierdistanz zweier Unicode-Texte.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_LevenshteinDistance(N'kitten', N'sitting', NULL, N'standard');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@LeftText": "Linker Unicode-Vergleichstext.",
+      "@RightText": "Rechter Unicode-Vergleichstext.",
+      "@MaxDistance": "NULL = ohne fachliche Distanzgrenze; sonst nichtnegative Maximaldistanz.",
+      "@Profile": "standard oder large; genaue Limits stehen im Objektvertrag."
+    }
+  },
+  "toolbelt_string.TVF_OsaDistance": {
+    "summary": "Berechnet die begrenzte Optimal-String-Alignment-Distanz mit benachbarten Transpositionen.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_OsaDistance(N'kitten', N'sitting', NULL, N'standard');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@LeftText": "Linker Unicode-Vergleichstext.",
+      "@RightText": "Rechter Unicode-Vergleichstext.",
+      "@MaxDistance": "NULL = ohne fachliche Distanzgrenze; sonst nichtnegative Maximaldistanz.",
+      "@Profile": "standard oder large; genaue Limits stehen im Objektvertrag."
+    }
+  },
+  "toolbelt_string.TVF_ColognePhonetic": {
+    "summary": "Berechnet den vollständigen begrenzten Kölner Phonetikcode.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_ColognePhonetic(N'Contoso');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Text": "Unicode-Text für die Phonetikberechnung."
+    }
+  },
+  "toolbelt_string.TVF_DoubleMetaphone": {
+    "summary": "Berechnet den primären und alternativen Double-Metaphone-Code.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_DoubleMetaphone(N'Contoso');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Text": "Unicode-Text für die Phonetikberechnung."
+    }
+  },
+  "toolbelt_string.SVF_RegexCount": {
+    "summary": "Zählt Regex-Treffer ab der angegebenen Startposition.",
+    "examples": [
+      "SELECT toolbelt_string.SVF_RegexCount(N'abc123 def456', N'[0-9]+', 1, N'c') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Input": "Zu bearbeitender Text; NULL-Verhalten gemäß Objektvertrag.",
+      "@Pattern": "Regulärer Ausdruck im begrenzten Toolbelt-Dialekt.",
+      "@Start": "Regex: positive 1-basierte UTF-16-Startposition. Serie: erster Wert.",
+      "@Flags": "Duplikatfreie Kombination aus c oder i sowie m und s; c/i schließen einander aus."
+    }
+  },
+  "toolbelt_string.SVF_RegexInstr": {
+    "summary": "Liefert eine UTF-16-Position eines ausgewählten Regex-Treffers.",
+    "examples": [
+      "SELECT toolbelt_string.SVF_RegexInstr(N'abc123 def456', N'[0-9]+', 1, 1, 0, N'c') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Input": "Zu bearbeitender Text; NULL-Verhalten gemäß Objektvertrag.",
+      "@Pattern": "Regulärer Ausdruck im begrenzten Toolbelt-Dialekt.",
+      "@Start": "Regex: positive 1-basierte UTF-16-Startposition. Serie: erster Wert.",
+      "@Occurrence": "1-basierte Treffernummer; Replace erlaubt 0 für alle Treffer.",
+      "@ReturnOption": "0 = Trefferbeginn, 1 = Ende exklusiv, jeweils 1-basiert.",
+      "@Flags": "Duplikatfreie Kombination aus c oder i sowie m und s; c/i schließen einander aus."
+    }
+  },
+  "toolbelt_string.SVF_RegexIsMatch": {
+    "summary": "Prüft, ob ein regulärer Ausdruck im Text trifft.",
+    "examples": [
+      "SELECT toolbelt_string.SVF_RegexIsMatch(N'abc123 def456', N'[0-9]+', N'c') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Input": "Zu bearbeitender Text; NULL-Verhalten gemäß Objektvertrag.",
+      "@Pattern": "Regulärer Ausdruck im begrenzten Toolbelt-Dialekt.",
+      "@Flags": "Duplikatfreie Kombination aus c oder i sowie m und s; c/i schließen einander aus."
+    }
+  },
+  "toolbelt_string.SVF_RegexReplace": {
+    "summary": "Ersetzt ganze Regex-Treffer durch einen literalen Ersatztext.",
+    "examples": [
+      "SELECT toolbelt_string.SVF_RegexReplace(N'abc123 def456', N'[0-9]+', N'X', 1, 1, N'c', N'standard') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Input": "Zu bearbeitender Unicode-Text; NULL in Input, Pattern oder Replacement liefert sofortNULL.",
+      "@Pattern": "Regulärer Ausdruck im begrenzten Toolbelt-Dialekt.",
+      "@Replacement": "Literaler Unicode-Ersatztext; $1 und Backslash-Gruppenreferenzen werden nicht expandiert.",
+      "@Start": "Positive 1-basierte UTF-16-Startposition.",
+      "@Occurrence": "0 ersetzt alle Treffer, ein positiver Wert nur den n-ten Treffer ab Start.",
+      "@Flags": "Duplikatfreie Kombination aus c oder i sowie m und s; c/i schließen einander aus.",
+      "@Profile": "standard oder large; genaue Limits stehen im Objektvertrag."
+    }
+  },
+  "toolbelt_string.SVF_RegexReplaceGroups": {
+    "summary": "Ersetzt Regex-Treffer mit dem getrennten Gruppen-Ersatzvertrag.",
+    "examples": [
+      "SELECT toolbelt_string.SVF_RegexReplaceGroups(N'abc123 def456', N'(?<Digits>[0-9]+)', N'[${Digits}]', 1, 0, N'c', N'standard') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Input": "Zu bearbeitender Text; NULL-Verhalten gemäß Objektvertrag.",
+      "@Pattern": "Regulärer Ausdruck im begrenzten Toolbelt-Dialekt.",
+      "@Replacement": "Gruppen-Replace: $1, ${Name}, $$; keine Gruppe 0. Literal-Replace expandiert keine Gruppen.",
+      "@Start": "Regex: positive 1-basierte UTF-16-Startposition. Serie: erster Wert.",
+      "@Occurrence": "1-basierte Treffernummer; Replace erlaubt 0 für alle Treffer.",
+      "@Flags": "Duplikatfreie Kombination aus c oder i sowie m und s; c/i schließen einander aus.",
+      "@Profile": "standard oder large; genaue Limits stehen im Objektvertrag."
+    }
+  },
+  "toolbelt_string.SVF_RegexSubstring": {
+    "summary": "Liefert den ausgewählten vollständigen Regex-Treffer.",
+    "examples": [
+      "SELECT toolbelt_string.SVF_RegexSubstring(N'abc123 def456', N'[0-9]+', 1, 1, N'c', N'standard') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Input": "Zu durchsuchender Unicode-Text; NULL in Input oder Pattern liefert sofortNULL.",
+      "@Pattern": "Regulärer Ausdruck im begrenzten Toolbelt-Dialekt.",
+      "@Start": "Positive 1-basierte UTF-16-Startposition.",
+      "@Occurrence": "Positive 1-basierte Treffernummer ab Start; liefert den vollständigen Treffer, keine Capture-Gruppe.",
+      "@Flags": "Duplikatfreie Kombination aus c oder i sowie m und s; c/i schließen einander aus.",
+      "@Profile": "standard oder large; genaue Limits stehen im Objektvertrag."
+    }
+  },
+  "toolbelt_string.TVF_RegexCaptures": {
+    "summary": "Liefert Gruppen-Captures einschließlich wiederholter Captures.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_RegexCaptures(N'abc123 def456', N'[0-9]+', 1, N'c', N'standard', 1000);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Input": "Zu bearbeitender Text; NULL-Verhalten gemäß Objektvertrag.",
+      "@Pattern": "Regulärer Ausdruck im begrenzten Toolbelt-Dialekt.",
+      "@Start": "Regex: positive 1-basierte UTF-16-Startposition. Serie: erster Wert.",
+      "@Flags": "Duplikatfreie Kombination aus c oder i sowie m und s; c/i schließen einander aus.",
+      "@Profile": "standard oder large; genaue Limits stehen im Objektvertrag.",
+      "@MaxRows": "Grenze der vollständig zu materialisierenden Regex-Ausgabezeilen."
+    }
+  },
+  "toolbelt_string.TVF_RegexMatches": {
+    "summary": "Liefert vollständige Regex-Treffer mit Ordinals und Positionen.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_RegexMatches(N'abc123 def456', N'[0-9]+', 1, N'c', N'standard', 1000);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Input": "Zu bearbeitender Text; NULL-Verhalten gemäß Objektvertrag.",
+      "@Pattern": "Regulärer Ausdruck im begrenzten Toolbelt-Dialekt.",
+      "@Start": "Regex: positive 1-basierte UTF-16-Startposition. Serie: erster Wert.",
+      "@Flags": "Duplikatfreie Kombination aus c oder i sowie m und s; c/i schließen einander aus.",
+      "@Profile": "standard oder large; genaue Limits stehen im Objektvertrag.",
+      "@MaxRows": "Grenze der vollständig zu materialisierenden Regex-Ausgabezeilen."
+    }
+  },
+  "toolbelt_string.TVF_RegexSplit": {
+    "summary": "Zerlegt einen Text an Regex-Treffern.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_RegexSplit(N'a,b;;c', N'[0-9]+', N'c', N'standard', 1000);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Input": "Zu bearbeitender Text; NULL-Verhalten gemäß Objektvertrag.",
+      "@Pattern": "Regulärer Ausdruck im begrenzten Toolbelt-Dialekt.",
+      "@Flags": "Duplikatfreie Kombination aus c oder i sowie m und s; c/i schließen einander aus.",
+      "@Profile": "standard oder large; genaue Limits stehen im Objektvertrag.",
+      "@MaxRows": "Grenze der vollständig zu materialisierenden Regex-Ausgabezeilen."
+    }
+  },
+  "toolbelt_string.TVF_SplitAdvanced": {
+    "summary": "Zerlegt Originaltokens mit mehreren Separatoren, Quotes und Escape-Regeln; entquotiert sie nicht.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_SplitAdvanced(N'a,b;;c', N'[\",\",\";\"]', N'\"', N'\\', 1);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Input": "Zu bearbeitender Text; NULL-Verhalten gemäß Objektvertrag.",
+      "@SeparatorsJson": "JSON-Array literal interpretierter Separatorstrings.",
+      "@Quote": "Quote-Zeichen des Splits; Originaltokens bleiben quotiert.",
+      "@Escape": "Escape-Zeichen des Splitvertrags; Default Backslash.",
+      "@KeepEmpty": "1 erhält leere Tokens; 0 verwirft sie."
+    }
+  },
+  "toolbelt_string.TVF_UnquoteToken": {
+    "summary": "Entfernt ein unterstütztes äußeres Quote-Paar und decodiert dessen Escapes.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_UnquoteToken(N'[a]]b]', NULL, NULL, 0);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Input": "Zu bearbeitender Text; NULL-Verhalten gemäß Objektvertrag.",
+      "@Qualifier": "NULL = Autoerkennung; leer = deaktiviert; sonst einzelnes Quote-Zeichen.",
+      "@ClosingQualifier": "Explizites schließendes Quote-Zeichen; NULL wählt das Standardpaar.",
+      "@BackslashEscape": "1 aktiviert die begrenzten Backslash-Escapes; 0 deaktiviert sie."
+    }
+  },
+  "toolbelt_string.USP_SplitAdvanced": {
+    "summary": "Originaltokens aus kanonischer TVF; Geschäftsfehler vor Zielmutation, kein Unquoting.",
+    "examples": [
+      "EXEC toolbelt_string.USP_SplitAdvanced @Input=N'a;b', @SeparatorsJson=N'[\";\"]', @Quote=N'', @Escape=N'';",
+      "EXEC toolbelt_string.USP_SplitAdvanced\n    @Input=N'a;\"b;c\";d', @SeparatorsJson=N'[\";\"]';\nEXEC toolbelt_string.USP_SplitAdvanced @Hilfe=1;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Input": "NULL ist früher No-op; sonst unveränderte S2-Tokenisierung.",
+      "@SeparatorsJson": "Nichtleeres JSON-Array von Separatorstrings bei nicht-NULL Input.",
+      "@Quote": "Quote-Zeichen; leer deaktiviert, NULL ungültig.",
+      "@Escape": "Allgemeines S2-Escape; Originaltoken bleibt erhalten.",
+      "@KeepEmpty": "NULL entspricht 1; nur leere Tokens filtern.",
+      "@ResultTable": "Vorhandene caller-lokale Temp-Tabelle; NULL liefert SELECT.",
+      "@KeepData": "Replace=0, Append=1; NULL entspricht 0.",
+      "@Debug": "Nur Messages ohne Input-/Tokeninhalte.",
+      "@Hilfe": "1 liefert ausschließlich standardisiertes Help."
+    }
+  },
+  "toolbelt_string.TVF_SplitByCharacters": {
+    "summary": "Zerlegt einen Text an jedem Zeichen der angegebenen Separatormenge.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_SplitByCharacters(N'a,b;;c', N',;', 1);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Input": "Zu bearbeitender Text; NULL-Verhalten gemäß Objektvertrag.",
+      "@Separators": "Literal interpretierte Menge einzelner Separatorzeichen.",
+      "@KeepEmpty": "1 erhält leere Tokens; 0 verwirft sie."
+    }
+  },
+  "toolbelt_string.USP_CompareTextPairs": {
+    "summary": "Begrenzt vergleicht vorhandene lokale Textpaare mit den kanonischen Distanz-/Jaro-TVFs. Globale Fehler veröffentlichen keine Teilresultate.",
+    "examples": [
+      "CREATE TABLE #Pairs(PairOrdinal bigint,LeftText nvarchar(max),RightText nvarchar(max)); INSERT #Pairs VALUES(1,N'kitten',N'sitting'); EXEC toolbelt_string.USP_CompareTextPairs @PairsTable=N'#Pairs',@Algorithm=N'levenshtein';"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@PairsTable": "Lokale #Temp mit PairOrdinal bigint, LeftText und RightText nvarchar(max). Ordinals nicht NULL und eindeutig, inklusive negativer Werte.",
+      "@Algorithm": "Bytegenau levenshtein, osa oder jaro-winkler; global für alle Paare.",
+      "@MaxDistance": "Unveränderte Distanzschwelle; bei Jaro ausschließlich NULL.",
+      "@Profile": "standard oder large; genaue Limits stehen im Objektvertrag.",
+      "@MaxPairs": "1..100000, alle Inputzeilen zählen.",
+      "@MaxTotalTextBytes": "1..16777216, beide DATALENGTH-Textseiten auch bei NULL-Gegenseite.",
+      "@MaxTotalWork": "1..67108864 konservative UTF16-Produktcharge mit kanonischem Paircap; keine tatsächliche CPU-Zählung.",
+      "@ResultTable": "NULL liefert sortierten SELECT; vorhandene lokale #Temp empfängt atomaren Helper+Insert.",
+      "@KeepData": "0 Replace, 1 Append nach ResultTable-Vertrag. NULL bedeutet 0.",
+      "@Debug": "Messages ohne Textpayload; NULL bedeutet 0.",
+      "@Hilfe": "1 ausschließlich Help, ohne Tabellen-/Dependency-/Transaktionsprüfung."
+    }
+  },
+  "toolbelt_tsql.TVF_ParseScriptErrors": {
+    "summary": "Liefert Parserfehler eines T-SQL-Skripts, ohne das Skript auszuführen.",
+    "examples": [
+      "SELECT * FROM toolbelt_tsql.TVF_ParseScriptErrors(N'SELECT 1 AS SyntheticValue;', 160, 1, 2097152, 256);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@SqlText": "T-SQL-Quelltext; wird analysiert, nicht ausgeführt.",
+      "@TSqlVersion": "Exakt 80,90,100,110,120,130,140,150,160 oder 170; NULL = 160.",
+      "@QuotedIdentifiers": "1 parst mit QUOTED_IDENTIFIER ON, 0 mit OFF.",
+      "@MaxInputBytes": "ScriptParser: 1–2097152 Eingabebytes.",
+      "@MaxNestingDepth": "ScriptParser: 1–256; NULL entspricht dem Default 100."
+    }
+  },
+  "toolbelt_tsql.TVF_ParseScriptNodeProperties": {
+    "summary": "Liefert Eigenschaften der geparsten T-SQL-AST-Knoten.",
+    "examples": [
+      "SELECT * FROM toolbelt_tsql.TVF_ParseScriptNodeProperties(N'SELECT 1 AS SyntheticValue;', 160, 1, 2097152, 256);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@SqlText": "T-SQL-Quelltext; wird analysiert, nicht ausgeführt.",
+      "@TSqlVersion": "Exakt 80,90,100,110,120,130,140,150,160 oder 170; NULL = 160.",
+      "@QuotedIdentifiers": "1 parst mit QUOTED_IDENTIFIER ON, 0 mit OFF.",
+      "@MaxInputBytes": "ScriptParser: 1–2097152 Eingabebytes.",
+      "@MaxNestingDepth": "ScriptParser: 1–256; NULL entspricht dem Default 100."
+    }
+  },
+  "toolbelt_tsql.TVF_ParseScriptNodes": {
+    "summary": "Liefert die AST-Knoten eines begrenzten T-SQL-Skripts.",
+    "examples": [
+      "SELECT * FROM toolbelt_tsql.TVF_ParseScriptNodes(N'SELECT 1 AS SyntheticValue;', 160, 1, 2097152, 256);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@SqlText": "T-SQL-Quelltext; wird analysiert, nicht ausgeführt.",
+      "@TSqlVersion": "Exakt 80,90,100,110,120,130,140,150,160 oder 170; NULL = 160.",
+      "@QuotedIdentifiers": "1 parst mit QUOTED_IDENTIFIER ON, 0 mit OFF.",
+      "@MaxInputBytes": "ScriptParser: 1–2097152 Eingabebytes.",
+      "@MaxNestingDepth": "ScriptParser: 1–256; NULL entspricht dem Default 100."
+    }
+  },
+  "toolbelt_tsql.TVF_TokenizeScript": {
+    "summary": "Liefert Tokens eines T-SQL-Skripts.",
+    "examples": [
+      "SELECT * FROM toolbelt_tsql.TVF_TokenizeScript(N'SELECT 1 AS SyntheticValue;', 160, 1, 2097152, 256);"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@SqlText": "T-SQL-Quelltext; wird analysiert, nicht ausgeführt.",
+      "@TSqlVersion": "Exakt 80,90,100,110,120,130,140,150,160 oder 170; NULL = 160.",
+      "@QuotedIdentifiers": "1 parst mit QUOTED_IDENTIFIER ON, 0 mit OFF.",
+      "@MaxInputBytes": "ScriptParser: 1–2097152 Eingabebytes.",
+      "@MaxNestingDepth": "ScriptParser: 1–256; NULL entspricht dem Default 100."
+    }
+  },
+  "toolbelt_validation.SVF_CompareSemanticVersion": {
+    "summary": "Vergleicht zwei SemVer-Versionen; Build-Metadaten ändern die fachliche Rangfolge nicht.",
+    "examples": [
+      "SELECT toolbelt_validation.SVF_CompareSemanticVersion(N'1.2.3', N'2.0.0') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@LeftVersion": "Linke SemVer-Version.",
+      "@RightVersion": "Rechte SemVer-Version."
+    }
+  },
+  "toolbelt_validation.SVF_SemanticVersionSortKey": {
+    "summary": "Erzeugt einen binären Sortierschlüssel für eine gültige SemVer-Version.",
+    "examples": [
+      "SELECT toolbelt_validation.SVF_SemanticVersionSortKey(N'1.2.3-alpha.1+build.7') AS ResultValue;"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Version": "Strikte SemVer-2.0.0-Version, z. B. 1.2.3-alpha.1+build.7."
+    }
+  },
+  "toolbelt_validation.TVF_CompareSemanticVersion": {
+    "summary": "Vergleicht zwei SemVer-Versionen; Build-Metadaten ändern die fachliche Rangfolge nicht.",
+    "examples": [
+      "SELECT * FROM toolbelt_validation.TVF_CompareSemanticVersion(N'1.2.3', N'2.0.0');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@LeftVersion": "Linke SemVer-Version.",
+      "@RightVersion": "Rechte SemVer-Version."
+    }
+  },
+  "toolbelt_validation.TVF_ParseSemanticVersion": {
+    "summary": "Prüft und zerlegt eine Version nach SemVer 2.0.0.",
+    "examples": [
+      "SELECT * FROM toolbelt_validation.TVF_ParseSemanticVersion(N'1.2.3-alpha.1+build.7');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Version": "Strikte SemVer-2.0.0-Version, z. B. 1.2.3-alpha.1+build.7."
+    }
+  },
+  "toolbelt_validation.TVF_SemanticVersionSortKey": {
+    "summary": "Erzeugt einen binären Sortierschlüssel für eine gültige SemVer-Version.",
+    "examples": [
+      "SELECT * FROM toolbelt_validation.TVF_SemanticVersionSortKey(N'1.2.3-alpha.1+build.7');"
+    ],
+    "requirements": [],
+    "parameter_notes": {
+      "@Version": "Strikte SemVer-2.0.0-Version, z. B. 1.2.3-alpha.1+build.7."
+    }
+  }
+}
