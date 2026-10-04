@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: thirty_six_modules_implemented
+  status: thirty_seven_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -292,6 +292,7 @@ module_registry:
     - Modules/toolbelt.string.split-characters/module.yaml
     - Modules/toolbelt.string.split-advanced/module.yaml
     - Modules/toolbelt.string.regex/module.yaml
+    - Modules/toolbelt.string.phonetic/module.yaml
     - Modules/toolbelt.string.edit-distance/module.yaml
     - Modules/toolbelt.string.text-pairs/module.yaml
     - Modules/toolbelt.validation.semantic-version/module.yaml
@@ -540,6 +541,14 @@ change_impact:
         - Tests/CI/run-split-advanced-linux.sh
       checks:
         - split_advanced_static
+        - markdown_links
+    phonetic_contract:
+      paths:
+        - Modules/toolbelt.string.phonetic/**
+        - Documentation/Architecture/PHONETIC_CONTRACT.md
+        - .github/workflows/phonetic-runtime.yml
+      checks:
+        - phonetic_static
         - markdown_links
     edit_distance_contract:
       paths:

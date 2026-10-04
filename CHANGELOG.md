@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-04 – Phonetik 1.0.0 (unreleased, noch nicht ausgeführt)
+
+- Zwei einzeln freigegebene IF-Fassaden und zwei interne FT auf eigener SAFE-Assembly.
+- Geschlossene Alphabete, feste inhärente Transformation, UTF16-/Quotenpriorität
+  und vollständige Double-Metaphone-Codes einschließlich terminalem J-Leerzeichen.
+- Markierte Apache-1.18.0-Portierung mit Headern und modullokaler LICENSE/NOTICE.
+- Explizite installierte SHA2-512-Erwartung, kohärente Owner/Slotmarker,
+  zweipassiger AppLock-Lifecycle; Trust bleibt getrennt.
+- Gezielte Prüfquellen vorbereitet. Build/Framework/Differential/SQL/CI sind offen.
+
+
 ## 2026-10-04 – Gemeinsamer SAFE-JSON-Kern und Aggregate 1.2.0
 
 - Zwei einzeln freigegebene Aggregate und eine interne CLR-Bridge verwenden
@@ -601,6 +612,6 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-36 Module sind implementiert. 20 sind `validated`, 16 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+37 Module sind implementiert. 20 sind `validated`, 16 sind `partially validated`; 1 ist `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.

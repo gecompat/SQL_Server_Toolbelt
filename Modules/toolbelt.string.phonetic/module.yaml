@@ -1,0 +1,99 @@
+module_id: "toolbelt.string.phonetic"
+module_name: "Bounded Cologne Phonetic and Double Metaphone"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "not executed"
+release_status: unreleased
+description: "Vollständige begrenzte Phonetikscanner mit geschlossenem Alphabet und eigener SAFE-CLR-Assembly."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "not executed"
+  linux: "not executed"
+providers:
+  - id: safe-clr-phonetic
+    technology: "C#; markierter Apache Commons Codec 1.18.0 Scanner-Port"
+    platforms: [Windows, Linux]
+    status: "not executed"
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies: []
+schemas:
+  - "toolbelt_string"
+objects:
+  - {type: TVF, schema: "toolbelt_string", name: "TVF_ColognePhonetic", visibility: public}
+  - {type: TVF, schema: "toolbelt_string", name: "TVF_DoubleMetaphone", visibility: public}
+  - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_ColognePhoneticCore", visibility: internal}
+  - {type: CLR_TVF, schema: "toolbelt_string", name: "TVF_DoubleMetaphoneCore", visibility: internal}
+  - {type: ASSEMBLY, name: "Toolbelt_String_Phonetic", visibility: internal}
+permissions_required:
+  - "SELECT auf den öffentlichen TVFs"
+  - "Lifecycle: VIEW DEFINITION auf Datenbank und SELECT auf sys.sql_expression_dependencies"
+  - "CREATE FUNCTION, CREATE ASSEMBLY, Schema-ALTER; ALTER ANY ASSEMBLY nur bei Binarywechsel"
+  - "sysadmin ausschließlich für separates Hash-Trust-Opt-in"
+collation_contract: "Feste Algorithmustransformation; ASCII-Codeausgaben Latin1_General_100_BIN2; kein Unicode-Folding"
+data_type_contract: "Text nvarchar(max); Codes varchar(max); raw UTF16 4096, transformed 8192, code 16384 each/pair32768"
+help_contract_version: "not applicable"
+resultset_contracts:
+  - object: "toolbelt_string.TVF_ColognePhonetic"
+    resultset: "PhoneticCode varchar(max) nullable, ErrorCode int logisch nicht NULL; physische CLR-Metadaten nullable"
+    max_rows: "exactly one"
+  - object: "toolbelt_string.TVF_DoubleMetaphone"
+    resultset: "PrimaryCode varchar(max) nullable, AlternateCode varchar(max) nullable, ErrorCode int logisch nicht NULL; physische CLR-Metadaten nullable"
+    max_rows: "exactly one"
+lifecycle_error_range: "55260-55270"
+trust_error_range: "55271-55275"
+runtime_error_contract: "Resultcodes 0..3; technische Fehler bleiben Exceptions"
+clr:
+  used: true
+  language: "C#"
+  target_framework: ".NET Framework 4.8"
+  assembly_sql_name: "Toolbelt_String_Phonetic"
+  assembly_file_name: "Toolbelt.String.Phonetic.dll"
+  permission_set: "SAFE"
+  trust_method: "SHA2-512 via sys.sp_add_trusted_assembly; getrenntes Opt-in"
+  direct_framework_references: ["System", "System.Data"]
+  third_party_dependencies: []
+  build_project: "Clr/Toolbelt.String.Phonetic.csproj"
+  release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
+lifecycle:
+  trust_opt_in: "Deployment/Add-TrustedAssembly.sql"
+  deploy_template: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "generated from exact built assembly; build-only until separate qualification"
+  source_hash_role: "diagnostic_only"
+  trust_removed_by_uninstall: false
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/TVF_ColognePhonetic.md"
+    - "Documentation/TVF_DoubleMetaphone.md"
+  architecture:
+    - "../../Documentation/Architecture/PHONETIC_CONTRACT.md"
+  test_matrix:
+    - "Tests/PHONETIC_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+  examples:
+    - "Examples/Phonetic.sql"
+contracts:
+  usp: "not applicable"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  framework: "Tests/Framework/run-framework-phonetic.ps1"
+  runtime: "Tests/Runtime/Phonetic.Contract.sql"
+  boundaries: "Tests/Runtime/Phonetic.Boundaries.sql"
+  metadata: "Tests/Runtime/InstalledMetadata.Contract.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  github_hosted: "../../.github/workflows/phonetic-runtime.yml"
+validation_evidence: []
