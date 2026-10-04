@@ -7,7 +7,7 @@ SELECT @RawVersion=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties
 SELECT @RawMode=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties
  WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.constructors.DeploymentMode';
 IF @RawVersion IS NULL OR @RawMode IS NULL
- OR CONVERT(varbinary(max),@RawVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0'))
+ OR CONVERT(varbinary(max),@RawVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0'),CONVERT(varbinary(max),N'1.2.0'))
  OR CONVERT(varbinary(max),@RawMode) NOT IN(CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central'))
  THROW 54600,N'JSON collision: bekannte synthetische Basis erforderlich.',50;
 SET @Version=CONVERT(nvarchar(64),@RawVersion);

@@ -1,10 +1,10 @@
 module_id: "toolbelt.json.constructors"
 module_name: "JSON Constructors"
-version: "1.1.0"
+version: "1.2.0"
 implementation_status: implemented
 validation_status: partially validated
 release_status: unreleased
-description: "Begrenzte typisierte JSON-Array-/Object-Konstruktion aus caller-lokalen Temp-Tabellen."
+description: "Begrenzte JSON-Konstruktoren und CLR-Aggregate mit gemeinsamem SAFE-Kern; native Teilnachweise, weitergehende Qualifikation offen."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -14,8 +14,8 @@ platforms:
   windows: partially validated
   linux: partially validated
 providers:
-  - id: tsql-canonical
-    technology: T-SQL Stored Procedure
+  - id: safe-clr-json
+    technology: "C# SAFE-Kern und T-SQL-Konstruktoradapter"
     platforms: [Windows, Linux]
     status: partially validated
 deployment_capabilities:
@@ -51,7 +51,11 @@ objects:
     schema: "toolbelt_json"
     name: "USP_JsonConstructInternal"
     visibility: internal
-permissions_required: ["EXECUTE auf der öffentlichen USP", "Helper-EXECUTE für ResultTable", "DDL-Rechte für Deployment", "Uninstall: ALTER auf toolbelt_json, VIEW DEFINITION auf der Datenbank und SELECT auf sys.sql_expression_dependencies"]
+  - {type: CLR_TVF, schema: "toolbelt_json", name: "FT_JsonEntryEvaluateInternal", visibility: internal}
+  - {type: CLR_AGGREGATE, schema: "toolbelt_json", name: "AGF_JsonArray", visibility: public}
+  - {type: CLR_AGGREGATE, schema: "toolbelt_json", name: "AGF_JsonObject", visibility: public}
+  - {type: ASSEMBLY, name: "Toolbelt_JsonConstructors", visibility: internal}
+permissions_required: ["EXECUTE auf der öffentlichen USP", "Helper-EXECUTE für ResultTable", "Deployment: vorhandene CREATE ASSEMBLY-/CREATE FUNCTION-/DDL-Rechte und vollständige Assemblymetadatensicht", "Lifecycle: VIEW DEFINITION auf der Datenbank und SELECT auf sys.sql_expression_dependencies", "Uninstall: ALTER auf toolbelt_json und der eigenen Assembly"]
 collation_contract: "Exakte UTF-16-/BIN2-ValueKinds und längensensitive Keys; Ergebnis Latin1_General_100_BIN2."
 data_type_contract: "Ordinal int; ValueKind/Value/Key nvarchar(max); JsonValue nvarchar(max) NOT NULL."
 help_contract_version: "1.0"
@@ -62,9 +66,17 @@ resultset_contracts:
   - {name: "USP_JsonObjectsByGroup", columns: ["GroupOrdinal int NOT NULL", "JsonValue nvarchar(max) NOT NULL"]}
 lifecycle_error_range: "53620-53629"
 clr:
-  used: false
-  permission_set: null
-  trust_method: null
+  used: true
+  language: "C#"
+  target_framework: ".NET Framework 4.8"
+  assembly_sql_name: "Toolbelt_JsonConstructors"
+  assembly_file_name: "Toolbelt.JsonConstructors.dll"
+  permission_set: "SAFE"
+  trust_method: "Separates SHA2-512-Opt-in; keine automatische Truständerung"
+  direct_framework_references: ["System", "System.Data"]
+  third_party_dependencies: []
+  build_project: "Clr/Toolbelt.JsonConstructors.csproj"
+  release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
 lifecycle:
   deploy: "Deployment/Deploy.sql"
   uninstall: "Deployment/Uninstall.sql"
@@ -74,6 +86,7 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
+    - "Documentation/JSON_AGGREGATES.md"
     - "Documentation/USP_JsonArray.md"
     - "Documentation/USP_JsonObject.md"
     - "Documentation/USP_JsonArraysByGroup.md"
@@ -83,6 +96,7 @@ documentation:
   architecture:
     - "../../Documentation/Architecture/JSON_CONSTRUCTOR_PROPOSAL.md"
     - "../../Documentation/Architecture/JSON_GROUP_CONSTRUCTORS_CONTRACT.md"
+    - "../../Documentation/Architecture/JSON_CLR_MIGRATION_CONTRACT.md"
   test_matrix:
     - "Tests/JSON_CONSTRUCTOR_CONTRACT_TEST_MATRIX.md"
   evidence:
@@ -96,6 +110,8 @@ tests:
   groups_boundaries: "Tests/Runtime/JsonGroups.Boundaries.sql"
   installed_metadata: "Tests/Runtime/InstalledMetadata.Contract.sql"
   static: "Tests/Static/validate_contract.py"
+  framework: "Tests/Framework/Invoke-Framework.ps1"
+  aggregate: "Tests/Runtime/JsonAggregates.Contract.sql"
   runtime: "Tests/Runtime/JsonConstructors.Contract.sql"
   contract: "Tests/Runtime/JsonConstructors.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
@@ -128,4 +144,14 @@ validation_evidence:
   - date: "2026-10-02"
     workflow: "local: Tests/CI/run-json-groups-lab.ps1 (Uninstall-Metadatenvoraussetzung)"
     scope: "Neue fail-closed Uninstall-Voraussetzung VIEW DEFINITION/SELECT: fokussierter Adapter Exit0 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral; Runtime-Auswahl nur InstalledMetadata.Contract.sql, gekoppelte genuine1.0-/Repeat-/Rollback-/AppLock-/Caller-/Marker-/Future-/Dependency-/Client-/Central-/Uninstallprüfungen PASS. Beide Journale COMPLETE, alle eigenen Datenbanken entfernt, keine Konfigurations-/Rechteänderung. Kein Default-All-PASS, keine tatsächliche Minimalrechtequalifikation; negative synthetische Predicate-Injektionen und neue Exact-head-CI noch nicht ausgeführt. Historische Nachweise bleiben unverändert."
+    result: "success"
+
+  - date: "2026-10-03"
+    workflow: "local: independently reviewed JSON CLR product prototype"
+    scope: "Version 1.2.0: bekannte unveränderte acht Produktquellen und tatsächliches SAFE-Releasebinary offline reproduzierbar, vollständige IL-Metadatenprüfung sowie drei Cultureläufe mit je 37 Fällen/962 Assertions und große synthetische 3 Fälle/67 Assertions erfolgreich. Öffentliche Source-/Build-/Legacy-/Lifecyclekopplung wird getrennt geprüft. Keine native Installation, 1.2-Callerrechte, Upgrade-/Uninstall-, aktuelle CI-, Heap-/Spill- oder Releasequalifikation. Historische 1.0/1.1 bleiben getrennt."
+    result: "success"
+
+  - date: "2026-10-04"
+    workflow: "local: scoped JSON 1.2 qualification"
+    scope: "Kanonischer Projektbuild mit MSBuild 18 ohne Profil-Overrides bytegleich zur unabhängig offline qualifizierten bekannten SAFE-Zeile. Lokal acht Original-Fixtures auf Linux2019 CL150 und Windows2025/CU8 CL170. Windows2025/CU8 CL170: genuine1.1 lokal und genuine1.0 lokal/zentral, Repeat, acht Slots/sechs typisierte Marker, Uninstall/Repeat; zentrale erste-GO-Bestätigung und originaler Consumer. Sechs erste-GO-Negativfälle, Guest916/4 und Ownerfall NOT_EXECUTED. Eigene Bereinigung/frische Abwesenheit bestanden, keine Konfigurations-/Rechte-/Owneränderung. Kein vollständiger Produkt-/Matrix-/Minimalrechte-/Heap-/Spillnachweis; aktuelle Exact-head-CI mit ihrem Compilerstand und Release offen. Historische Fehlversuche unverändert."
     result: "success"

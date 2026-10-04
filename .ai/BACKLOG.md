@@ -569,6 +569,16 @@ einschließlich Namenskonvention und gemeinsamer Kernumstellung:
 Status CLR-Aggregate: `ready for development`; keine Runtime-Evidenz.
 Die bestehenden freigegebenen Wellen laufen unabhängig weiter.
 
+Fortsetzung 2026-10-03: Die drei zusätzlichen Lifecyclegrenzen (exakte
+Assemblymarkertypen, geschlossenes unabhängig qualifiziertes Binaryregister
+und kohärente vorhandene Eigentümer ohne Rechte-/Owneränderung) wurden
+einzeln genehmigt. Der konkrete
+[JSON-1.2-Vertrag](../Documentation/Architecture/JSON_CLR_MIGRATION_CONTRACT.md)
+und seine tatsächliche Registryzeile wurden vor Source unabhängig geprüft.
+Der bekannte Produktbuild ist ausschließlich offline qualifiziert;
+Sourceumsetzung und native Migration-/Caller-/Lifecyclequalifikation bleiben
+getrennte Gates. Historische 1.0-/1.1-Nachweise bleiben unverändert.
+
 ### Individuell freigegebene Tabellenklon-Ausbauwellen 1 und 2
 
 Benutzerfreigabe 2026-10-01: Nach Besprechung des begrenzten Script-only-V1

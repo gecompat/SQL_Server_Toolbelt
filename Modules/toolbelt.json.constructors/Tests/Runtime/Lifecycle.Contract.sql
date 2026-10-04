@@ -1,5 +1,5 @@
 SET NOCOUNT ON;
--- Installed 1.1: fünf eigene Procedure-Slots, exakte Marker und gekoppelte Signaturen.
+-- Installed 1.2: fünf eigene Procedure-Slots, exakte Marker und gekoppelte Signaturen.
 DECLARE @Names TABLE(Name sysname COLLATE DATABASE_DEFAULT,IsPublic bit);
 INSERT @Names VALUES(N'USP_JsonArray',1),(N'USP_JsonObject',1),(N'USP_JsonConstructInternal',0),
  (N'USP_JsonArraysByGroup',1),(N'USP_JsonObjectsByGroup',1);
@@ -9,7 +9,7 @@ SELECT @Mode=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties
 IF @Mode IS NULL OR CONVERT(varbinary(max),@Mode) NOT IN(CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central'))
  THROW 54600,N'JSON lifecycle: installierter Modus fehlt oder ist inkohärent.',40;
 IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.constructors.Version'
- AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'1.1.0'))
+ AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'1.2.0'))
  THROW 54600,N'JSON lifecycle: exakte Modulversion fehlt.',40;
 IF EXISTS(SELECT 1 FROM @Names n WHERE NOT EXISTS(SELECT 1 FROM sys.objects o
  WHERE o.object_id=OBJECT_ID(N'toolbelt_json.'+QUOTENAME(n.Name),N'P')
@@ -17,7 +17,7 @@ IF EXISTS(SELECT 1 FROM @Names n WHERE NOT EXISTS(SELECT 1 FROM sys.objects o
  AND EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0
   AND e.name=N'Toolbelt.ModuleId' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),N'toolbelt.json.constructors'))
  AND EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0
-  AND e.name=N'Toolbelt.ModuleVersion' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),N'1.1.0'))
+  AND e.name=N'Toolbelt.ModuleVersion' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),N'1.2.0'))
  AND EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0
   AND e.name=N'Toolbelt.DeploymentMode' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),@Mode))))
  THROW 54600,N'JSON lifecycle: eigene Objectmarker fehlen oder sind inkohärent.',41;

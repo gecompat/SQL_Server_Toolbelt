@@ -472,3 +472,16 @@ bleibt ein separater Release-Nachweis.
 | Auswirkungen | Die Anforderung akzeptiert keine aktive Caller-Transaktion, damit ihr Commit nicht später zurückgerollt wird. Sie verändert keine Work-Queue-Zeile, führt kein `KILL` aus und enthält keine automatische Recovery. Öffentlicher Status zeigt nur ID, Flag und UTC-Zeit. |
 | Alternativen | Queue-only-Sperre, sofortiges `KILL`, provider-spezifische Abbrüche und eine automatische Terminalisierung oder Retry-Mutation wurden verworfen. |
 | Betroffene Verträge | `EXECUTION_CANCELLATION_MODULE_DESIGN.md`, `TC-2026-018`, `.ai/BACKLOG.md`, `toolbelt.core.execution-cancel` |
+
+## DEC-2026-033: Gemeinsamer SAFE-JSON-Kern und gebundener achtteiliger Lifecycle
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-10-03 |
+| Status | accepted |
+| Entscheidung | Die einzeln freigegebenen JSON-Aggregate und die vier bestehenden Konstruktor-USPs verwenden in Version 1.2.0 einen gemeinsamen SAFE-CLR-Kern mit einer internen Bridge. Der Lifecycle umfasst fünf Procedure-Slots, eine CLR-TVF, zwei Aggregate und deren gemeinsame Assembly. |
+| Begründung | Gemeinsame Literal-, Unicode- und Budgetregeln vermeiden konkurrierende Parser. Die zusätzlich einzeln bestätigten Lifecyclegrenzen verlangen exakt typisierte Assemblymarker, unabhängig qualifizierte bekannte Binarybytes und kohärente vorhandene Eigentümer. |
+| Scope | Ausschließlich `toolbelt.json.constructors` 1.2.0 und die im [JSON-CLR-Migrationsvertrag](JSON_CLR_MIGRATION_CONTRACT.md) festgelegten Bindings, Profile, Tiefengrenzen und Migrationsrouten. |
+| Auswirkungen | Bestehende öffentliche USP-Signaturen und globale Budgets bleiben erhalten. Assemblytrust erfordert ein separates exaktes Hash-Opt-in; unbekannte oder inkohärente Zustände blockieren. Keine automatische Rechtevergabe oder Ownerreparatur. Teilnachweise ergeben keine vollständige Produkt- oder Releasequalifikation. |
+| Alternativen | Getrennte SQL-/CLR-Parser, ungeprüfte Binaryadoption und automatische Owner-/Rechtereparatur sind ausgeschlossen. |
+| Betroffene Verträge | `JSON_CLR_MIGRATION_CONTRACT.md`, `JSON_GROUP_CONSTRUCTORS_CONTRACT.md`, `KNOWN_CLR_ARTIFACTS.json`, `.ai/BACKLOG.md`, `toolbelt.json.constructors` |

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <AssemblyName>Toolbelt.JsonConstructors</AssemblyName>
+    <RootNamespace>Toolbelt.JsonConstructors</RootNamespace>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <LangVersion>7.3</LangVersion>
+    <Deterministic>true</Deterministic>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Das qualifizierte Binary verwendet nur die acht deklarierten Quellen und
+         Referenzen. Implizite Framework-/PE-Ergänzungen ändern seine Bytes;
+         kein Compiler-Server außerhalb des begrenzten Buildprozesses. -->
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
+    <HighEntropyVA>false</HighEntropyVA>
+    <SubsystemVersion>4.00</SubsystemVersion>
+    <UseSharedCompilation>false</UseSharedCompilation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AgfCore.cs" />
+    <Compile Include="AgfValidCodec.cs" />
+    <Compile Include="AgfFaultCodec.cs" />
+    <Compile Include="AgfDispatcher.cs" />
+    <Compile Include="OwnedAggregateBuilder.cs" />
+    <Compile Include="JsonAggregates.cs" />
+    <Compile Include="JsonEntryEvaluateBridge.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

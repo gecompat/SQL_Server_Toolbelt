@@ -1,5 +1,26 @@
 # JSON Constructor Testmatrix
 
+## CLR-Migration 1.2.0: offene tatsächliche Gates
+
+Source-/Registrykopplung und der unveränderte private Produktbuild sind
+offline nachgewiesen. Die beiden lokalen Acht-Fixture-Läufe und das lokale
+genuine1.1-Upgrade sind begrenzte native Teilnachweise, keine vollständige
+öffentliche 1.2-Qualifikation; genaue Reichweite siehe Tests-README.
+
+| Gate | Geforderter Nachweis | Stand |
+|---|---|---|
+| Legacy | alle vier APIs,8 Parameter, Helpfirst, globale Priorität, ResultTable/Caller; RawOnly→Original ISJSON→Finalize | Lokale Acht-Fixture-Teilnachweise; vollständiger Umfang offen |
+| Bridge | exakt1 Row/8 nullable Felder, Kosten/Phasen/Codeformen, technische53611, Legacytiefe128 ohneAGF127 | Kanonische lokale Fixtures bestanden; weitere Grenzen offen |
+| AGFs | leere/gruppierte Ausgabe, Ordnung/Duplikate/Profile, Grenzen/Merge/Serialisierung und Clientmetadaten | Positive lokale Fixture-Proben bestanden; vollständiger Umfang offen |
+| Registry | bekannte file1SHA512/ArtifactId,6 exakt typisierte class5-Marker; unbekannter Target-/Installedhash ablehnen | Lokales Upgrade und fünf erste-GO-Markerablehnungen bestanden; weitere Fälle offen |
+| Owner/Visibility | kohärente vorhandene Owner, NULL/0 Sicht blockiert vor Mutation und unter Lock; keine Reparatur | Guest-Kontext916/4 und Owneränderung NOT_EXECUTED; weitere Gates offen |
+| Lifecycle | genuine1.0/1.1, Repeat, alle8 Slots, Future/Consumer, AppLock/Drift/Rollback, eigenes Uninstall | Windows2025/CU8 CL170: genuine1.1 lokal und genuine1.0 lokal/zentral, Repeat/Uninstall sowie zentrale erste-GO-Bestätigung und originaler Consumer bestanden; übriger Umfang offen |
+| Rechte/CI | echte geeignete eingeschränkte Caller ohne GRANT; exakter Head und qualifiziertes Binary | Offen |
+
+Neue Budget-/Unicode-/Literalfehler liefern keine erfolgreiche Teilrow.
+Die privaten Offlineproben sind keine SQL-Engine-, Heap-/Spill- oder
+Minimalrechtequalifikation; historische Wellen bleiben getrennt.
+
 ## Neue Uninstall-Metadatenvoraussetzung (2026-10-02)
 
 Die einzeln freigegebene fail-closed Voraussetzung wurde nach Umsetzung mit
@@ -49,8 +70,8 @@ beweist keine niedrigprivilegierten gemappten Callerrechte.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-json-groups-lab.ps1 (Uninstall-Metadatenvoraussetzung)`
-- Scope: Neue fail-closed Uninstall-Voraussetzung VIEW DEFINITION/SELECT: fokussierter Adapter Exit0 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral; Runtime-Auswahl nur InstalledMetadata.Contract.sql, gekoppelte genuine1.0-/Repeat-/Rollback-/AppLock-/Caller-/Marker-/Future-/Dependency-/Client-/Central-/Uninstallprüfungen PASS. Beide Journale COMPLETE, alle eigenen Datenbanken entfernt, keine Konfigurations-/Rechteänderung. Kein Default-All-PASS, keine tatsächliche Minimalrechtequalifikation; negative synthetische Predicate-Injektionen und neue Exact-head-CI noch nicht ausgeführt. Historische Nachweise bleiben unverändert.
+- Datum: `2026-10-04`
+- Nachweis: `local: scoped JSON 1.2 qualification`
+- Scope: Kanonischer Projektbuild mit MSBuild 18 ohne Profil-Overrides bytegleich zur unabhängig offline qualifizierten bekannten SAFE-Zeile. Lokal acht Original-Fixtures auf Linux2019 CL150 und Windows2025/CU8 CL170. Windows2025/CU8 CL170: genuine1.1 lokal und genuine1.0 lokal/zentral, Repeat, acht Slots/sechs typisierte Marker, Uninstall/Repeat; zentrale erste-GO-Bestätigung und originaler Consumer. Sechs erste-GO-Negativfälle, Guest916/4 und Ownerfall NOT_EXECUTED. Eigene Bereinigung/frische Abwesenheit bestanden, keine Konfigurations-/Rechte-/Owneränderung. Kein vollständiger Produkt-/Matrix-/Minimalrechte-/Heap-/Spillnachweis; aktuelle Exact-head-CI mit ihrem Compilerstand und Release offen. Historische Fehlversuche unverändert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

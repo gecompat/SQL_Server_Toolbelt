@@ -8,9 +8,14 @@
 | Inline Table-valued Function | `TVF_` | `TVF_DateRange` |
 | Multi-statement Table-valued Function | `TVF_` | `TVF_ParseDocument` |
 | Scalar-valued Function | `SVF_` | `SVF_TrimExtended` |
+| CLR-Aggregat (einzeln freigegebene JSON-Aggregate) | `AGF_` | `AGF_JsonArray` |
 | View | `VW_` | `VW_ModuleStatus` |
 
 Nach dem Präfix folgt ein verständlicher `CamelCase`-Name.
+
+Die JSON-Aggregatnamen `AGF_JsonArray` und `AGF_JsonObject` wurden am
+2026-10-01 ausdrücklich genehmigt. Diese Konvention erweitert keine
+Implementierungsfreigabe auf andere Aggregate.
 
 ## Fachliche Schemas
 

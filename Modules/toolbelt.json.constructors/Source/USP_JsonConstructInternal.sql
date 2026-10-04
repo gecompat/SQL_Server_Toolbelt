@@ -133,124 +133,59 @@ BEGIN
  +@SyntaxBytes FROM #tbx_JsonConstructor_Input;
  IF @MinimumBytes>@MaxResultBytes THROW 53609,N'JSON: minimale Ergebnisbytegrenze überschritten.',4;
  CREATE TABLE #tbx_JsonConstructor_Fragments(GroupOrdinal int NOT NULL,Ordinal int NOT NULL,Fragment nvarchar(max) COLLATE Latin1_General_100_BIN2 NOT NULL);
- CREATE TABLE #tbx_JsonConstructor_Units(Number int NOT NULL PRIMARY KEY);
- ;WITH Digits AS(SELECT n FROM(VALUES(0),(1),(2),(3),(4),(5),(6),(7),(8),(9)) d(n))
- INSERT #tbx_JsonConstructor_Units SELECT a.n+10*b.n+100*c.n FROM Digits a CROSS JOIN Digits b CROSS JOIN Digits c;
- DECLARE @GroupOrdinal int,@Ordinal int,@Key nvarchar(max),@Kind nvarchar(max),@Value nvarchar(max),@Token nvarchar(max),@Text nvarchar(max),
- @Part int,@Position bigint,@Length bigint,@Unit int,@Next int,@NumberPosition bigint,@DigitStart bigint,
- @InString bit,@PendingHigh bit;
+ DECLARE @GroupOrdinal int,@Ordinal int,@Key nvarchar(max),@Kind nvarchar(max),@Value nvarchar(max),
+ @Stage tinyint,@BridgeCode int,@BridgeState int,@BridgePhase tinyint,@ExpectedRaw bigint,@ExpectedKey bigint,@ExpectedStrong bigint;
+ DECLARE @Entry TABLE(Fragment nvarchar(max) NULL,ErrorNumber int NULL,ErrorState int NULL,FaultPhase tinyint NULL,
+ RawValueBytes bigint NULL,KeyBytes bigint NULL,StrongMinimumBytes bigint NULL,FragmentBytes bigint NULL);
  DECLARE Entries CURSOR LOCAL FAST_FORWARD FOR SELECT GroupOrdinal,Ordinal,[Key],ValueKind,[Value] FROM #tbx_JsonConstructor_Input ORDER BY GroupOrdinal,Ordinal;
  OPEN Entries;
  FETCH NEXT FROM Entries INTO @GroupOrdinal,@Ordinal,@Key,@Kind,@Value;
  WHILE @@FETCH_STATUS=0
  BEGIN
-  -- UTF-16-Codeeinheiten, bewusst nicht-SC: gepaarte Surrogates erhalten, isolierte ablehnen.
-  SET @Part=CASE WHEN @ObjectMode=1 THEN 0 ELSE 1 END;
-  WHILE @Part<=1
+  -- Der einzige fachliche Entrykern ist die bekannte CLR-Bridge. Globale
+  -- Snapshot-/Budget-/Priorityregeln bleiben vor diesen begrenzten Kopien.
+  SELECT @Stage=0,@ExpectedRaw=COALESCE(CONVERT(bigint,DATALENGTH(@Value)),0),
+   @ExpectedKey=CASE WHEN @ObjectMode=1 THEN CONVERT(bigint,DATALENGTH(@Key)) ELSE 0 END;
+  SET @ExpectedStrong=CASE WHEN @Kind=N'null' THEN 8 ELSE @ExpectedRaw END
+   +CASE WHEN @Kind=N'string' THEN 4 ELSE 0 END+CASE WHEN @ObjectMode=1 THEN @ExpectedKey+6 ELSE 0 END;
+  WHILE @Stage<=1
   BEGIN
-   SET @Text=CASE WHEN @Part=0 THEN @Key ELSE @Value END;
-   SET @Position=1; SET @Length=COALESCE(DATALENGTH(@Text)/2,0);
-   WHILE @Position<=@Length
+   DELETE FROM @Entry;
+   INSERT @Entry SELECT Fragment,ErrorNumber,ErrorState,FaultPhase,RawValueBytes,KeyBytes,StrongMinimumBytes,FragmentBytes
+    FROM toolbelt_json.FT_JsonEntryEvaluateInternal(@ObjectMode,@Key,@Kind,@Value,@Stage,CONVERT(tinyint,1));
+   IF (SELECT COUNT_BIG(*) FROM @Entry)<>1
+    THROW 53611,N'JSON: interner Bridgevertrag ist inkohärent.',1;
+   IF EXISTS(SELECT 1 FROM @Entry WHERE ErrorNumber IS NULL OR ErrorState IS NULL OR FaultPhase IS NULL
+    OR RawValueBytes IS NULL OR KeyBytes IS NULL OR StrongMinimumBytes IS NULL OR FragmentBytes IS NULL
+    OR RawValueBytes<>@ExpectedRaw OR KeyBytes<>@ExpectedKey OR StrongMinimumBytes<>@ExpectedStrong
+    OR FragmentBytes<0 OR FragmentBytes%2<>0
+    OR (@Stage=0 AND (Fragment IS NOT NULL OR FragmentBytes<>0))
+    OR (ErrorNumber=0 AND (ErrorState<>0 OR FaultPhase<>0
+      OR (@Stage=1 AND (Fragment IS NULL OR FragmentBytes<>DATALENGTH(Fragment)))))
+    OR (ErrorNumber<>0 AND (Fragment IS NOT NULL OR FragmentBytes<>0))
+    OR NOT((ErrorNumber=0 AND ErrorState=0 AND FaultPhase=0)
+     OR (ErrorNumber=53607 AND ErrorState=1 AND (FaultPhase=2 OR (FaultPhase=1 AND @ObjectMode=1)))
+     OR (@Stage=1 AND ErrorNumber=53607 AND ErrorState BETWEEN 2 AND 4 AND FaultPhase=4 AND @Kind=N'json')
+     OR (@Stage=1 AND ErrorNumber=53608 AND ErrorState=1 AND FaultPhase=3 AND @Kind=N'boolean')
+     OR (@Stage=1 AND ErrorNumber=53608 AND ErrorState BETWEEN 3 AND 6 AND FaultPhase=3 AND @Kind=N'number')))
+    THROW 53611,N'JSON: interner Bridgevertrag ist inkohärent.',1;
+   SELECT @BridgeCode=ErrorNumber,@BridgeState=ErrorState,@BridgePhase=FaultPhase FROM @Entry;
+   IF @BridgeCode=53607 AND @BridgeState=1 THROW 53607,N'JSON: ungültige Unicode-Surrogatfolge.',1;
+   IF @BridgeCode=53607 AND @BridgeState=2 THROW 53607,N'JSON: decodierte Unicode-Surrogatfolge ungültig.',2;
+   IF @BridgeCode=53607 AND @BridgeState=3 THROW 53607,N'JSON: decodierte Unicode-Surrogatfolge ungültig.',3;
+   IF @BridgeCode=53607 AND @BridgeState=4 THROW 53607,N'JSON: decodierte Unicode-Surrogatfolge ungültig.',4;
+   IF @BridgeCode=53608 AND @BridgeState=1 THROW 53608,N'JSON: Booleanliteral ungültig.',1;
+   IF @BridgeCode=53608 AND @BridgeState=3 THROW 53608,N'JSON: Zahlenliteral ungültig.',3;
+   IF @BridgeCode=53608 AND @BridgeState=4 THROW 53608,N'JSON: Zahlenliteral ungültig.',4;
+   IF @BridgeCode=53608 AND @BridgeState=5 THROW 53608,N'JSON: Zahlenliteral ungültig.',5;
+   IF @BridgeCode=53608 AND @BridgeState=6 THROW 53608,N'JSON: Zahlenliteral ungültig.',6;
+   IF @Stage=0 AND @Kind=N'json'
    BEGIN
-    -- Begrenzte set-basierte Blöcke; kein LIKE/PATINDEX-NUL-Shortcut und kein
-    -- millionenfach vergrößerter Numbersbestand. Paare dürfen Blockgrenzen kreuzen.
-    IF EXISTS(SELECT 1 FROM #tbx_JsonConstructor_Units n
-      CROSS APPLY(SELECT UNICODE(SUBSTRING(@Text COLLATE Latin1_General_100_BIN2,@Position+n.Number,1)) Unit) u
-      WHERE n.Number<@Length-@Position+1 AND
-       ((u.Unit BETWEEN 55296 AND 56319 AND
-         COALESCE(UNICODE(SUBSTRING(@Text COLLATE Latin1_General_100_BIN2,@Position+n.Number+1,1)),-1) NOT BETWEEN 56320 AND 57343)
-        OR(u.Unit BETWEEN 56320 AND 57343 AND
-         COALESCE(UNICODE(SUBSTRING(@Text COLLATE Latin1_General_100_BIN2,@Position+n.Number-1,1)),-1) NOT BETWEEN 55296 AND 56319)))
-      THROW 53607,N'JSON: ungültige Unicode-Surrogatfolge.',1;
-    SET @Position+=1000;
+    IF ISJSON(@Value)<>1 THROW 53608,N'JSON: Fragment muss vollständiges Objekt oder Array sein.',2;
    END;
-   SET @Part+=1;
+   SET @Stage+=1;
   END;
-  IF @Kind=N'string' SET @Token=N'"'+STRING_ESCAPE(@Value,'json')+N'"';
-  ELSE IF @Kind=N'null' SET @Token=N'null';
-  ELSE IF @Kind=N'boolean'
-  BEGIN
-   IF CONVERT(varbinary(max),@Value) NOT IN(0x7400720075006500,0x660061006C0073006500) THROW 53608,N'JSON: Booleanliteral ungültig.',1;
-   SET @Token=@Value;
-  END
-  ELSE IF @Kind=N'json'
-  BEGIN
-   IF ISJSON(@Value)<>1 THROW 53608,N'JSON: Fragment muss vollständiges Objekt oder Array sein.',2;
-   -- ISJSON validiert die Syntax, nicht zuverlässig die decodierte Unicode-
-   -- Paarigkeit. Ein einziger lexical Scan prüft alle Stringtokens (auch Keys),
-   -- ohne rekursive LOB-Kopien, zusätzliche Tiefengrenze oder Neuformatierung.
-   IF CHARINDEX(N'\u',@Value COLLATE Latin1_General_100_BIN2)>0
-   BEGIN
-    SELECT @Position=1,@Length=DATALENGTH(@Value)/2,@InString=0,@PendingHigh=0;
-    WHILE @Position<=@Length
-    BEGIN
-     SET @Unit=UNICODE(SUBSTRING(@Value COLLATE Latin1_General_100_BIN2,@Position,1));
-     IF @InString=0
-     BEGIN
-      IF @Unit=34 SELECT @InString=1,@PendingHigh=0;
-      SET @Position+=1;
-     END
-     ELSE IF @Unit=34
-     BEGIN
-      IF @PendingHigh=1 THROW 53607,N'JSON: decodierte Unicode-Surrogatfolge ungültig.',2;
-      SET @InString=0; SET @Position+=1;
-     END
-     ELSE
-     BEGIN
-      IF @Unit=92
-      BEGIN
-       SET @Next=UNICODE(SUBSTRING(@Value COLLATE Latin1_General_100_BIN2,@Position+1,1));
-       IF @Next=117
-       BEGIN
-        SET @Unit=CONVERT(int,CONVERT(varbinary(2),SUBSTRING(@Value,@Position+2,4),2));
-        SET @Position+=6;
-       END
-       ELSE BEGIN SET @Unit=@Next; SET @Position+=2; END;
-      END
-      ELSE SET @Position+=1;
-      IF @PendingHigh=1
-      BEGIN
-       IF @Unit NOT BETWEEN 56320 AND 57343 THROW 53607,N'JSON: decodierte Unicode-Surrogatfolge ungültig.',3;
-       SET @PendingHigh=0;
-      END
-      ELSE IF @Unit BETWEEN 55296 AND 56319 SET @PendingHigh=1;
-      ELSE IF @Unit BETWEEN 56320 AND 57343 THROW 53607,N'JSON: decodierte Unicode-Surrogatfolge ungültig.',4;
-     END;
-    END;
-   END;
-   SET @Token=@Value;
-  END
-  ELSE
-  BEGIN
-   -- JSON-Zahlengrammatik ohne Konvertierung/Precisionverlust oder Culture.
-   SET @Length=DATALENGTH(@Value)/2; SET @NumberPosition=1;
-   IF UNICODE(SUBSTRING(@Value,1,1))=45 SET @NumberPosition+=1;
-   SET @Unit=UNICODE(SUBSTRING(@Value,@NumberPosition,1));
-   IF @Unit=48 SET @NumberPosition+=1;
-   ELSE IF @Unit BETWEEN 49 AND 57
-   BEGIN
-    SET @NumberPosition+=1;
-    WHILE UNICODE(SUBSTRING(@Value,@NumberPosition,1)) BETWEEN 48 AND 57 SET @NumberPosition+=1;
-   END
-   ELSE THROW 53608,N'JSON: Zahlenliteral ungültig.',3;
-   IF UNICODE(SUBSTRING(@Value,@NumberPosition,1))=46
-   BEGIN
-    SET @NumberPosition+=1; SET @DigitStart=@NumberPosition;
-    WHILE UNICODE(SUBSTRING(@Value,@NumberPosition,1)) BETWEEN 48 AND 57 SET @NumberPosition+=1;
-    IF @DigitStart=@NumberPosition THROW 53608,N'JSON: Zahlenliteral ungültig.',4;
-   END;
-   IF UNICODE(SUBSTRING(@Value,@NumberPosition,1)) IN(101,69)
-   BEGIN
-    SET @NumberPosition+=1;
-    IF UNICODE(SUBSTRING(@Value,@NumberPosition,1)) IN(43,45) SET @NumberPosition+=1;
-    SET @DigitStart=@NumberPosition;
-    WHILE UNICODE(SUBSTRING(@Value,@NumberPosition,1)) BETWEEN 48 AND 57 SET @NumberPosition+=1;
-    IF @DigitStart=@NumberPosition THROW 53608,N'JSON: Zahlenliteral ungültig.',5;
-   END;
-   IF @NumberPosition<>@Length+1 THROW 53608,N'JSON: Zahlenliteral ungültig.',6;
-   SET @Token=@Value;
-  END;
-  INSERT #tbx_JsonConstructor_Fragments VALUES(@GroupOrdinal,@Ordinal,CASE WHEN @ObjectMode=1 THEN N'"'+STRING_ESCAPE(@Key,'json')+N'":'+@Token ELSE @Token END);
+  INSERT #tbx_JsonConstructor_Fragments SELECT @GroupOrdinal,@Ordinal,Fragment FROM @Entry;
   FETCH NEXT FROM Entries INTO @GroupOrdinal,@Ordinal,@Key,@Kind,@Value;
  END;
  CLOSE Entries; DEALLOCATE Entries;

@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-10-04 – Gemeinsamer SAFE-JSON-Kern und Aggregate 1.2.0
+
+- Zwei einzeln freigegebene Aggregate und eine interne CLR-Bridge verwenden
+  denselben Kern wie die vier bestehenden Konstruktor-USPs; deren Signaturen,
+  globale Budgets und ResultTable-Verträge bleiben erhalten.
+- Bekannte Binarybytes, sechs exakt typisierte Assemblymarker und kohärente
+  vorhandene Eigentümer binden den achtteiligen Lifecycle ohne Rechtevergabe.
+- Offlinequalifikation, kanonischer Projektbuild, lokale Acht-Fixture-Läufe
+  auf Linux2019/CL150 und Windows2025/CU8/CL170 sowie genuine1.1 lokal und
+  genuine1.0 lokal/zentral mit Repeat/Uninstall und eigener Bereinigung bestanden.
+- Sechs erste-GO-Negativfälle bestanden; weitere Lifecycle-, Minimalrechte-,
+  Engine-Merge-/Heap-/Spill- und Zielmatrixnachweise bleiben offen. Aktuelle CI
+  wird separat am PR-Head geprüft. `partially validated`, `unreleased`.
+
 ## 2026-10-03 – Jaro-Winkler im bestehenden SAFE-Provider 1.1.0, teilweise validiert
 
 - Individuelle Funktionsfreigabe und konkrete Erweiterung der bestehenden Assembly
