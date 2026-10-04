@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-36 Module sind implementiert. 20 sind `validated`, 16 sind `partially validated`; 0 sind `not executed`.
+37 Module sind implementiert. 20 sind `validated`, 16 sind `partially validated`; 1 ist `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -653,6 +653,17 @@ freigegeben; keine pauschale Freigabe weiterer Backlogthemen.
 Status: `ready for development`; noch keine Implementierungs-/Runtime-Evidenz.
 
 #### ZIP-Datei-I/O: zwei Windows-Fassaden
+
+Umsetzung 2026-10-04: [toolbelt.archive.zip-files 1.0.0](../Modules/toolbelt.archive.zip-files/README.md)
+implementiert ausschließlich diese zwei freigegebenen T-SQL-Fassaden.
+[Vertrag](../Documentation/Architecture/ZIP_FILES_CONTRACT.md), Signaturen,
+ResultTable-Brücken und neue technische Fehler 54620–54624 sind gekoppelt.
+Genau drei feste Brücken-Temps wurden für den bestehenden ResultTable-
+Interoperabilitätskonflikt ausdrücklich genehmigt; keine Core-/Provideränderung.
+Source-/Lifecycle-/Testartefakte vorhanden; native Windows-/NTFS-, Rechte-,
+Atomicity-/Race- und CI-Qualifikation noch nicht ausgeführt, unveröffentlicht.
+Die übrigen Reservefunktionen in diesem Abschnitt bleiben getrennt.
+
 
 - `USP_CreateZipFileFromEntries`: bestehender Entries-#Temp-/Writervertrag,
   dann kontrolliertes Schreiben des vollständigen Archiv-Binary.

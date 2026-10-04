@@ -1,0 +1,88 @@
+module_id: "toolbelt.archive.zip-files"
+module_name: "Windows ZIP File Facades"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "not executed"
+release_status: unreleased
+description: "Zwei lokale Windows-T-SQL-Fassaden; native Qualifikation offen."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "not executed"
+  linux: "not applicable: Windows-EXTERNAL_ACCESS-Filesystemprovider"
+providers:
+  - id: tsql-facade
+    technology: T-SQL
+    platforms: [Windows]
+    status: "not executed"
+deployment_capabilities:
+  local: true
+  central: false
+  central_with_synonyms: false
+  local_required: true
+  central_preferred: false
+dependencies:
+  - module_id: "toolbelt.archive.zip-memory"
+    minimum_version: "1.4.0"
+    location: same_database
+    reason: "Statische öffentliche ZIP-Writer-/Reader-Aufrufe, keine Parserkopie."
+  - module_id: "toolbelt.filesystem.windows"
+    minimum_version: "1.0.0"
+    location: same_database
+    reason: "Statischer WriteBinaryFile-Aufruf, unveränderte Publish-/Caller-/NTFS-Grenzen."
+  - module_id: "toolbelt.core.result-table"
+    minimum_version: "1.0.0"
+    location: same_database
+    reason: "Eigene Brücken und späte gemeinsame Prepare-/Insert-SQL-Publikation."
+schemas:
+  - "toolbelt_archive"
+objects:
+  - {type: USP, schema: toolbelt_archive, name: USP_CreateZipFileFromEntries, visibility: public}
+  - {type: USP, schema: toolbelt_archive, name: USP_ExtractZipEntryToFile, visibility: public}
+permissions_required:
+  - "Vorhandene EXECUTE-/Ownershipchain-/Root-/NTFS-Rechte, Caller Windows Authentication"
+  - "Lifecycle: vorhandenes DB-VIEW DEFINITION, SELECT sys.sql_expression_dependencies, Sicht sys.dm_os_host_info, DDL"
+  - "Kein GRANT, EXECUTE AS, Owner-/Config-/Assembly-/Trustwechsel"
+collation_contract: "ZIPnamen ordinal unverändert; technische Marker bytegenau."
+data_type_contract: "Vier typgenaue Filesystemmetadaten; vollständige varbinary(max)-Stages."
+help_contract_version: "1.0"
+runtime_error_contract: "54620-54624/state1; Provider-/Helper-/Enginefehler erhalten"
+lifecycle_error_range: "54631-54637/state1"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: SQLCMD
+  release_manifest: embedded
+  source_hash_role: diagnostic_only
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/USP_CreateZipFileFromEntries.md"
+    - "Documentation/USP_ExtractZipEntryToFile.md"
+  architecture:
+    - "../../Documentation/Architecture/ZIP_FILES_CONTRACT.md"
+  test_matrix:
+    - "Tests/ZIP_FILES_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/ZipFiles.Contract.sql"
+  contract: "Tests/Runtime/ZipFiles.Contract.sql"
+  help: "Tests/Runtime/Help.Contract.sql"
+  metadata: "Tests/Runtime/InstalledMetadata.Contract.sql"
+  safety: "Tests/Runtime/ZipFiles.Safety.sql"
+  atomicity: "Tests/Runtime/ZipFiles.Atomicity.sql"
+  lifecycle_collision_setup: "Tests/Runtime/Lifecycle.AliasCollision.Setup.sql"
+validation_evidence: []
