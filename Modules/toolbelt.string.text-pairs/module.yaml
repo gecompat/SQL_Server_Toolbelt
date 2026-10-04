@@ -1,0 +1,95 @@
+module_id: "toolbelt.string.text-pairs"
+module_name: "Bounded Text Pair Comparison"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Atomarer Batchwrapper über bestehende Levenshtein-, OSA- und Jaro-Winkler-TVFs ohne zusätzlichen Vergleichskern."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "partially validated"
+  linux: "partially validated"
+providers:
+  - id: tsql-wrapper
+    technology: T-SQL
+    platforms: [Windows, Linux]
+    status: "partially validated"
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies:
+  - module_id: "toolbelt.string.edit-distance"
+    minimum_version: "1.1.0"
+    location: same_database
+    reason: "Drei statische öffentliche TVFs; bekannte Version 1.1.0, exakte administrative SHA2-512-Bindung."
+  - module_id: "toolbelt.core.result-table"
+    minimum_version: "1.0.0"
+    location: same_database
+    reason: "Bekannte Version 1.0.0; atomare gemeinsame Helper-/Insert-Veröffentlichung."
+schemas:
+  - "toolbelt_string"
+objects:
+  - type: USP
+    schema: "toolbelt_string"
+    name: "USP_CompareTextPairs"
+    visibility: public
+permissions_required:
+  - "EXECUTE sowie bestehende SELECT-/Ownershipchain und caller-lokale Tempmetadaten; keine Runtime-Assemblyhashsicht"
+  - "Lifecycle: vorhandenes DB-VIEW DEFINITION, SELECT sys.sql_expression_dependencies, vollständige Assemblycontent-Metadatensicht und DDL-Rechte"
+  - "Keine GRANTs, EXECUTE AS, Owner-, Config-, Assembly- oder Truständerungen"
+collation_contract: "Textbytes unverändert; Algorithmus/Profile/Marker bytegenau; keine Culture- oder Unicode-Normalisierung."
+data_type_contract: "Input PairOrdinal bigint, LeftText/RightText nvarchar(max); Result fünf typgenaue Felder; signed Ordinals einschließlich 0."
+help_contract_version: "1.0"
+resultset_contracts:
+  - name: "USP_CompareTextPairs"
+    columns: ["PairOrdinal bigint NOT NULL", "Distance int NULL", "ExceedsMaxDistance bit NULL", "Similarity float(53) NULL", "ErrorCode int NOT NULL"]
+runtime_error_contract: "55100-55109; Kern-Fachcodes 0..6 unverändert, Engine-/Helperfehler erhalten"
+lifecycle_error_range: "55120-55129"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: SQLCMD
+  release_manifest: embedded
+  source_hash_role: diagnostic_only
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/USP_CompareTextPairs.md"
+  architecture:
+    - "../../Documentation/Architecture/TEXT_PAIRS_CONTRACT.md"
+  test_matrix:
+    - "Tests/TEXT_PAIRS_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/TextPairs.Contract.sql"
+  contract: "Tests/Runtime/TextPairs.Contract.sql"
+  boundaries: "Tests/Runtime/TextPairs.Boundaries.sql"
+  atomicity: "Tests/Runtime/TextPairs.Atomicity.sql"
+  metadata: "Tests/Runtime/InstalledMetadata.Contract.sql"
+  help: "Tests/Runtime/Help.Contract.sql"
+validation_evidence:
+  - date: "2026-10-03"
+    workflow: "private bounded Labadapter; fünf öffentliche SQL-Fixtures; frischer Bereinigungsaudit"
+    scope: "SQL Server 2019 Linux/latest CL150 local, SC-UTF8: Help, InstalledMetadata, API, Grenzen, Atomik; clean/repeat/uninstall/repeat und eigene Bereinigung. Kein zentraler oder vollständiger Client-/Minimalrechtenachweis."
+    result: "success"
+  - date: "2026-10-04"
+    workflow: "private bounded Windows-/Central-Labadapter; unabhängiger physischer Receipt-/Journal-/Capture-/Pin-Audit"
+    scope: "SQL Server 2025 Windows/CU8 CL170 SC-UTF8 local: fünf öffentliche SQL-Fixtures und Lifecycle-Wiederholungen. Separat central: InstalledMetadata, drei direkte typgenaue Algorithmusconsumer mit EOF/noNext, drei ResultTable-Ausgaben ohne Resultset, strikte Uninstall-Bestätigung 55128/1 mit unverändertem Katalogsnapshot, Wiederholung und eigene Bereinigung. Keine Config-/Rechte-/Owneränderung. Minimalrechte, weitere Lifecycle-Negativfälle und Ziele bleiben offen; aktuelle PR-Head-CI separat."
+    result: "success"

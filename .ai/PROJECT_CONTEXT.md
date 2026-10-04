@@ -39,8 +39,7 @@ werden in der Modul-Testdokumentation von den finalen Nachweisen getrennt.
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-35 Module sind implementiert. 20 sind `validated`, 15 sind `partially
-validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
+36 Module sind implementiert. 20 sind `validated`, 16 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
 `toolbelt.datetime.date-spine` implementiert D1 mit drei öffentlichen Inline
@@ -294,3 +293,22 @@ Runtime-Nachweis.
 ## XLSX-Typinterpretation – gezielte Qualifikation 2026-10-02
 
 XLSX 1.1.0 ergänzt die einzeln freigegebene `TVF_InterpretXlsxCell` im bestehenden SAFE-Provider. Der finale öffentliche Typadapter bestand am 2026-10-02 auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral: drei Types-Runtime-Fixtures, exakte Zahlen-/100-ns-/NULL-/Clientmetadaten, clean/genuine 1.0/Repeat, Caller-TX OFF/ON intakt und doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, Sichtbarkeitsprädikate, Uninstall und eigene Bereinigung. Raw→Type-Komposition wurde nach den API-CL-Schleifen auf der jeweils letzten CL (2019:150, 2025:170) sowie separat im zentralen Caller geprüft. Keine Konfigurations- oder Rechteänderungen. Die öffentliche Pfadfassung bestand nach ihrem unabhängig geprüften Port auf beiden ausgewählten Targets einschließlich frischer eigener Bereinigungsprüfungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Minimalrechte, weitere physische Ziele und Heap-/Produktionskapazität bleiben offen. `partially validated`, `unreleased`; historische Raw-1.0-Evidenz bleibt getrennt.
+
+
+## Paarvergleich – gezielte Nachweise 2026-10-03/04
+
+`toolbelt.string.text-pairs` 1.0.0 bleibt teilweise validiert und
+unveröffentlicht. Der private begrenzte Wrapperadapter bestand fünf Fixtures
+und Lifecycle-Wiederholungen am2026-10-03 auf SQL Server2019 Linux/latest
+CL150 local sowie am2026-10-04 auf SQL Server2025 Windows/CU8 CL170 local,
+jeweils SC-UTF8. Separat central bestanden InstalledMetadata, drei direkte
+Algorithmen mit exakt fünf typgenauen Feldern und EOF/noNext, drei
+ResultTable-Aufrufe ohne Resultset, Confirm0-Ablehnung55128/1 mit vollständig
+unverändertem Katalogsnapshot und gesunder Session sowie Confirm1-
+Uninstall/repeat. Frische Bereinigungsprüfungen bestätigten eigenen
+Ressourcenabbau; zentral zwei Datenbanken und ein wiederhergestellter
+Trusteintrag. Keine Konfigurations-, SQL-Rechte- oder Owneränderungen.
+Der frühere NULL-Secondarycount-Adapterfehler bleibt ein bereinigter Fehllauf,
+kein Gesamt-PASS aus seinen Teilabschnitten. Minimalrechte, fremde CLR-PC,
+weitere Lifecycle-Negativfälle und Ziele sowie exakte aktuelle Head-CI bleiben
+separate offene Gates; keine vollständige Produktqualifikation.

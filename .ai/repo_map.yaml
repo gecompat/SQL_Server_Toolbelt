@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: thirty_five_modules_implemented
+  status: thirty_six_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -292,6 +292,7 @@ module_registry:
     - Modules/toolbelt.string.split-advanced/module.yaml
     - Modules/toolbelt.string.regex/module.yaml
     - Modules/toolbelt.string.edit-distance/module.yaml
+    - Modules/toolbelt.string.text-pairs/module.yaml
     - Modules/toolbelt.validation.semantic-version/module.yaml
     - Modules/toolbelt.conversion.integer-base/module.yaml
     - Modules/toolbelt.datetime.calendar-difference/module.yaml
@@ -547,6 +548,13 @@ change_impact:
         - .github/workflows/edit-distance-runtime.yml
       checks:
         - edit_distance_static
+        - markdown_links
+    text_pairs_contract:
+      paths:
+        - Modules/toolbelt.string.text-pairs/**
+        - Documentation/Architecture/TEXT_PAIRS_CONTRACT.md
+      checks:
+        - text_pairs_static
         - markdown_links
     regex_contract:
       paths:

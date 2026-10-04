@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-35 Module sind implementiert. 20 sind `validated`, 15 sind `partially validated`; 0 sind `not executed`.
+36 Module sind implementiert. 20 sind `validated`, 16 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -512,6 +512,21 @@ dokumentierten Wellen; keine pauschale Backlogfreigabe.
   Vertrag. Begrenzte Zeilen-/Text-/Arbeitsbudgets, vollständige Verarbeitung
   vor ResultTable-Mutation. Keine automatische Kreuzkombination, kein
   verstecktes Ranking oder automatisches Duplikatzusammenführen.
+  Ergänzende Vor-Source-Freigabe 2026-10-03: Der Benutzer bestätigte die
+  gesondert besprochene eigene Modul-/Hash-/Lifecycle-Sichtgrenze mit
+  „das passt für mich so“. Die ausdrücklich wiederaufgenommene autonome
+  Umsetzung bestätigt die fünf konkreten Zusatzentscheidungen. Der
+  [kanonische Vertrag](../Documentation/Architecture/TEXT_PAIRS_CONTRACT.md)
+  legt elf Parameter, signed bigint Ordinals, fünf Ergebnisfelder, konservative
+  globale Budgets und gleiche bekannte Dependencies fest. Keine neue Assembly.
+  `toolbelt.string.text-pairs` 1.0.0 ist implementiert, teilweise validiert und
+  unveröffentlicht. Fünf öffentliche SQL-Fixtures sowie Lifecycle-Wiederholungen
+  bestanden auf Linux 2019/latest CL150 local und Windows 2025/CU8 CL170 local.
+  Ein separater zentraler Windows-Lauf bestand InstalledMetadata, drei direkte
+  Clientconsumer, drei ResultTable-Ausgaben ohne Resultset, strikte Uninstall-
+  Bestätigung mit Katalogerhalt und eigene Bereinigung; unabhängig physisch
+  geprüft am 2026-10-04. Minimalrechte, weitere Lifecycle-Negativfälle, Ziele
+  und aktuelle PR-Head-CI bleiben getrennt offen.
 - `USP_JsonArraysByGroup` und `USP_JsonObjectsByGroup`: bestehender Entries-
   Vertrag plus positive GroupOrdinal; ein JSON-Ergebnis je vorhandener
   Gruppe, Entry-Ordinal bestimmt Reihenfolge. Duplicate Keys innerhalb
