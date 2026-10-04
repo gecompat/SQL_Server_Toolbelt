@@ -2,22 +2,22 @@ module_id: "toolbelt.archive.zip-files"
 module_name: "Windows ZIP File Facades"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
-description: "Zwei lokale Windows-T-SQL-Fassaden; native Qualifikation offen."
+description: "Zwei lokale Windows-T-SQL-Fassaden mit nativen Teilnachweisen; weitergehende Qualifikation offen."
 sql_server_versions:
   - "2019"
   - "2022"
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "not executed"
+  windows: "partially validated"
   linux: "not applicable: Windows-EXTERNAL_ACCESS-Filesystemprovider"
 providers:
   - id: tsql-facade
     technology: T-SQL
     platforms: [Windows]
-    status: "not executed"
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: false
@@ -85,4 +85,8 @@ tests:
   safety: "Tests/Runtime/ZipFiles.Safety.sql"
   atomicity: "Tests/Runtime/ZipFiles.Atomicity.sql"
   lifecycle_collision_setup: "Tests/Runtime/Lifecycle.AliasCollision.Setup.sql"
-validation_evidence: []
+validation_evidence:
+  - date: "2026-10-04"
+    workflow: "Privater begrenzter Windows-local-Lauf und gezielte AppLock-Probes"
+    scope: "SQL Server 2025/CU8 Windows, CL170, local: elf Fälle in früheren Teilabläufen erfolgreich, danach zwei gezielte Aliasprüfungen unter AppLock erfolgreich, mit identischen Produktbytes. Zusammen 13 Fallnachweise, kein gemeinsamer 13-Fälle-Erfolgslauf. Fünf SQL-Fixtures, Windows-Caller/SQLauth-Ablehnung, Deploy-/Uninstall-Repeat und Alias-First-GO-/AppLock-Schutz; eigene DB/Root abwesend, zwei Trustzustände wiederhergestellt und frische Prüfung erfolgreich, keine Konfigurations-/Rechte-/Owneränderung. Historische fehlgeschlagene Abläufe bleiben fehlgeschlagen; unveränderte Provider wiederverwendet, keine vollständige ZIP-/NTFS-/Zielmatrix-, Central-/Linux-, Minimalrechte- oder aktuelle Head-CI-Qualifikation."
+    result: "success"

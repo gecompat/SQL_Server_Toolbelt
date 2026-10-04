@@ -6,10 +6,26 @@ Die beiden APIs wurden am 2026-10-01 einzeln besprochen und ausdrücklich
 freigegeben; siehe [BACKLOG](../../.ai/BACKLOG.md#zip-datei-io-zwei-windows-fassaden).
 Die technische Konkretisierung ist innerhalb dieses Scopes genehmigt.
 Modul `toolbelt.archive.zip-files` 1.0.0: genau zwei öffentliche T-SQL-P-Slots
-im bestehenden Schema `toolbelt_archive`. Source vorhanden; Runtime noch
-nicht ausgeführt; unveröffentlicht. Keine Assembly, kein weiterer ZIP-Kern.
+im bestehenden Schema `toolbelt_archive`. Source vorhanden; begrenzte native
+Windows-local-Teilnachweise vorhanden, vollständige Qualifikation offen;
+unveröffentlicht. Keine Assembly, kein weiterer ZIP-Kern.
 
 ## Dependencies und Deployment
+
+Objektmarker werden rollenbezogen nur dort verlangt, wo der bestehende
+Dependencyvertrag sie tatsächlich erzeugt (`RequireObjectMarkers`). Alle vier
+Dependencies benötigen weiterhin ihren exakten P-Slot und den kanonischen
+DB-Versionsmarker mindestens in der angegebenen Version. ZIP und ResultTable
+behalten den DB-Modemarker `local`; nur Core verlangt zusätzlich den
+Objektmodemarker. Keine Marker werden ergänzt oder repariert.
+
+| Dependency-P | Minimum | Objekt-ModuleId/ModuleVersion |
+|---|---|---|
+| `USP_CreateZipFromEntries` | ZIP1.4.0 | erforderlich |
+| `USP_ExtractZipEntryFromBinary` | ZIP1.4.0 | Legacyreader ohne Pflichtmarker |
+| `USP_WriteBinaryFile` | Filesystem1.0.0 | bestehende Form ohne Pflichtmarker |
+| `USP_PrepareResultTable` | ResultTable1.0.0 | erforderlich |
+
 
 Windows ausschließlich local: ZIP Memory >=1.4.0, Windows Filesystem
 >=1.0.0 und ResultTable >=1.0.0 in derselben DB. Drei bestehende öffentliche
@@ -107,9 +123,11 @@ separate Message, kein Primärfehlerersatz. Keine Rohmessageauswertung.
 
 [Tests](../../Modules/toolbelt.archive.zip-files/Tests/README.md) und
 [Matrix](../../Modules/toolbelt.archive.zip-files/Tests/ZIP_FILES_TEST_MATRIX.md)
-trennen Sourcekontrollen von noch nicht ausgeführten Windows/SQL/NTFS-
-Verträgen. Kein Linux/Central-, kompletter Atomicity/Race/Minimalrechte-,
-Extremgrößen- oder aktuelle Head-CI-Nachweis.
+trennen Sourcekontrollen, elf erfolgreiche Fälle früherer Teilabläufe und zwei
+anschließend gezielt erfolgreiche AppLock-Aliasfälle auf Windows2025/CU8
+CL170 mit identischen Produktbytes. Kein gemeinsamer 13-Fälle-Erfolgslauf;
+historische Fehlstatus bleiben erhalten. Kein vollständiger Modul-/NTFS-,
+Linux/Central-, Race-/Minimalrechte-, Extremgrößen- oder aktueller Head-CI-Nachweis.
 
 Lifecycle prüft zusätzlich vor Mutation und unter AppLock kollationgleiche
 anders geschriebene Slotnamen und weist sie mit 54634/state1 ab; bekannte

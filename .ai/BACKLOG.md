@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-37 Module sind implementiert. 20 sind `validated`, 16 sind `partially validated`; 1 ist `not executed`.
+37 Module sind implementiert. 20 sind `validated`, 17 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -660,8 +660,11 @@ implementiert ausschließlich diese zwei freigegebenen T-SQL-Fassaden.
 ResultTable-Brücken und neue technische Fehler 54620–54624 sind gekoppelt.
 Genau drei feste Brücken-Temps wurden für den bestehenden ResultTable-
 Interoperabilitätskonflikt ausdrücklich genehmigt; keine Core-/Provideränderung.
-Source-/Lifecycle-/Testartefakte vorhanden; native Windows-/NTFS-, Rechte-,
-Atomicity-/Race- und CI-Qualifikation noch nicht ausgeführt, unveröffentlicht.
+Begrenzte native Teilnachweise auf Windows2025/CU8 CL170 local: elf frühere
+erfolgreiche Fälle und zwei gezielt erfolgreiche AppLock-Aliasfälle mit identischen
+Produktbytes; kein gemeinsamer 13-Fälle-Erfolgslauf. Eigene Bereinigung frisch geprüft.
+Vollständige NTFS-/Rechte-/Race-/Zielmatrix- und aktuelle Head-CI-Qualifikation offen;
+partially validated, unveröffentlicht.
 Die übrigen Reservefunktionen in diesem Abschnitt bleiben getrennt.
 
 

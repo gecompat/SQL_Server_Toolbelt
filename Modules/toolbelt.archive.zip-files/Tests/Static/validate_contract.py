@@ -59,3 +59,18 @@ require(all(x in naming for x in bridges),"specific three-bridge naming exceptio
 def bridge_allowed(name): return name.lower() not in {x.lower() for x in bridges}
 require(not bridge_allowed("#ZIPFILES_WRITESTAGE") and not bridge_allowed("#ZipFiles_CreateStage") and bridge_allowed("#Result"),"bridge vectors")
 print("PASS ZIP_FILES_SOURCE_CONTRACT (source-only; no native execution)")
+
+# Die feste Dependencyrolle verlangt nur vorhandene Writer-/Core-Objektmarker.
+for file in ['Source/USP_CreateZipFileFromEntries.sql','Source/USP_ExtractZipEntryToFile.sql','Deployment/Deploy.sql']:
+    text=(MODULE/file).read_text(encoding='utf-8')
+    require('RequireObjectMarkers bit NOT NULL' in text,file+': explizite feste Markerrolle')
+    for name,version,flag in [('USP_CreateZipFromEntries','1,4,0',1),('USP_ExtractZipEntryFromBinary','1,4,0',0),('USP_WriteBinaryFile','1,0,0',0),('USP_PrepareResultTable','1,0,0',1)]:
+        require("N'"+name+"',"+version+','+str(flag)+')' in text,file+': Markerrolle '+name)
+    require(text.count('d.RequireObjectMarkers=1 AND NOT EXISTS')==2,file+': Modul-/Versionsobjektmarker geschlossen')
+    require("e.class=0 AND e.major_id=0 AND e.minor_id=0" in text and 'n.Major<d.MinimumMajor' in text,file+': DB-Version/Minimum erhalten')
+safety=(MODULE/'Tests/Runtime/ZipFiles.Safety.sql').read_text(encoding='utf-8')
+require("@level1name=N'USP_CreateZipFromEntries'" in safety and "@value=N'0.0.0'" in safety,'Writer-Markermanipulation bleibt negative Fixture')
+zipdeploy=(ROOT/'Modules/toolbelt.archive.zip-memory/Deployment/Deploy.sql').read_text(encoding='utf-8')
+writer=zipdeploy.split('DECLARE WriterMarkers CURSOR',1)[1].split('OPEN WriterMarkers',1)[0]
+require("N'USP_CreateZipFromEntries'" in writer and "N'USP_ExtractZipEntryFromBinary'" not in writer,'vorhandene ZIP1.4-Legacy-Markerform')
+print('PASS ZIP_FILES_DEPENDENCY_MARKER_ROLES (nur Sourcekopplung)')
