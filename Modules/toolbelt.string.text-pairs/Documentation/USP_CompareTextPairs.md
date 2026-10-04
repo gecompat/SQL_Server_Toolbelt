@@ -2,7 +2,7 @@
 
 Öffentlicher Vertrag 1.0.0: [kanonische Signatur, Grenzen und Freigabe](../../../Documentation/Architecture/TEXT_PAIRS_CONTRACT.md). Elf Parameter; die letzten vier sind ResultTable, KeepData, Debug, Hilfe. `EXEC toolbelt_string.USP_CompareTextPairs @Hilfe=1;` liefert ausschließlich Help1.0.
 
-Input: vorhandene lokale #Temp mit exakt benannten Systemspalten `PairOrdinal bigint`, `LeftText nvarchar(max)`, `RightText nvarchar(max)`. Ordinals dürfen negative Werte und 0 enthalten, müssen nicht NULL/eindeutig sein; zusätzliche Spalten werden ignoriert. Keine Alias-/computed-/hidden-/encrypted Fachspalten. Keine Normalisierung oder Kürzung. Parallele Mutation/MARS ist nicht unterstützt.
+Input: vorhandene lokale #Temp mit exakt benannten Systemspalten `PairOrdinal bigint`, `LeftText nvarchar(max)`, `RightText nvarchar(max)`. Ordinals dürfen negative Werte und 0 enthalten, dürfen nicht NULL sein und müssen eindeutig sein; zusätzliche Spalten werden ignoriert. Keine Alias-/computed-/hidden-/encrypted Fachspalten. Keine Normalisierung oder Kürzung. Parallele Mutation/MARS ist nicht unterstützt.
 
 Algorithmus bytegenau `levenshtein`, `osa` oder `jaro-winkler`. Profil/Distanzschwelle gehen unverändert an bestehende TVFs; Jaro unterstützt nur NULL-Schwelle. Batchadmission: maximal 100000 Paare, 16777216 Textbytes und 67108864 konservative Workeinheiten; kleinere positive Callerbudgets zulässig. Textbytes zählen beide Seiten auch bei NULL-Gegenseite, Work bei NULL-Paar 0; sonst UTF16-Längenprodukt mit Paircap 1048576 bei standard und 16777216 sonst. Keine tatsächliche CPU-/Heap-/Hardwallzusage.
 
