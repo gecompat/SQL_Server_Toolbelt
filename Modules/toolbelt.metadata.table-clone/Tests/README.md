@@ -1,9 +1,20 @@
 # Testausführung
 
+## Executor 3.1
+
+Die neue Welle verwendet `Execute.Contract.sql` und `Execute.Safety.sql`
+gezielt einmal je ausgewähltem Lab-Ziel; historische Planner-Grenzfixtures
+werden nicht wiederholt. Signatur-/Hash-/Modus-/Lifecyclekopplung ist statisch
+geprüft. Die begrenzten privaten Native- und Clientadapter bestanden am
+2026-10-04 auf Linux2019/latest CL150 und Windows2025/exakt CU8 CL170,
+jeweils lokal. Clean3.1 und genuine3→3.1 einschließlich Repeat, resolved
+Consumer, Uninstall und eigener Bereinigung sind geprüft. Die beiden neuen
+Fixtures und der Clientnachweis wurden im Upgradezyklus nicht wiederholt.
+Head-CI ist ein separater PR-Nachweis; keine vollständige Ziel-/CL-/Minimalrechtematrix.
+
 Static: `python Modules/toolbelt.metadata.table-clone/Tests/Static/validate_contract.py`.
-Labadapter: `pwsh -NoProfile -File Tests/CI/run-lab-local.ps1 -RunScripts run-table-clone-linux.sh -Versions 2019 -Platforms linux -LinuxPatches latest -StopOnFailure`.
-Windows-Labadapter: `pwsh -NoProfile -File Tests/CI/run-lab-local.ps1 -RunScripts run-table-clone-linux.sh -Versions 2025 -Platforms windows -WindowsPatches CU8 -StopOnFailure`.
-Runner validiert exportierten Schema-Vertrag; keine Infrastrukturänderung.
+Die ausgeführten privaten Adapter validierten den exportierten Schema-Vertrag;
+keine Infrastruktur-, Konfigurations-, Rechte- oder Truständerung.
 CI-Workflow registriert2019/2022/2025Linux, vorhandener Workflow ist keine Evidenz.
 
 Historische Version1.0.0: Am2026-10-01 vollständige finale2019Linux/latest- und2025Windows/CU8-Adapter erfolgreich; Source,
@@ -19,8 +30,8 @@ synthetischen Daten und Modulmarker. Keine serverweite sys.messages-Änderung.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-04`
-- Nachweis: `Begrenzte private W2-Nativeadapter; physische Prozess-/Journalprüfung und frischer Cleanup-Audit`
-- Scope: Am 2026-10-04 bestanden begrenzte private Adapter auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL170 ausschließlich lokal: Clean3 und genuine2→3 mit frischer Session, Repeat, resolved Consumer mit Deploy-/Uninstall-Ablehnung53926/1 und unverändertem Katalogsnapshot/gesunder Transaktion sowie Uninstall/Repeat. Je Lauf wurden zwei eigene Datenbanken entfernt; frische Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte-, Owner- oder Truständerungen. Linux: drei W2-Fixtures und eine W1-Regressionsfixture stammen als Teilnachweis aus einem historischen insgesamt fehlgeschlagenen Lauf; der identische Produkt- und Fixturestand wurde wiederverwendet und im finalen Lifecycle-PASS nicht erneut ausgeführt. Windows: dieselben vier Fixtures bestanden einmal in Clean3 im aktuellen erfolgreichen Lauf, nicht erneut im Upgradezyklus. Unresolved Consumer: NOT_ESTABLISHED. Keine vollständige Produktqualifikation; weitere Ziele/CL, zentrale V3-Nutzung, Minimalrechte, übrige Lifecycle-Negativfälle und aktuelle Head-CI bleiben offen. Status bleibt teilweise validiert und unveröffentlicht.
+- Nachweis: `Begrenzter privater Executor-Nativeadapter (PowerShell/SqlClient); unabhängige physische Prozess-/Journalprüfung`
+- Scope: Version3.1.0: SQL Server 2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL170 ausschließlich lokal. Je Ziel Clean3.1 und genuine3→3.1 aus unveränderten öffentlichen 3.0-Blobs mit frischer Session, Repeat, drei Releaseobjekte und 12/12/14 Parameter, resolved Consumer mit Deploy-/Uninstall53926/1 und unverändertem Snapshot/gesunder Transaktion, Uninstall/Repeat bestanden. Execute.Contract.sql und Execute.Safety.sql je einmal im erfolgreichen Cleanzyklus: Single/Map, CREATE/DEFER, zyklische/Self-FKs, DB-DDL-Trigger-Gate, später ResultTable-Fehlerrollback, DEFAULT-UDF-Gate, Hash-/Temp-Gates und Caller-TX/Help/SET-Erhalt. Unabhängiger Client-Hash und ein dreispaltiges Result mit genauen SQL-/CLR-Typen, NOT NULL, Binary32, EOF und keinem Folgeresult bestanden. Je zwei eigene Datenbanken entfernt; frischer Cleanup-Audit, vollständige Prozesskanäle und unveränderte Inputpins unabhängig geprüft. Keine Konfigurations-, Rechte-, Owner- oder Truständerungen. Frühere fehlgeschlagene Läufe sind kein Gesamt-PASS. Serverweite negative Trigger-/Eventnotification-Fixtures, unresolved Consumer, tatsächliche Minimalrechte, weitere native Ziele/CL und zentrale Executor-Nutzung nicht ausgeführt. Head-CI ist separat im Pull Request nachzuweisen; teilweise validiert und unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

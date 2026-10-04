@@ -1,10 +1,21 @@
-# Script-only Table Clone
+# Table Clone Planner und Executor
 
 `toolbelt_metadata.USP_ScriptTableClone` liefert eine geordnete DDL-Vorschau;
-die öffentliche API führt niemals DDL aus und kopiert keine Daten.
+dieser Planner führt niemals DDL aus und kopiert keine Daten.
 Siehe [Objektvertrag](Documentation/USP_ScriptTableClone.md),
 [Architektur](../../Documentation/Architecture/TABLE_CLONE_PROPOSAL.md)
 und [Testmatrix](Tests/TABLE_CLONE_CONTRACT_TEST_MATRIX.md).
+
+Version3.1 ergänzt separat
+[`USP_ExecuteTableClone`](Documentation/USP_ExecuteTableClone.md): frischer
+kanonischer Plan, expliziter erwarteter Hash, ausschließlich neue SameDB-Ziele,
+eigene Transaktion und vorhandene DB-/Servervollsicht. CREATE führt den ganzen
+Plan aus; DEFER schiebt nur FK-/FK-Statezeilen auf. Keine Daten-/Triggerkopie,
+Rechteerteilung oder externe Atomikzusage. Der
+[Executor-Vertrag](../../Documentation/Architecture/TABLE_CLONE_EXECUTE_CONTRACT.md)
+und das [Client-Hashbeispiel](Examples/CalculatePlanHash.py) sind gekoppelt.
+Die gezielten lokalen 3.1-Nachweise sind bestanden; der genaue Scope und
+die offenen Nachweise stehen im Manifest. V1/V2/V3-Evidenz bleibt historisch.
 
 Installieren nach `toolbelt.core.result-table >=1.0.0`, aus `Deployment`:
 `sqlcmd -b -i Deploy.sql -v DeploymentMode=local`.
@@ -24,8 +35,8 @@ Historische V1-Nachweise bleiben getrennt; Welle1/2.0.0 ist teilweise validiert 
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-04`
-- Nachweis: `Begrenzte private W2-Nativeadapter; physische Prozess-/Journalprüfung und frischer Cleanup-Audit`
-- Scope: Am 2026-10-04 bestanden begrenzte private Adapter auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL170 ausschließlich lokal: Clean3 und genuine2→3 mit frischer Session, Repeat, resolved Consumer mit Deploy-/Uninstall-Ablehnung53926/1 und unverändertem Katalogsnapshot/gesunder Transaktion sowie Uninstall/Repeat. Je Lauf wurden zwei eigene Datenbanken entfernt; frische Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte-, Owner- oder Truständerungen. Linux: drei W2-Fixtures und eine W1-Regressionsfixture stammen als Teilnachweis aus einem historischen insgesamt fehlgeschlagenen Lauf; der identische Produkt- und Fixturestand wurde wiederverwendet und im finalen Lifecycle-PASS nicht erneut ausgeführt. Windows: dieselben vier Fixtures bestanden einmal in Clean3 im aktuellen erfolgreichen Lauf, nicht erneut im Upgradezyklus. Unresolved Consumer: NOT_ESTABLISHED. Keine vollständige Produktqualifikation; weitere Ziele/CL, zentrale V3-Nutzung, Minimalrechte, übrige Lifecycle-Negativfälle und aktuelle Head-CI bleiben offen. Status bleibt teilweise validiert und unveröffentlicht.
+- Nachweis: `Begrenzter privater Executor-Nativeadapter (PowerShell/SqlClient); unabhängige physische Prozess-/Journalprüfung`
+- Scope: Version3.1.0: SQL Server 2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL170 ausschließlich lokal. Je Ziel Clean3.1 und genuine3→3.1 aus unveränderten öffentlichen 3.0-Blobs mit frischer Session, Repeat, drei Releaseobjekte und 12/12/14 Parameter, resolved Consumer mit Deploy-/Uninstall53926/1 und unverändertem Snapshot/gesunder Transaktion, Uninstall/Repeat bestanden. Execute.Contract.sql und Execute.Safety.sql je einmal im erfolgreichen Cleanzyklus: Single/Map, CREATE/DEFER, zyklische/Self-FKs, DB-DDL-Trigger-Gate, später ResultTable-Fehlerrollback, DEFAULT-UDF-Gate, Hash-/Temp-Gates und Caller-TX/Help/SET-Erhalt. Unabhängiger Client-Hash und ein dreispaltiges Result mit genauen SQL-/CLR-Typen, NOT NULL, Binary32, EOF und keinem Folgeresult bestanden. Je zwei eigene Datenbanken entfernt; frischer Cleanup-Audit, vollständige Prozesskanäle und unveränderte Inputpins unabhängig geprüft. Keine Konfigurations-, Rechte-, Owner- oder Truständerungen. Frühere fehlgeschlagene Läufe sind kein Gesamt-PASS. Serverweite negative Trigger-/Eventnotification-Fixtures, unresolved Consumer, tatsächliche Minimalrechte, weitere native Ziele/CL und zentrale Executor-Nutzung nicht ausgeführt. Head-CI ist separat im Pull Request nachzuweisen; teilweise validiert und unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

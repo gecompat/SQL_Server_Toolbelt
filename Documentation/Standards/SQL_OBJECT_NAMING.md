@@ -70,6 +70,20 @@ Keine allgemeine Namensfreigabe:
 [ZIP_FILES_CONTRACT](../Architecture/ZIP_FILES_CONTRACT.md).
 
 
+### Eng begrenzte Executor-ResultTable-Brücken
+
+Technische Codex-Entscheidung vom 2026-10-04 innerhalb des einzeln
+freigegebenen `USP_ExecuteTableClone`-Scopes: ausschließlich dieser Executor
+verwendet `#TableCloneExecute_MapStage` und `#TableCloneExecute_PlanStage`
+als eigene feste Brücken zum bestehenden Planner-/ResultTable-Vertrag,
+der Caller-Zielnamen mit `#tbx_` ablehnt. Vor CREATE werden beide Namen
+auf vorhandene Objekte geprüft; Caller-Map und Caller-ResultTable dürfen
+diese Namen nicht verwenden. Keine Adoption oder Löschung fremder Temps;
+Cleanup ausschließlich eigener Objekte. Alle übrigen Executor-Temps bleiben
+`#tbx_`. Der Core- und Vorschauvertrag wird dadurch nicht verändert.
+Diese Ausnahme gilt nicht für andere Prozeduren:
+[Executor-Vertrag](../Architecture/TABLE_CLONE_EXECUTE_CONTRACT.md).
+
 ## Persistente Tabellen, Constraints und Indizes
 
 Persistente Tabellen verwenden im fachlichen `toolbelt_<category>`-Schema einen verständlichen singulären `CamelCase`-Namen ohne Typpräfix.
