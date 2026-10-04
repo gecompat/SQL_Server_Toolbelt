@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-10-04 – ZIP-Dateifassaden 1.0.0, begrenzte Teilnachweise
+
+- Zwei einzeln freigegebene lokale Windows-USPs verwenden statisch bestehende
+  ZIP-Writer-/Reader- und Filesystemverträge; keine neue Assembly/Providerlogik.
+- Vollständige Payloadvorbereitung vor Dateipublikation, TX-Abweisung und
+  eigene späte SQL-ResultTable-Transaktion; keine SQL-/Dateisystematomarität.
+- Drei konkrete Brücken-Temps als eng genehmigte Namingausnahme; kein Corefix.
+- Lifecycle, Help, Manifest und fünf synthetische Runtime-Fixtures vorhanden;
+  elf frühere und zwei gezielte AppLock-Fallnachweise auf Windows2025/CU8 CL170
+  local bei identischen Produktbytes; kein gemeinsamer 13-Fälle-Erfolgslauf.
+  Eigene Bereinigung frisch geprüft. Vollständige Qualifikation und aktuelle
+  Head-CI separat offen; teilweise validiert, unveröffentlicht.
+
 ## 2026-10-04 – Gemeinsamer SAFE-JSON-Kern und Aggregate 1.2.0
 
 - Zwei einzeln freigegebene Aggregate und eine interne CLR-Bridge verwenden
@@ -601,7 +614,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-36 Module sind implementiert. 20 sind `validated`, 16 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+37 Module sind implementiert. 20 sind `validated`, 17 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 
