@@ -9,6 +9,28 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+# Bereits qualifizierter gemeinsamer Paketierungshelfer; keine ungegrenzten
+# direkten Toolstarts. Seine Kanäle bleiben privat und auf je 4 MiB begrenzt.
+$repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../..'))
+$ownedHelper = Join-Path $repoRoot 'Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1'
+$toolPins = @{}
+$helperBytes = [IO.File]::ReadAllBytes($ownedHelper)
+$helperHasher = [Security.Cryptography.SHA256]::Create()
+try { $toolPins[$ownedHelper] = [BitConverter]::ToString($helperHasher.ComputeHash($helperBytes)).Replace('-','') } finally { $helperHasher.Dispose() }
+. ([scriptblock]::Create([Text.UTF8Encoding]::new($false,$true).GetString($helperBytes).TrimStart([char]0xFEFF)))
+$buildHelper = Join-Path $PSScriptRoot 'Invoke-XlsxBuildProcess.ps1'
+$buildHelperBytes = [IO.File]::ReadAllBytes($buildHelper)
+$buildHelperHasher = [Security.Cryptography.SHA256]::Create()
+try { $toolPins[$buildHelper] = [BitConverter]::ToString($buildHelperHasher.ComputeHash($buildHelperBytes)).Replace('-','') } finally { $buildHelperHasher.Dispose() }
+. ([scriptblock]::Create([Text.UTF8Encoding]::new($false,$true).GetString($buildHelperBytes)))
+function Assert-ReleaseTools {
+    foreach ($path in $toolPins.Keys) {
+        if ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -cne $toolPins[$path]) {
+            throw 'RELEASE_TOOL_DRIFT'
+        }
+    }
+}
+
 $moduleRoot = Split-Path -Parent $PSScriptRoot
 $projectPath = Join-Path $moduleRoot 'Clr/Toolbelt.File.XlsxMemory.csproj'
 $assemblyPath = Join-Path $moduleRoot "Clr/bin/$Configuration/Toolbelt.File.XlsxMemory.dll"
@@ -21,10 +43,11 @@ if (Test-Path -LiteralPath $OutputDirectory) {
     }
 }
 $sourcePaths = @('Clr/Toolbelt.File.XlsxMemory.csproj','Clr/AssemblyInfo.cs','Clr/Workbook.cs',
-    'Clr/XlsxEntryPoints.cs','Clr/XlsxCellType.cs','Source/TVF_InternalXlsxSheets.sql',
+    'Clr/XlsxEntryPoints.cs','Clr/XlsxCellType.cs','Clr/XlsxCellDisplay.cs','Clr/XlsxCellDisplayBridge.cs','Source/TVF_InternalXlsxSheets.sql',
     'Source/TVF_InternalXlsxCells.sql','Source/USP_InternalXlsxRead.sql','Source/USP_ListXlsxWorksheets.sql',
     'Source/USP_ReadXlsxWorksheetCells.sql','Source/TVF_InternalInterpretXlsxCell.sql','Source/TVF_InterpretXlsxCell.sql',
-    'Deployment/Deploy.sql','Deployment/Uninstall.sql','Scripts/New-ClrReleaseArtifacts.ps1')
+    'Source/TVF_InternalFormatXlsxCell.sql','Source/TVF_FormatXlsxCell.sql',
+    'Deployment/Deploy.sql','Deployment/Uninstall.sql','Scripts/New-ClrReleaseArtifacts.ps1','Scripts/Invoke-XlsxBuildProcess.ps1')
 $sourceFingerprints = @(foreach ($relative in $sourcePaths) {
     [ordered]@{ path = $relative; sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $moduleRoot $relative)).Hash }
 })
@@ -35,17 +58,40 @@ function Assert-ReleaseSources {
         }
     }
 }
+function Invoke-ReleaseTool([string]$Path,[string[]]$Arguments,[int]$Milliseconds) {
+    $result=$null;$firstFailure=$null;$secondary=@()
+    Assert-ReleaseSources;Assert-ReleaseTools
+    try {
+        if($null -ne $script:xlsxBuildControl -and $Path -ceq $script:xlsxBuildControl.Tool){
+            Assert-XlsxBuildImports $script:xlsxBuildControl
+            $result=Invoke-XlsxBuildProcess -FileName $Path -Arguments ($Arguments+$script:xlsxBuildControl.Arguments) -TimeoutMilliseconds $Milliseconds -WorkingDirectory $script:xlsxBuildControl.WorkingDirectory -ChildEnvironment $script:xlsxBuildControl.Environment
+            Assert-XlsxBuildImports $script:xlsxBuildControl
+        }else{$result=Invoke-OwnedProcess -FileName $Path -Arguments $Arguments -TimeoutMilliseconds $Milliseconds}
+    }
+    catch { $firstFailure=$_ }
+    finally {
+        try { Assert-ReleaseSources;Assert-ReleaseTools }
+        catch { if($null -eq $firstFailure){$firstFailure=$_}else{$secondary+=@('RELEASE_POSTPIN_FAILED')} }
+    }
+    if($null -ne $firstFailure){
+        if($secondary.Count){$firstFailure.Exception.Data['ReleaseSecondaryFailures']=$secondary -join ','}
+        throw $firstFailure
+    }
+    return $result
+}
 
+$script:xlsxBuildControl=$null
 $msbuild = Get-Command msbuild -ErrorAction SilentlyContinue
 if ($null -eq $msbuild) {
     $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
     if (Test-Path -LiteralPath $vswhere -PathType Leaf) {
-        $msbuildPath = & $vswhere `
-            -latest `
-            -products * `
-            -requires Microsoft.Component.MSBuild `
-            -find 'MSBuild/**/Bin/MSBuild.exe' |
-            Select-Object -First 1
+        $toolPins[$vswhere] = (Get-FileHash -LiteralPath $vswhere -Algorithm SHA256).Hash
+        Assert-ReleaseTools
+        $discovery = Invoke-ReleaseTool $vswhere @('-latest','-products','*','-requires','Microsoft.Component.MSBuild','-find','MSBuild/**/Bin/MSBuild.exe') 20000
+        Assert-ReleaseTools
+        if ($discovery.ExitCode -ne 0 -or -not $discovery.CaptureComplete -or $discovery.Stderr.Length -ne 0) { throw 'RELEASE_DISCOVERY_FAILED' }
+        $paths = @($discovery.Stdout -split '\r?\n' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+        $msbuildPath = if ($paths.Count) { $paths[0] } else { $null }
 
         if ($msbuildPath) {
             $msbuild = [pscustomobject]@{ Source = $msbuildPath }
@@ -57,17 +103,20 @@ if ($null -eq $msbuild) {
     throw 'MSBuild wurde nicht gefunden. Benötigt werden Visual-Studio-Build-Tools und das .NET-Framework-4.8-Targeting-Pack.'
 }
 
-& $msbuild.Source $projectPath `
-    '/t:Rebuild' `
-    "/p:Configuration=$Configuration" `
-    '/p:Platform=AnyCPU' `
-    '/m:1'
+$script:xlsxBuildControl=New-XlsxBuildControl $projectPath $msbuild.Source
+Assert-XlsxBuildImports $script:xlsxBuildControl
+$toolPins[$msbuild.Source] = (Get-FileHash -LiteralPath $msbuild.Source -Algorithm SHA256).Hash
+Assert-ReleaseSources
+Assert-ReleaseTools
+$build = Invoke-ReleaseTool $msbuild.Source @($projectPath,'/t:Rebuild',"/p:Configuration=$Configuration",'/p:Platform=AnyCPU','/m:1') 120000
+Assert-ReleaseTools
 
-if ($LASTEXITCODE -ne 0 -or
+if ($build.ExitCode -ne 0 -or -not $build.CaptureComplete -or
     -not (Test-Path -LiteralPath $assemblyPath -PathType Leaf)) {
     throw 'Der CLR-XLSX-Assembly-Build ist fehlgeschlagen oder das erwartete Binary fehlt.'
 }
 Assert-ReleaseSources
+Assert-ReleaseTools
 
 New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 
@@ -80,12 +129,12 @@ try {
 } finally {
     $hasher.Dispose()
 }
-$description = 'SQL Server Toolbelt toolbelt.file.xlsx-memory CLR provider 1.1.0'
+$description = 'SQL Server Toolbelt toolbelt.file.xlsx-memory CLR provider 1.2.0'
 
 $manifest = [ordered]@{
     schemaVersion = '1.0'
     moduleId = 'toolbelt.file.xlsx-memory'
-    moduleVersion = '1.1.0'
+    moduleVersion = '1.2.0'
     assemblySqlName = 'Toolbelt_File_XlsxMemory'
     assemblyFileName = [IO.Path]::GetFileName($assemblyPath)
     permissionSet = 'SAFE'
@@ -117,6 +166,7 @@ if ((Get-Item -LiteralPath $assemblyOutputPath).Length -ne $assemblyBytes.LongLe
 $manifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $manifestPath -Encoding utf8
 $deployScript | Set-Content -LiteralPath $deployPath -Encoding utf8
 Assert-ReleaseSources
+Assert-ReleaseTools
 
 [pscustomobject]@{
     AssemblyPath = $assemblyOutputPath

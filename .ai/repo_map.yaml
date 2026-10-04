@@ -108,6 +108,7 @@ sources_of_truth:
   xlsx_memory_module: Modules/toolbelt.file.xlsx-memory/module.yaml
   xlsx_reader_proposal: Documentation/Architecture/XLSX_READER_PROPOSAL.md
   xlsx_cell_type_contract: Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md
+  xlsx_cell_display_contract: Documentation/Architecture/XLSX_CELL_DISPLAY_CONTRACT.md
   xlsx_memory_qualification_workflow: .github/workflows/xlsx-memory-qualification.yml
   windows_filesystem_module_design: Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md
   windows_filesystem_module: Modules/toolbelt.filesystem.windows/module.yaml
@@ -775,6 +776,8 @@ change_impact:
         - Spikes/XlsxMemory/**
         - Documentation/Architecture/XLSX_READER_PROPOSAL.md
         - Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md
+        - Documentation/Architecture/XLSX_CELL_DISPLAY_CONTRACT.md
+        - Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1
         - .github/workflows/xlsx-memory-qualification.yml
         - Tests/CI/run-xlsx-types-lab.ps1
         - Documentation/Standards/USP_CONTRACT.md

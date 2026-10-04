@@ -61,7 +61,8 @@ nicht unterbrechbar; keine harte Wallclock- oder Produktionskapazitätsgarantie.
 ## Reproduzierbare Prüfungen
 
 ```powershell
-powershell -NoProfile -File Spikes/XlsxMemory/Run-FrameworkQualification.ps1
+pwsh -NoProfile -File Modules/toolbelt.file.xlsx-memory/Tests/Framework/Invoke-CandidatePackaging.ps1 -OutputDirectory .runtime/xlsx-candidate
+pwsh -NoProfile -File Spikes/XlsxMemory/Run-FrameworkQualification.ps1 -XlsxDirectory .runtime/xlsx-candidate/xlsx -ZipDirectory .runtime/xlsx-candidate/zip -OutputDirectory .runtime/xlsx-candidate/qualification
 pwsh -NoProfile -File Spikes/XlsxMemory/Invoke-LabQualification.ps1 -Platform linux -Version 2019 -Patch latest
 ```
 
@@ -149,8 +150,16 @@ Sandbox, API-Prüfung und tatsächlicher SQL-Hostaufruf getrennt erforderlich.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1`
-- Scope: Finaler identischer öffentlicher XLSX1.1-Adapter Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 jeweils local/central: drei Types-Fixtures, SQL-/Client-/native Nullability, clean/genuine1.0/repeat, CallerOFF/ON intakt/doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, synthetische0/NULL-Sichtbarkeitsgates, Consumer/Uninstall; RawType nach API-Schleifen auf letzterCL150/170 plus zentralerCaller. Voller PASS samt frischen eigenen Cleanup-Audits. Keine Konfigurations-/Rechteänderungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Lowpriv-Rechte, übrige physische Targets und Heap/Produktionskapazität offen. Historische FAILED-Adapterstände bleiben getrennt.
+- Datum: `2026-10-04`
+- Nachweis: `local: private original-SQL XLSX1.2 qualification adapter`
+- Scope: Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 nur lokal, identisches aktuelles Binary: je Clean1.2 und genuine installierte1.1→1.2 frischeSession,3→4CLR-Bindings/7→9Slots,12SQL-Fixtures/6Display-Clientchecks/2Kompositionen,Repeat/UninstallRepeat;2eigeneDBs entfernt/3Trust-Vorzustände wiederhergestellt und frischer unabhängiger Cleanup-Audit.0Config/Rechte/Owneränderungen. Kein vollständiger öffentlicher Labadapter-/Produkt-PASS; central1.2,genuine1.0→1.2,weitereCL/Ziele,vollständigeLifecycle-/Kollisionsmatrix,Minimalrechte,Heap und aktuelleHeadCI offen. Historische Fehlläufe bleiben FAILED; partially validated/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Portable aktuelle Offlinefolge
+
+`Run-FrameworkQualification.ps1` nimmt jetzt die bereits gebauten
+`-XlsxDirectory`, `-ZipDirectory` und ein frisches `-OutputDirectory` entgegen.
+Es delegiert an die [19-Phasen-Kandidatenqualifikation](../../Modules/toolbelt.file.xlsx-memory/Tests/Framework/README.md#gemeinsame-kandidatenqualifikation-12)
+und baut keine Provider erneut. Die früheren Projekt-/Quellkernharnesses sind
+historische Testquellen; sie ersetzen keinen Test der paketierten DLLbytes.

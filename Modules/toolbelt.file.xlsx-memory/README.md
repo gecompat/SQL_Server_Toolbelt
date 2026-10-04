@@ -1,5 +1,17 @@
 # XLSX Binary Memory Reader
 
+Release 1.2.0 ergänzt [TVF_FormatXlsxCell](Documentation/TVF_FormatXlsxCell.md)
+mit acht Inputs, zehn Literalformaten, drei expliziten Kulturen und zwei Outputs.
+Raw- und Typquellen bleiben bytegleich. Exakte SqlDecimal-Rundung, 1900/1904,
+Cache-Komposition und Temporalübertrag sind im
+[Anzeigevertrag](../../Documentation/Architecture/XLSX_CELL_DISPLAY_CONTRACT.md) festgelegt.
+Begrenzte aktuelle Offline- und lokale Nativequalifikation vom 2026-10-04 bestanden; zentrale1.2-Nutzung, vollständige Matrix, Minimalrechte und aktuelle Head-CI bleiben offen. Teilweise validiert,
+unveröffentlicht. Die folgenden 1.0-/1.1-Nachweise sind historisch.
+
+Am 2026-10-04 bestand ein privater Qualifikationsadapter auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170 jeweils ausschließlich lokal: Clean1.2 und genuine installierte1.1→1.2 mit frischer Session, drei→vier CLR-Bindings und sieben→neun Slots am identischen aktuellen Binary. Je Ziel bestanden zwölf SQL-Fixtures, sechs Display-Clientprüfungen und zwei Raw→Type-/Raw→Type→Display-Kompositionen, Repeat sowie Uninstall/Repeat. Zwei eigene Datenbanken wurden entfernt und drei exakte Trust-Vorzustände wiederhergestellt; frische unabhängige Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte- oder Owneränderungen.
+
+Dies ist ein begrenzter privater Adapternachweis, kein vollständiger öffentlicher Labadapter- oder Produkt-PASS. Zentrale1.2-Nutzung, genuine1.0→1.2, weitere CL/Ziele, vollständige Lifecycle-/Kollisionsmatrix, Minimalrechte, Heap und aktuelle exakte Head-CI bleiben offen. Status bleibt `partially validated`, `unreleased`.
+
 Release1.1 ergänzt die einzeln freigegebene
 [TVF_InterpretXlsxCell](Documentation/TVF_InterpretXlsxCell.md). Der vorhandene
 Raw-Kern und seine fünf SQL-Sources bleiben bytegleich. Neuer Zellkern:
@@ -67,8 +79,8 @@ Der aktuelle qualifizierte Scope steht in [Tests/README.md](Tests/README.md) und
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1`
-- Scope: Finaler identischer öffentlicher XLSX1.1-Adapter Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 jeweils local/central: drei Types-Fixtures, SQL-/Client-/native Nullability, clean/genuine1.0/repeat, CallerOFF/ON intakt/doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, synthetische0/NULL-Sichtbarkeitsgates, Consumer/Uninstall; RawType nach API-Schleifen auf letzterCL150/170 plus zentralerCaller. Voller PASS samt frischen eigenen Cleanup-Audits. Keine Konfigurations-/Rechteänderungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Lowpriv-Rechte, übrige physische Targets und Heap/Produktionskapazität offen. Historische FAILED-Adapterstände bleiben getrennt.
+- Datum: `2026-10-04`
+- Nachweis: `local: private original-SQL XLSX1.2 qualification adapter`
+- Scope: Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 nur lokal, identisches aktuelles Binary: je Clean1.2 und genuine installierte1.1→1.2 frischeSession,3→4CLR-Bindings/7→9Slots,12SQL-Fixtures/6Display-Clientchecks/2Kompositionen,Repeat/UninstallRepeat;2eigeneDBs entfernt/3Trust-Vorzustände wiederhergestellt und frischer unabhängiger Cleanup-Audit.0Config/Rechte/Owneränderungen. Kein vollständiger öffentlicher Labadapter-/Produkt-PASS; central1.2,genuine1.0→1.2,weitereCL/Ziele,vollständigeLifecycle-/Kollisionsmatrix,Minimalrechte,Heap und aktuelleHeadCI offen. Historische Fehlläufe bleiben FAILED; partially validated/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

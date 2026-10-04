@@ -5,19 +5,39 @@ param(
  [string]$Patch='latest',
  [Parameter(Mandatory)][string]$ReleaseDirectory,
  [Parameter(Mandatory)][string]$LegacyDirectory,
+ [Parameter(Mandatory)][string]$Legacy11Directory,
+ [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedLegacy11ProvenanceSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedPromptSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedDriverSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{128}$')][string]$ExpectedAssemblySHA512,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedLegacyProvenanceSHA256,
  [ValidateSet('local','central')][string[]]$DeploymentModes=@('local','central'),
- [ValidateSet('Types.Contract.sql','Types.Safety.sql','Types.Lifecycle.sql')]
- [string[]]$RuntimeTests=@('Types.Contract.sql','Types.Safety.sql','Types.Lifecycle.sql'),
+ [ValidateSet('Types.Contract.sql','Types.Safety.sql','Types.Lifecycle.sql','Display.Contract.sql','Display.Safety.sql','Display.Lifecycle.sql')]
+ [string[]]$RuntimeTests=@('Types.Contract.sql','Types.Safety.sql','Types.Lifecycle.sql','Display.Contract.sql','Display.Safety.sql','Display.Lifecycle.sql'),
  [switch]$OptInExactTrust
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repo=$null;$module=$null
 $stage='PREPARATION';$batchIndex=0
+$script:scopeClock=$null;$script:cleanupPhase=$false
+$script:workMilliseconds=960000L;$script:totalMilliseconds=1200000L
+function Get-XlsxCommandTimeout {
+ param([ValidateRange(1,60)][int]$Maximum=60)
+ if($null -eq $script:scopeClock){throw 'XLSX_SCOPE_CLOCK_REQUIRED'}
+ $limit=if($script:cleanupPhase){$script:totalMilliseconds}else{$script:workMilliseconds}
+ $remaining=$limit-$script:scopeClock.ElapsedMilliseconds
+ if($remaining -lt 1000){throw 'XLSX_SCOPE_DEADLINE'}
+ return [int][Math]::Min($Maximum,[Math]::Floor($remaining/1000))
+}
+function Assert-XlsxReadBudget($Command){
+ try{[void](Get-XlsxCommandTimeout)}catch{try{$Command.Cancel()}catch{};throw}
+}
+function Invoke-XlsxOwnSql($Connection,[string]$Sql,[hashtable]$Parameters=@{},[switch]$Rows){
+ # Nur administrative OwnScope-Batches; Original-Produkt-DDL bleibt direkt.
+ $prefix="IF ISNULL(IS_SRVROLEMEMBER(N'sysadmin'),0)<>1 THROW 51591,N'Cleanup visibility required.',5;"+[Environment]::NewLine
+ Invoke-XlsxSql $Connection ($prefix+$Sql) $Parameters -Rows:$Rows
+}
 
 # Keine ungefilterten Fehlerrecords oder SQL-Texte nach außen weiterreichen.
 function Get-XlsxFailure($Exception){
@@ -26,7 +46,8 @@ function Get-XlsxFailure($Exception){
  [ordered]@{Stage=$script:stage;Batch=$script:batchIndex;SqlNumber=$(if($sql){$sql.Number}else{0});SqlState=$(if($sql){$sql.State}else{0})}
 }
 function Invoke-XlsxSql($Connection,[string]$Sql,[hashtable]$Parameters=@{},[switch]$Rows){
- $command=$Connection.CreateCommand();$command.CommandTimeout=120;$command.CommandText=$Sql
+ $timeout=Get-XlsxCommandTimeout
+ $command=$Connection.CreateCommand();$command.CommandTimeout=$timeout;$command.CommandText=$Sql
  try{
   foreach($name in $Parameters.Keys){
    $value=$Parameters[$name]
@@ -38,10 +59,11 @@ function Invoke-XlsxSql($Connection,[string]$Sql,[hashtable]$Parameters=@{},[swi
   $reader=$command.ExecuteReader()
   try{
    $result=[Collections.Generic.List[object]]::new()
-   do{while($reader.Read()){
+   do{Assert-XlsxReadBudget $command;while($reader.Read()){
+    Assert-XlsxReadBudget $command
     if($Rows){$record=[ordered]@{};for($index=0;$index -lt $reader.FieldCount;$index++){$record[$reader.GetName($index)]=$reader.GetValue($index)};$result.Add([pscustomobject]$record)}
     else{for($index=0;$index -lt $reader.FieldCount;$index++){[void]$reader.GetValue($index)}}
-   }}while($reader.NextResult())
+   };Assert-XlsxReadBudget $command}while($reader.NextResult())
    if($Rows){return $result.ToArray()}
   }finally{$reader.Dispose()}
  }finally{$command.Dispose()}
@@ -67,7 +89,7 @@ function Open-XlsxConnection($Target,[string]$Database){
  try{
   $builder=[Data.SqlClient.SqlConnectionStringBuilder]::new((New-LabConnectionString $Target))
   $builder['Initial Catalog']=$Database;$builder['Pooling']=$false;$builder['Enlist']=$false
-  $builder['ConnectRetryCount']=0;$builder['Connect Timeout']=15
+  $builder['ConnectRetryCount']=0;$builder['Connect Timeout']=Get-XlsxCommandTimeout 15
   $connection=[Data.SqlClient.SqlConnection]::new($builder.ConnectionString)
   $connection.Open();return $connection
  }catch{if($connection){try{$connection.Dispose()}catch{}};throw}
@@ -82,7 +104,7 @@ function Save-XlsxJournal{
 }
 function Get-XlsxTrust($Connection,[byte[]]$Hash){
  # Vollständige datetime2(7)-Bytes: binary(8) wäre eine Trunkierung.
- $rows=@(Invoke-XlsxSql $Connection @'
+ $rows=@(Invoke-XlsxOwnSql $Connection @'
 SELECT description,CONVERT(varchar(64),HASHBYTES('SHA2_256',
  hash+CONVERT(binary(4),ISNULL(DATALENGTH(description),-1))+ISNULL(CONVERT(varbinary(max),description),0x)
  +CONVERT(binary(4),ISNULL(DATALENGTH(CONVERT(varbinary(max),create_date)),-1))+ISNULL(CONVERT(varbinary(max),create_date),0x)
@@ -97,12 +119,15 @@ function Register-XlsxTrust($Control,$Artifact){
  $hash=[Convert]::FromHexString($Artifact.Hash);$existing=Get-XlsxTrust $Control $hash
  $entry=[ordered]@{Hash=$Artifact.Hash;State='PREEXISTING';Preexisting=$true;Description=$null;Fingerprint=$null}
  $script:ledger.Trust+=@($entry);Save-XlsxJournal
- if($existing){return}
+ if($existing){
+  $entry.Description=if($existing.description -is [DBNull]){$null}else{[string]$existing.description}
+  $entry.Fingerprint=[string]$existing.Fingerprint;Save-XlsxJournal;return
+ }
  if(-not $OptInExactTrust){throw 'XLSX_EXACT_TRUST_REQUIRED'}
  Assert-XlsxTrustCleanupScope $Control $hash
  $entry.Preexisting=$false;$entry.State='ADDING';$entry.Description='Toolbelt synthetic XLSX types '+$script:ledger.RunId+' '+$Artifact.Label
  Save-XlsxJournal
- Invoke-XlsxSql $Control @'
+ Invoke-XlsxOwnSql $Control @'
 IF @Hash IS NULL OR DATALENGTH(@Hash)<>64 OR @Description IS NULL OR DATALENGTH(@Description)>8000
  THROW 51591,N'Typed trust arguments invalid.',11;
 DECLARE @TrustHash varbinary(64)=@Hash,@TrustDescription nvarchar(4000)=@Description;
@@ -144,11 +169,11 @@ function New-XlsxDatabase($Control,$Target,[string]$Label,[string]$Collation){
  $name='Toolbelt_XlsxTypes_'+[guid]::NewGuid().ToString('N')
  $entry=[ordered]@{Name=$name;Label=$Label;State='CREATING';Id=$null;Creation=$null;Marker=$false}
  $script:ledger.Databases+=@($entry);Save-XlsxJournal
- Invoke-XlsxSql $Control ("IF DB_ID(N'$name') IS NOT NULL THROW 51591,N'Synthetic database collision.',1; CREATE DATABASE [$name] COLLATE $Collation;")
+ Invoke-XlsxOwnSql $Control ("IF DB_ID(N'$name') IS NOT NULL THROW 51591,N'Synthetic database collision.',1; CREATE DATABASE [$name] COLLATE $Collation;")
  $connection=Open-XlsxConnection $Target $name
  try{
-  Invoke-XlsxSql $connection 'DECLARE @MarkerOwner nvarchar(32)=@Owner; EXEC sys.sp_addextendedproperty @name=N''Toolbelt.Test.XlsxTypes.Owner'',@value=@MarkerOwner;' @{'@Owner'=$script:ledger.RunId}
-  $identity=@(Invoke-XlsxSql $connection @'
+  Invoke-XlsxOwnSql $connection 'DECLARE @MarkerOwner nvarchar(32)=@Owner; EXEC sys.sp_addextendedproperty @name=N''Toolbelt.Test.XlsxTypes.Owner'',@value=@MarkerOwner;' @{'@Owner'=$script:ledger.RunId}
+  $identity=@(Invoke-XlsxOwnSql $connection @'
 SELECT DB_ID() Id,CONVERT(varchar(32),CONVERT(varbinary(max),CONVERT(datetime2(7),create_date)),2) Creation,
  (SELECT COUNT(*) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Test.XlsxTypes.Owner'
  AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),@Owner)) MarkerCount
@@ -164,14 +189,15 @@ function Remove-XlsxOwnedDatabase($Control,$Entry){
  if(-not $Entry.Marker -or $null -eq $Entry.Id -or $null -eq $Entry.Creation){throw 'XLSX_DATABASE_CLEANUP_IDENTITY_UNKNOWN'}
  $name=$Entry.Name
  if($name -notmatch '^Toolbelt_XlsxTypes_[a-f0-9]{32}$'){throw 'XLSX_DATABASE_CLEANUP_NAME_INVALID'}
- Invoke-XlsxSql $Control @"
+ Invoke-XlsxOwnSql $Control @"
 IF NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),@Name)
  AND CONVERT(varbinary(max),CONVERT(datetime2(7),create_date))=@Created)
  THROW 51591,N'Owned database identity changed.',2;
 DECLARE @MarkerCount int;
 EXEC [$name].sys.sp_executesql N'SELECT @Count=COUNT(*) FROM sys.extended_properties WHERE class=0 AND name=N''Toolbelt.Test.XlsxTypes.Owner'' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),@Owner);',
  N'@Owner nvarchar(32),@Count int OUTPUT',@Owner,@MarkerCount OUTPUT;
-IF @MarkerCount<>1 THROW 51591,N'Owned database marker changed.',3;
+IF @MarkerCount IS NULL OR @MarkerCount<>1 THROW 51591,N'Owned database marker changed.',3;
+IF ISNULL(IS_SRVROLEMEMBER(N'sysadmin'),0)<>1 THROW 51591,N'Cleanup visibility required.',5;
 IF NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),@Name)
  AND CONVERT(varbinary(max),CONVERT(datetime2(7),create_date))=@Created)
  THROW 51591,N'Owned database identity changed before removal.',2;
@@ -181,7 +207,12 @@ IF DB_ID(@Name) IS NOT NULL THROW 51591,N'Owned database removal not verified.',
  $Entry.State='DROPPED';Save-XlsxJournal
 }
 function Remove-XlsxOwnedTrust($Control,$Entry){
- if($Entry.Preexisting -or $Entry.State -eq 'RESTORED'){return}
+ if($Entry.Preexisting){
+  $actual=Get-XlsxTrust $Control ([Convert]::FromHexString($Entry.Hash))
+  if($Entry.State -cne 'PREEXISTING' -or $null -eq $Entry.Fingerprint -or $null -eq $actual -or [string]$actual.Fingerprint -cne $Entry.Fingerprint){throw 'XLSX_PREEXISTING_TRUST_CHANGED'}
+  return
+ }
+ if($Entry.State -eq 'RESTORED'){return}
  if($Entry.State -cne 'OWNED' -or $null -eq $Entry.Fingerprint){throw 'XLSX_TRUST_CLEANUP_IDENTITY_UNKNOWN'}
  # Kein Verbraucher, keine unbekannte/offline Datenbank; unmittelbar derselbe
  # Batch prüft die eigene vollständige Identität vor der administrativen Entfernung.
@@ -219,6 +250,19 @@ EXEC sys.sp_drop_trusted_assembly @hash=@TrustHash;
 IF EXISTS(SELECT 1 FROM sys.trusted_assemblies WHERE hash=@Hash) THROW 51591,N'Owned trust removal not verified.',10;
 '@ @{'@Hash'=[Convert]::FromHexString($Entry.Hash);'@Description'=$Entry.Description;'@Fingerprint'=$Entry.Fingerprint}
  $Entry.State='RESTORED';Save-XlsxJournal
+}
+function Assert-XlsxDisposition($Control){
+ foreach($entry in $script:ledger.Databases){
+  if($entry.State -cne 'DROPPED' -or $entry.Name -notmatch '^Toolbelt_XlsxTypes_[a-f0-9]{32}$'){throw 'XLSX_FINAL_DATABASE_STATE'}
+  $rows=@(Invoke-XlsxOwnSql $Control 'SELECT DB_ID(@Name) Id;' @{'@Name'=[string]$entry.Name} -Rows)
+  if($rows.Count -ne 1 -or $rows[0].Id -isnot [DBNull]){throw 'XLSX_FINAL_DATABASE_PRESENT'}
+ }
+ foreach($entry in $script:ledger.Trust){
+  $actual=Get-XlsxTrust $Control ([Convert]::FromHexString($entry.Hash))
+  if($entry.Preexisting){
+   if($entry.State -cne 'PREEXISTING' -or $null -eq $entry.Fingerprint -or $null -eq $actual -or [string]$actual.Fingerprint -cne $entry.Fingerprint){throw 'XLSX_PREEXISTING_TRUST_CHANGED'}
+  }elseif($entry.State -cne 'RESTORED' -or $null -ne $actual){throw 'XLSX_FINAL_OWN_TRUST_PRESENT'}
+ }
 }
 function Assert-XlsxRejected($Connection,[string]$Sql,[int]$Number){
  $caught=$false
@@ -412,6 +456,30 @@ function Invoke-XlsxHistoricalFuturePrepared($Target,[string]$Database,$Connecti
   return $Connection
  }catch{if($Connection){try{$Connection.Dispose()}catch{}};throw}
 }
+function Invoke-XlsxDisplayFuturePrepared($Target,[string]$Database,$Connection,[hashtable]$Variables,[string]$Deploy,[string]$Uninstall,[string]$LegacyDeploy){
+ # Eingang: genuine predecessor auf frischer Session. Ausgang: wieder genuine predecessor
+ # auf neuer Session; der Caller übernimmt und disposed die Rückgabeverbindung.
+ try{
+  foreach($fault in @('FuturePublic','ImitatedFuturePublic','FutureInternal','ImitatedFutureInternal')){
+   $variablesCopy=$Variables.Clone();$variablesCopy.FaultCase=$fault
+   $fixture=[regex]::Replace((Read-XlsxSql (Join-Path $module 'Tests/Runtime/Display.CollisionFixture.sql') $variablesCopy),'(?im)^\s*GO\s*$','')
+   $oracle=@(Invoke-XlsxSql $Connection $fixture -Rows)
+   if($oracle.Count -ne 1 -or $oracle[0].ExpectedError -ne 51534 -or [string]::IsNullOrEmpty($oracle[0].RestoreSql)){throw 'XLSX_FUTURE_ORACLE_SHAPE'}
+   $name=if($fault.EndsWith('Public',[StringComparison]::Ordinal)){'TVF_FormatXlsxCell'}else{'TVF_InternalFormatXlsxCell'}
+   $before=Get-XlsxSnapshot $Connection;Assert-XlsxRejected $Connection $Deploy 51534
+   if((Get-XlsxSnapshot $Connection) -cne $before){throw 'XLSX_FUTURE_DEPLOY_CHANGED'}
+   $foreign=Get-XlsxForeignSlotPrepared $Connection $name
+   Invoke-XlsxBatches $Connection $Uninstall
+   if((Get-XlsxForeignSlotPrepared $Connection $name) -cne $foreign){throw 'XLSX_HISTORICAL_FUTURE_LOST'}
+   $absent=@(Invoke-XlsxSql $Connection "SELECT COUNT(*) Count FROM sys.assemblies WHERE name=N'Toolbelt_File_XlsxMemory';" -Rows)
+   if($absent.Count -ne 1 -or $absent[0].Count -ne 0){throw 'XLSX_HISTORICAL_UNINSTALL_ASSEMBLY_REMAINS'}
+   Invoke-XlsxBatches $Connection $oracle[0].RestoreSql
+   Invoke-XlsxBatches $Connection $LegacyDeploy
+   $Connection.Dispose();$Connection=Open-XlsxConnection $Target $Database
+  }
+  return $Connection
+ }catch{if($Connection){try{$Connection.Dispose()}catch{}};throw}
+}
 function Assert-XlsxNativeNullablePrepared($Connection,[string]$Database,$CatalogConnection=$Connection){
  # Katalog ist das Oracle der tatsächlich deklarierten SQL-Metadaten;
  # der Client muss denselben Zustand wiedergeben, keine erfundene IF-Nullability.
@@ -424,7 +492,7 @@ ORDER BY Internal,Ordinal;
  $internal=@($catalog|Where-Object Internal -eq 1);$public=@($catalog|Where-Object Internal -eq 0)
  if($internal.Count -ne 14 -or $public.Count -ne 14 -or @($internal|Where-Object {-not $_.is_nullable}).Count){throw 'XLSX_INTERNAL_NULLABILITY_MISMATCH'}
  $prefix='['+$Database.Replace(']',']]')+'].toolbelt_file.'
- $command=$Connection.CreateCommand();$command.CommandTimeout=60
+ $command=$Connection.CreateCommand();$command.CommandTimeout=Get-XlsxCommandTimeout
  $command.CommandText='SELECT * FROM '+$prefix+'TVF_InterpretXlsxCell(DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT,DEFAULT);'
  try{
   $reader=$command.ExecuteReader()
@@ -435,7 +503,9 @@ ORDER BY Internal,Ordinal;
     if($public[$index].Ordinal -ne $index -or $reader.GetName($index) -cne $public[$index].name -or
      [bool]$schema.Rows[$index]['AllowDBNull'] -ne [bool]$public[$index].is_nullable){throw 'XLSX_PUBLIC_NULLABILITY_MISMATCH'}
    }
+   Assert-XlsxReadBudget $command
    if(-not $reader.Read() -or $reader.IsDBNull(4) -or $reader.IsDBNull(13) -or $reader.Read() -or $reader.NextResult()){throw 'XLSX_LOGICAL_NULLABILITY_MISMATCH'}
+   Assert-XlsxReadBudget $command
   }finally{$reader.Dispose()}
  }finally{$command.Dispose()}
 }
@@ -528,22 +598,38 @@ try{
   if($LASTEXITCODE -or (& git -C $repo hash-object --no-filters $path 2>$null).Trim() -cne $blob){throw 'XLSX_ZIP_LEGACY_BLOB_MISMATCH'}
   $freeze[$path]=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
  }
+ $legacy11=(Resolve-Path -LiteralPath $Legacy11Directory).Path
+ $legacy11Module=Join-Path $legacy11 'original/Modules/toolbelt.file.xlsx-memory'
+ $legacy11ProvenancePath=Join-Path $legacy11 'LegacyProvenance.json'
+ if((Get-FileHash -LiteralPath $legacy11ProvenancePath -Algorithm SHA256).Hash -cne $ExpectedLegacy11ProvenanceSHA256.ToUpperInvariant()){throw 'XLSX_LEGACY11_PROVENANCE_PIN_MISMATCH'}
+ $provenance11=Get-Content -LiteralPath $legacy11ProvenancePath -Raw|ConvertFrom-Json
+ if($provenance11.revision -cne 'f64ee9eb8f6a7f66fd441821c7c40fcf2d92ee1e' -or $provenance11.moduleVersion -cne '1.1.0'){throw 'XLSX_GENUINE_LEGACY11_REQUIRED'}
+ $required11=@($legacyRequired)+@('Clr/XlsxCellType.cs','Source/TVF_InternalInterpretXlsxCell.sql','Source/TVF_InterpretXlsxCell.sql')
+ if((@($provenance11.sourcePins.PSObject.Properties.Name|Sort-Object) -join '|') -cne (@($required11|Sort-Object) -join '|')){throw 'XLSX_LEGACY11_MANIFEST_INCOMPLETE'}
+ foreach($property in $provenance11.sourcePins.PSObject.Properties){
+  $path=Join-Path $legacy11Module $property.Name
+  $blob=(& git -C $repo rev-parse ($provenance11.revision+':Modules/toolbelt.file.xlsx-memory/'+$property.Name) 2>$null).Trim()
+  if($LASTEXITCODE -or (& git -C $repo hash-object --no-filters $path 2>$null).Trim() -cne $blob -or $blob -cne $property.Value.gitBlob -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -cne $property.Value.sha256){throw 'XLSX_LEGACY11_BLOB_MISMATCH'}
+  $freeze[$path]=$property.Value.sha256
+ }
+ $freeze[$legacy11ProvenancePath]=$ExpectedLegacy11ProvenanceSHA256.ToUpperInvariant()
  $artifacts=@()
- foreach($definition in @(@{Root=$release;File='Toolbelt.File.XlsxMemory';Version='1.1.0';Label='current'},@{Root=(Join-Path $legacyModule 'Artifacts');File='Toolbelt.File.XlsxMemory';Version='1.0.0';Label='legacy'},@{Root=(Join-Path $zipModule 'Artifacts');File='Toolbelt.Archive.ZipMemory';Version='1.4.0';Label='zip'})){
+ foreach($definition in @(@{Root=$release;File='Toolbelt.File.XlsxMemory';Version='1.2.0';Label='current'},@{Root=(Join-Path $legacyModule 'Artifacts');File='Toolbelt.File.XlsxMemory';Version='1.0.0';Label='legacy'},@{Root=(Join-Path $legacy11Module 'Artifacts');File='Toolbelt.File.XlsxMemory';Version='1.1.0';Label='legacy11'},@{Root=(Join-Path $zipModule 'Artifacts');File='Toolbelt.Archive.ZipMemory';Version='1.4.0';Label='zip'})){
   $manifestPath=Join-Path $definition.Root ($definition.File+'.trust-manifest.json');$binaryPath=Join-Path $definition.Root ($definition.File+'.dll')
   $manifest=Get-Content -LiteralPath $manifestPath -Raw|ConvertFrom-Json;$binary=[IO.File]::ReadAllBytes($binaryPath)
   $hash=[Convert]::ToHexString([Security.Cryptography.SHA512]::HashData($binary))
   if($manifest.moduleVersion -cne $definition.Version -or $manifest.sha512 -cne $hash -or $manifest.sqlServerHexLiteral -cne ('0x'+$hash)){throw 'XLSX_ARTIFACT_PIN_MISMATCH'}
   if($definition.Label -eq 'legacy' -and $provenance.assemblySHA512 -cne $hash){throw 'XLSX_LEGACY_BINARY_MISMATCH'}
+  if($definition.Label -eq 'legacy11' -and $provenance11.assemblySHA512 -cne $hash){throw 'XLSX_LEGACY11_BINARY_MISMATCH'}
   $artifacts+=@([pscustomobject]@{Label=$definition.Label;Hash=$hash;Bits='0x'+[Convert]::ToHexString($binary)})
   $freeze[$manifestPath]=(Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash;$freeze[$binaryPath]=(Get-FileHash -LiteralPath $binaryPath -Algorithm SHA256).Hash
   if($definition.Label -eq 'current'){
    if($hash -cne $ExpectedAssemblySHA512.ToUpperInvariant()){throw 'XLSX_ROOT_REVIEWED_ASSEMBLY_REQUIRED'}
-   $requiredPaths=@('Clr/Toolbelt.File.XlsxMemory.csproj','Clr/AssemblyInfo.cs','Clr/Workbook.cs','Clr/XlsxEntryPoints.cs','Clr/XlsxCellType.cs',
+   $requiredPaths=@('Clr/Toolbelt.File.XlsxMemory.csproj','Clr/AssemblyInfo.cs','Clr/Workbook.cs','Clr/XlsxEntryPoints.cs','Clr/XlsxCellType.cs','Clr/XlsxCellDisplay.cs','Clr/XlsxCellDisplayBridge.cs',
     'Source/TVF_InternalXlsxSheets.sql','Source/TVF_InternalXlsxCells.sql','Source/USP_InternalXlsxRead.sql','Source/USP_ListXlsxWorksheets.sql',
-    'Source/USP_ReadXlsxWorksheetCells.sql','Source/TVF_InternalInterpretXlsxCell.sql','Source/TVF_InterpretXlsxCell.sql',
-    'Deployment/Deploy.sql','Deployment/Uninstall.sql','Scripts/New-ClrReleaseArtifacts.ps1')
-   if(@($manifest.sourceFingerprints).Count -ne 15 -or (@($manifest.sourceFingerprints.path|Sort-Object -Unique) -join '|') -cne (@($requiredPaths|Sort-Object) -join '|')){throw 'XLSX_SOURCE_MANIFEST_INCOMPLETE'}
+    'Source/USP_ReadXlsxWorksheetCells.sql','Source/TVF_InternalInterpretXlsxCell.sql','Source/TVF_InterpretXlsxCell.sql','Source/TVF_InternalFormatXlsxCell.sql','Source/TVF_FormatXlsxCell.sql',
+    'Deployment/Deploy.sql','Deployment/Uninstall.sql','Scripts/New-ClrReleaseArtifacts.ps1','Scripts/Invoke-XlsxBuildProcess.ps1')
+   if(@($manifest.sourceFingerprints).Count -ne 20 -or (@($manifest.sourceFingerprints.path|Sort-Object -Unique) -join '|') -cne (@($requiredPaths|Sort-Object) -join '|')){throw 'XLSX_SOURCE_MANIFEST_INCOMPLETE'}
    foreach($entry in $manifest.sourceFingerprints){if($entry.path -match '(^[/\\]|\.\.)'){throw 'XLSX_SOURCE_MANIFEST_PATH_INVALID'};$path=Join-Path $module $entry.path;if((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -cne $entry.sha256){throw 'XLSX_SOURCE_PIN_MISMATCH'};$freeze[$path]=$entry.sha256}
    $artifactDeploy=Join-Path $release 'Deploy.WithAssembly.sql'
    $expectedDeploy=[IO.File]::ReadAllText((Join-Path $module 'Deployment/Deploy.sql')).Replace('$(AssemblyBits)','0x'+[Convert]::ToHexString($binary))+[Environment]::NewLine
@@ -554,8 +640,11 @@ try{
  foreach($path in @(Get-ChildItem (Join-Path $module 'Tests/Runtime') -File)){$freeze[$path.FullName]=(Get-FileHash -LiteralPath $path.FullName -Algorithm SHA256).Hash}
  $compositionRoot=Join-Path $module 'Tests/Runtime'
  $compositionHelper=Join-Path $compositionRoot 'Invoke-TypesComposition.ps1'
- $compositionPins=@{'Invoke-TypesComposition.ps1'='E64354CB102FB98D2BD3D50B396CBE76C481199C63FB91830EBD76EDDBE87049';'Types.Composition.sql'='9C63E84B28B066555A20D6354F2154E8C5A830CA3372C52D40F73B02F13B923E';'Types.Composition.xlsx'='7B690C7C0EC6C2EEBBEA180B031C7BDAED1A6D1DC5F2D3CEC360135B8F530BC1'}
+ $compositionPins=@{'Invoke-TypesComposition.ps1'='956E84C65863D7C9AE0836C4D7F543A7F88F56BDFE21D4226DCB3DCF3277D019';'Types.Composition.sql'='9C63E84B28B066555A20D6354F2154E8C5A830CA3372C52D40F73B02F13B923E';'Types.Composition.xlsx'='7B690C7C0EC6C2EEBBEA180B031C7BDAED1A6D1DC5F2D3CEC360135B8F530BC1'}
  foreach($name in $compositionPins.Keys){$path=Join-Path $compositionRoot $name;if((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -cne $compositionPins[$name]){throw 'XLSX_COMPOSITION_INPUT_PIN_MISMATCH'};$freeze[$path]=$compositionPins[$name]}
+ $displayCompositionHelper=Join-Path $compositionRoot 'Invoke-DisplayComposition.ps1'
+ $displayCompositionPins=@{'Invoke-DisplayComposition.ps1'='DF577A617E2A52D07766DFCD332C57AEEAA4B0F4A44AB6B8D97FDAF4119A23F9';'Display.Composition.sql'='A44F37281DEC7D74E82DE44D62D9A6A929A47AAF9849D4458E68278713901A44'}
+ foreach($name in $displayCompositionPins.Keys){$path=Join-Path $compositionRoot $name;if((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -cne $displayCompositionPins[$name]){throw 'XLSX_DISPLAY_COMPOSITION_PIN'};$freeze[$path]=$displayCompositionPins[$name]}
  $freeze[$PSCommandPath]=$ExpectedDriverSHA256.ToUpperInvariant()
 }catch{$safe=Get-XlsxFailure $_.Exception;Write-Output ('FAILED: XLSX_TYPES_PREPARATION SQL_'+$safe.SqlNumber+'_STATE'+$safe.SqlState);exit 1}
 
@@ -563,8 +652,21 @@ $levels=switch($Version){'2019'{@(150)};'2022'{@(150,160)};'2025'{@(150,160,170)
 foreach($target in $targets){
  try{
  $runId=[guid]::NewGuid().ToString('N');$journal=Join-Path ([IO.Path]::GetTempPath()) ('ToolbeltXlsxTypesRestore-'+$runId+'.json')
+ $script:scopeClock=[Diagnostics.Stopwatch]::StartNew();$script:cleanupPhase=$false
+ # Externe Reader behalten die Uhr des Zielscopes, nicht ihren eigenen Script-Scope.
+ $capturedClock=$script:scopeClock;$capturedWorkMilliseconds=$script:workMilliseconds
+ $closedCommandTimeout={
+  if($null-eq$capturedClock){throw 'XLSX_SCOPE_CLOCK_REQUIRED'}
+  $remaining=$capturedWorkMilliseconds-$capturedClock.ElapsedMilliseconds
+  if($remaining-lt1000){throw 'XLSX_SCOPE_DEADLINE'}
+  return [int][Math]::Min(60,[Math]::Floor($remaining/1000))
+ }.GetNewClosure()
+ $capturedTimeout=$closedCommandTimeout
+ $closedReadBudget={param($Command)
+  try{[void](& $capturedTimeout)}catch{try{$Command.Cancel()}catch{};throw}
+ }.GetNewClosure()
  $keyBytes=[Text.Encoding]::UTF8.GetBytes([string]$target.key)
- $ledger=[ordered]@{RunId=$runId;SelectorIdentity=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($keyBytes));Platform=$Platform;Version=$Version;Patch=[string]$target.patch;State='PREPARED';Databases=@();Trust=@();ConfigurationChanges=0;RightsChanges=0;OriginalFailure=$null;CleanupFailure=$null;RuntimeTests=$RuntimeTests}
+ $ledger=[ordered]@{RunId=$runId;SelectorIdentity=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($keyBytes));Platform=$Platform;Version=$Version;Patch=[string]$target.patch;State='PREPARED';Databases=@();Trust=@();ConfigurationChanges=0;RightsChanges=0;OriginalFailure=$null;CleanupFailure=$null;RuntimeTests=$RuntimeTests;WorkBudgetMilliseconds=$script:workMilliseconds;TotalBudgetMilliseconds=$script:totalMilliseconds;DispositionVerified=$false}
  $journalHealthy=$true;$control=$null;$failed=$false;$cleanupBlocked=$false;$stage='PREFLIGHT'
  }catch{$safe=Get-XlsxFailure $_.Exception;Write-Output ('FAILED: XLSX_TYPES_TARGET_PREPARATION SQL_'+$safe.SqlNumber+'_STATE'+$safe.SqlState);exit 1}
  try{
@@ -602,7 +704,7 @@ SELECT DATALENGTH(CONVERT(varchar(64),HASHBYTES('SHA2_256',hash+CONVERT(binary(4
     $variables.AssemblyBits=($artifacts|Where-Object Label -eq 'current').Bits
     $deploy=Read-XlsxSql (Join-Path $module 'Deployment/Deploy.sql') $variables
     $uninstall=Read-XlsxSql (Join-Path $module 'Deployment/Uninstall.sql') $variables
-    foreach($installation in @('clean','genuine1.0')){
+    foreach($installation in @('clean','genuine1.0','genuine1.1')){
      $connection=Open-XlsxConnection $target $database
      if($installation -eq 'genuine1.0'){
       $stage='GENUINE_1_0_'+$mode;$variables.AssemblyBits=($artifacts|Where-Object Label -eq 'legacy').Bits
@@ -613,6 +715,15 @@ SELECT DATALENGTH(CONVERT(varchar(64),HASHBYTES('SHA2_256',hash+CONVERT(binary(4
       $legacySql=Read-XlsxSql (Join-Path $legacyModule 'Deployment/Deploy.sql') $legacyVariables
       $stage='HISTORICAL_FUTURE_'+$mode
       $connection=Invoke-XlsxHistoricalFuturePrepared $target $database $connection $variables $deploy $uninstall $legacySql
+      $connection=Invoke-XlsxDisplayFuturePrepared $target $database $connection $variables $deploy $uninstall $legacySql
+     }
+     if($installation -eq 'genuine1.1'){
+      $stage='GENUINE_1_1_'+$mode;$oldVariables=$variables.Clone();$oldVariables.AssemblyBits=($artifacts|Where-Object Label -eq 'legacy11').Bits
+      Invoke-XlsxBatches $connection (Read-XlsxSql (Join-Path $legacy11Module 'Deployment/Deploy.sql') $oldVariables)
+      & (Join-Path $module 'Tests/Runtime/Types.Metadata.ps1') -Connection $connection -CommandTimeoutProvider $closedCommandTimeout -ReadBudgetProvider $closedReadBudget | Out-Null
+      $connection.Dispose();$connection=Open-XlsxConnection $target $database
+      $legacy11Sql=Read-XlsxSql (Join-Path $legacy11Module 'Deployment/Deploy.sql') $oldVariables
+      $connection=Invoke-XlsxDisplayFuturePrepared $target $database $connection $variables $deploy $uninstall $legacy11Sql
      }
      $stage='INSTALL_'+$installation+'_'+$mode;Invoke-XlsxBatches $connection $deploy;Invoke-XlsxBatches $connection $deploy
      foreach($abort in @('OFF','ON')){foreach($doomed in @($false,$true)){
@@ -626,13 +737,16 @@ SELECT DATALENGTH(CONVERT(varchar(64),HASHBYTES('SHA2_256',hash+CONVERT(binary(4
       Invoke-XlsxSql $control ("ALTER DATABASE [$database] SET COMPATIBILITY_LEVEL=$level;")
       foreach($test in $RuntimeTests){$stage='API_'+$installation+'_'+$mode+'_'+$level+'_'+$test;Write-Output ('RUNNING: '+$stage);Invoke-XlsxBatches $connection (Read-XlsxSql (Join-Path $module ('Tests/Runtime/'+$test)) $variables)}
       $stage='CLIENT_'+$installation+'_'+$mode+'_'+$level
-      & (Join-Path $module 'Tests/Runtime/Types.Metadata.ps1') -Connection $connection | Out-Null
+      & (Join-Path $module 'Tests/Runtime/Types.Metadata.ps1') -Connection $connection -CommandTimeoutProvider $closedCommandTimeout -ReadBudgetProvider $closedReadBudget | Out-Null
+      & (Join-Path $module 'Tests/Runtime/Display.Metadata.ps1') -Connection $connection -CommandTimeoutProvider $closedCommandTimeout -ReadBudgetProvider $closedReadBudget | Out-Null
       Assert-XlsxNativeNullablePrepared $connection $database
      }
      # Komposition einmal je Installation/Modus nach den API-CL-Schleifen (letzte CL).
      $stage='RAW_TYPE_COMPOSITION_'+$installation+'_'+$mode
      Write-Output ('RUNNING: '+$stage)
-     & $compositionHelper -Connection $connection -ToolbeltDatabase $database | Out-Null
+     & $compositionHelper -Connection $connection -ToolbeltDatabase $database -CommandTimeoutProvider $closedCommandTimeout -ReadBudgetProvider $closedReadBudget | Out-Null
+     $stage='RAW_TYPE_DISPLAY_COMPOSITION_'+$installation+'_'+$mode
+     & $displayCompositionHelper -Connection $connection -ToolbeltDatabase $database -CommandTimeoutProvider $closedCommandTimeout -ReadBudgetProvider $closedReadBudget | Out-Null
      foreach($fault in @('VersionUnknown','VersionPadded','ModePadded','MarkerPadded','MarkerMissing','Dependency')){
       $stage='COLLISION_'+$mode+'_'+$fault;$variables.FaultCase=$fault
       $fixture=[regex]::Replace((Read-XlsxSql (Join-Path $module 'Tests/Runtime/Types.CollisionFixture.sql') $variables),'(?im)^\s*GO\s*$','')
@@ -645,7 +759,7 @@ SELECT DATALENGTH(CONVERT(varchar(64),HASHBYTES('SHA2_256',hash+CONVERT(binary(4
      if($mode -eq 'central'){
       $stage='CENTRAL_CLIENT';$caller=New-XlsxDatabase $control $target 'caller' 'Latin1_General_100_CS_AS'
       $consumer=Open-XlsxConnection $target $caller
-      try{& (Join-Path $module 'Tests/Runtime/Types.Metadata.ps1') -Connection $consumer -ToolbeltDatabase $database | Out-Null; Assert-XlsxNativeNullablePrepared $consumer $database $connection; $stage='CENTRAL_RAW_TYPE_COMPOSITION_'+$installation; & $compositionHelper -Connection $consumer -ToolbeltDatabase $database | Out-Null}finally{$consumer.Dispose()}
+      try{& (Join-Path $module 'Tests/Runtime/Display.Metadata.ps1') -Connection $consumer -ToolbeltDatabase $database -CommandTimeoutProvider $closedCommandTimeout -ReadBudgetProvider $closedReadBudget | Out-Null; & $displayCompositionHelper -Connection $consumer -ToolbeltDatabase $database -CommandTimeoutProvider $closedCommandTimeout -ReadBudgetProvider $closedReadBudget | Out-Null; & (Join-Path $module 'Tests/Runtime/Types.Metadata.ps1') -Connection $consumer -ToolbeltDatabase $database -CommandTimeoutProvider $closedCommandTimeout -ReadBudgetProvider $closedReadBudget | Out-Null; Assert-XlsxNativeNullablePrepared $consumer $database $connection; $stage='CENTRAL_RAW_TYPE_COMPOSITION_'+$installation; & $compositionHelper -Connection $consumer -ToolbeltDatabase $database -CommandTimeoutProvider $closedCommandTimeout -ReadBudgetProvider $closedReadBudget | Out-Null}finally{$consumer.Dispose()}
       $unconfirmed=$variables.Clone();$unconfirmed.ConfirmNoExternalConsumers=0
       Assert-XlsxRejected $connection (Read-XlsxSql (Join-Path $module 'Deployment/Uninstall.sql') $unconfirmed) 51536
      }
@@ -659,13 +773,18 @@ SELECT DATALENGTH(CONVERT(varchar(64),HASHBYTES('SHA2_256',hash+CONVERT(binary(4
   foreach($path in $freeze.Keys){if((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -cne $freeze[$path]){throw 'XLSX_FINAL_SOURCE_PIN_CHANGED'}}
  }catch{$failed=$true;$ledger.OriginalFailure=Get-XlsxFailure $_.Exception}
  finally{
+  $script:cleanupPhase=$true
   try{
    if($journalHealthy){$ledger.State='CLEANING';Save-XlsxJournal
     if($control -and $control.State -eq [Data.ConnectionState]::Open){
      $stage='DATABASE_CLEANUP';foreach($entry in $ledger.Databases){Remove-XlsxOwnedDatabase $control $entry}
      if(@($ledger.Databases|Where-Object State -ne 'DROPPED').Count){throw 'XLSX_DATABASE_CLEANUP_INCOMPLETE'}
      $stage='TRUST_CLEANUP';foreach($entry in $ledger.Trust){Remove-XlsxOwnedTrust $control $entry}
+     $stage='FRESH_DISPOSITION';Assert-XlsxDisposition $control;$ledger.DispositionVerified=$true
     }elseif($ledger.Databases.Count -or @($ledger.Trust|Where-Object {-not $_.Preexisting}).Count){throw 'XLSX_CLEANUP_CONNECTION_UNAVAILABLE'}
+    foreach($path in $freeze.Keys){if((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -cne $freeze[$path]){throw 'XLSX_CLEANUP_SOURCE_PIN_CHANGED'}}
+    [void](Get-XlsxCommandTimeout)
+    if(-not $failed -and -not $ledger.DispositionVerified){throw 'XLSX_FINAL_DISPOSITION_REQUIRED'}
     $ledger.State=$(if($failed){'FAILED_CLEANED'}else{'COMPLETE'});Save-XlsxJournal
    }else{$cleanupBlocked=$true}
   }catch{$cleanupBlocked=$true;$ledger.State='CLEANUP_BLOCKED';$ledger.CleanupFailure=Get-XlsxFailure $_.Exception;try{Save-XlsxJournal}catch{}}
@@ -673,5 +792,5 @@ SELECT DATALENGTH(CONVERT(varchar(64),HASHBYTES('SHA2_256',hash+CONVERT(binary(4
  }
  if($cleanupBlocked){Write-Output 'FAILED: XLSX_TYPES_CLEANUP_BLOCKED';exit 1}
  if($failed){Write-Output ('FAILED: XLSX_TYPES_'+$ledger.OriginalFailure.Stage+'_SQL'+$ledger.OriginalFailure.SqlNumber+'_STATE'+$ledger.OriginalFailure.SqlState);exit 1}
- Write-Output ('PASS: XLSX_TYPES '+$Platform+'/'+$Version+'/'+$ledger.Patch+' RuntimeTests='+($RuntimeTests -join ',')+' clean/genuine1.0/repeat/local-central/client/collisions/uninstall/cleanup; CallerTX/lock/postDROP/preCOMMIT/historicalFutureUninstall/native-nullability/Raw-to-TypeComposition(lastCL, installed+central-caller); MinimalRights NOT_EXECUTED.')
+ Write-Output ('PASS: XLSX_TYPES '+$Platform+'/'+$Version+'/'+$ledger.Patch+' RuntimeTests='+($RuntimeTests -join ',')+' clean/genuine1.0/genuine1.1/repeat/local-central/client/collisions/uninstall/cleanup; CallerTX/lock/postDROP/preCOMMIT/historicalFutureUninstall/native-nullability/Raw-to-TypeComposition(lastCL, installed+central-caller); MinimalRights NOT_EXECUTED.')
 }

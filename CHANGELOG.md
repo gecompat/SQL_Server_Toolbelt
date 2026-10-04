@@ -27,6 +27,15 @@
   Client-/ResultTable-/Uninstall-Bestätigungsnachweis unabhängig geprüft.
   Minimalrechte, weitere Lifecycle-Negativfälle, Ziele und Head-CI bleiben offen.
 
+## 2026-10-03 – XLSX-Anzeigeformatierung 1.2.0 (unreleased)
+
+- Additive Anzeige-TVF mit acht Inputs, zwei Outputs, zehn Literalformaten und drei expliziten Kulturen im bestehenden SAFE-Provider. Exakte SqlDecimal-Rundung und begrenzter Temporalübertrag; Raw-/Typquellen bytegleich.
+- Lifecycle erkennt echte 1.0/1.1-Upgrades und 1.2-Reinstall mit neun Slots; bestehendes Sichtbarkeitsgate unverändert. Separate genuine1.1-, Display-, Client-, Kompositions- und CI-Testquellen.
+- Nachweisergänzung 2026-10-04:19 Offlinephasen am aktuellen Artefaktpaar und separate13 genuine1.1-Offlinephasen bestanden; unveränderte Genuine1.0-/ZIP1.3-Verpackung separat bestanden.
+- Am 2026-10-04 bestand ein privater Qualifikationsadapter auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170 jeweils ausschließlich lokal: Clean1.2 und genuine installierte1.1→1.2 mit frischer Session, drei→vier CLR-Bindings und sieben→neun Slots am identischen aktuellen Binary. Je Ziel bestanden zwölf SQL-Fixtures, sechs Display-Clientprüfungen und zwei Raw→Type-/Raw→Type→Display-Kompositionen, Repeat sowie Uninstall/Repeat. Zwei eigene Datenbanken wurden entfernt und drei exakte Trust-Vorzustände wiederhergestellt; frische unabhängige Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte- oder Owneränderungen.
+- Dies ist ein begrenzter privater Adapternachweis, kein vollständiger öffentlicher Labadapter- oder Produkt-PASS. Zentrale1.2-Nutzung, genuine1.0→1.2, weitere CL/Ziele, vollständige Lifecycle-/Kollisionsmatrix, Minimalrechte, Heap und aktuelle exakte Head-CI bleiben offen. Status bleibt `partially validated`, `unreleased`.
+
+
 ## 2026-10-03 – Jaro-Winkler im bestehenden SAFE-Provider 1.1.0, teilweise validiert
 
 - Individuelle Funktionsfreigabe und konkrete Erweiterung der bestehenden Assembly

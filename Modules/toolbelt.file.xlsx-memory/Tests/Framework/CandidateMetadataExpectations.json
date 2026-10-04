@@ -1,0 +1,147 @@
+{
+  "AssemblyName": "Toolbelt.File.XlsxMemory",
+  "Version": "1.2.0.0",
+  "ZipVersion": "1.4.0.0",
+  "ClrSlots": [
+    {
+      "Type": "Toolbelt.Xlsx.Qualification.XlsxEntryPoints",
+      "Method": "ListSheets",
+      "Parameters": [
+        "SqlBytes",
+        "SqlInt64",
+        "SqlInt64",
+        "SqlInt64",
+        "SqlInt32",
+        "SqlInt32",
+        "SqlInt32",
+        "SqlInt32",
+        "SqlInt64",
+        "SqlInt32",
+        "SqlDecimal",
+        "SqlInt32"
+      ],
+      "Fill": "FillSheets",
+      "FillParameters": [
+        "object",
+        "out:SqlInt32",
+        "out:SqlString",
+        "out:SqlInt32",
+        "out:SqlString",
+        "out:SqlString",
+        "out:SqlBoolean"
+      ],
+      "TableDefinition": "ErrorNumber int, ErrorMessage nvarchar(4000), SheetOrdinal int, SheetName nvarchar(max), Visibility nvarchar(16), Date1904 bit",
+      "Deterministic": false,
+      "Precise": true
+    },
+    {
+      "Type": "Toolbelt.Xlsx.Qualification.XlsxEntryPoints",
+      "Method": "ReadCells",
+      "Parameters": [
+        "SqlBytes",
+        "SqlInt32",
+        "SqlInt64",
+        "SqlInt64",
+        "SqlInt64",
+        "SqlInt32",
+        "SqlInt32",
+        "SqlInt32",
+        "SqlInt32",
+        "SqlInt64",
+        "SqlInt32",
+        "SqlDecimal",
+        "SqlInt32"
+      ],
+      "Fill": "FillCells",
+      "FillParameters": [
+        "object",
+        "out:SqlInt32",
+        "out:SqlString",
+        "out:SqlInt32",
+        "out:SqlInt32",
+        "out:SqlString",
+        "out:SqlBoolean",
+        "out:SqlString",
+        "out:SqlString",
+        "out:SqlBoolean",
+        "out:SqlString",
+        "out:SqlString",
+        "out:SqlInt32",
+        "out:SqlBoolean",
+        "out:SqlString"
+      ],
+      "TableDefinition": "ErrorNumber int, ErrorMessage nvarchar(4000), RowOrdinal int, ColumnOrdinal int, StoredType nvarchar(16), ValuePresent bit, RawValue nvarchar(max), TextValue nvarchar(max), FormulaPresent bit, FormulaText nvarchar(max), FormulaKind nvarchar(16), SharedFormulaIndex int, CachePresent bit, CacheValue nvarchar(max)",
+      "Deterministic": false,
+      "Precise": true
+    },
+    {
+      "Type": "Toolbelt.Xlsx.Qualification.XlsxCellType",
+      "Method": "Interpret",
+      "Parameters": [
+        "SqlChars",
+        "SqlBoolean",
+        "SqlChars",
+        "SqlChars",
+        "SqlChars",
+        "SqlChars",
+        "SqlBoolean"
+      ],
+      "Fill": "Fill",
+      "FillParameters": [
+        "object",
+        "out:SqlString",
+        "out:SqlBoolean",
+        "out:SqlString",
+        "out:SqlString",
+        "out:SqlBoolean",
+        "out:SqlString",
+        "out:object",
+        "out:SqlBoolean",
+        "out:DateTime?",
+        "out:DateTime?",
+        "out:TimeSpan?",
+        "out:SqlInt64",
+        "out:SqlString",
+        "out:SqlInt32"
+      ],
+      "TableDefinition": "StoredType nvarchar(32), ValuePresent bit, RawValue nvarchar(max), TextValue nvarchar(max), EchoPreserved bit, ResolvedType nvarchar(16), NumberValue sql_variant, BooleanValue bit, DateValue date, DateTimeValue datetime2(7), TimeValue time(7), DurationTicks bigint, TypedTextValue nvarchar(max), StatusCode int",
+      "Deterministic": true,
+      "Precise": true
+    },
+    {
+      "Type": "Toolbelt.Xlsx.Qualification.XlsxCellDisplayBridge",
+      "Method": "Evaluate",
+      "Parameters": [
+        "SqlChars",
+        "SqlBoolean",
+        "SqlChars",
+        "SqlChars",
+        "SqlChars",
+        "SqlChars",
+        "SqlBoolean",
+        "SqlChars"
+      ],
+      "Fill": "FillRow",
+      "FillParameters": [
+        "object",
+        "out:SqlChars",
+        "out:SqlInt32"
+      ],
+      "TableDefinition": "DisplayText nvarchar(max), StatusCode int",
+      "Deterministic": true,
+      "Precise": true
+    }
+  ],
+  "PublicSQLObjects": [
+    "TVF_FormatXlsxCell.sql",
+    "TVF_InternalFormatXlsxCell.sql",
+    "TVF_InternalInterpretXlsxCell.sql",
+    "TVF_InternalXlsxCells.sql",
+    "TVF_InternalXlsxSheets.sql",
+    "TVF_InterpretXlsxCell.sql",
+    "USP_InternalXlsxRead.sql",
+    "USP_ListXlsxWorksheets.sql",
+    "USP_ReadXlsxWorksheetCells.sql"
+  ],
+  "SQLMetadataExecuted": false
+}

@@ -25,7 +25,9 @@ INSERT @Slots VALUES
  (N'TVF_InternalXlsxSheets','FT',10,N'Toolbelt.Xlsx.Qualification.XlsxEntryPoints',N'ListSheets'),
  (N'TVF_InternalXlsxCells','FT',10,N'Toolbelt.Xlsx.Qualification.XlsxEntryPoints',N'ReadCells'),
  (N'TVF_InternalInterpretXlsxCell','FT',11,N'Toolbelt.Xlsx.Qualification.XlsxCellType',N'Interpret'),
- (N'TVF_InterpretXlsxCell','IF',11,NULL,NULL);
+ (N'TVF_InterpretXlsxCell','IF',11,NULL,NULL),
+ (N'TVF_InternalFormatXlsxCell','FT',12,N'Toolbelt.Xlsx.Qualification.XlsxCellDisplayBridge',N'Evaluate'),
+ (N'TVF_FormatXlsxCell','IF',12,NULL,NULL);
 DECLARE @Own TABLE(Id int NOT NULL PRIMARY KEY);
 BEGIN TRY
  WHILE @Phase<2
@@ -69,13 +71,13 @@ SELECT @Version=TRY_CONVERT(nvarchar(max),value),@Installed=1 FROM sys.extended_
 SELECT @InstalledMode=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties
  WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.file.xlsx-memory.DeploymentMode';
 IF @Installed=1 AND (@Version IS NULL OR CONVERT(varbinary(max),@Version) NOT IN
- (CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0')))
+ (CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0'),CONVERT(varbinary(max),N'1.2.0')))
  THROW 51534,N'Unbekannter oder inkohärenter XLSX-Release.',1;
 IF (@Installed=1 AND (@InstalledMode IS NULL OR CONVERT(varbinary(max),@InstalledMode) NOT IN
  (CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central'))))
  OR (@Installed=0 AND EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.file.xlsx-memory.DeploymentMode'))
  THROW 51534,N'Unbekannter oder inkohärenter XLSX-Modus.',1;
-SET @Release=CASE CONVERT(varbinary(max),@Version) WHEN CONVERT(varbinary(max),N'1.0.0') THEN 10 WHEN CONVERT(varbinary(max),N'1.1.0') THEN 11 ELSE 0 END;
+SET @Release=CASE CONVERT(varbinary(max),@Version) WHEN CONVERT(varbinary(max),N'1.0.0') THEN 10 WHEN CONVERT(varbinary(max),N'1.1.0') THEN 11 WHEN CONVERT(varbinary(max),N'1.2.0') THEN 12 ELSE 0 END;
 SELECT @AssemblyId=assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_File_XlsxMemory';
 IF (@Installed=1 AND @AssemblyId IS NULL) OR (@Installed=0 AND @AssemblyId IS NOT NULL)
  OR (@AssemblyId IS NOT NULL AND (NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE assembly_id=@AssemblyId AND permission_set=1
@@ -121,6 +123,8 @@ IF EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d WHERE d.referenced_id 
    EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Managed',@value=1,@level0type=N'SCHEMA',@level0name=N'toolbelt_file';
    EXEC sys.sp_addextendedproperty @name=N'Toolbelt.SchemaCategory',@value=N'file',@level0type=N'SCHEMA',@level0name=N'toolbelt_file';
  END;
+ DROP FUNCTION IF EXISTS toolbelt_file.TVF_FormatXlsxCell;
+ DROP FUNCTION IF EXISTS toolbelt_file.TVF_InternalFormatXlsxCell;
  DROP FUNCTION IF EXISTS toolbelt_file.TVF_InterpretXlsxCell;
  DROP FUNCTION IF EXISTS toolbelt_file.TVF_InternalInterpretXlsxCell;
  DROP FUNCTION IF EXISTS toolbelt_file.TVF_InternalXlsxSheets;
@@ -138,6 +142,8 @@ BEGIN CATCH
  THROW;
 END CATCH;
 GO
+:r ../Source/TVF_InternalFormatXlsxCell.sql
+:r ../Source/TVF_FormatXlsxCell.sql
 :r ../Source/TVF_InternalInterpretXlsxCell.sql
 :r ../Source/TVF_InterpretXlsxCell.sql
 :r ../Source/TVF_InternalXlsxSheets.sql
@@ -150,7 +156,7 @@ BEGIN TRY
  IF @@TRANCOUNT<>1 THROW 51539,N'Deploymenttransaktion fehlt.',1;
  DECLARE @Property sysname,@Value nvarchar(128);
  DECLARE ModuleMarkers CURSOR LOCAL FAST_FORWARD FOR SELECT Name,Value FROM
-  (VALUES(N'Toolbelt.Module.toolbelt.file.xlsx-memory.Version',N'1.1.0'),
+  (VALUES(N'Toolbelt.Module.toolbelt.file.xlsx-memory.Version',N'1.2.0'),
          (N'Toolbelt.Module.toolbelt.file.xlsx-memory.DeploymentMode',N'$(DeploymentMode)'))p(Name,Value);
  OPEN ModuleMarkers; FETCH NEXT FROM ModuleMarkers INTO @Property,@Value;
  WHILE @@FETCH_STATUS=0
@@ -165,9 +171,9 @@ BEGIN TRY
  DECLARE ObjectMarkers CURSOR LOCAL FAST_FORWARD FOR
   SELECT o.name,CASE WHEN o.type=N'P' THEN 'PROCEDURE' ELSE 'FUNCTION' END,p.Name,p.Value
   FROM sys.objects o CROSS APPLY(VALUES(N'Toolbelt.ModuleId',N'toolbelt.file.xlsx-memory'),
-     (N'Toolbelt.ModuleVersion',N'1.1.0'),
-     (N'Toolbelt.Visibility',CASE WHEN o.name IN(N'USP_ListXlsxWorksheets',N'USP_ReadXlsxWorksheetCells',N'TVF_InterpretXlsxCell') THEN N'public' ELSE N'internal' END))p(Name,Value)
-  WHERE o.schema_id=SCHEMA_ID(N'toolbelt_file') AND o.name IN(N'USP_ListXlsxWorksheets',N'USP_ReadXlsxWorksheetCells',N'USP_InternalXlsxRead',N'TVF_InternalXlsxSheets',N'TVF_InternalXlsxCells',N'TVF_InternalInterpretXlsxCell',N'TVF_InterpretXlsxCell');
+     (N'Toolbelt.ModuleVersion',N'1.2.0'),
+     (N'Toolbelt.Visibility',CASE WHEN o.name IN(N'USP_ListXlsxWorksheets',N'USP_ReadXlsxWorksheetCells',N'TVF_InterpretXlsxCell',N'TVF_FormatXlsxCell') THEN N'public' ELSE N'internal' END))p(Name,Value)
+  WHERE o.schema_id=SCHEMA_ID(N'toolbelt_file') AND o.name IN(N'USP_ListXlsxWorksheets',N'USP_ReadXlsxWorksheetCells',N'USP_InternalXlsxRead',N'TVF_InternalXlsxSheets',N'TVF_InternalXlsxCells',N'TVF_InternalInterpretXlsxCell',N'TVF_InterpretXlsxCell',N'TVF_InternalFormatXlsxCell',N'TVF_FormatXlsxCell');
  OPEN ObjectMarkers; FETCH NEXT FROM ObjectMarkers INTO @Object,@Type,@Property,@Value;
  WHILE @@FETCH_STATUS=0
  BEGIN

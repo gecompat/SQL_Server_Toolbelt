@@ -1,10 +1,10 @@
 module_id: "toolbelt.file.xlsx-memory"
 module_name: "XLSX Binary Memory Reader"
-version: "1.1.0"
+version: "1.2.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Begrenzter SAFE Binary-XLSX-Reader und additive invariante Einzelzell-Typinterpretation."
+description: "Begrenzter SAFE Binary-XLSX-Reader, invariante Typinterpretation und explizite Einzelzell-Anzeigeformatierung."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -65,11 +65,19 @@ objects:
     schema: toolbelt_file
     name: TVF_InterpretXlsxCell
     visibility: public
+  - type: CLR_TVF
+    schema: toolbelt_file
+    name: TVF_InternalFormatXlsxCell
+    visibility: internal
+  - type: TVF
+    schema: toolbelt_file
+    name: TVF_FormatXlsxCell
+    visibility: public
 permissions_required:
   - "EXECUTE auf den beiden öffentlichen USPs; ResultTable zusätzlich Helper-EXECUTE."
   - "DDL-Rechte und bestehender exakter Hashtrust für Deployment; keine Rechteausweitung."
   - "Lifecycle: vorhandenes Datenbank-VIEW DEFINITION und SELECT auf sys.sql_expression_dependencies; unklare Sicht blockiert 51535/2, keine Rechtevergabe."
-  - "Vorhandenes SELECT auf TVF_InterpretXlsxCell; keine Berechtigungserteilung."
+  - "Vorhandenes SELECT auf TVF_InterpretXlsxCell und TVF_FormatXlsxCell; keine Berechtigungserteilung."
 collation_contract: "Unicode-Inhalte unverändert, ordinaler ZIP-/Relationshipvergleich, öffentliche Texte Latin1_General_100_BIN2."
 data_type_contract: "Input varbinary(max); Text/Rohwert/Formel/Cache nvarchar(max); Positionen int, Presence bit."
 help_contract_version: "1.0"
@@ -105,9 +113,11 @@ documentation:
     - "Documentation/USP_ListXlsxWorksheets.md"
     - "Documentation/USP_ReadXlsxWorksheetCells.md"
     - "Documentation/TVF_InterpretXlsxCell.md"
+    - "Documentation/TVF_FormatXlsxCell.md"
   architecture:
     - "../../Documentation/Architecture/XLSX_READER_PROPOSAL.md"
     - "../../Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md"
+    - "../../Documentation/Architecture/XLSX_CELL_DISPLAY_CONTRACT.md"
   test_matrix:
     - "Tests/XLSX_CONTRACT_TEST_MATRIX.md"
   evidence:
@@ -122,11 +132,21 @@ tests:
   runtime: "Tests/Runtime/Xlsx.Contract.sql"
   contract: "Tests/Runtime/Xlsx.Contract.sql"
   framework: "../../Spikes/XlsxMemory/Run-FrameworkQualification.ps1"
+  candidate_packaging: "Tests/Framework/Invoke-CandidatePackaging.ps1"
+  candidate_framework: "Tests/Framework/Invoke-CandidateQualification.ps1"
   lab: "Tests/Runtime/Invoke-LabContract.ps1"
   types_lab: "../../Tests/CI/run-xlsx-types-lab.ps1"
   types_composition: "Tests/Runtime/Types.Composition.sql"
   types_composition_helper: "Tests/Runtime/Invoke-TypesComposition.ps1"
   types_composition_fixture: "Tests/Runtime/Types.Composition.xlsx"
+  display_framework: "Tests/Framework/Invoke-Display.ps1"
+  display_contract: "Tests/Runtime/Display.Contract.sql"
+  display_safety: "Tests/Runtime/Display.Safety.sql"
+  display_lifecycle: "Tests/Runtime/Display.Lifecycle.sql"
+  display_metadata: "Tests/Runtime/Display.Metadata.ps1"
+  display_composition: "Tests/Runtime/Display.Composition.sql"
+  display_composition_helper: "Tests/Runtime/Invoke-DisplayComposition.ps1"
+  genuine11_generator: "Scripts/New-Xlsx11LegacyFixture.ps1"
 validation_evidence:
   - date: "2026-10-02"
     workflow: "local: Tests/Framework/Invoke-Types.ps1"
@@ -152,4 +172,17 @@ validation_evidence:
   - date: "2026-10-02"
     workflow: "local: Tests/CI/run-xlsx-types-lab.ps1"
     scope: "Finaler identischer öffentlicher XLSX1.1-Adapter Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 jeweils local/central: drei Types-Fixtures, SQL-/Client-/native Nullability, clean/genuine1.0/repeat, CallerOFF/ON intakt/doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, synthetische0/NULL-Sichtbarkeitsgates, Consumer/Uninstall; RawType nach API-Schleifen auf letzterCL150/170 plus zentralerCaller. Voller PASS samt frischen eigenen Cleanup-Audits. Keine Konfigurations-/Rechteänderungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Lowpriv-Rechte, übrige physische Targets und Heap/Produktionskapazität offen. Historische FAILED-Adapterstände bleiben getrennt."
+    result: "success"
+  - date: "2026-10-03"
+    workflow: "local: private display core/CLR transport and minimal SQL binding probes"
+    scope: "Additiver 1.2-Anzeigekandidat: unabhängiger synthetischer Zahlencorpus, CLR-Transport mit 55 Assertions und eng begrenzte SQL-Bindung mit 12 Assertions sowie injizierter Fehler/Bereinigung. Keine vollständige 1.2-Produkt-, Upgrade-, Lifecycle-, CI- oder Minimalrechtequalifikation; diese bleiben offen. Historische 1.0-/1.1-Nachweise bleiben getrennt."
+    result: "success"
+
+  - date: "2026-10-04"
+    workflow: "local: public ConsumeCandidate and separate genuine baseline/legacy packaging"
+    scope: "Aktuelles1.2-/ZIP1.4-Artefaktpaar:19 bounded Offlinephasen mit sechs stillen Adaptercompiles, CLR-/SQL-Quelldateimetadaten, Types6437 und Display5619 je drei Kulturen, Transport55, Raw/Sandbox/IL; separate genuine1.1-Baseline13Phasen und genuine1.0-/ZIP1.3-Verpackung unveränderter Originalquellen bestanden. Keine individuelle historische interne Buildtask-, SQL-, Heap- oder Head-CI-Qualifikation."
+    result: "success"
+  - date: "2026-10-04"
+    workflow: "local: private original-SQL XLSX1.2 qualification adapter"
+    scope: "Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 nur lokal, identisches aktuelles Binary: je Clean1.2 und genuine installierte1.1→1.2 frischeSession,3→4CLR-Bindings/7→9Slots,12SQL-Fixtures/6Display-Clientchecks/2Kompositionen,Repeat/UninstallRepeat;2eigeneDBs entfernt/3Trust-Vorzustände wiederhergestellt und frischer unabhängiger Cleanup-Audit.0Config/Rechte/Owneränderungen. Kein vollständiger öffentlicher Labadapter-/Produkt-PASS; central1.2,genuine1.0→1.2,weitereCL/Ziele,vollständigeLifecycle-/Kollisionsmatrix,Minimalrechte,Heap und aktuelleHeadCI offen. Historische Fehlläufe bleiben FAILED; partially validated/unreleased."
     result: "success"

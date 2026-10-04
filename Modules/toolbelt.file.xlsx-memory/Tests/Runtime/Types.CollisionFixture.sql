@@ -5,7 +5,7 @@ DECLARE @Case nvarchar(64)=N'$(FaultCase)',@VersionRaw nvarchar(max),@ModeRaw nv
  @RestoreSql nvarchar(max)=N'',@FutureName sysname;
 SELECT @VersionRaw=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.file.xlsx-memory.Version';
 SELECT @ModeRaw=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.file.xlsx-memory.DeploymentMode';
-IF @VersionRaw IS NULL OR CONVERT(varbinary(max),@VersionRaw) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0'))
+IF @VersionRaw IS NULL OR CONVERT(varbinary(max),@VersionRaw) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0'),CONVERT(varbinary(max),N'1.2.0'))
  OR @ModeRaw IS NULL OR CONVERT(varbinary(max),@ModeRaw) NOT IN(CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central'))
  THROW 51590,N'Collisionfixture benötigt bekannte synthetische Basis.',13;
 SELECT @Version=CONVERT(nvarchar(64),@VersionRaw),@Mode=CONVERT(nvarchar(16),@ModeRaw);
