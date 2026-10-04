@@ -6,6 +6,37 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### Nächste Wellen – bestätigte Anforderungen und Entscheidungsvorbereitung 2026-10-04
+
+Benutzerauftrag nach Merge/Cleanup: nächste Wellen besprechen und konkrete
+Vorlagen ausarbeiten. Queue-Worker2 ist erster Schwerpunkt, CSV unabhängiger
+zweiter Schwerpunkt; JSON Pointer, Safe Cast und JSON-Schema-Prüfung folgen.
+Bestätigte Anforderungen und neue API-/Providerdetails stehen getrennt in der
+[Entscheidungsvorlage](../Documentation/Research/NEXT_DEVELOPMENT_WAVES_2026-10-04.md).
+Vorhandene Referenzen TC-2026-015/046 und RI-2026-109/041/076/048 werden
+wiederverwendet. Status dieser Ausarbeitung: `proposed`; keine neue Runtime.
+
+Einzeln bestätigt: externer Queueprovider jetzt, Agent/Broker später; gemeinsame
+Steuerung, Registrierung, explizite Recovery, kontrollierter Neustart und bisherige
+Handlergrenzen. Die anschließend bestätigte dynamische providerübergreifende
+Parallelitätssteuerung ersetzt die vorgeschlagene feste Acht-Slot-Obergrenze:
+Erhöhung/Reduktion im Betrieb, Budget0 als Admissionpause, laufende Arbeit
+auslaufen lassen, separate Supervisor-Kapazitäten und kleine Lab-Budgets.
+Keine privaten Kapazitäts-/Systemwerte in dieser Dokumentation.
+
+CSV-Grundvorschlag wurde angenommen; die NULL-Nachfrage widerrief das nicht.
+Optionales NULL-Token zusätzlich bestätigt: unquoted exakt ist SQL-NULL,
+quoted Token ist Text; leeres Feld/quoted leer bleibt leerer Text. Ohne Token
+weist der Writer SQL-NULL zurück. JSON Pointer read-only, sechs Safe-Cast-
+Zieltypen/ISO-Datumsrichtung sowie explizite JSON-Schema-Prüfung ohne Netzwerk-
+Referenzen oder Datenänderung wurden als Richtungen angenommen.
+
+Neue konkrete APIs, zusätzliche Grenzen, genaue Recoverybeweise und CLR-/
+Providerwahl benötigen die anschließende funktionsbezogene Freigabe. Bestehende
+Zustimmungen bleiben erhalten; keine erneute pauschale Grundsatzabfrage.
+Vorbereitungs-PR ist keine fachliche Source-/Providerfreigabe und aktiviert
+keinen automatischen Dienst, Agentjob, Broker oder Heartbeat.
+
 ### TC-2026-039 / TC-2026-040 / TC-2026-042: Deterministic-Familie implementiert
 
 Stand 2026-10-02: Die am 2026-10-01 einzeln freigegebenen
