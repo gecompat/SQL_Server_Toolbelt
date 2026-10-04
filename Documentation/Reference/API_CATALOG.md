@@ -1915,7 +1915,7 @@ Prüft actual Sessionfence und exakten locking Commitwitness; CAS und LateDispat
 
 Vertrag und Quelle: [USP_ReconcileWorkerExecution.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ReconcileWorkerExecution.sql), [USP_ReconcileWorkerExecution.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ReconcileWorkerExecution.md).
 
-<!-- Source/Vertrag SHA256: 6a604732f57d00092204e5098d2b806dbef20b89e10633c62532313ca9ed7758 -->
+<!-- Source/Vertrag SHA256: a858601f8f7adfef8567e9626ef7528c2df4a547cd765a3da2384775f4edf951 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
@@ -2201,7 +2201,7 @@ Pausiert stabile ausgewählte Workeridentitäten und persistiert atomaren Stop/H
 
 Vertrag und Quelle: [USP_StopWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_StopWorkers.sql), [USP_StopWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_StopWorkers.md).
 
-<!-- Source/Vertrag SHA256: 01a21ad63508cde6c507c098549a2f4f687dd56fe6679b98a4824b2814ab8bbd -->
+<!-- Source/Vertrag SHA256: 47e17e45202b379ee15eb09a08ec308030f20705d006e304dae14fc28870af87 -->
 
 Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
 
