@@ -73,7 +73,9 @@ Alle USPs mit fachlichem Resultset erhalten den unveränderten Standardtail
 `ResultTable sysname=NULL, KeepData bit=0, Debug tinyint=0, Hilfe bit=0`.
 Die anderen erhalten `Debug tinyint=0, Hilfe bit=0`. Fachliche NULL-Defaults
 sind außerhalb Hilfe keine stillschweigende Zulassung. Ergebnisnullability:
-alle genannten Felder NOT NULL; ein leerer Claim liefert keine Claimzeile.
+die neuen genannten Felder NOT NULL; die bestehende Claimform bleibt
+unverändert, insbesondere PayloadJson nvarchar(max) NULL für NONE-Handler.
+Ein leerer Claim liefert keine Claimzeile.
 ExpectedConfigVersion ist zum Ändern erforderlich; veraltete Version blockiert.
 RegisterWorker ist nur für den implementierten EXTERNAL-Provider verfügbar;
 spätere Provider werden explizit zugelassen, nicht bloß über einen freien String.
