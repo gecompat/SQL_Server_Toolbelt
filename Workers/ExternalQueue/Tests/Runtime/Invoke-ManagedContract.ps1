@@ -164,12 +164,20 @@ END;
     $stoppedWorkerId=Sql 'SELECT WorkerId FROM toolbelt_core.WorkerSlotReservation WHERE SlotReservationId=@Id;' @{'@Id'=$reservation} -Scalar
     $stoppedWorker=if($stoppedWorkerId-eq$worker.WorkerId){$worker}else{$otherWorker}
     $releaseWorker=if($stoppedWorkerId-eq$worker.WorkerId){$otherWorker}else{$worker}
+    $otherOriginalReservation=Sql 'SELECT SlotReservationId FROM toolbelt_core.WorkerSlotReservation WHERE WorkerId=@Worker;' @{'@Worker'=$releaseWorker.WorkerId} -Scalar
+    $otherOriginalItem=[long](Sql 'SELECT WorkItemId FROM toolbelt_core.WorkerSlotReservation WHERE SlotReservationId=@Id AND WorkerId=@Worker;' @{'@Id'=$otherOriginalReservation;'@Worker'=$releaseWorker.WorkerId} -Scalar)
     [void](End-ManagedFixture $stoppedWorker)
     $fixturePhase='explicit-release'
     $heldItem=[long](Sql 'SELECT WorkItemId FROM toolbelt_core.WorkerSlotReservation WHERE SlotReservationId=@Id;' @{'@Id'=$reservation} -Scalar)
     $holdVersion=Sql 'SELECT HoldVersion FROM toolbelt_core.VW_WorkerExecutionStatus WHERE SlotReservationId=@Id;' @{'@Id'=$reservation} -Scalar
     # Korrektur erfolgt im registrierten Handler; kein Payload enthält SQL.
+    # Den registrierten Handler erst ändern, wenn der andere ursprüngliche
+    # Attempt belegt committed und beendet ist; keine Definition im Lauf ändern.
+    $fixturePhase='explicit-release-original-end'
+    Wait {(Sql 'SELECT COUNT(*) FROM toolbelt_core.WorkerSlotReservation r JOIN toolbelt_core.WorkItem w ON w.WorkItemId=r.WorkItemId WHERE r.SlotReservationId=@Id AND r.WorkerId=@Worker AND r.WorkItemId=@Item AND r.State=''COMMITTED'' AND r.IsOccupied=0 AND w.Status=''COMPLETED'' AND w.ManagedReservationId=r.SlotReservationId AND w.ClaimGeneration=r.ClaimGeneration;' @{'@Id'=$otherOriginalReservation;'@Worker'=$releaseWorker.WorkerId;'@Item'=$otherOriginalItem} -Scalar)-eq1} 'MANAGED.ORIGINAL_OTHER_COMMIT_WAIT'
+    $fixturePhase='explicit-release-handler'
     Sql "ALTER PROCEDURE dbo.USP_TbxManagedLong AS BEGIN SET NOCOUNT ON; INSERT dbo.TbxManagedEffects VALUES(CONVERT(bigint,SESSION_CONTEXT(N'toolbelt.worker.work_item_id'))); RETURN 7; END;"
+    $fixturePhase='explicit-release-publish'
     Sql 'EXEC toolbelt_core.USP_ReleaseHeldWork @WorkItemId=@Item,@ExpectedHoldVersion=@Version;' @{'@Item'=$heldItem;'@Version'=$holdVersion}
     Wait {(Sql 'SELECT COUNT(*) FROM toolbelt_core.WorkItem WHERE WorkItemId=@Item AND Status=''COMPLETED'';' @{'@Item'=$heldItem} -Scalar) -eq 1} 'MANAGED.EXPLICIT_RELEASE_WAIT'
     Need ((Sql 'SELECT COUNT(*) FROM toolbelt_core.WorkerSlotReservation WHERE WorkItemId=@Item AND WorkerId=@Worker AND State=''COMMITTED'' AND IsOccupied=0;' @{'@Item'=$heldItem;'@Worker'=$releaseWorker.WorkerId} -Scalar)-eq1) 'MANAGED.RELEASE_OTHER_WORKER'
@@ -208,6 +216,7 @@ BEGIN TRY EXEC toolbelt_core.USP_ClaimWork;SELECT CONVERT(int,0);END TRY
         Wait {(Sql 'SELECT COUNT(*) FROM toolbelt_core.WorkerRegistration WHERE WorkerId=@Id;' @{'@Id'=$raceWorker.WorkerId} -Scalar) -eq 1} 'MANAGED.RACE_REGISTER_WAIT'
         # Eine feste Synthetic-Handlerwartezeit erlaubt den Gate vor Completion
         # zu halten; keine Produkt hooks oder fremden Sessionaktionen.
+        $fixturePhase='race-handler'
         Sql "ALTER PROCEDURE dbo.USP_TbxManagedShort AS BEGIN SET NOCOUNT ON; INSERT dbo.TbxManagedEffects VALUES(CONVERT(bigint,SESSION_CONTEXT(N'toolbelt.worker.work_item_id'))); WAITFOR DELAY '00:00:02'; RETURN 7; END;"
         Budget 1
         Wait {(Sql 'SELECT COUNT(*) FROM toolbelt_core.WorkerSlotReservation WHERE WorkerId=@Id;' @{'@Id'=$raceWorker.WorkerId} -Scalar) -eq 1} 'MANAGED.RACE_RESERVATION_WAIT'
@@ -288,6 +297,7 @@ JOIN toolbelt_core.WorkerExecutionDisposition d ON d.SlotReservationId=r.SlotRes
     $faultReservation=Sql 'SELECT SlotReservationId FROM toolbelt_core.WorkerSlotReservation WHERE WorkerId=@Id;' @{'@Id'=$faultWorker.WorkerId} -Scalar
     $faultItem=[long](Sql 'SELECT WorkItemId FROM toolbelt_core.WorkerSlotReservation WHERE SlotReservationId=@Id;' @{'@Id'=$faultReservation} -Scalar)
     Wait {(Sql 'SELECT COUNT(*) FROM dbo.TbxManagedEffects WITH(READUNCOMMITTED) WHERE WorkItemId=@Item;' @{'@Item'=$faultItem} -Scalar)-eq1} 'MANAGED.FAULT_HANDLER_STARTED'
+    $fixturePhase='control-timeout-lock'
     $faultConnection=$null;$faultTransaction=$null;$faultCommand=$null;$faultLockError=$null
     try {
         $faultConnection=[Data.SqlClient.SqlConnection]::new($builder.ConnectionString);$faultConnection.Open()
@@ -303,6 +313,7 @@ JOIN toolbelt_core.WorkerExecutionDisposition d ON d.SlotReservationId=r.SlotRes
         foreach($resource in @($faultCommand,$faultTransaction,$faultConnection)){if($null-ne$resource){try{$resource.Dispose()}catch{if($null-eq$faultLockError){$faultLockError=$_}else{$secondary.Add('MANAGED.FAULT_LOCK_DISPOSE_FAILED')}}}}
     }
     if($null-ne$faultLockError){throw $faultLockError}
+    $fixturePhase='control-timeout-end'
     $faultSummary=End-ManagedFixture $faultWorker
     $faultEvents=@($faultWorker.Shell.Streams.Information | Where-Object {$_.Tags-contains'ToolbeltQueueWorker' -and $_.MessageData.Event-ceq'MANAGED_EXECUTION_ENDED'} | ForEach-Object {$_.MessageData})
     Need ($faultSummary.Status-ceq'OUTCOME_UNKNOWN' -and $faultSummary.Unresolved-eq1 -and $faultEvents.Count-eq1 -and $faultEvents[0].Outcome-ceq'UNKNOWN' -and -not $faultEvents[0].GuardianHealthy -and $faultEvents[0].RollbackConfirmed -and $faultEvents[0].ResourcesDisposed -and $null-ne$faultEvents[0].GuardianDiagnostic -and $faultEvents[0].GuardianDiagnostic.SqlNumber-eq-2) 'MANAGED.FAULT_ACTUAL_UNKNOWN'
@@ -312,6 +323,7 @@ JOIN toolbelt_core.WorkerExecutionDisposition d ON d.SlotReservationId=r.SlotRes
     # über Lease-Recovery, Retry oder erneuten Claim übernehmen.
     Sql "EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='test.managed.short';"
     $fencedItem=[long](Sql 'SELECT MAX(WorkItemId) FROM toolbelt_core.WorkItem;' -Scalar)
+    $fixturePhase='control-timeout-fence'
     $fencedWorker=Start-ManagedFixture -Capacity 1 -Mode BOUNDED -RunSeconds 1
     Wait {$fencedWorker.Task.IsCompleted} 'MANAGED.FAULT_FENCED_WORKER_END' -AllowUnknown
     $fencedSummary=End-ManagedFixture $fencedWorker
@@ -321,14 +333,17 @@ JOIN toolbelt_core.WorkerExecutionDisposition d ON d.SlotReservationId=r.SlotRes
     # Erst die explizite Admin-Reconciliation klassifiziert Hold. Ein zuvor
     # nicht gesetzter Hold wird dem UNKNOWN-Ausgang nicht rückwirkend zugeschrieben.
     $faultVersion=Sql 'SELECT HoldVersion FROM toolbelt_core.VW_WorkerExecutionStatus WHERE SlotReservationId=@Id;' @{'@Id'=$faultReservation} -Scalar
+    $fixturePhase='control-timeout-reconcile-hold'
     Sql 'EXEC toolbelt_core.USP_ReconcileWorkerExecution @SlotReservationId=@Id,@ExpectedHoldVersion=@Version;' @{'@Id'=$faultReservation;'@Version'=$faultVersion}
     Need ((Sql 'SELECT COUNT(*) FROM toolbelt_core.VW_WorkerExecutionStatus v JOIN toolbelt_core.WorkerSlotReservation r ON r.SlotReservationId=v.SlotReservationId WHERE v.SlotReservationId=@Id AND v.State=''UNKNOWN'' AND r.IsOccupied=1 AND v.IsHeld=1 AND v.StopStatus=''UNKNOWN'';' @{'@Id'=$faultReservation} -Scalar)-eq1) 'MANAGED.FAULT_RECONCILE_UNKNOWN_HOLD'
     $faultVersion=Sql 'SELECT HoldVersion FROM toolbelt_core.VW_WorkerExecutionStatus WHERE SlotReservationId=@Id;' @{'@Id'=$faultReservation} -Scalar
+    $fixturePhase='control-timeout-release-denied'
     $releaseDenied=Sql @'
 BEGIN TRY EXEC toolbelt_core.USP_ReleaseHeldWork @WorkItemId=@Item,@ExpectedHoldVersion=@Version;SELECT CONVERT(int,0);END TRY
 BEGIN CATCH IF ERROR_NUMBER()<>54225 OR ERROR_STATE()<>2 THROW;SELECT CONVERT(int,1);END CATCH;
 '@ @{'@Item'=$faultItem;'@Version'=$faultVersion} -Scalar
     Need ($releaseDenied-eq1) 'MANAGED.FAULT_UNKNOWN_RELEASE_DENIED'
+    $fixturePhase='control-timeout-reconcile-end'
     Sql 'EXEC toolbelt_core.USP_ReconcileWorkerExecution @SlotReservationId=@Id,@ExpectedHoldVersion=@Version;' @{'@Id'=$faultReservation;'@Version'=$faultVersion}
     Need ((Sql 'SELECT COUNT(*) FROM toolbelt_core.VW_WorkerExecutionStatus v JOIN toolbelt_core.WorkerSlotReservation r ON r.SlotReservationId=v.SlotReservationId WHERE v.SlotReservationId=@Id AND v.State=''ROLLED_BACK'' AND r.IsOccupied=0 AND v.IsHeld=1 AND v.StopStatus=''ROLLED_BACK_HELD'';' @{'@Id'=$faultReservation} -Scalar)-eq1 -and (Sql 'SELECT COUNT(*) FROM dbo.TbxManagedEffects WHERE WorkItemId=@Item;' @{'@Item'=$faultItem} -Scalar)-eq0) 'MANAGED.FAULT_RECONCILE_END'
     Record 'UNKNOWN_RELEASE_DENIED_EXPLICIT_RECONCILIATION_END'
@@ -336,6 +351,7 @@ BEGIN CATCH IF ERROR_NUMBER()<>54225 OR ERROR_STATE()<>2 THROW;SELECT CONVERT(in
     # Erst nach sämtlichen physischen Endnachweisen eigene belegte Holds explizit
     # lösen. Es startet kein Verbraucher mehr; QUEUED-Synthetik endet mit OwnDB.
     Need (@($workers | Where-Object {-not $_.Ended -or -not $_.Disposed}).Count-eq0) 'MANAGED.SYNTHETIC_RELEASE_ACTORS_ENDED'
+    $fixturePhase='synthetic-held-release'
     foreach($endedReservation in @($raceId,$faultReservation)) {
         $endedHeld=[bool](Sql 'SELECT IsHeld FROM toolbelt_core.VW_WorkerExecutionStatus WHERE SlotReservationId=@Id;' @{'@Id'=$endedReservation} -Scalar)
         if($endedHeld) {
@@ -396,11 +412,12 @@ $result
 if($null -ne $primary){
  $caseCode='UNSPECIFIED'
  $allowedCodes=@(
-'MANAGED.FIXTURE_DEADLINE','MANAGED.WORKER_END_UNKNOWN','MANAGED.WORKER_RESULT','MANAGED.CONFIG_DRIFT','MANAGED.EVIDENCE_NOT_FRESH','MANAGED.CONNECTION_UNAVAILABLE','MANAGED.ENCRYPTION_REQUIRED','MANAGED.OWN_DATABASE_GUARD','MANAGED.FRESH_DATABASE_REQUIRED','MANAGED.FRESH_DISABLED_GATE_REQUIRED','MANAGED.REGISTRATION_WAIT','MANAGED.ZERO_BUDGET_ADMITTED','MANAGED.BUDGET_TWO_WAIT','MANAGED.REDUCTION_CANCELLED_WORK','MANAGED.STOP_ROLLBACK_HOLD_WAIT','MANAGED.CANCEL_EFFECT_NOT_ROLLED_BACK','MANAGED.EXPLICIT_RELEASE_WAIT','MANAGED.LEGACY_BYPASS_NOT_REJECTED','MANAGED.ALL_EXECUTIONS_END_WAIT','MANAGED.COMMIT_WINNER_LOST','MANAGED.SUMMARY_ORACLE','MANAGED.RACE_EFFECT_END_CONJUNCTION','MANAGED.OWN_STOP_FILE_DRIFT','MANAGED.CLEANUP_OCCUPIED','MANAGED.GLOBAL_BUDGET','MANAGED.BOTH_DISPOSITION_CONTENDERS_WAITING','MANAGED.COMPLETION_WAITING','MANAGED.RACE_EXISTING_VISIBILITY_REQUIRED','MANAGED.RACE_OWN_GATE','MANAGED.RACE_REGISTER_WAIT','MANAGED.RACE_RESERVATION_WAIT','MANAGED.RACE_STOP_END','MANAGED.RACE_TERMINAL_END','MANAGED.UNEXPECTED_UNKNOWN','MANAGED.RACE_ACTOR_ENDED_BEFORE_RENDEZVOUS','MANAGED.RACE_SESSION_DISTINCT','MANAGED.RACE_PROBE_DEADLINE','MANAGED.RACE_PROBE_SHAPE','MANAGED.EMPTY_BOUNDED_END','MANAGED.EMPTY_BOUNDED_ORACLE','MANAGED.EMPTY_CONTINUOUS_ORACLE','MANAGED.FAULT_ACTUAL_UNKNOWN','MANAGED.FAULT_FENCED_WORKER_END','MANAGED.FAULT_HANDLER_STARTED','MANAGED.FAULT_LOCK_DISPOSE_FAILED','MANAGED.FAULT_LOCK_ROLLBACK_FAILED','MANAGED.FAULT_NO_REPLAY','MANAGED.FAULT_OWN_LOCK','MANAGED.FAULT_RECONCILE_END','MANAGED.FAULT_RECONCILE_UNKNOWN_HOLD','MANAGED.FAULT_REGISTER','MANAGED.FAULT_RESERVATION','MANAGED.FAULT_ROLLBACK_EFFECT','MANAGED.FAULT_UNKNOWN_OCCUPIED','MANAGED.FAULT_UNKNOWN_RELEASE_DENIED','MANAGED.HANDLERS_ACTUALLY_STARTED','MANAGED.RELEASE_OTHER_WORKER','MANAGED.TWO_SUPERVISORS_ADMITTED','MANAGED.SYNTHETIC_RELEASE_ACTORS_ENDED','MANAGED.SYNTHETIC_RELEASE_END_PROOF')
+'MANAGED.FIXTURE_DEADLINE','MANAGED.WORKER_END_UNKNOWN','MANAGED.WORKER_RESULT','MANAGED.CONFIG_DRIFT','MANAGED.EVIDENCE_NOT_FRESH','MANAGED.CONNECTION_UNAVAILABLE','MANAGED.ENCRYPTION_REQUIRED','MANAGED.OWN_DATABASE_GUARD','MANAGED.FRESH_DATABASE_REQUIRED','MANAGED.FRESH_DISABLED_GATE_REQUIRED','MANAGED.REGISTRATION_WAIT','MANAGED.ZERO_BUDGET_ADMITTED','MANAGED.BUDGET_TWO_WAIT','MANAGED.REDUCTION_CANCELLED_WORK','MANAGED.STOP_ROLLBACK_HOLD_WAIT','MANAGED.CANCEL_EFFECT_NOT_ROLLED_BACK','MANAGED.EXPLICIT_RELEASE_WAIT','MANAGED.LEGACY_BYPASS_NOT_REJECTED','MANAGED.ALL_EXECUTIONS_END_WAIT','MANAGED.COMMIT_WINNER_LOST','MANAGED.SUMMARY_ORACLE','MANAGED.RACE_EFFECT_END_CONJUNCTION','MANAGED.OWN_STOP_FILE_DRIFT','MANAGED.CLEANUP_OCCUPIED','MANAGED.GLOBAL_BUDGET','MANAGED.BOTH_DISPOSITION_CONTENDERS_WAITING','MANAGED.COMPLETION_WAITING','MANAGED.RACE_EXISTING_VISIBILITY_REQUIRED','MANAGED.RACE_OWN_GATE','MANAGED.RACE_REGISTER_WAIT','MANAGED.RACE_RESERVATION_WAIT','MANAGED.RACE_STOP_END','MANAGED.RACE_TERMINAL_END','MANAGED.UNEXPECTED_UNKNOWN','MANAGED.RACE_ACTOR_ENDED_BEFORE_RENDEZVOUS','MANAGED.RACE_SESSION_DISTINCT','MANAGED.RACE_PROBE_DEADLINE','MANAGED.RACE_PROBE_SHAPE','MANAGED.EMPTY_BOUNDED_END','MANAGED.EMPTY_BOUNDED_ORACLE','MANAGED.EMPTY_CONTINUOUS_ORACLE','MANAGED.FAULT_ACTUAL_UNKNOWN','MANAGED.FAULT_FENCED_WORKER_END','MANAGED.FAULT_HANDLER_STARTED','MANAGED.FAULT_LOCK_DISPOSE_FAILED','MANAGED.FAULT_LOCK_ROLLBACK_FAILED','MANAGED.FAULT_NO_REPLAY','MANAGED.FAULT_OWN_LOCK','MANAGED.FAULT_RECONCILE_END','MANAGED.FAULT_RECONCILE_UNKNOWN_HOLD','MANAGED.FAULT_REGISTER','MANAGED.FAULT_RESERVATION','MANAGED.FAULT_ROLLBACK_EFFECT','MANAGED.FAULT_UNKNOWN_OCCUPIED','MANAGED.FAULT_UNKNOWN_RELEASE_DENIED','MANAGED.HANDLERS_ACTUALLY_STARTED','MANAGED.RELEASE_OTHER_WORKER','MANAGED.TWO_SUPERVISORS_ADMITTED','MANAGED.SYNTHETIC_RELEASE_ACTORS_ENDED','MANAGED.SYNTHETIC_RELEASE_END_PROOF','MANAGED.ORIGINAL_OTHER_COMMIT_WAIT')
  if($primary.Exception.Message-cin$allowedCodes){$caseCode=$primary.Exception.Message}
  $cause=$primary.Exception;$sqlNumber=0;$sqlState=0
  while($cause){if($cause-is[Data.SqlClient.SqlException]){$sqlNumber=$cause.Number;$sqlState=[int]$cause.State;break};$cause=$cause.InnerException}
- $diagnostic=[ordered]@{Phase=$fixturePhase;CaseCode=$caseCode;Category=$primary.Exception.GetType().Name;Line=$primary.InvocationInfo.ScriptLineNumber;SqlNumber=$sqlNumber;SqlState=$sqlState}
+ $lastPassedCase=if($records.Count-gt0){[string]$records[$records.Count-1].Case}else{'NONE'}
+ $diagnostic=[ordered]@{Phase=$fixturePhase;LastPassedCase=$lastPassedCase;CaseCode=$caseCode;Category=$primary.Exception.GetType().Name;Line=$primary.InvocationInfo.ScriptLineNumber;SqlNumber=$sqlNumber;SqlState=$sqlState}
  $primary.Exception.Data['Toolbelt.ManagedFixture.Diagnostic']=$diagnostic
  try{
   $privatePath=Join-Path $EvidenceDirectory 'FailureDiagnostic.json'

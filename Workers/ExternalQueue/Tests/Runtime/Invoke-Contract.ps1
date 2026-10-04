@@ -16,6 +16,18 @@ $phase='preflight';$cleanupDeferred=$false
 $managedIdentity=$null;$managedRun=[guid]::NewGuid();$managedMarker='Toolbelt.ManagedWorkerFixture.Run'
 $originalFailure=$null;$fixtureSqlFailure=$null;$managedFixtureFailure=$null;$cleanupSqlFailure=$null;$managedCleanupPhase='not-started';$historicalFiles=[Collections.Generic.List[object]]::new();$historicalDirectories=[Collections.Generic.List[string]]::new();$secondaryFailures=[Collections.Generic.List[string]]::new()
 $managedJournalHash=$null;$managedMarkerConfirmed=$false;$managedDbDropped=$false;$managedControlDeploymentStarted=$false
+function Get-ManagedPublicFailureDescriptor($Diagnostic) {
+ # Ausschließlich feste Sourcebezeichnungen und numerische SQLcodes veröffentlichen.
+ $safe=[ordered]@{Phase='UNSPECIFIED';LastPassedCase='UNSPECIFIED';SqlNumber=0;SqlState=0}
+ if($Diagnostic-isnot[Collections.IDictionary]){return [pscustomobject]$safe}
+ $phases=@('budget-two','control-timeout','control-timeout-end','control-timeout-fence','control-timeout-lock','control-timeout-reconcile-end','control-timeout-reconcile-hold','control-timeout-release-denied','empty-modes','enable-budget','explicit-release','explicit-release-handler','explicit-release-original-end','explicit-release-publish','late-stop','legacy-bypass','own-database-guard','preflight','race','race-handler','synthetic-handlers','synthetic-held-release','worker-admission')
+ $cases=@('NONE','EMPTY_BOUNDED_END','EMPTY_CONTINUOUS_WAIT_TWO_SUPERVISORS','ZERO_BUDGET','LIVE_BUDGET_TWO_REDUCED_WITHOUT_CANCEL','ACTUAL_CANCEL_ROLLBACK_HELD','EXPLICIT_RELEASE_OTHER_REGISTERED_WORKER','LEGACY_CLAIM_REJECTED','KNOWN_COMMIT_WINS_LATE_STOP','ACTUAL_COMPLETION_STOP_RENDEZVOUS','ACTUAL_CONTROL_TIMEOUT_UNKNOWN_OCCUPIED_NO_REPLAY','UNKNOWN_RELEASE_DENIED_EXPLICIT_RECONCILIATION_END')
+ if($Diagnostic.Contains('Phase') -and $Diagnostic['Phase']-is[string] -and $Diagnostic['Phase']-cin$phases){$safe.Phase=$Diagnostic['Phase']}
+ if($Diagnostic.Contains('LastPassedCase') -and $Diagnostic['LastPassedCase']-is[string] -and $Diagnostic['LastPassedCase']-cin$cases){$safe.LastPassedCase=$Diagnostic['LastPassedCase']}
+ if($Diagnostic.Contains('SqlNumber') -and $Diagnostic['SqlNumber']-is[int]){$safe.SqlNumber=$Diagnostic['SqlNumber']}
+ if($Diagnostic.Contains('SqlState') -and $Diagnostic['SqlState']-is[int] -and $Diagnostic['SqlState']-ge0 -and $Diagnostic['SqlState']-le255){$safe.SqlState=$Diagnostic['SqlState']}
+ return [pscustomobject]$safe
+}
 function Save-ManagedFixtureJournal {
  if(-not$managedScope -or -not[IO.Directory]::Exists($temporaryRoot)){return}
  $record=[ordered]@{Run=$managedRun;Database=$database;Created=$created;ProcessId=$PID;DatabaseId=$null;CreatedBytes=$null;MarkerName=$managedMarker;MarkerConfirmed=$managedMarkerConfirmed;ControlDeploymentStarted=$managedControlDeploymentStarted;Stage=$phase;DatabaseDropped=$managedDbDropped;PrivateSqlFailure=$fixtureSqlFailure;PrivateManagedFailure=$managedFixtureFailure;PrivateCleanupFailure=$cleanupSqlFailure;PrivateEvidenceRetained=($null-ne$originalFailure);Primary=$null;Secondary=$secondaryFailures.ToArray()}
@@ -353,6 +365,10 @@ try{
  try{Save-ManagedFixtureJournal}catch{$secondaryFailures.Add('MANAGED.JOURNAL_FAILURE_RECORD_FAILED')}
  if($oracle-ne'UNSPECIFIED' -and (Get-Variable result -ErrorAction SilentlyContinue)){
   'SYNTHETIC_ORACLE_DIAGNOSTICS: '+([pscustomobject]@{Summary=$result.Summary;Events=@($result.Events|ForEach-Object {[pscustomobject]@{Event=$_.Event;Code=$_.Code}})}|ConvertTo-Json -Depth 5 -Compress)
+ }
+ if($null-ne$managedFixtureFailure){
+  $publicManagedFailure=Get-ManagedPublicFailureDescriptor $managedFixtureFailure
+  Write-Information ('SYNTHETIC_MANAGED_FAILURE_DESCRIPTOR: '+(ConvertTo-Json -InputObject $publicManagedFailure -Compress)) -InformationAction Continue
  }
  throw "External queue synthetic qualification failed (phase=$phase,category=$category,line=$line,sql=$sqlNumber,oracle=$oracle); private diagnostics suppressed."
 }finally{
