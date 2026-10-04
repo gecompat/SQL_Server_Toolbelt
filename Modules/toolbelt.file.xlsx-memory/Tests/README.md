@@ -13,8 +13,8 @@ Die drei ausgeführten SQL-Dateien sind `Types.Contract.sql`, `Types.Safety.sql`
 `Tests/CI/run-xlsx-types-lab.ps1` benötigt vorher gebaute aktuelle und unveränderte genuine-1.0-Artefakte. Die beiden Generatoren sind `Scripts/New-ClrReleaseArtifacts.ps1` und `Scripts/New-Xlsx10LegacyFixture.ps1`. Alle Verzeichnisse werden über Parameter übergeben, nicht aus privaten Pfaden abgeleitet.
 
 ```powershell
-pwsh -NoProfile -File Tests/CI/run-xlsx-types-lab.ps1 -Platform linux -Version 2019 -Patch latest -ReleaseDirectory $release -LegacyDirectory $legacy -ExpectedDriverSHA256 $driverHash -ExpectedAssemblySHA512 $assemblyHash -ExpectedLegacyProvenanceSHA256 $legacyHash -ExpectedPromptSHA256 $promptHash -OptInExactTrust
-pwsh -NoProfile -File Tests/CI/run-xlsx-types-lab.ps1 -Platform windows -Version 2025 -Patch cu8 -ReleaseDirectory $release -LegacyDirectory $legacy -ExpectedDriverSHA256 $driverHash -ExpectedAssemblySHA512 $assemblyHash -ExpectedLegacyProvenanceSHA256 $legacyHash -ExpectedPromptSHA256 $promptHash -OptInExactTrust
+pwsh -NoProfile -File Tests/CI/run-xlsx-types-lab.ps1 -Platform linux -Version 2019 -Patch latest -ReleaseDirectory $release -LegacyDirectory $legacy -Legacy11Directory $legacy11 -ExpectedLegacy11ProvenanceSHA256 $legacy11Hash -ExpectedDriverSHA256 $driverHash -ExpectedAssemblySHA512 $assemblyHash -ExpectedLegacyProvenanceSHA256 $legacyHash -ExpectedPromptSHA256 $promptHash -OptInExactTrust
+pwsh -NoProfile -File Tests/CI/run-xlsx-types-lab.ps1 -Platform windows -Version 2025 -Patch cu8 -ReleaseDirectory $release -LegacyDirectory $legacy -Legacy11Directory $legacy11 -ExpectedLegacy11ProvenanceSHA256 $legacy11Hash -ExpectedDriverSHA256 $driverHash -ExpectedAssemblySHA512 $assemblyHash -ExpectedLegacyProvenanceSHA256 $legacyHash -ExpectedPromptSHA256 $promptHash -OptInExactTrust
 ```
 
 Die Hashargumente werden aus den konkret überprüften Dateien ermittelt; Beispielvariablen sind keine vorgegebene Freigabe. Vor Ausführung sind aktueller Labexport/Schema, ausdrücklich ausgewählter READY-Selektor, Zusatzprompt und Artefakte zu prüfen. `OptInExactTrust` ist standardmäßig aus; der Test setzt vorhandene Berechtigungen und bereits wirksame CLR-Konfiguration voraus. Keine Rechte- oder Konfigurationsänderungen. Private Journale enthalten nur eigenen Wiederherstellungsscope; öffentliche Evidence enthält keine Journale oder Infrastrukturwerte. Preexisting Trust wird nie entfernt; frische DB-/Trustidentitäten und fremde Consumer werden vor Cleanup geprüft. Unklarer Cleanup blockiert PASS. Der Driver pinnt alle konsumierten Helfer/Includes sowie die drei Kompositionsinputs vor und nach Ausführung. SQL und Workbook werden im Kompositionshelfer aus geprüften Byte-Snapshots konsumiert.
@@ -38,7 +38,8 @@ Stand: 2026-10-01. Die Nachweise verwenden ausschließlich synthetische Workbook
 ## Reproduzierbare Befehle
 
 ```powershell
-powershell -NoProfile -File Spikes/XlsxMemory/Run-FrameworkQualification.ps1
+pwsh -NoProfile -File Modules/toolbelt.file.xlsx-memory/Tests/Framework/Invoke-CandidatePackaging.ps1 -OutputDirectory .runtime/xlsx-candidate
+pwsh -NoProfile -File Spikes/XlsxMemory/Run-FrameworkQualification.ps1 -XlsxDirectory .runtime/xlsx-candidate/xlsx -ZipDirectory .runtime/xlsx-candidate/zip -OutputDirectory .runtime/xlsx-candidate/qualification
 python Modules/toolbelt.file.xlsx-memory/Tests/Static/validate_contract.py
 python Modules/toolbelt.archive.zip-memory/Tests/Static/validate_contract.py
 pwsh -NoProfile -File Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1 -Platform windows -Version 2025 -Patch cu8
@@ -67,8 +68,65 @@ Exakte SHA2-512-Werte werden in den reproduzierbaren, lokal erzeugten Release-/T
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1`
-- Scope: Finaler identischer öffentlicher XLSX1.1-Adapter Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 jeweils local/central: drei Types-Fixtures, SQL-/Client-/native Nullability, clean/genuine1.0/repeat, CallerOFF/ON intakt/doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, synthetische0/NULL-Sichtbarkeitsgates, Consumer/Uninstall; RawType nach API-Schleifen auf letzterCL150/170 plus zentralerCaller. Voller PASS samt frischen eigenen Cleanup-Audits. Keine Konfigurations-/Rechteänderungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Lowpriv-Rechte, übrige physische Targets und Heap/Produktionskapazität offen. Historische FAILED-Adapterstände bleiben getrennt.
+- Datum: `2026-10-04`
+- Nachweis: `local: private original-SQL XLSX1.2 qualification adapter`
+- Scope: Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 nur lokal, identisches aktuelles Binary: je Clean1.2 und genuine installierte1.1→1.2 frischeSession,3→4CLR-Bindings/7→9Slots,12SQL-Fixtures/6Display-Clientchecks/2Kompositionen,Repeat/UninstallRepeat;2eigeneDBs entfernt/3Trust-Vorzustände wiederhergestellt und frischer unabhängiger Cleanup-Audit.0Config/Rechte/Owneränderungen. Kein vollständiger öffentlicher Labadapter-/Produkt-PASS; central1.2,genuine1.0→1.2,weitereCL/Ziele,vollständigeLifecycle-/Kollisionsmatrix,Minimalrechte,Heap und aktuelleHeadCI offen. Historische Fehlläufe bleiben FAILED; partially validated/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Anzeigeformatierung 1.2.0 – Source und Nachweisgrenzen
+
+Stand 2026-10-03, Codex. Die konkrete Kulturmenge en-US/de-DE/tr-TR,
+half-away-from-zero, Datetimecarry/time24h-Status8 und unveränderte Typquote
+wurden einzeln bestätigt. Die vorhandene SAFE-Assembly wird additiv erweitert;
+keine neue Rechte-/Providergrenze. Historische Raw-/Type-Evidenz bleibt getrennt.
+Private Renderer-/Transport- und minimale SQL-Bindungsproben einschließlich
+Fehlerbereinigung bestanden; sie belegen keinen vollständigen 1.2-Produktlauf.
+
+Reproduzierbare neue Quellen: `Tests/Framework/Invoke-Display.ps1` mit eigenem
+frischem privaten Ausgabeverzeichnis, konservativen Einzelprozessdeadlines,
+Source-/Tool-/Outputpins und vollständigen privaten Kanälen; drei Kulturen und
+CLR-Transport. Geplante Counts werden erst nach tatsächlichem Lauf als Evidenz
+übernommen. SQL-Fixtures `Display.Contract.sql`, `Display.Safety.sql`,
+`Display.Lifecycle.sql`, `Display.Metadata.ps1`, `Display.Composition.sql`;
+Komposition verwendet das unveränderte synthetische Types.Composition.xlsx.
+
+Der öffentliche Labadapter verlangt zusätzlich `Legacy11Directory` und
+`ExpectedLegacy11ProvenanceSHA256`; beide echten Vorgängerpakete entstehen durch
+`Scripts/New-Xlsx10LegacyFixture.ps1` und `Scripts/New-Xlsx11LegacyFixture.ps1`.
+Genuine Quellen bleiben Original-Gitblobs, keine Marker-Umetikettierung.
+Default sind drei Types- und drei Display-Fixtures je ausgewählter CL/Modus;
+Displayclient und Raw→Type→Display-Komposition werden zusätzlich gebunden.
+Am 2026-10-04 bestand ein privater Qualifikationsadapter auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170 jeweils ausschließlich lokal: Clean1.2 und genuine installierte1.1→1.2 mit frischer Session, drei→vier CLR-Bindings und sieben→neun Slots am identischen aktuellen Binary. Je Ziel bestanden zwölf SQL-Fixtures, sechs Display-Clientprüfungen und zwei Raw→Type-/Raw→Type→Display-Kompositionen, Repeat sowie Uninstall/Repeat. Zwei eigene Datenbanken wurden entfernt und drei exakte Trust-Vorzustände wiederhergestellt; frische unabhängige Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte- oder Owneränderungen.
+
+Dies ist ein begrenzter privater Adapternachweis, kein vollständiger öffentlicher Labadapter- oder Produkt-PASS. Zentrale1.2-Nutzung, genuine1.0→1.2, weitere CL/Ziele, vollständige Lifecycle-/Kollisionsmatrix, Minimalrechte, Heap und aktuelle exakte Head-CI bleiben offen. Status bleibt `partially validated`, `unreleased`.
+
+Frühere fehlgeschlagene Adapterstände bei Paketvariablen, Metadatenfixture und
+Callback-Scope bleiben fehlgeschlagen; ihre eigene Bereinigung wurde getrennt
+geprüft. Sie werden nicht durch den späteren Erfolg umgewertet.
+Der Releasegenerator nutzt den gemeinsamen begrenzten Prozesshelfer für
+Discovery (20 Sekunden) und MSBuild (120 Sekunden), mit getrennten 4-MiB-Kanälen
+und Tool-/Helperpins. Der Driver besitzt je ausgewähltem Ziel ein 960-Sekunden-
+Fachbudget und 1200 Sekunden Gesamtscope, damit 240 Sekunden für eigenen Cleanup
+reserviert bleiben. SQL- und Clienthelper-Timeouts konsumieren dasselbe Restbudget;
+Reads prüfen es kooperativ. Ein eigener äußerer Root-Prozesswatchdog und ein
+anschließender unabhängiger Abwesenheitsaudit bleiben erforderlich: diese Grenzen
+sind keine absolute Wallclock- oder SQL-Server-Abbruchgarantie. COMPLETE benötigt
+frische sichtbare OwnDB-/OwnTrustabsenz und unveränderte vollständige Fingerprints
+vorbestehender Trustzeilen. Keine Rights-/Configänderung wird dafür vorgenommen.
+Aktuelle CI ist ein separater exakter PR-Head-Mergegate. Minimalrechte, Heap,
+weitere physische Ziele und Produktionsworkbooks bleiben offen.
+
+Der aktuelle Release-Quellmanifestvertrag umfasst exakt 20 modulrelative Pfade,
+einschließlich "Scripts/Invoke-XlsxBuildProcess.ps1". Generator und Lab-Prüfung
+binden diesen Buildhelper gemeinsam; dies ist kein zusätzlicher Produkt- oder
+Runtime-Nachweis.
+
+Die aktuelle öffentliche Offline-/CI-Kopplung konsumiert bereits paketierte
+1.2-/ZIP1.4-DLLs in19 bounded Phasen; sie baut die Provider nicht erneut.
+Details und Nachweisgrenzen stehen im [Framework-README](Framework/README.md#gemeinsame-kandidatenqualifikation-12).
+Die öffentliche ConsumeCandidate-Orakelfolge bestand in19 Phasen gegen dasselbe
+1.2-/ZIP1.4-Artefaktpaar. Die genuine1.1-Baseline bestand separat13 Offlinephasen.
+Die aktuellen Genuine1.0-/ZIP1.3-Verpackungsadapter bestanden für unveränderte
+archivierte Quellen; individuelle historische interne Buildtasks sind dadurch
+nicht qualifiziert. Aktuelle exakte Head-CI bleibt ein separates Mergegate.

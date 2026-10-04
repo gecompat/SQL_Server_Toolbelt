@@ -52,8 +52,26 @@ Der 128-MiB-Chargecap ist eine interne konservative Zählgrenze, kein vollständ
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1`
-- Scope: Finaler identischer öffentlicher XLSX1.1-Adapter Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 jeweils local/central: drei Types-Fixtures, SQL-/Client-/native Nullability, clean/genuine1.0/repeat, CallerOFF/ON intakt/doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, synthetische0/NULL-Sichtbarkeitsgates, Consumer/Uninstall; RawType nach API-Schleifen auf letzterCL150/170 plus zentralerCaller. Voller PASS samt frischen eigenen Cleanup-Audits. Keine Konfigurations-/Rechteänderungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Lowpriv-Rechte, übrige physische Targets und Heap/Produktionskapazität offen. Historische FAILED-Adapterstände bleiben getrennt.
+- Datum: `2026-10-04`
+- Nachweis: `local: private original-SQL XLSX1.2 qualification adapter`
+- Scope: Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 nur lokal, identisches aktuelles Binary: je Clean1.2 und genuine installierte1.1→1.2 frischeSession,3→4CLR-Bindings/7→9Slots,12SQL-Fixtures/6Display-Clientchecks/2Kompositionen,Repeat/UninstallRepeat;2eigeneDBs entfernt/3Trust-Vorzustände wiederhergestellt und frischer unabhängiger Cleanup-Audit.0Config/Rechte/Owneränderungen. Kein vollständiger öffentlicher Labadapter-/Produkt-PASS; central1.2,genuine1.0→1.2,weitereCL/Ziele,vollständigeLifecycle-/Kollisionsmatrix,Minimalrechte,Heap und aktuelleHeadCI offen. Historische Fehlläufe bleiben FAILED; partially validated/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Additive Anzeige 1.2.0
+
+| Scope | Fixture | Aktuelle Evidenz |
+|---|---|---|
+| Zehn Formate/drei Kulturen, Statuspriorität, exakte Zahl/Temporal | Display.Contract.sql | PASS ausgewählte lokale Ziele 2026-10-04; privater Adapter |
+| s/str erreichbare Grenzfälle, malformed UTF16/Limits | Display.Safety.sql | PASS ausgewählte lokale Ziele 2026-10-04; privater Adapter |
+| Neun Slots/SAFE/1.2-Marker | Display.Lifecycle.sql | PASS ausgewählte lokale Ziele 2026-10-04; privater Adapter |
+| Zwei Clientfelder, Default-NULL, langes SqlChars | Display.Metadata.ps1 | PASS ausgewählte lokale Ziele 2026-10-04; privater Adapter |
+| Neun synthetische Raw→Type→Display-Zellen | Display.Composition.sql | PASS ausgewählte lokale Ziele 2026-10-04; privater Adapter |
+| Clean1.2/genuine installierte1.1→1.2/repeat und eigene Cleanup | privater Qualifikationsadapter mit Original-SQL | PASS lokale Linux2019/latest CL150 und Windows2025/exakt CU8 CL170; genuine1.0 und vollständiger öffentlicher Adapter offen |
+| Display-Zukunftsslots unter alten Releases erhalten/keine Adoption | Display.CollisionFixture.sql / Labadapter | NOT_EXECUTED |
+| Interner NULL-Status → öffentlicher Status11 | Binding-Negativqualifikation | NOT_EXECUTED |
+
+Private Renderer-/CLR-Transport-/minimale SQL-Bindung erfolgreich, ausdrücklich
+kein vollständiger Produktnachweis. Display65472/+1 nur isolierter Budgethelper,
+keine öffentliche @-Grenze unter geerbter Typquote. Historische 1.0/1.1 oben
+unverändert; aktuelle CI separat am exakten Head, Minimalrechte/Heap offen.

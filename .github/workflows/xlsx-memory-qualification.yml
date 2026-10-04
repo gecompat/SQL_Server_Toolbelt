@@ -6,6 +6,8 @@ on:
       - "Modules/toolbelt.archive.zip-memory/**"
       - "Spikes/XlsxMemory/**"
       - "Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md"
+      - "Documentation/Architecture/XLSX_CELL_DISPLAY_CONTRACT.md"
+      - "Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1"
       - "Tests/CI/run-xlsx-types-lab.ps1"
       - ".github/workflows/xlsx-memory-qualification.yml"
   push:
@@ -15,6 +17,8 @@ on:
       - "Modules/toolbelt.archive.zip-memory/**"
       - "Spikes/XlsxMemory/**"
       - "Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md"
+      - "Documentation/Architecture/XLSX_CELL_DISPLAY_CONTRACT.md"
+      - "Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1"
       - "Tests/CI/run-xlsx-types-lab.ps1"
       - ".github/workflows/xlsx-memory-qualification.yml"
   workflow_dispatch:
@@ -38,37 +42,27 @@ jobs:
           if ($LASTEXITCODE) { throw 'XLSX static contract failed.' }
           python Modules/toolbelt.archive.zip-memory/Tests/Static/validate_contract.py
           if ($LASTEXITCODE) { throw 'ZIP static contract failed.' }
-          foreach ($path in @('Tests/CI/run-xlsx-types-lab.ps1','Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-TypesComposition.ps1')) {
+          foreach ($path in @('Tests/CI/run-xlsx-types-lab.ps1','Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-TypesComposition.ps1','Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-DisplayComposition.ps1','Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Display.Metadata.ps1','Modules/toolbelt.file.xlsx-memory/Tests/Framework/Invoke-Display.ps1','Modules/toolbelt.file.xlsx-memory/Scripts/New-Xlsx11LegacyFixture.ps1','Modules/toolbelt.file.xlsx-memory/Tests/Framework/Invoke-CandidateQualification.ps1','Modules/toolbelt.file.xlsx-memory/Tests/Framework/Invoke-CandidatePackaging.ps1','Modules/toolbelt.file.xlsx-memory/Tests/Framework/Test-CandidateMetadata.ps1')) {
             $errors=$null; $tokens=$null
             [Management.Automation.Language.Parser]::ParseFile($path,[ref]$tokens,[ref]$errors) | Out-Null
             if ($errors.Count) { throw 'XLSX adapter parse failed.' }
           }
-      - name: Framework, synthetic semantics, limited NoIO and IL gates
-        shell: powershell
-        run: ./Spikes/XlsxMemory/Run-FrameworkQualification.ps1
-      - name: V3 cell type exact numeric and temporal golden corpus
-        shell: pwsh
-        run: ./Modules/toolbelt.file.xlsx-memory/Tests/Framework/Invoke-Types.ps1
-      - name: Build exact release inputs and pinned real ZIP predecessor
+      - name: Build current artifacts once and preserve genuine predecessors
         shell: pwsh
         run: |
-          ./Modules/toolbelt.archive.zip-memory/Scripts/New-ClrReleaseArtifacts.ps1 -OutputDirectory .runtime/xlsx-candidate/zip
-          ./Modules/toolbelt.file.xlsx-memory/Scripts/New-ClrReleaseArtifacts.ps1 -OutputDirectory .runtime/xlsx-candidate/xlsx
-          ./Modules/toolbelt.file.xlsx-memory/Scripts/New-Zip13LegacyFixture.ps1
-          ./Modules/toolbelt.file.xlsx-memory/Scripts/New-Xlsx10LegacyFixture.ps1 -OutputDirectory .runtime/xlsx-candidate/xlsx10
-      - name: Verify gate binaries equal release binaries
+          # Historische Framework-Compiler benötigen kurze Archiv-/Buildpfade.
+          $packageRoot=Join-Path $env:RUNNER_TEMP ('tbx-'+[guid]::NewGuid().ToString('N'))
+          ('XLSX_PACKAGE_ROOT='+$packageRoot) >> $env:GITHUB_ENV
+          ./Modules/toolbelt.file.xlsx-memory/Tests/Framework/Invoke-CandidatePackaging.ps1 -OutputDirectory $packageRoot
+      - name: Consume exact packaged binaries - 19 bounded offline phases
         shell: pwsh
         run: |
-          foreach ($pair in @(
-            @('Spikes/XlsxMemory/bin/Release/Toolbelt.Archive.ZipMemory.dll','.runtime/xlsx-candidate/zip/Toolbelt.Archive.ZipMemory.dll'),
-            @('Spikes/XlsxMemory/bin/Release/Toolbelt.File.XlsxMemory.dll','.runtime/xlsx-candidate/xlsx/Toolbelt.File.XlsxMemory.dll'))) {
-            if ((Get-FileHash $pair[0] -Algorithm SHA512).Hash -cne (Get-FileHash $pair[1] -Algorithm SHA512).Hash) { throw 'Qualification/release binary mismatch.' }
-          }
+          ./Spikes/XlsxMemory/Run-FrameworkQualification.ps1 -XlsxDirectory (Join-Path $env:XLSX_PACKAGE_ROOT 'xlsx') -ZipDirectory (Join-Path $env:XLSX_PACKAGE_ROOT 'zip') -OutputDirectory (Join-Path $env:XLSX_PACKAGE_ROOT 'qualification')
       - uses: actions/upload-artifact@v4
         with:
           name: xlsx-qualified-release-input
           if-no-files-found: error
-          path: .runtime/xlsx-candidate/**
+          path: ${{ env.XLSX_PACKAGE_ROOT }}/**
 # Dieser Workflow qualifiziert begrenzte Framework-/IL-Evidenz, keinen SQL-Host.
 # Öffentliche SAFE-/Lifecycle-/Clientverträge verwenden den dokumentierten,
 # schema-validierten lokalen Labadapter; kein fehlender SQL-Lauf wird behauptet.

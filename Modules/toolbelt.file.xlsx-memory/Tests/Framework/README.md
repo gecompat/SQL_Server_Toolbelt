@@ -48,3 +48,57 @@ bytegenaue Gleichheit vor/nach dem Codierungswechsel. Keine Produkt-/API-
 oder Orakeländerung. Anschließend bestand die tatsächliche Frameworkqualifikation
 erneut in de-DE/en-US/tr-TR mit je API652/Numeric370/6437 Assertions,
 zusammen19311.
+
+## Gemeinsame Kandidatenqualifikation 1.2
+
+Die aktuelle CI baut den ZIP-1.4- und XLSX-1.2-Release jeweils einmal und
+übergibt diese Artefaktverzeichnisse an `Invoke-CandidateQualification.ps1`.
+Der Runner bindet dieselben DLLbytes an Trustmanifest, vollständiges
+Assembly-Hex im Deployment und die in ein frisches Testverzeichnis kopierten
+DLLs. Er baut ausschließlich getrennte Testadapter, keine Provider.
+`TypeCandidateHarness.cs`, `DisplayCandidateHarness.cs` und
+`RawCandidateHarness.cs` rufen die öffentlichen CLR-EntryPoints/FillRow auf;
+die bisherigen Quellkernharnesses bleiben als getrennte historische Tests erhalten.
+
+```powershell
+./Modules/toolbelt.file.xlsx-memory/Tests/Framework/Invoke-CandidatePackaging.ps1 -OutputDirectory .runtime/xlsx-candidate
+./Spikes/XlsxMemory/Run-FrameworkQualification.ps1 -XlsxDirectory .runtime/xlsx-candidate/xlsx -ZipDirectory .runtime/xlsx-candidate/zip -OutputDirectory .runtime/xlsx-candidate/qualification
+```
+
+Der portable Kandidatenrunner enthält 19 endliche Phasen: sechs stille
+Testadapter-Compiles, vier physische CLR-FT-Metadaten mit neun SQL-Quelldateien,
+Typ-6437-/Anzeige-5619-Goldens je en-US/de-DE/tr-TR, Transport55,
+das bestehende Raw-Orakel, drei begrenzte Sandboxfälle und eigenes Provider-IL.
+Pro Phase gelten 20 Sekunden, für Raw45; Compilerentdeckung20. Verpackung
+begrenzt jeden bestehenden Generator als eigenen Prozess auf120 Sekunden.
+Der gemeinsame Prozesshelfer begrenzt jeden Kanal vor dem Schreiben auf4MiB;
+Vor-/Nachpins und genaue Ausgabemarker sind Erfolgsbedingungen. Die bestehende
+CI-Jobfrist bleibt10 Minuten, keine Zusage einer Worst-Case-Gesamtlaufzeit.
+MSBuildausgaben dürfen ausführlich sein; nur die sechs Testadapter-Compiles
+müssen tatsächlich stille Kanäle liefern.
+
+Am2026-10-04 bestand diese 19-Phasen-Orakelfolge privat gegen das tatsächlich
+gebaute1.2-Kandidatenbinary und seine1.4-ZIP-Abhängigkeit. Die öffentliche
+ConsumeCandidate-Folge bestand ebenfalls mit denselben Artefakten; der exakte
+aktuelle CI-Head bleibt separat offen. Die genuine1.1-Baseline bestand13
+getrennte Offlinephasen.
+Diese Offlineevidenz behauptet weder SQL-/Trust-/Registryqualifikation noch
+vollständige transitive Framework-/OS-NoIO- oder Produktqualifikation.
+
+Die aktuellen Genuine1.0-/ZIP1.3-Generatoradapter begrenzen ihre eigenen Git-
+Schritte auf30 Sekunden und ihre Aufrufe der originalen Releasebuilder auf60
+Sekunden. Vor-/Nachpins binden aktuelle Scripts, Helfer, Git/pwsh sowie alle
+vor dem Build extrahierten Originaldateien. Vollständige Kanäle und beobachtete
+Disposition gelten für diese direkt gestarteten Kinder; daraus folgt keine
+separate Qualifikation sämtlicher interner Tasks der unveränderten historischen
+Builder. Ein fehlgeschlagener Helfer wird mit unbekannter Disposition erfasst.
+Die äußere Verpackungsgrenze120 Sekunden bleibt unverändert; keine Retry-
+oder Timeoutanhebung. Diese aktuellen Adapter bestanden am2026-10-04 mit unveränderten
+archivierten Quellen und Manifest-/DLL-/Hex-Bindung. Vorherige fehlgeschlagene
+Pfad-/Adapterstände bleiben getrennt; aktuelle Head-CI bleibt offen.
+
+Für die unveränderten historischen Compiler verwendet die Verpackung einen
+kurzen isolierten Ausgaberoot. Der Kurzpfadvergleich bestand; lange
+Intermediatepfade können die historische Compilergrenze überschreiten.
+Der aktuelle Workflow verwendet denselben kurzen Root für Verpackung,
+ConsumeCandidate und Upload. Daraus folgt kein aktueller Head-CI-PASS.
