@@ -74,7 +74,9 @@ Session-AppLocks. Handler, Witness und Complete teilen ihre eigene
 Transaktion. Bekannter Commit, persistierte Slotfreigabe und physischer Cleanup
 sind getrennte Aussagen: ein späterer Steuer- oder Cleanupfehler begründet
 keinen Retry eines bestätigten Commits. Unknown bleibt serverseitig belegt
-oder zurückgehalten. Dieser neue Pfad ist noch nicht nativ qualifiziert;
+oder zurückgehalten. Der neue Pfad ist im gezielten lokalen Scope gegen
+2019 Linux und 2025 Windows/CU8 einschließlich Cleanup geprüft. Die
+[Testnachweise](Tests/README.md) trennen Workerhost, SQL-Ziel und offene Faults;
 die bisherigen Welle-1-Nachweise gelten für den damaligen Legacy-Scope.
 
 ## Bestehender Legacy-Abschluss

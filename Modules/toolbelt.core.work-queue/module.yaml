@@ -130,6 +130,12 @@ contracts:
   deployment: "1.0"
   validation: "1.0"
 supported_upgrades:
+  - from: "1.0.0"
+    to: "2.1.0"
+    condition: "Keine CLAIMED-Vorgängerzeile; historische Migration und additive neutrale Managedgates ohne installierten Controlconsumer."
+  - from: "1.1.0"
+    to: "2.1.0"
+    condition: "Keine CLAIMED-Vorgängerzeile; historische Migration und additive neutrale Managedgates ohne installierten Controlconsumer."
   - from: "2.0.0"
     to: "2.1.0"
     condition: "Additive neutrale Managedgates; kein installierter Controlconsumer, keine Managedclaims/Holds; Queuehistory bleibt erhalten."

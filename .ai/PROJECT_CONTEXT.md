@@ -13,7 +13,9 @@ SQL Server Agent, Service Broker und SSIS bleiben spätere Provider.
 Sourceimplementierung und Integration sind aktiv. Der gezielte SQL-Vertrag
 einschließlich sechs tatsächlicher Lifecycle-Abweisungen bestand auf 2019 Linux
 und 2025 Windows/CU8; der echte Queue-Upgrade 2.0→2.1 auf 2019 Linux.
-Der vollständige Providerabschluss und exakte Head-CI stehen noch aus.
+Die gezielten Managedläufe auf beiden ausgewählten SQL-Zielen mit
+Windows-Workerhost bestanden einschließlich Cleanup. Linux-Workerhost
+und exakte Head-CI sind separate Nachweise am aktuellen PR-Head.
 Teilnachweise qualifizieren nicht die gesamte Welle. Kein Releaseauftrag.
 
 ## Aktive Tabellenklon-Datenkopie 4.1.0

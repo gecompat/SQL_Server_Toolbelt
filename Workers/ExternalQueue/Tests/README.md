@@ -24,7 +24,8 @@ Der fokussierte Runtimeeinstieg ist `Tests/Runtime/Invoke-Contract.ps1
 synthetischen Fälle in `Invoke-ManagedContract.ps1`: Budget 0/2/1,
 Cancellation/Rollback/Hold, explizite Wiederfreigabe, Legacy-Claim-Abweisung
 und Completion-/Stop-Rendezvous. Quellcode ist kein Laufnachweis.
-Neue SQL-/Worker-Runtime und aktuelle Head-CI: `not executed`.
+Die gezielten aktuellen SQL-/Managedläufe sind weiter unten dokumentiert.
+Exakte Head-CI und tatsächlicher Linux-Workerhost sind separate Nachweise.
 
 ## Ausgeführter deterministischer Scope
 
