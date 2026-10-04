@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## 2026-10-04 – Table Clone Trigger-Vorschau / 4.0.0
+
+- Einzeln freigegebenes Windows-Opt-in `IncludeTriggers=1` im bestehenden Planner;
+  13 Parameter, Standardtail10..13. Executor behält14 Parameter und bleibt triggerfrei.
+- AST-/Katalogbindung über den vorhandenen exakt gepinnten Parser2.0;
+  UTF16-Identifierumschreibung mit erhaltenen Kommentaren/Literalen,
+  quellengetreuen Events, SET-Metadaten, FIRST/LAST und Disabledzustand.
+- Generierte Triggernamen teilen das Kollisionsgate mit bestehenden Objekten
+  und geplanten Map-Zieltabellen. Lifecycle kennt4.0 und historische Releases;
+  Hash-v1 bindet das neue Releasefeld4.0.
+- Unabhängige Coreprüfung, statische Kopplung und offline Syntaxprüfung bestanden.
+  Zwei gezielte Trigger-Fixtures auf Windows2025/exakt CU8 CL170 lokal bestanden;
+  Clean4/genuine3.1→4, Repeat, Clienthash, Consumer, Uninstall und Cleanup bestanden.
+  Linux2019/latest CL150 Option0-/Lifecycle-PASS wiederverwendet; nachfolgende
+  Coreänderungen ausschließlich Option1, unabhängig geprüft. Temporären exakten
+  Parsertrust wiederhergestellt; keine Konfigurations-, Rechte- oder Owneränderung.
+  Head-CI separat im PR; weitere native Ziele, zentrale4.0-Nutzung und Minimalrechte offen.
+  Teilweise validiert und unveröffentlicht; historische Evidenz bleibt getrennt.
+
 ## 2026-10-04 – Phonetik 1.0.0 (unreleased, begrenzte Teilnachweise)
 
 - Zwei einzeln freigegebene IF-Fassaden und zwei interne FT auf eigener SAFE-Assembly.

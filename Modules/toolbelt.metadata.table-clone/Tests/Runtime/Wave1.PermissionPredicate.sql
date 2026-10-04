@@ -32,7 +32,7 @@ IF (SELECT COUNT(*) FROM sys.extended_properties WHERE class=1 AND major_id=@Ori
 -- Kein allgemeiner Kommentarparser: exakt bekannte Source-Prefixe und Header.
 DECLARE @PrefixLf nvarchar(max)=N'-- Kanonischer Catalog-/Scriptkern; keine Ausführung des erzeugten Scripttexts.'+NCHAR(10)
  +N'-- Interner Aufruf ausschließlich über öffentliche Namespace-/Helpgrenze.'+NCHAR(10)
- +N'-- Definitionen werden wörtlich erhalten, kein Parser oder neue Scalar-Funktion.'+NCHAR(10),
+ +N'-- Definitionen bleiben wörtlich; nur das explizite Trigger-Opt-in verwendet Parser 2.0.'+NCHAR(10),
  @Prefix nvarchar(max),@Eol nvarchar(2),@Header nvarchar(256),@HeaderPosition int,@AlterOriginal nvarchar(max);
 DECLARE @ObservedPrefix nvarchar(max)=NCHAR(10)+NCHAR(10)+@PrefixLf,
  @ObservedHeader nvarchar(256)=N'CREATE   PROCEDURE toolbelt_metadata.USP_ScriptTableCloneInternal'+NCHAR(10);

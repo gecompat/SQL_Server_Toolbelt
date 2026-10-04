@@ -189,6 +189,26 @@ Die zuvor freigegebenen Parser-, Script-only- und Ablehnungsgrenzen bleiben
 unverändert. Dies dokumentiert die Freigabe, keine Implementierung oder
 Runtimequalifikation.
 
+Vor-Source-Stand 2026-10-04, Codex: Der konkrete
+[4.0-Triggervertrag](../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md)
+legt die notwendige feste SET-/DDL-Kapselung, quellengetreue FIRST/LAST-
+Anordnung und getrennte triggerfreie Executorgrenze fest. Der unveränderte
+Hash-v1 bindet im neuen Modulstand 4.0.0 statt 3.1.0; Parameter und Framing
+des Executors bleiben gleich. Source und zwei begrenzte Runtime-Fixtures
+sind jetzt vorhanden; unabhängige Coreprüfung, statische Kopplung und offline
+Syntaxprüfung bestanden. Am2026-10-04 bestand der begrenzte private Nativeadapter
+auf Windows2025/exakt CU8 CL170 lokal: beide Trigger-Fixtures einmal Clean4,
+Clean4/genuine3.1→4 mit frischer Upgradesession, Repeat, unabhängiger Clienthash,
+typgenaue Ausgabe, vier resolved-Consumer-Ablehnungen sowie Uninstall/Repeat.
+Zwei eigene DBs entfernt, temporärer exakter Parsertrust wiederhergestellt;
+Prozess-/Journal-/Pin- und frischer Cleanupnachweis unabhängig physisch geprüft.
+Keine Konfigurations-, Rechte- oder Owneränderung. Separater Linux2019/latest
+CL150-Option0-/Lifecycle-PASS wiederverwendet, nachfolgende Coreänderungen
+ausschließlich Option1 unabhängig geprüft. Weitere native Ziele/CL, zentrale4.0,
+Minimalrechte und unsichtbare/mehrdeutige Kontexte offen; unresolved Consumer
+nicht etabliert. Head-CI separat im PR; teilweise validiert, unveröffentlicht.
+Historische Fehlerläufe sind kein Gesamt-PASS.
+
 - Bestehenden Scriptplaner optional für gewöhnliche T-SQL-DML-Trigger auf
   gemappten diskbasierten Tabellen erweitern; weiterhin nur Scripttext.
   Ereignisse, AFTER/INSTEAD OF und enabled/disabled-Zustand erhalten.

@@ -10,12 +10,22 @@ Version3.1 ergänzt separat
 [`USP_ExecuteTableClone`](Documentation/USP_ExecuteTableClone.md): frischer
 kanonischer Plan, expliziter erwarteter Hash, ausschließlich neue SameDB-Ziele,
 eigene Transaktion und vorhandene DB-/Servervollsicht. CREATE führt den ganzen
-Plan aus; DEFER schiebt nur FK-/FK-Statezeilen auf. Keine Daten-/Triggerkopie,
+Plan aus; DEFER schiebt nur FK-/FK-Statezeilen auf. Keine Datenkopie,
 Rechteerteilung oder externe Atomikzusage. Der
 [Executor-Vertrag](../../Documentation/Architecture/TABLE_CLONE_EXECUTE_CONTRACT.md)
 und das [Client-Hashbeispiel](Examples/CalculatePlanHash.py) sind gekoppelt.
 Die gezielten lokalen 3.1-Nachweise sind bestanden; der genaue Scope und
 die offenen Nachweise stehen im Manifest. V1/V2/V3-Evidenz bleibt historisch.
+
+Die freigegebene [Trigger-Welle](../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md)
+ergänzt für Version4.0 den Plannerparameter `IncludeTriggers bit = 0` an Position9;
+der Standardtail steht damit an Position10..13. Der Executor behält14 Parameter
+und führt weiterhin keine Trigger aus. Nur das ausdrückliche Windows-Opt-in
+verwendet den separat installierten Parser2.0 für eine begrenzte AST-Vorschau.
+Trigger-Source, Statik und unabhängige Coreprüfung sind abgeschlossen;
+der begrenzte Windows2025/CU8-Triggernachweis und der separate Linux2019-Option0-/Lifecycle-Nachweis sind bestanden.
+Details und verbleibende Grenzen stehen im [Triggervertrag](../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md); Head-CI wird separat im PR nachgewiesen.
+Historische3.1-Ergebnisse qualifizieren diese Erweiterung nicht.
 
 Installieren nach `toolbelt.core.result-table >=1.0.0`, aus `Deployment`:
 `sqlcmd -b -i Deploy.sql -v DeploymentMode=local`.
@@ -35,8 +45,8 @@ Historische V1-Nachweise bleiben getrennt; Welle1/2.0.0 ist teilweise validiert 
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-04`
-- Nachweis: `Begrenzter privater Executor-Nativeadapter (PowerShell/SqlClient); unabhängige physische Prozess-/Journalprüfung`
-- Scope: Version3.1.0: SQL Server 2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL170 ausschließlich lokal. Je Ziel Clean3.1 und genuine3→3.1 aus unveränderten öffentlichen 3.0-Blobs mit frischer Session, Repeat, drei Releaseobjekte und 12/12/14 Parameter, resolved Consumer mit Deploy-/Uninstall53926/1 und unverändertem Snapshot/gesunder Transaktion, Uninstall/Repeat bestanden. Execute.Contract.sql und Execute.Safety.sql je einmal im erfolgreichen Cleanzyklus: Single/Map, CREATE/DEFER, zyklische/Self-FKs, DB-DDL-Trigger-Gate, später ResultTable-Fehlerrollback, DEFAULT-UDF-Gate, Hash-/Temp-Gates und Caller-TX/Help/SET-Erhalt. Unabhängiger Client-Hash und ein dreispaltiges Result mit genauen SQL-/CLR-Typen, NOT NULL, Binary32, EOF und keinem Folgeresult bestanden. Je zwei eigene Datenbanken entfernt; frischer Cleanup-Audit, vollständige Prozesskanäle und unveränderte Inputpins unabhängig geprüft. Keine Konfigurations-, Rechte-, Owner- oder Truständerungen. Frühere fehlgeschlagene Läufe sind kein Gesamt-PASS. Serverweite negative Trigger-/Eventnotification-Fixtures, unresolved Consumer, tatsächliche Minimalrechte, weitere native Ziele/CL und zentrale Executor-Nutzung nicht ausgeführt. Head-CI ist separat im Pull Request nachzuweisen; teilweise validiert und unveröffentlicht.
+- Nachweis: `Begrenzter privater Trigger-Nativeadapter; unabhängige physische Prozess-/Journalprüfung`
+- Scope: Version4.0.0: SQL Server 2025 Windows/exakt CU8 CL170 ausschließlich lokal. Beide Trigger-Fixtures einmal in Clean4: Map-/Header-/Qualifier-/CTE-/Aliasumschreibung, UTF16/Kommentare/Literale, SET-/Event-/FIRST-LAST-/Disabledzustand und tatsächliches AFTER-/INSTEAD-Verhalten; sieben atomare Negativfälle einschließlich externer AST-Ablehnung53903/19 und bestehender/geplanter Namenskollisionen. Clean4 und genuine3.1→4 mit frischer Session, Repeat, drei Slots/13-13-14 Parameter, unabhängiger Clienthash mit typgenauer dreispaltiger NOT-NULL/Binary32/EOF-Ausgabe, vier resolved-Consumer-Ablehnungen53926/1 und Uninstall/Repeat bestanden. Zwei eigene Datenbanken entfernt, temporärer exakter Parsertrust wiederhergestellt und vorbestehender ScriptDom-Trust erhalten; frischer Cleanup, vollständige Prozesskanäle/Journale/Inputpins unabhängig physisch geprüft. Keine Konfigurations-, Rechte- oder Owneränderung. Separater Linux2019/latest-CL150-Option0-/4.0-Hash-/Lifecycle-PASS wiederverwendet: nachfolgende Coreänderungen ausschließlich Option1 unabhängig sourcegeprüft, keine erneute Linux-Ausführung oder Linux-Triggerqualifikation behauptet. Frühere Fehlerläufe kein Gesamt-PASS. Weitere native Ziele/CL, zentrale4.0, Minimalrechte, serverweite negative Fixtures und unsichtbare/mehrdeutige Kontexte nicht ausgeführt; unresolved Consumer nicht etabliert. Head-CI separat im PR; teilweise validiert und unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

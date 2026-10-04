@@ -1,10 +1,10 @@
 module_id: "toolbelt.metadata.table-clone"
 module_name: "Table Clone Planner and Executor"
-version: "3.1.0"
+version: "4.0.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Begrenzte same-database DDL-Vorschau und explizite hashgebundene Ausführung ausschließlich auf neue Ziele; keine Datenkopie."
+description: "Begrenzte same-database DDL-Vorschau mit explizitem Windows-Trigger-Opt-in und hashgebundene triggerfreie Ausführung ausschließlich auf neue Ziele; keine Datenkopie."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -29,6 +29,12 @@ dependencies:
     minimum_version: "1.0.0"
     location: same_database
     reason: "Kanonischer ResultTable-Vertrag, keine kopierte Runtime."
+  - module_id: "toolbelt.tsql.script-parser"
+    minimum_version: "2.0.0"
+    exact_version: "2.0.0"
+    location: same_database
+    required_when: "Runtime: IncludeTriggers = 1 auf Windows; IncludeTriggers = 0 und Moduldeployment benötigen den Parser nicht."
+    reason: "Bereits separat installierter Parser; exakte Provider-/ScriptDom-Binarypins und vier AST-TVFs werden vor dem Opt-in geprüft. Keine automatische Installation."
 schemas:
   - "toolbelt_metadata"
 objects:
@@ -52,6 +58,7 @@ permissions_required:
   - "DDL-Rechte für Deploy und Uninstall; keine Rechteausweitung"
   - "Executor: vorhandenes SERVER VIEW ANY DEFINITION und lesbare DB-/Server-Trigger-/Eventnotification-Kataloge; relevante DDL-Seiteneffekte blockieren"
   - "Executor: vorhandene CREATE TABLE-, Schema-ALTER- und REFERENCES-Rechte; keine Rechteerteilung"
+  - "Trigger-Opt-in: vorhandenes SELECT auf vier Parser-TVFs und lesbare Assembly-/Modul-/Dependency-Kataloge; bestehender Parser-UNSAFE-/Trustvertrag unverändert"
 collation_contract: "Identifierlookup DATABASE_DEFAULT; Scripttext und Resultshape Latin1_General_100_BIN2; Quellcollations explizit erhalten."
 data_type_contract: "Identifier nvarchar(max) ungekuerzt validieren; ScriptText nvarchar(max); Ordinal int; ObjectKind varchar(32); TargetName nvarchar(776); Resultspalten NOT NULL."
 help_contract_version: "1.0"
@@ -83,6 +90,7 @@ documentation:
     - "../../Documentation/Architecture/TABLE_CLONE_WAVE1_CONTRACT.md"
     - "../../Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md"
     - "../../Documentation/Architecture/TABLE_CLONE_EXECUTE_CONTRACT.md"
+    - "../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md"
   test_matrix:
     - "Tests/TABLE_CLONE_CONTRACT_TEST_MATRIX.md"
   evidence:
@@ -109,6 +117,8 @@ tests:
   computed_permission_predicate: "Tests/Runtime/Wave1.PermissionPredicate.sql"
   execute: "Tests/Runtime/Execute.Contract.sql"
   execute_safety: "Tests/Runtime/Execute.Safety.sql"
+  triggers: "Tests/Runtime/Trigger.Contract.sql"
+  trigger_safety: "Tests/Runtime/Trigger.Safety.sql"
   select_metadata: "Tests/Runtime/SelectMetadata.Contract.ps1"
   lab: "../../Tests/CI/run-table-clone-wave1-lab.ps1"
   linux_ci: "../../Tests/CI/run-table-clone-linux.sh"
@@ -134,4 +144,9 @@ validation_evidence:
   - date: "2026-10-04"
     workflow: "Begrenzter privater Executor-Nativeadapter (PowerShell/SqlClient); unabhängige physische Prozess-/Journalprüfung"
     scope: "Version3.1.0: SQL Server 2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL170 ausschließlich lokal. Je Ziel Clean3.1 und genuine3→3.1 aus unveränderten öffentlichen 3.0-Blobs mit frischer Session, Repeat, drei Releaseobjekte und 12/12/14 Parameter, resolved Consumer mit Deploy-/Uninstall53926/1 und unverändertem Snapshot/gesunder Transaktion, Uninstall/Repeat bestanden. Execute.Contract.sql und Execute.Safety.sql je einmal im erfolgreichen Cleanzyklus: Single/Map, CREATE/DEFER, zyklische/Self-FKs, DB-DDL-Trigger-Gate, später ResultTable-Fehlerrollback, DEFAULT-UDF-Gate, Hash-/Temp-Gates und Caller-TX/Help/SET-Erhalt. Unabhängiger Client-Hash und ein dreispaltiges Result mit genauen SQL-/CLR-Typen, NOT NULL, Binary32, EOF und keinem Folgeresult bestanden. Je zwei eigene Datenbanken entfernt; frischer Cleanup-Audit, vollständige Prozesskanäle und unveränderte Inputpins unabhängig geprüft. Keine Konfigurations-, Rechte-, Owner- oder Truständerungen. Frühere fehlgeschlagene Läufe sind kein Gesamt-PASS. Serverweite negative Trigger-/Eventnotification-Fixtures, unresolved Consumer, tatsächliche Minimalrechte, weitere native Ziele/CL und zentrale Executor-Nutzung nicht ausgeführt. Head-CI ist separat im Pull Request nachzuweisen; teilweise validiert und unveröffentlicht."
+    result: "success"
+
+  - date: "2026-10-04"
+    workflow: "Begrenzter privater Trigger-Nativeadapter; unabhängige physische Prozess-/Journalprüfung"
+    scope: "Version4.0.0: SQL Server 2025 Windows/exakt CU8 CL170 ausschließlich lokal. Beide Trigger-Fixtures einmal in Clean4: Map-/Header-/Qualifier-/CTE-/Aliasumschreibung, UTF16/Kommentare/Literale, SET-/Event-/FIRST-LAST-/Disabledzustand und tatsächliches AFTER-/INSTEAD-Verhalten; sieben atomare Negativfälle einschließlich externer AST-Ablehnung53903/19 und bestehender/geplanter Namenskollisionen. Clean4 und genuine3.1→4 mit frischer Session, Repeat, drei Slots/13-13-14 Parameter, unabhängiger Clienthash mit typgenauer dreispaltiger NOT-NULL/Binary32/EOF-Ausgabe, vier resolved-Consumer-Ablehnungen53926/1 und Uninstall/Repeat bestanden. Zwei eigene Datenbanken entfernt, temporärer exakter Parsertrust wiederhergestellt und vorbestehender ScriptDom-Trust erhalten; frischer Cleanup, vollständige Prozesskanäle/Journale/Inputpins unabhängig physisch geprüft. Keine Konfigurations-, Rechte- oder Owneränderung. Separater Linux2019/latest-CL150-Option0-/4.0-Hash-/Lifecycle-PASS wiederverwendet: nachfolgende Coreänderungen ausschließlich Option1 unabhängig sourcegeprüft, keine erneute Linux-Ausführung oder Linux-Triggerqualifikation behauptet. Frühere Fehlerläufe kein Gesamt-PASS. Weitere native Ziele/CL, zentrale4.0, Minimalrechte, serverweite negative Fixtures und unsichtbare/mehrdeutige Kontexte nicht ausgeführt; unresolved Consumer nicht etabliert. Head-CI separat im PR; teilweise validiert und unveröffentlicht."
     result: "success"

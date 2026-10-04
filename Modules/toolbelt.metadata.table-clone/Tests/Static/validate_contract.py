@@ -10,11 +10,13 @@ deploy = (MOD / 'Deployment/Deploy.sql').read_text(encoding='utf-8')
 uninstall = (MOD / 'Deployment/Uninstall.sql').read_text(encoding='utf-8')
 params = [('SourceSchema','nvarchar(max)','NULL'),('SourceTable','nvarchar(max)','NULL'),
           ('TargetSchema','nvarchar(max)','NULL'),('TargetTable','nvarchar(max)','NULL'),
-          ('IncludeIdentity','bit','0'),('IncludeExtendedProperties','bit','0'),('TableMap','sysname','NULL'),('ExternalReferenceRule','varchar(16)',"'REJECT'"),('ResultTable','sysname','NULL'),('KeepData','bit','0'),
+          ('IncludeIdentity','bit','0'),('IncludeExtendedProperties','bit','0'),('TableMap','sysname','NULL'),('ExternalReferenceRule','varchar(16)',"'REJECT'"),('IncludeTriggers','bit','0'),('ResultTable','sysname','NULL'),('KeepData','bit','0'),
           ('Debug','tinyint','0'),('Hilfe','bit','0')]
 signature = public.split('AS\nBEGIN',1)[0]
 actual = re.findall(r"@(\w+)\s+(nvarchar\(max\)|varchar\(16\)|sysname|bit|tinyint)\s*=\s*(NULL|0|'REJECT')",signature)
 assert actual == params, 'signature/default contract'
+core_signature = core.split('AS\nBEGIN', 1)[0]
+assert re.findall(r"@(\w+)\s+(nvarchar\(max\)|varchar\(16\)|sysname|bit|tinyint)\s*=\s*(NULL|0|'REJECT')", core_signature) == params, 'internal/public signature coupling'
 assert public.index('IF @Hilfe=1') < public.index("N'#tbx_TableClone_Plan'") < public.index('EXEC toolbelt_metadata.USP_ScriptTableCloneInternal\n')
 assert 'EXEC sys.sp_executesql @TableDdl' not in core and 'EXEC sys.sp_executesql @IndexDdl' not in core
 assert 'INSERT ... EXEC' not in core
@@ -108,7 +110,7 @@ assert 'COUNT(*) FROM #Wave1DtoPlan)<>26' in dto and "Ordinal=8 AND ObjectKind='
 assert 'wave1_datetimeoffset: "Tests/Runtime/Wave1.DateTimeOffset.sql"' in (MOD/'module.yaml').read_text(encoding='utf-8')
 
 # V3-Sourcekopplung und Regelvektoren; keine Engine-/FK-Katalognachweise.
-assert len(params)==12 and params[6:8]==[('TableMap','sysname','NULL'),('ExternalReferenceRule','varchar(16)',"'REJECT'")]
+assert len(params)==13 and params[6:9]==[('TableMap','sysname','NULL'),('ExternalReferenceRule','varchar(16)',"'REJECT'"),('IncludeTriggers','bit','0')]
 assert public.index('IF @Hilfe=1') < public.index("N'#tbx_TableClone_Map'")
 for name in ('Map','Order','Names','EpOwners'):
     assert "N'#tbx_TableClone_"+name+"'" in public
@@ -134,8 +136,9 @@ print('W2 V3/map/FK/order/count source coupling PASS; SQL/roundtrip not executed
 
 lifecycle_fixture=(MOD/'Tests/Runtime/Lifecycle.Contract.sql').read_text(encoding='utf-8')
 assert "(7,N'@TableMap',N'sysname',256),(8,N'@ExternalReferenceRule',N'varchar',16)" in lifecycle_fixture
-assert "(12,N'@Hilfe',N'bit',1)" in lifecycle_fixture
-assert "<>12" in lifecycle_fixture
+assert "(9,N'@IncludeTriggers',N'bit',1)" in lifecycle_fixture
+assert "(13,N'@Hilfe',N'bit',1)" in lifecycle_fixture
+assert lifecycle_fixture.count("<>13") == 2
 
 # Beide Pässe erhalten aufgelöste Consumer und katalogäquivalente unaufgelöste sameDB-Namen.
 for lifecycle in (deploy,uninstall):
@@ -155,7 +158,7 @@ print('W2 consumer/count fixture source coupling PASS; no SQL execution.')
 execute=(MOD/'Source/USP_ExecuteTableClone.sql').read_text(encoding='utf-8')
 execute_signature=execute.split('AS\nBEGIN',1)[0]
 execute_actual=re.findall(r"@(\w+)\s+(nvarchar\(max\)|varbinary\(max\)|varchar\(16\)|sysname|bit|tinyint)\s*=\s*(NULL|0|'REJECT'|'CREATE')",execute_signature)
-assert execute_actual == params[:8]+[('ExpectedPlanHash','varbinary(max)','NULL'),('ForeignKeyMode','varchar(16)',"'CREATE'")]+params[8:]
+assert execute_actual == params[:8]+[('ExpectedPlanHash','varbinary(max)','NULL'),('ForeignKeyMode','varchar(16)',"'CREATE'")]+params[9:]
 assert execute.index('IF @Hilfe=1') < execute.index('IF @@TRANCOUNT>0') < execute.index('CREATE TABLE #TableCloneExecute_MapStage')
 assert 'INSERT ... EXEC' not in execute and 'INSERT EXEC' not in execute.upper()
 assert execute.count('EXEC toolbelt_metadata.USP_ScriptTableClone ') == 2
@@ -173,11 +176,23 @@ for option in ('ANSI_NULLS ON','ANSI_PADDING ON','ANSI_WARNINGS ON','ARITHABORT 
     'CONCAT_NULL_YIELDS_NULL ON','QUOTED_IDENTIFIER ON','NUMERIC_ROUNDABORT OFF'):
     assert f'SET {option};' in execute
 assert execute.index('EXEC toolbelt_core.USP_PrepareResultTable') < execute.index('COMMIT TRANSACTION;')
-for version in ('1.0.0','2.0.0','3.0.0','3.1.0'):
+for version in ('1.0.0','2.0.0','3.0.0','3.1.0','4.0.0'):
     assert f"CONVERT(varbinary(max),N'{version}')" in deploy+uninstall
 assert ':r ../Source/USP_ExecuteTableClone.sql' in deploy
 assert "VALUES(N'USP_ExecuteTableClone');" in uninstall
 assert uninstall.index("INSERT INTO @ReleaseObjects (ObjectName) VALUES(N'USP_ExecuteTableClone');") < uninstall.index("VALUES(N'USP_ScriptTableClone'),(N'USP_ScriptTableCloneInternal');",uninstall.index('DECLARE @ReleaseObjects TABLE'))
 for fixture in ('Execute.Contract.sql','Execute.Safety.sql'):
     assert (MOD/'Tests/Runtime'/fixture).is_file()
-print('Executor3.1 Signatur/Hash/Modus/Seiteneffekte/atomare Ausgabe gekoppelt; keine SQL-Ausführung.')
+assert "SET @Text=N'4.0.0';" in execute
+assert "frame('4.0.0')" in (MOD/'Examples/CalculatePlanHash.py').read_text(encoding='utf-8')
+assert '@IncludeTriggers' not in execute_signature
+print('Executor14 / Hash-v1 mit Release4.0 / triggerfreie Grenze gekoppelt; keine SQL-Ausführung.')
+
+# Gemeinsame Namespacegrenze schützt auch alle neu eingeführten AST-Temps.
+for temp in re.findall(r'CREATE TABLE\s+(#tbx_\w+)', core, re.IGNORECASE):
+    assert f"N'{temp}'" in public, f'caller collision guard missing: {temp}'
+assert 'EXEC sys.sp_executesql @TrScript' not in core
+for fixture in ('Trigger.Contract.sql', 'Trigger.Safety.sql'):
+    assert (MOD/'Tests/Runtime'/fixture).is_file()
+assert 'required_when: "Runtime: IncludeTriggers = 1' in (MOD/'module.yaml').read_text(encoding='utf-8')
+print('Trigger13 / interne Signatur / AST-Tempgrenze / opt-in Dependency gekoppelt; keine SQL-Ausführung.')
