@@ -458,6 +458,19 @@ bleibt ein separater Release-Nachweis.
 | Alternativen | Reiner T-SQL-Parser (nicht grammatikvollständig), reiner Tokenizer ohne AST (für AST-Analyse unzureichend), Stored Procedures mit Temp-Tabellen (nicht per TVF/CROSS APPLY komponierbar), externes Parsen außerhalb der Datenbank. |
 | Betroffene Verträge | `SQL_OBJECT_NAMING.md`, `CLR_SECURITY_AND_PORTABILITY.md`, `THIRD_PARTY_AND_SOURCE_POLICY.md`, `TC-2026-047`, `.ai/BACKLOG.md`, `.ai/repo_map.yaml` |
 
+### 2026-10-04 – Tabellenklon als Parser-Verbraucher (`TC-2026-044`)
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-10-04 |
+| Status | accepted; einzeln freigegebene Funktion und konkrete4.0-Vertragsdetails |
+| Entscheidung | Der bestehende Tabellenklon-Planner verwendet ausschließlich beim Windows-Opt-in `IncludeTriggers=1` die vier TVFs des exakt gepinnten Parser2.0. Semantische Map-/Alias-/CTE-Bindung gehört in den Tabellenklon-Verbraucher; der Parser bleibt unverändert syntaktisch. |
+| Begründung | Belegte AST-/UTF16-Spannen ermöglichen Identifierumschreibung bei erhaltenen Kommentaren und Literalen. Katalogbindung und lokale Scopes verhindern ungeprüfte Namensersetzung. |
+| Scope | Trigger-Vorschau im bestehenden `toolbelt.metadata.table-clone`; keine neue Assembly oder öffentliche Prozedur. |
+| Auswirkungen | Planner13 mit Standardtail10..13, bestehender Executor14 weiterhin triggerfrei, Release4.0-Hashbindung und begrenzte feste Triggerbatches. Generierte `TR_`-Namen prüfen bestehende und geplante schemaweite Namen. Keine globale Triggernamenskonvention oder automatische Parserinstallation. |
+| Alternativen | Blindes Text-REPLACE verworfen; vollständiger Prettyprint verliert den Lexemerhalt. Die bisherige Triggerablehnung bleibt als Default0 verfügbar. |
+| Betroffene Verträge | [Triggervertrag](TABLE_CLONE_TRIGGER_CONTRACT.md), [Executorvertrag](TABLE_CLONE_EXECUTE_CONTRACT.md), [individuelle Freigaben](../../.ai/BACKLOG.md). |
+
 ## DEC-2026-030: Vollständige AI Repository Foundation 1.17.2
 
 | Feld | Wert |

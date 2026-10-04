@@ -90,6 +90,7 @@ sources_of_truth:
   table_clone_module: Modules/toolbelt.metadata.table-clone/module.yaml
   table_clone_module_design: Documentation/Architecture/TABLE_CLONE_PROPOSAL.md
   table_clone_wave2_contract: Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md
+  table_clone_trigger_contract: Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md
   table_clone_runtime_workflow: .github/workflows/table-clone-runtime.yml
   deterministic_module: Modules/toolbelt.pseudonymization.deterministic/module.yaml
   deterministic_runtime_workflow: .github/workflows/deterministic-runtime.yml
@@ -699,6 +700,7 @@ change_impact:
         - Documentation/Architecture/TABLE_CLONE_WAVE1_CONTRACT.md
         - Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md
         - Documentation/Architecture/TABLE_CLONE_EXECUTE_CONTRACT.md
+        - Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md
         - Documentation/Standards/USP_CONTRACT.md
         - Tests/CI/run-table-clone-linux.sh
         - Tests/CI/run-table-clone-wave1-lab.ps1

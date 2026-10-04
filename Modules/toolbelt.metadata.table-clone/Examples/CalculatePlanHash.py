@@ -4,7 +4,7 @@ JSON-Datei als Argument: install_db_id, install_db_name, include_identity,
 include_extended_properties, map_mode, external_reference_rule, foreign_key_mode,
 mapping (MapOrdinal/SourceSchema/SourceTable/TargetSchema/TargetTable),
 plan (Ordinal/ObjectKind/TargetName/ScriptText).
-Die Originalstrings stammen unverändert aus Calleroptionen/V3-Vorschau.
+Die Originalstrings stammen unverändert aus Calleroptionen/triggerfreier 4.0-Vorschau.
 Die Installationsdatenbankidentität stammt aus dem Installationskontext,
 auch beim zentralen dreiteiligen Aufruf. Kein Beispiel mit echten Daten
 oder Verbindungswerten versionieren. Python ist nur eine Clientoption,
@@ -53,7 +53,7 @@ def calculate(request):
     if not request['map_mode'] and (len(mapping) != 1 or ordinals != [1]):
         raise ValueError('Einzelmodus verlangt die synthetische Mapzeile 1.')
     header = (
-        frame('Toolbelt.TableClone.Execute.Hash') + i32(1) + frame('3.1.0')
+        frame('Toolbelt.TableClone.Execute.Hash') + i32(1) + frame('4.0.0')
         + i32(request['install_db_id']) + frame(request['install_db_name'])
         + bit(request['include_identity']) + bit(request['include_extended_properties'])
         + bit(request['map_mode']) + frame(request['external_reference_rule'])

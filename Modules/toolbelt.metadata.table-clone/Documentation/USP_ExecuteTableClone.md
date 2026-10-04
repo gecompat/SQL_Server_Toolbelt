@@ -5,8 +5,11 @@ Tabellenklonplan und führt ihn nach exaktem Hashvergleich aus. Nur neue Ziele
 in bestehenden Schemas derselben Installationsdatenbank sind zulässig.
 Kein frei geliefertes SQL, keine Datenkopie und keine Triggerkopie.
 
-Stand 2026-10-04: implementiert und unabhängig sourcegeprüft; begrenzte lokale
-Runtime-Nachweise bestanden; Head-CI ist separat im PR nachzuweisen. Maßgeblich ist der
+Stand 2026-10-04: historisches3.1 implementiert und unabhängig sourcegeprüft;
+begrenzte lokale3.1-Nachweise bestanden. Der4.0-Hash-/Planner-/Lifecyclepfad
+bestand den im [Triggervertrag](../../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md)
+abgegrenzten lokalen Nachweis; vollständige Produktqualifikation bleibt offen.
+Head-CI ist separat im PR nachzuweisen. Maßgeblich ist der
 [Executor-Vertrag](../../../Documentation/Architecture/TABLE_CLONE_EXECUTE_CONTRACT.md).
 
 ## Parameter
@@ -64,10 +67,13 @@ Zentraler dreiteiliger Aufruf bedeutet Ausführung in der Installationsdatenbank
 ## Erwarteter Hash
 
 Das versionierte Byteframing ist vollständig im Executor-Vertrag beschrieben.
-Der Client berechnet ihn aus dem bestehenden V3-Vorschauresult, den exakt
+Der Client berechnet ihn aus dem triggerfreien4.0-Vorschauresult, den exakt
 verwendeten Identifiern und Optionen sowie der Installationsdatenbankidentität.
 Es gibt keine neue öffentliche Hash- oder Vorschau-API. Ein Hash ist keine
 Berechtigung und keine allgemeine Driftgarantie.
+Hashlayout1 bindet jetzt das Modulrelease4.0.0; historische3.1-Hashes sind
+damit kein gültiger4.0-Erwartungswert. IncludeTriggers bleibt0 und gehört
+nicht zur unveränderten14-Parameter-Executorsignatur.
 
 ```sql
 -- Reiner Hilfeaufruf, ohne Rechte-/Ziel-/Hashprüfung:

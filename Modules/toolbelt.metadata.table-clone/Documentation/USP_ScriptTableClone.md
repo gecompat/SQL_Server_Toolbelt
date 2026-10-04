@@ -1,17 +1,17 @@
 # USP_ScriptTableClone
 
-Version3.0.0, Welle2 FK/Multitable einzeln freigegeben2026-10-03; Script-only same-database.
+Version4.0.0, Trigger-Opt-in einzeln freigegeben2026-10-01 und konkretisiert2026-10-04; Script-only same-database. Umsetzung und neue Qualifikation sind getrennt von den historischen Nachweisen zu behandeln.
 Signatur: `SourceSchema nvarchar(max)=NULL`, `SourceTable nvarchar(max)=NULL`,
 `TargetSchema nvarchar(max)=NULL`, `TargetTable nvarchar(max)=NULL`,
-`IncludeIdentity bit=0`, `IncludeExtendedProperties bit=0`, `TableMap sysname=NULL`, `ExternalReferenceRule varchar(16)='REJECT'`, `ResultTable sysname=NULL`, `KeepData bit=0`,
+`IncludeIdentity bit=0`, `IncludeExtendedProperties bit=0`, `TableMap sysname=NULL`, `ExternalReferenceRule varchar(16)='REJECT'`, `IncludeTriggers bit=0`, `ResultTable sysname=NULL`, `KeepData bit=0`,
 `Debug tinyint=0`, `Hilfe bit=0`. Im W1-Einzelmodus sind alle vier Identifier erforderlich; im Mapmodus sind sie NULL;
 einzelne Namen, keine Multipartinterpretation, nicht trimmen,1–128 UTF16Units,
 NUL verboten. nvarchar(max) vermeidet stille Parametertrunkierung.
-Beide Include-Parameter NULL ungültig; Standard-NULLs entsprechen0. Hilfe1 umgeht alles.
+Alle drei Include-Parameter NULL ungültig; Standard-NULLs entsprechen0. Hilfe1 umgeht alles.
 
 Ergebnis: Ordinal int, ObjectKind varchar(32), TargetName nvarchar(776),
 ScriptText nvarchar(max), alle NOT NULL. Text BIN2, ObjectKind SESSION_OPTION/EXTENDED_PROPERTY/TABLE/DEFAULT/
-CHECK/PRIMARY_KEY/UNIQUE_CONSTRAINT/INDEX/FOREIGN_KEY/FOREIGN_KEY_STATE. Ordinal1-basiert lückenlos;
+CHECK/PRIMARY_KEY/UNIQUE_CONSTRAINT/INDEX/FOREIGN_KEY/FOREIGN_KEY_STATE sowie bei Trigger-Opt-in TRIGGER/TRIGGER_STATE. Ordinal1-basiert lückenlos;
 Sieben SESSION_OPTION-Zeilen zuerst, TABLE anOrdinal8, Defaults, Checks, clustered Schlüssel/Index, übrige Indizes.
 ResultTable-Tabelle hat keine garantierte physische Reihenfolge.
 
@@ -34,10 +34,10 @@ Unsupported führt zu53903 ohne Teilausgabe: temporär/external/system/memory/
 FileTable/temporal/ledger/graph/replication/CDC; sparse/columnset/rowguid/
 FILESTREAM/generated/hidden/masked/encrypted/typedXML/rules; CLR/alias/legacy
 text/ntext/image-Typen/gebundene Defaults/ANSI_PADDING OFF;
-im W1-Einzelmodus FK einschließlich eingehender, immer Trigger; relevante Properties bei IncludeExtendedProperties0;
+im W1-Einzelmodus FK einschließlich eingehender, Trigger bei IncludeTriggers0; relevante Properties bei IncludeExtendedProperties0;
 clustered-gefilterte/disabled/hypothetical/OPTIMIZE_FOR_SEQUENTIAL_KEY=ON/partitionierte/compressed/fulltext/XML/spatial/
 columnstore Indizes, untrusted/disabled/not-for-replication Checks/Identity.
-Kein Rechte-/Ownership-/Trigger-Klon; FK nur im begrenzten W2-Mapmodus; Toolbelt.-Properties werden immer abgelehnt. Berechtigungen bleiben bewusst
+Kein Rechte-/Ownership-Klon; FK nur im begrenzten W2-Mapmodus; Trigger nur im expliziten Windows-Opt-in. Toolbelt.-Properties werden immer abgelehnt. Berechtigungen bleiben bewusst
 außerhalb dieser strukturellen Vorschau; Metadatensichtbarkeit ersetzt keine
 spätere DDL-/Funktions-/Dateigruppenberechtigung des ausführenden Callers.
 
@@ -90,12 +90,13 @@ Der [freigegebene W1-Vertrag](../../../Documentation/Architecture/TABLE_CLONE_WA
 ist für Computed/PERSISTED, Filter, endliche Propertytypen, Quotas und Fehlerphasen verbindlich.
 Computed-Spalten verwenden unveränderte Catalogdefinitionen; PERSISTED und explizites NOT NULL
 nur gemäß Catalog. Nur tabellenlokale Built-ins; UDF/externe/unklare Dependencies blockieren53903.
-Nur bei Computed wird vorhandenes SELECT sys.sql_expression_dependencies vorausgesetzt;
+Bei Computed wird vorhandenes SELECT sys.sql_expression_dependencies vorausgesetzt;
 fehlend oder NULL blockiert53901/3 vor Dependencyabfrage. Keine Rechtevergabe.
 
 Die sieben SET-Zeilen sind reine Texte, keine Optionsänderung durch die API.
-Nur EXTENDED_PROPERTY enthält zwei Statements: typisierte DECLARE-Variable und
-sp_addextendedproperty. Bei externer Batchzusammenfügung ist @tbx_CloneEp<Ordinal>
+EXTENDED_PROPERTY enthält zwei Statements: typisierte DECLARE-Variable und
+sp_addextendedproperty. Nur die neue TRIGGER-Zeile enthält zusätzlich die feste
+Quell-SET-/sp_executesql-Kapselung gemäß Triggervertrag. Bei externer Batchzusammenfügung ist @tbx_CloneEp<Ordinal>
 reserviert; separate Batches derselben Session haben getrennten Variablenscope.
 Propertywerte werden mit Basistyp/Precision/Scale/MaxLength/Collation rekonstruiert.
 Unsupported oder ein spätes Bytequota verwirft den ganzen Plan vor ResultTable-Mutation.
@@ -111,4 +112,36 @@ Am 2026-10-03 bestanden die finalen öffentlichen Adapter auf SQL Server 2019 Li
 
 ## W2-Map-/FK-Vertrag
 
-[Verbindliche V3-Details](../../../Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md): Position7 TableMap,8 ExternalReferenceRule,9..12 Standardtail. Genau fünf Mapspalten, Snapshot, REJECT/KEEP, globale Phasen, begrenzte FK-States und strikte FK-EP-Ablehnung. W1-Ordnung TABLE8 gilt nur im Einzelmodus; Mapmodus stellt alle TABLEs vor Constraints. Begrenzte V3-Native- und historische Fixture-Teilnachweise stehen getrennt in der Testdokumentation; aktuelle Head-CI und vollständige Produktqualifikation bleiben offen.
+[Verbindliche historische V3-Details](../../../Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md): Position7 TableMap,8 ExternalReferenceRule, damals9..12 Standardtail. In4.0 steht IncludeTriggers an9 und der Tail an10..13. Genau fünf Mapspalten, Snapshot, REJECT/KEEP, globale Phasen, begrenzte FK-States und strikte FK-EP-Ablehnung bleiben gleich. W1-Ordnung TABLE8 gilt nur im Einzelmodus; Mapmodus stellt alle TABLEs vor Constraints. Begrenzte V3-Native- und historische Fixture-Teilnachweise stehen getrennt in der Testdokumentation; sie qualifizieren4.0 nicht.
+
+## Trigger-Scriptklon 4.0
+
+Der [Triggervertrag](../../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md)
+begrenzt den Windows-Opt-in auf gewöhnliche T-SQL-DML-Trigger und den exakt
+vorhandenen Parser2.0. Kein automatisches Installieren oder Ausführen.
+Default0 bleibt auf Windows/Linux parserfrei. Die Ausgabe erhält Ereignisse,
+AFTER/INSTEAD OF, Quell-SET-Werte, FIRST/LAST und disabled-Zustand.
+Namen sind TR_ plus vollständiger SHA256 über genau drei längengerahmte
+UTF16LE-Identifier; kein zusätzlicher Domainmarker. Eindeutig gebundene
+gemappte Tabellenverweise werden anhand tatsächlicher AST-/Tokenspannen
+umgeschrieben. Kommentare/Literale bleiben erhalten; dynamische,
+verschlüsselte, CLR-, EXECUTE-AS-, externe oder unklare Formen blockieren
+vor Veröffentlichung. Keine automatische Kopie von Funktionen/Prozeduren.
+Der begrenzte lokale Windows2025/exakt-CU8-CL170-Triggernachweis bestand
+am2026-10-04; Scope und verbleibende Grenzen stehen im
+[Triggervertrag](../../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md).
+Aktuelle Head-CI wird separat im PR nachgewiesen.
+
+Triggeroption NULL meldet53900/10. Plattform-/Parsergates verwenden53907/2..6,
+Unsupported-/Bindungsformen53903/15..22, Namenskollisionen53904/2 und
+Parser-/Spannenfehler53905/3..6. Der Triggervertrag ordnet die States genau zu.
+
+Beispiel für eine vorhandene synthetische Tabelle mit gewöhnlichem DML-Trigger
+und separat installiertem Parser2.0 auf Windows:
+
+```sql
+EXEC toolbelt_metadata.USP_ScriptTableClone
+    @SourceSchema=N'dbo', @SourceTable=N'SyntheticSource',
+    @TargetSchema=N'dbo', @TargetTable=N'SyntheticClone',
+    @IncludeTriggers=1;
+```

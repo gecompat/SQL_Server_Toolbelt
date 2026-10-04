@@ -1,6 +1,6 @@
 -- ============================================================================
 -- Objekt: toolbelt_metadata.USP_ExecuteTableClone; Stored Procedure
--- Zweck: Hashgebundene Ausführung des vollständigen kanonischen V3-Plans.
+-- Zweck: Hashgebundene Ausführung des vollständigen kanonischen triggerfreien 4.0-Plans.
 -- Vertrag: USP_CONTRACT 1.0; TABLE_CLONE_EXECUTE_CONTRACT.md, Hashlayout v1.
 -- Result: PlanHash varbinary(32), TablesCreated int, StatementsExecuted int;
 --         alle NOT NULL; ResultTable alternativ, keine Datenkopie.
@@ -37,7 +37,7 @@ BEGIN
             IsNullable bit NULL,DefaultValue nvarchar(4000) NULL,
             Description nvarchar(max) NOT NULL,ExampleSql nvarchar(max) NULL);
         INSERT @Help VALUES
-        ('DESCRIPTION',1,NULL,NULL,NULL,NULL,NULL,N'Erzeugt den V3-Plan neu und führt nur dessen hashgebundene DDL für neue same-database Ziele aus; keine Datenkopie.',NULL),
+        ('DESCRIPTION',1,NULL,NULL,NULL,NULL,NULL,N'Erzeugt den triggerfreien 4.0-Plan neu und führt nur dessen hashgebundene DDL für neue same-database Ziele aus; keine Datenkopie.',NULL),
         ('PARAMETER',1,N'@SourceSchema','nvarchar(max)',1,0,N'NULL',N'V3-Einzelquelle; im Mapmodus NULL.',NULL),
         ('PARAMETER',2,N'@SourceTable','nvarchar(max)',1,0,N'NULL',N'V3-Einzelquelle; im Mapmodus NULL.',NULL),
         ('PARAMETER',3,N'@TargetSchema','nvarchar(max)',1,0,N'NULL',N'Bestehendes Installationsdatenbankschema; im Mapmodus NULL.',NULL),
@@ -58,7 +58,7 @@ BEGIN
         ('ERROR',1,NULL,NULL,NULL,NULL,NULL,N'53930 Argumente/Temps,53932 Sicht/Rechte,53933 DDL-Seiteneffekte,53934 Hash,53935 Plan/Ausführungspfade,53936 AppLock. Caller-TX: SQL50000/state1, Token TBX_TABLE_CLONE_EXECUTE_CALLER_TRANSACTION. Engine-/Plannerfehler unverändert.',NULL),
         ('PERMISSION',1,NULL,NULL,NULL,NULL,NULL,N'Vorhandene V3-/Core-/DDL-Rechte, Server VIEW ANY DEFINITION, lesbare Trigger-/Eventkataloge; keine Rechteerteilung.',NULL),
         ('LIMITATION',1,NULL,NULL,NULL,NULL,NULL,N'Nur neue Ziele, keine Datenkopie oder externe Atomik. Caller hält Quellen/Ziele/Serverbedingungen stabil. Map64 und vollständiger Plan2MiB; keine CPU/RAM/Wallclockgarantie.',NULL),
-        ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Hash mit dokumentiertem v1-Layout aus eigener V3-Vorschau berechnen; keine freie SQL-Eingabe.',N'EXEC toolbelt_metadata.USP_ExecuteTableClone @Hilfe=1;');
+        ('EXAMPLE',1,NULL,NULL,NULL,NULL,NULL,N'Hash mit dokumentiertem v1-Layout aus eigener triggerfreier 4.0-Vorschau berechnen; keine freie SQL-Eingabe.',N'EXEC toolbelt_metadata.USP_ExecuteTableClone @Hilfe=1;');
         SELECT CAST('1.0' AS varchar(16)) HelpContractVersion,
             CAST(N'toolbelt_metadata' AS sysname) SchemaName,
             CAST(N'USP_ExecuteTableClone' AS sysname) ObjectName,
@@ -166,7 +166,7 @@ BEGIN
     DECLARE @Header varbinary(max)=0x,@Text nvarchar(max),@Ordinal int,@Kind varchar(32),@Target nvarchar(776),@Script nvarchar(max);
     SET @Text=N'Toolbelt.TableClone.Execute.Hash';
     SET @Header=@Header+CONVERT(binary(4),DATALENGTH(@Text))+CONVERT(varbinary(max),@Text)+CONVERT(binary(4),CONVERT(int,1));
-    SET @Text=N'3.1.0'; SET @Header=@Header+CONVERT(binary(4),DATALENGTH(@Text))+CONVERT(varbinary(max),@Text)+CONVERT(binary(4),DB_ID());
+    SET @Text=N'4.0.0'; SET @Header=@Header+CONVERT(binary(4),DATALENGTH(@Text))+CONVERT(varbinary(max),@Text)+CONVERT(binary(4),DB_ID());
     SET @Text=DB_NAME(); SET @Header=@Header+CONVERT(binary(4),DATALENGTH(@Text))+CONVERT(varbinary(max),@Text)
         +CONVERT(binary(1),@IncludeIdentity)+CONVERT(binary(1),@IncludeExtendedProperties)+CONVERT(binary(1),@MapMode);
     SET @Text=CONVERT(nvarchar(max),@ExternalReferenceRule); SET @Header=@Header+CONVERT(binary(4),DATALENGTH(@Text))+CONVERT(varbinary(max),@Text);

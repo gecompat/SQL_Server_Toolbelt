@@ -1,10 +1,10 @@
 -- Kanonischer Catalog-/Scriptkern; keine Ausführung des erzeugten Scripttexts.
 -- Interner Aufruf ausschließlich über öffentliche Namespace-/Helpgrenze.
--- Definitionen werden wörtlich erhalten, kein Parser oder neue Scalar-Funktion.
+-- Definitionen bleiben wörtlich; nur das explizite Trigger-Opt-in verwendet Parser 2.0.
 CREATE OR ALTER PROCEDURE toolbelt_metadata.USP_ScriptTableCloneInternal
     @SourceSchema nvarchar(max)=NULL,@SourceTable nvarchar(max)=NULL,
     @TargetSchema nvarchar(max)=NULL,@TargetTable nvarchar(max)=NULL,
-    @IncludeIdentity bit=0,@IncludeExtendedProperties bit=0,@TableMap sysname=NULL,@ExternalReferenceRule varchar(16)='REJECT',@ResultTable sysname=NULL,@KeepData bit=0,
+    @IncludeIdentity bit=0,@IncludeExtendedProperties bit=0,@TableMap sysname=NULL,@ExternalReferenceRule varchar(16)='REJECT',@IncludeTriggers bit=0,@ResultTable sysname=NULL,@KeepData bit=0,
     @Debug tinyint=0,@Hilfe bit=0
 AS
 BEGIN
@@ -15,6 +15,7 @@ BEGIN
         RETURN;
     END;
     SELECT @KeepData=COALESCE(@KeepData,0),@Debug=COALESCE(@Debug,0);
+    IF @IncludeTriggers IS NULL THROW 53900,N'TableClone: IncludeTriggers darf nicht NULL sein.',10;
     -- Vollständige incoming-FK- und Kollisionssicht darf nicht aus gefilterten Katalogen behauptet werden.
     IF COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'VIEW DEFINITION'),0)<>1
         THROW 53901,N'TableClone: datenbankweite VIEW DEFINITION für vollständige Struktursicht erforderlich.',2;
@@ -115,7 +116,7 @@ BEGIN
             OR generated_always_type<>0 OR is_hidden=1 OR encryption_type IS NOT NULL OR is_masked=1
             OR xml_collection_id<>0 OR rule_object_id<>0))
         THROW 53903,N'TableClone: Unsupported column feature (sparse/rowguid/FILESTREAM/generated/encrypted/masked/typedXML/rule).',3;
-    IF EXISTS(SELECT 1 FROM sys.triggers WHERE parent_id=@SourceId)
+    IF (@IncludeTriggers=0 AND EXISTS(SELECT 1 FROM sys.triggers WHERE parent_id=@SourceId))
        OR (@TableMap IS NULL AND EXISTS(SELECT 1 FROM sys.foreign_keys WHERE parent_object_id=@SourceId OR referenced_object_id=@SourceId))
        OR (@IncludeExtendedProperties=0 AND EXISTS(SELECT 1 FROM sys.extended_properties WHERE
            (class=1 AND (major_id=@SourceId OR major_id IN(SELECT object_id FROM sys.objects WHERE parent_object_id=@SourceId)))
@@ -197,6 +198,9 @@ BEGIN
             (e.class=1 AND (e.major_id IN(SELECT SourceId FROM #tbx_TableClone_Map) OR e.major_id IN(SELECT o.object_id FROM sys.objects o JOIN #tbx_TableClone_Map m ON m.SourceId=o.parent_object_id)))
             OR (e.class=7 AND e.major_id IN(SELECT SourceId FROM #tbx_TableClone_Map)));
     SET @MinimumPlanBytes+=(SELECT COUNT_BIG(*)*2 FROM sys.foreign_keys f JOIN #tbx_TableClone_Map m ON m.SourceId=f.parent_object_id);
+    IF @IncludeTriggers=1
+        SET @MinimumPlanBytes+=COALESCE((SELECT SUM(CONVERT(bigint,DATALENGTH(s.definition))) FROM sys.triggers t
+            JOIN #tbx_TableClone_Map m ON m.SourceId=t.parent_id LEFT JOIN sys.sql_modules s ON s.object_id=t.object_id),0);
     IF @MinimumPlanBytes>2097152 THROW 53906,N'TableClone: globale minimale Scriptbytes überschritten.',1;
     IF @TableMap IS NOT NULL
     BEGIN
@@ -483,6 +487,360 @@ BEGIN
         INSERT #tbx_TableClone_Plan
             SELECT @FkOrdinal+ROW_NUMBER() OVER(ORDER BY MapOrdinal,FkName COLLATE Latin1_General_100_BIN2,CONVERT(varbinary(256),FkName)),
                 'FOREIGN_KEY_STATE',OwnerName,N'ALTER TABLE '+OwnerName+N' NOCHECK CONSTRAINT '+QUOTENAME(GeneratedName)+N';' FROM @FkStates;
+    END;
+    IF @IncludeTriggers=1
+    BEGIN
+        -- Keine statische Parserreferenz: Option 0 bleibt ohne CLR auch auf Linux kompilierbar.
+        DECLARE @TrVersion int=TRY_CONVERT(int,SERVERPROPERTY(N'ProductMajorVersion'))*10,@TrPlatform nvarchar(max)=CONVERT(nvarchar(max),@@VERSION);
+        IF @TrPlatform IS NULL OR CHARINDEX(N' on Windows ',@TrPlatform COLLATE Latin1_General_100_BIN2)=0 OR CHARINDEX(N' on Linux ',@TrPlatform COLLATE Latin1_General_100_BIN2)>0 OR @TrVersion IS NULL OR @TrVersion NOT IN(150,160,170)
+            THROW 53907,N'TableClone: Trigger-Opt-in benötigt Windows und SQL Server 2019, 2022 oder 2025.',2;
+        IF EXISTS(SELECT 1 FROM (VALUES(N'sys.assembly_files'),(N'sys.assembly_modules'),(N'sys.sql_expression_dependencies')) v(n)
+            WHERE COALESCE(HAS_PERMS_BY_NAME(v.n,N'OBJECT',N'SELECT'),0)<>1)
+            THROW 53907,N'TableClone: vollständige Parser-/Dependency-Katalogsicht fehlt.',3;
+        DECLARE @TrProviderId int,@TrDomId int;
+        SELECT @TrProviderId=assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_Tsql_ScriptParser' COLLATE DATABASE_DEFAULT AND permission_set=3;
+        SELECT @TrDomId=assembly_id FROM sys.assemblies WHERE name=N'Microsoft.SqlServer.TransactSql.ScriptDom' COLLATE DATABASE_DEFAULT;
+        IF @TrProviderId IS NULL OR @TrDomId IS NULL
+          OR NOT EXISTS(SELECT 1 FROM sys.assembly_files WHERE assembly_id=@TrProviderId AND file_id=1 AND HASHBYTES('SHA2_512',content)=0x7592A3C2535F43F6B4D0CF491BC3E7A20F2B2B8712C861D1E33BE428971860CD9E2401A67B6E5E2F0853BBF453D9C20DA9C838B070C428BD796D05F86C7A0C42)
+          OR NOT EXISTS(SELECT 1 FROM sys.assembly_files WHERE assembly_id=@TrDomId AND file_id=1 AND HASHBYTES('SHA2_512',content)=0x24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0)
+          OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@TrProviderId AND minor_id=0 AND name=N'Toolbelt.Managed' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'int' AND TRY_CONVERT(int,value)=1)
+          OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@TrProviderId AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'toolbelt.tsql.script-parser'))
+          OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0 AND name=N'Toolbelt.Module.toolbelt.tsql.script-parser.Version' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'2.0.0'))
+          OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0 AND name=N'Toolbelt.Module.toolbelt.tsql.script-parser.DeploymentMode' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value)) IN(CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central')))
+            THROW 53907,N'TableClone: registriertes Parser-2.0-Binary oder Modulmarker stimmt nicht.',4;
+        DECLARE @TrFunctions TABLE(RoleId int NOT NULL PRIMARY KEY,Name sysname COLLATE DATABASE_DEFAULT NOT NULL,Method sysname NOT NULL,ObjectId int NULL);
+        INSERT @TrFunctions VALUES(1,N'TVF_ParseScriptNodes',N'ParseScriptNodes',NULL),(2,N'TVF_ParseScriptNodeProperties',N'ParseScriptNodeProperties',NULL),
+            (3,N'TVF_TokenizeScript',N'TokenizeScript',NULL),(4,N'TVF_ParseScriptErrors',N'ParseScriptErrors',NULL);
+        UPDATE f SET ObjectId=o.object_id FROM @TrFunctions f JOIN sys.objects o ON o.name=f.Name COLLATE DATABASE_DEFAULT AND o.schema_id=SCHEMA_ID(N'toolbelt_tsql') AND CONVERT(varbinary(2),o.type)=CONVERT(varbinary(2),'FT');
+        IF EXISTS(SELECT 1 FROM @TrFunctions f WHERE f.ObjectId IS NULL OR COALESCE(HAS_PERMS_BY_NAME(N'toolbelt_tsql.'+QUOTENAME(f.Name),N'OBJECT',N'SELECT'),0)<>1
+            OR NOT EXISTS(SELECT 1 FROM sys.assembly_modules a WHERE a.object_id=f.ObjectId AND a.assembly_id=@TrProviderId
+                AND CONVERT(varbinary(max),a.assembly_class)=CONVERT(varbinary(max),N'Toolbelt.Tsql.ScriptParser.ScriptParserProvider') AND CONVERT(varbinary(max),a.assembly_method)=CONVERT(varbinary(max),f.Method))
+            OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=f.ObjectId AND minor_id=0 AND name=N'Toolbelt.Managed' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'int' AND TRY_CONVERT(int,value)=1)
+            OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=f.ObjectId AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'toolbelt.tsql.script-parser'))
+            OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=f.ObjectId AND minor_id=0 AND name=N'Toolbelt.ModuleVersion' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'2.0.0'))
+            OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=f.ObjectId AND minor_id=0 AND name=N'Toolbelt.Visibility' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'public')))
+            THROW 53907,N'TableClone: vier öffentliche Parser-FTs, SELECT oder CLR-Binding fehlt.',5;
+        DECLARE @TrShape TABLE(RoleId int NOT NULL,Ordinal int NOT NULL,Name sysname NOT NULL,TypeId int NOT NULL,Length smallint NOT NULL,PRIMARY KEY(RoleId,Ordinal));
+        INSERT @TrShape VALUES
+            (1,1,N'NodeId',56,4),(1,2,N'ParentNodeId',56,4),(1,3,N'Depth',56,4),(1,4,N'SiblingOrdinal',56,4),(1,5,N'PropertyName',231,256),(1,6,N'PropertyIndex',56,4),
+            (1,7,N'NodeType',231,256),(1,8,N'StartOffset',56,4),(1,9,N'StartLine',56,4),(1,10,N'StartColumn',56,4),(1,11,N'FragmentLength',56,4),(1,12,N'FirstTokenIndex',56,4),(1,13,N'LastTokenIndex',56,4),
+            (2,1,N'NodeId',56,4),(2,2,N'PropertyName',231,256),(2,3,N'PropertyKind',231,64),(2,4,N'PropertyValue',231,-1),
+            (3,1,N'TokenIndex',56,4),(3,2,N'TokenType',231,128),(3,3,N'TokenText',231,-1),(3,4,N'StartOffset',56,4),(3,5,N'StartLine',56,4),(3,6,N'StartColumn',56,4),
+            (4,1,N'ErrorOrdinal',56,4),(4,2,N'Number',56,4),(4,3,N'Message',231,8000),(4,4,N'StartOffset',56,4),(4,5,N'StartLine',56,4),(4,6,N'StartColumn',56,4);
+        IF EXISTS(SELECT 1 FROM @TrFunctions f WHERE (SELECT COUNT(*) FROM sys.parameters WHERE object_id=f.ObjectId AND parameter_id>0)<>5
+            OR EXISTS(SELECT 1 FROM (VALUES(1,N'@SqlText',231,-1),(2,N'@TSqlVersion',56,4),(3,N'@QuotedIdentifiers',104,1),(4,N'@MaxInputBytes',56,4),(5,N'@MaxNestingDepth',56,4)) p(n,name,t,l)
+                WHERE NOT EXISTS(SELECT 1 FROM sys.parameters a WHERE a.object_id=f.ObjectId AND a.parameter_id=p.n AND CONVERT(varbinary(256),a.name)=CONVERT(varbinary(256),p.name) AND a.system_type_id=p.t AND a.user_type_id=a.system_type_id AND a.max_length=p.l AND a.is_output=0))
+            OR (SELECT COUNT(*) FROM sys.columns WHERE object_id=f.ObjectId)<>(SELECT COUNT(*) FROM @TrShape WHERE RoleId=f.RoleId)
+            OR EXISTS(SELECT 1 FROM @TrShape s WHERE s.RoleId=f.RoleId AND NOT EXISTS(SELECT 1 FROM sys.columns c WHERE c.object_id=f.ObjectId AND c.column_id=s.Ordinal AND CONVERT(varbinary(256),c.name)=CONVERT(varbinary(256),s.Name) AND c.system_type_id=s.TypeId AND c.user_type_id=c.system_type_id AND c.max_length=s.Length AND c.is_nullable=1 AND c.is_computed=0)))
+            THROW 53907,N'TableClone: Parserparameter oder relationales Ausgabeschema stimmt nicht.',6;
+        IF EXISTS(SELECT 1 FROM sys.triggers t JOIN #tbx_TableClone_Map m ON m.SourceId=t.parent_id LEFT JOIN sys.sql_modules s ON s.object_id=t.object_id
+            WHERE t.parent_class<>1 OR CONVERT(varbinary(2),t.type)<>CONVERT(varbinary(2),'TR') OR t.is_ms_shipped=1 OR s.object_id IS NULL OR s.definition IS NULL OR s.execute_as_principal_id IS NOT NULL OR s.uses_native_compilation=1)
+            THROW 53903,N'TableClone: verschlüsselter, CLR-, EXECUTE-AS- oder Spezialtrigger.',15;
+        IF EXISTS(SELECT 1 FROM sys.extended_properties e JOIN sys.triggers t ON e.class=1 AND e.major_id=t.object_id JOIN #tbx_TableClone_Map m ON m.SourceId=t.parent_id)
+            THROW 53903,N'TableClone: Triggerproperties werden nicht still verworfen.',10;
+        -- Der Katalog bindet permanente Objekte; lokale CTE-/Aliasnamen werden erst im AST aufgelöst.
+        IF EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d JOIN sys.triggers t ON t.object_id=d.referencing_id JOIN #tbx_TableClone_Map m ON m.SourceId=t.parent_id
+            LEFT JOIN sys.objects o ON o.object_id=d.referenced_id WHERE (d.referenced_class<>1 OR d.referenced_server_name IS NOT NULL OR d.referenced_database_name IS NOT NULL
+            OR d.referenced_id IS NULL OR d.is_ambiguous=1 OR d.is_caller_dependent=1 OR o.object_id IS NULL
+            OR (CONVERT(varbinary(2),o.type)=CONVERT(varbinary(2),CONVERT(char(2),'U')) AND NOT EXISTS(SELECT 1 FROM #tbx_TableClone_Map r WHERE r.SourceId=o.object_id))
+            OR CONVERT(varbinary(2),o.type) NOT IN(CONVERT(varbinary(2),CONVERT(char(2),'U')),CONVERT(varbinary(2),'FN'),CONVERT(varbinary(2),'IF'),CONVERT(varbinary(2),'TF'))
+            OR COALESCE(HAS_PERMS_BY_NAME(QUOTENAME(OBJECT_SCHEMA_NAME(o.object_id))+N'.'+QUOTENAME(o.name),N'OBJECT',N'VIEW DEFINITION'),0)<>1)
+            AND NOT (d.referenced_class=1 AND d.referenced_id IS NULL AND d.referenced_schema_name IS NULL
+                AND d.referenced_database_name IS NULL AND d.referenced_server_name IS NULL
+                AND d.is_ambiguous=0 AND d.is_caller_dependent=0 AND d.referenced_entity_name IS NOT NULL
+                AND CONVERT(varbinary(max),LOWER(d.referenced_entity_name COLLATE Latin1_General_100_BIN2))
+                    IN(CONVERT(varbinary(max),N'inserted'),CONVERT(varbinary(max),N'deleted'))))
+            THROW 53903,N'TableClone: externe, ungelöste oder nicht gemappte Triggerdependency.',16;
+        CREATE TABLE #tbx_TableClone_AstNodes(NodeId int NULL,ParentNodeId int NULL,Depth int NULL,SiblingOrdinal int NULL,PropertyName nvarchar(128) COLLATE Latin1_General_100_BIN2 NULL,PropertyIndex int NULL,
+            NodeType nvarchar(128) COLLATE Latin1_General_100_BIN2 NULL,StartOffset int NULL,StartLine int NULL,StartColumn int NULL,FragmentLength int NULL,FirstTokenIndex int NULL,LastTokenIndex int NULL);
+        CREATE TABLE #tbx_TableClone_AstProperties(NodeId int NULL,PropertyName nvarchar(128) COLLATE Latin1_General_100_BIN2 NULL,PropertyKind nvarchar(32) COLLATE Latin1_General_100_BIN2 NULL,PropertyValue nvarchar(max) COLLATE Latin1_General_100_BIN2 NULL);
+        CREATE TABLE #tbx_TableClone_AstTokens(TokenIndex int NULL,TokenType nvarchar(64) COLLATE Latin1_General_100_BIN2 NULL,TokenText nvarchar(max) COLLATE Latin1_General_100_BIN2 NULL,StartOffset int NULL,StartLine int NULL,StartColumn int NULL);
+        CREATE TABLE #tbx_TableClone_AstErrors(ErrorOrdinal int NULL,Number int NULL,Message nvarchar(4000) COLLATE Latin1_General_100_BIN2 NULL,StartOffset int NULL,StartLine int NULL,StartColumn int NULL);
+        DECLARE @TrId int,@TrOriginalName sysname,@TrName sysname,@TrDisabled bit,@TrInstead bit,@TrNfr bit,@TrAnsi bit,@TrQi bit,@TrDefinition nvarchar(max),@TrRewritten nvarchar(max),@TrScript nvarchar(max),@TrRoot int,@TrNameNode int,@TrOnNode int,@TrOnObject int,@TrOrdinal int;
+        DECLARE @TrContext TABLE(NodeId int NOT NULL PRIMARY KEY,ScopeId int NOT NULL,OuterScopeId int NOT NULL,StatementId int NOT NULL,CteId int NOT NULL,InOutput bit NOT NULL);
+        DECLARE @TrScopes TABLE(ScopeId int NOT NULL PRIMARY KEY,OuterScopeId int NOT NULL,StatementId int NOT NULL,CteId int NOT NULL);
+        DECLARE @TrIds TABLE(OwnerNode int NOT NULL,Part int NOT NULL,NodeId int NOT NULL,Value nvarchar(128) COLLATE DATABASE_DEFAULT NOT NULL,StartOffset int NOT NULL,Length int NOT NULL,PRIMARY KEY(OwnerNode,Part));
+        DECLARE @TrCtes TABLE(NodeId int NOT NULL PRIMARY KEY,StatementId int NOT NULL,CteOrdinal int NOT NULL,Name nvarchar(128) COLLATE DATABASE_DEFAULT NOT NULL);
+        DECLARE @TrRanges TABLE(NodeId int NOT NULL PRIMARY KEY,ScopeId int NOT NULL,Name nvarchar(128) COLLATE DATABASE_DEFAULT NOT NULL,SourceId int NULL,Alias bit NOT NULL);
+        DECLARE @TrReferences TABLE(NodeId int NOT NULL PRIMARY KEY,ScopeId int NOT NULL,StatementId int NOT NULL,CteId int NOT NULL,IsTarget bit NOT NULL,NameNode int NOT NULL,Parts int NOT NULL,SchemaName nvarchar(128) COLLATE DATABASE_DEFAULT NULL,TableName nvarchar(128) COLLATE DATABASE_DEFAULT NOT NULL,AliasName nvarchar(128) COLLATE DATABASE_DEFAULT NULL,SourceId int NULL,LocalReference bit NOT NULL DEFAULT(0));
+        DECLARE @TrEdits TABLE(StartOffset int NOT NULL PRIMARY KEY,Length int NOT NULL,Replacement nvarchar(max) COLLATE Latin1_General_100_BIN2 NOT NULL);
+        DECLARE @TrStates TABLE(MapOrdinal int NOT NULL,OriginalName sysname COLLATE Latin1_General_100_BIN2 NOT NULL,TargetName nvarchar(776) COLLATE Latin1_General_100_BIN2 NOT NULL,EventOrdinal int NOT NULL,ScriptText nvarchar(max) COLLATE Latin1_General_100_BIN2 NOT NULL);
+        DECLARE TriggerCursor CURSOR LOCAL FAST_FORWARD FOR
+            SELECT m.MapOrdinal,m.SourceId,m.TargetSchemaId,m.SourceSchema,m.SourceTable,m.TargetSchema,m.TargetTable,t.object_id,t.name,t.is_disabled,t.is_instead_of_trigger,t.is_not_for_replication,s.uses_ansi_nulls,s.uses_quoted_identifier,s.definition
+            FROM sys.triggers t JOIN #tbx_TableClone_Map m ON m.SourceId=t.parent_id JOIN sys.sql_modules s ON s.object_id=t.object_id
+            ORDER BY m.MapOrdinal,t.name COLLATE Latin1_General_100_BIN2,CONVERT(varbinary(256),t.name);
+        OPEN TriggerCursor;
+        FETCH NEXT FROM TriggerCursor INTO @MapOrdinal,@SourceId,@TargetSchemaId,@SourceSchema,@SourceTable,@TargetSchema,@TargetTable,@TrId,@TrOriginalName,@TrDisabled,@TrInstead,@TrNfr,@TrAnsi,@TrQi,@TrDefinition;
+        WHILE @@FETCH_STATUS=0
+        BEGIN
+            SET @TrName=CONVERT(sysname,N'TR_'+CONVERT(varchar(64),HASHBYTES('SHA2_256',CONVERT(varbinary(max),CONVERT(binary(4),DATALENGTH(@TargetSchema)))+CONVERT(varbinary(max),@TargetSchema)
+                +CONVERT(binary(4),DATALENGTH(@TargetTable))+CONVERT(varbinary(max),@TargetTable)+CONVERT(binary(4),DATALENGTH(@TrOriginalName))+CONVERT(varbinary(max),@TrOriginalName)),2));
+            SET @TargetName=QUOTENAME(@TargetSchema)+N'.'+QUOTENAME(@TrName);
+            IF EXISTS(SELECT 1 FROM sys.objects WHERE schema_id=@TargetSchemaId AND name=@TrName COLLATE DATABASE_DEFAULT)
+                OR EXISTS(SELECT 1 FROM #tbx_TableClone_Names WHERE SchemaId=@TargetSchemaId AND GeneratedName=@TrName COLLATE DATABASE_DEFAULT)
+                OR EXISTS(SELECT 1 FROM #tbx_TableClone_Map WHERE TargetSchemaId=@TargetSchemaId AND TargetTable=@TrName COLLATE DATABASE_DEFAULT)
+                THROW 53904,N'TableClone: deterministischer Triggername kollidiert.',2;
+            INSERT #tbx_TableClone_Names VALUES(@TargetSchemaId,@TrName);
+            DELETE #tbx_TableClone_AstNodes; DELETE #tbx_TableClone_AstProperties; DELETE #tbx_TableClone_AstTokens; DELETE #tbx_TableClone_AstErrors;
+            DELETE @TrContext; DELETE @TrScopes; DELETE @TrIds; DELETE @TrCtes; DELETE @TrRanges; DELETE @TrReferences; DELETE @TrEdits;
+            -- Errors zuerst; identische Argumente für alle vier atomaren Parserergebnisse.
+            EXEC sys.sp_executesql N'INSERT #tbx_TableClone_AstErrors SELECT * FROM toolbelt_tsql.TVF_ParseScriptErrors(@s,@v,@q,2097152,100);',N'@s nvarchar(max),@v int,@q bit',@TrDefinition,@TrVersion,@TrQi;
+            IF EXISTS(SELECT 1 FROM #tbx_TableClone_AstErrors) THROW 53905,N'TableClone: Triggerdefinition enthält Parserfehler.',3;
+            EXEC sys.sp_executesql N'INSERT #tbx_TableClone_AstNodes SELECT * FROM toolbelt_tsql.TVF_ParseScriptNodes(@s,@v,@q,2097152,100);
+                INSERT #tbx_TableClone_AstProperties SELECT * FROM toolbelt_tsql.TVF_ParseScriptNodeProperties(@s,@v,@q,2097152,100);
+                INSERT #tbx_TableClone_AstTokens SELECT * FROM toolbelt_tsql.TVF_TokenizeScript(@s,@v,@q,2097152,100);',N'@s nvarchar(max),@v int,@q bit',@TrDefinition,@TrVersion,@TrQi;
+            IF NOT EXISTS(SELECT 1 FROM #tbx_TableClone_AstNodes) OR EXISTS(SELECT 1 FROM #tbx_TableClone_AstNodes WHERE NodeId IS NULL OR NodeId<1 OR Depth IS NULL OR Depth NOT BETWEEN 0 AND 100 OR NodeType IS NULL)
+                OR EXISTS(SELECT 1 FROM #tbx_TableClone_AstNodes GROUP BY NodeId HAVING COUNT(*)<>1)
+                OR (SELECT COUNT(*) FROM #tbx_TableClone_AstNodes WHERE ParentNodeId IS NULL)<>1
+                OR EXISTS(SELECT 1 FROM #tbx_TableClone_AstNodes n LEFT JOIN #tbx_TableClone_AstNodes p ON p.NodeId=n.ParentNodeId WHERE n.ParentNodeId IS NOT NULL AND (p.NodeId IS NULL OR p.NodeId>=n.NodeId OR p.Depth+1<>n.Depth))
+                OR EXISTS(SELECT 1 FROM #tbx_TableClone_AstProperties p WHERE p.NodeId IS NULL OR p.PropertyName IS NULL OR NOT EXISTS(SELECT 1 FROM #tbx_TableClone_AstNodes n WHERE n.NodeId=p.NodeId))
+                OR EXISTS(SELECT 1 FROM #tbx_TableClone_AstProperties GROUP BY NodeId,PropertyName HAVING COUNT(*)<>1)
+                THROW 53905,N'TableClone: inkonsistenter Parserbaum oder skalare Properties.',4;
+            -- Lückenloser Tokenstrom muss genau die ursprünglichen UTF16-Bytes ergeben.
+            IF NOT EXISTS(SELECT 1 FROM #tbx_TableClone_AstTokens) OR EXISTS(SELECT 1 FROM #tbx_TableClone_AstTokens WHERE TokenIndex IS NULL OR TokenText IS NULL OR StartOffset IS NULL OR StartOffset<0)
+                OR EXISTS(SELECT 1 FROM #tbx_TableClone_AstTokens GROUP BY TokenIndex HAVING COUNT(*)<>1)
+                OR EXISTS(SELECT 1 FROM (SELECT TokenIndex,StartOffset,DATALENGTH(TokenText)/2 Length,LEAD(StartOffset) OVER(ORDER BY TokenIndex) NextOffset,ROW_NUMBER() OVER(ORDER BY TokenIndex)-1 ExpectedIndex FROM #tbx_TableClone_AstTokens) a
+                    WHERE TokenIndex<>ExpectedIndex OR (TokenIndex=0 AND StartOffset<>0) OR (NextOffset IS NOT NULL AND StartOffset+Length<>NextOffset) OR StartOffset+Length>DATALENGTH(@TrDefinition)/2)
+                OR CONVERT(varbinary(max),(SELECT STRING_AGG(CONVERT(nvarchar(max),TokenText),N'') WITHIN GROUP(ORDER BY TokenIndex) FROM #tbx_TableClone_AstTokens))<>CONVERT(varbinary(max),@TrDefinition)
+                THROW 53905,N'TableClone: Token-/UTF16-Spannen stimmen nicht mit der Definition überein.',4;
+            SELECT @TrRoot=NULL,@TrNameNode=NULL,@TrOnNode=NULL,@TrOnObject=NULL;
+            SELECT @TrRoot=n.NodeId FROM #tbx_TableClone_AstNodes n JOIN #tbx_TableClone_AstNodes b ON b.NodeId=n.ParentNodeId AND b.NodeType=N'TSqlBatch'
+                WHERE n.NodeType IN(N'CreateTriggerStatement',N'AlterTriggerStatement',N'CreateOrAlterTriggerStatement');
+            IF @TrRoot IS NULL OR (SELECT COUNT(*) FROM #tbx_TableClone_AstNodes n JOIN #tbx_TableClone_AstNodes b ON b.NodeId=n.ParentNodeId WHERE b.NodeType=N'TSqlBatch')<>1
+                OR NOT EXISTS(SELECT 1 FROM #tbx_TableClone_AstNodes WHERE ParentNodeId IS NULL AND NodeType=N'TSqlScript')
+                OR EXISTS(SELECT 1 FROM #tbx_TableClone_AstNodes WHERE NodeType IN(N'ExecuteStatement',N'ExecuteAsStatement',N'CreateTriggerStatement',N'AlterTriggerStatement',N'CreateOrAlterTriggerStatement') AND NodeId<>@TrRoot)
+                OR NOT EXISTS(SELECT 1 FROM #tbx_TableClone_AstProperties WHERE NodeId=@TrRoot AND PropertyName=N'TriggerType' AND PropertyKind=N'Enum' AND PropertyValue=CASE @TrInstead WHEN 1 THEN N'InsteadOf' ELSE N'After' END)
+                OR NOT EXISTS(SELECT 1 FROM #tbx_TableClone_AstProperties WHERE NodeId=@TrRoot AND PropertyName=N'IsNotForReplication' AND PropertyKind=N'Boolean' AND PropertyValue=CASE @TrNfr WHEN 1 THEN N'True' ELSE N'False' END)
+                OR NOT EXISTS(SELECT 1 FROM #tbx_TableClone_AstProperties WHERE NodeId=@TrRoot AND PropertyName=N'WithAppend' AND PropertyValue=N'False')
+                THROW 53903,N'TableClone: nicht belegte gewöhnliche DML-Triggerform oder EXEC im Body.',17;
+            SELECT @TrNameNode=NodeId FROM #tbx_TableClone_AstNodes WHERE ParentNodeId=@TrRoot AND PropertyName=N'Name' AND NodeType=N'SchemaObjectName';
+            SELECT @TrOnObject=NodeId FROM #tbx_TableClone_AstNodes WHERE ParentNodeId=@TrRoot AND PropertyName=N'TriggerObject' AND NodeType=N'TriggerObject';
+            SELECT @TrOnNode=NodeId FROM #tbx_TableClone_AstNodes WHERE ParentNodeId=@TrOnObject AND PropertyName=N'Name' AND NodeType=N'SchemaObjectName';
+            IF @TrNameNode IS NULL OR @TrOnNode IS NULL OR NOT EXISTS(SELECT 1 FROM #tbx_TableClone_AstProperties WHERE NodeId=@TrOnObject AND PropertyName=N'TriggerScope' AND PropertyValue=N'Normal')
+                THROW 53903,N'TableClone: Triggerheader oder ON-Scope ist nicht eindeutig.',17;
+            -- Nur Identifiers[i], niemals die duplizierten BaseIdentifier/SchemaIdentifier-Kinder.
+            INSERT @TrIds
+                SELECT n.ParentNodeId,n.PropertyIndex,n.NodeId,p.PropertyValue,n.StartOffset,n.FragmentLength
+                FROM #tbx_TableClone_AstNodes n JOIN #tbx_TableClone_AstProperties p ON p.NodeId=n.NodeId AND p.PropertyName=N'Value' AND p.PropertyKind=N'String'
+                WHERE n.NodeType=N'Identifier' AND n.PropertyName=N'Identifiers' AND n.PropertyIndex>=0;
+            IF EXISTS(SELECT 1 FROM @TrIds i JOIN #tbx_TableClone_AstNodes n ON n.NodeId=i.NodeId WHERE i.StartOffset<0 OR i.Length<1 OR i.StartOffset+i.Length>DATALENGTH(@TrDefinition)/2
+                OR n.FirstTokenIndex<>n.LastTokenIndex OR NOT EXISTS(SELECT 1 FROM #tbx_TableClone_AstTokens t WHERE t.TokenIndex=n.FirstTokenIndex AND t.StartOffset=i.StartOffset AND DATALENGTH(t.TokenText)/2=i.Length))
+                OR EXISTS(SELECT 1 FROM @TrIds GROUP BY OwnerNode HAVING MIN(Part)<>0 OR MAX(Part)+1<>COUNT(*))
+                THROW 53905,N'TableClone: Identifierlexeme sind keine belegten Tokenfragmente.',4;
+            IF (SELECT COUNT(*) FROM @TrIds WHERE OwnerNode=@TrNameNode) NOT IN(1,2) OR (SELECT COUNT(*) FROM @TrIds WHERE OwnerNode=@TrOnNode) NOT IN(1,2)
+                OR NOT EXISTS(SELECT 1 FROM @TrIds WHERE OwnerNode=@TrNameNode AND Part=(SELECT MAX(Part) FROM @TrIds WHERE OwnerNode=@TrNameNode) AND Value=@TrOriginalName COLLATE DATABASE_DEFAULT)
+                OR EXISTS(SELECT 1 FROM @TrIds WHERE OwnerNode=@TrNameNode AND Part=0 AND (SELECT COUNT(*) FROM @TrIds WHERE OwnerNode=@TrNameNode)=2 AND Value<>OBJECT_SCHEMA_NAME(@TrId) COLLATE DATABASE_DEFAULT)
+                OR NOT EXISTS(SELECT 1 FROM @TrIds WHERE OwnerNode=@TrOnNode AND Part=(SELECT MAX(Part) FROM @TrIds WHERE OwnerNode=@TrOnNode) AND Value=@SourceTable COLLATE DATABASE_DEFAULT)
+                OR EXISTS(SELECT 1 FROM @TrIds WHERE OwnerNode=@TrOnNode AND Part=0 AND (SELECT COUNT(*) FROM @TrIds WHERE OwnerNode=@TrOnNode)=2 AND Value<>@SourceSchema COLLATE DATABASE_DEFAULT)
+                THROW 53903,N'TableClone: Header-/ON-Identifier passen nicht zur Catalogbindung.',18;
+            ;WITH Tree AS
+            (
+                SELECT NodeId,CONVERT(int,0) ScopeId,CONVERT(int,0) OuterScopeId,CONVERT(int,0) StatementId,CONVERT(int,0) CteId,CONVERT(bit,0) InOutput FROM #tbx_TableClone_AstNodes WHERE ParentNodeId IS NULL
+                UNION ALL
+                SELECT n.NodeId,CASE WHEN n.NodeType IN(N'QuerySpecification',N'InsertSpecification',N'UpdateSpecification',N'DeleteSpecification',N'MergeSpecification') THEN n.NodeId ELSE p.ScopeId END,
+                    CASE WHEN n.NodeType IN(N'QuerySpecification',N'InsertSpecification',N'UpdateSpecification',N'DeleteSpecification',N'MergeSpecification') THEN p.ScopeId ELSE p.OuterScopeId END,
+                    CASE WHEN n.NodeType IN(N'SelectStatement',N'InsertStatement',N'UpdateStatement',N'DeleteStatement',N'MergeStatement') THEN n.NodeId ELSE p.StatementId END,
+                    CASE WHEN n.NodeType=N'CommonTableExpression' THEN n.NodeId ELSE p.CteId END,
+                    CONVERT(bit,CASE WHEN n.NodeType IN(N'OutputClause',N'OutputIntoClause') THEN 1 ELSE p.InOutput END)
+                FROM #tbx_TableClone_AstNodes n JOIN Tree p ON p.NodeId=n.ParentNodeId
+            )
+            INSERT @TrContext SELECT * FROM Tree OPTION(MAXRECURSION 100);
+            IF (SELECT COUNT(*) FROM @TrContext)<>(SELECT COUNT(*) FROM #tbx_TableClone_AstNodes)
+                THROW 53905,N'TableClone: unvollständige AST-Elternhierarchie.',4;
+            INSERT @TrScopes VALUES(0,0,0,0);
+            INSERT @TrScopes SELECT c.ScopeId,c.OuterScopeId,c.StatementId,c.CteId FROM @TrContext c WHERE c.NodeId=c.ScopeId;
+            DECLARE @TrScopeChain TABLE(ScopeId int NOT NULL,VisibleScopeId int NOT NULL,Distance int NOT NULL,PRIMARY KEY(ScopeId,VisibleScopeId));
+            DELETE @TrScopeChain;
+            ;WITH Chain AS
+            (
+                SELECT ScopeId,ScopeId VisibleScopeId,CONVERT(int,0) Distance FROM @TrScopes
+                UNION ALL SELECT c.ScopeId,s.OuterScopeId,c.Distance+1 FROM Chain c JOIN @TrScopes s ON s.ScopeId=c.VisibleScopeId WHERE c.VisibleScopeId<>0
+            )
+            INSERT @TrScopeChain SELECT * FROM Chain OPTION(MAXRECURSION 100);
+            INSERT @TrCtes
+                SELECT n.NodeId,c.StatementId,n.PropertyIndex,p.PropertyValue FROM #tbx_TableClone_AstNodes n JOIN @TrContext c ON c.NodeId=n.NodeId
+                JOIN #tbx_TableClone_AstNodes i ON i.ParentNodeId=n.NodeId AND i.PropertyName=N'ExpressionName' AND i.NodeType=N'Identifier'
+                JOIN #tbx_TableClone_AstProperties p ON p.NodeId=i.NodeId AND p.PropertyName=N'Value' AND p.PropertyKind=N'String'
+                WHERE n.NodeType=N'CommonTableExpression';
+            IF (SELECT COUNT(*) FROM @TrCtes)<>(SELECT COUNT(*) FROM #tbx_TableClone_AstNodes WHERE NodeType=N'CommonTableExpression')
+                OR EXISTS(SELECT 1 FROM @TrCtes GROUP BY StatementId,Name HAVING COUNT(*)<>1)
+                THROW 53903,N'TableClone: CTE-Namespace ist nicht eindeutig.',19;
+            INSERT @TrReferences
+                SELECT n.NodeId,c.ScopeId,c.StatementId,c.CteId,CASE n.PropertyName WHEN N'Target' THEN 1 ELSE 0 END,s.NodeId,
+                    (SELECT COUNT(*) FROM @TrIds WHERE OwnerNode=s.NodeId),a.Value,b.Value,al.PropertyValue,NULL,0
+                FROM #tbx_TableClone_AstNodes n JOIN @TrContext c ON c.NodeId=n.NodeId
+                JOIN #tbx_TableClone_AstNodes s ON s.ParentNodeId=n.NodeId AND s.PropertyName=N'SchemaObject' AND s.NodeType=N'SchemaObjectName'
+                JOIN @TrIds b ON b.OwnerNode=s.NodeId AND b.Part=(SELECT MAX(Part) FROM @TrIds WHERE OwnerNode=s.NodeId)
+                LEFT JOIN @TrIds a ON a.OwnerNode=s.NodeId AND a.Part=0 AND b.Part=1
+                LEFT JOIN #tbx_TableClone_AstNodes ali ON ali.ParentNodeId=n.NodeId AND ali.PropertyName=N'Alias' AND ali.NodeType=N'Identifier'
+                LEFT JOIN #tbx_TableClone_AstProperties al ON al.NodeId=ali.NodeId AND al.PropertyName=N'Value' AND al.PropertyKind=N'String'
+                WHERE n.NodeType=N'NamedTableReference';
+            IF EXISTS(SELECT 1 FROM #tbx_TableClone_AstNodes n WHERE n.NodeType=N'SchemaObjectName' AND n.NodeId NOT IN(@TrNameNode,@TrOnNode)
+                AND NOT EXISTS(SELECT 1 FROM @TrReferences r WHERE r.NameNode=n.NodeId)
+                AND NOT EXISTS(SELECT 1 FROM #tbx_TableClone_AstNodes p WHERE p.NodeId=n.ParentNodeId AND p.NodeType=N'SchemaObjectFunctionTableReference')
+                AND NOT EXISTS(SELECT 1 FROM #tbx_TableClone_AstNodes p JOIN #tbx_TableClone_AstProperties v ON v.NodeId=p.NodeId
+                    WHERE p.NodeId=n.ParentNodeId AND p.NodeType=N'SqlDataTypeReference' AND n.PropertyName=N'Name'
+                      AND (SELECT COUNT(*) FROM @TrIds i WHERE i.OwnerNode=n.NodeId)=1
+                      AND v.PropertyName=N'SqlDataTypeOption' AND v.PropertyKind=N'Enum'
+                      AND v.PropertyValue IN(N'BigInt',N'Int',N'SmallInt',N'TinyInt',N'Bit',N'Decimal',N'Numeric',N'Money',N'SmallMoney',N'Float',N'Real',N'DateTime',N'SmallDateTime',N'Char',N'VarChar',N'Text',N'NChar',N'NVarChar',N'NText',N'Binary',N'VarBinary',N'Image',N'Cursor',N'Sql_Variant',N'Table',N'Timestamp',N'UniqueIdentifier',N'Date',N'Time',N'DateTime2',N'DateTimeOffset',N'Rowversion',N'Json',N'Vector')))
+                THROW 53903,N'TableClone: Objektname außerhalb einer belegten Tabellen-/Funktionsreferenz.',19;
+            IF (SELECT COUNT(*) FROM @TrReferences)<>(SELECT COUNT(*) FROM #tbx_TableClone_AstNodes WHERE NodeType=N'NamedTableReference')
+                OR EXISTS(SELECT 1 FROM @TrReferences WHERE Parts NOT IN(1,2) OR ScopeId=0)
+                THROW 53903,N'TableClone: fehlende oder externe NamedTableReference-Bindung.',19;
+            -- Eine CTE gilt nur im nächsten sichtbaren Statementnamespace; spätere CTEs sind nicht sichtbar.
+            IF EXISTS(SELECT 1 FROM @TrReferences r CROSS APPLY
+                (SELECT TOP(1) ct.CteOrdinal,ct.StatementId FROM @TrScopeChain h JOIN @TrScopes sc ON sc.ScopeId=h.VisibleScopeId
+                 JOIN @TrCtes ct ON ct.StatementId=sc.StatementId AND ct.Name=r.TableName WHERE h.ScopeId=r.ScopeId ORDER BY h.Distance) visible
+                JOIN @TrCtes own ON own.NodeId=r.CteId AND own.StatementId=visible.StatementId
+                WHERE r.Parts=1 AND own.CteOrdinal<visible.CteOrdinal)
+                THROW 53903,N'TableClone: Vorwärtsreferenz auf eine spätere CTE.',19;
+            UPDATE r SET LocalReference=1 FROM @TrReferences r CROSS APPLY
+                (SELECT TOP(1) ct.NodeId,ct.CteOrdinal,ct.StatementId FROM @TrScopeChain h JOIN @TrScopes sc ON sc.ScopeId=h.VisibleScopeId
+                 JOIN @TrCtes ct ON ct.StatementId=sc.StatementId AND ct.Name=r.TableName WHERE h.ScopeId=r.ScopeId ORDER BY h.Distance) visible
+                WHERE r.Parts=1 AND (r.CteId=0 OR NOT EXISTS(SELECT 1 FROM @TrCtes own WHERE own.NodeId=r.CteId AND own.StatementId=visible.StatementId AND own.CteOrdinal<visible.CteOrdinal));
+            UPDATE r SET LocalReference=1 FROM @TrReferences r WHERE r.Parts=1 AND r.TableName IN(N'inserted',N'deleted');
+            UPDATE r SET SourceId=m.SourceId FROM @TrReferences r JOIN #tbx_TableClone_Map m ON m.SourceTable=r.TableName AND (r.SchemaName IS NULL OR m.SourceSchema=r.SchemaName)
+                WHERE r.LocalReference=0 AND r.IsTarget=0 AND EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d WHERE d.referencing_id=@TrId AND d.referenced_id=m.SourceId)
+                AND (SELECT COUNT(*) FROM #tbx_TableClone_Map mm WHERE mm.SourceTable=r.TableName AND (r.SchemaName IS NULL OR mm.SourceSchema=r.SchemaName)
+                    AND EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d WHERE d.referencing_id=@TrId AND d.referenced_id=mm.SourceId))=1;
+            INSERT @TrRanges SELECT NodeId,ScopeId,COALESCE(AliasName,TableName),SourceId,CASE WHEN AliasName IS NULL THEN 0 ELSE 1 END FROM @TrReferences WHERE IsTarget=0;
+            -- Lokale Tabellenvariablen und Derived-Table-/Funktionsaliase besitzen keinen permanenten Mapowner.
+            INSERT @TrRanges
+                SELECT n.NodeId,c.ScopeId,p.PropertyValue,NULL,1 FROM #tbx_TableClone_AstNodes n JOIN @TrContext c ON c.NodeId=n.NodeId
+                JOIN #tbx_TableClone_AstNodes v ON v.ParentNodeId=n.NodeId AND v.NodeType=N'VariableReference' AND v.PropertyName=N'Variable'
+                JOIN #tbx_TableClone_AstProperties p ON p.NodeId=v.NodeId AND p.PropertyName=N'Name' AND p.PropertyKind=N'String'
+                WHERE n.NodeType=N'VariableTableReference' AND EXISTS
+                    (SELECT 1 FROM #tbx_TableClone_AstNodes d JOIN #tbx_TableClone_AstNodes dv ON dv.ParentNodeId=d.NodeId AND dv.PropertyName=N'VariableName' AND dv.NodeType=N'Identifier'
+                     JOIN #tbx_TableClone_AstProperties dp ON dp.NodeId=dv.NodeId AND dp.PropertyName=N'Value' AND dp.PropertyKind=N'String'
+                     WHERE d.NodeType=N'DeclareTableVariableBody' AND dp.PropertyValue COLLATE DATABASE_DEFAULT=p.PropertyValue COLLATE DATABASE_DEFAULT AND d.StartOffset<n.StartOffset);
+            -- Alias einer Tabellenvariablen ersetzt ihren Range-Namen, nicht die Variable selbst.
+            UPDATE r SET Name=p.PropertyValue FROM @TrRanges r JOIN #tbx_TableClone_AstNodes a ON a.ParentNodeId=r.NodeId AND a.PropertyName=N'Alias' AND a.NodeType=N'Identifier'
+                JOIN #tbx_TableClone_AstProperties p ON p.NodeId=a.NodeId AND p.PropertyName=N'Value' AND p.PropertyKind=N'String';
+            INSERT @TrRanges
+                SELECT n.NodeId,c.ScopeId,p.PropertyValue,NULL,1 FROM #tbx_TableClone_AstNodes n JOIN @TrContext c ON c.NodeId=n.NodeId
+                JOIN #tbx_TableClone_AstNodes a ON a.ParentNodeId=n.NodeId AND a.PropertyName=N'Alias' AND a.NodeType=N'Identifier'
+                JOIN #tbx_TableClone_AstProperties p ON p.NodeId=a.NodeId AND p.PropertyName=N'Value' AND p.PropertyKind=N'String'
+                WHERE n.NodeType IN(N'QueryDerivedTable',N'InlineDerivedTable');
+            INSERT @TrRanges
+                SELECT DISTINCT n.NodeId,c.ScopeId,COALESCE(ap.PropertyValue COLLATE DATABASE_DEFAULT,b.Value),o.object_id,CASE WHEN ap.PropertyValue IS NULL THEN 0 ELSE 1 END
+                FROM #tbx_TableClone_AstNodes n JOIN @TrContext c ON c.NodeId=n.NodeId
+                JOIN #tbx_TableClone_AstNodes sn ON sn.ParentNodeId=n.NodeId AND sn.PropertyName=N'SchemaObject' AND sn.NodeType=N'SchemaObjectName'
+                JOIN @TrIds b ON b.OwnerNode=sn.NodeId AND b.Part=(SELECT MAX(Part) FROM @TrIds WHERE OwnerNode=sn.NodeId)
+                LEFT JOIN @TrIds sc ON sc.OwnerNode=sn.NodeId AND sc.Part=0 AND b.Part=1
+                LEFT JOIN #tbx_TableClone_AstNodes a ON a.ParentNodeId=n.NodeId AND a.PropertyName=N'Alias' AND a.NodeType=N'Identifier'
+                LEFT JOIN #tbx_TableClone_AstProperties ap ON ap.NodeId=a.NodeId AND ap.PropertyName=N'Value' AND ap.PropertyKind=N'String'
+                JOIN sys.sql_expression_dependencies d ON d.referencing_id=@TrId
+                JOIN sys.objects o ON o.object_id=d.referenced_id AND o.name=b.Value COLLATE DATABASE_DEFAULT
+                    AND (sc.Value IS NULL OR OBJECT_SCHEMA_NAME(o.object_id)=sc.Value COLLATE DATABASE_DEFAULT)
+                WHERE n.NodeType=N'SchemaObjectFunctionTableReference' AND (SELECT COUNT(*) FROM @TrIds WHERE OwnerNode=sn.NodeId) IN(1,2)
+                    AND CONVERT(varbinary(2),o.type) IN(CONVERT(varbinary(2),'IF'),CONVERT(varbinary(2),'TF'))
+                    AND NOT EXISTS(SELECT 1 FROM sys.sql_expression_dependencies dd JOIN sys.objects oo ON oo.object_id=dd.referenced_id
+                        WHERE dd.referencing_id=@TrId AND oo.object_id<>o.object_id AND oo.name=b.Value COLLATE DATABASE_DEFAULT
+                          AND (sc.Value IS NULL OR OBJECT_SCHEMA_NAME(oo.object_id)=sc.Value COLLATE DATABASE_DEFAULT));
+            IF EXISTS(SELECT 1 FROM #tbx_TableClone_AstNodes n WHERE n.NodeType IN(N'VariableTableReference',N'QueryDerivedTable',N'InlineDerivedTable',N'SchemaObjectFunctionTableReference') AND NOT EXISTS(SELECT 1 FROM @TrRanges WHERE NodeId=n.NodeId))
+                OR EXISTS(SELECT 1 FROM #tbx_TableClone_AstNodes WHERE NodeType LIKE N'%TableReference' AND NodeType NOT IN(N'NamedTableReference',N'VariableTableReference',N'SchemaObjectFunctionTableReference'))
+                OR EXISTS(SELECT 1 FROM @TrRanges GROUP BY ScopeId,Name HAVING COUNT(*)<>1)
+                THROW 53903,N'TableClone: lokale TableReference oder Rangealias nicht eindeutig belegt.',19;
+            -- UPDATE/DELETE-Aliastargets binden an den FROM-Scope, niemals an eine gleichnamige permanente Tabelle.
+            UPDATE t SET LocalReference=CASE WHEN r.Alias=1 OR r.SourceId IS NULL THEN 1 ELSE 0 END,SourceId=r.SourceId FROM @TrReferences t JOIN @TrRanges r ON r.ScopeId=t.ScopeId AND r.Name=t.TableName
+                WHERE t.IsTarget=1 AND t.Parts=1 AND t.AliasName IS NULL;
+            UPDATE t SET SourceId=m.SourceId FROM @TrReferences t JOIN #tbx_TableClone_Map m ON m.SourceTable=t.TableName AND (t.SchemaName IS NULL OR m.SourceSchema=t.SchemaName)
+                WHERE t.IsTarget=1 AND t.LocalReference=0 AND EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d WHERE d.referencing_id=@TrId AND d.referenced_id=m.SourceId)
+                AND (SELECT COUNT(*) FROM #tbx_TableClone_Map mm WHERE mm.SourceTable=t.TableName AND (t.SchemaName IS NULL OR mm.SourceSchema=t.SchemaName)
+                    AND EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d WHERE d.referencing_id=@TrId AND d.referenced_id=mm.SourceId))=1;
+            IF EXISTS(SELECT 1 FROM @TrReferences WHERE LocalReference=0 AND SourceId IS NULL)
+                THROW 53903,N'TableClone: permanente Tabellenbindung fehlt oder liegt außerhalb der Map.',20;
+            INSERT @TrRanges SELECT NodeId,ScopeId,COALESCE(AliasName,TableName),SourceId,CASE WHEN AliasName IS NULL THEN 0 ELSE 1 END FROM @TrReferences t WHERE IsTarget=1
+                AND NOT EXISTS(SELECT 1 FROM @TrRanges r WHERE r.ScopeId=t.ScopeId AND (r.Name=COALESCE(t.AliasName,t.TableName) OR r.SourceId=t.SourceId));
+            -- Header-/Tabellenidentifier werden einzeln ersetzt; Punkt, Kommentare und Whitespace bleiben erhalten.
+            INSERT @TrEdits SELECT i.StartOffset,i.Length,CASE WHEN (SELECT COUNT(*) FROM @TrIds WHERE OwnerNode=@TrNameNode)=1 THEN QUOTENAME(@TargetSchema)+N'.'+QUOTENAME(@TrName)
+                WHEN i.Part=0 THEN QUOTENAME(@TargetSchema) ELSE QUOTENAME(@TrName) END FROM @TrIds i WHERE i.OwnerNode=@TrNameNode;
+            INSERT @TrEdits SELECT i.StartOffset,i.Length,CASE WHEN (SELECT COUNT(*) FROM @TrIds WHERE OwnerNode=@TrOnNode)=1 THEN QUOTENAME(@TargetSchema)+N'.'+QUOTENAME(@TargetTable)
+                WHEN i.Part=0 THEN QUOTENAME(@TargetSchema) ELSE QUOTENAME(@TargetTable) END FROM @TrIds i WHERE i.OwnerNode=@TrOnNode;
+            INSERT @TrEdits SELECT i.StartOffset,i.Length,CASE WHEN r.Parts=1 THEN QUOTENAME(m.TargetSchema)+N'.'+QUOTENAME(m.TargetTable) WHEN i.Part=0 THEN QUOTENAME(m.TargetSchema) ELSE QUOTENAME(m.TargetTable) END
+                FROM @TrReferences r JOIN #tbx_TableClone_Map m ON m.SourceId=r.SourceId JOIN @TrIds i ON i.OwnerNode=r.NameNode WHERE r.LocalReference=0;
+            -- Mehrteilige Spaltennamen benötigen eine konkrete nächste sichtbare Rangebindung.
+            DECLARE @TrColumnNode int,@TrColumnScope int,@TrColumnParts int,@TrQualifier nvarchar(128),@TrColumnSchema nvarchar(128),@TrBoundId int,@TrBoundAlias bit,@TrBindDistance int,@TrInOutput bit;
+            DECLARE ColumnQualifierCursor CURSOR LOCAL FAST_FORWARD FOR
+                SELECT n.NodeId,c.ScopeId,k.Parts,i.Value,s.Value,c.InOutput FROM #tbx_TableClone_AstNodes n
+                JOIN #tbx_TableClone_AstNodes p ON p.NodeId=n.ParentNodeId AND p.NodeType IN(N'ColumnReferenceExpression',N'SelectStarExpression')
+                CROSS APPLY(SELECT (SELECT COUNT(*) FROM @TrIds WHERE OwnerNode=n.NodeId)+CASE p.NodeType WHEN N'SelectStarExpression' THEN 1 ELSE 0 END Parts) k
+                JOIN @TrContext c ON c.NodeId=n.NodeId JOIN @TrIds i ON i.OwnerNode=n.NodeId AND i.Part=k.Parts-2
+                LEFT JOIN @TrIds s ON s.OwnerNode=n.NodeId AND s.Part=0 AND i.Part=1
+                WHERE n.NodeType=N'MultiPartIdentifier' AND k.Parts>1;
+            OPEN ColumnQualifierCursor;
+            FETCH NEXT FROM ColumnQualifierCursor INTO @TrColumnNode,@TrColumnScope,@TrColumnParts,@TrQualifier,@TrColumnSchema,@TrInOutput;
+            WHILE @@FETCH_STATUS=0
+            BEGIN
+                IF @TrInOutput=1 AND @TrColumnParts=2 AND @TrQualifier COLLATE DATABASE_DEFAULT IN(N'inserted',N'deleted')
+                BEGIN
+                    FETCH NEXT FROM ColumnQualifierCursor INTO @TrColumnNode,@TrColumnScope,@TrColumnParts,@TrQualifier,@TrColumnSchema,@TrInOutput;
+                    CONTINUE;
+                END;
+                SELECT @TrBoundId=NULL,@TrBoundAlias=NULL,@TrBindDistance=NULL;
+                SELECT @TrBindDistance=MIN(h.Distance) FROM @TrScopeChain h JOIN @TrRanges r ON r.ScopeId=h.VisibleScopeId LEFT JOIN #tbx_TableClone_Map m ON m.SourceId=r.SourceId
+                    WHERE h.ScopeId=@TrColumnScope AND ((@TrColumnParts=2 AND r.Name=@TrQualifier COLLATE DATABASE_DEFAULT)
+                        OR (@TrColumnParts=3 AND r.Alias=0 AND COALESCE(m.SourceSchema,OBJECT_SCHEMA_NAME(r.SourceId))=@TrColumnSchema COLLATE DATABASE_DEFAULT AND COALESCE(m.SourceTable,OBJECT_NAME(r.SourceId))=@TrQualifier COLLATE DATABASE_DEFAULT));
+                IF @TrColumnParts NOT IN(2,3) OR @TrBindDistance IS NULL
+                    OR (SELECT COUNT(*) FROM @TrScopeChain h JOIN @TrRanges r ON r.ScopeId=h.VisibleScopeId LEFT JOIN #tbx_TableClone_Map m ON m.SourceId=r.SourceId
+                        WHERE h.ScopeId=@TrColumnScope AND h.Distance=@TrBindDistance AND ((@TrColumnParts=2 AND r.Name=@TrQualifier COLLATE DATABASE_DEFAULT)
+                        OR (@TrColumnParts=3 AND r.Alias=0 AND COALESCE(m.SourceSchema,OBJECT_SCHEMA_NAME(r.SourceId))=@TrColumnSchema COLLATE DATABASE_DEFAULT AND COALESCE(m.SourceTable,OBJECT_NAME(r.SourceId))=@TrQualifier COLLATE DATABASE_DEFAULT)))<>1
+                    THROW 53903,N'TableClone: Spaltenqualifier ist extern, ungelöst oder mehrdeutig.',21;
+                SELECT @TrBoundId=r.SourceId,@TrBoundAlias=r.Alias FROM @TrScopeChain h JOIN @TrRanges r ON r.ScopeId=h.VisibleScopeId LEFT JOIN #tbx_TableClone_Map m ON m.SourceId=r.SourceId
+                    WHERE h.ScopeId=@TrColumnScope AND h.Distance=@TrBindDistance AND ((@TrColumnParts=2 AND r.Name=@TrQualifier COLLATE DATABASE_DEFAULT)
+                        OR (@TrColumnParts=3 AND r.Alias=0 AND COALESCE(m.SourceSchema,OBJECT_SCHEMA_NAME(r.SourceId))=@TrColumnSchema COLLATE DATABASE_DEFAULT AND COALESCE(m.SourceTable,OBJECT_NAME(r.SourceId))=@TrQualifier COLLATE DATABASE_DEFAULT));
+                IF @TrBoundId IS NOT NULL AND @TrBoundAlias=0
+                    INSERT @TrEdits SELECT i.StartOffset,i.Length,CASE WHEN @TrColumnParts=3 AND i.Part=0 THEN QUOTENAME(m.TargetSchema) ELSE QUOTENAME(m.TargetTable) END
+                        FROM @TrIds i JOIN #tbx_TableClone_Map m ON m.SourceId=@TrBoundId WHERE i.OwnerNode=@TrColumnNode AND i.Part<@TrColumnParts-1;
+                FETCH NEXT FROM ColumnQualifierCursor INTO @TrColumnNode,@TrColumnScope,@TrColumnParts,@TrQualifier,@TrColumnSchema,@TrInOutput;
+            END;
+            CLOSE ColumnQualifierCursor; DEALLOCATE ColumnQualifierCursor;
+            -- Nur Headerkeywords ändern; Kommentare zwischen CREATE/OR/ALTER bleiben unberührt.
+            IF (SELECT COUNT(*) FROM #tbx_TableClone_AstTokens WHERE StartOffset<(SELECT MIN(StartOffset) FROM @TrIds WHERE OwnerNode=@TrNameNode) AND TokenType NOT IN(N'WhiteSpace',N'SingleLineComment',N'MultilineComment') AND TokenType NOT IN(N'Create',N'Or',N'Alter',N'Trigger'))<>0
+                THROW 53903,N'TableClone: Triggerheader enthält unbekannte Lexeme.',17;
+            INSERT @TrEdits SELECT t.StartOffset,DATALENGTH(t.TokenText)/2,CASE WHEN t.TokenType=N'Alter' AND NOT EXISTS(SELECT 1 FROM #tbx_TableClone_AstTokens WHERE TokenType=N'Create' AND StartOffset<t.StartOffset) THEN N'CREATE' ELSE N'' END
+                FROM #tbx_TableClone_AstTokens t WHERE t.StartOffset<(SELECT MIN(StartOffset) FROM @TrIds WHERE OwnerNode=@TrNameNode) AND t.TokenType IN(N'Or',N'Alter');
+            IF EXISTS(SELECT 1 FROM @TrEdits a JOIN @TrEdits b ON a.StartOffset<b.StartOffset AND CONVERT(bigint,a.StartOffset)+a.Length>b.StartOffset)
+                THROW 53905,N'TableClone: überlappende Rewritefragmente.',5;
+            SET @TrRewritten=@TrDefinition;
+            DECLARE @TrOffset int,@TrLength int,@TrReplacement nvarchar(max);
+            DECLARE RewriteCursor CURSOR LOCAL FAST_FORWARD FOR SELECT StartOffset,Length,Replacement FROM @TrEdits ORDER BY StartOffset DESC;
+            OPEN RewriteCursor;
+            FETCH NEXT FROM RewriteCursor INTO @TrOffset,@TrLength,@TrReplacement;
+            WHILE @@FETCH_STATUS=0
+            BEGIN
+                SET @TrRewritten=STUFF(@TrRewritten COLLATE Latin1_General_100_BIN2,@TrOffset+1,@TrLength,@TrReplacement);
+                FETCH NEXT FROM RewriteCursor INTO @TrOffset,@TrLength,@TrReplacement;
+            END;
+            CLOSE RewriteCursor; DEALLOCATE RewriteCursor;
+            DELETE #tbx_TableClone_AstErrors;
+            EXEC sys.sp_executesql N'INSERT #tbx_TableClone_AstErrors SELECT * FROM toolbelt_tsql.TVF_ParseScriptErrors(@s,@v,@q,2097152,100);',N'@s nvarchar(max),@v int,@q bit',@TrRewritten,@TrVersion,@TrQi;
+            IF EXISTS(SELECT 1 FROM #tbx_TableClone_AstErrors) THROW 53905,N'TableClone: umgeschriebener Trigger enthält Parserfehler.',6;
+            IF (SELECT COUNT(*) FROM sys.trigger_events WHERE object_id=@TrId AND type_desc IN(N'INSERT',N'UPDATE',N'DELETE'))
+                <>(SELECT COUNT(*) FROM #tbx_TableClone_AstNodes n JOIN #tbx_TableClone_AstProperties p ON p.NodeId=n.NodeId AND p.PropertyName=N'TriggerActionType' WHERE n.ParentNodeId=@TrRoot AND n.NodeType=N'TriggerAction')
+                OR EXISTS(SELECT 1 FROM sys.trigger_events e WHERE e.object_id=@TrId AND NOT EXISTS
+                    (SELECT 1 FROM #tbx_TableClone_AstNodes n JOIN #tbx_TableClone_AstProperties p ON p.NodeId=n.NodeId AND p.PropertyName=N'TriggerActionType' AND p.PropertyKind=N'Enum'
+                     WHERE n.ParentNodeId=@TrRoot AND n.NodeType=N'TriggerAction' AND UPPER(p.PropertyValue) COLLATE DATABASE_DEFAULT=e.type_desc COLLATE DATABASE_DEFAULT))
+                THROW 53903,N'TableClone: AST- und Katalogereignisse stimmen nicht überein.',22;
+            -- Die feste Kapselung ist kein dynamisches SQL im Triggerbody und führt hier nichts aus.
+            SET @TrScript=CONVERT(nvarchar(max),N'SET ANSI_NULLS ')+CASE @TrAnsi WHEN 1 THEN N'ON' ELSE N'OFF' END+N';'+NCHAR(10)
+                +N'SET QUOTED_IDENTIFIER '+CASE @TrQi WHEN 1 THEN N'ON' ELSE N'OFF' END+N';'+NCHAR(10)
+                +N'EXEC sys.sp_executesql N'''+REPLACE(@TrRewritten,N'''',N'''''')+N''';';
+            SET @TrOrdinal=COALESCE((SELECT MAX(Ordinal) FROM #tbx_TableClone_Plan),0)+1;
+            INSERT #tbx_TableClone_Plan VALUES(@TrOrdinal,'TRIGGER',@TargetName,@TrScript);
+            IF @TrInstead=0
+                INSERT @TrStates SELECT @MapOrdinal,@TrOriginalName,@TargetName,CASE e.type_desc WHEN N'INSERT' THEN 1 WHEN N'UPDATE' THEN 2 ELSE 3 END,
+                    CONVERT(nvarchar(max),N'EXEC sys.sp_settriggerorder @triggername=N''')+REPLACE(@TargetName,N'''',N'''''')+N''',@order=N'''+CASE e.is_first WHEN 1 THEN N'First' ELSE N'Last' END+N''',@stmttype=N'''+e.type_desc+N''';'
+                    FROM sys.trigger_events e WHERE e.object_id=@TrId AND (e.is_first=1 OR e.is_last=1);
+            IF @TrDisabled=1 INSERT @TrStates VALUES(@MapOrdinal,@TrOriginalName,@TargetName,4,N'DISABLE TRIGGER '+@TargetName+N' ON '+QUOTENAME(@TargetSchema)+N'.'+QUOTENAME(@TargetTable)+N';');
+            IF (SELECT SUM(CONVERT(bigint,DATALENGTH(ScriptText))) FROM #tbx_TableClone_Plan)+(SELECT COALESCE(SUM(CONVERT(bigint,DATALENGTH(ScriptText))),0) FROM @TrStates)>2097152
+                THROW 53906,N'TableClone: Triggerwrapper und Zustände überschreiten die Scriptquote.',2;
+            FETCH NEXT FROM TriggerCursor INTO @MapOrdinal,@SourceId,@TargetSchemaId,@SourceSchema,@SourceTable,@TargetSchema,@TargetTable,@TrId,@TrOriginalName,@TrDisabled,@TrInstead,@TrNfr,@TrAnsi,@TrQi,@TrDefinition;
+        END;
+        CLOSE TriggerCursor; DEALLOCATE TriggerCursor;
+        SET @TrOrdinal=COALESCE((SELECT MAX(Ordinal) FROM #tbx_TableClone_Plan),0);
+        INSERT #tbx_TableClone_Plan SELECT @TrOrdinal+ROW_NUMBER() OVER(ORDER BY CASE WHEN EventOrdinal=4 THEN 1 ELSE 0 END,MapOrdinal,OriginalName,CONVERT(varbinary(256),OriginalName),EventOrdinal),
+            'TRIGGER_STATE',TargetName,ScriptText FROM @TrStates;
     END;
     IF EXISTS(SELECT 1 FROM #tbx_TableClone_Plan WHERE DATALENGTH(ScriptText)>2097152)
        OR (SELECT SUM(CONVERT(bigint,DATALENGTH(ScriptText))) FROM #tbx_TableClone_Plan)>2097152

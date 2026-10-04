@@ -1,4 +1,4 @@
-# Table Clone Executor / 3.1.0
+# Table Clone Executor / Hashlayout 1 / Modul 4.0.0
 
 Stand 2026-10-04, Codex. Die Funktion `USP_ExecuteTableClone` wurde am
 2026-10-01 einzeln freigegeben. Am 2026-10-04 bestätigte der Benutzer das
@@ -6,6 +6,12 @@ zusätzliche Servervollsicht-/DDL-Seiteneffektgate. Dieser Vertrag
 konkretisiert die Umsetzung im bestehenden Modul
 `toolbelt.metadata.table-clone`. Implementierung und unabhängige Sourceprüfung
 sind abgeschlossen; die begrenzten 3.1-Native-Nachweise sind unten abgegrenzt.
+Die3.1-Nachweise bleiben historisch; der neue4.0-Hash-/Planner-/Lifecyclepfad
+bestand den im [Triggervertrag](TABLE_CLONE_TRIGGER_CONTRACT.md) abgegrenzten
+lokalen Nachweis. Vollständige Produktqualifikation bleibt offen.
+In4.0 bleiben14Parameter und Hashlayout1 gleich,
+das gebundene Modulrelease wechselt auf4.0.0. IncludeTriggers wird nicht
+weitergereicht und bleibt im benannten Planneraufruf0.
 Historische Planner-V3-Nachweise
 qualifizieren den Executor nicht. RelatedReference bleibt `TC-2026-044`;
 keine neue Referenzfamilie oder Umdeutung historischer Entscheidungen.
@@ -147,7 +153,7 @@ Der Header verwendet folgende feste Reihenfolge:
 
 ```text
 H0 = SHA256(
-  F(N'Toolbelt.TableClone.Execute.Hash') || I32(1) || F(N'3.1.0') ||
+  F(N'Toolbelt.TableClone.Execute.Hash') || I32(1) || F(N'4.0.0') ||
   I32(InstallDB_ID) || F(InstallDB_NAME) ||
   Bit(IncludeIdentity) || Bit(IncludeExtendedProperties) || Bit(MapMode) ||
   F(ExternalReferenceRule als nvarchar) || F(ForeignKeyMode als nvarchar) ||
@@ -162,6 +168,8 @@ originalen validierten Identifier. MapMode=1 bindet die originalen Ordinals
 einschließlich Lücken. Namen werden nicht durch katalogkanonische Schreibweise
 ersetzt. InstallDB_ID/NAME kommen aus dem Installationskontext, auch bei
 zentralem dreiteiligem Aufruf. Tempnamen und Standardtail sind kein Hashinput.
+Das Releasefeld ist die Modulversionsbindung, keine getrennte
+Executorvertragsversion. Im historischen Modul3.1 war es entsprechend3.1.0.
 
 Für jede Planzeile, strikt aufsteigend nach positiver lückenloser Ordinal:
 

@@ -2,7 +2,7 @@
 
 -- ============================================================================
 -- Zweck:     Erst-, Upgrade- und Wiederholungsdeployment
--- Modul:     toolbelt.metadata.table-clone v3.1.0
+-- Modul:     toolbelt.metadata.table-clone v4.0.0
 -- Schema:    toolbelt_metadata
 -- Erfordert: SQL Server 2019, 2022 oder 2025
 -- Modus:     SQLCMD; Ausführung aus diesem Deployment-Verzeichnis
@@ -60,7 +60,10 @@ VALUES
     , (N'3.0.0', N'toolbelt_metadata', N'USP_ScriptTableClone', 'P')
     , (N'3.1.0', N'toolbelt_metadata', N'USP_ScriptTableCloneInternal', 'P')
     , (N'3.1.0', N'toolbelt_metadata', N'USP_ScriptTableClone', 'P')
-    , (N'3.1.0', N'toolbelt_metadata', N'USP_ExecuteTableClone', 'P');
+    , (N'3.1.0', N'toolbelt_metadata', N'USP_ExecuteTableClone', 'P')
+    , (N'4.0.0', N'toolbelt_metadata', N'USP_ScriptTableCloneInternal', 'P')
+    , (N'4.0.0', N'toolbelt_metadata', N'USP_ScriptTableClone', 'P')
+    , (N'4.0.0', N'toolbelt_metadata', N'USP_ExecuteTableClone', 'P');
 
 CREATE TABLE #tbx_TableCloneDeployState
 (
@@ -71,7 +74,7 @@ CREATE TABLE #tbx_TableCloneDeployState
 );
 
 DECLARE
-      @TargetVersion        nvarchar(64) = N'3.1.0'
+      @TargetVersion        nvarchar(64) = N'4.0.0'
     , @DeploymentMode       nvarchar(16) = LOWER(N'$(DeploymentMode)')
     , @InstalledVersion     nvarchar(max)
     , @VersionPropertyName  sysname =
@@ -121,7 +124,7 @@ END;
 
     -- Known-Release-Identität wird vor Mutation und unter AppLock erneut gelesen.
     IF @InstalledVersion IS NOT NULL AND
-       (DATALENGTH(@InstalledVersion)<>10 OR CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'2.0.0'),CONVERT(varbinary(max),N'3.0.0'),CONVERT(varbinary(max),N'3.1.0')))
+       (DATALENGTH(@InstalledVersion)<>10 OR CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'2.0.0'),CONVERT(varbinary(max),N'3.0.0'),CONVERT(varbinary(max),N'3.1.0'),CONVERT(varbinary(max),N'4.0.0')))
         THROW 53923,N'TableClone: unbekannter Versionsmarker.',1;
     IF @InstalledVersion IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0
        AND name=N'Toolbelt.Module.toolbelt.metadata.table-clone.DeploymentMode' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value)) IN(CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central')))
@@ -305,7 +308,7 @@ IF @ResultTableId IS NULL OR @DependencyMajor IS NULL OR @DependencyMajor<1
 
     -- Known-Release-Identität wird vor Mutation und unter AppLock erneut gelesen.
     IF @InstalledVersion IS NOT NULL AND
-       (DATALENGTH(@InstalledVersion)<>10 OR CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'2.0.0'),CONVERT(varbinary(max),N'3.0.0'),CONVERT(varbinary(max),N'3.1.0')))
+       (DATALENGTH(@InstalledVersion)<>10 OR CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'2.0.0'),CONVERT(varbinary(max),N'3.0.0'),CONVERT(varbinary(max),N'3.1.0'),CONVERT(varbinary(max),N'4.0.0')))
         THROW 53923,N'TableClone: unbekannter Versionsmarker.',1;
     IF @InstalledVersion IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0
        AND name=N'Toolbelt.Module.toolbelt.metadata.table-clone.DeploymentMode' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value)) IN(CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central')))

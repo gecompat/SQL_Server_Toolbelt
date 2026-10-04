@@ -60,15 +60,15 @@ BEGIN
     RETURN;
 END;
 
-IF CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'2.0.0'),CONVERT(varbinary(max),N'3.0.0'),CONVERT(varbinary(max),N'3.1.0'))
+IF CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'2.0.0'),CONVERT(varbinary(max),N'3.0.0'),CONVERT(varbinary(max),N'3.1.0'),CONVERT(varbinary(max),N'4.0.0'))
 BEGIN
     THROW 53923, N'Die installierte Modulversion ist diesem Uninstall-Skript nicht bekannt.', 1;
 END;
 
--- Alte Releases besitzen exakt zwei P-Slots; niemals einen fremden Zukunftsslot adoptieren.
+-- Releases vor 3.1 besitzen zwei P-Slots; ab 3.1 gehört der Executor zum bekannten Release.
 DECLARE @InstalledObjects TABLE(Name sysname NOT NULL PRIMARY KEY);
 INSERT @InstalledObjects VALUES(N'USP_ScriptTableClone'),(N'USP_ScriptTableCloneInternal');
-IF CONVERT(varbinary(max),@InstalledVersion)=CONVERT(varbinary(max),N'3.1.0')
+IF CONVERT(varbinary(max),@InstalledVersion) IN(CONVERT(varbinary(max),N'3.1.0'),CONVERT(varbinary(max),N'4.0.0'))
     INSERT @InstalledObjects VALUES(N'USP_ExecuteTableClone');
 ELSE IF OBJECT_ID(N'toolbelt_metadata.USP_ExecuteTableClone') IS NOT NULL
     THROW 53923,N'TableClone: Executor-Slot gehört nicht zum registrierten Vorgängerrelease.',1;
@@ -158,7 +158,7 @@ BEGIN TRY
         THROW 53927, N'Der installierte Modulstand hat sich seit dem Uninstall-Preflight verändert.', 1;
     END;
 
-    IF CONVERT(varbinary(max),@InstalledVersion)<>CONVERT(varbinary(max),N'3.1.0') AND OBJECT_ID(N'toolbelt_metadata.USP_ExecuteTableClone') IS NOT NULL
+    IF CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'3.1.0'),CONVERT(varbinary(max),N'4.0.0')) AND OBJECT_ID(N'toolbelt_metadata.USP_ExecuteTableClone') IS NOT NULL
         THROW 53923,N'TableClone: fremder Executor-Slot seit Preflight.',1;
     IF EXISTS(SELECT 1 FROM @InstalledObjects r
        LEFT JOIN sys.objects o ON o.schema_id=SCHEMA_ID(N'toolbelt_metadata') AND o.name=r.Name COLLATE DATABASE_DEFAULT
@@ -184,7 +184,7 @@ BEGIN TRY
         , ObjectName    sysname            NOT NULL
     );
 
-    IF CONVERT(varbinary(max),@InstalledVersion)=CONVERT(varbinary(max),N'3.1.0')
+    IF CONVERT(varbinary(max),@InstalledVersion) IN(CONVERT(varbinary(max),N'3.1.0'),CONVERT(varbinary(max),N'4.0.0'))
         INSERT INTO @ReleaseObjects (ObjectName) VALUES(N'USP_ExecuteTableClone');
     INSERT INTO @ReleaseObjects (ObjectName)
     VALUES(N'USP_ScriptTableClone'),(N'USP_ScriptTableCloneInternal');
