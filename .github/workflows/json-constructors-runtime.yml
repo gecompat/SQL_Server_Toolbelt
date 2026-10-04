@@ -56,8 +56,16 @@ jobs:
         run: |
           $module='Modules/toolbelt.json.constructors'
           . "$module/Scripts/Invoke-OwnedProcess.ps1"
-          $build=Join-Path ${env:ProgramFiles} 'Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin/MSBuild.exe'
-          if(-not(Test-Path -LiteralPath $build -PathType Leaf)){throw 'JSON_CI_MSBUILD_UNAVAILABLE'}
+          $locator=Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+          if(-not(Test-Path -LiteralPath $locator -PathType Leaf)){throw 'JSON_CI_LOCATOR_UNAVAILABLE'}
+          $located=Invoke-OwnedProcess -FileName $locator -Arguments @('-latest','-products','*','-requires','Microsoft.Component.MSBuild','-find','MSBuild\Current\Bin\MSBuild.exe') -TimeoutMilliseconds 10000
+          if($located.ExitCode -ne 0 -or -not $located.CaptureComplete -or $located.Stderr.Length -ne 0){throw 'JSON_CI_LOCATOR_FAILED'}
+          $paths=@($located.Stdout -split '\r?\n' | Where-Object {-not [string]::IsNullOrWhiteSpace($_)})
+          if($paths.Count -ne 1 -or -not [IO.Path]::IsPathFullyQualified($paths[0])){throw 'JSON_CI_MSBUILD_UNAVAILABLE'}
+          $build=[IO.Path]::GetFullPath($paths[0])
+          $compiler=Join-Path (Split-Path -Parent $build) 'Roslyn/csc.exe'
+          if(-not(Test-Path -LiteralPath $build -PathType Leaf) -or -not(Test-Path -LiteralPath $compiler -PathType Leaf)){throw 'JSON_CI_MSBUILD_UNAVAILABLE'}
+          "TBX_JSON_CSC=$compiler" | Out-File -LiteralPath $env:GITHUB_ENV -Encoding utf8 -Append
           $result=Invoke-OwnedProcess -FileName $build -Arguments @("$module/Clr/Toolbelt.JsonConstructors.csproj",'/t:Rebuild','/p:Configuration=Release','/p:Platform=AnyCPU','/m:1','/nologo','/nr:false','/noAutoResponse') -TimeoutMilliseconds 45000
           if($result.ExitCode -ne 0 -or -not $result.CaptureComplete){throw 'JSON_CI_BUILD_FAILED'}
           & "$module/Scripts/New-ClrReleaseArtifacts.ps1" -AssemblyPath "$module/Clr/bin/Release/Toolbelt.JsonConstructors.dll" -OutputDirectory '.runtime/json-clr'
@@ -66,7 +74,8 @@ jobs:
       - name: Bounded Framework and IL contracts
         shell: pwsh
         run: |
-          $vs=Join-Path ${env:ProgramFiles} 'Microsoft Visual Studio/2022/Enterprise/MSBuild/Current/Bin/Roslyn/csc.exe'
+          $vs=$env:TBX_JSON_CSC
+          if([string]::IsNullOrWhiteSpace($vs) -or -not [IO.Path]::IsPathFullyQualified($vs) -or -not(Test-Path -LiteralPath $vs -PathType Leaf)){throw 'JSON_CI_COMPILER_UNAVAILABLE'}
           $refs=Join-Path ${env:ProgramFiles(x86)} 'Reference Assemblies/Microsoft/Framework/.NETFramework/v4.8'
           $framework=Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
           ./Modules/toolbelt.json.constructors/Tests/Framework/Invoke-Framework.ps1 -AssemblyPath '.runtime/json-clr/Toolbelt.JsonConstructors.dll' -CompilerPath $vs -ReferenceDirectory $refs -FrameworkPowerShell $framework -OutputDirectory '.runtime/json-framework'
