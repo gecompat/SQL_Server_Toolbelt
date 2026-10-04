@@ -112,12 +112,7 @@ expect_failure() {
 }
 local_database="tbx_table_clone_local"
 create_database "${local_database}" "Latin1_General_100_CS_AS"
-# Begrenzte temporäre Diagnose der sqlcmd-Include-Batchgrenze, nur SQL Server 2022.
-initial_deploy_echo=()
-if [[ "${sql_version}" == "2022" ]]; then
-    initial_deploy_echo=(-e)
-fi
-run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local "${initial_deploy_echo[@]}"
+run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
 expect_failure 50000 run_file "${local_database}" "${runtime_directory}" Lifecycle.CallerTransaction.Deploy.sql -v DeploymentMode=local
 expect_failure 50000 run_file "${local_database}" "${runtime_directory}" Lifecycle.CallerTransaction.Uninstall.sql -v ConfirmNoExternalConsumers=0
 for compatibility_level in ${compatibility_levels}; do
