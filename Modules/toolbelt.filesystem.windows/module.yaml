@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "partially validated: CLR-Build, Trust, Deployment, Help, SQL-Authentication-Ablehnung sowie kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit WorkPath sind validiert; Windows-Caller-, NTFS- und weitere I/O-Tests bleiben offen."
+  windows: "partially validated: Build, Trust, Deployment, Help und ein ausgewählter Windows-Caller-/NTFS-/ServiceAccount-Lauf sind belegt; weitere Codepage-, Limit-, Reparse-, direkte CLR- und Race-Nachweise bleiben offen."
   linux: "not applicable: SQL Server on Linux does not support EXTERNAL_ACCESS SQL CLR assemblies."
 providers:
   - id: clr-windows-filesystem
@@ -117,4 +117,8 @@ validation_evidence:
   - date: "2026-10-04"
     workflow: "Private native Zwei-Fall-Caller-Authentifizierungsprobe"
     scope: "SQL Server 2025/CU8 Windows; Windows-Caller schreibt drei synthetische Bytes, SQL-Authentication mit 51540/1 vor I/O abgewiesen. Eigene DB/Root/Trustbereinigung und frische Prüfung; keine Konfigurations-/Rechte-/Owneränderungen. Alle neun direkten EntryPoints, NTFS-Matrix, ServiceAccount-Regression und Races bleiben offen."
+    result: "success"
+  - date: "2026-10-04"
+    workflow: "Privater ausgewählter Windows-Caller-/NTFS-Lauf"
+    scope: "SQL Server 2025/CU8 Windows; 16 Pflichtfälle erfolgreich: neun öffentliche Prozeduren, Windows-/SQL-Authentifizierung, Caller-/ServiceAccount-NTFS-Verweigerungen, Binary-/UTF-8-/UTF-16-LE-I/O, NoOverwrite/Overwrite und Bereinigung nach Schreib-/Encodingfehlern. Zusätzlicher Race-Fall NOT_OBSERVED. Drei eigene Fixture-ACLs und ein Readonly-Attribut zurückgesetzt; eigene DB/Root/Trustbereinigung und separate frische Prüfung bestanden. Keine Konfigurations-, SQL-Rechte- oder Owneränderungen. Keine direkte CLR-/vollständige Matrix-/ZIP-Dateizugriffsqualifikation."
     result: "success"
