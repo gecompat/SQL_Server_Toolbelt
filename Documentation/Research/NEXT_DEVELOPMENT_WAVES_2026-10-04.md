@@ -30,6 +30,13 @@ wurden ausdrücklich angenommen. Die spätere dynamische Parallelitätskorrektur
 ersetzt ausschließlich die vorgeschlagene feste Acht-Slot-Obergrenze.
 Konkrete APIs, Provider und zusätzliche Grenzen unten bleiben neue Vorschläge.
 
+Nachtrag 2026-10-04, Codex: Der Benutzer bestätigte den ausdrücklich aktivierten
+verwalteten Betrieb einschließlich Ablehnung direkter unverwalteter
+USP_ClaimWork-Aufrufe mit „ja, freigegeben“. Der claimfreie Übergang und das
+unveränderte Verhalten vor Aktivierung gehören zur gestellten und bestätigten
+Frage. Diese konkrete Grenze ist damit freigegeben und nicht erneut abzufragen.
+Die übrigen neuen API-/Providerdetails werden dadurch nicht pauschal genehmigt.
+
 ## Queue-Worker 2
 
 ### Bestätigte Anforderungen
@@ -38,7 +45,21 @@ Der [erste Worker](../Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md) bleibt
 der ausführende Provider. Work Types, Claimgenerationen, Lease, Retry,
 Cancellation und atomarer Handler-/Complete-Abschluss werden wiederverwendet.
 Kein Raw SQL, Hostscript, KILL, neues beliebiges Handlerresultset oder externer
-Seiteneffekt. Agent/Broker und Dienst-/Jobinstallation werden nicht implementiert.
+Seiteneffekt. Agent/Broker, SSIS und Dienst-/Jobinstallation werden nicht implementiert.
+
+### Spätere SSIS-Erweiterung – ausdrücklich außerhalb dieser Welle
+
+Benutzerauftrag 2026-10-04: SSIS-Workerpakete sollen später Queue-Aufträge
+übernehmen können, die T-SQL ausführen oder andere SSIS-Pakete mit expliziten
+Parametern starten. Das erweitert die Ausführungsrichtung von SQL Server auf
+SQL Server und SSIS, nicht den aktuellen Handlervertrag.
+SSIS als Worker-Provider und SSIS-Pakete als zugelassene Auftragstypen sind
+getrennte künftige Verträge. Gemeinsamer Admission-/Statuskern bleibt wiederverwendbar;
+providerbezogene Start-/Abschluss-/Cancellation-/Recoveryadapter sind separat.
+Ein Paketstart ist kein nachgewiesener Paketabschluss. Die bisherige atomare
+SQL-Handler-/Complete-Transaktion wird nicht pauschal auf Paketläufe oder
+externe Seiteneffekte übertragen. Keine SSIS-Source, Installation, Paket-
+Registrierung oder Ausführungsfreigabe in der aktuellen Welle.
 
 Gesamtbudget pro Installations-/Queue-Datenbank; alle Supervisoren und spätere
 Provider teilen es. Erhöhung erlaubt neue Starts, Reduktion lässt aktive Arbeit
@@ -108,12 +129,14 @@ Ein Slot zählt ab Admission bis zum nachgewiesenen Ende bzw. zur ausdrücklich
 geprüften Recovery, einschließlich unbekannter Ausgänge. Budgetsenkung darf
 OccupiedSlots vorübergehend über dem neuen Budget lassen, aber nie neue Starts.
 
-Empfehlung: Opt-in für verwalteten Betrieb. Solange er nicht aktiviert ist,
+Einzeln freigegeben am2026-10-04: Opt-in für verwalteten Betrieb. Solange er nicht aktiviert ist,
 bleibt der alte direkte USP_ClaimWork-Vertrag bestehen. Aktivierung verlangt
 einen nachgewiesen claimfreien Übergang; danach lehnt direkter unverwalteter
 Claim ab. Andernfalls wäre die globale Garantie umgehbar. Deaktivierung nur
 ohne belegte Reservierungen/Claims; keine automatische Rückkehr zum alten Pfad.
-Dies ist eine zusätzliche öffentliche Queue-/Upgradegrenze und separat freizugeben.
+Diese zusätzliche öffentliche Queue-/Upgradegrenze ist damit bestätigt;
+die technische Ausarbeitung bleibt an die übrigen konkreten API-/Ownership-
+und Recoveryverträge gebunden. Keine rückwirkende Änderung des laufenden Systems.
 
 Ausfall/Leaseablauf allein beweist nicht Handlerende. Keine automatische
 Slotfreigabe aufgrund Registrierungs- oder WorkItem-Leaseablaufs; UNKNOWN zählt
@@ -335,8 +358,9 @@ Integration bleiben eigene Vertragswellen, kein „später still einschalten“.
 
 ## Noch zu entscheiden und nächster Schritt
 
-1. Queue: konkrete neue Steuerungs-/Claim-APIs einschließlich Managed-Opt-in,
-   Legacy-Claim-Gate, Versionsvergleich und15/60-Sekunden-Registrierungstiming.
+1. Queue: konkrete neue Steuerungs-/Claim-APIs, Versionsvergleich und
+   15/60-Sekunden-Registrierungstiming. Managed-Opt-in und Legacy-Claim-Gate
+   sind seit dem Nachtrag einzeln bestätigt und nicht erneut abzufragen.
    Recoverybeweis/-API separat konkretisieren, bevor Recovery implementiert wird.
 2. CSV: eigene SAFE-Assembly, genau zwei USPs, markierte Headerzeilen und die
    vorgeschlagenen Größen-/Zellenobergrenzen.
