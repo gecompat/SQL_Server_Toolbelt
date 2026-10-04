@@ -89,6 +89,7 @@ sources_of_truth:
   json_constructors_runtime_workflow: .github/workflows/json-constructors-runtime.yml
   table_clone_module: Modules/toolbelt.metadata.table-clone/module.yaml
   table_clone_module_design: Documentation/Architecture/TABLE_CLONE_PROPOSAL.md
+  table_clone_wave2_contract: Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md
   table_clone_runtime_workflow: .github/workflows/table-clone-runtime.yml
   deterministic_module: Modules/toolbelt.pseudonymization.deterministic/module.yaml
   deterministic_runtime_workflow: .github/workflows/deterministic-runtime.yml
@@ -105,6 +106,8 @@ sources_of_truth:
   zip_clr_provider_design: Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md
   zip_memory_runtime_workflow: .github/workflows/zip-memory-runtime.yml
   zip_memory_module: Modules/toolbelt.archive.zip-memory/module.yaml
+  zip_files_module: Modules/toolbelt.archive.zip-files/module.yaml
+  zip_files_contract: Documentation/Architecture/ZIP_FILES_CONTRACT.md
   xlsx_memory_module: Modules/toolbelt.file.xlsx-memory/module.yaml
   xlsx_reader_proposal: Documentation/Architecture/XLSX_READER_PROPOSAL.md
   xlsx_cell_type_contract: Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md
@@ -319,6 +322,7 @@ module_registry:
     - Modules/toolbelt.core.event-log/module.yaml
     - Modules/toolbelt.file.content/module.yaml
     - Modules/toolbelt.archive.zip-memory/module.yaml
+    - Modules/toolbelt.archive.zip-files/module.yaml
     - Modules/toolbelt.file.xlsx-memory/module.yaml
     - Modules/toolbelt.filesystem.windows/module.yaml
     - Modules/toolbelt.tsql.script-parser/module.yaml
@@ -693,6 +697,7 @@ change_impact:
         - Modules/toolbelt.metadata.table-clone/**
         - Documentation/Architecture/TABLE_CLONE_PROPOSAL.md
         - Documentation/Architecture/TABLE_CLONE_WAVE1_CONTRACT.md
+        - Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md
         - Documentation/Standards/USP_CONTRACT.md
         - Tests/CI/run-table-clone-linux.sh
         - Tests/CI/run-table-clone-wave1-lab.ps1
@@ -793,6 +798,17 @@ change_impact:
         - Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md
       checks:
         - markdown_links
+    zip_files_contract:
+      entrypoints:
+        - Modules/toolbelt.archive.zip-files/Tests/Static/validate_contract.py
+      paths:
+        - Modules/toolbelt.archive.zip-files/**
+        - Documentation/Architecture/ZIP_FILES_CONTRACT.md
+        - Documentation/Standards/SQL_OBJECT_NAMING.md
+        - Documentation/Standards/USP_CONTRACT.md
+      checks:
+        - markdown_links
+        - generated_status
     windows_filesystem_contract:
       entrypoints:
         - Modules/toolbelt.filesystem.windows/Tests/Framework/Invoke-NoOverwrite.ps1

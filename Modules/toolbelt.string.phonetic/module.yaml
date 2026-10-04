@@ -2,7 +2,7 @@ module_id: "toolbelt.string.phonetic"
 module_name: "Bounded Cologne Phonetic and Double Metaphone"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "not executed"
+validation_status: "partially validated"
 release_status: unreleased
 description: "Vollständige begrenzte Phonetikscanner mit geschlossenem Alphabet und eigener SAFE-CLR-Assembly."
 sql_server_versions:
@@ -11,13 +11,13 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "not executed"
-  linux: "not executed"
+  windows: "partially validated"
+  linux: "partially validated"
 providers:
   - id: safe-clr-phonetic
     technology: "C#; markierter Apache Commons Codec 1.18.0 Scanner-Port"
     platforms: [Windows, Linux]
-    status: "not executed"
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: true
@@ -96,4 +96,8 @@ tests:
   metadata: "Tests/Runtime/InstalledMetadata.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   github_hosted: "../../.github/workflows/phonetic-runtime.yml"
-validation_evidence: []
+validation_evidence:
+  - date: "2026-10-04"
+    workflow: "Begrenzte private Offline-/Nativeadapter mit unabhängiger physischer Prozess- und Bereinigungsprüfung"
+    scope: "Am 2026-10-04 bestanden Build, Frameworkprüfungen mit jeweils 223 Assertions unter en-US/de-DE/tr-TR und die eigene IL-/Metadatenprüfung (keine unbekannten eigenen IL-Aufrufe). Begrenzte private Labadapter bestanden auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170. Je Ziel: vier Fixtures einmal lokal, acht echte Clientreader je local/central sowie zwei lokale Größenwitnesses; Clean/Repeat, resolved Consumer-Ablehnungen, zentrale Bestätigung und Uninstall/Repeat mit frischer eigener Bereinigung. Keine Konfigurations-, Rechte- oder Owneränderungen. Java-Differential, unresolved Consumer, weitere Ziele/CL, tatsächliche Minimalrechte, vollständige Lifecyclematrix und aktuelle Head-CI bleiben offen. Teilweise validiert und unveröffentlicht; kein vollständiger Produkt-PASS."
+    result: "success"

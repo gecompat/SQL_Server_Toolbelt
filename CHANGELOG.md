@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 2026-10-04 – Phonetik 1.0.0 (unreleased, noch nicht ausgeführt)
+## 2026-10-04 – Phonetik 1.0.0 (unreleased, begrenzte Teilnachweise)
 
 - Zwei einzeln freigegebene IF-Fassaden und zwei interne FT auf eigener SAFE-Assembly.
 - Geschlossene Alphabete, feste inhärente Transformation, UTF16-/Quotenpriorität
@@ -8,8 +8,26 @@
 - Markierte Apache-1.18.0-Portierung mit Headern und modullokaler LICENSE/NOTICE.
 - Explizite installierte SHA2-512-Erwartung, kohärente Owner/Slotmarker,
   zweipassiger AppLock-Lifecycle; Trust bleibt getrennt.
-- Gezielte Prüfquellen vorbereitet. Build/Framework/Differential/SQL/CI sind offen.
+- Build, Framework (223 Assertions je drei Kulturen), eigene IL und begrenzte
+  native Teilnachweise auf Linux2019/latest CL150 und Windows2025/exakt CU8
+  CL170 bestanden. Vier lokale Fixtures und 18 Clientreader je Ziel sowie
+  local/central Lifecycle mit frischer Bereinigung; keine Konfigurations-,
+  Rechte- oder Owneränderungen. Java-Differential, vollständige Qualifikation
+  und aktuelle Head-CI bleiben offen; teilweise validiert, unveröffentlicht.
 
+
+## 2026-10-04 – ZIP-Dateifassaden 1.0.0, begrenzte Teilnachweise
+
+- Zwei einzeln freigegebene lokale Windows-USPs verwenden statisch bestehende
+  ZIP-Writer-/Reader- und Filesystemverträge; keine neue Assembly/Providerlogik.
+- Vollständige Payloadvorbereitung vor Dateipublikation, TX-Abweisung und
+  eigene späte SQL-ResultTable-Transaktion; keine SQL-/Dateisystematomarität.
+- Drei konkrete Brücken-Temps als eng genehmigte Namingausnahme; kein Corefix.
+- Lifecycle, Help, Manifest und fünf synthetische Runtime-Fixtures vorhanden;
+  elf frühere und zwei gezielte AppLock-Fallnachweise auf Windows2025/CU8 CL170
+  local bei identischen Produktbytes; kein gemeinsamer 13-Fälle-Erfolgslauf.
+  Eigene Bereinigung frisch geprüft. Vollständige Qualifikation und aktuelle
+  Head-CI separat offen; teilweise validiert, unveröffentlicht.
 
 ## 2026-10-04 – Gemeinsamer SAFE-JSON-Kern und Aggregate 1.2.0
 
@@ -612,6 +630,11 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-37 Module sind implementiert. 20 sind `validated`, 16 sind `partially validated`; 1 ist `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+38 Module sind implementiert. 20 sind `validated`, 18 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
+
+## 2026-10-04 – Table Clone W2 / V3 Source
+
+- Vorhandene öffentliche/interne Prozedur mit TableMap an7 und ExternalReferenceRule an8; Standardtail9..12. Gemeinsamer W1-Renderer, Map-Snapshot, globale Reihenfolge, FK-Umleitung/KEEP, begrenzte Flags und FK-EP-Failclosed. Kein Execute-Wrapper, Provider oder Rechteänderung.
+- Separate64Maps/1024Columns/128Indexes, exakt2048Childobjekte-plus-FK-Spaltentupel und globale2MiB. Begrenzte lokale W2-Native-/Upgrade-/Lifecycle-Nachweise auf Linux2019/latest CL150 und Windows2025/exakt CU8 CL170 bestanden mit frischer eigener Bereinigung. Linux-Fixtures sind wiederverwendeter Teilnachweis eines historischen Fehllaufs; Windows-Fixtures bestanden im aktuellen Clean3. Unresolved nicht etabliert, vollständige Qualifikation und aktuelle Head-CI offen; historische W1-Evidenz bleibt getrennt.

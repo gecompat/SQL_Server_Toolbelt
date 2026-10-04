@@ -1,8 +1,8 @@
 # toolbelt.string.phonetic
 
-Version 1.0.0, unreleased. Der Source ist implementiert; Build, Framework-,
-Differential-, IL-/SQL-, Client-, Lifecycle- und CI-Qualifikation sind noch nicht
-ausgeführt. Es gibt keinen Produkt-PASS.
+Version 1.0.0, unreleased und teilweise validiert. Begrenzte Build-/Framework-/IL- und native Installations-, Fixture-, Client- und Lifecycleteilnachweise liegen vor. Java-Differential, vollständige Zielmatrix, Minimalrechte und aktuelle Head-CI bleiben offen; teilweise validiert und unveröffentlicht.
+Die [Testdokumentation](Tests/README.md) trennt Offline- und private native
+Teilnachweise von der noch offenen vollständigen Qualifikation.
 
 Zwei öffentliche inline TVFs verwenden eine eigene SAFE-Assembly:
 [TVF_ColognePhonetic](Documentation/TVF_ColognePhonetic.md) und
@@ -21,8 +21,9 @@ enthalten die genauen Alphabete, Transformationen und Prioritäten.
 
 ## Installation und Abhängigkeiten
 
-Windows/Linux, SQL Server 2019/2022/2025 sind Zielplattformen, noch keine
-Laufzeitnachweise. Keine Abhängigkeit von der Distanz-/Jaro-Assembly.
+Ausgewählte Laufzeitnachweise liegen für Linux2019/latest CL150 und
+Windows2025/exakt CU8 CL170 vor; die übrige Zielmatrix bleibt offen.
+Keine Abhängigkeit von der Distanz-/Jaro-Assembly.
 
 1. Das neue Binary getrennt offline qualifizieren und seine vollständigen Bytes
    sowie SHA2-512 binden. Build-only ist keine Qualifikation.
@@ -50,3 +51,11 @@ Kandidatenkonsum benutzen den vorhandenen bounded Prozesshelfer. Die
 Eingabequote ist 4096 rohe UTF16-Einheiten; transformiert maximal 8192,
 Code maximal 16384 je Seite/32768 zusammen. Keine Kürzung, keine optionalen
 Normalisierungen, keine Heap-/CPU-/Wallclock-/Produktionskapazitätszusage.
+## Aktuelle Validierungsevidenz
+
+<!-- BEGIN GENERATED:MODULE_EVIDENCE -->
+- Datum: `2026-10-04`
+- Nachweis: `Begrenzte private Offline-/Nativeadapter mit unabhängiger physischer Prozess- und Bereinigungsprüfung`
+- Scope: Am 2026-10-04 bestanden Build, Frameworkprüfungen mit jeweils 223 Assertions unter en-US/de-DE/tr-TR und die eigene IL-/Metadatenprüfung (keine unbekannten eigenen IL-Aufrufe). Begrenzte private Labadapter bestanden auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170. Je Ziel: vier Fixtures einmal lokal, acht echte Clientreader je local/central sowie zwei lokale Größenwitnesses; Clean/Repeat, resolved Consumer-Ablehnungen, zentrale Bestätigung und Uninstall/Repeat mit frischer eigener Bereinigung. Keine Konfigurations-, Rechte- oder Owneränderungen. Java-Differential, unresolved Consumer, weitere Ziele/CL, tatsächliche Minimalrechte, vollständige Lifecyclematrix und aktuelle Head-CI bleiben offen. Teilweise validiert und unveröffentlicht; kein vollständiger Produkt-PASS.
+- Ergebnis: `success`
+<!-- END GENERATED:MODULE_EVIDENCE -->

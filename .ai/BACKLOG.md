@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-37 Module sind implementiert. 20 sind `validated`, 16 sind `partially validated`; 1 ist `not executed`.
+38 Module sind implementiert. 20 sind `validated`, 18 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -340,7 +340,7 @@ danach die beiden sprachbezogenen Phonetikverfahren:
   rückfragen. Standardprojektgates, unabhängiger Review, scopebezogene
   Lab-Tests, grüne CI und PR-Merge gelten unverändert.
 
-Status Phonetik 2026-10-04: Die individuelle Provider-/TVF-/Alphabet-/Fullcode-/Grenzfreigabe vom 2026-10-03 wurde nach unabhängigem Referenz-/Lizenz-/Bindingreview in den kanonischen [Phonetikvertrag](../Documentation/Architecture/PHONETIC_CONTRACT.md) übernommen. Genau zwei öffentliche IF und zwei interne FT verwenden die eigene SAFE-Assembly in toolbelt.string.phonetic 1.0.0; kein Vierzeichen-Clamp, kein Aspell-Bulkimport und keine neue Normalisierungsoption. Source ist implementiert, unreleased; Build, Framework/Differential, IL-/SQL-/Lifecycle-/Clientnachweise und CI sind noch nicht ausgeführt. Die historischen Distanzfreigaben und deren Nachweise bleiben getrennt.
+Status Phonetik 2026-10-04: Die individuelle Provider-/TVF-/Alphabet-/Fullcode-/Grenzfreigabe vom 2026-10-03 wurde nach unabhängigem Referenz-/Lizenz-/Bindingreview in den kanonischen [Phonetikvertrag](../Documentation/Architecture/PHONETIC_CONTRACT.md) übernommen. Genau zwei öffentliche IF und zwei interne FT verwenden die eigene SAFE-Assembly in toolbelt.string.phonetic 1.0.0; kein Vierzeichen-Clamp, kein Aspell-Bulkimport und keine neue Normalisierungsoption. Begrenzte Build-/Framework-/IL- und native Installations-, Fixture-, Client- und Lifecycleteilnachweise liegen vor. Java-Differential, vollständige Zielmatrix, Minimalrechte und aktuelle Head-CI bleiben offen; teilweise validiert und unveröffentlicht. Die [Testevidenz](../Modules/toolbelt.string.phonetic/Tests/README.md) trennt private Lab- und öffentliche Offline-CI-Scope. Die historischen Distanzfreigaben und deren Nachweise bleiben getrennt.
 
 Ergänzende konkrete Providerfreigabe 2026-10-02: Auf die Frage nach dem
 besprochenen dedizierten portablen SAFE-CLR-Provider für Levenshtein und OSA
@@ -619,7 +619,7 @@ Datenkopie oder beliebige weitere Objektklassen.
   integrieren. Erweiterungen in getrennten überprüfbaren Wellen mit synthetischen
   Strukturoracles, scopebezogenen Lab-Tests und grünen PR-Merges integrieren.
 
-Status Welle1: `implemented`, `partially validated`, `unreleased`; Welle2 bleibt getrennt und nicht implementiert.
+Historischer W1-Stand: `implemented`, `partially validated`, `unreleased`; Welle2 war zu diesem Zeitpunkt getrennt und nicht implementiert. Der aktuelle W2-Stand folgt im datierten V3-Absatz.
 
 Änderungsvermerk 2026-10-02 — Codex: Die zusätzliche Benutzerantwort
 „Tabellenkopf Welle1 Ja“ bestätigt für Welle 1 `@IncludeExtendedProperties`
@@ -653,6 +653,20 @@ freigegeben; keine pauschale Freigabe weiterer Backlogthemen.
 Status: `ready for development`; noch keine Implementierungs-/Runtime-Evidenz.
 
 #### ZIP-Datei-I/O: zwei Windows-Fassaden
+
+Umsetzung 2026-10-04: [toolbelt.archive.zip-files 1.0.0](../Modules/toolbelt.archive.zip-files/README.md)
+implementiert ausschließlich diese zwei freigegebenen T-SQL-Fassaden.
+[Vertrag](../Documentation/Architecture/ZIP_FILES_CONTRACT.md), Signaturen,
+ResultTable-Brücken und neue technische Fehler 54620–54624 sind gekoppelt.
+Genau drei feste Brücken-Temps wurden für den bestehenden ResultTable-
+Interoperabilitätskonflikt ausdrücklich genehmigt; keine Core-/Provideränderung.
+Begrenzte native Teilnachweise auf Windows2025/CU8 CL170 local: elf frühere
+erfolgreiche Fälle und zwei gezielt erfolgreiche AppLock-Aliasfälle mit identischen
+Produktbytes; kein gemeinsamer 13-Fälle-Erfolgslauf. Eigene Bereinigung frisch geprüft.
+Vollständige NTFS-/Rechte-/Race-/Zielmatrix- und aktuelle Head-CI-Qualifikation offen;
+partially validated, unveröffentlicht.
+Die übrigen Reservefunktionen in diesem Abschnitt bleiben getrennt.
+
 
 - `USP_CreateZipFileFromEntries`: bestehender Entries-#Temp-/Writervertrag,
   dann kontrolliertes Schreiben des vollständigen Archiv-Binary.
@@ -723,6 +737,8 @@ Status: `ready for development`; noch keine Implementierungs-/Runtime-Evidenz.
   oder Re-Identifikationsschutzbehauptung, keine realen Daten als Testartefakte.
 
 #### USP_ScriptTableClone
+
+Stand2026-10-04, Codex: Die am2026-10-03 konkret bestätigte W2-Erweiterung umfasst Map-/FK-Planung, PositionsbruchV3 und failclosed FK-EP-/Stategrenzen. [Kanonischer V3-Vertrag](../Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md). W2 implementiert, teilweise validiert und unveröffentlicht. Begrenzte lokale Linux2019/latest CL150-/Windows2025/exakt CU8 CL170-Lifecycle-/Upgrade-/resolved-Consumer-Nachweise samt frischer Bereinigung bestanden. Linux-Fixtures werden nur als Teilnachweis eines historischen insgesamt fehlgeschlagenen Laufs wiederverwendet; Windows vier Fixtures einmal im aktuellen Clean3. Unresolved NOT_ESTABLISHED, vollständige Qualifikation und aktuelle Head-CI offen. Die folgenden ursprünglichen V0-Grenzen bleiben historischer Ausgangsscope, keine neue W2-FK-Ablehnung.
 
 - Script-only-Planer für explizite Quell-/Ziel-Schema-/Tabellennamen in
   derselben Datenbank, reguläre diskbasierte Tabellen. Keine DDL-Ausführung,

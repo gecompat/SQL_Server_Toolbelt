@@ -240,6 +240,18 @@ Dauerhafte Entscheidungen werden mit stabiler ID dokumentiert. Historische Entsc
 | Alternativen | Generische Namen wie `#Temp`, `#Result` und zufällige Namen ohne fachliche Zuordnung wurden verworfen. |
 | Betroffene Verträge | `SQL_OBJECT_NAMING.md`, `TSQL_ENGINEERING.md`, `RESULT_TABLE_MODULE_DESIGN.md` |
 
+### Ergänzung vom 2026-10-04: ZIP-ResultTable-Brücken
+
+| Feld | Wert |
+|---|---|
+| Status | accepted; technische Codex-Entscheidung innerhalb des bereits einzeln freigegebenen Zwei-Fassaden-Scopes |
+| Entscheidung | Ausschließlich `USP_CreateZipFileFromEntries` und `USP_ExtractZipEntryToFile` dürfen `#ZipFiles_CreateStage`, `#ZipFiles_ExtractStage` und `#ZipFiles_WriteStage` als eigene feste ResultTable-Brücken verwenden. Andere interne lokale Temps behalten `#tbx_`. |
+| Begründung | Der vorhandene ResultTable-1.0-Vertrag lehnt Zielnamen mit `#tbx_` ab. Die begrenzte Ausnahme ermöglicht statische Aufrufe der bestehenden Provider ohne Coreänderung oder dynamisch verdeckte SQL-Dependencies. |
+| Scope | Genau die drei Brücken der beiden Windows-local-Fassaden in `toolbelt.archive.zip-files` 1.0.0. Die ursprüngliche Entscheidung bleibt für alle übrigen internen Temps bestehen. |
+| Auswirkungen | Vor CREATE werden alle drei Namen auf Kollision geprüft; Callerinput und Calleroutput dürfen sie nicht referenzieren. Keine Adoption oder Löschung fremder Temps; eigene Temps enden mit dem Procedure-Scope. Diese Entscheidung liefert keinen Runtime- oder Qualifikationsnachweis. |
+| Alternativen | Eine allgemeine Namensfreigabe, Änderung des Corevertrags und dynamische Provideraufrufe werden nicht eingeführt. |
+| Betroffene Verträge | [ZIP_FILES_CONTRACT.md](ZIP_FILES_CONTRACT.md), `SQL_OBJECT_NAMING.md`, `USP_CONTRACT.md`, `toolbelt.archive.zip-files` |
+
 ## DEC-2026-018: Persönlicher Brainstorm als erhaltener Research-Input
 
 | Feld | Wert |
@@ -485,3 +497,11 @@ bleibt ein separater Release-Nachweis.
 | Auswirkungen | Bestehende öffentliche USP-Signaturen und globale Budgets bleiben erhalten. Assemblytrust erfordert ein separates exaktes Hash-Opt-in; unbekannte oder inkohärente Zustände blockieren. Keine automatische Rechtevergabe oder Ownerreparatur. Teilnachweise ergeben keine vollständige Produkt- oder Releasequalifikation. |
 | Alternativen | Getrennte SQL-/CLR-Parser, ungeprüfte Binaryadoption und automatische Owner-/Rechtereparatur sind ausgeschlossen. |
 | Betroffene Verträge | `JSON_CLR_MIGRATION_CONTRACT.md`, `JSON_GROUP_CONSTRUCTORS_CONTRACT.md`, `KNOWN_CLR_ARTIFACTS.json`, `.ai/BACKLOG.md`, `toolbelt.json.constructors` |
+
+## Datierter Entscheidungsstand 2026-10-04: V3 Map-/FK-Vorschau
+
+RelatedReference: `TC-2026-044`. Datierte Revision der bestehenden funktionsbezogenen Entscheidung; keine neue Referenzfamilie oder finale Sequenz-ID.
+
+Einzeln freigegebene Map-/FK-Erweiterung der vorhandenen Script-only-Prozedur; Benutzerentscheidung2026-10-03 zu Positionsbruch sowie FK-Property-/Zustandsgrenzen. [Vertrag](TABLE_CLONE_WAVE2_CONTRACT.md). Exakte2048Countdefinition und getrennte1024/128/64/2MiB-Grenzen dort; keine Provider-/Rights-/Execute-API. Neue Native-/CI-Qualifikation offen.
+
+Status: accepted; Sourceimplementierung, neue Runtime-/CI-Qualifikation offen. Alternative eigenständiger MultiTable-Wrapper oder SMO/CLR verworfen: duplizierter W1-Kern beziehungsweise zusätzlicher Provider. Auswirkungen: dokumentierter Positionsbruch; W1 benannte Aufrufe fachlich unverändert, keine Ownership-/DDL-Ausführung.

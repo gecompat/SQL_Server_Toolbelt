@@ -4,8 +4,8 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. 37 Module sind implementiert;
-20 sind `validated`, 16 sind `partially validated`, 1 ist `not executed`. Für alle existieren
+Der Repository-Grundaufbau ist abgeschlossen. 38 Module sind implementiert;
+20 sind `validated`, 18 sind `partially validated`, 0 sind `not executed`. Für alle existieren
 statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte.
 
 Die ResultTable-Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 mit
@@ -71,6 +71,7 @@ Text-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall erfolgreich.
 |---|---|---|
 | `toolbelt.string.text-pairs` | [TEXT_PAIRS_TEST_MATRIX.md](../Modules/toolbelt.string.text-pairs/Tests/TEXT_PAIRS_TEST_MATRIX.md) | `partially validated`; fünf Fixtures lokal auf Linux 2019 und Windows 2025/CU8 sowie zentraler Windows-Client-/ResultTable-/Uninstall-Bestätigungsnachweis; Minimalrechte, weitere Lifecycle-Negativfälle und Ziele offen |
 | `toolbelt.file.xlsx-memory` | [XLSX_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md) | `partially validated`; finale Linux-2019-/Windows-2025-Adapter einschließlich SAFE, local/central, Clientmetadaten, atomarer ResultTable und Lifecycle erfolgreich; große Ceiling-, minimale Rechte- und übrige Zielmatrix offen |
+| `toolbelt.archive.zip-files` | [ZIP_FILES_TEST_MATRIX.md](../Modules/toolbelt.archive.zip-files/Tests/ZIP_FILES_TEST_MATRIX.md) | `partially validated`; elf frühere und zwei gezielte AppLock-Fallnachweise auf Windows2025/CU8 CL170 local, kein gemeinsamer 13-Fälle-Erfolgslauf; vollständige Qualifikation offen |
 | `toolbelt.archive.zip-memory` | [ZIP_MEMORY_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md) | `partially validated`; automatisierte Windows-/Linux-Matrix 2019/2022/2025 erfolgreich; reale Archive, Extremgrößen, historische Upgrades und Interoperabilität offen |
 | `toolbelt.core.event-log` | [EVENT_LOG_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.event-log/Tests/EVENT_LOG_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Rollback-, uncommittable-, Context-, Retention- und Concurrency-Verträgen |
 | `toolbelt.core.error-envelope` | [ERROR_ENVELOPE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.error-envelope/Tests/ERROR_ENVELOPE_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 |
@@ -87,7 +88,7 @@ Text-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall erfolgreich.
 | `toolbelt.metadata.identifier` | [IDENTIFIER_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.metadata.identifier/Tests/IDENTIFIER_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 |
 | `toolbelt.string.split-characters` | [SPLIT_CHARACTERS_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.string.split-characters/Tests/SPLIT_CHARACTERS_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 |
 | `toolbelt.string.split-advanced` | [SPLIT_ADVANCED_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.string.split-advanced/Tests/SPLIT_ADVANCED_CONTRACT_TEST_MATRIX.md) | `partially validated`; risikobasiert 2019 Linux und 2025 Linux/Windows, andere Zielkombinationen nicht ausgeführt |
-| `toolbelt.string.phonetic` | [PHONETIC_TEST_MATRIX.md](../Modules/toolbelt.string.phonetic/Tests/PHONETIC_TEST_MATRIX.md) | `not executed`; gezielte Source-/Framework-/SQL-Prüfquellen vorbereitet, kein Build-/Runtime-/CI-PASS |
+| `toolbelt.string.phonetic` | [PHONETIC_TEST_MATRIX.md](../Modules/toolbelt.string.phonetic/Tests/PHONETIC_TEST_MATRIX.md) | `partially validated`; begrenzte Build-/Framework-/IL- und private Native-Nachweise auf Linux2019/latest CL150 und Windows2025/exakt CU8 CL170; Java-Differential, weitere Ziele und Minimalrechte offen |
 | `toolbelt.string.edit-distance` | [EDIT_DISTANCE_TEST_MATRIX.md](../Modules/toolbelt.string.edit-distance/Tests/EDIT_DISTANCE_TEST_MATRIX.md) | `partially validated`; neue 1.1-Offline Matrix/Framework/Releasebuilds/IL und private native Gesamtadapter auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 lokal/zentral samt SC-UTF8 und unabhängigem Cleanup bestanden; tatsächliche Minimalrechte, Heap und weitere physische Ziele offen |
 | `toolbelt.string.regex` | [REGEX_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.string.regex/Tests/REGEX_CONTRACT_TEST_MATRIX.md) | `partially validated`; R2b 1.2.0 auf 2019 Linux CL150 und 2025 Windows/CU8 CL150/160/170 erfolgreich; historische R1b-/R2a-Nachweise getrennt, weitere R2b-Ziele offen |
 | `toolbelt.validation.semantic-version` | [SEMANTIC_VERSION_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.validation.semantic-version/Tests/SEMANTIC_VERSION_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 |

@@ -9,8 +9,10 @@ Double-Metaphone-Codes und die eigene portable SAFE-Assembly. Die technische
 Referenz-, Lizenz-, Binding- und Grenzprüfung wurde vor Source unabhängig
 abgeschlossen. Sie präzisiert die freigegebenen Verträge; sie erlaubt keine
 weiteren öffentlichen Funktionen. Dieses Vor-Source-Gate ist geschlossen.
-Build, Referenzdifferential, CLR-/SQL-Transport, Lifecycle und CI sind davon
-getrennte, noch nicht ausgeführte Prüfungen.
+Build, Framework, eigene IL und begrenzter CLR-/SQL-/Lifecycle-Scope sind
+unabhängig nachgewiesen. Java-Referenzdifferential, vollständige Qualifikation
+und aktuelle Head-CI bleiben offen; siehe die
+[Testevidenz](../../Modules/toolbelt.string.phonetic/Tests/README.md).
 
 `toolbelt.string.phonetic` 1.0.0 besitzt ausschließlich zwei öffentliche
 Inline-TVFs und zwei interne CLR-TVFs. Es erweitert keine Distanzassembly.

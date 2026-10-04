@@ -55,6 +55,21 @@ Regeln:
 
 Diese Regel gilt nur für interne lokale Temp-Objekte.
 
+### Eng begrenzte ZIP-Dateifassaden-Ausnahme
+
+Technische Codex-Entscheidung vom 2026-10-04 innerhalb des bereits
+freigegebenen Zwei-Fassaden-Scopes: ausschließlich diese zwei Fassaden
+dürfen #ZipFiles_CreateStage, #ZipFiles_ExtractStage und #ZipFiles_WriteStage
+als eigene feste Brücken-Zieltemps der bestehenden ResultTable-1.0-USPs
+verwenden, weil diese Zielnamen mit #tbx_ ablehnen. Vor CREATE alle drei
+Objekt-IDs auf Kollision prüfen; keine Adoption oder Löschung fremder Temps.
+EntryTable/Caller-ResultTable dürfen diese Namen nicht referenzieren.
+Automatisches Cleanup nur im eigenen Scope. Statische Dependency-Aufrufe
+und Corevertrag unverändert; andere interne Temps bleiben #tbx_.
+Keine allgemeine Namensfreigabe:
+[ZIP_FILES_CONTRACT](../Architecture/ZIP_FILES_CONTRACT.md).
+
+
 ## Persistente Tabellen, Constraints und Indizes
 
 Persistente Tabellen verwenden im fachlichen `toolbelt_<category>`-Schema einen verständlichen singulären `CamelCase`-Namen ohne Typpräfix.

@@ -1,17 +1,17 @@
 # USP_ScriptTableClone
 
-Version2.0.0, Welle1 einzeln freigegeben2026-10-01/02; Script-only same-database.
+Version3.0.0, Welle2 FK/Multitable einzeln freigegeben2026-10-03; Script-only same-database.
 Signatur: `SourceSchema nvarchar(max)=NULL`, `SourceTable nvarchar(max)=NULL`,
 `TargetSchema nvarchar(max)=NULL`, `TargetTable nvarchar(max)=NULL`,
-`IncludeIdentity bit=0`, `IncludeExtendedProperties bit=0`, `ResultTable sysname=NULL`, `KeepData bit=0`,
-`Debug tinyint=0`, `Hilfe bit=0`. Alle Identifier fachlich erforderlich;
+`IncludeIdentity bit=0`, `IncludeExtendedProperties bit=0`, `TableMap sysname=NULL`, `ExternalReferenceRule varchar(16)='REJECT'`, `ResultTable sysname=NULL`, `KeepData bit=0`,
+`Debug tinyint=0`, `Hilfe bit=0`. Im W1-Einzelmodus sind alle vier Identifier erforderlich; im Mapmodus sind sie NULL;
 einzelne Namen, keine Multipartinterpretation, nicht trimmen,1–128 UTF16Units,
 NUL verboten. nvarchar(max) vermeidet stille Parametertrunkierung.
 Beide Include-Parameter NULL ungültig; Standard-NULLs entsprechen0. Hilfe1 umgeht alles.
 
 Ergebnis: Ordinal int, ObjectKind varchar(32), TargetName nvarchar(776),
 ScriptText nvarchar(max), alle NOT NULL. Text BIN2, ObjectKind SESSION_OPTION/EXTENDED_PROPERTY/TABLE/DEFAULT/
-CHECK/PRIMARY_KEY/UNIQUE_CONSTRAINT/INDEX. Ordinal1-basiert lückenlos;
+CHECK/PRIMARY_KEY/UNIQUE_CONSTRAINT/INDEX/FOREIGN_KEY/FOREIGN_KEY_STATE. Ordinal1-basiert lückenlos;
 Sieben SESSION_OPTION-Zeilen zuerst, TABLE anOrdinal8, Defaults, Checks, clustered Schlüssel/Index, übrige Indizes.
 ResultTable-Tabelle hat keine garantierte physische Reihenfolge.
 
@@ -34,10 +34,10 @@ Unsupported führt zu53903 ohne Teilausgabe: temporär/external/system/memory/
 FileTable/temporal/ledger/graph/replication/CDC; sparse/columnset/rowguid/
 FILESTREAM/generated/hidden/masked/encrypted/typedXML/rules; CLR/alias/legacy
 text/ntext/image-Typen/gebundene Defaults/ANSI_PADDING OFF;
-FK einschließlich eingehender und Trigger; relevante Properties bei IncludeExtendedProperties0;
+im W1-Einzelmodus FK einschließlich eingehender, immer Trigger; relevante Properties bei IncludeExtendedProperties0;
 clustered-gefilterte/disabled/hypothetical/OPTIMIZE_FOR_SEQUENTIAL_KEY=ON/partitionierte/compressed/fulltext/XML/spatial/
 columnstore Indizes, untrusted/disabled/not-for-replication Checks/Identity.
-Kein Rechte-/Ownership-/Trigger-/FK-Klon; Toolbelt.-Properties werden immer abgelehnt. Berechtigungen bleiben bewusst
+Kein Rechte-/Ownership-/Trigger-Klon; FK nur im begrenzten W2-Mapmodus; Toolbelt.-Properties werden immer abgelehnt. Berechtigungen bleiben bewusst
 außerhalb dieser strukturellen Vorschau; Metadatensichtbarkeit ersetzt keine
 spätere DDL-/Funktions-/Dateigruppenberechtigung des ausführenden Callers.
 
@@ -57,7 +57,7 @@ fertige Planbytes; optional Dependency/Outputpreflight/Write.
 53908 Namespace (caller-belegte interne Tabelle oder reserviertes ResultTable-Prefix,
 auch in Großschreibung; vor Kernkompilierung geprüft). Enginefehler bleiben unverändert.
 Keine realen Werte im Fehlertext.
-Limits1024Spalten/128Indexmetadatenzeilen/2048Kindobjekte/2MiB Scripttext,
+Limits1024Spalten/128Indexmetadaten je Tabelle, Map64, global2048Kindobjekte-plus-FK-Spaltentupel/2MiB Scripttext,
 vor LOB-Materialisierung Definitionsbytes prüfen; keine RAM/Wallclockgarantie.
 
 Quelle strukturell stabil halten. Vorschau ist Momentaufnahme; keine spätere
@@ -108,3 +108,7 @@ W1-Runtime und Propertyroundtrips: ausgewählter öffentlicher Scope bestanden. 
 ## Finaler öffentlicher W1-Nachweis 2026-10-03
 
 Am 2026-10-03 bestanden die finalen öffentlichen Adapter auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Vier Runtime-Fixtures einschließlich 27 Propertytypen und separater 18-datetimeoffset-Produktpfadregression, Client-/Lifecycle-/Caller-TX-/SET-/AppLock-/Rollback-/Kollisions-/Dependency-/Atomikorakel sowie genuine 1.0-Upgrades und eigene Bereinigung sind qualifiziert. Inputs und Genuine-Blobs sind hashgebunden; tatsächlicher Exit, vollständige Kanäle, exakt gebundenes Journal und frischer Cleanup-Audit wurden zusammen geprüft. Keine Konfigurations-, Rechte-, Trust- oder Infrastrukturänderungen. Der Zähler32 ist nur der Visibility-Teilbereich. CI am geprüften PR-Head 76888216 bestanden: alle sieben Checks SUCCESS einschließlich SQL Server 2019/2022/2025 Linux. Tatsächliche Minimalrechte mit eigenem Principal und weitere physische Ziele bleiben NOT_EXECUTED. Teilweise validiert und unveröffentlicht.
+
+## W2-Map-/FK-Vertrag
+
+[Verbindliche V3-Details](../../../Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md): Position7 TableMap,8 ExternalReferenceRule,9..12 Standardtail. Genau fünf Mapspalten, Snapshot, REJECT/KEEP, globale Phasen, begrenzte FK-States und strikte FK-EP-Ablehnung. W1-Ordnung TABLE8 gilt nur im Einzelmodus; Mapmodus stellt alle TABLEs vor Constraints. Begrenzte V3-Native- und historische Fixture-Teilnachweise stehen getrennt in der Testdokumentation; aktuelle Head-CI und vollständige Produktqualifikation bleiben offen.

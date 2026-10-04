@@ -20,4 +20,5 @@ liefern ausschließlich NULL-Codes; technische Fehler bleiben Exceptions.
 
 [Vertrag](../../../Documentation/Architecture/PHONETIC_CONTRACT.md),
 [Modul](../README.md), [Matrix](../Tests/PHONETIC_TEST_MATRIX.md).
-Build/Runtime/Minimalrechte/Client/CI sind noch nicht ausgeführt.
+Begrenzte Build-/Runtime-/Clientnachweise liegen vor; Minimalrechte, vollständige
+Qualifikation und aktuelle Head-CI bleiben offen. Siehe [Testevidenz](../Tests/README.md).

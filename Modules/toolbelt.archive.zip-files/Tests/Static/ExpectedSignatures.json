@@ -1,0 +1,151 @@
+{
+  "USP_CreateZipFileFromEntries": [
+    {
+      "name": "@EntryTable",
+      "type": "sysname",
+      "default": "NULL"
+    },
+    {
+      "name": "@RootAlias",
+      "type": "sysname",
+      "default": "NULL"
+    },
+    {
+      "name": "@RelativePath",
+      "type": "nvarchar(4000)",
+      "default": "NULL"
+    },
+    {
+      "name": "@CompressionMethod",
+      "type": "varchar(max)",
+      "default": "'Stored'"
+    },
+    {
+      "name": "@MaxEntries",
+      "type": "int",
+      "default": "256"
+    },
+    {
+      "name": "@MaxEntryNameCodeUnits",
+      "type": "int",
+      "default": "1024"
+    },
+    {
+      "name": "@MaxEntryBytes",
+      "type": "bigint",
+      "default": "16777216"
+    },
+    {
+      "name": "@MaxTotalPayloadBytes",
+      "type": "bigint",
+      "default": "67108864"
+    },
+    {
+      "name": "@MaxArchiveBytes",
+      "type": "bigint",
+      "default": "71303168"
+    },
+    {
+      "name": "@MaxEnvelopeBytes",
+      "type": "bigint",
+      "default": "71303168"
+    },
+    {
+      "name": "@WriterBudgetMilliseconds",
+      "type": "int",
+      "default": "30000"
+    },
+    {
+      "name": "@Overwrite",
+      "type": "bit",
+      "default": "0"
+    },
+    {
+      "name": "@ExecutionIdentity",
+      "type": "varchar(16)",
+      "default": "'Caller'"
+    },
+    {
+      "name": "@ResultTable",
+      "type": "sysname",
+      "default": "NULL"
+    },
+    {
+      "name": "@KeepData",
+      "type": "bit",
+      "default": "0"
+    },
+    {
+      "name": "@Debug",
+      "type": "tinyint",
+      "default": "0"
+    },
+    {
+      "name": "@Hilfe",
+      "type": "bit",
+      "default": "0"
+    }
+  ],
+  "USP_ExtractZipEntryToFile": [
+    {
+      "name": "@ZipArchive",
+      "type": "varbinary(max)",
+      "default": "NULL"
+    },
+    {
+      "name": "@EntryName",
+      "type": "nvarchar(1024)",
+      "default": "NULL"
+    },
+    {
+      "name": "@RootAlias",
+      "type": "sysname",
+      "default": "NULL"
+    },
+    {
+      "name": "@RelativePath",
+      "type": "nvarchar(4000)",
+      "default": "NULL"
+    },
+    {
+      "name": "@MaxEntryBytes",
+      "type": "bigint",
+      "default": "104857600"
+    },
+    {
+      "name": "@MaxCompressionRatio",
+      "type": "decimal(9,2)",
+      "default": "200.00"
+    },
+    {
+      "name": "@Overwrite",
+      "type": "bit",
+      "default": "0"
+    },
+    {
+      "name": "@ExecutionIdentity",
+      "type": "varchar(16)",
+      "default": "'Caller'"
+    },
+    {
+      "name": "@ResultTable",
+      "type": "sysname",
+      "default": "NULL"
+    },
+    {
+      "name": "@KeepData",
+      "type": "bit",
+      "default": "0"
+    },
+    {
+      "name": "@Debug",
+      "type": "tinyint",
+      "default": "0"
+    },
+    {
+      "name": "@Hilfe",
+      "type": "bit",
+      "default": "0"
+    }
+  ]
+}
