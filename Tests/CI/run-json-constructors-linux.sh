@@ -99,7 +99,11 @@ create_database() {
 }
 
 
-deployment_directory="/workspace/Modules/toolbelt.json.constructors/Deployment"
+# Ausschließlich das Windows-built, exakt bekannte Artefakt; kein Mono-/SDK-Fallback.
+[[ -f .runtime/json-clr/Deploy.sql && -f .runtime/json-clr/Uninstall.sql ]] || { echo "KNOWN_JSON_ARTIFACT_REQUIRED" >&2; exit 65; }
+deployment_directory="/workspace/.runtime/json-clr"
+run_query master "EXEC sys.sp_configure N'clr enabled',1; RECONFIGURE;"
+run_query master "IF NOT EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr strict security' AND value_in_use=1) THROW 53622,N'CLR strict security required.',1; IF NOT EXISTS(SELECT 1 FROM sys.trusted_assemblies WHERE hash=0xFF266A2FC46EB4101D87BC046AEF63197B985C8CCBAEA40F372E9918D1254C44F1F2CF8CED7942383625D28E2E1AF5BF6164FA8A16B3DD5A16DF5957FAA34276) EXEC sys.sp_add_trusted_assembly @hash=0xFF266A2FC46EB4101D87BC046AEF63197B985C8CCBAEA40F372E9918D1254C44F1F2CF8CED7942383625D28E2E1AF5BF6164FA8A16B3DD5A16DF5957FAA34276,@description=N'Synthetic known JSON CI artifact';"
 runtime_directory="/workspace/Modules/toolbelt.json.constructors/Tests/Runtime"
 expect_failure() {
     local expected_number="$1"
@@ -121,15 +125,20 @@ run_uninstall_metadata_injection() {
         -S localhost -U sa -P "${sa_password}" -C -b -d "${database_name}"
 from pathlib import Path
 import sys
-source = Path('Modules/toolbelt.json.constructors/Deployment/Uninstall.sql').read_text(encoding='utf-8')
+source = Path('.runtime/json-clr/Uninstall.sql').read_text(encoding='utf-8')
 expressions = {
     'view': "HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'VIEW DEFINITION')",
     'select': "HAS_PERMS_BY_NAME(N'sys.sql_expression_dependencies',N'OBJECT',N'SELECT')",
 }
 expression = expressions[sys.argv[1]]
 value = sys.argv[2]
-assert value in ('0', 'NULL') and source.count(expression) == 1
-source = source.replace(expression, f'CASE WHEN @Pass=1 THEN {value} ELSE {expression} END')
+predicate = ("  IF COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'VIEW DEFINITION'),0)<>1\n"
+             "   OR COALESCE(HAS_PERMS_BY_NAME(N'sys.sql_expression_dependencies',N'OBJECT',N'SELECT'),0)<>1\n"
+             "   THROW 53622,N'JSON lifecycle: erforderliche Metadatenrechte für Uninstall fehlen.',1;")
+assert value in ('0', 'NULL') and source.count(predicate) == 1
+assert predicate.count(expression) == 1
+injected_predicate = predicate.replace(expression, f'CASE WHEN @Pass=1 THEN {value} ELSE {expression} END')
+source = source.replace(predicate, injected_predicate)
 source = source.replace('$(ConfirmNoExternalConsumers)', '0')
 assert '$(' not in source
 print(source)
@@ -175,7 +184,7 @@ run_file "${consumer_database}" "${runtime_directory}" Central.Contract.sql -v T
 for db in "${local_database}" "${central_database}"; do
   for level in ${compatibility_levels}; do
     run_query "${db}" "ALTER DATABASE [${db}] SET COMPATIBILITY_LEVEL=${level};"
-    for test in JsonConstructors.Contract.sql Collation.Contract.sql JsonGroups.Contract.sql JsonGroups.Boundaries.sql InstalledMetadata.Contract.sql; do
+    for test in JsonConstructors.Contract.sql Collation.Contract.sql JsonGroups.Contract.sql JsonGroups.Boundaries.sql InstalledMetadata.Contract.sql JsonAggregates.Contract.sql JsonEntryBridge.Contract.sql; do
       run_file "${db}" "${runtime_directory}" "${test}"
     done
   done

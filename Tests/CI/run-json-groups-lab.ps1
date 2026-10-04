@@ -12,6 +12,9 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $module=Join-Path $repo 'Modules/toolbelt.json.constructors'
+if([IO.File]::ReadAllText((Join-Path $module 'module.yaml')) -match '(?m)^version: "1\.2\.0"$'){
+    throw 'JSON_CLR_NATIVE_ADAPTER_REVIEW_REQUIRED'
+}
 $legacy=(Resolve-Path -LiteralPath $LegacyDirectory).Path
 
 # Ausschließlich geprüfte Funktionen importieren; keine Top-level-Mutatoren.

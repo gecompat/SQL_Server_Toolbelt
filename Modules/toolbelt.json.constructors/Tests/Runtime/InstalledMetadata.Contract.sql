@@ -2,7 +2,7 @@
 SET NOCOUNT ON;
 DECLARE @version nvarchar(64);
 SELECT @version=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.constructors.Version';
-IF CONVERT(varbinary(max),@version)<>CONVERT(varbinary(max),N'1.1.0') OR @version IS NULL THROW 53690,N'JSON1.1 module marker incorrect.',1;
+IF CONVERT(varbinary(max),@version)<>CONVERT(varbinary(max),N'1.2.0') OR @version IS NULL THROW 53690,N'JSON1.2 module marker incorrect.',1;
 DECLARE @apis TABLE(Name sysname);
 INSERT @apis VALUES(N'USP_JsonArray'),(N'USP_JsonObject'),(N'USP_JsonArraysByGroup'),(N'USP_JsonObjectsByGroup');
 DECLARE @params TABLE(Ordinal int,Name sysname,TypeId int,Length int);
@@ -16,5 +16,13 @@ IF (SELECT COUNT(*) FROM sys.parameters WHERE object_id=OBJECT_ID(N'toolbelt_jso
  OR NOT EXISTS(SELECT 1 FROM sys.parameters WHERE object_id=OBJECT_ID(N'toolbelt_json.USP_JsonConstructInternal') AND parameter_id=6 AND name=N'@GroupMode' AND system_type_id=104)
  THROW 53690,N'JSON internal GroupMode ordinal incorrect.',1;
 IF (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_json') AND name IN(N'USP_JsonArray',N'USP_JsonObject',N'USP_JsonArraysByGroup',N'USP_JsonObjectsByGroup',N'USP_JsonConstructInternal') AND type='P')<>5
- THROW 53690,N'JSON five-slot inventory incorrect.',1;
+ THROW 53690,N'JSON five-procedure inventory incorrect.',1;
+IF OBJECT_ID(N'toolbelt_json.FT_JsonEntryEvaluateInternal',N'FT') IS NULL
+ OR OBJECT_ID(N'toolbelt_json.AGF_JsonArray',N'AF') IS NULL OR OBJECT_ID(N'toolbelt_json.AGF_JsonObject',N'AF') IS NULL
+ OR (SELECT COUNT(*) FROM sys.assembly_modules WHERE object_id IN(OBJECT_ID(N'toolbelt_json.FT_JsonEntryEvaluateInternal'),
+ OBJECT_ID(N'toolbelt_json.AGF_JsonArray'),OBJECT_ID(N'toolbelt_json.AGF_JsonObject')))<>3
+ OR NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1
+ WHERE CONVERT(varbinary(max),a.name)=CONVERT(varbinary(max),N'Toolbelt_JsonConstructors') AND a.permission_set=1
+ AND HASHBYTES(N'SHA2_512',f.content)=0xFF266A2FC46EB4101D87BC046AEF63197B985C8CCBAEA40F372E9918D1254C44F1F2CF8CED7942383625D28E2E1AF5BF6164FA8A16B3DD5A16DF5957FAA34276)
+ THROW 53690,N'JSON exact known SAFE binary and CLR inventory incorrect.',6;
 GO

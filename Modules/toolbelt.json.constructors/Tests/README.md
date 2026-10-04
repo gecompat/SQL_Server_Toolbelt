@@ -1,5 +1,74 @@
 # Testausführung
 
+Die 1.2-Sourcewelle ergänzt `JsonEntryBridge.Contract.sql` und `JsonAggregates.Contract.sql`. Ein separat geprüfter privater CLR-Nativeadapter bestand am 2026-10-03 lokal auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/CU8 CL170 jeweils alle acht kanonischen Fixtures einschließlich Bridge, AGFs, Constructors und Gruppen-Grenzen. Eigene Bereinigung und frische Abwesenheitsprüfung bestanden; keine Serverkonfigurations-, Rechte- oder Owneränderung. Das ist keine vollständige Lifecycle-/Central-/Minimalrechte- oder Releasequalifikation. Der historische Gruppen-Labadapter stoppt bei Version 1.2 weiterhin vor Labdiscovery.
+
+## Gemeinsamer CLR-Kern 1.2.0 (2026-10-03)
+
+Die bekannte Produktzeile und ihre acht bytegleichen CLR-Quellen wurden
+unabhängig offline qualifiziert: drei Cultures mit je37 Fällen/962 Assertions,
+große synthetische3 Fälle/67 Assertions, reproduzierbares Binary und vollständige
+IL-/Metadatenbindung. Der öffentliche Frameworkrunner bestand separat seinen
+begrenzten Offlineumfang von37 kleinen und3 großen Fällen. Die vollständige
+SQL-/Lifecyclekopplung bleibt offen. Die statische
+Kopplung prüft den ArtifactId-Frame, acht Sourcehashes sowie unveränderte
+globale SQL-Prüfungen und unverändertes ResultTable-Routing gegenüber1.1.
+
+Am 2026-10-04 reproduzierte der begrenzte kanonische Projektbuild mit den fünf
+im Projekt gesetzten Eigenschaften und ohne Profil-Overrides exakt die bekannte
+qualifizierte Binaryzeile; Quellen und Ergebnisbytes wurden unabhängig geprüft.
+CI deaktiviert zusätzlich Node-Reuse und automatische Response-Dateien.
+Der lokale Nachweis mit MSBuild 18 ersetzt keine aktuelle CI-Qualifikation mit
+ihrem ausgewählten Compilerstand. Registry, Binary und die acht CLR-Quellen
+wurden dabei nicht geändert.
+
+Die beiden lokalen Acht-Fixture-Läufe schließen nur die tatsächlich enthaltenen
+Regressionen, Bridge-Rowformen und positiven leeren/gruppierten AGF-Proben.
+
+Am 2026-10-04 bestand separat auf Windows 2025/CU8 CL170 die lokale Migration
+eines genuine unveränderten 1.1-Pakets aus sieben SQL-Dateien zu 1.2. Vorher
+wurden fünf Procedure-Slots ohne CLR-Assembly geprüft, danach acht Slots und
+sechs exakt typisierte Assemblymarker. Repeat, die unveränderten Runtime-Fixtures
+`InstalledMetadata.Contract.sql` und `Lifecycle.Contract.sql` sowie Uninstall
+und wiederholter Uninstall bestanden. Der begrenzte Rootprozess endete mit
+vollständigen Kanälen und unveränderten Eingabepins; eigene Bereinigung und
+frische Abwesenheitsprüfung bestanden. Keine Serverkonfigurations-, Rechte-
+oder Owneränderung. Dieser Einzelnachweis ist keine vollständige Produktqualifikation.
+
+Am 2026-10-04 bestanden separat sechs lokale negative Fälle auf Windows
+2025/CU8 CL170: fünf eigene Assemblymarkerfehler mit jeweils exakt
+`53623/1` beim ersten originalen Deploy- und Uninstall-GO sowie ein eigener
+synthetischer SQL-Consumer mit `53626/1` nur beim ersten Uninstall-GO.
+Vollständige Katalogsnapshots blieben unverändert; eigene Marker und Consumer
+wurden geprüft wiederhergestellt beziehungsweise entfernt. Uninstall/Repeat,
+eigene Bereinigung und frische Abwesenheitsprüfung bestanden ohne
+Konfigurations-, Rechte- oder Owneränderung. Der vorhandene Guest-Kontext war
+mit exakt `916/4` nicht nutzbar und bleibt `NOT_EXECUTED`, nach bestätigtem
+REVERT, gesunder Sitzung und identischem Snapshot. Der Ownerfall blieb ohne
+autorisierte Owneränderung ebenfalls `NOT_EXECUTED`. Das sind sechs bestandene
+Fälle, kein Acht-Fälle-PASS und kein vollständiger Lifecycle-Negativnachweis.
+Frühere fehlgeschlagene Versuche bleiben historische Fehlversuche.
+
+Am 2026-10-04 bestanden auf Windows 2025/CU8 CL170 außerdem getrennt die
+lokale und zentrale Migration eines genuine unveränderten 1.0-Pakets aus fünf
+SQL-Dateien zu 1.2: vorher drei Procedure-Slots ohne Assembly, danach acht Slots
+und sechs exakt typisierte Assemblymarker. Repeat sowie die originalen
+InstalledMetadata.Contract.sql- und Lifecycle.Contract.sql-Fixtures bestanden.
+Zentral bestand zusätzlich das originale Central.Contract.sql im eigenen
+Consumerkontext. Fehlende zentrale Bestätigung wurde nur im ersten originalen
+Uninstall-GO mit exakt 53625/1 und identischem vollständigem Snapshot geprüft;
+bestätigter Uninstall und Wiederholung bestanden in beiden Modi. Eigene
+Bereinigung und frische Abwesenheitsprüfung bestanden ohne Konfigurations-,
+Rechte- oder Owneränderung. Frühere fehlgeschlagene Adapterversuche bleiben
+historisch; dies ist kein vollständiger Lifecycle-, Rechte- oder Produkt-PASS.
+
+Weitere native Gates bleiben offen: vollständige AGF-Fehler-/Profilgrenzen,
+Engine-Merge/Serialisierung, tatsächliche lokale und zentrale eingeschränkte
+Callerrechte, weitere Upgrade-/Repeat-/Uninstall-Zielkombinationen und weitere
+typedMarker-/Hash-/Owner-/Visibility-/Consumer-Ablehnung jenseits der sechs
+ersten-GO-Proben, AppLock/Drift/Caller/Rollback sowie Heap-/Spill-
+Verhalten. Die aktuelle CI ist
+ein eigenständiger Gate; bisherige 1.0/1.1-Evidenz bleibt historisch.
+
 ## Neue Uninstall-Metadatenvoraussetzung (2026-10-02)
 
 Die einzeln freigegebene fail-closed Voraussetzung wurde nach Umsetzung mit
@@ -26,9 +95,16 @@ Frühere fehlgeschlagene Läufe bleiben erhalten: 53609/4 im Escape-Budget-Orake
 
 Neue Minimalrechte, weitere Zielkombinationen und Produktions-/Parallelkapazität bleiben offen. Die Uninstall-Voraussetzung `VIEW DEFINITION`/`SELECT` wurde am 2026-10-02 einzeln freigegeben; die neue Gateumsetzung bestand fokussierte native Lifecycle-Läufe, negative CI-Injektionen bleiben offen. Aktuelle CI wird als separater PR-Mergegate nachgewiesen. Status `partially validated`, `unreleased`. Historische 1.0-Evidenz unten gilt ausschließlich für die damaligen drei Slots.
 
-Aktueller nativer Gruppenadapter: `Tests/CI/run-json-groups-lab.ps1`; Ausführung und Auswahl erfolgen nach Rootkoordination. Die frühere Bash-Labroute ist für Lab explizit gesperrt, GitHub-Container verwenden den Bash-Runner weiterhin.
+Historischer nativer Gruppenadapter: `Tests/CI/run-json-groups-lab.ps1`; bei Version 1.2 stoppt er ausdrücklich vor Labdiscovery. Die 1.2-Teilnachweise stammen aus separat geprüften privaten Adaptern. Die Bash-Labroute ist für Lab explizit gesperrt; GitHub-Container verwenden den Bash-Runner weiterhin als gesonderten aktuellen PR-Head-Gate.
 
 ## Historische Ausführung 1.0.0
+
+Genuine SQL-Upgradepakete werden ausschließlich aus den fest gebundenen
+öffentlichen Commits erzeugt: fünf Dateien für 1.0.0, sieben für 1.1.0.
+`Deployment/New-LegacyTestArtifacts.ps1 -Version 1.1.0` fragt nur die sieben
+erwarteten SQL-Pfade ab und prüft jedes originale Git-Blob sowie den vollständigen
+Dateisatz. Die Sourcekorrektur ist kein tatsächlich ausgeführter Upgrade-PASS.
+Reine Tree-Parserkontrollen: `Tests/Static/Test-LegacyTree.ps1`; keine SQL-Ausführung.
 
 Static: `python Modules/toolbelt.json.constructors/Tests/Static/validate_contract.py`.
 Lab: `pwsh -File Tests/CI/run-lab-local.ps1 -RunScripts run-json-constructors-linux.sh -Versions 2019 -Platforms linux -StopOnFailure`.
@@ -44,8 +120,8 @@ erfolgreich. Weitere Ziele/GitHub-hosted/CrossDB-Minimalrechte nicht ausgeführt
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-json-groups-lab.ps1 (Uninstall-Metadatenvoraussetzung)`
-- Scope: Neue fail-closed Uninstall-Voraussetzung VIEW DEFINITION/SELECT: fokussierter Adapter Exit0 auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 jeweils lokal/zentral; Runtime-Auswahl nur InstalledMetadata.Contract.sql, gekoppelte genuine1.0-/Repeat-/Rollback-/AppLock-/Caller-/Marker-/Future-/Dependency-/Client-/Central-/Uninstallprüfungen PASS. Beide Journale COMPLETE, alle eigenen Datenbanken entfernt, keine Konfigurations-/Rechteänderung. Kein Default-All-PASS, keine tatsächliche Minimalrechtequalifikation; negative synthetische Predicate-Injektionen und neue Exact-head-CI noch nicht ausgeführt. Historische Nachweise bleiben unverändert.
+- Datum: `2026-10-04`
+- Nachweis: `local: scoped JSON 1.2 qualification`
+- Scope: Kanonischer Projektbuild mit MSBuild 18 ohne Profil-Overrides bytegleich zur unabhängig offline qualifizierten bekannten SAFE-Zeile. Lokal acht Original-Fixtures auf Linux2019 CL150 und Windows2025/CU8 CL170. Windows2025/CU8 CL170: genuine1.1 lokal und genuine1.0 lokal/zentral, Repeat, acht Slots/sechs typisierte Marker, Uninstall/Repeat; zentrale erste-GO-Bestätigung und originaler Consumer. Sechs erste-GO-Negativfälle, Guest916/4 und Ownerfall NOT_EXECUTED. Eigene Bereinigung/frische Abwesenheit bestanden, keine Konfigurations-/Rechte-/Owneränderung. Kein vollständiger Produkt-/Matrix-/Minimalrechte-/Heap-/Spillnachweis; aktuelle Exact-head-CI mit ihrem Compilerstand und Release offen. Historische Fehlversuche unverändert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
