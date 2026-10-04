@@ -250,6 +250,14 @@ artifact_classes:
       - "*.dll"
       - "*.log"
 
+  derived_public_catalog:
+    description: Versionierte, reproduzierbare öffentliche Referenz aus Repositoryquellen; keine Runtime-Evidenz
+    paths:
+      - Documentation/Reference/API_CATALOG.md
+      - Documentation/Reference/API_CATALOG.html
+      - Documentation/Reference/API_EXAMPLES.sql
+    note: Manifestobjekte und SQL-Signaturen werden generiert; synthetische Beispiele bleiben redaktionell gepflegt
+
   runtime:
     description: Laufzeitdaten, die niemals versioniert werden
     prohibited:
@@ -382,6 +390,17 @@ change_impact:
     - .github/workflows/documentation-consistency.yml
     - Templates/Module/module.yaml.template
   packages:
+    public_api_catalog:
+      paths:
+        - "Modules/*/module.yaml"
+        - "Modules/*/Source/*.sql"
+        - "Modules/*/Documentation/*.md"
+        - "Modules/*/README.md"
+        - "Documentation/Reference/*"
+        - "Tests/Documentation/generate_api_catalog.py"
+        - "Tests/Documentation/test_api_catalog.py"
+      checks:
+        - public_api_catalog
     documentation:
       paths:
         - "*.md"

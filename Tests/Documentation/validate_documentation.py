@@ -18,6 +18,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import generate_api_catalog
+
 
 # Unter Windows erben Python-Unterprozesse sonst häufig die lokale OEM-/ANSI-
 # Codepage, während dieser Validator UTF-8 erwartet.
@@ -1596,7 +1598,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--write",
         action="store_true",
-        help="Generierte Statusabschnitte aktualisieren",
+        help="Generierte Statusabschnitte und API-Katalog aktualisieren",
     )
     return parser.parse_args()
 
@@ -1633,6 +1635,17 @@ def main() -> int:
 
     if "generated_status" in checks:
         validate_generated_status(modules, arguments.write)
+    if "public_api_catalog" in checks:
+        try:
+            generate_api_catalog.check(write=arguments.write)
+        except (ValueError, KeyError, AttributeError) as error:
+            raise ValidationError(f"API-Katalog: {error}") from error
+        result = subprocess.run(
+            [sys.executable, str(REPOSITORY_ROOT / "Tests/Documentation/test_api_catalog.py")],
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True,
+        )
+        if result.returncode:
+            raise ValidationError(f"API-Katalog-Regressionen:\n{result.stdout}{result.stderr}")
     if "markdown_links" in checks:
         validate_markdown_links(
             markdown_files_for_scope(changed, modules, full_audit)

@@ -2,6 +2,11 @@
 
 Dieses Verzeichnis enthält ausschließlich tatsächlich implementierte Module von SQL Server Toolbelt.
 
+Der [zentrale Beispielkatalog](../Documentation/Reference/API_CATALOG.md)
+ergänzt die Modulübersicht um Aufrufe, Parameter und Voraussetzungen aller
+öffentlichen Schnittstellen. Die [HTML-Ansicht](../Documentation/Reference/API_CATALOG.html)
+ist lokal durchsuchbar; die Ausgabe wird in der Dokumentations-CI auf Synchronität geprüft.
+
 ## Aktueller Status
 
 **38 Module sind implementiert. 20 sind `validated`, 18 sind `partially validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten

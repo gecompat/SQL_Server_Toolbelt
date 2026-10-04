@@ -44,6 +44,25 @@ Ein vollständiger Audit ist vorgesehen:
 python3 Tests/Documentation/validate_documentation.py --all --write
 ```
 
-`--write` aktualisiert ausschließlich die markierten generierten
-Statusabschnitte. Narrative Dokumentation bleibt manuell gepflegt und wird
+`--write` aktualisiert die markierten generierten Statusabschnitte und den
+öffentlichen API-Katalog. Narrative Dokumentation bleibt manuell gepflegt und wird
 nicht überschrieben.
+
+## Öffentlicher API-Katalog
+
+`generate_api_catalog.py` erzeugt Markdown, HTML und SQL-Beispiele aus
+Manifesten, Source-Signaturen und einer synthetischen Beispielregistry.
+Ohne `--write` prüft es ausschließlich die Synchronität. Quellen, Pflege und
+Grenzen stehen in [Documentation/Reference/README.md](../../Documentation/Reference/README.md).
+
+```bash
+python3 Tests/Documentation/generate_api_catalog.py --write
+python3 Tests/Documentation/generate_api_catalog.py
+python3 Tests/Documentation/test_api_catalog.py
+```
+
+Das Impact-Paket `public_api_catalog` koppelt Manifest-, Source-, Modul-Doku-,
+Registry- und Generatoränderungen an die bestehende Dokumentations-CI.
+Die Regressionstests prüfen vollständige öffentliche Inventarisierung,
+SQL-Signaturen und Drift-Erkennung mit temporären synthetischen Repositorys;
+SQL Server und zusätzliche Python-Pakete werden nicht benötigt.
