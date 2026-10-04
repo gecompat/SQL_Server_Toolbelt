@@ -252,6 +252,18 @@ Dauerhafte Entscheidungen werden mit stabiler ID dokumentiert. Historische Entsc
 | Alternativen | Eine allgemeine Namensfreigabe, Änderung des Corevertrags und dynamische Provideraufrufe werden nicht eingeführt. |
 | Betroffene Verträge | [ZIP_FILES_CONTRACT.md](ZIP_FILES_CONTRACT.md), `SQL_OBJECT_NAMING.md`, `USP_CONTRACT.md`, `toolbelt.archive.zip-files` |
 
+### Ergänzung vom 2026-10-04: Tabellenklon-Executor-Brücken
+
+| Feld | Wert |
+|---|---|
+| Status | accepted; technische Codex-Entscheidung innerhalb des einzeln freigegebenen Executor-Scopes |
+| Entscheidung | Nur `USP_ExecuteTableClone` verwendet `#TableCloneExecute_MapStage` und `#TableCloneExecute_PlanStage` als feste eigene Planner-/ResultTable-Brücken. |
+| Begründung | Bestehende Caller-Verträge lehnen `#tbx_` als Map beziehungsweise ResultTable ab; statische kanonische Aufrufe benötigen eine begrenzte Ausnahme. |
+| Scope | Zwei Brücken im Executor; übrige interne Temps behalten `#tbx_`. |
+| Auswirkungen | Kollisionsprüfung vor CREATE, keine Callerinputs/-outputs unter diesen Namen, keine Adoption oder Entfernung fremder Objekte. Keine Änderung der Core-/Planner-API und kein Runtime-Nachweis aus dieser Entscheidung. |
+| Alternativen | Keine allgemeine Präfixfreigabe, kein kopierter Planrenderer und kein verschachteltes INSERT EXEC. |
+| Betroffene Verträge | [TABLE_CLONE_EXECUTE_CONTRACT.md](TABLE_CLONE_EXECUTE_CONTRACT.md), `SQL_OBJECT_NAMING.md`, `USP_CONTRACT.md` |
+
 ## DEC-2026-018: Persönlicher Brainstorm als erhaltener Research-Input
 
 | Feld | Wert |

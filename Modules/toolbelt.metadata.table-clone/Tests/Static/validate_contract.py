@@ -143,10 +143,41 @@ for lifecycle in (deploy,uninstall):
     assert lifecycle.count('referenced_server_name IS NULL') == 2
     assert lifecycle.count('referenced_database_name COLLATE DATABASE_DEFAULT=DB_NAME() COLLATE DATABASE_DEFAULT') == 2
     assert lifecycle.count("referenced_schema_name COLLATE DATABASE_DEFAULT=N'toolbelt_metadata' COLLATE DATABASE_DEFAULT") == 2
-    assert lifecycle.count("referenced_entity_name COLLATE DATABASE_DEFAULT IN(N'USP_ScriptTableClone',N'USP_ScriptTableCloneInternal')") == 2
+    assert lifecycle.count("referenced_entity_name COLLATE DATABASE_DEFAULT IN(N'USP_ScriptTableClone',N'USP_ScriptTableCloneInternal',N'USP_ExecuteTableClone')") == 2
 caps=(MOD/'Tests/Runtime/Wave2.Caps.sql').read_text(encoding='utf-8')
 for witness in ('@c<=1024','@i<=2045',"ObjectKind='CHECK')<>2045","ObjectKind='PRIMARY_KEY')<>1","ObjectKind='FOREIGN_KEY')<>1",'@Number<>53906','@State<>1','CK_SyntheticW2Count2046'):
     assert witness in caps
 assert caps.count('EXCEPT SELECT * FROM')==2
 assert 'ADR-2026-10-04-TABLE-CLONE-W2' not in (ROOT/'Documentation/Architecture/DECISIONS.md').read_text(encoding='utf-8')
 print('W2 consumer/count fixture source coupling PASS; no SQL execution.')
+
+# Additiver Executor3.1: öffentliche Vertragskopplung, kein Engine-Nachweis.
+execute=(MOD/'Source/USP_ExecuteTableClone.sql').read_text(encoding='utf-8')
+execute_signature=execute.split('AS\nBEGIN',1)[0]
+execute_actual=re.findall(r"@(\w+)\s+(nvarchar\(max\)|varbinary\(max\)|varchar\(16\)|sysname|bit|tinyint)\s*=\s*(NULL|0|'REJECT'|'CREATE')",execute_signature)
+assert execute_actual == params[:8]+[('ExpectedPlanHash','varbinary(max)','NULL'),('ForeignKeyMode','varchar(16)',"'CREATE'")]+params[8:]
+assert execute.index('IF @Hilfe=1') < execute.index('IF @@TRANCOUNT>0') < execute.index('CREATE TABLE #TableCloneExecute_MapStage')
+assert 'INSERT ... EXEC' not in execute and 'INSERT EXEC' not in execute.upper()
+assert execute.count('EXEC toolbelt_metadata.USP_ScriptTableClone ') == 2
+assert '@TableMap=NULL,@ResultTable=' in execute and "@TableMap=N'#TableCloneExecute_MapStage'" in execute
+assert execute.count("OBJECT_ID(N'tempdb..'+@TableMap,N'U')") == 1
+assert 'DATALENGTH(@ExpectedPlanHash)<>32' in execute
+for literal in ('Toolbelt.TableClone.Execute.Hash','Toolbelt.TableClone.Execute.Final','VIEW ANY DEFINITION',
+    'sys.server_event_notifications','sys.server_trigger_events','sys.event_notifications','sys.trigger_events',
+    'DEFAULT/CHECK/Computed','SECONDARY_ROLLBACK'):
+    assert literal in execute,literal
+assert execute.count('EXEC sys.sp_executesql @SafetySql,') == 2
+assert "ObjectKind NOT IN('FOREIGN_KEY','FOREIGN_KEY_STATE')" in execute
+assert 'SET @Script=@SetPrefix+@Script;' in execute
+for option in ('ANSI_NULLS ON','ANSI_PADDING ON','ANSI_WARNINGS ON','ARITHABORT ON',
+    'CONCAT_NULL_YIELDS_NULL ON','QUOTED_IDENTIFIER ON','NUMERIC_ROUNDABORT OFF'):
+    assert f'SET {option};' in execute
+assert execute.index('EXEC toolbelt_core.USP_PrepareResultTable') < execute.index('COMMIT TRANSACTION;')
+for version in ('1.0.0','2.0.0','3.0.0','3.1.0'):
+    assert f"CONVERT(varbinary(max),N'{version}')" in deploy+uninstall
+assert ':r ../Source/USP_ExecuteTableClone.sql' in deploy
+assert "VALUES(N'USP_ExecuteTableClone');" in uninstall
+assert uninstall.index("INSERT INTO @ReleaseObjects (ObjectName) VALUES(N'USP_ExecuteTableClone');") < uninstall.index("VALUES(N'USP_ScriptTableClone'),(N'USP_ScriptTableCloneInternal');",uninstall.index('DECLARE @ReleaseObjects TABLE'))
+for fixture in ('Execute.Contract.sql','Execute.Safety.sql'):
+    assert (MOD/'Tests/Runtime'/fixture).is_file()
+print('Executor3.1 Signatur/Hash/Modus/Seiteneffekte/atomare Ausgabe gekoppelt; keine SQL-Ausführung.')

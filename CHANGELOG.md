@@ -634,6 +634,18 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 
+## 2026-10-04 – Table Clone Executor / 3.1.0
+
+- Neuer expliziter `USP_ExecuteTableClone`: frischer kanonischer Plan,
+  erwarteter Bytehash, ausschließlich neue SameDB-Ziele und eigene Transaktion.
+  CREATE/DEFER bindet den vollständigen Plan; keine Daten- oder Triggerkopie.
+- Vorhandene DB-/Servervollsicht und DDL-Seiteneffektgate, gekoppelte
+  Deployment-/Uninstall-, Help-, ResultTable- und Client-Hashverträge.
+- Gezielte lokale Nachweise auf SQL Server 2019 Linux/latest CL150 und
+  2025 Windows/exakt CU8 CL170 bestanden, einschließlich genuine3→3.1,
+  Caller-TX/SET, Fehlerrollback, Clientmetadata und eigener Bereinigung.
+  Head-CI ist separat im Pull Request nachzuweisen; Modul weiterhin teilweise validiert und unveröffentlicht.
+
 ## 2026-10-04 – Table Clone W2 / V3 Source
 
 - Vorhandene öffentliche/interne Prozedur mit TableMap an7 und ExternalReferenceRule an8; Standardtail9..12. Gemeinsamer W1-Renderer, Map-Snapshot, globale Reihenfolge, FK-Umleitung/KEEP, begrenzte Flags und FK-EP-Failclosed. Kein Execute-Wrapper, Provider oder Rechteänderung.

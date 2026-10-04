@@ -317,6 +317,19 @@ separate offene Gates; keine vollständige Produktqualifikation.
 
 Stand 2026-10-03, Codex: die einzeln freigegebene Anzeige-TVF ist im bestehenden SAFE-Provider additiv implementiert. Acht Inputs, zwei Outputs, zehn Literalformate, en-US/de-DE/tr-TR, exakte SqlDecimal-Rundung half-away-from-zero, Datetimecarry/time24h-Status8 und unveränderte Typquote wurden konkret genehmigt. Raw-/Typquellen unverändert. Begrenzte aktuelle Offline- und lokale Nativequalifikation vom 2026-10-04 bestanden; zentrale1.2-Nutzung, vollständige Matrix, Minimalrechte und aktuelle Head-CI bleiben offen. Am 2026-10-04 bestand ein privater Qualifikationsadapter auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170 jeweils ausschließlich lokal: Clean1.2 und genuine installierte1.1→1.2 mit frischer Session, drei→vier CLR-Bindings und sieben→neun Slots am identischen aktuellen Binary. Je Ziel bestanden zwölf SQL-Fixtures, sechs Display-Clientprüfungen und zwei Raw→Type-/Raw→Type→Display-Kompositionen, Repeat sowie Uninstall/Repeat. Zwei eigene Datenbanken wurden entfernt und drei exakte Trust-Vorzustände wiederhergestellt; frische unabhängige Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte- oder Owneränderungen. Dies ist ein begrenzter privater Adapternachweis, kein vollständiger öffentlicher Labadapter- oder Produkt-PASS. Zentrale1.2-Nutzung, genuine1.0→1.2, weitere CL/Ziele, vollständige Lifecycle-/Kollisionsmatrix, Minimalrechte, Heap und aktuelle exakte Head-CI bleiben offen. Status bleibt `partially validated`, `unreleased`. `partially validated`, `unreleased`; keine neue Rechte-/Providergrenze. Historische 1.0-/1.1-Nachweise bleiben getrennt. [Vertrag](../Documentation/Architecture/XLSX_CELL_DISPLAY_CONTRACT.md).
 
+## Tabellenklon Executor / 3.1.0 – begrenzte Nachweise
+
+Der einzeln freigegebene `USP_ExecuteTableClone` führt ausschließlich einen
+frisch erzeugten, exakt hashgebundenen V3-Plan für neue SameDB-Ziele aus.
+CREATE/DEFER, eigene Transaktion, vorhandene DB-/Servervollsicht und
+DDL-Seiteneffektgate sind gekoppelt; keine Daten-/Triggerkopie oder Rechtevergabe.
+Am 2026-10-04 bestanden die gezielten lokalen Nachweise auf SQL Server
+2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL170: beide neuen
+Fixtures, Client-Hash/Metadata, genuine3→3.1, Lifecycle und eigene Bereinigung.
+Weitere native Ziele, zentrale Executor-Nutzung, tatsächliche Minimalrechte
+und serverweite Negativfixtures bleiben offen; Head-CI ist ein separater PR-Nachweis.
+Modul bleibt teilweise validiert und unveröffentlicht.
+
 ## Tabellenklon W2 / 3.0.0 – begrenzte Nachweise
 
 Am 2026-10-04 bestanden begrenzte private Adapter auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL170 ausschließlich lokal: Clean3 und genuine2→3 mit frischer Session, Repeat, resolved Consumer mit Deploy-/Uninstall-Ablehnung53926/1 und unverändertem Katalogsnapshot/gesunder Transaktion sowie Uninstall/Repeat. Je Lauf wurden zwei eigene Datenbanken entfernt; frische Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte-, Owner- oder Truständerungen. Linux: drei W2-Fixtures und eine W1-Regressionsfixture stammen als Teilnachweis aus einem historischen insgesamt fehlgeschlagenen Lauf; der identische Produkt- und Fixturestand wurde wiederverwendet und im finalen Lifecycle-PASS nicht erneut ausgeführt. Windows: dieselben vier Fixtures bestanden einmal in Clean3 im aktuellen erfolgreichen Lauf, nicht erneut im Upgradezyklus. Unresolved Consumer: NOT_ESTABLISHED. Keine vollständige Produktqualifikation; weitere Ziele/CL, zentrale V3-Nutzung, Minimalrechte, übrige Lifecycle-Negativfälle und aktuelle Head-CI bleiben offen. Status bleibt teilweise validiert und unveröffentlicht.

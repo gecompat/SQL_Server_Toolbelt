@@ -178,6 +178,17 @@ Status der 2.0-Welle: `partially validated`, `unreleased`.
 
 #### Trigger-Scriptklon
 
+Zusatzfreigabe 2026-10-04: Der Benutzer bestätigte ausdrücklich
+`IncludeTriggers bit=0` an Position 9 mit Standardtail an Position 10..13
+und Folgeversion 4.0.0. Triggernamen erhalten `TR_` plus den vollständigen
+SHA256 über genau die drei längengerahmten UTF16LE-Komponenten Zielschema,
+Zieltabelle und Originaltriggernamen, ohne zusätzlichen Marker im Hashinput.
+`TR_` ist ausschließlich das Namenspräfix dieses Slices, keine globale
+Triggernamenskonvention.
+Die zuvor freigegebenen Parser-, Script-only- und Ablehnungsgrenzen bleiben
+unverändert. Dies dokumentiert die Freigabe, keine Implementierung oder
+Runtimequalifikation.
+
 - Bestehenden Scriptplaner optional für gewöhnliche T-SQL-DML-Trigger auf
   gemappten diskbasierten Tabellen erweitern; weiterhin nur Scripttext.
   Ereignisse, AFTER/INSTEAD OF und enabled/disabled-Zustand erhalten.
@@ -191,6 +202,22 @@ Status der 2.0-Welle: `partially validated`, `unreleased`.
 
 #### USP_ExecuteTableClone
 
+Zusatzfreigabe 2026-10-04: Der Benutzer bestätigte ausdrücklich vorhandenes
+Server-`VIEW ANY DEFINITION` und lesbare DB-/Server-DDL-Trigger- sowie
+Eventnotification-Kataloge als Pflichtgate. Fehlende oder unklare Sicht und
+relevante aktive DDL-Trigger/Eventnotifications blockieren vor eigener DDL;
+keine Rechtevergabe oder Deaktivierung. Der konkrete additive 3.1-Vertrag,
+das versionierte Hashlayout und die technische FK-Aufschuboption stehen in
+[TABLE_CLONE_EXECUTE_CONTRACT](../Documentation/Architecture/TABLE_CLONE_EXECUTE_CONTRACT.md).
+Implementierung und unabhängige Sourceprüfung sind abgeschlossen. Am
+2026-10-04 bestanden die gezielten lokalen 3.1-Nachweise auf SQL Server
+2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL170: beide neuen
+Fixtures, unabhängiger Client-Hash und Resultmetadata, genuine3→3.1,
+Lifecycle und eigene Bereinigung. Head-CI wird separat im Pull Request nachgewiesen;
+historische Planner-Nachweise bleiben getrennt. Serverweite negative
+Trigger-/Eventnotification-Fixtures und tatsächliche Minimalrechte wurden
+nicht ausgeführt; der Modulstatus bleibt teilweise validiert.
+
 - Explizites Tabellen-Mapping/Planneroptionen und erwarteter Plan-Hash;
   kein frei übergebener SQL-Text. Kanonischen Plan unmittelbar neu erzeugen
   und vergleichen. Nur neue Ziele, kein DROP/Overwrite/Ändern vorhandener Ziele.
@@ -201,6 +228,17 @@ Status der 2.0-Welle: `partially validated`, `unreleased`.
   Berechtigungsfreigabe; aktuelle Quell-/Ziel-/Callerrechte weiter prüfen.
 
 #### USP_CopyTableCloneData
+
+Zusatzfreigabe 2026-10-04: Der Benutzer bestätigte ausdrücklich maximal
+100000 Zeilen und 16 MiB Nutzdaten, durch Caller absenkbar, sowie die
+Rollbackgrenze bei Identity-Zählerfortschritt ohne automatisches RESEED.
+Kontrolliert nach Copy neu angelegte FKs übernehmen die bekannten
+Quellzustände checked/trusted, enabled/untrusted oder disabled/untrusted;
+bestehende Constraints werden nicht heimlich deaktiviert. Das eigene
+Servervollsicht-/DDL-Seiteneffektgate für diese nachgelagerte Anlage wurde
+ebenfalls ausdrücklich bestätigt, ohne Rechtevergabe. Dies dokumentiert die
+zusätzliche Entscheidung innerhalb der Einzelfreigabe; genaue Signatur,
+Implementierung und Qualifikation bleiben getrennte Folgeschritte.
 
 - Explizites SameDB-Mapping, nur leere kompatible Ziele. Keine freien SQL-
   Filter, Merge/Upsert oder Überschreiben. Konsistenter Verbundsnapshot:
