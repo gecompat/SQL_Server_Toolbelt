@@ -240,6 +240,18 @@ Dauerhafte Entscheidungen werden mit stabiler ID dokumentiert. Historische Entsc
 | Alternativen | Generische Namen wie `#Temp`, `#Result` und zufällige Namen ohne fachliche Zuordnung wurden verworfen. |
 | Betroffene Verträge | `SQL_OBJECT_NAMING.md`, `TSQL_ENGINEERING.md`, `RESULT_TABLE_MODULE_DESIGN.md` |
 
+### Ergänzung vom 2026-10-04: ZIP-ResultTable-Brücken
+
+| Feld | Wert |
+|---|---|
+| Status | accepted; technische Codex-Entscheidung innerhalb des bereits einzeln freigegebenen Zwei-Fassaden-Scopes |
+| Entscheidung | Ausschließlich `USP_CreateZipFileFromEntries` und `USP_ExtractZipEntryToFile` dürfen `#ZipFiles_CreateStage`, `#ZipFiles_ExtractStage` und `#ZipFiles_WriteStage` als eigene feste ResultTable-Brücken verwenden. Andere interne lokale Temps behalten `#tbx_`. |
+| Begründung | Der vorhandene ResultTable-1.0-Vertrag lehnt Zielnamen mit `#tbx_` ab. Die begrenzte Ausnahme ermöglicht statische Aufrufe der bestehenden Provider ohne Coreänderung oder dynamisch verdeckte SQL-Dependencies. |
+| Scope | Genau die drei Brücken der beiden Windows-local-Fassaden in `toolbelt.archive.zip-files` 1.0.0. Die ursprüngliche Entscheidung bleibt für alle übrigen internen Temps bestehen. |
+| Auswirkungen | Vor CREATE werden alle drei Namen auf Kollision geprüft; Callerinput und Calleroutput dürfen sie nicht referenzieren. Keine Adoption oder Löschung fremder Temps; eigene Temps enden mit dem Procedure-Scope. Diese Entscheidung liefert keinen Runtime- oder Qualifikationsnachweis. |
+| Alternativen | Eine allgemeine Namensfreigabe, Änderung des Corevertrags und dynamische Provideraufrufe werden nicht eingeführt. |
+| Betroffene Verträge | [ZIP_FILES_CONTRACT.md](ZIP_FILES_CONTRACT.md), `SQL_OBJECT_NAMING.md`, `USP_CONTRACT.md`, `toolbelt.archive.zip-files` |
+
 ## DEC-2026-018: Persönlicher Brainstorm als erhaltener Research-Input
 
 | Feld | Wert |
