@@ -2,11 +2,11 @@
 
 Die Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 war auf SQL Server 2025 unter Windows erfolgreich. Sie umfasste .NET-Framework-4.8-CLR-Build, SHA2-512-Trust, lokales Deployment, alle Help-Verträge und die kontrollierte SQL-Authentication-Ablehnung im `Caller`-Modus ohne I/O-Spuren. Der Lauf `Ergänzender Windows-CLR-Preflight-Lauf` vom 2026-08-05 bestätigte kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem `WorkPath`.
 
-Die vollständige Windows-Authentication-/NTFS-ACL-/I/O-Matrix bleibt `not executed`; die aktuelle Zwei-Fall-Auth-Probe ist unten getrennt belegt. Reale Pfade, Benutzer, NTFS-ACLs, Runtime-Ausgaben und Inhalte bleiben außerhalb des Repositorys.
+Die vollständige Windows-Authentication-/NTFS-ACL-/I/O-Matrix bleibt offen; die historische Zwei-Fall-Auth-Probe und der aktuelle ausgewählte Caller-/NTFS-Lauf sind unten getrennt belegt. Reale Pfade, Benutzer, NTFS-ACLs, Runtime-Ausgaben und Inhalte bleiben außerhalb des Repositorys.
 
 Ein begrenzter nativer Windows-/SQL-Server-2025-Test vom 2026-10-03 bestätigte Installation und Wiederholung, scheiterte aber am Help-Metadatenvertrag: `IsRequired` war `int` statt `bit`. Der SQL-Fix typisiert die fünf Parameterzeilen ausdrücklich als `bit`, damit auch `IsNullable` seinen vertraglichen Typ behält. Der korrigierte Stand bestand anschließend die Prüfung der zwölf CLR-Spaltentypen, sieben Help-Zeilen und zulässigen NULL-Werte für `USP_WriteBinaryFile @Hilfe=1`. Dies ist ein begrenzter Help-Nachweis, kein vollständiger Modulnachweis.
 
-Der nachfolgende Caller-Dateischreibaufruf scheiterte mit `51540/1`; seine konkrete Providerursache wird getrennt untersucht. Alle eigenen Testressourcen wurden bereinigt; jeweils eine separate frische Prüfung bestätigte dies. Caller-/NTFS-/I/O-Nachweise bleiben offen. Die fehlgeschlagenen Gesamtläufe werden nicht als Erfolg gewertet.
+Der nachfolgende Caller-Dateischreibaufruf scheiterte mit `51540/1`; seine konkrete Providerursache wurde für diesen damaligen Stand getrennt untersucht. Alle eigenen Testressourcen wurden bereinigt; jeweils eine separate frische Prüfung bestätigte dies. Für diesen damaligen Stand waren Caller-/NTFS-/I/O-Nachweise noch offen. Die fehlgeschlagenen Gesamtläufe werden nicht als Erfolg gewertet.
 
 Der .NET-Framework-4.8-Build und der statische Vertrag waren im Wartungslauf https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356 erfolgreich. Dies ist kein Windows-SQL-Server-/NTFS-Runtime-Nachweis.
 
@@ -14,8 +14,8 @@ Der .NET-Framework-4.8-Build und der statische Vertrag waren im Wartungslauf htt
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-04`
-- Nachweis: `Private native Zwei-Fall-Caller-Authentifizierungsprobe`
-- Scope: SQL Server 2025/CU8 Windows; Windows-Caller schreibt drei synthetische Bytes, SQL-Authentication mit 51540/1 vor I/O abgewiesen. Eigene DB/Root/Trustbereinigung und frische Prüfung; keine Konfigurations-/Rechte-/Owneränderungen. Alle neun direkten EntryPoints, NTFS-Matrix, ServiceAccount-Regression und Races bleiben offen.
+- Nachweis: `Privater ausgewählter Windows-Caller-/NTFS-Lauf`
+- Scope: SQL Server 2025/CU8 Windows; 16 Pflichtfälle erfolgreich: neun öffentliche Prozeduren, Windows-/SQL-Authentifizierung, Caller-/ServiceAccount-NTFS-Verweigerungen, Binary-/UTF-8-/UTF-16-LE-I/O, NoOverwrite/Overwrite und Bereinigung nach Schreib-/Encodingfehlern. Zusätzlicher Race-Fall NOT_OBSERVED. Drei eigene Fixture-ACLs und ein Readonly-Attribut zurückgesetzt; eigene DB/Root/Trustbereinigung und separate frische Prüfung bestanden. Keine Konfigurations-, SQL-Rechte- oder Owneränderungen. Keine direkte CLR-/vollständige Matrix-/ZIP-Dateizugriffsqualifikation.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -41,3 +41,11 @@ Der aktuelle Provider bestand einen privaten begrenzten produktiven C#-Sourcebui
 Die private native Zwei-Fall-Authentifizierungsprüfung auf SQL Server 2025/CU8 unter Windows bestand: Windows-Caller (NTLM) schrieb drei synthetische Bytes über `USP_WriteBinaryFile`; SQL-Authentifizierung wurde mit `51540/1` und `CallerWindowsAuthenticationRequired` vor Datei-/Staging-I/O abgewiesen. Eigene DB-, Root- und Trustbereinigung und eine separate frische Prüfung bestanden, ohne Konfigurations-, Rechte- oder Owneränderungen. Dieser begrenzte Probe-Scope ist kein vollständiger Produkttest.
 
 Aktueller kanonischer Projektbuild/Releaseartefakt, direkte CLR-/RunAs-Qualifikation aller neun Einstiegspunkte, vollständige NTFS-/Caller-/ServiceAccount-Matrix, Races, weitere Ziele und aktuelle Head-CI bleiben separate offene Gates. Status `partially validated`, Version1.0.0 und `unreleased` bleiben erhalten; frühere Nachweise sind historisch.
+
+## Ausgewählter Caller-/NTFS-Lauf 2026-10-04
+
+Der aktuelle Provider bestand auf SQL Server 2025/CU8 unter Windows 16 Pflichtfälle. Der Lauf verwendete alle neun öffentlichen Prozeduren und bestätigte Binary-Chunks, UTF-8 mit BOM, Transcoding nach UTF-16 LE, List/Create/Remove, die Ablehnung von SQL-Authentifizierung im Caller-Modus, Caller- und ServiceAccount-NTFS-Verweigerungen, NoOverwrite/Overwrite sowie Zielerhalt und Staging-Bereinigung nach Schreib- und Encodingfehlern. Die Caller-Identität wurde mit der authentifizierten SQL-Sitzung abgeglichen; die Caller-Verweigerungen wurden mit demselben Windows-Token gegengeprüft. Für ServiceAccount sind Produktaufrufe und Rückkehr zum unveränderten Zugriffszustand belegt, kein separater Service-Token-Test.
+
+Der zusätzliche Race-Fall blieb `NOT_OBSERVED` und liefert keinen Race-Nachweis. Eigene Testdatenbank, Root und Trust wurden bereinigt; drei ausschließlich eigene Fixture-ACLs und ein Readonly-Attribut wurden zurückgesetzt. Eine separate frische Prüfung bestätigte die Ressourcenabsenz und Trust-Wiederherstellung. Die unabhängige Prüfung bestätigte vollständige Prozesskanäle, Exit0, beendete/disposierte Children, unveränderte Sourcepins und das exakt gebundene Journal. Es wurden keine Konfiguration, SQL-Rechte oder Owner geändert. Private Journale, Identitäten, Pfade und Runtimeausgaben bleiben außerhalb des Repositorys.
+
+Dies qualifiziert ausschließlich den ausgewählten Lauf. Direkte CLR-/RunAs-Aufrufe, weitere Codepages und Limits, Reparse-/rekursive Delete-Fälle, Race-Beobachtung, weitere Ziele und die separate ZIP-Dateizugriffswelle bleiben offen. `partially validated` und `unreleased` bleiben erhalten.

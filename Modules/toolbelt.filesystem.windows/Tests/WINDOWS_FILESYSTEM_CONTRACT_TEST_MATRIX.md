@@ -23,8 +23,8 @@ Aktuelle Evidenz: Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 auf 
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-04`
-- Nachweis: `Private native Zwei-Fall-Caller-Authentifizierungsprobe`
-- Scope: SQL Server 2025/CU8 Windows; Windows-Caller schreibt drei synthetische Bytes, SQL-Authentication mit 51540/1 vor I/O abgewiesen. Eigene DB/Root/Trustbereinigung und frische Prüfung; keine Konfigurations-/Rechte-/Owneränderungen. Alle neun direkten EntryPoints, NTFS-Matrix, ServiceAccount-Regression und Races bleiben offen.
+- Nachweis: `Privater ausgewählter Windows-Caller-/NTFS-Lauf`
+- Scope: SQL Server 2025/CU8 Windows; 16 Pflichtfälle erfolgreich: neun öffentliche Prozeduren, Windows-/SQL-Authentifizierung, Caller-/ServiceAccount-NTFS-Verweigerungen, Binary-/UTF-8-/UTF-16-LE-I/O, NoOverwrite/Overwrite und Bereinigung nach Schreib-/Encodingfehlern. Zusätzlicher Race-Fall NOT_OBSERVED. Drei eigene Fixture-ACLs und ein Readonly-Attribut zurückgesetzt; eigene DB/Root/Trustbereinigung und separate frische Prüfung bestanden. Keine Konfigurations-, SQL-Rechte- oder Owneränderungen. Keine direkte CLR-/vollständige Matrix-/ZIP-Dateizugriffsqualifikation.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -58,3 +58,16 @@ Der aktuelle Provider bestand einen privaten begrenzten produktiven C#-Sourcebui
 Die private native Zwei-Fall-Authentifizierungsprüfung auf SQL Server 2025/CU8 unter Windows bestand: Windows-Caller (NTLM) schrieb drei synthetische Bytes über `USP_WriteBinaryFile`; SQL-Authentifizierung wurde mit `51540/1` und `CallerWindowsAuthenticationRequired` vor Datei-/Staging-I/O abgewiesen. Eigene DB-, Root- und Trustbereinigung und eine separate frische Prüfung bestanden, ohne Konfigurations-, Rechte- oder Owneränderungen. Dieser begrenzte Probe-Scope ist kein vollständiger Produkttest.
 
 Aktueller kanonischer Projektbuild/Releaseartefakt, direkte CLR-/RunAs-Qualifikation aller neun Einstiegspunkte, vollständige NTFS-/Caller-/ServiceAccount-Matrix, Races, weitere Ziele und aktuelle Head-CI bleiben separate offene Gates. Status `partially validated`, Version1.0.0 und `unreleased` bleiben erhalten; frühere Nachweise sind historisch.
+
+## Ausgewählter Caller-/NTFS-Lauf 2026-10-04
+
+| Kategorie | Nachweis auf SQL Server 2025/CU8 Windows | Ergebnis |
+|---|---|---|
+| Öffentliche Prozeduren | Alle neun Prozeduren; Binary-Chunks, UTF-8/BOM, UTF-16-LE-Transcoding und List/Create/Remove | ausgewählter Scope erfolgreich |
+| Caller | Windows-Identität gegen SQL-Sitzung abgeglichen; NTFS-Read-/Write-Verweigerungen mit demselben Token gegengeprüft; SQL-Authentifizierung vor I/O abgewiesen | erfolgreich |
+| ServiceAccount | Explizite Read-/Write-/List-Aufrufe; eigene WorkPath-Verweigerung und Zugriff nach Wiederherstellung | erfolgreich; kein externer Service-Token-Test |
+| Dateibereitstellung | Bestehendes Ziel bei NoOverwrite erhalten; Overwrite bestätigt; Zielerhalt und Staging-Bereinigung bei Schreib-/Encodingfehlern | erfolgreich |
+| Cleanup | Eigene DB/Root/Trust bereinigt; drei eigene ACLs und ein Readonly-Attribut zurückgesetzt; separate frische Prüfung und unabhängige Evidenzprüfung | erfolgreich |
+| Race | Ein begrenzter Versuch, Ziel während Staging anzulegen | `NOT_OBSERVED`; kein Race-PASS |
+
+16 Pflichtfälle bestanden; ein zusätzlicher Race-Fall wurde nicht beobachtet. Direkte CLR-/RunAs-Aufrufe, weitere Codepages und Limits, Reparse-/rekursive Delete-Fälle, weitere Ziele und ZIP-Dateizugriff sind dadurch nicht qualifiziert. Keine Konfigurations-, SQL-Rechte- oder Owneränderungen; Status `partially validated` und `unreleased` unverändert. Frühere Evidenzabschnitte bleiben historische Nachweise.

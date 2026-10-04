@@ -1109,9 +1109,9 @@ Die V0c-Kohorte umfasst verbindlich:
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Caller ist Default und wird bei SQL Authentication abgelehnt; ServiceAccount ist explizit; absolute Pfade und Reparse Points sind gesperrt; I/O arbeitet begrenzt/gestreamt; Write nutzt atomare Staging-Dateien; rekursives Delete besitzt Tiefe-/Eintragslimits; Linux ist korrekt not applicable. |
 | Tests | Statischer Vertragscheck und GitHub-Windows-Build; manueller Windows-SQL-Server-/NTFS-Test für Deployment, beide Identitätsmodi, Codepages, Limits, Reparse Points, atomare Writes und rekursives Delete. |
-| Blocker | Caller-Impersonation und die breitere manuelle NTFS-/I/O-Matrix sind noch nicht ausgeführt. |
+| Blocker | Der ausgewählte Caller-/NTFS-/ServiceAccount-Lauf ist belegt; direkte CLR-/RunAs-, weitere Codepage-/Limit-/Reparse-/Delete-Fälle und Race-Beobachtung bleiben offen. Keine vollständige Matrix- oder ZIP-Dateizugriffsqualifikation. |
 | Evidenz | Benutzerfreigabe am 2026-07-31; Implementierung und Windows-Build-/Static-Contract-Artefakte auf `main`; Build-Nachweis im Wartungslauf https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356. |
-| Nächster Schritt | Manuellen Windows-SQL-Server-/NTFS-Runtime-Test gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` ausführen und ausschließlich abstrahierte Ergebnisse erfassen; die Terminierung hängt an `V0b`. GitHub-hosted Windows-Runner sind kein Ersatz, weil die offiziellen Runner-Images keine SQL-Server-Engine enthalten. |
+| Nächster Schritt | Den unabhängig geprüften Lauf vom 2026-10-04 mit 16 erfolgreichen Pflichtfällen und einem `NOT_OBSERVED`-Race-Fall als begrenzte Evidenz führen; verbleibende Fälle gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` scopebezogen prüfen. Eigene Fixture-ACLs/Attribute und DB/Root/Trust wurden wiederhergestellt, separate frische Prüfung erfolgreich. Private Runtimeausgaben bleiben außerhalb des Repositorys. |
 
 
 ## Besprochene Folgescopes ohne Implementierungsfreigabe

@@ -20,8 +20,8 @@ Der SQL-Server benötigt für die Laufzeit stattdessen die in den Deployment-Dok
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-04`
-- Nachweis: `Private native Zwei-Fall-Caller-Authentifizierungsprobe`
-- Scope: SQL Server 2025/CU8 Windows; Windows-Caller schreibt drei synthetische Bytes, SQL-Authentication mit 51540/1 vor I/O abgewiesen. Eigene DB/Root/Trustbereinigung und frische Prüfung; keine Konfigurations-/Rechte-/Owneränderungen. Alle neun direkten EntryPoints, NTFS-Matrix, ServiceAccount-Regression und Races bleiben offen.
+- Nachweis: `Privater ausgewählter Windows-Caller-/NTFS-Lauf`
+- Scope: SQL Server 2025/CU8 Windows; 16 Pflichtfälle erfolgreich: neun öffentliche Prozeduren, Windows-/SQL-Authentifizierung, Caller-/ServiceAccount-NTFS-Verweigerungen, Binary-/UTF-8-/UTF-16-LE-I/O, NoOverwrite/Overwrite und Bereinigung nach Schreib-/Encodingfehlern. Zusätzlicher Race-Fall NOT_OBSERVED. Drei eigene Fixture-ACLs und ein Readonly-Attribut zurückgesetzt; eigene DB/Root/Trustbereinigung und separate frische Prüfung bestanden. Keine Konfigurations-, SQL-Rechte- oder Owneränderungen. Keine direkte CLR-/vollständige Matrix-/ZIP-Dateizugriffsqualifikation.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -29,7 +29,7 @@ Der SQL-Server benötigt für die Laufzeit stattdessen die in den Deployment-Dok
 
 Bei `@Overwrite = 0` veröffentlicht der Provider ausschließlich per nicht überschreibendem `File.Move`. Auch ein erst während des Staging-Schreibens erzeugtes Ziel wird nicht ersetzt; der frühere Existenzcheck allein ist keine Veröffentlichungsbarriere. `@Overwrite = 1` behält den bisherigen Move-/Replace-Pfad. Bei Fehlern versucht der Provider, seine eigene Staging-Datei unter derselben gewählten Identität zu bereinigen; der erste Fehler bleibt erhalten. Scheitern Identitätswiederherstellung oder Bereinigung, können Reste bleiben. Ein vorhandenes Ziel bleibt bei NoOverwrite unverändert. Dies ist keine allgemeine NTFS-, Power-Loss- oder Caller-Impersonation-Garantie.
 
-Der Providerstand vor der Streaming-Identitätskorrektur hat am 2026-10-03 den .NET-Framework-4.8-Projektbuild und die Releaseartefakt-Erzeugung bestanden. Die historische private Helperqualifikation umfasste neun synthetische Fälle und 254 Assertions; sie ersetzt keinen Nachweis des neuen öffentlichen Test-Runners. Der sourcegebundene [Offline-Regressionstest](./Tests/Framework/README.md) bestand tatsächlich neun Fälle/254 Assertions einschließlich eigener Bereinigung und abschließender Pins. Vier zusätzliche private Prozesskontrollen bestanden Nonzero, Timeout, Capturegrenze und Postpin-Drift. Aktuelle CI wird separat am exakten PR-Head nachgewiesen. Die aktuelle korrigierte Binary hat ausschließlich den getrennt beschriebenen Zwei-Fall-Auth-Probe-Scope bestanden; vollständige SQL-Caller-/NTFS-Tests bleiben offen. Modulversion1.0.0, `partially validated` und `unreleased` bleiben erhalten.
+Der Providerstand vor der Streaming-Identitätskorrektur hat am 2026-10-03 den .NET-Framework-4.8-Projektbuild und die Releaseartefakt-Erzeugung bestanden. Die historische private Helperqualifikation umfasste neun synthetische Fälle und 254 Assertions; sie ersetzt keinen Nachweis des neuen öffentlichen Test-Runners. Der sourcegebundene [Offline-Regressionstest](./Tests/Framework/README.md) bestand tatsächlich neun Fälle/254 Assertions einschließlich eigener Bereinigung und abschließender Pins. Vier zusätzliche private Prozesskontrollen bestanden Nonzero, Timeout, Capturegrenze und Postpin-Drift. Aktuelle CI wird separat am exakten PR-Head nachgewiesen. Für den damaligen Stand war ausschließlich der getrennt beschriebene Zwei-Fall-Auth-Probe-Scope belegt. Der aktuelle ausgewählte Caller-/NTFS-Lauf ist im Evidenzblock und in der Testdokumentation beschrieben; die vollständige Matrix bleibt offen. Modulversion1.0.0, `partially validated` und `unreleased` bleiben erhalten.
 
 ## Streaming und Identität
 
