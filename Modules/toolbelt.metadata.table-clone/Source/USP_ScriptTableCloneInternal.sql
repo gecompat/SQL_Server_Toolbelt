@@ -4,7 +4,7 @@
 CREATE OR ALTER PROCEDURE toolbelt_metadata.USP_ScriptTableCloneInternal
     @SourceSchema nvarchar(max)=NULL,@SourceTable nvarchar(max)=NULL,
     @TargetSchema nvarchar(max)=NULL,@TargetTable nvarchar(max)=NULL,
-    @IncludeIdentity bit=0,@IncludeExtendedProperties bit=0,@ResultTable sysname=NULL,@KeepData bit=0,
+    @IncludeIdentity bit=0,@IncludeExtendedProperties bit=0,@TableMap sysname=NULL,@ExternalReferenceRule varchar(16)='REJECT',@ResultTable sysname=NULL,@KeepData bit=0,
     @Debug tinyint=0,@Hilfe bit=0
 AS
 BEGIN
@@ -18,6 +18,52 @@ BEGIN
     -- Vollständige incoming-FK- und Kollisionssicht darf nicht aus gefilterten Katalogen behauptet werden.
     IF COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'VIEW DEFINITION'),0)<>1
         THROW 53901,N'TableClone: datenbankweite VIEW DEFINITION für vollständige Struktursicht erforderlich.',2;
+
+    IF @ExternalReferenceRule IS NULL OR CONVERT(varbinary(max),@ExternalReferenceRule) NOT IN(CONVERT(varbinary(max),'REJECT'),CONVERT(varbinary(max),'KEEP'))
+       OR (@TableMap IS NULL AND CONVERT(varbinary(max),@ExternalReferenceRule)<>CONVERT(varbinary(max),'REJECT'))
+        THROW 53900,N'TableClone: ExternalReferenceRule muss exakt REJECT oder im Mapmodus KEEP sein.',3;
+    CREATE TABLE #tbx_TableClone_Map(MapOrdinal int NOT NULL PRIMARY KEY,
+        SourceSchema nvarchar(128) COLLATE DATABASE_DEFAULT NOT NULL,SourceTable nvarchar(128) COLLATE DATABASE_DEFAULT NOT NULL,
+        TargetSchema nvarchar(128) COLLATE DATABASE_DEFAULT NOT NULL,TargetTable nvarchar(128) COLLATE DATABASE_DEFAULT NOT NULL,
+        SourceId int NULL,TargetSchemaId int NULL);
+    IF @TableMap IS NULL
+    BEGIN
+        IF @IncludeIdentity IS NULL OR @IncludeExtendedProperties IS NULL OR EXISTS
+            (SELECT 1 FROM (VALUES(@SourceSchema),(@SourceTable),(@TargetSchema),(@TargetTable)) a(n)
+             WHERE n IS NULL OR DATALENGTH(n)=0 OR DATALENGTH(n)>256)
+            THROW 53900,N'TableClone: explizite Identifier mit 1-128 Codeeinheiten ohne NUL und IncludeIdentity erforderlich.',1;
+        INSERT #tbx_TableClone_Map VALUES(1,@SourceSchema,@SourceTable,@TargetSchema,@TargetTable,NULL,NULL);
+    END
+    ELSE
+    BEGIN
+        IF @SourceSchema IS NOT NULL OR @SourceTable IS NOT NULL OR @TargetSchema IS NOT NULL OR @TargetTable IS NOT NULL
+           OR @IncludeIdentity IS NULL OR @IncludeExtendedProperties IS NULL
+            THROW 53900,N'TableClone: Mapmodus verlangt NULL für die vier einzelnen Identifier.',4;
+        IF LEFT(@TableMap,1)<>N'#' OR LEFT(@TableMap,2)=N'##' OR LEN(@TableMap)<2
+           OR SUBSTRING(@TableMap,2,128) COLLATE Latin1_General_100_BIN2 LIKE N'%[^A-Za-z0-9_]%'
+            THROW 53900,N'TableClone: TableMap muss eine caller-lokale Temp-Tabelle sein.',5;
+        DECLARE @MapId int=OBJECT_ID(N'tempdb..'+@TableMap,N'U'),@ResultId int=OBJECT_ID(N'tempdb..'+@ResultTable,N'U');
+        IF @MapId IS NULL OR @MapId=@ResultId THROW 53900,N'TableClone: Map fehlt oder ist das Ausgabeobjekt.',6;
+        IF (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=@MapId)<>5
+           OR EXISTS(SELECT 1 FROM tempdb.sys.columns WHERE object_id=@MapId AND
+              (is_nullable<>0 OR is_computed<>0 OR user_type_id<>system_type_id OR
+               NOT ((CONVERT(varbinary(256),name)=CONVERT(varbinary(256),N'MapOrdinal') AND system_type_id=56 AND max_length=4)
+                 OR (CONVERT(varbinary(256),name) IN(CONVERT(varbinary(256),N'SourceSchema'),CONVERT(varbinary(256),N'SourceTable'),CONVERT(varbinary(256),N'TargetSchema'),CONVERT(varbinary(256),N'TargetTable')) AND system_type_id=231 AND max_length=-1))))
+            THROW 53900,N'TableClone: Map verlangt exakt fünf NOT-NULL-Spalten ohne Alias-/Computedtypen.',7;
+        DECLARE @MapSql nvarchar(max)=N'IF NOT EXISTS(SELECT 1 FROM '+QUOTENAME(@TableMap)+N') OR (SELECT COUNT_BIG(*) FROM '+QUOTENAME(@TableMap)+N')>64
+          OR EXISTS(SELECT 1 FROM '+QUOTENAME(@TableMap)+N' WHERE MapOrdinal<=0 OR DATALENGTH(SourceSchema) NOT BETWEEN 2 AND 256 OR DATALENGTH(SourceTable) NOT BETWEEN 2 AND 256 OR DATALENGTH(TargetSchema) NOT BETWEEN 2 AND 256 OR DATALENGTH(TargetTable) NOT BETWEEN 2 AND 256)
+          OR EXISTS(SELECT 1 FROM '+QUOTENAME(@TableMap)+N' GROUP BY MapOrdinal HAVING COUNT_BIG(*)<>1)
+          THROW 53900,N''TableClone: Mapzeilen, Identifier oder Ordinals ungültig.'',8;
+          INSERT #tbx_TableClone_Map SELECT MapOrdinal,SourceSchema,SourceTable,TargetSchema,TargetTable,NULL,NULL FROM '+QUOTENAME(@TableMap)+N';';
+        EXEC sys.sp_executesql @MapSql;
+    END;
+    DECLARE @MapOrdinal int,@SourceName nvarchar(776),@TargetName nvarchar(776),@SourceId int,@TargetSchemaId int;
+    DECLARE ValidationCursor CURSOR LOCAL FAST_FORWARD FOR SELECT MapOrdinal,SourceSchema,SourceTable,TargetSchema,TargetTable FROM #tbx_TableClone_Map ORDER BY MapOrdinal;
+    OPEN ValidationCursor;
+    FETCH NEXT FROM ValidationCursor INTO @MapOrdinal,@SourceSchema,@SourceTable,@TargetSchema,@TargetTable;
+    WHILE @@FETCH_STATUS=0
+    BEGIN
+        SET @Hilfe=0;
     IF @IncludeIdentity IS NULL OR @IncludeExtendedProperties IS NULL OR EXISTS
         (SELECT 1 FROM (VALUES(@SourceSchema),(@SourceTable),(@TargetSchema),(@TargetTable)) args(Name)
          WHERE Name IS NULL OR DATALENGTH(Name)=0 OR DATALENGTH(Name)>256
@@ -28,9 +74,9 @@ BEGIN
     SELECT @Hilfe=1 FROM (VALUES(@SourceSchema),(@SourceTable),(@TargetSchema),(@TargetTable)) args(Name)
     CROSS JOIN Units WHERE n<=DATALENGTH(Name)/2 AND UNICODE(SUBSTRING(Name COLLATE Latin1_General_100_BIN2,n,1))=0;
     IF @Hilfe=1 THROW 53900,N'TableClone: Identifier enthält NUL.',2;
-    DECLARE @SourceName nvarchar(776)=QUOTENAME(@SourceSchema)+N'.'+QUOTENAME(@SourceTable),
-        @TargetName nvarchar(776)=QUOTENAME(@TargetSchema)+N'.'+QUOTENAME(@TargetTable),
-        @SourceId int,@TargetSchemaId int=SCHEMA_ID(@TargetSchema),@Message nvarchar(2048);
+    SELECT @SourceName=QUOTENAME(@SourceSchema)+N'.'+QUOTENAME(@SourceTable),
+        @TargetName=QUOTENAME(@TargetSchema)+N'.'+QUOTENAME(@TargetTable),
+        @SourceId=NULL,@TargetSchemaId=SCHEMA_ID(@TargetSchema);
     SELECT @SourceId=t.object_id FROM sys.tables t JOIN sys.schemas s ON s.schema_id=t.schema_id
         WHERE s.name=@SourceSchema COLLATE DATABASE_DEFAULT AND t.name=@SourceTable COLLATE DATABASE_DEFAULT;
     IF @SourceId IS NULL OR HAS_PERMS_BY_NAME(@SourceName,N'OBJECT',N'VIEW DEFINITION')<>1
@@ -70,7 +116,7 @@ BEGIN
             OR xml_collection_id<>0 OR rule_object_id<>0))
         THROW 53903,N'TableClone: Unsupported column feature (sparse/rowguid/FILESTREAM/generated/encrypted/masked/typedXML/rule).',3;
     IF EXISTS(SELECT 1 FROM sys.triggers WHERE parent_id=@SourceId)
-       OR EXISTS(SELECT 1 FROM sys.foreign_keys WHERE parent_object_id=@SourceId OR referenced_object_id=@SourceId)
+       OR (@TableMap IS NULL AND EXISTS(SELECT 1 FROM sys.foreign_keys WHERE parent_object_id=@SourceId OR referenced_object_id=@SourceId))
        OR (@IncludeExtendedProperties=0 AND EXISTS(SELECT 1 FROM sys.extended_properties WHERE
            (class=1 AND (major_id=@SourceId OR major_id IN(SELECT object_id FROM sys.objects WHERE parent_object_id=@SourceId)))
            OR (class=7 AND major_id=@SourceId)))
@@ -129,11 +175,70 @@ BEGIN
            OR (e.class=7 AND e.major_id=@SourceId))>2097152)
         THROW 53906,N'TableClone: Metadaten-Ressourcengrenze überschritten.',1;
 
-    CREATE TABLE #tbx_TableClone_Plan
-        (Ordinal int NOT NULL,ObjectKind varchar(32) COLLATE Latin1_General_100_BIN2 NOT NULL,
-         TargetName nvarchar(776) COLLATE Latin1_General_100_BIN2 NOT NULL,
-         ScriptText nvarchar(max) COLLATE Latin1_General_100_BIN2 NOT NULL);
+
+        UPDATE #tbx_TableClone_Map SET SourceId=@SourceId,TargetSchemaId=@TargetSchemaId WHERE MapOrdinal=@MapOrdinal;
+        FETCH NEXT FROM ValidationCursor INTO @MapOrdinal,@SourceSchema,@SourceTable,@TargetSchema,@TargetTable;
+    END;
+    CLOSE ValidationCursor; DEALLOCATE ValidationCursor;
+    IF EXISTS(SELECT 1 FROM #tbx_TableClone_Map GROUP BY SourceId HAVING COUNT_BIG(*)>1)
+       OR EXISTS(SELECT 1 FROM #tbx_TableClone_Map GROUP BY TargetSchemaId,TargetTable HAVING COUNT_BIG(*)>1)
+        THROW 53900,N'TableClone: doppelte Quelle oder kataloggleiches Ziel in Map.',9;
+    -- Globale Countquote: jedes Childobjekt genau einmal plus jedes FK-Spaltentupel genau einmal.
+    IF (SELECT COUNT_BIG(*) FROM sys.objects o JOIN #tbx_TableClone_Map m ON m.SourceId=o.parent_object_id)
+       +(SELECT COUNT_BIG(*) FROM sys.foreign_key_columns c JOIN #tbx_TableClone_Map m ON m.SourceId=c.parent_object_id)>2048
+        THROW 53906,N'TableClone: globale Objekt-/FK-Spaltentupelquote überschritten.',1;
+    DECLARE @MinimumPlanBytes bigint=COALESCE((SELECT SUM(CONVERT(bigint,DATALENGTH(definition))) FROM
+        (SELECT d.definition FROM sys.default_constraints d JOIN #tbx_TableClone_Map m ON m.SourceId=d.parent_object_id
+         UNION ALL SELECT d.definition FROM sys.check_constraints d JOIN #tbx_TableClone_Map m ON m.SourceId=d.parent_object_id
+         UNION ALL SELECT d.definition FROM sys.computed_columns d JOIN #tbx_TableClone_Map m ON m.SourceId=d.object_id
+         UNION ALL SELECT d.filter_definition FROM sys.indexes d JOIN #tbx_TableClone_Map m ON m.SourceId=d.object_id WHERE d.has_filter=1) definitions),0);
+    IF @IncludeExtendedProperties=1
+        SET @MinimumPlanBytes+=(SELECT COUNT_BIG(*)*200 FROM sys.extended_properties e WHERE
+            (e.class=1 AND (e.major_id IN(SELECT SourceId FROM #tbx_TableClone_Map) OR e.major_id IN(SELECT o.object_id FROM sys.objects o JOIN #tbx_TableClone_Map m ON m.SourceId=o.parent_object_id)))
+            OR (e.class=7 AND e.major_id IN(SELECT SourceId FROM #tbx_TableClone_Map)));
+    SET @MinimumPlanBytes+=(SELECT COUNT_BIG(*)*2 FROM sys.foreign_keys f JOIN #tbx_TableClone_Map m ON m.SourceId=f.parent_object_id);
+    IF @MinimumPlanBytes>2097152 THROW 53906,N'TableClone: globale minimale Scriptbytes überschritten.',1;
+    IF @TableMap IS NOT NULL
+    BEGIN
+        IF EXISTS(SELECT 1 FROM sys.foreign_keys f JOIN #tbx_TableClone_Map m ON m.SourceId=f.parent_object_id
+           LEFT JOIN #tbx_TableClone_Map r ON r.SourceId=f.referenced_object_id WHERE r.SourceId IS NULL)
+           AND @ExternalReferenceRule='REJECT'
+            THROW 53903,N'TableClone: externe FK-Referenz bei REJECT.',13;
+        IF EXISTS(SELECT 1 FROM sys.foreign_keys f JOIN #tbx_TableClone_Map m ON m.SourceId=f.parent_object_id
+            WHERE (f.is_disabled=1 AND f.is_not_trusted=0) OR f.delete_referential_action NOT BETWEEN 0 AND 3 OR f.update_referential_action NOT BETWEEN 0 AND 3)
+            THROW 53903,N'TableClone: nicht unterstützter FK-Zustand.',14;
+        IF EXISTS(SELECT 1 FROM sys.foreign_keys f JOIN #tbx_TableClone_Map m ON m.SourceId=f.parent_object_id
+            JOIN sys.extended_properties e ON e.class=1 AND e.major_id=f.object_id)
+            THROW 53903,N'TableClone: Properties auf FK werden nicht unterstützt.',10;
+        IF EXISTS(SELECT 1 FROM sys.foreign_keys f JOIN #tbx_TableClone_Map m ON m.SourceId=f.parent_object_id
+            LEFT JOIN sys.tables t ON t.object_id=f.referenced_object_id
+            LEFT JOIN sys.indexes i ON i.object_id=f.referenced_object_id AND i.index_id=f.key_index_id
+            WHERE t.object_id IS NULL OR COALESCE(HAS_PERMS_BY_NAME(QUOTENAME(OBJECT_SCHEMA_NAME(t.object_id))+N'.'+QUOTENAME(t.name),N'OBJECT',N'VIEW DEFINITION'),0)<>1
+             OR i.index_id IS NULL OR i.is_unique<>1 OR i.type NOT IN(1,2) OR i.is_disabled=1 OR i.is_hypothetical=1 OR i.has_filter=1
+             OR NOT EXISTS(SELECT 1 FROM sys.foreign_key_columns c WHERE c.constraint_object_id=f.object_id)
+             OR (SELECT MIN(c.constraint_column_id) FROM sys.foreign_key_columns c WHERE c.constraint_object_id=f.object_id)<>1
+             OR (SELECT MAX(c.constraint_column_id) FROM sys.foreign_key_columns c WHERE c.constraint_object_id=f.object_id)<>(SELECT COUNT(*) FROM sys.foreign_key_columns c WHERE c.constraint_object_id=f.object_id)
+             OR (SELECT COUNT(*) FROM sys.foreign_key_columns c WHERE c.constraint_object_id=f.object_id)<>(SELECT COUNT(*) FROM sys.index_columns c WHERE c.object_id=i.object_id AND c.index_id=i.index_id AND c.key_ordinal>0)
+             OR EXISTS(SELECT 1 FROM sys.foreign_key_columns c LEFT JOIN sys.columns pc ON pc.object_id=c.parent_object_id AND pc.column_id=c.parent_column_id
+                LEFT JOIN sys.columns rc ON rc.object_id=c.referenced_object_id AND rc.column_id=c.referenced_column_id
+                WHERE c.constraint_object_id=f.object_id AND (pc.column_id IS NULL OR rc.column_id IS NULL OR NOT EXISTS(SELECT 1 FROM sys.index_columns k WHERE k.object_id=i.object_id AND k.index_id=i.index_id AND k.column_id=c.referenced_column_id AND k.key_ordinal>0))))
+            THROW 53905,N'TableClone: unvollständige FK-/Referenzschlüsselmetadaten.',2;
+    END;
+    CREATE TABLE #tbx_TableClone_Plan(Ordinal int NOT NULL,ObjectKind varchar(32) COLLATE Latin1_General_100_BIN2 NOT NULL,
+        TargetName nvarchar(776) COLLATE Latin1_General_100_BIN2 NOT NULL,ScriptText nvarchar(max) COLLATE Latin1_General_100_BIN2 NOT NULL);
+    CREATE TABLE #tbx_TableClone_Order(OriginalOrdinal int NOT NULL PRIMARY KEY,MapOrdinal int NOT NULL,Phase int NOT NULL);
+    CREATE TABLE #tbx_TableClone_Names(SchemaId int NOT NULL,GeneratedName sysname COLLATE DATABASE_DEFAULT NOT NULL);
+    CREATE TABLE #tbx_TableClone_EpOwners(MapOrdinal int NOT NULL,TargetSchema sysname NOT NULL,Class int NOT NULL,MajorId int NOT NULL,MinorId int NOT NULL,SortKind int NOT NULL,SourceOrdinal int NOT NULL,
+        Level1Type nvarchar(16) NOT NULL,Level1Name sysname NOT NULL,Level2Type nvarchar(16) NULL,Level2Name sysname NULL,TargetName nvarchar(776) NOT NULL);
+    DECLARE @PlanStart int;
+    DECLARE RenderCursor CURSOR LOCAL FAST_FORWARD FOR SELECT MapOrdinal,SourceSchema,SourceTable,TargetSchema,TargetTable,SourceId,TargetSchemaId FROM #tbx_TableClone_Map ORDER BY MapOrdinal;
+    OPEN RenderCursor;
+    FETCH NEXT FROM RenderCursor INTO @MapOrdinal,@SourceSchema,@SourceTable,@TargetSchema,@TargetTable,@SourceId,@TargetSchemaId;
+    WHILE @@FETCH_STATUS=0
+    BEGIN
+        SET @TargetName=QUOTENAME(@TargetSchema)+N'.'+QUOTENAME(@TargetTable);
     DECLARE @ColumnDdl nvarchar(max),@TableDdl nvarchar(max),@Filegroup sysname,@LobFilegroup sysname;
+    SELECT @ColumnDdl=NULL,@TableDdl=NULL,@Filegroup=NULL,@LobFilegroup=NULL;
     SELECT @ColumnDdl=STRING_AGG(CONVERT(nvarchar(max),N'    '+QUOTENAME(c.name)+CASE WHEN c.is_computed=1 THEN N' AS '+cc.definition
         +CASE WHEN cc.is_persisted=1 THEN N' PERSISTED'+CASE WHEN c.is_nullable=0 THEN N' NOT NULL' ELSE N'' END ELSE N'' END
         ELSE N' '+QUOTENAME(t.name)
@@ -157,14 +262,17 @@ BEGIN
     SET @TableDdl=N'CREATE TABLE '+@TargetName+N' ('+NCHAR(10)+@ColumnDdl+NCHAR(10)+N')'
         +CASE WHEN @Filegroup IS NULL THEN N'' ELSE N' ON '+QUOTENAME(@Filegroup) END
         +CASE WHEN @LobFilegroup IS NULL THEN N'' ELSE N' TEXTIMAGE_ON '+QUOTENAME(@LobFilegroup) END+N';';
-        INSERT #tbx_TableClone_Plan
+    IF @MapOrdinal=(SELECT MIN(MapOrdinal) FROM #tbx_TableClone_Map)
+    INSERT #tbx_TableClone_Plan
     SELECT n,'SESSION_OPTION',@TargetName,Statement FROM (VALUES
        (1,N'SET ANSI_NULLS ON;'),(2,N'SET ANSI_PADDING ON;'),(3,N'SET ANSI_WARNINGS ON;'),
        (4,N'SET ARITHABORT ON;'),(5,N'SET CONCAT_NULL_YIELDS_NULL ON;'),
        (6,N'SET QUOTED_IDENTIFIER ON;'),(7,N'SET NUMERIC_ROUNDABORT OFF;')) options(n,Statement);
-    INSERT #tbx_TableClone_Plan VALUES(8,'TABLE',@TargetName,@TableDdl);
+    SET @PlanStart=COALESCE((SELECT MAX(Ordinal) FROM #tbx_TableClone_Plan),0);
+    INSERT #tbx_TableClone_Plan VALUES(@PlanStart+1,'TABLE',@TargetName,@TableDdl);
     DECLARE @Objects TABLE(SortKind int NOT NULL,SourceOrdinal int NOT NULL,ObjectKind varchar(32) NOT NULL,
         GeneratedName sysname NOT NULL,ScriptText nvarchar(max) NOT NULL,SourceObjectId int NULL,SourceIndexId int NULL);
+    DELETE @Objects;
     -- Hash der length-framed Identifier: volle Namen fließen ein, kein Trunkieren/Casefold.
     DECLARE @NameContext nvarchar(max)=CONCAT(DATALENGTH(@TargetSchema),N':',@TargetSchema,N';',DATALENGTH(@TargetTable),N':',@TargetTable,N';');
     INSERT @Objects
@@ -224,15 +332,20 @@ BEGIN
             AND o.name=p.GeneratedName COLLATE DATABASE_DEFAULT WHERE p.ObjectKind<>'INDEX')
         THROW 53904,N'TableClone: deterministischer Constraintname kollidiert.',1;
     INSERT #tbx_TableClone_Plan
-        SELECT 8+ROW_NUMBER() OVER(ORDER BY SortKind,SourceOrdinal),ObjectKind,
+        SELECT @PlanStart+1+ROW_NUMBER() OVER(ORDER BY SortKind,SourceOrdinal),ObjectKind,
             CASE WHEN ObjectKind='INDEX' THEN @TargetName+N'.'+QUOTENAME(GeneratedName)
                  ELSE QUOTENAME(@TargetSchema)+N'.'+QUOTENAME(GeneratedName) END,ScriptText FROM @Objects;
+    INSERT #tbx_TableClone_Order(OriginalOrdinal,MapOrdinal,Phase)
+        SELECT Ordinal,@MapOrdinal,CASE ObjectKind WHEN 'TABLE' THEN 1 ELSE 2 END
+        FROM #tbx_TableClone_Plan WHERE Ordinal>@PlanStart;
+    INSERT #tbx_TableClone_Names SELECT @TargetSchemaId,GeneratedName FROM @Objects WHERE ObjectKind<>'INDEX';
     IF @IncludeExtendedProperties=1
     BEGIN
         -- Ownerzuordnung verwendet dieselben erzeugten Namen wie der DDL-Plan.
         -- Explizite Nullability: Tabellenowner besitzen kein Level2, unabhängig von Caller-/DB-Defaults.
         DECLARE @Owners TABLE(Class int NOT NULL,MajorId int NOT NULL,MinorId int NOT NULL,SortKind int NOT NULL,SourceOrdinal int NOT NULL,
             Level1Type nvarchar(16) NOT NULL,Level1Name sysname NOT NULL,Level2Type nvarchar(16) NULL,Level2Name sysname NULL,TargetName nvarchar(776) NOT NULL);
+        DELETE @Owners;
         INSERT @Owners VALUES(1,@SourceId,0,1,0,N'TABLE',CONVERT(sysname,@TargetTable),NULL,NULL,@TargetName);
         INSERT @Owners SELECT 1,@SourceId,column_id,2,column_id,N'TABLE',CONVERT(sysname,@TargetTable),N'COLUMN',name,
             @TargetName+N'.'+QUOTENAME(name) FROM sys.columns WHERE object_id=@SourceId;
@@ -258,16 +371,31 @@ BEGIN
         -- Mindestens eine UTF16-Einheit je späterer Zeile: kein engerer Propertycountvertrag.
         IF (SELECT COUNT_BIG(*)*2 FROM @Owners o JOIN sys.extended_properties e ON e.class=o.Class AND e.major_id=o.MajorId AND e.minor_id=o.MinorId)>2097152
             THROW 53906,N'TableClone: Property-Minimalbytes überschreiten die Scriptgrenze.',1;
+        INSERT #tbx_TableClone_EpOwners
+            SELECT @MapOrdinal,@TargetSchema,Class,MajorId,MinorId,SortKind,SourceOrdinal,Level1Type,Level1Name,Level2Type,Level2Name,TargetName FROM @Owners;
+    END;
+
+        IF (SELECT SUM(CONVERT(bigint,DATALENGTH(ScriptText))) FROM #tbx_TableClone_Plan)>2097152
+            THROW 53906,N'TableClone: globale Scriptbytes überschritten.',2;
+        FETCH NEXT FROM RenderCursor INTO @MapOrdinal,@SourceSchema,@SourceTable,@TargetSchema,@TargetTable,@SourceId,@TargetSchemaId;
+    END;
+    CLOSE RenderCursor; DEALLOCATE RenderCursor;
+    IF EXISTS(SELECT 1 FROM #tbx_TableClone_Names GROUP BY SchemaId,GeneratedName HAVING COUNT_BIG(*)>1)
+        THROW 53904,N'TableClone: globale Constraintnamenskollision.',1;
+    ;WITH Ordered AS(SELECT OriginalOrdinal,7+ROW_NUMBER() OVER(ORDER BY Phase,MapOrdinal,OriginalOrdinal) NewOrdinal FROM #tbx_TableClone_Order)
+    UPDATE p SET Ordinal=o.NewOrdinal FROM #tbx_TableClone_Plan p JOIN Ordered o ON o.OriginalOrdinal=p.Ordinal;
+    IF @IncludeExtendedProperties=1
+    BEGIN
         DECLARE @EpName sysname,@EpValue sql_variant,@EpBase sysname,@EpPrecision int,@EpScale int,@EpLength int,@EpCollation sysname,
             @EpL1Type nvarchar(16),@EpL1Name sysname,@EpL2Type nvarchar(16),@EpL2Name sysname,@EpTarget nvarchar(776),
-            @EpType nvarchar(512),@EpLiteral nvarchar(max),@EpExpression nvarchar(max),@EpDdl nvarchar(max),
+            @EpTargetSchema sysname,@EpType nvarchar(512),@EpLiteral nvarchar(max),@EpExpression nvarchar(max),@EpDdl nvarchar(max),
             @EpOrdinal int=(SELECT MAX(Ordinal) FROM #tbx_TableClone_Plan),@PlanBytes bigint=(SELECT SUM(CONVERT(bigint,DATALENGTH(ScriptText))) FROM #tbx_TableClone_Plan);
         DECLARE PropertyCursor CURSOR LOCAL FAST_FORWARD FOR
-            SELECT e.name,e.value,o.Level1Type,o.Level1Name,o.Level2Type,o.Level2Name,o.TargetName
-            FROM @Owners o JOIN sys.extended_properties e ON e.class=o.Class AND e.major_id=o.MajorId AND e.minor_id=o.MinorId
-            ORDER BY o.SortKind,o.SourceOrdinal,e.name COLLATE Latin1_General_100_BIN2,CONVERT(varbinary(256),e.name);
+            SELECT e.name,e.value,o.Level1Type,o.Level1Name,o.Level2Type,o.Level2Name,o.TargetName,o.TargetSchema
+            FROM #tbx_TableClone_EpOwners o JOIN sys.extended_properties e ON e.class=o.Class AND e.major_id=o.MajorId AND e.minor_id=o.MinorId
+            ORDER BY o.MapOrdinal,o.SortKind,o.SourceOrdinal,e.name COLLATE Latin1_General_100_BIN2,CONVERT(varbinary(256),e.name);
         OPEN PropertyCursor;
-        FETCH NEXT FROM PropertyCursor INTO @EpName,@EpValue,@EpL1Type,@EpL1Name,@EpL2Type,@EpL2Name,@EpTarget;
+        FETCH NEXT FROM PropertyCursor INTO @EpName,@EpValue,@EpL1Type,@EpL1Name,@EpL2Type,@EpL2Name,@EpTarget,@EpTargetSchema;
         WHILE @@FETCH_STATUS=0
         BEGIN
             SELECT @EpBase=CONVERT(sysname,SQL_VARIANT_PROPERTY(@EpValue,'BaseType')),
@@ -299,15 +427,62 @@ BEGIN
             SET @EpOrdinal+=1;
             SET @EpDdl=N'DECLARE @tbx_CloneEp'+CONVERT(nvarchar(12),@EpOrdinal)+N' sql_variant = '+@EpExpression+N';'+NCHAR(10)+
                 N'EXEC sys.sp_addextendedproperty @name=N'''+REPLACE(@EpName,N'''',N'''''')+N''',@value=@tbx_CloneEp'+CONVERT(nvarchar(12),@EpOrdinal)+
-                N',@level0type=N''SCHEMA'',@level0name=N'''+REPLACE(@TargetSchema,N'''',N'''''')+N''',@level1type=N'''+@EpL1Type+
+                N',@level0type=N''SCHEMA'',@level0name=N'''+REPLACE(@EpTargetSchema,N'''',N'''''')+N''',@level1type=N'''+@EpL1Type+
                 N''',@level1name=N'''+REPLACE(@EpL1Name,N'''',N'''''')+N''''+
                 CASE WHEN @EpL2Type IS NULL THEN N'' ELSE N',@level2type=N'''+@EpL2Type+N''',@level2name=N'''+REPLACE(@EpL2Name,N'''',N'''''')+N'''' END+N';';
             SET @PlanBytes+=CONVERT(bigint,DATALENGTH(@EpDdl));
             IF @PlanBytes>2097152 THROW 53906,N'TableClone: Vorschau überschreitet2MiB Scripttext.',2;
             INSERT #tbx_TableClone_Plan VALUES(@EpOrdinal,'EXTENDED_PROPERTY',@EpTarget,@EpDdl);
-            FETCH NEXT FROM PropertyCursor INTO @EpName,@EpValue,@EpL1Type,@EpL1Name,@EpL2Type,@EpL2Name,@EpTarget;
+            FETCH NEXT FROM PropertyCursor INTO @EpName,@EpValue,@EpL1Type,@EpL1Name,@EpL2Type,@EpL2Name,@EpTarget,@EpTargetSchema;
         END;
         CLOSE PropertyCursor; DEALLOCATE PropertyCursor;
+    END;
+
+    IF @TableMap IS NOT NULL
+    BEGIN
+        DECLARE @FkId int,@FkName sysname,@FkDisabled bit,@FkUntrusted bit,@FkNfr bit,@FkDelete tinyint,@FkUpdate tinyint,
+            @FkOwner nvarchar(776),@FkReference nvarchar(776),@FkSchemaId int,@FkSchema sysname,@FkTable sysname,
+            @FkColumns nvarchar(max),@FkReferenceColumns nvarchar(max),@FkGenerated sysname,@FkScript nvarchar(max),
+            @FkOrdinal int=COALESCE((SELECT MAX(Ordinal) FROM #tbx_TableClone_Plan),0);
+        DECLARE @FkStates TABLE(MapOrdinal int NOT NULL,FkName sysname NOT NULL,OwnerName nvarchar(776) NOT NULL,GeneratedName sysname NOT NULL);
+        DECLARE ForeignKeyCursor CURSOR LOCAL FAST_FORWARD FOR
+            SELECT m.MapOrdinal,f.object_id,f.name,f.is_disabled,f.is_not_trusted,f.is_not_for_replication,
+                f.delete_referential_action,f.update_referential_action,m.TargetSchemaId,m.TargetSchema,m.TargetTable,
+                CASE WHEN r.SourceId IS NOT NULL THEN QUOTENAME(r.TargetSchema)+N'.'+QUOTENAME(r.TargetTable)
+                    ELSE QUOTENAME(OBJECT_SCHEMA_NAME(f.referenced_object_id))+N'.'+QUOTENAME(OBJECT_NAME(f.referenced_object_id)) END
+            FROM sys.foreign_keys f JOIN #tbx_TableClone_Map m ON m.SourceId=f.parent_object_id
+            LEFT JOIN #tbx_TableClone_Map r ON r.SourceId=f.referenced_object_id
+            ORDER BY m.MapOrdinal,f.name COLLATE Latin1_General_100_BIN2,CONVERT(varbinary(256),f.name);
+        OPEN ForeignKeyCursor;
+        FETCH NEXT FROM ForeignKeyCursor INTO @MapOrdinal,@FkId,@FkName,@FkDisabled,@FkUntrusted,@FkNfr,@FkDelete,@FkUpdate,@FkSchemaId,@FkSchema,@FkTable,@FkReference;
+        WHILE @@FETCH_STATUS=0
+        BEGIN
+            SET @FkOwner=QUOTENAME(@FkSchema)+N'.'+QUOTENAME(@FkTable);
+            SET @FkGenerated=CONVERT(sysname,N'FK_'+CONVERT(varchar(64),HASHBYTES('SHA2_256',CONVERT(varbinary(max),
+                CONVERT(nvarchar(12),DATALENGTH(@FkSchema))+N':'+@FkSchema+N';'+CONVERT(nvarchar(12),DATALENGTH(@FkTable))+N':'+@FkTable+N';'
+                +N'FK;'+CONVERT(nvarchar(12),DATALENGTH(@FkName))+N':'+@FkName)),2));
+            IF EXISTS(SELECT 1 FROM #tbx_TableClone_Names WHERE SchemaId=@FkSchemaId AND GeneratedName=@FkGenerated COLLATE DATABASE_DEFAULT)
+               OR EXISTS(SELECT 1 FROM sys.objects WHERE schema_id=@FkSchemaId AND name=@FkGenerated COLLATE DATABASE_DEFAULT)
+                THROW 53904,N'TableClone: deterministischer FK-Name kollidiert.',1;
+            INSERT #tbx_TableClone_Names VALUES(@FkSchemaId,@FkGenerated);
+            SELECT @FkColumns=STRING_AGG(CONVERT(nvarchar(max),QUOTENAME(pc.name)),N',') WITHIN GROUP(ORDER BY c.constraint_column_id),
+                @FkReferenceColumns=STRING_AGG(CONVERT(nvarchar(max),QUOTENAME(rc.name)),N',') WITHIN GROUP(ORDER BY c.constraint_column_id)
+            FROM sys.foreign_key_columns c JOIN sys.columns pc ON pc.object_id=c.parent_object_id AND pc.column_id=c.parent_column_id
+            JOIN sys.columns rc ON rc.object_id=c.referenced_object_id AND rc.column_id=c.referenced_column_id WHERE c.constraint_object_id=@FkId;
+            SET @FkScript=N'ALTER TABLE '+@FkOwner+CASE @FkUntrusted WHEN 0 THEN N' WITH CHECK' ELSE N' WITH NOCHECK' END
+                +N' ADD CONSTRAINT '+QUOTENAME(@FkGenerated)+N' FOREIGN KEY ('+@FkColumns+N') REFERENCES '+@FkReference+N' ('+@FkReferenceColumns+N')'
+                +N' ON DELETE '+CASE @FkDelete WHEN 0 THEN N'NO ACTION' WHEN 1 THEN N'CASCADE' WHEN 2 THEN N'SET NULL' WHEN 3 THEN N'SET DEFAULT' END
+                +N' ON UPDATE '+CASE @FkUpdate WHEN 0 THEN N'NO ACTION' WHEN 1 THEN N'CASCADE' WHEN 2 THEN N'SET NULL' WHEN 3 THEN N'SET DEFAULT' END
+                +CASE @FkNfr WHEN 1 THEN N' NOT FOR REPLICATION' ELSE N'' END+N';';
+            SET @FkOrdinal+=1;
+            INSERT #tbx_TableClone_Plan VALUES(@FkOrdinal,'FOREIGN_KEY',@FkOwner,@FkScript);
+            IF @FkDisabled=1 INSERT @FkStates VALUES(@MapOrdinal,@FkName,@FkOwner,@FkGenerated);
+            FETCH NEXT FROM ForeignKeyCursor INTO @MapOrdinal,@FkId,@FkName,@FkDisabled,@FkUntrusted,@FkNfr,@FkDelete,@FkUpdate,@FkSchemaId,@FkSchema,@FkTable,@FkReference;
+        END;
+        CLOSE ForeignKeyCursor; DEALLOCATE ForeignKeyCursor;
+        INSERT #tbx_TableClone_Plan
+            SELECT @FkOrdinal+ROW_NUMBER() OVER(ORDER BY MapOrdinal,FkName COLLATE Latin1_General_100_BIN2,CONVERT(varbinary(256),FkName)),
+                'FOREIGN_KEY_STATE',OwnerName,N'ALTER TABLE '+OwnerName+N' NOCHECK CONSTRAINT '+QUOTENAME(GeneratedName)+N';' FROM @FkStates;
     END;
     IF EXISTS(SELECT 1 FROM #tbx_TableClone_Plan WHERE DATALENGTH(ScriptText)>2097152)
        OR (SELECT SUM(CONVERT(bigint,DATALENGTH(ScriptText))) FROM #tbx_TableClone_Plan)>2097152

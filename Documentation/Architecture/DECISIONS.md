@@ -497,3 +497,11 @@ bleibt ein separater Release-Nachweis.
 | Auswirkungen | Bestehende öffentliche USP-Signaturen und globale Budgets bleiben erhalten. Assemblytrust erfordert ein separates exaktes Hash-Opt-in; unbekannte oder inkohärente Zustände blockieren. Keine automatische Rechtevergabe oder Ownerreparatur. Teilnachweise ergeben keine vollständige Produkt- oder Releasequalifikation. |
 | Alternativen | Getrennte SQL-/CLR-Parser, ungeprüfte Binaryadoption und automatische Owner-/Rechtereparatur sind ausgeschlossen. |
 | Betroffene Verträge | `JSON_CLR_MIGRATION_CONTRACT.md`, `JSON_GROUP_CONSTRUCTORS_CONTRACT.md`, `KNOWN_CLR_ARTIFACTS.json`, `.ai/BACKLOG.md`, `toolbelt.json.constructors` |
+
+## Datierter Entscheidungsstand 2026-10-04: V3 Map-/FK-Vorschau
+
+RelatedReference: `TC-2026-044`. Datierte Revision der bestehenden funktionsbezogenen Entscheidung; keine neue Referenzfamilie oder finale Sequenz-ID.
+
+Einzeln freigegebene Map-/FK-Erweiterung der vorhandenen Script-only-Prozedur; Benutzerentscheidung2026-10-03 zu Positionsbruch sowie FK-Property-/Zustandsgrenzen. [Vertrag](TABLE_CLONE_WAVE2_CONTRACT.md). Exakte2048Countdefinition und getrennte1024/128/64/2MiB-Grenzen dort; keine Provider-/Rights-/Execute-API. Neue Native-/CI-Qualifikation offen.
+
+Status: accepted; Sourceimplementierung, neue Runtime-/CI-Qualifikation offen. Alternative eigenständiger MultiTable-Wrapper oder SMO/CLR verworfen: duplizierter W1-Kern beziehungsweise zusätzlicher Provider. Auswirkungen: dokumentierter Positionsbruch; W1 benannte Aufrufe fachlich unverändert, keine Ownership-/DDL-Ausführung.

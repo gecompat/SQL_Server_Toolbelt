@@ -619,7 +619,7 @@ Datenkopie oder beliebige weitere Objektklassen.
   integrieren. Erweiterungen in getrennten überprüfbaren Wellen mit synthetischen
   Strukturoracles, scopebezogenen Lab-Tests und grünen PR-Merges integrieren.
 
-Status Welle1: `implemented`, `partially validated`, `unreleased`; Welle2 bleibt getrennt und nicht implementiert.
+Historischer W1-Stand: `implemented`, `partially validated`, `unreleased`; Welle2 war zu diesem Zeitpunkt getrennt und nicht implementiert. Der aktuelle W2-Stand folgt im datierten V3-Absatz.
 
 Änderungsvermerk 2026-10-02 — Codex: Die zusätzliche Benutzerantwort
 „Tabellenkopf Welle1 Ja“ bestätigt für Welle 1 `@IncludeExtendedProperties`
@@ -737,6 +737,8 @@ Die übrigen Reservefunktionen in diesem Abschnitt bleiben getrennt.
   oder Re-Identifikationsschutzbehauptung, keine realen Daten als Testartefakte.
 
 #### USP_ScriptTableClone
+
+Stand2026-10-04, Codex: Die am2026-10-03 konkret bestätigte W2-Erweiterung umfasst Map-/FK-Planung, PositionsbruchV3 und failclosed FK-EP-/Stategrenzen. [Kanonischer V3-Vertrag](../Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md). W2 implementiert, teilweise validiert und unveröffentlicht. Begrenzte lokale Linux2019/latest CL150-/Windows2025/exakt CU8 CL170-Lifecycle-/Upgrade-/resolved-Consumer-Nachweise samt frischer Bereinigung bestanden. Linux-Fixtures werden nur als Teilnachweis eines historischen insgesamt fehlgeschlagenen Laufs wiederverwendet; Windows vier Fixtures einmal im aktuellen Clean3. Unresolved NOT_ESTABLISHED, vollständige Qualifikation und aktuelle Head-CI offen. Die folgenden ursprünglichen V0-Grenzen bleiben historischer Ausgangsscope, keine neue W2-FK-Ablehnung.
 
 - Script-only-Planer für explizite Quell-/Ziel-Schema-/Tabellennamen in
   derselben Datenbank, reguläre diskbasierte Tabellen. Keine DDL-Ausführung,

@@ -60,7 +60,7 @@ BEGIN
     RETURN;
 END;
 
-IF CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'2.0.0'))
+IF CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'2.0.0'),CONVERT(varbinary(max),N'3.0.0'))
 BEGIN
     THROW 53923, N'Die installierte Modulversion ist diesem Uninstall-Skript nicht bekannt.', 1;
 END;
@@ -87,11 +87,11 @@ SELECT TOP (1)
       @ReferencingSchema = OBJECT_SCHEMA_NAME(dependencies.referencing_id)
     , @ReferencingObject = OBJECT_NAME(dependencies.referencing_id)
 FROM sys.sql_expression_dependencies AS dependencies
-WHERE dependencies.referenced_id IN
-      (
-          OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone'),
-          OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal')
-      )
+WHERE (dependencies.referenced_id IN(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone'),OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal'))
+        OR (dependencies.referenced_id IS NULL AND dependencies.referenced_server_name IS NULL
+            AND (dependencies.referenced_database_name IS NULL OR dependencies.referenced_database_name COLLATE DATABASE_DEFAULT=DB_NAME() COLLATE DATABASE_DEFAULT)
+            AND dependencies.referenced_schema_name COLLATE DATABASE_DEFAULT=N'toolbelt_metadata' COLLATE DATABASE_DEFAULT
+            AND dependencies.referenced_entity_name COLLATE DATABASE_DEFAULT IN(N'USP_ScriptTableClone',N'USP_ScriptTableCloneInternal')))
   AND NOT EXISTS
       (SELECT 1 FROM sys.objects owned JOIN sys.schemas s ON owned.schema_id=s.schema_id
        WHERE owned.object_id=dependencies.referencing_id AND s.name=N'toolbelt_metadata'
@@ -161,7 +161,11 @@ BEGIN TRY
         THROW 53923,N'TableClone: Releaseobjektmarker nicht kohärent.',1;    IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@ModePropertyName
        AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),@DeploymentMode))
         THROW 53927,N'TableClone: Modemarker seit Preflight verändert.',1;
-    IF EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d WHERE d.referenced_id IN(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone'),OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal'))
+    IF EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d WHERE (d.referenced_id IN(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone'),OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal'))
+        OR (d.referenced_id IS NULL AND d.referenced_server_name IS NULL
+            AND (d.referenced_database_name IS NULL OR d.referenced_database_name COLLATE DATABASE_DEFAULT=DB_NAME() COLLATE DATABASE_DEFAULT)
+            AND d.referenced_schema_name COLLATE DATABASE_DEFAULT=N'toolbelt_metadata' COLLATE DATABASE_DEFAULT
+            AND d.referenced_entity_name COLLATE DATABASE_DEFAULT IN(N'USP_ScriptTableClone',N'USP_ScriptTableCloneInternal')))
        AND NOT EXISTS(SELECT 1 FROM (VALUES(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone')),(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal'))) own(Id) WHERE own.Id=d.referencing_id))
         THROW 53926,N'TableClone: fremde same-database Dependency.',1;
 

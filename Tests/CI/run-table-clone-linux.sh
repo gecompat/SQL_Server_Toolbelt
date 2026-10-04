@@ -121,6 +121,9 @@ for compatibility_level in ${compatibility_levels}; do
     run_file "${local_database}" "${runtime_directory}" TableClone.Contract.sql
     run_file "${local_database}" "${runtime_directory}" Wave1.Contract.sql
     run_file "${local_database}" "${runtime_directory}" Wave1.DateTimeOffset.sql
+    run_file "${local_database}" "${runtime_directory}" Wave2.Contract.sql
+    run_file "${local_database}" "${runtime_directory}" Wave2.Safety.sql
+    run_file "${local_database}" "${runtime_directory}" Wave2.Caps.sql
 done
 run_file "${local_database}" "${runtime_directory}" MinimumRights.Contract.sql
 # Neue Byte- und Predicategrenzen einmal lokal; keine doppelte Vollmatrix.
@@ -135,11 +138,11 @@ fi
 # Wrong-kind bleibt trotz imitierter Id/Version unangetastet; danach explizite eigene Fixture-Restaurierung.
 run_query "${local_database}" "DROP PROCEDURE toolbelt_metadata.USP_ScriptTableClone;"
 run_query "${local_database}" "CREATE FUNCTION toolbelt_metadata.USP_ScriptTableClone() RETURNS @r TABLE(Value int) AS BEGIN RETURN; END;"
-run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.metadata.table-clone',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone'; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'2.0.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone';"
+run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.metadata.table-clone',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone'; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'3.0.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone';"
 expect_failure 53923 run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
 run_query "${local_database}" "IF OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone',N'TF') IS NULL THROW 54920,N'Wrong-kind wurde verändert.',11; DROP FUNCTION toolbelt_metadata.USP_ScriptTableClone;"
 run_file "${local_database}" "/workspace/Modules/toolbelt.metadata.table-clone/Source" USP_ScriptTableClone.sql
-run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.metadata.table-clone',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'PROCEDURE',@level1name=N'USP_ScriptTableClone'; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'2.0.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'PROCEDURE',@level1name=N'USP_ScriptTableClone';"
+run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.metadata.table-clone',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'PROCEDURE',@level1name=N'USP_ScriptTableClone'; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'3.0.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'PROCEDURE',@level1name=N'USP_ScriptTableClone';"
 run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.DeploymentMode',@value=N'local',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'PROCEDURE',@level1name=N'USP_ScriptTableClone';"
 run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
@@ -153,6 +156,8 @@ run_file "${central_database}" "${runtime_directory}" Lifecycle.Contract.sql
 run_file "${central_database}" "${runtime_directory}" TableClone.Contract.sql
 run_file "${central_database}" "${runtime_directory}" Wave1.Contract.sql
 run_file "${central_database}" "${runtime_directory}" Wave1.DateTimeOffset.sql
+run_file "${central_database}" "${runtime_directory}" Wave2.Contract.sql
+run_file "${central_database}" "${runtime_directory}" Wave2.Safety.sql
 run_file "${central_database}" "${runtime_directory}" Wave1.PermissionPredicate.sql
 run_file "${consumer_database}" "${runtime_directory}" Central.Contract.sql -v ToolbeltDatabase="${central_database}"
 expect_failure 53925 run_file "${central_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=0

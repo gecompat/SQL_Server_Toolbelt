@@ -617,3 +617,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 37 Module sind implementiert. 20 sind `validated`, 17 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
+
+## 2026-10-04 – Table Clone W2 / V3 Source
+
+- Vorhandene öffentliche/interne Prozedur mit TableMap an7 und ExternalReferenceRule an8; Standardtail9..12. Gemeinsamer W1-Renderer, Map-Snapshot, globale Reihenfolge, FK-Umleitung/KEEP, begrenzte Flags und FK-EP-Failclosed. Kein Execute-Wrapper, Provider oder Rechteänderung.
+- Separate64Maps/1024Columns/128Indexes, exakt2048Childobjekte-plus-FK-Spaltentupel und globale2MiB. Begrenzte lokale W2-Native-/Upgrade-/Lifecycle-Nachweise auf Linux2019/latest CL150 und Windows2025/exakt CU8 CL170 bestanden mit frischer eigener Bereinigung. Linux-Fixtures sind wiederverwendeter Teilnachweis eines historischen Fehllaufs; Windows-Fixtures bestanden im aktuellen Clean3. Unresolved nicht etabliert, vollständige Qualifikation und aktuelle Head-CI offen; historische W1-Evidenz bleibt getrennt.

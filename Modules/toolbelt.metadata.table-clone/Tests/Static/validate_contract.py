@@ -10,12 +10,12 @@ deploy = (MOD / 'Deployment/Deploy.sql').read_text(encoding='utf-8')
 uninstall = (MOD / 'Deployment/Uninstall.sql').read_text(encoding='utf-8')
 params = [('SourceSchema','nvarchar(max)','NULL'),('SourceTable','nvarchar(max)','NULL'),
           ('TargetSchema','nvarchar(max)','NULL'),('TargetTable','nvarchar(max)','NULL'),
-          ('IncludeIdentity','bit','0'),('IncludeExtendedProperties','bit','0'),('ResultTable','sysname','NULL'),('KeepData','bit','0'),
+          ('IncludeIdentity','bit','0'),('IncludeExtendedProperties','bit','0'),('TableMap','sysname','NULL'),('ExternalReferenceRule','varchar(16)',"'REJECT'"),('ResultTable','sysname','NULL'),('KeepData','bit','0'),
           ('Debug','tinyint','0'),('Hilfe','bit','0')]
 signature = public.split('AS\nBEGIN',1)[0]
-actual = re.findall(r'@(\w+)\s+(nvarchar\(max\)|sysname|bit|tinyint)\s*=\s*(NULL|0)',signature)
+actual = re.findall(r"@(\w+)\s+(nvarchar\(max\)|varchar\(16\)|sysname|bit|tinyint)\s*=\s*(NULL|0|'REJECT')",signature)
 assert actual == params, 'signature/default contract'
-assert public.index('IF @Hilfe=1') < public.index('OBJECT_ID(N\'tempdb..#tbx_TableClone_Plan') < public.index('EXEC toolbelt_metadata.USP_ScriptTableCloneInternal\n')
+assert public.index('IF @Hilfe=1') < public.index("N'#tbx_TableClone_Plan'") < public.index('EXEC toolbelt_metadata.USP_ScriptTableCloneInternal\n')
 assert 'EXEC sys.sp_executesql @TableDdl' not in core and 'EXEC sys.sp_executesql @IndexDdl' not in core
 assert 'INSERT ... EXEC' not in core
 for name in ['USP_ScriptTableClone','USP_ScriptTableCloneInternal']:
@@ -39,7 +39,7 @@ assert not re.search(r'\b(?:THEN|ELSE|WHEN)\d',public+core)
 print('TableClone static source/contract/lifecycle coupling PASS (no runtime evidence).')
 
 assert core.index('Computed-Dependency-Metadatensicht') < core.index('sys.sql_expression_dependencies d')
-assert "VALUES(8,'TABLE'" in core
+assert "VALUES(@PlanStart+1,'TABLE'" in core
 assert 'SET NUMERIC_ROUNDABORT OFF;' in core
 assert 'PERSISTED' in core and 'EXTENDED_PROPERTY' in core
 # Technische Predicate-Injektionen gegen beide echten Lifecycle-Gatepositionen.
@@ -106,3 +106,47 @@ assert 'ExpectedSecond' in dto and 'ExpectedNanosecond' in dto
 assert 'COUNT(DISTINCT CONVERT(varbinary(256),Name))' in dto
 assert 'COUNT(*) FROM #Wave1DtoPlan)<>26' in dto and "Ordinal=8 AND ObjectKind='TABLE'" in dto
 assert 'wave1_datetimeoffset: "Tests/Runtime/Wave1.DateTimeOffset.sql"' in (MOD/'module.yaml').read_text(encoding='utf-8')
+
+# V3-Sourcekopplung und Regelvektoren; keine Engine-/FK-Katalognachweise.
+assert len(params)==12 and params[6:8]==[('TableMap','sysname','NULL'),('ExternalReferenceRule','varchar(16)',"'REJECT'")]
+assert public.index('IF @Hilfe=1') < public.index("N'#tbx_TableClone_Map'")
+for name in ('Map','Order','Names','EpOwners'):
+    assert "N'#tbx_TableClone_"+name+"'" in public
+assert 'CREATE TABLE #tbx_TableClone_Map' in core and 'INSERT #tbx_TableClone_Map SELECT MapOrdinal,SourceSchema,SourceTable,TargetSchema,TargetTable,NULL,NULL' in core
+assert core.count('INSERT #tbx_TableClone_Map SELECT MapOrdinal')==1  # sole input snapshot; no later caller-map read
+assert '@MapId=@ResultId' in core and 'GROUP BY SourceId HAVING COUNT_BIG(*)>1' in core
+assert 'GROUP BY TargetSchemaId,TargetTable HAVING COUNT_BIG(*)>1' in core
+assert '(f.is_disabled=1 AND f.is_not_trusted=0)' in core
+assert 'f.key_index_id' in core and 'k.key_ordinal>0' in core
+assert 'c.constraint_column_id' in core and 'FOREIGN_KEY_STATE' in core
+assert core.index('CLOSE RenderCursor;') < core.index('DECLARE PropertyCursor') < core.index('DECLARE ForeignKeyCursor') < core.index('DECLARE @DependencyVersion')
+assert core.count('DECLARE @ColumnDdl')==1 and core.count('DECLARE PropertyCursor')==1
+assert core.count('CREATE TABLE #tbx_TableClone_Plan')==1
+# Countvertrag an die zwei Katalogmengen gekoppelt; keine Python-SQL-Nachbildung als Runtime-Nachweis.
+assert 'COUNT_BIG(*) FROM sys.objects o JOIN #tbx_TableClone_Map m ON m.SourceId=o.parent_object_id' in core
+assert 'COUNT_BIG(*) FROM sys.foreign_key_columns c JOIN #tbx_TableClone_Map m ON m.SourceId=c.parent_object_id' in core
+assert core.index('globale Objekt-/FK-Spaltentupelquote') < core.index('DECLARE @ColumnDdl')
+for version in ('1.0.0','2.0.0','3.0.0'):
+    assert "CONVERT(varbinary(max),N'"+version+"')" in deploy+uninstall
+for fixture in ('Wave2.Contract.sql','Wave2.Safety.sql','Wave2.Caps.sql'):
+    assert (MOD/'Tests/Runtime'/fixture).is_file()
+print('W2 V3/map/FK/order/count source coupling PASS; SQL/roundtrip not executed.')
+
+lifecycle_fixture=(MOD/'Tests/Runtime/Lifecycle.Contract.sql').read_text(encoding='utf-8')
+assert "(7,N'@TableMap',N'sysname',256),(8,N'@ExternalReferenceRule',N'varchar',16)" in lifecycle_fixture
+assert "(12,N'@Hilfe',N'bit',1)" in lifecycle_fixture
+assert "<>12" in lifecycle_fixture
+
+# Beide Pässe erhalten aufgelöste Consumer und katalogäquivalente unaufgelöste sameDB-Namen.
+for lifecycle in (deploy,uninstall):
+    assert lifecycle.count('referenced_id IS NULL AND') == 2
+    assert lifecycle.count('referenced_server_name IS NULL') == 2
+    assert lifecycle.count('referenced_database_name COLLATE DATABASE_DEFAULT=DB_NAME() COLLATE DATABASE_DEFAULT') == 2
+    assert lifecycle.count("referenced_schema_name COLLATE DATABASE_DEFAULT=N'toolbelt_metadata' COLLATE DATABASE_DEFAULT") == 2
+    assert lifecycle.count("referenced_entity_name COLLATE DATABASE_DEFAULT IN(N'USP_ScriptTableClone',N'USP_ScriptTableCloneInternal')") == 2
+caps=(MOD/'Tests/Runtime/Wave2.Caps.sql').read_text(encoding='utf-8')
+for witness in ('@c<=1024','@i<=2045',"ObjectKind='CHECK')<>2045","ObjectKind='PRIMARY_KEY')<>1","ObjectKind='FOREIGN_KEY')<>1",'@Number<>53906','@State<>1','CK_SyntheticW2Count2046'):
+    assert witness in caps
+assert caps.count('EXCEPT SELECT * FROM')==2
+assert 'ADR-2026-10-04-TABLE-CLONE-W2' not in (ROOT/'Documentation/Architecture/DECISIONS.md').read_text(encoding='utf-8')
+print('W2 consumer/count fixture source coupling PASS; no SQL execution.')
