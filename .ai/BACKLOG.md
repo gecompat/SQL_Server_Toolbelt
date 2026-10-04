@@ -24,6 +24,18 @@ Erhöhung/Reduktion im Betrieb, Budget0 als Admissionpause, laufende Arbeit
 auslaufen lassen, separate Supervisor-Kapazitäten und kleine Lab-Budgets.
 Keine privaten Kapazitäts-/Systemwerte in dieser Dokumentation.
 
+Weitere Einzelfreigabe 2026-10-04: ausdrücklich aktivierter verwalteter Betrieb
+darf direkte unverwaltete USP_ClaimWork-Aufrufe abweisen. Aktivierung nur bei
+nachgewiesen claimfreiem Übergang; zuvor bleibt das bisherige Verhalten erhalten.
+Antwort auf die konkrete Vertragsfrage: „ja, freigegeben“. Keine Wiederholung
+dieser Freigabefrage; übrige neue API-/Recoverydetails bleiben getrennt.
+
+Spätere Erweiterung auf ausdrücklichen Benutzerhinweis: SSIS-Workerpakete als
+Provider für T-SQL sowie parametrierte Aufrufe anderer SSIS-Pakete berücksichtigen.
+SSIS als Provider und SSIS-Pakete als Auftragstypen sind getrennte Folgegrenzen.
+Ausdrücklich nicht Teil der aktuellen Welle; keine Paket-/Installationsfreigabe
+und keine Übertragung der atomaren SQL-Abschlusszusage auf SSIS-Seiteneffekte.
+
 CSV-Grundvorschlag wurde angenommen; die NULL-Nachfrage widerrief das nicht.
 Optionales NULL-Token zusätzlich bestätigt: unquoted exakt ist SQL-NULL,
 quoted Token ist Text; leeres Feld/quoted leer bleibt leerer Text. Ohne Token
