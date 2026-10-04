@@ -6,7 +6,9 @@ param(
     [string[]]$RetryEligibleWorkTypes = @(), [int[]]$TransientSqlNumbers = @(),
     [int]$Slots = 1, [int]$MaxRunSeconds = 300, [int]$MaxClaims = 1000,
     [int]$ControlTimeoutSeconds = 5, [int]$ConnectTimeoutSeconds = 5,
-    [double]$PollSeconds = 1, [int]$GraceSeconds = 30, [string]$StopFile = ''
+    [double]$PollSeconds = 1, [int]$GraceSeconds = 30, [string]$StopFile = '',
+    [switch]$Managed,[guid]$WorkerId=[guid]::Empty,
+    [int]$Capacity=1,[ValidateSet('BOUNDED','CONTINUOUS')][string]$RunMode='BOUNDED'
 )
 # Keine Connection Strings auf der Commandline oder in Beispieldateien.
 try {

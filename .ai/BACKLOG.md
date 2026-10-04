@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-38 Module sind implementiert. 20 sind `validated`, 18 sind `partially validated`; 0 sind `not executed`.
+39 Module sind implementiert. 19 sind `validated`, 20 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -29,8 +29,12 @@ Ein einzelner Auftragsstopp lässt den Worker andere Arbeit ausführen;
 mehrere/alle gestoppten Worker bleiben bis zur ausdrücklichen Reaktivierung
 für neue Starts gesperrt. Historie bleibt erhalten.
 
-Status: `ready for development`, autonome Umsetzung aktiv; Runtime-Nachweis
-der neuen Welle `not executed`. Der technische
+Status: `implemented`, `partially validated`, `unreleased`. Der SQL-Vertrag mit
+gezielten Negativfällen und sechs tatsächlichen Lifecycle-Abweisungen sowie
+der echte Queue-Upgrade 2.0→2.1 bestanden am 2026-10-04 auf SQL Server 2019 Linux.
+Die fokussierten Managedläufe mit Windows-Workerhost bestanden einschließlich
+eigenem Cleanup am 2026-10-05 auf 2019 Linux und 2025 Windows/CU8. Der
+Linux-Workerhost-Nachweis über exakte Head-CI bleibt offen. Der technische
 [Worker-Control-Vertrag](../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md)
 konkretisiert die Umsetzung einschließlich Bindung, Commit-/Rollbacknachweis
 und unverändert gesperrter ungeklärter Ausgänge. Erst vorhandener externer Windows-/Linux-

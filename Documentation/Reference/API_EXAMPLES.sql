@@ -442,6 +442,132 @@ EXEC toolbelt_core.USP_RemoveWorkType @WorkTypeName='demo.noop', @AllowDelete=1;
 EXEC toolbelt_core.USP_ResolveWorkType @WorkTypeName='demo.noop';
 */
 
+-- toolbelt_core.VW_WorkerStatus
+-- Öffentliche technische Statussicht; explizite Spalten, keine Tokens oder Payloads.
+-- Voraussetzung: Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht.
+/* Separat auswählen und ausführen:
+SELECT TOP (20) * FROM toolbelt_core.VW_WorkerStatus;
+*/
+
+-- toolbelt_core.VW_WorkerExecutionStatus
+-- Öffentliche technische Statussicht; explizite Spalten, keine Tokens oder Payloads.
+-- Voraussetzung: Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht.
+/* Separat auswählen und ausführen:
+SELECT TOP (20) * FROM toolbelt_core.VW_WorkerExecutionStatus;
+*/
+
+-- toolbelt_core.USP_ClaimWorkerWork
+-- Fachliche Fassade der privaten atomaren Managed-Admission.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_ClaimWorkerWork @Hilfe=1;
+*/
+
+-- toolbelt_core.USP_CloseWorker
+-- Schließt ausschließlich eine Generation ohne belegte oder ungeklärte Reservations.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_CloseWorker @Hilfe=1;
+*/
+
+-- toolbelt_core.USP_DisableManagedWorkers
+-- Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder ungeklärte Holds.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_DisableManagedWorkers @Hilfe=1;
+*/
+
+-- toolbelt_core.USP_EnableManagedWorkers
+-- Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder ungeklärte Holds.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_EnableManagedWorkers @Hilfe=1;
+*/
+
+-- toolbelt_core.USP_HeartbeatWorker
+-- Erneuert ausschließlich die aktuelle lebende Workergeneration ohne Claims zu übernehmen.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_HeartbeatWorker @Hilfe=1;
+*/
+
+-- toolbelt_core.USP_ReconcileWorkerExecution
+-- Prüft actual Sessionfence und exakten locking Commitwitness; CAS und LateDispatchfence erhalten UNKNOWN ohne Replay.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_ReconcileWorkerExecution @Hilfe=1;
+*/
+
+-- toolbelt_core.USP_RegisterWorker
+-- Registriert eine neue principal- und generationgebundene Workeridentität; übernimmt keine alten Reservations.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_RegisterWorker @Hilfe=1;
+*/
+
+-- toolbelt_core.USP_ReleaseHeldWork
+-- Beginnt ausschließlich nach bewiesenem Rollback eine explizite neue Retryphase; UNKNOWN und COMPLETED bleiben gesperrt.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_ReleaseHeldWork @Hilfe=1;
+*/
+
+-- toolbelt_core.USP_SetWorkerCapacity
+-- Ändert die Live-Capacity einer exakten Workergeneration ohne Übernahme oder Abbruch laufender Arbeit.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_SetWorkerCapacity @Hilfe=1;
+*/
+
+-- toolbelt_core.USP_SetWorkerConcurrency
+-- Ändert das globale Live-Admissionbudget versionsgebunden ohne laufende Arbeit abzubrechen.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_SetWorkerConcurrency @Hilfe=1;
+*/
+
+-- toolbelt_core.USP_SetWorkerIntervals
+-- Ändert Intervalldefaults ausschließlich für künftig registrierte Generationen.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_SetWorkerIntervals @Hilfe=1;
+*/
+
+-- toolbelt_core.USP_SetWorkerState
+-- Steuert ACTIVE, PAUSED oder DRAINING einer exakten lebenden Workergeneration.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_SetWorkerState @Hilfe=1;
+*/
+
+-- toolbelt_core.USP_StopWorkerExecution
+-- Persistiert generationgebunden Stop und Hold vor Providerabbruch; Completiongewinner bleibt committed.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_StopWorkerExecution @Hilfe=1;
+*/
+
+-- toolbelt_core.USP_StopWorkers
+-- Pausiert stabile ausgewählte Workeridentitäten und persistiert atomaren Stop/Hold ihrer eingefrorenen exakten Generationen.
+-- Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+-- Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_StopWorkers @Hilfe=1;
+*/
+
 -- toolbelt_datetime.TVF_DateBucketDate
 -- Ordnet einen date-Wert einem originbezogenen Zeit-Bucket zu.
 /* Separat auswählen und ausführen:

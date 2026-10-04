@@ -1,8 +1,8 @@
 module_id: "toolbelt.core.work-queue"
 module_name: "Transactional Work Queue"
-version: "2.0.0"
+version: "2.1.0"
 implementation_status: implemented
-validation_status: validated
+validation_status: partially validated
 release_status: unreleased
 description: "Stellt eine persistente Work Queue mit atomarem Lease-Claim, Retry, Dead Letter, Idempotenz und gruppenbezogenen Drain-Barriers bereit."
 sql_server_versions:
@@ -39,6 +39,10 @@ dependencies:
 schemas:
   - "toolbelt_core"
 objects:
+  - {type: USP, schema: "toolbelt_core", name: "USP_FailWorkCore", visibility: internal}
+  - {type: USP, schema: "toolbelt_core", name: "USP_ScheduleWorkRetryCore", visibility: internal}
+  - {type: TABLE, schema: "toolbelt_core", name: "WorkQueueManagedGate", visibility: internal}
+  - {type: USP, schema: "toolbelt_core", name: "USP_ClaimWorkCore", visibility: internal}
   - {type: TABLE, schema: "toolbelt_core", name: "WorkItem", visibility: internal}
   - {type: TABLE, schema: "toolbelt_core", name: "WorkQueueScheduler", visibility: internal}
   - {type: TABLE, schema: "toolbelt_core", name: "WorkQueueBarrierBlocker", visibility: internal}
@@ -126,6 +130,9 @@ contracts:
   deployment: "1.0"
   validation: "1.0"
 supported_upgrades:
+  - from: "2.0.0"
+    to: "2.1.0"
+    condition: "Additive neutrale Managedgates; kein installierter Controlconsumer, keine Managedclaims/Holds; Queuehistory bleibt erhalten."
   - from: "1.0.0"
     to: "2.0.0"
     condition: "Keine WorkItem-Zeile befindet sich beim Preflight im Zustand CLAIMED."
@@ -136,6 +143,8 @@ tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/WorkQueue.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  upgrade_2_0_setup: "Tests/Runtime/UpgradeFrom2_0.Setup.sql"
+  upgrade_2_0_verify: "Tests/Runtime/UpgradeFrom2_0.Verify.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   multi_session: "Tests/Runtime/Concurrency.Contract.sql"
   github_hosted_linux: "../../.github/workflows/work-queue-runtime.yml"
@@ -160,3 +169,7 @@ validation_evidence:
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Work Queue 2.0.0 auf physischen SQL-Server-2019-, 2022- und 2025-Windows-Zielen; öffentlicher Vertrag, Retry/Dead Letter, Idempotenz, Barrier- und Parallelitätsfälle, Upgrade, Lifecycle, Central, Redeployment, Uninstall und Cleanup"
     result: "success"
+  - date: "2026-10-04"
+    workflow: "local: Tests/CI/run-external-queue-worker-lab.ps1 -Platform linux -Version 2019 -Patch latest -QueueUpgradeOnly"
+    scope: "Echte ursprüngliche Queue-2.0-Installation auf SQL Server 2019 Linux; Upgrade auf 2.1, Erhalt bestehender Queuezeilen und aktiver Claims sowie unveränderter achtspaltiger Legacyclaim."
+    result: "success; weitere Plattformkombinationen dieses Upgrades nicht ausgeführt"

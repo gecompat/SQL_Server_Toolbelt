@@ -1,5 +1,21 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## Aktive Managed-Queue-Worker-Welle 2026-10-04
+
+Die konkret freigegebene Weiterentwicklung ergänzt den bestehenden externen
+Windows-/Linux-Worker um ein explizites Managed-Opt-in. Der gemeinsame
+SQL-Steuerungskern übernimmt dynamische globale und lokale Parallelitätsbudgets,
+generationgebundene Intervalle, kontrolliertes Drain und Stop/Hold mit expliziter
+Wiederfreigabe. Der [kanonische Vertrag](../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md)
+und die Einzelentscheidungen in `.ai/BACKLOG.md` begrenzen diese Welle.
+SQL Server Agent, Service Broker und SSIS bleiben spätere Provider.
+
+Sourceimplementierung und Integration sind aktiv. Der gezielte SQL-Vertrag
+einschließlich sechs tatsächlicher Lifecycle-Abweisungen bestand auf 2019 Linux
+und 2025 Windows/CU8; der echte Queue-Upgrade 2.0→2.1 auf 2019 Linux.
+Der vollständige Providerabschluss und exakte Head-CI stehen noch aus.
+Teilnachweise qualifizieren nicht die gesamte Welle. Kein Releaseauftrag.
+
 ## Aktive Tabellenklon-Datenkopie 4.1.0
 
 Die einzeln freigegebene `USP_CopyTableCloneData` wird im bestehenden Modul
@@ -57,7 +73,7 @@ werden in der Modul-Testdokumentation von den finalen Nachweisen getrennt.
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-38 Module sind implementiert. 20 sind `validated`, 18 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
+39 Module sind implementiert. 19 sind `validated`, 20 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
 `toolbelt.datetime.date-spine` implementiert D1 mit drei öffentlichen Inline

@@ -239,7 +239,7 @@ SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM toolbelt_core.VW_WorkQueue
             try {
                 $command = & $newCommand $connection @'
 SELECT COUNT(*) FROM sys.extended_properties WHERE class=0 AND
- ((name=N'Toolbelt.Module.toolbelt.core.work-queue.Version' AND CONVERT(nvarchar(64),value)=N'2.0.0')
+ ((name=N'Toolbelt.Module.toolbelt.core.work-queue.Version' AND CONVERT(nvarchar(64),value) IN(N'2.0.0',N'2.1.0'))
  OR(name=N'Toolbelt.Module.toolbelt.core.work-type.Version' AND CONVERT(nvarchar(64),value)=N'1.1.0')
  OR(name=N'Toolbelt.Module.toolbelt.core.execution-context.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0')
  OR(name=N'Toolbelt.Module.toolbelt.core.execution-cancel.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0'));
@@ -421,7 +421,11 @@ function Start-ExternalQueueWorker {
         [ValidateRange(1,30)][int]$ConnectTimeoutSeconds = 5,
         [ValidateRange(0.1,10)][double]$PollSeconds = 1,
         [ValidateRange(1,3600)][int]$GraceSeconds = 30,
-        [string]$StopFile = ''
+        [string]$StopFile = '',
+        [switch]$Managed,
+        [guid]$WorkerId=[guid]::Empty,
+        [ValidateRange(1,2147483647)][int]$Capacity=1,
+        [ValidateSet('BOUNDED','CONTINUOUS')][string]$RunMode='BOUNDED'
     )
     $eligible = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     $retry = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
@@ -433,7 +437,15 @@ function Start-ExternalQueueWorker {
     $settings = [pscustomobject]@{ Slots=$Slots; MaxRunSeconds=$MaxRunSeconds; MaxClaims=$MaxClaims; ControlTimeoutSeconds=$ControlTimeoutSeconds; ConnectTimeoutSeconds=$ConnectTimeoutSeconds; PollSeconds=$PollSeconds; GraceSeconds=$GraceSeconds; StopFile=$StopFile; WorkerEligibleWorkTypes=$eligible; RetryEligibleWorkTypes=$retry; TransientSqlNumbers=$numbers }
     $connectionString = [Environment]::GetEnvironmentVariable($ConnectionStringEnvironmentVariable)
     if ([string]::IsNullOrWhiteSpace($connectionString)) { throw 'WORKER.CONNECTION_UNAVAILABLE' }
-    try { $adapter = New-WorkerSqlAdapter $settings $connectionString; Invoke-WorkerSupervisor $settings $adapter }
+    try {
+        if($Managed) {
+            Import-Module (Join-Path $PSScriptRoot 'ManagedQueueWorker.psm1') -Force
+            Invoke-ManagedQueueWorker $settings $connectionString $WorkerId $Capacity $RunMode
+        } else {
+            if($WorkerId -ne [guid]::Empty -or $Capacity -ne 1 -or $RunMode -cne 'BOUNDED'){throw 'WORKER.MANAGED_OPT_IN_REQUIRED'}
+            $adapter = New-WorkerSqlAdapter $settings $connectionString; Invoke-WorkerSupervisor $settings $adapter
+        }
+    }
     catch { throw 'WORKER.RUN_FAILED' }
     finally { $connectionString = $null }
 }

@@ -1,8 +1,10 @@
 # Worker Control – verwalteter externer Queueprovider, Welle 2
 
 Stand: 2026-10-04, Codex. Technischer Vor-Source-Vertrag für den ausdrücklich
-freigegebenen Queue2-Scope. Implementierung und Runtime-Nachweis dieses
-Vertrags: `not executed`; kein Produkt-PASS aus diesem Dokument.
+freigegebenen Queue2-Scope. Implementierung vorhanden; Runtime-Nachweis
+`partially validated`. Der SQL-Vertrag bestand auf 2019 Linux und 2025
+Windows/CU8; Linux-Workerhost-Nachweis über exakte Head-CI bleiben offen.
+Dieses Dokument selbst ist kein Produkt-PASS.
 Einzelfreigaben und deren Grenzen stehen in [BACKLOG.md](../../.ai/BACKLOG.md)
 und der [Entscheidungsvorbereitung](../Research/NEXT_DEVELOPMENT_WAVES_2026-10-04.md).
 Dieser Vertrag präzisiert die bestätigte Semantik; er behauptet keine weitere
@@ -197,6 +199,14 @@ dieser Generation, nicht der inzwischen geänderte globale Default. Der Provider
 liest sie nach Registration und verwendet sie für seine Controlplanung.
 VW_WorkerExecutionStatus liefert SlotReservationId, WorkItemId, ClaimGeneration,
 ExecutionId, WorkerId, WorkerGeneration, State, IsHeld, HoldVersion und StopStatus.
+Alle Reservations bleiben sichtbar; die Disposition wird per LEFT JOIN ausschließlich
+über die exakte WorkItemId und SlotReservationId zugeordnet. Nach Ablösung dieser
+Disposition durch einen Folgeclaim ist HoldVersion NULL. IsHeld = 0 und StopStatus =
+NONE (bei State = COMMITTED: ALREADY_COMMITTED) bedeuten dann ausschließlich,
+dass keine aktuelle Disposition zu diesem historischen Attempt gehört; sie sind
+kein Nachweis, dass dieser Attempt nie gestoppt oder gehalten wurde. Der eigene
+persistierte Reservation-State bleibt als Endfakt erhalten. Eine historische
+HoldVersion darf niemals aus der Disposition eines Folgeclaims übernommen werden.
 Views veröffentlichen keine Tokens, Principals, Hostnamen, Pfade, Payloads oder
 Verbindungsdaten. Objekt-/Spaltennamen, Collations und vollständige Outputs sind
 in Headern/Help vor Source gekoppelt festzuhalten, nicht durch SELECT * abzuleiten.
@@ -295,6 +305,7 @@ USP_BindWorkerExecution (SlotReservationId, WorkerId, WorkerGeneration,
 WorkerToken, ClaimGeneration, ClaimToken, ExecutionId),
 USP_BeginWorkerTransactionWitness (SlotReservationId, ClaimToken, ExecutionId),
 USP_BeginWorkerCompletion (SlotReservationId, ClaimToken, ExecutionId),
+USP_RecordWorkerCommit (SlotReservationId, ClaimToken, ExecutionId),
 USP_RecordWorkerRollback (SlotReservationId, ClaimToken, ExecutionId),
 USP_RecordWorkerUnknown (SlotReservationId, WorkerToken, ExecutionId).
 Zusätzlich USP_FinalizeWorkerFailure (SlotReservationId uniqueidentifier=NULL,
@@ -327,6 +338,24 @@ Witnesszeile auf dieser Handlertransaktion zulässig. Es erwirbt zusätzlich den
 transaction-owned privaten Completiongate bis äußeren Commit/Rollback. Bereits
 persistierter Witness ohne konsistenten COMPLETED-Abschluss belegt möglichen
 unerlaubten Handlercommit, nicht gesunden Erfolg: UNKNOWN und Hold, kein Retry.
+
+RecordWorkerCommit ist eine private Dispatch-Endroutine ohne fachliches Resultset,
+mit Debug/Hilfe und den oben definierten Identitytypen. Nach bekanntem erfolgreichem
+äußeren Commit wird sie auf derselben tatsächlichen Handlerconnection mit
+@@TRANCOUNT=0/XACT_STATE=0 und weiterhin eigenem Attempt-Sessionlock ausgeführt.
+Sie prüft den exakten persistierten Witness und den konsistent atomar COMMITTED-
+WorkItemabschluss (Queuezustand COMPLETED), persistiert COMMITTED/IsOccupied=0
+und endet vor EndExecution/Connectiondispose. Der normale Dispatch benötigt
+dafür keinen ADMIN-Reconcile-Aufruf oder dessen zusätzliche Steuerberechtigung.
+Die öffentliche Reconcileroutine bleibt ein Ausnahmeweg mit den beschriebenen
+End-/Commitnachweisen, kein notwendiger Bestandteil des normalen Workerabschlusses.
+
+Geht das Endrecord-Acknowledge verloren, bleibt der bereits bestätigte SQL-Commit
+eine bekannte Tatsache: kein Fail und kein Retry. Die Slotdisposition bleibt bis
+zur sicheren versions-/attemptgebundenen Statusabfrage oder Reconcile ungeklärt,
+falls deren Commit nicht nachgewiesen ist. Späte Guardian-, EndExecution- oder
+Disposefehler sind sekundäre Control-/Cleanupfehler; sie überschreiben diesen
+primären Commitfakt nicht und erfinden keine Rollback-/Replayberechtigung.
 
 RecordRollback verlangt @@TRANCOUNT=0/XACT_STATE=0, persistierte Attemptbindung,
 aktuellen exklusiven Sessionlockbesitz, bestätigten Providerrollback und eine
@@ -425,4 +454,6 @@ kann ohne Exception bleiben. [KILL](https://learn.microsoft.com/en-us/sql/t-sql/
 beschreibt Session-ID-Wiederverwendung und potenziell lange Rollbacks.
 Quellen am 2026-10-04 geprüft. Guardian-/Controlmodell und SQL-Lockintegration
 sind technische Designentscheidungen, keine aus diesen Quellen abgeleitete
-Runtimegarantie. Kein ausgeführter Stop-, Managed-, Recovery- oder Kapazitätsnachweis.
+Runtimegarantie. Die tatsächlichen Nachweise und offenen Grenzen stehen in der
+[Vertragsmatrix](../../Modules/toolbelt.core.worker-control/Tests/WORKER_CONTROL_CONTRACT_TEST_MATRIX.md);
+aus den Quellen allein folgt kein Stop-, Managed-, Recovery- oder Kapazitätsnachweis.

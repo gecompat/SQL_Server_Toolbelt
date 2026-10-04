@@ -53,3 +53,10 @@ Statusoberflächen liefern Audit-, Lease-, Generation-, Retry-, Dead-Letter-, Pr
 ## Garantien und Grenzen
 
 Die Reihenfolge gilt bestmöglich unter fälligen, sichtbaren und handlerfähigen Items gleicher Priorität. Recovery und Retry invalidieren technische Ownership, können aber bereits erfolgte fachliche Seiteneffekte nicht zurücknehmen. Idempotency Keys verhindern nur doppelte Enqueue-Annahmen, nicht generische Exactly-once-Ausführung. Cancellation, Worker-Orchestrierung und automatische Systemzustandserkennung bleiben außerhalb des Moduls.
+
+
+## Work Queue 2.1 – neutrale Managedintegration
+
+2.1 ergänzt interne Claim-/Fail-/Retrykerne und den queueeigenen WorkQueueManagedGate. Öffentliche Signaturen bleiben unverändert. Managedmodus ist opt-in; dann sind direkte Claims und Holdbypässe ausgeschlossen. Admission ist transient, einmalig und an genau eine gesunde äußere Admissiontransaktion gebunden. Das Modul hat keine Rückabhängigkeit auf Worker-Control. Lifecycle lehnt dessen installierten Consumer sowie Managedclaims und Holds vor und unter AppLock ab. Vorhandene 2.0-Evidenz qualifiziert diese neue Integration nicht; 2.0→2.1 Upgrade und Managedfälle sind noch NOT EXECUTED.
+
+Der private Managedclaimtransport verwendet ausschließlich die aus dem kanonischen UPDATE OUTPUT entstandene Claim-ID. Reserve liest diese ID mit exakter ManagedReservationId im selben Admission-TX in den festen internen Transport. Öffentliche ResultTable-Namen bleiben unverändert validiert; kein SkipValidation und kein INSERT EXEC wird verwendet.

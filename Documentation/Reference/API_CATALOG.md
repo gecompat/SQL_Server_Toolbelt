@@ -2,7 +2,7 @@
 
 <!-- Generiert mit Tests/Documentation/generate_api_catalog.py --write; nicht direkt bearbeiten. -->
 
-132 öffentliche Schnittstellen aus 38 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
+148 öffentliche Schnittstellen aus 39 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
 
 Jedes Beispiel separat verwenden. Funktionen verlangen positionsbezogene Argumente; `DEFAULT` verwendet einen deklarierten Default, `NULL` kann davon abweichen. Prozeduren verwenden benannte Parameter. Vorlagen mit Handlern, Claims, Dateien oder Plan-Hashes erfordern die beschriebenen Voraussetzungen. Eine Syntaxvorlage ist kein Runtime-Nachweis.
 
@@ -1114,13 +1114,13 @@ EXEC toolbelt_core.USP_ExecuteWorkTypeInNewSession @Hilfe=1;
 
 ## toolbelt_core.VW_WorkQueue
 
-Modul `toolbelt.core.work-queue` · Version `2.0.0` · `VIEW`
+Modul `toolbelt.core.work-queue` · Version `2.1.0` · `VIEW`
 
 Zeigt Queue-Status und Auditmetadaten ohne Payload und ClaimToken.
 
 Vertrag und Quelle: [VW_WorkQueue.sql](../../Modules/toolbelt.core.work-queue/Source/VW_WorkQueue.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 27668d879dbe106f287d87a20b0656d68bc1094469a95f117fd8219e749c726e -->
+<!-- Source/Vertrag SHA256: e61b45d4addba048110db16d5dcd76581304c0603b4d3e91833fbfe370e5b729 -->
 
 Keine Eingabeparameter.
 
@@ -1130,13 +1130,13 @@ SELECT TOP (20) * FROM toolbelt_core.VW_WorkQueue;
 
 ## toolbelt_core.VW_WorkQueueBarrierBlockers
 
-Modul `toolbelt.core.work-queue` · Version `2.0.0` · `VIEW`
+Modul `toolbelt.core.work-queue` · Version `2.1.0` · `VIEW`
 
 Zeigt aktive Claim-Generationen, die eine Gruppenbarriere blockieren.
 
 Vertrag und Quelle: [VW_WorkQueueBarrierBlockers.sql](../../Modules/toolbelt.core.work-queue/Source/VW_WorkQueueBarrierBlockers.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 642cd54a5d1db9d5407df18182ab5785529be3f2898ef3b4fdd5e5ba18ae1f4d -->
+<!-- Source/Vertrag SHA256: 173b50cbd31e38593ed2d0ba54b3c305ae11007a29b8674cee86984a11f07821 -->
 
 Keine Eingabeparameter.
 
@@ -1146,13 +1146,13 @@ SELECT TOP (20) * FROM toolbelt_core.VW_WorkQueueBarrierBlockers;
 
 ## toolbelt_core.USP_EnqueueWork
 
-Modul `toolbelt.core.work-queue` · Version `2.0.0` · `USP`
+Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Reiht genau ein Work Item für einen registrierten, aktiven Work Type ein. Es wird niemals SQL-Text entgegengenommen oder ausgeführt.
 
 Vertrag und Quelle: [USP_EnqueueWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 6488983f66198401b3390ec4f40ce17169b4f225ff9b1fee59caaa851c465651 -->
+<!-- Source/Vertrag SHA256: a99234dd6df65f4972b583746c8b46115822e1ca0ebdd415c2dc86e31f8a765c -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1179,13 +1179,13 @@ EXEC toolbelt_core.USP_EnqueueWork @Hilfe=1;
 
 ## toolbelt_core.USP_EnqueueWorkWithPolicy
 
-Modul `toolbelt.core.work-queue` · Version `2.0.0` · `USP`
+Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Reiht je nach ExecutionMode SHARED- oder DRAIN_BARRIER-Arbeit mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein.
 
 Vertrag und Quelle: [USP_EnqueueWorkWithPolicy.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 76b5b4aa8807aeb7e1b07fdbfab2d3d46db44f33f29d2f31adeeaa2a9ef9d33c -->
+<!-- Source/Vertrag SHA256: 8db3415e980fb66b5cbabf5da0a50dfb7e1aec79a2c61eebe0f0ae4a95780704 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1223,13 +1223,13 @@ EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @Hilfe=1;
 
 ## toolbelt_core.USP_EnqueueBarrierWork
 
-Modul `toolbelt.core.work-queue` · Version `2.0.0` · `USP`
+Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Reiht DRAIN_BARRIER-Arbeit ein, die vor ihrem exklusiven Claim die relevanten aktiven Claims derselben ExecutionGroup abwartet; Retry-Policy und optionaler Idempotency Key bleiben gebunden.
 
 Vertrag und Quelle: [USP_EnqueueBarrierWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueBarrierWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 2766d54bff56d71db1475ce4519b5f12f1d1ec6361ccfea863ffbaddeba856ad -->
+<!-- Source/Vertrag SHA256: 0a7c47dc9887bb77dd1b56769e8c17cac58c0e71f89daf618660355a73be5314 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1264,13 +1264,13 @@ EXEC toolbelt_core.USP_EnqueueBarrierWork @Hilfe=1;
 
 ## toolbelt_core.USP_ClaimWork
 
-Modul `toolbelt.core.work-queue` · Version `2.0.0` · `USP`
+Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Beansprucht atomar höchstens das älteste beanspruchbare Work Item und eröffnet eine zeitlich begrenzte Lease. Abgelaufene Claims werden nicht implizit übernommen.
 
 Vertrag und Quelle: [USP_ClaimWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_ClaimWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: f4e3e548d66d1ebcb356e669289cf0381feba70466802a329626081a39ed0600 -->
+<!-- Source/Vertrag SHA256: 09c5eb4932a76230a8b4d6fd85b5a6ec22ad6b20378bc6d9d89ca440684b6c70 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1296,13 +1296,13 @@ EXEC toolbelt_core.USP_ClaimWork @Hilfe=1;
 
 ## toolbelt_core.USP_RenewWorkLease
 
-Modul `toolbelt.core.work-queue` · Version `2.0.0` · `USP`
+Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Verlängert eine noch aktive Lease mit passendem ClaimToken um ihre beim Claim festgelegte Dauer ab Engine-Zeit. Eine abgelaufene Lease wird nicht wiederbelebt.
 
 Vertrag und Quelle: [USP_RenewWorkLease.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RenewWorkLease.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 556c1ef70982b0095f42da8d4ae27a3a4c21a0b02d16181b05725a29ab37b1fc -->
+<!-- Source/Vertrag SHA256: 126dbb86e911f760049c11fe8893fb59b4ef74f94c1b272164b2ada80f8dd260 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1331,13 +1331,13 @@ EXEC toolbelt_core.USP_RenewWorkLease @Hilfe=1;
 
 ## toolbelt_core.USP_RecoverExpiredWork
 
-Modul `toolbelt.core.work-queue` · Version `2.0.0` · `USP`
+Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Plant für abgelaufene Claims nach der gespeicherten Retry-Policy RETRY_WAIT oder DEAD_LETTER. Alte ClaimTokens werden atomar invalidiert.
 
 Vertrag und Quelle: [USP_RecoverExpiredWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RecoverExpiredWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: a7765c738061f9903d6890132ba71209f96a16d65a3949bc90908f0df088b025 -->
+<!-- Source/Vertrag SHA256: 9da6127845c2ae42f3da9764d5f1f9376d0a49a04ad7d0c4908b5b01d4859ecc -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1363,13 +1363,13 @@ EXEC toolbelt_core.USP_RecoverExpiredWork @Hilfe=1;
 
 ## toolbelt_core.USP_CompleteWork
 
-Modul `toolbelt.core.work-queue` · Version `2.0.0` · `USP`
+Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Schließt genau ein CLAIMED Work Item mit dem passenden ClaimToken als COMPLETED ab. Ein fachliches Arbeitsergebnis wird in E1a nicht gespeichert.
 
 Vertrag und Quelle: [USP_CompleteWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_CompleteWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 651e099e2063e9ca49eb960a221487016116ef9782fea469a830c236b30a8885 -->
+<!-- Source/Vertrag SHA256: 409ed0ae0a74d020b54272ad2a00107e9b442a5ec113195e6e2d35a5cdbfc80e -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1398,13 +1398,13 @@ EXEC toolbelt_core.USP_CompleteWork @Hilfe=1;
 
 ## toolbelt_core.USP_FailWork
 
-Modul `toolbelt.core.work-queue` · Version `2.0.0` · `USP`
+Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Schließt genau ein CLAIMED Work Item mit passendem ClaimToken als FAILED ab. Gespeichert werden nur ein stabiler Code und eine optionale bereinigte Kurzmeldung.
 
 Vertrag und Quelle: [USP_FailWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_FailWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 0c17b0d30bcda2eab3b4685a6d4c5e01b4170bd21e376d28fa2f3c6f17cbeeb7 -->
+<!-- Source/Vertrag SHA256: 059e79d13589a0c6d3baee22451a7ac53569d528e4e57f9878dddc183d423036 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1435,13 +1435,13 @@ EXEC toolbelt_core.USP_FailWork @Hilfe=1;
 
 ## toolbelt_core.USP_ScheduleWorkRetry
 
-Modul `toolbelt.core.work-queue` · Version `2.0.0` · `USP`
+Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Plant einen tokengebundenen Retry oder verschiebt nach Dead Letter.
 
 Vertrag und Quelle: [USP_ScheduleWorkRetry.sql](../../Modules/toolbelt.core.work-queue/Source/USP_ScheduleWorkRetry.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: aad2555b3eb22f4359ceae0fabe4eeab132b7c909841411b2294f07baf96c73f -->
+<!-- Source/Vertrag SHA256: 3102a6c40e49114a5be11bae3dfe1a792ca6ef9a48d8f6030e5360430b8ef7d7 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1473,13 +1473,13 @@ EXEC toolbelt_core.USP_ScheduleWorkRetry @Hilfe=1;
 
 ## toolbelt_core.USP_RequeueDeadLetter
 
-Modul `toolbelt.core.work-queue` · Version `2.0.0` · `USP`
+Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Beginnt für ein Dead-Letter-Item einen neuen Retry-Zyklus.
 
 Vertrag und Quelle: [USP_RequeueDeadLetter.sql](../../Modules/toolbelt.core.work-queue/Source/USP_RequeueDeadLetter.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 2bcd0f30326b83106c6b63ac4ef61e1bd6962941c93d45b370ff94f5f5e89d8f -->
+<!-- Source/Vertrag SHA256: ce1624dfdd2b3784f146e3593e0e439112a86f94f1ffba794389f594e14e6e18 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1509,13 +1509,13 @@ EXEC toolbelt_core.USP_RequeueDeadLetter @Hilfe=1;
 
 ## toolbelt_core.USP_GetWorkStatus
 
-Modul `toolbelt.core.work-queue` · Version `2.0.0` · `USP`
+Modul `toolbelt.core.work-queue` · Version `2.1.0` · `USP`
 
 Liefert genau eine Statuszeile für ein Work Item. Payload und ClaimToken werden bewusst nicht offengelegt.
 
 Vertrag und Quelle: [USP_GetWorkStatus.sql](../../Modules/toolbelt.core.work-queue/Source/USP_GetWorkStatus.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 0f39f74db1f225b27b5e6783bd780d15e2b44ef85a660f964959d97547564917 -->
+<!-- Source/Vertrag SHA256: 16756a7d6116b6409baa92c329662b07b3ecae58ac0f6a1f8ba91a8ee6166332 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1697,6 +1697,534 @@ Hilfe:
 
 ```sql
 EXEC toolbelt_core.USP_ResolveWorkType @Hilfe=1;
+```
+
+## toolbelt_core.VW_WorkerStatus
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `VIEW`
+
+Öffentliche technische Statussicht; explizite Spalten, keine Tokens oder Payloads.
+
+Vertrag und Quelle: [VW_WorkerStatus.sql](../../Modules/toolbelt.core.worker-control/Source/VW_WorkerStatus.sql), [VW_WorkerStatus.md](../../Modules/toolbelt.core.worker-control/Documentation/VW_WorkerStatus.md).
+
+<!-- Source/Vertrag SHA256: f3b228d750b87f5587b8bbc50b51f76586fe33c2912cd5bc6e88e1749e9c1bbc -->
+
+Voraussetzung: Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht.
+
+Keine Eingabeparameter.
+
+```sql
+SELECT TOP (20) * FROM toolbelt_core.VW_WorkerStatus;
+```
+
+## toolbelt_core.VW_WorkerExecutionStatus
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `VIEW`
+
+Öffentliche technische Statussicht; explizite Spalten, keine Tokens oder Payloads.
+
+Vertrag und Quelle: [VW_WorkerExecutionStatus.sql](../../Modules/toolbelt.core.worker-control/Source/VW_WorkerExecutionStatus.sql), [VW_WorkerExecutionStatus.md](../../Modules/toolbelt.core.worker-control/Documentation/VW_WorkerExecutionStatus.md).
+
+<!-- Source/Vertrag SHA256: cad3699d9983d91dd1dbe2b4a04f1057830984d76aa6ab542437d703c578e66d -->
+
+Voraussetzung: Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht.
+
+Keine Eingabeparameter.
+
+```sql
+SELECT TOP (20) * FROM toolbelt_core.VW_WorkerExecutionStatus;
+```
+
+## toolbelt_core.USP_ClaimWorkerWork
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Fachliche Fassade der privaten atomaren Managed-Admission.
+
+Vertrag und Quelle: [USP_ClaimWorkerWork.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ClaimWorkerWork.sql), [USP_ClaimWorkerWork.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ClaimWorkerWork.md).
+
+<!-- Source/Vertrag SHA256: e58eaf9b00f5608236f087bf4237c7552e1f3f72b177092d3c42a02e83234cae -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@WorkerId` | `uniqueidentifier` | `NULL` | Input | Stabile eigene Workeridentität; NULL bei Registrierung erzeugt eine neue Identität. |
+| `@WorkerGeneration` | `bigint` | `NULL` | Input | Exakte Generation der eigenen Registrierung. |
+| `@WorkerToken` | `uniqueidentifier` | `NULL` | Input | Privates Token aus derselben Registrierung; nicht protokollieren oder veröffentlichen. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_ClaimWorkerWork @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_ClaimWorkerWork @Hilfe=1;
+```
+
+## toolbelt_core.USP_CloseWorker
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Schließt ausschließlich eine Generation ohne belegte oder ungeklärte Reservations.
+
+Vertrag und Quelle: [USP_CloseWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_CloseWorker.sql), [USP_CloseWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_CloseWorker.md).
+
+<!-- Source/Vertrag SHA256: 4175900343850d6897d398dca533b6e21e41fb0310a49f6502e0cff920ed36a9 -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@WorkerId` | `uniqueidentifier` | `NULL` | Input | Stabile eigene Workeridentität; NULL bei Registrierung erzeugt eine neue Identität. |
+| `@WorkerGeneration` | `bigint` | `NULL` | Input | Exakte Generation der eigenen Registrierung. |
+| `@WorkerToken` | `uniqueidentifier` | `NULL` | Input | Privates Token aus derselben Registrierung; nicht protokollieren oder veröffentlichen. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_CloseWorker @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_CloseWorker @Hilfe=1;
+```
+
+## toolbelt_core.USP_DisableManagedWorkers
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder ungeklärte Holds.
+
+Vertrag und Quelle: [USP_DisableManagedWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_DisableManagedWorkers.sql), [USP_DisableManagedWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_DisableManagedWorkers.md).
+
+<!-- Source/Vertrag SHA256: 49dead4eda9ab9c3b49df4cbe7cb9d83c0250091f5137e005f89a1a3bfff4588 -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@ExpectedConfigVersion` | `binary(8)` | `NULL` | Input | Exakte aktuelle binary(8)-Konfigurationsversion; veraltete Werte blockieren. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_DisableManagedWorkers @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_DisableManagedWorkers @Hilfe=1;
+```
+
+## toolbelt_core.USP_EnableManagedWorkers
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder ungeklärte Holds.
+
+Vertrag und Quelle: [USP_EnableManagedWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_EnableManagedWorkers.sql), [USP_EnableManagedWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_EnableManagedWorkers.md).
+
+<!-- Source/Vertrag SHA256: 4c5c3a377566d29c9294dc1b79aeb23758c30f8b14bd3f0d9e6552de2925e393 -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@ExpectedConfigVersion` | `binary(8)` | `NULL` | Input | Exakte aktuelle binary(8)-Konfigurationsversion; veraltete Werte blockieren. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_EnableManagedWorkers @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_EnableManagedWorkers @Hilfe=1;
+```
+
+## toolbelt_core.USP_HeartbeatWorker
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Erneuert ausschließlich die aktuelle lebende Workergeneration ohne Claims zu übernehmen.
+
+Vertrag und Quelle: [USP_HeartbeatWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_HeartbeatWorker.sql), [USP_HeartbeatWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_HeartbeatWorker.md).
+
+<!-- Source/Vertrag SHA256: e3a8307263d6a9d2c4f17c528557be274386280f3a7f2911a809bb955a75d9a8 -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@WorkerId` | `uniqueidentifier` | `NULL` | Input | Stabile eigene Workeridentität; NULL bei Registrierung erzeugt eine neue Identität. |
+| `@WorkerGeneration` | `bigint` | `NULL` | Input | Exakte Generation der eigenen Registrierung. |
+| `@WorkerToken` | `uniqueidentifier` | `NULL` | Input | Privates Token aus derselben Registrierung; nicht protokollieren oder veröffentlichen. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_HeartbeatWorker @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_HeartbeatWorker @Hilfe=1;
+```
+
+## toolbelt_core.USP_ReconcileWorkerExecution
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Prüft actual Sessionfence und exakten locking Commitwitness; CAS und LateDispatchfence erhalten UNKNOWN ohne Replay.
+
+Vertrag und Quelle: [USP_ReconcileWorkerExecution.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ReconcileWorkerExecution.sql), [USP_ReconcileWorkerExecution.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ReconcileWorkerExecution.md).
+
+<!-- Source/Vertrag SHA256: 6a604732f57d00092204e5098d2b806dbef20b89e10633c62532313ca9ed7758 -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@SlotReservationId` | `uniqueidentifier` | `NULL` | Input | Exakte eigene Reservation; niemals eine Sessionnummer. |
+| `@ExpectedHoldVersion` | `binary(8)` | `NULL` | Input | Exakte aktuelle binary(8)-Holdversion; keine Übertragung auf Folgeclaims. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_ReconcileWorkerExecution @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_ReconcileWorkerExecution @Hilfe=1;
+```
+
+## toolbelt_core.USP_RegisterWorker
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Registriert eine neue principal- und generationgebundene Workeridentität; übernimmt keine alten Reservations.
+
+Vertrag und Quelle: [USP_RegisterWorker.sql](../../Modules/toolbelt.core.worker-control/Source/USP_RegisterWorker.sql), [USP_RegisterWorker.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_RegisterWorker.md).
+
+<!-- Source/Vertrag SHA256: fa175ea8d3d123e32f4706ea935120594eb431369dac71985ba53962698fb8a8 -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@WorkerId` | `uniqueidentifier` | `NULL` | Input | Stabile eigene Workeridentität; NULL bei Registrierung erzeugt eine neue Identität. |
+| `@Capacity` | `int` | `NULL` | Input | Lokales positives int-Budget, zur Laufzeit steuerbar; keine Kapazitätszusage. |
+| `@RunMode` | `varchar(16)` | `'BOUNDED'` | Input | BOUNDED oder ausdrücklich CONTINUOUS; Default BOUNDED. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_RegisterWorker @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_RegisterWorker @Hilfe=1;
+```
+
+## toolbelt_core.USP_ReleaseHeldWork
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Beginnt ausschließlich nach bewiesenem Rollback eine explizite neue Retryphase; UNKNOWN und COMPLETED bleiben gesperrt.
+
+Vertrag und Quelle: [USP_ReleaseHeldWork.sql](../../Modules/toolbelt.core.worker-control/Source/USP_ReleaseHeldWork.sql), [USP_ReleaseHeldWork.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_ReleaseHeldWork.md).
+
+<!-- Source/Vertrag SHA256: da5c9e891a2e7185a48dabeb02e4f8abb9c3a5bdadb4bf642d7c5085a08d2e6d -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@WorkItemId` | `bigint` | `NULL` | Input | Eigene gehaltene Queuezeile; Wiederholung bleibt ausdrücklich gesteuert. |
+| `@ExpectedHoldVersion` | `binary(8)` | `NULL` | Input | Exakte aktuelle binary(8)-Holdversion; keine Übertragung auf Folgeclaims. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_ReleaseHeldWork @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_ReleaseHeldWork @Hilfe=1;
+```
+
+## toolbelt_core.USP_SetWorkerCapacity
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Ändert die Live-Capacity einer exakten Workergeneration ohne Übernahme oder Abbruch laufender Arbeit.
+
+Vertrag und Quelle: [USP_SetWorkerCapacity.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerCapacity.sql), [USP_SetWorkerCapacity.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerCapacity.md).
+
+<!-- Source/Vertrag SHA256: 6e30ec9a28a0a8c25ae9e60e5664faa139d82a4621ddb9b4345bacdbbe4fcbc9 -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@WorkerId` | `uniqueidentifier` | `NULL` | Input | Stabile eigene Workeridentität; NULL bei Registrierung erzeugt eine neue Identität. |
+| `@WorkerGeneration` | `bigint` | `NULL` | Input | Exakte Generation der eigenen Registrierung. |
+| `@Capacity` | `int` | `NULL` | Input | Lokales positives int-Budget, zur Laufzeit steuerbar; keine Kapazitätszusage. |
+| `@ExpectedConfigVersion` | `binary(8)` | `NULL` | Input | Exakte aktuelle binary(8)-Konfigurationsversion; veraltete Werte blockieren. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_SetWorkerCapacity @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_SetWorkerCapacity @Hilfe=1;
+```
+
+## toolbelt_core.USP_SetWorkerConcurrency
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Ändert das globale Live-Admissionbudget versionsgebunden ohne laufende Arbeit abzubrechen.
+
+Vertrag und Quelle: [USP_SetWorkerConcurrency.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerConcurrency.sql), [USP_SetWorkerConcurrency.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerConcurrency.md).
+
+<!-- Source/Vertrag SHA256: 4b81cb8e921a9e72ba403e8e2f8e4bedbbc9e159780e4b4513955b7f4169e428 -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@MaxConcurrentExecutions` | `int` | `NULL` | Input | Globales int-Budget 0 bis 2147483647; 0 pausiert neue Admission. |
+| `@ExpectedConfigVersion` | `binary(8)` | `NULL` | Input | Exakte aktuelle binary(8)-Konfigurationsversion; veraltete Werte blockieren. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_SetWorkerConcurrency @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_SetWorkerConcurrency @Hilfe=1;
+```
+
+## toolbelt_core.USP_SetWorkerIntervals
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Ändert Intervalldefaults ausschließlich für künftig registrierte Generationen.
+
+Vertrag und Quelle: [USP_SetWorkerIntervals.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerIntervals.sql), [USP_SetWorkerIntervals.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerIntervals.md).
+
+<!-- Source/Vertrag SHA256: d5fd6a8dc32444b0f164eec92621095c996a0d87a5c85628e61a708d1b46d1f1 -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@HeartbeatSeconds` | `int` | `NULL` | Input | 1 bis 3600 Sekunden; Default 15. Änderungen gelten für neue Generationen. |
+| `@UnreachableSeconds` | `int` | `NULL` | Input | 3 bis 86400 Sekunden, mindestens dreimal HeartbeatSeconds; Default 60. |
+| `@ExpectedConfigVersion` | `binary(8)` | `NULL` | Input | Exakte aktuelle binary(8)-Konfigurationsversion; veraltete Werte blockieren. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_SetWorkerIntervals @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_SetWorkerIntervals @Hilfe=1;
+```
+
+## toolbelt_core.USP_SetWorkerState
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Steuert ACTIVE, PAUSED oder DRAINING einer exakten lebenden Workergeneration.
+
+Vertrag und Quelle: [USP_SetWorkerState.sql](../../Modules/toolbelt.core.worker-control/Source/USP_SetWorkerState.sql), [USP_SetWorkerState.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_SetWorkerState.md).
+
+<!-- Source/Vertrag SHA256: 398da55eb9f3bb298a0422655d02c3617520bcfd56c582f5f19a4e7ee0bbfe45 -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@WorkerId` | `uniqueidentifier` | `NULL` | Input | Stabile eigene Workeridentität; NULL bei Registrierung erzeugt eine neue Identität. |
+| `@WorkerGeneration` | `bigint` | `NULL` | Input | Exakte Generation der eigenen Registrierung. |
+| `@RequestedState` | `varchar(16)` | `NULL` | Input | Expliziter administrativer Übergang gemäß Worker-Control-Zustandsvertrag. |
+| `@ExpectedConfigVersion` | `binary(8)` | `NULL` | Input | Exakte aktuelle binary(8)-Konfigurationsversion; veraltete Werte blockieren. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_SetWorkerState @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_SetWorkerState @Hilfe=1;
+```
+
+## toolbelt_core.USP_StopWorkerExecution
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Persistiert generationgebunden Stop und Hold vor Providerabbruch; Completiongewinner bleibt committed.
+
+Vertrag und Quelle: [USP_StopWorkerExecution.sql](../../Modules/toolbelt.core.worker-control/Source/USP_StopWorkerExecution.sql), [USP_StopWorkerExecution.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_StopWorkerExecution.md).
+
+<!-- Source/Vertrag SHA256: 3cd9f8a50a9dd7539110ad653fed15bf1e1661e4fdbd4c226a5f2c658a7fa456 -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@SlotReservationId` | `uniqueidentifier` | `NULL` | Input | Exakte eigene Reservation; niemals eine Sessionnummer. |
+| `@ExpectedClaimGeneration` | `bigint` | `NULL` | Input | Exakte Claim-Generation der ausgewählten Verarbeitung. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_StopWorkerExecution @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_StopWorkerExecution @Hilfe=1;
+```
+
+## toolbelt_core.USP_StopWorkers
+
+Modul `toolbelt.core.worker-control` · Version `1.0.0` · `USP`
+
+Pausiert stabile ausgewählte Workeridentitäten und persistiert atomaren Stop/Hold ihrer eingefrorenen exakten Generationen.
+
+Vertrag und Quelle: [USP_StopWorkers.sql](../../Modules/toolbelt.core.worker-control/Source/USP_StopWorkers.sql), [USP_StopWorkers.md](../../Modules/toolbelt.core.worker-control/Documentation/USP_StopWorkers.md).
+
+<!-- Source/Vertrag SHA256: 01a21ad63508cde6c507c098549a2f4f687dd56fe6679b98a4824b2814ab8bbd -->
+
+Voraussetzung: Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.
+
+Voraussetzung: Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@WorkersTable` | `sysname` | `NULL` | Input | Vorhandene lokale Temp-Tabelle mit WorkerId uniqueidentifier NOT NULL und WorkerGeneration bigint NOT NULL. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich den Help-Vertrag ohne Mutation. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_StopWorkers @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_StopWorkers @Hilfe=1;
 ```
 
 ## toolbelt_datetime.TVF_DateBucketDate

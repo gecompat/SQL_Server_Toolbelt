@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## 2026-10-04/05 – Managed Queue Worker / unveröffentlichte Welle
+
+- Queue 2.1 und Worker-Control 1.0 ergänzen den bestehenden externen Provider
+  um zentrale dynamische Parallelitätsbudgets, Generationen, Intervalle und
+  kontrolliertes Drain. Stop/Hold verhindert automatische Wiederholung;
+  bestätigte SQL-Endzustände und unbekannte Ausgänge bleiben getrennt.
+- Dokumentations-/Kopplungsaudit und begrenzte Offlineprüfungen bestanden.
+  Der SQL-Vertrag mit Admission, Generationen, Holdbypass, Help/ResultTable
+  und sechs echten Lifecycle-Abweisungen bestand auf 2019 Linux und
+  2025 Windows/exakt CU8. Der echte Queue-Upgrade 2.0→2.1 bestand auf 2019 Linux.
+  Fehlgeschlagene Providerläufe bleiben getrennt dokumentiert; kein Gesamt-PASS.
+- Unabhängiger Produktreview ohne neue Blockingfindings abgeschlossen.
+  Fokussierte Managedläufe auf beiden ausgewählten SQL-Zielen einschließlich
+  eigenem Cleanup bestanden; tatsächlicher Linux-Workerhost und exakte Head-CI
+  bleiben getrennte Mergegates. Keine neuen
+  Agent-, Broker- oder SSIS-Provider und kein Releaseauftrag.
+
 ## 2026-10-04 – Table Clone Datenkopie / 4.1.0
 
 - Einzeln freigegebene SameDB-Kopie in leere formgleiche Targets mit neun
@@ -665,7 +682,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-38 Module sind implementiert. 20 sind `validated`, 18 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+39 Module sind implementiert. 19 sind `validated`, 20 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

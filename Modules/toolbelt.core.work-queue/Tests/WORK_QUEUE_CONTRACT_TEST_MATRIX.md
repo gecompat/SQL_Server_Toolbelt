@@ -31,8 +31,20 @@ wurden entfernt.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-11`
-- Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Work Queue 2.0.0 auf physischen SQL-Server-2019-, 2022- und 2025-Windows-Zielen; öffentlicher Vertrag, Retry/Dead Letter, Idempotenz, Barrier- und Parallelitätsfälle, Upgrade, Lifecycle, Central, Redeployment, Uninstall und Cleanup
-- Ergebnis: `success`
+- Datum: `2026-10-04`
+- Nachweis: `local: Tests/CI/run-external-queue-worker-lab.ps1 -Platform linux -Version 2019 -Patch latest -QueueUpgradeOnly`
+- Scope: Echte ursprüngliche Queue-2.0-Installation auf SQL Server 2019 Linux; Upgrade auf 2.1, Erhalt bestehender Queuezeilen und aktiver Claims sowie unveränderter achtspaltiger Legacyclaim.
+- Ergebnis: `success; weitere Plattformkombinationen dieses Upgrades nicht ausgeführt`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+
+## Neue Welle 2.1 – noch nicht native qualifiziert
+
+| Bereich | Gezielter Nachweis | Status |
+|---|---|---|
+| Genuine Upgrade 2.0→2.1 | Original-Deployment mit 15 SQL-Dateien/14 Includes aus Commit62e7b06588b28c45c58f7ec335e4e5c45f120e3e, UpgradeFrom2_0.Setup/Verify auf gleicher Connection | 2019 Linux am 2026-10-04 bestanden |
+| Daten-/Identityerhaltung | Expliziter43Spalten-Snapshot einschließlich RowVersion, Unicodepayload, Token/Generation/Lease und History; symmetrischer Wertvergleich und Identitymetadaten | 2019 Linux am 2026-10-04 bestanden |
+| Neutrale Legacyadmission | Manageddefaults NULL/0/NULL und Gate disabled; bestehender aktiver2.0Claim abschließbar, neuer Claim exakte8Spalten einschließlich datetime2(7) | 2019 Linux am 2026-10-04 bestanden |
+| Managedgrenze | ClaimCore gesunde AdmissionTX/oneuseNonce; Holdbypässe verweigert; fehlender Singleton failclosed vor und unterLifecyclelock | SQL-Vertrag 2019 Linux und 2025 Windows/CU8 bestanden; vollständiger Providerlauf offen |
+
+Die historischen2.0Nachweise bleiben historische Evidenz und qualifizieren diese neuen2.1Grenzen nicht.

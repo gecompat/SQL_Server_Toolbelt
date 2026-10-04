@@ -1964,5 +1964,279 @@
     "parameter_notes": {
       "@Version": "Strikte SemVer-2.0.0-Version, z. B. 1.2.3-alpha.1+build.7."
     }
+  },
+  "toolbelt_core.USP_ClaimWorkerWork": {
+    "summary": "Fachliche Fassade der privaten atomaren Managed-Admission.",
+    "examples": [
+      "EXEC toolbelt_core.USP_ClaimWorkerWork @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@WorkerId": "Stabile eigene Workeridentität; NULL bei Registrierung erzeugt eine neue Identität.",
+      "@WorkerGeneration": "Exakte Generation der eigenen Registrierung.",
+      "@WorkerToken": "Privates Token aus derselben Registrierung; nicht protokollieren oder veröffentlichen.",
+      "@ResultTable": "NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle.",
+      "@KeepData": "0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.USP_CloseWorker": {
+    "summary": "Schließt ausschließlich eine Generation ohne belegte oder ungeklärte Reservations.",
+    "examples": [
+      "EXEC toolbelt_core.USP_CloseWorker @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@WorkerId": "Stabile eigene Workeridentität; NULL bei Registrierung erzeugt eine neue Identität.",
+      "@WorkerGeneration": "Exakte Generation der eigenen Registrierung.",
+      "@WorkerToken": "Privates Token aus derselben Registrierung; nicht protokollieren oder veröffentlichen.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.USP_DisableManagedWorkers": {
+    "summary": "Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder ungeklärte Holds.",
+    "examples": [
+      "EXEC toolbelt_core.USP_DisableManagedWorkers @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@ExpectedConfigVersion": "Exakte aktuelle binary(8)-Konfigurationsversion; veraltete Werte blockieren.",
+      "@ResultTable": "NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle.",
+      "@KeepData": "0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.USP_EnableManagedWorkers": {
+    "summary": "Wechselt Managedbetrieb versionsgebunden nur ohne Claims, Reservations oder ungeklärte Holds.",
+    "examples": [
+      "EXEC toolbelt_core.USP_EnableManagedWorkers @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@ExpectedConfigVersion": "Exakte aktuelle binary(8)-Konfigurationsversion; veraltete Werte blockieren.",
+      "@ResultTable": "NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle.",
+      "@KeepData": "0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.USP_HeartbeatWorker": {
+    "summary": "Erneuert ausschließlich die aktuelle lebende Workergeneration ohne Claims zu übernehmen.",
+    "examples": [
+      "EXEC toolbelt_core.USP_HeartbeatWorker @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@WorkerId": "Stabile eigene Workeridentität; NULL bei Registrierung erzeugt eine neue Identität.",
+      "@WorkerGeneration": "Exakte Generation der eigenen Registrierung.",
+      "@WorkerToken": "Privates Token aus derselben Registrierung; nicht protokollieren oder veröffentlichen.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.USP_ReconcileWorkerExecution": {
+    "summary": "Prüft actual Sessionfence und exakten locking Commitwitness; CAS und LateDispatchfence erhalten UNKNOWN ohne Replay.",
+    "examples": [
+      "EXEC toolbelt_core.USP_ReconcileWorkerExecution @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@SlotReservationId": "Exakte eigene Reservation; niemals eine Sessionnummer.",
+      "@ExpectedHoldVersion": "Exakte aktuelle binary(8)-Holdversion; keine Übertragung auf Folgeclaims.",
+      "@ResultTable": "NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle.",
+      "@KeepData": "0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.USP_RegisterWorker": {
+    "summary": "Registriert eine neue principal- und generationgebundene Workeridentität; übernimmt keine alten Reservations.",
+    "examples": [
+      "EXEC toolbelt_core.USP_RegisterWorker @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@WorkerId": "Stabile eigene Workeridentität; NULL bei Registrierung erzeugt eine neue Identität.",
+      "@Capacity": "Lokales positives int-Budget, zur Laufzeit steuerbar; keine Kapazitätszusage.",
+      "@RunMode": "BOUNDED oder ausdrücklich CONTINUOUS; Default BOUNDED.",
+      "@ResultTable": "NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle.",
+      "@KeepData": "0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.USP_ReleaseHeldWork": {
+    "summary": "Beginnt ausschließlich nach bewiesenem Rollback eine explizite neue Retryphase; UNKNOWN und COMPLETED bleiben gesperrt.",
+    "examples": [
+      "EXEC toolbelt_core.USP_ReleaseHeldWork @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@WorkItemId": "Eigene gehaltene Queuezeile; Wiederholung bleibt ausdrücklich gesteuert.",
+      "@ExpectedHoldVersion": "Exakte aktuelle binary(8)-Holdversion; keine Übertragung auf Folgeclaims.",
+      "@ResultTable": "NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle.",
+      "@KeepData": "0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.USP_SetWorkerCapacity": {
+    "summary": "Ändert die Live-Capacity einer exakten Workergeneration ohne Übernahme oder Abbruch laufender Arbeit.",
+    "examples": [
+      "EXEC toolbelt_core.USP_SetWorkerCapacity @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@WorkerId": "Stabile eigene Workeridentität; NULL bei Registrierung erzeugt eine neue Identität.",
+      "@WorkerGeneration": "Exakte Generation der eigenen Registrierung.",
+      "@Capacity": "Lokales positives int-Budget, zur Laufzeit steuerbar; keine Kapazitätszusage.",
+      "@ExpectedConfigVersion": "Exakte aktuelle binary(8)-Konfigurationsversion; veraltete Werte blockieren.",
+      "@ResultTable": "NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle.",
+      "@KeepData": "0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.USP_SetWorkerConcurrency": {
+    "summary": "Ändert das globale Live-Admissionbudget versionsgebunden ohne laufende Arbeit abzubrechen.",
+    "examples": [
+      "EXEC toolbelt_core.USP_SetWorkerConcurrency @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@MaxConcurrentExecutions": "Globales int-Budget 0 bis 2147483647; 0 pausiert neue Admission.",
+      "@ExpectedConfigVersion": "Exakte aktuelle binary(8)-Konfigurationsversion; veraltete Werte blockieren.",
+      "@ResultTable": "NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle.",
+      "@KeepData": "0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.USP_SetWorkerIntervals": {
+    "summary": "Ändert Intervalldefaults ausschließlich für künftig registrierte Generationen.",
+    "examples": [
+      "EXEC toolbelt_core.USP_SetWorkerIntervals @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@HeartbeatSeconds": "1 bis 3600 Sekunden; Default 15. Änderungen gelten für neue Generationen.",
+      "@UnreachableSeconds": "3 bis 86400 Sekunden, mindestens dreimal HeartbeatSeconds; Default 60.",
+      "@ExpectedConfigVersion": "Exakte aktuelle binary(8)-Konfigurationsversion; veraltete Werte blockieren.",
+      "@ResultTable": "NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle.",
+      "@KeepData": "0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.USP_SetWorkerState": {
+    "summary": "Steuert ACTIVE, PAUSED oder DRAINING einer exakten lebenden Workergeneration.",
+    "examples": [
+      "EXEC toolbelt_core.USP_SetWorkerState @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@WorkerId": "Stabile eigene Workeridentität; NULL bei Registrierung erzeugt eine neue Identität.",
+      "@WorkerGeneration": "Exakte Generation der eigenen Registrierung.",
+      "@RequestedState": "Expliziter administrativer Übergang gemäß Worker-Control-Zustandsvertrag.",
+      "@ExpectedConfigVersion": "Exakte aktuelle binary(8)-Konfigurationsversion; veraltete Werte blockieren.",
+      "@ResultTable": "NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle.",
+      "@KeepData": "0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.USP_StopWorkerExecution": {
+    "summary": "Persistiert generationgebunden Stop und Hold vor Providerabbruch; Completiongewinner bleibt committed.",
+    "examples": [
+      "EXEC toolbelt_core.USP_StopWorkerExecution @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@SlotReservationId": "Exakte eigene Reservation; niemals eine Sessionnummer.",
+      "@ExpectedClaimGeneration": "Exakte Claim-Generation der ausgewählten Verarbeitung.",
+      "@ResultTable": "NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle.",
+      "@KeepData": "0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.USP_StopWorkers": {
+    "summary": "Pausiert stabile ausgewählte Workeridentitäten und persistiert atomaren Stop/Hold ihrer eingefrorenen exakten Generationen.",
+    "examples": [
+      "EXEC toolbelt_core.USP_StopWorkers @Hilfe=1;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 und seine separat installierten Abhängigkeiten. Vorhandene EXECUTE-Rechte für die ausgewählte administrative oder Dispatch-Schnittstelle; keine automatische Rechtevergabe.",
+      "Das Beispiel liest den Vertrag. Mutierende Aufrufe verlangen eigene aktuelle Konfigurations-/Holdversionen beziehungsweise registrierte IDs und Tokens. Native Qualifikation der aktiven Welle steht noch aus."
+    ],
+    "parameter_notes": {
+      "@WorkersTable": "Vorhandene lokale Temp-Tabelle mit WorkerId uniqueidentifier NOT NULL und WorkerGeneration bigint NOT NULL.",
+      "@ResultTable": "NULL liefert ein fachliches Resultset; sonst vorhandene caller-lokale Temp-Tabelle.",
+      "@KeepData": "0 ersetzt, 1 ergänzt die vorbereitete ResultTable atomar.",
+      "@Debug": "Optionale abstrakte Diagnose ohne Tokens oder vertrauliche Nutzdaten.",
+      "@Hilfe": "1 liefert ausschließlich den Help-Vertrag ohne Mutation."
+    }
+  },
+  "toolbelt_core.VW_WorkerExecutionStatus": {
+    "summary": "Öffentliche technische Statussicht; explizite Spalten, keine Tokens oder Payloads.",
+    "examples": [
+      "SELECT TOP (20) * FROM toolbelt_core.VW_WorkerExecutionStatus;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht."
+    ],
+    "parameter_notes": {}
+  },
+  "toolbelt_core.VW_WorkerStatus": {
+    "summary": "Öffentliche technische Statussicht; explizite Spalten, keine Tokens oder Payloads.",
+    "examples": [
+      "SELECT TOP (20) * FROM toolbelt_core.VW_WorkerStatus;"
+    ],
+    "requirements": [
+      "Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht."
+    ],
+    "parameter_notes": {}
   }
 }
