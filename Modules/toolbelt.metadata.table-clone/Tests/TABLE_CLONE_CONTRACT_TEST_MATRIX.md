@@ -20,10 +20,10 @@ Erhalt nicht qualifiziert, kein vollständiges Cloneframework.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-03`
-- Nachweis: `local: Tests/CI/run-table-clone-wave1-lab.ps1; begrenzter Root-Caller und unabhängiger Cleanup-Audit`
-- Scope: Finaler öffentlicher W1-Labadapter am 2026-10-03 (lokales Datum; UTC 2026-10-02): SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Vier Runtime-Fixtures TableClone.Contract.sql, Wave1.Contract.sql, Wave1.DateTimeOffset.sql und Lifecycle.Contract.sql, Clientmetadata/Help/ResultTable, 27 Propertytypen samt Ownern und 18 datetimeoffset-Produktpfadroundtrips, Computed/PERSISTED/Filter, 2MiB-Atomik, Predicate-Injektionen, genuine 1.0-Upgrade, clean/repeat, Caller-TX/SET, AppLock, Rollback, Kollisions-/Dependency-Erhalt, Uninstall und eigene Bereinigung bestanden. Source-/Helper-/Genuine-Inputs hashgebunden, begrenzter Caller mit tatsächlichem Exit und vollständigen Kanälen, exakt gebundenem Journal und frischem unabhängigen Cleanup-Audit. Keine Konfigurations-, Rechte-, Trust- oder Infrastrukturänderungen. Der Zähler32 bezeichnet ausschließlich den Visibility-Teilbereich. CI am geprüften PR-Head 76888216 bestanden: alle sieben Checks SUCCESS einschließlich SQL Server 2019/2022/2025 Linux. Tatsächliche Minimalrechte mit eigenem Principal und weitere physische Ziele bleiben NOT_EXECUTED.
-- Ergebnis: `success`
+- Datum: `2026-10-04`
+- Nachweis: `Source-only W2; Runtime und aktueller CI-Head noch offen`
+- Scope: V3 Map-/FK-Erweiterung; keine neue Nativequalifikation aus historischen W1-Läufen.
+- Ergebnis: `not executed`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
 ## Welle1 / 2.0.0
@@ -46,3 +46,18 @@ Nativeausführung dieser separaten Fixture im finalen öffentlichen Scope bestan
 ## Finaler öffentlicher W1-Nachweis 2026-10-03
 
 Am 2026-10-03 bestanden die finalen öffentlichen Adapter auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Vier Runtime-Fixtures einschließlich 27 Propertytypen und separater 18-datetimeoffset-Produktpfadregression, Client-/Lifecycle-/Caller-TX-/SET-/AppLock-/Rollback-/Kollisions-/Dependency-/Atomikorakel sowie genuine 1.0-Upgrades und eigene Bereinigung sind qualifiziert. Inputs und Genuine-Blobs sind hashgebunden; tatsächlicher Exit, vollständige Kanäle, exakt gebundenes Journal und frischer Cleanup-Audit wurden zusammen geprüft. Keine Konfigurations-, Rechte-, Trust- oder Infrastrukturänderungen. Der Zähler32 ist nur der Visibility-Teilbereich. CI am geprüften PR-Head 76888216 bestanden: alle sieben Checks SUCCESS einschließlich SQL Server 2019/2022/2025 Linux. Tatsächliche Minimalrechte mit eigenem Principal und weitere physische Ziele bleiben NOT_EXECUTED. Teilweise validiert und unveröffentlicht.
+
+## W2 / V3 – noch nicht ausgeführte neue Gates
+
+| Scope | Konkreter Oracle | Status |
+|---|---|---|
+| Map / Ordnung | zwei gemappte Tabellen, Lücken/umgekehrte Inputordnung, alle TABLEs vor Schlüsseln, EP vor FK, States zuletzt | Source vorbereitet; Native offen |
+| FK | Composite constraint_column_id, Self-FK und Zweizyklus; interne Umleitung/externe KEEP; trusted/untrusted/disabled, Aktionen/NFR, unabhängiger Zielkatalog | Wave2.Contract.sql; Native offen |
+| Properties | originaler decimal sql_variant/Metadaten; FK-EP bei Include1 Unsupported10; Include0 W1-strikt | Contract/Safety; Native offen |
+| Map / Atomik | REJECT13, sameObject Input/Output, doppelte aufgelöste Source9; Sentinel/Map/TC/XS erhalten | Wave2.Safety.sql; Native offen |
+| Quoten | Map64/65 mit unabhängigen Quellen; 2048/2049 Objekt+FK-Spaltentupel mit FK-Dedup, zwei getrennte1024-Spaltentabellen, getrennte128/2MiB | Wave2.Caps.sql plus Static vorbereitet; SQL noch nicht ausgeführt, weitere128/2MiB-Grenzläufe offen |
+| Weitere Negativfälle | Schema-/Ordinal-/NUL-/129Units/Targetalias, disabledtrusted, späte FK-/Namensfehler, intact/doomedCaller und alleKeepData | teilweise Sourcekopplung; umfassende Native-Orakel offen |
+| Lifecycle | genuine2→3, clean/repeat/uninstall, lokale/centrale Consumer-/Slot-/Marker-/AppLock-Negative | historische V2 nicht aufV3 übertragen; offen |
+| Aktueller Head | Source/static/docs vorhanden; GitHub/physischeVersion-/CL-Matrix/Minrechte | offen |
+
+Die source-only Kopplungsprüfungen sind kein tatsächlicher Nachweis einer disabled/trusted Catalogform oder 2048-Metadatengrenze. W1-Fixturedateien bleiben unverändert; nur der aktuelle Lifecycle-/Helpmetadata-Versionsvertrag ist aufV3 gekoppelt.

@@ -18,10 +18,10 @@ synthetischen Daten und Modulmarker. Keine serverweite sys.messages-Änderung.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-03`
-- Nachweis: `local: Tests/CI/run-table-clone-wave1-lab.ps1; begrenzter Root-Caller und unabhängiger Cleanup-Audit`
-- Scope: Finaler öffentlicher W1-Labadapter am 2026-10-03 (lokales Datum; UTC 2026-10-02): SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Vier Runtime-Fixtures TableClone.Contract.sql, Wave1.Contract.sql, Wave1.DateTimeOffset.sql und Lifecycle.Contract.sql, Clientmetadata/Help/ResultTable, 27 Propertytypen samt Ownern und 18 datetimeoffset-Produktpfadroundtrips, Computed/PERSISTED/Filter, 2MiB-Atomik, Predicate-Injektionen, genuine 1.0-Upgrade, clean/repeat, Caller-TX/SET, AppLock, Rollback, Kollisions-/Dependency-Erhalt, Uninstall und eigene Bereinigung bestanden. Source-/Helper-/Genuine-Inputs hashgebunden, begrenzter Caller mit tatsächlichem Exit und vollständigen Kanälen, exakt gebundenem Journal und frischem unabhängigen Cleanup-Audit. Keine Konfigurations-, Rechte-, Trust- oder Infrastrukturänderungen. Der Zähler32 bezeichnet ausschließlich den Visibility-Teilbereich. CI am geprüften PR-Head 76888216 bestanden: alle sieben Checks SUCCESS einschließlich SQL Server 2019/2022/2025 Linux. Tatsächliche Minimalrechte mit eigenem Principal und weitere physische Ziele bleiben NOT_EXECUTED.
-- Ergebnis: `success`
+- Datum: `2026-10-04`
+- Nachweis: `Source-only W2; Runtime und aktueller CI-Head noch offen`
+- Scope: V3 Map-/FK-Erweiterung; keine neue Nativequalifikation aus historischen W1-Läufen.
+- Ergebnis: `not executed`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
 ## Welle1 / 2.0.0
@@ -44,3 +44,9 @@ Der dedizierte öffentliche Adapter ist Tests/CI/run-table-clone-wave1-lab.ps1; 
 ### Gezielte CI-Prefixkorrektur
 
 Die CI-Diagnose bestätigte auf Linux 2019/2022/2025 jeweils genau eine vollständige Form: ein führendes LF, die drei exakten öffentlichen Kommentarzeilen und der vollständige CREATE-Header mit drei Leerzeichen. Die Predicate-Testfixture akzeptiert zusätzlich ausschließlich diese byteexakte Form; Diagnoseausgabe und zusätzliches Resultset sind wieder entfernt. Bestehende Headerersetzung, Ablehnungs-, Transaktions- und Restoreorakel bleiben unverändert. Die korrigierte Fixture bestand anschließend in erneuten vollständigen öffentlichen Native-Läufen auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL150/160/170 jeweils lokal und zentral, einschließlich eigener Bereinigung und ohne Konfigurations-, Rechte-, Trust- oder Infrastrukturänderungen. CI am geprüften Head 76888216: alle sieben Checks SUCCESS einschließlich CloneLinux2019/2022/2025. Der Zähler32 bleibt nur der Visibility-Teilbereich; tatsächliche Lowpriv-Kontexte und weitere physische Ziele bleiben offen.
+
+## W2 / 3.0.0 – Source-only
+
+[Map-/FK-Vertrag](../../../Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md). V3 verschiebt den Standardtail auf Position9..12; neue Fixtures Wave2.Contract/Safety/Caps sind vorbereitet. Aktuelle V3-Native-/Upgrade-/CI-Gates noch offen; sämtliche oben genannten W1-Läufe bleiben historische Version2-Evidenz. Kein FullProduct- oder Minimalrechte-Nachweis.
+
+Die gezielte Caps-Fixture enthält Map64/65, zwei unabhängige1024-Spaltentabellen sowie exakt2048/2049 Childobjekt-/FK-Spaltentupel mit einem nur einmal pro Menge gezählten FK. Ein normaler1025ter Spaltenkatalog ist durch SQL Server nicht herstellbar; dafür wird kein API-Negativnachweis erfunden. Beide Lifecycle-Pässe berücksichtigen außerdem unaufgelöste sameDB-Consumer mit katalogäquivalenten DB-/Schema-/Objektnamen. Diese neuen Orakel sind Source vorbereitet, noch nicht nativ ausgeführt.

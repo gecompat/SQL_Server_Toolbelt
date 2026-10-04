@@ -1,6 +1,6 @@
 module_id: "toolbelt.metadata.table-clone"
-module_name: "Script-only Table Clone"
-version: "2.0.0"
+module_name: "Script-only Table Clone W2"
+version: "3.0.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
@@ -72,6 +72,7 @@ documentation:
   architecture:
     - "../../Documentation/Architecture/TABLE_CLONE_PROPOSAL.md"
     - "../../Documentation/Architecture/TABLE_CLONE_WAVE1_CONTRACT.md"
+    - "../../Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md"
   test_matrix:
     - "Tests/TABLE_CLONE_CONTRACT_TEST_MATRIX.md"
   evidence:
@@ -89,6 +90,9 @@ tests:
   lifecycle_caller_uninstall: "Tests/Runtime/Lifecycle.CallerTransaction.Uninstall.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   minimum_rights: "Tests/Runtime/MinimumRights.Contract.sql"
+  wave2: "Tests/Runtime/Wave2.Contract.sql"
+  wave2_safety: "Tests/Runtime/Wave2.Safety.sql"
+  wave2_caps: "Tests/Runtime/Wave2.Caps.sql"
   wave1: "Tests/Runtime/Wave1.Contract.sql"
   wave1_datetimeoffset: "Tests/Runtime/Wave1.DateTimeOffset.sql"
   wave1_bytes: "Tests/Runtime/Wave1.Bytes.sql"
@@ -107,3 +111,8 @@ validation_evidence:
     workflow: "local: Tests/CI/run-table-clone-wave1-lab.ps1; begrenzter Root-Caller und unabhängiger Cleanup-Audit"
     scope: "Finaler öffentlicher W1-Labadapter am 2026-10-03 (lokales Datum; UTC 2026-10-02): SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Vier Runtime-Fixtures TableClone.Contract.sql, Wave1.Contract.sql, Wave1.DateTimeOffset.sql und Lifecycle.Contract.sql, Clientmetadata/Help/ResultTable, 27 Propertytypen samt Ownern und 18 datetimeoffset-Produktpfadroundtrips, Computed/PERSISTED/Filter, 2MiB-Atomik, Predicate-Injektionen, genuine 1.0-Upgrade, clean/repeat, Caller-TX/SET, AppLock, Rollback, Kollisions-/Dependency-Erhalt, Uninstall und eigene Bereinigung bestanden. Source-/Helper-/Genuine-Inputs hashgebunden, begrenzter Caller mit tatsächlichem Exit und vollständigen Kanälen, exakt gebundenem Journal und frischem unabhängigen Cleanup-Audit. Keine Konfigurations-, Rechte-, Trust- oder Infrastrukturänderungen. Der Zähler32 bezeichnet ausschließlich den Visibility-Teilbereich. CI am geprüften PR-Head 76888216 bestanden: alle sieben Checks SUCCESS einschließlich SQL Server 2019/2022/2025 Linux. Tatsächliche Minimalrechte mit eigenem Principal und weitere physische Ziele bleiben NOT_EXECUTED."
     result: "success"
+
+  - date: "2026-10-04"
+    workflow: "Source-only W2; Runtime und aktueller CI-Head noch offen"
+    scope: "V3 Map-/FK-Erweiterung; keine neue Nativequalifikation aus historischen W1-Läufen."
+    result: "not executed"

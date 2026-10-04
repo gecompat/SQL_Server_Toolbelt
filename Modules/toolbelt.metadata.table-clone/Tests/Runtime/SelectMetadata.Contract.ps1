@@ -82,7 +82,7 @@ try {
         $sections=[System.Collections.Generic.HashSet[string]]::new()
         $parameters=0; while($reader.Read()){$sections.Add($reader.GetString(3)) | Out-Null; if($reader.GetString(3) -eq 'PARAMETER'){$parameters++}}
         foreach($section in @('DESCRIPTION','PARAMETER','RESULT_COLUMN','EXAMPLE')){if(-not $sections.Contains($section)){throw 'Clone Help sections failed.'}}
-        if($parameters -ne 10 -or $reader.NextResult() -or $messages.Count -ne 0){throw 'Clone Help bypass/output failed.'}
+        if($parameters -ne 12 -or $reader.NextResult() -or $messages.Count -ne 0){throw 'Clone Help bypass/output failed.'}
     } finally {$reader.Dispose()}
     $command.CommandText="CREATE TABLE #MetadataPlan(Dummy int); EXEC toolbelt_metadata.USP_ScriptTableClone N'dbo',N'SyntheticMetadataSource',N'dbo',N'SyntheticMetadataTarget',@ResultTable=N'#MetadataPlan';"
     $reader=$command.ExecuteReader()

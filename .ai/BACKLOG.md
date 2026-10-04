@@ -724,6 +724,8 @@ Status: `ready for development`; noch keine Implementierungs-/Runtime-Evidenz.
 
 #### USP_ScriptTableClone
 
+Stand2026-10-04, Codex: Die am2026-10-03 konkret bestätigte W2-Erweiterung umfasst Map-/FK-Planung, PositionsbruchV3 und failclosed FK-EP-/Stategrenzen. [Kanonischer V3-Vertrag](../Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md). Sourcearbeit active; Native-/CI-Qualifikation der neuen Version offen. Die folgenden ursprünglichen V0-Grenzen bleiben historischer Ausgangsscope, keine neue W2-FK-Ablehnung.
+
 - Script-only-Planer für explizite Quell-/Ziel-Schema-/Tabellennamen in
   derselben Datenbank, reguläre diskbasierte Tabellen. Keine DDL-Ausführung,
   Datenkopie, datenbankübergreifende Quelle oder automatische Recovery.

@@ -2,7 +2,7 @@
 
 -- ============================================================================
 -- Zweck:     Erst-, Upgrade- und Wiederholungsdeployment
--- Modul:     toolbelt.metadata.table-clone v2.0.0
+-- Modul:     toolbelt.metadata.table-clone v3.0.0
 -- Schema:    toolbelt_metadata
 -- Erfordert: SQL Server 2019, 2022 oder 2025
 -- Modus:     SQLCMD; Ausführung aus diesem Deployment-Verzeichnis
@@ -55,7 +55,9 @@ VALUES
       (N'1.0.0', N'toolbelt_metadata', N'USP_ScriptTableCloneInternal', 'P')
     , (N'1.0.0', N'toolbelt_metadata', N'USP_ScriptTableClone', 'P')
     , (N'2.0.0', N'toolbelt_metadata', N'USP_ScriptTableCloneInternal', 'P')
-    , (N'2.0.0', N'toolbelt_metadata', N'USP_ScriptTableClone', 'P');
+    , (N'2.0.0', N'toolbelt_metadata', N'USP_ScriptTableClone', 'P')
+    , (N'3.0.0', N'toolbelt_metadata', N'USP_ScriptTableCloneInternal', 'P')
+    , (N'3.0.0', N'toolbelt_metadata', N'USP_ScriptTableClone', 'P');
 
 CREATE TABLE #tbx_TableCloneDeployState
 (
@@ -66,7 +68,7 @@ CREATE TABLE #tbx_TableCloneDeployState
 );
 
 DECLARE
-      @TargetVersion        nvarchar(64) = N'2.0.0'
+      @TargetVersion        nvarchar(64) = N'3.0.0'
     , @DeploymentMode       nvarchar(16) = LOWER(N'$(DeploymentMode)')
     , @InstalledVersion     nvarchar(max)
     , @VersionPropertyName  sysname =
@@ -116,7 +118,7 @@ END;
 
     -- Known-Release-Identität wird vor Mutation und unter AppLock erneut gelesen.
     IF @InstalledVersion IS NOT NULL AND
-       (DATALENGTH(@InstalledVersion)<>10 OR CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'2.0.0')))
+       (DATALENGTH(@InstalledVersion)<>10 OR CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'2.0.0'),CONVERT(varbinary(max),N'3.0.0')))
         THROW 53923,N'TableClone: unbekannter Versionsmarker.',1;
     IF @InstalledVersion IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0
        AND name=N'Toolbelt.Module.toolbelt.metadata.table-clone.DeploymentMode' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value)) IN(CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central')))
@@ -215,6 +217,14 @@ BEGIN
     THROW 53924, @CollisionMessage, 1;
 END;
 
+    IF EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d WHERE (d.referenced_id IN(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone'),OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal'))
+        OR (d.referenced_id IS NULL AND d.referenced_server_name IS NULL
+            AND (d.referenced_database_name IS NULL OR d.referenced_database_name COLLATE DATABASE_DEFAULT=DB_NAME() COLLATE DATABASE_DEFAULT)
+            AND d.referenced_schema_name COLLATE DATABASE_DEFAULT=N'toolbelt_metadata' COLLATE DATABASE_DEFAULT
+            AND d.referenced_entity_name COLLATE DATABASE_DEFAULT IN(N'USP_ScriptTableClone',N'USP_ScriptTableCloneInternal')))
+       AND NOT EXISTS(SELECT 1 FROM (VALUES(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone')),(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal'))) own(Id) WHERE own.Id=d.referencing_id))
+        THROW 53926,N'TableClone: fremde same-database Dependency.',1;
+
 INSERT INTO #tbx_TableCloneDeployState
 (
       TargetVersion
@@ -292,7 +302,7 @@ IF @ResultTableId IS NULL OR @DependencyMajor IS NULL OR @DependencyMajor<1
 
     -- Known-Release-Identität wird vor Mutation und unter AppLock erneut gelesen.
     IF @InstalledVersion IS NOT NULL AND
-       (DATALENGTH(@InstalledVersion)<>10 OR CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'2.0.0')))
+       (DATALENGTH(@InstalledVersion)<>10 OR CONVERT(varbinary(max),@InstalledVersion) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'2.0.0'),CONVERT(varbinary(max),N'3.0.0')))
         THROW 53923,N'TableClone: unbekannter Versionsmarker.',1;
     IF @InstalledVersion IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0
        AND name=N'Toolbelt.Module.toolbelt.metadata.table-clone.DeploymentMode' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value)) IN(CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central')))
@@ -309,7 +319,11 @@ IF @ResultTableId IS NULL OR @DependencyMajor IS NULL OR @DependencyMajor<1
         OR NOT EXISTS(SELECT 1 FROM sys.extended_properties e WHERE e.class=1 AND e.major_id=o.object_id AND e.minor_id=0
            AND e.name=N'Toolbelt.ModuleVersion' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),@InstalledVersion))))
         THROW 53923,N'TableClone: Releaseobjektmarker nicht kohärent.',1;
-    IF EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d WHERE d.referenced_id IN(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone'),OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal'))
+    IF EXISTS(SELECT 1 FROM sys.sql_expression_dependencies d WHERE (d.referenced_id IN(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone'),OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal'))
+        OR (d.referenced_id IS NULL AND d.referenced_server_name IS NULL
+            AND (d.referenced_database_name IS NULL OR d.referenced_database_name COLLATE DATABASE_DEFAULT=DB_NAME() COLLATE DATABASE_DEFAULT)
+            AND d.referenced_schema_name COLLATE DATABASE_DEFAULT=N'toolbelt_metadata' COLLATE DATABASE_DEFAULT
+            AND d.referenced_entity_name COLLATE DATABASE_DEFAULT IN(N'USP_ScriptTableClone',N'USP_ScriptTableCloneInternal')))
        AND NOT EXISTS(SELECT 1 FROM (VALUES(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone')),(OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal'))) own(Id) WHERE own.Id=d.referencing_id))
         THROW 53926,N'TableClone: fremde same-database Dependency.',1;
     SET @CollisionSchema = NULL;
