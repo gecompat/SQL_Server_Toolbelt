@@ -23,7 +23,7 @@ XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 35 Module sind implementiert. 20 sind `validated`, 15 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
+abgeschlossen. 36 Module sind implementiert. 20 sind `validated`, 16 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Die vollständige lokale Adaptermatrix war am 2026-09-01 auf physischen

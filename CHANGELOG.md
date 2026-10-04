@@ -14,6 +14,19 @@
   Engine-Merge-/Heap-/Spill- und Zielmatrixnachweise bleiben offen. Aktuelle CI
   wird separat am PR-Head geprüft. `partially validated`, `unreleased`.
 
+## 2026-10-03 – Begrenzter Paarvergleich 1.0.0, unveröffentlicht
+
+- Eine individuell freigegebene USP über die drei vorhandenen statischen TVFs;
+  keine neue CLR-/Assembly-/Unicodeimplementierung.
+- Typgenaue caller-lokale Paare, globale Row-/Text-/Workadmission und vollständige
+  Ergebnisprüfung vor gemeinsamer ResultTable-Helper-/Insert-Atomik.
+- Eigener Lifecycle mit bekannten same-database Dependencies, administrativer
+  exakter SHA2-512-Bindung und vorhandener Metadatensicht.
+- Fünf synthetische SQL-Fixtures und Lifecycle-Wiederholungen auf Linux 2019
+  local und Windows 2025/CU8 local erfolgreich; gezielter zentraler Windows-
+  Client-/ResultTable-/Uninstall-Bestätigungsnachweis unabhängig geprüft.
+  Minimalrechte, weitere Lifecycle-Negativfälle, Ziele und Head-CI bleiben offen.
+
 ## 2026-10-03 – Jaro-Winkler im bestehenden SAFE-Provider 1.1.0, teilweise validiert
 
 - Individuelle Funktionsfreigabe und konkrete Erweiterung der bestehenden Assembly
@@ -579,7 +592,6 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-35 Module sind implementiert. 20 sind `validated`, 15 sind `partially
-validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+36 Module sind implementiert. 20 sind `validated`, 16 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
