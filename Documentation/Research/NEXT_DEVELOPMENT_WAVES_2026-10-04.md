@@ -1,7 +1,8 @@
 # Entscheidungsvorlagen für die nächsten Entwicklungswellen
 
-Stand: 2026-10-04, Codex. Status: `proposed`, Entscheidungsvorbereitung.
-Keine neue Source, Assembly, Installation oder Runtime-Qualifikation.
+Stand: 2026-10-04, Codex. Queue-Worker 2: `ready for development` nach
+nachfolgend dokumentierter Einzelfreigabe; weitere Wellen: `proposed`.
+Runtime-Nachweis der neuen Wellen: `not executed`.
 Bestätigte Anforderungen bleiben gültig; neue Details sind separat markiert.
 Ein Merge dieser Vorlage bestätigt deren Dokumentation, nicht automatisch die
 Implementierung der vorgeschlagenen Objekte oder Provider.
@@ -28,7 +29,8 @@ NULL-Nachfrage nicht widerrufen. NULL-Token und Quoting wurden zusätzlich
 bestätigt. Queue-Vorschläge zur Steuerung, Recovery, Neustart und Handlerzulassung
 wurden ausdrücklich angenommen. Die spätere dynamische Parallelitätskorrektur
 ersetzt ausschließlich die vorgeschlagene feste Acht-Slot-Obergrenze.
-Konkrete APIs, Provider und zusätzliche Grenzen unten bleiben neue Vorschläge.
+Die konkrete Queue-Steuerung wurde in der ergänzenden Besprechung freigegeben;
+die Details der anderen Wellen bleiben unten als neue Vorschläge gekennzeichnet.
 
 Nachtrag 2026-10-04, Codex: Der Benutzer bestätigte den ausdrücklich aktivierten
 verwalteten Betrieb einschließlich Ablehnung direkter unverwalteter
@@ -40,6 +42,28 @@ Die übrigen neuen API-/Providerdetails werden dadurch nicht pauschal genehmigt.
 ## Queue-Worker 2
 
 ### Bestätigte Anforderungen
+
+Umsetzungsfreigabe 2026-10-04 nach ergänzender Vertragsbesprechung:
+zentrale SQL-Steuerung mit getrennten APIs und Versionsvergleich;
+konfigurierbare Registrierungsintervalle mit 15/60 Sekunden als Default;
+kontrollierter Übergang einschließlich ausdrücklich angeforderter
+Deaktivierung ohne aktive/ungeklärte Claims oder Reservierungen.
+Intervalländerungen gelten nur für neue Generationen; registrierte
+Generationen behalten ihre Werte. Der Benutzer beauftragte anschließend
+ausdrücklich die autonome Umsetzung „wie von dir vorgeschlagen“.
+
+Sofortstopp ist separat vom Drain bestätigt: einzelne konkrete Verarbeitung
+mit Claim-Generation oder mehrere/alle Worker. Stop-/Hold-Disposition vor
+Abbruch dauerhaft sichern; alle automatischen Wiederanlaufpfade ausschließen.
+Erst bestätigtes Ende und Rollback erlauben Slotfreigabe; unklar bleibt gesperrt.
+Commit gewinnt bedeutet Erfolg, nicht nachträglich fingierter Rollback.
+Nach bestätigtem Abbruch bleibt der Auftrag bis zur expliziten Wiederfreigabe
+erkennbar zurückgehalten; neuer Versuch durch jeden geeigneten Worker,
+Historie erhalten und korrigierter registrierter Handler neu geprüft.
+Einzelstopp sperrt nur den Auftrag; Workergruppen-/Gesamtstopp sperrt auch
+neue Starts bis zur ausdrücklichen Reaktivierung. Keine Raw-SQL-Erweiterung.
+Providerbezogener Abbruch und Konsistenznachweis bleiben getrennt;
+keine externen Effekte pauschal durch SQL-Transaktionen als rückgängig behaupten.
 
 Der [erste Worker](../Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md) bleibt
 der ausführende Provider. Work Types, Claimgenerationen, Lease, Retry,
@@ -68,7 +92,7 @@ Pause der Admission, nicht Ende der Heartbeats. Supervisoren haben zusätzliche
 eigene Kapazitätsgrenzen. Sichere Defaults und kleine explizite Lab-Budgets;
 keine automatische Ableitung aus CPU-Zahl oder Runtimeinventar.
 
-### Neue konkrete Steuerungs- und Ownership-Vorschläge
+### Freigegebene Steuerungs- und Ownership-Richtung
 
 Eigenes T-SQL-Modul `toolbelt.core.worker-control` als Lifecycle-Einheit,
 abhängig von der vorhandenen Queue. Globale Konfiguration mit
@@ -115,8 +139,10 @@ Zustände ACTIVE, PAUSED, DRAINING, UNREACHABLE und CLOSED betreffen nur
 Supervisoren, nicht die vorhandene WorkItem-Zustandsmaschine. ACTIVE erlaubt
 Admission; PAUSED erlaubt spätere Reaktivierung; DRAINING wird erst nach
 nachgewiesenem Ende aller eigenen Slots geschlossen. Vorschlag:
-Registrierungsheartbeat 15 Sekunden, Nichterreichbarkeit nach 60 Sekunden,
-SQL-UTC als Zeitquelle. Bereits abgelaufene Generation wird nicht wiederbelebt.
+Konfigurierbarer Registrierungsheartbeat mit Default 15 Sekunden und
+Nichterreichbarkeit mit Default 60 Sekunden, SQL-UTC als Zeitquelle.
+Registrierte Generationen behalten ihre Intervalle; Konfigurationsänderungen
+gelten für neue Generationen. Bereits abgelaufene Generation wird nicht wiederbelebt.
 Neue Generation nach Neustart übernimmt keine alten Claims oder Reservierungen.
 
 ### Atomare Admission und Übergang alter Caller – neue Vertragsgrenze
@@ -137,9 +163,10 @@ Diese zusätzliche öffentliche Queue-/Upgradegrenze ist damit bestätigt;
 die technische Ausarbeitung bleibt an die übrigen konkreten API-/Ownership-
 und Recoveryverträge gebunden. Keine rückwirkende Änderung des laufenden Systems.
 
-Weiterhin vorgeschlagen: Deaktivierung nur ohne belegte Reservierungen/Claims;
-keine automatische Rückkehr zum alten Pfad. Diese Deaktivierungsbedingungen
-sind nicht Bestandteil der oben bestätigten Freigabe.
+Nach ergänzender Besprechung ebenfalls freigegeben: kontrollierte Deaktivierung
+sperrt zuerst neue Starts, lässt Arbeit enden und wird nur ohne belegte oder
+ungeklärte Reservierungen/Claims abgeschlossen; keine automatische Rückkehr
+zum alten Pfad. Diese spätere Freigabe erweitert die frühere Opt-in-Bestätigung.
 
 Ausfall/Leaseablauf allein beweist nicht Handlerende. Keine automatische
 Slotfreigabe aufgrund Registrierungs- oder WorkItem-Leaseablaufs; UNKNOWN zählt
@@ -361,10 +388,13 @@ Integration bleiben eigene Vertragswellen, kein „später still einschalten“.
 
 ## Noch zu entscheiden und nächster Schritt
 
-1. Queue: konkrete neue Steuerungs-/Claim-APIs, Versionsvergleich und
-   15/60-Sekunden-Registrierungstiming. Managed-Opt-in und Legacy-Claim-Gate
-   sind seit dem Nachtrag einzeln bestätigt und nicht erneut abzufragen.
-   Recoverybeweis/-API separat konkretisieren, bevor Recovery implementiert wird.
+1. Queue: autonome Umsetzung der bestätigten zentralen Steuerungs-/Claim-APIs,
+   Versionsprüfung, konfigurierbaren Intervalle mit Defaults 15/60 und
+   generationserhaltenden Änderungen. Managed-Opt-in, Legacy-Claim-Gate,
+   kontrollierte Deaktivierung und Sofortstopp mit Hold/explicit release sind
+   einzeln bestätigt und nicht erneut abzufragen. Technische Fencing-/
+   Recoverybeweise konkretisieren; UNKNOWN niemals durch Bestätigung allein
+   freigeben. Weitere fachliche Vertragsausweitung bleibt separat.
 2. CSV: eigene SAFE-Assembly, genau zwei USPs, markierte Headerzeilen und die
    vorgeschlagenen Größen-/Zellenobergrenzen.
 3. JSON Pointer/Safe Cast: genaue TVF-Outputs, strikte Lexik, Decimal38/18,
