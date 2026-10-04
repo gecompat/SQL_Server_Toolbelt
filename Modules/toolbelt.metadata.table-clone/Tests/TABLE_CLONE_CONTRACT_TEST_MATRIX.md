@@ -21,9 +21,9 @@ Erhalt nicht qualifiziert, kein vollständiges Cloneframework.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-04`
-- Nachweis: `Source-only W2; Runtime und aktueller CI-Head noch offen`
-- Scope: V3 Map-/FK-Erweiterung; keine neue Nativequalifikation aus historischen W1-Läufen.
-- Ergebnis: `not executed`
+- Nachweis: `Begrenzte private W2-Nativeadapter; physische Prozess-/Journalprüfung und frischer Cleanup-Audit`
+- Scope: Am 2026-10-04 bestanden begrenzte private Adapter auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL170 ausschließlich lokal: Clean3 und genuine2→3 mit frischer Session, Repeat, resolved Consumer mit Deploy-/Uninstall-Ablehnung53926/1 und unverändertem Katalogsnapshot/gesunder Transaktion sowie Uninstall/Repeat. Je Lauf wurden zwei eigene Datenbanken entfernt; frische Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte-, Owner- oder Truständerungen. Linux: drei W2-Fixtures und eine W1-Regressionsfixture stammen als Teilnachweis aus einem historischen insgesamt fehlgeschlagenen Lauf; der identische Produkt- und Fixturestand wurde wiederverwendet und im finalen Lifecycle-PASS nicht erneut ausgeführt. Windows: dieselben vier Fixtures bestanden einmal in Clean3 im aktuellen erfolgreichen Lauf, nicht erneut im Upgradezyklus. Unresolved Consumer: NOT_ESTABLISHED. Keine vollständige Produktqualifikation; weitere Ziele/CL, zentrale V3-Nutzung, Minimalrechte, übrige Lifecycle-Negativfälle und aktuelle Head-CI bleiben offen. Status bleibt teilweise validiert und unveröffentlicht.
+- Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
 ## Welle1 / 2.0.0
@@ -47,17 +47,16 @@ Nativeausführung dieser separaten Fixture im finalen öffentlichen Scope bestan
 
 Am 2026-10-03 bestanden die finalen öffentlichen Adapter auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral. Vier Runtime-Fixtures einschließlich 27 Propertytypen und separater 18-datetimeoffset-Produktpfadregression, Client-/Lifecycle-/Caller-TX-/SET-/AppLock-/Rollback-/Kollisions-/Dependency-/Atomikorakel sowie genuine 1.0-Upgrades und eigene Bereinigung sind qualifiziert. Inputs und Genuine-Blobs sind hashgebunden; tatsächlicher Exit, vollständige Kanäle, exakt gebundenes Journal und frischer Cleanup-Audit wurden zusammen geprüft. Keine Konfigurations-, Rechte-, Trust- oder Infrastrukturänderungen. Der Zähler32 ist nur der Visibility-Teilbereich. CI am geprüften PR-Head 76888216 bestanden: alle sieben Checks SUCCESS einschließlich SQL Server 2019/2022/2025 Linux. Tatsächliche Minimalrechte mit eigenem Principal und weitere physische Ziele bleiben NOT_EXECUTED. Teilweise validiert und unveröffentlicht.
 
-## W2 / V3 – noch nicht ausgeführte neue Gates
+## W2 / V3 – begrenzte Nachweise 2026-10-04
 
-| Scope | Konkreter Oracle | Status |
+Am 2026-10-04 bestanden begrenzte private Adapter auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL170 ausschließlich lokal: Clean3 und genuine2→3 mit frischer Session, Repeat, resolved Consumer mit Deploy-/Uninstall-Ablehnung53926/1 und unverändertem Katalogsnapshot/gesunder Transaktion sowie Uninstall/Repeat. Je Lauf wurden zwei eigene Datenbanken entfernt; frische Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte-, Owner- oder Truständerungen. Linux: drei W2-Fixtures und eine W1-Regressionsfixture stammen als Teilnachweis aus einem historischen insgesamt fehlgeschlagenen Lauf; der identische Produkt- und Fixturestand wurde wiederverwendet und im finalen Lifecycle-PASS nicht erneut ausgeführt. Windows: dieselben vier Fixtures bestanden einmal in Clean3 im aktuellen erfolgreichen Lauf, nicht erneut im Upgradezyklus. Unresolved Consumer: NOT_ESTABLISHED. Keine vollständige Produktqualifikation; weitere Ziele/CL, zentrale V3-Nutzung, Minimalrechte, übrige Lifecycle-Negativfälle und aktuelle Head-CI bleiben offen. Status bleibt teilweise validiert und unveröffentlicht.
+
+| Scope | Nachweis | Grenze |
 |---|---|---|
-| Map / Ordnung | zwei gemappte Tabellen, Lücken/umgekehrte Inputordnung, alle TABLEs vor Schlüsseln, EP vor FK, States zuletzt | Source vorbereitet; Native offen |
-| FK | Composite constraint_column_id, Self-FK und Zweizyklus; interne Umleitung/externe KEEP; trusted/untrusted/disabled, Aktionen/NFR, unabhängiger Zielkatalog | Wave2.Contract.sql; Native offen |
-| Properties | originaler decimal sql_variant/Metadaten; FK-EP bei Include1 Unsupported10; Include0 W1-strikt | Contract/Safety; Native offen |
-| Map / Atomik | REJECT13, sameObject Input/Output, doppelte aufgelöste Source9; Sentinel/Map/TC/XS erhalten | Wave2.Safety.sql; Native offen |
-| Quoten | Map64/65 mit unabhängigen Quellen; 2048/2049 Objekt+FK-Spaltentupel mit FK-Dedup, zwei getrennte1024-Spaltentabellen, getrennte128/2MiB | Wave2.Caps.sql plus Static vorbereitet; SQL noch nicht ausgeführt, weitere128/2MiB-Grenzläufe offen |
-| Weitere Negativfälle | Schema-/Ordinal-/NUL-/129Units/Targetalias, disabledtrusted, späte FK-/Namensfehler, intact/doomedCaller und alleKeepData | teilweise Sourcekopplung; umfassende Native-Orakel offen |
-| Lifecycle | genuine2→3, clean/repeat/uninstall, lokale/centrale Consumer-/Slot-/Marker-/AppLock-Negative | historische V2 nicht aufV3 übertragen; offen |
-| Aktueller Head | Source/static/docs vorhanden; GitHub/physischeVersion-/CL-Matrix/Minrechte | offen |
+| Contract/Safety/Caps + W1-Regressionsfixture | Linux historischer Teilnachweis; Windows aktueller Clean3-PASS | Kein Gesamt-PASS des historischen Linux-Laufs |
+| Clean3/genuine2→3, Repeat, Uninstall/Repeat | Beide ausgewählten lokalen Ziele PASS | Weitere Versionen/CL/central offen |
+| Resolved Consumer | Beide Zyklen je Deploy/Uninstall53926/1, Snapshot/TC0 erhalten | Unresolved NOT_ESTABLISHED |
+| Cleanup | Zwei eigene Datenbanken je Lauf entfernt, frischer Audit PASS | Keine Rechte-/Config-/Owner-/Truständerungen |
+| Übrige Matrix, Minimalrechte, aktuelle Head-CI | Nicht aus diesen Nachweisen abgeleitet | OFFEN |
 
-Die source-only Kopplungsprüfungen sind kein tatsächlicher Nachweis einer disabled/trusted Catalogform oder 2048-Metadatengrenze. W1-Fixturedateien bleiben unverändert; nur der aktuelle Lifecycle-/Helpmetadata-Versionsvertrag ist aufV3 gekoppelt.
+Die Caps-Fixture umfasst Map64/65, zwei getrennte1024-Spaltentabellen sowie2048/2049 Childobjekt-/FK-Spaltentupel mit FK-Dedup. Ein normaler1025ter Spaltenkatalog ist nicht herstellbar; dafür wird kein Negativnachweis behauptet. Separate zusätzliche128Index-/2MiB-Grenzläufe, umfassende KeepData-/Caller-/Namespace-Negativfälle und disabled/trusted-Sonderformen bleiben offen.

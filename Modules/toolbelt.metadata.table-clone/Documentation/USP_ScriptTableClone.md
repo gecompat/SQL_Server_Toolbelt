@@ -111,4 +111,4 @@ Am 2026-10-03 bestanden die finalen öffentlichen Adapter auf SQL Server 2019 Li
 
 ## W2-Map-/FK-Vertrag
 
-[Verbindliche V3-Details](../../../Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md): Position7 TableMap,8 ExternalReferenceRule,9..12 Standardtail. Genau fünf Mapspalten, Snapshot, REJECT/KEEP, globale Phasen, begrenzte FK-States und strikte FK-EP-Ablehnung. W1-Ordnung TABLE8 gilt nur im Einzelmodus; Mapmodus stellt alle TABLEs vor Constraints. Neue Source-/Testdateien sind noch kein Runtime-/CI-Nachweis.
+[Verbindliche V3-Details](../../../Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md): Position7 TableMap,8 ExternalReferenceRule,9..12 Standardtail. Genau fünf Mapspalten, Snapshot, REJECT/KEEP, globale Phasen, begrenzte FK-States und strikte FK-EP-Ablehnung. W1-Ordnung TABLE8 gilt nur im Einzelmodus; Mapmodus stellt alle TABLEs vor Constraints. Begrenzte V3-Native- und historische Fixture-Teilnachweise stehen getrennt in der Testdokumentation; aktuelle Head-CI und vollständige Produktqualifikation bleiben offen.
