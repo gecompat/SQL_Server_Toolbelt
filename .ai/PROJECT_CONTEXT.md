@@ -1,5 +1,23 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## Aktive Tabellenklon-Datenkopie 4.1.0
+
+Die einzeln freigegebene `USP_CopyTableCloneData` wird im bestehenden Modul
+umgesetzt: SameDB-Map und leere formgleiche Ziele, KEEP/REGENERATE, vorhandenes
+SNAPSHOT oder SERIALIZABLE, eigene Transaktion und nachgelagerte fehlende FKs.
+[Kanonischer Vertrag](../Documentation/Architecture/TABLE_CLONE_DATA_COPY_CONTRACT.md):
+neun Parameter, fünf NOT-NULL-Summaryfelder,100000 Zeilen/16MiB global und nur
+absenkbare Budgets. Gemeinsamer interner FK-Renderer, vier Lifecycle-Slots;
+kein zusätzlicher Provider oder öffentlicher Helper. Die fünf Copygruppen,
+Client und Clean/genuine4.0→4.1-Lifecycle bestanden auf Linux2019 CL150 und
+Windows2025/exakt CU8 CL170; eigene Bereinigung unabhängig geprüft.
+Vier dynamische Identity-Zustände und zwei gezielte SNAPSHOT-Konkurrenzfälle
+bestanden separat auf Linux2019 CL150; abgeschlossene Teilnachweise aus
+insgesamt fehlgeschlagenen Adapterläufen bleiben ausdrücklich getrennt.
+Head-CI wird im Pull Request gesondert nachgewiesen.
+Bestehende Planner-/Executor-Evidenz bleibt historisch. Unveröffentlicht,
+keine vollständige Produktqualifikation.
+
 ## Aktive Jaro-Erweiterung 2026-10-03
 
 Die ausdrücklich freigegebene bestehende SAFE-Assembly wird auf 1.1.0 erweitert:
