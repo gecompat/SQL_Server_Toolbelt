@@ -2,7 +2,7 @@
 
 <!-- Generiert mit Tests/Documentation/generate_api_catalog.py --write; nicht direkt bearbeiten. -->
 
-131 öffentliche Schnittstellen aus 38 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
+132 öffentliche Schnittstellen aus 38 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
 
 Jedes Beispiel separat verwenden. Funktionen verlangen positionsbezogene Argumente; `DEFAULT` verwendet einen deklarierten Default, `NULL` kann davon abweichen. Prozeduren verwenden benannte Parameter. Vorlagen mit Handlern, Claims, Dateien oder Plan-Hashes erfordern die beschriebenen Voraussetzungen. Eine Syntaxvorlage ist kein Runtime-Nachweis.
 
@@ -356,7 +356,7 @@ Vertrag und Quelle: [SVF_Base64Encode.sql](../../Modules/toolbelt.conversion.bas
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Value` | `varbinary(max)` | `kein Default` | Input | &#124; `@Value` &#124; `varbinary(max)` &#124; ja &#124; zu codierende Bytes; keine Zeichenkodierung &#124; |
+| `@Value` | `varbinary(max)` | `kein Default` | Input | Zu codierende Bytes; keine Zeichenkodierung. |
 | `@UrlSafe` | `bit` | `0` | Input | 0 = Standard-Base64; 1 = Base64URL beim Encoding. |
 
 Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
@@ -377,7 +377,7 @@ Vertrag und Quelle: [SVF_Base64Decode.sql](../../Modules/toolbelt.conversion.bas
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Value` | `varchar(max)` | `kein Default` | Input | &#124; `@Value` &#124; `varchar(max)` &#124; ja &#124; Base64- oder Base64URL-Text &#124; |
+| `@Value` | `varchar(max)` | `kein Default` | Input | Base64- oder Base64URL-Text; keine implizite Zeichenkodierung des decodierten Ergebnisses. |
 
 Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
 
@@ -955,9 +955,9 @@ Vertrag und Quelle: [TVF_GenerateSeriesBigInt.sql](../../Modules/toolbelt.core.g
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Start` | `bigint` | `kein Default` | Input | &#124; `@Start` &#124; `bigint` &#124; ja &#124; erster Wert der Reihe &#124; |
-| `@Stop` | `bigint` | `kein Default` | Input | &#124; `@Stop` &#124; `bigint` &#124; ja &#124; inklusive Ober- oder Untergrenze, sofern erreichbar &#124; |
-| `@Step` | `bigint` | `NULL` | Input | &#124; `@Step` &#124; `bigint` &#124; ja &#124; Schrittweite; `NULL` beziehungsweise `DEFAULT` löst die Richtung automatisch auf &#124; |
+| `@Start` | `bigint` | `kein Default` | Input | Erster bigint-Wert der Reihe. |
+| `@Stop` | `bigint` | `kein Default` | Input | Inklusive bigint-Ober- oder Untergrenze, sofern erreichbar. |
+| `@Step` | `bigint` | `NULL` | Input | Schrittweite; NULL beziehungsweise DEFAULT löst die Richtung automatisch auf. |
 
 Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
 
@@ -977,9 +977,9 @@ Vertrag und Quelle: [TVF_GenerateSeriesInt.sql](../../Modules/toolbelt.core.gene
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Start` | `int` | `kein Default` | Input | &#124; `@Start` &#124; `int` &#124; ja &#124; erster Wert der Reihe &#124; |
-| `@Stop` | `int` | `kein Default` | Input | &#124; `@Stop` &#124; `int` &#124; ja &#124; inklusive Ober- oder Untergrenze, sofern erreichbar &#124; |
-| `@Step` | `int` | `NULL` | Input | &#124; `@Step` &#124; `int` &#124; ja &#124; Schrittweite; `NULL` beziehungsweise `DEFAULT` löst die Richtung automatisch auf &#124; |
+| `@Start` | `int` | `kein Default` | Input | Erster int-Wert der Reihe. |
+| `@Stop` | `int` | `kein Default` | Input | Inklusive int-Ober- oder Untergrenze, sofern erreichbar. |
+| `@Step` | `int` | `NULL` | Input | Schrittweite; NULL beziehungsweise DEFAULT löst die Richtung automatisch auf. |
 
 Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
 
@@ -1181,7 +1181,7 @@ EXEC toolbelt_core.USP_EnqueueWork @Hilfe=1;
 
 Modul `toolbelt.core.work-queue` · Version `2.0.0` · `USP`
 
-Reiht SHARED-Arbeit mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein.
+Reiht je nach ExecutionMode SHARED- oder DRAIN_BARRIER-Arbeit mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein.
 
 Vertrag und Quelle: [USP_EnqueueWorkWithPolicy.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
@@ -1225,7 +1225,7 @@ EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @Hilfe=1;
 
 Modul `toolbelt.core.work-queue` · Version `2.0.0` · `USP`
 
-Reiht SHARED-Arbeit mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein.
+Reiht DRAIN_BARRIER-Arbeit ein, die vor ihrem exklusiven Claim die relevanten aktiven Claims derselben ExecutionGroup abwartet; Retry-Policy und optionaler Idempotency Key bleiben gebunden.
 
 Vertrag und Quelle: [USP_EnqueueBarrierWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueBarrierWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
@@ -1865,7 +1865,7 @@ Vertrag und Quelle: [TVF_TruncateDate.sql](../../Modules/toolbelt.datetime.trunc
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@DatePart` | `varchar(16)` | `kein Default` | Input | Unterstützte Zeiteinheit gemäß Objektvertrag; Beispiele verwenden day. |
-| `@Value` | `date` | `kein Default` | Input | &#124; `@Value` &#124; `date` &#124; Eingabedatum &#124; |
+| `@Value` | `date` | `kein Default` | Input | Eingabedatum im SQL-Typ date. |
 
 Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
 
@@ -2581,14 +2581,20 @@ Vertrag und Quelle: [USP_JsonArraysByGroup.sql](../../Modules/toolbelt.json.cons
 Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
 
 ```sql
-CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max)); EXEC toolbelt_json.USP_JsonArraysByGroup @EntriesTable=N'#Entries';
+CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));
+INSERT #Entries VALUES(1,1,N'string',N'Contoso'),(2,1,N'number',N'42');
+EXEC toolbelt_json.USP_JsonArraysByGroup @EntriesTable=N'#Entries';
+DROP TABLE #Entries;
 ```
 
 ```sql
+CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));
+INSERT #Entries VALUES(1,1,N'string',N'Contoso'),(2,1,N'number',N'42');
 EXEC toolbelt_json.USP_JsonArraysByGroup
  @EntriesTable = N'#Entries', @MaxEntries = 10000,
  @MaxTotalValueBytes = 2097152, @MaxResultBytes = 2097152,
  @ResultTable = NULL, @KeepData = 0, @Debug = 0, @Hilfe = 0;
+DROP TABLE #Entries;
 ```
 
 Hilfe:
@@ -2621,14 +2627,20 @@ Vertrag und Quelle: [USP_JsonObjectsByGroup.sql](../../Modules/toolbelt.json.con
 Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
 
 ```sql
-CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max)); EXEC toolbelt_json.USP_JsonObjectsByGroup @EntriesTable=N'#Entries';
+CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));
+INSERT #Entries VALUES(1,1,N'name',N'string',N'Contoso'),(2,1,N'count',N'number',N'42');
+EXEC toolbelt_json.USP_JsonObjectsByGroup @EntriesTable=N'#Entries';
+DROP TABLE #Entries;
 ```
 
 ```sql
+CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));
+INSERT #Entries VALUES(1,1,N'name',N'string',N'Contoso'),(2,1,N'count',N'number',N'42');
 EXEC toolbelt_json.USP_JsonObjectsByGroup
  @EntriesTable = N'#Entries', @MaxEntries = 10000,
  @MaxTotalValueBytes = 2097152, @MaxResultBytes = 2097152,
  @ResultTable = NULL, @KeepData = 0, @Debug = 0, @Hilfe = 0;
+DROP TABLE #Entries;
 ```
 
 Hilfe:
@@ -2700,8 +2712,8 @@ Vertrag und Quelle: [TVF_JsonPathExists.sql](../../Modules/toolbelt.json.path-ex
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Json` | `nvarchar(max)` | `kein Default` | Input | &#124; `@Json` oder `@Path` ist SQL `NULL` &#124; SQL `NULL` &#124; |
-| `@Path` | `nvarchar(max)` | `kein Default` | Input | &#124; `@Json` oder `@Path` ist SQL `NULL` &#124; SQL `NULL` &#124; |
+| `@Json` | `nvarchar(max)` | `kein Default` | Input | Zu prüfendes JSON-Dokument; SQL-NULL in Json oder Path liefert PathExists=NULL, ungültiges JSON liefert0. |
+| `@Path` | `nvarchar(max)` | `kein Default` | Input | Begrenzter JSON-Pfad mit $, Schlüsseln, nullbasierten Array-Indizes oder Wildcards; maximal4000 UTF-16-Codeeinheiten. Keine Ranges, Indexlisten oder last. |
 
 Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
 
@@ -2769,13 +2781,13 @@ SELECT toolbelt_metadata.SVF_QuoteMultipartName(N'dbo.[Order Items]') AS ResultV
 
 ## toolbelt_metadata.USP_ScriptTableClone
 
-Modul `toolbelt.metadata.table-clone` · Version `4.0.0` · `USP`
+Modul `toolbelt.metadata.table-clone` · Version `4.1.0` · `USP`
 
 Vollständige DDL-Vorschau innerhalb des begrenzten unterstützten Strukturumfangs; niemals DDL-Ausführung oder Datenkopie. Unsupported führt zum Abbruch.
 
 Vertrag und Quelle: [USP_ScriptTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableClone.sql), [USP_ScriptTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ScriptTableClone.md).
 
-<!-- Source/Vertrag SHA256: 05f3d603c17550d1a5f5b240ab6dcc188fb5db2069f82b1412daee5facee2270 -->
+<!-- Source/Vertrag SHA256: 9290b1be57167f307067ba30ceba3f78025a052650b36c2aa83994b44cee4523 -->
 
 Voraussetzung: Vorhandene synthetische Quelltabelle und sichtbares Zielschema; Zielname darf noch nicht existieren. IncludeTriggers=1 verlangt Windows und den separat installierten Parser 2.0.
 
@@ -2813,13 +2825,13 @@ EXEC toolbelt_metadata.USP_ScriptTableClone @Hilfe=1;
 
 ## toolbelt_metadata.USP_ExecuteTableClone
 
-Modul `toolbelt.metadata.table-clone` · Version `4.0.0` · `USP`
+Modul `toolbelt.metadata.table-clone` · Version `4.1.0` · `USP`
 
 Erzeugt den V3-Plan neu und führt nur dessen hashgebundene DDL für neue same-database Ziele aus; keine Datenkopie.
 
 Vertrag und Quelle: [USP_ExecuteTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ExecuteTableClone.sql), [USP_ExecuteTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ExecuteTableClone.md).
 
-<!-- Source/Vertrag SHA256: 890cb6efb0370a62324115b8666806df677cc3be2e55ce3575f44416d665ff00 -->
+<!-- Source/Vertrag SHA256: 4ac5d6a2405153bdf03cb4d6cfa0f0c69ee3196f7a0356b2e1947062b33bd2c7 -->
 
 Voraussetzung: Erzeugt neue Tabellen. @CalculatedPlanHash ist ein notwendiger Platzhalter für die externe kanonische Hashberechnung; der Beispielaufruf ist bis dahin nicht ausführbar.
 
@@ -2857,6 +2869,56 @@ Hilfe:
 
 ```sql
 EXEC toolbelt_metadata.USP_ExecuteTableClone @Hilfe=1;
+```
+
+## toolbelt_metadata.USP_CopyTableCloneData
+
+Modul `toolbelt.metadata.table-clone` · Version `4.1.0` · `USP`
+
+Kopiert einen begrenzten SameDB-Tabellenverbund atomar in bereits vorhandene leere formgleiche Ziele; keine Strukturkopie oder Rechtevergabe.
+
+Vertrag und Quelle: [USP_CopyTableCloneData.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_CopyTableCloneData.sql), [USP_CopyTableCloneData.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_CopyTableCloneData.md).
+
+<!-- Source/Vertrag SHA256: 4b8235025f608d51dc4cb4bda18cd0efc7916186c7d19b34ac761a61efc4b432 -->
+
+Voraussetzung: Vorhandene reguläre SameDB-Quellen und leere formgleiche Ziele, keine aktive Callertransaktion. SERIALIZABLE hält Quellsperren; SNAPSHOT benötigt eine bereits aktivierte Datenbankoption.
+
+Voraussetzung: Vorhandene DB-Metadatensicht und Source-/Target-Rechte; fehlende FKs verlangen zusätzlich Server-DDL-Sicht und DDL-Rechte. KEEP benötigt vorhandenes Identity-ALTER. Aktive Targettrigger, RLS und nicht tabellenlokale Ausführung blockieren.
+
+Voraussetzung: Verändert Zielinhalte und kann fehlende gemappte FKs erzeugen. Identity-Zähler können trotz Rollback fortgeschritten bleiben; kein RESEED oder Identitätszuordnungsversprechen.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@TableMap` | `sysname` | `NULL` | Input | Fachlich erforderliche bestehende lokale fünfspaltige Map: 1..64 positive eindeutige MapOrdinals und vier nvarchar(max) NOT NULL-Identifier. |
+| `@IdentityMode` | `varchar(16)` | `NULL` | Input | Fachlich erforderlich, byteexakt KEEP oder REGENERATE; REGENERATE bei identityabhängigen Beziehungen ausgeschlossen. |
+| `@ConsistencyMode` | `varchar(16)` | `NULL` | Input | Fachlich erforderlich, byteexakt SNAPSHOT oder SERIALIZABLE; keine automatische Konfiguration. |
+| `@RowLimit` | `bigint` | `100000` | Input | Positives globales Zeilenbudget, höchstens 100000; nur absenkbar. |
+| `@PayloadByteLimit` | `bigint` | `16777216` | Input | Positives globales DATALENGTH-Budget der transportierten SQL-Werte, höchstens 16777216 Bytes; nur absenkbar. NULL zählt0. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL liefert eine fünfspaltige Erfolgszeile; sonst bestehende lokale Ausgabe-Temp-Tabelle ohne fachliches SELECT. |
+| `@KeepData` | `bit` | `0` | Input | 0 Replace, 1 Append; NULL entspricht0. |
+| `@Debug` | `tinyint` | `0` | Input | Nur Messages, keine Zusatzresultsets. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich Hilfe und umgeht fachliche Pflichtparameter. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+CREATE TABLE #CopyMap
+(
+ MapOrdinal int NOT NULL,
+ SourceSchema nvarchar(max) NOT NULL, SourceTable nvarchar(max) NOT NULL,
+ TargetSchema nvarchar(max) NOT NULL, TargetTable nvarchar(max) NOT NULL
+);
+-- Eigene synthetische Tabellen bestehen bereits; SyntheticClone ist leer und formgleich.
+INSERT #CopyMap VALUES (1,N'dbo',N'SyntheticSource',N'dbo',N'SyntheticClone');
+EXEC toolbelt_metadata.USP_CopyTableCloneData
+ @TableMap=N'#CopyMap', @IdentityMode='KEEP', @ConsistencyMode='SERIALIZABLE';
+DROP TABLE #CopyMap;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_metadata.USP_CopyTableCloneData @Hilfe=1;
 ```
 
 ## toolbelt_pseudonymization.TVF_DeterministicGeoJitter
@@ -3328,12 +3390,12 @@ Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Sou
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Input` | `nvarchar(max)` | `kein Default` | Input | &#124; `@Input`, `@Pattern`, `@Replacement` &#124; `nvarchar(max)` &#124; erforderlich &#124; |
-| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | &#124; `@Input`, `@Pattern`, `@Replacement` &#124; `nvarchar(max)` &#124; erforderlich &#124; |
-| `@Replacement` | `nvarchar(max)` | `kein Default` | Input | &#124; `@Input`, `@Pattern`, `@Replacement` &#124; `nvarchar(max)` &#124; erforderlich &#124; |
-| `@Start` | `int` | `1` | Input | &#124; `@Start` &#124; `int` &#124; `1` &#124; |
-| `@Occurrence` | `int` | `0` | Input | &#124; `@Occurrence` &#124; `int` &#124; `0` &#124; |
-| `@Flags` | `nvarchar(max)` | `N'c'` | Input | &#124; `@Flags` &#124; `nvarchar(max)` &#124; `N'c'` &#124; |
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Zu bearbeitender Unicode-Text; NULL in Input, Pattern oder Replacement liefert sofortNULL. |
+| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Regulärer Ausdruck im begrenzten Toolbelt-Dialekt. |
+| `@Replacement` | `nvarchar(max)` | `kein Default` | Input | Literaler Unicode-Ersatztext; $1 und Backslash-Gruppenreferenzen werden nicht expandiert. |
+| `@Start` | `int` | `1` | Input | Positive 1-basierte UTF-16-Startposition. |
+| `@Occurrence` | `int` | `0` | Input | 0 ersetzt alle Treffer, ein positiver Wert nur den n-ten Treffer ab Start. |
+| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Duplikatfreie Kombination aus c oder i sowie m und s; c/i schließen einander aus. |
 | `@Profile` | `nvarchar(max)` | `N'standard'` | Input | standard oder large; genaue Limits stehen im Objektvertrag. |
 
 Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
@@ -3354,11 +3416,11 @@ Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Sou
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
-| `@Input` | `nvarchar(max)` | `kein Default` | Input | &#124; `@Input`, `@Pattern` &#124; `nvarchar(max)` &#124; erforderlich &#124; |
-| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | &#124; `@Input`, `@Pattern` &#124; `nvarchar(max)` &#124; erforderlich &#124; |
-| `@Start` | `int` | `1` | Input | &#124; `@Start`, `@Occurrence` &#124; `int` &#124; jeweils `1` &#124; |
-| `@Occurrence` | `int` | `1` | Input | &#124; `@Start`, `@Occurrence` &#124; `int` &#124; jeweils `1` &#124; |
-| `@Flags` | `nvarchar(max)` | `N'c'` | Input | &#124; `@Flags` &#124; `nvarchar(max)` &#124; `N'c'` &#124; |
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | Zu durchsuchender Unicode-Text; NULL in Input oder Pattern liefert sofortNULL. |
+| `@Pattern` | `nvarchar(max)` | `kein Default` | Input | Regulärer Ausdruck im begrenzten Toolbelt-Dialekt. |
+| `@Start` | `int` | `1` | Input | Positive 1-basierte UTF-16-Startposition. |
+| `@Occurrence` | `int` | `1` | Input | Positive 1-basierte Treffernummer ab Start; liefert den vollständigen Treffer, keine Capture-Gruppe. |
+| `@Flags` | `nvarchar(max)` | `N'c'` | Input | Duplikatfreie Kombination aus c oder i sowie m und s; c/i schließen einander aus. |
 | `@Profile` | `nvarchar(max)` | `N'standard'` | Input | standard oder large; genaue Limits stehen im Objektvertrag. |
 
 Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.

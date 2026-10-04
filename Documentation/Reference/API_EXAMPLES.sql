@@ -322,7 +322,7 @@ EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='demo.json', @PayloadJson=N'{"v
 */
 
 -- toolbelt_core.USP_EnqueueWorkWithPolicy
--- Reiht SHARED-Arbeit mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein.
+-- Reiht je nach ExecutionMode SHARED- oder DRAIN_BARRIER-Arbeit mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein.
 -- Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 /* Separat auswählen und ausführen:
 -- Voraussetzung: aktiver, ausführbarer Work Type demo.noop.
@@ -333,7 +333,7 @@ EXEC toolbelt_core.USP_EnqueueWorkWithPolicy
 */
 
 -- toolbelt_core.USP_EnqueueBarrierWork
--- Reiht SHARED-Arbeit mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein.
+-- Reiht DRAIN_BARRIER-Arbeit ein, die vor ihrem exklusiven Claim die relevanten aktiven Claims derselben ExecutionGroup abwartet; Retry-Policy und optionaler Idempotency Key bleiben gebunden.
 -- Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 /* Separat auswählen und ausführen:
 -- Voraussetzung: registrierter passender Handler; Barrier hat Seiteneffekte auf Claims.
@@ -666,27 +666,39 @@ DROP TABLE #Entries;
 -- toolbelt_json.USP_JsonArraysByGroup
 -- JSON-Array aus GroupOrdinal/Ordinal/ValueKind/Value; vollständig validiert und atomar geroutet.
 /* Separat auswählen und ausführen:
-CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max)); EXEC toolbelt_json.USP_JsonArraysByGroup @EntriesTable=N'#Entries';
+CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));
+INSERT #Entries VALUES(1,1,N'string',N'Contoso'),(2,1,N'number',N'42');
+EXEC toolbelt_json.USP_JsonArraysByGroup @EntriesTable=N'#Entries';
+DROP TABLE #Entries;
 */
 
 /* Separat auswählen und ausführen:
+CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));
+INSERT #Entries VALUES(1,1,N'string',N'Contoso'),(2,1,N'number',N'42');
 EXEC toolbelt_json.USP_JsonArraysByGroup
  @EntriesTable = N'#Entries', @MaxEntries = 10000,
  @MaxTotalValueBytes = 2097152, @MaxResultBytes = 2097152,
  @ResultTable = NULL, @KeepData = 0, @Debug = 0, @Hilfe = 0;
+DROP TABLE #Entries;
 */
 
 -- toolbelt_json.USP_JsonObjectsByGroup
 -- JSON-Object aus GroupOrdinal/Ordinal/ValueKind/Value/Key; vollständig validiert und atomar geroutet.
 /* Separat auswählen und ausführen:
-CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max)); EXEC toolbelt_json.USP_JsonObjectsByGroup @EntriesTable=N'#Entries';
+CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));
+INSERT #Entries VALUES(1,1,N'name',N'string',N'Contoso'),(2,1,N'count',N'number',N'42');
+EXEC toolbelt_json.USP_JsonObjectsByGroup @EntriesTable=N'#Entries';
+DROP TABLE #Entries;
 */
 
 /* Separat auswählen und ausführen:
+CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));
+INSERT #Entries VALUES(1,1,N'name',N'string',N'Contoso'),(2,1,N'count',N'number',N'42');
 EXEC toolbelt_json.USP_JsonObjectsByGroup
  @EntriesTable = N'#Entries', @MaxEntries = 10000,
  @MaxTotalValueBytes = 2097152, @MaxResultBytes = 2097152,
  @ResultTable = NULL, @KeepData = 0, @Debug = 0, @Hilfe = 0;
+DROP TABLE #Entries;
 */
 
 -- toolbelt_json.AGF_JsonArray
@@ -754,6 +766,25 @@ EXEC toolbelt_metadata.USP_ExecuteTableClone
  @SourceSchema=N'dbo', @SourceTable=N'SyntheticSource',
  @TargetSchema=N'dbo', @TargetTable=N'SyntheticClone',
  @ExpectedPlanHash=@CalculatedPlanHash, @ForeignKeyMode='CREATE';
+*/
+
+-- toolbelt_metadata.USP_CopyTableCloneData
+-- Kopiert einen begrenzten SameDB-Tabellenverbund atomar in bereits vorhandene leere formgleiche Ziele; keine Strukturkopie oder Rechtevergabe.
+-- Voraussetzung: Vorhandene reguläre SameDB-Quellen und leere formgleiche Ziele, keine aktive Callertransaktion. SERIALIZABLE hält Quellsperren; SNAPSHOT benötigt eine bereits aktivierte Datenbankoption.
+-- Voraussetzung: Vorhandene DB-Metadatensicht und Source-/Target-Rechte; fehlende FKs verlangen zusätzlich Server-DDL-Sicht und DDL-Rechte. KEEP benötigt vorhandenes Identity-ALTER. Aktive Targettrigger, RLS und nicht tabellenlokale Ausführung blockieren.
+-- Voraussetzung: Verändert Zielinhalte und kann fehlende gemappte FKs erzeugen. Identity-Zähler können trotz Rollback fortgeschritten bleiben; kein RESEED oder Identitätszuordnungsversprechen.
+/* Separat auswählen und ausführen:
+CREATE TABLE #CopyMap
+(
+ MapOrdinal int NOT NULL,
+ SourceSchema nvarchar(max) NOT NULL, SourceTable nvarchar(max) NOT NULL,
+ TargetSchema nvarchar(max) NOT NULL, TargetTable nvarchar(max) NOT NULL
+);
+-- Eigene synthetische Tabellen bestehen bereits; SyntheticClone ist leer und formgleich.
+INSERT #CopyMap VALUES (1,N'dbo',N'SyntheticSource',N'dbo',N'SyntheticClone');
+EXEC toolbelt_metadata.USP_CopyTableCloneData
+ @TableMap=N'#CopyMap', @IdentityMode='KEEP', @ConsistencyMode='SERIALIZABLE';
+DROP TABLE #CopyMap;
 */
 
 -- toolbelt_pseudonymization.TVF_DeterministicGeoJitter

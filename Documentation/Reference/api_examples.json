@@ -167,7 +167,7 @@
     ],
     "requirements": [],
     "parameter_notes": {
-      "@Value": "| `@Value` | `varchar(max)` | ja | Base64- oder Base64URL-Text |"
+      "@Value": "Base64- oder Base64URL-Text; keine implizite Zeichenkodierung des decodierten Ergebnisses."
     }
   },
   "toolbelt_conversion.SVF_Base64Encode": {
@@ -177,7 +177,7 @@
     ],
     "requirements": [],
     "parameter_notes": {
-      "@Value": "| `@Value` | `varbinary(max)` | ja | zu codierende Bytes; keine Zeichenkodierung |",
+      "@Value": "Zu codierende Bytes; keine Zeichenkodierung.",
       "@UrlSafe": "0 = Standard-Base64; 1 = Base64URL beim Encoding."
     }
   },
@@ -479,9 +479,9 @@
     ],
     "requirements": [],
     "parameter_notes": {
-      "@Start": "| `@Start` | `bigint` | ja | erster Wert der Reihe |",
-      "@Stop": "| `@Stop` | `bigint` | ja | inklusive Ober- oder Untergrenze, sofern erreichbar |",
-      "@Step": "| `@Step` | `bigint` | ja | Schrittweite; `NULL` beziehungsweise `DEFAULT` löst die Richtung automatisch auf |"
+      "@Start": "Erster bigint-Wert der Reihe.",
+      "@Stop": "Inklusive bigint-Ober- oder Untergrenze, sofern erreichbar.",
+      "@Step": "Schrittweite; NULL beziehungsweise DEFAULT löst die Richtung automatisch auf."
     }
   },
   "toolbelt_core.TVF_GenerateSeriesInt": {
@@ -491,9 +491,9 @@
     ],
     "requirements": [],
     "parameter_notes": {
-      "@Start": "| `@Start` | `int` | ja | erster Wert der Reihe |",
-      "@Stop": "| `@Stop` | `int` | ja | inklusive Ober- oder Untergrenze, sofern erreichbar |",
-      "@Step": "| `@Step` | `int` | ja | Schrittweite; `NULL` beziehungsweise `DEFAULT` löst die Richtung automatisch auf |"
+      "@Start": "Erster int-Wert der Reihe.",
+      "@Stop": "Inklusive int-Ober- oder Untergrenze, sofern erreichbar.",
+      "@Step": "Schrittweite; NULL beziehungsweise DEFAULT löst die Richtung automatisch auf."
     }
   },
   "toolbelt_core.USP_PrepareResultTable": {
@@ -592,7 +592,7 @@
     }
   },
   "toolbelt_core.USP_EnqueueBarrierWork": {
-    "summary": "Reiht SHARED-Arbeit mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein.",
+    "summary": "Reiht DRAIN_BARRIER-Arbeit ein, die vor ihrem exklusiven Claim die relevanten aktiven Claims derselben ExecutionGroup abwartet; Retry-Policy und optionaler Idempotency Key bleiben gebunden.",
     "examples": [
       "-- Voraussetzung: registrierter passender Handler; Barrier hat Seiteneffekte auf Claims.\nEXEC toolbelt_core.USP_EnqueueBarrierWork\n @WorkTypeName='demo.noop', @PayloadJson=NULL, @ExecutionGroup=N'example-group', @Priority=10;"
     ],
@@ -632,7 +632,7 @@
     }
   },
   "toolbelt_core.USP_EnqueueWorkWithPolicy": {
-    "summary": "Reiht SHARED-Arbeit mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein.",
+    "summary": "Reiht je nach ExecutionMode SHARED- oder DRAIN_BARRIER-Arbeit mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein.",
     "examples": [
       "-- Voraussetzung: aktiver, ausführbarer Work Type demo.noop.\nEXEC toolbelt_core.USP_EnqueueWorkWithPolicy\n @WorkTypeName='demo.noop', @PayloadJson=NULL, @IdempotencyKey=N'example-1',\n @Priority=10, @ExecutionGroup=N'example-group', @MaxAttempts=3,\n @RetryBaseDelaySeconds=60, @RetryMaxDelaySeconds=3600, @ExecutionMode='SHARED';"
     ],
@@ -955,7 +955,7 @@
     "requirements": [],
     "parameter_notes": {
       "@DatePart": "Unterstützte Zeiteinheit gemäß Objektvertrag; Beispiele verwenden day.",
-      "@Value": "| `@Value` | `date` | Eingabedatum |"
+      "@Value": "Eingabedatum im SQL-Typ date."
     }
   },
   "toolbelt_datetime.TVF_TruncateDateTime2": {
@@ -1327,8 +1327,8 @@
   "toolbelt_json.USP_JsonArraysByGroup": {
     "summary": "JSON-Array aus GroupOrdinal/Ordinal/ValueKind/Value; vollständig validiert und atomar geroutet.",
     "examples": [
-      "CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max)); EXEC toolbelt_json.USP_JsonArraysByGroup @EntriesTable=N'#Entries';",
-      "EXEC toolbelt_json.USP_JsonArraysByGroup\n @EntriesTable = N'#Entries', @MaxEntries = 10000,\n @MaxTotalValueBytes = 2097152, @MaxResultBytes = 2097152,\n @ResultTable = NULL, @KeepData = 0, @Debug = 0, @Hilfe = 0;"
+      "CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));\nINSERT #Entries VALUES(1,1,N'string',N'Contoso'),(2,1,N'number',N'42');\nEXEC toolbelt_json.USP_JsonArraysByGroup @EntriesTable=N'#Entries';\nDROP TABLE #Entries;",
+      "CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,ValueKind nvarchar(max),[Value] nvarchar(max));\nINSERT #Entries VALUES(1,1,N'string',N'Contoso'),(2,1,N'number',N'42');\nEXEC toolbelt_json.USP_JsonArraysByGroup\n @EntriesTable = N'#Entries', @MaxEntries = 10000,\n @MaxTotalValueBytes = 2097152, @MaxResultBytes = 2097152,\n @ResultTable = NULL, @KeepData = 0, @Debug = 0, @Hilfe = 0;\nDROP TABLE #Entries;"
     ],
     "requirements": [],
     "parameter_notes": {
@@ -1362,8 +1362,8 @@
   "toolbelt_json.USP_JsonObjectsByGroup": {
     "summary": "JSON-Object aus GroupOrdinal/Ordinal/ValueKind/Value/Key; vollständig validiert und atomar geroutet.",
     "examples": [
-      "CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max)); EXEC toolbelt_json.USP_JsonObjectsByGroup @EntriesTable=N'#Entries';",
-      "EXEC toolbelt_json.USP_JsonObjectsByGroup\n @EntriesTable = N'#Entries', @MaxEntries = 10000,\n @MaxTotalValueBytes = 2097152, @MaxResultBytes = 2097152,\n @ResultTable = NULL, @KeepData = 0, @Debug = 0, @Hilfe = 0;"
+      "CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));\nINSERT #Entries VALUES(1,1,N'name',N'string',N'Contoso'),(2,1,N'count',N'number',N'42');\nEXEC toolbelt_json.USP_JsonObjectsByGroup @EntriesTable=N'#Entries';\nDROP TABLE #Entries;",
+      "CREATE TABLE #Entries(GroupOrdinal int,Ordinal int,[Key] nvarchar(max),ValueKind nvarchar(max),[Value] nvarchar(max));\nINSERT #Entries VALUES(1,1,N'name',N'string',N'Contoso'),(2,1,N'count',N'number',N'42');\nEXEC toolbelt_json.USP_JsonObjectsByGroup\n @EntriesTable = N'#Entries', @MaxEntries = 10000,\n @MaxTotalValueBytes = 2097152, @MaxResultBytes = 2097152,\n @ResultTable = NULL, @KeepData = 0, @Debug = 0, @Hilfe = 0;\nDROP TABLE #Entries;"
     ],
     "requirements": [],
     "parameter_notes": {
@@ -1384,8 +1384,8 @@
     ],
     "requirements": [],
     "parameter_notes": {
-      "@Json": "| `@Json` oder `@Path` ist SQL `NULL` | SQL `NULL` |",
-      "@Path": "| `@Json` oder `@Path` ist SQL `NULL` | SQL `NULL` |"
+      "@Json": "Zu prüfendes JSON-Dokument; SQL-NULL in Json oder Path liefert PathExists=NULL, ungültiges JSON liefert0.",
+      "@Path": "Begrenzter JSON-Pfad mit $, Schlüsseln, nullbasierten Array-Indizes oder Wildcards; maximal4000 UTF-16-Codeeinheiten. Keine Ranges, Indexlisten oder last."
     }
   },
   "toolbelt_metadata.VW_ModuleCapabilities": {
@@ -1414,6 +1414,28 @@
     "requirements": [],
     "parameter_notes": {
       "@MultipartName": "Ein- bis vierteiliger SQL-Name mit unterstützter Quote-Syntax."
+    }
+  },
+  "toolbelt_metadata.USP_CopyTableCloneData": {
+    "summary": "Kopiert einen begrenzten SameDB-Tabellenverbund atomar in bereits vorhandene leere formgleiche Ziele; keine Strukturkopie oder Rechtevergabe.",
+    "examples": [
+      "CREATE TABLE #CopyMap\n(\n MapOrdinal int NOT NULL,\n SourceSchema nvarchar(max) NOT NULL, SourceTable nvarchar(max) NOT NULL,\n TargetSchema nvarchar(max) NOT NULL, TargetTable nvarchar(max) NOT NULL\n);\n-- Eigene synthetische Tabellen bestehen bereits; SyntheticClone ist leer und formgleich.\nINSERT #CopyMap VALUES (1,N'dbo',N'SyntheticSource',N'dbo',N'SyntheticClone');\nEXEC toolbelt_metadata.USP_CopyTableCloneData\n @TableMap=N'#CopyMap', @IdentityMode='KEEP', @ConsistencyMode='SERIALIZABLE';\nDROP TABLE #CopyMap;"
+    ],
+    "requirements": [
+      "Vorhandene reguläre SameDB-Quellen und leere formgleiche Ziele, keine aktive Callertransaktion. SERIALIZABLE hält Quellsperren; SNAPSHOT benötigt eine bereits aktivierte Datenbankoption.",
+      "Vorhandene DB-Metadatensicht und Source-/Target-Rechte; fehlende FKs verlangen zusätzlich Server-DDL-Sicht und DDL-Rechte. KEEP benötigt vorhandenes Identity-ALTER. Aktive Targettrigger, RLS und nicht tabellenlokale Ausführung blockieren.",
+      "Verändert Zielinhalte und kann fehlende gemappte FKs erzeugen. Identity-Zähler können trotz Rollback fortgeschritten bleiben; kein RESEED oder Identitätszuordnungsversprechen."
+    ],
+    "parameter_notes": {
+      "@TableMap": "Fachlich erforderliche bestehende lokale fünfspaltige Map: 1..64 positive eindeutige MapOrdinals und vier nvarchar(max) NOT NULL-Identifier.",
+      "@IdentityMode": "Fachlich erforderlich, byteexakt KEEP oder REGENERATE; REGENERATE bei identityabhängigen Beziehungen ausgeschlossen.",
+      "@ConsistencyMode": "Fachlich erforderlich, byteexakt SNAPSHOT oder SERIALIZABLE; keine automatische Konfiguration.",
+      "@RowLimit": "Positives globales Zeilenbudget, höchstens 100000; nur absenkbar.",
+      "@PayloadByteLimit": "Positives globales DATALENGTH-Budget der transportierten SQL-Werte, höchstens 16777216 Bytes; nur absenkbar. NULL zählt0.",
+      "@ResultTable": "NULL liefert eine fünfspaltige Erfolgszeile; sonst bestehende lokale Ausgabe-Temp-Tabelle ohne fachliches SELECT.",
+      "@KeepData": "0 Replace, 1 Append; NULL entspricht0.",
+      "@Debug": "Nur Messages, keine Zusatzresultsets.",
+      "@Hilfe": "1 liefert ausschließlich Hilfe und umgeht fachliche Pflichtparameter."
     }
   },
   "toolbelt_metadata.USP_ExecuteTableClone": {
@@ -1673,12 +1695,12 @@
     ],
     "requirements": [],
     "parameter_notes": {
-      "@Input": "| `@Input`, `@Pattern`, `@Replacement` | `nvarchar(max)` | erforderlich |",
-      "@Pattern": "| `@Input`, `@Pattern`, `@Replacement` | `nvarchar(max)` | erforderlich |",
-      "@Replacement": "| `@Input`, `@Pattern`, `@Replacement` | `nvarchar(max)` | erforderlich |",
-      "@Start": "| `@Start` | `int` | `1` |",
-      "@Occurrence": "| `@Occurrence` | `int` | `0` |",
-      "@Flags": "| `@Flags` | `nvarchar(max)` | `N'c'` |",
+      "@Input": "Zu bearbeitender Unicode-Text; NULL in Input, Pattern oder Replacement liefert sofortNULL.",
+      "@Pattern": "Regulärer Ausdruck im begrenzten Toolbelt-Dialekt.",
+      "@Replacement": "Literaler Unicode-Ersatztext; $1 und Backslash-Gruppenreferenzen werden nicht expandiert.",
+      "@Start": "Positive 1-basierte UTF-16-Startposition.",
+      "@Occurrence": "0 ersetzt alle Treffer, ein positiver Wert nur den n-ten Treffer ab Start.",
+      "@Flags": "Duplikatfreie Kombination aus c oder i sowie m und s; c/i schließen einander aus.",
       "@Profile": "standard oder large; genaue Limits stehen im Objektvertrag."
     }
   },
@@ -1705,11 +1727,11 @@
     ],
     "requirements": [],
     "parameter_notes": {
-      "@Input": "| `@Input`, `@Pattern` | `nvarchar(max)` | erforderlich |",
-      "@Pattern": "| `@Input`, `@Pattern` | `nvarchar(max)` | erforderlich |",
-      "@Start": "| `@Start`, `@Occurrence` | `int` | jeweils `1` |",
-      "@Occurrence": "| `@Start`, `@Occurrence` | `int` | jeweils `1` |",
-      "@Flags": "| `@Flags` | `nvarchar(max)` | `N'c'` |",
+      "@Input": "Zu durchsuchender Unicode-Text; NULL in Input oder Pattern liefert sofortNULL.",
+      "@Pattern": "Regulärer Ausdruck im begrenzten Toolbelt-Dialekt.",
+      "@Start": "Positive 1-basierte UTF-16-Startposition.",
+      "@Occurrence": "Positive 1-basierte Treffernummer ab Start; liefert den vollständigen Treffer, keine Capture-Gruppe.",
+      "@Flags": "Duplikatfreie Kombination aus c oder i sowie m und s; c/i schließen einander aus.",
       "@Profile": "standard oder large; genaue Limits stehen im Objektvertrag."
     }
   },
