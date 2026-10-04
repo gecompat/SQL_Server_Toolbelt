@@ -129,14 +129,17 @@ Ein Slot zählt ab Admission bis zum nachgewiesenen Ende bzw. zur ausdrücklich
 geprüften Recovery, einschließlich unbekannter Ausgänge. Budgetsenkung darf
 OccupiedSlots vorübergehend über dem neuen Budget lassen, aber nie neue Starts.
 
-Einzeln freigegeben am2026-10-04: Opt-in für verwalteten Betrieb. Solange er nicht aktiviert ist,
+Einzeln freigegeben am 2026-10-04: Opt-in für verwalteten Betrieb. Solange er nicht aktiviert ist,
 bleibt der alte direkte USP_ClaimWork-Vertrag bestehen. Aktivierung verlangt
 einen nachgewiesen claimfreien Übergang; danach lehnt direkter unverwalteter
-Claim ab. Andernfalls wäre die globale Garantie umgehbar. Deaktivierung nur
-ohne belegte Reservierungen/Claims; keine automatische Rückkehr zum alten Pfad.
+Claim ab. Andernfalls wäre die globale Garantie umgehbar.
 Diese zusätzliche öffentliche Queue-/Upgradegrenze ist damit bestätigt;
 die technische Ausarbeitung bleibt an die übrigen konkreten API-/Ownership-
 und Recoveryverträge gebunden. Keine rückwirkende Änderung des laufenden Systems.
+
+Weiterhin vorgeschlagen: Deaktivierung nur ohne belegte Reservierungen/Claims;
+keine automatische Rückkehr zum alten Pfad. Diese Deaktivierungsbedingungen
+sind nicht Bestandteil der oben bestätigten Freigabe.
 
 Ausfall/Leaseablauf allein beweist nicht Handlerende. Keine automatische
 Slotfreigabe aufgrund Registrierungs- oder WorkItem-Leaseablaufs; UNKNOWN zählt
