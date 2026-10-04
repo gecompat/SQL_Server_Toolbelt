@@ -2,7 +2,7 @@
 
 -- ============================================================================
 -- Zweck:     Erst- und Wiederholungsdeployment
--- Modul:     toolbelt.core.work-queue v2.0.0 (W6c)
+-- Modul:     toolbelt.core.work-queue v2.1.0 (neutrale Managedintegration)
 -- Erfordert: toolbelt.core.result-table 1.0.0; toolbelt.core.work-type 1.1.0
 -- Modus:     SQLCMD; Ausführung aus diesem Deployment-Verzeichnis
 -- Parameter: DeploymentMode=local|central
@@ -69,10 +69,13 @@ VALUES
  ,(N'2.0.0',N'toolbelt_core',N'USP_RequeueDeadLetter',N'P',N'PROCEDURE')
  ,(N'2.0.0',N'toolbelt_core',N'USP_GetWorkStatus',N'P',N'PROCEDURE');
 
+INSERT INTO #tbx_WorkQueueReleaseObjects SELECT N'2.1.0',SchemaName,ObjectName,ObjectType,LevelType FROM #tbx_WorkQueueReleaseObjects WHERE ReleaseVersion=N'2.0.0';
+INSERT INTO #tbx_WorkQueueReleaseObjects VALUES(N'2.1.0',N'toolbelt_core',N'WorkQueueManagedGate',N'U',N'TABLE'),(N'2.1.0',N'toolbelt_core',N'USP_ClaimWorkCore',N'P',N'PROCEDURE'),(N'2.1.0',N'toolbelt_core',N'USP_FailWorkCore',N'P',N'PROCEDURE'),(N'2.1.0',N'toolbelt_core',N'USP_ScheduleWorkRetryCore',N'P',N'PROCEDURE');
+
 CREATE TABLE #tbx_WorkQueueDeployState
 (TargetVersion nvarchar(64) NOT NULL,InstalledVersion nvarchar(64) NULL,DeploymentMode nvarchar(16) NOT NULL);
 
-DECLARE @TargetVersion nvarchar(64)=N'2.0.0';
+DECLARE @TargetVersion nvarchar(64)=N'2.1.0';
 DECLARE @DeploymentMode nvarchar(16)=LOWER(N'$(DeploymentMode)');
 DECLARE @VersionPropertyName sysname=N'Toolbelt.Module.toolbelt.core.work-queue.Version';
 DECLARE @InstalledVersion nvarchar(64);
@@ -96,7 +99,7 @@ IF ISNULL(@ResultTableVersion,N'') COLLATE Latin1_General_100_BIN2<>N'1.0.0'
 
 SELECT @InstalledVersion=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties
 WHERE class=0 AND name=@VersionPropertyName;
-IF @InstalledVersion IS NOT NULL AND @InstalledVersion COLLATE Latin1_General_100_BIN2 NOT IN(N'1.0.0',N'1.1.0',N'2.0.0')
+IF @InstalledVersion IS NOT NULL AND @InstalledVersion COLLATE Latin1_General_100_BIN2 NOT IN(N'1.0.0',N'1.1.0',N'2.0.0',N'2.1.0')
     THROW 51943,N'Die installierte Modulversion ist diesem Deployment nicht als unterstütztes Release bekannt.',1;
 
 IF EXISTS
@@ -174,6 +177,21 @@ IF HAS_PERMS_BY_NAME(N'toolbelt_core',N'SCHEMA',N'ALTER')<>1
  OR HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE TABLE')<>1
     THROW 51945,N'Für das Work-Queue-Deployment fehlen erforderliche DDL-Rechte.',1;
 
+IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.worker-control.Version')
+ THROW 54202,N'Der installierte Worker-Control-Consumer blockiert Queue-Lifecycle; zuerst dessen Lifecycle abschließen.',2;
+IF OBJECT_ID(N'toolbelt_core.WorkQueueManagedGate',N'U') IS NOT NULL
+BEGIN
+ DECLARE @QueueManagedActive bit=NULL;
+ EXEC sys.sp_executesql N'SELECT @active=ManagedEnabled FROM toolbelt_core.WorkQueueManagedGate WHERE GateId=1;',N'@active bit OUTPUT',@active=@QueueManagedActive OUTPUT;
+ IF ISNULL(@QueueManagedActive,1)<>0 THROW 54202,N'Managed-Betrieb blockiert den Queue-Lifecycle.',1;
+END;
+IF COL_LENGTH(N'toolbelt_core.WorkItem',N'ManagedHold') IS NOT NULL
+BEGIN
+ DECLARE @QueueHasHeld bit=0;
+ EXEC sys.sp_executesql N'IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE ManagedHold=1 OR (ManagedReservationId IS NOT NULL AND Status=''CLAIMED'')) SET @held=1;',N'@held bit OUTPUT',@held=@QueueHasHeld OUTPUT;
+ IF @QueueHasHeld=1 THROW 54202,N'Managedclaims oder Holds blockieren den Queue-Lifecycle.',3;
+END;
+
 INSERT INTO #tbx_WorkQueueDeployState VALUES(@TargetVersion,@InstalledVersion,@DeploymentMode);
 
 BEGIN TRY
@@ -186,6 +204,20 @@ BEGIN TRY
     SELECT @CurrentVersion=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties WHERE class=0 AND name=@VersionPropertyName;
     IF ISNULL(@CurrentVersion,N'') COLLATE Latin1_General_100_BIN2<>ISNULL(@InstalledVersion,N'') COLLATE Latin1_General_100_BIN2
         THROW 51946,N'Der installierte Modulstand hat sich seit dem Preflight verändert.',2;
+IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.worker-control.Version')
+ THROW 54202,N'Der installierte Worker-Control-Consumer blockiert Queue-Lifecycle; zuerst dessen Lifecycle abschließen.',2;
+IF OBJECT_ID(N'toolbelt_core.WorkQueueManagedGate',N'U') IS NOT NULL
+BEGIN
+ SET @QueueManagedActive=NULL;
+ EXEC sys.sp_executesql N'SELECT @active=ManagedEnabled FROM toolbelt_core.WorkQueueManagedGate WHERE GateId=1;',N'@active bit OUTPUT',@active=@QueueManagedActive OUTPUT;
+ IF ISNULL(@QueueManagedActive,1)<>0 THROW 54202,N'Managed-Betrieb blockiert den Queue-Lifecycle.',1;
+END;
+IF COL_LENGTH(N'toolbelt_core.WorkItem',N'ManagedHold') IS NOT NULL
+BEGIN
+ SET @QueueHasHeld=0;
+ EXEC sys.sp_executesql N'IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE ManagedHold=1 OR (ManagedReservationId IS NOT NULL AND Status=''CLAIMED'')) SET @held=1;',N'@held bit OUTPUT',@held=@QueueHasHeld OUTPUT;
+ IF @QueueHasHeld=1 THROW 54202,N'Managedclaims oder Holds blockieren den Queue-Lifecycle.',3;
+END;
 END TRY
 BEGIN CATCH
     IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
@@ -194,6 +226,8 @@ END CATCH;
 GO
 
 :r ../Source/WorkItem.sql
+:r ../Source/WorkQueueManagedGate.sql
+:r ../Source/USP_ClaimWorkCore.sql
 :r ../Source/VW_WorkQueue.sql
 :r ../Source/VW_WorkQueueBarrierBlockers.sql
 :r ../Source/USP_EnqueueWork.sql
@@ -203,7 +237,9 @@ GO
 :r ../Source/USP_RenewWorkLease.sql
 :r ../Source/USP_RecoverExpiredWork.sql
 :r ../Source/USP_CompleteWork.sql
+:r ../Source/USP_FailWorkCore.sql
 :r ../Source/USP_FailWork.sql
+:r ../Source/USP_ScheduleWorkRetryCore.sql
 :r ../Source/USP_ScheduleWorkRetry.sql
 :r ../Source/USP_RequeueDeadLetter.sql
 :r ../Source/USP_GetWorkStatus.sql

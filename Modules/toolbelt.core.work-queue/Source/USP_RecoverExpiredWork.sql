@@ -57,7 +57,7 @@ BEGIN
         ;WITH Expired AS
         (
             SELECT TOP (@MaxItems) * FROM toolbelt_core.WorkItem WITH(UPDLOCK,READPAST,READCOMMITTEDLOCK,ROWLOCK,INDEX(IX_WorkItem_Status_LeaseUntilUtc_WorkItemId))
-            WHERE Status='CLAIMED' AND LeaseUntilUtc<=@NowUtc
+            WHERE Status='CLAIMED' AND LeaseUntilUtc<=@NowUtc AND ManagedReservationId IS NULL AND ManagedHold=0
             ORDER BY LeaseUntilUtc,WorkItemId
         )
         UPDATE Expired SET

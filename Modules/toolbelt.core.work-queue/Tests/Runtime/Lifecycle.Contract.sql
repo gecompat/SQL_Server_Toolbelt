@@ -13,7 +13,7 @@ IF NOT EXISTS(SELECT 1 FROM sys.key_constraints WHERE parent_object_id=OBJECT_ID
  OR NOT EXISTS(SELECT 1 FROM sys.check_constraints WHERE parent_object_id=OBJECT_ID(N'toolbelt_core.WorkItem') AND name=N'CK_WorkItem_RecoveryMetadata')
  OR NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'toolbelt_core.WorkItem') AND name=N'IX_WorkItem_Status_WorkItemId')
  OR NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'toolbelt_core.WorkItem') AND name=N'IX_WorkItem_Status_LeaseUntilUtc_WorkItemId') THROW 52931,N'Benannte Tabellenartefakte fehlen.',1;
-IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.work-queue.Version' AND CONVERT(nvarchar(64),value)=N'2.0.0') THROW 52932,N'Der Modulmarker fehlt.',1;
+IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.work-queue.Version' AND CONVERT(nvarchar(64),value)=N'2.1.0') THROW 52932,N'Der Modulmarker fehlt.',1;
 IF EXISTS
 (
  SELECT 1 FROM (VALUES(N'WorkItem'),(N'WorkQueueScheduler'),(N'WorkQueueBarrierBlocker'),(N'VW_WorkQueue'),(N'VW_WorkQueueBarrierBlockers'),(N'USP_EnqueueWork'),(N'USP_EnqueueWorkWithPolicy'),(N'USP_EnqueueBarrierWork'),(N'USP_ClaimWork'),(N'USP_RenewWorkLease'),(N'USP_RecoverExpiredWork'),(N'USP_CompleteWork'),(N'USP_FailWork'),(N'USP_ScheduleWorkRetry'),(N'USP_RequeueDeadLetter'),(N'USP_GetWorkStatus'))x(ObjectName)

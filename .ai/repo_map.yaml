@@ -328,6 +328,7 @@ module_registry:
     - Modules/toolbelt.core.execution-cancel/module.yaml
     - Modules/toolbelt.core.work-type/module.yaml
     - Modules/toolbelt.core.work-queue/module.yaml
+    - Modules/toolbelt.core.worker-control/module.yaml
     - Modules/toolbelt.core.second-session/module.yaml
     - Modules/toolbelt.core.event-log/module.yaml
     - Modules/toolbelt.file.content/module.yaml
@@ -773,9 +774,11 @@ change_impact:
       paths:
         - Workers/ExternalQueue/**
         - Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md
+        - Documentation/Architecture/WORKER_CONTROL_CONTRACT.md
         - Tests/CI/run-external-queue-worker-lab.ps1
         - .github/workflows/external-queue-worker.yml
         - Modules/toolbelt.core.work-queue/**
+        - Modules/toolbelt.core.worker-control/**
         - Modules/toolbelt.core.work-type/**
         - Modules/toolbelt.core.result-table/**
         - Documentation/Architecture/WORK_QUEUE_MODULE_DESIGN.md

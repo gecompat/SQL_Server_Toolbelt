@@ -1,9 +1,11 @@
 [CmdletBinding()]
 param([Parameter(Mandatory)][string]$ConnectionStringEnvironmentVariable,
  [ValidateSet('2019','2022','2025')][string]$ExpectedSqlVersion,
- [switch]$SkipLongHeartbeat,[switch]$IdentityGuardsOnly)
+ [switch]$SkipLongHeartbeat,[switch]$IdentityGuardsOnly,[switch]$ManagedOnly,[switch]$ManagedSqlOnly,[switch]$QueueUpgradeOnly)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+if(@($ManagedOnly,$ManagedSqlOnly,$QueueUpgradeOnly|Where-Object {$_}).Count-gt1){throw 'Runtime scopes are mutually exclusive.'}
+$managedScope=$ManagedOnly -or $ManagedSqlOnly -or $QueueUpgradeOnly
 $root=(Resolve-Path (Join-Path $PSScriptRoot '../../../..')).Path
 $database='Toolbelt_ExternalQueue_'+[guid]::NewGuid().ToString('N')
 $created=$false;$connection=$null;$workerProcesses=[Collections.Generic.List[object]]::new()
@@ -11,6 +13,40 @@ $privateEnvironment='TBX_EXTERNAL_QUEUE_FIXTURE_CONNECTION'
 $previousEnvironment=[Environment]::GetEnvironmentVariable($privateEnvironment,'Process')
 $temporaryRoot=Join-Path ([IO.Path]::GetTempPath()) ('ToolbeltQueueFixture_'+[guid]::NewGuid().ToString('N'))
 $phase='preflight';$cleanupDeferred=$false
+$managedIdentity=$null;$managedRun=[guid]::NewGuid();$managedMarker='Toolbelt.ManagedWorkerFixture.Run'
+$originalFailure=$null;$fixtureSqlFailure=$null;$managedFixtureFailure=$null;$cleanupSqlFailure=$null;$managedCleanupPhase='not-started';$historicalFiles=[Collections.Generic.List[object]]::new();$historicalDirectories=[Collections.Generic.List[string]]::new();$secondaryFailures=[Collections.Generic.List[string]]::new()
+$managedJournalHash=$null;$managedMarkerConfirmed=$false;$managedDbDropped=$false;$managedControlDeploymentStarted=$false
+function Get-ManagedPublicFailureDescriptor($Diagnostic) {
+ # Ausschließlich feste Sourcebezeichnungen und numerische SQLcodes veröffentlichen.
+ $safe=[ordered]@{Phase='UNSPECIFIED';LastPassedCase='UNSPECIFIED';SqlNumber=0;SqlState=0}
+ if($Diagnostic-isnot[Collections.IDictionary]){return [pscustomobject]$safe}
+ $phases=@('budget-two','control-timeout','control-timeout-end','control-timeout-fence','control-timeout-lock','control-timeout-reconcile-end','control-timeout-reconcile-hold','control-timeout-release-denied','empty-modes','enable-budget','explicit-release','explicit-release-handler','explicit-release-original-end','explicit-release-publish','late-stop','legacy-bypass','own-database-guard','preflight','race','race-handler','synthetic-handlers','synthetic-held-release','worker-admission')
+ $cases=@('NONE','EMPTY_BOUNDED_END','EMPTY_CONTINUOUS_WAIT_TWO_SUPERVISORS','ZERO_BUDGET','LIVE_BUDGET_TWO_REDUCED_WITHOUT_CANCEL','ACTUAL_CANCEL_ROLLBACK_HELD','EXPLICIT_RELEASE_OTHER_REGISTERED_WORKER','LEGACY_CLAIM_REJECTED','KNOWN_COMMIT_WINS_LATE_STOP','ACTUAL_COMPLETION_STOP_RENDEZVOUS','ACTUAL_CONTROL_TIMEOUT_UNKNOWN_OCCUPIED_NO_REPLAY','UNKNOWN_RELEASE_DENIED_EXPLICIT_RECONCILIATION_END')
+ if($Diagnostic.Contains('Phase') -and $Diagnostic['Phase']-is[string] -and $Diagnostic['Phase']-cin$phases){$safe.Phase=$Diagnostic['Phase']}
+ if($Diagnostic.Contains('LastPassedCase') -and $Diagnostic['LastPassedCase']-is[string] -and $Diagnostic['LastPassedCase']-cin$cases){$safe.LastPassedCase=$Diagnostic['LastPassedCase']}
+ if($Diagnostic.Contains('SqlNumber') -and $Diagnostic['SqlNumber']-is[int]){$safe.SqlNumber=$Diagnostic['SqlNumber']}
+ if($Diagnostic.Contains('SqlState') -and $Diagnostic['SqlState']-is[int] -and $Diagnostic['SqlState']-ge0 -and $Diagnostic['SqlState']-le255){$safe.SqlState=$Diagnostic['SqlState']}
+ return [pscustomobject]$safe
+}
+function Save-ManagedFixtureJournal {
+ if(-not$managedScope -or -not[IO.Directory]::Exists($temporaryRoot)){return}
+ $record=[ordered]@{Run=$managedRun;Database=$database;Created=$created;ProcessId=$PID;DatabaseId=$null;CreatedBytes=$null;MarkerName=$managedMarker;MarkerConfirmed=$managedMarkerConfirmed;ControlDeploymentStarted=$managedControlDeploymentStarted;Stage=$phase;DatabaseDropped=$managedDbDropped;PrivateSqlFailure=$fixtureSqlFailure;PrivateManagedFailure=$managedFixtureFailure;PrivateCleanupFailure=$cleanupSqlFailure;PrivateEvidenceRetained=($null-ne$originalFailure);Primary=$null;Secondary=$secondaryFailures.ToArray()}
+ if($null-ne$managedIdentity){$record.DatabaseId=$managedIdentity.Id;$record.CreatedBytes=[Convert]::ToHexString($managedIdentity.CreatedBytes)}
+ if($null-ne$originalFailure){$record.Primary=$originalFailure}
+ $bytes=[Text.UTF8Encoding]::new($false).GetBytes((ConvertTo-Json -InputObject $record -Depth 5 -Compress))
+ $journal=Join-Path $temporaryRoot 'ManagedOwnership.json'
+ $stream=[IO.File]::Open($journal,$(if($null-eq$managedJournalHash){[IO.FileMode]::CreateNew}else{[IO.FileMode]::Open}),[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)
+ try{
+  if($null-ne$managedJournalHash){
+   if($stream.Length-gt65536){throw 'MANAGED.JOURNAL_DRIFT'}
+   $previous=[byte[]]::new([int]$stream.Length);$read=0
+   while($read-lt$previous.Length){$n=$stream.Read($previous,$read,$previous.Length-$read);if($n-le0){throw 'MANAGED.JOURNAL_READ'};$read+=$n}
+   if([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($previous))-cne$managedJournalHash){throw 'MANAGED.JOURNAL_DRIFT'}
+  }
+  $stream.Position=0;$stream.SetLength(0);$stream.Write($bytes,0,$bytes.Length);$stream.Flush()
+  $script:managedJournalHash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes))
+ }finally{$stream.Dispose()}
+}
 function Assert-Fixture([bool]$Condition,[string]$Code){if(-not$Condition){throw "Synthetic worker oracle failed: $Code"}}
 function Invoke-FixtureSql([string]$Sql,[hashtable]$Parameters=@{},[switch]$Scalar){
  $command=$connection.CreateCommand();$command.CommandTimeout=10;$command.CommandText=$Sql
@@ -32,9 +68,54 @@ function Expand-FixtureSql([string]$Path){
  return $builder.ToString()
 }
 function Invoke-FixtureFile([string]$Path){
+ $batchIndex=0
  foreach($batch in [regex]::Split((Expand-FixtureSql $Path),'(?im)^\s*GO\s*$')){
-  if(-not[string]::IsNullOrWhiteSpace($batch)){Invoke-FixtureSql $batch}
+  if([string]::IsNullOrWhiteSpace($batch)){continue}
+  $batchIndex++
+  try{Invoke-FixtureSql $batch}
+  catch{
+   if($null-eq$fixtureSqlFailure){
+    $cause=$_.Exception
+    while($cause -and $cause-isnot[Data.SqlClient.SqlException]){$cause=$cause.InnerException}
+    if($cause){
+     $sqlErrors=@($cause.Errors|Select-Object -First 4|ForEach-Object {
+      $message=[string]$_.Message
+      [pscustomobject]@{Number=$_.Number;State=$_.State;Class=$_.Class;Line=$_.LineNumber;Procedure=$_.Procedure;Message=$message.Substring(0,[Math]::Min(1024,$message.Length));MessageTruncated=($message.Length-gt1024)}
+     })
+     $script:fixtureSqlFailure=[ordered]@{File=$Path;BatchIndex=$batchIndex;Errors=$sqlErrors;ErrorsTruncated=($cause.Errors.Count-gt4)}
+    }
+   }
+   throw
+  }
  }
+}
+function Invoke-IsolatedLifecycleFailure([string]$Path,[int]$Number,[int]$State){
+ # Jede erwartete Abweisung verwendet eine eigene Connection: keine verbliebenen
+ # Lifecycle-Temps oder Callertransaktionen zwischen den Negativfällen.
+ $isolatedBuilder=[Data.SqlClient.SqlConnectionStringBuilder]::new([Environment]::GetEnvironmentVariable($privateEnvironment))
+ $isolatedBuilder.Pooling=$false;$isolatedBuilder.Enlist=$false;$isolatedBuilder.ConnectRetryCount=0
+ $isolated=[Data.SqlClient.SqlConnection]::new($isolatedBuilder.ConnectionString)
+ $matched=$false
+ try{
+  $isolated.Open();$guard=$isolated.CreateCommand();$guard.CommandTimeout=10
+  try{
+   $guard.CommandText='IF DB_ID()<>@Id OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND name=@Name AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created AND owner_sid=SUSER_SID()) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND SQL_VARIANT_PROPERTY(value,''BaseType'')=''uniqueidentifier'' AND TRY_CONVERT(uniqueidentifier,value)=@Run) THROW 54954,N''Isolierter Lifecycle besitzt nicht die eigene Testdatenbank.'',1;'
+   foreach($pair in @{'@Id'=$managedIdentity.Id;'@Name'=$database;'@Created'=$managedIdentity.CreatedBytes;'@Marker'=$managedMarker;'@Run'=$managedRun}.GetEnumerator()){[void]$guard.Parameters.AddWithValue($pair.Key,$pair.Value)}
+   [void]$guard.ExecuteNonQuery()
+  }finally{$guard.Dispose()}
+  $expanded=(Expand-FixtureSql $Path).Replace('$(ConfirmNoExternalConsumers)','1').Replace('$(AllowDataLoss)','1')
+  foreach($batch in [regex]::Split($expanded,'(?im)^\s*GO\s*$')){
+   if([string]::IsNullOrWhiteSpace($batch)){continue}
+   $command=$isolated.CreateCommand();$command.CommandTimeout=10;$command.CommandText=$batch
+   try{[void]$command.ExecuteNonQuery()}
+   catch{
+    $cause=$_.Exception;while($cause -and $cause-isnot[Data.SqlClient.SqlException]){$cause=$cause.InnerException}
+    if($null-eq$cause -or $cause.Number-ne$Number -or [int]$cause.State-ne$State){throw}
+    $matched=$true;break
+   }finally{$command.Dispose()}
+  }
+  Assert-Fixture $matched 'MANAGED_LIFECYCLE_EXPECTED_DENIAL'
+ }finally{$isolated.Dispose();$isolatedBuilder=$null}
 }
 function Add-FixtureWork([string]$Type,[string]$Payload,[int]$Attempts=2){
  $arguments=@{'@Type'=$Type;'@Attempts'=$Attempts}
@@ -84,15 +165,87 @@ try{
   $major=[int](Invoke-FixtureSql "SELECT CONVERT(int,SERVERPROPERTY('ProductMajorVersion'));" -Scalar)
   Assert-Fixture ($major-eq @{'2019'=15;'2022'=16;'2025'=17}[$ExpectedSqlVersion]) 'SQL_VERSION'
  }
+ Assert-Fixture ((Invoke-FixtureSql 'SELECT CASE WHEN @@TRANCOUNT=0 AND XACT_STATE()=0 THEN 1 ELSE 0 END;' -Scalar)-eq1) 'INITIAL_TRANSACTION_STATE'
  Assert-Fixture ((Invoke-FixtureSql 'SELECT COUNT(*) FROM sys.databases WHERE name=@Database;' @{'@Database'=$database} -Scalar)-eq0) 'DATABASE_UNIQUENESS'
- $phase='create';Invoke-FixtureSql "CREATE DATABASE [$database] COLLATE Latin1_General_100_CS_AS;";$created=$true
+ $phase='create'
+ if($managedScope){[void][IO.Directory]::CreateDirectory($temporaryRoot);Save-ManagedFixtureJournal}
+ Invoke-FixtureSql "CREATE DATABASE [$database] COLLATE Latin1_General_100_CS_AS;";$created=$true
+ if($managedScope){$phase='created';Save-ManagedFixtureJournal}
  $connection.ChangeDatabase($database);$builder['Initial Catalog']=$database
  [Environment]::SetEnvironmentVariable($privateEnvironment,$builder.ConnectionString,'Process')
  [void][IO.Directory]::CreateDirectory($temporaryRoot)
+ if($managedScope){
+  Save-ManagedFixtureJournal
+  $identityCommand=$connection.CreateCommand();$identityCommand.CommandText='SELECT CONVERT(int,DB_ID()),create_date,CONVERT(binary(9),CONVERT(datetime2(7),create_date)) FROM sys.databases WHERE database_id=DB_ID();';$identityCommand.CommandTimeout=10
+  try{
+   $identityReader=$identityCommand.ExecuteReader()
+   try{
+    Assert-Fixture ($identityReader.Read()) 'MANAGED_DATABASE_IDENTITY'
+    $managedIdentity=[pscustomobject]@{Id=$identityReader.GetInt32(0);Created=$identityReader.GetDateTime(1);CreatedBytes=$identityReader.GetValue(2)}
+    Assert-Fixture (-not$identityReader.Read() -and -not$identityReader.NextResult()) 'MANAGED_DATABASE_IDENTITY_SHAPE'
+   }finally{$identityReader.Dispose()}
+  }finally{$identityCommand.Dispose()}
+  $phase='managed-database-identified';Save-ManagedFixtureJournal
+  Invoke-FixtureSql 'EXEC sys.sp_addextendedproperty @name=@Marker,@value=@Run;' @{'@Marker'=$managedMarker;'@Run'=$managedRun}
+  $managedMarkerConfirmed=$true;$phase='managed-database-marked';Save-ManagedFixtureJournal
+ }
  $phase='deploy'
  foreach($module in @('result-table','execution-context','execution-cancel','work-type','work-queue')){
   $phase='deploy-'+$module
-  Invoke-FixtureFile (Join-Path $root "Modules/toolbelt.core.$module/Deployment/Deploy.sql")
+  Save-ManagedFixtureJournal
+  if($QueueUpgradeOnly -and $module-ceq'work-queue'){
+   $phase='queue-upgrade-capture';Save-ManagedFixtureJournal
+   . (Join-Path $PSScriptRoot 'New-GenuineQueue20Capture.ps1')
+   $historicalDeploy=New-GenuineQueue20Capture -RepositoryRoot $root -OutputRoot (Join-Path $temporaryRoot 'queue20') -OwnedFiles $historicalFiles -OwnedDirectories $historicalDirectories
+   $phase='queue-upgrade-original20';Save-ManagedFixtureJournal
+   Invoke-FixtureFile $historicalDeploy
+   $phase='queue-upgrade-setup';Save-ManagedFixtureJournal
+   Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.work-queue/Tests/Runtime/UpgradeFrom2_0.Setup.sql')
+   $phase='queue-upgrade-current21';Save-ManagedFixtureJournal
+   Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.work-queue/Deployment/Deploy.sql')
+   $phase='queue-upgrade-verify';Save-ManagedFixtureJournal
+   Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.work-queue/Tests/Runtime/UpgradeFrom2_0.Verify.sql')
+  }else{
+   Invoke-FixtureFile (Join-Path $root "Modules/toolbelt.core.$module/Deployment/Deploy.sql")
+  }
+ }
+ if($QueueUpgradeOnly){
+  'PASS: genuine queue2.0 to2.1 focused upgrade; preserved rows, original active claim and legacy eight-field admission.'
+  return
+ }
+ if($managedScope){
+  $phase='deploy-worker-control';$managedControlDeploymentStarted=$true
+  Save-ManagedFixtureJournal
+  Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Deployment/Deploy.sql')
+  if($ManagedSqlOnly){
+   $phase='managed-sql-runtime'
+   Save-ManagedFixtureJournal
+   Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/WorkerControl.Contract.sql')
+   foreach($lifecycleCase in @('Occupied','Held','Dependency')){
+    $phase='managed-lifecycle-'+$lifecycleCase.ToLowerInvariant();Save-ManagedFixtureJournal
+    Invoke-FixtureFile (Join-Path $root ('Modules/toolbelt.core.worker-control/Tests/Runtime/Lifecycle'+$lifecycleCase+'.Setup.sql'))
+    foreach($operation in @('Deploy','Uninstall')){
+     Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/Lifecycle.Snapshot.sql')
+     $expectedNumber=if($lifecycleCase-ceq'Dependency'){54243}elseif($operation-ceq'Deploy'){54242}else{54246}
+     $expectedState=if($operation-ceq'Uninstall' -and $lifecycleCase-cne'Dependency'){2}else{1}
+     Invoke-IsolatedLifecycleFailure (Join-Path $root ('Modules/toolbelt.core.worker-control/Deployment/'+$operation+'.sql')) $expectedNumber $expectedState
+     Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/Lifecycle.Verify.sql')
+    }
+   }
+   'PASS: managed SQL admission, generations, holds, private gates and data-preserving lifecycle denials.'
+   return
+  }
+  $phase='managed-runtime'
+  Save-ManagedFixtureJournal
+  $managedEvidence=Join-Path $temporaryRoot 'managed'
+  [void][IO.Directory]::CreateDirectory($managedEvidence)
+  try{
+   $managedResult=& (Join-Path $PSScriptRoot 'Invoke-ManagedContract.ps1') -ConnectionStringEnvironmentVariable $privateEnvironment -ExpectedDatabaseId $managedIdentity.Id -ExpectedDatabaseCreatedAt $managedIdentity.Created -ExpectedDatabaseRunMarkerName $managedMarker -ExpectedRunId $managedRun -EvidenceDirectory $managedEvidence
+   Assert-Fixture ($managedResult.Status -ceq 'PASS' -and $managedResult.Secondary.Count -eq 0) 'MANAGED_RUNTIME_STATUS'
+   'PASS: external queue managed focused runtime; budget, cancellation, hold, release and disposition race.'
+   'NOT_EXECUTED: commit transport loss, cross-principal rights and full target matrix.'
+  }catch{$cleanupDeferred=$true;throw}
+  return
  }
  $phase='synthetic-fixtures'
  Invoke-FixtureFile (Join-Path $PSScriptRoot 'Fixtures.sql')
@@ -204,11 +357,18 @@ try{
  $category=$_.Exception.GetType().Name
  $line=$_.InvocationInfo.ScriptLineNumber
  $sqlNumber=0;$cause=$_.Exception
- while($cause){if($cause-is[Data.SqlClient.SqlException]){$sqlNumber=$cause.Number};$cause=$cause.InnerException}
+ while($cause){if($cause-is[Data.SqlClient.SqlException]){$sqlNumber=$cause.Number};if($cause.Data.Contains('Toolbelt.ManagedFixture.Diagnostic')){$managedFixtureFailure=$cause.Data['Toolbelt.ManagedFixture.Diagnostic']};$cause=$cause.InnerException}
  $oracle='UNSPECIFIED'
  if($_.Exception.Message-match '^Synthetic worker oracle failed: ([A-Z0-9_]+)$'){$oracle=$Matches[1]}
+ if($null-ne$managedFixtureFailure){$oracle=$managedFixtureFailure.CaseCode}
+ $originalFailure=[ordered]@{Phase=$phase;Category=$category;Line=$line;SqlNumber=$sqlNumber;Oracle=$oracle}
+ try{Save-ManagedFixtureJournal}catch{$secondaryFailures.Add('MANAGED.JOURNAL_FAILURE_RECORD_FAILED')}
  if($oracle-ne'UNSPECIFIED' -and (Get-Variable result -ErrorAction SilentlyContinue)){
   'SYNTHETIC_ORACLE_DIAGNOSTICS: '+([pscustomobject]@{Summary=$result.Summary;Events=@($result.Events|ForEach-Object {[pscustomobject]@{Event=$_.Event;Code=$_.Code}})}|ConvertTo-Json -Depth 5 -Compress)
+ }
+ if($null-ne$managedFixtureFailure){
+  $publicManagedFailure=Get-ManagedPublicFailureDescriptor $managedFixtureFailure
+  Write-Information ('SYNTHETIC_MANAGED_FAILURE_DESCRIPTOR: '+(ConvertTo-Json -InputObject $publicManagedFailure -Compress)) -InformationAction Continue
  }
  throw "External queue synthetic qualification failed (phase=$phase,category=$category,line=$line,sql=$sqlNumber,oracle=$oracle); private diagnostics suppressed."
 }finally{
@@ -222,17 +382,59 @@ try{
  [Environment]::SetEnvironmentVariable($privateEnvironment,$previousEnvironment,'Process')
  if($connection){
   if($created -and -not$cleanupDeferred){
-   try{$connection.ChangeDatabase('master');Invoke-FixtureSql "DROP DATABASE [$database];"}
-   catch{$cleanupDeferred=$true}
+   try{
+    if($managedScope){
+     $managedCleanupPhase='own-lifecycle-rollback'
+     # Nur die frisch eröffnete, nicht enlistete eigene Fixtureverbindung: erst Identität, dann eigener Lifecycle-Rollback.
+     Invoke-FixtureSql 'IF ISNULL(IS_SRVROLEMEMBER(N''sysadmin''),0)<>1 OR DB_ID()<>@Id OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND name=@Database AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND TRY_CONVERT(uniqueidentifier,value)=@Run) THROW 50000,N''Synthetic lifecycle rollback identity changed'',1; IF @@TRANCOUNT>0 ROLLBACK TRANSACTION; IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 50000,N''Synthetic lifecycle rollback not ended'',1;' @{'@Id'=$managedIdentity.Id;'@Database'=$database;'@Created'=$managedIdentity.CreatedBytes;'@Marker'=$managedMarker;'@Run'=$managedRun}
+     $managedCleanupPhase='catalog-guard'
+     Assert-Fixture ((Invoke-FixtureSql 'IF ISNULL(IS_SRVROLEMEMBER(N''sysadmin''),0)<>1 OR DB_ID()<>@Id OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND name=@Database AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND TRY_CONVERT(uniqueidentifier,value)=@Run) OR EXISTS(SELECT 1 FROM sys.dm_exec_sessions WHERE database_id=@Id AND session_id<>@@SPID) OR EXISTS(SELECT 1 FROM sys.dm_exec_requests WHERE database_id=@Id AND session_id<>@@SPID) THROW 50000,N''Synthetic database cleanup identity or consumer changed'',1; IF OBJECT_ID(N''toolbelt_core.WorkerSlotReservation'',N''U'') IS NULL BEGIN IF EXISTS(SELECT 1 FROM sys.objects o JOIN sys.schemas s ON s.schema_id=o.schema_id JOIN (VALUES (N''WorkerControlConfiguration''),(N''WorkerRegistration''),(N''WorkerSlotReservation''),(N''WorkerExecutionDisposition''),(N''WorkerExecutionCommitWitness''),(N''VW_WorkerStatus''),(N''VW_WorkerExecutionStatus''),(N''USP_BeginWorkerCompletion''),(N''USP_BeginWorkerTransactionWitness''),(N''USP_BindWorkerExecution''),(N''USP_ClaimWorkerWork''),(N''USP_CloseWorker''),(N''USP_DisableManagedWorkers''),(N''USP_EnableManagedWorkers''),(N''USP_FinalizeWorkerFailure''),(N''USP_HeartbeatWorker''),(N''USP_ReconcileWorkerExecution''),(N''USP_RecordWorkerCommit''),(N''USP_RecordWorkerRollback''),(N''USP_RecordWorkerUnknown''),(N''USP_RegisterWorker''),(N''USP_ReleaseHeldWork''),(N''USP_ReserveWorkerExecution''),(N''USP_SetWorkerCapacity''),(N''USP_SetWorkerConcurrency''),(N''USP_SetWorkerIntervals''),(N''USP_SetWorkerState''),(N''USP_StopWorkerExecution''),(N''USP_StopWorkers'')) expected(Name) ON o.name COLLATE Latin1_General_100_BIN2=expected.Name COLLATE Latin1_General_100_BIN2 WHERE s.name=N''toolbelt_core'') OR EXISTS(SELECT 1 FROM sys.extended_properties WHERE (class=0 AND name IN(N''Toolbelt.Module.toolbelt.core.worker-control.Version'',N''Toolbelt.Module.toolbelt.core.worker-control.DeploymentMode'')) OR (class=1 AND name=N''Toolbelt.ModuleId'' AND CONVERT(nvarchar(256),value)=N''toolbelt.core.worker-control'')) THROW 50000,N''Synthetic control catalog partially present'',1; END ELSE EXEC sys.sp_executesql N''IF EXISTS(SELECT 1 FROM toolbelt_core.WorkerSlotReservation WHERE IsOccupied=1) THROW 50000,N''''Synthetic occupied reservation remains'''',1;''; SELECT 1;' @{'@Id'=$managedIdentity.Id;'@Database'=$database;'@Created'=$managedIdentity.CreatedBytes;'@Marker'=$managedMarker;'@Run'=$managedRun} -Scalar)-eq1) 'MANAGED_DATABASE_CLEANUP_IDENTITY'
+     $managedCleanupPhase='master-drop'
+     $connection.ChangeDatabase('master')
+     Invoke-FixtureSql "IF ISNULL(IS_SRVROLEMEMBER(N'sysadmin'),0)<>1 OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND name=@Database AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created) OR NOT EXISTS(SELECT 1 FROM [$database].sys.extended_properties WHERE class=0 AND name=@Marker AND TRY_CONVERT(uniqueidentifier,value)=@Run) OR EXISTS(SELECT 1 FROM sys.dm_exec_sessions WHERE database_id=@Id AND session_id<>@@SPID) OR EXISTS(SELECT 1 FROM sys.dm_exec_requests WHERE database_id=@Id AND session_id<>@@SPID) THROW 50000,N'Synthetic database cleanup identity changed',1; DROP DATABASE [$database];" @{'@Id'=$managedIdentity.Id;'@Database'=$database;'@Created'=$managedIdentity.CreatedBytes;'@Marker'=$managedMarker;'@Run'=$managedRun}
+     $managedDbDropped=$true;$phase='managed-database-dropped';Save-ManagedFixtureJournal
+    }else{$connection.ChangeDatabase('master');Invoke-FixtureSql "DROP DATABASE [$database];"}
+   }
+   catch{
+    $cleanupDeferred=$true;$secondaryFailures.Add('MANAGED.DATABASE_CLEANUP_DEFERRED')
+    $cause=$_.Exception;$privateErrors=@()
+    while($cause -and $cause-isnot[Data.SqlClient.SqlException]){$cause=$cause.InnerException}
+    if($cause){$privateErrors=@($cause.Errors|Select-Object -First 4|ForEach-Object {
+     $message=[string]$_.Message
+     [pscustomobject]@{Number=$_.Number;State=$_.State;Class=$_.Class;Line=$_.LineNumber;Message=$message.Substring(0,[Math]::Min(1024,$message.Length));MessageTruncated=($message.Length-gt1024)}
+    })}
+    $cleanupSqlFailure=[ordered]@{Phase=$managedCleanupPhase;Category=$_.Exception.GetType().Name;Line=$_.InvocationInfo.ScriptLineNumber;Errors=$privateErrors}
+   }
   }
-  $connection.Dispose()
+  try{$connection.Dispose()}catch{$cleanupDeferred=$true;$secondaryFailures.Add('MANAGED.CONTROL_DISPOSE_FAILED')}
  }
- if(-not$cleanupDeferred -and (Test-Path -LiteralPath $temporaryRoot)){
+ if(-not$cleanupDeferred -and -not($managedScope -and $null-ne$originalFailure) -and (Test-Path -LiteralPath $temporaryRoot)){
+  try{
+  foreach($capture in $historicalFiles){
+   $item=Get-Item -LiteralPath $capture.Path -ErrorAction Stop
+   Assert-Fixture ($item.Length-eq$capture.Length -and $item.CreationTimeUtc.Ticks-eq$capture.CreatedTicks -and [int]$item.Attributes-eq$capture.Attributes -and ($item.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0 -and (Get-FileHash -LiteralPath $capture.Path).Hash-ceq$capture.SHA256) 'HISTORICAL_CLEANUP_IDENTITY'
+   Remove-Item -LiteralPath $capture.Path
+  }
+  foreach($directory in @($historicalDirectories|Sort-Object Length -Descending)){[IO.Directory]::Delete($directory,$false)}
   # Nur exakt eigene Dateien; keine rekursive oder berechnete Fremdlöschung.
   $stopPath=Join-Path $temporaryRoot 'stop'
   if(Test-Path -LiteralPath $stopPath){Remove-Item -LiteralPath $stopPath}
+  if($managedScope){
+   $managedEvidence=Join-Path $temporaryRoot 'managed'
+   if(Test-Path -LiteralPath $managedEvidence){[IO.Directory]::Delete($managedEvidence,$false)}
+   $journalPath=Join-Path $temporaryRoot 'ManagedOwnership.json'
+   if(Test-Path -LiteralPath $journalPath){Remove-Item -LiteralPath $journalPath}
+  }
   Remove-Item -LiteralPath $temporaryRoot
+  }catch{$cleanupDeferred=$true;$secondaryFailures.Add('MANAGED.PRIVATE_FILE_CLEANUP_DEFERRED')}
+ }
+ if($managedScope -and $null-ne$originalFailure -and -not$cleanupDeferred){
+  try{Save-ManagedFixtureJournal}catch{$secondaryFailures.Add('MANAGED.JOURNAL_FINAL_RECORD_FAILED')}
  }
  $privateConnection=$null;$builder=$null
- if($cleanupDeferred){throw 'Own synthetic cleanup deferred; no forced disconnect or database removal performed.'}
+ if($cleanupDeferred){
+  try{Save-ManagedFixtureJournal}catch{$secondaryFailures.Add('MANAGED.JOURNAL_FINAL_RECORD_FAILED')}
+  if($null-eq$originalFailure){throw 'Own synthetic cleanup deferred; no forced disconnect or database removal performed.'}
+  Write-Information ([pscustomobject]@{Event='SYNTHETIC_CLEANUP_DEFERRED';Code='MANAGED.CLEANUP_DEFERRED';Secondary=$secondaryFailures.ToArray()}) -Tags 'ToolbeltQueueWorker'
+ }
 }

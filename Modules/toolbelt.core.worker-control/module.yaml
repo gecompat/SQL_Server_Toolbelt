@@ -1,0 +1,243 @@
+module_id: "toolbelt.core.worker-control"
+module_name: "Managed Worker Control"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: partially validated
+release_status: unreleased
+description: "Persistente Workeridentität, globale Admission, Stop/Hold und proofgebundene Wiederfreigabe."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels:
+  - 150
+  - 160
+  - 170
+platforms:
+  windows: partially validated
+  linux: partially validated
+providers:
+  - id: managed-external-worker-control
+    technology: "T-SQL"
+    platforms: [Windows, Linux]
+    status: implemented
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: true
+dependencies:
+  - module_id: "toolbelt.core.work-queue"
+    minimum_version: "2.1.0"
+    exact_version: "2.1.0"
+    location: same_database
+    reason: "Kanonischer Queueclaim und neutrale Managedgates."
+  - module_id: "toolbelt.core.execution-context"
+    minimum_version: "1.0.0"
+    location: same_database
+    reason: "Gebundene Executionidentitäten."
+  - module_id: "toolbelt.core.execution-cancel"
+    minimum_version: "1.0.0"
+    location: same_database
+    reason: "Bestehendes kooperatives Cancellation-Signal."
+  - module_id: "toolbelt.core.result-table"
+    minimum_version: "1.0.0"
+    location: same_database
+    reason: "Atomare tabellarische ResultTable-Ausgabe."
+schemas:
+  - "toolbelt_core"
+objects:
+  - {type: TABLE, schema: "toolbelt_core", name: "WorkerControlConfiguration", visibility: internal}
+  - {type: TABLE, schema: "toolbelt_core", name: "WorkerRegistration", visibility: internal}
+  - {type: TABLE, schema: "toolbelt_core", name: "WorkerSlotReservation", visibility: internal}
+  - {type: TABLE, schema: "toolbelt_core", name: "WorkerExecutionDisposition", visibility: internal}
+  - {type: TABLE, schema: "toolbelt_core", name: "WorkerExecutionCommitWitness", visibility: internal}
+  - {type: VIEW, schema: "toolbelt_core", name: "VW_WorkerStatus", visibility: public}
+  - {type: VIEW, schema: "toolbelt_core", name: "VW_WorkerExecutionStatus", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_BeginWorkerCompletion", visibility: internal}
+  - {type: USP, schema: "toolbelt_core", name: "USP_BeginWorkerTransactionWitness", visibility: internal}
+  - {type: USP, schema: "toolbelt_core", name: "USP_BindWorkerExecution", visibility: internal}
+  - {type: USP, schema: "toolbelt_core", name: "USP_ClaimWorkerWork", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_CloseWorker", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_DisableManagedWorkers", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_EnableManagedWorkers", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_FinalizeWorkerFailure", visibility: internal}
+  - {type: USP, schema: "toolbelt_core", name: "USP_HeartbeatWorker", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_ReconcileWorkerExecution", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_RecordWorkerCommit", visibility: internal}
+  - {type: USP, schema: "toolbelt_core", name: "USP_RecordWorkerRollback", visibility: internal}
+  - {type: USP, schema: "toolbelt_core", name: "USP_RecordWorkerUnknown", visibility: internal}
+  - {type: USP, schema: "toolbelt_core", name: "USP_RegisterWorker", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_ReleaseHeldWork", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_ReserveWorkerExecution", visibility: internal}
+  - {type: USP, schema: "toolbelt_core", name: "USP_SetWorkerCapacity", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_SetWorkerConcurrency", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_SetWorkerIntervals", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_SetWorkerState", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_StopWorkerExecution", visibility: public}
+  - {type: USP, schema: "toolbelt_core", name: "USP_StopWorkers", visibility: public}
+permissions_required:
+  - "Vorhandene EXECUTE-Rechte für Steuer-/Dispatch-USPs; getrennte Autorität."
+  - "Vorhandene SELECT-Rechte auf Statussichten; keine Grants durch das Modul."
+collation_contract: "Technische Zustände verwenden Latin1_General_100_BIN2; IDs und Tokens uniqueidentifier."
+data_type_contract: "Globale/lokale Budgetzahlen int; Generationen bigint; Konfigurations-/Holdversion binary(8)."
+help_contract_version: "1.0"
+resultset_contracts:
+  - object: "toolbelt_core.VW_WorkerStatus"
+    kind: data
+    resultset: "Explizite registrierte Generationen, Budgetbelegung und gepinnte Intervalle."
+  - object: "toolbelt_core.VW_WorkerExecutionStatus"
+    kind: data
+    resultset: "Alle Reservations; aktuelle exakte Disposition und nullable historische HoldVersion."
+  - object: "toolbelt_core.USP_BeginWorkerCompletion"
+    kind: infrastructure
+    resultset: null
+    return_code_success: 0
+  - object: "toolbelt_core.USP_BeginWorkerTransactionWitness"
+    kind: infrastructure
+    resultset: null
+    return_code_success: 0
+  - object: "toolbelt_core.USP_BindWorkerExecution"
+    kind: infrastructure
+    resultset: null
+    return_code_success: 0
+  - object: "toolbelt_core.USP_ClaimWorkerWork"
+    kind: data
+    resultset: "Explizite stabile Spalten gemäß Objektseite und Help."
+    return_code_success: 0
+  - object: "toolbelt_core.USP_CloseWorker"
+    kind: infrastructure
+    resultset: null
+    return_code_success: 0
+  - object: "toolbelt_core.USP_DisableManagedWorkers"
+    kind: data
+    resultset: "Explizite stabile Spalten gemäß Objektseite und Help."
+    return_code_success: 0
+  - object: "toolbelt_core.USP_EnableManagedWorkers"
+    kind: data
+    resultset: "Explizite stabile Spalten gemäß Objektseite und Help."
+    return_code_success: 0
+  - object: "toolbelt_core.USP_FinalizeWorkerFailure"
+    kind: infrastructure
+    resultset: null
+    return_code_success: 0
+  - object: "toolbelt_core.USP_HeartbeatWorker"
+    kind: infrastructure
+    resultset: null
+    return_code_success: 0
+  - object: "toolbelt_core.USP_ReconcileWorkerExecution"
+    kind: data
+    resultset: "Explizite stabile Spalten gemäß Objektseite und Help."
+    return_code_success: 0
+  - object: "toolbelt_core.USP_RecordWorkerCommit"
+    kind: infrastructure
+    resultset: null
+    return_code_success: 0
+  - object: "toolbelt_core.USP_RecordWorkerRollback"
+    kind: infrastructure
+    resultset: null
+    return_code_success: 0
+  - object: "toolbelt_core.USP_RecordWorkerUnknown"
+    kind: infrastructure
+    resultset: null
+    return_code_success: 0
+  - object: "toolbelt_core.USP_RegisterWorker"
+    kind: data
+    resultset: "Explizite stabile Spalten gemäß Objektseite und Help."
+    return_code_success: 0
+  - object: "toolbelt_core.USP_ReleaseHeldWork"
+    kind: data
+    resultset: "Explizite stabile Spalten gemäß Objektseite und Help."
+    return_code_success: 0
+  - object: "toolbelt_core.USP_ReserveWorkerExecution"
+    kind: data
+    resultset: "Explizite stabile Spalten gemäß Objektseite und Help."
+    return_code_success: 0
+  - object: "toolbelt_core.USP_SetWorkerCapacity"
+    kind: data
+    resultset: "Explizite stabile Spalten gemäß Objektseite und Help."
+    return_code_success: 0
+  - object: "toolbelt_core.USP_SetWorkerConcurrency"
+    kind: data
+    resultset: "Explizite stabile Spalten gemäß Objektseite und Help."
+    return_code_success: 0
+  - object: "toolbelt_core.USP_SetWorkerIntervals"
+    kind: data
+    resultset: "Explizite stabile Spalten gemäß Objektseite und Help."
+    return_code_success: 0
+  - object: "toolbelt_core.USP_SetWorkerState"
+    kind: data
+    resultset: "Explizite stabile Spalten gemäß Objektseite und Help."
+    return_code_success: 0
+  - object: "toolbelt_core.USP_StopWorkerExecution"
+    kind: data
+    resultset: "Explizite stabile Spalten gemäß Objektseite und Help."
+    return_code_success: 0
+  - object: "toolbelt_core.USP_StopWorkers"
+    kind: data
+    resultset: "Explizite stabile Spalten gemäß Objektseite und Help."
+    return_code_success: 0
+lifecycle_error_range: "54240-54246"
+clr:
+  used: false
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/VW_WorkerStatus.md"
+    - "Documentation/VW_WorkerExecutionStatus.md"
+    - "Documentation/USP_ClaimWorkerWork.md"
+    - "Documentation/USP_CloseWorker.md"
+    - "Documentation/USP_DisableManagedWorkers.md"
+    - "Documentation/USP_EnableManagedWorkers.md"
+    - "Documentation/USP_HeartbeatWorker.md"
+    - "Documentation/USP_ReconcileWorkerExecution.md"
+    - "Documentation/USP_RegisterWorker.md"
+    - "Documentation/USP_ReleaseHeldWork.md"
+    - "Documentation/USP_SetWorkerCapacity.md"
+    - "Documentation/USP_SetWorkerConcurrency.md"
+    - "Documentation/USP_SetWorkerIntervals.md"
+    - "Documentation/USP_SetWorkerState.md"
+    - "Documentation/USP_StopWorkerExecution.md"
+    - "Documentation/USP_StopWorkers.md"
+  architecture:
+    - "../../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md"
+  test_matrix:
+    - "Tests/WORKER_CONTROL_CONTRACT_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/WorkerControl.Contract.sql"
+  lifecycle_occupied_setup: "Tests/Runtime/LifecycleOccupied.Setup.sql"
+  lifecycle_held_setup: "Tests/Runtime/LifecycleHeld.Setup.sql"
+  lifecycle_dependency_setup: "Tests/Runtime/LifecycleDependency.Setup.sql"
+  lifecycle_snapshot: "Tests/Runtime/Lifecycle.Snapshot.sql"
+  lifecycle_verify: "Tests/Runtime/Lifecycle.Verify.sql"
+validation_evidence:
+  - date: "2026-10-04"
+    workflow: "local: Tests/CI/run-external-queue-worker-lab.ps1 -Platform linux -Version 2019 -Patch latest -ManagedSqlOnly"
+    scope: "SQL Server 2019 Linux; Admission, dynamische Budgets, Generationen, Holdbypass-Abweisungen, private Autorität, Help, ResultTable und sechs tatsächliche Deploy-/Uninstall-Abweisungen mit sieben Tabellen-Snapshots."
+    result: "success; vollständiger paralleler Providerlauf und exakte Head-CI bleiben offen"
+  - date: "2026-10-04"
+    workflow: "local: Tests/CI/run-external-queue-worker-lab.ps1 -Platform windows -Version 2025 -Patch CU8 -ManagedSqlOnly"
+    scope: "SQL Server 2025 Windows, exakt CU8; derselbe gezielte SQL-Vertrag einschließlich sechs tatsächlicher Lifecycle-Abweisungen und unveränderter sieben Tabellen-Snapshots."
+    result: "success; vollständiger paralleler Providerlauf und exakte Head-CI bleiben offen"
+  - date: "2026-10-05"
+    workflow: "local: Tests/CI/run-external-queue-worker-lab.ps1 -Platform windows -Version 2025 -Patch CU8 -ManagedOnly"
+    scope: "Windows-Worker und SQL Server 2025 Windows/exakt CU8; zwei Supervisoren, leere Betriebsmodi, Livebudget, tatsächlicher Handlerabbruch/Rollback, Hold und Übernahme durch anderen Worker, Commit-vs-Stop-Rendezvous sowie echter Controltimeout mit UNKNOWN/Slotbelegung und expliziter Reconciliation."
+    result: "success including own cleanup; Committransportverlust, minimale Rechte, weitere Ziele und exakte Head-CI bleiben getrennt offen"
+  - date: "2026-10-05"
+    workflow: "local: Tests/CI/run-external-queue-worker-lab.ps1 -Platform linux -Version 2019 -Patch latest -ManagedOnly"
+    scope: "Derselbe fokussierte Managedvertrag mit Windows-Workerhost gegen SQL Server 2019 Linux; zwei Supervisoren, Betriebsmodi, Stop/Rollback/Hold/anderer Worker, Dispositionrennen und Controltimeout/UNKNOWN/keine Übernahme."
+    result: "success including own cleanup; Linux-Workerhost durch aktuelle CI gesondert zu prüfen; Committransportverlust, minimale Rechte und weitere Ziele nicht ausgeführt"

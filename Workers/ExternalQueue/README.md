@@ -3,12 +3,12 @@
 Manuell gestarteter erster Provider für die einzeln freigegebene
 Queue-Verarbeitung. Der [verbindliche Vertrag](../../Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md)
 steht vor Source im Commit `1872985`. Der Worker verwendet den bestehenden
-Work-Queue-2.0-Kern; er installiert keine SQL-Objekte oder Dienste.
+Work-Queue-Kern; er installiert keine SQL-Objekte oder Dienste.
 
 ## Voraussetzungen und Zulassung
 
 PowerShell 7 mit funktionierendem `System.Data.SqlClient`; in derselben
-Datenbank vorhandene Module `toolbelt.core.work-queue` 2.0.0,
+Datenbank vorhandene Module `toolbelt.core.work-queue` 2.0.0 oder 2.1.0,
 `toolbelt.core.work-type` 1.1.0, `toolbelt.core.execution-context` 1.0.0 und
 `toolbelt.core.execution-cancel` 1.0.0 samt deren Dependencies.
 Vorhandene Rechte gelten; der Worker vergibt keine Berechtigungen.
@@ -48,6 +48,38 @@ Die vollständige Laufzeit eines unkooperativen Handlers ist damit unbegrenzt.
 Ein Hostabbruch kann diese Zusagen nicht aufrechterhalten.
 
 ## Abschluss, Cancellation und Fehler
+
+## Ausdrücklich gewählter Managed-Pfad
+
+`Start-ExternalQueueWorker -Managed` verwendet die zentrale Workersteuerung.
+Dieser Pfad benötigt Work Queue 2.1.0 und Worker Control 1.0.0 zusätzlich
+zu den übrigen oben genannten Dependencies.
+`WorkerId` ist die stabile GUID, `Capacity` die registrierte lokale Kapazität
+ohne die historische Acht-Slot-Grenze. `RunMode` bleibt standardmäßig
+`BOUNDED`; `CONTINUOUS` pollt auch bei leerer Queue bis zum Drain. Die globale
+und lokale Admission erfolgt atomar in SQL. Aktivierung und Konfiguration
+erfolgen ausdrücklich über die Worker-Control-APIs, nicht automatisch beim
+Providerstart.
+
+Eine separate Registrierungslane verwendet die für ihre Generation kopierten
+Heartbeatintervalle. Pro tatsächlich zugelassener Reservation entstehen lazy
+ein Executor und ein unabhängiger Guardian. Der Guardian pollt Stop/Hold und
+kann die exakt gebundene Commandinstanz abbrechen, während Handler oder
+synchroner Commit den Executor blockieren. Ein gelatchter CancellationToken
+verhindert den Start nach einem Stop zwischen Bereitstellung und Taskstart.
+Cancellation allein ist kein End- oder Rollbacknachweis.
+
+Die Handlerconnection bleibt bis zum SQL-Endnachweis Eigentümer ihres
+Session-AppLocks. Handler, Witness und Complete teilen ihre eigene
+Transaktion. Bekannter Commit, persistierte Slotfreigabe und physischer Cleanup
+sind getrennte Aussagen: ein späterer Steuer- oder Cleanupfehler begründet
+keinen Retry eines bestätigten Commits. Unknown bleibt serverseitig belegt
+oder zurückgehalten. Der neue Pfad ist im gezielten lokalen Scope gegen
+2019 Linux und 2025 Windows/CU8 einschließlich Cleanup geprüft. Die
+[Testnachweise](Tests/README.md) trennen Workerhost, SQL-Ziel und offene Faults;
+die bisherigen Welle-1-Nachweise gelten für den damaligen Legacy-Scope.
+
+## Bestehender Legacy-Abschluss
 
 Der Handler und `USP_CompleteWork` laufen in derselben eigenen SQL-Transaktion.
 Nur ein bestätigter Commit gilt als erfolgreicher Abschluss. Ein späterer
@@ -103,6 +135,6 @@ Fixtures in CI. Testcode ist kein Ausführungsnachweis. Transportverlust bei
 Commit verlangt belastbare Fault-Evidenz; künstliche Timeouts beweisen ihn
 nicht automatisch.
 
-Keine Veröffentlichung, Exactly-once-Zusage, dauerhafte Workerregistrierung,
+Aus dem ersten Legacy-Provider keine Veröffentlichung, Exactly-once-Zusage, dauerhafte Workerregistrierung,
 supervisorübergreifende Slotgarantie, Dienstinstallation oder Agent-/Broker-
 Implementierung aus diesem ersten Provider ableiten.

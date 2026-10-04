@@ -2,9 +2,48 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-38 Module sind implementiert. 20 sind `validated`, 18 sind `partially validated`; 0 sind `not executed`.
+39 Module sind implementiert. 19 sind `validated`, 20 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
+
+### Queue-Worker 2 – autonome Umsetzung freigegeben 2026-10-04
+
+Nach Besprechung von Zweck, Verträgen, Alternativen und Risiken beauftragte
+der Benutzer ausdrücklich: „ok, machen wir es so, wie von dir vorgeschlagen;
+starte autonome Verarbeitung wie besprochen“. Die Freigabe umfasst zentrale
+SQL-Steuerung, getrennte Steuerungs-/Claim-APIs mit Versionsvergleich,
+global und je Worker zur Laufzeit veränderbare Parallelität, konfigurierbare
+Registrierungsintervalle mit Defaults 15/60 Sekunden sowie den kontrollierten
+Übergang zwischen verwaltetem und bisherigem Betrieb. Intervalländerungen
+gelten nur für neue Worker-Generationen. Keine automatische Deaktivierung.
+
+Zusätzlich einzeln besprochen und bestätigt: Sofortstopp genau einer konkreten
+Verarbeitung oder mehrerer/aller Worker. Persistenter Stop-/Hold-Auftrag muss
+automatische Claims, Lease-Recovery und Retry vor dem Abbruch verhindern.
+Erst nach nachgewiesenem Rollback/Ende darf der Slot freigegeben werden;
+ungeklärte Ausgänge bleiben gesperrt. Bereits erfolgter atomarer Commit bleibt
+erfolgreich. Ein gestoppter Auftrag bleibt erkennbar zurückgehalten bis zur
+ausdrücklichen Wiederfreigabe; jeder geeignete Worker darf ihn dann übernehmen.
+Korrektur im registrierten Handler, kein frei ausführbarer SQL-Text.
+Ein einzelner Auftragsstopp lässt den Worker andere Arbeit ausführen;
+mehrere/alle gestoppten Worker bleiben bis zur ausdrücklichen Reaktivierung
+für neue Starts gesperrt. Historie bleibt erhalten.
+
+Status: `implemented`, `partially validated`, `unreleased`. Der SQL-Vertrag mit
+gezielten Negativfällen und sechs tatsächlichen Lifecycle-Abweisungen sowie
+der echte Queue-Upgrade 2.0→2.1 bestanden am 2026-10-04 auf SQL Server 2019 Linux.
+Die fokussierten Managedläufe mit Windows-Workerhost bestanden einschließlich
+eigenem Cleanup am 2026-10-05 auf 2019 Linux und 2025 Windows/CU8. Der
+Linux-Workerhost-Nachweis über exakte Head-CI bleibt offen. Der technische
+[Worker-Control-Vertrag](../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md)
+konkretisiert die Umsetzung einschließlich Bindung, Commit-/Rollbacknachweis
+und unverändert gesperrter ungeklärter Ausgänge. Erst vorhandener externer Windows-/Linux-
+Provider; SSIS/Agent/Broker bleiben spätere separat qualifizierte Provider.
+Abbruchanforderung, tatsächliches Ende und Konsistenznachweis sind getrennt;
+keine generische externe Rollback- oder Exactly-once-Zusage. Unabhängiger
+Review, betroffene schema-validierte Lab-Tests, grüne exakte Head-CI, PR-Merge
+nach origin/main und eigener Branch-/Worktree-Cleanup bleiben Pflicht.
+Vorhandene Referenzen TC-2026-015/046; keine neue sequenzielle ID erfunden.
 
 ### Nächste Wellen – bestätigte Anforderungen und Entscheidungsvorbereitung 2026-10-04
 

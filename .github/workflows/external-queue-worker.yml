@@ -5,7 +5,9 @@ on:
     paths:
       - "Workers/ExternalQueue/**"
       - "Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md"
+      - "Documentation/Architecture/WORKER_CONTROL_CONTRACT.md"
       - "Modules/toolbelt.core.work-queue/**"
+      - "Modules/toolbelt.core.worker-control/**"
       - "Modules/toolbelt.core.work-type/**"
       - "Modules/toolbelt.core.execution-context/**"
       - "Modules/toolbelt.core.execution-cancel/**"
@@ -40,6 +42,12 @@ jobs:
       - name: Execute deterministic worker faults
         shell: pwsh
         run: ./Workers/ExternalQueue/Tests/Worker.Contract.ps1
+      - name: Execute execution actor isolation faults
+        shell: pwsh
+        run: ./Workers/ExternalQueue/Tests/ExecutionActors.Contract.ps1
+      - name: Execute managed worker client contracts
+        shell: pwsh
+        run: ./Workers/ExternalQueue/Tests/ManagedWorker.Contract.ps1
 
   linux-runtime:
     name: Linux worker / SQL Server 2019
@@ -48,6 +56,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Start disposable synthetic SQL target
         shell: bash
         run: |
@@ -79,6 +89,27 @@ jobs:
           ./Workers/ExternalQueue/Tests/Runtime/Invoke-Contract.ps1
           -ConnectionStringEnvironmentVariable TBX_WORKER_TEST_CONNECTION_STRING
           -ExpectedSqlVersion 2019
+      - name: Execute managed worker SQL contracts
+        shell: pwsh
+        run: >-
+          ./Workers/ExternalQueue/Tests/Runtime/Invoke-Contract.ps1
+          -ConnectionStringEnvironmentVariable TBX_WORKER_TEST_CONNECTION_STRING
+          -ExpectedSqlVersion 2019
+          -ManagedOnly
+      - name: Execute managed admission and generation contracts
+        shell: pwsh
+        run: >-
+          ./Workers/ExternalQueue/Tests/Runtime/Invoke-Contract.ps1
+          -ConnectionStringEnvironmentVariable TBX_WORKER_TEST_CONNECTION_STRING
+          -ExpectedSqlVersion 2019
+          -ManagedSqlOnly
+      - name: Execute genuine Queue 2.0 to 2.1 upgrade
+        shell: pwsh
+        run: >-
+          ./Workers/ExternalQueue/Tests/Runtime/Invoke-Contract.ps1
+          -ConnectionStringEnvironmentVariable TBX_WORKER_TEST_CONNECTION_STRING
+          -ExpectedSqlVersion 2019
+          -QueueUpgradeOnly
       - name: Cleanup owned synthetic target
         if: always()
         shell: bash

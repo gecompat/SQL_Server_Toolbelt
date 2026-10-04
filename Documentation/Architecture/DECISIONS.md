@@ -540,3 +540,19 @@ Entscheidung: SameDB-Datenkopie mit expliziter Map, leeren formgleichen Zielen, 
 Begründung: Bestehende Tabellenform und FK-Renderer vermeiden doppelte Fachlogik; eigene Transaktion koppelt Daten, fehlende FKs und ResultTable-Ausgabe. Vorhandene passende Constraints bleiben erhalten. Keine freie SQL-Ausführung, automatische Konfiguration oder Rechtevergabe.
 Alternativen: Merge/Upsert, CrossDB-Transport, heimliches Constraintdisable, RESEED und zusätzliche öffentliche FK-Helper sind ausgeschlossen. Identity-Zähler und externe Commit-/Netzwerkeffekte bleiben ausdrücklich außerhalb umfassender Rollbackzusagen.
 Betroffene Verträge: TABLE_CLONE_DATA_COPY_CONTRACT.md, TABLE_CLONE_WAVE2_CONTRACT.md, TABLE_CLONE_EXECUTE_CONTRACT.md, USP_CONTRACT.md, toolbelt.metadata.table-clone, .ai/BACKLOG.md.
+
+## Datierter Entscheidungsstand 2026-10-04: zentral gesteuerte Queue-Worker
+
+RelatedReference: `DEC-2026-031`, `TC-2026-020`, `TC-2026-048`. Funktionsbezogene Weiterentwicklung; keine neue finale Sequenzreferenz.
+
+Status: accepted; Implementierung aktiv, neue Runtimequalifikation und Head-CI offen. Die ausdrücklichen Einzelentscheidungen des Benutzers sind in [.ai/BACKLOG.md](../../.ai/BACKLOG.md) dokumentiert.
+
+Entscheidung: Die vorhandene externe Windows-/Linux-Ausführung erhält ein explizites Managed-Opt-in mit zentraler SQL-Steuerung, zur Laufzeit veränderbaren globalen und lokalen Parallelitätsbudgets sowie konfigurierbaren Heartbeatintervallen mit Defaults 15/60 Sekunden. `toolbelt.core.worker-control` hängt von Work Queue 2.1 ab; die Queue enthält nur das neutrale Integrationsgate. Spätere SQL Server Agent-, Service Broker- und SSIS-Provider bleiben außerhalb dieser Welle.
+
+Begründung: Ein gemeinsamer persistierter Admission- und Dispositionskern verhindert unterschiedliche Budget-, Stopp- und Retryregeln je Provider. Ein dauerhafter Stop/Hold sperrt automatische Neuverarbeitung, bevor der konkrete Provider die tatsächliche Ausführung abbricht. Erst nach belegtem Ende und Rollback wird der Slot freigegeben; bestätigte Commits bleiben abgeschlossen, unbekannte Ausgänge belegt.
+
+Auswirkungen: Managed-Aktivierung ist claimfrei, direkte Legacy-Claims sind danach gesperrt. Ein Einzelstopp betrifft genau eine Verarbeitung; ein Gruppenstopp pausiert ausgewählte stabile Workeridentitäten. Wiederholung verlangt eine explizite Hold-Freigabe. Eine separate Kontrollausführung kann die exakt gebundene Command-Instanz abbrechen. Sessionbindung, Transaktionswitness und Dispositionsgate liefern den SQL-Endnachweis; daraus folgt keine harte Abbruchfrist oder allgemeine Rollbackzusage für externe Systeme.
+
+Alternativen: Feste Parallelität acht, lokale unabhängige Budgets, automatische Retryfreigabe nach Stopp, Wiederaufnahme unbekannter Ausgänge und `KILL` über eine gespeicherte Sessionnummer werden verworfen. Das kontrollierte Deaktivieren drainiert bestehende Arbeit und erfordert einen konsistenten Endzustand.
+
+Betroffene Verträge: [Worker-Control-Vertrag](WORKER_CONTROL_CONTRACT.md), [bestehender Providervertrag](EXTERNAL_QUEUE_WORKER_CONTRACT.md), `USP_CONTRACT.md`, `toolbelt.core.work-queue`, `toolbelt.core.worker-control`, `Workers/ExternalQueue`.

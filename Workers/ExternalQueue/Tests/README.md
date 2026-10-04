@@ -1,5 +1,32 @@
 # Worker-Qualifikation
 
+## Welle 2: isolierte Ausführungsakteure
+
+Am 2026-10-04 besteht die gezielte Offlineprüfung
+`pwsh -NoProfile -File Workers/ExternalQueue/Tests/ExecutionActors.Contract.ps1`.
+Tatsächliche getrennte Runspaces prüfen Guardianfortschritt während eines
+synthetisch blockierten Executorabschlusses, Cancellation der exakt gebundenen
+Instanz, Abweisung veralteter Command-Epochen, unbekannten Ausgang ohne
+Rollbacknachweis sowie Guardian-/Executorverlust. Eigene Runspaces werden erst
+nach ihrem tatsächlichen Ende entsorgt. CancellationTokenSource dient nur als
+synthetischer Instanzzeuge; dies ist kein SQL-Abbruch- oder Commitfaultnachweis.
+
+Der ausdrücklich gewählte `-Managed`-Pfad bindet jetzt SQL-Admission,
+sessiongebundenen Reservation-AppLock, Transaktionswitness, Stop/Hold und
+tokengebundenen Abschluss an den Worker-Control-Vertrag. Der Default bleibt
+Welle 1. `ManagedWorker.Contract.ps1` prüft echte typisierte Reader und
+SqlCommand-Parameter ohne Netzwerk. Die Actorprüfung belegt zusätzlich einen
+gelatchten Stop vor Taskstart, die Readerlease während eines blockierten Cancel
+und bestätigten Commit trotz nachfolgendem Cleanupfehler.
+
+Der fokussierte Runtimeeinstieg ist `Tests/Runtime/Invoke-Contract.ps1
+-ManagedOnly`. Er verwendet eine eigene frische Testdatenbank und die
+synthetischen Fälle in `Invoke-ManagedContract.ps1`: Budget 0/2/1,
+Cancellation/Rollback/Hold, explizite Wiederfreigabe, Legacy-Claim-Abweisung
+und Completion-/Stop-Rendezvous. Quellcode ist kein Laufnachweis.
+Die gezielten aktuellen SQL-/Managedläufe sind weiter unten dokumentiert.
+Exakte Head-CI und tatsächlicher Linux-Workerhost sind separate Nachweise.
+
 ## Ausgeführter deterministischer Scope
 
 Am 2026-10-02 besteht `pwsh -NoProfile -File
@@ -62,3 +89,7 @@ Diagnostik und Verbindungskonfiguration werden nicht versioniert.
 Der [Providervertrag](../../../Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md)
 legt Akzeptanzkriterien, Autorität und Grenzen fest. Plan und Testcode sind
 kein erfolgreicher Ausführungsnachweis.
+
+## Managed Welle 2: gezielte aktuelle Evidenz
+
+Der fokussierte Managedlauf mit `Tests/CI/run-external-queue-worker-lab.ps1 -Platform windows -Version 2025 -Patch CU8 -ManagedOnly` bestand am 2026-10-05 einschließlich eigenem Cleanup. Der [Worker-Control-Nachweis](../../../Modules/toolbelt.core.worker-control/Tests/README.md) trennt die tatsächlich beobachteten Betriebs-, Stop-, Release-, Wettlauf- und Controltimeoutfälle von offenen Host-/Committransportfaults und Rechtekontexten. SQL-Verträge und sechs echte Lifecycle-Abweisungen bestanden separat auf 2019 Linux und 2025 Windows/CU8; echter Queue-Upgrade auf 2019 Linux. Ein Windows-Worker gegen ein Linux-SQL-Ziel ist kein Linux-Workerhost-Nachweis; dieser wird durch die passende aktuelle CI gesondert erbracht.

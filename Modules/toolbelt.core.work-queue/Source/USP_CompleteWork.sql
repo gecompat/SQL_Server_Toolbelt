@@ -86,6 +86,18 @@ BEGIN
         IF @CurrentStatus IS NULL THROW 51921,N'Das Work Item existiert nicht.',1;
         IF @CurrentStatus<>'CLAIMED' THROW 51922,N'Nur ein CLAIMED Work Item kann abgeschlossen werden.',1;
         IF @CurrentToken<>@ClaimToken THROW 51923,N'@ClaimToken besitzt das Work Item nicht.',1;
+        -- Die geheime Completionnonce entsteht erst im verifizierten Handlerabschluss.
+        -- Der reservationsbezogene Transaktionslock bleibt bis zum äußeren Commit.
+        DECLARE @ManagedReservationId uniqueidentifier,@ManagedCompletionNonce uniqueidentifier,@ManagedHold bit;
+        SELECT @ManagedReservationId=ManagedReservationId,@ManagedCompletionNonce=ManagedCompletionNonce,@ManagedHold=ManagedHold
+        FROM toolbelt_core.WorkItem WHERE WorkItemId=@WorkItemId;
+        IF @ManagedHold=1 THROW 54201,N'Der Claim steht unter persistentem Hold.',2;
+        IF @ManagedReservationId IS NOT NULL AND
+           (@InitialTranCount<>1 OR @ManagedCompletionNonce IS NULL
+            OR TRY_CONVERT(uniqueidentifier,SESSION_CONTEXT(N'toolbelt.worker.completion_nonce')) IS NULL
+            OR TRY_CONVERT(uniqueidentifier,SESSION_CONTEXT(N'toolbelt.worker.completion_nonce'))<>@ManagedCompletionNonce
+            OR APPLOCK_MODE(N'public',N'Toolbelt.Worker.Disposition.'+CONVERT(nvarchar(36),@ManagedReservationId),N'Transaction')<>N'Exclusive')
+            THROW 54201,N'Der verwaltete Claim besitzt keinen verifizierten Completionpfad.',3;
         SET @NowUtc=SYSUTCDATETIME();
         IF @LeaseUntilUtc<=@NowUtc THROW 51922,N'Die Lease ist abgelaufen; nur Recovery darf den Claim verändern.',2;
 
