@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 2026-10-04 – Phonetik 1.0.0 (unreleased, begrenzte Teilnachweise)
+
+- Zwei einzeln freigegebene IF-Fassaden und zwei interne FT auf eigener SAFE-Assembly.
+- Geschlossene Alphabete, feste inhärente Transformation, UTF16-/Quotenpriorität
+  und vollständige Double-Metaphone-Codes einschließlich terminalem J-Leerzeichen.
+- Markierte Apache-1.18.0-Portierung mit Headern und modullokaler LICENSE/NOTICE.
+- Explizite installierte SHA2-512-Erwartung, kohärente Owner/Slotmarker,
+  zweipassiger AppLock-Lifecycle; Trust bleibt getrennt.
+- Build, Framework (223 Assertions je drei Kulturen), eigene IL und begrenzte
+  native Teilnachweise auf Linux2019/latest CL150 und Windows2025/exakt CU8
+  CL170 bestanden. Vier lokale Fixtures und 18 Clientreader je Ziel sowie
+  local/central Lifecycle mit frischer Bereinigung; keine Konfigurations-,
+  Rechte- oder Owneränderungen. Java-Differential, vollständige Qualifikation
+  und aktuelle Head-CI bleiben offen; teilweise validiert, unveröffentlicht.
+
+
 ## 2026-10-04 – ZIP-Dateifassaden 1.0.0, begrenzte Teilnachweise
 
 - Zwei einzeln freigegebene lokale Windows-USPs verwenden statisch bestehende
@@ -614,7 +630,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-37 Module sind implementiert. 20 sind `validated`, 17 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+38 Module sind implementiert. 20 sind `validated`, 18 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

@@ -1,0 +1,39 @@
+name: Phonetic bounded candidate qualification
+on:
+  pull_request:
+    paths:
+      - 'Modules/toolbelt.string.phonetic/**'
+      - 'Documentation/Architecture/PHONETIC_CONTRACT.md'
+      - '.github/workflows/phonetic-runtime.yml'
+  push:
+    paths:
+      - 'Modules/toolbelt.string.phonetic/**'
+      - '.github/workflows/phonetic-runtime.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-and-offline:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: microsoft/setup-msbuild@v2
+      - name: Source contracts
+        run: python Modules/toolbelt.string.phonetic/Tests/Static/validate_contract.py
+      - name: One product build and bounded candidate consumption
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $module=Join-Path $env:GITHUB_WORKSPACE 'Modules/toolbelt.string.phonetic'
+          $output=Join-Path $env:RUNNER_TEMP ('tbxph-'+[Guid]::NewGuid().ToString('N'))
+          $msbuild=(Get-Command msbuild.exe -ErrorAction Stop).Source
+          & (Join-Path $module 'Scripts/New-ClrReleaseArtifacts.ps1') -MSBuildPath $msbuild -OutputDirectory $output
+          $manifest=Get-Content -LiteralPath (Join-Path $output 'Toolbelt.String.Phonetic.trust-manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+          $csc=Join-Path (Split-Path -Parent $msbuild) 'Roslyn/csc.exe'
+          $references=Join-Path ([Environment]::GetEnvironmentVariable('ProgramFiles(x86)')) 'Reference Assemblies/Microsoft/Framework/.NETFramework/v4.8'
+          & (Join-Path $module 'Tests/Framework/run-framework-phonetic.ps1') -AssemblyPath (Join-Path $output 'Toolbelt.String.Phonetic.dll') -ExpectedAssemblySHA256 $manifest.sha256 -CscPath $csc -FrameworkReferenceDirectory $references -EvidenceDirectory (Join-Path $output 'Framework')
+      # Kein SQL/Trust/Lab. Nur konkrete neue Kandidatenbytes.

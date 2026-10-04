@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 37 Module implementiert – 17 teilweise validiert](https://img.shields.io/badge/Status-37%20Module%20implementiert%20%7C%2017%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 38 Module implementiert – 18 teilweise validiert](https://img.shields.io/badge/Status-38%20Module%20implementiert%20%7C%2018%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -58,7 +58,7 @@ SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte
 
 `toolbelt.json.constructors` 1.1.0 implementiert die beiden einzeln freigegebenen Gruppen-USPs über den gemeinsamen T-SQL-Kern. Auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 bestanden lokal und zentral die API-/100000-/16-MiB-/Clientprüfungen als Teil insgesamt fehlgeschlagener früherer Läufe. Die finalen fokussierten Läufe mit ausschließlich InstalledMetadata.Contract.sql als Runtime-Auswahl bestanden Metadaten, genuine 1.0-Upgrades, Lifecycle, Central und eigene Bereinigung. Neue Minimalrechte bleiben offen; die Uninstall-Voraussetzung VIEW DEFINITION/SELECT wurde am 2026-10-02 einzeln freigegeben und die neue Gateumsetzung bestand fokussierte native Lifecycle-Läufe, negative CI-Injektionen bleiben offen; aktuelle CI wird als separater PR-Mergegate nachgewiesen. Teilweise validiert und unveröffentlicht; historische 1.0-Evidenz bleibt getrennt.
 
-**Der Repository-Grundaufbau ist abgeschlossen. 37 Module sind implementiert; 20 sind `validated`, 17 sind `partially validated`, 0 sind `not executed`, alle sind `unreleased`.**
+**Der Repository-Grundaufbau ist abgeschlossen. 38 Module sind implementiert; 20 sind `validated`, 18 sind `partially validated`, 0 sind `not executed`, alle sind `unreleased`.**
 
 [`toolbelt.pseudonymization.deterministic`](./Modules/toolbelt.pseudonymization.deterministic/README.md)
 liefert versionierte synthetische Range-, DateShift- und Pool-Lookup-Werte;
@@ -377,3 +377,10 @@ unveröffentlicht. [Vertrag](./Documentation/Architecture/TEXT_PAIRS_CONTRACT.md
 ## XLSX-Typinterpretation 1.1.0
 
 XLSX 1.1.0 ergänzt die einzeln freigegebene `TVF_InterpretXlsxCell` im bestehenden SAFE-Provider. Der finale öffentliche Typadapter bestand am 2026-10-02 auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 jeweils lokal und zentral: drei Types-Runtime-Fixtures, exakte Zahlen-/100-ns-/NULL-/Clientmetadaten, clean/genuine 1.0/Repeat, Caller-TX OFF/ON intakt und doomed, AppLock, postDROP/preCOMMIT-Rollback, historische Zukunftsslots, Sichtbarkeitsprädikate, Uninstall und eigene Bereinigung. Raw→Type-Komposition wurde nach den API-CL-Schleifen auf der jeweils letzten CL (2019:150, 2025:170) sowie separat im zentralen Caller geprüft. Keine Konfigurations- oder Rechteänderungen. Die öffentliche Pfadfassung bestand nach ihrem unabhängig geprüften Port auf beiden ausgewählten Targets einschließlich frischer eigener Bereinigungsprüfungen. Aktuelle CI wird separat am exakten PR-Head als Mergegate geprüft. Tatsächliche Minimalrechte, weitere physische Ziele und Heap-/Produktionskapazität bleiben offen. `partially validated`, `unreleased`; historische Raw-1.0-Evidenz bleibt getrennt.
+
+
+Das neue Modul [toolbelt.string.phonetic](./Modules/toolbelt.string.phonetic/README.md)
+1.0.0 implementiert die einzeln freigegebenen Kölner- und Double-Metaphone-TVFs
+über eine eigene begrenzte SAFE-Assembly. Vollständige Codes, kein
+Vierzeichen-Clamp und keine optionale Normalisierung. Begrenzte Build-/Framework-/IL- und native Installations-, Fixture-, Client- und Lifecycleteilnachweise liegen vor. Java-Differential, vollständige Zielmatrix, Minimalrechte und aktuelle Head-CI bleiben offen; teilweise validiert und unveröffentlicht.
+[Begrenzte Evidenz](./Modules/toolbelt.string.phonetic/Tests/README.md).

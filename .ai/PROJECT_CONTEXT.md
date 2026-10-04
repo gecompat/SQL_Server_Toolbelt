@@ -39,7 +39,7 @@ werden in der Modul-Testdokumentation von den finalen Nachweisen getrennt.
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-37 Module sind implementiert. 20 sind `validated`, 17 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
+38 Module sind implementiert. 20 sind `validated`, 18 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
 `toolbelt.datetime.date-spine` implementiert D1 mit drei öffentlichen Inline
@@ -320,3 +320,13 @@ Stand 2026-10-03, Codex: die einzeln freigegebene Anzeige-TVF ist im bestehenden
 ## Tabellenklon W2 / 3.0.0 – begrenzte Nachweise
 
 Am 2026-10-04 bestanden begrenzte private Adapter auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/exakt CU8 CL170 ausschließlich lokal: Clean3 und genuine2→3 mit frischer Session, Repeat, resolved Consumer mit Deploy-/Uninstall-Ablehnung53926/1 und unverändertem Katalogsnapshot/gesunder Transaktion sowie Uninstall/Repeat. Je Lauf wurden zwei eigene Datenbanken entfernt; frische Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte-, Owner- oder Truständerungen. Linux: drei W2-Fixtures und eine W1-Regressionsfixture stammen als Teilnachweis aus einem historischen insgesamt fehlgeschlagenen Lauf; der identische Produkt- und Fixturestand wurde wiederverwendet und im finalen Lifecycle-PASS nicht erneut ausgeführt. Windows: dieselben vier Fixtures bestanden einmal in Clean3 im aktuellen erfolgreichen Lauf, nicht erneut im Upgradezyklus. Unresolved Consumer: NOT_ESTABLISHED. Keine vollständige Produktqualifikation; weitere Ziele/CL, zentrale V3-Nutzung, Minimalrechte, übrige Lifecycle-Negativfälle und aktuelle Head-CI bleiben offen. Status bleibt teilweise validiert und unveröffentlicht.
+
+
+## Phonetik 1.0.0 – begrenzte Teilnachweise
+
+toolbelt.string.phonetic implementiert ausschließlich die einzeln freigegebenen
+Kölner- und Double-Metaphone-TVFs über eine eigene SAFE-Assembly. Der vollständige
+Scanner ist begrenzt, ohne Vierzeichen-Clamp oder zusätzliche Normalisierung.
+Apache-Header/LICENSE/NOTICE und der markierte Port bleiben erhalten.
+Begrenzte Build-/Framework-/IL- und native Installations-, Fixture-, Client- und Lifecycleteilnachweise liegen vor. Java-Differential, vollständige Zielmatrix, Minimalrechte und aktuelle Head-CI bleiben offen; teilweise validiert und unveröffentlicht. Der Vertrag liegt in
+Documentation/Architecture/PHONETIC_CONTRACT.md.

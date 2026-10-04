@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <OutputType>Library</OutputType><RootNamespace>Toolbelt.String.Phonetic</RootNamespace>
+    <AssemblyName>Toolbelt.String.Phonetic</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion><LangVersion>7.3</LangVersion>
+    <Deterministic>true</Deterministic><CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType><Optimize>true</Optimize><OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup><Reference Include="System"/><Reference Include="System.Data"/></ItemGroup>
+  <ItemGroup><Compile Include="PhoneticInput.cs"/><Compile Include="CologneKernel.cs"/><Compile Include="DoubleMetaphoneKernel.cs"/><Compile Include="PhoneticBridge.cs"/><Compile Include="Properties\AssemblyInfo.cs"/></ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+</Project>

@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-37 Module sind implementiert. 20 sind `validated`, 17 sind `partially validated`; 0 sind `not executed`.
+38 Module sind implementiert. 20 sind `validated`, 18 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -340,7 +340,7 @@ danach die beiden sprachbezogenen Phonetikverfahren:
   rückfragen. Standardprojektgates, unabhängiger Review, scopebezogene
   Lab-Tests, grüne CI und PR-Merge gelten unverändert.
 
-Status Textvergleich: `ready for development`; keine Runtime-Evidenz.
+Status Phonetik 2026-10-04: Die individuelle Provider-/TVF-/Alphabet-/Fullcode-/Grenzfreigabe vom 2026-10-03 wurde nach unabhängigem Referenz-/Lizenz-/Bindingreview in den kanonischen [Phonetikvertrag](../Documentation/Architecture/PHONETIC_CONTRACT.md) übernommen. Genau zwei öffentliche IF und zwei interne FT verwenden die eigene SAFE-Assembly in toolbelt.string.phonetic 1.0.0; kein Vierzeichen-Clamp, kein Aspell-Bulkimport und keine neue Normalisierungsoption. Begrenzte Build-/Framework-/IL- und native Installations-, Fixture-, Client- und Lifecycleteilnachweise liegen vor. Java-Differential, vollständige Zielmatrix, Minimalrechte und aktuelle Head-CI bleiben offen; teilweise validiert und unveröffentlicht. Die [Testevidenz](../Modules/toolbelt.string.phonetic/Tests/README.md) trennt private Lab- und öffentliche Offline-CI-Scope. Die historischen Distanzfreigaben und deren Nachweise bleiben getrennt.
 
 Ergänzende konkrete Providerfreigabe 2026-10-02: Auf die Frage nach dem
 besprochenen dedizierten portablen SAFE-CLR-Provider für Levenshtein und OSA
