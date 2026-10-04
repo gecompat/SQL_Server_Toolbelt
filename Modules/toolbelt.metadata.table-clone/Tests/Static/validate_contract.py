@@ -16,7 +16,9 @@ signature = public.split('AS\nBEGIN',1)[0]
 actual = re.findall(r"@(\w+)\s+(nvarchar\(max\)|varchar\(16\)|sysname|bit|tinyint)\s*=\s*(NULL|0|'REJECT')",signature)
 assert actual == params, 'signature/default contract'
 core_signature = core.split('AS\nBEGIN', 1)[0]
-assert re.findall(r"@(\w+)\s+(nvarchar\(max\)|varchar\(16\)|sysname|bit|tinyint)\s*=\s*(NULL|0|'REJECT')", core_signature) == params, 'internal/public signature coupling'
+core_params = params[:9]+[('InternalPurpose','varchar(16)',"'PREVIEW'")]+params[9:]
+assert re.findall(r"@(\w+)\s+(nvarchar\(max\)|varchar\(16\)|sysname|bit|tinyint)\s*=\s*(NULL|0|'REJECT'|'PREVIEW')", core_signature) == core_params, 'internal purpose/public signature coupling'
+assert "@InternalPurpose='PREVIEW'" in public
 assert public.index('IF @Hilfe=1') < public.index("N'#tbx_TableClone_Plan'") < public.index('EXEC toolbelt_metadata.USP_ScriptTableCloneInternal\n')
 assert 'EXEC sys.sp_executesql @TableDdl' not in core and 'EXEC sys.sp_executesql @IndexDdl' not in core
 assert 'INSERT ... EXEC' not in core
@@ -138,7 +140,9 @@ lifecycle_fixture=(MOD/'Tests/Runtime/Lifecycle.Contract.sql').read_text(encodin
 assert "(7,N'@TableMap',N'sysname',256),(8,N'@ExternalReferenceRule',N'varchar',16)" in lifecycle_fixture
 assert "(9,N'@IncludeTriggers',N'bit',1)" in lifecycle_fixture
 assert "(13,N'@Hilfe',N'bit',1)" in lifecycle_fixture
-assert lifecycle_fixture.count("<>13") == 2
+assert lifecycle_fixture.count("<>13") == 1
+assert lifecycle_fixture.count("<>14") == 2
+assert "(10,N'@InternalPurpose',N'varchar',16)" in lifecycle_fixture
 
 # Beide Pässe erhalten aufgelöste Consumer und katalogäquivalente unaufgelöste sameDB-Namen.
 for lifecycle in (deploy,uninstall):
@@ -146,7 +150,7 @@ for lifecycle in (deploy,uninstall):
     assert lifecycle.count('referenced_server_name IS NULL') == 2
     assert lifecycle.count('referenced_database_name COLLATE DATABASE_DEFAULT=DB_NAME() COLLATE DATABASE_DEFAULT') == 2
     assert lifecycle.count("referenced_schema_name COLLATE DATABASE_DEFAULT=N'toolbelt_metadata' COLLATE DATABASE_DEFAULT") == 2
-    assert lifecycle.count("referenced_entity_name COLLATE DATABASE_DEFAULT IN(N'USP_ScriptTableClone',N'USP_ScriptTableCloneInternal',N'USP_ExecuteTableClone')") == 2
+    assert lifecycle.count("referenced_entity_name COLLATE DATABASE_DEFAULT IN(N'USP_ScriptTableClone',N'USP_ScriptTableCloneInternal',N'USP_ExecuteTableClone',N'USP_CopyTableCloneData')") == 2
 caps=(MOD/'Tests/Runtime/Wave2.Caps.sql').read_text(encoding='utf-8')
 for witness in ('@c<=1024','@i<=2045',"ObjectKind='CHECK')<>2045","ObjectKind='PRIMARY_KEY')<>1","ObjectKind='FOREIGN_KEY')<>1",'@Number<>53906','@State<>1','CK_SyntheticW2Count2046'):
     assert witness in caps
@@ -176,17 +180,17 @@ for option in ('ANSI_NULLS ON','ANSI_PADDING ON','ANSI_WARNINGS ON','ARITHABORT 
     'CONCAT_NULL_YIELDS_NULL ON','QUOTED_IDENTIFIER ON','NUMERIC_ROUNDABORT OFF'):
     assert f'SET {option};' in execute
 assert execute.index('EXEC toolbelt_core.USP_PrepareResultTable') < execute.index('COMMIT TRANSACTION;')
-for version in ('1.0.0','2.0.0','3.0.0','3.1.0','4.0.0'):
+for version in ('1.0.0','2.0.0','3.0.0','3.1.0','4.0.0','4.1.0'):
     assert f"CONVERT(varbinary(max),N'{version}')" in deploy+uninstall
 assert ':r ../Source/USP_ExecuteTableClone.sql' in deploy
 assert "VALUES(N'USP_ExecuteTableClone');" in uninstall
 assert uninstall.index("INSERT INTO @ReleaseObjects (ObjectName) VALUES(N'USP_ExecuteTableClone');") < uninstall.index("VALUES(N'USP_ScriptTableClone'),(N'USP_ScriptTableCloneInternal');",uninstall.index('DECLARE @ReleaseObjects TABLE'))
 for fixture in ('Execute.Contract.sql','Execute.Safety.sql'):
     assert (MOD/'Tests/Runtime'/fixture).is_file()
-assert "SET @Text=N'4.0.0';" in execute
-assert "frame('4.0.0')" in (MOD/'Examples/CalculatePlanHash.py').read_text(encoding='utf-8')
+assert "SET @Text=N'4.1.0';" in execute
+assert "frame('4.1.0')" in (MOD/'Examples/CalculatePlanHash.py').read_text(encoding='utf-8')
 assert '@IncludeTriggers' not in execute_signature
-print('Executor14 / Hash-v1 mit Release4.0 / triggerfreie Grenze gekoppelt; keine SQL-Ausführung.')
+print('Executor14 / Hash-v1 mit Release4.1 / triggerfreie Grenze gekoppelt; keine SQL-Ausführung.')
 
 # Gemeinsame Namespacegrenze schützt auch alle neu eingeführten AST-Temps.
 for temp in re.findall(r'CREATE TABLE\s+(#tbx_\w+)', core, re.IGNORECASE):
@@ -196,3 +200,28 @@ for fixture in ('Trigger.Contract.sql', 'Trigger.Safety.sql'):
     assert (MOD/'Tests/Runtime'/fixture).is_file()
 assert 'required_when: "Runtime: IncludeTriggers = 1' in (MOD/'module.yaml').read_text(encoding='utf-8')
 print('Trigger13 / interne Signatur / AST-Tempgrenze / opt-in Dependency gekoppelt; keine SQL-Ausführung.')
+
+# Neue Copy-Vertragskopplung; ausschließlich Source/Metadaten, keine Engine-Nachbildung.
+copy = (MOD/'Source/USP_CopyTableCloneData.sql').read_text(encoding='utf-8')
+copy_signature = copy.split('AS\nBEGIN',1)[0]
+copy_actual = re.findall(r"@(\w+)\s+(varchar\(16\)|bigint|sysname|bit|tinyint)\s*=\s*(NULL|0|100000|16777216)",copy_signature)
+assert copy_actual == [('TableMap','sysname','NULL'),('IdentityMode','varchar(16)','NULL'),
+    ('ConsistencyMode','varchar(16)','NULL'),('RowLimit','bigint','100000'),('PayloadByteLimit','bigint','16777216'),
+    ('ResultTable','sysname','NULL'),('KeepData','bit','0'),('Debug','tinyint','0'),('Hilfe','bit','0')]
+assert ':r ../Source/USP_CopyTableCloneData.sql' in deploy
+assert uninstall.index("INSERT INTO @ReleaseObjects (ObjectName) VALUES(N'USP_CopyTableCloneData');") < uninstall.index("INSERT INTO @ReleaseObjects (ObjectName) VALUES(N'USP_ExecuteTableClone');")
+assert copy.index('IF @Hilfe=1') < copy.index('IF @@TRANCOUNT<>0') < copy.index('CREATE TABLE #tbx_TableClone_CopyMapStage')
+assert copy.count("@InternalPurpose='COPY_FK'") == 2
+assert 'INSERT EXEC' not in copy.upper() and 'INSERT ... EXEC' not in copy.upper()
+for name in re.findall(r'CREATE TABLE\s+(#tbx_\w+)',core+copy,re.IGNORECASE):
+    assert f"N'tempdb..{name}'" in copy, f'Copy/Core collision guard missing: {name}'
+assert 'CREATE TABLE #Toolbelt_TableClone_CopyFkStage(' in copy
+assert "OBJECT_ID(N'tempdb..#Toolbelt_TableClone_CopyFkStage',N'U') IS NOT NULL" in copy
+assert '#tbx_TableClone_CopyFkStage' not in copy
+for fixture in ('Copy.Contract.sql','Copy.Safety.sql'):
+    assert (MOD/'Tests/Runtime'/fixture).is_file()
+groups = (MOD/'Tests/Runtime/Copy.Contract.sql').read_text(encoding='utf-8')+(MOD/'Tests/Runtime/Copy.Safety.sql').read_text(encoding='utf-8')
+assert re.findall(r"PRINT 'PASS TABLE_CLONE_COPY_GROUP([1-5])';",groups)==list('12345')
+assert 'COPY_FK' in core and "@CopyFk=0" in core
+assert "THROW 53943" in copy and 'DATALENGTH' in copy and 'COUNT_BIG' in copy
+print('Copy9 / summary5 / lifecycle4Slots / five fixture groups gekoppelt; Runtime nicht ausgeführt.')

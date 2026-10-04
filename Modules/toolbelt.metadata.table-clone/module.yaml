@@ -1,10 +1,10 @@
 module_id: "toolbelt.metadata.table-clone"
-module_name: "Table Clone Planner and Executor"
-version: "4.0.0"
+module_name: "Table Clone Planner, Executor and Data Copy"
+version: "4.1.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Begrenzte same-database DDL-Vorschau mit explizitem Windows-Trigger-Opt-in und hashgebundene triggerfreie Ausführung ausschließlich auf neue Ziele; keine Datenkopie."
+description: "SameDB-Vorschau, hashgebundener triggerfreier Executor und separat freigegebene begrenzte Datenkopie in leere formgleiche Ziele; gezielter Copy-/Lifecycle-/Client-/Identity-/SNAPSHOT-Scope bestanden, teilweise validiert und unveröffentlicht."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -50,6 +50,10 @@ objects:
     schema: "toolbelt_metadata"
     name: "USP_ExecuteTableClone"
     visibility: public
+  - type: USP
+    schema: "toolbelt_metadata"
+    name: "USP_CopyTableCloneData"
+    visibility: public
 permissions_required:
   - "EXECUTE; datenbankweite VIEW DEFINITION für vollständige FK-/Kollisionssicht"
   - "Lifecycle: vorhandenes DB-VIEW DEFINITION und SELECT sys.sql_expression_dependencies; failclosed53926/2, keine Rechteerteilung"
@@ -59,6 +63,8 @@ permissions_required:
   - "Executor: vorhandenes SERVER VIEW ANY DEFINITION und lesbare DB-/Server-Trigger-/Eventnotification-Kataloge; relevante DDL-Seiteneffekte blockieren"
   - "Executor: vorhandene CREATE TABLE-, Schema-ALTER- und REFERENCES-Rechte; keine Rechteerteilung"
   - "Trigger-Opt-in: vorhandenes SELECT auf vier Parser-TVFs und lesbare Assembly-/Modul-/Dependency-Kataloge; bestehender Parser-UNSAFE-/Trustvertrag unverändert"
+  - "Copy: vorhandene DB-VIEW DEFINITION, SELECT sys.sql_expression_dependencies/sys.security_predicates/sys.security_policies, Source-SELECT und Target-SELECT/INSERT; KEEP zusätzlich Identity-ALTER"
+  - "Copy nur bei fehlenden FKs: vorhandene Server-DDL-Vollsicht/lesbare Trigger-/Eventnotification-Kataloge und ALTER/REFERENCES; keine Rechteerteilung"
 collation_contract: "Identifierlookup DATABASE_DEFAULT; Scripttext und Resultshape Latin1_General_100_BIN2; Quellcollations explizit erhalten."
 data_type_contract: "Identifier nvarchar(max) ungekuerzt validieren; ScriptText nvarchar(max); Ordinal int; ObjectKind varchar(32); TargetName nvarchar(776); Resultspalten NOT NULL."
 help_contract_version: "1.0"
@@ -67,6 +73,8 @@ resultset_contracts:
     columns: ["Ordinal int NOT NULL", "ObjectKind varchar(32) NOT NULL", "TargetName nvarchar(776) NOT NULL", "ScriptText nvarchar(max) NOT NULL"]
   - name: "USP_ExecuteTableClone"
     columns: ["PlanHash varbinary(32) NOT NULL", "TablesCreated int NOT NULL", "StatementsExecuted int NOT NULL"]
+  - name: "USP_CopyTableCloneData"
+    columns: ["MappedTables int NOT NULL", "CopiedRows bigint NOT NULL", "PayloadBytes bigint NOT NULL", "CreatedForeignKeys int NOT NULL", "Status varchar(16) NOT NULL"]
 lifecycle_error_range: "53920-53929"
 clr:
   used: false
@@ -83,6 +91,7 @@ documentation:
   public_objects:
     - "Documentation/USP_ScriptTableClone.md"
     - "Documentation/USP_ExecuteTableClone.md"
+    - "Documentation/USP_CopyTableCloneData.md"
   internal_objects:
     - "Documentation/USP_ScriptTableCloneInternal.md"
   architecture:
@@ -91,6 +100,7 @@ documentation:
     - "../../Documentation/Architecture/TABLE_CLONE_WAVE2_CONTRACT.md"
     - "../../Documentation/Architecture/TABLE_CLONE_EXECUTE_CONTRACT.md"
     - "../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md"
+    - "../../Documentation/Architecture/TABLE_CLONE_DATA_COPY_CONTRACT.md"
   test_matrix:
     - "Tests/TABLE_CLONE_CONTRACT_TEST_MATRIX.md"
   evidence:
@@ -119,6 +129,8 @@ tests:
   execute_safety: "Tests/Runtime/Execute.Safety.sql"
   triggers: "Tests/Runtime/Trigger.Contract.sql"
   trigger_safety: "Tests/Runtime/Trigger.Safety.sql"
+  copy: "Tests/Runtime/Copy.Contract.sql"
+  copy_safety: "Tests/Runtime/Copy.Safety.sql"
   select_metadata: "Tests/Runtime/SelectMetadata.Contract.ps1"
   lab: "../../Tests/CI/run-table-clone-wave1-lab.ps1"
   linux_ci: "../../Tests/CI/run-table-clone-linux.sh"
@@ -149,4 +161,9 @@ validation_evidence:
   - date: "2026-10-04"
     workflow: "Begrenzter privater Trigger-Nativeadapter; unabhängige physische Prozess-/Journalprüfung"
     scope: "Version4.0.0: SQL Server 2025 Windows/exakt CU8 CL170 ausschließlich lokal. Beide Trigger-Fixtures einmal in Clean4: Map-/Header-/Qualifier-/CTE-/Aliasumschreibung, UTF16/Kommentare/Literale, SET-/Event-/FIRST-LAST-/Disabledzustand und tatsächliches AFTER-/INSTEAD-Verhalten; sieben atomare Negativfälle einschließlich externer AST-Ablehnung53903/19 und bestehender/geplanter Namenskollisionen. Clean4 und genuine3.1→4 mit frischer Session, Repeat, drei Slots/13-13-14 Parameter, unabhängiger Clienthash mit typgenauer dreispaltiger NOT-NULL/Binary32/EOF-Ausgabe, vier resolved-Consumer-Ablehnungen53926/1 und Uninstall/Repeat bestanden. Zwei eigene Datenbanken entfernt, temporärer exakter Parsertrust wiederhergestellt und vorbestehender ScriptDom-Trust erhalten; frischer Cleanup, vollständige Prozesskanäle/Journale/Inputpins unabhängig physisch geprüft. Keine Konfigurations-, Rechte- oder Owneränderung. Separater Linux2019/latest-CL150-Option0-/4.0-Hash-/Lifecycle-PASS wiederverwendet: nachfolgende Coreänderungen ausschließlich Option1 unabhängig sourcegeprüft, keine erneute Linux-Ausführung oder Linux-Triggerqualifikation behauptet. Frühere Fehlerläufe kein Gesamt-PASS. Weitere native Ziele/CL, zentrale4.0, Minimalrechte, serverweite negative Fixtures und unsichtbare/mehrdeutige Kontexte nicht ausgeführt; unresolved Consumer nicht etabliert. Head-CI separat im PR; teilweise validiert und unveröffentlicht."
+    result: "success"
+
+  - date: "2026-10-04"
+    workflow: "Begrenzter privater Datenkopie-Nativeadapter (PowerShell/SqlClient); unabhängige physische Prozess-/Journalprüfung"
+    scope: "Version4.1.0, normaler Scope: SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170 ausschließlich lokal. Copy.Contract.sql und Copy.Safety.sql mit fünf gruppierten Form-/KEEP-/REGENERATE-/Self-FK-/Byte-/FK-Zustands-/Safety-/Rollback-Orakeln je einmal Clean4.1 bestanden. Clean/Repeat, genuine4.0→4.1 aus unveränderten öffentlichen Blobs mit frischer Session, vier Slots13/14/14/9, vier resolved-Copy-Consumer-Ablehnungen53926/1, Uninstall/Repeat und fünffeldrige Clientausgabe mit genauen SQL-/CLR-Typen, NOT NULL, exakten Werten, EOF und keinem Folgeresult bestanden. Je zwei eigene Datenbanken entfernt; vollständige Prozesskanäle, Inputpins, Journale und frischer Cleanup-Audit unabhängig physisch geprüft. Keine Serverkonfigurations-, Rechte-, Owner- oder Truständerungen. Erster Linuxfehler51020/1 nach Installation kein PASS: privater FK-Brückenname korrigiert, betroffener Scope wiederholt. Zusätzlich auf Linux2019/latest CL150 vier dynamische Identity-Fälle bestanden: KEEP bei ursprünglichem OFF, spätes CHECK547 mit Rollback, vorbestehendes Target-ON und Other-ON mit Original8107; direkte INSERT-Proben in derselben Verbindung, Caller-TX/SET sowie vier typgenaue NOT-NULL-Witnesszeilen/EOF geprüft. SNAPSHOT-Quellkonsistenz und bis Ende gehaltene Targetsperren durch tatsächliche Sperrbeziehungen und konkurrierende Writes belegt; isolierter Nichtleer-Lauf beobachtet Blockierung und Original53944/1 mit gesunder Session und erhaltenen Targets. Identity und positiver SNAPSHOT-Fall sind abgeschlossene Teilnachweise aus insgesamt fehlgeschlagenen Adapterläufen; unveränderte Produktbytes geprüft und erfolgreiche Fälle nicht wiederholt. Adapterfehler266, Nichtleer-Rendezvous und Cleanup3701 kein PASS. SNAPSHOT ausschließlich in eigenen synthetischen DBs privat journalisiert, vorbereitet, wiederhergestellt; eigene DBs entfernt und Prozesskanäle/Pins/Journale/frische Bereinigung unabhängig physisch geprüft. Head-CI separat im Pull Request. Weitere native Ziele/CL, zentrale Nutzung, tatsächliche Minimalrechte, große Nutzdaten-/Heapmatrix und vollständige Produktqualifikation nicht ausgeführt; teilweise validiert und unveröffentlicht."
     result: "success"

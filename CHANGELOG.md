@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 2026-10-04 – Table Clone Datenkopie / 4.1.0
+
+- Einzeln freigegebene SameDB-Kopie in leere formgleiche Targets mit neun
+  Parametern und fünf NOT-NULL-Summaryfeldern. KEEP/REGENERATE und vorhandenes
+  SNAPSHOT/SERIALIZABLE ausdrücklich wählen;100000 Zeilen/16MiB nur absenkbar.
+- Bestehende passende FKs unverändert; fehlende gemappte Beziehungen nach Copy
+  durch den gemeinsamen internen Renderer anlegen. Keine Constraint-Deaktivierung,
+  Rechteerteilung oder automatische Konfiguration; Identity-Zählerfortschritt
+  trotz Rollback, kein RESEED.
+- Vier Lifecycle-Slots13/14/14/9. Fünf Copygruppen, Client und genuine4.0→4.1-
+  Lifecycle auf Linux2019/Windows2025 exaktCU8 bestanden; eigene Bereinigung
+  unabhängig geprüft. Vier dynamische Identity-Zustände und zwei SNAPSHOT-
+  Konkurrenzfälle auf Linux2019 gezielt nachgewiesen; abgeschlossene
+  Teilnachweise aus Fehlerläufen ausdrücklich getrennt wiederverwendet.
+  Head-CI separat im PR; teilweise validiert und unveröffentlicht.
+
 ## 2026-10-04 – Table Clone Trigger-Vorschau / 4.0.0
 
 - Einzeln freigegebenes Windows-Opt-in `IncludeTriggers=1` im bestehenden Planner;

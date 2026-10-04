@@ -79,7 +79,7 @@ try {
    . ([scriptblock]::Create($functionText))
   }
  }
- $moduleInputs=@('Source/USP_ScriptTableCloneInternal.sql','Source/USP_ScriptTableClone.sql','Source/USP_ExecuteTableClone.sql',
+ $moduleInputs=@('Source/USP_ScriptTableCloneInternal.sql','Source/USP_ScriptTableClone.sql','Source/USP_ExecuteTableClone.sql','Source/USP_CopyTableCloneData.sql',
   'Deployment/Deploy.sql','Deployment/Uninstall.sql','Deployment/New-LegacyTestArtifacts.ps1','module.yaml',
   'Tests/Runtime/Central.Contract.sql','Tests/Runtime/Lifecycle.Contract.sql',
   'Tests/Runtime/Lifecycle.CallerTransaction.Deploy.sql','Tests/Runtime/Lifecycle.CallerTransaction.Uninstall.sql',
@@ -1487,7 +1487,7 @@ DROP TABLE #HelperIdPlan;DROP TABLE dbo.SyntheticHelperIdSource;
     $stage='POSTLOCK_PADDING'
     foreach($installer in @($deploy,$uninstall)){
      $seam='DECLARE @CurrentInstalledVersion nvarchar(max);'
-     $mutation="EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.metadata.table-clone.Version',@value=N'4.0.0 ';`n"+$seam
+     $mutation="EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.metadata.table-clone.Version',@value=N'4.1.0 ';`n"+$seam
      Reject $c (Inject $installer $seam 0 $mutation) 53927
     }
     $stage='APPLOCK'
@@ -1500,7 +1500,7 @@ DROP TABLE #HelperIdPlan;DROP TABLE dbo.SyntheticHelperIdSource;
     foreach($marker in @('Version','DeploymentMode')){
      Sql $c ("EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.metadata.table-clone.$marker',@value=NULL;")
      try{foreach($installer in @($deploy,$uninstall)){Reject $c $installer 53923}}
-     finally{$value=if($marker -ceq 'Version'){'4.0.0'}else{$mode};Sql $c ("EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.metadata.table-clone.$marker',@value=N'$value';")}
+     finally{$value=if($marker -ceq 'Version'){'4.1.0'}else{$mode};Sql $c ("EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.metadata.table-clone.$marker',@value=N'$value';")}
     }
     if($mode -ceq 'central'){
      $stage='CENTRAL_CONSUMER'
@@ -1536,7 +1536,7 @@ DROP TABLE #HelperIdPlan;DROP TABLE dbo.SyntheticHelperIdSource;
     # Eigene synthetische Test-DB; kein beschädigtes Objekt wird adoptiert oder repariert.
     Sql $c 'DROP PROCEDURE toolbelt_metadata.USP_ScriptTableClone;'
     Sql $c 'CREATE FUNCTION toolbelt_metadata.USP_ScriptTableClone() RETURNS @r TABLE(Value int) AS BEGIN RETURN;END;'
-    Sql $c ("EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.metadata.table-clone',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone';EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'4.0.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone';EXEC sys.sp_addextendedproperty @name=N'Toolbelt.DeploymentMode',@value=N'$mode',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone';")
+    Sql $c ("EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.metadata.table-clone',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone';EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'4.1.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone';EXEC sys.sp_addextendedproperty @name=N'Toolbelt.DeploymentMode',@value=N'$mode',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone';")
     foreach($installer in @($deploy,$uninstall)){Reject $c $installer 53923}
    }
    Check-Pins;$record.State='TESTS_PASSED'

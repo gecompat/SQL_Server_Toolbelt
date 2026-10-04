@@ -1,4 +1,10 @@
-# Table Clone Executor / Hashlayout 1 / Modul 4.0.0
+# Table Clone Executor / Hashlayout 1 / Modul 4.1.0
+
+In4.1 bleibt der Executor14 unverändert triggerfrei; das Hashlayout1 bindet
+jetzt4.1.0. Historische4.0-Hashes sind keine gültigen4.1-Erwartungswerte.
+Die additive [Datenkopie](TABLE_CLONE_DATA_COPY_CONTRACT.md) verwendet eine eigene
+USP; neue4.1-Qualifikation und Head-CI sind noch nicht ausgeführt. Die folgenden
+4.0-/3.1-Nachweise bleiben historische Evidenz, keine aktuelle Aufwertung.
 
 Stand 2026-10-04, Codex. Die Funktion `USP_ExecuteTableClone` wurde am
 2026-10-01 einzeln freigegeben. Am 2026-10-04 bestätigte der Benutzer das
@@ -153,7 +159,7 @@ Der Header verwendet folgende feste Reihenfolge:
 
 ```text
 H0 = SHA256(
-  F(N'Toolbelt.TableClone.Execute.Hash') || I32(1) || F(N'4.0.0') ||
+  F(N'Toolbelt.TableClone.Execute.Hash') || I32(1) || F(N'4.1.0') ||
   I32(InstallDB_ID) || F(InstallDB_NAME) ||
   Bit(IncludeIdentity) || Bit(IncludeExtendedProperties) || Bit(MapMode) ||
   F(ExternalReferenceRule als nvarchar) || F(ForeignKeyMode als nvarchar) ||

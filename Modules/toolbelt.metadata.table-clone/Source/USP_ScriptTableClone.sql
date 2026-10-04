@@ -82,7 +82,7 @@ BEGIN
     EXEC toolbelt_metadata.USP_ScriptTableCloneInternal
         @SourceSchema=@SourceSchema,@SourceTable=@SourceTable,@TargetSchema=@TargetSchema,
         @TargetTable=@TargetTable,@IncludeIdentity=@IncludeIdentity,@IncludeExtendedProperties=@IncludeExtendedProperties,
-        @TableMap=@TableMap,@ExternalReferenceRule=@ExternalReferenceRule,@IncludeTriggers=@IncludeTriggers,
+        @TableMap=@TableMap,@ExternalReferenceRule=@ExternalReferenceRule,@IncludeTriggers=@IncludeTriggers,@InternalPurpose='PREVIEW',
         @ResultTable=@ResultTable,@KeepData=@KeepData,@Debug=@Debug,@Hilfe=0;
 END;
 GO
