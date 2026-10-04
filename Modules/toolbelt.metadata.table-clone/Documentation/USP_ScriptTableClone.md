@@ -1,6 +1,10 @@
 # USP_ScriptTableClone
 
-Version4.0.0, Trigger-Opt-in einzeln freigegeben2026-10-01 und konkretisiert2026-10-04; Script-only same-database. Umsetzung und neue Qualifikation sind getrennt von den historischen Nachweisen zu behandeln.
+Version4.1.0: die öffentliche13-Parameter-Vorschau bleibt unverändert; interner
+Zweckparameter nur im Core für die separat freigegebene Datenkopie.
+Trigger-Opt-in aus4.0 einzeln freigegeben2026-10-01 und konkretisiert2026-10-04;
+Script-only same-database. Neue4.1-Qualifikation noch nicht ausgeführt;
+historische Nachweise bleiben getrennt.
 Signatur: `SourceSchema nvarchar(max)=NULL`, `SourceTable nvarchar(max)=NULL`,
 `TargetSchema nvarchar(max)=NULL`, `TargetTable nvarchar(max)=NULL`,
 `IncludeIdentity bit=0`, `IncludeExtendedProperties bit=0`, `TableMap sysname=NULL`, `ExternalReferenceRule varchar(16)='REJECT'`, `IncludeTriggers bit=0`, `ResultTable sysname=NULL`, `KeepData bit=0`,

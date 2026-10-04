@@ -8,7 +8,7 @@ BEGIN
     DECLARE @Frames TABLE(Position int IDENTITY(1,1),Bytes varbinary(max) NOT NULL);
     INSERT @Frames VALUES(CONVERT(binary(4),DATALENGTH(N'Toolbelt.TableClone.Execute.Hash'))+CONVERT(varbinary(max),N'Toolbelt.TableClone.Execute.Hash')),
         (CONVERT(binary(4),CONVERT(int,1))),
-        (CONVERT(binary(4),DATALENGTH(N'4.0.0'))+CONVERT(varbinary(max),N'4.0.0')),
+        (CONVERT(binary(4),DATALENGTH(N'4.1.0'))+CONVERT(varbinary(max),N'4.1.0')),
         (CONVERT(binary(4),DB_ID())),
         (CONVERT(binary(4),DATALENGTH(DB_NAME()))+CONVERT(varbinary(max),DB_NAME())),
         (CONVERT(varbinary(max),0x0000)+CONVERT(binary(1),@MapMode)),

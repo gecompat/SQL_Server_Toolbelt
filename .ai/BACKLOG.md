@@ -249,6 +249,28 @@ nicht ausgeführt; der Modulstatus bleibt teilweise validiert.
 
 #### USP_CopyTableCloneData
 
+Umsetzungsstand 2026-10-04, Codex: Der bereits einzeln freigegebene Copy-Scope
+wird als Release4.1.0 konkret umgesetzt; [kanonischer Vertrag](../Documentation/Architecture/TABLE_CLONE_DATA_COPY_CONTRACT.md).
+Neun öffentliche Parameter, fünf NOT-NULL-Ergebnisfelder; Map64,100000 globale
+Zeilen und16MiB transportierte SQL-Nutzdaten, Caller nur absenkbar. Der bestehende
+interne Core erhält ausschließlich einen PREVIEW/COPY_FK-Zweckparameter, keine
+weitere öffentliche API. Vier Lifecycle-Slots13/14/14/9; die öffentliche
+Planner13- und Executor14-Signatur bleiben erhalten. Vorhandene DB-/DML-Sicht
+gilt immer; genehmigte Server-DDL-Vollsicht nur bei tatsächlich fehlenden FKs.
+Gemeinsame FK-Herleitung, exakte Form-/RLS-/Seiteneffektgates, Identity- und
+Rollbackgrenzen stehen im Vertrag. Keine automatische Konfiguration oder
+Rechteerteilung. Besprochene Punkte vom Benutzer abschließend mit „alles
+freigegeben“ bestätigt; Source, Runtime, unabhängige Prüfung und aktuelle
+Head-CI bleiben eigene Nachweise. Normale fünf Copygruppen, Client und
+Clean/genuine4.0→4.1-Lifecycle bestanden auf Linux2019 CL150 und Windows2025
+exaktCU8 CL170; eigene Bereinigung unabhängig geprüft. Vier dynamische Identity-
+Zustände und zwei gezielte SNAPSHOT-Konkurrenzfälle separat auf Linux2019
+bestanden. Abgeschlossene Teilnachweise aus insgesamt fehlgeschlagenen
+Adapterläufen werden bei unveränderten Produktbytes ausdrücklich getrennt
+wiederverwendet; keine Wiederholung erfolgreicher Fälle. Head-CI gesondert
+im PR, weiterhin teilweise validiert und unveröffentlicht. Historische4.0-
+Zeugen werden nicht zur Copyqualifikation umgedeutet.
+
 Zusatzfreigabe 2026-10-04: Der Benutzer bestätigte ausdrücklich maximal
 100000 Zeilen und 16 MiB Nutzdaten, durch Caller absenkbar, sowie die
 Rollbackgrenze bei Identity-Zählerfortschritt ohne automatisches RESEED.

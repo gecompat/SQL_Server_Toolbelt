@@ -129,6 +129,9 @@ done
 # keine erneute Executor-CL-Schleife oder Wiederholung historischer Grenzfixtures.
 run_file "${local_database}" "${runtime_directory}" Execute.Contract.sql
 run_file "${local_database}" "${runtime_directory}" Execute.Safety.sql
+# Fünf neue Copy-Gruppen genau einmal auf dem höchsten Ziel-CL; keine alte Vollmatrix erneut.
+run_file "${local_database}" "${runtime_directory}" Copy.Contract.sql
+run_file "${local_database}" "${runtime_directory}" Copy.Safety.sql
 run_file "${local_database}" "${runtime_directory}" MinimumRights.Contract.sql
 # Neue Byte- und Predicategrenzen einmal lokal; keine doppelte Vollmatrix.
 run_file "${local_database}" "${runtime_directory}" Wave1.Bytes.sql
@@ -142,11 +145,11 @@ fi
 # Wrong-kind bleibt trotz imitierter Id/Version unangetastet; danach explizite eigene Fixture-Restaurierung.
 run_query "${local_database}" "DROP PROCEDURE toolbelt_metadata.USP_ScriptTableClone;"
 run_query "${local_database}" "CREATE FUNCTION toolbelt_metadata.USP_ScriptTableClone() RETURNS @r TABLE(Value int) AS BEGIN RETURN; END;"
-run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.metadata.table-clone',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone'; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'4.0.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone';"
+run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.metadata.table-clone',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone'; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'4.1.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'FUNCTION',@level1name=N'USP_ScriptTableClone';"
 expect_failure 53923 run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
 run_query "${local_database}" "IF OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone',N'TF') IS NULL THROW 54920,N'Wrong-kind wurde verändert.',11; DROP FUNCTION toolbelt_metadata.USP_ScriptTableClone;"
 run_file "${local_database}" "/workspace/Modules/toolbelt.metadata.table-clone/Source" USP_ScriptTableClone.sql
-run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.metadata.table-clone',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'PROCEDURE',@level1name=N'USP_ScriptTableClone'; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'4.0.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'PROCEDURE',@level1name=N'USP_ScriptTableClone';"
+run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.metadata.table-clone',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'PROCEDURE',@level1name=N'USP_ScriptTableClone'; EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'4.1.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'PROCEDURE',@level1name=N'USP_ScriptTableClone';"
 run_query "${local_database}" "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.DeploymentMode',@value=N'local',@level0type=N'SCHEMA',@level0name=N'toolbelt_metadata',@level1type=N'PROCEDURE',@level1name=N'USP_ScriptTableClone';"
 run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
@@ -171,10 +174,10 @@ expect_failure 53926 run_file "${local_database}" "${deployment_directory}" Unin
 run_query "${local_database}" "DROP PROCEDURE dbo.SyntheticCloneConsumer;"
 run_file "${local_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=0
 run_file "${local_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=0
-run_query "${local_database}" "IF OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone') IS NOT NULL OR OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal') IS NOT NULL OR OBJECT_ID(N'toolbelt_metadata.USP_ExecuteTableClone') IS NOT NULL THROW 54920,N'Uninstall unvollständig.',9;"
+run_query "${local_database}" "IF OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableClone') IS NOT NULL OR OBJECT_ID(N'toolbelt_metadata.USP_ScriptTableCloneInternal') IS NOT NULL OR OBJECT_ID(N'toolbelt_metadata.USP_ExecuteTableClone') IS NOT NULL OR OBJECT_ID(N'toolbelt_metadata.USP_CopyTableCloneData') IS NOT NULL THROW 54920,N'Uninstall unvollständig.',9;"
 run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
-for object_name in USP_ScriptTableClone USP_ScriptTableCloneInternal USP_ExecuteTableClone; do
+for object_name in USP_ScriptTableClone USP_ScriptTableCloneInternal USP_ExecuteTableClone USP_CopyTableCloneData; do
     collision_database="tbx_table_clone_collision_${object_name}"
     create_database "${collision_database}" "Latin1_General_100_CI_AS"
     foreign_object_name="${object_name,,}"

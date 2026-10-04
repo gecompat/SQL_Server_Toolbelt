@@ -49,8 +49,8 @@ Erhalt nicht qualifiziert, kein vollständiges Cloneframework.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-04`
-- Nachweis: `Begrenzter privater Trigger-Nativeadapter; unabhängige physische Prozess-/Journalprüfung`
-- Scope: Version4.0.0: SQL Server 2025 Windows/exakt CU8 CL170 ausschließlich lokal. Beide Trigger-Fixtures einmal in Clean4: Map-/Header-/Qualifier-/CTE-/Aliasumschreibung, UTF16/Kommentare/Literale, SET-/Event-/FIRST-LAST-/Disabledzustand und tatsächliches AFTER-/INSTEAD-Verhalten; sieben atomare Negativfälle einschließlich externer AST-Ablehnung53903/19 und bestehender/geplanter Namenskollisionen. Clean4 und genuine3.1→4 mit frischer Session, Repeat, drei Slots/13-13-14 Parameter, unabhängiger Clienthash mit typgenauer dreispaltiger NOT-NULL/Binary32/EOF-Ausgabe, vier resolved-Consumer-Ablehnungen53926/1 und Uninstall/Repeat bestanden. Zwei eigene Datenbanken entfernt, temporärer exakter Parsertrust wiederhergestellt und vorbestehender ScriptDom-Trust erhalten; frischer Cleanup, vollständige Prozesskanäle/Journale/Inputpins unabhängig physisch geprüft. Keine Konfigurations-, Rechte- oder Owneränderung. Separater Linux2019/latest-CL150-Option0-/4.0-Hash-/Lifecycle-PASS wiederverwendet: nachfolgende Coreänderungen ausschließlich Option1 unabhängig sourcegeprüft, keine erneute Linux-Ausführung oder Linux-Triggerqualifikation behauptet. Frühere Fehlerläufe kein Gesamt-PASS. Weitere native Ziele/CL, zentrale4.0, Minimalrechte, serverweite negative Fixtures und unsichtbare/mehrdeutige Kontexte nicht ausgeführt; unresolved Consumer nicht etabliert. Head-CI separat im PR; teilweise validiert und unveröffentlicht.
+- Nachweis: `Begrenzter privater Datenkopie-Nativeadapter (PowerShell/SqlClient); unabhängige physische Prozess-/Journalprüfung`
+- Scope: Version4.1.0, normaler Scope: SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170 ausschließlich lokal. Copy.Contract.sql und Copy.Safety.sql mit fünf gruppierten Form-/KEEP-/REGENERATE-/Self-FK-/Byte-/FK-Zustands-/Safety-/Rollback-Orakeln je einmal Clean4.1 bestanden. Clean/Repeat, genuine4.0→4.1 aus unveränderten öffentlichen Blobs mit frischer Session, vier Slots13/14/14/9, vier resolved-Copy-Consumer-Ablehnungen53926/1, Uninstall/Repeat und fünffeldrige Clientausgabe mit genauen SQL-/CLR-Typen, NOT NULL, exakten Werten, EOF und keinem Folgeresult bestanden. Je zwei eigene Datenbanken entfernt; vollständige Prozesskanäle, Inputpins, Journale und frischer Cleanup-Audit unabhängig physisch geprüft. Keine Serverkonfigurations-, Rechte-, Owner- oder Truständerungen. Erster Linuxfehler51020/1 nach Installation kein PASS: privater FK-Brückenname korrigiert, betroffener Scope wiederholt. Zusätzlich auf Linux2019/latest CL150 vier dynamische Identity-Fälle bestanden: KEEP bei ursprünglichem OFF, spätes CHECK547 mit Rollback, vorbestehendes Target-ON und Other-ON mit Original8107; direkte INSERT-Proben in derselben Verbindung, Caller-TX/SET sowie vier typgenaue NOT-NULL-Witnesszeilen/EOF geprüft. SNAPSHOT-Quellkonsistenz und bis Ende gehaltene Targetsperren durch tatsächliche Sperrbeziehungen und konkurrierende Writes belegt; isolierter Nichtleer-Lauf beobachtet Blockierung und Original53944/1 mit gesunder Session und erhaltenen Targets. Identity und positiver SNAPSHOT-Fall sind abgeschlossene Teilnachweise aus insgesamt fehlgeschlagenen Adapterläufen; unveränderte Produktbytes geprüft und erfolgreiche Fälle nicht wiederholt. Adapterfehler266, Nichtleer-Rendezvous und Cleanup3701 kein PASS. SNAPSHOT ausschließlich in eigenen synthetischen DBs privat journalisiert, vorbereitet, wiederhergestellt; eigene DBs entfernt und Prozesskanäle/Pins/Journale/frische Bereinigung unabhängig physisch geprüft. Head-CI separat im Pull Request. Weitere native Ziele/CL, zentrale Nutzung, tatsächliche Minimalrechte, große Nutzdaten-/Heapmatrix und vollständige Produktqualifikation nicht ausgeführt; teilweise validiert und unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -88,3 +88,27 @@ Am 2026-10-04 bestanden begrenzte private Adapter auf SQL Server 2019 Linux/late
 | Übrige Matrix, Minimalrechte, aktuelle Head-CI | Nicht aus diesen Nachweisen abgeleitet | OFFEN |
 
 Die Caps-Fixture umfasst Map64/65, zwei getrennte1024-Spaltentabellen sowie2048/2049 Childobjekt-/FK-Spaltentupel mit FK-Dedup. Ein normaler1025ter Spaltenkatalog ist nicht herstellbar; dafür wird kein Negativnachweis behauptet. Separate zusätzliche128Index-/2MiB-Grenzläufe, umfassende KeepData-/Caller-/Namespace-Negativfälle und disabled/trusted-Sonderformen bleiben offen.
+## Copy4.1 – fünf gezielt ausgeführte Gruppen
+
+| Gruppe | Gezieltes Orakel | Stand |
+|---|---|---|
+| 1 | Spaltenpositionen trotz unterschiedlicher column_id-Lücken; KEEP, NULL, exakte29 Nutzdatenbytes, bestehender passender FK | PASS Linux2019 CL150 / Windows2025 exaktCU8 CL170 |
+| 2 | Identity-only drei DEFAULT VALUES/0Bytes; normale REGENERATE-Kopie; Self-FK KEEP und Identity-Beziehungsablehnung | Dieselben Ziele PASS |
+| 3 | Fehlende zyklische FKs nach Copy mit erhaltenen Zuständen; bestehender aktiver Zyklus und externe Referenz abgelehnt | Dieselben Ziele PASS |
+| 4 | Globale Rows/Bytes, Form, nichtleeres Target, zusätzlicher Target-FK, fremde Core-/FK-Temps; Help/Caller-TX/SET | Dieselben Ziele PASS |
+| 5 | Spätes ResultTable-CHECK: Original547, eigene Daten/FK-DDL/Ausgabe gemeinsam zurückgerollt | Dieselben Ziele PASS |
+
+Lifecycle-Metadaten: vier P-Slots 13/14/14/9 und Release4.1-Sourcehashes.
+Der Executor behält Hash-v1 und14 Parameter; nur die Releasebindung ist4.1.
+Alle Gruppen einmal je Cleanzyklus am2026-10-04. Clean/Repeat, genuine4.0→4.1,
+Copy-Consumer-Gates, Uninstall/Repeat und typgenaue Clientmetadata/EOF bestanden;
+eigene Bereinigung und physische Nachweise unabhängig geprüft.
+Vier dynamische Identity-Scope-/Caller-ON-Fälle sowie SNAPSHOT-Quellkonsistenz,
+gehaltene Target-X-Sperren und aktuelles Nichtleer-Gate53944/1 auf Linux2019
+CL150 separat nachgewiesen. Identity und positiver SNAPSHOT-Fall sind fertige
+Teilnachweise aus insgesamt fehlgeschlagenen Adapterläufen; unveränderte
+Produktbytes geprüft, keine Wiederholung. Isolierter Nichtleer-Lauf vollständig
+bestanden; eigene DB-Option wiederhergestellt, DBs entfernt und physische
+Nachweise/Bereinigung unabhängig geprüft. Head-CI separat im PR.
+Keine unveränderte Vollmatrix erneut,
+keine Head-CI-/Lowpriv-/Heap-/weitere Plattformbehauptung aus Testcode.

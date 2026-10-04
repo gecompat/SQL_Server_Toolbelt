@@ -67,12 +67,12 @@ Zentraler dreiteiliger Aufruf bedeutet Ausführung in der Installationsdatenbank
 ## Erwarteter Hash
 
 Das versionierte Byteframing ist vollständig im Executor-Vertrag beschrieben.
-Der Client berechnet ihn aus dem triggerfreien4.0-Vorschauresult, den exakt
+Der Client berechnet ihn aus dem triggerfreien4.1-Vorschauresult, den exakt
 verwendeten Identifiern und Optionen sowie der Installationsdatenbankidentität.
 Es gibt keine neue öffentliche Hash- oder Vorschau-API. Ein Hash ist keine
 Berechtigung und keine allgemeine Driftgarantie.
-Hashlayout1 bindet jetzt das Modulrelease4.0.0; historische3.1-Hashes sind
-damit kein gültiger4.0-Erwartungswert. IncludeTriggers bleibt0 und gehört
+Hashlayout1 bindet jetzt das Modulrelease4.1.0; historische3.1-/4.0-Hashes sind
+damit kein gültiger4.1-Erwartungswert. IncludeTriggers bleibt0 und gehört
 nicht zur unveränderten14-Parameter-Executorsignatur.
 
 ```sql

@@ -530,3 +530,13 @@ RelatedReference: `TC-2026-044`. Datierte Revision der bestehenden funktionsbezo
 Einzeln freigegebene Map-/FK-Erweiterung der vorhandenen Script-only-Prozedur; Benutzerentscheidung2026-10-03 zu Positionsbruch sowie FK-Property-/Zustandsgrenzen. [Vertrag](TABLE_CLONE_WAVE2_CONTRACT.md). Exakte2048Countdefinition und getrennte1024/128/64/2MiB-Grenzen dort; keine Provider-/Rights-/Execute-API. Neue Native-/CI-Qualifikation offen.
 
 Status: accepted; Sourceimplementierung, neue Runtime-/CI-Qualifikation offen. Alternative eigenständiger MultiTable-Wrapper oder SMO/CLR verworfen: duplizierter W1-Kern beziehungsweise zusätzlicher Provider. Auswirkungen: dokumentierter Positionsbruch; W1 benannte Aufrufe fachlich unverändert, keine Ownership-/DDL-Ausführung.
+
+## Datierter Entscheidungsstand 2026-10-04: begrenzte Tabellenklon-Datenkopie
+
+RelatedReference: `TC-2026-044`. Revision der bereits funktionsbezogen freigegebenen Clone-Folgefunktion; keine neue finale Sequenzreferenz.
+
+Status: accepted; neue Copy-Runtime und Head-CI noch nicht ausgeführt.
+Entscheidung: SameDB-Datenkopie mit expliziter Map, leeren formgleichen Zielen, KEEP/REGENERATE und vorhandenem SNAPSHOT/SERIALIZABLE. Gemeinsame interne FK-Herleitung, neun öffentliche Parameter/fünf Summaryfelder, vier Lifecycle-Slots. Die einzeln bestätigten100000-Zeilen-/16MiB- und Identity-Rollback-/nachgelagertenFK-/DDL-Vollsichtgrenzen sind kanonisch im [Datenkopievertrag](TABLE_CLONE_DATA_COPY_CONTRACT.md) und Backlog dokumentiert.
+Begründung: Bestehende Tabellenform und FK-Renderer vermeiden doppelte Fachlogik; eigene Transaktion koppelt Daten, fehlende FKs und ResultTable-Ausgabe. Vorhandene passende Constraints bleiben erhalten. Keine freie SQL-Ausführung, automatische Konfiguration oder Rechtevergabe.
+Alternativen: Merge/Upsert, CrossDB-Transport, heimliches Constraintdisable, RESEED und zusätzliche öffentliche FK-Helper sind ausgeschlossen. Identity-Zähler und externe Commit-/Netzwerkeffekte bleiben ausdrücklich außerhalb umfassender Rollbackzusagen.
+Betroffene Verträge: TABLE_CLONE_DATA_COPY_CONTRACT.md, TABLE_CLONE_WAVE2_CONTRACT.md, TABLE_CLONE_EXECUTE_CONTRACT.md, USP_CONTRACT.md, toolbelt.metadata.table-clone, .ai/BACKLOG.md.
