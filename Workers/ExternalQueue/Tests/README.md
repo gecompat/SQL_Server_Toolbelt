@@ -93,3 +93,18 @@ kein erfolgreicher Ausführungsnachweis.
 ## Managed Welle 2: gezielte aktuelle Evidenz
 
 Der fokussierte Managedlauf mit `Tests/CI/run-external-queue-worker-lab.ps1 -Platform windows -Version 2025 -Patch CU8 -ManagedOnly` bestand am 2026-10-05 einschließlich eigenem Cleanup. Der [Worker-Control-Nachweis](../../../Modules/toolbelt.core.worker-control/Tests/README.md) trennt die tatsächlich beobachteten Betriebs-, Stop-, Release-, Wettlauf- und Controltimeoutfälle von offenen Host-/Committransportfaults und Rechtekontexten. SQL-Verträge und sechs echte Lifecycle-Abweisungen bestanden separat auf 2019 Linux und 2025 Windows/CU8; echter Queue-Upgrade auf 2019 Linux. Ein Windows-Worker gegen ein Linux-SQL-Ziel ist kein Linux-Workerhost-Nachweis; dieser wird durch die passende aktuelle CI gesondert erbracht.
+
+## Historischer Queue-Capture: Helperkopplung2026-10-05
+
+Die bekannte Prozesshelper-Pin ist nach der qualifizierten Erweiterung seiner
+Timeoutobergrenze von120000 auf900000 Millisekunden aktualisiert. Der Capture
+selbst bleibt auf5000 Millisekunden je Prozess und60000 insgesamt begrenzt;
+Queue2.0-Commit,15 Originalblobs und14 Includebindungen bleiben unverändert.
+Änderungen des Helpers lösen jetzt auch die Worker-CI und Work-Queue-
+Impactprüfung aus. Kein Abschwächen der Hash- oder historischen Blobprüfung.
+
+Der vorherige Linux-CI-Lauf scheiterte vor der Migration mit
+`HISTORICAL_PROCESS_HELPER`; dies bleibt ein fehlgeschlagener Lauf.
+Ein tatsächlicher Offlinecapture mit dem korrigierten exakten Helperpin
+bestand am2026-10-05:15 Blob-Identitäten und Bytes,14 Includes, Manifest und
+abschließende Toolpins. Neue SQL-Migrations-CI bleibt ein separater Nachweis.

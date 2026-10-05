@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "Workers/ExternalQueue/**"
+      - "Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1"
       - "Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md"
       - "Documentation/Architecture/WORKER_CONTROL_CONTRACT.md"
       - "Modules/toolbelt.core.work-queue/**"
@@ -17,6 +18,7 @@ on:
     branches: [main]
     paths:
       - "Workers/ExternalQueue/**"
+      - "Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1"
       - ".github/workflows/external-queue-worker.yml"
   workflow_dispatch:
 

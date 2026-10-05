@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-05 – Historischer Queue-Capture: aktuelle Helperkopplung
+
+- Exakten Prozesshelperpin nach qualifizierter Timeout-Erweiterung aktualisiert;
+  historische Queue2.0-Blobs und Capturebudgets unverändert. Helperänderungen
+  sind jetzt in Worker-CI und Work-Queue-Impact registriert.
+- Offlinecapture aller15 Originalblobs/14 Includes bestanden; neue native
+  Migrations-CI separat. Vorheriger Helperpin-Fehler bleibt fehlgeschlagen.
+
+
 ## 2026-10-05 – JSON Schema1.0, gemeinsamer Core1.0 und Constructors1.3
 
 - Freigegebene `USP_ValidateJsonSchema` mit Profil `toolbelt-2020-12-v1`,

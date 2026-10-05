@@ -802,6 +802,7 @@ change_impact:
     work_queue_contract:
       paths:
         - Workers/ExternalQueue/**
+        - Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1
         - Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md
         - Documentation/Architecture/WORKER_CONTROL_CONTRACT.md
         - Tests/CI/run-external-queue-worker-lab.ps1
