@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param([Parameter(Mandatory)][ValidateSet('linux','windows')][string]$Platform,
  [Parameter(Mandatory)][ValidateSet('2019','2025')][string]$Version,
- [Parameter(Mandatory)][string]$Patch,[ValidateSet(150,170)][int]$CompatibilityLevel=150,
+ [Parameter(Mandatory)][string]$Patch,[ValidateSet(150,160,170)][int]$CompatibilityLevel=150,
  [ValidateSet('core-schema','constructors','migration')][string]$QualificationScope='core-schema',
  [ValidateSet('local','central')][string[]]$DeploymentModes=@('local','central'),
  [ValidateSet('JsonAggregates.Contract.sql','JsonConstructors.Contract.sql','JsonGroups.Contract.sql','InstalledMetadata.Contract.sql')]

@@ -31,7 +31,7 @@ IL-Prüfung zertifiziert keine transitive Framework-SAFE-Kompatibilität.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: run-json-schema-lab.ps1`
-- Scope: Linux2019/latest CL150 und Windows2025/CU8 CL170: Core-/Schema local/central, Repeat, zwei Consumer-Abweisungen, eigenes Cleanup und Coreidentität nach Schema-DROP bestanden. Genuine1.2→1.3 beide Ziele local/central samt post-DROP-Rollback, vier Constructor-Fixtures und unveränderten fünf Procedureidentitäten bestanden. Frische hashgebundene Dispositionaudits beider aktueller Core-/Schema-/Migrationsscopes bestanden. Weitere Lifecycle-/Zielmatrix und minimale Rechte offen.
+- Nachweis: `local: run-json-schema-lab.ps1 Windows CL150/160`
+- Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central: Core-/Schema-Scope, Repeat, zwei Consumer-Abweisungen, Coreidentität nach Schema-DROP und eigenes DB-/Trustcleanup bestanden. Frische hashgebundene read-only Dispositionaudits bestanden. Keine neue Constructorsmigration oder volle Ziel-/Rechtematrix.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-05 – JSON-Schema/Core: Windows-CL150/160-Qualifikation
+
+- Derselbe begrenzte Core-/Schema-Scope bestand auf Windows2025/exaktCU8
+  zusätzlich mit CL150 und CL160 jeweils local/central:30 Contractfälle,
+  Safety/Client/Lifecycle und frische unabhängige Dispositionaudits.
+- Labadapter erlaubt150/160/170; exakter Linux2019-Guard bleibt150.
+  Öffentliche SQL-Verträge und bekannte DLLs unverändert. Keine zusätzliche
+  Constructor-/Migrations-, Minimalrechte- oder vollständige Zielqualifikation.
+
+
 ## 2026-10-05 – Historischer Queue-Capture: aktuelle Helperkopplung
 
 - Exakten Prozesshelperpin nach qualifizierter Timeout-Erweiterung aktualisiert;
