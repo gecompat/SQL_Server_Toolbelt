@@ -1,4 +1,40 @@
 {
+  "toolbelt_conversion.TVF_TryCastBigInt": {
+    "summary": "Prüft ASCII-Ganzzahltext und den exakten bigint-Bereich; liefert Value, Status und ErrorCode.",
+    "examples": ["SELECT * FROM toolbelt_conversion.TVF_TryCastBigInt(N'-9223372036854775808', DEFAULT);"],
+    "requirements": ["Vorhandenes SELECT; genau eine Zeile, keine Seiteneffekte."],
+    "parameter_notes": {"@Text": "Optionales ASCII-Vorzeichen und Ziffern; keine Leerzeichen oder Localeformate.", "@MaxInputBytes": "Positives UTF16-Bytebudget bis8192; SQL_NULL hat Vorrang."}
+  },
+  "toolbelt_conversion.TVF_TryCastDecimal": {
+    "summary": "Prüft exakten decimal(38,18)-Bereich vor Skalenverlust; rundet niemals still.",
+    "examples": ["SELECT * FROM toolbelt_conversion.TVF_TryCastDecimal(N'99999999999999999999.9999999999999999991', DEFAULT);"],
+    "requirements": ["Vorhandenes SELECT; Bereichsüberschreitung ist OUT_OF_RANGE, sonst nichtnull Fractionrest LOSSY."],
+    "parameter_notes": {"@Text": "ASCII-Zahl mit optionalem Vorzeichen und optional Punkt/Ziffern; überzählige Nullstellen sind exakt entfernbar.", "@MaxInputBytes": "Positives UTF16-Bytebudget bis8192; keine dynamische Precision oder Scale."}
+  },
+  "toolbelt_conversion.TVF_TryCastDate": {
+    "summary": "Prüft exakt YYYY-MM-DD und den date-Kalenderbereich unabhängig von Sprache und DATEFORMAT.",
+    "examples": ["SELECT * FROM toolbelt_conversion.TVF_TryCastDate(N'2024-02-29', DEFAULT);"],
+    "requirements": ["Vorhandenes SELECT; keine Zeit- oder Localeinterpretation."],
+    "parameter_notes": {"@Text": "Genau zehn ASCII-Codeeinheiten; Kalenderfehler sind OUT_OF_RANGE.", "@MaxInputBytes": "Positives UTF16-Bytebudget bis8192."}
+  },
+  "toolbelt_conversion.TVF_TryCastDateTime2": {
+    "summary": "Prüft ISO-Datetime mit großem T und höchstens sieben Fractionziffern ohne Rundung oder Zeitzonenverlust.",
+    "examples": ["SELECT * FROM toolbelt_conversion.TVF_TryCastDateTime2(N'2024-02-29T23:59:59.1234567', DEFAULT);"],
+    "requirements": ["Vorhandenes SELECT; datetime2(7), keine Offset-/Zeitzoneninterpretation."],
+    "parameter_notes": {"@Text": "YYYY-MM-DDTHH:mm:ss, optional Punkt mit1..7 ASCII-Ziffern.", "@MaxInputBytes": "Positives UTF16-Bytebudget bis8192."}
+  },
+  "toolbelt_conversion.TVF_TryCastBit": {
+    "summary": "Akzeptiert ausschließlich den Text0 oder1; native permissive Bitkonversion bleibt ausgeschlossen.",
+    "examples": ["SELECT * FROM toolbelt_conversion.TVF_TryCastBit(N'2', DEFAULT);"],
+    "requirements": ["Vorhandenes SELECT; Bit2 und TRUE sind INVALID_FORMAT."],
+    "parameter_notes": {"@Text": "Exakt eine ASCII-Ziffer0/1; kein Vorzeichen oder Trim.", "@MaxInputBytes": "Positives UTF16-Bytebudget bis8192."}
+  },
+  "toolbelt_conversion.TVF_TryCastUniqueIdentifier": {
+    "summary": "Prüft vollständige GUID-Lexik im8-4-4-4-12-Muster vor Konversion; keine Suffixtrunkierung.",
+    "examples": ["SELECT * FROM toolbelt_conversion.TVF_TryCastUniqueIdentifier(N'00112233-4455-6677-8899-aabbccddeeff', DEFAULT);"],
+    "requirements": ["Vorhandenes SELECT; Hexbuchstaben upper/lower zulässig, keine Braces."],
+    "parameter_notes": {"@Text": "Genau36 ASCII-Hex-/Bindestrich-Codeeinheiten.", "@MaxInputBytes": "Positives UTF16-Bytebudget bis8192."}
+  },
   "toolbelt_archive.USP_CreateZipFileFromEntries": {
     "summary": "Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBinaryFile. Datei und SQL-Ausgabe sind nicht gemeinsam atomar.",
     "examples": [

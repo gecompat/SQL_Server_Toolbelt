@@ -1,5 +1,23 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## Aktive Safe-Cast-Welle 2026-10-05
+
+Die ausdrückliche Antwort „Diese sechs Funktionen freigegeben“ autorisiert
+nach Vertragsbesprechung in PR170 genau die sechs Inline-TVFs für bigint,
+decimal(38,18), date, datetime2(7), bit und uniqueidentifier. Je Value/Status/
+ErrorCode, strikte ASCII-/ISO-Lexik, höchstens8192 Inputbytes und keine stille
+Rundung. Exakter Bereich vor LOSSY sowie INVALID_ARGUMENT/PARAMETER wurden
+in der anschließenden Frage ausdrücklich eingeschlossen. Der
+[kanonische Vertrag](../Documentation/Architecture/SAFE_CAST_CONTRACT.md)
+und die datierte Einzelzustimmung in `.ai/BACKLOG.md` begrenzen die Umsetzung.
+Implementiert und teilweise validiert, unveröffentlicht. Finale Adapter auf
+Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 bestanden local/central/
+Consumer: je13104 API-Oracles,54 Clientreader und38 gezielte Lifecyclefälle.
+Frische unabhängige Audits bestätigen Inputpins, exakte Fixturewiederherstellung
+und die eigene Bereinigung. Drei frühere Gesamtfehlläufe bleiben getrennt.
+Weitere physische Ziele, Minimalrechte, Heap und exakte Head-CI sind separate Gates.
+Keine Pointer-/Schema-/Provider-/Veröffentlichungsfreigabe daraus abgeleitet.
+
 ## Aktive CSV-Memory-Welle 2026-10-05
 
 Die Antwort auf den konkret besprochenen CSV-Scope beauftragt dessen autonome
@@ -105,7 +123,7 @@ werden in der Modul-Testdokumentation von den finalen Nachweisen getrennt.
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-40 Module sind implementiert. 19 sind `validated`, 21 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
+41 Module sind implementiert. 19 sind `validated`, 22 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
 `toolbelt.datetime.date-spine` implementiert D1 mit drei öffentlichen Inline

@@ -115,6 +115,48 @@ SELECT toolbelt_conversion.SVF_IntegerToBase(255, '0123456789ABCDEF') AS ResultV
 SELECT toolbelt_conversion.SVF_TryBaseToInteger('FF', '0123456789ABCDEF') AS ResultValue;
 */
 
+-- toolbelt_conversion.TVF_TryCastBigInt
+-- Prüft ASCII-Ganzzahltext und den exakten bigint-Bereich; liefert Value, Status und ErrorCode.
+-- Voraussetzung: Vorhandenes SELECT; genau eine Zeile, keine Seiteneffekte.
+/* Separat auswählen und ausführen:
+SELECT * FROM toolbelt_conversion.TVF_TryCastBigInt(N'-9223372036854775808', DEFAULT);
+*/
+
+-- toolbelt_conversion.TVF_TryCastDecimal
+-- Prüft exakten decimal(38,18)-Bereich vor Skalenverlust; rundet niemals still.
+-- Voraussetzung: Vorhandenes SELECT; Bereichsüberschreitung ist OUT_OF_RANGE, sonst nichtnull Fractionrest LOSSY.
+/* Separat auswählen und ausführen:
+SELECT * FROM toolbelt_conversion.TVF_TryCastDecimal(N'99999999999999999999.9999999999999999991', DEFAULT);
+*/
+
+-- toolbelt_conversion.TVF_TryCastDate
+-- Prüft exakt YYYY-MM-DD und den date-Kalenderbereich unabhängig von Sprache und DATEFORMAT.
+-- Voraussetzung: Vorhandenes SELECT; keine Zeit- oder Localeinterpretation.
+/* Separat auswählen und ausführen:
+SELECT * FROM toolbelt_conversion.TVF_TryCastDate(N'2024-02-29', DEFAULT);
+*/
+
+-- toolbelt_conversion.TVF_TryCastDateTime2
+-- Prüft ISO-Datetime mit großem T und höchstens sieben Fractionziffern ohne Rundung oder Zeitzonenverlust.
+-- Voraussetzung: Vorhandenes SELECT; datetime2(7), keine Offset-/Zeitzoneninterpretation.
+/* Separat auswählen und ausführen:
+SELECT * FROM toolbelt_conversion.TVF_TryCastDateTime2(N'2024-02-29T23:59:59.1234567', DEFAULT);
+*/
+
+-- toolbelt_conversion.TVF_TryCastBit
+-- Akzeptiert ausschließlich den Text0 oder1; native permissive Bitkonversion bleibt ausgeschlossen.
+-- Voraussetzung: Vorhandenes SELECT; Bit2 und TRUE sind INVALID_FORMAT.
+/* Separat auswählen und ausführen:
+SELECT * FROM toolbelt_conversion.TVF_TryCastBit(N'2', DEFAULT);
+*/
+
+-- toolbelt_conversion.TVF_TryCastUniqueIdentifier
+-- Prüft vollständige GUID-Lexik im8-4-4-4-12-Muster vor Konversion; keine Suffixtrunkierung.
+-- Voraussetzung: Vorhandenes SELECT; Hexbuchstaben upper/lower zulässig, keine Braces.
+/* Separat auswählen und ausführen:
+SELECT * FROM toolbelt_conversion.TVF_TryCastUniqueIdentifier(N'00112233-4455-6677-8899-aabbccddeeff', DEFAULT);
+*/
+
 -- toolbelt_conversion.TVF_UriComponentEncode
 -- Codiert eine URI-Komponente mit UTF-8 und Prozent-Escapes nach RFC 3986.
 /* Separat auswählen und ausführen:

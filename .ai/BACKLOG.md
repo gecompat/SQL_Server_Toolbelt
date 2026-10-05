@@ -2,9 +2,38 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-40 Module sind implementiert. 19 sind `validated`, 21 sind `partially validated`; 0 sind `not executed`.
+41 Module sind implementiert. 19 sind `validated`, 22 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
+
+### RI-2026-076: sechs Safe-Cast-TVFs – einzeln freigegeben 2026-10-05
+
+Nach der Vertragsbesprechung in [PR170](https://github.com/gecompat/SQL_Server_Toolbelt/pull/170)
+und der konkreten anschließenden Frage antwortete der Benutzer ausdrücklich:
+„Diese sechs Funktionen freigegeben“. Damit sind genau `TVF_TryCastBigInt`,
+`TVF_TryCastDecimal`, `TVF_TryCastDate`, `TVF_TryCastDateTime2`, `TVF_TryCastBit`
+und `TVF_TryCastUniqueIdentifier` zur autonomen Umsetzung freigegeben.
+Reine Inline-T-SQL-TVFs, je Value/Status/ErrorCode, strikte ASCII-/ISO-Lexik,
+decimal(38,18), datetime2(7), maximal8192 Inputbytes, keine stille Rundung;
+die explizite Zustimmung umfasst exakte Bereichsprüfung vor LOSSY und
+INVALID_ARGUMENT/PARAMETER bei ungültigen Budgets. Zweck, native Alternative,
+Optimizer-, Locale-, Trunkierungs- und Rundungsrisiken wurden besprochen.
+
+Der [kanonische Vertrag](../Documentation/Architecture/SAFE_CAST_CONTRACT.md)
+konkretisiert die Umsetzung. Status: implementiert, `partially validated`,
+`unreleased`. Finale lokale Adapter auf Linux2019/latest CL150 und Windows2025/
+exaktCU8 CL170 bestanden local/central und mit separatem Consumer: je13104
+API-Oracles,54 Clientreader und38 gezielte Lifecyclefälle sowie Uninstall/Repeat.
+Je Exit0, vollständige Kanäle und leeres Stderr; frische unabhängige Audits
+bestätigen alle Inputpins, zwei Marker-/zwei Fremdslotfixtures exakt restauriert
+und drei eigene Datenbanken abwesend. Keine Konfigurations-, Rechte- oder
+Truständerungen. Drei frühere Gesamtfehlläufe bleiben getrennt fehlgeschlagen.
+Weitere physische Ziele, Minimalrechte, Heap und exakte Head-CI separat offen.
+Unabhängiger Review, begrenzte relevante Tests, exakte Head-CI, PR/Merge und
+eigener Branch-Cleanup gehören zur bereits beauftragten Fortsetzung.
+Keine neue Pointer-/Schema-/CLR-/Veröffentlichungsfreigabe. Ältere Aussagen
+über offene Safe-Cast-Details dokumentieren den damaligen Vorschlagsstand;
+diese datierte Einzelzustimmung ersetzt ausschließlich dessen Freigabegrenze.
 
 ### RI-2026-109: CSV-Memory – konkretisierte Umsetzung freigegeben 2026-10-05
 

@@ -1,0 +1,241 @@
+-- Synthetischer Safe-Cast-Vertrag; keine Installation, Parameter- oder Rechteänderung.
+-- ToolbeltDatabase='' verwendet die aktuelle DB; ein gesetzter Name bindet den zentralen Provider.
+SET NOCOUNT ON;
+-- Binärliterale erhalten feste UTF16-Einheiten auch in einem SC-Consumer.
+IF ISNULL(DATALENGTH(CONVERT(nvarchar(max),0x00D8)),-1)<>2 OR ISNULL(DATALENGTH(CONVERT(nvarchar(max),0x3DD800DE)),-1)<>4
+ THROW 55490,N'Safe Cast: synthetischer Surrogatfixture ist ungültig.',3;
+DECLARE @Database sysname=NULLIF(N'$(ToolbeltDatabase)',N''),@Prefix nvarchar(520);
+SET @Prefix=CASE WHEN @Database IS NULL THEN N'' ELSE QUOTENAME(@Database)+N'.' END+N'toolbelt_conversion.';
+IF OBJECT_ID(N'tempdb..#tbx_SafeCast_Cases',N'U') IS NOT NULL OR OBJECT_ID(N'tempdb..#tbx_SafeCast_Actual',N'U') IS NOT NULL
+ THROW 55490,N'Safe Cast: vorhandene private Fixturetemps werden nicht adoptiert.',4;
+CREATE TABLE #tbx_SafeCast_Cases(Id int NOT NULL PRIMARY KEY,Target varchar(32) NOT NULL,Label varchar(128) NOT NULL,Input nvarchar(max) NULL,Budget int NULL,ExpectedStatus varchar(16) NOT NULL,ExpectedCode varchar(32) NULL,ExpectedValue nvarchar(128) NULL);
+INSERT #tbx_SafeCast_Cases VALUES
+(1,'BigInt','C1',NULL,NULL,'SQL_NULL',NULL,NULL),
+(2,'BigInt','C2',N'1',NULL,'INVALID_ARGUMENT','PARAMETER',NULL),
+(3,'BigInt','C3',NULL,0,'SQL_NULL',NULL,NULL),
+(4,'BigInt','C4',N'1',0,'INVALID_ARGUMENT','PARAMETER',NULL),
+(5,'BigInt','C5',NULL,-1,'SQL_NULL',NULL,NULL),
+(6,'BigInt','C6',N'1',-1,'INVALID_ARGUMENT','PARAMETER',NULL),
+(7,'BigInt','C7',NULL,8193,'SQL_NULL',NULL,NULL),
+(8,'BigInt','C8',N'1',8193,'INVALID_ARGUMENT','PARAMETER',NULL),
+(9,'BigInt','C9',N'',8192,'EMPTY','EMPTY',NULL),
+(10,'BigInt','C10',N' ',8192,'INVALID_FORMAT','FORMAT',NULL),
+(11,'BigInt','C11',REPLICATE(CONVERT(nvarchar(max),N'1'),4097),8192,'LIMIT','INPUT_LIMIT',NULL),
+(12,'BigInt','C12',N'1'+NCHAR(0),8192,'INVALID_FORMAT','FORMAT',NULL),
+(13,'BigInt','C13',CONVERT(nvarchar(max),0x00D8),8192,'INVALID_FORMAT','FORMAT',NULL),
+(14,'BigInt','C14',CONVERT(nvarchar(max),0x3DD800DE),8192,'INVALID_FORMAT','FORMAT',NULL),
+(15,'BigInt','C15',NCHAR(9),8192,'INVALID_FORMAT','FORMAT',NULL),
+(16,'BigInt','C16',N'１',8192,'INVALID_FORMAT','FORMAT',NULL),
+(17,'BigInt','C17',N'1',1,'LIMIT','INPUT_LIMIT',NULL),
+(18,'Decimal','C18',NULL,NULL,'SQL_NULL',NULL,NULL),
+(19,'Decimal','C19',N'1',NULL,'INVALID_ARGUMENT','PARAMETER',NULL),
+(20,'Decimal','C20',NULL,0,'SQL_NULL',NULL,NULL),
+(21,'Decimal','C21',N'1',0,'INVALID_ARGUMENT','PARAMETER',NULL),
+(22,'Decimal','C22',NULL,-1,'SQL_NULL',NULL,NULL),
+(23,'Decimal','C23',N'1',-1,'INVALID_ARGUMENT','PARAMETER',NULL),
+(24,'Decimal','C24',NULL,8193,'SQL_NULL',NULL,NULL),
+(25,'Decimal','C25',N'1',8193,'INVALID_ARGUMENT','PARAMETER',NULL),
+(26,'Decimal','C26',N'',8192,'EMPTY','EMPTY',NULL),
+(27,'Decimal','C27',N' ',8192,'INVALID_FORMAT','FORMAT',NULL),
+(28,'Decimal','C28',REPLICATE(CONVERT(nvarchar(max),N'1'),4097),8192,'LIMIT','INPUT_LIMIT',NULL),
+(29,'Decimal','C29',N'1'+NCHAR(0),8192,'INVALID_FORMAT','FORMAT',NULL),
+(30,'Decimal','C30',CONVERT(nvarchar(max),0x00D8),8192,'INVALID_FORMAT','FORMAT',NULL),
+(31,'Decimal','C31',CONVERT(nvarchar(max),0x3DD800DE),8192,'INVALID_FORMAT','FORMAT',NULL),
+(32,'Decimal','C32',NCHAR(9),8192,'INVALID_FORMAT','FORMAT',NULL),
+(33,'Decimal','C33',N'１',8192,'INVALID_FORMAT','FORMAT',NULL),
+(34,'Decimal','C34',N'1',1,'LIMIT','INPUT_LIMIT',NULL),
+(35,'Date','C35',NULL,NULL,'SQL_NULL',NULL,NULL),
+(36,'Date','C36',N'1',NULL,'INVALID_ARGUMENT','PARAMETER',NULL),
+(37,'Date','C37',NULL,0,'SQL_NULL',NULL,NULL),
+(38,'Date','C38',N'1',0,'INVALID_ARGUMENT','PARAMETER',NULL),
+(39,'Date','C39',NULL,-1,'SQL_NULL',NULL,NULL),
+(40,'Date','C40',N'1',-1,'INVALID_ARGUMENT','PARAMETER',NULL),
+(41,'Date','C41',NULL,8193,'SQL_NULL',NULL,NULL),
+(42,'Date','C42',N'1',8193,'INVALID_ARGUMENT','PARAMETER',NULL),
+(43,'Date','C43',N'',8192,'EMPTY','EMPTY',NULL),
+(44,'Date','C44',N' ',8192,'INVALID_FORMAT','FORMAT',NULL),
+(45,'Date','C45',REPLICATE(CONVERT(nvarchar(max),N'1'),4097),8192,'LIMIT','INPUT_LIMIT',NULL),
+(46,'Date','C46',N'1'+NCHAR(0),8192,'INVALID_FORMAT','FORMAT',NULL),
+(47,'Date','C47',CONVERT(nvarchar(max),0x00D8),8192,'INVALID_FORMAT','FORMAT',NULL),
+(48,'Date','C48',CONVERT(nvarchar(max),0x3DD800DE),8192,'INVALID_FORMAT','FORMAT',NULL),
+(49,'Date','C49',NCHAR(9),8192,'INVALID_FORMAT','FORMAT',NULL),
+(50,'Date','C50',N'１',8192,'INVALID_FORMAT','FORMAT',NULL),
+(51,'Date','C51',N'1',1,'LIMIT','INPUT_LIMIT',NULL),
+(52,'DateTime2','C52',NULL,NULL,'SQL_NULL',NULL,NULL),
+(53,'DateTime2','C53',N'1',NULL,'INVALID_ARGUMENT','PARAMETER',NULL),
+(54,'DateTime2','C54',NULL,0,'SQL_NULL',NULL,NULL),
+(55,'DateTime2','C55',N'1',0,'INVALID_ARGUMENT','PARAMETER',NULL),
+(56,'DateTime2','C56',NULL,-1,'SQL_NULL',NULL,NULL),
+(57,'DateTime2','C57',N'1',-1,'INVALID_ARGUMENT','PARAMETER',NULL),
+(58,'DateTime2','C58',NULL,8193,'SQL_NULL',NULL,NULL),
+(59,'DateTime2','C59',N'1',8193,'INVALID_ARGUMENT','PARAMETER',NULL),
+(60,'DateTime2','C60',N'',8192,'EMPTY','EMPTY',NULL),
+(61,'DateTime2','C61',N' ',8192,'INVALID_FORMAT','FORMAT',NULL),
+(62,'DateTime2','C62',REPLICATE(CONVERT(nvarchar(max),N'1'),4097),8192,'LIMIT','INPUT_LIMIT',NULL),
+(63,'DateTime2','C63',N'1'+NCHAR(0),8192,'INVALID_FORMAT','FORMAT',NULL),
+(64,'DateTime2','C64',CONVERT(nvarchar(max),0x00D8),8192,'INVALID_FORMAT','FORMAT',NULL),
+(65,'DateTime2','C65',CONVERT(nvarchar(max),0x3DD800DE),8192,'INVALID_FORMAT','FORMAT',NULL),
+(66,'DateTime2','C66',NCHAR(9),8192,'INVALID_FORMAT','FORMAT',NULL),
+(67,'DateTime2','C67',N'１',8192,'INVALID_FORMAT','FORMAT',NULL),
+(68,'DateTime2','C68',N'1',1,'LIMIT','INPUT_LIMIT',NULL),
+(69,'Bit','C69',NULL,NULL,'SQL_NULL',NULL,NULL),
+(70,'Bit','C70',N'1',NULL,'INVALID_ARGUMENT','PARAMETER',NULL),
+(71,'Bit','C71',NULL,0,'SQL_NULL',NULL,NULL),
+(72,'Bit','C72',N'1',0,'INVALID_ARGUMENT','PARAMETER',NULL),
+(73,'Bit','C73',NULL,-1,'SQL_NULL',NULL,NULL),
+(74,'Bit','C74',N'1',-1,'INVALID_ARGUMENT','PARAMETER',NULL),
+(75,'Bit','C75',NULL,8193,'SQL_NULL',NULL,NULL),
+(76,'Bit','C76',N'1',8193,'INVALID_ARGUMENT','PARAMETER',NULL),
+(77,'Bit','C77',N'',8192,'EMPTY','EMPTY',NULL),
+(78,'Bit','C78',N' ',8192,'INVALID_FORMAT','FORMAT',NULL),
+(79,'Bit','C79',REPLICATE(CONVERT(nvarchar(max),N'1'),4097),8192,'LIMIT','INPUT_LIMIT',NULL),
+(80,'Bit','C80',N'1'+NCHAR(0),8192,'INVALID_FORMAT','FORMAT',NULL),
+(81,'Bit','C81',CONVERT(nvarchar(max),0x00D8),8192,'INVALID_FORMAT','FORMAT',NULL),
+(82,'Bit','C82',CONVERT(nvarchar(max),0x3DD800DE),8192,'INVALID_FORMAT','FORMAT',NULL),
+(83,'Bit','C83',NCHAR(9),8192,'INVALID_FORMAT','FORMAT',NULL),
+(84,'Bit','C84',N'１',8192,'INVALID_FORMAT','FORMAT',NULL),
+(85,'Bit','C85',N'1',1,'LIMIT','INPUT_LIMIT',NULL),
+(86,'UniqueIdentifier','C86',NULL,NULL,'SQL_NULL',NULL,NULL),
+(87,'UniqueIdentifier','C87',N'1',NULL,'INVALID_ARGUMENT','PARAMETER',NULL),
+(88,'UniqueIdentifier','C88',NULL,0,'SQL_NULL',NULL,NULL),
+(89,'UniqueIdentifier','C89',N'1',0,'INVALID_ARGUMENT','PARAMETER',NULL),
+(90,'UniqueIdentifier','C90',NULL,-1,'SQL_NULL',NULL,NULL),
+(91,'UniqueIdentifier','C91',N'1',-1,'INVALID_ARGUMENT','PARAMETER',NULL),
+(92,'UniqueIdentifier','C92',NULL,8193,'SQL_NULL',NULL,NULL),
+(93,'UniqueIdentifier','C93',N'1',8193,'INVALID_ARGUMENT','PARAMETER',NULL),
+(94,'UniqueIdentifier','C94',N'',8192,'EMPTY','EMPTY',NULL),
+(95,'UniqueIdentifier','C95',N' ',8192,'INVALID_FORMAT','FORMAT',NULL),
+(96,'UniqueIdentifier','C96',REPLICATE(CONVERT(nvarchar(max),N'1'),4097),8192,'LIMIT','INPUT_LIMIT',NULL),
+(97,'UniqueIdentifier','C97',N'1'+NCHAR(0),8192,'INVALID_FORMAT','FORMAT',NULL),
+(98,'UniqueIdentifier','C98',CONVERT(nvarchar(max),0x00D8),8192,'INVALID_FORMAT','FORMAT',NULL),
+(99,'UniqueIdentifier','C99',CONVERT(nvarchar(max),0x3DD800DE),8192,'INVALID_FORMAT','FORMAT',NULL),
+(100,'UniqueIdentifier','C100',NCHAR(9),8192,'INVALID_FORMAT','FORMAT',NULL),
+(101,'UniqueIdentifier','C101',N'１',8192,'INVALID_FORMAT','FORMAT',NULL),
+(102,'UniqueIdentifier','C102',N'1',1,'LIMIT','INPUT_LIMIT',NULL),
+(103,'BigInt','C103',N'0',8192,'OK',NULL,N'0'),
+(104,'BigInt','C104',N'-0',8192,'OK',NULL,N'0'),
+(105,'BigInt','C105',N'+0001',8192,'OK',NULL,N'1'),
+(106,'BigInt','C106',N'9223372036854775807',8192,'OK',NULL,N'9223372036854775807'),
+(107,'BigInt','C107',N'-9223372036854775808',8192,'OK',NULL,N'-9223372036854775808'),
+(108,'BigInt','C108',N'9223372036854775808',8192,'OUT_OF_RANGE','RANGE',NULL),
+(109,'BigInt','C109',N'-9223372036854775809',8192,'OUT_OF_RANGE','RANGE',NULL),
+(110,'BigInt','C110',N'1.0',8192,'INVALID_FORMAT','FORMAT',NULL),
+(111,'BigInt','C111',N'1e0',8192,'INVALID_FORMAT','FORMAT',NULL),
+(112,'BigInt','C112',N'++1',8192,'INVALID_FORMAT','FORMAT',NULL),
+(113,'BigInt','C113',N'1 ',8192,'INVALID_FORMAT','FORMAT',NULL),
+(114,'BigInt','C114',N' 1',8192,'INVALID_FORMAT','FORMAT',NULL),
+(115,'BigInt','C115',N'--1',8192,'INVALID_FORMAT','FORMAT',NULL),
+(116,'BigInt','C116',REPLICATE(CONVERT(nvarchar(max),N'0'),4096),8192,'OK',NULL,N'0'),
+(117,'BigInt','C117',REPLICATE(CONVERT(nvarchar(max),N'0'),4095)+N'1',8192,'OK',NULL,N'1'),
+(118,'Decimal','C118',N'0',8192,'OK',NULL,N'0'),
+(119,'Decimal','C119',N'-0',8192,'OK',NULL,N'-0'),
+(120,'Decimal','C120',N'+001.250',8192,'OK',NULL,N'+001.250'),
+(121,'Decimal','C121',N'99999999999999999999.999999999999999999',8192,'OK',NULL,N'99999999999999999999.999999999999999999'),
+(122,'Decimal','C122',N'-99999999999999999999.999999999999999999',8192,'OK',NULL,N'-99999999999999999999.999999999999999999'),
+(123,'Decimal','C123',N'99999999999999999999.9999999999999999990',8192,'OK',NULL,N'99999999999999999999.999999999999999999'),
+(124,'Decimal','C124',N'99999999999999999999.9999999999999999991',8192,'OUT_OF_RANGE','RANGE',NULL),
+(125,'Decimal','C125',N'99999999999999999998.9999999999999999991',8192,'LOSSY','SCALE',NULL),
+(126,'Decimal','C126',N'-99999999999999999999.9999999999999999990',8192,'OK',NULL,N'-99999999999999999999.999999999999999999'),
+(127,'Decimal','C127',N'-99999999999999999999.9999999999999999991',8192,'OUT_OF_RANGE','RANGE',NULL),
+(128,'Decimal','C128',N'-99999999999999999998.9999999999999999991',8192,'LOSSY','SCALE',NULL),
+(129,'Decimal','C129',N'100000000000000000000',8192,'OUT_OF_RANGE','RANGE',NULL),
+(130,'Decimal','C130',N'1e0',8192,'INVALID_FORMAT','FORMAT',NULL),
+(131,'Decimal','C131',N'.1',8192,'INVALID_FORMAT','FORMAT',NULL),
+(132,'Decimal','C132',N'1.',8192,'INVALID_FORMAT','FORMAT',NULL),
+(133,'Decimal','C133',N'1,5',8192,'INVALID_FORMAT','FORMAT',NULL),
+(134,'Decimal','C134',N'1 ',8192,'INVALID_FORMAT','FORMAT',NULL),
+(135,'Decimal','C135',N' 1',8192,'INVALID_FORMAT','FORMAT',NULL),
+(136,'Decimal','C136',N'-.1',8192,'INVALID_FORMAT','FORMAT',NULL),
+(137,'Decimal','C137',REPLICATE(CONVERT(nvarchar(max),N'0'),4093)+N'1.0',8192,'OK',NULL,N'1'),
+(138,'Decimal','C138',N'1.'+REPLICATE(CONVERT(nvarchar(max),N'0'),4094),8192,'OK',NULL,N'1'),
+(139,'Decimal','C139',N'0.'+REPLICATE(CONVERT(nvarchar(max),N'0'),4093)+N'1',8192,'LOSSY','SCALE',NULL),
+(140,'Date','C140',N'0001-01-01',8192,'OK',NULL,N'0001-01-01'),
+(141,'Date','C141',N'9999-12-31',8192,'OK',NULL,N'9999-12-31'),
+(142,'Date','C142',N'2024-02-29',8192,'OK',NULL,N'2024-02-29'),
+(143,'Date','C143',N'0000-01-01',8192,'OUT_OF_RANGE','RANGE',NULL),
+(144,'Date','C144',N'2023-02-29',8192,'OUT_OF_RANGE','RANGE',NULL),
+(145,'Date','C145',N'2024-13-01',8192,'OUT_OF_RANGE','RANGE',NULL),
+(146,'Date','C146',N'2024-01-00',8192,'OUT_OF_RANGE','RANGE',NULL),
+(147,'Date','C147',N'2024-1-01',8192,'INVALID_FORMAT','FORMAT',NULL),
+(148,'Date','C148',N'2024-01-01 ',8192,'INVALID_FORMAT','FORMAT',NULL),
+(149,'Date','C149',N'2024/01/01',8192,'INVALID_FORMAT','FORMAT',NULL),
+(150,'Date','C150',N'2024-01-01T00:00:00',8192,'INVALID_FORMAT','FORMAT',NULL),
+(151,'DateTime2','C151',N'0001-01-01T00:00:00',8192,'OK',NULL,N'0001-01-01T00:00:00'),
+(152,'DateTime2','C152',N'9999-12-31T23:59:59.9999999',8192,'OK',NULL,N'9999-12-31T23:59:59.9999999'),
+(153,'DateTime2','C153',N'2024-02-29T01:02:03.1',8192,'OK',NULL,N'2024-02-29T01:02:03.1'),
+(154,'DateTime2','C154',N'2024-02-29T01:02:03.1234567',8192,'OK',NULL,N'2024-02-29T01:02:03.1234567'),
+(155,'DateTime2','C155',N'2023-02-29T00:00:00',8192,'OUT_OF_RANGE','RANGE',NULL),
+(156,'DateTime2','C156',N'2024-01-01T24:00:00',8192,'OUT_OF_RANGE','RANGE',NULL),
+(157,'DateTime2','C157',N'2024-01-01T00:60:00',8192,'OUT_OF_RANGE','RANGE',NULL),
+(158,'DateTime2','C158',N'2024-01-01T00:00:60',8192,'OUT_OF_RANGE','RANGE',NULL),
+(159,'DateTime2','C159',N'2024-01-01t00:00:00',8192,'INVALID_FORMAT','FORMAT',NULL),
+(160,'DateTime2','C160',N'2024-01-01 00:00:00',8192,'INVALID_FORMAT','FORMAT',NULL),
+(161,'DateTime2','C161',N'2024-01-01T00:00:00.',8192,'INVALID_FORMAT','FORMAT',NULL),
+(162,'DateTime2','C162',N'2024-01-01T00:00:00.12345678',8192,'INVALID_FORMAT','FORMAT',NULL),
+(163,'DateTime2','C163',N'2024-01-01T00:00:00Z',8192,'INVALID_FORMAT','FORMAT',NULL),
+(164,'DateTime2','C164',N'2024-01-01T00:00:00+00:00',8192,'INVALID_FORMAT','FORMAT',NULL),
+(165,'DateTime2','C165',N'2024-01-01T00:00:00 ',8192,'INVALID_FORMAT','FORMAT',NULL),
+(166,'Bit','C166',N'0',8192,'OK',NULL,N'0'),
+(167,'Bit','C167',N'1',8192,'OK',NULL,N'1'),
+(168,'Bit','C168',N'2',8192,'INVALID_FORMAT','FORMAT',NULL),
+(169,'Bit','C169',N'true',8192,'INVALID_FORMAT','FORMAT',NULL),
+(170,'Bit','C170',N'FALSE',8192,'INVALID_FORMAT','FORMAT',NULL),
+(171,'Bit','C171',N'+1',8192,'INVALID_FORMAT','FORMAT',NULL),
+(172,'Bit','C172',N'01',8192,'INVALID_FORMAT','FORMAT',NULL),
+(173,'Bit','C173',N'1.0',8192,'INVALID_FORMAT','FORMAT',NULL),
+(174,'Bit','C174',N'1 ',8192,'INVALID_FORMAT','FORMAT',NULL),
+(175,'UniqueIdentifier','C175',N'00000000-0000-0000-0000-000000000000',8192,'OK',NULL,N'00000000-0000-0000-0000-000000000000'),
+(176,'UniqueIdentifier','C176',N'abcdef01-2345-6789-abcd-ef0123456789',8192,'OK',NULL,N'abcdef01-2345-6789-abcd-ef0123456789'),
+(177,'UniqueIdentifier','C177',N'ABCDEF01-2345-6789-ABCD-EF0123456789',8192,'OK',NULL,N'ABCDEF01-2345-6789-ABCD-EF0123456789'),
+(178,'UniqueIdentifier','C178',N'{00000000-0000-0000-0000-000000000000}',8192,'INVALID_FORMAT','FORMAT',NULL),
+(179,'UniqueIdentifier','C179',N'00000000-0000-0000-0000-000000000000suffix',8192,'INVALID_FORMAT','FORMAT',NULL),
+(180,'UniqueIdentifier','C180',N'00000000000000000000000000000000',8192,'INVALID_FORMAT','FORMAT',NULL),
+(181,'UniqueIdentifier','C181',N'g0000000-0000-0000-0000-000000000000',8192,'INVALID_FORMAT','FORMAT',NULL),
+(182,'UniqueIdentifier','C182',N'00000000-0000-0000-0000-000000000000 ',8192,'INVALID_FORMAT','FORMAT',NULL);
+CREATE TABLE #tbx_SafeCast_Actual(Id int NOT NULL,Mode varchar(16) NOT NULL,ValueBytes varbinary(max) NULL,Status varchar(16) NULL,ErrorCode varchar(32) NULL);
+DECLARE @Targets TABLE(Ordinal int NOT NULL,Target varchar(32) NOT NULL,SqlType varchar(32) NOT NULL);
+INSERT @Targets VALUES (1,'BigInt','bigint'),(2,'Decimal','decimal(38,18)'),(3,'Date','date'),(4,'DateTime2','datetime2(7)'),(5,'Bit','bit'),(6,'UniqueIdentifier','uniqueidentifier');
+DECLARE @Index int=1,@Target varchar(32),@Type varchar(32),@Sql nvarchar(max),@Language sysname=@@LANGUAGE,
+ @SavedFormat varchar(3)=(SELECT date_format FROM sys.dm_exec_sessions WHERE session_id=@@SPID);
+-- Drei Sitzungsformen beweisen, dass ISO-Konversion keine lokale Datumsdeutung übernimmt.
+DECLARE @Settings TABLE(Id int NOT NULL,LanguageName sysname NOT NULL,DateFormat varchar(3) NOT NULL);
+INSERT @Settings VALUES(1,N'us_english','mdy'),(2,N'German','dmy'),(3,N'us_english','ymd');
+DECLARE @Setting int=1,@SettingLanguage sysname,@Format varchar(3);
+DECLARE @Collations TABLE(Id int NOT NULL,Name sysname NOT NULL);
+INSERT @Collations VALUES(1,N'Latin1_General_100_BIN2'),(2,N'Latin1_General_100_CI_AS'),(3,N'Latin1_General_100_CS_AS'),(4,N'Latin1_General_100_CI_AS_SC_UTF8');
+DECLARE @CollationIndex int,@Collation sysname;
+WHILE @Setting<=3
+BEGIN
+ SELECT @SettingLanguage=LanguageName,@Format=DateFormat FROM @Settings WHERE Id=@Setting;
+ SET LANGUAGE @SettingLanguage;
+ SET DATEFORMAT @Format;
+ DELETE #tbx_SafeCast_Actual;
+ SET @Index=1;
+ WHILE @Index<=6
+ BEGIN
+  SELECT @Target=Target,@Type=SqlType FROM @Targets WHERE Ordinal=@Index;
+  SET @CollationIndex=1;
+  WHILE @CollationIndex<=4
+  BEGIN
+  SELECT @Collation=Name FROM @Collations WHERE Id=@CollationIndex;
+  SET @Sql=N'INSERT #tbx_SafeCast_Actual SELECT c.Id,''CROSS'',CONVERT(varbinary(max),r.Value),r.Status,r.ErrorCode FROM #tbx_SafeCast_Cases c CROSS APPLY '+@Prefix+N'TVF_TryCast'+@Target+N'(c.Input,c.Budget) r WHERE c.Target=@Target;
+INSERT #tbx_SafeCast_Actual SELECT c.Id,''OUTER'',CONVERT(varbinary(max),r.Value),r.Status,r.ErrorCode FROM #tbx_SafeCast_Cases c OUTER APPLY '+@Prefix+N'TVF_TryCast'+@Target+N'(c.Input,c.Budget) r WHERE c.Target=@Target;
+IF EXISTS(SELECT 1 FROM #tbx_SafeCast_Actual a JOIN #tbx_SafeCast_Cases c ON c.Id=a.Id WHERE c.Target=@Target AND (a.Status IS NULL OR CONVERT(varbinary(max),a.Status)<>CONVERT(varbinary(max),c.ExpectedStatus) OR (a.ErrorCode IS NULL AND c.ExpectedCode IS NOT NULL) OR (a.ErrorCode IS NOT NULL AND c.ExpectedCode IS NULL) OR CONVERT(varbinary(max),a.ErrorCode)<>CONVERT(varbinary(max),c.ExpectedCode) OR (c.ExpectedStatus<>''OK'' AND a.ValueBytes IS NOT NULL) OR (c.ExpectedStatus=''OK'' AND (a.ValueBytes IS NULL OR a.ValueBytes<>CONVERT(varbinary(max),TRY_CONVERT('+@Type+N',c.ExpectedValue,126)))))) THROW 55490,N''Safe Cast: fester API-Oracle weicht ab.'',1;';
+  -- COLLATE erwartet einen unquotierten Namen; @Collation stammt ausschließlich aus den vier festen Fixtures.
+  SET @Sql=REPLACE(@Sql,N'(c.Input,c.Budget)',N'(c.Input COLLATE '+@Collation+N',c.Budget)');
+  SET @Sql=REPLACE(REPLACE(@Sql,N'''CROSS''',N'''CROSS'+CONVERT(nvarchar(1),@CollationIndex)+N''''),N'''OUTER''',N'''OUTER'+CONVERT(nvarchar(1),@CollationIndex)+N'''');
+  EXEC sys.sp_executesql @Sql,N'@Target varchar(32)',@Target;
+  SET @CollationIndex+=1;
+  END;
+  SET @Index+=1;
+ END;
+ IF (SELECT COUNT(*) FROM #tbx_SafeCast_Actual)<>8*(SELECT COUNT(*) FROM #tbx_SafeCast_Cases) OR EXISTS(SELECT Id,Mode FROM #tbx_SafeCast_Actual GROUP BY Id,Mode HAVING COUNT(*)<>1)
+  THROW 55490,N'Safe Cast: genau eine Zeile pro APPLY-Eingabe erforderlich.',2;
+ SET @Setting+=1;
+END;
+SET LANGUAGE @Language;
+SET DATEFORMAT @SavedFormat;
+DROP TABLE #tbx_SafeCast_Actual;
+DROP TABLE #tbx_SafeCast_Cases;
+SELECT N'PASS' AS Status,182 AS Cases,3 AS SessionForms,4 AS InputCollations,2 AS ApplyForms;
+GO
