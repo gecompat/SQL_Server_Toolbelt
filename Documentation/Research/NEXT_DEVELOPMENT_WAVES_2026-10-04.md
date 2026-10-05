@@ -581,3 +581,196 @@ Besprechung. Diese scoped Fortsetzung ist als funktionsbezogene Freigabe in
 diese beiden USPs die historische Bewertung eines offenen CSV-Sourcegates.
 Die vorangehenden Vorschläge und technischen Vorprüfungen bleiben als Historie
 erhalten; daraus entsteht keine Freigabe anderer Funktionskandidaten.
+
+## Entscheidungsvorbereitung nach CSV-Merge 2026-10-05
+
+CSV ist in [PR169](https://github.com/gecompat/SQL_Server_Toolbelt/pull/169)
+mit fünf erfolgreichen Checks am exakten Head gemergt. Die folgende Ausarbeitung
+schließt offene Entwurfsfragen der vorhandenen RI-2026-041/076/048. Status:
+`proposed`; keine neuen SQL-Objekte, keine Providerfreigabe und keine Runtime-
+Qualifikation der vorgeschlagenen Objekte/Provider. Die spätere lesende
+Engine-Charakterisierung bleibt getrennt. Angenommene Richtungen bleiben erhalten.
+
+### JSON Pointer: bevorzugte konkrete Restentscheidungen
+
+Die vier vorgeschlagenen Ergebnisfelder und genau eine Ergebniszeile bleiben
+erhalten. Tabelle und Fehlerpriorität sind vorgeschlagene Toolbelt-Semantik.
+
+| Fall | Bevorzugter Vorschlag |
+|---|---|
+| Leerer Pointer | Root auflösen: Scalar FOUND, JSON-null JSON_NULL |
+| Weiterlaufen durch Scalar/null | MISSING; JSON_NULL nur bei erfolgreich aufgelöstem terminalem null |
+| Arraytoken mit ungültiger Indexlexik | INVALID/ARRAY_INDEX; nur im Arraykontext, Objektkeys bleiben unverändert |
+| Arraytoken `-` oder gültiger Index außerhalb des Arrays | MISSING; auch syntaktisch gültige Indizes oberhalb bigint |
+| Mehrere passende decodierte Objektkeys | INVALID/DUPLICATE_KEY; unbeteiligte Duplikate allein verhindern keine Auflösung |
+| Dokumenttiefe | Gleichzeitig offene Object-/Arraycontainer: Scalarroot0, Containerroot1; künstlicher Wrapper zählt nicht |
+| Unicode | Ungepaarte Surrogate in vollständigem Dokument oder Pointer abweisen; gültige Paare und escaped NUL zulassen, keine Normalisierung |
+| Budgets | 16MiB Input,4000 UTF16-Pointereinheiten,128 Containertiefe; konfigurierbare Input-/Tiefenwerte ausschließlich positiv und absenkbar |
+
+Fehlerpriorität: SQL_NULL, ungültige Parameter, Input-/Pointerlimit,
+Pointersyntax/-Unicode, vollständige JSON-Syntax, Dokumenttiefe/-Unicode,
+Auflösung. Nach erfolgreicher Syntaxprüfung besitzt das Tiefenlimit Vorrang
+vor Dokument-Unicodefehlern. Vorgeschlagene Codes: PARAMETER, INPUT_LIMIT,
+POINTER_LIMIT, POINTER_SYNTAX, JSON_SYNTAX, DEPTH_LIMIT, UNICODE,
+DUPLICATE_KEY, ARRAY_INDEX. INVALID liefert NULL in JsonType/Value; MISSING
+und SQL_NULL erhalten keinen ErrorCode. Object-/Arraywerte sind gültiger
+JSON-Text ohne Formatierungstreuezusage, Zahlen bleiben unveränderte Literale.
+
+[RFC6901](https://www.rfc-editor.org/rfc/rfc6901) begründet kontextbezogene
+Tokenauswertung und exakte decodierte Keys; die Statuszuordnung ist eine eigene
+Entscheidung. [RFC8259 §8.2](https://www.rfc-editor.org/rfc/rfc8259#section-8.2)
+beschreibt Probleme ungepaarter Surrogate, obwohl die Grammatik solche Escapes
+zulässt. Die vorgeschlagene Abweisung ist eine ausdrückliche Einschränkung.
+
+Bevorzugte Implementierungsrichtung: iterative T-SQL-MSTVF mit begründetem
+Ausnahmefall gegenüber Inline-TVFs. Rekursive CTEs bringen eigene
+Rekursions-/Abfragegrenzen; eine fixe Join-Kette vervielfacht Logik und löst die
+globale Syntax-/Unicodeprüfung nicht. Eine gleichwertige Inline-Lösung ist
+damit noch nicht widerlegt. Vor Source ist der kanonische Scan-/Traversalpfad
+ohne Parserkopie festzulegen und die Ausnahme am konkreten Design zu begründen.
+[CTE-Grenzen](https://learn.microsoft.com/en-us/sql/t-sql/queries/with-common-table-expression-transact-sql),
+[UDF-Grenzen](https://learn.microsoft.com/en-us/sql/relational-databases/user-defined-functions/create-user-defined-functions-database-engine).
+
+OPENJSON erst nach vollständigem Syntaxpreflight auf gültigen Containern
+aufrufen; kein TRY/CATCH in der UDF. BIN2 plus DATALENGTH bleibt der
+Keyvergleich, keine neue globale Keygrenze aus den elf historischen Proben.
+16MiB und128 Ebenen begrenzen Input und Tiefe, qualifizieren aber noch keine
+Arbeitsmenge oder APPLY-Performance bei wiederholten Fragmentkopien. Diese
+Machbarkeit bleibt ein technischer Vor-Source-Schritt ohne öffentliche API.
+[OPENJSON](https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql).
+
+### Safe Cast: exakte Decimalgrenze und Fehlerpriorität
+
+Sechs vorgeschlagene echte Inline-TVFs, Zieltypen, feste Decimal38/18-Form,
+Datetime2(7), strikte ASCII-/ISO-Lexik und8192-Byte-Deckel bleiben unverändert.
+Bevorzugte Fehlerpriorität: SQL_NULL, PARAMETER bei ungültigem Budget, LIMIT,
+EMPTY, INVALID_FORMAT, OUT_OF_RANGE, LOSSY, OK. Parameterfehler liefern
+den zusätzlichen vorgeschlagenen Status INVALID_ARGUMENT mit ErrorCode PARAMETER;
+damit wird das bisherige Sieben-Status-Proposal ausdrücklich erweitert. Keine originale
+Enginefehlermeldung und kein Input-Echo. Die endgültige Freigabe muss diese
+zusätzliche Zuordnung ausdrücklich umfassen.
+
+Für Decimal wird nach Lexikprüfung der vorzeichenfreie Betrag vor LOSSY exakt
+gegen den Maximalbetrag verglichen. Führende Ganzzahlnullen zählen nicht;
+über20 signifikante Ganzzahlstellen sind außerhalb, unter20 innerhalb.
+Bei20 Stellen überschreitet nur dieser Restfall den Maximalbetrag: Ganzzahl
+ist20 Neunen, erste18 Nachkommastellen nach Rechtsauffüllen mit Nullen sind18
+Neunen und mindestens eine spätere Nachkommastelle ist nichtnull.
+Erst nach Bereichsbeweis werden nichtnull verworfene Nachkommastellen als LOSSY
+klassifiziert; zusätzliche Nullstellen dürfen vor TRY_CONVERT entfallen.
+Positive/negative Beträge verwenden dieselbe Grenze, negative Null bleibt Null.
+
+| Synthetischer Eingang für decimal(38,18) | Vorgeschlagenes Ergebnis |
+|---|---|
+| `99999999999999999999.9999999999999999990` und negatives Pendant | OK, zusätzliche Nullstelle exakt entfernbar |
+| `99999999999999999999.9999999999999999991` und negatives Pendant | OUT_OF_RANGE, auch bei nativer Rückrundung |
+| `99999999999999999998.9999999999999999991` | LOSSY, innerhalb des exakten Bereichs |
+
+[Microsoft decimal/numeric](https://learn.microsoft.com/en-us/sql/t-sql/data-types/decimal-and-numeric-transact-sql?view=sql-server-ver17)
+dokumentiert native Skalenreduktion durch Rundung. Der Betragvergleich ist
+eine eigene Entwurfsschlussfolgerung und noch kein getesteter Inline-Kern.
+TRY_CONVERT ausschließlich auf zulässige Typen bleibt auch bei vorgezogener
+Optimizer-Auswertung sicher; CASE ist keine allgemeine Auswertungsbarriere.
+
+### JSON Schema: Referenzen, vollständiges Urteil und Unicode
+
+Die vorgeschlagene USP und das sichtbare Profil `toolbelt-2020-12-v1` bleiben
+erhalten. Bevorzugt wird weiterhin ein eigener begrenzter SAFE-Kern ohne
+Drittanbieter, Netzwerk oder automatische Work-Type-Integration; Auswahl und
+Assembly-/Trustvertrag benötigen ihre eigene Freigabe. Kein voller Draftvalidator.
+
+V1 akzeptiert ausschließlich lokale Fragmentreferenzen `#` und `#/...`.
+Fragmentform vor Decoding feststellen; leere oder mit Slash beginnende
+Pointerform nach strikt einmaligem Percent-/UTF8-Decoding prüfen, danach
+`~1`/`~0`. Damit ist beispielsweise `#%2F$defs%2Fx` weiterhin lokal zulässig.
+Nur bekannte Schemaorte mit Boolean-/Objectschemas sind Referenzziele;
+nicht auflösbare oder andere Ziele ergeben INVALID_SCHEMA. `$id`, `$anchor`,
+`$dynamic*` und `$vocabulary` werden im eingeschränkten Profil UNSUPPORTED.
+
+Schemaorte einmal indexieren; Containment- und Referenzkanten gemeinsam prüfen.
+Zyklen bereits beim vollständigen Schema-Preflight abweisen, auch in ungenutzten
+`$defs`; DAGs nicht expandieren. Bei `$ref` gelten Ziel und lokale Geschwister.
+[Draft2020-12 Core](https://json-schema.org/draft/2020-12/json-schema-core)
+begründet Referenzauflösung und Geschwistersemantik; Zyklenverbot und der
+engere Fragmentumfang sind eigene V1-Einschränkungen.
+
+Bevorzugte Priorität bei gültigen Parametern: SQL_NULL, vollständiger
+Schema-Syntax-/Profilpreflight, vollständiger Dokument-Syntax-/Profilpreflight,
+Evaluation. LIMIT kann jeden begonnenen Arbeitsschritt abbrechen und liefert
+immer IsValid=NULL, auch nach bereits gefundenen Instanzverletzungen.
+Lone Surrogates sind UNSUPPORTED/UNPAIRED_SURROGATE mit IsValid=NULL;
+wohlgeformte Paare zählen als ein UnicodeScalar, Identität bleibt ordinal.
+Die Abweisung ist eine Einschränkung, keine allgemeine JSON-Grammatikregel.
+[RFC8259 §8.2](https://www.rfc-editor.org/rfc/rfc8259#section-8.2),
+[Validation Stringlänge](https://json-schema.org/draft/2020-12/json-schema-validation#section-6.3.1).
+
+Ein globaler geprüft addierter Arbeitszähler umfasst gescannte Einheiten,
+Duplicate-Vergleiche einschließlich Hashkollisionen, Schema-/Keywordbesuche,
+Graph-/Referenzarbeit, Zahl-/Exponentziffern, Evaluation und Diagnosepfadaufbau.
+MaxErrors begrenzt ausschließlich gespeicherte Diagnosen. Vorschlag:
+MaxErrors0 zulassen, SUMMARY mit ErrorOrdinal0, gespeicherte Fehler1..N;
+unterdrückte Verletzungen setzen ErrorsTruncated=1, Evaluation läuft weiter.
+Kein frühzeitiges IsValid=0 als Ersatz für ein vollständiges Profilurteil.
+
+### Noch benötigte Eingabe und unabhängige Arbeit
+
+Diese Ausarbeitung ersetzt die offenen Entwurfsfragen durch konkrete bevorzugte
+Vorschläge. Sie erfindet weder eine Einzelfreigabe noch SQL-/CLR-Machbarkeit.
+Nächste funktionsbezogene Freigabe: zunächst Pointer oder die sechs Safe-Cast-
+TVFs mit den oben genannten Outputs, Lexik-/Fehler- und Providerdetails.
+Das Schema-Profil bleibt getrennt. Technische Vorprüfung, Kollisions-/Reuse-
+Analyse und Entwurfsreview dürfen bis dahin autonom weitergehen.
+
+### Konkreter Reuse-Befund vor einer Providerwahl
+
+Der vorhandene [`AgfCore.cs`](../../Modules/toolbelt.json.constructors/Clr/AgfCore.cs)
+in Constructors1.2 enthält bereits Number-, String-, Escape-, Whitespace- und
+Containerlexik. ScanJson akzeptiert dort ausschließlich Containerroots;
+AGF begrenzt auf127 Frames, Legacy reserviert abhängig von der gesamten
+Inputlänge. Decoded-Unicodeprüfung ist ein eigener Schritt. Der Ergebnisvertrag
+enthält Fehleroffset/Tiefe, aber keine Tokenindizes, decodierten Keys,
+Duplicateprüfung oder globalen Arbeitszähler. Das sind gelesene Sourcebefunde,
+keine neuen Runtime-Ergebnisse.
+
+Die angenommenen Constructor-/AGF-Verträge bleiben erhalten. Ihre Scanner-
+Policies können nicht unverändert als Pointer-/Schema-Policies gelten.
+[DEC-2026-033](../Architecture/DECISIONS.md#dec-2026-033-gemeinsamer-safe-json-kern-und-gebundener-achtteiliger-lifecycle)
+begrenzt die vorhandene Providerfreigabe auf Constructors1.2; neue Bindings,
+gemeinsame Infrastruktur oder geänderte Binarybytes folgen daraus nicht.
+
+Bevorzugte zu prüfende Reuse-Richtung: genau ein kanonischer interner Scanner
+mit expliziter Root-/Tiefen-/Diagnosepolicy, optionalen Tokenspans und
+Arbeitszähler; unveränderte Constructoradapter erhalten ihre bisherige
+Priorität und127-Grenze. Resolver und Schemavalidator hätten eigene fachliche
+Adapter. Physische Assembly-/Dependencygrenze und migrationssichere
+Bereitstellung sind noch vor Providerfreigabe festzulegen. Kein Copy/Paste der
+Lexik in eine zweite handgeschriebene T-SQL- oder CLR-Grammatik.
+
+Native ISJSON/OPENJSON bleibt eine begründbar separate Enginealternative.
+Der vorherige T-SQL-MSTVF-Vorschlag ist deshalb ausdrücklich bedingt:
+Vor-Source-Design muss vollständige Syntax-/Unicode-/Budgetprüfung und
+Wiederverwendung kohärent lösen. Kein ungeprüfter Wechsel zu CLR und keine
+nachträgliche Freigabe aus einer allgemeinen Portabilitätsbehauptung.
+Die Prüfung hat einen konkreten Integrationspunkt gefunden; sie rechtfertigt
+keine Änderung der historischen freigegebenen Hashregistry.
+
+### Zusätzliche tatsächlich ausgeführte Decimal-Charakterisierung
+
+Am2026-10-05 bestand
+`pwsh -NoProfile -File Tests/Research/characterize-next-wave-json.ps1 -ProbeSet decimal-range`
+mit sechs neuen synthetischen lesenden Assertions auf dem schema-validierten,
+explizit ausgewählten Linux2019/latest-Ziel mit geprüftem Major15/CL150.
+Root-Watchdog120s, Exit0, vollständige Ausgabekanäle und leeres Stderr.
+Keine Datenbank-/Objekt-/Konfigurations-, Rechte- oder Truständerung.
+Der unveränderte Standard `json-baseline` wurde nicht erneut ausgeführt;
+seine elf historischen Assertions bleiben ein getrennter früherer Nachweis.
+
+Bestätigt: zusätzliche Nullstelle am positiven Maximalwert bleibt exakt;
+zusätzliche nichtnull19.Nachkommastelle1 am positiven/negativen Maximalbetrag
+wird nativ zurück in den Bereich gerundet. Ein entsprechender innerhalb
+liegender Betrag wird ebenfalls gerundet. Rundungssprung über den Maximalwert
+und21-stellige Ganzzahl liefern mit TRY_CONVERT SQL-NULL. Native Konversion
+allein kann damit OUT_OF_RANGE und LOSSY nicht wie vorgeschlagen unterscheiden.
+Die exakte vorgelagerte Betragsklassifikation ist weiter ein Entwurf, keine
+implementierte oder qualifizierte Safe-Cast-TVF. Weitere Ziele, Optimizer-/APPLY-
+Kontexte und ein eigener Kern sind `not executed`.

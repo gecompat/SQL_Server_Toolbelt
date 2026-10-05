@@ -26,8 +26,9 @@ DBs/einen eigenen Trusthash abwesend. Historische Syntax-/LF-Padding-Fehlläufe
 und der fünfte Metadata-Fehllauf bleiben
 FAILED. LF-Padding und drei Help-first-NOT-NULL-Spalten wurden korrigiert.
 Keine Konfigurations-/Rechteänderungen. Weitere Ziele, Fremdslot-/
-Driftvollmatrix, Minimalrechte, Heap und exakte Head-CI bleiben offen. JSON Pointer,
-Safe Cast und JSON Schema sind getrennte Folgegrenzen.
+Driftvollmatrix, Minimalrechte und Heap bleiben offen. PR169 ist mit fünf grünen
+Checks am exakten Head gemergt; Main/origin-main und eigener Branch-Cleanup
+bestätigt. JSON Pointer, Safe Cast und JSON Schema sind getrennte Folgegrenzen.
 
 ## Aktive Managed-Queue-Worker-Welle 2026-10-04
 
