@@ -271,6 +271,24 @@ API-, Policywalker-, Maximalworkload- oder Gesamtproduktnachweis.
 Safe Cast ist inzwischen separat
 in PR171 umgesetzt; ältere Vorschlagsaussagen bleiben als Historie erhalten.
 
+Fortsetzung 2026-10-05 nach Pointer-Merge: PR174 wurde nach vier erfolgreichen
+Checks am exakten Head122910d gemergt; main/origin/main und eigener
+Branchcleanup wurden verifiziert. Die Schema-Recherche konkretisiert jetzt
+in der [Entscheidungsvorlage](../Documentation/Research/NEXT_DEVELOPMENT_WAVES_2026-10-04.md)
+die physische Kerngrenze:
+Constructor1.2 weist jede referenzierende Assembly mit53626 ab;
+Source-Linking ist keine ausdrücklich genehmigte Ausnahme von einem
+kanonischen Kern. Bevorzugter Besprechungsvorschlag ist eine eigene technische
+Coreassembly mit separat qualifizierter Constructor1.3-Migration und darauf
+aufbauender Schema-USP. Namen/Versionen und interne Bridge sind Vorschläge,
+keine Registrierung oder neue Freigabe. Vergleichbare T-SQL- und integrierte
+Constructor-Alternativen bleiben dokumentiert. Neue Binary-/Trust-/Owner-/
+Dependency- und Abnahmegrenzen sind ausdrücklich getrennt; keine Runtime-
+Implementierung oder neue SQL-/CLR-Prüfung durch diese Researchpflege.
+Fehler-/Diagnosepriorität, MaxErrors0/Limitverhalten, abstrakte globale
+Arbeitsabrechnung und eine synthetische Abnahmematrix sind konkret vorgeschlagen.
+Keine neue Assertion als ausgeführter Nachweis dargestellt.
+
 ### TC-2026-039 / TC-2026-040 / TC-2026-042: Deterministic-Familie implementiert
 
 Stand 2026-10-02: Die am 2026-10-01 einzeln freigegebenen
