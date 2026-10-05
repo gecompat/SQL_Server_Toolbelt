@@ -9,7 +9,7 @@ ist lokal durchsuchbar; die Ausgabe wird in der Dokumentations-CI auf Synchronit
 
 ## Aktueller Status
 
-**39 Module sind implementiert. 19 sind `validated`, 20 sind `partially validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
+**40 Module sind implementiert. 19 sind `validated`, 21 sind `partially validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
 abgeleitet.**
 
 ## Implementierte Module
@@ -39,6 +39,7 @@ abgeleitet.**
 | `toolbelt.datetime.date-spine` | Relational Date Spine | `1.0.0` | `toolbelt_datetime` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.datetime.truncate` | Date/Time Truncation Compatibility | `1.0.0` | `toolbelt_datetime` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.file.content` | File Content | `1.0.0` | `toolbelt_file` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.file.csv-memory` | CSV Memory Parser and Writer | `1.0.0` | `toolbelt_file` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.file.xlsx-memory` | XLSX Binary Memory Reader | `1.2.0` | `toolbelt_file` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.filesystem.windows` | Windows Filesystem | `1.0.0` | `toolbelt_filesystem` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.json.constructors` | JSON Constructors | `1.2.0` | `toolbelt_json` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |

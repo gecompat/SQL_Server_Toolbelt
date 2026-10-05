@@ -644,6 +644,20 @@ EXEC toolbelt_file.USP_LoadBinaryFile @FilePath=N'C:\ExampleRoot\sample.bin', @M
 EXEC toolbelt_file.USP_LoadTextFile @FilePath=N'C:\ExampleRoot\sample.txt', @MaxBytes=1048576;
 */
 
+-- toolbelt_file.USP_ParseCsv
+-- Parst begrenzten Unicode-CSV-Text vollständig als rechteckige HEADER-/DATA-Zellen; keine Datei- oder Netzwerkquelle.
+-- Voraussetzung: Vorhandener SAFE-Provider und bei Routing sameDB-ResultTable-Helper.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_file.USP_ParseCsv @Text=N'a,b',@NullToken=N'NULL';
+*/
+
+-- toolbelt_file.USP_WriteCsv
+-- Schreibt einen read-only Snapshot vier typgenauer caller-lokaler Temp-Spalten als vollständig budgetiertes CSV.
+-- Voraussetzung: Vorhandener SAFE-Provider; Quelle ist keine ResultTable und bleibt unverändert.
+/* Separat auswählen und ausführen:
+CREATE TABLE #CsvCells(RowKind varchar(6),RowOrdinal bigint,ColumnOrdinal int,Value nvarchar(max)); INSERT #CsvCells VALUES('DATA',1,1,N'Contoso'); EXEC toolbelt_file.USP_WriteCsv @CellsTable=N'#CsvCells'; DROP TABLE #CsvCells;
+*/
+
 -- toolbelt_file.USP_ListXlsxWorksheets
 -- Begrenzter SAFE Binary-XLSX-Reader; atomarer gewählter Snapshot, keine Datei-/Netzwerkzugriffe, Formelberechnung oder Typinferenz.
 /* Separat auswählen und ausführen:

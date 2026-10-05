@@ -571,3 +571,13 @@ Längengleichheit keinen kurzen Präfixtreffer. Das ist begrenzte Engineevidenz;
 die vorgeschlagenen öffentlichen APIs existieren weiterhin nicht. Andere
 Collations, Ziele, vollständige Parser-/Optimizer-/Budget- und Performancefälle
 sind `not executed`. CLR-/API-Qualifikation wird dadurch nicht behauptet.
+## Fortschreibung 2026-10-05 – CSV-Umsetzung
+
+Der Benutzer antwortete auf den konkret vorgelegten CSV-Scope mit dem Auftrag
+zur autonomen Weiterentwicklung und dem Hinweis auf die abgeschlossene
+Besprechung. Diese scoped Fortsetzung ist als funktionsbezogene Freigabe in
+[BACKLOG](../../.ai/BACKLOG.md) dokumentiert. Der
+[kanonische CSV-Vertrag](../Architecture/CSV_MEMORY_CONTRACT.md) ersetzt für
+diese beiden USPs die historische Bewertung eines offenen CSV-Sourcegates.
+Die vorangehenden Vorschläge und technischen Vorprüfungen bleiben als Historie
+erhalten; daraus entsteht keine Freigabe anderer Funktionskandidaten.

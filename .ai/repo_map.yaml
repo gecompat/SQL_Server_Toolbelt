@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: thirty_seven_modules_implemented
+  status: forty_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -111,6 +111,9 @@ sources_of_truth:
   zip_files_module: Modules/toolbelt.archive.zip-files/module.yaml
   zip_files_contract: Documentation/Architecture/ZIP_FILES_CONTRACT.md
   xlsx_memory_module: Modules/toolbelt.file.xlsx-memory/module.yaml
+  csv_memory_module: Modules/toolbelt.file.csv-memory/module.yaml
+  csv_memory_contract: Documentation/Architecture/CSV_MEMORY_CONTRACT.md
+  csv_memory_qualification_workflow: .github/workflows/csv-memory-qualification.yml
   xlsx_reader_proposal: Documentation/Architecture/XLSX_READER_PROPOSAL.md
   xlsx_cell_type_contract: Documentation/Architecture/XLSX_CELL_TYPE_CONTRACT.md
   xlsx_cell_display_contract: Documentation/Architecture/XLSX_CELL_DISPLAY_CONTRACT.md
@@ -306,6 +309,7 @@ module_registry:
     - Modules/toolbelt.string.split-advanced/module.yaml
     - Modules/toolbelt.string.regex/module.yaml
     - Modules/toolbelt.string.phonetic/module.yaml
+    - Modules/toolbelt.file.csv-memory/module.yaml
     - Modules/toolbelt.string.edit-distance/module.yaml
     - Modules/toolbelt.string.text-pairs/module.yaml
     - Modules/toolbelt.validation.semantic-version/module.yaml
@@ -809,6 +813,19 @@ change_impact:
         - Tests/CI/run-file-content-linux.sh
         - .github/workflows/file-content-runtime.yml
       checks:
+        - markdown_links
+    csv_memory_contract:
+      paths:
+        - Modules/toolbelt.file.csv-memory/**
+        - Documentation/Architecture/CSV_MEMORY_CONTRACT.md
+        - Tests/CI/run-csv-memory-lab.ps1
+        - Tests/CI/CsvLifecycle.Helpers.ps1
+        - .github/workflows/csv-memory-qualification.yml
+        - Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1
+        - Documentation/Standards/USP_CONTRACT.md
+        - Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md
+      checks:
+        - csv_memory_static
         - markdown_links
     xlsx_memory_contract:
       paths:

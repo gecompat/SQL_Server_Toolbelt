@@ -2238,5 +2238,53 @@
       "Worker-Control 1.0 ist vorhanden; bestehendes SELECT-Recht auf die Sicht."
     ],
     "parameter_notes": {}
+  },
+  "toolbelt_file.USP_ParseCsv": {
+    "summary": "Parst begrenzten Unicode-CSV-Text vollständig als rechteckige HEADER-/DATA-Zellen; keine Datei- oder Netzwerkquelle.",
+    "examples": [
+      "EXEC toolbelt_file.USP_ParseCsv @Text=N'a,b',@NullToken=N'NULL';"
+    ],
+    "requirements": [
+      "Vorhandener SAFE-Provider und bei Routing sameDB-ResultTable-Helper."
+    ],
+    "parameter_notes": {
+      "@Text": "Vollständiger Unicode-Text; SQL-NULL ist Argumentfehler, leer ergibt keine Zellen.",
+      "@MaxRows": "Positive absenkbare Grenze höchstens100000 DATA-Records.",
+      "@NullToken": "Optional: exakt unquoted DATA-Token ergibt SQL-NULL; quoted Token bleibt Text.",
+      "@MaxInputBytes": "UTF16-Textbytes einschließlich Header, Quotes und Separatoren; höchstens16777216.",
+      "@HasHeader": "0 ohne Header; 1 genau ein Headerrecord; NULL ist Argumentfehler.",
+      "@ResultTable": "NULL gibt genau ein Resultset aus, sonst vorhandene caller-lokale Temp-Tabelle ohne Resultset.",
+      "@MaxColumns": "Positive absenkbare Grenze höchstens1024 Spalten pro Record.",
+      "@KeepData": "0 Replace, 1 Append nach dem kanonischen ResultTable-Vertrag.",
+      "@Separator": "Exakt eine UTF16-Einheit außer Quote, CR, LF, NUL und Surrogate.",
+      "@Hilfe": "1 gibt ausschließlich Standardhilfe aus und umgeht sämtliche fachlichen Prüfungen.",
+      "@MaxCells": "Positive absenkbare Grenze höchstens1000000 HEADER+DATA-Zellen.",
+      "@Debug": "Nur Messages; keine zusätzlichen Resultsets oder Payloads."
+    }
+  },
+  "toolbelt_file.USP_WriteCsv": {
+    "summary": "Schreibt einen read-only Snapshot vier typgenauer caller-lokaler Temp-Spalten als vollständig budgetiertes CSV.",
+    "examples": [
+      "CREATE TABLE #CsvCells(RowKind varchar(6),RowOrdinal bigint,ColumnOrdinal int,Value nvarchar(max)); INSERT #CsvCells VALUES('DATA',1,1,N'Contoso'); EXEC toolbelt_file.USP_WriteCsv @CellsTable=N'#CsvCells'; DROP TABLE #CsvCells;"
+    ],
+    "requirements": [
+      "Vorhandener SAFE-Provider; Quelle ist keine ResultTable und bleibt unverändert."
+    ],
+    "parameter_notes": {
+      "@MaxValueBytes": "Summe aller UTF16-Snapshotwerte, NULL zählt0; höchstens16777216.",
+      "@MaxOutputBytes": "Vollständige Ausgabe einschließlich Quoting, Separatoren und finalem Recordabschluss; höchstens16777216.",
+      "@NullToken": "Ohne Token ist SQL-NULL nicht schreibbar; Header-NULL ist immer Fehler.",
+      "@CellsTable": "Genau RowKind varchar(6), RowOrdinal bigint, ColumnOrdinal int, Value nvarchar(max), eingebaute Typen.",
+      "@HasHeader": "0 ohne Header; 1 genau ein Headerrecord; NULL ist Argumentfehler.",
+      "@ResultTable": "NULL gibt genau ein Resultset aus, sonst vorhandene caller-lokale Temp-Tabelle ohne Resultset.",
+      "@MaxColumns": "Positive absenkbare Grenze höchstens1024 Spalten pro Record.",
+      "@KeepData": "0 Replace, 1 Append nach dem kanonischen ResultTable-Vertrag.",
+      "@Separator": "Exakt eine UTF16-Einheit außer Quote, CR, LF, NUL und Surrogate.",
+      "@Hilfe": "1 gibt ausschließlich Standardhilfe aus und umgeht sämtliche fachlichen Prüfungen.",
+      "@MaxRows": "Positive absenkbare Grenze höchstens100000 DATA-Records.",
+      "@MaxCells": "Positive absenkbare Grenze höchstens1000000 HEADER+DATA-Zellen.",
+      "@Debug": "Nur Messages; keine zusätzlichen Resultsets oder Payloads.",
+      "@LineEnding": "Exakt CRLF oder LF; jeder Ausgaberecord einschließlich des letzten erhält einen Abschluss."
+    }
   }
 }

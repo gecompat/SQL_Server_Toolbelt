@@ -4,8 +4,8 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. 39 Module sind implementiert;
-19 sind `validated`, 20 sind `partially validated`, 0 sind `not executed`. Für alle existieren
+Der Repository-Grundaufbau ist abgeschlossen. 40 Module sind implementiert;
+19 sind `validated`, 21 sind `partially validated`, 0 sind `not executed`. Für alle existieren
 statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte.
 
 Die ResultTable-Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 mit
@@ -70,6 +70,7 @@ Text-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall erfolgreich.
 | Modul | Matrix | Status |
 |---|---|---|
 | `toolbelt.string.text-pairs` | [TEXT_PAIRS_TEST_MATRIX.md](../Modules/toolbelt.string.text-pairs/Tests/TEXT_PAIRS_TEST_MATRIX.md) | `partially validated`; fünf Fixtures lokal auf Linux 2019 und Windows 2025/CU8 sowie zentraler Windows-Client-/ResultTable-/Uninstall-Bestätigungsnachweis; Minimalrechte, weitere Lifecycle-Negativfälle und Ziele offen |
+| `toolbelt.file.csv-memory` | [CSV_TEST_MATRIX.md](../Modules/toolbelt.file.csv-memory/Tests/CSV_TEST_MATRIX.md) | `partially validated`; Framework/IL und finale Linux2019/latest CL150 sowie Windows2025/exaktCU8 CL170 lokal/zentral mit Consumer, Client, 29 gezielten Lifecyclefällen und unabhängigem Cleanup bestanden; weitere Ziele, Minimalrechte, Fremdslot-/Driftvollmatrix und Heap offen |
 | `toolbelt.file.xlsx-memory` | [XLSX_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.file.xlsx-memory/Tests/XLSX_CONTRACT_TEST_MATRIX.md) | `partially validated`; finale Linux-2019-/Windows-2025-Adapter einschließlich SAFE, local/central, Clientmetadaten, atomarer ResultTable und Lifecycle erfolgreich; große Ceiling-, minimale Rechte- und übrige Zielmatrix offen |
 | `toolbelt.archive.zip-files` | [ZIP_FILES_TEST_MATRIX.md](../Modules/toolbelt.archive.zip-files/Tests/ZIP_FILES_TEST_MATRIX.md) | `partially validated`; elf frühere und zwei gezielte AppLock-Fallnachweise auf Windows2025/CU8 CL170 local, kein gemeinsamer 13-Fälle-Erfolgslauf; vollständige Qualifikation offen |
 | `toolbelt.archive.zip-memory` | [ZIP_MEMORY_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.archive.zip-memory/Tests/ZIP_MEMORY_CONTRACT_TEST_MATRIX.md) | `partially validated`; automatisierte Windows-/Linux-Matrix 2019/2022/2025 erfolgreich; reale Archive, Extremgrößen, historische Upgrades und Interoperabilität offen |
