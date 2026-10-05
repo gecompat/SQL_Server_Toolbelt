@@ -408,3 +408,166 @@ betroffenem Lab-Scope und exakter Head-CI. Erfolgreiche bestehende Prüfungen
 werden bei unverändertem Scope nicht pauschal wiederholt. In dieser
 Entscheidungsvorbereitung sind SQL-/CLR-Runtime-Tests `not applicable`;
 alle vorgeschlagenen neuen Funktionen haben Runtime-Nachweis `not executed`.
+
+## Technische Vorprüfung 2026-10-05
+
+Der erneute Benutzerauftrag verlangt autonome Entwicklung und Analyse bis zum
+ausdrücklichen Stopp oder bis ohne konkreten Benutzerinput keine sinnvolle
+autorisierte Arbeit möglich ist. Eine ausstehende Sourceentscheidung beendet
+deshalb keine unabhängige Vorprüfung. Die folgenden Empfehlungen ergänzen die
+bestehenden Vorschläge; sie behaupten weder eine neue Funktions-/Providerfreigabe
+noch eine implementierte öffentliche API. Frühere Zustimmungen bleiben gültig.
+
+### CSV: Transport, vollständige Prüfung und Ressourcen
+
+Der Writer muss die caller-lokale Zellmenge zuerst typgenau prüfen und in einen
+privaten geordneten Snapshot übernehmen. Ein SQL-Tabellentyp ist kein direkter
+CLR-Transport: Microsoft schließt dessen Übergabe an Managed-Routinen im
+SQL-Server-Prozess aus. Ebenso wird eine CLR-TVF inkrementell konsumiert;
+direkte Ausgabe wäre daher kein Beweis gegen einen späten Parserfehler.
+[CLR-TVF- und TVP-Vertrag](https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration-database-objects-user-defined-functions/clr-table-valued-functions?view=sql-server-ver17)
+
+Empfehlung innerhalb des vorgeschlagenen eigenen Providers: ein kanonischer
+per-cell-Quotingkern mit internem skalarem Transport und vollständiger
+T-SQL-Zusammensetzung aus dem Snapshot. Alternativ ist ein begrenztes
+Binary-Envelope möglich; dessen Metadaten und Kopien brauchen ein eigenes
+internes Budget. Keine implizite Context Connection, kein beliebiger SQL-Text
+und keine zusätzliche öffentliche Helper-API. Die tatsächliche Wahl und ihre
+Build-/IL-/SQL-Nachweise gehören zum Vor-Source-Vertrag.
+
+Parserausgabe vollständig privat konsumieren und Form-/Ressourcenprüfung
+abschließen, bevor ein öffentliches SELECT oder eine ResultTable-Mutation
+beginnt. Vorbereitung und Insert verwenden den bestehenden
+[Transaktionsvertrag](../Architecture/DECISIONS.md#dec-2026-016-savepoint-fähiger-transaktionsvertrag-und-zentrale-verwendbarkeit).
+Abnahme umfasst späte Quote-/Budgetfehler und einen erst beim Zielinsert
+fehlschlagenden Constraint; Caller-Transaktion und bestehende Zielwerte bleiben
+gemäß dem geltenden USP-Vertrag erhalten.
+
+Vorgeschlagene präzise Zählweise: MaxRows zählt DATA-Records; HEADER zählt
+gegen MaxCells und besitzt dieselbe Spaltenzahl. Header-only ergibt DataRows0.
+Vor LOB-Kopien zuerst Zell-/Recordzahl prüfen. Writer-Outputcharge umfasst
+UTF-16-Werte, Quoteverdoppelungen, Quotehüllen, Separatoren und Recordabschlüsse;
+alle Additionen vor Allokation auf Überlauf und Grenzen prüfen. Eine Million
+leere Zellen benötigt weiterhin Zeilen-/Metadatenspeicher: 16MiB Text ist keine
+16MiB-Heapzusage. NULL-Tokenvergleich benötigt gleiche Länge und exakte
+Codeeinheiten; SQL-Vergleichspadding darf Text nicht zu NULL machen.
+
+Der vorgeschlagene Scanner hat FieldStart-, Unquoted-, Quoted- und AfterQuote-
+Zustände. Synthetische Abnahmefälle: leerer Input, `""`, `,`, `a,`, `"a"x`,
+`a"b`, Quoted-CR/LF, CRLF, EOF im offenen Quote, Token als quoted Text,
+Token mit trailing spaces und unterschiedlich breite Records. Leere Felder
+und Quoteverdoppelung folgen der [RFC-4180-Grammatik](https://www.rfc-editor.org/info/rfc4180/);
+Separatorwahl, LF und NULL-Token bleiben der ausdrücklich beschriebene Dialekt.
+Eine zusätzliche Ablehnung von NUL oder ungepaarten Surrogaten in Zellwerten
+ist bisher nicht festgelegt und wird nicht stillschweigend eingeführt.
+
+### JSON Pointer: sichere Engine-Nutzung
+
+SQL2019 besitzt den neueren ISJSON-Typconstraint noch nicht. Für Scalarroots
+ist ein künstlicher Arraywrapper mit zusätzlichem Nachweis genau eines Elements
+prüfbar; allein ISJSON würde auch die ungültige Dokumentfolge `1,2` in `[1,2]`
+verpackt akzeptieren. Originalbudget vor dem Wrapping prüfen, die künstliche
+Containerstufe nicht zur Dokumenttiefe zählen.
+[ISJSON-Version und Rückgabevertrag](https://learn.microsoft.com/en-us/sql/t-sql/functions/isjson-transact-sql?view=sql-server-ver17)
+
+Erst nach sicherem vollständigem Syntaxpreflight OPENJSON verwenden. Eine
+selektive Pfadauflösung ersetzt keinen Scan aller Dokumentzweige für Tiefe und
+eine gegebenenfalls vereinbarte Unicode-Regel. Ein begrenzter lexikalischer
+Scan berücksichtigt Strings, Escapes und rohe beziehungsweise escaped
+Surrogatpaare; ein Providerwechsel ist daraus nicht bewiesen. Die relationale
+Alternative ist vor einer MSTVF gemäß T-SQL-Regeln zu prüfen.
+
+OPENJSON-Defaultwerte vermeiden JSON_VALUE-Längengrenzen; passende doppelte
+Keys werden nach Escape-Decoding gezählt. Exakter Keyvergleich braucht BIN2
+und gleiche DATALENGTH. Dokumentkeys über4000 Einheiten werden im geprüften
+Enginekontext gekürzt. Der vorgeschlagene vollständige Pointerdeckel4000
+begrenzt wegen des Slash jedes adressierende Token auf höchstens3999 Einheiten;
+Tilde-Decoding verlängert es nicht. Zusammen mit dem Längenvergleich verhindert
+dies in den unten geprüften Trunkierungsfällen einen falschen Präfixtreffer.
+Keine zusätzliche globale Dokumentkeygrenze aus dieser Teilprüfung ableiten.
+[OPENJSON-Metadaten und Fragmentverarbeitung](https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql?view=sql-server-ver15)
+
+Arrayindexlexik erst bei einem tatsächlichen Array anwenden: `01`, `x` und `-`
+können Objektkeys sein. Ein beliebig großer syntaktisch gültiger Dezimalindex
+kann gegen die begrenzte Arraykardinalität geprüft werden; bigint-Überlauf
+allein ist kein Pointer-Syntaxfehler. Noch konkret vorzulegen: Status für
+Weiterlaufen durch Scalar/null und ungültige Arrayindexform, Rootdepth und
+Unicode-Regel. RFC6901 überlässt die Fehlerfolgen der Anwendung.
+[RFC6901](https://www.rfc-editor.org/rfc/rfc6901),
+[RFC8259: Unicode-Grenzen](https://www.rfc-editor.org/rfc/rfc8259#section-8.2)
+
+### Safe Cast: Lexik vor nativer Konversion
+
+Jeder Konversionsausdruck muss auch bei früher Optimizer-Auswertung sicher
+sein; ausschließlich TRY_CONVERT auf die sechs zulässigen Zieltypen verwenden.
+Lexik und Verlustfreiheit separat prüfen. CASE/CTE/APPLY sind keine allgemeine
+Barriere gegen gefährliche Konversionen.
+[TRY_CONVERT](https://learn.microsoft.com/en-us/sql/t-sql/functions/try-convert-transact-sql?view=sql-server-ver17),
+[CASE-Auswertungsgrenzen](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/case-transact-sql?view=sql-server-ver17)
+
+Decimal38/18 hat höchstens20 Ganzzahlstellen; vor Konversion signifikante
+Ziffern und den Nachkommarest prüfen. Native Skalenreduktion kann runden.
+19. Nachkommastelle0 gegenüber1, 21 signifikante Ganzzahlstellen, negative0
+und kombinierter Bereichs-/Verlustfehler sind getrennte Abnahmefälle.
+GUID benötigt exakt36 Zeichen und feste Bindestrich-/Hexpositionen; native
+Konversion allein qualifiziert die vorgeschlagene strenge Form nicht.
+Für `99999999999999999999.9999999999999999991` ist OUT_OF_RANGE vor LOSSY
+der vorgeschlagene Abnahmeausgang: die Ganzzahllänge allein erkennt die
+Überschreitung des exakten Decimal-Maximalwerts nicht.
+[decimal/numeric](https://learn.microsoft.com/en-us/sql/t-sql/data-types/decimal-and-numeric-transact-sql?view=sql-server-ver17)
+
+Empfehlung zur noch offenen Fehlerpriorität: SQL_NULL, ungültiges Budget,
+LIMIT, EMPTY, Lexik, exakter Bereich, LOSSY, OK. Negative/NULL/0/über8192
+liegende Budgets benötigen einen eigenen stabilen Parametercode. Diese Tabelle
+ist vorgeschlagen, kein eingefrorener öffentlicher Vertrag. Kalenderfehler,
+Bit2, Whitespace/NUL und überlange GUIDs erhalten explizite Fixtures.
+
+### JSON Schema: begrenzter exakter Evaluationskern
+
+System.Numerics gehört nicht zur automatisch unterstützten SQL-CLR-
+Bibliotheksliste. Ein BigInteger-basierter Kern ist dadurch weder automatisch
+SAFE noch auf Linux qualifiziert; eine zusätzliche Assembly wäre eine eigene
+Dependency-/Trustgrenze. Für die bereits vorgeschlagenen Zahlenkeywords ist
+ein Vergleich von Vorzeichen, signifikanten Dezimalziffern und Exponent ohne
+materialisierte Zehnerpotenzen eine prüfbare eigene Alternative.
+[Unterstützte Frameworkbibliotheken](https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/database-objects/supported-net-framework-libraries?view=sql-server-ver17)
+
+Abnahme: mathematische Integerwerte `1`, `1.0`, `1e0`; große positive/negative
+Exponenten und begrenzte Exponentziffernverarbeitung. Kein float- oder
+decimal-Ersatz für beliebig große JSON-Zahlen.
+[Draft2020-12 Validation](https://json-schema.org/draft/2020-12/json-schema-validation)
+
+Lokale Referenzen benötigen URI-Fragment-Decoding vor Pointer-Decoding,
+erkannte Schemaorte als Ziele und explizite Behandlung von $id/$anchor/
+$vocabulary. $ref-Geschwister bleiben wirksam. Referenzzyklen über kombinierte
+Subschema-/Referenzkanten prüfen; DAGs nicht vollständig expandieren.
+Zusammengehörige Fixtures: prefixItems/items, additionalProperties desselben
+Schemaobjekts und Referenz plus zusätzliche lokale Bedingung.
+[Draft2020-12 Core](https://json-schema.org/draft/2020-12/json-schema-core)
+
+Ein Evaluationsbudget muss zusätzlich Parsing, Duplicateprüfung, vollständigen
+Schema-Preflight, Referenzauflösung, Vergleiche und Diagnosepfade abdecken.
+Slice-/Indexdarstellung und expliziter Stack sind Entwurfsempfehlungen, keine
+Heapqualifikation. Noch konkret festzulegen: Unicode-Regel, Schema-/Dokument-
+Fehlerpriorität, nicht auflösbare Referenz, MaxErrors0 und SUMMARY/ErrorOrdinal.
+Fehlendes vollständiges Urteil bleibt LIMIT/IsValidNULL.
+
+### Tatsächlich ausgeführte Vor-Source-Characterization
+
+Befehl: `pwsh -NoProfile -File Tests/Research/characterize-next-wave-json.ps1`.
+Datum:2026-10-05. Scope: elf synthetische lesende Engineproben auf dem nach
+Schema-Validierung ausdrücklich gewählten SQL2019 Linux/latest mit geprüftem
+Major15 und aktuellem CL150. Der Runner verwendet kanonische Discovery und
+Readiness-Auswahl; kein Providerfallback. SQL-Anmeldung und die im Zusatzprompt
+geforderten Inventarabfragen wurden durchgeführt, Ergebnisse nicht gespeichert.
+Keine Datenbank-/Objekt-/Konfigurations-, Rechte- oder Truständerung.
+[Reproduzierbarer Runner](../../Tests/Research/characterize-next-wave-json.ps1)
+
+Alle elf Assertions bestanden: Scalarwrapper, notwendige Rootkardinalität,
+SQL-Padding, escaped Duplicatekeys, 4000-/4001-Keygrenze, escaped unpaired
+Surrogate, Decimal-Rundung, GUID-Suffix sowie Langkeys mit Surrogatpaar/NUL
+an der Trunkierungsgrenze. Die letzten zwei Fälle erzeugten unter BIN2 plus
+Längengleichheit keinen kurzen Präfixtreffer. Das ist begrenzte Engineevidenz;
+die vorgeschlagenen öffentlichen APIs existieren weiterhin nicht. Andere
+Collations, Ziele, vollständige Parser-/Optimizer-/Budget- und Performancefälle
+sind `not executed`. CLR-/API-Qualifikation wird dadurch nicht behauptet.
