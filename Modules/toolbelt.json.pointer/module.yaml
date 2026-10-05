@@ -1,0 +1,88 @@
+module_id: "toolbelt.json.pointer"
+module_name: "JSON Pointer Resolution"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Lesende native T-SQL-MSTVF für exakte JSON-Pointer-Auflösung mit vollständiger Unicode- und Tiefenpolicy."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "partially validated"
+  linux: "partially validated"
+providers:
+  - id: tsql-json-pointer
+    technology: "Native ISJSON-/OPENJSON-Grammatik, sequentieller UTF16-Policywalker und MSTVF."
+    platforms: [Windows, Linux]
+    status: "partially validated"
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies: []
+schemas:
+  - "toolbelt_json"
+objects:
+  - {type: TVF, schema: "toolbelt_json", name: "TVF_ResolveJsonPointer", visibility: public}
+permissions_required:
+  - "Aufruf: vorhandenes SELECT auf der TVF; CrossDB benötigt bestehende passende Rechte."
+  - "Lifecycle: VIEW DEFINITION, SELECT auf sys.sql_expression_dependencies, CREATE FUNCTION und passende Schema-DDL-Rechte; keine Rechtevergabe."
+collation_contract: "Alle vier Textausgabespalten Latin1_General_100_BIN2; exakte Keys über BIN2 plus DATALENGTH, UTF16-Policy ohne SC."
+data_type_contract: "Json/Pointer nvarchar(max); MaxInputBytes bigint=16777216 und MaxDepth int=128 nur positiv/absenkbar; Pointer höchstens4000 UTF16-Einheiten."
+help_contract_version: "not applicable"
+resultset_contracts:
+  - {object: "toolbelt_json.TVF_ResolveJsonPointer", columns: ["Status varchar(16) NOT NULL", "JsonType varchar(8) NULL", "Value nvarchar(max) NULL", "ErrorCode varchar(32) NULL"]}
+runtime_error_contract: "Genau eine Statuszeile gemäß JSON_POINTER_CONTRACT; technische Enginefehler bleiben technische Fehler."
+lifecycle_error_range: "55520-55529"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/TVF_ResolveJsonPointer.md"
+  architecture:
+    - "../../Documentation/Architecture/JSON_POINTER_CONTRACT.md"
+    - "../../Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md"
+  test_matrix:
+    - "Tests/JSON_POINTER_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+  examples:
+    - "Examples/JsonPointer.sql"
+contracts:
+  usp: "not applicable"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/Contract.Tests.sql"
+  safety: "Tests/Runtime/Safety.Tests.sql"
+  contract: "Tests/Runtime/Metadata.Tests.ps1"
+  lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
+  lab: "../../Tests/CI/run-json-pointer-lab.ps1"
+validation_evidence:
+  - date: "2026-10-05"
+    workflow: "local: Tests/Static/validate_contract.py"
+    scope: "Kanonischer nicht schreibender Deploymentgenerator und statischer Vertrag bestanden; Source, expandiertes Deployment und Fixtures unabhängig mit ScriptDom150 sowie Client-/Adapter-PowerShell-AST geprüft. Kein nativer Gesamtbeweis daraus."
+    result: "success"
+  - date: "2026-10-05"
+    workflow: "local: Tests/CI/run-json-pointer-lab.ps1"
+    scope: "Zwei begrenzte Linux2019/latest CL150 local Gesamtfehlläufe: Deploy/Repeat und432 feste Contract-APPLY-Oracles bestanden, Safety scheiterte zunächst mitSQL13606/state1; failure-path-Diagnostik isolierte anschließend gültige Tiefe129 alsFall41 (SQL55591/state41). Reine SELECT-Proben bestätigen native ISJSON-Grenze:128 gültig, gültige/fehlerhafte129 technisch13606. Je tatsächlicherExit1, vollständige Kanäle, leeresStderr und FAILED_CLEANED; frische unabhängige Audits bestätigen eigeneDB abwesend, Nullscope Konfiguration/Rechte/Trust und unveränderteInputpins. Keine vollständige Safety-/Client-/Lifecycle-/central-/Windowsqualifikation. Konkrete Prioritätsänderung wartet auf ausdrückliche Zustimmung."
+    result: "failed"
+  - date: "2026-10-05"
+    workflow: "local: Tests/CI/run-json-pointer-lab.ps1 -QualificationScope lifecycle"
+    scope: "Separater gleicher Source-/Deployment-/Fixture-/Adapterstand auf Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 bestanden: jeweils local/central/Consumer, installierte Baseline,15 echte Statusclientreader, Clean/Repeat/Uninstall/Repeat und42 gezielte Caller-/Lock-/Rollback-/TypedMarker-/Fremdslot-/Dependency-/Confirm0-Fälle. Je tatsächlicherExit0, vollständige Kanäle und leeresStderr. Neue unabhängige Verbindungen bestätigen COMPLETE42, drei eigeneDBs abwesend, je zwei Marker-/Fremdslot-/Dependencyfixtures exakt restauriert mit je zwei Abweisungen und sämtlicheInputpins unverändert; Nullscope Konfiguration/Rechte/Trust. Contract/Safety-Fixtures in diesem Scope ausdrücklich NOT_EXECUTED. Frühere Gesamtfehlläufe bleiben fehlgeschlagen; ursprüngliche Priorität oberhalb128 weiterhin blockiert und Änderungszustimmung offen. Weitere physische Ziele, Minimalrechte, Maximalworkload/Heap und exakteHead-CI separat offen."
+    result: "success"

@@ -2,7 +2,7 @@
 
 <!-- Generiert mit Tests/Documentation/generate_api_catalog.py --write; nicht direkt bearbeiten. -->
 
-156 öffentliche Schnittstellen aus 41 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
+157 öffentliche Schnittstellen aus 42 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
 
 Jedes Beispiel separat verwenden. Funktionen verlangen positionsbezogene Argumente; `DEFAULT` verwendet einen deklarierten Default, `NULL` kann davon abweichen. Prozeduren verwenden benannte Parameter. Vorlagen mit Handlern, Claims, Dateien oder Plan-Hashes erfordern die beschriebenen Voraussetzungen. Eine Syntaxvorlage ist kein Runtime-Nachweis.
 
@@ -3465,6 +3465,31 @@ Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag
 
 ```sql
 SELECT * FROM toolbelt_json.TVF_JsonPathExists(N'{"items":[1,2]}', N'$.items[0]');
+```
+
+## toolbelt_json.TVF_ResolveJsonPointer
+
+Modul `toolbelt.json.pointer` · Version `1.0.0` · `TVF`
+
+Löst einen RFC6901-Pointer mit exakten Keys und unterscheidet FOUND, MISSING, JSON_NULL, SQL_NULL und INVALID. Native Sicherheitsqualifikation an der Tiefengrenze129 derzeit offen.
+
+Vertrag und Quelle: [TVF_ResolveJsonPointer.sql](../../Modules/toolbelt.json.pointer/Source/TVF_ResolveJsonPointer.sql), [TVF_ResolveJsonPointer.md](../../Modules/toolbelt.json.pointer/Documentation/TVF_ResolveJsonPointer.md).
+
+<!-- Source/Vertrag SHA256: ad657c4d7e583924bf85339f35c8fca45eff262962a8c3037fb9533c566069b4 -->
+
+Voraussetzung: Vorhandenes SELECT; SQL Server2019+ und CL150+ auch beim zentralen Caller; lesende MSTVF ohne CLR. Native Prioritätsänderung oberhalb128 wartet auf Zustimmung; kein Release.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Json` | `nvarchar(max)` | `kein Default` | Input | Vollständiges JSON einschließlich Scalarroot; vollständige Unicode-/Tiefenpolicy. |
+| `@Pointer` | `nvarchar(max)` | `kein Default` | Input | Stringform, leer für Root; ~0/~1 einmal decodieren, höchstens4000 UTF16-Einheiten. |
+| `@MaxInputBytes` | `bigint` | `16777216` | Input | Positives bigint-Bytebudget bis16777216, nur absenkbar. |
+| `@MaxDepth` | `int` | `128` | Input | Positives int-Tiefenbudget bis128, nur absenkbar; Containerroot1, Scalarroot0. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT Status,JsonType,Value,ErrorCode FROM toolbelt_json.TVF_ResolveJsonPointer(N'{"items":[null,"example"]}',N'/items/1',DEFAULT,DEFAULT);
 ```
 
 ## toolbelt_metadata.VW_ModuleCapabilities

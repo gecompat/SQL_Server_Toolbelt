@@ -2,6 +2,16 @@
 
 ## Status
 
+JSON Pointer1.0.0 ist einzeln freigegeben, geschrieben und teilweise validiert.
+Zwei bereinigte native Linux2019-Fehlläufe zeigen eine neue Providergrenze:
+ISJSON wirft bei Tiefe129 bereits technisch13606. Die konkrete
+[Prioritätsänderung](../Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
+wartet auf Zustimmung; danach erst Sourcekorrektur und vollständige native
+API-/Lifecyclequalifikation. Unabhängige Lifecycleabdeckung wird fortgesetzt.
+Der getrennte Lifecycle-Scope besteht inzwischen auf Linux2019/CL150 und
+Windows2025/exaktCU8 CL170: je15 Clientreader,42 Lifecyclefälle und unabhängiger
+Cleanup-/Fixture-/Pinaudit; keine vollständige Contract-/Safetyqualifikation.
+
 Die sechs einzeln freigegebenen Safe-Cast-TVFs in `toolbelt.conversion.safe-cast`
 1.0.0 sind implementiert und teilweise validiert. Finale begrenzte Adapter auf
 Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 bestanden local/central/
@@ -31,7 +41,7 @@ XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 41 Module sind implementiert. 19 sind `validated`, 22 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
+abgeschlossen. 42 Module sind implementiert. 19 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Die vollständige lokale Adaptermatrix war am 2026-09-01 auf physischen

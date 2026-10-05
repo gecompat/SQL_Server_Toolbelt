@@ -2,6 +2,13 @@
 
 Stand: 2026-09-11
 
+Fortschritt 2026-10-05: RI-2026-041 ist nach PR173 einzeln freigegeben.
+Die native Pointer-MSTVF, Lifecycle und Tests sind geschrieben, teilweise
+validiert und unveröffentlicht. Zwei bereinigte Linux2019-Safetyfehlläufe
+zeigen die native ISJSON-Tiefengrenze129. Der
+[konkrete Prioritätsvorschlag](../Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
+benötigt Zustimmung; vollständige native Qualifikation folgt erst danach.
+
 Dieser Plan zerlegt die Kandidaten aus
 [`TOOLBELT_CANDIDATES.md`](./TOOLBELT_CANDIDATES.md) in mögliche Module,
 öffentliche SQL-Objekte, interne beziehungsweise externe Provider-Artefakte,
@@ -9,7 +16,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 41 Module sind implementiert; 19 sind `validated`, 22 sind `partially validated`, 0 sind `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 42 Module sind implementiert; 19 sind `validated`, 23 sind `partially validated`, 0 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
