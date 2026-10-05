@@ -26,7 +26,8 @@ permissions:
   contents: read
 concurrency:
   group: xlsx-memory-qualification-${{ github.ref }}
-  cancel-in-progress: true
+  # Laufende Runtimeprüfung erhalten: keine belegte Hard-Interrupt-Bereinigung.
+  cancel-in-progress: false
 jobs:
   qualification:
     runs-on: windows-latest

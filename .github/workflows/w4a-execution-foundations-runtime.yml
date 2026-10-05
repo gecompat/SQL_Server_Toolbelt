@@ -27,7 +27,8 @@ permissions:
 
 concurrency:
   group: w4a-execution-foundations-${{ github.ref }}
-  cancel-in-progress: true
+  # Laufende Runtimeprüfung erhalten: keine belegte Hard-Interrupt-Bereinigung.
+  cancel-in-progress: false
 
 jobs:
   static-contracts:

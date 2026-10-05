@@ -27,7 +27,8 @@ permissions:
 
 concurrency:
   group: external-queue-worker-${{ github.ref }}
-  cancel-in-progress: true
+  # Laufende Runtimeprüfung erhalten: keine belegte Hard-Interrupt-Bereinigung.
+  cancel-in-progress: false
 
 jobs:
   fault-contract:

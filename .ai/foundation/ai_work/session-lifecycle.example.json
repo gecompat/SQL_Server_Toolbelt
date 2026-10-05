@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "contract": "foundation-session-lifecycle/v1",
+  "session_id": "orchestrator-014",
+  "role": "ORCHESTRATOR",
+  "metrics": {
+    "estimated_context_tokens": 65536,
+    "context_window_tokens": 100000,
+    "tokens_since_checkpoint": 30000
+  },
+  "boundary": "WORK_ITEM_COMPLETED",
+  "policy": {
+    "soft_context_ratio": 0.65,
+    "hard_context_ratio": 0.8,
+    "checkpoint_delta_tokens": 30000
+  },
+  "successor_session_capability": "MANUAL"
+}

@@ -93,6 +93,45 @@ Für jede tatsächlich ausgeführte Prüfung dokumentieren:
 
 Nicht ausgeführte Prüfungen als `not executed` oder `not applicable` kennzeichnen. Ein agenteninterner Review ohne reproduzierbare Ausgabe wird nicht als CI-Nachweis dargestellt.
 
+## CI-Ablösung und laufende Prüfungen
+
+Runtime- und Qualification-Workflows mit mutierenden Testressourcen behalten
+eine bereits laufende Prüfung (`cancel-in-progress: false`). Ein EXIT-Trap
+allein beweist keine idempotente Bereinigung nach harter Unterbrechung.
+Die vorhandenen Workflow-Timeouts und eigenen Cleanup-Verträge bleiben gültig;
+gemeinsam genutzte Labressourcen werden nicht durch CI verwaltet.
+
+Eine noch nicht gestartete Prüfung desselben logischen PR-Änderungssatzes
+darf durch dessen vollständig ersetzenden neuen Head abgelöst werden.
+Die vorhandenen Concurrency-Gruppen bleiben erhalten. Der ausschließlich
+lesende Dokumentationsworkflow darf weiterhin laufende Arbeit ablösen.
+Abgebrochene, abgelöste oder nicht gestartete Prüfungen sind kein PASS.
+Integration erfordert die tatsächlichen Ergebnisse am exakten aktuellen Head;
+nach Headänderung oder konfliktbehafteter Integration gelten frühere Erfolge
+nur für ihren ursprünglichen Commit. Es wird keine Merge Queue aktiviert.
+
+Bei Timeout, unbekanntem Cleanup oder Infrastrukturfehler bleibt die Evidenz
+unvollständig. Fremde Änderungen werden nicht überschrieben; ein mutierender
+Lauf wird vor abhängigen neuen Labverbrauchern reconciled. Die Foundation-
+[Continuity-Regel](foundation/REPOSITORY_CONTINUITY_POLICY.md) erlaubt keine
+erfundenen Statuswerte oder eigenmächtigen GitHub-Admin-/Bypassänderungen.
+
+## Lange KI-Sitzungen
+
+Die [Session-Regel](foundation/AI_WORK_ORCHESTRATION_POLICY.md) ergänzt die
+autonome Fortsetzung über dauerhafte Repository-Quellen. Unbekannte Token-
+metriken bleiben unbekannt; die heuristischen Beispielschwellen der Foundation
+sind keine gewählte Projektkonfiguration. Kein periodischer Chat-Gesamtscan,
+keine laufenden Summary-of-summary-Ketten und keine Rotation allein wegen
+Antwortlatenz. Ein tatsächlicher Checkpoint hält nur neue, noch nicht in den
+kanonischen Quellen reconciled Fakten plus Referenzen fest; Laufzeit-/Handoff-
+Zustand bleibt unversioniert.
+
+Automatische Nachfolgesitzungen werden weder aktiviert noch behauptet.
+Eine konkrete Clientintegration benötigt belegte Fähigkeit und passende
+Benutzerautorität. Der Einbau des optionalen Planners ist keine solche Freigabe.
+Fehlende Schwellen-/Clientkonfiguration blockiert normale Projektarbeit nicht.
+
 ## Abschlussprüfung
 
 Vor dem Merge mindestens prüfen:

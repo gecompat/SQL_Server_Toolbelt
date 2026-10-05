@@ -36,6 +36,20 @@
   Lifecycle-/Heapqualifikation offen. Neue Module teilweise validiert und
   unveröffentlicht;44 Module insgesamt,19 validiert/25 teilweise validiert.
 
+## 2026-10-05 – AI Repository Foundation1.19.0
+
+- Exakte öffentliche Quelle4aafd20442275d0fdedf291fc6e12e8fe1f683cc nach
+  vollständiger Feature-/Hashprüfung integriert; bestehende Projektregeln,
+  drei Adapter und neun ausgewählte Capabilities erhalten.
+- Zwei neue Features bewertet: sichere CI-Ablösung und metadatenbasierte
+  Sessionsteuerung.24 Runtime-Workflows erhalten laufende Prüfungen, solange
+  keine belegte Bereinigung nach harter Unterbrechung besteht.
+- Foundationintegrität,34 relevante Upstream-Regressionsfälle, vollständiger
+  Projektdokumentationsaudit und YAML-Verträge bestanden. Konkrete
+  Sessionthresholds und automatische Clientrotation bleiben optional.
+- [Bewertung und Grenzen](Documentation/Architecture/FOUNDATION_1_19_INTEGRATION.md).
+
+
 ## 2026-10-05 – JSON Pointer1.0.0 und freigegebener nativer128er-Guard
 
 - Einzeln freigegebene lesende native MSTVF TVF_ResolveJsonPointer mit vier
