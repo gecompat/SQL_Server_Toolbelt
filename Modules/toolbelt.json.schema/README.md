@@ -39,6 +39,6 @@ unreleased. [Beispiele](Examples/JsonSchema.sql) verwenden synthetische Daten.
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
 - Nachweis: `local: run-json-schema-lab.ps1`
-- Scope: Linux2019/latest CL150 und Windows2025/CU8 CL170 jeweils local/central:26 Contractfälle, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Beide Ziele local/central nach genuine Constructor1.2→1.3 zusätzlich26 Contractfälle bestanden. Frische hashgebundene Dispositionaudits beider aktueller Core-/Schema-/Migrationsscopes bestanden. Vollständige Lifecycle-/Zielmatrix, CrossDB und minimale Rechte offen.
+- Scope: Linux2019/latest CL150 und Windows2025/CU8 CL170 jeweils local/central:30 Contractfälle einschließlich langer escaped NUL-Pointer und Bytepriorität, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Beide Ziele local/central nach genuine Constructor1.2→1.3 separat26 Contractfälle bestanden. Frische hashgebundene Dispositionaudits beider aktueller Core-/Schema-/Migrationsscopes bestanden. Vollständige Lifecycle-/Zielmatrix, CrossDB und minimale Rechte offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -58,6 +58,31 @@ DECLARE @Deep nvarchar(max)=REPLICATE(N'[',129)+N'0'+REPLICATE(N']',129);
 INSERT #SchemaAnswer EXEC toolbelt_json.USP_ValidateJsonSchema @Json=@Deep,@Schema=N'true';
 IF NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE ErrorOrdinal=0 AND Status='LIMIT' AND IsValid IS NULL AND ErrorCode='DEPTH_LIMIT')
  THROW 55690,N'Synthetic depth oracle failed.',4;
+DELETE #SchemaAnswer;
+DECLARE @LongPrefix nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),N'a'),4001),
+ @LongJson nvarchar(max),@LongSchema nvarchar(max),@ExpectedDocumentPointer nvarchar(max),@ExpectedSchemaPointer nvarchar(max);
+SELECT @LongJson=N'{"'+@LongPrefix+N'/~\u0000":1}',
+ @LongSchema=N'{"properties":{"'+@LongPrefix+N'/~\u0000":false}}',
+ @ExpectedDocumentPointer=N'/'+@LongPrefix+N'~1~0'+NCHAR(0),
+ @ExpectedSchemaPointer=N'/properties/'+@LongPrefix+N'~1~0'+NCHAR(0);
+INSERT #SchemaAnswer EXEC toolbelt_json.USP_ValidateJsonSchema @Json=@LongJson,@Schema=@LongSchema;
+IF (SELECT COUNT(*) FROM #SchemaAnswer)<>2 OR NOT EXISTS(SELECT 1 FROM #SchemaAnswer
+ WHERE RowKind='ERROR' AND ErrorOrdinal=1 AND Status='INVALID_INSTANCE' AND IsValid=0
+ AND CONVERT(varbinary(max),DocumentPointer)=CONVERT(varbinary(max),@ExpectedDocumentPointer)
+ AND CONVERT(varbinary(max),SchemaPointer)=CONVERT(varbinary(max),@ExpectedSchemaPointer))
+ THROW 55690,N'Long escaped NUL pointer was truncated or changed.',5;
+DELETE #SchemaAnswer;
+INSERT #SchemaAnswer EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N'{',@Schema=N'true',@MaxSchemaBytes=7;
+IF NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE ErrorOrdinal=0 AND Status='LIMIT' AND IsValid IS NULL AND ErrorCode='SCHEMA_BYTES')
+ THROW 55690,N'Schema byte limit priority changed.',6;
+DELETE #SchemaAnswer;
+INSERT #SchemaAnswer EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N'null',@Schema=N'true',@MaxDocumentBytes=7;
+IF NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE ErrorOrdinal=0 AND Status='LIMIT' AND IsValid IS NULL AND ErrorCode='DOCUMENT_BYTES')
+ THROW 55690,N'Document byte limit changed.',7;
+DELETE #SchemaAnswer;
+INSERT #SchemaAnswer EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N'null',@Schema=N'{',@MaxDocumentBytes=1;
+IF NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE ErrorOrdinal=0 AND Status='INVALID_SCHEMA' AND IsValid IS NULL AND ErrorCode='JSON_SYNTAX')
+ THROW 55690,N'Schema syntax must precede document byte limit.',8;
 DROP TABLE #SchemaAnswer;
-PRINT N'PASS JSON_SCHEMA_NATIVE_CONTRACT CASES 26';
+PRINT N'PASS JSON_SCHEMA_NATIVE_CONTRACT CASES 30';
 GO

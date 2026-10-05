@@ -23,12 +23,16 @@ Journale, konkrete Vorzustände und Runtimekanäle bleiben unversioniert.
 
 ## Tatsächlicher fachlicher Umfang
 
-Core/Schema:26 Fälle aus `Contract.Tests.sql`, `Safety.Tests.sql` und ein
+Core/Schema:30 Fälle aus `Contract.Tests.sql`, `Safety.Tests.sql` und ein
 direkter Clientreader mit genau einem Resultset, zehn öffentlichen Typen/
 Ordinals, SUMMARY/ERROR-Reihenfolge und einheitlichem Urteil. Geprüft wurden
 unter anderem Scalars, SQL-NULL-Priorität, ungültige Syntax/Unicode/Duplikate,
 exakte riesige Zahlen, nicht unterstützte unbenutzte Schemaorte, Referenzzyklen,
-lokale Referenzen, Budget1, Tiefe129 und `MaxErrors`0/1. Helpfirst,
+lokale Referenzen, Budget1, Tiefe129 und `MaxErrors`0/1. Die vier ergänzten
+Fälle prüfen Pointer über4000 UTF16-Einheiten mit escaped Slash/Tilde und
+NUL bytegenau sowie abgesenkte Schema-/Dokumentbytes und Schemafehlerpriorität.
+Diese erweiterten Läufe bestanden auf beiden Zielen local/central mit
+anschließendem frischem hashgebundenem Dispositionaudit. Helpfirst,
 Argument-/Namensraumfehler, ResultTable-Replace/Append und committabler
 Callerrollback sind im Safety-Scope enthalten. Die erweiterte abschließende
 Safety-Fixture bestand außerdem echte CHECK-Constraintfehler nach Routing:
@@ -98,6 +102,6 @@ Produkt-PR-Head ausgeführt. Diese Teilqualifikation ist kein Release.
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
 - Nachweis: `local: run-json-schema-lab.ps1`
-- Scope: Linux2019/latest CL150 und Windows2025/CU8 CL170 jeweils local/central:26 Contractfälle, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Beide Ziele local/central nach genuine Constructor1.2→1.3 zusätzlich26 Contractfälle bestanden. Frische hashgebundene Dispositionaudits beider aktueller Core-/Schema-/Migrationsscopes bestanden. Vollständige Lifecycle-/Zielmatrix, CrossDB und minimale Rechte offen.
+- Scope: Linux2019/latest CL150 und Windows2025/CU8 CL170 jeweils local/central:30 Contractfälle einschließlich langer escaped NUL-Pointer und Bytepriorität, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Beide Ziele local/central nach genuine Constructor1.2→1.3 separat26 Contractfälle bestanden. Frische hashgebundene Dispositionaudits beider aktueller Core-/Schema-/Migrationsscopes bestanden. Vollständige Lifecycle-/Zielmatrix, CrossDB und minimale Rechte offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
