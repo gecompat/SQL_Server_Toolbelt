@@ -324,3 +324,26 @@ Trust-Hashes; keine Konfigurations-/Rechteänderungen. Die sechs Negativfälle
 sind von Setup, Metadatenzeugen, Uninstall und Cleanup getrennt gezählt.
 API-, Consumer- und Upgradetests wurden nicht wiederholt. Weitere Lifecycle-/
 Kollisionsfälle, Ziele, Minimalrechte und Heap bleiben offen.
+
+## Ergänzende Fremdslot-Qualifikation 2026-10-05
+
+`Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentralFutureCollisions4`
+bestand auf Linux2019/latest zentral CL150. Vier feste Fixtures erzeugen
+öffentliche/interne fremde Anzeige-Slots mit oder ohne imitierte Modulmarker
+auf einem echten1.1-Vorgänger. Der aktuelle1.2-Deploy weist jeden Fall mit51534
+ab und bewahrt den vorhandenen vollständigen Snapshot. Der aktuelle
+release-aware Uninstall entfernt das installierte ältere Release und bewahrt
+den exakten fremden Slot. Der originale1.1-Uninstall wird hierbei nicht geprüft.
+
+Nach jedem Fall wird der fremde synthetische Slot entfernt und genuine1.1 neu
+installiert; einschließlich Setup sind es fünf Vorgängerinstallationen.
+Native Vor-/Nachzeugen belegen sieben Slots, drei Bindings, exakten SAFE-
+Binaryhash, Release/Modus/CL150 und neutralen Sessionzustand. Vier bezeichnet
+die Fremdslot-Fixtures, nicht sämtliche Installations-/Lifecycleaufrufe.
+
+Finaler aktueller Uninstall, äußerer eigener Prozesswatchdog, Exit0 und
+vollständige private Kanäle bestanden. Ein frischer unabhängiger Audit
+bestätigte eine OwnDB und drei OwnTrust-Hashes abwesend, ohne Konfigurations-/
+Rechteänderungen. API, Consumer, Upgrade, allgemeine Runtimefixturematrix
+und die sechs vorherigen Lifecyclefälle wurden nicht wiederholt.
+Weitere Vorgänger-/Ziel-/Lifecyclekontexte, Minimalrechte und Heap bleiben offen.
