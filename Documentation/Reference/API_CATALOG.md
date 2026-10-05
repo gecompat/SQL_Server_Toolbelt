@@ -3471,13 +3471,13 @@ SELECT * FROM toolbelt_json.TVF_JsonPathExists(N'{"items":[1,2]}', N'$.items[0]'
 
 Modul `toolbelt.json.pointer` · Version `1.0.0` · `TVF`
 
-Löst einen RFC6901-Pointer mit exakten Keys und unterscheidet FOUND, MISSING, JSON_NULL, SQL_NULL und INVALID. Native Sicherheitsqualifikation an der Tiefengrenze129 derzeit offen.
+Löst einen RFC6901-Pointer mit exakten Keys und unterscheidet FOUND, MISSING, JSON_NULL, SQL_NULL und INVALID. Der freigegebene feste128er-Guard gibt darüber DEPTH_LIMIT vor JSON_SYNTAX zurück.
 
 Vertrag und Quelle: [TVF_ResolveJsonPointer.sql](../../Modules/toolbelt.json.pointer/Source/TVF_ResolveJsonPointer.sql), [TVF_ResolveJsonPointer.md](../../Modules/toolbelt.json.pointer/Documentation/TVF_ResolveJsonPointer.md).
 
-<!-- Source/Vertrag SHA256: ad657c4d7e583924bf85339f35c8fca45eff262962a8c3037fb9533c566069b4 -->
+<!-- Source/Vertrag SHA256: dc6bfe78505445e34f91de6e5442be801a73a764af76f7c39419f9d31199a022 -->
 
-Voraussetzung: Vorhandenes SELECT; SQL Server2019+ und CL150+ auch beim zentralen Caller; lesende MSTVF ohne CLR. Native Prioritätsänderung oberhalb128 wartet auf Zustimmung; kein Release.
+Voraussetzung: Vorhandenes SELECT; SQL Server2019+ und CL150+ auch beim zentralen Caller; lesende MSTVF ohne CLR. Freigegebener struktureller128er-Guard: darüber DEPTH_LIMIT vor JSON_SYNTAX; kein Release.
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

@@ -21,13 +21,14 @@ Produkt-DDL wird direkt ausgeführt; künstliche Faultseams sind Testvorbereitun
 unabhängig die installierte Baseline, echte Clientmetadaten und42 gezielte
 Lifecyclefälle bei beiden Modi. Contract/Safety bleiben in diesem Scope
 ausdrücklich NOT_EXECUTED; eine erfolgreiche Lifecycle-Prüfung löst die
-offene native Tiefenpriorität nicht. Default `full` enthält weiterhin alle
+notwendige vollständige Contract-/Safetyqualifikation nicht. Default `full` enthält weiterhin alle
 drei SQLfixtures. Das private Journal hält Scope und tatsächliche Fixtures fest.
 
 Statisch: `python Modules/toolbelt.json.pointer/Tests/Static/validate_contract.py`.
 Der kanonische Deploymentgenerator wird dabei nicht schreibend geprüft.
-Vollständige native API-/Safetyqualifikation, weitere physische Ziele, Minimalrechte und Heap-/
-Maximalworkloadqualifikation sind in diesem Vorbereitungsstand offen.
+Weitere physische Ziele, Minimalrechte und Heap-/Maximalworkloadqualifikation
+bleiben offen; die tatsächlich ausgeführte begrenzte API-/Safetyqualifikation
+steht getrennt unten.
 
 Zwei begrenzte Linux2019/latest-CL150-Läufe bestanden Install/Repeat und
 432 Contract-APPLY-Oracles, scheiterten danach in Safety. Der erste technische
@@ -38,9 +39,9 @@ Verbindungen bestätigten eigene DB-Abwesenheit und unveränderte Inputpins.
 Keine Konfigurations-, Rechte- oder Truständerungen. Kein vollständiger
 Safety-/Client-/Lifecycle-/central-/Windowsnachweis. Der
 [Änderungsvorschlag](../../../Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
-benötigt ausdrückliche Zustimmung zur Priorität oberhalb128; Source bleibt
-bis dahin beim freigegebenen ursprünglichen Vertrag. Teilweise validiert,
-unveröffentlicht, aktuell kein mergefähiger Abschlussstand.
+benötigte in diesem historischen Stand ausdrückliche Zustimmung zur Priorität
+oberhalb128. Die anschließende konkrete Antwort „Diese Prioritätsänderung
+freigegeben“ autorisiert genau den hier dokumentierten Guard und Wrapperpfad.
 
 Die anschließenden getrennten Lifecycle-Scope-Adapter bestanden mit zwischen
 diesen beiden erfolgreichen Läufen identischem eingefrorenen Source-/Deployment-/
@@ -56,11 +57,26 @@ Scopes NOT_EXECUTED. Die frühere Contract-Teilevidenz und beide fehlgeschlagene
 Gesamtadapter bleiben getrennt; keine Behebung der nativen Tiefenpriorität
 und keine vollständige API-/Safetymatrixqualifikation daraus abgeleitet.
 
+Nach der ausdrücklichen Prioritätsfreigabe wurde der feste nonnegative128er-
+Guard vor ISJSON umgesetzt und der Scalarwrapper geschützt. Finale vollständige
+Adapter bestanden mit identischem eingefrorenen Repository-Inputstand auf
+Linux2019/latest CL150 und Windows2025/exaktCU8 CL170. Je local/central/Consumer,
+3072 feste Contract-/Safety-APPLY-Oracles (54+74 Fälle, vier Inputcollations,
+zwei APPLY-Formen in drei Kontexten),15 direkte Statusclientreader,42
+Lifecyclefälle und Erst-/Repeat-/Uninstall-/Repeat bestanden. Je Exit0,
+vollständige Kanäle und leeresStderr. Frische unabhängige Audits bestätigen
+COMPLETE42, drei eigeneDBs abwesend, je zwei Marker-/Fremdslot-/Dependencyfixtures
+exakt restauriert mit je zwei Abweisungen und sämtlicheInputpins unverändert.
+Keine Konfigurations-, Rechte- oder Truständerungen. Vorherige Fehlläufe und
+Lifecycle-only-Scopes bleiben getrennte historische Nachweise. Weitere
+physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und exakteHead-CI
+bleiben separat offen; teilweise validiert und unveröffentlicht.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: Tests/CI/run-json-pointer-lab.ps1 -QualificationScope lifecycle`
-- Scope: Separater gleicher Source-/Deployment-/Fixture-/Adapterstand auf Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 bestanden: jeweils local/central/Consumer, installierte Baseline,15 echte Statusclientreader, Clean/Repeat/Uninstall/Repeat und42 gezielte Caller-/Lock-/Rollback-/TypedMarker-/Fremdslot-/Dependency-/Confirm0-Fälle. Je tatsächlicherExit0, vollständige Kanäle und leeresStderr. Neue unabhängige Verbindungen bestätigen COMPLETE42, drei eigeneDBs abwesend, je zwei Marker-/Fremdslot-/Dependencyfixtures exakt restauriert mit je zwei Abweisungen und sämtlicheInputpins unverändert; Nullscope Konfiguration/Rechte/Trust. Contract/Safety-Fixtures in diesem Scope ausdrücklich NOT_EXECUTED. Frühere Gesamtfehlläufe bleiben fehlgeschlagen; ursprüngliche Priorität oberhalb128 weiterhin blockiert und Änderungszustimmung offen. Weitere physische Ziele, Minimalrechte, Maximalworkload/Heap und exakteHead-CI separat offen.
+- Nachweis: `local: Tests/CI/run-json-pointer-lab.ps1 -QualificationScope full`
+- Scope: Nach ausdrücklicher128er-Prioritätsänderungsfreigabe finaler identischer eingefrorener Source-/Deployment-/Fixture-/Adapterstand auf Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 bestanden: jeweils local/central/Consumer,3072 feste Contract-/Safety-APPLY-Oracles,15 echte direkte Statusclientreader, installierte Baseline, Clean/Repeat/Uninstall/Repeat und42 gezielte Caller-/Lock-/Rollback-/TypedMarker-/Fremdslot-/Dependency-/Confirm0-Fälle. Je tatsächlicherExit0, vollständige Kanäle und leeresStderr. Neue unabhängige Verbindungen bestätigen COMPLETE42, drei eigeneDBs abwesend, je zwei Marker-/Fremdslot-/Dependencyfixtures exakt restauriert mit je zwei Abweisungen und sämtlicheInputpins unverändert. Nullscope Konfiguration/Rechte/Trust. Beide früheren Gesamtfehlläufe und separate Lifecycle-Scope-Erfolge bleiben getrennt; weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und exakteHead-CI separat offen. Teilweise validiert und unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

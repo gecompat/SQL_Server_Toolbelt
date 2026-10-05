@@ -411,19 +411,20 @@ Teilweise validiert, unveröffentlicht; exakte Head-CI als separater Mergegate.
 [Vertrag](./Documentation/Architecture/CSV_MEMORY_CONTRACT.md),
 [Evidenz](./Modules/toolbelt.file.csv-memory/Tests/README.md).
 
-## JSON Pointer 1.0.0 – offene native Vertragsgrenze
+## JSON Pointer 1.0.0
 
-Das neue [`toolbelt.json.pointer`](./Modules/toolbelt.json.pointer/README.md)
-1.0.0 enthält die einzeln freigegebene native MSTVF für RFC6901-Pointer.
-Eine neue [native Tiefengrenze](./Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
-blockiert derzeit den Abschluss der Sicherheitsqualifikation: SQL2019-ISJSON
-wirft bei129 offenen Containern technisch13606. Source/Deployment und
-Contract-Teilfälle sind geprüft; vollständige Qualifikation und Zustimmung
-zur konkret vorgeschlagenen Fehlerpriorität stehen aus. Teilweise validiert,
-unveröffentlicht.
-Ein separater Lifecycle-Scope besteht auf Linux2019/CL150 und Windows2025/
-CU8/CL170: je15 Clientreader,42 Lifecyclefälle und frischer eigener Cleanup-
-Audit; Contract/Safety wurden dabei nicht ausgeführt.
+[`toolbelt.json.pointer`](./Modules/toolbelt.json.pointer/README.md)1.0.0
+liefert die einzeln freigegebene native MSTVF für RFC6901-Pointer. Die
+anschließend ausdrücklich freigegebene [128er-Priorität](./Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
+schützt den nativen Parser und erhält innerhalb der Grenze Syntax vor
+caller-seitig abgesenkter Tiefe. Finale Adapter auf Linux2019/latest CL150
+und Windows2025/exaktCU8 CL170 bestehen jeweils local/central/Consumer mit
+3072 festen APPLY-Oracles,15 direkten Clientreadern und42 Lifecyclefällen.
+Frische unabhängige Audits bestätigen Bereinigung, exakte Fixturewiederherstellung
+und Inputpins. Beide früheren Gesamtfehlläufe und separate Lifecycle-Scope-
+Erfolge bleiben getrennt. Weitere physische Ziele, Minimalrechte,16MiB-
+Maximalworkload/Heap und exakte Head-CI sind separat offen. Teilweise validiert,
+unveröffentlicht; [Nachweise](./Modules/toolbelt.json.pointer/Tests/README.md).
 
 ## Safe Cast 1.0.0
 

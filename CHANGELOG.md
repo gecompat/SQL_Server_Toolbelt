@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 2026-10-05 – JSON Pointer1.0.0, offene native Vertragsgrenze
+## 2026-10-05 – JSON Pointer1.0.0 und freigegebener nativer128er-Guard
 
 - Einzeln freigegebene lesende native MSTVF TVF_ResolveJsonPointer mit vier
   Parametern, vier BIN2-Ergebnisspalten, vollständiger Unicode-/Tiefenpolicy,
@@ -11,12 +11,20 @@
   scheiterten an ISJSON-Tiefe129. Eigene Bereinigung und Inputpins jeweils
   unabhängig bestätigt; frühere Fehler bleiben fehlgeschlagen.
 - [Konkrete notwendige Prioritätsänderung](Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
-  wartet auf Zustimmung. Keine vollständige Safety-/Client-/Lifecycle-/Windows-
-  oder Releasequalifikation; `partially validated`, `unreleased`.
-- Separater Lifecycle-Scope anschließend auf Linux2019/CL150 und Windows2025/
+  anschließend ausdrücklich freigegeben: nonnegative128er-Strukturguard vor
+  Nativevalidation, geschützter Scalarwrapper; bis128 bleibt Syntax vor
+  caller-seitig abgesenktem MaxDepth. Oberfläche sonst unverändert.
+- Historischer separater Lifecycle-Scope vor der Prioritätsänderung auf Linux2019/CL150 und Windows2025/
   CU8/CL170 erfolgreich: je local/central/Consumer,15 Clientreader,42 Lifecycle-
   Fälle und frischer Bereinigungs-/Fixture-/Pinaudit. Contract/Safety dabei
-  ausdrücklich nicht ausgeführt; offene Tiefenpriorität bleibt bestehen.
+  ausdrücklich nicht ausgeführt; löste damals die noch offene Tiefenpriorität nicht.
+- Finale vollständige Adapter des korrigierten freigegebenen Standes auf
+  Linux2019/CL150 und Windows2025/exaktCU8/CL170 bestanden je local/central/
+  Consumer,3072 feste APPLY-Oracles,15 Clientreader und42 Lifecyclefälle samt
+  frischem Bereinigungs-/Fixture-/Pinaudit. Keine Konfigurations-/Rechte-/
+  Truständerungen. Frühere Fehlläufe und Lifecycle-only-Scopes bleiben getrennt;
+  weitere Ziele, Minimalrechte, Maximalworkload/Heap und exakteHead-CI separat
+  offen. `partially validated`, `unreleased`.
 
 ## 2026-10-05 – Strict Safe Cast / 1.0.0
 

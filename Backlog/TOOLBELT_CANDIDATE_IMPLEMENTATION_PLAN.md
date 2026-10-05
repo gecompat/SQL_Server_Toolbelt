@@ -2,12 +2,12 @@
 
 Stand: 2026-09-11
 
-Fortschritt 2026-10-05: RI-2026-041 ist nach PR173 einzeln freigegeben.
-Die native Pointer-MSTVF, Lifecycle und Tests sind geschrieben, teilweise
-validiert und unveröffentlicht. Zwei bereinigte Linux2019-Safetyfehlläufe
-zeigen die native ISJSON-Tiefengrenze129. Der
-[konkrete Prioritätsvorschlag](../Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
-benötigt Zustimmung; vollständige native Qualifikation folgt erst danach.
+Fortschritt 2026-10-05: RI-2026-041 und die notwendige128er-Prioritätsänderung
+sind einzeln freigegeben und umgesetzt. Finale Linux2019-/Windows2025-Adapter
+bestehen local/central/Consumer mit je3072 APPLY-Oracles,15 Clientreadern,
+42 Lifecyclefällen und frischem Bereinigungs-/Fixture-/Pinaudit. Frühere
+Fehlläufe bleiben getrennt; weitere Ziele, Minimalrechte, Maximalworkload/Heap
+und exakteHead-CI separat offen. Teilweise validiert und unveröffentlicht.
 
 Dieser Plan zerlegt die Kandidaten aus
 [`TOOLBELT_CANDIDATES.md`](./TOOLBELT_CANDIDATES.md) in mögliche Module,

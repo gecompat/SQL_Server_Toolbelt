@@ -116,6 +116,7 @@ sources_of_truth:
   safe_cast_contract: Documentation/Architecture/SAFE_CAST_CONTRACT.md
   json_pointer_module: Modules/toolbelt.json.pointer/module.yaml
   json_pointer_contract: Documentation/Architecture/JSON_POINTER_CONTRACT.md
+  json_pointer_depth_policy: Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md
   csv_memory_contract: Documentation/Architecture/CSV_MEMORY_CONTRACT.md
   csv_memory_qualification_workflow: .github/workflows/csv-memory-qualification.yml
   xlsx_reader_proposal: Documentation/Architecture/XLSX_READER_PROPOSAL.md
@@ -846,6 +847,7 @@ change_impact:
       paths:
         - Modules/toolbelt.json.pointer/**
         - Documentation/Architecture/JSON_POINTER_CONTRACT.md
+        - Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md
         - Tests/CI/run-json-pointer-lab.ps1
         - Tests/CI/JsonPointerLifecycle.Helpers.ps1
       checks:

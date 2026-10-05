@@ -2,15 +2,13 @@
 
 ## Status
 
-JSON Pointer1.0.0 ist einzeln freigegeben, geschrieben und teilweise validiert.
-Zwei bereinigte native Linux2019-Fehlläufe zeigen eine neue Providergrenze:
-ISJSON wirft bei Tiefe129 bereits technisch13606. Die konkrete
-[Prioritätsänderung](../Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
-wartet auf Zustimmung; danach erst Sourcekorrektur und vollständige native
-API-/Lifecyclequalifikation. Unabhängige Lifecycleabdeckung wird fortgesetzt.
-Der getrennte Lifecycle-Scope besteht inzwischen auf Linux2019/CL150 und
-Windows2025/exaktCU8 CL170: je15 Clientreader,42 Lifecyclefälle und unabhängiger
-Cleanup-/Fixture-/Pinaudit; keine vollständige Contract-/Safetyqualifikation.
+JSON Pointer1.0.0 und die anschließende128er-Prioritätsänderung sind einzeln
+freigegeben und umgesetzt. Finale Adapter auf Linux2019/latest CL150 und
+Windows2025/exaktCU8 CL170 bestanden je local/central/Consumer,3072 feste
+APPLY-Oracles,15 Clientreader und42 Lifecyclefälle samt frischem Cleanup-/
+Fixture-/Pinaudit. Frühere Fehlläufe und Lifecycle-only-Scopes bleiben getrennt.
+Weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und exakte
+Head-CI sind separate Nachweise; teilweise validiert, unveröffentlicht.
 
 Die sechs einzeln freigegebenen Safe-Cast-TVFs in `toolbelt.conversion.safe-cast`
 1.0.0 sind implementiert und teilweise validiert. Finale begrenzte Adapter auf

@@ -1,9 +1,11 @@
-# JSON Pointer – native Tiefengrenze, Änderungsangebot
+# JSON Pointer – native Tiefengrenze, freigegebene Prioritätsänderung
 
 Stand: 2026-10-05. RelatedReference: RI-2026-041.
-Dieses Angebot ändert den freigegebenen
-[Vertrag](JSON_POINTER_CONTRACT.md) erst nach ausdrücklicher Zustimmung.
-Die Implementierungsfreigabe für die Pointer-Funktion bleibt bestehen.
+Nach Vorlage dieses konkreten Angebots antwortete der Benutzer ausdrücklich
+„Diese Prioritätsänderung freigegeben“. Damit ergänzt die hier beschriebene
+eng begrenzte Änderung den [Vertrag](JSON_POINTER_CONTRACT.md).
+Die Implementierungsfreigabe für die Pointer-Funktion bleibt bestehen;
+keine zusätzliche API-, Provider- oder Releasefreigabe.
 
 ## Tatsächliche Grenze
 
@@ -45,7 +47,7 @@ Linux2019/latest CL150 und Windows2025/exaktCU8 CL170, jeweils local/central/
 Consumer,15 echte direkte Clientreader und42 Lifecyclefälle. Eigene Bereinigung,
 Fixturewiederherstellung und Inputpins wurden frisch unabhängig bestätigt.
 Contract/Safety wurden in diesem Scope ausdrücklich nicht ausgeführt; diese
-Teilqualifikation ändert die hier notwendige Fehlerprioritätszustimmung nicht.
+Teilqualifikation ersetzt die notwendige vollständige API-/Safetyabnahme nicht.
 
 ISJSON kann deshalb bei über128 offenen Containern nicht vorab die vollständige
 Syntax klassifizieren. Eine T-SQL-Function besitzt kein TRY/CATCH für diesen
@@ -53,7 +55,7 @@ Enginefehler. Aufteilen oder syntaktisches Reduzieren vor Nativevalidation
 würde eine zusätzliche vollständige JSON-Grammatik erfordern. Die unabhängige
 Source- und Autorisierungsprüfung bestätigt diese Vertragsgrenze.
 
-## Konkrete kleinste Änderung
+## Konkret freigegebene Änderung
 
 Alle Parameter, Defaults, Ergebnisfelder und Statuscodes bleiben gleich.
 Nach SQLNULL/Budgets/Input-/Pointerlimits und vollständiger Pointerprüfung
@@ -90,3 +92,15 @@ Die Alternative, die ursprüngliche Priorität auch oberhalb128 beizubehalten,
 benötigt eine neue Parserarchitektur und eine getrennte Provider-/Scopebesprechung.
 Ein technischer Parserfehler darf nicht stillschweigend als erfolgreicher
 einzeiliger Vertragsnachweis behandelt werden.
+
+## Umsetzung und getrennte Abschlussprüfung
+
+Der ausdrücklich freigegebene Guard-/Wrapperstand besteht anschließend die
+vollständigen begrenzten Adapter auf Linux2019/latest CL150 und Windows2025/
+exaktCU8 CL170: je local/central/Consumer,3072 feste Contract-/Safety-APPLY-
+Oracles,15 direkte Clientreader und42 Lifecyclefälle. Neue unabhängige
+Verbindungen bestätigen je drei eigeneDBs abwesend, exakte Marker-/Fremdslot-/
+Dependencywiederherstellung und alle Inputpins; keine Konfigurations-/Rechte-/
+Truständerungen. Die früheren Fehlläufe und Lifecycle-only-Scopes bleiben
+getrennt. Weitere physische Ziele, Minimalrechte und Maximalworkload/Heap
+bleiben offen; kein Release und kein Ersatz für exakte Head-CI.

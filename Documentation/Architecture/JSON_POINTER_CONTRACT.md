@@ -6,6 +6,13 @@ und der konkret gestellten Frage antwortete der Benutzer ausdrücklich:
 „Diese Pointer-Funktion freigegeben“. Diese Einzelzustimmung autorisiert genau
 die folgende lesende T-SQL-MSTVF. Keine Schema-, Patch-, CLR- oder Releasefreigabe.
 
+Nach dem tatsächlichen nativen Tiefenbefund in
+[PR174](https://github.com/gecompat/SQL_Server_Toolbelt/pull/174) und der konkreten
+Frage zum [128er-Guard](JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md) antwortete der
+Benutzer anschließend ausdrücklich „Diese Prioritätsänderung freigegeben“.
+Der folgende Vertrag enthält diese eng begrenzte Prioritätsänderung einschließlich
+des geschützten Scalarwrappers. Parameter und übrige Semantik bleiben gleich.
+
 ## Zweck und Oberfläche
 
 `toolbelt.json.pointer` 1.0.0 löst die Stringform eines JSON Pointers nach
@@ -51,12 +58,18 @@ in einen nativen Zahlentyp konvertiert. Metadaten-Nullability ist verbindlich.
 4. Pointerstring beginnt außer bei leerem Root mit `/`; ausschließlich `~0`
    und `~1` sind Escapes. Syntaxfehler: INVALID/POINTER_SYNTAX.
    Ungepaarte Pointer-Surrogate: INVALID/UNICODE.
-5. Vollständige JSON-Syntax ungültig: INVALID/JSON_SYNTAX.
-6. Dokumenttiefe über MaxDepth: INVALID/DEPTH_LIMIT; Scalarroot zählt0,
+5. Vor dem nativen Parser: escape-/quote-aware beobachtete strukturell offene
+   Container über128: INVALID/DEPTH_LIMIT, auch bei sonst ungültiger Syntax.
+   Schließklammern senken den Beobachtungszähler nur bis0; passende Klammerarten
+   und vollständige Gültigkeit bleiben Aufgabe der nativen Grammatik.
+6. Innerhalb dieser festen Schutzgrenze: vollständige JSON-Syntax ungültig:
+   INVALID/JSON_SYNTAX.
+7. Danach Dokumenttiefe über caller-seitig abgesenktem MaxDepth:
+   INVALID/DEPTH_LIMIT; Scalarroot zählt0,
    Containerroot1. Danach ungepaarte decodierte Dokument-Surrogate:
    INVALID/UNICODE. Die vollständige Unicodeprüfung umfasst unselektierte
    Keys/Strings; nach bestätigter Syntax hat Tiefe Vorrang vor Unicode.
-7. Auflösung: mehrere passende decodierte Objektkeys ergeben
+8. Auflösung: mehrere passende decodierte Objektkeys ergeben
    INVALID/DUPLICATE_KEY; ungültige Arrayindexlexik INVALID/ARRAY_INDEX.
 
 Keine Eingabe-/Enginefehlertexte im Ergebnis. Technische Enginefehler werden
@@ -85,8 +98,12 @@ Die Abweisung ungepaarter Escapes ist Toolbelt-Policy gegenüber
 
 ## Kanonischer nativer Pfad und MSTVF-Ausnahme
 
-ISJSON bleibt Grammatikautorität. Object-/Arrayroots direkt validieren; nur
-Scalarroots erhalten einen max-typisierten Arraywrapper mit genau einem Element.
+Ein vorgelagerter begrenzter non-SC-Strukturscan schützt die physische native
+128er-Grenze. ISJSON bleibt Grammatikautorität. Object-/Arraykandidaten nach
+erstem nicht-Whitespace-Zeichen direkt validieren, ohne Wrapperfallback.
+Scalar-Kandidaten mit Containerzeichen außerhalb von Strings sind ungültig;
+nur verbleibende Scalarroots erhalten einen max-typisierten Arraywrapper mit
+genau einem Element. Dadurch erzeugt der künstliche Wrapper keine129er-Tiefe.
 Der künstliche Wrapper verändert die fachliche Tiefe nicht. Anschließend prüft
 ein vorwärts laufender Policywalker Quotes/Escapes, decodierte UTF16-Einheiten
 und offene Container unter expliziter non-SC-Collation in begrenzten Chunks.

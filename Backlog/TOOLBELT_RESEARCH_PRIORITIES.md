@@ -2,12 +2,13 @@
 
 Stand: 2026-08-24
 
-Datierter Fortschritt 2026-10-05: RI-2026-041 ist einzeln freigegeben und
-als native Pointer-MSTVF geschrieben. Der
-[ISJSON-Tiefenbefund](../Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
-blockiert den Sicherheitsabschluss: über128 wirft die Engine technisch,
-statt JSON-Syntax zu klassifizieren. Konkrete Prioritätsänderung wartet auf
-Zustimmung; teilweise validiert, unveröffentlicht. Keine Schemafreigabe daraus.
+Datierter Fortschritt 2026-10-05: RI-2026-041 und die anschließende feste128er-
+Prioritätsänderung sind einzeln freigegeben und als native MSTVF umgesetzt.
+Finale begrenzte Linux2019-/Windows2025-Adapter bestehen je3072 APPLY-Oracles,
+15 Clientreader,42 Lifecyclefälle und frischen Bereinigungs-/Fixture-/Pinaudit.
+Frühere Fehlläufe bleiben getrennt; weitere Ziele, Minimalrechte,
+Maximalworkload/Heap und exakteHead-CI separat offen. Teilweise validiert,
+unveröffentlicht; keine Schemafreigabe daraus.
 
 ## Rolle und Verbindlichkeit
 

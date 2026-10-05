@@ -45,6 +45,26 @@ und sämtlicheInputpins unverändert; Nullscope Konfiguration/Rechte/Trust.
 Contract/Safety-Fixtures in diesem Scope ausdrücklich nicht ausgeführt;
 die notwendige Prioritätszustimmung bleibt offen.
 
+Anschließende konkrete Zustimmung 2026-10-05: Der Benutzer antwortete
+„Diese Prioritätsänderung freigegeben“. Damit ist genau der vorgelagerte
+nonnegative128er-Strukturguard mit DEPTH_LIMIT auch vor fehlerhafter Syntax
+jenseits128 und der geschützte Scalarwrapper freigegeben. Bis128 bleibt
+JSON_SYNTAX vor caller-seitig abgesenktem MaxDepth; sonstige Oberfläche und
+Semantik unverändert. Sourcekorrektur und neue vollständige Qualifikation
+werden autonom fortgesetzt. Die vorherigen offenen Aussagen dokumentieren
+den Stand vor dieser ausdrücklichen Antwort, die Fehlläufe bleiben Historie.
+Finaler freigegebener Guard-/Wrapperstand auf Linux2019/latest CL150 und
+Windows2025/exaktCU8 CL170 vollständig im begrenzten local/central/Consumer-
+Scope bestanden: je3072 feste Contract-/Safety-APPLY-Oracles,15 direkte
+Clientreader,42 Lifecyclefälle und Erst-/Repeat-/Uninstall-/Repeat. Je Exit0,
+vollständige Kanäle und leeresStderr. Frische Audits bestätigen COMPLETE42,
+je drei eigeneDBs abwesend, je zwei Marker-/Fremdslot-/Dependencyfixtures
+exakt restauriert mit je zwei Abweisungen und sämtlicheInputpins unverändert.
+Nullscope Konfiguration/Rechte/Trust. Beide finalen Zieladapter verwenden
+identische eingefrorene Repository-Inputs. Weitere Ziele, Minimalrechte,
+16MiB-Maximalworkload/Heap und exakteHead-CI separat offen; teilweise validiert,
+unveröffentlicht. Frühere Fehlläufe bleiben fehlgeschlagen.
+
 ### RI-2026-076: sechs Safe-Cast-TVFs – einzeln freigegeben 2026-10-05
 
 Nach der Vertragsbesprechung in [PR170](https://github.com/gecompat/SQL_Server_Toolbelt/pull/170)

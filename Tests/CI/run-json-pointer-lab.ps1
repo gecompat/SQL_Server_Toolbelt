@@ -161,7 +161,9 @@ function Assert-JsonPointerDisposition($Control){
  }
 }
 function Get-JsonPointerModulePinPaths{
- $paths=@((Join-Path $script:module 'module.yaml'),(Join-Path $script:module '../../Documentation/Architecture/JSON_POINTER_CONTRACT.md'))
+ $paths=@((Join-Path $script:module 'module.yaml'),
+  (Join-Path $script:module '../../Documentation/Architecture/JSON_POINTER_CONTRACT.md'),
+  (Join-Path $script:module '../../Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md'))
  foreach($directory in @('Source','Deployment','Tests/Runtime','Scripts')){
   $paths+=@(Get-ChildItem -LiteralPath (Join-Path $script:module $directory) -File -Recurse|ForEach-Object FullName)
  }

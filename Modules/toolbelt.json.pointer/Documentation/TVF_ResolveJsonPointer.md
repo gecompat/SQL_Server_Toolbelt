@@ -28,8 +28,13 @@ Strings. JSON_NULL besitzt JsonType='NULL' und Value=SQL-NULL.
 MISSING/SQL_NULL/INVALID besitzen keinen Typ/Wert. ErrorCode nur bei INVALID.
 
 Priorität: SQL_NULL → PARAMETER → INPUT_LIMIT → POINTER_LIMIT →
-POINTER_SYNTAX → Pointer-UNICODE → JSON_SYNTAX → DEPTH_LIMIT →
+POINTER_SYNTAX → Pointer-UNICODE → fester Strukturguard128/DEPTH_LIMIT →
+JSON_SYNTAX → caller-seitig abgesenktes DEPTH_LIMIT →
 Dokument-UNICODE → Auflösung mit DUPLICATE_KEY/ARRAY_INDEX.
+
+Der feste Guard beobachtet Klammern außerhalb von Strings escape-aware mit
+nicht negativem Zähler. Über128 hat DEPTH_LIMIT auch bei fehlerhafter Syntax
+Vorrang; bis128 bleibt vollständige Syntax vor dem abgesenkten MaxDepth.
 
 Leerer Pointer adressiert Root; ~0 und ~1 decodieren einmal. Exakte Keys
 einschließlich trailing spaces/NUL; nur passende Duplikate sind ungültig.

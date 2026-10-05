@@ -55,7 +55,7 @@ INSERT #tbx_Pointer_Cases VALUES
 (41,N'Depth129',@Deep129,N'',16777216,128,N'INVALID',NULL,NULL,N'DEPTH_LIMIT',N'TEXT'),
 (42,N'DepthExactLower',N'[[]]',N'/0',16777216,2,N'FOUND',N'ARRAY',N'[]',NULL,N'JSON_FLAT'),
 (43,N'DepthExceededLower',N'[[]]',N'/missing',16777216,1,N'INVALID',NULL,NULL,N'DEPTH_LIMIT',N'TEXT'),
-(44,N'SyntaxBeforeDepth',@Deep129+N']',N'',16777216,128,N'INVALID',NULL,NULL,N'JSON_SYNTAX',N'TEXT'),
+(44,N'HardDepthBeforeMalformed',@Deep129+N']',N'',16777216,128,N'INVALID',NULL,NULL,N'DEPTH_LIMIT',N'TEXT'),
 (45,N'DepthBeforeUnicode',@DeepUnicode,N'',16777216,1,N'INVALID',NULL,NULL,N'DEPTH_LIMIT',N'TEXT'),
 (46,N'Unpaired45',N'"\uD800"',N'/a',16777216,128,N'INVALID',NULL,NULL,N'UNICODE',N'TEXT'),
 (47,N'Unpaired46',N'"\uDC00"',N'/a',16777216,128,N'INVALID',NULL,NULL,N'UNICODE',N'TEXT'),
@@ -74,7 +74,20 @@ INSERT #tbx_Pointer_Cases VALUES
 (60,N'PairKey',N'{"\uD83D\uDE00":3}',N'/'+@Pair,16777216,128,N'FOUND',N'NUMBER',N'3',NULL,N'TEXT'),
 (61,N'PairChunkBoundary',N'"'+REPLICATE(CONVERT(nvarchar(max),N'a'),3998)+@Pair+N'"',N'',16777216,128,N'FOUND',N'STRING',NULL,NULL,N'LONGPAIR'),
 (62,N'ScalarDepthZero',N'0',N'',16777216,1,N'FOUND',N'NUMBER',N'0',NULL,N'TEXT'),
-(63,N'NulBeforeInvalidTilde',N'{}',N'/'+@Nul+N'~2',16777216,128,N'INVALID',NULL,NULL,N'POINTER_SYNTAX',N'TEXT');
+(63,N'NulBeforeInvalidTilde',N'{}',N'/'+@Nul+N'~2',16777216,128,N'INVALID',NULL,NULL,N'POINTER_SYNTAX',N'TEXT'),
+-- Freigegebene harte native128-Grenze: unabhängige Prioritäts-/Wrapperoracles.
+(64,N'LeadingWrongClosesHardDepth',N']}}'+@Deep129,N'',16777216,128,N'INVALID',NULL,NULL,N'DEPTH_LIMIT',N'TEXT'),
+(65,N'LowerDepthMalformedSyntaxFirst',N'[[0,]]',N'',16777216,1,N'INVALID',NULL,NULL,N'JSON_SYNTAX',N'TEXT'),
+(66,N'ContainerMalformed128NoWrapper',@Deep128+N']',N'',16777216,128,N'INVALID',NULL,NULL,N'JSON_SYNTAX',N'TEXT'),
+(67,N'ContainerMultiRoot128NoWrapper',N'{} '+@Deep128,N'',16777216,128,N'INVALID',NULL,NULL,N'JSON_SYNTAX',N'TEXT'),
+(68,N'ScalarCommaContainer128NoWrapper',N'0,'+@Deep128,N'',16777216,128,N'INVALID',NULL,NULL,N'JSON_SYNTAX',N'TEXT'),
+(69,N'QuotedBracketsIgnored',N'"'+REPLICATE(CONVERT(nvarchar(max),N'[{'),129)+N'"',N'',16777216,1,N'FOUND',N'STRING',REPLICATE(CONVERT(nvarchar(max),N'[{'),129),NULL,N'TEXT'),
+(70,N'EscapedQuoteBracketsIgnored',N'"'+NCHAR(92)+N'"'+REPLICATE(CONVERT(nvarchar(max),N'['),129)+NCHAR(92)+N'"}"',N'',16777216,1,N'FOUND',N'STRING',N'"'+REPLICATE(CONVERT(nvarchar(max),N'['),129)+N'"}',NULL,N'TEXT'),
+(71,N'HardDepthBeforeUnselected',N'{"a":1,"z":'+@Deep129+N'}',N'/a',16777216,128,N'INVALID',NULL,NULL,N'DEPTH_LIMIT',N'TEXT'),
+(72,N'HardDepthBeforeUnicode',REPLICATE(CONVERT(nvarchar(max),N'['),129)+N'"\uD800"'+REPLICATE(CONVERT(nvarchar(max),N']'),129),N'',16777216,128,N'INVALID',NULL,NULL,N'DEPTH_LIMIT',N'TEXT'),
+-- Der Backslash an Einheit4000 muss den Quotezustand über die Chunkgrenze tragen.
+(73,N'EscapedQuoteChunkBoundary',N'"'+REPLICATE(CONVERT(nvarchar(max),N'a'),3998)+NCHAR(92)+N'"'+REPLICATE(CONVERT(nvarchar(max),N'['),129)+N'"',N'',16777216,1,N'FOUND',N'STRING',REPLICATE(CONVERT(nvarchar(max),N'a'),3998)+N'"'+REPLICATE(CONVERT(nvarchar(max),N'['),129),NULL,N'TEXT'),
+(74,N'EscapedBackslashChunkBoundary',N'"'+REPLICATE(CONVERT(nvarchar(max),N'a'),3998)+NCHAR(92)+NCHAR(92)+REPLICATE(CONVERT(nvarchar(max),N'['),129)+N'"',N'',16777216,1,N'FOUND',N'STRING',REPLICATE(CONVERT(nvarchar(max),N'a'),3998)+NCHAR(92)+REPLICATE(CONVERT(nvarchar(max),N'['),129),NULL,N'TEXT');
 CREATE TABLE #tbx_Pointer_Actual(Id int NOT NULL,ApplyForm varchar(8) NOT NULL,Status varchar(16) NULL,JsonType varchar(8) NULL,Value nvarchar(max) NULL,ErrorCode varchar(32) NULL);
 DECLARE @Collations TABLE(Id int PRIMARY KEY,Name sysname NOT NULL);
 INSERT @Collations VALUES(1,N'Latin1_General_100_BIN2'),(2,N'Latin1_General_100_CI_AS'),(3,N'Latin1_General_100_CS_AS'),(4,N'Latin1_General_100_CI_AS_SC_UTF8');
@@ -98,7 +111,7 @@ BEGIN
    @DiagnosticSql nvarchar(max),@DiagnosticMessage nvarchar(2048);
   IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW;
   SET @DiagnosticSql=N'SELECT Status,JsonType,Value,ErrorCode FROM '+@Prefix+N'TVF_ResolveJsonPointer(@Json COLLATE '+@Collation+N',@Pointer COLLATE '+@Collation+N',@Bytes,@Depth);';
-  WHILE @DiagnosticCase<=@DiagnosticLast AND @DiagnosticCase<=63
+  WHILE @DiagnosticCase<=@DiagnosticLast AND @DiagnosticCase<=255
   BEGIN
    -- Skalare Parameter isolieren wirklich den einen Fall; kein WHERE vor einem APPLY.
    SELECT @DiagnosticJson=Json,@DiagnosticPointer=Pointer,@DiagnosticBytes=MaxInputBytes,@DiagnosticDepth=MaxDepth

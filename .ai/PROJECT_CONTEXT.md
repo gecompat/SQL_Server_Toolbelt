@@ -1,22 +1,21 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
-## Aktive JSON-Pointer-Welle 2026-10-05
+## JSON-Pointer-Welle 2026-10-05
 
-Die ausdrückliche Antwort „Diese Pointer-Funktion freigegeben“ autorisiert
-nach PR173 genau die lesende native MSTVF TVF_ResolveJsonPointer gemäß
-[Vertrag](../Documentation/Architecture/JSON_POINTER_CONTRACT.md).
-Source/Deployment/Fixtures sind geschrieben und offline geprüft. Zwei native
-Linux2019-Adapter bestanden Deploy/Repeat und432 Contract-Oracles, scheiterten
-an der tatsächlichen ISJSON-Tiefengrenze129; eigene Bereinigung und Inputpins
-sind unabhängig bestätigt. Teilweise validiert, unveröffentlicht.
-Der [konkrete Prioritätsvorschlag](../Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
-benötigt zusätzliche Zustimmung; unverändert gilt die Funktionsfreigabe.
-Aus diesen beiden Gesamtfehlläufen keine vollständige Safety-/Client-/
-Lifecycle-/Central-/Windowsqualifikation.
-Separater Lifecycle-Scope anschließend auf Linux2019/CL150 und Windows2025/
-exaktCU8 CL170 erfolgreich: je local/central/Consumer,15 direkte Clientreader,
-42 Lifecyclefälle und frischer Bereinigungs-/Fixture-/Pinaudit. Contract/Safety
-in diesem Scope nicht ausgeführt; keine Behebung der offenen Tiefenpriorität.
+Die Antworten „Diese Pointer-Funktion freigegeben“ und anschließend
+„Diese Prioritätsänderung freigegeben“ autorisieren genau die native lesende
+MSTVF und ihren festen nonnegative128er-Guard samt geschütztem Scalarwrapper.
+Der [Vertrag](../Documentation/Architecture/JSON_POINTER_CONTRACT.md) und
+[Tiefenbefund](../Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
+halten Besprechung und Zustimmung nachvollziehbar fest.
+Finale identische eingefrorene Inputs bestanden Linux2019/latest CL150 und
+Windows2025/exaktCU8 CL170 jeweils local/central/Consumer: je3072 feste APPLY-
+Oracles,15 direkte Clientreader,42 Lifecyclefälle und Erst-/Repeat-/Uninstall-/
+Repeat. Neue Audits bestätigen Bereinigung, exakte Fixturewiederherstellung
+und Inputpins; keine Konfigurations-/Rechte-/Truständerungen. Zwei frühere
+Safetyfehlläufe und getrennte Lifecycle-only-Erfolge bleiben Historie.
+Weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und exakte
+Head-CI sind separat offen; teilweise validiert, unveröffentlicht.
 
 ## Aktive Safe-Cast-Welle 2026-10-05
 

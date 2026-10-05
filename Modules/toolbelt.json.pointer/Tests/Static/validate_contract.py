@@ -31,6 +31,24 @@ def main():
     require(not re.search(r"\b(?:EXEC(?:UTE)?|OPENROWSET|OPENQUERY|EXTERNAL\s+NAME|CREATE\s+ASSEMBLY|SVF_\w+|THROW|RAISERROR|WAITFOR)\b", executable, re.I), "Keine neue Ausführungs-/CLR-/Helpergrenze")
     require("ISJSON(" in executable.upper() and "OPENJSON(" in executable.upper(), "Kanonischer nativer Parserpfad")
     require("DATALENGTH(" in executable.upper() and "16777216" in executable and "4000" in executable and "128" in executable, "Öffentliche Byte-/Pointer-/Tiefengrenzen vorhanden")
+    # Strukturelle Kopplung der freigegebenen Schutzgrenze, kein Ersatz für die
+    # unabhängigen Runtimeoracles: vor dem ersten nativen Parseraufruf stehen
+    # Quote-/Escapezustand, nichtnegative Tiefe und der harte128-Abbruch.
+    guard_start = executable.find("DECLARE @RawQuoted")
+    first_native = executable.upper().find("ISJSON(")
+    require(0 <= guard_start < first_native, "Harte Tiefenschutzgrenze vor jedem nativen Parseraufruf")
+    guard = executable[guard_start:first_native]
+    for pattern, label in (
+        (r"IF\s+@RawQuoted\s*=\s*1", "Stringzustand im Schutzscan"),
+        (r"IF\s+@RawEscaped\s*=\s*1\s+SET\s+@RawEscaped\s*=\s*0", "Escapezustand im Schutzscan"),
+        (r"IF\s+@RawDepth\s*>\s*0\s+SET\s+@RawDepth\s*-=\s*1", "Schließklammern machen Schutzdepth nicht negativ"),
+        (r"IF\s+@RawDepth\s*>\s*128\s+BEGIN\s+INSERT\s+@Result\s+VALUES\('INVALID',NULL,NULL,'DEPTH_LIMIT'\);\s+RETURN", "Harte128-Tiefe bricht vor Nativevalidation ab"),
+    ):
+        require(re.search(pattern, guard, re.I), label)
+    require(re.search(r"IF\s+@FirstUnit\s+IN\(91,123\)\s+BEGIN\s+IF\s+ISJSON\(@Json\)", executable, re.I), "Containerroot verwendet direkte Nativevalidation")
+    scalar_guard = executable.find("IF @RawContainer=1")
+    wrapper = executable.find("DECLARE @Wrapper")
+    require(first_native < scalar_guard < wrapper, "Scalarcontainer werden vor künstlicher Wrapperebene abgewiesen")
     require(not re.search(r"TRY_(?:CAST|CONVERT)\s*\([^\n]*(?:float|decimal|bigint)", executable, re.I), "Kein Zahlen-/Indexoverflowpfad durch native numerische Rohkonversion")
     manifest = read("module.yaml")
     for filename in ("Contract.Tests.sql", "Safety.Tests.sql", "Lifecycle.Tests.sql", "Metadata.Tests.ps1"):
@@ -48,6 +66,15 @@ def main():
     for code in ("PARAMETER", "INPUT_LIMIT", "POINTER_LIMIT", "POINTER_SYNTAX", "JSON_SYNTAX", "DEPTH_LIMIT", "UNICODE", "DUPLICATE_KEY", "ARRAY_INDEX"):
         require(code in contract + safety, "Fester Fehleroracle " + code)
     require("0x3DD800DE" in safety and "@Deep128" in safety and "@Deep129" in safety, "Unabhängige UTF16-/Tiefenfixtures")
+    for label in ("HardDepthBeforeMalformed", "LeadingWrongClosesHardDepth", "LowerDepthMalformedSyntaxFirst",
+                  "ContainerMalformed128NoWrapper", "ContainerMultiRoot128NoWrapper", "ScalarCommaContainer128NoWrapper",
+                  "QuotedBracketsIgnored", "EscapedQuoteBracketsIgnored", "HardDepthBeforeUnselected",
+                  "HardDepthBeforeUnicode", "EscapedQuoteChunkBoundary", "EscapedBackslashChunkBoundary"):
+        require("N'" + label + "'" in safety, "Fester nativer Tiefengrenzenoracle " + label)
+    safety_ids = [int(value) for value in re.findall(r"^\((\d+),N'", safety, re.M)]
+    require(safety_ids == list(range(1, len(safety_ids) + 1)) and len(safety_ids) <= 255,
+            "Stabile lückenlose Safetyfallnummern innerhalb THROW-State-Grenze")
+    require("@DiagnosticCase<=255" in safety, "Failure-only-Diagnostik deckt alle zulässigen Fallnummern begrenzt ab")
     require(not re.search(r"QUOTENAME\s*\(\s*@Collation\s*\)", contract + safety, re.I), "Feste Fixturecollations werden nicht als Identifier geklammert")
     read("Deployment/Deploy.sql")
     read("Deployment/Uninstall.sql")

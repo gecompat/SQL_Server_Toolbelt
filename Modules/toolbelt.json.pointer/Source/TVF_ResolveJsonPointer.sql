@@ -12,9 +12,9 @@
 -- Versionen:       SQL Server 2019, 2022 und 2025, Compatibility Level mindestens150
 -- Plattformen:     Windows und Linux; jeweilige native Abnahme separat
 -- Fehlerverhalten: Genau eine Zeile; keine Enginefehlertexte oder Input-Echos.
---                  SQL_NULL, Parameter, Limits, Pointer, JSON-Syntax, Tiefe,
---                  Dokument-Unicode und erst danach Traversal bestimmen die Priorität.
--- Performance:     Ein vollständiger Policy-Scan in festen Chunks; bis MaxDepth
+--                  SQL_NULL, Parameter, Limits, Pointer, native Schutzgrenze128,
+--                  JSON-Syntax, abgesenkte Tiefe, Dokument-Unicode, Traversal.
+-- Performance:     Vorwärts laufende Struktur-/Policy-Scans in festen Chunks; bis MaxDepth
 --                  Containerenumerationen mit wiederholter Fragmentprüfung/-kopie.
 --                  Kein Heap-, Laufzeit- oder APPLY-Performanceversprechen.
 -- Einschränkungen: Pointer höchstens4000 UTF-16-Einheiten; kein URIfragment/Patch.
@@ -103,28 +103,70 @@ BEGIN
     DECLARE @Current nvarchar(max)=NULL,@CurrentType int=NULL,
             @SafeJson nvarchar(max)=N'[]',@RootCount bigint=0,
             @Chunk nvarchar(4000),@ChunkStart int=0,@ChunkUnits int=0;
-    -- ISJSON bleibt die einzige JSON-Grammatik. Containerroots werden direkt
-    -- geprüft, damit kein künstlicher Wrapper die vereinbarte Tiefe erhöht.
-    IF ISJSON(@Json)=1
+    -- Freigegebene native Schutzgrenze: ISJSON selbst kann bei129 Ebenen
+    -- werfen. Vor nativer Grammatikprüfung nur rohe Quote-/Escapegrenzen und
+    -- Container beobachten. Kein Grammarurteil und kein Unicode-Decoding.
+    -- Schließzeichen bei0 bleiben bei0; falsche Klammerarten werden nicht geprüft.
+    -- Auch fehlerhafte Eingaben oberhalb dieser Grenze liefern DEPTH_LIMIT.
+    DECLARE @RawQuoted bit=0,@RawEscaped bit=0,@RawDepth int=0,
+            @RawContainer bit=0,@FirstUnit int=NULL;
+    SET @Position=1;
+    WHILE @Position<=@JsonUnits
     BEGIN
-        SET @Current=@Json;
-        SET @Position=1;
-        WHILE @Position<=@JsonUnits
+        IF @Position>=@ChunkStart+@ChunkUnits
         BEGIN
-            IF @Position>=@ChunkStart+@ChunkUnits
-            BEGIN
-                SET @Chunk=SUBSTRING(@Json COLLATE Latin1_General_100_BIN2,@Position,4000);
-                SET @ChunkStart=@Position;
-                SET @ChunkUnits=CONVERT(int,DATALENGTH(@Chunk)/2);
-            END;
-            SET @Unit=UNICODE(SUBSTRING(@Chunk COLLATE Latin1_General_100_BIN2,@Position-@ChunkStart+1,1));
-            IF @Unit NOT IN(9,10,13,32) BREAK;
-            SET @Position+=1;
+            SET @Chunk=SUBSTRING(@Json COLLATE Latin1_General_100_BIN2,@Position,4000);
+            SET @ChunkStart=@Position;
+            SET @ChunkUnits=CONVERT(int,DATALENGTH(@Chunk)/2);
         END;
-        SET @CurrentType=CASE WHEN @Unit=91 THEN 4 ELSE 5 END;
+        SET @Unit=UNICODE(SUBSTRING(@Chunk COLLATE Latin1_General_100_BIN2,@Position-@ChunkStart+1,1));
+        IF @FirstUnit IS NULL AND @Unit NOT IN(9,10,13,32) SET @FirstUnit=@Unit;
+        IF @RawQuoted=1
+        BEGIN
+            IF @RawEscaped=1 SET @RawEscaped=0;
+            ELSE IF @Unit=92 SET @RawEscaped=1;
+            ELSE IF @Unit=34 SET @RawQuoted=0;
+        END
+        ELSE IF @Unit=34 SET @RawQuoted=1;
+        ELSE IF @Unit IN(91,123)
+        BEGIN
+            SET @RawContainer=1;
+            SET @RawDepth+=1;
+            IF @RawDepth>128
+            BEGIN
+                INSERT @Result VALUES('INVALID',NULL,NULL,'DEPTH_LIMIT');
+                RETURN;
+            END;
+        END
+        ELSE IF @Unit IN(93,125)
+        BEGIN
+            SET @RawContainer=1;
+            IF @RawDepth>0 SET @RawDepth-=1;
+        END;
+        SET @Position+=1;
+    END;
+    -- ISJSON bleibt die einzige JSON-Grammatik. Containerroots werden direkt
+    -- geprüft; ungültige Container fallen niemals in den Scalarwrapper zurück.
+    IF @FirstUnit IN(91,123)
+    BEGIN
+        IF ISJSON(@Json)<>1
+        BEGIN
+            INSERT @Result VALUES('INVALID',NULL,NULL,'JSON_SYNTAX');
+            RETURN;
+        END;
+        SET @Current=@Json;
+        SET @CurrentType=CASE WHEN @FirstUnit=91 THEN 4 ELSE 5 END;
     END
     ELSE
     BEGIN
+        -- Ein einzelner Scalar enthält außerhalb von Strings keine Container-
+        -- zeichen. Solche Kandidaten vor dem Wrapper ablehnen, damit fehlerhafte
+        -- Scalar-/Containerlisten keine künstliche129. Ebene erzeugen.
+        IF @RawContainer=1
+        BEGIN
+            INSERT @Result VALUES('INVALID',NULL,NULL,'JSON_SYNTAX');
+            RETURN;
+        END;
         -- Max-Typ vor Konkatenation, nach Input-Precharge. OPENJSON bekommt
         -- erst in einem separaten, erfolgreichen IF-Zweig den gültigen Wrapper.
         DECLARE @Wrapper nvarchar(max)=CAST(N'[' AS nvarchar(max))+@Json+N']';
