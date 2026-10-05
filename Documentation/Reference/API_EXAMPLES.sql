@@ -912,6 +912,17 @@ SELECT * FROM toolbelt_json.TVF_JsonPathExists(N'{"items":[1,2]}', N'$.items[0]'
 SELECT Status,JsonType,Value,ErrorCode FROM toolbelt_json.TVF_ResolveJsonPointer(N'{"items":[null,"example"]}',N'/items/1',DEFAULT,DEFAULT);
 */
 
+-- toolbelt_json.USP_ValidateJsonSchema
+-- Prüft JSON im begrenzten Profil toolbelt-2020-12-v1 mit exakten Zahlen, Unicode und globalem Arbeitsbudget; SUMMARY plus begrenzte Diagnosen.
+-- Voraussetzung: SQL Server2019+ und CL150+, bekannte SAFE-Core-/Schema-Assemblies in derselben Datenbank, ResultTable >=1.0.0, vorhandene Aufrufrechte. Nur Teilqualifikation, unreleased.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N'{"quantity":3}', @Schema=N'{"properties":{"quantity":{"type":"integer","minimum":1}}}';
+*/
+
+/* Separat auswählen und ausführen:
+EXEC toolbelt_json.USP_ValidateJsonSchema @Hilfe=1;
+*/
+
 -- toolbelt_metadata.VW_ModuleCapabilities
 -- Zeigt installierte Modulversionen und Deployment-Modi und kennzeichnet unvollständige oder ungültige Modulmarker.
 /* Separat auswählen und ausführen:

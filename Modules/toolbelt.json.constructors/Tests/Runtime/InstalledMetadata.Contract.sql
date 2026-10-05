@@ -2,7 +2,7 @@
 SET NOCOUNT ON;
 DECLARE @version nvarchar(64);
 SELECT @version=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.constructors.Version';
-IF CONVERT(varbinary(max),@version)<>CONVERT(varbinary(max),N'1.2.0') OR @version IS NULL THROW 53690,N'JSON1.2 module marker incorrect.',1;
+IF CONVERT(varbinary(max),@version)<>CONVERT(varbinary(max),N'1.3.0') OR @version IS NULL THROW 53690,N'JSON1.3 module marker incorrect.',1;
 DECLARE @apis TABLE(Name sysname);
 INSERT @apis VALUES(N'USP_JsonArray'),(N'USP_JsonObject'),(N'USP_JsonArraysByGroup'),(N'USP_JsonObjectsByGroup');
 DECLARE @params TABLE(Ordinal int,Name sysname,TypeId int,Length int);
@@ -23,6 +23,6 @@ IF OBJECT_ID(N'toolbelt_json.FT_JsonEntryEvaluateInternal',N'FT') IS NULL
  OBJECT_ID(N'toolbelt_json.AGF_JsonArray'),OBJECT_ID(N'toolbelt_json.AGF_JsonObject')))<>3
  OR NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1
  WHERE CONVERT(varbinary(max),a.name)=CONVERT(varbinary(max),N'Toolbelt_JsonConstructors') AND a.permission_set=1
- AND HASHBYTES(N'SHA2_512',f.content)=0xFF266A2FC46EB4101D87BC046AEF63197B985C8CCBAEA40F372E9918D1254C44F1F2CF8CED7942383625D28E2E1AF5BF6164FA8A16B3DD5A16DF5957FAA34276)
+ AND HASHBYTES(N'SHA2_512',f.content)=0x8ab08a17d1be0b861043463e223154dffbed8273bc2c197cd7c8b791c3c06c4af418358e8e743d72068a3a9f726f7f85f50bcfa431df0484202ab562e1edb4bf)
  THROW 53690,N'JSON exact known SAFE binary and CLR inventory incorrect.',6;
 GO

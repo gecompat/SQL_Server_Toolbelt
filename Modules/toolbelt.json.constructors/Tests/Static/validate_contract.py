@@ -70,7 +70,8 @@ for name in registry['fieldOrder']:
 assert len(frame)==2824 and hashlib.sha256(frame).hexdigest()==row['ArtifactId']
 for name,digest in fields.items():
     if name.startswith('source/'):
-        assert hashlib.sha256((root/'Clr'/name[7:]).read_bytes()).hexdigest()==digest,name
+        historical = subprocess.check_output(['git','show',f'46b2f078662a3203a8da67bfe331b33607962082:Modules/toolbelt.json.constructors/Clr/{name[7:]}'],cwd=root.parents[1])
+        assert hashlib.sha256(historical).hexdigest()==digest,name
 known=(root/'Deployment/KnownArtifact.sql').read_text(encoding='utf-8')
 assert fields['binarySha512'].upper() in known and row['ArtifactId'] in known
 preflight=(root/'Deployment/ClrPreflight.sql').read_text(encoding='utf-8')
@@ -114,11 +115,11 @@ assert 'expect_failure 53622 run_uninstall_metadata_injection' in ci
 
 # Die sechs sql_variant-Marker bewahren die bereits festgelegten Basistypen.
 marker_insert = deploy.split(' INSERT @AssemblyMarkers VALUES', 1)[1].split(' WHILE @MarkerId<=6', 1)[0]
-for expression in ('CONVERT(int,1)', '@ModuleIdValue', '@ModuleVersionValue', '@ModeValue', '@KnownHash', '@ArtifactValue'):
+for expression in ('CONVERT(int,1)', '@ModuleIdValue', '@ModuleVersionValue', '@ModeValue', '@TargetKnownHash', '@ArtifactValue'):
     assert marker_insert.count('CONVERT(sql_variant,' + expression + ')') == 1
 assert marker_insert.count('CONVERT(sql_variant,') == 6
 framework = (root/'Tests/Framework/Invoke-Framework.ps1').read_text(encoding='utf-8')
-assert "@(('/reference:'+$dll),(Join-Path $PSScriptRoot 'ProductHarness.cs'))" in framework
+assert 'Invoke-SourceQualification.ps1' in framework and 'CoreAssemblyPath' in framework
 # Wirklichen eingebetteten CI-Pythontext mit synthetischer Source statt SQL ausführen.
 # Nur der fest bezeichnete Uninstallblock darf sich ändern; die weiteren Gates bleiben gleich.
 import io, contextlib, sys

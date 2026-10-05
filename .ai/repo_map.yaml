@@ -83,6 +83,8 @@ sources_of_truth:
   json_path_exists_runtime_workflow: .github/workflows/w2b-json-path-runtime.yml
   json_path_exists_module: Modules/toolbelt.json.path-exists/module.yaml
   json_constructors_module: Modules/toolbelt.json.constructors/module.yaml
+  json_core_module: Modules/toolbelt.json.core/module.yaml
+  json_schema_module: Modules/toolbelt.json.schema/module.yaml
   json_constructors_module_design: Documentation/Architecture/JSON_CONSTRUCTOR_PROPOSAL.md
   json_groups_contract: Documentation/Architecture/JSON_GROUP_CONSTRUCTORS_CONTRACT.md
   json_clr_migration_contract: Documentation/Architecture/JSON_CLR_MIGRATION_CONTRACT.md
@@ -117,6 +119,7 @@ sources_of_truth:
   json_pointer_module: Modules/toolbelt.json.pointer/module.yaml
   json_pointer_contract: Documentation/Architecture/JSON_POINTER_CONTRACT.md
   json_pointer_depth_policy: Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md
+  json_schema_core_contract: Documentation/Architecture/JSON_SCHEMA_CONTRACT.md
   csv_memory_contract: Documentation/Architecture/CSV_MEMORY_CONTRACT.md
   csv_memory_qualification_workflow: .github/workflows/csv-memory-qualification.yml
   xlsx_reader_proposal: Documentation/Architecture/XLSX_READER_PROPOSAL.md
@@ -330,6 +333,8 @@ module_registry:
     - Modules/toolbelt.binary.bit-operations/module.yaml
     - Modules/toolbelt.json.path-exists/module.yaml
     - Modules/toolbelt.json.constructors/module.yaml
+    - Modules/toolbelt.json.core/module.yaml
+    - Modules/toolbelt.json.schema/module.yaml
     - Modules/toolbelt.metadata.table-clone/module.yaml
     - Modules/toolbelt.pseudonymization.deterministic/module.yaml
     - Modules/toolbelt.core.console-message/module.yaml
@@ -708,6 +713,19 @@ change_impact:
       checks:
         - markdown_links
         - json_constructors_static
+    json_schema_core_contract:
+      paths:
+        - Modules/toolbelt.json.core/**
+        - Modules/toolbelt.json.schema/**
+        - Modules/toolbelt.json.constructors/**
+        - Documentation/Architecture/JSON_SCHEMA_CONTRACT.md
+        - Tests/CI/run-json-schema-lab.ps1
+        - Tests/CI/Test-JsonSchemaLabDisposition.ps1
+        - Tests/CI/run-json-constructors-linux.sh
+        - .github/workflows/json-constructors-runtime.yml
+      checks:
+        - json_schema_core_static
+        - markdown_links
     deterministic_contract:
       paths:
         - Modules/toolbelt.pseudonymization.deterministic/**

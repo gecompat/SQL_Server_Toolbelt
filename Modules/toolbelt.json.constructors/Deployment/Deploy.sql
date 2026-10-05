@@ -1,5 +1,5 @@
 :On Error exit
--- Erst-/Upgrade-/Repeat-Scope 1.2.0; SQLCMD beendet jeden Fehler vor Sourcebatches.
+-- Erst-/Repeat1.3 sowie explizite bekannte1.2→1.3-Migration; kein Downgrade.
 IF @@TRANCOUNT>0
 BEGIN
  RAISERROR(N'JSON_LIFECYCLE_CALLER_TRANSACTION: aktive Callertransaktion ist ausgeschlossen.',16,1);
@@ -19,8 +19,10 @@ INSERT @Slots VALUES(1,N'USP_JsonConstructInternal','P'),(2,N'USP_JsonArray','P'
  (4,N'USP_JsonArraysByGroup','P'),(5,N'USP_JsonObjectsByGroup','P'),
  (6,N'FT_JsonEntryEvaluateInternal','FT'),(7,N'AGF_JsonArray','AF'),(8,N'AGF_JsonObject','AF');
 :r ./KnownArtifact.sql
+:r ./KnownArtifact1_3.sql
+:r ../../toolbelt.json.core/Deployment/KnownArtifact.sql
 DECLARE @TargetBits varbinary(max)=$(AssemblyBits);
-IF @TargetBits IS NULL OR HASHBYTES(N'SHA2_512',@TargetBits)<>@KnownHash
+IF @TargetBits IS NULL OR HASHBYTES(N'SHA2_512',@TargetBits)<>@TargetKnownHash
  THROW 53623,N'JSON lifecycle: Targetbinary ist kein qualifiziertes bekanntes Artefakt.',1;
 BEGIN TRY
  WHILE @Pass<2
@@ -46,7 +48,7 @@ BEGIN TRY
    OR COALESCE(@SchemaId,-1)<>COALESCE(@InitialSchemaId,-1))
    THROW 53627,N'JSON lifecycle: Zustand hat sich unter Lock verändert.',1;
   IF (@Registered=0 AND @ModeRegistered=1) OR(@Registered=1 AND
-   (@Version IS NULL OR CONVERT(varbinary(max),@Version) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0'),CONVERT(varbinary(max),N'1.2.0'))
+   (@Version IS NULL OR CONVERT(varbinary(max),@Version) NOT IN(CONVERT(varbinary(max),N'1.2.0'),CONVERT(varbinary(max),N'1.3.0'))
     OR @ModeRegistered=0 OR @InstalledMode IS NULL
     OR CONVERT(varbinary(max),@InstalledMode) NOT IN(CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central'))
     OR @SchemaId IS NULL))
@@ -76,8 +78,28 @@ BEGIN TRY
   END;
   SELECT @KnownMode=CONVERT(nvarchar(16),@InstalledMode),@KnownCount=@PreviousCount,@CreatingSlots=1;
 :r ./ClrPreflight.sql
+  -- SQL6282 verhindert ALTER bei neuer Core-Referenz. Der bekannte1.2-Pfad
+  -- ersetzt daher nur drei eigene CLR-Slots/Assembly atomar. Fremde Rechte,
+  -- Zusatzmetadaten oder explizite Owner dürfen dabei niemals verloren gehen.
+  -- In beiden Pässen vor dem ersten DROP prüfen; keine GRANT-/Ownerreparatur.
+  IF @AssemblyId IS NOT NULL AND CONVERT(varbinary(max),@Version)=CONVERT(varbinary(max),N'1.2.0')
+  BEGIN
+   IF EXISTS(SELECT 1 FROM sys.database_permissions p WHERE
+      (p.class=5 AND p.major_id=@AssemblyId) OR
+      (p.class=1 AND p.major_id IN(SELECT OBJECT_ID(N'toolbelt_json.'+QUOTENAME(Name)) FROM @Slots WHERE Kind IN('FT','AF'))))
+    OR EXISTS(SELECT 1 FROM @Slots s JOIN sys.objects o ON o.object_id=OBJECT_ID(N'toolbelt_json.'+QUOTENAME(s.Name))
+      WHERE s.Kind IN('FT','AF') AND o.principal_id IS NOT NULL)
+    OR @EffectiveOwner<>(SELECT principal_id FROM sys.schemas WHERE schema_id=@SchemaId)
+    OR EXISTS(SELECT 1 FROM sys.extended_properties e WHERE
+      (e.class=5 AND e.major_id=@AssemblyId AND (e.minor_id<>0 OR e.name NOT IN
+       (N'Toolbelt.Managed',N'Toolbelt.ModuleId',N'Toolbelt.ModuleVersion',N'Toolbelt.DeploymentMode',N'Toolbelt.AssemblySha512',N'Toolbelt.ArtifactId')))
+      OR (e.class=1 AND e.major_id IN(SELECT OBJECT_ID(N'toolbelt_json.'+QUOTENAME(Name)) FROM @Slots WHERE Kind IN('FT','AF'))
+       AND (e.minor_id<>0 OR e.name NOT IN(N'Toolbelt.ModuleId',N'Toolbelt.ModuleVersion',N'Toolbelt.ContractVersion',N'Toolbelt.DeploymentMode',N'Toolbelt.SourceHash'))))
+    THROW 53622,N'JSON lifecycle:1.2-Migration würde direkte Rechte, explizite Owner oder zusätzliche CLR-Metadaten verlieren; kein automatischer Austausch.',1;
+  END;
   SELECT @CurrentClrTuple=CONVERT(varbinary(max),(SELECT s.Id,OBJECT_ID(N'toolbelt_json.'+QUOTENAME(s.Name)) ObjectId,
-   o.principal_id ObjectOwner,sc.principal_id SchemaOwner,@AssemblyId AssemblyId,@AssemblyOwner AssemblyOwner
+   o.principal_id ObjectOwner,sc.principal_id SchemaOwner,@AssemblyId AssemblyId,@AssemblyOwner AssemblyOwner,
+   @JsonCoreId CoreId,@JsonCoreOwner CoreOwner
    FROM @Slots s LEFT JOIN sys.objects o ON o.object_id=OBJECT_ID(N'toolbelt_json.'+QUOTENAME(s.Name))
    LEFT JOIN sys.schemas sc ON sc.schema_id=o.schema_id ORDER BY s.Id FOR XML RAW,BINARY BASE64));
   IF @Pass=0 SET @InitialClrTuple=@CurrentClrTuple;
@@ -87,6 +109,8 @@ BEGIN TRY
    OR COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE ASSEMBLY'),0)<>1
    OR COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE FUNCTION'),0)<>1
    THROW 53622,N'JSON lifecycle: CLR-Konfiguration oder vorhandene Installationsrechte fehlen.',1;
+  IF @AssemblyId IS NOT NULL AND COALESCE(HAS_PERMS_BY_NAME(N'Toolbelt_JsonConstructors',N'ASSEMBLY',N'ALTER'),0)<>1
+   THROW 53622,N'JSON lifecycle: vorhandenes Assembly-ALTER-Recht fehlt.',1;
   IF (@SchemaId IS NULL AND COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE SCHEMA'),0)<>1)
    OR(@SchemaId IS NOT NULL AND COALESCE(HAS_PERMS_BY_NAME(N'toolbelt_json',N'SCHEMA',N'ALTER'),0)<>1)
    OR COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE PROCEDURE'),0)<>1
@@ -108,11 +132,27 @@ BEGIN TRY
    SELECT @InitialRegistered=@Registered,@InitialVersion=CONVERT(varbinary(max),@Version),
     @InitialMode=CONVERT(varbinary(max),@InstalledMode),@InitialSchemaId=@SchemaId;
    BEGIN TRANSACTION;
+   EXEC @LockResult=sys.sp_getapplock @Resource=N'toolbelt.deploy.json.shared-core',@LockMode=N'Shared',
+    @LockOwner=N'Transaction',@LockTimeout=0,@DbPrincipal=N'public';
+   IF @LockResult IS NULL OR @LockResult<0 THROW 53627,N'JSON lifecycle: gemeinsame Core-AppLock ist nicht verfügbar.',1;
    EXEC @LockResult=sys.sp_getapplock @Resource=N'toolbelt.deploy.toolbelt.json.constructors',@LockMode=N'Exclusive',
     @LockOwner=N'Transaction',@LockTimeout=0,@DbPrincipal=N'public';
    IF @LockResult IS NULL OR @LockResult<0 THROW 53627,N'JSON lifecycle: AppLock ist nicht verfügbar.',1;
   END;
   SET @Pass+=1;
+ END;
+ -- Die fünf Procedures behalten ihre ObjectIds und vorhandenen Rechte.
+ -- Drei eigene CLR-ObjectIds und AssemblyId werden neu erzeugt; Namen,
+ -- Signaturen, effektiver Owner und AGF-Wireform bleiben erhalten.
+ -- Alle Fremdverbraucher/verlustgefährdeten Tupel wurden zweimal ausgeschlossen.
+ -- DROP/CREATE/Marker bleiben bis zur finalen Prüfung in derselben Transaktion.
+ IF @AssemblyId IS NOT NULL AND CONVERT(varbinary(max),@Version)=CONVERT(varbinary(max),N'1.2.0')
+ BEGIN
+  DROP AGGREGATE toolbelt_json.AGF_JsonArray;
+  DROP AGGREGATE toolbelt_json.AGF_JsonObject;
+  DROP FUNCTION toolbelt_json.FT_JsonEntryEvaluateInternal;
+  DROP ASSEMBLY [Toolbelt_JsonConstructors] WITH NO DEPENDENTS;
+  SET @AssemblyId=NULL;
  END;
  IF @SchemaId IS NULL
  BEGIN
@@ -167,7 +207,7 @@ BEGIN TRY
   SELECT @Name=Name,@Kind=Kind FROM @Slots WHERE Id=@Id;
   SET @ObjectId=OBJECT_ID(N'toolbelt_json.'+QUOTENAME(@Name),@Kind);
   SET @LevelType=CASE @Kind WHEN 'P' THEN 'PROCEDURE' WHEN 'AF' THEN 'AGGREGATE' ELSE 'FUNCTION' END;
-  INSERT @Properties VALUES(1,N'Toolbelt.ModuleId',N'toolbelt.json.constructors'),(2,N'Toolbelt.ModuleVersion',N'1.2.0'),
+  INSERT @Properties VALUES(1,N'Toolbelt.ModuleId',N'toolbelt.json.constructors'),(2,N'Toolbelt.ModuleVersion',N'1.3.0'),
    (3,N'Toolbelt.ContractVersion',N'1.0'),(4,N'Toolbelt.DeploymentMode',@Mode),
    (5,N'Toolbelt.SourceHash',CASE WHEN @Kind='P' THEN CONVERT(nvarchar(64),HASHBYTES(N'SHA2_256',CONVERT(varbinary(max),OBJECT_DEFINITION(@ObjectId))),2)
     WHEN @Kind='FT' THEN N'FCB13D767B7E0E449F8C7BDADCCE8344D4D4953D7EA098D07A3D4D115FCD868E'
@@ -185,21 +225,23 @@ BEGIN TRY
   SET @Id+=1;
  END;
  IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.constructors.Version')
-  EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.json.constructors.Version',@value=N'1.2.0';
- ELSE EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.json.constructors.Version',@value=N'1.2.0';
+  EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.json.constructors.Version',@value=N'1.3.0';
+ ELSE EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.json.constructors.Version',@value=N'1.3.0';
  IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.constructors.DeploymentMode')
   EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.json.constructors.DeploymentMode',@value=@Mode;
  ELSE EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.json.constructors.DeploymentMode',@value=@Mode;
 :r ./KnownArtifact.sql
- DECLARE @Version nvarchar(max)=N'1.2.0',@SchemaId int=SCHEMA_ID(N'toolbelt_json');
+:r ./KnownArtifact1_3.sql
+:r ../../toolbelt.json.core/Deployment/KnownArtifact.sql
+ DECLARE @Version nvarchar(max)=N'1.3.0',@SchemaId int=SCHEMA_ID(N'toolbelt_json');
  SELECT @KnownMode=@Mode,@KnownCount=8;
  DECLARE @MarkerId int=1,@MarkerName sysname,@MarkerValue sql_variant,
-  @ModuleIdValue nvarchar(64)=N'toolbelt.json.constructors',@ModuleVersionValue nvarchar(16)=N'1.2.0',
-  @ModeValue nvarchar(16)=@Mode,@ArtifactValue varchar(64)=@KnownArtifactId;
+  @ModuleIdValue nvarchar(64)=N'toolbelt.json.constructors',@ModuleVersionValue nvarchar(16)=N'1.3.0',
+  @ModeValue nvarchar(16)=@Mode,@ArtifactValue varchar(64)=@TargetArtifactId;
  DECLARE @AssemblyMarkers TABLE(Id int PRIMARY KEY,Name sysname,Value sql_variant);
  INSERT @AssemblyMarkers VALUES(1,N'Toolbelt.Managed',CONVERT(sql_variant,CONVERT(int,1))),(2,N'Toolbelt.ModuleId',CONVERT(sql_variant,@ModuleIdValue)),
   (3,N'Toolbelt.ModuleVersion',CONVERT(sql_variant,@ModuleVersionValue)),(4,N'Toolbelt.DeploymentMode',CONVERT(sql_variant,@ModeValue)),
-  (5,N'Toolbelt.AssemblySha512',CONVERT(sql_variant,@KnownHash)),(6,N'Toolbelt.ArtifactId',CONVERT(sql_variant,@ArtifactValue));
+  (5,N'Toolbelt.AssemblySha512',CONVERT(sql_variant,@TargetKnownHash)),(6,N'Toolbelt.ArtifactId',CONVERT(sql_variant,@ArtifactValue));
  WHILE @MarkerId<=6
  BEGIN
   SELECT @MarkerName=Name,@MarkerValue=Value FROM @AssemblyMarkers WHERE Id=@MarkerId;

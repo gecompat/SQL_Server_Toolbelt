@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-42 Module sind implementiert. 19 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`.
+44 Module sind implementiert. 19 sind `validated`, 25 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
 
@@ -289,6 +289,40 @@ Fehler-/Diagnosepriorität, MaxErrors0/Limitverhalten, abstrakte globale
 Arbeitsabrechnung und eine synthetische Abnahmematrix sind konkret vorgeschlagen.
 Keine neue Assertion als ausgeführter Nachweis dargestellt.
 
+
+### JSON Schema / gemeinsamer Kern – ausdrücklich freigegeben2026-10-05
+
+Nach konkreter Besprechung in PR175 antwortete der Benutzer:
+
+> Diese Schema-/Kern-Welle freigegeben
+
+Genau USP_ValidateJsonSchema im begrenzten Profil toolbelt-2020-12-v1,
+zehn Ergebnisfelder, exakte Zahlen/Unicode, lokale nichtrekursive Referenzen,
+globales Arbeitsbudget und vollständiges Urteil trotz gekürzter Diagnosen;
+dazu gemeinsamer SAFE-JSON-Core und semantikerhaltende Constructor1.2→1.3-
+Migration. Parameter, Fehlerpriorität, interne Bridge, Dependency-Lifecycle
+und Abnahmematrix der besprochenen Vorlage sind eingeschlossen. Der
+[kanonische Vor-Source-Vertrag](../Documentation/Architecture/JSON_SCHEMA_CONTRACT.md)
+hält die tatsächliche Einzelzustimmung und den Umfang fest.
+Status: implemented, partially validated, unreleased. Gemeinsamer Source-
+Frameworklauf, eigene vollständige IL, acht verbotene Negativfixtures, drei
+kanonische bytegleiche Projektbuilds und sieben Paketierungsfälle bestanden.
+Core-/Schema-Scope und genuine bekannte Constructor1.2→1.3 bestanden auf
+Linux2019/latest CL150 und Windows2025/CU8 CL170 jeweils local/central,
+einschließlich26 Schemafällen, Client/Safety, vier Constructor-Fixtures
+mit16 MiB/100000 Einträgen, post-DROP-Rollback und zusätzlichen Annotationen.
+Die Migration erhält fünf Procedureidentitäten/Rechte, ersetzt drei eigene
+CLR-Slots/Assembly atomar und weist verlustgefährdete direkte Rechte/Owner/
+Zusatzmetadaten vorher ab. Der verworfene ALTER-Versuch6282 bleibt fehlgeschlagen.
+Frische hashgebundene Dispositionaudits beider aktueller Core-/Schema- und
+Migrationsscopes bestanden; keine Konfigurations-/Rechte-/Owneränderung.
+[Begrenzte native Evidenz](../Modules/toolbelt.json.schema/Tests/NATIVE_EVIDENCE.md).
+Weitere Ziel-/Lifecyclematrix, CrossDB, Minimalrechte und aktuelle Head-CI offen.
+Neue Binaries werden separat qualifiziert; die anschließende ausdrückliche
+Trustfreigabe autorisiert notwendige begrenzte Tests der laufenden Welle ohne
+erneute Schemahashfragen. Keine erneute allgemeine Funktions-/Migrationsfreigabefrage;
+keine Release-, Rechtegrant-, Infrastruktur- oder Produktionsfreigabe.
+Historische Constructor1.2-Artefakte und Nachweise bleiben getrennt erhalten.
 ### TC-2026-039 / TC-2026-040 / TC-2026-042: Deterministic-Familie implementiert
 
 Stand 2026-10-02: Die am 2026-10-01 einzeln freigegebenen

@@ -1,5 +1,32 @@
 # CHANGELOG
 
+## 2026-10-05 – JSON Schema1.0, gemeinsamer Core1.0 und Constructors1.3
+
+- Freigegebene `USP_ValidateJsonSchema` mit Profil `toolbelt-2020-12-v1`,
+  zehn Ergebnisfeldern, vollständigem Preflight, exakten Zahlen/Unicode,
+  lokalen nichtrekursiven Referenzen und globalem Arbeitsbudget umgesetzt.
+- Ein physischer SAFE-JSON-Core für Schema und die sieben Constructoradapter;
+  drei getrennte bekannte Assemblies und explizite SameDB-Dependencies.
+  Öffentliche Constructorverträge und AGF-Wireversion3 bleiben erhalten.
+- Source-/Framework-/IL, drei kanonische bytegleiche Projektbuilds und sieben
+  Paketierungskontrollen bestanden. Interne Schema-CLR-Bindungen verwenden
+  Unicode; öffentliche ASCII-Felder bleiben varchar. Consumer-DROP verwendet
+  `WITH NO DEPENDENTS`, um den gemeinsamen Core zu erhalten.
+- Native Core-/Schema-Läufe auf Linux2019/latest CL150 und Windows2025/CU8
+  CL170 local/central bestanden Contract/Safety/Client/Repeat/Consumer-Reject/
+  Uninstall und eigene Bereinigung. Constructor-Fixtures einschließlich16 MiB
+  und100000 Einträgen bestanden Linux lokal und Windows lokal/zentral.
+- Genuine1.2→1.3 auf Linux local/central bestanden: fünf Procedureidentitäten/
+  Rechte und effektive Owner erhalten, drei eigene CLR-Slots/Assembly atomar
+  ersetzt, post-DROP-Rollback und Zusatzmetadaten-Abweisung geprüft. Der
+  verworfene ALTER-Versuch scheiterte an SQL6282; Fehlerhistorie bleibt sichtbar.
+  Windowsmigration anschließend ebenso local/central bestanden; aktuelle Head-CI offen.
+- Schema-Trustfreigabe gilt für weitere separat qualifizierte Schemahashes
+  der laufenden freigegebenen Testwelle ohne erneute Frage. Kein Produktions-
+  oder Infrastrukturauftrag. Weitere Matrix, Minimalrechte, CrossDB und volle
+  Lifecycle-/Heapqualifikation offen. Neue Module teilweise validiert und
+  unveröffentlicht;44 Module insgesamt,19 validiert/25 teilweise validiert.
+
 ## 2026-10-05 – JSON Pointer1.0.0 und freigegebener nativer128er-Guard
 
 - Einzeln freigegebene lesende native MSTVF TVF_ResolveJsonPointer mit vier
@@ -748,7 +775,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-42 Module sind implementiert. 19 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+44 Module sind implementiert. 19 sind `validated`, 25 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

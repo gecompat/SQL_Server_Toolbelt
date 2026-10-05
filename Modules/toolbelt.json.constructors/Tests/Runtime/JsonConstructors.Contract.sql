@@ -80,14 +80,17 @@ CREATE TABLE #WrongTypes(Ordinal bigint,ValueKind nvarchar(max),[Value] nvarchar
 BEGIN TRY EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#WrongTypes'; THROW 54600,N'Wrong type accepted.',19; END TRY BEGIN CATCH IF ERROR_NUMBER()<>53601 THROW; END CATCH;
 
 -- Exact byte budgets and expansion: raw x requires ["x"] =10 UTF-16 bytes.
+RAISERROR(N'JSON_CONSTRUCTOR_PHASE_SMALL_BYTE_BUDGETS',10,1) WITH NOWAIT;
 UPDATE #JsonEntries SET ValueKind=N'string',[Value]=N'x';
 EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries',@MaxTotalValueBytes=2,@MaxResultBytes=10,@ResultTable=N'#JsonOutput';
 BEGIN TRY EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries',@MaxTotalValueBytes=1; THROW 54600,N'Value budget accepted.',20; END TRY BEGIN CATCH IF ERROR_NUMBER()<>53609 THROW; END CATCH;
 BEGIN TRY EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries',@MaxResultBytes=9; THROW 54600,N'Output budget accepted.',21; END TRY BEGIN CATCH IF ERROR_NUMBER()<>53609 THROW; END CATCH;
 UPDATE #JsonEntries SET [Value]=REPLICATE(CAST(N'x' AS nvarchar(max)),1048572);
+RAISERROR(N'JSON_CONSTRUCTOR_PHASE_TWOMIB_START',10,1) WITH NOWAIT;
 EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries',@ResultTable=N'#JsonOutput';
 EXEC sys.sp_executesql N'SELECT @x=JsonValue FROM #JsonOutput',N'@x nvarchar(max) OUTPUT',@Actual OUTPUT;
 IF @Actual IS NULL OR DATALENGTH(@Actual)<>2097152 THROW 54600,N'2MiB output boundary failed.',22;
+RAISERROR(N'JSON_CONSTRUCTOR_PHASE_TWOMIB_COMPLETE',10,1) WITH NOWAIT;
 UPDATE #JsonEntries SET [Value]=[Value]+N'x';
 BEGIN TRY EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries'; THROW 54600,N'2MiB output overflow accepted.',23; END TRY BEGIN CATCH IF ERROR_NUMBER()<>53609 THROW; END CATCH;
 UPDATE #JsonEntries SET [Value]=N'x';
@@ -130,9 +133,11 @@ UPDATE #JsonEntries SET [Key]=N'key',[Value]=REPLICATE(CAST(NCHAR(1) AS nvarchar
 EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries',@MaxResultBytes=1208,@ResultTable=N'#JsonOutput';
 BEGIN TRY EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries',@MaxResultBytes=1207; THROW 54600,N'Escape budget missing.',52; END TRY BEGIN CATCH IF ERROR_NUMBER()<>53609 THROW; END CATCH;
 UPDATE #JsonEntries SET [Value]=REPLICATE(CAST(N'x' AS nvarchar(max)),8388604);
+RAISERROR(N'JSON_CONSTRUCTOR_PHASE_SIXTEENMIB_START',10,1) WITH NOWAIT;
 EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries',@MaxTotalValueBytes=16777216,@MaxResultBytes=16777216,@ResultTable=N'#JsonOutput';
 EXEC sys.sp_executesql N'SELECT @x=JsonValue FROM #JsonOutput',N'@x nvarchar(max) OUTPUT',@Actual OUTPUT;
 IF @Actual IS NULL OR DATALENGTH(@Actual)<>16777216 THROW 54600,N'16MiB output boundary failed.',53;
+RAISERROR(N'JSON_CONSTRUCTOR_PHASE_SIXTEENMIB_COMPLETE',10,1) WITH NOWAIT;
 UPDATE #JsonEntries SET [Value]=[Value]+N'x';
 BEGIN TRY EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries',@MaxTotalValueBytes=16777216,@MaxResultBytes=16777216; THROW 54600,N'16MiB output overflow accepted.',54; END TRY BEGIN CATCH IF ERROR_NUMBER()<>53609 THROW; END CATCH;
 DELETE #JsonEntries;
@@ -140,9 +145,11 @@ DELETE #JsonEntries;
 INSERT #JsonEntries SELECT 1+a.n+10*b.n+100*c.n+1000*d.n+10000*e.n,N'ignored',N'null',NULL,0
 FROM D a CROSS JOIN D b CROSS JOIN D c CROSS JOIN D d CROSS JOIN D e;
 BEGIN TRY EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries'; THROW 54600,N'Default entry limit missing.',55; END TRY BEGIN CATCH IF ERROR_NUMBER()<>53609 THROW; END CATCH;
+RAISERROR(N'JSON_CONSTRUCTOR_PHASE_HUNDREDTHOUSAND_START',10,1) WITH NOWAIT;
 EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries',@MaxEntries=100000,@ResultTable=N'#JsonOutput';
 EXEC sys.sp_executesql N'SELECT @x=JsonValue FROM #JsonOutput',N'@x nvarchar(max) OUTPUT',@Actual OUTPUT;
 IF @Actual IS NULL OR DATALENGTH(@Actual)<>1000002 THROW 54600,N'100000 entries contract failed.',56;
+RAISERROR(N'JSON_CONSTRUCTOR_PHASE_HUNDREDTHOUSAND_COMPLETE',10,1) WITH NOWAIT;
 INSERT #JsonEntries VALUES(100001,N'ignored',N'null',NULL,0);
 BEGIN TRY EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries',@MaxEntries=100000; THROW 54600,N'100001 entries accepted.',57; END TRY BEGIN CATCH IF ERROR_NUMBER()<>53609 THROW; END CATCH;
 DELETE #JsonEntries;INSERT #JsonEntries VALUES(1,N'key',N'string',N'x',0);

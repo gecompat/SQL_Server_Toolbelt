@@ -99,6 +99,8 @@ def objects(root: Path) -> list[dict]:
     result = []
     for path in sorted((root / "Modules").glob("*/module.yaml")):
         text = path.read_text(encoding="utf-8-sig")
+        if re.search(r"^objects:\s*\[\]\s*$", text, re.M):
+            continue
         block = re.search(r"^objects:\s*\n(.*?)(?=^\S|\Z)", text, re.M | re.S)
         if not block:
             raise ValueError(f"Objektliste fehlt: {path.relative_to(root)}")

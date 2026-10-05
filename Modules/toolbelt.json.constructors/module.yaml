@@ -1,6 +1,6 @@
 module_id: "toolbelt.json.constructors"
 module_name: "JSON Constructors"
-version: "1.2.0"
+version: "1.3.0"
 implementation_status: implemented
 validation_status: partially validated
 release_status: unreleased
@@ -25,6 +25,9 @@ deployment_capabilities:
   local_required: false
   central_preferred: false
 dependencies:
+  - module_id: "toolbelt.json.core"
+    minimum_version: "1.0.0"
+    location: same_database
   - module_id: "toolbelt.core.result-table"
     minimum_version: "1.0.0"
     location: same_database
@@ -117,11 +120,18 @@ tests:
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   lab: "../../Tests/CI/run-json-groups-lab.ps1"
+  shared_json_lab: "../../Tests/CI/run-json-schema-lab.ps1"
+  disposition_audit: "../../Tests/CI/Test-JsonSchemaLabDisposition.ps1"
   minimum_rights: "Tests/Runtime/MinimumRights.Contract.sql"
   select_metadata: "Tests/Runtime/SelectMetadata.Contract.ps1"
   collation: "Tests/Runtime/Collation.Contract.sql"
   github_hosted_linux: "../../.github/workflows/json-constructors-runtime.yml"
 validation_evidence:
+  - date: "2026-10-05"
+    workflow: "local: shared JSON closure qualification"
+    scope: "Version1.3.0: gemeinsame Core-Dependency,37 Constructorfälle/960 Assertions je drei Cultures und3 große Fälle/67 Assertions, eigene IL, kanonischer bytegleicher Projektbuild und Offline-Paketierung bestanden. Historische1.2-Evidenz nicht auf1.3 übertragen; dieser frühere Offline-Scope führte keine native Migration oder Truständerung aus. Anschließende native Teilnachweise sind getrennt dokumentiert."
+    result: "success"
+
   - date: "2026-10-01"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Historische Version 1.0.0, kein Nachweis gruppierter 1.1-APIs: Physische SQL Server 2019 Linux/latest und 2025 Windows/CU8; local/central, Typ-/Literal-/Unicode-/Grenz-/Help-/ResultTable-/Transaktions-/Clientmetadaten-, CS/CI-Namespace-, lokale Minimalrechte-, Repeat-/Marker-/Hash-/TF-Drift-/Kollisions-/Uninstall-Contracts; 16 MiB Ergebnis und 100000 Entries. Weitere Ziele, GitHub und CrossDB-Minimalrechte nicht ausgefuehrt."
@@ -154,4 +164,9 @@ validation_evidence:
   - date: "2026-10-04"
     workflow: "local: scoped JSON 1.2 qualification"
     scope: "Kanonischer Projektbuild mit MSBuild 18 ohne Profil-Overrides bytegleich zur unabhängig offline qualifizierten bekannten SAFE-Zeile. Lokal acht Original-Fixtures auf Linux2019 CL150 und Windows2025/CU8 CL170. Windows2025/CU8 CL170: genuine1.1 lokal und genuine1.0 lokal/zentral, Repeat, acht Slots/sechs typisierte Marker, Uninstall/Repeat; zentrale erste-GO-Bestätigung und originaler Consumer. Sechs erste-GO-Negativfälle, Guest916/4 und Ownerfall NOT_EXECUTED. Eigene Bereinigung/frische Abwesenheit bestanden, keine Konfigurations-/Rechte-/Owneränderung. Kein vollständiger Produkt-/Matrix-/Minimalrechte-/Heap-/Spillnachweis; aktuelle Exact-head-CI mit ihrem Compilerstand und Release offen. Historische Fehlversuche unverändert."
+    result: "success"
+
+  - date: "2026-10-05"
+    workflow: "local: Tests/CI/run-json-schema-lab.ps1"
+    scope: "Constructor1.3: vier ausgewählte Runtime-Fixtures einschließlich16 MiB/100000 Einträgen Linux2019/latest CL150 lokal und Windows2025/CU8 CL170 local/central bestanden. Genuine bekannte1.2→1.3 beide Ziele local/central, fünf Procedureidentitäten/Rechte und effektive Owner erhalten, drei eigene CLR-Slots/Assembly atomar neu, post-DROP-Rollback und Annotationserhalt, nachgelagerte Schema26-Fall-Fixture, Repeat/Uninstall/Coreerhalt und frische hashgebundene Dispositionaudits bestanden. Weitere Ziel-/Lifecycle-/Minimalrechtematrix und aktuelle Head-CI offen; verworfener ALTER-Versuch6282 bleibt fehlgeschlagen."
     result: "success"
