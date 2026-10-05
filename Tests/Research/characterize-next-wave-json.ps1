@@ -2,7 +2,7 @@
 # Keine öffentliche API, Installation, Datenbankanlage oder Konfigurationsänderung.
 # Ziele und Credentials bleiben ausschließlich im Speicher; Fehlertexte werden redigiert.
 [CmdletBinding()]
-param()
+param([ValidateSet('json-baseline','decimal-range')][string]$ProbeSet='json-baseline')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $runExit = 0
@@ -65,7 +65,14 @@ try {
         Write-Output 'CHARACTERIZATION_NOT_EXECUTED_NO_SELECTED_READY_TARGET'
         Set-CharacterizationExit -Code 2
     }
-    $probes = @(
+    $probes = if($ProbeSet -eq 'decimal-range') { @(
+        @{ Name = 'DECIMAL_MAX_ZERO_TAIL'; Expected = 'EXACT_MAX'; Sql = 'SELECT CASE WHEN TRY_CONVERT(decimal(38,18),N''99999999999999999999.9999999999999999990'')=CONVERT(decimal(38,18),N''99999999999999999999.999999999999999999'') THEN ''EXACT_MAX'' ELSE ''OTHER'' END' },
+        @{ Name = 'DECIMAL_MAX_NONZERO_TAIL'; Expected = 'ROUNDED_BACK_TO_MAX'; Sql = 'SELECT CASE WHEN TRY_CONVERT(decimal(38,18),N''99999999999999999999.9999999999999999991'')=CONVERT(decimal(38,18),N''99999999999999999999.999999999999999999'') THEN ''ROUNDED_BACK_TO_MAX'' ELSE ''OTHER'' END' },
+        @{ Name = 'DECIMAL_MIN_NONZERO_TAIL'; Expected = 'ROUNDED_BACK_TO_MIN'; Sql = 'SELECT CASE WHEN TRY_CONVERT(decimal(38,18),N''-99999999999999999999.9999999999999999991'')=CONVERT(decimal(38,18),N''-99999999999999999999.999999999999999999'') THEN ''ROUNDED_BACK_TO_MIN'' ELSE ''OTHER'' END' },
+        @{ Name = 'DECIMAL_INSIDE_NONZERO_TAIL'; Expected = 'ROUNDED_INSIDE'; Sql = 'SELECT CASE WHEN TRY_CONVERT(decimal(38,18),N''99999999999999999998.9999999999999999991'')=CONVERT(decimal(38,18),N''99999999999999999998.999999999999999999'') THEN ''ROUNDED_INSIDE'' ELSE ''OTHER'' END' },
+        @{ Name = 'DECIMAL_MAX_ROUNDUP'; Expected = 'NATIVE_OVERFLOW_NULL'; Sql = 'SELECT CASE WHEN TRY_CONVERT(decimal(38,18),N''99999999999999999999.9999999999999999995'') IS NULL THEN ''NATIVE_OVERFLOW_NULL'' ELSE ''OTHER'' END' },
+        @{ Name = 'DECIMAL_INTEGER_OVERFLOW'; Expected = 'NATIVE_OVERFLOW_NULL'; Sql = 'SELECT CASE WHEN TRY_CONVERT(decimal(38,18),N''100000000000000000000'') IS NULL THEN ''NATIVE_OVERFLOW_NULL'' ELSE ''OTHER'' END' }
+    ) } else { @(
         @{ Name = 'SCALAR_WRAPPER'; Expected = 'EXPECTED'; Sql = 'SELECT CASE WHEN ISJSON(N''[1]'')=1 AND (SELECT COUNT(*) FROM OPENJSON(N''[1]''))=1 THEN ''EXPECTED'' ELSE ''UNEXPECTED'' END' },
         @{ Name = 'MULTIROOT_WRAPPER'; Expected = 'CARDINALITY_REQUIRED'; Sql = 'SELECT CASE WHEN ISJSON(N''[1,2]'')=1 AND (SELECT COUNT(*) FROM OPENJSON(N''[1,2]''))=2 THEN ''CARDINALITY_REQUIRED'' ELSE ''UNEXPECTED'' END' },
         @{ Name = 'PADDED_KEY_EQUALITY'; Expected = 'LENGTH_REQUIRED'; Sql = 'SELECT CASE WHEN N''a'' COLLATE Latin1_General_100_BIN2=N''a '' COLLATE Latin1_General_100_BIN2 AND DATALENGTH(N''a'')<>DATALENGTH(N''a '') THEN ''LENGTH_REQUIRED'' ELSE ''UNEXPECTED'' END' },
@@ -77,7 +84,7 @@ try {
         @{ Name = 'GUID_SUFFIX'; Expected = 'SUFFIX_ACCEPTED'; Sql = 'SELECT CASE WHEN TRY_CONVERT(uniqueidentifier,N''00000000-0000-0000-0000-000000000001suffix'') IS NOT NULL THEN ''SUFFIX_ACCEPTED'' ELSE ''SUFFIX_REJECTED'' END' },
         @{ Name = 'LONG_KEY_SURROGATE_BOUNDARY'; Expected = 'NO_SHORT_PREFIX_MATCH'; Sql = 'DECLARE @j nvarchar(max)=N''{"''+REPLICATE(CAST(N''x'' AS nvarchar(max)),3999)+N''\uD83D\uDE00":1}''; SELECT CASE WHEN EXISTS (SELECT 1 FROM OPENJSON(@j) WHERE [key] COLLATE Latin1_General_100_BIN2=REPLICATE(CAST(N''x'' AS nvarchar(max)),3999) COLLATE Latin1_General_100_BIN2 AND DATALENGTH([key])=7998) THEN ''FALSE_PREFIX_MATCH'' ELSE ''NO_SHORT_PREFIX_MATCH'' END' },
         @{ Name = 'LONG_KEY_NUL_BOUNDARY'; Expected = 'NO_SHORT_PREFIX_MATCH'; Sql = 'DECLARE @j nvarchar(max)=N''{"''+REPLICATE(CAST(N''x'' AS nvarchar(max)),3999)+N''\u0000z":1}''; SELECT CASE WHEN EXISTS (SELECT 1 FROM OPENJSON(@j) WHERE [key] COLLATE Latin1_General_100_BIN2=REPLICATE(CAST(N''x'' AS nvarchar(max)),3999) COLLATE Latin1_General_100_BIN2 AND DATALENGTH([key])=7998) THEN ''FALSE_PREFIX_MATCH'' ELSE ''NO_SHORT_PREFIX_MATCH'' END' }
-    )
+    ) }
     foreach ($entry in $targets) {
         $connection = $null
         try {

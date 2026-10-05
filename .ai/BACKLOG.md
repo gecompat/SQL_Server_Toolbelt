@@ -43,8 +43,11 @@ DBs/einen eigenen Trusthash abwesend. Historische Syntax-/
 LF-Padding-Fehlläufe und der fünfte Metadata-Fehllauf bleiben FAILED. Die
 Produktkorrekturen betreffen LF-Padding und drei Help-first-NOT-NULL-Spalten.
 Keine Konfigurations-/Rechteänderungen. Weitere Ziele, Fremdslot-/
-Driftvollmatrix, Minimalrechte, Heap und exakte Head-CI bleiben offen.
-Nächster Schritt: exakte Head-CI und PR-/Mergeabschluss.
+Driftvollmatrix, Minimalrechte und Heap bleiben offen.
+Abschluss: [PR169](https://github.com/gecompat/SQL_Server_Toolbelt/pull/169)
+ist mit fünf erfolgreichen Checks am exakten Head gemergt. Main/origin-main
+und eigener Branch-Cleanup geprüft. Modulstatus bleibt teilweise validiert
+und unveröffentlicht; keine Übertragung der Freigabe auf Folgefunktionen.
 
 ### Queue-Worker 2 – autonome Umsetzung freigegeben 2026-10-04
 
@@ -134,6 +137,15 @@ autorisierte Arbeit möglich ist. Unabhängige Vorbereitung wird deshalb auch be
 einem noch offenen Sourcegate fortgesetzt. Die datierte technische Vorprüfung
 in der obigen Entscheidungsvorlage ergänzt CSV-Transport/Atomik, Pointer-
 Enginegrenzen, Safe-Cast-Lexik und den begrenzten Schema-Evaluationskern.
+
+Fortschreibung nach CSV-Merge: Die Entscheidungsvorlage enthält konkrete
+bevorzugte Pointer-Status-/Unicode-/Tiefenregeln, Safe-Cast-Fehlerpriorität und
+exakte Decimal-Betragsgrenze sowie Schema-Referenz-/Unicode-/Arbeitsbudgets.
+Sechs neue lesende Decimal-Engineproben bestanden auf Linux2019/latest CL150;
+das ist kein Safe-Cast-Runtime-Nachweis. Reuse-Prüfung identifizierte den
+vorhandenen Constructor1.2-Scanner und konkrete Policy-/Index-/Budgetlücken.
+Providergrenze und funktionsbezogene Freigaben bleiben sichtbar getrennt;
+keine neue SQL-Funktion oder Assembly durch diese Researchpflege.
 Elf synthetische rein lesende Engine-Assertions bestanden auf dem schema-valide
 ausgewählten SQL2019 Linux/latest CL150; kein öffentlicher API-Nachweis und keine
 Labmutation. Bestehende konkrete Zustimmungen bleiben erhalten; neue Vorschläge
