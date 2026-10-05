@@ -298,3 +298,29 @@ Rechteänderungen. Diese Ergänzung schließt die genannten zentralen Upgrade- u
 Consumerlücken für dieses Ziel. Vollständige Lifecycle-/Kollisionsmatrix,
 weitere CL/Ziele, Minimalrechte und Heap bleiben offen. CI wird separat am
 exakten PR-Head geprüft; Status bleibt `partially validated`, `unreleased`.
+
+## Ergänzende Lifecycle-Qualifikation 2026-10-05
+
+`Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentralLifecycle`
+bestand auf Linux2019/latest zentral CL150. Vier injizierte postDROP-/preCOMMIT-
+Fehler für Deploy/Uninstall und zwei konkurrierende AppLock-Abweisungen
+bewahrten den vorhandenen vollständigen Lifecycle-Snapshot und hinterließen
+keine offene oder beschädigte Sessiontransaktion. Separate positive Setup- und
+Abschlusszeugen belegten neun Slots, vier CLR-Bindings, exakten SAFE-Binaryhash,
+Release-/Moduszuordnung und CL150. Die exakte Display-Class-/Methodbindung wurde
+vor und nach den Fällen geprüft; kein allgemeiner Drift-Audit aller Bindings.
+
+Der erste Setup-Prüflauf scheiterte vor den Negativfällen und bleibt
+`FAILED_CLEANED`. Ein gezielter Read-only-Probe auf dem ausgewählten SQL2019-Ziel
+zeigte, dass das gemischte Katalog-/Transaktionsprädikat einen aktiven Zustand
+meldete, während die katalogfreie Prüfung zwischen Statements neutral blieb.
+Die getrennten Zeugen messen daher den beabsichtigten Sessionzustand; keine
+Produktänderung oder allgemeine Enginegarantie wird daraus abgeleitet.
+
+Der finale Lauf bestand mit eigenem äußerem Prozesswatchdog, Exit0 und
+vollständigen privaten Kanälen. Bestätigter Uninstall und frischer unabhängiger
+Audit belegten die Abwesenheit einer eigenen Datenbank und zweier eigener
+Trust-Hashes; keine Konfigurations-/Rechteänderungen. Die sechs Negativfälle
+sind von Setup, Metadatenzeugen, Uninstall und Cleanup getrennt gezählt.
+API-, Consumer- und Upgradetests wurden nicht wiederholt. Weitere Lifecycle-/
+Kollisionsfälle, Ziele, Minimalrechte und Heap bleiben offen.

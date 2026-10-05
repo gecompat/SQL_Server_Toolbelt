@@ -1973,3 +1973,14 @@ keine Konfigurations-/Rechteänderungen. Diese konkreten zentralen Lücken sind
 geschlossen; vollständige Lifecycle-/Kollisionsmatrix, weitere Ziele,
 Minimalrechte und Heap bleiben offen. Status weiterhin teilweise validiert und
 unreleased; keine neue fachliche API oder Providerfreigabe.
+
+Ergänzung 2026-10-05, Codex: `DisplayCentralLifecycle` bestand auf demselben
+Linux2019/latest-/central-/CL150-Ziel mit vier postDROP-/preCOMMIT-Rollbackfällen
+und zwei AppLock-Abweisungen. Der vorhandene vollständige Lifecycle-Snapshot,
+neun Slots/vier Bindings, exakter SAFE-Binaryhash und neutrale Session blieben
+erhalten. Bestätigter Uninstall, äußerer eigener Prozesswatchdog und frischer
+unabhängiger OwnDB-/OwnTrustaudit bestanden ohne Konfigurations-/Rechteänderungen.
+Der frühere gemischte Setup-Prüflauf bleibt FAILED_CLEANED; ein gezielter
+Read-only-Probe begründet die getrennte Sessionzustandsprüfung. API/Consumer/
+Upgrades nicht wiederholt; Kollisionsmatrix, weitere Ziele, Minimalrechte und
+Heap bleiben offen. Kein neuer Funktions-/Provider- oder Releaseumfang.

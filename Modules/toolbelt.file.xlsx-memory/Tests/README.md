@@ -69,8 +69,8 @@ Exakte SHA2-512-Werte werden in den reproduzierbaren, lokal erzeugten Release-/T
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentral10Upgrade`
-- Scope: Linux2019/latest zentral CL150: genuine1.0→1.2 mit frischer Upgrade-Session, fünf→neun Slots/zwei→vier CLR-Bindings, Display.Lifecycle, Repeat; Display.Contract/Safety nur installiert, Display.Metadata und Raw→Type→Display aus frischer Consumerdatenbank; Confirm0-Abweisung mit unverändertem Snapshot, Uninstall und frische OwnDB-/Trustdisposition. Äußerer eigener Prozesswatchdog, Exit0 und vollständige private Kanäle; zwei eigene DBs entfernt, drei exakte Trust-Vorzustände wiederhergestellt, keine Konfigurations-/Rechteänderungen. Vollmatrix, zusätzliche Lifecycle-/Kollisionsfälle, Minimalrechte, Heap und andere Ziele offen; partially validated/unreleased.
+- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentralLifecycle`
+- Scope: Linux2019/latest zentral CL150: vier postDROP/preCOMMIT-Rollbackfälle und zwei AppLock-Abweisungen; separate positive aktuelle1.2-Installation, neun Slots/vier CLR-Bindings/SAFE-Binaryhash/Modus/CL und vollständiger vorhandener Lifecycle-Snapshot vor/nach, neutraler Sitzungszustand zwischen Statements, bestätigter Uninstall. Eigener äußerer Prozesswatchdog, Exit0 und vollständige private Kanäle; frischer unabhängiger Audit bestätigt eine OwnDB/zwei OwnTrust-Hashes abwesend, keine Konfigurations-/Rechteänderungen. Früherer gemischter Setup-Prüflauf bleibt FAILED_CLEANED; gezielter Read-only-Probe begründet getrennte Transaktionsprüfung. API/Consumer/Upgrade nicht wiederholt; weitere Lifecycle-/Kollisionsmatrix, Minimalrechte, Heap und Ziele offen; partially validated/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -115,6 +115,28 @@ neue Verbindung bestätigte OwnDB-/OwnTrustabwesenheit. Keine Konfigurations- od
 Rechteänderungen. Damit sind zentrale1.2-Consumerverwendung und genuine1.0→1.2
 für Linux2019/latest CL150 begrenzt qualifiziert. Weitere Ziele, vollständige
 Lifecycle-/Kollisionsmatrix, Minimalrechte und Heap bleiben offen.
+
+Der weitere Opt-in `-QualificationScope DisplayCentralLifecycle` erzwingt
+denselben Linux2019/latest-/central-/CL150-Scope und akzeptiert ausdrücklich
+nur Display.Lifecycle.sql als Runtimeauswahl. Aktuelle1.2 wird einmal als
+Testvoraussetzung installiert; nur current-XLSX und ZIP erhalten gegebenenfalls
+eigene Trusteinträge, beide Vorgänger bleiben offline gepinnt. Die bestehenden
+Helper führen vier postDROP-/preCOMMIT-Injektionen und zwei AppLock-Abweisungen
+aus. Fallzahlen werden erst nach vollständigem Helperabschluss journalisiert.
+Vor-/Nachzeugen prüfen den vorhandenen vollständigen Lifecycle-Snapshot,
+neun Slots/vier CLR-Bindings, SAFE-Binaryhash, Modus/CL150 und neutralen
+Sessionzustand zwischen Statements. Bestätigter Uninstall und eigene frische
+Disposition bleiben verpflichtend; API, Consumer und Upgrades sind ausgenommen.
+
+Am 2026-10-05 bestand dieser Scope mit äußerem eigenem Prozesswatchdog, Exit0
+und vollständigen privaten Kanälen. Der unabhängige frische Audit bestätigte
+eine OwnDB und zwei eigene Trust-Hashes abwesend, ohne Konfigurations-/
+Rechteänderungen. Ein früherer Setup-Prüflauf bleibt FAILED_CLEANED und
+qualifizierte keine Negativfälle. Ein gezielter Read-only-Probe auf SQL2019
+reproduzierte den aktiven Transaktionszustand im gemischten Katalogprädikat;
+die getrennte katalogfreie Prüfung zwischen Statements blieb neutral.
+Alle ursprünglichen Setupbedingungen bleiben aktiv. Dies ist ein begrenzter
+separater Lifecycle-Nachweis, keine volle Kollisions- oder Plattformmatrix.
 
 Am 2026-10-04 bestand ein privater Qualifikationsadapter auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170 jeweils ausschließlich lokal: Clean1.2 und genuine installierte1.1→1.2 mit frischer Session, drei→vier CLR-Bindings und sieben→neun Slots am identischen aktuellen Binary. Je Ziel bestanden zwölf SQL-Fixtures, sechs Display-Clientprüfungen und zwei Raw→Type-/Raw→Type→Display-Kompositionen, Repeat sowie Uninstall/Repeat. Zwei eigene Datenbanken wurden entfernt und drei exakte Trust-Vorzustände wiederhergestellt; frische unabhängige Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte- oder Owneränderungen.
 
