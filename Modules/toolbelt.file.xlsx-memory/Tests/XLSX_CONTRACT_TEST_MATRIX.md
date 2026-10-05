@@ -53,8 +53,8 @@ Der 128-MiB-Chargecap ist eine interne konservative Zählgrenze, kein vollständ
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentral10Upgrade`
-- Scope: Linux2019/latest zentral CL150: genuine1.0→1.2 mit frischer Upgrade-Session, fünf→neun Slots/zwei→vier CLR-Bindings, Display.Lifecycle, Repeat; Display.Contract/Safety nur installiert, Display.Metadata und Raw→Type→Display aus frischer Consumerdatenbank; Confirm0-Abweisung mit unverändertem Snapshot, Uninstall und frische OwnDB-/Trustdisposition. Äußerer eigener Prozesswatchdog, Exit0 und vollständige private Kanäle; zwei eigene DBs entfernt, drei exakte Trust-Vorzustände wiederhergestellt, keine Konfigurations-/Rechteänderungen. Vollmatrix, zusätzliche Lifecycle-/Kollisionsfälle, Minimalrechte, Heap und andere Ziele offen; partially validated/unreleased.
+- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentralLifecycle`
+- Scope: Linux2019/latest zentral CL150: vier postDROP/preCOMMIT-Rollbackfälle und zwei AppLock-Abweisungen; separate positive aktuelle1.2-Installation, neun Slots/vier CLR-Bindings/SAFE-Binaryhash/Modus/CL und vollständiger vorhandener Lifecycle-Snapshot vor/nach, neutraler Sitzungszustand zwischen Statements, bestätigter Uninstall. Eigener äußerer Prozesswatchdog, Exit0 und vollständige private Kanäle; frischer unabhängiger Audit bestätigt eine OwnDB/zwei OwnTrust-Hashes abwesend, keine Konfigurations-/Rechteänderungen. Früherer gemischter Setup-Prüflauf bleibt FAILED_CLEANED; gezielter Read-only-Probe begründet getrennte Transaktionsprüfung. API/Consumer/Upgrade nicht wiederholt; weitere Lifecycle-/Kollisionsmatrix, Minimalrechte, Heap und Ziele offen; partially validated/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -72,6 +72,7 @@ Der 128-MiB-Chargecap ist eine interne konservative Zählgrenze, kein vollständ
 | Interner NULL-Status → öffentlicher Status11 | Binding-Negativqualifikation | NOT_EXECUTED |
 | Genuine1.0→1.2 zentral, neun Slots/vier CLR-Bindings, Repeat/Confirm0/Uninstall und OwnDB-/Trustdisposition | run-xlsx-types-lab.ps1 -QualificationScope DisplayCentral10Upgrade | PASS Linux2019/latest CL150 2026-10-05; begrenzter Scope, äußerer eigener Prozesswatchdog |
 | Zentrale1.2-Clientmetadaten und Raw→Type→Display aus frischer Consumerdatenbank | Display.Metadata.ps1 / Invoke-DisplayComposition.ps1 | PASS Linux2019/latest CL150 2026-10-05; Display.Contract/Safety nur installiert, keine volle Consumerfixturematrix |
+| Vier postDROP-/preCOMMIT-Rollbackfälle und zwei konkurrierende AppLock-Abweisungen auf aktueller1.2 | run-xlsx-types-lab.ps1 -QualificationScope DisplayCentralLifecycle | PASS Linux2019/latest zentral CL150 2026-10-05; separate Setup-/Abschlusszeugen und eigener Cleanup, früherer Setup-Prüflauf bleibt FAILED_CLEANED |
 
 Private Renderer-/CLR-Transport-/minimale SQL-Bindung erfolgreich, ausdrücklich
 kein vollständiger Produktnachweis. Display65472/+1 nur isolierter Budgethelper,

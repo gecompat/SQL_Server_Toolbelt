@@ -3,7 +3,7 @@ param(
  [ValidateSet('linux','windows')][string]$Platform='linux',
  [ValidateSet('2019','2022','2025')][string]$Version='2019',
  [string]$Patch='latest',
- [ValidateSet('Full','DisplayCentral10Upgrade')][string]$QualificationScope='Full',
+ [ValidateSet('Full','DisplayCentral10Upgrade','DisplayCentralLifecycle')][string]$QualificationScope='Full',
  [Parameter(Mandatory)][string]$ReleaseDirectory,
  [Parameter(Mandatory)][string]$LegacyDirectory,
  [Parameter(Mandatory)][string]$Legacy11Directory,
@@ -538,12 +538,12 @@ function Get-XlsxSnapshot($Connection){
  return [string]$rows[0].Snapshot
 }
 try{
- if($QualificationScope -eq 'DisplayCentral10Upgrade'){
+ if($QualificationScope -in @('DisplayCentral10Upgrade','DisplayCentralLifecycle')){
   # Der Opt-in-Slice erweitert weder Plattform-/Patchwahl noch die API-Matrix.
   if($Platform -cne 'linux' -or $Version -cne '2019' -or $Patch -cne 'latest'){throw 'XLSX_DISPLAY_SCOPE_SELECTOR_REQUIRED'}
   if($PSBoundParameters.ContainsKey('DeploymentModes') -and (@($DeploymentModes).Count -ne 1 -or $DeploymentModes[0] -cne 'central')){throw 'XLSX_DISPLAY_SCOPE_CENTRAL_REQUIRED'}
-  $displayTests=@('Display.Contract.sql','Display.Safety.sql')
-  if($PSBoundParameters.ContainsKey('RuntimeTests') -and (@($RuntimeTests).Count -ne 2 -or ($RuntimeTests -join '|') -cne ($displayTests -join '|'))){throw 'XLSX_DISPLAY_SCOPE_TESTS_REQUIRED'}
+  $displayTests=$(if($QualificationScope -eq 'DisplayCentralLifecycle'){@('Display.Lifecycle.sql')}else{@('Display.Contract.sql','Display.Safety.sql')})
+  if($PSBoundParameters.ContainsKey('RuntimeTests') -and (@($RuntimeTests).Count -ne @($displayTests).Count -or ($RuntimeTests -join '|') -cne ($displayTests -join '|'))){throw 'XLSX_DISPLAY_SCOPE_TESTS_REQUIRED'}
   $DeploymentModes=@('central');$RuntimeTests=$displayTests
  }
  $repo=(Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).Path
@@ -705,6 +705,7 @@ SELECT DATALENGTH(CONVERT(varchar(64),HASHBYTES('SHA2_256',hash+CONVERT(binary(4
   $stage='EXACT_TRUST';foreach($artifact in $artifacts){
    # 1.1 wird im schmalen Slice nur offline gepinnt, nicht installiert oder vertraut.
    if($QualificationScope -eq 'DisplayCentral10Upgrade' -and $artifact.Label -eq 'legacy11'){continue}
+   if($QualificationScope -eq 'DisplayCentralLifecycle' -and $artifact.Label -notin @('current','zip')){continue}
    Register-XlsxTrust $control $artifact
   }
   foreach($mode in $DeploymentModes){
@@ -719,6 +720,52 @@ SELECT DATALENGTH(CONVERT(varchar(64),HASHBYTES('SHA2_256',hash+CONVERT(binary(4
     $variables.AssemblyBits=($artifacts|Where-Object Label -eq 'current').Bits
     $deploy=Read-XlsxSql (Join-Path $module 'Deployment/Deploy.sql') $variables
     $uninstall=Read-XlsxSql (Join-Path $module 'Deployment/Uninstall.sql') $variables
+    if($QualificationScope -eq 'DisplayCentralLifecycle'){
+     # Die einzige positive Neuinstallation dient nur als Voraussetzung der sechs Negativfälle.
+     $connection=Open-XlsxConnection $target $database
+     Invoke-XlsxSql $control ("ALTER DATABASE [$database] SET COMPATIBILITY_LEVEL=150;")
+     $stage='DISPLAY_CENTRAL_LIFECYCLE_SETUP';Invoke-XlsxBatches $connection $deploy
+     $lifecycleSql=Read-XlsxSql (Join-Path $module 'Tests/Runtime/Display.Lifecycle.sql') $variables
+     $nativeSql=@'
+IF (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_file'))<>9
+ THROW 51594,N'Lifecycle1.2: Slotanzahl ist nicht neun.',7;
+IF (SELECT COUNT(*) FROM sys.assembly_modules m JOIN sys.assemblies a ON a.assembly_id=m.assembly_id WHERE a.name=N'Toolbelt_File_XlsxMemory')<>4
+ THROW 51594,N'Lifecycle1.2: CLR-Bindinganzahl ist nicht vier.',8;
+IF (SELECT compatibility_level FROM sys.databases WHERE database_id=DB_ID())<>150
+ THROW 51594,N'Lifecycle1.2: CL150 fehlt.',9;
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0
+ THROW 51594,N'Lifecycle1.2: Sitzungs-Transaktionszustand ist nicht neutral.',10;
+IF @ExpectedHash IS NULL OR DATALENGTH(@ExpectedHash)<>64
+ THROW 51594,N'Lifecycle1.2: erwarteter Binaryhash ist nicht exakt 64 Bytes.',13;
+IF NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id AND f.file_id=1
+  WHERE a.name=N'Toolbelt_File_XlsxMemory' AND a.permission_set=1 AND HASHBYTES('SHA2_512',f.content)=@ExpectedHash)
+ THROW 51594,N'Lifecycle1.2: SAFE-Assembly mit tatsächlichem erwarteten Binaryhash fehlt.',11;
+IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.file.xlsx-memory.DeploymentMode'
+  AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'central'))
+ THROW 51594,N'Lifecycle1.2: exakter Central-Marker fehlt.',12;
+'@
+     $nativeParameters=@{'@ExpectedHash'=[Convert]::FromHexString(($artifacts|Where-Object Label -eq 'current').Hash)}
+     Invoke-XlsxBatches $connection $lifecycleSql
+     Invoke-XlsxSql $connection $nativeSql $nativeParameters
+     $baseline=Get-XlsxSnapshot $connection
+     $ledger['RollbackCasesPassed']=0;$ledger['LockCasesPassed']=0;Save-XlsxJournal
+     # Helperabschluss belegt jeweils alle vier bzw. zwei fest gepinnten Negativaufrufe.
+     $stage='DISPLAY_CENTRAL_LIFECYCLE_ROLLBACK4'
+     Assert-XlsxRollbackPrepared $connection $deploy $uninstall
+     $ledger.RollbackCasesPassed=4;Save-XlsxJournal
+     $stage='DISPLAY_CENTRAL_LIFECYCLE_LOCK2'
+     Assert-XlsxLockPrepared $target $database $connection $deploy $uninstall
+     $ledger.LockCasesPassed=2;Save-XlsxJournal
+     $stage='DISPLAY_CENTRAL_LIFECYCLE_FINAL_WITNESS'
+     if((Get-XlsxSnapshot $connection) -cne $baseline){throw 'XLSX_DISPLAY_LIFECYCLE_SNAPSHOT_CHANGED'}
+     Invoke-XlsxBatches $connection $lifecycleSql
+     Invoke-XlsxSql $connection $nativeSql $nativeParameters
+     $stage='DISPLAY_CENTRAL_LIFECYCLE_UNINSTALL';Invoke-XlsxBatches $connection $uninstall
+     $absent=@(Invoke-XlsxSql $connection "SELECT COUNT(*) Count FROM sys.assemblies WHERE name=N'Toolbelt_File_XlsxMemory';" -Rows)
+     if($absent.Count -ne 1 -or $absent[0].Count -ne 0){throw 'XLSX_UNINSTALL_NOT_VERIFIED'}
+     $connection.Dispose();$connection=$null
+     continue
+    }
     if($QualificationScope -eq 'DisplayCentral10Upgrade'){
      # Eine echte 1.0-Vorgängerinstallation, anschließend frische Upgrade-Session.
      $connection=Open-XlsxConnection $target $database
@@ -856,6 +903,8 @@ IF (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_file')
  if($failed){Write-Output ('FAILED: XLSX_TYPES_'+$ledger.OriginalFailure.Stage+'_SQL'+$ledger.OriginalFailure.SqlNumber+'_STATE'+$ledger.OriginalFailure.SqlState);exit 1}
  if($QualificationScope -eq 'DisplayCentral10Upgrade'){
   Write-Output ('PASS: XLSX_DISPLAY_CENTRAL_1_0_UPGRADE '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL150 genuine1.0-to-1.2/nine-slots/four-CLR-bindings/repeat; installed-only Display.Contract+Display.Safety; central-consumer Display.Metadata+Raw-to-Type-to-DisplayComposition; Confirm0/uninstall/owned-cleanup/fresh-disposition. Full matrix/Types regression/MinimalRights NOT_EXECUTED.')
+ }elseif($QualificationScope -eq 'DisplayCentralLifecycle'){
+  Write-Output ('PASS: XLSX_DISPLAY_CENTRAL_LIFECYCLE '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL150; four postDROP/preCOMMIT rollback cases and two AppLock rejections; separate positive current1.2 setup/native nine-slot-four-binding-exact-binary witnesses/confirmed-uninstall/owned-cleanup/fresh-disposition. API/consumer/upgrades/Full matrix/MinimalRights NOT_EXECUTED.')
  }else{
   Write-Output ('PASS: XLSX_TYPES '+$Platform+'/'+$Version+'/'+$ledger.Patch+' RuntimeTests='+($RuntimeTests -join ',')+' clean/genuine1.0/genuine1.1/repeat/local-central/client/collisions/uninstall/cleanup; CallerTX/lock/postDROP/preCOMMIT/historicalFutureUninstall/native-nullability/Raw-to-TypeComposition(lastCL, installed+central-caller); MinimalRights NOT_EXECUTED.')
  }

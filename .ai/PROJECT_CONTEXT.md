@@ -363,6 +363,15 @@ Diese zentralen Lücken sind für das Ziel geschlossen; vollständige
 Lifecycle-/Kollisionsmatrix, weitere Ziele, Minimalrechte und Heap bleiben
 offen. Status weiterhin `partially validated`, `unreleased`.
 
+Zusätzlich bestand am2026-10-05 `DisplayCentralLifecycle` auf demselben Ziel:
+vier postDROP-/preCOMMIT-Rollbackfälle und zwei AppLock-Abweisungen mit
+unverändertem vorhandenen vollständigen Lifecycle-Snapshot, neun Slots/vier
+Bindings, exaktem SAFE-Binaryhash und neutraler Session zwischen Statements.
+Bestätigter Uninstall, äußerer eigener Prozesswatchdog und frischer unabhängiger
+OwnDB-/OwnTrustaudit bestanden ohne Konfigurations-/Rechteänderungen. Ein früherer
+gemischter Setup-Prüflauf bleibt FAILED_CLEANED. Weitere Kollisions-/Lifecyclefälle,
+Ziele, Minimalrechte und Heap bleiben getrennte offene Gates.
+
 ## Tabellenklon Trigger-Vorschau / 4.0.0 – begrenzte Native-Nachweise
 
 Die einzeln freigegebene Windows-Option `IncludeTriggers=1` ergänzt den
