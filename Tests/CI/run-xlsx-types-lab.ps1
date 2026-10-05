@@ -3,6 +3,7 @@ param(
  [ValidateSet('linux','windows')][string]$Platform='linux',
  [ValidateSet('2019','2022','2025')][string]$Version='2019',
  [string]$Patch='latest',
+ [ValidateSet('Full','DisplayCentral10Upgrade')][string]$QualificationScope='Full',
  [Parameter(Mandatory)][string]$ReleaseDirectory,
  [Parameter(Mandatory)][string]$LegacyDirectory,
  [Parameter(Mandatory)][string]$Legacy11Directory,
@@ -537,6 +538,14 @@ function Get-XlsxSnapshot($Connection){
  return [string]$rows[0].Snapshot
 }
 try{
+ if($QualificationScope -eq 'DisplayCentral10Upgrade'){
+  # Der Opt-in-Slice erweitert weder Plattform-/Patchwahl noch die API-Matrix.
+  if($Platform -cne 'linux' -or $Version -cne '2019' -or $Patch -cne 'latest'){throw 'XLSX_DISPLAY_SCOPE_SELECTOR_REQUIRED'}
+  if($PSBoundParameters.ContainsKey('DeploymentModes') -and (@($DeploymentModes).Count -ne 1 -or $DeploymentModes[0] -cne 'central')){throw 'XLSX_DISPLAY_SCOPE_CENTRAL_REQUIRED'}
+  $displayTests=@('Display.Contract.sql','Display.Safety.sql')
+  if($PSBoundParameters.ContainsKey('RuntimeTests') -and (@($RuntimeTests).Count -ne 2 -or ($RuntimeTests -join '|') -cne ($displayTests -join '|'))){throw 'XLSX_DISPLAY_SCOPE_TESTS_REQUIRED'}
+  $DeploymentModes=@('central');$RuntimeTests=$displayTests
+ }
  $repo=(Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).Path
  $module=Join-Path $repo 'Modules/toolbelt.file.xlsx-memory'
  if((Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash -cne $ExpectedDriverSHA256.ToUpperInvariant()){throw 'XLSX_DRIVER_PIN_MISMATCH'}
@@ -652,6 +661,8 @@ $levels=switch($Version){'2019'{@(150)};'2022'{@(150,160)};'2025'{@(150,160,170)
 foreach($target in $targets){
  try{
  $runId=[guid]::NewGuid().ToString('N');$journal=Join-Path ([IO.Path]::GetTempPath()) ('ToolbeltXlsxTypesRestore-'+$runId+'.json')
+ if(Test-Path -LiteralPath $journal){throw 'XLSX_JOURNAL_COLLISION'}
+ if(Test-Path -LiteralPath ($journal+'.writing')){throw 'XLSX_JOURNAL_COLLISION'}
  $script:scopeClock=[Diagnostics.Stopwatch]::StartNew();$script:cleanupPhase=$false
  # Externe Reader behalten die Uhr des Zielscopes, nicht ihren eigenen Script-Scope.
  $capturedClock=$script:scopeClock;$capturedWorkMilliseconds=$script:workMilliseconds
@@ -666,7 +677,7 @@ foreach($target in $targets){
   try{[void](& $capturedTimeout)}catch{try{$Command.Cancel()}catch{};throw}
  }.GetNewClosure()
  $keyBytes=[Text.Encoding]::UTF8.GetBytes([string]$target.key)
- $ledger=[ordered]@{RunId=$runId;SelectorIdentity=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($keyBytes));Platform=$Platform;Version=$Version;Patch=[string]$target.patch;State='PREPARED';Databases=@();Trust=@();ConfigurationChanges=0;RightsChanges=0;OriginalFailure=$null;CleanupFailure=$null;RuntimeTests=$RuntimeTests;WorkBudgetMilliseconds=$script:workMilliseconds;TotalBudgetMilliseconds=$script:totalMilliseconds;DispositionVerified=$false}
+ $ledger=[ordered]@{RunId=$runId;SelectorIdentity=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($keyBytes));Platform=$Platform;Version=$Version;Patch=[string]$target.patch;QualificationScope=$QualificationScope;State='PREPARED';Databases=@();Trust=@();ConfigurationChanges=0;RightsChanges=0;OriginalFailure=$null;CleanupFailure=$null;RuntimeTests=$RuntimeTests;WorkBudgetMilliseconds=$script:workMilliseconds;TotalBudgetMilliseconds=$script:totalMilliseconds;DispositionVerified=$false}
  $journalHealthy=$true;$control=$null;$failed=$false;$cleanupBlocked=$false;$stage='PREFLIGHT'
  }catch{$safe=Get-XlsxFailure $_.Exception;Write-Output ('FAILED: XLSX_TYPES_TARGET_PREPARATION SQL_'+$safe.SqlNumber+'_STATE'+$safe.SqlState);exit 1}
  try{
@@ -691,7 +702,11 @@ SELECT DATALENGTH(CONVERT(varchar(64),HASHBYTES('SHA2_256',hash+CONVERT(binary(4
  +CONVERT(binary(4),ISNULL(DATALENGTH(created_by),-1))+ISNULL(CONVERT(varbinary(max),created_by),0x)),2)) FingerprintLength FROM @Synthetic;
 '@ -Rows)
   if($fingerprintProbe.Count -ne 1 -or $fingerprintProbe[0].FingerprintLength -ne 64){throw 'XLSX_TRUST_FINGERPRINT_PROBE_FAILED'}
-  $stage='EXACT_TRUST';foreach($artifact in $artifacts){Register-XlsxTrust $control $artifact}
+  $stage='EXACT_TRUST';foreach($artifact in $artifacts){
+   # 1.1 wird im schmalen Slice nur offline gepinnt, nicht installiert oder vertraut.
+   if($QualificationScope -eq 'DisplayCentral10Upgrade' -and $artifact.Label -eq 'legacy11'){continue}
+   Register-XlsxTrust $control $artifact
+  }
   foreach($mode in $DeploymentModes){
    $stage='CREATE_'+$mode;$database=New-XlsxDatabase $control $target $mode $(if($mode -eq 'local'){'Latin1_General_100_CS_AS'}else{'Latin1_General_100_BIN2'})
    $connection=$null
@@ -704,6 +719,53 @@ SELECT DATALENGTH(CONVERT(varchar(64),HASHBYTES('SHA2_256',hash+CONVERT(binary(4
     $variables.AssemblyBits=($artifacts|Where-Object Label -eq 'current').Bits
     $deploy=Read-XlsxSql (Join-Path $module 'Deployment/Deploy.sql') $variables
     $uninstall=Read-XlsxSql (Join-Path $module 'Deployment/Uninstall.sql') $variables
+    if($QualificationScope -eq 'DisplayCentral10Upgrade'){
+     # Eine echte 1.0-Vorgängerinstallation, anschließend frische Upgrade-Session.
+     $connection=Open-XlsxConnection $target $database
+     Invoke-XlsxSql $control ("ALTER DATABASE [$database] SET COMPATIBILITY_LEVEL=150;")
+     $oldVariables=$variables.Clone();$oldVariables.AssemblyBits=($artifacts|Where-Object Label -eq 'legacy').Bits
+     $stage='DISPLAY_CENTRAL_GENUINE_1_0'
+     Invoke-XlsxBatches $connection (Read-XlsxSql (Join-Path $legacyModule 'Deployment/Deploy.sql') $oldVariables)
+     Invoke-XlsxSql $connection @'
+IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.file.xlsx-memory.Version'
+ AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'1.0.0'))
+ OR (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_file'))<>5
+ OR (SELECT COUNT(*) FROM sys.assembly_modules m JOIN sys.assemblies a ON a.assembly_id=m.assembly_id WHERE a.name=N'Toolbelt_File_XlsxMemory')<>2
+ THROW 51594,N'Genuine1.0: ursprüngliche fünf Slots/zwei CLR-Bindings fehlen.',5;
+'@
+     $connection.Dispose();$connection=Open-XlsxConnection $target $database
+     $stage='DISPLAY_CENTRAL_UPGRADE_1_2'
+     Invoke-XlsxBatches $connection $deploy
+     Invoke-XlsxBatches $connection (Read-XlsxSql (Join-Path $module 'Tests/Runtime/Display.Lifecycle.sql') $variables)
+     Invoke-XlsxSql $connection @'
+IF (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_file'))<>9
+ OR (SELECT COUNT(*) FROM sys.assembly_modules m JOIN sys.assemblies a ON a.assembly_id=m.assembly_id WHERE a.name=N'Toolbelt_File_XlsxMemory')<>4
+ OR (SELECT compatibility_level FROM sys.databases WHERE database_id=DB_ID())<>150
+ THROW 51594,N'Upgrade1.2: neun Slots/vier CLR-Bindings oder CL150 fehlen.',6;
+'@
+     $stage='DISPLAY_CENTRAL_REPEAT';Invoke-XlsxBatches $connection $deploy
+     # Diese Originalfixtures binden unqualifizierte Objektnamen: nur Installations-DB.
+     foreach($test in $RuntimeTests){
+      $stage='DISPLAY_CENTRAL_INSTALLED_API_'+$test
+      Write-Output ('RUNNING: '+$stage)
+      Invoke-XlsxBatches $connection (Read-XlsxSql (Join-Path $module ('Tests/Runtime/'+$test)) $variables)
+     }
+     $stage='DISPLAY_CENTRAL_CONSUMER';$caller=New-XlsxDatabase $control $target 'caller' 'Latin1_General_100_CS_AS'
+     $consumer=Open-XlsxConnection $target $caller
+     try{
+      & (Join-Path $module 'Tests/Runtime/Display.Metadata.ps1') -Connection $consumer -ToolbeltDatabase $database -CommandTimeoutProvider $closedCommandTimeout -ReadBudgetProvider $closedReadBudget | Out-Null
+      & $displayCompositionHelper -Connection $consumer -ToolbeltDatabase $database -CommandTimeoutProvider $closedCommandTimeout -ReadBudgetProvider $closedReadBudget | Out-Null
+     }finally{$consumer.Dispose()}
+     $stage='DISPLAY_CENTRAL_CONFIRM0';$unconfirmed=$variables.Clone();$unconfirmed.ConfirmNoExternalConsumers=0
+     $before=Get-XlsxSnapshot $connection
+     Assert-XlsxRejected $connection (Read-XlsxSql (Join-Path $module 'Deployment/Uninstall.sql') $unconfirmed) 51536
+     if((Get-XlsxSnapshot $connection) -cne $before){throw 'XLSX_DISPLAY_CONFIRM_REJECTION_MUTATED'}
+     $stage='DISPLAY_CENTRAL_UNINSTALL';Invoke-XlsxBatches $connection $uninstall
+     $absent=@(Invoke-XlsxSql $connection "SELECT COUNT(*) Count FROM sys.assemblies WHERE name=N'Toolbelt_File_XlsxMemory';" -Rows)
+     if($absent.Count -ne 1 -or $absent[0].Count -ne 0){throw 'XLSX_UNINSTALL_NOT_VERIFIED'}
+     $connection.Dispose();$connection=$null
+     continue
+    }
     foreach($installation in @('clean','genuine1.0','genuine1.1')){
      $connection=Open-XlsxConnection $target $database
      if($installation -eq 'genuine1.0'){
@@ -792,5 +854,9 @@ SELECT DATALENGTH(CONVERT(varchar(64),HASHBYTES('SHA2_256',hash+CONVERT(binary(4
  }
  if($cleanupBlocked){Write-Output 'FAILED: XLSX_TYPES_CLEANUP_BLOCKED';exit 1}
  if($failed){Write-Output ('FAILED: XLSX_TYPES_'+$ledger.OriginalFailure.Stage+'_SQL'+$ledger.OriginalFailure.SqlNumber+'_STATE'+$ledger.OriginalFailure.SqlState);exit 1}
- Write-Output ('PASS: XLSX_TYPES '+$Platform+'/'+$Version+'/'+$ledger.Patch+' RuntimeTests='+($RuntimeTests -join ',')+' clean/genuine1.0/genuine1.1/repeat/local-central/client/collisions/uninstall/cleanup; CallerTX/lock/postDROP/preCOMMIT/historicalFutureUninstall/native-nullability/Raw-to-TypeComposition(lastCL, installed+central-caller); MinimalRights NOT_EXECUTED.')
+ if($QualificationScope -eq 'DisplayCentral10Upgrade'){
+  Write-Output ('PASS: XLSX_DISPLAY_CENTRAL_1_0_UPGRADE '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL150 genuine1.0-to-1.2/nine-slots/four-CLR-bindings/repeat; installed-only Display.Contract+Display.Safety; central-consumer Display.Metadata+Raw-to-Type-to-DisplayComposition; Confirm0/uninstall/owned-cleanup/fresh-disposition. Full matrix/Types regression/MinimalRights NOT_EXECUTED.')
+ }else{
+  Write-Output ('PASS: XLSX_TYPES '+$Platform+'/'+$Version+'/'+$ledger.Patch+' RuntimeTests='+($RuntimeTests -join ',')+' clean/genuine1.0/genuine1.1/repeat/local-central/client/collisions/uninstall/cleanup; CallerTX/lock/postDROP/preCOMMIT/historicalFutureUninstall/native-nullability/Raw-to-TypeComposition(lastCL, installed+central-caller); MinimalRights NOT_EXECUTED.')
+ }
 }

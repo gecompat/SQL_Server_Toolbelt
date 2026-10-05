@@ -79,8 +79,8 @@ Der aktuelle qualifizierte Scope steht in [Tests/README.md](Tests/README.md) und
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-04`
-- Nachweis: `local: private original-SQL XLSX1.2 qualification adapter`
-- Scope: Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 nur lokal, identisches aktuelles Binary: je Clean1.2 und genuine installierte1.1→1.2 frischeSession,3→4CLR-Bindings/7→9Slots,12SQL-Fixtures/6Display-Clientchecks/2Kompositionen,Repeat/UninstallRepeat;2eigeneDBs entfernt/3Trust-Vorzustände wiederhergestellt und frischer unabhängiger Cleanup-Audit.0Config/Rechte/Owneränderungen. Kein vollständiger öffentlicher Labadapter-/Produkt-PASS; central1.2,genuine1.0→1.2,weitereCL/Ziele,vollständigeLifecycle-/Kollisionsmatrix,Minimalrechte,Heap und aktuelleHeadCI offen. Historische Fehlläufe bleiben FAILED; partially validated/unreleased.
+- Datum: `2026-10-05`
+- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentral10Upgrade`
+- Scope: Linux2019/latest zentral CL150: genuine1.0→1.2 mit frischer Upgrade-Session, fünf→neun Slots/zwei→vier CLR-Bindings, Display.Lifecycle, Repeat; Display.Contract/Safety nur installiert, Display.Metadata und Raw→Type→Display aus frischer Consumerdatenbank; Confirm0-Abweisung mit unverändertem Snapshot, Uninstall und frische OwnDB-/Trustdisposition. Äußerer eigener Prozesswatchdog, Exit0 und vollständige private Kanäle; zwei eigene DBs entfernt, drei exakte Trust-Vorzustände wiederhergestellt, keine Konfigurations-/Rechteänderungen. Vollmatrix, zusätzliche Lifecycle-/Kollisionsfälle, Minimalrechte, Heap und andere Ziele offen; partially validated/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

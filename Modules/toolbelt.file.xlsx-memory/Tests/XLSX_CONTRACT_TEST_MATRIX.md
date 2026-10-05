@@ -52,9 +52,9 @@ Der 128-MiB-Chargecap ist eine interne konservative Zählgrenze, kein vollständ
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-04`
-- Nachweis: `local: private original-SQL XLSX1.2 qualification adapter`
-- Scope: Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 nur lokal, identisches aktuelles Binary: je Clean1.2 und genuine installierte1.1→1.2 frischeSession,3→4CLR-Bindings/7→9Slots,12SQL-Fixtures/6Display-Clientchecks/2Kompositionen,Repeat/UninstallRepeat;2eigeneDBs entfernt/3Trust-Vorzustände wiederhergestellt und frischer unabhängiger Cleanup-Audit.0Config/Rechte/Owneränderungen. Kein vollständiger öffentlicher Labadapter-/Produkt-PASS; central1.2,genuine1.0→1.2,weitereCL/Ziele,vollständigeLifecycle-/Kollisionsmatrix,Minimalrechte,Heap und aktuelleHeadCI offen. Historische Fehlläufe bleiben FAILED; partially validated/unreleased.
+- Datum: `2026-10-05`
+- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentral10Upgrade`
+- Scope: Linux2019/latest zentral CL150: genuine1.0→1.2 mit frischer Upgrade-Session, fünf→neun Slots/zwei→vier CLR-Bindings, Display.Lifecycle, Repeat; Display.Contract/Safety nur installiert, Display.Metadata und Raw→Type→Display aus frischer Consumerdatenbank; Confirm0-Abweisung mit unverändertem Snapshot, Uninstall und frische OwnDB-/Trustdisposition. Äußerer eigener Prozesswatchdog, Exit0 und vollständige private Kanäle; zwei eigene DBs entfernt, drei exakte Trust-Vorzustände wiederhergestellt, keine Konfigurations-/Rechteänderungen. Vollmatrix, zusätzliche Lifecycle-/Kollisionsfälle, Minimalrechte, Heap und andere Ziele offen; partially validated/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -70,6 +70,8 @@ Der 128-MiB-Chargecap ist eine interne konservative Zählgrenze, kein vollständ
 | Clean1.2/genuine installierte1.1→1.2/repeat und eigene Cleanup | privater Qualifikationsadapter mit Original-SQL | PASS lokale Linux2019/latest CL150 und Windows2025/exakt CU8 CL170; genuine1.0 und vollständiger öffentlicher Adapter offen |
 | Display-Zukunftsslots unter alten Releases erhalten/keine Adoption | Display.CollisionFixture.sql / Labadapter | NOT_EXECUTED |
 | Interner NULL-Status → öffentlicher Status11 | Binding-Negativqualifikation | NOT_EXECUTED |
+| Genuine1.0→1.2 zentral, neun Slots/vier CLR-Bindings, Repeat/Confirm0/Uninstall und OwnDB-/Trustdisposition | run-xlsx-types-lab.ps1 -QualificationScope DisplayCentral10Upgrade | PASS Linux2019/latest CL150 2026-10-05; begrenzter Scope, äußerer eigener Prozesswatchdog |
+| Zentrale1.2-Clientmetadaten und Raw→Type→Display aus frischer Consumerdatenbank | Display.Metadata.ps1 / Invoke-DisplayComposition.ps1 | PASS Linux2019/latest CL150 2026-10-05; Display.Contract/Safety nur installiert, keine volle Consumerfixturematrix |
 
 Private Renderer-/CLR-Transport-/minimale SQL-Bindung erfolgreich, ausdrücklich
 kein vollständiger Produktnachweis. Display65472/+1 nur isolierter Budgethelper,
