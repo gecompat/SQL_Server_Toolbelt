@@ -1,0 +1,87 @@
+module_id: "toolbelt.json.schema"
+module_name: "Bounded JSON Schema Validation"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Profil toolbelt-2020-12-v1: exakte Zahlen und Unicode, lokale nichtrekursive Referenzen, globales Arbeitsbudget."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "partially validated"
+  linux: "partially validated"
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+dependencies:
+  - {module_id: "toolbelt.json.core", minimum_version: "1.0.0", location: same_database}
+  - {module_id: "toolbelt.core.result-table", minimum_version: "1.0.0", location: same_database}
+schemas:
+  - "toolbelt_json"
+objects:
+  - {type: USP, schema: "toolbelt_json", name: "USP_ValidateJsonSchema", visibility: public}
+  - {type: CLR_TVF, schema: "toolbelt_json", name: "FT_ValidateJsonSchemaInternal", visibility: internal}
+permissions_required: ["Aufruf: vorhandenes EXECUTE; Lifecycle: vollständige Metadatensicht und passende CREATE-/Schema-DDL-Rechte. Keine Rechtevergabe."]
+collation_contract: "BIN2-Ausgabe, exakte ordinale und längensensitive Managed-Vergleiche ohne Normalisierung."
+data_type_contract: "Json/Schema nvarchar(max), Profile varchar(32); zehn Ergebnisfelder gemäß JSON_SCHEMA_CONTRACT."
+help_contract_version: "1.0"
+resultset_contracts:
+  - {name: "USP_ValidateJsonSchema", columns: ["RowKind varchar(8) NOT NULL", "ErrorOrdinal int NOT NULL", "Status varchar(24) NOT NULL", "Profile varchar(32) NOT NULL", "IsValid bit NULL", "DocumentPointer nvarchar(max) NULL", "SchemaPointer nvarchar(max) NULL", "Keyword nvarchar(128) NULL", "ErrorCode varchar(32) NULL", "ErrorsTruncated bit NOT NULL"]}
+runtime_error_contract: "55600/1 Argumente; 55601/1 interner Transport; technische Enginefehler bleiben technische Fehler."
+lifecycle_error_range: "55630-55639"
+clr:
+  used: true
+  language: "C#"
+  target_framework: ".NET Framework 4.8"
+  assembly_sql_name: "Toolbelt_JsonSchema"
+  assembly_file_name: "Toolbelt.JsonSchema.dll"
+  permission_set: "SAFE"
+  trust_method: "Separates exaktes SHA2-512-Opt-in; keine automatische Truständerung"
+  third_party_dependencies: []
+  build_project: "Clr/Toolbelt.JsonSchema.csproj"
+  release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: SQLCMD
+  release_manifest: embedded
+  source_hash_role: diagnostic_only
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/USP_ValidateJsonSchema.md"
+  architecture:
+    - "../../Documentation/Architecture/JSON_SCHEMA_CONTRACT.md"
+  test_matrix:
+    - "Tests/TEST_MATRIX.md"
+  evidence:
+    - "Tests/Framework/README.md"
+    - "Tests/NATIVE_EVIDENCE.md"
+  examples:
+    - "Examples/JsonSchema.sql"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  framework: "Tests/Framework/Invoke-SourceQualification.ps1"
+  project_build: "Tests/Framework/Test-ProjectBuild.ps1"
+  sql_syntax: "Tests/Static/Test-SqlSyntax.ps1"
+  runtime: "Tests/Runtime/Contract.Tests.sql"
+  safety: "Tests/Runtime/Safety.Tests.sql"
+  contract: "Tests/Runtime/Metadata.Tests.ps1"
+  lab: "../../Tests/CI/run-json-schema-lab.ps1"
+validation_evidence:
+  - date: "2026-10-05"
+    workflow: "local: shared JSON source qualification"
+    scope: "159 Profilfälle/1174 Assertions, 854 Zahlenfälle/6830 Assertions und 120 Bridge-Assertions jeweils in drei Cultures; eigene IL und bytegleicher Projektbuild bestanden. Zehn Source-/expandierte Lifecycle-Batches in ScriptDom150/160/170 syntaktisch geprüft. Kein nativer API-/Lifecycle-/ResultTable-/Migration-/Trustnachweis."
+    result: "success"
+  - date: "2026-10-05"
+    workflow: "local: run-json-schema-lab.ps1"
+    scope: "Linux2019/latest CL150 und Windows2025/CU8 CL170 jeweils local/central:26 Contractfälle, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Beide Ziele local/central nach genuine Constructor1.2→1.3 zusätzlich26 Contractfälle bestanden. Frische hashgebundene Dispositionaudits beider aktueller Core-/Schema-/Migrationsscopes bestanden. Vollständige Lifecycle-/Zielmatrix, CrossDB und minimale Rechte offen."
+    result: "success"

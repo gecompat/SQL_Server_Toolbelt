@@ -39,6 +39,10 @@ class CatalogTests(unittest.TestCase):
     def test_public_inventory_includes_block_view_and_excludes_internal(self):
         self.assertEqual([i["name"] for i in catalog.objects(self.root)], ["USP_Test", "VW_Test"])
 
+    def test_technical_module_with_explicit_empty_objects_has_no_api(self):
+        self.manifest.write_text('version: "1.0.0"\nobjects: []\n', encoding="utf-8")
+        self.assertEqual(catalog.objects(self.root), [])
+
     def test_defaults_and_output_ignore_sql_literals_and_nested_comments(self):
         _, params = catalog.signature(catalog.objects(self.root)[0])
         self.assertEqual(params[0]["default"], "N'AS,(--)'")

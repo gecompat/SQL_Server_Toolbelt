@@ -1,3 +1,4 @@
-# Die bekannte CLR-Zeile bindet die exakten acht qualifizierten Quelldateibytes.
+# Die historische 1.2-Zeile und die aktuelle Closure binden exakte Sourcebytes.
 # Keine Zeilenendkonvertierung beim Staging oder Checkout dieser Produktquellen.
 Clr/**/*.cs -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Clr/*.csproj -text

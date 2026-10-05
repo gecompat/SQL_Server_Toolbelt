@@ -70,8 +70,8 @@ beweist keine niedrigprivilegierten gemappten Callerrechte.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-04`
-- Nachweis: `local: scoped JSON 1.2 qualification`
-- Scope: Kanonischer Projektbuild mit MSBuild 18 ohne Profil-Overrides bytegleich zur unabhängig offline qualifizierten bekannten SAFE-Zeile. Lokal acht Original-Fixtures auf Linux2019 CL150 und Windows2025/CU8 CL170. Windows2025/CU8 CL170: genuine1.1 lokal und genuine1.0 lokal/zentral, Repeat, acht Slots/sechs typisierte Marker, Uninstall/Repeat; zentrale erste-GO-Bestätigung und originaler Consumer. Sechs erste-GO-Negativfälle, Guest916/4 und Ownerfall NOT_EXECUTED. Eigene Bereinigung/frische Abwesenheit bestanden, keine Konfigurations-/Rechte-/Owneränderung. Kein vollständiger Produkt-/Matrix-/Minimalrechte-/Heap-/Spillnachweis; aktuelle Exact-head-CI mit ihrem Compilerstand und Release offen. Historische Fehlversuche unverändert.
+- Datum: `2026-10-05`
+- Nachweis: `local: Tests/CI/run-json-schema-lab.ps1`
+- Scope: Constructor1.3: vier ausgewählte Runtime-Fixtures einschließlich16 MiB/100000 Einträgen Linux2019/latest CL150 lokal und Windows2025/CU8 CL170 local/central bestanden. Genuine bekannte1.2→1.3 beide Ziele local/central, fünf Procedureidentitäten/Rechte und effektive Owner erhalten, drei eigene CLR-Slots/Assembly atomar neu, post-DROP-Rollback und Annotationserhalt, nachgelagerte Schema26-Fall-Fixture, Repeat/Uninstall/Coreerhalt und frische hashgebundene Dispositionaudits bestanden. Weitere Ziel-/Lifecycle-/Minimalrechtematrix und aktuelle Head-CI offen; verworfener ALTER-Versuch6282 bleibt fehlgeschlagen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

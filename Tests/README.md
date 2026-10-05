@@ -4,8 +4,8 @@ Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentat
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. 42 Module sind implementiert;
-19 sind `validated`, 23 sind `partially validated`, 0 sind `not executed`. Für alle existieren
+Der Repository-Grundaufbau ist abgeschlossen. 44 Module sind implementiert;
+19 sind `validated`, 25 sind `partially validated`, 0 sind `not executed`. Für alle existieren
 statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte.
 
 Die ResultTable-Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 mit
@@ -67,8 +67,13 @@ Text-/Binary-Fixtures, Allowlist, Lifecycle und Uninstall erfolgreich.
 
 ## Modulspezifische Testmatrizen
 
+Die neue JSON-Welle besitzt einen gemeinsamen Offline- und nativen Labdriver.
+Ihre Teilnachweise sind getrennt von historischen Constructorständen dokumentiert.
+
 | Modul | Matrix | Status |
 |---|---|---|
+| `toolbelt.json.core` | [TEST_MATRIX.md](../Modules/toolbelt.json.core/Tests/TEST_MATRIX.md) | `partially validated`; Offlineclosure und begrenzte Core-/Consumer-Lifecycles auf Linux2019 CL150/Windows2025 CU8 CL170 local/central bestanden; vollständige Matrix offen |
+| `toolbelt.json.schema` | [TEST_MATRIX.md](../Modules/toolbelt.json.schema/Tests/TEST_MATRIX.md) | `partially validated`;26 Contractfälle, Safety/Help/ResultTable und direkte Clientmetadaten auf beiden Zielen local/central bestanden; volle Lifecycle-/Ziel-/Minimalrechtematrix offen |
 | `toolbelt.json.pointer` | [JSON_POINTER_TEST_MATRIX.md](../Modules/toolbelt.json.pointer/Tests/JSON_POINTER_TEST_MATRIX.md) | `partially validated`; finale freigegebene Guard-/Wrapperadapter auf Linux2019/CL150 und Windows2025/CU8/CL170 bestehen je local/central/Consumer,3072 feste APPLY-Oracles,15 Clientreader und42 Lifecyclefälle samt frischem Cleanup-/Fixture-/Pinaudit; frühere Fehlläufe/Lifecycle-only-Scopes getrennt, weitere Ziele/Minimalrechte/Maximalworkload offen |
 | `toolbelt.conversion.safe-cast` | [SAFE_CAST_TEST_MATRIX.md](../Modules/toolbelt.conversion.safe-cast/Tests/SAFE_CAST_TEST_MATRIX.md) | `partially validated`; finale Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 local/central/Consumer, je 13104 API-Oracles, 54 Clientreader, 38 Lifecyclefälle und unabhängiger Bereinigungsaudit; weitere Ziele, Minimalrechte und Heap offen |
 | `toolbelt.string.text-pairs` | [TEXT_PAIRS_TEST_MATRIX.md](../Modules/toolbelt.string.text-pairs/Tests/TEXT_PAIRS_TEST_MATRIX.md) | `partially validated`; fünf Fixtures lokal auf Linux 2019 und Windows 2025/CU8 sowie zentraler Windows-Client-/ResultTable-/Uninstall-Bestätigungsnachweis; Minimalrechte, weitere Lifecycle-Negativfälle und Ziele offen |

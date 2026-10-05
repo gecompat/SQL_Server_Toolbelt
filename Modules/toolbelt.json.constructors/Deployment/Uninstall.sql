@@ -15,6 +15,8 @@ INSERT @Slots VALUES(1,N'USP_JsonConstructInternal',NULL,'P'),(2,N'USP_JsonArray
  (4,N'USP_JsonArraysByGroup',NULL,'P'),(5,N'USP_JsonObjectsByGroup',NULL,'P'),
  (6,N'FT_JsonEntryEvaluateInternal',NULL,'FT'),(7,N'AGF_JsonArray',NULL,'AF'),(8,N'AGF_JsonObject',NULL,'AF');
 :r ./KnownArtifact.sql
+:r ./KnownArtifact1_3.sql
+:r ../../toolbelt.json.core/Deployment/KnownArtifact.sql
 IF CONVERT(varbinary(max),@Confirmation) NOT IN(CONVERT(varbinary(max),N'0'),CONVERT(varbinary(max),N'1'))
  THROW 53625,N'JSON lifecycle: Consumer-Bestätigung ist ungültig.',1;
 BEGIN TRY
@@ -43,7 +45,7 @@ BEGIN TRY
    RETURN;
   END;
   IF @Registered=0 OR @ModeRegistered=0 OR @SchemaId IS NULL OR @Version IS NULL OR @Mode IS NULL
-   OR CONVERT(varbinary(max),@Version) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0'),CONVERT(varbinary(max),N'1.2.0'))
+   OR CONVERT(varbinary(max),@Version) NOT IN(CONVERT(varbinary(max),N'1.0.0'),CONVERT(varbinary(max),N'1.1.0'),CONVERT(varbinary(max),N'1.2.0'),CONVERT(varbinary(max),N'1.3.0'))
    OR CONVERT(varbinary(max),@Mode) NOT IN(CONVERT(varbinary(max),N'local'),CONVERT(varbinary(max),N'central'))
   BEGIN
    IF @Pass=1 THROW 53627,N'JSON lifecycle: Releasezustand unter Lock ist inkohärent.',1;
@@ -75,7 +77,8 @@ BEGIN TRY
   SELECT @KnownMode=CONVERT(nvarchar(16),@Mode),@KnownCount=@Count;
 :r ./ClrPreflight.sql
   SELECT @CurrentClrTuple=CONVERT(varbinary(max),(SELECT s.Id,OBJECT_ID(N'toolbelt_json.'+QUOTENAME(s.Name)) ObjectId,
-   o.principal_id ObjectOwner,sc.principal_id SchemaOwner,@AssemblyId AssemblyId,@AssemblyOwner AssemblyOwner
+   o.principal_id ObjectOwner,sc.principal_id SchemaOwner,@AssemblyId AssemblyId,@AssemblyOwner AssemblyOwner,
+   @JsonCoreId CoreId,@JsonCoreOwner CoreOwner
    FROM @Slots s LEFT JOIN sys.objects o ON o.object_id=OBJECT_ID(N'toolbelt_json.'+QUOTENAME(s.Name))
    LEFT JOIN sys.schemas sc ON sc.schema_id=o.schema_id ORDER BY s.Id FOR XML RAW,BINARY BASE64));
   IF @Pass=0 SET @InitialClrTuple=@CurrentClrTuple;
@@ -89,6 +92,9 @@ BEGIN TRY
   BEGIN
    SELECT @InitialVersion=CONVERT(varbinary(max),@Version),@InitialMode=CONVERT(varbinary(max),@Mode),@InitialSchemaId=@SchemaId;
    BEGIN TRANSACTION;
+   EXEC @LockResult=sys.sp_getapplock @Resource=N'toolbelt.deploy.json.shared-core',@LockMode=N'Shared',
+    @LockOwner=N'Transaction',@LockTimeout=0,@DbPrincipal=N'public';
+   IF @LockResult IS NULL OR @LockResult<0 THROW 53627,N'JSON lifecycle: gemeinsame Core-AppLock ist nicht verfügbar.',1;
    EXEC @LockResult=sys.sp_getapplock @Resource=N'toolbelt.deploy.toolbelt.json.constructors',@LockMode=N'Exclusive',
     @LockOwner=N'Transaction',@LockTimeout=0,@DbPrincipal=N'public';
    IF @LockResult IS NULL OR @LockResult<0 THROW 53627,N'JSON lifecycle: AppLock ist nicht verfügbar.',1;
@@ -105,7 +111,7 @@ BEGIN TRY
   EXEC sys.sp_executesql @Sql;
   SET @Id-=1;
  END;
- IF @Count=8 DROP ASSEMBLY [Toolbelt_JsonConstructors];
+ IF @Count=8 DROP ASSEMBLY [Toolbelt_JsonConstructors] WITH NO DEPENDENTS;
  EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.json.constructors.Version';
  EXEC sys.sp_dropextendedproperty @name=N'Toolbelt.Module.toolbelt.json.constructors.DeploymentMode';
  -- Unmarkiertes oder nichtleeres fremdes Schema niemals entfernen.

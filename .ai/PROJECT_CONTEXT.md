@@ -153,7 +153,7 @@ werden in der Modul-Testdokumentation von den finalen Nachweisen getrennt.
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-42 Module sind implementiert. 19 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
+44 Module sind implementiert. 19 sind `validated`, 25 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
 `toolbelt.datetime.date-spine` implementiert D1 mit drei öffentlichen Inline

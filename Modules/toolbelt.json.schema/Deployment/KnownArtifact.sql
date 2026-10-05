@@ -1,0 +1,3 @@
+-- Qualifizierte Offline-Schemazeile; keine Trustfreigabe.
+DECLARE @SchemaKnownHash varbinary(64)=0xf67e0f9f3f6e83acc304e8e60bc98ee2610018e654ac4eb6e430f98a9665f9a1c85e90ef97950d348fcc0fc6389de71b214d1f9101835fec9a305ef39c41af21,
+ @SchemaArtifactId varchar(64)='4ae51961dc53bd6aff96bb566e908cbb715d40512f36cffc756e7f2813a3a143';

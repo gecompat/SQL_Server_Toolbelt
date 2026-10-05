@@ -1,0 +1,71 @@
+module_id: "toolbelt.json.core"
+module_name: "Shared SAFE JSON Core"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Technische SAFE-Assembly: gemeinsamer JSON-Scanner, Unicode, Tokens und Arbeitsbudget; keine SQL-Einstiegspunkte."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "partially validated"
+  linux: "partially validated"
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+dependencies: []
+schemas: []
+objects: []
+permissions_required: ["Bestehende vollständige Metadatensicht und CREATE ASSEMBLY; Uninstall: ALTER auf der eigenen Assembly. Keine Rechtevergabe."]
+collation_contract: "Ordinale UTF16-Identität ohne Normalisierung."
+data_type_contract: "Technische Managed-Tokens; kein SQL-Resultset."
+help_contract_version: "not applicable"
+resultset_contracts: []
+lifecycle_error_range: "55620-55629"
+clr:
+  used: true
+  language: "C#"
+  target_framework: ".NET Framework 4.8"
+  assembly_sql_name: "Toolbelt_JsonCore"
+  assembly_file_name: "Toolbelt.JsonCore.dll"
+  permission_set: "SAFE"
+  trust_method: "Separates exaktes SHA2-512-Opt-in; keine automatische Truständerung"
+  third_party_dependencies: []
+  build_project: "Clr/Toolbelt.JsonCore.csproj"
+  release_artifact_script: "Scripts/New-JsonClosureRelease.ps1"
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: SQLCMD
+  release_manifest: embedded
+  source_hash_role: diagnostic_only
+documentation:
+  module: "README.md"
+  public_objects: []
+  architecture:
+    - "../../Documentation/Architecture/JSON_SCHEMA_CONTRACT.md"
+  test_matrix:
+    - "Tests/TEST_MATRIX.md"
+  evidence:
+    - "Tests/TEST_MATRIX.md"
+contracts:
+  usp: "not applicable"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  framework: "../toolbelt.json.schema/Tests/Framework/Invoke-SourceQualification.ps1"
+  static: "../toolbelt.json.schema/Tests/Static/validate_contract.py"
+  lab: "../../Tests/CI/run-json-schema-lab.ps1"
+validation_evidence:
+  - date: "2026-10-05"
+    workflow: "local: shared JSON source qualification"
+    scope: "Eigene IL, 10 Budgetfälle, 37 Tokenfälle/95 Assertions, bytegleicher Projektbuild und Offline-Paketierung bestanden. Keine native SQL-Ausführung, transitive Framework-SAFE-Zertifizierung oder Trustfreigabe."
+    result: "success"
+  - date: "2026-10-05"
+    workflow: "local: run-json-schema-lab.ps1"
+    scope: "Linux2019/latest CL150 und Windows2025/CU8 CL170: Core-/Schema local/central, Repeat, zwei Consumer-Abweisungen, eigenes Cleanup und Coreidentität nach Schema-DROP bestanden. Genuine1.2→1.3 beide Ziele local/central samt post-DROP-Rollback, vier Constructor-Fixtures und unveränderten fünf Procedureidentitäten bestanden. Frische hashgebundene Dispositionaudits beider aktueller Core-/Schema-/Migrationsscopes bestanden. Weitere Lifecycle-/Zielmatrix und minimale Rechte offen."
+    result: "success"

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
+    <OutputType>Library</OutputType>
+    <AssemblyName>Toolbelt.JsonSchema</AssemblyName>
+    <RootNamespace>Toolbelt.JsonSchema</RootNamespace>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <LangVersion>7.3</LangVersion>
+    <Deterministic>true</Deterministic>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
+    <HighEntropyVA>false</HighEntropyVA>
+    <SubsystemVersion>4.00</SubsystemVersion>
+    <UseSharedCompilation>false</UseSharedCompilation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="Toolbelt.JsonCore">
+      <HintPath>$(CoreReferenceHintPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <PropertyGroup>
+    <CoreReferenceHintPath Condition="'$(CoreReferenceHintPath)' == ''">..\..\toolbelt.json.core\Clr\bin\Release\Toolbelt.JsonCore.dll</CoreReferenceHintPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="SignedDecimalDigits.cs" />
+    <Compile Include="ExactJsonNumber.cs" />
+    <Compile Include="SchemaTree.cs" />
+    <Compile Include="LocalSchemaReference.cs" />
+    <Compile Include="SchemaPreflight.cs" />
+    <Compile Include="SchemaValidator.cs" />
+    <Compile Include="JsonSchemaBridge.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

@@ -3,7 +3,7 @@ function Invoke-OwnedProcess {
  [CmdletBinding()]
  param([Parameter(Mandatory)][string]$FileName,
        [Parameter(Mandatory)][AllowEmptyCollection()][string[]]$Arguments,
-       [Parameter(Mandatory)][ValidateRange(1,120000)][int]$TimeoutMilliseconds,
+       [Parameter(Mandatory)][ValidateRange(1,900000)][int]$TimeoutMilliseconds,
        [string]$BinaryOutputPath)
  $child=$null;$stream=$null;$started=$false;$cleanupUnsafe=$false;$channels=@()
  $cap=4L*1024*1024

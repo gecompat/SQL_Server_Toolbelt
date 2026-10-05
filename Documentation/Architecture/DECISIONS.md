@@ -584,3 +584,56 @@ Auswirkungen: Managed-Aktivierung ist claimfrei, direkte Legacy-Claims sind dana
 Alternativen: Feste Parallelität acht, lokale unabhängige Budgets, automatische Retryfreigabe nach Stopp, Wiederaufnahme unbekannter Ausgänge und `KILL` über eine gespeicherte Sessionnummer werden verworfen. Das kontrollierte Deaktivieren drainiert bestehende Arbeit und erfordert einen konsistenten Endzustand.
 
 Betroffene Verträge: [Worker-Control-Vertrag](WORKER_CONTROL_CONTRACT.md), [bestehender Providervertrag](EXTERNAL_QUEUE_WORKER_CONTRACT.md), `USP_CONTRACT.md`, `toolbelt.core.work-queue`, `toolbelt.core.worker-control`, `Workers/ExternalQueue`.
+
+## Datierter Entscheidungsstand 2026-10-05: Schema und physisch gemeinsamer JSON-Core
+
+RelatedReference: `RI-2026-048`, `DEC-2026-033`. Funktionsbezogene Fortentwicklung;
+keine neue finale Sequenzreferenz und keine rückwirkende Umschreibung von 1.2.
+
+Status: accepted; implementiert, teilweise validiert und unveröffentlicht.
+Offline-Framework/IL/bytegleiche Projekte und begrenzte native Core-/Schema-
+und genuine Constructor1.2→1.3-Läufe auf Linux2019 CL150 und Windows2025 CU8
+CL170 local/central bestanden; aktuelle Head-CI und übrige Matrix offen.
+
+Entscheidung: Die ausdrückliche Antwort „Diese Schema-/Kern-Welle freigegeben“
+auf die konkrete [PR175-Vorlage](https://github.com/gecompat/SQL_Server_Toolbelt/pull/175)
+autorisiert `USP_ValidateJsonSchema` im begrenzten Profil `toolbelt-2020-12-v1`,
+zehn Ergebnisfelder, lokale nichtrekursive Referenzen, exakte Zahlen und Unicode,
+globales Arbeitsbudget und vollständige Evaluation trotz Diagnosekürzung.
+Der gemeinsame Parser wird physisch nach `Toolbelt_JsonCore` ausgelagert.
+Constructor1.3 referenziert diesen Core bei unveränderten acht SQL-Slots;
+Schema verwendet eine eigene SAFE-Assembly mit einem internen CLR-TVF-Slot.
+
+Begründung: Ein physischer Parser verhindert divergierende Syntax- und
+Unicodeimplementierungen. Ein vollständiger Schemaort- und Graphpreflight
+verhindert ein scheinbar gültiges Urteil bei unbenutzten unbekannten Keywords
+oder Referenzzyklen. LIMIT ersetzt jedes unvollständige Boolurteil durch NULL.
+
+Scope und Auswirkungen: Core als technische SameDB-Dependency ohne öffentliche
+SQL-Funktion; getrennte Core-, Constructor- und Schemalifecycles. Coreabbau und
+Ersetzung blockieren bei verbliebenen Assemblykonsumenten. Bekanntes Constructor1.2
+wird explizit migriert; Schema installiert oder repariert keine Dependency.
+Neue Binaries und ihre Buildclosure werden separat qualifiziert. Neue exakte
+Trusthashes wurden anschließend für die notwendigen begrenzten Tests dieser
+Welle ausdrücklich vorab freigegeben; keine erneuten Schemahashfragen.
+Keine Infrastruktur-, Owner-,
+Rechte-, TRUSTWORTHY- oder Releasefreigabe.
+
+Alternativen: Eine zweite Parserkopie, ein Schemaadapter gegen die unmodifizierte
+1.2-Assembly und ein kompletter Constructor-Slotneubau wurden anhand der
+Assembly-/Foreignbindinggrenze in PR175 verworfen. Volles Draftprofil,
+externe Referenzen und eine neue öffentliche Core-API bleiben ausgeschlossen.
+
+Betroffene Verträge: [Schema-/Core-Vertrag](JSON_SCHEMA_CONTRACT.md),
+`JSON_CLR_MIGRATION_CONTRACT.md`, `USP_CONTRACT.md`,
+`toolbelt.json.core`, `toolbelt.json.constructors`, `toolbelt.json.schema`.
+
+Native Präzisierung2026-10-05: SQL6282 schließt den zuerst versuchten
+ALTER-Pfad mit neuer Core-Referenz aus. Der atomare Austausch betrifft nur
+drei eigene CLR-Slots/Assembly; fünf Procedureidentitäten und Rechte bleiben
+erhalten. Direkte CLR-/Assemblyrechte, explizite CLR-Owner und Zusatzmetadaten
+blockieren vor Mutation, kein GRANT oder Ownerrepair. Post-DROP-Rollback,
+Annotationserhalt, genuine Migration und vier aktuelle Constructor-Fixtures
+bestanden auf beiden genannten Zielen local/central. Der verworfene komplette
+achtteilige Slotneubau bleibt ausgeschlossen. Frühere Fehler und historische
+1.2-Verträge bleiben unverändert; [native Evidenz](../../Modules/toolbelt.json.schema/Tests/NATIVE_EVIDENCE.md).

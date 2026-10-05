@@ -1,16 +1,26 @@
 # JSON Constructors
 
-Aktuelle Sourcewelle 1.2.0: Die beiden freigegebenen CLR-Aggregate und die
-vier bestehenden USPs verwenden einen gemeinsamen SAFE-Kern. Die acht
-CLR-Quelldateien entsprechen dem unabhängig offline qualifizierten bekannten
-Produktbinary. Begrenzte native Installations-, Fixture-, Upgrade- und
-Uninstallteilnachweise sind vorhanden; die vollständige Legacy-/Caller-/
-Lifecyclequalifikation, aktuelle CI und Release bleiben offen.
+Aktuelle Sourcewelle1.3.0: Die beiden freigegebenen CLR-Aggregate und die
+vier bestehenden USPs referenzieren die gemeinsame technische SAFE-Assembly
+`toolbelt.json.core`1.0 in derselben Datenbank. Sieben Constructoradapter,
+Core und Schema wurden als neue Closure offline qualifiziert. Die native
+Constructor1.3 bestand auf Linux2019/latest CL150 lokal sowie Windows2025/CU8
+CL170 lokal/zentral die vier ausgewählten Runtime-Fixtures einschließlich
+16 MiB/100000 Einträgen, Repeat, Uninstall/Repeat und eigene Bereinigung.
+Der genuine1.2-ALTER-Versuch scheiterte bereinigt an SQL6282. Die korrigierte
+atomare Migration erhält fünf Procedure-ObjectIds und Rechte, ersetzt drei
+eigene CLR-Slots/Assembly und weist verlustgefährdete Rechte-/Ownertupel oder
+zusätzliche Metadaten vorher ab. Sie bestand auf beiden genannten Zielen
+local/central samt vier Fixtures, nachgelagertem Schema und frischem Audit.
+Vollständige API-/Lifecycle-/Releasequalifikation bleibt getrennt offen.
 Die genaue Reichweite steht in [Tests](Tests/README.md). Teilweise validiert und unveröffentlicht; keine Übertragung der
-historischen 1.0-/1.1-Nachweise auf 1.2.
+historischen1.0-/1.1-/1.2-Nachweise auf1.3.
 [JSON-1.2-Vertrag](../../Documentation/Architecture/JSON_CLR_MIGRATION_CONTRACT.md),
 [Aggregate](Documentation/JSON_AGGREGATES.md) und
 [bekannte Artefakte](Documentation/KNOWN_CLR_ARTIFACTS.json).
+Der [freigegebene Core-/Migrationsvertrag](../../Documentation/Architecture/JSON_SCHEMA_CONTRACT.md)
+und die [aktuelle Closure](../toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE.json)
+ergänzen die unveränderte historische1.2-Zeile.
 
 ## Historische 1.1-Evidenz
 
@@ -23,10 +33,11 @@ Die historische Version 1.0.0 ist implementiert, `partially validated` und `unre
 aus caller-lokalen Temp-Tabellen. Der interne kanonische Kern prüft alle Daten
 vor Ausgabe oder ResultTable-Mutation. Keine Inferenz, Ausführung oder Datei-I/O.
 
-Deployment 1.2 benötigt das exakt bekannte SAFE-Binary und vorher separat
+Deployment1.3 benötigt den separat installierten bekannten Core, das exakt
+bekannte aktuelle Constructorbinary und vorher separat
 administrativ freigegebenen Hash-Trust bei unverändertem `clr strict security`.
 `Scripts/New-ClrReleaseArtifacts.ps1` paketiert ein bereits qualifiziertes
-Binary und erzeugt `Deploy.WithAssembly.sql`/`Uninstall.Expanded.sql` sowie
+Binary zusammen mit `-CoreAssemblyPath` und erzeugt `Deploy.WithAssembly.sql`/`Uninstall.Expanded.sql` sowie
 ein gekoppeltes Hashmanifest in einem neuen privaten Verzeichnis. Das Script
 startet keinen Build und verändert keine Datenbank oder Trusteinträge.
 Die expandierte Deploymentdatei wird mit SQLCMD und `DeploymentMode=local`
@@ -56,8 +67,8 @@ Reproduzierbarer Nachweis: `local: Tests/CI/run-lab-local.ps1`, siehe [Tests](Te
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-04`
-- Nachweis: `local: scoped JSON 1.2 qualification`
-- Scope: Kanonischer Projektbuild mit MSBuild 18 ohne Profil-Overrides bytegleich zur unabhängig offline qualifizierten bekannten SAFE-Zeile. Lokal acht Original-Fixtures auf Linux2019 CL150 und Windows2025/CU8 CL170. Windows2025/CU8 CL170: genuine1.1 lokal und genuine1.0 lokal/zentral, Repeat, acht Slots/sechs typisierte Marker, Uninstall/Repeat; zentrale erste-GO-Bestätigung und originaler Consumer. Sechs erste-GO-Negativfälle, Guest916/4 und Ownerfall NOT_EXECUTED. Eigene Bereinigung/frische Abwesenheit bestanden, keine Konfigurations-/Rechte-/Owneränderung. Kein vollständiger Produkt-/Matrix-/Minimalrechte-/Heap-/Spillnachweis; aktuelle Exact-head-CI mit ihrem Compilerstand und Release offen. Historische Fehlversuche unverändert.
+- Datum: `2026-10-05`
+- Nachweis: `local: Tests/CI/run-json-schema-lab.ps1`
+- Scope: Constructor1.3: vier ausgewählte Runtime-Fixtures einschließlich16 MiB/100000 Einträgen Linux2019/latest CL150 lokal und Windows2025/CU8 CL170 local/central bestanden. Genuine bekannte1.2→1.3 beide Ziele local/central, fünf Procedureidentitäten/Rechte und effektive Owner erhalten, drei eigene CLR-Slots/Assembly atomar neu, post-DROP-Rollback und Annotationserhalt, nachgelagerte Schema26-Fall-Fixture, Repeat/Uninstall/Coreerhalt und frische hashgebundene Dispositionaudits bestanden. Weitere Ziel-/Lifecycle-/Minimalrechtematrix und aktuelle Head-CI offen; verworfener ALTER-Versuch6282 bleibt fehlgeschlagen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

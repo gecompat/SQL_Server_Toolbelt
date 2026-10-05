@@ -11,9 +11,9 @@
     <Deterministic>true</Deterministic>
     <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <!-- Das qualifizierte Binary verwendet nur die acht deklarierten Quellen und
-         Referenzen. Implizite Framework-/PE-Ergänzungen ändern seine Bytes;
-         kein Compiler-Server außerhalb des begrenzten Buildprozesses. -->
+    <!-- Version1.3 kompiliert die sieben Adapterquellen und referenziert den
+         separat gebauten kanonischen Core. Die historische1.2-Closure bleibt
+         getrennte Evidenz; neue Bytes benötigen eigene Qualifikation. -->
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
     <HighEntropyVA>false</HighEntropyVA>
@@ -25,12 +25,18 @@
     <DebugType>none</DebugType>
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
+  <PropertyGroup>
+    <CoreReferenceHintPath Condition="'$(CoreReferenceHintPath)' == ''">..\..\toolbelt.json.core\Clr\bin\Release\Toolbelt.JsonCore.dll</CoreReferenceHintPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="Toolbelt.JsonCore">
+      <HintPath>$(CoreReferenceHintPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AgfCore.cs" />
     <Compile Include="AgfValidCodec.cs" />
     <Compile Include="AgfFaultCodec.cs" />
     <Compile Include="AgfDispatcher.cs" />

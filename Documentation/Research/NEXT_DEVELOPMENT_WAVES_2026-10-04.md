@@ -723,7 +723,7 @@ Analyse und Entwurfsreview dürfen bis dahin autonom weitergehen.
 
 ### Konkreter Reuse-Befund vor einer Providerwahl
 
-Der vorhandene [`AgfCore.cs`](../../Modules/toolbelt.json.constructors/Clr/AgfCore.cs)
+Der vorhandene [`AgfCore.cs`](https://github.com/gecompat/SQL_Server_Toolbelt/blob/46b2f078662a3203a8da67bfe331b33607962082/Modules/toolbelt.json.constructors/Clr/AgfCore.cs)
 in Constructors1.2 enthält bereits Number-, String-, Escape-, Whitespace- und
 Containerlexik. ScanJson akzeptiert dort ausschließlich Containerroots;
 AGF begrenzt auf127 Frames, Legacy reserviert abhängig von der gesamten

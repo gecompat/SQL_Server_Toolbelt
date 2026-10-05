@@ -129,6 +129,8 @@ def top_scalar(text: str, key: str) -> str:
 
 
 def top_list(text: str, key: str) -> list[str]:
+    if re.search(r"^" + re.escape(key) + r":\s*\[\]\s*$", text, re.MULTILINE):
+        return []
     lines = text.splitlines()
     marker = f"{key}:"
     for index, line in enumerate(lines):
@@ -160,7 +162,10 @@ def section_values(text: str, section: str) -> dict[str, str | list[str]]:
             scalar_match = re.match(r"^\s{2}([A-Za-z0-9_]+):\s*(.*?)\s*$", candidate)
             if scalar_match:
                 key, raw_value = scalar_match.groups()
-                if raw_value:
+                if raw_value == "[]":
+                    values[key] = []
+                    current_list = None
+                elif raw_value:
                     values[key] = yaml_unquote(raw_value)
                     current_list = None
                 else:
@@ -1744,6 +1749,14 @@ def main() -> int:
         run_json_path_exists_static()
     if "json_constructors_static" in checks:
         run_json_constructors_static()
+    if "json_schema_core_static" in checks:
+        result = subprocess.run(
+            (sys.executable, str(REPOSITORY_ROOT / "Modules/toolbelt.json.schema/Tests/Static/validate_contract.py")),
+            cwd=REPOSITORY_ROOT, check=False, capture_output=True, text=True, encoding="utf-8",
+        )
+        if result.returncode != 0:
+            raise ValidationError("JSON Schema/Core static contract failed: " + result.stdout + result.stderr)
+        print(result.stdout.strip())
     if "table_clone_static" in checks:
         run_table_clone_static()
     if "deterministic_static" in checks:

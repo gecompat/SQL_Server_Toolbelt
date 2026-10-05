@@ -5,6 +5,8 @@ on:
     paths:
       - ".github/workflows/json-constructors-runtime.yml"
       - "Modules/toolbelt.json.constructors/.gitattributes"
+      - "Modules/toolbelt.json.core/**"
+      - "Modules/toolbelt.json.schema/**"
       - "Modules/toolbelt.json.constructors/module.yaml"
       - "Modules/toolbelt.json.constructors/Source/**"
       - "Modules/toolbelt.json.constructors/Deployment/**"
@@ -22,6 +24,8 @@ on:
     paths:
       - ".github/workflows/json-constructors-runtime.yml"
       - "Modules/toolbelt.json.constructors/.gitattributes"
+      - "Modules/toolbelt.json.core/**"
+      - "Modules/toolbelt.json.schema/**"
       - "Modules/toolbelt.json.constructors/module.yaml"
       - "Modules/toolbelt.json.constructors/Source/**"
       - "Modules/toolbelt.json.constructors/Deployment/**"
@@ -65,24 +69,29 @@ jobs:
           $build=[IO.Path]::GetFullPath($paths[0])
           $compiler=Join-Path (Split-Path -Parent $build) 'Roslyn/csc.exe'
           if(-not(Test-Path -LiteralPath $build -PathType Leaf) -or -not(Test-Path -LiteralPath $compiler -PathType Leaf)){throw 'JSON_CI_MSBUILD_UNAVAILABLE'}
-          "TBX_JSON_CSC=$compiler" | Out-File -LiteralPath $env:GITHUB_ENV -Encoding utf8 -Append
-          $result=Invoke-OwnedProcess -FileName $build -Arguments @("$module/Clr/Toolbelt.JsonConstructors.csproj",'/t:Rebuild','/p:Configuration=Release','/p:Platform=AnyCPU','/m:1','/nologo','/nr:false','/noAutoResponse') -TimeoutMilliseconds 45000
-          if($result.ExitCode -ne 0 -or -not $result.CaptureComplete){throw 'JSON_CI_BUILD_FAILED'}
-          & "$module/Scripts/New-ClrReleaseArtifacts.ps1" -AssemblyPath "$module/Clr/bin/Release/Toolbelt.JsonConstructors.dll" -OutputDirectory '.runtime/json-clr'
-          Copy-Item -LiteralPath '.runtime/json-clr/Deploy.WithAssembly.sql' -Destination '.runtime/json-clr/Deploy.sql'
-          Copy-Item -LiteralPath '.runtime/json-clr/Uninstall.Expanded.sql' -Destination '.runtime/json-clr/Uninstall.sql'
-      - name: Bounded Framework and IL contracts
-        shell: pwsh
-        run: |
-          $vs=$env:TBX_JSON_CSC
-          if([string]::IsNullOrWhiteSpace($vs) -or -not [IO.Path]::IsPathFullyQualified($vs) -or -not(Test-Path -LiteralPath $vs -PathType Leaf)){throw 'JSON_CI_COMPILER_UNAVAILABLE'}
           $refs=Join-Path ${env:ProgramFiles(x86)} 'Reference Assemblies/Microsoft/Framework/.NETFramework/v4.8'
           $framework=Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
-          ./Modules/toolbelt.json.constructors/Tests/Framework/Invoke-Framework.ps1 -AssemblyPath '.runtime/json-clr/Toolbelt.JsonConstructors.dll' -CompilerPath $vs -ReferenceDirectory $refs -FrameworkPowerShell $framework -OutputDirectory '.runtime/json-framework'
+          $schema='Modules/toolbelt.json.schema/Tests/Framework'
+          & "$schema/Invoke-SourceQualification.ps1" -CompilerPath $compiler -ReferenceDirectory $refs -FrameworkPowerShell $framework -OutputDirectory '.runtime/json-framework'
+          & "$schema/Test-ProjectBuild.ps1" -MSBuildPath $build -QualifiedDirectory '.runtime/json-framework' -OutputDirectory '.runtime/json-project'
+          & 'Modules/toolbelt.json.core/Tests/Framework/Test-RejectedClosure.ps1' -CompilerPath $compiler -ReferenceDirectory $refs -FrameworkPowerShell $framework -OutputDirectory '.runtime/json-rejected'
+          & "$schema/Test-ReleasePackaging.ps1" -QualifiedDirectory '.runtime/json-framework' -OutputDirectory '.runtime/json-packaging-tests'
+          foreach($entry in @(@('core','Core','json-core'),@('constructors','Constructors','json-clr'),@('schema','Schema','json-schema'))){
+            & 'Modules/toolbelt.json.core/Scripts/New-JsonClosureRelease.ps1' -ModuleId ('toolbelt.json.'+$entry[0]) -AssemblyPath ('.runtime/json-framework/Toolbelt.Json'+$entry[1]+'.dll') -CoreAssemblyPath '.runtime/json-framework/Toolbelt.JsonCore.dll' -OutputDirectory ('.runtime/'+$entry[2])
+          }
+          & "$module/Deployment/New-Historical12TestArtifacts.ps1" -MSBuildPath $build -OutputDirectory '.runtime/json-historical12-proof'
+          Copy-Item -LiteralPath '.runtime/json-historical12-proof/release' -Destination '.runtime/json-historical12' -Recurse
+          Copy-Item -LiteralPath '.runtime/json-clr/Deploy.WithAssembly.sql' -Destination '.runtime/json-clr/Deploy.sql'
+          Copy-Item -LiteralPath '.runtime/json-clr/Uninstall.Expanded.sql' -Destination '.runtime/json-clr/Uninstall.sql'
       - uses: actions/upload-artifact@v4
         with:
           name: known-json-clr
-          path: .runtime/json-clr/
+          include-hidden-files: true
+          path: |
+            .runtime/json-clr/
+            .runtime/json-core/
+            .runtime/json-schema/
+            .runtime/json-historical12/
           retention-days: 1
   runtime:
     needs: known-artifact
@@ -104,10 +113,13 @@ jobs:
           python3
           Modules/toolbelt.json.constructors/Tests/Static/validate_contract.py
 
+      - name: Validate shared closure and Schema contract
+        run: python3 Modules/toolbelt.json.schema/Tests/Static/validate_contract.py
+
       - uses: actions/download-artifact@v4
         with:
           name: known-json-clr
-          path: .runtime/json-clr
+          path: .runtime
 
       - name: Echte unveränderte 1.0-Upgradequellen paketieren
         shell: pwsh

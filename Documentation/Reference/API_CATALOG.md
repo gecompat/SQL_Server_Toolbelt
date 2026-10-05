@@ -2,7 +2,7 @@
 
 <!-- Generiert mit Tests/Documentation/generate_api_catalog.py --write; nicht direkt bearbeiten. -->
 
-157 öffentliche Schnittstellen aus 42 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
+158 öffentliche Schnittstellen aus 43 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
 
 Jedes Beispiel separat verwenden. Funktionen verlangen positionsbezogene Argumente; `DEFAULT` verwendet einen deklarierten Default, `NULL` kann davon abweichen. Prozeduren verwenden benannte Parameter. Vorlagen mit Handlern, Claims, Dateien oder Plan-Hashes erfordern die beschriebenen Voraussetzungen. Eine Syntaxvorlage ist kein Runtime-Nachweis.
 
@@ -3233,7 +3233,7 @@ EXEC toolbelt_filesystem.USP_RemoveDirectory @Hilfe=1;
 
 ## toolbelt_json.USP_JsonArray
 
-Modul `toolbelt.json.constructors` · Version `1.2.0` · `USP`
+Modul `toolbelt.json.constructors` · Version `1.3.0` · `USP`
 
 JSON-Array aus Ordinal/ValueKind/Value; vollständig validiert und atomar geroutet.
 
@@ -3269,7 +3269,7 @@ EXEC toolbelt_json.USP_JsonArray @Hilfe=1;
 
 ## toolbelt_json.USP_JsonObject
 
-Modul `toolbelt.json.constructors` · Version `1.2.0` · `USP`
+Modul `toolbelt.json.constructors` · Version `1.3.0` · `USP`
 
 JSON-Object aus Ordinal/ValueKind/Value/Key; vollständig validiert und atomar geroutet.
 
@@ -3305,7 +3305,7 @@ EXEC toolbelt_json.USP_JsonObject @Hilfe=1;
 
 ## toolbelt_json.USP_JsonArraysByGroup
 
-Modul `toolbelt.json.constructors` · Version `1.2.0` · `USP`
+Modul `toolbelt.json.constructors` · Version `1.3.0` · `USP`
 
 JSON-Array aus GroupOrdinal/Ordinal/ValueKind/Value; vollständig validiert und atomar geroutet.
 
@@ -3351,7 +3351,7 @@ EXEC toolbelt_json.USP_JsonArraysByGroup @Hilfe=1;
 
 ## toolbelt_json.USP_JsonObjectsByGroup
 
-Modul `toolbelt.json.constructors` · Version `1.2.0` · `USP`
+Modul `toolbelt.json.constructors` · Version `1.3.0` · `USP`
 
 JSON-Object aus GroupOrdinal/Ordinal/ValueKind/Value/Key; vollständig validiert und atomar geroutet.
 
@@ -3397,7 +3397,7 @@ EXEC toolbelt_json.USP_JsonObjectsByGroup @Hilfe=1;
 
 ## toolbelt_json.AGF_JsonArray
 
-Modul `toolbelt.json.constructors` · Version `1.2.0` · `CLR_AGGREGATE`
+Modul `toolbelt.json.constructors` · Version `1.3.0` · `CLR_AGGREGATE`
 
 Aggregiert typisierte JSON-Einträge in Ordinal-Reihenfolge zu einem JSON-Array.
 
@@ -3422,7 +3422,7 @@ SELECT toolbelt_json.AGF_JsonArray(Ordinal,ValueKind,[Value],Profile) AS JsonVal
 
 ## toolbelt_json.AGF_JsonObject
 
-Modul `toolbelt.json.constructors` · Version `1.2.0` · `CLR_AGGREGATE`
+Modul `toolbelt.json.constructors` · Version `1.3.0` · `CLR_AGGREGATE`
 
 Aggregiert typisierte Einträge mit eindeutigen Schlüsseln zu einem JSON-Objekt.
 
@@ -3490,6 +3490,49 @@ Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag
 
 ```sql
 SELECT Status,JsonType,Value,ErrorCode FROM toolbelt_json.TVF_ResolveJsonPointer(N'{"items":[null,"example"]}',N'/items/1',DEFAULT,DEFAULT);
+```
+
+## toolbelt_json.USP_ValidateJsonSchema
+
+Modul `toolbelt.json.schema` · Version `1.0.0` · `USP`
+
+Prüft JSON im begrenzten Profil toolbelt-2020-12-v1 mit exakten Zahlen, Unicode und globalem Arbeitsbudget; SUMMARY plus begrenzte Diagnosen.
+
+Vertrag und Quelle: [USP_ValidateJsonSchema.sql](../../Modules/toolbelt.json.schema/Source/USP_ValidateJsonSchema.sql), [USP_ValidateJsonSchema.md](../../Modules/toolbelt.json.schema/Documentation/USP_ValidateJsonSchema.md).
+
+<!-- Source/Vertrag SHA256: cb89a74c6d6f969403daf8eecc02c560e08e92291a5022b4016cf30e95e42dc5 -->
+
+Voraussetzung: SQL Server2019+ und CL150+, bekannte SAFE-Core-/Schema-Assemblies in derselben Datenbank, ResultTable >=1.0.0, vorhandene Aufrufrechte. Nur Teilqualifikation, unreleased.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Json` | `nvarchar(max)` | `NULL` | Input | Instanz als vollständiges JSON; SQL NULL liefert SQL_NULL nach Parameterprüfung. |
+| `@Schema` | `nvarchar(max)` | `NULL` | Input | Schema vollständig prüfen, einschließlich ungenutzter Definitionen; keine externe oder rekursive Referenz. |
+| `@Profile` | `varchar(32)` | `'toolbelt-2020-12-v1'` | Input | Exakt toolbelt-2020-12-v1; kein volles Draft2020-12. |
+| `@MaxDocumentBytes` | `bigint` | `16777216` | Input | Positiv, höchstens16777216 UTF16-Bytes. |
+| `@MaxSchemaBytes` | `bigint` | `1048576` | Input | Positiv, höchstens1048576 UTF16-Bytes. |
+| `@MaxDepth` | `int` | `128` | Input | 1 bis128; Containerroot1, Scalarroot0. |
+| `@MaxEvaluationSteps` | `bigint` | `1000000` | Input | 1 bis1000000 globale abstrakte Arbeitseinheiten; LIMIT liefert kein Boolurteil. |
+| `@MaxErrors` | `int` | `100` | Input | 0 bis100; begrenzt nur Diagnosen, niemals die vollständige Evaluation. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL für SELECT; sonst vorhandene caller-lokale TempTable nach Helpervertrag. |
+| `@KeepData` | `bit` | `0` | Input | 0 Replace,1 Append; NULL entspricht0. |
+| `@Debug` | `tinyint` | `0` | Input | Payloadfreie Messages; NULL entspricht0. |
+| `@Hilfe` | `bit` | `0` | Input | Help zuerst ohne fachliche Argument-/Dependencyprüfung; NULL entspricht0. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N'{"quantity":3}', @Schema=N'{"properties":{"quantity":{"type":"integer","minimum":1}}}';
+```
+
+```sql
+EXEC toolbelt_json.USP_ValidateJsonSchema @Hilfe=1;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_json.USP_ValidateJsonSchema @Hilfe=1;
 ```
 
 ## toolbelt_metadata.VW_ModuleCapabilities
