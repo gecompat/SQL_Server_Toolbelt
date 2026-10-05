@@ -372,6 +372,15 @@ OwnDB-/OwnTrustaudit bestanden ohne Konfigurations-/Rechteänderungen. Ein früh
 gemischter Setup-Prüflauf bleibt FAILED_CLEANED. Weitere Kollisions-/Lifecyclefälle,
 Ziele, Minimalrechte und Heap bleiben getrennte offene Gates.
 
+Vier Fremdslot-Fixtures bestanden zusätzlich am2026-10-05 mit
+`DisplayCentralFutureCollisions4` auf genuine1.1 zentral Linux2019/latest CL150:
+aktueller1.2-Deploy weist ab, aktueller release-aware Uninstall bewahrt den
+exakten Fremdslot. Fünf Vorgängerinstallationen einschließlich Setup/Restores,
+native Zeugen, finaler aktueller Uninstall, eigener äußerer Prozesswatchdog und
+frischer unabhängiger OwnDB-/OwnTrustaudit bestanden ohne Konfigurations-/
+Rechteänderungen. Originale Vorgänger-Uninstalls und weitere Kontexte bleiben
+offen; keine erneute API-/Consumer-/Upgrade- oder Lifecycle-six-Prüfung.
+
 ## Tabellenklon Trigger-Vorschau / 4.0.0 – begrenzte Native-Nachweise
 
 Die einzeln freigegebene Windows-Option `IncludeTriggers=1` ergänzt den

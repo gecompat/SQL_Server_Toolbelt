@@ -69,8 +69,8 @@ Exakte SHA2-512-Werte werden in den reproduzierbaren, lokal erzeugten Release-/T
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentralLifecycle`
-- Scope: Linux2019/latest zentral CL150: vier postDROP/preCOMMIT-Rollbackfälle und zwei AppLock-Abweisungen; separate positive aktuelle1.2-Installation, neun Slots/vier CLR-Bindings/SAFE-Binaryhash/Modus/CL und vollständiger vorhandener Lifecycle-Snapshot vor/nach, neutraler Sitzungszustand zwischen Statements, bestätigter Uninstall. Eigener äußerer Prozesswatchdog, Exit0 und vollständige private Kanäle; frischer unabhängiger Audit bestätigt eine OwnDB/zwei OwnTrust-Hashes abwesend, keine Konfigurations-/Rechteänderungen. Früherer gemischter Setup-Prüflauf bleibt FAILED_CLEANED; gezielter Read-only-Probe begründet getrennte Transaktionsprüfung. API/Consumer/Upgrade nicht wiederholt; weitere Lifecycle-/Kollisionsmatrix, Minimalrechte, Heap und Ziele offen; partially validated/unreleased.
+- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentralFutureCollisions4`
+- Scope: Linux2019/latest zentral CL150: vier Fremdslot-Fixtures auf genuine1.1; aktueller1.2-Deploy weist mit51534 ab und erhält vollständigen Snapshot, aktueller release-aware Uninstall erhält exakten Fremdslot; fünf genuine1.1-Installationen einschließlich Setup/Restores, native sieben Slots/drei Bindings/exakter SAFE-Binaryhash/Modus/Release/CL150 und neutrale Session. Finaler bestätigter aktueller Uninstall, eigener äußerer Prozesswatchdog, Exit0/vollständige private Kanäle und frischer unabhängiger Audit: eine OwnDB/drei OwnTrust-Hashes abwesend, keine Konfigurations-/Rechteänderungen. Original1.1-Uninstall/API/Consumer/Upgrade/Runtimefixturematrix/Lifecycle-six nicht ausgeführt; übrige Lifecycle-/Kollisionsmatrix, Ziele, Minimalrechte und Heap offen; partially validated/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -137,6 +137,27 @@ reproduzierte den aktiven Transaktionszustand im gemischten Katalogprädikat;
 die getrennte katalogfreie Prüfung zwischen Statements blieb neutral.
 Alle ursprünglichen Setupbedingungen bleiben aktiv. Dies ist ein begrenzter
 separater Lifecycle-Nachweis, keine volle Kollisions- oder Plattformmatrix.
+
+`-QualificationScope DisplayCentralFutureCollisions4` begrenzt die nächste
+separate Welle auf vier vorhandene Fremdslot-Fixtures mit genuine1.1 zentral
+auf Linux2019/latest CL150. Die Runtimeauswahl ist leer; eine ausdrücklich
+nichtleere Auswahl wird abgewiesen. Nur current-XLSX, genuine1.1 und ZIP
+erhalten gegebenenfalls eigene Trusteinträge; genuine1.0 bleibt offline gepinnt.
+Geprüft werden der aktuelle1.2-Deploy (51534 und unveränderter vollständiger
+Snapshot) und der aktuelle release-aware Uninstall (exakte Fremdslotbewahrung).
+Der originale Vorgänger-Uninstall ist kein Teil dieses Nachweises.
+
+Der unveränderte Helper führt vier Fixtures mit jeweils Uninstall, Fremdslot-
+Cleanup und genuine1.1-Restore aus: insgesamt fünf Vorgängerinstallationen
+einschließlich Setup. Native Vor-/Nachzeugen prüfen sieben Slots/drei Bindings,
+exakten SAFE-Binaryhash, Release/Modus/CL150 und neutralen Sessionzustand.
+Der Vier-Fälle-Zähler wird erst nach vollständigem Helperabschluss gesetzt.
+
+Am2026-10-05 bestanden dieser Scope, finaler aktueller Uninstall, äußerer eigener
+Prozesswatchdog und vollständige private Kanäle mit Exit0. Frischer unabhängiger
+Audit: eine OwnDB und drei eigene Trust-Hashes abwesend, keine Konfigurations-/
+Rechteänderungen. Kein erneuter API-/Consumer-/Upgrade-/Lifecycle-six-Nachweis
+und keine allgemeine Runtimefixturematrix; übrige Ziele und Minimalrechte offen.
 
 Am 2026-10-04 bestand ein privater Qualifikationsadapter auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170 jeweils ausschließlich lokal: Clean1.2 und genuine installierte1.1→1.2 mit frischer Session, drei→vier CLR-Bindings und sieben→neun Slots am identischen aktuellen Binary. Je Ziel bestanden zwölf SQL-Fixtures, sechs Display-Clientprüfungen und zwei Raw→Type-/Raw→Type→Display-Kompositionen, Repeat sowie Uninstall/Repeat. Zwei eigene Datenbanken wurden entfernt und drei exakte Trust-Vorzustände wiederhergestellt; frische unabhängige Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte- oder Owneränderungen.
 

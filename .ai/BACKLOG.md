@@ -1984,3 +1984,13 @@ Der frühere gemischte Setup-Prüflauf bleibt FAILED_CLEANED; ein gezielter
 Read-only-Probe begründet die getrennte Sessionzustandsprüfung. API/Consumer/
 Upgrades nicht wiederholt; Kollisionsmatrix, weitere Ziele, Minimalrechte und
 Heap bleiben offen. Kein neuer Funktions-/Provider- oder Releaseumfang.
+
+Ergänzung 2026-10-05, Codex: `DisplayCentralFutureCollisions4` bestand mit vier
+Fremdslot-Fixtures auf genuine1.1 zentral Linux2019/latest CL150. Aktueller1.2-
+Deploy weist ab und bewahrt vollständigen Snapshot; aktueller release-aware
+Uninstall bewahrt exakten Fremdslot. Fünf genuine1.1-Installationen einschließlich
+Setup/Restores, native Zeugen, finaler aktueller Uninstall, äußerer eigener
+Prozesswatchdog und unabhängiger frischer OwnDB-/OwnTrustaudit bestanden ohne
+Konfigurations-/Rechteänderungen. Originale Vorgänger-Uninstalls, weitere
+Kontexte, Minimalrechte und Heap bleiben offen; keine erneute API-/Consumer-/
+Upgrade- oder Lifecycle-six-Qualifikation.

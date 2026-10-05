@@ -53,8 +53,8 @@ Der 128-MiB-Chargecap ist eine interne konservative Zählgrenze, kein vollständ
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentralLifecycle`
-- Scope: Linux2019/latest zentral CL150: vier postDROP/preCOMMIT-Rollbackfälle und zwei AppLock-Abweisungen; separate positive aktuelle1.2-Installation, neun Slots/vier CLR-Bindings/SAFE-Binaryhash/Modus/CL und vollständiger vorhandener Lifecycle-Snapshot vor/nach, neutraler Sitzungszustand zwischen Statements, bestätigter Uninstall. Eigener äußerer Prozesswatchdog, Exit0 und vollständige private Kanäle; frischer unabhängiger Audit bestätigt eine OwnDB/zwei OwnTrust-Hashes abwesend, keine Konfigurations-/Rechteänderungen. Früherer gemischter Setup-Prüflauf bleibt FAILED_CLEANED; gezielter Read-only-Probe begründet getrennte Transaktionsprüfung. API/Consumer/Upgrade nicht wiederholt; weitere Lifecycle-/Kollisionsmatrix, Minimalrechte, Heap und Ziele offen; partially validated/unreleased.
+- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentralFutureCollisions4`
+- Scope: Linux2019/latest zentral CL150: vier Fremdslot-Fixtures auf genuine1.1; aktueller1.2-Deploy weist mit51534 ab und erhält vollständigen Snapshot, aktueller release-aware Uninstall erhält exakten Fremdslot; fünf genuine1.1-Installationen einschließlich Setup/Restores, native sieben Slots/drei Bindings/exakter SAFE-Binaryhash/Modus/Release/CL150 und neutrale Session. Finaler bestätigter aktueller Uninstall, eigener äußerer Prozesswatchdog, Exit0/vollständige private Kanäle und frischer unabhängiger Audit: eine OwnDB/drei OwnTrust-Hashes abwesend, keine Konfigurations-/Rechteänderungen. Original1.1-Uninstall/API/Consumer/Upgrade/Runtimefixturematrix/Lifecycle-six nicht ausgeführt; übrige Lifecycle-/Kollisionsmatrix, Ziele, Minimalrechte und Heap offen; partially validated/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -68,11 +68,12 @@ Der 128-MiB-Chargecap ist eine interne konservative Zählgrenze, kein vollständ
 | Zwei Clientfelder, Default-NULL, langes SqlChars | Display.Metadata.ps1 | PASS ausgewählte lokale Ziele 2026-10-04; privater Adapter |
 | Neun synthetische Raw→Type→Display-Zellen | Display.Composition.sql | PASS ausgewählte lokale Ziele 2026-10-04; privater Adapter |
 | Clean1.2/genuine installierte1.1→1.2/repeat und eigene Cleanup | privater Qualifikationsadapter mit Original-SQL | PASS lokale Linux2019/latest CL150 und Windows2025/exakt CU8 CL170; genuine1.0 und vollständiger öffentlicher Adapter offen |
-| Display-Zukunftsslots unter alten Releases erhalten/keine Adoption | Display.CollisionFixture.sql / Labadapter | NOT_EXECUTED |
+| Display-Zukunftsslots unter alten Releases erhalten/keine Adoption | Display.CollisionFixture.sql / Labadapter | PARTIALLY: vier Fixtures auf genuine1.1, aktueller1.2-Deploy/Uninstall PASS Linux2019/latest zentral CL150 2026-10-05; originale Vorgänger-Uninstalls/weitere Kontexte offen |
 | Interner NULL-Status → öffentlicher Status11 | Binding-Negativqualifikation | NOT_EXECUTED |
 | Genuine1.0→1.2 zentral, neun Slots/vier CLR-Bindings, Repeat/Confirm0/Uninstall und OwnDB-/Trustdisposition | run-xlsx-types-lab.ps1 -QualificationScope DisplayCentral10Upgrade | PASS Linux2019/latest CL150 2026-10-05; begrenzter Scope, äußerer eigener Prozesswatchdog |
 | Zentrale1.2-Clientmetadaten und Raw→Type→Display aus frischer Consumerdatenbank | Display.Metadata.ps1 / Invoke-DisplayComposition.ps1 | PASS Linux2019/latest CL150 2026-10-05; Display.Contract/Safety nur installiert, keine volle Consumerfixturematrix |
 | Vier postDROP-/preCOMMIT-Rollbackfälle und zwei konkurrierende AppLock-Abweisungen auf aktueller1.2 | run-xlsx-types-lab.ps1 -QualificationScope DisplayCentralLifecycle | PASS Linux2019/latest zentral CL150 2026-10-05; separate Setup-/Abschlusszeugen und eigener Cleanup, früherer Setup-Prüflauf bleibt FAILED_CLEANED |
+| Vier öffentliche/interne Fremdslots, mit/ohne imitierte Marker, auf genuine1.1 | run-xlsx-types-lab.ps1 -QualificationScope DisplayCentralFutureCollisions4 | PASS Linux2019/latest zentral CL150 2026-10-05; aktueller1.2-Deploy weist ab, aktueller Uninstall erhält exakten Slot; fünf Vorgängerinstallationen und eigener Cleanup getrennt gezählt |
 
 Private Renderer-/CLR-Transport-/minimale SQL-Bindung erfolgreich, ausdrücklich
 kein vollständiger Produktnachweis. Display65472/+1 nur isolierter Budgethelper,
