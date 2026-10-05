@@ -1,4 +1,10 @@
 {
+  "toolbelt_json.TVF_ResolveJsonPointer": {
+    "summary": "Löst einen RFC6901-Pointer mit exakten Keys und unterscheidet FOUND, MISSING, JSON_NULL, SQL_NULL und INVALID. Der freigegebene feste128er-Guard gibt darüber DEPTH_LIMIT vor JSON_SYNTAX zurück.",
+    "examples": ["SELECT Status,JsonType,Value,ErrorCode FROM toolbelt_json.TVF_ResolveJsonPointer(N'{\"items\":[null,\"example\"]}',N'/items/1',DEFAULT,DEFAULT);"],
+    "requirements": ["Vorhandenes SELECT; SQL Server2019+ und CL150+ auch beim zentralen Caller; lesende MSTVF ohne CLR. Freigegebener struktureller128er-Guard: darüber DEPTH_LIMIT vor JSON_SYNTAX; kein Release."],
+    "parameter_notes": {"@Json": "Vollständiges JSON einschließlich Scalarroot; vollständige Unicode-/Tiefenpolicy.", "@Pointer": "Stringform, leer für Root; ~0/~1 einmal decodieren, höchstens4000 UTF16-Einheiten.", "@MaxInputBytes": "Positives bigint-Bytebudget bis16777216, nur absenkbar.", "@MaxDepth": "Positives int-Tiefenbudget bis128, nur absenkbar; Containerroot1, Scalarroot0."}
+  },
   "toolbelt_conversion.TVF_TryCastBigInt": {
     "summary": "Prüft ASCII-Ganzzahltext und den exakten bigint-Bereich; liefert Value, Status und ErrorCode.",
     "examples": ["SELECT * FROM toolbelt_conversion.TVF_TryCastBigInt(N'-9223372036854775808', DEFAULT);"],

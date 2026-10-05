@@ -1,5 +1,22 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## JSON-Pointer-Welle 2026-10-05
+
+Die Antworten „Diese Pointer-Funktion freigegeben“ und anschließend
+„Diese Prioritätsänderung freigegeben“ autorisieren genau die native lesende
+MSTVF und ihren festen nonnegative128er-Guard samt geschütztem Scalarwrapper.
+Der [Vertrag](../Documentation/Architecture/JSON_POINTER_CONTRACT.md) und
+[Tiefenbefund](../Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
+halten Besprechung und Zustimmung nachvollziehbar fest.
+Finale identische eingefrorene Inputs bestanden Linux2019/latest CL150 und
+Windows2025/exaktCU8 CL170 jeweils local/central/Consumer: je3072 feste APPLY-
+Oracles,15 direkte Clientreader,42 Lifecyclefälle und Erst-/Repeat-/Uninstall-/
+Repeat. Neue Audits bestätigen Bereinigung, exakte Fixturewiederherstellung
+und Inputpins; keine Konfigurations-/Rechte-/Truständerungen. Zwei frühere
+Safetyfehlläufe und getrennte Lifecycle-only-Erfolge bleiben Historie.
+Weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und exakte
+Head-CI sind separat offen; teilweise validiert, unveröffentlicht.
+
 ## Aktive Safe-Cast-Welle 2026-10-05
 
 Die ausdrückliche Antwort „Diese sechs Funktionen freigegeben“ autorisiert
@@ -136,7 +153,7 @@ werden in der Modul-Testdokumentation von den finalen Nachweisen getrennt.
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-41 Module sind implementiert. 19 sind `validated`, 22 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
+42 Module sind implementiert. 19 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
 `toolbelt.datetime.date-spine` implementiert D1 mit drei öffentlichen Inline

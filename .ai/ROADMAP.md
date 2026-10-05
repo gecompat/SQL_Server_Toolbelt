@@ -2,6 +2,14 @@
 
 ## Status
 
+JSON Pointer1.0.0 und die anschließende128er-Prioritätsänderung sind einzeln
+freigegeben und umgesetzt. Finale Adapter auf Linux2019/latest CL150 und
+Windows2025/exaktCU8 CL170 bestanden je local/central/Consumer,3072 feste
+APPLY-Oracles,15 Clientreader und42 Lifecyclefälle samt frischem Cleanup-/
+Fixture-/Pinaudit. Frühere Fehlläufe und Lifecycle-only-Scopes bleiben getrennt.
+Weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und exakte
+Head-CI sind separate Nachweise; teilweise validiert, unveröffentlicht.
+
 Die sechs einzeln freigegebenen Safe-Cast-TVFs in `toolbelt.conversion.safe-cast`
 1.0.0 sind implementiert und teilweise validiert. Finale begrenzte Adapter auf
 Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 bestanden local/central/
@@ -31,7 +39,7 @@ XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 41 Module sind implementiert. 19 sind `validated`, 22 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
+abgeschlossen. 42 Module sind implementiert. 19 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Die vollständige lokale Adaptermatrix war am 2026-09-01 auf physischen

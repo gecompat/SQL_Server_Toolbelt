@@ -2,11 +2,19 @@
 
 Stand: 2026-08-24
 
+Datierter Fortschritt 2026-10-05: RI-2026-041 und die anschließende feste128er-
+Prioritätsänderung sind einzeln freigegeben und als native MSTVF umgesetzt.
+Finale begrenzte Linux2019-/Windows2025-Adapter bestehen je3072 APPLY-Oracles,
+15 Clientreader,42 Lifecyclefälle und frischen Bereinigungs-/Fixture-/Pinaudit.
+Frühere Fehlläufe bleiben getrennt; weitere Ziele, Minimalrechte,
+Maximalworkload/Heap und exakteHead-CI separat offen. Teilweise validiert,
+unveröffentlicht; keine Schemafreigabe daraus.
+
 ## Rolle und Verbindlichkeit
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** 41 Module sind implementiert; 19 sind `validated`, 22 sind `partially validated`, 0 sind `not executed`. |
+| Aktueller Projektstand | **Dokumentiert:** 42 Module sind implementiert; 19 sind `validated`, 23 sind `partially validated`, 0 sind `not executed`. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
 | Implementierungsfreigabe | **Abgeschlossen beziehungsweise aktiv:** Die bisher implementierten Einzelkandidaten, W1, W2a, W2b-A und W2c wurden nach ausdrücklicher Freigabe umgesetzt. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |

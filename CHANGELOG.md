@@ -1,5 +1,31 @@
 # CHANGELOG
 
+## 2026-10-05 – JSON Pointer1.0.0 und freigegebener nativer128er-Guard
+
+- Einzeln freigegebene lesende native MSTVF TVF_ResolveJsonPointer mit vier
+  Parametern, vier BIN2-Ergebnisspalten, vollständiger Unicode-/Tiefenpolicy,
+  exakten Keys und getrennten Statuswerten geschrieben; eigener atomarer
+  Lifecycle und Source-abgeleiteter Deploymentgenerator, kein CLR.
+- Offlineverträge, Syntax/Ast und vollständige Dokumentationskopplung bestanden.
+  Zwei native Linux2019-Adapter bestanden Deploy/Repeat und432 Contract-Oracles,
+  scheiterten an ISJSON-Tiefe129. Eigene Bereinigung und Inputpins jeweils
+  unabhängig bestätigt; frühere Fehler bleiben fehlgeschlagen.
+- [Konkrete notwendige Prioritätsänderung](Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
+  anschließend ausdrücklich freigegeben: nonnegative128er-Strukturguard vor
+  Nativevalidation, geschützter Scalarwrapper; bis128 bleibt Syntax vor
+  caller-seitig abgesenktem MaxDepth. Oberfläche sonst unverändert.
+- Historischer separater Lifecycle-Scope vor der Prioritätsänderung auf Linux2019/CL150 und Windows2025/
+  CU8/CL170 erfolgreich: je local/central/Consumer,15 Clientreader,42 Lifecycle-
+  Fälle und frischer Bereinigungs-/Fixture-/Pinaudit. Contract/Safety dabei
+  ausdrücklich nicht ausgeführt; löste damals die noch offene Tiefenpriorität nicht.
+- Finale vollständige Adapter des korrigierten freigegebenen Standes auf
+  Linux2019/CL150 und Windows2025/exaktCU8/CL170 bestanden je local/central/
+  Consumer,3072 feste APPLY-Oracles,15 Clientreader und42 Lifecyclefälle samt
+  frischem Bereinigungs-/Fixture-/Pinaudit. Keine Konfigurations-/Rechte-/
+  Truständerungen. Frühere Fehlläufe und Lifecycle-only-Scopes bleiben getrennt;
+  weitere Ziele, Minimalrechte, Maximalworkload/Heap und exakteHead-CI separat
+  offen. `partially validated`, `unreleased`.
+
 ## 2026-10-05 – Strict Safe Cast / 1.0.0
 
 - Sechs einzeln freigegebene schemagebundene Inline-TVFs für bigint,
@@ -722,7 +748,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-41 Module sind implementiert. 19 sind `validated`, 22 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+42 Module sind implementiert. 19 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

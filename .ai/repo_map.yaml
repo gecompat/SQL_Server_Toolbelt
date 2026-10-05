@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: forty_one_modules_implemented
+  status: forty_two_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -114,6 +114,9 @@ sources_of_truth:
   csv_memory_module: Modules/toolbelt.file.csv-memory/module.yaml
   safe_cast_module: Modules/toolbelt.conversion.safe-cast/module.yaml
   safe_cast_contract: Documentation/Architecture/SAFE_CAST_CONTRACT.md
+  json_pointer_module: Modules/toolbelt.json.pointer/module.yaml
+  json_pointer_contract: Documentation/Architecture/JSON_POINTER_CONTRACT.md
+  json_pointer_depth_policy: Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md
   csv_memory_contract: Documentation/Architecture/CSV_MEMORY_CONTRACT.md
   csv_memory_qualification_workflow: .github/workflows/csv-memory-qualification.yml
   xlsx_reader_proposal: Documentation/Architecture/XLSX_READER_PROPOSAL.md
@@ -317,6 +320,7 @@ module_registry:
     - Modules/toolbelt.validation.semantic-version/module.yaml
     - Modules/toolbelt.conversion.integer-base/module.yaml
     - Modules/toolbelt.conversion.safe-cast/module.yaml
+    - Modules/toolbelt.json.pointer/module.yaml
     - Modules/toolbelt.datetime.calendar-difference/module.yaml
     - Modules/toolbelt.string.directional-trim/module.yaml
     - Modules/toolbelt.conversion.uri-component/module.yaml
@@ -838,6 +842,16 @@ change_impact:
         - Tests/CI/SafeCastLifecycle.Helpers.ps1
       checks:
         - safe_cast_static
+        - markdown_links
+    json_pointer_contract:
+      paths:
+        - Modules/toolbelt.json.pointer/**
+        - Documentation/Architecture/JSON_POINTER_CONTRACT.md
+        - Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md
+        - Tests/CI/run-json-pointer-lab.ps1
+        - Tests/CI/JsonPointerLifecycle.Helpers.ps1
+      checks:
+        - json_pointer_static
         - markdown_links
     xlsx_memory_contract:
       paths:

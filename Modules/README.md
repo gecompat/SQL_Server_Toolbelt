@@ -9,7 +9,7 @@ ist lokal durchsuchbar; die Ausgabe wird in der Dokumentations-CI auf Synchronit
 
 ## Aktueller Status
 
-**41 Module sind implementiert. 19 sind `validated`, 22 sind `partially validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
+**42 Module sind implementiert. 19 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
 abgeleitet.**
 
 ## Implementierte Module
@@ -45,6 +45,7 @@ abgeleitet.**
 | `toolbelt.filesystem.windows` | Windows Filesystem | `1.0.0` | `toolbelt_filesystem` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.json.constructors` | JSON Constructors | `1.2.0` | `toolbelt_json` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.json.path-exists` | JSON Path Exists | `1.0.0` | `toolbelt_json` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.json.pointer` | JSON Pointer Resolution | `1.0.0` | `toolbelt_json` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.capability-catalog` | Module Capability Catalog | `1.0.0` | `toolbelt_metadata` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.identifier` | Identifier and Multipart Name Toolkit | `1.0.0` | `toolbelt_metadata` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.table-clone` | Table Clone Planner, Executor and Data Copy | `4.1.0` | `toolbelt_metadata` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |

@@ -2,9 +2,68 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-41 Module sind implementiert. 19 sind `validated`, 22 sind `partially validated`; 0 sind `not executed`.
+42 Module sind implementiert. 19 sind `validated`, 23 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
+
+### RI-2026-041: JSON Pointer – einzeln freigegeben 2026-10-05
+
+Nach konkreter Besprechung und Design-/Enginevorprüfung in
+[PR173](https://github.com/gecompat/SQL_Server_Toolbelt/pull/173) antwortete der
+Benutzer ausdrücklich „Diese Pointer-Funktion freigegeben“. Genau eine lesende
+T-SQL-MSTVF `toolbelt_json.TVF_ResolveJsonPointer`: Json/Pointer nvarchar(max),
+MaxInputBytes bigint=16777216, MaxDepth int=128; positiv und nur absenkbar,
+Pointer höchstens4000 UTF16-Einheiten. Genau eine Status/JsonType/Value/ErrorCode-
+Zeile mit FOUND/MISSING/JSON_NULL/SQL_NULL/INVALID und besprochener Priorität.
+Exakte Keys, passende Duplicatekeys ungültig, vollständige Unicode-/Tiefenprüfung,
+native ISJSON/OPENJSON-Grammatik plus Policywalker; keine CLR-Änderung.
+Fragmentkosten und API-/Lifecyclequalifikation sind ausdrücklich eingeschlossen.
+Der [kanonische Vertrag](../Documentation/Architecture/JSON_POINTER_CONTRACT.md)
+begrenzt die autonome Umsetzung einschließlich Review, begrenzter Tests,
+exakter Head-CI, PR/Merge und eigenem Branch-Cleanup. Keine Schema-, Patch-,
+Providerwechsel- oder Veröffentlichungsgenehmigung. Status: aktive Umsetzung;
+keine öffentliche API-Runtimequalifikation allein aus der Freigabe abgeleitet.
+Ältere offene Pointer-Sourcegate-Aussagen bleiben Historie; diese datierte
+Einzelzustimmung ersetzt ausschließlich deren Freigabegrenze.
+
+Native Vertragsgrenze 2026-10-05: SQL2019-ISJSON wirft bei129 offenen
+Containern SQL13606/state1, sowohl für gültiges als auch fehlerhaftes JSON.
+Zwei begrenzte Adapter scheiterten in Safety; der zweite isolierte Fall41.
+Je FAILED_CLEANED, eigene DB über neue Verbindung abwesend und Inputpins
+unverändert; kein vollständiger Sicherheits-/Client-/Lifecycle-PASS.
+Der [konkrete Änderungsvorschlag](../Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md)
+führt einen vorgelagerten festen128er-Guard mit DEPTH_LIMIT vor JSON_SYNTAX
+nur jenseits dieser nativen Grenze ein. Zustimmung zu dieser neuen Priorität
+steht aus; die bestehende Funktionsfreigabe bleibt gültig. Unabhängige
+Lifecycle-/Dokumentationsarbeit darf fortgesetzt werden.
+Separater Lifecycle-Scope auf Linux2019/latest CL150 und Windows2025/exaktCU8
+CL170 anschließend bestanden: je local/central/Consumer,15 direkte Clientreader,
+42 gezielte Lifecyclefälle, Exit0 und vollständige Kanäle mit leeremStderr.
+Frische unabhängige Audits bestätigen je drei eigeneDBs abwesend, je zwei
+Marker-/Fremdslot-/Dependencyfixtures exakt restauriert mit zwei Abweisungen
+und sämtlicheInputpins unverändert; Nullscope Konfiguration/Rechte/Trust.
+Contract/Safety-Fixtures in diesem Scope ausdrücklich nicht ausgeführt;
+die notwendige Prioritätszustimmung bleibt offen.
+
+Anschließende konkrete Zustimmung 2026-10-05: Der Benutzer antwortete
+„Diese Prioritätsänderung freigegeben“. Damit ist genau der vorgelagerte
+nonnegative128er-Strukturguard mit DEPTH_LIMIT auch vor fehlerhafter Syntax
+jenseits128 und der geschützte Scalarwrapper freigegeben. Bis128 bleibt
+JSON_SYNTAX vor caller-seitig abgesenktem MaxDepth; sonstige Oberfläche und
+Semantik unverändert. Sourcekorrektur und neue vollständige Qualifikation
+werden autonom fortgesetzt. Die vorherigen offenen Aussagen dokumentieren
+den Stand vor dieser ausdrücklichen Antwort, die Fehlläufe bleiben Historie.
+Finaler freigegebener Guard-/Wrapperstand auf Linux2019/latest CL150 und
+Windows2025/exaktCU8 CL170 vollständig im begrenzten local/central/Consumer-
+Scope bestanden: je3072 feste Contract-/Safety-APPLY-Oracles,15 direkte
+Clientreader,42 Lifecyclefälle und Erst-/Repeat-/Uninstall-/Repeat. Je Exit0,
+vollständige Kanäle und leeresStderr. Frische Audits bestätigen COMPLETE42,
+je drei eigeneDBs abwesend, je zwei Marker-/Fremdslot-/Dependencyfixtures
+exakt restauriert mit je zwei Abweisungen und sämtlicheInputpins unverändert.
+Nullscope Konfiguration/Rechte/Trust. Beide finalen Zieladapter verwenden
+identische eingefrorene Repository-Inputs. Weitere Ziele, Minimalrechte,
+16MiB-Maximalworkload/Heap und exakteHead-CI separat offen; teilweise validiert,
+unveröffentlicht. Frühere Fehlläufe bleiben fehlgeschlagen.
 
 ### RI-2026-076: sechs Safe-Cast-TVFs – einzeln freigegeben 2026-10-05
 

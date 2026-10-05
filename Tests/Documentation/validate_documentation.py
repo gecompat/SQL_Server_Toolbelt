@@ -1360,6 +1360,14 @@ def run_safe_cast_static() -> None:
         raise ValidationError("Statische Safe-Cast-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
 
 
+def run_json_pointer_static() -> None:
+    script = REPOSITORY_ROOT / "Modules/toolbelt.json.pointer/Tests/Static/validate_contract.py"
+    result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+                            check=False, capture_output=True, text=True, encoding="utf-8")
+    if result.returncode != 0:
+        raise ValidationError("Statische JSON-Pointer-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
+
+
 def run_regex_static() -> None:
     script = (
         REPOSITORY_ROOT
@@ -1704,6 +1712,8 @@ def main() -> int:
         run_csv_memory_static()
     if "safe_cast_static" in checks:
         run_safe_cast_static()
+    if "json_pointer_static" in checks:
+        run_json_pointer_static()
     if "regex_static" in checks:
         run_regex_static()
     if "identifier_runtime_workflow_scope" in checks:

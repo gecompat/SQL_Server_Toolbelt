@@ -2,6 +2,13 @@
 
 Stand: 2026-09-11
 
+Fortschritt 2026-10-05: RI-2026-041 und die notwendige128er-Prioritätsänderung
+sind einzeln freigegeben und umgesetzt. Finale Linux2019-/Windows2025-Adapter
+bestehen local/central/Consumer mit je3072 APPLY-Oracles,15 Clientreadern,
+42 Lifecyclefällen und frischem Bereinigungs-/Fixture-/Pinaudit. Frühere
+Fehlläufe bleiben getrennt; weitere Ziele, Minimalrechte, Maximalworkload/Heap
+und exakteHead-CI separat offen. Teilweise validiert und unveröffentlicht.
+
 Dieser Plan zerlegt die Kandidaten aus
 [`TOOLBELT_CANDIDATES.md`](./TOOLBELT_CANDIDATES.md) in mögliche Module,
 öffentliche SQL-Objekte, interne beziehungsweise externe Provider-Artefakte,
@@ -9,7 +16,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 41 Module sind implementiert; 19 sind `validated`, 22 sind `partially validated`, 0 sind `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 42 Module sind implementiert; 19 sind `validated`, 23 sind `partially validated`, 0 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
