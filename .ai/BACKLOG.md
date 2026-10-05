@@ -1962,3 +1962,14 @@ Am 2026-10-04 bestand ein privater Qualifikationsadapter auf SQL Server 2019 Lin
 Dies ist ein begrenzter privater Adapternachweis, kein vollständiger öffentlicher Labadapter- oder Produkt-PASS. Zentrale1.2-Nutzung, genuine1.0→1.2, weitere CL/Ziele, vollständige Lifecycle-/Kollisionsmatrix, Minimalrechte, Heap und aktuelle exakte Head-CI bleiben offen. Status bleibt `partially validated`, `unreleased`. Keine neue Rechte-/Providergrenze.
 
 Historische 1.0-/1.1-Nachweise bleiben getrennt. [Vertrag](../Documentation/Architecture/XLSX_CELL_DISPLAY_CONTRACT.md).
+
+Ergänzung 2026-10-05, Codex: Der öffentliche Adapter-Slice
+`DisplayCentral10Upgrade` bestand zentral auf Linux2019/latest CL150:
+genuine1.0→1.2 mit frischer Session, neun Slots/vier CLR-Bindings, Display-Lifecycle,
+Repeat, installierte Display.Contract/Safety sowie Clientmetadaten und
+Raw→Type→Display aus frischer Consumerdatenbank. Confirm0/Uninstall, äußerer
+eigener Prozesswatchdog und unabhängiger frischer OwnDB-/OwnTrustaudit bestanden;
+keine Konfigurations-/Rechteänderungen. Diese konkreten zentralen Lücken sind
+geschlossen; vollständige Lifecycle-/Kollisionsmatrix, weitere Ziele,
+Minimalrechte und Heap bleiben offen. Status weiterhin teilweise validiert und
+unreleased; keine neue fachliche API oder Providerfreigabe.

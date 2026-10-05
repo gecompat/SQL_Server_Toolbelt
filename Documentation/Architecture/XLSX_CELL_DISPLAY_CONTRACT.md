@@ -4,7 +4,7 @@ Stand 2026-10-03. Konkreter Vertragsumfang und Implementierung sind ausdrücklic
 freigegeben. Bestätigt sind die drei expliziten Kulturen, half-away-from-zero,
 Datetimecarry/time24h-Status8 und die unveränderte Typquote. Additive Version1.2.0
 im bestehenden SAFE-Provider, keine neue fachliche API außerhalb dieser TVF.
-Begrenzte aktuelle Offline- und lokale Nativequalifikation vom 2026-10-04 bestanden; zentrale1.2-Nutzung, vollständige Matrix, Minimalrechte und aktuelle Head-CI bleiben offen.
+Begrenzte Offline-/lokale Nativequalifikation vom 2026-10-04 und zentrale Upgrade-/Consumerqualifikation auf Linux2019 vom 2026-10-05 bestanden; vollständige Matrix, Minimalrechte und aktuelle Head-CI bleiben separate Gates.
 Kein vollständiger Produktnachweis; historische Kern-/Transportproben bleiben getrennt.
 Nur öffentliche Quellen und synthetische Beispiele.
 
@@ -278,3 +278,23 @@ erkennbar; keine Veröffentlichung ist freigegeben.
 Am 2026-10-04 bestand ein privater Qualifikationsadapter auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170 jeweils ausschließlich lokal: Clean1.2 und genuine installierte1.1→1.2 mit frischer Session, drei→vier CLR-Bindings und sieben→neun Slots am identischen aktuellen Binary. Je Ziel bestanden zwölf SQL-Fixtures, sechs Display-Clientprüfungen und zwei Raw→Type-/Raw→Type→Display-Kompositionen, Repeat sowie Uninstall/Repeat. Zwei eigene Datenbanken wurden entfernt und drei exakte Trust-Vorzustände wiederhergestellt; frische unabhängige Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte- oder Owneränderungen.
 
 Dies ist ein begrenzter privater Adapternachweis, kein vollständiger öffentlicher Labadapter- oder Produkt-PASS. Zentrale1.2-Nutzung, genuine1.0→1.2, weitere CL/Ziele, vollständige Lifecycle-/Kollisionsmatrix, Minimalrechte, Heap und aktuelle exakte Head-CI bleiben offen. Status bleibt `partially validated`, `unreleased`.
+
+## Ergänzende zentrale Qualifikation 2026-10-05
+
+`Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentral10Upgrade`
+bestand auf Linux2019/latest CL150 zentral. Ein echter gepinnter Vorgänger1.0
+wurde mit frischer Upgrade-Session auf1.2 aktualisiert: fünf→neun Slots und
+zwei→vier CLR-Bindings, Release-/SAFE-Bindingzuordnung und Repeat bestanden.
+Display.Contract/Safety liefen in der Installationsdatenbank; eine frische,
+anders collierte Consumerdatenbank prüfte die dreiteiligen Clientmetadaten und
+Raw→Type→Display-Komposition. Die Confirm0-Abweisung bewahrte den Snapshot;
+Uninstall und die frische OwnDB-/Trustdisposition bestanden.
+
+Der finale Lauf hatte einen äußeren eigenen Prozesswatchdog, Exit0 und
+vollständige private Ausgabekanäle. Zwei eigene Datenbanken wurden entfernt,
+drei exakte Trust-Vorzustände wiederhergestellt; ein unabhängiger Audit über eine
+neue Verbindung bestätigte OwnDB-/OwnTrustabwesenheit. Keine Konfigurations- oder
+Rechteänderungen. Diese Ergänzung schließt die genannten zentralen Upgrade- und
+Consumerlücken für dieses Ziel. Vollständige Lifecycle-/Kollisionsmatrix,
+weitere CL/Ziele, Minimalrechte und Heap bleiben offen. CI wird separat am
+exakten PR-Head geprüft; Status bleibt `partially validated`, `unreleased`.

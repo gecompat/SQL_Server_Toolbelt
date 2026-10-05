@@ -68,9 +68,9 @@ Exakte SHA2-512-Werte werden in den reproduzierbaren, lokal erzeugten Release-/T
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-04`
-- Nachweis: `local: private original-SQL XLSX1.2 qualification adapter`
-- Scope: Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 nur lokal, identisches aktuelles Binary: je Clean1.2 und genuine installierte1.1→1.2 frischeSession,3→4CLR-Bindings/7→9Slots,12SQL-Fixtures/6Display-Clientchecks/2Kompositionen,Repeat/UninstallRepeat;2eigeneDBs entfernt/3Trust-Vorzustände wiederhergestellt und frischer unabhängiger Cleanup-Audit.0Config/Rechte/Owneränderungen. Kein vollständiger öffentlicher Labadapter-/Produkt-PASS; central1.2,genuine1.0→1.2,weitereCL/Ziele,vollständigeLifecycle-/Kollisionsmatrix,Minimalrechte,Heap und aktuelleHeadCI offen. Historische Fehlläufe bleiben FAILED; partially validated/unreleased.
+- Datum: `2026-10-05`
+- Nachweis: `local: Tests/CI/run-xlsx-types-lab.ps1 -QualificationScope DisplayCentral10Upgrade`
+- Scope: Linux2019/latest zentral CL150: genuine1.0→1.2 mit frischer Upgrade-Session, fünf→neun Slots/zwei→vier CLR-Bindings, Display.Lifecycle, Repeat; Display.Contract/Safety nur installiert, Display.Metadata und Raw→Type→Display aus frischer Consumerdatenbank; Confirm0-Abweisung mit unverändertem Snapshot, Uninstall und frische OwnDB-/Trustdisposition. Äußerer eigener Prozesswatchdog, Exit0 und vollständige private Kanäle; zwei eigene DBs entfernt, drei exakte Trust-Vorzustände wiederhergestellt, keine Konfigurations-/Rechteänderungen. Vollmatrix, zusätzliche Lifecycle-/Kollisionsfälle, Minimalrechte, Heap und andere Ziele offen; partially validated/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -97,6 +97,25 @@ Der öffentliche Labadapter verlangt zusätzlich `Legacy11Directory` und
 Genuine Quellen bleiben Original-Gitblobs, keine Marker-Umetikettierung.
 Default sind drei Types- und drei Display-Fixtures je ausgewählter CL/Modus;
 Displayclient und Raw→Type→Display-Komposition werden zusätzlich gebunden.
+
+Der Opt-in `-QualificationScope DisplayCentral10Upgrade` begrenzt den Adapter
+auf Linux2019/latest, zentral und CL150. Er installiert genuine1.0 und führt
+ein Upgrade auf1.2 über eine frische Session aus. Danach folgen Display.Lifecycle,
+neun Slots/vier CLR-Bindings, Repeat, Display.Contract/Safety ausschließlich in
+der Installationsdatenbank sowie Display.Metadata und Raw→Type→Display aus
+einer frischen Consumerdatenbank. Confirm0-Abweisung, Uninstall und die
+vorhandenen Ownership-/Cleanupgates bleiben aktiv. Legacy1.1 wird weiterhin
+offline gepinnt, erhält in diesem Slice aber keinen Trusteintrag. `Full`
+bleibt der unveränderte Default; der Slice behauptet dessen übrige Fälle nicht.
+
+Am 2026-10-05 bestand dieser Scope mit äußerem eigenem Prozesswatchdog, Exit0
+und vollständigen privaten Kanälen. Zwei eigene Datenbanken wurden entfernt,
+drei exakte Trust-Vorzustände wiederhergestellt; ein unabhängiger Audit über eine
+neue Verbindung bestätigte OwnDB-/OwnTrustabwesenheit. Keine Konfigurations- oder
+Rechteänderungen. Damit sind zentrale1.2-Consumerverwendung und genuine1.0→1.2
+für Linux2019/latest CL150 begrenzt qualifiziert. Weitere Ziele, vollständige
+Lifecycle-/Kollisionsmatrix, Minimalrechte und Heap bleiben offen.
+
 Am 2026-10-04 bestand ein privater Qualifikationsadapter auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170 jeweils ausschließlich lokal: Clean1.2 und genuine installierte1.1→1.2 mit frischer Session, drei→vier CLR-Bindings und sieben→neun Slots am identischen aktuellen Binary. Je Ziel bestanden zwölf SQL-Fixtures, sechs Display-Clientprüfungen und zwei Raw→Type-/Raw→Type→Display-Kompositionen, Repeat sowie Uninstall/Repeat. Zwei eigene Datenbanken wurden entfernt und drei exakte Trust-Vorzustände wiederhergestellt; frische unabhängige Bereinigungsprüfungen bestanden. Keine Konfigurations-, Rechte- oder Owneränderungen.
 
 Dies ist ein begrenzter privater Adapternachweis, kein vollständiger öffentlicher Labadapter- oder Produkt-PASS. Zentrale1.2-Nutzung, genuine1.0→1.2, weitere CL/Ziele, vollständige Lifecycle-/Kollisionsmatrix, Minimalrechte, Heap und aktuelle exakte Head-CI bleiben offen. Status bleibt `partially validated`, `unreleased`.
