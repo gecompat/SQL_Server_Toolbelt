@@ -23,6 +23,6 @@ Deploymentskripte ändern Trust weiterhin nicht automatisch.
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
 - Nachweis: `local: run-json-schema-lab.ps1 Windows CL150/160`
-- Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central: Core-/Schema-Scope, Repeat, zwei Consumer-Abweisungen, Coreidentität nach Schema-DROP und eigenes DB-/Trustcleanup bestanden. Frische hashgebundene read-only Dispositionaudits bestanden. Keine neue Constructorsmigration oder volle Ziel-/Rechtematrix.
+- Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central: Core-/Schema-Scope, Repeat, zwei Consumer-Abweisungen, Coreidentität nach Schema-DROP und eigenes DB-/Trustcleanup bestanden. Frische hashgebundene read-only Dispositionaudits bestanden. Genuine1.2→1.3 separat auf beiden zusätzlichen Windowslevels local/central mit post-DROP-Rollback, Annotationserhalt und frischem Dispositionaudit bestanden. Weitere Ziel-/Rechtematrix offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

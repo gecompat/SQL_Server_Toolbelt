@@ -29,6 +29,6 @@ und6282-Migrationsfehlläufe bleiben getrennte Fehlerhistorie.
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
 - Nachweis: `local: run-json-schema-lab.ps1 Windows CL150/160`
-- Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central:30 Contractfälle, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Je frischer hashgebundener Dispositionaudit bestanden; keine Konfigurations-/Rechte-/Owneränderungen. Constructorsmigration auf diesen Levels nicht ausgeführt; weitere physische Ziele und Minimalrechte offen.
+- Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central:30 Contractfälle, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Je frischer hashgebundener Dispositionaudit bestanden; keine Konfigurations-/Rechte-/Owneränderungen. Genuine1.2→1.3 separat auf beiden zusätzlichen Windowslevels local/central mit Schema30-Fixture und frischem Dispositionaudit bestanden; weitere physische Ziele und Minimalrechte offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
