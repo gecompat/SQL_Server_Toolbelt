@@ -14,6 +14,10 @@ from typing import Any
 
 
 CONTRACT = "foundation-ai-work/v1"
+SESSION_CONTRACT = "foundation-session-lifecycle/v1"
+SESSION_ROLES = {"ORCHESTRATOR", "WORKER", "RESEARCH", "OTHER"}
+SESSION_BOUNDARIES = {"NONE", "WORK_ITEM_COMPLETED", "MILESTONE_COMPLETED", "MAJOR_TOPIC_CHANGE", "USER_REQUESTED"}
+SUCCESSOR_CAPABILITIES = {"AUTOMATIC", "MANUAL", "UNKNOWN"}
 DATA_CLASSES = {"PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"}
 RISKS = {"LOW", "MODERATE", "HIGH", "CRITICAL"}
 BOUNDARIES = {"PROCESS", "HOST", "LOCAL_NETWORK", "REMOTE", "UNKNOWN", "HUMAN"}
@@ -548,6 +552,149 @@ def gap_report(request_raw: Any, capabilities_raw: Any, *, at: datetime | None =
     }
 
 
+
+def _optional_nonnegative_int(value: Any, field: str, *, positive: bool = False) -> int | None:
+    if value is None:
+        return None
+    minimum = 1 if positive else 0
+    if isinstance(value, bool) or not isinstance(value, int) or value < minimum:
+        qualifier = "positive" if positive else "non-negative"
+        raise WorkError(f"{field} must be null or a {qualifier} integer")
+    return value
+
+
+def validate_session_lifecycle_request(raw: Any) -> dict[str, Any]:
+    fields = {
+        "schema_version", "contract", "session_id", "role", "metrics", "boundary",
+        "policy", "successor_session_capability",
+    }
+    value = require_fields(raw, fields, fields, "session lifecycle request")
+    if isinstance(value["schema_version"], bool) or value["schema_version"] != 1 or value["contract"] != SESSION_CONTRACT:
+        raise WorkError(f"session lifecycle request must use {SESSION_CONTRACT}")
+    if not isinstance(value["session_id"], str) or not value["session_id"]:
+        raise WorkError("session_id must be a non-empty string")
+    if not isinstance(value["role"], str) or value["role"] not in SESSION_ROLES:
+        raise WorkError("role is invalid")
+    if not isinstance(value["boundary"], str) or value["boundary"] not in SESSION_BOUNDARIES:
+        raise WorkError("boundary is invalid")
+    if not isinstance(value["successor_session_capability"], str) or value["successor_session_capability"] not in SUCCESSOR_CAPABILITIES:
+        raise WorkError("successor_session_capability is invalid")
+
+    metrics = require_fields(
+        value["metrics"],
+        {"estimated_context_tokens", "context_window_tokens", "tokens_since_checkpoint"},
+        {"estimated_context_tokens", "context_window_tokens", "tokens_since_checkpoint"},
+        "metrics",
+    )
+    estimated = _optional_nonnegative_int(metrics["estimated_context_tokens"], "metrics.estimated_context_tokens")
+    context_window = _optional_nonnegative_int(metrics["context_window_tokens"], "metrics.context_window_tokens", positive=True)
+    delta = _optional_nonnegative_int(metrics["tokens_since_checkpoint"], "metrics.tokens_since_checkpoint")
+
+    policy = require_fields(
+        value["policy"],
+        {"soft_context_ratio", "hard_context_ratio", "checkpoint_delta_tokens"},
+        {"soft_context_ratio", "hard_context_ratio", "checkpoint_delta_tokens"},
+        "policy",
+    )
+    soft = number(policy["soft_context_ratio"], "policy.soft_context_ratio")
+    hard = number(policy["hard_context_ratio"], "policy.hard_context_ratio")
+    if soft <= 0 or soft > 1 or hard <= 0 or hard > 1 or hard <= soft:
+        raise WorkError("policy ratios must satisfy 0 < soft_context_ratio < hard_context_ratio <= 1")
+    checkpoint_delta = _optional_nonnegative_int(
+        policy["checkpoint_delta_tokens"], "policy.checkpoint_delta_tokens", positive=True
+    )
+    if checkpoint_delta is None:
+        raise WorkError("policy.checkpoint_delta_tokens must be a positive integer")
+
+    return {
+        "schema_version": 1,
+        "contract": SESSION_CONTRACT,
+        "session_id": value["session_id"],
+        "role": value["role"],
+        "metrics": {
+            "estimated_context_tokens": estimated,
+            "context_window_tokens": context_window,
+            "tokens_since_checkpoint": delta,
+        },
+        "boundary": value["boundary"],
+        "policy": {
+            "soft_context_ratio": float(soft),
+            "hard_context_ratio": float(hard),
+            "checkpoint_delta_tokens": checkpoint_delta,
+        },
+        "successor_session_capability": value["successor_session_capability"],
+    }
+
+
+def session_lifecycle(request_raw: Any) -> dict[str, Any]:
+    request = validate_session_lifecycle_request(request_raw)
+    metrics = request["metrics"]
+    policy = request["policy"]
+    ratio = None
+    if metrics["estimated_context_tokens"] is not None and metrics["context_window_tokens"] is not None:
+        try:
+            ratio = metrics["estimated_context_tokens"] / metrics["context_window_tokens"]
+        except OverflowError as exc:
+            raise WorkError("context_ratio exceeds the supported numeric range") from exc
+
+    hard_context = ratio is not None and ratio >= policy["hard_context_ratio"]
+    soft_context = ratio is not None and ratio >= policy["soft_context_ratio"]
+    delta_due = (
+        metrics["tokens_since_checkpoint"] is not None
+        and metrics["tokens_since_checkpoint"] >= policy["checkpoint_delta_tokens"]
+    )
+    boundary = request["boundary"]
+    natural_boundary = boundary in {"WORK_ITEM_COMPLETED", "MILESTONE_COMPLETED", "MAJOR_TOPIC_CHANGE"}
+
+    reasons: list[str] = []
+    if boundary == "USER_REQUESTED":
+        action = "ROTATE_REQUIRED"
+        reasons.append("USER_REQUESTED_ROTATION")
+    elif hard_context:
+        action = "ROTATE_REQUIRED"
+        reasons.append("HARD_CONTEXT_RATIO_REACHED")
+    elif soft_context and natural_boundary:
+        action = "ROTATE_AT_BOUNDARY"
+        reasons.append("NATURAL_BOUNDARY")
+    elif soft_context or delta_due:
+        action = "CHECKPOINT"
+    else:
+        action = "CONTINUE"
+        reasons.append("NO_ROTATION_TRIGGER")
+
+    if soft_context:
+        reasons.append("SOFT_CONTEXT_RATIO_REACHED")
+    if delta_due:
+        reasons.append("CHECKPOINT_DELTA_REACHED")
+
+    successor_required = action in {"ROTATE_AT_BOUNDARY", "ROTATE_REQUIRED"}
+    if successor_required and request["successor_session_capability"] == "AUTOMATIC":
+        successor_mode = "AUTOMATIC"
+    elif successor_required:
+        successor_mode = "MANUAL"
+        if request["successor_session_capability"] == "UNKNOWN":
+            reasons.append("SUCCESSOR_SESSION_AUTOMATION_UNATTESTED")
+    else:
+        successor_mode = "NONE"
+
+    return {
+        "schema_version": 1,
+        "contract": SESSION_CONTRACT,
+        "session_id": request["session_id"],
+        "role": request["role"],
+        "action": action,
+        "context_ratio": ratio,
+        "reason_codes": sorted(set(reasons)),
+        "semantic_scan_required": False,
+        "handoff_scope": "DELTA_SINCE_CHECKPOINT" if action != "CONTINUE" else "NONE",
+        "successor_session": {
+            "required": successor_required,
+            "mode": successor_mode,
+            "role": request["role"] if successor_required else None,
+        },
+    }
+
+
 def load_json(path: str) -> Any:
     try:
         return json.loads(Path(path).read_text(encoding="utf-8"))
@@ -573,17 +720,23 @@ def main(argv: list[str] | None = None) -> int:
         command.add_argument("--request", required=True)
         command.add_argument("--capabilities", required=True)
         command.add_argument("--at", help="ISO-8601 planning time for deterministic replay")
+    session = sub.add_parser("session")
+    session.add_argument("--request", required=True)
     args = parser.parse_args(argv)
     try:
         request = load_json(args.request)
-        capabilities = catalog_items(load_json(args.capabilities))
-        at = parse_datetime(args.at, "--at") if args.at else None
-        result = plan(request, capabilities, at=at) if args.command == "plan" else gap_report(request, capabilities, at=at)
+        if args.command == "session":
+            result = session_lifecycle(request)
+        else:
+            capabilities = catalog_items(load_json(args.capabilities))
+            at = parse_datetime(args.at, "--at") if args.at else None
+            result = plan(request, capabilities, at=at) if args.command == "plan" else gap_report(request, capabilities, at=at)
         json.dump(result, sys.stdout, indent=2, sort_keys=True, ensure_ascii=False)
         sys.stdout.write("\n")
         return 0
     except WorkError as exc:
-        print(json.dumps({"contract": CONTRACT, "status": "BLOCKED", "error": str(exc)}, sort_keys=True), file=sys.stderr)
+        contract = SESSION_CONTRACT if args.command == "session" else CONTRACT
+        print(json.dumps({"contract": contract, "status": "BLOCKED", "error": str(exc)}, sort_keys=True), file=sys.stderr)
         return 2
 
 

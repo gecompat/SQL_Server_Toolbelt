@@ -637,3 +637,27 @@ Annotationserhalt, genuine Migration und vier aktuelle Constructor-Fixtures
 bestanden auf beiden genannten Zielen local/central. Der verworfene komplette
 achtteilige Slotneubau bleibt ausgeschlossen. Frühere Fehler und historische
 1.2-Verträge bleiben unverändert; [native Evidenz](../../Modules/toolbelt.json.schema/Tests/NATIVE_EVIDENCE.md).
+
+## Datierter Entscheidungsstand2026-10-05: Foundation1.19 und sichere CI-Ablösung
+
+Stabile Feature-Referenzen: `ci-supersession-and-integration-queue` und
+`session-lifecycle-management`; keine neue finale Sequenz-ID.
+Status: accepted im Rahmen des ausdrücklichen Integrationsprüfungsauftrags.
+
+Entscheidung: Exakte Foundation1.19-Quelle und bestehende Auswahl integrieren;
+24 mutierende Runtime-/Qualification-Workflows erhalten laufende Prüfungen.
+Die bestehende CI-Gruppierung, exakte Headabnahme und rein lesende
+Dokumentationsablösung bleiben bestehen. Sessionsteuerung verwendet nur
+belegte Metadaten und unreconciled Delta plus dauerhafte Referenzen.
+
+Begründung: Bestehende EXIT-Traps belegen keine Bereinigung nach harter
+Unterbrechung. Unbekannte Sessionmetriken rechtfertigen keine erfundenen
+Thresholds oder automatische Clientrotation. Scope sind Foundationintegration,
+Projekt-Arbeitsregeln und CI-Abbruchkonfiguration; kein SQL-Produktvertrag.
+Auswirkungen: Laufende Runtimeprüfungen können länger bestehen bleiben;
+abgebrochene Läufe bleiben unvalidiert. Keine neue Ausführungsautorität.
+Alternativen: Hard-Interrupt-Cancellation erst nach belegtem Recoveryvertrag;
+Merge Queue, konkrete Sessionthresholds und automatische Nachfolgesitzungen
+bleiben optionale spätere Entscheidungen.
+Betroffene Verträge: `.ai/WORKING_RULES.md`, Foundation-Continuity und
+AI-Work, Workflow-Concurrency. [Bewertung und Nachweise](FOUNDATION_1_19_INTEGRATION.md).

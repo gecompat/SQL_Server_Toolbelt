@@ -23,7 +23,8 @@ permissions:
 
 concurrency:
   group: sql-clr-zip-spike-${{ github.ref }}
-  cancel-in-progress: true
+  # Laufende Runtimeprüfung erhalten: keine belegte Hard-Interrupt-Bereinigung.
+  cancel-in-progress: false
 
 jobs:
   static-contract:

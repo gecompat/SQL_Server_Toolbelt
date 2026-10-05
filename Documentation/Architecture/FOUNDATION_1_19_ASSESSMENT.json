@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "installed_version": "1.17.2",
+  "source_version": "1.19.0",
+  "source_ref": "4aafd20442275d0fdedf291fc6e12e8fe1f683cc",
+  "assessments": [
+    {
+      "feature_id": "ci-supersession-and-integration-queue",
+      "candidate_reasons": ["introduced_in:1.18.0"],
+      "classification": "RECOMMENDED",
+      "evidence": [".github/workflows", ".ai/WORKING_RULES.md", "Tests/CI"],
+      "rationale": "Runtime-Workflows mutieren synthetische SQL-/Containerressourcen. EXIT-Traps allein belegen keine idempotente Bereinigung nach harter Unterbrechung. Bestehende exakte Headabnahme ist kompatibel.",
+      "recommendation": "Laufende Runtime- und Qualification-Pruefungen erhalten; nur ungestartete vollstaendig ersetzte PR-Pruefungen abloesen. Vorhandene Concurrency-Gruppen erhalten; cancelled niemals als PASS behandeln.",
+      "decision_required": "Eine spaetere automatische Hard-Interrupt-Cancellation oder Merge Queue benoetigt einen konkreten belegten Recovery-/Integrationsvertrag; hier nicht aktiviert.",
+      "selected_capabilities": []
+    },
+    {
+      "feature_id": "session-lifecycle-management",
+      "candidate_reasons": ["introduced_in:1.19.0"],
+      "classification": "RECOMMENDED",
+      "evidence": ["AGENTS.md", ".ai/WORKING_RULES.md", ".ai/foundation/ai_work/ai_work.py", ".ai/foundation/installation-provenance.json"],
+      "rationale": "Langlaufende autonome Arbeit und wiederholte native Instruction-Discovery profitieren vom metadatenbasierten Delta-/Referenzvertrag. Konkrete Tokenmetriken und automatische Clientrotation sind nicht belegt.",
+      "recommendation": "Sessionvertrag ohne laufenden Chat-Gesamtscan uebernehmen; unbekannte Metriken unbekannt lassen und nur dauerhafte Referenzen plus unreconciled Delta verwenden.",
+      "decision_required": "Konkrete Projektthresholds, persistierte Handoffdaten oder automatische Client-Nachfolgesitzungen bleiben spaetere optionale Entscheidungen; normale Arbeit setzt sie nicht voraus.",
+      "selected_capabilities": ["ai-work"]
+    }
+  ]
+}

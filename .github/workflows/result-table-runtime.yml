@@ -26,7 +26,8 @@ permissions:
 
 concurrency:
   group: result-table-runtime-${{ github.ref }}
-  cancel-in-progress: true
+  # Laufende Runtimeprüfung erhalten: keine belegte Hard-Interrupt-Bereinigung.
+  cancel-in-progress: false
 
 jobs:
   static-contract:

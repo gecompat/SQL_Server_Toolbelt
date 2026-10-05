@@ -10,7 +10,8 @@ permissions:
   contents: read
 concurrency:
   group: edit-distance-${{ github.ref }}
-  cancel-in-progress: true
+  # Laufende Runtimeprüfung erhalten: keine belegte Hard-Interrupt-Bereinigung.
+  cancel-in-progress: false
 jobs:
   offline:
     runs-on: windows-latest

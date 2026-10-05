@@ -22,7 +22,8 @@ permissions:
   contents: read
 concurrency:
   group: csv-memory-qualification-${{ github.ref }}
-  cancel-in-progress: true
+  # Laufende Runtimeprüfung erhalten: keine belegte Hard-Interrupt-Bereinigung.
+  cancel-in-progress: false
 jobs:
   qualification:
     runs-on: windows-2022
