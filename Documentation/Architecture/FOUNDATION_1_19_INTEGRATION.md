@@ -82,4 +82,18 @@ historischen Queue-Capture auf. Diese unabhängige Testkopplung wurde separat
 in [PR178](https://github.com/gecompat/SQL_Server_Toolbelt/pull/178) korrigiert
 und nach vier erfolgreichen exakten Headchecks gemergt, einschließlich echter
 Queue2.0→2.1-Migration. Der frühere Foundation-PR-Workerlauf bleibt fehlgeschlagen;
-der darauf aktualisierte Foundationstand benötigt eigene aktuelle Headchecks.
+der darauf aktualisierte Foundationstand benötigte eigene aktuelle Headchecks.
+
+## Abschluss der Integrationsprüfung
+
+[PR177](https://github.com/gecompat/SQL_Server_Toolbelt/pull/177) wurde am
+2026-10-05 nach 26 erfolgreichen Workflows auf dem exakten Head
+`45b855a693741f26461d35d62678ea76c726f3e3` als
+`2c4c5e84ce7ee1e8d2a5ae7effaec57d846cfbcd` nach `main` gemergt. Dazu
+gehört der zuvor fehlende SQL-Server-2025-Linux-CL150-Lauf der Deterministic
+Mapping CI. Frühere wegen Runner-Zuweisung abgebrochene Läufe und der erste
+Regex-Zeitfehler bleiben getrennte Historie; sie wurden nicht als Erfolg
+gewertet. Der gemergte Stand, die Foundation-Provenienz und die unveränderten
+Projektregeln wurden geprüft. Diese Abnahme belegt die Foundation-Integration
+und ihre betroffenen CI-Verträge, keine allgemeine SQL-Releasequalifikation
+oder Wiederherstellung nach hartem Abbruch.
