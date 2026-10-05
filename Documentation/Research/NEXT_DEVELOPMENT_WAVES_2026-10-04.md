@@ -774,3 +774,147 @@ allein kann damit OUT_OF_RANGE und LOSSY nicht wie vorgeschlagen unterscheiden.
 Die exakte vorgelagerte Betragsklassifikation ist weiter ein Entwurf, keine
 implementierte oder qualifizierte Safe-Cast-TVF. Weitere Ziele, Optimizer-/APPLY-
 Kontexte und ein eigener Kern sind `not executed`.
+
+## Weiterführende Designprüfung 2026-10-05 – begrenzter Schema-Zahlenkern
+
+RelatedReference: `RI-2026-048`. Status `proposed`; reine Quellen-/Designprüfung,
+keine neue öffentliche Funktion, Assembly, Providerwahl oder Runtimequalifikation.
+Die sechs Safe-Cast-TVFs sind inzwischen separat freigegeben und in
+[PR171](https://github.com/gecompat/SQL_Server_Toolbelt/pull/171) umgesetzt;
+deren Freigabe erweitert diesen Schema-Scope nicht.
+
+Der [Core-Datenmodellvertrag](https://json-schema.org/draft/2020-12/json-schema-core#section-4.2.1)
+verwendet beliebig genaue Dezimalwerte; die
+[Integer-Semantik](https://json-schema.org/draft/2020-12/json-schema-validation#section-6.1.1)
+bezieht sich auf den mathematischen Wert. Die folgende eigene algorithmische
+Schlussfolgerung bietet eine prüfbare Richtung ohne BigInteger-Abhängigkeit,
+float/decimal-Ersatz oder materialisierte Zehnerpotenzen:
+
+- Nichtnullwerte als `sign × D × 10^q` darstellen: aus der Mantisse führende und
+  abschließende Nullziffern entfernen; `q = explicitExponent - fractionDigits +
+  removedTrailingZeros`. `D` bleibt eine logische Ziffernspanne ohne Dezimalpunkt.
+- Den Exponenten als normalisierte vorzeichenbehaftete Dezimalziffern behalten.
+  Nur durch die Inputlänge begrenzte Offsets mit exakter Ziffernarithmetik
+  addieren. Scratchlänge höchstens `max(exponentDigits, offsetDigits) + 1`;
+  nicht auf einen nativen Integerbereich oder künstliche Unendlichkeit kürzen.
+- Vorzeichen, dann `q + length(D)`, dann gleichlange virtuelle Mantissen mit
+  rechts ergänzten Nullziffern vergleichen. Nur bis zur längeren tatsächlichen
+  Mantisse laufen; bei negativen Werten die Betragsordnung umkehren.
+- Null besitzt einen mathematischen Wert einschließlich `-0` und `0e999…`;
+  dessen Exponent wird trotzdem syntaktisch vollständig geprüft und budgetiert.
+  Ein Nichtnullwert ist genau bei `q >= 0` Integer. `1`, `1.0`, `1e0` und
+  `100e-2` müssen deshalb für `type: integer` gleich behandelt werden.
+
+Vorzeichen-/Exponent-/Mantissengrenzen und lange gemeinsame Ziffernpräfixe
+sind künftige Abnahmefälle, keine bereits ausgeführten Kernprüfungen.
+`enum`, `const` und `multipleOf` bleiben im vorgeschlagenen V1 `UNSUPPORTED`.
+Eine mögliche spätere Zahlengleichheit erweitert die aktuelle Keywordliste nicht.
+
+Arbeitskosten vor der jeweiligen Arbeit/Allokation abbuchen: gescannte UTF16-
+Einheiten, Ziffernoperationen, Keyhashes und Kollisionsvergleiche, Keywordbesuche,
+Graphkanten, Referenzdecoding, Evaluation und Diagnosepfadaufbau. Erst
+`cost > remaining` prüfen; keine überlaufgefährdete Addition als Gate.
+Hashes grenzen Kandidaten ein, decodierte ordinale Gleichheit entscheidet
+Duplicatekeys. Beispielsweise sind `"a"` und `"\u0061"` derselbe Key.
+
+Die bestehenden vorgeschlagenen Ceilings bleiben unabhängig: 16MiB UTF16
+entsprechen bis zu 8388608 Einheiten. Eine Million Default-Arbeitsschritte kann
+ein solches Dokument nicht einmal vollständig scannen. Dieser rechnerische
+Befund verlangt `LIMIT/IsValid=NULL`, keine stille Defaultänderung oder
+Ausnahme von der Scanabrechnung. `MaxErrors` begrenzt weiterhin nur Diagnosen.
+
+Vollständiger Schema-Preflight prüft auch die Form unterstützter Keywords:
+Count-/Längengrenzen sind mathematische nichtnegative Integer, auch oberhalb
+nativer Integerbereiche; widersprüchliche numerische Grenzen machen ein Schema
+unerfüllbar, nicht syntaktisch ungültig.
+[Validation](https://json-schema.org/draft/2020-12/json-schema-validation#section-6)
+und [Array-Applicators](https://json-schema.org/draft/2020-12/json-schema-core#section-10.3.1)
+begründen außerdem das nichtleere `prefixItems`-Array und `items` nach dem
+zugehörigen Präfix. Referenzgeschwister bleiben gemäß dem vorhandenen Vorschlag
+wirksam. Quellen am 2026-10-05 erneut gelesen; keine zusätzliche SQL-Prüfung.
+
+Der vorhandene Constructor-Scanner bleibt ein Reuse-Anknüpfungspunkt, besitzt
+aber weiterhin keine Schema-Tokenindizes, Duplicateprüfung oder globale
+Arbeitsabrechnung. Physische gemeinsame Kernel-/Assemblygrenze, Migration,
+Trust und die konkrete USP benötigen eine eigene anschließende Freigabe.
+
+## Weiterführende Designprüfung 2026-10-05 – nativer Pointer-Pfad
+
+RelatedReference: `RI-2026-041`. Bevorzugte Richtung bleibt eine einzelne
+T-SQL-MSTVF mit den bereits vorgeschlagenen vier Ergebnisfeldern, Statuscodes,
+Fehlerprioritäten und Input-/Pointer-/Tiefenbudgets. Keine neue Sourcefreigabe,
+keine CLR-Änderung und keine Runtimequalifikation der vorgeschlagenen API.
+
+Die eigene Designschlussfolgerung trennt native JSON-Grammatik von zusätzlicher
+Toolbelt-Policy: `ISJSON` prüft Syntax, ein kanonischer vorwärts laufender
+Policywalker prüft ausschließlich Quotes/Escapes, decodierte UTF16-Einheiten
+und offene Containertiefe. Er implementiert keine zweite Number-/Member-/
+Separatorgrammatik. Vor Wrapperkopien Inputbudgets prüfen. Object-/Arrayroots
+direkt validieren; nur Scalarroots in einen max-typisierten Arraywrapper setzen
+und genau ein Element verlangen. Dadurch zählt der künstliche Wrapper nicht
+gegen die Dokumenttiefe. Der neuere VALUE-Typconstraint ist keine SQL2019-Basis.
+[ISJSON](https://learn.microsoft.com/en-us/sql/t-sql/functions/isjson-transact-sql)
+
+Nach erfolgreicher Syntaxprüfung das vollständige Original unter expliziter
+non-SC-Collation in begrenzten Chunks durchlaufen, einschließlich unselektierter
+Keys und Strings. Raw- und escaped Surrogate im selben decodierten Strom paaren;
+escaped NUL erlauben. Unicodefehler merken und die Tiefenprüfung fortsetzen,
+damit die vorgeschlagene DEPTH_LIMIT-vor-UNICODE-Priorität erhalten bleibt.
+Diese Policy ist strenger als die JSON-Grammatik, die ungepaarte Escapes zulässt.
+[RFC8259 §8.2](https://www.rfc-editor.org/rfc/rfc8259#section-8.2)
+
+`OPENJSON` erhält ausschließlich bereits validierte Container. Den lokalen
+Parseroperand mit gültigem JSON initialisieren und erst in einem getrennten
+erfolgreichen Validierungszweig ersetzen. Keine WHERE-/CASE-Auswertungsbarriere
+behaupten. Pro Traversalschritt in einem Default-Schema-OPENJSON-Statement
+Trefferzahl/Typ/Wert aggregieren, keine gesamte Geschwistermenge in einer
+Tabellenvariable materialisieren. Engineinterne Materialisierung ist dadurch
+nicht ausgeschlossen. Objectkeys weiterhin BIN2 plus DATALENGTH vergleichen.
+[UDF-Grenzen](https://learn.microsoft.com/en-us/sql/relational-databases/user-defined-functions/create-user-defined-functions-database-engine)
+schließen TRY/CATCH aus; das begründet die vorgelagerten gültigen Operanden.
+
+Aus höchstens 4000 UTF16-Einheiten des vollständigen Pointers folgen höchstens
+3999 Einheiten je decodiertem Token. Ein auf 4000 Einheiten ausgegebener langer
+OPENJSON-Key ist deshalb mit einem adressierbaren Token nicht längengleich.
+Das ist eine Schlussfolgerung aus der vorgeschlagenen Pointergrenze und der
+getrennten historischen Langkey-Charakterisierung, keine globale Keygrenze oder
+neue Laufzeitprüfung. Arrayindexlexik nur im Arraykontext prüfen; beliebig große
+gültige Indizes liefern MISSING. Pointertokens mit dem begrenzten Unitwalker
+decodieren: `REPLACE` besitzt eine dokumentierte char(0)-Einschränkung.
+[OPENJSON](https://learn.microsoft.com/en-us/sql/t-sql/functions/openjson-transact-sql),
+[REPLACE](https://learn.microsoft.com/en-us/sql/t-sql/functions/replace-transact-sql),
+[RFC6901](https://www.rfc-editor.org/rfc/rfc6901)
+
+Die MSTVF-Ausnahme wird durch sequentiellen Unicodezustand, deterministische
+Phasenpriorität und abhängige Traversalschritte mit Duplicate-Aggregation
+begründet. Eine äquivalente Inline-Lösung bleibt ungezeigt, nicht widerlegt.
+Ein Constructor-CLR-Reuse würde neue Policies/Bindings und eigene Assembly-/
+Migrations-/Trustverträge benötigen; der native Pfad lässt dessen Kern bestehen.
+
+Inputgröße und Tiefe begrenzen den eigenen Scan und die Traversalschritte.
+Wiederholtes Fragmentparsing/-kopieren kann nominell dennoch Arbeit proportional
+zu Dokumentgröße mal Tiefe benötigen. Engineheap, Dauer und APPLY-Performance
+sind damit nicht qualifiziert. Native Parser-Tiefengrenzen, exakte Erhaltung
+aller Zahlenliterale und maximale Input-/Tiefenworkloads gehören in die begrenzte
+spätere Abnahme. Kein neues Arbeitsbudget oder Performanceversprechen eingeführt.
+
+### Getrennte tatsächlich ausgeführte Pointer-Engineproben
+
+Am 2026-10-05 bestand
+`pwsh -NoProfile -File Tests/Research/characterize-next-wave-json.ps1 -ProbeSet pointer-policy`
+mit sechs neuen synthetischen lesenden Assertions auf dem schema-validierten,
+explizit ausgewählten Linux2019/latest-Ziel; Major15 und CL150 im Lauf geprüft.
+Der eigene Parent-Watchdog war auf120s begrenzt: tatsächlicher Exit0, vollständige
+Kanäle, kein Timeout und leeres Stderr. Kein Objekt-, Datenbank-, Konfigurations-,
+Rechte- oder Trustscope; keine Ressourcen angelegt. Die früheren elf JSON- und
+sechs Decimalproben wurden nicht wiederholt und behalten getrennte Evidenz.
+
+Bestätigt im engen Fixtureumfang: BIN2 plus DATALENGTH unterscheidet gleichlange
+Keys mit NUL an verschiedenen Positionen; raw/escaped Surrogate beider
+Paarungsrichtungen werden zu exakt denselben UTF16-Bytes decodiert. Die beiden
+Zahlenliterale `1e1000000` und `-0.000e-999` bleiben in Default-OPENJSON byteexakt
+erhalten. ISJSON akzeptiert den direkt geprüften Arraycontainer mit128 offenen
+Ebenen. Das ist keine allgemeine Parser-Tiefengrenze, keine vollständige
+Zahlenliteral-/Unicodequalifikation und kein getesteter Policywalker oder
+Pointerresolver. Weitere Ziele, Maximalworkloads und API-/Lifecycle-/Client-
+Qualifikation sind weiterhin `not executed`.

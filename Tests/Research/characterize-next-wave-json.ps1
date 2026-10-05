@@ -2,7 +2,7 @@
 # Keine öffentliche API, Installation, Datenbankanlage oder Konfigurationsänderung.
 # Ziele und Credentials bleiben ausschließlich im Speicher; Fehlertexte werden redigiert.
 [CmdletBinding()]
-param([ValidateSet('json-baseline','decimal-range')][string]$ProbeSet='json-baseline')
+param([ValidateSet('json-baseline','decimal-range','pointer-policy')][string]$ProbeSet='json-baseline')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $runExit = 0
@@ -65,7 +65,15 @@ try {
         Write-Output 'CHARACTERIZATION_NOT_EXECUTED_NO_SELECTED_READY_TARGET'
         Set-CharacterizationExit -Code 2
     }
-    $probes = if($ProbeSet -eq 'decimal-range') { @(
+    $probes = if($ProbeSet -eq 'pointer-policy') { @(
+        # Neue synthetische Engineproben; keine Implementierung des Policywalkers.
+        @{ Name = 'NUL_KEY_IDENTITY'; Expected = 'EXACT_ONE'; Sql = 'DECLARE @k nvarchar(3)=CONVERT(nvarchar(3),0x610000006200); SELECT CASE WHEN (SELECT COUNT(*) FROM OPENJSON(N''{"a\u0000b":1,"ab\u0000":2,"\u0000ab":3,"a\u0000c":4}'') WHERE [key] COLLATE Latin1_General_100_BIN2=@k COLLATE Latin1_General_100_BIN2 AND DATALENGTH([key])=DATALENGTH(@k))=1 THEN ''EXACT_ONE'' ELSE ''OTHER'' END' },
+        @{ Name = 'RAW_HIGH_ESCAPED_LOW'; Expected = 'PAIRED_UNITS'; Sql = 'DECLARE @h nvarchar(max)=CONVERT(nvarchar(max),0x3DD8); DECLARE @j nvarchar(max)=N''["''+@h+N''\uDE00"]''; SELECT CASE WHEN DATALENGTH(@h)=2 AND ISJSON(@j)=1 AND (SELECT CONVERT(varbinary(max),[value]) FROM OPENJSON(@j))=0x3DD800DE THEN ''PAIRED_UNITS'' ELSE ''OTHER'' END' },
+        @{ Name = 'ESCAPED_HIGH_RAW_LOW'; Expected = 'PAIRED_UNITS'; Sql = 'DECLARE @l nvarchar(max)=CONVERT(nvarchar(max),0x00DE); DECLARE @j nvarchar(max)=N''["\uD83D''+@l+N''"]''; SELECT CASE WHEN DATALENGTH(@l)=2 AND ISJSON(@j)=1 AND (SELECT CONVERT(varbinary(max),[value]) FROM OPENJSON(@j))=0x3DD800DE THEN ''PAIRED_UNITS'' ELSE ''OTHER'' END' },
+        @{ Name = 'NUMBER_HUGE_EXPONENT_LITERAL'; Expected = 'LITERAL_PRESERVED'; Sql = 'DECLARE @n nvarchar(max)=N''1e1000000''; SELECT CASE WHEN (SELECT CONVERT(varbinary(max),[value]) FROM OPENJSON(N''[''+@n+N'']''))=CONVERT(varbinary(max),@n) THEN ''LITERAL_PRESERVED'' ELSE ''OTHER'' END' },
+        @{ Name = 'NUMBER_NEGATIVE_ZERO_LITERAL'; Expected = 'LITERAL_PRESERVED'; Sql = 'DECLARE @n nvarchar(max)=N''-0.000e-999''; SELECT CASE WHEN (SELECT CONVERT(varbinary(max),[value]) FROM OPENJSON(N''[''+@n+N'']''))=CONVERT(varbinary(max),@n) THEN ''LITERAL_PRESERVED'' ELSE ''OTHER'' END' },
+        @{ Name = 'DEPTH_128_DIRECT'; Expected = 'VALID_CONTAINER'; Sql = 'DECLARE @j nvarchar(max)=REPLICATE(CAST(N''['' AS nvarchar(max)),128)+N''0''+REPLICATE(CAST(N'']'' AS nvarchar(max)),128); SELECT CASE WHEN ISJSON(@j)=1 THEN ''VALID_CONTAINER'' ELSE ''OTHER'' END' }
+    ) } elseif($ProbeSet -eq 'decimal-range') { @(
         @{ Name = 'DECIMAL_MAX_ZERO_TAIL'; Expected = 'EXACT_MAX'; Sql = 'SELECT CASE WHEN TRY_CONVERT(decimal(38,18),N''99999999999999999999.9999999999999999990'')=CONVERT(decimal(38,18),N''99999999999999999999.999999999999999999'') THEN ''EXACT_MAX'' ELSE ''OTHER'' END' },
         @{ Name = 'DECIMAL_MAX_NONZERO_TAIL'; Expected = 'ROUNDED_BACK_TO_MAX'; Sql = 'SELECT CASE WHEN TRY_CONVERT(decimal(38,18),N''99999999999999999999.9999999999999999991'')=CONVERT(decimal(38,18),N''99999999999999999999.999999999999999999'') THEN ''ROUNDED_BACK_TO_MAX'' ELSE ''OTHER'' END' },
         @{ Name = 'DECIMAL_MIN_NONZERO_TAIL'; Expected = 'ROUNDED_BACK_TO_MIN'; Sql = 'SELECT CASE WHEN TRY_CONVERT(decimal(38,18),N''-99999999999999999999.9999999999999999991'')=CONVERT(decimal(38,18),N''-99999999999999999999.999999999999999999'') THEN ''ROUNDED_BACK_TO_MIN'' ELSE ''OTHER'' END' },
