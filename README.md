@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 40 Module implementiert – 21 teilweise validiert](https://img.shields.io/badge/Status-40%20Module%20implementiert%20%7C%2021%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 41 Module implementiert – 22 teilweise validiert](https://img.shields.io/badge/Status-41%20Module%20implementiert%20%7C%2022%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -65,7 +65,7 @@ SSIS-Provider sind abgegrenzt.
 
 `toolbelt.json.constructors` 1.1.0 implementiert die beiden einzeln freigegebenen Gruppen-USPs über den gemeinsamen T-SQL-Kern. Auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 bestanden lokal und zentral die API-/100000-/16-MiB-/Clientprüfungen als Teil insgesamt fehlgeschlagener früherer Läufe. Die finalen fokussierten Läufe mit ausschließlich InstalledMetadata.Contract.sql als Runtime-Auswahl bestanden Metadaten, genuine 1.0-Upgrades, Lifecycle, Central und eigene Bereinigung. Neue Minimalrechte bleiben offen; die Uninstall-Voraussetzung VIEW DEFINITION/SELECT wurde am 2026-10-02 einzeln freigegeben und die neue Gateumsetzung bestand fokussierte native Lifecycle-Läufe, negative CI-Injektionen bleiben offen; aktuelle CI wird als separater PR-Mergegate nachgewiesen. Teilweise validiert und unveröffentlicht; historische 1.0-Evidenz bleibt getrennt.
 
-**Der Repository-Grundaufbau ist abgeschlossen. 40 Module sind implementiert; 19 sind `validated`, 21 sind `partially validated`, 0 sind `not executed`, alle sind `unreleased`.**
+**Der Repository-Grundaufbau ist abgeschlossen. 41 Module sind implementiert; 19 sind `validated`, 22 sind `partially validated`, 0 sind `not executed`, alle sind `unreleased`.**
 
 [`toolbelt.pseudonymization.deterministic`](./Modules/toolbelt.pseudonymization.deterministic/README.md)
 liefert versionierte synthetische Range-, DateShift- und Pool-Lookup-Werte;
@@ -410,3 +410,17 @@ Fremdslot-/Driftvollmatrix und Heap-/Produktionskapazität bleiben offen.
 Teilweise validiert, unveröffentlicht; exakte Head-CI als separater Mergegate.
 [Vertrag](./Documentation/Architecture/CSV_MEMORY_CONTRACT.md),
 [Evidenz](./Modules/toolbelt.file.csv-memory/Tests/README.md).
+
+## Safe Cast 1.0.0
+
+[`toolbelt.conversion.safe-cast`](./Modules/toolbelt.conversion.safe-cast/README.md)
+enthält die sechs einzeln freigegebenen Inline-TVFs für bigint, decimal(38,18),
+date, datetime2(7), bit und uniqueidentifier. Strikte ASCII-/ISO-Lexik,
+Value/Status/ErrorCode, höchstens 8192 Inputbytes und keine stille Rundung.
+Der genaue Wertebereich wird vor Skalenverlust geprüft. Finale Adapter auf
+Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 bestanden local/central/
+Consumer: je 13104 API-Oracles, 54 Clientreader und 38 Lifecyclefälle mit
+unabhängigem Bereinigungsaudit. Frühere Fehlläufe bleiben separat dokumentiert.
+Teilweise validiert, unveröffentlicht; weitere Ziele, Minimalrechte und Heap offen.
+[Vertrag](./Documentation/Architecture/SAFE_CAST_CONTRACT.md),
+[Evidenz](./Modules/toolbelt.conversion.safe-cast/Tests/README.md).

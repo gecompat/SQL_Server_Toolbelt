@@ -1351,6 +1351,15 @@ def run_csv_memory_static() -> None:
         raise ValidationError("Statische CSV-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
 
 
+def run_safe_cast_static() -> None:
+    # Der Modulvalidator führt den kanonischen Generator im Checkmodus mit aus.
+    script = REPOSITORY_ROOT / "Modules/toolbelt.conversion.safe-cast/Tests/Static/validate_contract.py"
+    result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+                            check=False, capture_output=True, text=True, encoding="utf-8")
+    if result.returncode != 0:
+        raise ValidationError("Statische Safe-Cast-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
+
+
 def run_regex_static() -> None:
     script = (
         REPOSITORY_ROOT
@@ -1693,6 +1702,8 @@ def main() -> int:
         run_text_pairs_static()
     if "csv_memory_static" in checks:
         run_csv_memory_static()
+    if "safe_cast_static" in checks:
+        run_safe_cast_static()
     if "regex_static" in checks:
         run_regex_static()
     if "identifier_runtime_workflow_scope" in checks:

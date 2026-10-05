@@ -2,6 +2,14 @@
 
 ## Status
 
+Die sechs einzeln freigegebenen Safe-Cast-TVFs in `toolbelt.conversion.safe-cast`
+1.0.0 sind implementiert und teilweise validiert. Finale begrenzte Adapter auf
+Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 bestanden local/central/
+Consumer einschließlich fester API-Oracles, Clientmetadaten,38 Lifecyclefällen
+je Ziel und unabhängigem Bereinigungsaudit. Drei frühere Gesamtfehlläufe bleiben
+getrennt. Weitere physische Ziele, Minimalrechte, Heap und exakte Head-CI sind
+separate Nachweise; unveröffentlicht.
+
 `toolbelt.pseudonymization.deterministic` 1.1.0 ergänzt die einzeln freigegebene
 ASCII-Translation. Vollständige Adapter auf Linux 2019/latest local/central
 und Windows 2025/CU8 central CL150/160/170 erfolgreich; Windows local durch
@@ -23,7 +31,7 @@ XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 40 Module sind implementiert. 19 sind `validated`, 21 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
+abgeschlossen. 41 Module sind implementiert. 19 sind `validated`, 22 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Die vollständige lokale Adaptermatrix war am 2026-09-01 auf physischen

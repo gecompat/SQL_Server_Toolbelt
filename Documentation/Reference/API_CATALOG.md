@@ -2,7 +2,7 @@
 
 <!-- Generiert mit Tests/Documentation/generate_api_catalog.py --write; nicht direkt bearbeiten. -->
 
-150 öffentliche Schnittstellen aus 40 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
+156 öffentliche Schnittstellen aus 41 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
 
 Jedes Beispiel separat verwenden. Funktionen verlangen positionsbezogene Argumente; `DEFAULT` verwendet einen deklarierten Default, `NULL` kann davon abweichen. Prozeduren verwenden benannte Parameter. Vorlagen mit Handlern, Claims, Dateien oder Plan-Hashes erfordern die beschriebenen Voraussetzungen. Eine Syntaxvorlage ist kein Runtime-Nachweis.
 
@@ -467,6 +467,144 @@ Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag
 
 ```sql
 SELECT toolbelt_conversion.SVF_TryBaseToInteger('FF', '0123456789ABCDEF') AS ResultValue;
+```
+
+## toolbelt_conversion.TVF_TryCastBigInt
+
+Modul `toolbelt.conversion.safe-cast` · Version `1.0.0` · `TVF`
+
+Prüft ASCII-Ganzzahltext und den exakten bigint-Bereich; liefert Value, Status und ErrorCode.
+
+Vertrag und Quelle: [TVF_TryCastBigInt.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastBigInt.sql), [TVF_TryCastBigInt.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastBigInt.md).
+
+<!-- Source/Vertrag SHA256: e9d6c89c7fa36a6fc1dae18e269fc9148e0a04aa6b2aed8da12d18ab54456aea -->
+
+Voraussetzung: Vorhandenes SELECT; genau eine Zeile, keine Seiteneffekte.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Text` | `nvarchar(max)` | `kein Default` | Input | Optionales ASCII-Vorzeichen und Ziffern; keine Leerzeichen oder Localeformate. |
+| `@MaxInputBytes` | `int` | `8192` | Input | Positives UTF16-Bytebudget bis8192; SQL_NULL hat Vorrang. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT * FROM toolbelt_conversion.TVF_TryCastBigInt(N'-9223372036854775808', DEFAULT);
+```
+
+## toolbelt_conversion.TVF_TryCastDecimal
+
+Modul `toolbelt.conversion.safe-cast` · Version `1.0.0` · `TVF`
+
+Prüft exakten decimal(38,18)-Bereich vor Skalenverlust; rundet niemals still.
+
+Vertrag und Quelle: [TVF_TryCastDecimal.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDecimal.sql), [TVF_TryCastDecimal.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDecimal.md).
+
+<!-- Source/Vertrag SHA256: 6bba08e2e9015d5d54b70d013605267fced073954134aa6366f1da57c93107b6 -->
+
+Voraussetzung: Vorhandenes SELECT; Bereichsüberschreitung ist OUT_OF_RANGE, sonst nichtnull Fractionrest LOSSY.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Text` | `nvarchar(max)` | `kein Default` | Input | ASCII-Zahl mit optionalem Vorzeichen und optional Punkt/Ziffern; überzählige Nullstellen sind exakt entfernbar. |
+| `@MaxInputBytes` | `int` | `8192` | Input | Positives UTF16-Bytebudget bis8192; keine dynamische Precision oder Scale. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT * FROM toolbelt_conversion.TVF_TryCastDecimal(N'99999999999999999999.9999999999999999991', DEFAULT);
+```
+
+## toolbelt_conversion.TVF_TryCastDate
+
+Modul `toolbelt.conversion.safe-cast` · Version `1.0.0` · `TVF`
+
+Prüft exakt YYYY-MM-DD und den date-Kalenderbereich unabhängig von Sprache und DATEFORMAT.
+
+Vertrag und Quelle: [TVF_TryCastDate.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDate.sql), [TVF_TryCastDate.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDate.md).
+
+<!-- Source/Vertrag SHA256: 415ba128dca75a590bd74fd4560cffd0b89b06328234cf5f838eea2a69c70f5d -->
+
+Voraussetzung: Vorhandenes SELECT; keine Zeit- oder Localeinterpretation.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Text` | `nvarchar(max)` | `kein Default` | Input | Genau zehn ASCII-Codeeinheiten; Kalenderfehler sind OUT_OF_RANGE. |
+| `@MaxInputBytes` | `int` | `8192` | Input | Positives UTF16-Bytebudget bis8192. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT * FROM toolbelt_conversion.TVF_TryCastDate(N'2024-02-29', DEFAULT);
+```
+
+## toolbelt_conversion.TVF_TryCastDateTime2
+
+Modul `toolbelt.conversion.safe-cast` · Version `1.0.0` · `TVF`
+
+Prüft ISO-Datetime mit großem T und höchstens sieben Fractionziffern ohne Rundung oder Zeitzonenverlust.
+
+Vertrag und Quelle: [TVF_TryCastDateTime2.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastDateTime2.sql), [TVF_TryCastDateTime2.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastDateTime2.md).
+
+<!-- Source/Vertrag SHA256: cb75bec54b73f2ce7f3bfc0624bebfe5c64a8b6770293b1611a1a3b63962912a -->
+
+Voraussetzung: Vorhandenes SELECT; datetime2(7), keine Offset-/Zeitzoneninterpretation.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Text` | `nvarchar(max)` | `kein Default` | Input | YYYY-MM-DDTHH:mm:ss, optional Punkt mit1..7 ASCII-Ziffern. |
+| `@MaxInputBytes` | `int` | `8192` | Input | Positives UTF16-Bytebudget bis8192. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT * FROM toolbelt_conversion.TVF_TryCastDateTime2(N'2024-02-29T23:59:59.1234567', DEFAULT);
+```
+
+## toolbelt_conversion.TVF_TryCastBit
+
+Modul `toolbelt.conversion.safe-cast` · Version `1.0.0` · `TVF`
+
+Akzeptiert ausschließlich den Text0 oder1; native permissive Bitkonversion bleibt ausgeschlossen.
+
+Vertrag und Quelle: [TVF_TryCastBit.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastBit.sql), [TVF_TryCastBit.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastBit.md).
+
+<!-- Source/Vertrag SHA256: e00408bc4a9fbbde5a273896161dce9f93a6b0953b443b2a2630157d56a5e49c -->
+
+Voraussetzung: Vorhandenes SELECT; Bit2 und TRUE sind INVALID_FORMAT.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Text` | `nvarchar(max)` | `kein Default` | Input | Exakt eine ASCII-Ziffer0/1; kein Vorzeichen oder Trim. |
+| `@MaxInputBytes` | `int` | `8192` | Input | Positives UTF16-Bytebudget bis8192. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT * FROM toolbelt_conversion.TVF_TryCastBit(N'2', DEFAULT);
+```
+
+## toolbelt_conversion.TVF_TryCastUniqueIdentifier
+
+Modul `toolbelt.conversion.safe-cast` · Version `1.0.0` · `TVF`
+
+Prüft vollständige GUID-Lexik im8-4-4-4-12-Muster vor Konversion; keine Suffixtrunkierung.
+
+Vertrag und Quelle: [TVF_TryCastUniqueIdentifier.sql](../../Modules/toolbelt.conversion.safe-cast/Source/TVF_TryCastUniqueIdentifier.sql), [TVF_TryCastUniqueIdentifier.md](../../Modules/toolbelt.conversion.safe-cast/Documentation/TVF_TryCastUniqueIdentifier.md).
+
+<!-- Source/Vertrag SHA256: 1aa1cfd4fbab3941b62d070ce8f4b01b9f15eae049a452d02226cf26f42c5d8e -->
+
+Voraussetzung: Vorhandenes SELECT; Hexbuchstaben upper/lower zulässig, keine Braces.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Text` | `nvarchar(max)` | `kein Default` | Input | Genau36 ASCII-Hex-/Bindestrich-Codeeinheiten. |
+| `@MaxInputBytes` | `int` | `8192` | Input | Positives UTF16-Bytebudget bis8192. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT * FROM toolbelt_conversion.TVF_TryCastUniqueIdentifier(N'00112233-4455-6677-8899-aabbccddeeff', DEFAULT);
 ```
 
 ## toolbelt_conversion.TVF_UriComponentEncode

@@ -1,0 +1,101 @@
+module_id: "toolbelt.conversion.safe-cast"
+module_name: "Strict Safe Casts"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Sechs strikte Inline-TVFs mit typisierten Werten und verlustfreien ASCII-/ISO-Konversionen."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "partially validated"
+  linux: "partially validated"
+providers:
+  - id: tsql-inline-safe-cast
+    technology: "Schemagebundene relationale T-SQL-Ausdrücke; TRY_CONVERT plus unabhängige Lexik-/Bereichsprüfung."
+    platforms: [Windows, Linux]
+    status: "partially validated"
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies: []
+schemas:
+  - "toolbelt_conversion"
+objects:
+  - {type: TVF, schema: "toolbelt_conversion", name: "TVF_TryCastBigInt", visibility: public}
+  - {type: TVF, schema: "toolbelt_conversion", name: "TVF_TryCastDecimal", visibility: public}
+  - {type: TVF, schema: "toolbelt_conversion", name: "TVF_TryCastDate", visibility: public}
+  - {type: TVF, schema: "toolbelt_conversion", name: "TVF_TryCastDateTime2", visibility: public}
+  - {type: TVF, schema: "toolbelt_conversion", name: "TVF_TryCastBit", visibility: public}
+  - {type: TVF, schema: "toolbelt_conversion", name: "TVF_TryCastUniqueIdentifier", visibility: public}
+permissions_required:
+  - "Aufruf: vorhandenes SELECT auf den TVFs; CrossDB benötigt bestehende passende Rechte."
+  - "Lifecycle: VIEW DEFINITION, SELECT auf sys.sql_expression_dependencies, CREATE FUNCTION und passende Schema-DDL-Rechte; keine Rechtevergabe."
+collation_contract: "Strikte ASCII-Codeeinheitenprüfung und Status/ErrorCode verwenden Latin1_General_100_BIN2 ohne SC; Eingabebytes via DATALENGTH."
+data_type_contract: "Text nvarchar(max), MaxInputBytes int=8192; Value bigint/decimal(38,18)/date/datetime2(7)/bit/uniqueidentifier; Status varchar(16) NOT NULL, ErrorCode varchar(32) NULL."
+help_contract_version: "not applicable"
+resultset_contracts:
+  - {object: "toolbelt_conversion.TVF_TryCastBigInt", columns: ["Value bigint NULL", "Status varchar(16) NOT NULL", "ErrorCode varchar(32) NULL"]}
+  - {object: "toolbelt_conversion.TVF_TryCastDecimal", columns: ["Value decimal(38,18) NULL", "Status varchar(16) NOT NULL", "ErrorCode varchar(32) NULL"]}
+  - {object: "toolbelt_conversion.TVF_TryCastDate", columns: ["Value date NULL", "Status varchar(16) NOT NULL", "ErrorCode varchar(32) NULL"]}
+  - {object: "toolbelt_conversion.TVF_TryCastDateTime2", columns: ["Value datetime2(7) NULL", "Status varchar(16) NOT NULL", "ErrorCode varchar(32) NULL"]}
+  - {object: "toolbelt_conversion.TVF_TryCastBit", columns: ["Value bit NULL", "Status varchar(16) NOT NULL", "ErrorCode varchar(32) NULL"]}
+  - {object: "toolbelt_conversion.TVF_TryCastUniqueIdentifier", columns: ["Value uniqueidentifier NULL", "Status varchar(16) NOT NULL", "ErrorCode varchar(32) NULL"]}
+runtime_error_contract: "Einzeilige Statusdiagnose gemäß SAFE_CAST_CONTRACT; technische Enginefehler werden nicht in fachliche Diagnose umgeschrieben."
+lifecycle_error_range: "55420-55429"
+clr:
+  used: false
+  permission_set: null
+  trust_method: null
+lifecycle:
+  deploy: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+  release_manifest: "embedded"
+  source_hash_role: "diagnostic_only"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/TVF_TryCastBigInt.md"
+    - "Documentation/TVF_TryCastDecimal.md"
+    - "Documentation/TVF_TryCastDate.md"
+    - "Documentation/TVF_TryCastDateTime2.md"
+    - "Documentation/TVF_TryCastBit.md"
+    - "Documentation/TVF_TryCastUniqueIdentifier.md"
+  architecture:
+    - "../../Documentation/Architecture/SAFE_CAST_CONTRACT.md"
+  test_matrix:
+    - "Tests/SAFE_CAST_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+  examples:
+    - "Examples/SafeCast.sql"
+contracts:
+  usp: "not applicable"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  runtime: "Tests/Runtime/Contract.Tests.sql"
+  contract: "Tests/Runtime/Metadata.Tests.ps1"
+  lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
+  lab: "../../Tests/CI/run-safe-cast-lab.ps1"
+validation_evidence:
+  - date: "2026-10-05"
+    workflow: "local: Tests/Static/validate_contract.py"
+    scope: "Sechs Sourceverträge, explizite schemagebundene Projektionen, feste Fixturecollations und kanonischer nicht schreibender Deploymentgenerator bestanden; unabhängige ScriptDom150- und PowerShell-AST-Prüfungen bestanden. Kein nativer Nachweis daraus."
+    result: "success"
+  - date: "2026-10-05"
+    workflow: "local: Tests/CI/run-safe-cast-lab.ps1"
+    scope: "Drei frühere Linux-Gesamtfehlläufe: Deploy SQL1054/state6 durch schemagebundene Projektionswildcards, Fixture SQL102/state1 durch geklammerte Collation, später Fremdslotvorbereitung durch NULL-Hash leerer Metadatenlisten. Je FAILED_CLEANED mit unabhängig frisch bestätigter eigener Bereinigung und Inputpins; kein Gesamt-PASS. Dritter Lauf lokal mit 4368 API-Oracles, Clientmetadaten und 16 gezielten Lifecyclefällen als getrennter Teilnachweis."
+    result: "failed"
+  - date: "2026-10-05"
+    workflow: "local: Tests/CI/run-safe-cast-lab.ps1"
+    scope: "Finales gleiches Source-/Deployment-/Fixture-/Adapterpaar auf Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 jeweils local/central und mit separatem SC-/UTF8-Consumer bestanden: je 13104 feste API-Oracles, 54 direkte Clientreader, Clean/Repeat, installierte Baseline, 38 gezielte Caller-/Lock-/Rollback-/TypedMarker-/Fremdslot-/Confirm0-Fälle und Uninstall/Repeat. Je Exit0, vollständige Kanäle und leeres Stderr; frische unabhängige Audits bestätigen COMPLETE38, drei eigene DBs abwesend, je zwei Marker-/Fremdslotfixtures mit exakter Wiederherstellung und zwei Abweisungen sowie alle Inputpins. Keine Konfigurations-/Rechte-/Truständerungen. Weitere physische Ziele, Minimalrechte, Heap-/Produktionskapazität und exakte Head-CI bleiben getrennt offen; frühere Fehlläufe werden nicht umgewertet."
+    result: "success"

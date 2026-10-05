@@ -7,7 +7,7 @@ repository:
   name: SQL_Server_Toolbelt
   owner: gecompat
   purpose: Modulare Erweiterungsbibliothek für SQL Server 2019+
-  status: forty_modules_implemented
+  status: forty_one_modules_implemented
   language_primary: T-SQL
   languages_allowed: [T-SQL, C#, Python, Java, R, Bash]
   sql_server_versions: ["2019", "2022", "2025"]
@@ -112,6 +112,8 @@ sources_of_truth:
   zip_files_contract: Documentation/Architecture/ZIP_FILES_CONTRACT.md
   xlsx_memory_module: Modules/toolbelt.file.xlsx-memory/module.yaml
   csv_memory_module: Modules/toolbelt.file.csv-memory/module.yaml
+  safe_cast_module: Modules/toolbelt.conversion.safe-cast/module.yaml
+  safe_cast_contract: Documentation/Architecture/SAFE_CAST_CONTRACT.md
   csv_memory_contract: Documentation/Architecture/CSV_MEMORY_CONTRACT.md
   csv_memory_qualification_workflow: .github/workflows/csv-memory-qualification.yml
   xlsx_reader_proposal: Documentation/Architecture/XLSX_READER_PROPOSAL.md
@@ -314,6 +316,7 @@ module_registry:
     - Modules/toolbelt.string.text-pairs/module.yaml
     - Modules/toolbelt.validation.semantic-version/module.yaml
     - Modules/toolbelt.conversion.integer-base/module.yaml
+    - Modules/toolbelt.conversion.safe-cast/module.yaml
     - Modules/toolbelt.datetime.calendar-difference/module.yaml
     - Modules/toolbelt.string.directional-trim/module.yaml
     - Modules/toolbelt.conversion.uri-component/module.yaml
@@ -826,6 +829,15 @@ change_impact:
         - Documentation/Architecture/CLR_SECURITY_AND_PORTABILITY.md
       checks:
         - csv_memory_static
+        - markdown_links
+    safe_cast_contract:
+      paths:
+        - Modules/toolbelt.conversion.safe-cast/**
+        - Documentation/Architecture/SAFE_CAST_CONTRACT.md
+        - Tests/CI/run-safe-cast-lab.ps1
+        - Tests/CI/SafeCastLifecycle.Helpers.ps1
+      checks:
+        - safe_cast_static
         - markdown_links
     xlsx_memory_contract:
       paths:

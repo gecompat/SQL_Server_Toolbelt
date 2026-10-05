@@ -523,6 +523,34 @@ bleibt ein separater Release-Nachweis.
 | Alternativen | Getrennte SQL-/CLR-Parser, ungeprüfte Binaryadoption und automatische Owner-/Rechtereparatur sind ausgeschlossen. |
 | Betroffene Verträge | `JSON_CLR_MIGRATION_CONTRACT.md`, `JSON_GROUP_CONSTRUCTORS_CONTRACT.md`, `KNOWN_CLR_ARTIFACTS.json`, `.ai/BACKLOG.md`, `toolbelt.json.constructors` |
 
+## Datierter Entscheidungsstand 2026-10-05: sechs strikte Safe-Cast-TVFs
+
+RelatedReference: `RI-2026-076`. Funktionsbezogene Benutzerentscheidung nach
+Besprechung in PR170; keine neue finale Sequenz-ID.
+
+Status: accepted; implementiert, teilweise validiert und unveröffentlicht.
+Finale begrenzte Linux2019/latest-CL150- und Windows2025/CU8-CL170-Adapter
+bestanden local/central/Consumer; Details und frühere Fehlläufe stehen im
+[Evidenzprotokoll](../../Modules/toolbelt.conversion.safe-cast/Tests/README.md).
+Entscheidung: genau sechs schemagebundene Inline-T-SQL-TVFs für bigint,
+decimal(38,18), date, datetime2(7), bit und uniqueidentifier. Je Text/MaxInputBytes
+und genau eine Value/Status/ErrorCode-Zeile. Der Benutzer antwortete auf die
+konkrete Frage ausdrücklich „Diese sechs Funktionen freigegeben“, einschließlich
+8192-Byte-Deckel, strikter ASCII-/ISO-Lexik, exaktem Bereich vor LOSSY und
+INVALID_ARGUMENT/PARAMETER. Der [Safe-Cast-Vertrag](SAFE_CAST_CONTRACT.md)
+ist kanonisch; keine erneute Freigabefrage für diese Umsetzung.
+
+Begründung: Native TRY_CONVERT bleibt sichere Primitive, beweist aber weder
+strikte Lexik noch Verlustfreiheit oder mathematischen Bereich vor Rundung.
+Die relationale Implementierung vermeidet zusätzliche Provider-/Trustgrenzen
+und funktioniert im APPLY. Auswirkungen: feste Zieltypen und stabile Codes,
+keine Localeformate, stillen Rundungen, GUID-Suffixe oder Zeitzoneninterpretation.
+Alternativen: alleiniger nativer Cast, Scalar-UDF-/MSTVF-Wrapper, dynamische
+Precision/Scale und CLR sind für diese sechs APIs nicht erforderlich.
+Betroffene Verträge: SAFE_CAST_CONTRACT.md, DEPLOYMENT_MODEL.md,
+TSQL_ENGINEERING.md, toolbelt.conversion.safe-cast, .ai/BACKLOG.md.
+Keine Pointer-, Schema-, zusätzliche öffentliche API oder Veröffentlichung.
+
 ## Datierter Entscheidungsstand 2026-10-04: V3 Map-/FK-Vorschau
 
 RelatedReference: `TC-2026-044`. Datierte Revision der bestehenden funktionsbezogenen Entscheidung; keine neue Referenzfamilie oder finale Sequenz-ID.

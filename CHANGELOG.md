@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 2026-10-05 – Strict Safe Cast / 1.0.0
+
+- Sechs einzeln freigegebene schemagebundene Inline-TVFs für bigint,
+  decimal(38,18), date, datetime2(7), bit und uniqueidentifier. Genau eine
+  Value/Status/ErrorCode-Zeile, strikte ASCII-/ISO-Lexik, höchstens8192
+  Inputbytes, exakter Wertebereich vor Skalenverlust und keine stille Rundung.
+- Finale lokale Adapter auf Linux2019/latest CL150 und Windows2025/exaktCU8
+  CL170 bestanden jeweils local/central/Consumer: je13104 feste API-Oracles,
+  54 Clientreader,38 Lifecyclefälle, Clean/Repeat und Uninstall/Repeat.
+  Frische unabhängige Audits bestätigen Inputpins, exakte Marker-/Fremdslot-
+  Wiederherstellung und eigene Bereinigung. Frühere drei Gesamtfehlläufe bleiben
+  getrennt. Keine Konfigurations-, Rechte- oder Truständerungen.
+- Teilweise validiert, unveröffentlicht. Weitere physische Ziel-/CL-Matrix,
+  Minimalrechte, Heap und exakte Head-CI bleiben separate Nachweise.
+
 ## 2026-10-05 – CSV Memory / 1.0.0
 
 - Einzeln freigegebene `USP_ParseCsv` und `USP_WriteCsv` mit eigenem SAFE-CLR-Kern,
@@ -698,7 +713,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-40 Module sind implementiert. 19 sind `validated`, 21 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+41 Module sind implementiert. 19 sind `validated`, 22 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

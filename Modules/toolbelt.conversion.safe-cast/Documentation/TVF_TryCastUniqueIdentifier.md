@@ -1,0 +1,33 @@
+# toolbelt_conversion.TVF_TryCastUniqueIdentifier
+
+Öffentliche schemagebundene Inline-TVF aus toolbelt.conversion.safe-cast 1.0.0.
+Der [kanonische Vertrag](../../../Documentation/Architecture/SAFE_CAST_CONTRACT.md)
+definiert Ziellexik, genaue Fehlerpriorität, Bereich und Verlustfreiheit.
+
+| Parameter | Typ | Default |
+|---|---|---|
+| Text | nvarchar(max) | keiner |
+| MaxInputBytes | int | 8192 |
+
+Genau eine Zeile: Value uniqueidentifier NULL, Status varchar(16) NOT NULL,
+ErrorCode varchar(32) NULL. Textdiagnosen Latin1_General_100_BIN2.
+Nur OK enthält einen Wert; SQL_NULL enthält keinen ErrorCode.
+SQL_NULL → INVALID_ARGUMENT → LIMIT → EMPTY → INVALID_FORMAT →
+OUT_OF_RANGE → LOSSY → OK. LOSSY bezeichnet ausschließlich Decimal-Skalenverlust.
+
+Keine Eingabewiederholung, Localeinterpretation, stille Rundung oder
+Trunkierung. UTF16-Bytebudget 1..8192 einschließlich trailing spaces; kein Trim.
+Keine Seiteneffekte oder eigenen Transaktionen. Vorhandenes SELECT erforderlich;
+CrossDB benötigt passende bestehende Rechte. Kein CLR und keine Dependencies.
+
+```sql
+SELECT input.TextValue,converted.Value,converted.Status,converted.ErrorCode
+FROM (VALUES(N'00112233-4455-6677-8899-aabbccddeeff'),(N'bad-guid'),(CONVERT(nvarchar(36),NULL))) input(TextValue)
+CROSS APPLY toolbelt_conversion.TVF_TryCastUniqueIdentifier(input.TextValue,DEFAULT) converted;
+```
+
+Relationaler Ausdruck ohne rekursiven Callerhint. Begrenzt auf 4096 UTF16-
+Codeeinheiten; Optimizer darf Konversionen früher auswerten, daher sind auch
+abgewiesene Operanden sicher. Keine allgemeine Performance-/Parallelitätszusage.
+SQL Server 2019/2022/2025 Windows/Linux sind Zielplattformen; aktuelle ausgeführte
+Nachweise und offene Kontexte stehen in [Tests/README.md](../Tests/README.md).
