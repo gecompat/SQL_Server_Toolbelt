@@ -193,6 +193,25 @@ ausgewählten SQL2019 Linux/latest CL150; kein öffentlicher API-Nachweis und ke
 Labmutation. Bestehende konkrete Zustimmungen bleiben erhalten; neue Vorschläge
 werden weder als Implementierungsfreigabe noch als Runtime-Capability dargestellt.
 
+Weitere Designprüfung 2026-10-05 für `RI-2026-041/048`: Die
+[Entscheidungsvorlage](../Documentation/Research/NEXT_DEVELOPMENT_WAVES_2026-10-04.md)
+konkretisiert einen nativen Pointer-MSTVF-Pfad mit ISJSON als Grammatikautorität,
+separatem Unicode-/Tiefenpolicywalker und vorgelagerten gültigen OPENJSON-
+Operanden. Fragmentkopien bleiben ein begrenzter, unqualifizierter Kostenfaktor.
+Für Schema sind exakte Mantissen-/Exponentziffernvergleiche ohne BigInteger-
+Dependency und die unabhängigen Input-/Arbeitsceiling-Folgen ausgearbeitet:
+16MiB Input garantieren keinen Abschluss unter einer Million Defaultschritten;
+unvollständige Arbeit liefert LIMIT/IsValidNULL. Keine Defaultänderung,
+Keyworderweiterung oder neue Source-/Providerfreigabe. Die Designprüfung enthält
+keine Kernlaufzeitprüfung. Anschließend bestanden sechs neue synthetische lesende
+Pointer-Engineproben mit eigenem120s-Watchdog, Exit0, vollständigen Kanälen und
+leerem Stderr auf schema-validiertem Linux2019/latest CL150: NUL-Key-Identität,
+zwei mixed-Surrogate-Fälle, zwei byteexakte Zahlenliterale und direkter Depth128-
+Container. Keine Labmutation; ältere17 Proben nicht wiederholt. Kein öffentlicher
+API-, Policywalker-, Maximalworkload- oder Gesamtproduktnachweis.
+Safe Cast ist inzwischen separat
+in PR171 umgesetzt; ältere Vorschlagsaussagen bleiben als Historie erhalten.
+
 ### TC-2026-039 / TC-2026-040 / TC-2026-042: Deterministic-Familie implementiert
 
 Stand 2026-10-02: Die am 2026-10-01 einzeln freigegebenen
