@@ -2,9 +2,49 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-39 Module sind implementiert. 19 sind `validated`, 20 sind `partially validated`; 0 sind `not executed`.
+40 Module sind implementiert. 19 sind `validated`, 21 sind `partially validated`; 0 sind `not executed`.
 
 ## Aktive Arbeitspakete
+
+### RI-2026-109: CSV-Memory – konkretisierte Umsetzung freigegeben 2026-10-05
+
+Die unmittelbar vor der Fortsetzungsanweisung vorgelegte konkrete Welle umfasst
+`USP_ParseCsv` und `USP_WriteCsv` mit eigener portabler SAFE-CLR-Assembly,
+100000 Datenzeilen, 1024 Spalten, 1000000 Zellen und 16 MiB UTF16-Textbudget;
+die Limits sind ausschließlich absenkbar. Zweck, öffentlicher Vertrag,
+NULL-Token, T-SQL-Alternative, Trust-/Deploymentaufwand und Risiken wurden
+besprochen. Darauf beauftragte der Benutzer autonome Weiterentwicklung bis
+zu seinem Stopp oder einer tatsächlich notwendigen Eingabe und verwies
+ausdrücklich auf die abgeschlossene Besprechung. Diese Antwort auf den
+konkreten CSV-Vorschlag ist die funktionsbezogene Implementierungsfreigabe;
+die zuvor engere Bewertung als offenes CSV-Sourcegate ist damit korrigiert.
+
+Scope: genau diese beiden öffentlichen USPs, In-memory ohne Datei-/Netzwerkzugriff,
+kanonischer ResultTable-Vertrag, unabhängiger Review, begrenzte aussagekräftige
+Tests, exakte grüne Head-CI, PR/Merge und eigener Branch-Cleanup. Keine
+Veröffentlichung; JSON Pointer, Safe Cast und JSON Schema erhalten daraus
+keine Sourcefreigabe. Der [CSV-Vertrag](../Documentation/Architecture/CSV_MEMORY_CONTRACT.md)
+konkretisiert die bereits besprochenen Grenzen. Version1.0.0 ist `implemented`,
+`partially validated`, `unreleased`. Am 2026-10-05 bestanden statische Verträge
+und das exakt gepackte CLR-Binary unter .NET48 in drei Kulturen einschließlich
+harter Grenzfälle und IL-/NoIO-Prüfungen. Der achte öffentliche native
+Gesamtadapter bestand auf Linux2019/latest CL150 local/central mit finalem
+gepacktem Produkt und gleichen CLR-Bytes: drei SQLfixtures, Clientmetadaten,
+Clean/Repeat, fünf Slots/drei Bindings, 29 konkrete Caller-/SET-/Lock-/Rollback-/
+Confirm0-Prüfungen, frischer SC-/UTF8-Consumer und Uninstall/Repeat. Exit0,
+vollständige Kanäle, leeres Stderr und eigener Cleanup im Lauf bestanden;
+Der frische unabhängige Audit dieses Laufs bestand anschließend.
+Derselbe finale Adapter und dasselbe Produkt-/Binarypaar bestanden zusätzlich
+auf Windows2025/exaktCU8 CL170 local/central mit identischem Fixture-/Client-/
+Consumer-/29-Lifecycle-Scope, Exit0, vollständigen Kanälen, leerem Stderr und
+Cleanup im Lauf. Der frische Linuxaudit bestätigt drei eigene DBs/einen eigenen
+Trusthash abwesend; der frische Windowsaudit bestätigt ebenfalls drei eigene
+DBs/einen eigenen Trusthash abwesend. Historische Syntax-/
+LF-Padding-Fehlläufe und der fünfte Metadata-Fehllauf bleiben FAILED. Die
+Produktkorrekturen betreffen LF-Padding und drei Help-first-NOT-NULL-Spalten.
+Keine Konfigurations-/Rechteänderungen. Weitere Ziele, Fremdslot-/
+Driftvollmatrix, Minimalrechte, Heap und exakte Head-CI bleiben offen.
+Nächster Schritt: exakte Head-CI und PR-/Mergeabschluss.
 
 ### Queue-Worker 2 – autonome Umsetzung freigegeben 2026-10-04
 

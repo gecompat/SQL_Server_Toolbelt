@@ -615,10 +615,13 @@ def markdown_files_for_scope(
     full_audit: bool,
 ) -> list[Path]:
     if full_audit:
+        # Private, ignored runtime copies are not repository documentation.
+        # Include new public files as well as tracked files during development.
+        inventory = run_git("ls-files", "--cached", "--others", "--exclude-standard", "-z", "--", "*.md")
         return sorted(
-            path
-            for path in REPOSITORY_ROOT.rglob("*.md")
-            if ".git" not in path.parts
+            REPOSITORY_ROOT / relative
+            for relative in inventory.split("\0")
+            if relative and (REPOSITORY_ROOT / relative).is_file()
         )
 
     files = {
@@ -1340,6 +1343,14 @@ def run_text_pairs_static() -> None:
         raise ValidationError("Statische Paarvergleich-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
 
 
+def run_csv_memory_static() -> None:
+    script = REPOSITORY_ROOT / "Modules/toolbelt.file.csv-memory/Tests/Static/validate_contract.py"
+    result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+                            check=False, capture_output=True, text=True, encoding="utf-8")
+    if result.returncode != 0:
+        raise ValidationError("Statische CSV-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
+
+
 def run_regex_static() -> None:
     script = (
         REPOSITORY_ROOT
@@ -1680,6 +1691,8 @@ def main() -> int:
         run_edit_distance_static()
     if "text_pairs_static" in checks:
         run_text_pairs_static()
+    if "csv_memory_static" in checks:
+        run_csv_memory_static()
     if "regex_static" in checks:
         run_regex_static()
     if "identifier_runtime_workflow_scope" in checks:

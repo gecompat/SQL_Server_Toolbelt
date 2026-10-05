@@ -2,7 +2,7 @@
 
 <!-- Generiert mit Tests/Documentation/generate_api_catalog.py --write; nicht direkt bearbeiten. -->
 
-148 öffentliche Schnittstellen aus 39 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
+150 öffentliche Schnittstellen aus 40 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
 
 Jedes Beispiel separat verwenden. Funktionen verlangen positionsbezogene Argumente; `DEFAULT` verwendet einen deklarierten Default, `NULL` kann davon abweichen. Prozeduren verwenden benannte Parameter. Vorlagen mit Handlern, Claims, Dateien oder Plan-Hashes erfordern die beschriebenen Voraussetzungen. Eine Syntaxvorlage ist kein Runtime-Nachweis.
 
@@ -2506,6 +2506,86 @@ Hilfe:
 
 ```sql
 EXEC toolbelt_file.USP_LoadTextFile @FilePath=NULL, @Hilfe=1;
+```
+
+## toolbelt_file.USP_ParseCsv
+
+Modul `toolbelt.file.csv-memory` · Version `1.0.0` · `USP`
+
+Parst begrenzten Unicode-CSV-Text vollständig als rechteckige HEADER-/DATA-Zellen; keine Datei- oder Netzwerkquelle.
+
+Vertrag und Quelle: [USP_ParseCsv.sql](../../Modules/toolbelt.file.csv-memory/Source/USP_ParseCsv.sql), [USP_ParseCsv.md](../../Modules/toolbelt.file.csv-memory/Documentation/USP_ParseCsv.md).
+
+<!-- Source/Vertrag SHA256: 71313aaa0705888c7246d02e32f348e12b90c0bb6df822a4592d73b15eb838e9 -->
+
+Voraussetzung: Vorhandener SAFE-Provider und bei Routing sameDB-ResultTable-Helper.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Text` | `nvarchar(max)` | `NULL` | Input | Vollständiger Unicode-Text; SQL-NULL ist Argumentfehler, leer ergibt keine Zellen. |
+| `@Separator` | `nvarchar(2)` | `N','` | Input | Exakt eine UTF16-Einheit außer Quote, CR, LF, NUL und Surrogate. |
+| `@HasHeader` | `bit` | `0` | Input | 0 ohne Header; 1 genau ein Headerrecord; NULL ist Argumentfehler. |
+| `@NullToken` | `nvarchar(128)` | `NULL` | Input | Optional: exakt unquoted DATA-Token ergibt SQL-NULL; quoted Token bleibt Text. |
+| `@MaxRows` | `bigint` | `100000` | Input | Positive absenkbare Grenze höchstens100000 DATA-Records. |
+| `@MaxColumns` | `int` | `1024` | Input | Positive absenkbare Grenze höchstens1024 Spalten pro Record. |
+| `@MaxCells` | `bigint` | `1000000` | Input | Positive absenkbare Grenze höchstens1000000 HEADER+DATA-Zellen. |
+| `@MaxInputBytes` | `bigint` | `16777216` | Input | UTF16-Textbytes einschließlich Header, Quotes und Separatoren; höchstens16777216. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL gibt genau ein Resultset aus, sonst vorhandene caller-lokale Temp-Tabelle ohne Resultset. |
+| `@KeepData` | `bit` | `0` | Input | 0 Replace, 1 Append nach dem kanonischen ResultTable-Vertrag. |
+| `@Debug` | `tinyint` | `0` | Input | Nur Messages; keine zusätzlichen Resultsets oder Payloads. |
+| `@Hilfe` | `bit` | `0` | Input | 1 gibt ausschließlich Standardhilfe aus und umgeht sämtliche fachlichen Prüfungen. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_file.USP_ParseCsv @Text=N'a,b',@NullToken=N'NULL';
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_file.USP_ParseCsv @Hilfe=1;
+```
+
+## toolbelt_file.USP_WriteCsv
+
+Modul `toolbelt.file.csv-memory` · Version `1.0.0` · `USP`
+
+Schreibt einen read-only Snapshot vier typgenauer caller-lokaler Temp-Spalten als vollständig budgetiertes CSV.
+
+Vertrag und Quelle: [USP_WriteCsv.sql](../../Modules/toolbelt.file.csv-memory/Source/USP_WriteCsv.sql), [USP_WriteCsv.md](../../Modules/toolbelt.file.csv-memory/Documentation/USP_WriteCsv.md).
+
+<!-- Source/Vertrag SHA256: 83dffe079b49d77c6c2ec07bea1f6b2427e7930ff319836233f15f33dd4d197c -->
+
+Voraussetzung: Vorhandener SAFE-Provider; Quelle ist keine ResultTable und bleibt unverändert.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@CellsTable` | `sysname` | `NULL` | Input | Genau RowKind varchar(6), RowOrdinal bigint, ColumnOrdinal int, Value nvarchar(max), eingebaute Typen. |
+| `@Separator` | `nvarchar(2)` | `N','` | Input | Exakt eine UTF16-Einheit außer Quote, CR, LF, NUL und Surrogate. |
+| `@HasHeader` | `bit` | `0` | Input | 0 ohne Header; 1 genau ein Headerrecord; NULL ist Argumentfehler. |
+| `@NullToken` | `nvarchar(128)` | `NULL` | Input | Ohne Token ist SQL-NULL nicht schreibbar; Header-NULL ist immer Fehler. |
+| `@LineEnding` | `varchar(4)` | `'CRLF'` | Input | Exakt CRLF oder LF; jeder Ausgaberecord einschließlich des letzten erhält einen Abschluss. |
+| `@MaxRows` | `bigint` | `100000` | Input | Positive absenkbare Grenze höchstens100000 DATA-Records. |
+| `@MaxColumns` | `int` | `1024` | Input | Positive absenkbare Grenze höchstens1024 Spalten pro Record. |
+| `@MaxCells` | `bigint` | `1000000` | Input | Positive absenkbare Grenze höchstens1000000 HEADER+DATA-Zellen. |
+| `@MaxValueBytes` | `bigint` | `16777216` | Input | Summe aller UTF16-Snapshotwerte, NULL zählt0; höchstens16777216. |
+| `@MaxOutputBytes` | `bigint` | `16777216` | Input | Vollständige Ausgabe einschließlich Quoting, Separatoren und finalem Recordabschluss; höchstens16777216. |
+| `@ResultTable` | `sysname` | `NULL` | Input | NULL gibt genau ein Resultset aus, sonst vorhandene caller-lokale Temp-Tabelle ohne Resultset. |
+| `@KeepData` | `bit` | `0` | Input | 0 Replace, 1 Append nach dem kanonischen ResultTable-Vertrag. |
+| `@Debug` | `tinyint` | `0` | Input | Nur Messages; keine zusätzlichen Resultsets oder Payloads. |
+| `@Hilfe` | `bit` | `0` | Input | 1 gibt ausschließlich Standardhilfe aus und umgeht sämtliche fachlichen Prüfungen. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+CREATE TABLE #CsvCells(RowKind varchar(6),RowOrdinal bigint,ColumnOrdinal int,Value nvarchar(max)); INSERT #CsvCells VALUES('DATA',1,1,N'Contoso'); EXEC toolbelt_file.USP_WriteCsv @CellsTable=N'#CsvCells'; DROP TABLE #CsvCells;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_file.USP_WriteCsv @Hilfe=1;
 ```
 
 ## toolbelt_file.USP_ListXlsxWorksheets

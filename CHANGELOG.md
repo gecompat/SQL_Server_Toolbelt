@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 2026-10-05 – CSV Memory / 1.0.0
+
+- Einzeln freigegebene `USP_ParseCsv` und `USP_WriteCsv` mit eigenem SAFE-CLR-Kern,
+  rechteckigen HEADER-/DATA-Zellen, exaktem NULL-Token und atomarem ResultTable-Routing.
+  100000 DATA-Records, 1024 Spalten, eine Million Zellen und 16 MiB UTF16-Textbytes;
+  alle Budgets nur absenkbar. Kein Datei- oder Netzwerkzugriff.
+- Binarygebundene .NET48-Frameworkprüfungen mit drei Kulturen, unabhängigen
+  Quotingorakeln, harten Grenzen und IL-Prüfung bestanden. Finale öffentliche Labadapter
+  auf Linux2019/latest CL150 und Windows2025/exakt CU8 CL170 bestanden jeweils lokal,
+  zentral und mit separatem Consumer: SQL-Verträge, Budgets, Clientmetadaten,
+  29 Caller-/Lock-/Rollbackfälle, Repeat und Uninstall/Repeat. Frühere fehlgeschlagene
+  Syntax-, LF-Padding- und Help-Metadatenläufe bleiben getrennt; exakte Head-CI ist
+  ein separater Mergegate.
+- Teilweise validiert, unveröffentlicht. Weitere physische Ziele, tatsächliche
+  Minimalrechte und Heap-/Produktionskapazität bleiben offen.
+
 ## 2026-10-04/05 – Managed Queue Worker / unveröffentlichte Welle
 
 - Queue 2.1 und Worker-Control 1.0 ergänzen den bestehenden externen Provider
@@ -682,7 +698,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-39 Module sind implementiert. 19 sind `validated`, 20 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+40 Module sind implementiert. 19 sind `validated`, 21 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

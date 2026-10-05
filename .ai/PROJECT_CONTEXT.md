@@ -1,5 +1,34 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## Aktive CSV-Memory-Welle 2026-10-05
+
+Die Antwort auf den konkret besprochenen CSV-Scope beauftragt dessen autonome
+Umsetzung: genau `USP_ParseCsv` und `USP_WriteCsv`, eigener portabler SAFE-Kern,
+optionales NULL-Token und ausschließlich absenkbare 100000-/1024-/1000000-/
+16-MiB-Grenzen. Der [CSV-Vertrag](../Documentation/Architecture/CSV_MEMORY_CONTRACT.md)
+und die datierte funktionsbezogene Freigabe in `.ai/BACKLOG.md` begrenzen die
+Welle. Kein Datei-/Netzwerkzugriff, keine Drittanbieterbibliothek und keine
+Veröffentlichung. Version1.0.0 ist `implemented`, `partially validated`,
+`unreleased`. Am 2026-10-05 bestanden statische Verträge sowie das exakt
+gepackte CLR-Binary unter .NET48 mit drei Kulturen, harten Grenzfällen und
+IL-/NoIO-Prüfungen. Der achte öffentliche native Gesamtadapter bestand auf
+Linux2019/latest CL150 local/central mit finalem gepacktem Produkt und gleichen
+CLR-Bytes: drei SQLfixtures, Clientmetadaten, Clean/Repeat, fünf Slots/drei
+Bindings, 29 konkrete Caller-/SET-/Lock-/Rollback-/Confirm0-Prüfungen, frischer
+SC-/UTF8-Consumer und Uninstall/Repeat. Exit0, vollständige Kanäle, leeres Stderr
+und Cleanup im Lauf bestanden; der frische unabhängige Audit bestand anschließend.
+Derselbe finale Adapter und dasselbe Produkt-/Binarypaar bestanden zusätzlich
+auf Windows2025/exaktCU8 CL170 local/central mit identischem Fixture-/Client-/
+Consumer-/29-Lifecycle-Scope, Exit0, vollständigen Kanälen, leerem Stderr und
+Cleanup im Lauf. Der frische Linuxaudit bestätigt drei eigene DBs/einen eigenen
+Trusthash abwesend; der frische Windowsaudit bestätigt ebenfalls drei eigene
+DBs/einen eigenen Trusthash abwesend. Historische Syntax-/LF-Padding-Fehlläufe
+und der fünfte Metadata-Fehllauf bleiben
+FAILED. LF-Padding und drei Help-first-NOT-NULL-Spalten wurden korrigiert.
+Keine Konfigurations-/Rechteänderungen. Weitere Ziele, Fremdslot-/
+Driftvollmatrix, Minimalrechte, Heap und exakte Head-CI bleiben offen. JSON Pointer,
+Safe Cast und JSON Schema sind getrennte Folgegrenzen.
+
 ## Aktive Managed-Queue-Worker-Welle 2026-10-04
 
 Die konkret freigegebene Weiterentwicklung ergänzt den bestehenden externen
@@ -75,7 +104,7 @@ werden in der Modul-Testdokumentation von den finalen Nachweisen getrennt.
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-39 Module sind implementiert. 19 sind `validated`, 20 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
+40 Module sind implementiert. 19 sind `validated`, 21 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
 `toolbelt.datetime.date-spine` implementiert D1 mit drei öffentlichen Inline

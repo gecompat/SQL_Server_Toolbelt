@@ -1,0 +1,119 @@
+module_id: "toolbelt.file.csv-memory"
+module_name: "CSV Memory Parser and Writer"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: "partially validated"
+release_status: unreleased
+description: "Begrenzte rechteckige CSV-Zellen und atomarer CSV-Writer ohne Datei- oder Netzwerkzugriff."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "partially validated"
+  linux: "partially validated"
+providers:
+  - id: safe-clr-csv-memory
+    technology: "Eigener UTF16-Scanner und kanonischer Quoting-Kern; .NET Framework 4.8"
+    platforms: [Windows, Linux]
+    status: "partially validated"
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies:
+  - module_id: "toolbelt.core.result-table"
+    minimum_version: "1.0.0"
+    reason: "Same-database kanonische ResultTable-Runtime."
+schemas:
+  - "toolbelt_file"
+objects:
+  - {type: USP, schema: "toolbelt_file", name: "USP_ParseCsv", visibility: public}
+  - {type: USP, schema: "toolbelt_file", name: "USP_WriteCsv", visibility: public}
+  - {type: CLR_TVF, schema: "toolbelt_file", name: "TVF_InternalParseCsv", visibility: internal}
+  - {type: CLR_SVF, schema: "toolbelt_file", name: "SVF_InternalMeasureCsvCell", visibility: internal}
+  - {type: CLR_SVF, schema: "toolbelt_file", name: "SVF_InternalQuoteCsvCell", visibility: internal}
+  - {type: ASSEMBLY, name: "Toolbelt_File_CsvMemory", visibility: internal}
+permissions_required:
+  - "Vorhandenes EXECUTE auf den öffentlichen USPs und der verwendeten ResultTable-Runtime; keine Rechtevergabe."
+  - "Lifecycle: Datenbank-VIEW DEFINITION, SELECT auf sys.sql_expression_dependencies und passende Schema-/Assembly-DDL-Rechte."
+  - "Getrennter exakter SHA2-512-Trust-Opt-in benötigt vorhandene administrative Rechte."
+collation_contract: "Wertzeichen unverändert; ordinale UTF16-Tokenvergleiche; öffentliche Texte Latin1_General_100_BIN2."
+data_type_contract: "CSV nvarchar(max); Zeilen bigint, Spalten int; UTF16-Textbytes mit DATALENGTH, keine Heap-Zusage."
+help_contract_version: "1.0"
+resultset_contracts:
+  - object: "toolbelt_file.USP_ParseCsv"
+    columns: ["RowKind varchar(6) NOT NULL", "RowOrdinal bigint NOT NULL", "ColumnOrdinal int NOT NULL", "Value nvarchar(max) NULL"]
+  - object: "toolbelt_file.USP_WriteCsv"
+    columns: ["CsvText nvarchar(max) NOT NULL", "DataRows bigint NOT NULL", "ColumnCount int NOT NULL"]
+runtime_error_contract: "55300-55309; unerwartete technische Fehler bleiben Originalfehler."
+lifecycle_error_range: "55320-55329"
+trust_error_range: "55340-55349"
+clr:
+  used: true
+  language: "C#"
+  target_framework: ".NET Framework 4.8"
+  assembly_sql_name: "Toolbelt_File_CsvMemory"
+  assembly_file_name: "Toolbelt.File.CsvMemory.dll"
+  permission_set: "SAFE"
+  trust_method: "SHA2-512 via separates sys.sp_add_trusted_assembly Opt-in"
+  direct_framework_references: [System, System.Data]
+  third_party_dependencies: []
+  build_project: "Clr/Toolbelt.File.CsvMemory.csproj"
+  release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
+lifecycle:
+  deploy_template: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  trust_opt_in: "Deployment/Add-TrustedAssembly.sql"
+  execution_mode: "SQLCMD"
+  source_hash_role: "diagnostic_only"
+  trust_removed_by_uninstall: false
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/USP_ParseCsv.md"
+    - "Documentation/USP_WriteCsv.md"
+  architecture:
+    - "../../Documentation/Architecture/CSV_MEMORY_CONTRACT.md"
+  test_matrix:
+    - "Tests/CSV_TEST_MATRIX.md"
+  evidence:
+    - "Tests/README.md"
+  examples:
+    - "Examples/Csv.sql"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  framework: "Tests/Framework/run-framework-csv.ps1"
+  runtime: "Tests/Runtime/Contract.Tests.sql"
+  boundaries: "Tests/Runtime/Safety.Tests.sql"
+  lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
+  lab: "../../Tests/CI/run-csv-memory-lab.ps1"
+  github_hosted: "../../.github/workflows/csv-memory-qualification.yml"
+validation_evidence:
+  - date: "2026-10-05"
+    workflow: "local: Tests/Static/validate_contract.py"
+    scope: "Statische CSV-Verträge für Source, Lifecycle, Trust und Binary-first-Generator bestanden; kein Runtime-Nachweis."
+    result: "success"
+  - date: "2026-10-05"
+    workflow: "local: Tests/Framework/run-framework-csv.ps1"
+    scope: "Exakt gepacktes aktuelles CLR-Binary: .NET Framework 4.8, en-US/de-DE/tr-TR, unabhängige Orakel, harte Grenzfälle und IL-/NoIO-Prüfungen bestanden. Kein SQL-, Client-, Lifecycle-, Heap- oder Gesamtproduktnachweis."
+    result: "success"
+  - date: "2026-10-05"
+    workflow: "local: Tests/CI/run-csv-memory-lab.ps1"
+    scope: "Fünfter nativer Gesamtlauf FAILED an generischer Assertion in Metadata.Tests.ps1. Aktueller LF-Fix: Contract.Tests.sql, Safety.Tests.sql und Lifecycle.Tests.sql sowie Clean/Repeat und native Bindings nur lokal auf Linux2019/latest CL150 bestanden. Kein Gesamt-PASS, kein abgeschlossener Client-/vollständiger Lifecycle-/Central-Nachweis; keine frische Audit-Evidenz dieses fünften Laufs hier beansprucht. Keine Konfigurations-/Rechteänderungen. Frühere Syntax-/LF-Padding-Fehlläufe bleiben fehlgeschlagen; Produktkorrekturen ersetzen keine erfolgreiche Wiederholung."
+    result: "failed"
+  - date: "2026-10-05"
+    workflow: "local: Tests/CI/run-csv-memory-lab.ps1"
+    scope: "Achter öffentlicher Gesamtadapter PASS auf Linux2019/latest CL150 local/central, finaler gepackter Produktstand mit gleichen CLR-Bytes: alle drei SQLfixtures, Clientmetadaten, Clean/Repeat, fünf Slots/drei CLR-Bindings, 29 konkrete Caller-/SET-/Lock-/Rollback-/Confirm0-Prüfungen, frischer SC-/UTF8-Consumer, Uninstall/Repeat. Exit0, vollständige Kanäle, leeres Stderr und eigener Cleanup im Lauf bestanden; frischer unabhängiger Audit noch ausstehend. Keine Konfigurations-/Rechteänderungen. Kein Fremdslot-/Driftvollmatrix-, Windows-/übriger Ziel-, Minimalrechte-, Heap- oder Head-CI-Nachweis. Frühere Fehlläufe bleiben getrennt."
+    result: "success"
+  - date: "2026-10-05"
+    workflow: "local: Tests/CI/run-csv-memory-lab.ps1"
+    scope: "Finales gleiches Produkt-/Binarypaar: öffentliche Gesamtadapter auf Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 jeweils local/central mit allen drei SQLfixtures, Clientmetadaten, Clean/Repeat, fünf Slots/drei Bindings, je 29 gezielten Caller-/SET-/Lock-/Rollback-/Confirm0-Prüfungen, frischem SC-/UTF8-Consumer und Uninstall/Repeat PASS. Je Exit0, vollständige Kanäle, leeres Stderr und Cleanup im Lauf bestanden. Linux: frischer unabhängiger Audit bestätigt drei eigene DBs/einen eigenen Trusthash abwesend, keine Konfigurations-/Rechteänderungen; Windows: frischer unabhängiger Audit bestätigt ebenfalls drei eigene DBs/einen eigenen Trusthash abwesend, keine Konfigurations-/Rechteänderungen. Keine Minimalrechte-/Fremdslot-/Driftvollmatrix-/Heap-/übrige Zielmatrix- oder Head-CI-Qualifikation. Frühere FAILED-Läufe bleiben getrennt."
+    result: "success"
