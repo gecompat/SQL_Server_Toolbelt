@@ -1,8 +1,8 @@
 # CSV-Prüfungen und Evidenz
 
 Stand 2026-10-05: Version1.0.0 ist implementiert, `partially validated` und
-unveröffentlicht. Keine historische CI oder andere SAFE-Assembly qualifiziert
-diese neuen CSV-Bytes.
+unveröffentlicht. Die unten genannte CI ist an den exakten CSV-PR-Head
+gebunden; andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
 Die statischen Verträge bestanden. `Tests/Framework/run-framework-csv.ps1`
 qualifizierte das exakt gepackte aktuelle .NET48-Binary in en-US, de-DE und
@@ -38,7 +38,30 @@ Der fünfte Lauf belegte lediglich lokale Clean/Repeat-/Binding- und SQLfixture-
 Teilresultate. Die Produktkorrekturen betreffen das NCHAR-CASE-Padding des LF-
 Writers und drei deklarierte NOT-NULL-Spalten im Help-first-Pfad. Erst der achte
 Lauf liefert den genannten Gesamtadapter-PASS. SQL Server 2022, übrige Windows-/Linux-Ziele und Compatibility Levels,
-weitere Collations sowie aktuelle exakte Head-CI sind noch nicht nachgewiesen.
+weitere Collations bleiben offen.
+
+Zusätzlicher begrenzter Marker-Nachweis am 2026-10-05: ein mechanisch vom
+öffentlichen Labadapter abgeleiteter, hashgebundener Adapter prüfte ausschließlich
+zwei synthetische Typdriftfälle auf Linux2019/latest CL150 lokal. Deploy und
+Uninstall wiesen `Toolbelt.Managed` als `int` statt des ursprünglichen `bit`
+auf `USP_ParseCsv` jeweils mit SQL55324/state5 ab; vollständige Metadaten blieben
+unverändert und der Transaktionszustand neutral. Der eigene Marker wurde unter
+exakter Identitäts-/Driftprüfung restauriert. Exit0, vollständige Kanäle und
+leeres Stderr sowie der frische unabhängige Audit bestanden: eine eigene DB und
+ein eigener Trusthash abwesend, keine Konfigurations-/Rechteänderungen.
+Diese zwei Fälle sind ein separater Teilnachweis; sie erweitern weder den
+29-Fall-Zähler noch die API-/Client-/Central-/Windows- oder vollständige
+Fremdslot-/Driftmatrixqualifikation.
+
+[PR169](https://github.com/gecompat/SQL_Server_Toolbelt/pull/169) wurde am
+exakten Head `89f36f848ab68a1a72898ddd5f081fc47740f119` mit fünf erfolgreichen
+Checks gemergt: CSV Memory Qualification, Documentation Incremental sowie
+ZIP Static contract, .NET48 build und Linux SQL2022 runtime. Der CSV-Workflow
+qualifiziert seinen registrierten Framework-/statischen Scope; der ZIP-Runtime-
+Check ist kein CSV-SQL2022-Nachweis. Die unveränderten kanonischen CSV-Quellen
+binden diese historische Head-CI an denselben Source-Stand; lokale Produktbytes
+wurden getrennt qualifiziert. Neue PR-Heads benötigen
+ihre eigenen Checks.
 
 Reproduzierbare Prüfpunkte:
 
@@ -69,7 +92,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1`
-- Scope: Finales gleiches Produkt-/Binarypaar: öffentliche Gesamtadapter auf Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 jeweils local/central mit allen drei SQLfixtures, Clientmetadaten, Clean/Repeat, fünf Slots/drei Bindings, je 29 gezielten Caller-/SET-/Lock-/Rollback-/Confirm0-Prüfungen, frischem SC-/UTF8-Consumer und Uninstall/Repeat PASS. Je Exit0, vollständige Kanäle, leeres Stderr und Cleanup im Lauf bestanden. Linux: frischer unabhängiger Audit bestätigt drei eigene DBs/einen eigenen Trusthash abwesend, keine Konfigurations-/Rechteänderungen; Windows: frischer unabhängiger Audit bestätigt ebenfalls drei eigene DBs/einen eigenen Trusthash abwesend, keine Konfigurations-/Rechteänderungen. Keine Minimalrechte-/Fremdslot-/Driftvollmatrix-/Heap-/übrige Zielmatrix- oder Head-CI-Qualifikation. Frühere FAILED-Läufe bleiben getrennt.
+- Nachweis: `local: hashgebundener Typed-Marker-Teiladapter aus Tests/CI/run-csv-memory-lab.ps1`
+- Scope: Zwei separate synthetische Markerfälle auf Linux2019/latest CL150 lokal: Deploy/Uninstall weisen Toolbelt.Managed als int statt bit auf USP_ParseCsv mit SQL55324/state5 ab; vollständige Metadaten unverändert, neutraler Transaktionszustand und exakte eigene Restaurierung bestanden. Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit bestätigt eine eigene DB/einen eigenen Trusthash abwesend, keine Konfigurations-/Rechteänderungen. Kein neuer Gesamtadapter-, API-, Client-, Central-, Windows-, Minimalrechte-, Heap- oder vollständiger Fremdslot-/Driftmatrix-Nachweis; nicht zum bisherigen 29-Fall-Zähler addiert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

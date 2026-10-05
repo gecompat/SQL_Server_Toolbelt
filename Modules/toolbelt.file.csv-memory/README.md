@@ -57,7 +57,7 @@ den ausdrücklich dokumentierten Toolbelt-Dialekt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1`
-- Scope: Finales gleiches Produkt-/Binarypaar: öffentliche Gesamtadapter auf Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 jeweils local/central mit allen drei SQLfixtures, Clientmetadaten, Clean/Repeat, fünf Slots/drei Bindings, je 29 gezielten Caller-/SET-/Lock-/Rollback-/Confirm0-Prüfungen, frischem SC-/UTF8-Consumer und Uninstall/Repeat PASS. Je Exit0, vollständige Kanäle, leeres Stderr und Cleanup im Lauf bestanden. Linux: frischer unabhängiger Audit bestätigt drei eigene DBs/einen eigenen Trusthash abwesend, keine Konfigurations-/Rechteänderungen; Windows: frischer unabhängiger Audit bestätigt ebenfalls drei eigene DBs/einen eigenen Trusthash abwesend, keine Konfigurations-/Rechteänderungen. Keine Minimalrechte-/Fremdslot-/Driftvollmatrix-/Heap-/übrige Zielmatrix- oder Head-CI-Qualifikation. Frühere FAILED-Läufe bleiben getrennt.
+- Nachweis: `local: hashgebundener Typed-Marker-Teiladapter aus Tests/CI/run-csv-memory-lab.ps1`
+- Scope: Zwei separate synthetische Markerfälle auf Linux2019/latest CL150 lokal: Deploy/Uninstall weisen Toolbelt.Managed als int statt bit auf USP_ParseCsv mit SQL55324/state5 ab; vollständige Metadaten unverändert, neutraler Transaktionszustand und exakte eigene Restaurierung bestanden. Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit bestätigt eine eigene DB/einen eigenen Trusthash abwesend, keine Konfigurations-/Rechteänderungen. Kein neuer Gesamtadapter-, API-, Client-, Central-, Windows-, Minimalrechte-, Heap- oder vollständiger Fremdslot-/Driftmatrix-Nachweis; nicht zum bisherigen 29-Fall-Zähler addiert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

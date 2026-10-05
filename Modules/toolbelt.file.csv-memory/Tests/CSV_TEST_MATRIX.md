@@ -18,12 +18,13 @@ Fixtures geprüft; daraus folgt keine Heap- oder vollständige Ceilingqualifikat
 | Installation | Clean/Repeat, fünf Slots/drei native CLR-Bindings | passed local/central Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 |
 | SQL-Lifecyclefixture | Lifecycle.Tests.sql | passed local/central |
 | Gezielter Lifecycle | Caller/SET, AppLock, injected Rollback, Confirm0, Uninstall/Repeat | passed; 29 konkrete Caller-/Lock-/Rollback-/Confirm0-Prüfungen, kein Fremdslot-/Driftvollmatrix-Nachweis |
-| Fremdslots/Markerdrift | weitergehende Lifecycle-Kollisions-/Driftmatrix | not executed |
+| Typed-Marker-Teilnachweis | synthetisches int statt bit auf USP_ParseCsv, Deploy/Uninstall SQL55324/state5, unveränderte Metadaten und exakte Restaurierung | passed; zwei separate Fälle Linux2019/latest CL150 lokal, frischer unabhängiger Audit eine eigene DB/ein eigener Trusthash abwesend; kein Gesamtadapter-/Windows-/Central-Nachweis |
+| Fremdslots/Markerdrift | weitergehende Lifecycle-Kollisions-/Driftmatrix | not executed; der separate Zweifall-Nachweis ersetzt die Vollmatrix nicht |
 | Client | echte SqlDataReader-Spalten/Nullability/Resultsetanzahl, keine Help-Seiteneffekte | passed im achten Lauf; historischer fünfter Metadata-Fehllauf bleibt FAILED |
 | Modi | local, central, CrossDB mit caller-lokalen Temps und abweichender Collation | passed local/central und frischer SC-/UTF8-Consumer; keine Collationvollmatrix |
 | Plattform | SQL2019/2022/2025 Windows/Linux und relevante CL getrennt | Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 bestanden; übrige Matrix not executed |
 | Gesamtadapter/Cleanup | Prozessausgang, vollständige Kanäle, frischer unabhängiger OwnDB-/Trustaudit | achter Lauf PASS, Exit0, vollständige Kanäle/leeres Stderr, Cleanup im Lauf PASS; frische unabhängige Audits je drei OwnDB/ein OwnTrust abwesend; keine Konfigurations-/Rechteänderungen |
-| Head-CI | separater Nachweis am exakten PR-Head | not executed |
+| Head-CI | separater Nachweis am exakten PR-Head | passed historisch für [PR169](https://github.com/gecompat/SQL_Server_Toolbelt/pull/169), Head89f36f848ab68a1a72898ddd5f081fc47740f119, fünf erfolgreiche Checks; kein CSV-SQL2022-Runtime-Nachweis; neue Heads separat prüfen |
 | Rechte | vorhandene Minimalrechte, eingeschränkte Metadata-Visibility | not executed |
 | Kapazität | vollständige Ceiling-/Heap-/Performancequalifikation | not executed |
 
@@ -34,7 +35,7 @@ ist `not applicable`. Das begründet keine pauschale Lifecycle-Aufwertung.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1`
-- Scope: Finales gleiches Produkt-/Binarypaar: öffentliche Gesamtadapter auf Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 jeweils local/central mit allen drei SQLfixtures, Clientmetadaten, Clean/Repeat, fünf Slots/drei Bindings, je 29 gezielten Caller-/SET-/Lock-/Rollback-/Confirm0-Prüfungen, frischem SC-/UTF8-Consumer und Uninstall/Repeat PASS. Je Exit0, vollständige Kanäle, leeres Stderr und Cleanup im Lauf bestanden. Linux: frischer unabhängiger Audit bestätigt drei eigene DBs/einen eigenen Trusthash abwesend, keine Konfigurations-/Rechteänderungen; Windows: frischer unabhängiger Audit bestätigt ebenfalls drei eigene DBs/einen eigenen Trusthash abwesend, keine Konfigurations-/Rechteänderungen. Keine Minimalrechte-/Fremdslot-/Driftvollmatrix-/Heap-/übrige Zielmatrix- oder Head-CI-Qualifikation. Frühere FAILED-Läufe bleiben getrennt.
+- Nachweis: `local: hashgebundener Typed-Marker-Teiladapter aus Tests/CI/run-csv-memory-lab.ps1`
+- Scope: Zwei separate synthetische Markerfälle auf Linux2019/latest CL150 lokal: Deploy/Uninstall weisen Toolbelt.Managed als int statt bit auf USP_ParseCsv mit SQL55324/state5 ab; vollständige Metadaten unverändert, neutraler Transaktionszustand und exakte eigene Restaurierung bestanden. Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit bestätigt eine eigene DB/einen eigenen Trusthash abwesend, keine Konfigurations-/Rechteänderungen. Kein neuer Gesamtadapter-, API-, Client-, Central-, Windows-, Minimalrechte-, Heap- oder vollständiger Fremdslot-/Driftmatrix-Nachweis; nicht zum bisherigen 29-Fall-Zähler addiert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
