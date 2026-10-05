@@ -7,7 +7,7 @@
 | Buildidentität | Drei kanonische MSBuild-Projekte bytegleich | bestanden offline |
 | Paketierung | Framing, Source-/Binarypins, Coreverweise | bestanden offline |
 | Lifecycle-Syntax | Deploy/Uninstall in ScriptDom150/160/170 | bestanden offline |
-| SQL Server2019/2022/2025, Windows/Linux | SAFE-Laden, Coreunsichtbarkeit, gemeinsame Owner | Linux2019 CL150 und Windows2025 CU8 CL170 local/central bestanden; weitere Ziele offen |
+| SQL Server2019/2022/2025, Windows/Linux | SAFE-Laden, Coreunsichtbarkeit, gemeinsame Owner | Linux2019 CL150 und Windows2025 CU8 CL150/160/170 local/central bestanden; weitere Ziele offen |
 | Lifecycle | local/central, Repeat, Verbraucher-Abweisung, Erhalt nach Consumer-DROP | beide Ziele bestanden; Drift-/Owner-/Lockvollmatrix offen |
 | Constructors1.2→1.3 | Atomare Neuerstellung eigener CLR-Slots, fünf Procedureidentitäten/Rechte erhalten, post-DROP-Rollback und zusätzliche Annotation abgewiesen | beide Ziele local/central bestanden; ALTER-Versuch6282 fehlgeschlagen |
 
@@ -22,7 +22,7 @@ Deploymentskripte ändern Trust weiterhin nicht automatisch.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: run-json-schema-lab.ps1`
-- Scope: Linux2019/latest CL150 und Windows2025/CU8 CL170: Core-/Schema local/central, Repeat, zwei Consumer-Abweisungen, eigenes Cleanup und Coreidentität nach Schema-DROP bestanden. Genuine1.2→1.3 beide Ziele local/central samt post-DROP-Rollback, vier Constructor-Fixtures und unveränderten fünf Procedureidentitäten bestanden. Frische hashgebundene Dispositionaudits beider aktueller Core-/Schema-/Migrationsscopes bestanden. Weitere Lifecycle-/Zielmatrix und minimale Rechte offen.
+- Nachweis: `local: run-json-schema-lab.ps1 Windows CL150/160`
+- Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central: Core-/Schema-Scope, Repeat, zwei Consumer-Abweisungen, Coreidentität nach Schema-DROP und eigenes DB-/Trustcleanup bestanden. Frische hashgebundene read-only Dispositionaudits bestanden. Genuine1.2→1.3 separat auf beiden zusätzlichen Windowslevels local/central mit post-DROP-Rollback, Annotationserhalt und frischem Dispositionaudit bestanden. Weitere Ziel-/Rechtematrix offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

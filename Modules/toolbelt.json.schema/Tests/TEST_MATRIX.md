@@ -7,13 +7,13 @@
 | Managed Bridge |120 Assertions je drei Cultures | bestanden offline |
 | Closure | Eigene IL, kanonische bytegleiche Builds, bekannte Source-/Binarypins | bestanden offline |
 | T-SQL | Source und expandierte Lifecycle-Skripte in ScriptDom150/160/170 | bestanden offline |
-| Direkter SQL-Aufruf |30 native Contractfälle auf Linux2019/latest CL150 und Windows2025/CU8 CL170 jeweils local/central; Pointer über4000 UTF16-Einheiten mit Escape und NUL bytegenau | bestanden im begrenzten Scope |
+| Direkter SQL-Aufruf |30 native Contractfälle auf Linux2019/latest CL150 und Windows2025/CU8 CL150/160/170 jeweils local/central; Pointer über4000 UTF16-Einheiten mit Escape und NUL bytegenau | bestanden im begrenzten Scope |
 | ResultTable | Zehn Typen/Ordinals, KeepData, echte Constraintfehler mit Ownrollback/Caller-Savepoint/doomed-Erhalt | beide Ziele local/central bestanden; Minimalrechte offen |
 | Help und API-Metadaten | Help zuerst, echte Clientreader mit zehn Typen/Ordinals, parameterisierte dynamische Bridge | bestanden auf beiden Zielen local/central |
 | Grenzen | Tiefe129, Budget1, MaxErrors0/1, Diagnosetrunkierung und abgesenkte Bytegrenzen/Fehlerpriorität in30 Contractfällen | bestanden auf beiden Zielen local/central; maximale Bytegrenzen separat offen |
 | Lifecycle | local/central, Repeat, zwei Consumer-Abweisungen, Uninstall/Repeat und Coreidentität | bestanden auf beiden Zielen; Fremdslot-/Marker-/Owner-/Lockvollmatrix offen |
 | Constructorsmigration | Genuine bekannte1.2→1.3, fünf Procedure-ObjectIds/Rechte und effektive Owner erhalten; drei CLR-Slots/Assembly atomar neu, post-DROP-Rollback | beide Ziele local/central bestanden |
-| Plattformmatrix | SQL2019/2022/2025; CL150/160/170 soweit unterstützt; Windows/Linux | nur Linux2019 CL150 und Windows2025 CU8 CL170 geprüft |
+| Plattformmatrix | SQL2019/2022/2025; CL150/160/170 soweit unterstützt; Windows/Linux | Lab: Linux2019 CL150 und Windows2025 CU8 CL150/160/170; separate PR176-CI Linux2019/2022/2025 bestanden |
 
 Die Offline-Driver besitzen endliche Prozessbudgets, prüfen tatsächliche
 Exitcodes und Capture und schreiben private Evidenz ausschließlich in neue,
@@ -28,7 +28,7 @@ und6282-Migrationsfehlläufe bleiben getrennte Fehlerhistorie.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: run-json-schema-lab.ps1`
-- Scope: Linux2019/latest CL150 und Windows2025/CU8 CL170 jeweils local/central:30 Contractfälle einschließlich langer escaped NUL-Pointer und Bytepriorität, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Beide Ziele local/central nach genuine Constructor1.2→1.3 separat26 Contractfälle bestanden. Frische hashgebundene Dispositionaudits beider aktueller Core-/Schema-/Migrationsscopes bestanden. Vollständige Lifecycle-/Zielmatrix, CrossDB und minimale Rechte offen.
+- Nachweis: `local: run-json-schema-lab.ps1 Windows CL150/160`
+- Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central:30 Contractfälle, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Je frischer hashgebundener Dispositionaudit bestanden; keine Konfigurations-/Rechte-/Owneränderungen. Genuine1.2→1.3 separat auf beiden zusätzlichen Windowslevels local/central mit Schema30-Fixture und frischem Dispositionaudit bestanden; weitere physische Ziele und Minimalrechte offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

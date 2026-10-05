@@ -721,6 +721,7 @@ change_impact:
         - Documentation/Architecture/JSON_SCHEMA_CONTRACT.md
         - Tests/CI/run-json-schema-lab.ps1
         - Tests/CI/Test-JsonSchemaLabDisposition.ps1
+        - Tests/CI/Test-JsonSchemaLabScope.ps1
         - Tests/CI/run-json-constructors-linux.sh
         - .github/workflows/json-constructors-runtime.yml
       checks:

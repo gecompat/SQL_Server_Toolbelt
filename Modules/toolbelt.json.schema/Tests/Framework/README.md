@@ -93,7 +93,7 @@ Corebytes und danach beide Konsumenten.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: run-json-schema-lab.ps1`
-- Scope: Linux2019/latest CL150 und Windows2025/CU8 CL170 jeweils local/central:30 Contractfälle einschließlich langer escaped NUL-Pointer und Bytepriorität, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Beide Ziele local/central nach genuine Constructor1.2→1.3 separat26 Contractfälle bestanden. Frische hashgebundene Dispositionaudits beider aktueller Core-/Schema-/Migrationsscopes bestanden. Vollständige Lifecycle-/Zielmatrix, CrossDB und minimale Rechte offen.
+- Nachweis: `local: run-json-schema-lab.ps1 Windows CL150/160`
+- Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central:30 Contractfälle, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Je frischer hashgebundener Dispositionaudit bestanden; keine Konfigurations-/Rechte-/Owneränderungen. Genuine1.2→1.3 separat auf beiden zusätzlichen Windowslevels local/central mit Schema30-Fixture und frischem Dispositionaudit bestanden; weitere physische Ziele und Minimalrechte offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -71,7 +71,19 @@ beweist keine niedrigprivilegierten gemappten Callerrechte.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: Tests/CI/run-json-schema-lab.ps1`
-- Scope: Constructor1.3: vier ausgewählte Runtime-Fixtures einschließlich16 MiB/100000 Einträgen Linux2019/latest CL150 lokal und Windows2025/CU8 CL170 local/central bestanden. Genuine bekannte1.2→1.3 beide Ziele local/central, fünf Procedureidentitäten/Rechte und effektive Owner erhalten, drei eigene CLR-Slots/Assembly atomar neu, post-DROP-Rollback und Annotationserhalt, nachgelagerte Schema26-Fall-Fixture, Repeat/Uninstall/Coreerhalt und frische hashgebundene Dispositionaudits bestanden. Weitere Ziel-/Lifecycle-/Minimalrechtematrix und aktuelle Head-CI offen; verworfener ALTER-Versuch6282 bleibt fehlgeschlagen.
+- Nachweis: `local: run-json-schema-lab.ps1 Windows CL150/160`
+- Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central: vier Constructor1.3-Fixtures mit16 MiB/100000 Einträgen sowie genuine bekannte1.2→1.3-Migration bestanden. Fünf Procedureidentitäten, effektive Owner und vorhandene Rechte erhalten; post-DROP-Rollback, Annotationserhalt, neue Core-Referenz, Schema30-Fall-Fixture, Repeat/Uninstall/Coreerhalt und frische hashgebundene Dispositionaudits bestanden. Keine Konfigurations-/Rechte-/Owneränderungen. Weitere physische Ziel-/Lifecycle-/Minimalrechtematrix offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Ergänzende Constructor1.3-Compatibilityqualifikation2026-10-05
+
+Windows2025/exaktCU8 mit CL150 und CL160 bestand jeweils local/central
+vier aktuelle Constructor-Fixtures einschließlich16 MiB/100000 Einträgen.
+Getrennte genuine1.2→1.3-Läufe auf beiden Levels bestanden post-DROP-Rollback,
+zusätzliche Annotation, Erhalt der fünf Procedureidentitäten/effektiven Owner/
+vorhandenen Rechte, aktuelle Constructor-Fixtures und nachgelagerte Schema30-
+Fixture. Je abgeschlossenes Journal, eigenes Cleanup und frischer hashgebundener
+read-only Dispositionaudit. Unveränderte bekannte DLLs; keine Konfigurations-,
+Rechte- oder Owneränderungen. Weitere physische Ziele, vollständige Drift-/
+Lock-/Owner-/Minimalrechtematrix und allgemeine Heapgarantien bleiben offen.

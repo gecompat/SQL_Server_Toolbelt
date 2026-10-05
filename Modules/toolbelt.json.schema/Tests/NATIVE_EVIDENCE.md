@@ -7,13 +7,13 @@ verlangt keine erneuten Schemahashfragen. Ausgeführt wurde der öffentliche
 `Tests/CI/run-json-schema-lab.ps1` gegen frisch schema-validierte ausdrücklich
 ausgewählte bereite Labziele, mit vorhandenen Rechten und strict security1.
 
-| Scope | Linux/SQL2019/latest CL150 | Windows/SQL2025/CU8 CL170 |
-|---|---|---|
-| Core/Schema local/central | bestanden | bestanden |
-| Constructors1.3 vier ausgewählte Fixtures | lokal bestanden | lokal/zentral bestanden |
-| Genuine bekannte1.2→1.3 local/central, dieselben vier aktuellen Fixtures | bestanden | bestanden |
-| Frischer read-only Core-/Schema-Dispositionaudit | bestanden | bestanden |
-| Frischer read-only Migrations-Dispositionaudit | bestanden | bestanden |
+| Scope | Linux/SQL2019/latest CL150 | Windows/SQL2025/CU8 CL170 | Windows/SQL2025/CU8 CL150/160 |
+|---|---|---|---|
+| Core/Schema local/central | bestanden | bestanden | bestanden |
+| Constructors1.3 vier ausgewählte Fixtures | lokal bestanden | lokal/zentral bestanden | lokal/zentral bestanden |
+| Genuine bekannte1.2→1.3 local/central, dieselben vier aktuellen Fixtures | bestanden | bestanden | bestanden |
+| Frischer read-only Core-/Schema-Dispositionaudit | bestanden | bestanden | bestanden |
+| Frischer read-only Migrations-Dispositionaudit | bestanden | bestanden | bestanden |
 
 Alle abschließenden Adapter hatten tatsächlichen Exit0, vollständige
 stdout-/stderr-Capture, leeres stderr, unveränderte eingefrorene Inputs und
@@ -91,17 +91,49 @@ diese neue Auditvoraussetzung nicht. Daher wurde der Core-/Schema-Scope
 mit dem finalen hashgebundenen Driver erneut ausgeführt und frisch auditiert;
 die früheren erfolgreichen Runs bleiben historische separate Evidenz.
 
-SQL2022, Linux2025, Windows2019/2022, weitere Compatibility Levels,
+Weitere physische Labziele SQL2022, Linux2025 und Windows2019/2022,
 CrossDB-Consumer, vollständige Marker-/Owner-/Lock-/Visibility-/Fremdslotmatrix,
 Maximalinput-/Heap-/Spill-/Parallelitätskapazität und tatsächliche Minimalrechte
-bleiben offen. Die bestehende gekoppelte GitHub-CI ist noch nicht am neuen
-Produkt-PR-Head ausgeführt. Diese Teilqualifikation ist kein Release.
+bleiben offen. Die gekoppelte CI bestand am exakten PR176-Head
+6dd4ef65ecac8d98d4d5c964a649d63c0d8692dc mit allen12 Checks, einschließlich
+bekannter SAFE-Artifactqualifikation und Linux-SQL2019/2022/2025-Runtime.
+Dies ist getrennte synthetische CI-Evidenz, kein neuer physischer Labnachweis. Diese Teilqualifikation ist kein Release.
 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: run-json-schema-lab.ps1`
-- Scope: Linux2019/latest CL150 und Windows2025/CU8 CL170 jeweils local/central:30 Contractfälle einschließlich langer escaped NUL-Pointer und Bytepriorität, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Beide Ziele local/central nach genuine Constructor1.2→1.3 separat26 Contractfälle bestanden. Frische hashgebundene Dispositionaudits beider aktueller Core-/Schema-/Migrationsscopes bestanden. Vollständige Lifecycle-/Zielmatrix, CrossDB und minimale Rechte offen.
+- Nachweis: `local: run-json-schema-lab.ps1 Windows CL150/160`
+- Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central:30 Contractfälle, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Je frischer hashgebundener Dispositionaudit bestanden; keine Konfigurations-/Rechte-/Owneränderungen. Genuine1.2→1.3 separat auf beiden zusätzlichen Windowslevels local/central mit Schema30-Fixture und frischem Dispositionaudit bestanden; weitere physische Ziele und Minimalrechte offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Ergänzende Windows-Compatibilityqualifikation2026-10-05
+
+Core/Schema local/central mit unveränderten drei bekannten DLL-Identitäten
+bestand zusätzlich CL150 und CL160 auf dem bereits freigegebenen
+Windows2025/exaktCU8-Ziel: je30 Contractfälle und die gleiche Safety-/Client-/
+Lifecycle-Fixture. Jeder Lauf hatte ein abgeschlossenes eigenes Journal und
+anschließend einen frischen hashgebundenen read-only Dispositionaudit.
+Der öffentliche Adapter akzeptiert jetzt150/160/170; Linux2019 bleibt durch
+den separaten exakten Zielguard auf150 begrenzt. Keine neue Serverauswahl,
+Konfigurations-/Rechteänderung. Constructors und genuine1.2→1.3 wurden
+anschließend auf beiden zusätzlichen Levels separat local/central qualifiziert
+und frisch auditiert, einschließlich der vier Constructor-Fixtures und
+nachgelagerter Schema30-Fixture. Frühere Parameterbindungsabweisung von160
+lag vor jeglicher Labnutzung und wird nicht als Runtimefehlversuch gezählt.
+
+## Parameterbindung und mehrschichtiger Zielschutz
+
+Der ursprüngliche ValidateSet-Binder akzeptierte Casevarianten, während der
+Zielguard case-sensitiv prüfte. Ein reiner AST-/Bindungstest reproduzierte
+WINDOWS/WiNdOwS am ersten Guard. Der tatsächliche nachfolgende Labselector
+filtert ebenfalls case-sensitiv und findet dafür kein schema-konformes Ziel;
+keine unautorisierte Labnutzung ist aus diesem Teilguardfehler nachgewiesen.
+Die fünf textuellen Enumparameter verlangen jetzt ihre dokumentierte
+Schreibweise bereits bei Bindung.33 gezielte Metadaten-/Selectorassertions
+bestanden ohne Labzugriff; dieselbe Suite weist den ursprünglichen Stand ab.
+Ein erneuter kanonischer CL160-Core-/Schema-Lauf mit dem gehärteten Adapter
+bestand local/central einschließlich frischem Dispositionaudit. CI führt den
+Scope-Test ausdrücklich aus und löst ihn bei allen drei Native-Adapterdateien
+und der neuen Scope-Testsuite aus; laufende Runtimeprüfungen bleiben erhalten.

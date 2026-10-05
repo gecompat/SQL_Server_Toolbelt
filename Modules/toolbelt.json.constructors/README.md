@@ -68,7 +68,7 @@ Reproduzierbarer Nachweis: `local: Tests/CI/run-lab-local.ps1`, siehe [Tests](Te
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-05`
-- Nachweis: `local: Tests/CI/run-json-schema-lab.ps1`
-- Scope: Constructor1.3: vier ausgewählte Runtime-Fixtures einschließlich16 MiB/100000 Einträgen Linux2019/latest CL150 lokal und Windows2025/CU8 CL170 local/central bestanden. Genuine bekannte1.2→1.3 beide Ziele local/central, fünf Procedureidentitäten/Rechte und effektive Owner erhalten, drei eigene CLR-Slots/Assembly atomar neu, post-DROP-Rollback und Annotationserhalt, nachgelagerte Schema26-Fall-Fixture, Repeat/Uninstall/Coreerhalt und frische hashgebundene Dispositionaudits bestanden. Weitere Ziel-/Lifecycle-/Minimalrechtematrix und aktuelle Head-CI offen; verworfener ALTER-Versuch6282 bleibt fehlgeschlagen.
+- Nachweis: `local: run-json-schema-lab.ps1 Windows CL150/160`
+- Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central: vier Constructor1.3-Fixtures mit16 MiB/100000 Einträgen sowie genuine bekannte1.2→1.3-Migration bestanden. Fünf Procedureidentitäten, effektive Owner und vorhandene Rechte erhalten; post-DROP-Rollback, Annotationserhalt, neue Core-Referenz, Schema30-Fall-Fixture, Repeat/Uninstall/Coreerhalt und frische hashgebundene Dispositionaudits bestanden. Keine Konfigurations-/Rechte-/Owneränderungen. Weitere physische Ziel-/Lifecycle-/Minimalrechtematrix offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -18,6 +18,9 @@ on:
       - "Modules/toolbelt.json.constructors/Tests/Static/**"
       - "Tests/CI/run-json-constructors-linux.sh"
       - "Tests/CI/run-json-groups-lab.ps1"
+      - "Tests/CI/run-json-schema-lab.ps1"
+      - "Tests/CI/Test-JsonSchemaLabScope.ps1"
+      - "Tests/CI/Test-JsonSchemaLabDisposition.ps1"
   push:
     branches:
       - main
@@ -37,6 +40,9 @@ on:
       - "Modules/toolbelt.json.constructors/Tests/Static/**"
       - "Tests/CI/run-json-constructors-linux.sh"
       - "Tests/CI/run-json-groups-lab.ps1"
+      - "Tests/CI/run-json-schema-lab.ps1"
+      - "Tests/CI/Test-JsonSchemaLabScope.ps1"
+      - "Tests/CI/Test-JsonSchemaLabDisposition.ps1"
   workflow_dispatch:
 
 permissions:
@@ -56,6 +62,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Validate bounded Lab selector binding without Lab access
+        shell: pwsh
+        run: ./Tests/CI/Test-JsonSchemaLabScope.ps1
       - name: Build bounded and require exact independently qualified bytes
         shell: pwsh
         run: |
