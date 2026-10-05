@@ -918,3 +918,271 @@ Ebenen. Das ist keine allgemeine Parser-Tiefengrenze, keine vollständige
 Zahlenliteral-/Unicodequalifikation und kein getesteter Policywalker oder
 Pointerresolver. Weitere Ziele, Maximalworkloads und API-/Lifecycle-/Client-
 Qualifikation sind weiterhin `not executed`.
+
+## Weiterführende Designprüfung 2026-10-05 – physische Schema-Kerngrenze
+
+RelatedReference: `RI-2026-048`. Research-/Besprechungsvorschlag, keine neue
+Funktions-, Assembly-, Migrations- oder Trustfreigabe. Pointer ist separat in
+[PR174](https://github.com/gecompat/SQL_Server_Toolbelt/pull/174) umgesetzt und
+nach vier erfolgreichen Checks am exakten Head gemergt. Dessen native
+Grammatikautorität wird durch diesen Vorschlag nicht ersetzt.
+
+### Nachvollziehbarer Repositorybefund
+
+Der [Constructor-CLR-Preflight](../../Modules/toolbelt.json.constructors/Deployment/ClrPreflight.sql)
+prüft nicht nur fremde SQL-/CLR-Bindings. Sobald irgendeine andere Assembly
+`Toolbelt_JsonConstructors` referenziert, weist er den Lifecycle mit53626 ab.
+Eine Schemaassembly könnte deshalb auch bei unveränderten Constructorbytes
+Repeat, Upgrade und Uninstall des bestehenden Moduls blockieren. Dies ist eine
+Source-/Vertragsanalyse; kein neuer SQL-Assemblyreferenztest wurde ausgeführt.
+
+Die [Constructor-Projektdatei](../../Modules/toolbelt.json.constructors/Clr/Toolbelt.JsonConstructors.csproj)
+kompiliert `AgfCore.cs` direkt zusammen mit sieben weiteren Quellen. Eine
+Erweiterung oder Verschiebung dieses Scanners verändert die qualifizierte
+Buildclosure. Das Festhalten am bisherigen DLL-Hash macht eine geänderte
+Projektdatei oder neue Source nicht zu einem reproduzierbaren1.2-Artefakt.
+Die geschlossene1.2-Registry bleibt historische Wahrheit und wird nicht mit
+neuen Bytes überschrieben.
+
+[Modell und Abhängigkeiten](../Architecture/MODULE_AND_DEPENDENCY_MODEL.md)
+verlangen genau einen kanonischen Fachkern; eine Dependency darf nicht durch
+kopierte Objekte ersetzt werden. Der Text erteilt keine ausdrückliche Ausnahme
+für zweimal in getrennte Assemblies kompilierte Parserquellen. Source-Linking
+ist deshalb nicht ohne weitere Entscheidung als regelkonforme physische
+Wiederverwendung zu behaupten. Historische Versionen und deren Nachweise bleiben
+getrennt; daraus folgt kein zweiter aktiver Scanner im neuen Zielstand.
+
+[CREATE ASSEMBLY](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-assembly-transact-sql)
+beschreibt Datenbankregistrierung, referenzierte Assemblies und kohärente
+Owner. Das ist keine automatische Toolbelt-Dependencyinstallation: Der
+Projektvertrag verlangt einen vollständigen Preflight und ausdrücklich
+vorhandene, geeignete Abhängigkeiten. Keine zusätzlichen Dependencybytes in
+CREATE ASSEMBLY einschleusen, kein Dateipfad-Fallback.
+
+### Vergleich der konkreten Integrationsrichtungen
+
+| Richtung | Konsequenz | Entscheidungsvorschlag |
+|---|---|---|
+| Neue Schemaassembly referenziert unveränderte Constructors1.2 |53626 blockiert den vorhandenen Lifecycle; Scanner besitzt zusätzlich keine vollständige Schema-Token-/Arbeitsabrechnung | Nicht als unabhängige Erweiterung umsetzen |
+| Scanner nach Schema kopieren oder in zwei aktuellen Assemblies Source-linken | Zwei physische Parser; genaue Bedeutung von kanonischer Wiederverwendung wäre gesondert zu genehmigen | Keine implizite Ausnahme ableiten |
+| Schema im Constructor-Modul ergänzen | Gemeinsame Assembly möglich, aber neuer öffentlicher Scope, größere Bindingclosure und gekoppelte Release-/Lifecycle-Einheit | Technisch mögliche Alternative; kein unabhängiges Schemamodul behaupten |
+| Eigene technische Kernassembly, Constructor-Migration und darauf aufbauendes Schemamodul | Ein physischer CLR-Scanner, klare versionierte Dependencies; drei gekoppelte Build-/Lifecycle-Verträge statt einer unabhängigen Funktion | Bevorzugte zu besprechende Richtung für den eigenen SAFE-Provider |
+| Native T-SQL-Schemaevaluation | Native Grammatikautorität vermeidet einen zweiten handgeschriebenen CLR-Parser; vollständige Key-/Tokenindizes, exakte Zahlen, globale Arbeitsabrechnung und Evaluation bleiben zu entwickeln | Gültige Alternative, keine gemessene Überlegenheit oder abgeschlossene Machbarkeit |
+
+### Konkreter bevorzugter Besprechungsumfang
+
+Die folgenden Namen und Versionen sind ausdrücklich Vorschläge, keine
+registrierten neuen Module oder bereits bestehenden Objekte:
+
+1. `toolbelt.json.core`1.0.0 mit SQL-Assembly `Toolbelt_JsonCore`, Managedidentität
+   `Toolbelt.JsonCore`1.0.0.0. Reine technische SAFE-Dependency in derselben
+   Installationsdatenbank, ohne öffentliche SQL-Entrypoints. Kanonische JSON-
+   Number-/String-/Containerlexik, Escape-/Unicodeprimitive und optionaler
+   Tokenindex/Arbeitszähler. Keine Dateien, Netzwerk, Context-Connection,
+   eigene Threads, globale veränderliche Zustände oder Drittanbieter.
+2. Constructors1.3.0 mit unveränderten acht SQL-Slots und öffentlichen
+   Signaturen, aber neu qualifizierten eigenen Assemblybytes und Referenz auf
+   Core1.0.0. Legacy- und AGF-Adapter behalten ihre bisherigen Fehlerprioritäten,
+   Raw-/Strongkosten, Native-ISJSON-Stufe, Legacy-Tiefenverhalten und AGF127-
+   Entrygrenze. Scannerlexik wird in den Core verlegt, nicht dupliziert.
+3. `toolbelt.json.schema`1.0.0 mit `toolbelt_json.USP_ValidateJsonSchema`, eigener
+   SAFE-Assembly `Toolbelt_JsonSchema` / Managed `Toolbelt.JsonSchema`1.0.0.0 und
+   genau einer internen Bridge `FT_ValidateJsonSchemaInternal`. Die USP behält
+   die oben vorgeschlagenen acht Fachparameter und den unveränderten
+   ResultTable-/KeepData-/Debug-/Hilfe-Tail; die Bridge transportiert dieselben
+   acht Fachargumente und zehn Ergebnisfelder. Die Schemafachlogik nutzt den
+   gemeinsamen Core; der interne FT ist keine zusätzliche öffentliche API.
+
+Das sichtbare Profil, unterstützte/unsupported Keywords, vollständige
+Schemaort-/Referenzgraphprüfung, nichtrekursive lokale Fragmentrefs,
+UnicodeScalar-Längen, ordinale decodierte Keyidentität und exakte dezimale
+Zahlenvergleiche entsprechen dem zuvor ausgearbeiteten V1-Vorschlag.
+`MaxErrors`0..100 begrenzt nur Diagnosen; unvollständige Arbeit ergibt
+LIMIT/IsValidNULL. Keine Float-/Decimalrundung, Defaults oder Coercion.
+Die anschließende konkrete Fehler-/Diagnosematrix bleibt ein Besprechungsvorschlag;
+erst eine ausdrückliche Zustimmung macht sie zum Vor-Source-Vertrag.
+
+### Migration und Lifecycle, die gemeinsam zu besprechen sind
+
+Core und abhängige Assemblies liegen je local/central in derselben
+Installationsdatenbank. Ein zentraler Consumer ruft die öffentliche USP auf;
+er benötigt keine Assemblykopie in seiner Datenbank. Dependencyversion,
+Installationsmodus, bekannte Binaryidentität, typisierte eigene Marker,
+Bindings und kohärente vorhandene Owner werden vor der ersten Mutation
+geprüft. Rechte oder Owner werden nicht automatisch repariert.
+
+Der ausdrückliche Ablauf wäre: Core separat installieren, bekannte
+Constructors1.2 separat auf1.3 migrieren, danach Schema installieren.
+Schema-Preflight weist vorhandene Constructors1.2 im Zielstand ab, statt
+zwei aktive Scanner zuzulassen. Ein fehlendes Constructormodul ist kein
+Installationszwang; Core bleibt ausdrücklich erforderliche Dependency.
+Historische Installerskripte sind keine unterstützte Downgrade-Route des
+neuen Zielstands. Kein automatisches Nachinstallieren oder stilles Update.
+
+Constructor-Migration verlangt einen kohärenten bekannten1.2-Ausgangsstand,
+keine fremden Consumerslots/Assemblyreferenzen und separat vorhandenen Core.
+Neue Constructorbytes werden unabhängig qualifiziert und als neue Registryzeile
+geführt. Eigene DDL/Bindings/Versionsmarker bilden eine kurze atomare
+Transaktion; fehlende oder unbekannte Voraussetzungen brechen ohne Mutation ab.
+Öffentliche USP-/AGF-Semantik und vorhandene Fremdconsumer dürfen nicht beiläufig
+umgebaut werden. Eine neue detaillierte Migrationsentscheidung muss die
+vorhandene DEC-2026-033 ergänzen, ohne sie rückwirkend umzuschreiben.
+
+Core darf bei verbliebenen Assemblyverbrauchern nicht entfernt oder
+inkompatibel ersetzt werden. Abhängige Module entfernen nur ihre eigenen
+SQL-/Assemblyslots und niemals Core oder fremde Consumerslots. Removal erfolgt
+explizit in umgekehrter Dependencyreihenfolge. Upgrade mit aktiven Verbrauchern
+braucht eine qualifizierte kompatible Kernversion oder weist ab; allgemeines
+ALTER-ASSEMBLY-Erfolgspotenzial ersetzt diesen Vertrag nicht.
+[ALTER ASSEMBLY](https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-assembly-transact-sql)
+beschreibt zusätzliche technische Einschränkungen für referenzierte Assemblies.
+
+Neue Kern-, Constructor- und Schemabinaries benötigen je eigene bekannte
+Artifactidentität, reproduzierbaren Build, vollständige Framework-/IL-/NoIO-
+Qualifikation und exakten SHA2-512-Trust-Opt-in. Bestehende Known-Artifact-/
+Trustfreigaben autorisieren keine neuen Hashes. `clr strict security` bleibt
+aktiv; kein TRUSTWORTHY, Rechtegrant oder Serverneustart.
+
+### Konkrete Abnahme und verbleibende Grenze
+
+Vor Produktbindings: Core-Unit-/Differentialnachweise gegen die bestehende
+Constructorsemantik, exakte Token-/Zahl-/Unicode-/Budgetoracles, vollständige
+Schema-Preflight-/Evaluationstests und Build-/IL-Gates. Danach begrenzte
+schema-validierte native Ziele mit direkten Clientmetadaten, Help/ResultTable-
+Atomik, local/central/Consumer, Install/Repeat/Migration/Uninstall, Caller-/Lock-/
+Rollback-/Marker-/Fremdslot-/Assemblydependencyfällen und frischem Bereinigungsaudit.
+MaxErrors0 und abgeschnittene Diagnosen müssen eine fortgesetzte Evaluation
+beweisen; gefundene Verletzung vor späterem LIMIT ergibt kein IsValid0.
+
+Keine dieser neuen Core-/Schema-/Migrationprüfungen wurde ausgeführt. Der
+Sourcebefund reicht für die Architekturgrenze und den Alternativenvergleich,
+nicht für SAFE-Ladbarkeit, semantische Parität, Performance oder einen Release.
+Die konkrete Funktion und die material neue Core-/Constructor-Migration
+benötigen die anschließende ausdrückliche Freigabe. Unabhängige Vertrags-/
+Fehlermatrix- und Testdesignarbeit kann vorher autonom weitergehen.
+
+### Abschließbarer Vorschlag für Schema-Fehlerpriorität und Diagnosen
+
+Auch diese Details sind neue Besprechungsvorschläge, keine zugesicherte
+Produktsemantik. Sie konkretisieren die bisher offene Matrix für eine spätere
+funktionsbezogene Freigabe zusammen mit dem Provider-/Migrationsumfang.
+
+Helpfirst gilt gemäß [USP-Vertrag](../Standards/USP_CONTRACT.md).
+Ansonsten Profile exakt `toolbelt-2020-12-v1`; alle Budgetparameter NOT NULL,
+MaxDocumentBytes1..16777216, MaxSchemaBytes1..1048576, MaxDepth1..128,
+MaxEvaluationSteps1..1000000 und MaxErrors0..100. Ungültige Parameter werfen
+vor ResultTable-Mutation. Als bisher kollisionsfreie Arbeitsnummern wurden
+55600/1 für Parameter und55601/1 für unmöglichen internen Bridgetransport
+gegen aktuelle Module/Architektur/Backlog geprüft; keine Registrierung oder
+Freigabe dieser Nummern durch die Recherche. Globale Infrastrukturfehler
+werden nicht umnummeriert oder als erfolgreiche Fachzeilen abgefangen.
+
+Bei gültigen Parametern zuerst SQL-NULL in Json/Schema erkennen; danach
+Schema-Inputbudget, vollständiger Schema-Preflight, Dokument-Inputbudget,
+vollständiger Dokument-Preflight und Evaluation. Jeder gestartete Schritt ist
+an die verbleibende Arbeit gebunden. Byte-/Depth-/Arbeitslimit führt sofort zu
+LIMIT/IsValidNULL; damit wird kein späterer Syntaxfehler behauptet oder
+nachträglich gesucht. Bei verfügbarer Arbeit wird JSON-Grammatik vor
+Unicodepolicy, danach Duplicatepolicy und Schemaform/Keywordgraph geprüft. Das gesamte
+Schema einschließlich unerreichter Orte wird vor dem Dokument geprüft.
+Diese eigene Schema-Limitregel übernimmt nicht still die Pointer-Priorität.
+
+| Situation | Status | IsValid | ErrorCode / Diagnose |
+|---|---|---|---|
+| Ein Input SQL-NULL | SQL_NULL | NULL | SQL_NULL in SUMMARY; keine ERROR-Zeile |
+| Schema/Dokument zu groß | LIMIT | NULL | SCHEMA_BYTES / DOCUMENT_BYTES |
+| Offene Containertiefe über MaxDepth | LIMIT | NULL | DEPTH_LIMIT |
+| Arbeit vor nächstem Schritt nicht ausreichend | LIMIT | NULL | EVALUATION_LIMIT |
+| Schema-JSON-Grammatikfehler | INVALID_SCHEMA | NULL | JSON_SYNTAX |
+| Dokument-JSON-Grammatikfehler | INVALID_JSON | NULL | JSON_SYNTAX |
+| Ungepaarte decodierte Surrogate | UNSUPPORTED | NULL | UNPAIRED_SURROGATE |
+| Doppelte decodierte Objektkeys | INVALID_SCHEMA oder INVALID_JSON nach betroffenem Input | NULL | DUPLICATE_KEY |
+| Schemaort weder Boolean noch Object; ungültige Keywordform | INVALID_SCHEMA | NULL | SCHEMA_FORM / KEYWORD_FORM |
+| Lokales Ref nicht auflösbar oder Ziel kein Schemaort | INVALID_SCHEMA | NULL | REF_TARGET |
+| Fehlerhafte lokale Fragment-/UTF8-/Pointerform | INVALID_SCHEMA | NULL | REF_SYNTAX |
+| Externe Ref / Zyklus / anderer Draft / unbekanntes oder ausgeschlossenes Keyword | UNSUPPORTED | NULL | EXTERNAL_REF / REF_CYCLE / DRAFT / KEYWORD_UNSUPPORTED |
+| Vollständig im Profil geprüft, keine Verletzung | VALID | 1 | NULL |
+| Vollständig im Profil geprüft, mindestens eine Verletzung | INVALID_INSTANCE | 0 | INSTANCE_VIOLATION in SUMMARY; konkrete Codes in ERROR-Zeilen |
+
+Die konkret vorgeschlagenen Verletzungscodes sind FALSE_SCHEMA, TYPE,
+REQUIRED, ADDITIONAL_PROPERTY, MIN_ITEMS, MAX_ITEMS, MIN_PROPERTIES,
+MAX_PROPERTIES, MIN_LENGTH, MAX_LENGTH, MINIMUM, MAXIMUM,
+EXCLUSIVE_MINIMUM und EXCLUSIVE_MAXIMUM. Integer ist mathematisch zu prüfen;
+beispielsweise gilt1e1000000 als Integer,1e-1000000 nicht, sämtliche
+syntaktisch gültigen Nullformen dagegen schon. Eine widersprüchliche
+Grenzenkombination ist ein gültiges, gegebenenfalls unerfüllbares Schema.
+
+Genau eine SUMMARY-Zeile mit ErrorOrdinal0; ERROR-Zeilen haben1..N und
+N<=MaxErrors. Alle zehn Spalten behalten die oben vorgeschlagene Reihenfolge,
+Typen und Nullability. Status/Profile/IsValid/ErrorsTruncated werden auf allen
+Zeilen erst nach dem vollständigen Ausgang einheitlich gesetzt. Kein früher
+Teilerfolg oder Streaming einer später zu widerrufenden IsValid0-Zeile.
+Bei vollständig erfolgreichem VALID ist ErrorsTruncated0. Unterdrückte
+Verletzungen setzen ErrorsTruncated1, auch bei MaxErrors0; die Evaluation
+läuft weiter. LIMIT überschreibt das Gesamturteil auch nach Verletzungen.
+Bereits gespeicherte Diagnosen dürfen dann verbleiben, sind aber alle mit
+StatusLIMIT/IsValidNULL gekennzeichnet. Die SUMMARY trägt stets den finalen
+Limitcode; ein erschöpftes Diagnosebudget kann ihn nicht verstecken.
+
+DocumentPointer/SchemaPointer sind RFC6901-Stringformen. Leerer String
+bezeichnet die bekannte Wurzel, SQL-NULL einen nicht bestimmbaren/nicht
+betroffenen Ort. Bei REQUIRED zeigt der Dokumentpfad auf das Objekt, der
+Schemapfad auf den fehlgeschlagenen required-Eintrag. ADDITIONAL_PROPERTY
+zeigt auf den betroffenen Member und additionalProperties. TYPE und
+Längen-/Zahl-/Countgrenzen zeigen auf geprüften Wert und Keyword.
+FALSE_SCHEMA zeigt auf Wert und Boolean-Schemaort; Keyword ist dabei NULL.
+Preflightfehler zeigen soweit bekannt auf den betroffenen Inputort;
+SUMMARY enthält sonst keine fingierten Detailpfade. Kein Value-/Payloadecho.
+Bei beliebig langen unbekannten Keywordnamen bleibt Keyword NULL statt
+stiller Kürzung auf128 Zeichen; SchemaPointer ist die vollständige Diagnose.
+
+Deterministische ERROR-Reihenfolge: unterstützte Keywords in einer festen
+Profilreihenfolge; Member ordinal nach vollständig decodierter UTF16-Identität,
+Arrays nach Index; required nach Schemaarrayindex. Schema-/Refgraphorte werden
+nach vollständig codiertem SchemaPointer geordnet. $ref-Ziel wird vor seinen
+lokalen Geschwistern evaluiert. Feste Profilreihenfolge: $ref, Boolean-Schema, type, minProperties,
+maxProperties, required, properties, additionalProperties, minItems,
+maxItems, prefixItems, items, minLength, maxLength, minimum, maximum,
+exclusiveMinimum, exclusiveMaximum. Nicht passende Typkeywords wirken gemäß
+Draftsemantik nicht als zusätzliche type-Assertion. SQL-Ausgabe wird über
+ErrorOrdinal explizit geordnet; Sortiervergleiche und Pfadkopien zählen zur Arbeit.
+
+### Vorschlag für die abstrakte Arbeitsabrechnung
+
+Ein Schritt ist eine versionierte abstrakte Einheit, keine CPUinstruktion
+oder Hardwallgarantie. Ein globaler verbleibender Zähler wird vor jedem
+gehörenden Schritt vermindert: UTF16-Unit im Scanner/Decoder/Hasher,
+Unitpaar im ordinalen Vergleich, Zahl-/Exponentziffer, besuchter Token/
+Schemaort/Keyword/Graphkante/Evaluationsauftrag sowie kopierte UTF16-Unit
+bei Diagnose-/Key-/Zahlenbuffer. Wiederholte Verarbeitung kostet erneut;
+Hashkollisionen dürfen exakte Vergleiche nicht kostenlos machen. Zusätzliche
+Token-/Frame-/Graph-/Diagnoseeinträge werden vor Allokation ebenfalls belastet.
+Kosten immer als `cost > remaining` prüfen, danach subtrahieren; keine
+überlaufgefährdete Addition oder Allokation vor dem Gate. Kein viruelles
+Padding für riesige Exponenten tatsächlich materialisieren.
+
+Lexiksyntax, Tokenindex und Duplicateprüfung verwenden denselben decodierten
+Keyvertrag. Der Scanner liest vollständige Keys ohne OPENJSON4000-Kürzung;
+ordinale Gleichheit beinhaltet NUL und trailing spaces. Token-/Graphindizes
+werden einmal aufgebaut, DAGs nicht expandiert. Wiederholte semantische
+Evaluation desselben DAG-Orts an verschiedenen Dokumentorten bleibt neue
+Arbeit und neue Diagnostik. Kein Budgetcache, der Pfade oder Urteil verfälscht.
+
+### Konkrete synthetische Abnahmematrix vor einer Umsetzung
+
+| Gruppe | Entscheidende Oracles |
+|---|---|
+| Input/Help | Help mit NULL/ungültigen Budgets ohne Mutation; SQL_NULL; alle positiven Budgetränder; MaxErrors0; ungültiges Profile |
+| Lexik/Unicode/Keys | Scalar-/Containerroots; mixed raw/escaped Surrogate; ungepaarte Keys in unselektierten Members; NUL/trailing spaces; Keys über4000Units; gleiche raw/escaped Keys als Duplikat |
+| Schemaform | Boolean; type-String/Array einschließlich Duplicate-/Leerfehler; required auch leeres Array, aber keine doppelten Namen; properties/$defs als Object; prefixItems nichtleer; items/zusätzliche Properties als Boolean/Object |
+| Vollständiger Preflight | Ausgeschlossenes Keyword in ungenutzten $defs; andere Drafts; fehlerhafte Annotationform; unsupported Namen nur an Schemaorten, nicht gleichnamige Propertykeys |
+| Referenzen | #/leere Root; einmaliges strict Percent-/UTF8-Decoding; ~0/~1; NUL-Key; ungelöstes/nichtSchema-Ziel; lokale Geschwister; Containment-plus-Refzyklen; gemeinsam genutzte azyklische Ziele ohne Expansion |
+| Exakte Zahlen | Minimum/Maximum inklusive/exklusive; negative Null; riesige positive/negative Exponenten; mantissennahe Grenzen; Bruchzahl-Integer; native decimal/float-Bereich unabhängig |
+| Evaluation | Jedes unterstützte Keyword positiv/negativ; fehlende required-Member; false Schema; items nach prefixItems; UnicodeScalar-Länge; widersprüchliche Grenzen als Schema gültig |
+| Arbeit/Diagnosen | Limit vor Parser-/Token-/Graph-/Sortier-/Zahl-/Pfadallokation; Hashkollisionen; MaxErrors0/1; Verletzung vor späterem Limit; einheitliche finale Statusfelder; Ordinals stabil |
+| Integration | Zehn direkte Clientspalten/Nullability; Help-Vertrag; ResultTable KeepData0/1 atomar; Callertransaktion/SET; local/central/Consumer; neuer Core-/Constructor-/Schema-Lifecycle mit fremden Dependencies und Rollback |
+
+Diese Matrix enthält keine ausführbaren Tests, keine neuen fachlichen Objekte
+und keine Assertionzählung als angeblichen Nachweis. Sie macht den nächsten
+Besprechungsumfang reviewbar. Technische Kernel-, Migrations-, Produkt- und
+Releasequalifikation bleiben bis zu tatsächlicher Ausführung offen.
