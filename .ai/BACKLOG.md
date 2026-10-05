@@ -88,6 +88,17 @@ Zustimmungen bleiben erhalten; keine erneute pauschale Grundsatzabfrage.
 Vorbereitungs-PR ist keine fachliche Source-/Providerfreigabe und aktiviert
 keinen automatischen Dienst, Agentjob, Broker oder Heartbeat.
 
+Fortsetzung 2026-10-05: Der Benutzer beauftragte ausdrücklich weitere autonome
+Entwicklung und Analyse bis zu seinem Stopp oder bis ohne Input keine sinnvolle
+autorisierte Arbeit möglich ist. Unabhängige Vorbereitung wird deshalb auch bei
+einem noch offenen Sourcegate fortgesetzt. Die datierte technische Vorprüfung
+in der obigen Entscheidungsvorlage ergänzt CSV-Transport/Atomik, Pointer-
+Enginegrenzen, Safe-Cast-Lexik und den begrenzten Schema-Evaluationskern.
+Elf synthetische rein lesende Engine-Assertions bestanden auf dem schema-valide
+ausgewählten SQL2019 Linux/latest CL150; kein öffentlicher API-Nachweis und keine
+Labmutation. Bestehende konkrete Zustimmungen bleiben erhalten; neue Vorschläge
+werden weder als Implementierungsfreigabe noch als Runtime-Capability dargestellt.
+
 ### TC-2026-039 / TC-2026-040 / TC-2026-042: Deterministic-Familie implementiert
 
 Stand 2026-10-02: Die am 2026-10-01 einzeln freigegebenen
