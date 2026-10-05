@@ -15,6 +15,15 @@
 - Teilweise validiert, unveröffentlicht. Weitere physische Ziel-/CL-Matrix,
   Minimalrechte, Heap und exakte Head-CI bleiben separate Nachweise.
 
+## 2026-10-05 – CSV Memory / zusätzliche Qualifikation
+
+- Zwei separate Linux2019/latest-CL150-Markerfälle: Deploy und Uninstall
+  weisen synthetisches int statt bit mit SQL55324/state5 unverändert ab;
+  exakte Restaurierung und frischer unabhängiger OwnDB-/Trustaudit bestanden.
+  Keine Aufwertung der vollständigen Driftmatrix oder des 29-Fall-Zählers.
+- Historische exakte PR169-Head-CI mit fünf erfolgreichen Checks dokumentiert;
+  CSV-Produkt und CLR-Bytes unverändert, Status teilweise validiert/unveröffentlicht.
+
 ## 2026-10-05 – CSV Memory / 1.0.0
 
 - Einzeln freigegebene `USP_ParseCsv` und `USP_WriteCsv` mit eigenem SAFE-CLR-Kern,

@@ -48,6 +48,19 @@ Driftvollmatrix, Minimalrechte und Heap bleiben offen. PR169 ist mit fünf grün
 Checks am exakten Head gemergt; Main/origin-main und eigener Branch-Cleanup
 bestätigt. JSON Pointer, Safe Cast und JSON Schema sind getrennte Folgegrenzen.
 
+Zusätzlicher begrenzter Marker-Nachweis am 2026-10-05: ein mechanisch vom
+öffentlichen Labadapter abgeleiteter, hashgebundener Adapter prüfte ausschließlich
+zwei synthetische Typdriftfälle auf Linux2019/latest CL150 lokal. Deploy und
+Uninstall wiesen `Toolbelt.Managed` als `int` statt des ursprünglichen `bit`
+auf `USP_ParseCsv` jeweils mit SQL55324/state5 ab; vollständige Metadaten blieben
+unverändert und der Transaktionszustand neutral. Der eigene Marker wurde unter
+exakter Identitäts-/Driftprüfung restauriert. Exit0, vollständige Kanäle und
+leeres Stderr sowie der frische unabhängige Audit bestanden: eine eigene DB und
+ein eigener Trusthash abwesend, keine Konfigurations-/Rechteänderungen.
+Diese zwei Fälle sind ein separater Teilnachweis; sie erweitern weder den
+29-Fall-Zähler noch die API-/Client-/Central-/Windows- oder vollständige
+Fremdslot-/Driftmatrixqualifikation.
+
 ## Aktive Managed-Queue-Worker-Welle 2026-10-04
 
 Die konkret freigegebene Weiterentwicklung ergänzt den bestehenden externen
