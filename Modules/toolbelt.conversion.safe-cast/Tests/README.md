@@ -162,6 +162,9 @@ Differentialfälle aus. Python `Decimal` liefert Status und exakten Wert für
 ASCII-Lexiken liefern Status, Fehlercode und Wert für 411 `bigint`-, 210 `bit`-
 und 256 `uniqueidentifier`-Fälle. Dies ersetzt weder die festen API-Oracles
 noch die übrigen Ziel-, Ressourcen- und Lifecycleprüfungen.
+Die Generatoren sichern vor der SQL-Ausgabe die festen Fallzahlen und die
+erforderlichen Statuskategorien ab; feste Lexik- und Grenzfälle erhalten ein
+gültiges Bytebudget, damit sie nicht zufällig am Parameter-Gate enden.
 Weitere physische Ziele, tatsächliche Minimalrechte, Hard-Interrupt-Recovery,
 Heap und Releasequalifikation bleiben offen; `partially validated`,
 `unreleased`.

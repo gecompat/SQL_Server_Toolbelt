@@ -42,6 +42,8 @@ gültige Scalarwerte, fehlende Pfade und ungültige Arrayindices. Status, Typ,
 Fehlercode und Scalarwert werden serverseitig verglichen; Containertexte
 haben keine Formatierungstreuezusage und sind aus diesem Differentialset
 ausgenommen. Die festen Contract-/Safety-Oracles bleiben separat.
+Der Generator bricht vor der SQL-Ausgabe ab, wenn die feste Fallzahl oder eine
+der vier erwarteten Statuskategorien aus der Differentialmenge verschwindet.
 Ein eigener Grenzfall erzeugt 16 MiB plus eine UTF-16-Codeeinheit und verlangt
 vor Syntaxprüfung genau `INVALID/INPUT_LIMIT` ohne Rückgabe des Inputs. Dies
 qualifiziert die Abweisung oberhalb der Grenze, nicht die Verarbeitung eines

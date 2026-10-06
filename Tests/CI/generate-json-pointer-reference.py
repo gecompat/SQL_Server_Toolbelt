@@ -73,7 +73,7 @@ def quote(value):
     return "N'" + value.replace("'", "''") + "'"
 
 
-def append_case(rows, case_id, tree, tokens):
+def append_case(rows, case_id, tree, tokens, statuses):
     document = json.dumps(tree, ensure_ascii=True, separators=(",", ":"))
     decoded = json.loads(document)
     path = pointer(tokens)
@@ -81,12 +81,14 @@ def append_case(rows, case_id, tree, tokens):
     if expected is None:
         return  # Für Containertexte gilt keine Formatierungstreue.
     status, kind, value, code = expected
+    statuses.add(status)
     rows.append(f"({case_id},{quote(document)},{hex_text(path)},'{status}',"
                 f"{quote(kind) if kind else 'NULL'},{hex_text(value)},{quote(code) if code else 'NULL'})")
 
 
 def main():
     rows = []
+    statuses = set()
     for case_id in range(1, 401):
         tree = node(3)
         document = json.dumps(tree, ensure_ascii=True, separators=(",", ":"))
@@ -105,7 +107,7 @@ def main():
             tokens = rng.choice(leaf_paths)
         else:
             continue
-        append_case(rows, case_id, decoded, tokens)
+        append_case(rows, case_id, decoded, tokens, statuses)
 
     # Diese Grenzfälle bleiben auch bei später geänderter Zufallsfolge erhalten.
     fixed = [
@@ -122,7 +124,12 @@ def main():
         ({"~1": 3}, ("~1",)),
     ]
     for case_id, (tree, tokens) in enumerate(fixed, 401):
-        append_case(rows, case_id, tree, tokens)
+        append_case(rows, case_id, tree, tokens, statuses)
+
+    # Die SQL-Gegenprobe kann eine leer geschrumpfte Fallmenge nicht erkennen:
+    # beide Seiten waeren dann leer und der Lauf faelschlich gruen.
+    if len(rows) != 380 or statuses != {"FOUND", "MISSING", "JSON_NULL", "INVALID"}:
+        raise RuntimeError("JSON_POINTER_REFERENCE_COVERAGE_CHANGED")
 
     print("SET NOCOUNT ON;")
     print("DECLARE @Cases TABLE(Id int PRIMARY KEY,Doc nvarchar(max),Pointer nvarchar(max),"

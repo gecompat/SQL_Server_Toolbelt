@@ -121,6 +121,7 @@ def emit_decimal() -> None:
         "99999999999999999999.9999999999999999991",
         "-99999999999999999999.9999999999999999991",
     ]
+    fixed_count = len(values)
     for _ in range(400):
         sign = rng.choice(["", "", "+", "-"])
         whole = "".join(rng.choices("0123456789", k=rng.randint(1, 26)))
@@ -133,13 +134,22 @@ def emit_decimal() -> None:
         )
         values.append(sign + whole + fraction)
     rows = []
+    statuses = set()
     for number, value in enumerate(values, 1):
-        budget = rng.choice([8192, 8192, 8192, 1, 0, 8193, None])
+        # Feste Lexik-/Grenzfaelle duerfen nicht zufaellig an einem Budgetgate enden.
+        budget = 8192 if number <= fixed_count else rng.choice([8192, 8192, 8192, 1, 0, 8193, None])
         status, expected = decimal_oracle(value, budget)
+        statuses.add(status)
         rows.append(
             f"({number},{sql_text(value)},{sql_number(budget)},'{status}',"
             f"{sql_text(expected)},{sql_text(ERROR_CODES.get(status))})"
         )
+    required = {
+        "OK", "LOSSY", "OUT_OF_RANGE", "INVALID_FORMAT",
+        "INVALID_ARGUMENT", "LIMIT", "EMPTY", "SQL_NULL",
+    }
+    if len(rows) != 411 or not required.issubset(statuses):
+        raise RuntimeError("SAFE_CAST_DECIMAL_REFERENCE_COVERAGE_CHANGED")
     print("DECLARE @DecimalCases TABLE(Id int PRIMARY KEY,Input nvarchar(max),Budget int NULL,"
           "ExpectedStatus varchar(16),ExpectedValue nvarchar(128) NULL,ExpectedCode varchar(32) NULL);")
     emit_inserts("@DecimalCases", rows)
@@ -165,7 +175,9 @@ def emit_calendar() -> None:
         "2025-12-31T23:59:60", "2025-01-01T00:00:00.12345678",
     ]
     rows = []
+    coverage = {}
     for kind in ("Date", "DateTime2"):
+        statuses = set()
         values = list(fixed)
         for _ in range(300):
             year, month, day = rng.randint(0, 10000), rng.randint(0, 13), rng.randint(0, 32)
@@ -179,13 +191,24 @@ def emit_calendar() -> None:
                 )
                 value += f"T{hour:02d}:{minute:02d}:{second:02d}" + fraction
             values.append(value)
-        for value in values:
-            budget = rng.choice([8192, 8192, 8192, 1, 0, 8193, None])
+        for number, value in enumerate(values):
+            budget = 8192 if number < len(fixed) else rng.choice([8192, 8192, 8192, 1, 0, 8193, None])
             status = calendar_oracle(kind, value, budget)
+            statuses.add(status)
             rows.append(
                 f"({len(rows)+1},'{kind}',{sql_text(value)},{sql_number(budget)},"
                 f"'{status}',{sql_text(ERROR_CODES.get(status))})"
             )
+        coverage[kind] = (len(values), statuses)
+    required = {
+        "OK", "OUT_OF_RANGE", "INVALID_FORMAT", "INVALID_ARGUMENT",
+        "LIMIT", "EMPTY", "SQL_NULL",
+    }
+    if len(rows) != 622 or any(
+        count != 311 or not required.issubset(statuses)
+        for count, statuses in coverage.values()
+    ):
+        raise RuntimeError("SAFE_CAST_CALENDAR_REFERENCE_COVERAGE_CHANGED")
     print("DECLARE @CalendarCases TABLE(Id int PRIMARY KEY,Kind varchar(12),Input nvarchar(max),"
           "Budget int NULL,ExpectedStatus varchar(16),ExpectedCode varchar(32) NULL);")
     emit_inserts("@CalendarCases", rows)
@@ -219,7 +242,9 @@ def emit_scalars() -> int:
         ],
     }
     rows = []
+    coverage = {}
     for kind in ("BigInt", "Bit", "UniqueIdentifier"):
+        statuses = set()
         values = list(fixed[kind])
         if kind == "BigInt":
             for _ in range(400):
@@ -234,13 +259,22 @@ def emit_scalars() -> int:
             for _ in range(250):
                 text = str(uuid.UUID(int=rng.getrandbits(128)))
                 values.append(rng.choice([text, text.upper(), text.replace("-", ""), text + "x"]))
-        for value in values:
-            budget = rng.choice([8192, 8192, 8192, 1, 0, 8193, None])
+        for number, value in enumerate(values):
+            budget = 8192 if number < len(fixed[kind]) else rng.choice([8192, 8192, 8192, 1, 0, 8193, None])
             status, expected = scalar_oracle(kind, value, budget)
+            statuses.add(status)
             rows.append(
                 f"({len(rows)+1},'{kind}',{sql_text(value)},{sql_number(budget)},"
                 f"'{status}',{sql_text(expected)},{sql_text(ERROR_CODES.get(status))})"
             )
+        coverage[kind] = (len(values), statuses)
+    expected_counts = {"BigInt": 411, "Bit": 210, "UniqueIdentifier": 256}
+    required = {"OK", "INVALID_FORMAT", "INVALID_ARGUMENT", "LIMIT", "EMPTY", "SQL_NULL"}
+    if len(rows) != 877 or any(
+        coverage[kind][0] != count or not required.issubset(coverage[kind][1])
+        for kind, count in expected_counts.items()
+    ):
+        raise RuntimeError("SAFE_CAST_SCALAR_REFERENCE_COVERAGE_CHANGED")
     print("DECLARE @ScalarCases TABLE(Id int PRIMARY KEY,Kind varchar(20),Input nvarchar(max),"
           "Budget int NULL,ExpectedStatus varchar(16),ExpectedValue nvarchar(128) NULL,"
           "ExpectedCode varchar(32) NULL);")
