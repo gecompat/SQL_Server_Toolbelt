@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-06 – Safe Cast auf Windows 2025 mit CL150/160 qualifiziert
+
+- Derselbe bereits ausgewählte Windows2025/CU8-Testserver bestand die
+  vollständigen Safe-Cast-Adapter zusätzlich mit CL150 und CL160, je local/
+  central/Consumer, festen API-/Clientprüfungen und 38 Lifecyclefällen.
+  Frische unabhängige Audits bestätigten eigene Bereinigung,
+  Fixturewiederherstellung und unveränderte Eingaben. Produkt-SQL und
+  öffentlicher Vertrag blieben unverändert.
+- Weitere physische Ziele, Minimalrechte, Heap und vollständige Runtime-Head-CI
+  bleiben offen; teilweise validiert und unveröffentlicht.
+
 ## 2026-10-06 – JSON Pointer auf Windows 2025 mit CL150/160 qualifiziert
 
 - Derselbe bereits ausgewählte Windows2025/CU8-Testserver bestand die vollständigen

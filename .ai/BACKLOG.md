@@ -98,6 +98,14 @@ bestätigen alle Inputpins, zwei Marker-/zwei Fremdslotfixtures exakt restaurier
 und drei eigene Datenbanken abwesend. Keine Konfigurations-, Rechte- oder
 Truständerungen. Drei frühere Gesamtfehlläufe bleiben getrennt fehlgeschlagen.
 Weitere physische Ziele, Minimalrechte, Heap und exakte Head-CI separat offen.
+Zusätzliche Qualifikation 2026-10-06: Auf demselben bereits ausgewählten,
+schema-validierten Windows2025/exaktCU8-Ziel bestanden die vollständigen
+Safe-Cast-Adapter mit CL150 und CL160, je local/central/Consumer mit 13104
+API-Oracles, 54 Clientreadern und 38 Lifecyclefällen. Zwei unabhängige frische
+Audits bestätigten je drei eigene DBs abwesend, exakte Marker-/Fremdslot-
+Wiederherstellung und unveränderte Input-/Sourcepins. Keine Konfigurations-,
+Rechte- oder Truständerung; übrige physische Ziele, Minimalrechte, Heap und
+vollständige Runtime-Head-CI bleiben offen.
 Unabhängiger Review, begrenzte relevante Tests, exakte Head-CI, PR/Merge und
 eigener Branch-Cleanup gehören zur bereits beauftragten Fortsetzung.
 Keine neue Pointer-/Schema-/CLR-/Veröffentlichungsfreigabe. Ältere Aussagen

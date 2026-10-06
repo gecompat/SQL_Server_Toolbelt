@@ -20,6 +20,10 @@ Consumer einschließlich fester API-Oracles, Clientmetadaten,38 Lifecyclefällen
 je Ziel und unabhängigem Bereinigungsaudit. Drei frühere Gesamtfehlläufe bleiben
 getrennt. Weitere physische Ziele, Minimalrechte, Heap und exakte Head-CI sind
 separate Nachweise; unveröffentlicht.
+Zusätzlich bestanden am 2026-10-06 auf demselben Windows2025/exaktCU8-Ziel
+die vollständigen Safe-Cast-Adapter mit CL150 und CL160 samt unabhängigen
+Audits. Weitere physische Ziele, Minimalrechte, Heap und Runtime-Head-CI
+bleiben offen.
 
 `toolbelt.pseudonymization.deterministic` 1.1.0 ergänzt die einzeln freigegebene
 ASCII-Translation. Vollständige Adapter auf Linux 2019/latest local/central

@@ -95,11 +95,23 @@ oder Truständerungen. Beide begrenzten Zielnachweise ergeben `partially validat
 `unreleased`; übrige physische Ziel-/CL-Matrix, tatsächliche Minimalrechte,
 Heap und exakte Head-CI bleiben separate Nachweise.
 
+Am 2026-10-06 bestanden auf demselben zuvor ausgewählten, schema-validierten
+Windows2025/exaktCU8-Ziel auch CL150 und CL160 mit dem vollständigen local/
+central/Consumer-Scope. Je 13104 feste API-Oracles, 54 direkte Clientreader,
+38 Lifecyclefälle und Uninstall/Repeat; tatsächlicher Exit0, vollständige
+Kanäle und leeres Stderr. Zwei frische unabhängige Audits bestätigten je
+COMPLETE38, drei eigene Datenbanken abwesend, je zwei Marker- und
+Fremdslotfixtures exakt wiederhergestellt mit je zwei Abweisungen sowie
+unveränderte Input- und sechs Sourcepins. Keine Konfigurations-, Rechte- oder
+Truständerungen. Die frühere CL170- und Linux-Evidenz bleiben eigenständige
+Nachweise; weitere physische Ziele, Minimalrechte, Heap und vollständige
+Runtime-Head-CI sind weiterhin offen.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-05`
+- Datum: `2026-10-06`
 - Nachweis: `local: Tests/CI/run-safe-cast-lab.ps1`
-- Scope: Finales gleiches Source-/Deployment-/Fixture-/Adapterpaar auf Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 jeweils local/central und mit separatem SC-/UTF8-Consumer bestanden: je 13104 feste API-Oracles, 54 direkte Clientreader, Clean/Repeat, installierte Baseline, 38 gezielte Caller-/Lock-/Rollback-/TypedMarker-/Fremdslot-/Confirm0-Fälle und Uninstall/Repeat. Je Exit0, vollständige Kanäle und leeres Stderr; frische unabhängige Audits bestätigen COMPLETE38, drei eigene DBs abwesend, je zwei Marker-/Fremdslotfixtures mit exakter Wiederherstellung und zwei Abweisungen sowie alle Inputpins. Keine Konfigurations-/Rechte-/Truständerungen. Weitere physische Ziele, Minimalrechte, Heap-/Produktionskapazität und exakte Head-CI bleiben getrennt offen; frühere Fehlläufe werden nicht umgewertet.
+- Scope: Auf demselben bereits ausgewählten schema-validierten Windows2025/exaktCU8-Ziel bestanden zusätzlich CL150 und CL160 mit jeweils vollständigem local/central/Consumer-Adapter: je 13104 feste API-Oracles, 54 direkte Clientreader und 38 Lifecyclefälle. Je Exit0, vollständige Kanäle und leeres Stderr. Frische unabhängige Audits bestätigten COMPLETE38, drei eigene DBs abwesend, je zwei Marker-/Fremdslotfixtures exakt restauriert mit zwei Abweisungen sowie unveränderte Input- und sechs Sourcepins. Keine Konfigurations-/Rechte-/Truständerungen. Weitere physische Ziele, Minimalrechte, Heap und vollständige Runtime-Head-CI bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
