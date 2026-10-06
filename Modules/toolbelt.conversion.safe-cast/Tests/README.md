@@ -24,6 +24,9 @@ Caller-/AppLock-/Rollback-/Fremdslot-/Markerfälle und Uninstall/own cleanup.
 Ein installierter Marker oder vorhandener Testcode beweist diese Fälle nicht.
 
 Statisch: `python Modules/toolbelt.conversion.safe-cast/Tests/Static/validate_contract.py`.
+Der pfadbezogene Dokumentationsworkflow führt diesen Source-/Deploymentvertrag
+bei Änderungen am Safe-Cast-Modul ebenfalls aus; das ist kein SQL-Runtime-
+oder vollständiger exakter Head-CI-Nachweis.
 Der gekoppelte Generator läuft ausschließlich im nicht schreibenden Checkmodus.
 Lokale statische Prüfung und Client-AST bestanden am 2026-10-05;
 Beide SQLfixtures bestanden anschließend die unabhängige ScriptDom150-
