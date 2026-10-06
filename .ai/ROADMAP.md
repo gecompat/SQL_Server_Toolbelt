@@ -7,8 +7,9 @@ freigegeben und umgesetzt. Finale Adapter auf Linux2019/latest CL150 und
 Windows2025/exaktCU8 CL170 bestanden je local/central/Consumer,3072 feste
 APPLY-Oracles,15 Clientreader und42 Lifecyclefälle samt frischem Cleanup-/
 Fixture-/Pinaudit. Frühere Fehlläufe und Lifecycle-only-Scopes bleiben getrennt.
-Weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und exakte
-Head-CI sind separate Nachweise; teilweise validiert, unveröffentlicht.
+Zum Zeitpunkt dieser ersten Zielnachweise waren weitere physische Ziele,
+Minimalrechte,16MiB-Maximalworkload/Heap und exakte Head-CI separate offene
+Nachweise; teilweise validiert, unveröffentlicht.
 Zusätzlich bestanden am 2026-10-06 auf demselben Windows2025/exaktCU8-Ziel
 vollständige Pointer-Adapter mit CL150 und CL160 samt unabhängigen Audits;
 weitere physische Ziele und Lastgrenzen bleiben offen.
@@ -17,9 +18,22 @@ Seit 2026-10-06 ist zusätzlich die begrenzte Modul-Runtime-CI am exakten
 ([Linux-2019/2022/2025-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37403031731))
 und nach Merge auf [main](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37403199703)
 erfolgreich. Sie enthält Contract/Safety, Clientmetadaten und installierte
-Baseline, nicht die 42 gezielten Lab-Lifecyclefälle. Minimalrechte,
-Hard-Interrupt-Recovery, 16-MiB-Maximalworkload/Heap, weitere physische Ziele
-und Releasequalifikation bleiben offen.
+Baseline, nicht die 42 gezielten Lab-Lifecyclefälle. Die damaligen offenen
+Minimalrechte-, Hard-Interrupt-, Maximalworkload-/Heap-, Zielmatrix- und
+Releasegrenzen werden durch diesen CI-Nachweis allein nicht geschlossen.
+Nach [PR201](https://github.com/gecompat/SQL_Server_Toolbelt/pull/201) und
+[PR203](https://github.com/gecompat/SQL_Server_Toolbelt/pull/203) bestanden
+am 2026-10-06 manuell ausgelöste, einzeln begrenzte Linux-SQL2019-CL150-
+Lastläufe: Root und `/k` bei64KiB,1MiB,4MiB und exakt16MiB sowie ein
+geschachtelter `/k`-Pfad bei64KiB bis Tiefe128 und anschließend Tiefe128
+bei1MiB,4MiB und exakt16MiB. [PR202](https://github.com/gecompat/SQL_Server_Toolbelt/pull/202)
+und [PR204](https://github.com/gecompat/SQL_Server_Toolbelt/pull/204) verlinken
+die tatsächlichen Einzelruns in der [Testmatrix](../Modules/toolbelt.json.pointer/Tests/JSON_POINTER_TEST_MATRIX.md).
+Reguläre Pointer-Head- und Main-CI bestanden auch für die Adapteränderungen;
+der schwere Lastmodus blieb dort SKIPPED und wurde separat manuell geprüft.
+Weitere physische Ziele, Minimalrechte, Hard-Interrupt-Recovery,
+SQL2022/2025-Maximallast, andere JSON-Formen, tatsächlicher Heap,
+Parallelität und Releasequalifikation bleiben offen.
 
 Die sechs einzeln freigegebenen Safe-Cast-TVFs in `toolbelt.conversion.safe-cast`
 1.0.0 sind implementiert und teilweise validiert. Finale begrenzte Adapter auf
