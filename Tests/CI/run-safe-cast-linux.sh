@@ -209,6 +209,7 @@ expect_caller_transaction_rejection() {
 deployment="/workspace/Modules/toolbelt.conversion.safe-cast/Deployment"
 runtime="/workspace/Modules/toolbelt.conversion.safe-cast/Tests/Runtime"
 client="${workspace}/Tests/CI/run-safe-cast-client.ps1"
+rollback="${workspace}/Modules/toolbelt.conversion.safe-cast/Tests/CI/Test-SafeCastRollback.ps1"
 
 for level in ${compatibility_levels}; do
     local_db="tbx_safe_cast_local_${level}"
@@ -240,6 +241,8 @@ for level in ${compatibility_levels}; do
     run_file repeat_central "${central_db}" "${deployment}" Deploy.sql -v DeploymentMode=central
     run_file repeat_baseline_local "${local_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${local_db}"
     run_file repeat_baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
+    run_private rollback_central pwsh -NoProfile -File "${rollback}" -Database "${central_db}"
+    run_file rollback_baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
     expect_caller_transaction_rejection deploy "${central_db}" Deploy.sql -v DeploymentMode=central
     run_file caller_deploy_preserved "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
     expect_caller_transaction_rejection uninstall "${central_db}" Uninstall.sql -v ConfirmNoExternalConsumers=1
@@ -265,4 +268,4 @@ for level in ${compatibility_levels}; do
     done
 done
 
-echo "PASS: Safe Cast SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Client, Baseline, Repeat, central CallerTransaction/UnknownRelease/Dependency/Confirm0 und Uninstall."
+echo "PASS: Safe Cast SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Client, Baseline, Repeat, central Rollback/CallerTransaction/UnknownRelease/Dependency/Confirm0 und Uninstall."
