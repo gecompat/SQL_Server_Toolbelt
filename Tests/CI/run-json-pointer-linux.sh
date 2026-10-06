@@ -160,6 +160,19 @@ for level in ${compatibility_levels}; do
     run_file deploy_central "${central_db}" "${deployment}" Deploy.sql -v DeploymentMode=central
     run_file baseline_local "${local_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${local_db}"
     run_file baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
+    # Erste darstellbare UTF-16-Größe oberhalb des harten 16-MiB-Limits.
+    # Der INPUT_LIMIT-Zweig muss vor Syntaxprüfung und großen Scans zurückkehren.
+    run_query above_hard_input_limit "${central_db}" "
+DECLARE @Input nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),N'a'),8388609);
+IF DATALENGTH(@Input)<>16777218
+ THROW 55592,N'Pointer: synthetische Inputlänge stimmt nicht.',11;
+DECLARE @Rows int=0,@Status varchar(16)=NULL,@JsonType varchar(8)=NULL,
+        @Value nvarchar(max)=NULL,@ErrorCode varchar(32)=NULL;
+SELECT @Rows=@Rows+1,@Status=Status,@JsonType=JsonType,@Value=Value,@ErrorCode=ErrorCode
+FROM toolbelt_json.TVF_ResolveJsonPointer(@Input,N'',DEFAULT,DEFAULT);
+IF @Rows<>1 OR ISNULL(@Status,'')<>'INVALID' OR @JsonType IS NOT NULL
+ OR @Value IS NOT NULL OR ISNULL(@ErrorCode,'')<>'INPUT_LIMIT'
+ THROW 55592,N'Pointer: hartes Inputlimit wurde nicht vor Syntax geprüft.',12;"
 
     for mode in local central consumer; do
         case "${mode}" in
