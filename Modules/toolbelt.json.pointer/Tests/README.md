@@ -89,6 +89,10 @@ Ein synthetischer View im zentralen Provider belegt zudem eine tatsächliche
 `sys.sql_expression_dependencies`-Referenz. Deploy und Uninstall müssen ihn
 mit `55525/state3` abweisen; die installierte Baseline und der View bleiben
 bis zur kontrollierten Entfernung des Testverbrauchers erhalten.
+Der flüchtige CI-Adapter injiziert auf der zentralen eigenen Datenbank außerdem
+je einen Post-DROP- und Pre-COMMIT-Fehler für Deploy und Uninstall. Der
+gleichbleibende Client prüft danach vollständigen Katalogsnapshot und neutralen
+Transaktionszustand; die Produktdateien werden nur gelesen.
 Die vollständigen 42 gezielten Caller-/Lock-/Rollback-/Marker-/Fremdslot-/
 Dependencyfälle des separaten Labadapters, Minimalrechte, Maximalworkload und
 Hard-Interrupt-Recovery gehören nicht zu diesem CI-Scope.
