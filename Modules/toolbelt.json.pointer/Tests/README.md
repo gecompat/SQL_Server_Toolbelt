@@ -38,8 +38,12 @@ Fixtures, Clientmetadaten, installierte Baseline, Repeat und Uninstall.
 Der CI-Adapter weist außerdem den zentralen Uninstall ohne explizite
 Consumerbestätigung mit `55526/state1` ab und prüft danach die installierte
 Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird.
-Die 42 gezielten Caller-/Lock-/Rollback-/Marker-/Fremdslot-/Dependencyfälle
-des separaten Labadapters, Minimalrechte, Maximalworkload und
+Ein synthetischer View im zentralen Provider belegt zudem eine tatsächliche
+`sys.sql_expression_dependencies`-Referenz. Deploy und Uninstall müssen ihn
+mit `55525/state3` abweisen; die installierte Baseline und der View bleiben
+bis zur kontrollierten Entfernung des Testverbrauchers erhalten.
+Die vollständigen 42 gezielten Caller-/Lock-/Rollback-/Marker-/Fremdslot-/
+Dependencyfälle des separaten Labadapters, Minimalrechte, Maximalworkload und
 Hard-Interrupt-Recovery gehören nicht zu diesem CI-Scope.
 Weitere physische Ziele, Minimalrechte und Heap-/Maximalworkloadqualifikation
 bleiben offen; die tatsächlich ausgeführte begrenzte API-/Safetyqualifikation
