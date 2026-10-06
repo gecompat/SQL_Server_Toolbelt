@@ -42,7 +42,7 @@ on:
         type: choice
         required: true
         default: "root"
-        options: ["root", "object", "nested"]
+        options: ["root", "object", "array", "nested"]
       workload_depth:
         description: "Nur für nested: Anzahl der /k-Container und Pointer-Schritte"
         type: choice

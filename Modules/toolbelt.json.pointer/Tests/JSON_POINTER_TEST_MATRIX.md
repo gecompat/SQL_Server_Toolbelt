@@ -102,6 +102,13 @@ ein dadurch hart beendeter Job ohne bestätigtes Cleanup ist INCONCLUSIVE.
    synthetischen Erwartungswert bestehen. Der große Wert verlässt den Server
    nicht als Clientresultat; veröffentlicht werden nur Scope und Urteil.
 
+Der weitere manuelle Modus `array` verwendet einen JSON-Arrayroot mit genau
+einem langen String und Pointer `/0`. Bei `B` Originalbytes enthält der
+String exakt `B/2 - 4` synthetische `a`-Codeeinheiten. Er benutzt dasselbe
+Einzeilen-/Längen-/SHA2-256-Orakel und dieselben Watchdogs wie Root und Objekt.
+Eine erfolgreiche kleine Stufe ist kein Nachweis für exakt16MiB oder andere
+Arrayformen; größere Stufen folgen nur einzeln nach bestandenem Vorgänger.
+
 Ein Timeout ist **INCONCLUSIVE** für die fachliche Semantik, kein PASS und
 keine stillschweigende Absenkung des öffentlichen 16-MiB-Budgets. Erst nach
 erfolgreichem flüchtigem Lauf darf derselbe begrenzte Versuch auf einem erneut
@@ -121,6 +128,18 @@ der jeweilige eigene Container war nach jedem Prozess entfernt. Ausführung:
 mit den Optionen `--sql-version 2019 --stage-bytes <Stufe> --shape <Form>`.
 Dies ist ein einzelner synthetischer Host-/SQL-Versuch, kein Head-CI-Lauf,
 kein gemessenes Heap-/Parallelitäts- oder produktives Leistungsversprechen.
+
+Nach Ergänzung des separaten `array`-Pfads bestand am 2026-10-06 lokal ein
+einzelner 65536-Byte-Fall auf einem eigenen flüchtigen Linux-SQL2019-CL150-
+Container: `/0` lieferte genau eine FOUND/STRING-Zeile mit exakter Länge und
+SHA2-256-Wert. Auf demselben Source-Stand bestanden anschließend getrennte
+65536-Byte-Regressionen für `root`, `object` und `nested` mit Tiefe2.
+Jeder Prozess bestätigte die eigene Bereinigung; ein frischer separater
+Owner-Label-Audit fand keinen verbliebenen Testcontainer. Ausgeführt wurde
+`python Modules/toolbelt.json.pointer/Tests/CI/run_max_workload.py` mit
+`--sql-version 2019 --stage-bytes 65536 --shape <Form>` und für `nested`
+zusätzlich `--depth 2`. Größere Arrays, andere SQL-Versionen, Heap und
+Parallelität bleiben dafür **NOT_EXECUTED**.
 
 Nach Merge von [PR201](https://github.com/gecompat/SQL_Server_Toolbelt/pull/201)
 bestanden am 2026-10-06 auf `main`-Commit `d4c003d4234f97a26b097b5f06810fc93d003c1a`
