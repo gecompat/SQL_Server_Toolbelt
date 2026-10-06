@@ -15,6 +15,14 @@
 | Constructorsmigration | Genuine bekannte1.2→1.3, fünf Procedure-ObjectIds/Rechte und effektive Owner erhalten; drei CLR-Slots/Assembly atomar neu, post-DROP-Rollback | beide Ziele local/central bestanden |
 | Plattformmatrix | SQL2019/2022/2025; CL150/160/170 soweit unterstützt; Windows/Linux | Lab: Linux2019 CL150 und Windows2025 CU8 CL150/160/170; separate PR176-CI Linux2019/2022/2025 bestanden |
 
+Der gekoppelte Linux-CI-Adapter definiert zusätzlich einen zentralen
+Schema-Installations- und Repeat-Pfad mit `Contract.Tests.sql` und
+`Safety.Tests.sql`, einen dreiteiligen Aufruf aus einer separaten synthetischen
+Consumer-Datenbank sowie Core-/Schema-Uninstall-Abweisungen vor dem regulären
+Abbau. Dies ist ein begrenzter CI-Scope; erst ein erfolgreicher Lauf am exakten
+Änderungs-Head belegt seine Ausführung. Die vollständige physische Lifecycle-
+und Ressourcenmatrix wird dadurch nicht ersetzt.
+
 Die Offline-Driver besitzen endliche Prozessbudgets, prüfen tatsächliche
 Exitcodes und Capture und schreiben private Evidenz ausschließlich in neue,
 ignorierte `.runtime`-Verzeichnisse. SQL-Testziele werden erst aus dem
