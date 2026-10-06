@@ -47,7 +47,7 @@ abgeleitet.**
 | `toolbelt.json.core` | Shared SAFE JSON Core | `1.0.0` | `` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.json.path-exists` | JSON Path Exists | `1.0.0` | `toolbelt_json` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.json.pointer` | JSON Pointer Resolution | `1.0.0` | `toolbelt_json` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.json.schema` | Bounded JSON Schema Validation | `1.0.0` | `toolbelt_json` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.json.schema` | Bounded JSON Schema Validation | `1.0.1` | `toolbelt_json` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.capability-catalog` | Module Capability Catalog | `1.0.0` | `toolbelt_metadata` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.identifier` | Identifier and Multipart Name Toolkit | `1.0.0` | `toolbelt_metadata` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.table-clone` | Table Clone Planner, Executor and Data Copy | `4.1.0` | `toolbelt_metadata` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |

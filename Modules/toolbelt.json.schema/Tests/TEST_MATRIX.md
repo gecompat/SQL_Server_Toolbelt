@@ -1,5 +1,49 @@
 # JSON Schema – Abnahmematrix
 
+## Aktuelle Schema1.0.1-Wartung
+
+| Bereich | Nachweis | Zustand |
+|---|---|---|
+| Profil, Priorität, Referenzen, Budget |169 Fälle/1275 Assertions je en-US/de-DE/tr-TR; codierte Schemaform-/Graphorte, escaped Keys, mehrstellige Indizes und unveränderte Instanzreihenfolge | bestanden offline am2026-10-06 |
+| Exakte Zahlen |854 Fälle/6830 Assertions je drei Cultures | bestanden offline |
+| Managed Bridge |120 Assertions je drei Cultures, Identität1.0.1.0 | bestanden offline |
+| Schema-Binary |15 begrenzte Qualifikationsphasen, eigene IL, bytegleicher kanonischer Schema-Projektbuild und Input-/Produktpins | bestanden offline; kein erneuter Core-/Constructor-Gesamtlauf |
+| Patchpaketierung |Final `package4`: acht positive/negative Orakel; fester Snapshotpin, Abweisung gültig neu gerahmter Constructorframes im Generator und Driver vor Ausgabe, historische Frames und erlaubte Schemafelder | bestanden offline; frühere sechs Fälle aus `package3` bleiben eigene Historie |
+| Aktive Releasepaketierung |Drei Modulpositivfälle und sieben positive/negative Orakel des bisherigen Packagervertrags; stabile Pins | bestanden offline; keine erneute Core-/Constructor-Gesamtqualifikation |
+| Historisches1.0.0-Paket |50 bytegenaue Originalblobs aus festem Commit,53 erfolgreiche Prozessphasen, exakte historische Binaryhashes; falsche Coreassembly und belegtes Ziel abgewiesen | bestanden offline; kein nativer Upgrade |
+| Aktuelle T-SQL-Syntax |14 Batches/42 Assertions: Source, expandierte Lifecycle-Skripte und SQL-Fixtures in ScriptDom150/160/170 | bestanden offline |
+| Treibersteuerung |PowerShell-/Bashsyntax,18 synthetische CI-Cleanupfälle und33 Selector-/Bindungsfälle | bestanden offline; kein Lab-/SQL-/Containerlauf |
+| Direkter SQL-Aufruf |40 Contractfälle je local/central auf Linux SQL2019/CL150,2022/CL160,2025/CL170; Safety/CrossDB | PASS CI am83164b5 |
+| Neuer Lifecycle |Genuine1.0.0→1.0.1, Mode-Abweisung, post-ALTER55699-Rollback, aktueller Uninstall alt/Reinstall/Upgrade/Repeat und Cleanup local/central | PASS im genannten CI-Scope; übrige Lifecyclematrix offen |
+| Head-CI und weitere Matrix |Runtime37532174433 und Docs37532174428 am83164b5 PASS; weitere physische Ziele, Minimalrechte und Ressourcenqualifikation | Jeder spätere Head benötigt vor Integration eigene erfolgreiche Checks; übrige Matrix offen |
+
+Die aktuelle Wartung erfüllt den bestehenden Pointer-Reihenfolgevertrag;
+sie führt keine öffentliche API ein. Die folgenden1.0.0-Nachweise bleiben
+historisch und qualifizieren die geänderte1.0.1-Assembly nicht.
+
+`qual4` bestätigt die15 Phasen und die angegebenen Harnesszahlen nach der
+Common-Härtung. `qual3`/`package3` waren erfolgreich, belegen jedoch den
+früheren Scriptstand. Common bindet genau einen strict-UTF8-Byteinput an den
+festen historischen Snapshot-SHA256; der finale Kandidat entspricht
+semantisch exakt der aktiven Registry und ihren Binaryhashes.
+
+Der erste [native CI-Versuch](NATIVE_EVIDENCE.md) am2026-10-06,
+Head `58993f7012a0b458db377d7d4374b7bf162f0432`, scheiterte auf SQL2019/2022
+mit Msg515 in UpgradeCapture Permissions. Die leere FOR-XML-Abfrage ergab
+NULL. Capture und Verify normalisieren den leeren Katalog nun symmetrisch
+auf `0x`; unabhängiger Review und ScriptDom14/42 bestanden. SQL2025
+lief bei Erfassung noch; kein Gesamt-PASS. Der korrigierte
+Head und die ergänzte Windows-CI-Qualifikation bleiben PENDING.
+
+Nachtrag2026-10-06: Der erfolgreiche Nachweis am exakten
+Head `83164b539e637deeb1ad21b74a15cad99e0184c1` bestätigt je SQL-Version
+acht Upgrade-Witnesses, zweimal40 Contractfälle und zwei Safety-Witnesses,
+ohne UnexpectedSQL/CleanupUnverified. Die breiteren SQL2025-Constructor-
+CL150/160/170-Prüfungen erweitern die Schemaqualifikation nicht über CL170.
+Die vorstehende erste Erfassung bleibt historische Evidenz.
+
+## Historische Schema1.0.0-Qualifikation
+
 | Bereich | Nachweis | Zustand |
 |---|---|---|
 | Profil, Priorität, Referenzen, Budget |159 Fälle/1174 Assertions je drei Cultures | bestanden offline |
@@ -35,8 +79,8 @@ und6282-Migrationsfehlläufe bleiben getrennte Fehlerhistorie.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-05`
-- Nachweis: `local: run-json-schema-lab.ps1 Windows CL150/160`
-- Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central:30 Contractfälle, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Je frischer hashgebundener Dispositionaudit bestanden; keine Konfigurations-/Rechte-/Owneränderungen. Genuine1.2→1.3 separat auf beiden zusätzlichen Windowslevels local/central mit Schema30-Fixture und frischem Dispositionaudit bestanden; weitere physische Ziele und Minimalrechte offen.
+- Datum: `2026-10-06`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37532174433`
+- Scope: Schema1.0.1 am exakten Head83164b539e637deeb1ad21b74a15cad99e0184c1: Windows und Linux-SQL2019/CL150,2022/CL160,2025/CL170 PASS. Schema je SQL-Version local/central: genuine1.0.0-DLL, Mode-Abweisung, erwarteter post-ALTER55699-Rollback, aktueller Uninstall alt/Reinstall/Upgrade/Repeat, zweimal40 Contractfälle, Safety, CrossDB und Cleanup; je acht Upgrade- und zwei Safety-Witnesses, kein UnexpectedSQL/CleanupUnverified-Witness. SQLCMD-Dateifaulttransport im tatsächlichen Testpfad bestanden. Breitere Constructor-CL-Matrix ist kein Schema-Nachweis. Docs37532174428 am selben Head PASS; frühere failed/PENDING-Records bleiben Historie, Actual168-Rootcause nicht bewiesen. Neuer Dokumentationshead benötigt eigene exakte CI; übrige physische-/Minimalrechte-/Lifecycle-/Kapazitätsmatrix und Release offen. Partially validated, unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

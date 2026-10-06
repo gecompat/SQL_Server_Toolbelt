@@ -134,7 +134,7 @@ create_database() {
 
 
 # Ausschließlich das Windows-built, exakt bekannte Artefakt; kein Mono-/SDK-Fallback.
-[[ -f .runtime/json-clr/Deploy.sql && -f .runtime/json-clr/Uninstall.sql && -f .runtime/json-core/Deploy.WithAssembly.sql && -f .runtime/json-schema/Deploy.WithAssembly.sql && -f .runtime/json-historical12/Deploy.WithAssembly.sql ]] || { echo "KNOWN_JSON_ARTIFACT_REQUIRED" >&2; exit 65; }
+[[ -f .runtime/json-clr/Deploy.sql && -f .runtime/json-clr/Uninstall.sql && -f .runtime/json-core/Deploy.WithAssembly.sql && -f .runtime/json-schema/Deploy.WithAssembly.sql && -f .runtime/json-historical12/Deploy.WithAssembly.sql && -f .runtime/json-schema-historical10/Deploy.WithAssembly.sql ]] || { echo "KNOWN_JSON_ARTIFACT_REQUIRED" >&2; exit 65; }
 deployment_directory="/workspace/.runtime/json-clr"
 run_query master "EXEC sys.sp_configure N'clr enabled',1; RECONFIGURE;"
 run_query master "IF NOT EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr strict security' AND value_in_use=1) THROW 53622,N'CLR strict security required.',1;"
@@ -148,7 +148,8 @@ done <<'KNOWN_JSON_BYTES'
 json-historical12/Toolbelt.JsonConstructors.dll ff266a2fc46eb4101d87bc046aef63197b985c8ccbaea40f372e9918d1254c44f1f2cf8ced7942383625d28e2e1af5bf6164fa8a16b3dd5a16df5957faa34276
 json-core/Toolbelt.JsonCore.dll 4680e9d34a0870924b5ca003cc5983882fc8ffb653e702bcc549e5f65dde11934c55ba7b356b519503ac5ce1e2478fe64876fea0295176ff13b5b4a6ab61b894
 json-clr/Toolbelt.JsonConstructors.dll 8ab08a17d1be0b861043463e223154dffbed8273bc2c197cd7c8b791c3c06c4af418358e8e743d72068a3a9f726f7f85f50bcfa431df0484202ab562e1edb4bf
-json-schema/Toolbelt.JsonSchema.dll f67e0f9f3f6e83acc304e8e60bc98ee2610018e654ac4eb6e430f98a9665f9a1c85e90ef97950d348fcc0fc6389de71b214d1f9101835fec9a305ef39c41af21
+json-schema/Toolbelt.JsonSchema.dll 523b65979267457e8326ed2d5ec96d0309e9e1c7d5a0b2fbc0a3de68dcf7a9bb5a4f9cdda704ee0ba9f19097edbfb66eb8d649c0f2941b4a16adc2880bef880f
+json-schema-historical10/Toolbelt.JsonSchema.dll f67e0f9f3f6e83acc304e8e60bc98ee2610018e654ac4eb6e430f98a9665f9a1c85e90ef97950d348fcc0fc6389de71b214d1f9101835fec9a305ef39c41af21
 KNOWN_JSON_BYTES
 expect_failure() {
     local expected_number="$1"
@@ -159,7 +160,14 @@ expect_failure() {
         echo "Expected SQL failure was absent." >&2; exit 1
     fi
     if [[ "${failure_output}" != *"Msg ${expected_number},"* && !( "${expected_number}" == 50000 && "${failure_output}" == *"JSON_LIFECYCLE_CALLER_TRANSACTION:"* ) ]]; then
-        echo "Unexpected SQL error category." >&2; exit 1
+        # Nur feste Kategorien und numerische SQL-Fehlercodes veröffentlichen.
+        # Meldungstext, Server-/Dateinamen und Verbindungswerte bleiben flüchtig.
+        local actual_number=NO_SQL_MSG
+        if [[ "${failure_output}" =~ Msg[[:space:]]+([0-9]+), ]]; then
+            actual_number="${BASH_REMATCH[1]}"
+        fi
+        printf 'Unexpected SQL error category: expected=%s actual=%s.\n' "${expected_number}" "${actual_number}" >&2
+        exit 1
     fi
 }
 # Synthetische Predicate-Injektion, kein tatsächlicher Lowpriv-Nachweis.
@@ -190,6 +198,54 @@ print(source)
 PYSQL
 }
 legacy_directory="/workspace/.runtime/json-constructors-legacy/Deployment"
+run_schema_upgrade_fault() {
+    local database_name="$1" schema_mode="$2"
+    local fault_host="${private_dir}/schema-upgrade-fault.sql"
+    local fault_container="/tmp/tbx-schema-fault-${container_owner}.sql"
+    # Das große Assemblyliteral über denselben Dateipfadmodus wie Deploy lesen;
+    # SQLCMD-stdin darf den injizierten Batch nicht anders segmentieren.
+    if ! python3 - "${schema_mode}" "${fault_host}" <<'PYSCHEMA'
+from pathlib import Path
+import sys
+source = Path('.runtime/json-schema/Deploy.WithAssembly.sql').read_text(encoding='utf-8')
+anchor = "  EXEC sys.sp_executesql @Sql;\n END;\n CREATE TABLE #tbx_JsonSchema_DeployState"
+assert source.count(anchor) == 1 and sys.argv[1] in ('local', 'central')
+source = source.replace(anchor, "  EXEC sys.sp_executesql @Sql;\n THROW 55699,N'Synthetic post-ALTER rollback',1;\n END;\n CREATE TABLE #tbx_JsonSchema_DeployState")
+source = source.replace('$(DeploymentMode)', sys.argv[1])
+assert '$(' not in source
+Path(sys.argv[2]).write_text(source, encoding='utf-8', newline='\n')
+PYSCHEMA
+    then
+        echo "JSON_SCHEMA_FAULT_PREPARATION_FAILED" >&2
+        return 1
+    fi
+    if ! docker cp "${fault_host}" "${container_name}:${fault_container}" >/dev/null 2>&1; then
+        echo "JSON_SCHEMA_FAULT_COPY_FAILED" >&2
+        return 1
+    fi
+    docker exec "${container_name}" "${sqlcmd_path}" \
+        -S localhost -U sa -P "${sa_password}" -C -b -d "${database_name}" -i "${fault_container}"
+}
+run_schema_upgrade() {
+    local database_name="$1" schema_mode="$2" wrong_mode=central
+    [[ "${schema_mode}" == central ]] && wrong_mode=local
+    local schema_tests="/workspace/Modules/toolbelt.json.schema/Tests/Runtime"
+    run_file "${database_name}" "/workspace/.runtime/json-schema-historical10" Deploy.WithAssembly.sql -v DeploymentMode="${schema_mode}"
+    run_file "${database_name}" "${schema_tests}" UpgradeCapture.sql
+    expect_failure 55633 run_file "${database_name}" "/workspace/.runtime/json-schema" Deploy.WithAssembly.sql -v DeploymentMode="${wrong_mode}"
+    run_file "${database_name}" "${schema_tests}" UpgradeVerify.sql -v SchemaExpectedVersion=1.0.0
+    expect_failure 55699 run_schema_upgrade_fault "${database_name}" "${schema_mode}"
+    run_file "${database_name}" "${schema_tests}" UpgradeVerify.sql -v SchemaExpectedVersion=1.0.0
+    # Neuer Uninstaller muss auch die unveränderte bekannte Vorgängerzeile lesen.
+    run_file "${database_name}" "/workspace/.runtime/json-schema" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
+    run_query "${database_name}" "IF OBJECT_ID(N'toolbelt_json.USP_ValidateJsonSchema') IS NOT NULL OR EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'Toolbelt_JsonSchema') THROW 55690,N'Previous Schema uninstall incomplete.',22; DROP TABLE dbo.TbxSchemaUpgradeSnapshot;"
+    run_file "${database_name}" "/workspace/.runtime/json-schema-historical10" Deploy.WithAssembly.sql -v DeploymentMode="${schema_mode}"
+    run_file "${database_name}" "${schema_tests}" UpgradeCapture.sql
+    run_file "${database_name}" "/workspace/.runtime/json-schema" Deploy.WithAssembly.sql -v DeploymentMode="${schema_mode}"
+    run_file "${database_name}" "${schema_tests}" UpgradeVerify.sql -v SchemaExpectedVersion=1.0.1
+    run_file "${database_name}" "/workspace/.runtime/json-schema" Deploy.WithAssembly.sql -v DeploymentMode="${schema_mode}"
+    run_file "${database_name}" "${schema_tests}" UpgradeVerify.sql -v SchemaExpectedVersion=1.0.1
+}
 local_database="tbx_json_constructor_local"
 central_database="tbx_json_constructor_central"
 consumer_database="tbx_json_constructor_consumer"
@@ -285,8 +341,7 @@ run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentM
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
 # Neue Schemafunktion auf derselben bekannten Closure; die weiterhin durch
 # Constructors verwendete technische Coreassembly bleibt beim Schema-DROP erhalten.
-run_file "${local_database}" "/workspace/.runtime/json-schema" Deploy.WithAssembly.sql -v DeploymentMode=local
-run_file "${local_database}" "/workspace/.runtime/json-schema" Deploy.WithAssembly.sql -v DeploymentMode=local
+run_schema_upgrade "${local_database}" local
 for test in Contract.Tests.sql Safety.Tests.sql; do
     run_file "${local_database}" "/workspace/Modules/toolbelt.json.schema/Tests/Runtime" "${test}"
 done
@@ -297,8 +352,7 @@ run_file "${local_database}" "${deployment_directory}" Uninstall.sql -v ConfirmN
 # Die zentrale Schema-Installation verwendet dieselben bekannten Closure-Bytes.
 # Ein Aufruf aus der separaten Consumer-Datenbank prueft den oeffentlichen
 # dreiteiligen USP-Pfad, ohne neue Serverrechte oder Labziele anzulegen.
-run_file "${central_database}" "/workspace/.runtime/json-schema" Deploy.WithAssembly.sql -v DeploymentMode=central
-run_file "${central_database}" "/workspace/.runtime/json-schema" Deploy.WithAssembly.sql -v DeploymentMode=central
+run_schema_upgrade "${central_database}" central
 for test in Contract.Tests.sql Safety.Tests.sql; do
     run_file "${central_database}" "/workspace/Modules/toolbelt.json.schema/Tests/Runtime" "${test}"
 done

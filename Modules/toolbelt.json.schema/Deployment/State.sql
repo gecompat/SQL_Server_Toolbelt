@@ -1,6 +1,6 @@
 -- Lokaler geschlossener Manifestzustand, genau zwei eigene SQL-Slots.
 DECLARE @SchemaVersion nvarchar(max),@SchemaMode nvarchar(max),@SchemaAssemblyId int,@SchemaAssemblyOwner int,
- @SchemaInstalledHash varbinary(64),@SchemaOwner int,@SchemaInstalling bit=0,
+ @SchemaInstalledHash varbinary(64),@SchemaInstalledArtifactId varchar(64),@SchemaOwner int,@SchemaInstalling bit=0,
  @SchemaResultVersion nvarchar(max),@SchemaResultId int,@SchemaMajor int,@SchemaMinor int,@SchemaPatch int,
  @SchemaConstructorId int,@SchemaConstructorVersion nvarchar(max);
 DECLARE @SchemaSlots TABLE(Id int PRIMARY KEY,Name sysname NOT NULL,Kind char(2) NOT NULL);

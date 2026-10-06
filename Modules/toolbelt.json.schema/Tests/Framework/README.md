@@ -1,5 +1,99 @@
 # Begrenzte Offline-Sourcequalifikation
 
+## Schema1.0.1-Wartung, 2026-10-06
+
+`Invoke-BoundedPatchQualification.ps1` baut ausschließlich die aktuelle
+Schema-Compileliste gegen die unveränderten bekannten Corebytes. Der finale
+Lauf `qual4` bestand15 Phasen mit tatsächlichen Exits0, vollständigen Captures,
+leerem Stderr und unveränderten Input-/Produktpins. Die15 Phasen umfassen
+Schema- und Harnessbuilds, eigene vollständige Schema-IL, den bytegleichen
+kanonischen Schema-MSBuild und die folgenden Harnessläufe:
+
+| Prüfung | Tatsächlicher Umfang je en-US/de-DE/tr-TR |
+|---|---|
+| Schema-Profil |169 Fälle/1275 Assertions; neu: codierte Schemaform-/Graphorte, escaped Keys und mehrstellige Indizes; decodierte Instanzmember, numerische Instanzarrays und LIMIT bleiben erhalten |
+| Exakte Zahlen |854 Fälle/6830 Assertions |
+| CLR-Bridge |120 Assertions, Managedidentität1.0.1.0 und unveränderter öffentlicher Transport |
+
+```powershell
+./Modules/toolbelt.json.schema/Tests/Framework/Invoke-BoundedPatchQualification.ps1 `
+  -CompilerPath $LocalCompiler -ReferenceDirectory $LocalFrameworkReferences `
+  -FrameworkPowerShell $LocalFrameworkPowerShell -MSBuildPath $LocalMSBuild `
+  -CoreAssemblyPath $KnownCoreAssembly `
+  -ExpectedSchemaCases 169 -ExpectedSchemaAssertions 1275 `
+  -OutputDirectory .runtime/schema-patch-qualification
+```
+
+Die neue eigene Schemazeile wird durch `Scripts/New-KnownSchemaPatch.ps1`
+aus genau diesem `BOUNDED_SCHEMA_PATCH`-Receipt abgeleitet. Der Generator
+schreibt nur einen neuen privaten Registrykandidaten. Historische Core- und
+Constructorframes bleiben unverändert; ihre frühere Gesamtqualifikation wird
+nicht als erneuter Patchnachweis ausgegeben. Der unveränderte historische
+Closure-Snapshot bleibt in `KNOWN_JSON_ARTIFACT_CLOSURE_SCHEMA_1_0.json` erhalten.
+
+Die früheren Läufe `qual3`/`package3` bestanden tatsächlich; `package3`
+bestand sechs Paketierungsorakel: den
+qualifizierten Patchkandidaten sowie die Abweisung eines belegten Ziels,
+eines früheren Gesamt-Receipts, einer fehlenden Phase, veränderter Sourcepins
+und veränderter Binarybytes. Inputpins, historische Frames und die erlaubten
+Schemafelder bestanden. Die Receipt-Scope lautet
+`BOUNDED_SCHEMA_PATCH_PACKAGING`. Diese Erfolge gelten für den damaligen
+Scriptstand vor der nachfolgenden Common-Härtung.
+
+Der finale Lauf `package4` bestand acht Paketierungsorakel. Zusätzlich zu
+den bisherigen sechs Fällen wird ein gültig neu gerahmter Constructorframe
+sowohl im Generator als auch im Qualifikationsdriver mit
+`SCHEMA_PATCH_BASELINE_PIN` abgewiesen, bevor eine neue Ausgabe entsteht. Common liest
+den historischen Snapshot genau einmal als Bytes, prüft dessen festen SHA256
+`c2a5298a0cc5cbe806b5f24620dcc2d2fd6a20192dc6c2d06cb7bd6f319dfbe4`
+und decodiert dieselben Bytes mit strict UTF8. Der qualifizierte Kandidat ist
+semantisch exakt identisch mit der aktiven Registry einschließlich der
+Binaryhashes. Die acht Fälle ersetzen keinen historischen Nachweis durch
+eine neue Gesamtqualifikation.
+
+`Deployment/New-Historical10TestArtifacts.ps1` reproduzierte separat die echte
+Schema1.0.0 aus dem festen Commit `0185603b0e30e4d0b2dd9c1cfa4e698fccd9feb9`.
+50 Originalblobs wurden ohne Text-Reencoding übernommen;53 Prozessphasen
+bestanden. Source-/Projektpins, Snapshotbytehash, beide historischen
+Binaryhashes, Managedidentität und der originale Schema-Packager bestanden.
+Eine falsche Coreassembly wurde vor neuer Ausgabe abgewiesen; ein belegtes
+Ausgabeziel blieb unverändert. Dies ist historische Artefakterzeugung für
+einen späteren Upgradeversuch, kein ausgeführter SQL-Upgrade.
+
+Der historische Erzeuger begrenzt einzelne Prozesse auf5 Sekunden und den
+Gesamtversuch auf60 Sekunden. Die Patchqualifikation verwendet15 Sekunden
+für Compiler/IL und30 Sekunden für den kanonischen Build und die Harnesses;
+der Patchpaketierungstest verwendet15 Sekunden je Childprozess.
+Private Receipts bleiben ausschließlich in
+neuen ignorierten `.runtime`-Verzeichnissen. Constructor-Maximallast, erneute
+Core-/Constructor-Gesamtqualifikation, SQL/Docker und neue native1.0.1-Tests
+wurden lokal nicht ausgeführt. Eigenes IL beweist keine transitive Framework-
+SAFE-Zertifizierung oder SQL-Host-Ladbarkeit. Die unveränderlichen
+Known-Artifact-Felder `nativeQualification` und `trustAuthorization` bleiben
+Offline-Freeze-Metadaten; aktuelle Testautorität und spätere native Evidenz
+werden getrennt dokumentiert.
+
+Separat bestanden am2026-10-06: `../Static/Test-SqlSyntax.ps1` mit14 Batches
+und42 Assertions in ScriptDom150/160/170 sowie PowerShell-/Bashsyntax.
+Der aktuelle Release-Packager bestand alle drei Modulpositivfälle und die
+sieben Orakel aus `Test-ReleasePackaging.ps1` mit stabilen Pins: drei bekannte
+Produkte sowie vier Abweisungen für falsches Produkt, falschen/fehlenden Core
+und veränderte Bytes.18 synthetische CI-Cleanupfälle bestanden ohne SQL oder
+Container. Diese Prüfungen belegen Syntax, Paketierung und die geprüfte
+Cleanup-Steuerung, keine tatsächliche native1.0.1-Ausführung oder Bereinigung.
+`Test-JsonSchemaLabScope.ps1` bestand zusätzlich33 synthetische Selector-/
+Bindungsfälle ohne Labzugriff.
+
+Der erste native CI-Versuch am2026-10-06 ist eine getrennte fehlgeschlagene
+[Historie](../NATIVE_EVIDENCE.md). Die korrigierte Capture-/Verify-Fixture
+bestand unabhängigen Review und ScriptDom14 Batches/42 Assertions.
+Anschließend bestand Runtime37532174433 am exakten Head83164b5 mit Windows
+und dem begrenzten nativen Schema-Scope SQL2019/CL150,2022/CL160,2025/CL170
+je local/central. Frühere failed/PENDING-Records bleiben erhalten.
+Jeder spätere Head benötigt vor Integration eigene erfolgreiche Checks.
+
+## Historische Gesamtqualifikation mit Schema1.0.0
+
 Stand2026-10-05, Codex. Die Schema-/Kern-Welle wurde ausdrücklich anhand von
 PR175 freigegeben. [Kanonischer Vertrag](../../../../Documentation/Architecture/JSON_SCHEMA_CONTRACT.md).
 
@@ -98,8 +192,8 @@ Corebytes und danach beide Konsumenten.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-05`
-- Nachweis: `local: run-json-schema-lab.ps1 Windows CL150/160`
-- Scope: Windows2025/exaktCU8 CL150 und CL160 jeweils local/central:30 Contractfälle, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Je frischer hashgebundener Dispositionaudit bestanden; keine Konfigurations-/Rechte-/Owneränderungen. Genuine1.2→1.3 separat auf beiden zusätzlichen Windowslevels local/central mit Schema30-Fixture und frischem Dispositionaudit bestanden; weitere physische Ziele und Minimalrechte offen.
+- Datum: `2026-10-06`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37532174433`
+- Scope: Schema1.0.1 am exakten Head83164b539e637deeb1ad21b74a15cad99e0184c1: Windows und Linux-SQL2019/CL150,2022/CL160,2025/CL170 PASS. Schema je SQL-Version local/central: genuine1.0.0-DLL, Mode-Abweisung, erwarteter post-ALTER55699-Rollback, aktueller Uninstall alt/Reinstall/Upgrade/Repeat, zweimal40 Contractfälle, Safety, CrossDB und Cleanup; je acht Upgrade- und zwei Safety-Witnesses, kein UnexpectedSQL/CleanupUnverified-Witness. SQLCMD-Dateifaulttransport im tatsächlichen Testpfad bestanden. Breitere Constructor-CL-Matrix ist kein Schema-Nachweis. Docs37532174428 am selben Head PASS; frühere failed/PENDING-Records bleiben Historie, Actual168-Rootcause nicht bewiesen. Neuer Dokumentationshead benötigt eigene exakte CI; übrige physische-/Minimalrechte-/Lifecycle-/Kapazitätsmatrix und Release offen. Partially validated, unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

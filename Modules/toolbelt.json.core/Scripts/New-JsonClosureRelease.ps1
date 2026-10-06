@@ -26,7 +26,7 @@ foreach($row in $registry.artifacts){
  if($module -cnotin @('toolbelt.json.core','toolbelt.json.constructors','toolbelt.json.schema') -or $rows.ContainsKey($module)){
   throw 'JSON_CLOSURE_MODULE'
  }
- $expectedVersion=if($module -ceq 'toolbelt.json.constructors'){'1.3.0'}else{'1.0.0'}
+ $expectedVersion=switch($module){'toolbelt.json.constructors'{'1.3.0'};'toolbelt.json.schema'{'1.0.1'};default{'1.0.0'}}
  if($fields.registrySchema -cne $registry.framing -or $fields.moduleVersion -cne $expectedVersion -or $fields.permissionSet -cne 'SAFE'){
   throw 'JSON_CLOSURE_FIELDS'
  }

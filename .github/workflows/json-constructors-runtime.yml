@@ -83,6 +83,8 @@ jobs:
           $framework=Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
           $schema='Modules/toolbelt.json.schema/Tests/Framework'
           & "$schema/Invoke-SourceQualification.ps1" -CompilerPath $compiler -ReferenceDirectory $refs -FrameworkPowerShell $framework -OutputDirectory '.runtime/json-framework'
+          & "$schema/Invoke-BoundedPatchQualification.ps1" -CompilerPath $compiler -ReferenceDirectory $refs -FrameworkPowerShell $framework -MSBuildPath $build -CoreAssemblyPath '.runtime/json-framework/Toolbelt.JsonCore.dll' -ExpectedSchemaCases 169 -ExpectedSchemaAssertions 1275 -OutputDirectory '.runtime/json-schema-patch-framework'
+          & "$schema/Test-BoundedPatchPackaging.ps1" -QualifiedDirectory '.runtime/json-schema-patch-framework' -BaselineClosurePath 'Modules/toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE_SCHEMA_1_0.json' -PowerShellPath (Get-Process -Id $PID).Path -OutputDirectory '.runtime/json-schema-patch-packaging'
           & "$schema/Test-ProjectBuild.ps1" -MSBuildPath $build -QualifiedDirectory '.runtime/json-framework' -OutputDirectory '.runtime/json-project'
           & 'Modules/toolbelt.json.core/Tests/Framework/Test-RejectedClosure.ps1' -CompilerPath $compiler -ReferenceDirectory $refs -FrameworkPowerShell $framework -OutputDirectory '.runtime/json-rejected'
           & "$schema/Test-ReleasePackaging.ps1" -QualifiedDirectory '.runtime/json-framework' -OutputDirectory '.runtime/json-packaging-tests'
@@ -90,7 +92,9 @@ jobs:
             & 'Modules/toolbelt.json.core/Scripts/New-JsonClosureRelease.ps1' -ModuleId ('toolbelt.json.'+$entry[0]) -AssemblyPath ('.runtime/json-framework/Toolbelt.Json'+$entry[1]+'.dll') -CoreAssemblyPath '.runtime/json-framework/Toolbelt.JsonCore.dll' -OutputDirectory ('.runtime/'+$entry[2])
           }
           & "$module/Deployment/New-Historical12TestArtifacts.ps1" -MSBuildPath $build -OutputDirectory '.runtime/json-historical12-proof'
+          & 'Modules/toolbelt.json.schema/Deployment/New-Historical10TestArtifacts.ps1' -MSBuildPath $build -CoreAssemblyPath '.runtime/json-framework/Toolbelt.JsonCore.dll' -OutputDirectory '.runtime/json-schema-historical10-proof'
           Copy-Item -LiteralPath '.runtime/json-historical12-proof/release' -Destination '.runtime/json-historical12' -Recurse
+          Copy-Item -LiteralPath '.runtime/json-schema-historical10-proof/release' -Destination '.runtime/json-schema-historical10' -Recurse
           Copy-Item -LiteralPath '.runtime/json-clr/Deploy.WithAssembly.sql' -Destination '.runtime/json-clr/Deploy.sql'
           Copy-Item -LiteralPath '.runtime/json-clr/Uninstall.Expanded.sql' -Destination '.runtime/json-clr/Uninstall.sql'
       - uses: actions/upload-artifact@v4
@@ -102,6 +106,7 @@ jobs:
             .runtime/json-core/
             .runtime/json-schema/
             .runtime/json-historical12/
+            .runtime/json-schema-historical10/
           retention-days: 1
   runtime:
     needs: known-artifact

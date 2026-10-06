@@ -1,5 +1,56 @@
 # CHANGELOG
 
+## 2026-10-06 – Schema1.0.1: begrenzte native CI bestanden
+
+- [Runtime37532174433](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37532174433)
+  und Docs37532174428 am exakten Head83164b539e637deeb1ad21b74a15cad99e0184c1
+  PASS, einschließlich Windows und Linux SQL2019/CL150,2022/CL160,2025/CL170.
+  Schema jeweils local/central: genuine Upgrade, erwarteter55699-Rollback,
+  Mode-Abweisung, Uninstall/Reinstall/Repeat,40 Contractfälle je Modus,
+  Safety, CrossDB und Cleanup. Je SQL-Version acht Upgrade- und zwei
+  Safety-Witnesses; kein UnexpectedSQL/CleanupUnverified-Witness.
+- SQLCMD-Dateifaulttransport bestand im tatsächlichen Testpfad; daraus wird
+  keine exakte Actual168-Rootcause abgeleitet. Frühere failed/PENDING-Records
+  bleiben erhalten. Jeder spätere Head benötigt vor Integration eigene
+  erfolgreiche Checks; übrige Ziel-/
+  Minimalrechte-/Lifecycle-/Kapazitätsmatrix offen, unveröffentlicht.
+
+## 2026-10-06 – JSON Schema1.0.1: SchemaPointer-Reihenfolge korrigiert
+
+- Finale Offline-Läufe `qual4`/`package4` nach Common-Härtung bestanden:
+  15 Phasen mit unveränderten Harnesszahlen und acht Packagingfälle.
+  Genau ein strict-UTF8-Byteinput ist an den festen historischen
+  Snapshot-SHA256 gebunden; gültig neu gerahmte Constructorframes werden
+  im Generator und Driver vor Ausgabe mit `SCHEMA_PATCH_BASELINE_PIN`
+  abgewiesen. Kandidat und aktive Registry/Binaryhashes sind semantisch
+  exakt gleich. Die folgenden sechs Packagingfälle aus `qual3`/`package3`
+  bleiben erfolgreiche Nachweise des früheren Scriptstands.
+- Erster [nativer CI-Versuch](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37525258700)
+  am Head `58993f7012a0b458db377d7d4374b7bf162f0432`: SQL2019/2022 scheiterten
+  mit Msg515 in UpgradeCapture Permissions wegen NULL für den leeren
+  FOR-XML-Katalog. Capture/Verify normalisieren diesen nun symmetrisch
+  auf `0x`; unabhängiger Review und ScriptDom14/42 bestanden. SQL2025
+  lief bei Erfassung noch; native Abnahme am korrigierten Head
+  sowie die ergänzte Windows-CI-Qualifikation bleiben PENDING.
+- Schemaformfehler und Referenzzyklen folgen vollständig codierten
+  SchemaPointern; decodierte Instanzmember und numerische Instanzarrays
+  behalten ihre Reihenfolge. Profil, Signatur und Ergebnisfelder unverändert.
+- Expliziter1.0.0→1.0.1-Maintenancepfad und Uninstall beider bekannten
+  Releases implementiert; historische Closure unverändert erhalten.
+  Core-/Constructorbytes bleiben gleich. Die eigene neue Schemazeile
+  trägt ausschließlich die tatsächlich ausgeführte begrenzte Patchqualifikation.
+- Offline:169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions
+  und120 Bridge-Assertions je drei Kulturen, eigene IL, bytegleicher
+  Schema-Projektbuild, sechs Patch- und sieben Releasepaketierungsorakel
+  sowie ScriptDom14 Batches/42 Assertions bestanden. Der historische
+  Erzeuger reproduzierte die echten1.0.0-Bytes aus50 Originalblobs in53
+  erfolgreichen Prozessphasen. Syntax und18 synthetische CI-Cleanupfälle
+  sowie33 Selector-/Bindungsfälle ohne Labzugriff bestanden. Keine erneute
+  lokale Maximallastqualifikation.
+- Native1.0.1-API, echter SQL-Upgrade und exakte aktuelle Head-CI noch offen;
+  bisherige1.0.0-Nachweise bleiben historische Evidenz. Teilweise validiert,
+  unveröffentlicht, kein neuer öffentlicher Funktionsscope.
+
 ## 2026-10-06 – JSON-Pointer-Contract-, Safety- und Client-CI ergänzt
 
 - Ein modulbezogener Runtime-Workflow prüft den bestehenden Pointer-Vertrag

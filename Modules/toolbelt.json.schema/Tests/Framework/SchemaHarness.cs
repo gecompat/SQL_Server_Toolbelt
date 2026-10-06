@@ -115,6 +115,27 @@ internal static class SchemaHarness
         Check("root cycle", "null", "{\"$ref\":\"#\"}", "UNSUPPORTED", "REF_CYCLE");
         Check("unused cycle", "null", "{\"$defs\":{\"a\":{\"$ref\":\"#/$defs/b\"},\"b\":{\"$ref\":\"#/$defs/a\"}}}", "UNSUPPORTED", "REF_CYCLE");
         Check("containment cycle", "null", "{\"properties\":{\"a\":{\"$ref\":\"#\"}}}", "UNSUPPORTED", "REF_CYCLE");
+        // Schemaorte verwenden codierte Pointer: z < ~0 < ~1. Die Discovery
+        // und Instanzevaluation nach decodierten Keys bleiben / < z < ~.
+        var formOrder = Check("encoded schema form order", "null", "{\"$defs\":{\"/\":1,\"~\":[],\"z\":null}}", "INVALID_SCHEMA", "SCHEMA_FORM");
+        Assert(formOrder[0].SchemaPointer == "/$defs/z" && formOrder[1].SchemaPointer == "/$defs/z", "encoded form path");
+        var keywordOrder = Check("encoded schema keyword order", "null", "{\"$defs\":{\"/\":{\"pattern\":\"x\"},\"~\":{\"pattern\":\"x\"},\"z\":{\"pattern\":\"x\"}}}", "UNSUPPORTED", "KEYWORD_UNSUPPORTED");
+        Assert(keywordOrder[1].SchemaPointer == "/$defs/z/pattern", "encoded keyword path");
+        var mixedOrder = Check("encoded mixed schema order", "null", "{\"$defs\":{\"/\":1,\"z\":{\"pattern\":\"x\"}}}", "UNSUPPORTED", "KEYWORD_UNSUPPORTED");
+        Assert(mixedOrder[1].SchemaPointer == "/$defs/z/pattern", "ordered keyword before later form");
+        var formIndex = Check("encoded schema array form order", "null", "{\"prefixItems\":[true,true,1,true,true,true,true,true,true,true,null]}", "INVALID_SCHEMA", "SCHEMA_FORM");
+        Assert(formIndex[1].SchemaPointer == "/prefixItems/10", "encoded array index before two");
+        var cycleOrder = Check("encoded graph order", "null", "{\"$defs\":{\"/\":{\"$ref\":\"#/$defs/~1\"},\"~\":{\"$ref\":\"#/$defs/~0\"},\"z\":{\"$ref\":\"#/$defs/z\"}}}", "UNSUPPORTED", "REF_CYCLE");
+        Assert(cycleOrder[0].SchemaPointer == "/$defs/z/$ref" && cycleOrder[1].SchemaPointer == "/$defs/z/$ref", "encoded first cycle path");
+        var cycleIndex = Check("encoded graph array order", "null", "{\"prefixItems\":[true,true,{\"$ref\":\"#/prefixItems/2\"},true,true,true,true,true,true,true,{\"$ref\":\"#/prefixItems/10\"}]}", "UNSUPPORTED", "REF_CYCLE");
+        Assert(cycleIndex[1].SchemaPointer == "/prefixItems/10/$ref", "encoded first array cycle");
+        var decodedOrder = Check("decoded instance member order", "{\"~\":1,\"z\":1,\"/\":1}", "{\"properties\":{\"z\":false,\"/\":false,\"~\":false}}", "INVALID_INSTANCE", "INSTANCE_VIOLATION");
+        Assert(decodedOrder[1].DocumentPointer == "/~1" && decodedOrder[2].DocumentPointer == "/z" && decodedOrder[3].DocumentPointer == "/~0", "decoded instance paths retained");
+        var decodedExtra = Check("decoded additional member order", "{\"~\":1,\"z\":1,\"/\":1}", "{\"additionalProperties\":false}", "INVALID_INSTANCE", "INSTANCE_VIOLATION");
+        Assert(decodedExtra[1].DocumentPointer == "/~1" && decodedExtra[2].DocumentPointer == "/z" && decodedExtra[3].DocumentPointer == "/~0", "decoded additional paths retained");
+        var numericIndex = Check("numeric instance array order", "[0,0,0,0,0,0,0,0,0,0,0]", "{\"prefixItems\":[true,true,false,true,true,true,true,true,true,true,false]}", "INVALID_INSTANCE", "INSTANCE_VIOLATION");
+        Assert(numericIndex[1].DocumentPointer == "/2" && numericIndex[2].DocumentPointer == "/10", "numeric instance index retained");
+        Check("encoded graph bounded work", "null", "{\"$defs\":{\"/\":true,\"~\":true,\"z\":true}}", "LIMIT", "EVALUATION_LIMIT", steps: 200);
         Check("ref array", "null", "{\"prefixItems\":[true],\"$ref\":\"#/prefixItems/0\"}", "VALID");
         Check("ref array leading zero", "null", "{\"prefixItems\":[true],\"$ref\":\"#/prefixItems/00\"}", "INVALID_SCHEMA", "REF_TARGET");
         Check("ref array overflow", "null", "{\"prefixItems\":[true],\"$ref\":\"#/prefixItems/99999999999999999\"}", "INVALID_SCHEMA", "REF_TARGET");

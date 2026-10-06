@@ -37,7 +37,7 @@ $artifacts=@();$coreId=$null
 $legacy=Get-Content -LiteralPath (Join-Path $repoRoot 'Modules/toolbelt.json.constructors/Documentation/KNOWN_CLR_ARTIFACTS.json') -Raw|ConvertFrom-Json
 foreach($product in @('Toolbelt.JsonCore','Toolbelt.JsonConstructors','Toolbelt.JsonSchema')){
  $module=switch($product){'Toolbelt.JsonCore'{'toolbelt.json.core'};'Toolbelt.JsonConstructors'{'toolbelt.json.constructors'};'Toolbelt.JsonSchema'{'toolbelt.json.schema'}}
- $version=if($product-ceq'Toolbelt.JsonConstructors'){'1.3.0'}else{'1.0.0'}
+ $version=switch($product){'Toolbelt.JsonConstructors'{'1.3.0'};'Toolbelt.JsonSchema'{'1.0.1'};default{'1.0.0'}}
  $sqlName=switch($product){'Toolbelt.JsonCore'{'Toolbelt_JsonCore'};'Toolbelt.JsonConstructors'{'Toolbelt_JsonConstructors'};'Toolbelt.JsonSchema'{'Toolbelt_JsonSchema'}}
  $fileName=$product+'.dll';$binary=Join-Path $qualified $fileName
  $binaryPin=@($framework.binaryPins|Where-Object{$_.fileName-ceq$fileName})

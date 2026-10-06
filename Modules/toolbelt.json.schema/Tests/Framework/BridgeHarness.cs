@@ -35,7 +35,7 @@ internal static class BridgeHarness
         Assert(fill.Length == 11 && fill[0].ParameterType == typeof(object), "fill signature");
         for (int i = 0; i < outputs.Length; i++) Assert(fill[i + 1].IsOut && fill[i + 1].ParameterType == outputs[i].MakeByRefType(), "output " + i);
         Assert(typeof(JsonTokenDocument).Assembly != typeof(JsonSchemaBridge).Assembly, "physical shared core");
-        Assert(typeof(JsonSchemaBridge).Assembly.GetName().Version == new Version(1,0,0,0), "schema identity");
+        Assert(typeof(JsonSchemaBridge).Assembly.GetName().Version == new Version(1,0,1,0), "schema identity");
         Assert(typeof(JsonTokenDocument).Assembly.GetName().Name == "Toolbelt.JsonCore", "core identity");
         foreach (Type type in typeof(JsonTokenDocument).Assembly.GetTypes())
             foreach (MethodInfo member in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly))

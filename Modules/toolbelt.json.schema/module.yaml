@@ -1,6 +1,6 @@
 module_id: "toolbelt.json.schema"
 module_name: "Bounded JSON Schema Validation"
-version: "1.0.0"
+version: "1.0.1"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
@@ -25,7 +25,7 @@ schemas:
 objects:
   - {type: USP, schema: "toolbelt_json", name: "USP_ValidateJsonSchema", visibility: public}
   - {type: CLR_TVF, schema: "toolbelt_json", name: "FT_ValidateJsonSchemaInternal", visibility: internal}
-permissions_required: ["Aufruf: vorhandenes EXECUTE; Lifecycle: vollständige Metadatensicht und passende CREATE-/Schema-DDL-Rechte. Keine Rechtevergabe."]
+permissions_required: ["Aufruf: vorhandenes EXECUTE; Lifecycle: vollständige Metadatensicht und passende CREATE-/Schema-DDL-Rechte; bekannter1.0.0→1.0.1-Upgrade zusätzlich vorhandenes ALTER-Recht auf ASSEMBLY::Toolbelt_JsonSchema. Keine Rechtevergabe."]
 collation_contract: "BIN2-Ausgabe, exakte ordinale und längensensitive Managed-Vergleiche ohne Normalisierung."
 data_type_contract: "Json/Schema nvarchar(max), Profile varchar(32); zehn Ergebnisfelder gemäß JSON_SCHEMA_CONTRACT."
 help_contract_version: "1.0"
@@ -88,4 +88,32 @@ validation_evidence:
   - date: "2026-10-05"
     workflow: "local: run-json-schema-lab.ps1 Windows CL150/160"
     scope: "Windows2025/exaktCU8 CL150 und CL160 jeweils local/central:30 Contractfälle, Safety/Help/ResultTable/Callerrollback, direkte Clientmetadaten, Repeat, Consumer-Abweisungen, Uninstall/Repeat und eigenes DB-/Trustcleanup bestanden. Je frischer hashgebundener Dispositionaudit bestanden; keine Konfigurations-/Rechte-/Owneränderungen. Genuine1.2→1.3 separat auf beiden zusätzlichen Windowslevels local/central mit Schema30-Fixture und frischem Dispositionaudit bestanden; weitere physische Ziele und Minimalrechte offen."
+    result: "success"
+  - date: "2026-10-06"
+    workflow: "local: New-Historical10TestArtifacts.ps1"
+    scope: "Echtes Schema1.0.0-Artefakt aus festem Commit:50 bytegenaue Originalblobs,53 erfolgreiche Prozessphasen, Source-/Projekt-/Snapshotpins und exakte historische SHA256-/SHA512-/Managedidentität bestanden. Falsche Coreassembly vor neuer Ausgabe und belegtes Ziel unverändert abgewiesen. Nur historische Offline-Artefakterzeugung; kein nativer1.0.0→1.0.1-Upgrade."
+    result: "success"
+  - date: "2026-10-06"
+    workflow: "local: Invoke-BoundedPatchQualification.ps1 and Test-BoundedPatchPackaging.ps1"
+    scope: "Schema1.0.1:15 erfolgreiche begrenzte Prozessphasen mit stabilen Input-/Produktpins;169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions und120 Bridge-Assertions jeweils en-US/de-DE/tr-TR. Eigene Schema-IL und bytegleicher kanonischer Schema-Projektbuild bestanden; sechs positive/negative Patchpaketierungsorakel, sieben Releasepaketierungsorakel und unveränderte historische Frames bestanden. ScriptDom14 Batches/42 Assertions, PowerShell-/Bashsyntax,18 synthetische CI-Cleanupfälle und33 Selector-/Bindungsfälle ohne Labzugriff bestanden. Unveränderte Core-/Constructoridentitäten nur wiederverwendet, keine erneute Gesamt- oder Maximallastqualifikation. Native1.0.1-API/Upgrade und exakte Head-CI noch nicht ausgeführt; historische1.0.0-Nachweise bleiben getrennt."
+    result: "success"
+  - date: "2026-10-06"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37525258700"
+    scope: "Erster Schema1.0.1-CI-Versuch am Head58993f7012a0b458db377d7d4374b7bf162f0432: SQL2019/2022 scheiterten mit Msg515 in UpgradeCapture Permissions wegen NULL aus leerem FOR-XML-Katalog. Capture/Verify inzwischen symmetrisch auf0x normalisiert; unabhängiger Review und ScriptDom14 Batches/42 Assertions bestanden. SQL2025 bei Erfassung noch laufend; kein nativer Gesamt-PASS. Korrigierte Head-CI und neue Windows-CI-Patchqualifikation bleiben PENDING."
+    result: "failed"
+  - date: "2026-10-06"
+    workflow: "local: Invoke-BoundedPatchQualification.ps1 qual4 and Test-BoundedPatchPackaging.ps1 package4"
+    scope: "Finale Schema1.0.1-Offline-Läufe nach Common-Härtung:15 erfolgreiche begrenzte Prozessphasen, stabile Input-/Produktpins;169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions und120 Bridge-Assertions jeweils en-US/de-DE/tr-TR, eigene IL und bytegleicher kanonischer Schema-Projektbuild. Acht Packagingfälle bestanden; gültig neu gerahmter Constructorframe in Generator und Driver mit SCHEMA_PATCH_BASELINE_PIN vor Ausgabe abgewiesen. Ein einziger strict-UTF8-Byteinput bindet den historischen Snapshot an seinen festen SHA256; Kandidat semantisch exakt gleich aktiver Registry/Binaryhashen. Frühere qual3/package3-Erfolge mit sechs Fällen bleiben Evidenz ihres Scriptstands. Keine erneute Core-/Constructor-Gesamt- oder Maximallastqualifikation; native1.0.1-API/Upgrade und korrigierte Head-CI PENDING. Historische1.0.0-Nachweise und Registry-Freeze unverändert."
+    result: "success"
+  - date: "2026-10-06"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37527060218"
+    scope: "Zweiter Schema1.0.1-CI-Lauf am Headf37376b3b6eb3aba8f0df6a3dc09b5201a1e47cf: SQL2019/2022/2025 FAILED nach erstem UpgradeVerify-Witness im Faulttest mit erwarteter Nummer55699 und unerwarteter Fehlerkategorie; tatsächliche Fehlernummer und Ursache noch unbekannt. Windows inklusive15 begrenzten Qualifikationsphasen und acht Packagingfällen PASS; kein nativer Gesamt-PASS. Erstlauf37525258700 inzwischen alle drei SQL-Jobs mit Msg515 FAILED, Windows PASS; frühere zeitgebundene Records bleiben erhalten. Aktuelle native1.0.1-Abnahme fehlt; neuer nativer Nachweis PENDING."
+    result: "failed"
+  - date: "2026-10-06"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37529400622"
+    scope: "Numerische Schema1.0.1-CI-Diagnose am Head72080660c15b3dc33264cba2a1141e9c6a35d29d: Windows PASS; SQL2022/2025 FAILED im Faulttest mit Expected55699/Actual168; SQL2019 bei Erfassung noch laufend. Kein nativer Gesamt-PASS und keine bestätigte Fehlerursache. Separater noch nicht integrierter SQLCMD-i-Faulttransport bestand vier lokale Mockfälle und unabhängigen Review ohne Blocker; kein nativer Nachweis. Frühere zeitgebundene Records unverändert; aktuelle native Abnahme PENDING."
+    result: "failed"
+  - date: "2026-10-06"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37532174433"
+    scope: "Schema1.0.1 am exakten Head83164b539e637deeb1ad21b74a15cad99e0184c1: Windows und Linux-SQL2019/CL150,2022/CL160,2025/CL170 PASS. Schema je SQL-Version local/central: genuine1.0.0-DLL, Mode-Abweisung, erwarteter post-ALTER55699-Rollback, aktueller Uninstall alt/Reinstall/Upgrade/Repeat, zweimal40 Contractfälle, Safety, CrossDB und Cleanup; je acht Upgrade- und zwei Safety-Witnesses, kein UnexpectedSQL/CleanupUnverified-Witness. SQLCMD-Dateifaulttransport im tatsächlichen Testpfad bestanden. Breitere Constructor-CL-Matrix ist kein Schema-Nachweis. Docs37532174428 am selben Head PASS; frühere failed/PENDING-Records bleiben Historie, Actual168-Rootcause nicht bewiesen. Neuer Dokumentationshead benötigt eigene exakte CI; übrige physische-/Minimalrechte-/Lifecycle-/Kapazitätsmatrix und Release offen. Partially validated, unreleased."
     result: "success"

@@ -110,7 +110,7 @@ $record=@{status='FAILED';scope='own product and pinned shared Core calls only';
 try{
  $coreAsm=$null;if($CorePath){$coreBytes=[IO.File]::ReadAllBytes($CorePath);if((HashBytes $coreBytes)-cne$ExpectedCoreSha256){throw 'IL_CORE_PIN'};$coreAsm=[Reflection.Assembly]::Load($coreBytes);if($coreAsm.GetName().Name-cne'Toolbelt.JsonCore'-or$coreAsm.GetName().Version-ne[Version]'1.0.0.0'){throw 'IL_CORE_IDENTITY'}}
  $bytes=[IO.File]::ReadAllBytes($BinaryPath);if((HashBytes $bytes)-cne$ExpectedSha256){throw 'IL_PIN'};$asm=[Reflection.Assembly]::Load($bytes)
- $identity=$asm.GetName();$expectedVersions=@{'Toolbelt.JsonCore'='1.0.0.0';'Toolbelt.JsonConstructors'='1.3.0.0';'Toolbelt.JsonSchema'='1.0.0.0'}
+ $identity=$asm.GetName();$expectedVersions=@{'Toolbelt.JsonCore'='1.0.0.0';'Toolbelt.JsonConstructors'='1.3.0.0';'Toolbelt.JsonSchema'='1.0.1.0'}
  if(-not$expectedVersions.ContainsKey($identity.Name)-or$identity.Version.ToString()-cne$expectedVersions[$identity.Name]-or$identity.GetPublicKeyToken().Length-ne0){throw 'IL_PRODUCT_IDENTITY'}
  foreach($r in $asm.GetReferencedAssemblies()){if($r.Name-ceq'Toolbelt.JsonCore'){if(-not$coreAsm-or$r.Version-ne[Version]'1.0.0.0'-or$r.GetPublicKeyToken().Length-ne0){throw 'IL_REFERENCE'}}elseif($r.Name-notin@('mscorlib','System','System.Data')-or$r.Version-ne[Version]'4.0.0.0'-or[BitConverter]::ToString($r.GetPublicKeyToken()).Replace('-','').ToLowerInvariant()-cne'b77a5c561934e089'){throw 'IL_REFERENCE'}}
  $ops=@{};foreach($f in [Reflection.Emit.OpCodes].GetFields([Reflection.BindingFlags]'Public,Static')){$o=$f.GetValue($null);$ops[([int]$o.Value-band65535)]=$o}
