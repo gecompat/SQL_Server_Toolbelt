@@ -52,12 +52,21 @@ jobs:
           $output=Join-Path $env:RUNNER_TEMP ('tbxcsv-'+[Guid]::NewGuid().ToString('N'))
           $msbuild=(Get-Command msbuild.exe -ErrorAction Stop).Source
           . (Join-Path $env:GITHUB_WORKSPACE 'Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1')
-          $build=Invoke-OwnedProcess -FileName $msbuild -Arguments @((Join-Path $module 'Clr/Toolbelt.File.CsvMemory.csproj'),'/t:Rebuild','/p:Configuration=Release','/p:Platform=AnyCPU','/m:1','/nr:false') -TimeoutMilliseconds 120000
+          $buildArguments=@((Join-Path $module 'Clr/Toolbelt.File.CsvMemory.csproj'),'/t:Rebuild','/p:Configuration=Release','/p:Platform=AnyCPU','/m:1','/nr:false')
+          $build=Invoke-OwnedProcess -FileName $msbuild -Arguments $buildArguments -TimeoutMilliseconds 120000
           if ($build.ExitCode -ne 0 -or -not $build.CaptureComplete) { throw 'CSV product build failed.' }
           $assembly=Join-Path $module 'Clr/bin/Release/Toolbelt.File.CsvMemory.dll'
           $assemblyHash=(Get-FileHash -LiteralPath $assembly -Algorithm SHA256).Hash
           & (Join-Path $module 'Scripts/New-ClrReleaseArtifacts.ps1') -AssemblyPath $assembly -ExpectedAssemblySHA256 $assemblyHash -OutputDirectory $output
           $manifest=Get-Content -LiteralPath (Join-Path $output 'Toolbelt.File.CsvMemory.trust-manifest.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+          # Ein zweiter vollständiger Build muss exakt den gepackten Trustbytes entsprechen.
+          # Dies prüft Reproduzierbarkeit auf demselben Runner, nicht zwischen Hosts.
+          $rebuild=Invoke-OwnedProcess -FileName $msbuild -Arguments $buildArguments -TimeoutMilliseconds 120000
+          if ($rebuild.ExitCode -ne 0 -or -not $rebuild.CaptureComplete) { throw 'CSV product rebuild failed.' }
+          if ((Get-FileHash -LiteralPath $assembly -Algorithm SHA512).Hash -cne $manifest.sha512 -or
+              (Get-FileHash -LiteralPath (Join-Path $output 'Toolbelt.File.CsvMemory.dll') -Algorithm SHA512).Hash -cne $manifest.sha512) {
+            throw 'CSV rebuilt trust bytes differ from packaged artifact.'
+          }
           $csc=Join-Path (Split-Path -Parent $msbuild) 'Roslyn/csc.exe'
           $references=Join-Path ([Environment]::GetEnvironmentVariable('ProgramFiles(x86)')) 'Reference Assemblies/Microsoft/Framework/.NETFramework/v4.8'
           & (Join-Path $module 'Tests/Framework/run-framework-csv.ps1') -AssemblyPath (Join-Path $output 'Toolbelt.File.CsvMemory.dll') -ExpectedAssemblySHA256 $manifest.sha256 -CscPath $csc -FrameworkReferenceDirectory $references -EvidenceDirectory (Join-Path $output 'Framework')
