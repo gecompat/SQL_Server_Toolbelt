@@ -43,7 +43,9 @@ Closure-Snapshot bewahrt. Der Maintenancepfad erkennt kohärente bekannte
 Uninstall beider bekannten Releases offen. Fremde Tupel, unbekannte Bytes,
 Consumer- und Ownergrenzen bleiben abweisend; keine Dependencyinstallation
 oder Rechtevergabe. Eine Registryidentität erteilt keine Test- oder
-Trustautorität.
+Trustautorität. Der bekannte1.0.0→1.0.1-Upgrade setzt zusätzlich ein bereits
+vorhandenes `ALTER`-Recht auf `ASSEMBLY::Toolbelt_JsonSchema` voraus; der
+Installer erteilt dieses Recht nicht.
 
 Die [begrenzte Offline-Qualifikation](../../Modules/toolbelt.json.schema/Tests/Framework/README.md)
 bestand am2026-10-06. Die echte historische1.0.0-DLL wurde separat für einen

@@ -17,6 +17,25 @@ genuine1.0.0→1.0.1-Upgrade und exakte korrigierte Head-CI bleiben PENDING.
 Die ergänzte Windows-CI-Ausführung des begrenzten Qualifikationsdrivers
 und der acht Packagingfälle besitzt noch keinen erfolgreichen CI-Nachweis.
 
+## Fortschreibung der CI-Historie, 2026-10-06
+
+Der Erstlauf37525258700 ist inzwischen abgeschlossen: SQL2019/2022/2025
+FAILED mit Msg515; Windows PASS. Die vorstehende Erfassung mit damals noch
+laufendem SQL2025 bleibt unverändert zeitgebundene Historie.
+
+Der [zweite Lauf37527060218](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37527060218)
+am Head `f37376b3b6eb3aba8f0df6a3dc09b5201a1e47cf` endet für alle drei
+SQL-Versionen mit FAILED nach dem ersten UpgradeVerify-Witness. Der
+Faulttest erwartet55699, meldet aber eine unerwartete Fehlerkategorie;
+die tatsächliche Fehlernummer und Ursache sind noch unbekannt.
+Windows bestand einschließlich15
+begrenzter Qualifikationsphasen und acht Packagingfällen. Dieser Teilnachweis
+ist kein nativer Schema-Gesamt-PASS.
+
+Aktuelle native1.0.1-Abnahme fehlt weiterhin. Eine nachfolgende numerisch
+bereinigte Expected-/Actual-Fehlerdiagnose belegt noch keine Fehlerursache
+oder Produktkorrektur; ein neuer nativer Nachweis bleibt PENDING.
+
 ## Historische Schema1.0.0-Qualifikation
 
 Stand2026-10-05, Codex. Die konkrete Schema-/Kern-/Constructorwelle ist
@@ -122,9 +141,9 @@ Dies ist getrennte synthetische CI-Evidenz, kein neuer physischer Labnachweis. D
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-06`
-- Nachweis: `local: Invoke-BoundedPatchQualification.ps1 qual4 and Test-BoundedPatchPackaging.ps1 package4`
-- Scope: Finale Schema1.0.1-Offline-Läufe nach Common-Härtung:15 erfolgreiche begrenzte Prozessphasen, stabile Input-/Produktpins;169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions und120 Bridge-Assertions jeweils en-US/de-DE/tr-TR, eigene IL und bytegleicher kanonischer Schema-Projektbuild. Acht Packagingfälle bestanden; gültig neu gerahmter Constructorframe in Generator und Driver mit SCHEMA_PATCH_BASELINE_PIN vor Ausgabe abgewiesen. Ein einziger strict-UTF8-Byteinput bindet den historischen Snapshot an seinen festen SHA256; Kandidat semantisch exakt gleich aktiver Registry/Binaryhashen. Frühere qual3/package3-Erfolge mit sechs Fällen bleiben Evidenz ihres Scriptstands. Keine erneute Core-/Constructor-Gesamt- oder Maximallastqualifikation; native1.0.1-API/Upgrade und korrigierte Head-CI PENDING. Historische1.0.0-Nachweise und Registry-Freeze unverändert.
-- Ergebnis: `success`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37527060218`
+- Scope: Zweiter Schema1.0.1-CI-Lauf am Headf37376b3b6eb3aba8f0df6a3dc09b5201a1e47cf: SQL2019/2022/2025 FAILED nach erstem UpgradeVerify-Witness im Faulttest mit erwarteter Nummer55699 und unerwarteter Fehlerkategorie; tatsächliche Fehlernummer und Ursache noch unbekannt. Windows inklusive15 begrenzten Qualifikationsphasen und acht Packagingfällen PASS; kein nativer Gesamt-PASS. Erstlauf37525258700 inzwischen alle drei SQL-Jobs mit Msg515 FAILED, Windows PASS; frühere zeitgebundene Records bleiben erhalten. Aktuelle native1.0.1-Abnahme fehlt; neuer nativer Nachweis PENDING.
+- Ergebnis: `failed`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
 ## Ergänzende Windows-Compatibilityqualifikation2026-10-05
