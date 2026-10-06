@@ -149,6 +149,11 @@ Nach Merge bestanden auf `main` erneut
 [Dokumentation](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402837670)
 und [Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402837558).
 Die 38 gezielten Lifecyclefälle des Labadapters sind nicht Teil dieser CI.
+Der zentrale Runtime-CI-Adapter prüft zusätzlich vier im Speicher injizierte
+Rollbackfälle für Deploy/Uninstall nach `DROP` beziehungsweise vor `COMMIT`.
+Dabei müssen der vollständige Modul-Katalogsnapshot und der neutrale Zustand
+derselben SQL-Verbindung erhalten bleiben. Die vollständige physische
+Lifecycle-Suite bleibt ein separater Nachweis.
 Weitere physische Ziele, tatsächliche Minimalrechte, Hard-Interrupt-Recovery,
 Heap und Releasequalifikation bleiben offen; `partially validated`,
 `unreleased`.
