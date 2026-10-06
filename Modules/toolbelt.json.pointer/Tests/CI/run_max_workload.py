@@ -128,11 +128,10 @@ def main() -> int:
             "--name", name, "--label", f"tbx.pointer.max.owner={owner}",
             "--env", "ACCEPT_EULA=Y",
             "--env", "MSSQL_PID=Developer", "--env", f"MSSQL_SA_PASSWORD={password}",
+            # Einheitliche Testobergrenze für alle Formen; kein gemessener Heapwert.
+            "--memory", "3g", "--memory-swap", "3g",
             "--volume", f"{deployment.parent}:/workspace/Deployment:ro",
         ]
-        if options.shape == "nested":
-            # Testdefinierte Obergrenze; keine Aussage über tatsächliche Runnerkapazität.
-            container_args.extend(["--memory", "3g", "--memory-swap", "3g"])
         container_args.append(image)
         checked(container_args, work_deadline, 90, "Containerstart")
         cid = cid_file.read_text(encoding="ascii").strip()

@@ -52,6 +52,9 @@ Der manuelle `array`-Modus adressiert einen langen String unter `/0`. Lokal
 ist nur die 64-KiB-Stufe einschließlich eigenem Cleanup und separatem
 Regressionstest der bisherigen Formen belegt; ein 16-MiB-Arraylauf wurde
 noch nicht ausgeführt.
+Alle manuellen Lastformen verwenden eine eigene Containergrenze von 3 GiB
+ohne Swap. Sie begrenzt den Versuch, misst aber weder SQL-Heap noch
+Runnerkapazität.
 Eine getrennte lokale Abbruchprobe in `Tests/CI/test_hard_interrupt_recovery.py`
 prüft nur die Owner-Label-Bereinigung durch einen weiterlaufenden Elternprozess
 nach hartem Kindprozessabbruch; Umfang und offene Fälle stehen in der
