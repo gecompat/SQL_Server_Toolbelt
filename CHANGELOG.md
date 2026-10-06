@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 2026-10-06 – Schema1.0.1: begrenzte native CI bestanden
+
+- [Runtime37532174433](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37532174433)
+  und Docs37532174428 am exakten Head83164b539e637deeb1ad21b74a15cad99e0184c1
+  PASS, einschließlich Windows und Linux SQL2019/CL150,2022/CL160,2025/CL170.
+  Schema jeweils local/central: genuine Upgrade, erwarteter55699-Rollback,
+  Mode-Abweisung, Uninstall/Reinstall/Repeat,40 Contractfälle je Modus,
+  Safety, CrossDB und Cleanup. Je SQL-Version acht Upgrade- und zwei
+  Safety-Witnesses; kein UnexpectedSQL/CleanupUnverified-Witness.
+- SQLCMD-Dateifaulttransport bestand im tatsächlichen Testpfad; daraus wird
+  keine exakte Actual168-Rootcause abgeleitet. Frühere failed/PENDING-Records
+  bleiben erhalten. Jeder spätere Head benötigt vor Integration eigene
+  erfolgreiche Checks; übrige Ziel-/
+  Minimalrechte-/Lifecycle-/Kapazitätsmatrix offen, unveröffentlicht.
+
 ## 2026-10-06 – JSON Schema1.0.1: SchemaPointer-Reihenfolge korrigiert
 
 - Finale Offline-Läufe `qual4`/`package4` nach Common-Härtung bestanden:

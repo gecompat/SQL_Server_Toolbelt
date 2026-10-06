@@ -86,10 +86,11 @@ Bindungsfälle ohne Labzugriff.
 
 Der erste native CI-Versuch am2026-10-06 ist eine getrennte fehlgeschlagene
 [Historie](../NATIVE_EVIDENCE.md). Die korrigierte Capture-/Verify-Fixture
-bestand unabhängigen Review und ScriptDom14 Batches/42 Assertions; native
-Abnahme und die geplante CI-Ausführung der begrenzten Qualifikation samt acht
-Packagingfällen bleiben bis zum tatsächlichen Ergebnis am korrigierten Head
-PENDING.
+bestand unabhängigen Review und ScriptDom14 Batches/42 Assertions.
+Anschließend bestand Runtime37532174433 am exakten Head83164b5 mit Windows
+und dem begrenzten nativen Schema-Scope SQL2019/CL150,2022/CL160,2025/CL170
+je local/central. Frühere failed/PENDING-Records bleiben erhalten.
+Jeder spätere Head benötigt vor Integration eigene erfolgreiche Checks.
 
 ## Historische Gesamtqualifikation mit Schema1.0.0
 
@@ -192,7 +193,7 @@ Corebytes und danach beide Konsumenten.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-06`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37529400622`
-- Scope: Numerische Schema1.0.1-CI-Diagnose am Head72080660c15b3dc33264cba2a1141e9c6a35d29d: Windows PASS; SQL2022/2025 FAILED im Faulttest mit Expected55699/Actual168; SQL2019 bei Erfassung noch laufend. Kein nativer Gesamt-PASS und keine bestätigte Fehlerursache. Separater noch nicht integrierter SQLCMD-i-Faulttransport bestand vier lokale Mockfälle und unabhängigen Review ohne Blocker; kein nativer Nachweis. Frühere zeitgebundene Records unverändert; aktuelle native Abnahme PENDING.
-- Ergebnis: `failed`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37532174433`
+- Scope: Schema1.0.1 am exakten Head83164b539e637deeb1ad21b74a15cad99e0184c1: Windows und Linux-SQL2019/CL150,2022/CL160,2025/CL170 PASS. Schema je SQL-Version local/central: genuine1.0.0-DLL, Mode-Abweisung, erwarteter post-ALTER55699-Rollback, aktueller Uninstall alt/Reinstall/Upgrade/Repeat, zweimal40 Contractfälle, Safety, CrossDB und Cleanup; je acht Upgrade- und zwei Safety-Witnesses, kein UnexpectedSQL/CleanupUnverified-Witness. SQLCMD-Dateifaulttransport im tatsächlichen Testpfad bestanden. Breitere Constructor-CL-Matrix ist kein Schema-Nachweis. Docs37532174428 am selben Head PASS; frühere failed/PENDING-Records bleiben Historie, Actual168-Rootcause nicht bewiesen. Neuer Dokumentationshead benötigt eigene exakte CI; übrige physische-/Minimalrechte-/Lifecycle-/Kapazitätsmatrix und Release offen. Partially validated, unreleased.
+- Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

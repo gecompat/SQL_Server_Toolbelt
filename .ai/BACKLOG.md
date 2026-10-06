@@ -489,6 +489,18 @@ implemented, partially validated, unreleased. Die Registryfelder zu Trust
 und nativer Qualifikation bleiben unveränderliche Offline-Freeze-Metadaten,
 getrennt von der bestehenden Testautorität und aktueller Evidenz.
 
+Native Fortschreibung2026-10-06, Codex: [Runtime37532174433](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37532174433)
+und Docs37532174428 am exakten Head83164b539e637deeb1ad21b74a15cad99e0184c1
+PASS. Schema Linux SQL2019/CL150,2022/CL160,2025/CL170 je local/central:
+genuine1.0.0→1.0.1, Mode-Abweisung, post-ALTER55699-Rollback,
+Uninstall alt/Reinstall/Upgrade/Repeat,40 Contractfälle je Modus, Safety,
+CrossDB und Cleanup; je acht Upgrade-/zwei Safety-Witnesses ohne
+UnexpectedSQL/CleanupUnverified. SQLCMD-Dateifaulttransport besteht im
+tatsächlichen Testpfad, keine exakte Actual168-Ursachenbehauptung.
+Historische failed/PENDING-Records bleiben erhalten. Jeder spätere Head
+benötigt vor Integration eigene erfolgreiche Checks; übrige physische-/Minimalrechte-/Lifecycle-/
+Kapazitätsmatrix und Release offen, weiterhin partially validated/unreleased.
+
 ### TC-2026-039 / TC-2026-040 / TC-2026-042: Deterministic-Familie implementiert
 
 Stand 2026-10-02: Die am 2026-10-01 einzeln freigegebenen

@@ -59,8 +59,13 @@ Der Kandidat entspricht semantisch exakt der aktiven Registry/Binaryhashes.
 Der erste [native CI-Versuch](../../Modules/toolbelt.json.schema/Tests/NATIVE_EVIDENCE.md)
 am2026-10-06 scheiterte in der Upgrade-Capture-Fixture; die statisch geprüfte
 Korrektur ist noch kein nativer Nachweis. Native1.0.1-API, tatsächlicher
-SQL-Upgrade und exakte aktuelle Head-CI bleiben offen; die historischen
-nativen1.0.0-Nachweise qualifizieren die geänderte Assembly nicht.
+SQL-Upgrade und exakte Head-CI waren zu diesem Zeitpunkt offen; die
+historischen nativen1.0.0-Nachweise qualifizieren die geänderte Assembly nicht.
+Nachtrag2026-10-06: Der [native CI-Nachweis am83164b5](../../Modules/toolbelt.json.schema/Tests/NATIVE_EVIDENCE.md)
+bestand für Schema1.0.1 auf Linux SQL2019/CL150,2022/CL160,2025/CL170
+je local/central einschließlich genuine Upgrade und Faultrollback. Jeder
+spätere Head benötigt vor Integration eigene erfolgreiche Checks;
+die übrige Matrix bleibt offen.
 
 ## Öffentliche Signatur
 

@@ -30,7 +30,8 @@ Der Maintenancepfad erkennt die beiden exakten bekannten Schema-Releases
 Deploymenttransaktion auf1.0.1 aktualisiert; der Uninstall erkennt beide
 Releases. Der bekannte1.0.0→1.0.1-Upgrade benötigt zusätzlich das bereits
 vorhandene `ALTER`-Recht auf `ASSEMBLY::Toolbelt_JsonSchema`; der Lifecycle
-erteilt keine Rechte. Die native Qualifikation dieses neuen Pfads bleibt offen.
+erteilt keine Rechte. Der begrenzte native CI-Nachweis dieses Pfads gilt für
+den exakten Head83164b5; die übrige Lifecyclematrix bleibt offen.
 
 `Scripts/New-ClrReleaseArtifacts.ps1` benötigt `-AssemblyPath`,
 `-CoreAssemblyPath` und ein neues `-OutputDirectory`. Der Generator prüft die
@@ -52,20 +53,21 @@ Die früheren erfolgreichen sechs Packagingfälle bleiben getrennte Historie.
 Die bisherigen
 nativen Core-/Schema-Contract-, Safety-, Client- und begrenzten Lifecycle-Läufe
 auf Linux2019/latest CL150 und Windows2025/CU8 bleiben historische
-1.0.0-Nachweise. Der erste native1.0.1-CI-Versuch scheiterte am2026-10-06
-auf SQL2019/2022 an Msg515 in der Upgrade-Capture-Fixture; die symmetrische
-Leerkatalognormalisierung ist korrigiert und statisch geprüft.
-[Fehlversuch und offene Abnahme](Tests/NATIVE_EVIDENCE.md) bleiben ausdrücklich
-getrennt: native1.0.1-API, echter1.0.0→1.0.1-Upgrade und exakte korrigierte
-Head-CI sind PENDING. Weitere Matrix, CrossDB, Minimalrechte und
-vollständige Lifecycleabnahme bleiben offen. Aktuell teilweise validiert,
+1.0.0-Nachweise. Für1.0.1 bestand am2026-10-06 die
+[native CI am exakten Head83164b5](Tests/NATIVE_EVIDENCE.md):
+SQL2019/CL150,2022/CL160 und2025/CL170 jeweils local/central mit
+genuine1.0.0→1.0.1-Upgrade, Rollback,40 Contractfällen pro Modus, Safety,
+CrossDB, Repeat und Cleanup. Frühere Fehlläufe bleiben historische Records.
+Jeder spätere Head benötigt vor Integration eigene erfolgreiche Checks;
+weitere physische Matrix, Minimalrechte und vollständige Lifecycle-/
+Kapazitätsabnahme bleiben offen. Aktuell teilweise validiert,
 unreleased. [Beispiele](Examples/JsonSchema.sql) verwenden synthetische Daten.
 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-06`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37529400622`
-- Scope: Numerische Schema1.0.1-CI-Diagnose am Head72080660c15b3dc33264cba2a1141e9c6a35d29d: Windows PASS; SQL2022/2025 FAILED im Faulttest mit Expected55699/Actual168; SQL2019 bei Erfassung noch laufend. Kein nativer Gesamt-PASS und keine bestätigte Fehlerursache. Separater noch nicht integrierter SQLCMD-i-Faulttransport bestand vier lokale Mockfälle und unabhängigen Review ohne Blocker; kein nativer Nachweis. Frühere zeitgebundene Records unverändert; aktuelle native Abnahme PENDING.
-- Ergebnis: `failed`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37532174433`
+- Scope: Schema1.0.1 am exakten Head83164b539e637deeb1ad21b74a15cad99e0184c1: Windows und Linux-SQL2019/CL150,2022/CL160,2025/CL170 PASS. Schema je SQL-Version local/central: genuine1.0.0-DLL, Mode-Abweisung, erwarteter post-ALTER55699-Rollback, aktueller Uninstall alt/Reinstall/Upgrade/Repeat, zweimal40 Contractfälle, Safety, CrossDB und Cleanup; je acht Upgrade- und zwei Safety-Witnesses, kein UnexpectedSQL/CleanupUnverified-Witness. SQLCMD-Dateifaulttransport im tatsächlichen Testpfad bestanden. Breitere Constructor-CL-Matrix ist kein Schema-Nachweis. Docs37532174428 am selben Head PASS; frühere failed/PENDING-Records bleiben Historie, Actual168-Rootcause nicht bewiesen. Neuer Dokumentationshead benötigt eigene exakte CI; übrige physische-/Minimalrechte-/Lifecycle-/Kapazitätsmatrix und Release offen. Partially validated, unreleased.
+- Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
