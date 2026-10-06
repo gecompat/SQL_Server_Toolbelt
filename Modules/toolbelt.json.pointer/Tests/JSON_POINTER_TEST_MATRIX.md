@@ -23,6 +23,7 @@ Maximalworkload-Nachweis.
 | Runtime/Metadata.Tests.ps1 | Tatsächliche TF, vier Parameter/vier Spalten, Defaults, Collation/Nullability und fünf direkte Statusreader ohne weiteren Resultset |
 | Runtime/Lifecycle.Tests.sql | Installierter eigener TF-/Marker-/Parameter-/Spaltenbestand |
 | Tests/CI/run-json-pointer-lab.ps1 | Local/central/Consumer mit gewähltem CL, install/repeat/uninstall/repeat, 42 gezielte Caller-/Lock-/Rollback-/Marker-/Fremdslot-/Dependency-/Confirmfälle bei beiden Modi, own cleanup und Inputpins |
+| Tests/CI/run-json-pointer-linux.sh | Flüchtige Linux-Matrix einschließlich harter Inputlimit-Abweisung bei 16 MiB plus einer UTF-16-Codeeinheit; keine 16-MiB-Verarbeitungs- oder Heapqualifikation |
 | Static/validate_contract.py | Source-/Manifest-/Deployment-/Test-/Dokumentationskopplung und nicht schreibender Generatorcheck; keine SQL-Ausführung |
 
 Inputcollations: Latin1_General_100_BIN2, Latin1_General_100_CI_AS,

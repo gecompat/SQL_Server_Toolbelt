@@ -35,6 +35,10 @@ Der [Pointer-Runtime-Workflow](../../../.github/workflows/json-pointer-runtime.y
 prüft in flüchtigen Linux-SQL-Server-Containern 2019/2022/2025 die zulässigen
 Compatibility Levels mit local/central/Consumer: feste Contract-/Safety-
 Fixtures, Clientmetadaten, installierte Baseline, Repeat und Uninstall.
+Ein eigener Grenzfall erzeugt 16 MiB plus eine UTF-16-Codeeinheit und verlangt
+vor Syntaxprüfung genau `INVALID/INPUT_LIMIT` ohne Rückgabe des Inputs. Dies
+qualifiziert die Abweisung oberhalb der Grenze, nicht die Verarbeitung eines
+vollen 16-MiB-Dokuments oder dessen Heap-/Laufzeitkosten.
 Der CI-Adapter weist außerdem den zentralen Uninstall ohne explizite
 Consumerbestätigung mit `55526/state1` ab und prüft danach die installierte
 Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird.
