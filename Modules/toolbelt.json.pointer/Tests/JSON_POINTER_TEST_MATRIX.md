@@ -33,6 +33,47 @@ Weitere physische Kombinationen, Minimalrechte, 16MiB-Maximalworkload,
 Heap und Parallelität bleiben bis zur dokumentierten Ausführung not executed.
 Keine Release- oder Produktionszusage.
 
+## Begrenzter Plan für die noch offene 16-MiB-Verarbeitung
+
+**Nicht ausgeführt.** Die bisherige CI prüft nur die sofortige Abweisung bei
+16777218 Inputbytes. Für genau16777216 Bytes durchläuft die Funktion dagegen
+den rohen Struktur- und den Unicode-Policyscan vollständig. Bei einem
+nichtleeren Pointer kommt `OPENJSON` auf dem gewählten Fragment hinzu;
+verschachtelte Pfade können erneut große Fragmente parsen und kopieren.
+Deshalb ersetzt ein einzelner Grenzfall weder Heap- noch Worst-Case-Nachweis.
+
+Ein separater, gezielt gestarteter Qualifikationslauf soll zuerst
+eine eigene flüchtige SQL-Instanz mit synthetischen Daten verwenden. Jede
+Größenstufe läuft in einem eigenen Prozess mit SQL-Commandtimeout höchstens
+180 Sekunden, Arbeitswatchdog höchstens240 Sekunden und äußerem
+Gesamtwatchdog höchstens300 Sekunden einschließlich60 Sekunden reserviertem
+Cleanupfenster. Nach Timeout, unklarem Prozessende oder
+unbestätigter Bereinigung endet die Stufenfolge ohne weitere Last. Der
+reguläre PR-Runtime-Workflow erhält daraus keinen automatischen Maximaltest.
+
+1. Ein vollständiger JSON-String als Root mit leerem Pointer wird gestuft bei
+   64 KiB,1 MiB,4 MiB und exakt16 MiB Original-`DATALENGTH` geprüft. Nur nach
+   bestandenem kleineren Fall folgt die nächste Größe. Der Grenzfall enthält
+   zwei Quotes und8388606 synthetische `a`-Codeeinheiten.
+2. Erst nach bestandenem Rootfall folgt separat ein Objekt mit einem Key und
+   `/k`, ebenfalls bis exakt16 MiB. So wird zusätzlich die native
+   `OPENJSON`-Auflösung eines großen Werts geprüft. Tiefe128 mit großen
+   Fragmenten ist ein weiterer, unabhängiger Lastfall.
+3. Pro Versuch müssen genau eine FOUND/STRING-Zeile, NULL-ErrorCode, exakte
+   `DATALENGTH(Value)` und der SHA2-256-Vergleich gegen den separat erzeugten
+   synthetischen Erwartungswert bestehen. Der große Wert verlässt den Server
+   nicht als Clientresultat; veröffentlicht werden nur Scope und Urteil.
+
+Ein Timeout ist **INCONCLUSIVE** für die fachliche Semantik, kein PASS und
+keine stillschweigende Absenkung des öffentlichen 16-MiB-Budgets. Erst nach
+erfolgreichem flüchtigem Lauf darf derselbe begrenzte Versuch auf einem erneut
+schema-validierten, ausdrücklich ausgewählten bereiten Labziel geplant werden;
+eigene Ressourcen und Vorzustände benötigen private Journale und unabhängigen
+Bereinigungsaudit. Gemessene Zeiten, Heap-/Hostwerte, reale Logs und
+Zielinventar bleiben außerhalb des Repositories. Selbst zwei erfolgreiche
+Grenzfälle belegen weder Tiefe128 bei Maximalgröße noch Parallelität oder
+Produktionskapazität.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
