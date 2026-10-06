@@ -24,7 +24,7 @@ Maximalworkload-Nachweis.
 | Runtime/Lifecycle.Tests.sql | Installierter eigener TF-/Marker-/Parameter-/Spaltenbestand |
 | Tests/CI/run-json-pointer-lab.ps1 | Local/central/Consumer mit gewähltem CL, install/repeat/uninstall/repeat, 42 gezielte Caller-/Lock-/Rollback-/Marker-/Fremdslot-/Dependency-/Confirmfälle bei beiden Modi, own cleanup und Inputpins |
 | Tests/CI/run-json-pointer-linux.sh | Flüchtige Linux-Matrix einschließlich harter Inputlimit-Abweisung bei 16 MiB plus einer UTF-16-Codeeinheit; keine 16-MiB-Verarbeitungs- oder Heapqualifikation |
-| Tests/CI/Test-JsonPointerRollback.ps1 | Zentrale flüchtige CI-Datenbank: vier injizierte Deploy-/Uninstall-Fehler nach DROP oder vor COMMIT; vollständiger Katalogsnapshot und neutraler Transaktionszustand auf derselben Verbindung. Kein Ersatz für die 42 physischen Lifecyclefälle. |
+| Tests/CI/Test-JsonPointerLifecycle.ps1 | Kanonische20 local-/22 central-Fälle pro CL: Dependency, Caller (intakt/doomed, XACT_ABORT OFF/ON), AppLock, postDROP/preCOMMIT, typisierte Marker, Fremdslot und central Confirm0. Unveränderter gemeinsamer Helper, eigene DB-Identität/Sourcepins, private Restorejournale und feste Fehlerskategorien. |
 | Tests/CI/run_max_workload.py | Nur manuell auslösbarer Einzelversuch je Größe/Form/SQL-Version auf eigenem flüchtigem Linux-Container; 240-s-Arbeitsbudget, höchstens60-s-Bereinigung und exaktes serverseitiges Orakel. Ein vorhandener Adapter ist noch kein erfolgreicher Maximalworkload-Nachweis. |
 | Tests/CI/test_hard_interrupt_recovery.py | Separat manuell gestartete lokale Kindprozess-Abbruchprobe mit eigenem flüchtigem Docker-Container, vor/nach CID, falscher Owner-ID und frischem Abwesenheitsaudit; keine SQL-Ausführung oder Runnerausfallprobe. |
 | Static/validate_contract.py | Source-/Manifest-/Deployment-/Test-/Dokumentationskopplung und nicht schreibender Generatorcheck; keine SQL-Ausführung |
@@ -35,6 +35,29 @@ Zielmatrix SQL2019/2022/2025 Windows/Linux mit gültigem CL150/160/170.
 Weitere physische Kombinationen, Minimalrechte, über die zwei synthetischen
 Formen hinausgehende Maximalworkloads, Heap und Parallelität bleiben offen.
 Keine Release- oder Produktionszusage.
+
+## Vollständige Lifecycle-CI
+
+Der flüchtige Linuxadapter verwendet nach Contract/Safety/Client und Repeat
+dieselben 42 gezielten Lifecyclefälle wie der physische Labadapter. Seine
+überlappenden zentralen Caller-, Rollback-, Dependency- und Confirm0-Blöcke
+werden ersetzt. UnknownRelease bleibt ein eigener zentraler Zusatzfall.
+Der Driver übernimmt bestätigten Uninstall und Repeat; der Bashadapter liest
+danach den privaten Abschlussledger frisch und prüft die Modulabwesenheit.
+
+Jeder Modus ist an die vor Installation erfasste DB-ID/CreateDate, den eigenen
+Owner und sieben Sourcepins gebunden. Für Testarbeit gelten120 Sekunden,
+für Compare-and-restore höchstens30 weitere Sekunden; der äußere Prozess
+ist auf160 Sekunden plus5 Sekunden Abbruchfrist begrenzt. Die Journale
+bleiben außerhalb des Repositorys. Nur unveränderte eigene Fixtures werden
+restauriert. Exit0 allein genügt nicht: COMPLETE,20/22 Fälle, drei restaurierte
+Fixtures mit je zwei Abweisungen sowie Abwesenheit/Neutralität/Pins müssen
+im frischen Ledgerread exakt stimmen. Das ist kein Hard-Interrupt-Nachweis.
+
+Testcode allein ist kein Runtime-PASS. Exakte Head- und Main-CI werden im PR
+getrennt dokumentiert. Die reguläre SQL2019/2022/2025-Matrix und ihre
+CL150/160/170-Auswahl bleiben gleich; weitere physische Ziele, tatsächliche
+Minimalrechte, Heap/Parallelität und Releasequalifikation bleiben offen.
 
 ## Offene Minimalrechte-Qualifikation
 
