@@ -9,6 +9,9 @@ APPLY-Oracles,15 Clientreader und42 Lifecyclefälle samt frischem Cleanup-/
 Fixture-/Pinaudit. Frühere Fehlläufe und Lifecycle-only-Scopes bleiben getrennt.
 Weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und exakte
 Head-CI sind separate Nachweise; teilweise validiert, unveröffentlicht.
+Zusätzlich bestanden am 2026-10-06 auf demselben Windows2025/exaktCU8-Ziel
+vollständige Pointer-Adapter mit CL150 und CL160 samt unabhängigen Audits;
+weitere physische Ziele und Lastgrenzen bleiben offen.
 
 Die sechs einzeln freigegebenen Safe-Cast-TVFs in `toolbelt.conversion.safe-cast`
 1.0.0 sind implementiert und teilweise validiert. Finale begrenzte Adapter auf
