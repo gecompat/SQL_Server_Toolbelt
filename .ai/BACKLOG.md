@@ -114,6 +114,16 @@ weitere JSON-Formen/Plattformen, Heap, Parallelität, Minimalrechte,
 Hard-Interrupt-Recovery und Release bleiben offen; `partially validated`,
 `unreleased`.
 
+Zusätzliche lokale Lastqualifikation 2026-10-06: derselbe unveränderte
+Einzelfalladapter bestand auf flüchtigem Linux-SQL2022-CL160 und SQL2025-
+CL170 je Root und `/k` bei64KiB,1MiB,4MiB und exakt16MiB. Alle16 Fälle
+lieferten das exakte serverseitige Einzeilen-/Längen-/SHA2-256-Oracle und
+bestätigten eigene Bereinigung; frische Docker-Owner-Abfragen fanden keinen
+eigenen Lastcontainer. Kein neuer GitHub-Dispatch oder Labzieltest. Frühere
+offene Aussagen beschreiben ihren damaligen Stand. Tiefe128 bei Maximalgröße
+auf SQL2022/2025, weitere JSON-Formen/Plattformen, reale Heap-/Parallel-
+kapazität, Minimalrechte, Runner-/Host-Recovery und Release bleiben offen.
+
 ### RI-2026-076: sechs Safe-Cast-TVFs – einzeln freigegeben 2026-10-05
 
 Nach der Vertragsbesprechung in [PR170](https://github.com/gecompat/SQL_Server_Toolbelt/pull/170)

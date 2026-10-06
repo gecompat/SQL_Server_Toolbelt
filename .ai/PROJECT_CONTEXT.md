@@ -54,6 +54,16 @@ Maximalgröße ist dafür geschlossen. SQL2022/2025-Maximallast, weitere
 Plattformen/JSON-Formen, tatsächlicher Heap, Parallelität, Minimalrechte,
 Hard-Interrupt-Recovery und Release bleiben offen.
 
+Am 2026-10-06 bestanden ergänzend16 lokale, jeweils eigene flüchtige
+Linux-SQL2022-CL160-/SQL2025-CL170-Lastfälle mit dem unveränderten Pointer-
+Adapter: je Root und `/k` bei64KiB,1MiB,4MiB und exakt16MiB. Server-
+seitiges Einzeilen-/Längen-/Hashoracle und eigene Bereinigung bestanden;
+frische Owner-Abfragen bestätigten Abwesenheit. Keine zusätzlichen GitHub-
+Dispatches oder Labziele. Frühere offene SQL2022/2025-Maximallastaussagen
+waren zeitgebunden. Tiefe128 auf diesen Versionen, andere Formen/Plattformen,
+reale Heap-/Parallelkapazität, Minimalrechte, Runner-/Host-Recovery und
+Release bleiben offen.
+
 ## Aktive Safe-Cast-Welle 2026-10-05
 
 Die ausdrückliche Antwort „Diese sechs Funktionen freigegeben“ autorisiert
