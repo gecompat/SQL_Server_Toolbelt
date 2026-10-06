@@ -167,6 +167,23 @@ expect_dependency_rejection() {
     fi
 }
 
+expect_unknown_release_rejection() {
+    local label="$1" database="$2" script="$3"
+    shift 3
+    if docker exec --workdir "${deployment}" \
+        "${container_name}" "${sqlcmd_path}" \
+        -S localhost -U sa -P "${sa_password}" -C -b -l 15 -t 180 \
+        -d "${database}" -i "${script}" "$@" \
+        >"${private_dir}/last-output" 2>&1; then
+        echo "JSON_POINTER_CI_UNKNOWN_RELEASE_UNEXPECTED_SUCCESS:${label}" >&2
+        return 1
+    fi
+    if ! grep -Eq '^Msg 55524, Level 16, State 2,' "${private_dir}/last-output"; then
+        echo "JSON_POINTER_CI_UNKNOWN_RELEASE_WRONG_ERROR:${label}" >&2
+        return 1
+    fi
+}
+
 deployment="/workspace/Modules/toolbelt.json.pointer/Deployment"
 runtime="/workspace/Modules/toolbelt.json.pointer/Tests/Runtime"
 client="${workspace}/Tests/CI/run-json-pointer-client.ps1"
@@ -215,6 +232,12 @@ IF @Rows<>1 OR ISNULL(@Status,'')<>'INVALID' OR @JsonType IS NOT NULL
     run_file repeat_central "${central_db}" "${deployment}" Deploy.sql -v DeploymentMode=central
     run_file repeat_baseline_local "${local_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${local_db}"
     run_file repeat_baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
+    run_query set_unknown_release "${central_db}" "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.json.pointer.Version',@value=N'9.9.9';"
+    expect_unknown_release_rejection deploy "${central_db}" Deploy.sql -v DeploymentMode=central
+    expect_unknown_release_rejection uninstall "${central_db}" Uninstall.sql -v ConfirmNoExternalConsumers=1
+    run_query unknown_release_preserved "${central_db}" "IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.pointer.Version' AND SQL_VARIANT_PROPERTY(value,N'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'9.9.9')) OR OBJECT_ID(N'toolbelt_json.TVF_ResolveJsonPointer',N'TF') IS NULL THROW 55592,N'Pointer: abgewiesener unbekannter Release wurde verändert.',13;"
+    run_query restore_known_release "${central_db}" "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.json.pointer.Version',@value=N'1.0.0';"
+    run_file unknown_release_restored_baseline "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
     run_query create_dependency "${central_db}" "EXEC(N'CREATE VIEW dbo.VW_PointerDependencyCI AS SELECT Status FROM toolbelt_json.TVF_ResolveJsonPointer(N''{}'',N'''',DEFAULT,DEFAULT);'); IF NOT EXISTS(SELECT 1 FROM sys.sql_expression_dependencies WHERE referencing_id=OBJECT_ID(N'dbo.VW_PointerDependencyCI',N'V') AND referenced_id=OBJECT_ID(N'toolbelt_json.TVF_ResolveJsonPointer',N'TF')) THROW 55592,N'Pointer: synthetische Abhängigkeit fehlt.',9;"
     expect_dependency_rejection deploy "${central_db}" Deploy.sql -v DeploymentMode=central
     run_file dependency_deploy_preserved "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
@@ -230,4 +253,4 @@ IF @Rows<>1 OR ISNULL(@Status,'')<>'INVALID' OR @JsonType IS NOT NULL
     done
 done
 
-echo "PASS: JSON Pointer SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Safety, Client, Baseline, Repeat, central Dependency/Confirm0 und Uninstall."
+echo "PASS: JSON Pointer SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Safety, Client, Baseline, Repeat, central UnknownRelease/Dependency/Confirm0 und Uninstall."

@@ -56,6 +56,9 @@ oder Lastworkflow und belegt keine Recovery nach Runner- oder Hostausfall.
 Der CI-Adapter weist außerdem den zentralen Uninstall ohne explizite
 Consumerbestätigung mit `55526/state1` ab und prüft danach die installierte
 Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird.
+Ein synthetisch auf `9.9.9` gesetzter Release-Marker muss sowohl Deploy als
+auch Uninstall mit `55524/state2` abweisen. Der Marker und die TVF bleiben
+erhalten; nach Wiederherstellung des eigenen Markers besteht die Baseline.
 Der reguläre flüchtige CI-Container trägt eine zufällige Owner-Kennung. Beim
 normalen Prozessende wird er nur bei exakt passender Kennung entfernt; eine
 frische Docker-Abfrage muss seine Abwesenheit bestätigen, sonst schlägt der
