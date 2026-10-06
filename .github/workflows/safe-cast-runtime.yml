@@ -9,9 +9,11 @@ on:
       - "Modules/toolbelt.conversion.safe-cast/Deployment/**"
       - "Modules/toolbelt.conversion.safe-cast/Tests/Runtime/**"
       - "Modules/toolbelt.conversion.safe-cast/Tests/Static/**"
+      - "Modules/toolbelt.conversion.safe-cast/Scripts/generate-deployment.py"
       - "Modules/toolbelt.conversion.safe-cast/Tests/CI/**"
       - "Tests/CI/run-safe-cast-linux.sh"
       - "Tests/CI/run-safe-cast-client.ps1"
+      - "Tests/CI/SafeCastLifecycle.Helpers.ps1"
       - "Tests/CI/generate-safe-cast-reference.py"
       - "Tests/CI/run-lab-target.sh"
   push:
@@ -24,9 +26,11 @@ on:
       - "Modules/toolbelt.conversion.safe-cast/Deployment/**"
       - "Modules/toolbelt.conversion.safe-cast/Tests/Runtime/**"
       - "Modules/toolbelt.conversion.safe-cast/Tests/Static/**"
+      - "Modules/toolbelt.conversion.safe-cast/Scripts/generate-deployment.py"
       - "Modules/toolbelt.conversion.safe-cast/Tests/CI/**"
       - "Tests/CI/run-safe-cast-linux.sh"
       - "Tests/CI/run-safe-cast-client.ps1"
+      - "Tests/CI/SafeCastLifecycle.Helpers.ps1"
       - "Tests/CI/generate-safe-cast-reference.py"
       - "Tests/CI/run-lab-target.sh"
   workflow_dispatch:
