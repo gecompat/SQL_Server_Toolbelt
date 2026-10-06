@@ -286,6 +286,16 @@ Linux SQL2022 und SQL2025 geprüft. Andere Arraystrukturen, Windows,
 Parallelität, tatsächlicher SQL-Heap, Runner-/Host-Recovery und
 Produktionskapazität bleiben **NOT_EXECUTED**.
 
+Adapterstand 2026-10-06: [PR231](https://github.com/gecompat/SQL_Server_Toolbelt/pull/231)
+entfernte danach ausschließlich die zweite identische Payload-Kopie aus dem
+manuellen Lastorakel. Die obigen Größen- und Tiefenläufe bleiben Nachweise für
+das unveränderte Produkt-SQL mit dem damaligen Adapterstand. Mit dem neuen
+Adapter bestand separat ein manueller GitHub-Lauf für Array-`/0` mit 65536
+Inputbytes auf Linux SQL2019
+([Run 37510626374](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37510626374));
+größere Stufen wurden mit diesem Adapter noch **NOT_EXECUTED**. Ein lokaler
+SQL-/Docker-Lastlauf wurde für diesen Adapterstand nicht gestartet.
+
 ## Ausstehender Nachweis nach hartem Prozessabbruch
 
 Der manuelle Lastadapter entfernt seinen eigenen Container in einem Python-
