@@ -267,6 +267,25 @@ synthetische Einzelbelege, **keine** GitHub-Workflowdispatches oder Labtests.
 Andere JSON-Formen und Plattformen, Parallelität, tatsächlicher Heapverbrauch,
 Runner-/Host-Recovery und Produktionskapazität bleiben **NOT_EXECUTED**.
 
+Eine weitere **lokale** Array-Stufenfolge am 2026-10-06 prüfte auf den
+bereits vorhandenen flüchtigen Linux-SQL2022-CL160- und SQL2025-CL170-Images
+jeweils `/0` mit genau einem langen String. Pro Version bestanden getrennt
+65536, 1048576, 4194304 und exakt 16777216 Original-Inputbytes in
+aufsteigender Reihenfolge. Der unveränderte Adapter
+`python Modules/toolbelt.json.pointer/Tests/CI/run_max_workload.py`
+lief je Fall mit `--sql-version 2022` beziehungsweise `2025`,
+`--shape array` und `--stage-bytes <Stufe>`. Alle acht Aufrufe bestätigten
+genau eine FOUND/STRING-Zeile, exakte Input- und Wertlänge sowie den
+serverseitigen SHA2-256-Vergleich. Jeder Aufruf bestätigte seine eigene
+Containerbereinigung; eine separate frische Owner-Label-Abfrage fand danach
+keinen verbliebenen Lastcontainer. Die bereits definierte
+3-GiB-/No-Swap-Testgrenze und die Watchdogs galten für alle Stufen.
+Das sind lokale synthetische Einzelbelege, keine GitHub-Dispatches oder
+Labtests. Der zuvor offene einfache Array-`/0`-Grenzfall ist damit für
+Linux SQL2022 und SQL2025 geprüft. Andere Arraystrukturen, Windows,
+Parallelität, tatsächlicher SQL-Heap, Runner-/Host-Recovery und
+Produktionskapazität bleiben **NOT_EXECUTED**.
+
 ## Ausstehender Nachweis nach hartem Prozessabbruch
 
 Der manuelle Lastadapter entfernt seinen eigenen Container in einem Python-
