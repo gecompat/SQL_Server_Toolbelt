@@ -14,8 +14,9 @@ Oracles,15 direkte Clientreader,42 Lifecyclefälle und Erst-/Repeat-/Uninstall-/
 Repeat. Neue Audits bestätigen Bereinigung, exakte Fixturewiederherstellung
 und Inputpins; keine Konfigurations-/Rechte-/Truständerungen. Zwei frühere
 Safetyfehlläufe und getrennte Lifecycle-only-Erfolge bleiben Historie.
-Weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und exakte
-Head-CI sind separat offen; teilweise validiert, unveröffentlicht.
+Zum Zeitpunkt dieser ersten Zielnachweise waren weitere physische Ziele,
+Minimalrechte,16MiB-Maximalworkload/Heap und exakte Head-CI separat offen;
+teilweise validiert, unveröffentlicht.
 Zusätzlich bestanden am 2026-10-06 auf demselben exakt ausgewählten
 Windows2025/CU8-Ziel die vollständigen Pointer-Adapter mit CL150 und CL160,
 jeweils mit frischem unabhängigem Bereinigungs- und Inputpinaudit. Dies
@@ -26,8 +27,14 @@ für Linux SQL Server 2019/2022/2025
 ([Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37403031731))
 und anschließend auf [main](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37403199703).
 Contract/Safety, Clientmetadaten und installierte Baseline sind damit durch CI
-belegt; die 42 gezielten Lifecyclefälle sind nur durch die oben genannten
-physischen Labadapter belegt und gehören nicht zu diesem CI-Scope.
+belegt. [PR190](https://github.com/gecompat/SQL_Server_Toolbelt/pull/190)
+ergänzte die zentrale Confirm0-Abweisung und
+[PR192](https://github.com/gecompat/SQL_Server_Toolbelt/pull/192) die echte
+Dependency-Abweisung von Deploy und Uninstall; beide bestanden am jeweiligen
+exakten Head und danach auf `main`. Die vollständigen 42 gezielten
+Lifecyclefälle sind nur durch die oben genannten physischen Labadapter belegt.
+Weitere physische Ziele, Minimalrechte, Hard-Interrupt-Recovery,
+16MiB-Maximalworkload/Heap und Releasequalifikation bleiben offen.
 
 ## Aktive Safe-Cast-Welle 2026-10-05
 
@@ -44,7 +51,8 @@ Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 bestanden local/central/
 Consumer: je13104 API-Oracles,54 Clientreader und38 gezielte Lifecyclefälle.
 Frische unabhängige Audits bestätigen Inputpins, exakte Fixturewiederherstellung
 und die eigene Bereinigung. Drei frühere Gesamtfehlläufe bleiben getrennt.
-Weitere physische Ziele, Minimalrechte, Heap und exakte Head-CI sind separate Gates.
+Zum Zeitpunkt dieser ersten Zielnachweise waren weitere physische Ziele,
+Minimalrechte, Heap und exakte Head-CI separate Gates.
 Zusätzlich bestanden am 2026-10-06 auf demselben exakt ausgewählten
 Windows2025/CU8-Ziel die vollständigen Adapter mit CL150 und CL160,
 jeweils mit frischem unabhängigem Bereinigungs- und Input-/Sourcepinaudit.
@@ -55,8 +63,14 @@ für Linux SQL Server 2019/2022/2025
 ([Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402203046))
 und anschließend auf [main](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402837558).
 API-Fixtures, Clientmetadaten und installierte Baseline sind damit durch CI
-belegt; die 38 gezielten Lifecyclefälle sind nur durch die oben genannten
-physischen Labadapter belegt und gehören nicht zu diesem CI-Scope.
+belegt. [PR190](https://github.com/gecompat/SQL_Server_Toolbelt/pull/190)
+ergänzte die zentrale Confirm0-Abweisung und
+[PR193](https://github.com/gecompat/SQL_Server_Toolbelt/pull/193) die echte
+Dependency-Abweisung von Deploy und Uninstall; beide bestanden am jeweiligen
+exakten Head und danach auf `main`. Die vollständigen 38 gezielten
+Lifecyclefälle sind nur durch die oben genannten physischen Labadapter belegt.
+Weitere physische Ziele, Minimalrechte, Hard-Interrupt-Recovery, Heap und
+Releasequalifikation bleiben offen.
 Keine Pointer-/Schema-/Provider-/Veröffentlichungsfreigabe daraus abgeleitet.
 
 ## Aktive CSV-Memory-Welle 2026-10-05
