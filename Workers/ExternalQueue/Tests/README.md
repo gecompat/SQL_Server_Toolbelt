@@ -29,6 +29,12 @@ Die unten verlinkte Head-CI belegt einen tatsächlichen Linux-Workerhost im
 begrenzten synthetischen SQL-2019-Scope; weitere Host-/Zielkombinationen bleiben
 getrennte Nachweise.
 
+Der synthetische Controltimeout-Fall hält den eigenen Reservation-Zeilenlock
+erst dann über die fünfsekündige Controlfrist, wenn ein wartender Request auf
+genau dieser Lockressource beobachtet wurde. Ein nicht erreichter Rendezvous
+scheitert als Fixturefehler; die UNKNOWN-/Rollback-/No-Replay-Orakel bleiben
+unverändert.
+
 ## Ausgeführter deterministischer Scope
 
 Am 2026-10-02 besteht `pwsh -NoProfile -File
