@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-07 – Schema-CI folgt der vorhandenen CL-Matrix
+
+- Der bestehende Schema-Upgrade-/API-/Safety-/CrossDB-Scope läuft local und
+  central auf allen bereits gewählten CI-CLs, einschließlich SQL2025/CL150/160.
+  Consumer und Provider werden vor jeder Stufe auf denselben CL gebunden.
+- Der eigene Upgrade-Snapshot wird nach verifiziertem Schema-Uninstall
+  entfernt, damit jede Folgestufe mit einem frischen genuine1.0.0-Stand
+  beginnt. Core wird erst nach allen Stufen entfernt.
+- Keine zusätzlichen Constructor-Lastfixtures im Schema-Loop, keine neuen
+  Binaries, Trusthashes oder öffentlichen Verträge. Head-CI wird im PR
+  belegt; teilweise validiert und unveröffentlicht, übrige Matrix offen.
+
 ## 2026-10-07 – Vollständige kanonische JSON-Pointer-Lifecycle-CI
 
 - Der flüchtige Linuxadapter ersetzt überlappende zentrale Teilprüfungen durch
