@@ -123,6 +123,24 @@ expect_central_confirm0_rejection() {
     fi
 }
 
+expect_dependency_rejection() {
+    local label="$1" database="$2" script="$3"
+    shift 3
+    # Ein echter View-Verbraucher muss Deploy und Uninstall blockieren.
+    if docker exec --workdir "${deployment}" \
+        "${container_name}" "${sqlcmd_path}" \
+        -S localhost -U sa -P "${sa_password}" -C -b -l 15 -t 180 \
+        -d "${database}" -i "${script}" "$@" \
+        >"${private_dir}/last-output" 2>&1; then
+        echo "SAFE_CAST_CI_DEPENDENCY_UNEXPECTED_SUCCESS:${label}" >&2
+        return 1
+    fi
+    if ! grep -Eq '^Msg 55425, Level 16, State 3,' "${private_dir}/last-output"; then
+        echo "SAFE_CAST_CI_DEPENDENCY_WRONG_ERROR:${label}" >&2
+        return 1
+    fi
+}
+
 deployment="/workspace/Modules/toolbelt.conversion.safe-cast/Deployment"
 runtime="/workspace/Modules/toolbelt.conversion.safe-cast/Tests/Runtime"
 client="${workspace}/Tests/CI/run-safe-cast-client.ps1"
@@ -157,6 +175,12 @@ for level in ${compatibility_levels}; do
     run_file repeat_central "${central_db}" "${deployment}" Deploy.sql -v DeploymentMode=central
     run_file repeat_baseline_local "${local_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${local_db}"
     run_file repeat_baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
+    run_query create_dependency "${central_db}" "EXEC(N'CREATE VIEW dbo.VW_SafeCastDependencyCI AS SELECT Status FROM toolbelt_conversion.TVF_TryCastBigInt(N''1'',DEFAULT);'); IF NOT EXISTS(SELECT 1 FROM sys.sql_expression_dependencies WHERE referencing_id=OBJECT_ID(N'dbo.VW_SafeCastDependencyCI',N'V') AND referenced_id=OBJECT_ID(N'toolbelt_conversion.TVF_TryCastBigInt',N'IF')) THROW 55492,N'Safe Cast: synthetische Abhängigkeit fehlt.',9;"
+    expect_dependency_rejection deploy "${central_db}" Deploy.sql -v DeploymentMode=central
+    run_file dependency_deploy_preserved "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
+    expect_dependency_rejection uninstall "${central_db}" Uninstall.sql -v ConfirmNoExternalConsumers=1
+    run_file dependency_uninstall_preserved "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
+    run_query drop_dependency "${central_db}" "IF NOT EXISTS(SELECT 1 FROM sys.sql_expression_dependencies WHERE referencing_id=OBJECT_ID(N'dbo.VW_SafeCastDependencyCI',N'V') AND referenced_id=OBJECT_ID(N'toolbelt_conversion.TVF_TryCastBigInt',N'IF')) THROW 55492,N'Safe Cast: Abhängigkeit nach Ablehnung verloren.',10; DROP VIEW dbo.VW_SafeCastDependencyCI;"
     expect_central_confirm0_rejection "${central_db}"
     run_file confirm0_preserved_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
     run_file uninstall_central "${central_db}" "${deployment}" Uninstall.sql -v ConfirmNoExternalConsumers=1
@@ -166,4 +190,4 @@ for level in ${compatibility_levels}; do
     done
 done
 
-echo "PASS: Safe Cast SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Client, Baseline, Repeat, central Confirm0 und Uninstall."
+echo "PASS: Safe Cast SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Client, Baseline, Repeat, central Dependency/Confirm0 und Uninstall."
