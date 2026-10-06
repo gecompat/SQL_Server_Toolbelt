@@ -192,7 +192,7 @@ Corebytes und danach beide Konsumenten.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-06`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37527060218`
-- Scope: Zweiter Schema1.0.1-CI-Lauf am Headf37376b3b6eb3aba8f0df6a3dc09b5201a1e47cf: SQL2019/2022/2025 FAILED nach erstem UpgradeVerify-Witness im Faulttest mit erwarteter Nummer55699 und unerwarteter Fehlerkategorie; tatsächliche Fehlernummer und Ursache noch unbekannt. Windows inklusive15 begrenzten Qualifikationsphasen und acht Packagingfällen PASS; kein nativer Gesamt-PASS. Erstlauf37525258700 inzwischen alle drei SQL-Jobs mit Msg515 FAILED, Windows PASS; frühere zeitgebundene Records bleiben erhalten. Aktuelle native1.0.1-Abnahme fehlt; neuer nativer Nachweis PENDING.
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37529400622`
+- Scope: Numerische Schema1.0.1-CI-Diagnose am Head72080660c15b3dc33264cba2a1141e9c6a35d29d: Windows PASS; SQL2022/2025 FAILED im Faulttest mit Expected55699/Actual168; SQL2019 bei Erfassung noch laufend. Kein nativer Gesamt-PASS und keine bestätigte Fehlerursache. Separater noch nicht integrierter SQLCMD-i-Faulttransport bestand vier lokale Mockfälle und unabhängigen Review ohne Blocker; kein nativer Nachweis. Frühere zeitgebundene Records unverändert; aktuelle native Abnahme PENDING.
 - Ergebnis: `failed`
 <!-- END GENERATED:MODULE_EVIDENCE -->
