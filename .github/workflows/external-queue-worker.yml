@@ -14,12 +14,19 @@ on:
       - "Modules/toolbelt.core.execution-cancel/**"
       - "Tests/CI/run-external-queue-worker-lab.ps1"
       - ".github/workflows/external-queue-worker.yml"
+      # Reine Evidenzpflege ändert weder Worker noch SQL-Vertrag.
+      - "!Workers/ExternalQueue/README.md"
+      - "!Workers/ExternalQueue/Tests/README.md"
+      - "!Modules/toolbelt.core.worker-control/Tests/README.md"
   push:
     branches: [main]
     paths:
       - "Workers/ExternalQueue/**"
       - "Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1"
       - ".github/workflows/external-queue-worker.yml"
+      # Gleiche Ausschlüsse auf main; gemischte Code-/Doku-Diffs bleiben aktiv.
+      - "!Workers/ExternalQueue/README.md"
+      - "!Workers/ExternalQueue/Tests/README.md"
   workflow_dispatch:
 
 permissions:
