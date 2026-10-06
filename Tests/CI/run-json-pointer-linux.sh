@@ -209,6 +209,7 @@ expect_caller_transaction_rejection() {
 deployment="/workspace/Modules/toolbelt.json.pointer/Deployment"
 runtime="/workspace/Modules/toolbelt.json.pointer/Tests/Runtime"
 client="${workspace}/Tests/CI/run-json-pointer-client.ps1"
+rollback="${workspace}/Modules/toolbelt.json.pointer/Tests/CI/Test-JsonPointerRollback.ps1"
 
 for level in ${compatibility_levels}; do
     local_db="tbx_json_pointer_local_${level}"
@@ -254,6 +255,10 @@ IF @Rows<>1 OR ISNULL(@Status,'')<>'INVALID' OR @JsonType IS NOT NULL
     run_file repeat_central "${central_db}" "${deployment}" Deploy.sql -v DeploymentMode=central
     run_file repeat_baseline_local "${local_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${local_db}"
     run_file repeat_baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
+    # Vier synthetische Post-DROP-/Pre-COMMIT-Fehler im bestehenden Provider.
+    # Der gleiche Client vergleicht vollständige Katalogsnapshots und TX-Zustand.
+    run_private rollback_central pwsh -NoProfile -File "${rollback}" -Database "${central_db}"
+    run_file rollback_preserved_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
     expect_caller_transaction_rejection deploy "${central_db}" Deploy.sql -v DeploymentMode=central
     run_file caller_deploy_preserved "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
     expect_caller_transaction_rejection uninstall "${central_db}" Uninstall.sql -v ConfirmNoExternalConsumers=1
@@ -279,4 +284,4 @@ IF @Rows<>1 OR ISNULL(@Status,'')<>'INVALID' OR @JsonType IS NOT NULL
     done
 done
 
-echo "PASS: JSON Pointer SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Safety, Client, Baseline, Repeat, central CallerTransaction/UnknownRelease/Dependency/Confirm0 und Uninstall."
+echo "PASS: JSON Pointer SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Safety, Client, Baseline, Repeat, central Rollback/CallerTransaction/UnknownRelease/Dependency/Confirm0 und Uninstall."

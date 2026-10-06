@@ -24,6 +24,7 @@ Maximalworkload-Nachweis.
 | Runtime/Lifecycle.Tests.sql | Installierter eigener TF-/Marker-/Parameter-/Spaltenbestand |
 | Tests/CI/run-json-pointer-lab.ps1 | Local/central/Consumer mit gewähltem CL, install/repeat/uninstall/repeat, 42 gezielte Caller-/Lock-/Rollback-/Marker-/Fremdslot-/Dependency-/Confirmfälle bei beiden Modi, own cleanup und Inputpins |
 | Tests/CI/run-json-pointer-linux.sh | Flüchtige Linux-Matrix einschließlich harter Inputlimit-Abweisung bei 16 MiB plus einer UTF-16-Codeeinheit; keine 16-MiB-Verarbeitungs- oder Heapqualifikation |
+| Tests/CI/Test-JsonPointerRollback.ps1 | Zentrale flüchtige CI-Datenbank: vier injizierte Deploy-/Uninstall-Fehler nach DROP oder vor COMMIT; vollständiger Katalogsnapshot und neutraler Transaktionszustand auf derselben Verbindung. Kein Ersatz für die 42 physischen Lifecyclefälle. |
 | Tests/CI/run_max_workload.py | Nur manuell auslösbarer Einzelversuch je Größe/Form/SQL-Version auf eigenem flüchtigem Linux-Container; 240-s-Arbeitsbudget, höchstens60-s-Bereinigung und exaktes serverseitiges Orakel. Ein vorhandener Adapter ist noch kein erfolgreicher Maximalworkload-Nachweis. |
 | Tests/CI/test_hard_interrupt_recovery.py | Separat manuell gestartete lokale Kindprozess-Abbruchprobe mit eigenem flüchtigem Docker-Container, vor/nach CID, falscher Owner-ID und frischem Abwesenheitsaudit; keine SQL-Ausführung oder Runnerausfallprobe. |
 | Static/validate_contract.py | Source-/Manifest-/Deployment-/Test-/Dokumentationskopplung und nicht schreibender Generatorcheck; keine SQL-Ausführung |
