@@ -1,5 +1,25 @@
 # JSON Schema – Abnahmematrix
 
+## Schema-CI auf den ausgewählten Compatibility Levels
+
+Der gekoppelte Linuxadapter prüft Schema1.0.1 jetzt in denselben bereits
+gewählten CLs wie Constructors: SQL2019/CL150, SQL2022/CL160 und
+SQL2025/CL150/160/170. Vor jedem Schema-Scope werden beide Providerdatenbanken
+und der separate Consumer auf das jeweilige CL gesetzt und lesend geprüft.
+Je CL laufen der genuine1.0.0-Upgradescope, Contract/Safety local/central,
+CrossDB, Dependency-/Confirm0-Abweisungen und eigener Uninstall. Nach
+verifizierter Modulabwesenheit wird die eigene Upgrade-Capture-Tabelle
+entfernt; Core bleibt bis zum Abschluss aller Stufen erhalten.
+
+Die vorhandenen Constructor-Lastfixtures werden innerhalb des neuen
+Schema-Loops nicht nochmals ausgeführt. Binaries, Trusthashes, Produktcode,
+Runtimefixtures, physische Ziele und Rechte bleiben unverändert. Der
+vorhandene flüchtige CI-Container und Jobtimeout gelten weiter. Testcode
+allein belegt keine native Ausführung; exakte Head-/Main-Ergebnisse werden
+im zugehörigen PR dokumentiert. Der frühere83164b5-Nachweis bleibt auf
+seinen damaligen CL-Scope begrenzt. Weitere physische Ziele, Minimalrechte,
+volle Lifecycle-/Ressourcenmatrix und Release bleiben offen.
+
 ## Aktuelle Schema1.0.1-Wartung
 
 | Bereich | Nachweis | Zustand |

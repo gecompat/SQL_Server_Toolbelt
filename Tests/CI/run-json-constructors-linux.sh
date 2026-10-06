@@ -337,42 +337,54 @@ done
 run_file "${local_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=0
 run_file "${central_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=1
 run_file "${local_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=0
-run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
-run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
-# Neue Schemafunktion auf derselben bekannten Closure; die weiterhin durch
-# Constructors verwendete technische Coreassembly bleibt beim Schema-DROP erhalten.
-run_schema_upgrade "${local_database}" local
-for test in Contract.Tests.sql Safety.Tests.sql; do
-    run_file "${local_database}" "/workspace/Modules/toolbelt.json.schema/Tests/Runtime" "${test}"
+# Schema verwendet dieselben bereits ausgewählten CLs wie Constructors.
+# Core und ResultTable bleiben in den eigenen Datenbanken erhalten; jede Stufe
+# beginnt ohne Schema/Capturefixture und entfernt den eigenen Snapshot nach
+# verifiziertem Uninstall. Keine erneuten Constructor-Lastfixtures pro Stufe.
+for level in ${compatibility_levels}; do
+    for db in "${local_database}" "${central_database}" "${consumer_database}"; do
+        run_query master "ALTER DATABASE [${db}] SET COMPATIBILITY_LEVEL=${level}; IF ISNULL((SELECT compatibility_level FROM sys.databases WHERE name=N'${db}'),-1)<>${level} THROW 55690,N'Schema CI compatibility binding failed.',24;"
+    done
+    run_file "${local_database}" "${deployment_directory}" Deploy.sql -v DeploymentMode=local
+    run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
+    # Neue Schemafunktion auf derselben bekannten Closure; die weiterhin durch
+    # Constructors verwendete technische Coreassembly bleibt beim Schema-DROP erhalten.
+    run_schema_upgrade "${local_database}" local
+    for test in Contract.Tests.sql Safety.Tests.sql; do
+        run_file "${local_database}" "/workspace/Modules/toolbelt.json.schema/Tests/Runtime" "${test}"
+    done
+    expect_failure 55626 run_file "${local_database}" "/workspace/.runtime/json-core" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
+    run_file "${local_database}" "/workspace/.runtime/json-schema" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
+    run_query "${local_database}" "IF OBJECT_ID(N'toolbelt_json.USP_ValidateJsonSchema') IS NOT NULL OR OBJECT_ID(N'toolbelt_json.FT_ValidateJsonSchemaInternal') IS NOT NULL OR EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'Toolbelt_JsonSchema') OR EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name LIKE N'Toolbelt.Module.toolbelt.json.schema.%') THROW 55690,N'Schema final uninstall incomplete.',23; IF OBJECT_ID(N'dbo.TbxSchemaUpgradeSnapshot',N'U') IS NULL THROW 55690,N'Schema own upgrade snapshot missing.',23; DROP TABLE dbo.TbxSchemaUpgradeSnapshot;"
+    run_file "${local_database}" "${runtime_directory}" InstalledMetadata.Contract.sql
+    run_file "${local_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=0
+    # Die zentrale Schema-Installation verwendet dieselben bekannten Closure-Bytes.
+    # Ein Aufruf aus der separaten Consumer-Datenbank prueft den oeffentlichen
+    # dreiteiligen USP-Pfad, ohne neue Serverrechte oder Labziele anzulegen.
+    run_schema_upgrade "${central_database}" central
+    for test in Contract.Tests.sql Safety.Tests.sql; do
+        run_file "${central_database}" "/workspace/Modules/toolbelt.json.schema/Tests/Runtime" "${test}"
+    done
+    run_query "${consumer_database}" "
+    CREATE TABLE #SchemaAnswer(RowKind varchar(8),ErrorOrdinal int,Status varchar(24),
+     Profile varchar(32),IsValid bit,DocumentPointer nvarchar(max),SchemaPointer nvarchar(max),
+     Keyword nvarchar(128),ErrorCode varchar(32),ErrorsTruncated bit);
+    INSERT #SchemaAnswer EXEC [${central_database}].toolbelt_json.USP_ValidateJsonSchema
+     @Json=N'{\"quantity\":0}',@Schema=N'{\"properties\":{\"quantity\":{\"minimum\":1}}}';
+    IF (SELECT COUNT(*) FROM #SchemaAnswer)<>2
+     OR NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE RowKind='SUMMARY' AND ErrorOrdinal=0
+      AND Status='INVALID_INSTANCE' AND IsValid=0 AND Profile='toolbelt-2020-12-v1')
+     OR NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE RowKind='ERROR' AND ErrorOrdinal=1
+      AND Status='INVALID_INSTANCE' AND DocumentPointer=N'/quantity'
+      AND SchemaPointer=N'/properties/quantity/minimum')
+     THROW 55690,N'Synthetic central Schema consumer oracle failed.',9;
+    DROP TABLE #SchemaAnswer;"
+    expect_failure 55626 run_file "${central_database}" "/workspace/.runtime/json-core" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
+    expect_failure 55635 run_file "${central_database}" "/workspace/.runtime/json-schema" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=0
+    run_file "${central_database}" "/workspace/.runtime/json-schema" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
+    run_query "${central_database}" "IF OBJECT_ID(N'toolbelt_json.USP_ValidateJsonSchema') IS NOT NULL OR OBJECT_ID(N'toolbelt_json.FT_ValidateJsonSchemaInternal') IS NOT NULL OR EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'Toolbelt_JsonSchema') OR EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name LIKE N'Toolbelt.Module.toolbelt.json.schema.%') THROW 55690,N'Schema final uninstall incomplete.',23; IF OBJECT_ID(N'dbo.TbxSchemaUpgradeSnapshot',N'U') IS NULL THROW 55690,N'Schema own upgrade snapshot missing.',23; DROP TABLE dbo.TbxSchemaUpgradeSnapshot;"
+    echo "PASS: JSON_SCHEMA_CI_COMPATIBILITY sql=${sql_version} cl=${level} modes=local,central crossdb=1 upgrade=1 disposed=1"
 done
-expect_failure 55626 run_file "${local_database}" "/workspace/.runtime/json-core" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
-run_file "${local_database}" "/workspace/.runtime/json-schema" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
-run_file "${local_database}" "${runtime_directory}" InstalledMetadata.Contract.sql
-run_file "${local_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=0
-# Die zentrale Schema-Installation verwendet dieselben bekannten Closure-Bytes.
-# Ein Aufruf aus der separaten Consumer-Datenbank prueft den oeffentlichen
-# dreiteiligen USP-Pfad, ohne neue Serverrechte oder Labziele anzulegen.
-run_schema_upgrade "${central_database}" central
-for test in Contract.Tests.sql Safety.Tests.sql; do
-    run_file "${central_database}" "/workspace/Modules/toolbelt.json.schema/Tests/Runtime" "${test}"
-done
-run_query "${consumer_database}" "
-CREATE TABLE #SchemaAnswer(RowKind varchar(8),ErrorOrdinal int,Status varchar(24),
- Profile varchar(32),IsValid bit,DocumentPointer nvarchar(max),SchemaPointer nvarchar(max),
- Keyword nvarchar(128),ErrorCode varchar(32),ErrorsTruncated bit);
-INSERT #SchemaAnswer EXEC [${central_database}].toolbelt_json.USP_ValidateJsonSchema
- @Json=N'{\"quantity\":0}',@Schema=N'{\"properties\":{\"quantity\":{\"minimum\":1}}}';
-IF (SELECT COUNT(*) FROM #SchemaAnswer)<>2
- OR NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE RowKind='SUMMARY' AND ErrorOrdinal=0
-  AND Status='INVALID_INSTANCE' AND IsValid=0 AND Profile='toolbelt-2020-12-v1')
- OR NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE RowKind='ERROR' AND ErrorOrdinal=1
-  AND Status='INVALID_INSTANCE' AND DocumentPointer=N'/quantity'
-  AND SchemaPointer=N'/properties/quantity/minimum')
- THROW 55690,N'Synthetic central Schema consumer oracle failed.',9;
-DROP TABLE #SchemaAnswer;"
-expect_failure 55626 run_file "${central_database}" "/workspace/.runtime/json-core" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
-expect_failure 55635 run_file "${central_database}" "/workspace/.runtime/json-schema" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=0
-run_file "${central_database}" "/workspace/.runtime/json-schema" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
 run_file "${local_database}" "/workspace/.runtime/json-core" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
 run_file "${central_database}" "/workspace/.runtime/json-core" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
 echo "JSON Constructors adapter: local/central/contract/lifecycle and Schema central consumer PASS."
