@@ -70,6 +70,12 @@ run_private() {
     shift
     if ! "$@" >"${private_dir}/last-output" 2>&1; then
         echo "SAFE_CAST_CI_STEP_FAILED:${label}" >&2
+        # Ausschließlich feste, vom Driver gefilterte Kategorien weitergeben.
+        # Private SQL-/Exception-/Journalpayloads bleiben unterdrückt.
+        if [[ "${label}" == lifecycle_local || "${label}" == lifecycle_central ]]; then
+            grep -E '^SAFE_CAST_CI_LIFECYCLE_FAILED:stage=(PREPARATION|BASELINE|CALLER|LOCK|ROLLBACK|MARKER|CONFIRM0|UNINSTALL|FOREIGN_SLOT|UNINSTALL_REPEAT|FINAL_CLEANUP|UNCLASSIFIED):reason=(SAFE_CAST_[A-Z_]+|UNCLASSIFIED)$' \
+                "${private_dir}/last-output" >&2 || true
+        fi
         return 1
     fi
 }

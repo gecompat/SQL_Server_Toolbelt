@@ -23,6 +23,27 @@ $script:pins=@{};$script:texts=@{}
 $script:invokedDriverText=$MyInvocation.MyCommand.ScriptBlock.ToString().TrimStart([char]0xFEFF)
 $script:restoreSql=[Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
 $script:foreignSetupSql=$null
+$script:failureException=$null;$script:failureStage='PREPARATION'
+
+function Get-SafeCastFailureCategory($Exception){
+ # Nur exakte feste Throw-Literale aus den tatsächlich geladenen Quellen.
+ # Weder Exceptiontext, SQL-Payload noch Pfad/Endpoint wird ausgegeben.
+ $known=[Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+ foreach($text in @($script:invokedDriverText)+@($script:texts.Values)){
+  $tokens=$null;$errors=$null
+  $ast=[Management.Automation.Language.Parser]::ParseInput($text,[ref]$tokens,[ref]$errors)
+  if($errors.Count){continue}
+  foreach($node in $ast.FindAll({param($item)$item -is [Management.Automation.Language.StringConstantExpressionAst]},$true)){
+   if($node.Value -cmatch '\ASAFE_CAST_[A-Z_]+\z'){[void]$known.Add($node.Value)}
+  }
+ }
+ $cursor=$Exception
+ while($null -ne $cursor){
+  if($known.Contains($cursor.Message)){return $cursor.Message}
+  $cursor=$cursor.InnerException
+ }
+ return 'UNCLASSIFIED'
+}
 
 function Get-SafeCastCommandTimeout {
  param([ValidateRange(1,60)][int]$Maximum=60)
@@ -344,6 +365,7 @@ WHERE @@TRANCOUNT=0 AND XACT_STATE()=0
  $completed=$true
 }catch{
  $failed=$true
+ $script:failureException=$_.Exception;$script:failureStage=$script:stage
  if($null -ne $script:ledger){$script:ledger.FailureStage=$script:stage}
 }finally{
  $script:cleanupPhase=$true
@@ -367,11 +389,26 @@ WHERE @@TRANCOUNT=0 AND XACT_STATE()=0
   }else{$failed=$true}
  }catch{
   $failed=$true
+  if($null -eq $script:failureException){$script:failureException=$_.Exception;$script:failureStage='FINAL_CLEANUP'}
   if($null -ne $script:ledger){
    $script:ledger.State='RESTORATION_UNVERIFIED';$script:ledger.RestorationUnverified=$true
    if($script:journalHealthy){try{Save-SafeCastJournal}catch{}}
   }
- }finally{if($script:connection){try{$script:connection.Dispose()}catch{$failed=$true}};$script:password=$null}
+ }finally{
+  if($script:connection){try{$script:connection.Dispose()}catch{
+   $failed=$true
+   if($null -eq $script:failureException){$script:failureException=$_.Exception;$script:failureStage='FINAL_CLEANUP'}
+  }}
+  $script:password=$null
+ }
 }
-if($failed -or -not $completed){[Console]::Error.WriteLine('SAFE_CAST_CI_LIFECYCLE_FAILED');exit 1}
+if($failed -or -not $completed){
+ # Erst nach dem Restore kategorisieren; die Diagnose verbraucht keine Reserve.
+ $category='UNCLASSIFIED'
+ try{$category=Get-SafeCastFailureCategory $script:failureException}catch{}
+ $stages=@('PREPARATION','BASELINE','CALLER','LOCK','ROLLBACK','MARKER','CONFIRM0','UNINSTALL','FOREIGN_SLOT','UNINSTALL_REPEAT','FINAL_CLEANUP')
+ $stage=if($stages -ccontains $script:failureStage){$script:failureStage}else{'UNCLASSIFIED'}
+ [Console]::Error.WriteLine('SAFE_CAST_CI_LIFECYCLE_FAILED:stage='+$stage+':reason='+$category)
+ exit 1
+}
 Write-Output ('PASS: SAFE_CAST_CI_LIFECYCLE mode='+$Mode+' cases='+$script:ledger.LifecycleCasesPassed+' restored=2 absent=1')

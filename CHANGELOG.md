@@ -11,6 +11,12 @@
 - Produkt-SQL und öffentliche Verträge unverändert; Minimalrechte, gemessene
   Ressourcen und Hard-Interrupt-Recovery bleiben offen. Teilweise validiert,
   unveröffentlicht.
+- Erster [nativer CI-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37541002552)
+  scheiterte beim ersten lokalen Lifecycleaufruf auf allen drei SQL-Versionen;
+  die Ursache war wegen unterdrückter fester Diagnosekategorien noch offen.
+  Der Adapter gibt jetzt erst nach Restore eine strikt gefilterte feste
+  Fehlerstufe/-kategorie aus. Rohtexte und private Journale bleiben verborgen;
+  der fehlgeschlagene Lauf wird dadurch nicht zu erfolgreicher Evidenz.
 
 ## 2026-10-07 – Runtime-CI bei Helper- und Generatoränderungen
 
