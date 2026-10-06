@@ -25,6 +25,7 @@ Maximalworkload-Nachweis.
 | Tests/CI/run-json-pointer-lab.ps1 | Local/central/Consumer mit gewähltem CL, install/repeat/uninstall/repeat, 42 gezielte Caller-/Lock-/Rollback-/Marker-/Fremdslot-/Dependency-/Confirmfälle bei beiden Modi, own cleanup und Inputpins |
 | Tests/CI/run-json-pointer-linux.sh | Flüchtige Linux-Matrix einschließlich harter Inputlimit-Abweisung bei 16 MiB plus einer UTF-16-Codeeinheit; keine 16-MiB-Verarbeitungs- oder Heapqualifikation |
 | Tests/CI/run_max_workload.py | Nur manuell auslösbarer Einzelversuch je Größe/Form/SQL-Version auf eigenem flüchtigem Linux-Container; 240-s-Arbeitsbudget, höchstens60-s-Bereinigung und exaktes serverseitiges Orakel. Ein vorhandener Adapter ist noch kein erfolgreicher Maximalworkload-Nachweis. |
+| Tests/CI/test_hard_interrupt_recovery.py | Separat manuell gestartete lokale Kindprozess-Abbruchprobe mit eigenem flüchtigem Docker-Container, vor/nach CID, falscher Owner-ID und frischem Abwesenheitsaudit; keine SQL-Ausführung oder Runnerausfallprobe. |
 | Static/validate_contract.py | Source-/Manifest-/Deployment-/Test-/Dokumentationskopplung und nicht schreibender Generatorcheck; keine SQL-Ausführung |
 
 Inputcollations: Latin1_General_100_BIN2, Latin1_General_100_CI_AS,
@@ -196,11 +197,22 @@ Labziele dürfen für diesen Nachweis beendet werden.
    und das unveränderte fremde Umfeld. Bei unbekanntem Cleanup keine weitere
    Laststufe starten.
 
-Ein erfolgreicher Versuch würde nur die geprüfte lokale Kindprozess-/Docker-
-Recovery belegen. Runnerverlust, Hostausfall, Docker-Daemon-Ausfall,
-SQL-Transaktionszustand, geteilter Labzustand und allgemeine CI-Abbruchfreigabe
-blieben eigene offene Nachweise. Dieser Plan wurde noch **NOT_EXECUTED**;
-Hard-Interrupt-Recovery ist weiterhin offen.
+Am 2026-10-06 bestand die separat manuell gestartete lokale Probe
+`python Modules/toolbelt.json.pointer/Tests/CI/test_hard_interrupt_recovery.py`
+für beide kontrollierten Fälle vor/nach CID-Schreiben. Sie nutzte ein bereits
+lokal vorhandenes SQL2019-Linux-Image nur als flüchtigen `sleep`-Container,
+ohne SQL-Start, Portfreigabe, Netz oder Labziel. Der unabhängige Elternprozess
+beendete jeweils das Kind hart, verweigerte die Entfernung mit falscher
+Owner-ID, entfernte nur den exakt gelabelten eigenen Container und bestätigte
+dessen Abwesenheit. Eine zusätzliche frische Docker-Abfrage bestätigte, dass
+kein Container mit dem Test-Owner-Label verblieb. Das ist **PASSED** allein für
+diese lokale Kindprozess-/Docker-Recoverymechanik.
+
+Runnerverlust, Hostausfall, Docker-Daemon-Ausfall, SQL-Transaktionszustand,
+geteilter Labzustand, ein fremder Container als eigene Testfixture und
+allgemeine CI-Abbruchfreigabe wurden **NOT_EXECUTED**. Ein `finally` oder
+Workflow-Timeout gilt weiterhin nicht als Recoverybeweis; die allgemeine
+Hard-Interrupt-Recovery bleibt offen.
 
 ## Aktuelle Validierungsevidenz
 

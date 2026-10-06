@@ -48,6 +48,11 @@ Der ebenfalls manuelle `nested`-Modus prüft feste Tiefenstufen bis128 mit
 eigener Container-Speichergrenze. Die Testmatrix trennt lokale Proben von
 den später erfolgreich manuell ausgelösten GitHub-Dispatches und weiteren
 offenen Lastformen.
+Eine getrennte lokale Abbruchprobe in `Tests/CI/test_hard_interrupt_recovery.py`
+prüft nur die Owner-Label-Bereinigung durch einen weiterlaufenden Elternprozess
+nach hartem Kindprozessabbruch; Umfang und offene Fälle stehen in der
+[Testmatrix](JSON_POINTER_TEST_MATRIX.md). Sie läuft nicht im regulären CI-
+oder Lastworkflow und belegt keine Recovery nach Runner- oder Hostausfall.
 Der CI-Adapter weist außerdem den zentralen Uninstall ohne explizite
 Consumerbestätigung mit `55526/state1` ab und prüft danach die installierte
 Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird.
