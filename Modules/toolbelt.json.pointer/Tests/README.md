@@ -31,6 +31,13 @@ oder vollständiger exakter Head-CI-Nachweis.
 `Tests/CI/Test-LabDriverArgumentCase.ps1` prüft die Parameterbindung des
 Labtreibers mit synthetischen Argumenten ohne Verbindung zum Lab.
 Der kanonische Deploymentgenerator wird dabei nicht schreibend geprüft.
+Der [Pointer-Runtime-Workflow](../../../.github/workflows/json-pointer-runtime.yml)
+prüft in flüchtigen Linux-SQL-Server-Containern 2019/2022/2025 die zulässigen
+Compatibility Levels mit local/central/Consumer: feste Contract-/Safety-
+Fixtures, Clientmetadaten, installierte Baseline, Repeat und Uninstall.
+Die 42 gezielten Caller-/Lock-/Rollback-/Marker-/Fremdslot-/Dependencyfälle
+des separaten Labadapters, Minimalrechte, Maximalworkload und
+Hard-Interrupt-Recovery gehören nicht zu diesem CI-Scope.
 Weitere physische Ziele, Minimalrechte und Heap-/Maximalworkloadqualifikation
 bleiben offen; die tatsächlich ausgeführte begrenzte API-/Safetyqualifikation
 steht getrennt unten.
