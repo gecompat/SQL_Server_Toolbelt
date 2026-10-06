@@ -160,7 +160,14 @@ expect_failure() {
         echo "Expected SQL failure was absent." >&2; exit 1
     fi
     if [[ "${failure_output}" != *"Msg ${expected_number},"* && !( "${expected_number}" == 50000 && "${failure_output}" == *"JSON_LIFECYCLE_CALLER_TRANSACTION:"* ) ]]; then
-        echo "Unexpected SQL error category." >&2; exit 1
+        # Nur feste Kategorien und numerische SQL-Fehlercodes veröffentlichen.
+        # Meldungstext, Server-/Dateinamen und Verbindungswerte bleiben flüchtig.
+        local actual_number=NO_SQL_MSG
+        if [[ "${failure_output}" =~ Msg[[:space:]]+([0-9]+), ]]; then
+            actual_number="${BASH_REMATCH[1]}"
+        fi
+        printf 'Unexpected SQL error category: expected=%s actual=%s.\n' "${expected_number}" "${actual_number}" >&2
+        exit 1
     fi
 }
 # Synthetische Predicate-Injektion, kein tatsächlicher Lowpriv-Nachweis.
