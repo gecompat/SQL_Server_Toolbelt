@@ -72,7 +72,7 @@ jobs:
           . "$module/Scripts/Invoke-OwnedProcess.ps1"
           $locator=Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
           if(-not(Test-Path -LiteralPath $locator -PathType Leaf)){throw 'JSON_CI_LOCATOR_UNAVAILABLE'}
-          $located=Invoke-OwnedProcess -FileName $locator -Arguments @('-latest','-products','*','-requires','Microsoft.Component.MSBuild','-find','MSBuild\Current\Bin\MSBuild.exe') -TimeoutMilliseconds 10000
+          $located=Invoke-OwnedProcess -FileName $locator -Arguments @('-latest','-products','*','-requires','Microsoft.Component.MSBuild','-find','MSBuild\Current\Bin\MSBuild.exe') -TimeoutMilliseconds 30000
           if($located.ExitCode -ne 0 -or -not $located.CaptureComplete -or $located.Stderr.Length -ne 0){throw 'JSON_CI_LOCATOR_FAILED'}
           $paths=@($located.Stdout -split '\r?\n' | Where-Object {-not [string]::IsNullOrWhiteSpace($_)})
           if($paths.Count -ne 1 -or -not [IO.Path]::IsPathFullyQualified($paths[0])){throw 'JSON_CI_MSBUILD_UNAVAILABLE'}
