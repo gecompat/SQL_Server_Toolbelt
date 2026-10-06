@@ -23,11 +23,14 @@ cases = (
 for module, script in (
     ("pointer", root / "Tests/CI/run-json-pointer-linux.sh"),
     ("safe_cast", root / "Tests/CI/run-safe-cast-linux.sh"),
+    ("json_constructors", root / "Tests/CI/run-json-constructors-linux.sh"),
 ):
     source = script.read_text(encoding="utf-8")
     try:
         begin = source.index("cleanup() {\n")
-        end = source.index("\n}\ntrap cleanup EXIT", begin) + 2
+        end = source.index("\n}\n", begin) + 2
+        if not source[end:].lstrip().startswith("trap cleanup EXIT"):
+            raise ValueError("Cleanup trap fehlt")
     except ValueError as exc:
         raise SystemExit(f"OWNED_CLEANUP_TEST_SOURCE_BOUNDARY_INVALID:{module}") from exc
     cleanup_function = source[begin:end]
@@ -85,10 +88,11 @@ exit 0
             if private_path.exists():
                 raise SystemExit(f"OWNED_CLEANUP_TEST_PRIVATE_REMAINS:{module}:{scenario}")
             expected_diagnostic = scenario in {"foreign", "daemon", "remove_fail"}
-            diagnostic = (
-                "JSON_POINTER_CI_CLEANUP_UNVERIFIED" if module == "pointer"
-                else "SAFE_CAST_CI_CLEANUP_UNVERIFIED"
-            )
+            diagnostic = {
+                "pointer": "JSON_POINTER_CI_CLEANUP_UNVERIFIED",
+                "safe_cast": "SAFE_CAST_CI_CLEANUP_UNVERIFIED",
+                "json_constructors": "JSON_CONSTRUCTORS_CI_CLEANUP_UNVERIFIED",
+            }[module]
             if (diagnostic in completed.stderr) != expected_diagnostic:
                 raise SystemExit(f"OWNED_CLEANUP_TEST_DIAGNOSTIC_MISMATCH:{module}:{scenario}")
         print(f"PASS: {module} {scenario}")

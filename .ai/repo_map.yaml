@@ -711,6 +711,7 @@ change_impact:
         - Tests/CI/run-json-groups-lab.ps1
         - Documentation/Standards/USP_CONTRACT.md
         - Tests/CI/run-json-constructors-linux.sh
+        - Tests/CI/test_owned_container_cleanup.py
         - .github/workflows/json-constructors-runtime.yml
       checks:
         - markdown_links
@@ -725,6 +726,7 @@ change_impact:
         - Tests/CI/Test-JsonSchemaLabDisposition.ps1
         - Tests/CI/Test-JsonSchemaLabScope.ps1
         - Tests/CI/run-json-constructors-linux.sh
+        - Tests/CI/test_owned_container_cleanup.py
         - .github/workflows/json-constructors-runtime.yml
       checks:
         - json_schema_core_static

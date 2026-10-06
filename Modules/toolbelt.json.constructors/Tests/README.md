@@ -97,6 +97,13 @@ Neue Minimalrechte, weitere Zielkombinationen und Produktions-/Parallelkapazitä
 
 Historischer nativer Gruppenadapter: `Tests/CI/run-json-groups-lab.ps1`; bei Version 1.2 stoppt er ausdrücklich vor Labdiscovery. Die 1.2-Teilnachweise stammen aus separat geprüften privaten Adaptern. Die Bash-Labroute ist für Lab explizit gesperrt; GitHub-Container verwenden den Bash-Runner weiterhin als gesonderten aktuellen PR-Head-Gate.
 
+Der flüchtige CI-Container erhält eine zufällige Owner-Kennung. Beim normalen
+Prozessende entfernt der Adapter ihn nur bei exakt passendem Namen und Label;
+eine frische Docker-Abfrage muss seine Abwesenheit bestätigen. Der isolierte
+synthetische Cleanup-Test prüft zusätzlich Fremdlabel und Dockerfehler, ohne
+Container oder Labziel zu starten. Dies ist kein Nachweis für Runner-/Host-
+oder Docker-Daemon-Ausfall und keine allgemeine Hard-Interrupt-Recovery.
+
 ## Historische Ausführung 1.0.0
 
 Genuine SQL-Upgradepakete werden ausschließlich aus den fest gebundenen
