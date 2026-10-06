@@ -30,6 +30,12 @@ oder vollständiger exakter Head-CI-Nachweis.
 `Tests/CI/Test-LabDriverArgumentCase.ps1` prüft die Parameterbindung des
 Labtreibers mit synthetischen Argumenten ohne Verbindung zum Lab.
 Der gekoppelte Generator läuft ausschließlich im nicht schreibenden Checkmodus.
+Der [Safe-Cast-Runtime-Workflow](../../../.github/workflows/safe-cast-runtime.yml)
+prüft in flüchtigen Linux-SQL-Server-Containern 2019/2022/2025 die zulässigen
+Compatibility Levels mit local/central/Consumer: feste API-Fixtures,
+Clientmetadaten, installierte Baseline, Repeat und Uninstall. Die gezielten
+Caller-/Lock-/Rollback-/Fremdslot-/Markerfälle des separaten Labadapters,
+Minimalrechte und Hard-Interrupt-Recovery gehören nicht zu diesem CI-Scope.
 Lokale statische Prüfung und Client-AST bestanden am 2026-10-05;
 Beide SQLfixtures bestanden anschließend die unabhängige ScriptDom150-
 Offlineprüfung (je 0 Syntaxfehler, leerer ToolbeltDatabase). Native Ausführung
