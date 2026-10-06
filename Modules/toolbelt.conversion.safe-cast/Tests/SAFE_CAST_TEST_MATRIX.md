@@ -47,6 +47,33 @@ Scope und frische Dispositionchecks zu qualifizieren.
 Keine Performance-, Parallelitäts-, Heap- oder allgemeine Produktionszusage.
 Weitere physische Ziele/CLs/Minimalrechte erst nach dokumentierter Ausführung.
 
+### Offene Minimalrechte-Qualifikation
+
+Für die sechs TVF-Aufrufe ist vorhandenes `SELECT` nötig. Der Lifecycle-
+Preflight prüft datenbankweites `VIEW DEFINITION`, `SELECT` auf
+`sys.sql_expression_dependencies`, `CREATE FUNCTION` sowie `ALTER` auf dem
+vorhandenen Schema oder `CREATE SCHEMA` für ein neues Schema. `MarkRelease.sql`
+schreibt zusätzlich zwei Extended Properties **auf Datenbankebene**;
+`Uninstall.sql` entfernt sie. Laut Microsoft brauchen diese Operationen eigene
+wirksame Rechte; `db_ddladmin` allein darf keine datenbankweite Property
+hinzufügen. Primärquellen:
+[`sp_addextendedproperty`](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql),
+[`sp_updateextendedproperty`](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-updateextendedproperty-transact-sql),
+[`sys.sql_expression_dependencies`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-sql-expression-dependencies-transact-sql).
+Die Unvollständigkeit der bisherigen Schema-/Funktionsrechtebeschreibung
+ist eine Schlussfolgerung aus Quellen und Skript; die exakte kleinste
+erfolgreiche Rechtemenge ist **nicht** nativ belegt.
+
+Ein späterer Versuch benötigt einen bereits vorhandenen, ausdrücklich
+ausgewählten Testprincipal auf einem erlaubten Ziel. Effektive Rechte und
+Vorzustand werden privat erhoben; ohne geeigneten Principal bleibt der Test
+**NOT_EXECUTED**. Aufruf, Erstinstallation mit vorhandenem/neuem Schema,
+Repeat sowie lokaler/zentraler Uninstall einschließlich Markerbereinigung
+sind getrennt zu prüfen, Fehler mit Rollback- und Own-State-Audit. Der
+bisherige physische Labadapter benötigt für die eigene DB-Bereinigung
+`sysadmin`; sein Erfolg ist kein Minimalrechtebeweis. Hier werden keine
+Rechte erteilt, Principals angelegt oder SQL-Objekte verändert.
+
 Lokale Vorbereitung 2026-10-05: `python Modules/toolbelt.conversion.safe-cast/Tests/Static/validate_contract.py`
 bestand einschließlich des nicht schreibenden kanonischen Generatorchecks;
 PowerShell-AST des Clientreaders und diff-Whitespace bestanden.
