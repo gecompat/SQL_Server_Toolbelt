@@ -31,6 +31,14 @@ Fixtures geprüft; daraus folgt keine Heap- oder vollständige Ceilingqualifikat
 Version1.0.0 besitzt keinen historischen Vorgänger; ein Upgrade früherer Releases
 ist `not applicable`. Das begründet keine pauschale Lifecycle-Aufwertung.
 
+`MarkRelease.sql` schreibt und `Preflight.sql` entfernt datenbankweite
+Release-Marker per Extended Property ohne Objektlevel. Schema-/Assembly-DDL-Rechte
+belegen diese Operationen nicht allein; Microsoft dokumentiert für
+[`sp_addextendedproperty`](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql)
+die Datenbank-Ausnahme für `db_ddladmin`. Eine tatsächliche Minimalrechteprobe
+für den vollständigen Lifecycle wurde nicht ausgeführt und es wurden keine
+Rechte vergeben.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

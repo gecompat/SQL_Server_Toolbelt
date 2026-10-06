@@ -37,6 +37,7 @@ permissions_required:
   - "SELECT auf den öffentlichen TVFs"
   - "Lifecycle: VIEW DEFINITION auf Datenbank und SELECT auf sys.sql_expression_dependencies"
   - "CREATE FUNCTION, CREATE ASSEMBLY, Schema-ALTER; ALTER ANY ASSEMBLY nur bei Binarywechsel"
+  - "Datenbankweite Release-Marker benötigen zusätzlich dafür wirksame Rechte; die genaue Minimalrechtekombination ist nicht nativ qualifiziert."
   - "sysadmin ausschließlich für separates Hash-Trust-Opt-in"
 collation_contract: "Feste Algorithmustransformation; ASCII-Codeausgaben Latin1_General_100_BIN2; kein Unicode-Folding"
 data_type_contract: "Text nvarchar(max); Codes varchar(max); raw UTF16 4096, transformed 8192, code 16384 each/pair32768"

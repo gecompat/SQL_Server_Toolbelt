@@ -40,6 +40,7 @@ objects:
 permissions_required:
   - "Vorhandenes EXECUTE auf den öffentlichen USPs und der verwendeten ResultTable-Runtime; keine Rechtevergabe."
   - "Lifecycle: Datenbank-VIEW DEFINITION, SELECT auf sys.sql_expression_dependencies und passende Schema-/Assembly-DDL-Rechte."
+  - "Lifecycle: Datenbankweite Release-Marker benötigen zusätzlich dafür wirksame Rechte; die genaue Minimalrechtekombination ist nicht nativ qualifiziert."
   - "Getrennter exakter SHA2-512-Trust-Opt-in benötigt vorhandene administrative Rechte."
 collation_contract: "Wertzeichen unverändert; ordinale UTF16-Tokenvergleiche; öffentliche Texte Latin1_General_100_BIN2."
 data_type_contract: "CSV nvarchar(max); Zeilen bigint, Spalten int; UTF16-Textbytes mit DATALENGTH, keine Heap-Zusage."
