@@ -20,9 +20,9 @@ INSERT dbo.TbxSchemaUpgradeSnapshot
 SELECT @AssemblyId,@PublicId,@BridgeId,(SELECT principal_id FROM sys.assemblies WHERE assembly_id=@AssemblyId),
  (SELECT principal_id FROM sys.objects WHERE object_id=@PublicId),(SELECT principal_id FROM sys.objects WHERE object_id=@BridgeId),
  HASHBYTES(N'SHA2_256',CONVERT(varbinary(max),OBJECT_DEFINITION(@PublicId))),
- CONVERT(varbinary(max),(SELECT class,major_id,minor_id,grantee_principal_id,grantor_principal_id,type,state
+ COALESCE(CONVERT(varbinary(max),(SELECT class,major_id,minor_id,grantee_principal_id,grantor_principal_id,type,state
  FROM sys.database_permissions WHERE (class=5 AND major_id=@AssemblyId) OR (class=1 AND major_id IN(@PublicId,@BridgeId))
- ORDER BY class,major_id,minor_id,grantee_principal_id,type FOR XML RAW,BINARY BASE64)),
+ ORDER BY class,major_id,minor_id,grantee_principal_id,type FOR XML RAW,BINARY BASE64)),0x),
  CONVERT(varbinary(max),(SELECT class,major_id,minor_id,name,CONVERT(varbinary(max),value) value
  FROM sys.extended_properties WHERE (class=5 AND major_id=@AssemblyId) OR (class=1 AND major_id IN(@PublicId,@BridgeId))
  OR (class=0 AND name LIKE N'Toolbelt.Module.toolbelt.json.schema.%') ORDER BY class,major_id,minor_id,name

@@ -4,7 +4,7 @@
 
 `Invoke-BoundedPatchQualification.ps1` baut ausschließlich die aktuelle
 Schema-Compileliste gegen die unveränderten bekannten Corebytes. Der finale
-Lauf bestand15 Phasen mit tatsächlichen Exits0, vollständigen Captures,
+Lauf `qual4` bestand15 Phasen mit tatsächlichen Exits0, vollständigen Captures,
 leerem Stderr und unveränderten Input-/Produktpins. Die15 Phasen umfassen
 Schema- und Harnessbuilds, eigene vollständige Schema-IL, den bytegleichen
 kanonischen Schema-MSBuild und die folgenden Harnessläufe:
@@ -31,12 +31,25 @@ Constructorframes bleiben unverändert; ihre frühere Gesamtqualifikation wird
 nicht als erneuter Patchnachweis ausgegeben. Der unveränderte historische
 Closure-Snapshot bleibt in `KNOWN_JSON_ARTIFACT_CLOSURE_SCHEMA_1_0.json` erhalten.
 
-`Test-BoundedPatchPackaging.ps1` bestand sechs Paketierungsorakel: den
+Die früheren Läufe `qual3`/`package3` bestanden tatsächlich; `package3`
+bestand sechs Paketierungsorakel: den
 qualifizierten Patchkandidaten sowie die Abweisung eines belegten Ziels,
 eines früheren Gesamt-Receipts, einer fehlenden Phase, veränderter Sourcepins
 und veränderter Binarybytes. Inputpins, historische Frames und die erlaubten
 Schemafelder bestanden. Die Receipt-Scope lautet
-`BOUNDED_SCHEMA_PATCH_PACKAGING`.
+`BOUNDED_SCHEMA_PATCH_PACKAGING`. Diese Erfolge gelten für den damaligen
+Scriptstand vor der nachfolgenden Common-Härtung.
+
+Der finale Lauf `package4` bestand acht Paketierungsorakel. Zusätzlich zu
+den bisherigen sechs Fällen wird ein gültig neu gerahmter Constructorframe
+sowohl im Generator als auch im Qualifikationsdriver mit
+`SCHEMA_PATCH_BASELINE_PIN` abgewiesen, bevor eine neue Ausgabe entsteht. Common liest
+den historischen Snapshot genau einmal als Bytes, prüft dessen festen SHA256
+`c2a5298a0cc5cbe806b5f24620dcc2d2fd6a20192dc6c2d06cb7bd6f319dfbe4`
+und decodiert dieselben Bytes mit strict UTF8. Der qualifizierte Kandidat ist
+semantisch exakt identisch mit der aktiven Registry einschließlich der
+Binaryhashes. Die acht Fälle ersetzen keinen historischen Nachweis durch
+eine neue Gesamtqualifikation.
 
 `Deployment/New-Historical10TestArtifacts.ps1` reproduzierte separat die echte
 Schema1.0.0 aus dem festen Commit `0185603b0e30e4d0b2dd9c1cfa4e698fccd9feb9`.
@@ -70,6 +83,13 @@ Container. Diese Prüfungen belegen Syntax, Paketierung und die geprüfte
 Cleanup-Steuerung, keine tatsächliche native1.0.1-Ausführung oder Bereinigung.
 `Test-JsonSchemaLabScope.ps1` bestand zusätzlich33 synthetische Selector-/
 Bindungsfälle ohne Labzugriff.
+
+Der erste native CI-Versuch am2026-10-06 ist eine getrennte fehlgeschlagene
+[Historie](../NATIVE_EVIDENCE.md). Die korrigierte Capture-/Verify-Fixture
+bestand unabhängigen Review und ScriptDom14 Batches/42 Assertions; native
+Abnahme und die geplante CI-Ausführung der begrenzten Qualifikation samt acht
+Packagingfällen bleiben bis zum tatsächlichen Ergebnis am korrigierten Head
+PENDING.
 
 ## Historische Gesamtqualifikation mit Schema1.0.0
 
@@ -172,7 +192,7 @@ Corebytes und danach beide Konsumenten.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-06`
-- Nachweis: `local: Invoke-BoundedPatchQualification.ps1 and Test-BoundedPatchPackaging.ps1`
-- Scope: Schema1.0.1:15 erfolgreiche begrenzte Prozessphasen mit stabilen Input-/Produktpins;169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions und120 Bridge-Assertions jeweils en-US/de-DE/tr-TR. Eigene Schema-IL und bytegleicher kanonischer Schema-Projektbuild bestanden; sechs positive/negative Patchpaketierungsorakel, sieben Releasepaketierungsorakel und unveränderte historische Frames bestanden. ScriptDom14 Batches/42 Assertions, PowerShell-/Bashsyntax,18 synthetische CI-Cleanupfälle und33 Selector-/Bindungsfälle ohne Labzugriff bestanden. Unveränderte Core-/Constructoridentitäten nur wiederverwendet, keine erneute Gesamt- oder Maximallastqualifikation. Native1.0.1-API/Upgrade und exakte Head-CI noch nicht ausgeführt; historische1.0.0-Nachweise bleiben getrennt.
+- Nachweis: `local: Invoke-BoundedPatchQualification.ps1 qual4 and Test-BoundedPatchPackaging.ps1 package4`
+- Scope: Finale Schema1.0.1-Offline-Läufe nach Common-Härtung:15 erfolgreiche begrenzte Prozessphasen, stabile Input-/Produktpins;169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions und120 Bridge-Assertions jeweils en-US/de-DE/tr-TR, eigene IL und bytegleicher kanonischer Schema-Projektbuild. Acht Packagingfälle bestanden; gültig neu gerahmter Constructorframe in Generator und Driver mit SCHEMA_PATCH_BASELINE_PIN vor Ausgabe abgewiesen. Ein einziger strict-UTF8-Byteinput bindet den historischen Snapshot an seinen festen SHA256; Kandidat semantisch exakt gleich aktiver Registry/Binaryhashen. Frühere qual3/package3-Erfolge mit sechs Fällen bleiben Evidenz ihres Scriptstands. Keine erneute Core-/Constructor-Gesamt- oder Maximallastqualifikation; native1.0.1-API/Upgrade und korrigierte Head-CI PENDING. Historische1.0.0-Nachweise und Registry-Freeze unverändert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

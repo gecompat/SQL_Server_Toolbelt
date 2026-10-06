@@ -41,11 +41,21 @@ Binaryidentität wird weiterhin separat qualifiziert und exakt gebunden.
 [Offline-Evidenz](Tests/Framework/README.md) und
 [Abnahmematrix](Tests/TEST_MATRIX.md) führen ausgeführte und offene Prüfungen
 getrennt. Für1.0.1 bestanden die begrenzten Offline-Harness-, eigenen IL-,
-bytegleichen Schema-Projektbuild- und Paketierungsprüfungen. Die bisherigen
+bytegleichen Schema-Projektbuild- und Paketierungsprüfungen; final15 Phasen
+und acht Packagingfälle nach Common-Härtung. Ein einziger strict-UTF8-
+Byteinput ist an den festen historischen Snapshot-SHA256 gebunden; neu
+gerahmte Constructorframes werden vor Ausgabe abgewiesen. Der Kandidat
+entspricht semantisch exakt der aktiven Registry und ihren Binaryhashes.
+Die früheren erfolgreichen sechs Packagingfälle bleiben getrennte Historie.
+Die bisherigen
 nativen Core-/Schema-Contract-, Safety-, Client- und begrenzten Lifecycle-Läufe
 auf Linux2019/latest CL150 und Windows2025/CU8 bleiben historische
-1.0.0-Nachweise. Native1.0.1-API, echter1.0.0→1.0.1-Upgrade und exakte
-Head-CI sind noch nicht ausgeführt. Weitere Matrix, CrossDB, Minimalrechte und
+1.0.0-Nachweise. Der erste native1.0.1-CI-Versuch scheiterte am2026-10-06
+auf SQL2019/2022 an Msg515 in der Upgrade-Capture-Fixture; die symmetrische
+Leerkatalognormalisierung ist korrigiert und statisch geprüft.
+[Fehlversuch und offene Abnahme](Tests/NATIVE_EVIDENCE.md) bleiben ausdrücklich
+getrennt: native1.0.1-API, echter1.0.0→1.0.1-Upgrade und exakte korrigierte
+Head-CI sind PENDING. Weitere Matrix, CrossDB, Minimalrechte und
 vollständige Lifecycleabnahme bleiben offen. Aktuell teilweise validiert,
 unreleased. [Beispiele](Examples/JsonSchema.sql) verwenden synthetische Daten.
 
@@ -53,7 +63,7 @@ unreleased. [Beispiele](Examples/JsonSchema.sql) verwenden synthetische Daten.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-06`
-- Nachweis: `local: Invoke-BoundedPatchQualification.ps1 and Test-BoundedPatchPackaging.ps1`
-- Scope: Schema1.0.1:15 erfolgreiche begrenzte Prozessphasen mit stabilen Input-/Produktpins;169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions und120 Bridge-Assertions jeweils en-US/de-DE/tr-TR. Eigene Schema-IL und bytegleicher kanonischer Schema-Projektbuild bestanden; sechs positive/negative Patchpaketierungsorakel, sieben Releasepaketierungsorakel und unveränderte historische Frames bestanden. ScriptDom14 Batches/42 Assertions, PowerShell-/Bashsyntax,18 synthetische CI-Cleanupfälle und33 Selector-/Bindungsfälle ohne Labzugriff bestanden. Unveränderte Core-/Constructoridentitäten nur wiederverwendet, keine erneute Gesamt- oder Maximallastqualifikation. Native1.0.1-API/Upgrade und exakte Head-CI noch nicht ausgeführt; historische1.0.0-Nachweise bleiben getrennt.
+- Nachweis: `local: Invoke-BoundedPatchQualification.ps1 qual4 and Test-BoundedPatchPackaging.ps1 package4`
+- Scope: Finale Schema1.0.1-Offline-Läufe nach Common-Härtung:15 erfolgreiche begrenzte Prozessphasen, stabile Input-/Produktpins;169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions und120 Bridge-Assertions jeweils en-US/de-DE/tr-TR, eigene IL und bytegleicher kanonischer Schema-Projektbuild. Acht Packagingfälle bestanden; gültig neu gerahmter Constructorframe in Generator und Driver mit SCHEMA_PATCH_BASELINE_PIN vor Ausgabe abgewiesen. Ein einziger strict-UTF8-Byteinput bindet den historischen Snapshot an seinen festen SHA256; Kandidat semantisch exakt gleich aktiver Registry/Binaryhashen. Frühere qual3/package3-Erfolge mit sechs Fällen bleiben Evidenz ihres Scriptstands. Keine erneute Core-/Constructor-Gesamt- oder Maximallastqualifikation; native1.0.1-API/Upgrade und korrigierte Head-CI PENDING. Historische1.0.0-Nachweise und Registry-Freeze unverändert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

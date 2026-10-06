@@ -5,9 +5,9 @@ DECLARE @ExpectedVersion nvarchar(16)=N'$(SchemaExpectedVersion)',
  @PublicId int=OBJECT_ID(N'toolbelt_json.USP_ValidateJsonSchema'),@BridgeId int=OBJECT_ID(N'toolbelt_json.FT_ValidateJsonSchemaInternal');
 IF @ExpectedVersion NOT IN(N'1.0.0',N'1.0.1') OR (SELECT COUNT(*) FROM dbo.TbxSchemaUpgradeSnapshot)<>1
  THROW 55690,N'Schema upgrade witness invalid.',21;
-DECLARE @Permissions varbinary(max)=CONVERT(varbinary(max),(SELECT class,major_id,minor_id,grantee_principal_id,grantor_principal_id,type,state
+DECLARE @Permissions varbinary(max)=COALESCE(CONVERT(varbinary(max),(SELECT class,major_id,minor_id,grantee_principal_id,grantor_principal_id,type,state
  FROM sys.database_permissions WHERE (class=5 AND major_id=@AssemblyId) OR (class=1 AND major_id IN(@PublicId,@BridgeId))
- ORDER BY class,major_id,minor_id,grantee_principal_id,type FOR XML RAW,BINARY BASE64));
+ ORDER BY class,major_id,minor_id,grantee_principal_id,type FOR XML RAW,BINARY BASE64)),0x);
 IF NOT EXISTS(SELECT 1 FROM dbo.TbxSchemaUpgradeSnapshot s
  JOIN sys.assemblies a ON a.assembly_id=s.AssemblyId
  JOIN sys.objects p ON p.object_id=s.PublicId JOIN sys.objects b ON b.object_id=s.BridgeId

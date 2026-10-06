@@ -39,7 +39,12 @@ function Get-SchemaPatchArtifactId($Fields,[object[]]$FieldOrder) {
  }finally{$writer.Dispose();$stream.Dispose()}
 }
 function Read-SchemaPatchClosure([string]$Path) {
- $closure=Get-Content -LiteralPath $Path -Raw|ConvertFrom-Json -AsHashtable
+ # Auch gültig neu geframte historische Zeilen sind kein freigegebener Snapshot.
+ # Exakt dieselbe Byteaufnahme wird geprüft und strikt als UTF-8 geparst.
+ $bytes=[IO.File]::ReadAllBytes($Path);$hash=[Security.Cryptography.SHA256]::Create()
+ try{$actual=[BitConverter]::ToString($hash.ComputeHash($bytes)).Replace('-','').ToLowerInvariant()}finally{$hash.Dispose()}
+ if($actual -cne 'c2a5298a0cc5cbe806b5f24620dcc2d2fd6a20192dc6c2d06cb7bd6f319dfbe4'){throw 'SCHEMA_PATCH_BASELINE_PIN'}
+ $closure=[Text.UTF8Encoding]::new($false,$true).GetString($bytes)|ConvertFrom-Json -AsHashtable
  if($closure.framing -cne 'toolbelt.json.shared-closure/v1' -or $closure.framePrefix -cne 'TBXJSONCLOSURE1' -or
   $closure.status -cne 'OFFLINE_QUALIFIED_KNOWN_ARTIFACTS' -or @($closure.artifacts).Count -ne 3){throw 'SCHEMA_PATCH_BASELINE'}
  $expected=@('toolbelt.json.core','toolbelt.json.constructors','toolbelt.json.schema')

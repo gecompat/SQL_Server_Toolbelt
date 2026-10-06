@@ -121,7 +121,7 @@ lieferten das exakte serverseitige Einzeilen-/Längen-/SHA2-256-Oracle und
 bestätigten eigene Bereinigung; frische Docker-Owner-Abfragen fanden keinen
 eigenen Lastcontainer. Kein neuer GitHub-Dispatch oder Labzieltest. Frühere
 offene Aussagen beschreiben ihren damaligen Stand. Tiefe128 bei Maximalgröße
-auf SQL2022/2025, weitere JSON-Formen/Plattformen, reale Heap-/Parallel-
+auf SQL2019/2022/2025, weitere JSON-Formen/Plattformen, reale Heap-/Parallel-
 kapazität, Minimalrechte, Runner-/Host-Recovery und Release bleiben offen.
 
 Weitere lokale Tiefenqualifikation 2026-10-06: Auf denselben flüchtigen
@@ -465,8 +465,24 @@ erfolgreichen Prozessphasen; falscher Core und belegtes Ausgabeziel wurden
 abgewiesen. [Aktuelle Offline-Evidenz](../Modules/toolbelt.json.schema/Tests/Framework/README.md)
 und [getrennte Testmatrix](../Modules/toolbelt.json.schema/Tests/TEST_MATRIX.md).
 
-Native1.0.1-API, echter SQL-Upgrade und exakte aktuelle Head-CI sind noch
-nicht ausgeführt. Die vorhandenen nativen1.0.0-Nachweise bleiben historische
+Fortschreibung2026-10-06, Codex: Die vorstehenden erfolgreichen
+`qual3`/`package3` mit sechs Patchorakeln belegen ihren früheren Scriptstand.
+Nach Common-Härtung bestanden `qual4`/`package4` erneut15 Phasen und die
+gleichen Harnesszahlen, jetzt acht Packagingfälle. Common bindet einen
+einzigen strict-UTF8-Byteinput an den festen historischen Snapshot-SHA256;
+gültig neu gerahmte Constructorframes werden in Generator und Driver mit
+`SCHEMA_PATCH_BASELINE_PIN` vor Ausgabe abgewiesen. Der finale Kandidat
+entspricht semantisch exakt der aktiven Registry und ihren Binaryhashes.
+
+Der erste [native CI-Versuch](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37525258700)
+am Head `58993f7012a0b458db377d7d4374b7bf162f0432` scheiterte auf SQL2019/2022
+mit Msg515 in UpgradeCapture Permissions: leerer FOR-XML-Katalog als NULL.
+Capture und Verify normalisieren dies nun symmetrisch auf `0x`;
+unabhängiger Review und ScriptDom14 Batches/42 Assertions bestanden.
+SQL2025 lief bei Erfassung noch; der Fehlversuch bleibt Historie.
+Native1.0.1-API, echter SQL-Upgrade, exakte korrigierte Head-CI und die
+ergänzte Windows-CI-Qualifikation bleiben PENDING.
+Die vorhandenen nativen1.0.0-Nachweise bleiben historische
 Wahrheit. Weitere physische Ziele, Minimalrechte und Ressourcenqualifikation
 bleiben offen; keine lokale Docker-/SQL-Maximallastprobe. Status weiterhin
 implemented, partially validated, unreleased. Die Registryfelder zu Trust

@@ -1,5 +1,24 @@
 # Begrenzte native JSON-Closure-Qualifikation
 
+## Schema1.0.1: erster CI-Fehlversuch, 2026-10-06
+
+Der [CI-Lauf37525258700](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37525258700)
+am Head `58993f7012a0b458db377d7d4374b7bf162f0432` scheiterte auf SQL2019/2022
+mit Msg515 in `UpgradeCapture.sql`, Bereich Permissions: Ein leerer
+FOR-XML-Katalog ergab NULL. Capture und Verify normalisieren den leeren
+Katalog nun symmetrisch auf `0x`. Unabhängiger Review und
+`Tests/Static/Test-SqlSyntax.ps1` mit14 Batches/42 Assertions in
+ScriptDom150/160/170 bestanden für die korrigierte Fixture.
+
+SQL2025 lief bei dieser Erfassung noch; kein Gesamtergebnis.
+Der Fehlversuch bleibt fehlgeschlagene Historie; weder laufende Jobs noch
+die statische Korrektur belegen eine native1.0.1-Abnahme. Native API,
+genuine1.0.0→1.0.1-Upgrade und exakte korrigierte Head-CI bleiben PENDING.
+Die ergänzte Windows-CI-Ausführung des begrenzten Qualifikationsdrivers
+und der acht Packagingfälle besitzt noch keinen erfolgreichen CI-Nachweis.
+
+## Historische Schema1.0.0-Qualifikation
+
 Stand2026-10-05, Codex. Die konkrete Schema-/Kern-/Constructorwelle ist
 funktionsbezogen freigegeben; die fortgeltende
 [Trustautorität](../../toolbelt.json.core/Documentation/TRUST_OPT_IN_PROPOSAL.md)
@@ -103,8 +122,8 @@ Dies ist getrennte synthetische CI-Evidenz, kein neuer physischer Labnachweis. D
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-06`
-- Nachweis: `local: Invoke-BoundedPatchQualification.ps1 and Test-BoundedPatchPackaging.ps1`
-- Scope: Schema1.0.1:15 erfolgreiche begrenzte Prozessphasen mit stabilen Input-/Produktpins;169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions und120 Bridge-Assertions jeweils en-US/de-DE/tr-TR. Eigene Schema-IL und bytegleicher kanonischer Schema-Projektbuild bestanden; sechs positive/negative Patchpaketierungsorakel, sieben Releasepaketierungsorakel und unveränderte historische Frames bestanden. ScriptDom14 Batches/42 Assertions, PowerShell-/Bashsyntax,18 synthetische CI-Cleanupfälle und33 Selector-/Bindungsfälle ohne Labzugriff bestanden. Unveränderte Core-/Constructoridentitäten nur wiederverwendet, keine erneute Gesamt- oder Maximallastqualifikation. Native1.0.1-API/Upgrade und exakte Head-CI noch nicht ausgeführt; historische1.0.0-Nachweise bleiben getrennt.
+- Nachweis: `local: Invoke-BoundedPatchQualification.ps1 qual4 and Test-BoundedPatchPackaging.ps1 package4`
+- Scope: Finale Schema1.0.1-Offline-Läufe nach Common-Härtung:15 erfolgreiche begrenzte Prozessphasen, stabile Input-/Produktpins;169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions und120 Bridge-Assertions jeweils en-US/de-DE/tr-TR, eigene IL und bytegleicher kanonischer Schema-Projektbuild. Acht Packagingfälle bestanden; gültig neu gerahmter Constructorframe in Generator und Driver mit SCHEMA_PATCH_BASELINE_PIN vor Ausgabe abgewiesen. Ein einziger strict-UTF8-Byteinput bindet den historischen Snapshot an seinen festen SHA256; Kandidat semantisch exakt gleich aktiver Registry/Binaryhashen. Frühere qual3/package3-Erfolge mit sechs Fällen bleiben Evidenz ihres Scriptstands. Keine erneute Core-/Constructor-Gesamt- oder Maximallastqualifikation; native1.0.1-API/Upgrade und korrigierte Head-CI PENDING. Historische1.0.0-Nachweise und Registry-Freeze unverändert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

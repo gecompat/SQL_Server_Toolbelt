@@ -8,18 +8,32 @@
 | Exakte Zahlen |854 Fälle/6830 Assertions je drei Cultures | bestanden offline |
 | Managed Bridge |120 Assertions je drei Cultures, Identität1.0.1.0 | bestanden offline |
 | Schema-Binary |15 begrenzte Qualifikationsphasen, eigene IL, bytegleicher kanonischer Schema-Projektbuild und Input-/Produktpins | bestanden offline; kein erneuter Core-/Constructor-Gesamtlauf |
-| Patchpaketierung |Sechs positive/negative Orakel; historische Frames und erlaubte Schemafelder | bestanden offline |
+| Patchpaketierung |Final `package4`: acht positive/negative Orakel; fester Snapshotpin, Abweisung gültig neu gerahmter Constructorframes im Generator und Driver vor Ausgabe, historische Frames und erlaubte Schemafelder | bestanden offline; frühere sechs Fälle aus `package3` bleiben eigene Historie |
 | Aktive Releasepaketierung |Drei Modulpositivfälle und sieben positive/negative Orakel des bisherigen Packagervertrags; stabile Pins | bestanden offline; keine erneute Core-/Constructor-Gesamtqualifikation |
 | Historisches1.0.0-Paket |50 bytegenaue Originalblobs aus festem Commit,53 erfolgreiche Prozessphasen, exakte historische Binaryhashes; falsche Coreassembly und belegtes Ziel abgewiesen | bestanden offline; kein nativer Upgrade |
 | Aktuelle T-SQL-Syntax |14 Batches/42 Assertions: Source, expandierte Lifecycle-Skripte und SQL-Fixtures in ScriptDom150/160/170 | bestanden offline |
 | Treibersteuerung |PowerShell-/Bashsyntax,18 synthetische CI-Cleanupfälle und33 Selector-/Bindungsfälle | bestanden offline; kein Lab-/SQL-/Containerlauf |
-| Direkter SQL-Aufruf |40 definierte native Contractfälle mit zehn neuen Reihenfolge-/Budgetorakeln | für1.0.1 not executed |
+| Direkter SQL-Aufruf |40 definierte native Contractfälle mit zehn neuen Reihenfolge-/Budgetorakeln | native1.0.1-Abnahme PENDING; erster CI-Versuch fehlgeschlagen |
 | Neuer Lifecycle |Genuine1.0.0→1.0.1, lokale/zentrale Installation, Repeat, Rollback, fremde Tuple und Uninstall beider bekannten Releases | native1.0.1-Abnahme offen |
 | Head-CI und weitere Matrix |Exakter aktueller PR-Head; physische Ziele, CrossDB, Minimalrechte und Ressourcenqualifikation | offen |
 
 Die aktuelle Wartung erfüllt den bestehenden Pointer-Reihenfolgevertrag;
 sie führt keine öffentliche API ein. Die folgenden1.0.0-Nachweise bleiben
 historisch und qualifizieren die geänderte1.0.1-Assembly nicht.
+
+`qual4` bestätigt die15 Phasen und die angegebenen Harnesszahlen nach der
+Common-Härtung. `qual3`/`package3` waren erfolgreich, belegen jedoch den
+früheren Scriptstand. Common bindet genau einen strict-UTF8-Byteinput an den
+festen historischen Snapshot-SHA256; der finale Kandidat entspricht
+semantisch exakt der aktiven Registry und ihren Binaryhashes.
+
+Der erste [native CI-Versuch](NATIVE_EVIDENCE.md) am2026-10-06,
+Head `58993f7012a0b458db377d7d4374b7bf162f0432`, scheiterte auf SQL2019/2022
+mit Msg515 in UpgradeCapture Permissions. Die leere FOR-XML-Abfrage ergab
+NULL. Capture und Verify normalisieren den leeren Katalog nun symmetrisch
+auf `0x`; unabhängiger Review und ScriptDom14/42 bestanden. SQL2025
+lief bei Erfassung noch; kein Gesamt-PASS. Der korrigierte
+Head und die ergänzte Windows-CI-Qualifikation bleiben PENDING.
 
 ## Historische Schema1.0.0-Qualifikation
 
@@ -59,7 +73,7 @@ und6282-Migrationsfehlläufe bleiben getrennte Fehlerhistorie.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-06`
-- Nachweis: `local: Invoke-BoundedPatchQualification.ps1 and Test-BoundedPatchPackaging.ps1`
-- Scope: Schema1.0.1:15 erfolgreiche begrenzte Prozessphasen mit stabilen Input-/Produktpins;169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions und120 Bridge-Assertions jeweils en-US/de-DE/tr-TR. Eigene Schema-IL und bytegleicher kanonischer Schema-Projektbuild bestanden; sechs positive/negative Patchpaketierungsorakel, sieben Releasepaketierungsorakel und unveränderte historische Frames bestanden. ScriptDom14 Batches/42 Assertions, PowerShell-/Bashsyntax,18 synthetische CI-Cleanupfälle und33 Selector-/Bindungsfälle ohne Labzugriff bestanden. Unveränderte Core-/Constructoridentitäten nur wiederverwendet, keine erneute Gesamt- oder Maximallastqualifikation. Native1.0.1-API/Upgrade und exakte Head-CI noch nicht ausgeführt; historische1.0.0-Nachweise bleiben getrennt.
+- Nachweis: `local: Invoke-BoundedPatchQualification.ps1 qual4 and Test-BoundedPatchPackaging.ps1 package4`
+- Scope: Finale Schema1.0.1-Offline-Läufe nach Common-Härtung:15 erfolgreiche begrenzte Prozessphasen, stabile Input-/Produktpins;169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions und120 Bridge-Assertions jeweils en-US/de-DE/tr-TR, eigene IL und bytegleicher kanonischer Schema-Projektbuild. Acht Packagingfälle bestanden; gültig neu gerahmter Constructorframe in Generator und Driver mit SCHEMA_PATCH_BASELINE_PIN vor Ausgabe abgewiesen. Ein einziger strict-UTF8-Byteinput bindet den historischen Snapshot an seinen festen SHA256; Kandidat semantisch exakt gleich aktiver Registry/Binaryhashen. Frühere qual3/package3-Erfolge mit sechs Fällen bleiben Evidenz ihres Scriptstands. Keine erneute Core-/Constructor-Gesamt- oder Maximallastqualifikation; native1.0.1-API/Upgrade und korrigierte Head-CI PENDING. Historische1.0.0-Nachweise und Registry-Freeze unverändert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -2,6 +2,21 @@
 
 ## 2026-10-06 – JSON Schema1.0.1: SchemaPointer-Reihenfolge korrigiert
 
+- Finale Offline-Läufe `qual4`/`package4` nach Common-Härtung bestanden:
+  15 Phasen mit unveränderten Harnesszahlen und acht Packagingfälle.
+  Genau ein strict-UTF8-Byteinput ist an den festen historischen
+  Snapshot-SHA256 gebunden; gültig neu gerahmte Constructorframes werden
+  im Generator und Driver vor Ausgabe mit `SCHEMA_PATCH_BASELINE_PIN`
+  abgewiesen. Kandidat und aktive Registry/Binaryhashes sind semantisch
+  exakt gleich. Die folgenden sechs Packagingfälle aus `qual3`/`package3`
+  bleiben erfolgreiche Nachweise des früheren Scriptstands.
+- Erster [nativer CI-Versuch](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37525258700)
+  am Head `58993f7012a0b458db377d7d4374b7bf162f0432`: SQL2019/2022 scheiterten
+  mit Msg515 in UpgradeCapture Permissions wegen NULL für den leeren
+  FOR-XML-Katalog. Capture/Verify normalisieren diesen nun symmetrisch
+  auf `0x`; unabhängiger Review und ScriptDom14/42 bestanden. SQL2025
+  lief bei Erfassung noch; native Abnahme am korrigierten Head
+  sowie die ergänzte Windows-CI-Qualifikation bleiben PENDING.
 - Schemaformfehler und Referenzzyklen folgen vollständig codierten
   SchemaPointern; decodierte Instanzmember und numerische Instanzarrays
   behalten ihre Reihenfolge. Profil, Signatur und Ergebnisfelder unverändert.

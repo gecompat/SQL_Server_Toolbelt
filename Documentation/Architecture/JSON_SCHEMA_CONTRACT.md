@@ -47,7 +47,16 @@ Trustautorität.
 
 Die [begrenzte Offline-Qualifikation](../../Modules/toolbelt.json.schema/Tests/Framework/README.md)
 bestand am2026-10-06. Die echte historische1.0.0-DLL wurde separat für einen
-künftigen Upgradeversuch reproduziert. Native1.0.1-API, tatsächlicher
+künftigen Upgradeversuch reproduziert. Finale Offline-Läufe `qual4`/`package4`
+bestanden nach Common-Härtung mit15 Phasen und acht Packagingfällen;
+die früheren erfolgreichen `qual3`/`package3` mit sechs Fällen bleiben
+Nachweise ihres Scriptstands. Der historische Snapshot ist über genau einen
+strict-UTF8-Byteinput an seinen festen SHA256 gebunden; gültig neu gerahmte
+Constructorframes werden im Generator und Driver vor Ausgabe abgewiesen.
+Der Kandidat entspricht semantisch exakt der aktiven Registry/Binaryhashes.
+Der erste [native CI-Versuch](../../Modules/toolbelt.json.schema/Tests/NATIVE_EVIDENCE.md)
+am2026-10-06 scheiterte in der Upgrade-Capture-Fixture; die statisch geprüfte
+Korrektur ist noch kein nativer Nachweis. Native1.0.1-API, tatsächlicher
 SQL-Upgrade und exakte aktuelle Head-CI bleiben offen; die historischen
 nativen1.0.0-Nachweise qualifizieren die geänderte Assembly nicht.
 
