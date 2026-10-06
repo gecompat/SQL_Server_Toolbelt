@@ -7,7 +7,7 @@ function New-GenuineQueue20Capture {
  $files=@('Deployment/Deploy.sql','Source/WorkItem.sql','Source/VW_WorkQueue.sql','Source/VW_WorkQueueBarrierBlockers.sql','Source/USP_EnqueueWork.sql','Source/USP_EnqueueWorkWithPolicy.sql','Source/USP_EnqueueBarrierWork.sql','Source/USP_ClaimWork.sql','Source/USP_RenewWorkLease.sql','Source/USP_RecoverExpiredWork.sql','Source/USP_CompleteWork.sql','Source/USP_FailWork.sql','Source/USP_ScheduleWorkRetry.sql','Source/USP_RequeueDeadLetter.sql','Source/USP_GetWorkStatus.sql')
  $helper=Join-Path $RepositoryRoot 'Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1'
  $helperHash=(Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash
- Assert-Fixture ($helperHash-ceq'E6E5C987CE279BEB44C58933D8EAE4E7A93F7748D52EB4D92A68A366BDFD511C') 'HISTORICAL_PROCESS_HELPER'
+ Assert-Fixture ($helperHash-ceq'7B3E838EE5D294B3DECF3153D2D02276BE401E6F76EE8D810F20C5DCC51D1BD4') 'HISTORICAL_PROCESS_HELPER'
  . $helper
  $git=@(Get-Command git -CommandType Application -ErrorAction Stop)[0].Source
  $gitHash=(Get-FileHash -LiteralPath $git -Algorithm SHA256).Hash
