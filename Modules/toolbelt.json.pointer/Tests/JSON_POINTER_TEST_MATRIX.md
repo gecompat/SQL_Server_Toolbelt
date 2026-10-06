@@ -137,7 +137,30 @@ danach erneut bei64KiB. Jeder Prozess bestätigte seinen eigenen Container-
 Cleanup; es wurde kein Host-Port veröffentlicht. Das ist begrenzte lokale
 synthetische Evidenz. Der manuelle GitHub-Dispatch des neuen Tiefenmodus,
 andere SQL-Versionen/Plattformen, allgemeine JSON-Strukturen, parallele Last
-und produktive Kapazität bleiben **NOT_EXECUTED**.
+und produktive Kapazität waren bei diesem lokalen Lauf **NOT_EXECUTED**.
+
+Nach Merge von [PR203](https://github.com/gecompat/SQL_Server_Toolbelt/pull/203)
+bestanden am 2026-10-06 auf `main`-Commit `bb301fc73f13b3af1de377973f38678cf157e32e`
+auch zehn getrennte *manuelle* Tiefenjobs auf flüchtigem Linux-SQL2019-
+Container mit CL150. Bei 64KiB wurden die Tiefen der Reihe nach erhöht:
+[2](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37438559822),
+[4](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37438651184),
+[8](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37438740501),
+[16](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37438830781),
+[32](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37438918840),
+[64](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37439009964)
+und [128](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37439102708).
+Bei Tiefe128 folgten getrennt
+[1MiB](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37439244664),
+[4MiB](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37439329406)
+und [exakt16MiB](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37439471664).
+Alle zehn Lastjobs meldeten SUCCESS einschließlich serverseitigem Oracle und
+eigenem Cleanup-Audit; die reguläre Matrix war bei den manuellen Dispatches
+SKIPPED. Der getrennte [Main-Push-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37438354749)
+bestand regulär auf Linux SQL2019/2022/2025 mit SKIPPED-Lastjob.
+Maximalgrößen auf SQL2022/2025, anderen Plattformen, in anderen JSON-
+Strukturen oder unter Parallelität sowie tatsächlicher Heapverbrauch,
+Hard-Interrupt-Recovery und Produktionskapazität bleiben offen.
 
 ## Aktuelle Validierungsevidenz
 

@@ -43,6 +43,16 @@ bestätigter eigener Containerbereinigung. Die direkten Runs stehen in der
 [Testmatrix](../Modules/toolbelt.json.pointer/Tests/JSON_POINTER_TEST_MATRIX.md).
 Dies erweitert weder physische Labziele noch die Qualifikation von SQL2022/2025-
 Maximallast, Tiefe128 bei Maximalgröße, Heap, Parallelität oder Produktion.
+Nach [PR203](https://github.com/gecompat/SQL_Server_Toolbelt/pull/203)
+bestanden am 2026-10-06 auf flüchtigem Linux-SQL2019-CL150-Container auch
+zehn manuell ausgelöste Tiefenstufen: bei64KiB Tiefe2 bis128 geometrisch,
+danach Tiefe128 bei1MiB,4MiB und exakt16MiB. Jeder Job hatte eine testdefinierte
+3-GiB-Containergrenze, das serverseitige Oracle und bestätigtes eigenes
+Cleanup. [Direkte Runs](../Modules/toolbelt.json.pointer/Tests/JSON_POINTER_TEST_MATRIX.md)
+belegen nur diese synthetische Kombination; die zuvor offene Tiefe128/
+Maximalgröße ist dafür geschlossen. SQL2022/2025-Maximallast, weitere
+Plattformen/JSON-Formen, tatsächlicher Heap, Parallelität, Minimalrechte,
+Hard-Interrupt-Recovery und Release bleiben offen.
 
 ## Aktive Safe-Cast-Welle 2026-10-05
 

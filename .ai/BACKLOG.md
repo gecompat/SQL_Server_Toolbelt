@@ -102,6 +102,18 @@ Tiefe128 bei Maximalgröße, Heap, Parallelität, tatsächliche Minimalrechte,
 Hard-Interrupt-Recovery und Release bleiben offen; `partially validated`,
 `unreleased`.
 
+Weitere eng begrenzte Tiefenqualifikation 2026-10-06: Nach
+[PR203](https://github.com/gecompat/SQL_Server_Toolbelt/pull/203) bestanden
+auf flüchtigem Linux-SQL2019-CL150-Container zehn manuelle Einzeljobs:
+64KiB mit Tiefe2,4,8,16,32,64,128 und anschließend Tiefe128 mit1MiB,4MiB
+und exakt16MiB. Je eigenes serverseitiges Oracle, testdefinierte 3-GiB-
+Containergrenze und bestätigte Bereinigung. Die [Testmatrix](../Modules/toolbelt.json.pointer/Tests/JSON_POINTER_TEST_MATRIX.md)
+verlinkt alle Runs. Die zuvor offene Tiefe128/Maximalgröße ist damit nur für
+diese synthetische Kombination geschlossen. SQL2022/2025-Maximallast,
+weitere JSON-Formen/Plattformen, Heap, Parallelität, Minimalrechte,
+Hard-Interrupt-Recovery und Release bleiben offen; `partially validated`,
+`unreleased`.
+
 ### RI-2026-076: sechs Safe-Cast-TVFs – einzeln freigegeben 2026-10-05
 
 Nach der Vertragsbesprechung in [PR170](https://github.com/gecompat/SQL_Server_Toolbelt/pull/170)

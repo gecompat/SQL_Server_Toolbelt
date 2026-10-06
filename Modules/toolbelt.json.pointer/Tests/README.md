@@ -46,7 +46,8 @@ Die Größen-/Formstufen und Abbruchregeln stehen in der
 abgebrochener Lastfall bleibt ausdrücklich ohne Maximalworkload-Nachweis.
 Der ebenfalls manuelle `nested`-Modus prüft feste Tiefenstufen bis128 mit
 eigener Container-Speichergrenze. Die Testmatrix trennt lokale Proben von
-noch nicht ausgeführten GitHub-Dispatches und weiteren Lastformen.
+den später erfolgreich manuell ausgelösten GitHub-Dispatches und weiteren
+offenen Lastformen.
 Der CI-Adapter weist außerdem den zentralen Uninstall ohne explizite
 Consumerbestätigung mit `55526/state1` ab und prüft danach die installierte
 Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird.
@@ -134,6 +135,14 @@ Lastjobs für Root und `/k` bei 64KiB,1MiB,4MiB und exakt16MiB. Die
 und trennt sie vom regulären Head-/Main-CI-Scope. Weitere SQL-Versionen,
 verschachtelte Maximalfälle, Heap, Parallelität und produktive Kapazität
 bleiben offen; Modulstatus und Releaseaussage ändern sich nicht.
+
+Nach [PR203](https://github.com/gecompat/SQL_Server_Toolbelt/pull/203)
+bestanden zusätzlich zehn manuelle Tiefenjobs auf flüchtigem Linux-SQL2019-
+CL150-Container: 64KiB bei Tiefe2,4,8,16,32,64,128 und danach Tiefe128 bei
+1MiB,4MiB und exakt16MiB. Die [Testmatrix](JSON_POINTER_TEST_MATRIX.md)
+enthält alle direkten Runlinks und die getrennten Grenzen. Allgemeine
+JSON-Strukturen, SQL2022/2025-Maximallast, andere Plattformen, Heap,
+Parallelität und Release bleiben offen.
 
 ## Aktuelle Validierungsevidenz
 
