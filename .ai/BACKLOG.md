@@ -121,7 +121,7 @@ lieferten das exakte serverseitige Einzeilen-/Längen-/SHA2-256-Oracle und
 bestätigten eigene Bereinigung; frische Docker-Owner-Abfragen fanden keinen
 eigenen Lastcontainer. Kein neuer GitHub-Dispatch oder Labzieltest. Frühere
 offene Aussagen beschreiben ihren damaligen Stand. Tiefe128 bei Maximalgröße
-auf SQL2019/2022/2025, weitere JSON-Formen/Plattformen, reale Heap-/Parallel-
+auf SQL2022/2025, weitere JSON-Formen/Plattformen, reale Heap-/Parallel-
 kapazität, Minimalrechte, Runner-/Host-Recovery und Release bleiben offen.
 
 Weitere lokale Tiefenqualifikation 2026-10-06: Auf denselben flüchtigen
