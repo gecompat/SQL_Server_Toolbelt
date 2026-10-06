@@ -17,19 +17,49 @@ case "${sql_version}" in
   2025) compatibility_levels="150 160 170"; max_compatibility_level="170" ;;
   *) echo "Nicht unterstützte SQL-Version: ${sql_version}" >&2; exit 1 ;;
 esac
-container_name="tbx-json-constructors-${GITHUB_RUN_ID:-local}"
+container_name="tbx-json-constructors-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}-${sql_version}"
+container_owner="$(openssl rand -hex 16)"
+private_dir="$(mktemp -d)"
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 
 echo "::add-mask::${sa_password}"
 
 cleanup() {
-    docker rm -f "${container_name}" >/dev/null 2>&1 || true
+    local result=$? owner="" cleanup_verified=true
+    trap - EXIT
+    # Nur den exakt benannten und eigenen Container entfernen; unbekannter
+    # Dockerzustand oder fremdes Label ist niemals ein Cleanup-Erfolg.
+    if ! docker container ls --all --filter "name=^/${container_name}$" \
+        --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null; then
+        cleanup_verified=false
+    elif [[ -s "${private_dir}/owned-containers" ]]; then
+        if ! owner="$(docker inspect --format '{{ index .Config.Labels "tbx.json-constructors.ci.owner" }}' \
+            "${container_name}" 2>/dev/null)" || [[ "${owner}" != "${container_owner}" ]]; then
+            cleanup_verified=false
+        elif ! docker rm -f "${container_name}" >/dev/null 2>&1; then
+            cleanup_verified=false
+        fi
+    fi
+    if ! docker container ls --all --filter "name=^/${container_name}$" \
+        --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null \
+        || [[ -s "${private_dir}/owned-containers" ]]; then
+        cleanup_verified=false
+    fi
+    if ! rm -rf -- "${private_dir}"; then
+        cleanup_verified=false
+    fi
+    if [[ "${cleanup_verified}" != true ]]; then
+        echo "JSON_CONSTRUCTORS_CI_CLEANUP_UNVERIFIED" >&2
+        result=1
+    fi
+    exit "${result}"
 }
 
 trap cleanup EXIT
 
 docker run --detach \
     --name "${container_name}" \
+    --label "tbx.json-constructors.ci.owner=${container_owner}" \
     --env ACCEPT_EULA=Y \
     --env MSSQL_PID=Developer \
     --env MSSQL_SA_PASSWORD="${sa_password}" \
