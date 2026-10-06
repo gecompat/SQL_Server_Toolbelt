@@ -35,6 +35,9 @@ Der [Pointer-Runtime-Workflow](../../../.github/workflows/json-pointer-runtime.y
 prüft in flüchtigen Linux-SQL-Server-Containern 2019/2022/2025 die zulässigen
 Compatibility Levels mit local/central/Consumer: feste Contract-/Safety-
 Fixtures, Clientmetadaten, installierte Baseline, Repeat und Uninstall.
+Der CI-Adapter weist außerdem den zentralen Uninstall ohne explizite
+Consumerbestätigung mit `55526/state1` ab und prüft danach die installierte
+Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird.
 Die 42 gezielten Caller-/Lock-/Rollback-/Marker-/Fremdslot-/Dependencyfälle
 des separaten Labadapters, Minimalrechte, Maximalworkload und
 Hard-Interrupt-Recovery gehören nicht zu diesem CI-Scope.

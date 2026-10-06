@@ -106,6 +106,23 @@ run_file() {
         -d "${database}" -i "${filename}" "$@"
 }
 
+expect_central_confirm0_rejection() {
+    local database="$1"
+    # Die erwartete SQL-Ausnahme bleibt privat; nur Nummer und State sind Orakel.
+    if docker exec --workdir "${deployment}" \
+        "${container_name}" "${sqlcmd_path}" \
+        -S localhost -U sa -P "${sa_password}" -C -b -l 15 -t 180 \
+        -d "${database}" -i Uninstall.sql -v ConfirmNoExternalConsumers=0 \
+        >"${private_dir}/last-output" 2>&1; then
+        echo "SAFE_CAST_CI_CONFIRM0_UNEXPECTED_SUCCESS" >&2
+        return 1
+    fi
+    if ! grep -Eq '^Msg 55426, Level 16, State 1,' "${private_dir}/last-output"; then
+        echo "SAFE_CAST_CI_CONFIRM0_WRONG_ERROR" >&2
+        return 1
+    fi
+}
+
 deployment="/workspace/Modules/toolbelt.conversion.safe-cast/Deployment"
 runtime="/workspace/Modules/toolbelt.conversion.safe-cast/Tests/Runtime"
 client="${workspace}/Tests/CI/run-safe-cast-client.ps1"
@@ -140,6 +157,8 @@ for level in ${compatibility_levels}; do
     run_file repeat_central "${central_db}" "${deployment}" Deploy.sql -v DeploymentMode=central
     run_file repeat_baseline_local "${local_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${local_db}"
     run_file repeat_baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
+    expect_central_confirm0_rejection "${central_db}"
+    run_file confirm0_preserved_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
     run_file uninstall_central "${central_db}" "${deployment}" Uninstall.sql -v ConfirmNoExternalConsumers=1
     run_file uninstall_local "${local_db}" "${deployment}" Uninstall.sql -v ConfirmNoExternalConsumers=0
     for database in "${local_db}" "${central_db}"; do
@@ -147,4 +166,4 @@ for level in ${compatibility_levels}; do
     done
 done
 
-echo "PASS: Safe Cast SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Client, Baseline, Repeat und Uninstall."
+echo "PASS: Safe Cast SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Client, Baseline, Repeat, central Confirm0 und Uninstall."
