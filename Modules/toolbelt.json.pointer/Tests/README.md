@@ -25,6 +25,9 @@ notwendige vollständige Contract-/Safetyqualifikation nicht. Default `full` ent
 drei SQLfixtures. Das private Journal hält Scope und tatsächliche Fixtures fest.
 
 Statisch: `python Modules/toolbelt.json.pointer/Tests/Static/validate_contract.py`.
+Der pfadbezogene Dokumentationsworkflow führt diesen Source-/Deploymentvertrag
+bei Änderungen am JSON-Pointer-Modul ebenfalls aus; das ist kein SQL-Runtime-
+oder vollständiger exakter Head-CI-Nachweis.
 Der kanonische Deploymentgenerator wird dabei nicht schreibend geprüft.
 Weitere physische Ziele, Minimalrechte und Heap-/Maximalworkloadqualifikation
 bleiben offen; die tatsächlich ausgeführte begrenzte API-/Safetyqualifikation

@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-06 – JSON-Pointer-Quellvertrag in der pfadbezogenen CI
+
+- Der bestehende statische JSON-Pointer-Vertrag läuft bei Moduländerungen und
+  manuellem Workflowaufruf im Dokumentationsworkflow. Produkt-SQL,
+  Runtimeadapter und Modulstatus bleiben unverändert; ein erfolgreicher
+  Quellvertrag ersetzt keine SQL-Runtime- oder vollständige Head-CI-Abnahme.
+
 ## 2026-10-06 – Safe-Cast-Quellvertrag in der pfadbezogenen CI
 
 - Der bestehende statische Safe-Cast-Vertrag läuft bei Moduländerungen und
