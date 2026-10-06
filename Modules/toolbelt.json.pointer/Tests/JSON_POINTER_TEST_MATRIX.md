@@ -114,8 +114,8 @@ Arbeitsspeicher ohne Swap. Diese Testobergrenze ist kein Messwert für den
 tatsächlichen SQL-Heap oder die verfügbare Runnerkapazität. Ein technischer
 Ressourcenfehler beendet die Stufenfolge ohne weitere Last.
 Die unten dokumentierten früheren Root-/Objekt-Grenzläufe fanden noch ohne
-diese gemeinsame Containergrenze statt; ein 16-MiB-Erfolg unter der neuen
-Grenze ist für diese Formen **NOT_EXECUTED**.
+diese gemeinsame Containergrenze statt. Die späteren lokalen Grenzläufe mit
+der Grenze sind weiter unten getrennt dokumentiert.
 
 Ein Timeout ist **INCONCLUSIVE** für die fachliche Semantik, kein PASS und
 keine stillschweigende Absenkung des öffentlichen 16-MiB-Budgets. Erst nach
@@ -148,6 +148,23 @@ Owner-Label-Audit fand keinen verbliebenen Testcontainer. Ausgeführt wurde
 `--sql-version 2019 --stage-bytes 65536 --shape <Form>` und für `nested`
 zusätzlich `--depth 2`. Größere Arrays, andere SQL-Versionen, Heap und
 Parallelität bleiben dafür **NOT_EXECUTED**.
+
+Nach Einführung der gemeinsamen 3-GiB-/No-Swap-Grenze bestanden am
+2026-10-06 auf eigenen flüchtigen Linux-SQL2019-CL150-Containern für
+`root`, `object` und `array` jeweils getrennt 65536, 1048576, 4194304 und
+exakt 16777216 Inputbytes in aufsteigender Reihenfolge. Die neun größeren
+Einzelaufrufe nutzten unverändert
+`python Modules/toolbelt.json.pointer/Tests/CI/run_max_workload.py` mit
+`--sql-version 2019 --stage-bytes <Stufe> --shape <Form>`; die 65536-Byte-
+Grundstufe war bereits beim Einbau der Grenze separat bestanden. Jede Stufe
+erfüllte das serverseitige Einzeilen-/FOUND-/STRING-, Längen- und SHA2-256-
+Orakel und bestätigte die eigene Bereinigung. Ein frischer, unabhängiger
+Owner-Label-Audit fand anschließend keinen verbliebenen Testcontainer.
+Das ist lokale synthetische Evidenz **unter der Testgrenze**, keine Messung des
+tatsächlichen SQL-Heaps, keine zusätzliche GitHub-Dispatch-Evidenz und keine
+Produktionskapazitätsaussage. Array-Varianten jenseits eines langen Strings,
+Array-Grenzläufe auf SQL2022/2025, andere Plattformen und Parallelität bleiben
+**NOT_EXECUTED**.
 
 Nach Merge von [PR201](https://github.com/gecompat/SQL_Server_Toolbelt/pull/201)
 bestanden am 2026-10-06 auf `main`-Commit `d4c003d4234f97a26b097b5f06810fc93d003c1a`

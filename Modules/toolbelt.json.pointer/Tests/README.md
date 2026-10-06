@@ -49,9 +49,11 @@ eigener Container-Speichergrenze. Die Testmatrix trennt lokale Proben von
 den später erfolgreich manuell ausgelösten GitHub-Dispatches und weiteren
 offenen Lastformen.
 Der manuelle `array`-Modus adressiert einen langen String unter `/0`. Lokal
-ist nur die 64-KiB-Stufe einschließlich eigenem Cleanup und separatem
-Regressionstest der bisherigen Formen belegt; ein 16-MiB-Arraylauf wurde
-noch nicht ausgeführt.
+bestand zunächst die 64-KiB-Stufe einschließlich eigenem Cleanup und separatem
+Regressionstest der bisherigen Formen. Danach bestanden Root, Objekt und Array
+auf Linux SQL2019 mit der gemeinsamen Containergrenze gestuft bis exakt
+16 MiB; die Testmatrix grenzt diesen lokalen Nachweis von CI und anderen
+SQL-Versionen ab.
 Alle manuellen Lastformen verwenden eine eigene Containergrenze von 3 GiB
 ohne Swap. Sie begrenzt den Versuch, misst aber weder SQL-Heap noch
 Runnerkapazität.
