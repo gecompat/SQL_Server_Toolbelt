@@ -69,6 +69,16 @@ jobs:
             python3 Modules/toolbelt.json.pointer/Tests/Static/validate_contract.py
           fi
 
+      - name: Test owned module CI cleanup with synthetic Docker responses
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = workflow_dispatch ] || git diff --name-only "$BASE_SHA" "$HEAD_SHA" | rg '^(Tests/CI/(test_owned_container_cleanup\.py|run-json-pointer-linux\.sh|run-safe-cast-linux\.sh)|\.github/workflows/documentation-consistency\.yml)$' > /dev/null; then
+            python3 Tests/CI/test_owned_container_cleanup.py
+          fi
+
       - name: Test strict Lab driver arguments without Lab access
         shell: pwsh
         env:

@@ -862,6 +862,7 @@ change_impact:
         - Documentation/Architecture/SAFE_CAST_CONTRACT.md
         - Tests/CI/run-safe-cast-lab.ps1
         - Tests/CI/run-safe-cast-linux.sh
+        - Tests/CI/test_owned_container_cleanup.py
         - Tests/CI/run-safe-cast-client.ps1
         - Tests/CI/Test-LabDriverArgumentCase.ps1
         - Tests/CI/SafeCastLifecycle.Helpers.ps1
@@ -876,6 +877,7 @@ change_impact:
         - Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md
         - Tests/CI/run-json-pointer-lab.ps1
         - Tests/CI/run-json-pointer-linux.sh
+        - Tests/CI/test_owned_container_cleanup.py
         - Tests/CI/run-json-pointer-client.ps1
         - Tests/CI/Test-LabDriverArgumentCase.ps1
         - Tests/CI/JsonPointerLifecycle.Helpers.ps1

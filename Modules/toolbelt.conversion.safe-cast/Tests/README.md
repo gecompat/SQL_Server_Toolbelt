@@ -40,8 +40,15 @@ Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird. Der reguläre
 flüchtige CI-Container trägt eine zufällige Owner-Kennung. Beim normalen
 Prozessende wird er nur bei exakt passender Kennung entfernt; eine frische
 Docker-Abfrage muss seine Abwesenheit bestätigen, sonst schlägt der CI-Job
-fehl. Das ist kein Recoverybeweis nach hartem Runner-/Hostausfall. Ein
-synthetischer View im zentralen Provider belegt zusätzlich eine tatsächliche
+fehl. Das ist kein Recoverybeweis nach hartem Runner-/Hostausfall.
+
+`python Tests/CI/test_owned_container_cleanup.py` prüft zusätzlich beide
+Modul-Cleanupfunktionen mit synthetischen Dockerantworten: eigener oder
+fremder Owner, Daemon-/Entfernungsfehler, bereits fehlender Container und
+Erhalt eines ursprünglichen Testfehlers. Die Dokumentations-CI startet diesen
+isolierten Test bei Änderungen an einem der beiden CI-Adapter oder dem Test.
+
+Ein synthetischer View im zentralen Provider belegt zusätzlich eine tatsächliche
 `sys.sql_expression_dependencies`-Referenz. Deploy und Uninstall müssen ihn
 mit `55425/state3` abweisen; die installierte Baseline und der View bleiben
 bis zur kontrollierten Entfernung des Testverbrauchers erhalten. Die gezielten
