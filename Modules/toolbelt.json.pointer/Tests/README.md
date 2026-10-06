@@ -39,6 +39,11 @@ Ein eigener Grenzfall erzeugt 16 MiB plus eine UTF-16-Codeeinheit und verlangt
 vor Syntaxprüfung genau `INVALID/INPUT_LIMIT` ohne Rückgabe des Inputs. Dies
 qualifiziert die Abweisung oberhalb der Grenze, nicht die Verarbeitung eines
 vollen 16-MiB-Dokuments oder dessen Heap-/Laufzeitkosten.
+Der separat per `workflow_dispatch` wählbare Lastfall nutzt
+`Tests/CI/run_max_workload.py` und genau einen eigenen flüchtigen Container.
+Die Größen-/Formstufen und Abbruchregeln stehen in der
+[Testmatrix](JSON_POINTER_TEST_MATRIX.md). Ein nicht ausgeführter oder
+abgebrochener Lastfall bleibt ausdrücklich ohne Maximalworkload-Nachweis.
 Der CI-Adapter weist außerdem den zentralen Uninstall ohne explizite
 Consumerbestätigung mit `55526/state1` ab und prüft danach die installierte
 Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird.
