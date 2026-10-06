@@ -167,6 +167,23 @@ expect_dependency_rejection() {
     fi
 }
 
+expect_unknown_release_rejection() {
+    local label="$1" database="$2" script="$3"
+    shift 3
+    if docker exec --workdir "${deployment}" \
+        "${container_name}" "${sqlcmd_path}" \
+        -S localhost -U sa -P "${sa_password}" -C -b -l 15 -t 180 \
+        -d "${database}" -i "${script}" "$@" \
+        >"${private_dir}/last-output" 2>&1; then
+        echo "SAFE_CAST_CI_UNKNOWN_RELEASE_UNEXPECTED_SUCCESS:${label}" >&2
+        return 1
+    fi
+    if ! grep -Eq '^Msg 55424, Level 16, State 2,' "${private_dir}/last-output"; then
+        echo "SAFE_CAST_CI_UNKNOWN_RELEASE_WRONG_ERROR:${label}" >&2
+        return 1
+    fi
+}
+
 deployment="/workspace/Modules/toolbelt.conversion.safe-cast/Deployment"
 runtime="/workspace/Modules/toolbelt.conversion.safe-cast/Tests/Runtime"
 client="${workspace}/Tests/CI/run-safe-cast-client.ps1"
@@ -201,6 +218,12 @@ for level in ${compatibility_levels}; do
     run_file repeat_central "${central_db}" "${deployment}" Deploy.sql -v DeploymentMode=central
     run_file repeat_baseline_local "${local_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${local_db}"
     run_file repeat_baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
+    run_query set_unknown_release "${central_db}" "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.conversion.safe-cast.Version',@value=N'9.9.9';"
+    expect_unknown_release_rejection deploy "${central_db}" Deploy.sql -v DeploymentMode=central
+    expect_unknown_release_rejection uninstall "${central_db}" Uninstall.sql -v ConfirmNoExternalConsumers=1
+    run_query unknown_release_preserved "${central_db}" "IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.conversion.safe-cast.Version' AND SQL_VARIANT_PROPERTY(value,N'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'9.9.9')) OR (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_conversion') AND type=N'IF' AND name IN(N'TVF_TryCastBigInt',N'TVF_TryCastDecimal',N'TVF_TryCastDate',N'TVF_TryCastDateTime2',N'TVF_TryCastBit',N'TVF_TryCastUniqueIdentifier'))<>6 THROW 55492,N'Safe Cast: abgewiesener unbekannter Release wurde verändert.',13;"
+    run_query restore_known_release "${central_db}" "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.conversion.safe-cast.Version',@value=N'1.0.0';"
+    run_file unknown_release_restored_baseline "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
     run_query create_dependency "${central_db}" "EXEC(N'CREATE VIEW dbo.VW_SafeCastDependencyCI AS SELECT Status FROM toolbelt_conversion.TVF_TryCastBigInt(N''1'',DEFAULT);'); IF NOT EXISTS(SELECT 1 FROM sys.sql_expression_dependencies WHERE referencing_id=OBJECT_ID(N'dbo.VW_SafeCastDependencyCI',N'V') AND referenced_id=OBJECT_ID(N'toolbelt_conversion.TVF_TryCastBigInt',N'IF')) THROW 55492,N'Safe Cast: synthetische Abhängigkeit fehlt.',9;"
     expect_dependency_rejection deploy "${central_db}" Deploy.sql -v DeploymentMode=central
     run_file dependency_deploy_preserved "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
@@ -216,4 +239,4 @@ for level in ${compatibility_levels}; do
     done
 done
 
-echo "PASS: Safe Cast SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Client, Baseline, Repeat, central Dependency/Confirm0 und Uninstall."
+echo "PASS: Safe Cast SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Client, Baseline, Repeat, central UnknownRelease/Dependency/Confirm0 und Uninstall."
