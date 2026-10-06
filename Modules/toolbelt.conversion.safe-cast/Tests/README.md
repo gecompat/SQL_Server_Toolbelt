@@ -34,18 +34,29 @@ Der [Safe-Cast-Runtime-Workflow](../../../.github/workflows/safe-cast-runtime.ym
 prüft in flüchtigen Linux-SQL-Server-Containern 2019/2022/2025 die zulässigen
 Compatibility Levels mit local/central/Consumer: feste API-Fixtures,
 Clientmetadaten, installierte Baseline, Repeat und Uninstall.
-Der CI-Adapter weist außerdem den zentralen Uninstall ohne explizite
-Consumerbestätigung mit `55426/state1` ab und prüft danach die installierte
-Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird. Ein
+`CI/Test-SafeCastLifecycle.ps1` verwendet die unveränderten kanonischen
+Funktionen aus `Tests/CI/SafeCastLifecycle.Helpers.ps1`: je CL 18 local- und
+20 central-Fälle. Dazu gehören acht Callerfälle pro Modus mit intakter oder
+doomed Transaktion und XACT_ABORT OFF/ON, zwei AppLockfälle, vier
+post-DROP/pre-COMMIT-Rollbackfälle, zwei typisierte Markerfälle und zwei
+Fremdslotfälle. Central ergänzt zwei Confirm0-Abweisungen. Die Calleroracles
+prüfen Transaktionszustand, Sentinel und SET-Optionen auf derselben Connection.
+Die bisherigen überlappenden zentralen Teilprüfungen entfallen. Ein
 synthetisch auf `9.9.9` gesetzter Release-Marker muss Deploy und Uninstall
 mit `55424/state2` abweisen. Marker und sechs TVFs bleiben erhalten; nach
-Wiederherstellung des eigenen Markers besteht die Baseline. Der CI-Adapter
-startet Deploy und Uninstall zusätzlich mit bereits offener
-Aufrufertransaktion. Beide müssen am frühen Gate mit `50000/state1` und dem
-Safe-Cast-Caller-Präfix abbrechen; danach bleibt die installierte Baseline
-erhalten. Der SQLCMD-Verbindungsabbruch belegt keine Erhaltung der
-Aufrufertransaktion oder ihrer SET-Optionen; diese Zustandsoracles liegen im
-separaten physischen Labadapter. Der reguläre
+Wiederherstellung des eigenen Markers besteht die Baseline.
+
+Der Driver bindet jede Testconnection an den vor Installation erfassten
+synthetischen Owner, Database-ID, CreateDate, Modus und CL. Er pinnt die
+geladenen Helperbytes und Deploymentquellen. Das private Restorejournal muss
+nach Prozessende COMPLETE, exakt 18/20 bestandene Fälle und beide erfolgreich
+restaurierten Fixtures mit je zwei Abweisungen belegen. Der Driver besitzt
+den bestätigten Uninstall und dessen Repeat; eine frische Prüfung verlangt
+die Abwesenheit der eigenen Releaseobjekte. Seine Arbeitsfrist beträgt
+120 Sekunden mit 30 Sekunden Restore-Reserve; der äußere Prozess endet
+spätestens nach 160 Sekunden zuzüglich fünf Sekunden Kill-Frist. Ein Timeout
+ist kein PASS und beweist keine Wiederherstellung nach hartem Prozessabbruch.
+Der reguläre
 flüchtige CI-Container trägt eine zufällige Owner-Kennung. Beim normalen
 Prozessende wird er nur bei exakt passender Kennung entfernt; eine frische
 Docker-Abfrage muss seine Abwesenheit bestätigen, sonst schlägt der CI-Job
@@ -60,9 +71,10 @@ isolierten Test bei Änderungen an einem der beiden CI-Adapter oder dem Test.
 Ein synthetischer View im zentralen Provider belegt zusätzlich eine tatsächliche
 `sys.sql_expression_dependencies`-Referenz. Deploy und Uninstall müssen ihn
 mit `55425/state3` abweisen; die installierte Baseline und der View bleiben
-bis zur kontrollierten Entfernung des Testverbrauchers erhalten. Die
-vollständigen Caller-/Lock-/Rollback-/Fremdslot-/Markerfälle des separaten Labadapters,
-Minimalrechte und Hard-Interrupt-Recovery gehören nicht zu diesem CI-Scope.
+bis zur kontrollierten Entfernung des Testverbrauchers erhalten.
+Die 38 Lifecyclefälle sind jetzt Teil des CI-Adapters; ihre tatsächliche
+Ausführung muss am exakten PR-Head nachgewiesen werden. Minimalrechte,
+Hard-Interrupt-Recovery und gemessene Ressourcen bleiben separate Grenzen.
 Lokale statische Prüfung und Client-AST bestanden am 2026-10-05;
 Beide SQLfixtures bestanden anschließend die unabhängige ScriptDom150-
 Offlineprüfung (je 0 Syntaxfehler, leerer ToolbeltDatabase). Native Ausführung

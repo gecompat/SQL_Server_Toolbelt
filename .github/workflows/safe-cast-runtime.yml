@@ -59,7 +59,7 @@ jobs:
       - name: Validate static contract
         run: python3 Modules/toolbelt.conversion.safe-cast/Tests/Static/validate_contract.py
 
-      - name: Execute synthetic API, client and installed lifecycle tests
+      - name: Execute synthetic API, client and 38 canonical lifecycle cases per CL
         env:
           TBX_SQL_VERSION: ${{ matrix.sql-version }}
           TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest

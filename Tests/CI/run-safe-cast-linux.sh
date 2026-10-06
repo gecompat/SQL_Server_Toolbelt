@@ -26,6 +26,10 @@ container_name="tbx-safe-cast-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}-${sq
 workspace="${GITHUB_WORKSPACE:-$(pwd)}"
 private_dir="$(mktemp -d)"
 container_owner="$(openssl rand -hex 16)"
+if [[ ! "${container_owner}" =~ ^[0-9a-f]{32}$ ]]; then
+    echo "SAFE_CAST_CI_OWNER_INVALID" >&2
+    exit 1
+fi
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 echo "::add-mask::${sa_password}"
 
@@ -127,7 +131,7 @@ run_query() {
     local label="$1" database="$2" query="$3"
     run_private "${label}" docker exec "${container_name}" "${sqlcmd_path}" \
         -S localhost -U sa -P "${sa_password}" -C -b -l 15 -t 180 \
-        -d "${database}" -Q "${query}"
+        -d "${database}" -h -1 -W -w 65535 -Q "${query}"
 }
 
 run_file() {
@@ -137,23 +141,6 @@ run_file() {
         "${container_name}" "${sqlcmd_path}" \
         -S localhost -U sa -P "${sa_password}" -C -b -l 15 -t 180 \
         -d "${database}" -i "${filename}" "$@"
-}
-
-expect_central_confirm0_rejection() {
-    local database="$1"
-    # Die erwartete SQL-Ausnahme bleibt privat; nur Nummer und State sind Orakel.
-    if docker exec --workdir "${deployment}" \
-        "${container_name}" "${sqlcmd_path}" \
-        -S localhost -U sa -P "${sa_password}" -C -b -l 15 -t 180 \
-        -d "${database}" -i Uninstall.sql -v ConfirmNoExternalConsumers=0 \
-        >"${private_dir}/last-output" 2>&1; then
-        echo "SAFE_CAST_CI_CONFIRM0_UNEXPECTED_SUCCESS" >&2
-        return 1
-    fi
-    if ! grep -Eq '^Msg 55426, Level 16, State 1,' "${private_dir}/last-output"; then
-        echo "SAFE_CAST_CI_CONFIRM0_WRONG_ERROR" >&2
-        return 1
-    fi
 }
 
 expect_dependency_rejection() {
@@ -191,32 +178,10 @@ expect_unknown_release_rejection() {
     fi
 }
 
-expect_caller_transaction_rejection() {
-    local label="$1" database="$2" script="$3"
-    shift 3
-    # SQLCMD liest denselben Deployment-Einstieg in einer bereits offenen
-    # Aufrufertransaktion. Ein unerwartetes Weiterlaufen endet mit eigenem THROW.
-    if { printf 'SET XACT_ABORT ON;\nBEGIN TRANSACTION;\n:r ./%s\nTHROW 55492,N\x27Safe Cast: Caller-Gate wurde umgangen.\x27,14;\n' "${script}"; } |
-        docker exec --interactive --workdir "${deployment}" \
-        "${container_name}" "${sqlcmd_path}" \
-        -S localhost -U sa -P "${sa_password}" -C -b -l 15 -t 180 \
-        -d "${database}" -i /dev/stdin "$@" \
-        >"${private_dir}/last-output" 2>&1; then
-        echo "SAFE_CAST_CI_CALLER_UNEXPECTED_SUCCESS:${label}" >&2
-        return 1
-    fi
-    if ! grep -Eq '^Msg 50000, Level 16, State 1,' "${private_dir}/last-output" \
-        || ! grep -Fq 'TBX_SAFE_CAST_LIFECYCLE_CALLER_TRANSACTION:' "${private_dir}/last-output" \
-        || [[ "$(grep -Ec '^Msg [0-9]+,' "${private_dir}/last-output")" != 1 ]]; then
-        echo "SAFE_CAST_CI_CALLER_WRONG_ERROR:${label}" >&2
-        return 1
-    fi
-}
-
 deployment="/workspace/Modules/toolbelt.conversion.safe-cast/Deployment"
 runtime="/workspace/Modules/toolbelt.conversion.safe-cast/Tests/Runtime"
 client="${workspace}/Tests/CI/run-safe-cast-client.ps1"
-rollback="${workspace}/Modules/toolbelt.conversion.safe-cast/Tests/CI/Test-SafeCastRollback.ps1"
+lifecycle="${workspace}/Modules/toolbelt.conversion.safe-cast/Tests/CI/Test-SafeCastLifecycle.ps1"
 reference_level="${compatibility_levels##* }"
 
 for level in ${compatibility_levels}; do
@@ -226,6 +191,39 @@ for level in ${compatibility_levels}; do
     run_query create_local master "CREATE DATABASE [${local_db}] COLLATE Latin1_General_100_CS_AS;"
     run_query create_central master "CREATE DATABASE [${central_db}] COLLATE Latin1_General_100_BIN2;"
     run_query create_consumer master "CREATE DATABASE [${consumer_db}] COLLATE Latin1_General_100_CI_AS_SC_UTF8;"
+    # Owner wird ausschließlich im frisch erzeugten eigenen Container gesetzt.
+    # ID/CreateDate werden vor Produktinstallation privat erfasst und später
+    # unabhängig von Name und Owner auf jeder Driverconnection geprüft.
+    for mode in local central; do
+        database="tbx_safe_cast_${mode}_${level}"
+        run_query owner "${database}" "EXEC sys.sp_addextendedproperty @name=N'Test.SafeCast.Owner',@value=N'${container_owner}';"
+        run_query identity "${database}" "SET NOCOUNT ON; SELECT database_id Id,CONVERT(varchar(18),CONVERT(binary(8),create_date),1) Creation FROM sys.databases WHERE database_id=DB_ID() FOR JSON PATH;"
+        if ! python3 - "${private_dir}/last-output" >"${private_dir}/${mode}-identity-${level}" <<'PY'
+import json, re, sys
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError()
+        result[key] = value
+    return result
+try:
+    with open(sys.argv[1], encoding="utf-8-sig") as stream:
+        rows = json.load(stream, object_pairs_hook=unique_object)
+    if not isinstance(rows, list) or len(rows) != 1 or not isinstance(rows[0], dict) or set(rows[0]) != {"Id", "Creation"}:
+        raise ValueError()
+    identity, creation = rows[0]["Id"], rows[0]["Creation"]
+    if type(identity) is not int or identity <= 4 or not isinstance(creation, str) or not re.fullmatch(r"0x[0-9A-F]{16}", creation):
+        raise ValueError()
+    print(identity, creation)
+except (OSError, ValueError, KeyError, TypeError):
+    print("SAFE_CAST_CI_DATABASE_IDENTITY_INVALID", file=sys.stderr)
+    sys.exit(1)
+PY
+        then
+            exit 1
+        fi
+    done
     for database in "${local_db}" "${central_db}" "${consumer_db}"; do
         run_query compatibility master "ALTER DATABASE [${database}] SET COMPATIBILITY_LEVEL=${level};"
     done
@@ -254,12 +252,6 @@ for level in ${compatibility_levels}; do
             -S localhost -U sa -P "${sa_password}" -C -b -l 15 -t 180 \
             -d "${local_db}" -i /dev/stdin <"${private_dir}/reference.sql"
     fi
-    run_private rollback_central pwsh -NoProfile -File "${rollback}" -Database "${central_db}"
-    run_file rollback_baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
-    expect_caller_transaction_rejection deploy "${central_db}" Deploy.sql -v DeploymentMode=central
-    run_file caller_deploy_preserved "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
-    expect_caller_transaction_rejection uninstall "${central_db}" Uninstall.sql -v ConfirmNoExternalConsumers=1
-    run_file caller_uninstall_preserved "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
     run_query set_unknown_release "${central_db}" "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.conversion.safe-cast.Version',@value=N'9.9.9';"
     expect_unknown_release_rejection deploy "${central_db}" Deploy.sql -v DeploymentMode=central
     expect_unknown_release_rejection uninstall "${central_db}" Uninstall.sql -v ConfirmNoExternalConsumers=1
@@ -272,13 +264,68 @@ for level in ${compatibility_levels}; do
     expect_dependency_rejection uninstall "${central_db}" Uninstall.sql -v ConfirmNoExternalConsumers=1
     run_file dependency_uninstall_preserved "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
     run_query drop_dependency "${central_db}" "IF NOT EXISTS(SELECT 1 FROM sys.sql_expression_dependencies WHERE referencing_id=OBJECT_ID(N'dbo.VW_SafeCastDependencyCI',N'V') AND referenced_id=OBJECT_ID(N'toolbelt_conversion.TVF_TryCastBigInt',N'IF')) THROW 55492,N'Safe Cast: Abhängigkeit nach Ablehnung verloren.',10; DROP VIEW dbo.VW_SafeCastDependencyCI;"
-    expect_central_confirm0_rejection "${central_db}"
-    run_file confirm0_preserved_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
-    run_file uninstall_central "${central_db}" "${deployment}" Uninstall.sql -v ConfirmNoExternalConsumers=1
-    run_file uninstall_local "${local_db}" "${deployment}" Uninstall.sql -v ConfirmNoExternalConsumers=0
+    # Kanonische 18/20 Fälle besitzen den abschließenden Uninstall samt
+    # Fremdslot/Repeat; die ersetzten zentralen Teilblöcke laufen nicht doppelt.
+    for mode in local central; do
+        database="tbx_safe_cast_${mode}_${level}"
+        read -r database_id creation_hex <"${private_dir}/${mode}-identity-${level}"
+        expected_count=18
+        if [[ "${mode}" == central ]]; then expected_count=20; fi
+        journal="${private_dir}/lifecycle-${level}-${mode}.json"
+        run_private "lifecycle_${mode}" timeout --signal=TERM --kill-after=5s 160s \
+            pwsh -NoProfile -File "${lifecycle}" -Database "${database}" -Mode "${mode}" \
+            -Owner32Hex "${container_owner}" -ExpectedDatabaseId "${database_id}" \
+            -ExpectedCreationHex "${creation_hex}" -JournalPath "${journal}"
+        if ! grep -Fxq "PASS: SAFE_CAST_CI_LIFECYCLE mode=${mode} cases=${expected_count} restored=2 absent=1" \
+            "${private_dir}/last-output"; then
+            echo "SAFE_CAST_CI_LIFECYCLE_WITNESS_MISSING" >&2
+            exit 1
+        fi
+        # Frischer Ledgerread nach Prozessende: ein Exit0 allein beweist weder
+        # die Fallzahl noch erfolgreiche Compare-and-restore-Fixtures.
+        if ! python3 - "${journal}" "${mode}" "${container_owner}" "${database_id}" "${creation_hex}" "${expected_count}" <<'PY'
+import json, sys
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError()
+        result[key] = value
+    return result
+try:
+    with open(sys.argv[1], encoding="utf-8") as stream:
+        ledger = json.load(stream, object_pairs_hook=unique_object)
+    if not isinstance(ledger, dict):
+        raise ValueError()
+    expected = {"State": "COMPLETE", "Mode": sys.argv[2], "RunId": sys.argv[3],
+                "DatabaseId": int(sys.argv[4]), "CreationHex": sys.argv[5],
+                "LifecycleCasesPassed": int(sys.argv[6])}
+    if any(type(ledger.get(key)) is not type(value) or ledger[key] != value
+           for key, value in expected.items()):
+        raise ValueError()
+    if any(ledger.get(key) is not True for key in ("AbsentVerified", "NeutralVerified", "SourcePinsVerified")):
+        raise ValueError()
+    if any(ledger.get(key) is not False for key in ("ForeignSetupPending", "RestorationUnverified")):
+        raise ValueError()
+    for key in ("MarkerFixtures", "ForeignFixtures"):
+        fixtures = ledger[key]
+        if not isinstance(fixtures, list) or len(fixtures) != 1 or not isinstance(fixtures[0], dict):
+            raise ValueError()
+        if fixtures[0]["Restored"] is not True or type(fixtures[0]["Rejections"]) is not int or fixtures[0]["Rejections"] != 2:
+            raise ValueError()
+        if fixtures[0]["Mode"] != sys.argv[2]:
+            raise ValueError()
+except (OSError, ValueError, KeyError, TypeError):
+    print("SAFE_CAST_CI_LIFECYCLE_LEDGER_INVALID", file=sys.stderr)
+    sys.exit(1)
+PY
+        then
+            exit 1
+        fi
+    done
     for database in "${local_db}" "${central_db}"; do
         run_query uninstall_disposition "${database}" "IF EXISTS(SELECT 1 FROM sys.objects o JOIN sys.schemas s ON s.schema_id=o.schema_id WHERE s.name=N'toolbelt_conversion' AND o.name LIKE N'TVF_TryCast%') OR EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.conversion.safe-cast.Version') THROW 55492,N'Safe Cast: Uninstall ließ Releaseobjekte zurück.',8;"
     done
 done
 
-echo "PASS: Safe Cast SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Client, Baseline, Repeat, independent reference at CL ${reference_level}, central Rollback/CallerTransaction/UnknownRelease/Dependency/Confirm0 und Uninstall."
+echo "PASS: Safe Cast SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Client, Baseline, Repeat, independent reference at CL ${reference_level}, 38 kanonische local/central Lifecyclefälle pro CL (Caller/Lock/Rollback/TypedMarker/ForeignSlot/Confirm0), central UnknownRelease/Dependency und Uninstall."
