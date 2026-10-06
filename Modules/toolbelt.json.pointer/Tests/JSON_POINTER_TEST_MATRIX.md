@@ -192,6 +192,22 @@ Maximalgrößen auf SQL2022/2025, anderen Plattformen, in anderen JSON-
 Strukturen oder unter Parallelität sowie tatsächlicher Heapverbrauch,
 Hard-Interrupt-Recovery und Produktionskapazität bleiben offen.
 
+Weitere **lokale** flüchtige Einzelproben am 2026-10-06 verwendeten denselben
+unveränderten manuellen Adapter und bereits vorhandene Linux-SQL-Images:
+SQL2022 mit CL160 und SQL2025 mit CL170. Für jede Version wurden zuerst Root
+und danach einfaches Objekt `/k` getrennt bei 64KiB,1MiB,4MiB und exakt16MiB
+gestuft. Alle16 Aufrufe
+`python Modules/toolbelt.json.pointer/Tests/CI/run_max_workload.py`
+bestanden mit genau einer FOUND/STRING-Zeile, exakter Input-/Value-Länge,
+serverseitigem SHA2-256-Orakel und eigenem Container-Cleanup. Frische
+Owner-Label-Abfragen bestätigten anschließend die Abwesenheit eigener
+Lastcontainer. Das sind lokale Einzelbelege, **keine** neuen GitHub-
+Workflowdispatches und keine Wiederholung der früheren SQL2019-Läufe.
+Die vormals offene einfache Root-/`/k`-Maximalgröße ist damit auch für diese
+beiden Linux-Versionen synthetisch geprüft. Tiefe128 bei Maximalgröße auf
+SQL2022/2025, andere Formen/Plattformen, Parallelität, tatsächlicher Heap,
+Runner-/Host-Recovery und Produktionskapazität bleiben **NOT_EXECUTED**.
+
 ## Ausstehender Nachweis nach hartem Prozessabbruch
 
 Der manuelle Lastadapter entfernt seinen eigenen Container in einem Python-

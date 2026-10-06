@@ -149,6 +149,13 @@ enthält alle direkten Runlinks und die getrennten Grenzen. Allgemeine
 JSON-Strukturen, SQL2022/2025-Maximallast, andere Plattformen, Heap,
 Parallelität und Release bleiben offen.
 
+Am 2026-10-06 bestanden zusätzlich16 **lokale**, separat gestartete
+flüchtige Linux-SQL2022-CL160-/SQL2025-CL170-Lastfälle: je Root und einfaches
+`/k` bei 64KiB,1MiB,4MiB und exakt16MiB mit serverseitigem Längen-/Hashoracle
+und bestätigter eigener Bereinigung. Die [Testmatrix](JSON_POINTER_TEST_MATRIX.md)
+grenzt diese lokalen Belege gegen frühere manuelle GitHub-Jobs und die offene
+Tiefe128 auf diesen Versionen ab. Kein zusätzlicher Runner-/Lab-/Heapbeweis.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

@@ -34,6 +34,13 @@ der schwere Lastmodus blieb dort SKIPPED und wurde separat manuell geprüft.
 Weitere physische Ziele, Minimalrechte, Hard-Interrupt-Recovery,
 SQL2022/2025-Maximallast, andere JSON-Formen, tatsächlicher Heap,
 Parallelität und Releasequalifikation bleiben offen.
+Weitere lokale Einzelproben am 2026-10-06 bestanden mit dem unveränderten
+Adapter auf flüchtigem Linux-SQL2022-CL160 und SQL2025-CL170: je Root und
+einfaches `/k` bei64KiB,1MiB,4MiB und exakt16MiB mit serverseitigem Oracle,
+eigenem Cleanup und frischem Abwesenheitsaudit. Die vorherige Aussage zu
+SQL2022/2025-Maximallast bezeichnet den Stand vor diesen Proben. Tiefe128
+auf diesen Versionen, weitere Formen/Plattformen, reale Heap-/Parallel-
+kapazität, Minimalrechte, Runner-/Host-Recovery und Release bleiben offen.
 
 Die sechs einzeln freigegebenen Safe-Cast-TVFs in `toolbelt.conversion.safe-cast`
 1.0.0 sind implementiert und teilweise validiert. Finale begrenzte Adapter auf
