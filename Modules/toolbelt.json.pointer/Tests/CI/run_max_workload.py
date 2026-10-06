@@ -77,18 +77,19 @@ def oracle_query(stage_bytes: int, shape: str, depth: int) -> str:
     return f"""
 SET NOCOUNT ON;
 DECLARE @Payload nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),N'a'),{units - overhead});
-DECLARE @Expected nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),N'a'),{units - overhead});
 DECLARE @Json nvarchar(max)={document};
 IF DATALENGTH(@Json)<>{stage_bytes} THROW 55592,N'Synthetic input length',1;
 DECLARE @Rows int=0,@Status varchar(16)=NULL,@Type varchar(8)=NULL,
         @Value nvarchar(max)=NULL,@ErrorCode varchar(32)=NULL;
 SELECT @Rows=@Rows+1,@Status=Status,@Type=JsonType,@Value=Value,@ErrorCode=ErrorCode
 FROM toolbelt_json.TVF_ResolveJsonPointer(@Json,{pointer},DEFAULT,DEFAULT);
+-- Der Eingabe-Payload ist das erwartete Wertorakel; eine zweite Kopie
+-- würde bei Maximalgröße nur zusätzliche Testressourcen verbrauchen.
 IF @Rows<>1 OR ISNULL(@Status,'')<>'FOUND' OR ISNULL(@Type,'')<>'STRING'
  OR @ErrorCode IS NOT NULL OR @Value IS NULL
- OR DATALENGTH(@Value)<>DATALENGTH(@Expected)
+ OR DATALENGTH(@Value)<>DATALENGTH(@Payload)
  OR HASHBYTES('SHA2_256',CONVERT(varbinary(max),@Value))
-    <>HASHBYTES('SHA2_256',CONVERT(varbinary(max),@Expected))
+    <>HASHBYTES('SHA2_256',CONVERT(varbinary(max),@Payload))
  THROW 55592,N'Pointer synthetic oracle mismatch',2;
 SELECT N'ORACLE_PASS';
 """
