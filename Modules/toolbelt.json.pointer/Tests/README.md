@@ -48,6 +48,10 @@ Der ebenfalls manuelle `nested`-Modus prüft feste Tiefenstufen bis128 mit
 eigener Container-Speichergrenze. Die Testmatrix trennt lokale Proben von
 den später erfolgreich manuell ausgelösten GitHub-Dispatches und weiteren
 offenen Lastformen.
+Der manuelle `array`-Modus adressiert einen langen String unter `/0`. Lokal
+ist nur die 64-KiB-Stufe einschließlich eigenem Cleanup und separatem
+Regressionstest der bisherigen Formen belegt; ein 16-MiB-Arraylauf wurde
+noch nicht ausgeführt.
 Eine getrennte lokale Abbruchprobe in `Tests/CI/test_hard_interrupt_recovery.py`
 prüft nur die Owner-Label-Bereinigung durch einen weiterlaufenden Elternprozess
 nach hartem Kindprozessabbruch; Umfang und offene Fälle stehen in der

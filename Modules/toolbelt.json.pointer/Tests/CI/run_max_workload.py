@@ -60,17 +60,20 @@ def sql_args(cid: str, sqlcmd: str, password: str, database: str, statement: str
 
 def oracle_query(stage_bytes: int, shape: str, depth: int) -> str:
     units = stage_bytes // 2
-    overhead = 2 if shape == "root" else (8 if shape == "object" else 6 * depth + 2)
-    document = (
-        "N'\"' + @Payload + N'\"'" if shape == "root"
-        else ("N'{\"k\":\"' + @Payload + N'\"}'" if shape == "object"
-              else f"REPLICATE(CONVERT(nvarchar(max),N'{{\"k\":'),{depth})"
-                   f" + N'\"' + @Payload + N'\"'"
-                   f" + REPLICATE(CONVERT(nvarchar(max),N'}}'),{depth})")
-    )
-    pointer = ("N''" if shape == "root" else
-               ("N'/k'" if shape == "object" else
-                f"REPLICATE(CONVERT(nvarchar(max),N'/k'),{depth})"))
+    if shape == "root":
+        overhead, document, pointer = 2, "N'\"' + @Payload + N'\"'", "N''"
+    elif shape == "object":
+        overhead = 8
+        document, pointer = "N'{\"k\":\"' + @Payload + N'\"}'", "N'/k'"
+    elif shape == "array":
+        # ["..."] hat genau vier strukturelle UTF-16-Einheiten; /0 wählt den Wert.
+        overhead, document, pointer = 4, "N'[\"' + @Payload + N'\"]'", "N'/0'"
+    else:
+        overhead = 6 * depth + 2
+        document = (f"REPLICATE(CONVERT(nvarchar(max),N'{{\"k\":'),{depth})"
+                    f" + N'\"' + @Payload + N'\"'"
+                    f" + REPLICATE(CONVERT(nvarchar(max),N'}}'),{depth})")
+        pointer = f"REPLICATE(CONVERT(nvarchar(max),N'/k'),{depth})"
     return f"""
 SET NOCOUNT ON;
 DECLARE @Payload nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),N'a'),{units - overhead});
@@ -95,7 +98,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sql-version", choices=VERSIONS, required=True)
     parser.add_argument("--stage-bytes", type=int, choices=SIZES, required=True)
-    parser.add_argument("--shape", choices=("root", "object", "nested"), required=True)
+    parser.add_argument("--shape", choices=("root", "object", "array", "nested"), required=True)
     parser.add_argument("--depth", type=int, choices=DEPTHS, default=1)
     options = parser.parse_args()
     if options.shape != "nested" and options.depth != 1:
