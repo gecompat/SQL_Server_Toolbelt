@@ -113,6 +113,19 @@ Truständerungen. Die frühere CL170- und Linux-Evidenz bleiben eigenständige
 Nachweise; weitere physische Ziele, Minimalrechte, Heap und vollständige
 Runtime-Head-CI sind weiterhin offen.
 
+Der begrenzte Modulworkflow bestand am 2026-10-06 am exakten
+[PR186-Head](https://github.com/gecompat/SQL_Server_Toolbelt/pull/186):
+[Dokumentation](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402202963)
+und [Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402203046)
+waren erfolgreich, einschließlich aller drei Linux-Jobs 2019/2022/2025.
+Nach Merge bestanden auf `main` erneut
+[Dokumentation](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402837670)
+und [Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402837558).
+Die 38 gezielten Lifecyclefälle des Labadapters sind nicht Teil dieser CI.
+Weitere physische Ziele, tatsächliche Minimalrechte, Hard-Interrupt-Recovery,
+Heap und Releasequalifikation bleiben offen; `partially validated`,
+`unreleased`.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

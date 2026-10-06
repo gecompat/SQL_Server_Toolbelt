@@ -12,6 +12,14 @@ Head-CI sind separate Nachweise; teilweise validiert, unveröffentlicht.
 Zusätzlich bestanden am 2026-10-06 auf demselben Windows2025/exaktCU8-Ziel
 vollständige Pointer-Adapter mit CL150 und CL160 samt unabhängigen Audits;
 weitere physische Ziele und Lastgrenzen bleiben offen.
+Seit 2026-10-06 ist zusätzlich die begrenzte Modul-Runtime-CI am exakten
+[PR187-Head](https://github.com/gecompat/SQL_Server_Toolbelt/pull/187)
+([Linux-2019/2022/2025-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37403031731))
+und nach Merge auf [main](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37403199703)
+erfolgreich. Sie enthält Contract/Safety, Clientmetadaten und installierte
+Baseline, nicht die 42 gezielten Lab-Lifecyclefälle. Minimalrechte,
+Hard-Interrupt-Recovery, 16-MiB-Maximalworkload/Heap, weitere physische Ziele
+und Releasequalifikation bleiben offen.
 
 Die sechs einzeln freigegebenen Safe-Cast-TVFs in `toolbelt.conversion.safe-cast`
 1.0.0 sind implementiert und teilweise validiert. Finale begrenzte Adapter auf
@@ -23,6 +31,15 @@ separate Nachweise; unveröffentlicht.
 Zusätzlich bestanden am 2026-10-06 auf demselben Windows2025/exaktCU8-Ziel
 die vollständigen Safe-Cast-Adapter mit CL150 und CL160 samt unabhängigen
 Audits. Weitere physische Ziele, Minimalrechte, Heap und Runtime-Head-CI
+bleiben offen.
+
+Seit 2026-10-06 ist zusätzlich die begrenzte Modul-Runtime-CI am exakten
+[PR186-Head](https://github.com/gecompat/SQL_Server_Toolbelt/pull/186)
+([Linux-2019/2022/2025-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402203046))
+und nach Merge auf [main](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402837558)
+erfolgreich. Sie enthält API-Fixtures, Clientmetadaten und installierte
+Baseline, nicht die 38 gezielten Lab-Lifecyclefälle. Minimalrechte,
+Hard-Interrupt-Recovery, Heap, weitere physische Ziele und Releasequalifikation
 bleiben offen.
 
 `toolbelt.pseudonymization.deterministic` 1.1.0 ergänzt die einzeln freigegebene
