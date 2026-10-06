@@ -32,6 +32,7 @@ objects:
 permissions_required:
   - "Aufruf: vorhandenes SELECT auf der TVF; CrossDB benötigt bestehende passende Rechte."
   - "Lifecycle: VIEW DEFINITION, SELECT auf sys.sql_expression_dependencies, CREATE FUNCTION und passende Schema-DDL-Rechte; keine Rechtevergabe."
+  - "Lifecycle: Schreiben/Entfernen der datenbankweiten Release-Marker benötigt zusätzlich dafür wirksame Datenbankrechte; die genaue Minimalrechtekombination ist nicht nativ qualifiziert."
 collation_contract: "Alle vier Textausgabespalten Latin1_General_100_BIN2; exakte Keys über BIN2 plus DATALENGTH, UTF16-Policy ohne SC."
 data_type_contract: "Json/Pointer nvarchar(max); MaxInputBytes bigint=16777216 und MaxDepth int=128 nur positiv/absenkbar; Pointer höchstens4000 UTF16-Einheiten."
 help_contract_version: "not applicable"

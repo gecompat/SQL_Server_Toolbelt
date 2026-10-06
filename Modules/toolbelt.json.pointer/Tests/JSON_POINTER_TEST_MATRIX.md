@@ -35,6 +35,35 @@ Weitere physische Kombinationen, Minimalrechte, über die zwei synthetischen
 Formen hinausgehende Maximalworkloads, Heap und Parallelität bleiben offen.
 Keine Release- oder Produktionszusage.
 
+## Offene Minimalrechte-Qualifikation
+
+Die TVF selbst verlangt für den Aufruf vorhandenes `SELECT`. Der Lifecycle-
+Preflight prüft datenbankweites `VIEW DEFINITION`, `SELECT` auf
+`sys.sql_expression_dependencies`, `CREATE FUNCTION` sowie `ALTER` auf dem
+vorhandenen Schema oder `CREATE SCHEMA` für ein neues Schema. Diese Prüfungen
+decken noch nicht jede später ausgeführte Operation ab: `MarkRelease.sql`
+schreibt zusätzlich zwei Extended Properties **auf Datenbankebene**;
+`Uninstall.sql` entfernt sie. Laut Microsoft benötigen solche Marker eigene
+wirksame Rechte; insbesondere darf `db_ddladmin` allein keine
+datenbankweiten Properties hinzufügen. Siehe die Primärdokumentation zu
+[`sp_addextendedproperty`](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-addextendedproperty-transact-sql),
+[`sp_updateextendedproperty`](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-updateextendedproperty-transact-sql)
+und [`sys.sql_expression_dependencies`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-sql-expression-dependencies-transact-sql).
+Dass Schema-DDL-Rechte allein für den gesamten Lifecycle nicht genügen,
+ist eine Schlussfolgerung aus diesen Quellen und dem vorliegenden Skript;
+die exakte kleinste erfolgreiche Rechtemenge wurde **nicht** nativ belegt.
+
+Ein späterer Minimalrechteversuch verwendet nur einen bereits vorhandenen,
+ausdrücklich ausgewählten Testprincipal auf einem erlaubten Testziel. Vor
+Deploy werden effektive Rechte und Ausgangszustand privat erhoben; ohne
+passenden Principal bleibt der Versuch **NOT_EXECUTED**. Getrennt zu prüfen
+sind Aufruf, Erstinstallation mit vorhandenem/neuem Schema, Repeat sowie
+zentraler und lokaler Uninstall einschließlich Markerbereinigung. Ein
+fehlgeschlagener Versuch benötigt Rollback-/Own-State-Audit. Der bisherige
+physische Labadapter setzt für die eigene DB-Bereinigung `sysadmin` voraus;
+seine Erfolge sind deshalb kein Minimalrechtebeweis. Diese Analyse vergibt
+keine Rechte, erstellt keinen Principal und ändert kein SQL-Produktverhalten.
+
 ## Begrenzte 16-MiB-Verarbeitung und offene Lastfälle
 
 Die reguläre CI prüft nur die sofortige Abweisung bei
