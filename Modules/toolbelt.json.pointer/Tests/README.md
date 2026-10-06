@@ -156,6 +156,17 @@ und bestätigter eigener Bereinigung. Die [Testmatrix](JSON_POINTER_TEST_MATRIX.
 grenzt diese lokalen Belege gegen frühere manuelle GitHub-Jobs und die offene
 Tiefe128 auf diesen Versionen ab. Kein zusätzlicher Runner-/Lab-/Heapbeweis.
 
+Am selben Tag bestanden zusätzlich20 lokale verschachtelte Einzelproben auf
+denselben flüchtigen Linux-SQL2022-CL160-/SQL2025-CL170-Images: je Version
+64KiB mit Tiefe2,4,8,16,32,64,128 und Tiefe128 mit1MiB,4MiB und exakt16MiB.
+Der unveränderte manuelle Adapter prüfte serverseitig Einzeilenstatus, Länge
+und SHA2-256, entfernte jeweils seinen Container; frische unabhängige
+Owner-Label-Audits fanden danach keinen eigenen Lastcontainer. Details und
+Grenzen stehen in der [Testmatrix](JSON_POINTER_TEST_MATRIX.md). Dies sind
+lokale synthetische Belege, keine neuen GitHub-Dispatches oder Labtests.
+Andere Formen/Plattformen, Heap, Parallelität, Runner-/Host-Recovery und
+Releasequalifikation bleiben offen.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

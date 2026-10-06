@@ -124,6 +124,17 @@ offene Aussagen beschreiben ihren damaligen Stand. Tiefe128 bei Maximalgröße
 auf SQL2022/2025, weitere JSON-Formen/Plattformen, reale Heap-/Parallel-
 kapazität, Minimalrechte, Runner-/Host-Recovery und Release bleiben offen.
 
+Weitere lokale Tiefenqualifikation 2026-10-06: Auf denselben flüchtigen
+Linux-SQL2022-CL160-/SQL2025-CL170-Images bestanden je sieben Einzelprozesse
+bei64KiB/Tiefe2,4,8,16,32,64,128 und je drei bei Tiefe128/1MiB,4MiB,
+exakt16MiB. Alle20 lieferten das serverseitige Einzeilen-/Längen-/Hashoracle,
+meldeten eigene Bereinigung und bestanden je Version den frischen
+Owner-Label-Abwesenheitsaudit. [Testmatrix](../Modules/toolbelt.json.pointer/Tests/JSON_POINTER_TEST_MATRIX.md).
+Die vorherige offene Tiefe128/Maximalgröße war zeitgebunden. Andere JSON-
+Formen/Plattformen, tatsächlicher Heap, Parallelität, Minimalrechte,
+Runner-/Host-Recovery und Release bleiben offen; `partially validated`,
+`unreleased`.
+
 ### RI-2026-076: sechs Safe-Cast-TVFs – einzeln freigegeben 2026-10-05
 
 Nach der Vertragsbesprechung in [PR170](https://github.com/gecompat/SQL_Server_Toolbelt/pull/170)

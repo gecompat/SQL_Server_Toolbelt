@@ -64,6 +64,17 @@ waren zeitgebunden. Tiefe128 auf diesen Versionen, andere Formen/Plattformen,
 reale Heap-/Parallelkapazität, Minimalrechte, Runner-/Host-Recovery und
 Release bleiben offen.
 
+Am 2026-10-06 bestanden anschließend20 getrennte lokale Tiefenproben auf
+Linux-SQL2022-CL160 und SQL2025-CL170 mit unverändertem manuellem Adapter:
+je sieben bei64KiB/Tiefe2,4,8,16,32,64,128 und je drei bei Tiefe128 mit
+1MiB,4MiB und exakt16MiB. Serverseitiges Einzeilen-/Längen-/SHA2-256-Orakel,
+eigene Bereinigung und frische unabhängige Owner-Label-Abwesenheitsaudits
+bestanden. [Details](../Modules/toolbelt.json.pointer/Tests/JSON_POINTER_TEST_MATRIX.md).
+Dies schließt nur den zuvor offenen synthetischen Linux-Tiefe128/16MiB-Fall
+für diese Versionen; es sind keine neuen GitHub-Dispatches oder Labtests.
+Andere Formen/Plattformen, tatsächlicher Heap, Parallelität, Minimalrechte,
+Runner-/Host-Recovery und Release bleiben offen.
+
 ## Aktive Safe-Cast-Welle 2026-10-05
 
 Die ausdrückliche Antwort „Diese sechs Funktionen freigegeben“ autorisiert
