@@ -9,6 +9,11 @@ qualifizierte das exakt gepackte aktuelle .NET48-Binary in en-US, de-DE und
 tr-TR mit unabhängigen Orakeln sowie IL-/NoIO-Prüfungen; die harte Grenzphase
 lief in en-US. Das ist ein CLR-Nachweis ohne SQL-/Client-/Lifecycle- oder
 Heapqualifikation.
+Der CSV-Qualifikationsworkflow baut das Produkt auf demselben Runner zweimal
+vollständig neu und vergleicht die SHA2-512-Trustbytes des zweiten Builds
+mit dem unveränderten ersten Releasepaket. Das belegt bei Erfolg nur
+Build-Reproduzierbarkeit innerhalb dieses Runnerlaufs, nicht zwischen Hosts
+oder eine native SQL-Qualifikation.
 
 Der achte öffentliche Lauf von `Tests/CI/run-csv-memory-lab.ps1` bestand am
 2026-10-05 auf SQL Server 2019 Linux/latest CL150 lokal und zentral mit dem
