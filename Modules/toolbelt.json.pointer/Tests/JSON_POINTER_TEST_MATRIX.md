@@ -109,6 +109,14 @@ Einzeilen-/Längen-/SHA2-256-Orakel und dieselben Watchdogs wie Root und Objekt.
 Eine erfolgreiche kleine Stufe ist kein Nachweis für exakt16MiB oder andere
 Arrayformen; größere Stufen folgen nur einzeln nach bestandenem Vorgänger.
 
+Für jede Form begrenzt Docker den eigenen flüchtigen Testcontainer auf 3 GiB
+Arbeitsspeicher ohne Swap. Diese Testobergrenze ist kein Messwert für den
+tatsächlichen SQL-Heap oder die verfügbare Runnerkapazität. Ein technischer
+Ressourcenfehler beendet die Stufenfolge ohne weitere Last.
+Die unten dokumentierten früheren Root-/Objekt-Grenzläufe fanden noch ohne
+diese gemeinsame Containergrenze statt; ein 16-MiB-Erfolg unter der neuen
+Grenze ist für diese Formen **NOT_EXECUTED**.
+
 Ein Timeout ist **INCONCLUSIVE** für die fachliche Semantik, kein PASS und
 keine stillschweigende Absenkung des öffentlichen 16-MiB-Budgets. Erst nach
 erfolgreichem flüchtigem Lauf darf derselbe begrenzte Versuch auf einem erneut
@@ -168,9 +176,7 @@ Bei Eingabelänge `B` Bytes enthält der terminale String exakt
 einschließlich Prefix, Quotes und Suffix muss exakt `B` Bytes lang sein.
 Zulässige Tiefen sind 1,2,4,8,16,32,64,128, maximaler Pointer256
 UTF-16-Einheiten. Die schon vorhandenen Einzeilen-/Wertlängen-/SHA2-256-
-Oracles gelten unverändert. Nur für diesen Modus begrenzt Docker den eigenen
-Container auf 3GiB Arbeitsspeicher ohne Swap. Dies ist eine Testobergrenze,
-kein gemessener Heap- oder Runnerkapazitätswert.
+Oracles und die gemeinsame Container-Speichergrenze gelten unverändert.
 
 Die sichere Stufenfolge beginnt mit 64KiB und verdoppelt die Tiefe bis128;
 anschließend kann Tiefe128 getrennt mit1MiB,4MiB und16MiB geprüft werden.
