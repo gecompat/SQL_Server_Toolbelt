@@ -12,7 +12,7 @@ on:
       - "Modules/toolbelt.json.pointer/Scripts/generate-deployment.py"
       - "Modules/toolbelt.json.pointer/Tests/CI/run_max_workload.py"
       - "Modules/toolbelt.json.pointer/Tests/CI/test_hard_interrupt_recovery.py"
-      - "Modules/toolbelt.json.pointer/Tests/CI/Test-JsonPointerRollback.ps1"
+      - "Modules/toolbelt.json.pointer/Tests/CI/Test-JsonPointerLifecycle.ps1"
       - "Tests/CI/run-json-pointer-linux.sh"
       - "Tests/CI/run-json-pointer-client.ps1"
       - "Tests/CI/JsonPointerLifecycle.Helpers.ps1"
@@ -31,7 +31,7 @@ on:
       - "Modules/toolbelt.json.pointer/Scripts/generate-deployment.py"
       - "Modules/toolbelt.json.pointer/Tests/CI/run_max_workload.py"
       - "Modules/toolbelt.json.pointer/Tests/CI/test_hard_interrupt_recovery.py"
-      - "Modules/toolbelt.json.pointer/Tests/CI/Test-JsonPointerRollback.ps1"
+      - "Modules/toolbelt.json.pointer/Tests/CI/Test-JsonPointerLifecycle.ps1"
       - "Tests/CI/run-json-pointer-linux.sh"
       - "Tests/CI/run-json-pointer-client.ps1"
       - "Tests/CI/JsonPointerLifecycle.Helpers.ps1"
@@ -89,7 +89,7 @@ jobs:
       - name: Validate static contract
         run: python3 Modules/toolbelt.json.pointer/Tests/Static/validate_contract.py
 
-      - name: Execute synthetic API, safety, client and installed lifecycle tests
+      - name: Execute synthetic API, safety, client and full lifecycle tests
         env:
           TBX_SQL_VERSION: ${{ matrix.sql-version }}
           TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest

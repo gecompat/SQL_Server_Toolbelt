@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-10-07 – Vollständige kanonische JSON-Pointer-Lifecycle-CI
+
+- Der flüchtige Linuxadapter ersetzt überlappende zentrale Teilprüfungen durch
+  dieselben20 local-/22 central-Fälle je CL wie der vorhandene Labadapter.
+  Dependency-, Caller-, Lock-, Rollback-, Marker-, Fremdslot- und Confirm0-
+  Prüfungen verwenden unverändert dessen gemeinsamen Helper.
+- Ein begrenzter Driver bindet eigene Fixtures an DB-Identität und Sourcepins,
+  führt private Restorejournale und bestätigt Uninstall/Repeat/Abwesenheit.
+  Feste Fehlerskategorien werden erst nach Restore ausgegeben.
+- Testcode allein ist kein Runtime-PASS; exakte Head-CI wird im PR belegt.
+  Produkt-SQL und öffentliche Verträge unverändert, teilweise validiert und
+  unveröffentlicht. Weitere physische Ziele, Minimalrechte, Ressourcen und
+  Hard-Interrupt-Recovery bleiben offen.
+
 ## 2026-10-07 – Safe-Cast-CI verwendet vollständige kanonische Lifecyclefälle
 
 - Der flüchtige CI-Adapter ersetzt zentrale Teilprüfungen durch dieselben
