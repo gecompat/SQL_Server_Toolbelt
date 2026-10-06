@@ -320,17 +320,23 @@ try{
  $script:stage='BASELINE';Assert-SafeCastWorkBudget
  $script:connection=Open-SafeCastConnection $null $Database
  $baseline=@(Invoke-SafeCastSql $script:connection @'
-SELECT CONVERT(int,1) Witness
-WHERE @@TRANCOUNT=0 AND XACT_STATE()=0
- AND (SELECT COUNT(*) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.conversion.safe-cast.Version'
-  AND SQL_VARIANT_PROPERTY(value,N'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'1.0.0'))=1
- AND (SELECT COUNT(*) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.conversion.safe-cast.DeploymentMode'
-  AND SQL_VARIANT_PROPERTY(value,N'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),@Mode))=1
- AND (SELECT COUNT(*) FROM sys.objects o JOIN sys.sql_modules m ON m.object_id=o.object_id
+-- Sessiongate in eigenem Statement vor dem Katalogread, wie im Labadapter.
+-- Der nachfolgende SELECT darf die Beobachtung nicht in seinen Kontext ziehen.
+DECLARE @Neutral int=CASE WHEN @@TRANCOUNT=0 AND XACT_STATE()=0 THEN 1 ELSE 0 END;
+SELECT @Neutral Neutral,
+ CONVERT(int,CASE WHEN (SELECT COUNT(*) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.conversion.safe-cast.Version'
+  AND SQL_VARIANT_PROPERTY(value,N'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'1.0.0'))=1 THEN 1 ELSE 0 END) VersionReady,
+ CONVERT(int,CASE WHEN (SELECT COUNT(*) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.conversion.safe-cast.DeploymentMode'
+  AND SQL_VARIANT_PROPERTY(value,N'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),@Mode))=1 THEN 1 ELSE 0 END) ModeReady,
+ CONVERT(int,CASE WHEN (SELECT COUNT(*) FROM sys.objects o JOIN sys.sql_modules m ON m.object_id=o.object_id
   WHERE o.schema_id=SCHEMA_ID(N'toolbelt_conversion') AND o.type=N'IF' AND m.is_schema_bound=1
-  AND o.name IN(N'TVF_TryCastBigInt',N'TVF_TryCastDecimal',N'TVF_TryCastDate',N'TVF_TryCastDateTime2',N'TVF_TryCastBit',N'TVF_TryCastUniqueIdentifier'))=6;
+  AND o.name IN(N'TVF_TryCastBigInt',N'TVF_TryCastDecimal',N'TVF_TryCastDate',N'TVF_TryCastDateTime2',N'TVF_TryCastBit',N'TVF_TryCastUniqueIdentifier'))=6 THEN 1 ELSE 0 END) ObjectsReady;
 '@ @{'@Mode'=$Mode} -Rows)
- if($baseline.Count -ne 1 -or $baseline[0].Witness -ne 1){throw 'SAFE_CAST_CI_INSTALLED_BASELINE_REQUIRED'}
+ if($baseline.Count -ne 1){throw 'SAFE_CAST_CI_INSTALLED_BASELINE_REQUIRED'}
+ if($baseline[0].Neutral -ne 1){throw 'SAFE_CAST_CI_BASELINE_SESSION_NOT_NEUTRAL'}
+ if($baseline[0].VersionReady -ne 1){throw 'SAFE_CAST_CI_BASELINE_VERSION_MISMATCH'}
+ if($baseline[0].ModeReady -ne 1){throw 'SAFE_CAST_CI_BASELINE_MODE_MISMATCH'}
+ if($baseline[0].ObjectsReady -ne 1){throw 'SAFE_CAST_CI_BASELINE_OBJECTS_MISMATCH'}
  $script:ledger.State='RUNNING';Save-SafeCastJournal
  foreach($abort in @('OFF','ON')){foreach($doomed in @($false,$true)){
   $script:stage='CALLER';Assert-SafeCastWorkBudget
