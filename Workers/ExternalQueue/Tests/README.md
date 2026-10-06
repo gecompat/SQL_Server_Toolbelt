@@ -25,7 +25,9 @@ synthetischen Fälle in `Invoke-ManagedContract.ps1`: Budget 0/2/1,
 Cancellation/Rollback/Hold, explizite Wiederfreigabe, Legacy-Claim-Abweisung
 und Completion-/Stop-Rendezvous. Quellcode ist kein Laufnachweis.
 Die gezielten aktuellen SQL-/Managedläufe sind weiter unten dokumentiert.
-Exakte Head-CI und tatsächlicher Linux-Workerhost sind separate Nachweise.
+Die unten verlinkte Head-CI belegt einen tatsächlichen Linux-Workerhost im
+begrenzten synthetischen SQL-2019-Scope; weitere Host-/Zielkombinationen bleiben
+getrennte Nachweise.
 
 ## Ausgeführter deterministischer Scope
 
@@ -115,4 +117,14 @@ veralteten exakten Pin mit `HISTORICAL_PROCESS_HELPER` ab, bevor historische
 Blobs oder die Migration verarbeitet wurden; dieser Lauf bleibt fehlgeschlagen.
 Der Pin wurde auf die überprüften neuen Helperbytes aktualisiert. Die
 historischen Queue2.0-Quellen und ihre 15 Blob-/14 Include-Prüfungen bleiben
-unverändert; ein neuer erfolgreicher Lauf am aktuellen Head ist erforderlich.
+unverändert. Am exakten [PR197-Head](https://github.com/gecompat/SQL_Server_Toolbelt/pull/197)
+bestand anschließend der [Worker-CI-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37423892477):
+Linux-Workerhost gegen eine flüchtige synthetische SQL-2019-Instanz mit
+Managed-Vertrag und echtem Queue2.0→2.1-Upgrade sowie die getrennten
+Windows-/Linux-Faultverträge. Auf `main` scheiterte der erste
+[Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37425398209)
+im zeitabhängigen Managed-Controltimeout-Orakel; Cleanup bestand. Genau ein
+gezielter Retry auf unverändertem Merge-Commit bestand alle drei Jobs. Der
+Erstfehler bleibt fehlgeschlagen; seine Ursache ist nicht nachgewiesen.
+Echter Committransportverlust, Minimalrechte, weitere Zielkombinationen und
+permanenter Betrieb bleiben offen.

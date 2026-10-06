@@ -130,9 +130,19 @@ Sourceimplementierung und Integration sind aktiv. Der gezielte SQL-Vertrag
 einschließlich sechs tatsächlicher Lifecycle-Abweisungen bestand auf 2019 Linux
 und 2025 Windows/CU8; der echte Queue-Upgrade 2.0→2.1 auf 2019 Linux.
 Die gezielten Managedläufe auf beiden ausgewählten SQL-Zielen mit
-Windows-Workerhost bestanden einschließlich Cleanup. Linux-Workerhost
-und exakte Head-CI sind separate Nachweise am aktuellen PR-Head.
+Windows-Workerhost bestanden einschließlich Cleanup. Zu diesem Zeitpunkt waren
+Linux-Workerhost und exakte Head-CI separate offene Nachweise.
 Teilnachweise qualifizieren nicht die gesamte Welle. Kein Releaseauftrag.
+
+Ergänzung 2026-10-06: [PR197](https://github.com/gecompat/SQL_Server_Toolbelt/pull/197)
+bestand am exakten Head mit dem [Linux-Worker-/SQL2019-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37423892477)
+einschließlich Managed-Vertrag und echtem Queue2.0→2.1-Upgrade sowie beiden
+Host-Faultverträgen. Der erste [main-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37425398209)
+scheiterte im zeitabhängigen Managed-Controltimeout-Orakel bei erfolgreichem
+Cleanup; ein gezielter Retry auf unverändertem Merge-Commit bestand alle Jobs.
+Der Erstfehler bleibt fehlgeschlagen und ungeklärt. Weitere Host-/Zielmatrix,
+Minimalrechte, echter Committransportverlust und Releasequalifikation bleiben
+offen; dieser begrenzte CI-Nachweis ändert den Modulstatus nicht.
 
 ## Aktive Tabellenklon-Datenkopie 4.1.0
 
