@@ -1,6 +1,6 @@
 # Worker Control – Testnachweise
 
-Der Stand ist **partially validated**. Am 2026-10-04 bestand `Tests/CI/run-external-queue-worker-lab.ps1 -Platform linux -Version 2019 -Patch latest -ManagedSqlOnly` auf einem schema-validierten, ausdrücklich ausgewählten SQL-Server-2019-Linux-Ziel. Statische Kopplung und Offlineparser sind keine zusätzliche SQL-Laufzeitqualifikation. Die gezielten parallelen Providerläufe sind unten getrennt belegt; die exakte Head-CI bleibt ein separates Mergegate.
+Der Stand ist **partially validated**. Am 2026-10-04 bestand `Tests/CI/run-external-queue-worker-lab.ps1 -Platform linux -Version 2019 -Patch latest -ManagedSqlOnly` auf einem schema-validierten, ausdrücklich ausgewählten SQL-Server-2019-Linux-Ziel. Statische Kopplung und Offlineparser sind keine zusätzliche SQL-Laufzeitqualifikation. Die gezielten parallelen Providerläufe sind unten getrennt belegt; zu diesem Zeitpunkt blieb die exakte Head-CI ein separates Mergegate.
 
 `Static/validate_contract.py` prüft die Source-/Manifest-/Lifecyclekopplung, getrennten Completiontest vor Witnesszugriff, nonblocking GroupStop und Sessionfence bis Reconcile-Commit. `Runtime/WorkerControl.Contract.sql` prüft synthetisch Admission, Livebudget und pausenerhaltende Generationen auf einer isolierten Modulinstallation. Die parallelen Guardian-/Transaction-/Stop-/Commitnachweise liegen in `Workers/ExternalQueue/Tests/Runtime/Invoke-ManagedContract.ps1` und werden getrennt bewertet.
 
@@ -38,6 +38,17 @@ Am selben Datum bestand der gleiche gezielte SQL-Vertrag mit `-Platform windows 
 
 Am 2026-10-05 bestand `Tests/CI/run-external-queue-worker-lab.ps1 -Platform windows -Version 2025 -Patch CU8 -ManagedOnly`, einschließlich eigenem Datenbank- und Datei-Cleanup. Zwei tatsächliche Supervisoren mit kleinen Budgets, leere BOUNDED-/CONTINUOUS-Modi, tatsächlicher Handlerstart und Abbruch/Rollback, persistenter Hold, Handlerkorrektur und Übernahme nach expliziter Freigabe durch den anderen Worker sowie der beobachtete Completion-/Stop-Wettlauf sind geprüft.
 
-Ein gezielter eigener Zeilenlock erzeugte einen tatsächlichen Controltimeout: Guardianfehler, physischer Rollback und beendete Ressourcen wurden beobachtet; der ursprüngliche Ausgang blieb UNKNOWN und belegte den Slot. Ein anderer geeigneter Worker übernahm vorhandene QUEUED-Arbeit nicht. Erst ausdrückliche Admin-Reconciliation klassifizierte den Hold; die Wiederfreigabe blieb bis zum getrennten Endnachweis abgewiesen. Das beweist keinen Hostverlust oder Committransportverlust. Reale Minimalrechte und die vollständige Zielmatrix sind nicht ausgeführt; die exakte Head-CI bleibt ein separates Mergegate. Frühere fehlgeschlagene Läufe werden durch diesen Nachweis nicht rückwirkend aufgewertet.
+Ein gezielter eigener Zeilenlock erzeugte einen tatsächlichen Controltimeout: Guardianfehler, physischer Rollback und beendete Ressourcen wurden beobachtet; der ursprüngliche Ausgang blieb UNKNOWN und belegte den Slot. Ein anderer geeigneter Worker übernahm vorhandene QUEUED-Arbeit nicht. Erst ausdrückliche Admin-Reconciliation klassifizierte den Hold; die Wiederfreigabe blieb bis zum getrennten Endnachweis abgewiesen. Das beweist keinen Hostverlust oder Committransportverlust. Reale Minimalrechte und die vollständige Zielmatrix sind nicht ausgeführt; zum Zeitpunkt dieses Labnachweises blieb die exakte Head-CI ein separates Mergegate. Frühere fehlgeschlagene Läufe werden durch diesen Nachweis nicht rückwirkend aufgewertet.
 
 Am selben Datum bestand der unveränderte fokussierte Managedadapter mit `-Platform linux -Version 2019 -Patch latest -ManagedOnly`, einschließlich eigenem Cleanup. Der Workerhost war Windows; ein Linux-SQL-Ziel qualifiziert allein keinen Linux-Workerhost.
+
+Ergänzung 2026-10-06: Der [PR197-Worker-CI-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37423892477)
+bestand am exakten Head mit einem tatsächlichen Linux-Workerhost gegen eine
+flüchtige synthetische SQL-2019-Instanz: Managed-Vertrag, SQL-Admission und
+Generation, echter Queue2.0→2.1-Upgrade sowie getrennte Windows-/Linux-
+Faultverträge. Der erste [main-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37425398209)
+scheiterte im zeitabhängigen Managed-Controltimeout-Orakel bei erfolgreichem
+Cleanup; ein einziger Retry desselben Commits bestand alle Jobs. Der erste
+Fehler bleibt fehlgeschlagen und seine Ursache unbekannt. Die CI ergänzt die
+obigen physischen Windows-Workerhost-Nachweise, ersetzt aber weder echten
+Committransportverlust noch Minimalrechte oder weitere Zielkombinationen.

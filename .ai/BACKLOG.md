@@ -225,8 +225,8 @@ Status: `implemented`, `partially validated`, `unreleased`. Der SQL-Vertrag mit
 gezielten Negativfällen und sechs tatsächlichen Lifecycle-Abweisungen sowie
 der echte Queue-Upgrade 2.0→2.1 bestanden am 2026-10-04 auf SQL Server 2019 Linux.
 Die fokussierten Managedläufe mit Windows-Workerhost bestanden einschließlich
-eigenem Cleanup am 2026-10-05 auf 2019 Linux und 2025 Windows/CU8. Der
-Linux-Workerhost-Nachweis über exakte Head-CI bleibt offen. Der technische
+eigenem Cleanup am 2026-10-05 auf 2019 Linux und 2025 Windows/CU8. Zu diesem
+Zeitpunkt blieb der Linux-Workerhost-Nachweis über exakte Head-CI offen. Der technische
 [Worker-Control-Vertrag](../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md)
 konkretisiert die Umsetzung einschließlich Bindung, Commit-/Rollbacknachweis
 und unverändert gesperrter ungeklärter Ausgänge. Erst vorhandener externer Windows-/Linux-
@@ -236,6 +236,16 @@ keine generische externe Rollback- oder Exactly-once-Zusage. Unabhängiger
 Review, betroffene schema-validierte Lab-Tests, grüne exakte Head-CI, PR-Merge
 nach origin/main und eigener Branch-/Worktree-Cleanup bleiben Pflicht.
 Vorhandene Referenzen TC-2026-015/046; keine neue sequenzielle ID erfunden.
+
+CI-Ergänzung 2026-10-06: Der begrenzte Linux-Workerhost-/SQL2019-Nachweis
+bestand am exakten [PR197-Head](https://github.com/gecompat/SQL_Server_Toolbelt/pull/197)
+im [Worker-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37423892477)
+mit Managed-Vertrag, echtem Queue2.0→2.1-Upgrade und separaten Windows-/Linux-
+Faultverträgen. Der erste [main-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37425398209)
+scheiterte im zeitabhängigen Controltimeout-Orakel; Cleanup bestand. Genau ein
+Retry auf demselben Merge-Commit bestand alle Jobs. Der Erstfehler bleibt
+fehlgeschlagen, seine Ursache unbekannt. Andere Host-/Zielkombinationen,
+Minimalrechte, echter Committransportverlust und Release bleiben offen.
 
 ### Nächste Wellen – bestätigte Anforderungen und Entscheidungsvorbereitung 2026-10-04
 
