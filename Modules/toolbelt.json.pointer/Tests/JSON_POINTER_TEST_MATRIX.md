@@ -110,6 +110,35 @@ Lastläufe auf SQL2022/2025, anderen Plattformen, mit großen verschachtelten
 Fragmenten oder Parallelität sowie Heap-/Produktionskapazität bleiben
 **NOT_EXECUTED** beziehungsweise unqualifiziert.
 
+### Verschachtelte Fragmentlast
+
+Der zusätzliche manuelle Modus `workload_shape=nested` erzeugt `D` geschachtelte
+Objekte mit demselben Key `k` und einen Pointer mit `D` Segmenten `/k`.
+Bei Eingabelänge `B` Bytes enthält der terminale String exakt
+`B/2 - 6D - 2` synthetische `a`-Codeeinheiten; die gesamte JSON-Eingabe
+einschließlich Prefix, Quotes und Suffix muss exakt `B` Bytes lang sein.
+Zulässige Tiefen sind 1,2,4,8,16,32,64,128, maximaler Pointer256
+UTF-16-Einheiten. Die schon vorhandenen Einzeilen-/Wertlängen-/SHA2-256-
+Oracles gelten unverändert. Nur für diesen Modus begrenzt Docker den eigenen
+Container auf 3GiB Arbeitsspeicher ohne Swap. Dies ist eine Testobergrenze,
+kein gemessener Heap- oder Runnerkapazitätswert.
+
+Die sichere Stufenfolge beginnt mit 64KiB und verdoppelt die Tiefe bis128;
+anschließend kann Tiefe128 getrennt mit1MiB,4MiB und16MiB geprüft werden.
+Jede Stufe besitzt einen eigenen Container/Prozess und dieselben 180-/240-/
+300-Sekunden-Grenzen. Nach Timeout, technischen Ressourcenfehlern oder
+unklarem Cleanup werden keine größeren Stufen gestartet. Der reguläre PR-/
+Push-Workflow führt keinen dieser Fälle automatisch aus.
+
+Am 2026-10-06 bestanden lokale flüchtige Linux-SQL2019-CL150-Proben bei
+64KiB/Tiefe2,4,8,16,32,64,128 und anschließend bei Tiefe128 mit1MiB,4MiB
+und exakt16MiB. Die unveränderten Root- und einfachen Objektpfade bestanden
+danach erneut bei64KiB. Jeder Prozess bestätigte seinen eigenen Container-
+Cleanup; es wurde kein Host-Port veröffentlicht. Das ist begrenzte lokale
+synthetische Evidenz. Der manuelle GitHub-Dispatch des neuen Tiefenmodus,
+andere SQL-Versionen/Plattformen, allgemeine JSON-Strukturen, parallele Last
+und produktive Kapazität bleiben **NOT_EXECUTED**.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

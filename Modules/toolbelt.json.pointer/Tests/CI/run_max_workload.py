@@ -16,6 +16,7 @@ import time
 
 SIZES = (65536, 1048576, 4194304, 16777216)
 VERSIONS = {"2019": 150, "2022": 160, "2025": 170}
+DEPTHS = (1, 2, 4, 8, 16, 32, 64, 128)
 WORK_SECONDS = 240
 CLEANUP_SECONDS = 60
 
@@ -57,14 +58,19 @@ def sql_args(cid: str, sqlcmd: str, password: str, database: str, statement: str
     ]
 
 
-def oracle_query(stage_bytes: int, shape: str) -> str:
+def oracle_query(stage_bytes: int, shape: str, depth: int) -> str:
     units = stage_bytes // 2
-    overhead = 2 if shape == "root" else 8
+    overhead = 2 if shape == "root" else (8 if shape == "object" else 6 * depth + 2)
     document = (
         "N'\"' + @Payload + N'\"'" if shape == "root"
-        else "N'{\"k\":\"' + @Payload + N'\"}'"
+        else ("N'{\"k\":\"' + @Payload + N'\"}'" if shape == "object"
+              else f"REPLICATE(CONVERT(nvarchar(max),N'{{\"k\":'),{depth})"
+                   f" + N'\"' + @Payload + N'\"'"
+                   f" + REPLICATE(CONVERT(nvarchar(max),N'}}'),{depth})")
     )
-    pointer = "N''" if shape == "root" else "N'/k'"
+    pointer = ("N''" if shape == "root" else
+               ("N'/k'" if shape == "object" else
+                f"REPLICATE(CONVERT(nvarchar(max),N'/k'),{depth})"))
     return f"""
 SET NOCOUNT ON;
 DECLARE @Payload nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),N'a'),{units - overhead});
@@ -89,8 +95,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--sql-version", choices=VERSIONS, required=True)
     parser.add_argument("--stage-bytes", type=int, choices=SIZES, required=True)
-    parser.add_argument("--shape", choices=("root", "object"), required=True)
+    parser.add_argument("--shape", choices=("root", "object", "nested"), required=True)
+    parser.add_argument("--depth", type=int, choices=DEPTHS, default=1)
     options = parser.parse_args()
+    if options.shape != "nested" and options.depth != 1:
+        parser.error("Tiefe ist nur bei nested verwendbar")
     if os.environ.get("TBX_SQL_TARGET", "runner") != "runner":
         parser.error("Nur eigene flüchtige Runner-Container sind zulässig")
 
@@ -111,13 +120,18 @@ def main() -> int:
     cleanup_ok = True
     try:
         image = f"mcr.microsoft.com/mssql/server:{options.sql_version}-latest"
-        checked([
+        container_args = [
             "docker", "run", "--detach", "--cidfile", str(cid_file),
             "--name", name, "--label", f"tbx.pointer.max.owner={owner}",
             "--env", "ACCEPT_EULA=Y",
             "--env", "MSSQL_PID=Developer", "--env", f"MSSQL_SA_PASSWORD={password}",
-            "--volume", f"{deployment.parent}:/workspace/Deployment:ro", image,
-        ], work_deadline, 90, "Containerstart")
+            "--volume", f"{deployment.parent}:/workspace/Deployment:ro",
+        ]
+        if options.shape == "nested":
+            # Testdefinierte Obergrenze; keine Aussage über tatsächliche Runnerkapazität.
+            container_args.extend(["--memory", "3g", "--memory-swap", "3g"])
+        container_args.append(image)
+        checked(container_args, work_deadline, 90, "Containerstart")
         cid = cid_file.read_text(encoding="ascii").strip()
         if len(cid) != 64 or any(c not in "0123456789abcdef" for c in cid):
             raise ProbeError("Containeridentität fehlt")
@@ -156,7 +170,7 @@ def main() -> int:
         ]
         checked(deploy_args, work_deadline, 120, "Pointer-Deployment")
         output = checked(sql_args(cid, sqlcmd, password, "tbx_json_pointer_max",
-                                  oracle_query(options.stage_bytes, options.shape)),
+                                  oracle_query(options.stage_bytes, options.shape, options.depth)),
                          work_deadline, 180, "Lastorakel")
         if output.strip() != "ORACLE_PASS":
             raise ProbeError("Lastorakel ohne exakten Erfolgsmarker")
@@ -197,7 +211,7 @@ def main() -> int:
     if result != "PASS":
         print(f"{result}: {detail}", file=sys.stderr)
         return 2 if result == "INCONCLUSIVE" else 1
-    print(f"PASS: JSON Pointer {options.sql_version} Linux; {options.shape}; {options.stage_bytes} synthetic input bytes")
+    print(f"PASS: JSON Pointer {options.sql_version} Linux; {options.shape}; depth {options.depth}; {options.stage_bytes} synthetic input bytes")
     return 0
 
 
