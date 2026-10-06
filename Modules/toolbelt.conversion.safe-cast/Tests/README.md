@@ -39,7 +39,13 @@ Consumerbestätigung mit `55426/state1` ab und prüft danach die installierte
 Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird. Ein
 synthetisch auf `9.9.9` gesetzter Release-Marker muss Deploy und Uninstall
 mit `55424/state2` abweisen. Marker und sechs TVFs bleiben erhalten; nach
-Wiederherstellung des eigenen Markers besteht die Baseline. Der reguläre
+Wiederherstellung des eigenen Markers besteht die Baseline. Der CI-Adapter
+startet Deploy und Uninstall zusätzlich mit bereits offener
+Aufrufertransaktion. Beide müssen am frühen Gate mit `50000/state1` und dem
+Safe-Cast-Caller-Präfix abbrechen; danach bleibt die installierte Baseline
+erhalten. Der SQLCMD-Verbindungsabbruch belegt keine Erhaltung der
+Aufrufertransaktion oder ihrer SET-Optionen; diese Zustandsoracles liegen im
+separaten physischen Labadapter. Der reguläre
 flüchtige CI-Container trägt eine zufällige Owner-Kennung. Beim normalen
 Prozessende wird er nur bei exakt passender Kennung entfernt; eine frische
 Docker-Abfrage muss seine Abwesenheit bestätigen, sonst schlägt der CI-Job
@@ -54,8 +60,8 @@ isolierten Test bei Änderungen an einem der beiden CI-Adapter oder dem Test.
 Ein synthetischer View im zentralen Provider belegt zusätzlich eine tatsächliche
 `sys.sql_expression_dependencies`-Referenz. Deploy und Uninstall müssen ihn
 mit `55425/state3` abweisen; die installierte Baseline und der View bleiben
-bis zur kontrollierten Entfernung des Testverbrauchers erhalten. Die gezielten
-Caller-/Lock-/Rollback-/Fremdslot-/Markerfälle des separaten Labadapters,
+bis zur kontrollierten Entfernung des Testverbrauchers erhalten. Die
+vollständigen Caller-/Lock-/Rollback-/Fremdslot-/Markerfälle des separaten Labadapters,
 Minimalrechte und Hard-Interrupt-Recovery gehören nicht zu diesem CI-Scope.
 Lokale statische Prüfung und Client-AST bestanden am 2026-10-05;
 Beide SQLfixtures bestanden anschließend die unabhängige ScriptDom150-
