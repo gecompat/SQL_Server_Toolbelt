@@ -44,6 +44,9 @@ Der separat per `workflow_dispatch` wählbare Lastfall nutzt
 Die Größen-/Formstufen und Abbruchregeln stehen in der
 [Testmatrix](JSON_POINTER_TEST_MATRIX.md). Ein nicht ausgeführter oder
 abgebrochener Lastfall bleibt ausdrücklich ohne Maximalworkload-Nachweis.
+Der ebenfalls manuelle `nested`-Modus prüft feste Tiefenstufen bis128 mit
+eigener Container-Speichergrenze. Die Testmatrix trennt lokale Proben von
+noch nicht ausgeführten GitHub-Dispatches und weiteren Lastformen.
 Der CI-Adapter weist außerdem den zentralen Uninstall ohne explizite
 Consumerbestätigung mit `55526/state1` ab und prüft danach die installierte
 Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird.
