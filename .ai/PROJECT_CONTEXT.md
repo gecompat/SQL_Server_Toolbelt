@@ -37,6 +37,10 @@ Consumer: je13104 API-Oracles,54 Clientreader und38 gezielte Lifecyclefälle.
 Frische unabhängige Audits bestätigen Inputpins, exakte Fixturewiederherstellung
 und die eigene Bereinigung. Drei frühere Gesamtfehlläufe bleiben getrennt.
 Weitere physische Ziele, Minimalrechte, Heap und exakte Head-CI sind separate Gates.
+Zusätzlich bestanden am 2026-10-06 auf demselben exakt ausgewählten
+Windows2025/CU8-Ziel die vollständigen Adapter mit CL150 und CL160,
+jeweils mit frischem unabhängigem Bereinigungs- und Input-/Sourcepinaudit.
+Dies erweitert keine physische Ziel-, Minimalrechte- oder Lastqualifikation.
 Keine Pointer-/Schema-/Provider-/Veröffentlichungsfreigabe daraus abgeleitet.
 
 ## Aktive CSV-Memory-Welle 2026-10-05
