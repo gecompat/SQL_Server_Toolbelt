@@ -35,6 +35,14 @@ genau dieser Lockressource beobachtet wurde. Ein nicht erreichter Rendezvous
 scheitert als Fixturefehler; die UNKNOWN-/Rollback-/No-Replay-Orakel bleiben
 unverändert.
 
+Am 2026-10-06 bestand `pwsh -NoProfile -File
+Workers/ExternalQueue/Tests/ManagedWorker.Contract.ps1` auf Windows zusätzlich
+mit acht Offline-Summary-Orakeln: Registrierungsverlust ohne Claims und nach
+bestätigtem Commit, unbekanntes Lane-Ende, verbliebener Actor sowie Vorrang
+von ungeklärtem Ausgang, fehlendem Slot-Endrecord und Cleanupfehler. Die finale
+Aggregation erfolgt nach dem Lane-Cleanup und erhält bestätigte Zähler.
+Dies ist kein neuer SQL-Transportfault- oder physischer Zielnachweis.
+
 ## Ausgeführter deterministischer Scope
 
 Am 2026-10-02 besteht `pwsh -NoProfile -File
