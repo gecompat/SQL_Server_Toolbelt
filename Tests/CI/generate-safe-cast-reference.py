@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Emit deterministic, synthetic Safe Cast oracles from Python's Decimal/calendar.
+"""Emit deterministic Safe Cast oracles from Python's numeric/calendar/UUID types.
 
 The generated SQL is for an already installed disposable test database only.
 It creates no persistent objects and never reads application data.
@@ -12,6 +12,7 @@ from decimal import Decimal, getcontext
 import random
 import re
 import sys
+import uuid
 
 
 getcontext().prec = 100
@@ -82,6 +83,29 @@ def calendar_oracle(kind: str, value: str | None, budget: int | None) -> str:
     except ValueError:
         return "OUT_OF_RANGE"
     return "OK"
+
+
+def scalar_oracle(kind: str, value: str | None, budget: int | None) -> tuple[str, str | None]:
+    common = classify_common(value, budget)
+    if common:
+        return common, None
+    assert value is not None
+    if kind == "BigInt":
+        if not re.fullmatch(r"[+-]?[0-9]+", value):
+            return "INVALID_FORMAT", None
+        number = int(value)
+        if not -(2**63) <= number < 2**63:
+            return "OUT_OF_RANGE", None
+        return "OK", str(number)
+    if kind == "Bit":
+        return ("OK", value) if value in ("0", "1") else ("INVALID_FORMAT", None)
+    assert kind == "UniqueIdentifier"
+    if not re.fullmatch(
+        r"[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}",
+        value,
+    ):
+        return "INVALID_FORMAT", None
+    return "OK", str(uuid.UUID(value))
 
 
 def emit_inserts(table: str, rows: list[str]) -> None:
@@ -179,11 +203,71 @@ IF (SELECT COUNT(*) FROM @Actual{kind})<>(SELECT COUNT(*) FROM @CalendarCases WH
 """)
 
 
+def emit_scalars() -> int:
+    rng = random.Random(20261007)
+    fixed: dict[str, list[str | None]] = {
+        "BigInt": [
+            None, "", "+0", "-0", "9223372036854775807", "-9223372036854775808",
+            "9223372036854775808", "-9223372036854775809", "1e0", " 1", "+",
+        ],
+        "Bit": [None, "", "0", "1", "2", "-0", "+1", " 0", "0 ", "true"],
+        "UniqueIdentifier": [
+            None, "", "00000000-0000-0000-0000-000000000000",
+            "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF",
+            "{00000000-0000-0000-0000-000000000000}",
+            "00000000-0000-0000-0000-000000000000x",
+        ],
+    }
+    rows = []
+    for kind in ("BigInt", "Bit", "UniqueIdentifier"):
+        values = list(fixed[kind])
+        if kind == "BigInt":
+            for _ in range(400):
+                values.append(
+                    rng.choice(["", "", "+", "-"])
+                    + "".join(rng.choices("0123456789", k=rng.randint(1, 28)))
+                )
+        elif kind == "Bit":
+            for _ in range(200):
+                values.append(rng.choice(["0", "1", "2", "-1", "01", "True", ""]))
+        else:
+            for _ in range(250):
+                text = str(uuid.UUID(int=rng.getrandbits(128)))
+                values.append(rng.choice([text, text.upper(), text.replace("-", ""), text + "x"]))
+        for value in values:
+            budget = rng.choice([8192, 8192, 8192, 1, 0, 8193, None])
+            status, expected = scalar_oracle(kind, value, budget)
+            rows.append(
+                f"({len(rows)+1},'{kind}',{sql_text(value)},{sql_number(budget)},"
+                f"'{status}',{sql_text(expected)},{sql_text(ERROR_CODES.get(status))})"
+            )
+    print("DECLARE @ScalarCases TABLE(Id int PRIMARY KEY,Kind varchar(20),Input nvarchar(max),"
+          "Budget int NULL,ExpectedStatus varchar(16),ExpectedValue nvarchar(128) NULL,"
+          "ExpectedCode varchar(32) NULL);")
+    emit_inserts("@ScalarCases", rows)
+    for kind, value_type in (("BigInt", "bigint"), ("Bit", "bit"),
+                             ("UniqueIdentifier", "uniqueidentifier")):
+        print(f"""
+DECLARE @Actual{kind} TABLE(Id int PRIMARY KEY,Value {value_type} NULL,Status varchar(16),ErrorCode varchar(32) NULL);
+INSERT @Actual{kind} SELECT c.Id,v.Value,v.Status,v.ErrorCode
+FROM @ScalarCases c CROSS APPLY toolbelt_conversion.TVF_TryCast{kind}(c.Input,c.Budget) v WHERE c.Kind='{kind}';
+IF (SELECT COUNT(*) FROM @Actual{kind})<>(SELECT COUNT(*) FROM @ScalarCases WHERE Kind='{kind}')
+ OR EXISTS(SELECT 1 FROM @ScalarCases c LEFT JOIN @Actual{kind} a ON a.Id=c.Id WHERE c.Kind='{kind}' AND
+ (a.Id IS NULL OR a.Status IS NULL OR a.Status COLLATE Latin1_General_100_BIN2<>c.ExpectedStatus COLLATE Latin1_General_100_BIN2
+ OR ISNULL(a.ErrorCode,'<NULL>') COLLATE Latin1_General_100_BIN2<>ISNULL(c.ExpectedCode,'<NULL>') COLLATE Latin1_General_100_BIN2
+ OR (c.ExpectedStatus='OK' AND (a.Value IS NULL OR a.Value<>TRY_CONVERT({value_type},c.ExpectedValue)))
+ OR (c.ExpectedStatus<>'OK' AND a.Value IS NOT NULL)))
+ THROW 55490,N'Synthetic {kind} reference oracle mismatch.',1;
+""")
+    return len(rows)
+
+
 def main() -> None:
     print("SET NOCOUNT ON;")
     emit_decimal()
     emit_calendar()
-    print("SELECT 1033 AS ReferenceCasesPassed;")
+    scalar_count = emit_scalars()
+    print(f"SELECT {1033 + scalar_count} AS ReferenceCasesPassed;")
 
 
 if __name__ == "__main__":
