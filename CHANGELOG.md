@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-06 – JSON-Pointer-Contract-, Safety- und Client-CI ergänzt
+
+- Ein modulbezogener Runtime-Workflow prüft den bestehenden Pointer-Vertrag
+  in flüchtigen Linux-SQL-Server-2019/2022/2025-Containern über die jeweils
+  unterstützten Compatibility Levels, local/central/Consumer, Safety,
+  Clientmetadaten, Repeat und Uninstall. Produkt-SQL und öffentlicher Vertrag
+  bleiben gleich.
+- Gezielte Lifecycle-Negativfälle, Hard-Interrupt-Recovery, weitere physische
+  Ziele, Minimalrechte und Maximalworkload/Heap sind dadurch nicht qualifiziert.
+
 ## 2026-10-06 – Safe-Cast-API- und Client-CI ergänzt
 
 - Ein modulbezogener Runtime-Workflow prüft den bestehenden Safe-Cast-Vertrag

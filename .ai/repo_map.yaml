@@ -119,6 +119,7 @@ sources_of_truth:
   safe_cast_runtime_workflow: .github/workflows/safe-cast-runtime.yml
   json_pointer_module: Modules/toolbelt.json.pointer/module.yaml
   json_pointer_contract: Documentation/Architecture/JSON_POINTER_CONTRACT.md
+  json_pointer_runtime_workflow: .github/workflows/json-pointer-runtime.yml
   json_pointer_depth_policy: Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md
   json_schema_core_contract: Documentation/Architecture/JSON_SCHEMA_CONTRACT.md
   csv_memory_contract: Documentation/Architecture/CSV_MEMORY_CONTRACT.md
@@ -874,8 +875,11 @@ change_impact:
         - Documentation/Architecture/JSON_POINTER_CONTRACT.md
         - Documentation/Architecture/JSON_POINTER_NATIVE_DEPTH_BOUNDARY.md
         - Tests/CI/run-json-pointer-lab.ps1
+        - Tests/CI/run-json-pointer-linux.sh
+        - Tests/CI/run-json-pointer-client.ps1
         - Tests/CI/Test-LabDriverArgumentCase.ps1
         - Tests/CI/JsonPointerLifecycle.Helpers.ps1
+        - .github/workflows/json-pointer-runtime.yml
       checks:
         - json_pointer_static
         - markdown_links
