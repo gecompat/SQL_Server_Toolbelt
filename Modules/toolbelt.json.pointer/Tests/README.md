@@ -59,6 +59,12 @@ Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird.
 Ein synthetisch auf `9.9.9` gesetzter Release-Marker muss sowohl Deploy als
 auch Uninstall mit `55524/state2` abweisen. Der Marker und die TVF bleiben
 erhalten; nach Wiederherstellung des eigenen Markers besteht die Baseline.
+Deploy und Uninstall werden zudem im zentralen CI-Provider mit bereits offener
+Aufrufertransaktion gestartet. Beide müssen am frühen Gate mit
+`50000/state1` und dem Pointer-Caller-Präfix abbrechen; nach jedem Abbruch
+bleibt die installierte Baseline erhalten. Der SQLCMD-Verbindungsabbruch
+belegt keine Erhaltung der Aufrufertransaktion oder ihrer SET-Optionen;
+diese Zustandsoracles liegen im separaten physischen Labadapter.
 Der reguläre flüchtige CI-Container trägt eine zufällige Owner-Kennung. Beim
 normalen Prozessende wird er nur bei exakt passender Kennung entfernt; eine
 frische Docker-Abfrage muss seine Abwesenheit bestätigen, sonst schlägt der

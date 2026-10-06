@@ -184,6 +184,28 @@ expect_unknown_release_rejection() {
     fi
 }
 
+expect_caller_transaction_rejection() {
+    local label="$1" database="$2" script="$3"
+    shift 3
+    # SQLCMD liest denselben Deployment-Einstieg in einer bereits offenen
+    # Aufrufertransaktion. Ein unerwartetes Weiterlaufen endet mit eigenem THROW.
+    if { printf 'SET XACT_ABORT ON;\nBEGIN TRANSACTION;\n:r ./%s\nTHROW 55592,N\x27Pointer: Caller-Gate wurde umgangen.\x27,14;\n' "${script}"; } |
+        docker exec --interactive --workdir "${deployment}" \
+        "${container_name}" "${sqlcmd_path}" \
+        -S localhost -U sa -P "${sa_password}" -C -b -l 15 -t 180 \
+        -d "${database}" -i /dev/stdin "$@" \
+        >"${private_dir}/last-output" 2>&1; then
+        echo "JSON_POINTER_CI_CALLER_UNEXPECTED_SUCCESS:${label}" >&2
+        return 1
+    fi
+    if ! grep -Eq '^Msg 50000, Level 16, State 1,' "${private_dir}/last-output" \
+        || ! grep -Fq 'TBX_JSON_POINTER_LIFECYCLE_CALLER_TRANSACTION:' "${private_dir}/last-output" \
+        || [[ "$(grep -Ec '^Msg [0-9]+,' "${private_dir}/last-output")" != 1 ]]; then
+        echo "JSON_POINTER_CI_CALLER_WRONG_ERROR:${label}" >&2
+        return 1
+    fi
+}
+
 deployment="/workspace/Modules/toolbelt.json.pointer/Deployment"
 runtime="/workspace/Modules/toolbelt.json.pointer/Tests/Runtime"
 client="${workspace}/Tests/CI/run-json-pointer-client.ps1"
@@ -232,6 +254,10 @@ IF @Rows<>1 OR ISNULL(@Status,'')<>'INVALID' OR @JsonType IS NOT NULL
     run_file repeat_central "${central_db}" "${deployment}" Deploy.sql -v DeploymentMode=central
     run_file repeat_baseline_local "${local_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${local_db}"
     run_file repeat_baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
+    expect_caller_transaction_rejection deploy "${central_db}" Deploy.sql -v DeploymentMode=central
+    run_file caller_deploy_preserved "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
+    expect_caller_transaction_rejection uninstall "${central_db}" Uninstall.sql -v ConfirmNoExternalConsumers=1
+    run_file caller_uninstall_preserved "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
     run_query set_unknown_release "${central_db}" "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.json.pointer.Version',@value=N'9.9.9';"
     expect_unknown_release_rejection deploy "${central_db}" Deploy.sql -v DeploymentMode=central
     expect_unknown_release_rejection uninstall "${central_db}" Uninstall.sql -v ConfirmNoExternalConsumers=1
@@ -253,4 +279,4 @@ IF @Rows<>1 OR ISNULL(@Status,'')<>'INVALID' OR @JsonType IS NOT NULL
     done
 done
 
-echo "PASS: JSON Pointer SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Safety, Client, Baseline, Repeat, central UnknownRelease/Dependency/Confirm0 und Uninstall."
+echo "PASS: JSON Pointer SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Safety, Client, Baseline, Repeat, central CallerTransaction/UnknownRelease/Dependency/Confirm0 und Uninstall."
