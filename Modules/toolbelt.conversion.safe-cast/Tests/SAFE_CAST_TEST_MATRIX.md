@@ -19,6 +19,7 @@ Ziele, Minimalrechte, Heap und vollständige Runtime-Head-CI bleiben offen.
 | `Modules/toolbelt.conversion.safe-cast/Tests/Runtime/Contract.Tests.sql` | 182 synthetische feste Fälle; sechs Zieltypen, acht Statuswerte, stabile Codes und typed Value-Oracles; je CROSS/OUTER APPLY, drei Language/DATEFORMAT-Sitzungsformen und vier explizite Inputcollations |
 | `Modules/toolbelt.conversion.safe-cast/Tests/Runtime/Metadata.Tests.ps1` | Sechs echte schemagebundene IFs, je zwei Parameter und drei Spalten; Default 8192, tatsächliche Katalogtypen/Längen/Precision/Scale/Collation/Nullability; 18 direkte Reader für OK/SQL_NULL/INVALID_ARGUMENT, genau eine Zeile ohne weiteren Resultset |
 | `Modules/toolbelt.conversion.safe-cast/Tests/Runtime/Lifecycle.Tests.sql` | Installierte Baseline: genau sechs markierte Objekte, IF/SCHEMABINDING und Parameter-/Spaltenzahlen |
+| `Modules/toolbelt.conversion.safe-cast/Tests/CI/Test-SafeCastLifecycle.ps1` | CI-Adapter der unveränderten kanonischen Helper: 18 local-/20 central-Fälle pro CL; gleicher Callerzustand, AppLock, Rollback, typisierte Marker, Fremdslot, Confirm0; gepinnte eigene DB-Identität, privates Restorejournal, bestätigter Uninstall/Repeat und frische Abwesenheitsprüfung |
 | `Modules/toolbelt.conversion.safe-cast/Tests/Static/validate_contract.py` | Tatsächliche Source-Signaturen/Inlineform/Header/NoIO, feste Typen, gekoppelte Manifest-/Deploy-/Uninstall-/Dokumentations-/Testartefakte; keine SQLausführung |
 
 Die 182 Fälle enthalten SQL-NULL vor ungültigem Budget, Budget0/−1/NULL/8193,
@@ -46,6 +47,12 @@ Scope und frische Dispositionchecks zu qualifizieren.
 
 Keine Performance-, Parallelitäts-, Heap- oder allgemeine Produktionszusage.
 Weitere physische Ziele/CLs/Minimalrechte erst nach dokumentierter Ausführung.
+
+Stand 2026-10-07: Der CI-Adapter ersetzt seine überlappenden zentralen
+Teilprüfungen durch die vollständigen 38 kanonischen Lifecyclefälle pro CL.
+Die historischen CI-Nachweise unten behalten ihren ursprünglichen Scope;
+der erweiterte Runtime-Nachweis ist separat am exakten PR-Head zu prüfen.
+Das Modul bleibt `partially validated` und `unreleased`.
 
 ### Offene Minimalrechte-Qualifikation
 

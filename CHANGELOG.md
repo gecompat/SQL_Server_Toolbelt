@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## 2026-10-07 – Safe-Cast-CI verwendet vollständige kanonische Lifecyclefälle
+
+- Der flüchtige CI-Adapter ersetzt zentrale Teilprüfungen durch dieselben
+  18 local-/20 central-Fälle pro CL wie der vorhandene Labadapter, einschließlich
+  Callerzustand/SET-Optionen, AppLock, Rollback, Marker, Fremdslot und Confirm0.
+- Eigene DB-Identität und Sourcepins, ein privates Restorejournal sowie
+  frische Abwesenheitsprüfungen binden den begrenzten Driver an seine Fixtures.
+  Testcode allein ist kein Runtime-PASS; exakte Head-CI wird im PR nachgewiesen.
+- Produkt-SQL und öffentliche Verträge unverändert; Minimalrechte, gemessene
+  Ressourcen und Hard-Interrupt-Recovery bleiben offen. Teilweise validiert,
+  unveröffentlicht.
+- Erster [nativer CI-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37541002552)
+  scheiterte beim ersten lokalen Lifecycleaufruf auf allen drei SQL-Versionen;
+  die Ursache war wegen unterdrückter fester Diagnosekategorien noch offen.
+  Der Adapter gibt jetzt erst nach Restore eine strikt gefilterte feste
+  Fehlerstufe/-kategorie aus. Rohtexte und private Journale bleiben verborgen;
+  der fehlgeschlagene Lauf wird dadurch nicht zu erfolgreicher Evidenz.
+
 ## 2026-10-07 – Runtime-CI bei Helper- und Generatoränderungen
 
 - Safe-Cast- und JSON-Pointer-Runtime-CI berücksichtigen ihre tatsächlich
