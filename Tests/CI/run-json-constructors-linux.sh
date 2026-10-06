@@ -264,6 +264,31 @@ expect_failure 55626 run_file "${local_database}" "/workspace/.runtime/json-core
 run_file "${local_database}" "/workspace/.runtime/json-schema" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
 run_file "${local_database}" "${runtime_directory}" InstalledMetadata.Contract.sql
 run_file "${local_database}" "${deployment_directory}" Uninstall.sql -v ConfirmNoExternalConsumers=0
+# Die zentrale Schema-Installation verwendet dieselben bekannten Closure-Bytes.
+# Ein Aufruf aus der separaten Consumer-Datenbank prueft den oeffentlichen
+# dreiteiligen USP-Pfad, ohne neue Serverrechte oder Labziele anzulegen.
+run_file "${central_database}" "/workspace/.runtime/json-schema" Deploy.WithAssembly.sql -v DeploymentMode=central
+run_file "${central_database}" "/workspace/.runtime/json-schema" Deploy.WithAssembly.sql -v DeploymentMode=central
+for test in Contract.Tests.sql Safety.Tests.sql; do
+    run_file "${central_database}" "/workspace/Modules/toolbelt.json.schema/Tests/Runtime" "${test}"
+done
+run_query "${consumer_database}" "
+CREATE TABLE #SchemaAnswer(RowKind varchar(8),ErrorOrdinal int,Status varchar(24),
+ Profile varchar(32),IsValid bit,DocumentPointer nvarchar(max),SchemaPointer nvarchar(max),
+ Keyword nvarchar(128),ErrorCode varchar(32),ErrorsTruncated bit);
+INSERT #SchemaAnswer EXEC [${central_database}].toolbelt_json.USP_ValidateJsonSchema
+ @Json=N'{\"quantity\":0}',@Schema=N'{\"properties\":{\"quantity\":{\"minimum\":1}}}';
+IF (SELECT COUNT(*) FROM #SchemaAnswer)<>2
+ OR NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE RowKind='SUMMARY' AND ErrorOrdinal=0
+  AND Status='INVALID_INSTANCE' AND IsValid=0 AND Profile='toolbelt-2020-12-v1')
+ OR NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE RowKind='ERROR' AND ErrorOrdinal=1
+  AND Status='INVALID_INSTANCE' AND DocumentPointer=N'/quantity'
+  AND SchemaPointer=N'/properties/quantity/minimum')
+ THROW 55690,N'Synthetic central Schema consumer oracle failed.',9;
+DROP TABLE #SchemaAnswer;"
+expect_failure 55626 run_file "${central_database}" "/workspace/.runtime/json-core" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
+expect_failure 55635 run_file "${central_database}" "/workspace/.runtime/json-schema" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=0
+run_file "${central_database}" "/workspace/.runtime/json-schema" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
 run_file "${local_database}" "/workspace/.runtime/json-core" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
 run_file "${central_database}" "/workspace/.runtime/json-core" Uninstall.Expanded.sql -v ConfirmNoExternalConsumers=1
-echo "JSON Constructors adapter: local/central/contract/lifecycle PASS."
+echo "JSON Constructors adapter: local/central/contract/lifecycle and Schema central consumer PASS."
