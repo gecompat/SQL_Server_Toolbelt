@@ -24,18 +24,19 @@ Maximalworkload-Nachweis.
 | Runtime/Lifecycle.Tests.sql | Installierter eigener TF-/Marker-/Parameter-/Spaltenbestand |
 | Tests/CI/run-json-pointer-lab.ps1 | Local/central/Consumer mit gewähltem CL, install/repeat/uninstall/repeat, 42 gezielte Caller-/Lock-/Rollback-/Marker-/Fremdslot-/Dependency-/Confirmfälle bei beiden Modi, own cleanup und Inputpins |
 | Tests/CI/run-json-pointer-linux.sh | Flüchtige Linux-Matrix einschließlich harter Inputlimit-Abweisung bei 16 MiB plus einer UTF-16-Codeeinheit; keine 16-MiB-Verarbeitungs- oder Heapqualifikation |
+| Tests/CI/run_max_workload.py | Nur manuell auslösbarer Einzelversuch je Größe/Form/SQL-Version auf eigenem flüchtigem Linux-Container; 240-s-Arbeitsbudget, höchstens60-s-Bereinigung und exaktes serverseitiges Orakel. Ein vorhandener Adapter ist noch kein erfolgreicher Maximalworkload-Nachweis. |
 | Static/validate_contract.py | Source-/Manifest-/Deployment-/Test-/Dokumentationskopplung und nicht schreibender Generatorcheck; keine SQL-Ausführung |
 
 Inputcollations: Latin1_General_100_BIN2, Latin1_General_100_CI_AS,
 Latin1_General_100_CS_AS, Latin1_General_100_CI_AS_SC_UTF8.
 Zielmatrix SQL2019/2022/2025 Windows/Linux mit gültigem CL150/160/170.
-Weitere physische Kombinationen, Minimalrechte, 16MiB-Maximalworkload,
-Heap und Parallelität bleiben bis zur dokumentierten Ausführung not executed.
+Weitere physische Kombinationen, Minimalrechte, über die zwei synthetischen
+Formen hinausgehende Maximalworkloads, Heap und Parallelität bleiben offen.
 Keine Release- oder Produktionszusage.
 
 ## Begrenzter Plan für die noch offene 16-MiB-Verarbeitung
 
-**Nicht ausgeführt.** Die bisherige CI prüft nur die sofortige Abweisung bei
+Die reguläre CI prüft nur die sofortige Abweisung bei
 16777218 Inputbytes. Für genau16777216 Bytes durchläuft die Funktion dagegen
 den rohen Struktur- und den Unicode-Policyscan vollständig. Bei einem
 nichtleeren Pointer kommt `OPENJSON` auf dem gewählten Fragment hinzu;
@@ -50,6 +51,13 @@ Gesamtwatchdog höchstens300 Sekunden einschließlich60 Sekunden reserviertem
 Cleanupfenster. Nach Timeout, unklarem Prozessende oder
 unbestätigter Bereinigung endet die Stufenfolge ohne weitere Last. Der
 reguläre PR-Runtime-Workflow erhält daraus keinen automatischen Maximaltest.
+Der Workflow `JSON Pointer Runtime` bietet hierfür ausschließlich per
+`workflow_dispatch` die Eingaben `workload_bytes`, `workload_shape` und
+`workload_sql_version`; `workload_bytes=none` belässt die reguläre Matrix.
+Jeder Lastaufruf führt genau einen Fall aus. Die Stufen sind manuell in der
+Reihenfolge 64KiB,1MiB,4MiB,16MiB und zuerst `root`, danach `object`
+zu starten. Der 7-Minuten-Jobtimeout ist nur eine letzte äußere Schranke;
+ein dadurch hart beendeter Job ohne bestätigtes Cleanup ist INCONCLUSIVE.
 
 1. Ein vollständiger JSON-String als Root mit leerem Pointer wird gestuft bei
    64 KiB,1 MiB,4 MiB und exakt16 MiB Original-`DATALENGTH` geprüft. Nur nach
@@ -73,6 +81,18 @@ Bereinigungsaudit. Gemessene Zeiten, Heap-/Hostwerte, reale Logs und
 Zielinventar bleiben außerhalb des Repositories. Selbst zwei erfolgreiche
 Grenzfälle belegen weder Tiefe128 bei Maximalgröße noch Parallelität oder
 Produktionskapazität.
+
+Am 2026-10-06 bestand ein gezielter lokaler Lauf des neuen Adapters mit
+flüchtigem Linux-SQL-Server2019-Container und CL150. Für `root` und danach
+`object` bestanden getrennte Prozesse bei 65536,1048576,4194304 und16777216
+Originalbytes jeweils das Einzeilen-, Status-/Typ-, Längen- und SHA2-256-Orakel;
+der jeweilige eigene Container war nach jedem Prozess entfernt. Ausführung:
+`python Modules/toolbelt.json.pointer/Tests/CI/run_max_workload.py`
+mit den Optionen `--sql-version 2019 --stage-bytes <Stufe> --shape <Form>`.
+Dies ist ein einzelner synthetischer Host-/SQL-Versuch, kein Head-CI-Lauf,
+kein gemessenes Heap-/Parallelitäts- oder produktives Leistungsversprechen.
+Manuelle Workflow-Dispatch-Läufe, SQL2022/2025, andere Plattformen sowie
+große verschachtelte Fragmente bleiben **NOT_EXECUTED**.
 
 ## Aktuelle Validierungsevidenz
 

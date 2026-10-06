@@ -26,6 +26,25 @@ on:
       - "Tests/CI/run-json-pointer-client.ps1"
       - "Tests/CI/run-lab-target.sh"
   workflow_dispatch:
+    inputs:
+      workload_bytes:
+        description: "Optionaler einzelner synthetischer Lastfall; none startet die reguläre Matrix"
+        type: choice
+        required: true
+        default: "none"
+        options: ["none", "65536", "1048576", "4194304", "16777216"]
+      workload_shape:
+        description: "JSON-Form für den manuellen Lastfall"
+        type: choice
+        required: true
+        default: "root"
+        options: ["root", "object"]
+      workload_sql_version:
+        description: "SQL-Version für genau einen flüchtigen Container"
+        type: choice
+        required: true
+        default: "2019"
+        options: ["2019", "2022", "2025"]
 
 permissions:
   contents: read
@@ -37,6 +56,7 @@ concurrency:
 
 jobs:
   runtime:
+    if: github.event_name != 'workflow_dispatch' || inputs.workload_bytes == 'none'
     name: SQL Server ${{ matrix.sql-version }} Linux
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -56,3 +76,22 @@ jobs:
           TBX_SQL_VERSION: ${{ matrix.sql-version }}
           TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest
         run: bash Tests/CI/run-lab-target.sh Tests/CI/run-json-pointer-linux.sh
+
+  max-workload:
+    if: github.event_name == 'workflow_dispatch' && inputs.workload_bytes != 'none'
+    name: Manual synthetic ${{ inputs.workload_bytes }} bytes
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Validate static contract
+        run: python3 Modules/toolbelt.json.pointer/Tests/Static/validate_contract.py
+      - name: Execute one bounded owned-container probe
+        env:
+          STAGE_BYTES: ${{ inputs.workload_bytes }}
+          SHAPE: ${{ inputs.workload_shape }}
+          SQL_VERSION: ${{ inputs.workload_sql_version }}
+        run: >-
+          python3 Modules/toolbelt.json.pointer/Tests/CI/run_max_workload.py
+          --stage-bytes "$STAGE_BYTES" --shape "$SHAPE" --sql-version "$SQL_VERSION"

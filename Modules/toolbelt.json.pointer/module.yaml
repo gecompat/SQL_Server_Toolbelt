@@ -73,6 +73,7 @@ tests:
   contract: "Tests/Runtime/Metadata.Tests.ps1"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   lab: "../../Tests/CI/run-json-pointer-lab.ps1"
+  max_workload: "Tests/CI/run_max_workload.py"
 validation_evidence:
   - date: "2026-10-05"
     workflow: "local: Tests/Static/validate_contract.py"
