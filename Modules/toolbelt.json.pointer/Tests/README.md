@@ -28,6 +28,8 @@ Statisch: `python Modules/toolbelt.json.pointer/Tests/Static/validate_contract.p
 Der pfadbezogene Dokumentationsworkflow führt diesen Source-/Deploymentvertrag
 bei Änderungen am JSON-Pointer-Modul ebenfalls aus; das ist kein SQL-Runtime-
 oder vollständiger exakter Head-CI-Nachweis.
+`Tests/CI/Test-LabDriverArgumentCase.ps1` prüft die Parameterbindung des
+Labtreibers mit synthetischen Argumenten ohne Verbindung zum Lab.
 Der kanonische Deploymentgenerator wird dabei nicht schreibend geprüft.
 Weitere physische Ziele, Minimalrechte und Heap-/Maximalworkloadqualifikation
 bleiben offen; die tatsächlich ausgeführte begrenzte API-/Safetyqualifikation

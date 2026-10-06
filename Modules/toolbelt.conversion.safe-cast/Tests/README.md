@@ -27,6 +27,8 @@ Statisch: `python Modules/toolbelt.conversion.safe-cast/Tests/Static/validate_co
 Der pfadbezogene Dokumentationsworkflow führt diesen Source-/Deploymentvertrag
 bei Änderungen am Safe-Cast-Modul ebenfalls aus; das ist kein SQL-Runtime-
 oder vollständiger exakter Head-CI-Nachweis.
+`Tests/CI/Test-LabDriverArgumentCase.ps1` prüft die Parameterbindung des
+Labtreibers mit synthetischen Argumenten ohne Verbindung zum Lab.
 Der gekoppelte Generator läuft ausschließlich im nicht schreibenden Checkmodus.
 Lokale statische Prüfung und Client-AST bestanden am 2026-10-05;
 Beide SQLfixtures bestanden anschließend die unabhängige ScriptDom150-

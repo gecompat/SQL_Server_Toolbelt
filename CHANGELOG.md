@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-10-06 – Exakte Argumentbindung der Safe-Cast-/Pointer-Labtreiber
+
+- Plattform, Version, Deploymentmodus und Pointer-Qualifikationsscope werden
+  bereits bei der Parameterbindung exakt geprüft. Ein synthetischer CI-Test
+  führt nur die isolierten Paramblöcke aus; kein Labzugriff oder Produkt-SQL.
+  Die nachgelagerte exakte Zielauswahl war bereits geschlossen.
+
 ## 2026-10-06 – JSON-Pointer-Quellvertrag in der pfadbezogenen CI
 
 - Der bestehende statische JSON-Pointer-Vertrag läuft bei Moduländerungen und

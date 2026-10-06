@@ -1,13 +1,13 @@
 [CmdletBinding()]
 param(
- [ValidateSet('linux','windows')][string]$Platform='linux',
- [ValidateSet('2019','2022','2025')][string]$Version='2019',
+ [ValidateSet('linux','windows',IgnoreCase=$false)][string]$Platform='linux',
+ [ValidateSet('2019','2022','2025',IgnoreCase=$false)][string]$Version='2019',
  [string]$Patch='latest',
  [ValidateSet(150,160,170)][int]$CompatibilityLevel=150,
  [Parameter(Mandatory)][string]$JournalManifestPath,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedPromptSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedDriverSHA256,
- [ValidateSet('local','central')][string[]]$DeploymentModes=@('local','central')
+ [ValidateSet('local','central',IgnoreCase=$false)][string[]]$DeploymentModes=@('local','central')
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'

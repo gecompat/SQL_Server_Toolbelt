@@ -69,6 +69,18 @@ jobs:
             python3 Modules/toolbelt.json.pointer/Tests/Static/validate_contract.py
           fi
 
+      - name: Test strict Lab driver arguments without Lab access
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          $changed = @(git diff --name-only $env:BASE_SHA $env:HEAD_SHA)
+          if ($env:EVENT_NAME -eq 'workflow_dispatch' -or @($changed | Where-Object { $_ -match '^(Tests/CI/(run-safe-cast-lab|run-json-pointer-lab|Test-LabDriverArgumentCase)\.ps1$|\.github/workflows/documentation-consistency\.yml$)' }).Count -gt 0) {
+            ./Tests/CI/Test-LabDriverArgumentCase.ps1
+          }
+
       - name: Test synthetic Lab target selection
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
