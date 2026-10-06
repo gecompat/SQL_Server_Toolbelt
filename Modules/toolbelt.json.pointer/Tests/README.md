@@ -77,11 +77,22 @@ Lifecycle-only-Scopes bleiben getrennte historische Nachweise. Weitere
 physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und exakteHead-CI
 bleiben separat offen; teilweise validiert und unveröffentlicht.
 
+Am 2026-10-06 bestanden zwei weitere vollständige Adapter auf demselben
+schema-validierten, exakt ausgewählten Windows2025/CU8-Ziel mit CL150 und CL160.
+Je local/central/Consumer, Contract/Safety, direkte Clientmetadaten,42
+Lifecyclefälle sowie Repeat/Uninstall/Repeat; tatsächlicherExit0, vollständige
+Kanäle und leeresStderr. Getrennte frische unabhängige Audits bestätigten je
+COMPLETE42, drei eigene DBs abwesend, je zwei Marker-/Fremdslot-/
+Dependencyfixtures exakt restauriert mit zwei Abweisungen, sämtliche Inputpins
+unverändert und Nullscope Konfiguration/Rechte/Trust. Die früheren CL170-/
+Linuxnachweise bleiben eigenständig. Weitere physische Ziele, Minimalrechte,
+16MiB-Maximalworkload/Heap und vollständige Runtime-Head-CI bleiben offen.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-05`
+- Datum: `2026-10-06`
 - Nachweis: `local: Tests/CI/run-json-pointer-lab.ps1 -QualificationScope full`
-- Scope: Nach ausdrücklicher128er-Prioritätsänderungsfreigabe finaler identischer eingefrorener Source-/Deployment-/Fixture-/Adapterstand auf Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 bestanden: jeweils local/central/Consumer,3072 feste Contract-/Safety-APPLY-Oracles,15 echte direkte Statusclientreader, installierte Baseline, Clean/Repeat/Uninstall/Repeat und42 gezielte Caller-/Lock-/Rollback-/TypedMarker-/Fremdslot-/Dependency-/Confirm0-Fälle. Je tatsächlicherExit0, vollständige Kanäle und leeresStderr. Neue unabhängige Verbindungen bestätigen COMPLETE42, drei eigeneDBs abwesend, je zwei Marker-/Fremdslot-/Dependencyfixtures exakt restauriert mit je zwei Abweisungen und sämtlicheInputpins unverändert. Nullscope Konfiguration/Rechte/Trust. Beide früheren Gesamtfehlläufe und separate Lifecycle-Scope-Erfolge bleiben getrennt; weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und exakteHead-CI separat offen. Teilweise validiert und unveröffentlicht.
+- Scope: Zusätzliche vollständige Läufe auf demselben schema-validierten, exakt ausgewählten Windows2025/CU8-Ziel mit CL150 und CL160 bestanden jeweils local/central/Consumer, Contract/Safety, direkte Clientmetadaten, Repeat und42 Lifecyclefälle. Je Exit0, vollständige Kanäle und leeresStderr; frische unabhängige Audits bestätigten COMPLETE42, drei eigene DBs abwesend, je zwei Marker-/Fremdslot-/Dependencyfixtures exakt restauriert mit zwei Abweisungen, unveränderte Inputpins und Nullscope Konfiguration/Rechte/Trust. CL150/160 sind getrennte neue Nachweise; CL170 und Linux2019 CL150 bleiben frühere Nachweise. Weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und vollständige Runtime-Head-CI offen; teilweise validiert, unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

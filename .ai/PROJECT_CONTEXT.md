@@ -16,6 +16,10 @@ und Inputpins; keine Konfigurations-/Rechte-/Truständerungen. Zwei frühere
 Safetyfehlläufe und getrennte Lifecycle-only-Erfolge bleiben Historie.
 Weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und exakte
 Head-CI sind separat offen; teilweise validiert, unveröffentlicht.
+Zusätzlich bestanden am 2026-10-06 auf demselben exakt ausgewählten
+Windows2025/CU8-Ziel die vollständigen Pointer-Adapter mit CL150 und CL160,
+jeweils mit frischem unabhängigem Bereinigungs- und Inputpinaudit. Dies
+erweitert keine physische Ziel-, Minimalrechte- oder Lastqualifikation.
 
 ## Aktive Safe-Cast-Welle 2026-10-05
 

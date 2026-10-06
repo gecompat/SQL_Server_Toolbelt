@@ -65,6 +65,16 @@ identische eingefrorene Repository-Inputs. Weitere Ziele, Minimalrechte,
 16MiB-Maximalworkload/Heap und exakteHead-CI separat offen; teilweise validiert,
 unveröffentlicht. Frühere Fehlläufe bleiben fehlgeschlagen.
 
+Zusätzliche Qualifikation 2026-10-06: Auf demselben zuvor ausgewählten,
+schema-validierten Windows2025/exaktCU8-Ziel bestanden die vollständigen
+Pointer-Adapter mit CL150 und CL160, jeweils local/central/Consumer,
+Contract/Safety, direkte Clientmetadaten und42 Lifecyclefälle. Zwei frische
+unabhängige Audits bestätigen je eigene DB-Bereinigung, exakte Wiederherstellung
+der Marker-/Fremdslot-/Dependencyfixtures und unveränderte Inputpins; keine
+Konfigurations-, Rechte- oder Truständerung. Die früheren CL170-/Linuxnachweise
+bleiben getrennt. Weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/
+Heap und vollständige Runtime-Head-CI bleiben offen.
+
 ### RI-2026-076: sechs Safe-Cast-TVFs – einzeln freigegeben 2026-10-05
 
 Nach der Vertragsbesprechung in [PR170](https://github.com/gecompat/SQL_Server_Toolbelt/pull/170)

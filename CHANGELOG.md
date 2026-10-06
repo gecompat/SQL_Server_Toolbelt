@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-06 – JSON Pointer auf Windows 2025 mit CL150/160 qualifiziert
+
+- Derselbe bereits ausgewählte Windows2025/CU8-Testserver bestand die vollständigen
+  Pointer-Adapter zusätzlich mit CL150 und CL160, je local/central/Consumer,
+  Contract/Safety/Client und42 Lifecyclefällen. Frische unabhängige Audits
+  bestätigten eigene Bereinigung, Fixturewiederherstellung und unveränderte
+  Eingaben. Produkt-SQL und öffentlicher Vertrag blieben unverändert.
+- Weitere physische Ziele, Minimalrechte, Maximalworkload/Heap und vollständige
+  Runtime-Head-CI bleiben offen; teilweise validiert und unveröffentlicht.
+
 ## 2026-10-06 – Exakte Argumentbindung der Safe-Cast-/Pointer-Labtreiber
 
 - Plattform, Version, Deploymentmodus und Pointer-Qualifikationsscope werden
