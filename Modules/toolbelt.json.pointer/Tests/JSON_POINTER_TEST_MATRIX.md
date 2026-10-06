@@ -162,6 +162,46 @@ Maximalgrößen auf SQL2022/2025, anderen Plattformen, in anderen JSON-
 Strukturen oder unter Parallelität sowie tatsächlicher Heapverbrauch,
 Hard-Interrupt-Recovery und Produktionskapazität bleiben offen.
 
+## Ausstehender Nachweis nach hartem Prozessabbruch
+
+Der manuelle Lastadapter entfernt seinen eigenen Container in einem Python-
+`finally`; der reguläre Linux-Adapter verwendet einen Shell-`EXIT`-Trap.
+Beides wirkt nur, solange der jeweilige Prozess seine Aufräumroutine noch
+ausführen kann. Ein `SIGKILL`, ein abrupt beendeter Runner oder ein nicht
+erreichbarer Docker-Daemon ist damit **nicht** als bereinigt nachgewiesen.
+Die Workflow-Einstellung `cancel-in-progress: false` verhindert lediglich
+die automatische Ablösung eines laufenden Jobs; sie ist kein Recoverytest.
+
+Ein eigenständiger Hard-Interrupt-Nachweis benötigt einen *außerhalb* des
+Testprozesses laufenden Supervisor und ausschließlich einen eigens erzeugten,
+flüchtigen Docker-Container. Vor dessen Start hält der Supervisor eine zufällige
+Owner-ID und den daraus deterministisch gebildeten Containernamen in einem
+privaten, nicht versionierten Journal fest. Der Testcontainer trägt dieselbe
+Owner-ID als Docker-Label. Weder fremde Container noch gemeinsam genutzte
+Labziele dürfen für diesen Nachweis beendet werden.
+
+1. Einen kleinen synthetischen Test starten und nach bestätigtem Containerstart
+   den *Kindprozess* hart beenden. Der Supervisor selbst muss weiterlaufen.
+   Die Unterbrechung vor und nach dem Schreiben der Container-ID sind getrennte
+   Fälle; ein bloßes `EXIT`-Trap- oder `finally`-Ergebnis zählt nicht.
+2. In einer frischen Supervisoraktion Name **und** Owner-Label exakt vergleichen.
+   Nur bei Übereinstimmung den eigenen Container gezielt entfernen und durch
+   eine erfolgreiche Docker-Abfrage seine Abwesenheit prüfen. Ein fehlendes
+   Label, ein fremdes Label oder ein unerreichbarer Daemon verbietet blindes
+   Entfernen und ergibt `INCONCLUSIVE` bis zur manuellen Zuordnung.
+3. Als Negativkontrolle einen absichtlich falschen Owner gegen den noch
+   vorhandenen eigenen Container prüfen: Der Versuch muss die Entfernung
+   verweigern. Anschließend erfolgt die Entfernung ausschließlich mit der
+   richtigen Owner-ID. Ein neuer, unabhängiger Audit bestätigt die Abwesenheit
+   und das unveränderte fremde Umfeld. Bei unbekanntem Cleanup keine weitere
+   Laststufe starten.
+
+Ein erfolgreicher Versuch würde nur die geprüfte lokale Kindprozess-/Docker-
+Recovery belegen. Runnerverlust, Hostausfall, Docker-Daemon-Ausfall,
+SQL-Transaktionszustand, geteilter Labzustand und allgemeine CI-Abbruchfreigabe
+blieben eigene offene Nachweise. Dieser Plan wurde noch **NOT_EXECUTED**;
+Hard-Interrupt-Recovery ist weiterhin offen.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
