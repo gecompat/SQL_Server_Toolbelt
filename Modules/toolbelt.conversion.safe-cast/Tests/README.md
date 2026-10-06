@@ -36,7 +36,11 @@ Compatibility Levels mit local/central/Consumer: feste API-Fixtures,
 Clientmetadaten, installierte Baseline, Repeat und Uninstall.
 Der CI-Adapter weist außerdem den zentralen Uninstall ohne explizite
 Consumerbestätigung mit `55426/state1` ab und prüft danach die installierte
-Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird. Die gezielten
+Baseline erneut, bevor der bestätigte Uninstall ausgeführt wird. Ein
+synthetischer View im zentralen Provider belegt zusätzlich eine tatsächliche
+`sys.sql_expression_dependencies`-Referenz. Deploy und Uninstall müssen ihn
+mit `55425/state3` abweisen; die installierte Baseline und der View bleiben
+bis zur kontrollierten Entfernung des Testverbrauchers erhalten. Die gezielten
 Caller-/Lock-/Rollback-/Fremdslot-/Markerfälle des separaten Labadapters,
 Minimalrechte und Hard-Interrupt-Recovery gehören nicht zu diesem CI-Scope.
 Lokale statische Prüfung und Client-AST bestanden am 2026-10-05;
