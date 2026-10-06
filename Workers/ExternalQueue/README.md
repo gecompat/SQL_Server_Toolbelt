@@ -114,6 +114,9 @@ Die Summary unterscheidet `Claims`, `Completed`, `Failed`, `Retried`,
 `DeadLetter` und `Unresolved`. Ihr `Status=COMPLETED` bezeichnet das Ende
 des Supervisorlaufs und ist keine Zusage, dass jeder Claim erfolgreich war.
 Ein ungeklärter Ausgang führt zu `Status=OUTCOME_UNKNOWN`.
+Im Managed-Betrieb gilt dies auch bei verlorenem Registrierungs-/Heartbeatkanal
+ohne aktive Claims oder während dessen abschließender Bereinigung. Die Summary
+wird erst danach aggregiert; bestätigte Ausführungszähler bleiben erhalten.
 
 Deterministische Fault-Prüfung:
 

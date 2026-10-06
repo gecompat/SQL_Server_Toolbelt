@@ -349,6 +349,16 @@ function Read-ManagedClaim($Connection,$Context) {
         return $row
     } finally {$command.Dispose()}
 }
+function Get-ManagedRunStatus($Counts,$Lane,[bool]$LaneClosed,[int]$ActiveCount) {
+    # Erst nach dem Ende der Registrierungslane aggregieren: Ein später
+    # Controlverlust darf keinen erfolgreichen Supervisorabschluss vortäuschen.
+    # Bestätigte Ausführungsfakten und ihre Zähler bleiben davon unabhängig.
+    if($Counts.Unresolved -gt 0 -or $ActiveCount -gt 0 -or -not $LaneClosed -or
+        ($null -ne $Lane -and -not $Lane.Healthy)){return 'OUTCOME_UNKNOWN'}
+    if($Counts.SlotEndUnconfirmed -gt 0){return 'END_RECORD_UNKNOWN'}
+    if($Counts.CleanupFailed -gt 0){return 'CLEANUP_FAILED'}
+    return 'COMPLETED'
+}
 function Invoke-ManagedQueueWorker($Settings,[string]$ConnectionString,[guid]$WorkerId,[int]$Capacity,[string]$RunMode) {
     $builder=[System.Data.SqlClient.SqlConnectionStringBuilder]::new($ConnectionString)
     if(-not $builder.Encrypt){throw 'WORKER.ENCRYPTION_REQUIRED'}
@@ -435,9 +445,6 @@ SELECT COUNT(*) FROM sys.extended_properties WHERE class=0 AND
             if($draining -and $active.Count -eq 0){break}
             [System.Threading.Thread]::Sleep([int]($Settings.PollSeconds*1000))
         }
-        if($counts.Unresolved -gt 0){$counts.Status='OUTCOME_UNKNOWN'}
-        elseif($counts.SlotEndUnconfirmed -gt 0){$counts.Status='END_RECORD_UNKNOWN'}
-        elseif($counts.CleanupFailed -gt 0){$counts.Status='CLEANUP_FAILED'}
     } finally {
         if($null -ne $lane){$lane.Stop=$true}
         $laneClosed=$true
@@ -448,19 +455,18 @@ SELECT COUNT(*) FROM sys.extended_properties WHERE class=0 AND
             else{$laneClosed=$false}
         }
         if($null -ne $laneShell -and ($null -eq $laneTask -or $laneTask.IsCompleted)){try{$laneShell.Dispose()}catch{$laneClosed=$false}}
-        if($active.Count -gt 0){$counts.Status='OUTCOME_UNKNOWN'}
         if($null -ne $connection) {
             if($null -ne $context.Registration -and $active.Count -eq 0 -and $laneClosed) {
                 try {
                     $close=New-ManagedCommand $connection 'EXEC toolbelt_core.USP_CloseWorker @WorkerId=@WorkerId,@WorkerGeneration=@WorkerGeneration,@WorkerToken=@WorkerToken;' $context
                     try{Add-ManagedRegistration $close $context;[void]$close.ExecuteNonQuery()}finally{$close.Dispose()}
-                } catch {$counts.CleanupFailed++;if($counts.Status -ceq 'COMPLETED'){$counts.Status='CLEANUP_FAILED'}}
+                } catch {$counts.CleanupFailed++}
             }
             $connection.Dispose()
         }
-        if(-not $laneClosed){$counts.Status='OUTCOME_UNKNOWN'}
         $context.ConnectionString=$null
     }
+    $counts.Status=Get-ManagedRunStatus $counts $lane $laneClosed $active.Count
     return [pscustomobject]$counts
 }
 
