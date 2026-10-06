@@ -1,0 +1,58 @@
+name: Safe Cast Runtime
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/safe-cast-runtime.yml"
+      - "Modules/toolbelt.conversion.safe-cast/module.yaml"
+      - "Modules/toolbelt.conversion.safe-cast/Source/**"
+      - "Modules/toolbelt.conversion.safe-cast/Deployment/**"
+      - "Modules/toolbelt.conversion.safe-cast/Tests/Runtime/**"
+      - "Modules/toolbelt.conversion.safe-cast/Tests/Static/**"
+      - "Tests/CI/run-safe-cast-linux.sh"
+      - "Tests/CI/run-safe-cast-client.ps1"
+      - "Tests/CI/run-lab-target.sh"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/safe-cast-runtime.yml"
+      - "Modules/toolbelt.conversion.safe-cast/module.yaml"
+      - "Modules/toolbelt.conversion.safe-cast/Source/**"
+      - "Modules/toolbelt.conversion.safe-cast/Deployment/**"
+      - "Modules/toolbelt.conversion.safe-cast/Tests/Runtime/**"
+      - "Modules/toolbelt.conversion.safe-cast/Tests/Static/**"
+      - "Tests/CI/run-safe-cast-linux.sh"
+      - "Tests/CI/run-safe-cast-client.ps1"
+      - "Tests/CI/run-lab-target.sh"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: safe-cast-runtime-${{ github.ref }}
+  # Laufende Runtimeprüfung erhalten: ein EXIT-Trap belegt kein Hard-Interrupt-Cleanup.
+  cancel-in-progress: false
+
+jobs:
+  runtime:
+    name: SQL Server ${{ matrix.sql-version }} Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        sql-version: ["2019", "2022", "2025"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate static contract
+        run: python3 Modules/toolbelt.conversion.safe-cast/Tests/Static/validate_contract.py
+
+      - name: Execute synthetic API, client and installed lifecycle tests
+        env:
+          TBX_SQL_VERSION: ${{ matrix.sql-version }}
+          TBX_SQL_IMAGE: mcr.microsoft.com/mssql/server:${{ matrix.sql-version }}-latest
+        run: bash Tests/CI/run-lab-target.sh Tests/CI/run-safe-cast-linux.sh
