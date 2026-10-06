@@ -75,6 +75,21 @@ Konfigurations-, Rechte- oder Truständerung. Die früheren CL170-/Linuxnachweis
 bleiben getrennt. Weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/
 Heap und vollständige Runtime-Head-CI bleiben offen.
 
+CI-Fortschritt 2026-10-06: [PR187](https://github.com/gecompat/SQL_Server_Toolbelt/pull/187)
+bestand am exakten Head `57dbc5e319b8229a68cf87d0a1140dec687ae4d2` die
+[Dokumentationsprüfung](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37403031663)
+und den [Pointer-Runtime-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37403031731)
+mit erfolgreichen Linux-2019/2022/2025-Jobs. Auf `main` bestanden danach
+[Dokumentation](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37403199690)
+und [Pointer-Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37403199703)
+erneut. Der CI-Scope umfasst synthetische Contract-/Safetyfixtures, echte
+Clientmetadaten und installierte Baseline mit local/central/Consumer, Repeat
+und Uninstall. Die 42 gezielten Lifecyclefälle sind bislang nur in den oben
+genannten physischen Labadaptern belegt. Ihre vollständige Head-CI, weitere
+physische Ziele, Minimalrechte, Hard-Interrupt-Recovery, 16-MiB-Maximalworkload
+und Heap bleiben offen; `partially validated`,
+`unreleased`.
+
 ### RI-2026-076: sechs Safe-Cast-TVFs – einzeln freigegeben 2026-10-05
 
 Nach der Vertragsbesprechung in [PR170](https://github.com/gecompat/SQL_Server_Toolbelt/pull/170)
@@ -106,6 +121,21 @@ Audits bestätigten je drei eigene DBs abwesend, exakte Marker-/Fremdslot-
 Wiederherstellung und unveränderte Input-/Sourcepins. Keine Konfigurations-,
 Rechte- oder Truständerung; übrige physische Ziele, Minimalrechte, Heap und
 vollständige Runtime-Head-CI bleiben offen.
+
+CI-Fortschritt 2026-10-06: [PR186](https://github.com/gecompat/SQL_Server_Toolbelt/pull/186)
+bestand am exakten Head `64f4ab9dbd48a8eefd838f9fb95f3ab13e507513` die
+[Dokumentationsprüfung](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402202963)
+und den [Safe-Cast-Runtime-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402203046)
+mit erfolgreichen Linux-2019/2022/2025-Jobs. Auf `main` bestanden danach
+[Dokumentation](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402837670)
+und [Safe-Cast-Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402837558)
+erneut. Der CI-Scope umfasst synthetische API-Fixtures, echte Clientmetadaten
+und installierte Baseline mit local/central/Consumer, Repeat und Uninstall.
+Die 38 gezielten Lifecyclefälle sind bislang nur in den oben genannten
+physischen Labadaptern belegt. Ihre vollständige Head-CI, weitere physische
+Ziele, Minimalrechte, Hard-Interrupt-Recovery und Heap bleiben offene
+Nachweise; `partially validated`, `unreleased`.
+
 Unabhängiger Review, begrenzte relevante Tests, exakte Head-CI, PR/Merge und
 eigener Branch-Cleanup gehören zur bereits beauftragten Fortsetzung.
 Keine neue Pointer-/Schema-/CLR-/Veröffentlichungsfreigabe. Ältere Aussagen

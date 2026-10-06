@@ -20,6 +20,14 @@ Zusätzlich bestanden am 2026-10-06 auf demselben exakt ausgewählten
 Windows2025/CU8-Ziel die vollständigen Pointer-Adapter mit CL150 und CL160,
 jeweils mit frischem unabhängigem Bereinigungs- und Inputpinaudit. Dies
 erweitert keine physische Ziel-, Minimalrechte- oder Lastqualifikation.
+Der begrenzte Pointer-Runtime-Workflow bestand am 2026-10-06 am exakten
+[PR187-Head](https://github.com/gecompat/SQL_Server_Toolbelt/pull/187)
+für Linux SQL Server 2019/2022/2025
+([Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37403031731))
+und anschließend auf [main](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37403199703).
+Contract/Safety, Clientmetadaten und installierte Baseline sind damit durch CI
+belegt; die 42 gezielten Lifecyclefälle sind nur durch die oben genannten
+physischen Labadapter belegt und gehören nicht zu diesem CI-Scope.
 
 ## Aktive Safe-Cast-Welle 2026-10-05
 
@@ -41,6 +49,14 @@ Zusätzlich bestanden am 2026-10-06 auf demselben exakt ausgewählten
 Windows2025/CU8-Ziel die vollständigen Adapter mit CL150 und CL160,
 jeweils mit frischem unabhängigem Bereinigungs- und Input-/Sourcepinaudit.
 Dies erweitert keine physische Ziel-, Minimalrechte- oder Lastqualifikation.
+Der begrenzte Safe-Cast-Runtime-Workflow bestand am 2026-10-06 am exakten
+[PR186-Head](https://github.com/gecompat/SQL_Server_Toolbelt/pull/186)
+für Linux SQL Server 2019/2022/2025
+([Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402203046))
+und anschließend auf [main](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37402837558).
+API-Fixtures, Clientmetadaten und installierte Baseline sind damit durch CI
+belegt; die 38 gezielten Lifecyclefälle sind nur durch die oben genannten
+physischen Labadapter belegt und gehören nicht zu diesem CI-Scope.
 Keine Pointer-/Schema-/Provider-/Veröffentlichungsfreigabe daraus abgeleitet.
 
 ## Aktive CSV-Memory-Welle 2026-10-05
