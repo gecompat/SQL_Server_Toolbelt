@@ -200,8 +200,11 @@ PYSQL
 legacy_directory="/workspace/.runtime/json-constructors-legacy/Deployment"
 run_schema_upgrade_fault() {
     local database_name="$1" schema_mode="$2"
-    python3 - "${schema_mode}" <<'PYSCHEMA' | docker exec -i "${container_name}" "${sqlcmd_path}" \
-        -S localhost -U sa -P "${sa_password}" -C -b -d "${database_name}"
+    local fault_host="${private_dir}/schema-upgrade-fault.sql"
+    local fault_container="/tmp/tbx-schema-fault-${container_owner}.sql"
+    # Das große Assemblyliteral über denselben Dateipfadmodus wie Deploy lesen;
+    # SQLCMD-stdin darf den injizierten Batch nicht anders segmentieren.
+    if ! python3 - "${schema_mode}" "${fault_host}" <<'PYSCHEMA'
 from pathlib import Path
 import sys
 source = Path('.runtime/json-schema/Deploy.WithAssembly.sql').read_text(encoding='utf-8')
@@ -210,8 +213,18 @@ assert source.count(anchor) == 1 and sys.argv[1] in ('local', 'central')
 source = source.replace(anchor, "  EXEC sys.sp_executesql @Sql;\n THROW 55699,N'Synthetic post-ALTER rollback',1;\n END;\n CREATE TABLE #tbx_JsonSchema_DeployState")
 source = source.replace('$(DeploymentMode)', sys.argv[1])
 assert '$(' not in source
-print(source)
+Path(sys.argv[2]).write_text(source, encoding='utf-8', newline='\n')
 PYSCHEMA
+    then
+        echo "JSON_SCHEMA_FAULT_PREPARATION_FAILED" >&2
+        return 1
+    fi
+    if ! docker cp "${fault_host}" "${container_name}:${fault_container}" >/dev/null 2>&1; then
+        echo "JSON_SCHEMA_FAULT_COPY_FAILED" >&2
+        return 1
+    fi
+    docker exec "${container_name}" "${sqlcmd_path}" \
+        -S localhost -U sa -P "${sa_password}" -C -b -d "${database_name}" -i "${fault_container}"
 }
 run_schema_upgrade() {
     local database_name="$1" schema_mode="$2" wrong_mode=central

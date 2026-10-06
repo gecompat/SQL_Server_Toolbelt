@@ -36,6 +36,20 @@ Aktuelle native1.0.1-Abnahme fehlt weiterhin. Eine nachfolgende numerisch
 bereinigte Expected-/Actual-Fehlerdiagnose belegt noch keine Fehlerursache
 oder Produktkorrektur; ein neuer nativer Nachweis bleibt PENDING.
 
+## Numerische CI-Diagnose, 2026-10-06
+
+Im [Lauf37529400622](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37529400622)
+am Head `72080660c15b3dc33264cba2a1141e9c6a35d29d` bestand Windows.
+SQL2022/2025 endeten mit FAILED im Faulttest: erwartete Fehlernummer55699,
+tatsächliche Fehlernummer168. SQL2019 lief bei dieser Erfassung noch.
+Die numerische Diagnose ergänzt die vorstehenden zeitgebundenen Records;
+sie beweist noch keine Fehlerursache oder native Gesamtabnahme.
+
+Ein separat geprüfter, noch nicht integrierter Faulttransport über eine
+SQLCMD-Eingabedatei (`-i`) bestand vier Mockfälle und unabhängigen Review
+ohne Blocker. Das ist lokale Transport-Evidenz, kein erfolgreicher nativer
+Lauf und kein Beweis der vermuteten Ursache. Aktuelle native Abnahme PENDING.
+
 ## Historische Schema1.0.0-Qualifikation
 
 Stand2026-10-05, Codex. Die konkrete Schema-/Kern-/Constructorwelle ist
