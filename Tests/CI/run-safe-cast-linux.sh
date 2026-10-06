@@ -70,7 +70,7 @@ run_private() {
     fi
 }
 
-# Unabhängige Decimal-/Kalender-Referenz, nur synthetische Fälle.
+# Unabhängige Python-Referenzen für alle sechs Zieltypen, nur synthetische Fälle.
 if ! python3 "${workspace}/Tests/CI/generate-safe-cast-reference.py" \
     >"${private_dir}/reference.sql" 2>"${private_dir}/generator-error"; then
     echo "SAFE_CAST_CI_REFERENCE_GENERATION_FAILED" >&2

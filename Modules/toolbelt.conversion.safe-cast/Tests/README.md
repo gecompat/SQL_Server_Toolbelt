@@ -155,10 +155,12 @@ Dabei müssen der vollständige Modul-Katalogsnapshot und der neutrale Zustand
 derselben SQL-Verbindung erhalten bleiben. Die vollständige physische
 Lifecycle-Suite bleibt ein separater Nachweis.
 Die flüchtige Runtime-CI führt zusätzlich am höchsten unterstützten
-Compatibility Level je SQL-Version 1033 deterministische, rein synthetische
+Compatibility Level je SQL-Version 1910 deterministische, rein synthetische
 Differentialfälle aus. Python `Decimal` liefert Status und exakten Wert für
 411 Dezimalfälle; der Python-Kalender liefert Status und NULL-Erwartung für
-622 `date`-/`datetime2(7)`-Fälle. Dies ersetzt weder die festen API-Oracles
+622 `date`-/`datetime2(7)`-Fälle. Python `int` und `uuid` sowie die strikten
+ASCII-Lexiken liefern Status, Fehlercode und Wert für 411 `bigint`-, 210 `bit`-
+und 256 `uniqueidentifier`-Fälle. Dies ersetzt weder die festen API-Oracles
 noch die übrigen Ziel-, Ressourcen- und Lifecycleprüfungen.
 Weitere physische Ziele, tatsächliche Minimalrechte, Hard-Interrupt-Recovery,
 Heap und Releasequalifikation bleiben offen; `partially validated`,
