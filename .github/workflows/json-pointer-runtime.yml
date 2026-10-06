@@ -14,6 +14,7 @@ on:
       - "Modules/toolbelt.json.pointer/Tests/CI/Test-JsonPointerRollback.ps1"
       - "Tests/CI/run-json-pointer-linux.sh"
       - "Tests/CI/run-json-pointer-client.ps1"
+      - "Tests/CI/generate-json-pointer-reference.py"
       - "Tests/CI/run-lab-target.sh"
   push:
     branches:
@@ -30,6 +31,7 @@ on:
       - "Modules/toolbelt.json.pointer/Tests/CI/Test-JsonPointerRollback.ps1"
       - "Tests/CI/run-json-pointer-linux.sh"
       - "Tests/CI/run-json-pointer-client.ps1"
+      - "Tests/CI/generate-json-pointer-reference.py"
       - "Tests/CI/run-lab-target.sh"
   workflow_dispatch:
     inputs:

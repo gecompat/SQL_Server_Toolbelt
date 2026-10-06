@@ -70,6 +70,13 @@ run_private() {
     fi
 }
 
+# Unabhängiges JSON-/Pointer-Referenzmodell mit kleinen synthetischen Dokumenten.
+if ! python3 "${workspace}/Tests/CI/generate-json-pointer-reference.py" \
+    >"${private_dir}/reference.sql" 2>"${private_dir}/generator-error"; then
+    echo "JSON_POINTER_CI_REFERENCE_GENERATION_FAILED" >&2
+    exit 1
+fi
+
 run_private start_container docker run --detach \
     --name "${container_name}" \
     --label "tbx.json-pointer.ci.owner=${container_owner}" \
@@ -210,6 +217,7 @@ deployment="/workspace/Modules/toolbelt.json.pointer/Deployment"
 runtime="/workspace/Modules/toolbelt.json.pointer/Tests/Runtime"
 client="${workspace}/Tests/CI/run-json-pointer-client.ps1"
 rollback="${workspace}/Modules/toolbelt.json.pointer/Tests/CI/Test-JsonPointerRollback.ps1"
+reference_level="${compatibility_levels##* }"
 
 for level in ${compatibility_levels}; do
     local_db="tbx_json_pointer_local_${level}"
@@ -255,6 +263,11 @@ IF @Rows<>1 OR ISNULL(@Status,'')<>'INVALID' OR @JsonType IS NOT NULL
     run_file repeat_central "${central_db}" "${deployment}" Deploy.sql -v DeploymentMode=central
     run_file repeat_baseline_local "${local_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${local_db}"
     run_file repeat_baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
+    if [[ "${level}" == "${reference_level}" ]]; then
+        run_private independent_reference docker exec --interactive "${container_name}" "${sqlcmd_path}" \
+            -S localhost -U sa -P "${sa_password}" -C -b -l 15 -t 180 \
+            -d "${local_db}" -i /dev/stdin <"${private_dir}/reference.sql"
+    fi
     # Vier synthetische Post-DROP-/Pre-COMMIT-Fehler im bestehenden Provider.
     # Der gleiche Client vergleicht vollständige Katalogsnapshots und TX-Zustand.
     run_private rollback_central pwsh -NoProfile -File "${rollback}" -Database "${central_db}"
@@ -284,4 +297,4 @@ IF @Rows<>1 OR ISNULL(@Status,'')<>'INVALID' OR @JsonType IS NOT NULL
     done
 done
 
-echo "PASS: JSON Pointer SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Safety, Client, Baseline, Repeat, central Rollback/CallerTransaction/UnknownRelease/Dependency/Confirm0 und Uninstall."
+echo "PASS: JSON Pointer SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Safety, Client, Baseline, Repeat, independent reference at CL ${reference_level}, central Rollback/CallerTransaction/UnknownRelease/Dependency/Confirm0 und Uninstall."

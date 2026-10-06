@@ -880,6 +880,7 @@ change_impact:
         - Tests/CI/run-json-pointer-linux.sh
         - Tests/CI/test_owned_container_cleanup.py
         - Tests/CI/run-json-pointer-client.ps1
+        - Tests/CI/generate-json-pointer-reference.py
         - Tests/CI/Test-LabDriverArgumentCase.ps1
         - Tests/CI/JsonPointerLifecycle.Helpers.ps1
         - .github/workflows/json-pointer-runtime.yml

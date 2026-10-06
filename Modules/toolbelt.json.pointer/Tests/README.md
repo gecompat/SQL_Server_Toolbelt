@@ -35,6 +35,13 @@ Der [Pointer-Runtime-Workflow](../../../.github/workflows/json-pointer-runtime.y
 prüft in flüchtigen Linux-SQL-Server-Containern 2019/2022/2025 die zulässigen
 Compatibility Levels mit local/central/Consumer: feste Contract-/Safety-
 Fixtures, Clientmetadaten, installierte Baseline, Repeat und Uninstall.
+Am höchsten unterstützten Compatibility Level je SQL-Version ergänzt ein
+unabhängiges Python-`json`-Modell 380 deterministische synthetische Fälle:
+verschachtelte Objekt-/Arraypfade, `~0`/`~1`, Unicode- und NUL-Schlüssel,
+gültige Scalarwerte, fehlende Pfade und ungültige Arrayindices. Status, Typ,
+Fehlercode und Scalarwert werden serverseitig verglichen; Containertexte
+haben keine Formatierungstreuezusage und sind aus diesem Differentialset
+ausgenommen. Die festen Contract-/Safety-Oracles bleiben separat.
 Ein eigener Grenzfall erzeugt 16 MiB plus eine UTF-16-Codeeinheit und verlangt
 vor Syntaxprüfung genau `INVALID/INPUT_LIMIT` ohne Rückgabe des Inputs. Dies
 qualifiziert die Abweisung oberhalb der Grenze, nicht die Verarbeitung eines
