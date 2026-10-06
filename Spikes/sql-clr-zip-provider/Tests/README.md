@@ -8,6 +8,12 @@
 | Deployment-Probe Windows | Trust, `CREATE ASSEMBLY`, Procedure-Aufruf und Uninstall auf einer Windows-SQL-Server-Instanz. | nicht ausgeführt |
 | Physische SQL-Versionen | Entsprechender Runtime-Lauf auf SQL Server 2019 und 2025. | nicht ausgeführt |
 
+Der [Runtime-Workflow](../../../.github/workflows/sql-clr-zip-spike.yml)
+startet bei Änderungen an Source, Deployment, Scripts, ausführbaren Tests
+oder seinem eigenen Workflow. Reine Backlog-, Design- und README-Änderungen
+prüft der allgemeine Dokumentationsworkflow; der manuelle Runtime-Start bleibt
+verfügbar.
+
 ## Erwarteter Linux-Nachweis
 
 Die Assembly darf keine direkte Referenz auf `System.IO.Compression.dll`
