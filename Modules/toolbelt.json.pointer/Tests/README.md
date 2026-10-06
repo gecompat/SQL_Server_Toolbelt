@@ -124,6 +124,14 @@ Weitere physische Ziele, tatsächliche Minimalrechte, Hard-Interrupt-Recovery,
 16-MiB-Maximalworkload/Heap und Releasequalifikation bleiben offen;
 `partially validated`, `unreleased`.
 
+Am 2026-10-06 bestanden nach [PR201](https://github.com/gecompat/SQL_Server_Toolbelt/pull/201)
+zusätzlich acht einzeln manuell ausgelöste, begrenzte Linux-SQL2019-CL150-
+Lastjobs für Root und `/k` bei 64KiB,1MiB,4MiB und exakt16MiB. Die
+[Testmatrix](JSON_POINTER_TEST_MATRIX.md) enthält die acht direkten Runlinks
+und trennt sie vom regulären Head-/Main-CI-Scope. Weitere SQL-Versionen,
+verschachtelte Maximalfälle, Heap, Parallelität und produktive Kapazität
+bleiben offen; Modulstatus und Releaseaussage ändern sich nicht.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

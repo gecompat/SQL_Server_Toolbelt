@@ -90,6 +90,18 @@ physische Ziele, Minimalrechte, Hard-Interrupt-Recovery, 16-MiB-Maximalworkload
 und Heap bleiben offen; `partially validated`,
 `unreleased`.
 
+Eng begrenzte Lastqualifikation 2026-10-06: Nach
+[PR201](https://github.com/gecompat/SQL_Server_Toolbelt/pull/201) bestanden
+auf flüchtigem Linux-SQL2019-CL150-Container acht einzeln manuell ausgelöste
+Größen-/Formstufen: Root und `/k` bei 64KiB,1MiB,4MiB und exakt16MiB
+Originalbytes mit serverseitigem Einzeilen-/Längen-/SHA2-256-Orakel und
+bestätigter eigener Bereinigung. Die [Testmatrix](../Modules/toolbelt.json.pointer/Tests/JSON_POINTER_TEST_MATRIX.md)
+verlinkt jeden Run. Die zuvor offenen 16-MiB-Aussagen beschrieben den Stand
+vor diesen gezielten Läufen. SQL2022/2025-Maximallast, weitere Plattformen,
+Tiefe128 bei Maximalgröße, Heap, Parallelität, tatsächliche Minimalrechte,
+Hard-Interrupt-Recovery und Release bleiben offen; `partially validated`,
+`unreleased`.
+
 ### RI-2026-076: sechs Safe-Cast-TVFs – einzeln freigegeben 2026-10-05
 
 Nach der Vertragsbesprechung in [PR170](https://github.com/gecompat/SQL_Server_Toolbelt/pull/170)

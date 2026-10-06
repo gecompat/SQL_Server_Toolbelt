@@ -34,7 +34,7 @@ Weitere physische Kombinationen, Minimalrechte, über die zwei synthetischen
 Formen hinausgehende Maximalworkloads, Heap und Parallelität bleiben offen.
 Keine Release- oder Produktionszusage.
 
-## Begrenzter Plan für die noch offene 16-MiB-Verarbeitung
+## Begrenzte 16-MiB-Verarbeitung und offene Lastfälle
 
 Die reguläre CI prüft nur die sofortige Abweisung bei
 16777218 Inputbytes. Für genau16777216 Bytes durchläuft die Funktion dagegen
@@ -91,8 +91,24 @@ der jeweilige eigene Container war nach jedem Prozess entfernt. Ausführung:
 mit den Optionen `--sql-version 2019 --stage-bytes <Stufe> --shape <Form>`.
 Dies ist ein einzelner synthetischer Host-/SQL-Versuch, kein Head-CI-Lauf,
 kein gemessenes Heap-/Parallelitäts- oder produktives Leistungsversprechen.
-Manuelle Workflow-Dispatch-Läufe, SQL2022/2025, andere Plattformen sowie
-große verschachtelte Fragmente bleiben **NOT_EXECUTED**.
+
+Nach Merge von [PR201](https://github.com/gecompat/SQL_Server_Toolbelt/pull/201)
+bestanden am 2026-10-06 auf `main`-Commit `d4c003d4234f97a26b097b5f06810fc93d003c1a`
+zusätzlich alle acht *manuell* ausgelösten Einzeljobs auf flüchtigem Linux-
+SQL2019-Container mit CL150. Jeder Job führte genau den genannten Fall aus;
+die reguläre SQL-Matrix war bei diesen Dispatches erwartungsgemäß SKIPPED.
+
+| Form | 64 KiB | 1 MiB | 4 MiB | exakt 16 MiB |
+|---|---|---|---|---|
+| Root, leerer Pointer | [37435680944](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37435680944) | [37435820068](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37435820068) | [37435903114](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37435903114) | [37435993020](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37435993020) |
+| Objekt, `/k` | [37436158005](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37436158005) | [37436244282](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37436244282) | [37436327215](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37436327215) | [37436407146](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37436407146) |
+
+Alle acht Lastjobs meldeten SUCCESS einschließlich eigenem Cleanup-Audit und
+serverseitigem Einzeilen-/Längen-/Hashorakel. Der [reguläre Main-Push-Lauf](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37435479777)
+bestand getrennt auf Linux SQL2019/2022/2025; sein manueller Job war SKIPPED.
+Lastläufe auf SQL2022/2025, anderen Plattformen, mit großen verschachtelten
+Fragmenten oder Parallelität sowie Heap-/Produktionskapazität bleiben
+**NOT_EXECUTED** beziehungsweise unqualifiziert.
 
 ## Aktuelle Validierungsevidenz
 
