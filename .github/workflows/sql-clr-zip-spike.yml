@@ -3,18 +3,21 @@ name: SQL CLR ZIP Spike
 on:
   pull_request:
     paths:
-      - "Spikes/sql-clr-zip-provider/**"
-      - "Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md"
-      - ".ai/BACKLOG.md"
-      - "Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md"
+      # Runtime nur bei ausführbaren Spike-Artefakten oder dem Workflow selbst.
+      - "Spikes/sql-clr-zip-provider/Source/**"
+      - "Spikes/sql-clr-zip-provider/Deployment/**"
+      - "Spikes/sql-clr-zip-provider/Scripts/**"
+      - "Spikes/sql-clr-zip-provider/Tests/Static/**"
+      - "Spikes/sql-clr-zip-provider/Tests/Runtime/**"
       - ".github/workflows/sql-clr-zip-spike.yml"
   push:
     branches: [main]
     paths:
-      - "Spikes/sql-clr-zip-provider/**"
-      - "Documentation/Architecture/ZIP_CLR_PROVIDER_DESIGN.md"
-      - ".ai/BACKLOG.md"
-      - "Backlog/TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.md"
+      - "Spikes/sql-clr-zip-provider/Source/**"
+      - "Spikes/sql-clr-zip-provider/Deployment/**"
+      - "Spikes/sql-clr-zip-provider/Scripts/**"
+      - "Spikes/sql-clr-zip-provider/Tests/Static/**"
+      - "Spikes/sql-clr-zip-provider/Tests/Runtime/**"
       - ".github/workflows/sql-clr-zip-spike.yml"
   workflow_dispatch:
 
