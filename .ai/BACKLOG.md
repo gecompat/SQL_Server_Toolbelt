@@ -366,6 +366,22 @@ Frische hashgebundene Dispositionaudits beider aktueller Core-/Schema- und
 Migrationsscopes bestanden; keine Konfigurations-/Rechte-/Owneränderung.
 [Begrenzte native Evidenz](../Modules/toolbelt.json.schema/Tests/NATIVE_EVIDENCE.md).
 Weitere Ziel-/Lifecyclematrix, CrossDB, Minimalrechte und aktuelle Head-CI offen.
+
+CI-Statuskorrektur 2026-10-06: Die obige Head-CI-Aussage beschreibt den
+früheren Stand. [PR176](https://github.com/gecompat/SQL_Server_Toolbelt/pull/176)
+bestand am exakten Head `6dd4ef65ecac8d98d4d5c964a649d63c0d8692dc`
+die [gekoppelte JSON-Constructors-Runtime-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37351670226).
+Der spätere [PR179](https://github.com/gecompat/SQL_Server_Toolbelt/pull/179)
+bestand am exakten Head `194c5ade272d38e2b2d6786694b74f7bbe082112`
+[Documentation Consistency](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37386445044)
+und die [JSON-Constructors-Runtime-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37386445377)
+mit Known-Artifact-/Offline- und Linux-SQL2019/2022/2025-Jobs; der
+[Runtime-Push-Lauf auf main](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37389210961)
+bestand ebenfalls. Der CI-Adapter prüft Schema Contract/Safety lokal und
+Core-/Constructor-Lifecycle in seinem begrenzten Scope. Die vollständige
+physische Ziel-/Lifecyclematrix, CrossDB, tatsächliche Minimalrechte und
+Releasequalifikation bleiben offen; `partially validated`, `unreleased`.
+
 Neue Binaries werden separat qualifiziert; die anschließende ausdrückliche
 Trustfreigabe autorisiert notwendige begrenzte Tests der laufenden Welle ohne
 erneute Schemahashfragen. Keine erneute allgemeine Funktions-/Migrationsfreigabefrage;
