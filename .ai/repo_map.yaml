@@ -864,6 +864,7 @@ change_impact:
         - Tests/CI/run-safe-cast-linux.sh
         - Tests/CI/test_owned_container_cleanup.py
         - Tests/CI/run-safe-cast-client.ps1
+        - Tests/CI/generate-safe-cast-reference.py
         - Tests/CI/Test-LabDriverArgumentCase.ps1
         - Tests/CI/SafeCastLifecycle.Helpers.ps1
         - .github/workflows/safe-cast-runtime.yml

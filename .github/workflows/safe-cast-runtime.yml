@@ -12,6 +12,7 @@ on:
       - "Modules/toolbelt.conversion.safe-cast/Tests/CI/**"
       - "Tests/CI/run-safe-cast-linux.sh"
       - "Tests/CI/run-safe-cast-client.ps1"
+      - "Tests/CI/generate-safe-cast-reference.py"
       - "Tests/CI/run-lab-target.sh"
   push:
     branches:
@@ -26,6 +27,7 @@ on:
       - "Modules/toolbelt.conversion.safe-cast/Tests/CI/**"
       - "Tests/CI/run-safe-cast-linux.sh"
       - "Tests/CI/run-safe-cast-client.ps1"
+      - "Tests/CI/generate-safe-cast-reference.py"
       - "Tests/CI/run-lab-target.sh"
   workflow_dispatch:
 

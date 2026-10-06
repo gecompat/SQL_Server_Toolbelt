@@ -70,6 +70,13 @@ run_private() {
     fi
 }
 
+# Unabhängige Decimal-/Kalender-Referenz, nur synthetische Fälle.
+if ! python3 "${workspace}/Tests/CI/generate-safe-cast-reference.py" \
+    >"${private_dir}/reference.sql" 2>"${private_dir}/generator-error"; then
+    echo "SAFE_CAST_CI_REFERENCE_GENERATION_FAILED" >&2
+    exit 1
+fi
+
 run_private start_container docker run --detach \
     --name "${container_name}" \
     --label "tbx.safe-cast.ci.owner=${container_owner}" \
@@ -210,6 +217,7 @@ deployment="/workspace/Modules/toolbelt.conversion.safe-cast/Deployment"
 runtime="/workspace/Modules/toolbelt.conversion.safe-cast/Tests/Runtime"
 client="${workspace}/Tests/CI/run-safe-cast-client.ps1"
 rollback="${workspace}/Modules/toolbelt.conversion.safe-cast/Tests/CI/Test-SafeCastRollback.ps1"
+reference_level="${compatibility_levels##* }"
 
 for level in ${compatibility_levels}; do
     local_db="tbx_safe_cast_local_${level}"
@@ -241,6 +249,11 @@ for level in ${compatibility_levels}; do
     run_file repeat_central "${central_db}" "${deployment}" Deploy.sql -v DeploymentMode=central
     run_file repeat_baseline_local "${local_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${local_db}"
     run_file repeat_baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
+    if [[ "${level}" == "${reference_level}" ]]; then
+        run_private independent_reference docker exec --interactive "${container_name}" "${sqlcmd_path}" \
+            -S localhost -U sa -P "${sa_password}" -C -b -l 15 -t 180 \
+            -d "${local_db}" -i /dev/stdin <"${private_dir}/reference.sql"
+    fi
     run_private rollback_central pwsh -NoProfile -File "${rollback}" -Database "${central_db}"
     run_file rollback_baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
     expect_caller_transaction_rejection deploy "${central_db}" Deploy.sql -v DeploymentMode=central
@@ -268,4 +281,4 @@ for level in ${compatibility_levels}; do
     done
 done
 
-echo "PASS: Safe Cast SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Client, Baseline, Repeat, central Rollback/CallerTransaction/UnknownRelease/Dependency/Confirm0 und Uninstall."
+echo "PASS: Safe Cast SQL ${sql_version} Linux; CL ${compatibility_levels}; local/central/consumer Contract, Client, Baseline, Repeat, independent reference at CL ${reference_level}, central Rollback/CallerTransaction/UnknownRelease/Dependency/Confirm0 und Uninstall."
