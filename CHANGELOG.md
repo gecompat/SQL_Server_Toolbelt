@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-07 – Runtime-CI bei Helper- und Generatoränderungen
+
+- Safe-Cast- und JSON-Pointer-Runtime-CI berücksichtigen ihre tatsächlich
+  geladenen gemeinsamen Lifecycle-Hilfsdateien und die vom statischen Vertrag
+  ausgeführten Deploymentgeneratoren jetzt sowohl bei Pull Requests als auch
+  bei Pushes auf `main`. Reine Änderungen dieser Abhängigkeiten lassen dadurch
+  die bestehenden nativen Prüfungen nicht mehr aus.
+- Testumfang und öffentliche SQL-Verträge bleiben gleich; daraus folgt keine
+  zusätzliche Lifecycle-, Rechte-, Ressourcen- oder Releasequalifikation.
+
 ## 2026-10-06 – Schema1.0.1: begrenzte native CI bestanden
 
 - [Runtime37532174433](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37532174433)
