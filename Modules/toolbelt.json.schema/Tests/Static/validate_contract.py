@@ -42,6 +42,32 @@ for row in registry['artifacts']:
         assert not re.search(r'(?im)^\s*(GRANT|DENY|REVOKE|ALTER AUTHORIZATION|RECONFIGURE|EXEC\s+.*sp_add_trusted_assembly)\b', text)
     rows[fields['moduleId']] = row
 assert len(rows) == 3
+historical = json.loads((modules / 'toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE_SCHEMA_1_0.json').read_text(encoding='utf-8'))
+assert hashlib.sha256((modules / 'toolbelt.json.core/Documentation/KNOWN_JSON_ARTIFACT_CLOSURE_SCHEMA_1_0.json').read_bytes()).hexdigest() == 'c2a5298a0cc5cbe806b5f24620dcc2d2fd6a20192dc6c2d06cb7bd6f319dfbe4'
+# Alte Identitäten sind historische Wahrheit, keine Current-Sourcepin-Ausnahme.
+historical_rows = {}
+for row in historical['artifacts']:
+    fields, order = row['Fields'], row['fieldOrder']
+    assert set(order) == set(fields) and len(set(order)) == len(order)
+    frame = b'TBXJSONCLOSURE1' + struct.pack('<I', len(order))
+    for name in order:
+        for text in (name, fields[name]):
+            value = text.encode('utf-8')
+            frame += struct.pack('<I', len(value)) + value
+    assert hashlib.sha256(frame).hexdigest() == row['ArtifactId']
+    historical_rows[fields['moduleId']] = row
+assert len(historical_rows) == 3
+for module in ('toolbelt.json.core', 'toolbelt.json.constructors'):
+    assert historical_rows[module] == rows[module]
+assert historical_rows['toolbelt.json.schema']['Fields']['moduleVersion'] == '1.0.0'
+assert rows['toolbelt.json.schema']['Fields']['moduleVersion'] == '1.0.1'
+schema_known = (modules / 'toolbelt.json.schema/Deployment/KnownArtifact.sql').read_text(encoding='utf-8')
+assert historical_rows['toolbelt.json.schema']['Fields']['binarySha512'] in schema_known
+assert historical_rows['toolbelt.json.schema']['ArtifactId'] in schema_known
+schema_deploy = (modules / 'toolbelt.json.schema/Deployment/Deploy.sql').read_text(encoding='utf-8')
+assert 'ALTER ASSEMBLY [Toolbelt_JsonSchema] FROM ' in schema_deploy
+assert "HAS_PERMS_BY_NAME(N'Toolbelt_JsonSchema',N'ASSEMBLY',N'ALTER')" in schema_deploy
+assert '@SchemaInstalledHash InstalledHash' in schema_deploy
 for module in ('toolbelt.json.constructors', 'toolbelt.json.schema'):
     assert rows[module]['Fields']['coreArtifactId'] == rows['toolbelt.json.core']['ArtifactId']
 core_clr = '\n'.join(path.read_text(encoding='utf-8') for path in (modules / 'toolbelt.json.core/Clr').rglob('*.cs'))

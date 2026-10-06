@@ -83,6 +83,60 @@ DELETE #SchemaAnswer;
 INSERT #SchemaAnswer EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N'null',@Schema=N'{',@MaxDocumentBytes=1;
 IF NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE ErrorOrdinal=0 AND Status='INVALID_SCHEMA' AND IsValid IS NULL AND ErrorCode='JSON_SYNTAX')
  THROW 55690,N'Schema syntax must precede document byte limit.',8;
+-- Schema-/Graphorte nach codiertem Pointer, auch vor frühen Formfehlern.
+DECLARE @OrderCases TABLE(Id int IDENTITY(1,1),[Schema] nvarchar(max),
+ ExpectedStatus varchar(24),ExpectedCode varchar(32),ExpectedPointer nvarchar(max));
+INSERT @OrderCases VALUES
+(N'{"$defs":{"/":1,"~":[],"z":null}}','INVALID_SCHEMA','SCHEMA_FORM',N'/$defs/z'),
+(N'{"$defs":{"/":{"pattern":"x"},"~":{"pattern":"x"},"z":{"pattern":"x"}}}','UNSUPPORTED','KEYWORD_UNSUPPORTED',N'/$defs/z/pattern'),
+(N'{"$defs":{"/":1,"z":{"pattern":"x"}}}','UNSUPPORTED','KEYWORD_UNSUPPORTED',N'/$defs/z/pattern'),
+(N'{"prefixItems":[true,true,1,true,true,true,true,true,true,true,null]}','INVALID_SCHEMA','SCHEMA_FORM',N'/prefixItems/10'),
+(N'{"$defs":{"/":{"$ref":"#/$defs/~1"},"~":{"$ref":"#/$defs/~0"},"z":{"$ref":"#/$defs/z"}}}','UNSUPPORTED','REF_CYCLE',N'/$defs/z/$ref'),
+(N'{"prefixItems":[true,true,{"$ref":"#/prefixItems/2"},true,true,true,true,true,true,true,{"$ref":"#/prefixItems/10"}]}','UNSUPPORTED','REF_CYCLE',N'/prefixItems/10/$ref');
+DECLARE @OrderId int=1,@OrderCount int=(SELECT COUNT(*) FROM @OrderCases),@OrderPointer nvarchar(max);
+WHILE @OrderId<=@OrderCount
+BEGIN
+ SELECT @Schema=[Schema],@Status=ExpectedStatus,@Code=ExpectedCode,@OrderPointer=ExpectedPointer FROM @OrderCases WHERE Id=@OrderId;
+ DELETE #SchemaAnswer;
+ INSERT #SchemaAnswer EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N'null',@Schema=@Schema;
+ IF (SELECT COUNT(*) FROM #SchemaAnswer)<>2 OR EXISTS(SELECT 1 FROM #SchemaAnswer
+  WHERE Status<>@Status OR IsValid IS NOT NULL OR ErrorCode<>@Code OR ErrorsTruncated<>0
+   OR SchemaPointer IS NULL OR CONVERT(varbinary(max),SchemaPointer)<>CONVERT(varbinary(max),@OrderPointer))
+  OR NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE RowKind='SUMMARY' AND ErrorOrdinal=0)
+  OR NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE RowKind='ERROR' AND ErrorOrdinal=1)
+  THROW 55690,N'Encoded schema or graph pointer order changed.',9;
+ SET @OrderId+=1;
+END;
+-- Instanzmember bleiben decodiert ordinal; Arrayevaluation bleibt numerisch.
+DECLARE @MemberMode int=0;
+WHILE @MemberMode<2
+BEGIN
+ DELETE #SchemaAnswer;
+ SET @Schema=CASE @MemberMode WHEN 0 THEN N'{"properties":{"z":false,"/":false,"~":false}}' ELSE N'{"additionalProperties":false}' END;
+ INSERT #SchemaAnswer EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N'{"~":1,"z":1,"/":1}',@Schema=@Schema;
+ IF (SELECT COUNT(*) FROM #SchemaAnswer)<>4
+  OR NOT EXISTS(SELECT 1 FROM #SchemaAnswer WHERE RowKind='SUMMARY' AND ErrorOrdinal=0 AND Status='INVALID_INSTANCE' AND IsValid=0)
+  OR (SELECT COUNT(*) FROM #SchemaAnswer WHERE RowKind='ERROR' AND Status='INVALID_INSTANCE' AND IsValid=0
+   AND ((ErrorOrdinal=1 AND CONVERT(varbinary(max),DocumentPointer)=CONVERT(varbinary(max),N'/~1'))
+    OR (ErrorOrdinal=2 AND CONVERT(varbinary(max),DocumentPointer)=CONVERT(varbinary(max),N'/z'))
+    OR (ErrorOrdinal=3 AND CONVERT(varbinary(max),DocumentPointer)=CONVERT(varbinary(max),N'/~0'))))<>3
+  THROW 55690,N'Decoded instance member order changed.',10;
+ SET @MemberMode+=1;
+END;
+DELETE #SchemaAnswer;
+INSERT #SchemaAnswer EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N'[0,0,0,0,0,0,0,0,0,0,0]',
+ @Schema=N'{"prefixItems":[true,true,false,true,true,true,true,true,true,true,false]}';
+IF (SELECT COUNT(*) FROM #SchemaAnswer)<>3
+ OR (SELECT COUNT(*) FROM #SchemaAnswer WHERE RowKind='ERROR' AND Status='INVALID_INSTANCE' AND IsValid=0
+  AND ((ErrorOrdinal=1 AND CONVERT(varbinary(max),DocumentPointer)=CONVERT(varbinary(max),N'/2'))
+   OR (ErrorOrdinal=2 AND CONVERT(varbinary(max),DocumentPointer)=CONVERT(varbinary(max),N'/10'))))<>2
+ THROW 55690,N'Numeric instance array order changed.',11;
+DELETE #SchemaAnswer;
+INSERT #SchemaAnswer EXEC toolbelt_json.USP_ValidateJsonSchema @Json=N'null',
+ @Schema=N'{"$defs":{"/":true,"~":true,"z":true}}',@MaxEvaluationSteps=200;
+IF (SELECT COUNT(*) FROM #SchemaAnswer)<>1 OR NOT EXISTS(SELECT 1 FROM #SchemaAnswer
+ WHERE RowKind='SUMMARY' AND ErrorOrdinal=0 AND Status='LIMIT' AND IsValid IS NULL AND ErrorCode='EVALUATION_LIMIT')
+ THROW 55690,N'Encoded schema ordering must preserve bounded work failure.',12;
 DROP TABLE #SchemaAnswer;
-PRINT N'PASS JSON_SCHEMA_NATIVE_CONTRACT CASES 30';
+PRINT N'PASS JSON_SCHEMA_NATIVE_CONTRACT CASES 40';
 GO

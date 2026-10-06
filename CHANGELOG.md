@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## 2026-10-06 – JSON Schema1.0.1: SchemaPointer-Reihenfolge korrigiert
+
+- Schemaformfehler und Referenzzyklen folgen vollständig codierten
+  SchemaPointern; decodierte Instanzmember und numerische Instanzarrays
+  behalten ihre Reihenfolge. Profil, Signatur und Ergebnisfelder unverändert.
+- Expliziter1.0.0→1.0.1-Maintenancepfad und Uninstall beider bekannten
+  Releases implementiert; historische Closure unverändert erhalten.
+  Core-/Constructorbytes bleiben gleich. Die eigene neue Schemazeile
+  trägt ausschließlich die tatsächlich ausgeführte begrenzte Patchqualifikation.
+- Offline:169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions
+  und120 Bridge-Assertions je drei Kulturen, eigene IL, bytegleicher
+  Schema-Projektbuild, sechs Patch- und sieben Releasepaketierungsorakel
+  sowie ScriptDom14 Batches/42 Assertions bestanden. Der historische
+  Erzeuger reproduzierte die echten1.0.0-Bytes aus50 Originalblobs in53
+  erfolgreichen Prozessphasen. Syntax und18 synthetische CI-Cleanupfälle
+  sowie33 Selector-/Bindungsfälle ohne Labzugriff bestanden. Keine erneute
+  lokale Maximallastqualifikation.
+- Native1.0.1-API, echter SQL-Upgrade und exakte aktuelle Head-CI noch offen;
+  bisherige1.0.0-Nachweise bleiben historische Evidenz. Teilweise validiert,
+  unveröffentlicht, kein neuer öffentlicher Funktionsscope.
+
 ## 2026-10-06 – JSON-Pointer-Contract-, Safety- und Client-CI ergänzt
 
 - Ein modulbezogener Runtime-Workflow prüft den bestehenden Pointer-Vertrag

@@ -20,8 +20,8 @@ foreach($module in @('toolbelt.json.core','toolbelt.json.constructors','toolbelt
   $batches+= $expanded
  }
 }
-foreach($fixture in @('Contract.Tests.sql','Safety.Tests.sql')){
- $batches+=[IO.File]::ReadAllText((Join-Path $SchemaModuleRoot ('Tests/Runtime/'+$fixture)))
+foreach($fixture in @('Contract.Tests.sql','Safety.Tests.sql','UpgradeCapture.sql','UpgradeVerify.sql')){
+ $batches+=[IO.File]::ReadAllText((Join-Path $SchemaModuleRoot ('Tests/Runtime/'+$fixture))).Replace('$(SchemaExpectedVersion)','1.0.0')
 }
 $assertions=0
 foreach($version in @(150,160,170)){

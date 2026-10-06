@@ -74,6 +74,7 @@ namespace Toolbelt.JsonSchema
                 node.Reference = target;
                 node.Edge(target, Tree.Work);
             }
+            foreach (int id in order) OrderEdges(Nodes[id]);
             CheckCycles();
         }
 
@@ -83,8 +84,8 @@ namespace Toolbelt.JsonSchema
             if (!Nodes.ContainsKey(id))
             {
                 JsonToken token = Tree.Document.Get(id);
-                if (token.Kind != JsonValueKind.Object && token.Kind != JsonValueKind.Boolean)
-                    Tree.Fail("INVALID_SCHEMA", "SCHEMA_FORM", id, null);
+                // Auch ungültige Formen zunächst nach ihrem codierten Ort einordnen.
+                // Discovery nach decodierten Memberkeys ist keine Fehlerpriorität.
                 string path = Tree.Path(id);
                 int count = token.Kind == JsonValueKind.Object ? Tree.Children(id, false).Count : 0;
                 var node = new SchemaNode(id, path, Tree.Ordinal, Tree.Work, count);
@@ -97,6 +98,8 @@ namespace Toolbelt.JsonSchema
         private void Check(SchemaNode node)
         {
             JsonToken schema = Tree.Document.Get(node.Id);
+            if (schema.Kind != JsonValueKind.Object && schema.Kind != JsonValueKind.Boolean)
+                Tree.Fail("INVALID_SCHEMA", "SCHEMA_FORM", node.Id, null);
             if (schema.Kind == JsonValueKind.Boolean)
             {
                 node.IsBoolean = true;
@@ -196,6 +199,36 @@ namespace Toolbelt.JsonSchema
         }
 
         private struct GraphFrame { internal int Id, Next; }
+
+        private void OrderEdges(SchemaNode node)
+        {
+            Tree.Work.Spend(1);
+            int count = node.Edges.Count;
+            if (count < 2) return;
+            // Bereits budgetierte SchemaPointer werden nur gelesen. Scratch und
+            // jede Indexkopie sowie jeder UTF16-Vergleich kosten erneut Arbeit.
+            // Eigener Merge vermeidet eine Sort-Exception-Hülle bei Budgetabbruch.
+            Tree.Work.Spend(count);
+            var scratch = new int[count];
+            for (long width = 1; width < count; width *= 2)
+                for (long start = 0; start < count; start += 2 * width)
+                {
+                    int left = (int)start, middle = (int)Math.Min(start + width, count);
+                    int right = middle, end = (int)Math.Min(start + 2 * width, count);
+                    for (int dest = (int)start; dest < end; dest++)
+                    {
+                        Tree.Work.Spend(1);
+                        bool takeLeft = right >= end || (left < middle &&
+                            Tree.Ordinal.Compare(Nodes[node.Edges[left]].Path, Nodes[node.Edges[right]].Path) <= 0);
+                        scratch[dest] = takeLeft ? node.Edges[left++] : node.Edges[right++];
+                    }
+                    for (int dest = (int)start; dest < end; dest++)
+                    {
+                        Tree.Work.Spend(1); node.Edges[dest] = scratch[dest];
+                    }
+                }
+        }
+
         private void CheckCycles()
         {
             Tree.Work.Spend(checked((long)Tree.Document.Count + Nodes.Count + 1));

@@ -90,7 +90,9 @@ jobs:
             & 'Modules/toolbelt.json.core/Scripts/New-JsonClosureRelease.ps1' -ModuleId ('toolbelt.json.'+$entry[0]) -AssemblyPath ('.runtime/json-framework/Toolbelt.Json'+$entry[1]+'.dll') -CoreAssemblyPath '.runtime/json-framework/Toolbelt.JsonCore.dll' -OutputDirectory ('.runtime/'+$entry[2])
           }
           & "$module/Deployment/New-Historical12TestArtifacts.ps1" -MSBuildPath $build -OutputDirectory '.runtime/json-historical12-proof'
+          & 'Modules/toolbelt.json.schema/Deployment/New-Historical10TestArtifacts.ps1' -MSBuildPath $build -CoreAssemblyPath '.runtime/json-framework/Toolbelt.JsonCore.dll' -OutputDirectory '.runtime/json-schema-historical10-proof'
           Copy-Item -LiteralPath '.runtime/json-historical12-proof/release' -Destination '.runtime/json-historical12' -Recurse
+          Copy-Item -LiteralPath '.runtime/json-schema-historical10-proof/release' -Destination '.runtime/json-schema-historical10' -Recurse
           Copy-Item -LiteralPath '.runtime/json-clr/Deploy.WithAssembly.sql' -Destination '.runtime/json-clr/Deploy.sql'
           Copy-Item -LiteralPath '.runtime/json-clr/Uninstall.Expanded.sql' -Destination '.runtime/json-clr/Uninstall.sql'
       - uses: actions/upload-artifact@v4
@@ -102,6 +104,7 @@ jobs:
             .runtime/json-core/
             .runtime/json-schema/
             .runtime/json-historical12/
+            .runtime/json-schema-historical10/
           retention-days: 1
   runtime:
     needs: known-artifact

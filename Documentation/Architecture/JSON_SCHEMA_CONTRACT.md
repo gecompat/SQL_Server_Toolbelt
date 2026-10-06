@@ -24,6 +24,33 @@ Welle ohne erneute Hashfragen; die konkrete Identität und Qualifikation bleiben
 erforderlich. [Datierte Autorität](../../Modules/toolbelt.json.core/Documentation/TRUST_OPT_IN_PROPOSAL.md).
 Keine Veröffentlichung, Fremdrechte oder Lab-Infrastruktur.
 
+## Wartung1.0.1 – bestehender Reihenfolgevertrag
+
+Stand2026-10-06, Codex: Schema1.0.1 korrigiert die bereits freigegebene
+Reihenfolge vollständig codierter Schema-/Refgraphorte. Die Formprüfung
+erfolgt beim geordneten Schemaortbesuch; die Zyklusprüfung folgt budgetiert
+codierten Zielpfaden. Bei mehreren fehlerhaften `$defs` kommt beispielsweise
+`/$defs/z` vor `/$defs/~0` und `/$defs/~1`. Bei Schemaarrayorten kommt der
+codierte Index10 vor2. Instanzmember werden weiterhin nach decodierter
+UTF16-Identität und Instanzarrays numerisch evaluiert. Öffentliche Parameter,
+Profilumfang, Fehlercodes und Ergebnisfelder bleiben gleich.
+
+Die neue Schemaassembly hat die Managedidentität1.0.1.0. Core1.0.0 und
+Constructors1.3.0 behalten ihre bekannten Bytes und unveränderten historischen
+Registryframes. Der exakte alte Schema1.0.0-Frame wird im historischen
+Closure-Snapshot bewahrt. Der Maintenancepfad erkennt kohärente bekannte
+1.0.0-/1.0.1-Tupel, aktualisiert den alten Stand atomar auf1.0.1 und hält den
+Uninstall beider bekannten Releases offen. Fremde Tupel, unbekannte Bytes,
+Consumer- und Ownergrenzen bleiben abweisend; keine Dependencyinstallation
+oder Rechtevergabe. Eine Registryidentität erteilt keine Test- oder
+Trustautorität.
+
+Die [begrenzte Offline-Qualifikation](../../Modules/toolbelt.json.schema/Tests/Framework/README.md)
+bestand am2026-10-06. Die echte historische1.0.0-DLL wurde separat für einen
+künftigen Upgradeversuch reproduziert. Native1.0.1-API, tatsächlicher
+SQL-Upgrade und exakte aktuelle Head-CI bleiben offen; die historischen
+nativen1.0.0-Nachweise qualifizieren die geänderte Assembly nicht.
+
 ## Öffentliche Signatur
 
 Schema toolbelt_json, USP_ValidateJsonSchema; genau diese Reihenfolge:

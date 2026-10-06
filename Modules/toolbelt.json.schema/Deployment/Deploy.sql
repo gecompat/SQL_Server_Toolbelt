@@ -29,7 +29,8 @@ BEGIN TRY
 :r ./Preflight.sql
   SELECT @Current=CONVERT(varbinary(max),(SELECT @SchemaVersion Version,@SchemaMode Mode,@SchemaAssemblyId AssemblyId,@SchemaAssemblyOwner AssemblyOwner,
    @SchemaOwner TargetOwner,@JsonCoreId CoreId,@JsonCoreOwner CoreOwner,@SchemaResultId ResultDependencyId,@SchemaResultVersion ResultVersion,
-   @SchemaConstructorId ConstructorId,@SchemaConstructorVersion ConstructorVersion,SCHEMA_ID(N'toolbelt_json') SchemaId,
+   @SchemaConstructorId ConstructorId,@SchemaConstructorVersion ConstructorVersion,@SchemaInstalledHash InstalledHash,
+   @SchemaInstalledArtifactId InstalledArtifactId,SCHEMA_ID(N'toolbelt_json') SchemaId,
    OBJECT_ID(N'toolbelt_json.USP_ValidateJsonSchema') PublicId,OBJECT_ID(N'toolbelt_json.FT_ValidateJsonSchemaInternal') BridgeId FOR XML RAW,BINARY BASE64));
   IF @Pass=1 AND @Current<>@Initial THROW 55637,N'JSON Schema lifecycle: Zustand hat sich unter Lock verändert.',1;
   IF NOT EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enabled' AND value_in_use=1)
@@ -39,6 +40,8 @@ BEGIN TRY
    OR (SCHEMA_ID(N'toolbelt_json') IS NULL AND COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE SCHEMA'),0)<>1)
    OR (SCHEMA_ID(N'toolbelt_json') IS NOT NULL AND COALESCE(HAS_PERMS_BY_NAME(N'toolbelt_json',N'SCHEMA',N'ALTER'),0)<>1)
    OR (@SchemaAssemblyId IS NULL AND COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE ASSEMBLY'),0)<>1)
+   OR (@SchemaAssemblyId IS NOT NULL AND @SchemaInstalledHash<>@SchemaKnownHash
+    AND COALESCE(HAS_PERMS_BY_NAME(N'Toolbelt_JsonSchema',N'ASSEMBLY',N'ALTER'),0)<>1)
    THROW 55632,N'JSON Schema lifecycle: CLR-Konfiguration oder vorhandene Installationsrechte fehlen.',1;
   IF @Pass=0
   BEGIN
@@ -62,6 +65,13 @@ BEGIN TRY
   SET @OwnerName=USER_NAME(@SchemaOwner);
   IF @OwnerName IS NULL THROW 55632,N'JSON Schema lifecycle: vorhandener Owner nicht sichtbar.',1;
   SET @Sql=N'CREATE ASSEMBLY [Toolbelt_JsonSchema] AUTHORIZATION '+QUOTENAME(@OwnerName)+N' FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=SAFE;';
+  EXEC sys.sp_executesql @Sql;
+ END;
+ ELSE IF @SchemaInstalledHash<>@SchemaKnownHash
+ BEGIN
+  -- Nur die exakt bekannte Vorgängerversion; unveränderte CLR-Signatur/Core-
+  -- Referenz. Eigene Slots, Rechte und ObjectIds bleiben im atomaren ALTER erhalten.
+  SET @Sql=N'ALTER ASSEMBLY [Toolbelt_JsonSchema] FROM '+CONVERT(nvarchar(max),@Bits,1)+N' WITH PERMISSION_SET=SAFE;';
   EXEC sys.sp_executesql @Sql;
  END;
  CREATE TABLE #tbx_JsonSchema_DeployState(DeploymentMode nvarchar(16) NOT NULL);
@@ -91,7 +101,7 @@ BEGIN TRY
   SET @ObjectId=OBJECT_ID(N'toolbelt_json.'+QUOTENAME(@Name),@Kind);
   IF @ObjectId IS NULL THROW 55638,N'JSON Schema lifecycle: Release-Slots unvollständig.',1;
   SET @Level=CASE @Kind WHEN 'P' THEN 'PROCEDURE' ELSE 'FUNCTION' END;
-  INSERT @ObjectProperties VALUES(N'Toolbelt.ModuleId',N'toolbelt.json.schema'),(N'Toolbelt.ModuleVersion',N'1.0.0'),
+  INSERT @ObjectProperties VALUES(N'Toolbelt.ModuleId',N'toolbelt.json.schema'),(N'Toolbelt.ModuleVersion',N'1.0.1'),
    (N'Toolbelt.ContractVersion',N'1.0'),(N'Toolbelt.DeploymentMode',@Mode),
    (N'Toolbelt.SourceHash',CASE WHEN @Kind='P' THEN CONVERT(nvarchar(64),HASHBYTES(N'SHA2_256',CONVERT(varbinary(max),OBJECT_DEFINITION(@ObjectId))),2) ELSE CONVERT(nvarchar(64),@SchemaArtifactId) END);
   WHILE EXISTS(SELECT 1 FROM @ObjectProperties)
@@ -105,15 +115,15 @@ BEGIN TRY
   SET @SlotId+=1;
  END;
  IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.schema.Version')
-  EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.json.schema.Version',@value=N'1.0.0';
- ELSE EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.json.schema.Version',@value=N'1.0.0';
+  EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.json.schema.Version',@value=N'1.0.1';
+ ELSE EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.json.schema.Version',@value=N'1.0.1';
  IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.schema.DeploymentMode')
   EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.json.schema.DeploymentMode',@value=@Mode;
  ELSE EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.json.schema.DeploymentMode',@value=@Mode;
  INSERT @SchemaAssemblyMarkers VALUES
  (N'Toolbelt.Managed',CONVERT(sql_variant,CONVERT(int,1))),
  (N'Toolbelt.ModuleId',CONVERT(sql_variant,CONVERT(nvarchar(64),N'toolbelt.json.schema'))),
- (N'Toolbelt.ModuleVersion',CONVERT(sql_variant,CONVERT(nvarchar(16),N'1.0.0'))),
+ (N'Toolbelt.ModuleVersion',CONVERT(sql_variant,CONVERT(nvarchar(16),N'1.0.1'))),
  (N'Toolbelt.DeploymentMode',CONVERT(sql_variant,@Mode)),(N'Toolbelt.AssemblySha512',CONVERT(sql_variant,@SchemaKnownHash)),
  (N'Toolbelt.ArtifactId',CONVERT(sql_variant,@SchemaArtifactId));
  WHILE EXISTS(SELECT 1 FROM @SchemaAssemblyMarkers)

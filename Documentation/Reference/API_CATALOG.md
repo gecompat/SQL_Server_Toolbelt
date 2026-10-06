@@ -3494,7 +3494,7 @@ SELECT Status,JsonType,Value,ErrorCode FROM toolbelt_json.TVF_ResolveJsonPointer
 
 ## toolbelt_json.USP_ValidateJsonSchema
 
-Modul `toolbelt.json.schema` · Version `1.0.0` · `USP`
+Modul `toolbelt.json.schema` · Version `1.0.1` · `USP`
 
 Prüft JSON im begrenzten Profil toolbelt-2020-12-v1 mit exakten Zahlen, Unicode und globalem Arbeitsbudget; SUMMARY plus begrenzte Diagnosen.
 

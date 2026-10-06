@@ -442,6 +442,37 @@ Trustfreigabe autorisiert notwendige begrenzte Tests der laufenden Welle ohne
 erneute Schemahashfragen. Keine erneute allgemeine Funktions-/Migrationsfreigabefrage;
 keine Release-, Rechtegrant-, Infrastruktur- oder Produktionsfreigabe.
 Historische Constructor1.2-Artefakte und Nachweise bleiben getrennt erhalten.
+
+Wartungsfortschritt2026-10-06, Codex: Schema1.0.1 korrigiert den bestehenden
+Vertrag für die Reihenfolge codierter Schema-/Refgraphorte. Früh erkannte
+Schemaformen werden beim geordneten Ortbesuch geprüft; Graphkanten folgen
+budgetiert codierten Zielpfaden. Decodierte Instanzmember, numerische
+Instanzarrays, Profil, Signatur und zehn Ergebnisfelder bleiben gleich.
+Kein neuer öffentlicher Funktionsscope. Ein expliziter Maintenancepfad für
+bekannte1.0.0→1.0.1-Stände und der Uninstall beider bekannten Releases sind
+implementiert. Historische Closure und Core-/Constructorframes bleiben
+unverändert erhalten; ihre Gesamtqualifikation wird nicht neu behauptet.
+
+Der begrenzte aktuelle Schema-Driver bestand15 Prozessphasen mit stabilen
+Pins:169 Profilfälle/1275 Assertions,854 Zahlenfälle/6830 Assertions und120
+Bridge-Assertions jeweils en-US/de-DE/tr-TR, eigene IL und bytegleicher
+kanonischer Schema-Projektbuild. Sechs Patch- und sieben Releasepaketierungs-
+orakel, ScriptDom14 Batches/42 Assertions, PowerShell-/Bashsyntax und18
+synthetische CI-Cleanupfälle sowie33 Selector-/Bindungsfälle ohne Labzugriff
+bestanden. Der historische Builder erzeugte die
+echte1.0.0-DLL aus50 unveränderten Gitblobs des festen Vorgängercommits in53
+erfolgreichen Prozessphasen; falscher Core und belegtes Ausgabeziel wurden
+abgewiesen. [Aktuelle Offline-Evidenz](../Modules/toolbelt.json.schema/Tests/Framework/README.md)
+und [getrennte Testmatrix](../Modules/toolbelt.json.schema/Tests/TEST_MATRIX.md).
+
+Native1.0.1-API, echter SQL-Upgrade und exakte aktuelle Head-CI sind noch
+nicht ausgeführt. Die vorhandenen nativen1.0.0-Nachweise bleiben historische
+Wahrheit. Weitere physische Ziele, Minimalrechte und Ressourcenqualifikation
+bleiben offen; keine lokale Docker-/SQL-Maximallastprobe. Status weiterhin
+implemented, partially validated, unreleased. Die Registryfelder zu Trust
+und nativer Qualifikation bleiben unveränderliche Offline-Freeze-Metadaten,
+getrennt von der bestehenden Testautorität und aktueller Evidenz.
+
 ### TC-2026-039 / TC-2026-040 / TC-2026-042: Deterministic-Familie implementiert
 
 Stand 2026-10-02: Die am 2026-10-01 einzeln freigegebenen

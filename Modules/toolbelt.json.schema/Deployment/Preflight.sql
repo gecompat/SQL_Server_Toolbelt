@@ -5,7 +5,7 @@ IF COALESCE(HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'VIEW DEFINITION'),0)<>1
  OR COALESCE(HAS_PERMS_BY_NAME(N'sys.assembly_references',N'OBJECT',N'SELECT'),0)<>1
  OR COALESCE(HAS_PERMS_BY_NAME(N'sys.sql_expression_dependencies',N'OBJECT',N'SELECT'),0)<>1
  THROW 55632,N'JSON Schema lifecycle: vollständige Metadatensicht fehlt.',1;
-SELECT @SchemaVersion=NULL,@SchemaMode=NULL,@SchemaAssemblyId=NULL,@SchemaAssemblyOwner=NULL,@SchemaInstalledHash=NULL;
+SELECT @SchemaVersion=NULL,@SchemaMode=NULL,@SchemaAssemblyId=NULL,@SchemaAssemblyOwner=NULL,@SchemaInstalledHash=NULL,@SchemaInstalledArtifactId=NULL;
 SELECT @SchemaVersion=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.schema.Version';
 SELECT @SchemaMode=TRY_CONVERT(nvarchar(max),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.json.schema.DeploymentMode';
 SELECT @SchemaAssemblyId=a.assembly_id,@SchemaAssemblyOwner=a.principal_id,@SchemaInstalledHash=HASHBYTES(N'SHA2_512',f.content)
@@ -19,9 +19,12 @@ BEGIN
 END
 ELSE
 BEGIN
- IF CONVERT(varbinary(max),@SchemaVersion)<>CONVERT(varbinary(max),N'1.0.0')
+ SET @SchemaInstalledArtifactId=CASE
+  WHEN CONVERT(varbinary(max),@SchemaVersion)=CONVERT(varbinary(max),N'1.0.0') AND @SchemaInstalledHash=@SchemaPreviousHash THEN @SchemaPreviousArtifactId
+  WHEN CONVERT(varbinary(max),@SchemaVersion)=CONVERT(varbinary(max),N'1.0.1') AND @SchemaInstalledHash=@SchemaKnownHash THEN @SchemaArtifactId END;
+ IF @SchemaInstalledArtifactId IS NULL
   OR @SchemaMode IS NULL OR CONVERT(varbinary(max),@SchemaMode)<>CONVERT(varbinary(max),@Mode)
-  OR @SchemaAssemblyId IS NULL OR @SchemaInstalledHash IS NULL OR @SchemaInstalledHash<>@SchemaKnownHash
+  OR @SchemaAssemblyId IS NULL OR @SchemaInstalledHash IS NULL
   OR NOT EXISTS(SELECT 1 FROM sys.assemblies WHERE assembly_id=@SchemaAssemblyId AND is_user_defined=1 AND permission_set=1 AND is_visible=1
    AND CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'Toolbelt_JsonSchema'))
   OR (SELECT COUNT(*) FROM sys.assembly_files WHERE assembly_id=@SchemaAssemblyId)<>1
@@ -30,9 +33,9 @@ BEGIN
  INSERT @SchemaAssemblyMarkers VALUES
  (N'Toolbelt.Managed',CONVERT(sql_variant,CONVERT(int,1))),
  (N'Toolbelt.ModuleId',CONVERT(sql_variant,CONVERT(nvarchar(64),N'toolbelt.json.schema'))),
- (N'Toolbelt.ModuleVersion',CONVERT(sql_variant,CONVERT(nvarchar(16),N'1.0.0'))),
+ (N'Toolbelt.ModuleVersion',CONVERT(sql_variant,CONVERT(nvarchar(16),@SchemaVersion))),
  (N'Toolbelt.DeploymentMode',CONVERT(sql_variant,CONVERT(nvarchar(16),@Mode))),
- (N'Toolbelt.AssemblySha512',CONVERT(sql_variant,@SchemaKnownHash)),(N'Toolbelt.ArtifactId',CONVERT(sql_variant,@SchemaArtifactId));
+ (N'Toolbelt.AssemblySha512',CONVERT(sql_variant,@SchemaInstalledHash)),(N'Toolbelt.ArtifactId',CONVERT(sql_variant,@SchemaInstalledArtifactId));
  IF EXISTS(SELECT 1 FROM @SchemaAssemblyMarkers expected WHERE NOT EXISTS(SELECT 1 FROM sys.extended_properties e
   WHERE e.class=5 AND e.major_id=@SchemaAssemblyId AND e.minor_id=0 AND e.name=expected.Name
    AND SQL_VARIANT_PROPERTY(e.value,N'BaseType')=SQL_VARIANT_PROPERTY(expected.Value,N'BaseType')
@@ -45,7 +48,7 @@ BEGIN
    AND EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=o.object_id AND minor_id=0 AND name=N'Toolbelt.ModuleId'
     AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'toolbelt.json.schema'))
    AND EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=o.object_id AND minor_id=0 AND name=N'Toolbelt.ModuleVersion'
-    AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'1.0.0'))
+    AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),@SchemaVersion))
    AND EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=o.object_id AND minor_id=0 AND name=N'Toolbelt.DeploymentMode'
     AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),@Mode))))
   THROW 55633,N'JSON Schema lifecycle: objektgenaue Ownership inkohärent.',1;

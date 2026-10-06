@@ -103,7 +103,7 @@ try{
  foreach($culture in @('en-US','de-DE','tr-TR')){
   Phase ('Constructors-'+$culture) (Join-Path $output 'ProductHarness.exe') @('SMALL',$culture,$goldens) 45000 ("PASS PRODUCT_FRAMEWORK SMALL $culture ROWS 37 ASSERTIONS 960`r`n")
   Phase ('Numbers-'+$culture) (Join-Path $output 'NumberHarness.exe') @($numberOracles,$culture) 30000 "PASS SCHEMA_NUMBERS CASES 854 ASSERTIONS 6830`r`n"
-  Phase ('Schema-'+$culture) (Join-Path $output 'SchemaHarness.exe') @($culture) 30000 ("PASS SCHEMA_PROFILE cases=159 assertions=1174 culture=$culture`r`n")
+  Phase ('Schema-'+$culture) (Join-Path $output 'SchemaHarness.exe') @($culture) 30000 ("PASS SCHEMA_PROFILE cases=169 assertions=1275 culture=$culture`r`n")
   Phase ('Bridge-'+$culture) (Join-Path $output 'BridgeHarness.exe') @($culture) 30000 ("PASS SCHEMA_BRIDGE assertions=120 culture=$culture`r`n")
  }
  Phase 'ConstructorLarge' (Join-Path $output 'ProductHarness.exe') @('LARGE','invariant',$goldens) 45000 "PASS PRODUCT_FRAMEWORK LARGE invariant ROWS 3 ASSERTIONS 67`r`n"

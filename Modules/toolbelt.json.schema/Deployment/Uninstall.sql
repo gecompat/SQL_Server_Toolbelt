@@ -31,6 +31,7 @@ BEGIN TRY
    THROW 55635,N'JSON Schema lifecycle: zentrale Consumer-Bestätigung fehlt.',1;
   SELECT @Current=CONVERT(varbinary(max),(SELECT @SchemaVersion Version,@SchemaMode Mode,@SchemaAssemblyId AssemblyId,
    @SchemaAssemblyOwner AssemblyOwner,@SchemaOwner TargetOwner,@JsonCoreId CoreId,@JsonCoreOwner CoreOwner,
+   @SchemaInstalledHash InstalledHash,@SchemaInstalledArtifactId InstalledArtifactId,
    SCHEMA_ID(N'toolbelt_json') SchemaId,OBJECT_ID(N'toolbelt_json.USP_ValidateJsonSchema') PublicId,
    OBJECT_ID(N'toolbelt_json.FT_ValidateJsonSchemaInternal') BridgeId FOR XML RAW,BINARY BASE64));
   IF @Pass=1 AND @Current<>@Initial THROW 55637,N'JSON Schema lifecycle: Zustand hat sich unter Lock verändert.',1;
