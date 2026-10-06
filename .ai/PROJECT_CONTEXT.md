@@ -34,7 +34,15 @@ Dependency-Abweisung von Deploy und Uninstall; beide bestanden am jeweiligen
 exakten Head und danach auf `main`. Die vollständigen 42 gezielten
 Lifecyclefälle sind nur durch die oben genannten physischen Labadapter belegt.
 Weitere physische Ziele, Minimalrechte, Hard-Interrupt-Recovery,
-16MiB-Maximalworkload/Heap und Releasequalifikation bleiben offen.
+breitere Maximalworkloads/Heap und Releasequalifikation bleiben offen.
+Am 2026-10-06 bestanden nach [PR201](https://github.com/gecompat/SQL_Server_Toolbelt/pull/201)
+acht einzeln manuell ausgelöste Jobs auf flüchtigem Linux-SQL2019-CL150-
+Container: Root und `/k` jeweils bei 64KiB,1MiB,4MiB und exakt16MiB
+Originalbytes, mit serverseitigem Einzeilen-/Längen-/SHA2-256-Orakel und
+bestätigter eigener Containerbereinigung. Die direkten Runs stehen in der
+[Testmatrix](../Modules/toolbelt.json.pointer/Tests/JSON_POINTER_TEST_MATRIX.md).
+Dies erweitert weder physische Labziele noch die Qualifikation von SQL2022/2025-
+Maximallast, Tiefe128 bei Maximalgröße, Heap, Parallelität oder Produktion.
 
 ## Aktive Safe-Cast-Welle 2026-10-05
 
