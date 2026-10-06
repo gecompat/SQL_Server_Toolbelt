@@ -25,14 +25,39 @@ fi
 container_name="tbx-json-pointer-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}-${sql_version}"
 workspace="${GITHUB_WORKSPACE:-$(pwd)}"
 private_dir="$(mktemp -d)"
+container_owner="$(openssl rand -hex 16)"
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 echo "::add-mask::${sa_password}"
 
 cleanup() {
-    docker rm -f "${container_name}" >/dev/null 2>&1 || true
-    if [[ -n "${private_dir}" && -d "${private_dir}" ]]; then
-        rm -rf -- "${private_dir}"
+    local result=$? owner="" cleanup_verified=true
+    trap - EXIT
+    # Ein erfolgreicher Lauf ist erst nach frischer Abwesenheitsprüfung fertig.
+    # Ein fremdes Namensgleichnis wird bei abweichendem Owner nie gelöscht.
+    if ! docker container ls --all --filter "name=^/${container_name}$" \
+        --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null; then
+        cleanup_verified=false
+    elif [[ -s "${private_dir}/owned-containers" ]]; then
+        if ! owner="$(docker inspect --format '{{ index .Config.Labels "tbx.json-pointer.ci.owner" }}' \
+            "${container_name}" 2>/dev/null)" || [[ "${owner}" != "${container_owner}" ]]; then
+            cleanup_verified=false
+        elif ! docker rm -f "${container_name}" >/dev/null 2>&1; then
+            cleanup_verified=false
+        fi
     fi
+    if ! docker container ls --all --filter "name=^/${container_name}$" \
+        --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null \
+        || [[ -s "${private_dir}/owned-containers" ]]; then
+        cleanup_verified=false
+    fi
+    if ! rm -rf -- "${private_dir}"; then
+        cleanup_verified=false
+    fi
+    if [[ "${cleanup_verified}" != true ]]; then
+        echo "JSON_POINTER_CI_CLEANUP_UNVERIFIED" >&2
+        result=1
+    fi
+    exit "${result}"
 }
 trap cleanup EXIT
 
@@ -47,6 +72,7 @@ run_private() {
 
 run_private start_container docker run --detach \
     --name "${container_name}" \
+    --label "tbx.json-pointer.ci.owner=${container_owner}" \
     --publish 127.0.0.1::1433 \
     --env ACCEPT_EULA=Y \
     --env MSSQL_PID=Developer \
