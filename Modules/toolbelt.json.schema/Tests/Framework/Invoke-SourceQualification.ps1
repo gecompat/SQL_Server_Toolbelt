@@ -59,7 +59,12 @@ $record=[ordered]@{scope='OFFLINE_SOURCE_FRAMEWORK_ONLY';status='FAILED';postPin
 $common=@('/nologo','/noconfig','/nostdlib+','/checked+','/optimize+','/deterministic+','/warnaserror+','/debug-','/langversion:7.3')
 $productPins=@()
 function Phase([string]$name,[string]$file,[string[]]$arguments,[int]$milliseconds,[string]$witness){
- $process=Invoke-OwnedProcess -FileName $file -Arguments $arguments -TimeoutMilliseconds $milliseconds
+ try{$process=Invoke-OwnedProcess -FileName $file -Arguments $arguments -TimeoutMilliseconds $milliseconds}
+ catch{
+  $category=$_.Exception.Message
+  if($category -cnotmatch '^OWNED_PROCESS_(START|TIMEOUT|CAPTURE_FAILED|ENCODING_FAILED|CAPTURE_LIMIT|CLEANUP_UNSAFE|FAILED)$'){$category='OWNED_PROCESS_FAILED'}
+  throw ('SCHEMA_SOURCE_PROCESS_'+$name+'_'+$category)
+ }
  [IO.File]::WriteAllText((Join-Path $output ($name+'.stdout.private')),$process.Stdout)
  [IO.File]::WriteAllText((Join-Path $output ($name+'.stderr.private')),$process.Stderr)
  $record.phases+=@([ordered]@{name=$name;exitCode=$process.ExitCode;captureComplete=$process.CaptureComplete;emptyStderr=($process.Stderr.Length -eq 0);witness=$process.Stdout.Trim()})

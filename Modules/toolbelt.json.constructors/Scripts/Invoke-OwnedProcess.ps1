@@ -64,7 +64,15 @@ function Invoke-OwnedProcess {
   }
   $child.Refresh()
   [pscustomobject]@{ExitCode=$child.ExitCode;Stdout=$channels[0].Text.ToString();Stderr=$channels[1].Text.ToString();CaptureComplete=$true}
- } catch { throw 'OWNED_PROCESS_FAILED' }
+ } catch {
+  # Nur feste Fehlerkategorien verlassen den privaten Prozesskontext.
+  # Insbesondere Exceptiontexte mit Hostpfaden oder Childausgaben bleiben aus CI.
+  $category=$_.Exception.Message
+  if($category -cnotin @('OWNED_PROCESS_START','OWNED_PROCESS_TIMEOUT',
+    'OWNED_PROCESS_CAPTURE_FAILED','OWNED_PROCESS_ENCODING_FAILED',
+    'OWNED_PROCESS_CAPTURE_LIMIT')){$category='OWNED_PROCESS_FAILED'}
+  throw $category
+ }
  finally {
   $cleanupWatch=[Diagnostics.Stopwatch]::StartNew()
   try {

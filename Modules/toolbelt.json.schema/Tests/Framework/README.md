@@ -15,6 +15,12 @@ Releaseartifact-Zeile oder kanonische MSBuild-Abnahme. Der eigene vollständige
 IL-Aufrufscan ist enthalten; er zertifiziert keine transitive Framework-SAFE-
 Implementierung oder tatsächliche SQL-Host-Ladbarkeit.
 
+Ein gescheiterter Childprozess meldet nur seinen festen Phasennamen und eine
+feste Start-/Timeout-/Capture-/Encoding-/Limit-/Cleanup- oder allgemeine
+Fehlerkategorie. Unbekannte Exceptiontexte, Childausgaben und Hostpfade
+werden nicht in CI-Diagnosen übernommen. Die Kategorie ist ein Diagnosehinweis,
+kein Ersatz für die vollständige private Prozessevidenz oder einen PASS.
+
 ```powershell
 ./Modules/toolbelt.json.schema/Tests/Framework/Invoke-SourceQualification.ps1 `
   -CompilerPath $LocalCompiler `

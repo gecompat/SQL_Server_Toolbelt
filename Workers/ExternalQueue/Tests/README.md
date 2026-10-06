@@ -108,3 +108,11 @@ Der vorherige Linux-CI-Lauf scheiterte vor der Migration mit
 Ein tatsächlicher Offlinecapture mit dem korrigierten exakten Helperpin
 bestand am2026-10-05:15 Blob-Identitäten und Bytes,14 Includes, Manifest und
 abschließende Toolpins. Neue SQL-Migrations-CI bleibt ein separater Nachweis.
+
+Am 2026-10-06 änderte sich derselbe Helper ausschließlich für feste,
+datensparsame Fehlerkategorien. Der erste PR197-Worker-CI-Lauf wies den dadurch
+veralteten exakten Pin mit `HISTORICAL_PROCESS_HELPER` ab, bevor historische
+Blobs oder die Migration verarbeitet wurden; dieser Lauf bleibt fehlgeschlagen.
+Der Pin wurde auf die überprüften neuen Helperbytes aktualisiert. Die
+historischen Queue2.0-Quellen und ihre 15 Blob-/14 Include-Prüfungen bleiben
+unverändert; ein neuer erfolgreicher Lauf am aktuellen Head ist erforderlich.
