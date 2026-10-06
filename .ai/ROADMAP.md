@@ -42,6 +42,17 @@ SQL2022/2025-Maximallast bezeichnet den Stand vor diesen Proben. Tiefe128
 auf diesen Versionen, weitere Formen/Plattformen, reale Heap-/Parallel-
 kapazität, Minimalrechte, Runner-/Host-Recovery und Release bleiben offen.
 
+Anschließend bestanden am 2026-10-06 je zehn weitere lokale Einzelproben
+auf denselben flüchtigen Linux-SQL2022-CL160-/SQL2025-CL170-Images:
+64KiB mit Tiefe2,4,8,16,32,64,128 sowie Tiefe128 bei1MiB,4MiB und
+exakt16MiB. Serverseitige Einzeilen-/Längen-/Hashoracles, eigene Bereinigung
+und frische unabhängige Owner-Label-Abwesenheitsaudits bestanden. Die
+[Testmatrix](../Modules/toolbelt.json.pointer/Tests/JSON_POINTER_TEST_MATRIX.md)
+grenzt die lokalen Fälle ab. Der frühere offene Tiefe128-/Maximalgrößenstand
+ist damit für diese synthetischen Linux-Kombinationen überholt. Andere
+Formen/Plattformen, tatsächlicher Heap, Parallelität, Minimalrechte,
+Runner-/Host-Recovery und Releasequalifikation bleiben offen.
+
 Die sechs einzeln freigegebenen Safe-Cast-TVFs in `toolbelt.conversion.safe-cast`
 1.0.0 sind implementiert und teilweise validiert. Finale begrenzte Adapter auf
 Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 bestanden local/central/

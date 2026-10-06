@@ -208,6 +208,22 @@ beiden Linux-Versionen synthetisch geprüft. Tiefe128 bei Maximalgröße auf
 SQL2022/2025, andere Formen/Plattformen, Parallelität, tatsächlicher Heap,
 Runner-/Host-Recovery und Produktionskapazität bleiben **NOT_EXECUTED**.
 
+Weitere **lokale** Tiefenproben am 2026-10-06 nutzten auf Linux-SQL2022-CL160
+und SQL2025-CL170 denselben unveränderten manuellen Adapter. Pro Version
+bestanden sieben getrennte Prozesse bei 65536 Inputbytes mit Tiefe
+2,4,8,16,32,64,128; anschließend bestanden bei Tiefe128 getrennt 1048576,
+4194304 und exakt16777216 Inputbytes. Alle20 Fälle bestanden das serverseitige
+Einzeilen-/FOUND-/STRING-, exakte Längen- und SHA2-256-Orakel und meldeten
+eigene Containerbereinigung. Je Version bestätigte eine frische unabhängige
+Owner-Label-Abfrage die Abwesenheit eigener Lastcontainer. Ausführung:
+`python Modules/toolbelt.json.pointer/Tests/CI/run_max_workload.py`
+mit `--sql-version 2022` beziehungsweise `2025`, `--shape nested`,
+`--depth <Stufe>` und `--stage-bytes <Stufe>`. Die vorherige offene
+Tiefe128/16MiB-Aussage beschreibt den Stand vor diesen Proben. Das sind lokale
+synthetische Einzelbelege, **keine** GitHub-Workflowdispatches oder Labtests.
+Andere JSON-Formen und Plattformen, Parallelität, tatsächlicher Heapverbrauch,
+Runner-/Host-Recovery und Produktionskapazität bleiben **NOT_EXECUTED**.
+
 ## Ausstehender Nachweis nach hartem Prozessabbruch
 
 Der manuelle Lastadapter entfernt seinen eigenen Container in einem Python-
