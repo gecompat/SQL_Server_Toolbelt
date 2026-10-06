@@ -114,7 +114,7 @@ def main() -> int:
         checked([
             "docker", "run", "--detach", "--cidfile", str(cid_file),
             "--name", name, "--label", f"tbx.pointer.max.owner={owner}",
-            "--publish", "127.0.0.1::1433", "--env", "ACCEPT_EULA=Y",
+            "--env", "ACCEPT_EULA=Y",
             "--env", "MSSQL_PID=Developer", "--env", f"MSSQL_SA_PASSWORD={password}",
             "--volume", f"{deployment.parent}:/workspace/Deployment:ro", image,
         ], work_deadline, 90, "Containerstart")
