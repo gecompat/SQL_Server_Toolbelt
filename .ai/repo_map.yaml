@@ -440,6 +440,7 @@ change_impact:
         - Deployment/**
         - Modules/*/module.yaml
         - Modules/*/Deployment/**
+        - Modules/*/Source/**
       checks:
         - markdown_links
     module_status:

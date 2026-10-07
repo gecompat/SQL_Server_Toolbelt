@@ -2,6 +2,15 @@
 
 Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentation.
 
+Die Offline-Prüfung des repositoryweiten SQL-Exports liegt unter
+[`Deployment/Tests/Test-SqlExport.ps1`](../Deployment/Tests/Test-SqlExport.ps1).
+Sie prüft die aktuelle vollständige Modulclosure, Dependency-Auswahl, rekursive
+Includes, Eingaben, deterministische Dateierzeugung und Fehler ohne SQL-Zugriff.
+Der Documentation-Workflow führt sie bei betroffenen Deployment-/Source-/
+Manifeständerungen aus. Dies ist kein Nachweis für Datenmigrationen oder
+gemeinsame SQL-Laufzeitkompatibilität; siehe
+[Deployment-Grenzen](../Deployment/README.md#datenerhaltung-und-derzeitige-grenzen).
+
 ## Aktueller Stand
 
 Der Repository-Grundaufbau ist abgeschlossen. 44 Module sind implementiert;
