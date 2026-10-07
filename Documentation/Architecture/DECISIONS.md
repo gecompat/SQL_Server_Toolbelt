@@ -661,3 +661,33 @@ Merge Queue, konkrete Sessionthresholds und automatische Nachfolgesitzungen
 bleiben optionale spätere Entscheidungen.
 Betroffene Verträge: `.ai/WORKING_RULES.md`, Foundation-Continuity und
 AI-Work, Workflow-Concurrency. [Bewertung und Nachweise](FOUNDATION_1_19_INTEGRATION.md).
+
+## Datierter Entscheidungsstand 2026-10-07: Modulveröffentlichungen nachvollziehbar abnehmen
+
+Status: accepted im Rahmen des ausdrücklichen Benutzerauftrags zur
+Veröffentlichungs-, Herkunfts- und Rückmeldetransparenz; keine neue finale
+Sequenzreferenz oder Änderung bestehender Identitäten.
+
+Entscheidung: Das [Modulmodell](MODULE_AND_DEPENDENCY_MODEL.md#öffentlicher-veröffentlichungsnachweis)
+ist die kanonische Quelle für den Veröffentlichungsvertrag. Ein modulreferenzierter
+JSON-Datensatz verbindet Version, Quellcommit, Scopequalifikation, konkrete
+Benutzerfreigabe und GitHub-Release. Lokale Strukturprüfung und ausdrücklich
+gewählte externe GET-Abnahme bleiben getrennte Ergebnisse. Vorhandene
+Build-/Trust-Manifeste und SHA2-512-Verträge bleiben eigenständig.
+
+Begründung: Ein zulässiger Statuswert oder ein erzeugtes CI-Artefakt belegt
+keine öffentliche Veröffentlichung. Versionen allein identifizieren veränderte
+unveröffentlichte Quellen nicht eindeutig. Freiwillige synthetische
+Fehlermeldungen ergänzen die vorhandene Testevidenz.
+
+Scope/Auswirkungen: Governance, Dokumentationsvalidator und vorhandenes
+Fehlerformular; alle vorhandenen Modulstände bleiben unveröffentlicht.
+Fachlicher Review prüft Vollständigkeit und Bedeutung von Qualifikationen und
+Freigabe. Die API-Abnahme bestätigt Referenzen und GitHub-Digests, führt keine
+SQL-Tests aus und erteilt keine Veröffentlichungs- oder Trustautorität.
+
+Alternativen: Reine Status-/Linkprüfung wäre unzureichend; verpflichtender
+Netzwerkzugriff bei jedem Dokumentationslauf wäre unnötig. Ein neuer
+Release-Orchestrator, Paketquelle, Telemetrie und neue SQL-API sind außerhalb
+des Auftrags. Betroffene Verträge: Modulmodell, Definition of Done,
+`publication_record`, Dokumentationsvalidator, CONTRIBUTING und Fehlerformular.

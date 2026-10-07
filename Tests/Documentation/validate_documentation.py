@@ -19,6 +19,7 @@ import sys
 from pathlib import Path
 
 import generate_api_catalog
+import publication
 
 
 # Unter Windows erben Python-Unterprozesse sonst häufig die lokale OEM-/ANSI-
@@ -322,6 +323,7 @@ def load_modules(manifest_paths: list[str]) -> list[dict[str, object]]:
 
         module = {
             "manifest_path": manifest_path,
+            "manifest_text": text,
             "root": module_root,
             "id": top_scalar(text, "module_id"),
             "name": top_scalar(text, "module_name"),
@@ -1672,6 +1674,11 @@ def parse_arguments() -> argparse.Namespace:
         help="Vollständigen Baseline-/Release-Audit ausführen",
     )
     parser.add_argument(
+        "--verify-publications",
+        action="store_true",
+        help="Veröffentlichungen zusätzlich lesend gegen GitHub abnehmen (gh erforderlich)",
+    )
+    parser.add_argument(
         "--write",
         action="store_true",
         help="Generierte Statusabschnitte und API-Katalog aktualisieren",
@@ -1706,11 +1713,31 @@ def main() -> int:
     validate_unique_planning_ids()
     validate_generated_module_evidence(modules, arguments.write)
     validate_manifests(modules)
+    try:
+        publication_count = publication.validate_publications(
+            modules, REPOSITORY_ROOT, top_scalar, top_list, section_values,
+            online=arguments.verify_publications,
+        )
+    except publication.PublicationError as error:
+        raise ValidationError(str(error)) from error
+    print(f"Veröffentlichungsstruktur: konsistent ({publication_count} Datensätze)")
+    print("Externe Veröffentlichungsprüfung: " + (
+        "not applicable (keine veröffentlichten Module)" if not publication_count
+        else "confirmed (GitHub)" if arguments.verify_publications else "not executed"
+    ))
     validate_derived_backlog_status(modules)
     validate_inventory_truth(modules)
 
     if "generated_status" in checks:
         validate_generated_status(modules, arguments.write)
+    if "publication_contract" in checks:
+        result = subprocess.run(
+            [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/test_publication.py")],
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=30,
+        )
+        if result.returncode:
+            raise ValidationError(f"Publication-Regressionen:\n{result.stdout}{result.stderr}")
+        print(result.stderr.strip())
     if "foundation_host_redirects" in checks:
         run_foundation_redirects()
     if "foundation_http_responses" in checks:

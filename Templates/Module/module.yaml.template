@@ -7,6 +7,9 @@ version: "0.0.0"
 implementation_status: proposed
 validation_status: "not executed"
 release_status: unreleased
+# Erst nach ausdrücklich autorisierter öffentlicher Veröffentlichung:
+# publication_record: "Publication.json"
+# Vertrag: Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md
 description: "{{Kurze fachliche Beschreibung}}"
 
 sql_server_versions:

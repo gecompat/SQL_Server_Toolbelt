@@ -22,10 +22,22 @@ body:
       required: true
 
   - type: input
+    id: module_stand
+    attributes:
+      label: Modulversion und Herkunft
+      description: "Modul/Objekt, Modulversion und bekannter Herkunfts-Commit oder öffentlicher Release-Link. Unbekannte Herkunft und lokale Änderungen ausdrücklich angeben; keine privaten Pfade."
+
+  - type: input
+    id: deployment_provider
+    attributes:
+      label: Deployment-Modus und Provider
+      description: "local oder central sowie Provider-ID, soweit bekannt. Allgemeine Produkt-/Supportangaben; keine Instanznamen, Endpoints oder Konfigurationsexporte."
+
+  - type: input
     id: sql_server_version
     attributes:
       label: SQL-Server-Version
-      description: "z. B. SQL Server 2019 CU24 (15.0.4375.4)"
+      description: "Allgemeine Produkt-/Supportangabe, z. B. SQL Server 2019/CU24; keine vollständigen Runtime- oder Konfigurationsexporte."
     validations:
       required: true
 
@@ -76,7 +88,7 @@ body:
     id: fehlermeldung
     attributes:
       label: Fehlermeldung (synthetisch)
-      description: Fehlermeldung, falls vorhanden. Bitte reale Pfade, Servernamen, Zeilennummern aus Produktionsumgebungen entfernen.
+      description: Selbst erstellte synthetische Fehlersituation und relevanter Fehlercode; keine originalen Runtime-Ausgaben oder realen Logs kopieren.
 
   - type: checkboxes
     id: datenschutz
