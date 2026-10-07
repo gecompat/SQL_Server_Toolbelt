@@ -289,12 +289,14 @@ def main() -> int:
         raise AssertionError("ResultTable-CI-Vorbereitung/Trap liegt nicht vor dem eigenen Start.")
     mock = read(REPOSITORY_ROOT / "Tests/CI/test_owned_container_cleanup.py")
     docs_workflow = read(REPOSITORY_ROOT / ".github/workflows/documentation-consistency.yml")
-    # Zusätzliche Adapter dürfen im selben Gate stehen; Pfade sind einzelne
-    # Argumente und besitzen keine semantische Nachbarschaftspflicht.
+    # Zusätzliche Adapter dürfen im selben Gate stehen. Die feste aktive
+    # Gateform trennt Pfadargumente von Kommentaren und Shellnachlauf.
     cleanup_gates = [
-        line.split() for line in docs_workflow.splitlines()
-        if line.lstrip().startswith('elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- ')
-        and "Tests/CI/test_owned_container_cleanup.py" in line.split()
+        match.group(1).split() for line in docs_workflow.splitlines()
+        if (match := re.fullmatch(
+            r'\s*elif git diff --quiet "\$BASE_SHA" "\$HEAD_SHA" -- '
+            r'([A-Za-z0-9_./*-]+(?: +[A-Za-z0-9_./*-]+)*); then\s*', line))
+        and "Tests/CI/test_owned_container_cleanup.py" in match.group(1).split()
     ]
     if ('"result_table": ("run-result-table-linux.sh"' not in mock
             or len(cleanup_gates) != 1
