@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-07 – Semantic-Version-CI mit verifizierter eigener Bereinigung
+
+- Der bestehende Adapter bindet seinen Runner vor dem Start an SQL-Version,
+  Run, Attempt und Owner. Cleanup entfernt nur die gemeinsam mit dem Label
+  gelesene volle ID und verlangt frische exakte Namensabwesenheit.
+- Unbestätigter Cleanup endet mit Exit1; bestätigter erhält den ursprünglichen
+  Teststatus. Der Labzweig bleibt Container-No-op ohne Owner oder private Ablage.
+- Der synthetische Harness, Documentationgate und vorhandenes Impact-Paket
+  erfassen den Adapter. SemVer-Verträge und SQL-Fixtures, Kollisionsorakel,
+  Images, Bereitschaftsfrist, Matrix und Runtimeworkflow bleiben erhalten.
+
 ## 2026-10-07 – Split-Characters-Preflightorakel verlangen konkrete Ablehnung
 
 - Die bestehenden Dependency- und Kollisionsprüfungen verlangen Fehlerstatus

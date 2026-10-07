@@ -633,6 +633,7 @@ change_impact:
         - markdown_links
     semantic_version_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.validation.semantic-version/**
         - Documentation/Architecture/SEMANTIC_VERSION_MODULE_DESIGN.md
         - Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
