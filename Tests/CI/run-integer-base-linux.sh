@@ -220,11 +220,20 @@ run_query "${collision_database}" \
 run_query "${collision_database}" \
     "CREATE FUNCTION [toolbelt_conversion].[TVF_IntegerToBase] (@Value bigint, @Alphabet varchar(93)) RETURNS TABLE AS RETURN (SELECT CONVERT(varchar(65), 'foreign') AS EncodedValue);"
 
-if run_file "${collision_database}" "${deployment_directory}" Deploy.sql \
-    -v DeploymentMode=local; then
-    echo "Eine frameworkfremde Zielnamenskollision wurde überschrieben." >&2
+# Ein beliebiger Fehler ist kein Kollisionsnachweis. Beide Ausgabekanäle
+# bleiben im Speicher; nur Fehlerstatus UND die vollständige Kategorie zählen.
+set +e
+collision_output="$(run_file "${collision_database}" "${deployment_directory}" Deploy.sql \
+    -v DeploymentMode=local 2>&1)"
+collision_result=$?
+set -e
+if [[ "${collision_result}" -eq 0 ]] \
+    || ! grep -Eq '(^|[^0-9])51094([^0-9]|$)' <<<"${collision_output}"; then
+    echo "Integer-Base-Kollision wurde nicht mit Fehler 51094 abgelehnt." >&2
     exit 1
 fi
+unset collision_output
+echo "INTEGER_BASE_COLLISION_VERIFIED"
 
 run_query "${collision_database}" \
     "IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = N'Toolbelt.Module.toolbelt.conversion.integer-base.Version') THROW 52842, N'Kollisions-Preflight hinterließ einen Installationsmarker.', 1;"

@@ -317,6 +317,57 @@ exit 0
             guard_cases += 1
     print(f"PASS: {module} uninstall_guard cases={guard_cases}")
 
+# Das bestehende Integer-Base-Kollisionsorakel muss die konkrete Kategorie
+# und einen Fehlerstatus gemeinsam nachweisen, in Runner- und Labmodus.
+if "integer_base" in selected:
+    source = source_bytes[root / "Tests/CI" / modules["integer_base"][0]].decode("utf-8-sig").replace("\r\n", "\n")
+    begin = source.index('set +e\ncollision_output="$(run_file ')
+    end = source.index('\necho "INTEGER_BASE_COLLISION_VERIFIED"', begin) + len('\necho "INTEGER_BASE_COLLISION_VERIFIED"')
+    block = source[begin:end]
+    guard_cases = 0
+    for mode in ("runner", "lab"):
+        for scenario, result_code, category, expected_code in (
+            ("expected_error", 7, "Msg 51094, Level 16", 0),
+            ("false_success", 0, "51094", 1),
+            ("wrong_category", 7, "59999", 1),
+            ("missing_category", 7, "synthetic", 1),
+            ("numeric_suffix", 7, "510940", 1),
+            ("numeric_prefix", 7, "151094", 1),
+        ):
+            with tempfile.TemporaryDirectory(prefix="integer-base-collision-", dir=runtime) as base:
+                base_path = Path(base).resolve()
+                if not base_path.is_relative_to(runtime):
+                    raise SystemExit("INTEGER_BASE_COLLISION_TEST_TEMP_SCOPE_INVALID")
+                invalid_path = base_path / "invalid-argv"
+                shell = f'''set -euo pipefail
+TBX_SQL_TARGET={mode}
+invalid_file={shlex.quote(invalid_path.relative_to(root).as_posix())}
+collision_database=tbx_synthetic_collision
+deployment_directory=/synthetic/deployment
+run_file() {{
+    if [[ "$#" != 5 || "$1" != "$collision_database" || "$2" != "$deployment_directory" || "$3" != Deploy.sql || "$4" != -v || "$5" != DeploymentMode=local ]]; then : > "$invalid_file"; return 97; fi
+    printf '%s\\n' '{category}' >&2
+    return {result_code}
+}}
+docker() {{ : > "$invalid_file"; return 97; }}
+run_query() {{ : > "$invalid_file"; return 97; }}
+{block}
+exit 0
+'''
+                harness_path = base_path / "harness.sh"
+                harness_path.write_text(shell, encoding="utf-8", newline="\n")
+                completed = subprocess.run([str(bash), harness_path.relative_to(root).as_posix()],
+                                           cwd=root, capture_output=True, check=False, timeout=10)
+                if completed.returncode != expected_code or invalid_path.exists():
+                    raise SystemExit(f"INTEGER_BASE_COLLISION_TEST_ORACLE_MISMATCH:{mode}:{scenario}")
+                expected_stdout = b"INTEGER_BASE_COLLISION_VERIFIED\n" if expected_code == 0 else b""
+                expected_stderr = b"" if expected_code == 0 else "Integer-Base-Kollision wurde nicht mit Fehler 51094 abgelehnt.\n".encode("utf-8")
+                if completed.stdout != expected_stdout or completed.stderr != expected_stderr:
+                    raise SystemExit(f"INTEGER_BASE_COLLISION_TEST_CHANNEL_MISMATCH:{mode}:{scenario}")
+            print(f"PASS: integer_base collision_guard {mode} {scenario}")
+            guard_cases += 1
+    print(f"PASS: integer_base collision_guard cases={guard_cases}")
+
 for path, expected_hash in pins.items():
     if hashlib.sha256(path.read_bytes()).hexdigest() != expected_hash:
         raise SystemExit("OWNED_CLEANUP_TEST_SOURCE_CHANGED")

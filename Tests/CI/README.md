@@ -38,6 +38,13 @@ Namensabwesenheit. `INTEGER_BASE_CI_CLEANUP_UNVERIFIED` endet mit Exit1;
 `INTEGER_BASE_CI_CLEANUP_VERIFIED` erhält den ursprünglichen Teststatus.
 Der Labzweig bleibt Container-No-op ohne Runnerowner oder private Ablage.
 
+Das bestehende Kollisionsorakel verlangt einen fehlgeschlagenen Deploy und
+die vollständige Fehlerkategorie `51094`. Ein erfolgreicher Exit mit diesem
+Text, eine andere oder fehlende Kategorie und längere Nummern zählen nicht
+als Ablehnungsnachweis. Beide Kanäle werden ausschließlich im Speicher geprüft;
+nur `INTEGER_BASE_COLLISION_VERIFIED` bestätigt das Orakel. Derselbe synthetische
+Harness prüft diese Fälle in Runner- und Labmodus ohne zusätzlichen SQL-Negativtest.
+
 `python -B Tests/CI/test_owned_container_cleanup.py --module integer_base`
 prüft die tatsächliche Cleanupfunktion mit synthetischen Stubs, einschließlich
 Fremdbestand, Namensaustausch, ungültiger ID/Owner, unbekannter Sicht und

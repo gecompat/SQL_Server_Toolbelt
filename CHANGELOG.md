@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-07 – Integer-Base-Kollisionsorakel verlangt konkrete Ablehnung
+
+- Das vorhandene CI-Orakel akzeptiert nur Fehlerstatus zusammen mit der
+  vollständigen Kategorie `51094`; beliebige Deploymentfehler und Text bei
+  erfolgreichem Exit ergeben keinen Kollisionsnachweis. Rohkanäle bleiben im Speicher.
+- Der vorhandene synthetische Harness prüft Fehlerstatus, Kategorie und
+  Zahlengrenzen in Runner- und Labmodus. Fachliche SQL-Verträge und Fixtures,
+  Runnerbesitz, Cleanup, Images, Matrix und Runtimeworkflow bleiben unverändert.
+
 ## 2026-10-07 – Integer-Base-CI mit verifizierter eigener Bereinigung
 
 - Der bestehende Integer-Base-Adapter bindet seinen Runner vor dem Start an
