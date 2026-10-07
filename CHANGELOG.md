@@ -9,6 +9,11 @@
   bestehenden Providerkonfiguration auf. Source, Deployment und API bleiben
   gleich; der neue Test benötigt keinen RPC. Native neue Evidenz und offene
   Windows-/Minimalrechte-/Benutzergrant-/historische Fälle bleiben getrennt.
+- Der neue Repeat bestand am 2026-10-08 am Commit
+  `32ee260e413b8de7f9b2046ffdc11618b0afd69b` auf Linux2019/150,2022/160,
+  2025/170 jeweils lokal/zentral; bestehende Provider-/API-/Lifecyclefälle und
+  eigene CI-Bereinigung ebenfalls. Abhängige EventLog-Suite am selben Head
+  bestanden ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37693379887)).
 
 ## 2026-10-07 – EventLog-Datenerhalt und WorkType-Reaktivierung prüfen
 

@@ -51,8 +51,11 @@ SQLCMD; der Adapter muss seine eigene Testdatenbank beziehungsweise seinen
 eigenen flüchtigen Testscope bereinigen. Kein Wiederaufnehmen einer teilweise
 verbliebenen Fixture.
 
-Dieser neue Tabellenrepeat ist bis zu seinem eigenen tatsächlichen Lauf
-`not executed`. Historische Provider-/Windows-Evidenz ersetzt ihn nicht.
+Dieser neue Tabellenrepeat bestand am Commit
+`32ee260e413b8de7f9b2046ffdc11618b0afd69b` auf Linux2019/150,2022/160,
+2025/170 jeweils lokal/zentral
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37693379887)).
+Historische Provider-/Windows-Evidenz ersetzt keine weitere Repeatqualifikation.
 Windows, weitere Repeat-Compatibility-Levels, nichtleere Benutzergrants,
 Minimalrechte und historische Versionsübergänge benötigen eigene Nachweise.
 Der Tabellenrepeat beweist keine funktionierende Providerverbindung.
@@ -60,8 +63,8 @@ Der Tabellenrepeat beweist keine funktionierende Providerverbindung.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
-- Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; Provider-Probe, separate SPID, Caller-Rollback, uncommittable Caller, Fehlerrollback, Konkurrenz, zentrales Deployment, Lifecycle und Uninstall
+- Datum: `2026-10-08`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37693379887`
+- Scope: Commit 32ee260e413b8de7f9b2046ffdc11618b0afd69b: zwei echte befüllte 1.1.0-Repeats lokal/zentral auf Linux2019/150,2022/160,2025/170 mit genau einem deaktivierten synthetischen loopback-Eintrag; alle acht Spalten einschließlich unterschiedlicher Auditzeiten, Unicode-/Padding-Autoren und Rowversionbytes sowie ausgewählter Katalog, vorhandene Permissions und eigene Annotationen/MS_Description erhalten. Keine RPC-/Configure-USP-Aufrufe im neuen Tabellenrepeat. Bestehende API-/Provider-/Rollback-/Parallelitäts-/Consumer-/Uninstallfälle und eigene CI-Bereinigung bestanden; abhängige W5b-Suite37693379826 ebenfalls SUCCESS am selben Head. Neue Windows-Repeats, weitere Repeat-CLs, nichtleere Benutzergrants, echte Minimalrechte, historische Übergänge und Hard-Interrupt-Recovery bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
