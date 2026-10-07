@@ -45,6 +45,19 @@ befüllten File-Content-Repeat ausschließlich als Test-/Evidenzscope unter
 der vorhandenen Deploymentfreigabe. Neue öffentliche SQL-Funktionen bleiben
 einzeln freigabepflichtig; lokale SQL-/Dockerläufe bleiben ausgesetzt.
 
+File-Content-Wartung: Der befüllte 1.0.0-Repeat bestand am Commit
+`8effcee91106cb4b8924c7a839928d550c0653b6` auf SQL Server 2019/150,
+2022/160 und 2025/170 Linux jeweils lokal/zentral mit zwei echten Deploys
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37687448814)).
+Vier synthetische Zeilen, verbrauchte Identitywerte und ausgewählte
+Katalogmetadaten einschließlich vorhandener Permissions blieben erhalten;
+Tabellen-/Spaltenannotation blieb gleich, Tabellen-`MS_Description` wurde
+kanonisch erneuert. Keine Benutzergrants wurden erzeugt. Der erste offene
+Tabellenscope ist jetzt `ExecutionCancellation`; Windows, weitere Repeat-CLs,
+nichtleere Benutzergrants, echte Minimalrechte und historische Übergänge
+bleiben separat. Finale Head-CI/Merge werden über
+[PR286](https://github.com/gecompat/SQL_Server_Toolbelt/pull/286) geprüft.
+
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
 Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene
@@ -59,7 +72,7 @@ Chatverlauf ersetzen diese Repositoryquellen nicht.
 
 | Reihenfolge | Nächster Wartungsscope | Noch fehlender Nachweis oder Entscheidung |
 |---|---|---|
-| 1 | `toolbelt.file.content` / `FileContentRootAllowlist` | Befüllten versionsgleichen Repeat mit exakten Zeilen, Identity-, Katalog- und vorhandenen Berechtigungsmetadaten prüfen; kanonische `MS_Description`-Aktualisierung gesondert behandeln. Dieser Tabellenrepeat benötigt weder Datei-I/O noch Konfigurations- oder CLR-Änderungen. |
+| 1 (gezielt bestanden) | `toolbelt.file.content` / `FileContentRootAllowlist` | Befüllter Repeat lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Windows, weitere Repeat-CLs, nichtleere Benutzergrants und echte Minimalrechte bleiben offen. Dieser Tabellenrepeat benötigt weder Datei-I/O noch Konfigurations- oder CLR-Änderungen. |
 | 2 | `toolbelt.core.execution-cancel` / `ExecutionCancellation` | Bestehenden Redeploy um exakte Zeilen-, Rowversion- und Katalogvergleiche ergänzen. |
 | 3 | `toolbelt.core.event-log` / `EventLog` | Daten- und Katalogerhalt qualifizieren; der bestehende Vertrag registriert beziehungsweise reaktiviert seinen WorkType ausdrücklich. Eine abweichende Erhaltung deaktivierter Registrierung wäre zuerst fachlich zu klären. |
 | 4 | `toolbelt.core.second-session` / `SecondSessionProvider` | Deaktivierte Provider, Auditfelder und Rowversions zusätzlich zu vorhandenen Provider-/Servernamensprüfungen nachweisen; keine Provider- oder Rechteausweitung. |
@@ -68,8 +81,8 @@ Chatverlauf ersetzen diese Repositoryquellen nicht.
 Danach die exportierte gemeinsame Modulfolge mit befüllten Tabellen prüfen.
 Gesamtdeployment bleibt nicht atomar; Objekt-/Berechtigungserhaltung, lokale
 und zentrale Modi, weitere Plattformen und echte Minimalrechte benötigen
-eigene Qualifikation. Nichtleere Benutzergrants sind im Verbundrepeat dieser
-Runde nicht nachgewiesen. Die fünf verbleibenden Tabellenquellen erstellen
+eigene Qualifikation. Nichtleere Benutzergrants sind im Queue-/Control-Verbundrepeat
+und File-Content-Repeat nicht nachgewiesen. Die fünf zusätzlichen Tabellenquellen erstellen
 fehlende Tabellen, liefern aber keinen allgemeinen Schemaabgleich.
 Unbekannte/partielle Installationen und historische Schemaübergänge benötigen
 gesondert beschriebene versionierte Migrationspfade. Q1 V1 bleibt zustandslos.

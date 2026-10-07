@@ -11,6 +11,10 @@
   vor seiner bestehenden Datei-I/O-Konfiguration aus. Windows, weitere CLs,
   nichtleere Benutzergrants, Minimalrechte und historische Migrationen bleiben
   offen; `partially validated` und `unreleased` bleiben bestehen.
+- Der gezielte Repeatnachweis am Commit `8effcee91106cb4b8924c7a839928d550c0653b6`
+  bestand am 2026-10-07 auf SQL Server 2019/150, 2022/160 und 2025/170 Linux
+  jeweils lokal/zentral; die bestehende Datei-Suite und Uninstall bestanden
+  ebenfalls ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37687448814)).
 
 ## 2026-10-07 – Veröffentlichungsnachweise und freiwillige Fehlermeldungen
 
