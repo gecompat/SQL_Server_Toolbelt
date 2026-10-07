@@ -5,7 +5,7 @@
   "source_repository": "https://github.com/gecompat/AI_Repository_Foundation",
   "source_commit": "4aafd20442275d0fdedf291fc6e12e8fe1f683cc",
   "source_manifest_sha256": "5fae12cf28f454c2f99b591e86c3f4018e32b30288f0e8021acde0af3c9865b4",
-  "recorded_at": "2026-10-05T18:00:38Z",
+  "recorded_at": "2026-10-07T14:20:05Z",
   "selection": {
     "adapters": [
       "claude-code",
@@ -301,9 +301,9 @@
       "kind": "ai-provisioning-documentation",
       "merge": "review_if_exists",
       "source_sha256": "539c56300de785ca1f980dd4bba11ba08b1cc6ad0022b09b0310164356b8c355",
-      "installed_sha256": "539c56300de785ca1f980dd4bba11ba08b1cc6ad0022b09b0310164356b8c355",
-      "integration_state": "FOUNDATION_BASELINE",
-      "reason": null
+      "installed_sha256": "4720303048ee637eaf0527dbbb978149e161f85155caebd8c026c53f1affe4c2",
+      "integration_state": "INTENTIONAL_OVERRIDE",
+      "reason": "Gekoppelte Dokumentation des gezielten Toolbelt-Redirect-Securityoverrides; keine neue Ausführungsautorität oder Foundationversion."
     },
     {
       "source": "foundation/capabilities/ai-provisioning/host_preparation.py",
@@ -311,9 +311,9 @@
       "kind": "ai-host-preparation-reference",
       "merge": "review_if_exists",
       "source_sha256": "2d4af24ba3342952cf82d8fce776cd0b887b6a1ef90fdf5a5accc08daf40446b",
-      "installed_sha256": "2d4af24ba3342952cf82d8fce776cd0b887b6a1ef90fdf5a5accc08daf40446b",
-      "integration_state": "FOUNDATION_BASELINE",
-      "reason": null
+      "installed_sha256": "bde211ac89b2413c317a157fb23407617d1067f2f8d839a0ae2c7f3fc1076fad",
+      "integration_state": "INTENTIONAL_OVERRIDE",
+      "reason": "Toolbelt-Securitywartung2026-10-07: jeden Redirect vor Dispatch an ursprünglichen HTTPS-Host/Port443 binden, Same-origin-Verhalten und übrige Budgets erhalten."
     },
     {
       "source": "foundation/capabilities/ai-runtime-adapters/AI_RUNTIME_ADAPTERS.md",

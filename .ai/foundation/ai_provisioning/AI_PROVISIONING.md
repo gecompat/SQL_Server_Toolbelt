@@ -50,6 +50,18 @@ python .ai/foundation/ai_provisioning/host_preparation.py verify --plan <externa
 
 Only the single source and action sealed into the plan can run. Redirects across origins, excess bytes, digest drift, environment expansion, target overwrite, expired plans/approvals, and in-repository destinations fail closed. The downloaded artifact is hash-checked before installation. Verification may be repeated after plan expiry because it performs no download or install.
 
+Toolbelt-Wartung2026-10-07: Der installierte Referenzclient prüft jeden
+HTTPS-Redirect vor dem Folgekontakt gegen den ursprünglichen Host und den
+effektiven Port443. Same-origin-Redirects bleiben erlaubt; HTTP-/FTP-Wechsel,
+andere Hosts/Ports und Userinfo werden vor Dispatch abgewiesen. Die
+verweigerte Antwort wird ohne Bodyread geschlossen. Download und
+Cost-Evidence verwenden dieselbe Prüfung; die vorhandenen Permissioncodes,
+Timeouts, Byte-/Hashgrenzen und Genehmigungsanforderungen bleiben erhalten.
+Dies ist ein dokumentierter Target-Override der Quelle1.19.0, kein Upgrade
+oder Aktivierungsnachweis. Offline-HTTP-Fixtures benötigen keine Netzwerk-
+oder Provisionierungsfreigabe; reale Operationen benötigen weiterhin ihren
+exakten Plan beziehungsweise die konkrete Netzwerkautorität.
+
 ## Failure, recovery, and cleanup
 
 Checkpoints are atomic, integrity-protected, and keyed to the exact plan. A completed plan returns its prior result without downloading again. A crash during a not-yet-installed download can safely resume. A crash around a non-idempotent installer becomes `MANUAL_REQUIRED`; it is never replayed blindly. A `FAILED` or `MANUAL_REQUIRED` checkpoint is terminal for that plan: reconcile it, change the inputs/evidence, create a new plan, and approve the new hash.

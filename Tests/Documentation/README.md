@@ -25,6 +25,13 @@ Die Prüfung liest zuerst nur die geänderten Pfade. Anschließend werden
 ausschließlich die in `.ai/repo_map.yaml` registrierten Impact-Pakete und
 gekoppelten Modul-Artefakte geprüft.
 
+Das Impact-Paket `foundation_host_redirects` führt
+`python3 -B Tests/Documentation/test_foundation_redirects.py` mit begrenzter
+Laufzeit aus. Die Regression ersetzt HTTP-Transport durch synthetische
+Antworten und prüft Vor-Dispatch-Originbindung, erlaubte Redirectketten,
+Fehlercodes und installierte Provenienz. Sie aktiviert keine optionalen
+Runtimes, Netzwerkverbindungen, Provisionierung oder SQL-Tests.
+
 ## Vollständiger Audit
 
 ```bash
