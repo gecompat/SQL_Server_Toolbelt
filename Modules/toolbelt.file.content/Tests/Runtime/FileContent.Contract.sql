@@ -213,6 +213,10 @@ IF NOT EXISTS
 DECLARE @FixtureRoot nvarchar(4000) = N'$(FixtureRoot)';
 DECLARE @FixturePath nvarchar(4000);
 
+-- Dieselbe kanonische Root-Grenze wie beide Wrapper, inklusive atomarer
+-- Allowlist-Restaurierung und bestehender kleiner positiver Fixtures.
+:r RootBoundary.Contract.sql
+
 DECLARE @BinaryResult TABLE
 (
       Content           varbinary(max) NULL

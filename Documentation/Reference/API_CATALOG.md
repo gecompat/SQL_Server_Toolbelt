@@ -2589,7 +2589,7 @@ Liest eine Datei als varbinary(max) über OPENROWSET(BULK...). Der Pfad muss unt
 
 Vertrag und Quelle: [USP_LoadBinaryFile.sql](../../Modules/toolbelt.file.content/Source/USP_LoadBinaryFile.sql), [USP_LoadBinaryFile.md](../../Modules/toolbelt.file.content/Documentation/USP_LoadBinaryFile.md).
 
-<!-- Source/Vertrag SHA256: 2dbd545cfa8480f6d4c4a9de9f4f6ee58b644687dc819f2e0f30b06012081ee0 -->
+<!-- Source/Vertrag SHA256: 5a806c2ee458b1237984350caed9647a5af79139bfe7a5c779305de8262ee250 -->
 
 Voraussetzung: Vorhandene Datei unter einem konfigurierten Allowlist-Root und passende SQL-/Dateirechte.
 
@@ -2621,7 +2621,7 @@ Liest eine Textdatei als nvarchar(max) über OPENROWSET(BULK...). Erkennt BOM un
 
 Vertrag und Quelle: [USP_LoadTextFile.sql](../../Modules/toolbelt.file.content/Source/USP_LoadTextFile.sql), [USP_LoadTextFile.md](../../Modules/toolbelt.file.content/Documentation/USP_LoadTextFile.md).
 
-<!-- Source/Vertrag SHA256: e02d632572ec3938536de90062d7940e31356e0f166c6732ebe5f49fa592e6aa -->
+<!-- Source/Vertrag SHA256: 15c04ebe9f3afa17c93dcdb0aeb66d14b919e6f26290f446ea789d6861d8ddbb -->
 
 Voraussetzung: Vorhandene Datei unter einem konfigurierten Allowlist-Root und passende SQL-/Dateirechte.
 

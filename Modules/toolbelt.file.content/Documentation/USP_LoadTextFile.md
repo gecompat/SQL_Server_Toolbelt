@@ -5,6 +5,10 @@
 Liest eine Textdatei als `nvarchar(max)` über `OPENROWSET(BULK...)`.
 Erkennt Byte Order Marks (BOM) und decodiert entsprechend. Dateien ohne BOM
 werden mit `@FallbackEncoding` gelesen.
+Der Pfad muss unter einem aktiven Root der `FileContentRootAllowlist` liegen.
+Der Root gilt literal und case-sensitiv an einer Verzeichnisgrenze;
+ein abschließender Slash ist optional. Geschwisterpräfixe und durch
+`%`, `_` oder Klammern erweiterte Suchmuster werden nicht freigegeben.
 
 ## Signatur
 

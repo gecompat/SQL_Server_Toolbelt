@@ -25,6 +25,9 @@ einem konfigurierten Root liegen.
 `toolbelt_file.FileContentRootAllowlist` enthält die erlaubten Root-Pfade.
 Nur absolute lokale Pfade und UNC-Pfade sind zulässig. Relative Pfade,
 `..`-Traversierung und Pfade außerhalb der Allowlist werden abgelehnt.
+Roots werden nach Slash-Normalisierung literal und case-sensitiv verglichen.
+Ein abschließender Slash ist optional; `/safe` erlaubt `/safe/file.bin`,
+aber nicht `/safe-old/file.bin`. `%`, `_` und Klammern sind normale Pfadzeichen.
 
 ## Abhängigkeiten
 
@@ -36,6 +39,8 @@ Keine Runtime-Modulabhängigkeit.
 `DeploymentMode=local|central`. Zusätzlich muss `OPENROWSET(BULK...)` auf
 SQL Server aktiviert sein (`ad hoc distributed queries`) oder der Aufrufer
 besitzt `ADMINISTER BULK OPERATIONS`.
+Die beiden Procedure-Dateien binden im SQLCMD-Modus das gemeinsame
+Queryfragment `Source/FileContentRootPredicate.sql` ein.
 
 ## Vertrag
 

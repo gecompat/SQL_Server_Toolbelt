@@ -7,13 +7,15 @@
 | Statische Vertragsprüfung | Artefakte, Vertragsmarker und Signatur | `Tests/Static/validate_contract.py` |
 | Lifecycle-Contract | Objekte existieren im Ziel-Compatibility-Level | `Tests/Runtime/Lifecycle.Contract.sql` |
 | File-Content-Contract | Hilfe-Contract, Pfadvalidierung, Allowlist, Traversal | `Tests/Runtime/FileContent.Contract.sql` |
+| Root-Grenzvertrag | Literale Verzeichnisgrenzen, Unicode, Leerzeichen und beide Fassaden | [RootBoundary.Contract.sql](Runtime/RootBoundary.Contract.sql), vom File-Content-Contract eingebunden |
 
 ## Ausführung
 
 Lokales Deployment:
 
 ```bash
-sqlcmd -S localhost -d master -i Modules/toolbelt.file.content/Deployment/Deploy.sql \
+cd Modules/toolbelt.file.content/Deployment
+sqlcmd -S localhost -d ToolbeltFileContentTest -i Deploy.sql \
   -v DeploymentMode=local
 ```
 
@@ -26,15 +28,23 @@ python3 Modules/toolbelt.file.content/Tests/Static/validate_contract.py
 Runtime-Test für ein Compatibility Level:
 
 ```bash
-sqlcmd -S localhost -d master -i Modules/toolbelt.file.content/Tests/Runtime/FileContent.Contract.sql \
-  -v CompatibilityLevel=170
+cd Modules/toolbelt.file.content/Tests/Runtime
+sqlcmd -S localhost -d ToolbeltFileContentTest -i FileContent.Contract.sql \
+  -v CompatibilityLevel=170 FixtureRoot=/synthetic/file-content-fixtures
 ```
 
 ## Hinweise
 
-- Runtime-Tests, die echte Dateien lesen, erfordern eine vorbereitete
-  Allowlist und Dateien im Container-Dateisystem. Sie sind bewusst nicht im
-  Contract-Test enthalten, um plattformunabhängige CI-Ausführung zu ermöglichen.
+- Nur eine vorbereitete eigene Testdatenbank verwenden. Die Grenzmatrix
+  verwendet eine vorhandene Allowlist-Zeile ohne Identity-Insert und
+  restauriert Allowlist-Zeilen per Rollback.
+- Der File-Content-Contract enthält kleine Datei-Fixtures und erfordert eine
+  vorbereitete Allowlist sowie serverseitige Dateien unter `FixtureRoot`.
+  Der eingebundene Root-Grenzvertrag prüft das gemeinsame Prädikat und beide
+  Fassaden mit synthetischen Pfaden; Denial-Fälle dürfen keinen Providerfehler
+  als erfolgreiche Ablehnung ausgeben. Allowlist-Änderungen werden zurückgerollt.
+- SQLCMD-Includes werden relativ zum angegebenen Arbeitsverzeichnis aufgelöst.
+  Die beiden Beispiele beginnen jeweils am Repository-Root.
 - `OPENROWSET(BULK...)` erfordert `ad hoc distributed queries` oder
   `ADMINISTER BULK OPERATIONS`.
 

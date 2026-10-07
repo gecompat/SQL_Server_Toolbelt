@@ -5,6 +5,9 @@
 Liest eine Datei als `varbinary(max)` über `OPENROWSET(BULK...)`.
 Der Pfad muss absolut sein und unter einem Eintrag der Root-Allowlist
 `toolbelt_file.FileContentRootAllowlist` liegen.
+Der Root gilt literal und case-sensitiv an einer Verzeichnisgrenze;
+ein abschließender Slash ist optional. Geschwisterpräfixe und durch
+`%`, `_` oder Klammern erweiterte Suchmuster werden nicht freigegeben.
 
 ## Signatur
 

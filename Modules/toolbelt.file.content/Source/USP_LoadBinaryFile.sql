@@ -225,12 +225,7 @@ BEGIN
     -- Allowlist-Prüfung (Latin1_General_100_BIN2 für byteidentischen Vergleich).
     IF NOT EXISTS
        (
-           SELECT 1
-           FROM [toolbelt_file].[FileContentRootAllowlist]
-           WHERE IsActive = 1
-             AND @NormalizedPath COLLATE Latin1_General_100_BIN2
-                 LIKE REPLACE(REPLACE(RootPath, N'\\', N'/'), N'\', N'/')
-                     COLLATE Latin1_General_100_BIN2 + N'%'
+:r ../Source/FileContentRootPredicate.sql
        )
     BEGIN
         SELECT

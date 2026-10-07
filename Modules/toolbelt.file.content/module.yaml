@@ -45,7 +45,7 @@ permissions_required:
   - "EXECUTE auf toolbelt_file.USP_LoadTextFile"
   - "ADMINISTER BULK OPERATIONS oder ad-hoc Distributed Queries für OPENROWSET(BULK...)"
   - "DDL-Rechte für Deploy und Uninstall"
-collation_contract: "Pfadvergleiche werden mit Latin1_General_100_BIN2 durchgeführt; Zeichensatz-Erkennung erfolgt über BOM-Heuristik."
+collation_contract: "Root-Pfade werden literal an einer Verzeichnisgrenze mit Latin1_General_100_BIN2 und exakter UTF-16-Länge verglichen; Zeichensatz-Erkennung erfolgt über BOM-Heuristik."
 data_type_contract: "Binärer Inhalt ist varbinary(max); Text ist nvarchar(max); Metadaten sind kleine skalare Typen."
 help_contract_version: "1.0"
 resultset_contracts:
@@ -127,6 +127,7 @@ tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/FileContent.Contract.sql"
   contract: "Tests/Runtime/FileContent.Contract.sql"
+  root_boundary: "Tests/Runtime/RootBoundary.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
 validation_evidence:
   - date: "2026-08-01"

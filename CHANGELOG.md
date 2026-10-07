@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-07 – File-Content-Roots mit literaler Verzeichnisgrenze
+
+- Die beiden bestehenden Datei-Lader verwenden ein gemeinsames SQLCMD-
+  Prädikat. Ein Root ohne abschließenden Slash erlaubt nur den exakten Pfad
+  oder Nachfahren; Geschwisterpräfixe und LIKE-Metazeichen erweitern ihn nicht.
+- Leere Roots autorisieren keinen Pfad. BIN2-Vergleich mit expliziter UTF-16-
+  Länge bewahrt Leerzeichen und Unicode-Grenzen. Der bestehende Fehlercode
+  `51321`, öffentliche Signaturen, Objekte, Provider und Rechte bleiben erhalten.
+
 ## 2026-10-07 – ScriptDom-Pin und selektives Deployment
 
 - Der freigegebene ScriptDom-Pin ist jetzt FileVersion `18.0.117.0`; Parser-

@@ -4,6 +4,7 @@ from pathlib import Path
 root = Path(__file__).resolve().parents[2]
 required = (
     "Source/FileContentRootAllowlist.sql",
+    "Source/FileContentRootPredicate.sql",
     "Source/USP_LoadBinaryFile.sql",
     "Source/USP_LoadTextFile.sql",
     "Deployment/Deploy.sql",
@@ -15,6 +16,7 @@ required = (
     "Tests/FILE_CONTENT_CONTRACT_TEST_MATRIX.md",
     "Tests/README.md",
     "Tests/Runtime/FileContent.Contract.sql",
+    "Tests/Runtime/RootBoundary.Contract.sql",
     "Tests/Runtime/Lifecycle.Contract.sql",
     "module.yaml",
 )
@@ -39,7 +41,6 @@ for marker in (
     "@Hilfe     bit          = 0",
     "OPENROWSET(BULK",
     "SINGLE_BLOB",
-    "Latin1_General_100_BIN2",
     "51320",
     "51321",
     "51322",
@@ -76,7 +77,26 @@ for marker in (
     if marker not in text_source:
         raise SystemExit(f"LoadTextFile-Vertragsmarker fehlt: {marker}")
 
+predicate_source = (root / "Source/FileContentRootPredicate.sql").read_text("utf-8")
+runtime_source = (root / "Tests/Runtime/FileContent.Contract.sql").read_text("utf-8")
+boundary_source = (root / "Tests/Runtime/RootBoundary.Contract.sql").read_text("utf-8")
+if runtime_source.count(":r RootBoundary.Contract.sql") != 1 or boundary_source.count(
+        ":r ../../Source/FileContentRootPredicate.sql") != 1:
+    raise SystemExit("Native Grenztests müssen eingebunden sein und das echte Prädikat verwenden.")
+for marker in ("DATALENGTH(normalized.NormalizedRoot) > 0",
+               "CAST(normalized.NormalizedRoot AS nvarchar(max))",
+               "DATALENGTH(@NormalizedPath) = DATALENGTH(normalized.NormalizedRoot)",
+               "LEFT(@NormalizedPath COLLATE Latin1_General_100_BIN2",
+               "DATALENGTH(boundary.DirectoryPrefix) / 2"):
+    if marker not in predicate_source:
+        raise SystemExit(f"Root-Grenzvertrag fehlt: {marker}")
+if "LIKE" in predicate_source.upper() or "CREATE " in predicate_source.upper():
+    raise SystemExit("Root-Prädikat muss literal sein und darf kein SQL-Objekt anlegen.")
 for source in (binary_source, text_source):
+    if source.count(":r ../Source/FileContentRootPredicate.sql") != 1:
+        raise SystemExit("Beide Fassaden müssen dasselbe kanonische Root-Prädikat verwenden.")
+    if "FROM [toolbelt_file].[FileContentRootAllowlist]" in source:
+        raise SystemExit("Kein paralleles Root-Prädikat in einer Fassade.")
     if "Datei konnte nicht ueber OPENROWSET gelesen werden. Engine-Meldung:" not in source:
         raise SystemExit("OPENROWSET-Fehler muss einen Kontext vor der Engine-Meldung ausgeben.")
 if "@HeaderProviderError" not in text_source or "@ContentProviderError" not in text_source:
