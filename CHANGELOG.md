@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-07 – Split-Characters-Preflightorakel verlangen konkrete Ablehnung
+
+- Die bestehenden Dependency- und Kollisionsprüfungen verlangen Fehlerstatus
+  und die vollständigen Kategorien `51079` beziehungsweise `51074`. Andere
+  Deploymentfehler, längere Nummern und Kategorie bei erfolgreichem Exit
+  ergeben keinen Nachweis. Beide Rohkanäle bleiben im Speicher.
+- Der vorhandene synthetische Harness prüft beide Orakel in Runner- und Labmodus.
+  SQL-Verträge, Fixtures, Runnerbesitz, Cleanup, Images, Bereitschaftsfrist,
+  Matrix und Runtimeworkflow bleiben erhalten.
+
 ## 2026-10-07 – Split-Characters-CI mit verifizierter eigener Bereinigung
 
 - Der vorhandene Adapter bindet seinen Runner vor dem Start an SQL-Version,

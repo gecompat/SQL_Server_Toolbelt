@@ -38,10 +38,17 @@ Namensabwesenheit. `SPLIT_CHARACTERS_CI_CLEANUP_UNVERIFIED` endet mit Exit1;
 `SPLIT_CHARACTERS_CI_CLEANUP_VERIFIED` erhält den ursprünglichen Teststatus.
 Der Labzweig bleibt Container-No-op ohne Runnerowner oder private Ablage.
 
+Die bestehenden Dependency- und Kollisionsorakel verlangen Fehlerstatus und
+die vollständigen Kategorien `51079` beziehungsweise `51074`. Erfolgreicher Exit
+mit diesem Text, andere oder fehlende Kategorien und längere Nummern zählen
+nicht als Nachweis. Beide Rohkanäle bleiben im Speicher; feste Zeugen
+`SPLIT_CHARACTERS_DEPENDENCY_VERIFIED` und `SPLIT_CHARACTERS_COLLISION_VERIFIED`
+bestätigen die Orakel. Der Harness prüft beide in Runner- und Labmodus.
+
 `python -B Tests/CI/test_owned_container_cleanup.py --module split_characters`
 prüft die tatsächliche Cleanupfunktion synthetisch, einschließlich Fremdbestand,
 Namensaustausch, ungültiger Identität, unbekannter Sicht und Lab-Exit0/Exit7.
-Split-/Generate-Series-Verträge, SQL-Fixtures und Kollisions-/Dependencyorakel,
+Split-/Generate-Series-Verträge und SQL-Fixtures,
 Images, Readinessfrist, Versions-/CL-Matrix und Runtimeworkflow bleiben erhalten.
 Exakte Head-/Main-Ergebnisse stehen im PR; Hard-Interrupt-Recovery und Release
 bleiben getrennt.
