@@ -25,12 +25,61 @@ fi
 phase_mode=setup
 phase_predecessor=none
 level="${TBX_SQL_COMPATIBILITY_LEVEL:-default}"
-container="tbx-deterministic-${GITHUB_RUN_ID:-local}"
+container_name="tbx-deterministic-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}-${sql_version}-${TBX_SQL_COMPATIBILITY_LEVEL:-all}"
+if [[ ! "${container_name}" =~ ^tbx-deterministic-[0-9]+-[0-9]+-(2019|2022|2025)-(150|160|170|all)$ ]]; then
+  echo "DETERMINISTIC_CI_IDENTITY_INVALID" >&2
+  exit 1
+fi
+container="${container_name}"
+container_owner="$(openssl rand -hex 16)"
+if [[ ! "${container_owner}" =~ ^[0-9a-f]{32}$ ]]; then
+  echo "DETERMINISTIC_CI_OWNER_INVALID" >&2
+  exit 1
+fi
 password="Tbx!$(openssl rand -hex 16)Aa1"
 echo "::add-mask::${password}"
-cleanup() { docker rm -f "${container}" >/dev/null 2>&1 || true; }
+private_dir="$(mktemp -d)"
+cleanup() {
+  local result=$? inspection="" container_id="" owner="" cleanup_verified=true
+  trap - EXIT
+  # Name und zufaelliger Owner begrenzen den eigenen fluechtigen CI-Scope.
+  # ID und Label aus derselben Aufnahme binden rm auch bei Namensaustausch.
+  if ! docker container ls --all --filter "name=^/${container_name}$" \
+      --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null; then
+    cleanup_verified=false
+  elif [[ -s "${private_dir}/owned-containers" ]]; then
+    if ! inspection="$(docker inspect --format '{{.Id}} {{ index .Config.Labels "tbx.deterministic.ci.owner" }}' \
+        "${container_name}" 2>/dev/null)" || [[ ! "${inspection}" =~ ^([0-9a-f]{64})\ ([0-9a-f]{32})$ ]]; then
+      cleanup_verified=false
+    else
+      container_id="${BASH_REMATCH[1]}"; owner="${BASH_REMATCH[2]}"
+      if [[ "${owner}" != "${container_owner}" ]]; then
+        cleanup_verified=false
+      elif ! docker rm -f "${container_id}" >/dev/null 2>&1; then
+        cleanup_verified=false
+      fi
+    fi
+  fi
+  # Ein Cleanup-PASS braucht eine frische, erfolgreiche Abwesenheitspruefung.
+  if ! docker container ls --all --filter "name=^/${container_name}$" \
+      --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null \
+      || [[ -s "${private_dir}/owned-containers" ]]; then
+    cleanup_verified=false
+  fi
+  if ! rm -rf -- "${private_dir}"; then
+    cleanup_verified=false
+  fi
+  if [[ "${cleanup_verified}" != true ]]; then
+    echo "DETERMINISTIC_CI_CLEANUP_UNVERIFIED" >&2
+    result=1
+  else
+    echo "DETERMINISTIC_CI_CLEANUP_VERIFIED"
+  fi
+  exit "${result}"
+}
 trap cleanup EXIT
-docker run --detach --name "${container}" --env ACCEPT_EULA=Y --env MSSQL_PID=Developer \
+docker run --detach --name "${container}" --label "tbx.deterministic.ci.owner=${container_owner}" \
+  --env ACCEPT_EULA=Y --env MSSQL_PID=Developer \
   --env MSSQL_SA_PASSWORD="${password}" --volume "${GITHUB_WORKSPACE:-$(pwd)}:/workspace:ro" \
   "${TBX_SQL_IMAGE:?SQL image missing}" >/dev/null
 sqlcmd=""

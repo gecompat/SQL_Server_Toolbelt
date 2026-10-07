@@ -723,6 +723,13 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [Unreleased]
 
+- 2026-10-07: Deterministic-CI-Container-Cleanup an gemeinsamen Owner-/ID-
+  Nachweis und frische Abwesenheit gebunden; Run-/Attempt-/SQL-/CL-Identitaet,
+  Fehlerstatus und feste Cleanupzeugen statt unterdruecktem name-only rm.
+  Bestehende Offlineprobe und Dokumentations-Impact gekoppelt; Produkt-SQL,
+  sechs CI-Paare, Rechte, Trust und Lab unveraendert. Head-/Main-Nachweis im PR;
+  keine Hard-Interrupt-/Releasequalifikation.
+
 - Die sechs bestehenden Deterministic-CI-Jobs binden ihren exakten
   Compatibility-Level-Opt-in vor Deploy/Upgrade an alle 13 eigenen Datenbanken
   und pruefen ihn vor jedem SQL-Skript erneut. Der erwartete Fehlerpfad

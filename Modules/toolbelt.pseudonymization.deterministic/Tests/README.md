@@ -163,6 +163,14 @@ Central-Bestätigung und dependencygeschützter Uninstall gehören zum aktuellen
 Pflichtscope. Der vorhandene Runner besitzt den Cleanup eigener disposable
 Datenbanken; keine fremden Datenbanken, Temps oder Ressourcen entfernen.
 
+Nachtrag 2026-10-07: Der disposable CI-Container wird mit Run-/Attempt-/SQL-/
+CL-Name und zufaelligem Ownerlabel abgegrenzt. Der EXIT-Cleanup liest volle ID
+und Label gemeinsam, entfernt ausschliesslich diese eigene ID und prueft
+danach frisch die Abwesenheit am exakten Namen. Unverifizierter Cleanup macht
+auch einen zuvor erfolgreichen Payload zum Fehler; bestaetigter Cleanup
+erhaelt vorhandene Fehlerstatus. Siehe die [Cleanup-Testmatrix](CONTRACT_TEST_MATRIX.md#eigener-container-cleanup-der-bestehenden-ci).
+Der separate Labtreiber und Hard-Interrupt-/Host-Recovery bleiben davon getrennt.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

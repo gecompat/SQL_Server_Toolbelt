@@ -742,6 +742,7 @@ change_impact:
         - Documentation/Architecture/DATE_SHIFTING_PROPOSAL.md
         - Documentation/Standards/USP_CONTRACT.md
         - Tests/CI/run-deterministic-linux.sh
+        - Tests/CI/test_owned_container_cleanup.py
         - Tests/CI/run-deterministic-translate-lab.ps1
         - Tests/CI/run-deterministic-geo-lab.ps1
         - .github/workflows/deterministic-runtime.yml

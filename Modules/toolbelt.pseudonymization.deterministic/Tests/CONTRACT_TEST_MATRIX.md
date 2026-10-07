@@ -16,6 +16,24 @@ sind weiterhin kein Nachweis auf allen Levels. Neue exakte Head-/Main-CI bleibt
 im zugehoerigen PR separat nachzuweisen. Produkt-SQL, Fixtures, sechs Jobs und
 30-Minuten-Frist bleiben unveraendert; keine Lab-/Rechte-/Trustausweitung.
 
+## Eigener Container-Cleanup der bestehenden CI
+
+Der Runnername bindet Run, Attempt, SQL-Version und gewaehlten Level; ohne
+exakten Opt-in steht `all` fuer den bisherigen Multi-Level-Pfad. Ein zufaelliges
+Ownerlabel und die vollstaendige Container-ID werden gemeinsam frisch gelesen.
+Nur ein eigener Owner erlaubt die Entfernung per ID. Frische Abwesenheit am
+exakten Namen ist Pflicht; fremder Owner, unlesbare/ungueltige Identitaet,
+fehlgeschlagenes rm oder unklarer Abschluss fuehren zu
+`DETERMINISTIC_CI_CLEANUP_UNVERIFIED` und Fehlerstatus. Bestaetigter Cleanup
+meldet `DETERMINISTIC_CI_CLEANUP_VERIFIED` und erhaelt den urspruenglichen
+Payloadstatus. Der Lab-Fruehabbruch bleibt unveraendert; keine
+Hard-Interrupt-/Host-Recoverygarantie.
+
+Die bestehende source-extracted Offlineprobe prueft mit
+`python Tests/CI/test_owned_container_cleanup.py --module deterministic`
+13 ausgewaehlte synthetische Cleanupfaelle ohne Docker/SQL. Echte Head-/Main-CI
+und ihre festen Cleanupzeugen bleiben separat im PR nachzuweisen.
+
 ## Additiver GeoJitter-Slice 1.2.0
 
 | Scope | Pflichtfälle | Nachweis am 2026-10-02 |
