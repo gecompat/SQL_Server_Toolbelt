@@ -95,7 +95,24 @@ function Get-IdentityParameters($Identity){
 }
 function Assert-OwnedConnection($Connection,$Identity){
  Assert-ExportRepeat ($Identity.MarkerConfirmed-and-not$Identity.Dropped) 'OWNERSHIP_UNCONFIRMED'
- Invoke-ExportSql $Connection 'IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR (@@OPTIONS&2)<>0 OR @@LOCK_TIMEOUT<>-1 OR DB_ID()<>@Id OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND name=@Name AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created AND owner_sid=@Owner AND owner_sid=SUSER_SID()) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND SQL_VARIANT_PROPERTY(value,''BaseType'')=''uniqueidentifier'' AND TRY_CONVERT(uniqueidentifier,value)=@Run) THROW 54984,N''Eigene Exportfixtureidentität oder neutrale Session fehlt.'',1;' (Get-IdentityParameters $Identity)
+ # Feste States unterscheiden ausschließlich die bestehenden booleschen Gates.
+ # Keine Metadatenwerte oder freien Diagnosen verlassen die private Sitzung.
+ Invoke-ExportSql $Connection '
+ IF @@TRANCOUNT<>0 THROW 54984,N''Neutrale Exportfixture fehlt.'',1;
+ IF XACT_STATE()<>0 THROW 54984,N''Neutrale Exportfixture fehlt.'',2;
+ IF (@@OPTIONS&2)<>0 THROW 54984,N''Neutrale Exportfixture fehlt.'',3;
+ IF @@LOCK_TIMEOUT<>-1 THROW 54984,N''Neutrale Exportfixture fehlt.'',4;
+ IF DB_ID()<>@Id THROW 54984,N''Eigene Exportfixture fehlt.'',5;
+ IF NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND name=@Name) THROW 54984,N''Eigene Exportfixture fehlt.'',6;
+ IF NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created) THROW 54984,N''Eigene Exportfixture fehlt.'',7;
+ IF NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND owner_sid=@Owner) THROW 54984,N''Eigene Exportfixture fehlt.'',8;
+ IF NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND owner_sid=SUSER_SID()) THROW 54984,N''Eigene Exportfixture fehlt.'',9;
+ IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker) THROW 54984,N''Eigene Exportfixture fehlt.'',10;
+ IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND SQL_VARIANT_PROPERTY(value,''BaseType'')=''uniqueidentifier'') THROW 54984,N''Eigene Exportfixture fehlt.'',11;
+ IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND TRY_CONVERT(uniqueidentifier,value)=@Run) THROW 54984,N''Eigene Exportfixture fehlt.'',12;
+ -- Abschließend das ursprüngliche gemeinsame Gate erneut binden.
+ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR (@@OPTIONS&2)<>0 OR @@LOCK_TIMEOUT<>-1 OR DB_ID()<>@Id OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND name=@Name AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created AND owner_sid=@Owner AND owner_sid=SUSER_SID()) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND SQL_VARIANT_PROPERTY(value,''BaseType'')=''uniqueidentifier'' AND TRY_CONVERT(uniqueidentifier,value)=@Run) THROW 54984,N''Eigene Exportfixtureidentität oder neutrale Session fehlt.'',13;
+ ' (Get-IdentityParameters $Identity)
 }
 function Get-ExportBatches([string]$Text){
  Assert-ExportRepeat (-not$Text.Contains('$(')) 'UNRESOLVED_VARIABLE'

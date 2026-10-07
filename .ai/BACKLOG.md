@@ -133,6 +133,12 @@ Die Builder-Dotzuweisungen `InitialCatalog`/`ConnectTimeout` scheitern ohne
 Serververbindung reproduzierbar; sie werden durch die bestehenden gültigen
 Indexer ersetzt. Der separate Adaptercleanup-Pfadseparatorfehler ist korrigiert.
 Beide FAILED-Läufe bleiben erhalten; kein unveränderter Retry oder Runtime-PASS.
+Der korrigierte Builder-Head `6989d8ac43033e8cd45c2f8fb88f59239429c64a`
+besteht den Preflight, ist aber beim eigenen Datenbank-/Sitzungsgate FAILED
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37697908672)).
+Vorherige Runtimefälle und Containerbereinigung bestanden. Das bestehende
+gemeinsame Gate bleibt erhalten; feste Einzelstates grenzen die verletzte
+Bedingung ein, ohne Besitzschutz zu lockern oder Metadaten zu publizieren.
 Details und offene Grenzen stehen in
 [Deploymenttests](../Deployment/Tests/README.md). Windows-FileSystemRoot und
 vollständiger 44-Modul-Export bleiben getrennte Nachweise; Source, Deploy und

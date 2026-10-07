@@ -71,3 +71,11 @@ tatsächlicher korrigierter Head-CI. Die Einzelmodulnachweise stehen in
 historische und partielle Installationen, Minimalrechte, nichtleere Grants,
 Hard-Interrupt-Recovery, native SQLCMD-Clients und vollständige 44-Modul-
 Lifecycle-/Releasequalifikation bleiben offen.
+
+Der folgende Lauf `6989d8ac43033e8cd45c2f8fb88f59239429c64a` besteht den
+Verbindungs-Preflight, ist aber im eigenen Datenbank-/Sitzungsgate FAILED
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37697908672)).
+Das ursprüngliche gemeinsame Gate bleibt unverändert erhalten; vorgeschaltete
+feste Fehlerstates unterscheiden seine Bedingungen ohne Metadatenwerte
+auszugeben. Dieser weitere Fehler wird erst nach Diagnose korrigiert;
+Containerbereinigung und vorherige Runtimefälle bestanden weiterhin.

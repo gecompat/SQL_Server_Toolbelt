@@ -19,6 +19,10 @@
   Dotzuweisungen sind ohne SQL reproduziert und werden durch explizite gültige
   Indexer ersetzt. Der separate Cleanup-Pfadseparatorfehler ist korrigiert;
   beide FAILED-Läufe bleiben erhalten, kein unveränderter Retry.
+- Nach Builderkorrektur besteht der Preflight; das eigene Datenbank-/
+  Sitzungsgate weist den Lauf weiterhin ab. Feste Einzelstates werden
+  vorgeschaltet, das ursprüngliche gemeinsame Gate bleibt erhalten.
+  Vorherige Runtimefälle und Containerbereinigung bestanden.
 
 ## 2026-10-07 – Deaktivierten SecondSessionProvider über Deploys erhalten
 
