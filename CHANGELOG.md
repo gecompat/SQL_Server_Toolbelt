@@ -13,6 +13,10 @@
   Source-/Exportpfade. Keine Source-, Deploy-, API-, Infrastruktur-, Provider-,
   Rechte- oder Truständerung. Offlineprüfungen bestanden; neue native Evidenz,
   Windows, weitere Matrix und SQLCMD-/44-Modul-Qualifikation bleiben getrennt.
+- Erster gemeinsamer nativer Head-Lauf FAILED; vorhandene Worker-/Upgradefälle
+  und eigene Containerbereinigung bestanden. Primärursache noch ungeklärt;
+  gezielte Diagnose und ein separater Adaptercleanup-Pfadseparatorfehler
+  werden vor korrigierter Head-CI bearbeitet, kein unveränderter Retry.
 
 ## 2026-10-07 – Deaktivierten SecondSessionProvider über Deploys erhalten
 

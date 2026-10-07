@@ -6,10 +6,10 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repositoryRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $runtimeRoot=Join-Path $PSScriptRoot 'Runtime'
-$temporaryParent=[IO.Path]::GetFullPath([IO.Path]::GetTempPath())
+$temporaryParent=[IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath([IO.Path]::GetTempPath()))
 $ownedRoot=Join-Path $temporaryParent ('toolbelt-export-repeat-'+[guid]::NewGuid().ToString('N'))
 $run=[guid]::NewGuid();$marker='Toolbelt.ExportPopulatedFixture.Run'
-$phase='preflight';$failure=$null;$cleanupFailed=$false
+$phase='preflight';$failure=$null;$cleanupFailed=$false;$cleanupFailure=$null
 $identities=[Collections.Generic.List[object]]::new()
 $ownedFiles=[Collections.Generic.List[object]]::new()
 $journalPath=Join-Path $ownedRoot 'Ownership.json';$journalHash=$null
@@ -19,6 +19,44 @@ $selectedModules=@('toolbelt.core.worker-control','toolbelt.core.event-log','too
 $sourceConnection=[Environment]::GetEnvironmentVariable($ConnectionStringEnvironmentVariable,'Process')
 
 function Assert-ExportRepeat([bool]$Condition,[string]$Code){if(-not$Condition){throw ('EXPORT_REPEAT.'+$Code)}}
+function Get-SafeFailureDiagnostic([Exception]$Exception,[string]$Phase) {
+ # Ausschließlich feste Quellcode-Tokens und Phasen publizieren, keine freien Exceptiontexte.
+ $allowedPhases=@('preflight','cleanup','local-export','local-create','local-install','local-seed','local-repeat1','local-repeat2','local-cleanup','central-export','central-create','central-install','central-seed','central-repeat1','central-repeat2','central-cleanup')
+ $allowedCodes=@(
+  'JOURNAL_SIZE','JOURNAL_READ','JOURNAL_DRIFT','OWNERSHIP_UNCONFIRMED',
+  'UNRESOLVED_VARIABLE','UNSUPPORTED_DIRECTIVE','ERROR_ABORT_MISSING',
+  'EXPORT_BYTES_CHANGED','EXPORT_BATCH_COUNT_CHANGED','EXPORT_NOT_FULLY_CONSUMED',
+  'SNAPSHOT_SHAPE','SNAPSHOT_EXTRA_RESULT','SNAPSHOT_TABLES14',
+  'SNAPSHOT_CATEGORIES_CHANGED','SNAPSHOT_ROWCOUNT_CHANGED','SNAPSHOT_BYTES_CHANGED',
+  'CLEANUP_UNCONFIRMED','CLEANUP_NAME','CONNECTION_INPUT_MISSING',
+  'EXPORT_BOM','EXPORT_CLOSURE','EXPORT_ENDS9','EXPORT_GUARDS10',
+  'DATABASE_IDENTITY','DATABASE_IDENTITY_SHAPE','FILE_CLEANUP_DRIFT',
+  'JOURNAL_CLEANUP_DRIFT','DIRECTORY_CLEANUP_BOUNDARY'
+ )
+ $safePhase=if($Phase-cin$allowedPhases){$Phase}else{'UNSPECIFIED'}
+ $safeCode='UNCLASSIFIED';$sqlNumber=0;$sqlState=0;$cause=$Exception
+ while($null-ne$cause){
+  foreach($candidate in $allowedCodes){
+   if($cause.Message-ceq('EXPORT_REPEAT.'+$candidate)){$safeCode=$candidate;break}
+  }
+  if($cause-is[Data.SqlClient.SqlException]){
+   $sqlNumber=[int]$cause.Number
+   $candidateState=[int]$cause.State
+   if($candidateState-ge0-and$candidateState-le255){$sqlState=$candidateState}
+   break
+  }
+  $cause=$cause.InnerException
+ }
+ return [ordered]@{Phase=$safePhase;Code=$safeCode;SqlNumber=$sqlNumber;SqlState=$sqlState}
+}
+function Write-SafeFailureDiagnostic($Diagnostic) {
+ # Auch private Journalwerte vor Ausgabe erneut durch die geschlossene Abbildung führen.
+ $safe=Get-SafeFailureDiagnostic ([Exception]::new('EXPORT_REPEAT.'+$Diagnostic.Code)) $Diagnostic.Phase
+ $number=0;$state=0
+ if($Diagnostic.SqlNumber-is[int]){$number=$Diagnostic.SqlNumber}
+ if($Diagnostic.SqlState-is[int]-and$Diagnostic.SqlState-ge0-and$Diagnostic.SqlState-le255){$state=$Diagnostic.SqlState}
+ [Console]::Out.WriteLine(('EXPORT_POPULATED_REPEAT_DIAGNOSTIC phase={0} code={1} sql-number={2} sql-state={3}'-f$safe.Phase,$safe.Code,$number,$state))
+}
 function Save-PrivateOwnership {
  $record=[ordered]@{Run=$run;Marker=$marker;Phase=$phase;Databases=$identities.ToArray();Failure=$failure;CleanupFailed=$cleanupFailed}
  $bytes=$utf8.GetBytes((ConvertTo-Json -InputObject $record -Depth 5 -Compress))
@@ -196,29 +234,36 @@ try{
   $phase=$mode+'-cleanup';Save-PrivateOwnership;Remove-OwnedDatabase $identity
  }
 }catch{
- $cause=$_.Exception;while($cause-and$cause-isnot[Data.SqlClient.SqlException]){$cause=$cause.InnerException}
- $code='UNCLASSIFIED'
- if($_.Exception.Message-match'^EXPORT_REPEAT\.([A-Z0-9_]+)$'){$code=$Matches[1]}
- $failure=[ordered]@{Phase=$phase;Code=$code;SqlNumber=$(if($cause){$cause.Number}else{0});SqlState=$(if($cause){[int]$cause.State}else{0})}
+ $failure=Get-SafeFailureDiagnostic $_.Exception $phase
  if([IO.Directory]::Exists($ownedRoot)){try{Save-PrivateOwnership}catch{}}
 }finally{
- foreach($identity in $identities){if(-not$identity.Dropped){try{Remove-OwnedDatabase $identity}catch{$cleanupFailed=$true}}}
+ foreach($identity in $identities){if(-not$identity.Dropped){try{Remove-OwnedDatabase $identity}catch{
+  $cleanupFailed=$true
+  if($null-eq$cleanupFailure){
+   $cleanupPhase=if($identity.Name.StartsWith('Toolbelt_ExportRepeat_local_',[StringComparison]::Ordinal)){'local-cleanup'}elseif($identity.Name.StartsWith('Toolbelt_ExportRepeat_central_',[StringComparison]::Ordinal)){'central-cleanup'}else{'cleanup'}
+   $cleanupFailure=Get-SafeFailureDiagnostic $_.Exception $cleanupPhase
+  }
+ }}}
  if([IO.Directory]::Exists($ownedRoot)){
-  if($null-ne$failure-or$cleanupFailed){try{Save-PrivateOwnership}catch{$cleanupFailed=$true}}
+  if($null-ne$failure-or$cleanupFailed){try{Save-PrivateOwnership}catch{$cleanupFailed=$true;if($null-eq$cleanupFailure){$cleanupFailure=Get-SafeFailureDiagnostic $_.Exception 'cleanup'}}}
   else{
    try{
     foreach($file in $ownedFiles){Assert-ExportRepeat ((Get-FileHash -LiteralPath $file.Path -Algorithm SHA256).Hash-ceq$file.Hash) 'FILE_CLEANUP_DRIFT';[IO.File]::Delete($file.Path)}
     Assert-ExportRepeat ((Get-FileHash -LiteralPath $journalPath -Algorithm SHA256).Hash-ceq$journalHash) 'JOURNAL_CLEANUP_DRIFT';[IO.File]::Delete($journalPath)
     $resolved=[IO.Path]::GetFullPath($ownedRoot)
-    Assert-ExportRepeat ([IO.Path]::GetDirectoryName($resolved)-ceq$temporaryParent-and[IO.Path]::GetFileName($resolved)-match'^toolbelt-export-repeat-[0-9a-f]{32}$') 'DIRECTORY_CLEANUP_BOUNDARY'
+    Assert-ExportRepeat ([IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetDirectoryName($resolved))-ceq$temporaryParent-and[IO.Path]::GetFileName($resolved)-match'^toolbelt-export-repeat-[0-9a-f]{32}$') 'DIRECTORY_CLEANUP_BOUNDARY'
     [IO.Directory]::Delete($resolved,$false)
-   }catch{$cleanupFailed=$true}
+   }catch{$cleanupFailed=$true;if($null-eq$cleanupFailure){$cleanupFailure=Get-SafeFailureDiagnostic $_.Exception 'cleanup'}}
   }
  }
  $sourceConnection=$null
 }
 # Nur feste öffentliche Marker; SQLtexte, Resultsets, Ziel-/DBnamen und Exceptions bleiben privat.
-if($null-ne$failure){[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_FAILED');exit 1}
-if($cleanupFailed){[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_CLEANUP_DEFERRED');exit 1}
+if($null-ne$failure){
+ [Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_FAILED');Write-SafeFailureDiagnostic $failure
+ if($cleanupFailed){[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_CLEANUP_DEFERRED');Write-SafeFailureDiagnostic $cleanupFailure}
+ exit 1
+}
+if($cleanupFailed){[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_CLEANUP_DEFERRED');Write-SafeFailureDiagnostic $cleanupFailure;exit 1}
 [Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_PASS local central SQL2019 CL150 fourteen-tables two-cycles')
 [Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_CLEANUP_VERIFIED')

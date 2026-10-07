@@ -43,16 +43,25 @@ wiedererzeugte Checkconstraint-IDs und DDL-Zeitstempel sind keine Zusage.
 Nichtleere Benutzergrants werden weder erzeugt noch qualifiziert.
 
 Identity-Nextinsert-Zeugen laufen erst nach beiden Vergleichsfenstern.
-Snapshots und Diagnosen bleiben privat. Öffentlich erscheinen nur feste
-Ergebnis-/Cleanupmarker. Die Bereinigung prüft in frischer Verbindung Namen,
+Snapshots und freie Diagnosen bleiben privat. Öffentlich erscheinen feste
+Ergebnis-/Cleanupmarker und eine geschlossene Diagnose mit vorab definierten
+Phasen-/Assertioncodes sowie numerischem SQL-Fehlercode/-State, ohne SQLtext
+oder Exceptionmessage. Primärfehler und Cleanupfehler bleiben getrennt.
+Die Bereinigung prüft in frischer Verbindung Namen,
 DB-ID, Erzeugungszeit, Owner und typisierten Runmarker sowie fremde Sessions/
 Requests. Bei unklarem Besitz wird nicht gelöscht; kein KILL, SINGLE_USER oder
 Rollback fremder Verbraucher. Das private Journal bleibt bei Fehlern erhalten;
 der vorhandene CI-Containercleanup bleibt separat unverändert.
 
 Stand 2026-10-08: Offlineexport und unabhängige Reviews bestanden;
-native gemeinsame Runtime ist **not executed**, bis ein exakter Head-Lauf
-erfolgreich abgeschlossen ist. Die Einzelmodulnachweise stehen in
+der erste native Lauf am Commit `e5b51d14500203947fd45d6ad0533e40b1302c8a`
+ist im neuen Test **FAILED**
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37696018416)).
+Vorherige Worker-/Upgradefälle und eigene Containerbereinigung bestanden.
+Die Primärursache ist noch ungeklärt; ein offline gefundener abschließender
+Pfadseparatorfehler im Adaptercleanup wird separat korrigiert und erklärt
+diesen Primärfehler nicht. Die gemeinsame Qualifikation bleibt offen bis
+tatsächlicher korrigierter Head-CI. Die Einzelmodulnachweise stehen in
 [Backlog](../../.ai/BACKLOG.md). Windows-FileSystemRoot, weitere Versionen/CLs,
 historische und partielle Installationen, Minimalrechte, nichtleere Grants,
 Hard-Interrupt-Recovery, native SQLCMD-Clients und vollständige 44-Modul-
