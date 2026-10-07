@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 2026-10-07 – Eigene Tabellenklon-CI-Container verifiziert bereinigen
+
+- Der vorhandene Runner-Adapter bindet seinen Container an Run, Attempt,
+  SQL-Version und ein eigenes Ownerlabel. Die zusammen mit dem Label gelesene
+  vollständige Container-ID ist das Löschziel; fremder Namensbestand bleibt
+  erhalten. Fehlende Sicht oder fehlgeschlagene Abwesenheitsprüfung verhindern
+  einen erfolgreichen Cleanupstatus.
+- Der gemeinsame synthetische Cleanup-Test und seine CI-/Impactkopplung
+  erfassen den Tabellenklon-Adapter. Die selektiven Documentation-CI-Guards
+  verwenden Git-Pathspecs und unterscheiden kein Match von einem Diff-Fehler;
+  ein fehlendes optionales Suchwerkzeug überspringt die Tests nicht mehr.
+  Keine neue SQL-Funktion, Zielmatrix,
+  Rechte- oder Truständerung; Lab-Shimpfad bleibt unverändert. Normales
+  EXIT-Cleanup ist kein Nachweis für harte Runner-/Hostunterbrechung.
+
 ## 2026-10-07 – Schema-CI folgt der vorhandenen CL-Matrix
 
 - Der bestehende Schema-Upgrade-/API-/Safety-/CrossDB-Scope läuft local und
