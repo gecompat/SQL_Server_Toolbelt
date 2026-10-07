@@ -33,10 +33,11 @@ modules = {
     "semantic_version": ("run-semantic-version-linux.sh", "SEMANTIC_VERSION_CI_CLEANUP_UNVERIFIED", "tbx.semantic-version.ci.owner"),
     "base64": ("run-base64-linux.sh", "BASE64_CI_CLEANUP_UNVERIFIED", "tbx.base64.ci.owner"),
     "generate_series": ("run-generate-series-linux.sh", "GENERATE_SERIES_CI_CLEANUP_UNVERIFIED", "tbx.generate-series.ci.owner"),
+    "date_spine": ("run-date-spine-linux.sh", "DATE_SPINE_CI_CLEANUP_UNVERIFIED", "tbx.date-spine.ci.owner"),
 }
 parser = argparse.ArgumentParser(description="Synthetische Prüfung der echten Owned-Cleanup-Funktionen ohne Dockerzugriff.")
 parser.add_argument("--module", choices=tuple(modules), action="append",
-                    help="Nur dieses Modul prüfen; wiederholbar, standardmäßig alle dreiundzwanzig Adapter.")
+                    help="Nur dieses Modul prüfen; wiederholbar, standardmäßig alle vierundzwanzig Adapter.")
 selected = tuple(dict.fromkeys(parser.parse_args().module or modules))
 # Windows verwendet ausschließlich das vorhandene Git-Bash. Das gleichnamige
 # System32-Programm würde WSL starten und gehört nicht zu dieser Offlineprobe.
@@ -87,8 +88,8 @@ for module in selected:
         ("invalid_owner", 1, False),
         ("extra_fields", 1, False),
     )
-    module_cases = cases + identity_cases if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b", "w2a", "w1", "integer_base", "identifier", "split_characters", "semantic_version", "base64", "generate_series"} else cases
-    if module in {"table_clone", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b", "w2a", "w1", "integer_base", "identifier", "split_characters", "semantic_version", "base64", "generate_series"}:
+    module_cases = cases + identity_cases if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b", "w2a", "w1", "integer_base", "identifier", "split_characters", "semantic_version", "base64", "generate_series", "date_spine"} else cases
+    if module in {"table_clone", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b", "w2a", "w1", "integer_base", "identifier", "split_characters", "semantic_version", "base64", "generate_series", "date_spine"}:
         module_cases += (
             ("lab_success", 0, True),
             ("lab_original_failure", 7, True),
@@ -99,7 +100,7 @@ for module in selected:
     if module in {"w4b", "w5a", "w5b", "w6d"}:
         module_cases += (("lab_private_remove_fail", 1, True),)
     inspection_format = '{{ index .Config.Labels "' + owner_label + '" }}'
-    if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b", "w2a", "w1", "integer_base", "identifier", "split_characters", "semantic_version", "base64", "generate_series"}:
+    if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b", "w2a", "w1", "integer_base", "identifier", "split_characters", "semantic_version", "base64", "generate_series", "date_spine"}:
         inspection_format = '{{.Id}} ' + inspection_format
     for scenario, expected_code, expected_remove in module_cases:
         with tempfile.TemporaryDirectory(prefix="owned-cleanup-", dir=runtime) as base:
@@ -121,7 +122,7 @@ for module in selected:
             invalid_path = base_path / "invalid-argv"
             inspect_path = base_path / "inspect-called"
             replacement_path = base_path / "replacement-name"
-            expected_identity = "b" * 64 if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b", "w2a", "w1", "integer_base", "identifier", "split_characters", "semantic_version", "base64", "generate_series"} and not lab_case else "tbx-synthetic-owned-cleanup"
+            expected_identity = "b" * 64 if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b", "w2a", "w1", "integer_base", "identifier", "split_characters", "semantic_version", "base64", "generate_series", "date_spine"} and not lab_case else "tbx-synthetic-owned-cleanup"
             shell = f"""
 set -euo pipefail
 TBX_SQL_TARGET=runner
@@ -196,7 +197,7 @@ docker() {{
         printf '%s\\n' inspect >> "$inspect_file"
         if [[ "$#" != 4 || "$2" != --format || "$3" != "$expected_inspection_format" || "$4" != "$container_name" ]]; then invalid_argv; return 2; fi
         [[ "$scenario" != inspect_fail ]] || return 1
-        if [[ "$module" == pointer || "$module" == safe_cast || "$module" == json_constructors || "$module" == table_clone || "$module" == deterministic || "$module" == regex || "$module" == result_table || "$module" == w4a || "$module" == work_queue || "$module" == w4b || "$module" == w5a || "$module" == w5b || "$module" == w6d || "$module" == w2c || "$module" == w2b || "$module" == w2a || "$module" == w1 || "$module" == integer_base || "$module" == identifier || "$module" == split_characters || "$module" == semantic_version || "$module" == base64 || "$module" == generate_series ]]; then
+        if [[ "$module" == pointer || "$module" == safe_cast || "$module" == json_constructors || "$module" == table_clone || "$module" == deterministic || "$module" == regex || "$module" == result_table || "$module" == w4a || "$module" == work_queue || "$module" == w4b || "$module" == w5a || "$module" == w5b || "$module" == w6d || "$module" == w2c || "$module" == w2b || "$module" == w2a || "$module" == w1 || "$module" == integer_base || "$module" == identifier || "$module" == split_characters || "$module" == semantic_version || "$module" == base64 || "$module" == generate_series || "$module" == date_spine ]]; then
             if [[ "$scenario" == invalid_id ]]; then printf '%s ' not-a-64-hex-id;
             else printf '%s ' "$synthetic_container_id"; fi
         fi
@@ -262,7 +263,7 @@ exit 0
                 diagnostic = diagnostic.replace("_CI_", "_LAB_")
             if completed.stderr != (diagnostic + "\n" if expected_diagnostic else ""):
                 raise SystemExit(f"OWNED_CLEANUP_TEST_DIAGNOSTIC_MISMATCH:{module}:{scenario}")
-            expected_stdout = diagnostic.replace("UNVERIFIED", "VERIFIED") + "\n" if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b", "w2a", "w1", "integer_base", "identifier", "split_characters", "semantic_version", "base64", "generate_series"} and not expected_diagnostic and not lab_case else ""
+            expected_stdout = diagnostic.replace("UNVERIFIED", "VERIFIED") + "\n" if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b", "w2a", "w1", "integer_base", "identifier", "split_characters", "semantic_version", "base64", "generate_series", "date_spine"} and not expected_diagnostic and not lab_case else ""
             if completed.stdout != expected_stdout:
                 raise SystemExit(f"OWNED_CLEANUP_TEST_SUCCESS_WITNESS_MISMATCH:{module}:{scenario}")
         print(f"PASS: {module} {scenario}")
@@ -331,12 +332,30 @@ for module, error, title, kind, database_variable in (
     ("split_characters", "51079", "Split-Characters-Dependency", "dependency", "missing_dependency_database"),
     ("semantic_version", "51084", "Semantic-Version-Kollision", "collision", "collision_database"),
     ("base64", "51044", "Base64-Kollision", "collision", "collision_database"),
+    ("generate_series", "51054", "Generate-Series-Kollision", "collision", "collision_database"),
+    ("date_spine", "51806", "Date-Spine-Uninstall", "uninstall", "database"),
+    ("date_spine", "51809", "Date-Spine-Dependency", "dependency", "preflight_database"),
+    ("date_spine", "51804", "Date-Spine-Kollision", "collision", "collision_database"),
 ):
     if module not in selected:
         continue
     witness = module.upper() + "_" + kind.upper() + "_VERIFIED"
     source = source_bytes[root / "Tests/CI" / modules[module][0]].decode("utf-8-sig").replace("\r\n", "\n")
-    begin = source.index(f'set +e\n{kind}_output="$(run_file ')
+    helper_definition = ""
+    expected_file, expected_variable, expected_value = "Deploy.sql", "DeploymentMode", "local"
+    deployment_directory = "/synthetic/deployment"
+    if module == "date_spine":
+        helper = "uninstall_date_spine" if kind == "uninstall" else "deploy_date_spine"
+        output_variable = {"uninstall": "blocked_uninstall_output", "dependency": "missing_dependency_output", "collision": "collision_output"}[kind]
+        helper_begin = source.index(helper + "() {\n")
+        helper_end = source.index("\n}\n", helper_begin) + 2
+        helper_definition = source[helper_begin:helper_end]
+        deployment_directory = "/workspace/Modules/toolbelt.datetime.date-spine/Deployment"
+        if kind == "uninstall":
+            expected_file, expected_variable, expected_value = "Uninstall.sql", "ConfirmNoExternalConsumers", "0"
+        begin = source.index(f'set +e\n{output_variable}="$({helper} ')
+    else:
+        begin = source.index(f'set +e\n{kind}_output="$(run_file ')
     end = source.index(f'\necho "{witness}"', begin) + len(f'\necho "{witness}"')
     block = source[begin:end]
     guard_cases = 0
@@ -358,14 +377,15 @@ for module, error, title, kind, database_variable in (
 TBX_SQL_TARGET={mode}
 invalid_file={shlex.quote(invalid_path.relative_to(root).as_posix())}
 {database_variable}=tbx_synthetic_preflight
-deployment_directory=/synthetic/deployment
+deployment_directory={shlex.quote(deployment_directory)}
 run_file() {{
-    if [[ "$#" != 5 || "$1" != "${{{database_variable}}}" || "$2" != "$deployment_directory" || "$3" != Deploy.sql || "$4" != -v || "$5" != DeploymentMode=local ]]; then : > "$invalid_file"; return 97; fi
+    if [[ "$#" != 5 || "$1" != "${{{database_variable}}}" || "$2" != "$deployment_directory" || "$3" != {expected_file} || "$4" != -v || "$5" != {expected_variable}={expected_value} ]]; then : > "$invalid_file"; return 97; fi
     printf '%s\\n' '{category}' >&2
     return {result_code}
 }}
 docker() {{ : > "$invalid_file"; return 97; }}
 run_query() {{ : > "$invalid_file"; return 97; }}
+{helper_definition}
 {block}
 exit 0
 '''

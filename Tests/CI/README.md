@@ -31,6 +31,30 @@ werden dadurch nicht belegt.
 
 ## Adapter und Zielversionen
 
+Der Date-Spine-Adapter bindet seinen Runner vor dem Start an SQL-Version,
+Run, Attempt und Ownerlabel. Cleanup liest volle ID und Owner gemeinsam,
+entfernt nur diese eigene ID und verlangt frische exakte Namensabwesenheit.
+`DATE_SPINE_CI_CLEANUP_UNVERIFIED` endet mit Exit1; bestätigter Cleanup meldet
+`DATE_SPINE_CI_CLEANUP_VERIFIED` und erhält den ursprünglichen Teststatus.
+Der Labzweig bleibt Container-No-op ohne Owner oder private Ablage.
+
+Die drei bestehenden Date-Spine-Negativorakel verlangen Fehlerstatus und
+die vollständige Kategorie: Uninstall-Dependency `51806`, fehlende Deployment-
+Dependencies `51809` und fremder Zielname `51804`. Erfolgreicher Exit mit
+diesem Text, andere/fehlende Kategorien und längere Nummern sind kein Nachweis.
+Beide Rohkanäle bleiben im Speicher. `DATE_SPINE_UNINSTALL_VERIFIED`,
+`DATE_SPINE_DEPENDENCY_VERIFIED` und `DATE_SPINE_COLLISION_VERIFIED` bestätigen
+die Orakel. Der Harness prüft die tatsächlichen Helper und Orakel in Runner-
+und Labmodus; die vorhandenen SQL-Fixtures werden nicht erweitert.
+
+`python -B Tests/CI/test_owned_container_cleanup.py --module date_spine`
+prüft die tatsächliche Cleanupfunktion synthetisch einschließlich Fremdbestand,
+Namensaustausch, ungültiger Identität, unbekannter Sicht und Lab-Exit0/Exit7.
+Date-Spine-SQL, beide Dependencies und Fixtures,
+Images, Readinessfrist, Matrix und Runtimeworkflow bleiben erhalten.
+Exakte Head-/Main-Ergebnisse stehen im PR; Hard-Interrupt-Recovery und
+Releasequalifikation bleiben getrennt.
+
 Der Generate-Series-Adapter bindet seinen Runner vor dem Start an SQL-Version,
 Run, Attempt und Ownerlabel. Cleanup liest volle ID und Owner gemeinsam,
 entfernt nur diese eigene ID und verlangt frische exakte Namensabwesenheit.
@@ -38,10 +62,16 @@ entfernt nur diese eigene ID und verlangt frische exakte Namensabwesenheit.
 meldet `GENERATE_SERIES_CI_CLEANUP_VERIFIED` und erhält den ursprünglichen
 Teststatus. Der Labzweig bleibt Container-No-op ohne Owner oder private Ablage.
 
+Das vorhandene Generate-Series-Kollisionsorakel verlangt Fehlerstatus und
+die vollständige Kategorie `51054`. Erfolgreicher Exit mit diesem Text, andere
+oder fehlende Kategorien und längere Nummern zählen nicht als Nachweis. Beide
+Rohkanäle bleiben im Speicher; `GENERATE_SERIES_COLLISION_VERIFIED` bestätigt
+das Orakel. Der Harness prüft es in Runner- und Labmodus ohne neue SQL-Fixture.
+
 `python -B Tests/CI/test_owned_container_cleanup.py --module generate_series`
 prüft die tatsächliche Cleanupfunktion synthetisch einschließlich Fremdbestand,
 Namensaustausch, ungültiger Identität, unbekannter Sicht und Lab-Exit0/Exit7.
-SQL-Verträge und Fixtures, bestehendes Kollisionsorakel, optionaler
+SQL-Verträge und Fixtures, optionaler
 Performancepfad samt Defaults, Images, Readinessfrist, Matrix und Runtimeworkflow
 bleiben erhalten. Exakte Head-/Main-Ergebnisse stehen im PR; Hard-Interrupt-
 Recovery, Very-large-series-Qualifikation und Release bleiben getrennt.

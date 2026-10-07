@@ -547,6 +547,7 @@ change_impact:
         - markdown_links
     date_spine_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.datetime.date-spine/**
         - Modules/toolbelt.core.generate-series/**
         - Modules/toolbelt.datetime.truncate/**

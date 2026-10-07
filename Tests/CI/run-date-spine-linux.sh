@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
+
 set -euo pipefail
 
+# Ausschließlich synthetische Datenbanken und ein flüchtiges, maskiertes
+# Testkennwort. Es wird nicht als Artefakt gespeichert.
 sql_image="${TBX_SQL_IMAGE:?TBX_SQL_IMAGE fehlt}"
 sql_version="${TBX_SQL_VERSION:-2025}"
 case "${sql_version}" in
@@ -9,18 +12,78 @@ case "${sql_version}" in
   2025) compatibility_levels="150 160 170" ;;
   *) echo "Nicht unterstützte SQL-Version: ${sql_version}" >&2; exit 1 ;;
 esac
-
 container_name="tbx-date-spine-${GITHUB_RUN_ID:-local}"
+if [[ "${TBX_SQL_TARGET:-runner}" != lab ]]; then
+    container_name="tbx-date-spine-${sql_version}-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}"
+    if [[ ! "${container_name}" =~ ^tbx-date-spine-(2019|2022|2025)-[0-9]+-[0-9]+$ ]]; then
+        echo "DATE_SPINE_CI_IDENTITY_INVALID" >&2
+        exit 1
+    fi
+fi
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 echo "::add-mask::${sa_password}"
 
+container_owner=""; private_dir=""; container_options=()
+if [[ "${TBX_SQL_TARGET:-runner}" != lab ]]; then
+    container_owner="$(openssl rand -hex 16)"
+    if [[ ! "${container_owner}" =~ ^[0-9a-f]{32}$ ]]; then
+        echo "DATE_SPINE_CI_OWNER_INVALID" >&2
+        exit 1
+    fi
+    private_dir="$(mktemp -d)"
+    container_options=(--label "tbx.date-spine.ci.owner=${container_owner}")
+fi
+
 cleanup() {
-  docker rm -f "${container_name}" >/dev/null 2>&1 || true
+    local result=$? inspection="" container_id="" owner="" cleanup_verified=true
+    trap - EXIT
+    # Der bestehende Lab-Shim hat keinen Container und behandelt rm als No-op.
+    # Seine eigene Datenbankbereinigung bleibt beim separaten Labtreiber.
+    if [[ "${TBX_SQL_TARGET:-runner}" == lab ]]; then
+        docker rm -f "${container_name}" >/dev/null 2>&1 || true
+        exit "${result}"
+    fi
+    # Name und Owner identifizieren ausschließlich unseren flüchtigen Scope.
+    # ID und Label aus derselben Aufnahme binden den DROP auch bei Namensaustausch.
+    if ! docker container ls --all --filter "name=^/${container_name}$" \
+        --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null; then
+        cleanup_verified=false
+    elif [[ -s "${private_dir}/owned-containers" ]]; then
+        if ! inspection="$(docker inspect --format '{{.Id}} {{ index .Config.Labels "tbx.date-spine.ci.owner" }}' \
+            "${container_name}" 2>/dev/null)" || [[ ! "${inspection}" =~ ^([0-9a-f]{64})\ ([0-9a-f]{32})$ ]]; then
+            cleanup_verified=false
+        else
+            container_id="${BASH_REMATCH[1]}"; owner="${BASH_REMATCH[2]}"
+            if [[ "${owner}" != "${container_owner}" ]]; then
+                cleanup_verified=false
+            elif ! docker rm -f "${container_id}" >/dev/null 2>&1; then
+                cleanup_verified=false
+            fi
+        fi
+    fi
+    if ! docker container ls --all --filter "name=^/${container_name}$" \
+        --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null \
+        || [[ -s "${private_dir}/owned-containers" ]]; then
+        cleanup_verified=false
+    fi
+    if ! rm -rf -- "${private_dir}"; then
+        cleanup_verified=false
+    fi
+    if [[ "${cleanup_verified}" != true ]]; then
+        echo "DATE_SPINE_CI_CLEANUP_UNVERIFIED" >&2
+        result=1
+    else
+        echo "DATE_SPINE_CI_CLEANUP_VERIFIED"
+    fi
+    exit "${result}"
 }
+
+
 trap cleanup EXIT
 
 docker run --detach \
   --name "${container_name}" \
+  "${container_options[@]}" \
   --env ACCEPT_EULA=Y \
   --env MSSQL_PID=Developer \
   --env MSSQL_SA_PASSWORD="${sa_password}" \
@@ -124,14 +187,19 @@ run_file "${database}" \
 # Eine same-database Dependency blockiert Uninstall vor der ersten Mutation.
 run_query "${database}" \
   "CREATE VIEW dbo.VW_DateSpineConsumer AS SELECT Ordinal, PeriodStart FROM toolbelt_datetime.TVF_DateSpineDay('20260101','20260102');"
+# Ein beliebiger Fehler ist kein Ablehnungsnachweis. Beide Rohkanäle
+# bleiben im Speicher; Fehlerstatus UND die vollständige Kategorie sind nötig.
 set +e
-uninstall_date_spine "${database}" 0 >/dev/null 2>&1
+blocked_uninstall_output="$(uninstall_date_spine "${database}" 0 2>&1)"
 blocked_uninstall_status=$?
 set -e
-if [[ "${blocked_uninstall_status}" -eq 0 ]]; then
-  echo "Date-Spine-Uninstall ignorierte eine Dependency." >&2
-  exit 1
+if [[ "${blocked_uninstall_status}" -eq 0 ]] \
+    || ! grep -Eq '(^|[^0-9])51806([^0-9]|$)' <<<"${blocked_uninstall_output}"; then
+    echo "Date-Spine-Uninstall wurde nicht mit Fehler 51806 abgelehnt." >&2
+    exit 1
 fi
+unset blocked_uninstall_output
+echo "DATE_SPINE_UNINSTALL_VERIFIED"
 run_query "${database}" "DROP VIEW dbo.VW_DateSpineConsumer;"
 uninstall_date_spine "${database}" 0
 run_query "${database}" "
@@ -148,14 +216,19 @@ uninstall_dependencies "${database}" 0
 # Fehlende Dependencies dürfen vor der ersten Mutation keine Objekte erzeugen.
 run_query master \
   "CREATE DATABASE [${preflight_database}] COLLATE Latin1_General_100_CS_AS;"
+# Ein beliebiger Fehler ist kein Ablehnungsnachweis. Beide Rohkanäle
+# bleiben im Speicher; Fehlerstatus UND die vollständige Kategorie sind nötig.
 set +e
-deploy_date_spine "${preflight_database}" local >/dev/null 2>&1
+missing_dependency_output="$(deploy_date_spine "${preflight_database}" local 2>&1)"
 missing_dependency_status=$?
 set -e
-if [[ "${missing_dependency_status}" -eq 0 ]]; then
-  echo "Date-Spine-Deployment akzeptierte fehlende Dependencies." >&2
-  exit 1
+if [[ "${missing_dependency_status}" -eq 0 ]] \
+    || ! grep -Eq '(^|[^0-9])51809([^0-9]|$)' <<<"${missing_dependency_output}"; then
+    echo "Date-Spine-Dependency wurde nicht mit Fehler 51809 abgelehnt." >&2
+    exit 1
 fi
+unset missing_dependency_output
+echo "DATE_SPINE_DEPENDENCY_VERIFIED"
 run_query "${preflight_database}" "
 IF SCHEMA_ID(N'toolbelt_datetime') IS NOT NULL
    OR EXISTS (SELECT 1 FROM sys.extended_properties WHERE name LIKE N'Toolbelt.Module.toolbelt.datetime.date-spine.%')
@@ -172,14 +245,19 @@ CREATE FUNCTION toolbelt_datetime.TVF_DateSpineDay
     @RangeEndExclusive date
 )
 RETURNS TABLE AS RETURN (SELECT CONVERT(int, 0) AS Ordinal, @RangeStart AS PeriodStart);"
+# Ein beliebiger Fehler ist kein Ablehnungsnachweis. Beide Rohkanäle
+# bleiben im Speicher; Fehlerstatus UND die vollständige Kategorie sind nötig.
 set +e
-deploy_date_spine "${collision_database}" local >/dev/null 2>&1
+collision_output="$(deploy_date_spine "${collision_database}" local 2>&1)"
 collision_status=$?
 set -e
-if [[ "${collision_status}" -eq 0 ]]; then
-  echo "Date-Spine-Deployment überschrieb einen frameworkfremden Zielnamen." >&2
-  exit 1
+if [[ "${collision_status}" -eq 0 ]] \
+    || ! grep -Eq '(^|[^0-9])51804([^0-9]|$)' <<<"${collision_output}"; then
+    echo "Date-Spine-Kollision wurde nicht mit Fehler 51804 abgelehnt." >&2
+    exit 1
 fi
+unset collision_output
+echo "DATE_SPINE_COLLISION_VERIFIED"
 run_query "${collision_database}" "
 IF OBJECT_ID(N'toolbelt_datetime.TVF_DateSpineCore') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_datetime.TVF_DateSpineIsoWeek') IS NOT NULL

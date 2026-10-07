@@ -1,5 +1,47 @@
 # CHANGELOG
 
+## 2026-10-07 – ScriptDom-Pin und selektives Deployment
+
+- Der freigegebene ScriptDom-Pin ist jetzt FileVersion `18.0.117.0`; Parser-
+  und Table-Clone-Trigger-Hashes sind gekoppelt. Die neue Windows-SQL-
+  Lifecycle- und Triggerqualifikation bleibt offen; das Modul bleibt unveröffentlicht.
+- Der neue Deployment-Runner wählt Module mit ihren transitiven Manifest-
+  Abhängigkeiten, einschließlich Flow-Mappings. PlanOnly verbindet sich nicht;
+  Variablennamen, DeploymentMode und Hex-Präfixe werden konsistent verarbeitet.
+- Der Parser-Testadapter prüft bei ausgewähltem historischen Release beide
+  Binary-Paare vor der Datenbankanlage. Administrative Trustregistrierung
+  bleibt an das bestehende ausdrückliche Opt-in und private Journal gebunden.
+
+## 2026-10-07 – Date-Spine-Negativorakel verlangen konkrete Ablehnung
+
+- Die vorhandenen Uninstall-, Dependency- und Kollisionsorakel verlangen
+  Fehlerstatus und vollständige Kategorien `51806`, `51809` und `51804`.
+  Andere Fehler, längere Nummern oder Kategorie bei erfolgreichem Exit ergeben
+  keinen Nachweis. Beide Rohkanäle bleiben ausschließlich im Speicher.
+- Der synthetische Harness prüft tatsächliche Helper und Orakel in Runner-
+  und Labmodus. SQL, Dependencies, Fixtures, Runnerbesitz und Cleanup, Images,
+  Readinessfrist, Matrix und Runtimeworkflow bleiben erhalten.
+
+## 2026-10-07 – Date-Spine-CI mit verifizierter eigener Bereinigung
+
+- Der bestehende Adapter bindet seinen Runner vor dem Start an SQL-Version,
+  Run, Attempt und Owner. Cleanup entfernt nur die gemeinsam mit dem Label
+  gelesene volle ID und verlangt frische exakte Namensabwesenheit.
+- Unbestätigter Cleanup endet mit Exit1; bestätigter erhält den ursprünglichen
+  Teststatus. Der Labzweig bleibt Container-No-op ohne Owner oder private Ablage.
+- Der synthetische Harness, Documentationgate und vorhandenes Impact-Paket
+  erfassen den Adapter. Date-Spine-SQL, Dependencies, Fixtures, Negativorakel,
+  Images, Readinessfrist, Matrix und Runtimeworkflow bleiben erhalten.
+
+## 2026-10-07 – Generate-Series-Kollisionsorakel verlangt konkrete Ablehnung
+
+- Der vorhandene Adapter verlangt Fehlerstatus und die vollständige Kategorie
+  `51054`. Andere Deploymentfehler, längere Nummern und Kategorie bei erfolgreichem
+  Exit ergeben keinen Nachweis. Beide Rohkanäle bleiben ausschließlich im Speicher.
+- Der bestehende synthetische Harness prüft das Kollisionsorakel in Runner- und
+  Labmodus. SQL-Verträge, Fixtures, Runnerbesitz, Cleanup, Images, Matrix und
+  Runtimeworkflow bleiben erhalten.
+
 ## 2026-10-07 – Generate-Series-CI mit verifizierter eigener Bereinigung
 
 - Der bestehende Adapter bindet seinen Runner vor dem Start an SQL-Version,
