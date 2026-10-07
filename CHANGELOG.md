@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## 2026-10-07 – Ruhender Queue-/Control-Repeat erhält persistente Steuerung
+
+- Bekannte vollständig installierte Queue2.1-/Control1.0-Stände können bei
+  deaktiviertem Managedgate ohne Claims, Holds oder offene Reservations
+  gemeinsam erneut deployed werden. Andere Consumerstände und Queue-Uninstall
+  behalten ihre Abweisung; kein automatischer Controlabbau oder Zustandsreset.
+- Beide Lifecyclepfade verwenden denselben Compatibilitypreflight und
+  begrenzte Schreibsperren bis Commit. Der vorhandene externe Upgradeadapter
+  ergänzt zwei befüllte Verbundrepeats und prüft Daten-/Token-/Identity- und
+  Katalogerhalt. Der temporäre Releasemanifest-Schlüssel ist anonym und
+  kollidiert deshalb nicht zwischen getrennten Deploymentsessions.
+- Der gezielte Verbundnachweis bestand am 2026-10-07 auf SQL Server 2019 Linux
+  einschließlich Caller-/Zustands-/Sperr-/Source-Rollbackfällen und eigenem
+  Cleanup ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37672934548)).
+  Die Queue-Runtime-Matrix bestand separat auf 2019/2022/2025 Linux.
+  Nach Merge dieser Runde pausiert die Entwicklung auf Benutzerauftrag;
+  offene Schritte und Grenzen stehen in `.ai/BACKLOG.md`.
+
 ## 2026-10-07 – Queue-Repeat erhält gültige Retry-/Barrierzustände
 
 - Die vorhandene WorkItem-Migration legt beim Repeat keine vorübergehende

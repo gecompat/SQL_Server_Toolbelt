@@ -133,6 +133,22 @@ kein erfolgreicher Ausführungsnachweis.
 
 Der fokussierte Managedlauf mit `Tests/CI/run-external-queue-worker-lab.ps1 -Platform windows -Version 2025 -Patch CU8 -ManagedOnly` bestand am 2026-10-05 einschließlich eigenem Cleanup. Der [Worker-Control-Nachweis](../../../Modules/toolbelt.core.worker-control/Tests/README.md) trennt die tatsächlich beobachteten Betriebs-, Stop-, Release-, Wettlauf- und Controltimeoutfälle von offenen Host-/Committransportfaults und Rechtekontexten. SQL-Verträge und sechs echte Lifecycle-Abweisungen bestanden separat auf 2019 Linux und 2025 Windows/CU8; echter Queue-Upgrade auf 2019 Linux. Ein Windows-Worker gegen ein Linux-SQL-Ziel ist kein Linux-Workerhost-Nachweis; dieser wird durch die passende aktuelle CI gesondert erbracht.
 
+## Ruhender Queue-/Control-Repeat
+
+Der zusätzliche `QueueUpgradeOnly`-Scope ergänzt nach dem echten Upgrade
+und zwei Queue2.1-Repeats zwei ruhende Queue-/Control-Repeats. Eigene
+Legacyclaims werden zuerst abgeschlossen; die vollständig installierte
+Control1.0-Historie bleibt erhalten. Der Zeilen-/Katalogvergleich umfasst
+alle zehn Tabellen einschließlich WorkType. Ein eigener Sperrhalter und
+ein synthetischer DDL-Fault prüfen Abbruch ohne Datenverlust; keine neuen
+Jobs, Provider oder Rechte. Dieser Scope bestand am 2026-10-07 auf SQL Server
+2019 Linux am Commit `91507c65ac24051890a1775cc4264c8c119f549f`
+einschließlich eigenem Cleanup
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37672934548));
+der [Controlnachweis](../../../Modules/toolbelt.core.worker-control/Tests/README.md)
+führt die Fälle und offenen Grenzen getrennt. Weitere Verbundziele und
+nichtleere Benutzergrants bleiben nicht ausgeführt.
+
 ## Historischer Queue-Capture: Helperkopplung2026-10-05
 
 Die bekannte Prozesshelper-Pin ist nach der qualifizierten Erweiterung seiner

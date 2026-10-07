@@ -224,6 +224,11 @@ tests:
   lifecycle_dependency_setup: "Tests/Runtime/LifecycleDependency.Setup.sql"
   lifecycle_snapshot: "Tests/Runtime/Lifecycle.Snapshot.sql"
   lifecycle_verify: "Tests/Runtime/Lifecycle.Verify.sql"
+  repeat_installed_setup: "Tests/Runtime/RepeatInstalled.Setup.sql"
+  repeat_installed_seed: "Tests/Runtime/RepeatInstalled.Seed.sql"
+  repeat_installed_snapshot: "Tests/Runtime/RepeatInstalled.Snapshot.sql"
+  repeat_installed_compare: "Tests/Runtime/RepeatInstalled.Compare.sql"
+  repeat_installed_verify: "Tests/Runtime/RepeatInstalled.Verify.sql"
 validation_evidence:
   - date: "2026-10-04"
     workflow: "local: Tests/CI/run-external-queue-worker-lab.ps1 -Platform linux -Version 2019 -Patch latest -ManagedSqlOnly"

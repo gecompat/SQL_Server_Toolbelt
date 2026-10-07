@@ -66,6 +66,47 @@ ohne belegte Reservations/Claims, offene Holds oder UNKNOWN; kein automatisches 
 
 ## Persistente Identitäten und Zustände
 
+### Datenwahrender Repeat im ruhenden Verbund
+
+Der Wartungsauftrag vom 2026-10-07 zum aktuellen datenwahrenden Gesamtdeployment
+umfasst einen engen Repeatpfad für bereits vollständig installierte Queue2.1
+und Control1.0. Er ersetzt keine öffentliche Workerfunktion und autorisiert
+keine Deaktivierung. Vor Mutation und erneut unter eigenen Lifecyclelocks
+werden bekannte Eigentumsslots, Tabellenformen und Steuerzustände geprüft.
+Ein unbekannter oder partieller Consumer wird nicht adoptiert oder repariert.
+Routine-SourceHashes bleiben diagnostisch; der Tabellenvertrag ist ein eigenes
+Compatibilitygate.
+
+Der Pfad verlangt ein vorhandenes deaktiviertes Managedgate mit leerem
+PendingReservationId, keine CLAIMED-Queuezeile und keinen ManagedHold.
+Controlreservations müssen terminal und unbelegt sein; Holds und ungeklärte
+oder laufende Ausführungen bleiben gesperrt. Registrierung, Generationen,
+Konfiguration, Tokens, Rowversions, Dispositionen und Commitzeugen bleiben
+erhalten. Der Installer setzt keine Zustände zurück, löscht keine Historie
+und baut keine persistenten Controltabellen ab. Der Queue-Uninstall behält
+seine Consumerabweisung. Der bisherige Genuine2.0→2.1-Upgrade ohne Control
+und sein ausdrücklich erhaltener Legacyclaim sind ein anderer Pfad.
+
+Beide Installer erwerben Lifecycle-AppLocks in der Reihenfolge Control→Queue.
+Danach werden Gate, Scheduler und sämtliche beteiligten Control-/Queuetabellen
+bis Commit gegen Schreibzugriffe gesperrt. Damit sind auch private Attempt- und
+Dispositionpfade abgegrenzt, die keinen globalen Schedulerlock verwenden.
+Der installierte Repeat verlangt eine frische exklusive Session mit
+`@@LOCK_TIMEOUT = -1`. Andere Anfangswerte, eine Callertransaktion oder
+IMPLICIT_TRANSACTIONS werden vor SET-/Temp-DDL abgewiesen. Die dynamischen
+Vorprüfungen und Tabellensperren verwenden LOCK_TIMEOUT0; die anschließenden
+Source-DDL-Batches sind durch LOCK_TIMEOUT5000 begrenzt. Nach Erfolg und in den
+eigenen Fehlerpfaden wird der erlaubte Anfangswert -1 wiederhergestellt.
+Ein Fehler in einem separaten Source-Batch verlangt den Abbruch der exklusiven
+Deploymentsession; SQLCMD beendet sie, während der Testadapter ausschließlich
+seine eigene frisch geöffnete Session zurückrollt. Das ist keine allgemeine
+Wiederherstellung einer Callersession.
+Es gibt keine neuen globalen Locks in Handler- oder Completionroutinen.
+
+Dieser Pfad ist kein allgemeiner Schema-Repair und keine erfolgreiche
+Gesamtdeployment- oder Plattformqualifikation. Die gezielten Nachweise und
+offenen Grenzen stehen in der [Testmatrix](../../Modules/toolbelt.core.worker-control/Tests/WORKER_CONTROL_CONTRACT_TEST_MATRIX.md).
+
 `WorkerId uniqueidentifier` ist technische stabile Supervisoridentität;
 `WorkerGeneration bigint` steigt bei jeder Neuregistrierung, niemals wiederverwendet.
 `WorkerToken uniqueidentifier` ist eine geheime Capability der Generation und wird

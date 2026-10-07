@@ -1,5 +1,33 @@
 # Worker Control – Testnachweise
 
+Der zusätzliche ruhende Verbundrepeat wird im vorhandenen `QueueUpgradeOnly`-
+Adapter nach dem genuine Queueupgrade und dessen bisherigen Repeats geprüft.
+Legacyclaims werden vor Controlinstallation ausdrücklich abgeschlossen.
+Eine eigene synthetische Fixture enthält terminale Controlhistorie und alle
+zehn persistenten Queue-/Control-/WorkType-Tabellen. Zwei vollständige Repeats
+vergleichen binäre Zeilen einschließlich Tokens/Rowversions, Tabellen- und
+APIidentität, Identitymetadaten und semantische Katalogdefinitionen.
+Bestehende Berechtigungen werden gelesen; eine zusätzliche Rechtevergabe
+erfolgt nicht. Ein nichtleerer Benutzergrant ist daher nicht qualifiziert.
+Konkurrenz- und Faultfälle prüfen unveränderte Daten und neutrale eigene
+Sitzungen; die Callertransaktion wird nicht vom Installer zurückgerollt.
+Gezielte Schemaabweisungen prüfen gepolsterte Versionsmarker, umbenannte
+Checks und einen deaktivierten Idempotenzindex. Gate- und Reservationsperren
+werden gegen beide Installer geprüft. Der separate Source-Fault wird nur
+durch den Adapter auf dessen eigener identitätsgeprüfter Session zurückgerollt.
+Dieser Scope bestand am 2026-10-07 auf SQL Server 2019 Linux am Commit
+`91507c65ac24051890a1775cc4264c8c119f549f` im bestehenden
+`External Queue Worker`-Workflow, Schritt `Execute genuine Queue 2.0 to 2.1 upgrade`
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37672934548)).
+Ausgeführt wurden zwei vollständige Queue-/Control-Repeats, sechs
+Caller-/Implicit-/Timeoutfälle, acht Zustands-/Metadatenabweisungen, vier
+Writerkonflikte und der eigene PostSource-Rollback. Zeilen, Identitäten und
+semantischer Katalog blieben unverändert; eigenes Zielcleanup bestand.
+Die separate Queue-Runtime-Matrix auf 2019/2022/2025 Linux qualifiziert keine
+zusätzliche Plattform für diesen neuen Verbundscope. Weitere Verbundziele
+und nichtleere Benutzergrants bleiben `not executed`; frühere fehlgeschlagene
+Läufe behalten ihren Status. Offlineparser sind nur Syntaxnachweise.
+
 Der Stand ist **partially validated**. Am 2026-10-04 bestand `Tests/CI/run-external-queue-worker-lab.ps1 -Platform linux -Version 2019 -Patch latest -ManagedSqlOnly` auf einem schema-validierten, ausdrücklich ausgewählten SQL-Server-2019-Linux-Ziel. Statische Kopplung und Offlineparser sind keine zusätzliche SQL-Laufzeitqualifikation. Die gezielten parallelen Providerläufe sind unten getrennt belegt; zu diesem Zeitpunkt blieb die exakte Head-CI ein separates Mergegate.
 
 `Static/validate_contract.py` prüft die Source-/Manifest-/Lifecyclekopplung, getrennten Completiontest vor Witnesszugriff, nonblocking GroupStop und Sessionfence bis Reconcile-Commit. `Runtime/WorkerControl.Contract.sql` prüft synthetisch Admission, Livebudget und pausenerhaltende Generationen auf einer isolierten Modulinstallation. Die parallelen Guardian-/Transaction-/Stop-/Commitnachweise liegen in `Workers/ExternalQueue/Tests/Runtime/Invoke-ManagedContract.ps1` und werden getrennt bewertet.

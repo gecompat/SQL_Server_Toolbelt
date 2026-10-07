@@ -45,7 +45,8 @@ Queue2.1-Repeats mit allen sieben gespeicherten Statuswerten. Die direkte
 synthetische Fixture prüft Erhalt der fünf persistenten Queue-/WorkType-Tabellen
 einschließlich Rowversion, Payloads, Gatetokens, Identity und Barrier-FKs.
 Status dieses neuen Repeatnachweises: `not executed` bis zur aktuellen CI.
-Installierter Worker Control und beliebige Schemaänderungen sind nicht umfasst.
+Installierter Worker Control wird im anschließenden eigenen ruhenden
+Verbundrepeat geprüft; beliebige Schemaänderungen sind nicht umfasst.
 
 | Bereich | Gezielter Nachweis | Status |
 |---|---|---|
@@ -53,5 +54,6 @@ Installierter Worker Control und beliebige Schemaänderungen sind nicht umfasst.
 | Daten-/Identityerhaltung | Expliziter43Spalten-Snapshot einschließlich RowVersion, Unicodepayload, Token/Generation/Lease und History; symmetrischer Wertvergleich und Identitymetadaten | 2019 Linux am 2026-10-04 bestanden |
 | Neutrale Legacyadmission | Manageddefaults NULL/0/NULL und Gate disabled; bestehender aktiver2.0Claim abschließbar, neuer Claim exakte8Spalten einschließlich datetime2(7) | 2019 Linux am 2026-10-04 bestanden |
 | Managedgrenze | ClaimCore gesunde AdmissionTX/oneuseNonce; Holdbypässe verweigert; fehlender Singleton failclosed vor und unterLifecyclelock | SQL-Vertrag 2019 Linux und 2025 Windows/CU8 bestanden; vollständiger Providerlauf offen |
+| Ruhender Controlconsumer | Zwei Queue2.1-/Control1.0-Repeats; alle zehn Tabellen, Zeilen/Tokens/Rowversions, Identitäten und semantischer Katalog; Konkurrenz-/Rollback-/Callergrenzen | 2019 Linux am 2026-10-07 einschließlich eigenem Cleanup bestanden ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37672934548)); weitere Verbundziele und nichtleere Benutzergrants nicht ausgeführt; keine beliebige Schemareparatur |
 
 Die historischen2.0Nachweise bleiben historische Evidenz und qualifizieren diese neuen2.1Grenzen nicht.
