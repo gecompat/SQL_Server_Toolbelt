@@ -723,6 +723,14 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [Unreleased]
 
+- 2026-10-07: Pointer-CI-Cleanup bindet volle Container-ID und Owner aus
+  derselben Aufnahme, entfernt per ID und verlangt frische Namensabwesenheit.
+  Run-/Attempt-/SQL-Name vor Setup geprüft; privates Verzeichnis erst nach
+  fallibler Vorbereitung, feste Cleanupzeugen und bisheriger Fehlerstatus.
+  Bestehende Offlineprobe/Testdokumentation gekoppelt; Produkt-SQL, Matrix,
+  Rechte, Trust, Lab und manuelle Lastfälle unverändert. Kein Hard-Interrupt-
+  oder Releasequalifikationsnachweis.
+
 - 2026-10-07: Deterministic-CI-Container-Cleanup an gemeinsamen Owner-/ID-
   Nachweis und frische Abwesenheit gebunden; Run-/Attempt-/SQL-/CL-Identitaet,
   Fehlerstatus und feste Cleanupzeugen statt unterdruecktem name-only rm.
