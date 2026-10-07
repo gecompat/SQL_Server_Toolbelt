@@ -723,6 +723,13 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [Unreleased]
 
+- Die sechs bestehenden Deterministic-CI-Jobs binden ihren exakten
+  Compatibility-Level-Opt-in vor Deploy/Upgrade an alle 13 eigenen Datenbanken
+  und pruefen ihn vor jedem SQL-Skript erneut. Der erwartete Fehlerpfad
+  startet nach fehlgeschlagenem Gate kein Skript. Ohne Opt-in bleibt der
+  historische Multi-Level-Scope unveraendert; keine neue Produktfunktion,
+  Zielmatrix, Rechte- oder Trustaenderung.
+
 ### Geändert
 
 - AI Repository Foundation von `1.4.0` auf den manifestierten Core `1.8.0`

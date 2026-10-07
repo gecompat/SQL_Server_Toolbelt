@@ -1,5 +1,21 @@
 # Contract-Testmatrix: deterministische Zuordnung
 
+## Exakter Compatibility-Level-Opt-in der vorhandenen CI
+
+Die sechs vorhandenen Linux-Jobs setzen ihren validierten Compatibility Level
+jeweils vor dem ersten SQL-Skript der 13 eigenen Datenbanken, einschliesslich
+Central-Consumer und historischer Kollisionsziele. Existenz und exakter Level
+werden frisch geprueft; fehlende Sicht, NULL oder Abweichung blockiert. Vor
+jedem SQL-Skript wird erneut geprueft, auch im erwarteten Fehlerpfad mit
+abgeschaltetem `errexit`. Der Gatewert stammt aus dem validierten Opt-in,
+nicht aus einem veraenderlichen Phasenlabel.
+
+Ohne `TBX_SQL_COMPATIBILITY_LEVEL` bleibt der historische Multi-Level-Pfad:
+API-Schleifen wechseln die Levels, vorherige Deploys und eigene Negativziele
+sind weiterhin kein Nachweis auf allen Levels. Neue exakte Head-/Main-CI bleibt
+im zugehoerigen PR separat nachzuweisen. Produkt-SQL, Fixtures, sechs Jobs und
+30-Minuten-Frist bleiben unveraendert; keine Lab-/Rechte-/Trustausweitung.
+
 ## Additiver GeoJitter-Slice 1.2.0
 
 | Scope | Pflichtfälle | Nachweis am 2026-10-02 |
