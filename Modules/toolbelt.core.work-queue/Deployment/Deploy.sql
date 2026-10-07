@@ -8,9 +8,19 @@
 -- Parameter: DeploymentMode=local|central
 -- ============================================================================
 
-IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR (@@OPTIONS&2)=2
+IF @@TRANCOUNT<>0
 BEGIN
- RAISERROR(N'Lifecycle darf keine Callertransaktion oder implizite Transaktion übernehmen.',16,1);
+ RAISERROR(N'Lifecycle darf keine aktive Callertransaktion übernehmen.',16,1);
+ RETURN;
+END;
+IF XACT_STATE()<>0
+BEGIN
+ RAISERROR(N'Lifecycle darf keinen aktiven Transaktionszustand übernehmen.',16,1);
+ RETURN;
+END;
+IF (@@OPTIONS&2)=2
+BEGIN
+ RAISERROR(N'Lifecycle darf keine implizite Transaktion übernehmen.',16,1);
  RETURN;
 END;
 -- Der installierte Verbund-Repeat verwendet eine frische Session mit Standardtimeout.

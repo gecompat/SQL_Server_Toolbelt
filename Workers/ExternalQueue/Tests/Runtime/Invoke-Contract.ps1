@@ -525,6 +525,9 @@ try{
   $publicSqlErrors=@($fixtureSqlFailure.Errors|ForEach-Object {
    $guard='UNSPECIFIED'
    if($_.Message-ceq'Lifecycle darf keine Callertransaktion oder implizite Transaktion übernehmen.'){$guard='CALLER_OR_IMPLICIT_TRANSACTION'}
+   elseif($_.Message-ceq'Lifecycle darf keine aktive Callertransaktion übernehmen.'){$guard='CALLER_TRANSACTION_COUNT'}
+   elseif($_.Message-ceq'Lifecycle darf keinen aktiven Transaktionszustand übernehmen.'){$guard='CALLER_TRANSACTION_STATE'}
+   elseif($_.Message-ceq'Lifecycle darf keine implizite Transaktion übernehmen.'){$guard='IMPLICIT_TRANSACTION_MODE'}
    elseif($_.Message-ceq'Installierter Queue-/Control-Repeat benötigt initial LOCK_TIMEOUT -1.'){$guard='REPEAT_INITIAL_TIMEOUT'}
    [pscustomobject]@{Number=[int]$_.Number;State=[int]$_.State;Line=[int]$_.Line;Guard=$guard}
   })
