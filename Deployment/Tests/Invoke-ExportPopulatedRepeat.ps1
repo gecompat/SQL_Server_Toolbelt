@@ -110,8 +110,12 @@ function Assert-OwnedConnection($Connection,$Identity){
  IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker) THROW 54984,N''Eigene Exportfixture fehlt.'',10;
  IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND SQL_VARIANT_PROPERTY(value,''BaseType'')=''uniqueidentifier'') THROW 54984,N''Eigene Exportfixture fehlt.'',11;
  IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND TRY_CONVERT(uniqueidentifier,value)=@Run) THROW 54984,N''Eigene Exportfixture fehlt.'',12;
- -- Abschließend das ursprüngliche gemeinsame Gate erneut binden.
- IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR (@@OPTIONS&2)<>0 OR @@LOCK_TIMEOUT<>-1 OR DB_ID()<>@Id OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND name=@Name AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created AND owner_sid=@Owner AND owner_sid=SUSER_SID()) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND SQL_VARIANT_PROPERTY(value,''BaseType'')=''uniqueidentifier'' AND TRY_CONVERT(uniqueidentifier,value)=@Run) THROW 54984,N''Eigene Exportfixtureidentität oder neutrale Session fehlt.'',13;
+ -- Relationale Identität vollständig binden; den Live-Sessionzustand separat erneut prüfen.
+ IF DB_ID()<>@Id OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND name=@Name AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created AND owner_sid=@Owner AND owner_sid=SUSER_SID()) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND SQL_VARIANT_PROPERTY(value,''BaseType'')=''uniqueidentifier'' AND TRY_CONVERT(uniqueidentifier,value)=@Run) THROW 54984,N''Eigene Exportfixtureidentität oder neutrale Session fehlt.'',13;
+ IF @@TRANCOUNT<>0 THROW 54984,N''Neutrale Exportfixture fehlt.'',14;
+ IF XACT_STATE()<>0 THROW 54984,N''Neutrale Exportfixture fehlt.'',15;
+ IF (@@OPTIONS&2)<>0 THROW 54984,N''Neutrale Exportfixture fehlt.'',16;
+ IF @@LOCK_TIMEOUT<>-1 THROW 54984,N''Neutrale Exportfixture fehlt.'',17;
  ' (Get-IdentityParameters $Identity)
 }
 function Get-ExportBatches([string]$Text){

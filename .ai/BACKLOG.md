@@ -136,9 +136,14 @@ Beide FAILED-Läufe bleiben erhalten; kein unveränderter Retry oder Runtime-PAS
 Der korrigierte Builder-Head `6989d8ac43033e8cd45c2f8fb88f59239429c64a`
 besteht den Preflight, ist aber beim eigenen Datenbank-/Sitzungsgate FAILED
 ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37697908672)).
-Vorherige Runtimefälle und Containerbereinigung bestanden. Das bestehende
-gemeinsame Gate bleibt erhalten; feste Einzelstates grenzen die verletzte
-Bedingung ein, ohne Besitzschutz zu lockern oder Metadaten zu publizieren.
+Vorherige Runtimefälle und Containerbereinigung bestanden. Der Diagnoselauf
+`e79bf5a4c1d0db3760b6fbc29a8d1714b8fc7368` bleibt FAILED
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37699250549)):
+Zwölf Einzelbedingungen bestehen, das kombinierte Gate wirft State 13.
+Die Korrektur prüft die neutrale Sitzung getrennt vor und nach dem gemeinsam
+gebundenen Besitzgate. Kein Besitzprädikat entfällt; Autocommit während der
+Katalogauswertung ist eine Hypothese, keine nativ gemessene Primärursache.
+Neue korrigierte Head-CI bleibt erforderlich.
 Details und offene Grenzen stehen in
 [Deploymenttests](../Deployment/Tests/README.md). Windows-FileSystemRoot und
 vollständiger 44-Modul-Export bleiben getrennte Nachweise; Source, Deploy und

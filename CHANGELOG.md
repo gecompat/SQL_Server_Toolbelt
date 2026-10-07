@@ -20,8 +20,11 @@
   Indexer ersetzt. Der separate Cleanup-Pfadseparatorfehler ist korrigiert;
   beide FAILED-Läufe bleiben erhalten, kein unveränderter Retry.
 - Nach Builderkorrektur besteht der Preflight; das eigene Datenbank-/
-  Sitzungsgate weist den Lauf weiterhin ab. Feste Einzelstates werden
-  vorgeschaltet, das ursprüngliche gemeinsame Gate bleibt erhalten.
+  Sitzungsgate weist den Lauf weiterhin ab. Feste Einzelstates zeigen:
+  Alle Einzelbedingungen bestehen, das kombinierte Gate wirft State 13.
+  Neutrale Sitzungsprüfungen werden vor und nach den gemeinsam gebundenen
+  Besitzprädikaten getrennt ausgewertet; Autocommit im Katalogstatement bleibt
+  eine nicht direkt gemessene Hypothese.
   Vorherige Runtimefälle und Containerbereinigung bestanden.
 
 ## 2026-10-07 – Deaktivierten SecondSessionProvider über Deploys erhalten

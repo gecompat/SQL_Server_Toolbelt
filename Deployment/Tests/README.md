@@ -75,7 +75,13 @@ Lifecycle-/Releasequalifikation bleiben offen.
 Der folgende Lauf `6989d8ac43033e8cd45c2f8fb88f59239429c64a` besteht den
 Verbindungs-Preflight, ist aber im eigenen Datenbank-/Sitzungsgate FAILED
 ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37697908672)).
-Das ursprüngliche gemeinsame Gate bleibt unverändert erhalten; vorgeschaltete
-feste Fehlerstates unterscheiden seine Bedingungen ohne Metadatenwerte
-auszugeben. Dieser weitere Fehler wird erst nach Diagnose korrigiert;
+Der Diagnoselauf `e79bf5a4c1d0db3760b6fbc29a8d1714b8fc7368` ist ebenfalls
+FAILED ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37699250549)):
+Alle zwölf Einzelbedingungen bestehen, das kombinierte Gate wirft State 13.
+Die Korrektur trennt die neutralen Sitzungsprüfungen von den kataloglesenden
+Besitzprüfungen wie im bestehenden Repeatactor. Sämtliche Besitzprädikate
+bleiben gemeinsam gebunden; die Sitzung wird davor und danach geprüft.
+Ein während des Katalogstatements aktiver Autocommit erklärt das Ergebnis als
+Hypothese; der konkrete interne Operand wurde nicht nativ gemessen.
 Containerbereinigung und vorherige Runtimefälle bestanden weiterhin.
+Die korrigierte gemeinsame Exportqualifikation bleibt bis neuer Head-CI offen.
