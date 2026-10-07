@@ -327,6 +327,7 @@ for module, error, title, kind, database_variable in (
     ("identifier", "51064", "Identifier-Kollision", "collision", "collision_database"),
     ("split_characters", "51074", "Split-Characters-Kollision", "collision", "collision_database"),
     ("split_characters", "51079", "Split-Characters-Dependency", "dependency", "missing_dependency_database"),
+    ("semantic_version", "51084", "Semantic-Version-Kollision", "collision", "collision_database"),
 ):
     if module not in selected:
         continue

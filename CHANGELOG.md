@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-07 – Semantic-Version-Kollisionsorakel verlangt konkrete Ablehnung
+
+- Der vorhandene Adapter verlangt Fehlerstatus und die vollständige Kategorie
+  `51084`. Andere Deploymentfehler, längere Nummern und Kategorie bei erfolgreichem
+  Exit ergeben keinen Nachweis. Beide Rohkanäle bleiben ausschließlich im Speicher.
+- Der bestehende synthetische Harness prüft das Kollisionsorakel in Runner- und
+  Labmodus. SQL-Verträge, Fixtures, Runnerbesitz, Cleanup, Images, Matrix und
+  Runtimeworkflow bleiben erhalten.
+
 ## 2026-10-07 – Semantic-Version-CI mit verifizierter eigener Bereinigung
 
 - Der bestehende Adapter bindet seinen Runner vor dem Start an SQL-Version,
