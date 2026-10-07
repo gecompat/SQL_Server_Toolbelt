@@ -759,6 +759,7 @@ change_impact:
         - Documentation/Architecture/TABLE_CLONE_DATA_COPY_CONTRACT.md
         - Documentation/Standards/USP_CONTRACT.md
         - Tests/CI/run-table-clone-linux.sh
+        - Tests/CI/test_owned_container_cleanup.py
         - Tests/CI/run-table-clone-wave1-lab.ps1
         - .github/workflows/table-clone-runtime.yml
       checks:

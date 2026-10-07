@@ -1,5 +1,25 @@
 # Table Clone Testmatrix – historische V1-Evidenz
 
+## Runner-Containerbereinigung
+
+Der vorhandene flüchtige Linux-CI-Adapter trennt seinen Containernamen nach
+Run, Attempt und SQL-Version. Ein eigener zufälliger Owner wird als Label
+gebunden. Cleanup prüft zunächst Präsenz, liest vollständige Container-ID und
+Owner in derselben Aufnahme und entfernt nur die passende ID. Eine frische
+Namensabwesenheitsprüfung verhindert einen PASS bei fehlgeschlagener Löschung,
+unklarem Dockerzustand oder verbliebenem beziehungsweise ersetztem Container.
+Erfolgreiche Bereinigung erhält den ursprünglichen Exitcode; unbekannte
+Bereinigung meldet ausschließlich `TABLE_CLONE_CI_CLEANUP_UNVERIFIED`.
+
+`Tests/CI/test_owned_container_cleanup.py --module table_clone` prüft diese
+Steuerung mit synthetischen Dockerantworten. Das ist keine native Ausführung;
+exakte Head-/Main-CI wird im zugehörigen PR getrennt belegt. Die vorhandenen
+SQL-Fixtures, Jobfristen, Matrix und Legacy-Artefaktverzeichnisse bleiben
+unverändert. Der bestehende Lab-Shim verwaltet keinen Container und behält
+seinen No-op-Pfad; sein Datenbankcleanup bleibt beim eigenen Labtreiber.
+Harte Unterbrechung, übrige Lifecyclematrix, physische Ziele, Minimalrechte
+und Release bleiben offene Nachweise.
+
 ## Trigger 4.0 – gezielter Nachweis
 
 | Scope | Oracle | Ausführung |
