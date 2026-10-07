@@ -10,8 +10,9 @@
 -- Plattformen:     Windows und Linux.
 -- Hinweise:        - Nur absolute Pfade sind zulässig.
 --                  - UNC-Pfade sind erlaubt.
---                  - Relative Segmente, Symlinks und Traversal werden von den
---                    Procedures abgelehnt, nicht von dieser Tabelle.
+--                  - Relative Pfade und Traversal werden von den Procedures
+--                    abgelehnt. Die Root-Prüfung ist lexikalisch und löst keine
+--                    Dateisystemlinks auf; diese Tabelle prüft das ebenfalls nicht.
 -- ============================================================================
 
 SET ANSI_NULLS ON;

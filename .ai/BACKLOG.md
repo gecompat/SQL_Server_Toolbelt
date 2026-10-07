@@ -1952,6 +1952,15 @@ Worksheetliste und Zellreader bleiben getrennte öffentliche Vorschläge.
 | Evidenz | Wartungslauf https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356. |
 | Nächster Schritt | Serverseitige synthetische Fixtures extern bereitstellen und Windows sowie die nicht-ASCII-spezifischen Providergrenzen prüfen; Schreiboperationen werden durch den getrennten Windows-Provider abgedeckt. |
 
+Wartung 2026-10-07 (Codex): Der Security-Cloud-Befund zum nicht maskierten
+Präfixvergleich wird innerhalb des bestehenden Root-Allowlist-Vertrags
+korrigiert. Beide vorhandenen Lader verwenden dieselbe literale
+Verzeichnisgrenze mit unverändertem Fehlercode `51321`; keine neue öffentliche
+Funktion, kein zusätzlicher Provider und keine Rechte- oder Labausweitung.
+Der autonome Wartungsauftrag deckt diese Vertragskorrektur ab. Native Windows-,
+Minimalrechte- und Dateisystemlink-Qualifikation bleiben offen; neue Tests
+werden nur mit tatsächlich ausgeführter Evidenz als bestanden geführt.
+
 ### AP-2026-022: SQL CLR ZIP Build-/Deployment-Spike
 
 | Feld | Wert |
