@@ -100,5 +100,17 @@ Pfad-/Adapterstände bleiben getrennt; aktuelle Head-CI bleibt offen.
 Für die unveränderten historischen Compiler verwendet die Verpackung einen
 kurzen isolierten Ausgaberoot. Der Kurzpfadvergleich bestand; lange
 Intermediatepfade können die historische Compilergrenze überschreiten.
-Der aktuelle Workflow verwendet denselben kurzen Root für Verpackung,
-ConsumeCandidate und Upload. Daraus folgt kein aktueller Head-CI-PASS.
+Der aktuelle Workflow verwendet denselben kurzen Root für Verpackung und
+ConsumeCandidate. Der Upload `xlsx-qualified-release-input` enthält ausschließlich
+15 benannte Releaseinputs: jeweils DLL, Trustmanifest und `Deploy.WithAssembly.sql`
+für aktuellen ZIP1.4/XLSX1.2 sowie genuine ZIP1.3/XLSX1.0/XLSX1.1. Diese Inputs
+ersetzen keinen Repositorycheckout oder eigenständige historische Quellfixtures.
+Qualifikations-/Argument-/Prozessdateien, stdout/stderr, ursprüngliche Archive
+und historische Arbeits-/Buildbäume werden nicht hochgeladen.
+
+Der bestehende Staticvalidator prüft die echte Workflowauswahl in drei
+synthetischen Dateibaumfällen mit 14 privaten Sentinels und zusätzlichen
+gleichnamigen Argumentdateien. Nur Literalpfade sind erlaubt; neue Rootdateien
+werden nicht automatisch veröffentlicht. Die bestehenden 19 Frameworkphasen,
+Binaries, Trust- und SQL-Grenzen bleiben unverändert. Tatsächliche Head-/Main-CI
+und die hochgeladene Dateiauswahl werden separat im PR geprüft.

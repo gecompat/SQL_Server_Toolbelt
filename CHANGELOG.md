@@ -723,6 +723,12 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [Unreleased]
 
+- 2026-10-07: XLSX-Qualifikations-CI lädt nur15 benannte aktuelle und genuine
+  historische Releaseinputs hoch. Private Argument-/Prozessdateien, Logs,
+  Qualifikations- und Buildbäume bleiben außerhalb des Uploads. Die bestehende
+  statische Prüfung kontrolliert die tatsächliche Auswahl mit synthetischen
+  Sentinels;19 Frameworkphasen, Produktbinaries, SQL, Trust und Rechte unverändert.
+
 - 2026-10-07: Constructors-CI-Cleanup bindet volle Container-ID und Owner aus
   derselben Aufnahme, entfernt per ID und verlangt frische Namensabwesenheit.
   Run-/Attempt-/SQL-Name und Owner vor Setup geprüft; privates Verzeichnis
