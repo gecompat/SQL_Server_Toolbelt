@@ -18,26 +18,39 @@ case "${sql_version}" in
   *) echo "Nicht unterstützte SQL-Version: ${sql_version}" >&2; exit 1 ;;
 esac
 container_name="tbx-json-constructors-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}-${sql_version}"
+if [[ ! "${container_name}" =~ ^tbx-json-constructors-[0-9]+-[0-9]+-(2019|2022|2025)$ ]]; then
+    echo "JSON_CONSTRUCTORS_CI_IDENTITY_INVALID" >&2
+    exit 1
+fi
 container_owner="$(openssl rand -hex 16)"
-private_dir="$(mktemp -d)"
+if [[ ! "${container_owner}" =~ ^[0-9a-f]{32}$ ]]; then
+    echo "JSON_CONSTRUCTORS_CI_OWNER_INVALID" >&2
+    exit 1
+fi
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 
 echo "::add-mask::${sa_password}"
+private_dir="$(mktemp -d)"
 
 cleanup() {
-    local result=$? owner="" cleanup_verified=true
+    local result=$? inspection="" container_id="" owner="" cleanup_verified=true
     trap - EXIT
-    # Nur den exakt benannten und eigenen Container entfernen; unbekannter
-    # Dockerzustand oder fremdes Label ist niemals ein Cleanup-Erfolg.
+    # Gemeinsame ID-/Owneraufnahme bindet rm auch bei Namensaustausch.
+    # Unbekannter Dockerzustand oder fremdes Label ist niemals ein Erfolg.
     if ! docker container ls --all --filter "name=^/${container_name}$" \
         --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null; then
         cleanup_verified=false
     elif [[ -s "${private_dir}/owned-containers" ]]; then
-        if ! owner="$(docker inspect --format '{{ index .Config.Labels "tbx.json-constructors.ci.owner" }}' \
-            "${container_name}" 2>/dev/null)" || [[ "${owner}" != "${container_owner}" ]]; then
+        if ! inspection="$(docker inspect --format '{{.Id}} {{ index .Config.Labels "tbx.json-constructors.ci.owner" }}' \
+            "${container_name}" 2>/dev/null)" || [[ ! "${inspection}" =~ ^([0-9a-f]{64})\ ([0-9a-f]{32})$ ]]; then
             cleanup_verified=false
-        elif ! docker rm -f "${container_name}" >/dev/null 2>&1; then
-            cleanup_verified=false
+        else
+            container_id="${BASH_REMATCH[1]}"; owner="${BASH_REMATCH[2]}"
+            if [[ "${owner}" != "${container_owner}" ]]; then
+                cleanup_verified=false
+            elif ! docker rm -f "${container_id}" >/dev/null 2>&1; then
+                cleanup_verified=false
+            fi
         fi
     fi
     if ! docker container ls --all --filter "name=^/${container_name}$" \
@@ -51,6 +64,8 @@ cleanup() {
     if [[ "${cleanup_verified}" != true ]]; then
         echo "JSON_CONSTRUCTORS_CI_CLEANUP_UNVERIFIED" >&2
         result=1
+    else
+        echo "JSON_CONSTRUCTORS_CI_CLEANUP_VERIFIED"
     fi
     exit "${result}"
 }

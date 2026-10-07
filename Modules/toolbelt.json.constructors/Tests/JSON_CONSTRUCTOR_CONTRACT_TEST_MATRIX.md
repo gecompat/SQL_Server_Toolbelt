@@ -1,5 +1,24 @@
 # JSON Constructor Testmatrix
 
+## Owner- und ID-gebundener CI-Container-Cleanup
+
+Normaler EXIT-Cleanup bindet volle64-Hex-ID und zufälligen32-Hex-Owner aus
+derselben strikt geprüften Inspectaufnahme. Nur der eigene Owner erlaubt
+Entfernung per ID; danach ist frische erfolgreiche Namensabwesenheit Pflicht.
+Ein Namensaustausch darf keinen fremden Container entfernen. Ungültige oder
+unlesbare Identität, fremder Owner, Entfernungsfehler und unklarer Abschluss
+melden `JSON_CONSTRUCTORS_CI_CLEANUP_UNVERIFIED` mit Fehlerstatus. Bestätigter
+Cleanup meldet `JSON_CONSTRUCTORS_CI_CLEANUP_VERIFIED` und erhält vorherige Fehler.
+Run-/Attempt-/SQL-Name und Owner werden vor privatem Setup geprüft; das
+Verzeichnis entsteht erst nach fallibler Vorbereitung, Lab wird weiterhin
+vorher abgewiesen. Keine Runner-/Host-Recoverygarantie.
+
+Die bestehende source-extracted Probe prüft13 ausgewählte Constructorsfälle
+mit synthetischen Antworten ohne Docker/SQL. Echte Head-/Main-CI und feste
+Cleanupzeugen werden separat im PR nachgewiesen. Imagehandhabung und die
+fünf ausgewählten CL-Kontexte auf SQL2019/2022/2025, Produktbinaries, Trust,
+API-/Lifecycle-Fixtures und übrige Qualifikationsgrenzen bleiben unverändert.
+
 ## CLR-Migration 1.2.0: offene tatsächliche Gates
 
 Source-/Registrykopplung und der unveränderte private Produktbuild sind
