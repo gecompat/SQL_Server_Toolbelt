@@ -1,5 +1,18 @@
 # Regex-Contract-Testmatrix
 
+## Flüchtiger CI-Cleanup
+
+| Bereich | Pflichtnachweis |
+|---|---|
+| Runneridentität | Run-Attempt, SQL-Version/CL und zufälliger Owner vor Setup; Ownerlabel bei Erstellung |
+| Cleanup | Gemeinsame volle ID-/Owneraufnahme, ausschließlich ID entfernen, frische Namensabwesenheit, fremde/unlesbare Identität erhalten, Docker-/Privatdateifehler abweisen |
+| Status | Feste VERIFIED-/UNVERIFIED-Zeugen; vorheriger Fehlerstatus bei bestätigtem Cleanup erhalten |
+| Labgrenze | Bestehender No-op und zusätzliche R2a-Trustbereinigung getrennt; kein Runner-Owner-/Inspectionpfad im Labzweig |
+| Offline | Echte Cleanupfunktion mit synthetischen Antworten, Namensaustausch und Lab-Exit0/Exit7; kein tatsächlicher Docker-/SQL-/Labkontakt |
+
+Exakte Head-/Main-CI ist separat nachzuweisen. Diese Scopepflege qualifiziert
+keine harte Runner-/Hostunterbrechung oder neue Produkt-/Trustgrenze.
+
 ## Capture-/Replace-Zusatzscope 1.3.0
 
 | Bereich | Pflichtnachweis |

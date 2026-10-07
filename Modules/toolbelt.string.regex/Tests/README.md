@@ -1,5 +1,24 @@
 # Regex-Tests
 
+## Ownership des flüchtigen CI-Containers
+
+`Tests/CI/run-regex-linux.sh` prüft im Runnerpfad Run-/Attempt-/SQL-/CL-Namen
+und zufälligen Owner vor Setup. Der EXIT-Trap liest volle Container-ID und
+Owner gemeinsam, entfernt ausschließlich diese ID und verlangt frische
+Namensabwesenheit. Fremde oder unlesbare Identität, Dockerfehler, verbleibender
+Container oder nicht entfernte private Dateien liefern
+`REGEX_CI_CLEANUP_UNVERIFIED` und Exit1. Bestätigter Cleanup liefert
+`REGEX_CI_CLEANUP_VERIFIED` und erhält einen vorherigen Fehlerstatus.
+Runner-Cleanup sendet keine SQL-Abfrage über den ungeprüften Namen.
+
+Der bestehende Lab-Shim hat keinen Container: sein No-op und die begrenzte
+zusätzliche R2a-Trustbereinigung bleiben im getrennten Labzweig. Die
+Runnerprüfung erzeugt dort weder Ownerlabel noch Inspection. Synthetische
+Offlinefälle über `python Tests/CI/test_owned_container_cleanup.py --module regex`
+prüfen die echte Cleanupfunktion, einschließlich Namensaustausch und
+erhaltenem Lab-Exit0/Exit7, ohne Docker-/SQL-/Labzugriff. Exakte Head-/Main-CI
+wird separat im PR nachgewiesen. Kein Runner-/Host-Hardinterruptnachweis.
+
 ## Capture/Replace (1.3.0)
 
 `Tests/Framework/run-framework-captures.ps1 -AssemblyPath <ReleaseBinary>`

@@ -56,22 +56,83 @@ assembly_hash="${manifest_values[0]}"
 assembly_description="${manifest_values[1]}"
 
 container_name="tbx-regex-${sql_version}-${compatibility_level}-${GITHUB_RUN_ID:-local}"
+if [[ "${TBX_SQL_TARGET:-runner}" != lab ]]; then
+  container_name="tbx-regex-${sql_version}-${compatibility_level}-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}"
+  if [[ ! "${container_name}" =~ ^tbx-regex-(2019|2022|2025)-(150|160|170)-[0-9]+-[0-9]+$ ]]; then
+    echo "REGEX_CI_IDENTITY_INVALID" >&2
+    exit 1
+  fi
+fi
 collision_log=""
 r2a_hash=""
 r2a_trust_before=""
 sa_password="Tbx!$(openssl rand -hex 20)Aa1"
 echo "::add-mask::${sa_password}"
-cleanup() {
-  # Nur der genaue zusätzliche Vorgängerhash und nur bei eigener Registrierung.
-  if [[ "${r2a_trust_before}" == "0" && -n "${r2a_hash}" ]]; then
-    run_query master "IF EXISTS(SELECT 1 FROM sys.trusted_assemblies WHERE hash=CONVERT(varbinary(64),N'${r2a_hash}',1)) EXEC sys.sp_drop_trusted_assembly @hash=CONVERT(varbinary(64),N'${r2a_hash}',1);" >/dev/null 2>&1 || true
+container_owner=""; private_dir=""; container_options=()
+if [[ "${TBX_SQL_TARGET:-runner}" != lab ]]; then
+  container_owner="$(openssl rand -hex 16)"
+  if [[ ! "${container_owner}" =~ ^[0-9a-f]{32}$ ]]; then
+    echo "REGEX_CI_OWNER_INVALID" >&2
+    exit 1
   fi
-  docker rm -f "${container_name}" >/dev/null 2>&1 || true
-  [[ -z "${collision_log}" ]] || rm -f "${collision_log}"
+  private_dir="$(mktemp -d)"
+  container_options=(--label "tbx.regex.ci.owner=${container_owner}")
+fi
+
+cleanup() {
+  local result=$? inspection="" container_id="" owner="" cleanup_verified=true
+  trap - EXIT
+  # Der Lab-Shim besitzt keinen Container. Sein bestehender genauer zusätzlicher
+  # Vorgängerhash und der separate Labtreiber behalten ihre bisherigen Grenzen.
+  if [[ "${TBX_SQL_TARGET:-runner}" == lab ]]; then
+    if [[ "${r2a_trust_before}" == "0" && -n "${r2a_hash}" ]]; then
+      run_query master "IF EXISTS(SELECT 1 FROM sys.trusted_assemblies WHERE hash=CONVERT(varbinary(64),N'${r2a_hash}',1)) EXEC sys.sp_drop_trusted_assembly @hash=CONVERT(varbinary(64),N'${r2a_hash}',1);" >/dev/null 2>&1 || true
+    fi
+    docker rm -f "${container_name}" >/dev/null 2>&1 || true
+    [[ -z "${collision_log}" ]] || rm -f "${collision_log}"
+    exit "${result}"
+  fi
+  # Runnerzustand nur über eigene ID/Owneraufnahme entfernen. Separate SQL-
+  # Trustbereinigung ist dort unnötig: der eigene flüchtige Container entfällt.
+  if ! docker container ls --all --filter "name=^/${container_name}$" \
+      --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null; then
+    cleanup_verified=false
+  elif [[ -s "${private_dir}/owned-containers" ]]; then
+    if ! inspection="$(docker inspect --format '{{.Id}} {{ index .Config.Labels "tbx.regex.ci.owner" }}' \
+        "${container_name}" 2>/dev/null)" || [[ ! "${inspection}" =~ ^([0-9a-f]{64})\ ([0-9a-f]{32})$ ]]; then
+      cleanup_verified=false
+    else
+      container_id="${BASH_REMATCH[1]}"; owner="${BASH_REMATCH[2]}"
+      if [[ "${owner}" != "${container_owner}" ]]; then
+        cleanup_verified=false
+      elif ! docker rm -f "${container_id}" >/dev/null 2>&1; then
+        cleanup_verified=false
+      fi
+    fi
+  fi
+  if ! docker container ls --all --filter "name=^/${container_name}$" \
+      --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null \
+      || [[ -s "${private_dir}/owned-containers" ]]; then
+    cleanup_verified=false
+  fi
+  if [[ -n "${collision_log}" ]] && ! rm -f -- "${collision_log}"; then
+    cleanup_verified=false
+  fi
+  if ! rm -rf -- "${private_dir}"; then
+    cleanup_verified=false
+  fi
+  if [[ "${cleanup_verified}" != true ]]; then
+    echo "REGEX_CI_CLEANUP_UNVERIFIED" >&2
+    result=1
+  else
+    echo "REGEX_CI_CLEANUP_VERIFIED"
+  fi
+  exit "${result}"
 }
 trap cleanup EXIT
 
 docker run --detach --name "${container_name}" \
+  "${container_options[@]}" \
   --env ACCEPT_EULA=Y --env MSSQL_PID=Developer \
   --env MSSQL_SA_PASSWORD="${sa_password}" \
   --volume "${workspace}:/workspace:ro" "${sql_image}" >/dev/null
