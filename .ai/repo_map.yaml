@@ -408,9 +408,25 @@ change_impact:
     - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
     - Documentation/Standards/THIRD_PARTY_AND_SOURCE_POLICY.md
     - Tests/Documentation/validate_documentation.py
+    - Tests/Documentation/publication.py
+    - Tests/Documentation/test_publication.py
+    - Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md
     - .github/workflows/documentation-consistency.yml
     - Templates/Module/module.yaml.template
   packages:
+    publication_contract:
+      paths:
+        - Modules/*/module.yaml
+        - Modules/**/*.json
+        - Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md
+        - Tests/Documentation/publication.py
+        - Tests/Documentation/test_publication.py
+        - Tests/Documentation/validate_documentation.py
+        - CONTRIBUTING.md
+        - .github/ISSUE_TEMPLATE/bug-report.yml
+      checks:
+        - publication_contract
+        - markdown_links
     public_api_catalog:
       paths:
         - "Modules/*/module.yaml"

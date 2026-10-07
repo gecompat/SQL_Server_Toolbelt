@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-10-07 – Veröffentlichungsnachweise und freiwillige Fehlermeldungen
+
+- Das kanonische Modulmodell verbindet veröffentlichte Versionen mit exaktem
+  Quellcommit, qualifiziertem Supportumfang, Freigabefundstelle, öffentlichem
+  Release und Asset-Hashes. Build-/CI-Artefakte bleiben eigene Schritte.
+- Der Dokumentationsvalidator trennt lokale Strukturprüfung von ausdrücklich
+  gewählter GitHub-GET-Abnahme; fehlende oder widersprüchliche externe Evidenz
+  wird nicht als Bestätigung dargestellt. Synthetische Regressionen sind an
+  die vorhandene Change-Impact-Prüfung gekoppelt.
+- CONTRIBUTING und das vorhandene Fehlerformular erklären Herkunftsangaben,
+  Grenzen installierter Versionsmarkierungen und freiwillige synthetische
+  Reproduktionen. Keine neue SQL-API, Veröffentlichung, Tag-Erzeugung,
+  Statusaufwertung, Telemetrie oder Lizenzänderung.
+
 ## 2026-10-07 – Ruhender Queue-/Control-Repeat erhält persistente Steuerung
 
 - Bekannte vollständig installierte Queue2.1-/Control1.0-Stände können bei

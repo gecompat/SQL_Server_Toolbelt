@@ -73,6 +73,50 @@ python3 Tests/Documentation/validate_documentation.py --all --write
 öffentlichen API-Katalog. Narrative Dokumentation bleibt manuell gepflegt und wird
 nicht überschrieben.
 
+## Veröffentlichungsnachweise
+
+Der kanonische [JSON-Vertrag](../../Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md#öffentlicher-veröffentlichungsnachweis)
+verbindet veröffentlichte Modulversionen mit Quellcommit, Supportscope,
+Qualifikationsfundstellen, Freigabe, Release und Asset-Hashes.
+`validate_documentation.py` prüft diese Struktur immer lokal und meldet externe
+Bestätigung separat. Der ausdrücklich gewählte Zusatzmodus verwendet nur
+GitHub-GET über den vorhandenen `gh`-Client:
+
+```text
+python -B Tests/Documentation/test_publication.py
+python Tests/Documentation/validate_documentation.py --all --verify-publications
+```
+
+`publication_contract` ist in der Repo-Map an Manifest-/Publication-, Vertrags-,
+Validator- und Rückmeldeformularänderungen gekoppelt. Die Regressionen verwenden
+ein temporäres synthetisches Git-Repository und simulierte API-Antworten.
+Sie erzeugen keine Release-Tags und greifen weder auf Netzwerk noch SQL zu.
+Sie prüfen gültige Source-/Binary-/Preview-Zuordnungen sowie fehlende Nachweise,
+Commit-/Versions-/Scopefehler, ungültige Referenzen, Drafts, Tagdrift, Assetdrift
+und isolierte Transport-/Digest-Unverfügbarkeit. Das ist ein Validatornachweis,
+keine tatsächliche Veröffentlichung oder SQL-Qualifikation.
+
+Bei `unreleased` fehlen Veröffentlichungsdatensätze; auch der Zusatzmodus
+meldet dann `not applicable` und stellt keine GitHub-Anfragen. Ohne Zusatzmodus
+bleibt vorhandene externe Evidenz `not executed`. Ein fehlender lokaler
+Quellcommit, etwa in einem flachen Checkout, ist keine Bestätigung: zuerst den
+öffentlichen exakten Commit über den normalen autorisierten Git-Prozess
+bereitstellen und erneut prüfen. Der Validator fetch't nicht selbst.
+
+## Prüfevidenz 2026-10-07: Veröffentlichungsvertrag
+
+- `python -B Tests/Documentation/test_publication.py`: 19 synthetische
+  Regressionstests erfolgreich, einschließlich gleicher Modulversion mit
+  veränderten/neuen Runtimeinputs, Provider-/Plattformbindung und Fehlerpfaden.
+- `python -B Tests/Documentation/validate_documentation.py --all --verify-publications`:
+  vollständiger lokaler Dokumentations-/Konsistenz-/Static-Audit erfolgreich;
+  alle 44 unveröffentlichten Module benötigen keinen Veröffentlichungsdatensatz.
+  Externe Abnahme `not applicable`; keine GitHub-Veröffentlichung bestätigt.
+- Scope: Python-Standardbibliothek, temporäres synthetisches Git-Repository,
+  vorhandene Governance-/Static-Verträge. Kein SQL-Server-, Plattform- oder
+  Produkt-Runtime-Nachweis; API-Antworten ausschließlich synthetisch. Es wurden
+  keine Veröffentlichungen, Release-Tags oder Modulstatusänderungen erzeugt.
+
 ## Öffentlicher API-Katalog
 
 `generate_api_catalog.py` erzeugt Markdown, HTML und SQL-Beispiele aus

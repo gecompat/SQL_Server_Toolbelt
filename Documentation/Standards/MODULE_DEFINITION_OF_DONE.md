@@ -68,3 +68,4 @@ Eigenvalidierung des neuen Moduls bleibt verpflichtend.
 - [ ] Inkrementeller Change-Impact-Validator erfolgreich.
 - [ ] Breaking Changes und Migrationspfad dokumentiert.
 - [ ] Keine offene Pflichtprüfung wird durch eine pauschale Erfolgsaussage verdeckt.
+- [ ] Bei veröffentlichten Modulständen: Veröffentlichungsnachweis gemäß [Modulmodell](../Architecture/MODULE_AND_DEPENDENCY_MODEL.md#öffentlicher-veröffentlichungsnachweis), fachlicher Review der Freigabe/Scopequalifikation und separate externe Abnahme vorhanden. Bei `unreleased` ist kein Veröffentlichungsnachweis erforderlich.
