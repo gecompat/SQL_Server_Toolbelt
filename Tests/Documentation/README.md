@@ -45,6 +45,10 @@ Es prüft den getrennten Versionsprobe und seine Discovery-Caller mit skalierten
 Bodygrenzen und echtem urllib-Dispatch über synthetischen HTTP-Transport:
 Redirects bleiben ungefolgt, nicht autorisierte Kandidaten unkontaktiert und
 Transportfehler isolierte Vorschläge. Es startet keine CLI oder Runtime.
+Die Originregression ergänzt credential-freies HTTP(S), syntaktische
+Ablehnungen ohne Inputecho, sichere Defaultisolation und kontaktfreies
+`probe=False`. Kleine synthetische Fixtures ersetzen keine realen Endpoint-,
+DNS-/Proxy-/Hostvertrauens- oder SQL-Nachweise.
 
 ## Vollständiger Audit
 

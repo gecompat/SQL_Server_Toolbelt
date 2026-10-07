@@ -337,9 +337,9 @@ class ProvenanceTests(unittest.TestCase):
             ".ai/foundation/ai_runtime_adapters/reference_adapters.py":
                 "Toolbelt-Securitywartung2026-10-07: HttpAdapter-Antworten vor JSON und Outputmutation auf16MiB begrenzen, Kurzreads und positive Restlänge prüfen, strukturierte Ablehnung vor Closefehlern erhalten.",
             ".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md":
-                "Gekoppelte Dokumentation von HttpAdapter- und Discovery-Responsegrenzen sowie Redirectverweigerung; Initialvalidierung, TOCTOU, Heap und Gesamtzeit bleiben separat, keine Runtimeaktivierung oder Foundationversion.",
+                "Gekoppelte Dokumentation von HttpAdapter-/Discovery-Responsegrenzen, Redirectverweigerung und Discovery-Originprüfung; DNS/Proxy/Hostvertrauen, TOCTOU, Heap und Gesamtzeit bleiben separat, keine Runtimeaktivierung oder Foundationversion.",
             ".ai/foundation/ai_runtime_adapters/runtime_configuration.py":
-                "Toolbelt-Securitywartung2026-10-07: Discovery nutzt den gemeinsamen16MiB-Reader und NoRedirect; HTTPError ohne Bodyread schließen, Transport- und Encodingfehler als bestehenden UNAVAILABLE-Vorschlag isolieren.",
+                "Toolbelt-Securitywartung2026-10-07: Discovery nutzt16MiB-Reader und NoRedirect; vor Vorschlag/Transport credential-freien HTTP(S)-Origin prüfen, ungültige Kandidaten ohne Inputecho vom Default isolieren; Transportfehler bleiben UNAVAILABLE.",
         }
 
         def projection(fields, entries):
