@@ -31,6 +31,21 @@ werden dadurch nicht belegt.
 
 ## Adapter und Zielversionen
 
+Der W2c-Adapter bindet seinen Runner vor dem Start an SQL-Version, Run,
+Attempt und Owner. Cleanup entfernt nur die gemeinsam mit dem Label gelesene
+volle ID und verlangt frische exakte Namensabwesenheit. Unbestätigter Cleanup
+meldet `W2C_CI_CLEANUP_UNVERIFIED` und Exit1; `W2C_CI_CLEANUP_VERIFIED`
+erhält den ursprünglichen Teststatus. Der Labzweig bleibt Container-No-op;
+seine Datenbankbereinigung bleibt beim vorhandenen Labtreiber.
+
+`python -B Tests/CI/test_owned_container_cleanup.py --module w2c` prüft
+die tatsächliche Bereinigungsfunktion mit synthetischen Dockerantworten,
+einschließlich Fremdbestand, Namensaustausch, ungültiger Identität, unbekannter
+Sicht und Lab-Exit0/Exit7. SQL-Fixtures, Console-Ausgabemarker, Images,
+Versions-/CL-Matrix und bestehender PR-/Push-/Manual-Workflow bleiben erhalten.
+Exakte Head-/Main-Ergebnisse stehen im PR; Hard-Interrupt-Recovery, zusätzliche
+Client-/Treiberkontexte, Lab- und Releasequalifikation bleiben getrennt.
+
 Der W6d-Cancellation-Adapter bindet seinen Runner vor dem Start an Version,
 Run, Attempt und Owner. Cleanup entfernt ausschließlich die gemeinsam mit
 dem Label gelesene volle ID und verlangt frische Namensabwesenheit sowie

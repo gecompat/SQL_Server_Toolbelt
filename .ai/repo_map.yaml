@@ -951,6 +951,7 @@ change_impact:
         - markdown_links
     w2c_contracts:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.core.console-message/**
         - Modules/toolbelt.metadata.capability-catalog/**
         - Documentation/Architecture/CONSOLE_MESSAGE_MODULE_DESIGN.md

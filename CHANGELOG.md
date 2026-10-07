@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-07 – W2c-CI mit eigener Containeridentität
+
+- Der bestehende Runner bindet Name und Owner vor dem Start, entfernt nur
+  die gemeinsam mit dem Label gelesene volle ID und prüft frische
+  Namensabwesenheit. Fremder Bestand und unbekannter Cleanup werden sichtbar;
+  bestätigte Bereinigung erhält den ursprünglichen Teststatus.
+- Gemeinsamer synthetischer Cleanupharness, Documentationgate und bestehendes
+  Impact-Paket erfassen den Adapter. Lab-No-op, öffentliche SQL-Verträge,
+  Console-Ausgabemarker, fachliche Fixtures, Images, Matrix und Runtimeworkflow
+  bleiben erhalten.
+
 ## 2026-10-07 – Cancellation-CI mit eigener Identität und privater Ausgabe
 
 - W6d bindet seinen Runner vor dem Start an Version, Run, Attempt und Owner.
