@@ -38,10 +38,16 @@ entfernt nur diese eigene ID und verlangt frische exakte Namensabwesenheit.
 meldet `GENERATE_SERIES_CI_CLEANUP_VERIFIED` und erhält den ursprünglichen
 Teststatus. Der Labzweig bleibt Container-No-op ohne Owner oder private Ablage.
 
+Das vorhandene Generate-Series-Kollisionsorakel verlangt Fehlerstatus und
+die vollständige Kategorie `51054`. Erfolgreicher Exit mit diesem Text, andere
+oder fehlende Kategorien und längere Nummern zählen nicht als Nachweis. Beide
+Rohkanäle bleiben im Speicher; `GENERATE_SERIES_COLLISION_VERIFIED` bestätigt
+das Orakel. Der Harness prüft es in Runner- und Labmodus ohne neue SQL-Fixture.
+
 `python -B Tests/CI/test_owned_container_cleanup.py --module generate_series`
 prüft die tatsächliche Cleanupfunktion synthetisch einschließlich Fremdbestand,
 Namensaustausch, ungültiger Identität, unbekannter Sicht und Lab-Exit0/Exit7.
-SQL-Verträge und Fixtures, bestehendes Kollisionsorakel, optionaler
+SQL-Verträge und Fixtures, optionaler
 Performancepfad samt Defaults, Images, Readinessfrist, Matrix und Runtimeworkflow
 bleiben erhalten. Exakte Head-/Main-Ergebnisse stehen im PR; Hard-Interrupt-
 Recovery, Very-large-series-Qualifikation und Release bleiben getrennt.
