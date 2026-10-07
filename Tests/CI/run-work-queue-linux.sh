@@ -11,6 +11,13 @@ case "${sql_version}" in
 esac
 
 container_name="tbx-work-queue-${GITHUB_RUN_ID:-local}"
+if [[ "${TBX_SQL_TARGET:-runner}" != lab ]]; then
+    container_name="tbx-work-queue-${sql_version}-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}"
+    if [[ ! "${container_name}" =~ ^tbx-work-queue-(2019|2022|2025)-[0-9]+-[0-9]+$ ]]; then
+        echo "WORK_QUEUE_CI_IDENTITY_INVALID" >&2
+        exit 1
+    fi
+fi
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 echo "::add-mask::${sa_password}"
 local_db=tbx_work_queue_local
@@ -22,19 +29,76 @@ upgrade_db=tbx_work_queue_upgrade
 upgrade_blocked_db=tbx_work_queue_upgrade_blocked
 sqlcmd_path=""
 
+container_owner=""; private_dir=""; container_options=()
+if [[ "${TBX_SQL_TARGET:-runner}" != lab ]]; then
+    container_owner="$(openssl rand -hex 16)"
+    if [[ ! "${container_owner}" =~ ^[0-9a-f]{32}$ ]]; then
+        echo "WORK_QUEUE_CI_OWNER_INVALID" >&2
+        exit 1
+    fi
+    container_options=(--label "tbx.work-queue.ci.owner=${container_owner}")
+fi
+
+private_dir="$(mktemp -d)"
+
 cleanup() {
-  if [[ -n "${sqlcmd_path}" ]]; then
-    for db in "${consumer_db}" "${central_db}" "${local_db}" "${dependency_db}" "${collision_db}" "${upgrade_db}" "${upgrade_blocked_db}"; do
-      docker exec "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d master \
-        -Q "IF DB_ID(N'${db}') IS NOT NULL BEGIN ALTER DATABASE [${db}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [${db}]; END;" >/dev/null 2>&1 || true
-    done
-  fi
-  rm -f /tmp/work-queue-dependency.out /tmp/work-queue-collision.out /tmp/work-queue-uninstall.out /tmp/work-queue-upgrade-blocked.out
-  docker rm -f "${container_name}" >/dev/null 2>&1 || true
+    local result=$? inspection="" container_id="" owner="" cleanup_verified=true
+    trap - EXIT
+    # Der Lab-Shim suffixiert die sieben eigenen DBs; run/rm sind No-op.
+    # Eigene Ausgabedateien werden auch hier ausschließlich privat bereinigt.
+    if [[ "${TBX_SQL_TARGET:-runner}" == lab ]]; then
+        if [[ -n "${sqlcmd_path}" ]]; then
+            for db in "${consumer_db}" "${central_db}" "${local_db}" "${dependency_db}" "${collision_db}" "${upgrade_db}" "${upgrade_blocked_db}"; do
+                docker exec "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d master \
+                    -Q "IF DB_ID(N'${db}') IS NOT NULL BEGIN ALTER DATABASE [${db}] SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE [${db}]; END;" >/dev/null 2>&1 || true
+            done
+        fi
+        docker rm -f "${container_name}" >/dev/null 2>&1 || true
+        if ! rm -rf -- "${private_dir}"; then
+            echo "WORK_QUEUE_LAB_CLEANUP_UNVERIFIED" >&2
+            result=1
+        fi
+        exit "${result}"
+    fi
+    # Name und Owner identifizieren ausschließlich unseren flüchtigen Scope.
+    # ID und Label aus derselben Aufnahme binden das Entfernen bei Namensaustausch.
+    if ! docker container ls --all --filter "name=^/${container_name}$" \
+        --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null; then
+        cleanup_verified=false
+    elif [[ -s "${private_dir}/owned-containers" ]]; then
+        if ! inspection="$(docker inspect --format '{{.Id}} {{ index .Config.Labels "tbx.work-queue.ci.owner" }}' \
+            "${container_name}" 2>/dev/null)" || [[ ! "${inspection}" =~ ^([0-9a-f]{64})\ ([0-9a-f]{32})$ ]]; then
+            cleanup_verified=false
+        else
+            container_id="${BASH_REMATCH[1]}"; owner="${BASH_REMATCH[2]}"
+            if [[ "${owner}" != "${container_owner}" ]]; then
+                cleanup_verified=false
+            elif ! docker rm -f "${container_id}" >/dev/null 2>&1; then
+                cleanup_verified=false
+            fi
+        fi
+    fi
+    if ! docker container ls --all --filter "name=^/${container_name}$" \
+        --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null \
+        || [[ -s "${private_dir}/owned-containers" ]]; then
+        cleanup_verified=false
+    fi
+    if ! rm -rf -- "${private_dir}"; then
+        cleanup_verified=false
+    fi
+    if [[ "${cleanup_verified}" != true ]]; then
+        echo "WORK_QUEUE_CI_CLEANUP_UNVERIFIED" >&2
+        result=1
+    else
+        echo "WORK_QUEUE_CI_CLEANUP_VERIFIED"
+    fi
+    exit "${result}"
 }
+
+
 trap cleanup EXIT
 
-docker run -d --name "${container_name}" -e ACCEPT_EULA=Y -e MSSQL_PID=Developer \
+docker run -d --name "${container_name}" "${container_options[@]}" -e ACCEPT_EULA=Y -e MSSQL_PID=Developer \
   -e MSSQL_SA_PASSWORD="${sa_password}" -v "${GITHUB_WORKSPACE:-$(pwd)}:/workspace:ro" "${sql_image}" >/dev/null
 
 for candidate in /opt/mssql-tools18/bin/sqlcmd /opt/mssql-tools/bin/sqlcmd; do
@@ -58,10 +122,10 @@ uninstall() { run_file "$1" "/workspace/$2/Deployment" Uninstall.sql -v ConfirmN
 
 run_query master "CREATE DATABASE [${dependency_db}] COLLATE Latin1_General_100_CS_AS;"
 set +e
-deploy "${dependency_db}" Modules/toolbelt.core.work-queue local >/tmp/work-queue-dependency.out 2>&1
+deploy "${dependency_db}" Modules/toolbelt.core.work-queue local >"${private_dir}/work-queue-dependency.out" 2>&1
 dependency_rc=$?
 set -e
-if [[ "${dependency_rc}" -eq 0 ]] || ! grep -q "51942" /tmp/work-queue-dependency.out; then
+if [[ "${dependency_rc}" -eq 0 ]] || ! grep -q "51942" "${private_dir}/work-queue-dependency.out"; then
   echo "Der Dependency-Preflight ist inkonsistent." >&2; exit 1
 fi
 
@@ -70,10 +134,10 @@ deploy "${collision_db}" Modules/toolbelt.core.result-table local
 deploy "${collision_db}" Modules/toolbelt.core.work-type local
 run_query "${collision_db}" "CREATE VIEW toolbelt_core.VW_WorkQueue AS SELECT 1 AS ForeignObject;"
 set +e
-deploy "${collision_db}" Modules/toolbelt.core.work-queue local >/tmp/work-queue-collision.out 2>&1
+deploy "${collision_db}" Modules/toolbelt.core.work-queue local >"${private_dir}/work-queue-collision.out" 2>&1
 collision_rc=$?
 set -e
-if [[ "${collision_rc}" -eq 0 ]] || ! grep -q "51944" /tmp/work-queue-collision.out; then
+if [[ "${collision_rc}" -eq 0 ]] || ! grep -q "51944" "${private_dir}/work-queue-collision.out"; then
   echo "Der Fremdobjekt-Preflight ist inkonsistent." >&2; exit 1
 fi
 
@@ -91,10 +155,10 @@ run_file "${upgrade_db}" /workspace/Modules/toolbelt.core.work-queue/Tests/Runti
 
 run_query "${upgrade_blocked_db}" "UPDATE TOP(1) toolbelt_core.WorkItem SET Status='CLAIMED',ClaimedAtUtc=SYSUTCDATETIME(),ClaimedBy=N'synthetic-worker',ClaimToken='00000000-0000-0000-0000-000000000102' WHERE Status='QUEUED';"
 set +e
-deploy "${upgrade_blocked_db}" Modules/toolbelt.core.work-queue local >/tmp/work-queue-upgrade-blocked.out 2>&1
+deploy "${upgrade_blocked_db}" Modules/toolbelt.core.work-queue local >"${private_dir}/work-queue-upgrade-blocked.out" 2>&1
 upgrade_blocked_rc=$?
 set -e
-if [[ "${upgrade_blocked_rc}" -eq 0 ]] || ! grep -q "51948" /tmp/work-queue-upgrade-blocked.out; then
+if [[ "${upgrade_blocked_rc}" -eq 0 ]] || ! grep -q "51948" "${private_dir}/work-queue-upgrade-blocked.out"; then
   echo "Der aktive E1a-Claim blockierte das E1b-Upgrade nicht korrekt." >&2; exit 1
 fi
 run_query "${upgrade_blocked_db}" "IF COL_LENGTH(N'toolbelt_core.WorkItem',N'LeaseUntilUtc') IS NOT NULL OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.work-queue.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0') THROW 52975,N'Der abgelehnte Upgrade-Preflight mutierte den Vorgängerstand.',1;"
@@ -123,10 +187,10 @@ deploy "${local_db}" Modules/toolbelt.core.work-queue local
 run_query "${local_db}" "IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem wi JOIN toolbelt_core.WorkType wt ON wt.WorkTypeId=wi.WorkTypeId WHERE wt.WorkTypeName='test.queue.preserve') THROW 52960,N'Redeploy verlor persistente Daten.',1;"
 
 set +e
-uninstall "${local_db}" Modules/toolbelt.core.work-queue 0 0 >/tmp/work-queue-uninstall.out 2>&1
+uninstall "${local_db}" Modules/toolbelt.core.work-queue 0 0 >"${private_dir}/work-queue-uninstall.out" 2>&1
 uninstall_rc=$?
 set -e
-if [[ "${uninstall_rc}" -eq 0 ]] || ! grep -q "51949" /tmp/work-queue-uninstall.out; then
+if [[ "${uninstall_rc}" -eq 0 ]] || ! grep -q "51949" "${private_dir}/work-queue-uninstall.out"; then
   echo "Der Datenverlustschutz ist inkonsistent." >&2; exit 1
 fi
 run_query "${local_db}" "IF OBJECT_ID(N'toolbelt_core.WorkItem',N'U') IS NULL OR NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem) THROW 52961,N'Der abgelehnte Uninstall veränderte Daten oder Objektbestand.',1;"

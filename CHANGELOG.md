@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-10-07 – Work-Queue-CI mit eigener Identität und Ausgabeablage
+
+- Runner-Cleanup bindet den bestehenden Container an Version, Run, Attempt
+  und Owner, entfernt ausschließlich seine vollständige ID und verlangt
+  frische Namensabwesenheit. Fremder Bestand und unbekannter Cleanup bleiben
+  sichtbare Fehler; Runner-SQL-Drops über den Namen entfallen.
+- Vier Negativphasen verwenden auch im Lab eine eigene private Ausgabeablage.
+  Die sieben bestehenden Lab-Drops und der Container-No-op bleiben erhalten;
+  ein Fehler der privaten Dateibereinigung beendet den Labadapter mit Exit1.
+- Gemeinsamer Offlineharness, Dokumentationsgate und bestehendes Impact-Paket
+  erfassen den Adapter. Öffentliche SQL-Verträge, fachliche Fixtures, Images,
+  Versions-/CL-Matrix und Runtimeworkflow bleiben unverändert.
+
 ## 2026-10-07 – Eigenen W4a-CI-Container verifiziert bereinigen
 
 - Der vorhandene Execution-Foundations-Adapter bindet den Runner an

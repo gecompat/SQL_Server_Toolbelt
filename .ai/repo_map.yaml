@@ -812,6 +812,7 @@ change_impact:
         - markdown_links
     work_queue_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Workers/ExternalQueue/**
         - Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1
         - Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md

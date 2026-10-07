@@ -31,6 +31,25 @@ werden dadurch nicht belegt.
 
 ## Adapter und Zielversionen
 
+Der Work-Queue-Adapter verwendet eine eigene private Ausgabeablage für seine
+vier Negativphasen, auch im Labmodus. Im Runner bindet er den Container an
+SQL-Version, Run, Attempt und Owner; Cleanup entfernt ausschließlich die
+gemeinsam mit dem Label gelesene vollständige ID und prüft danach frische
+Namensabwesenheit. Es sendet dabei keine SQL-Drops über einen Containernamen.
+Unbestätigte Bereinigung endet mit `WORK_QUEUE_CI_CLEANUP_UNVERIFIED` und Exit1;
+bestätigte Bereinigung meldet `WORK_QUEUE_CI_CLEANUP_VERIFIED` und erhält den
+ursprünglichen Exitstatus.
+
+Der Labzweig behält seine sieben suffixierten Datenbank-Drops und den
+Container-No-op des vorhandenen Shims. Er bereinigt die private Ablage ohne
+Runner-Inspection oder Container-VERIFIED-Zusage; ein Dateicleanupfehler wird
+mit `WORK_QUEUE_LAB_CLEANUP_UNVERIFIED` und Exit1 sichtbar. Der bestehende
+source-extrahierte Harness
+`python -B Tests/CI/test_owned_container_cleanup.py --module work_queue`
+prüft Runneridentität und Cleanup sowie die separaten Labpfade ausschließlich
+mit synthetischen Antworten. Hard-Interrupt-Recovery und tatsächliche
+Labqualifikation bleiben davon getrennt.
+
 Die Modul-Adapter sind versionsparametrisch. `TBX_SQL_VERSION` wählt das
 Zielrelease und daraus die tatsächlich geprüften Compatibility Levels: `2019`
 prüft 150, `2022` prüft 160 und `2025` prüft 150, 160 und 170.
