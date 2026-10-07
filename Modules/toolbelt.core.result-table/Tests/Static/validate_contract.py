@@ -257,6 +257,41 @@ def main() -> int:
         )
 
     linux_runner = files[LINUX_RUNNER]
+    # Flüchtiger Runner besitzt den Container; der Lab-Shim bleibt ein No-op.
+    for marker in (
+        "^tbx-result-table-(2019|2022|2025)-[0-9]+-[0-9]+$",
+        'container_owner="$(openssl rand -hex 16)"',
+        "^[0-9a-f]{32}$",
+        '--label "tbx.result-table.ci.owner=${container_owner}"',
+        '"${container_options[@]}"',
+        "RESULT_TABLE_CI_CLEANUP_UNVERIFIED",
+        "RESULT_TABLE_CI_CLEANUP_VERIFIED",
+    ):
+        if marker not in linux_runner:
+            raise AssertionError(f"ResultTable-CI-Ownershipmarker fehlt: {marker}")
+    cleanup_begin = linux_runner.index("cleanup() {\n")
+    cleanup_end = linux_runner.index("\n}\n", cleanup_begin)
+    cleanup = linux_runner[cleanup_begin:cleanup_end]
+    lab_end = cleanup.index('\n    fi\n')
+    runner_cleanup = cleanup[lab_end:]
+    if ('"${TBX_SQL_TARGET:-runner}" == lab' not in cleanup[:lab_end]
+            or 'exit "${result}"' not in cleanup[:lab_end]
+            or '^([0-9a-f]{64})\\ ([0-9a-f]{32})$' not in runner_cleanup
+            or 'docker rm -f "${container_id}"' not in runner_cleanup
+            or runner_cleanup.count('docker container ls --all --filter "name=^/${container_name}$"') != 2
+            or 'docker rm -f "${container_name}"' in runner_cleanup
+            or '|| true' in runner_cleanup):
+        raise AssertionError("ResultTable-CI verliert Labtrennung, ID-/Ownerbindung oder frische Abwesenheit.")
+    if not (linux_runner.index('echo "::add-mask::${sa_password}"')
+            < linux_runner.index('private_dir="$(mktemp -d)"')
+            < cleanup_begin < linux_runner.index("trap cleanup EXIT")
+            < linux_runner.index("docker run --detach")):
+        raise AssertionError("ResultTable-CI-Vorbereitung/Trap liegt nicht vor dem eigenen Start.")
+    mock = read(REPOSITORY_ROOT / "Tests/CI/test_owned_container_cleanup.py")
+    docs_workflow = read(REPOSITORY_ROOT / ".github/workflows/documentation-consistency.yml")
+    if ('"result_table": ("run-result-table-linux.sh"' not in mock
+            or "Tests/CI/run-result-table-linux.sh .github/workflows/documentation-consistency.yml" not in docs_workflow):
+        raise AssertionError("ResultTable-CI fehlt im bestehenden synthetischen Cleanupgate.")
     for runtime_file in (
         "USP_PrepareResultTable.Contract.sql",
         "Collation.Contract.sql",

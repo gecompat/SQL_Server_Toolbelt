@@ -497,6 +497,7 @@ change_impact:
         - markdown_links
     result_table_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.core.result-table/**
         - Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md
         - Documentation/Architecture/DEPLOYMENT_MODEL.md
