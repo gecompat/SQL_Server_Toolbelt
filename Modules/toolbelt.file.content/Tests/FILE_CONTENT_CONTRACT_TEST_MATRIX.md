@@ -24,6 +24,15 @@
 | LC-001 | Schema `toolbelt_file` existiert | Deployment erfolgreich |
 | LC-002 | Tabelle `FileContentRootAllowlist` existiert | Konfiguration bereit |
 | LC-003 | Procedures `USP_LoadBinaryFile` und `USP_LoadTextFile` existieren | Öffentliche Verträge bereit |
+| LC-004 | Zwei echte 1.0.0-Repeats mit vier synthetischen Allowlist-Zeilen | Exakte UTF-16-Bytes, NULLs, Auditzeiten und aktive/inaktive Zustände unverändert |
+| LC-005 | Gelöschte höchste Identity, Katalog und regulärer Folgeinsert | Identity inklusive verbrauchtem Wert, Objekt-/Schema-/Spalten-/Index-/Constraint-/Trigger- und vorhandene Berechtigungsmetadaten erhalten |
+| LC-006 | Veraltete kanonische Beschreibung und zusätzliche Annotationen | Nur Tabellen-`MS_Description` wird erneuert; übrige Properties bleiben gleich |
+
+LC-004 bis LC-006 verwenden `RepeatCurrent.Contract.sql` in eigenen leeren
+Testdatenbanken lokal/zentral ohne Datei-I/O, Serverkonfiguration oder Grants.
+Linux-CI: native Default-CLs 2019/150, 2022/160, 2025/170. Zusätzliche CLs,
+Windows, nichtleere Benutzergrants, Minimalrechte, unbekannte Schemas und
+historische Versionsmigrationen sind dadurch nicht qualifiziert.
 
 ## Contract-Tests (ohne echtes Dateisystem)
 
@@ -57,8 +66,8 @@ Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/3069226735
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
-- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/file-content-runtime.yml`
-- Scope: GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; erstmals auf allen drei Zielversionen erfolgreich, nachdem der Testadapter die Compatibility Levels aus der Zielversion ableitet
+- Datum: `2026-10-07`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37687448814`
+- Scope: Commit 8effcee91106cb4b8924c7a839928d550c0653b6: befüllter 1.0.0-Repeat zweimal lokal und zentral, SQL Server 2019/150, 2022/160 und 2025/170 Linux; exakte Zeilen/Identity/Katalog/Annotationen und Uninstall; vorhandene Permissions nur beobachtet, keine Benutzergrants erzeugt; bestehende Datei-I/O-Suite anschließend erfolgreich; Windows/weitere Repeat-CLs/Minimalrechte/historische Migrationen offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

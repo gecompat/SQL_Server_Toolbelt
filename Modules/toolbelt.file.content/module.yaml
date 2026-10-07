@@ -129,6 +129,9 @@ tests:
   contract: "Tests/Runtime/FileContent.Contract.sql"
   root_boundary: "Tests/Runtime/RootBoundary.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  repeat_current: "Tests/Runtime/RepeatCurrent.Contract.sql"
+  repeat_capture: "Tests/Runtime/RepeatCurrent.Capture.sql"
+  repeat_assert: "Tests/Runtime/RepeatCurrent.Assert.sql"
 validation_evidence:
   - date: "2026-08-01"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356"
@@ -137,4 +140,8 @@ validation_evidence:
   - date: "2026-09-01"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/workflows/file-content-runtime.yml"
     scope: "GitHub-hosted Linux-Matrix SQL Server 2019, 2022 und 2025; erstmals auf allen drei Zielversionen erfolgreich, nachdem der Testadapter die Compatibility Levels aus der Zielversion ableitet"
+    result: "success"
+  - date: "2026-10-07"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37687448814"
+    scope: "Commit 8effcee91106cb4b8924c7a839928d550c0653b6: befüllter 1.0.0-Repeat zweimal lokal und zentral, SQL Server 2019/150, 2022/160 und 2025/170 Linux; exakte Zeilen/Identity/Katalog/Annotationen und Uninstall; vorhandene Permissions nur beobachtet, keine Benutzergrants erzeugt; bestehende Datei-I/O-Suite anschließend erfolgreich; Windows/weitere Repeat-CLs/Minimalrechte/historische Migrationen offen"
     result: "success"

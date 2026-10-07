@@ -97,12 +97,34 @@ deploy_file_content() {
 database="tbx_file_content"
 run_query master "CREATE DATABASE [${database}] COLLATE Latin1_General_100_CS_AS;"
 
-# ad hoc distributed queries aktivieren, damit OPENROWSET(BULK...) funktioniert.
+deploy_file_content "${database}" local
+
+# Der befüllte Tabellenrepeat benötigt weder Dateien noch Serverkonfiguration.
+# Die SQLCMD-Session hält ihre Snapshots über die echten Deploy-GO-Batches.
+run_file "${database}" \
+  /workspace/Modules/toolbelt.file.content/Deployment \
+  ../Tests/Runtime/RepeatCurrent.Contract.sql -v DeploymentMode=local
+
+central_database="tbx_file_content_central"
+run_query master "CREATE DATABASE [${central_database}] COLLATE Latin1_General_100_CS_AS;"
+deploy_file_content "${central_database}" central
+run_file "${central_database}" \
+  /workspace/Modules/toolbelt.file.content/Deployment \
+  ../Tests/Runtime/RepeatCurrent.Contract.sql -v DeploymentMode=central
+run_file "${central_database}" \
+  /workspace/Modules/toolbelt.file.content/Deployment \
+  Uninstall.sql -v ConfirmNoExternalConsumers=0
+run_query "${central_database}" "
+IF EXISTS (SELECT 1 FROM sys.objects WHERE schema_id = SCHEMA_ID(N'toolbelt_file'))
+    THROW 52948, N'Zentraler Uninstall liess File-Content-Objekte zurueck.', 1;
+IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0
+           AND name LIKE N'Toolbelt.Module.toolbelt.file.content.%')
+    THROW 52948, N'Zentraler Uninstall liess Modulmarker zurueck.', 1;"
+
+# Bestehende I/O-Suite erst nach dem konfigurationsfreien Tabellenrepeat.
 # Jede sp_configure/RECONFIGURE-Kombination muss in einem eigenen Batch laufen.
 run_query master "sp_configure 'show advanced options', 1; RECONFIGURE;"
 run_query master "sp_configure 'ad hoc distributed queries', 1; RECONFIGURE;"
-
-deploy_file_content "${database}" local
 
 # Allowlist für synthetische Testdateien vorbereiten.
 run_query "${database}" "
