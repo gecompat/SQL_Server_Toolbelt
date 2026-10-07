@@ -100,3 +100,90 @@ Dokumentations-CI am selben Head besteht. Der beobachtete Erfolg belegt die
 Korrektur im gewählten Scope; der interne Ausdrucksoperand der früheren
 Sitzungsfehler wurde weiterhin nicht direkt gemessen. Historische FAILED-
 Läufe und die oben genannten übrigen Qualifikationsgrenzen bleiben erhalten.
+
+## Echter Queue2.0-Upgrade durch Exportdatei
+
+`Invoke-ExportPopulatedRepeat.ps1 -Scenario Queue20Upgrade` ergänzt einen
+getrennten Migrationsfall unter der vorhandenen Deploymentwartungsfreigabe.
+Der Standardfall `Repeat` und seine vier `ExportPopulated.*.sql`-Fixtures
+bleiben unverändert. Der neue Fall ist für denselben vorhandenen externen
+Linux2019-/CL150-Scope lokal und zentral vorbereitet; neue native Ausführung
+ist **NOT_EXECUTED**.
+
+Pro Modus installiert eine echte `-OutputSqlFile`-Datei zunächst sieben
+aktuelle Module: execution-context, result-table, file.content,
+execution-cancel, work-type, second-session und event-log. Danach installiert
+der unveränderte `New-GenuineQueue20Capture.ps1` die Originalquellen der
+Work Queue 2.0.0 aus Commit `62e7b06588b28c45c58f7ec335e4e5c45f120e3e`.
+Blob- und Dateiidentität werden geprüft; ein geänderter Versionsmarker einer
+aktuellen Queue ersetzt diesen historischen Installationsstand nicht.
+Anschließend konsumiert der begrenzte Batchconsumer die vollständige echte
+Exportdatei aller neun aktuellen Module einschließlich Queue2.1 und der
+erstmaligen Control1.0-Installation. Jeder Aufruf verwendet eine frische
+ungepoolte Sitzung mit `LOCK_TIMEOUT -1`; alle Exportbatches werden in ihrer
+Reihenfolge ausgeführt. SSMS und `sqlcmd.exe` werden damit nicht qualifiziert.
+
+`ExportUpgrade.Setup.sql` erzeugt über die Original-Queue-APIs je eine
+COMPLETED-, CLAIMED- und QUEUED-Zeile. Der vorhandene kanonische JSON-Handler
+wird nur registriert, niemals ausgeführt; es entsteht kein neuer Callback
+oder öffentliches SQL-Objekt. Der aktive Legacyclaim bleibt während des
+Upgrades und der ersten Controlinstallation erhalten. Weitere synthetische
+Zeilen, verbrauchte gelöschte Identitywerte sowie eigene typisierte Tabellen-/
+Spaltenannotation und Beschreibungen bezeugen die übrigen Bestandstabellen.
+
+| Bestandstabelle | Legacyfelder | Zeilen vor und nach Migration |
+|---|---:|---:|
+| `WorkType` | 18 | 2 |
+| `WorkItem` | 43 | 3 |
+| `WorkQueueScheduler` | 1 | 1 |
+| `WorkQueueBarrierBlocker` | 5 | 0 |
+| `ExecutionCancellation` | 5 | 3 |
+| `SecondSessionProvider` | 8 | 1 |
+| `EventLog` | 24 | 3 |
+| `FileContentRootAllowlist` | 5 | 4 |
+
+`ExportUpgrade.Capture.sql` erfasst alle 109 Legacyfelder mit binären
+Text-/Token-/Rowversion-/Auditbytes und expliziten NULLs im privaten
+Adaptermemory über Sitzungsgrenzen. Die 43 WorkItem-Feldnamen und ihre
+Ordinalpositionen sind gepinnt. Ein eigener Countzeuge erfasst auch die
+ausdrücklich leere Barrier-Tabelle. Identity-Seed, Increment und letzter
+verbrauchter Wert sowie ausgewählte alte Tabellen-/Spalten-/Index-/Default-/
+Check-/Key-/FK-/Permissionsmetadaten werden verglichen. Vorhandene Rechte
+werden nur beobachtet; es werden keine Benutzergrants erzeugt. Eigene
+Annotationen einschließlich `MS_Description` bleiben erhalten; die bereits
+kanonische File-Content-Beschreibung und Event-WorkType-Zeile werden ebenfalls
+vollständig verglichen.
+
+Nur der erwartete Queue-Versionswert und die IDs der drei neu erzeugten
+WorkItem-Checks werden normalisiert; deren Name, Ausdruck und Vertrauensstatus
+bleiben im Vergleich. `ExportUpgrade.Assert.sql` prüft rein lesend die echten
+Zielmarker, die drei neutralen Managedfelder (`NULL`, `0`, `NULL`), die
+Spaltenformen der sechs neuen Tabellen sowie Gate-/Control-Singletondefaults
+und leere Controlhistory. Dies ist kein vollständiges Orakel aller neuen
+PK-/FK-/Index-/Defaultdefinitionen. Der Legacyvergleich erfolgt vor jeder
+anschließenden persistenten DML. Danach folgt ausschließlich die bestehende
+eigene Datenbankbereinigung; keine Post-Migration-Completion, neue Admission
+oder zusätzliche 14-Tabellen-Repeatfolge.
+
+Source, Deployments und Exportgenerator bleiben unverändert. Keine neue
+Provider-, RPC-, Datei-I/O-, Worker-, Konfigurations-, Rechte- oder
+Trustausweitung. Offline-Syntaxprüfung und unabhängiger Domainreview bestanden;
+dies ersetzt weder native Migration noch eigenen nativen Cleanup. Stand
+2026-10-08 bestand Parent [PR290](https://github.com/gecompat/SQL_Server_Toolbelt/pull/290)
+am Qualifikationshead `a836b87778fbe4c498b4b1ce05f06c58373ea03c` den
+begrenzten nativen Exportrepeat einschließlich eigener Bereinigung
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37701845352));
+Dokumentations-CI desselben Heads bestand ebenfalls. Frühere FAILED-Läufe
+bleiben als historische Evidenz im Parentabschnitt erhalten. Finale Parent-
+Head-CI am Stand `bdc2ba9f001190d9d63cc97e040f1e693fb4dafd`
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37702891518))
+bestand; PR290 ist nach `origin/main` integriert, Mainstand
+`acba925419973d9dfb2b7b8e481d67f0a75789e3` mit identischem Parentbaum.
+Main-Dokumentations-CI
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37703434131))
+bestand; Main-Worker-CI
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37703434018))
+ist noch offen. Die Migrationswelle wird erst nach bestandenem Main-Worker-
+Gate und tatsächlicher eigener Head-CI qualifiziert. Weitere Plattformen/CLs,
+Minimalrechte, nichtleere Grants, unbekannte/partielle Installationen und
+vollständiger 44-Modul-Lifecycle bleiben getrennt.

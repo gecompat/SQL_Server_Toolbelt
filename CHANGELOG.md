@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## 2026-10-08 – Genuine Queue2.0 über die aktuelle Exportdatei migrieren
+
+- Der getrennte Testfall `Queue20Upgrade` installiert sieben aktuelle
+  Bootstrapmodule, die gepinnte Original-Queue2.0 und anschließend den echten
+  vollständigen Neun-Modul-Export lokal/zentral in frischen Sitzungen.
+- Acht alte Tabellen mit 109 Feldern einschließlich aller 43 WorkItem-Felder,
+  einem aktiven Legacyclaim, Rowversions, Audit-/Text-/Tokenbytes, verbrauchten
+  Identitywerten und ausgewähltem Katalog werden vor weiterer DML privat
+  verglichen. Die leere Barrier-Tabelle wird ausdrücklich erfasst.
+- Rein lesende Assertions prüfen die drei neutralen Managedfelder sowie die
+  Spaltenformen und neutralen Zustände der sechs neuen Gate-/Controltabellen.
+  Danach erfolgt nur eigene Bereinigung; keine Post-Migration-Completion,
+  neue Admission oder zusätzliche 14-Tabellen-Repeatfolge.
+- Keine Source-, Deploy-, API-, Callback-, Provider-, Rechte-, Konfigurations-
+  oder Truständerung. Bestehende Repeatfixtures bleiben unverändert.
+  Offlineprüfungen und unabhängiger Domainreview bestanden; native Migration
+  ist `NOT_EXECUTED`. Parent PR290 bestand den begrenzten nativen Exportrepeat
+  am Qualifikationshead `a836b87778fbe4c498b4b1ce05f06c58373ea03c`
+  ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37701845352));
+  frühere FAILED-Läufe bleiben historische Evidenz. Finale Parent-Head-CI am
+  Stand `bdc2ba9f001190d9d63cc97e040f1e693fb4dafd` bestand; PR290 ist nach
+  `origin/main` integriert, Mainstand `acba925419973d9dfb2b7b8e481d67f0a75789e3`.
+  Main-Dokumentations-CI bestand; Main-Worker-CI und eigene native
+  Migrationsqualifikation sind noch offen.
+
 ## 2026-10-08 – Befüllte exportierte Modulfolge gemeinsam prüfen
 
 - Ein begrenzter Adapter verwendet den echten SQL-Export von neun CLR-freien

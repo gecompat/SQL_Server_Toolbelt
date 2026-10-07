@@ -163,6 +163,38 @@ Details und offene Grenzen stehen in
 vollständiger 44-Modul-Export bleiben getrennte Nachweise; Source, Deploy und
 öffentliche SQL-API werden nicht geändert.
 
+Exportmigration, vorbereitet 2026-10-08: Unter derselben engen
+Deploymentwartungsfreigabe ergänzt `Queue20Upgrade` ausschließlich die echte
+Migration von gepinnter Queue2.0 nach Queue2.1 mit erstmaliger Control1.0-
+Installation. Sieben aktuelle Bootstrapmodule und anschließend der vollständige
+aktuelle Neun-Modul-Export werden lokal/zentral in frischen Sitzungen konsumiert.
+Acht Legacytabellen mit 109 Feldern, darunter alle 43 WorkItem-Felder und ein
+aktiver Originalclaim, werden vor weiterer persistenter DML binär verglichen;
+die leere Barrier-Tabelle besitzt einen ausdrücklichen Countzeugen. Drei
+neutrale Managedfelder, sechs neue Tabellen mit bekannten Spaltenformen und
+neutralen Gate-/Controlzuständen werden rein lesend geprüft. Keine neue
+Callback-/SQL-API, Post-Migration-Completion, Admission oder zusätzliche
+14-Tabellen-Repeatfolge. Source, Deploy und die bisherigen vier Repeatfixtures
+bleiben unverändert; vorhandene Rechte werden nur beobachtet. Offlineprüfungen
+und unabhängiger Domainreview bestanden, native Migration ausdrücklich
+`NOT_EXECUTED`. Parent [PR290](https://github.com/gecompat/SQL_Server_Toolbelt/pull/290)
+bestand am Qualifikationshead `a836b87778fbe4c498b4b1ce05f06c58373ea03c`
+den begrenzten nativen Exportrepeat einschließlich eigener Bereinigung
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37701845352));
+Dokumentations-CI desselben Heads bestand ebenfalls. Frühere FAILED-Läufe
+bleiben historische Evidenz. Finale Parent-Head-CI am Stand
+`bdc2ba9f001190d9d63cc97e040f1e693fb4dafd`
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37702891518))
+bestand; PR290 ist nach `origin/main` integriert, Mainstand
+`acba925419973d9dfb2b7b8e481d67f0a75789e3` mit identischem Parentbaum.
+Main-Dokumentations-CI bestand; Main-Worker-CI
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37703434018))
+ist noch offen. Eigene native Migrationsqualifikation folgt erst nach
+bestandenem Main-Worker-Gate. Keine neue Funktions-, Rechte-,
+Provider-, Trust-, Ziel- oder allgemeine Migrationsfreigabe wird daraus
+abgeleitet. Details und Grenzen stehen in den
+[Deploymenttests](../Deployment/Tests/README.md).
+
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
 Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene

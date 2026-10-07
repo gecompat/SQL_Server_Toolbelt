@@ -145,3 +145,19 @@ Sitzungen. Sein begrenzter Batchconsumer qualifiziert weder SSMS noch
 native Test besteht am Head `a836b87778fbe4c498b4b1ce05f06c58373ea03c` auf
 Linux2019/CL150 lokal/zentral einschließlich eigener Bereinigung
 ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37701845352)).
+
+Ein getrennter [Export-Migrationsfall](Tests/README.md) ist mit sieben aktuellen
+Bootstrapmodulen, gepinnten Originalquellen der Queue2.0 und der vollständigen
+aktuellen Neun-Modul-Datei für local/central vorbereitet. Acht alte Tabellen
+mit 109 Feldern einschließlich aller 43 WorkItem-Felder werden vor weiterer
+DML privat verglichen; drei neutrale Managedfelder und die erstmaligen
+Gate-/Controltabellen werden rein lesend geprüft. Danach folgt eigene
+Bereinigung, keine Post-Migration-Completion, Admission oder zusätzliche
+Repeatfolge. Die neue native Migration ist `NOT_EXECUTED`. Parent PR290
+bestand den begrenzten nativen Exportrepeat am Qualifikationshead
+`a836b87778fbe4c498b4b1ce05f06c58373ea03c`; finale Parent-Head-CI am Stand
+`bdc2ba9f001190d9d63cc97e040f1e693fb4dafd` bestand. PR290 ist nach `origin/main`
+integriert, Mainstand `acba925419973d9dfb2b7b8e481d67f0a75789e3` mit identischem
+Parentbaum. Main-Dokumentations-CI bestand; Main-Worker-CI bleibt noch offen.
+Dieser Fall ändert keine Source-/Deploy-/API-Semantik und erweitert keine
+Rechte oder Ziele.
