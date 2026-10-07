@@ -24,6 +24,43 @@ from adapter_protocol import AdapterError, serve
 ROUTER_CONTRACT = "foundation-model-router/v2"
 BOUNDARIES = {"PROCESS", "HOST", "LOCAL_NETWORK", "REMOTE", "UNKNOWN"}
 DATA_CLASSES = {"PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"}
+MAX_HTTP_RESPONSE_BYTES = 16 * 1024 * 1024
+HTTP_READ_CHUNK_BYTES = 64 * 1024
+
+
+def _read_http_body(response: Any) -> bytes:
+    # Feste technische Transportgrenze vor JSON-Parsing; kurze Reads sind kein
+    # EOF. Höchstens ein zusätzliches Byte unterscheidet exakt Ceiling von
+    # Overflow, unabhängig von fehlenden oder irreführenden Längenheadern.
+    body = bytearray()
+    refusal = None
+    try:
+        with response:
+            while True:
+                chunk = response.read(min(HTTP_READ_CHUNK_BYTES,
+                                          MAX_HTTP_RESPONSE_BYTES + 1 - len(body)))
+                if not chunk:
+                    # HTTPResponse.read(n) toleriert EOF trotz positiver Rest-
+                    # länge; der bisherige read() wies diese Übertragung ab.
+                    remaining = getattr(response, "length", None)
+                    if remaining is not None and remaining > 0:
+                        refusal = AdapterError("PROTOCOL", "HTTP_RESPONSE_INCOMPLETE",
+                                               "adapter HTTP response ended before its declared length",
+                                               retryable=False)
+                        raise refusal
+                    return bytes(body)
+                if len(body) + len(chunk) > MAX_HTTP_RESPONSE_BYTES:
+                    refusal = AdapterError("PROTOCOL", "HTTP_RESPONSE_TOO_LARGE",
+                                           "adapter HTTP response exceeds the 16 MiB byte limit",
+                                           retryable=False)
+                    raise refusal
+                body.extend(chunk)
+    except Exception:
+        # Schließfehler dürfen die bereits festgestellte Transportabwehr nicht
+        # in eine andere, möglicherweise wiederholbare Fehlerklasse verwandeln.
+        if refusal is not None:
+            raise refusal from None
+        raise
 
 
 def now() -> datetime:
@@ -156,8 +193,7 @@ class HttpAdapter:
         data = canonical_json(payload) if payload is not None else None
         request = urllib.request.Request(url, data=data, headers=self._headers(), method="POST" if data is not None else "GET")
         try:
-            with self.opener.open(request, timeout=self.timeout) as response:
-                body = response.read()
+            body = _read_http_body(self.opener.open(request, timeout=self.timeout))
         except urllib.error.HTTPError as exc:
             error_class = "CREDENTIAL" if exc.code in {401, 403} else "PROTOCOL"
             raise AdapterError(error_class, f"HTTP_{exc.code}", "adapter endpoint returned an HTTP error", retryable=exc.code >= 500) from exc

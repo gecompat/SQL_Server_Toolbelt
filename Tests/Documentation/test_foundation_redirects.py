@@ -323,7 +323,9 @@ class ProvenanceTests(unittest.TestCase):
         self.assertEqual(len(rows), 101)
         self.assertEqual(len({row["target"] for row in rows}), 101)
         changed = {".ai/foundation/ai_provisioning/host_preparation.py",
-                   ".ai/foundation/ai_provisioning/AI_PROVISIONING.md"}
+                   ".ai/foundation/ai_provisioning/AI_PROVISIONING.md",
+                   ".ai/foundation/ai_runtime_adapters/reference_adapters.py",
+                   ".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md"}
         old_rows = {row["target"]: row for row in baseline["files"]}
         self.assertEqual(set(old_rows), {row["target"] for row in rows})
         reasons = {
@@ -331,6 +333,10 @@ class ProvenanceTests(unittest.TestCase):
                 "Toolbelt-Securitywartung2026-10-07: jeden Redirect vor Dispatch an ursprünglichen HTTPS-Host/Port443 binden, Same-origin-Verhalten und übrige Budgets erhalten.",
             ".ai/foundation/ai_provisioning/AI_PROVISIONING.md":
                 "Gekoppelte Dokumentation des gezielten Toolbelt-Redirect-Securityoverrides; keine neue Ausführungsautorität oder Foundationversion.",
+            ".ai/foundation/ai_runtime_adapters/reference_adapters.py":
+                "Toolbelt-Securitywartung2026-10-07: HttpAdapter-Antworten vor JSON und Outputmutation auf16MiB begrenzen, Kurzreads und positive Restlänge prüfen, strukturierte Ablehnung vor Closefehlern erhalten.",
+            ".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md":
+                "Gekoppelte Dokumentation des festen HttpAdapter-Responseceilings und verbleibender Discovery-/TOCTOU-/Heapgrenzen; keine Runtimeaktivierung oder Foundationversion.",
         }
 
         def projection(fields, entries):
@@ -344,7 +350,7 @@ class ProvenanceTests(unittest.TestCase):
                          "526764da3bfe358fb86a293e8ee6dc54ed29aa3f3564692612960bb1620c4fb0")
         self.assertEqual(projection(fields + ("installed_sha256", "integration_state", "reason"),
                                     [row for row in rows if row["target"] not in changed]),
-                         "c53bc862ff81fded21ee56f95e1c86871f105aaa5c0a9b862d6d82755f141f0a")
+                         "97e1ae0af7a764b4f858170fa61d5742ea33ccc8363343203d256738ab880986")
         for row in rows:
             if row["target"] not in changed:
                 self.assertEqual(row, old_rows[row["target"]])

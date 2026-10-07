@@ -12,6 +12,34 @@ This capability implements `foundation-ai-adapter-jsonl/v1` over newline-delimit
 
 Each process has bounded timeouts, structured error classes, a circuit breaker, cancel semantics, health TTLs, and content-free responses. HTTP redirects are refused so credentials cannot cross origin. Endpoint trust is explicit: loopback is `UNKNOWN` unless configuration supplies host-boundary evidence; a product name is never boundary evidence. Ollama names ending in a cloud marker always enter a separate `REMOTE` fragment and require explicit remote invocation authority.
 
+## Gezielte Toolbelt-Responsegrenze2026-10-07
+
+Die gemeinsamen HttpAdapter-Pfade begrenzen ihre Probe-, Catalog- und
+Invoke-Antworten auf exakt16MiB gelesene Bodybytes. Sie lesen höchstens64KiB
+je Aufruf und insgesamt höchstens Ceiling+1 Byte. Kurze Reads sind kein EOF;
+ein Content-Length-Header erhöht die Bytegrenze nicht. Bei Überschreitung
+wird die Antwort vor JSON-Parsing und Outputmutation geschlossen. Die
+Ablehnung meldet `PROTOCOL` / `HTTP_RESPONSE_TOO_LARGE` mit `retryable=false`; ein dabei
+auftretender Schließfehler verdeckt die Größenabwehr nicht. EOF bei weiterhin
+positiver HTTPResponse-Restlänge liefert `HTTP_RESPONSE_INCOMPLETE` derselben
+nicht wiederholbaren PROTOCOL-Klasse, bevor parsebares Teil-JSON akzeptiert
+werden könnte. Probe übernimmt den Code in den bisherigen
+UNAVAILABLE-Healthstatus; Catalog und Invoke
+verwenden beim JSONL-Server den vorhandenen ProtocolServer-Fehler-/
+Circuitbreakerpfad; direkte Konfigurations-/MCP-Aufrufe besitzen diesen
+Breaker nicht.
+
+Dies ist eine neue feste technische Transportgrenze ohne Configknopf:
+Auch fachlich legitime größere Antworten werden abgewiesen. Die Grenze
+belegt kein Heap-, JSON-Tiefen-, Gesamtzeit- oder Produktionsbudget. Der
+Commandadapter, Request-/Inputhandles, Rechte, Endpoint-/Remoteautorität,
+Timeouts, Redirectabwehr und Runtimekonfiguration bleiben unverändert.
+Sourceversion1.19.0 und Originalprovenienz bleiben erhalten; Source und diese
+gekoppelte Dokumentation sind gezielte `INTENTIONAL_OVERRIDE`-Dateien.
+Die Änderung aktiviert keine Runtime und behebt keine Pfad-TOCTOU-Grenze.
+Der getrennte Discovery-Probe in runtime_configuration.py verwendet weiterhin
+seinen eigenen Readpfad und ist nicht durch diesen HttpAdapter-Ceiling geschützt.
+
 Resource-price refresh is independent of model invocation. Cache conforming `foundation-resource-cost-evidence/v1` records outside Git, query a given source at most once per 24 hours (normally less often according to its TTL), and prefer deterministic primary sources or local measurement. AI-assisted source discovery is optional and cannot turn an unverified estimate into routable money evidence.
 
 Configuration is target/runtime data. Store it outside the repository when it contains endpoint, host path, or credential environment details. Credentials are read only from explicitly allowlisted environment names and never emitted; they require HTTPS unless a loopback endpoint has separate explicit host-boundary evidence. `network_authorized`, general and remote data classes, read roots, write roots, remote-model authority, and asserted boundary must all be configured; no default grants them. Command executables use absolute paths and an exact argv/environment. Handle roots restrict what the adapter passes to the child but are not an operating-system sandbox: configure only trusted programs and apply target-owned process isolation when ambient user permissions are too broad.

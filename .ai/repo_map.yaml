@@ -1047,6 +1047,16 @@ change_impact:
         - Documentation/Architecture/FOUNDATION_1_19_INTEGRATION.md
       checks:
         - foundation_host_redirects
+    foundation_http_responses:
+      paths:
+        - .ai/foundation/ai_runtime_adapters/reference_adapters.py
+        - .ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md
+        - .ai/foundation/installation-provenance.json
+        - Tests/Documentation/test_foundation_http_response.py
+        - Tests/Documentation/validate_documentation.py
+        - Documentation/Architecture/FOUNDATION_1_19_INTEGRATION.md
+      checks:
+        - foundation_http_responses
     governance:
       paths:
         - .ai/repo_map.yaml

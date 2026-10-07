@@ -5,7 +5,7 @@
   "source_repository": "https://github.com/gecompat/AI_Repository_Foundation",
   "source_commit": "4aafd20442275d0fdedf291fc6e12e8fe1f683cc",
   "source_manifest_sha256": "5fae12cf28f454c2f99b591e86c3f4018e32b30288f0e8021acde0af3c9865b4",
-  "recorded_at": "2026-10-07T14:20:05Z",
+  "recorded_at": "2026-10-07T14:52:31Z",
   "selection": {
     "adapters": [
       "claude-code",
@@ -321,9 +321,9 @@
       "kind": "ai-runtime-adapter-documentation",
       "merge": "review_if_exists",
       "source_sha256": "ce0777359cfd78cb7720bb8681b4947572d475714720a9e8d9fef3f49309ca7f",
-      "installed_sha256": "ce0777359cfd78cb7720bb8681b4947572d475714720a9e8d9fef3f49309ca7f",
-      "integration_state": "FOUNDATION_BASELINE",
-      "reason": null
+      "installed_sha256": "f6657a074b2b2df987400efbaef4b9cac3183d528d653819164aa5650bdcab7b",
+      "integration_state": "INTENTIONAL_OVERRIDE",
+      "reason": "Gekoppelte Dokumentation des festen HttpAdapter-Responseceilings und verbleibender Discovery-/TOCTOU-/Heapgrenzen; keine Runtimeaktivierung oder Foundationversion."
     },
     {
       "source": "foundation/capabilities/ai-runtime-adapters/adapter_protocol.py",
@@ -341,9 +341,9 @@
       "kind": "ai-runtime-reference-adapters",
       "merge": "review_if_exists",
       "source_sha256": "9d96cb55551990fbed7ea14021d5405a925727414a51de93eda10600190b3833",
-      "installed_sha256": "9d96cb55551990fbed7ea14021d5405a925727414a51de93eda10600190b3833",
-      "integration_state": "FOUNDATION_BASELINE",
-      "reason": null
+      "installed_sha256": "283c65dafa4bbc103a630045d46f408204c91127d1dafd1fbda7544ace46c75f",
+      "integration_state": "INTENTIONAL_OVERRIDE",
+      "reason": "Toolbelt-Securitywartung2026-10-07: HttpAdapter-Antworten vor JSON und Outputmutation auf16MiB begrenzen, Kurzreads und positive Restlänge prüfen, strukturierte Ablehnung vor Closefehlern erhalten."
     },
     {
       "source": "foundation/capabilities/ai-runtime-adapters/runtime_configuration.py",

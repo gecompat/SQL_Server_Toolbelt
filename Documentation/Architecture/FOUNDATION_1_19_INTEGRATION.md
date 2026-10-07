@@ -120,3 +120,40 @@ DNS, Runtimeinventar, Provisionierung, Installation und SQL werden dabei nicht
 ausgeführt. Source-/Provenienz- und Projektaudit bleiben getrennte Ebenen;
 eine erfolgreiche Offlineprobe ist kein realer Endpoint- oder Exploitnachweis.
 Der andere HTTP-Bodyread- und der bedingte Pfad-TOCTOU-Befund bleiben offen.
+
+## Begrenzte HttpAdapter-Responsewartung2026-10-07
+
+Die anschließende autonome Securitywartung begrenzt den gemeinsamen
+HttpAdapter-Readpfad für Ollama und OpenAI-compatible Probe/Catalog/Invoke
+vor JSON-Parsing und Outputmutation auf16MiB Bodybytes. Auch legitime größere
+Antworten werden mit nicht wiederholbarem PROTOCOL/HTTP_RESPONSE_TOO_LARGE
+abgewiesen. Kurze Reads sind kein EOF; höchstens Ceiling+1 Byte wird gelesen.
+Eine positive HTTPResponse-Restlänge am EOF wird separat als
+HTTP_RESPONSE_INCOMPLETE abgewiesen, damit der Sized-Read die frühere
+IncompleteRead-Grenze nicht schwächt. Antworten werden geschlossen;
+Schließfehler verdecken eine bereits festgestellte Transportabwehr nicht.
+
+Source und Capabilitydoc erhalten genau zwei zusätzliche begründete
+Targetoverrides; Sourcecommit, Manifestversion1.19.0, Auswahl und vorherige
+Redirectoverrides bleiben erhalten. Die bestehende101-Dateien-Provenienz-
+Regression prüft weiterhin sämtliche Installedhashes und Originalmetadaten.
+Der [neue Offline-Test](../../Tests/Documentation/test_foundation_http_response.py)
+ist an den Projektvalidator gekoppelt und verwendet skalierte kleine
+Bytegrenzen. Der Testcode alleine ist kein ausgeführter Nachweis.
+
+Ausgeführt2026-10-07: `python -B Tests/Documentation/test_foundation_http_response.py`
+bestand neun Methoden mit87 synthetischen Szenarien in einem begrenzten
+10s-Prozess, Exit0, vollständiger Erfassung und stabilen Source-/Testpins.
+Ein unabhängiger Sourceagent prüfte24 kleine AST-/HTTPResponse-Fälle;
+Root las die Prüfprogramme und verifizierte die privaten Receipts und Pins.
+Die Grenztests skalieren auf128/17 beziehungsweise12/5 Bytes; die echten
+16MiB-/64KiB-Konstanten werden getrennt geprüft, kein Maximalworkload ausgeführt.
+Projektaudit und exakte Head-/Main-CI werden als eigene Gates nachgewiesen.
+
+Commandadapter und öffentliche SQL-Verträge werden nicht geändert. Netzwerk,
+Runtimekonfiguration/-aktivierung, Provider, Provisionierung, Rechte und Lab
+werden nicht erweitert. Der separate Discovery-Readpfad in
+runtime_configuration.py, die bedingte Pfad-TOCTOU-Grenze, JSON-Tiefe/Heap,
+Gesamtzeit und reale Endpoint-/Produktionsqualifikation bleiben offen.
+Dies aktualisiert keinen historischen Cloudscan und behauptet keinen
+Upstreamfix oder vollständige Foundation-/Produktvalidierung.
