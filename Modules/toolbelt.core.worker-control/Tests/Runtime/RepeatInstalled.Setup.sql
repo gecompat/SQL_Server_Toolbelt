@@ -10,11 +10,11 @@ IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbel
  OR NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkQueueManagedGate WHERE GateId=1 AND ManagedEnabled=0 AND PendingReservationId IS NULL)
  THROW 54960,N'Controlrepeat-Setup verlangt neutralen Queue-only-Zustand.',1;
 DECLARE @Item bigint,@Token uniqueidentifier;
-CREATE TABLE #tbx_ControlRepeatCompletion(Dummy int NULL);
+CREATE TABLE #ControlRepeatCompletion(Dummy int NULL);
 DECLARE claims CURSOR LOCAL FAST_FORWARD FOR SELECT WorkItemId,ClaimToken FROM toolbelt_core.WorkItem WHERE Status='CLAIMED' ORDER BY WorkItemId;
 OPEN claims;FETCH NEXT FROM claims INTO @Item,@Token;
 WHILE @@FETCH_STATUS=0 BEGIN
- EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@Item,@ClaimToken=@Token,@ResultTable=N'#tbx_ControlRepeatCompletion';
+ EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@Item,@ClaimToken=@Token,@ResultTable=N'#ControlRepeatCompletion';
  FETCH NEXT FROM claims INTO @Item,@Token;
 END;
 CLOSE claims;DEALLOCATE claims;
