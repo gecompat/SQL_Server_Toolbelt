@@ -1518,6 +1518,7 @@ behauptet keinen ausgeführten Runtime-Test und keine erfolgte Konfigurationsän
 | Tests | Spike zu ScriptDom-Ladbarkeit, statische Vertragsprüfung, synthetische AST- und Token-Golden-Tests (SELECT, JOIN, CTE, MERGE, DDL, Kommentare, `GO`), Roundtrip-Tokens, Fehlerbehandlung, Lifecycle-, Deployment- und Kollisionstests. |
 | Evidenz | `Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md`, `Documentation/Architecture/DECISIONS.md` (`DEC-2026-029`), `Backlog/TOOLBELT_CANDIDATES.md` (`TC-2026-047`). |
 | Nächster Schritt | Die frühere 1.0-Abschlussgrenze gilt historisch. Nur die separat freigegebene 2.0-Härtung mit ehrlichen Qualifikationsgrenzen abschließen; weitere APIs benötigen jeweils Freigabe. |
+| Nachtrag 2026-10-07 | Nach Besprechung des nicht mehr offiziell verfügbaren bisherigen ScriptDom-Binaries wählte der Benutzer ausdrücklich NuGet `Microsoft.SqlServer.TransactSql.ScriptDom` `180.117.0` zur Umsetzung und Qualifikation und beauftragte die Prüfung sowie Behandlung aller betroffenen CLR-Objekte. Der Scope umfasst den Parser, den gefundenen `toolbelt.metadata.table-clone`-Trigger-Opt-in-Consumer und die erneute Qualifikation; keine automatische Trustregistrierung oder Änderung von SQL-Server-Sicherheitskonfiguration. Siehe [Hardening-Vertrag](../Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md). |
 
 ### V0a/V0b/V0c: Releasevalidierung und erste Releasekohorte
 

@@ -202,6 +202,7 @@ artifact_classes:
       - SECURITY.md
       - CHANGELOG.md
       - Documentation/
+      - Deployment/
       - Modules/
       - Templates/
       - Backlog/
@@ -431,6 +432,14 @@ change_impact:
         - "Modules/**/*.md"
         - "Templates/**/*.md"
         - "Tests/**/*.md"
+      checks:
+        - markdown_links
+    repository_deployment:
+      paths:
+        - README.md
+        - Deployment/**
+        - Modules/*/module.yaml
+        - Modules/*/Deployment/**
       checks:
         - markdown_links
     module_status:
@@ -952,11 +961,16 @@ change_impact:
     tsql_script_parser_contract:
       paths:
         - Modules/toolbelt.tsql.script-parser/**
+        - Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableCloneInternal.sql
+        - Modules/toolbelt.metadata.table-clone/Tests/Static/validate_contract.py
+        - Modules/toolbelt.metadata.table-clone/Tests/TABLE_CLONE_CONTRACT_TEST_MATRIX.md
+        - Modules/toolbelt.metadata.table-clone/module.yaml
         - Tests/CI/run-script-parser-lab.ps1
         - .github/workflows/script-parser-guard.yml
         - Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md
         - Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md
-        - Documentation/Research/TSQL_SCRIPTDOM_PROVIDER_SPIKE.md
+        - Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md
+        - Documentation/Architecture/TSQL_SCRIPTDOM_PROVIDER_SPIKE.md
       checks:
         - markdown_links
     w2c_contracts:

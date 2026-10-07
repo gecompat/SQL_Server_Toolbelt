@@ -8,6 +8,9 @@ public = (MOD / 'Source/USP_ScriptTableClone.sql').read_text(encoding='utf-8')
 core = (MOD / 'Source/USP_ScriptTableCloneInternal.sql').read_text(encoding='utf-8')
 deploy = (MOD / 'Deployment/Deploy.sql').read_text(encoding='utf-8')
 uninstall = (MOD / 'Deployment/Uninstall.sql').read_text(encoding='utf-8')
+trigger_contract = (ROOT / 'Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md').read_text(encoding='utf-8')
+parser_hash = 'E03C6099E2E919F3F930E2CCB5A753C47F16DABFC18B608F8BC33DEA5E93ED10D9A937CF599427FADED4EBBB11653E80D2C8BA23C49E5AAEEB0A80C60D51EDBF'
+scriptdom_hash = '459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7'
 params = [('SourceSchema','nvarchar(max)','NULL'),('SourceTable','nvarchar(max)','NULL'),
           ('TargetSchema','nvarchar(max)','NULL'),('TargetTable','nvarchar(max)','NULL'),
           ('IncludeIdentity','bit','0'),('IncludeExtendedProperties','bit','0'),('TableMap','sysname','NULL'),('ExternalReferenceRule','varchar(16)',"'REJECT'"),('IncludeTriggers','bit','0'),('ResultTable','sysname','NULL'),('KeepData','bit','0'),
@@ -31,6 +34,8 @@ for lifecycle in (deploy,uninstall):
     assert lifecycle.index('IF @@TRANCOUNT>0') < lifecycle.index('SET XACT_ABORT ON;')
     assert 'TBX_TABLE_CLONE_CALLER_TRANSACTION:' in lifecycle and 'RAISERROR' in lifecycle
 assert "HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'VIEW DEFINITION')" in core
+assert f'content)=0x{parser_hash}' in core and f'content)=0x{scriptdom_hash}' in core
+assert parser_hash in trigger_contract and scriptdom_hash in trigger_contract
 assert "N'1.1.0'" not in deploy+uninstall
 for token in ['is_computed','is_sparse','temporal_type','ledger_type','has_filter','is_ansi_padded',
               'VIEW DEFINITION','HASHBYTES','WITHIN GROUP','SAVE TRANSACTION','53904','53906']:

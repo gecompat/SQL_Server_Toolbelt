@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-07 – ScriptDom-Pin und selektives Deployment
+
+- Der freigegebene ScriptDom-Pin ist jetzt FileVersion `18.0.117.0`; Parser-
+  und Table-Clone-Trigger-Hashes sind gekoppelt. Die neue Windows-SQL-
+  Lifecycle- und Triggerqualifikation bleibt offen; das Modul bleibt unveröffentlicht.
+- Der neue Deployment-Runner wählt Module mit ihren transitiven Manifest-
+  Abhängigkeiten, einschließlich Flow-Mappings. PlanOnly verbindet sich nicht;
+  Variablennamen, DeploymentMode und Hex-Präfixe werden konsistent verarbeitet.
+- Der Parser-Testadapter prüft bei ausgewähltem historischen Release beide
+  Binary-Paare vor der Datenbankanlage. Administrative Trustregistrierung
+  bleibt an das bestehende ausdrückliche Opt-in und private Journal gebunden.
+
 ## 2026-10-07 – Date-Spine-Negativorakel verlangen konkrete Ablehnung
 
 - Die vorhandenen Uninstall-, Dependency- und Kollisionsorakel verlangen

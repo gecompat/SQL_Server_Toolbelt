@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "partially validated: 245 isolated Framework children and Windows SQL Server 2025 CU8 CL150/160/170 local/central/true upgrade/lifecycle passed. Windows 2019 configuration is blocked; Windows 2022, minimal rights and actual output ceilings remain open. Historical 1.0.0 evidence does not qualify 2.0.0."
+  windows: "partially validated: 245 isolated Framework children and 60 guard checks passed with ScriptDom 18.0.117.0. Windows SQL Server 2025 CU8 CL150/160/170 local/central/true upgrade/lifecycle evidence is historical and used ScriptDom 18.0.56.2; it does not qualify the new pin. New SQL lifecycle qualification is pending. Windows 2019 configuration is blocked; Windows 2022, minimal rights and actual output ceilings remain open. Historical 1.0.0 evidence does not qualify 2.0.0."
   linux: "not applicable: SQL Server on Linux does not support UNSAFE SQL CLR assemblies."
 providers:
   - id: clr-tsql-scriptdom
@@ -36,6 +36,7 @@ objects:
 permissions_required:
   - "SELECT on the required public function"
   - "A sysadmin must opt in to the exact SHA2-512 assembly hash."
+  - "Upgrade from the previous ScriptDom pin additionally requires existing database VIEW DEFINITION; no grants are issued."
 clr:
   used: true
   language: "C#"
@@ -62,6 +63,7 @@ documentation:
   architecture:
     - "../../Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md"
     - "../../Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md"
+    - "../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md"
   test_matrix:
     - "Tests/TSQL_SCRIPT_PARSER_CONTRACT_TEST_MATRIX.md"
   evidence:
@@ -74,19 +76,23 @@ tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/ScriptParser.Contract.sql"
 validation_evidence:
+  - date: "2026-09-03"
+    workflow: "statische Vertragsprüfung und Build-Validierung"
+    scope: "Historisch nur 1.0.0: .NET Framework 4.8 Assembly, ScriptDom-Integration, 4 CLR-TVFs, Deployment- und Lifecycle-Skripte; kein 2.0.0-Nachweis."
+    result: "success"
+  - date: "2026-09-11"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Historical 1.0.0 only: Windows SQL Server 2019, 2022 and 2025; exact dual-assembly SHA2-512 trust, local and central deployment, CLR feature contracts and uninstall. Not 2.0.0 qualification."
+    result: "success"
   - date: "2026-10-02"
     workflow: "local: Tests/CI/run-script-parser-lab.ps1 -Version 2025 -Patch base"
     scope: "2.0.0 on Windows SQL Server 2025 CU8 via authorized base/CU equivalence, CL150/160/170: clean install, local/central, true original 1.0.0 upgrade, repeat, four APIs, bounds/syntax, caller transaction and SET preservation, ownership/version/dependency rejection, unmarked foreign schema/dependency preservation, lock contention and post-DROP rollback, uninstall, owned DB and exact-owned trust cleanup. No configuration changes or rights grants. Windows 2019 blocked before mutation by unrelated pending configuration; Windows 2022/minimal rights/actual output ceilings not qualified."
     result: "success"
   - date: "2026-10-02"
     workflow: "local: Tests/Framework/Invoke-Contract.ps1; Tests/Framework/Invoke-Guard.ps1; Tests/Static/validate_contract.py"
-    scope: "2.0.0: 245 bounded Framework children with exact ScriptDom pin and source/artifact fingerprints, independently repeated; 60 shared guard checks; static contract and nine normalized deployment/runtime SDK syntax checks. No live SQL evidence here. Output accounting helper tests do not qualify actual SQL output ceilings."
+    scope: "2.0.0 unter historischem ScriptDom-Pin 18.0.56.2 / SHA-512 24BDEE1C…BCE672D0: 245 bounded Framework children with exact dependency and source/artifact fingerprints, independently repeated; 60 shared guard checks; static contract and nine normalized deployment/runtime SDK syntax checks. No live SQL evidence here. Output accounting helper tests do not qualify actual SQL output ceilings; diese Evidenz qualifiziert ScriptDom 18.0.117.0 nicht."
     result: "success"
-  - date: "2026-09-11"
-    workflow: "local: Tests/CI/run-lab-local.ps1"
-    scope: "Historical 1.0.0 only: Windows SQL Server 2019, 2022 and 2025; exact dual-assembly SHA2-512 trust, local and central deployment, CLR feature contracts and uninstall. Not 2.0.0 qualification."
-    result: "success"
-  - date: "2026-09-03"
-    workflow: "statische Vertragsprüfung und Build-Validierung"
-    scope: "Historisch nur 1.0.0: .NET Framework 4.8 Assembly, ScriptDom-Integration, 4 CLR-TVFs, Deployment- und Lifecycle-Skripte; kein 2.0.0-Nachweis."
+  - date: "2026-10-07"
+    workflow: "local: Scripts/New-ClrReleaseArtifacts.ps1; Tests/Static/validate_contract.py; Tests/Framework/Invoke-Contract.ps1; Tests/Framework/Invoke-Guard.ps1; PowerShell syntax parse of Tests/CI/run-script-parser-lab.ps1"
+    scope: "ScriptDom 18.0.117.0 SHA-512 459E1372…F853DAC7; reproducible .NET Framework 4.8 release build, exact provider SHA-512 E03C6099…D51EDBF, static dependency/lifecycle contract, 245 bounded Framework child cases at 262144-byte stack and 60 guard checks passed. The 82-case pre-source runner was unavailable. No SQL executed, no trust/configuration changed, actual public output ceilings not qualified; live lifecycle and Table Clone trigger opt-in remain blocked by the missing schema-valid Lab contract."
     result: "success"

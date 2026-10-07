@@ -55,6 +55,26 @@ IF NOT EXISTS
       AND TRY_CONVERT(int, managed.value) = 1 AND TRY_CONVERT(nvarchar(128), moduleId.value) = N'toolbelt.tsql.script-parser')
     THROW 53123, N'Die Provider-Ownership ist nicht kohärent.', 3;
 
+IF NOT EXISTS
+   (
+       SELECT 1
+       FROM sys.assemblies AS a
+       INNER JOIN sys.assembly_files AS af ON af.assembly_id = a.assembly_id AND af.file_id = 1
+       WHERE a.name = N'Toolbelt_Tsql_ScriptParser'
+         AND HASHBYTES(N'SHA2_512', af.content) =
+             0xE03C6099E2E919F3F930E2CCB5A753C47F16DABFC18B608F8BC33DEA5E93ED10D9A937CF599427FADED4EBBB11653E80D2C8BA23C49E5AAEEB0A80C60D51EDBF
+   )
+ OR NOT EXISTS
+   (
+       SELECT 1
+       FROM sys.assemblies AS a
+       INNER JOIN sys.assembly_files AS af ON af.assembly_id = a.assembly_id AND af.file_id = 1
+       WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom'
+         AND HASHBYTES(N'SHA2_512', af.content) =
+             0x459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7
+   )
+    THROW 53123, N'Die installierten Parser-Binaries stimmen nicht mit dem qualifizierten Pin überein.', 5;
+
 -- SQL-Defaults werden tatsächlich aufgerufen, nicht allein als Textmarker geprüft.
 IF NOT EXISTS (SELECT 1 FROM toolbelt_tsql.TVF_ParseScriptNodes(N'SELECT 1;', DEFAULT, DEFAULT, DEFAULT, DEFAULT))
  OR NOT EXISTS (SELECT 1 FROM toolbelt_tsql.TVF_ParseScriptNodeProperties(N'SELECT 1;', DEFAULT, DEFAULT, DEFAULT, DEFAULT))

@@ -1,5 +1,11 @@
 # ScriptDOM SQL CLR Provider Feasibility Spike (TC-2026-047 / DEC-2026-029)
 
+> Historische Einordnung 2026-10-07: Die Spike-Ergebnisse und die unten
+> genannte Prüfung von ScriptDom 18.0.56.2 dokumentieren den ursprünglichen
+> Providerentscheid, nicht den aktuellen Build-Pin. Der Benutzer hat
+> ScriptDom 18.0.117.0 zur Umsetzung und erneuten Qualifikation ausgewählt;
+> siehe [den aktuellen Hardening-Vertrag](./TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md).
+
 ## Ergebnis
 
 - **Bibliothek:** `Microsoft.SqlServer.TransactSql.ScriptDom.dll` (v18.0.x / 180.x, Microsoft, MIT-Lizenz).

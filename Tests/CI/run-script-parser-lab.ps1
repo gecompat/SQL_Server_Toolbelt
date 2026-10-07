@@ -263,7 +263,7 @@ foreach ($name in @('sqlServerHexLiteral','scriptDomSqlServerHexLiteral')) {
 }
 if ($manifest.sqlServerHexLiteral -cne ('0x' + $manifest.sha512) -or
     $manifest.scriptDomSqlServerHexLiteral -cne ('0x' + $manifest.scriptDomSha512) -or
-    $manifest.scriptDomSha512 -cne '24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0') {
+    $manifest.scriptDomSha512 -cne '459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7') {
     throw 'RELEASE_TRUST_FINGERPRINT_MISMATCH'
 }
 $providerPath = Join-Path $ReleaseDirectory 'Toolbelt.Tsql.ScriptParser.dll'
@@ -308,13 +308,16 @@ if (-not $targets.Count) { throw 'NO_SELECTED_READY_LAB_TARGET' }
 $previous = $null
 if ($PreviousReleaseDirectory) {
     $previous = Get-Content -LiteralPath (Join-Path $PreviousReleaseDirectory 'original-manifest.json') -Raw | ConvertFrom-Json
+    $previousScriptDomPath = Join-Path $PreviousReleaseDirectory 'Microsoft.SqlServer.TransactSql.ScriptDom.dll'
     # Exakte ursprüngliche 1.0.0-Source, kein als Upgrade ausgegebener Markerwechsel.
     if ($previous.moduleVersion -cne '1.0.0' -or $previous.moduleId -cne 'toolbelt.tsql.script-parser' -or
         $previous.originalCommit -cne 'e281c01b93f000a8500b52eb13e67bce19b580e6' -or
         $previous.providerSourceSha256 -cne '0AB452CC2214C93EFCD67A4404E84D8DAA1A31327A9395219923CA456EC9EC0C' -or
         [string]$previous.sha512 -cnotmatch '^[0-9A-F]{128}$' -or
         (Get-FileHash -LiteralPath (Join-Path $PreviousReleaseDirectory 'Toolbelt.Tsql.ScriptParser.dll') -Algorithm SHA512).Hash -cne $previous.sha512 -or
-        (Get-FileHash -LiteralPath (Join-Path $PreviousReleaseDirectory 'Microsoft.SqlServer.TransactSql.ScriptDom.dll') -Algorithm SHA512).Hash -cne $manifest.scriptDomSha512 -or
+        (Get-FileHash -LiteralPath $previousScriptDomPath -Algorithm SHA512).Hash -cne '24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0' -or
+        [Reflection.AssemblyName]::GetAssemblyName($previousScriptDomPath).FullName -cne 'Microsoft.SqlServer.TransactSql.ScriptDom, Version=18.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91' -or
+        [Diagnostics.FileVersionInfo]::GetVersionInfo($previousScriptDomPath).FileVersion -cne '18.0.56.2' -or
         (Get-FileHash -LiteralPath (Join-Path $PreviousReleaseDirectory 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash -cne $previous.generatedDeploySha256 -or
         [Reflection.AssemblyName]::GetAssemblyName((Join-Path $PreviousReleaseDirectory 'Toolbelt.Tsql.ScriptParser.dll')).Version.ToString() -cne '1.0.0.0') {
         throw 'PREVIOUS_RELEASE_FINGERPRINT_MISMATCH'
@@ -342,7 +345,11 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
         # Kein RECONFIGURE und keine Rechtevergabe. Administrative Testfreigabe
         # nur bei ausdrücklichem Aufruf mit OptInExactTrust, niemals im Deployment.
         $hashes = @($manifest.sqlServerHexLiteral,$manifest.scriptDomSqlServerHexLiteral)
-        if ($previous) { $hashes += ('0x' + $previous.sha512) }
+        if ($previous) {
+            $hashes += ('0x' + $previous.sha512)
+            $hashes += '0x24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0'
+        }
+        $hashes = @($hashes | Sort-Object -Unique)
         if ($OptInExactTrust) {
             if ([int](Invoke-ParserSql $master "SELECT IS_SRVROLEMEMBER(N'sysadmin');" -Scalar) -ne 1) {
                 throw 'EXISTING_ADMINISTRATIVE_PERMISSION_REQUIRED'
@@ -392,8 +399,8 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
         }
         $trusted = Invoke-ParserSql $master (
             "SELECT COUNT(*) FROM sys.trusted_assemblies WHERE hash IN (" +
-            $manifest.sqlServerHexLiteral + ',' + $manifest.scriptDomSqlServerHexLiteral + ');') -Scalar
-        if ([int]$trusted -ne 2) { throw 'EXACT_TRUST_REQUIRES_SEPARATE_COORDINATION' }
+            ($hashes -join ',') + ');') -Scalar
+        if ([int]$trusted -ne $hashes.Count) { throw 'EXACT_TRUST_REQUIRES_SEPARATE_COORDINATION' }
         $database = 'ToolbeltParserContract_' + [Guid]::NewGuid().ToString('N')
         if ($ledger) {
             $ledger.OwnedDatabases += [pscustomobject]@{Name=$database;Created=$false;Dropped=$false;State='CREATE_IN_PROGRESS'}

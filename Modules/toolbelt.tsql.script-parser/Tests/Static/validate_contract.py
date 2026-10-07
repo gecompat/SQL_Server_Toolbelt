@@ -11,6 +11,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 NS = {"m": "http://schemas.microsoft.com/developer/msbuild/2003"}
+SCRIPT_DOM_SHA512 = "459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7"
+PREVIOUS_SCRIPT_DOM_SHA512 = "24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0"
+SCRIPT_DOM_FILE_VERSION = "18.0.117.0"
 
 
 class ContractError(RuntimeError):
@@ -50,7 +53,7 @@ def validate_project() -> None:
     if references != expected:
         raise ContractError(f"Unerwartete direkte Referenzen: {sorted(references)}")
     content = read("Clr/Toolbelt.Tsql.ScriptParser.csproj")
-    require(content, "Build", "$(ScriptDomDllPath)", 'Algorithm="SHA512"', 'Compile Include="PreparseGuard.cs"')
+    require(content, "Build", "$(ScriptDomDllPath)", 'Algorithm="SHA512"', SCRIPT_DOM_SHA512, 'Compile Include="PreparseGuard.cs"')
     forbid(content, "Build", "Program Files", "Management Studio", "PackageReference")
 
 
@@ -163,6 +166,15 @@ def main() -> int:
     if deploy.count("$(ScriptDomAssemblyBits)") != 1:
         raise ContractError("Deploy.sql muss genau einen $(ScriptDomAssemblyBits)-Platzhalter enthalten.")
     validate_lifecycle(deploy, "Deploy")
+    require(
+        deploy,
+        "Deploy-Skript",
+        PREVIOUS_SCRIPT_DOM_SHA512,
+        "ALTER ASSEMBLY [Microsoft.SqlServer.TransactSql.ScriptDom]",
+        "sys.assembly_references",
+        "sys.assembly_modules",
+        "HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'VIEW DEFINITION')",
+    )
 
     trust = read("Deployment/Add-TrustedAssembly.sql")
     require(
@@ -192,6 +204,19 @@ def main() -> int:
         "sp_drop_trusted_assembly",
     )
     validate_lifecycle(uninstall, "Uninstall")
+    require(
+        uninstall,
+        "Uninstall-Skript",
+        PREVIOUS_SCRIPT_DOM_SHA512,
+        SCRIPT_DOM_SHA512,
+        "HASHBYTES(N'SHA2_512', af.content) NOT IN",
+    )
+    require(
+        read("Tests/Runtime/Lifecycle.Contract.sql"),
+        "Lifecycle-Contract",
+        "E03C6099E2E919F3F930E2CCB5A753C47F16DABFC18B608F8BC33DEA5E93ED10D9A937CF599427FADED4EBBB11653E80D2C8BA23C49E5AAEEB0A80C60D51EDBF",
+        SCRIPT_DOM_SHA512,
+    )
     for name in ("TVF_ParseScriptNodes", "TVF_ParseScriptNodeProperties", "TVF_TokenizeScript", "TVF_ParseScriptErrors"):
         source = read("Source/" + name + ".sql")
         for parameter, value in (("TSqlVersion", "160"), ("MaxInputBytes", "2097152"), ("MaxNestingDepth", "100")):
@@ -207,8 +232,15 @@ def main() -> int:
         "ScriptDomAssemblyBits",
         "scriptDomSqlServerHexLiteral",
         "Deploy.WithAssembly.sql darf keine externen SQLCMD-Includes enthalten.",
-        "sourceFingerprintSha256", "deploymentFingerprintSha256", "guardProfile", "Assert-ScriptDomPin", "18.0.56.2",
+        "sourceFingerprintSha256", "deploymentFingerprintSha256", "guardProfile", "Assert-ScriptDomPin",
+        SCRIPT_DOM_SHA512, SCRIPT_DOM_FILE_VERSION,
     )
+    require(read("Tests/Framework/Invoke-Contract.ps1"), "Framework-Gate", SCRIPT_DOM_SHA512)
+    require(read("../../Tests/CI/run-script-parser-lab.ps1"), "Lab-Gate", SCRIPT_DOM_SHA512, PREVIOUS_SCRIPT_DOM_SHA512, "18.0.56.2")
+    require(read("../../Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableCloneInternal.sql"),
+            "TableClone Trigger-Consumer", SCRIPT_DOM_SHA512)
+    require(read("../../Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md"),
+            "Hardening-Vertrag", SCRIPT_DOM_SHA512, SCRIPT_DOM_FILE_VERSION)
     require(read("Clr/Properties/AssemblyInfo.cs"), "Assembly-Version", 'AssemblyVersion("2.0.0.0")', 'AssemblyFileVersion("2.0.0.0")')
     require(read("Tests/Framework/Invoke-Contract.ps1"), "Framework-Gate", "FRAMEWORK_CHILD_TIMEOUT", "RELEASE_FINGERPRINT_MISMATCH", "TrustManifestPath", "sqlExecuted = $false")
 

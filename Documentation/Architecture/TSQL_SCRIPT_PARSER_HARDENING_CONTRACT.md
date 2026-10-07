@@ -4,9 +4,36 @@
 
 Dieser Vertrag konkretisiert die einzeln freigegebene Parser-Härtung und Syntaxqualifikation aus [.ai/BACKLOG.md](../../.ai/BACKLOG.md). Der begrenzte Vertrag und das Kandidaten-Gate wurden vor Source-Änderung dokumentiert und unabhängig geprüft. Das bisherige Moduldesign bleibt die Basis; für Major-Version **2.0.0** ersetzt dieser Vertrag dessen Aussagen zu unbeschränkten Eingaben, Default-Tiefe, partiellem AST und garantiertem Schutz vor Prozessabstürzen. Ausgeführte und offene Qualifikation stehen getrennt in der [Testmatrix](../../Modules/toolbelt.tsql.script-parser/Tests/TSQL_SCRIPT_PARSER_CONTRACT_TEST_MATRIX.md); der Status bleibt teilweise validiert und unveröffentlicht. Historische 1.0.0-Evidenz qualifiziert 2.0.0 nicht.
 
-Die Welle umfasst ausschließlich die vorhandenen `toolbelt_tsql.TVF_ParseScriptNodes`, `TVF_ParseScriptNodeProperties`, `TVF_TokenizeScript` und `TVF_ParseScriptErrors` sowie gekoppelte Build-, Lifecycle-, Dokumentations- und Testartefakte. Namen, Namen/Reihenfolge/Typen der fünf Parameter und Ergebnisschemas bleiben erhalten. Neue öffentliche SQL-Objekte, Trigger-Rewriting, Referenzauflösung, externe Ausführungsprovider, Dependency-Upgrades und erweiterte Plattformzusagen sind ausgeschlossen. Nicht registrierte experimentelle Helper gehören nicht zur Welle.
+Die Welle umfasst ausschließlich die vorhandenen `toolbelt_tsql.TVF_ParseScriptNodes`, `TVF_ParseScriptNodeProperties`, `TVF_TokenizeScript` und `TVF_ParseScriptErrors` sowie gekoppelte Build-, Lifecycle-, Dokumentations- und Testartefakte. Namen, Namen/Reihenfolge/Typen der fünf Parameter und Ergebnisschemas bleiben erhalten. Neue öffentliche SQL-Objekte, Trigger-Rewriting, Referenzauflösung, externe Ausführungsprovider und erweiterte Plattformzusagen sind ausgeschlossen. Der am 2026-10-07 ausdrücklich freigegebene Dependency-Pinwechsel ist die eng begrenzte Ausnahme; nicht registrierte experimentelle Helper gehören weiterhin nicht zur Welle.
 
 Der Provider bleibt .NET Framework 4.8; das Modul bleibt Windows-only, `UNSAFE`, für SQL Server 2019, 2022 und 2025. Linux ist kein alternativer Test- oder Runtime-Pfad. Dieser Vertrag erteilt keine Rechte und aktiviert weder automatische Trust-Registrierung noch eine Lockerung von Strict Security oder `TRUSTWORTHY`.
+
+### Nachtrag 2026-10-07: ScriptDom-Pinwechsel
+
+Nachdem das zuvor gepinnte Binärartefakt nicht mehr aus einer offiziellen
+NuGet-Version bezogen werden konnte, wählte der Benutzer ausdrücklich das
+[Microsoft.SqlServer.TransactSql.ScriptDom-NuGet-Paket `180.117.0`](https://www.nuget.org/packages/Microsoft.SqlServer.TransactSql.ScriptDom/180.117.0)
+zur Umsetzung und Qualifikation. Das Paket enthält für .NET Framework 4.8 nutzbare
+`net472`-Assemblys und führt MIT-Lizenzinformation mit. Der exakte neue Pin
+lautet:
+
+- Assembly: `Microsoft.SqlServer.TransactSql.ScriptDom, Version=18.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91`
+- FileVersion: `18.0.117.0`
+- SHA-512: `459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7`
+- Neuer Parser-Provider-SHA-512 aus dem reproduzierten Release-Build: `E03C6099E2E919F3F930E2CCB5A753C47F16DABFC18B608F8BC33DEA5E93ED10D9A937CF599427FADED4EBBB11653E80D2C8BA23C49E5AAEEB0A80C60D51EDBF`
+
+Die Freigabe umfasst die gekoppelten Build-, Release-, Installations- und
+Uninstall-Pins sowie den einzigen gefundenen CLR-Binaryhash-Consumer:
+`toolbelt.metadata.table-clone` für `IncludeTriggers=1`. Der SQL-API-Vertrag
+bleibt unverändert; alle 2.0.0-Nachweise mit dem bisherigen Binary-Paar gelten
+nicht als Qualifikation des neuen Paars. Kandidaten-, Framework-, Lifecycle-
+und Table-Clone-Trigger-Qualifikation müssen mit den neuen Artefakten
+wiederholt werden. Der echte 1.0.0→2.0.0-Lifecycle darf die bisherige
+ScriptDom-Assembly nur ersetzen, wenn sie exakt den dokumentierten alten Pin
+besitzt, dem Parser-Modul gehört, vollständige Datenbank-`VIEW DEFINITION`-Sicht besteht
+und keine fremden Assembly-/CLR-Consumer vorhanden sind. Andere, unmarkierte
+oder unbekannte Binaries bleiben fail-closed. Der neue Trusthash muss separat und ausdrücklich administrativ
+freigegeben sein; Deploy/Uninstall registrieren oder entfernen keinen Trust.
 
 ## Parameter und eindeutige Fehlerpriorität
 
@@ -66,13 +93,22 @@ Die bestehenden Fehlerpräfixe `TBX_TSQLPARSE_INVALID_MAX_BYTES`, `TBX_TSQLPARSE
 
 ## Exakte Dependency und Qualifikations-Gate
 
-Es ist kein Dependency-Upgrade ausgewählt. Das bestehende Kandidatenbinary ist `Microsoft.SqlServer.TransactSql.ScriptDom, Version=18.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91`, Dateiversion **18.0.56.2**, SHA-512:
+Das am 2026-10-02 qualifizierte Kandidatenbinary ist der historische
+Vorgängerpin, kein aktueller Build-Pin: `Microsoft.SqlServer.TransactSql.ScriptDom, Version=18.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91`, Dateiversion **18.0.56.2**, SHA-512:
 
 ```text
 24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0
 ```
 
-Build, Release-Erzeugung und Tests müssen dieses exakte Binary ausdrücklich ermitteln und verifizieren. Ein Fallback auf installierte Werkzeuge darf keine andere Version stillschweigend auswählen. Release-Identität, Dependency-Hash, Source-Fingerprint und Wächterprofil müssen zusammenpassen; veraltete Release-Verzeichnisse sind keine Evidenz. Bei fehlendem oder abweichendem Artefakt stoppt die Qualifikation statt ein anderes Paket zu verwenden. Bestehende Attribution und Lizenzevidenz bleiben erhalten.
+Die frühere Build-/Release-/Testqualifikation war an dieses exakte Binary
+gebunden und bleibt historische Evidenz. Für die aktuelle Qualifikation gilt
+ausschließlich der neue Pin im datierten Nachtrag. Ein Fallback auf
+installierte Werkzeuge darf keine andere Version stillschweigend auswählen.
+Release-Identität, Dependency-Hash, Source-Fingerprint und Wächterprofil
+müssen zusammenpassen; veraltete Release-Verzeichnisse sind keine Evidenz.
+Bei fehlendem oder abweichendem Artefakt stoppt die Qualifikation statt ein
+anderes Paket zu verwenden. Bestehende Attribution und Lizenzevidenz bleiben
+erhalten.
 
 Vor SQL-Server-Ausführung der gehärteten Einstiegspunkte sind Vertrag und Implementierung unabhängig zu prüfen. Der implementierte Wächter und die exakte Dependency werden in begrenzten, verwerfbaren .NET-Framework-Kindprozessen qualifiziert. Dazu gehört ein Harness mit bewusst kleinem Stack; dessen konfigurierte Grenzen werden privat dokumentiert. Abgelehnte Eingaben dürfen weder Lexer noch Parser erreichen. Jede Grenze wird bei Limit minus eins, Limit und Limit plus eins geprüft: Verschachtelung, flache/gemischte Ketten, verschachtelte Kommentare, Trivia-Fluten, zitierte Schlüsselwortattrappen, verdoppelte Begrenzer, Unicode, unvollständige Konstrukte und Resetversuche über Semikolon/GO/END. AST-Tiefengrenzen werden separat geprüft. Kindprozessabsturz, Timeout oder fehlendes Ergebnis lassen das Gate scheitern; das Fangen von `StackOverflowException` ist kein Schutzkonzept.
 

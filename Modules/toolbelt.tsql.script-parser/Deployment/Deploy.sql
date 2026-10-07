@@ -82,6 +82,59 @@ WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom';
 
 IF @InstalledScriptDomAssemblyHash IS NOT NULL
    AND @InstalledScriptDomAssemblyHash <> @ScriptDomAssemblyHash
+   AND
+   (
+       @InstalledScriptDomAssemblyHash <> 0x24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0
+       OR @InstalledAssemblyHash IS NULL
+       OR COALESCE(HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'VIEW DEFINITION'), 0) <> 1
+       OR NOT EXISTS
+          (
+              SELECT 1
+              FROM sys.assemblies AS a
+              INNER JOIN sys.extended_properties AS moduleId
+                ON moduleId.class = 5 AND moduleId.major_id = a.assembly_id AND moduleId.minor_id = 0
+               AND moduleId.name = N'Toolbelt.ModuleId'
+              WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom'
+                AND TRY_CONVERT(nvarchar(128), moduleId.value) = N'toolbelt.tsql.script-parser'
+          )
+       OR EXISTS
+          (
+              SELECT 1
+              FROM sys.assembly_references AS r
+              WHERE r.referenced_assembly_id =
+                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'Microsoft.SqlServer.TransactSql.ScriptDom')
+                AND r.assembly_id <>
+                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+          )
+       OR EXISTS
+          (
+              SELECT 1
+              FROM sys.assembly_modules
+              WHERE assembly_id =
+                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'Microsoft.SqlServer.TransactSql.ScriptDom')
+          )
+       OR EXISTS
+          (
+              SELECT 1
+              FROM sys.assembly_references AS r
+              WHERE r.referenced_assembly_id =
+                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+          )
+       OR EXISTS
+          (
+              SELECT 1
+              FROM sys.assembly_modules AS m
+              WHERE m.assembly_id =
+                    (SELECT assembly_id FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+                AND m.object_id NOT IN
+                    (SELECT o.object_id
+                     FROM sys.objects AS o
+                     WHERE o.schema_id = SCHEMA_ID(N'toolbelt_tsql')
+                       AND o.name IN
+                           (N'TVF_ParseScriptNodes', N'TVF_ParseScriptNodeProperties',
+                            N'TVF_TokenizeScript', N'TVF_ParseScriptErrors'))
+          )
+   )
     THROW 53117, N'Die vorhandene ScriptDom-Assembly stimmt nicht mit dem freigegebenen Releaseartefakt überein.', 1;
 
     -- Ownership und Version unmittelbar vor Mutation erneut prüfen.
@@ -211,7 +264,61 @@ BEGIN TRY
     SELECT @InstalledScriptDomAssemblyHash = HASHBYTES(N'SHA2_512', af.content)
     FROM sys.assemblies AS a INNER JOIN sys.assembly_files AS af ON af.assembly_id = a.assembly_id AND af.file_id = 1
     WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom';
-    IF @InstalledScriptDomAssemblyHash IS NOT NULL AND @InstalledScriptDomAssemblyHash <> @ScriptDomAssemblyHash
+    IF @InstalledScriptDomAssemblyHash IS NOT NULL
+       AND @InstalledScriptDomAssemblyHash <> @ScriptDomAssemblyHash
+       AND
+       (
+           @InstalledScriptDomAssemblyHash <> 0x24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0
+           OR @InstalledAssemblyHash IS NULL
+           OR COALESCE(HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'VIEW DEFINITION'), 0) <> 1
+           OR NOT EXISTS
+              (
+                  SELECT 1
+                  FROM sys.assemblies AS a
+                  INNER JOIN sys.extended_properties AS moduleId
+                    ON moduleId.class = 5 AND moduleId.major_id = a.assembly_id AND moduleId.minor_id = 0
+                   AND moduleId.name = N'Toolbelt.ModuleId'
+                  WHERE a.name = N'Microsoft.SqlServer.TransactSql.ScriptDom'
+                    AND TRY_CONVERT(nvarchar(128), moduleId.value) = N'toolbelt.tsql.script-parser'
+              )
+           OR EXISTS
+              (
+                  SELECT 1
+                  FROM sys.assembly_references AS r
+                  WHERE r.referenced_assembly_id =
+                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'Microsoft.SqlServer.TransactSql.ScriptDom')
+                    AND r.assembly_id <>
+                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+              )
+           OR EXISTS
+              (
+                  SELECT 1
+                  FROM sys.assembly_modules
+                  WHERE assembly_id =
+                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'Microsoft.SqlServer.TransactSql.ScriptDom')
+              )
+           OR EXISTS
+              (
+                  SELECT 1
+                  FROM sys.assembly_references AS r
+                  WHERE r.referenced_assembly_id =
+                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+              )
+           OR EXISTS
+              (
+                  SELECT 1
+                  FROM sys.assembly_modules AS m
+                  WHERE m.assembly_id =
+                        (SELECT assembly_id FROM sys.assemblies WHERE name = N'Toolbelt_Tsql_ScriptParser')
+                    AND m.object_id NOT IN
+                        (SELECT o.object_id
+                         FROM sys.objects AS o
+                         WHERE o.schema_id = SCHEMA_ID(N'toolbelt_tsql')
+                           AND o.name IN
+                               (N'TVF_ParseScriptNodes', N'TVF_ParseScriptNodeProperties',
+                                N'TVF_TokenizeScript', N'TVF_ParseScriptErrors'))
+              )
+       )
         THROW 53117, N'Die vorhandene ScriptDom-Assembly stimmt nicht mit dem freigegebenen Releaseartefakt überein.', 1;
 
     IF SCHEMA_ID(N'toolbelt_tsql') IS NULL
@@ -233,6 +340,18 @@ BEGIN TRY
     DROP FUNCTION IF EXISTS [toolbelt_tsql].[TVF_ParseScriptNodeProperties];
     DROP FUNCTION IF EXISTS [toolbelt_tsql].[TVF_TokenizeScript];
     DROP FUNCTION IF EXISTS [toolbelt_tsql].[TVF_ParseScriptErrors];
+
+    IF @InstalledScriptDomAssemblyHash IS NOT NULL
+       AND @InstalledScriptDomAssemblyHash <> @ScriptDomAssemblyHash
+    BEGIN
+        DROP ASSEMBLY [Toolbelt_Tsql_ScriptParser];
+        DECLARE @AlterScriptDomDdl nvarchar(max) =
+            N'ALTER ASSEMBLY [Microsoft.SqlServer.TransactSql.ScriptDom] FROM '
+            + CONVERT(nvarchar(max), @ScriptDomAssemblyBits, 1)
+            + N' WITH PERMISSION_SET = UNSAFE;';
+        EXEC sys.sp_executesql @AlterScriptDomDdl;
+        SET @InstalledAssemblyHash = NULL;
+    END;
 
     IF @InstalledAssemblyHash IS NULL
     BEGIN

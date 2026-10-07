@@ -9,6 +9,27 @@ unabhängige Coreprüfung, Statik und offline Syntaxprüfung bestanden. Neue
 Runtimequalifikation ist im unten genannten begrenzten Scope bestanden. Historische Planner- oder Parsernachweise
 sind keine Trigger-Rewriting-Qualifikation. RelatedReference: `TC-2026-044`.
 
+## ScriptDom-Dependency-Nachtrag 2026-10-07
+
+Der Benutzer hat den Wechsel des separaten ScriptParser-2.0.0-Providers auf
+ScriptDom 18.0.117.0 ausdrücklich ausgewählt und die Prüfung aller betroffenen
+CLR-Consumer beauftragt. Das Trigger-Opt-in akzeptiert deshalb ausschließlich
+das neue Parser-/ScriptDom-Binary-Paar:
+
+- Parser-Provider SHA-512: `E03C6099E2E919F3F930E2CCB5A753C47F16DABFC18B608F8BC33DEA5E93ED10D9A937CF599427FADED4EBBB11653E80D2C8BA23C49E5AAEEB0A80C60D51EDBF`
+- ScriptDom FileVersion `18.0.117.0`, SHA-512: `459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7`
+
+Das historische, am 2026-10-04 ausgeführte Paar war Parser-Provider
+SHA-512 `7592A3C2535F43F6B4D0CF491BC3E7A20F2B2B8712C861D1E33BE428971860CD9E2401A67B6E5E2F0853BBF453D9C20DA9C838B070C428BD796D05F86C7A0C42`
+mit ScriptDom SHA-512
+`24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0`.
+
+Die Trigger-Runtime-Evidenz vom 2026-10-04 gilt nur für das damals
+installierte Parser-/ScriptDom-Paar und qualifiziert das neue Paar nicht.
+Die SQL-Signatur und das Verhalten von `IncludeTriggers=0` ändern sich nicht;
+die erneute Windows-Triggerqualifikation mit dem neuen Paar bleibt offen.
+Trust bleibt ein separater Administrationsschritt.
+
 ## API, Plattform und unveränderte Ausführungsgrenze
 
 Beide vorhandenen Planner-Prozeduren erhalten `@IncludeTriggers bit=0` an
@@ -34,13 +55,13 @@ nicht ein behaupteter SourceHash-Marker oder die bloße Trustregistrierung.
 Provider-SHA512:
 
 ```text
-7592A3C2535F43F6B4D0CF491BC3E7A20F2B2B8712C861D1E33BE428971860CD9E2401A67B6E5E2F0853BBF453D9C20DA9C838B070C428BD796D05F86C7A0C42
+E03C6099E2E919F3F930E2CCB5A753C47F16DABFC18B608F8BC33DEA5E93ED10D9A937CF599427FADED4EBBB11653E80D2C8BA23C49E5AAEEB0A80C60D51EDBF
 ```
 
 ScriptDom-SHA512 ist der bestehende Pin des Parservertrags:
 
 ```text
-24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0
+459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7
 ```
 
 Beide installierten Binaries werden selbständig über den vollständigen
