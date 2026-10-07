@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-07 – Integer-Base-CI mit verifizierter eigener Bereinigung
+
+- Der bestehende Integer-Base-Adapter bindet seinen Runner vor dem Start an
+  Version, Run, Attempt und Owner. Cleanup entfernt nur die gemeinsam mit
+  dem Label gelesene volle ID und bestätigt frische Namensabwesenheit.
+  Unbestätigter Cleanup endet Exit1; bestätigter erhält den ursprünglichen Status.
+- Synthetischer Harness, Documentationgate und vorhandenes Impact-Paket
+  erfassen den Adapter. Lab-No-op, Encode-/Decode-Vertrag, SQL-Fixtures,
+  Images, Bereitschaftsfrist, Matrix und Runtimeworkflow bleiben unverändert.
+
 ## 2026-10-07 – W1-CI mit verifizierter eigener Bereinigung
 
 - W1 bindet seinen Runner vor dem Start an Version, Run, Attempt und Owner.

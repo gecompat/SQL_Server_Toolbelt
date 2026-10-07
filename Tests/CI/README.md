@@ -31,6 +31,21 @@ werden dadurch nicht belegt.
 
 ## Adapter und Zielversionen
 
+Der Integer-Base-Adapter prüft seine Runneridentität aus Version, Run und
+Attempt sowie den Owner vor dem Start. Cleanup entfernt ausschließlich die
+gemeinsam mit dem Label gelesene volle ID und bestätigt frische exakte
+Namensabwesenheit. `INTEGER_BASE_CI_CLEANUP_UNVERIFIED` endet mit Exit1;
+`INTEGER_BASE_CI_CLEANUP_VERIFIED` erhält den ursprünglichen Teststatus.
+Der Labzweig bleibt Container-No-op ohne Runnerowner oder private Ablage.
+
+`python -B Tests/CI/test_owned_container_cleanup.py --module integer_base`
+prüft die tatsächliche Cleanupfunktion mit synthetischen Stubs, einschließlich
+Fremdbestand, Namensaustausch, ungültiger ID/Owner, unbekannter Sicht und
+Lab-Exit0/Exit7. Encode/Decode, Upgrade-/Lifecycle-/Kollisionsfixtures,
+Images, Bereitschaftsfrist, Versions-/CL-Matrix und vorhandener Runtimeworkflow
+bleiben erhalten. Exakte Head-/Main-Ergebnisse stehen im PR; harte
+Unterbrechungen und eine Releasequalifikation bleiben getrennt.
+
 Der W1-Adapter bindet seinen Runner vor dem Start an SQL-Version, Run,
 Attempt und Owner. Cleanup entfernt ausschließlich die gemeinsam mit dem
 Label gelesene volle ID und verlangt frische exakte Namensabwesenheit.
