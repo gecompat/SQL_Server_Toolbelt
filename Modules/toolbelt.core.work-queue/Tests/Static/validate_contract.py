@@ -30,6 +30,8 @@ required = [
     "Tests/Runtime/UpgradeFrom1_0.Setup.sql",
     "Tests/Runtime/UpgradeFrom2_0.Setup.sql",
     "Tests/Runtime/UpgradeFrom2_0.Verify.sql",
+    "Tests/Runtime/RepeatCurrent.Setup.sql",
+    "Tests/Runtime/RepeatCurrent.Verify.sql",
     "Tests/Runtime/UpgradeFrom1_0.Verify.sql",
     "module.yaml",
     "README.md",
@@ -115,6 +117,17 @@ for name in ("USP_FailWorkCore", "USP_ScheduleWorkRetryCore"):
         raise SystemExit("Private EmitResult-Deklaration fehlt: "+name)
 
 print("Work Queue statische Vertragsprüfung: erfolgreich")
+
+# Die V1-Neuanlage gilt nur für die neue Basistabelle. Im bestehenden Pfad
+# darf kein Zwischencheck die drei gültigen W6c-Zustände ausschließen.
+item = (root / "Source/WorkItem.sql").read_text(encoding="utf-8")
+existing_path = item.split("ELSE\nBEGIN", 1)[1]
+if "ADD CONSTRAINT CK_WorkItem_StateMetadata" in existing_path.partition("/* W6c ergänzt")[0]:
+    raise SystemExit("Repeat validiert bestehende Queue gegen veralteten V1-Zustandscheck")
+adapter = (root.parents[1] / "Workers/ExternalQueue/Tests/Runtime/Invoke-Contract.ps1").read_text(encoding="utf-8")
+for repeat_artifact in ("RepeatCurrent.Setup.sql", "RepeatCurrent.Verify.sql"):
+    if repeat_artifact not in adapter or repeat_artifact not in (root / "module.yaml").read_text(encoding="utf-8"):
+        raise SystemExit("Befüllter Repeatnachweis nicht im Adapter/Manifest gekoppelt")
 
 claim=(root / "Source/USP_ClaimWorkCore.sql").read_text(encoding="utf-8")
 if "@ClaimedWorkItemId bigint = NULL OUTPUT" not in claim or "SELECT @ClaimedWorkItemId=WorkItemId FROM @Claimed" not in claim:

@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-07 – Queue-Repeat erhält gültige Retry-/Barrierzustände
+
+- Die vorhandene WorkItem-Migration legt beim Repeat keine vorübergehende
+  veraltete Vier-Status-Constraint mehr an. Die endgültige W6c-Constraint wird
+  weiterhin innerhalb des Moduldeployments validiert; Daten und Statuswerte
+  werden für diese Korrektur nicht umgeschrieben.
+- Der genuine Queue2.0→2.1-Adapter erhält einen befüllten Zweifach-Repeatnachweis
+  für alle sieben Zustände. Gemeinsamer Worker-Control-Repeat bleibt separat.
+
 ## 2026-10-07 – Eigenständiger SQL-Export aus aktuellen Modulskripten
 
 - `Deploy-All.ps1 -OutputSqlFile` erzeugt ohne SQL-Verbindung eine einzelne
