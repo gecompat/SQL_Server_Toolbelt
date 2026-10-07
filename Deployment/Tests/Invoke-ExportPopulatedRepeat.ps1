@@ -74,7 +74,7 @@ function Save-PrivateOwnership {
 }
 function New-ExportConnection([string]$Database){
  $builder=[Data.SqlClient.SqlConnectionStringBuilder]::new($sourceConnection)
- $builder.InitialCatalog=$Database;$builder.Pooling=$false;$builder.Enlist=$false;$builder.ConnectRetryCount=0;$builder.ConnectTimeout=5
+ $builder['Initial Catalog']=$Database;$builder.Pooling=$false;$builder.Enlist=$false;$builder.ConnectRetryCount=0;$builder['Connect Timeout']=5
  $connection=[Data.SqlClient.SqlConnection]::new($builder.ConnectionString)
  try{$connection.Open();return $connection}catch{$connection.Dispose();throw}finally{$builder=$null}
 }

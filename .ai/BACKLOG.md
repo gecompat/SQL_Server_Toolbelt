@@ -123,12 +123,16 @@ File-Content-Beschreibungsnormalisierung und EventLog-WorkType-Reaktivierung
 sind separat abgegrenzt. Er nutzt ausschließlich das bestehende externe
 Linux2019/CL150-CI-Ziel. Offlineexport und unabhängige Reviews sind bestanden;
 Der erste gemeinsame native Lauf am Commit `e5b51d14500203947fd45d6ad0533e40b1302c8a`
-ist im neuen Test FAILED, die Primärursache bleibt ungeklärt
+ist im neuen Test FAILED, zunächst ohne abgegrenzte Primärursache
 ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37696018416)).
 Vorherige Worker-/Upgradefälle und eigene Containerbereinigung bestanden.
-Gezielte Diagnose und ein unabhängig offline gefundener Adaptercleanup-
-Pfadseparatorfehler werden korrigiert; dieser erklärt den Primärfehler nicht.
-Kein unveränderter CI-Retry und kein gemeinsamer Runtime-PASS behauptet.
+Der Diagnoselauf `947da95d61ae617f88e42847ae453dd27e132197` ist ebenfalls
+FAILED im Verbindungs-Preflight
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37697052700)).
+Die Builder-Dotzuweisungen `InitialCatalog`/`ConnectTimeout` scheitern ohne
+Serververbindung reproduzierbar; sie werden durch die bestehenden gültigen
+Indexer ersetzt. Der separate Adaptercleanup-Pfadseparatorfehler ist korrigiert.
+Beide FAILED-Läufe bleiben erhalten; kein unveränderter Retry oder Runtime-PASS.
 Details und offene Grenzen stehen in
 [Deploymenttests](../Deployment/Tests/README.md). Windows-FileSystemRoot und
 vollständiger 44-Modul-Export bleiben getrennte Nachweise; Source, Deploy und

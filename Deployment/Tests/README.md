@@ -58,9 +58,14 @@ der erste native Lauf am Commit `e5b51d14500203947fd45d6ad0533e40b1302c8a`
 ist im neuen Test **FAILED**
 ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37696018416)).
 Vorherige Worker-/Upgradefälle und eigene Containerbereinigung bestanden.
-Die Primärursache ist noch ungeklärt; ein offline gefundener abschließender
-Pfadseparatorfehler im Adaptercleanup wird separat korrigiert und erklärt
-diesen Primärfehler nicht. Die gemeinsame Qualifikation bleibt offen bis
+Der Diagnoselauf am Commit `947da95d61ae617f88e42847ae453dd27e132197`
+ist ebenfalls FAILED im Verbindungs-Preflight
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37697052700)).
+Ohne Verbindung reproduziert: PowerShell-Dotzuweisungen für `InitialCatalog`
+und `ConnectTimeout` erzeugen ungültige Builder-Schlüssel. Explizite Indexer
+`Initial Catalog` und `Connect Timeout` beheben dies; der separate abschließende
+Pfadseparatorfehler im Adaptercleanup ist ebenfalls korrigiert. Beide
+fehlgeschlagenen Läufe bleiben historische Evidenz. Die Qualifikation bleibt offen bis
 tatsächlicher korrigierter Head-CI. Die Einzelmodulnachweise stehen in
 [Backlog](../../.ai/BACKLOG.md). Windows-FileSystemRoot, weitere Versionen/CLs,
 historische und partielle Installationen, Minimalrechte, nichtleere Grants,
