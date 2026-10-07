@@ -144,7 +144,7 @@ public static class NoOverwriteHarness
             rootType.GetField("WorkPath",BindingFlags.Instance|BindingFlags.Public).SetValue(root,null);
             helper=provider.GetMethod("WriteAtomically",BindingFlags.Static|BindingFlags.NonPublic);
             Check(helper!=null && helper.GetParameters().Length==4);
-            CallerAuthenticationPolicy(); Run(); StreamingIdentityControls.Run(); success=true;
+            CallerAuthenticationPolicy(); Run(); StreamingIdentityControls.Run(); DeleteBoundaryControls.Run(); success=true;
         }
         catch { success=false; }
         finally
@@ -170,8 +170,168 @@ public static class NoOverwriteHarness
             catch { cleanup=false; }
         }
         if(!success||!cleanup) { Console.WriteLine("FAILED OFFLINE_NO_OVERWRITE CLEANUP_VERIFIED="+(cleanup?"1":"0")); return 1; }
-        Console.WriteLine("PASS FIXED_HELPER"+" CASES=9 STAGING_CREATE_ACTIONS="+stages+" SENTINEL_CREATE_ACTIONS="+sentinelCreates+" DISTINCT_OWN_PATHS="+Owned.Count+" MAX_SIMULTANEOUS_OWN_FILES="+maxSimultaneous+" ASSERTIONS="+assertions+" STREAMING_CASES="+StreamingIdentityControls.Cases+" STREAMING_ASSERTIONS="+StreamingIdentityControls.Assertions+" CLEANUP_VERIFIED=1 OFFLINE_ONLY");
+        Console.WriteLine("PASS FIXED_HELPER"+" CASES=9 STAGING_CREATE_ACTIONS="+stages+" SENTINEL_CREATE_ACTIONS="+sentinelCreates+" DISTINCT_OWN_PATHS="+Owned.Count+" MAX_SIMULTANEOUS_OWN_FILES="+maxSimultaneous+" ASSERTIONS="+assertions+" STREAMING_CASES="+StreamingIdentityControls.Cases+" STREAMING_ASSERTIONS="+StreamingIdentityControls.Assertions+" DELETE_CASES="+DeleteBoundaryControls.Cases+" DELETE_ASSERTIONS="+DeleteBoundaryControls.Assertions+" CLEANUP_VERIFIED=1 OFFLINE_ONLY");
         return 0;
+    }
+}
+
+// Kleine echte Helperproben innerhalb des runner-eigenen TEMP-Verzeichnisses.
+// Kein SQL-/Token-/ACL-/Reparse-/Race-Nachweis und keine Maximallast.
+static class DeleteBoundaryControls
+{
+    public static int Cases, Assertions;
+    static readonly byte[] Payload = new byte[] { 1, 2, 3, 4 };
+    static readonly byte[] Sentinel = new byte[] { 9, 8, 7 };
+    static readonly byte[] Empty = new byte[0];
+    static readonly List<string> Directories = new List<string>();
+    static readonly Dictionary<string,byte[]> Files = new Dictionary<string,byte[]>(StringComparer.Ordinal);
+    static string container, current;
+    static bool ownContainer;
+    static MethodInfo helper;
+    static void Check(bool value) { Assertions++; if(!value)throw new InvalidOperationException("DELETE_FIXTURE_ASSERT"); }
+    static bool Same(byte[] a,byte[] b) { if(a.Length!=b.Length)return false;for(int i=0;i<a.Length;i++)if(a[i]!=b[i])return false;return true; }
+    static bool Inside(string path) { return path.StartsWith(container+Path.DirectorySeparatorChar,StringComparison.Ordinal); }
+    static void SafeDirectory(string path)
+    {
+        FileAttributes attributes=File.GetAttributes(path);
+        Check((attributes&FileAttributes.ReparsePoint)==0 && (attributes&FileAttributes.Directory)!=0);
+    }
+    static void SafeAncestry(string path)
+    {
+        while(!String.Equals(path,container,StringComparison.Ordinal))
+        {
+            Check(Inside(path)&&Directories.Contains(path));SafeDirectory(path);path=Path.GetDirectoryName(path);
+        }
+        SafeDirectory(container);
+    }
+    static void AddDirectory(string path)
+    {
+        path=Path.GetFullPath(path);Check(Inside(path));Check(!Directory.Exists(path)&&!File.Exists(path));
+        Check(Directories.Count<4);SafeAncestry(Path.GetDirectoryName(path));
+        Directory.CreateDirectory(path);Directories.Add(path);SafeDirectory(path);
+    }
+    static void AddFile(string relative,byte[] bytes)
+    {
+        string path=Path.GetFullPath(Path.Combine(current,relative));
+        Check(Inside(path)&&Directories.Contains(Path.GetDirectoryName(path)));Check(Files.Count<9);
+        SafeAncestry(Path.GetDirectoryName(path));Check(!Files.ContainsKey(path)&&!File.Exists(path)&&!Directory.Exists(path));
+        using(FileStream stream=new FileStream(path,FileMode.CreateNew,FileAccess.Write,FileShare.None))
+        {
+            Files.Add(path,bytes);stream.Write(bytes,0,bytes.Length);
+        }
+    }
+    static void Preserved()
+    {
+        foreach(string path in Directories)
+        {
+            Check(Directory.Exists(path));SafeDirectory(path);
+            string[] entries=Directory.GetFileSystemEntries(path);Check(entries.Length<=12);
+            foreach(string entry in entries)Check(Directories.Contains(Path.GetFullPath(entry))||Files.ContainsKey(Path.GetFullPath(entry)));
+        }
+        foreach(KeyValuePair<string,byte[]> item in Files)
+        {
+            Check(File.Exists(item.Key));FileAttributes attributes=File.GetAttributes(item.Key);
+            Check((attributes&(FileAttributes.Directory|FileAttributes.ReparsePoint))==0);
+            Check(Same(File.ReadAllBytes(item.Key),item.Value));
+        }
+    }
+    static void Removed()
+    {
+        foreach(string path in Directories)Check(!Directory.Exists(path)&&!File.Exists(path));
+        foreach(string path in Files.Keys)Check(!File.Exists(path)&&!Directory.Exists(path));
+        Check(!Directory.Exists(current));SafeDirectory(container);
+        Check(Directory.GetFileSystemEntries(container).Length==0);
+    }
+    static void Cleanup()
+    {
+        // Kein rekursives Cleanup. Nur manifestierte Dateien mit bekannten Bytes
+        // und anschließend bekannte leere Directories von unten nach oben.
+        // Unbekannte Reste/Typen/Reparse Points führen zum Fehler und bleiben stehen.
+        foreach(KeyValuePair<string,byte[]> item in Files)
+        {
+            Check(Inside(item.Key));
+            if(File.Exists(item.Key))
+            {
+                SafeAncestry(Path.GetDirectoryName(item.Key));
+                FileAttributes attributes=File.GetAttributes(item.Key);
+                Check((attributes&(FileAttributes.Directory|FileAttributes.ReparsePoint))==0);
+                Check(Same(File.ReadAllBytes(item.Key),item.Value));File.Delete(item.Key);
+            }
+            Check(!File.Exists(item.Key)&&!Directory.Exists(item.Key));
+        }
+        for(int i=Directories.Count-1;i>=0;i--)
+        {
+            string path=Directories[i];Check(Inside(path));
+            if(Directory.Exists(path))
+            {
+                SafeAncestry(path);Check(Directory.GetFileSystemEntries(path).Length==0);
+                Directory.Delete(path,false);
+            }
+            Check(!Directory.Exists(path)&&!File.Exists(path));
+        }
+        Files.Clear();Directories.Clear();
+    }
+    static void Case(int id,bool recursive,int maxDepth,int maxEntries,string expected,Action setup)
+    {
+        Cases++;Check(id==Cases);Check(Files.Count==0&&Directories.Count==0);
+        current=Path.Combine(container,"case-"+id.ToString("00",System.Globalization.CultureInfo.InvariantCulture));
+        try
+        {
+            AddDirectory(current);setup();Preserved();bool rejected=false;
+            try { helper.Invoke(null,new object[]{container,current,recursive,maxDepth,maxEntries}); }
+            catch(TargetInvocationException exception)
+            {
+                Check(expected!=null && exception.InnerException!=null
+                      && exception.InnerException.GetType()==typeof(InvalidOperationException)
+                      && String.Equals(exception.InnerException.Message,"TBXFS:"+expected,StringComparison.Ordinal)
+                      && exception.InnerException.InnerException==null);
+                rejected=true;
+            }
+            Check(rejected==(expected!=null));
+            if(expected==null)Removed();else Preserved();
+        }
+        finally { Cleanup(); }
+    }
+    public static void Run()
+    {
+        helper=typeof(WindowsFilesystemProvider).GetMethod("RemoveDirectoryBounded",BindingFlags.Static|BindingFlags.NonPublic,
+                null,new Type[]{typeof(string),typeof(string),typeof(bool),typeof(int),typeof(int)},null);
+        Check(helper!=null&&helper.IsPrivate&&helper.ReturnType==typeof(void));
+        string temp=Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar);
+        container=Path.GetFullPath(Path.Combine(temp,"ToolbeltDeleteFiles-"+Guid.NewGuid().ToString("N")));
+        Check(String.Equals(Path.GetDirectoryName(container),temp,StringComparison.Ordinal));
+        Check(!Directory.Exists(container)&&!File.Exists(container));
+        try
+        {
+            Directory.CreateDirectory(container);ownContainer=true;SafeDirectory(container);
+            Case(1,false,0,1,null,delegate { });
+            Case(2,false,0,4,"DirectoryNotEmpty",delegate { AddFile("sentinel.bin",Sentinel);AddFile("empty.bin",Empty); });
+            Case(3,false,0,4,"DirectoryNotEmpty",delegate { AddDirectory(Path.Combine(current,"child"));AddFile("sentinel.bin",Sentinel); });
+            Case(4,true,0,2,null,delegate { AddFile("payload.bin",Payload);AddFile("empty.bin",Empty); });
+            Case(5,true,0,4,"DepthLimitExceeded",delegate { AddDirectory(Path.Combine(current,"child"));AddFile("sentinel.bin",Sentinel); });
+            Case(6,true,0,4,"DepthLimitExceeded",delegate { AddDirectory(Path.Combine(current,"child"));AddFile(Path.Combine("child","sentinel.bin"),Sentinel);AddFile("empty.bin",Empty); });
+            Case(7,true,1,3,null,delegate { AddDirectory(Path.Combine(current,"child"));AddFile(Path.Combine("child","payload.bin"),Payload);AddFile("empty.bin",Empty); });
+            Case(8,true,1,4,"DepthLimitExceeded",delegate { AddDirectory(Path.Combine(current,"child"));AddDirectory(Path.Combine(current,"child","grandchild"));AddFile("sentinel.bin",Sentinel); });
+            Case(9,true,1,4,"DepthLimitExceeded",delegate
+            {
+                AddDirectory(Path.Combine(current,"child"));AddDirectory(Path.Combine(current,"child","grandchild"));
+                AddFile("sentinel.bin",Sentinel);AddFile(Path.Combine("child","empty.bin"),Empty);
+                for(int i=0;i<6;i++)AddFile(Path.Combine("child","grandchild","hidden-"+i.ToString(System.Globalization.CultureInfo.InvariantCulture)+".bin"),i%2==0?Empty:Payload);
+            });
+            Case(10,true,0,3,null,delegate { AddFile("payload.bin",Payload);AddFile("sentinel.bin",Sentinel);AddFile("empty.bin",Empty); });
+            Case(11,true,0,3,"EntryLimitExceeded",delegate { AddFile("payload.bin",Payload);AddFile("sentinel.bin",Sentinel);AddFile("empty.bin",Empty);AddFile("one-over.bin",Empty); });
+            Case(12,true,0,1,null,delegate { });
+            Check(Cases==12);Check(Assertions>0&&Assertions<=4096);
+        }
+        finally
+        {
+            Cleanup();
+            if(ownContainer&&Directory.Exists(container))
+            {
+                SafeDirectory(container);Check(Directory.GetFileSystemEntries(container).Length==0);
+                Directory.Delete(container,false);Check(!Directory.Exists(container));
+            }
+        }
     }
 }
 

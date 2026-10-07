@@ -1,8 +1,22 @@
 # NoOverwrite-Offline-Regression
 
-Der Fixed-only-Harness verwendet den aktuellen kanonischen Provider. Er enthält keine zweite historische Produktimplementierung und ruft ausschließlich dessen privaten Schreibhelper mit synthetischen Dateien auf. SQL, Trust, Caller-Impersonation und NTFS-ACL-Qualifikation sind nicht Bestandteil.
+Der Fixed-only-Harness verwendet den aktuellen kanonischen Provider. Er enthält keine zweite historische Produktimplementierung und ruft dessen private Schreib-/Copyhelper sowie den begrenzten Directory-Löschhelper mit eigenen synthetischen Fixtures auf. SQL, Trust, Caller-Impersonation und NTFS-ACL-Qualifikation sind nicht Bestandteil.
 
 ## Reproduktion
+
+Die Erweiterung vom 2026-10-07 prüft den tatsächlichen privaten
+`RemoveDirectoryBounded`-Helper mit zwölf kleinen Löschfällen. Die eigenen
+Delete-Fall-/Assertionzahlen stehen getrennt von den neun NoOverwrite- und
+sieben Streaming-Fällen im vollständigen Witness. Die bestehende Windows-CI
+führt denselben gebundenen Runner aus; Vorbereitung oder Parserkontrollen
+beweisen keine Lösch- oder SQL-Ausführung.
+
+Der Löschtest verwendet ausschließlich bekannte synthetische Dateien und
+Directories im eigenen Runner-TEMP. Bei Limit-/Nonrecursive-Abweisung
+verlangt er unveränderte Sentinelbytes und Directories. Cleanup entfernt
+nur bekannte Dateien mit passendem Inhalt sowie leere Directories von unten
+nach oben; unbekannte Reste verursachen einen Fehler. Es gibt keine
+rekursive Cleanup-Löschung und keine SQL-/Trust-/ACL-/Impersonationsprobe.
 
 PowerShell7 unter Windows und ein bereits vorhandener .NET-Framework-Compiler werden benötigt. Der Runner installiert nichts. Ohne CompilerPath verwendet er den vorhandenen Framework64-Compiler; die vier expliziten Referenzen sind mscorlib, System, System.Data und System.Xml aus dessen Verzeichnis.
 
@@ -34,7 +48,7 @@ Die vorbereitete Caller-Policykontrolle ruft das reale private Providerpraedikat
 
 ## Aktueller begrenzter Nachweis 2026-10-04
 
-Der aktuelle Provider bestand einen privaten begrenzten produktiven C#-Sourcebuild und den sourcegebundenen Frameworklauf: neun NoOverwrite-Fälle/270 Assertions sowie sieben Streaming-Fälle/188 Assertions; darin enthalten ist die reine Caller-Policyprüfung mit fünf erlaubten und zehn abgewiesenen Werten. Vollständige Captures, Exit0, eigene Bereinigung und abschließende Sourcepins wurden geprüft. Die synthetischen Sequenzfälle beweisen keine echte Impersonation.
+Der Providerstand vom 2026-10-04 bestand einen privaten begrenzten produktiven C#-Sourcebuild und den sourcegebundenen Frameworklauf: neun NoOverwrite-Fälle/270 Assertions sowie sieben Streaming-Fälle/188 Assertions; darin enthalten ist die reine Caller-Policyprüfung mit fünf erlaubten und zehn abgewiesenen Werten. Vollständige Captures, Exit0, eigene Bereinigung und abschließende Sourcepins wurden geprüft. Die synthetischen Sequenzfälle beweisen keine echte Impersonation.
 
 Die private native Zwei-Fall-Authentifizierungsprüfung auf SQL Server 2025/CU8 unter Windows bestand: Windows-Caller (NTLM) schrieb drei synthetische Bytes über `USP_WriteBinaryFile`; SQL-Authentifizierung wurde mit `51540/1` und `CallerWindowsAuthenticationRequired` vor Datei-/Staging-I/O abgewiesen. Eigene DB-, Root- und Trustbereinigung und eine separate frische Prüfung bestanden, ohne Konfigurations-, Rechte- oder Owneränderungen. Dieser begrenzte Probe-Scope ist kein vollständiger Produkttest.
 

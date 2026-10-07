@@ -91,6 +91,7 @@ tests:
   runtime: "Tests/Runtime/WindowsFilesystem.Contract.sql"
   framework: "Tests/Framework/Invoke-NoOverwrite.ps1"
   framework_controls: "Tests/Framework/Test-WitnessControls.ps1"
+  framework_remove_directory: "Tests/Framework/NoOverwriteHarness.cs"
 validation_evidence:
   - date: "2026-08-04"
     workflow: "Manuelle Windows-CLR-Preflight-Validierung"

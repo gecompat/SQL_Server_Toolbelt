@@ -40,8 +40,13 @@ SQLCMD-Modus mit einem Betreiber-RootAlias ausgeführt und prüft `Caller` über
 | FS-03 | Reparse Point/Junction beim Read, List, Write und Delete | Kontrollierte Ablehnung, keine Traversierung. |
 | FS-04 | Atomarer Write: bestehendes Target plus erzwungener Abbruch | Bestehendes Target unverändert; keine veröffentlichte Teil-Datei. |
 | DEL-01 | Nichtrekursives und rekursives Directory-Delete | Nichtrekursiv nur leere Directory; rekursiv nur mit `@Recursive = 1`. |
-| DEL-02 | `@MaxDepth` und `@MaxEntries` | Grenze wird kontrolliert erzwungen, kein unvollständiges Löschen. |
+| DEL-02 | `@MaxDepth` und `@MaxEntries` | Startdirectory-Tiefe0; direkte Dateien bei0 erlaubt, Childdirectory bei0 verweigert. Exakte Grenze akzeptiert; Überschreitung vor erstem Delete verweigert, alle vorbereiteten Sentinelbytes und Directories erhalten. |
 | DEL-03 | TOCTOU-Beobachtung bei Junction-/Reparse-Point-Wechsel | Beobachtung dokumentieren; bei unerwarteter Traversierung sofort abbrechen und keinen weiteren Löschtest ausführen. |
+
+Limitabweisung im unveränderten Preflight ist mutationsfrei. Nach Beginn der
+Löschung sind bei I/O-/Racefehlern Teilzustände möglich; dies ist kein
+Dateisystem-Rollbackvertrag. Die vorbereiteten Fälle sind ohne tatsächliche
+Windows-SQL-Ausführung kein Runtime-Nachweis.
 
 ## Rückmeldung an Codex
 

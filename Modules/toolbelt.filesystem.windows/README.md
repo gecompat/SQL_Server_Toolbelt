@@ -10,6 +10,14 @@ Die Windows-Validierung ist teilweise ausgeführt. Die Manuelle Windows-CLR-Pref
 
 ## Build-Voraussetzung
 
+Die Wartung vom 2026-10-07 korrigiert die vorhandene Delete-Tiefengrenze:
+ein vollständiger begrenzter Prüfplan vor jeder Mutation, danach nur geprüfte
+Einträge und nichtrekursive Directory-Deletes. Startdirectory-Tiefe0 erlaubt
+direkte Dateien bei `@MaxDepth = 0`, aber kein Childdirectory. Details und
+Fehlergrenzen stehen bei [USP_RemoveDirectory](Documentation/USP_RemoveDirectory.md).
+Historische SQL-/Caller-Nachweise gelten für den damaligen Providerstand;
+die korrigierte Source bleibt `partially validated` und `unreleased`.
+
 Für den Build der SQL-CLR-Assembly wird das **.NET Framework 4.8 Developer Pack** einschließlich des **4.8 Targeting Pack** benötigt. Es stellt die Referenzassemblies bereit, gegen die das C#-Projekt kompiliert wird. Das installierte .NET-Framework-Runtime allein genügt nicht. Das Projekt zielt ausdrücklich auf `v4.8`; ein ausschließlich installiertes 4.8.1 Developer Pack ersetzt die `v4.8`-Referenzassemblies für MSBuild nicht.
 
 Microsoft stellt das benötigte Paket auf der offiziellen [Downloadseite für .NET Framework 4.8](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net48) bereit. Die Installation ist nur auf Build- oder Testarbeitsplätzen erforderlich; für ein Deployment aus verifizierten Release-Artefakten wird kein Developer Pack auf dem SQL-Server benötigt.
@@ -38,7 +46,7 @@ SQL-LOB-Zugriffe (`SqlBytes`/`SqlChars` Length/Read) erfolgen im ursprünglichen
 [Microsoft dokumentiert](https://learn.microsoft.com/en-us/sql/relational-databases/clr-integration/data-access/impersonation-and-credentials-for-connections?view=sql-server-ver17), dass lokale Datenzugriffe während Caller-Impersonation bis Undo nicht verfügbar sind. Die Korrektur trennt diese Zugriffe, verändert jedoch weder den öffentlichen Vertrag noch die Encoding-Semantik. Den aktuellen begrenzten Framework-/Auth-Probe-Nachweis beschreibt der folgende Evidenzabschnitt; vollständige NTFS-Qualifikation bleibt offen. Historische Nachweise gelten für ihre damaligen Sources.
 ## Aktueller begrenzter Nachweis 2026-10-04
 
-Der aktuelle Provider bestand einen privaten begrenzten produktiven C#-Sourcebuild und den sourcegebundenen Frameworklauf: neun NoOverwrite-Fälle/270 Assertions sowie sieben Streaming-Fälle/188 Assertions; darin enthalten ist die reine Caller-Policyprüfung mit fünf erlaubten und zehn abgewiesenen Werten. Vollständige Captures, Exit0, eigene Bereinigung und abschließende Sourcepins wurden geprüft. Die synthetischen Sequenzfälle beweisen keine echte Impersonation.
+Der Providerstand vom 2026-10-04 bestand einen privaten begrenzten produktiven C#-Sourcebuild und den sourcegebundenen Frameworklauf: neun NoOverwrite-Fälle/270 Assertions sowie sieben Streaming-Fälle/188 Assertions; darin enthalten ist die reine Caller-Policyprüfung mit fünf erlaubten und zehn abgewiesenen Werten. Vollständige Captures, Exit0, eigene Bereinigung und abschließende Sourcepins wurden geprüft. Die synthetischen Sequenzfälle beweisen keine echte Impersonation.
 
 Die private native Zwei-Fall-Authentifizierungsprüfung auf SQL Server 2025/CU8 unter Windows bestand: Windows-Caller (NTLM) schrieb drei synthetische Bytes über `USP_WriteBinaryFile`; SQL-Authentifizierung wurde mit `51540/1` und `CallerWindowsAuthenticationRequired` vor Datei-/Staging-I/O abgewiesen. Eigene DB-, Root- und Trustbereinigung und eine separate frische Prüfung bestanden, ohne Konfigurations-, Rechte- oder Owneränderungen. Dieser begrenzte Probe-Scope ist kein vollständiger Produkttest.
 

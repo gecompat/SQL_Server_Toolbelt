@@ -18,6 +18,24 @@ Eine serverseitig konfigurierte Tabelle ordnet Alias zu Root und optionalem rela
 
 Rekursive Löschung benötigt ausdrücklich `@Recursive = 1`; sie zählt vorab und begrenzt Traversierung durch `@MaxDepth` sowie `@MaxEntries`. Der Prüfen-/Löschen-Zeitabstand bleibt ein Windows-Dateisystemrest und wird im manuellen Windows-Test mit Junction/Symlink abgedeckt.
 
+Das Startdirectory hat Tiefe0. Direkte Dateien benötigen keine zusätzliche
+Directory-Ebene; ein untergeordnetes Directory benötigt Tiefe1. Daher erlaubt
+`@MaxDepth = 0` direkte Dateien, verweigert jedoch schon ein leeres Childdirectory.
+Ein Directory jenseits der erlaubten Tiefe wird mit `DepthLimitExceeded`
+vor der ersten Löschung abgewiesen; Einträge werden vor Aufnahme in den
+vollständigen Prüfplan gegen `@MaxEntries` geprüft. Beide Fehler bleiben im
+bestehenden fachlichen Provider-/Facade-Fehlervertrag.
+Der Prüfplan hält bis zu `@MaxEntries` Pfad-/Typrecords im Speicher;
+gemessener Heap und Produktionskapazität sind damit nicht qualifiziert.
+
+Der kanonische Löschhelper verarbeitet danach ausschließlich den geprüften Plan
+von unten nach oben. Directory-Deletes sind immer nichtrekursiv; neue ungeprüfte
+Kinder werden dadurch nicht mitgelöscht. Ancestry, Reparse-Status und Typ werden
+vor jedem Delete erneut geprüft. Dies ersetzt keine handlegebundene Windows-
+Sandbox: parallele Pfadänderungen bleiben ein TOCTOU-Rest. Ein I/O-/Racefehler
+nach Beginn der Löschung kann einen Teilzustand hinterlassen; nur eine
+fachliche Limitabweisung während des unveränderten Preflights ist mutationsfrei.
+
 ## Speicher und Schreibkonsistenz
 
 Lesen liefert maximal 16 MiB pro Aufruf und gibt die nächste Byteposition zurück. LOB-Schreiben verwendet begrenzte Buffer. Schreiben und Transcoding verwenden eine zufällige `.part`-Datei im WorkPath oder Zielverzeichnis und veröffentlichen erst nach `Flush(true)` per Move/Replace. Deshalb verbleibt bei einem fehlgeschlagenen Write kein teilweise aktualisiertes Target.

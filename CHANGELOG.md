@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-07 – Windows-Directory-Delete hält die geprüften Grenzen ein
+
+- Die bestehende rekursive Löschung erstellt vor der ersten Mutation einen
+  vollständigen Prüfplan. Childdirectories jenseits von `@MaxDepth` und zu
+  viele Einträge werden vorab abgewiesen; anschließend werden ausschließlich
+  geprüfte Einträge und Directories nichtrekursiv gelöscht.
+- Frische Reparse-/Typprüfungen ergänzen den Plan. Dateisystemraces und
+  Teilzustände nach I/O-Fehlern bleiben offen; SQL-Verträge, Identitäten,
+  Rechte, Trust-Opt-in, Provider und Modulversion bleiben erhalten.
+
 ## 2026-10-07 – File-Content-Roots mit literaler Verzeichnisgrenze
 
 - Die beiden bestehenden Datei-Lader verwenden ein gemeinsames SQLCMD-
