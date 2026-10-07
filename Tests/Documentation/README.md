@@ -32,6 +32,13 @@ Antworten und prüft Vor-Dispatch-Originbindung, erlaubte Redirectketten,
 Fehlercodes und installierte Provenienz. Sie aktiviert keine optionalen
 Runtimes, Netzwerkverbindungen, Provisionierung oder SQL-Tests.
 
+Das Impact-Paket `foundation_http_responses` führt
+`python3 -B Tests/Documentation/test_foundation_http_response.py` ebenfalls
+mit begrenzter Laufzeit aus. Es prüft die tatsächlichen HttpAdapter-Pfade
+mit skalierten synthetischen Bytegrenzen und in-memory Antworten, einschließlich
+kurzer Reads und unvollständiger Content-Length-Übertragung. Es ist keine
+16MiB-Maximalworkload-, Heap-, Endpoint- oder Runtimequalifikation.
+
 ## Vollständiger Audit
 
 ```bash

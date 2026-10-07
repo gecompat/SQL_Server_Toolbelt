@@ -1347,6 +1347,21 @@ def run_foundation_redirects() -> None:
         raise ValidationError("Foundation-Redirect-Regression fehlgeschlagen:\n" + result.stdout + result.stderr)
     print(result.stdout.strip())
 
+
+def run_foundation_http_responses() -> None:
+    # Skalierte Offline-Transportfälle; kein echter Endpoint oder Clientstart.
+    script = REPOSITORY_ROOT / "Tests/Documentation/test_foundation_http_response.py"
+    try:
+        result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+                                check=False, capture_output=True, text=True,
+                                encoding="utf-8", timeout=10)
+    except subprocess.TimeoutExpired as error:
+        raise ValidationError("Foundation-Response-Regression überschritt ihr Offline-Zeitbudget.") from error
+    if result.returncode != 0:
+        raise ValidationError("Foundation-Response-Regression fehlgeschlagen:\n" + result.stdout + result.stderr)
+    print(result.stdout.strip())
+
+
 def run_edit_distance_static() -> None:
     script = REPOSITORY_ROOT / "Modules/toolbelt.string.edit-distance/Tests/Static/validate_contract.py"
     result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
@@ -1684,6 +1699,8 @@ def main() -> int:
         validate_generated_status(modules, arguments.write)
     if "foundation_host_redirects" in checks:
         run_foundation_redirects()
+    if "foundation_http_responses" in checks:
+        run_foundation_http_responses()
     if "public_api_catalog" in checks:
         try:
             generate_api_catalog.check(write=arguments.write)

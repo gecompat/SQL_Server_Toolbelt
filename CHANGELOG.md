@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-07 – Foundation-HttpAdapter liest begrenzte Antwortbodies
+
+- Probe/Catalog/Invoke im gemeinsamen HTTP-Adapterpfad lesen vor JSON und
+  Outputmutation höchstens16MiB plus ein Overflowbyte. Größere Antworten werden
+  strukturiert abgewiesen; kurze Reads und positive Restlänge am EOF bleiben
+  kontrolliert. Ein Schließfehler verdeckt die festgestellte Abwehr nicht.
+- Neue feste Transportgrenze ohne Configknopf, auch für legitime größere
+  Antworten. Originale Foundation1.19-Provenienz bleibt erhalten; keine SQL-,
+  Runtime-, Netzwerk-, Provider- oder Rechteerweiterung. Discovery-Readpfad,
+  Pfadrennen, Heap-/Gesamtzeit- und reale Endpointqualifikation bleiben offen.
+
 ## 2026-10-07 – Foundation-Redirects vor dem Folgekontakt prüfen
 
 - Der bereits ausgewählte optionale Host-Preparation-Client bindet Download-
