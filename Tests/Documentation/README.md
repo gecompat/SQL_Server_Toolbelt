@@ -39,6 +39,13 @@ mit skalierten synthetischen Bytegrenzen und in-memory Antworten, einschließlic
 kurzer Reads und unvollständiger Content-Length-Übertragung. Es ist keine
 16MiB-Maximalworkload-, Heap-, Endpoint- oder Runtimequalifikation.
 
+Das Impact-Paket `foundation_discovery` führt
+`python3 -B Tests/Documentation/test_foundation_discovery.py` mit10s-Budget aus.
+Es prüft den getrennten Versionsprobe und seine Discovery-Caller mit skalierten
+Bodygrenzen und echtem urllib-Dispatch über synthetischen HTTP-Transport:
+Redirects bleiben ungefolgt, nicht autorisierte Kandidaten unkontaktiert und
+Transportfehler isolierte Vorschläge. Es startet keine CLI oder Runtime.
+
 ## Vollständiger Audit
 
 ```bash

@@ -37,8 +37,28 @@ Timeouts, Redirectabwehr und Runtimekonfiguration bleiben unverändert.
 Sourceversion1.19.0 und Originalprovenienz bleiben erhalten; Source und diese
 gekoppelte Dokumentation sind gezielte `INTENTIONAL_OVERRIDE`-Dateien.
 Die Änderung aktiviert keine Runtime und behebt keine Pfad-TOCTOU-Grenze.
-Der getrennte Discovery-Probe in runtime_configuration.py verwendet weiterhin
-seinen eigenen Readpfad und ist nicht durch diesen HttpAdapter-Ceiling geschützt.
+Diese erste Änderung schützte den getrennten Discovery-Probe noch nicht;
+die folgende Wartung erweitert denselben Reader auf diesen Verbraucher.
+
+## Gezielte Toolbelt-Discoverywartung2026-10-07
+
+`runtime_configuration.py::_probe_candidate` verwendet jetzt denselben
+16MiB-/64KiB-Reader vor JSON-Parsing. Overflow, unvollständige Übertragung,
+ungültiges JSON oder Encoding liefern den bestehenden `UNAVAILABLE`-Vorschlag
+mit `version=None`; es wird kein Fehlerpayload ergänzt. Auch legitime größere
+Versionsantworten werden abgewiesen. Der lokale Opener verwendet das bestehende
+`NoRedirect`: sämtliche Redirects, einschließlich relativer Ziele, bleiben
+ungefolgt. HTTPError-Antworten werden ohne Bodyread geschlossen; dabei auftretende
+Schließfehler ändern den Vorschlagsstatus nicht. Kein globaler Opener wird gesetzt.
+
+Die bisherige Loopbackauswahl, `probe=False`, Vorschlagsfelder, Timeouts und
+Bestätigungsgrenzen bleiben erhalten. Dies aktiviert keinen Client, speichert
+keine Konfiguration und verleiht keine Netzwerk-, Credential- oder Datenautorität.
+Die initiale Kandidatenvalidierung und DNS-/Proxy-/Hostvertrauensgrenzen werden
+hierdurch nicht allgemein qualifiziert. Heap, JSON-Tiefe, Gesamtzeit und Pfad-TOCTOU
+bleiben eigenständige offene Grenzen. Originalversion1.19.0 und Auswahl bleiben
+erhalten; der Konfigurationsclient und diese gekoppelte Dokumentation erhalten
+gezielte Targetoverrides, keinen Upstream- oder Cloudscan-Abschlussstatus.
 
 Resource-price refresh is independent of model invocation. Cache conforming `foundation-resource-cost-evidence/v1` records outside Git, query a given source at most once per 24 hours (normally less often according to its TTL), and prefer deterministic primary sources or local measurement. AI-assisted source discovery is optional and cannot turn an unverified estimate into routable money evidence.
 
