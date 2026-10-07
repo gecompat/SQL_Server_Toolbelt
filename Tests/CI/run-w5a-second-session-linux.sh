@@ -183,6 +183,8 @@ deploy "${local_db}" Modules/toolbelt.core.result-table local
 deploy "${local_db}" Modules/toolbelt.core.execution-context local
 deploy "${local_db}" Modules/toolbelt.core.work-type local
 deploy "${local_db}" Modules/toolbelt.core.second-session local
+run_file "${local_db}" /workspace/Modules/toolbelt.core.second-session/Deployment \
+  ../Tests/Runtime/RepeatCurrent.Contract.sql -v DeploymentMode=local
 configure_linked_server
 
 run_file "${local_db}" /workspace/Modules/toolbelt.core.second-session/Tests/Runtime Lifecycle.Contract.sql
@@ -256,6 +258,8 @@ deploy "${central_db}" Modules/toolbelt.core.result-table central
 deploy "${central_db}" Modules/toolbelt.core.execution-context central
 deploy "${central_db}" Modules/toolbelt.core.work-type central
 deploy "${central_db}" Modules/toolbelt.core.second-session central
+run_file "${central_db}" /workspace/Modules/toolbelt.core.second-session/Deployment \
+  ../Tests/Runtime/RepeatCurrent.Contract.sql -v DeploymentMode=central
 run_query "${central_db}" "EXEC toolbelt_core.USP_ConfigureSecondSessionLoopback @LinkedServerName=N'${linked_server}';"
 
 run_stdin "${central_db}" <<'SQL'

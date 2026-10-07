@@ -100,6 +100,9 @@ tests:
   runtime: "Tests/Runtime/SecondSession.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
+  populated_repeat: "Tests/Runtime/RepeatCurrent.Contract.sql"
+  repeat_capture: "Tests/Runtime/RepeatCurrent.Capture.sql"
+  repeat_assert: "Tests/Runtime/RepeatCurrent.Assert.sql"
   multi_session: "Tests/Runtime/Concurrency.Contract.sql"
   github_hosted_linux: "../../.github/workflows/w5a-second-session-runtime.yml"
 validation_evidence:
@@ -122,4 +125,8 @@ validation_evidence:
   - date: "2026-09-01"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; Provider-Probe, separate SPID, Caller-Rollback, uncommittable Caller, Fehlerrollback, Konkurrenz, zentrales Deployment, Lifecycle und Uninstall"
+    result: "success"
+  - date: "2026-10-08"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37693379887"
+    scope: "Commit 32ee260e413b8de7f9b2046ffdc11618b0afd69b: zwei echte befüllte 1.1.0-Repeats lokal/zentral auf Linux2019/150,2022/160,2025/170 mit genau einem deaktivierten synthetischen loopback-Eintrag; alle acht Spalten einschließlich unterschiedlicher Auditzeiten, Unicode-/Padding-Autoren und Rowversionbytes sowie ausgewählter Katalog, vorhandene Permissions und eigene Annotationen/MS_Description erhalten. Keine RPC-/Configure-USP-Aufrufe im neuen Tabellenrepeat. Bestehende API-/Provider-/Rollback-/Parallelitäts-/Consumer-/Uninstallfälle und eigene CI-Bereinigung bestanden; abhängige W5b-Suite37693379826 ebenfalls SUCCESS am selben Head. Neue Windows-Repeats, weitere Repeat-CLs, nichtleere Benutzergrants, echte Minimalrechte, historische Übergänge und Hard-Interrupt-Recovery bleiben offen."
     result: "success"

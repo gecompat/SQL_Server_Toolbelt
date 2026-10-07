@@ -16,11 +16,55 @@ Konkurrenz, zentrales Deployment, Lifecycle und Uninstall.
 
 Version `1.1.0` mit resultsetfreier Ausführung: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410
 
+## Befüllter versionsgleicher Repeat
+
+[RepeatCurrent.Contract.sql](Runtime/RepeatCurrent.Contract.sql) qualifiziert
+zwei echte Deploys des bereits installierten Second Session 1.1.0 jeweils im
+gleichen lokalen beziehungsweise zentralen Modus. Die Tabelle erlaubt durch
+PK und Provider-Checkconstraint genau einen `loopback`-Eintrag. Das Fixture
+speichert daher eine deaktivierte synthetische Zeile mit `localhost` als
+reinem Tabellenwert. Es konfiguriert keinen Linked Server, startet keinen RPC
+und ruft weder Configure-USP noch einen Handler auf.
+
+Feste verschiedene Created-/Modified-Zeitpunkte mit 100-ns-Anteilen,
+synthetische Unicode-/Trailing-Space-Autoren und bereits veränderte Rowversion
+werden vor der Baseline gesetzt. Zwischen Baseline und beiden Deploys findet
+keine DML an der persistenten Tabelle statt. Das gemeinsame
+[Capture](Runtime/RepeatCurrent.Capture.sql) erfasst alle acht Spalten, Text
+binär und Rowversion als `binary(8)`. Der
+[Assert](Runtime/RepeatCurrent.Assert.sql) vergleicht in beide Richtungen
+zusätzlich ausgewählte Katalogmetadaten: sechs Modulobjekte und ihre IDs,
+Schemaowner, Spalten, PK/UQ/Check/Defaults, Indizes, vorhandene FKs/Trigger,
+Modulmarker, vorhandene Permissions sowie eigene Tabellen-/Spaltenannotation
+und nichtleere `MS_Description`. Dieser Installer erneuert keine Beschreibung.
+DDL-Zeitstempel gehören nicht zum Orakel. Vorhandene Permissions werden nur
+gelesen; eine leere Grantmenge belegt weder nichtleere Benutzergrants noch
+tatsächliche Minimalrechte.
+
+Aus `Deployment/` in einer frischen Session mit `DeploymentMode=local` oder
+`central` ausführen. Eingang ist eine eigene leere Installationsdatenbank mit
+allen drei Dependencies; vorbestehende eigene Annotationsnamen werden
+abgewiesen. Nach beiden Repeats wird die View read-only auf den erhaltenen
+deaktivierten Eintrag geprüft. Das Fixture entfernt anschließend nur die
+eigene Zeile und Properties und bestätigt seine leere Tabelle. Fehler beendet
+SQLCMD; der Adapter muss seine eigene Testdatenbank beziehungsweise seinen
+eigenen flüchtigen Testscope bereinigen. Kein Wiederaufnehmen einer teilweise
+verbliebenen Fixture.
+
+Dieser neue Tabellenrepeat bestand am Commit
+`32ee260e413b8de7f9b2046ffdc11618b0afd69b` auf Linux2019/150,2022/160,
+2025/170 jeweils lokal/zentral
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37693379887)).
+Historische Provider-/Windows-Evidenz ersetzt keine weitere Repeatqualifikation.
+Windows, weitere Repeat-Compatibility-Levels, nichtleere Benutzergrants,
+Minimalrechte und historische Versionsübergänge benötigen eigene Nachweise.
+Der Tabellenrepeat beweist keine funktionierende Providerverbindung.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
-- Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; Provider-Probe, separate SPID, Caller-Rollback, uncommittable Caller, Fehlerrollback, Konkurrenz, zentrales Deployment, Lifecycle und Uninstall
+- Datum: `2026-10-08`
+- Nachweis: `https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37693379887`
+- Scope: Commit 32ee260e413b8de7f9b2046ffdc11618b0afd69b: zwei echte befüllte 1.1.0-Repeats lokal/zentral auf Linux2019/150,2022/160,2025/170 mit genau einem deaktivierten synthetischen loopback-Eintrag; alle acht Spalten einschließlich unterschiedlicher Auditzeiten, Unicode-/Padding-Autoren und Rowversionbytes sowie ausgewählter Katalog, vorhandene Permissions und eigene Annotationen/MS_Description erhalten. Keine RPC-/Configure-USP-Aufrufe im neuen Tabellenrepeat. Bestehende API-/Provider-/Rollback-/Parallelitäts-/Consumer-/Uninstallfälle und eigene CI-Bereinigung bestanden; abhängige W5b-Suite37693379826 ebenfalls SUCCESS am selben Head. Neue Windows-Repeats, weitere Repeat-CLs, nichtleere Benutzergrants, echte Minimalrechte, historische Übergänge und Hard-Interrupt-Recovery bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

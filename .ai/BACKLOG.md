@@ -94,6 +94,27 @@ tabellenreine Wartungsscope ist jetzt `SecondSessionProvider`; neue Windows-,
 weitere Repeat-CL-, Benutzergrant-, Minimalrechte- und historische Nachweise
 bleiben getrennt.
 
+SecondSessionProvider-Wartung: Zwei echte befüllte 1.1.0-Repeats bestanden
+am 2026-10-08 am Commit `32ee260e413b8de7f9b2046ffdc11618b0afd69b` auf
+Linux2019/150,2022/160,2025/170 jeweils lokal/zentral
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37693379887)).
+Genau ein deaktivierter synthetischer `loopback`-Eintrag blieb mit allen acht
+Spalten einschließlich Audit-/Unicode-/Padding-/Rowversionbytes sowie
+ausgewähltem Katalog und eigenen Beschreibungen erhalten. Keine RPC- oder
+Configure-USP-Aufrufe im neuen Tabellenrepeat. Bestehende API-/Provider-/
+Rollback-/Parallelitäts-/Consumer-/Uninstallfälle und eigene CI-Bereinigung
+bestanden; abhängige W5b-Suite37693379826 ebenfalls am selben Head SUCCESS.
+Finale Head-CI/Merge sind in
+[PR289](https://github.com/gecompat/SQL_Server_Toolbelt/pull/289) abzugleichen.
+Neue Windows-Repeats, weitere CLs, Benutzergrants, Minimalrechte und historische
+Übergänge bleiben offen. FileSystemRoot besitzt neun Spalten ohne Identity,
+Auditfelder oder Rowversion; sein nativer Repeat benötigt zusätzlich die
+bestehenden Windows-/Assembly-/Trustvoraussetzungen. Der vorhandene Buildworkflow
+ersetzt keine SQL-Runtime. Unabhängig ist der gemeinsame exportierte Repeat
+von neun CLR-freien Modulen mit 14 der 15 Tabellen als nächster Testscope
+vorbereitet; Windows-FileSystemRoot und vollständiger 44-Modul-Export bleiben
+getrennt. Keine neue Funktions-, Rechte-, Provider- oder Trustfreigabe.
+
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
 Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene
@@ -111,7 +132,7 @@ Chatverlauf ersetzen diese Repositoryquellen nicht.
 | 1 (gezielt bestanden) | `toolbelt.file.content` / `FileContentRootAllowlist` | Befüllter Repeat lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Windows, weitere Repeat-CLs, nichtleere Benutzergrants und echte Minimalrechte bleiben offen. Dieser Tabellenrepeat benötigt weder Datei-I/O noch Konfigurations- oder CLR-Änderungen. |
 | 2 (gezielt bestanden) | `toolbelt.core.execution-cancel` / `ExecutionCancellation` | Befüllte Repeats mit exakten Zeilen-, Rowversion- und ausgewählten Katalogvergleichen lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Neue Windows-Repeats, weitere CLs, nichtleere Benutzergrants, Minimalrechte und historische Übergänge bleiben offen. |
 | 3 (gezielt bestanden) | `toolbelt.core.event-log` / `EventLog` | Daten-/Identity-/ausgewählter Katalogerhalt und vertragsgemäße WorkType-Reaktivierung mit anschließend unverändertem aktivem Repeat lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Neue Windows-Repeats, weitere CLs, Benutzergrants, Minimalrechte und historische Übergänge bleiben offen. |
-| 4 | `toolbelt.core.second-session` / `SecondSessionProvider` | Deaktivierte Provider, Auditfelder und Rowversions zusätzlich zu vorhandenen Provider-/Servernamensprüfungen nachweisen; keine Provider- oder Rechteausweitung. |
+| 4 (gezielt bestanden) | `toolbelt.core.second-session` / `SecondSessionProvider` | Deaktivierter Einzelprovider einschließlich acht Spalten, Audit-/Rowversionbytes und ausgewähltem Katalog lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Neue Windows-Repeats, weitere CLs, Benutzergrants, Minimalrechte und historische Übergänge offen; keine Provider- oder Rechteausweitung. |
 | 5 | `toolbelt.filesystem.windows` / `FileSystemRoot` | Befüllten Repeat unter bestehenden Windows-/Assembly-/Trustvoraussetzungen qualifizieren; fehlende Windows-Runtime nicht durch Offlineparser ersetzen. |
 
 Danach die exportierte gemeinsame Modulfolge mit befüllten Tabellen prüfen.
