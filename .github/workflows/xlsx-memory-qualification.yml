@@ -63,7 +63,23 @@ jobs:
         with:
           name: xlsx-qualified-release-input
           if-no-files-found: error
-          path: ${{ env.XLSX_PACKAGE_ROOT }}/**
+          # Nur benannte Releaseinputs; private Qualifikations-/Buildbäume bleiben lokal.
+          path: |
+            ${{ env.XLSX_PACKAGE_ROOT }}/zip/Toolbelt.Archive.ZipMemory.dll
+            ${{ env.XLSX_PACKAGE_ROOT }}/zip/Toolbelt.Archive.ZipMemory.trust-manifest.json
+            ${{ env.XLSX_PACKAGE_ROOT }}/zip/Deploy.WithAssembly.sql
+            ${{ env.XLSX_PACKAGE_ROOT }}/xlsx/Toolbelt.File.XlsxMemory.dll
+            ${{ env.XLSX_PACKAGE_ROOT }}/xlsx/Toolbelt.File.XlsxMemory.trust-manifest.json
+            ${{ env.XLSX_PACKAGE_ROOT }}/xlsx/Deploy.WithAssembly.sql
+            ${{ env.XLSX_PACKAGE_ROOT }}/zip13/artifacts/Toolbelt.Archive.ZipMemory.dll
+            ${{ env.XLSX_PACKAGE_ROOT }}/zip13/artifacts/Toolbelt.Archive.ZipMemory.trust-manifest.json
+            ${{ env.XLSX_PACKAGE_ROOT }}/zip13/artifacts/Deploy.WithAssembly.sql
+            ${{ env.XLSX_PACKAGE_ROOT }}/xlsx10/original/Modules/toolbelt.file.xlsx-memory/Artifacts/Toolbelt.File.XlsxMemory.dll
+            ${{ env.XLSX_PACKAGE_ROOT }}/xlsx10/original/Modules/toolbelt.file.xlsx-memory/Artifacts/Toolbelt.File.XlsxMemory.trust-manifest.json
+            ${{ env.XLSX_PACKAGE_ROOT }}/xlsx10/original/Modules/toolbelt.file.xlsx-memory/Artifacts/Deploy.WithAssembly.sql
+            ${{ env.XLSX_PACKAGE_ROOT }}/xlsx11/original/Modules/toolbelt.file.xlsx-memory/Artifacts/Toolbelt.File.XlsxMemory.dll
+            ${{ env.XLSX_PACKAGE_ROOT }}/xlsx11/original/Modules/toolbelt.file.xlsx-memory/Artifacts/Toolbelt.File.XlsxMemory.trust-manifest.json
+            ${{ env.XLSX_PACKAGE_ROOT }}/xlsx11/original/Modules/toolbelt.file.xlsx-memory/Artifacts/Deploy.WithAssembly.sql
 # Dieser Workflow qualifiziert begrenzte Framework-/IL-Evidenz, keinen SQL-Host.
 # Öffentliche SAFE-/Lifecycle-/Clientverträge verwenden den dokumentierten,
 # schema-validierten lokalen Labadapter; kein fehlender SQL-Lauf wird behauptet.

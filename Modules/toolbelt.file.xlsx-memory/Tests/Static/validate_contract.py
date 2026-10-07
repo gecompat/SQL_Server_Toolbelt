@@ -1,5 +1,6 @@
 """Struktureller XLSX-Vertrag; ersetzt keine Framework-/SQL-/NoIO-Evidenz."""
 from pathlib import Path
+from fnmatch import fnmatchcase
 import re
 import hashlib
 import zipfile
@@ -149,6 +150,47 @@ assert "'Directory.Packages.props'" in build_helper
 candidate = (module / 'Tests/Framework/Invoke-CandidateQualification.ps1').read_text(encoding='utf-8-sig')
 packaging = (module / 'Tests/Framework/Invoke-CandidatePackaging.ps1').read_text(encoding='utf-8-sig')
 workflow = (repo / '.github/workflows/xlsx-memory-qualification.yml').read_text(encoding='utf-8-sig')
+# Die echte Uploadauswahl gegen Releaseinputs und private Sentinels prüfen.
+# Für den erlaubten Literalpfad-Teilumfang ist keine YAML-/Globdependency nötig.
+upload_marker = '      - uses: actions/upload-artifact@v4\n'
+assert workflow.count(upload_marker) == 1, 'XLSX_UPLOAD_STEP_COUNT'
+upload = workflow.split(upload_marker, 1)[1].split('\n      - ', 1)[0]
+assert re.findall(r'^          name: (.+)$', upload, re.M) == ['xlsx-qualified-release-input']
+assert re.findall(r'^          if-no-files-found: (.+)$', upload, re.M) == ['error']
+path_values = re.findall(r'^          path: (.*)$', upload, re.M)
+assert len(path_values) == 1, 'XLSX_UPLOAD_PATH_COUNT'
+upload_paths = (re.findall(r'^            (.+)$', upload.split('          path: |\n', 1)[1], re.M)
+                if path_values[0] == '|' else path_values)
+upload_root = '${{ env.XLSX_PACKAGE_ROOT }}/'
+assert all(path.startswith(upload_root) for path in upload_paths), 'XLSX_UPLOAD_ROOT'
+upload_patterns = [path[len(upload_root):] for path in upload_paths]
+release_inputs = set()
+for directory, assembly in (
+    ('zip', 'Toolbelt.Archive.ZipMemory'),
+    ('xlsx', 'Toolbelt.File.XlsxMemory'),
+    ('zip13/artifacts', 'Toolbelt.Archive.ZipMemory'),
+    ('xlsx10/original/Modules/toolbelt.file.xlsx-memory/Artifacts', 'Toolbelt.File.XlsxMemory'),
+    ('xlsx11/original/Modules/toolbelt.file.xlsx-memory/Artifacts', 'Toolbelt.File.XlsxMemory'),
+):
+    release_inputs.update(directory + '/' + name for name in
+                          (assembly + '.dll', assembly + '.trust-manifest.json', 'Deploy.WithAssembly.sql'))
+private_sentinels = {
+    'qualification/CompileTypes.argv.json', 'qualification/RunEvidence.json',
+    'qualification/CompileTypes.stdout.txt', 'qualification/CompileTypes.stderr.txt',
+    'qualification/CompileTypes.process.json', 'qualification/Bin/Toolbelt.File.XlsxMemory.dll',
+    'PackagingEvidence.json', 'zip.stdout.txt', 'xlsx.stderr.txt',
+    'zip13/Build.stdout.txt', 'zip13/Build.process.json',
+    'xlsx10/original/Modules/toolbelt.file.xlsx-memory/Clr/bin/Release/provider.pdb',
+    'xlsx11/LegacyProvenance.json', 'future-root-file.json',
+}
+for fixture in (release_inputs, release_inputs | private_sentinels,
+                release_inputs | {path + '.argv.json' for path in release_inputs}):
+    selected = {path for path in fixture if any(fnmatchcase(path, pattern) for pattern in upload_patterns)}
+    assert selected == release_inputs, 'XLSX_UPLOAD_SELECTION_BOUNDARY'
+assert len(upload_patterns) == len(set(upload_patterns)) == 15, 'XLSX_UPLOAD_LITERAL_COUNT'
+assert set(upload_patterns) == release_inputs, 'XLSX_UPLOAD_RELEASE_INPUTS'
+assert not any(re.search(r'[*?\[\]!\\]', path) for path in upload_patterns), 'XLSX_UPLOAD_LITERAL_ONLY'
+print('PASS XLSX_UPLOAD_BOUNDARY releaseinputs=15 privatesentinels=14 selectioncases=3')
 forwarder = (repo / 'Spikes/XlsxMemory/Run-FrameworkQualification.ps1').read_text(encoding='utf-8-sig')
 assert workflow.index('Invoke-CandidatePackaging.ps1 -OutputDirectory') < workflow.index('Run-FrameworkQualification.ps1 -XlsxDirectory')
 assert 'Invoke-Types.ps1' not in workflow
