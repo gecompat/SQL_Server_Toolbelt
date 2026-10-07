@@ -318,27 +318,31 @@ exit 0
             guard_cases += 1
     print(f"PASS: {module} uninstall_guard cases={guard_cases}")
 
-# Das bestehende Integer-Base-Kollisionsorakel muss die konkrete Kategorie
-# und einen Fehlerstatus gemeinsam nachweisen, in Runner- und Labmodus.
-if "integer_base" in selected:
-    source = source_bytes[root / "Tests/CI" / modules["integer_base"][0]].decode("utf-8-sig").replace("\r\n", "\n")
+# Bestehende Kollisionsorakel verlangen Kategorie und Fehlerstatus gemeinsam.
+# Derselbe source-extrahierte Block prüft beide Adapter in Runner- und Labmodus.
+for module, error, title in (("integer_base", "51094", "Integer-Base"),
+                             ("identifier", "51064", "Identifier")):
+    if module not in selected:
+        continue
+    witness = module.upper() + "_COLLISION_VERIFIED"
+    source = source_bytes[root / "Tests/CI" / modules[module][0]].decode("utf-8-sig").replace("\r\n", "\n")
     begin = source.index('set +e\ncollision_output="$(run_file ')
-    end = source.index('\necho "INTEGER_BASE_COLLISION_VERIFIED"', begin) + len('\necho "INTEGER_BASE_COLLISION_VERIFIED"')
+    end = source.index(f'\necho "{witness}"', begin) + len(f'\necho "{witness}"')
     block = source[begin:end]
     guard_cases = 0
     for mode in ("runner", "lab"):
         for scenario, result_code, category, expected_code in (
-            ("expected_error", 7, "Msg 51094, Level 16", 0),
-            ("false_success", 0, "51094", 1),
+            ("expected_error", 7, f"Msg {error}, Level 16", 0),
+            ("false_success", 0, error, 1),
             ("wrong_category", 7, "59999", 1),
             ("missing_category", 7, "synthetic", 1),
-            ("numeric_suffix", 7, "510940", 1),
-            ("numeric_prefix", 7, "151094", 1),
+            ("numeric_suffix", 7, error + "0", 1),
+            ("numeric_prefix", 7, "1" + error, 1),
         ):
-            with tempfile.TemporaryDirectory(prefix="integer-base-collision-", dir=runtime) as base:
+            with tempfile.TemporaryDirectory(prefix=module + "-collision-", dir=runtime) as base:
                 base_path = Path(base).resolve()
                 if not base_path.is_relative_to(runtime):
-                    raise SystemExit("INTEGER_BASE_COLLISION_TEST_TEMP_SCOPE_INVALID")
+                    raise SystemExit(f"{module.upper()}_COLLISION_TEST_TEMP_SCOPE_INVALID")
                 invalid_path = base_path / "invalid-argv"
                 shell = f'''set -euo pipefail
 TBX_SQL_TARGET={mode}
@@ -360,14 +364,14 @@ exit 0
                 completed = subprocess.run([str(bash), harness_path.relative_to(root).as_posix()],
                                            cwd=root, capture_output=True, check=False, timeout=10)
                 if completed.returncode != expected_code or invalid_path.exists():
-                    raise SystemExit(f"INTEGER_BASE_COLLISION_TEST_ORACLE_MISMATCH:{mode}:{scenario}")
-                expected_stdout = b"INTEGER_BASE_COLLISION_VERIFIED\n" if expected_code == 0 else b""
-                expected_stderr = b"" if expected_code == 0 else "Integer-Base-Kollision wurde nicht mit Fehler 51094 abgelehnt.\n".encode("utf-8")
+                    raise SystemExit(f"{module.upper()}_COLLISION_TEST_ORACLE_MISMATCH:{mode}:{scenario}")
+                expected_stdout = (witness + "\n").encode("utf-8") if expected_code == 0 else b""
+                expected_stderr = b"" if expected_code == 0 else f"{title}-Kollision wurde nicht mit Fehler {error} abgelehnt.\n".encode("utf-8")
                 if completed.stdout != expected_stdout or completed.stderr != expected_stderr:
-                    raise SystemExit(f"INTEGER_BASE_COLLISION_TEST_CHANNEL_MISMATCH:{mode}:{scenario}")
-            print(f"PASS: integer_base collision_guard {mode} {scenario}")
+                    raise SystemExit(f"{module.upper()}_COLLISION_TEST_CHANNEL_MISMATCH:{mode}:{scenario}")
+            print(f"PASS: {module} collision_guard {mode} {scenario}")
             guard_cases += 1
-    print(f"PASS: integer_base collision_guard cases={guard_cases}")
+    print(f"PASS: {module} collision_guard cases={guard_cases}")
 
 for path, expected_hash in pins.items():
     if hashlib.sha256(path.read_bytes()).hexdigest() != expected_hash:

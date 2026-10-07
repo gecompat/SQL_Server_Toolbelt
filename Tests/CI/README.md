@@ -38,6 +38,12 @@ Namensabwesenheit. Unbestätigter Cleanup liefert `IDENTIFIER_CI_CLEANUP_UNVERIF
 und Exit1; `IDENTIFIER_CI_CLEANUP_VERIFIED` erhält den ursprünglichen Teststatus.
 Der Labzweig bleibt Container-No-op ohne Runnerowner oder private Ablage.
 
+Das vorhandene Kollisionsorakel verlangt einen fehlgeschlagenen Deploy und
+die vollständige Fehlerkategorie `51064`. Erfolgreicher Exit mit diesem Text,
+andere oder fehlende Kategorien und längere Nummern zählen nicht als Nachweis.
+Beide Rohkanäle bleiben im Speicher; `IDENTIFIER_COLLISION_VERIFIED` bestätigt
+das Orakel. Derselbe Harness prüft dies in Runner- und Labmodus ohne neue SQL-Fixture.
+
 `python -B Tests/CI/test_owned_container_cleanup.py --module identifier`
 prüft die tatsächliche Cleanupfunktion synthetisch, einschließlich Fremdbestand,
 Namensaustausch, ungültiger Identität, unbekannter Sicht und Lab-Exit0/Exit7.
