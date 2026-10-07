@@ -45,7 +45,20 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "$EVENT_NAME" = workflow_dispatch ] || git diff --name-only "$BASE_SHA" "$HEAD_SHA" | rg '^(Modules/toolbelt\.archive\.zip-files/|Documentation/Architecture/ZIP_FILES_CONTRACT\.md$|Documentation/Standards/(SQL_OBJECT_NAMING|USP_CONTRACT)\.md$|\.github/workflows/documentation-consistency\.yml$)' > /dev/null; then
+          run_scope=false
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            run_scope=true
+          elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Modules/toolbelt.archive.zip-files/ Documentation/Architecture/ZIP_FILES_CONTRACT.md Documentation/Standards/SQL_OBJECT_NAMING.md Documentation/Standards/USP_CONTRACT.md .github/workflows/documentation-consistency.yml; then
+            :
+          else
+            scope_result=$?
+            if [ "$scope_result" -ne 1 ]; then
+              echo "DOCUMENTATION_SCOPE_DIFF_FAILED" >&2
+              exit "$scope_result"
+            fi
+            run_scope=true
+          fi
+          if [ "$run_scope" = true ]; then
             python3 Modules/toolbelt.archive.zip-files/Tests/Static/validate_contract.py
           fi
 
@@ -55,7 +68,20 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "$EVENT_NAME" = workflow_dispatch ] || git diff --name-only "$BASE_SHA" "$HEAD_SHA" | rg '^(Modules/toolbelt\.conversion\.safe-cast/|\.github/workflows/documentation-consistency\.yml$)' > /dev/null; then
+          run_scope=false
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            run_scope=true
+          elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Modules/toolbelt.conversion.safe-cast/ .github/workflows/documentation-consistency.yml; then
+            :
+          else
+            scope_result=$?
+            if [ "$scope_result" -ne 1 ]; then
+              echo "DOCUMENTATION_SCOPE_DIFF_FAILED" >&2
+              exit "$scope_result"
+            fi
+            run_scope=true
+          fi
+          if [ "$run_scope" = true ]; then
             python3 Modules/toolbelt.conversion.safe-cast/Tests/Static/validate_contract.py
           fi
 
@@ -65,7 +91,20 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "$EVENT_NAME" = workflow_dispatch ] || git diff --name-only "$BASE_SHA" "$HEAD_SHA" | rg '^(Modules/toolbelt\.json\.pointer/|\.github/workflows/documentation-consistency\.yml$)' > /dev/null; then
+          run_scope=false
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            run_scope=true
+          elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Modules/toolbelt.json.pointer/ .github/workflows/documentation-consistency.yml; then
+            :
+          else
+            scope_result=$?
+            if [ "$scope_result" -ne 1 ]; then
+              echo "DOCUMENTATION_SCOPE_DIFF_FAILED" >&2
+              exit "$scope_result"
+            fi
+            run_scope=true
+          fi
+          if [ "$run_scope" = true ]; then
             python3 Modules/toolbelt.json.pointer/Tests/Static/validate_contract.py
           fi
 
@@ -75,7 +114,20 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "$EVENT_NAME" = workflow_dispatch ] || git diff --name-only "$BASE_SHA" "$HEAD_SHA" | rg '^(Tests/CI/(test_owned_container_cleanup\.py|run-json-pointer-linux\.sh|run-safe-cast-linux\.sh|run-json-constructors-linux\.sh|run-table-clone-linux\.sh)|\.github/workflows/documentation-consistency\.yml)$' > /dev/null; then
+          run_scope=false
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            run_scope=true
+          elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Tests/CI/test_owned_container_cleanup.py Tests/CI/run-json-pointer-linux.sh Tests/CI/run-safe-cast-linux.sh Tests/CI/run-json-constructors-linux.sh Tests/CI/run-table-clone-linux.sh .github/workflows/documentation-consistency.yml; then
+            :
+          else
+            scope_result=$?
+            if [ "$scope_result" -ne 1 ]; then
+              echo "DOCUMENTATION_SCOPE_DIFF_FAILED" >&2
+              exit "$scope_result"
+            fi
+            run_scope=true
+          fi
+          if [ "$run_scope" = true ]; then
             python3 Tests/CI/test_owned_container_cleanup.py
           fi
 
@@ -86,8 +138,14 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
-          $changed = @(git diff --name-only $env:BASE_SHA $env:HEAD_SHA)
-          if ($env:EVENT_NAME -eq 'workflow_dispatch' -or @($changed | Where-Object { $_ -match '^(Tests/CI/(run-safe-cast-lab|run-json-pointer-lab|Test-LabDriverArgumentCase)\.ps1$|\.github/workflows/documentation-consistency\.yml$)' }).Count -gt 0) {
+          $runScope = $env:EVENT_NAME -eq 'workflow_dispatch'
+          if (-not $runScope) {
+            git diff --quiet $env:BASE_SHA $env:HEAD_SHA -- Tests/CI/run-safe-cast-lab.ps1 Tests/CI/run-json-pointer-lab.ps1 Tests/CI/Test-LabDriverArgumentCase.ps1 .github/workflows/documentation-consistency.yml
+            $scopeResult = $LASTEXITCODE
+            if ($scopeResult -notin 0,1) { throw 'DOCUMENTATION_SCOPE_DIFF_FAILED' }
+            $runScope = $scopeResult -eq 1
+          }
+          if ($runScope) {
             ./Tests/CI/Test-LabDriverArgumentCase.ps1
           }
 
@@ -97,6 +155,19 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "$EVENT_NAME" = workflow_dispatch ] || git diff --name-only "$BASE_SHA" "$HEAD_SHA" | rg '^(Tests/CI/(run-lab-local\.ps1|test-lab-selector\.ps1|validate_lab_selector\.py)|\.github/workflows/documentation-consistency\.yml)$' > /dev/null; then
+          run_scope=false
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            run_scope=true
+          elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Tests/CI/run-lab-local.ps1 Tests/CI/test-lab-selector.ps1 Tests/CI/validate_lab_selector.py .github/workflows/documentation-consistency.yml; then
+            :
+          else
+            scope_result=$?
+            if [ "$scope_result" -ne 1 ]; then
+              echo "DOCUMENTATION_SCOPE_DIFF_FAILED" >&2
+              exit "$scope_result"
+            fi
+            run_scope=true
+          fi
+          if [ "$run_scope" = true ]; then
             python3 Tests/CI/validate_lab_selector.py
           fi

@@ -8,7 +8,10 @@
   erhalten. Fehlende Sicht oder fehlgeschlagene Abwesenheitsprüfung verhindern
   einen erfolgreichen Cleanupstatus.
 - Der gemeinsame synthetische Cleanup-Test und seine CI-/Impactkopplung
-  erfassen den Tabellenklon-Adapter. Keine neue SQL-Funktion, Zielmatrix,
+  erfassen den Tabellenklon-Adapter. Die selektiven Documentation-CI-Guards
+  verwenden Git-Pathspecs und unterscheiden kein Match von einem Diff-Fehler;
+  ein fehlendes optionales Suchwerkzeug überspringt die Tests nicht mehr.
+  Keine neue SQL-Funktion, Zielmatrix,
   Rechte- oder Truständerung; Lab-Shimpfad bleibt unverändert. Normales
   EXIT-Cleanup ist kein Nachweis für harte Runner-/Hostunterbrechung.
 

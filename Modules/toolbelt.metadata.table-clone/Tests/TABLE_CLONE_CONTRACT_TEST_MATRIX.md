@@ -14,7 +14,10 @@ Bereinigung meldet ausschließlich `TABLE_CLONE_CI_CLEANUP_UNVERIFIED`.
 `Tests/CI/test_owned_container_cleanup.py --module table_clone` prüft diese
 Steuerung mit synthetischen Dockerantworten. Das ist keine native Ausführung;
 exakte Head-/Main-CI wird im zugehörigen PR getrennt belegt. Die vorhandenen
-SQL-Fixtures, Jobfristen, Matrix und Legacy-Artefaktverzeichnisse bleiben
+selektiven Documentation-CI-Checks verwenden Git-Pathspecs: ein Diff-Fehler
+blockiert, anstatt einen notwendigen Test als unbetroffen zu überspringen.
+Manuelle Läufe führen die Checks weiterhin ohne Basis-Diff aus.
+Die vorhandenen SQL-Fixtures, Jobfristen, Matrix und Legacy-Artefaktverzeichnisse bleiben
 unverändert. Der bestehende Lab-Shim verwaltet keinen Container und behält
 seinen No-op-Pfad; sein Datenbankcleanup bleibt beim eigenen Labtreiber.
 Harte Unterbrechung, übrige Lifecyclematrix, physische Ziele, Minimalrechte
