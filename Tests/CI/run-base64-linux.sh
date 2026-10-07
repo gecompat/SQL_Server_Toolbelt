@@ -250,11 +250,20 @@ run_query "${collision_database}" \
 run_query "${collision_database}" \
     "CREATE FUNCTION [toolbelt_conversion].[TVF_Base64Encode] (@Value varbinary(max), @UrlSafe bit = 0) RETURNS TABLE AS RETURN (SELECT CONVERT(varchar(max), 'foreign') AS EncodedValue);"
 
-if run_file "${collision_database}" "${deployment_directory}" Deploy.sql \
-    -v DeploymentMode=local; then
-    echo "Eine frameworkfremde Zielnamenskollision wurde überschrieben." >&2
+# Ein beliebiger Fehler ist kein Kollisionsnachweis. Beide Ausgabekanäle
+# bleiben im Speicher; nur Fehlerstatus UND die vollständige Kategorie zählen.
+set +e
+collision_output="$(run_file "${collision_database}" "${deployment_directory}" Deploy.sql \
+    -v DeploymentMode=local 2>&1)"
+collision_result=$?
+set -e
+if [[ "${collision_result}" -eq 0 ]] \
+    || ! grep -Eq '(^|[^0-9])51044([^0-9]|$)' <<<"${collision_output}"; then
+    echo "Base64-Kollision wurde nicht mit Fehler 51044 abgelehnt." >&2
     exit 1
 fi
+unset collision_output
+echo "BASE64_COLLISION_VERIFIED"
 
 run_query "${collision_database}" \
     "IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = N'Toolbelt.Module.toolbelt.conversion.base64.Version') THROW 52342, N'Kollisions-Preflight hinterließ einen Installationsmarker.', 1;"
