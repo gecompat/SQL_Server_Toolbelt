@@ -770,6 +770,7 @@ change_impact:
         - table_clone_static
     error_envelope_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.core.error-envelope/**
         - Documentation/Architecture/ERROR_ENVELOPE_MODULE_DESIGN.md
         - Documentation/Standards/USP_CONTRACT.md
@@ -779,6 +780,7 @@ change_impact:
         - markdown_links
     execution_context_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.core.execution-context/**
         - Documentation/Architecture/EXECUTION_CONTEXT_MODULE_DESIGN.md
         - Documentation/Standards/USP_CONTRACT.md
