@@ -29,7 +29,7 @@ Der Lab-Adapter [run-script-parser-lab.ps1](../../../Tests/CI/run-script-parser-
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-07`
-- Nachweis: `Scripts/New-ClrReleaseArtifacts.ps1; Tests/Static/validate_contract.py; Tests/Framework/Invoke-Contract.ps1; Tests/Framework/Invoke-Guard.ps1`
-- Scope: ScriptDom 18.0.117.0 mit exaktem SHA-512, deterministischer .NET-Framework-4.8-Build, statischer Dependency-/Lifecycle-Vertrag, 245 begrenzte Framework-Kindprozesse und 60 Guard-Prüfungen. Kein SQL ausgeführt; 82-Kandidatenrunner nicht verfügbar; tatsächliche SQL-Ausgabegrenzen nicht qualifiziert.
+- Nachweis: `local: Scripts/New-ClrReleaseArtifacts.ps1; Tests/Static/validate_contract.py; Tests/Framework/Invoke-Contract.ps1; Tests/Framework/Invoke-Guard.ps1; PowerShell syntax parse of Tests/CI/run-script-parser-lab.ps1`
+- Scope: ScriptDom 18.0.117.0 SHA-512 459E1372…F853DAC7; reproducible .NET Framework 4.8 release build, exact provider SHA-512 E03C6099…D51EDBF, static dependency/lifecycle contract, 245 bounded Framework child cases at 262144-byte stack and 60 guard checks passed. The 82-case pre-source runner was unavailable. No SQL executed, no trust/configuration changed, actual public output ceilings not qualified; live lifecycle and Table Clone trigger opt-in remain blocked by the missing schema-valid Lab contract.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
