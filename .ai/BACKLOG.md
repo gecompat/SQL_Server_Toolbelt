@@ -77,6 +77,16 @@ Der nächste konkrete Wartungsscope ist jetzt `EventLog`: dessen bestehende
 WorkType-Reaktivierung zuerst prüfen, anschließend den unveränderten aktiven
 Repeat. Keine neue öffentliche Funktion oder Änderung dieser Semantik.
 
+EventLog-Wartung in Umsetzung: Die ergänzte Testfixture erfasst alle 24
+Eventspalten und verbrauchte Identitywerte über zwei echte 1.0.0-Deploys.
+Der erste Deploy reaktiviert die zuvor über Register/Disable abweichend
+deaktivierte eigene WorkType-Registrierung kanonisch; der zweite muss diese
+vollständig einschließlich Rowversion erhalten. Fremde Registrierungen und
+ausgewählter Katalog bleiben unverändert. Setup-/Cleanup-APIresultsets werden
+privat aufgenommen; keine Source-/Deploy-/Provider-/Rechteänderung. Native
+Evidenz für diesen neuen Repeat steht noch aus. SecondSessionProvider ist
+parallel als nächster tabellenreiner Testscope vorbereitet.
+
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
 Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene

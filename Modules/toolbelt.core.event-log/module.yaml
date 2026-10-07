@@ -94,6 +94,9 @@ tests:
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   concurrency: "Tests/Runtime/Concurrency.Contract.sql"
+  repeat_current: "Tests/Runtime/RepeatCurrent.Contract.sql"
+  repeat_capture: "Tests/Runtime/RepeatCurrent.Capture.sql"
+  repeat_assert: "Tests/Runtime/RepeatCurrent.Assert.sql"
   github_hosted_linux: "../../.github/workflows/w5b-event-log-runtime.yml"
 validation_evidence:
   - date: "2026-08-05"

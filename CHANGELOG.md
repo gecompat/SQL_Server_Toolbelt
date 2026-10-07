@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-07 – EventLog-Datenerhalt und WorkType-Reaktivierung prüfen
+
+- Zwei echte versionsgleiche Deploys vergleichen alle 24 Eventspalten,
+  verbrauchte Identitywerte und ausgewählte Katalog-/Annotationsmetadaten.
+  Die bestehende WorkType-Reaktivierung wird im ersten Deploy separat geprüft;
+  der zweite muss die aktive Registrierung einschließlich Rowversion erhalten.
+- Der vorhandene Linuxadapter ersetzt den lokalen COUNT-only-Redeploy und
+  ergänzt denselben Test zentral. Neue Repeat-Auditresultsets bleiben privat.
+  Source, öffentliche API und Deployment bleiben gleich; native neue Evidenz
+  sowie offene Windows-/Minimalrechte-/Benutzergrantfälle bleiben getrennt.
+
 ## 2026-10-07 – Befüllte Cancellation-Repeats prüfen
 
 - Zusätzliche Testfixtures qualifizieren zwei echte versionsgleiche Deploys
