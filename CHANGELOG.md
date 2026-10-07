@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-07 – Second-Session-CI mit verifiziertem Cleanup und Fehlerexit
+
+- W5a bindet seinen Runner vor dem Start an Version, Run, Attempt und Owner.
+  Nur die gemeinsam mit dem Owner gelesene vollständige ID wird entfernt;
+  frische Namensabwesenheit und private Dateibereinigung sind Pflicht.
+- Die Uninstall-Ausgabe ist auch im Lab laufisoliert. Der bestehende Guard
+  verlangt Fehlerexit und Kategorie51649; Exit0 mit Fehlertext ist kein
+  erfolgreicher Abweisungsnachweis. Das bestehende Diagnose-cat bleibt erhalten.
+- Gemeinsame synthetische Cleanup-/Guardprüfungen und vorhandene Impact-Gates
+  erfassen den Adapter. Öffentliche SQL-Verträge, Loopback-Konfiguration,
+  Images, Matrix, Sessions und Runtimeworkflow bleiben erhalten.
+
 ## 2026-10-07 – W4b-CI mit verifizierter Bereinigung und Fehlerorakel
 
 - Der vorhandene Work-Type-Runner bindet Name und Owner vor dem Start,

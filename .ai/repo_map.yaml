@@ -836,6 +836,8 @@ change_impact:
         - markdown_links
     event_log_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
+        - Tests/CI/run-w5a-second-session-linux.sh
         - Modules/toolbelt.core.event-log/**
         - Modules/toolbelt.core.second-session/**
         - Documentation/Architecture/EVENT_LOG_MODULE_DESIGN.md

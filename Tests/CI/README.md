@@ -31,6 +31,25 @@ werden dadurch nicht belegt.
 
 ## Adapter und Zielversionen
 
+Der W5a-Second-Session-Adapter bindet seinen Runner vor dem Start an Version,
+Run, Attempt und Owner. Cleanup verwendet ausschließlich die gemeinsam mit
+dem Label gelesene vollständige ID und prüft frische Namensabwesenheit.
+`W5A_CI_CLEANUP_UNVERIFIED` endet Exit1; `W5A_CI_CLEANUP_VERIFIED` erhält den
+ursprünglichen Teststatus. Im Lab bleiben Container-rm No-op und die bestehende
+Datenbank-/Linked-Server-Bereinigung beim Labtreiber. Nur seine private
+Ausgabeablage wird zusätzlich entfernt; Fehler melden
+`W5A_LAB_CLEANUP_UNVERIFIED` und Exit1.
+
+Die tatsächliche Uninstall-Negativphase verlangt Fehlerexit und Kategorie51649.
+Ihre Datei liegt in beiden Modi laufisoliert; das bestehende `cat` bleibt als
+Diagnosekanal erhalten. `python -B Tests/CI/test_owned_container_cleanup.py
+--module w5a` prüft tatsächliche Cleanup-/Guardblöcke mit synthetischen Antworten
+ohne Docker, SQL oder Lab. Loopback-Konfiguration, fachliche Fixtures, vier
+Caller-Sessions und Versions-/CL-Matrix bleiben erhalten. Der unveränderte
+Workflow läuft bei passenden PRs oder manuell, ohne Pushtrigger. Head-Runtime,
+Main-Documentation und Treevergleich werden separat ausgewiesen; daraus folgt
+keine Hard-Interrupt-, Minimalrechte-, Lab- oder Releasequalifikation.
+
 Der W4b-Work-Type-Adapter bindet seinen Runner an Version, Run, Attempt und
 Owner. Cleanup entfernt nur die gemeinsam mit dem Label gelesene vollständige
 ID und verlangt frische Namensabwesenheit; unbestätigter Cleanup endet mit
