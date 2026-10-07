@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-07 – Split-Characters-CI mit verifizierter eigener Bereinigung
+
+- Der vorhandene Adapter bindet seinen Runner vor dem Start an SQL-Version,
+  Run, Attempt und Owner. Cleanup entfernt nur die gemeinsam mit dem Label
+  gelesene volle ID und bestätigt frische exakte Namensabwesenheit.
+- Unbestätigter Cleanup endet Exit1; bestätigter erhält den ursprünglichen
+  Teststatus. Der Labzweig bleibt Container-No-op ohne Owner oder private Ablage.
+- Synthetischer Harness, Documentationgate und vorhandenes Impact-Paket
+  erfassen den Adapter. Split-/Generate-Series-Verträge, SQL-Fixtures,
+  Kollisions-/Dependencyorakel, Images, Readinessfrist, Matrix und Runtimeworkflow
+  bleiben erhalten.
+
 ## 2026-10-07 – Identifier-Kollisionsorakel verlangt konkrete Ablehnung
 
 - Der vorhandene Adapter verlangt Fehlerstatus und die vollständige Kategorie
