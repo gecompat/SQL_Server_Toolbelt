@@ -52,6 +52,8 @@ jobs:
       - name: Execute deterministic worker faults
         shell: pwsh
         run: ./Workers/ExternalQueue/Tests/Worker.Contract.ps1
+      - name: Verify synthetic CI target ownership
+        run: python Workers/ExternalQueue/Tests/CiTarget.Contract.py
       - name: Execute execution actor isolation faults
         shell: pwsh
         run: ./Workers/ExternalQueue/Tests/ExecutionActors.Contract.ps1
@@ -72,9 +74,17 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          container_name="tbx-external-worker-${GITHUB_RUN_ID:-}-${GITHUB_RUN_ATTEMPT:-}"
+          [[ "${container_name}" =~ ^tbx-external-worker-[0-9]+-[0-9]+$ ]] || { echo WORKER_CI_IDENTITY_INVALID >&2; exit 1; }
+          container_owner="$(openssl rand -hex 16)"
+          [[ "${container_owner}" =~ ^[0-9a-f]{32}$ ]] || { echo WORKER_CI_OWNER_INVALID >&2; exit 1; }
+          # Vor Dockerstart für den separaten always-Cleanup verfügbar machen.
+          # Das Label bindet auch einen teilweise fehlgeschlagenen eigenen Start.
+          printf 'TBX_WORKER_CI_NAME=%s\nTBX_WORKER_CI_OWNER=%s\n' "${container_name}" "${container_owner}" >> "$GITHUB_ENV"
           worker_password="Tbx!$(openssl rand -hex 18)Aa1"
           echo "::add-mask::${worker_password}"
-          docker run -d --name tbx-external-worker-ci \
+          docker run -d --name "${container_name}" \
+            --label "tbx.external-worker.ci.owner=${container_owner}" \
             -e ACCEPT_EULA=Y -e MSSQL_PID=Developer \
             -e MSSQL_SA_PASSWORD="${worker_password}" \
             -p 127.0.0.1:1433:1433 \
@@ -123,4 +133,22 @@ jobs:
       - name: Cleanup owned synthetic target
         if: always()
         shell: bash
-        run: docker rm -f tbx-external-worker-ci >/dev/null 2>&1 || true
+        run: |
+          set -euo pipefail
+          container_name="${TBX_WORKER_CI_NAME:-}"
+          container_owner="${TBX_WORKER_CI_OWNER:-}"
+          [[ "${container_name}" =~ ^tbx-external-worker-[0-9]+-[0-9]+$ && "${container_owner}" =~ ^[0-9a-f]{32}$ ]] || { echo WORKER_CI_CLEANUP_UNVERIFIED >&2; exit 1; }
+          # Eine Inspection bindet vollständige ID und Owner; ein ersetzter Name
+          # kann kein Löschziel werden. Fehlende Sicht ist kein Abwesenheitsbeweis.
+          names="$(docker container ls --all --filter "name=^/${container_name}$" --format '{{.Names}}' 2>/dev/null)" || { echo WORKER_CI_CLEANUP_UNVERIFIED >&2; exit 1; }
+          if [[ -n "${names}" ]]; then
+            [[ "${names}" == "${container_name}" ]] || { echo WORKER_CI_CLEANUP_UNVERIFIED >&2; exit 1; }
+            identity="$(docker inspect --format '{{.Id}} {{ index .Config.Labels "tbx.external-worker.ci.owner" }}' "${container_name}" 2>/dev/null)" || { echo WORKER_CI_CLEANUP_UNVERIFIED >&2; exit 1; }
+            [[ "${identity}" =~ ^([0-9a-f]{64})\ ([0-9a-f]{32})$ ]] || { echo WORKER_CI_CLEANUP_UNVERIFIED >&2; exit 1; }
+            container_id="${BASH_REMATCH[1]}"
+            [[ "${BASH_REMATCH[2]}" == "${container_owner}" ]] || { echo WORKER_CI_CLEANUP_UNVERIFIED >&2; exit 1; }
+            docker rm -f "${container_id}" >/dev/null 2>&1 || { echo WORKER_CI_CLEANUP_UNVERIFIED >&2; exit 1; }
+          fi
+          names="$(docker container ls --all --filter "name=^/${container_name}$" --format '{{.Names}}' 2>/dev/null)" || { echo WORKER_CI_CLEANUP_UNVERIFIED >&2; exit 1; }
+          [[ -z "${names}" ]] || { echo WORKER_CI_CLEANUP_UNVERIFIED >&2; exit 1; }
+          echo WORKER_CI_CLEANUP_VERIFIED

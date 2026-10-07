@@ -1,5 +1,28 @@
 # Worker-Qualifikation
 
+## Flüchtiges CI-Ziel: Ownership und Bereinigung
+
+Der bestehende Linux-Workerworkflow verwendet einen validierten Run-/Attempt-
+Namen und ein eigenes zufälliges Ownerlabel. Name und Owner werden vor dem
+Dockerstart an den getrennten `always()`-Cleanupstep übergeben. Eine gemeinsame
+Inspection bindet vollständige Container-ID und Owner; nur diese eigene ID
+wird entfernt. Fremder Bestand, fehlende Sicht oder fehlgeschlagene frische
+Namensabwesenheit scheitern mit `WORKER_CI_CLEANUP_UNVERIFIED`. Erfolgreich
+bestätigte Bereinigung meldet `WORKER_CI_CLEANUP_VERIFIED`. Ein zuvor
+fehlgeschlagener GitHub-Step bleibt fehlgeschlagen.
+
+`python -B Workers/ExternalQueue/Tests/CiTarget.Contract.py` bestand am
+2026-10-07 lokal auf Windows 20 synthetische Fälle an den tatsächlich
+extrahierten Startup-/Cleanupsteps: genaue Dockerargumente, Run/Attempt,
+Ownererzeugung, Startupfehler mit vorheriger Identitätsübergabe, volle ID,
+fremder/ersetzter Name, fehlende Sicht, Removefehler und frische Abwesenheit.
+Die Prüfung ist auf 45 Sekunden insgesamt und fünf Sekunden je Prozess
+begrenzt; zwei Sourcepins werden vor und nach dem Lauf geprüft. Sie verwendet
+Git-Bash ohne echte OpenSSL-/Docker-/SQL- oder Labaktionen. Beide vorhandenen
+Faultjobs führen diese Offlineprüfung aus. Exakte Head-/Main-CI steht separat
+im jeweiligen Pull Request; dies qualifiziert keine harte Hostunterbrechung,
+Minimalrechte oder breitere Zielmatrix. Der Labadapter ist nicht betroffen.
+
 ## Welle 2: isolierte Ausführungsakteure
 
 Am 2026-10-04 besteht die gezielte Offlineprüfung

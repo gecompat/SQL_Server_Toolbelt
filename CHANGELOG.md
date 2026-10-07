@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-07 – Eigenes Worker-CI-Ziel verifiziert bereinigen
+
+- Der vorhandene Linux-Workerworkflow bindet sein flüchtiges Ziel vor dem
+  Start an Run, Attempt und Owner. Der getrennte Cleanupstep entfernt nur
+  die zusammen mit dem eigenen Label gelesene vollständige Container-ID
+  und bestätigt danach frische Namensabwesenheit; Fehler bleiben sichtbar.
+- Ein begrenzter synthetischer Test extrahiert die tatsächlichen beiden
+  Workflowsteps und prüft Übergabe, Fehler und Dockerargumente ohne Docker
+  oder SQL. Bestehende Faultjobs führen ihn aus. Produkt-SQL, Workerlogik,
+  Image, Port, Provider, Matrix und Labadapter bleiben unverändert.
+
 ## 2026-10-07 – Eigene Tabellenklon-CI-Container verifiziert bereinigen
 
 - Der vorhandene Runner-Adapter bindet seinen Container an Run, Attempt,
