@@ -183,7 +183,7 @@ Main-Dokumentations-CI
 ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37703434131))
 bestand; Main-Worker-CI
 ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37703434018))
-ist noch offen. Die Migrationswelle wird erst nach bestandenem Main-Worker-
-Gate und tatsächlicher eigener Head-CI qualifiziert. Weitere Plattformen/CLs,
+bestand einschließlich eigener Bereinigung. Die Migrationswelle wird erst
+nach tatsächlicher eigener Head-CI qualifiziert. Weitere Plattformen/CLs,
 Minimalrechte, nichtleere Grants, unbekannte/partielle Installationen und
 vollständiger 44-Modul-Lifecycle bleiben getrennt.

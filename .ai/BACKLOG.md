@@ -189,8 +189,8 @@ bestand; PR290 ist nach `origin/main` integriert, Mainstand
 `acba925419973d9dfb2b7b8e481d67f0a75789e3` mit identischem Parentbaum.
 Main-Dokumentations-CI bestand; Main-Worker-CI
 ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37703434018))
-ist noch offen. Eigene native Migrationsqualifikation folgt erst nach
-bestandenem Main-Worker-Gate. Keine neue Funktions-, Rechte-,
+bestand einschließlich eigener Bereinigung. Eigene native Migrationsqualifikation
+bleibt bis tatsächlicher eigener Head-CI offen. Keine neue Funktions-, Rechte-,
 Provider-, Trust-, Ziel- oder allgemeine Migrationsfreigabe wird daraus
 abgeleitet. Details und Grenzen stehen in den
 [Deploymenttests](../Deployment/Tests/README.md).

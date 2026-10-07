@@ -22,8 +22,8 @@
   frühere FAILED-Läufe bleiben historische Evidenz. Finale Parent-Head-CI am
   Stand `bdc2ba9f001190d9d63cc97e040f1e693fb4dafd` bestand; PR290 ist nach
   `origin/main` integriert, Mainstand `acba925419973d9dfb2b7b8e481d67f0a75789e3`.
-  Main-Dokumentations-CI bestand; Main-Worker-CI und eigene native
-  Migrationsqualifikation sind noch offen.
+  Main-Dokumentations- und Main-Worker-CI einschließlich eigener Bereinigung
+  bestanden; eigene native Migrationsqualifikation ist noch offen.
 
 ## 2026-10-08 – Befüllte exportierte Modulfolge gemeinsam prüfen
 

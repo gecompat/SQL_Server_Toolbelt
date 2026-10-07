@@ -158,6 +158,7 @@ bestand den begrenzten nativen Exportrepeat am Qualifikationshead
 `a836b87778fbe4c498b4b1ce05f06c58373ea03c`; finale Parent-Head-CI am Stand
 `bdc2ba9f001190d9d63cc97e040f1e693fb4dafd` bestand. PR290 ist nach `origin/main`
 integriert, Mainstand `acba925419973d9dfb2b7b8e481d67f0a75789e3` mit identischem
-Parentbaum. Main-Dokumentations-CI bestand; Main-Worker-CI bleibt noch offen.
+Parentbaum. Main-Dokumentations- und Main-Worker-CI einschließlich eigener
+Bereinigung bestanden.
 Dieser Fall ändert keine Source-/Deploy-/API-Semantik und erweitert keine
 Rechte oder Ziele.
