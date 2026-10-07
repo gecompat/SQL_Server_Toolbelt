@@ -31,6 +31,20 @@ werden dadurch nicht belegt.
 
 ## Adapter und Zielversionen
 
+Der Identifier-Adapter bindet seinen Runner vor dem Start an SQL-Version,
+Run, Attempt und Ownerlabel. Cleanup liest volle ID und Owner gemeinsam,
+entfernt ausschließlich diese eigene ID und verlangt frische exakte
+Namensabwesenheit. Unbestätigter Cleanup liefert `IDENTIFIER_CI_CLEANUP_UNVERIFIED`
+und Exit1; `IDENTIFIER_CI_CLEANUP_VERIFIED` erhält den ursprünglichen Teststatus.
+Der Labzweig bleibt Container-No-op ohne Runnerowner oder private Ablage.
+
+`python -B Tests/CI/test_owned_container_cleanup.py --module identifier`
+prüft die tatsächliche Cleanupfunktion synthetisch, einschließlich Fremdbestand,
+Namensaustausch, ungültiger Identität, unbekannter Sicht und Lab-Exit0/Exit7.
+Parser-/Quote- und Lifecycle-/Kollisionsfixtures, Bereitschaftsfrist, Images,
+Versions-/CL-Matrix und Runtimeworkflow bleiben unverändert. Exakte Head-/Main-
+Ergebnisse stehen im PR; Hard-Interrupt-Recovery und Release bleiben getrennt.
+
 Der Integer-Base-Adapter prüft seine Runneridentität aus Version, Run und
 Attempt sowie den Owner vor dem Start. Cleanup entfernt ausschließlich die
 gemeinsam mit dem Label gelesene volle ID und bestätigt frische exakte
