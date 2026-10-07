@@ -31,6 +31,21 @@ werden dadurch nicht belegt.
 
 ## Adapter und Zielversionen
 
+Der Generate-Series-Adapter bindet seinen Runner vor dem Start an SQL-Version,
+Run, Attempt und Ownerlabel. Cleanup liest volle ID und Owner gemeinsam,
+entfernt nur diese eigene ID und verlangt frische exakte Namensabwesenheit.
+`GENERATE_SERIES_CI_CLEANUP_UNVERIFIED` endet mit Exit1; bestätigter Cleanup
+meldet `GENERATE_SERIES_CI_CLEANUP_VERIFIED` und erhält den ursprünglichen
+Teststatus. Der Labzweig bleibt Container-No-op ohne Owner oder private Ablage.
+
+`python -B Tests/CI/test_owned_container_cleanup.py --module generate_series`
+prüft die tatsächliche Cleanupfunktion synthetisch einschließlich Fremdbestand,
+Namensaustausch, ungültiger Identität, unbekannter Sicht und Lab-Exit0/Exit7.
+SQL-Verträge und Fixtures, bestehendes Kollisionsorakel, optionaler
+Performancepfad samt Defaults, Images, Readinessfrist, Matrix und Runtimeworkflow
+bleiben erhalten. Exakte Head-/Main-Ergebnisse stehen im PR; Hard-Interrupt-
+Recovery, Very-large-series-Qualifikation und Release bleiben getrennt.
+
 Der Base64-Adapter bindet seinen Runner vor dem Start an SQL-Version, Run,
 Attempt und Ownerlabel. Cleanup liest volle ID und Owner gemeinsam, entfernt
 nur diese eigene ID und verlangt frische exakte Namensabwesenheit.
