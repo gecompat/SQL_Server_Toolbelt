@@ -143,6 +143,7 @@ jobs:
             git diff --quiet $env:BASE_SHA $env:HEAD_SHA -- Tests/CI/run-safe-cast-lab.ps1 Tests/CI/run-json-pointer-lab.ps1 Tests/CI/Test-LabDriverArgumentCase.ps1 .github/workflows/documentation-consistency.yml
             $scopeResult = $LASTEXITCODE
             if ($scopeResult -notin 0,1) { throw 'DOCUMENTATION_SCOPE_DIFF_FAILED' }
+            $LASTEXITCODE = 0
             $runScope = $scopeResult -eq 1
           }
           if ($runScope) {
