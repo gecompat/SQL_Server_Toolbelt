@@ -441,7 +441,41 @@ def execute_adapter(connection: dict[str, Any], operation: str, arguments: dict[
         return method(arguments)
 
 
+def _discovery_origin(endpoint: str) -> str | None:
+    # Vor urllib-Normalisierung prüfen: kein anderes Protokoll, Userinfo oder
+    # URL-Anhang darf einen automatischen Probe erreichen oder im Vorschlag
+    # erscheinen. Ungültige Kandidaten bleiben vom sicheren Default isoliert.
+    if not isinstance(endpoint, str) or not endpoint or any(
+        ord(char) <= 32 or 127 <= ord(char) <= 159 or char.isspace() for char in endpoint
+    ) or any(char in endpoint for char in "\\?#@"):
+        return None
+    try:
+        parsed = urllib.parse.urlsplit(endpoint)
+        if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.path not in {"", "/"}:
+            return None
+        port = parsed.port  # Erzwingt auch die Syntax-/Bereichsprüfung.
+        if port is not None and port == 0:
+            return None
+        host = parsed.hostname.lower()
+        authority_host = f"[{host}]" if ":" in host else host
+        authority = parsed.netloc.lower()
+        if authority != authority_host:
+            if not authority.startswith(authority_host + ":"):
+                return None
+            port_text = authority[len(authority_host) + 1:]
+            if not port_text or any(char not in "0123456789" for char in port_text):
+                return None
+        if "%" in authority:
+            return None
+    except ValueError:
+        return None
+    return endpoint[:-1] if endpoint.endswith("/") else endpoint
+
+
 def _probe_candidate(endpoint: str, timeout: float) -> dict[str, Any]:
+    endpoint = _discovery_origin(endpoint)
+    if endpoint is None:
+        return {"adapter": "ollama", "endpoint": None, "state": "INVALID_ENDPOINT", "checked_at": None, "version": None}
     checked_at = utc_now()
     request = urllib.request.Request(endpoint.rstrip("/") + "/api/version", headers={"Accept": "application/json"})
     try:
@@ -468,21 +502,25 @@ def discover_candidates(*, probe: bool, timeout: float = 0.75) -> list[dict[str,
     if configured:
         if "://" not in configured:
             configured = "http://" + configured
-        candidates.append((configured.rstrip("/"), "OLLAMA_HOST"))
+        candidates.append((configured, "OLLAMA_HOST"))
     candidates.append((DEFAULT_OLLAMA_ENDPOINT, "SAFE_LOOPBACK_DEFAULT"))
-    seen: set[str] = set()
+    seen: set[str | None] = set()
     result = []
-    for endpoint, source in candidates:
+    for candidate, source in candidates:
+        endpoint = _discovery_origin(candidate)
         if endpoint in seen:
             continue
         seen.add(endpoint)
-        parsed = urllib.parse.urlparse(endpoint)
-        loopback = (parsed.hostname or "").lower() in {"localhost", "127.0.0.1", "::1"}
-        row = _probe_candidate(endpoint, timeout) if probe and loopback else {
-            "adapter": "ollama", "endpoint": endpoint, "state": "NOT_PROBED", "checked_at": None, "version": None
-        }
-        if probe and not loopback:
-            row["state"] = "AUTHORIZATION_REQUIRED"
+        if endpoint is None:
+            row = {"adapter": "ollama", "endpoint": None, "state": "INVALID_ENDPOINT", "checked_at": None, "version": None}
+        else:
+            parsed = urllib.parse.urlsplit(endpoint)
+            loopback = parsed.hostname.lower() in {"localhost", "127.0.0.1", "::1"}
+            row = _probe_candidate(endpoint, timeout) if probe and loopback else {
+                "adapter": "ollama", "endpoint": endpoint, "state": "NOT_PROBED", "checked_at": None, "version": None
+            }
+            if probe and not loopback:
+                row["state"] = "AUTHORIZATION_REQUIRED"
         row["source"] = source
         row["proposal_only"] = True
         row["requires_confirmation"] = ["execution_boundary", "network_authorized", "data_classes", "remote_models"]

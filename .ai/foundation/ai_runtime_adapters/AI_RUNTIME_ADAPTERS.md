@@ -60,6 +60,34 @@ bleiben eigenständige offene Grenzen. Originalversion1.19.0 und Auswahl bleiben
 erhalten; der Konfigurationsclient und diese gekoppelte Dokumentation erhalten
 gezielte Targetoverrides, keinen Upstream- oder Cloudscan-Abschlussstatus.
 
+## Gezielte Toolbelt-Discovery-Originprüfung2026-10-07
+
+Vor Vorschlag und Transport akzeptiert Discovery ausschließlich einen
+credential-freien HTTP(S)-Origin. Ein einzelner abschließender Slash wird
+entfernt; die bestehende HTTP-Ergänzung für schemafreie OLLAMA_HOST-Werte
+bleibt erhalten. Andere Schemes, Userinfo einschließlich leerem Userinfo,
+API-Pfade, Query-/Fragmentdelimiter, Backslashes, C0-/C1-Steuerzeichen und
+Whitespace werden abgewiesen. Ports müssen gültig und ungleich0 sein;
+leere Portangaben, kodierte Authorities und fehlerhafte IPv6-/Authorityformen
+werden ebenfalls vor Requesterzeugung abgewiesen. Kein DNS-Read ist Teil
+dieser syntaktischen Prüfung.
+
+Ein ungültiger Kandidat liefert dieselben Vorschlagsfelder mit
+`state=INVALID_ENDPOINT`, `endpoint=None`, `checked_at=None` und `version=None`.
+Der eingegebene Kandidat wird nicht wiedergegeben. Er verhindert den
+nachfolgenden sicheren Standardvorschlag nicht. Auch der direkte private
+Versionsprobe prüft den Origin vor Requesterzeugung. Gültige Origins behalten
+ihre bisherige Loopbackauswahl: nur localhost,127.0.0.1 und::1 sind automatisch
+probefähig. Andere Origins bleiben bei angefordertem Probe
+`AUTHORIZATION_REQUIRED`; `probe=False` bleibt vollständig kontaktfrei.
+Vorschlagsstatus und Bestätigungsfelder erteilen weiterhin keine Autorität.
+
+Die strengere Syntaxgrenze betrifft ausschließlich Discovery, nicht die
+Validierung gespeicherter Verbindungen. DNS-/Proxy-/Hostvertrauen, Heap,
+JSON-Tiefe, Gesamtzeit und Pfad-TOCTOU bleiben getrennte offene Grenzen.
+Diese Wartung aktiviert keine Runtime, speichert keine Konfiguration und
+ändert weder Provider noch Foundationversion oder den historischen Cloudscan.
+
 Resource-price refresh is independent of model invocation. Cache conforming `foundation-resource-cost-evidence/v1` records outside Git, query a given source at most once per 24 hours (normally less often according to its TTL), and prefer deterministic primary sources or local measurement. AI-assisted source discovery is optional and cannot turn an unverified estimate into routable money evidence.
 
 Configuration is target/runtime data. Store it outside the repository when it contains endpoint, host path, or credential environment details. Credentials are read only from explicitly allowlisted environment names and never emitted; they require HTTPS unless a loopback endpoint has separate explicit host-boundary evidence. `network_authorized`, general and remote data classes, read roots, write roots, remote-model authority, and asserted boundary must all be configured; no default grants them. Command executables use absolute paths and an exact argv/environment. Handle roots restrict what the adapter passes to the child but are not an operating-system sandbox: configure only trusted programs and apply target-owned process isolation when ambient user permissions are too broad.

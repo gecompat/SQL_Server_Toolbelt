@@ -5,7 +5,7 @@
   "source_repository": "https://github.com/gecompat/AI_Repository_Foundation",
   "source_commit": "4aafd20442275d0fdedf291fc6e12e8fe1f683cc",
   "source_manifest_sha256": "5fae12cf28f454c2f99b591e86c3f4018e32b30288f0e8021acde0af3c9865b4",
-  "recorded_at": "2026-10-07T15:14:57Z",
+  "recorded_at": "2026-10-07T16:06:27Z",
   "selection": {
     "adapters": [
       "claude-code",
@@ -321,9 +321,9 @@
       "kind": "ai-runtime-adapter-documentation",
       "merge": "review_if_exists",
       "source_sha256": "ce0777359cfd78cb7720bb8681b4947572d475714720a9e8d9fef3f49309ca7f",
-      "installed_sha256": "52c4fecc3856c79e149ac41b01ca6bc0d85778fed1f9658cfb412f3701cf4130",
+      "installed_sha256": "f5fd5b0a7b4a9e9e9253a5a2e06a89f619864f3a2bc0c56e130ef378dd9e544d",
       "integration_state": "INTENTIONAL_OVERRIDE",
-      "reason": "Gekoppelte Dokumentation von HttpAdapter- und Discovery-Responsegrenzen sowie Redirectverweigerung; Initialvalidierung, TOCTOU, Heap und Gesamtzeit bleiben separat, keine Runtimeaktivierung oder Foundationversion."
+      "reason": "Gekoppelte Dokumentation von HttpAdapter-/Discovery-Responsegrenzen, Redirectverweigerung und Discovery-Originprüfung; DNS/Proxy/Hostvertrauen, TOCTOU, Heap und Gesamtzeit bleiben separat, keine Runtimeaktivierung oder Foundationversion."
     },
     {
       "source": "foundation/capabilities/ai-runtime-adapters/adapter_protocol.py",
@@ -351,9 +351,9 @@
       "kind": "ai-runtime-configuration-assistant",
       "merge": "review_if_exists",
       "source_sha256": "3f5a298a33b503ee3533090a84f73a49eb4bf3e318a519a79235446a94455a22",
-      "installed_sha256": "9e9374d569f20906506db3c4cbceb20147329ae7f1d163f5849935861b0f5d3f",
+      "installed_sha256": "e133e40f40a795b82eac5b822df2a9aaf02de0124771f97aaddcf4e0bb531079",
       "integration_state": "INTENTIONAL_OVERRIDE",
-      "reason": "Toolbelt-Securitywartung2026-10-07: Discovery nutzt den gemeinsamen16MiB-Reader und NoRedirect; HTTPError ohne Bodyread schließen, Transport- und Encodingfehler als bestehenden UNAVAILABLE-Vorschlag isolieren."
+      "reason": "Toolbelt-Securitywartung2026-10-07: Discovery nutzt16MiB-Reader und NoRedirect; vor Vorschlag/Transport credential-freien HTTP(S)-Origin prüfen, ungültige Kandidaten ohne Inputecho vom Default isolieren; Transportfehler bleiben UNAVAILABLE."
     },
     {
       "source": "foundation/capabilities/ai-runtime-adapters/runtime_mcp.py",

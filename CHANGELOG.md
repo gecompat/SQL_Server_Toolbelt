@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-07 – Discovery prüft Origins vor Vorschlag und Transport
+
+- Der bestehende Konfigurationsclient weist ungültige Discovery-Origins vor
+  Requesterzeugung ab. Nur credential-freies HTTP(S) ohne URL-Anhänge ist
+  zulässig; Steuerzeichen, Whitespace, fehlerhafte Ports/IPv6 und kodierte
+  Authorities werden ebenfalls abgewiesen.
+- INVALID_ENDPOINT gibt keinen Kandidateninhalt wieder und blockiert den
+  sicheren Default nicht. Loopbackallowlist, Nicht-Loopback-Autoritätsgrenze,
+  Vorschlagsflags und Probe-only-Verhalten bleiben erhalten. Keine
+  Runtimeaktivierung, Konfigurationsmutation oder SQL-/Provideränderung.
+
 ## 2026-10-07 – Foundation-Discovery bleibt im begrenzten Probe
 
 - Der getrennte Versionsprobe verwendet den bestehenden16MiB-/64KiB-Reader

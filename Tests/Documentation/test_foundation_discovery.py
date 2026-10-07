@@ -15,6 +15,7 @@ from pathlib import Path
 import socket
 import subprocess
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 import urllib.error
@@ -30,6 +31,76 @@ ENDPOINT = "https://contoso.example"
 DEFAULT = "http://127.0.0.1:11434"
 SCENARIOS = 0
 BUILD_OPENER = urllib.request.build_opener
+INVALID_ORIGINS = (
+    "file://localhost/synthetic",
+    "ftp://localhost/synthetic",
+    "data:application/json,synthetic",
+    "http://",
+    "https:///localhost",
+    "http:",
+    "http://@localhost",
+    "http://:@localhost",
+    "http://synthetic@localhost",
+    "https://synthetic:synthetic@localhost",
+    "http://localhost/path",
+    "http://localhost//",
+    "http://localhost/./",
+    "http://localhost/../",
+    "http://localhost?",
+    "http://localhost?synthetic=canary",
+    "http://localhost#",
+    "http://localhost#synthetic-canary",
+    " http://localhost",
+    "http://localhost ",
+    "http://local host",
+    "http://localhost\t",
+    "http://local\nhost",
+    "http://localhost\r",
+    "http://localhost\x00",
+    "http://localhost\x1f",
+    "http://localhost\x7f",
+    "http://localhost\u0080",
+    "http://localhost\u009f",
+    "http://localhost\u0085",
+    "http://localhost\u00a0",
+    "http://localhost\u2003",
+    "http://localhost\u2028",
+    "http://localhost\\synthetic",
+    "http://[::1",
+    "http://::1]",
+    "http://::1",
+    "http://[invalid]",
+    "http://[::1]suffix",
+    "http://[::1]suffix:80",
+    "http://localhost:",
+    "http://localhost:0",
+    "http://localhost:65536",
+    "http://localhost:-1",
+    "http://localhost:abc",
+    "http://localhost:80:90",
+    "http://localhost:１２",
+    "http://local%68ost",
+    "http://127%2e0%2e0%2e1",
+    "http://%40localhost",
+    "http://[fe80::1%25synthetic]",
+)
+VALID_ORIGINS = (
+    (DEFAULT, True),
+    ("http://localhost", True),
+    ("https://LOCALHOST", True),
+    ("http://127.0.0.1:11435", True),
+    ("https://127.0.0.1:443/", True),
+    ("http://[::1]:11434", True),
+    ("https://[::1]/", True),
+    ("http://localhost:1", True),
+    ("https://localhost:65535", True),
+    ("https://CONTOSO.example", False),
+    ("http://fabrikam.example:8080/", False),
+    ("https://[2001:db8::1]:443", False),
+    ("http://localhost.", False),
+    ("http://127.0.0.2", False),
+)
+BARE_ORIGINS = ("localhost:11434", "LOCALHOST", "[::1]:11434")
 
 
 def isolated(source, names, namespace):
@@ -51,14 +122,14 @@ def load_sources():
     adapter_source = (DIRECTORY / "reference_adapters.py").read_text(encoding="utf-8")
     isolated(adapter_source, {"_read_http_body", "NoRedirect"}, namespace)
     isolated((DIRECTORY / "runtime_configuration.py").read_text(encoding="utf-8"),
-             {"utc_now", "_probe_candidate", "discover_candidates"}, namespace)
+             {"utc_now", "_discovery_origin", "_probe_candidate", "discover_candidates"}, namespace)
     # Read-only, feste Commitbindung und 2-s-Grenze vor allen Transportfallen.
     previous = subprocess.run(["git", "show", BASE + ":.ai/foundation/ai_runtime_adapters/runtime_configuration.py"],
                               cwd=ROOT, timeout=2, check=True,
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     old = dict(namespace)
-    isolated(previous.stdout.decode("utf-8"), {"_probe_candidate"}, old)
-    return namespace, adapter_source, old["_probe_candidate"]
+    isolated(previous.stdout.decode("utf-8"), {"_probe_candidate", "discover_candidates"}, old)
+    return namespace, adapter_source, old["_probe_candidate"], old["discover_candidates"]
 
 
 def forbidden(*_, **__):
@@ -176,7 +247,7 @@ class FakeHandler(urllib.request.HTTPHandler, urllib.request.HTTPSHandler):
 class DiscoveryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.ns, cls.adapter_source, cls.old_probe = load_sources()
+        cls.ns, cls.adapter_source, cls.old_probe, cls.old_discover = load_sources()
 
     def setUp(self):
         self.stack = contextlib.ExitStack()
@@ -367,6 +438,119 @@ class DiscoveryTests(unittest.TestCase):
                                            ("https://fabrikam.example/api/version", 0.125)])
         self.assertEqual(response.reads, [-1])
         self.assertGreaterEqual(response.closes, 1)
+
+    def invalid_shape(self, row, *, proposal=False):
+        if proposal:
+            self.proposal_shape(row)
+            self.assertEqual(row["source"], "OLLAMA_HOST")
+        else:
+            self.assertEqual(set(row), {"adapter", "endpoint", "state", "checked_at", "version"})
+        self.assertEqual((row["adapter"], row["endpoint"], row["state"], row["checked_at"], row["version"]),
+                         ("ollama", None, "INVALID_ENDPOINT", None, None))
+
+    def test_initial_origin_invalid_direct_and_discovery(self):
+        # Jede Grenze wird durch beide tatsächlichen Consumer erreicht; ungültige
+        # Inputs erscheinen weder in Vorschlägen noch in Opener-/JSON-Aufrufen.
+        for index, endpoint in enumerate(INVALID_ORIGINS):
+            with self.subTest(case=index, consumer="direct"):
+                self.scenario()
+                with patch.object(urllib.request, "build_opener", side_effect=forbidden) as opener:
+                    with patch.object(json, "loads", wraps=json.loads) as loads:
+                        self.invalid_shape(self.ns["_probe_candidate"](endpoint, 0.125))
+                self.assertEqual((opener.call_count, loads.call_count), (0, 0))
+            for probe in (False, True):
+                with self.subTest(case=index, consumer="discovery", probe=probe):
+                    self.scenario()
+                    response = ObservedResponse(b'{"version":"synthetic"}')
+                    # Das reale Prozess-Environment bleibt leer. NUL lässt sich
+                    # dort nicht setzen; nur der Consumer-Lookup wird injiziert.
+                    with patch.dict(self.ns, {"os": SimpleNamespace(environ={"OLLAMA_HOST": endpoint})}):
+                        with self.transport({DEFAULT + "/api/version": response}) as handler:
+                            rows = self.ns["discover_candidates"](probe=probe, timeout=0.375)
+                    self.assertEqual(len(rows), 2)
+                    self.invalid_shape(rows[0], proposal=True)
+                    self.proposal_shape(rows[1])
+                    self.assertEqual((rows[1]["endpoint"], rows[1]["source"], rows[1]["state"]),
+                                     (DEFAULT, "SAFE_LOOPBACK_DEFAULT", "HEALTHY" if probe else "NOT_PROBED"))
+                    self.assertEqual(handler.contacts, [(DEFAULT + "/api/version", 0.375)] if probe else [])
+                    # Der bekannte Default darf selbst das Präfix eines ungültigen
+                    # Inputs (etwa http://) enthalten; nur die Invalidrow ist echoarm.
+                    self.assertNotIn(endpoint, json.dumps(rows[0], ensure_ascii=False))
+                    self.assertEqual(rows[1]["version"], "synthetic" if probe else None)
+
+    def test_initial_origin_valid_direct_and_discovery(self):
+        for index, (endpoint, loopback) in enumerate(VALID_ORIGINS):
+            canonical = endpoint[:-1] if endpoint.endswith("/") else endpoint
+            target = urllib.request.Request(canonical + "/api/version").full_url
+            with self.subTest(case=index, consumer="direct"):
+                self.scenario()
+                response = ObservedResponse(b'{"version":"synthetic"}')
+                with self.transport({target: response}) as handler:
+                    row = self.ns["_probe_candidate"](endpoint, 0.125)
+                self.shape(row, canonical, "HEALTHY")
+                self.assertEqual(row["version"], "synthetic")
+                self.assertEqual(handler.contacts, [(target, 0.125)])
+            for probe in (False, True):
+                with self.subTest(case=index, consumer="discovery", probe=probe):
+                    self.scenario()
+                    routes = {DEFAULT + "/api/version": ObservedResponse(b"{}")}
+                    if target != DEFAULT + "/api/version":
+                        routes[target] = ObservedResponse(b"{}")
+                    with patch.dict(os.environ, {"OLLAMA_HOST": endpoint}, clear=True):
+                        with self.transport(routes) as handler:
+                            rows = self.ns["discover_candidates"](probe=probe, timeout=0.375)
+                    expected_state = "NOT_PROBED" if not probe else "HEALTHY" if loopback else "AUTHORIZATION_REQUIRED"
+                    self.assertEqual((rows[0]["endpoint"], rows[0]["state"], rows[0]["source"]),
+                                     (canonical, expected_state, "OLLAMA_HOST"))
+                    self.assertEqual(len(rows), 1 if canonical == DEFAULT else 2)
+                    for row in rows:
+                        self.proposal_shape(row)
+                    expected_contacts = []
+                    if probe:
+                        if loopback:
+                            expected_contacts.append((target, 0.375))
+                        if canonical != DEFAULT:
+                            expected_contacts.append((DEFAULT + "/api/version", 0.375))
+                    self.assertEqual(handler.contacts, expected_contacts)
+                    if not probe or not loopback:
+                        self.assertIsNone(rows[0]["checked_at"])
+                        self.assertIsNone(rows[0]["version"])
+
+    def test_initial_origin_barehost_only_environment(self):
+        for index, endpoint in enumerate(BARE_ORIGINS):
+            with self.subTest(case=index, consumer="direct"):
+                self.scenario()
+                with patch.object(urllib.request, "build_opener", side_effect=forbidden) as opener:
+                    self.invalid_shape(self.ns["_probe_candidate"](endpoint, 0.125))
+                self.assertEqual(opener.call_count, 0)
+            for probe in (False, True):
+                with self.subTest(case=index, consumer="environment", probe=probe):
+                    self.scenario()
+                    canonical = "http://" + endpoint
+                    target = urllib.request.Request(canonical + "/api/version").full_url
+                    with patch.dict(os.environ, {"OLLAMA_HOST": endpoint}, clear=True):
+                        with self.transport({target: ObservedResponse(b"{}"),
+                                             DEFAULT + "/api/version": ObservedResponse(b"{}")}) as handler:
+                            rows = self.ns["discover_candidates"](probe=probe, timeout=0.375)
+                    self.assertEqual((rows[0]["endpoint"], rows[0]["state"], rows[0]["source"]),
+                                     (canonical, "HEALTHY" if probe else "NOT_PROBED", "OLLAMA_HOST"))
+                    for row in rows:
+                        self.proposal_shape(row)
+                    self.assertEqual(handler.contacts, [(target, 0.375), (DEFAULT + "/api/version", 0.375)] if probe else [])
+
+    def test_initial_origin_fixed_base_no_probe_echo_control(self):
+        # Historischer Inputecho wird mit probe=False beobachtet: auch der alte
+        # Consumer erhält dadurch niemals einen FileHandler oder Netztransport.
+        for endpoint in ("file://localhost/synthetic", "http://localhost/path?synthetic=canary"):
+            self.scenario()
+            with patch.dict(os.environ, {"OLLAMA_HOST": endpoint}, clear=True):
+                with patch.object(urllib.request, "build_opener", side_effect=forbidden) as opener:
+                    previous = type(self).old_discover(probe=False)
+                    current = self.ns["discover_candidates"](probe=False)
+            self.assertEqual(opener.call_count, 0)
+            self.assertEqual((previous[0]["endpoint"], previous[0]["state"]), (endpoint, "NOT_PROBED"))
+            self.invalid_shape(current[0], proposal=True)
+            self.assertNotIn(endpoint, json.dumps(current))
 
 
 def main():

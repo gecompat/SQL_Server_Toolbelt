@@ -200,3 +200,43 @@ Dies ist eine zusätzliche Prüfung des vorhandenen Sources, kein neuer Cloudsca
 oder vollständiger Scanabschluss. Initiale Kandidatenvalidierung, DNS-/Proxy- und
 Hostvertrauen, Heap-/JSON-Tiefen-/Gesamtzeitqualifikation sowie Pfad-TOCTOU und
 reale Endpoints bleiben außerhalb dieses begrenzten Nachweises.
+
+## Begrenzte Discovery-Originwartung2026-10-07
+
+Die weitere Prüfung des bestehenden Konfigurationsclients bestätigte eine
+separate Initialgrenze: hostnamebasierte Auswahl allein akzeptierte andere
+Schemes, Userinfo und URL-Anhänge; fehlerhaftes IPv6 konnte den nachfolgenden
+Standardvorschlag verhindern. Discovery validiert nun vor Transport und
+Vorschlag einen credential-freien HTTP(S)-Origin. C0-/C1-Steuerzeichen,
+Whitespace, Pfad-/Query-/Fragmentzusätze, Userinfo, kodierte Authorities,
+ungültige Ports und fehlerhafte IPv6-Authorities werden abgewiesen.
+
+Die Ablehnung meldet INVALID_ENDPOINT mit endpointNone und ohne Inputecho.
+Der sichere Default wird unabhängig weiterbehandelt. Gültige Origins behalten
+Loopbackallowlist, Zeitparameter, Nicht-Loopback-Autoritätsgrenze und sämtliche
+Vorschlags-/Bestätigungsfelder. Auch der direkte private Probe validiert vor
+Requesterzeugung. Die separate gespeicherte Konfigurationsvalidierung bleibt
+unverändert. Bestehende Originalversion1.19.0, Quelle, Auswahl und sämtliche
+101 Provenienzzeilen bleiben erhalten; nur die beiden vorhandenen
+Discovery-Source-/Doc-Overrides werden aktualisiert.
+
+Am2026-10-07 bestanden181 unabhängige aktuelle AST-/Stubfälle;32 historische
+Charakterisierungen beobachteten nur gemockte Dispatchfähigkeit und
+Defaultisolation, keine tatsächlichen Endpointfolgen. Der erweiterte
+[Discoverytest](../../Tests/Documentation/test_foundation_discovery.py) bestand
+im10s-OwnedProcess-Gate12 Methoden/266 Szenarien, einschließlich der
+unveränderten8 Methoden/60 Transportfälle. Root prüfte Artefakthashes,
+Executionbindung und unveränderte bestehende Methoden ohne Fallwiederholung.
+
+Zwei frühere Harnessgates bleiben FAILED: eine Echo-Substringprüfung erfasste
+auch den erlaubten Default, anschließend scheiterte eine NUL-Fixture vor dem
+Consumer am echten OS-Environment. Zwei enge Diagnosen bestätigten diese
+Harnessgrenzen. Die korrigierte Invalidmatrix injiziert ausschließlich den
+AST-lokalen Environment-Lookup; Valid-/Barehost-/Defaultfälle behalten das
+echte Prozess-Environment und sämtliche Fälle den synthetischen Transport.
+Die historischen Programme und Receipts bleiben privat erhalten. Projektaudit
+und exakte Head-/Main-CI bleiben eigene Abnahmegates.
+Dies ist eine gezielte Sourcewartung im autonomen Securityauftrag. Keine
+Runtimeaktivierung, Konfiguration, Credentials, Rechte, SQL-/Labprobe oder
+Providererweiterung. DNS-/Proxy-/Hostvertrauen, Heap, Gesamtzeit und Pfad-TOCTOU
+sowie vollständiger Cloudscanabschluss bleiben offen.
