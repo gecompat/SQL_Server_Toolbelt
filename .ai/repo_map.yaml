@@ -695,6 +695,7 @@ change_impact:
         - markdown_links
     w2b_json_path_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.json.path-exists/**
         - Documentation/Architecture/JSON_PATH_EXISTS_MODULE_DESIGN.md
         - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md

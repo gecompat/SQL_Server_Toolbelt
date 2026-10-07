@@ -24,10 +24,11 @@ modules = {
     "w5b": ("run-w5b-event-log-linux.sh", "W5B_CI_CLEANUP_UNVERIFIED", "tbx.w5b.ci.owner"),
     "w6d": ("run-w6d-execution-cancel-linux.sh", "W6D_CI_CLEANUP_UNVERIFIED", "tbx.w6d.ci.owner"),
     "w2c": ("run-w2c-linux.sh", "W2C_CI_CLEANUP_UNVERIFIED", "tbx.w2c.ci.owner"),
+    "w2b": ("run-w2b-json-path-linux.sh", "W2B_JSON_CI_CLEANUP_UNVERIFIED", "tbx.w2b-json.ci.owner"),
 }
 parser = argparse.ArgumentParser(description="Synthetische Prüfung der echten Owned-Cleanup-Funktionen ohne Dockerzugriff.")
 parser.add_argument("--module", choices=tuple(modules), action="append",
-                    help="Nur dieses Modul prüfen; wiederholbar, standardmäßig alle vierzehn Adapter.")
+                    help="Nur dieses Modul prüfen; wiederholbar, standardmäßig alle fünfzehn Adapter.")
 selected = tuple(dict.fromkeys(parser.parse_args().module or modules))
 # Windows verwendet ausschließlich das vorhandene Git-Bash. Das gleichnamige
 # System32-Programm würde WSL starten und gehört nicht zu dieser Offlineprobe.
@@ -78,8 +79,8 @@ for module in selected:
         ("invalid_owner", 1, False),
         ("extra_fields", 1, False),
     )
-    module_cases = cases + identity_cases if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c"} else cases
-    if module in {"table_clone", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c"}:
+    module_cases = cases + identity_cases if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b"} else cases
+    if module in {"table_clone", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b"}:
         module_cases += (
             ("lab_success", 0, True),
             ("lab_original_failure", 7, True),
@@ -90,7 +91,7 @@ for module in selected:
     if module in {"w4b", "w5a", "w5b", "w6d"}:
         module_cases += (("lab_private_remove_fail", 1, True),)
     inspection_format = '{{ index .Config.Labels "' + owner_label + '" }}'
-    if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c"}:
+    if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b"}:
         inspection_format = '{{.Id}} ' + inspection_format
     for scenario, expected_code, expected_remove in module_cases:
         with tempfile.TemporaryDirectory(prefix="owned-cleanup-", dir=runtime) as base:
@@ -112,7 +113,7 @@ for module in selected:
             invalid_path = base_path / "invalid-argv"
             inspect_path = base_path / "inspect-called"
             replacement_path = base_path / "replacement-name"
-            expected_identity = "b" * 64 if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c"} and not lab_case else "tbx-synthetic-owned-cleanup"
+            expected_identity = "b" * 64 if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b"} and not lab_case else "tbx-synthetic-owned-cleanup"
             shell = f"""
 set -euo pipefail
 TBX_SQL_TARGET=runner
@@ -187,7 +188,7 @@ docker() {{
         printf '%s\\n' inspect >> "$inspect_file"
         if [[ "$#" != 4 || "$2" != --format || "$3" != "$expected_inspection_format" || "$4" != "$container_name" ]]; then invalid_argv; return 2; fi
         [[ "$scenario" != inspect_fail ]] || return 1
-        if [[ "$module" == pointer || "$module" == safe_cast || "$module" == json_constructors || "$module" == table_clone || "$module" == deterministic || "$module" == regex || "$module" == result_table || "$module" == w4a || "$module" == work_queue || "$module" == w4b || "$module" == w5a || "$module" == w5b || "$module" == w6d || "$module" == w2c ]]; then
+        if [[ "$module" == pointer || "$module" == safe_cast || "$module" == json_constructors || "$module" == table_clone || "$module" == deterministic || "$module" == regex || "$module" == result_table || "$module" == w4a || "$module" == work_queue || "$module" == w4b || "$module" == w5a || "$module" == w5b || "$module" == w6d || "$module" == w2c || "$module" == w2b ]]; then
             if [[ "$scenario" == invalid_id ]]; then printf '%s ' not-a-64-hex-id;
             else printf '%s ' "$synthetic_container_id"; fi
         fi
@@ -253,7 +254,7 @@ exit 0
                 diagnostic = diagnostic.replace("_CI_", "_LAB_")
             if completed.stderr != (diagnostic + "\n" if expected_diagnostic else ""):
                 raise SystemExit(f"OWNED_CLEANUP_TEST_DIAGNOSTIC_MISMATCH:{module}:{scenario}")
-            expected_stdout = diagnostic.replace("UNVERIFIED", "VERIFIED") + "\n" if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c"} and not expected_diagnostic and not lab_case else ""
+            expected_stdout = diagnostic.replace("UNVERIFIED", "VERIFIED") + "\n" if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b", "w5a", "w5b", "w6d", "w2c", "w2b"} and not expected_diagnostic and not lab_case else ""
             if completed.stdout != expected_stdout:
                 raise SystemExit(f"OWNED_CLEANUP_TEST_SUCCESS_WITNESS_MISMATCH:{module}:{scenario}")
         print(f"PASS: {module} {scenario}")
