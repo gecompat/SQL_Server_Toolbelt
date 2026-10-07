@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-07 – Eigenen W4a-CI-Container verifiziert bereinigen
+
+- Der vorhandene Execution-Foundations-Adapter bindet den Runner an
+  SQL-Version, Run, Attempt und Owner. Cleanup entfernt nur die gemeinsam
+  mit dem Owner gelesene vollständige ID und verlangt frische Namensabwesenheit.
+  Fremder Bestand oder unbestätigter Cleanup werden zum sichtbaren Fehler.
+- Gemeinsamer synthetischer Harness, selektives Dokumentationsgate und
+  bestehende Impact-Pakete erfassen den Adapter. Lab-No-op, fachliche
+  SQL-Verträge, Fixtures, Zielmatrix und Lifecycle-Suite bleiben unverändert.
+
 ## 2026-10-07 – Eigenen ResultTable-CI-Container verifiziert bereinigen
 
 - Der vorhandene Adapter bindet sein flüchtiges Runnerziel an SQL-Version,

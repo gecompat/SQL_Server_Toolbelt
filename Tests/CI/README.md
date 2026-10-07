@@ -8,6 +8,29 @@ Modultestmatrizen getrennt ausgewiesen.
 
 Dieses Verzeichnis enthält schlanke Adapter für GitHub-hosted Testläufe. Die fachlichen SQL-Tests verbleiben in den jeweiligen Modulverzeichnissen.
 
+## Eigener W4a-Runnercontainer
+
+`run-w4a-execution-foundations-linux.sh` bindet seinen flüchtigen Runnernamen
+an SQL-Version, Run und Attempt und setzt vor dem Start ein Ownerlabel.
+Cleanup liest volle ID und Owner gemeinsam, entfernt ausschließlich die
+eigene ID und verlangt frische exakte Namensabwesenheit. Fremder Bestand,
+unbekannte Sicht oder Removefehler liefern `W4A_CI_CLEANUP_UNVERIFIED` und
+Exit1. Bestätigter Cleanup meldet `W4A_CI_CLEANUP_VERIFIED` und erhält den
+ursprünglichen Exitstatus. Der Labzweig bleibt sein separater No-op ohne
+Ownerproben oder Container-VERIFIED-Zusage.
+
+Der bestehende source-extrahierte Offlineharness
+`python -B Tests/CI/test_owned_container_cleanup.py --module w4a` prüft dies
+mit synthetischen Dockerantworten einschließlich ersetzter Namen, ungültiger
+ID/Ownerdaten, unbekannter Sicht und separatem Lab-Exit0/Exit7. Er greift
+weder auf Docker noch SQL oder Lab zu. Der bestehende Dokumentationsworkflow
+erfasst Adapteränderungen selektiv. Fachliche SQL-Fixtures und die bisherigen
+2019/2022/2025-Linux-Jobs bleiben unverändert; exakte Head-/Main-Ergebnisse
+stehen getrennt im PR. Hard-Interrupt-Recovery und Releasequalifikation
+werden dadurch nicht belegt.
+
+## Adapter und Zielversionen
+
 Die Modul-Adapter sind versionsparametrisch. `TBX_SQL_VERSION` wählt das
 Zielrelease und daraus die tatsächlich geprüften Compatibility Levels: `2019`
 prüft 150, `2022` prüft 160 und `2025` prüft 150, 160 und 170.
