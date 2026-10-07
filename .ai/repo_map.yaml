@@ -651,6 +651,7 @@ change_impact:
         - markdown_links
     w1_portable_contracts:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.datetime.calendar-difference/**
         - Modules/toolbelt.string.directional-trim/**
         - Modules/toolbelt.conversion.uri-component/**
