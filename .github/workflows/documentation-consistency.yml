@@ -39,6 +39,25 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: python3 Tests/Documentation/validate_documentation.py --all
 
+      - name: Test standalone SQL export without SQL access
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          $runScope = $env:EVENT_NAME -eq 'workflow_dispatch'
+          if (-not $runScope) {
+            git diff --quiet $env:BASE_SHA $env:HEAD_SHA -- Deployment/ 'Modules/*/Deployment/**' 'Modules/*/Source/**' 'Modules/*/module.yaml' .github/workflows/documentation-consistency.yml
+            $scopeResult = $LASTEXITCODE
+            if ($scopeResult -notin 0,1) { throw 'DOCUMENTATION_SCOPE_DIFF_FAILED' }
+            $LASTEXITCODE = 0
+            $runScope = $scopeResult -eq 1
+          }
+          if ($runScope) {
+            ./Deployment/Tests/Test-SqlExport.ps1
+          }
+
       - name: Validate ZIP file facade source contract
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-07 – Eigenständiger SQL-Export aus aktuellen Modulskripten
+
+- `Deploy-All.ps1 -OutputSqlFile` erzeugt ohne SQL-Verbindung eine einzelne
+  UTF-8-SQLCMD-Datei mit eingebetteten Includes, geprüften Eingaben und
+  deterministischer Dependency-Reihenfolge. Bestehende Dateien werden nicht
+  überschrieben; Verbindungsoptionen sind im Exportmodus unzulässig.
+- Frische Sitzung und Fehlerabbruch sind erforderlich. Transaktionsguards
+  an Modulgrenzen erhalten die bestehenden Lifecycle-/Migrationssperren.
+  Kein generischer Tabellen-Refresh, keine Trustfreigabe oder Gesamt-Rollback;
+  jederzeitiges datenbewahrendes Gesamtdeployment bleibt separat offen.
+
 ## 2026-10-07 – Discovery prüft Origins vor Vorschlag und Transport
 
 - Der bestehende Konfigurationsclient weist ungültige Discovery-Origins vor

@@ -73,6 +73,32 @@ Preflight, Manifestvergleich und Deployment-Plan entstehen vor der ersten Mutati
 
 Uninstall entfernt keine fremden Objekte oder Nutzerdaten.
 
+## Repository-weites Deployment und SQL-Export
+
+Der [Repository-Runner](../../Deployment/README.md) bestimmt die aktuelle
+Modulmenge und Reihenfolge aus `Deploy.sql` und Manifest-Abhängigkeiten. Sein
+zusätzlicher `-OutputSqlFile`-Modus bettet dieselben Skripte einschließlich
+Includes und ausdrücklich bereitgestellter CLR-Eingaben in eine eigenständige
+SQLCMD-Datei ein. Der Benutzer hat am 2026-10-07 die zusätzliche SQL-Datei für
+manuelle Ausführung gewählt, nachdem Runner, Migrationsgrenzen und Alternativen
+besprochen wurden. Der Auftrag umfasst keine neue öffentliche SQL-Funktion.
+
+Der Export benötigt eine frische exklusive Sitzung ohne Callertransaktion oder
+`IMPLICIT_TRANSACTIONS`, SQLCMD-Modus mit Fehlerabbruch und eine ausdrücklich
+gewählte Zieldatenbank. Guards an allen Modulgrenzen prüfen den Transaktions-
+zustand, ohne fremde Transaktionen zurückzurollen. Die Module behalten ihre
+eigenen Transaktionen und Preflights; das Gesamtdeployment ist nicht atomar.
+Der bisherige Runner verwendet weiterhin getrennte sqlcmd-Prozesse pro Modul.
+
+Diese Orchestrierung ersetzt keine expliziten versionierten Migrationen.
+Insbesondere blockiert ein installierter Worker-Control-Consumer derzeit das
+Queue-Repeat-Deployment; unbekannte Versionen bleiben gesperrt. Vorhandene
+Tabellen werden nur über die unterstützten modulspezifischen Pfade geändert.
+Der Zielvertrag eines jederzeit erfolgreichen, datenbewahrenden Gesamt-Refresh
+ist damit noch nicht vollständig erreicht. Exporttests sind Offline-Nachweise;
+gefüllte Tabellen, Grant-/Objektmetadaten, Gesamt-Lifecycle und Plattformmatrix
+benötigen eigene SQL-Qualifikation.
+
 ## Grundmatrix
 
 | Plattform | Grundstatus |

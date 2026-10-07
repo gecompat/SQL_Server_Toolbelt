@@ -18,12 +18,28 @@ param(
 
     [switch]$CreateDatabaseIfMissing,
 
-    [switch]$PlanOnly
+    [switch]$PlanOnly,
+
+    [string]$OutputSqlFile
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $DeploymentMode = $DeploymentMode.ToLowerInvariant()
+
+# Export und Ausführung sind getrennte Modi. Explizite Verbindungsoptionen
+# werden beim Export nicht stillschweigend ignoriert oder in SQL übernommen.
+$exportSql = $PSBoundParameters.ContainsKey('OutputSqlFile')
+if ($exportSql) {
+    if ([string]::IsNullOrWhiteSpace($OutputSqlFile)) {
+        throw '-OutputSqlFile muss eine nichtleere SQL-Datei benennen.'
+    }
+    foreach ($executionParameter in @('PlanOnly', 'ServerInstance', 'Database', 'Authentication', 'SqlUsername', 'CreateDatabaseIfMissing')) {
+        if ($PSBoundParameters.ContainsKey($executionParameter)) {
+            throw "-OutputSqlFile kann nicht mit -$executionParameter kombiniert werden."
+        }
+    }
+}
 
 function Get-ManifestDependencies {
     param(
@@ -276,6 +292,121 @@ function Get-DeploymentModules {
     return @($ordered)
 }
 
+function ConvertTo-StandaloneSql {
+    param(
+        [Parameter(Mandatory)]$Node,
+        [Parameter(Mandatory)][System.Collections.IDictionary]$Values,
+        [Parameter(Mandatory)][string]$ModulesRoot
+    )
+
+    # Nur die kanonische Modulclosure einbetten. Absolute Checkoutpfade dienen
+    # intern der Auflösung und dürfen weder als Include noch als Header austreten.
+    $relativePath = [System.IO.Path]::GetRelativePath($ModulesRoot, $Node.Path)
+    if ([System.IO.Path]::IsPathRooted($relativePath) -or
+        $relativePath -eq '..' -or $relativePath.StartsWith('../') -or $relativePath.StartsWith('..\')) {
+        throw 'SQL-Export unterstützt nur Includes innerhalb von Modules/.'
+    }
+
+    $text = $Node.Text
+    foreach ($child in $Node.Children) {
+        $childText = ConvertTo-StandaloneSql -Node $child -Values $Values -ModulesRoot $ModulesRoot
+        $text = $text.Replace(':r "' + $child.Path + '"', $childText)
+    }
+    $text = [regex]::Replace($text, '\$\((?<name>[A-Za-z_][A-Za-z0-9_]*)\)', {
+        param($match)
+        $name = $match.Groups['name'].Value
+        if (-not $Values.Contains($name)) {
+            throw 'SQL-Export enthält eine nicht aufgelöste SQLCMD-Variable.'
+        }
+        return [string]$Values[$name]
+    })
+
+    if ($text.Contains('$(')) {
+        throw 'SQL-Export enthält eine nicht unterstützte SQLCMD-Variablensyntax.'
+    }
+
+    # Die Datei bleibt SQLCMD-SQL mit explizitem Fehlerabbruch. Andere
+    # Direktiven könnten erneut Dateien lesen, Verbindungen wechseln oder
+    # Hostbefehle starten und sind im eigenständigen Export nicht unterstützt.
+    foreach ($directive in [regex]::Matches($text, '(?m)^[ \t]*(?:[:!].*)$')) {
+        if ($directive.Value.Trim() -notmatch '^:ON[ \t]+ERROR[ \t]+EXIT[ \t]*$') {
+            throw 'SQL-Export enthält eine nicht unterstützte SQLCMD-Direktive.'
+        }
+    }
+    return $text.Replace("`r`n", "`n").Replace("`r", "`n")
+}
+
+function Export-DeploymentSql {
+    param(
+        [Parameter(Mandatory)][object[]]$Modules,
+        [Parameter(Mandatory)][System.Collections.IDictionary]$Inputs,
+        [Parameter(Mandatory)][string]$Mode,
+        [Parameter(Mandatory)][string]$ModulesRoot,
+        [Parameter(Mandatory)][string]$OutputPath
+    )
+
+    $destination = [System.IO.Path]::GetFullPath($OutputPath)
+    if ([System.IO.Path]::GetExtension($destination) -ine '.sql') {
+        throw '-OutputSqlFile benötigt die Dateiendung .sql.'
+    }
+    $parentDirectory = [System.IO.Path]::GetDirectoryName($destination)
+    if (-not [System.IO.Directory]::Exists($parentDirectory)) {
+        throw 'Das Zielverzeichnis für -OutputSqlFile muss bereits existieren.'
+    }
+    if (Test-Path -LiteralPath $destination) {
+        throw 'Die SQL-Exportdatei existiert bereits; sie wird nicht überschrieben.'
+    }
+
+    $guard = @'
+IF @@TRANCOUNT <> 0 OR (2 & @@OPTIONS) <> 0
+    THROW 50000, N'Toolbelt SQL-Export benötigt eine frische Sitzung ohne laufende oder implizite Transaktion.', 1;
+GO
+'@
+    $builder = [System.Text.StringBuilder]::new()
+    [void]$builder.Append("-- SQL Server Toolbelt: aus aktuellen Modulskripten erzeugtes Deployment.`n")
+    [void]$builder.Append("-- SQLCMD-Modus und Fehlerabbruch erforderlich (sqlcmd -b -f 65001).`n")
+    [void]$builder.Append("-- In frischer exklusiver Verbindung in der gewählten Zieldatenbank ausführen.`n")
+    [void]$builder.Append("-- Keine Gesamttransaktion; frühere erfolgreiche Module bleiben bei Fehlern installiert.`n")
+    [void]$builder.Append("-- Bestehende Versions-/Dependency-/Trust-/Migrationsgates bleiben wirksam.`n")
+    [void]$builder.Append("-- DeploymentMode: $Mode`n:ON ERROR EXIT`nGO`n")
+    foreach ($module in $Modules) {
+        if ($module.ModuleId -notmatch '^[a-z0-9][a-z0-9.-]*$') {
+            throw 'SQL-Export benötigt eine sichere module_id für die Modulmarkierung.'
+        }
+        $values = @{ DeploymentMode = $Mode }
+        foreach ($key in $Inputs[$module.ModuleId].Keys) {
+            $values[$key] = $Inputs[$module.ModuleId][$key]
+        }
+        $text = ConvertTo-StandaloneSql -Node $module.ScriptTree -Values $values -ModulesRoot $ModulesRoot
+        [void]$builder.Append($guard.Replace("`r`n", "`n") + "`n")
+        [void]$builder.Append("-- BEGIN MODULE $($module.ModuleId)`n")
+        [void]$builder.Append($text + "`nGO`n-- END MODULE $($module.ModuleId)`n")
+    }
+    [void]$builder.Append($guard.Replace("`r`n", "`n") + "`n")
+
+    # Erst vollständig prüfen/kompilieren, dann im Zielverzeichnis schreiben.
+    # Move ohne Overwrite veröffentlicht nur die komplette Datei; ein konkur-
+    # rierender Export darf eine mittlerweile vorhandene Datei nicht ersetzen.
+    $temporaryPath = Join-Path $parentDirectory ('.toolbelt-export-' + [guid]::NewGuid().ToString('N') + '.tmp')
+    $ownsTemporary = $false
+    try {
+        $stream = [System.IO.FileStream]::new($temporaryPath, [System.IO.FileMode]::CreateNew, [System.IO.FileAccess]::Write, [System.IO.FileShare]::None)
+        $ownsTemporary = $true
+        try {
+            $bytes = [System.Text.UTF8Encoding]::new($false).GetBytes($builder.ToString())
+            $stream.Write($bytes, 0, $bytes.Length)
+        }
+        finally { $stream.Dispose() }
+        [System.IO.File]::Move($temporaryPath, $destination, $false)
+    }
+    finally {
+        if ($ownsTemporary -and [System.IO.File]::Exists($temporaryPath)) {
+            [System.IO.File]::Delete($temporaryPath)
+        }
+    }
+    Write-Output "SQL-Export erzeugt: $($Modules.Count) Module; DeploymentMode: $Mode."
+}
+
 function Get-ProvidedModuleVariables {
     param(
         [Parameter(Mandatory)]$Module,
@@ -415,13 +546,6 @@ if ($PlanOnly) {
     return
 }
 
-if ([string]::IsNullOrWhiteSpace($ServerInstance)) {
-    throw 'Für die Ausführung ist -ServerInstance erforderlich.'
-}
-if ([string]::IsNullOrWhiteSpace($Database)) {
-    throw 'Für die Ausführung ist -Database erforderlich.'
-}
-
 $missingInputs = [System.Collections.Generic.List[string]]::new()
 for ($index = 0; $index -lt $modules.Count; $index++) {
     $missing = $planRows[$index].MissingVariables
@@ -431,6 +555,18 @@ for ($index = 0; $index -lt $modules.Count; $index++) {
 }
 if ($missingInputs.Count -gt 0) {
     throw ("Fehlende SQLCMD-Eingaben; vor dem Deployment bereitstellen:`n- " + ($missingInputs -join "`n- "))
+}
+
+if ($exportSql) {
+    Export-DeploymentSql -Modules $modules -Inputs $moduleInputs -Mode $DeploymentMode -ModulesRoot $modulesRoot -OutputPath $OutputSqlFile
+    return
+}
+
+if ([string]::IsNullOrWhiteSpace($ServerInstance)) {
+    throw 'Für die Ausführung ist -ServerInstance erforderlich.'
+}
+if ([string]::IsNullOrWhiteSpace($Database)) {
+    throw 'Für die Ausführung ist -Database erforderlich.'
 }
 
 $sqlcmd = Get-Command sqlcmd -ErrorAction Stop
