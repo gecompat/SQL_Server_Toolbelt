@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-07 – W4b-CI mit verifizierter Bereinigung und Fehlerorakel
+
+- Der vorhandene Work-Type-Runner bindet Name und Owner vor dem Start,
+  entfernt nur die vollständige eigene ID und prüft frische Namensabwesenheit.
+  Fremder Bestand und unbekannte Bereinigung bleiben sichtbare Fehler.
+- Seine Uninstall-Negativphase verwendet auch im Lab eine private Datei und
+  verlangt zusätzlich zur Fehlerkategorie einen Fehlerexit. Ein Exit0 mit
+  Fehlertext ist kein erfolgreicher Abweisungsnachweis.
+- Gemeinsamer Offlineharness, Dokumentationsgate und bestehendes Impact-Paket
+  erfassen diese Grenzen. Lab-Container-No-op, öffentliche SQL-Verträge,
+  fachliche Fixtures, Images, Matrix und Runtimeworkflow bleiben erhalten.
+
 ## 2026-10-07 – Work-Queue-CI mit eigener Identität und Ausgabeablage
 
 - Runner-Cleanup bindet den bestehenden Container an Version, Run, Attempt

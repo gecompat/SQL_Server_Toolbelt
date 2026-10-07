@@ -31,6 +31,23 @@ werden dadurch nicht belegt.
 
 ## Adapter und Zielversionen
 
+Der W4b-Work-Type-Adapter bindet seinen Runner an Version, Run, Attempt und
+Owner. Cleanup entfernt nur die gemeinsam mit dem Label gelesene vollständige
+ID und verlangt frische Namensabwesenheit; unbestätigter Cleanup endet mit
+`W4B_CI_CLEANUP_UNVERIFIED` und Exit1. `W4B_CI_CLEANUP_VERIFIED` erhält den
+ursprünglichen Status. Seine Uninstall-Negativausgabe liegt in beiden Modi
+privat; der erwartete Fehler verlangt jetzt einen Fehlerexit und Kategorie51549.
+Im Lab bleibt Container-rm No-op, ohne Runnerproben oder Container-VERIFIED;
+private Dateicleanupfehler melden `W4B_LAB_CLEANUP_UNVERIFIED` und Exit1.
+
+`python -B Tests/CI/test_owned_container_cleanup.py --module w4b` prüft die
+echten Cleanup- und Uninstall-Orakel mit synthetischen Antworten ohne Docker,
+SQL oder Lab. Fachliche SQL-Fixtures, vier Sessions und Versions-/CL-Matrix
+bleiben erhalten. Der vorhandene W4b-Workflow läuft bei passenden PRs oder
+manuell; er besitzt keinen Pushtrigger. Head-Runtime, Main-Documentation und
+Treevergleich werden im PR getrennt ausgewiesen. Hard-Interrupt-Recovery
+und tatsächliche Labqualifikation bleiben offen.
+
 Der Work-Queue-Adapter verwendet eine eigene private Ausgabeablage für seine
 vier Negativphasen, auch im Labmodus. Im Runner bindet er den Container an
 SQL-Version, Run, Attempt und Owner; Cleanup entfernt ausschließlich die
