@@ -1,5 +1,44 @@
 # CHANGELOG
 
+## 2026-10-08 – Befüllte exportierte Modulfolge gemeinsam prüfen
+
+- Ein begrenzter Adapter verwendet den echten SQL-Export von neun CLR-freien
+  Modulen für Erstinstallation und zwei befüllte Repeats lokal/zentral in
+  frischen Sitzungen. Alle 14 Tabellen, Rowversions, Audits, Identitywerte und
+  ausgewählte Katalog-/Annotationsmetadaten werden privat verglichen.
+- Die zwei bestehenden kanonischen Normalisierungen im ersten Repeat werden
+  separat geprüft; der zweite muss vollständig unverändert sein. Eigene
+  Datenbanken werden nur nach frischer Besitz-/Verbraucherprüfung gelöscht.
+- Der vorhandene externe Linux2019/CL150-CI-Job erhält den Test und passende
+  Source-/Exportpfade. Keine Source-, Deploy-, API-, Infrastruktur-, Provider-,
+  Rechte- oder Truständerung. Offlineprüfungen bestanden; neue native Evidenz,
+  Windows, weitere Matrix und SQLCMD-/44-Modul-Qualifikation bleiben getrennt.
+- Erster gemeinsamer nativer Head-Lauf FAILED; vorhandene Worker-/Upgradefälle
+  und eigene Containerbereinigung bestanden. Der Diagnoselauf begrenzt den
+  Fehler auf den Verbindungs-Preflight: Zwei ungültige PowerShell-Builder-
+  Dotzuweisungen sind ohne SQL reproduziert und werden durch explizite gültige
+  Indexer ersetzt. Der separate Cleanup-Pfadseparatorfehler ist korrigiert;
+  beide FAILED-Läufe bleiben erhalten, kein unveränderter Retry.
+- Nach Builderkorrektur besteht der Preflight; das eigene Datenbank-/
+  Sitzungsgate weist den Lauf weiterhin ab. Feste Einzelstates zeigen:
+  Alle Einzelbedingungen bestehen, das kombinierte Gate wirft State 13.
+  Neutrale Sitzungsprüfungen werden vor und nach den gemeinsam gebundenen
+  Besitzprädikaten getrennt ausgewertet; Autocommit im Katalogstatement bleibt
+  eine nicht direkt gemessene Hypothese.
+  Vorherige Runtimefälle und Containerbereinigung bestanden.
+- Nach Trennung des Adaptergates bestehen eigene Besitzprüfung und
+  Erstinstallation. Der folgende Fehler liegt im initialen Fixture-
+  Sitzungsgate (SQL54980/State1); dessen kombinierte Sitzungsbedingungen
+  werden ohne Prädikatverlust in einzelne IFs getrennt. Zu diesem Stand war
+  native Qualifikation noch offen; historische FAILED-Läufe bleiben erhalten.
+- Der korrigierte Head `a836b87778fbe4c498b4b1ce05f06c58373ea03c` besteht die
+  gemeinsame Neun-Modul-Folge auf Linux2019/CL150 lokal/zentral: zwei befüllte
+  Repeats aller 14 Tabellen, eigene DB-/Datei- und Containerbereinigung sowie
+  vorhandene Worker-/Upgradefälle
+  ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37701845352)).
+  Dokumentations-CI ebenfalls bestanden; übrige Plattform-/Client-/44-Modul-
+  und Releasegrenzen bleiben offen.
+
 ## 2026-10-07 – Deaktivierten SecondSessionProvider über Deploys erhalten
 
 - Zwei echte 1.1.0-Repeats vergleichen alle acht Spalten eines deaktivierten

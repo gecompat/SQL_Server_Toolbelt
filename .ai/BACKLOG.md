@@ -115,6 +115,54 @@ von neun CLR-freien Modulen mit 14 der 15 Tabellen als nächster Testscope
 vorbereitet; Windows-FileSystemRoot und vollständiger 44-Modul-Export bleiben
 getrennt. Keine neue Funktions-, Rechte-, Provider- oder Trustfreigabe.
 
+Gemeinsamer Exportrepeat, vorbereitet 2026-10-08: Der neue Testadapter
+konsumiert die echten hashgebundenen `-OutputSqlFile`-Exporte der neun
+CLR-freien Module lokal/zentral in frischen Sitzungen. Alle 14 Tabellen werden
+synthetisch befüllt und über zwei Repeats vollständig verglichen; erwartete
+File-Content-Beschreibungsnormalisierung und EventLog-WorkType-Reaktivierung
+sind separat abgegrenzt. Er nutzt ausschließlich das bestehende externe
+Linux2019/CL150-CI-Ziel. Offlineexport und unabhängige Reviews sind bestanden;
+Der erste gemeinsame native Lauf am Commit `e5b51d14500203947fd45d6ad0533e40b1302c8a`
+ist im neuen Test FAILED, zunächst ohne abgegrenzte Primärursache
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37696018416)).
+Vorherige Worker-/Upgradefälle und eigene Containerbereinigung bestanden.
+Der Diagnoselauf `947da95d61ae617f88e42847ae453dd27e132197` ist ebenfalls
+FAILED im Verbindungs-Preflight
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37697052700)).
+Die Builder-Dotzuweisungen `InitialCatalog`/`ConnectTimeout` scheitern ohne
+Serververbindung reproduzierbar; sie werden durch die bestehenden gültigen
+Indexer ersetzt. Der separate Adaptercleanup-Pfadseparatorfehler ist korrigiert.
+Beide FAILED-Läufe bleiben historische Evidenz und gelten nicht als Runtime-PASS.
+Der korrigierte Builder-Head `6989d8ac43033e8cd45c2f8fb88f59239429c64a`
+besteht den Preflight, ist aber beim eigenen Datenbank-/Sitzungsgate FAILED
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37697908672)).
+Vorherige Runtimefälle und Containerbereinigung bestanden. Der Diagnoselauf
+`e79bf5a4c1d0db3760b6fbc29a8d1714b8fc7368` bleibt FAILED
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37699250549)):
+Zwölf Einzelbedingungen bestehen, das kombinierte Gate wirft State 13.
+Die Korrektur prüft die neutrale Sitzung getrennt vor und nach dem gemeinsam
+gebundenen Besitzgate. Kein Besitzprädikat entfällt; Autocommit während der
+Katalogauswertung ist eine Hypothese, keine nativ gemessene Primärursache.
+Der Korrekturlauf `52526f7836b0d4c113991fc972608b1eff276283` besteht das
+Besitzgate und die Erstinstallation, bleibt beim initialen Fixture-Sitzungsgate
+FAILED/SQL54980/State1
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37700707745)).
+Die gleichen kombinierten Sitzungsprüfungen in den vier Testfixtures werden
+ebenfalls ohne Prädikatverlust in einzelne IFs getrennt. Vorherige Workerfälle
+und Containerbereinigung bestehen. Der korrigierte Head
+`a836b87778fbe4c498b4b1ce05f06c58373ea03c` besteht den gemeinsamen Exporttest
+auf Linux2019/CL150 lokal und zentral: alle 14 Tabellen über zwei befüllte
+Repeats, eigene DB-/Dateibereinigung sowie vorhandene Worker-/Upgradefälle
+und Containerbereinigung
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37701845352)).
+Die Dokumentations-CI desselben Heads besteht ebenfalls. Die historischen
+FAILED-Läufe bleiben getrennt; dies qualifiziert ausschließlich diese
+Neun-Modul-Folge im genannten Zielscope.
+Details und offene Grenzen stehen in
+[Deploymenttests](../Deployment/Tests/README.md). Windows-FileSystemRoot und
+vollständiger 44-Modul-Export bleiben getrennte Nachweise; Source, Deploy und
+öffentliche SQL-API werden nicht geändert.
+
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
 Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene
