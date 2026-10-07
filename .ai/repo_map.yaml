@@ -565,6 +565,7 @@ change_impact:
         - markdown_links
     split_characters_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.string.split-characters/**
         - Modules/toolbelt.core.generate-series/**
         - Documentation/Architecture/SPLIT_CHARACTERS_MODULE_DESIGN.md
