@@ -319,15 +319,19 @@ exit 0
             guard_cases += 1
     print(f"PASS: {module} uninstall_guard cases={guard_cases}")
 
-# Bestehende Kollisionsorakel verlangen Kategorie und Fehlerstatus gemeinsam.
-# Derselbe source-extrahierte Block prüft beide Adapter in Runner- und Labmodus.
-for module, error, title in (("integer_base", "51094", "Integer-Base"),
-                             ("identifier", "51064", "Identifier")):
+# Bestehende Preflightorakel verlangen Kategorie und Fehlerstatus gemeinsam.
+# Der source-extrahierte Block prüft Kollision und Dependency ohne SQL-Zugriff.
+for module, error, title, kind, database_variable in (
+    ("integer_base", "51094", "Integer-Base-Kollision", "collision", "collision_database"),
+    ("identifier", "51064", "Identifier-Kollision", "collision", "collision_database"),
+    ("split_characters", "51074", "Split-Characters-Kollision", "collision", "collision_database"),
+    ("split_characters", "51079", "Split-Characters-Dependency", "dependency", "missing_dependency_database"),
+):
     if module not in selected:
         continue
-    witness = module.upper() + "_COLLISION_VERIFIED"
+    witness = module.upper() + "_" + kind.upper() + "_VERIFIED"
     source = source_bytes[root / "Tests/CI" / modules[module][0]].decode("utf-8-sig").replace("\r\n", "\n")
-    begin = source.index('set +e\ncollision_output="$(run_file ')
+    begin = source.index(f'set +e\n{kind}_output="$(run_file ')
     end = source.index(f'\necho "{witness}"', begin) + len(f'\necho "{witness}"')
     block = source[begin:end]
     guard_cases = 0
@@ -340,18 +344,18 @@ for module, error, title in (("integer_base", "51094", "Integer-Base"),
             ("numeric_suffix", 7, error + "0", 1),
             ("numeric_prefix", 7, "1" + error, 1),
         ):
-            with tempfile.TemporaryDirectory(prefix=module + "-collision-", dir=runtime) as base:
+            with tempfile.TemporaryDirectory(prefix=module + "-" + kind + "-", dir=runtime) as base:
                 base_path = Path(base).resolve()
                 if not base_path.is_relative_to(runtime):
-                    raise SystemExit(f"{module.upper()}_COLLISION_TEST_TEMP_SCOPE_INVALID")
+                    raise SystemExit(f"{module.upper()}_{kind.upper()}_TEST_TEMP_SCOPE_INVALID")
                 invalid_path = base_path / "invalid-argv"
                 shell = f'''set -euo pipefail
 TBX_SQL_TARGET={mode}
 invalid_file={shlex.quote(invalid_path.relative_to(root).as_posix())}
-collision_database=tbx_synthetic_collision
+{database_variable}=tbx_synthetic_preflight
 deployment_directory=/synthetic/deployment
 run_file() {{
-    if [[ "$#" != 5 || "$1" != "$collision_database" || "$2" != "$deployment_directory" || "$3" != Deploy.sql || "$4" != -v || "$5" != DeploymentMode=local ]]; then : > "$invalid_file"; return 97; fi
+    if [[ "$#" != 5 || "$1" != "${{{database_variable}}}" || "$2" != "$deployment_directory" || "$3" != Deploy.sql || "$4" != -v || "$5" != DeploymentMode=local ]]; then : > "$invalid_file"; return 97; fi
     printf '%s\\n' '{category}' >&2
     return {result_code}
 }}
@@ -365,14 +369,14 @@ exit 0
                 completed = subprocess.run([str(bash), harness_path.relative_to(root).as_posix()],
                                            cwd=root, capture_output=True, check=False, timeout=10)
                 if completed.returncode != expected_code or invalid_path.exists():
-                    raise SystemExit(f"{module.upper()}_COLLISION_TEST_ORACLE_MISMATCH:{mode}:{scenario}")
+                    raise SystemExit(f"{module.upper()}_{kind.upper()}_TEST_ORACLE_MISMATCH:{mode}:{scenario}")
                 expected_stdout = (witness + "\n").encode("utf-8") if expected_code == 0 else b""
-                expected_stderr = b"" if expected_code == 0 else f"{title}-Kollision wurde nicht mit Fehler {error} abgelehnt.\n".encode("utf-8")
+                expected_stderr = b"" if expected_code == 0 else f"{title} wurde nicht mit Fehler {error} abgelehnt.\n".encode("utf-8")
                 if completed.stdout != expected_stdout or completed.stderr != expected_stderr:
-                    raise SystemExit(f"{module.upper()}_COLLISION_TEST_CHANNEL_MISMATCH:{mode}:{scenario}")
-            print(f"PASS: {module} collision_guard {mode} {scenario}")
+                    raise SystemExit(f"{module.upper()}_{kind.upper()}_TEST_CHANNEL_MISMATCH:{mode}:{scenario}")
+            print(f"PASS: {module} {kind}_guard {mode} {scenario}")
             guard_cases += 1
-    print(f"PASS: {module} collision_guard cases={guard_cases}")
+    print(f"PASS: {module} {kind}_guard cases={guard_cases}")
 
 for path, expected_hash in pins.items():
     if hashlib.sha256(path.read_bytes()).hexdigest() != expected_hash:

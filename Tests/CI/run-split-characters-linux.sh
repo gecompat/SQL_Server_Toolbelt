@@ -158,11 +158,20 @@ local_database="tbx_split_characters_local"
 
 missing_dependency_database="tbx_split_characters_missing_dependency"
 create_database "${missing_dependency_database}"
-if run_file "${missing_dependency_database}" "${deployment_directory}" Deploy.sql \
-    -v DeploymentMode=local; then
-    echo "Das Split-Deployment akzeptierte eine fehlende Generate-Series-Dependency." >&2
+# Beide Ausgabekanäle bleiben im Speicher; nur Fehlerstatus UND die
+# vollständige Kategorie belegen die erwartete Dependency-Abweisung.
+set +e
+dependency_output="$(run_file "${missing_dependency_database}" "${deployment_directory}" Deploy.sql \
+    -v DeploymentMode=local 2>&1)"
+dependency_result=$?
+set -e
+if [[ "${dependency_result}" -eq 0 ]] \
+    || ! grep -Eq '(^|[^0-9])51079([^0-9]|$)' <<<"${dependency_output}"; then
+    echo "Split-Characters-Dependency wurde nicht mit Fehler 51079 abgelehnt." >&2
     exit 1
 fi
+unset dependency_output
+echo "SPLIT_CHARACTERS_DEPENDENCY_VERIFIED"
 run_query "${missing_dependency_database}" \
     "IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = N'Toolbelt.Module.toolbelt.string.split-characters.Version') THROW 52644, N'Der Dependency-Preflight hinterließ einen Installationsmarker.', 1;"
 
@@ -232,11 +241,20 @@ run_query "${collision_database}" \
 run_query "${collision_database}" \
     "CREATE FUNCTION [toolbelt_string].[TVF_SplitByCharacters] (@Input nvarchar(max), @Separators nvarchar(4000), @KeepEmpty bit = 1) RETURNS TABLE AS RETURN (SELECT CONVERT(nvarchar(max), N'foreign') AS Value, CONVERT(bigint, 1) AS Ordinal);"
 
-if run_file "${collision_database}" "${deployment_directory}" Deploy.sql \
-    -v DeploymentMode=local; then
-    echo "Eine frameworkfremde Zielnamenskollision wurde überschrieben." >&2
+# Beide Ausgabekanäle bleiben im Speicher; nur Fehlerstatus UND die
+# vollständige Kategorie belegen die erwartete Kollision-Abweisung.
+set +e
+collision_output="$(run_file "${collision_database}" "${deployment_directory}" Deploy.sql \
+    -v DeploymentMode=local 2>&1)"
+collision_result=$?
+set -e
+if [[ "${collision_result}" -eq 0 ]] \
+    || ! grep -Eq '(^|[^0-9])51074([^0-9]|$)' <<<"${collision_output}"; then
+    echo "Split-Characters-Kollision wurde nicht mit Fehler 51074 abgelehnt." >&2
     exit 1
 fi
+unset collision_output
+echo "SPLIT_CHARACTERS_COLLISION_VERIFIED"
 
 run_query "${collision_database}" \
     "IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = N'Toolbelt.Module.toolbelt.string.split-characters.Version') THROW 52642, N'Kollisions-Preflight hinterließ einen Installationsmarker.', 1;"
