@@ -54,6 +54,24 @@ Die historischen CI-Nachweise unten behalten ihren ursprünglichen Scope;
 der erweiterte Runtime-Nachweis ist separat am exakten PR-Head zu prüfen.
 Das Modul bleibt `partially validated` und `unreleased`.
 
+### Owner- und ID-gebundener CI-Container-Cleanup
+
+Normaler EXIT-Cleanup bindet volle64-Hex-ID und zufälligen32-Hex-Owner aus
+derselben Inspectaufnahme. Nur der eigene Owner erlaubt Entfernung per ID;
+danach ist eine frische erfolgreiche Abwesenheitsprüfung am exakten Namen
+Pflicht. Ein Namensaustausch darf keinen fremden Container entfernen.
+Ungültige/unlesbare Identität, fremder Owner, Entfernungsfehler oder unklarer
+Abschluss melden `SAFE_CAST_CI_CLEANUP_UNVERIFIED` und Fehlerstatus. Bestätigter
+Cleanup meldet `SAFE_CAST_CI_CLEANUP_VERIFIED` und erhält vorherige Fehler.
+Run-/Attempt-/SQL-Name und Owner werden vor privatem Setup geprüft; Lab bleibt
+vor diesen Schritten abgewiesen. Keine Runner-/Host-Recoverygarantie.
+
+Die bestehende source-extracted Probe prüft13 ausgewählte Safe-Cast-Fälle
+mit synthetischen Antworten ohne Docker/SQL. Echte Head-/Main-CI und feste
+Cleanupzeugen werden separat im PR nachgewiesen. Drei SQL-Versionen, sechs
+CL-Kontexte,38 Lifecyclefälle je CL und sämtliche API-/Lifecycle-Fixtures
+bleiben unverändert; keine Lastprobe oder Releasequalifikation.
+
 ### Offene Minimalrechte-Qualifikation
 
 Für die sechs TVF-Aufrufe ist vorhandenes `SELECT` nötig. Der Lifecycle-
