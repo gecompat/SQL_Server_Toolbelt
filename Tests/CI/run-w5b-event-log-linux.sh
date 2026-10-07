@@ -118,6 +118,23 @@ run_stdin() {
 deploy() { run_file "$1" "/workspace/$2/Deployment" Deploy.sql -v DeploymentMode="$3"; }
 uninstall() { run_file "$1" "/workspace/$2/Deployment" Uninstall.sql -v ConfirmNoExternalConsumers="$3" AllowDataLoss="$4"; }
 
+# Die echten Deploys liefern WorkType-Auditresultsets. Nur den festen
+# Testabschluss publizieren; die vollständige Ausgabe bleibt im privaten Scope.
+run_populated_repeat() {
+  local db="$1" mode="$2" output="${private_dir}/event-repeat-$2.out"
+  if ! run_file "${db}" /workspace/Modules/toolbelt.core.event-log/Deployment \
+      ../Tests/Runtime/RepeatCurrent.Contract.sql -v DeploymentMode="${mode}" >"${output}" 2>&1; then
+    echo "EVENT_REPEAT_FAILED" >&2
+    grep -Eo 'Msg [0-9]+, Level [0-9]+, State [0-9]+' "${output}" >&2 || true
+    return 1
+  fi
+  if ! grep -Fq 'Event Log populated repeat (two cycles): successful' "${output}"; then
+    echo "EVENT_REPEAT_COMPLETION_MISSING" >&2
+    return 1
+  fi
+  echo "Event Log populated repeat (two cycles): successful"
+}
+
 configure_linked_server() {
   run_stdin master -v SaPassword="${sa_password}" LinkedServerName="${linked_server}" ProviderEncrypt="${provider_encrypt}" <<'SQL'
 :on error exit
@@ -176,18 +193,15 @@ done
 for pid in "${workers[@]}"; do wait "${pid}"; done
 run_file "${local_db}" /workspace/Modules/toolbelt.core.event-log/Tests/Runtime Concurrency.Verify.sql
 
-# Redeploy muss Events und internen Work Type erhalten.
-before_count="$(run_query "${local_db}" "SET NOCOUNT ON; SELECT COUNT(*) FROM toolbelt_core.EventLog;" | awk '/^[[:space:]]*[0-9]+[[:space:]]*$/ {gsub(/ /,""); print; exit}')"
-deploy "${local_db}" Modules/toolbelt.core.event-log local
-after_count="$(run_query "${local_db}" "SET NOCOUNT ON; SELECT COUNT(*) FROM toolbelt_core.EventLog;" | awk '/^[[:space:]]*[0-9]+[[:space:]]*$/ {gsub(/ /,""); print; exit}')"
-[[ -n "${before_count}" && "${before_count}" = "${after_count}" ]] || { echo "Redeploy verlor Eventdaten." >&2; exit 1; }
-run_query "${local_db}" "IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkType WHERE WorkTypeName='toolbelt.event-log.write' AND IsEnabled=1) THROW 52740,N'Redeploy verlor den Event-Log-Work-Type.',1;"
+# Zwei echte Deploys prüfen volle Eventdaten und die bestehende Reaktivierung.
+run_populated_repeat "${local_db}" local
 
 central_db=tbx_w5b_central
 consumer_db=tbx_w5b_consumer
 run_query master "CREATE DATABASE [${central_db}] COLLATE Latin1_General_100_BIN2; CREATE DATABASE [${consumer_db}] COLLATE Latin1_General_100_CS_AS;"
 deploy_stack "${central_db}" central
 run_file "${consumer_db}" /workspace/Modules/toolbelt.core.event-log/Tests/Runtime Central.Contract.sql -v ToolbeltDatabase="${central_db}"
+run_populated_repeat "${central_db}" central
 
 # Data-Loss-Guard und Work-Type-Cleanup.
 set +e

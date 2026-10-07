@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## 2026-10-07 – EventLog-Datenerhalt und WorkType-Reaktivierung prüfen
+
+- Zwei echte versionsgleiche Deploys vergleichen alle 24 Eventspalten,
+  verbrauchte Identitywerte und ausgewählte Katalog-/Annotationsmetadaten.
+  Die bestehende WorkType-Reaktivierung wird im ersten Deploy separat geprüft;
+  der zweite muss die aktive Registrierung einschließlich Rowversion erhalten.
+- Der vorhandene Linuxadapter ersetzt den lokalen COUNT-only-Redeploy und
+  ergänzt denselben Test zentral. Neue Repeat-Auditresultsets bleiben privat.
+  Source, öffentliche API und Deployment bleiben gleich; native neue Evidenz
+  sowie offene Windows-/Minimalrechte-/Benutzergrantfälle bleiben getrennt.
+- Der neue Repeat bestand am Commit `6f51078cfa1f13ace32212f07d46de8d55d39ef0`
+  auf Linux2019/150,2022/160,2025/170 jeweils lokal/zentral; bestehende
+  API-/Rollback-/Parallelitäts-/Consumer-/Uninstallfälle und eigene
+  CI-Bereinigung ebenfalls
+  ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37692309192)).
+
 ## 2026-10-07 – Befüllte Cancellation-Repeats prüfen
 
 - Zusätzliche Testfixtures qualifizieren zwei echte versionsgleiche Deploys
