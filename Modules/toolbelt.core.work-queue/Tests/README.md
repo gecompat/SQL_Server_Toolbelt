@@ -8,7 +8,9 @@ vollständige binär serialisierte Zeilen aus fünf persistenten Tabellen,
 Tabellenidentität, Identitydefinition/-stand und vertrauenswürdige Checks/FKs.
 Die Zustände sind eine direkte isolierte Datenfixture, kein Handler- oder
 Schedulernachweis. PR283 qualifizierte diese Queueprüfung auf 2019 Linux;
-der erweiterte Adapterstand bleibt bis zur aktuellen CI `not executed`.
+der erweiterte Adapterstand bestand am 2026-10-07 auf 2019 Linux am Commit
+`91507c65ac24051890a1775cc4264c8c119f549f`
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37672934548)).
 Der gemeinsame Queue-/Control-Repeat wurde anschließend als eigene Fixture
 ergänzt. Der gleiche Adapter schließt zuvor seine Legacyclaims ab, installiert
 Control1.0 und prüft zwei ruhende Verbundrepeats mit allen zehn Tabellen.

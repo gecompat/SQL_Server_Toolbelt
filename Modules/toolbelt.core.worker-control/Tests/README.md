@@ -15,7 +15,18 @@ Gezielte Schemaabweisungen prüfen gepolsterte Versionsmarker, umbenannte
 Checks und einen deaktivierten Idempotenzindex. Gate- und Reservationsperren
 werden gegen beide Installer geprüft. Der separate Source-Fault wird nur
 durch den Adapter auf dessen eigener identitätsgeprüfter Session zurückgerollt.
-Status dieses neuen Runtime-Scope: `not executed` bis zur aktuellen CI.
+Dieser Scope bestand am 2026-10-07 auf SQL Server 2019 Linux am Commit
+`91507c65ac24051890a1775cc4264c8c119f549f` im bestehenden
+`External Queue Worker`-Workflow, Schritt `Execute genuine Queue 2.0 to 2.1 upgrade`
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37672934548)).
+Ausgeführt wurden zwei vollständige Queue-/Control-Repeats, sechs
+Caller-/Implicit-/Timeoutfälle, acht Zustands-/Metadatenabweisungen, vier
+Writerkonflikte und der eigene PostSource-Rollback. Zeilen, Identitäten und
+semantischer Katalog blieben unverändert; eigenes Zielcleanup bestand.
+Die separate Queue-Runtime-Matrix auf 2019/2022/2025 Linux qualifiziert keine
+zusätzliche Plattform für diesen neuen Verbundscope. Weitere Verbundziele
+und nichtleere Benutzergrants bleiben `not executed`; frühere fehlgeschlagene
+Läufe behalten ihren Status. Offlineparser sind nur Syntaxnachweise.
 
 Der Stand ist **partially validated**. Am 2026-10-04 bestand `Tests/CI/run-external-queue-worker-lab.ps1 -Platform linux -Version 2019 -Patch latest -ManagedSqlOnly` auf einem schema-validierten, ausdrücklich ausgewählten SQL-Server-2019-Linux-Ziel. Statische Kopplung und Offlineparser sind keine zusätzliche SQL-Laufzeitqualifikation. Die gezielten parallelen Providerläufe sind unten getrennt belegt; zu diesem Zeitpunkt blieb die exakte Head-CI ein separates Mergegate.
 

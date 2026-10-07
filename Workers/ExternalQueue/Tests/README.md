@@ -141,9 +141,13 @@ Legacyclaims werden zuerst abgeschlossen; die vollständig installierte
 Control1.0-Historie bleibt erhalten. Der Zeilen-/Katalogvergleich umfasst
 alle zehn Tabellen einschließlich WorkType. Ein eigener Sperrhalter und
 ein synthetischer DDL-Fault prüfen Abbruch ohne Datenverlust; keine neuen
-Jobs, Provider oder Rechte. Aktuelle Ausführung ist bis zur exakten Head-CI
-`not executed`; der [Controlnachweis](../../../Modules/toolbelt.core.worker-control/Tests/README.md)
-führt die Grenzen getrennt.
+Jobs, Provider oder Rechte. Dieser Scope bestand am 2026-10-07 auf SQL Server
+2019 Linux am Commit `91507c65ac24051890a1775cc4264c8c119f549f`
+einschließlich eigenem Cleanup
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37672934548));
+der [Controlnachweis](../../../Modules/toolbelt.core.worker-control/Tests/README.md)
+führt die Fälle und offenen Grenzen getrennt. Weitere Verbundziele und
+nichtleere Benutzergrants bleiben nicht ausgeführt.
 
 ## Historischer Queue-Capture: Helperkopplung2026-10-05
 

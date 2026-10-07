@@ -9,7 +9,14 @@
 - Beide Lifecyclepfade verwenden denselben Compatibilitypreflight und
   begrenzte Schreibsperren bis Commit. Der vorhandene externe Upgradeadapter
   ergänzt zwei befüllte Verbundrepeats und prüft Daten-/Token-/Identity- und
-  Katalogerhalt. Testcode allein ist kein Runtime-Nachweis.
+  Katalogerhalt. Der temporäre Releasemanifest-Schlüssel ist anonym und
+  kollidiert deshalb nicht zwischen getrennten Deploymentsessions.
+- Der gezielte Verbundnachweis bestand am 2026-10-07 auf SQL Server 2019 Linux
+  einschließlich Caller-/Zustands-/Sperr-/Source-Rollbackfällen und eigenem
+  Cleanup ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37672934548)).
+  Die Queue-Runtime-Matrix bestand separat auf 2019/2022/2025 Linux.
+  Nach Merge dieser Runde pausiert die Entwicklung auf Benutzerauftrag;
+  offene Schritte und Grenzen stehen in `.ai/BACKLOG.md`.
 
 ## 2026-10-07 – Queue-Repeat erhält gültige Retry-/Barrierzustände
 

@@ -112,11 +112,13 @@ und die [sqlcmd-Optionen](https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sql
 Der Export übernimmt die kanonischen Installations- und Migrationspfade
 unverändert. Er besitzt keinen generischen Schemavergleich und keine
 automatische Tabellenkopie. Bekannte Queue-Upgrades ergänzen und migrieren
-vorhandene Daten; unbekannte Versionszustände brechen ab. Bereits installierter
-Worker-Control verhindert derzeit ein erneutes Queue-Deployment über dessen
-Dependency-Gate. Deshalb ist ein jederzeit erfolgreiches Gesamt-Refresh noch
-nicht belegt. Weder Export noch Runner umgehen dieses Gate oder entfernen
-Consumer automatisch.
+vorhandene Daten; unbekannte Versionszustände brechen ab. Ein installierter
+Worker-Control erlaubt ausschließlich den bekannten vollständigen, ruhenden
+Queue2.1-/Control1.0-Repeat gemäß
+[Controlvertrag](../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md).
+Andere Consumerstände und aktive Zustände bleiben abgewiesen. Ein jederzeit
+erfolgreiches Gesamt-Refresh ist damit noch nicht belegt. Weder Export noch
+Runner umgehen diese Grenzen oder entfernen Consumer automatisch.
 
 Ein später Modulfehler lässt bereits erfolgreich installierte Module bestehen.
 Auch GRANT-/Objektmetadaten-Erhaltung ist modulabhängig; etwa XLSX erneuert

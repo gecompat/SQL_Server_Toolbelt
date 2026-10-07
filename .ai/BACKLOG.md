@@ -20,10 +20,60 @@ neue öffentliche SQL-Funktion und erweitert weder Testziele noch Rechte.
 Der [bestehende Controlvertrag](../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md)
 beschreibt Formprüfung, gemeinsame Lifecyclelockreihenfolge und begrenztes
 Schreibfencing. Kein Disable, Uninstall oder Token-/Historiereset dient als
-Hilfsmigration. Gezielt ergänzt wird der vorhandene externe Upgradeadapter;
-aktuelle Runtimequalifikation bleibt bis zur erfolgreichen exakten Head-CI
-`not executed`. Allgemeiner Gesamt-Refresh, unbekannte Migrationsformen,
+Hilfsmigration. Der ergänzte externe Upgradeadapter bestand am 2026-10-07 auf
+SQL Server 2019 Linux am Commit `91507c65ac24051890a1775cc4264c8c119f549f`
+einschließlich befüllter Verbundrepeats, Negativfälle und eigener Bereinigung
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37672934548)).
+Allgemeiner Gesamt-Refresh, unbekannte Migrationsformen,
 Windows-/weitere Versionsmatrix und reale Minimalrechte bleiben getrennt.
+
+#### Fortsetzung und Pausenauftrag
+
+Der Benutzer verlangt am 2026-10-07 nach Abschluss dieser Entwicklungsrunde
+einschließlich [PR284](https://github.com/gecompat/SQL_Server_Toolbelt/pull/284)
+und Merge nach `origin/main` eine Entwicklungspause. Mit diesem Merge tritt
+die Pause in Kraft; weitere Wartungswellen beginnen erst nach ausdrücklichem
+Fortsetzungsauftrag. Der native Verbundnachweis oben ist bestanden. Finale
+Head-CI und tatsächlicher Merge sind im PR nachvollziehbar; ein noch laufender
+oder fehlgeschlagener Check ist keine Integrationsevidenz.
+
+Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
+den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
+Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene
+Gesamtscope umfasst 15 persistente Tabellen in acht Modulen; der neue
+Verbundnachweis umfasst zehn Tabellen einschließlich WorkType.
+
+Bei Fortsetzung zunächst die native AGENTS-Kette, Foundation und relevanten
+Projektregeln neu ermitteln beziehungsweise einen regelkonform validierten
+Analysecache verwenden. Danach den Merge- und CI-Stand aus Git/GitHub sowie
+die aktuellen Modulquellen reconciliieren. Private Laufzeitjournale und
+Chatverlauf ersetzen diese Repositoryquellen nicht.
+
+| Reihenfolge | Nächster Wartungsscope | Noch fehlender Nachweis oder Entscheidung |
+|---|---|---|
+| 1 | `toolbelt.file.content` / `FileContentRootAllowlist` | Befüllten versionsgleichen Repeat mit exakten Zeilen, Identity-, Katalog- und vorhandenen Berechtigungsmetadaten prüfen; kanonische `MS_Description`-Aktualisierung gesondert behandeln. Dieser Tabellenrepeat benötigt weder Datei-I/O noch Konfigurations- oder CLR-Änderungen. |
+| 2 | `toolbelt.core.execution-cancel` / `ExecutionCancellation` | Bestehenden Redeploy um exakte Zeilen-, Rowversion- und Katalogvergleiche ergänzen. |
+| 3 | `toolbelt.core.event-log` / `EventLog` | Daten- und Katalogerhalt qualifizieren; der bestehende Vertrag registriert beziehungsweise reaktiviert seinen WorkType ausdrücklich. Eine abweichende Erhaltung deaktivierter Registrierung wäre zuerst fachlich zu klären. |
+| 4 | `toolbelt.core.second-session` / `SecondSessionProvider` | Deaktivierte Provider, Auditfelder und Rowversions zusätzlich zu vorhandenen Provider-/Servernamensprüfungen nachweisen; keine Provider- oder Rechteausweitung. |
+| 5 | `toolbelt.filesystem.windows` / `FileSystemRoot` | Befüllten Repeat unter bestehenden Windows-/Assembly-/Trustvoraussetzungen qualifizieren; fehlende Windows-Runtime nicht durch Offlineparser ersetzen. |
+
+Danach die exportierte gemeinsame Modulfolge mit befüllten Tabellen prüfen.
+Gesamtdeployment bleibt nicht atomar; Objekt-/Berechtigungserhaltung, lokale
+und zentrale Modi, weitere Plattformen und echte Minimalrechte benötigen
+eigene Qualifikation. Nichtleere Benutzergrants sind im Verbundrepeat dieser
+Runde nicht nachgewiesen. Die fünf verbleibenden Tabellenquellen erstellen
+fehlende Tabellen, liefern aber keinen allgemeinen Schemaabgleich.
+Unbekannte/partielle Installationen und historische Schemaübergänge benötigen
+gesondert beschriebene versionierte Migrationspfade. Q1 V1 bleibt zustandslos.
+Dieser Checkpoint erteilt keine neue Funktions-, API- oder generische
+Copy-/Swap-Migrationsfreigabe.
+
+Lokale SQL-/Dockerläufe bleiben bis zur gesonderten Freigabe nach Klärung des
+Stabilitätsproblems ausgesetzt. Die native Windows-CLR-Qualifikation des neuen
+ScriptDom-Pins und seines Table-Clone-Consumers bleibt ein getrennter offener
+Nachweis; Syntaxparser und historische Security-Cloud-Ergebnisse ersetzen
+keine frische Runtime- oder Security-Qualifikation. Fehlgeschlagene frühere
+CI-Läufe behalten ihren Status.
 
 ### RI-2026-041: JSON Pointer – einzeln freigegeben 2026-10-05
 
