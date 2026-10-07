@@ -1,5 +1,22 @@
 # Worker Control – Testnachweise
 
+Der zusätzliche ruhende Verbundrepeat wird im vorhandenen `QueueUpgradeOnly`-
+Adapter nach dem genuine Queueupgrade und dessen bisherigen Repeats geprüft.
+Legacyclaims werden vor Controlinstallation ausdrücklich abgeschlossen.
+Eine eigene synthetische Fixture enthält terminale Controlhistorie und alle
+zehn persistenten Queue-/Control-/WorkType-Tabellen. Zwei vollständige Repeats
+vergleichen binäre Zeilen einschließlich Tokens/Rowversions, Tabellen- und
+APIidentität, Identitymetadaten und semantische Katalogdefinitionen.
+Bestehende Berechtigungen werden gelesen; eine zusätzliche Rechtevergabe
+erfolgt nicht. Ein nichtleerer Benutzergrant ist daher nicht qualifiziert.
+Konkurrenz- und Faultfälle prüfen unveränderte Daten und neutrale eigene
+Sitzungen; die Callertransaktion wird nicht vom Installer zurückgerollt.
+Gezielte Schemaabweisungen prüfen gepolsterte Versionsmarker, umbenannte
+Checks und einen deaktivierten Idempotenzindex. Gate- und Reservationsperren
+werden gegen beide Installer geprüft. Der separate Source-Fault wird nur
+durch den Adapter auf dessen eigener identitätsgeprüfter Session zurückgerollt.
+Status dieses neuen Runtime-Scope: `not executed` bis zur aktuellen CI.
+
 Der Stand ist **partially validated**. Am 2026-10-04 bestand `Tests/CI/run-external-queue-worker-lab.ps1 -Platform linux -Version 2019 -Patch latest -ManagedSqlOnly` auf einem schema-validierten, ausdrücklich ausgewählten SQL-Server-2019-Linux-Ziel. Statische Kopplung und Offlineparser sind keine zusätzliche SQL-Laufzeitqualifikation. Die gezielten parallelen Providerläufe sind unten getrennt belegt; zu diesem Zeitpunkt blieb die exakte Head-CI ein separates Mergegate.
 
 `Static/validate_contract.py` prüft die Source-/Manifest-/Lifecyclekopplung, getrennten Completiontest vor Witnesszugriff, nonblocking GroupStop und Sessionfence bis Reconcile-Commit. `Runtime/WorkerControl.Contract.sql` prüft synthetisch Admission, Livebudget und pausenerhaltende Generationen auf einer isolierten Modulinstallation. Die parallelen Guardian-/Transaction-/Stop-/Commitnachweise liegen in `Workers/ExternalQueue/Tests/Runtime/Invoke-ManagedContract.ps1` und werden getrennt bewertet.

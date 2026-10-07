@@ -114,6 +114,8 @@ lifecycle:
   execution_mode: "SQLCMD"
   release_manifest: "embedded"
   source_hash_role: "diagnostic_only"
+  repeat_control_preflight: "Deployment/RepeatInstalledControl.Preflight.sql"
+  repeat_control_cleanup: "Deployment/RepeatInstalledControl.Cleanup.sql"
 documentation:
   module: "README.md"
   public_objects:

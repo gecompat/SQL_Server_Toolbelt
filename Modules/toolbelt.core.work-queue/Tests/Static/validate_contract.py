@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import re
 
 root = Path(__file__).resolve().parents[2]
 required = [
@@ -17,6 +18,8 @@ required = [
     "Source/USP_FailWork.sql",
     "Source/USP_GetWorkStatus.sql",
     "Deployment/Deploy.sql",
+    "Deployment/RepeatInstalledControl.Preflight.sql",
+    "Deployment/RepeatInstalledControl.Cleanup.sql",
     "Deployment/Uninstall.sql",
     "Documentation/WORK_QUEUE_OBJECTS.md",
     "Examples/WorkQueue.sql",
@@ -98,8 +101,33 @@ for required_binding in ("PendingReservationId", "@@TRANCOUNT", "@ManagedReserva
         raise SystemExit("Transiente Admissionkopplung fehlt: " + required_binding)
 for lifecycle in ("Deploy.sql", "Uninstall.sql"):
     text = (root / ("Deployment/" + lifecycle)).read_text(encoding="utf-8")
-    if text.count("Worker-Control-Consumer blockiert Queue-Lifecycle") != 2:
+    if lifecycle == "Uninstall.sql" and text.count("Worker-Control-Consumer blockiert Queue-Lifecycle") != 2:
         raise SystemExit("Lifecycle muss Consumergrenze vor und unter Lifecyclelock prüfen: " + lifecycle)
+
+deploy = (root / "Deployment/Deploy.sql").read_text(encoding="utf-8")
+guard = (root / "Deployment/RepeatInstalledControl.Preflight.sql").read_text(encoding="utf-8")
+cleanup = (root / "Deployment/RepeatInstalledControl.Cleanup.sql").read_text(encoding="utf-8")
+if deploy.count("@RepeatGuard,N'@Fence bit',@Fence=0") != 2 or deploy.count("@RepeatGuard,N'@Fence bit',@Fence=1") != 1:
+    raise SystemExit("Installierter Control-Repeat benötigt Preflight plus gefencten vollständigen Repeatguard")
+if deploy.index("toolbelt.deploy.toolbelt.core.worker-control") > deploy.index("toolbelt.deploy.toolbelt.core.work-queue"):
+    raise SystemExit("Lifecyclelockreihenfolge muss Control vor Queue bleiben")
+if deploy.index("RAISERROR(N'Lifecycle") > deploy.index("SET NOCOUNT ON;") or "(@@OPTIONS&2)=2" not in deploy:
+    raise SystemExit("Caller-/Implicittransaction muss vor SET-/Tempmutation abgewiesen werden")
+fenced = re.findall(r"SELECT TOP\(1\) @FenceValue=1 FROM toolbelt_core\.(\w+) WITH\(TABLOCKX,HOLDLOCK\)", guard)
+expected_fences = ["WorkQueueManagedGate", "WorkQueueScheduler", "WorkerControlConfiguration", "WorkerRegistration", "WorkerSlotReservation", "WorkerExecutionDisposition", "WorkerExecutionCommitWitness", "WorkItem", "WorkQueueBarrierBlocker"]
+if fenced != expected_fences or "SET LOCK_TIMEOUT 0" not in guard or "TOP(0)" in guard or "NOWAIT" in guard:
+    raise SystemExit("Repeat benötigt alle neun bounded physischen Tabellenfences in kanonischer Reihenfolge")
+for table in expected_fences:
+    if f"DROP TABLE IF EXISTS #tbx_Repeat_{table};" not in cleanup:
+        raise SystemExit("Repeat hinterlässt erwartete Tempform: " + table)
+for marker in ("SQL_VARIANT_PROPERTY", "DATALENGTH(required.ExpectedValue)", "c.user_type_id", "c.is_computed", "c.is_identity", "c.collation_name", "f.is_not_trusted=0", "c.is_not_trusted=1", "ColumnSignature", "@Quoted=1", "@Quoted=1-@Quoted", "State NOT IN(''COMMITTED'',''ROLLED_BACK'',''CLOSED'')", "PendingReservationId IS NULL", "Status=''CLAIMED'' OR ManagedHold=1", "WITH(READCOMMITTEDLOCK)"):
+    if marker not in guard.replace("''", "'"):
+        raise SystemExit("Installierter Repeatguard verliert Metadaten-/Literal-/Zustandsvertrag: " + marker)
+for name in ("IX_WorkItem_Status_WorkItemId", "IX_WorkItem_WorkTypeId_Status_WorkItemId", "IX_WorkItem_Status_LeaseUntilUtc_WorkItemId", "UX_WorkItem_WorkType_IdempotencyKey", "IX_WorkItem_Scheduling"):
+    if f"INDEX {name} ON #tbx_Repeat_WorkItem" not in guard:
+        raise SystemExit("Kanonische WorkItem-Indexform fehlt im Repeatgate: "+name)
+if deploy.count("IF @@LOCK_TIMEOUT<>-1")!=1 or deploy.count("SET LOCK_TIMEOUT 5000;")!=1 or deploy.count("SET LOCK_TIMEOUT -1;")!=3:
+    raise SystemExit("Installierter Repeat muss Standardtimeout verlangen, Source-DDL begrenzen und verfügbare Pfade wiederherstellen")
 
 # Missing singleton must not be mistaken for a disabled managed gate.
 for lifecycle in ("Deploy.sql", "Uninstall.sql"):

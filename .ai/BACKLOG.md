@@ -6,6 +6,25 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### Deploymentwartung 2026-10-07 – datenwahrender Queue-/Control-Repeat
+
+Der ausdrücklich besprochene Auftrag zum aktuellen Gesamtdeployment umfasst
+Anlegen beziehungsweise Altern bestehender Objekte unter Erhalt persistenter
+Daten und die gewählte zusätzliche eigenständige SQL-Datei. PR282 liefert
+den Export; PR283 korrigiert den Queue2.1-Repeat mit allen sieben Zuständen.
+Diese Folgekorrektur begrenzt den installierten Controlconsumer auf den
+bekannten vollständigen Queue2.1-/Control1.0-Verbund mit deaktiviertem Gate
+und ohne Claims, Holds oder offene Reservations. Sie implementiert keine
+neue öffentliche SQL-Funktion und erweitert weder Testziele noch Rechte.
+
+Der [bestehende Controlvertrag](../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md)
+beschreibt Formprüfung, gemeinsame Lifecyclelockreihenfolge und begrenztes
+Schreibfencing. Kein Disable, Uninstall oder Token-/Historiereset dient als
+Hilfsmigration. Gezielt ergänzt wird der vorhandene externe Upgradeadapter;
+aktuelle Runtimequalifikation bleibt bis zur erfolgreichen exakten Head-CI
+`not executed`. Allgemeiner Gesamt-Refresh, unbekannte Migrationsformen,
+Windows-/weitere Versionsmatrix und reale Minimalrechte bleiben getrennt.
+
 ### RI-2026-041: JSON Pointer – einzeln freigegeben 2026-10-05
 
 Nach konkreter Besprechung und Design-/Enginevorprüfung in

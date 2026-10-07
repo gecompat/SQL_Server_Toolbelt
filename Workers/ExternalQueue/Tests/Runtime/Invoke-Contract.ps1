@@ -117,6 +117,91 @@ function Invoke-IsolatedLifecycleFailure([string]$Path,[int]$Number,[int]$State)
   Assert-Fixture $matched 'MANAGED_LIFECYCLE_EXPECTED_DENIAL'
  }finally{$isolated.Dispose();$isolatedBuilder=$null}
 }
+function New-ControlRepeatConnection {
+ # Eigene, nicht enlistete Connection; Identität vor jedem zusätzlichen Actor prüfen.
+ $repeatBuilder=[Data.SqlClient.SqlConnectionStringBuilder]::new([Environment]::GetEnvironmentVariable($privateEnvironment))
+ $repeatBuilder.Pooling=$false;$repeatBuilder.Enlist=$false;$repeatBuilder.ConnectRetryCount=0
+ $isolated=[Data.SqlClient.SqlConnection]::new($repeatBuilder.ConnectionString)
+ try{
+  $isolated.Open();$guard=$isolated.CreateCommand();$guard.CommandTimeout=10
+  try{
+   $guard.CommandText='IF DB_ID()<>@Id OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND name=@Name AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created AND owner_sid=SUSER_SID()) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND SQL_VARIANT_PROPERTY(value,''BaseType'')=''uniqueidentifier'' AND TRY_CONVERT(uniqueidentifier,value)=@Run) OR @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR @@LOCK_TIMEOUT<>-1 THROW 54962,N''Repeatactor besitzt nicht die eigene neutrale Standardsitzung.'',1;'
+   foreach($pair in @{'@Id'=$managedIdentity.Id;'@Name'=$database;'@Created'=$managedIdentity.CreatedBytes;'@Marker'=$managedMarker;'@Run'=$managedRun}.GetEnumerator()){[void]$guard.Parameters.AddWithValue($pair.Key,$pair.Value)}
+   [void]$guard.ExecuteNonQuery()
+  }finally{$guard.Dispose()}
+  return $isolated
+ }catch{$isolated.Dispose();throw}
+}
+function Invoke-ControlRepeatExpectedFailure([string]$Path,[int]$Number,[int]$State,[switch]$RollbackOwned){
+ $isolated=New-ControlRepeatConnection;$matched=$false
+ try{
+  foreach($batch in [regex]::Split((Expand-FixtureSql $Path),'(?im)^\s*GO\s*$')){
+   if([string]::IsNullOrWhiteSpace($batch)){continue}
+   $command=$isolated.CreateCommand();$command.CommandTimeout=10;$command.CommandText=$batch
+   try{[void]$command.ExecuteNonQuery()}
+   catch{
+    $cause=$_.Exception;while($cause -and $cause-isnot[Data.SqlClient.SqlException]){$cause=$cause.InnerException}
+    if($null-eq$cause -or $cause.Number-ne$Number -or ($State-ge0 -and [int]$cause.State-ne$State)){throw}
+    $matched=$true;break
+   }finally{$command.Dispose()}
+  }
+  Assert-Fixture $matched 'CONTROL_REPEAT_EXPECTED_DENIAL'
+  $check=$isolated.CreateCommand();$check.CommandTimeout=10
+  try{
+   if($RollbackOwned){
+    # Sourcefehler über GO können keine äußere TRY/CATCH-Klammer besitzen.
+    # Ausschließlich diese frisch eröffnete eigene Actorconnection wiederherstellen.
+    $check.CommandText='IF DB_ID()<>@Id OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND TRY_CONVERT(uniqueidentifier,value)=@Run) THROW 54962,N''Eigener Source-Rollback besitzt nicht die Fixture.'',2;IF @@TRANCOUNT>0 ROLLBACK TRANSACTION;SET LOCK_TIMEOUT -1;'
+    foreach($pair in @{'@Id'=$managedIdentity.Id;'@Created'=$managedIdentity.CreatedBytes;'@Marker'=$managedMarker;'@Run'=$managedRun}.GetEnumerator()){[void]$check.Parameters.AddWithValue($pair.Key,$pair.Value)}
+    [void]$check.ExecuteNonQuery();$check.Parameters.Clear()
+   }
+   $check.CommandText='SELECT CASE WHEN @@TRANCOUNT=0 AND XACT_STATE()=0 AND @@LOCK_TIMEOUT=-1 THEN 1 ELSE 0 END;';Assert-Fixture ($check.ExecuteScalar()-eq1) 'CONTROL_REPEAT_DENIAL_TRANSACTION_NEUTRAL'
+  }finally{$check.Dispose()}
+ }finally{$isolated.Dispose()}
+}
+function Save-ControlRepeatBaseline {
+ Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/RepeatInstalled.Snapshot.sql')
+ Invoke-FixtureSql 'DROP TABLE IF EXISTS #tbx_ControlRepeatRows;DROP TABLE IF EXISTS #tbx_ControlRepeatCatalog;SELECT * INTO #tbx_ControlRepeatRows FROM #tbx_ControlRepeatActualRows;SELECT * INTO #tbx_ControlRepeatCatalog FROM #tbx_ControlRepeatActualCatalog;'
+}
+function Compare-ControlRepeatBaseline {
+ Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/RepeatInstalled.Snapshot.sql')
+ Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/RepeatInstalled.Compare.sql')
+}
+function Test-ControlRepeatSessionGuard([string]$Path,[switch]$Implicit,[switch]$NondefaultTimeout){
+ $isolated=New-ControlRepeatConnection
+ try{
+  $setup=$isolated.CreateCommand();$setup.CommandTimeout=10
+  try{
+   $setup.CommandText='CREATE TABLE #RepeatCallerSentinel(Value int NOT NULL);INSERT #RepeatCallerSentinel VALUES(1);'+$(if($NondefaultTimeout){'SET LOCK_TIMEOUT 1234;'}elseif($Implicit){'SET IMPLICIT_TRANSACTIONS ON;'}else{'BEGIN TRANSACTION;UPDATE #RepeatCallerSentinel SET Value=2;'})
+   [void]$setup.ExecuteNonQuery()
+  }finally{$setup.Dispose()}
+  $batch=([regex]::Split((Expand-FixtureSql $Path),'(?im)^\s*GO\s*$')|Where-Object {-not[string]::IsNullOrWhiteSpace($_)}|Select-Object -First 1)
+  $command=$isolated.CreateCommand();$command.CommandTimeout=10;$command.CommandText=$batch;$matched=$false
+  try{[void]$command.ExecuteNonQuery()}
+  catch{
+   $cause=$_.Exception;while($cause -and $cause-isnot[Data.SqlClient.SqlException]){$cause=$cause.InnerException}
+   if($null-eq$cause -or $cause.Number-ne50000 -or [int]$cause.State-ne1){throw}
+   $matched=$true
+  }finally{$command.Dispose()}
+  Assert-Fixture $matched 'CONTROL_REPEAT_CALLER_DENIAL'
+  $check=$isolated.CreateCommand();$check.CommandTimeout=10
+  try{
+   $check.CommandText=if($NondefaultTimeout){'IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR @@LOCK_TIMEOUT<>1234 OR (SELECT Value FROM #RepeatCallerSentinel)<>1 THROW 54963,N''Timeoutguard veränderte Callerzustand.'',5;SET LOCK_TIMEOUT -1;'}elseif($Implicit){'IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR (@@OPTIONS&2)<>2 OR @@LOCK_TIMEOUT<>-1 THROW 54963,N''Implicitguard veränderte Callerzustand.'',1;SET IMPLICIT_TRANSACTIONS OFF;IF (SELECT Value FROM #RepeatCallerSentinel)<>1 THROW 54963,N''Implicitguard veränderte Sentinel.'',2;'}else{'IF @@TRANCOUNT<>1 OR XACT_STATE()<>1 OR @@LOCK_TIMEOUT<>-1 OR (SELECT Value FROM #RepeatCallerSentinel)<>2 THROW 54963,N''Lifecycle rollbackte fremde Callertransaktion.'',3;ROLLBACK TRANSACTION;IF (SELECT Value FROM #RepeatCallerSentinel)<>1 THROW 54963,N''Eigener Sentinelrollback fehlt.'',4;'}
+   [void]$check.ExecuteNonQuery()
+  }finally{$check.Dispose()}
+ }finally{$isolated.Dispose()}
+}
+function Test-ControlRepeatWriterFence([string]$Path,[ValidateSet('WorkerSlotReservation','WorkQueueManagedGate')][string]$Table){
+ Save-ControlRepeatBaseline
+ $writer=New-ControlRepeatConnection;$command=$writer.CreateCommand();$command.CommandTimeout=10
+ try{
+  # Kein UPDATE: dadurch auch keine unbewiesene Rowversionwiederherstellung.
+  $command.CommandText="BEGIN TRANSACTION;DECLARE @FenceValue int;SELECT TOP(1) @FenceValue=1 FROM toolbelt_core.[$Table] WITH(TABLOCKX,HOLDLOCK);";[void]$command.ExecuteNonQuery()
+  Invoke-ControlRepeatExpectedFailure $Path 1222 -1
+  $command.CommandText='IF @@TRANCOUNT<>1 OR XACT_STATE()<>1 THROW 54964,N''Writertransaktion wurde verändert.'',1;ROLLBACK TRANSACTION;IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 54964,N''Eigene Writertransaktion blieb offen.'',2;';[void]$command.ExecuteNonQuery()
+  Compare-ControlRepeatBaseline
+ }finally{$command.Dispose();$writer.Dispose()}
+}
 function Add-FixtureWork([string]$Type,[string]$Payload,[int]$Attempts=2){
  $arguments=@{'@Type'=$Type;'@Attempts'=$Attempts}
  $payloadSql='NULL'
@@ -220,6 +305,61 @@ try{
   }
   'PASS: queue2.1 repeat twice; all seven states and five persistent table snapshots preserved.'
   'PASS: genuine queue2.0 to2.1 focused upgrade; preserved rows, original active claim and legacy eight-field admission.'
+  $phase='control-repeat-complete-claims';Save-ManagedFixtureJournal
+  Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/RepeatInstalled.Setup.sql')
+  $phase='control-repeat-install';$managedControlDeploymentStarted=$true;Save-ManagedFixtureJournal
+  Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Deployment/Deploy.sql')
+  Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/RepeatInstalled.Seed.sql')
+  $queueDeploy=Join-Path $root 'Modules/toolbelt.core.work-queue/Deployment/Deploy.sql'
+  $controlDeploy=Join-Path $root 'Modules/toolbelt.core.worker-control/Deployment/Deploy.sql'
+  $phase='control-repeat-session-guards';Save-ManagedFixtureJournal
+  foreach($path in @($queueDeploy,$controlDeploy)){
+   Test-ControlRepeatSessionGuard $path
+   Test-ControlRepeatSessionGuard $path -Implicit
+   Test-ControlRepeatSessionGuard $path -NondefaultTimeout
+  }
+  $phase='control-repeat-state-guards';Save-ManagedFixtureJournal
+  # Jede Abweisung konserviert gerade den absichtlich ungültigen Zustand;
+  # erst anschließend wird die eigene synthetische Mutation zurückgenommen.
+  Invoke-FixtureSql "SELECT value PropertyValue INTO #tbx_ControlRepeatOriginalMarker FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_core.WorkerRegistration') AND minor_id=0 AND name=N'Toolbelt.ModuleVersion';"
+  $cases=@(
+   @{Set="UPDATE toolbelt_core.WorkerSlotReservation SET IsOccupied=1 WHERE State='COMMITTED';";Restore="UPDATE toolbelt_core.WorkerSlotReservation SET IsOccupied=0 WHERE State='COMMITTED';";State=4},
+   @{Set="UPDATE toolbelt_core.WorkerExecutionDisposition SET IsHeld=1 WHERE StopStatus='ALREADY_COMMITTED';";Restore="UPDATE toolbelt_core.WorkerExecutionDisposition SET IsHeld=0 WHERE StopStatus='ALREADY_COMMITTED';";State=4},
+   @{Set='UPDATE toolbelt_core.WorkQueueManagedGate SET ManagedEnabled=1 WHERE GateId=1;';Restore='UPDATE toolbelt_core.WorkQueueManagedGate SET ManagedEnabled=0 WHERE GateId=1;';State=4},
+   @{Set="UPDATE toolbelt_core.WorkQueueManagedGate SET PendingReservationId='00000000-0000-0000-0000-000000006099' WHERE GateId=1;";Restore='UPDATE toolbelt_core.WorkQueueManagedGate SET PendingReservationId=NULL WHERE GateId=1;';State=4},
+   @{Set="EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'1.0.1',@level0type=N'SCHEMA',@level0name=N'toolbelt_core',@level1type=N'TABLE',@level1name=N'WorkerRegistration';";Restore="DECLARE @Original sql_variant=(SELECT PropertyValue FROM #tbx_ControlRepeatOriginalMarker);EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleVersion',@value=@Original,@level0type=N'SCHEMA',@level0name=N'toolbelt_core',@level1type=N'TABLE',@level1name=N'WorkerRegistration';";State=5},
+   @{Set="EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'1.0.0 ',@level0type=N'SCHEMA',@level0name=N'toolbelt_core',@level1type=N'TABLE',@level1name=N'WorkerRegistration';";Restore="DECLARE @Original sql_variant=(SELECT PropertyValue FROM #tbx_ControlRepeatOriginalMarker);EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleVersion',@value=@Original,@level0type=N'SCHEMA',@level0name=N'toolbelt_core',@level1type=N'TABLE',@level1name=N'WorkerRegistration';";State=5},
+   @{Set="EXEC sys.sp_rename N'toolbelt_core.CK_WorkItem_Status',N'CK_WorkItem_Status_TestRename',N'OBJECT';";Restore="EXEC sys.sp_rename N'toolbelt_core.CK_WorkItem_Status_TestRename',N'CK_WorkItem_Status',N'OBJECT';";State=5},
+   @{Set='ALTER INDEX UX_WorkItem_WorkType_IdempotencyKey ON toolbelt_core.WorkItem DISABLE;';Restore='ALTER INDEX UX_WorkItem_WorkType_IdempotencyKey ON toolbelt_core.WorkItem REBUILD;';State=5}
+  )
+  foreach($case in $cases){
+   Invoke-FixtureSql $case.Set;Save-ControlRepeatBaseline
+   Invoke-ControlRepeatExpectedFailure $queueDeploy 54202 $case.State
+   Compare-ControlRepeatBaseline
+   Invoke-FixtureSql $case.Restore
+  }
+  $phase='control-repeat-writer-fence';Save-ManagedFixtureJournal
+  foreach($path in @($queueDeploy,$controlDeploy)){
+   foreach($table in @('WorkerSlotReservation','WorkQueueManagedGate')){Test-ControlRepeatWriterFence $path $table}
+  }
+  $phase='control-repeat-post-source-rollback';Save-ManagedFixtureJournal
+  Save-ControlRepeatBaseline
+  Invoke-FixtureSql "CREATE TRIGGER Tbx_ControlRepeatRollback ON DATABASE FOR ALTER_PROCEDURE AS BEGIN SET NOCOUNT ON;THROW 54969,N'Synthetischer PostSource-Rollbackfall.',1;END;"
+  Invoke-ControlRepeatExpectedFailure $queueDeploy 54969 1 -RollbackOwned
+  Compare-ControlRepeatBaseline
+  Invoke-FixtureSql 'DROP TRIGGER Tbx_ControlRepeatRollback ON DATABASE;'
+  Save-ControlRepeatBaseline
+  foreach($repeat in 1..2){
+   $phase='control-repeat-current21';Save-ManagedFixtureJournal
+   Invoke-FixtureFile $queueDeploy
+   Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/RepeatInstalled.Verify.sql')
+   $phase='control-repeat-current10';Save-ManagedFixtureJournal
+   Invoke-FixtureFile $controlDeploy
+   Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/RepeatInstalled.Verify.sql')
+  }
+  'PASS: installed quiescent control1.0 and queue2.1 repeat twice; ten binary table snapshots, identities and catalog preserved.'
+  'PASS: caller and implicit transaction guards, state and metadata denials, bounded writer fence and post-source rollback.'
+  'NOT_EXECUTED: nonempty synthetic grant witness, active managed refresh and remaining platforms.'
   return
  }
  if($managedScope){

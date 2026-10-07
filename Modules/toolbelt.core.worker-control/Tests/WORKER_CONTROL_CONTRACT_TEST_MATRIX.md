@@ -10,6 +10,7 @@
 | Terminalhistorie monoton | FinalizeFailure → Reconcile belegt Slot nicht erneut; Folgeclaim versteckt alte Reservation nicht | NOT EXECUTED |
 | Kein Holdbypass | Recovery, direkte Retry/Fail/Complete/Requeue lehnen Managed-/Heldclaims ohne private Proofbindung ab | SQL-Vertrag 2019 Linux bestanden |
 | Lifecycle schützt Daten | Wiederholtes Deploy/Upgrade Queue2.0→2.1, fremde Slots/Dependencies, aktive Reservations/Holds; Uninstall AllowDataLoss und Sichtbarkeitsgate | 2019 Linux: echter Queueupgrade sowie sechs Deploy-/Uninstall-Abweisungen mit unveränderten sieben Tabellen bestanden; weitere Varianten offen |
+| Ruhender Verbundrepeat | Zwei Queue2.1-/Control1.0-Repeats im vorhandenen QueueUpgradeOnly-Adapter; alle zehn Tabellen, binäre Zeilen/Tokens/Rowversions, Identitäten und semantischer Katalog; begrenzte Konkurrenz- und Rollbackabweisung | NOT EXECUTED bis zur aktuellen exakten Head-CI; kein Nachweis nichtleerer Benutzergrants |
 | ResultTable/Help | Exakte Spalten, Help vor Fachvalidierung, Ausgabe atomar | SQL-Vertrag 2019 Linux bestanden |
 
 Statische Artefaktprüfungen qualifizieren ausschließlich ihre konkreten Kopplungen; Native Deploy, Runtime und Plattformqualifikation werden vom Orchestrator nach tatsächlicher Evidenz ergänzt. Eine vollständige Versionsmatrix wird durch diese risikobezogene Welle nicht vorausgesetzt.

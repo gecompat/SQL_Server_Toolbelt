@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-07 – Ruhender Queue-/Control-Repeat erhält persistente Steuerung
+
+- Bekannte vollständig installierte Queue2.1-/Control1.0-Stände können bei
+  deaktiviertem Managedgate ohne Claims, Holds oder offene Reservations
+  gemeinsam erneut deployed werden. Andere Consumerstände und Queue-Uninstall
+  behalten ihre Abweisung; kein automatischer Controlabbau oder Zustandsreset.
+- Beide Lifecyclepfade verwenden denselben Compatibilitypreflight und
+  begrenzte Schreibsperren bis Commit. Der vorhandene externe Upgradeadapter
+  ergänzt zwei befüllte Verbundrepeats und prüft Daten-/Token-/Identity- und
+  Katalogerhalt. Testcode allein ist kein Runtime-Nachweis.
+
 ## 2026-10-07 – Queue-Repeat erhält gültige Retry-/Barrierzustände
 
 - Die vorhandene WorkItem-Migration legt beim Repeat keine vorübergehende

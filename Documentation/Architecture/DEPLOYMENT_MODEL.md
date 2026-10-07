@@ -91,9 +91,13 @@ eigenen Transaktionen und Preflights; das Gesamtdeployment ist nicht atomar.
 Der bisherige Runner verwendet weiterhin getrennte sqlcmd-Prozesse pro Modul.
 
 Diese Orchestrierung ersetzt keine expliziten versionierten Migrationen.
-Insbesondere blockiert ein installierter Worker-Control-Consumer derzeit das
-Queue-Repeat-Deployment; unbekannte Versionen bleiben gesperrt. Vorhandene
-Tabellen werden nur über die unterstützten modulspezifischen Pfade geändert.
+Ein installierter Worker-Control-Consumer erlaubt ausschließlich den bekannten
+Queue2.1-/Control1.0-Repeat im vollständig geprüften ruhenden Zustand. Der
+[Controlvertrag](WORKER_CONTROL_CONTRACT.md) beschreibt diese enge Ausnahme;
+sie verlangt initial `@@LOCK_TIMEOUT = -1` und begrenzt eigene DDL-Wartezeiten.
+Unbekannte Versionen, Teilinstallationen, Claims, Holds und aktive Managedgates
+bleiben gesperrt. Vorhandene Tabellen werden nur über die unterstützten
+modulspezifischen Pfade geändert.
 Der Zielvertrag eines jederzeit erfolgreichen, datenbewahrenden Gesamt-Refresh
 ist damit noch nicht vollständig erreicht. Exporttests sind Offline-Nachweise;
 gefüllte Tabellen, Grant-/Objektmetadaten, Gesamt-Lifecycle und Plattformmatrix

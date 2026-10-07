@@ -32,6 +32,19 @@ for lifecycle in ("Deploy.sql","Uninstall.sql"):
     names=re.findall(r"DECLARE\s+(@\w+)",text,re.I)
     if len(names)!=len(set(n.lower() for n in names)): raise SystemExit("Doppeltes DECLARE im Lifecyclebatch")
 
+deploy=(root/"Deployment/Deploy.sql").read_text(encoding="utf-8")
+if deploy.index("RAISERROR(N'Lifecycle") > deploy.index("SET NOCOUNT ON;") or "(@@OPTIONS&2)=2" not in deploy:
+    raise SystemExit("Deploy muss Caller-/Implicittransaction vor SET-/Tempmutation abweisen")
+for include in ("RepeatInstalledControl.Preflight.sql", "RepeatInstalledControl.Cleanup.sql"):
+    if "../../toolbelt.core.work-queue/Deployment/"+include not in deploy:
+        raise SystemExit("Control-Repeat benötigt denselben Deploymentguard und Tempcleanup wie Queue: "+include)
+if deploy.count("@RepeatGuard,N'@Fence bit',@Fence=0")!=2 or deploy.count("@RepeatGuard,N'@Fence bit',@Fence=1")!=1:
+    raise SystemExit("Control-Repeat muss vollständigen Preflight unter neun Tabellenfences wiederholen")
+if "value IS NULL" not in deploy or "SQL_VARIANT_PROPERTY(value,'BaseType')" not in deploy:
+    raise SystemExit("NULL-/untypisierter installierter Marker darf keine Neuinstallation vortäuschen")
+if deploy.count("IF @@LOCK_TIMEOUT<>-1")!=1 or deploy.count("SET LOCK_TIMEOUT 5000;")!=1 or deploy.count("SET LOCK_TIMEOUT -1;")!=3:
+    raise SystemExit("Control-Repeat benötigt initialen Standardtimeout, bounded Source-DDL und verfügbare Restorepfade")
+
 finalize=sources["USP_FinalizeWorkerFailure"]
 if "ManagedReservationId=NULL" not in finalize or "AND ManagedHold=0 AND Status IN('FAILED','RETRY_WAIT','DEAD_LETTER')" not in finalize:
     raise SystemExit("Bewiesene heldfreie Terminalentscheidung muss exakte aktuelle Queuebindung lösen")

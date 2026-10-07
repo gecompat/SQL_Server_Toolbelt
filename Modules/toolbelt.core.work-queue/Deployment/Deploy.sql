@@ -8,6 +8,19 @@
 -- Parameter: DeploymentMode=local|central
 -- ============================================================================
 
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR (@@OPTIONS&2)=2
+BEGIN
+ RAISERROR(N'Lifecycle darf keine Callertransaktion oder implizite Transaktion übernehmen.',16,1);
+ RETURN;
+END;
+-- Der installierte Verbund-Repeat verwendet eine frische Session mit Standardtimeout.
+IF @@LOCK_TIMEOUT<>-1
+ AND EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.work-queue.Version' AND CONVERT(nvarchar(4000),value) COLLATE Latin1_General_100_BIN2=N'2.1.0')
+ AND EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.worker-control.Version' AND CONVERT(nvarchar(4000),value) COLLATE Latin1_General_100_BIN2=N'1.0.0')
+BEGIN
+ RAISERROR(N'Installierter Queue-/Control-Repeat benötigt initial LOCK_TIMEOUT -1.',16,1);
+ RETURN;
+END;
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 SET QUOTED_IDENTIFIER ON;
@@ -177,18 +190,30 @@ IF HAS_PERMS_BY_NAME(N'toolbelt_core',N'SCHEMA',N'ALTER')<>1
  OR HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE TABLE')<>1
     THROW 51945,N'Für das Work-Queue-Deployment fehlen erforderliche DDL-Rechte.',1;
 
+-- Eine installierte Consumergrenze wird nur für den exakten ruhenden Repeat geöffnet.
+DECLARE @RepeatControl bit=CASE WHEN EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.worker-control.Version')
+ OR EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(4000),value) COLLATE Latin1_General_100_BIN2=N'toolbelt.core.worker-control')
+ OR EXISTS(SELECT 1 FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_core') AND name COLLATE Latin1_General_100_BIN2 IN(N'WorkerControlConfiguration',N'WorkerRegistration',N'WorkerSlotReservation',N'WorkerExecutionDisposition',N'WorkerExecutionCommitWitness',N'VW_WorkerStatus',N'VW_WorkerExecutionStatus',N'USP_BeginWorkerCompletion',N'USP_BeginWorkerTransactionWitness',N'USP_BindWorkerExecution',N'USP_ClaimWorkerWork',N'USP_CloseWorker',N'USP_DisableManagedWorkers',N'USP_EnableManagedWorkers',N'USP_FinalizeWorkerFailure',N'USP_HeartbeatWorker',N'USP_ReconcileWorkerExecution',N'USP_RecordWorkerCommit',N'USP_RecordWorkerRollback',N'USP_RecordWorkerUnknown',N'USP_RegisterWorker',N'USP_ReleaseHeldWork',N'USP_ReserveWorkerExecution',N'USP_SetWorkerCapacity',N'USP_SetWorkerConcurrency',N'USP_SetWorkerIntervals',N'USP_SetWorkerState',N'USP_StopWorkerExecution',N'USP_StopWorkers')) THEN 1 ELSE 0 END;
+DECLARE @RepeatGuard nvarchar(max);
+IF @RepeatControl=1
+BEGIN
+:r RepeatInstalledControl.Preflight.sql
+ SELECT @RepeatGuard=SqlText FROM #tbx_RepeatGuard;
+END;
+IF @RepeatControl=1 EXEC sys.sp_executesql @RepeatGuard,N'@Fence bit',@Fence=0;
+ELSE
 IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.worker-control.Version')
  THROW 54202,N'Der installierte Worker-Control-Consumer blockiert Queue-Lifecycle; zuerst dessen Lifecycle abschließen.',2;
 IF OBJECT_ID(N'toolbelt_core.WorkQueueManagedGate',N'U') IS NOT NULL
 BEGIN
  DECLARE @QueueManagedActive bit=NULL;
- EXEC sys.sp_executesql N'SELECT @active=ManagedEnabled FROM toolbelt_core.WorkQueueManagedGate WHERE GateId=1;',N'@active bit OUTPUT',@active=@QueueManagedActive OUTPUT;
+ EXEC sys.sp_executesql N'SET LOCK_TIMEOUT 0;SELECT @active=ManagedEnabled FROM toolbelt_core.WorkQueueManagedGate WHERE GateId=1;',N'@active bit OUTPUT',@active=@QueueManagedActive OUTPUT;
  IF ISNULL(@QueueManagedActive,1)<>0 THROW 54202,N'Managed-Betrieb blockiert den Queue-Lifecycle.',1;
 END;
 IF COL_LENGTH(N'toolbelt_core.WorkItem',N'ManagedHold') IS NOT NULL
 BEGIN
  DECLARE @QueueHasHeld bit=0;
- EXEC sys.sp_executesql N'IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE ManagedHold=1 OR (ManagedReservationId IS NOT NULL AND Status=''CLAIMED'')) SET @held=1;',N'@held bit OUTPUT',@held=@QueueHasHeld OUTPUT;
+ EXEC sys.sp_executesql N'SET LOCK_TIMEOUT 0;IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE ManagedHold=1 OR (ManagedReservationId IS NOT NULL AND Status=''CLAIMED'')) SET @held=1;',N'@held bit OUTPUT',@held=@QueueHasHeld OUTPUT;
  IF @QueueHasHeld=1 THROW 54202,N'Managedclaims oder Holds blockieren den Queue-Lifecycle.',3;
 END;
 
@@ -196,6 +221,10 @@ INSERT INTO #tbx_WorkQueueDeployState VALUES(@TargetVersion,@InstalledVersion,@D
 
 BEGIN TRY
     BEGIN TRANSACTION;
+    -- Gemeinsame Reihenfolge Control -> Queue verhindert Lifecycle-Lockzyklen.
+    DECLARE @ControlLockResult int;
+    EXEC @ControlLockResult=sys.sp_getapplock @Resource=N'toolbelt.deploy.toolbelt.core.worker-control',@LockMode=N'Exclusive',@LockOwner=N'Transaction',@LockTimeout=0,@DbPrincipal=N'public';
+    IF @ControlLockResult<0 THROW 51946,N'Ein paralleler Worker-Control-Lifecycle ist bereits aktiv.',3;
     DECLARE @LockResult int;
     EXEC @LockResult=sys.sp_getapplock @Resource=N'toolbelt.deploy.toolbelt.core.work-queue',@LockMode=N'Exclusive',@LockOwner=N'Transaction',@LockTimeout=0,@DbPrincipal=N'public';
     IF @LockResult<0 THROW 51946,N'Ein paralleles Work-Queue-Deployment ist bereits aktiv.',1;
@@ -204,22 +233,33 @@ BEGIN TRY
     SELECT @CurrentVersion=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties WHERE class=0 AND name=@VersionPropertyName;
     IF ISNULL(@CurrentVersion,N'') COLLATE Latin1_General_100_BIN2<>ISNULL(@InstalledVersion,N'') COLLATE Latin1_General_100_BIN2
         THROW 51946,N'Der installierte Modulstand hat sich seit dem Preflight verändert.',2;
+IF @RepeatControl=0 AND (EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.worker-control.Version')
+ OR EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(4000),value) COLLATE Latin1_General_100_BIN2=N'toolbelt.core.worker-control')
+ OR EXISTS(SELECT 1 FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_core') AND name COLLATE Latin1_General_100_BIN2 IN(N'WorkerControlConfiguration',N'WorkerRegistration',N'WorkerSlotReservation',N'WorkerExecutionDisposition',N'WorkerExecutionCommitWitness',N'VW_WorkerStatus',N'VW_WorkerExecutionStatus',N'USP_BeginWorkerCompletion',N'USP_BeginWorkerTransactionWitness',N'USP_BindWorkerExecution',N'USP_ClaimWorkerWork',N'USP_CloseWorker',N'USP_DisableManagedWorkers',N'USP_EnableManagedWorkers',N'USP_FinalizeWorkerFailure',N'USP_HeartbeatWorker',N'USP_ReconcileWorkerExecution',N'USP_RecordWorkerCommit',N'USP_RecordWorkerRollback',N'USP_RecordWorkerUnknown',N'USP_RegisterWorker',N'USP_ReleaseHeldWork',N'USP_ReserveWorkerExecution',N'USP_SetWorkerCapacity',N'USP_SetWorkerConcurrency',N'USP_SetWorkerIntervals',N'USP_SetWorkerState',N'USP_StopWorkerExecution',N'USP_StopWorkers'))) THROW 54202,N'Der installierte Worker-Control-Consumer blockiert Queue-Lifecycle; sein Stand hat sich seit Preflight verändert.',2;
+IF @RepeatControl=1
+BEGIN
+ EXEC sys.sp_executesql @RepeatGuard,N'@Fence bit',@Fence=1;
+ EXEC sys.sp_executesql @RepeatGuard,N'@Fence bit',@Fence=0;
+END;
+ELSE
 IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.worker-control.Version')
  THROW 54202,N'Der installierte Worker-Control-Consumer blockiert Queue-Lifecycle; zuerst dessen Lifecycle abschließen.',2;
 IF OBJECT_ID(N'toolbelt_core.WorkQueueManagedGate',N'U') IS NOT NULL
 BEGIN
  SET @QueueManagedActive=NULL;
- EXEC sys.sp_executesql N'SELECT @active=ManagedEnabled FROM toolbelt_core.WorkQueueManagedGate WHERE GateId=1;',N'@active bit OUTPUT',@active=@QueueManagedActive OUTPUT;
+ EXEC sys.sp_executesql N'SET LOCK_TIMEOUT 0;SELECT @active=ManagedEnabled FROM toolbelt_core.WorkQueueManagedGate WHERE GateId=1;',N'@active bit OUTPUT',@active=@QueueManagedActive OUTPUT;
  IF ISNULL(@QueueManagedActive,1)<>0 THROW 54202,N'Managed-Betrieb blockiert den Queue-Lifecycle.',1;
 END;
 IF COL_LENGTH(N'toolbelt_core.WorkItem',N'ManagedHold') IS NOT NULL
 BEGIN
  SET @QueueHasHeld=0;
- EXEC sys.sp_executesql N'IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE ManagedHold=1 OR (ManagedReservationId IS NOT NULL AND Status=''CLAIMED'')) SET @held=1;',N'@held bit OUTPUT',@held=@QueueHasHeld OUTPUT;
+ EXEC sys.sp_executesql N'SET LOCK_TIMEOUT 0;IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE ManagedHold=1 OR (ManagedReservationId IS NOT NULL AND Status=''CLAIMED'')) SET @held=1;',N'@held bit OUTPUT',@held=@QueueHasHeld OUTPUT;
  IF @QueueHasHeld=1 THROW 54202,N'Managedclaims oder Holds blockieren den Queue-Lifecycle.',3;
 END;
+    IF @RepeatControl=1 SET LOCK_TIMEOUT 5000;
 END TRY
 BEGIN CATCH
+    IF OBJECT_ID(N'tempdb..#tbx_RepeatGuard',N'U') IS NOT NULL SET LOCK_TIMEOUT -1;
     IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
     THROW;
 END CATCH;
@@ -294,8 +334,11 @@ BEGIN TRY
         EXEC sys.sp_updateextendedproperty @name=@ModePropertyName,@value=@DeploymentMode;
     ELSE EXEC sys.sp_addextendedproperty @name=@ModePropertyName,@value=@DeploymentMode;
     COMMIT TRANSACTION;
+    IF OBJECT_ID(N'tempdb..#tbx_RepeatGuard',N'U') IS NOT NULL SET LOCK_TIMEOUT -1;
+:r RepeatInstalledControl.Cleanup.sql
 END TRY
 BEGIN CATCH
+    IF OBJECT_ID(N'tempdb..#tbx_RepeatGuard',N'U') IS NOT NULL SET LOCK_TIMEOUT -1;
     IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
     THROW;
 END CATCH;
