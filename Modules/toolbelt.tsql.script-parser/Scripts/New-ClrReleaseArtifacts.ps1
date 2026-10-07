@@ -15,13 +15,13 @@ $assemblyPath = Join-Path $moduleRoot "Clr/bin/$Configuration/Toolbelt.Tsql.Scri
 $scriptDomPath = Join-Path $moduleRoot "Clr/bin/$Configuration/Microsoft.SqlServer.TransactSql.ScriptDom.dll"
 $deployTemplatePath = Join-Path $moduleRoot 'Deployment/Deploy.sql'
 
-$expectedScriptDomHash = '24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0'
+$expectedScriptDomHash = '459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7'
 $expectedScriptDomIdentity = 'Microsoft.SqlServer.TransactSql.ScriptDom, Version=18.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91'
 function Assert-ScriptDomPin([string]$Path) {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { throw 'SCRIPT_DOM_PIN_MISSING' }
     if ((Get-FileHash -LiteralPath $Path -Algorithm SHA512).Hash -cne $expectedScriptDomHash -or
         [Reflection.AssemblyName]::GetAssemblyName($Path).FullName -cne $expectedScriptDomIdentity -or
-        [Diagnostics.FileVersionInfo]::GetVersionInfo($Path).FileVersion -cne '18.0.56.2') {
+        [Diagnostics.FileVersionInfo]::GetVersionInfo($Path).FileVersion -cne '18.0.117.0') {
         throw 'SCRIPT_DOM_PIN_MISMATCH'
     }
 }
@@ -92,7 +92,7 @@ $manifest = [ordered]@{
     scriptDomAssemblyFileName = [IO.Path]::GetFileName($scriptDomPath)
     scriptDomSha512 = $scriptDomSha512
     scriptDomAssemblyIdentity = $expectedScriptDomIdentity
-    scriptDomFileVersion = '18.0.56.2'
+    scriptDomFileVersion = '18.0.117.0'
     scriptDomSqlServerHexLiteral = '0x' + $scriptDomSha512
     sha512 = $sha512
     sqlServerHexLiteral = '0x' + $sha512

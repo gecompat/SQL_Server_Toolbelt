@@ -1,5 +1,19 @@
 # T-SQL Script Parser Contract-Testmatrix
 
+> Die 2026-10-02-Nachweise unten gelten für den damaligen ScriptDom-Pin
+> 18.0.56.2. Sie qualifizieren nicht den am 2026-10-07 ausgewählten
+> ScriptDom 18.0.117.0-Pin.
+
+## ScriptDom 18.0.117.0 – erneute Qualifikation
+
+| Bereich | Pflichtnachweis | Status |
+|---|---|---|
+| Release-Artefakt | Exaktes NuGet-Binary, FileVersion `18.0.117.0`, SHA-512 `459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7`; Parser-Provider-SHA-512 `E03C6099E2E919F3F930E2CCB5A753C47F16DABFC18B608F8BC33DEA5E93ED10D9A937CF599427FADED4EBBB11653E80D2C8BA23C49E5AAEEB0A80C60D51EDBF` | `success`, lokaler deterministischer Release-Build |
+| Statischer Vertrag und integriertes Framework | Pin-Konsistenz, Migration vom exakt vorherigen modul-eigenen Binary, 245 begrenzte Kindprozesse und 60 Guard-Prüfungen | `success`, statischer Validator; 245 Framework-Kindprozesse bei 262144 Byte Stack; 60 Guard-Prüfungen, 2026-10-07 |
+| Kandidaten-Gate | 82 isolierte Kindprozesse vor Source, explizit mit neuem Binary-Paar | `not executed`; der frühere private Runner ist im Repository und in den verfügbaren lokalen Arbeitsartefakten nicht vorhanden |
+| SQL-Lifecycle | Saubere Erstinstallation sowie echtes 1.0.0→2.0.0-Upgrade mit altem ScriptDom-Pin, Upgrade auf neuen Pin, Repeat, Uninstall | `not executed`; gültiger Lab-Vertrag fehlt, CLR ist deaktiviert und der neue Trusthash ist nicht freigegeben |
+| Table Clone Trigger-Consumer | `IncludeTriggers=1` mit genau den neuen Parser-/ScriptDom-Hashes | `not executed`; gleicher Lab-/Trust-Blocker |
+
 | Bereich | Pflichtnachweis |
 |---|---|
 | CLR | .NET Framework 4.8, ScriptDom-Integration, UNSAFE-Registrierung mit SHA2-512 |

@@ -25,12 +25,24 @@ und Release bleiben offene Nachweise.
 
 ## Trigger 4.0 – gezielter Nachweis
 
+Die Runtime-Ergebnisse vom 2026-10-04 unten gelten für den historischen
+Parser-Provider-/ScriptDom-Pin. Die erneute Qualifikation des am 2026-10-07
+ausgewählten ScriptDom 18.0.117.0-Binaries ist getrennt ausgewiesen und
+bleibt für Live-SQL offen.
+
 | Scope | Oracle | Ausführung |
 |---|---|---|
 | Drei Trigger auf zwei Mapquellen, exakte Namen und umgeschriebener Body, Unicode/Literale/Kommentare, CTE/Alias, Zustände und echte DML-Wirkung | `Runtime/Trigger.Contract.sql` | Windows2025/exakt CU8 CL170 lokal PASS am2026-10-04, einmal Clean4 |
 | EXEC, nicht gemappte/ungelöste/externe Referenz, Verschlüsselung und Namenskollision; Sentinel/Callerzustand erhalten | `Runtime/Trigger.Safety.sql` | Dasselbe Windowsziel PASS; externe Systemkatalogreferenz durch AST53903/19 abgelehnt |
 | Planner13/Executor14, Release4.0-Hash, Option0 ohne Parser und genuine3.1→4.0 | Begrenzter privater Nativeadapter | Windowsziel PASS; Linux2019/latest CL150 separater Option0-/Lifecycle-PASS wiederverwendet, spätere Änderungen nur Option1 |
 | Unsichtbare/mehrdeutige Bindung, weitere native Ziele/CL und zentraler Triggerpfad | Keine Ableitung aus historischen Teilnachweisen | Nicht ausgeführt |
+
+## ScriptDom 18.0.117.0 – erneute Consumer-Qualifikation
+
+| Scope | Oracle | Ausführung |
+|---|---|---|
+| Exakte Parser-/ScriptDom-Hashkopplung für `IncludeTriggers=1` | `Static/validate_contract.py` und Parser-Contract-Validator | `success`, beide statischen Validatoren, 2026-10-07 |
+| Trigger-Rewriting, Ablehnungen und tatsächliche DML-Wirkung mit dem neuen Binary-Paar | `Runtime/Trigger.Contract.sql`, `Runtime/Trigger.Safety.sql` | `not executed`; schema-validierter Lab-Vertrag fehlt, CLR ist am früheren Ziel deaktiviert und der neue Trusthash ist nicht freigegeben |
 
 Der [Triggervertrag](../../../Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md)
 grenzt die Welle ab. Historische Nachweise unten bleiben ihren Releases zugeordnet.

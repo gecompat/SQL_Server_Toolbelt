@@ -8,7 +8,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$pin = '24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0'
+$pin = '459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7'
 $manifest = Get-Content -LiteralPath $TrustManifestPath -Raw | ConvertFrom-Json
 if ($manifest.moduleVersion -cne '2.0.0' -or $manifest.buildProfile -cne 'net48-anycpu-release-deterministic') { throw 'RELEASE_PROFILE_MISMATCH' }
 $sourceEntries = @(Get-ChildItem -LiteralPath (Join-Path $moduleRoot 'Clr') -Recurse -File |

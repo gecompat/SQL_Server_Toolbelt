@@ -28,8 +28,8 @@ Die [Hardening-Qualifikation](../../../Documentation/Architecture/TSQL_SCRIPT_PA
 Der Lab-Adapter [run-script-parser-lab.ps1](../../../Tests/CI/run-script-parser-lab.ps1) erfordert den frisch qualifizierten Release-Stand, die exakte vorherige 1.0.0-Assembly für echten Upgrade-Nachweis und bereits aktiviertes CLR bei unveränderter Strict Security. `-OptInExactTrust` ist ein ausdrücklich gewählter administrativer Testschritt mit vorhandenen Rechten und neuem privatem Journal; das Deployment registriert Trust weiterhin nicht selbst. Vorhandene Einträge bleiben erhalten. Nur eindeutig neu angelegte Einträge ohne Assembly-Verbraucher werden nach eigenem Datenbank-Cleanup entfernt; unklare Scope-/Registrierungs-/Cleanup-Zustände bleiben ausdrücklich blockiert. Es gibt kein RECONFIGURE, keine Rechtevergabe, keinen Container- oder Provider-Fallback.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-03`
-- Nachweis: `statische Vertragsprüfung und Build-Validierung`
-- Scope: Historisch nur 1.0.0: .NET Framework 4.8 Assembly, ScriptDom-Integration, 4 CLR-TVFs, Deployment- und Lifecycle-Skripte; kein 2.0.0-Nachweis.
+- Datum: `2026-10-07`
+- Nachweis: `Scripts/New-ClrReleaseArtifacts.ps1; Tests/Static/validate_contract.py; Tests/Framework/Invoke-Contract.ps1; Tests/Framework/Invoke-Guard.ps1`
+- Scope: ScriptDom 18.0.117.0 mit exaktem SHA-512, deterministischer .NET-Framework-4.8-Build, statischer Dependency-/Lifecycle-Vertrag, 245 begrenzte Framework-Kindprozesse und 60 Guard-Prüfungen. Kein SQL ausgeführt; 82-Kandidatenrunner nicht verfügbar; tatsächliche SQL-Ausgabegrenzen nicht qualifiziert.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

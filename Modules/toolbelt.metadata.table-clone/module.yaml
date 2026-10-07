@@ -136,6 +136,10 @@ tests:
   linux_ci: "../../Tests/CI/run-table-clone-linux.sh"
   github_hosted_linux: "../../.github/workflows/table-clone-runtime.yml"
 validation_evidence:
+  - date: "2026-10-07"
+    workflow: "local: python Modules/toolbelt.metadata.table-clone/Tests/Static/validate_contract.py; python Modules/toolbelt.tsql.script-parser/Tests/Static/validate_contract.py"
+    scope: "Die exakte IncludeTriggers=1-Kopplung an Parser-Provider SHA-512 E03C6099…D51EDBF und ScriptDom 18.0.117.0 SHA-512 459E1372…F853DAC7 sowie der historische Vorgängerpin sind statisch konsistent. Keine SQL-Runtime ausgeführt; Trigger-Runtime-Evidenz vom 2026-10-04 gilt ausschließlich für das damalige Binary-Paar."
+    result: "success"
   - date: "2026-10-01"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Historische Version1.0.0: SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/CU8 CL150/160/170; synthetische Preview/externeTestDDL/Struktur/Identity/Indexkeys/Include/Optionen/Collations/ResultTable/own-caller-doomedTx/Clientmetadata/local-central/Minrechte/HiddenIncomingFK/Typdrift/MarkerHash/Kollision/Uninstall/LifecycleCallerTxON-OFF. Weitere Versionen/Plattformkombinationen, GitHub und LowprivCrossDB nicht ausgefuehrt."
