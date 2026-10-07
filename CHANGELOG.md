@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-07 – Date-Spine-Negativorakel verlangen konkrete Ablehnung
+
+- Die vorhandenen Uninstall-, Dependency- und Kollisionsorakel verlangen
+  Fehlerstatus und vollständige Kategorien `51806`, `51809` und `51804`.
+  Andere Fehler, längere Nummern oder Kategorie bei erfolgreichem Exit ergeben
+  keinen Nachweis. Beide Rohkanäle bleiben ausschließlich im Speicher.
+- Der synthetische Harness prüft tatsächliche Helper und Orakel in Runner-
+  und Labmodus. SQL, Dependencies, Fixtures, Runnerbesitz und Cleanup, Images,
+  Readinessfrist, Matrix und Runtimeworkflow bleiben erhalten.
+
 ## 2026-10-07 – Date-Spine-CI mit verifizierter eigener Bereinigung
 
 - Der bestehende Adapter bindet seinen Runner vor dem Start an SQL-Version,

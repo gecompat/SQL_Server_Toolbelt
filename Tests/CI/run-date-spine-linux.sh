@@ -187,14 +187,19 @@ run_file "${database}" \
 # Eine same-database Dependency blockiert Uninstall vor der ersten Mutation.
 run_query "${database}" \
   "CREATE VIEW dbo.VW_DateSpineConsumer AS SELECT Ordinal, PeriodStart FROM toolbelt_datetime.TVF_DateSpineDay('20260101','20260102');"
+# Ein beliebiger Fehler ist kein Ablehnungsnachweis. Beide Rohkanäle
+# bleiben im Speicher; Fehlerstatus UND die vollständige Kategorie sind nötig.
 set +e
-uninstall_date_spine "${database}" 0 >/dev/null 2>&1
+blocked_uninstall_output="$(uninstall_date_spine "${database}" 0 2>&1)"
 blocked_uninstall_status=$?
 set -e
-if [[ "${blocked_uninstall_status}" -eq 0 ]]; then
-  echo "Date-Spine-Uninstall ignorierte eine Dependency." >&2
-  exit 1
+if [[ "${blocked_uninstall_status}" -eq 0 ]] \
+    || ! grep -Eq '(^|[^0-9])51806([^0-9]|$)' <<<"${blocked_uninstall_output}"; then
+    echo "Date-Spine-Uninstall wurde nicht mit Fehler 51806 abgelehnt." >&2
+    exit 1
 fi
+unset blocked_uninstall_output
+echo "DATE_SPINE_UNINSTALL_VERIFIED"
 run_query "${database}" "DROP VIEW dbo.VW_DateSpineConsumer;"
 uninstall_date_spine "${database}" 0
 run_query "${database}" "
@@ -211,14 +216,19 @@ uninstall_dependencies "${database}" 0
 # Fehlende Dependencies dürfen vor der ersten Mutation keine Objekte erzeugen.
 run_query master \
   "CREATE DATABASE [${preflight_database}] COLLATE Latin1_General_100_CS_AS;"
+# Ein beliebiger Fehler ist kein Ablehnungsnachweis. Beide Rohkanäle
+# bleiben im Speicher; Fehlerstatus UND die vollständige Kategorie sind nötig.
 set +e
-deploy_date_spine "${preflight_database}" local >/dev/null 2>&1
+missing_dependency_output="$(deploy_date_spine "${preflight_database}" local 2>&1)"
 missing_dependency_status=$?
 set -e
-if [[ "${missing_dependency_status}" -eq 0 ]]; then
-  echo "Date-Spine-Deployment akzeptierte fehlende Dependencies." >&2
-  exit 1
+if [[ "${missing_dependency_status}" -eq 0 ]] \
+    || ! grep -Eq '(^|[^0-9])51809([^0-9]|$)' <<<"${missing_dependency_output}"; then
+    echo "Date-Spine-Dependency wurde nicht mit Fehler 51809 abgelehnt." >&2
+    exit 1
 fi
+unset missing_dependency_output
+echo "DATE_SPINE_DEPENDENCY_VERIFIED"
 run_query "${preflight_database}" "
 IF SCHEMA_ID(N'toolbelt_datetime') IS NOT NULL
    OR EXISTS (SELECT 1 FROM sys.extended_properties WHERE name LIKE N'Toolbelt.Module.toolbelt.datetime.date-spine.%')
@@ -235,14 +245,19 @@ CREATE FUNCTION toolbelt_datetime.TVF_DateSpineDay
     @RangeEndExclusive date
 )
 RETURNS TABLE AS RETURN (SELECT CONVERT(int, 0) AS Ordinal, @RangeStart AS PeriodStart);"
+# Ein beliebiger Fehler ist kein Ablehnungsnachweis. Beide Rohkanäle
+# bleiben im Speicher; Fehlerstatus UND die vollständige Kategorie sind nötig.
 set +e
-deploy_date_spine "${collision_database}" local >/dev/null 2>&1
+collision_output="$(deploy_date_spine "${collision_database}" local 2>&1)"
 collision_status=$?
 set -e
-if [[ "${collision_status}" -eq 0 ]]; then
-  echo "Date-Spine-Deployment überschrieb einen frameworkfremden Zielnamen." >&2
-  exit 1
+if [[ "${collision_status}" -eq 0 ]] \
+    || ! grep -Eq '(^|[^0-9])51804([^0-9]|$)' <<<"${collision_output}"; then
+    echo "Date-Spine-Kollision wurde nicht mit Fehler 51804 abgelehnt." >&2
+    exit 1
 fi
+unset collision_output
+echo "DATE_SPINE_COLLISION_VERIFIED"
 run_query "${collision_database}" "
 IF OBJECT_ID(N'toolbelt_datetime.TVF_DateSpineCore') IS NOT NULL
    OR OBJECT_ID(N'toolbelt_datetime.TVF_DateSpineIsoWeek') IS NOT NULL
