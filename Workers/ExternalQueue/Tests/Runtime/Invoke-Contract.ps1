@@ -125,7 +125,7 @@ function New-ControlRepeatConnection {
  try{
   $isolated.Open();$guard=$isolated.CreateCommand();$guard.CommandTimeout=10
   try{
-   $guard.CommandText='IF DB_ID()<>@Id OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND name=@Name AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created AND owner_sid=SUSER_SID()) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND SQL_VARIANT_PROPERTY(value,''BaseType'')=''uniqueidentifier'' AND TRY_CONVERT(uniqueidentifier,value)=@Run) OR @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR @@LOCK_TIMEOUT<>-1 THROW 54962,N''Repeatactor besitzt nicht die eigene neutrale Standardsitzung.'',1;'
+   $guard.CommandText='IF @@TRANCOUNT<>0 THROW 54962,N''Repeatactor besitzt nicht die eigene neutrale Standardsitzung.'',1;IF XACT_STATE()<>0 THROW 54962,N''Repeatactor besitzt nicht die eigene neutrale Standardsitzung.'',1;IF @@LOCK_TIMEOUT<>-1 THROW 54962,N''Repeatactor besitzt nicht die eigene neutrale Standardsitzung.'',1;IF DB_ID()<>@Id OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND name=@Name AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created AND owner_sid=SUSER_SID()) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND SQL_VARIANT_PROPERTY(value,''BaseType'')=''uniqueidentifier'' AND TRY_CONVERT(uniqueidentifier,value)=@Run) THROW 54962,N''Repeatactor besitzt nicht die eigene Fixtureidentität.'',1;'
    foreach($pair in @{'@Id'=$managedIdentity.Id;'@Name'=$database;'@Created'=$managedIdentity.CreatedBytes;'@Marker'=$managedMarker;'@Run'=$managedRun}.GetEnumerator()){[void]$guard.Parameters.AddWithValue($pair.Key,$pair.Value)}
    [void]$guard.ExecuteNonQuery()
   }finally{$guard.Dispose()}
@@ -155,7 +155,7 @@ function Invoke-ControlRepeatExpectedFailure([string]$Path,[int]$Number,[int]$St
     foreach($pair in @{'@Id'=$managedIdentity.Id;'@Created'=$managedIdentity.CreatedBytes;'@Marker'=$managedMarker;'@Run'=$managedRun}.GetEnumerator()){[void]$check.Parameters.AddWithValue($pair.Key,$pair.Value)}
     [void]$check.ExecuteNonQuery();$check.Parameters.Clear()
    }
-   $check.CommandText='SELECT CASE WHEN @@TRANCOUNT=0 AND XACT_STATE()=0 AND @@LOCK_TIMEOUT=-1 THEN 1 ELSE 0 END;';Assert-Fixture ($check.ExecuteScalar()-eq1) 'CONTROL_REPEAT_DENIAL_TRANSACTION_NEUTRAL'
+   $check.CommandText='IF @@TRANCOUNT<>0 THROW 54965,N''Abgewiesener Repeat ließ eine Transaktion offen.'',1;IF XACT_STATE()<>0 THROW 54965,N''Abgewiesener Repeat ließ einen Transaktionszustand offen.'',1;IF @@LOCK_TIMEOUT<>-1 THROW 54965,N''Abgewiesener Repeat änderte den Standardsitzungs-Locktimeout.'',1;SELECT 1;';Assert-Fixture ($check.ExecuteScalar()-eq1) 'CONTROL_REPEAT_DENIAL_TRANSACTION_NEUTRAL'
   }finally{$check.Dispose()}
  }finally{$isolated.Dispose()}
 }
@@ -186,7 +186,7 @@ function Test-ControlRepeatSessionGuard([string]$Path,[switch]$Implicit,[switch]
   Assert-Fixture $matched 'CONTROL_REPEAT_CALLER_DENIAL'
   $check=$isolated.CreateCommand();$check.CommandTimeout=10
   try{
-   $check.CommandText=if($NondefaultTimeout){'IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR @@LOCK_TIMEOUT<>1234 OR (SELECT Value FROM #RepeatCallerSentinel)<>1 THROW 54963,N''Timeoutguard veränderte Callerzustand.'',5;SET LOCK_TIMEOUT -1;'}elseif($Implicit){'IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR (@@OPTIONS&2)<>2 OR @@LOCK_TIMEOUT<>-1 THROW 54963,N''Implicitguard veränderte Callerzustand.'',1;SET IMPLICIT_TRANSACTIONS OFF;IF (SELECT Value FROM #RepeatCallerSentinel)<>1 THROW 54963,N''Implicitguard veränderte Sentinel.'',2;'}else{'IF @@TRANCOUNT<>1 OR XACT_STATE()<>1 OR @@LOCK_TIMEOUT<>-1 OR (SELECT Value FROM #RepeatCallerSentinel)<>2 THROW 54963,N''Lifecycle rollbackte fremde Callertransaktion.'',3;ROLLBACK TRANSACTION;IF (SELECT Value FROM #RepeatCallerSentinel)<>1 THROW 54963,N''Eigener Sentinelrollback fehlt.'',4;'}
+   $check.CommandText=if($NondefaultTimeout){'IF @@TRANCOUNT<>0 THROW 54963,N''Timeoutguard veränderte Callerzustand.'',5;IF XACT_STATE()<>0 THROW 54963,N''Timeoutguard veränderte Callerzustand.'',5;IF @@LOCK_TIMEOUT<>1234 THROW 54963,N''Timeoutguard veränderte Callerzustand.'',5;IF (SELECT Value FROM #RepeatCallerSentinel)<>1 THROW 54963,N''Timeoutguard veränderte Sentinel.'',5;SET LOCK_TIMEOUT -1;'}elseif($Implicit){'IF @@TRANCOUNT<>0 THROW 54963,N''Implicitguard veränderte Callerzustand.'',1;IF XACT_STATE()<>0 THROW 54963,N''Implicitguard veränderte Callerzustand.'',1;IF (@@OPTIONS&2)<>2 THROW 54963,N''Implicitguard veränderte Callerzustand.'',1;IF @@LOCK_TIMEOUT<>-1 THROW 54963,N''Implicitguard veränderte Callerzustand.'',1;SET IMPLICIT_TRANSACTIONS OFF;IF (SELECT Value FROM #RepeatCallerSentinel)<>1 THROW 54963,N''Implicitguard veränderte Sentinel.'',2;'}else{'IF @@TRANCOUNT<>1 THROW 54963,N''Lifecycle rollbackte fremde Callertransaktion.'',3;IF XACT_STATE()<>1 THROW 54963,N''Lifecycle rollbackte fremde Callertransaktion.'',3;IF @@LOCK_TIMEOUT<>-1 THROW 54963,N''Lifecycle veränderte Caller-Locktimeout.'',3;IF (SELECT Value FROM #RepeatCallerSentinel)<>2 THROW 54963,N''Lifecycle veränderte Callersentinel.'',3;ROLLBACK TRANSACTION;IF (SELECT Value FROM #RepeatCallerSentinel)<>1 THROW 54963,N''Eigener Sentinelrollback fehlt.'',4;'}
    [void]$check.ExecuteNonQuery()
   }finally{$check.Dispose()}
  }finally{$isolated.Dispose()}
@@ -198,7 +198,7 @@ function Test-ControlRepeatWriterFence([string]$Path,[ValidateSet('WorkerSlotRes
   # Kein UPDATE: dadurch auch keine unbewiesene Rowversionwiederherstellung.
   $command.CommandText="BEGIN TRANSACTION;DECLARE @FenceValue int;SELECT TOP(1) @FenceValue=1 FROM toolbelt_core.[$Table] WITH(TABLOCKX,HOLDLOCK);";[void]$command.ExecuteNonQuery()
   Invoke-ControlRepeatExpectedFailure $Path 1222 -1
-  $command.CommandText='IF @@TRANCOUNT<>1 OR XACT_STATE()<>1 THROW 54964,N''Writertransaktion wurde verändert.'',1;ROLLBACK TRANSACTION;IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 54964,N''Eigene Writertransaktion blieb offen.'',2;';[void]$command.ExecuteNonQuery()
+  $command.CommandText='IF @@TRANCOUNT<>1 THROW 54964,N''Writertransaktion wurde verändert.'',1;IF XACT_STATE()<>1 THROW 54964,N''Writertransaktion wurde verändert.'',1;ROLLBACK TRANSACTION;IF @@TRANCOUNT<>0 THROW 54964,N''Eigene Writertransaktion blieb offen.'',2;IF XACT_STATE()<>0 THROW 54964,N''Eigene Writertransaktion blieb offen.'',2;';[void]$command.ExecuteNonQuery()
   Compare-ControlRepeatBaseline
  }finally{$command.Dispose();$writer.Dispose()}
 }

@@ -1,8 +1,10 @@
 :On Error exit
 SET NOCOUNT ON;
 -- Terminale History ist Testdatenaufbau, kein Handlercommit-/Rollbacknachweis.
-IF @@TRANCOUNT<>0 OR XACT_STATE()<>0
- OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.worker-control.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0')
+-- Reine Sessionguards stehen vor den Katalog-/Historyreads.
+IF @@TRANCOUNT<>0 THROW 54960,N'Controlrepeat verlangt frisch installierten Control1.0.',3;
+IF XACT_STATE()<>0 THROW 54960,N'Controlrepeat verlangt frisch installierten Control1.0.',3;
+IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.worker-control.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0')
  OR EXISTS(SELECT 1 FROM toolbelt_core.WorkerRegistration)
  THROW 54960,N'Controlrepeat verlangt frisch installierten Control1.0.',3;
 DECLARE @Worker uniqueidentifier='00000000-0000-0000-0000-000000006001',@Now datetime2(7)=SYSUTCDATETIME();
