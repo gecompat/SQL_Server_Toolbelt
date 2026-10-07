@@ -58,6 +58,15 @@ nichtleere Benutzergrants, echte Minimalrechte und historische Übergänge
 bleiben separat. Finale Head-CI/Merge werden über
 [PR286](https://github.com/gecompat/SQL_Server_Toolbelt/pull/286) geprüft.
 
+Arbeitsmodus konkretisiert 2026-10-07: Der Benutzer verlangt unmittelbare
+autonome Fortsetzung und Delegation mit Abschlussmeldungen; die geplanten
+20-Minuten-Stupser sind ausschließlich ein Sicherheitsnetz. Nach jedem
+abgeschlossenen Arbeitspaket wird die nächste konkrete freigegebene Arbeit
+direkt vorbereitet beziehungsweise umgesetzt. Agentenberichte werden vor
+Integration abgewartet und gegen Quellen sowie tatsächliche Tests geprüft.
+Aktuelle Wartung: befüllter `ExecutionCancellation`-Repeat unter der
+bestehenden Datenerhaltungsfreigabe, ohne neue öffentliche SQL-Funktion.
+
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
 Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene

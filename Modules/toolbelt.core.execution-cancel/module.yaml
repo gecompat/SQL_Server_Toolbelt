@@ -81,6 +81,9 @@ tests:
   runtime: "Tests/Runtime/ExecutionCancellation.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
+  populated_repeat: "Tests/Runtime/RepeatCurrent.Contract.sql"
+  repeat_capture: "Tests/Runtime/RepeatCurrent.Capture.sql"
+  repeat_assert: "Tests/Runtime/RepeatCurrent.Assert.sql"
   multi_session: "Tests/Runtime/Concurrency.Contract.sql"
   github_hosted_linux: "../../.github/workflows/w6d-execution-cancel-runtime.yml"
 validation_evidence:

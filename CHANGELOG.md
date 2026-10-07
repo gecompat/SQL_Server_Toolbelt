@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-07 – Befüllte Cancellation-Repeats prüfen
+
+- Zusätzliche Testfixtures qualifizieren zwei echte versionsgleiche Deploys
+  mit synthetischen Cancellation-Zeilen einschließlich Rowversionbytes,
+  Auditzeiten, NULLs und exakten Textbytes sowie ausgewähltem Katalog.
+  Source, Deploy und öffentliche Cancellation-Semantik bleiben gleich.
+- Der vorhandene W6d-Linuxadapter führt die Fixtures lokal/zentral vor
+  den bisherigen API-, Parallelitäts- und Consumerfällen aus. Neue Windows-,
+  Minimalrechte-, Benutzergrant- und historische Migrationsqualifikation
+  wird daraus nicht abgeleitet; native Ergebnisse werden gesondert erfasst.
+
 ## 2026-10-07 – Befüllte File-Content-Repeats prüfen
 
 - Ein zusätzlicher Lifecycle-Contract führt zwei echte versionsgleiche
