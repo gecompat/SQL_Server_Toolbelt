@@ -1,7 +1,13 @@
 -- Nur eigener stabiler DB-Scope; Resultbytes bleiben im privaten Adaptermemory.
 -- Jedes Feld wird vor XML in Binary umgewandelt: NULL, Textpadding, RV und Auditpräzision bleiben erhalten.
 SET NOCOUNT ON;
-IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR (@@OPTIONS&2)<>0 OR @@LOCK_TIMEOUT<>-1
+IF @@TRANCOUNT<>0
+ THROW 54981,N'Exportsnapshot verlangt eine neutrale Sitzung.',1;
+IF XACT_STATE()<>0
+ THROW 54981,N'Exportsnapshot verlangt eine neutrale Sitzung.',1;
+IF (@@OPTIONS&2)<>0
+ THROW 54981,N'Exportsnapshot verlangt eine neutrale Sitzung.',1;
+IF @@LOCK_TIMEOUT<>-1
  THROW 54981,N'Exportsnapshot verlangt eine neutrale Sitzung.',1;
 CREATE TABLE #tbx_ExportObjects(ObjectId int NOT NULL PRIMARY KEY,SchemaName sysname COLLATE Latin1_General_100_BIN2 NOT NULL,ObjectName sysname COLLATE Latin1_General_100_BIN2 NOT NULL,ObjectType char(2) NOT NULL);
 INSERT #tbx_ExportObjects

@@ -143,7 +143,13 @@ Zwölf Einzelbedingungen bestehen, das kombinierte Gate wirft State 13.
 Die Korrektur prüft die neutrale Sitzung getrennt vor und nach dem gemeinsam
 gebundenen Besitzgate. Kein Besitzprädikat entfällt; Autocommit während der
 Katalogauswertung ist eine Hypothese, keine nativ gemessene Primärursache.
-Neue korrigierte Head-CI bleibt erforderlich.
+Der Korrekturlauf `52526f7836b0d4c113991fc972608b1eff276283` besteht das
+Besitzgate und die Erstinstallation, bleibt beim initialen Fixture-Sitzungsgate
+FAILED/SQL54980/State1
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37700707745)).
+Die gleichen kombinierten Sitzungsprüfungen in den vier Testfixtures werden
+ebenfalls ohne Prädikatverlust in einzelne IFs getrennt. Vorherige Workerfälle
+und Containerbereinigung bestehen; neue korrigierte Head-CI bleibt erforderlich.
 Details und offene Grenzen stehen in
 [Deploymenttests](../Deployment/Tests/README.md). Windows-FileSystemRoot und
 vollständiger 44-Modul-Export bleiben getrennte Nachweise; Source, Deploy und

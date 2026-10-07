@@ -10,6 +10,7 @@ IF CONVERT(decimal(38,0),SCOPE_IDENTITY())<>@FileLast+1 THROW 54983,N'File-Ident
 INSERT toolbelt_core.EventLog(OccurredAtUtc,EventName,EventLevel,ExecutionId,CorrelationId,SourceDatabaseName,CallerSessionId,CallerXactState,CallerTransactionCount,RemoteSessionId)
  VALUES('2026-06-07T08:09:10.0000001','test.export.next','INFO','00000000-0000-0000-0000-000000008205','00000000-0000-0000-0000-000000008215',N'Contoso',9,0,0,10);
 IF CONVERT(decimal(38,0),SCOPE_IDENTITY())<>@EventLast+1 THROW 54983,N'Event-Identity wurde verändert.',3;
-IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 54983,N'Identityzeuge hinterließ eine Transaktion.',4;
+IF @@TRANCOUNT<>0 THROW 54983,N'Identityzeuge hinterließ eine Transaktion.',4;
+IF XACT_STATE()<>0 THROW 54983,N'Identityzeuge hinterließ eine Transaktion.',4;
 -- Ganze DB gehört ausschließlich diesem Adapter. Die frische Cleanupverbindung
 -- prüft ihre Identität und fremde Sessions, bevor sie diese eigenen Zeugen entfernt.

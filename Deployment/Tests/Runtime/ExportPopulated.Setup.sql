@@ -2,7 +2,13 @@
 -- Direkte synthetische Tabellenfixtures qualifizieren Persistenz, keine Worker-/RPC-Ausführung.
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
-IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR (@@OPTIONS&2)<>0 OR @@LOCK_TIMEOUT<>-1
+IF @@TRANCOUNT<>0
+ THROW 54980,N'Exportfixture verlangt eine frische neutrale Sitzung.',1;
+IF XACT_STATE()<>0
+ THROW 54980,N'Exportfixture verlangt eine frische neutrale Sitzung.',1;
+IF (@@OPTIONS&2)<>0
+ THROW 54980,N'Exportfixture verlangt eine frische neutrale Sitzung.',1;
+IF @@LOCK_TIMEOUT<>-1
  THROW 54980,N'Exportfixture verlangt eine frische neutrale Sitzung.',1;
 IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem)
  OR EXISTS(SELECT 1 FROM toolbelt_core.WorkerRegistration)
@@ -133,4 +139,5 @@ WHILE @@FETCH_STATUS=0 BEGIN
 END;
 CLOSE annotations;DEALLOCATE annotations;
 DROP TABLE #ExportWorkTypeResult;
-IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 54980,N'Exportsetup hinterließ eine Transaktion.',4;
+IF @@TRANCOUNT<>0 THROW 54980,N'Exportsetup hinterließ eine Transaktion.',4;
+IF XACT_STATE()<>0 THROW 54980,N'Exportsetup hinterließ eine Transaktion.',4;

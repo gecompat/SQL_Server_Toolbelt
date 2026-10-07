@@ -84,4 +84,11 @@ bleiben gemeinsam gebunden; die Sitzung wird davor und danach geprüft.
 Ein während des Katalogstatements aktiver Autocommit erklärt das Ergebnis als
 Hypothese; der konkrete interne Operand wurde nicht nativ gemessen.
 Containerbereinigung und vorherige Runtimefälle bestanden weiterhin.
-Die korrigierte gemeinsame Exportqualifikation bleibt bis neuer Head-CI offen.
+Der folgende Head `52526f7836b0d4c113991fc972608b1eff276283` besteht Besitzgate
+und Erstinstallation, bleibt aber im initialen Fixture-Sitzungsgate
+FAILED/SQL54980/State1
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37700707745)).
+Die kombinierten Sitzungsbedingungen der vier Fixtures werden jeweils einzeln
+geprüft; Prädikate, Fehlercodes und die fachlichen Orakel bleiben erhalten.
+Vorherige Workerfälle und Containerbereinigung bestehen. Die korrigierte
+gemeinsame Exportqualifikation bleibt bis neuer Head-CI offen.

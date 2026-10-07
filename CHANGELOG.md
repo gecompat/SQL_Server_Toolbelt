@@ -26,6 +26,11 @@
   Besitzprädikaten getrennt ausgewertet; Autocommit im Katalogstatement bleibt
   eine nicht direkt gemessene Hypothese.
   Vorherige Runtimefälle und Containerbereinigung bestanden.
+- Nach Trennung des Adaptergates bestehen eigene Besitzprüfung und
+  Erstinstallation. Der folgende Fehler liegt im initialen Fixture-
+  Sitzungsgate (SQL54980/State1); dessen kombinierte Sitzungsbedingungen
+  werden ohne Prädikatverlust in einzelne IFs getrennt. Native Qualifikation
+  bleibt offen; historische FAILED-Läufe werden nicht überschrieben.
 
 ## 2026-10-07 – Deaktivierten SecondSessionProvider über Deploys erhalten
 

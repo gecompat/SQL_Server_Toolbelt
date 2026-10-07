@@ -1,6 +1,14 @@
 -- Parameter kommen ausschließlich aus privatem Adaptermemory; keine permanente Snapshot-Tabelle.
 SET NOCOUNT ON;
-IF @Phase NOT IN(1,2) OR @@TRANCOUNT<>0 OR XACT_STATE()<>0 OR (@@OPTIONS&2)<>0 OR @@LOCK_TIMEOUT<>-1
+IF @Phase NOT IN(1,2)
+ THROW 54982,N'Der Exportrepeat hinterließ keinen neutralen Zustand.',1;
+IF @@TRANCOUNT<>0
+ THROW 54982,N'Der Exportrepeat hinterließ keinen neutralen Zustand.',1;
+IF XACT_STATE()<>0
+ THROW 54982,N'Der Exportrepeat hinterließ keinen neutralen Zustand.',1;
+IF (@@OPTIONS&2)<>0
+ THROW 54982,N'Der Exportrepeat hinterließ keinen neutralen Zustand.',1;
+IF @@LOCK_TIMEOUT<>-1
  THROW 54982,N'Der Exportrepeat hinterließ keinen neutralen Zustand.',1;
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkQueueManagedGate WHERE GateId=1 AND ManagedEnabled=0 AND PendingReservationId IS NULL)
  OR EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE Status='CLAIMED' OR ManagedHold=1)
