@@ -289,8 +289,16 @@ def main() -> int:
         raise AssertionError("ResultTable-CI-Vorbereitung/Trap liegt nicht vor dem eigenen Start.")
     mock = read(REPOSITORY_ROOT / "Tests/CI/test_owned_container_cleanup.py")
     docs_workflow = read(REPOSITORY_ROOT / ".github/workflows/documentation-consistency.yml")
+    # Zusätzliche Adapter dürfen im selben Gate stehen; Pfade sind einzelne
+    # Argumente und besitzen keine semantische Nachbarschaftspflicht.
+    cleanup_gates = [
+        line.split() for line in docs_workflow.splitlines()
+        if line.lstrip().startswith('elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- ')
+        and "Tests/CI/test_owned_container_cleanup.py" in line.split()
+    ]
     if ('"result_table": ("run-result-table-linux.sh"' not in mock
-            or "Tests/CI/run-result-table-linux.sh .github/workflows/documentation-consistency.yml" not in docs_workflow):
+            or len(cleanup_gates) != 1
+            or "Tests/CI/run-result-table-linux.sh" not in cleanup_gates[0]):
         raise AssertionError("ResultTable-CI fehlt im bestehenden synthetischen Cleanupgate.")
     for runtime_file in (
         "USP_PrepareResultTable.Contract.sql",

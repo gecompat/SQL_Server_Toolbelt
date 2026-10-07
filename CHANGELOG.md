@@ -9,6 +9,8 @@
 - Gemeinsamer synthetischer Harness, selektives Dokumentationsgate und
   bestehende Impact-Pakete erfassen den Adapter. Lab-No-op, fachliche
   SQL-Verträge, Fixtures, Zielmatrix und Lifecycle-Suite bleiben unverändert.
+- Der ResultTable-Validator erkennt seinen einzelnen Pfad im gemeinsamen
+  Cleanupgate, ohne eine Nachbarschaft zu anderen Pfadargumenten zu verlangen.
 
 ## 2026-10-07 – Eigenen ResultTable-CI-Container verifiziert bereinigen
 
