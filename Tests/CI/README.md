@@ -31,6 +31,25 @@ werden dadurch nicht belegt.
 
 ## Adapter und Zielversionen
 
+Der W6d-Cancellation-Adapter bindet seinen Runner vor dem Start an Version,
+Run, Attempt und Owner. Cleanup entfernt ausschließlich die gemeinsam mit
+dem Label gelesene volle ID und verlangt frische Namensabwesenheit sowie
+private Dateibereinigung. `W6D_CI_CLEANUP_UNVERIFIED` endet Exit1;
+`W6D_CI_CLEANUP_VERIFIED` erhält den ursprünglichen Teststatus. Im Lab bleibt
+Container-rm No-op, während private Dateicleanupfehler
+`W6D_LAB_CLEANUP_UNVERIFIED` und Exit1 melden. Die Datenbankbereinigung bleibt
+beim vorhandenen Labtreiber.
+
+Dependency- und Uninstall-Ausgaben liegen in beiden Modi laufisoliert. Die
+bestehenden Guards verlangen weiterhin Fehlerexit und Kategorie 52641 oder
+52646. `python -B Tests/CI/test_owned_container_cleanup.py --module w6d`
+prüft tatsächliche Cleanupblöcke mit synthetischen Antworten ohne Docker,
+SQL oder Lab. Cancellation-Semantik, fachliche Fixtures, vier parallele
+Worker, Images und Versions-/CL-Matrix bleiben erhalten. Der unveränderte
+Runtimeworkflow läuft bei passenden PRs, Main-Pushes und manuell; Ergebnisse
+werden für den jeweiligen exakten Commit separat ausgewiesen. Hard-Interrupt-,
+Lab-, Minimalrechte- und Releasequalifikation werden damit nicht belegt.
+
 Der W5b-Event-Log-Adapter bindet seinen Runner an Version, Run, Attempt und
 Owner vor dem Start. Cleanup entfernt nur die gemeinsam mit dem Label gelesene
 volle ID und prüft frische Namensabwesenheit. `W5B_CI_CLEANUP_UNVERIFIED` endet

@@ -790,6 +790,7 @@ change_impact:
         - markdown_links
     execution_cancellation_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.core.execution-cancel/**
         - Modules/toolbelt.core.execution-context/**
         - Documentation/Architecture/EXECUTION_CANCELLATION_MODULE_DESIGN.md
