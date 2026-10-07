@@ -24,7 +24,7 @@ if [[ "${TBX_SQL_COMPATIBILITY_LEVEL+x}" == x ]]; then
 fi
 phase_mode=setup
 phase_predecessor=none
-level=default
+level="${TBX_SQL_COMPATIBILITY_LEVEL:-default}"
 container="tbx-deterministic-${GITHUB_RUN_ID:-local}"
 password="Tbx!$(openssl rand -hex 16)Aa1"
 echo "::add-mask::${password}"
@@ -45,12 +45,32 @@ for attempt in $(seq 1 60); do
 done
 [[ "${ready}" == 1 ]] || { echo "SQL login not ready" >&2; exit 1; }
 query() { docker exec "${container}" "${sqlcmd}" -S localhost -U sa -P "${password}" -C -b -d "$1" -Q "$2"; }
+# Nur der vorhandene exakte CI-Opt-in bindet alle eigenen Datenbanken vor
+# Deploy/Upgrade. Ohne Opt-in bleibt der historische Multi-Level-Pfad erhalten.
+verify_compatibility() {
+  [[ "${TBX_SQL_COMPATIBILITY_LEVEL+x}" == x ]] || return 0
+  query master "IF NOT EXISTS(SELECT 1 FROM sys.databases WHERE name=N'$1' AND compatibility_level=${TBX_SQL_COMPATIBILITY_LEVEL}) THROW 54090,N'CI compatibility level not established.',1;" || {
+    echo "DETERMINISTIC_CI_COMPATIBILITY_UNVERIFIED" >&2
+    return 1
+  }
+}
+prepare_compatibility() {
+  [[ "${TBX_SQL_COMPATIBILITY_LEVEL+x}" == x ]] || return 0
+  query master "ALTER DATABASE [$1] SET COMPATIBILITY_LEVEL=${TBX_SQL_COMPATIBILITY_LEVEL};" || return 1
+  verify_compatibility "$1" || return 1
+  printf 'DETERMINISTIC_CI_DATABASE_CL_READY CL=%s\n' "${TBX_SQL_COMPATIBILITY_LEVEL}"
+}
 phase_label() {
   # Nur synthetische kontrollierte Labels, keine Connection-/Runtimewerte.
   printf 'PHASE mode=%s predecessor=%s CL=%s fixture=%s\n' \
     "${phase_mode}" "${phase_predecessor}" "${level}" "${3##*/}"
 }
-file() { phase_label "$@"; docker exec --workdir "$2" "${container}" "${sqlcmd}" -S localhost -U sa -P "${password}" -C -b -d "$1" -i "$3" "${@:4}"; }
+file() {
+  # expect_failure deaktiviert errexit: das Gate muss explizit kurzschliessen.
+  verify_compatibility "$1" || return 1
+  phase_label "$@"
+  docker exec --workdir "$2" "${container}" "${sqlcmd}" -S localhost -U sa -P "${password}" -C -b -d "$1" -i "$3" "${@:4}"
+}
 # Fehlernummern exakt prüfen; keine rohe SQL-/Verbindungsdiagnostik ausgeben.
 expect_failure() {
   local db="$1" directory="$2" script="$3" number="$4" output status
@@ -91,6 +111,7 @@ phase_mode=local
 phase_predecessor=1.0.0
 database=tbx_deterministic
 query master "CREATE DATABASE [${database}] COLLATE Latin1_General_100_CS_AS;"
+prepare_compatibility "${database}"
 file "${database}" /workspace/Modules/toolbelt.core.result-table/Deployment Deploy.sql -v DeploymentMode=local
 file "${database}" "${legacy}/Deployment" Deploy.sql -v DeploymentMode=local
 query "${database}" "IF (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_pseudonymization'))<>6 OR OBJECT_ID(N'toolbelt_pseudonymization.TVF_DeterministicTranslate') IS NOT NULL THROW 54090,N'Genuine1.0 inventory failed.',1;"
@@ -136,10 +157,12 @@ query "${database}" "IF EXISTS(SELECT 1 FROM sys.objects WHERE schema_id=SCHEMA_
 file "${database}" "${module}/Deployment" Uninstall.sql -v ConfirmNoExternalConsumers=0
 phase_mode=central
 phase_predecessor=1.0.0
-level=default
+level="${TBX_SQL_COMPATIBILITY_LEVEL:-default}"
 central=tbx_deterministic_central
 consumer=tbx_deterministic_consumer
 query master "CREATE DATABASE [${central}] COLLATE Latin1_General_100_BIN2; CREATE DATABASE [${consumer}] COLLATE Latin1_General_100_CI_AS;"
+prepare_compatibility "${central}"
+prepare_compatibility "${consumer}"
 file "${central}" /workspace/Modules/toolbelt.core.result-table/Deployment Deploy.sql -v DeploymentMode=central
 file "${central}" "${legacy}/Deployment" Deploy.sql -v DeploymentMode=central
 query "${central}" "IF (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_pseudonymization'))<>6 THROW 54090,N'Genuine central1.0 inventory failed.',1;"
@@ -165,10 +188,11 @@ file "${central}" "${module}/Deployment" Uninstall.sql -v ConfirmNoExternalConsu
 # werden. Historischer Uninstall bewahrt den fremden Zukunftsslot.
 phase_mode=local
 phase_predecessor=1.0.0
-level=default
+level="${TBX_SQL_COMPATIBILITY_LEVEL:-default}"
 for fault in FutureSlot ImitatedFutureSlot; do
   faultdb="tbx_deterministic_${fault}"
   query master "CREATE DATABASE [${faultdb}] COLLATE Latin1_General_100_CS_AS;"
+  prepare_compatibility "${faultdb}"
   file "${faultdb}" /workspace/Modules/toolbelt.core.result-table/Deployment Deploy.sql -v DeploymentMode=local
   file "${faultdb}" "${legacy}/Deployment" Deploy.sql -v DeploymentMode=local
   file "${faultdb}" "${module}/Tests/Runtime" Lifecycle.CollisionFixture.sql -v FaultCase="${fault}" HistoricalVersion=1.0.0
@@ -185,11 +209,12 @@ collision=tbx_deterministic_collision
 phase_predecessor=1.1.0
 for mode in local central; do
   phase_mode="${mode}"
-  level=default
+  level="${TBX_SQL_COMPATIBILITY_LEVEL:-default}"
   db11="tbx_deterministic_11_${mode}"
   collation=Latin1_General_100_CS_AS
   [[ "${mode}" == central ]] && collation=Latin1_General_100_BIN2
   query master "CREATE DATABASE [${db11}] COLLATE ${collation};"
+  prepare_compatibility "${db11}"
   file "${db11}" /workspace/Modules/toolbelt.core.result-table/Deployment Deploy.sql -v DeploymentMode="${mode}"
   file "${db11}" "${legacy11}/Deployment" Deploy.sql -v DeploymentMode="${mode}"
   query "${db11}" "IF (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_pseudonymization'))<>7 OR OBJECT_ID(N'toolbelt_pseudonymization.TVF_DeterministicGeoJitter') IS NOT NULL THROW 54090,N'Genuine1.1 inventory failed.',1;"
@@ -211,7 +236,7 @@ for mode in local central; do
 done
 # Geo-Future-Slot bleibt auf beiden historischen Releases fremd.
 phase_mode=local
-level=default
+level="${TBX_SQL_COMPATIBILITY_LEVEL:-default}"
 for historical in 1.0.0 1.1.0; do
   phase_predecessor="${historical}"
   predecessor="${legacy}"
@@ -220,6 +245,7 @@ for historical in 1.0.0 1.1.0; do
   for fault in GeoFutureSlot GeoImitatedFutureSlot; do
     faultdb="tbx_geo_${historical//./}_${fault}"
     query master "CREATE DATABASE [${faultdb}] COLLATE Latin1_General_100_CS_AS;"
+    prepare_compatibility "${faultdb}"
     file "${faultdb}" /workspace/Modules/toolbelt.core.result-table/Deployment Deploy.sql -v DeploymentMode=local
     file "${faultdb}" "${predecessor}/Deployment" Deploy.sql -v DeploymentMode=local
     file "${faultdb}" "${module}/Tests/Runtime" Lifecycle.CollisionFixture.sql -v FaultCase="${fault}" HistoricalVersion="${historical}"
@@ -233,6 +259,7 @@ done
 phase_mode=local
 phase_predecessor=none
 query master "CREATE DATABASE [${collision}] COLLATE Latin1_General_100_CI_AS;"
+prepare_compatibility "${collision}"
 file "${collision}" /workspace/Modules/toolbelt.core.result-table/Deployment Deploy.sql -v DeploymentMode=local
 query "${collision}" "CREATE SCHEMA toolbelt_pseudonymization;"
 query "${collision}" "CREATE PROCEDURE toolbelt_pseudonymization.tvf_deterministicrange AS SELECT 7 AS SyntheticForeign;"
@@ -240,6 +267,7 @@ expect_failure "${collision}" "${module}/Deployment" Deploy.sql 54024 -v Deploym
 query "${collision}" "IF OBJECT_ID(N'toolbelt_pseudonymization.tvf_deterministicrange',N'P') IS NULL OR (SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_pseudonymization'))<>1 OR EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.pseudonymization.deterministic.Version') THROW 54090,N'Foreign casing collision was mutated/adopted.',1;"
 missing=tbx_deterministic_missing
 query master "CREATE DATABASE [${missing}];"
+prepare_compatibility "${missing}"
 expect_failure "${missing}" "${module}/Deployment" Deploy.sql 54028 -v DeploymentMode=local
 query "${missing}" "IF SCHEMA_ID(N'toolbelt_pseudonymization') IS NOT NULL THROW 54090,N'Missing dependency preflight mutated schema.',1;"
 echo "PASS: Deterministic synthetic API/resources/lifecycle/local/central SQL ${sql_version} CL ${levels}; no crossDB lowpriv or throughput guarantee"

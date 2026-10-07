@@ -181,6 +181,8 @@ am damaligen PR-Head bestand SQL 2019 und 2022. SQL 2025 wurde nach
 vollständiger SQL-2025-CI-Nachweis fehlt für diesen Head. Daraus wird kein
 algorithmischer Fehler abgeleitet.
 
+Historischer Aufteilungsstand vor der CL-Bindungskorrektur vom 2026-10-07:
+
 Die folgende CI-Aufteilung enthält sechs explizite Paare: 2019/150,
 2022/150, 2022/160, 2025/150, 2025/160 und 2025/170. Jeder Job führt den
 vollständigen bisherigen Ablauf aus. Der gewählte CL gilt für die bestehenden
@@ -193,3 +195,14 @@ behält der Bash-Adapter seine bisherige Levelauswahl. Synthetische Phasenlabels
 nennen Modus, Vorgänger, CL und Fixture ohne Verbindungs- oder Inventarangaben.
 Aktuelle CI wird als separater PR-Mergegate am exakten neuen Head nachgewiesen;
 die Aufteilung allein ist kein erfolgreicher Runtime-Nachweis.
+
+Nachtrag 2026-10-07: Beim vorhandenen exakten CL-Opt-in werden jetzt alle
+13 eigenen Datenbanken unmittelbar nach CREATE und vor dem ersten Deploy
+auf den gewählten Level gesetzt und frisch geprüft. Das umfasst Central-
+Consumer, genuine 1.0/1.1-Upgrades sowie die vorhandenen Future-/Casing-/
+Dependencyziele. Vor jedem SQL-Skript wird der Level erneut failclosed
+geprüft; `expect_failure` startet nach fehlgeschlagenem Gate kein Skript.
+Die sechs Jobs, Fixtures und Fristen bleiben unverändert. Ohne Opt-in bleibt
+der oben begrenzte historische Multi-Level-Pfad erhalten. Exakte neue Head-/
+Main-CI wird im zugehörigen PR getrennt belegt; keine Minimalrechte-, Heap-,
+Hard-Interrupt- oder Releasequalifikation.
