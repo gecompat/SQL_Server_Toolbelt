@@ -519,6 +519,17 @@ try{
   $publicManagedFailure=Get-ManagedPublicFailureDescriptor $managedFixtureFailure
   Write-Information ('SYNTHETIC_MANAGED_FAILURE_DESCRIPTOR: '+(ConvertTo-Json -InputObject $publicManagedFailure -Compress)) -InformationAction Continue
  }
+ if($null-ne$fixtureSqlFailure){
+  # Nur numerische Enginepositionen und bekannte Sourcekonstanten: keine
+  # beliebigen Messages, Zielwerte, Objekt-/Dateinamen oder Runtimeausgaben.
+  $publicSqlErrors=@($fixtureSqlFailure.Errors|ForEach-Object {
+   $guard='UNSPECIFIED'
+   if($_.Message-ceq'Lifecycle darf keine Callertransaktion oder implizite Transaktion übernehmen.'){$guard='CALLER_OR_IMPLICIT_TRANSACTION'}
+   elseif($_.Message-ceq'Installierter Queue-/Control-Repeat benötigt initial LOCK_TIMEOUT -1.'){$guard='REPEAT_INITIAL_TIMEOUT'}
+   [pscustomobject]@{Number=[int]$_.Number;State=[int]$_.State;Line=[int]$_.Line;Guard=$guard}
+  })
+  Write-Information ('SYNTHETIC_SQL_FAILURE_DESCRIPTOR: '+(ConvertTo-Json -InputObject ([pscustomobject]@{Batch=[int]$fixtureSqlFailure.BatchIndex;Errors=$publicSqlErrors}) -Depth 4 -Compress)) -InformationAction Continue
+ }
  throw "External queue synthetic qualification failed (phase=$phase,category=$category,line=$line,sql=$sqlNumber,oracle=$oracle); private diagnostics suppressed."
 }finally{
  # Weder SQL-KILL noch forcierter Verbindungsabbruch: erst alle eigenen Verbraucher abwarten.
