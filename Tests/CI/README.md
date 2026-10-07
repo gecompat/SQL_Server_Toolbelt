@@ -38,10 +38,16 @@ entfernt nur diese eigene ID und verlangt frische exakte Namensabwesenheit.
 meldet `SEMANTIC_VERSION_CI_CLEANUP_VERIFIED` und erhält den ursprünglichen
 Teststatus. Der Labzweig bleibt Container-No-op ohne Owner oder private Ablage.
 
+Das vorhandene Semantic-Version-Kollisionsorakel verlangt Fehlerstatus und
+die vollständige Kategorie `51084`. Erfolgreicher Exit mit diesem Text, andere
+oder fehlende Kategorien und längere Nummern zählen nicht als Nachweis. Beide
+Rohkanäle bleiben im Speicher; `SEMANTIC_VERSION_COLLISION_VERIFIED` bestätigt
+das Orakel. Der Harness prüft es in Runner- und Labmodus ohne neue SQL-Fixture.
+
 `python -B Tests/CI/test_owned_container_cleanup.py --module semantic_version`
 prüft die tatsächliche Cleanupfunktion synthetisch einschließlich Fremdbestand,
 Namensaustausch, ungültiger Identität, unbekannter Sicht und Lab-Exit0/Exit7.
-Parser-/Comparator-/Sort-Key-Verträge und SQL-Fixtures, Kollisionsorakel,
+Parser-/Comparator-/Sort-Key-Verträge und SQL-Fixtures,
 Images, Bereitschaftsfrist, Matrix und Runtimeworkflow bleiben erhalten.
 Exakte Head-/Main-Ergebnisse stehen im PR; Hard-Interrupt-Recovery und Release
 bleiben getrennt.
