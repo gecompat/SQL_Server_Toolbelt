@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-07 – Event-Log-CI mit eigener Containeridentität und Fehlerexit
+
+- W5b bindet seinen Runner vor dem Start an Version, Run, Attempt und Owner.
+  Cleanup entfernt ausschließlich die gemeinsam mit dem Owner gelesene volle
+  ID und prüft frische Namensabwesenheit; unbestätigter Cleanup endet Exit1.
+- Die Uninstalldatei ist auch im Lab laufisoliert. Das vorhandene Negativorakel
+  verlangt Fehlerexit und Kategorie 51749. Exit0 mit Fehlertext wird abgewiesen;
+  das bestehende Diagnose-cat bleibt erhalten.
+- Gemeinsamer Offlineharness und Documentationgate erfassen den Adapter über
+  das bereits gekoppelte Impact-Paket. Öffentliche SQL-Verträge, Loopback,
+  fachliche Fixtures, Images, Matrix, Sessions und Runtimeworkflow bleiben erhalten.
+
 ## 2026-10-07 – Second-Session-CI mit verifiziertem Cleanup und Fehlerexit
 
 - W5a bindet seinen Runner vor dem Start an Version, Run, Attempt und Owner.
