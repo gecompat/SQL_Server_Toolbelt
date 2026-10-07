@@ -151,11 +151,13 @@ function Invoke-ControlRepeatExpectedFailure([string]$Path,[int]$Number,[int]$St
    if($RollbackOwned){
     # Sourcefehler über GO können keine äußere TRY/CATCH-Klammer besitzen.
     # Ausschließlich diese frisch eröffnete eigene Actorconnection wiederherstellen.
-    $check.CommandText='IF DB_ID()<>@Id OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND TRY_CONVERT(uniqueidentifier,value)=@Run) THROW 54962,N''Eigener Source-Rollback besitzt nicht die Fixture.'',2;IF @@TRANCOUNT>0 ROLLBACK TRANSACTION;SET LOCK_TIMEOUT -1;'
+    $check.CommandText='IF DB_ID()<>@Id OR NOT EXISTS(SELECT 1 FROM sys.databases WHERE database_id=@Id AND CONVERT(binary(9),CONVERT(datetime2(7),create_date))=@Created) OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=@Marker AND TRY_CONVERT(uniqueidentifier,value)=@Run) THROW 54962,N''Eigener Source-Rollback besitzt nicht die Fixture.'',2;IF @@TRANCOUNT>0 ROLLBACK TRANSACTION;'
     foreach($pair in @{'@Id'=$managedIdentity.Id;'@Created'=$managedIdentity.CreatedBytes;'@Marker'=$managedMarker;'@Run'=$managedRun}.GetEnumerator()){[void]$check.Parameters.AddWithValue($pair.Key,$pair.Value)}
     [void]$check.ExecuteNonQuery();$check.Parameters.Clear()
+    # SET außerhalb des parametrisierten Ausführungsscopes in derselben eigenen Connection.
+    $check.CommandText='SET LOCK_TIMEOUT -1;';[void]$check.ExecuteNonQuery()
    }
-   $check.CommandText='IF @@TRANCOUNT<>0 THROW 54965,N''Abgewiesener Repeat ließ eine Transaktion offen.'',1;IF XACT_STATE()<>0 THROW 54965,N''Abgewiesener Repeat ließ einen Transaktionszustand offen.'',1;IF @@LOCK_TIMEOUT<>-1 THROW 54965,N''Abgewiesener Repeat änderte den Standardsitzungs-Locktimeout.'',1;SELECT 1;';Assert-Fixture ($check.ExecuteScalar()-eq1) 'CONTROL_REPEAT_DENIAL_TRANSACTION_NEUTRAL'
+   $check.CommandText='IF @@TRANCOUNT<>0 THROW 54965,N''Abgewiesener Repeat ließ eine Transaktion offen.'',1;IF XACT_STATE()<>0 THROW 54965,N''Abgewiesener Repeat ließ einen Transaktionszustand offen.'',2;IF @@LOCK_TIMEOUT<>-1 THROW 54965,N''Abgewiesener Repeat änderte den Standardsitzungs-Locktimeout.'',3;SELECT 1;';Assert-Fixture ($check.ExecuteScalar()-eq1) 'CONTROL_REPEAT_DENIAL_TRANSACTION_NEUTRAL'
   }finally{$check.Dispose()}
  }finally{$isolated.Dispose()}
 }
