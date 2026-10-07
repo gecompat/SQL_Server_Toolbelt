@@ -24,6 +24,26 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 
 Diese Matrix bleibt das verbindliche Validierungsinventar. Die erste Linux-Welle ist ausgeführt; offene Kombinationen behalten ihren eigenen Status `not executed`.
 
+## Flüchtiges CI-Cleanup
+
+Der Runnername bindet SQL-Version, Run und Attempt; ein eigenes Ownerlabel
+wird vor dem Dockerstart gesetzt. Eine gemeinsame Inspection bindet volle
+Container-ID und Owner. Cleanup entfernt ausschließlich die eigene ID und
+verlangt anschließend frische exakte Namensabwesenheit. Unbekannte Sicht,
+fremder Bestand oder fehlgeschlagene Bereinigung liefern
+`RESULT_TABLE_CI_CLEANUP_UNVERIFIED` und Exit1. Bestätigte Bereinigung meldet
+`RESULT_TABLE_CI_CLEANUP_VERIFIED` und erhält vorherige Fehlerstatus.
+
+Der vorhandene Lab-Shim erhält seinen getrennten No-op ohne Ownerproben,
+private Runnerpfade oder Container-VERIFIED-Zusage. API, SQL-Fixtures,
+2019/2022/2025-CI-Suite und Performanceflag mit Default0 bleiben gleich.
+Harte Runner-/Hostunterbrechung und Performance-/Releasequalifikation werden
+dadurch nicht belegt. Der vorhandene source-extrahierte Offlineharness
+`python -B Tests/CI/test_owned_container_cleanup.py --module result_table`
+prüft den echten Cleanup mit synthetischen Dockerantworten einschließlich
+fremder/ersetzter Namen, vollständiger ID, unbekannter Sicht, Removefehler
+und separatem Lab-Exit0/Exit7. Exakte Head-/Main-CI steht getrennt im PR.
+
 ## 1. Evidenz je Ausführung
 
 Für jede tatsächlich ausgeführte Matrixkombination sind mindestens festzuhalten:

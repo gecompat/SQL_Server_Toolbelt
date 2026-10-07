@@ -12,18 +12,78 @@ performance_max_regression_percent="${TBX_PERFORMANCE_MAX_MEDIAN_REGRESSION_PERC
 performance_max_batch_median_variance_percent="${TBX_PERFORMANCE_MAX_BATCH_MEDIAN_VARIANCE_PERCENT:-20}"
 run_performance_workload="${TBX_RUN_PERFORMANCE_WORKLOAD:-0}"
 container_name="tbx-result-table-${sql_version}-${GITHUB_RUN_ID:-local}"
+if [[ "${TBX_SQL_TARGET:-runner}" != lab ]]; then
+    container_name="tbx-result-table-${sql_version}-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}"
+    if [[ ! "${container_name}" =~ ^tbx-result-table-(2019|2022|2025)-[0-9]+-[0-9]+$ ]]; then
+        echo "RESULT_TABLE_CI_IDENTITY_INVALID" >&2
+        exit 1
+    fi
+fi
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
 
 echo "::add-mask::${sa_password}"
 
+container_owner=""; private_dir=""; container_options=()
+if [[ "${TBX_SQL_TARGET:-runner}" != lab ]]; then
+    container_owner="$(openssl rand -hex 16)"
+    if [[ ! "${container_owner}" =~ ^[0-9a-f]{32}$ ]]; then
+        echo "RESULT_TABLE_CI_OWNER_INVALID" >&2
+        exit 1
+    fi
+    private_dir="$(mktemp -d)"
+    container_options=(--label "tbx.result-table.ci.owner=${container_owner}")
+fi
+
 cleanup() {
-    docker rm -f "${container_name}" >/dev/null 2>&1 || true
+    local result=$? inspection="" container_id="" owner="" cleanup_verified=true
+    trap - EXIT
+    # Der bestehende Lab-Shim hat keinen Container und behandelt rm als No-op.
+    # Seine eigene Datenbankbereinigung bleibt beim separaten Labtreiber.
+    if [[ "${TBX_SQL_TARGET:-runner}" == lab ]]; then
+        docker rm -f "${container_name}" >/dev/null 2>&1 || true
+        exit "${result}"
+    fi
+    # Name und Owner identifizieren ausschließlich unseren flüchtigen Scope.
+    # ID und Label aus derselben Aufnahme binden den DROP auch bei Namensaustausch.
+    if ! docker container ls --all --filter "name=^/${container_name}$" \
+        --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null; then
+        cleanup_verified=false
+    elif [[ -s "${private_dir}/owned-containers" ]]; then
+        if ! inspection="$(docker inspect --format '{{.Id}} {{ index .Config.Labels "tbx.result-table.ci.owner" }}' \
+            "${container_name}" 2>/dev/null)" || [[ ! "${inspection}" =~ ^([0-9a-f]{64})\ ([0-9a-f]{32})$ ]]; then
+            cleanup_verified=false
+        else
+            container_id="${BASH_REMATCH[1]}"; owner="${BASH_REMATCH[2]}"
+            if [[ "${owner}" != "${container_owner}" ]]; then
+                cleanup_verified=false
+            elif ! docker rm -f "${container_id}" >/dev/null 2>&1; then
+                cleanup_verified=false
+            fi
+        fi
+    fi
+    if ! docker container ls --all --filter "name=^/${container_name}$" \
+        --format '{{.Names}}' >"${private_dir}/owned-containers" 2>/dev/null \
+        || [[ -s "${private_dir}/owned-containers" ]]; then
+        cleanup_verified=false
+    fi
+    if ! rm -rf -- "${private_dir}"; then
+        cleanup_verified=false
+    fi
+    if [[ "${cleanup_verified}" != true ]]; then
+        echo "RESULT_TABLE_CI_CLEANUP_UNVERIFIED" >&2
+        result=1
+    else
+        echo "RESULT_TABLE_CI_CLEANUP_VERIFIED"
+    fi
+    exit "${result}"
 }
+
 
 trap cleanup EXIT
 
 docker run --detach \
     --name "${container_name}" \
+    "${container_options[@]}" \
     --env ACCEPT_EULA=Y \
     --env MSSQL_PID=Developer \
     --env MSSQL_SA_PASSWORD="${sa_password}" \

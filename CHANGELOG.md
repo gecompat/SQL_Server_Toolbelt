@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-07 – Eigenen ResultTable-CI-Container verifiziert bereinigen
+
+- Der vorhandene Adapter bindet sein flüchtiges Runnerziel an SQL-Version,
+  Run, Attempt und Owner. Cleanup entfernt nur die zusammen mit dem Label
+  gelesene vollständige ID und verlangt frische Namensabwesenheit. Fremder
+  Bestand oder unbestätigter Cleanup erzeugen einen sichtbaren Fehler.
+- Der bestehende gemeinsame Offlineharness und sein selektives Dokumentations-
+  gate erfassen jetzt diesen Adapter. Lab-No-op, öffentliche SQL-Funktion,
+  bestehende Runtime-Suite, Performanceflag und Zielmatrix bleiben unverändert.
+
 ## 2026-10-07 – Eigenes Worker-CI-Ziel verifiziert bereinigen
 
 - Der vorhandene Linux-Workerworkflow bindet sein flüchtiges Ziel vor dem
