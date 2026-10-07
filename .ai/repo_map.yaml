@@ -802,6 +802,7 @@ change_impact:
         - markdown_links
     work_type_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.core.work-type/**
         - Documentation/Architecture/WORK_TYPE_MODULE_DESIGN.md
         - Documentation/Architecture/DECISIONS.md

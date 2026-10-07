@@ -19,10 +19,11 @@ modules = {
     "result_table": ("run-result-table-linux.sh", "RESULT_TABLE_CI_CLEANUP_UNVERIFIED", "tbx.result-table.ci.owner"),
     "w4a": ("run-w4a-execution-foundations-linux.sh", "W4A_CI_CLEANUP_UNVERIFIED", "tbx.w4a.ci.owner"),
     "work_queue": ("run-work-queue-linux.sh", "WORK_QUEUE_CI_CLEANUP_UNVERIFIED", "tbx.work-queue.ci.owner"),
+    "w4b": ("run-w4b-work-type-linux.sh", "W4B_CI_CLEANUP_UNVERIFIED", "tbx.w4b.ci.owner"),
 }
 parser = argparse.ArgumentParser(description="Synthetische Prüfung der echten Owned-Cleanup-Funktionen ohne Dockerzugriff.")
 parser.add_argument("--module", choices=tuple(modules), action="append",
-                    help="Nur dieses Modul prüfen; wiederholbar, standardmäßig alle neun Adapter.")
+                    help="Nur dieses Modul prüfen; wiederholbar, standardmäßig alle zehn Adapter.")
 selected = tuple(dict.fromkeys(parser.parse_args().module or modules))
 # Windows verwendet ausschließlich das vorhandene Git-Bash. Das gleichnamige
 # System32-Programm würde WSL starten und gehört nicht zu dieser Offlineprobe.
@@ -73,8 +74,8 @@ for module in selected:
         ("invalid_owner", 1, False),
         ("extra_fields", 1, False),
     )
-    module_cases = cases + identity_cases if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue"} else cases
-    if module in {"table_clone", "regex", "result_table", "w4a", "work_queue"}:
+    module_cases = cases + identity_cases if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b"} else cases
+    if module in {"table_clone", "regex", "result_table", "w4a", "work_queue", "w4b"}:
         module_cases += (
             ("lab_success", 0, True),
             ("lab_original_failure", 7, True),
@@ -82,8 +83,10 @@ for module in selected:
     if module == "work_queue":
         module_cases += (("lab_sql_success", 0, True), ("lab_sql_original_failure", 7, True),
                          ("lab_sql_drop_failure", 7, True), ("lab_private_remove_fail", 1, True))
+    if module == "w4b":
+        module_cases += (("lab_private_remove_fail", 1, True),)
     inspection_format = '{{ index .Config.Labels "' + owner_label + '" }}'
-    if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue"}:
+    if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b"}:
         inspection_format = '{{.Id}} ' + inspection_format
     for scenario, expected_code, expected_remove in module_cases:
         with tempfile.TemporaryDirectory(prefix="owned-cleanup-", dir=runtime) as base:
@@ -92,16 +95,18 @@ for module in selected:
                 raise SystemExit("OWNED_CLEANUP_TEST_TEMP_SCOPE_INVALID")
             private_path = base_path / "private"
             lab_case = scenario.startswith("lab_")
-            if not lab_case or module == "work_queue":
+            if not lab_case or module in {"work_queue", "w4b"}:
                 private_path.mkdir()
                 if module == "work_queue":
                     for output in ("dependency", "collision", "uninstall", "upgrade-blocked"):
                         (private_path / ("work-queue-" + output + ".out")).write_text("synthetic", encoding="utf-8")
+                if module == "w4b":
+                    (private_path / "w4b-uninstall.out").write_text("synthetic", encoding="utf-8")
             marker_path = base_path / "remove-called"
             invalid_path = base_path / "invalid-argv"
             inspect_path = base_path / "inspect-called"
             replacement_path = base_path / "replacement-name"
-            expected_identity = "b" * 64 if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue"} and not lab_case else "tbx-synthetic-owned-cleanup"
+            expected_identity = "b" * 64 if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b"} and not lab_case else "tbx-synthetic-owned-cleanup"
             shell = f"""
 set -euo pipefail
 TBX_SQL_TARGET=runner
@@ -136,11 +141,11 @@ r2a_hash=0x{'d' * 128}
 run_query() {{ invalid_argv; return 2; }}
 if [[ "$scenario" == absent ]]; then present=false; fi
 # Der Lab-Frühzweig benötigt keine Runneridentität. Nur WorkQueue besitzt
-# hier eine eigene Ausgabeablage; die übrigen Labadapter bleiben No-op.
+# und W4b eine eigene Ausgabeablage; die übrigen Labadapter bleiben No-op.
 if [[ "$scenario" == lab_* ]]; then
     TBX_SQL_TARGET=lab
     unset container_owner
-    if [[ "$module" != work_queue ]]; then unset private_dir; fi
+    if [[ "$module" != work_queue && "$module" != w4b ]]; then unset private_dir; fi
     if [[ "$scenario" != lab_sql_* ]]; then sqlcmd_path=""; fi
     r2a_trust_before=""
     r2a_hash=""
@@ -176,7 +181,7 @@ docker() {{
         printf '%s\\n' inspect >> "$inspect_file"
         if [[ "$#" != 4 || "$2" != --format || "$3" != "$expected_inspection_format" || "$4" != "$container_name" ]]; then invalid_argv; return 2; fi
         [[ "$scenario" != inspect_fail ]] || return 1
-        if [[ "$module" == pointer || "$module" == safe_cast || "$module" == json_constructors || "$module" == table_clone || "$module" == deterministic || "$module" == regex || "$module" == result_table || "$module" == w4a || "$module" == work_queue ]]; then
+        if [[ "$module" == pointer || "$module" == safe_cast || "$module" == json_constructors || "$module" == table_clone || "$module" == deterministic || "$module" == regex || "$module" == result_table || "$module" == w4a || "$module" == work_queue || "$module" == w4b ]]; then
             if [[ "$scenario" == invalid_id ]]; then printf '%s ' not-a-64-hex-id;
             else printf '%s ' "$synthetic_container_id"; fi
         fi
@@ -239,14 +244,62 @@ exit 0
             expected_diagnostic = scenario not in {"owned", "absent", "original_failure"} and not lab_case
             if scenario == "lab_private_remove_fail":
                 expected_diagnostic = True
-                diagnostic = "WORK_QUEUE_LAB_CLEANUP_UNVERIFIED"
+                diagnostic = diagnostic.replace("_CI_", "_LAB_")
             if completed.stderr != (diagnostic + "\n" if expected_diagnostic else ""):
                 raise SystemExit(f"OWNED_CLEANUP_TEST_DIAGNOSTIC_MISMATCH:{module}:{scenario}")
-            expected_stdout = diagnostic.replace("UNVERIFIED", "VERIFIED") + "\n" if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue"} and not expected_diagnostic and not lab_case else ""
+            expected_stdout = diagnostic.replace("UNVERIFIED", "VERIFIED") + "\n" if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic", "regex", "result_table", "w4a", "work_queue", "w4b"} and not expected_diagnostic and not lab_case else ""
             if completed.stdout != expected_stdout:
                 raise SystemExit(f"OWNED_CLEANUP_TEST_SUCCESS_WITNESS_MISMATCH:{module}:{scenario}")
         print(f"PASS: {module} {scenario}")
         total += 1
+
+# Das tatsächliche W4b-Negativorakel verlangt Fehlerstatus UND Kategorie.
+# Text mit erfolgreichem Exit darf keinen abgelehnten Uninstall vortäuschen.
+if "w4b" in selected:
+    source = source_bytes[root / "Tests/CI" / modules["w4b"][0]].decode("utf-8-sig").replace("\r\n", "\n")
+    begin = source.index('set +e\nuninstall "${local_db}" Modules/toolbelt.core.work-type 0 0 ')
+    end = source.index("\nfi\n", begin) + 3
+    block = source[begin:end]
+    guard_cases = 0
+    for mode in ("runner", "lab"):
+        for scenario, result_code, category, expected_code in (
+            ("expected_error", 7, "51549", 0),
+            ("false_success", 0, "51549", 1),
+            ("wrong_category", 7, "59999", 1),
+        ):
+            with tempfile.TemporaryDirectory(prefix="w4b-uninstall-", dir=runtime) as base:
+                base_path = Path(base).resolve()
+                if not base_path.is_relative_to(runtime):
+                    raise SystemExit("W4B_UNINSTALL_TEST_TEMP_SCOPE_INVALID")
+                private_path = base_path / "private"
+                private_path.mkdir()
+                invalid_path = base_path / "invalid-argv"
+                shell = f'''set -euo pipefail
+TBX_SQL_TARGET={mode}
+private_dir={shlex.quote(private_path.relative_to(root).as_posix())}
+invalid_file={shlex.quote(invalid_path.relative_to(root).as_posix())}
+local_db=tbx_synthetic_w4b
+uninstall() {{
+    if [[ "$#" != 4 || "$1" != "$local_db" || "$2" != Modules/toolbelt.core.work-type || "$3" != 0 || "$4" != 0 ]]; then : > "$invalid_file"; return 97; fi
+    printf '%s\\n' '{category}'
+    return {result_code}
+}}
+docker() {{ : > "$invalid_file"; return 97; }}
+run_query() {{ : > "$invalid_file"; return 97; }}
+{block}
+exit 0
+'''
+                harness_path = base_path / "harness.sh"
+                harness_path.write_text(shell, encoding="utf-8", newline="\n")
+                completed = subprocess.run([str(bash), harness_path.relative_to(root).as_posix()],
+                                           cwd=root, capture_output=True, check=False, timeout=10)
+                if completed.returncode != expected_code or invalid_path.exists():
+                    raise SystemExit(f"W4B_UNINSTALL_TEST_ORACLE_MISMATCH:{mode}:{scenario}")
+                if (private_path / "w4b-uninstall.out").read_text(encoding="utf-8") != category + "\n":
+                    raise SystemExit(f"W4B_UNINSTALL_TEST_PRIVATE_OUTPUT_MISMATCH:{mode}:{scenario}")
+            print(f"PASS: w4b uninstall_guard {mode} {scenario}")
+            guard_cases += 1
+    print(f"PASS: w4b uninstall_guard cases={guard_cases}")
 
 for path, expected_hash in pins.items():
     if hashlib.sha256(path.read_bytes()).hexdigest() != expected_hash:
