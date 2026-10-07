@@ -81,6 +81,9 @@ tests:
   runtime: "Tests/Runtime/ExecutionCancellation.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
+  populated_repeat: "Tests/Runtime/RepeatCurrent.Contract.sql"
+  repeat_capture: "Tests/Runtime/RepeatCurrent.Capture.sql"
+  repeat_assert: "Tests/Runtime/RepeatCurrent.Assert.sql"
   multi_session: "Tests/Runtime/Concurrency.Contract.sql"
   github_hosted_linux: "../../.github/workflows/w6d-execution-cancel-runtime.yml"
 validation_evidence:
@@ -91,4 +94,8 @@ validation_evidence:
   - date: "2026-09-11"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Lokales SQL_Server_Lab; SQL Server 2019, 2022 und 2025 unter Linux und Windows; öffentlicher Vertrag, Idempotenz, Transaktionsschutz, Parallelität, Lifecycle, Central und Uninstall"
+    result: "success"
+  - date: "2026-10-07"
+    workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37690604199"
+    scope: "Commit fac18e590f854a26364e5f498c6a2b5d330a95c2: zwei echte befüllte 1.0.0-Repeats lokal/zentral auf SQL Server 2019/150, 2022/160, 2025/170 Linux; alle fünf Spalten mit Rowversionbytes, synthetische Audit-/NULL-/Textwerte, ausgewählter Katalog und eigene typisierte Annotationen inklusive MS_Description erhalten. Vorhandene API-, Concurrency-, Consumer- und Uninstallfälle sowie eigene CI-Bereinigung bestanden. Keine neuen Windows-Repeats, weiteren Repeat-CLs, nichtleeren Benutzergrants, echten Minimalrechte oder historischen Schemaübergänge qualifiziert."
     result: "success"

@@ -94,6 +94,8 @@ local_db=tbx_w6d_local
 run_query master "CREATE DATABASE [${local_db}] COLLATE Latin1_General_100_CS_AS;"
 deploy "${local_db}" Modules/toolbelt.core.execution-context local
 deploy "${local_db}" Modules/toolbelt.core.execution-cancel local
+run_file "${local_db}" /workspace/Modules/toolbelt.core.execution-cancel/Deployment \
+ ../Tests/Runtime/RepeatCurrent.Contract.sql -v DeploymentMode=local
 run_file "${local_db}" /workspace/Modules/toolbelt.core.execution-cancel/Tests/Runtime Lifecycle.Contract.sql
 for level in ${levels}; do
  run_query "${local_db}" "ALTER DATABASE [${local_db}] SET COMPATIBILITY_LEVEL=${level};"
@@ -110,6 +112,8 @@ central_db=tbx_w6d_central; consumer_db=tbx_w6d_consumer
 run_query master "CREATE DATABASE [${central_db}]; CREATE DATABASE [${consumer_db}];"
 deploy "${central_db}" Modules/toolbelt.core.execution-context central
 deploy "${central_db}" Modules/toolbelt.core.execution-cancel central
+run_file "${central_db}" /workspace/Modules/toolbelt.core.execution-cancel/Deployment \
+ ../Tests/Runtime/RepeatCurrent.Contract.sql -v DeploymentMode=central
 run_file "${consumer_db}" /workspace/Modules/toolbelt.core.execution-cancel/Tests/Runtime Central.Contract.sql -v ToolbeltDatabase="${central_db}"
 uninstall "${central_db}" Modules/toolbelt.core.execution-cancel 1 1
 uninstall "${central_db}" Modules/toolbelt.core.execution-context 1 0

@@ -58,6 +58,25 @@ nichtleere Benutzergrants, echte Minimalrechte und historische Übergänge
 bleiben separat. Finale Head-CI/Merge werden über
 [PR286](https://github.com/gecompat/SQL_Server_Toolbelt/pull/286) geprüft.
 
+Arbeitsmodus konkretisiert 2026-10-07: Der Benutzer verlangt unmittelbare
+autonome Fortsetzung und Delegation mit Abschlussmeldungen; die geplanten
+20-Minuten-Stupser sind ausschließlich ein Sicherheitsnetz. Nach jedem
+abgeschlossenen Arbeitspaket wird die nächste konkrete freigegebene Arbeit
+direkt vorbereitet beziehungsweise umgesetzt. Agentenberichte werden vor
+Integration abgewartet und gegen Quellen sowie tatsächliche Tests geprüft.
+Cancellation-Wartung: Zwei befüllte 1.0.0-Repeats bestanden am Commit
+`fac18e590f854a26364e5f498c6a2b5d330a95c2` auf SQL Server 2019/150,
+2022/160 und 2025/170 Linux jeweils lokal/zentral
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37690604199)).
+Alle fünf Spalten einschließlich Rowversion, Audit- und Textbytes sowie
+ausgewählter Katalog und eigene Tabellen-/Spaltenbeschreibungen blieben
+erhalten; vorhandene API-/Parallelitäts-/Consumer-/Uninstallfälle und eigene
+CI-Bereinigung bestanden. Finale Head-CI und Merge sind in
+[PR287](https://github.com/gecompat/SQL_Server_Toolbelt/pull/287) abzugleichen.
+Der nächste konkrete Wartungsscope ist jetzt `EventLog`: dessen bestehende
+WorkType-Reaktivierung zuerst prüfen, anschließend den unveränderten aktiven
+Repeat. Keine neue öffentliche Funktion oder Änderung dieser Semantik.
+
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
 Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene
@@ -73,7 +92,7 @@ Chatverlauf ersetzen diese Repositoryquellen nicht.
 | Reihenfolge | Nächster Wartungsscope | Noch fehlender Nachweis oder Entscheidung |
 |---|---|---|
 | 1 (gezielt bestanden) | `toolbelt.file.content` / `FileContentRootAllowlist` | Befüllter Repeat lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Windows, weitere Repeat-CLs, nichtleere Benutzergrants und echte Minimalrechte bleiben offen. Dieser Tabellenrepeat benötigt weder Datei-I/O noch Konfigurations- oder CLR-Änderungen. |
-| 2 | `toolbelt.core.execution-cancel` / `ExecutionCancellation` | Bestehenden Redeploy um exakte Zeilen-, Rowversion- und Katalogvergleiche ergänzen. |
+| 2 (gezielt bestanden) | `toolbelt.core.execution-cancel` / `ExecutionCancellation` | Befüllte Repeats mit exakten Zeilen-, Rowversion- und ausgewählten Katalogvergleichen lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Neue Windows-Repeats, weitere CLs, nichtleere Benutzergrants, Minimalrechte und historische Übergänge bleiben offen. |
 | 3 | `toolbelt.core.event-log` / `EventLog` | Daten- und Katalogerhalt qualifizieren; der bestehende Vertrag registriert beziehungsweise reaktiviert seinen WorkType ausdrücklich. Eine abweichende Erhaltung deaktivierter Registrierung wäre zuerst fachlich zu klären. |
 | 4 | `toolbelt.core.second-session` / `SecondSessionProvider` | Deaktivierte Provider, Auditfelder und Rowversions zusätzlich zu vorhandenen Provider-/Servernamensprüfungen nachweisen; keine Provider- oder Rechteausweitung. |
 | 5 | `toolbelt.filesystem.windows` / `FileSystemRoot` | Befüllten Repeat unter bestehenden Windows-/Assembly-/Trustvoraussetzungen qualifizieren; fehlende Windows-Runtime nicht durch Offlineparser ersetzen. |
