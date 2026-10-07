@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-07 – Identifier-CI mit verifizierter eigener Bereinigung
+
+- Der vorhandene Identifier-Adapter prüft seine Runneridentität und setzt
+  vor dem Start ein Ownerlabel. Cleanup entfernt nur die gemeinsam mit dem
+  Owner gelesene volle ID und bestätigt frische exakte Namensabwesenheit.
+- Fremder Bestand, unbekannte Sicht oder Removefehler werden als unbestätigt
+  mit Exit1 gemeldet; bestätigter Cleanup erhält den ursprünglichen Teststatus.
+  Der Labzweig bleibt Container-No-op ohne Runnerowner oder private Ablage.
+- Der bestehende synthetische Harness und sein selektiver Documentation-Gate
+  erfassen den Adapter. Fachliche SQL-Verträge und Fixtures, Images, Matrix,
+  Readinessfrist und Runtimeworkflow bleiben unverändert.
+
 ## 2026-10-07 – Integer-Base-Kollisionsorakel verlangt konkrete Ablehnung
 
 - Das vorhandene CI-Orakel akzeptiert nur Fehlerstatus zusammen mit der
