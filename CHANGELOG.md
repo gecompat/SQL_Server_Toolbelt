@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-07 – Base64-CI mit verifizierter eigener Bereinigung
+
+- Der bestehende Adapter bindet seinen Runner vor dem Start an SQL-Version,
+  Run, Attempt und Owner. Cleanup entfernt nur die gemeinsam mit dem Label
+  gelesene volle ID und verlangt frische exakte Namensabwesenheit.
+- Unbestätigter Cleanup endet mit Exit1; bestätigter erhält den ursprünglichen
+  Teststatus. Der Labzweig bleibt Container-No-op ohne Owner oder private Ablage.
+- Der synthetische Harness, Documentationgate und vorhandenes Impact-Paket
+  erfassen den Adapter. SQL-Verträge und Fixtures, bestehendes Kollisionsorakel,
+  optionaler Performancepfad, Images, Readinessfrist und Matrix bleiben erhalten.
+
 ## 2026-10-07 – Semantic-Version-Kollisionsorakel verlangt konkrete Ablehnung
 
 - Der vorhandene Adapter verlangt Fehlerstatus und die vollständige Kategorie

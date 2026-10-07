@@ -511,6 +511,7 @@ change_impact:
         - markdown_links
     base64_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.conversion.base64/**
         - Documentation/Architecture/BASE64_MODULE_DESIGN.md
         - Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
