@@ -98,11 +98,23 @@ Neue Minimalrechte, weitere Zielkombinationen und Produktions-/Parallelkapazitä
 Historischer nativer Gruppenadapter: `Tests/CI/run-json-groups-lab.ps1`; bei Version 1.2 stoppt er ausdrücklich vor Labdiscovery. Die 1.2-Teilnachweise stammen aus separat geprüften privaten Adaptern. Die Bash-Labroute ist für Lab explizit gesperrt; GitHub-Container verwenden den Bash-Runner weiterhin als gesonderten aktuellen PR-Head-Gate.
 
 Der flüchtige CI-Container erhält eine zufällige Owner-Kennung. Beim normalen
-Prozessende entfernt der Adapter ihn nur bei exakt passendem Namen und Label;
-eine frische Docker-Abfrage muss seine Abwesenheit bestätigen. Der isolierte
-synthetische Cleanup-Test prüft zusätzlich Fremdlabel und Dockerfehler, ohne
-Container oder Labziel zu starten. Dies ist kein Nachweis für Runner-/Host-
-oder Docker-Daemon-Ausfall und keine allgemeine Hard-Interrupt-Recovery.
+Prozessende werden volle Container-ID und Owner aus derselben Inspectaufnahme
+strikt geprüft. Nur der eigene Owner erlaubt Entfernung per ID; eine frische
+Docker-Abfrage muss die Namensabwesenheit bestätigen. Run-/Attempt-/SQL-Name
+und Owner werden vor privatem Setup validiert; das Verzeichnis entsteht erst
+nach fallibler Owner-/Kennwortvorbereitung. Erfolgreicher Cleanup meldet
+`JSON_CONSTRUCTORS_CI_CLEANUP_VERIFIED` und erhält den ursprünglichen Fehlerstatus.
+Ein fremder Namensersatz wird nicht entfernt; unklarer Abschluss meldet
+`JSON_CONSTRUCTORS_CI_CLEANUP_UNVERIFIED` und Fehlerstatus.
+
+`python Tests/CI/test_owned_container_cleanup.py --module json_constructors`
+prüft die echte Cleanupfunktion in13 synthetischen Fällen einschließlich
+Namensaustausch, ungültiger ID-/Ownerformen, Extrafeldern, ursprünglichem
+Fehler7 sowie Docker-/Inspect-/Entfernungs-/Nachlistenfehlern. Die bestehende
+Dokumentations-CI führt die gekoppelte Probe aus; kein Docker/SQL oder Labzugriff.
+Echte Head-/Main-Zeugen stehen separat im PR. Der vorhandene SQL2019-CL150-,
+SQL2022-CL160- und SQL2025-CL150/160/170-Scope bleibt erhalten. Kein Nachweis
+für Runner-/Host-/Docker-Daemon-Ausfall oder allgemeine Hard-Interrupt-Recovery.
 
 ## Historische Ausführung 1.0.0
 

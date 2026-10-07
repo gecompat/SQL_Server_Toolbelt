@@ -69,14 +69,14 @@ for module in selected:
         ("invalid_owner", 1, False),
         ("extra_fields", 1, False),
     )
-    module_cases = cases + identity_cases if module in {"pointer", "safe_cast", "table_clone", "deterministic"} else cases
+    module_cases = cases + identity_cases if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic"} else cases
     if module == "table_clone":
         module_cases += (
             ("lab_success", 0, True),
             ("lab_original_failure", 7, True),
         )
     inspection_format = '{{ index .Config.Labels "' + owner_label + '" }}'
-    if module in {"pointer", "safe_cast", "table_clone", "deterministic"}:
+    if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic"}:
         inspection_format = '{{.Id}} ' + inspection_format
     for scenario, expected_code, expected_remove in module_cases:
         with tempfile.TemporaryDirectory(prefix="owned-cleanup-", dir=runtime) as base:
@@ -91,7 +91,7 @@ for module in selected:
             invalid_path = base_path / "invalid-argv"
             inspect_path = base_path / "inspect-called"
             replacement_path = base_path / "replacement-name"
-            expected_identity = "b" * 64 if module in {"pointer", "safe_cast", "table_clone", "deterministic"} and not lab_case else "tbx-synthetic-owned-cleanup"
+            expected_identity = "b" * 64 if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic"} and not lab_case else "tbx-synthetic-owned-cleanup"
             shell = f"""
 set -euo pipefail
 TBX_SQL_TARGET=runner
@@ -133,7 +133,7 @@ docker() {{
         printf '%s\\n' inspect >> "$inspect_file"
         if [[ "$#" != 4 || "$2" != --format || "$3" != "$expected_inspection_format" || "$4" != "$container_name" ]]; then invalid_argv; return 2; fi
         [[ "$scenario" != inspect_fail ]] || return 1
-        if [[ "$module" == pointer || "$module" == safe_cast || "$module" == table_clone || "$module" == deterministic ]]; then
+        if [[ "$module" == pointer || "$module" == safe_cast || "$module" == json_constructors || "$module" == table_clone || "$module" == deterministic ]]; then
             if [[ "$scenario" == invalid_id ]]; then printf '%s ' not-a-64-hex-id;
             else printf '%s ' "$synthetic_container_id"; fi
         fi
@@ -190,7 +190,7 @@ exit 0
             expected_diagnostic = scenario not in {"owned", "absent", "original_failure", "lab_success", "lab_original_failure"}
             if completed.stderr != (diagnostic + "\n" if expected_diagnostic else ""):
                 raise SystemExit(f"OWNED_CLEANUP_TEST_DIAGNOSTIC_MISMATCH:{module}:{scenario}")
-            expected_stdout = diagnostic.replace("UNVERIFIED", "VERIFIED") + "\n" if module in {"pointer", "safe_cast", "table_clone", "deterministic"} and not expected_diagnostic and not lab_case else ""
+            expected_stdout = diagnostic.replace("UNVERIFIED", "VERIFIED") + "\n" if module in {"pointer", "safe_cast", "json_constructors", "table_clone", "deterministic"} and not expected_diagnostic and not lab_case else ""
             if completed.stdout != expected_stdout:
                 raise SystemExit(f"OWNED_CLEANUP_TEST_SUCCESS_WITNESS_MISMATCH:{module}:{scenario}")
         print(f"PASS: {module} {scenario}")
