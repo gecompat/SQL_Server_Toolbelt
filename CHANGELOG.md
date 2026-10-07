@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-10-07 – Cancellation-CI mit eigener Identität und privater Ausgabe
+
+- W6d bindet seinen Runner vor dem Start an Version, Run, Attempt und Owner.
+  Cleanup entfernt nur die gemeinsam mit dem Label gelesene volle ID und
+  prüft frische Namensabwesenheit. Unbestätigter Cleanup endet Exit1;
+  erfolgreicher Cleanup erhält den ursprünglichen Teststatus.
+- Dependency- und Uninstall-Ausgaben sind auch im Lab laufisoliert. Die
+  vorhandenen Fehlerexit-/Kategorieguards bleiben erhalten; private
+  Dateibereinigungsfehler sind sichtbar. Lab-Container-rm bleibt No-op.
+- Gemeinsamer Offlineharness, selektives Documentationgate und bestehendes
+  Impact-Paket erfassen den Adapter. Öffentliche SQL-Verträge, fachliche
+  Fixtures, Images, Matrix, parallele Worker und Runtimeworkflow bleiben erhalten.
+
 ## 2026-10-07 – Event-Log-CI mit eigener Containeridentität und Fehlerexit
 
 - W5b bindet seinen Runner vor dem Start an Version, Run, Attempt und Owner.
