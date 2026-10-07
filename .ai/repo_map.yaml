@@ -665,6 +665,7 @@ change_impact:
         - w1_runtime_workflow_scope
     w2a_portable_contracts:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.datetime.truncate/**
         - Modules/toolbelt.datetime.bucket/**
         - Modules/toolbelt.binary.bit-operations/**
