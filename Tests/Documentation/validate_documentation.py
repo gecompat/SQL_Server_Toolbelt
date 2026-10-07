@@ -1333,6 +1333,20 @@ def run_phonetic_static() -> None:
     if result.returncode != 0:
         raise ValidationError("Statische Phonetik-Prüfung fehlgeschlagen:\n" + result.stdout + result.stderr)
 
+
+def run_foundation_redirects() -> None:
+    # Nur synthetischer HTTP-Transport; keine optionalen Runtimes aktivieren.
+    script = REPOSITORY_ROOT / "Tests/Documentation/test_foundation_redirects.py"
+    try:
+        result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+                                check=False, capture_output=True, text=True,
+                                encoding="utf-8", timeout=10)
+    except subprocess.TimeoutExpired as error:
+        raise ValidationError("Foundation-Redirect-Regression überschritt ihr Offline-Zeitbudget.") from error
+    if result.returncode != 0:
+        raise ValidationError("Foundation-Redirect-Regression fehlgeschlagen:\n" + result.stdout + result.stderr)
+    print(result.stdout.strip())
+
 def run_edit_distance_static() -> None:
     script = REPOSITORY_ROOT / "Modules/toolbelt.string.edit-distance/Tests/Static/validate_contract.py"
     result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
@@ -1668,6 +1682,8 @@ def main() -> int:
 
     if "generated_status" in checks:
         validate_generated_status(modules, arguments.write)
+    if "foundation_host_redirects" in checks:
+        run_foundation_redirects()
     if "public_api_catalog" in checks:
         try:
             generate_api_catalog.check(write=arguments.write)

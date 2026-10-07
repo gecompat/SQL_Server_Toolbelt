@@ -97,3 +97,26 @@ gewertet. Der gemergte Stand, die Foundation-Provenienz und die unveränderten
 Projektregeln wurden geprüft. Diese Abnahme belegt die Foundation-Integration
 und ihre betroffenen CI-Verträge, keine allgemeine SQL-Releasequalifikation
 oder Wiederherstellung nach hartem Abbruch.
+
+## Begrenzte Redirect-Wartung2026-10-07
+
+Der autonome Security-Wartungsauftrag korrigiert im bereits ausgewählten
+Host-Preparation-Referenzclient die Prüfung nach erfolgtem Redirectkontakt.
+Ein gemeinsamer urllib-Handler bindet jetzt jeden Hop vor Dispatch an den
+ursprünglichen HTTPS-Host und effektiven Port443. Erlaubte Same-origin-
+Redirects behalten die vorhandene urllib-Methoden-/Schleifenbehandlung;
+verweigerte Antworten werden ohne Bodyread geschlossen. Download und
+Cost-Evidence behalten ihre bisherigen Permissioncodes und übrigen Budgets.
+
+Sourcecommit4aafd20442275d0fdedf291fc6e12e8fe1f683cc, Manifest und Version1.19.0
+bleiben Ausgangsprovenienz. Nur der korrigierte Client und seine gekoppelte
+Capability-Dokumentation erhalten portable Installedhashes sowie konkrete
+`INTENTIONAL_OVERRIDE`-Gründe. Dies ist eine stärkere Target-Sicherheitsgrenze,
+kein Upstreamfix, Foundationupgrade oder neues Providerangebot.
+
+Die [synthetische Regression](../../Tests/Documentation/test_foundation_redirects.py)
+prüft tatsächliche urllib-Dispatchketten mit Fake-HTTP-Antworten. Netzwerk,
+DNS, Runtimeinventar, Provisionierung, Installation und SQL werden dabei nicht
+ausgeführt. Source-/Provenienz- und Projektaudit bleiben getrennte Ebenen;
+eine erfolgreiche Offlineprobe ist kein realer Endpoint- oder Exploitnachweis.
+Der andere HTTP-Bodyread- und der bedingte Pfad-TOCTOU-Befund bleiben offen.

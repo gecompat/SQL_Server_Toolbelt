@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-07 – Foundation-Redirects vor dem Folgekontakt prüfen
+
+- Der bereits ausgewählte optionale Host-Preparation-Client bindet Download-
+  und Cost-Evidence-Redirects vor Dispatch an HTTPS, ursprünglichen Host und
+  Port443. Same-origin-Ketten bleiben erlaubt; Fremdorigins und Userinfo werden
+  vor Kontakt abgewiesen. Verweigerte Antworten werden ohne Bodyread geschlossen.
+- Source1.19.0 bleibt als Ausgangsprovenienz erhalten; die zwei betroffenen
+  installierten Dateien sind explizite Target-Overrides. Keine Runtimeaktivierung,
+  Provisionierung, Rechte-/Providererweiterung oder SQL-Produktänderung.
+
 ## 2026-10-07 – Windows-Directory-Delete hält die geprüften Grenzen ein
 
 - Die bestehende rekursive Löschung erstellt vor der ersten Mutation einen

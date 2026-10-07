@@ -1037,6 +1037,16 @@ change_impact:
         - integer_base_runtime_workflow_scope
         - integer_base_static
         - w2a_runtime_workflow_scope
+    foundation_host_redirects:
+      paths:
+        - .ai/foundation/ai_provisioning/host_preparation.py
+        - .ai/foundation/ai_provisioning/AI_PROVISIONING.md
+        - .ai/foundation/installation-provenance.json
+        - Tests/Documentation/test_foundation_redirects.py
+        - Tests/Documentation/validate_documentation.py
+        - Documentation/Architecture/FOUNDATION_1_19_INTEGRATION.md
+      checks:
+        - foundation_host_redirects
     governance:
       paths:
         - .ai/repo_map.yaml

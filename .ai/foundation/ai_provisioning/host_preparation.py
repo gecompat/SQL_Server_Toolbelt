@@ -770,6 +770,63 @@ class ProvisionStore:
         atomic_write(self.checkpoint_path(payload["provision_id"]), {**payload, "integrity_sha256": digest(payload)})
 
 
+def _matches_planned_https_origin(url: str, hostname: str) -> bool:
+    try:
+        target = urllib.parse.urlparse(url)
+        return (target.scheme == "https" and target.hostname == hostname
+                and target.port in {None, 443}
+                and target.username is None and target.password is None)
+    except ValueError:
+        return False
+
+
+class _OriginBoundRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def __init__(self, hostname: str, reason_code: str) -> None:
+        self.hostname = hostname
+        self.reason_code = reason_code
+
+    def _require_origin(self, fp: Any, newurl: str) -> None:
+        if not _matches_planned_https_origin(newurl, self.hostname):
+            # Der Standardhandler schließt erst nach redirect_request. Bei
+            # Abweisung keinen Body lesen, die ursprüngliche Antwort schließen.
+            try:
+                fp.close()
+            finally:
+                raise PreparationError(self.reason_code, "redirect crossed the planned HTTPS origin", error_class="PERMISSION")
+
+    def http_error_302(self, req: Any, fp: Any, code: int, msg: str, headers: Any) -> Any:
+        # Auch vor urllib-Scheme-/URLnormalisierung prüfen: ungültige oder
+        # fremde Location-Werte sollen dieselbe Permissiongrenze behalten.
+        location = headers["location"] if "location" in headers else headers.get("uri")
+        if location is not None:
+            try:
+                target = urllib.parse.urljoin(req.full_url, location)
+            except ValueError:
+                target = ""
+            self._require_origin(fp, target)
+        return super().http_error_302(req, fp, code, msg, headers)
+
+    # Baseklassen-Aliase zeigen sonst weiterhin auf die ungeschützte Basemethode.
+    http_error_301 = http_error_302
+    http_error_303 = http_error_302
+    http_error_307 = http_error_302
+    http_error_308 = http_error_302
+
+    def redirect_request(self, req: Any, fp: Any, code: int, msg: str,
+                         headers: Any, newurl: str) -> Any:
+        # urllib ruft diesen Hook vor parent.open auf. Auch der normalisierte
+        # Folge-URL bleibt am ursprünglichen Origin, einschließlich Zwischenhops.
+        self._require_origin(fp, newurl)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+def _open_planned_https(request: urllib.request.Request, timeout_seconds: float,
+                        reason_code: str) -> Any:
+    source = validated_source_uri(request.full_url, "planned HTTPS source", allow_file=False)
+    handler = _OriginBoundRedirectHandler(source.hostname, reason_code)
+    return urllib.request.build_opener(handler).open(request, timeout=timeout_seconds)
+
+
 def download(action: dict[str, Any], destination: Path, timeout_seconds: float = 30.0) -> int:
     maximum = int(Decimal(str(action["download_mb"])) * Decimal(1024 * 1024))
     parsed = urllib.parse.urlparse(action["source"])
@@ -779,9 +836,8 @@ def download(action: dict[str, Any], destination: Path, timeout_seconds: float =
             stream: Any = source.open("rb")
         else:
             request = urllib.request.Request(action["source"], headers={"User-Agent": "AI-Repository-Foundation/host-preparation"})
-            stream = urllib.request.urlopen(request, timeout=timeout_seconds)
-            final = urllib.parse.urlparse(stream.geturl())
-            if final.scheme != "https" or final.hostname != action["network_destination"]:
+            stream = _open_planned_https(request, timeout_seconds, "PROVISION_REDIRECT_REFUSED")
+            if not _matches_planned_https_origin(stream.geturl(), action["network_destination"]):
                 stream.close()
                 raise PreparationError("PROVISION_REDIRECT_REFUSED", "download redirect crossed the planned origin", error_class="PERMISSION")
             length = stream.headers.get("Content-Length")
@@ -1002,9 +1058,8 @@ def fetch_bytes(url: str, timeout_seconds: float = 20.0) -> bytes:
     if parsed.scheme == "file":
         return Path(urllib.request.url2pathname(parsed.path)).read_bytes()
     request = urllib.request.Request(url, headers={"User-Agent": "AI-Repository-Foundation/cost-evidence"})
-    with urllib.request.urlopen(request, timeout=timeout_seconds) as response:
-        final = urllib.parse.urlparse(response.geturl())
-        if final.scheme != "https" or final.hostname != parsed.hostname:
+    with _open_planned_https(request, timeout_seconds, "COST_SOURCE_REDIRECT_REFUSED") as response:
+        if not _matches_planned_https_origin(response.geturl(), parsed.hostname):
             raise PreparationError("COST_SOURCE_REDIRECT_REFUSED", "cost source redirect crossed origin", error_class="PERMISSION")
         return response.read(4 * 1024 * 1024 + 1)
 
