@@ -525,6 +525,7 @@ change_impact:
         - markdown_links
     generate_series_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.core.generate-series/**
         - Documentation/Architecture/GENERATE_SERIES_MODULE_DESIGN.md
         - Documentation/Architecture/DEPLOYMENT_MODEL.md
