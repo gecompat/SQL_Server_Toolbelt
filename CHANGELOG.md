@@ -29,8 +29,15 @@
 - Nach Trennung des Adaptergates bestehen eigene Besitzprüfung und
   Erstinstallation. Der folgende Fehler liegt im initialen Fixture-
   Sitzungsgate (SQL54980/State1); dessen kombinierte Sitzungsbedingungen
-  werden ohne Prädikatverlust in einzelne IFs getrennt. Native Qualifikation
-  bleibt offen; historische FAILED-Läufe werden nicht überschrieben.
+  werden ohne Prädikatverlust in einzelne IFs getrennt. Zu diesem Stand war
+  native Qualifikation noch offen; historische FAILED-Läufe bleiben erhalten.
+- Der korrigierte Head `a836b87778fbe4c498b4b1ce05f06c58373ea03c` besteht die
+  gemeinsame Neun-Modul-Folge auf Linux2019/CL150 lokal/zentral: zwei befüllte
+  Repeats aller 14 Tabellen, eigene DB-/Datei- und Containerbereinigung sowie
+  vorhandene Worker-/Upgradefälle
+  ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37701845352)).
+  Dokumentations-CI ebenfalls bestanden; übrige Plattform-/Client-/44-Modul-
+  und Releasegrenzen bleiben offen.
 
 ## 2026-10-07 – Deaktivierten SecondSessionProvider über Deploys erhalten
 

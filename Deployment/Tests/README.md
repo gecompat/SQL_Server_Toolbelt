@@ -65,8 +65,8 @@ Ohne Verbindung reproduziert: PowerShell-Dotzuweisungen für `InitialCatalog`
 und `ConnectTimeout` erzeugen ungültige Builder-Schlüssel. Explizite Indexer
 `Initial Catalog` und `Connect Timeout` beheben dies; der separate abschließende
 Pfadseparatorfehler im Adaptercleanup ist ebenfalls korrigiert. Beide
-fehlgeschlagenen Läufe bleiben historische Evidenz. Die Qualifikation bleibt offen bis
-tatsächlicher korrigierter Head-CI. Die Einzelmodulnachweise stehen in
+fehlgeschlagenen Läufe bleiben historische Evidenz. Zu diesem Stand war die
+korrigierte Head-CI noch offen. Die Einzelmodulnachweise stehen in
 [Backlog](../../.ai/BACKLOG.md). Windows-FileSystemRoot, weitere Versionen/CLs,
 historische und partielle Installationen, Minimalrechte, nichtleere Grants,
 Hard-Interrupt-Recovery, native SQLCMD-Clients und vollständige 44-Modul-
@@ -90,5 +90,13 @@ FAILED/SQL54980/State1
 ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37700707745)).
 Die kombinierten Sitzungsbedingungen der vier Fixtures werden jeweils einzeln
 geprüft; Prädikate, Fehlercodes und die fachlichen Orakel bleiben erhalten.
-Vorherige Workerfälle und Containerbereinigung bestehen. Die korrigierte
-gemeinsame Exportqualifikation bleibt bis neuer Head-CI offen.
+Vorherige Workerfälle und Containerbereinigung bestehen. Der korrigierte Head
+`a836b87778fbe4c498b4b1ce05f06c58373ea03c` besteht die gemeinsame Exportfolge
+auf Linux2019/CL150 lokal und zentral über zwei befüllte Repeats aller 14
+Tabellen, eigene DB-/Dateibereinigung sowie vorhandene Worker-/Upgradefälle
+und Containerbereinigung
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37701845352)).
+Dokumentations-CI am selben Head besteht. Der beobachtete Erfolg belegt die
+Korrektur im gewählten Scope; der interne Ausdrucksoperand der früheren
+Sitzungsfehler wurde weiterhin nicht direkt gemessen. Historische FAILED-
+Läufe und die oben genannten übrigen Qualifikationsgrenzen bleiben erhalten.

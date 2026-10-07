@@ -132,7 +132,7 @@ FAILED im Verbindungs-Preflight
 Die Builder-Dotzuweisungen `InitialCatalog`/`ConnectTimeout` scheitern ohne
 Serververbindung reproduzierbar; sie werden durch die bestehenden gültigen
 Indexer ersetzt. Der separate Adaptercleanup-Pfadseparatorfehler ist korrigiert.
-Beide FAILED-Läufe bleiben erhalten; kein unveränderter Retry oder Runtime-PASS.
+Beide FAILED-Läufe bleiben historische Evidenz und gelten nicht als Runtime-PASS.
 Der korrigierte Builder-Head `6989d8ac43033e8cd45c2f8fb88f59239429c64a`
 besteht den Preflight, ist aber beim eigenen Datenbank-/Sitzungsgate FAILED
 ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37697908672)).
@@ -149,7 +149,15 @@ FAILED/SQL54980/State1
 ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37700707745)).
 Die gleichen kombinierten Sitzungsprüfungen in den vier Testfixtures werden
 ebenfalls ohne Prädikatverlust in einzelne IFs getrennt. Vorherige Workerfälle
-und Containerbereinigung bestehen; neue korrigierte Head-CI bleibt erforderlich.
+und Containerbereinigung bestehen. Der korrigierte Head
+`a836b87778fbe4c498b4b1ce05f06c58373ea03c` besteht den gemeinsamen Exporttest
+auf Linux2019/CL150 lokal und zentral: alle 14 Tabellen über zwei befüllte
+Repeats, eigene DB-/Dateibereinigung sowie vorhandene Worker-/Upgradefälle
+und Containerbereinigung
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37701845352)).
+Die Dokumentations-CI desselben Heads besteht ebenfalls. Die historischen
+FAILED-Läufe bleiben getrennt; dies qualifiziert ausschließlich diese
+Neun-Modul-Folge im genannten Zielscope.
 Details und offene Grenzen stehen in
 [Deploymenttests](../Deployment/Tests/README.md). Windows-FileSystemRoot und
 vollständiger 44-Modul-Export bleiben getrennte Nachweise; Source, Deploy und
