@@ -325,7 +325,8 @@ class ProvenanceTests(unittest.TestCase):
         changed = {".ai/foundation/ai_provisioning/host_preparation.py",
                    ".ai/foundation/ai_provisioning/AI_PROVISIONING.md",
                    ".ai/foundation/ai_runtime_adapters/reference_adapters.py",
-                   ".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md"}
+                   ".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md",
+                   ".ai/foundation/ai_runtime_adapters/runtime_configuration.py"}
         old_rows = {row["target"]: row for row in baseline["files"]}
         self.assertEqual(set(old_rows), {row["target"] for row in rows})
         reasons = {
@@ -336,7 +337,9 @@ class ProvenanceTests(unittest.TestCase):
             ".ai/foundation/ai_runtime_adapters/reference_adapters.py":
                 "Toolbelt-Securitywartung2026-10-07: HttpAdapter-Antworten vor JSON und Outputmutation auf16MiB begrenzen, Kurzreads und positive Restlänge prüfen, strukturierte Ablehnung vor Closefehlern erhalten.",
             ".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md":
-                "Gekoppelte Dokumentation des festen HttpAdapter-Responseceilings und verbleibender Discovery-/TOCTOU-/Heapgrenzen; keine Runtimeaktivierung oder Foundationversion.",
+                "Gekoppelte Dokumentation von HttpAdapter- und Discovery-Responsegrenzen sowie Redirectverweigerung; Initialvalidierung, TOCTOU, Heap und Gesamtzeit bleiben separat, keine Runtimeaktivierung oder Foundationversion.",
+            ".ai/foundation/ai_runtime_adapters/runtime_configuration.py":
+                "Toolbelt-Securitywartung2026-10-07: Discovery nutzt den gemeinsamen16MiB-Reader und NoRedirect; HTTPError ohne Bodyread schließen, Transport- und Encodingfehler als bestehenden UNAVAILABLE-Vorschlag isolieren.",
         }
 
         def projection(fields, entries):
@@ -350,7 +353,7 @@ class ProvenanceTests(unittest.TestCase):
                          "526764da3bfe358fb86a293e8ee6dc54ed29aa3f3564692612960bb1620c4fb0")
         self.assertEqual(projection(fields + ("installed_sha256", "integration_state", "reason"),
                                     [row for row in rows if row["target"] not in changed]),
-                         "97e1ae0af7a764b4f858170fa61d5742ea33ccc8363343203d256738ab880986")
+                         "d1d3a6e01b1c5c004cc18e64015b749bed67b27dcc01c58d706d4e967d8030ce")
         for row in rows:
             if row["target"] not in changed:
                 self.assertEqual(row, old_rows[row["target"]])

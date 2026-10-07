@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-07 – Foundation-Discovery bleibt im begrenzten Probe
+
+- Der getrennte Versionsprobe verwendet den bestehenden16MiB-/64KiB-Reader
+  vor JSON und verweigert Redirects vor Folgekontakt. HTTPError-Antworten werden
+  ohne Bodyread geschlossen; neue Größen-, EOF- und Encodingablehnungen bleiben
+  im bisherigen UNAVAILABLE-Vorschlag isoliert.
+- Kandidatenauswahl, Probeflags, Timeouts und Bestätigungsgrenzen bleiben erhalten.
+  Original1.19-Provenienz und vorherige Overrides bleiben gebunden. Keine Runtime-,
+  Konfigurations-, Netzwerk- oder SQL-Erweiterung; Initialvalidierung, DNS-/Proxy-,
+  Pfadrennen-, Heap-/Gesamtzeit- und Endpointqualifikation bleiben eigenständig.
+
 ## 2026-10-07 – Foundation-HttpAdapter liest begrenzte Antwortbodies
 
 - Probe/Catalog/Invoke im gemeinsamen HTTP-Adapterpfad lesen vor JSON und

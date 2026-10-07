@@ -157,3 +157,46 @@ runtime_configuration.py, die bedingte Pfad-TOCTOU-Grenze, JSON-Tiefe/Heap,
 Gesamtzeit und reale Endpoint-/Produktionsqualifikation bleiben offen.
 Dies aktualisiert keinen historischen Cloudscan und behauptet keinen
 Upstreamfix oder vollständige Foundation-/Produktvalidierung.
+
+## Begrenzte Discoverywartung2026-10-07
+
+Die anschließende Sourceprüfung identifizierte den getrennten Versionsprobe
+mit unbegrenztem Read und automatischem Redirectfollow. Die bisherige
+Loopbackselektion prüfte nur den ersten Kandidaten. Der bereits ausgewählte
+Konfigurationsclient verwendet nun den gemeinsamen16MiB-/64KiB-Reader vor JSON
+und den vorhandenen NoRedirect-Handler. Jeder Redirect wird ohne Folgekontakt
+verweigert, auch innerhalb desselben Origins. HTTPError-Antworten werden ohne
+Bodyread geschlossen. Neue Transport- und Encodingablehnungen bleiben im
+bisherigen UNAVAILABLE-/versionNone-Vorschlag isoliert.
+
+Die bestehende Kandidatenauswahl, Zeitparameter, Vorschlags-/Bestätigungsfelder
+und Probe-only-Flags bleiben unverändert. Keine Runtime, Konfiguration,
+Credentials, Provider oder Netzwerkautorität werden aktiviert. Source und
+Capabilitydoc werden mit spezifischen Targetoverride-Gründen an die erhaltene
+Original1.19-Provenienz gebunden; sämtliche101 Installedhashes bleiben gekoppelt.
+Der [Discoverytest](../../Tests/Documentation/test_foundation_discovery.py)
+verwendet tatsächliche AST-Funktionen und synthetischen urllib-Transport;
+Testcode alleine ist kein ausgeführter Nachweis. Projektaudit und exakte
+Head-/Main-CI bleiben separate Abnahmegates.
+
+Ausgeführt2026-10-07: Das finale `python -X utf8 -B
+Tests/Documentation/test_foundation_discovery.py`-Gate bestand acht Methoden
+mit60 synthetischen Szenarien unter10s-Prozessbudget, Exit0, vollständige
+Erfassung, leerem stderr und stabilen Source-/Testpins. Ein unabhängiger
+Sourceagent bestand22 kleine AST-/stdlib-FakeHTTP-Fälle unter8s-Budget.
+Root las beide finalen Berichte und Prüfprogramme und verifizierte die
+privaten Receipts sowie alle betroffenen Pins ohne Casewiederholung.
+
+Zwei frühere Testharnessgates bleiben FAILED: native TLS-Initialisierung vor
+Fakekontakt sowie ein innerer8/60-PASS mit nicht leerem stderr. Der finale
+Harness ersetzt beide nativen Transporthandler, schließt auch unbesuchte
+eigene Route-Handles und macht Closecanaries nach erfolgtem Close idempotent.
+Zwei volle instrumentierte beziehungsweise klassifizierende Diagnosesuiten
+und fünf kleine Diagnosen sind separate Diagnosehistorie, keine zusätzlichen
+Validierungs-PASS-Nachweise. Die ersten zwei Diagnosecodevarianten wurden
+nicht getrennt bewahrt; daraus wird kein reproduzierbarer Nachweis abgeleitet.
+
+Dies ist eine zusätzliche Prüfung des vorhandenen Sources, kein neuer Cloudscan
+oder vollständiger Scanabschluss. Initiale Kandidatenvalidierung, DNS-/Proxy- und
+Hostvertrauen, Heap-/JSON-Tiefen-/Gesamtzeitqualifikation sowie Pfad-TOCTOU und
+reale Endpoints bleiben außerhalb dieses begrenzten Nachweises.

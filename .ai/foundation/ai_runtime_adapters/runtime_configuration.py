@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import contextlib
 import hashlib
+import http.client
 import json
 import os
 import re
@@ -20,7 +21,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterator
 
 from adapter_protocol import AdapterError
-from reference_adapters import OllamaAdapter, OpenAICompatibleAdapter, canonical_json
+from reference_adapters import NoRedirect, OllamaAdapter, OpenAICompatibleAdapter, _read_http_body, canonical_json
 
 
 CONTRACT = "foundation-ai-runtime-configuration/v1"
@@ -444,11 +445,20 @@ def _probe_candidate(endpoint: str, timeout: float) -> dict[str, Any]:
     checked_at = utc_now()
     request = urllib.request.Request(endpoint.rstrip("/") + "/api/version", headers={"Accept": "application/json"})
     try:
-        with urllib.request.build_opener().open(request, timeout=timeout) as response:
-            payload = json.loads(response.read())
+        # Discovery darf weder einen weiteren Origin kontaktieren noch einen
+        # unbegrenzten Body parsen. Derselbe Reader wie beim HttpAdapter hält
+        # Byte-/EOF-Grenze und schließt die Antwort vor der JSON-Verarbeitung.
+        body = _read_http_body(urllib.request.build_opener(NoRedirect()).open(request, timeout=timeout))
+        payload = json.loads(body)
         version = payload.get("version") if isinstance(payload, dict) else None
         return {"adapter": "ollama", "endpoint": endpoint, "state": "HEALTHY", "checked_at": checked_at, "version": version}
-    except (OSError, TimeoutError, urllib.error.URLError, json.JSONDecodeError):
+    except (AdapterError, OSError, TimeoutError, urllib.error.URLError, http.client.IncompleteRead,
+            UnicodeError, json.JSONDecodeError) as exc:
+        if isinstance(exc, urllib.error.HTTPError):
+            # Auch verweigerte Redirects besitzen einen offenen Responsebody.
+            # Nicht drainen; Schließfehler ändern den UNAVAILABLE-Vorschlag nicht.
+            with contextlib.suppress(Exception):
+                exc.close()
         return {"adapter": "ollama", "endpoint": endpoint, "state": "UNAVAILABLE", "checked_at": checked_at, "version": None}
 
 
