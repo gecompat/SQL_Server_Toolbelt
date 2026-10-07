@@ -10,6 +10,12 @@
   den bisherigen API-, Parallelitäts- und Consumerfällen aus. Neue Windows-,
   Minimalrechte-, Benutzergrant- und historische Migrationsqualifikation
   wird daraus nicht abgeleitet; native Ergebnisse werden gesondert erfasst.
+- Der neue Repeatnachweis bestand am Commit
+  `fac18e590f854a26364e5f498c6a2b5d330a95c2` auf Linux2019/150,2022/160,
+  2025/170 jeweils lokal/zentral mit unveränderten Rowversions und eigenen
+  nichtleeren Tabellen-/Spaltenbeschreibungen; bisherige API-/Lifecyclefälle
+  und eigene CI-Bereinigung ebenfalls
+  ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37690604199)).
 
 ## 2026-10-07 – Befüllte File-Content-Repeats prüfen
 

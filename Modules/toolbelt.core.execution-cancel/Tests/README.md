@@ -36,11 +36,12 @@ der aufrufende Adapter muss dann die eigene Testdatenbank beziehungsweise
 seinen eigenen flüchtigen Testscope bereinigen. Eine Wiederaufnahme auf
 teilweise verbliebener Fixture ist ausgeschlossen.
 
-Dieser neue Repeat-Scope ist bis zu seinem eigenen tatsächlichen Lauf
-`not executed`. Historische Windows-/Linux-Evidenz oben ersetzt ihn nicht.
-Die CI-Matrix, konkrete erfolgreiche Revision und offene Windows-, weitere
-Compatibility-Level-, Minimalrechte- und historische Migrationsprüfungen
-werden im nachfolgenden Evidenzeintrag getrennt ausgewiesen.
+Der neue Repeat-Scope bestand am Commit
+`fac18e590f854a26364e5f498c6a2b5d330a95c2` lokal/zentral auf Linux2019/150,
+2022/160 und 2025/170. Historische Windows-/Linux-Evidenz oben ersetzt keine
+weitere Repeat-Qualifikation. Neue Windows-, weitere Compatibility-Level-,
+nichtleere Benutzergrant-, Minimalrechte- und historische Migrationsprüfungen
+bleiben `not executed`; konkrete Evidenz steht nachfolgend getrennt.
 
 ## Aktuelle Validierungsevidenz
 
