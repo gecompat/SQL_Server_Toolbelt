@@ -723,6 +723,13 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [Unreleased]
 
+- 2026-10-07: Regex-CI-Cleanup prüft volle Container-ID und Owner gemeinsam,
+  entfernt per ID und verlangt frische Namensabwesenheit. Run-Attempt-/SQL-/
+  CL-Name und Owner vor Setup geprüft; Cleanupfehler bleiben sichtbar und
+  bestätigter Cleanup erhält den vorherigen Fehlerstatus. Lab-No-op und
+  vorhandene zusätzliche R2a-Trustbereinigung separat erhalten. Offlinegate
+  und Dokumentation gekoppelt; Produkt-SQL, Binaries und Matrix unverändert.
+
 - 2026-10-07: XLSX-Qualifikations-CI lädt nur15 benannte aktuelle und genuine
   historische Releaseinputs hoch. Private Argument-/Prozessdateien, Logs,
   Qualifikations- und Buildbäume bleiben außerhalb des Uploads. Die bestehende

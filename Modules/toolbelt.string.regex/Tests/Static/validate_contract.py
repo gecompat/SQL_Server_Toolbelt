@@ -221,6 +221,34 @@ def main() -> int:
 
     runtime = read("Tests/Runtime/Regex.Contract.sql")
     require(runtime, "Runtime", "TBX_REGEX_INVALID_PATTERN", "TBX_REGEX_TIMEOUT", "1048577", "4001", "N'^(a|aa)+$'")
+
+    # Runner-Cleanup und vorhandenen Lab-No-op getrennt halten; produktive
+    # Regex-/Trustverträge werden durch diese Adapterprüfung nicht qualifiziert.
+    repo = ROOT.parents[1]
+    ci = (repo / "Tests/CI/run-regex-linux.sh").read_text(encoding="utf-8-sig")
+    require(ci, "CI-Ownership", "REGEX_CI_IDENTITY_INVALID", "REGEX_CI_OWNER_INVALID",
+            "^tbx-regex-(2019|2022|2025)-(150|160|170)-[0-9]+-[0-9]+$",
+            'container_options=(--label "tbx.regex.ci.owner=${container_owner}")',
+            '"${container_options[@]}"')
+    begin = ci.index("cleanup() {\n")
+    end = ci.index("\n}\n", begin) + 2
+    cleanup = ci[begin:end]
+    require(cleanup, "CI-Cleanup", "local result=$?", "trap - EXIT",
+            'if [[ "${TBX_SQL_TARGET:-runner}" == lab ]]; then',
+            "{{.Id}} {{ index .Config.Labels \"tbx.regex.ci.owner\" }}",
+            '^([0-9a-f]{64})\\ ([0-9a-f]{32})$', 'docker rm -f "${container_id}"',
+            'rm -rf -- "${private_dir}"', "REGEX_CI_CLEANUP_UNVERIFIED",
+            "REGEX_CI_CLEANUP_VERIFIED", 'exit "${result}"')
+    runner_cleanup = cleanup.split("  # Runnerzustand", 1)[1]
+    forbid(runner_cleanup, "Runner-Cleanup", 'docker rm -f "${container_name}"', "run_query", "|| true")
+    if runner_cleanup.count('docker container ls --all --filter "name=^/${container_name}$"') != 2:
+        raise ContractError("Runner-Cleanup braucht initiale und frische abschließende Namensprüfung.")
+    if not ci.index('echo "::add-mask::${sa_password}"') < ci.index('private_dir="$(mktemp -d)"') < begin < ci.index("trap cleanup EXIT") < ci.index("docker run --detach"):
+        raise ContractError("Runner-Setup-/Trap-Reihenfolge ist nicht sicher gekoppelt.")
+    mock = (repo / "Tests/CI/test_owned_container_cleanup.py").read_text(encoding="utf-8-sig")
+    require(mock, "CI-Offlinekopplung", '"regex": ("run-regex-linux.sh", "REGEX_CI_CLEANUP_UNVERIFIED", "tbx.regex.ci.owner")')
+    doc_workflow = (repo / ".github/workflows/documentation-consistency.yml").read_text(encoding="utf-8-sig")
+    require(doc_workflow, "CI-Offlinegate", "Tests/CI/run-regex-linux.sh", "python3 Tests/CI/test_owned_container_cleanup.py")
     print("Regex statische Vertragsprüfung: erfolgreich")
     return 0
 
