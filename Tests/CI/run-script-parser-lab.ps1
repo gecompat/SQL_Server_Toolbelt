@@ -345,7 +345,11 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
         # Kein RECONFIGURE und keine Rechtevergabe. Administrative Testfreigabe
         # nur bei ausdrücklichem Aufruf mit OptInExactTrust, niemals im Deployment.
         $hashes = @($manifest.sqlServerHexLiteral,$manifest.scriptDomSqlServerHexLiteral)
-        if ($previous) { $hashes += ('0x' + $previous.sha512) }
+        if ($previous) {
+            $hashes += ('0x' + $previous.sha512)
+            $hashes += '0x24BDEE1CC5296488C3609BB6911DD76935B510F823CAAE4D39E8C45C84D272F3D28E3F6156E1E185C0F81D5812C9100E9C71CBE788966AC477A5B213BCE672D0'
+        }
+        $hashes = @($hashes | Sort-Object -Unique)
         if ($OptInExactTrust) {
             if ([int](Invoke-ParserSql $master "SELECT IS_SRVROLEMEMBER(N'sysadmin');" -Scalar) -ne 1) {
                 throw 'EXISTING_ADMINISTRATIVE_PERMISSION_REQUIRED'
@@ -395,8 +399,8 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
         }
         $trusted = Invoke-ParserSql $master (
             "SELECT COUNT(*) FROM sys.trusted_assemblies WHERE hash IN (" +
-            $manifest.sqlServerHexLiteral + ',' + $manifest.scriptDomSqlServerHexLiteral + ');') -Scalar
-        if ([int]$trusted -ne 2) { throw 'EXACT_TRUST_REQUIRES_SEPARATE_COORDINATION' }
+            ($hashes -join ',') + ');') -Scalar
+        if ([int]$trusted -ne $hashes.Count) { throw 'EXACT_TRUST_REQUIRES_SEPARATE_COORDINATION' }
         $database = 'ToolbeltParserContract_' + [Guid]::NewGuid().ToString('N')
         if ($ledger) {
             $ledger.OwnedDatabases += [pscustomobject]@{Name=$database;Created=$false;Dropped=$false;State='CREATE_IN_PROGRESS'}

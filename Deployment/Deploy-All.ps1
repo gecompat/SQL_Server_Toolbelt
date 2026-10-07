@@ -23,6 +23,7 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+$DeploymentMode = $DeploymentMode.ToLowerInvariant()
 
 function Get-ManifestDependencies {
     param(
@@ -33,6 +34,8 @@ function Get-ManifestDependencies {
 
     $dependencies = [System.Collections.Generic.List[string]]::new()
     $inDependencies = $false
+    $dependencyEntries = 0
+    $dependencyIndent = $null
 
     foreach ($line in $Lines) {
         if (-not $inDependencies) {
@@ -43,23 +46,44 @@ function Get-ManifestDependencies {
                     continue
                 }
 
-                foreach ($match in [regex]::Matches(
+                $inlineMatches = [regex]::Matches(
                         $inline,
                         'module_id:\s*["'']?(?<id>[^"''},\s]+)'
-                    )) {
+                    )
+                if ($inlineMatches.Count -eq 0) {
+                    throw 'Nicht unterstützte dependencies-Struktur im Modulmanifest.'
+                }
+                foreach ($match in $inlineMatches) {
                     $dependencies.Add($match.Groups['id'].Value)
                 }
             }
             continue
         }
 
-        if ($line -match '^\S') {
+        if ($line -match '^\S' -and $line -notmatch '^-\s') {
             break
         }
-
-        if ($line -match '^\s*-\s*module_id:\s*["'']?(?<id>[^"''\s]+)') {
+        if ($line -match '^(?<indent> *)-(?:\s|$)') {
+            $indent = $Matches.indent.Length
+            if ($null -eq $dependencyIndent) { $dependencyIndent = $indent }
+            if ($indent -gt $dependencyIndent) { continue }
+            if ($indent -lt $dependencyIndent) {
+                throw 'Inkonsistente Einrückung der Manifest-Abhängigkeiten.'
+            }
+            $dependencyEntries++
+            $entry = $line.TrimStart().Substring(1).TrimStart()
+            foreach ($match in [regex]::Matches($entry, '(?:^|[,{]\s*)module_id:\s*["'']?(?<id>[^"''},\s]+)')) {
+                $dependencies.Add($match.Groups['id'].Value)
+            }
+        }
+        elseif ($line -match '^(?<indent> *)module_id:\s*["'']?(?<id>[^"''\s]+)' -and
+            $null -ne $dependencyIndent -and $Matches.indent.Length -eq ($dependencyIndent + 2)) {
             $dependencies.Add($Matches.id)
         }
+    }
+
+    if ($inDependencies -and $dependencyEntries -ne $dependencies.Count) {
+        throw 'Jede Manifest-Abhängigkeit muss genau eine module_id besitzen.'
     }
 
     return @($dependencies | Sort-Object -Unique)
@@ -145,12 +169,14 @@ function Write-SqlcmdTreeToTemp {
         $childInput = Write-SqlcmdTreeToTemp -Node $child -Values $Values -TemporaryInputs $TemporaryInputs
         $text = $text.Replace(':r "' + $child.Path + '"', ':r "' + $childInput + '"')
     }
-    foreach ($name in $Values.Keys) {
-        $text = $text.Replace('$(' + $name + ')', [string]$Values[$name])
-    }
-    if ($text -match '\$\([A-Za-z_][A-Za-z0-9_]*\)') {
-        throw "Nicht aufgelöste SQLCMD-Variable in '$($Node.Path)'."
-    }
+    $text = [regex]::Replace($text, '\$\((?<name>[A-Za-z_][A-Za-z0-9_]*)\)', {
+        param($match)
+        $name = $match.Groups['name'].Value
+        if (-not $Values.Contains($name)) {
+            throw "Nicht aufgelöste SQLCMD-Variable in '$($Node.Path)'."
+        }
+        return [string]$Values[$name]
+    })
 
     $inputPath = Join-Path ([System.IO.Path]::GetTempPath()) (
         "toolbelt-deploy-{0}.sql" -f [guid]::NewGuid().ToString('N')
@@ -279,16 +305,19 @@ function Get-ProvidedModuleVariables {
                 if ($value -notmatch '^0x(?:[0-9A-Fa-f]{2})+$') {
                     throw "'$name' für '$($Module.ModuleId)' muss ein gerades 0x-präfigiertes Hex-Binary sein."
                 }
+                $value = '0x' + $value.Substring(2)
             }
             elseif ($name -eq 'ExpectedInstalledAssemblyHash') {
                 if ($value -ne '0x' -and $value -notmatch '^0x[0-9A-Fa-f]{128}$') {
                     throw "'$name' für '$($Module.ModuleId)' muss 0x für erwartete Abwesenheit oder 0x gefolgt von einem SHA2-512-Hash aus 128 Hex-Zeichen sein."
                 }
+                $value = '0x' + $value.Substring(2)
             }
             elseif ($name -eq 'ExpectedComparisonAssemblyHash') {
                 if ($value -notmatch '^0x[0-9A-Fa-f]{128}$') {
                     throw "'$name' für '$($Module.ModuleId)' muss 0x gefolgt von einem SHA2-512-Hash aus 128 Hex-Zeichen sein."
                 }
+                $value = '0x' + $value.Substring(2)
             }
             elseif ($value -notmatch '^[A-Za-z0-9_+.-]+$') {
                 throw "SQLCMD-Variable '$name' für '$($Module.ModuleId)' enthält ungültige Zeichen."
