@@ -36,6 +36,24 @@ Weitere physische Kombinationen, Minimalrechte, über die zwei synthetischen
 Formen hinausgehende Maximalworkloads, Heap und Parallelität bleiben offen.
 Keine Release- oder Produktionszusage.
 
+## Owner- und ID-gebundener CI-Container-Cleanup
+
+Der normale EXIT-Cleanup liest volle64-Hex-ID und zufälligen32-Hex-Owner aus
+derselben Inspectaufnahme. Nur der eigene Owner erlaubt `rm` per ID; danach
+ist eine frische erfolgreiche Abwesenheitsprüfung am exakten Namen Pflicht.
+Ein Namensaustausch darf keinen fremden Container entfernen. Unlesbare oder
+ungültige Identität, fremder Owner, Entfernungsfehler oder unklarer Abschluss
+führen zu `JSON_POINTER_CI_CLEANUP_UNVERIFIED` und Fehlerstatus. Erfolgreicher
+Cleanup meldet `JSON_POINTER_CI_CLEANUP_VERIFIED` und erhält vorherige Fehler.
+Run-/Attempt-/SQL-Name und Owner werden vor privatem Setup geprüft; Lab bleibt
+vor diesen Schritten abgewiesen. Keine Runner-/Host-Recoverygarantie.
+
+Die bestehende source-extracted Probe prüft13 ausgewählte Pointerfälle
+mit synthetischen Antworten, ohne Docker/SQL. Echte Head-/Main-CI und feste
+Cleanupzeugen werden separat im PR nachgewiesen. Die vorhandene Drei-Versionen-
+Matrix, sechs CL-Kontexte, Lifecycle-/API-Fixtures und manuelle Lastgrenzen
+bleiben unverändert; keine neue Lastprobe oder Releasequalifikation.
+
 ## Vollständige Lifecycle-CI
 
 Der flüchtige Linuxadapter verwendet nach Contract/Safety/Client und Repeat

@@ -84,15 +84,22 @@ bleibt die installierte Baseline erhalten. Der SQLCMD-Verbindungsabbruch
 belegt keine Erhaltung der Aufrufertransaktion oder ihrer SET-Optionen;
 diese Zustandsoracles liegen im separaten physischen Labadapter.
 Der reguläre flüchtige CI-Container trägt eine zufällige Owner-Kennung. Beim
-normalen Prozessende wird er nur bei exakt passender Kennung entfernt; eine
+normalen Prozessende werden volle Container-ID und Kennung gemeinsam gelesen.
+Nur bei gültiger ID und exakt passender Kennung wird diese ID entfernt; eine
 frische Docker-Abfrage muss seine Abwesenheit bestätigen, sonst schlägt der
-CI-Job fehl. Das ist kein Recoverybeweis nach hartem Runner-/Hostausfall.
+CI-Job fehl. Die Run-/Attempt-/SQL-Identität wird vor Setup validiert, das
+private Verzeichnis erst nach fallibler Owner-/Kennwortvorbereitung angelegt.
+Bestätigter Cleanup meldet `JSON_POINTER_CI_CLEANUP_VERIFIED` und erhält den
+ursprünglichen Fehlerstatus; ein fremder Namensersatz wird nicht entfernt.
+Das ist kein Recoverybeweis nach hartem Runner-/Hostausfall.
 
-`python Tests/CI/test_owned_container_cleanup.py` prüft zusätzlich beide
-Modul-Cleanupfunktionen mit synthetischen Dockerantworten: eigener oder
-fremder Owner, Daemon-/Entfernungsfehler, bereits fehlender Container und
-Erhalt eines ursprünglichen Testfehlers. Die Dokumentations-CI startet diesen
-isolierten Test bei Änderungen an einem der beiden CI-Adapter oder dem Test.
+`python Tests/CI/test_owned_container_cleanup.py --module pointer` prüft die
+echte Pointer-Cleanupfunktion in13 synthetischen Fällen: eigener/fremder Owner,
+Daemon-/Inspect-/Entfernungs-/Nachlistenfehler, bereits fehlender oder verbleibender
+Container, ursprünglicher Fehler7, Namensaustausch und ungültige ID-/Ownerformen
+oder Extrafelder. Die bestehende Dokumentations-CI startet den gemeinsamen
+Test bei Änderungen am registrierten Adapter oder der Probe. Kein Docker/SQL
+und kein Hard-Interrupt-Nachweis; echte Head-/Main-Zeugen separat im PR.
 
 Ein synthetischer View im zentralen Provider belegt zudem eine tatsächliche
 `sys.sql_expression_dependencies`-Referenz. Deploy und Uninstall müssen ihn
