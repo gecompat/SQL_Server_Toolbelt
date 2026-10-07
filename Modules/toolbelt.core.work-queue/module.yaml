@@ -151,6 +151,8 @@ tests:
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   upgrade_2_0_setup: "Tests/Runtime/UpgradeFrom2_0.Setup.sql"
   upgrade_2_0_verify: "Tests/Runtime/UpgradeFrom2_0.Verify.sql"
+  repeat_current_setup: "Tests/Runtime/RepeatCurrent.Setup.sql"
+  repeat_current_verify: "Tests/Runtime/RepeatCurrent.Verify.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   multi_session: "Tests/Runtime/Concurrency.Contract.sql"
   github_hosted_linux: "../../.github/workflows/work-queue-runtime.yml"

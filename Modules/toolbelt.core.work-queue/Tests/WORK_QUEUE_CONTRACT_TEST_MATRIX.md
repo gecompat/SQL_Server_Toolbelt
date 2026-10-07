@@ -40,6 +40,13 @@ wurden entfernt.
 
 ## Neue Welle 2.1 – noch nicht native qualifiziert
 
+Der aktuelle `QueueUpgradeOnly`-Adapter ergänzt nach dem echten Upgrade zwei
+Queue2.1-Repeats mit allen sieben gespeicherten Statuswerten. Die direkte
+synthetische Fixture prüft Erhalt der fünf persistenten Queue-/WorkType-Tabellen
+einschließlich Rowversion, Payloads, Gatetokens, Identity und Barrier-FKs.
+Status dieses neuen Repeatnachweises: `not executed` bis zur aktuellen CI.
+Installierter Worker Control und beliebige Schemaänderungen sind nicht umfasst.
+
 | Bereich | Gezielter Nachweis | Status |
 |---|---|---|
 | Genuine Upgrade 2.0→2.1 | Original-Deployment mit 15 SQL-Dateien/14 Includes aus Commit62e7b06588b28c45c58f7ec335e4e5c45f120e3e, UpgradeFrom2_0.Setup/Verify auf gleicher Connection | 2019 Linux am 2026-10-04 bestanden |

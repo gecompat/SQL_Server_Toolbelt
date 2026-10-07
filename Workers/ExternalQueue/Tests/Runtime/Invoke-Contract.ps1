@@ -210,6 +210,15 @@ try{
   }
  }
  if($QueueUpgradeOnly){
+  $phase='queue-repeat-setup';Save-ManagedFixtureJournal
+  Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.work-queue/Tests/Runtime/RepeatCurrent.Setup.sql')
+  foreach($repeat in 1..2){
+   $phase='queue-repeat-current21';Save-ManagedFixtureJournal
+   Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.work-queue/Deployment/Deploy.sql')
+   $phase='queue-repeat-verify';Save-ManagedFixtureJournal
+   Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.work-queue/Tests/Runtime/RepeatCurrent.Verify.sql')
+  }
+  'PASS: queue2.1 repeat twice; all seven states and five persistent table snapshots preserved.'
   'PASS: genuine queue2.0 to2.1 focused upgrade; preserved rows, original active claim and legacy eight-field admission.'
   return
  }

@@ -1,5 +1,15 @@
 # Work-Queue-Testevidenz
 
+Der `QueueUpgradeOnly`-Scope des externen Workeradapters prüft zusätzlich zum
+echten Upgrade 2.0→2.1 zwei Wiederholungsdeployments auf Queue2.1 ohne
+installierten Worker Control. `RepeatCurrent.Setup.sql` ergänzt synthetische
+Zeilen mit allen sieben Statuswerten; `RepeatCurrent.Verify.sql` vergleicht
+vollständige binär serialisierte Zeilen aus fünf persistenten Tabellen,
+Tabellenidentität, Identitydefinition/-stand und vertrauenswürdige Checks/FKs.
+Die Zustände sind eine direkte isolierte Datenfixture, kein Handler- oder
+Schedulernachweis. Die neue Prüfung ist bis zur aktuellen CI `not executed`;
+der gemeinsame Queue-/Control-Repeat bleibt ein eigener Umsetzungsscope.
+
 Die Runtime-Suite verwendet ausschließlich synthetische Work Types, Payloads
 und Datenbanken. Sie prüft Vertrag, Parallelität, Redeployment, zentrale
 Installation, Datenverlustschutz und vollständigen Uninstall. Claim-Token und

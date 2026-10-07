@@ -121,8 +121,9 @@ BEGIN
                 , CONSTRAINT DF_WorkItem_RecoveryCount DEFAULT (0) FOR RecoveryCount;';
     END;
 
-    IF OBJECT_ID(N'toolbelt_core.CK_WorkItem_StateMetadata', N'C') IS NOT NULL
-        ALTER TABLE toolbelt_core.WorkItem DROP CONSTRAINT CK_WorkItem_StateMetadata;
+    /* Die endgültige W6c-Zustandsconstraint wird nach dem additiven Backfill
+       neu validiert. Eine vorübergehende V1-Constraint würde beim Repeat
+       gültige RETRY_WAIT-/BARRIER_WAIT-/DEAD_LETTER-Bestandszeilen abweisen. */
     IF OBJECT_ID(N'toolbelt_core.CK_WorkItem_RecoveryMetadata', N'C') IS NOT NULL
         ALTER TABLE toolbelt_core.WorkItem DROP CONSTRAINT CK_WorkItem_RecoveryMetadata;
 
@@ -131,39 +132,6 @@ BEGIN
     (
         (RecoveryCount = 0 AND LastRecoveredAtUtc IS NULL AND LastRecoveredBy IS NULL)
         OR (RecoveryCount > 0 AND LastRecoveredAtUtc IS NOT NULL AND LastRecoveredBy IS NOT NULL)
-    );
-    ALTER TABLE toolbelt_core.WorkItem WITH CHECK ADD CONSTRAINT CK_WorkItem_StateMetadata CHECK
-    (
-        (Status = ''QUEUED''
-         AND ClaimedAtUtc IS NULL AND ClaimedBy IS NULL AND ClaimToken IS NULL
-         AND LeaseDurationSeconds IS NULL AND LeaseUntilUtc IS NULL AND LastHeartbeatAtUtc IS NULL
-         AND CompletedAtUtc IS NULL AND CompletedBy IS NULL
-         AND FailedAtUtc IS NULL AND FailedBy IS NULL
-         AND FailureCode IS NULL AND FailureMessage IS NULL)
-        OR
-        (Status = ''CLAIMED''
-         AND ClaimedAtUtc IS NOT NULL AND ClaimedBy IS NOT NULL AND ClaimToken IS NOT NULL
-         AND ClaimGeneration > 0 AND LeaseDurationSeconds BETWEEN 5 AND 86400
-         AND LeaseUntilUtc IS NOT NULL AND LastHeartbeatAtUtc IS NOT NULL
-         AND CompletedAtUtc IS NULL AND CompletedBy IS NULL
-         AND FailedAtUtc IS NULL AND FailedBy IS NULL
-         AND FailureCode IS NULL AND FailureMessage IS NULL)
-        OR
-        (Status = ''COMPLETED''
-         AND ClaimedAtUtc IS NOT NULL AND ClaimedBy IS NOT NULL AND ClaimToken IS NOT NULL
-         AND ClaimGeneration > 0 AND LeaseDurationSeconds BETWEEN 5 AND 86400
-         AND LeaseUntilUtc IS NOT NULL AND LastHeartbeatAtUtc IS NOT NULL
-         AND CompletedAtUtc IS NOT NULL AND CompletedBy IS NOT NULL
-         AND FailedAtUtc IS NULL AND FailedBy IS NULL
-         AND FailureCode IS NULL AND FailureMessage IS NULL)
-        OR
-        (Status = ''FAILED''
-         AND ClaimedAtUtc IS NOT NULL AND ClaimedBy IS NOT NULL AND ClaimToken IS NOT NULL
-         AND ClaimGeneration > 0 AND LeaseDurationSeconds BETWEEN 5 AND 86400
-         AND LeaseUntilUtc IS NOT NULL AND LastHeartbeatAtUtc IS NOT NULL
-         AND CompletedAtUtc IS NULL AND CompletedBy IS NULL
-         AND FailedAtUtc IS NOT NULL AND FailedBy IS NOT NULL
-         AND FailureCode IS NOT NULL)
     );';
 
     IF NOT EXISTS
