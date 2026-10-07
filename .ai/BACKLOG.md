@@ -1731,6 +1731,17 @@ Die V0c-Kohorte umfasst verbindlich:
 | Nächster Schritt | Den unabhängig geprüften Lauf vom 2026-10-04 mit 16 erfolgreichen Pflichtfällen und einem `NOT_OBSERVED`-Race-Fall als begrenzte Evidenz führen; verbleibende Fälle gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` scopebezogen prüfen. Eigene Fixture-ACLs/Attribute und DB/Root/Trust wurden wiederhergestellt, separate frische Prüfung erfolgreich. Private Runtimeausgaben bleiben außerhalb des Repositorys. |
 
 
+Wartung 2026-10-07 (Codex), innerhalb des bestehenden `AP-2026-023`:
+Der Security-Cloud-Befund zur nicht durchgesetzten Delete-Tiefengrenze wird
+als Korrektur des vorhandenen Vertrags behandelt. Ein vollständiger
+begrenzter Prüfplan geht jeder Löschung voraus; danach werden ausschließlich
+geprüfte Einträge und Directories nichtrekursiv gelöscht. Keine neue SQL-
+Funktion, Identität, Rechtevergabe, Trustregistrierung oder Labausweitung.
+Der autonome Wartungsauftrag deckt die Vertragskorrektur ab. Neue begrenzte
+Frameworkfälle werden erst nach tatsächlicher Ausführung als erfolgreich
+geführt; Windows-SQL-, Caller-/NTFS-/Reparse-/Race- und Releasequalifikation
+bleiben gesonderte Gates. Historische Nachweise gelten für ihren damaligen Source.
+
 ## Besprochene Folgescopes ohne Implementierungsfreigabe
 
 Die Vorfreigabebesprechungen zu `TC-2026-032` und `TC-2026-034` bleiben

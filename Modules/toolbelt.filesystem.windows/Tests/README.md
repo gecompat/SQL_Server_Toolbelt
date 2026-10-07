@@ -1,5 +1,16 @@
 # Test-Evidence
 
+## Begrenzte Delete-Grenzkorrektur 2026-10-07
+
+Der bestehende [Framework-Harness](Framework/README.md) enthält zwölf kleine
+Fälle am tatsächlichen privaten Löschhelper: Nonrecursive, Tiefe0/1, eine
+überschrittene Directory-Tiefe und exakte beziehungsweise überschrittene
+Eintragsgrenzen. Er verlangt vollständigen Zielerhalt bei Preflightabweisung,
+korrekte Löschung bei gültigem Plan und eigene nichtrekursive Bereinigung.
+Native SQL-, Identitäts-, Reparse-/Race- und vollständige NTFS-Nachweise sind
+damit nicht ausgeführt. Lokale Compiler-/Filesystem-Proben bleiben wegen
+der aktuellen Hostgrenze ausgesetzt; exakte Head-CI ist ein separater Nachweis.
+
 Die Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 war auf SQL Server 2025 unter Windows erfolgreich. Sie umfasste .NET-Framework-4.8-CLR-Build, SHA2-512-Trust, lokales Deployment, alle Help-Verträge und die kontrollierte SQL-Authentication-Ablehnung im `Caller`-Modus ohne I/O-Spuren. Der Lauf `Ergänzender Windows-CLR-Preflight-Lauf` vom 2026-08-05 bestätigte kontrolliertes ServiceAccount-Verzeichnis- und Textschreiben mit konfiguriertem `WorkPath`.
 
 Die vollständige Windows-Authentication-/NTFS-ACL-/I/O-Matrix bleibt offen; die historische Zwei-Fall-Auth-Probe und der aktuelle ausgewählte Caller-/NTFS-Lauf sind unten getrennt belegt. Reale Pfade, Benutzer, NTFS-ACLs, Runtime-Ausgaben und Inhalte bleiben außerhalb des Repositorys.
@@ -36,7 +47,7 @@ Alle neun CLR-Einstiegspunkte verwenden im Caller-Pfad dieselbe Authentifizierun
 
 ## Aktueller begrenzter Nachweis 2026-10-04
 
-Der aktuelle Provider bestand einen privaten begrenzten produktiven C#-Sourcebuild und den sourcegebundenen Frameworklauf: neun NoOverwrite-Fälle/270 Assertions sowie sieben Streaming-Fälle/188 Assertions; darin enthalten ist die reine Caller-Policyprüfung mit fünf erlaubten und zehn abgewiesenen Werten. Vollständige Captures, Exit0, eigene Bereinigung und abschließende Sourcepins wurden geprüft. Die synthetischen Sequenzfälle beweisen keine echte Impersonation.
+Der Providerstand vom 2026-10-04 bestand einen privaten begrenzten produktiven C#-Sourcebuild und den sourcegebundenen Frameworklauf: neun NoOverwrite-Fälle/270 Assertions sowie sieben Streaming-Fälle/188 Assertions; darin enthalten ist die reine Caller-Policyprüfung mit fünf erlaubten und zehn abgewiesenen Werten. Vollständige Captures, Exit0, eigene Bereinigung und abschließende Sourcepins wurden geprüft. Die synthetischen Sequenzfälle beweisen keine echte Impersonation.
 
 Die private native Zwei-Fall-Authentifizierungsprüfung auf SQL Server 2025/CU8 unter Windows bestand: Windows-Caller (NTLM) schrieb drei synthetische Bytes über `USP_WriteBinaryFile`; SQL-Authentifizierung wurde mit `51540/1` und `CallerWindowsAuthenticationRequired` vor Datei-/Staging-I/O abgewiesen. Eigene DB-, Root- und Trustbereinigung und eine separate frische Prüfung bestanden, ohne Konfigurations-, Rechte- oder Owneränderungen. Dieser begrenzte Probe-Scope ist kein vollständiger Produkttest.
 
@@ -44,7 +55,7 @@ Aktueller kanonischer Projektbuild/Releaseartefakt, direkte CLR-/RunAs-Qualifika
 
 ## Ausgewählter Caller-/NTFS-Lauf 2026-10-04
 
-Der aktuelle Provider bestand auf SQL Server 2025/CU8 unter Windows 16 Pflichtfälle. Der Lauf verwendete alle neun öffentlichen Prozeduren und bestätigte Binary-Chunks, UTF-8 mit BOM, Transcoding nach UTF-16 LE, List/Create/Remove, die Ablehnung von SQL-Authentifizierung im Caller-Modus, Caller- und ServiceAccount-NTFS-Verweigerungen, NoOverwrite/Overwrite sowie Zielerhalt und Staging-Bereinigung nach Schreib- und Encodingfehlern. Die Caller-Identität wurde mit der authentifizierten SQL-Sitzung abgeglichen; die Caller-Verweigerungen wurden mit demselben Windows-Token gegengeprüft. Für ServiceAccount sind Produktaufrufe und Rückkehr zum unveränderten Zugriffszustand belegt, kein separater Service-Token-Test.
+Der Providerstand vom 2026-10-04 bestand auf SQL Server 2025/CU8 unter Windows 16 Pflichtfälle. Der Lauf verwendete alle neun öffentlichen Prozeduren und bestätigte Binary-Chunks, UTF-8 mit BOM, Transcoding nach UTF-16 LE, List/Create/Remove, die Ablehnung von SQL-Authentifizierung im Caller-Modus, Caller- und ServiceAccount-NTFS-Verweigerungen, NoOverwrite/Overwrite sowie Zielerhalt und Staging-Bereinigung nach Schreib- und Encodingfehlern. Die Caller-Identität wurde mit der authentifizierten SQL-Sitzung abgeglichen; die Caller-Verweigerungen wurden mit demselben Windows-Token gegengeprüft. Für ServiceAccount sind Produktaufrufe und Rückkehr zum unveränderten Zugriffszustand belegt, kein separater Service-Token-Test.
 
 Der zusätzliche Race-Fall blieb `NOT_OBSERVED` und liefert keinen Race-Nachweis. Eigene Testdatenbank, Root und Trust wurden bereinigt; drei ausschließlich eigene Fixture-ACLs und ein Readonly-Attribut wurden zurückgesetzt. Eine separate frische Prüfung bestätigte die Ressourcenabsenz und Trust-Wiederherstellung. Die unabhängige Prüfung bestätigte vollständige Prozesskanäle, Exit0, beendete/disposierte Children, unveränderte Sourcepins und das exakt gebundene Journal. Es wurden keine Konfiguration, SQL-Rechte oder Owner geändert. Private Journale, Identitäten, Pfade und Runtimeausgaben bleiben außerhalb des Repositorys.
 

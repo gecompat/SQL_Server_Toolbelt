@@ -119,4 +119,24 @@ for mode in ("NTLM", "KERBEROS", "DIGEST", "BASIC", "NEGOTIATE"):
 if auth.count("String.Equals(value,") != 5 or "Impersonate(" in auth or "sys.dm_" in auth:
     raise SystemExit("Caller-Auth-Guard darf weder I/O noch DMV-Abhaengigkeit erweitern.")
 
+# Der bestehende Löschvertrag darf die begrenzte Vorprüfung nicht umgehen.
+remove_start = source.index("public static void RemoveDirectory(")
+remove_end = source.index("private static Root GetRoot(", remove_start)
+remove = source[remove_start:remove_end]
+for marker in (
+    'RemoveDirectoryBounded(root.RootPath, path, recursive, maxDepth, maxEntries)',
+    'if (plan.Count >= maxEntries) Fail("EntryLimitExceeded")',
+    'if (current.Depth >= maxDepth) Fail("DepthLimitExceeded")',
+    'for (int index = plan.Count - 1; index >= 0; index--)',
+    'Directory.Delete(entry.Path, false)',
+    'Directory.Delete(path, false)',
+    'Fail("DirectoryTreeChanged")',
+):
+    if marker not in remove:
+        raise SystemExit("Begrenzter RemoveDirectory-Vertrag fehlt: " + marker)
+if "Directory.Delete(path, recursive)" in remove or "Enumerate(path, recursive, maxDepth)" in remove:
+    raise SystemExit("RemoveDirectory darf keinen ungeprüften rekursiven Delete verwenden.")
+if remove.index('Fail("DirectoryNotEmpty")') > remove.index('Directory.Delete(entry.Path, false)'):
+    raise SystemExit("Alle fachlichen Limitprüfungen müssen vor der ersten Löschung liegen.")
+
 print("Windows filesystem static contract passed.")

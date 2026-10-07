@@ -149,7 +149,56 @@ namespace Toolbelt.Filesystem.Windows
         public static void RemoveDirectory(string rootAlias, string relativePath, bool recursive, int maxDepth, int maxEntries, string executionIdentity)
         {
             if (maxDepth < 0 || maxEntries < 1) Fail("InvalidListLimit"); Root root = GetRoot(rootAlias, "AllowDelete"); string path = Resolve(root.RootPath, relativePath, true); if (Same(root.RootPath, path)) Fail("RootDeletionForbidden");
-            RunAs(executionIdentity, delegate { AssertNoReparsePoint(root.RootPath, path); if (!Directory.Exists(path)) Fail("DirectoryNotFound"); int count = 0; foreach (string item in Enumerate(path, recursive, maxDepth)) { if (++count > maxEntries) Fail("EntryLimitExceeded"); if ((File.GetAttributes(item) & FileAttributes.ReparsePoint) != 0) Fail("ReparsePointForbidden"); } if (!recursive && count > 0) Fail("DirectoryNotEmpty"); Directory.Delete(path, recursive); }); SendAction(rootAlias, relativePath, "removed");
+            RunAs(executionIdentity, delegate { RemoveDirectoryBounded(root.RootPath, path, recursive, maxDepth, maxEntries); }); SendAction(rootAlias, relativePath, "removed");
+        }
+
+        // Vollständiger begrenzter Prüfplan vor der ersten Mutation. Ein Directory
+        // jenseits der Traversierungstiefe wird abgewiesen, niemals unbesehen an
+        // Directory.Delete(..., true) weitergereicht. Startdirectory hat Tiefe 0.
+        private static void RemoveDirectoryBounded(string rootPath, string path, bool recursive, int maxDepth, int maxEntries)
+        {
+            AssertNoReparsePoint(rootPath, path);
+            if (!Directory.Exists(path)) Fail("DirectoryNotFound");
+            List<RemovalEntry> plan = new List<RemovalEntry>();
+            Queue<PathDepth> queue = new Queue<PathDepth>();
+            queue.Enqueue(new PathDepth { Path = path, Depth = 0 });
+            while (queue.Count != 0)
+            {
+                PathDepth current = queue.Dequeue();
+                AssertNoReparsePoint(rootPath, current.Path);
+                foreach (string item in Directory.EnumerateFileSystemEntries(current.Path))
+                {
+                    // Vergleich vor Increment/Allokation vermeidet auch int-Overflow.
+                    if (plan.Count >= maxEntries) Fail("EntryLimitExceeded");
+                    FileAttributes attributes = File.GetAttributes(item);
+                    if ((attributes & FileAttributes.ReparsePoint) != 0) Fail("ReparsePointForbidden");
+                    bool isDirectory = (attributes & FileAttributes.Directory) != 0;
+                    if (recursive && isDirectory)
+                    {
+                        if (current.Depth >= maxDepth) Fail("DepthLimitExceeded");
+                        queue.Enqueue(new PathDepth { Path = item, Depth = current.Depth + 1 });
+                    }
+                    plan.Add(new RemovalEntry { Path = item, IsDirectory = isDirectory });
+                }
+            }
+            if (!recursive && plan.Count != 0) Fail("DirectoryNotEmpty");
+
+            // Umgekehrte BFS-Reihenfolge entfernt nur vorher geprüfte Nachfahren.
+            // Frische Reparse-/Typprüfung begrenzt Änderungen am Plan. Neue Kinder
+            // bleiben durch nichtrekursives Delete erhalten; bei I/O-/Racefehlern
+            // können bereits entfernte geprüfte Einträge nicht rollbackt werden.
+            for (int index = plan.Count - 1; index >= 0; index--)
+            {
+                RemovalEntry entry = plan[index];
+                AssertNoReparsePoint(rootPath, entry.Path);
+                FileAttributes attributes = File.GetAttributes(entry.Path);
+                if ((attributes & FileAttributes.ReparsePoint) != 0) Fail("ReparsePointForbidden");
+                if (((attributes & FileAttributes.Directory) != 0) != entry.IsDirectory) Fail("DirectoryTreeChanged");
+                if (entry.IsDirectory) Directory.Delete(entry.Path, false);
+                else File.Delete(entry.Path);
+            }
+            AssertNoReparsePoint(rootPath, path);
+            Directory.Delete(path, false);
         }
 
         private static Root GetRoot(string alias, string requiredFlag) { if (String.IsNullOrWhiteSpace(alias)) Fail("RootAliasRequired"); using (SqlConnection connection = new SqlConnection("context connection=true")) using (SqlCommand command = connection.CreateCommand()) { command.CommandText = "SELECT RootPath, WorkPath FROM toolbelt_filesystem.FileSystemRoot WHERE RootAlias = @Alias AND IsActive = 1 AND " + requiredFlag + " = 1;"; command.Parameters.Add("@Alias", SqlDbType.NVarChar, 128).Value = alias; connection.Open(); using (SqlDataReader reader = command.ExecuteReader()) { if (!reader.Read()) Fail("RootNotAuthorized"); return new Root { RootPath = reader.GetString(0), WorkPath = reader.IsDBNull(1) ? null : reader.GetString(1) }; } } }
@@ -306,6 +355,7 @@ namespace Toolbelt.Filesystem.Windows
         private static bool Same(string left, string right) { return String.Equals(Path.GetFullPath(left).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), Path.GetFullPath(right).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), StringComparison.OrdinalIgnoreCase); }
         private static void Fail(string code) { throw new InvalidOperationException("TBXFS:" + code); }
         private sealed class Root { public string RootPath; public string WorkPath; }
+        private sealed class RemovalEntry { public string Path; public bool IsDirectory; }
         private sealed class ListedEntry { public long Ordinal; public string RelativePath; public string EntryType; public long SizeBytes; public DateTime LastWriteTimeUtc; public bool IsReparsePoint; }
         private sealed class PathDepth { public string Path; public int Depth; }
     }
