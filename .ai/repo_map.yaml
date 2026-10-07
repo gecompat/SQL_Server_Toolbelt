@@ -641,6 +641,7 @@ change_impact:
         - markdown_links
     integer_base_contract:
       paths:
+        - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.conversion.integer-base/**
         - Documentation/Architecture/INTEGER_BASE_MODULE_DESIGN.md
         - Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
