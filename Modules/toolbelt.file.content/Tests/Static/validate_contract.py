@@ -18,6 +18,9 @@ required = (
     "Tests/Runtime/FileContent.Contract.sql",
     "Tests/Runtime/RootBoundary.Contract.sql",
     "Tests/Runtime/Lifecycle.Contract.sql",
+    "Tests/Runtime/RepeatCurrent.Contract.sql",
+    "Tests/Runtime/RepeatCurrent.Capture.sql",
+    "Tests/Runtime/RepeatCurrent.Assert.sql",
     "module.yaml",
 )
 missing = [path for path in required if not (root / path).is_file()]
@@ -101,5 +104,24 @@ for source in (binary_source, text_source):
         raise SystemExit("OPENROWSET-Fehler muss einen Kontext vor der Engine-Meldung ausgeben.")
 if "@HeaderProviderError" not in text_source or "@ContentProviderError" not in text_source:
     raise SystemExit("Die beiden OPENROWSET-Fehlerpfade müssen eindeutige Variablen im Procedure-Scope verwenden.")
+
+repeat_source = (root / "Tests/Runtime/RepeatCurrent.Contract.sql").read_text("utf-8")
+repeat_capture = (root / "Tests/Runtime/RepeatCurrent.Capture.sql").read_text("utf-8")
+repeat_assert = (root / "Tests/Runtime/RepeatCurrent.Assert.sql").read_text("utf-8")
+for include, count in ((":r Deploy.sql", 2),
+                       (":r ../Tests/Runtime/RepeatCurrent.Capture.sql", 3),
+                       (":r ../Tests/Runtime/RepeatCurrent.Assert.sql", 2)):
+    if repeat_source.count(include) != count:
+        raise SystemExit("Befüllter Repeat muss zweimal das echte Deployment mit denselben Orakeln ausführen.")
+for marker in ("CONVERT(varbinary(max), RootPath)", "CONVERT(varbinary(max), Description)",
+               "CreatedAt", "sys.identity_columns", "last_value", "IDENT_CURRENT",
+               "sys.columns", "sys.indexes", "sys.index_columns", "sys.key_constraints",
+               "sys.default_constraints", "sys.check_constraints", "sys.foreign_keys",
+               "sys.foreign_key_columns", "sys.triggers", "sys.database_permissions",
+               "sys.extended_properties"):
+    if marker not in repeat_capture:
+        raise SystemExit(f"Repeat-Snapshot-Vertrag fehlt: {marker}")
+if repeat_assert.count("EXCEPT") != 2 or "N'MS_Description'" not in repeat_assert:
+    raise SystemExit("Repeat muss bidirektional vergleichen und die kanonische Beschreibung separat prüfen.")
 
 print("File Content statische Vertragsprüfung: erfolgreich")

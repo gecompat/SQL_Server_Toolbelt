@@ -37,6 +37,14 @@ Fortsetzungsauftrag. Der native Verbundnachweis oben ist bestanden. Finale
 Head-CI und tatsächlicher Merge sind im PR nachvollziehbar; ein noch laufender
 oder fehlgeschlagener Check ist keine Integrationsevidenz.
 
+Datierter Fortsetzungsauftrag 2026-10-07: Der Benutzer hebt die Pause mit
+„Fortsetzen. Lies aber Regelwerk neu“ auf. Native Regelkette, Foundation und
+relevante Projektregeln wurden neu gelesen; `main` einschließlich PR285 und
+die Modulquellen wurden abgeglichen. Die nächste Wartungswelle ergänzt den
+befüllten File-Content-Repeat ausschließlich als Test-/Evidenzscope unter
+der vorhandenen Deploymentfreigabe. Neue öffentliche SQL-Funktionen bleiben
+einzeln freigabepflichtig; lokale SQL-/Dockerläufe bleiben ausgesetzt.
+
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
 Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene

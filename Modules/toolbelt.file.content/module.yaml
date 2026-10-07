@@ -129,6 +129,9 @@ tests:
   contract: "Tests/Runtime/FileContent.Contract.sql"
   root_boundary: "Tests/Runtime/RootBoundary.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
+  repeat_current: "Tests/Runtime/RepeatCurrent.Contract.sql"
+  repeat_capture: "Tests/Runtime/RepeatCurrent.Capture.sql"
+  repeat_assert: "Tests/Runtime/RepeatCurrent.Assert.sql"
 validation_evidence:
   - date: "2026-08-01"
     workflow: "https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356"

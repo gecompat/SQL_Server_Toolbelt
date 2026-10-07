@@ -24,6 +24,15 @@
 | LC-001 | Schema `toolbelt_file` existiert | Deployment erfolgreich |
 | LC-002 | Tabelle `FileContentRootAllowlist` existiert | Konfiguration bereit |
 | LC-003 | Procedures `USP_LoadBinaryFile` und `USP_LoadTextFile` existieren | Öffentliche Verträge bereit |
+| LC-004 | Zwei echte 1.0.0-Repeats mit vier synthetischen Allowlist-Zeilen | Exakte UTF-16-Bytes, NULLs, Auditzeiten und aktive/inaktive Zustände unverändert |
+| LC-005 | Gelöschte höchste Identity, Katalog und regulärer Folgeinsert | Identity inklusive verbrauchtem Wert, Objekt-/Schema-/Spalten-/Index-/Constraint-/Trigger- und vorhandene Berechtigungsmetadaten erhalten |
+| LC-006 | Veraltete kanonische Beschreibung und zusätzliche Annotationen | Nur Tabellen-`MS_Description` wird erneuert; übrige Properties bleiben gleich |
+
+LC-004 bis LC-006 verwenden `RepeatCurrent.Contract.sql` in eigenen leeren
+Testdatenbanken lokal/zentral ohne Datei-I/O, Serverkonfiguration oder Grants.
+Linux-CI: native Default-CLs 2019/150, 2022/160, 2025/170. Zusätzliche CLs,
+Windows, nichtleere Benutzergrants, Minimalrechte, unbekannte Schemas und
+historische Versionsmigrationen sind dadurch nicht qualifiziert.
 
 ## Contract-Tests (ohne echtes Dateisystem)
 

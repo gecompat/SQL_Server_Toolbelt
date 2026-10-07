@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-07 – Befüllte File-Content-Repeats prüfen
+
+- Ein zusätzlicher Lifecycle-Contract führt zwei echte versionsgleiche
+  Deploys mit aktiven/inaktiven synthetischen Allowlist-Zeilen aus. Exakte
+  Daten, Auditzeiten, verbrauchte Identitywerte, Katalog und vorhandene
+  Berechtigungsmetadaten werden verglichen; die kanonische Tabellenbeschreibung
+  wird separat geprüft. Source, öffentliche API und Deploy bleiben gleich.
+- Der vorhandene Linuxadapter führt den Tabellenrepeat lokal und zentral
+  vor seiner bestehenden Datei-I/O-Konfiguration aus. Windows, weitere CLs,
+  nichtleere Benutzergrants, Minimalrechte und historische Migrationen bleiben
+  offen; `partially validated` und `unreleased` bleiben bestehen.
+
 ## 2026-10-07 – Veröffentlichungsnachweise und freiwillige Fehlermeldungen
 
 - Das kanonische Modulmodell verbindet veröffentlichte Versionen mit exaktem

@@ -6,6 +6,7 @@
 |---|---|---|
 | Statische Vertragsprüfung | Artefakte, Vertragsmarker und Signatur | `Tests/Static/validate_contract.py` |
 | Lifecycle-Contract | Objekte existieren im Ziel-Compatibility-Level | `Tests/Runtime/Lifecycle.Contract.sql` |
+| Befüllter Repeat | Zwei echte versionsgleiche Deploys; exakte Zeilen, Identity und Katalog | [RepeatCurrent.Contract.sql](Runtime/RepeatCurrent.Contract.sql) mit gemeinsamem [Snapshot](Runtime/RepeatCurrent.Capture.sql) und [Orakel](Runtime/RepeatCurrent.Assert.sql) |
 | File-Content-Contract | Hilfe-Contract, Pfadvalidierung, Allowlist, Traversal | `Tests/Runtime/FileContent.Contract.sql` |
 | Root-Grenzvertrag | Literale Verzeichnisgrenzen, Unicode, Leerzeichen und beide Fassaden | [RootBoundary.Contract.sql](Runtime/RootBoundary.Contract.sql), vom File-Content-Contract eingebunden |
 
@@ -34,6 +35,29 @@ sqlcmd -S localhost -d ToolbeltFileContentTest -i FileContent.Contract.sql \
 ```
 
 ## Hinweise
+
+- Der befüllte Repeat läuft ausschließlich auf einer eigenen leeren,
+  installierten Test-Allowlist. Aus `Modules/toolbelt.file.content/Deployment`
+  mit `sqlcmd -i ../Tests/Runtime/RepeatCurrent.Contract.sql -v DeploymentMode=local`
+  beziehungsweise `central` aufrufen. Die Session hält ihre Snapshots über
+  beide echten Deploys. Kein Datei-I/O, CLR, Konfigurationsänderung oder Grant.
+- Vier synthetische Zeilen enthalten aktive/inaktive Roots, NULL/leere und
+  Unicode-/Trailing-Space-Texte sowie feste Auditzeiten. Eine zusätzlich
+  gelöschte höchste Identity und der nächste reguläre Insert prüfen den
+  Zähler unabhängig von `MAX(RootPathId)`. Die Daten werden bytegenau verglichen.
+- Der Katalogsnapshot vergleicht Objekt-/Schemaidentität, Spalten, Identity,
+  Indizes samt Schlüsselspalten, Constraints, Trigger, vorhandene
+  Berechtigungsmetadaten und Extended Properties. Die Tabellenbeschreibung
+  wird absichtlich veraltet; ausschließlich diese `MS_Description` muss der
+  Deploy kanonisch erneuern. Eigene zusätzliche Tabellen-/Spaltenannotation
+  muss erhalten bleiben. Es werden keine nichtleeren Benutzergrants erzeugt;
+  deren Erhalt und echte Minimalrechte bleiben offen.
+- Der bestehende Linuxadapter führt den Repeat vor der I/O-Konfiguration in
+  lokalem und zentralem Modus auf dem jeweiligen nativen Default-CL aus:
+  2019/150, 2022/160, 2025/170. Die anschließende bestehende Datei-Suite
+  qualifiziert davon getrennt ihre bisherige CL-Matrix. Fehler enden über
+  SQLCMD; die eigene disposable CI-Umgebung wird im vorhandenen EXIT-Trap
+  entfernt. Ein Hard-Interrupt-Cleanup wird daraus nicht abgeleitet.
 
 - Nur eine vorbereitete eigene Testdatenbank verwenden. Die Grenzmatrix
   verwendet eine vorhandene Allowlist-Zeile ohne Identity-Insert und
