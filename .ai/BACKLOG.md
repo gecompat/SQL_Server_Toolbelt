@@ -77,15 +77,22 @@ Der nächste konkrete Wartungsscope ist jetzt `EventLog`: dessen bestehende
 WorkType-Reaktivierung zuerst prüfen, anschließend den unveränderten aktiven
 Repeat. Keine neue öffentliche Funktion oder Änderung dieser Semantik.
 
-EventLog-Wartung in Umsetzung: Die ergänzte Testfixture erfasst alle 24
-Eventspalten und verbrauchte Identitywerte über zwei echte 1.0.0-Deploys.
-Der erste Deploy reaktiviert die zuvor über Register/Disable abweichend
-deaktivierte eigene WorkType-Registrierung kanonisch; der zweite muss diese
-vollständig einschließlich Rowversion erhalten. Fremde Registrierungen und
-ausgewählter Katalog bleiben unverändert. Setup-/Cleanup-APIresultsets werden
-privat aufgenommen; keine Source-/Deploy-/Provider-/Rechteänderung. Native
-Evidenz für diesen neuen Repeat steht noch aus. SecondSessionProvider ist
-parallel als nächster tabellenreiner Testscope vorbereitet.
+EventLog-Wartung: Der befüllte Repeat bestand am Commit
+`6f51078cfa1f13ace32212f07d46de8d55d39ef0` auf Linux2019/150,2022/160,
+2025/170 jeweils lokal/zentral
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37692309192)).
+Alle 24 Eventspalten und verbrauchte Identitywerte bleiben über zwei echte
+1.0.0-Deploys erhalten. Der erste reaktiviert die über Register/Disable
+abweichend deaktivierte eigene WorkType-Registrierung kanonisch; der zweite
+erhält die vollständige aktive Zeile einschließlich Rowversion. Andere
+Registrierungen, ausgewählter Katalog und eigene Beschreibungen bleiben gleich.
+Bestehende API-/Rollback-/Parallelitäts-/Consumer-/Uninstallfälle sowie eigene
+CI-Bereinigung bestanden. Finale Head-CI/Merge sind in
+[PR288](https://github.com/gecompat/SQL_Server_Toolbelt/pull/288) abzugleichen.
+Keine Source-/Deploy-/Provider-/Rechteänderung. Der nächste konkrete
+tabellenreine Wartungsscope ist jetzt `SecondSessionProvider`; neue Windows-,
+weitere Repeat-CL-, Benutzergrant-, Minimalrechte- und historische Nachweise
+bleiben getrennt.
 
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
@@ -103,7 +110,7 @@ Chatverlauf ersetzen diese Repositoryquellen nicht.
 |---|---|---|
 | 1 (gezielt bestanden) | `toolbelt.file.content` / `FileContentRootAllowlist` | Befüllter Repeat lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Windows, weitere Repeat-CLs, nichtleere Benutzergrants und echte Minimalrechte bleiben offen. Dieser Tabellenrepeat benötigt weder Datei-I/O noch Konfigurations- oder CLR-Änderungen. |
 | 2 (gezielt bestanden) | `toolbelt.core.execution-cancel` / `ExecutionCancellation` | Befüllte Repeats mit exakten Zeilen-, Rowversion- und ausgewählten Katalogvergleichen lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Neue Windows-Repeats, weitere CLs, nichtleere Benutzergrants, Minimalrechte und historische Übergänge bleiben offen. |
-| 3 | `toolbelt.core.event-log` / `EventLog` | Daten- und Katalogerhalt qualifizieren; der bestehende Vertrag registriert beziehungsweise reaktiviert seinen WorkType ausdrücklich. Eine abweichende Erhaltung deaktivierter Registrierung wäre zuerst fachlich zu klären. |
+| 3 (gezielt bestanden) | `toolbelt.core.event-log` / `EventLog` | Daten-/Identity-/ausgewählter Katalogerhalt und vertragsgemäße WorkType-Reaktivierung mit anschließend unverändertem aktivem Repeat lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Neue Windows-Repeats, weitere CLs, Benutzergrants, Minimalrechte und historische Übergänge bleiben offen. |
 | 4 | `toolbelt.core.second-session` / `SecondSessionProvider` | Deaktivierte Provider, Auditfelder und Rowversions zusätzlich zu vorhandenen Provider-/Servernamensprüfungen nachweisen; keine Provider- oder Rechteausweitung. |
 | 5 | `toolbelt.filesystem.windows` / `FileSystemRoot` | Befüllten Repeat unter bestehenden Windows-/Assembly-/Trustvoraussetzungen qualifizieren; fehlende Windows-Runtime nicht durch Offlineparser ersetzen. |
 
