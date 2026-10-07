@@ -38,10 +38,16 @@ nur diese eigene ID und verlangt frische exakte Namensabwesenheit.
 `BASE64_CI_CLEANUP_VERIFIED` und erhält den ursprünglichen Teststatus.
 Der Labzweig bleibt Container-No-op ohne Owner oder private Ablage.
 
+Das vorhandene Base64-Kollisionsorakel verlangt Fehlerstatus und
+die vollständige Kategorie `51044`. Erfolgreicher Exit mit diesem Text, andere
+oder fehlende Kategorien und längere Nummern zählen nicht als Nachweis. Beide
+Rohkanäle bleiben im Speicher; `BASE64_COLLISION_VERIFIED` bestätigt
+das Orakel. Der Harness prüft es in Runner- und Labmodus ohne neue SQL-Fixture.
+
 `python -B Tests/CI/test_owned_container_cleanup.py --module base64` prüft die
 tatsächliche Cleanupfunktion synthetisch einschließlich Fremdbestand,
 Namensaustausch, ungültiger Identität, unbekannter Sicht und Lab-Exit0/Exit7.
-Base64-/Base64URL-Verträge, SQL-Fixtures, bestehendes Kollisionsorakel,
+Base64-/Base64URL-Verträge und SQL-Fixtures,
 optionaler Performancepfad samt Defaults, Images, Readinessfrist, Matrix und
 Runtimeworkflow bleiben erhalten. Exakte Head-/Main-Ergebnisse stehen im PR;
 Hard-Interrupt-Recovery, Large-LOB-Qualifikation und Release bleiben getrennt.
