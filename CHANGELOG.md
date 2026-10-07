@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-07 – W2a-CI mit verifizierter eigener Bereinigung
+
+- W2a bindet seinen Runner vor dem Start an Version, Run, Attempt und Owner.
+  Cleanup entfernt nur die gemeinsam mit dem Label gelesene volle ID und
+  prüft frische Namensabwesenheit. Unbestätigter Cleanup endet Exit1;
+  bestätigte Bereinigung erhält den ursprünglichen Teststatus.
+- Gemeinsamer synthetischer Harness, Documentationgate und vorhandenes
+  Impact-Paket erfassen den Adapter. Lab-No-op, SQL-Verträge, Fixtures,
+  Kollisionsorakel, Bucket-Workload, Images, Bereitschaftsfrist, Matrix und
+  Runtimeworkflow bleiben erhalten.
+
 ## 2026-10-07 – JSON-Path-CI mit verifizierter eigener Bereinigung
 
 - W2b bindet seinen Runner vor dem Start an Version, Run, Attempt und Owner.

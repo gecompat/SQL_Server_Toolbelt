@@ -31,6 +31,22 @@ werden dadurch nicht belegt.
 
 ## Adapter und Zielversionen
 
+Der W2a-Adapter bindet seinen Runner vor dem Start an SQL-Version, Run,
+Attempt und Owner. Cleanup entfernt ausschließlich die gemeinsam mit dem
+Label gelesene volle ID und verlangt frische exakte Namensabwesenheit.
+Unbestätigter Cleanup meldet `W2A_CI_CLEANUP_UNVERIFIED` und Exit1;
+`W2A_CI_CLEANUP_VERIFIED` erhält den ursprünglichen Teststatus. Der Labzweig
+bleibt Container-No-op; Datenbankbereinigung beim Labtreiber.
+
+`python -B Tests/CI/test_owned_container_cleanup.py --module w2a` prüft
+die tatsächliche Cleanupfunktion synthetisch ohne Docker, SQL oder Lab,
+einschließlich Fremdbestand, Namensaustausch, ungültiger Identität, unbekannter
+Sicht und Lab-Exit0/Exit7. Fachliche SQL-Fixtures, drei Kollisionsorakel,
+Bucket-Workload, Images, Bereitschaftsfrist, Versions-/CL-Matrix und
+bestehender PR-/Push-/Manual-Workflow bleiben erhalten. Exakte Head-/Main-
+Ergebnisse stehen im PR; Hard-Interrupt-Recovery, Lab-, Minimalrechte- und
+Releasequalifikation bleiben getrennt.
+
 Der W2b-JSON-Path-Adapter bindet seinen Runner vor dem Start an SQL-Version,
 Run, Attempt und Owner. Cleanup entfernt ausschließlich die gemeinsam mit
 dem Label gelesene volle ID und verlangt frische exakte Namensabwesenheit.
