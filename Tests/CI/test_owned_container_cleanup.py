@@ -333,12 +333,29 @@ for module, error, title, kind, database_variable in (
     ("semantic_version", "51084", "Semantic-Version-Kollision", "collision", "collision_database"),
     ("base64", "51044", "Base64-Kollision", "collision", "collision_database"),
     ("generate_series", "51054", "Generate-Series-Kollision", "collision", "collision_database"),
+    ("date_spine", "51806", "Date-Spine-Uninstall", "uninstall", "database"),
+    ("date_spine", "51809", "Date-Spine-Dependency", "dependency", "preflight_database"),
+    ("date_spine", "51804", "Date-Spine-Kollision", "collision", "collision_database"),
 ):
     if module not in selected:
         continue
     witness = module.upper() + "_" + kind.upper() + "_VERIFIED"
     source = source_bytes[root / "Tests/CI" / modules[module][0]].decode("utf-8-sig").replace("\r\n", "\n")
-    begin = source.index(f'set +e\n{kind}_output="$(run_file ')
+    helper_definition = ""
+    expected_file, expected_variable, expected_value = "Deploy.sql", "DeploymentMode", "local"
+    deployment_directory = "/synthetic/deployment"
+    if module == "date_spine":
+        helper = "uninstall_date_spine" if kind == "uninstall" else "deploy_date_spine"
+        output_variable = {"uninstall": "blocked_uninstall_output", "dependency": "missing_dependency_output", "collision": "collision_output"}[kind]
+        helper_begin = source.index(helper + "() {\n")
+        helper_end = source.index("\n}\n", helper_begin) + 2
+        helper_definition = source[helper_begin:helper_end]
+        deployment_directory = "/workspace/Modules/toolbelt.datetime.date-spine/Deployment"
+        if kind == "uninstall":
+            expected_file, expected_variable, expected_value = "Uninstall.sql", "ConfirmNoExternalConsumers", "0"
+        begin = source.index(f'set +e\n{output_variable}="$({helper} ')
+    else:
+        begin = source.index(f'set +e\n{kind}_output="$(run_file ')
     end = source.index(f'\necho "{witness}"', begin) + len(f'\necho "{witness}"')
     block = source[begin:end]
     guard_cases = 0
@@ -360,14 +377,15 @@ for module, error, title, kind, database_variable in (
 TBX_SQL_TARGET={mode}
 invalid_file={shlex.quote(invalid_path.relative_to(root).as_posix())}
 {database_variable}=tbx_synthetic_preflight
-deployment_directory=/synthetic/deployment
+deployment_directory={shlex.quote(deployment_directory)}
 run_file() {{
-    if [[ "$#" != 5 || "$1" != "${{{database_variable}}}" || "$2" != "$deployment_directory" || "$3" != Deploy.sql || "$4" != -v || "$5" != DeploymentMode=local ]]; then : > "$invalid_file"; return 97; fi
+    if [[ "$#" != 5 || "$1" != "${{{database_variable}}}" || "$2" != "$deployment_directory" || "$3" != {expected_file} || "$4" != -v || "$5" != {expected_variable}={expected_value} ]]; then : > "$invalid_file"; return 97; fi
     printf '%s\\n' '{category}' >&2
     return {result_code}
 }}
 docker() {{ : > "$invalid_file"; return 97; }}
 run_query() {{ : > "$invalid_file"; return 97; }}
+{helper_definition}
 {block}
 exit 0
 '''

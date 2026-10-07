@@ -38,10 +38,19 @@ entfernt nur diese eigene ID und verlangt frische exakte Namensabwesenheit.
 `DATE_SPINE_CI_CLEANUP_VERIFIED` und erhält den ursprünglichen Teststatus.
 Der Labzweig bleibt Container-No-op ohne Owner oder private Ablage.
 
+Die drei bestehenden Date-Spine-Negativorakel verlangen Fehlerstatus und
+die vollständige Kategorie: Uninstall-Dependency `51806`, fehlende Deployment-
+Dependencies `51809` und fremder Zielname `51804`. Erfolgreicher Exit mit
+diesem Text, andere/fehlende Kategorien und längere Nummern sind kein Nachweis.
+Beide Rohkanäle bleiben im Speicher. `DATE_SPINE_UNINSTALL_VERIFIED`,
+`DATE_SPINE_DEPENDENCY_VERIFIED` und `DATE_SPINE_COLLISION_VERIFIED` bestätigen
+die Orakel. Der Harness prüft die tatsächlichen Helper und Orakel in Runner-
+und Labmodus; die vorhandenen SQL-Fixtures werden nicht erweitert.
+
 `python -B Tests/CI/test_owned_container_cleanup.py --module date_spine`
 prüft die tatsächliche Cleanupfunktion synthetisch einschließlich Fremdbestand,
 Namensaustausch, ungültiger Identität, unbekannter Sicht und Lab-Exit0/Exit7.
-Date-Spine-SQL, beide Dependencies, Fixtures und bestehende Negativorakel,
+Date-Spine-SQL, beide Dependencies und Fixtures,
 Images, Readinessfrist, Matrix und Runtimeworkflow bleiben erhalten.
 Exakte Head-/Main-Ergebnisse stehen im PR; Hard-Interrupt-Recovery und
 Releasequalifikation bleiben getrennt.
