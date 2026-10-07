@@ -105,6 +105,9 @@ for lifecycle in ("Deploy.sql", "Uninstall.sql"):
         raise SystemExit("Lifecycle muss Consumergrenze vor und unter Lifecyclelock prüfen: " + lifecycle)
 
 deploy = (root / "Deployment/Deploy.sql").read_text(encoding="utf-8")
+release_manifest = re.search(r"CREATE TABLE #tbx_WorkQueueReleaseObjects\s*\(([\s\S]*?)\);", deploy).group(1)
+if "CONSTRAINT" in release_manifest.upper() or not re.search(r"PRIMARY KEY\s*\(ReleaseVersion,\s*SchemaName,\s*ObjectName\)", release_manifest):
+    raise SystemExit("Temporäres Releasemanifest benötigt anonymen Schlüssel für parallele Actors")
 guard = (root / "Deployment/RepeatInstalledControl.Preflight.sql").read_text(encoding="utf-8")
 cleanup = (root / "Deployment/RepeatInstalledControl.Cleanup.sql").read_text(encoding="utf-8")
 if deploy.count("@RepeatGuard,N'@Fence bit',@Fence=0") != 2 or deploy.count("@RepeatGuard,N'@Fence bit',@Fence=1") != 1:

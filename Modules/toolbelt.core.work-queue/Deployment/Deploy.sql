@@ -45,8 +45,7 @@ CREATE TABLE #tbx_WorkQueueReleaseObjects
     , ObjectName sysname NOT NULL
     , ObjectType char(2) NOT NULL
     , LevelType nvarchar(16) NOT NULL
-    , CONSTRAINT PK_tbx_WorkQueueReleaseObjects
-          PRIMARY KEY (ReleaseVersion, SchemaName, ObjectName)
+    , PRIMARY KEY (ReleaseVersion, SchemaName, ObjectName)
 );
 INSERT INTO #tbx_WorkQueueReleaseObjects
     (ReleaseVersion,SchemaName,ObjectName,ObjectType,LevelType)
