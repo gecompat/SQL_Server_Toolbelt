@@ -136,3 +136,10 @@ pwsh -File .\Deployment\Tests\Test-SqlExport.ps1
 ```
 
 Sie erzeugt ausschließlich synthetische Dateien und führt kein SQL aus.
+
+Der fokussierte [befüllte Exportrepeat](Tests/README.md) konsumiert die echte
+erzeugte Datei für neun CLR-freie Module im bestehenden externen Linux2019-
+CI-Ziel. Er prüft lokal/zentral 14 Tabellen über zwei Wiederholungen in frischen
+Sitzungen. Sein begrenzter Batchconsumer qualifiziert weder SSMS noch
+`sqlcmd.exe`, Windows oder den vollständigen 44-Modul-Export. Native Ergebnisse
+werden erst nach tatsächlicher Head-CI erfasst.

@@ -115,6 +115,19 @@ von neun CLR-freien Modulen mit 14 der 15 Tabellen als nächster Testscope
 vorbereitet; Windows-FileSystemRoot und vollständiger 44-Modul-Export bleiben
 getrennt. Keine neue Funktions-, Rechte-, Provider- oder Trustfreigabe.
 
+Gemeinsamer Exportrepeat, vorbereitet 2026-10-08: Der neue Testadapter
+konsumiert die echten hashgebundenen `-OutputSqlFile`-Exporte der neun
+CLR-freien Module lokal/zentral in frischen Sitzungen. Alle 14 Tabellen werden
+synthetisch befüllt und über zwei Repeats vollständig verglichen; erwartete
+File-Content-Beschreibungsnormalisierung und EventLog-WorkType-Reaktivierung
+sind separat abgegrenzt. Er nutzt ausschließlich das bestehende externe
+Linux2019/CL150-CI-Ziel. Offlineexport und unabhängige Reviews sind bestanden;
+native gemeinsame Runtime ist bis tatsächlicher exakter Head-CI `not executed`.
+Details und offene Grenzen stehen in
+[Deploymenttests](../Deployment/Tests/README.md). Windows-FileSystemRoot und
+vollständiger 44-Modul-Export bleiben getrennte Nachweise; Source, Deploy und
+öffentliche SQL-API werden nicht geändert.
+
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
 Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene

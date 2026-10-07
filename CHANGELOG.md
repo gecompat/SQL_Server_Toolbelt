@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-10-08 – Befüllte exportierte Modulfolge gemeinsam prüfen
+
+- Ein begrenzter Adapter verwendet den echten SQL-Export von neun CLR-freien
+  Modulen für Erstinstallation und zwei befüllte Repeats lokal/zentral in
+  frischen Sitzungen. Alle 14 Tabellen, Rowversions, Audits, Identitywerte und
+  ausgewählte Katalog-/Annotationsmetadaten werden privat verglichen.
+- Die zwei bestehenden kanonischen Normalisierungen im ersten Repeat werden
+  separat geprüft; der zweite muss vollständig unverändert sein. Eigene
+  Datenbanken werden nur nach frischer Besitz-/Verbraucherprüfung gelöscht.
+- Der vorhandene externe Linux2019/CL150-CI-Job erhält den Test und passende
+  Source-/Exportpfade. Keine Source-, Deploy-, API-, Infrastruktur-, Provider-,
+  Rechte- oder Truständerung. Offlineprüfungen bestanden; neue native Evidenz,
+  Windows, weitere Matrix und SQLCMD-/44-Modul-Qualifikation bleiben getrennt.
+
 ## 2026-10-07 – Deaktivierten SecondSessionProvider über Deploys erhalten
 
 - Zwei echte 1.1.0-Repeats vergleichen alle acht Spalten eines deaktivierten

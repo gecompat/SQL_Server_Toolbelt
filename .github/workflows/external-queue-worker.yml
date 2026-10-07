@@ -3,6 +3,21 @@ name: External Queue Worker
 on:
   pull_request:
     paths:
+      - "Deployment/Deploy-All.ps1"
+      - "Deployment/Tests/Invoke-ExportPopulatedRepeat.ps1"
+      - "Deployment/Tests/Runtime/ExportPopulated*.sql"
+      - "Modules/toolbelt.file.content/Source/**"
+      - "Modules/toolbelt.file.content/Deployment/**"
+      - "Modules/toolbelt.file.content/module.yaml"
+      - "Modules/toolbelt.core.second-session/Source/**"
+      - "Modules/toolbelt.core.second-session/Deployment/**"
+      - "Modules/toolbelt.core.second-session/module.yaml"
+      - "Modules/toolbelt.core.result-table/Source/**"
+      - "Modules/toolbelt.core.result-table/Deployment/**"
+      - "Modules/toolbelt.core.result-table/module.yaml"
+      - "Modules/toolbelt.core.event-log/Source/**"
+      - "Modules/toolbelt.core.event-log/Deployment/**"
+      - "Modules/toolbelt.core.event-log/module.yaml"
       - "Workers/ExternalQueue/**"
       - "Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1"
       - "Documentation/Architecture/EXTERNAL_QUEUE_WORKER_CONTRACT.md"
@@ -21,6 +36,36 @@ on:
   push:
     branches: [main]
     paths:
+      - "Deployment/Deploy-All.ps1"
+      - "Deployment/Tests/Invoke-ExportPopulatedRepeat.ps1"
+      - "Deployment/Tests/Runtime/ExportPopulated*.sql"
+      - "Modules/toolbelt.core.execution-context/Source/**"
+      - "Modules/toolbelt.core.execution-context/Deployment/**"
+      - "Modules/toolbelt.core.execution-context/module.yaml"
+      - "Modules/toolbelt.core.result-table/Source/**"
+      - "Modules/toolbelt.core.result-table/Deployment/**"
+      - "Modules/toolbelt.core.result-table/module.yaml"
+      - "Modules/toolbelt.file.content/Source/**"
+      - "Modules/toolbelt.file.content/Deployment/**"
+      - "Modules/toolbelt.file.content/module.yaml"
+      - "Modules/toolbelt.core.execution-cancel/Source/**"
+      - "Modules/toolbelt.core.execution-cancel/Deployment/**"
+      - "Modules/toolbelt.core.execution-cancel/module.yaml"
+      - "Modules/toolbelt.core.work-type/Source/**"
+      - "Modules/toolbelt.core.work-type/Deployment/**"
+      - "Modules/toolbelt.core.work-type/module.yaml"
+      - "Modules/toolbelt.core.second-session/Source/**"
+      - "Modules/toolbelt.core.second-session/Deployment/**"
+      - "Modules/toolbelt.core.second-session/module.yaml"
+      - "Modules/toolbelt.core.work-queue/Source/**"
+      - "Modules/toolbelt.core.work-queue/Deployment/**"
+      - "Modules/toolbelt.core.work-queue/module.yaml"
+      - "Modules/toolbelt.core.event-log/Source/**"
+      - "Modules/toolbelt.core.event-log/Deployment/**"
+      - "Modules/toolbelt.core.event-log/module.yaml"
+      - "Modules/toolbelt.core.worker-control/Source/**"
+      - "Modules/toolbelt.core.worker-control/Deployment/**"
+      - "Modules/toolbelt.core.worker-control/module.yaml"
       - "Workers/ExternalQueue/**"
       - "Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1"
       - ".github/workflows/external-queue-worker.yml"
@@ -130,6 +175,13 @@ jobs:
           -ConnectionStringEnvironmentVariable TBX_WORKER_TEST_CONNECTION_STRING
           -ExpectedSqlVersion 2019
           -QueueUpgradeOnly
+      # Der Exporttest verwendet denselben eigenen Targetscope; keine neue
+      # Infrastruktur, Providerkonfiguration oder breitere Versionsmatrix.
+      - name: Execute populated nine-module SQL export repeats
+        shell: pwsh
+        run: >-
+          ./Deployment/Tests/Invoke-ExportPopulatedRepeat.ps1
+          -ConnectionStringEnvironmentVariable TBX_WORKER_TEST_CONNECTION_STRING
       - name: Cleanup owned synthetic target
         if: always()
         shell: bash
