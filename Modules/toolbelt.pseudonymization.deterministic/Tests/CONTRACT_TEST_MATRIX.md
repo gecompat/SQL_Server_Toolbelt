@@ -3,7 +3,7 @@
 ## Exakter Compatibility-Level-Opt-in der vorhandenen CI
 
 Die sechs vorhandenen Linux-Jobs setzen ihren validierten Compatibility Level
-vor dem ersten Deploy auf allen 13 eigenen Datenbanken, einschliesslich
+jeweils vor dem ersten SQL-Skript der 13 eigenen Datenbanken, einschliesslich
 Central-Consumer und historischer Kollisionsziele. Existenz und exakter Level
 werden frisch geprueft; fehlende Sicht, NULL oder Abweichung blockiert. Vor
 jedem SQL-Skript wird erneut geprueft, auch im erwarteten Fehlerpfad mit

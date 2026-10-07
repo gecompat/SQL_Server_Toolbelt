@@ -197,7 +197,7 @@ Aktuelle CI wird als separater PR-Mergegate am exakten neuen Head nachgewiesen;
 die Aufteilung allein ist kein erfolgreicher Runtime-Nachweis.
 
 Nachtrag 2026-10-07: Beim vorhandenen exakten CL-Opt-in werden jetzt alle
-13 eigenen Datenbanken unmittelbar nach CREATE und vor dem ersten Deploy
+13 eigenen Datenbanken jeweils unmittelbar nach CREATE und vor ihrem ersten SQL-Skript
 auf den gewählten Level gesetzt und frisch geprüft. Das umfasst Central-
 Consumer, genuine 1.0/1.1-Upgrades sowie die vorhandenen Future-/Casing-/
 Dependencyziele. Vor jedem SQL-Skript wird der Level erneut failclosed
