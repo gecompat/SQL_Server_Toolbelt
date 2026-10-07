@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-07 – Deaktivierten SecondSessionProvider über Deploys erhalten
+
+- Zwei echte 1.1.0-Repeats vergleichen alle acht Spalten eines deaktivierten
+  synthetischen Einzelproviders einschließlich Audit-/Text-/Rowversionbytes,
+  ausgewählten Katalog und eigene Tabellen-/Spaltenbeschreibungen.
+- Der vorhandene Linuxadapter ruft die neue Fixture lokal/zentral vor seiner
+  bestehenden Providerkonfiguration auf. Source, Deployment und API bleiben
+  gleich; der neue Test benötigt keinen RPC. Native neue Evidenz und offene
+  Windows-/Minimalrechte-/Benutzergrant-/historische Fälle bleiben getrennt.
+
 ## 2026-10-07 – EventLog-Datenerhalt und WorkType-Reaktivierung prüfen
 
 - Zwei echte versionsgleiche Deploys vergleichen alle 24 Eventspalten,

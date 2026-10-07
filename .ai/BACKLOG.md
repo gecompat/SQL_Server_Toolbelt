@@ -94,6 +94,17 @@ tabellenreine Wartungsscope ist jetzt `SecondSessionProvider`; neue Windows-,
 weitere Repeat-CL-, Benutzergrant-, Minimalrechte- und historische Nachweise
 bleiben getrennt.
 
+SecondSessionProvider-Wartung in Umsetzung: Zwei echte versionsgleiche
+1.1.0-Deploys prüfen genau einen deaktivierten synthetischen `loopback`-Eintrag.
+Alle acht Spalten einschließlich unterschiedlicher Auditzeitpunkte, Unicode-/
+Padding-Autoren und Rowversionbytes sowie ausgewählter Katalog und eigene
+Beschreibungen müssen erhalten bleiben. Der neue Tabellenrepeat wird vor
+der vorhandenen CI-Providerkonfiguration lokal/zentral ausgeführt und benötigt
+keine RPC-, Configure-USP-, Rechte- oder Serverkonfigurationsänderung. Native
+Evidenz dafür steht noch aus. Der Windows-FileSystem-Repeat benötigt zusätzlich
+seine bereits bestehenden Windows-/Assembly-/Trustvoraussetzungen; der
+vorhandene Buildworkflow ersetzt keinen SQL-Runtime-Nachweis.
+
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
 Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene

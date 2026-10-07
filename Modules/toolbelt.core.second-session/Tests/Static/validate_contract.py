@@ -20,6 +20,9 @@ required = [
     "Tests/Runtime/Concurrency.Verify.sql",
     "Tests/Runtime/Lifecycle.Contract.sql",
     "Tests/Runtime/Central.Contract.sql",
+    "Tests/Runtime/RepeatCurrent.Contract.sql",
+    "Tests/Runtime/RepeatCurrent.Capture.sql",
+    "Tests/Runtime/RepeatCurrent.Assert.sql",
     "module.yaml",
 ]
 missing = [path for path in required if not (root / path).is_file()]
@@ -91,5 +94,33 @@ for marker, text in (
 ):
     if marker not in text:
         raise SystemExit("Cross-Database-Collation-Vertrag fehlt: " + marker)
+
+repeat = (root / "Tests/Runtime/RepeatCurrent.Contract.sql").read_text("utf-8")
+capture = (root / "Tests/Runtime/RepeatCurrent.Capture.sql").read_text("utf-8")
+assertion = (root / "Tests/Runtime/RepeatCurrent.Assert.sql").read_text("utf-8")
+for include, count in ((":r Deploy.sql", 2),
+                       (":r ../Tests/Runtime/RepeatCurrent.Capture.sql", 3),
+                       (":r ../Tests/Runtime/RepeatCurrent.Assert.sql", 2)):
+    if repeat.count(include) != count:
+        raise SystemExit("Befüllter Provider-Repeat benötigt zwei echte Deploys mit identischen Orakeln.")
+for marker in ("CONVERT(varbinary(max), ProviderName)", "CONVERT(varbinary(max), LinkedServerName)",
+               "IsEnabled", "CreatedAtUtc", "CONVERT(varbinary(max), CreatedBy)",
+               "ModifiedAtUtc", "CONVERT(varbinary(max), ModifiedBy)", "CONVERT(binary(8), RowVersion)",
+               "sys.objects", "sys.schemas", "sys.tables", "sys.columns", "sys.indexes",
+               "sys.index_columns", "sys.key_constraints", "sys.default_constraints",
+               "sys.check_constraints", "sys.foreign_keys", "sys.foreign_key_columns",
+               "sys.triggers", "sys.database_permissions", "sys.extended_properties"):
+    if marker not in capture:
+        raise SystemExit("Provider-Repeat-Snapshot fehlt: " + marker)
+if assertion.count("EXCEPT") != 2 or "@@TRANCOUNT <> 0" not in assertion or "XACT_STATE() <> 0" not in assertion:
+    raise SystemExit("Provider-Repeat muss bidirektional vergleichen und den Sessionabschluss prüfen.")
+if repeat.count("sys.sp_addextendedproperty @name = N'MS_Description'") != 2 or repeat.count(
+        "sys.sp_dropextendedproperty @name = N'MS_Description'") != 2:
+    raise SystemExit("Provider-Repeat muss eigene Tabellen-/Spaltenbeschreibungen prüfen und bereinigen.")
+for forbidden in ("EXEC toolbelt_core.USP_ConfigureSecondSessionLoopback",
+                  "EXEC toolbelt_core.USP_ExecuteWorkTypeInNewSession", "sp_addlinkedserver",
+                  "sp_addlinkedsrvlogin", "sp_serveroption", "sp_configure"):
+    if forbidden.lower() in repeat.lower():
+        raise SystemExit("Der Tabellenrepeat darf keine Providerverwaltung oder RPC ausführen: " + forbidden)
 
 print("Second Session statische Vertragsprüfung: erfolgreich")

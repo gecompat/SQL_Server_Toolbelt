@@ -20,9 +20,22 @@
 - Providerdrift wird vor Ausführung abgelehnt
 - vier parallele Second-Session-Aufrufe
 - Redeploy erhält Providerkonfiguration
+- Befüllter versionsgleicher 1.1.0-Repeat: zwei echte Deploys mit deaktiviertem
+  Einzelprovider; acht Spalten einschließlich exakter Rowversionbytes,
+  verschiedene 100-ns-Auditzeitpunkte und Unicode-/Padding-Autoren;
+  ausgewählte Katalogmetadaten samt Objekt-IDs, vorhandenen Permissions,
+  eigenen Annotationen und Tabellen-/Spalten-MS_Description; ohne RPC
 - lokales und zentrales Deployment
 - Data-Loss-geschützter Uninstall
 - physische SQL-Server-2019-/2022-/2025-Ziele unter Windows base und Linux latest
+
+Der neue befüllte Tabellenrepeat benötigt eine eigene leere
+Installationsdatenbank und wird separat von historischen Providerfällen
+qualifiziert. Er erzeugt keine Benutzergrants, konfiguriert keine Linked
+Server und beweist weder Minimalrechte noch Providerkonnektivität.
+Windows, weitere Repeat-Compatibility-Levels und historische Übergänge bleiben
+ohne eigene erfolgreiche Evidenz `not executed`. Cleanup und Grenzen stehen
+im [Tests/README](README.md#befüllter-versionsgleicher-repeat).
 
 ## Ausgeführte Provider-Evidenz
 
