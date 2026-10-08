@@ -474,3 +474,103 @@ Keine breitere Matrix-, Minimalrechte- oder Releaseclosure.
 Class1-Voraussetzung erfüllt: PR295, Main `a585803de0d1d94be595dbf7b3153e582fbff9d2` (2026-10-08).
 [Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37721226636) und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37721226645): **PASS**.
 Der begrenzte Nachweis gilt für Linux SQL2019/CL150 local/central; sechs Objektzeugen, drei eigene Exportbereinigungen und Containercleanup sind belegt. Er qualifiziert keine neuen View-Spaltenzeugen und erklärt keine historische Fehlerursache.
+
+## Im Branch ergänzt: identischer Dateirepeat nach genuine Migration
+
+Stand 2026-10-08, separate Wartungswelle im bestehenden `Queue20Upgrade`-Fall.
+Bootstrap, Genuine2.0 und erster Neun-Modul-Export bleiben erhalten; der
+ursprüngliche acht-Tabellen-/109-Feldervergleich erfolgt unverändert vor
+weiterer persistenter DML.
+Erst danach bindet die neue Fixture genau einen eigenen noch gültigen
+unmanaged Legacyclaim und ruft einmal die bestehende `USP_CompleteWork` auf,
+ohne Leaseänderung, neuen Claim oder Handlerdispatch. Nur Status,
+CompletedAtUtc, CompletedBy und RowVersion dieses WorkItems dürfen sich ändern;
+42 stabile Felder aller drei WorkItems, alle 46 Felder der beiden anderen
+WorkItems und sämtliche anderen Tabellen/Katalogkategorien bleiben exakt.
+
+Die neue Baseline umfasst 14 Tabellen/156 sourcegebundene Felder mit binären
+Werten, expliziten NULLs und CountWitness je Tabelle, auch für die leere Barrier
+und vier leere Controlhistorytabellen. Positives Sollinventar: sechs PKs,
+zwei UQs, acht Backingindizes, fünf FKs mit sechs geordneten Spaltenpaaren und
+neun aktive vertrauenswürdige CHECKs. Deren unveränderte Sourceausdrücke werden
+in anonymen Temp-CHECKs gegen tatsächliche Definitionbytes geprüft; die
+Engineäquivalenz ist **NOT_EXECUTED**, keine Textnormalisierung wird behauptet.
+Genau ein zusätzlicher vollständiger Aufruf derselben hashgebundenen Datei
+pro local/central folgt; der komplette Consumervergleich hat weder Firstskip
+noch Versionsnormalisierung. Nur die drei tatsächlich neu erzeugten
+WorkItem-CHECK-IDs und die bisher ausgenommenen Objekt-DDL-Zeitstempel bleiben
+außerhalb des semantischen Katalogvertrags. Snapshot-, Claim- und Auditwerte
+bleiben im privaten Memory; alte Ownership-/Session-/Timeout-/Control-/Queueguards
+und eigene Cleanupgrenzen bleiben erhalten.
+
+Autorprüfung: fünf neue SQL150-Inputs/35 Batches und neuer Adapter-AST ohne
+Fehler, ausschließlich Syntax; unveränderte Tests wurden nicht wiederholt.
+Unabhängiger Source-/Client-/Privacyreview der eingefrorenen Payloads bestanden.
+Neue native Folge und eigener Cleanup **NOT_EXECUTED**. Eigene Head-/Merge-/Main-
+qualifikation **PENDING**. Keine historische Ursachenbehebung, neue
+öffentliche SQL-Funktion, Rechte/Config/Provider/Ziele, aktive Controlhistory,
+Concurrency-, Windows-/weitere SQL-Versionen-/SSMS-/Minimalrechte-/44-Modul-
+Qualifikation wird daraus abgeleitet.
+
+View-Mainvoraussetzung erfüllt, Stand 2026-10-08: [PR296](https://github.com/gecompat/SQL_Server_Toolbelt/pull/296)
+ist nach `main` `c1dc014d94f6ce827bd52ef542722faea5bb267b` gemergt.
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37723945915)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37723945917): **PASS**.
+Der Nachweis ist auf Linux SQL Server 2019/CL150 local/central und den bisherigen
+View-Spalten-/Exportscope begrenzt; er qualifiziert diese neue Upgrade→Repeat-Folge nicht.
+
+Weitere Statusfortschreibung 2026-10-08: Auch der zweite native Headlauf
+`6abf635a26c314744fa3bba27d2eb289e9f4445d` ist **FAILED**
+([Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37729131172));
+[Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37729131184)
+bestand. Vier tatsächliche Checkouts sind über ihren Tree an diesen Head gebunden.
+Die geschlossene lokale Upgrade-Diagnose SQL54998/State90 lokalisiert
+`PARENT_COLUMN`, Sourceindex0: Das bisherige Prädikat
+`c.parent_column_id <> 0` war wahr. Konkrete ID, Spaltenname, Mirrorzustand
+und Ursache sind dadurch **UNMEASURED**. Der ursprüngliche 109-Feldervergleich
+wurde davor erreicht; neue Completion, vollständiger Nach-Completion-Snapshot
+und identischer Dateirepeat bleiben **NOT_EXECUTED**, die Folge **NOT_QUALIFIED**.
+DefaultRepeat bestand, Parameterexport wurde übersprungen. Containercleanup
+bestand separat; der einzelne Exportcleanup-Erfolgsmarker gehört zum
+DefaultRepeat und belegt keinen eigenen Migrationcleanup.
+
+Die neue Testassertion vergleicht zunächst die
+Table-/Columnklassifikation mit dem Compiler-Mirror. Positive Columnbindungen
+werden je eigenem Parentobjekt anhand acht fester Source-Spaltennamen und ihrer
+Typform geprüft; der mehrspaltige Limits-CHECK verlangt beide Tablebindings0.
+Absolute ColumnIDs werden nicht objektübergreifend gleichgesetzt. Derselbe
+Invalid-Term gilt im Gesamtgate und in der endlichen State90-Diagnose;
+Count-, Namen-, Definitionbytes-, Trust-/Flaggates und State12-Fallback bleiben.
+Genau ein neuer vollständiger SQL150-Input/ein Batch bestand die reine
+Offline-Grammatikprüfung. Ein unabhängiger Source-/Inverse-/Privacyreview
+bestand ohne Blocker; er führte weder Parser noch SQL aus. Root hat den
+Sourceentwurf vollständig gelesen. Diese Fortschreibung begleitet die
+Übernahme der Testassertion. Native Parent-/Compilerqualifikation, neue
+exakte Head-/Merge-/Mainqualifikation und eigener Cleanup bleiben **PENDING**.
+Keine native Parent-/Compilerqualifikation oder Ursachenbehebung wird behauptet.
+
+Statusfortschreibung 2026-10-08: Der erste native Lauf dieser Upgrade→Repeat-Welle
+in [PR297](https://github.com/gecompat/SQL_Server_Toolbelt/pull/297) am Head
+`913a3d6c42f4962a22c11656977bdf458d1bd15c` ist **FAILED**
+([Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37726736364));
+[Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37726736429)
+bestand. Die kombinierte Neun-CHECK-Assertion weist im lokalen Upgrade mit
+SQL54998/State12 ab. Welche Unterbedingung und Sourcebindung verletzt ist,
+bleibt **UNMEASURED**; ein Produktfehler oder eine Ursachenbehebung ist nicht belegt.
+Der bisherige Immediatevergleich wurde davor erreicht. Die neue Completion
+und der anschließende identische Dateirepeat sind **NOT_EXECUTED**, die neue
+Folge ist **NOT_QUALIFIED**. Der separate DefaultRepeat bestand; der
+Parameterexport wurde übersprungen. Containercleanup bestand separat;
+der beobachtete eigene Exportcleanup-Erfolgsmarker gehört zum DefaultRepeat,
+kein eigener Migrationcleanup-PASS wird daraus abgeleitet.
+
+Die im Branch übernommene Diagnose ergänzt nur den bereits fehlgeschlagenen CHECK-
+Zweig: höchstens drei lesende Queries, feste Komponenten und Sourceordinal0..8,
+numerische States höchstens108 sowie der unveränderte State12-Fallback.
+Originalgate und Erfolgsweg bleiben erhalten; keine tatsächlichen Katalognamen,
+Definitionen oder Werte werden veröffentlicht. Ein neuer SQL150-Input/ein Batch
+bestand die Offline-Syntaxprüfung. Native Diagnose, CHECK-Engineäquivalenz,
+vollständige neue Folge und eigener Cleanup bleiben offen; neue exakte
+Head-/Merge-/Mainqualifikation **PENDING**.
+Bisherige Vorbereitungsangaben und alle Parentnachweise bleiben historische
+Evidenz ihrer Quellenstände; keine Guards, Timeouts, Produkte, APIs oder Rechte ändern sich.

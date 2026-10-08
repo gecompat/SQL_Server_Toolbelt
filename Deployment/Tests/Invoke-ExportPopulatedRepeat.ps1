@@ -373,7 +373,27 @@ try{
    Invoke-OwnedFixture $identity 'ExportUpgrade.Assert.sql'
    $current=Read-PrivateSnapshot $identity 'ExportUpgrade.Capture.sql' @{'@After'=$true} 8
    Compare-PrivateSnapshots $previous $current
-   # Keine DML/Claimadmission nach dem exakten Migrationsorakel; eigene DB vollständig bereinigen.
+   # Zusätzliche Wartungswelle NACH dem unveränderten Immediate-109-Feldervergleich.
+   # Bestehende Claim-/Lease-/Consumer-Guards bleiben unverändert; nur eigener unmanaged Abschluss.
+   Invoke-OwnedFixture $identity 'ExportUpgradeRepeat.Assert.sql' @{'@Completed'=$false}
+   $beforeCompletion=Read-PrivateSnapshot $identity 'ExportUpgradeRepeat.Capture.sql' @{'@Completed'=$false} 14
+   Invoke-OwnedFixture $identity 'ExportUpgradeRepeat.Complete.sql'
+   Invoke-OwnedFixture $identity 'ExportUpgradeRepeat.Assert.sql' @{'@Completed'=$true}
+   $afterCompletion=Read-PrivateSnapshot $identity 'ExportUpgradeRepeat.Capture.sql' @{'@Completed'=$true} 14
+   # Nur vollständige WorkItem-Zeilen sind im Completionfenster veränderlich.
+   # 42 stabile Felder aller drei sowie 46 Felder der beiden anderen WorkItems werden separat verglichen.
+   $stableBefore=[Collections.Generic.Dictionary[string,Collections.Generic.List[string]]]::new([StringComparer]::Ordinal)
+   $stableAfter=[Collections.Generic.Dictionary[string,Collections.Generic.List[string]]]::new([StringComparer]::Ordinal)
+   foreach($key in $beforeCompletion.Keys){if($key-cne'row:toolbelt_core.WorkItem'){$stableBefore.Add($key,$beforeCompletion[$key])}}
+   foreach($key in $afterCompletion.Keys){if($key-cne'row:toolbelt_core.WorkItem'){$stableAfter.Add($key,$afterCompletion[$key])}}
+   Compare-PrivateSnapshots $stableBefore $stableAfter
+   # Genau ein vollständiger Repeat DERSELBEN bereits hashgebundenen Neun-Modul-Exportdatei.
+   # Neue private Baseline, keine First-Ausnahme und keine Versionsnormalisierung.
+   [void](Invoke-ExportFile $identity $export)
+   Invoke-OwnedFixture $identity 'ExportUpgradeRepeat.Assert.sql' @{'@Completed'=$true}
+   $afterRepeat=Read-PrivateSnapshot $identity 'ExportUpgradeRepeat.Capture.sql' @{'@Completed'=$true} 14
+   Compare-PrivateSnapshots $afterCompletion $afterRepeat
+   # Keine weitere DML/Claimadmission nach diesem Repeatorakel; eigene DB vollständig bereinigen.
    $phase=$mode+'-cleanup';Save-PrivateOwnership;Remove-OwnedDatabase $identity
    continue
   }

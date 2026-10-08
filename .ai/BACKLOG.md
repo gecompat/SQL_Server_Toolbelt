@@ -6,6 +6,90 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+Weitere Statusfortschreibung 2026-10-08: Auch der zweite native Headlauf
+`6abf635a26c314744fa3bba27d2eb289e9f4445d` ist **FAILED**
+([Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37729131172));
+[Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37729131184)
+bestand. Vier tatsächliche Checkouts sind über ihren Tree an diesen Head gebunden.
+Die geschlossene lokale Upgrade-Diagnose SQL54998/State90 lokalisiert
+`PARENT_COLUMN`, Sourceindex0: Das bisherige Prädikat
+`c.parent_column_id <> 0` war wahr. Konkrete ID, Spaltenname, Mirrorzustand
+und Ursache sind dadurch **UNMEASURED**. Der ursprüngliche 109-Feldervergleich
+wurde davor erreicht; neue Completion, vollständiger Nach-Completion-Snapshot
+und identischer Dateirepeat bleiben **NOT_EXECUTED**, die Folge **NOT_QUALIFIED**.
+DefaultRepeat bestand, Parameterexport wurde übersprungen. Containercleanup
+bestand separat; der einzelne Exportcleanup-Erfolgsmarker gehört zum
+DefaultRepeat und belegt keinen eigenen Migrationcleanup.
+
+Die neue Testassertion vergleicht zunächst die
+Table-/Columnklassifikation mit dem Compiler-Mirror. Positive Columnbindungen
+werden je eigenem Parentobjekt anhand acht fester Source-Spaltennamen und ihrer
+Typform geprüft; der mehrspaltige Limits-CHECK verlangt beide Tablebindings0.
+Absolute ColumnIDs werden nicht objektübergreifend gleichgesetzt. Derselbe
+Invalid-Term gilt im Gesamtgate und in der endlichen State90-Diagnose;
+Count-, Namen-, Definitionbytes-, Trust-/Flaggates und State12-Fallback bleiben.
+Genau ein neuer vollständiger SQL150-Input/ein Batch bestand die reine
+Offline-Grammatikprüfung. Ein unabhängiger Source-/Inverse-/Privacyreview
+bestand ohne Blocker; er führte weder Parser noch SQL aus. Root hat den
+Sourceentwurf vollständig gelesen. Diese Fortschreibung begleitet die
+Übernahme der Testassertion. Native Parent-/Compilerqualifikation, neue
+exakte Head-/Merge-/Mainqualifikation und eigener Cleanup bleiben **PENDING**.
+Keine native Parent-/Compilerqualifikation oder Ursachenbehebung wird behauptet.
+
+Statusfortschreibung 2026-10-08: Der erste native Lauf dieser Upgrade→Repeat-Welle
+in [PR297](https://github.com/gecompat/SQL_Server_Toolbelt/pull/297) am Head
+`913a3d6c42f4962a22c11656977bdf458d1bd15c` ist **FAILED**
+([Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37726736364));
+[Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37726736429)
+bestand. Die kombinierte Neun-CHECK-Assertion weist im lokalen Upgrade mit
+SQL54998/State12 ab. Welche Unterbedingung und Sourcebindung verletzt ist,
+bleibt **UNMEASURED**; ein Produktfehler oder eine Ursachenbehebung ist nicht belegt.
+Der bisherige Immediatevergleich wurde davor erreicht. Die neue Completion
+und der anschließende identische Dateirepeat sind **NOT_EXECUTED**, die neue
+Folge ist **NOT_QUALIFIED**. Der separate DefaultRepeat bestand; der
+Parameterexport wurde übersprungen. Containercleanup bestand separat;
+der beobachtete eigene Exportcleanup-Erfolgsmarker gehört zum DefaultRepeat,
+kein eigener Migrationcleanup-PASS wird daraus abgeleitet.
+
+Die im Branch übernommene Diagnose ergänzt nur den bereits fehlgeschlagenen CHECK-
+Zweig: höchstens drei lesende Queries, feste Komponenten und Sourceordinal0..8,
+numerische States höchstens108 sowie der unveränderte State12-Fallback.
+Originalgate und Erfolgsweg bleiben erhalten; keine tatsächlichen Katalognamen,
+Definitionen oder Werte werden veröffentlicht. Ein neuer SQL150-Input/ein Batch
+bestand die Offline-Syntaxprüfung. Native Diagnose, CHECK-Engineäquivalenz,
+vollständige neue Folge und eigener Cleanup bleiben offen; neue exakte
+Head-/Merge-/Mainqualifikation **PENDING**.
+Bisherige Vorbereitungsangaben und alle Parentnachweise bleiben historische
+Evidenz ihrer Quellenstände; keine Guards, Timeouts, Produkte, APIs oder Rechte ändern sich.
+
+Weitere Deploymentwartung, im Branch übernommen 2026-10-08: Der bestehende
+`Queue20Upgrade`-Fall prüft nach genuine Queue2.0→2.1 und erstmaligem Control1.0
+auch einen Repeat derselben Neun-Modul-Datei, jeweils local/central.
+Der ursprüngliche Immediatevergleich aller acht Legacytabellen/109 Felder
+bleibt unverändert vor weiterer persistenter DML. Erst danach wird genau ein
+eigener Legacyclaim über die bestehende `USP_CompleteWork` abgeschlossen;
+nur Status, CompletedAtUtc, CompletedBy und RowVersion dieses WorkItems dürfen
+sich ändern. Vollständige private Snapshots erfassen danach 14 Tabellen/156
+Felder einschließlich fünf leerer Tabellen und ein positives neues
+Constraintinventar. Ein identischer Dateirepeat vergleicht alles ohne
+First-Ausnahmen oder Versionsnormalisierung. Bestehende Gates, Timeouts,
+Ownership und Cleanup bleiben erhalten; keine neue API oder zusätzliche
+Scenario-/DB-/Export-/Rechte-/Ziel-/Provider-/Configfreigabe.
+Autor-Syntaxnachweis: fünf neue SQL150-Inputs/35 Batches und Adapter-AST ohne
+Fehler; CHECK-Engineäquivalenz, neue native Folge und eigener Cleanup sind
+**NOT_EXECUTED**. Unabhängiger Source-/Client-/Privacyreview der eingefrorenen
+Payloads bestanden; eigene Headprüfung, Merge und Mainqualifikation sind
+**PENDING**. Historische
+Fehler- und Qualifikationsnachweise bleiben erhalten; Details künftig in den
+[Deploymenttests](../Deployment/Tests/README.md).
+
+View-Mainvoraussetzung erfüllt, Stand 2026-10-08: [PR296](https://github.com/gecompat/SQL_Server_Toolbelt/pull/296)
+ist nach `main` `c1dc014d94f6ce827bd52ef542722faea5bb267b` gemergt.
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37723945915)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37723945917): **PASS**.
+Der Nachweis ist auf Linux SQL Server 2019/CL150 local/central und den bisherigen
+View-Spalten-/Exportscope begrenzt; er qualifiziert diese neue Upgrade→Repeat-Folge nicht.
+
 ### View-Spaltenannotation im bestehenden Exportrepeat
 
 View-Spaltenwartung, Stand 2026-10-08: zwei eigene class-1-Properties auf
