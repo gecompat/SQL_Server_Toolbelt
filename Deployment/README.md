@@ -459,3 +459,11 @@ Die Queue1.1-Toolauswahl begrenzt `Get-Command -CommandType Application` mit
 `-TotalCount 1` auf den ersten Treffer. Dessen volle Pfad-, reguläre Datei-,
 NoReparse- und Hashprüfungen bleiben geschlossen; kein zweiter Fallbacktreffer.
 [Dritter Fehlhead und Auswahlvertrag](Tests/README.md).
+
+### Queue1.1-Erwerbshelper: versteckte Storemetadaten und feste Fehlercodes
+
+Der normale Linux-CI-Clone benötigt den vorhandenen `.git`-Directory-Read auch bei Hidden-Attribut. Der Required-Store-Read verwendet gezielt `Get-Item -Force`; dies ermöglicht nur die Metadatenlesbarkeit, ohne Rechte zu erteilen oder DirectoryExists, NoReparse, Storeindirection, Quellen- und CI-Gates zu umgehen. [PowerShell-Provider 7.4](https://github.com/PowerShell/PowerShell/blob/v7.4.0/src/System.Management.Automation/namespaces/FileSystemProvider.cs) und [.NET-Unix-Dateiattribute 8.0](https://github.com/dotnet/runtime/blob/v8.0.0/src/libraries/System.Private.CoreLib/src/System/IO/FileStatus.Unix.cs) belegen Hidden-Filter und Dotnamenverhalten als Quellenvertrag; sie attesten weder die verwendete CI-Runtimeversion noch die tatsächliche Ursache eines Laufs.
+
+Die bestehende Diagnose bildet in `queue11-acquire` nur die exakten zwanzig festen Acquisition- und sieben festen OwnedProcess-Texte auf feste Caller-Allowlistcodes ab. Freie Exceptiontexte, Childausgabe, Pfade und private Acquisition-Statewerte bleiben ausgeschlossen. Prozesshelper, Single-Fetch, Budgets, Journal und konservativer Cleanup sind unverändert. Unklassifizierte Cmdletfehler bleiben `UNCLASSIFIED`; die neue Abbildung rekonstruiert keine historische Ausnahme.
+
+Der fünfte Prüfhead `6e8cf4fe4c539d862c2084a094c20b496254ae41` bleibt [FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37757210239): Managed und die drei bisherigen Exportfälle bestanden; Queue1.1 scheiterte beim Quellenbezug mit `UNCLASSIFIED / SQL0/0`. Drei eigene Exportbereinigungen und separater Containercleanup sind belegt, neuer Dateicleanup bleibt DEFERRED. Ursache ungemessen. Neuer Head-/Mainnachweis, vollständige private Retention/Refbereinigung und Queue1.1-Qualifikation stehen aus.

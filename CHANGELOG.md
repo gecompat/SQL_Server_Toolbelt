@@ -2,6 +2,7 @@
 
 ## 2026-10-08 – Genuine Queue1.1 im bestehenden Exporttest ergänzen
 
+- Testinterner Queue1.1-Quellenbezug liest den vorgesehenen versteckten Git-Store gezielt mit `Get-Item -Force`; der Caller erhält geschlossene, phasengebundene Codes für die vorhandenen zwanzig Acquisition- und sieben OwnedProcess-Fehler. Keine freien Laufzeittexte, neue Fallbacks oder gelockerten Ownership-/Budgetgates; neue native Qualifikation bleibt offen, historische Ursachen ungeklärt.
 - Managed-Release-Test wartet gemeinsam auf den aktuellen eigenen Queuecommit
   und das separat gespeicherte Slotende; ursprüngliche Assertion und Budget bleiben
   erhalten. Vierter Head scheiterte vor allen Exportfällen; neue native Prüfung offen.

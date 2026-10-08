@@ -799,3 +799,11 @@ ClaimGeneration binden den tatsächlich aktuellen Slot des erwarteten anderen
 Workers; ein historischer erfolgreicher Attempt genügt nicht. Waitcode, Polling,
 SQL-Commandtimeout, Unknown-Beobachter und sämtliche Ownershipgates bleiben
 bytegleich. Dies ist eine Testorakelkorrektur des bestehenden CI-Prerequisites.
+
+### Queue1.1-Erwerb: Hidden-Metadatenread und endliche Diagnoseabbildung
+
+Prüfstand 2026-10-08, Head `6e8cf4fe4c539d862c2084a094c20b496254ae41`: [Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37757210239) FAILED, [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37757210026) PASS. Alle vier tatsächlichen Checkout-Trees entsprechen seinem Quellen-Tree; elf der zwölf Linuxschritte und beide Faultjobs bestanden. Managed-Wait, Admission, fokussierte Migration und die drei bisherigen Exportfälle bestanden. Nur Queue1.1 scheiterte: `queue11-acquire / UNCLASSIFIED / SQL0/0`, separat Cleanup `QUEUE11_RETAINED_UNPROVEN / SQL0/0`. Neue Endmarker null; drei bisherige eigene Exportbereinigungen und Containercleanup bestanden. Neue eigene Dateibereinigung DEFERRED, kein vierter Cleanup-PASS. Ursache/Operand bleiben ungemessen; kein Fetchversuch oder Teilfetch wird aus diesen Codes abgeleitet.
+
+Der quellengeprüfte Required-Store-Read ergänzt ausschließlich `-Force`, damit der erwartete normale `.git`-Directory trotz Unix-Hidden-Attribut gelesen werden kann. Die Directory-/Reparse-/Indirection-/CI-Gates sowie unveränderten Prozess-, Fetch- und Capturebudgets gelten weiter. Eine geschlossene, exakte Callerabbildung für die zwanzig Acquisition- und sieben OwnedProcess-Codes gilt ausschließlich in `queue11-acquire`; Writer und SQL-Diagnose bleiben erhalten. Freie Exceptions, Child-Stderr, Pfade oder private Statewerte werden nicht ausgegeben. Dies korrigiert Quellenverträge und misst keine historische Ursache.
+
+Neue Grammatik-/Impactprüfung und exakte neue native Head-CI sind getrennte Nachweise; nicht ausgeführte Prüfungen sind kein PASS. Queue1.1-Upgrade, normaler Merge, Main-CI und vollständige private Retention/Refbereinigung bleiben offen. Keine unveränderten SQL-/Helper-/CI-Wiederholungen, keine lokalen SQL-/Dockerlasttests, keine Produkt-/Rechte-/Provider-/Zielausweitung.

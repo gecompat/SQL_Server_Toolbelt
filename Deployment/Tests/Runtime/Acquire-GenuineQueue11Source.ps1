@@ -43,7 +43,7 @@ function Acquire-GenuineQueue11Source {
   function Assert-Queue11LocalStore{
    $gitDirectory=Join-Path $repository '.git'
    foreach($required in @($gitDirectory,(Join-Path $gitDirectory 'objects'))){
-    Assert-Queue11Acquisition ([IO.Directory]::Exists($required) -and -not((Get-Item -LiteralPath $required -ErrorAction Stop).Attributes-band[IO.FileAttributes]::ReparsePoint)) 'LOCAL_STORE_DIRECTORY'
+    Assert-Queue11Acquisition ([IO.Directory]::Exists($required) -and -not((Get-Item -LiteralPath $required -Force -ErrorAction Stop).Attributes-band[IO.FileAttributes]::ReparsePoint)) 'LOCAL_STORE_DIRECTORY'
    }
    foreach($optionalDirectory in @((Join-Path $gitDirectory 'objects/info'),(Join-Path $gitDirectory 'objects/pack'))){
     if(Test-Path -LiteralPath $optionalDirectory){

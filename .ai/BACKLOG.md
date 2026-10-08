@@ -4,6 +4,14 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 44 Module sind implementiert. 19 sind `validated`, 25 sind `partially validated`; 0 sind `not executed`.
 
+### Queue1.1-Quellenbezug: Hidden-Store-Read und geschlossene Diagnosen – 2026-10-08
+
+Der fünfte Quellenhead `6e8cf4fe4c539d862c2084a094c20b496254ae41` bestand den Managed-Vertrag, die drei bisherigen Exportfälle und die Dokumentations-CI; der neue Queue1.1-Fall scheiterte in `queue11-acquire / UNCLASSIFIED / SQL0/0` ([Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37757210239), [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37757210026)). Drei eigene Exportbereinigungen und Containercleanup bestanden, der neue Dateicleanup bleibt `DEFERRED / RETAINED_UNPROVEN`. Tatsächlicher Operand und Ursache bleiben ungemessen; dieser Lauf erklärt auch keine frühere Fehlerursache.
+
+Unter der bestehenden Test-/Deploymentwartungsfreigabe liest der Erwerbshelper den vorgesehenen Required-Store mit `Get-Item -Force`: Unix-Dotnamen wie `.git` werden als Hidden behandelt. DirectoryExists, NoReparse, Storeindirection, CI-Scope, Quellenpins und Budgets bleiben unverändert. Der Caller bildet ausschließlich die zwanzig festen Acquisition- und sieben festen OwnedProcess-Fehlertexte im Erwerbsphase-Scope auf eine ausdrückliche geschlossene Allowlist ab. Keine freien Exceptiontexte, Git-Stderr, Pfade, Runtimewerte, Acquisition-Statewerte oder neue Fallbacks gelangen in die Ausgabe. Das sind getrennte Quellenkorrekturen, kein kausaler Nachweis zum fünften Fehlhead.
+
+Neue exakte Head-CI, Queue1.1-Migration, normaler Merge, Main-CI und vollständige private Retention/Refbereinigung bleiben offen. Kein unveränderter Retry, keine neue öffentliche SQL-Funktion, Rechte-, Provider- oder Zielausweitung. Alle bisherigen Fehlerhistorien bleiben erhalten.
+
 ## Aktive Arbeitspakete
 
 ### Genuine Queue1.1 als weitere Deploymentwartung
