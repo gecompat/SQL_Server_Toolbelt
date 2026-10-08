@@ -4,6 +4,16 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 44 Module sind implementiert. 19 sind `validated`, 25 sind `partially validated`; 0 sind `not executed`.
 
+### Queue1.1: erster verletzter Definitionsleaf, weiterhin Abweisung – 2026-10-08
+
+Siebter Prüfstand a318: [Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37767139964), [Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37767140150). Nur Queue1.1 scheiterte mit `local-seed / UNCLASSIFIED / SQL55012/6`; State19 wurde nicht beobachtet. Managed, Admission, fokussierter Upgrade und drei bisherige Exportfälle bestanden. Drei eigene Exportbereinigungen und Containercleanup sind belegt; neuer Dateicleanup DEFERRED/RETAINED_UNPROVEN, Queue1.1-Endmarker null. Leaf, gespeicherte Definitionbytes und Ursache bleiben UNMEASURED.
+
+Der ausgewählte Folgevertrag lokalisiert nur im bereits fehlgeschlagenen BEFORE-Zweig, nach unverändertem State19 und vor State6, den ersten verletzten ursprünglichen Leaf nach fester Komponente und Sourceordinal0..7. Fester Quelltoken `EXPORT_QUEUE11_BEFORE_DEFINITION_LEAF`, SQL55012/State20 beziehungsweise endliche Klassen30..117; jede Klasse bleibt eine Abweisung. Strict-IF, sechzehn Goldenhashes, State19/6, AFTER und Akzeptanz bleiben bytegleich. Keine Hashkorrektur, Normalisierung oder Ausgabe tatsächlicher Werte; Caller ändert nur seinen einen zentralen Assert-Dateipin.
+
+Ein neuer vollständiger SQL150-Input/ein Batch bestand die begrenzte Grammatikprüfung; das ist keine native Bindungs- oder Ursachenprüfung. Unabhängiger Source-/Privacyreview, exakte neue Head-CI, Merge/Main und vollständige private Retention/Refbereinigung sind getrennte Gates. Nur ein neuer CI-Lauf mit diesem Diagnoseimpact ist vorgesehen; aus weiter ungelösten Hashformen folgt keine spekulative Goldenänderung oder CI-Wiederholungsschleife. Queue1.1 bleibt NOT_QUALIFIED.
+
+Der unmittelbar folgende State19-only-Abschnitt dokumentiert den historischen Quellenvertrag des a318-Prüfstands; seine Aussage „jeder andere Fall bleibt State6“ beschreibt diesen früheren Stand.
+
 ### Queue1.1: Zusatzdiagnose nach strikter Definitionen-Abweisung – 2026-10-08
 
 Der sechste Prüfstand c3f7 bleibt [FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37761644789), seine [Dokumentations-CI bestand](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37761644838). Managed und die drei bisherigen Exportfälle bestanden; Queue1.1 scheiterte mit `local-seed / UNCLASSIFIED / SQL55012/6`. Drei bisherige eigene Exportbereinigungen und separater Containercleanup sind belegt; neue Dateibereinigung bleibt DEFERRED/RETAINED_UNPROVEN, Queue1.1-Endmarker null. Tatsächlicher Operand und Ursache bleiben ungemessen.

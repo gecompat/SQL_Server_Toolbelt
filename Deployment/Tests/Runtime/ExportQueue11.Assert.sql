@@ -241,6 +241,40 @@ BEGIN
     AND m.uses_ansi_nulls=1 AND m.uses_quoted_identifier=1 AND m.execute_as_principal_id IS NULL
     AND m.is_schema_bound=0 AND m.uses_native_compilation=0)=8
    THROW 55012,N'EXPORT_QUEUE11_BEFORE_VERBATIM_DEFINITIONS',19;
+  -- Nur den bereits verletzten BEFORE-Leaf lokalisieren; keine neue Akzeptanz oder Runtimewerte.
+  IF (SELECT COUNT(*) FROM #ExpectedDefinitions WHERE AfterValue=0)<>8
+   THROW 55012,N'EXPORT_QUEUE11_BEFORE_DEFINITION_LEAF',20;
+  DECLARE @Queue11BeforeDefinitionLeafState tinyint;
+  SELECT TOP(1) @Queue11BeforeDefinitionLeafState=CONVERT(tinyint,l.Component+b.SourceOrdinal)
+  FROM (VALUES
+   (0,N'VW_WorkQueue',0x6B5C9E5C75E9F5AFA199F7789A1CD68892EE968FC488FA8150D0858AB6ACF02C),
+   (1,N'USP_EnqueueWork',0x0CF962DC4EA9D2677DE0BE66138C0B69F0BE300971607C82E79AB918B55B2423),
+   (2,N'USP_ClaimWork',0xE959E0D5DEE9CA8BA0186D5BC50122450133D3704646F535A61F0731DDCB34D1),
+   (3,N'USP_RenewWorkLease',0xCEB1F1A6003BFB665C82C3713A50510252090A46BA526EF536FE1AE4AC33D47B),
+   (4,N'USP_RecoverExpiredWork',0x5A26635D526560FA911DE167872D93C9F09D5AD6DDF7C3144BA4691A37112777),
+   (5,N'USP_CompleteWork',0xFDD256460794D7CAA76A1758598EB7F23A677D8B2D7C150553BE1D1206F558DC),
+   (6,N'USP_FailWork',0xB4DD7F3B191624C6775407D89814902151C7034434AF63B7D69771B7EC5D68A3),
+   (7,N'USP_GetWorkStatus',0x9102AD285EAF93E0F13AC2DD95246A015FDFE1604B3DDA16EBB22C1793A48F2F)
+  ) b(SourceOrdinal,ObjectName,VerbatimHash)
+  JOIN #ExpectedDefinitions e ON e.AfterValue=0
+   AND e.ObjectName COLLATE Latin1_General_100_BIN2=b.ObjectName COLLATE Latin1_General_100_BIN2
+  LEFT JOIN sys.sql_modules m ON m.object_id=OBJECT_ID(N'toolbelt_core.'+QUOTENAME(b.ObjectName))
+  CROSS APPLY(VALUES(HASHBYTES(N'SHA2_256',CONVERT(varbinary(max),m.definition)))) h(DefinitionHash)
+  CROSS APPLY(VALUES
+   (30,CASE WHEN m.object_id IS NULL THEN 1 ELSE 0 END),
+   (40,CASE WHEN m.object_id IS NOT NULL AND m.definition IS NULL THEN 1 ELSE 0 END),
+   (50,CASE WHEN m.uses_ansi_nulls<>1 THEN 1 ELSE 0 END),
+   (60,CASE WHEN m.uses_quoted_identifier<>1 THEN 1 ELSE 0 END),
+   (70,CASE WHEN m.execute_as_principal_id IS NOT NULL THEN 1 ELSE 0 END),
+   (80,CASE WHEN m.is_schema_bound<>0 THEN 1 ELSE 0 END),
+   (90,CASE WHEN m.uses_native_compilation<>0 THEN 1 ELSE 0 END),
+   (100,CASE WHEN h.DefinitionHash<>e.DefinitionHash AND h.DefinitionHash<>b.VerbatimHash THEN 1 ELSE 0 END),
+   (110,CASE WHEN h.DefinitionHash<>e.DefinitionHash AND h.DefinitionHash=b.VerbatimHash THEN 1 ELSE 0 END)
+  ) l(Component,IsViolation)
+  WHERE l.IsViolation=1
+  ORDER BY l.Component,b.SourceOrdinal;
+  IF @Queue11BeforeDefinitionLeafState IS NOT NULL
+   THROW 55012,N'EXPORT_QUEUE11_BEFORE_DEFINITION_LEAF',@Queue11BeforeDefinitionLeafState;
  END;
  THROW 55012,N'EXPORT_QUEUE11_SOURCE_DEFINITIONS',6;
 END;
