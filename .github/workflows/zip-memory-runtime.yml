@@ -71,9 +71,14 @@ jobs:
           -OutputDirectory ./.runtime/zip-memory-release
       - name: Independent Framework writer contract
         shell: powershell
-        run: >-
-          ./Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Framework.ps1
-          -AssemblyPath ./.runtime/zip-memory-release/Toolbelt.Archive.ZipMemory.dll
+        run: |
+          $assembly = [IO.Path]::GetFullPath('./.runtime/zip-memory-release/Toolbelt.Archive.ZipMemory.dll')
+          $manifest = Get-Content -LiteralPath './.runtime/zip-memory-release/Toolbelt.Archive.ZipMemory.trust-manifest.json' -Raw | ConvertFrom-Json
+          if ($manifest.moduleId -cne 'toolbelt.archive.zip-memory' -or $manifest.assemblyFileName -cne 'Toolbelt.Archive.ZipMemory.dll' -or $manifest.sha512 -isnot [string] -or $manifest.sha512 -cnotmatch '\A[A-Fa-f0-9]{128}\z') { throw 'ZIP_WRITER_FRAMEWORK_BINARY_INTAKE' }
+          $length = (Get-Item -LiteralPath $assembly).Length
+          if ($length -lt 1 -or $length -gt 4194304) { throw 'ZIP_WRITER_FRAMEWORK_BINARY_INTAKE' }
+          $ownDirectory = [IO.Path]::GetFullPath((Join-Path $env:RUNNER_TEMP ('zip-writer-framework-' + [guid]::NewGuid().ToString('N'))))
+          ./Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Framework.ps1 -AssemblyPath $assembly -ExpectedAssemblySHA512 $manifest.sha512 -ExpectedAssemblyLength $length.ToString([Globalization.CultureInfo]::InvariantCulture) -EvidenceDirectory $ownDirectory
       - name: Upload exact deployment input
         uses: actions/upload-artifact@v4
         with:

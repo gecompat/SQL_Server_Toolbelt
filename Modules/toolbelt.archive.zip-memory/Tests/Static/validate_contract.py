@@ -373,6 +373,30 @@ def main() -> int:
         "compatibility_level: 170",
         "New-ClrReleaseArtifacts.ps1",
     )
+    # Quellenkopplung des Testintakes; kein Nachweis einer Framework-Ausführung.
+    writer = read("Tests/Runtime/Writer.Framework.ps1")
+    require(
+        writer,
+        "Framework-Binary-Intake",
+        "[Parameter(Mandatory=$true)][ValidatePattern(",
+        "[string]$ExpectedAssemblySHA512",
+        "[Parameter(Mandatory=$true)][string]$ExpectedAssemblyLength",
+        "[Parameter(Mandatory=$true)][string]$EvidenceDirectory",
+        "[AppDomain]::CurrentDomain.GetAssemblies()",
+        "[IO.FileMode]::CreateNew",
+        "$copyLease=[IO.File]::Open($copyPath",
+        "Add-Type -LiteralPath $copyPath",
+        ".Assembly.Location -ieq $copyPath",
+        "@($copyPath,'System.Data.dll'",
+    )
+    require(
+        workflow,
+        "Framework-Workflow-Caller",
+        "-ExpectedAssemblySHA512 $manifest.sha512",
+        "-ExpectedAssemblyLength $length.ToString(",
+        "-EvidenceDirectory $ownDirectory",
+    )
+
     if "Documentation/**" in workflow:
         raise ContractError("Runtime-Workflow darf nicht auf reine Dokumentation triggern.")
 

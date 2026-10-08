@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-08 – ZIP-Writer-Framework-Testintake binden
+
+Der bestehende Testadapter bindet SHA512 aus dem Release-Trustmanifest und die
+exakte DLL-Länge, begrenzt die einmalige Aufnahme auf 4 MiB und lädt/referenziert
+dieselbe eigene `CreateNew`-Kopie. Workflow-Caller, statische Kopplungschecks und
+Testanleitung folgen diesem Vertrag; die eingebettete C#-Suite bleibt unverändert.
+Dateien und Assembly werden behalten, nur eigene Handles geschlossen.
+Neue Intake-/Frameworkqualifikation **NOT_EXECUTED**; kein Produkt-, API-,
+Release- oder Validierungsstatuswechsel, keine zusätzliche SQL-/Matrixevidenz.
+
 ## 2026-10-08 – Phonetik-Differential-Testadapter als Quellen ergänzen
 
 Sechs gekoppelte Offline-Testquellen binden 32 synthetische Fälle, vollständige
