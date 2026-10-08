@@ -2154,6 +2154,19 @@ behauptet keinen ausgeführten Runtime-Test und keine erfolgte Konfigurationsän
 | ZIP-Evidenz | Am 2026-10-01: Framework-4.8-Build, unabhängiger ZipArchive-/CRC-/Headercheck und Staticvalidator erfolgreich; tatsächliche Framework-Grenzfixtures mit 32 MiB je Entry, 128 MiB Gesamtpayload, 1024 Entries und 2048 Namenscodeeinheiten. Vollständiger Lab-Adapter auf SQL Server 2019 Linux/latest CL150 und 2025 Windows/CU8 CL150/160/170 erfolgreich: local/central, Metadaten, 16-MiB-Stored-/Deflate-Payloads, leere Payloads, Transaktionen, Fehleratomarität, echtes 1.2-Upgrade, Kollisionen und Uninstall. Keine Kapazitätszusage für Produktion, höhere SQL-Live-Grenzen oder beliebige Parallelität. |
 | Nächster Schritt | ZIP-Writer nach unabhängigem Review und grüner CI über PR integrieren und gemergte Branches aufräumen. Danach ist diese Implementierungswelle abgeschlossen; weitere Funktionsslices bleiben getrennt. |
 
+#### ZIP-Writer-Testintake: Wartungsnachtrag 2026-10-08 — Codex
+
+Die Quellen des bestehenden Framework-Testadapters binden die ausgewählte DLL
+über `ExpectedAssemblySHA512` aus dem vorhandenen Trustmanifest und ihre exakte
+`ExpectedAssemblyLength`. Einmalige Aufnahme bis 4 MiB und eigene `CreateNew`-
+Kopie koppeln Load und Compilerreferenz; der bestehende Workflow-Schritt und die
+statische Vertragsprüfung werden entsprechend gepflegt. Keine neue öffentliche
+API, Änderung der vorhandenen Freigabe oder zusätzliche synthetische Maxlast.
+Die C#-Suite bleibt bytegleich. Dateien und Assembly werden behalten, nur eigene
+Handles geschlossen. Neuer Intake/Frameworklauf **NOT_EXECUTED**; Modul weiter
+`partially validated`, `unreleased`. Historische Evidenz und offene Matrix bleiben
+erhalten; keine allgemeine Heap-, Laufzeit-, SAFE- oder Cleanupzusage.
+
 ### R2a: Regex-Substring und Regex-Replace mit LOB-Profilen
 
 | Feld | Wert |

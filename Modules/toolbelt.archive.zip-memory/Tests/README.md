@@ -2,6 +2,38 @@
 
 Release 1.4, 2026-10-02: `local: Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1` auf Linux 2019/latest und Windows 2025/CU8 erfolgreich. Qualifiziert sind echte ZIP-1.3-Assemblyhash-Upgrades, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende Deploy-/Uninstall-Callerablehnung OFF/ON. Unabhängige Writer-Frameworksuite erneut erfolgreich; bekannte übrige Matrix bleibt offen.
 
+## Aktueller Framework-Binary-Intake (2026-10-08)
+
+Der aktuelle Testaufruf benötigt `AssemblyPath`, `ExpectedAssemblySHA512`,
+`ExpectedAssemblyLength` und `EvidenceDirectory`. Er läuft in einem frischen
+Windows-PowerShell-/Framework-Prozess ohne bereits geladene Toolbelt-ZIP-Assembly.
+`$releaseDirectory` bezeichnet den bewusst ausgewählten vorhandenen Releaseoutput;
+`$privateEvidenceDirectory` ist ein zuvor ausgewählter absoluter, noch nicht
+vorhandener privater Verzeichnispfad unter einem bestehenden Parent.
+
+```powershell
+$assembly = (Get-Item -LiteralPath (Join-Path $releaseDirectory 'Toolbelt.Archive.ZipMemory.dll')).FullName
+$manifest = Get-Content -LiteralPath (Join-Path $releaseDirectory 'Toolbelt.Archive.ZipMemory.trust-manifest.json') -Raw | ConvertFrom-Json
+$length = (Get-Item -LiteralPath $assembly).Length.ToString([Globalization.CultureInfo]::InvariantCulture)
+powershell.exe -NoProfile -File Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Framework.ps1 -AssemblyPath $assembly -ExpectedAssemblySHA512 $manifest.sha512 -ExpectedAssemblyLength $length -EvidenceDirectory $privateEvidenceDirectory
+```
+
+Der Erwartungshash stammt aus dem vorhandenen `sha512`-Manifestfeld, die exakte
+Länge aus der ausgewählten DLL. Nur diese DLL-Aufnahme ist auf 1 Byte bis 4 MiB
+begrenzt. Der Adapter liest einmal höchstens erwartete Länge plus ein EOF-Byte,
+prüft die konsumierten Bytes und schreibt eine eigene DLL mit `CreateNew`.
+Load und Compilerreferenz verwenden dieselbe erneut geprüfte Kopie; eine
+Windows-Read-Lease bleibt während des Laufs offen. Dies garantiert weder den
+gesamten Prozessheap noch eine harte Laufzeit oder atomare Ancestoridentität.
+Dateien und geladene Assembly bleiben erhalten; ausschließlich eigene Handles
+werden geschlossen. Retention ist kein Datei-Cleanup-PASS.
+
+Die eingebettete synthetische C#-Suite bleibt unverändert. Der historische
+Aufruf im folgenden Abschnitt dokumentiert den damaligen Stand.
+Neue Intake-/Frameworkqualifikation: **NOT_EXECUTED**, Quellenstand 2026-10-08.
+Modulstatus und Release bleiben `partially validated` und `unreleased`;
+keine zusätzliche SQL-, SAFE-, Plattform- oder Kapazitätsqualifikation.
+
 ## Writer 1.3.0 (2026-10-01)
 
 `powershell -File Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Framework.ps1 -AssemblyPath .runtime/zip-memory-release/Toolbelt.Archive.ZipMemory.dll` prüft das echte Framework-Binary mit unabhängigem ZipArchive-, CRC- und Header-Oracle. Enthalten sind ein leerer Method-8-Entry, Stored-Identität, ungültige Envelopes, Namen und parallele Aufrufe. Synthetisch werden tatsächlich 32 MiB je Entry, 128 MiB Gesamtpayload, 1024 Entries und 2048 UTF-16-Codeeinheiten je Name gemeinsam verarbeitet. Die eigenständigen Budgetcaps für 136 MiB Envelope und 144 MiB Output werden als Parameterceilings akzeptiert; der maximale gültige Input bleibt darunter. Exakte Auslastung dieser beiden Caps wird nicht behauptet.

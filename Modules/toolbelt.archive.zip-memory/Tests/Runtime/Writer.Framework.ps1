@@ -1,8 +1,78 @@
-param([Parameter(Mandatory=$true)][string]$AssemblyPath)
+param(
+ [Parameter(Mandatory=$true)][string]$AssemblyPath,
+ [Parameter(Mandatory=$true)][ValidatePattern('\A[A-Fa-f0-9]{128}\z')][string]$ExpectedAssemblySHA512,
+ [Parameter(Mandatory=$true)][string]$ExpectedAssemblyLength,
+ [Parameter(Mandatory=$true)][string]$EvidenceDirectory
+)
 $ErrorActionPreference='Stop'
-Add-Type -Path (Resolve-Path $AssemblyPath)
+function Assert-WriterBinary([bool]$value) {
+ if(-not $value){throw 'ZIP_WRITER_FRAMEWORK_BINARY_INTAKE'}
+}
+function Get-WriterBinaryHash([IO.Stream]$stream) {
+ $hash=[Security.Cryptography.SHA512]::Create()
+ try{$stream.Position=0; return [BitConverter]::ToString($hash.ComputeHash($stream)).Replace('-','')}
+ finally{$hash.Dispose()}
+}
+$primaryFailed=$false
+$copyLease=$null
+$sourceLease=$null
+$copyWriter=$null
+$binaryBytes=$null
+$snapshot=$null
+try {
+ try {
+  # Der Testcaller bindet den ausgewählten Releaseoutput. Vier MiB begrenzen nur
+  # diese DLL-Aufnahme; weder Produktpayload noch Heap oder Laufzeit werden zugesagt.
+  $length=0
+  Assert-WriterBinary ([int]::TryParse($ExpectedAssemblyLength,[Globalization.NumberStyles]::None,[Globalization.CultureInfo]::InvariantCulture,[ref]$length))
+  Assert-WriterBinary ($length -ge 1 -and $length -le 4194304 -and $ExpectedAssemblyLength -ceq $length.ToString([Globalization.CultureInfo]::InvariantCulture))
+  Assert-WriterBinary ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT)
+  # LoadFrom darf keine frühere Assembly gleicher Identität wiederverwenden.
+  foreach($loaded in [AppDomain]::CurrentDomain.GetAssemblies()) {
+   Assert-WriterBinary ($loaded.GetName().Name -ine 'Toolbelt.Archive.ZipMemory')
+  }
+  $sourcePath=[IO.Path]::GetFullPath($AssemblyPath)
+  $attributes=[IO.File]::GetAttributes($sourcePath)
+  Assert-WriterBinary (($attributes -band ([IO.FileAttributes]::ReparsePoint -bor [IO.FileAttributes]::Directory)) -eq 0)
+  $sourceLease=[IO.File]::Open($sourcePath,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)
+  Assert-WriterBinary ($sourceLease.Length -eq $length)
+  # Genau eine konsumierte Aufnahme: höchstens erwartete Länge plus ein EOF-Byte.
+  $binaryBytes=New-Object byte[] ($length+1)
+  $count=0
+  while($count -lt $binaryBytes.Length) {
+   $read=$sourceLease.Read($binaryBytes,$count,$binaryBytes.Length-$count)
+   if($read -eq 0){break}
+   $count+=$read
+  }
+  Assert-WriterBinary ($count -eq $length)
+  $snapshot=New-Object IO.MemoryStream
+  $snapshot.Write($binaryBytes,0,$count)
+  Assert-WriterBinary ((Get-WriterBinaryHash $snapshot) -ceq $ExpectedAssemblySHA512.ToUpperInvariant())
+  $sourceLease.Dispose(); $sourceLease=$null
+  $copyRoot=[IO.Path]::GetFullPath($EvidenceDirectory)
+  Assert-WriterBinary ($copyRoot -ceq $EvidenceDirectory -and -not [IO.Directory]::Exists($copyRoot) -and -not [IO.File]::Exists($copyRoot))
+  $parent=[IO.Path]::GetDirectoryName($copyRoot)
+  Assert-WriterBinary ([IO.Directory]::Exists($parent) -and ([IO.File]::GetAttributes($parent) -band [IO.FileAttributes]::ReparsePoint) -eq 0)
+  [void][IO.Directory]::CreateDirectory($copyRoot)
+  Assert-WriterBinary (([IO.File]::GetAttributes($copyRoot) -band [IO.FileAttributes]::ReparsePoint) -eq 0)
+  # CreateNew verhindert das Überschreiben vorhandener Dateien. Keine fremde
+  # Datei oder rekursive Verzeichnisbereinigung; die eigene Kopie bleibt erhalten.
+  $copyPath=Join-Path $copyRoot 'Toolbelt.Archive.ZipMemory.dll'
+  $copyWriter=[IO.File]::Open($copyPath,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
+  $copyWriter.Write($binaryBytes,0,$count); $copyWriter.Flush($true)
+  $copyWriter.Dispose(); $copyWriter=$null
+  $snapshot.Dispose(); $snapshot=$null; $binaryBytes=$null
+  # Die Windows-Read-Lease bleibt über Load, Compilerreferenz und Writerlauf
+  # offen. Sie erlaubt Lesen, aber keine Write-/Deletefreigabe derselben Datei.
+  $copyLease=[IO.File]::Open($copyPath,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)
+  Assert-WriterBinary (($copyLease.Length -eq $length) -and ([IO.File]::GetAttributes($copyPath) -band [IO.FileAttributes]::ReparsePoint) -eq 0)
+  Assert-WriterBinary ((Get-WriterBinaryHash $copyLease) -ceq $ExpectedAssemblySHA512.ToUpperInvariant())
+  Add-Type -LiteralPath $copyPath
+  Assert-WriterBinary ([Toolbelt.Archive.ZipMemory.ZipEntryProvider].Assembly.Location -ieq $copyPath)
+ }
+ catch {throw 'ZIP_WRITER_FRAMEWORK_BINARY_INTAKE'}
 Add-Type -AssemblyName System.IO.Compression
-Add-Type -ReferencedAssemblies @((Resolve-Path $AssemblyPath).Path,'System.Data.dll','System.Xml.dll','System.Core.dll','System.IO.Compression.dll') -TypeDefinition @'
+Add-Type -ReferencedAssemblies @($copyPath,'System.Data.dll','System.Xml.dll','System.Core.dll','System.IO.Compression.dll') -TypeDefinition @'
 using System; using System.IO; using System.IO.Compression; using System.Text; using System.Data.SqlTypes;
 using Toolbelt.Archive.ZipMemory;
 public static class WriterFramework {
@@ -80,3 +150,19 @@ public static class WriterFramework {
 }
 '@
 [WriterFramework]::Run()
+Assert-WriterBinary (($copyLease.Length -eq $length) -and (Get-WriterBinaryHash $copyLease) -ceq $ExpectedAssemblySHA512.ToUpperInvariant())
+}
+catch { $primaryFailed=$true; throw }
+finally {
+ # Nur eigene Handles schließen; geladene Typen und Dateien werden nicht
+ # entladen/gelöscht. Ein Cleanupfehler ersetzt den ursprünglichen Fehler nicht.
+ $cleanupFailed=$false
+ foreach($resource in @($sourceLease,$copyWriter,$snapshot,$copyLease)) {
+  if($null -ne $resource){try{$resource.Dispose()}catch{$cleanupFailed=$true}}
+ }
+ $binaryBytes=$null
+ if($cleanupFailed){
+  if($primaryFailed){Write-Warning 'ZIP_WRITER_FRAMEWORK_HANDLE_CLEANUP_FAILED' -WarningAction Continue}
+  else{throw 'ZIP_WRITER_FRAMEWORK_HANDLE_CLEANUP_FAILED'}
+ }
+}
