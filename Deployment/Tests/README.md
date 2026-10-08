@@ -144,6 +144,50 @@ Workerprodukt- oder Ursachenfix abgeleitet. Parentnachweise bleiben erhalten.
 Finale Head-CI nach dieser Evidenzfortschreibung, PR291-Merge und anschließende
 Main-CI einschließlich Maincleanup sind noch offen.
 
+Statusfortschreibung 2026-10-08 nach PR291-Merge: Die vorstehende offene
+Abschlussangabe beschreibt den damaligen Stand. Der erfolgreiche
+Qualifikationshead `155f74c9d11548cf600e7770f0d0d12e0720a7f4` bleibt erhalten;
+auch der finale Head `6a28ba484760d181ce2b37833b339780084a457d` bestand
+[Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37709411383)
+und [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37709411388).
+PR291 wurde nach `main` `f8b9b407ad30fc560015b8b475005b4505617689` gemergt.
+Die [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37709938821)
+bestand; die [Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37709938890)
+ist **FAILED** im bestehenden Schritt „Execute genuine Queue 2.0 to 2.1
+upgrade“. Die vorherigen realen Linux-Worker-, Managed- und Admissionprüfungen
+bestanden. Beide neuen Export-Schritte sind **SKIPPED / NOT_EXECUTED**.
+Die separate eigene Containerbereinigung bestand mit genau einem tatsächlichen
+festen Cleanupmarker; daraus folgt kein eigener Export- oder Fixturecleanup-PASS.
+Die beiden früheren FAILED-Läufe bleiben unverändert historische Evidenz.
+
+Der geschlossene Fehlerbefund nennt die Sourcephase
+`control-repeat-post-source-rollback`, SQL1222, die äußere Source-Skriptzeile141
+und Orakel `UNSPECIFIED`; der bestehende Sourcefall erwartet SQL54969/State1.
+Ein numerischer Enginefehlerdescriptor wurde nicht ausgegeben. Enginezeile,
+tatsächlicher State, erster fehlgeschlagener Batch und Blockerursache bleiben
+**UNMEASURED**. Weder ein
+Timingproblem noch ein Produktfehler ist damit ursächlich belegt; die frühere
+Managed-UNKNOWN-Ursache bleibt ebenfalls offen. Kein Main-PASS wird abgeleitet.
+
+Die begrenzte Diagnosewartung liegt als privater, eingefrorener
+Testfixturekandidat vor. Ausschließlich `Invoke-ControlRepeatExpectedFailure`
+erfasst vor dem unveränderten Weiterwerfen der ersten unerwarteten SQL-Abweisung
+den Batch und höchstens vier numerische Enginefehler im vorhandenen
+`fixtureSqlFailure`-Pfad; Texte sind auf fünf vorhandene Source-Guardmeldungen
+oder leer beschränkt. Die bestehende geschlossene Descriptorabbildung gibt
+keine freien Fehlertexte aus. Offlineprüfungen und unabhängiger Client-/Privacy-
+Review bestanden: erste begrenzte Erfassung ohne Überschreiben, erwartete
+Abweisungen und State-Wildcard unverändert, unbekannte Meldungen ausgeschlossen
+und ursprüngliche Exception auch bei fehlgeschlagener Erfassung erhalten.
+Syntax sowie vollständige Byteerhaltung außerhalb dieser Diagnosefunktion
+wurden offline geprüft. Die native Ausführung des Kandidaten ist
+**NOT_EXECUTED**; Ursache und Mainqualifikation bleiben offen. Erwartete
+Abweisungen, Orakel, Timing, Transaktions-/Ownership-Guards, Produktquellen,
+Ziele und Cleanup bleiben unverändert; kein unveränderter Retry ersetzt diesen
+Nachweis. Kanonische Main-Adoption von ParameterMetadata und class3-
+Schemaannotation bleibt bis zur Mainqualifikation gesperrt; private Vorbereitung
+kann innerhalb der bestehenden Grenzen fortgesetzt werden.
+
 
 Statusfortschreibung 2026-10-08: Der erste native Migrationslauf in
 [PR291](https://github.com/gecompat/SQL_Server_Toolbelt/pull/291) am Head

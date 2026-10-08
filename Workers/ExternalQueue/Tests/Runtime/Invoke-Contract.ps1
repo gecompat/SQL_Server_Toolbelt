@@ -133,15 +133,37 @@ function New-ControlRepeatConnection {
  }catch{$isolated.Dispose();throw}
 }
 function Invoke-ControlRepeatExpectedFailure([string]$Path,[int]$Number,[int]$State,[switch]$RollbackOwned){
- $isolated=New-ControlRepeatConnection;$matched=$false
+ $isolated=New-ControlRepeatConnection;$matched=$false;$batchIndex=0
  try{
   foreach($batch in [regex]::Split((Expand-FixtureSql $Path),'(?im)^\s*GO\s*$')){
    if([string]::IsNullOrWhiteSpace($batch)){continue}
+   $batchIndex++
    $command=$isolated.CreateCommand();$command.CommandTimeout=10;$command.CommandText=$batch
    try{[void]$command.ExecuteNonQuery()}
    catch{
     $cause=$_.Exception;while($cause -and $cause-isnot[Data.SqlClient.SqlException]){$cause=$cause.InnerException}
-    if($null-eq$cause -or $cause.Number-ne$Number -or ($State-ge0 -and [int]$cause.State-ne$State)){throw}
+    if($null-eq$cause -or $cause.Number-ne$Number -or ($State-ge0 -and [int]$cause.State-ne$State)){
+     # Unerwartete Engineablehnung nur begrenzt und ohne freie Fehlertexte erfassen.
+     # Diagnosefehler dürfen den ursprünglichen Throw oder Owncleanup nicht ersetzen.
+     try{
+      if($null-ne$cause -and $null-eq$fixtureSqlFailure){
+       $knownGuardMessages=@(
+        'Lifecycle darf keine Callertransaktion oder implizite Transaktion übernehmen.'
+        'Lifecycle darf keine aktive Callertransaktion übernehmen.'
+        'Lifecycle darf keinen aktiven Transaktionszustand übernehmen.'
+        'Lifecycle darf keine implizite Transaktion übernehmen.'
+        'Installierter Queue-/Control-Repeat benötigt initial LOCK_TIMEOUT -1.'
+       )
+       $boundedErrors=@(for($errorIndex=0;$errorIndex-lt[Math]::Min(4,$cause.Errors.Count);$errorIndex++){
+        $sqlError=$cause.Errors[$errorIndex];$guardMessage=''
+        if($sqlError.Message-is[string] -and $sqlError.Message-cin$knownGuardMessages){$guardMessage=$sqlError.Message}
+        [pscustomobject]@{Number=[int]$sqlError.Number;State=[int]$sqlError.State;Line=[int]$sqlError.LineNumber;Message=$guardMessage}
+       })
+       $script:fixtureSqlFailure=[ordered]@{BatchIndex=[int]$batchIndex;Errors=$boundedErrors;ErrorsTruncated=($cause.Errors.Count-gt4)}
+      }
+     }catch{}
+     throw
+    }
     $matched=$true;break
    }finally{$command.Dispose()}
   }
