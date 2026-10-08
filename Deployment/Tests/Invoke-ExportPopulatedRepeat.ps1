@@ -2,7 +2,7 @@
 # Provideraufruf, Grant oder Konfigurations-/Trusteingriff. Reale Daten bleiben privat.
 [CmdletBinding()]
 param([Parameter(Mandatory)][ValidatePattern('^[A-Za-z_][A-Za-z0-9_]*$')][string]$ConnectionStringEnvironmentVariable,
-      [ValidateSet('Repeat','Queue20Upgrade')][string]$Scenario='Repeat')
+      [ValidateSet('Repeat','Queue20Upgrade','ParameterMetadata')][string]$Scenario='Repeat')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repositoryRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
@@ -19,12 +19,16 @@ $journalPath=Join-Path $ownedRoot 'Ownership.json';$journalHash=$null
 $utf8=[Text.UTF8Encoding]::new($false,$true)
 $expectedModules=@('toolbelt.core.execution-context','toolbelt.core.result-table','toolbelt.file.content','toolbelt.core.execution-cancel','toolbelt.core.work-type','toolbelt.core.second-session','toolbelt.core.work-queue','toolbelt.core.event-log','toolbelt.core.worker-control')
 $selectedModules=@('toolbelt.core.worker-control','toolbelt.core.event-log','toolbelt.file.content','toolbelt.core.execution-cancel')
+if($Scenario-ceq'ParameterMetadata'){
+ $expectedModules=@('toolbelt.core.result-table','toolbelt.core.work-type','toolbelt.core.work-queue')
+ $selectedModules=@('toolbelt.core.result-table','toolbelt.core.work-queue')
+}
 $sourceConnection=[Environment]::GetEnvironmentVariable($ConnectionStringEnvironmentVariable,'Process')
 
 function Assert-ExportRepeat([bool]$Condition,[string]$Code){if(-not$Condition){throw ('EXPORT_REPEAT.'+$Code)}}
 function Get-SafeFailureDiagnostic([Exception]$Exception,[string]$Phase) {
  # Ausschließlich feste Quellcode-Tokens und Phasen publizieren, keine freien Exceptiontexte.
- $allowedPhases=@('preflight','cleanup','local-export','local-create','local-install','local-seed','local-repeat1','local-repeat2','local-cleanup','central-export','central-create','central-install','central-seed','central-repeat1','central-repeat2','central-cleanup','local-bootstrap','local-historical','local-upgrade','central-bootstrap','central-historical','central-upgrade')
+ $allowedPhases=@('preflight','cleanup','local-export','local-create','local-install','local-seed','local-repeat1','local-repeat2','local-cleanup','central-export','central-create','central-install','central-seed','central-repeat1','central-repeat2','central-cleanup','local-bootstrap','local-historical','local-upgrade','central-bootstrap','central-historical','central-upgrade','local-parameter-seed','local-parameter-repeat','local-parameter-verify','central-parameter-seed','central-parameter-repeat','central-parameter-verify')
  $allowedCodes=@(
   'JOURNAL_SIZE','JOURNAL_READ','JOURNAL_DRIFT','OWNERSHIP_UNCONFIRMED',
   'UNRESOLVED_VARIABLE','UNSUPPORTED_DIRECTIVE','ERROR_ABORT_MISSING',
@@ -40,7 +44,10 @@ function Get-SafeFailureDiagnostic([Exception]$Exception,[string]$Phase) {
   'HISTORICAL_CAPTURE_DEADLINE','HISTORICAL_BLOB_ID','HISTORICAL_BLOB_CAPTURE',
   'HISTORICAL_BLOB_BYTES','HISTORICAL_TOOL_DRIFT','HISTORICAL_INCLUDE_COUNT',
   'HISTORICAL_INCLUDE_SHAPE','HISTORICAL_INCLUDE_BINDING','HISTORICAL_FILE_IDENTITY',
-  'HISTORICAL_DEPLOY_BINDING','HISTORICAL_MODE_BINDING','HISTORICAL_DIRECTORY_BOUNDARY'
+  'HISTORICAL_DEPLOY_BINDING','HISTORICAL_MODE_BINDING','HISTORICAL_DIRECTORY_BOUNDARY',
+  'SNAPSHOT_TABLE_COUNT','PARAMETER_CAPTURE_BINDING','PARAMETER_SNAPSHOT_CATEGORIES',
+  'PARAMETER_SNAPSHOT_CARDINALITY','PARAMETER_COUNTS_XML','PARAMETER_COUNT_ENCODING',
+  'PARAMETER_COUNT_BINDING','EXPORT_ENDS3','EXPORT_GUARDS4'
  )
  $safePhase=if($Phase-cin$allowedPhases){$Phase}else{'UNSPECIFIED'}
  $safeCode='UNCLASSIFIED';$sqlNumber=0;$sqlState=0;$cause=$Exception
@@ -163,6 +170,8 @@ function Invoke-OwnedFixture($Identity,[string]$Name,[hashtable]$Parameters=@{})
  finally{$connection.Dispose()}
 }
 function Read-PrivateSnapshot($Identity,[string]$Name='ExportPopulated.Capture.sql',[hashtable]$Parameters=@{},[int]$TableCount=14){
+ Assert-ExportRepeat ($TableCount-in@(0,8,14)) 'SNAPSHOT_TABLE_COUNT'
+ if($TableCount-eq0){Assert-ExportRepeat ($Name-ceq'ExportParameter.Capture.sql'-and$Parameters.Count-eq0) 'PARAMETER_CAPTURE_BINDING'}
  $connection=New-ExportConnection $Identity.Name
  try{
   Assert-OwnedConnection $connection $Identity
@@ -181,10 +190,45 @@ function Read-PrivateSnapshot($Identity,[string]$Name='ExportPopulated.Capture.s
    }finally{$reader.Dispose()}
    foreach($category in $snapshot.Keys){$snapshot[$category].Sort([StringComparer]::Ordinal)}
    $actualTables=@($snapshot.Keys|Where-Object {$_.StartsWith('row:',[StringComparison]::Ordinal)}).Count
-   if($TableCount-eq8){Assert-ExportRepeat ($actualTables-eq8) 'SNAPSHOT_TABLES8'}else{Assert-ExportRepeat ($actualTables-eq14) 'SNAPSHOT_TABLES14'}
+   if($TableCount-eq0){Assert-ParameterSnapshotShape $snapshot}
+   else{if($TableCount-eq8){Assert-ExportRepeat ($actualTables-eq8) 'SNAPSHOT_TABLES8'}else{Assert-ExportRepeat ($actualTables-eq14) 'SNAPSHOT_TABLES14'}}
    return ,$snapshot
   }finally{$command.Dispose()}
  }finally{$connection.Dispose()}
+}
+function Assert-ParameterSnapshotShape($Snapshot){
+ # Die Parameterfixture ist der einzige erlaubte tabellenfreie Snapshotpfad.
+ $required=@('counts','parameters','objects','modules','properties')
+ $allowed=$required+@('permissions')
+ Assert-ExportRepeat (@($Snapshot.Keys|Where-Object {$_-cnotin$allowed}).Count-eq0-and@($required|Where-Object {-not$Snapshot.ContainsKey($_)}).Count-eq0) 'PARAMETER_SNAPSHOT_CATEGORIES'
+ Assert-ExportRepeat ($Snapshot['counts'].Count-eq1-and$Snapshot['parameters'].Count-eq11-and$Snapshot['objects'].Count-eq2-and$Snapshot['modules'].Count-eq2-and$Snapshot['properties'].Count-ge4) 'PARAMETER_SNAPSHOT_CARDINALITY'
+ if($Snapshot.ContainsKey('permissions')){Assert-ExportRepeat ($Snapshot['permissions'].Count-gt0) 'PARAMETER_SNAPSHOT_CARDINALITY'}
+ $countHex=$Snapshot['counts'][0]
+ Assert-ExportRepeat ($countHex.Length-gt0-and$countHex.Length-le16384-and($countHex.Length%4)-eq0) 'PARAMETER_COUNTS_XML'
+ $xml=$null;$reader=$null
+ try{
+  # SQL-NVARCHAR->varbinary ist UTF16LE. Nur der kleine eigene Countzeuge wird als XML gelesen.
+  $xml=[Text.UnicodeEncoding]::new($false,$false,$true).GetString([Convert]::FromHexString($countHex))
+  $settings=[Xml.XmlReaderSettings]::new();$settings.DtdProcessing=[Xml.DtdProcessing]::Prohibit;$settings.XmlResolver=$null;$settings.MaxCharactersInDocument=4096
+  $reader=[Xml.XmlReader]::Create([IO.StringReader]::new($xml),$settings)
+  $document=[Xml.XmlDocument]::new();$document.XmlResolver=$null;$document.Load($reader)
+  Assert-ExportRepeat ($document.DocumentElement.Name-ceq'row'-and$document.DocumentElement.SelectNodes('*').Count-eq5) 'PARAMETER_COUNTS_XML'
+  foreach($field in @('Parameters','Objects','Modules','Properties','Permissions')){
+   $nodes=$document.DocumentElement.SelectNodes($field)
+   Assert-ExportRepeat ($nodes.Count-eq1-and$nodes[0].SelectNodes('*').Count-eq0) 'PARAMETER_COUNT_ENCODING'
+   $bytes=[Convert]::FromBase64String($nodes[0].InnerText)
+   Assert-ExportRepeat ($bytes.Length-eq4-and$bytes[0]-lt128) 'PARAMETER_COUNT_ENCODING'
+   # SQL-int->binary verwendet Netzwerkbytefolge; keine hostabhängige BitConverter-Auswertung.
+   $count=([int]$bytes[0]-shl24)-bor([int]$bytes[1]-shl16)-bor([int]$bytes[2]-shl8)-bor[int]$bytes[3]
+   $category=$field.ToLowerInvariant()
+   $observed=if($Snapshot.ContainsKey($category)){$Snapshot[$category].Count}else{0}
+   Assert-ExportRepeat ($count-eq$observed) 'PARAMETER_COUNT_BINDING'
+  }
+ }catch{
+  # Decoder-/XMLtexte können fremde Inhalte enthalten und verlassen das private Memory nicht.
+  if($_.Exception.Message-cin@('EXPORT_REPEAT.PARAMETER_COUNTS_XML','EXPORT_REPEAT.PARAMETER_COUNT_ENCODING','EXPORT_REPEAT.PARAMETER_COUNT_BINDING')){throw}
+  Assert-ExportRepeat $false 'PARAMETER_COUNTS_XML'
+ }finally{if($null-ne$reader){$reader.Dispose()};$xml=$null}
 }
 function Assert-Fixture([bool]$Condition,[string]$Code){Assert-ExportRepeat $Condition $Code}
 function Assert-HistoricalFile($File){
@@ -269,8 +313,14 @@ try{
   Assert-ExportRepeat (-not($bytes[0]-eq239-and$bytes[1]-eq187-and$bytes[2]-eq191)) 'EXPORT_BOM'
   $moduleIds=@([regex]::Matches($text,'(?m)^-- BEGIN MODULE ([a-z0-9.-]+)$')|ForEach-Object {$_.Groups[1].Value})
   Assert-ExportRepeat (($moduleIds-join ',')-ceq($expectedModules-join ',')) 'EXPORT_CLOSURE'
+  if($Scenario-ceq'ParameterMetadata'){
+   $endIds=@([regex]::Matches($text,'(?m)^-- END MODULE ([a-z0-9.-]+)$')|ForEach-Object {$_.Groups[1].Value})
+   Assert-ExportRepeat (($endIds-join ',')-ceq($expectedModules-join ',')) 'EXPORT_ENDS3'
+   Assert-ExportRepeat ([regex]::Matches($text,'IF @@TRANCOUNT <> 0 OR \(2 & @@OPTIONS\) <> 0').Count-eq4) 'EXPORT_GUARDS4'
+  }else{
   Assert-ExportRepeat ([regex]::Matches($text,'(?m)^-- END MODULE ').Count-eq9) 'EXPORT_ENDS9'
   Assert-ExportRepeat ([regex]::Matches($text,'IF @@TRANCOUNT <> 0 OR \(2 & @@OPTIONS\) <> 0').Count-eq10) 'EXPORT_GUARDS10'
+  }
   $export=[pscustomobject]@{Path=$exportPath;Hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes));BatchCount=@(Get-ExportBatches $text).Count}
   $ownedFiles.Add($export)
   $identity=[pscustomobject]@{Name=('Toolbelt_ExportRepeat_'+$mode+'_'+[guid]::NewGuid().ToString('N'));Id=$null;CreatedBytes=$null;OwnerBytes=$null;MarkerConfirmed=$false;Dropped=$false}
@@ -292,6 +342,22 @@ try{
    $identity.MarkerConfirmed=$true;Assert-OwnedConnection $connection $identity
    Invoke-ExportSql $connection ('ALTER DATABASE ['+$identity.Name+'] SET COMPATIBILITY_LEVEL=150;')
   }finally{$connection.Dispose()}
+  if($Scenario-ceq'ParameterMetadata'){
+   $phase=$mode+'-install';Save-PrivateOwnership
+   [void](Invoke-ExportFile $identity $export)
+   $phase=$mode+'-parameter-seed';Save-PrivateOwnership
+   Invoke-OwnedFixture $identity 'ExportParameter.Setup.sql'
+   Invoke-OwnedFixture $identity 'ExportParameter.Assert.sql'
+   $previous=Read-PrivateSnapshot $identity 'ExportParameter.Capture.sql' @{} 0
+   $phase=$mode+'-parameter-repeat';Save-PrivateOwnership
+   [void](Invoke-ExportFile $identity $export)
+   $phase=$mode+'-parameter-verify';Save-PrivateOwnership
+   Invoke-OwnedFixture $identity 'ExportParameter.Assert.sql'
+   $current=Read-PrivateSnapshot $identity 'ExportParameter.Capture.sql' @{} 0
+   Compare-PrivateSnapshots $previous $current
+   $phase=$mode+'-cleanup';Save-PrivateOwnership;Remove-OwnedDatabase $identity
+   continue
+  }
   if($Scenario-ceq'Queue20Upgrade'){
    $phase=$mode+'-bootstrap';Save-PrivateOwnership
    $bootstrap=New-UpgradeBootstrap $mode
@@ -376,5 +442,6 @@ if($null-ne$failure){
 }
 if($cleanupFailed){[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_CLEANUP_DEFERRED');Write-SafeFailureDiagnostic $cleanupFailure;exit 1}
 if($Scenario-ceq'Queue20Upgrade'){[Console]::Out.WriteLine('EXPORT_QUEUE20_UPGRADE_PASS local central SQL2019 CL150 eight-legacy-tables genuine2.0-to2.1 first-control')}
+elseif($Scenario-ceq'ParameterMetadata'){[Console]::Out.WriteLine('EXPORT_PARAMETER_METADATA_PASS local central SQL2019 CL150 three-modules two-procedures eleven-parameters one-cycle')}
 else{[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_PASS local central SQL2019 CL150 fourteen-tables two-cycles')}
 [Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_CLEANUP_VERIFIED')

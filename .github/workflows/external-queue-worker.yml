@@ -7,6 +7,7 @@ on:
       - "Deployment/Tests/Invoke-ExportPopulatedRepeat.ps1"
       - "Deployment/Tests/Runtime/ExportPopulated*.sql"
       - "Deployment/Tests/Runtime/ExportUpgrade*.sql"
+      - "Deployment/Tests/Runtime/ExportParameter*.sql"
       - "Modules/toolbelt.file.content/Source/**"
       - "Modules/toolbelt.file.content/Deployment/**"
       - "Modules/toolbelt.file.content/module.yaml"
@@ -41,6 +42,7 @@ on:
       - "Deployment/Tests/Invoke-ExportPopulatedRepeat.ps1"
       - "Deployment/Tests/Runtime/ExportPopulated*.sql"
       - "Deployment/Tests/Runtime/ExportUpgrade*.sql"
+      - "Deployment/Tests/Runtime/ExportParameter*.sql"
       - "Modules/toolbelt.core.execution-context/Source/**"
       - "Modules/toolbelt.core.execution-context/Deployment/**"
       - "Modules/toolbelt.core.execution-context/module.yaml"
@@ -190,6 +192,12 @@ jobs:
           ./Deployment/Tests/Invoke-ExportPopulatedRepeat.ps1
           -ConnectionStringEnvironmentVariable TBX_WORKER_TEST_CONNECTION_STRING
           -Scenario Queue20Upgrade
+      - name: Execute exported parameter metadata repeat
+        shell: pwsh
+        run: >-
+          ./Deployment/Tests/Invoke-ExportPopulatedRepeat.ps1
+          -ConnectionStringEnvironmentVariable TBX_WORKER_TEST_CONNECTION_STRING
+          -Scenario ParameterMetadata
       - name: Cleanup owned synthetic target
         if: always()
         shell: bash

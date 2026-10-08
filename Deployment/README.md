@@ -281,3 +281,36 @@ Ziele und Cleanup bleiben unverändert; kein unveränderter Retry ersetzt diesen
 Nachweis. Kanonische Main-Adoption von ParameterMetadata und class3-
 Schemaannotation bleibt bis zur Mainqualifikation gesperrt; private Vorbereitung
 kann innerhalb der bestehenden Grenzen fortgesetzt werden.
+
+Ein weiterer begrenzter [Parameter-Metadatentest](Tests/README.md) ist für
+`USP_PrepareResultTable` und `USP_EnqueueWork` mit elf Parametern vorbereitet.
+Der Fall `ParameterMetadata` verwendet die tatsächliche CLR-freie Closure
+result-table/work-type/work-queue und konsumiert dieselbe hashgebundene Datei
+lokal/zentral zur Erstinstallation und genau einmal zum Repeat, jeweils in
+einer frischen ungepoolten Sitzung. Vier eigene class-2-Annotationszeugen,
+der Parameterkatalog, ausgewählte Objekt-/Modulmetadaten, Definitionbytes und
+beobachtete Permissions werden privat binär verglichen. Produktquellen,
+Deployment-DDL, API, Berechtigungen und Ziele bleiben unverändert.
+Offlineprüfung der beiden Exporte mit je 90 Batches und unabhängige Reviews
+bestanden; native Parameterprüfung und eigene Bereinigung sind
+`NOT_EXECUTED`. Dies qualifiziert weder die Prozedurausführung noch
+Benutzergrants, Minimalrechte, SSMS/sqlcmd.exe, Windows oder alle 44 Module.
+
+Voraussetzung für die Parameterintegration, Stand 2026-10-08: PR292 wurde
+nach `main` `c73f67959185c7a7846455b89c067854dc7d87f6` gemergt.
+Die [Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37713277392)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37713277427)
+bestanden am exakten Mainstand. Alle drei Workerjobs sowie beide bestehenden
+Exportfälle bestanden; die tatsächlichen Festmarker bezeugen beide Export-PASS,
+zweimal eigenen Exportcleanup und einmal eigene Containerbereinigung.
+Auch die bestehende Control-Repeat- und Ablehnungsabnahme bestand.
+Der neue unerwartete SQL-Diagnosezweig wurde dabei **NOT_TRIGGERED**;
+seine Offline-Negativprüfung bleibt ein getrennter Nachweis. Der frühere
+Mainfehler auf `f8b9b407ad30fc560015b8b475005b4505617689` und seine
+weiterhin **UNMEASURED** Ursache bleiben unveränderte Historie; der erfolgreiche
+Lauf belegt keine Ursachenbehebung.
+Die native Parameterprüfung einschließlich eigener Bereinigung bleibt
+**NOT_EXECUTED**. Der Mainnachweis wurde unabhängig geprüft; der Parameter-
+branch enthält Adapter, Fixtures und CI-Schritt für die eigene Headprüfung.
+Sämtliche bisherigen
+Migrations-/Fehler-/Parentnachweise bleiben vollständig erhalten.
