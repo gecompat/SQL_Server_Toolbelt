@@ -80,7 +80,7 @@ IF (SELECT COUNT(DISTINCT ObjectId) FROM @ExportObjectBindings)<>3
  LEFT JOIN sys.objects o ON o.object_id=b.ObjectId
  LEFT JOIN sys.schemas s ON s.schema_id=o.schema_id
  LEFT JOIN sys.sql_modules m ON m.object_id=o.object_id
- WHERE o.object_id IS NULL OR o.type<>b.ObjectType OR m.definition IS NULL
+ WHERE o.object_id IS NULL OR CONVERT(varbinary(max),o.type)<>CONVERT(varbinary(max),b.ObjectType) OR m.definition IS NULL
  OR CONVERT(varbinary(max),o.name)<>CONVERT(varbinary(max),b.ObjectName)
  OR CONVERT(varbinary(max),s.name)<>CONVERT(varbinary(max),N'toolbelt_core')
  OR NOT EXISTS(SELECT 1 FROM sys.extended_properties p WHERE p.class=1 AND p.major_id=b.ObjectId AND p.minor_id=0
