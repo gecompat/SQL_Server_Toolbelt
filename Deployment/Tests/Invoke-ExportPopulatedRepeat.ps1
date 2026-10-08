@@ -51,6 +51,11 @@ function Get-SafeFailureDiagnostic([Exception]$Exception,[string]$Phase) {
   'SNAPSHOT_TABLE_COUNT','PARAMETER_CAPTURE_BINDING','PARAMETER_SNAPSHOT_CATEGORIES',
   'PARAMETER_SNAPSHOT_CARDINALITY','PARAMETER_COUNTS_XML','PARAMETER_COUNT_ENCODING',
   'PARAMETER_COUNT_BINDING','EXPORT_ENDS3','EXPORT_GUARDS4',
+  'QUEUE11_ROOT_PARENT_PATH','QUEUE11_ROOT_NAME','QUEUE11_ROOT_PARENT_ATTRIBUTES',
+  'QUEUE11_ROOT_PARENT_CREATED_TICKS','QUEUE11_ROOT_PARENT_REPARSE','QUEUE11_ROOT_DIRECTORY',
+  'QUEUE11_ROOT_REPARSE','QUEUE11_ROOT_CREATION_AUTHORITY','QUEUE11_ROOT_CREATED_TICKS',
+  'QUEUE11_ROOT_ATTRIBUTES','QUEUE11_ROOT_INITIAL_ABSENT','QUEUE11_ROOT_INITIAL_PARENT_DIRECTORY',
+  'QUEUE11_ROOT_INITIAL_PARENT_REPARSE',
   'QUEUE11_ROOT_BOUNDARY','QUEUE11_FILE_BOUNDARY','QUEUE11_FILE_REGISTRATION','QUEUE11_FILE_IDENTITY',
   'QUEUE11_JOURNAL_IDENTITY','QUEUE11_ACQUIRE_HELPER','QUEUE11_CAPTURE_HELPER','QUEUE11_ACQUIRE_RETURN',
   'QUEUE11_CAPTURE_RETURN','QUEUE11_MANIFEST_BINDING','QUEUE11_SQL_FIXTURE_PIN',
@@ -302,16 +307,22 @@ function Compare-PrivateSnapshots($Previous,$Current,[switch]$First){
 # Zusätzliche Grenzen ausschließlich für Queue11Upgrade; alte Consumer bleiben unverändert.
 function Assert-Queue11Root {
  $resolved=[IO.Path]::GetFullPath($ownedRoot)
- Assert-ExportRepeat ([IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetDirectoryName($resolved))-ceq$temporaryParent-and[IO.Path]::GetFileName($resolved)-cmatch'^toolbelt-export-repeat-[0-9a-f]{32}$') 'QUEUE11_ROOT_BOUNDARY'
+ # Nur feste Operandtokens unterscheiden; keine Pfade oder Runtimewerte publizieren.
+ Assert-ExportRepeat ([IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetDirectoryName($resolved))-ceq$temporaryParent) 'QUEUE11_ROOT_PARENT_PATH'
+ Assert-ExportRepeat ([IO.Path]::GetFileName($resolved)-cmatch'^toolbelt-export-repeat-[0-9a-f]{32}$') 'QUEUE11_ROOT_NAME'
  $parent=Get-Item -LiteralPath $temporaryParent -ErrorAction Stop
- Assert-ExportRepeat ([int]$parent.Attributes-eq$queue11ParentIdentity.Attributes-and$parent.CreationTimeUtc.Ticks-eq$queue11ParentIdentity.CreatedTicks-and($parent.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'QUEUE11_ROOT_BOUNDARY'
+ Assert-ExportRepeat ([int]$parent.Attributes-eq$queue11ParentIdentity.Attributes) 'QUEUE11_ROOT_PARENT_ATTRIBUTES'
+ Assert-ExportRepeat ($parent.CreationTimeUtc.Ticks-eq$queue11ParentIdentity.CreatedTicks) 'QUEUE11_ROOT_PARENT_CREATED_TICKS'
+ Assert-ExportRepeat (($parent.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'QUEUE11_ROOT_PARENT_REPARSE'
  $item=Get-Item -LiteralPath $resolved -ErrorAction Stop
- Assert-ExportRepeat ([IO.Directory]::Exists($resolved)-and($item.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'QUEUE11_ROOT_BOUNDARY'
+ Assert-ExportRepeat ([IO.Directory]::Exists($resolved)) 'QUEUE11_ROOT_DIRECTORY'
+ Assert-ExportRepeat (($item.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'QUEUE11_ROOT_REPARSE'
  if($null-eq$queue11RootIdentity){
-  Assert-ExportRepeat $queue11RootCreationAuthorized 'QUEUE11_ROOT_BOUNDARY'
+  Assert-ExportRepeat $queue11RootCreationAuthorized 'QUEUE11_ROOT_CREATION_AUTHORITY'
   $script:queue11RootIdentity=[pscustomobject]@{CreatedTicks=$item.CreationTimeUtc.Ticks;Attributes=[int]$item.Attributes}
  }
- Assert-ExportRepeat ($item.CreationTimeUtc.Ticks-eq$queue11RootIdentity.CreatedTicks-and[int]$item.Attributes-eq$queue11RootIdentity.Attributes) 'QUEUE11_ROOT_BOUNDARY'
+ Assert-ExportRepeat ($item.CreationTimeUtc.Ticks-eq$queue11RootIdentity.CreatedTicks) 'QUEUE11_ROOT_CREATED_TICKS'
+ Assert-ExportRepeat ([int]$item.Attributes-eq$queue11RootIdentity.Attributes) 'QUEUE11_ROOT_ATTRIBUTES'
 }
 function Assert-Queue11Path([string]$Path){
  Assert-Queue11Root
@@ -468,9 +479,10 @@ function Remove-OwnedDatabase($Identity){
 try{
  Assert-ExportRepeat (-not[string]::IsNullOrWhiteSpace($sourceConnection)) 'CONNECTION_INPUT_MISSING'
  if($Scenario-ceq'Queue11Upgrade'){
-  Assert-ExportRepeat (-not(Test-Path -LiteralPath $ownedRoot)) 'QUEUE11_ROOT_BOUNDARY'
+  Assert-ExportRepeat (-not(Test-Path -LiteralPath $ownedRoot)) 'QUEUE11_ROOT_INITIAL_ABSENT'
   $parent=Get-Item -LiteralPath $temporaryParent -ErrorAction Stop
-  Assert-ExportRepeat ([IO.Directory]::Exists($temporaryParent)-and($parent.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'QUEUE11_ROOT_BOUNDARY'
+  Assert-ExportRepeat ([IO.Directory]::Exists($temporaryParent)) 'QUEUE11_ROOT_INITIAL_PARENT_DIRECTORY'
+  Assert-ExportRepeat (($parent.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'QUEUE11_ROOT_INITIAL_PARENT_REPARSE'
   $queue11ParentIdentity=[pscustomobject]@{CreatedTicks=$parent.CreationTimeUtc.Ticks;Attributes=[int]$parent.Attributes}
   $queue11RootCreationAuthorized=$true
  }

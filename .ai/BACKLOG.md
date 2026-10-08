@@ -8,6 +8,18 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ### Genuine Queue1.1 als weitere Deploymentwartung
 
+Erster exakter Head `e9fc95ea5192ac35697a2d87e11c8f94c1938d2b`:
+[Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37738796909)
+**FAILED**, [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37738797015)
+**PASS**. Der neue Fall wurde im Preflight abgewiesen; einzelne Bedingung und
+Ursache sind **UNMEASURED**, Migration bleibt **NOT_QUALIFIED**. Die bisherigen
+drei Exportfälle bestanden mit drei eigenen Bereinigungen; neuer Dateicleanup
+**DEFERRED**, separater Containercleanup bestätigt. Eine eng begrenzte
+Diagnoseänderung unterscheidet die dreizehn vorhandenen Root-Prädikate mit
+festen Codes, ohne die Schutzbedingungen zu lockern oder Runtimewerte auszugeben.
+Diese Änderung ist noch nicht nativ geprüft; aktueller Merge/Main bleiben offen.
+Die vorherigen PENDING-Angaben beschreiben die ursprüngliche Vorbereitung.
+
 Unter der bestehenden Freigabe zum datenwahrenden Gesamtdeployment wird der
 saubere originale Queue1.1-Installer mit genau einem aktuellen Neun-Modul-Export
 je local/central geprüft. Dies ist Testwartung vorhandener öffentlicher Objekte.

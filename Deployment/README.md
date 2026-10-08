@@ -443,3 +443,8 @@ Repeat noch eine Ziel-/Provider-/Rechteausweitung ist damit verbunden.
 Native neue Folge und eigener Cleanup sind **NOT_EXECUTED**, ihre exakte
 Head-/Mainqualifikation **PENDING**. Quellen, Orakel, Fehlergrenzen und der
 abgeschlossene PR297-Nachweis stehen in den [Deploymenttests](Tests/README.md).
+
+Der erste Queue1.1-Headlauf wurde im Root-Preflight abgewiesen. Migration bleibt
+unqualifiziert, eigener Dateicleanup DEFERRED. Die ergänzten festen Diagnosecodes
+trennen vorhandene Bedingungen ohne Lockerung; Ursache und konkrete Bedingung
+des alten Fehlers bleiben unbekannt. [Läufe und Grenzen](Tests/README.md).

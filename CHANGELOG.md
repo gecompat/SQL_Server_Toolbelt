@@ -2,6 +2,12 @@
 
 ## 2026-10-08 – Genuine Queue1.1 im bestehenden Exporttest ergänzen
 
+- Erster Queue1.1-Headlauf ist im Root-Preflight fehlgeschlagen; Migration
+  nicht qualifiziert, Dateicleanup DEFERRED, Containercleanup bestätigt.
+- Dreizehn vorhandene Root-Prädikate erhalten getrennte feste Diagnosecodes;
+  alle Bedingungen bleiben erhalten. Fehlgeschlagener Operand und Ursache
+  bleiben unbekannt; neue native Diagnosequalifikation steht aus.
+
 - Neuer begrenzter Testfall `Queue11Upgrade`: originale1.1-Installation, drei
   synthetische WorkItems und genau ein aktueller Neun-Modul-Export je local/central.
 - Quellenbezug nur im eigenen normalen Linux-CI-Checkout, einmaliger fester
