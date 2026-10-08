@@ -145,7 +145,47 @@ IF (SELECT COUNT(*) FROM sys.check_constraints c JOIN #NewTables n ON n.ObjectId
  WHERE c.object_id IS NULL OR m.object_id IS NULL OR CONVERT(varbinary(max),c.definition)<>CONVERT(varbinary(max),m.definition)
  OR c.is_disabled<>0 OR c.is_not_trusted<>0 OR c.is_not_for_replication<>0 OR c.is_system_named<>0 OR c.parent_column_id<>0
  OR c.uses_database_collation<>m.uses_database_collation)
+BEGIN
+ -- Nur im bereits fehlgeschlagenen CHECK-Zweig: feste Komponente plus Sourceordinal, keine Katalogwerte.
+ IF (SELECT COUNT(*) FROM sys.check_constraints c JOIN #NewTables n ON n.ObjectId=c.parent_object_id)<>9
+  THROW 54998,N'EXPORT_UPGRADE_REPEAT_CHECK_PRODUCTION_COUNT',14;
+ IF (SELECT COUNT(*) FROM tempdb.sys.check_constraints c JOIN #ExpectedChecks e ON e.MirrorObjectId=c.parent_object_id)<>9
+  THROW 54998,N'EXPORT_UPGRADE_REPEAT_CHECK_MIRROR_COUNT',15;
+ DECLARE @DiagnosticCheckState int;
+ SELECT TOP(1) @DiagnosticCheckState=p.ComponentBase+v.CheckIndex
+ FROM(VALUES
+  (0,N'WorkQueueManagedGate',N'CK_WorkQueueManagedGate_Id'),
+  (1,N'WorkerControlConfiguration',N'CK_WorkerControlConfiguration_Id'),
+  (2,N'WorkerControlConfiguration',N'CK_WorkerControlConfiguration_Limits'),
+  (3,N'WorkerRegistration',N'CK_WorkerRegistration_Generation'),
+  (4,N'WorkerRegistration',N'CK_WorkerRegistration_State'),
+  (5,N'WorkerRegistration',N'CK_WorkerRegistration_Capacity'),
+  (6,N'WorkerRegistration',N'CK_WorkerRegistration_RunMode'),
+  (7,N'WorkerSlotReservation',N'CK_WorkerSlotReservation_State'),
+  (8,N'WorkerExecutionDisposition',N'CK_WorkerExecutionDisposition_Stop')
+ )v(CheckIndex,TableName,ConstraintName)
+ JOIN #ExpectedChecks e ON CONVERT(varbinary(max),e.TableName)=CONVERT(varbinary(max),v.TableName)
+  AND CONVERT(varbinary(max),e.ConstraintName)=CONVERT(varbinary(max),v.ConstraintName)
+ JOIN #NewTables n ON n.TableName=e.TableName
+ LEFT JOIN sys.check_constraints c ON c.parent_object_id=n.ObjectId AND CONVERT(varbinary(max),c.name)=CONVERT(varbinary(max),e.ConstraintName)
+ LEFT JOIN tempdb.sys.check_constraints m ON m.parent_object_id=e.MirrorObjectId
+ CROSS APPLY(VALUES
+  (20,CASE WHEN c.object_id IS NULL THEN 1 ELSE 0 END),
+  (30,CASE WHEN m.object_id IS NULL THEN 1 ELSE 0 END),
+  (40,CASE WHEN CONVERT(varbinary(max),c.definition)<>CONVERT(varbinary(max),m.definition) THEN 1 ELSE 0 END),
+  (50,CASE WHEN c.is_disabled<>0 THEN 1 ELSE 0 END),
+  (60,CASE WHEN c.is_not_trusted<>0 THEN 1 ELSE 0 END),
+  (70,CASE WHEN c.is_not_for_replication<>0 THEN 1 ELSE 0 END),
+  (80,CASE WHEN c.is_system_named<>0 THEN 1 ELSE 0 END),
+  (90,CASE WHEN c.parent_column_id<>0 THEN 1 ELSE 0 END),
+  (100,CASE WHEN c.uses_database_collation<>m.uses_database_collation THEN 1 ELSE 0 END)
+ )p(ComponentBase,Failed)
+ WHERE p.Failed=1
+ ORDER BY p.ComponentBase,v.CheckIndex;
+ IF @DiagnosticCheckState IS NOT NULL
+  THROW 54998,N'EXPORT_UPGRADE_REPEAT_CHECK_COMPONENT_INDEX',@DiagnosticCheckState;
  THROW 54998,N'Die neun neuen CHECKs besitzen nicht die aktiven vertrauenswürdigen sourcegebundenen Ausdrücke.',12;
+END;
 IF EXISTS(SELECT 1 FROM sys.columns c JOIN #NewTables n ON n.ObjectId=c.object_id WHERE c.is_identity<>0 OR c.default_object_id<>0)
  OR EXISTS(SELECT 1 FROM sys.default_constraints c JOIN #NewTables n ON n.ObjectId=c.parent_object_id)
  OR EXISTS(SELECT 1 FROM sys.triggers t JOIN #NewTables n ON n.ObjectId=t.parent_id)
