@@ -20,6 +20,43 @@ IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem)
  OR NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkType WHERE WorkTypeName='toolbelt.event-log.write' AND IsEnabled=1)
  THROW 54980,N'Exportfixture verlangt den eigenen frischen Objektstand.',2;
 
+-- Eigene Klasse-3-Zeugen: Schema-IDs einmal bytegenau auflösen, keine fremden Schemas.
+DECLARE @ExportSchemaCore int=(SELECT schema_id FROM sys.schemas WHERE CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'toolbelt_core')),
+ @ExportSchemaFile int=(SELECT schema_id FROM sys.schemas WHERE CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'toolbelt_file'));
+IF @ExportSchemaCore IS NULL OR @ExportSchemaFile IS NULL OR @ExportSchemaCore=@ExportSchemaFile
+ THROW 54980,N'Die beiden eigenen Schemas sind nicht eindeutig gebunden.',5;
+DECLARE @ExportSchemaExpected TABLE(SchemaId int NOT NULL,PropertyName sysname COLLATE Latin1_General_100_BIN2 NOT NULL,ExpectedValue sql_variant NULL,PRIMARY KEY(SchemaId,PropertyName));
+INSERT @ExportSchemaExpected(SchemaId,PropertyName,ExpectedValue) VALUES
+ (@ExportSchemaCore,N'MS_Description',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Contoso Schema – Unicode Ω  '))),
+ (@ExportSchemaFile,N'MS_Description',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Fabrikam Schema – Padding 中  '))),
+ (@ExportSchemaCore,N'Toolbelt.Test.ExportSchema.Typed',CONVERT(sql_variant,CONVERT(varbinary(5),0x00017F80FF))),
+ (@ExportSchemaFile,N'Toolbelt.Test.ExportSchema.Typed',CONVERT(sql_variant,CONVERT(int,7))),
+ (@ExportSchemaCore,N'Toolbelt.Test.ExportSchema.Null',CONVERT(sql_variant,NULL));
+-- Alle fünf Kollisionen gemeinsam vor dem ersten Add abweisen; nichts übernehmen/überschreiben.
+-- Nur diese fünf Adds liegen in der eigenen kleinen Transaktionsgrenze.
+IF EXISTS(SELECT 1 FROM sys.extended_properties p JOIN @ExportSchemaExpected e
+ ON p.class=3 AND p.major_id=e.SchemaId AND p.minor_id=0 AND p.name=e.PropertyName COLLATE DATABASE_DEFAULT)
+ THROW 54980,N'Eigene Schemaannotation ist bereits belegt.',6;
+DECLARE @ExportSchemaCoreDescription nvarchar(128)=N'Contoso Schema – Unicode Ω  ',
+ @ExportSchemaFileDescription nvarchar(128)=N'Fabrikam Schema – Padding 中  ',
+ @ExportSchemaBinary varbinary(5)=0x00017F80FF,@ExportSchemaInteger int=7;
+BEGIN TRY
+ BEGIN TRANSACTION;
+ EXEC sys.sp_addextendedproperty @name=N'MS_Description',@value=@ExportSchemaCoreDescription,@level0type=N'SCHEMA',@level0name=N'toolbelt_core';
+ EXEC sys.sp_addextendedproperty @name=N'MS_Description',@value=@ExportSchemaFileDescription,@level0type=N'SCHEMA',@level0name=N'toolbelt_file';
+ EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Test.ExportSchema.Typed',@value=@ExportSchemaBinary,@level0type=N'SCHEMA',@level0name=N'toolbelt_core';
+ EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Test.ExportSchema.Typed',@value=@ExportSchemaInteger,@level0type=N'SCHEMA',@level0name=N'toolbelt_file';
+ EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Test.ExportSchema.Null',@value=NULL,@level0type=N'SCHEMA',@level0name=N'toolbelt_core';
+ COMMIT TRANSACTION;
+END TRY
+BEGIN CATCH
+ IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
+ THROW;
+END CATCH;
+IF @@TRANCOUNT<>0 THROW 54980,N'Schemaannotationssetup hinterließ keine neutrale Sitzung.',7;
+IF XACT_STATE()<>0 THROW 54980,N'Schemaannotationssetup hinterließ keine neutrale Sitzung.',7;
+IF (@@OPTIONS&2)<>0 THROW 54980,N'Schemaannotationssetup hinterließ keine neutrale Sitzung.',7;
+IF @@LOCK_TIMEOUT<>-1 THROW 54980,N'Schemaannotationssetup hinterließ keine neutrale Sitzung.',7;
 CREATE TABLE #ExportWorkTypeResult(Dummy int NULL);
 EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.export.sentinel',
  @HandlerSchema=N'toolbelt_core',@HandlerProcedure=N'USP_WriteEventInternal',

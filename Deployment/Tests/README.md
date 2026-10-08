@@ -393,3 +393,35 @@ Die native Parameterprüfung einschließlich eigener Bereinigung bleibt
 branch enthält Adapter, Fixtures und CI-Schritt für die eigene Headprüfung.
 Sämtliche bisherigen
 Migrations-/Fehler-/Parentnachweise bleiben vollständig erhalten.
+
+## class-3-Erhalt im bestehenden DefaultRepeat
+
+Genau fünf eigene Schemaannotationszeugen auf `toolbelt_core` und `toolbelt_file`
+umfassen zweimal `MS_Description` als `nvarchar(128)` mit Unicode und Padding,
+`varbinary(5)`, `int` und eine vorhandene Propertyzeile mit NULL-Wert. Alle Namen
+werden vor dem ersten Add kollisionsgeprüft; fünf Adds liegen in einer eigenen
+kleinen Transaktion. Capture/Assert binden class, SchemaId, minor0 und binären
+Namen und prüfen Count5, NULL-Präsenz sowie den gesamten typisierten Werttupel
+in beiden EXCEPT-Richtungen. Alle class-3-Properties der beiden Schemas und
+endliche Countzeugen erscheinen in zwei neuen Katalogkategorien, ohne Ausnahme
+im ersten Repeatfenster. Die bestehenden 14 Tabellen/156 Spalten, Identityzeugen,
+beide Fenster und vollständige eigene Datenbankbereinigung bleiben erhalten.
+
+Diese Welle ändert weder Adapter/Workflow noch Parameter- oder
+Queue20Upgrade-Fixtures. Der Codescope umfasst drei bestehende Populated-Fixtures.
+Native class3-Prüfung und eigener Cleanup: **NOT_EXECUTED**. Nichtleere Grants,
+Minimalrechte, weitere Plattformen/CLs und vollständiger 44-Modul-Lifecycle sind
+kein Bestandteil dieses Testscopes.
+
+Quellengebundene Offlineprüfungen und unabhängige Reviews der eingefrorenen
+Kandidaten bestanden; sie ersetzen keine integrierte Head-/Main-CI.
+
+Voraussetzung, Stand 2026-10-08: PR293 ist nach `main`
+`2ad2c018da18768c05f05e0fd7cf4c333fd6b090` gemergt.
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37715148163)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37715148155)
+bestanden am exakten Mainstand; Parameterrepeat, beide bestehenden Exportfälle,
+drei eigene Exportbereinigungen und Containercleanup sind separat bezeugt.
+Die Parameter-Mainvoraussetzung ist erfüllt. Native class3-Prüfung und
+eigener Cleanup sind **NOT_EXECUTED**; die eigene exakte Head-/Main-CI
+einschließlich Bereinigung bleibt **PENDING**.

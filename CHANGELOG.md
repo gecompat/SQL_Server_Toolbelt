@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## 2026-10-08 – Schemaannotation im vorhandenen Exportrepeat prüfen
+
+- Drei bestehende DefaultRepeat-Fixtures erhalten fünf kollisionsgeprüfte class-3-
+  Zeugen sowie zwei vollständig verglichene Katalogkategorien auf zwei Schemas.
+- Source, Deploy, Adapter, Workflow und Parameter-/Queue20Upgrade-Fälle bleiben
+  unverändert. Der Branch ergänzt nur die Fixtures und vier Begleitdokumente.
+- Native class3-Prüfung einschließlich eigener Bereinigung: **NOT_EXECUTED**.
+
+Voraussetzung, Stand 2026-10-08: PR293 ist nach `main`
+`2ad2c018da18768c05f05e0fd7cf4c333fd6b090` gemergt.
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37715148163)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37715148155)
+bestanden am exakten Mainstand; Parameterrepeat, beide bestehenden Exportfälle,
+drei eigene Exportbereinigungen und Containercleanup sind separat bezeugt.
+Die Parameter-Mainvoraussetzung ist erfüllt. Native class3-Prüfung und
+eigener Cleanup sind **NOT_EXECUTED**; die eigene exakte Head-/Main-CI
+einschließlich Bereinigung bleibt **PENDING**.
+
+
 ## 2026-10-08 – Parametermetadaten beim exportierten Repeat prüfen
 
 - Der vorbereitete Testfall `ParameterMetadata` bindet die bestehenden
