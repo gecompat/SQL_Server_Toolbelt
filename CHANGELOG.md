@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2026-10-09 – Cologne-C-Kontextfälle im Differentialcorpus ergänzen
+
+Vier synthetische Fälle `HCL`, `ACL`, `-CR` und `ACR` ergänzen den Offline-Corpus auf 36 Fälle. Der einmalige lokale Vergleich unter Windows/.NET Framework 4.8, ausgewähltem JDK27 und unverändertem Apache Commons Codec 1.18.0 bestand mit vollständigen Codes und AJ-Endblank; die vier quellenabgeleiteten Sollcodes `45`, `085`, `47` und `087` stimmen tatsächlich. Die Assembly mit nachgewiesener Herkunft aus den fünf unveränderten aktuellen C#-Quellen wurde wiederverwendet, ohne neuen Produktbuild für diesen Lauf.
+
+Der frühere 32-Fälle-PASS und die historische Evidenz behalten ihren Umfang. stderr ist nur als leerer decodierter Rückgabetext belegt; Dateien bleiben erhalten, kein Datei-Cleanup-PASS. Produktcode, API, Workflow, Referenzmanifest, teilweise validierter/unveröffentlichter Modulstatus und offene SQL-/SAFE-, Scanner-/Matrix-, Minimalrechte- und Releasequalifikation bleiben unverändert.
+
 ## 2026-10-08 – ZIP-Writer-Framework-Testintake binden
 
 Der bestehende Testadapter bindet SHA512 aus dem Release-Trustmanifest und die
