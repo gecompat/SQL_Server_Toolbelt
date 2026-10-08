@@ -181,3 +181,30 @@ gezielter Retry auf unverändertem Merge-Commit bestand alle drei Jobs. Der
 Erstfehler bleibt fehlgeschlagen; seine Ursache ist nicht nachgewiesen.
 Echter Committransportverlust, Minimalrechte, weitere Zielkombinationen und
 permanenter Betrieb bleiben offen.
+
+## Commit-Wait nach expliziter Wiederfreigabe
+
+Vierter exakter Head `0437beadf435173baafe9e9f27223f2fe0c8f7be`:
+[Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37751627937),
+[Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37751627892).
+Der bestehende Managed-SQL-Test verwirft `MANAGED.RELEASE_OTHER_WORKER` nach dem
+Completion-Wait. Alle vier Exportfälle einschließlich Queue1.1 sind SKIPPED;
+ihre Erfolg-/OwnCleanupmarker null, Containercleanup separat bestätigt. Tatsächliche
+Prädikatwerte, Actor-SQL und Ursache bleiben ungemessen.
+
+Der Worker bestätigt den WorkItem-Commit vor dem separaten Reservation-Endrecord.
+Die Testfixture wartet deshalb innerhalb desselben Budgets gemeinsam auf den
+eigenen aktuellen WorkItem-/Reservation-/Claimgeneration-Bezug, COMPLETED,
+COMMITTED und IsOccupied0. Die nachfolgende Assertion bleibt unverändert.
+Keine zusätzlichen Delays, Rechte, Produkt-, API-, Provider- oder Cleanupänderungen.
+Neue exakte Headprüfung, Queue1.1-/Toolqualifikation, Merge/Main und vollständige
+private Retention/Refbereinigung bleiben offen; historische Ursachen ungeklärt.
+
+`Invoke-ManagedContract.ps1` prüft nach explicit release die vollständige
+WorkItem-/Slotkonjunktion in einer COUNT1-Abfrage. Die separate Endroutine
+`USP_RecordWorkerCommit` folgt im unveränderten Worker auf dessen echten Commit;
+Queue-Completion allein ist noch kein Slotendbeweis. Aktuelle ManagedReservationId
+und ClaimGeneration müssen mit der eigenen COMMITTED/unoccupied Reservation des
+erwarteten anderen registrierten Workers übereinstimmen. Die bestehende
+`MANAGED.RELEASE_OTHER_WORKER`-Assertion bleibt als weiteres Oracle erhalten.
+Keine Supervisor-EndInvoke-, Timing-, Konfigurations- oder Produktänderung.

@@ -2,6 +2,10 @@
 
 ## 2026-10-08 – Genuine Queue1.1 im bestehenden Exporttest ergänzen
 
+- Managed-Release-Test wartet gemeinsam auf den aktuellen eigenen Queuecommit
+  und das separat gespeicherte Slotende; ursprüngliche Assertion und Budget bleiben
+  erhalten. Vierter Head scheiterte vor allen Exportfällen; neue native Prüfung offen.
+
 - Queue1.1 bindet ausdrücklich die erste vorhandene Application mit
   `Get-Command -TotalCount 1`; Datei-/Hash-/Ownershipgates bleiben erhalten.
   Dritter Fehlhead betrifft die Toolbindung, Ursache weiterhin ungemessen;

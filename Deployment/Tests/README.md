@@ -773,3 +773,29 @@ kein Nachweis des installierten PowerShellstands oder der historischen Ursache.
 Verzeichnis-, Prozessbudget-, Datei-, Journal-, SQL- und Cleanupgates bleiben
 bytegleich. Der begrenzte neue Auswahlvertrag ist vor nativer Qualifikation
 erneut am exakten neuen Quellenstand zu prüfen; keine unveränderte Retrywelle.
+
+### Managed-Prerequisite: Queuecommit und Slotende gemeinsam abwarten
+
+Vierter exakter Head `0437beadf435173baafe9e9f27223f2fe0c8f7be`:
+[Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37751627937),
+[Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37751627892).
+Der bestehende Managed-SQL-Test verwirft `MANAGED.RELEASE_OTHER_WORKER` nach dem
+Completion-Wait. Alle vier Exportfälle einschließlich Queue1.1 sind SKIPPED;
+ihre Erfolg-/OwnCleanupmarker null, Containercleanup separat bestätigt. Tatsächliche
+Prädikatwerte, Actor-SQL und Ursache bleiben ungemessen.
+
+Der Worker bestätigt den WorkItem-Commit vor dem separaten Reservation-Endrecord.
+Die Testfixture wartet deshalb innerhalb desselben Budgets gemeinsam auf den
+eigenen aktuellen WorkItem-/Reservation-/Claimgeneration-Bezug, COMPLETED,
+COMMITTED und IsOccupied0. Die nachfolgende Assertion bleibt unverändert.
+Keine zusätzlichen Delays, Rechte, Produkt-, API-, Provider- oder Cleanupänderungen.
+Neue exakte Headprüfung, Queue1.1-/Toolqualifikation, Merge/Main und vollständige
+private Retention/Refbereinigung bleiben offen; historische Ursachen ungeklärt.
+
+Die zusätzliche geschlossene Oracleauswertung verwendet nur bereits gesicherte
+Ausgabe und feste Quellcodes. Sie identifiziert die nachfolgende Slotassertion,
+beweist aber keinen konkreten Race-Zeitpunkt. WorkItem.ManagedReservationId und
+ClaimGeneration binden den tatsächlich aktuellen Slot des erwarteten anderen
+Workers; ein historischer erfolgreicher Attempt genügt nicht. Waitcode, Polling,
+SQL-Commandtimeout, Unknown-Beobachter und sämtliche Ownershipgates bleiben
+bytegleich. Dies ist eine Testorakelkorrektur des bestehenden CI-Prerequisites.

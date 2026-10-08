@@ -219,7 +219,7 @@ END;
     Sql "ALTER PROCEDURE dbo.USP_TbxManagedLong AS BEGIN SET NOCOUNT ON; INSERT dbo.TbxManagedEffects VALUES(CONVERT(bigint,SESSION_CONTEXT(N'toolbelt.worker.work_item_id'))); RETURN 7; END;"
     $fixturePhase='explicit-release-publish'
     Sql 'EXEC toolbelt_core.USP_ReleaseHeldWork @WorkItemId=@Item,@ExpectedHoldVersion=@Version;' @{'@Item'=$heldItem;'@Version'=$holdVersion}
-    Wait {(Sql 'SELECT COUNT(*) FROM toolbelt_core.WorkItem WHERE WorkItemId=@Item AND Status=''COMPLETED'';' @{'@Item'=$heldItem} -Scalar) -eq 1} 'MANAGED.EXPLICIT_RELEASE_WAIT'
+    Wait {(Sql 'SELECT COUNT(*) FROM toolbelt_core.WorkerSlotReservation r JOIN toolbelt_core.WorkItem w ON w.WorkItemId=r.WorkItemId WHERE r.WorkerId=@Worker AND r.WorkItemId=@Item AND r.State=''COMMITTED'' AND r.IsOccupied=0 AND w.Status=''COMPLETED'' AND w.ManagedReservationId=r.SlotReservationId AND w.ClaimGeneration=r.ClaimGeneration;' @{'@Worker'=$releaseWorker.WorkerId;'@Item'=$heldItem} -Scalar) -eq 1} 'MANAGED.EXPLICIT_RELEASE_WAIT'
     Need ((Sql 'SELECT COUNT(*) FROM toolbelt_core.WorkerSlotReservation WHERE WorkItemId=@Item AND WorkerId=@Worker AND State=''COMMITTED'' AND IsOccupied=0;' @{'@Item'=$heldItem;'@Worker'=$releaseWorker.WorkerId} -Scalar)-eq1) 'MANAGED.RELEASE_OTHER_WORKER'
     Record 'EXPLICIT_RELEASE_OTHER_REGISTERED_WORKER'
     $fixturePhase='legacy-bypass'

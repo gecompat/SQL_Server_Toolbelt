@@ -8,6 +8,22 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ### Genuine Queue1.1 als weitere Deploymentwartung
 
+Vierter exakter Head `0437beadf435173baafe9e9f27223f2fe0c8f7be`:
+[Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37751627937),
+[Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37751627892).
+Der bestehende Managed-SQL-Test verwirft `MANAGED.RELEASE_OTHER_WORKER` nach dem
+Completion-Wait. Alle vier Exportfälle einschließlich Queue1.1 sind SKIPPED;
+ihre Erfolg-/OwnCleanupmarker null, Containercleanup separat bestätigt. Tatsächliche
+Prädikatwerte, Actor-SQL und Ursache bleiben ungemessen.
+
+Der Worker bestätigt den WorkItem-Commit vor dem separaten Reservation-Endrecord.
+Die Testfixture wartet deshalb innerhalb desselben Budgets gemeinsam auf den
+eigenen aktuellen WorkItem-/Reservation-/Claimgeneration-Bezug, COMPLETED,
+COMMITTED und IsOccupied0. Die nachfolgende Assertion bleibt unverändert.
+Keine zusätzlichen Delays, Rechte, Produkt-, API-, Provider- oder Cleanupänderungen.
+Neue exakte Headprüfung, Queue1.1-/Toolqualifikation, Merge/Main und vollständige
+private Retention/Refbereinigung bleiben offen; historische Ursachen ungeklärt.
+
 Dritter exakter Head `836357d02a42e2e490e657a003c745da6756e526`:
 [Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37747434151),
 [Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37747434156).
