@@ -147,6 +147,74 @@ IF (SELECT COUNT(*) FROM sys.extended_properties p JOIN @ExportObjectExpected e
  CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(e.ExpectedValue,'Collation'))) CollationValue,
  CONVERT(varbinary(max),e.ExpectedValue) ValueBytes FROM @ExportObjectExpected e)
  THROW 54982,N'Die sechs eigenen typisierten Objektannotationzeugen wurden verändert.',12;
+-- Zwei eigene class1/minorColumnId-Zeugen auf einer bestehenden View-Ergebnisspalte.
+-- IDs einmal exakt binden; Sourceposition 14 ist keine Zuordnungsregel.
+DECLARE @ExportViewColumnObjectId int=(SELECT o.object_id FROM sys.objects o JOIN sys.schemas s ON s.schema_id=o.schema_id
+ WHERE o.type='V' AND CONVERT(varbinary(max),s.name)=CONVERT(varbinary(max),N'toolbelt_core')
+ AND CONVERT(varbinary(max),o.name)=CONVERT(varbinary(max),N'VW_WorkQueue'));
+DECLARE @ExportViewColumnId int=(SELECT c.column_id FROM sys.columns c WHERE c.object_id=@ExportViewColumnObjectId
+ AND CONVERT(varbinary(max),c.name)=CONVERT(varbinary(max),N'RowVersion'));
+IF @ExportViewColumnObjectId IS NULL OR @ExportViewColumnId IS NULL OR @ExportViewColumnId<=0
+ OR NOT EXISTS(SELECT 1 FROM sys.columns c JOIN sys.types t ON t.user_type_id=c.user_type_id
+ WHERE c.object_id=@ExportViewColumnObjectId AND c.column_id=@ExportViewColumnId
+ AND CONVERT(varbinary(max),c.name)=CONVERT(varbinary(max),N'RowVersion')
+ AND c.system_type_id=173 AND c.user_type_id=173 AND c.max_length=8
+ AND CONVERT(varbinary(max),t.name)=CONVERT(varbinary(max),N'binary') AND t.schema_id=SCHEMA_ID(N'sys'))
+ OR EXISTS(SELECT 1 FROM (VALUES(N'Toolbelt.ModuleId',N'toolbelt.core.work-queue'),
+ (N'Toolbelt.ModuleVersion',N'2.1.0'),(N'Toolbelt.ContractVersion',N'1.1'))e(PropertyName,ExpectedValue)
+ WHERE NOT EXISTS(SELECT 1 FROM sys.extended_properties p WHERE p.class=1 AND p.major_id=@ExportViewColumnObjectId AND p.minor_id=0
+ AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),e.PropertyName)
+ AND SQL_VARIANT_PROPERTY(p.value,'BaseType')=N'nvarchar'
+ AND CONVERT(varbinary(max),p.value)=CONVERT(varbinary(max),e.ExpectedValue)))
+ THROW 54982,N'Die eigene View-Spalte ist nicht sourcegebunden und eindeutig.',13;
+-- Queue-Source enthält keinen Toolbelt.Managed-Objektmarker; vorhandene Controlguards bleiben erhalten.
+DECLARE @ExportViewColumnExpected TABLE
+(ObjectId int NOT NULL,ColumnId int NOT NULL,PropertyName sysname COLLATE Latin1_General_100_BIN2 NOT NULL,
+ ExpectedValue sql_variant NOT NULL,PRIMARY KEY(ObjectId,ColumnId,PropertyName));
+INSERT @ExportViewColumnExpected(ObjectId,ColumnId,PropertyName,ExpectedValue) VALUES
+ (@ExportViewColumnObjectId,@ExportViewColumnId,N'MS_Description',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Contoso View-Spalte – Unicode Ω 中  '))),
+ (@ExportViewColumnObjectId,@ExportViewColumnId,N'Toolbelt.Test.ExportViewColumn.Typed',CONVERT(sql_variant,CONVERT(varbinary(5),0x00017F80FF)));
+-- Vollständiger Schlüssel und typisierter Werttupel samt NULL-Präsenz, nicht nur Count2.
+IF (SELECT COUNT(*) FROM sys.extended_properties p JOIN @ExportViewColumnExpected e
+ ON p.class=1 AND p.major_id=e.ObjectId AND p.minor_id=e.ColumnId
+ AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),e.PropertyName))<>2
+ OR EXISTS(SELECT CONVERT(tinyint,1) ClassValue,e.ObjectId,e.ColumnId,CONVERT(varbinary(max),e.PropertyName) PropertyName,
+ CONVERT(varbinary(max),CONVERT(bit,CASE WHEN e.ExpectedValue IS NULL THEN 0 ELSE 1 END)) HasValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(e.ExpectedValue,'BaseType'))) BaseType,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'MaxLength'))) MaxLength,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'Precision'))) PrecisionValue,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'Scale'))) ScaleValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(e.ExpectedValue,'Collation'))) CollationValue,
+ CONVERT(varbinary(max),e.ExpectedValue) ValueBytes FROM @ExportViewColumnExpected e
+ EXCEPT SELECT p.class,p.major_id,p.minor_id,CONVERT(varbinary(max),p.name) PropertyName,
+ CONVERT(varbinary(max),CONVERT(bit,CASE WHEN p.value IS NULL THEN 0 ELSE 1 END)) HasValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(p.value,'BaseType'))) BaseType,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'MaxLength'))) MaxLength,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'Precision'))) PrecisionValue,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'Scale'))) ScaleValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(p.value,'Collation'))) CollationValue,
+ CONVERT(varbinary(max),p.value) ValueBytes FROM sys.extended_properties p JOIN @ExportViewColumnExpected e
+ ON p.class=1 AND p.major_id=e.ObjectId AND p.minor_id=e.ColumnId
+ AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),e.PropertyName))
+ OR EXISTS(SELECT p.class,p.major_id,p.minor_id,CONVERT(varbinary(max),p.name) PropertyName,
+ CONVERT(varbinary(max),CONVERT(bit,CASE WHEN p.value IS NULL THEN 0 ELSE 1 END)) HasValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(p.value,'BaseType'))) BaseType,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'MaxLength'))) MaxLength,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'Precision'))) PrecisionValue,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'Scale'))) ScaleValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(p.value,'Collation'))) CollationValue,
+ CONVERT(varbinary(max),p.value) ValueBytes FROM sys.extended_properties p JOIN @ExportViewColumnExpected e
+ ON p.class=1 AND p.major_id=e.ObjectId AND p.minor_id=e.ColumnId
+ AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),e.PropertyName)
+ EXCEPT SELECT CONVERT(tinyint,1) ClassValue,e.ObjectId,e.ColumnId,CONVERT(varbinary(max),e.PropertyName) PropertyName,
+ CONVERT(varbinary(max),CONVERT(bit,CASE WHEN e.ExpectedValue IS NULL THEN 0 ELSE 1 END)) HasValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(e.ExpectedValue,'BaseType'))) BaseType,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'MaxLength'))) MaxLength,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'Precision'))) PrecisionValue,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'Scale'))) ScaleValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(e.ExpectedValue,'Collation'))) CollationValue,
+ CONVERT(varbinary(max),e.ExpectedValue) ValueBytes FROM @ExportViewColumnExpected e)
+ THROW 54982,N'Die zwei eigenen typisierten View-Spaltenannotationzeugen wurden verändert.',14;
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkQueueManagedGate WHERE GateId=1 AND ManagedEnabled=0 AND PendingReservationId IS NULL)
  OR EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE Status='CLAIMED' OR ManagedHold=1)
  OR EXISTS(SELECT 1 FROM toolbelt_core.WorkerSlotReservation WHERE IsOccupied=1 OR State NOT IN('COMMITTED','ROLLED_BACK','CLOSED'))

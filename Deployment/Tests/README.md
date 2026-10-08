@@ -449,3 +449,28 @@ Weitere Plattformen/CLs, Minimalrechte, nichtleere Grants und voller44-Modul-Lif
 
 Class3-Voraussetzung erfüllt: PR294, Main `91e13af689334407527fddfdc8d22285933f4225` (2026-10-08).
 [Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37717103755) und [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37717103790): **PASS**.
+
+## View-Spaltenannotation im bestehenden DefaultRepeat
+
+Genau zwei eigene class-1-Properties auf `toolbelt_core.VW_WorkQueue.RowVersion`:
+`MS_Description` als `nvarchar(128)` mit Unicode und abschließenden Leerzeichen,
+`Toolbelt.Test.ExportViewColumn.Typed` als `varbinary(5)`. Die vorhandene View,
+ihre typisierten ModuleId-/ModuleVersion-/ContractVersion-Marker und die nach
+binärem Spaltennamen ermittelte tatsächliche column_id binden das Ziel; minor_id
+ist diese ID. Keine feste Spaltenposition und kein erfundener Managed-Objektmarker.
+Beide Kollisionen werden vor zwei eigenen Adds in kleiner Transaktion geprüft.
+Count2 und beide EXCEPT-Richtungen vergleichen alle elf Felder: class/ObjectId/
+ColumnId, binären Propertynamen, Wertpräsenz, Basistyp, MaxLength, Precision,
+Scale, Collation und Wertbytes. Beide Werte sind nicht NULL; keine neue NULL-Saat.
+Der vorhandene vollständige class-1-Capture bleibt unverändert; sein Snapshot
+wird in beiden Repeatfenstern vollständig verglichen. Die bisherigen 14 Tabellen/156 Spalten, Schema-/Objektzeugen,
+Erstfensterausnahmen, Identity und Cleanup bleiben erhalten. Vorgesehener Scope:
+nur Setup/Assert und vier Dokumente, keine neuen SQL-Objekte, API-Aufrufe, Grants,
+Konfigurations-, Ziel-, Adapter-, Workflow- oder Captureänderungen.
+Native View-Spaltenprüfung und eigener Cleanup: **NOT_EXECUTED**; eigene exakte
+Head-CI sowie Merge-/Mainqualifikation einschließlich Cleanup: **PENDING**.
+Keine breitere Matrix-, Minimalrechte- oder Releaseclosure.
+
+Class1-Voraussetzung erfüllt: PR295, Main `a585803de0d1d94be595dbf7b3153e582fbff9d2` (2026-10-08).
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37721226636) und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37721226645): **PASS**.
+Der begrenzte Nachweis gilt für Linux SQL2019/CL150 local/central; sechs Objektzeugen, drei eigene Exportbereinigungen und Containercleanup sind belegt. Er qualifiziert keine neuen View-Spaltenzeugen und erklärt keine historische Fehlerursache.
