@@ -308,3 +308,88 @@ bestand einschließlich eigener Bereinigung. Die Migrationswelle wird erst
 nach tatsächlicher eigener Head-CI qualifiziert. Weitere Plattformen/CLs,
 Minimalrechte, nichtleere Grants, unbekannte/partielle Installationen und
 vollständiger 44-Modul-Lifecycle bleiben getrennt.
+
+## Parametermetadaten im Dreimodul-Exportrepeat
+
+Der vorbereitete Fall `Invoke-ExportPopulatedRepeat.ps1 -Scenario ParameterMetadata`
+ergänzt ausschließlich die vorhandene Deploymentwartung für die bestehenden
+`toolbelt_core.USP_PrepareResultTable` (fünf Parameter) und
+`toolbelt_core.USP_EnqueueWork` (sechs Parameter). Die echten Exporte umfassen
+genau `toolbelt.core.result-table`, `toolbelt.core.work-type` und
+`toolbelt.core.work-queue`: je Modus 90 Batches, drei Modulendmarker und vier
+Transaktionsguards. Der Standard-Repeat und Queue20Upgrade bleiben erhalten.
+Neue native Parameterqualifikation ist **NOT_EXECUTED**.
+
+Pro local/central ist die Folge eigene Datenbank, tatsächliche Erstinstallation,
+`ExportParameter.Setup.sql`, rein lesende Assertion und privater Baseline-
+Snapshot, ein Repeat derselben eingefrorenen Exportdatei in einer frischen
+ungepoolten Sitzung, Assertion, erneuter Snapshot und vollständiger Vergleich
+ohne Ausnahmekategorien vorgesehen. Alle Batches einschließlich Guards werden
+konsumiert. Danach erfolgt ausschließlich die bestehende eigene vollständige
+Datenbankbereinigung; es ist kein gesondertes Property-Drop erforderlich.
+Die bestehende Besitz-, Sitzungs-, Datei- und Journalprüfung bleibt erhalten.
+
+Setup prüft vor der ersten Mutation Kollisionen für vier eigene class-2-
+Properties auf `@ResultTableToAlter` und `@WorkTypeName`: eine typisierte
+Annotation sowie ein eigenes `MS_Description` je Parameter. Die Zeugen
+enthalten varbinary- beziehungsweise int-Werte sowie Unicodebeschreibung
+mit nachgestellten Leerzeichen. Die Testdatenbank stammt ausschließlich aus
+den Repositoryquellen. Es entsteht kein neues Produktobjekt und keine
+bestehende API wird ausgeführt.
+
+Capture und Assert binden alle elf Parameter an Namen, Ordinalpositionen,
+SQL-Systemtypen, Länge, Precision, Scale und die SQL2019-Katalogflags
+`is_output`, `is_cursor_ref`, `has_default_value`, `is_xml_document`,
+`xml_collection_id`, `is_readonly` und `is_nullable`. Die tatsächlich
+vorliegenden nullable/default-Metadaten bleiben erhalten. T-SQL-
+`has_default_value = 0` beweist keine deklarierte Defaultsemantik; die
+bytegenaue Moduldefinition einschließlich Defaults wird separat verglichen.
+Neuere Vector-Katalogfelder gehören nicht zu diesem SQL2019-Testscope.
+
+`ExportParameter.Capture.sql` liefert genau Category/Payload. Texte und
+Definitionen werden vor XML-BASE64 binär erfasst, nullable Katalogfelder
+besitzen explizite NULL-Markierung. Je zwei ausgewählte Objekt- und Modulmetadaten-
+zeilen enthalten Identität, SET- und Ausführungsmetadaten; die durch ALTER
+veränderliche Objekt-modify_date gehört nicht zum Erhaltungsorakel. Alle
+vorhandenen class-2-Properties der beiden Procedures werden mit Major-/Minor-
+Bindung und typisierten SQL-variant-Metadaten erfasst; die vier eigenen
+Werte werden zusätzlich exakt gelesen und geprüft. Bestehende Objektpermissions
+werden ausschließlich beobachtet, nicht erzeugt. Ein expliziter Countzeuge
+erfasst auch Permissions=0; das ist kein Nachweis nichtleerer Benutzergrants
+oder tatsächlicher Minimalrechte. Kein eigener NULL-Propertyzeuge wird erzeugt.
+
+Der tabellenfreie Adapterpfad ist ausschließlich an diese Capturedatei mit
+leerer Parameterübergabe gebunden. Er verlangt genau elf Parameter, zwei
+Objekte, zwei Module, mindestens vier Properties und eine Countzeile; eine
+nichtleere Permissionskategorie ist optional und muss zum Countzeugen passen.
+Unbekannte Kategorien oder andere Tabellenzahlen werden abgewiesen. Alle
+Snapshotwerte bleiben im privaten Adaptermemory. Öffentliche Ausgaben sind
+feste Ergebnis-/Cleanupmarker und die bestehenden geschlossenen Diagnosecodes.
+
+Stand 2026-10-08: Fixture-SQL150-Prüfung und quellengebundene 5+6-Parameterkarten,
+unabhängige Reviews, PowerShell-AST sowie tatsächlicher Offlineexport bestanden.
+Beide Exporte ergaben zusammen 180 SQL150-Batches ohne Syntaxfehler. Dies ist
+kein nativer Installations-, Repeat- oder Cleanup-Nachweis; Integration und
+exakte Head-CI stehen aus. Produktquellen, Deployment-DDL, API, Berechtigungen
+und Ziele bleiben unverändert. Keine Qualifikation ausführender APIs,
+zusätzlicher Tabellendaten, Grants/Minimalrechte, anderer Plattformen/CLs,
+SSMS/sqlcmd.exe oder aller 44 Module wird daraus abgeleitet.
+
+Voraussetzung für die Parameterintegration, Stand 2026-10-08: PR292 wurde
+nach `main` `c73f67959185c7a7846455b89c067854dc7d87f6` gemergt.
+Die [Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37713277392)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37713277427)
+bestanden am exakten Mainstand. Alle drei Workerjobs sowie beide bestehenden
+Exportfälle bestanden; die tatsächlichen Festmarker bezeugen beide Export-PASS,
+zweimal eigenen Exportcleanup und einmal eigene Containerbereinigung.
+Auch die bestehende Control-Repeat- und Ablehnungsabnahme bestand.
+Der neue unerwartete SQL-Diagnosezweig wurde dabei **NOT_TRIGGERED**;
+seine Offline-Negativprüfung bleibt ein getrennter Nachweis. Der frühere
+Mainfehler auf `f8b9b407ad30fc560015b8b475005b4505617689` und seine
+weiterhin **UNMEASURED** Ursache bleiben unveränderte Historie; der erfolgreiche
+Lauf belegt keine Ursachenbehebung.
+Die native Parameterprüfung einschließlich eigener Bereinigung bleibt
+**NOT_EXECUTED**. Der Mainnachweis wurde unabhängig geprüft; der Parameter-
+branch enthält Adapter, Fixtures und CI-Schritt für die eigene Headprüfung.
+Sämtliche bisherigen
+Migrations-/Fehler-/Parentnachweise bleiben vollständig erhalten.

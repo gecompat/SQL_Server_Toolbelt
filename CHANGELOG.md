@@ -1,5 +1,43 @@
 # CHANGELOG
 
+## 2026-10-08 – Parametermetadaten beim exportierten Repeat prüfen
+
+- Der vorbereitete Testfall `ParameterMetadata` bindet die bestehenden
+  `USP_PrepareResultTable` und `USP_EnqueueWork` mit elf Parametern an die
+  echte Dreimodulfolge result-table/work-type/work-queue, lokal und zentral
+  mit Erstinstallation und einem Repeat derselben hashgebundenen Exportdatei.
+- Vier kollisionsgeprüfte class-2-Zeugen auf zwei Parametern umfassen
+  typisierte Annotationen und `MS_Description`. Private binäre Snapshots
+  vergleichen Parameter-, ausgewählte Objekt-/Modul-, Definitions- und
+  Propertymetadaten sowie nur beobachtete Permissions mit Nullmengenzeugen.
+  T-SQL-`has_default_value = 0` beweist keine Defaults; Definitionbytes
+  werden getrennt erhalten.
+- Produktquellen, Deployment-DDL, öffentliche API, Berechtigungen und Ziele
+  bleiben unverändert. Die bestehenden Repeat-/Queue20Upgrade-Fälle bleiben
+  erhalten. Offlineprüfungen und unabhängige Reviews bestanden: beide
+  Dreimodul-Exporte mit je 90 Batches, insgesamt 180 SQL150-Parses ohne Fehler,
+  Adapter-AST ohne Fehler. Native Parameterprüfung und eigener Cleanup sind
+  `NOT_EXECUTED`; Integration und exakte Head-CI stehen aus.
+
+Voraussetzung für die Parameterintegration, Stand 2026-10-08: PR292 wurde
+nach `main` `c73f67959185c7a7846455b89c067854dc7d87f6` gemergt.
+Die [Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37713277392)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37713277427)
+bestanden am exakten Mainstand. Alle drei Workerjobs sowie beide bestehenden
+Exportfälle bestanden; die tatsächlichen Festmarker bezeugen beide Export-PASS,
+zweimal eigenen Exportcleanup und einmal eigene Containerbereinigung.
+Auch die bestehende Control-Repeat- und Ablehnungsabnahme bestand.
+Der neue unerwartete SQL-Diagnosezweig wurde dabei **NOT_TRIGGERED**;
+seine Offline-Negativprüfung bleibt ein getrennter Nachweis. Der frühere
+Mainfehler auf `f8b9b407ad30fc560015b8b475005b4505617689` und seine
+weiterhin **UNMEASURED** Ursache bleiben unveränderte Historie; der erfolgreiche
+Lauf belegt keine Ursachenbehebung.
+Die native Parameterprüfung einschließlich eigener Bereinigung bleibt
+**NOT_EXECUTED**. Der Mainnachweis wurde unabhängig geprüft; der Parameter-
+branch enthält Adapter, Fixtures und CI-Schritt für die eigene Headprüfung.
+Sämtliche bisherigen
+Migrations-/Fehler-/Parentnachweise bleiben vollständig erhalten.
+
 ## 2026-10-08 – Genuine Queue2.0 über die aktuelle Exportdatei migrieren
 
 - Der getrennte Testfall `Queue20Upgrade` installiert sieben aktuelle

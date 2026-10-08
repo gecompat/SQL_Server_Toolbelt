@@ -316,6 +316,52 @@ Schemaannotation bleibt bis zur Mainqualifikation gesperrt; private Vorbereitung
 kann innerhalb der bestehenden Grenzen fortgesetzt werden.
 
 
+
+Export-Parametermetadaten, vorbereitet 2026-10-08: Die vorhandene
+Deploymentwartungsfreigabe umfasst als nächsten begrenzten Testscope die
+bestehenden `USP_PrepareResultTable` und `USP_EnqueueWork` mit insgesamt elf
+Parametern. Der vorbereitete Fall `ParameterMetadata` konsumiert die echten
+Exporte von result-table, work-type und work-queue lokal/zentral einmal zur
+Installation und einmal zum Repeat in jeweils frischen Sitzungen. Vier eigene
+class-2-Annotationszeugen prüfen typisierte Werte und `MS_Description` auf
+zwei ausgewählten Parametern. Parameterkatalog, ausgewählte Objekt-/Modul-
+metadaten, Definitionbytes und alle vorhandenen class-2-Properties dieser
+beiden Procedures werden privat binär verglichen; vorhandene Permissions
+werden nur beobachtet, auch eine leere Menge wird ausdrücklich gezählt.
+T-SQL-`has_default_value = 0` ist kein Nachweis der Parameterdefaults;
+deren Definitionbytes bleiben Teil des Erhaltungsorakels.
+
+Offline bestanden: drei Fixtures und ihre quellengebundenen Parameterkarten,
+unabhängige Reviews sowie die beiden aktuellen Dreimodul-Exporte mit jeweils
+90 Batches, drei Endmarkern und vier Guards; 180 exportierte Batches wurden
+mit SQL150 ohne Fehler geparst, die Adapter-PowerShell-AST ist fehlerfrei.
+Die native Parameterprüfung einschließlich eigener Bereinigung ist
+`NOT_EXECUTED`; Integration und exakte Head-CI stehen aus. Produktquellen,
+öffentliche API und Deployment-DDL bleiben unverändert, ebenso Rechte und
+Testziele. Bestehende Repeat- und Queue20Upgrade-Zweige bleiben erhalten.
+Keine API-Ausführung, neue Tabelle, Benutzergrants, Windows-/weitere CL-
+Qualifikation oder vollständige 44-Modul-Erhaltungsbehauptung.
+
+Voraussetzung für die Parameterintegration, Stand 2026-10-08: PR292 wurde
+nach `main` `c73f67959185c7a7846455b89c067854dc7d87f6` gemergt.
+Die [Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37713277392)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37713277427)
+bestanden am exakten Mainstand. Alle drei Workerjobs sowie beide bestehenden
+Exportfälle bestanden; die tatsächlichen Festmarker bezeugen beide Export-PASS,
+zweimal eigenen Exportcleanup und einmal eigene Containerbereinigung.
+Auch die bestehende Control-Repeat- und Ablehnungsabnahme bestand.
+Der neue unerwartete SQL-Diagnosezweig wurde dabei **NOT_TRIGGERED**;
+seine Offline-Negativprüfung bleibt ein getrennter Nachweis. Der frühere
+Mainfehler auf `f8b9b407ad30fc560015b8b475005b4505617689` und seine
+weiterhin **UNMEASURED** Ursache bleiben unveränderte Historie; der erfolgreiche
+Lauf belegt keine Ursachenbehebung.
+Die native Parameterprüfung einschließlich eigener Bereinigung bleibt
+**NOT_EXECUTED**. Der Mainnachweis wurde unabhängig geprüft; der Parameter-
+branch enthält Adapter, Fixtures und CI-Schritt für die eigene Headprüfung.
+Sämtliche bisherigen
+Migrations-/Fehler-/Parentnachweise bleiben vollständig erhalten.
+Details stehen in [Deploymenttests](../Deployment/Tests/README.md).
+
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
 Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene
