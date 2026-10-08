@@ -314,3 +314,21 @@ Die native Parameterprüfung einschließlich eigener Bereinigung bleibt
 branch enthält Adapter, Fixtures und CI-Schritt für die eigene Headprüfung.
 Sämtliche bisherigen
 Migrations-/Fehler-/Parentnachweise bleiben vollständig erhalten.
+
+Die Schemaannotationsprüfung erweitert ausschließlich den
+bestehenden gefüllten DefaultRepeat: fünf eigene class-3-Zeugen auf zwei Schemas
+und vollständiger typisierter Snapshot in beiden Vergleichsfenstern. Zusätzliche Exporte,
+Szenarien oder Testdatenbanken sind nicht vorgesehen. [Deploymenttests](Tests/README.md)
+beschreiben die Zeugen und Grenzen. Der Branch ergänzt drei bestehende
+Populated-Fixtures; native class3-Prüfung und eigene Bereinigung sind
+**NOT_EXECUTED**. Source, API, Rechte und Ziele bleiben unverändert.
+
+Voraussetzung, Stand 2026-10-08: PR293 ist nach `main`
+`2ad2c018da18768c05f05e0fd7cf4c333fd6b090` gemergt.
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37715148163)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37715148155)
+bestanden am exakten Mainstand; Parameterrepeat, beide bestehenden Exportfälle,
+drei eigene Exportbereinigungen und Containercleanup sind separat bezeugt.
+Die Parameter-Mainvoraussetzung ist erfüllt. Native class3-Prüfung und
+eigener Cleanup sind **NOT_EXECUTED**; die eigene exakte Head-/Main-CI
+einschließlich Bereinigung bleibt **PENDING**.

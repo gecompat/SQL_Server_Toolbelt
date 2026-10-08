@@ -362,6 +362,25 @@ Sämtliche bisherigen
 Migrations-/Fehler-/Parentnachweise bleiben vollständig erhalten.
 Details stehen in [Deploymenttests](../Deployment/Tests/README.md).
 
+
+Schemaannotation beim bestehenden Exportrepeat, Stand 2026-10-08:
+Der nächste begrenzte Maintenance-Test ergänzt genau fünf class-3-Zeugen auf
+`toolbelt_core` und `toolbelt_file` samt vollständigem typisiertem Erhaltungsorakel.
+Die bestehenden 14 Tabellen mit 156 Spalten, beide Repeatfenster, Identityzeugen
+und eigene Bereinigung bleiben erhalten. Der Branch ergänzt drei bestehende
+Populated-Fixtures; native class3-Prüfung und ihr eigener Cleanup
+sind **NOT_EXECUTED**. Keine neue SQL-Funktion, Rechte- oder Zieländerung.
+
+Voraussetzung, Stand 2026-10-08: PR293 ist nach `main`
+`2ad2c018da18768c05f05e0fd7cf4c333fd6b090` gemergt.
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37715148163)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37715148155)
+bestanden am exakten Mainstand; Parameterrepeat, beide bestehenden Exportfälle,
+drei eigene Exportbereinigungen und Containercleanup sind separat bezeugt.
+Die Parameter-Mainvoraussetzung ist erfüllt. Native class3-Prüfung und
+eigener Cleanup sind **NOT_EXECUTED**; die eigene exakte Head-/Main-CI
+einschließlich Bereinigung bleibt **PENDING**.
+
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
 Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene

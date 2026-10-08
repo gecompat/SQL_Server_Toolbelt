@@ -10,6 +10,58 @@ IF (@@OPTIONS&2)<>0
  THROW 54982,N'Der Exportrepeat hinterließ keinen neutralen Zustand.',1;
 IF @@LOCK_TIMEOUT<>-1
  THROW 54982,N'Der Exportrepeat hinterließ keinen neutralen Zustand.',1;
+-- Eigene Klasse-3-Zeugen: Schema-IDs einmal bytegenau auflösen, keine fremden Schemas.
+DECLARE @ExportSchemaCore int=(SELECT schema_id FROM sys.schemas WHERE CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'toolbelt_core')),
+ @ExportSchemaFile int=(SELECT schema_id FROM sys.schemas WHERE CONVERT(varbinary(max),name)=CONVERT(varbinary(max),N'toolbelt_file'));
+IF @ExportSchemaCore IS NULL OR @ExportSchemaFile IS NULL OR @ExportSchemaCore=@ExportSchemaFile
+ THROW 54982,N'Die beiden eigenen Schemas sind nicht eindeutig gebunden.',8;
+DECLARE @ExportSchemaExpected TABLE(SchemaId int NOT NULL,PropertyName sysname COLLATE Latin1_General_100_BIN2 NOT NULL,ExpectedValue sql_variant NULL,PRIMARY KEY(SchemaId,PropertyName));
+INSERT @ExportSchemaExpected(SchemaId,PropertyName,ExpectedValue) VALUES
+ (@ExportSchemaCore,N'MS_Description',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Contoso Schema – Unicode Ω  '))),
+ (@ExportSchemaFile,N'MS_Description',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Fabrikam Schema – Padding 中  '))),
+ (@ExportSchemaCore,N'Toolbelt.Test.ExportSchema.Typed',CONVERT(sql_variant,CONVERT(varbinary(5),0x00017F80FF))),
+ (@ExportSchemaFile,N'Toolbelt.Test.ExportSchema.Typed',CONVERT(sql_variant,CONVERT(int,7))),
+ (@ExportSchemaCore,N'Toolbelt.Test.ExportSchema.Null',CONVERT(sql_variant,NULL));
+-- Vollständiger typisierter Erwartungstupel, nicht nur Anzahl oder Textkonvertierung.
+-- Ein vorhandener NULL-Zeuge besitzt HasValue=0; eine fehlende Property besitzt keine Zeile.
+IF (SELECT COUNT(*) FROM sys.extended_properties p JOIN @ExportSchemaExpected e ON p.class=3 AND p.major_id=e.SchemaId AND p.minor_id=0 AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),e.PropertyName))<>5
+ OR EXISTS(SELECT CONVERT(tinyint,3),e.SchemaId,CONVERT(int,0),CONVERT(varbinary(max),e.PropertyName) PropertyName,
+ CONVERT(varbinary(max),CONVERT(bit,CASE WHEN e.ExpectedValue IS NULL THEN 0 ELSE 1 END)) HasValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(e.ExpectedValue,'BaseType'))) BaseType,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'MaxLength'))) MaxLength,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'Precision'))) PrecisionValue,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'Scale'))) ScaleValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(e.ExpectedValue,'Collation'))) CollationValue,
+ CONVERT(varbinary(max),e.ExpectedValue) ValueBytes FROM @ExportSchemaExpected e EXCEPT SELECT p.class,p.major_id,p.minor_id,CONVERT(varbinary(max),p.name) PropertyName,
+ CONVERT(varbinary(max),CONVERT(bit,CASE WHEN p.value IS NULL THEN 0 ELSE 1 END)) HasValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(p.value,'BaseType'))) BaseType,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'MaxLength'))) MaxLength,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'Precision'))) PrecisionValue,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'Scale'))) ScaleValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(p.value,'Collation'))) CollationValue,
+ CONVERT(varbinary(max),p.value) ValueBytes FROM sys.extended_properties p JOIN @ExportSchemaExpected e ON p.class=3 AND p.major_id=e.SchemaId AND p.minor_id=0 AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),e.PropertyName))
+ OR EXISTS(SELECT p.class,p.major_id,p.minor_id,CONVERT(varbinary(max),p.name) PropertyName,
+ CONVERT(varbinary(max),CONVERT(bit,CASE WHEN p.value IS NULL THEN 0 ELSE 1 END)) HasValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(p.value,'BaseType'))) BaseType,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'MaxLength'))) MaxLength,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'Precision'))) PrecisionValue,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'Scale'))) ScaleValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(p.value,'Collation'))) CollationValue,
+ CONVERT(varbinary(max),p.value) ValueBytes FROM sys.extended_properties p JOIN @ExportSchemaExpected e ON p.class=3 AND p.major_id=e.SchemaId AND p.minor_id=0 AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),e.PropertyName) EXCEPT SELECT CONVERT(tinyint,3),e.SchemaId,CONVERT(int,0),CONVERT(varbinary(max),e.PropertyName) PropertyName,
+ CONVERT(varbinary(max),CONVERT(bit,CASE WHEN e.ExpectedValue IS NULL THEN 0 ELSE 1 END)) HasValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(e.ExpectedValue,'BaseType'))) BaseType,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'MaxLength'))) MaxLength,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'Precision'))) PrecisionValue,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'Scale'))) ScaleValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(e.ExpectedValue,'Collation'))) CollationValue,
+ CONVERT(varbinary(max),e.ExpectedValue) ValueBytes FROM @ExportSchemaExpected e)
+ THROW 54982,N'Die fünf eigenen typisierten Schemaannotationzeugen wurden verändert.',9;
+IF (SELECT COUNT(*) FROM sys.extended_properties p WHERE p.class=3 AND p.major_id IN(@ExportSchemaCore,@ExportSchemaFile) AND p.minor_id=0)<5
+ OR (SELECT COUNT(*) FROM sys.extended_properties p WHERE p.class=3 AND p.major_id=@ExportSchemaCore AND p.minor_id=0)<3
+ OR (SELECT COUNT(*) FROM sys.extended_properties p WHERE p.class=3 AND p.major_id=@ExportSchemaFile AND p.minor_id=0)<2
+ OR NOT EXISTS(SELECT 1 FROM sys.extended_properties p WHERE p.class=3 AND p.major_id=@ExportSchemaCore AND p.minor_id=0
+ AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),N'Toolbelt.Test.ExportSchema.Null') AND p.value IS NULL)
+ THROW 54982,N'Der vollständige Schemaannotations- und NULL-Zeuge fehlt.',10;
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkQueueManagedGate WHERE GateId=1 AND ManagedEnabled=0 AND PendingReservationId IS NULL)
  OR EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE Status='CLAIMED' OR ManagedHold=1)
  OR EXISTS(SELECT 1 FROM toolbelt_core.WorkerSlotReservation WHERE IsOccupied=1 OR State NOT IN('COMMITTED','ROLLED_BACK','CLOSED'))
