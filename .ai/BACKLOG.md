@@ -4,6 +4,12 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 44 Module sind implementiert. 19 sind `validated`, 25 sind `partially validated`; 0 sind `not executed`.
 
+### Queue1.1: Zusatzdiagnose nach strikter Definitionen-Abweisung – 2026-10-08
+
+Der sechste Prüfstand c3f7 bleibt [FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37761644789), seine [Dokumentations-CI bestand](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37761644838). Managed und die drei bisherigen Exportfälle bestanden; Queue1.1 scheiterte mit `local-seed / UNCLASSIFIED / SQL55012/6`. Drei bisherige eigene Exportbereinigungen und separater Containercleanup sind belegt; neue Dateibereinigung bleibt DEFERRED/RETAINED_UNPROVEN, Queue1.1-Endmarker null. Tatsächlicher Operand und Ursache bleiben ungemessen.
+
+Der quellengebundene Diagnosekandidat erhält das ursprüngliche Strictgate, alle sechzehn Goldenhashes, Modulflags und den State6-Fallback. Nur im bereits fehlgeschlagenen BEFORE-Zweig führt die gemeinsame positive Bindung aller acht vorhandenen Definitionen an ihre festen Verbatim-Commandhashes und bisherigen Flags zu weiterhin `THROW 55012` mit festem Quelltoken `EXPORT_QUEUE11_BEFORE_VERBATIM_DEFINITIONS` und State19; jeder andere Fall bleibt State6. Kein Erfolgsfallback, keine Normalisierung, Goldenänderung oder AFTER-Instrumentierung. Der Caller aktualisiert ausschließlich seinen einen zentralen Assert-Dateipin. Neue native Diagnose-/Headqualifikation, Merge/Main und vollständige private Retention/Refbereinigung bleiben offen; keine State19-Messung oder historische Ursache vorweggenommen.
+
 ### Queue1.1-Quellenbezug: Hidden-Store-Read und geschlossene Diagnosen – 2026-10-08
 
 Der fünfte Quellenhead `6e8cf4fe4c539d862c2084a094c20b496254ae41` bestand den Managed-Vertrag, die drei bisherigen Exportfälle und die Dokumentations-CI; der neue Queue1.1-Fall scheiterte in `queue11-acquire / UNCLASSIFIED / SQL0/0` ([Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37757210239), [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37757210026)). Drei eigene Exportbereinigungen und Containercleanup bestanden, der neue Dateicleanup bleibt `DEFERRED / RETAINED_UNPROVEN`. Tatsächlicher Operand und Ursache bleiben ungemessen; dieser Lauf erklärt auch keine frühere Fehlerursache.

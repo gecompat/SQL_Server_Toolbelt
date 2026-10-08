@@ -220,7 +220,30 @@ IF (SELECT COUNT(*) FROM #ExpectedDefinitions WHERE AfterValue=@After)<>8
  OR EXISTS(SELECT 1 FROM #ExpectedDefinitions e LEFT JOIN sys.sql_modules m ON m.object_id=OBJECT_ID(N'toolbelt_core.'+QUOTENAME(e.ObjectName))
  WHERE e.AfterValue=@After AND (m.object_id IS NULL OR m.definition IS NULL OR HASHBYTES(N'SHA2_256',CONVERT(varbinary(max),m.definition))<>e.DefinitionHash
  OR m.uses_ansi_nulls<>1 OR m.uses_quoted_identifier<>1 OR m.execute_as_principal_id IS NOT NULL OR m.is_schema_bound<>0 OR m.uses_native_compilation<>0))
+BEGIN
+ -- Nur die bereits abgelehnte BEFORE-Darstellung enger klassifizieren; kein zusätzlicher Erfolgsweg.
+ IF @After=0
+ BEGIN
+  -- Alle acht festen Client-Batchhashes und sämtliche bisherigen Modulflags müssen positiv passen.
+  IF (SELECT COUNT(*) FROM (VALUES
+   (N'VW_WorkQueue',0x6B5C9E5C75E9F5AFA199F7789A1CD68892EE968FC488FA8150D0858AB6ACF02C),
+   (N'USP_EnqueueWork',0x0CF962DC4EA9D2677DE0BE66138C0B69F0BE300971607C82E79AB918B55B2423),
+   (N'USP_ClaimWork',0xE959E0D5DEE9CA8BA0186D5BC50122450133D3704646F535A61F0731DDCB34D1),
+   (N'USP_RenewWorkLease',0xCEB1F1A6003BFB665C82C3713A50510252090A46BA526EF536FE1AE4AC33D47B),
+   (N'USP_RecoverExpiredWork',0x5A26635D526560FA911DE167872D93C9F09D5AD6DDF7C3144BA4691A37112777),
+   (N'USP_CompleteWork',0xFDD256460794D7CAA76A1758598EB7F23A677D8B2D7C150553BE1D1206F558DC),
+   (N'USP_FailWork',0xB4DD7F3B191624C6775407D89814902151C7034434AF63B7D69771B7EC5D68A3),
+   (N'USP_GetWorkStatus',0x9102AD285EAF93E0F13AC2DD95246A015FDFE1604B3DDA16EBB22C1793A48F2F)
+  ) v(ObjectName,DefinitionHash) JOIN sys.sql_modules m
+   ON m.object_id=OBJECT_ID(N'toolbelt_core.'+QUOTENAME(v.ObjectName))
+   WHERE m.object_id IS NOT NULL AND m.definition IS NOT NULL
+    AND HASHBYTES(N'SHA2_256',CONVERT(varbinary(max),m.definition))=v.DefinitionHash
+    AND m.uses_ansi_nulls=1 AND m.uses_quoted_identifier=1 AND m.execute_as_principal_id IS NULL
+    AND m.is_schema_bound=0 AND m.uses_native_compilation=0)=8
+   THROW 55012,N'EXPORT_QUEUE11_BEFORE_VERBATIM_DEFINITIONS',19;
+ END;
  THROW 55012,N'EXPORT_QUEUE11_SOURCE_DEFINITIONS',6;
+END;
 -- Alle fünf Queue-Objektmarker prüfen; nur tatsächliche bekannte Version/Definition ändern sich.
 CREATE TABLE #QueueObjects(ObjectName sysname COLLATE Latin1_General_100_BIN2,ObjectType varchar(2) COLLATE Latin1_General_100_BIN2,ObjectId int NULL);
 INSERT #QueueObjects VALUES(N'WorkItem','U',NULL),
