@@ -6,6 +6,7 @@ on:
       - "Deployment/Deploy-All.ps1"
       - "Deployment/Tests/Invoke-ExportPopulatedRepeat.ps1"
       - "Deployment/Tests/Runtime/ExportPopulated*.sql"
+      - "Deployment/Tests/Runtime/ExportUpgrade*.sql"
       - "Modules/toolbelt.file.content/Source/**"
       - "Modules/toolbelt.file.content/Deployment/**"
       - "Modules/toolbelt.file.content/module.yaml"
@@ -39,6 +40,7 @@ on:
       - "Deployment/Deploy-All.ps1"
       - "Deployment/Tests/Invoke-ExportPopulatedRepeat.ps1"
       - "Deployment/Tests/Runtime/ExportPopulated*.sql"
+      - "Deployment/Tests/Runtime/ExportUpgrade*.sql"
       - "Modules/toolbelt.core.execution-context/Source/**"
       - "Modules/toolbelt.core.execution-context/Deployment/**"
       - "Modules/toolbelt.core.execution-context/module.yaml"
@@ -182,6 +184,12 @@ jobs:
         run: >-
           ./Deployment/Tests/Invoke-ExportPopulatedRepeat.ps1
           -ConnectionStringEnvironmentVariable TBX_WORKER_TEST_CONNECTION_STRING
+      - name: Execute exported genuine Queue 2.0 migration
+        shell: pwsh
+        run: >-
+          ./Deployment/Tests/Invoke-ExportPopulatedRepeat.ps1
+          -ConnectionStringEnvironmentVariable TBX_WORKER_TEST_CONNECTION_STRING
+          -Scenario Queue20Upgrade
       - name: Cleanup owned synthetic target
         if: always()
         shell: bash

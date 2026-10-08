@@ -1,7 +1,8 @@
 # Fokussierte Qualifikation im bereits autorisierten CI-Ziel; kein Targetstart,
 # Provideraufruf, Grant oder Konfigurations-/Trusteingriff. Reale Daten bleiben privat.
 [CmdletBinding()]
-param([Parameter(Mandatory)][ValidatePattern('^[A-Za-z_][A-Za-z0-9_]*$')][string]$ConnectionStringEnvironmentVariable)
+param([Parameter(Mandatory)][ValidatePattern('^[A-Za-z_][A-Za-z0-9_]*$')][string]$ConnectionStringEnvironmentVariable,
+      [ValidateSet('Repeat','Queue20Upgrade')][string]$Scenario='Repeat')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repositoryRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
@@ -12,6 +13,8 @@ $run=[guid]::NewGuid();$marker='Toolbelt.ExportPopulatedFixture.Run'
 $phase='preflight';$failure=$null;$cleanupFailed=$false;$cleanupFailure=$null
 $identities=[Collections.Generic.List[object]]::new()
 $ownedFiles=[Collections.Generic.List[object]]::new()
+$historicalFiles=[Collections.Generic.List[object]]::new()
+$historicalDirectories=[Collections.Generic.List[string]]::new()
 $journalPath=Join-Path $ownedRoot 'Ownership.json';$journalHash=$null
 $utf8=[Text.UTF8Encoding]::new($false,$true)
 $expectedModules=@('toolbelt.core.execution-context','toolbelt.core.result-table','toolbelt.file.content','toolbelt.core.execution-cancel','toolbelt.core.work-type','toolbelt.core.second-session','toolbelt.core.work-queue','toolbelt.core.event-log','toolbelt.core.worker-control')
@@ -21,7 +24,7 @@ $sourceConnection=[Environment]::GetEnvironmentVariable($ConnectionStringEnviron
 function Assert-ExportRepeat([bool]$Condition,[string]$Code){if(-not$Condition){throw ('EXPORT_REPEAT.'+$Code)}}
 function Get-SafeFailureDiagnostic([Exception]$Exception,[string]$Phase) {
  # Ausschließlich feste Quellcode-Tokens und Phasen publizieren, keine freien Exceptiontexte.
- $allowedPhases=@('preflight','cleanup','local-export','local-create','local-install','local-seed','local-repeat1','local-repeat2','local-cleanup','central-export','central-create','central-install','central-seed','central-repeat1','central-repeat2','central-cleanup')
+ $allowedPhases=@('preflight','cleanup','local-export','local-create','local-install','local-seed','local-repeat1','local-repeat2','local-cleanup','central-export','central-create','central-install','central-seed','central-repeat1','central-repeat2','central-cleanup','local-bootstrap','local-historical','local-upgrade','central-bootstrap','central-historical','central-upgrade')
  $allowedCodes=@(
   'JOURNAL_SIZE','JOURNAL_READ','JOURNAL_DRIFT','OWNERSHIP_UNCONFIRMED',
   'UNRESOLVED_VARIABLE','UNSUPPORTED_DIRECTIVE','ERROR_ABORT_MISSING',
@@ -31,7 +34,13 @@ function Get-SafeFailureDiagnostic([Exception]$Exception,[string]$Phase) {
   'CLEANUP_UNCONFIRMED','CLEANUP_NAME','CONNECTION_INPUT_MISSING',
   'EXPORT_BOM','EXPORT_CLOSURE','EXPORT_ENDS9','EXPORT_GUARDS10',
   'DATABASE_IDENTITY','DATABASE_IDENTITY_SHAPE','FILE_CLEANUP_DRIFT',
-  'JOURNAL_CLEANUP_DRIFT','DIRECTORY_CLEANUP_BOUNDARY'
+  'JOURNAL_CLEANUP_DRIFT','DIRECTORY_CLEANUP_BOUNDARY',
+  'BOOTSTRAP_CLOSURE','BOOTSTRAP_MARKERS','SNAPSHOT_TABLES8',
+  'HISTORICAL_CAPTURE_HELPER','HISTORICAL_PROCESS_HELPER','HISTORICAL_CAPTURE_UNIQUE',
+  'HISTORICAL_CAPTURE_DEADLINE','HISTORICAL_BLOB_ID','HISTORICAL_BLOB_CAPTURE',
+  'HISTORICAL_BLOB_BYTES','HISTORICAL_TOOL_DRIFT','HISTORICAL_INCLUDE_COUNT',
+  'HISTORICAL_INCLUDE_SHAPE','HISTORICAL_INCLUDE_BINDING','HISTORICAL_FILE_IDENTITY',
+  'HISTORICAL_DEPLOY_BINDING','HISTORICAL_MODE_BINDING','HISTORICAL_DIRECTORY_BOUNDARY'
  )
  $safePhase=if($Phase-cin$allowedPhases){$Phase}else{'UNSPECIFIED'}
  $safeCode='UNCLASSIFIED';$sqlNumber=0;$sqlState=0;$cause=$Exception
@@ -153,11 +162,12 @@ function Invoke-OwnedFixture($Identity,[string]$Name,[hashtable]$Parameters=@{})
  try{Assert-OwnedConnection $connection $Identity;Invoke-ExportSql $connection ([IO.File]::ReadAllText((Join-Path $runtimeRoot $Name),$utf8)) $Parameters;Assert-OwnedConnection $connection $Identity}
  finally{$connection.Dispose()}
 }
-function Read-PrivateSnapshot($Identity){
+function Read-PrivateSnapshot($Identity,[string]$Name='ExportPopulated.Capture.sql',[hashtable]$Parameters=@{},[int]$TableCount=14){
  $connection=New-ExportConnection $Identity.Name
  try{
   Assert-OwnedConnection $connection $Identity
-  $command=$connection.CreateCommand();$command.CommandTimeout=15;$command.CommandText=[IO.File]::ReadAllText((Join-Path $runtimeRoot 'ExportPopulated.Capture.sql'),$utf8)
+  $command=$connection.CreateCommand();$command.CommandTimeout=15;$command.CommandText=[IO.File]::ReadAllText((Join-Path $runtimeRoot $Name),$utf8)
+  foreach($key in $Parameters.Keys){[void]$command.Parameters.AddWithValue($key,$Parameters[$key])}
   try{
    $reader=$command.ExecuteReader();$snapshot=[Collections.Generic.Dictionary[string,Collections.Generic.List[string]]]::new([StringComparer]::Ordinal)
    try{
@@ -170,10 +180,56 @@ function Read-PrivateSnapshot($Identity){
     Assert-ExportRepeat (-not$reader.NextResult()) 'SNAPSHOT_EXTRA_RESULT'
    }finally{$reader.Dispose()}
    foreach($category in $snapshot.Keys){$snapshot[$category].Sort([StringComparer]::Ordinal)}
-   Assert-ExportRepeat (@($snapshot.Keys|Where-Object {$_.StartsWith('row:',[StringComparison]::Ordinal)}).Count-eq14) 'SNAPSHOT_TABLES14'
+   $actualTables=@($snapshot.Keys|Where-Object {$_.StartsWith('row:',[StringComparison]::Ordinal)}).Count
+   if($TableCount-eq8){Assert-ExportRepeat ($actualTables-eq8) 'SNAPSHOT_TABLES8'}else{Assert-ExportRepeat ($actualTables-eq14) 'SNAPSHOT_TABLES14'}
    return ,$snapshot
   }finally{$command.Dispose()}
  }finally{$connection.Dispose()}
+}
+function Assert-Fixture([bool]$Condition,[string]$Code){Assert-ExportRepeat $Condition $Code}
+function Assert-HistoricalFile($File){
+ $item=Get-Item -LiteralPath $File.Path -ErrorAction Stop
+ Assert-ExportRepeat ($item.Length-eq$File.Length-and$item.CreationTimeUtc.Ticks-eq$File.CreatedTicks-and[int]$item.Attributes-eq$File.Attributes-and($item.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0-and(Get-FileHash -LiteralPath $File.Path -Algorithm SHA256).Hash-ceq$File.SHA256) 'HISTORICAL_FILE_IDENTITY'
+}
+function New-UpgradeBootstrap([string]$Mode){
+ $path=Join-Path $ownedRoot ($Mode+'-bootstrap.sql')
+ & (Join-Path $repositoryRoot 'Deployment/Deploy-All.ps1') -DeploymentMode $Mode -ModuleId @('toolbelt.core.event-log','toolbelt.file.content','toolbelt.core.execution-cancel') -OutputSqlFile $path *> $null
+ $bytes=[IO.File]::ReadAllBytes($path);$text=$utf8.GetString($bytes)
+ Assert-ExportRepeat (-not($bytes[0]-eq239-and$bytes[1]-eq187-and$bytes[2]-eq191)) 'EXPORT_BOM'
+ $expected=@('toolbelt.core.execution-context','toolbelt.core.result-table','toolbelt.file.content','toolbelt.core.execution-cancel','toolbelt.core.work-type','toolbelt.core.second-session','toolbelt.core.event-log')
+ $actual=@([regex]::Matches($text,'(?m)^-- BEGIN MODULE ([a-z0-9.-]+)$')|ForEach-Object {$_.Groups[1].Value})
+ Assert-ExportRepeat (($actual-join ',')-ceq($expected-join ',')) 'BOOTSTRAP_CLOSURE'
+ Assert-ExportRepeat ([regex]::Matches($text,'(?m)^-- END MODULE ').Count-eq7-and[regex]::Matches($text,'IF @@TRANCOUNT <> 0 OR \(2 & @@OPTIONS\) <> 0').Count-eq8) 'BOOTSTRAP_MARKERS'
+ $export=[pscustomobject]@{Path=$path;Hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes));BatchCount=@(Get-ExportBatches $text).Count}
+ $ownedFiles.Add($export);return $export
+}
+function New-UpgradeHistoricalExport([string]$Mode){
+ $helper=Join-Path $repositoryRoot 'Workers/ExternalQueue/Tests/Runtime/New-GenuineQueue20Capture.ps1'
+ Assert-ExportRepeat ((Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash-ceq'04A92F46ADECCDF33A7CB6D7882F30AC427449C1CD8F9EBBDD978EB193F7B377') 'HISTORICAL_CAPTURE_HELPER'
+ . $helper
+ $captureRoot=Join-Path $ownedRoot ('queue20-'+$Mode)
+ $deploy=New-GenuineQueue20Capture -RepositoryRoot $repositoryRoot -OutputRoot $captureRoot -OwnedFiles $historicalFiles -OwnedDirectories $historicalDirectories
+ $deployFile=@($historicalFiles|Where-Object {$_.Path-ceq$deploy})
+ Assert-ExportRepeat ($deployFile.Count-eq1) 'HISTORICAL_DEPLOY_BINDING'
+ Assert-HistoricalFile $deployFile[0]
+ $text=[IO.File]::ReadAllText($deploy,$utf8);$includeCount=0
+ $expanded=[Text.StringBuilder]::new()
+ foreach($line in [regex]::Split($text,'\r?\n')){
+  if($line.StartsWith(':r ',[StringComparison]::Ordinal)){
+   Assert-ExportRepeat ($line-cmatch'^:r ../Source/([A-Za-z0-9_]+\.sql)$') 'HISTORICAL_INCLUDE_SHAPE'
+   $relative='Source/'+$Matches[1]
+   $file=@($historicalFiles|Where-Object {$_.Path.StartsWith($captureRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::Ordinal)-and$_.PSObject.Properties.Name-ccontains'Relative'-and$_.Relative-ceq$relative})
+   Assert-ExportRepeat ($file.Count-eq1) 'HISTORICAL_INCLUDE_BINDING'
+   Assert-HistoricalFile $file[0]
+   [void]$expanded.AppendLine([IO.File]::ReadAllText($file[0].Path,$utf8));$includeCount++
+  }else{[void]$expanded.AppendLine($line)}
+ }
+ Assert-ExportRepeat ($includeCount-eq14) 'HISTORICAL_INCLUDE_COUNT'
+ Assert-ExportRepeat ([regex]::Matches($expanded.ToString(),'\$\(DeploymentMode\)').Count-eq1) 'HISTORICAL_MODE_BINDING'
+ $bytes=$utf8.GetBytes($expanded.ToString().Replace('$(DeploymentMode)',$Mode))
+ $path=Join-Path $ownedRoot ($Mode+'-queue20.sql');[IO.File]::WriteAllBytes($path,$bytes)
+ $export=[pscustomobject]@{Path=$path;Hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes));BatchCount=@(Get-ExportBatches ($utf8.GetString($bytes))).Count}
+ $ownedFiles.Add($export);return $export
 }
 function Compare-PrivateSnapshots($Previous,$Current,[switch]$First){
  $skip=if($First){@('event-work-type','file-description')}else{@()}
@@ -236,6 +292,25 @@ try{
    $identity.MarkerConfirmed=$true;Assert-OwnedConnection $connection $identity
    Invoke-ExportSql $connection ('ALTER DATABASE ['+$identity.Name+'] SET COMPATIBILITY_LEVEL=150;')
   }finally{$connection.Dispose()}
+  if($Scenario-ceq'Queue20Upgrade'){
+   $phase=$mode+'-bootstrap';Save-PrivateOwnership
+   $bootstrap=New-UpgradeBootstrap $mode
+   [void](Invoke-ExportFile $identity $bootstrap)
+   $phase=$mode+'-historical';Save-PrivateOwnership
+   $historical=New-UpgradeHistoricalExport $mode
+   [void](Invoke-ExportFile $identity $historical)
+   $phase=$mode+'-seed';Save-PrivateOwnership
+   Invoke-OwnedFixture $identity 'ExportUpgrade.Setup.sql'
+   $previous=Read-PrivateSnapshot $identity 'ExportUpgrade.Capture.sql' @{'@After'=$false} 8
+   $phase=$mode+'-upgrade';Save-PrivateOwnership
+   [void](Invoke-ExportFile $identity $export)
+   Invoke-OwnedFixture $identity 'ExportUpgrade.Assert.sql'
+   $current=Read-PrivateSnapshot $identity 'ExportUpgrade.Capture.sql' @{'@After'=$true} 8
+   Compare-PrivateSnapshots $previous $current
+   # Keine DML/Claimadmission nach dem exakten Migrationsorakel; eigene DB vollständig bereinigen.
+   $phase=$mode+'-cleanup';Save-PrivateOwnership;Remove-OwnedDatabase $identity
+   continue
+  }
   $phase=$mode+'-install';Save-PrivateOwnership
   [void](Invoke-ExportFile $identity $export)
   $phase=$mode+'-seed';Save-PrivateOwnership
@@ -269,6 +344,20 @@ try{
   if($null-ne$failure-or$cleanupFailed){try{Save-PrivateOwnership}catch{$cleanupFailed=$true;if($null-eq$cleanupFailure){$cleanupFailure=Get-SafeFailureDiagnostic $_.Exception 'cleanup'}}}
   else{
    try{
+    # Alle eigenen Parentverzeichnisse vor der ersten Dateilöschung gegen Umleitung prüfen.
+    foreach($directory in $historicalDirectories){
+     $resolvedDirectory=[IO.Path]::GetFullPath($directory)
+     Assert-ExportRepeat ($resolvedDirectory.StartsWith($ownedRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::Ordinal)-and((Get-Item -LiteralPath $directory).Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'HISTORICAL_DIRECTORY_BOUNDARY'
+    }
+    foreach($file in $historicalFiles){
+     Assert-ExportRepeat ([IO.Path]::GetFullPath($file.Path).StartsWith($ownedRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::Ordinal)) 'HISTORICAL_DIRECTORY_BOUNDARY'
+     Assert-HistoricalFile $file;[IO.File]::Delete($file.Path)
+    }
+    foreach($directory in @($historicalDirectories|Sort-Object Length -Descending)){
+     $resolvedDirectory=[IO.Path]::GetFullPath($directory)
+     Assert-ExportRepeat ($resolvedDirectory.StartsWith($ownedRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::Ordinal)-and((Get-Item -LiteralPath $directory).Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'HISTORICAL_DIRECTORY_BOUNDARY'
+     [IO.Directory]::Delete($resolvedDirectory,$false)
+    }
     foreach($file in $ownedFiles){Assert-ExportRepeat ((Get-FileHash -LiteralPath $file.Path -Algorithm SHA256).Hash-ceq$file.Hash) 'FILE_CLEANUP_DRIFT';[IO.File]::Delete($file.Path)}
     Assert-ExportRepeat ((Get-FileHash -LiteralPath $journalPath -Algorithm SHA256).Hash-ceq$journalHash) 'JOURNAL_CLEANUP_DRIFT';[IO.File]::Delete($journalPath)
     $resolved=[IO.Path]::GetFullPath($ownedRoot)
@@ -286,5 +375,6 @@ if($null-ne$failure){
  exit 1
 }
 if($cleanupFailed){[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_CLEANUP_DEFERRED');Write-SafeFailureDiagnostic $cleanupFailure;exit 1}
-[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_PASS local central SQL2019 CL150 fourteen-tables two-cycles')
+if($Scenario-ceq'Queue20Upgrade'){[Console]::Out.WriteLine('EXPORT_QUEUE20_UPGRADE_PASS local central SQL2019 CL150 eight-legacy-tables genuine2.0-to2.1 first-control')}
+else{[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_PASS local central SQL2019 CL150 fourteen-tables two-cycles')}
 [Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_CLEANUP_VERIFIED')

@@ -18,6 +18,41 @@ $workers=[Collections.Generic.List[object]]::new();$ownedConfig=$null
 $primary=$null;$fixturePhase='preflight';$secondary=[Collections.Generic.List[string]]::new();$records=[Collections.Generic.List[object]]::new()
 $root=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 function Need([bool]$Condition,[string]$Code){if(-not $Condition){throw $Code}}
+function Get-ManagedUnknownPublicDescriptor($ActualEvent) {
+    # Ausschließlich bestehende feste Actorcodes/-phasen und numerische Beweisflags.
+    # Keine IDs, Messages, Typ-/Categorynamen, SQLwerte oder Runtimepfade übertragen.
+    function Field($InputObject,[string]$Name) {
+        if($null-eq$InputObject){return $null}
+        if($InputObject-is[Collections.IDictionary]){if($InputObject.Contains($Name)){return ,$InputObject[$Name]};return $null}
+        if($InputObject-is[pscustomobject]){if($null-ne$InputObject.PSObject.Properties[$Name]){return ,$InputObject.PSObject.Properties[$Name].Value}}
+        return $null
+    }
+    $phases=@('PREPARED','EXECUTING','COMPLETING','COMMITTING','ENDED','BIND','BEGIN_CONTEXT','BEGIN_TRANSACTION','TRANSACTION_WITNESS','RESOLVE_HANDLER','HANDLER','ROLLBACK','RECORD_ROLLBACK','GUARDIAN_CONTROL','GUARDIAN_IMPORT','GUARDIAN_SOURCE','GUARDIAN_RESULT','GUARDIAN_CANCEL')
+    $codes=@('WORKER.GUARDIAN_OUTCOME_UNKNOWN','WORKER.ROLLBACK_UNKNOWN','WORKER.HANDLER_INVALID','WORKER.UNSUPPORTED_HANDLER','WORKER.STOP_REQUESTED','WORKER.ACTOR_COMMAND_INVALID','WORKER.ACTOR_STALE_COMMAND','WORKER.CANCEL_DRAIN_UNKNOWN','WORKER.MANAGED_SHAPE_INVALID','WORKER.FAILURE_RECORD_UNKNOWN','WORKER.ACTOR_CONTROL_INVALID','WORKER.ACTOR_CANCEL_BINDING_INVALID','WORKER.ACTOR_END_UNKNOWN','WORKER.ACTOR_EXECUTOR_FAILED','WORKER.ACTOR_POSTCOMMIT_FAILED','WORKER.ACTOR_GUARDIAN_FAILED','WORKER.ACTOR_START_FAILED','WORKER.ACTOR_DISPOSITION_FAILED','WORKER.COMMIT_RECORD_UNKNOWN','WORKER.UNKNOWN_RECORD_FAILED','WORKER.CONTEXT_END_FAILED','WORKER.RESOURCE_DISPOSE_FAILED')
+    function Closed-Code($Value){if($Value-is[string]){if($Value-ceq''){return 'NONE'};if($Value-cin$codes){return $Value}};return 'UNSPECIFIED'}
+    function Closed-Phase($Value){if($Value-is[string]-and$Value-cin$phases){return $Value};return 'UNSPECIFIED'}
+    function Closed-Flag($Value){if($Value-is[bool]){return [int]$Value};return -1}
+    function Channel($InputObject) {
+        $safe=[ordered]@{Present=0;Valid=0;Phase='UNSPECIFIED';Code='UNSPECIFIED';SqlNumber=0;SqlState=0}
+        if($null-eq$InputObject){return [pscustomobject]$safe}
+        $safe.Present=1
+        $phase=Field $InputObject 'Phase';$code=Field $InputObject 'Code'
+        $number=Field $InputObject 'SqlNumber';$state=Field $InputObject 'SqlState'
+        $safe.Phase=Closed-Phase $phase;$safe.Code=Closed-Code $code
+        if($number-is[int]){$safe.SqlNumber=$number}
+        if($state-is[int]-and$state-ge0-and$state-le255){$safe.SqlState=$state}
+        if($phase-is[string]-and$phase-cin$phases-and$code-is[string]-and($code-cin$codes-or$code-ceq'UNSPECIFIED')-and$number-is[int]-and$state-is[int]-and$state-ge0-and$state-le255){$safe.Valid=1}
+        return [pscustomobject]$safe
+    }
+    return [pscustomobject][ordered]@{
+        Event='MANAGED_UNEXPECTED_UNKNOWN';ActorPhase=(Closed-Phase (Field $ActualEvent 'ActorPhase'))
+        PrimaryCode=(Closed-Code (Field $ActualEvent 'PrimaryCode'));Code=(Closed-Code (Field $ActualEvent 'Code'))
+        GuardianHealthy=(Closed-Flag (Field $ActualEvent 'GuardianHealthy'));RollbackConfirmed=(Closed-Flag (Field $ActualEvent 'RollbackConfirmed'))
+        ResourcesDisposed=(Closed-Flag (Field $ActualEvent 'ResourcesDisposed'));SlotEndConfirmed=(Closed-Flag (Field $ActualEvent 'SlotEndConfirmed'))
+        PrimaryDiagnostic=(Channel (Field $ActualEvent 'PrimaryDiagnostic'));FailureDiagnostic=(Channel (Field $ActualEvent 'FailureDiagnostic'))
+        GuardianDiagnostic=(Channel (Field $ActualEvent 'GuardianDiagnostic'));GuardianOuterDiagnostic=(Channel (Field $ActualEvent 'GuardianOuterDiagnostic'))
+    }
+}
 function Sql([string]$Text,[hashtable]$Parameters=@{},[switch]$Scalar,[switch]$Cleanup,[Diagnostics.Stopwatch]$ProbeClock=$null,[int]$ProbeSeconds=0) {
     if(-not $Cleanup){Need ($clock.Elapsed.TotalSeconds -lt $MaxSeconds) 'MANAGED.FIXTURE_DEADLINE'}
     $command=$connection.CreateCommand();$command.CommandText=$Text
@@ -46,6 +81,11 @@ function Wait([scriptblock]$Predicate,[string]$Code,[switch]$AllowUnknown,[Diagn
             foreach($ownedWorker in $workers){
                 foreach($entry in $ownedWorker.Shell.Streams.Information){
                     if($entry.Tags-contains'ToolbeltQueueWorker' -and $entry.MessageData.Event-ceq'MANAGED_EXECUTION_ENDED' -and $entry.MessageData.Outcome-ceq'UNKNOWN'){
+                        # Der unerwartete echte Worker-Ausgang bleibt ein Fehler; nur feste Diagnose ergänzen.
+                        try {
+                            $safeUnknown=Get-ManagedUnknownPublicDescriptor $entry.MessageData
+                            Write-Information ('MANAGED_UNEXPECTED_UNKNOWN_DIAGNOSTIC '+($safeUnknown|ConvertTo-Json -Depth 4 -Compress)) -Tags 'ToolbeltManagedDiagnostic' -InformationAction Continue
+                        }catch{}
                         throw 'MANAGED.UNEXPECTED_UNKNOWN'
                     }
                 }
