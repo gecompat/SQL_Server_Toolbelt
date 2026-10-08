@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-08 – Objektannotation im bestehenden Exportrepeat prüfen
+
+- Setup und Assert erhalten sechs kollisionsgeprüfte class-1/minor0-Zeugen
+  auf einer bestehenden Prozedur, Scalarfunktion und View; Count6 und beide
+  EXCEPT-Richtungen vergleichen den vollständigen typisierten Werttupel.
+- Capture, Definitionserfassung, Adapter, Workflow und öffentliche Verträge bleiben erhalten.
+- Native class1-Prüfung und eigener Cleanup: **NOT_EXECUTED**; exakte Head-/Main-CI **PENDING**.
+
+Class3-Voraussetzung erfüllt: PR294, Main `91e13af689334407527fddfdc8d22285933f4225` (2026-10-08).
+[Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37717103755) und [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37717103790): **PASS**.
+
 ## 2026-10-08 – Schemaannotation im vorhandenen Exportrepeat prüfen
 
 - Drei bestehende DefaultRepeat-Fixtures erhalten fünf kollisionsgeprüfte class-3-

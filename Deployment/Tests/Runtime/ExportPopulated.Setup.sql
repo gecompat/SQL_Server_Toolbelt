@@ -57,6 +57,75 @@ IF @@TRANCOUNT<>0 THROW 54980,N'Schemaannotationssetup hinterließ keine neutral
 IF XACT_STATE()<>0 THROW 54980,N'Schemaannotationssetup hinterließ keine neutrale Sitzung.',7;
 IF (@@OPTIONS&2)<>0 THROW 54980,N'Schemaannotationssetup hinterließ keine neutrale Sitzung.',7;
 IF @@LOCK_TIMEOUT<>-1 THROW 54980,N'Schemaannotationssetup hinterließ keine neutrale Sitzung.',7;
+-- Sechs eigene class1/minor0-Zeugen auf drei bestehenden CREATE OR ALTER-Objekten.
+-- Typ/Schema/Name und typisierte Releaseherkunft einmal exakt binden; kein SourceHash-Gate.
+DECLARE @ExportObjectBindings TABLE
+(
+ ObjectName sysname COLLATE Latin1_General_100_BIN2 NOT NULL PRIMARY KEY,
+ ObjectType char(2) NOT NULL,ObjectId int NULL,
+ ModuleId nvarchar(256) COLLATE Latin1_General_100_BIN2 NOT NULL,
+ ModuleVersion nvarchar(64) COLLATE Latin1_General_100_BIN2 NOT NULL
+);
+INSERT @ExportObjectBindings(ObjectName,ObjectType,ObjectId,ModuleId,ModuleVersion) VALUES
+ (N'USP_PrepareResultTable','P',OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P'),N'toolbelt.core.result-table',N'1.0.0'),
+ (N'SVF_CurrentExecutionId','FN',OBJECT_ID(N'toolbelt_core.SVF_CurrentExecutionId',N'FN'),N'toolbelt.core.execution-context',N'1.0.0'),
+ (N'VW_WorkQueue','V',OBJECT_ID(N'toolbelt_core.VW_WorkQueue',N'V'),N'toolbelt.core.work-queue',N'2.1.0');
+IF (SELECT COUNT(DISTINCT ObjectId) FROM @ExportObjectBindings)<>3
+ OR EXISTS(SELECT 1 FROM @ExportObjectBindings b
+ LEFT JOIN sys.objects o ON o.object_id=b.ObjectId
+ LEFT JOIN sys.schemas s ON s.schema_id=o.schema_id
+ LEFT JOIN sys.sql_modules m ON m.object_id=o.object_id
+ WHERE o.object_id IS NULL OR o.type<>b.ObjectType OR m.definition IS NULL
+ OR CONVERT(varbinary(max),o.name)<>CONVERT(varbinary(max),b.ObjectName)
+ OR CONVERT(varbinary(max),s.name)<>CONVERT(varbinary(max),N'toolbelt_core')
+ OR NOT EXISTS(SELECT 1 FROM sys.extended_properties p WHERE p.class=1 AND p.major_id=b.ObjectId AND p.minor_id=0
+ AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),N'Toolbelt.ModuleId')
+ AND SQL_VARIANT_PROPERTY(p.value,'BaseType')=N'nvarchar'
+ AND CONVERT(varbinary(max),p.value)=CONVERT(varbinary(max),b.ModuleId))
+ OR NOT EXISTS(SELECT 1 FROM sys.extended_properties p WHERE p.class=1 AND p.major_id=b.ObjectId AND p.minor_id=0
+ AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),N'Toolbelt.ModuleVersion')
+ AND SQL_VARIANT_PROPERTY(p.value,'BaseType')=N'nvarchar'
+ AND CONVERT(varbinary(max),p.value)=CONVERT(varbinary(max),b.ModuleVersion)))
+ THROW 54980,N'Die drei eigenen Objektannotationsziele sind nicht exakt gebunden.',8;
+DECLARE @ExportObjectExpected TABLE
+(
+ ObjectId int NOT NULL,PropertyName sysname COLLATE Latin1_General_100_BIN2 NOT NULL,
+ ExpectedValue sql_variant NOT NULL,PRIMARY KEY(ObjectId,PropertyName)
+);
+INSERT @ExportObjectExpected(ObjectId,PropertyName,ExpectedValue) VALUES
+ ((SELECT ObjectId FROM @ExportObjectBindings WHERE ObjectName=N'USP_PrepareResultTable'),N'Toolbelt.Test.ExportObject.Typed',CONVERT(sql_variant,CONVERT(int,7))),
+ ((SELECT ObjectId FROM @ExportObjectBindings WHERE ObjectName=N'USP_PrepareResultTable'),N'MS_Description',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Contoso Procedure – Unicode Ω  '))),
+ ((SELECT ObjectId FROM @ExportObjectBindings WHERE ObjectName=N'SVF_CurrentExecutionId'),N'Toolbelt.Test.ExportObject.Typed',CONVERT(sql_variant,CONVERT(varbinary(5),0x00017F80FF))),
+ ((SELECT ObjectId FROM @ExportObjectBindings WHERE ObjectName=N'SVF_CurrentExecutionId'),N'MS_Description',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Fabrikam Function – Padding 中  '))),
+ ((SELECT ObjectId FROM @ExportObjectBindings WHERE ObjectName=N'VW_WorkQueue'),N'Toolbelt.Test.ExportObject.Typed',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Synthetic view – Padding Ω  '))),
+ ((SELECT ObjectId FROM @ExportObjectBindings WHERE ObjectName=N'VW_WorkQueue'),N'MS_Description',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Contoso View – Unicode Ω  ')));
+-- Alle sechs Kollisionen gemeinsam vor dem ersten eigenen Add abweisen.
+IF EXISTS(SELECT 1 FROM sys.extended_properties p JOIN @ExportObjectExpected e
+ ON p.class=1 AND p.major_id=e.ObjectId AND p.minor_id=0
+ AND p.name COLLATE DATABASE_DEFAULT=e.PropertyName COLLATE DATABASE_DEFAULT)
+ THROW 54980,N'Eigene Objektannotation ist bereits belegt.',9;
+DECLARE @ExportObjectProcedureTyped int=7,@ExportObjectFunctionTyped varbinary(5)=0x00017F80FF,
+ @ExportObjectViewTyped nvarchar(128)=N'Synthetic view – Padding Ω  ',
+ @ExportObjectProcedureDescription nvarchar(128)=N'Contoso Procedure – Unicode Ω  ',
+ @ExportObjectFunctionDescription nvarchar(128)=N'Fabrikam Function – Padding 中  ',
+ @ExportObjectViewDescription nvarchar(128)=N'Contoso View – Unicode Ω  ';
+-- Ausschließlich diese sechs eigenen Adds bilden die kleine Transaktionsgrenze.
+BEGIN TRY
+ BEGIN TRANSACTION;
+ EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Test.ExportObject.Typed',@value=@ExportObjectProcedureTyped,@level0type=N'SCHEMA',@level0name=N'toolbelt_core',@level1type=N'PROCEDURE',@level1name=N'USP_PrepareResultTable';
+ EXEC sys.sp_addextendedproperty @name=N'MS_Description',@value=@ExportObjectProcedureDescription,@level0type=N'SCHEMA',@level0name=N'toolbelt_core',@level1type=N'PROCEDURE',@level1name=N'USP_PrepareResultTable';
+ EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Test.ExportObject.Typed',@value=@ExportObjectFunctionTyped,@level0type=N'SCHEMA',@level0name=N'toolbelt_core',@level1type=N'FUNCTION',@level1name=N'SVF_CurrentExecutionId';
+ EXEC sys.sp_addextendedproperty @name=N'MS_Description',@value=@ExportObjectFunctionDescription,@level0type=N'SCHEMA',@level0name=N'toolbelt_core',@level1type=N'FUNCTION',@level1name=N'SVF_CurrentExecutionId';
+ EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Test.ExportObject.Typed',@value=@ExportObjectViewTyped,@level0type=N'SCHEMA',@level0name=N'toolbelt_core',@level1type=N'VIEW',@level1name=N'VW_WorkQueue';
+ EXEC sys.sp_addextendedproperty @name=N'MS_Description',@value=@ExportObjectViewDescription,@level0type=N'SCHEMA',@level0name=N'toolbelt_core',@level1type=N'VIEW',@level1name=N'VW_WorkQueue';
+ COMMIT TRANSACTION;
+END TRY
+BEGIN CATCH
+ IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
+ THROW;
+END CATCH;
+IF @@TRANCOUNT<>0 THROW 54980,N'Objektannotationssetup hinterließ keine neutrale Sitzung.',10;
+IF XACT_STATE()<>0 THROW 54980,N'Objektannotationssetup hinterließ keine neutrale Sitzung.',10;
 CREATE TABLE #ExportWorkTypeResult(Dummy int NULL);
 EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.export.sentinel',
  @HandlerSchema=N'toolbelt_core',@HandlerProcedure=N'USP_WriteEventInternal',

@@ -62,6 +62,91 @@ IF (SELECT COUNT(*) FROM sys.extended_properties p WHERE p.class=3 AND p.major_i
  OR NOT EXISTS(SELECT 1 FROM sys.extended_properties p WHERE p.class=3 AND p.major_id=@ExportSchemaCore AND p.minor_id=0
  AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),N'Toolbelt.Test.ExportSchema.Null') AND p.value IS NULL)
  THROW 54982,N'Der vollständige Schemaannotations- und NULL-Zeuge fehlt.',10;
+-- Sechs eigene class1/minor0-Zeugen auf drei bestehenden CREATE OR ALTER-Objekten.
+-- Typ/Schema/Name und typisierte Releaseherkunft einmal exakt binden; kein SourceHash-Gate.
+DECLARE @ExportObjectBindings TABLE
+(
+ ObjectName sysname COLLATE Latin1_General_100_BIN2 NOT NULL PRIMARY KEY,
+ ObjectType char(2) NOT NULL,ObjectId int NULL,
+ ModuleId nvarchar(256) COLLATE Latin1_General_100_BIN2 NOT NULL,
+ ModuleVersion nvarchar(64) COLLATE Latin1_General_100_BIN2 NOT NULL
+);
+INSERT @ExportObjectBindings(ObjectName,ObjectType,ObjectId,ModuleId,ModuleVersion) VALUES
+ (N'USP_PrepareResultTable','P',OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P'),N'toolbelt.core.result-table',N'1.0.0'),
+ (N'SVF_CurrentExecutionId','FN',OBJECT_ID(N'toolbelt_core.SVF_CurrentExecutionId',N'FN'),N'toolbelt.core.execution-context',N'1.0.0'),
+ (N'VW_WorkQueue','V',OBJECT_ID(N'toolbelt_core.VW_WorkQueue',N'V'),N'toolbelt.core.work-queue',N'2.1.0');
+IF (SELECT COUNT(DISTINCT ObjectId) FROM @ExportObjectBindings)<>3
+ OR EXISTS(SELECT 1 FROM @ExportObjectBindings b
+ LEFT JOIN sys.objects o ON o.object_id=b.ObjectId
+ LEFT JOIN sys.schemas s ON s.schema_id=o.schema_id
+ LEFT JOIN sys.sql_modules m ON m.object_id=o.object_id
+ WHERE o.object_id IS NULL OR o.type<>b.ObjectType OR m.definition IS NULL
+ OR CONVERT(varbinary(max),o.name)<>CONVERT(varbinary(max),b.ObjectName)
+ OR CONVERT(varbinary(max),s.name)<>CONVERT(varbinary(max),N'toolbelt_core')
+ OR NOT EXISTS(SELECT 1 FROM sys.extended_properties p WHERE p.class=1 AND p.major_id=b.ObjectId AND p.minor_id=0
+ AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),N'Toolbelt.ModuleId')
+ AND SQL_VARIANT_PROPERTY(p.value,'BaseType')=N'nvarchar'
+ AND CONVERT(varbinary(max),p.value)=CONVERT(varbinary(max),b.ModuleId))
+ OR NOT EXISTS(SELECT 1 FROM sys.extended_properties p WHERE p.class=1 AND p.major_id=b.ObjectId AND p.minor_id=0
+ AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),N'Toolbelt.ModuleVersion')
+ AND SQL_VARIANT_PROPERTY(p.value,'BaseType')=N'nvarchar'
+ AND CONVERT(varbinary(max),p.value)=CONVERT(varbinary(max),b.ModuleVersion)))
+ THROW 54982,N'Die drei eigenen Objektannotationsziele sind nicht exakt gebunden.',11;
+DECLARE @ExportObjectExpected TABLE
+(
+ ObjectId int NOT NULL,PropertyName sysname COLLATE Latin1_General_100_BIN2 NOT NULL,
+ ExpectedValue sql_variant NOT NULL,PRIMARY KEY(ObjectId,PropertyName)
+);
+INSERT @ExportObjectExpected(ObjectId,PropertyName,ExpectedValue) VALUES
+ ((SELECT ObjectId FROM @ExportObjectBindings WHERE ObjectName=N'USP_PrepareResultTable'),N'Toolbelt.Test.ExportObject.Typed',CONVERT(sql_variant,CONVERT(int,7))),
+ ((SELECT ObjectId FROM @ExportObjectBindings WHERE ObjectName=N'USP_PrepareResultTable'),N'MS_Description',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Contoso Procedure – Unicode Ω  '))),
+ ((SELECT ObjectId FROM @ExportObjectBindings WHERE ObjectName=N'SVF_CurrentExecutionId'),N'Toolbelt.Test.ExportObject.Typed',CONVERT(sql_variant,CONVERT(varbinary(5),0x00017F80FF))),
+ ((SELECT ObjectId FROM @ExportObjectBindings WHERE ObjectName=N'SVF_CurrentExecutionId'),N'MS_Description',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Fabrikam Function – Padding 中  '))),
+ ((SELECT ObjectId FROM @ExportObjectBindings WHERE ObjectName=N'VW_WorkQueue'),N'Toolbelt.Test.ExportObject.Typed',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Synthetic view – Padding Ω  '))),
+ ((SELECT ObjectId FROM @ExportObjectBindings WHERE ObjectName=N'VW_WorkQueue'),N'MS_Description',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Contoso View – Unicode Ω  ')));
+-- Vollständiger Schlüssel und typisierter Werttupel in beiden Richtungen, nicht nur COUNT.
+IF (SELECT COUNT(*) FROM sys.extended_properties p JOIN @ExportObjectExpected e
+ ON p.class=1 AND p.major_id=e.ObjectId AND p.minor_id=0
+ AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),e.PropertyName))<>6
+ OR EXISTS(SELECT CONVERT(tinyint,1) ClassValue,e.ObjectId,CONVERT(int,0) MinorId,
+ CONVERT(varbinary(max),e.PropertyName) PropertyName,
+ CONVERT(varbinary(max),CONVERT(bit,CASE WHEN e.ExpectedValue IS NULL THEN 0 ELSE 1 END)) HasValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(e.ExpectedValue,'BaseType'))) BaseType,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'MaxLength'))) MaxLength,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'Precision'))) PrecisionValue,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'Scale'))) ScaleValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(e.ExpectedValue,'Collation'))) CollationValue,
+ CONVERT(varbinary(max),e.ExpectedValue) ValueBytes FROM @ExportObjectExpected e
+ EXCEPT SELECT p.class,p.major_id,p.minor_id,CONVERT(varbinary(max),p.name) PropertyName,
+ CONVERT(varbinary(max),CONVERT(bit,CASE WHEN p.value IS NULL THEN 0 ELSE 1 END)) HasValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(p.value,'BaseType'))) BaseType,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'MaxLength'))) MaxLength,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'Precision'))) PrecisionValue,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'Scale'))) ScaleValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(p.value,'Collation'))) CollationValue,
+ CONVERT(varbinary(max),p.value) ValueBytes FROM sys.extended_properties p JOIN @ExportObjectExpected e
+ ON p.class=1 AND p.major_id=e.ObjectId AND p.minor_id=0
+ AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),e.PropertyName))
+ OR EXISTS(SELECT p.class,p.major_id,p.minor_id,CONVERT(varbinary(max),p.name) PropertyName,
+ CONVERT(varbinary(max),CONVERT(bit,CASE WHEN p.value IS NULL THEN 0 ELSE 1 END)) HasValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(p.value,'BaseType'))) BaseType,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'MaxLength'))) MaxLength,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'Precision'))) PrecisionValue,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(p.value,'Scale'))) ScaleValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(p.value,'Collation'))) CollationValue,
+ CONVERT(varbinary(max),p.value) ValueBytes FROM sys.extended_properties p JOIN @ExportObjectExpected e
+ ON p.class=1 AND p.major_id=e.ObjectId AND p.minor_id=0
+ AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),e.PropertyName)
+ EXCEPT SELECT CONVERT(tinyint,1) ClassValue,e.ObjectId,CONVERT(int,0) MinorId,
+ CONVERT(varbinary(max),e.PropertyName) PropertyName,
+ CONVERT(varbinary(max),CONVERT(bit,CASE WHEN e.ExpectedValue IS NULL THEN 0 ELSE 1 END)) HasValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(e.ExpectedValue,'BaseType'))) BaseType,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'MaxLength'))) MaxLength,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'Precision'))) PrecisionValue,
+ CONVERT(varbinary(max),CONVERT(int,SQL_VARIANT_PROPERTY(e.ExpectedValue,'Scale'))) ScaleValue,
+ CONVERT(varbinary(max),CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(e.ExpectedValue,'Collation'))) CollationValue,
+ CONVERT(varbinary(max),e.ExpectedValue) ValueBytes FROM @ExportObjectExpected e)
+ THROW 54982,N'Die sechs eigenen typisierten Objektannotationzeugen wurden verändert.',12;
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkQueueManagedGate WHERE GateId=1 AND ManagedEnabled=0 AND PendingReservationId IS NULL)
  OR EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE Status='CLAIMED' OR ManagedHold=1)
  OR EXISTS(SELECT 1 FROM toolbelt_core.WorkerSlotReservation WHERE IsOccupied=1 OR State NOT IN('COMMITTED','ROLLED_BACK','CLOSED'))

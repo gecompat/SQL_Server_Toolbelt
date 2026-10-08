@@ -425,3 +425,27 @@ drei eigene Exportbereinigungen und Containercleanup sind separat bezeugt.
 Die Parameter-Mainvoraussetzung ist erfüllt. Native class3-Prüfung und
 eigener Cleanup sind **NOT_EXECUTED**; die eigene exakte Head-/Main-CI
 einschließlich Bereinigung bleibt **PENDING**.
+
+## class-1-Objektannotation im bestehenden DefaultRepeat
+
+Setup und Assert binden `toolbelt_core.USP_PrepareResultTable` (P),
+`toolbelt_core.SVF_CurrentExecutionId` (FN) und `toolbelt_core.VW_WorkQueue` (V)
+an Typ, Schema, Namen, vorhandene Definition und typisierte Modulmarker.
+Je Objekt: `MS_Description` und `Toolbelt.Test.ExportObject.Typed`, insgesamt
+sechs eigene, nicht vom Deployment verwaltete class-1/minor0-Zeugen. Werte:
+`int` 7, `varbinary(5)` und `nvarchar(128)` mit Unicode und abschließenden Leerzeichen.
+Alle sechs Kollisionen werden vor dem ersten Add geprüft; sechs Adds liegen
+in einer eigenen kleinen Transaktion. Count6 und beide EXCEPT-Richtungen prüfen
+Klasse, Objekt-ID, minor0, binären Namen, Wertpräsenz, Basistyp, MaxLength,
+Precision, Scale, Collation und Wertbytes. Der vollständige vorhandene Capture
+einschließlich Definition, Owner und Permissions bleibt unverändert.
+Beide Repeatfenster, 14 Tabellen/156 Spalten, bisherige Erstfensterausnahmen,
+Identityzeugen und eigene Bereinigung bleiben erhalten. Zwei bestehende Fixtures
+und vier Dokumente bilden den Branchscope; keine doppelte Capturekategorie,
+fachlichen API-Aufrufe, neuen SQL-Objekte, Grants, Konfigurations- oder Zieländerungen.
+Native class1-Prüfung und eigener Cleanup: **NOT_EXECUTED**; exakte Head-/Main-CI **PENDING**.
+Der begrenzte class3-Mainnachweis gilt für Linux SQL Server 2019/CL150 local/central.
+Weitere Plattformen/CLs, Minimalrechte, nichtleere Grants und voller44-Modul-Lifecycle bleiben offen.
+
+Class3-Voraussetzung erfüllt: PR294, Main `91e13af689334407527fddfdc8d22285933f4225` (2026-10-08).
+[Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37717103755) und [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37717103790): **PASS**.
