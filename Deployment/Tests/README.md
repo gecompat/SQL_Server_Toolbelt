@@ -110,6 +110,41 @@ bleiben unverändert. Der neue Fall ist für denselben vorhandenen externen
 Linux2019-/CL150-Scope lokal und zentral vorbereitet; neue native Ausführung
 ist **NOT_EXECUTED**.
 
+Statusfortschreibung 2026-10-08: Der begrenzte native Export-Migrationsfall
+in [PR291](https://github.com/gecompat/SQL_Server_Toolbelt/pull/291) besteht
+am Qualifikationshead `155f74c9d11548cf600e7770f0d0d12e0720a7f4` (**PASS**;
+[Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37707910466),
+[Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37707910490)).
+Auf SQL Server 2019 Linux/CL150 bestand lokal und zentral die tatsächliche
+Exportfolge: sieben aktuelle Bootstrapmodule (124 Batches), die gepinnte
+Original-Queue2.0 (46 Batches) und der vollständige aktuelle Neun-Modul-Export
+(261 Batches), jeweils in frischen ungepoolten Sitzungen. Acht Legacytabellen
+mit allen 109 Feldern einschließlich der 43 WorkItem-Felder und des aktiven
+Legacyclaims bleiben vor weiterer persistenter DML bytegenau erhalten;
+Rowversions, Tokens, NULLs, Audit-/Textbytes, verbrauchte Identitywerte und
+ausgewählte Katalogmetadaten sind eingeschlossen. Nur die dokumentierten
+Queue-Versions-/Check-ID-Normalisierungen sind ausgenommen. Die drei neutralen
+Managedfelder und die bekannten Spaltenformen/neutralen Zustände der sechs
+neuen Gate-/Controltabellen bestehen die lesenden Assertions. Eigene
+Migration-DB-/Dateibereinigung und separate Containerbereinigung bestanden.
+Auch der vorhandene gemeinsame befüllte Exportrepeat bestand separat; die
+Migration erhält keine Post-Migration-Completion, Admission, neue Callback-/
+SQL-API oder zusätzliche Repeatfolge. Keine Rechte-, Provider-, Trust-,
+Konfigurations- oder Zielausweitung; weitere Plattformen/CLs, Minimalrechte,
+nichtleere Grants und allgemeiner 44-Modul-Lifecycle bleiben offen.
+
+Frühere Vorbereitungs-/NOT_EXECUTED-Angaben und beide FAILED-Läufe einschließlich
+der SKIPPED-Exportschritte bleiben historische Evidenz ihrer Quellenstände.
+Der Erfolg schreibt keine früheren Fehler oder fehlenden Cleanupnachweise um.
+Die Actor-/Guardianursache des früheren Managed-UNKNOWN bleibt **UNMEASURED**;
+im erfolgreichen Lauf erschien kein UNKNOWN-Diagnosedescriptor. Die begrenzte
+Beobachterabbildung ist offline validiert; ihre UNKNOWN-Ausgabestrecke wurde
+hier nicht ausgelöst. Der UNKNOWN-Guard bleibt unverändert; daraus wird kein
+Workerprodukt- oder Ursachenfix abgeleitet. Parentnachweise bleiben erhalten.
+Finale Head-CI nach dieser Evidenzfortschreibung, PR291-Merge und anschließende
+Main-CI einschließlich Maincleanup sind noch offen.
+
+
 Statusfortschreibung 2026-10-08: Der erste native Migrationslauf in
 [PR291](https://github.com/gecompat/SQL_Server_Toolbelt/pull/291) am Head
 `1d4f9cbdde094c2c59c22eb01b5c5ee261df73b0` ist **FAILED**
