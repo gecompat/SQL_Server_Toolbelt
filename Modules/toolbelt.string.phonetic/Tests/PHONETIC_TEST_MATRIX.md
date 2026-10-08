@@ -5,6 +5,7 @@ Die [Testevidenz](README.md) beschreibt die tatsächlichen begrenzten Läufe.
 
 | Scope | Gezielter Nachweis | Status |
 |---|---|---|
+| Offline-Differential | Neuer Testadapter: 32 synthetische Fälle, Rahmen 64 Fälle/128 UTF16-Einheiten; vollständige Codes, AJ-Endblank, striktes ASCII/LF/Base64-Protokoll und EOF gegen elf gebundene Apache-Referenzdateien | NOT_EXECUTED; kein SAFE-, SQL-, Matrix- oder Release-PASS |
 | Algorithmen / Eingabe | Framework je223 Assertions unter drei Kulturen; vier lokale Fixtures; vollständige Codes und terminales J-Leerzeichen | Begrenzter Scope bestanden; Java-Differential NOT_EXECUTED |
 | Bridge / SQL | Acht echte Reader je local/central und zwei lokale Größenwitnesses je Ziel; Typen, NULL, Status, Bytes, eine Zeile, EOF/noNext | Begrenzter Scope bestanden; Größen aus Quelle hergeleitet, kein Java-Differential |
 | Artefakt | Build; eigene IL-/Metadatenprüfung ohne unbekannte eigene IL-Aufrufe; vier installierte Slots und exakte Binarybindung | Bestanden im Kandidatenscope; keine transitive SAFE-Vollqualifikation |

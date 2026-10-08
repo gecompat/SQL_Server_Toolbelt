@@ -2,6 +2,30 @@
 
 Version 1.0.0 bleibt `partially validated` und `unreleased`.
 
+## Differential-EntryPoint – Quellenstand 2026-10-08
+
+Der zusätzliche [Runner](Differential/run-differential-phonetic.ps1) und sein
+[Transportvertrag](Differential/TRANSPORT.md) liegen als Testquellen vor.
+Der Vergleich mit 32 synthetischen Fällen ist `NOT_EXECUTED`; daraus folgt
+kein Scanner-, SAFE-, SQL-, Matrix- oder Release-PASS.
+Der ausgewählte Consumerpfad benötigt Windows, PowerShell 7.3+, explizite
+Csc- und .NET-Framework-4.8-Referenzen, Java/Javac sowie eine vorhandene Assembly
+mit belegter aktueller Sourceprovenienz. Name und Version der DLL genügen nicht.
+Die CLI nimmt `BindingPath` und `ExpectedBindingSHA256`. Das private Binding
+enthält genau `Schema`, `Ready`, `Inputs`, `ReferenceDirectory`, `EvidenceDirectory`.
+Die 14 Inputrollen sind Coordinator, CSharpConsumer, JavaConsumer, Corpus,
+Transport, OwnedProcess, ApacheManifest, Assembly, Csc, Java, Javac, Mscorlib,
+System und SystemData, jeweils mit ausdrücklich gewähltem Path/SHA256/Bytes.
+Die elf exakt gebundenen Referenzdateien liegen unter einem expliziten externen
+ReferenceDirectory; kein Fetch, Installieren, Discovery oder Fallback.
+Der Protokollrahmen erlaubt 1–64 Fälle mit 1–128 UTF16-Codeeinheiten und prüft
+vollständige Codes einschließlich des alternativen AJ-Endblanks bytegenau.
+Vier eigene Kinder teilen 240s mit 12s Cleanupreserve, je höchstens 60s;
+dies ist keine absolute Host-, Heap- oder Hardinterruptgarantie. Stdout wird
+roh verglichen, stderr nur als vom Helper zurückgegebener decodierter Text;
+eine rohe stderr-Byteattestation wird nicht behauptet. Private Inputlocators
+und Evidenz bleiben außerhalb des Repositorys; eigene Evidenz wird behalten.
+
 ## Begrenzte tatsächliche Evidenz 2026-10-04
 
 Am 2026-10-04 bestanden Build, Frameworkprüfungen mit jeweils 223 Assertions unter en-US/de-DE/tr-TR und die eigene IL-/Metadatenprüfung (keine unbekannten eigenen IL-Aufrufe). Begrenzte private Labadapter bestanden auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170. Je Ziel: vier Fixtures einmal lokal, acht echte Clientreader je local/central sowie zwei lokale Größenwitnesses; Clean/Repeat, resolved Consumer-Ablehnungen, zentrale Bestätigung und Uninstall/Repeat mit frischer eigener Bereinigung. Keine Konfigurations-, Rechte- oder Owneränderungen. Java-Differential, unresolved Consumer, weitere Ziele/CL, tatsächliche Minimalrechte, vollständige Lifecyclematrix und aktuelle Head-CI bleiben offen. Teilweise validiert und unveröffentlicht; kein vollständiger Produkt-PASS.

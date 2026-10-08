@@ -1,0 +1,73 @@
+{
+  "Commit": "5f76abb946164b943bc2cf367bc1d70b8f6e70d1",
+  "GitTree": "bec710ef2e34636a6331644d9ab2ee84b48e2b60",
+  "DeclaredRelease": "1.18.0",
+  "Files": [
+    {
+      "SourcePath": "src/main/java/org/apache/commons/codec/language/ColognePhonetic.java",
+      "GitBlob": "10cffc48c8b6272191a518d1a6c0d13fc3d965d9",
+      "SHA256": "0609335B87E8546C8AC99C2D5CC78A78733339060F973EE665B8A19094A0C1BB",
+      "Bytes": 13400
+    },
+    {
+      "SourcePath": "src/main/java/org/apache/commons/codec/language/DoubleMetaphone.java",
+      "GitBlob": "3ee8882e0ca9336bf2a93ba91f716183a1d033f7",
+      "SHA256": "6BBB1D4BDB48D6E88BE2C6D18CC4991F0655F527E224897CBE3D7D5C7ADAFF9E",
+      "Bytes": 37378
+    },
+    {
+      "SourcePath": "src/main/java/org/apache/commons/codec/EncoderException.java",
+      "GitBlob": "b76f0852c357932e3f2e50fdb7b5e8e4b43ca765",
+      "SHA256": "BD2D96AC5C21192F776B21175C9A153FB5CAE693BBE1E3D079C48887DAD4D72F",
+      "Bytes": 3473
+    },
+    {
+      "SourcePath": "src/main/java/org/apache/commons/codec/StringEncoder.java",
+      "GitBlob": "9e0d3abc151fdff6eb6d14f25bdd2aaf02f23aa9",
+      "SHA256": "71465B82F9998111C4DEC547ED41C8CFAD0BACAA2FD21A42266B9EDC9502B745",
+      "Bytes": 1296
+    },
+    {
+      "SourcePath": "src/main/java/org/apache/commons/codec/Encoder.java",
+      "GitBlob": "d6aacc05f86ba864b194d8d3b6ccba3ce87b8d2b",
+      "SHA256": "9907B42FFE273CE789ACCC66FCEF5AEBCAA47C9B7C0C90ACF0D67CBCA696437B",
+      "Bytes": 1713
+    },
+    {
+      "SourcePath": "src/main/java/org/apache/commons/codec/binary/StringUtils.java",
+      "GitBlob": "6c110eb76cac168741cadfd2ae82d176b49107b8",
+      "SHA256": "AD7BE14021617DA9D24AEE8E9A571112E309572E5A6DF9DF4098F768DFFDC84C",
+      "Bytes": 18477
+    },
+    {
+      "SourcePath": "src/main/java/org/apache/commons/codec/CharEncoding.java",
+      "GitBlob": "98ff8a82c6b37b0847a45d2c2c394541219b0e8a",
+      "SHA256": "42BFC0912BA466D38B9683F075DA2F44484B5CF3C72256C02FF142A7B0BEEA13",
+      "Bytes": 4606
+    },
+    {
+      "SourcePath": "src/main/java/org/apache/commons/codec/binary/CharSequenceUtils.java",
+      "GitBlob": "e3cfdbb80f42e859c5e3b722d991785ffeb97748",
+      "SHA256": "FEB4A95B72591C9EC4B93547088BE129900EAD012D1DF8DBB0FCB892951AA070",
+      "Bytes": 3132
+    },
+    {
+      "SourcePath": "LICENSE.txt",
+      "GitBlob": "d645695673349e3947e8e5ae42332d0ac3164cd7",
+      "SHA256": "CFC7749B96F63BD31C3C42B5C471BF756814053E847C10F3EB003417BC523D30",
+      "Bytes": 11358
+    },
+    {
+      "SourcePath": "NOTICE.txt",
+      "GitBlob": "d3b64e9e3008ab61bb1ad3e155bf514773a7b08d",
+      "SHA256": "B64933EE1D36D14659156223A2604EDADB60BFFDD465D5368FF422D7689DB5FB",
+      "Bytes": 175
+    },
+    {
+      "SourcePath": "pom.xml",
+      "GitBlob": "36756fe5138ea281d5cbdcec4e54b31653709d36",
+      "SHA256": "74B916DA4B0384C619E6DD4C18DEFE8AA4387F795205253CFB4BBB2F458CDDCE",
+      "Bytes": 17813
+    }
+  ]
+}

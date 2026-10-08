@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-08 – Phonetik-Differential-Testadapter als Quellen ergänzen
+
+Sechs gekoppelte Offline-Testquellen binden 32 synthetische Fälle, vollständige
+Codes einschließlich AJ-Endblank und elf unveränderte externe Apache-Dateien
+über ein portables Manifest. Runner, Modulmanifest, Testmatrix und Herkunfts-
+dokumentation nennen explizite Inputs und begrenzte Prozess-/Transportverträge.
+Kein neues SQL-Objekt oder Produktprovider; keine automatische Beschaffung.
+Differentiallauf NOT_EXECUTED, Modul weiterhin teilweise validiert und unveröffentlicht.
+
+
 ## 2026-10-08 – Dateirepeat nach genuine Queue1.1-Migration ergänzen
 
 - Unter der bestehenden Deploymentwartungsfreigabe vom 2026-10-07 folgt im
