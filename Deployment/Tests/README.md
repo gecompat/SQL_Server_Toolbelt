@@ -575,6 +575,48 @@ Head-/Merge-/Mainqualifikation **PENDING**.
 Bisherige Vorbereitungsangaben und alle Parentnachweise bleiben historische
 Evidenz ihrer Quellenstände; keine Guards, Timeouts, Produkte, APIs oder Rechte ändern sich.
 
+## Queue11Upgrade: ein identischer Dateirepeat nach dem Upgrade
+
+Neue Testwartung, 2026-10-08, unter der bestehenden daten- und metadatenwahrenden
+Deploymentfreigabe vom 2026-10-07: Der vorhandene `Queue11Upgrade`-Fall behält
+Quellenpreflight, sieben Bootstrapmodule, vollständigen Original1.1-Installer
+und unmittelbaren Upgradevergleich unverändert bei. Die sechs Legacytabellen
+mit 83 physischen Feldern werden weiterhin vor weiterer persistenter DML geprüft:
+82 stabile Nicht-Rowversion-Felder bleiben exakt, die drei keyed WorkItem-
+Rowversions müssen beim Upgrade wechseln. Dies ist kein Repeat-Orakel.
+
+Danach erfasst `Runtime/ExportQueue11Repeat.Capture.sql` parameterlos den
+aktuellen Stand in 14 `row:`-Kategorien und 17 `catalog:`-Domänen. Alle 156
+Datenfelder einschließlich NULLs, Textbytes, Auditwerten und Rowversions werden
+verglichen; CountWitness erfasst auch die fünf leeren Tabellen. Ohne weitere
+persistente DML, Claimabschluss oder Consumer führt eine frische Sitzung genau einen Repeat
+derselben bereits hashgebundenen Neun-Modul-Datei aus. Der anschließende Snapshot
+muss vollständig übereinstimmen, einschließlich aller drei WorkItem-Rowversions.
+Keine `completion:`-/`rv:`-/`target:`-Sonderkategorien, Versionsnormalisierung,
+Migrationsausnahme oder Firstskip im neuen Vergleich.
+
+Die Kataloggrenze folgt den bestehenden Quellen: Routine-`modify_date` ist
+kein Invariant von CREATE OR ALTER. Nur bei den drei erneut erzeugten WorkItem-
+CHECKs RecoveryMetadata/StateMetadata/Status werden technische Objekt-IDs und
+Erstellungs-/Änderungsdaten ausgenommen; Namen, Definitionen, Parentbindung
+und Flags bleiben erfasst. Übrige erfasste IDs und Erstellungsdaten bleiben exakt.
+Der neue Endmarker ist `EXPORT_QUEUE11_POSTMIGRATION_REPEAT_PASS local central SQL2019 CL150 fourteen-tables one-cycle same-file`;
+er folgt erst auf beide Modi und die bestehende eigene Gesamtbereinigung.
+Alter Queue1.1-Endmarker und Exportcleanupmarker bleiben erhalten.
+
+[PR298](https://github.com/gecompat/SQL_Server_Toolbelt/pull/298) ist auf Main
+`b329b71d321ebbef78d19d6e6a2d4329b2d4f249` abgeschlossen: begrenzte Head-/Main-CI
+und eigene Bereinigung bestanden ([Main-Worker](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37811779553),
+[Main-Dokumentation](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37811779647));
+private Retention und eigene Refbereinigung abgeschlossen. Alle bisherigen
+FAILED-/PENDING-Absätze gelten weiter für ihre historischen Quellenstände.
+Die zusätzliche Sourceimplementierung ist keine neue native Evidenz: Repeatfolge
+und eigener Cleanup **NOT_EXECUTED**, exakte Head-/Merge-/Mainqualifikation
+**PENDING**. Kein weiterer Scenario-, Exportdatei-, Datenbank-, Rechte-, Provider-,
+Konfigurations- oder Zielscope; kein Windows-, Matrix-, Minimalrechte- oder Releasebeleg.
+Die getrennten Reads in der eigenen synthetischen Datenbank sind keine allgemeine
+atomare Snapshotzusage bei fremden gleichzeitigen Writes.
+
 ## Abschluss PR297 und nachfolgende genuine Queue1.1-Wartung
 
 Abschluss der vorausgehenden Wartungswelle, 2026-10-08: [PR297](https://github.com/gecompat/SQL_Server_Toolbelt/pull/297)

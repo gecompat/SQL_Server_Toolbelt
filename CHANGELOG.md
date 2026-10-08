@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## 2026-10-08 – Dateirepeat nach genuine Queue1.1-Migration ergänzen
+
+- Unter der bestehenden Deploymentwartungsfreigabe vom 2026-10-07 folgt im
+  vorhandenen `Queue11Upgrade`-Fall je local/central genau ein Repeat derselben
+  Neun-Modul-Exportdatei nach dem unveränderten unmittelbaren Upgradevergleich.
+  Neuer parameterloser Snapshot: 14 Tabellen/156 Felder einschließlich aller
+  Rowversions, CountWitness auch für fünf leere Tabellen und 17 Katalogdomänen;
+  vollständiger Vergleich ohne Migrationsnormalisierung oder Firstskip.
+  Keine weitere persistente DML, Consumer-, Produkt-, API-, Ziel-, Rechte- oder Timeoutänderung.
+- Vorausgehender [PR298](https://github.com/gecompat/SQL_Server_Toolbelt/pull/298)
+  ist auf Main `b329b71d321ebbef78d19d6e6a2d4329b2d4f249` abgeschlossen:
+  begrenzte Head-/Main-CI und eigene Bereinigung bestanden
+  ([Worker](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37811779553),
+  [Dokumentation](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37811779647));
+  private Retention und eigene Refbereinigung abgeschlossen. Bestehende
+  Fehler-/Vorbereitungshistorien bleiben erhalten, keine Ursachenclosure.
+- Neue Sourceimplementierung vorhanden; native Repeatfolge und eigener Cleanup
+  **NOT_EXECUTED**, exakte Head-/Merge-/Mainqualifikation **PENDING**.
+  Kein zusätzlicher Windows-, Minimalrechte-, Matrix- oder Releasebeleg.
+
 ## 2026-10-08 – Genuine Queue1.1 im bestehenden Exporttest ergänzen
 
 - Queue1.1-Testfixture: `#ExpectedChecks.ConstraintName` erhält explizites NULL für den absichtlich anonymen SchedulerCHECK-Witness; nur der zentrale Caller-Assertpin folgt. Die fachlichen CHECK-/Definition-/State- und Produkt-/API-/Cleanupverträge bleiben erhalten. Neunter Head26dc: Worker-CI FAILED, Dokumentations-CI PASS, `local-upgrade / UNCLASSIFIED / SQL515/2`; konkrete Tabelle/Spalte/Ursache und AFTER-Reachability sind nicht belegt. Drei bisherige Exportbereinigungen und Containercleanup bestanden, neue Exportbereinigung DEFERRED/RETAINED_UNPROVEN. Neue Head-CI, befüllte Migration, Merge/Main und Abschluss bleiben offen; alle historischen Fehlerstände bleiben erhalten.

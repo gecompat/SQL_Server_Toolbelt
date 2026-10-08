@@ -431,6 +431,28 @@ Head-/Merge-/Mainqualifikation **PENDING**.
 Bisherige Vorbereitungsangaben und alle Parentnachweise bleiben historische
 Evidenz ihrer Quellenstände; keine Guards, Timeouts, Produkte, APIs oder Rechte ändern sich.
 
+## Ein Dateirepeat nach der genuine Queue1.1-Migration
+
+Testfortsetzung unter der bestehenden Deploymentwartungsfreigabe vom 2026-10-07:
+`Invoke-ExportPopulatedRepeat.ps1 -Scenario Queue11Upgrade` ergänzt nach dem
+unveränderten unmittelbaren genuine1.1→2.1-Vergleich je local/central genau
+einen Repeat derselben hashgebundenen Neun-Modul-Datei. Dazwischen erfolgt
+keine weitere persistente DML oder Consumeraktion. Ein aktueller Snapshot prüft
+14 Tabellen/156 Felder einschließlich aller Rowversions und 17 Katalogdomänen;
+die migrationsbezogenen Vergleichsausnahmen werden dabei nicht wiederverwendet.
+Produkt-, API-, Session-, Ownership-, Timeout- und Cleanupverträge bleiben erhalten.
+
+Vorausgehender [PR298](https://github.com/gecompat/SQL_Server_Toolbelt/pull/298)
+ist nach Main `b329b71d321ebbef78d19d6e6a2d4329b2d4f249` abgeschlossen.
+Begrenzte Head-/Mainnachweise und eigene Bereinigung bestanden
+([Main-Worker](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37811779553),
+[Main-Dokumentation](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37811779647));
+private Retention und eigene Refbereinigung sind abgeschlossen. Frühere
+FAILED-/PENDING-Absätze bleiben historische Quellenstände mit ihren Grenzen.
+Die zusätzliche Repeatfolge und ihr eigener Cleanup sind **NOT_EXECUTED**;
+ihre exakte Head-/Merge-/Mainqualifikation bleibt **PENDING**.
+Orakel und Metadatenausnahmen stehen in den [Deploymenttests](Tests/README.md).
+
 ## Genuine Queue1.1 als ursprünglichen Installationsstand prüfen
 
 `Invoke-ExportPopulatedRepeat.ps1 -Scenario Queue11Upgrade` ergänzt denselben

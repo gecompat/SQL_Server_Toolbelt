@@ -4,6 +4,28 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 44 Module sind implementiert. 19 sind `validated`, 25 sind `partially validated`; 0 sind `not executed`.
 
+### Queue1.1: ein Dateirepeat unmittelbar nach der Migration – 2026-10-08
+
+Die bestehende Freigabe zur daten- und metadatenwahrenden Deploymentwartung vom
+2026-10-07 trägt diese begrenzte Testfortsetzung. [PR298](https://github.com/gecompat/SQL_Server_Toolbelt/pull/298)
+ist nach Main `b329b71d321ebbef78d19d6e6a2d4329b2d4f249` gemergt;
+exakte Head- und Mainnachweise für Linux SQL Server 2019/CL150 local/central
+sowie eigene Exportbereinigungen und separater Containercleanup sind bestanden
+([Main-Worker](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37811779553),
+[Main-Dokumentation](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37811779647)).
+Private Originale sind gesichert und eigene Arbeitsrefs entfernt. Die folgenden
+früheren FAILED-/PENDING-Angaben bleiben Historie ihrer jeweiligen Quellenstände;
+der spätere Erfolg erklärt keine historische Fehlerursache.
+
+Im vorhandenen `Queue11Upgrade`-Fall folgt nach dem unveränderten unmittelbaren
+genuine1.1→2.1-Vergleich genau ein Repeat derselben hashgebundenen Neun-Modul-Datei
+je Modus. Ohne weitere persistente DML oder Consumer vergleicht ein aktueller Snapshot
+alle 14 Tabellen/156 Felder einschließlich Rowversions und 17 Katalogdomänen.
+Produkt, API, Testziele, Rechte, Timeouts und Cleanupverträge bleiben erhalten.
+Sourceimplementierung vorhanden; neue native Folge und eigener Cleanup
+**NOT_EXECUTED**, exakte Head-/Merge-/Mainqualifikation **PENDING**.
+Quellenbedingte Metadatengrenzen stehen in den [Deploymenttests](../Deployment/Tests/README.md).
+
 ### Queue1.1: explizites NULL im anonymen CHECK-Witness – 2026-10-08
 
 Neunter Prüfstand26dc: [Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37803232821), [Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37803232680). Geschlossene Abweisung `local-upgrade / UNCLASSIFIED / SQL515/2`; konkrete Tabelle, Spalte und Ursache bleiben UNMEASURED. Die Phase umfasst Export und nachfolgende Assertions, sie belegt keine AFTER-Reachability. Drei bisherige Exportbereinigungen und Containercleanup bestanden; neue Exportbereinigung DEFERRED/RETAINED_UNPROVEN, kein vierter OwnCleanup- oder Queue1.1-End-PASS.
