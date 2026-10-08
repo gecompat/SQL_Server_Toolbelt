@@ -85,6 +85,7 @@ documentation:
     - "Tests/README.md"
   examples:
     - "Examples/Phonetic.sql"
+  differential_transport: "Tests/Differential/TRANSPORT.md"
 contracts:
   usp: "not applicable"
   deployment: "1.0"
@@ -92,6 +93,7 @@ contracts:
 tests:
   static: "Tests/Static/validate_contract.py"
   framework: "Tests/Framework/run-framework-phonetic.ps1"
+  differential: "Tests/Differential/run-differential-phonetic.ps1"
   runtime: "Tests/Runtime/Phonetic.Contract.sql"
   boundaries: "Tests/Runtime/Phonetic.Boundaries.sql"
   metadata: "Tests/Runtime/InstalledMetadata.Contract.sql"

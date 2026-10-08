@@ -19,3 +19,14 @@ Die Java-Bibliothek wird nicht installiert oder zur Runtime geladen. Ein
 Versionswechsel erfordert erneuten Quellen-/Lizenzreview und Differentialtests;
 bei Wegfall der Referenz bleibt diese Version mit dokumentierter Herkunft
 festgeschrieben. Es gibt keine Drittanbieter-Binaryabhängigkeit.
+
+## Externe Differential-Testreferenz 2026-10-08
+
+Die Aussage zur fehlenden Java-Runtimeabhängigkeit betrifft das SQL-Produkt.
+Der zusätzliche externe Offline-Testadapter verwendet ausdrücklich ausgewählte
+Java/Javac-Inputs und elf unveränderte Referenzdateien: acht Javaquellen sowie
+LICENSE, NOTICE und pom.xml. Das portable Manifest bindet Commit, Tree,
+Version und jede Datei; die Referenz liegt außerhalb des Produkts unter einem
+expliziten ReferenceDirectory. Kein automatischer Fetch, Installieren oder
+Fallback. Der Differentiallauf bleibt NOT_EXECUTED; Herkunft und Lizenztexte
+sowie die markierten Produktionsports bleiben unverändert.

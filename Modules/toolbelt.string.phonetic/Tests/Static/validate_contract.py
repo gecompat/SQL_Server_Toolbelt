@@ -49,4 +49,8 @@ project = ET.fromstring(text("Clr/Toolbelt.String.Phonetic.csproj")); ns = {"m":
 need({n.attrib["Include"] for n in project.findall(".//m:Reference", ns)} == {"System", "System.Data"}, "PHONETIC_STATIC_REFERENCES")
 need(len(project.findall(".//m:Compile", ns)) == 5, "PHONETIC_STATIC_COMPILE_SET")
 for name in ("README.md", "Documentation/TVF_ColognePhonetic.md", "Documentation/TVF_DoubleMetaphone.md", "Tests/PHONETIC_TEST_MATRIX.md", "Tests/README.md"): need((ROOT / name).is_file(), "PHONETIC_STATIC_DOC")
+differential = ROOT / "Tests/Differential"
+for name in ("run-differential-phonetic.ps1", "PhoneticDifferentialConsumer.cs", "PhoneticReferenceConsumer.java", "DifferentialCorpus.tsv", "TRANSPORT.md", "Reference.manifest.json"):
+    need((differential / name).is_file(), "PHONETIC_STATIC_DIFFERENTIAL_FILES")
+need(hashlib.sha256((differential / "Reference.manifest.json").read_bytes()).hexdigest().upper() == "D3839828C20B7831DF95B4362C700E67A12338BA7E3D869B35246BA9C97EEBA8", "PHONETIC_STATIC_DIFFERENTIAL_REFERENCE")
 print("PASS PHONETIC_STATIC_SOURCE_ONLY")
