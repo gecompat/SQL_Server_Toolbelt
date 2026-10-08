@@ -542,7 +542,7 @@ try{
   $queue11DirectoryProcessHelper=[pscustomobject]@{Path=$processPath;Hash='7B3E838EE5D294B3DECF3153D2D02276BE401E6F76EE8D810F20C5DCC51D1BD4'}
   . $processPath
   # Genau die tatsächlich ausgewählte Application binden, ohne PATH-Inventar oder Neuauflösung.
-  $commands=@(Get-Command -Name stat -CommandType Application -ErrorAction Stop)
+  $commands=@(Get-Command -Name stat -CommandType Application -TotalCount 1 -ErrorAction Stop)
   Assert-ExportRepeat ($commands.Count-eq1-and$commands[0].CommandType-eq[Management.Automation.CommandTypes]::Application-and-not[string]::IsNullOrWhiteSpace($commands[0].Path)) 'QUEUE11_DIRECTORY_TOOL'
   $statPath=[IO.Path]::GetFullPath($commands[0].Path)
   Assert-ExportRepeat ($statPath-ceq$commands[0].Path) 'QUEUE11_DIRECTORY_TOOL'

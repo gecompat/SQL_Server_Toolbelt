@@ -2,6 +2,11 @@
 
 ## 2026-10-08 – Genuine Queue1.1 im bestehenden Exporttest ergänzen
 
+- Queue1.1 bindet ausdrücklich die erste vorhandene Application mit
+  `Get-Command -TotalCount 1`; Datei-/Hash-/Ownershipgates bleiben erhalten.
+  Dritter Fehlhead betrifft die Toolbindung, Ursache weiterhin ungemessen;
+  neue native Prüfung und vollständiger Cleanupnachweis bleiben offen.
+
 - Queue1.1: zweiter Head verwirft die Parent-Zeitgleichheit; Ursache bleibt
   ungemessen, Migration unqualifiziert und eigener Dateicleanup DEFERRED.
 - Parent-/Root-Objektbindung im bestehenden Linux-CI-Fall verwendet private

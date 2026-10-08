@@ -454,3 +454,8 @@ private Geräte-/Inode-/Mode-Tupel statt unveränderlicher Verzeichniszeiten. Da
 vorhandene `stat`-Programm und der bestehende Prozesshelper werden gebunden;
 kein Installations- oder Fallbackpfad. Neue native Qualifikation bleibt offen.
 [Fehlheads, Primärquellen und Grenzen](Tests/README.md).
+
+Die Queue1.1-Toolauswahl begrenzt `Get-Command -CommandType Application` mit
+`-TotalCount 1` auf den ersten Treffer. Dessen volle Pfad-, reguläre Datei-,
+NoReparse- und Hashprüfungen bleiben geschlossen; kein zweiter Fallbacktreffer.
+[Dritter Fehlhead und Auswahlvertrag](Tests/README.md).

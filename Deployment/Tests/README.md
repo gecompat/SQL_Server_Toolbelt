@@ -737,3 +737,39 @@ Primärquellen: [Microsoft CreationTimeUtc](https://learn.microsoft.com/en-us/do
 [GNU-stat-Dokumentation](https://github.com/coreutils/coreutils/blob/v9.5/doc/coreutils.texi),
 [GNU-stat-Implementierung](https://github.com/coreutils/coreutils/blob/v9.5/src/stat.c).
 Herstellerversionen sind Quellenbelege, keine Behauptung über Runnerbinaries.
+
+### Queue1.1: ausdrücklich begrenzte Application-Auswahl
+
+Dritter exakter Head `836357d02a42e2e490e657a003c745da6756e526`:
+[Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37747434151),
+[Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37747434156).
+Die gemeinsame Toolabweisung `QUEUE11_DIRECTORY_TOOL` liefert keinen konkreten
+Operand oder Ursachenbeweis. Drei bisherige Exportcleanups und Containercleanup
+sind belegt, kein neuer Deferredmarker; kein vierter Cleanup-/Queue1.1-PASS.
+Die bestehende Application-Auswahl wird mit `-TotalCount 1` ausdrücklich auf den
+ersten Treffer begrenzt. Alle Prüfungen dieses gewählten Programms bleiben erhalten;
+kein Ausweichen auf einen zweiten unsicheren Treffer. Neue native Prüfung,
+Merge/Main und Retention bleiben offen. Historische Ursachen bleiben ungemessen.
+
+Root und unabhängiger Reader binden den dritten Head an vier tatsächliche
+Checkout-Trees `7bb97252bec1aa3924e8b72e742e68453c115718` und die geschlossene
+Abweisung `preflight / QUEUE11_DIRECTORY_TOOL / SQL0/0`. Die übrigen elf
+Linuxschritte und beide Faultjobs bestanden. Der Code wird von drei Prüfungen
+geteilt; tatsächliche Trefferzahl, Leaf, Toolpfad/-version und Ursache sind
+**UNMEASURED**. Die Reihenfolge vor eigener Rootanlage, Acquire und Queue1.1-DB
+folgt aus der Source, nicht aus einem zusätzlichen Trace. Kein neuer
+DEFERRED-/Retentionmarker wurde beobachtet; eine vollständige vierte eigene
+Bereinigung oder neue Migrationsqualifikation folgt daraus nicht.
+
+Der [PowerShell-Quellvertrag](https://raw.githubusercontent.com/PowerShell/PowerShell/v7.4.0/src/System.Management.Automation/engine/GetCommandCommand.cs)
+führt bei ausdrücklich gesetztem `CommandType` die Suche auch ohne `-All` weiter.
+Die bisherige Annahme global genau eines Application-Treffers ist deshalb kein
+Vertrag zur ersten Programmauswahl. Nur der vorhandene Aufruf erhält
+`-TotalCount 1`. Count1, Typ und nichtleerer Pfad sowie voller Pfad, reguläre
+NoReparse-Datei, Initialhash und Pre-/Posthash bleiben unverändert erforderlich.
+Kein Alias, Sortieren, Installieren, Neuauflösen oder Sicherheitsfallback auf
+einen zweiten Treffer. Die Ergebnisgrenze ist keine harte Discoverydeadline,
+kein Nachweis des installierten PowerShellstands oder der historischen Ursache.
+Verzeichnis-, Prozessbudget-, Datei-, Journal-, SQL- und Cleanupgates bleiben
+bytegleich. Der begrenzte neue Auswahlvertrag ist vor nativer Qualifikation
+erneut am exakten neuen Quellenstand zu prüfen; keine unveränderte Retrywelle.

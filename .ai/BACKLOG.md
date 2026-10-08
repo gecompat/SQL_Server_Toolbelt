@@ -8,6 +8,17 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ### Genuine Queue1.1 als weitere Deploymentwartung
 
+Dritter exakter Head `836357d02a42e2e490e657a003c745da6756e526`:
+[Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37747434151),
+[Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37747434156).
+Die gemeinsame Toolabweisung `QUEUE11_DIRECTORY_TOOL` liefert keinen konkreten
+Operand oder Ursachenbeweis. Drei bisherige Exportcleanups und Containercleanup
+sind belegt, kein neuer Deferredmarker; kein vierter Cleanup-/Queue1.1-PASS.
+Die bestehende Application-Auswahl wird mit `-TotalCount 1` ausdrücklich auf den
+ersten Treffer begrenzt. Alle Prüfungen dieses gewählten Programms bleiben erhalten;
+kein Ausweichen auf einen zweiten unsicheren Treffer. Neue native Prüfung,
+Merge/Main und Retention bleiben offen. Historische Ursachen bleiben ungemessen.
+
 Der zweite exakte Head `611fa3fceee0dddc84ddce71fb33d7a7f42b0ba8` hat
 [Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37741968376)
 und [Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37741968349).
