@@ -74,7 +74,8 @@ function Get-SafeFailureDiagnostic([Exception]$Exception,[string]$Phase) {
   'QUEUE11_JOURNAL_IDENTITY','QUEUE11_ACQUIRE_HELPER','QUEUE11_CAPTURE_HELPER','QUEUE11_ACQUIRE_RETURN',
   'QUEUE11_CAPTURE_RETURN','QUEUE11_MANIFEST_BINDING','QUEUE11_SQL_FIXTURE_PIN',
   'QUEUE11_ROWVERSION_KEYS','QUEUE11_ROWVERSION_BYTES','QUEUE11_ROWVERSION_CHANGE',
-  'QUEUE11_SNAPSHOT_CATEGORIES','QUEUE11_SNAPSHOT_CARDINALITY','QUEUE11_RETAINED_UNPROVEN'
+  'QUEUE11_SNAPSHOT_CATEGORIES','QUEUE11_SNAPSHOT_CARDINALITY','QUEUE11_RETAINED_UNPROVEN',
+  'QUEUE11_REPEAT_CATEGORIES','QUEUE11_REPEAT_CARDINALITY','QUEUE11_REPEAT_COUNT_WITNESS','QUEUE11_REPEAT_EXPORT_BINDING'
  )
  $safePhase=if($Phase-cin$allowedPhases){$Phase}else{'UNSPECIFIED'}
  $safeCode='UNCLASSIFIED';$sqlNumber=0;$sqlState=0;$cause=$Exception
@@ -503,9 +504,29 @@ function Invoke-Queue11ExportFile($Identity,$Export){
  return $started
 }
 function Assert-Queue11Fixtures {
- foreach($binding in @(@{Name='ExportQueue11.Setup.sql';Hash='04EB235CCEEC0036EDDD2C8B9D342EB800F76432656731BC6339B96E32E0ECEC'},@{Name='ExportQueue11.Capture.sql';Hash='58DB015EF05262E62670A0055BAECB2CD57AFFE23FDF33576382350347E7CE99'},@{Name='ExportQueue11.Assert.sql';Hash='E201EEF9EDB4B74A99E3DDC588AE8967E01664C80DBEDAADD0E4EAA1A0AAC985'})){
+ foreach($binding in @(@{Name='ExportQueue11.Setup.sql';Hash='04EB235CCEEC0036EDDD2C8B9D342EB800F76432656731BC6339B96E32E0ECEC'},@{Name='ExportQueue11.Capture.sql';Hash='58DB015EF05262E62670A0055BAECB2CD57AFFE23FDF33576382350347E7CE99'},@{Name='ExportQueue11.Assert.sql';Hash='E201EEF9EDB4B74A99E3DDC588AE8967E01664C80DBEDAADD0E4EAA1A0AAC985'},@{Name='ExportQueue11Repeat.Capture.sql';Hash='BD5A9F43905AB1F9C670841528F7E4A0223E5B1FBB428E7ACB97DBAC50C30AFF'})){
   Assert-ExportRepeat ((Get-FileHash -LiteralPath (Join-Path $runtimeRoot $binding.Name) -Algorithm SHA256).Hash-ceq$binding.Hash) 'QUEUE11_SQL_FIXTURE_PIN'
  }
+}
+function Read-Queue11RepeatSnapshot($Identity){
+ Assert-Queue11Fixtures
+ $snapshot=Read-PrivateSnapshot $Identity 'ExportQueue11Repeat.Capture.sql'
+ # Genau 14 endliche Zeugen, einschließlich der fünf absichtlich leeren Tabellen.
+ $rows=[ordered]@{'toolbelt_core.WorkType'=2;'toolbelt_core.WorkItem'=3;'toolbelt_core.WorkQueueScheduler'=1;'toolbelt_core.WorkQueueBarrierBlocker'=0;'toolbelt_core.WorkQueueManagedGate'=1;'toolbelt_core.WorkerControlConfiguration'=1;'toolbelt_core.WorkerRegistration'=0;'toolbelt_core.WorkerSlotReservation'=0;'toolbelt_core.WorkerExecutionDisposition'=0;'toolbelt_core.WorkerExecutionCommitWitness'=0;'toolbelt_core.ExecutionCancellation'=3;'toolbelt_core.SecondSessionProvider'=1;'toolbelt_core.EventLog'=3;'toolbelt_file.FileContentRootAllowlist'=4}
+ $catalog=@('objects','children','schemas','tables','columns','identity','indexes','index_columns','defaults','checks','keys','foreign_keys','foreign_key_columns','triggers','modules','properties','permissions')
+ $expected=@($rows.Keys|ForEach-Object {'row:'+$_})+@($catalog|ForEach-Object {'catalog:'+$_})
+ Assert-ExportRepeat ((@($snapshot.Keys|Sort-Object)-join"`n")-ceq(@($expected|Sort-Object)-join"`n")) 'QUEUE11_REPEAT_CATEGORIES'
+ foreach($name in $rows.Keys){
+  $values=$snapshot['row:'+$name]
+  Assert-ExportRepeat ($values.Count-eq(1+$rows[$name])) 'QUEUE11_REPEAT_CARDINALITY'
+  # SQL-bigint->binary hat acht Bytes in Netzwerkbytefolge; Counts liegen hier nur bei 0..4.
+  $countBytes=[byte[]]@(0,0,0,0,0,0,0,[byte]$rows[$name])
+  $countXml='<count><CountWitness>'+[Convert]::ToBase64String($countBytes)+'</CountWitness></count>'
+  $countHex=[Convert]::ToHexString([Text.Encoding]::Unicode.GetBytes($countXml))
+  Assert-ExportRepeat ($values.Contains($countHex)) 'QUEUE11_REPEAT_COUNT_WITNESS'
+ }
+ foreach($name in $catalog){Assert-ExportRepeat ($snapshot['catalog:'+$name].Count-ge1) 'QUEUE11_REPEAT_CARDINALITY'}
+ return ,$snapshot
 }
 function Read-Queue11Snapshot($Identity,[bool]$After,[string]$Mode){
  Assert-Queue11Fixtures
@@ -684,6 +705,19 @@ try{
    # Sofortiger Legacyvergleich vor jeder weiteren persistenten DML; keine Repeat-/Claimfolge.
    Compare-Queue11Snapshots $previous $current
    Assert-Queue11Fixtures
+   # Genau dieselbe Datei und derselbe Exportrecord nach dem abgeschlossenen Legacyvergleich.
+   $repeatExport=$export;$repeatPath=$export.Path;$repeatHash=$export.Hash;$repeatBatches=$export.BatchCount
+   $repeatBytes=$queue11FileIdentities[$repeatPath].Length
+   $repeatBefore=Read-Queue11RepeatSnapshot $identity
+   $phase=$mode+'-repeat1';Save-PrivateOwnership
+   Assert-ExportRepeat ([object]::ReferenceEquals($repeatExport,$export)-and$export.Path-ceq$repeatPath-and$export.Hash-ceq$repeatHash-and$export.BatchCount-eq$repeatBatches-and$queue11FileIdentities[$repeatPath].Length-eq$repeatBytes) 'QUEUE11_REPEAT_EXPORT_BINDING'
+   [void](Invoke-Queue11ExportFile $identity $repeatExport)
+   Assert-Queue11Fixtures
+   Invoke-OwnedFixture $identity 'ExportQueue11.Assert.sql' @{'@After'=$true;'@InstallMode'=$mode}
+   $repeatAfter=Read-Queue11RepeatSnapshot $identity
+   Compare-PrivateSnapshots $repeatBefore $repeatAfter
+   Assert-ExportRepeat ([object]::ReferenceEquals($repeatExport,$export)-and$export.Path-ceq$repeatPath-and$export.Hash-ceq$repeatHash-and$export.BatchCount-eq$repeatBatches-and$queue11FileIdentities[$repeatPath].Length-eq$repeatBytes) 'QUEUE11_REPEAT_EXPORT_BINDING'
+   Assert-Queue11File $repeatPath
    $phase=$mode+'-cleanup';Save-PrivateOwnership;Remove-OwnedDatabase $identity
    continue
   }
@@ -816,7 +850,7 @@ if($null-ne$failure){
  exit 1
 }
 if($cleanupFailed){[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_CLEANUP_DEFERRED');Write-SafeFailureDiagnostic $cleanupFailure;exit 1}
-if($Scenario-ceq'Queue11Upgrade'){[Console]::Out.WriteLine('EXPORT_QUEUE11_UPGRADE_PASS local central SQL2019 CL150 six-legacy-tables genuine1.1-to2.1 original-clean')}
+if($Scenario-ceq'Queue11Upgrade'){[Console]::Out.WriteLine('EXPORT_QUEUE11_UPGRADE_PASS local central SQL2019 CL150 six-legacy-tables genuine1.1-to2.1 original-clean');[Console]::Out.WriteLine('EXPORT_QUEUE11_POSTMIGRATION_REPEAT_PASS local central SQL2019 CL150 fourteen-tables one-cycle same-file')}
 elseif($Scenario-ceq'Queue20Upgrade'){[Console]::Out.WriteLine('EXPORT_QUEUE20_UPGRADE_PASS local central SQL2019 CL150 eight-legacy-tables genuine2.0-to2.1 first-control')}
 elseif($Scenario-ceq'ParameterMetadata'){[Console]::Out.WriteLine('EXPORT_PARAMETER_METADATA_PASS local central SQL2019 CL150 three-modules two-procedures eleven-parameters one-cycle')}
 else{[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_PASS local central SQL2019 CL150 fourteen-tables two-cycles')}
