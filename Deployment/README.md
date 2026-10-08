@@ -430,3 +430,16 @@ vollständige neue Folge und eigener Cleanup bleiben offen; neue exakte
 Head-/Merge-/Mainqualifikation **PENDING**.
 Bisherige Vorbereitungsangaben und alle Parentnachweise bleiben historische
 Evidenz ihrer Quellenstände; keine Guards, Timeouts, Produkte, APIs oder Rechte ändern sich.
+
+## Genuine Queue1.1 als ursprünglichen Installationsstand prüfen
+
+`Invoke-ExportPopulatedRepeat.ps1 -Scenario Queue11Upgrade` ergänzt denselben
+begrenzten Linux-SQL2019-/CL150-Testscope um clean original Queue1.1 und genau
+einen aktuellen Neun-Modul-Export je local/central. Der feste historische
+Quellenbezug im eigenen normalen CI-Checkout und vollständige private
+Blob-/Expansionsprüfung gehen jeder DB-Anlage voraus. Bestehende
+Deployment-/API-/Session-/Ownershipverträge gelten weiter; weder ein zusätzlicher
+Repeat noch eine Ziel-/Provider-/Rechteausweitung ist damit verbunden.
+Native neue Folge und eigener Cleanup sind **NOT_EXECUTED**, ihre exakte
+Head-/Mainqualifikation **PENDING**. Quellen, Orakel, Fehlergrenzen und der
+abgeschlossene PR297-Nachweis stehen in den [Deploymenttests](Tests/README.md).

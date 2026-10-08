@@ -574,3 +574,77 @@ vollständige neue Folge und eigener Cleanup bleiben offen; neue exakte
 Head-/Merge-/Mainqualifikation **PENDING**.
 Bisherige Vorbereitungsangaben und alle Parentnachweise bleiben historische
 Evidenz ihrer Quellenstände; keine Guards, Timeouts, Produkte, APIs oder Rechte ändern sich.
+
+## Abschluss PR297 und nachfolgende genuine Queue1.1-Wartung
+
+Abschluss der vorausgehenden Wartungswelle, 2026-10-08: [PR297](https://github.com/gecompat/SQL_Server_Toolbelt/pull/297)
+ist nach `main` `fdd01df40a4cb495bff126bfe1db8db9b2156bed` gemergt.
+Der letzte Head `a61ae213b969b2fa5df84b493ed2a369781d1c13` bestand
+[Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37731699578)
+und [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37731699498).
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37732809028)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37732809105): **PASS**.
+Je vier tatsächliche Checkout-Commits wurden über ihren Tree an den geprüften
+Sourcebaum gebunden. Die genuine2.0→2.1→Completion→Dateirepeat-Folge bestand
+für Linux SQL Server 2019/CL150 local/central; drei eigene Exportbereinigungen
+und der separate Containercleanup sind belegt. Eigene Arbeitsrefs sind entfernt,
+private Originale vollständig und unabhängig auf Bytes/Hash/Länge gesichert.
+Die folgenden früheren **PENDING**-/**NOT_EXECUTED**-Vorbereitungsangaben gelten
+für ihre damaligen Quellenstände. Beide historischen fehlgeschlagenen Headläufe
+bleiben **FAILED** mit Ursache **UNMEASURED**; der spätere Erfolg erklärt sie nicht.
+Dieser begrenzte Abschluss qualifiziert den neuen Queue1.1-Fall noch nicht.
+
+### Queue11Upgrade: ausgewählter Fall und Quellenbindung
+
+`Invoke-ExportPopulatedRepeat.ps1 -Scenario Queue11Upgrade` nutzt ausschließlich
+den vorhandenen eigenen Linux-SQL2019-/CL150-CI-Zielscope und seine local/central-
+Modi. Sieben aktuelle Bootstrapmodule stellen die bisherigen Abhängigkeiten
+bereit; danach wird der saubere originale Queue1.1-Installer vollständig in
+einer frischen ungepoolten Sitzung einschließlich seiner ursprünglichen
+Transaktion über GO-Batches ausgeführt. Der aus1.0 migrierte1.1-Spaltenstand
+gehört nicht zu diesem Testfall.
+
+Originalcommit `7c6cb157db39a948e14f3db1f4973f80579a5832`, Root-Tree
+`86e3b854bbf66b442cd2b19c26802628acfd0cd0`, Modul-Tree
+`8b0c04a64a91f7022865cc695659dd8f6e06bd39`. Ein begrenzter Quellenbezug vor
+beiden Modi ist nur im exklusiv eigenen normalen CI-Checkout ausgewählt;
+Storeumleitungen, Alternates, Redirects und abweichende effektive URLs werden
+geschlossen abgewiesen. Kein stiller Quellenfallback und kein lokaler Fetch
+im gemeinsam genutzten Repository. Die elf unveränderten Originalblobs,
+neun geordneten Includes, ein Modus und die vollständige Expansion werden
+vor der jeweiligen DB-Anlage erneut auf Identität/Bytes/Hash gebunden.
+Der Erwerbsreturn allein erlaubt keine DB-Mutation. Git-Object-/Pack-/Shallow-
+Effekte bleiben im eigenen temporären Checkout; unbewiesene Teilergebnisse
+werden erhalten, ohne Retry oder blinde Bereinigung.
+
+Der neue Fall befüllt die bestehenden APIs mit drei eigenen WorkItems in
+COMPLETED/FAILED/QUEUED, ohne verbleibenden Claimconsumer. Unmittelbar nach
+genau einem aktuellen Neun-Modul-Export werden sechs alte Tabellen mit83
+physischen Feldern geprüft:22 alte WorkItemfelder bleiben bytegleich;
+die drei keyed binary8-RowVersions müssen jeweils wechseln. Die übrigen60
+Legacyfelder einschließlich ihrer RowVersions bleiben exakt. Neue23
+WorkItemspalten, acht neue Tabellen/50Felder und sourcegebundene Katalogformen
+erhalten eigene positive Assertions. Der Nachhercapture enthält alle14
+Tabellen, einschließlich expliziter Leerzeugen. Keine freie Versions-,
+Definition- oder Whitespace-Normalisierung und keine nachfolgende persistente DML.
+
+Privater NEWroot und CreateNew-Journal werden vor Mutation gebunden; der neue
+Journalrecord bleibt vor dem Schreiben auf64KiB begrenzt. Alle Quellenfiles,
+Export und Manifest müssen vollständig registriert und erneut geprüft sein.
+Vor Cleanup müssen sämtliche eigenen Verbraucher beendet sein. Unvollständige
+Ownership, geänderte oder unregistrierte Files bleiben erhalten und führen zu
+**DEFERRED**; DB-, File- und Containercleanup sind getrennte Nachweise.
+Nur feste Phasen/Codes und numerische SQLdiagnosen dürfen öffentlich erscheinen.
+
+Neue native Migration, Transport-/Gitversionskompatibilität, tatsächliche
+Definitions-/Compilerform und eigener Cleanup sind **NOT_EXECUTED**;
+neue exakte Head-/Merge-/Mainqualifikation **PENDING**. Reine Source-/ASTprüfungen
+belegen keine SQL-Ausführung. Hard-Interrupt-Recovery, tatsächliche Minimalrechte,
+nichtleere Benutzergrants, Windows, weitere SQL-Versionen/physische Matrix,
+Concurrency, Ressourcenmessung, vollständige Lifecycle- und Releasequalifikation
+bleiben getrennt offen. Die vorhandenen Security-/CLR-Versionsgrenzen bleiben.
+
+Herstellerreferenzen zum begrenzten Gitbezug:
+[git-fetch](https://git-scm.com/docs/git-fetch),
+[git-ls-remote](https://git-scm.com/docs/git-ls-remote),
+[git-config](https://git-scm.com/docs/git-config).

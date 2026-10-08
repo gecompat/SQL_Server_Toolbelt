@@ -6,6 +6,39 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### Genuine Queue1.1 als weitere Deploymentwartung
+
+Unter der bestehenden Freigabe zum datenwahrenden Gesamtdeployment wird der
+saubere originale Queue1.1-Installer mit genau einem aktuellen Neun-Modul-Export
+je local/central geprüft. Dies ist Testwartung vorhandener öffentlicher Objekte.
+Die Originalquellen sind an Commit `7c6cb157db39a948e14f3db1f4973f80579a5832`
+gebunden; der Quellenbezug erfolgt einmal im eigenen exklusiven Linux-CI-Checkout,
+vollständige Elf-Blob-/Expansionsprüfung vor jeder eigenen DB-Anlage.
+Sechs alte Tabellen/83 Felder, erwartete keyed RowVersion-Wechsel der drei
+WorkItems sowie neue Defaults und Katalogformen werden getrennt geprüft.
+Keine zusätzliche DML nach dem unmittelbaren Migrationsvergleich, kein Repeat,
+neuer Claimconsumer, öffentliche API, Rechte-/Provider-/Zielausweitung.
+Native neue Migration und eigener Cleanup: **NOT_EXECUTED**; neue exakte
+Head-/Merge-/Mainqualifikation: **PENDING**. Details und Grenzen stehen in den
+[Deploymenttests](../Deployment/Tests/README.md).
+
+Abschluss der vorausgehenden Wartungswelle, 2026-10-08: [PR297](https://github.com/gecompat/SQL_Server_Toolbelt/pull/297)
+ist nach `main` `fdd01df40a4cb495bff126bfe1db8db9b2156bed` gemergt.
+Der letzte Head `a61ae213b969b2fa5df84b493ed2a369781d1c13` bestand
+[Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37731699578)
+und [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37731699498).
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37732809028)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37732809105): **PASS**.
+Je vier tatsächliche Checkout-Commits wurden über ihren Tree an den geprüften
+Sourcebaum gebunden. Die genuine2.0→2.1→Completion→Dateirepeat-Folge bestand
+für Linux SQL Server 2019/CL150 local/central; drei eigene Exportbereinigungen
+und der separate Containercleanup sind belegt. Eigene Arbeitsrefs sind entfernt,
+private Originale vollständig und unabhängig auf Bytes/Hash/Länge gesichert.
+Die folgenden früheren **PENDING**-/**NOT_EXECUTED**-Vorbereitungsangaben gelten
+für ihre damaligen Quellenstände. Beide historischen fehlgeschlagenen Headläufe
+bleiben **FAILED** mit Ursache **UNMEASURED**; der spätere Erfolg erklärt sie nicht.
+Dieser begrenzte Abschluss qualifiziert den neuen Queue1.1-Fall noch nicht.
+
 Weitere Statusfortschreibung 2026-10-08: Auch der zweite native Headlauf
 `6abf635a26c314744fa3bba27d2eb289e9f4445d` ist **FAILED**
 ([Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37729131172));

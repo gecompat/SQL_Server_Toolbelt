@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-08 – Genuine Queue1.1 im bestehenden Exporttest ergänzen
+
+- Neuer begrenzter Testfall `Queue11Upgrade`: originale1.1-Installation, drei
+  synthetische WorkItems und genau ein aktueller Neun-Modul-Export je local/central.
+- Quellenbezug nur im eigenen normalen Linux-CI-Checkout, einmaliger fester
+  Commitbezug und vollständige Elf-Blob-/Expansionsbindung vor DB-Anlage.
+- Legacydaten, erwartete WorkItem-RowVersion-Wechsel und neue Sourceformen
+  erhalten getrennte Orakel; unveränderte Repeat-/Queue20-/Parameterfälle bleiben.
+- Native neue Migration und Cleanup **NOT_EXECUTED**, exakte Head-/Mainprüfung
+  **PENDING**. Grenzen und vorausgehender PR297-Abschluss stehen in den
+  [Deploymenttests](Deployment/Tests/README.md). Keine neue öffentliche SQL-API.
+
 Weitere Statusfortschreibung 2026-10-08: Auch der zweite native Headlauf
 `6abf635a26c314744fa3bba27d2eb289e9f4445d` ist **FAILED**
 ([Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37729131172));
