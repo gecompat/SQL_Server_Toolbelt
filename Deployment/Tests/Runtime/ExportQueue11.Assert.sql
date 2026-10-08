@@ -372,7 +372,7 @@ IF EXISTS(SELECT CONVERT(varbinary(max),TableName),CONVERT(varbinary(max),Constr
  THROW 55012,N'EXPORT_QUEUE11_NEW_FKS',11;
 -- Zehn Compiler-kanonische positive CHECK-Ausdrücke: anonyme lokale Tempconstraints.
 -- Sourceausdrücke unverändert; keine Zeichen-/Klammernormalisierung, keine global benannten Temp-PKs.
-CREATE TABLE #ExpectedChecks(TableName sysname COLLATE Latin1_General_100_BIN2,ConstraintName sysname COLLATE Latin1_General_100_BIN2,MirrorObjectId int NOT NULL,SourceColumnName sysname COLLATE Latin1_General_100_BIN2 NULL);
+CREATE TABLE #ExpectedChecks(TableName sysname COLLATE Latin1_General_100_BIN2,ConstraintName sysname COLLATE Latin1_General_100_BIN2 NULL,MirrorObjectId int NOT NULL,SourceColumnName sysname COLLATE Latin1_General_100_BIN2 NULL);
 CREATE TABLE #CheckMirror0(GateId tinyint NOT NULL,CHECK(GateId=1));
 INSERT #ExpectedChecks VALUES(N'WorkQueueManagedGate',N'CK_WorkQueueManagedGate_Id',OBJECT_ID(N'tempdb..#CheckMirror0'),N'GateId');
 CREATE TABLE #CheckMirror1(ConfigurationId tinyint NOT NULL,CHECK(ConfigurationId=1));

@@ -1,5 +1,11 @@
 # Work-Queue-Testevidenz
 
+### Anonymer CHECK-Witness benötigt explizites NULL
+
+Die genuine1.1-Testfixture deklariert `#ExpectedChecks.ConstraintName` ausdrücklich nullable: der absichtlich anonyme SchedulerCHECK-Witness verwendet NULL statt eines festen Constraintnamens. Nur diese Deklaration und der zentrale Caller-Assertpin ändern sich. Fachliche CHECK-/Scheduler-/systemnamed-Bindung, Definitions-Erwartungen, States, Produkt/API und Cleanup bleiben erhalten.
+
+Neunter Head26dc blieb FAILED mit `local-upgrade / UNCLASSIFIED / SQL515/2`; Dokumentations-CI bestand. Konkrete Tabelle/Spalte/Ursache und AFTER-Reachability sind nicht belegt. Drei bisherige Exportbereinigungen und Containercleanup bestanden; neue Bereinigung DEFERRED/RETAINED_UNPROVEN, kein vierter OwnCleanup. Neue exakte Head-CI, befüllte Migration und Merge-/Main-/Retentionabschluss bleiben offen; Queue1.1 NOT_QUALIFIED. Alle historischen Stände und die getrennten Matrix-/Minimalrechte-/Releasegrenzen bleiben erhalten.
+
 ## Genuine Queue1.1: gespeicherte Definitionsform
 
 Die vorhandenen Tests für andere Queueversionen bleiben getrennte Evidenz. Für den neuen genuine1.1-Fall korrigiert [ExportQueue11.Assert.sql](../../../Deployment/Tests/Runtime/ExportQueue11.Assert.sql) sechzehn vollständige UTF16LE-Erwartungen durch sourcefeste objektspezifische Headerabbildungen aus gepinnten Original1.1-/aktuellen Quellen. Zwei einmalige lokale SQL2019-/Linux-Metadatenproben bestätigten die private Erfassung der acht Definitionen und eigene DBbereinigung, zunächst nach sauberer Original1.1-Installation und danach nach einmaligem aktuellem Neunmodul-Export. Kein Fixture-Seed, Claim, Worker oder Repeat war Teil dieser Proben.

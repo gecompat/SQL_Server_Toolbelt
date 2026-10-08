@@ -4,6 +4,12 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 44 Module sind implementiert. 19 sind `validated`, 25 sind `partially validated`; 0 sind `not executed`.
 
+### Queue1.1: explizites NULL im anonymen CHECK-Witness – 2026-10-08
+
+Neunter Prüfstand26dc: [Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37803232821), [Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37803232680). Geschlossene Abweisung `local-upgrade / UNCLASSIFIED / SQL515/2`; konkrete Tabelle, Spalte und Ursache bleiben UNMEASURED. Die Phase umfasst Export und nachfolgende Assertions, sie belegt keine AFTER-Reachability. Drei bisherige Exportbereinigungen und Containercleanup bestanden; neue Exportbereinigung DEFERRED/RETAINED_UNPROVEN, kein vierter OwnCleanup- oder Queue1.1-End-PASS.
+
+Konkreter Quellenbefund: `#ExpectedChecks.ConstraintName` ist als `sysname` ohne explizites NULL deklariert, während der absichtlich anonyme SchedulerCHECK-Witness NULL einfügt. Die enge Testkorrektur ergänzt ausschließlich NULL an dieser Deklaration; der Caller bindet den neuen Assert-Dateipin. Schedulerbindung, systemnamed-Prüfung, übrige CHECK-Orakel, sechzehn Definitions-Erwartungen, States und Produkt-/API-/Besitz-/Zeit-/Cleanupverträge bleiben erhalten. Dies behebt den Quellenwiderspruch, ohne den beobachteten SQL515 kausal zu erklären. Alle bisherigen Historiestände und die Aufhebung der pauschalen SQLpause bleiben unverändert. Neue gekoppelte Prüfung und exakte Head-CI, befüllte Migration, Merge/Main sowie vollständige Retention/Refbereinigung bleiben offen; Queue1.1 NOT_QUALIFIED.
+
 ### Queue1.1: quellengebundene gespeicherte Definitionsform – 2026-10-08
 
 Der achte Prüfstand f2a6 bleibt FAILED: `local-seed / UNCLASSIFIED / SQL55012/100` lokalisiert den Hashleaf der festen Quellbindung `VW_WorkQueue`, ungleich damaligem Golden und Verbatim. Das misst keine gespeicherten Definitionbytes und keine historische Ursache. Drei bisherige eigene Exportbereinigungen und Containercleanup bestanden; der neue Dateicleanup bleibt DEFERRED/RETAINED_UNPROVEN, kein vierter Cleanup- oder Queue1.1-End-PASS. Alle acht fehlgeschlagenen Prüfstände und ihre bisherigen Cleanupgrenzen bleiben historische Evidenz.
