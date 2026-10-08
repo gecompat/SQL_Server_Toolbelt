@@ -52,4 +52,14 @@ Der Runner startet vier eigene Prozesse: zwei Compiler und zwei Consumer. Jeder 
 
 Bei Erfolg erscheint `PHONETIC_DIFFERENTIAL_SCOPE_PASS`; bei Fehler oder fehlender Bereitschaft `PHONETIC_DIFFERENTIAL_SCOPE_FAILED_OR_UNREADY`. Private Receipts, Rohdateien und Eingabekopien bleiben erhalten. Unsicheres Prozessende schlägt fehl; die vom Helper verfügbare Primärdiagnose, die Bereinigungsdiagnose und Pin-Nachprüfungen werden getrennt erfasst. Eine vom Helper ersetzte Primärdiagnose wird nicht rekonstruiert.
 
+## Historischer Quellenstand PR301
+
+Die folgende NOT_EXECUTED-Aussage hält den Stand vor der ersten tatsächlichen Ausführung fest.
+
 Diese Grenzen sind kooperative Prüfungen und keine Garantie für gesamten Host-Heap, harte Unterbrechungen oder atomare Dateizugriffe. Der Test führt kein SQL aus. Ein erfolgreicher endlicher Corpusvergleich ersetzt keine vollständige Scanner-, SAFE-, Plattformmatrix- oder Releasequalifikation. Der Differentiallauf ist bislang **nicht ausgeführt**; Quellprüfung und vorhandene Modulnachweise sind getrennt zu bewerten.
+
+## Begrenzter tatsächlicher Differentialnachweis 2026-10-08
+
+Der aktuelle Quellstand bestand einen einmaligen lokalen Offlinevergleich unter Windows mit .NET Framework 4.8 und dem ausdrücklich gewählten JDK27 gegen Apache Commons Codec 1.18.0. Eine frisch aus den fünf aktuellen C#-Quellen gebaute Assembly und der [Runner](run-differential-phonetic.ps1) mit explizitem `BindingPath`/`ExpectedBindingSHA256` lieferten für 32 synthetische Fälle (16 Cologne, 16 Double Metaphone) identische vollständige Primary-/Alternatebytes. Der alternative AJ-Code blieb exakt `A ` einschließlich des abschließenden ASCII-Leerzeichens. Eine unabhängige Prüfung der erhaltenen Receipts, aller Input-/Kopie-/Outputpins und beider roher Ausgaben bestätigte den begrenzten PASS ohne erneuten Lauf.
+
+Dieser Nachweis ist kein SQL-/SAFE-, vollständiger Scanner-, Plattformmatrix- oder Releaseabschluss. Das Modul bleibt `partially validated` und `unreleased`. Bestätigt ist leerer zurückgegebener decodierter stderr-Text, keine rohe stderr-Byteattestation; private Dateien bleiben erhalten, kein Datei-Cleanup-PASS. Produktcode, API und Workflow wurden für diese Evidenzfortschreibung nicht verändert.
