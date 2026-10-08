@@ -2,7 +2,15 @@
 
 Der Offline-Test vergleicht die vorhandene Phonetik-Assembly mit den unveränderten Java-Scannern aus Apache Commons Codec 1.18.0. Das Referenzmanifest bindet acht Javaquellen sowie `LICENSE.txt`, `NOTICE.txt` und `pom.xml` an Commit `5f76abb946164b943bc2cf367bc1d70b8f6e70d1`. Die Referenzdateien werden als externe Eingaben bereitgestellt; der Test lädt oder installiert nichts.
 
-Der mitgelieferte Corpus enthält 32 synthetische Fälle für Cologne Phonetic und Double Metaphone. Verglichen werden vollständige Codes. Der Java-Consumer setzt und prüft `MaxCodeLen = 16384`; der Standardwert 4 ist kein Vergleichsorakel. Für `AJ` muss der alternative Double-Metaphone-Code exakt `A ` einschließlich abschließendem ASCII-Leerzeichen sein.
+Der mitgelieferte Corpus enthält 36 synthetische Fälle für Cologne Phonetic und Double Metaphone. Verglichen werden vollständige Codes. Der Java-Consumer setzt und prüft `MaxCodeLen = 16384`; der Standardwert 4 ist kein Vergleichsorakel. Für `AJ` muss der alternative Double-Metaphone-Code exakt `A ` einschließlich abschließendem ASCII-Leerzeichen sein.
+
+## Korpusergänzung 2026-10-09 – Quellenstand
+
+Vier zusätzliche synthetische Cologne-Fälle unterscheiden bei `C` an Position 2 den leeren Ausgabepuffer vom Kontext nach `A` und prüfen den Folgebuchstaben `L` oder `R`: `HCL` → `45`, `ACL` → `085`, `-CR` → `47`, `ACR` → `087`. Diese Sollcodes sind aus dem C#-Scanner und den unveränderten Apache-Commons-Codec-1.18.0-Quellen abgeleitet. Der erweiterte Corpus umfasst 20 Cologne- und 16 Double-Metaphone-Fälle innerhalb der bestehenden Grenzen.
+
+Der einmalige lokale Offline-Vergleich am 2026-10-09 bestand unter Windows/.NET Framework 4.8 mit dem ausdrücklich gewählten JDK27 und unveränderten Apache-Commons-Codec-1.18.0-Quellen. Die vorhandene Assembly wurde wiederverwendet; ihre nachgewiesene Herkunft aus den fünf unveränderten aktuellen C#-Quellen blieb gebunden, ohne neuen Produktbuild für diesen Lauf. Zwei Compiler und zwei Consumer bestanden. Alle 36 synthetischen Fälle stimmen in ihren vollständigen Primary-/Alternatebytes überein, einschließlich des alternativen AJ-Endblanks; die vier Ergänzungen liefern tatsächlich `45`, `085`, `47` und `087`.
+
+Dies schließt nur diesen endlichen 36-Fälle-Vergleich. Der ältere 32-Fälle-PASS bleibt als eigener historischer Nachweis erhalten. stderr ist nur als leerer zurückgegebener decodierter Text belegt, keine Rawstderr-Byteattestation. Private Dateien bleiben erhalten; kein Datei-Cleanup-PASS. SQL-/SAFE-, vollständige Scanner-/Zielmatrix-, Minimalrechte- und Releasequalifikation bleiben offen; das Modul bleibt `partially validated` und `unreleased`. Produktcode, öffentlicher Vertrag, Referenzmanifest und Runnergrenzen bleiben unverändert.
 
 ## Voraussetzungen und Aufruf
 

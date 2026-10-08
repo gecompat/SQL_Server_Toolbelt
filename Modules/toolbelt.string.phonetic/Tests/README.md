@@ -2,6 +2,12 @@
 
 Version 1.0.0 bleibt `partially validated` und `unreleased`.
 
+## Korpusergänzung 2026-10-09 – Quellenstand
+
+Der [Differentialcorpus](Differential/DifferentialCorpus.tsv) ergänzt `HCL`, `ACL`, `-CR` und `ACR` für den leeren Ausgabepuffer gegenüber dem Kontext nach `A` bei nachfolgendem `L` oder `R`. Der einmalige lokale Offline-Vergleich am 2026-10-09 bestand unter Windows/.NET Framework 4.8 mit dem ausdrücklich gewählten JDK27 und unveränderten Apache-Commons-Codec-1.18.0-Quellen. Die vorhandene Assembly wurde wiederverwendet; ihre nachgewiesene Herkunft aus den fünf unveränderten aktuellen C#-Quellen blieb gebunden, ohne neuen Produktbuild für diesen Lauf. Zwei Compiler und zwei Consumer bestanden. Alle 36 synthetischen Fälle stimmen in ihren vollständigen Primary-/Alternatebytes überein, einschließlich des alternativen AJ-Endblanks; die vier Ergänzungen liefern tatsächlich `45`, `085`, `47` und `087`. Der Corpus umfasst 20 Cologne- und 16 Double-Metaphone-Fälle; die bisherigen 32 Fälle bleiben unverändert.
+
+Dies schließt nur diesen endlichen 36-Fälle-Vergleich. Der ältere 32-Fälle-PASS bleibt als eigener historischer Nachweis erhalten. stderr ist nur als leerer zurückgegebener decodierter Text belegt, keine Rawstderr-Byteattestation. Private Dateien bleiben erhalten; kein Datei-Cleanup-PASS. SQL-/SAFE-, vollständige Scanner-/Zielmatrix-, Minimalrechte- und Releasequalifikation bleiben offen; das Modul bleibt `partially validated` und `unreleased`. Die historischen PR301-Aussagen bleiben unverändert.
+
 ## Begrenzter tatsächlicher Differentialnachweis 2026-10-08
 
 Der [Differentialrunner](Differential/run-differential-phonetic.ps1) bestand einmal lokal unter Windows/.NET Framework 4.8 mit dem ausdrücklich gewählten JDK27 und unveränderten Apache-Commons-Codec-1.18.0-Quellen. Eine neu aus den fünf aktuellen C#-Quellen gebaute Assembly wurde über explizites `BindingPath`/`ExpectedBindingSHA256` konsumiert. Zwei Compiler und zwei Consumer bestanden; alle 32 synthetischen Fälle (16 Cologne, 16 Double Metaphone) stimmen in ihren vollständigen Primary-/Alternatebytes überein, einschließlich des alternativen AJ-Endblanks. Eine unabhängige Read-only-Prüfung bestätigte Receipts, ganze Input-/Kopie-/Outputbytes und den strikten Rohtransport ohne Rerun.
