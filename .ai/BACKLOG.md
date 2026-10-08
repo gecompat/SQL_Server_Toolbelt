@@ -248,7 +248,8 @@ relevante Projektregeln wurden neu gelesen; `main` einschließlich PR285 und
 die Modulquellen wurden abgeglichen. Die nächste Wartungswelle ergänzt den
 befüllten File-Content-Repeat ausschließlich als Test-/Evidenzscope unter
 der vorhandenen Deploymentfreigabe. Neue öffentliche SQL-Funktionen bleiben
-einzeln freigabepflichtig; lokale SQL-/Dockerläufe bleiben ausgesetzt.
+einzeln freigabepflichtig. Die damalige lokale SQL-/Dockerpause wurde durch
+die unten dokumentierte Benutzerfreigabe vom 2026-10-08 aufgehoben.
 
 File-Content-Wartung: Der befüllte 1.0.0-Repeat bestand am Commit
 `8effcee91106cb4b8924c7a839928d550c0653b6` auf SQL Server 2019/150,
@@ -626,8 +627,18 @@ gesondert beschriebene versionierte Migrationspfade. Q1 V1 bleibt zustandslos.
 Dieser Checkpoint erteilt keine neue Funktions-, API- oder generische
 Copy-/Swap-Migrationsfreigabe.
 
-Lokale SQL-/Dockerläufe bleiben bis zur gesonderten Freigabe nach Klärung des
-Stabilitätsproblems ausgesetzt. Die native Windows-CLR-Qualifikation des neuen
+Datierte Benutzerfreigabe 2026-10-08: Auf die Erläuterung der pauschalen
+lokalen SQL-/Dockerpause antwortet der Benutzer: „man kann diese Sperre
+überhaupt wieder entfernen“. Die pauschale Pause ist damit aufgehoben;
+bereits freigegebene Entwicklungs- und Testscopes dürfen wieder lokale
+SQL-Läufe verwenden. Schema-validierte, ausdrücklich ausgewählte bereite
+Labziele, vorhandene Rechte, begrenzte Testscopes und eigene
+Wiederherstellungs-/Cleanupjournale bleiben Voraussetzung. Diese Freigabe
+erweitert weder Infrastrukturverwaltung noch Rechte, Provider, öffentliche
+Funktionen oder bisher nicht freigegebene Lasttests. Sie ist kein
+Ursachennachweis für das vorherige Stabilitätsproblem.
+
+Die native Windows-CLR-Qualifikation des neuen
 ScriptDom-Pins und seines Table-Clone-Consumers bleibt ein getrennter offener
 Nachweis; Syntaxparser und historische Security-Cloud-Ergebnisse ersetzen
 keine frische Runtime- oder Security-Qualifikation. Fehlgeschlagene frühere
