@@ -503,7 +503,7 @@ function Invoke-Queue11ExportFile($Identity,$Export){
  return $started
 }
 function Assert-Queue11Fixtures {
- foreach($binding in @(@{Name='ExportQueue11.Setup.sql';Hash='04EB235CCEEC0036EDDD2C8B9D342EB800F76432656731BC6339B96E32E0ECEC'},@{Name='ExportQueue11.Capture.sql';Hash='58DB015EF05262E62670A0055BAECB2CD57AFFE23FDF33576382350347E7CE99'},@{Name='ExportQueue11.Assert.sql';Hash='82DC9376DC5EA8BA18BBDA7BD1188D40ADC58FD8EEB50B88FC32D0894E5EDBEA'})){
+ foreach($binding in @(@{Name='ExportQueue11.Setup.sql';Hash='04EB235CCEEC0036EDDD2C8B9D342EB800F76432656731BC6339B96E32E0ECEC'},@{Name='ExportQueue11.Capture.sql';Hash='58DB015EF05262E62670A0055BAECB2CD57AFFE23FDF33576382350347E7CE99'},@{Name='ExportQueue11.Assert.sql';Hash='BC8B9E9B625B57916D73EE28763A9EA2246BFF327CDA3C319D28B76B2924601C'})){
   Assert-ExportRepeat ((Get-FileHash -LiteralPath (Join-Path $runtimeRoot $binding.Name) -Algorithm SHA256).Hash-ceq$binding.Hash) 'QUEUE11_SQL_FIXTURE_PIN'
  }
 }
