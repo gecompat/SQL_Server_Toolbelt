@@ -118,32 +118,52 @@ IF EXISTS(SELECT CONVERT(varbinary(max),TableName),CONVERT(varbinary(max),Constr
  THROW 54998,N'Die fünf neuen vertrauenswürdigen FKs besitzen nicht die sechs sourcegebundenen Spaltenbindungen.',11;
 -- Neun Compiler-kanonische positive CHECK-Ausdrücke: anonyme lokale Tempconstraints.
 -- Sourceausdrücke unverändert; keine Zeichen-/Klammernormalisierung, keine global benannten Temp-PKs.
-CREATE TABLE #ExpectedChecks(TableName sysname COLLATE Latin1_General_100_BIN2,ConstraintName sysname COLLATE Latin1_General_100_BIN2,MirrorObjectId int NOT NULL);
+CREATE TABLE #ExpectedChecks(TableName sysname COLLATE Latin1_General_100_BIN2,ConstraintName sysname COLLATE Latin1_General_100_BIN2,MirrorObjectId int NOT NULL,SourceColumnName sysname COLLATE Latin1_General_100_BIN2 NULL);
 CREATE TABLE #CheckMirror0(GateId tinyint NOT NULL,CHECK(GateId=1));
-INSERT #ExpectedChecks VALUES(N'WorkQueueManagedGate',N'CK_WorkQueueManagedGate_Id',OBJECT_ID(N'tempdb..#CheckMirror0'));
+INSERT #ExpectedChecks VALUES(N'WorkQueueManagedGate',N'CK_WorkQueueManagedGate_Id',OBJECT_ID(N'tempdb..#CheckMirror0'),N'GateId');
 CREATE TABLE #CheckMirror1(ConfigurationId tinyint NOT NULL,CHECK(ConfigurationId=1));
-INSERT #ExpectedChecks VALUES(N'WorkerControlConfiguration',N'CK_WorkerControlConfiguration_Id',OBJECT_ID(N'tempdb..#CheckMirror1'));
+INSERT #ExpectedChecks VALUES(N'WorkerControlConfiguration',N'CK_WorkerControlConfiguration_Id',OBJECT_ID(N'tempdb..#CheckMirror1'),N'ConfigurationId');
 CREATE TABLE #CheckMirror2(MaxConcurrentExecutions int NOT NULL,HeartbeatSeconds int NOT NULL,UnreachableSeconds int NOT NULL,CHECK(MaxConcurrentExecutions>=0 AND HeartbeatSeconds BETWEEN 1 AND 3600 AND UnreachableSeconds BETWEEN 3 AND 86400 AND UnreachableSeconds>=3*HeartbeatSeconds));
-INSERT #ExpectedChecks VALUES(N'WorkerControlConfiguration',N'CK_WorkerControlConfiguration_Limits',OBJECT_ID(N'tempdb..#CheckMirror2'));
+INSERT #ExpectedChecks VALUES(N'WorkerControlConfiguration',N'CK_WorkerControlConfiguration_Limits',OBJECT_ID(N'tempdb..#CheckMirror2'),NULL);
 CREATE TABLE #CheckMirror3(WorkerGeneration bigint NOT NULL,CHECK(WorkerGeneration>0));
-INSERT #ExpectedChecks VALUES(N'WorkerRegistration',N'CK_WorkerRegistration_Generation',OBJECT_ID(N'tempdb..#CheckMirror3'));
+INSERT #ExpectedChecks VALUES(N'WorkerRegistration',N'CK_WorkerRegistration_Generation',OBJECT_ID(N'tempdb..#CheckMirror3'),N'WorkerGeneration');
 CREATE TABLE #CheckMirror4(State varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL,CHECK(State IN('ACTIVE','PAUSED','DRAINING','UNREACHABLE','CLOSED')));
-INSERT #ExpectedChecks VALUES(N'WorkerRegistration',N'CK_WorkerRegistration_State',OBJECT_ID(N'tempdb..#CheckMirror4'));
+INSERT #ExpectedChecks VALUES(N'WorkerRegistration',N'CK_WorkerRegistration_State',OBJECT_ID(N'tempdb..#CheckMirror4'),N'State');
 CREATE TABLE #CheckMirror5(Capacity int NOT NULL,CHECK(Capacity>0));
-INSERT #ExpectedChecks VALUES(N'WorkerRegistration',N'CK_WorkerRegistration_Capacity',OBJECT_ID(N'tempdb..#CheckMirror5'));
+INSERT #ExpectedChecks VALUES(N'WorkerRegistration',N'CK_WorkerRegistration_Capacity',OBJECT_ID(N'tempdb..#CheckMirror5'),N'Capacity');
 CREATE TABLE #CheckMirror6(RunMode varchar(16) COLLATE Latin1_General_100_BIN2 NOT NULL,CHECK(RunMode IN('BOUNDED','CONTINUOUS')));
-INSERT #ExpectedChecks VALUES(N'WorkerRegistration',N'CK_WorkerRegistration_RunMode',OBJECT_ID(N'tempdb..#CheckMirror6'));
+INSERT #ExpectedChecks VALUES(N'WorkerRegistration',N'CK_WorkerRegistration_RunMode',OBJECT_ID(N'tempdb..#CheckMirror6'),N'RunMode');
 CREATE TABLE #CheckMirror7(State varchar(24) COLLATE Latin1_General_100_BIN2 NOT NULL,CHECK(State IN('RESERVED','RUNNING','STOP_REQUESTED','STOPPING','UNKNOWN','COMMITTED','ROLLED_BACK','CLOSED')));
-INSERT #ExpectedChecks VALUES(N'WorkerSlotReservation',N'CK_WorkerSlotReservation_State',OBJECT_ID(N'tempdb..#CheckMirror7'));
+INSERT #ExpectedChecks VALUES(N'WorkerSlotReservation',N'CK_WorkerSlotReservation_State',OBJECT_ID(N'tempdb..#CheckMirror7'),N'State');
 CREATE TABLE #CheckMirror8(StopStatus varchar(24) COLLATE Latin1_General_100_BIN2 NOT NULL,CHECK(StopStatus IN('NONE','REQUESTED','STOPPING','ROLLED_BACK_HELD','ALREADY_COMMITTED','UNKNOWN')));
-INSERT #ExpectedChecks VALUES(N'WorkerExecutionDisposition',N'CK_WorkerExecutionDisposition_Stop',OBJECT_ID(N'tempdb..#CheckMirror8'));
+INSERT #ExpectedChecks VALUES(N'WorkerExecutionDisposition',N'CK_WorkerExecutionDisposition_Stop',OBJECT_ID(N'tempdb..#CheckMirror8'),N'StopStatus');
 IF (SELECT COUNT(*) FROM sys.check_constraints c JOIN #NewTables n ON n.ObjectId=c.parent_object_id)<>9
  OR (SELECT COUNT(*) FROM tempdb.sys.check_constraints c JOIN #ExpectedChecks e ON e.MirrorObjectId=c.parent_object_id)<>9
  OR EXISTS(SELECT 1 FROM #ExpectedChecks e JOIN #NewTables n ON n.TableName=e.TableName
  LEFT JOIN sys.check_constraints c ON c.parent_object_id=n.ObjectId AND CONVERT(varbinary(max),c.name)=CONVERT(varbinary(max),e.ConstraintName)
  LEFT JOIN tempdb.sys.check_constraints m ON m.parent_object_id=e.MirrorObjectId
+ LEFT JOIN sys.columns pc ON pc.object_id=c.parent_object_id AND pc.column_id=c.parent_column_id
+ LEFT JOIN tempdb.sys.columns mc ON mc.object_id=m.parent_object_id AND mc.column_id=m.parent_column_id
  WHERE c.object_id IS NULL OR m.object_id IS NULL OR CONVERT(varbinary(max),c.definition)<>CONVERT(varbinary(max),m.definition)
- OR c.is_disabled<>0 OR c.is_not_trusted<>0 OR c.is_not_for_replication<>0 OR c.is_system_named<>0 OR c.parent_column_id<>0
+ OR c.is_disabled<>0 OR c.is_not_trusted<>0 OR c.is_not_for_replication<>0 OR c.is_system_named<>0 OR (c.parent_column_id IS NULL OR m.parent_column_id IS NULL OR NOT (
+ (e.SourceColumnName IS NULL AND c.parent_column_id=0 AND m.parent_column_id=0)
+ OR (e.SourceColumnName IS NOT NULL AND (
+  (c.parent_column_id=0 AND m.parent_column_id=0)
+  OR (c.parent_column_id>0 AND m.parent_column_id>0
+   AND pc.column_id IS NOT NULL AND mc.column_id IS NOT NULL
+   AND CONVERT(varbinary(max),pc.name)=CONVERT(varbinary(max),e.SourceColumnName)
+   AND CONVERT(varbinary(max),mc.name)=CONVERT(varbinary(max),e.SourceColumnName)
+   AND pc.system_type_id=mc.system_type_id
+   AND pc.user_type_id=pc.system_type_id AND mc.user_type_id=mc.system_type_id
+   AND pc.max_length=mc.max_length AND pc.precision=mc.precision AND pc.scale=mc.scale
+   AND pc.is_nullable=mc.is_nullable
+   AND pc.is_computed=0 AND mc.is_computed=0 AND pc.is_identity=0 AND mc.is_identity=0
+   AND ((pc.collation_name IS NULL AND mc.collation_name IS NULL)
+    OR (pc.collation_name IS NOT NULL AND mc.collation_name IS NOT NULL
+     AND CONVERT(varbinary(max),pc.collation_name)=CONVERT(varbinary(max),mc.collation_name)))
+  )
+ ))
+))
  OR c.uses_database_collation<>m.uses_database_collation)
 BEGIN
  -- Nur im bereits fehlgeschlagenen CHECK-Zweig: feste Komponente plus Sourceordinal, keine Katalogwerte.
@@ -169,6 +189,8 @@ BEGIN
  JOIN #NewTables n ON n.TableName=e.TableName
  LEFT JOIN sys.check_constraints c ON c.parent_object_id=n.ObjectId AND CONVERT(varbinary(max),c.name)=CONVERT(varbinary(max),e.ConstraintName)
  LEFT JOIN tempdb.sys.check_constraints m ON m.parent_object_id=e.MirrorObjectId
+ LEFT JOIN sys.columns pc ON pc.object_id=c.parent_object_id AND pc.column_id=c.parent_column_id
+ LEFT JOIN tempdb.sys.columns mc ON mc.object_id=m.parent_object_id AND mc.column_id=m.parent_column_id
  CROSS APPLY(VALUES
   (20,CASE WHEN c.object_id IS NULL THEN 1 ELSE 0 END),
   (30,CASE WHEN m.object_id IS NULL THEN 1 ELSE 0 END),
@@ -177,7 +199,25 @@ BEGIN
   (60,CASE WHEN c.is_not_trusted<>0 THEN 1 ELSE 0 END),
   (70,CASE WHEN c.is_not_for_replication<>0 THEN 1 ELSE 0 END),
   (80,CASE WHEN c.is_system_named<>0 THEN 1 ELSE 0 END),
-  (90,CASE WHEN c.parent_column_id<>0 THEN 1 ELSE 0 END),
+  (90,CASE WHEN (c.parent_column_id IS NULL OR m.parent_column_id IS NULL OR NOT (
+ (e.SourceColumnName IS NULL AND c.parent_column_id=0 AND m.parent_column_id=0)
+ OR (e.SourceColumnName IS NOT NULL AND (
+  (c.parent_column_id=0 AND m.parent_column_id=0)
+  OR (c.parent_column_id>0 AND m.parent_column_id>0
+   AND pc.column_id IS NOT NULL AND mc.column_id IS NOT NULL
+   AND CONVERT(varbinary(max),pc.name)=CONVERT(varbinary(max),e.SourceColumnName)
+   AND CONVERT(varbinary(max),mc.name)=CONVERT(varbinary(max),e.SourceColumnName)
+   AND pc.system_type_id=mc.system_type_id
+   AND pc.user_type_id=pc.system_type_id AND mc.user_type_id=mc.system_type_id
+   AND pc.max_length=mc.max_length AND pc.precision=mc.precision AND pc.scale=mc.scale
+   AND pc.is_nullable=mc.is_nullable
+   AND pc.is_computed=0 AND mc.is_computed=0 AND pc.is_identity=0 AND mc.is_identity=0
+   AND ((pc.collation_name IS NULL AND mc.collation_name IS NULL)
+    OR (pc.collation_name IS NOT NULL AND mc.collation_name IS NOT NULL
+     AND CONVERT(varbinary(max),pc.collation_name)=CONVERT(varbinary(max),mc.collation_name)))
+  )
+ ))
+)) THEN 1 ELSE 0 END),
   (100,CASE WHEN c.uses_database_collation<>m.uses_database_collation THEN 1 ELSE 0 END)
  )p(ComponentBase,Failed)
  WHERE p.Failed=1

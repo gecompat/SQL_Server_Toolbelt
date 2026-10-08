@@ -1,5 +1,35 @@
 # CHANGELOG
 
+Weitere Statusfortschreibung 2026-10-08: Auch der zweite native Headlauf
+`6abf635a26c314744fa3bba27d2eb289e9f4445d` ist **FAILED**
+([Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37729131172));
+[Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37729131184)
+bestand. Vier tatsächliche Checkouts sind über ihren Tree an diesen Head gebunden.
+Die geschlossene lokale Upgrade-Diagnose SQL54998/State90 lokalisiert
+`PARENT_COLUMN`, Sourceindex0: Das bisherige Prädikat
+`c.parent_column_id <> 0` war wahr. Konkrete ID, Spaltenname, Mirrorzustand
+und Ursache sind dadurch **UNMEASURED**. Der ursprüngliche 109-Feldervergleich
+wurde davor erreicht; neue Completion, vollständiger Nach-Completion-Snapshot
+und identischer Dateirepeat bleiben **NOT_EXECUTED**, die Folge **NOT_QUALIFIED**.
+DefaultRepeat bestand, Parameterexport wurde übersprungen. Containercleanup
+bestand separat; der einzelne Exportcleanup-Erfolgsmarker gehört zum
+DefaultRepeat und belegt keinen eigenen Migrationcleanup.
+
+Die neue Testassertion vergleicht zunächst die
+Table-/Columnklassifikation mit dem Compiler-Mirror. Positive Columnbindungen
+werden je eigenem Parentobjekt anhand acht fester Source-Spaltennamen und ihrer
+Typform geprüft; der mehrspaltige Limits-CHECK verlangt beide Tablebindings0.
+Absolute ColumnIDs werden nicht objektübergreifend gleichgesetzt. Derselbe
+Invalid-Term gilt im Gesamtgate und in der endlichen State90-Diagnose;
+Count-, Namen-, Definitionbytes-, Trust-/Flaggates und State12-Fallback bleiben.
+Genau ein neuer vollständiger SQL150-Input/ein Batch bestand die reine
+Offline-Grammatikprüfung. Ein unabhängiger Source-/Inverse-/Privacyreview
+bestand ohne Blocker; er führte weder Parser noch SQL aus. Root hat den
+Sourceentwurf vollständig gelesen. Diese Fortschreibung begleitet die
+Übernahme der Testassertion. Native Parent-/Compilerqualifikation, neue
+exakte Head-/Merge-/Mainqualifikation und eigener Cleanup bleiben **PENDING**.
+Keine native Parent-/Compilerqualifikation oder Ursachenbehebung wird behauptet.
+
 Statusfortschreibung 2026-10-08: Der erste native Lauf dieser Upgrade→Repeat-Welle
 in [PR297](https://github.com/gecompat/SQL_Server_Toolbelt/pull/297) am Head
 `913a3d6c42f4962a22c11656977bdf458d1bd15c` ist **FAILED**
