@@ -430,3 +430,52 @@ vollständige neue Folge und eigener Cleanup bleiben offen; neue exakte
 Head-/Merge-/Mainqualifikation **PENDING**.
 Bisherige Vorbereitungsangaben und alle Parentnachweise bleiben historische
 Evidenz ihrer Quellenstände; keine Guards, Timeouts, Produkte, APIs oder Rechte ändern sich.
+
+## Genuine Queue1.1 als ursprünglichen Installationsstand prüfen
+
+`Invoke-ExportPopulatedRepeat.ps1 -Scenario Queue11Upgrade` ergänzt denselben
+begrenzten Linux-SQL2019-/CL150-Testscope um clean original Queue1.1 und genau
+einen aktuellen Neun-Modul-Export je local/central. Der feste historische
+Quellenbezug im eigenen normalen CI-Checkout und vollständige private
+Blob-/Expansionsprüfung gehen jeder DB-Anlage voraus. Bestehende
+Deployment-/API-/Session-/Ownershipverträge gelten weiter; weder ein zusätzlicher
+Repeat noch eine Ziel-/Provider-/Rechteausweitung ist damit verbunden.
+Native neue Folge und eigener Cleanup sind **NOT_EXECUTED**, ihre exakte
+Head-/Mainqualifikation **PENDING**. Quellen, Orakel, Fehlergrenzen und der
+abgeschlossene PR297-Nachweis stehen in den [Deploymenttests](Tests/README.md).
+
+Der erste Queue1.1-Headlauf wurde im Root-Preflight abgewiesen. Migration bleibt
+unqualifiziert, eigener Dateicleanup DEFERRED. Die ergänzten festen Diagnosecodes
+trennen vorhandene Bedingungen ohne Lockerung; Ursache und konkrete Bedingung
+des alten Fehlers bleiben unbekannt. [Läufe und Grenzen](Tests/README.md).
+
+Queue1.1 bindet Parent- und Arbeitsverzeichnis im bestehenden Linux-CI-Fall über
+private Geräte-/Inode-/Mode-Tupel statt unveränderlicher Verzeichniszeiten. Das
+vorhandene `stat`-Programm und der bestehende Prozesshelper werden gebunden;
+kein Installations- oder Fallbackpfad. Neue native Qualifikation bleibt offen.
+[Fehlheads, Primärquellen und Grenzen](Tests/README.md).
+
+Die Queue1.1-Toolauswahl begrenzt `Get-Command -CommandType Application` mit
+`-TotalCount 1` auf den ersten Treffer. Dessen volle Pfad-, reguläre Datei-,
+NoReparse- und Hashprüfungen bleiben geschlossen; kein zweiter Fallbacktreffer.
+[Dritter Fehlhead und Auswahlvertrag](Tests/README.md).
+
+### Queue1.1-Erwerbshelper: versteckte Storemetadaten und feste Fehlercodes
+
+Der normale Linux-CI-Clone benötigt den vorhandenen `.git`-Directory-Read auch bei Hidden-Attribut. Der Required-Store-Read verwendet gezielt `Get-Item -Force`; dies ermöglicht nur die Metadatenlesbarkeit, ohne Rechte zu erteilen oder DirectoryExists, NoReparse, Storeindirection, Quellen- und CI-Gates zu umgehen. [PowerShell-Provider 7.4](https://github.com/PowerShell/PowerShell/blob/v7.4.0/src/System.Management.Automation/namespaces/FileSystemProvider.cs) und [.NET-Unix-Dateiattribute 8.0](https://github.com/dotnet/runtime/blob/v8.0.0/src/libraries/System.Private.CoreLib/src/System/IO/FileStatus.Unix.cs) belegen Hidden-Filter und Dotnamenverhalten als Quellenvertrag; sie attesten weder die verwendete CI-Runtimeversion noch die tatsächliche Ursache eines Laufs.
+
+Die bestehende Diagnose bildet in `queue11-acquire` nur die exakten zwanzig festen Acquisition- und sieben festen OwnedProcess-Texte auf feste Caller-Allowlistcodes ab. Freie Exceptiontexte, Childausgabe, Pfade und private Acquisition-Statewerte bleiben ausgeschlossen. Prozesshelper, Single-Fetch, Budgets, Journal und konservativer Cleanup sind unverändert. Unklassifizierte Cmdletfehler bleiben `UNCLASSIFIED`; die neue Abbildung rekonstruiert keine historische Ausnahme.
+
+Der fünfte Prüfhead `6e8cf4fe4c539d862c2084a094c20b496254ae41` bleibt [FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37757210239): Managed und die drei bisherigen Exportfälle bestanden; Queue1.1 scheiterte beim Quellenbezug mit `UNCLASSIFIED / SQL0/0`. Drei eigene Exportbereinigungen und separater Containercleanup sind belegt, neuer Dateicleanup bleibt DEFERRED. Ursache ungemessen. Neuer Head-/Mainnachweis, vollständige private Retention/Refbereinigung und Queue1.1-Qualifikation stehen aus.
+
+### Queue1.1: zusätzliche Definitionendiagnose ohne neuen Erfolgsweg
+
+Der sechste Prüfstand bleibt [FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37761644789), seine [Dokumentations-CI bestand](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37761644838). `local-seed / UNCLASSIFIED / SQL55012/6` identifiziert keinen konkreten Definitionsleaf oder dessen Ursache. Die drei bisherigen Exportfälle und ihre Bereinigungen sowie separater Containercleanup bestanden; die neue Migration bleibt NOT_QUALIFIED, ihr Dateicleanup zurückgestellt.
+
+Die Zusatzdiagnose klassifiziert ausschließlich eine bereits abgewiesene BEFORE-Prüfung: alle acht vorhandenen Definitionen müssen ihre festen Verbatim-Commandhashes und bisherigen Modulflags gemeinsam erfüllen. Auch dieser Sonderfall wirft SQL55012 mit State19 und festem Quelltoken `EXPORT_QUEUE11_BEFORE_VERBATIM_DEFINITIONS`; sonst gilt unverändert State6. Strictgate, Goldenhashes, Erfolgspfad und AFTER-Prüfung bleiben erhalten. Keine Trim-/Whitespace-Normalisierung oder Definition-/Metadatenwerte ausgeben; der bestehende Caller projiziert nur geschlossene Phase/Code und numerische SQLfelder, keine freie SQLmessage. Neue native Head-/Mainqualifikation und vollständige private Retention/Refbereinigung stehen aus.
+
+### Queue1.1: begrenzte First-Leaf-Diagnose nach dem siebten Fehlhead
+
+Der vorherige State19-only-Abschnitt beschreibt den historischen a318-Quellenvertrag. Dessen [Worker-CI scheiterte](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37767139964), [Dokumentations-CI bestand](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37767140150): SQL55012/State6, kein beobachteter State19. Ursache und gespeicherte Definitionbytes bleiben ungemessen; drei bisherige eigene Exportbereinigungen und Containercleanup sind belegt, neuer Dateicleanup bleibt zurückgestellt.
+
+Der ausgewählte Folgevertrag ergänzt nur den bereits fehlgeschlagenen BEFORE-Zweig zwischen unverändertem State19 und State6: erster verletzter Originalleaf nach fester Komponente/Sourceordinal0..7, weiterhin SQL55012 mit festem Quelltoken `EXPORT_QUEUE11_BEFORE_DEFINITION_LEAF` und State20 beziehungsweise endlichen Klassen30..117. Strictgate, Goldenhashes, AFTER und Erfolgsweg bleiben erhalten; keine Definitionnormalisierung, neue Akzeptanz oder tatsächlichen Werte ausgeben. [Zuordnung, Nachweise und Grenzen](Tests/README.md). Neue native First-Leaf-/Headqualifikation, Merge/Main und vollständige private Retention/Refbereinigung stehen aus.

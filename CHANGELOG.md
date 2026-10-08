@@ -1,5 +1,45 @@
 # CHANGELOG
 
+## 2026-10-08 – Genuine Queue1.1 im bestehenden Exporttest ergänzen
+
+- Queue1.1-Testfixture: `#ExpectedChecks.ConstraintName` erhält explizites NULL für den absichtlich anonymen SchedulerCHECK-Witness; nur der zentrale Caller-Assertpin folgt. Die fachlichen CHECK-/Definition-/State- und Produkt-/API-/Cleanupverträge bleiben erhalten. Neunter Head26dc: Worker-CI FAILED, Dokumentations-CI PASS, `local-upgrade / UNCLASSIFIED / SQL515/2`; konkrete Tabelle/Spalte/Ursache und AFTER-Reachability sind nicht belegt. Drei bisherige Exportbereinigungen und Containercleanup bestanden, neue Exportbereinigung DEFERRED/RETAINED_UNPROVEN. Neue Head-CI, befüllte Migration, Merge/Main und Abschluss bleiben offen; alle historischen Fehlerstände bleiben erhalten.
+
+- Queue1.1-Definitionsorakel: sechzehn ganze UTF16LE-Erwartungen werden aus gepinnten Original1.1-/aktuellen Quellen und festen objektspezifischen Command-/Stored-Headerabbildungen berechnet. Zwei einmalige lokale SQL2019-/Linux-Metadatenproben bestätigten private Erfassung und eigene DBbereinigung; keine Fixture-Seed-, Claim-, Worker- oder Repeatqualifikation. Strict-IF, fünf Flagprädikate, States und Verbatimdiagnosen bleiben unverändert; kein allgemeiner Normalizer, Runtimehashkopieren, alternativer Akzeptanzhash oder Produkt-/APIwechsel. Die bisherigen Golden-unverändert-Aussagen bleiben historische Diagnose-Quellenstände. Achter Head f2a6 bleibt FAILED/SQL55012/100, neue Dateibereinigung DEFERRED/RETAINED_UNPROVEN; alle acht Fehlerhistorien bleiben erhalten. Befüllte Migration, neue Head-/Main-CI, zentraler Modus, Windows, Rechte-/Matrix-/Releasequalifikation und vollständiger Abschluss bleiben offen.
+
+- Queue1.1: erster verletzter ursprünglicher Definitionsleaf wird ausschließlich im fehlgeschlagenen BEFORE-Zweig nach unverändertem State19 und vor State6 über feste Komponente/Sourceordinal0..7 lokalisiert; SQL55012 mit festem Quelltoken `EXPORT_QUEUE11_BEFORE_DEFINITION_LEAF`, State20 beziehungsweise endliche Klassen30..117, weiterhin FAILED. Strict-IF, sechzehn Goldenhashes, State19/6, AFTER und Akzeptanz bleiben erhalten; genau ein zentraler Caller-Dateipin ändert sich. Siebter Head a318 FAILED/Docs PASS, State19 nicht beobachtet, Ursache ungemessen; neue native Qualifikation und Main bleiben offen. Die unmittelbar folgende State19-only-Notiz ist historischer a318-Quellenkontext.
+- Queue1.1-Definitionenprüfung: zusätzliche FAIL-only-BEFORE-Klassifikation nur bei gemeinsamem Match aller acht festen Verbatim-Commandhashes und unveränderten Modulflags; weiterhin SQL55012, fester Quelltoken `EXPORT_QUEUE11_BEFORE_VERBATIM_DEFINITIONS`/State19, sonst State6. Ursprüngliches Strictgate, sechzehn Goldenhashes und AFTER-Prüfung bleiben unverändert; Caller ändert nur einen zentralen Assert-Dateipin. Sechster Head FAILED, tatsächliche Ursache und neue native Qualifikation offen.
+- Testinterner Queue1.1-Quellenbezug liest den vorgesehenen versteckten Git-Store gezielt mit `Get-Item -Force`; der Caller erhält geschlossene, phasengebundene Codes für die vorhandenen zwanzig Acquisition- und sieben OwnedProcess-Fehler. Keine freien Laufzeittexte, neue Fallbacks oder gelockerten Ownership-/Budgetgates; neue native Qualifikation bleibt offen, historische Ursachen ungeklärt.
+- Managed-Release-Test wartet gemeinsam auf den aktuellen eigenen Queuecommit
+  und das separat gespeicherte Slotende; ursprüngliche Assertion und Budget bleiben
+  erhalten. Vierter Head scheiterte vor allen Exportfällen; neue native Prüfung offen.
+
+- Queue1.1 bindet ausdrücklich die erste vorhandene Application mit
+  `Get-Command -TotalCount 1`; Datei-/Hash-/Ownershipgates bleiben erhalten.
+  Dritter Fehlhead betrifft die Toolbindung, Ursache weiterhin ungemessen;
+  neue native Prüfung und vollständiger Cleanupnachweis bleiben offen.
+
+- Queue1.1: zweiter Head verwirft die Parent-Zeitgleichheit; Ursache bleibt
+  ungemessen, Migration unqualifiziert und eigener Dateicleanup DEFERRED.
+- Parent-/Root-Objektbindung im bestehenden Linux-CI-Fall verwendet private
+  Geräte-/Inode-/Mode-Tupel über einen begrenzten, gepinnten vorhandenen Prozess.
+  Neue native Prüfung steht aus; bestehende Datei-/Journal-/Cleanupgates bleiben.
+
+- Erster Queue1.1-Headlauf ist im Root-Preflight fehlgeschlagen; Migration
+  nicht qualifiziert, Dateicleanup DEFERRED, Containercleanup bestätigt.
+- Dreizehn vorhandene Root-Prädikate erhalten getrennte feste Diagnosecodes;
+  alle Bedingungen bleiben erhalten. Fehlgeschlagener Operand und Ursache
+  bleiben unbekannt; neue native Diagnosequalifikation steht aus.
+
+- Neuer begrenzter Testfall `Queue11Upgrade`: originale1.1-Installation, drei
+  synthetische WorkItems und genau ein aktueller Neun-Modul-Export je local/central.
+- Quellenbezug nur im eigenen normalen Linux-CI-Checkout, einmaliger fester
+  Commitbezug und vollständige Elf-Blob-/Expansionsbindung vor DB-Anlage.
+- Legacydaten, erwartete WorkItem-RowVersion-Wechsel und neue Sourceformen
+  erhalten getrennte Orakel; unveränderte Repeat-/Queue20-/Parameterfälle bleiben.
+- Native neue Migration und Cleanup **NOT_EXECUTED**, exakte Head-/Mainprüfung
+  **PENDING**. Grenzen und vorausgehender PR297-Abschluss stehen in den
+  [Deploymenttests](Deployment/Tests/README.md). Keine neue öffentliche SQL-API.
+
 Weitere Statusfortschreibung 2026-10-08: Auch der zweite native Headlauf
 `6abf635a26c314744fa3bba27d2eb289e9f4445d` ist **FAILED**
 ([Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37729131172));

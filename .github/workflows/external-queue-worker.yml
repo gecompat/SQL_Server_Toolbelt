@@ -8,6 +8,8 @@ on:
       - "Deployment/Tests/Runtime/ExportPopulated*.sql"
       - "Deployment/Tests/Runtime/ExportUpgrade*.sql"
       - "Deployment/Tests/Runtime/ExportParameter*.sql"
+      - "Deployment/Tests/Runtime/ExportQueue11*.sql"
+      - "Deployment/Tests/Runtime/Acquire-GenuineQueue11Source.ps1"
       - "Modules/toolbelt.file.content/Source/**"
       - "Modules/toolbelt.file.content/Deployment/**"
       - "Modules/toolbelt.file.content/module.yaml"
@@ -43,6 +45,8 @@ on:
       - "Deployment/Tests/Runtime/ExportPopulated*.sql"
       - "Deployment/Tests/Runtime/ExportUpgrade*.sql"
       - "Deployment/Tests/Runtime/ExportParameter*.sql"
+      - "Deployment/Tests/Runtime/ExportQueue11*.sql"
+      - "Deployment/Tests/Runtime/Acquire-GenuineQueue11Source.ps1"
       - "Modules/toolbelt.core.execution-context/Source/**"
       - "Modules/toolbelt.core.execution-context/Deployment/**"
       - "Modules/toolbelt.core.execution-context/module.yaml"
@@ -198,6 +202,17 @@ jobs:
           ./Deployment/Tests/Invoke-ExportPopulatedRepeat.ps1
           -ConnectionStringEnvironmentVariable TBX_WORKER_TEST_CONNECTION_STRING
           -Scenario ParameterMetadata
+      # Original1.1 vor Mutation quellenbinden; ein Exportlauf je local/central.
+      # Derselbe eigene SQL-Zielscope; keine zusätzliche Plattform oder Rechte.
+      - name: Execute exported genuine Queue 1.1 migration
+        shell: pwsh
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+          GCM_INTERACTIVE: "Never"
+        run: >-
+          ./Deployment/Tests/Invoke-ExportPopulatedRepeat.ps1
+          -ConnectionStringEnvironmentVariable TBX_WORKER_TEST_CONNECTION_STRING
+          -Scenario Queue11Upgrade
       - name: Cleanup owned synthetic target
         if: always()
         shell: bash

@@ -574,3 +574,270 @@ vollständige neue Folge und eigener Cleanup bleiben offen; neue exakte
 Head-/Merge-/Mainqualifikation **PENDING**.
 Bisherige Vorbereitungsangaben und alle Parentnachweise bleiben historische
 Evidenz ihrer Quellenstände; keine Guards, Timeouts, Produkte, APIs oder Rechte ändern sich.
+
+## Abschluss PR297 und nachfolgende genuine Queue1.1-Wartung
+
+Abschluss der vorausgehenden Wartungswelle, 2026-10-08: [PR297](https://github.com/gecompat/SQL_Server_Toolbelt/pull/297)
+ist nach `main` `fdd01df40a4cb495bff126bfe1db8db9b2156bed` gemergt.
+Der letzte Head `a61ae213b969b2fa5df84b493ed2a369781d1c13` bestand
+[Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37731699578)
+und [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37731699498).
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37732809028)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37732809105): **PASS**.
+Je vier tatsächliche Checkout-Commits wurden über ihren Tree an den geprüften
+Sourcebaum gebunden. Die genuine2.0→2.1→Completion→Dateirepeat-Folge bestand
+für Linux SQL Server 2019/CL150 local/central; drei eigene Exportbereinigungen
+und der separate Containercleanup sind belegt. Eigene Arbeitsrefs sind entfernt,
+private Originale vollständig und unabhängig auf Bytes/Hash/Länge gesichert.
+Die folgenden früheren **PENDING**-/**NOT_EXECUTED**-Vorbereitungsangaben gelten
+für ihre damaligen Quellenstände. Beide historischen fehlgeschlagenen Headläufe
+bleiben **FAILED** mit Ursache **UNMEASURED**; der spätere Erfolg erklärt sie nicht.
+Dieser begrenzte Abschluss qualifiziert den neuen Queue1.1-Fall noch nicht.
+
+### Queue11Upgrade: ausgewählter Fall und Quellenbindung
+
+`Invoke-ExportPopulatedRepeat.ps1 -Scenario Queue11Upgrade` nutzt ausschließlich
+den vorhandenen eigenen Linux-SQL2019-/CL150-CI-Zielscope und seine local/central-
+Modi. Sieben aktuelle Bootstrapmodule stellen die bisherigen Abhängigkeiten
+bereit; danach wird der saubere originale Queue1.1-Installer vollständig in
+einer frischen ungepoolten Sitzung einschließlich seiner ursprünglichen
+Transaktion über GO-Batches ausgeführt. Der aus1.0 migrierte1.1-Spaltenstand
+gehört nicht zu diesem Testfall.
+
+Originalcommit `7c6cb157db39a948e14f3db1f4973f80579a5832`, Root-Tree
+`86e3b854bbf66b442cd2b19c26802628acfd0cd0`, Modul-Tree
+`8b0c04a64a91f7022865cc695659dd8f6e06bd39`. Ein begrenzter Quellenbezug vor
+beiden Modi ist nur im exklusiv eigenen normalen CI-Checkout ausgewählt;
+Storeumleitungen, Alternates, Redirects und abweichende effektive URLs werden
+geschlossen abgewiesen. Kein stiller Quellenfallback und kein lokaler Fetch
+im gemeinsam genutzten Repository. Die elf unveränderten Originalblobs,
+neun geordneten Includes, ein Modus und die vollständige Expansion werden
+vor der jeweiligen DB-Anlage erneut auf Identität/Bytes/Hash gebunden.
+Der Erwerbsreturn allein erlaubt keine DB-Mutation. Git-Object-/Pack-/Shallow-
+Effekte bleiben im eigenen temporären Checkout; unbewiesene Teilergebnisse
+werden erhalten, ohne Retry oder blinde Bereinigung.
+
+Der neue Fall befüllt die bestehenden APIs mit drei eigenen WorkItems in
+COMPLETED/FAILED/QUEUED, ohne verbleibenden Claimconsumer. Unmittelbar nach
+genau einem aktuellen Neun-Modul-Export werden sechs alte Tabellen mit83
+physischen Feldern geprüft:22 alte WorkItemfelder bleiben bytegleich;
+die drei keyed binary8-RowVersions müssen jeweils wechseln. Die übrigen60
+Legacyfelder einschließlich ihrer RowVersions bleiben exakt. Neue23
+WorkItemspalten, acht neue Tabellen/50Felder und sourcegebundene Katalogformen
+erhalten eigene positive Assertions. Der Nachhercapture enthält alle14
+Tabellen, einschließlich expliziter Leerzeugen. Keine freie Versions-,
+Definition- oder Whitespace-Normalisierung und keine nachfolgende persistente DML.
+
+Privater NEWroot und CreateNew-Journal werden vor Mutation gebunden; der neue
+Journalrecord bleibt vor dem Schreiben auf64KiB begrenzt. Alle Quellenfiles,
+Export und Manifest müssen vollständig registriert und erneut geprüft sein.
+Vor Cleanup müssen sämtliche eigenen Verbraucher beendet sein. Unvollständige
+Ownership, geänderte oder unregistrierte Files bleiben erhalten und führen zu
+**DEFERRED**; DB-, File- und Containercleanup sind getrennte Nachweise.
+Nur feste Phasen/Codes und numerische SQLdiagnosen dürfen öffentlich erscheinen.
+
+Neue native Migration, Transport-/Gitversionskompatibilität, tatsächliche
+Definitions-/Compilerform und eigener Cleanup sind **NOT_EXECUTED**;
+neue exakte Head-/Merge-/Mainqualifikation **PENDING**. Reine Source-/ASTprüfungen
+belegen keine SQL-Ausführung. Hard-Interrupt-Recovery, tatsächliche Minimalrechte,
+nichtleere Benutzergrants, Windows, weitere SQL-Versionen/physische Matrix,
+Concurrency, Ressourcenmessung, vollständige Lifecycle- und Releasequalifikation
+bleiben getrennt offen. Die vorhandenen Security-/CLR-Versionsgrenzen bleiben.
+
+Herstellerreferenzen zum begrenzten Gitbezug:
+[git-fetch](https://git-scm.com/docs/git-fetch),
+[git-ls-remote](https://git-scm.com/docs/git-ls-remote),
+[git-config](https://git-scm.com/docs/git-config).
+
+### Erster Queue1.1-Head: Root-Preflight und begrenzte Diagnoseänderung
+
+Erster exakter Head `e9fc95ea5192ac35697a2d87e11c8f94c1938d2b`:
+[Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37738796909)
+**FAILED**, [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37738797015)
+**PASS**. Der neue Fall wurde im Preflight abgewiesen; einzelne Bedingung und
+Ursache sind **UNMEASURED**, Migration bleibt **NOT_QUALIFIED**. Die bisherigen
+drei Exportfälle bestanden mit drei eigenen Bereinigungen; neuer Dateicleanup
+**DEFERRED**, separater Containercleanup bestätigt. Eine eng begrenzte
+Diagnoseänderung unterscheidet die dreizehn vorhandenen Root-Prädikate mit
+festen Codes, ohne die Schutzbedingungen zu lockern oder Runtimewerte auszugeben.
+Diese Änderung ist noch nicht nativ geprüft; aktueller Merge/Main bleiben offen.
+Die vorherigen PENDING-Angaben beschreiben die ursprüngliche Vorbereitung.
+
+Root und unabhängiger Reader haben denselben abgeschlossenen Quellenstand und
+alle vier tatsächlichen Checkout-Trees an `f79b3d16e1bc8cf4e7ddbccaaf17f19c4362bc3a`
+gebunden. Ausschließlich der neue Queue1.1-Schritt scheiterte; die übrigen elf
+benannten Linuxschritte und beide Faultjobs bestanden. Die feste Sourcephase
+`preflight` und der bisherige Sammelcode `QUEUE11_ROOT_BOUNDARY` begrenzen den
+Befund. Aus der kontrollierten Aufrufreihenfolge folgt, dass Quellenbezug und
+DB-Anlage dieses neuen Falles nicht erreicht wurden; dies ist Sourceinferenz,
+kein zusätzlicher Runtime-Trace und keine Ursachenklärung.
+
+Der neue Adapter trennt sieben Assertions in dreizehn unveränderte boolesche
+Teilbedingungen. Reihenfolge und Abweisung bleiben erhalten; weder Getter,
+CreationTime-/Attributwerte, Journal-, DB- oder Filecleanupverträge werden
+normalisiert oder gelockert. Nur feste Sourcecodes dürfen die fehlgeschlagene
+Bedingung unterscheiden. Kein Pfad, Zeitwert, Attributwert oder Runnerinventar
+wird öffentlich ausgegeben. Kein unveränderter CI-Retry und kein Rootcause-Fix
+werden behauptet. Erwerb, Definition-/Compilerformen, Migration und eigener
+Cleanup dieses Falles bleiben bis einer vollständigen neuen Qualifikation offen.
+
+### Queue1.1: Verzeichnisobjektbindung nach dem zweiten Fehlhead
+
+Der zweite exakte Head `611fa3fceee0dddc84ddce71fb33d7a7f42b0ba8` hat
+[Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37741968376)
+und [Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37741968349).
+Die feste Abweisung `QUEUE11_ROOT_PARENT_CREATED_TICKS` benennt die verworfene
+Parent-Zeitgleichheit; tatsächliche Werte, Plattformfallback und Ursache bleiben
+**UNMEASURED**. Der erste e9fc-Operand wird dadurch nicht rückwirkend gemessen.
+Die folgende Quellenkorrektur bindet ausschließlich Parent und Root über private
+Geräte-/Inode-/Mode-Tupel im bestehenden Linux-CI-Fall. Alle übrigen Ownership-,
+Datei-, Journal- und Cleanupgrenzen bleiben erhalten. Neue native Qualifikation,
+Merge und Main sind **PENDING**; Queue1.1 bleibt **NOT_QUALIFIED**.
+
+Root und unabhängiger Reader bestätigen alle vier tatsächlichen Checkout-Trees
+`42a4639b90c56782c6d1fef7a09f652577aafd87`. Nur Queue1.1 scheiterte; die übrigen
+elf benannten Linuxschritte und beide Faultjobs bestanden. Die bisherigen drei
+Exportfälle mit drei eigenen Bereinigungen bestanden; neue eigene Bereinigung
+**DEFERRED / RETAINED_UNPROVEN**, separater Containercleanup bestätigt.
+
+Der veröffentlichte .NET-Vertrag erlaubt unter Unix ohne BirthTime einen
+CreationTime-Fallback aus veränderlichen Zeitwerten. Der konkrete CI-Branch und
+die Fehlerursache wurden nicht gemessen. Die Quellenkorrektur verwendet deshalb
+für Parent und Root Geräte-/Inode-/vollständigen Mode-Bindungen; Directorytyp wird
+positiv geprüft. GNU `stat` wird ohne Dereferenceoption und ohne Shell aufgerufen.
+Parent ist vor eigener Rootanlage gebunden, Root einmal danach unter vorhandener
+CreationAuthority; Drift führt zu Abweisung statt Neubindung.
+
+Ein vorhandenes Applicationprogramm wird einmal aufgelöst und mit vollem Pfad,
+regulärer NoReparse-Datei und privatem Hash vor/nach jedem Aufruf gebunden.
+Der bestehende gepinnte Prozesshelper führt höchstens einen Prozess für geordnet
+Parent/Root aus. Jede Projektion benötigt Exit0, vollständigen Capture, leeres
+Stderr und exakt ein/zwei begrenzte numerische Records. Einzelgrenze höchstens5s,
+kumulative eigene Prozesszeit höchstens60s und höchstens1024 Aufrufe; das
+Restbudget wird vor dem Spawn geprüft. Diese Quellgrenzen sind keine gemessenen
+Runnerwerte und keine harte Gesamt- oder Dateisystemdeadline. Die zusätzliche
+128-Byte-Akzeptanzgrenze ersetzt nicht die bestehenden 4-MiB-Transportcaps.
+
+Pfad-/Attribut-/Reparse-/Autoritätsgates, sämtliche immutable Datei-Hash-/Längen-/
+Zeitprüfungen und Journalneubindung ausschließlich nach eigenen Writes bleiben
+erhalten. Unbekannte Teilfiles werden nicht adoptiert oder blind gelöscht.
+Geräte-/Inodewerte, Mode, Toolpfade/-hashes und Stderr bleiben privat; öffentlich
+erscheinen ausschließlich feste Fehlercodes. Kein neuer Produkt-/SQL-Vertrag,
+kein Toolinstall, Provider-, Rechte-, Ziel- oder Workflowausbau.
+
+Pathnameprüfungen und spätere Operationen sind getrennt; atomare TOCTOU-,
+Inodereuse-, feindliche Same-UID- und Hard-Interrupt-Sicherheit sind damit nicht
+qualifiziert. Windows und andere Tools/Plattformen bleiben offen. Die Änderung
+ist eine Quellenkorrektur des Identitätsvertrags, kein nachgewiesener kausaler
+Fix eines historischen Fehlheads. Neue Native-/Cleanup-/Mainqualifikation folgt
+erst aus einer vollständigen eigenen Prüfung am neuen Quellenstand.
+
+Primärquellen: [Microsoft CreationTimeUtc](https://learn.microsoft.com/en-us/dotnet/api/system.io.filesysteminfo.creationtimeutc?view=net-10.0),
+[versionierte .NET-Implementierung](https://github.com/dotnet/runtime/blob/v10.0.0/src/libraries/System.Private.CoreLib/src/System/IO/FileStatus.Unix.cs),
+[GNU-stat-Dokumentation](https://github.com/coreutils/coreutils/blob/v9.5/doc/coreutils.texi),
+[GNU-stat-Implementierung](https://github.com/coreutils/coreutils/blob/v9.5/src/stat.c).
+Herstellerversionen sind Quellenbelege, keine Behauptung über Runnerbinaries.
+
+### Queue1.1: ausdrücklich begrenzte Application-Auswahl
+
+Dritter exakter Head `836357d02a42e2e490e657a003c745da6756e526`:
+[Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37747434151),
+[Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37747434156).
+Die gemeinsame Toolabweisung `QUEUE11_DIRECTORY_TOOL` liefert keinen konkreten
+Operand oder Ursachenbeweis. Drei bisherige Exportcleanups und Containercleanup
+sind belegt, kein neuer Deferredmarker; kein vierter Cleanup-/Queue1.1-PASS.
+Die bestehende Application-Auswahl wird mit `-TotalCount 1` ausdrücklich auf den
+ersten Treffer begrenzt. Alle Prüfungen dieses gewählten Programms bleiben erhalten;
+kein Ausweichen auf einen zweiten unsicheren Treffer. Neue native Prüfung,
+Merge/Main und Retention bleiben offen. Historische Ursachen bleiben ungemessen.
+
+Root und unabhängiger Reader binden den dritten Head an vier tatsächliche
+Checkout-Trees `7bb97252bec1aa3924e8b72e742e68453c115718` und die geschlossene
+Abweisung `preflight / QUEUE11_DIRECTORY_TOOL / SQL0/0`. Die übrigen elf
+Linuxschritte und beide Faultjobs bestanden. Der Code wird von drei Prüfungen
+geteilt; tatsächliche Trefferzahl, Leaf, Toolpfad/-version und Ursache sind
+**UNMEASURED**. Die Reihenfolge vor eigener Rootanlage, Acquire und Queue1.1-DB
+folgt aus der Source, nicht aus einem zusätzlichen Trace. Kein neuer
+DEFERRED-/Retentionmarker wurde beobachtet; eine vollständige vierte eigene
+Bereinigung oder neue Migrationsqualifikation folgt daraus nicht.
+
+Der [PowerShell-Quellvertrag](https://raw.githubusercontent.com/PowerShell/PowerShell/v7.4.0/src/System.Management.Automation/engine/GetCommandCommand.cs)
+führt bei ausdrücklich gesetztem `CommandType` die Suche auch ohne `-All` weiter.
+Die bisherige Annahme global genau eines Application-Treffers ist deshalb kein
+Vertrag zur ersten Programmauswahl. Nur der vorhandene Aufruf erhält
+`-TotalCount 1`. Count1, Typ und nichtleerer Pfad sowie voller Pfad, reguläre
+NoReparse-Datei, Initialhash und Pre-/Posthash bleiben unverändert erforderlich.
+Kein Alias, Sortieren, Installieren, Neuauflösen oder Sicherheitsfallback auf
+einen zweiten Treffer. Die Ergebnisgrenze ist keine harte Discoverydeadline,
+kein Nachweis des installierten PowerShellstands oder der historischen Ursache.
+Verzeichnis-, Prozessbudget-, Datei-, Journal-, SQL- und Cleanupgates bleiben
+bytegleich. Der begrenzte neue Auswahlvertrag ist vor nativer Qualifikation
+erneut am exakten neuen Quellenstand zu prüfen; keine unveränderte Retrywelle.
+
+### Managed-Prerequisite: Queuecommit und Slotende gemeinsam abwarten
+
+Vierter exakter Head `0437beadf435173baafe9e9f27223f2fe0c8f7be`:
+[Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37751627937),
+[Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37751627892).
+Der bestehende Managed-SQL-Test verwirft `MANAGED.RELEASE_OTHER_WORKER` nach dem
+Completion-Wait. Alle vier Exportfälle einschließlich Queue1.1 sind SKIPPED;
+ihre Erfolg-/OwnCleanupmarker null, Containercleanup separat bestätigt. Tatsächliche
+Prädikatwerte, Actor-SQL und Ursache bleiben ungemessen.
+
+Der Worker bestätigt den WorkItem-Commit vor dem separaten Reservation-Endrecord.
+Die Testfixture wartet deshalb innerhalb desselben Budgets gemeinsam auf den
+eigenen aktuellen WorkItem-/Reservation-/Claimgeneration-Bezug, COMPLETED,
+COMMITTED und IsOccupied0. Die nachfolgende Assertion bleibt unverändert.
+Keine zusätzlichen Delays, Rechte, Produkt-, API-, Provider- oder Cleanupänderungen.
+Neue exakte Headprüfung, Queue1.1-/Toolqualifikation, Merge/Main und vollständige
+private Retention/Refbereinigung bleiben offen; historische Ursachen ungeklärt.
+
+Die zusätzliche geschlossene Oracleauswertung verwendet nur bereits gesicherte
+Ausgabe und feste Quellcodes. Sie identifiziert die nachfolgende Slotassertion,
+beweist aber keinen konkreten Race-Zeitpunkt. WorkItem.ManagedReservationId und
+ClaimGeneration binden den tatsächlich aktuellen Slot des erwarteten anderen
+Workers; ein historischer erfolgreicher Attempt genügt nicht. Waitcode, Polling,
+SQL-Commandtimeout, Unknown-Beobachter und sämtliche Ownershipgates bleiben
+bytegleich. Dies ist eine Testorakelkorrektur des bestehenden CI-Prerequisites.
+
+### Queue1.1-Erwerb: Hidden-Metadatenread und endliche Diagnoseabbildung
+
+Prüfstand 2026-10-08, Head `6e8cf4fe4c539d862c2084a094c20b496254ae41`: [Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37757210239) FAILED, [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37757210026) PASS. Alle vier tatsächlichen Checkout-Trees entsprechen seinem Quellen-Tree; elf der zwölf Linuxschritte und beide Faultjobs bestanden. Managed-Wait, Admission, fokussierte Migration und die drei bisherigen Exportfälle bestanden. Nur Queue1.1 scheiterte: `queue11-acquire / UNCLASSIFIED / SQL0/0`, separat Cleanup `QUEUE11_RETAINED_UNPROVEN / SQL0/0`. Neue Endmarker null; drei bisherige eigene Exportbereinigungen und Containercleanup bestanden. Neue eigene Dateibereinigung DEFERRED, kein vierter Cleanup-PASS. Ursache/Operand bleiben ungemessen; kein Fetchversuch oder Teilfetch wird aus diesen Codes abgeleitet.
+
+Der quellengeprüfte Required-Store-Read ergänzt ausschließlich `-Force`, damit der erwartete normale `.git`-Directory trotz Unix-Hidden-Attribut gelesen werden kann. Die Directory-/Reparse-/Indirection-/CI-Gates sowie unveränderten Prozess-, Fetch- und Capturebudgets gelten weiter. Eine geschlossene, exakte Callerabbildung für die zwanzig Acquisition- und sieben OwnedProcess-Codes gilt ausschließlich in `queue11-acquire`; Writer und SQL-Diagnose bleiben erhalten. Freie Exceptions, Child-Stderr, Pfade oder private Statewerte werden nicht ausgegeben. Dies korrigiert Quellenverträge und misst keine historische Ursache.
+
+Neue Grammatik-/Impactprüfung und exakte neue native Head-CI sind getrennte Nachweise; nicht ausgeführte Prüfungen sind kein PASS. Queue1.1-Upgrade, normaler Merge, Main-CI und vollständige private Retention/Refbereinigung bleiben offen. Keine unveränderten SQL-/Helper-/CI-Wiederholungen, keine lokalen SQL-/Dockerlasttests, keine Produkt-/Rechte-/Provider-/Zielausweitung.
+
+### Queue1.1-Definitionen: FAIL-only-BEFORE-Klassifikation
+
+Head c3f7: [Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37761644789), [Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37761644838). Managed, Admission, fokussierte Queue2.0-Migration und drei bisherige Exportfälle bestanden. Nur Queue1.1 scheiterte mit `local-seed / UNCLASSIFIED / SQL55012/6`, separat Cleanup `QUEUE11_RETAINED_UNPROVEN / SQL0/0`. Neuer Endmarker null, drei bisherige eigene Exportbereinigungen und Containercleanup bestätigt; neuer Dateicleanup DEFERRED, kein vierter Cleanup-PASS. Tatsächlicher Leaf und Ursache bleiben UNMEASURED.
+
+Die Quellenanalyse trennt den Golden-Body ab CREATE vom unveränderten Splitter-Command: alle acht Originalcommands besitzen exakt ein führendes LF zusätzlich. Das ist Quellstringarithmetik, keine Messung gespeicherter SQL-Modulbytes und keine Erklärung des nativen State6. Die neue Diagnose ändert weder die sechzehn Goldenhashes noch den bestehenden kombinierten Strictgate-Ausdruck.
+
+Nur innerhalb seines bereits fehlgeschlagenen Zweigs und bei `@After=0` zählt die Diagnose positive Matches der acht festen Originalbindungen: Objekt und Definition vorhanden, exakter Verbatim-Commandhash, ANSI-/Quoted-Flags gesetzt, kein ExecuteAs, SchemaBinding oder NativeCompilation. Nur Count8 wirft weiterhin SQL55012 mit dem festen Quelltoken `EXPORT_QUEUE11_BEFORE_VERBATIM_DEFINITIONS` und State19. Fehlende/NULL-/abweichende Zeilen oder Flags und alle AFTER-Fälle behalten den bisherigen State6-Fallback. Kein Resultset, DML, APIaufruf, neues Objekt, Session-SET, Timing- oder Cleanupgatewechsel. Caller: ausschließlich ein zentraler Assert-SHApin ersetzt, beide Aufrufstellen verwenden das bestehende gemeinsame Gate; freie SQLmessage bleibt ausgeschlossen, numerischer State19 wird nicht als neuer Allowlistcode erfunden.
+
+State19 ist hier ausschließlich der neue Quellvertrag, noch keine native Messung. Auch sein Auftreten wäre eine fortbestehende Abweisung, kein Upgrade-PASS oder rückwirkender Ursachenbeleg. Die begrenzte SQL150-Syntaxprüfung des geänderten Asserts und der unabhängige Source-/Privacyreview sind erfolgt. Exakte neue Head-CI, Merge/Main und vollständige private Retention/Refbereinigung stehen aus; keine automatische Hashkorrektur oder Normalisierung.
+
+### Queue1.1: First-Leaf-Zuordnung nach a318, ohne Goldenänderung
+
+Der vorangehende State19-only-Abschnitt ist historische Evidenz des a318-Quellenstands. Siebter Prüfstand: [Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37767139964), [Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37767140150); vier tatsächliche Checkout-Trees entsprechen seinem Quellen-Tree, elf Linuxschritte und beide Faultjobs bestanden. Nur Queue1.1 scheiterte mit `local-seed / UNCLASSIFIED / SQL55012/6`, State19 nicht beobachtet. Leaf, Objekt-/Flagwerte, gespeicherte Definitionbytes und Ursache bleiben UNMEASURED. Drei eigene bisherige Exportbereinigungen und Containercleanup bestanden; neuer Dateicleanup DEFERRED/RETAINED_UNPROVEN, Queue1.1-Endmarker null. Generischer Deferredtoken nicht beobachtet, kein vierter Cleanup-PASS.
+
+Der ausgewählte Folgevertrag klassifiziert nur nach dem bereits fehlgeschlagenen ursprünglichen Strict-IF und bei BEFORE, hinter unverändertem State19: Countabweichung führt zu State20; sonst wird die erste verletzte ursprüngliche Komponente, danach feste Sourceordinal0..7 gewählt. SQL55012 und Quelltoken `EXPORT_QUEUE11_BEFORE_DEFINITION_LEAF` bleiben feste Abweisungen. States30..37 bedeuten fehlendes Modul, 40..47 fehlende Definition, 50..57 ANSI_NULLS, 60..67 QUOTED_IDENTIFIER, 70..77 ExecuteAs, 80..87 SchemaBinding und 90..97 NativeCompilation. Nur ein bereits wahrer ursprünglicher Hash<>Golden-Leaf wird in 100..107 (auch ungleich Verbatim) und 110..117 (gleich Verbatim) geteilt; beides bleibt FAILED. Nichtklassifizierbare Fälle einschließlich NULL-Hash erreichen weiterhin State6, niemals Erfolg. Die Ordinale bezeichnet eine feste Quellbindung, keine tatsächliche Objekt-ID oder Laufzeitposition.
+
+Die Beobachtungsqueries sind nicht atomar mit dem ursprünglichen Gate; genau ein lokalisierter Leaf beweist weder die übrigen sieben Bindungen korrekt noch eine Ursache. Abfragefehler können den Fallback überlagern; neue Abfragekosten und gespeicherte Definitionbytes sind nicht gemessen. Alle sechzehn Goldenhashes, Strict-IF, State19/6, AFTER und Akzeptanz bleiben unverändert. Kein Resultset, DML, neues SQL-Objekt, API-, Session-, Timing-, Rechte-, Provider-, Ziel- oder Cleanupwechsel; genau ein zentraler Caller-Assert-Dateipin ändert sich, freie SQLmessage bleibt ausgeschlossen.
+
+Ein neuer vollständiger Assertinput/ein Batch bestand SQL150-Grammatik ohne Fehler, ausschließlich Syntax und keine SQL-Server-Bindung. Caller-AST wird für den einen Hexliteralwechsel nicht erneut behauptet; weitere Source-/Privacy- und exakte native Headnachweise bleiben getrennt. Der neue First-Leaf-Vertrag ist noch nicht nativ qualifiziert; bisherige Quellenarithmetik und State6 erklären keine gespeicherten SQL-Bytes. Queue1.1 NOT_QUALIFIED, Merge/Main und vollständige private Retention/Refbereinigung bleiben offen. Keine Goldenänderung, Normalisierung, Gateumgehung oder unveränderte CI-Wiederholung.
+
+### Queue1.1: korrigierte feste Definitions-Erwartungen
+
+Die vorangehenden Abschnitte mit unveränderten Goldenhashes dokumentieren ihre damaligen Diagnose-Quellenstände. Achter Head f2a6 bleibt FAILED in `local-seed / UNCLASSIFIED / SQL55012/100`: fester Hashleaf `VW_WorkQueue`, ungleich damaligem Golden und Verbatim. Drei bisherige eigene Exportbereinigungen und Containercleanup bestanden; neuer Dateicleanup DEFERRED/RETAINED_UNPROVEN, kein vierter Cleanup-/Queue1.1-End-PASS. Historische Ursachen werden dadurch nicht erklärt.
+
+Eine saubere Original1.1-Metadatenprobe und eine anschließende einmalige aktuelle Neunmodul-Metadatenprobe auf dem ausgewählten lokalen SQL2019-/Linux-Ziel bestanden private Capture und eigene DBbereinigung. Die sechzehn neuen ganzen UTF16LE-Erwartungen im [Assert](Runtime/ExportQueue11.Assert.sql) werden aus gepinnten Quellen mit festen objektspezifischen Headerabbildungen berechnet und gegen diese gespeicherten Formen abgegrenzt; keine Runtimehashkopie oder allgemeine Definitionnormalisierung. Strict-IF, fünf Flagprädikate, States und Verbatimdiagnosen bleiben unverändert. Produkt, API, Sitzungs-/Besitz-/Zeit-/Cleanupgates bleiben erhalten.
+
+Beide Proben liefen ohne Fixture-Seed, Claim, Worker oder Repeat und sind kein befüllter Migrationsnachweis. Die gekoppelte Sourceprüfung und der einmalige SQL150-Grammatiknachweis des geänderten Assertinputs bestanden mit einem Batch und null Parserfehlern. Befüllte Fixture- und exakte Headprüfung, Merge/Main sowie vollständige Retention/Refbereinigung stehen getrennt aus. Zentraler Modus, Windows, weitere Versionen, Minimalrechte, Matrix und Release bleiben unqualifiziert; Queue1.1 NOT_QUALIFIED. Rohdefinitionen, tatsächliche Hashes, Flags und Labwerte bleiben privat.
+
+### Queue1.1: Nullable ConstraintName für anonymen SchedulerCHECK
+
+Der [Assert](Runtime/ExportQueue11.Assert.sql) benötigt explizites NULL an `#ExpectedChecks.ConstraintName`, weil sein absichtlich anonymer SchedulerCHECK-Witness dort NULL einfügt. Die Testkorrektur ändert ausschließlich diese Deklaration und den zentralen Caller-Dateipin; Scheduler-/systemnamed-Bindung, übrige CHECK-Orakel, sechzehn Definitions-Erwartungen, States und Ownership-/Zeit-/Cleanupgates bleiben erhalten.
+
+Neunter Head26dc: [Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37803232821), [Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37803232680), `local-upgrade / UNCLASSIFIED / SQL515/2`. Die gemeinsame Phase umfasst Export und weitere Assertions; tatsächliche Fehlerstelle, Tabelle/Spalte, Ursache und AFTER-Reachability bleiben ungemessen. Drei bisherige eigene Exportbereinigungen und Containercleanup bestanden; neue Bereinigung DEFERRED/RETAINED_UNPROVEN, kein vierter OwnCleanup oder Queue1.1-End-PASS. Die Quellenkorrektur erklärt diesen Lauf nicht rückwirkend. Neue Headqualifikation, befüllte Migration, zentraler Modus und vollständiger Merge-/Main-/Retentionabschluss bleiben offen; frühere Nachweise und Historiestände bleiben erhalten.
