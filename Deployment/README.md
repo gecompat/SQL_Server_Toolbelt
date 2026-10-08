@@ -332,3 +332,11 @@ drei eigene Exportbereinigungen und Containercleanup sind separat bezeugt.
 Die Parameter-Mainvoraussetzung ist erfüllt. Native class3-Prüfung und
 eigener Cleanup sind **NOT_EXECUTED**; die eigene exakte Head-/Main-CI
 einschließlich Bereinigung bleibt **PENDING**.
+
+Die Objektannotationsprüfung ergänzt Setup und Assert des DefaultRepeat um
+sechs eigene class-1/minor0-Zeugen auf vorhandenen P/FN/V-Objekten. Capture und
+Exportfolge bleiben erhalten; [Deploymenttests](Tests/README.md) beschreiben das Orakel.
+Native class1-Prüfung und eigener Cleanup: **NOT_EXECUTED**; exakte class1-Head-/Main-CI **PENDING**.
+
+Class3-Voraussetzung erfüllt: PR294, Main `91e13af689334407527fddfdc8d22285933f4225` (2026-10-08).
+[Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37717103755) und [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37717103790): **PASS**.
