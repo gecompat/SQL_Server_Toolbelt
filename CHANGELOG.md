@@ -25,6 +25,20 @@
   Main-Dokumentations- und Main-Worker-CI einschließlich eigener Bereinigung
   bestanden; eigene native Migrationsqualifikation ist noch offen.
 
+- Statusfortschreibung: Der erste native Migrationslauf am Head
+  `1d4f9cbdde094c2c59c22eb01b5c5ee261df73b0` ist FAILED
+  ([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37705019236));
+  Dokumentations-CI desselben Heads bestand. Die öffentlichen ResultTable-
+  Ziele `#tbx_ExportUpgradeStatus`/`#tbx_ExportUpgradeClaim` verletzen den
+  bestehenden reservierten `#tbx_`-Präfixvertrag (`51020`/State `1`). Nur die
+  eigenen Fixtureziele werden als `#ExportUpgradeStatus`/`#ExportUpgradeClaim`
+  vorbereitet; die korrigierte native Migration ist NOT_EXECUTED. Wholejob-
+  Cleanup bestand separat; auf dem Fehlerpfad fehlt ein Erfolgsmarker der
+  eigenen Migration-DB-/Dateibereinigung. Kein eigener Cleanup-PASS daraus.
+  Frühere Syntax- und Reviewnachweise sowie Parenttexte bleiben erhalten;
+  keine Source-, Deployment-, Guard-, Orakel- oder Vertragsänderung.
+
+
 ## 2026-10-08 – Befüllte exportierte Modulfolge gemeinsam prüfen
 
 - Ein begrenzter Adapter verwendet den echten SQL-Export von neun CLR-freien

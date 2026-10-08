@@ -110,6 +110,32 @@ bleiben unverändert. Der neue Fall ist für denselben vorhandenen externen
 Linux2019-/CL150-Scope lokal und zentral vorbereitet; neue native Ausführung
 ist **NOT_EXECUTED**.
 
+Statusfortschreibung 2026-10-08: Der erste native Migrationslauf in
+[PR291](https://github.com/gecompat/SQL_Server_Toolbelt/pull/291) am Head
+`1d4f9cbdde094c2c59c22eb01b5c5ee261df73b0` ist **FAILED**
+([Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37705019236));
+[Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37705019277)
+bestand. Die Setupfixture verwendete `#tbx_ExportUpgradeStatus` und
+`#tbx_ExportUpgradeClaim` als öffentliche ResultTable-Ziele. Der bestehende
+Vertrag von `USP_PrepareResultTable` reserviert `#tbx_` und weist diese Namen
+mit Fehler `51020`/State `1` ab. Die vorbereitete Korrektur benennt nur diese
+beiden eigenen Fixtureziele in `#ExportUpgradeStatus` und
+`#ExportUpgradeClaim` um; Source, Deployment, Guards und Datenorakel bleiben
+unverändert. Die korrigierte native Migration ist **NOT_EXECUTED**.
+Der erfolgreiche Wholejob-Cleanup wurde getrennt verifiziert. Auf dem
+Fehlerpfad erschien kein Erfolgsmarker der eigenen Migration-DB-/Datei-
+Bereinigung; daraus wird kein eigener Cleanup-PASS abgeleitet.
+
+Die bisherigen SQL150-Offlinenachweise mit 865 Export-Inputs und 28
+Fixture-/Wrapper-Inputs sowie die unabhängigen Reviews bleiben an ihren
+ursprünglichen Quellenständen gültig. Sie belegen Syntax beziehungsweise
+Reviewumfang und erkennen diese Laufzeitverletzung des ResultTable-
+Namensvertrags nicht. Die oben genannten NOT_EXECUTED-Angaben dokumentieren
+den Vorbereitungsstand; dieser fehlgeschlagene Lauf qualifiziert weder die
+Migration noch deren eigenen nativen Cleanup. Parentnachweise bleiben
+unverändert erhalten. Keine API-, Rechte-, Ziel- oder Vertragsausweitung.
+
+
 Pro Modus installiert eine echte `-OutputSqlFile`-Datei zunächst sieben
 aktuelle Module: execution-context, result-table, file.content,
 execution-cancel, work-type, second-session und event-log. Danach installiert

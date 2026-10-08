@@ -26,16 +26,16 @@ DECLARE @Handler int=OBJECT_ID(N'toolbelt_core.USP_WriteEventInternal',N'P');
 IF @Handler IS NULL OR (SELECT COUNT(*) FROM sys.parameters WHERE object_id=@Handler)<>1
  OR NOT EXISTS(SELECT 1 FROM sys.parameters WHERE object_id=@Handler AND parameter_id=1 AND name=N'@PayloadJson' AND system_type_id=231 AND max_length=-1 AND is_output=0)
  THROW 54990,N'Der vorhandene JSON-Payload-Handler besitzt nicht den erwarteten Vertrag.',3;
-CREATE TABLE #tbx_ExportUpgradeStatus(Dummy int NULL);
-CREATE TABLE #tbx_ExportUpgradeClaim(Dummy int NULL);
+CREATE TABLE #ExportUpgradeStatus(Dummy int NULL);
+CREATE TABLE #ExportUpgradeClaim(Dummy int NULL);
 EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.export.upgrade20',@HandlerSchema=N'toolbelt_core',@HandlerProcedure=N'USP_WriteEventInternal',@ParameterMode='JSON_PAYLOAD',@PayloadContractJson=N'{"type":"object"}';
-EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='test.export.upgrade20',@PayloadJson=N'{"synthetic":"completed – Ω "}',@ResultTable=N'#tbx_ExportUpgradeStatus';
-EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='test.export.upgrade20',@PayloadJson=N'{"synthetic":"claimed – 漢字 "}',@ResultTable=N'#tbx_ExportUpgradeStatus';
-EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='test.export.upgrade20',@PayloadJson=N'{"synthetic":"queued – ä "}',@ResultTable=N'#tbx_ExportUpgradeStatus';
-EXEC toolbelt_core.USP_ClaimWork @LeaseDurationSeconds=86400,@ResultTable=N'#tbx_ExportUpgradeClaim';
-DECLARE @First bigint=(SELECT WorkItemId FROM #tbx_ExportUpgradeClaim),@Token uniqueidentifier=(SELECT ClaimToken FROM #tbx_ExportUpgradeClaim);
-EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@First,@ClaimToken=@Token,@ResultTable=N'#tbx_ExportUpgradeStatus';
-EXEC toolbelt_core.USP_ClaimWork @LeaseDurationSeconds=86400,@ResultTable=N'#tbx_ExportUpgradeClaim';
+EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='test.export.upgrade20',@PayloadJson=N'{"synthetic":"completed – Ω "}',@ResultTable=N'#ExportUpgradeStatus';
+EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='test.export.upgrade20',@PayloadJson=N'{"synthetic":"claimed – 漢字 "}',@ResultTable=N'#ExportUpgradeStatus';
+EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='test.export.upgrade20',@PayloadJson=N'{"synthetic":"queued – ä "}',@ResultTable=N'#ExportUpgradeStatus';
+EXEC toolbelt_core.USP_ClaimWork @LeaseDurationSeconds=86400,@ResultTable=N'#ExportUpgradeClaim';
+DECLARE @First bigint=(SELECT WorkItemId FROM #ExportUpgradeClaim),@Token uniqueidentifier=(SELECT ClaimToken FROM #ExportUpgradeClaim);
+EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@First,@ClaimToken=@Token,@ResultTable=N'#ExportUpgradeStatus';
+EXEC toolbelt_core.USP_ClaimWork @LeaseDurationSeconds=86400,@ResultTable=N'#ExportUpgradeClaim';
 IF (SELECT COUNT(*) FROM toolbelt_core.WorkItem)<>3 OR (SELECT COUNT(*) FROM toolbelt_core.WorkItem WHERE Status='COMPLETED')<>1
  OR (SELECT COUNT(*) FROM toolbelt_core.WorkItem WHERE Status='CLAIMED')<>1 OR (SELECT COUNT(*) FROM toolbelt_core.WorkItem WHERE Status='QUEUED')<>1
  THROW 54990,N'Die drei Original-API-Zustände fehlen.',4;
@@ -84,7 +84,7 @@ WHILE @@FETCH_STATUS=0 BEGIN
  FETCH NEXT FROM annotations INTO @Schema,@Table,@Column;
 END;
 CLOSE annotations;DEALLOCATE annotations;
-DROP TABLE #tbx_ExportUpgradeClaim;
-DROP TABLE #tbx_ExportUpgradeStatus;
+DROP TABLE #ExportUpgradeClaim;
+DROP TABLE #ExportUpgradeStatus;
 IF @@TRANCOUNT<>0 THROW 54990,N'Das eigene Upgradesetup hinterließ eine Transaktion.',6;
 IF XACT_STATE()<>0 THROW 54990,N'Das eigene Upgradesetup hinterließ eine Transaktion.',6;
