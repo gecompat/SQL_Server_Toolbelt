@@ -10,6 +10,19 @@ Dateien und Assembly werden behalten, nur eigene Handles geschlossen.
 Neue Intake-/Frameworkqualifikation **NOT_EXECUTED**; kein Produkt-, API-,
 Release- oder Validierungsstatuswechsel, keine zusätzliche SQL-/Matrixevidenz.
 
+## 2026-10-08 – Begrenzten tatsächlichen Phonetik-Differentialnachweis ergänzen
+
+Ein einmaliger lokaler Offlinevergleich unter Windows/.NET Framework 4.8 mit
+ausdrücklich gewähltem JDK27 gegen unverändertes Apache Commons Codec 1.18.0
+bestand am aktuellen Quellstand mit frisch gebauter Assembly: 32 synthetische
+Fälle (16 Cologne/16 Double Metaphone), vollständige bytegleiche Codes und
+AJ-Endblank. Unabhängige Read-only-Prüfung der erhaltenen Receipts/Pins und
+Rohoutputs bestätigt diesen endlichen Vergleich; kein Rerun. SQL-/SAFE-,
+Scanner-/Plattformmatrix-, Minimalrechte- und Releasequalifikation bleiben
+offen; weiterhin teilweise validiert und unveröffentlicht. Produktcode, API
+und Workflow unverändert, private Dateien behalten, kein Datei-Cleanup-PASS.
+Die folgende PR301-Quellennotiz bleibt als damaliger NOT_EXECUTED-Stand erhalten.
+
 ## 2026-10-08 – Phonetik-Differential-Testadapter als Quellen ergänzen
 
 Sechs gekoppelte Offline-Testquellen binden 32 synthetische Fälle, vollständige

@@ -2,6 +2,12 @@
 
 Version 1.0.0 bleibt `partially validated` und `unreleased`.
 
+## Begrenzter tatsächlicher Differentialnachweis 2026-10-08
+
+Der [Differentialrunner](Differential/run-differential-phonetic.ps1) bestand einmal lokal unter Windows/.NET Framework 4.8 mit dem ausdrücklich gewählten JDK27 und unveränderten Apache-Commons-Codec-1.18.0-Quellen. Eine neu aus den fünf aktuellen C#-Quellen gebaute Assembly wurde über explizites `BindingPath`/`ExpectedBindingSHA256` konsumiert. Zwei Compiler und zwei Consumer bestanden; alle 32 synthetischen Fälle (16 Cologne, 16 Double Metaphone) stimmen in ihren vollständigen Primary-/Alternatebytes überein, einschließlich des alternativen AJ-Endblanks. Eine unabhängige Read-only-Prüfung bestätigte Receipts, ganze Input-/Kopie-/Outputbytes und den strikten Rohtransport ohne Rerun.
+
+Dies schließt nur diesen endlichen Offline-Corpus. SQL-/SAFE-, vollständige Scanner-/Zielmatrix-, Minimalrechte- und Releasequalifikation bleiben offen; Version 1.0.0 bleibt `partially validated` und `unreleased`. stderr ist nur als leerer zurückgegebener decodierter Text belegt. Private Dateien bleiben erhalten; kein Datei-Cleanup-PASS. Die folgenden PR301-Quellen- und früheren Nachweise behalten ihren damaligen Stand.
+
 ## Differential-EntryPoint – Quellenstand 2026-10-08
 
 Der zusätzliche [Runner](Differential/run-differential-phonetic.ps1) und sein
@@ -61,6 +67,8 @@ Eigene IL-/Metadatenprüfung ist keine transitive SAFE- oder Vollqualifikation.
 - Runtime/Lifecycle.Contract.sql ist ein read-only Installed-Hash-/Ownerwitness
   mit expliziter Manifest-Erwartung. Mutation/Repeat/Uninstall und negative
   Lifecyclepfade benötigen den getrennten Root-Nativeadapter.
+
+Historischer Referenz-/Testquellenstand vor dem oben dokumentierten Differentiallauf:
 
 Die Herkunftsversion ist Apache Commons Codec 1.18.0. Goldenwerte verwenden
 kurze explizite Referenzfälle und synthetische volle Codes; keine Aspell-Liste.
