@@ -221,6 +221,22 @@ Migration noch deren eigenen nativen Cleanup. Parentnachweise bleiben
 unverändert erhalten. Keine API-, Rechte-, Ziel- oder Vertragsausweitung.
 
 
+Statusfortschreibung 2026-10-08: Der zweite Lauf am korrigierten Head
+`2735ad3167174d8986857e2f16ec92c3c6942beb` ist bereits in den unveränderten
+Managed-Worker-SQL-Contracts **FAILED**
+([CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37706094651));
+[Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37706094720)
+bestand. Das feste Oracle `MANAGED.UNEXPECTED_UNKNOWN` meldet ein unbekanntes
+Workerende im Fall `budget-two`, nach `LIVE_BUDGET_TWO_REDUCED_WITHOUT_CANCEL`.
+Beide Export-Schritte wurden **SKIPPED**; die korrigierte native Migration
+bleibt **NOT_EXECUTED**. Always-Containercleanup bestand. Die zugrunde liegende
+Actor-/Guardianursache ist nicht gemessen; SQL0 der generischen Waitexception
+belegt keinen Actor-SQL-Code. Eine begrenzte Diagnoseergänzung an der Testfixture
+soll bereits vorhandene Actor-/Guardianfelder ausschließlich als feste
+Sourcecodes, typisierte numerische SQL-Codes und Statusflags sichtbar machen.
+Workerprodukt, SQL, Orakel, Timing, Ressourcen und Cleanup bleiben unverändert;
+kein unveränderter Retry oder gelockerter UNKNOWN-Guard qualifiziert den Test.
+
 Runner und eigenständiger SQL-Export sind über PR282 integriert; PR283 erhält
 den Queue2.1-Repeat ohne Control mit allen sieben Queuezuständen. Der enge
 Verbundrepeat dieser Runde ist kein allgemeiner Schema-Refresh. Der offene
