@@ -351,3 +351,26 @@ Mainqualifikation einschließlich Cleanup: **PENDING**.
 Class1-Voraussetzung erfüllt: PR295, Main `a585803de0d1d94be595dbf7b3153e582fbff9d2` (2026-10-08).
 [Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37721226636) und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37721226645): **PASS**.
 Der begrenzte Nachweis gilt für Linux SQL2019/CL150 local/central; sechs Objektzeugen, drei eigene Exportbereinigungen und Containercleanup sind belegt. Er qualifiziert keine neuen View-Spaltenzeugen und erklärt keine historische Fehlerursache.
+
+Die im Branch übernommene Testwartung verbindet im bestehenden `Queue20Upgrade`-Fall die
+bereits begrenzte genuine Migration mit einem anschließenden Repeat derselben
+Neun-Modul-Exportdatei, local/central. Der ursprüngliche Vergleich aller
+109 Legacyfelder bleibt vor jeder weiteren persistenten DML erhalten.
+Nach genau einem eigenen Abschluss über `USP_CompleteWork` prüfen private
+Snapshots die vier erlaubten WorkItem-Deltas und anschließend alle
+14 Tabellen/156 Felder einschließlich fünf Leerzeugen sowie den ausgewählten
+Katalog; der Dateirepeat hat keine First-Ausnahme oder Versionsnormalisierung.
+Bestehende Gates, Wartegrenzen, Besitzbindung und Cleanup bleiben unverändert.
+Die [Deploymenttests](Tests/README.md) grenzen das neue Constraintorakel ab.
+Stand 2026-10-08: neue Syntax-/AST-Autorprüfungen bestanden; CHECK-Engineäquivalenz,
+native Folge und eigener Cleanup **NOT_EXECUTED**. Unabhängiger Source-/Client-/
+Privacyreview der eingefrorenen Payloads bestanden; eigene Head-/Merge-/Mainprüfung
+**PENDING**.
+Keine API-, Rechte-, Config-, Provider-, Ziel- oder Gesamtmatrixqualifikation.
+
+View-Mainvoraussetzung erfüllt, Stand 2026-10-08: [PR296](https://github.com/gecompat/SQL_Server_Toolbelt/pull/296)
+ist nach `main` `c1dc014d94f6ce827bd52ef542722faea5bb267b` gemergt.
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37723945915)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37723945917): **PASS**.
+Der Nachweis ist auf Linux SQL Server 2019/CL150 local/central und den bisherigen
+View-Spalten-/Exportscope begrenzt; er qualifiziert diese neue Upgrade→Repeat-Folge nicht.

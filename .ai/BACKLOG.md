@@ -6,6 +6,34 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+Weitere Deploymentwartung, im Branch übernommen 2026-10-08: Der bestehende
+`Queue20Upgrade`-Fall prüft nach genuine Queue2.0→2.1 und erstmaligem Control1.0
+auch einen Repeat derselben Neun-Modul-Datei, jeweils local/central.
+Der ursprüngliche Immediatevergleich aller acht Legacytabellen/109 Felder
+bleibt unverändert vor weiterer persistenter DML. Erst danach wird genau ein
+eigener Legacyclaim über die bestehende `USP_CompleteWork` abgeschlossen;
+nur Status, CompletedAtUtc, CompletedBy und RowVersion dieses WorkItems dürfen
+sich ändern. Vollständige private Snapshots erfassen danach 14 Tabellen/156
+Felder einschließlich fünf leerer Tabellen und ein positives neues
+Constraintinventar. Ein identischer Dateirepeat vergleicht alles ohne
+First-Ausnahmen oder Versionsnormalisierung. Bestehende Gates, Timeouts,
+Ownership und Cleanup bleiben erhalten; keine neue API oder zusätzliche
+Scenario-/DB-/Export-/Rechte-/Ziel-/Provider-/Configfreigabe.
+Autor-Syntaxnachweis: fünf neue SQL150-Inputs/35 Batches und Adapter-AST ohne
+Fehler; CHECK-Engineäquivalenz, neue native Folge und eigener Cleanup sind
+**NOT_EXECUTED**. Unabhängiger Source-/Client-/Privacyreview der eingefrorenen
+Payloads bestanden; eigene Headprüfung, Merge und Mainqualifikation sind
+**PENDING**. Historische
+Fehler- und Qualifikationsnachweise bleiben erhalten; Details künftig in den
+[Deploymenttests](../Deployment/Tests/README.md).
+
+View-Mainvoraussetzung erfüllt, Stand 2026-10-08: [PR296](https://github.com/gecompat/SQL_Server_Toolbelt/pull/296)
+ist nach `main` `c1dc014d94f6ce827bd52ef542722faea5bb267b` gemergt.
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37723945915)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37723945917): **PASS**.
+Der Nachweis ist auf Linux SQL Server 2019/CL150 local/central und den bisherigen
+View-Spalten-/Exportscope begrenzt; er qualifiziert diese neue Upgrade→Repeat-Folge nicht.
+
 ### View-Spaltenannotation im bestehenden Exportrepeat
 
 View-Spaltenwartung, Stand 2026-10-08: zwei eigene class-1-Properties auf

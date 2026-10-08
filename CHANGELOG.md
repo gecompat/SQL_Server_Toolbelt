@@ -1,5 +1,28 @@
 # CHANGELOG
 
+## 2026-10-08 – Repeat nach genuine Exportmigration im Branch ergänzen
+
+- Die übernommene Testwartung ergänzt ausschließlich den bestehenden
+  Queue20Upgrade-Fall: unveränderter acht-Tabellen-/109-Felder-Immediatevergleich,
+  ein eigener Abschluss über die bestehende USP, begrenztes Vierfelderdelta,
+  anschließend ein Repeat derselben Exportdatei gegen alle 14 Tabellen/156
+  Felder mit fünf Leerzeugen und positivem Constraintinventar.
+- Source, Deploy, API, Control-/Queuegates, Timeouts, Ownership und Cleanup
+  bleiben erhalten; keine neue Scenariooption, DB, Exportdatei oder Rechte.
+- Autor-Syntaxnachweis: fünf neue SQL150-Inputs/35 Batches und Adapter-AST
+  fehlerfrei; kein Engine- oder Runtime-Nachweis. CHECK-Engineäquivalenz,
+  native Folge und eigener Cleanup **NOT_EXECUTED**;
+  eigene Head-/Merge-/Mainqualifikation **PENDING**. Unabhängiger Source-/
+  Client-/Privacyreview der eingefrorenen Payloads bestanden.
+  Keine historische Fehlerursache wird damit als behoben ausgewiesen.
+
+View-Mainvoraussetzung erfüllt, Stand 2026-10-08: [PR296](https://github.com/gecompat/SQL_Server_Toolbelt/pull/296)
+ist nach `main` `c1dc014d94f6ce827bd52ef542722faea5bb267b` gemergt.
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37723945915)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37723945917): **PASS**.
+Der Nachweis ist auf Linux SQL Server 2019/CL150 local/central und den bisherigen
+View-Spalten-/Exportscope begrenzt; er qualifiziert diese neue Upgrade→Repeat-Folge nicht.
+
 ## 2026-10-08 – View-Spaltenannotation im bestehenden Exportrepeat prüfen
 
 - Zwei eigene class-1-Properties auf `VW_WorkQueue.RowVersion`:

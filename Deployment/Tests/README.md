@@ -474,3 +474,47 @@ Keine breitere Matrix-, Minimalrechte- oder Releaseclosure.
 Class1-Voraussetzung erfüllt: PR295, Main `a585803de0d1d94be595dbf7b3153e582fbff9d2` (2026-10-08).
 [Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37721226636) und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37721226645): **PASS**.
 Der begrenzte Nachweis gilt für Linux SQL2019/CL150 local/central; sechs Objektzeugen, drei eigene Exportbereinigungen und Containercleanup sind belegt. Er qualifiziert keine neuen View-Spaltenzeugen und erklärt keine historische Fehlerursache.
+
+## Im Branch ergänzt: identischer Dateirepeat nach genuine Migration
+
+Stand 2026-10-08, separate Wartungswelle im bestehenden `Queue20Upgrade`-Fall.
+Bootstrap, Genuine2.0 und erster Neun-Modul-Export bleiben erhalten; der
+ursprüngliche acht-Tabellen-/109-Feldervergleich erfolgt unverändert vor
+weiterer persistenter DML.
+Erst danach bindet die neue Fixture genau einen eigenen noch gültigen
+unmanaged Legacyclaim und ruft einmal die bestehende `USP_CompleteWork` auf,
+ohne Leaseänderung, neuen Claim oder Handlerdispatch. Nur Status,
+CompletedAtUtc, CompletedBy und RowVersion dieses WorkItems dürfen sich ändern;
+42 stabile Felder aller drei WorkItems, alle 46 Felder der beiden anderen
+WorkItems und sämtliche anderen Tabellen/Katalogkategorien bleiben exakt.
+
+Die neue Baseline umfasst 14 Tabellen/156 sourcegebundene Felder mit binären
+Werten, expliziten NULLs und CountWitness je Tabelle, auch für die leere Barrier
+und vier leere Controlhistorytabellen. Positives Sollinventar: sechs PKs,
+zwei UQs, acht Backingindizes, fünf FKs mit sechs geordneten Spaltenpaaren und
+neun aktive vertrauenswürdige CHECKs. Deren unveränderte Sourceausdrücke werden
+in anonymen Temp-CHECKs gegen tatsächliche Definitionbytes geprüft; die
+Engineäquivalenz ist **NOT_EXECUTED**, keine Textnormalisierung wird behauptet.
+Genau ein zusätzlicher vollständiger Aufruf derselben hashgebundenen Datei
+pro local/central folgt; der komplette Consumervergleich hat weder Firstskip
+noch Versionsnormalisierung. Nur die drei tatsächlich neu erzeugten
+WorkItem-CHECK-IDs und die bisher ausgenommenen Objekt-DDL-Zeitstempel bleiben
+außerhalb des semantischen Katalogvertrags. Snapshot-, Claim- und Auditwerte
+bleiben im privaten Memory; alte Ownership-/Session-/Timeout-/Control-/Queueguards
+und eigene Cleanupgrenzen bleiben erhalten.
+
+Autorprüfung: fünf neue SQL150-Inputs/35 Batches und neuer Adapter-AST ohne
+Fehler, ausschließlich Syntax; unveränderte Tests wurden nicht wiederholt.
+Unabhängiger Source-/Client-/Privacyreview der eingefrorenen Payloads bestanden.
+Neue native Folge und eigener Cleanup **NOT_EXECUTED**. Eigene Head-/Merge-/Main-
+qualifikation **PENDING**. Keine historische Ursachenbehebung, neue
+öffentliche SQL-Funktion, Rechte/Config/Provider/Ziele, aktive Controlhistory,
+Concurrency-, Windows-/weitere SQL-Versionen-/SSMS-/Minimalrechte-/44-Modul-
+Qualifikation wird daraus abgeleitet.
+
+View-Mainvoraussetzung erfüllt, Stand 2026-10-08: [PR296](https://github.com/gecompat/SQL_Server_Toolbelt/pull/296)
+ist nach `main` `c1dc014d94f6ce827bd52ef542722faea5bb267b` gemergt.
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37723945915)
+und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37723945917): **PASS**.
+Der Nachweis ist auf Linux SQL Server 2019/CL150 local/central und den bisherigen
+View-Spalten-/Exportscope begrenzt; er qualifiziert diese neue Upgrade→Repeat-Folge nicht.
