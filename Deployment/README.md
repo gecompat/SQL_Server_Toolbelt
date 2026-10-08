@@ -340,3 +340,14 @@ Native class1-Prüfung und eigener Cleanup: **NOT_EXECUTED**; exakte class1-Head
 
 Class3-Voraussetzung erfüllt: PR294, Main `91e13af689334407527fddfdc8d22285933f4225` (2026-10-08).
 [Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37717103755) und [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37717103790): **PASS**.
+
+Die View-Spaltenprüfung ergänzt zwei eigene class-1-Properties auf
+`VW_WorkQueue.RowVersion`, mit tatsächlicher namensgebundener column_id.
+Der vorhandene DefaultRepeat und Capture werden verwendet; [Deploymenttests](Tests/README.md)
+beschreiben den vollständigen typisierten Vergleich. Native View-Spaltenprüfung
+und eigener Cleanup: **NOT_EXECUTED**; eigene exakte Head-CI sowie Merge-/
+Mainqualifikation einschließlich Cleanup: **PENDING**.
+
+Class1-Voraussetzung erfüllt: PR295, Main `a585803de0d1d94be595dbf7b3153e582fbff9d2` (2026-10-08).
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37721226636) und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37721226645): **PASS**.
+Der begrenzte Nachweis gilt für Linux SQL2019/CL150 local/central; sechs Objektzeugen, drei eigene Exportbereinigungen und Containercleanup sind belegt. Er qualifiziert keine neuen View-Spaltenzeugen und erklärt keine historische Fehlerursache.

@@ -126,6 +126,55 @@ BEGIN CATCH
 END CATCH;
 IF @@TRANCOUNT<>0 THROW 54980,N'Objektannotationssetup hinterließ keine neutrale Sitzung.',10;
 IF XACT_STATE()<>0 THROW 54980,N'Objektannotationssetup hinterließ keine neutrale Sitzung.',10;
+-- Zwei eigene class1/minorColumnId-Zeugen auf einer bestehenden View-Ergebnisspalte.
+-- IDs einmal exakt binden; Sourceposition 14 ist keine Zuordnungsregel.
+DECLARE @ExportViewColumnObjectId int=(SELECT o.object_id FROM sys.objects o JOIN sys.schemas s ON s.schema_id=o.schema_id
+ WHERE o.type='V' AND CONVERT(varbinary(max),s.name)=CONVERT(varbinary(max),N'toolbelt_core')
+ AND CONVERT(varbinary(max),o.name)=CONVERT(varbinary(max),N'VW_WorkQueue'));
+DECLARE @ExportViewColumnId int=(SELECT c.column_id FROM sys.columns c WHERE c.object_id=@ExportViewColumnObjectId
+ AND CONVERT(varbinary(max),c.name)=CONVERT(varbinary(max),N'RowVersion'));
+IF @ExportViewColumnObjectId IS NULL OR @ExportViewColumnId IS NULL OR @ExportViewColumnId<=0
+ OR NOT EXISTS(SELECT 1 FROM sys.columns c JOIN sys.types t ON t.user_type_id=c.user_type_id
+ WHERE c.object_id=@ExportViewColumnObjectId AND c.column_id=@ExportViewColumnId
+ AND CONVERT(varbinary(max),c.name)=CONVERT(varbinary(max),N'RowVersion')
+ AND c.system_type_id=173 AND c.user_type_id=173 AND c.max_length=8
+ AND CONVERT(varbinary(max),t.name)=CONVERT(varbinary(max),N'binary') AND t.schema_id=SCHEMA_ID(N'sys'))
+ OR EXISTS(SELECT 1 FROM (VALUES(N'Toolbelt.ModuleId',N'toolbelt.core.work-queue'),
+ (N'Toolbelt.ModuleVersion',N'2.1.0'),(N'Toolbelt.ContractVersion',N'1.1'))e(PropertyName,ExpectedValue)
+ WHERE NOT EXISTS(SELECT 1 FROM sys.extended_properties p WHERE p.class=1 AND p.major_id=@ExportViewColumnObjectId AND p.minor_id=0
+ AND CONVERT(varbinary(max),p.name)=CONVERT(varbinary(max),e.PropertyName)
+ AND SQL_VARIANT_PROPERTY(p.value,'BaseType')=N'nvarchar'
+ AND CONVERT(varbinary(max),p.value)=CONVERT(varbinary(max),e.ExpectedValue)))
+ THROW 54980,N'Die eigene View-Spalte ist nicht sourcegebunden und eindeutig.',11;
+-- Queue-Source enthält keinen Toolbelt.Managed-Objektmarker; vorhandene Controlguards bleiben erhalten.
+DECLARE @ExportViewColumnExpected TABLE
+(ObjectId int NOT NULL,ColumnId int NOT NULL,PropertyName sysname COLLATE Latin1_General_100_BIN2 NOT NULL,
+ ExpectedValue sql_variant NOT NULL,PRIMARY KEY(ObjectId,ColumnId,PropertyName));
+INSERT @ExportViewColumnExpected(ObjectId,ColumnId,PropertyName,ExpectedValue) VALUES
+ (@ExportViewColumnObjectId,@ExportViewColumnId,N'MS_Description',CONVERT(sql_variant,CONVERT(nvarchar(128),N'Contoso View-Spalte – Unicode Ω 中  '))),
+ (@ExportViewColumnObjectId,@ExportViewColumnId,N'Toolbelt.Test.ExportViewColumn.Typed',CONVERT(sql_variant,CONVERT(varbinary(5),0x00017F80FF)));
+-- Beide eigenen Kollisionen vor dem ersten eigenen Add zusammen verweigern.
+IF EXISTS(SELECT 1 FROM sys.extended_properties p JOIN @ExportViewColumnExpected e
+ ON p.class=1 AND p.major_id=e.ObjectId AND p.minor_id=e.ColumnId AND p.name=e.PropertyName COLLATE DATABASE_DEFAULT)
+ THROW 54980,N'Eigene View-Spaltenannotation ist bereits belegt.',12;
+DECLARE @ExportViewColumnDescription nvarchar(128)=N'Contoso View-Spalte – Unicode Ω 中  ',
+ @ExportViewColumnTyped varbinary(5)=0x00017F80FF;
+BEGIN TRY
+ BEGIN TRANSACTION;
+ EXEC sys.sp_addextendedproperty @name=N'MS_Description',@value=@ExportViewColumnDescription,
+ @level0type=N'SCHEMA',@level0name=N'toolbelt_core',@level1type=N'VIEW',@level1name=N'VW_WorkQueue',@level2type=N'COLUMN',@level2name=N'RowVersion';
+ EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Test.ExportViewColumn.Typed',@value=@ExportViewColumnTyped,
+ @level0type=N'SCHEMA',@level0name=N'toolbelt_core',@level1type=N'VIEW',@level1name=N'VW_WorkQueue',@level2type=N'COLUMN',@level2name=N'RowVersion';
+ COMMIT TRANSACTION;
+END TRY
+BEGIN CATCH
+ IF XACT_STATE()<>0 ROLLBACK TRANSACTION;
+ THROW;
+END CATCH;
+IF @@TRANCOUNT<>0 THROW 54980,N'View-Spaltenannotationssetup hinterließ keine neutrale Sitzung.',13;
+IF XACT_STATE()<>0 THROW 54980,N'View-Spaltenannotationssetup hinterließ keine neutrale Sitzung.',13;
+IF (@@OPTIONS&2)<>0 THROW 54980,N'View-Spaltenannotationssetup hinterließ keine neutrale Sitzung.',13;
+IF @@LOCK_TIMEOUT<>-1 THROW 54980,N'View-Spaltenannotationssetup hinterließ keine neutrale Sitzung.',13;
 CREATE TABLE #ExportWorkTypeResult(Dummy int NULL);
 EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.export.sentinel',
  @HandlerSchema=N'toolbelt_core',@HandlerProcedure=N'USP_WriteEventInternal',

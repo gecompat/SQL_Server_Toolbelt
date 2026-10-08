@@ -6,6 +6,20 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Aktive Arbeitspakete
 
+### View-Spaltenannotation im bestehenden Exportrepeat
+
+View-Spaltenwartung, Stand 2026-10-08: zwei eigene class-1-Properties auf
+der vorhandenen View-Spalte `toolbelt_core.VW_WorkQueue.RowVersion`.
+Setup und Assert verwenden die nach Namen ermittelte tatsächliche column_id;
+Capture und beide Repeatfenster bleiben erhalten. [Deploymenttests](../Deployment/Tests/README.md)
+beschreiben Count2 und den vollständigen typisierten Erhaltungsnachweis.
+Native View-Spaltenprüfung und eigener Cleanup: **NOT_EXECUTED**; eigene exakte
+Head-CI sowie Merge-/Mainqualifikation einschließlich Cleanup: **PENDING**.
+
+Class1-Voraussetzung erfüllt: PR295, Main `a585803de0d1d94be595dbf7b3153e582fbff9d2` (2026-10-08).
+[Main-Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37721226636) und [Main-Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37721226645): **PASS**.
+Der begrenzte Nachweis gilt für Linux SQL2019/CL150 local/central; sechs Objektzeugen, drei eigene Exportbereinigungen und Containercleanup sind belegt. Er qualifiziert keine neuen View-Spaltenzeugen und erklärt keine historische Fehlerursache.
+
 ### Deploymentwartung 2026-10-07 – datenwahrender Queue-/Control-Repeat
 
 Der ausdrücklich besprochene Auftrag zum aktuellen Gesamtdeployment umfasst
