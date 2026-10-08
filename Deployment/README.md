@@ -448,3 +448,9 @@ Der erste Queue1.1-Headlauf wurde im Root-Preflight abgewiesen. Migration bleibt
 unqualifiziert, eigener Dateicleanup DEFERRED. Die ergänzten festen Diagnosecodes
 trennen vorhandene Bedingungen ohne Lockerung; Ursache und konkrete Bedingung
 des alten Fehlers bleiben unbekannt. [Läufe und Grenzen](Tests/README.md).
+
+Queue1.1 bindet Parent- und Arbeitsverzeichnis im bestehenden Linux-CI-Fall über
+private Geräte-/Inode-/Mode-Tupel statt unveränderlicher Verzeichniszeiten. Das
+vorhandene `stat`-Programm und der bestehende Prozesshelper werden gebunden;
+kein Installations- oder Fallbackpfad. Neue native Qualifikation bleibt offen.
+[Fehlheads, Primärquellen und Grenzen](Tests/README.md).

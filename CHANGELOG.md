@@ -2,6 +2,12 @@
 
 ## 2026-10-08 – Genuine Queue1.1 im bestehenden Exporttest ergänzen
 
+- Queue1.1: zweiter Head verwirft die Parent-Zeitgleichheit; Ursache bleibt
+  ungemessen, Migration unqualifiziert und eigener Dateicleanup DEFERRED.
+- Parent-/Root-Objektbindung im bestehenden Linux-CI-Fall verwendet private
+  Geräte-/Inode-/Mode-Tupel über einen begrenzten, gepinnten vorhandenen Prozess.
+  Neue native Prüfung steht aus; bestehende Datei-/Journal-/Cleanupgates bleiben.
+
 - Erster Queue1.1-Headlauf ist im Root-Preflight fehlgeschlagen; Migration
   nicht qualifiziert, Dateicleanup DEFERRED, Containercleanup bestätigt.
 - Dreizehn vorhandene Root-Prädikate erhalten getrennte feste Diagnosecodes;

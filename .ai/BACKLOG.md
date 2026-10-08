@@ -8,6 +8,17 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ### Genuine Queue1.1 als weitere Deploymentwartung
 
+Der zweite exakte Head `611fa3fceee0dddc84ddce71fb33d7a7f42b0ba8` hat
+[Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37741968376)
+und [Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37741968349).
+Die feste Abweisung `QUEUE11_ROOT_PARENT_CREATED_TICKS` benennt die verworfene
+Parent-Zeitgleichheit; tatsächliche Werte, Plattformfallback und Ursache bleiben
+**UNMEASURED**. Der erste e9fc-Operand wird dadurch nicht rückwirkend gemessen.
+Die folgende Quellenkorrektur bindet ausschließlich Parent und Root über private
+Geräte-/Inode-/Mode-Tupel im bestehenden Linux-CI-Fall. Alle übrigen Ownership-,
+Datei-, Journal- und Cleanupgrenzen bleiben erhalten. Neue native Qualifikation,
+Merge und Main sind **PENDING**; Queue1.1 bleibt **NOT_QUALIFIED**.
+
 Erster exakter Head `e9fc95ea5192ac35697a2d87e11c8f94c1938d2b`:
 [Worker-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37738796909)
 **FAILED**, [Dokumentations-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37738797015)

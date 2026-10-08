@@ -56,6 +56,10 @@ function Get-SafeFailureDiagnostic([Exception]$Exception,[string]$Phase) {
   'QUEUE11_ROOT_REPARSE','QUEUE11_ROOT_CREATION_AUTHORITY','QUEUE11_ROOT_CREATED_TICKS',
   'QUEUE11_ROOT_ATTRIBUTES','QUEUE11_ROOT_INITIAL_ABSENT','QUEUE11_ROOT_INITIAL_PARENT_DIRECTORY',
   'QUEUE11_ROOT_INITIAL_PARENT_REPARSE',
+  'QUEUE11_DIRECTORY_CI_SCOPE','QUEUE11_DIRECTORY_PROCESS_HELPER','QUEUE11_DIRECTORY_TOOL',
+  'QUEUE11_DIRECTORY_TOOL_DRIFT','QUEUE11_DIRECTORY_PATHS','QUEUE11_DIRECTORY_BUDGET',
+  'QUEUE11_DIRECTORY_PROCESS','QUEUE11_DIRECTORY_CAPTURE','QUEUE11_DIRECTORY_RECORDS',
+  'QUEUE11_DIRECTORY_TYPE','QUEUE11_ROOT_PARENT_IDENTITY','QUEUE11_ROOT_IDENTITY',
   'QUEUE11_ROOT_BOUNDARY','QUEUE11_FILE_BOUNDARY','QUEUE11_FILE_REGISTRATION','QUEUE11_FILE_IDENTITY',
   'QUEUE11_JOURNAL_IDENTITY','QUEUE11_ACQUIRE_HELPER','QUEUE11_CAPTURE_HELPER','QUEUE11_ACQUIRE_RETURN',
   'QUEUE11_CAPTURE_RETURN','QUEUE11_MANIFEST_BINDING','QUEUE11_SQL_FIXTURE_PIN',
@@ -305,6 +309,51 @@ function Compare-PrivateSnapshots($Previous,$Current,[switch]$First){
  }
 }
 # Zusätzliche Grenzen ausschließlich für Queue11Upgrade; alte Consumer bleiben unverändert.
+function Assert-Queue11DirectoryTools {
+ # Kein Neuauflösen oder Rebind bei Drift; keine Toolpfade/Hashes öffentlich ausgeben.
+ foreach($binding in @($queue11DirectoryProcessHelper,$queue11DirectoryTool)){
+  $item=Get-Item -LiteralPath $binding.Path -ErrorAction Stop
+  $code=if($binding.Path-ceq$queue11DirectoryProcessHelper.Path){'QUEUE11_DIRECTORY_PROCESS_HELPER'}else{'QUEUE11_DIRECTORY_TOOL_DRIFT'}
+  Assert-ExportRepeat ([IO.File]::Exists($binding.Path)-and-not$item.PSIsContainer-and($item.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0-and(Get-FileHash -LiteralPath $binding.Path -Algorithm SHA256).Hash-ceq$binding.Hash) $code
+ }
+}
+function Get-Queue11DirectoryIdentities([string[]]$Paths){
+ # Nur Parent oder geordnet Parent/Root: kein allgemeiner Dateireader und kein Shellaufruf.
+ Assert-ExportRepeat ($Paths.Count-eq1-or$Paths.Count-eq2) 'QUEUE11_DIRECTORY_PATHS'
+ Assert-ExportRepeat ($Paths[0]-ceq$temporaryParent-and[IO.Path]::GetFullPath($Paths[0])-ceq$Paths[0]) 'QUEUE11_DIRECTORY_PATHS'
+ if($Paths.Count-eq2){Assert-ExportRepeat ($Paths[1]-ceq$ownedRoot-and[IO.Path]::GetFullPath($Paths[1])-ceq$Paths[1]) 'QUEUE11_DIRECTORY_PATHS'}
+ Assert-Queue11DirectoryTools
+ $remaining=60000L-$queue11DirectoryBudget.ElapsedMilliseconds
+ Assert-ExportRepeat ($remaining-ge1-and$queue11DirectoryBudget.ProcessCount-lt1024) 'QUEUE11_DIRECTORY_BUDGET'
+ $timeout=[int][Math]::Min(5000L,$remaining)
+ $arguments=@('--printf=%d:%i:%f\n','--')+$Paths
+ $script:queue11DirectoryBudget.ProcessCount++
+ $watch=[Diagnostics.Stopwatch]::StartNew();$result=$null
+ try{
+  try{$result=Invoke-OwnedProcess -FileName $queue11DirectoryTool.Path -Arguments $arguments -TimeoutMilliseconds $timeout}
+  catch{throw 'EXPORT_REPEAT.QUEUE11_DIRECTORY_PROCESS'}
+ }finally{
+  $watch.Stop();$script:queue11DirectoryBudget.ElapsedMilliseconds+=$watch.ElapsedMilliseconds
+  Assert-Queue11DirectoryTools
+ }
+ Assert-ExportRepeat ($queue11DirectoryBudget.ElapsedMilliseconds-le60000) 'QUEUE11_DIRECTORY_BUDGET'
+ Assert-ExportRepeat ($null-ne$result-and$result.ExitCode-is[int]-and$result.ExitCode-eq0-and$result.CaptureComplete-is[bool]-and$result.CaptureComplete-and$result.Stdout-is[string]-and$result.Stderr-is[string]-and$result.Stderr.Length-eq0) 'QUEUE11_DIRECTORY_CAPTURE'
+ # Getrennte 4-MiB-Transportcaps des unveränderten Helpers; hier enger 128-Byte-Akzeptanzvertrag.
+ Assert-ExportRepeat ($result.Stdout.Length-le128-and[Text.Encoding]::UTF8.GetByteCount($result.Stdout)-le128) 'QUEUE11_DIRECTORY_RECORDS'
+ $pattern='\A(?:[0-9]{1,20}:[0-9]{1,20}:[0-9a-f]{1,8}\n){'+$Paths.Count+'}\z'
+ Assert-ExportRepeat ([regex]::IsMatch($result.Stdout,$pattern,[Text.RegularExpressions.RegexOptions]::CultureInvariant)) 'QUEUE11_DIRECTORY_RECORDS'
+ $records=[Collections.Generic.List[object]]::new()
+ foreach($line in $result.Stdout.Substring(0,$result.Stdout.Length-1).Split("`n")){
+  $fields=$line.Split(':');[uint64]$device=0;[uint64]$inode=0;[uint32]$mode=0
+  Assert-ExportRepeat ([uint64]::TryParse($fields[0],[Globalization.NumberStyles]::None,[Globalization.CultureInfo]::InvariantCulture,[ref]$device)) 'QUEUE11_DIRECTORY_RECORDS'
+  Assert-ExportRepeat ([uint64]::TryParse($fields[1],[Globalization.NumberStyles]::None,[Globalization.CultureInfo]::InvariantCulture,[ref]$inode)-and$inode-gt0) 'QUEUE11_DIRECTORY_RECORDS'
+  Assert-ExportRepeat ([uint32]::TryParse($fields[2],[Globalization.NumberStyles]::AllowHexSpecifier,[Globalization.CultureInfo]::InvariantCulture,[ref]$mode)) 'QUEUE11_DIRECTORY_RECORDS'
+  Assert-ExportRepeat (($mode-band0xF000)-eq0x4000) 'QUEUE11_DIRECTORY_TYPE'
+  $records.Add([pscustomobject]@{Device=$device;Inode=$inode;Mode=$mode})
+ }
+ Assert-ExportRepeat ($records.Count-eq$Paths.Count) 'QUEUE11_DIRECTORY_RECORDS'
+ return ,$records.ToArray()
+}
 function Assert-Queue11Root {
  $resolved=[IO.Path]::GetFullPath($ownedRoot)
  # Nur feste Operandtokens unterscheiden; keine Pfade oder Runtimewerte publizieren.
@@ -312,16 +361,18 @@ function Assert-Queue11Root {
  Assert-ExportRepeat ([IO.Path]::GetFileName($resolved)-cmatch'^toolbelt-export-repeat-[0-9a-f]{32}$') 'QUEUE11_ROOT_NAME'
  $parent=Get-Item -LiteralPath $temporaryParent -ErrorAction Stop
  Assert-ExportRepeat ([int]$parent.Attributes-eq$queue11ParentIdentity.Attributes) 'QUEUE11_ROOT_PARENT_ATTRIBUTES'
- Assert-ExportRepeat ($parent.CreationTimeUtc.Ticks-eq$queue11ParentIdentity.CreatedTicks) 'QUEUE11_ROOT_PARENT_CREATED_TICKS'
+ # Ein Prozess liefert beide Identitäten; keine mutable Verzeichniszeit als Objekt-ID verwenden.
+ $directoryIdentities=Get-Queue11DirectoryIdentities @($temporaryParent,$ownedRoot)
+ Assert-ExportRepeat ($directoryIdentities[0].Device-eq$queue11ParentIdentity.Device-and$directoryIdentities[0].Inode-eq$queue11ParentIdentity.Inode-and$directoryIdentities[0].Mode-eq$queue11ParentIdentity.Mode) 'QUEUE11_ROOT_PARENT_IDENTITY'
  Assert-ExportRepeat (($parent.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'QUEUE11_ROOT_PARENT_REPARSE'
  $item=Get-Item -LiteralPath $resolved -ErrorAction Stop
  Assert-ExportRepeat ([IO.Directory]::Exists($resolved)) 'QUEUE11_ROOT_DIRECTORY'
  Assert-ExportRepeat (($item.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'QUEUE11_ROOT_REPARSE'
  if($null-eq$queue11RootIdentity){
   Assert-ExportRepeat $queue11RootCreationAuthorized 'QUEUE11_ROOT_CREATION_AUTHORITY'
-  $script:queue11RootIdentity=[pscustomobject]@{CreatedTicks=$item.CreationTimeUtc.Ticks;Attributes=[int]$item.Attributes}
+  $script:queue11RootIdentity=[pscustomobject]@{Device=$directoryIdentities[1].Device;Inode=$directoryIdentities[1].Inode;Mode=$directoryIdentities[1].Mode;Attributes=[int]$item.Attributes}
  }
- Assert-ExportRepeat ($item.CreationTimeUtc.Ticks-eq$queue11RootIdentity.CreatedTicks) 'QUEUE11_ROOT_CREATED_TICKS'
+ Assert-ExportRepeat ($directoryIdentities[1].Device-eq$queue11RootIdentity.Device-and$directoryIdentities[1].Inode-eq$queue11RootIdentity.Inode-and$directoryIdentities[1].Mode-eq$queue11RootIdentity.Mode) 'QUEUE11_ROOT_IDENTITY'
  Assert-ExportRepeat ([int]$item.Attributes-eq$queue11RootIdentity.Attributes) 'QUEUE11_ROOT_ATTRIBUTES'
 }
 function Assert-Queue11Path([string]$Path){
@@ -483,7 +534,24 @@ try{
   $parent=Get-Item -LiteralPath $temporaryParent -ErrorAction Stop
   Assert-ExportRepeat ([IO.Directory]::Exists($temporaryParent)) 'QUEUE11_ROOT_INITIAL_PARENT_DIRECTORY'
   Assert-ExportRepeat (($parent.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'QUEUE11_ROOT_INITIAL_PARENT_REPARSE'
-  $queue11ParentIdentity=[pscustomobject]@{CreatedTicks=$parent.CreationTimeUtc.Ticks;Attributes=[int]$parent.Attributes}
+  # Ausschließlich der bestehende Linux-GitHub-CI-Fall; kein Installations-/Fallbackpfad.
+  Assert-ExportRepeat ($env:CI-ceq'true'-and$env:GITHUB_ACTIONS-ceq'true'-and$env:RUNNER_OS-ceq'Linux'-and$env:GITHUB_REPOSITORY-ceq'gecompat/SQL_Server_Toolbelt') 'QUEUE11_DIRECTORY_CI_SCOPE'
+  $processPath=[IO.Path]::GetFullPath((Join-Path $repositoryRoot 'Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1'))
+  $processItem=Get-Item -LiteralPath $processPath -ErrorAction Stop
+  Assert-ExportRepeat ([IO.File]::Exists($processPath)-and-not$processItem.PSIsContainer-and($processItem.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0-and(Get-FileHash -LiteralPath $processPath -Algorithm SHA256).Hash-ceq'7B3E838EE5D294B3DECF3153D2D02276BE401E6F76EE8D810F20C5DCC51D1BD4') 'QUEUE11_DIRECTORY_PROCESS_HELPER'
+  $queue11DirectoryProcessHelper=[pscustomobject]@{Path=$processPath;Hash='7B3E838EE5D294B3DECF3153D2D02276BE401E6F76EE8D810F20C5DCC51D1BD4'}
+  . $processPath
+  # Genau die tatsächlich ausgewählte Application binden, ohne PATH-Inventar oder Neuauflösung.
+  $commands=@(Get-Command -Name stat -CommandType Application -ErrorAction Stop)
+  Assert-ExportRepeat ($commands.Count-eq1-and$commands[0].CommandType-eq[Management.Automation.CommandTypes]::Application-and-not[string]::IsNullOrWhiteSpace($commands[0].Path)) 'QUEUE11_DIRECTORY_TOOL'
+  $statPath=[IO.Path]::GetFullPath($commands[0].Path)
+  Assert-ExportRepeat ($statPath-ceq$commands[0].Path) 'QUEUE11_DIRECTORY_TOOL'
+  $statItem=Get-Item -LiteralPath $statPath -ErrorAction Stop
+  Assert-ExportRepeat ([IO.File]::Exists($statPath)-and-not$statItem.PSIsContainer-and($statItem.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0) 'QUEUE11_DIRECTORY_TOOL'
+  $queue11DirectoryTool=[pscustomobject]@{Path=$statPath;Hash=(Get-FileHash -LiteralPath $statPath -Algorithm SHA256).Hash}
+  $queue11DirectoryBudget=[pscustomobject]@{ElapsedMilliseconds=0L;ProcessCount=0}
+  $parentDirectoryIdentity=Get-Queue11DirectoryIdentities @($temporaryParent)
+  $queue11ParentIdentity=[pscustomobject]@{Device=$parentDirectoryIdentity[0].Device;Inode=$parentDirectoryIdentity[0].Inode;Mode=$parentDirectoryIdentity[0].Mode;Attributes=[int]$parent.Attributes}
   $queue11RootCreationAuthorized=$true
  }
  [void][IO.Directory]::CreateDirectory($ownedRoot);Save-PrivateOwnership

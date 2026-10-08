@@ -680,3 +680,60 @@ Bedingung unterscheiden. Kein Pfad, Zeitwert, Attributwert oder Runnerinventar
 wird öffentlich ausgegeben. Kein unveränderter CI-Retry und kein Rootcause-Fix
 werden behauptet. Erwerb, Definition-/Compilerformen, Migration und eigener
 Cleanup dieses Falles bleiben bis einer vollständigen neuen Qualifikation offen.
+
+### Queue1.1: Verzeichnisobjektbindung nach dem zweiten Fehlhead
+
+Der zweite exakte Head `611fa3fceee0dddc84ddce71fb33d7a7f42b0ba8` hat
+[Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37741968376)
+und [Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37741968349).
+Die feste Abweisung `QUEUE11_ROOT_PARENT_CREATED_TICKS` benennt die verworfene
+Parent-Zeitgleichheit; tatsächliche Werte, Plattformfallback und Ursache bleiben
+**UNMEASURED**. Der erste e9fc-Operand wird dadurch nicht rückwirkend gemessen.
+Die folgende Quellenkorrektur bindet ausschließlich Parent und Root über private
+Geräte-/Inode-/Mode-Tupel im bestehenden Linux-CI-Fall. Alle übrigen Ownership-,
+Datei-, Journal- und Cleanupgrenzen bleiben erhalten. Neue native Qualifikation,
+Merge und Main sind **PENDING**; Queue1.1 bleibt **NOT_QUALIFIED**.
+
+Root und unabhängiger Reader bestätigen alle vier tatsächlichen Checkout-Trees
+`42a4639b90c56782c6d1fef7a09f652577aafd87`. Nur Queue1.1 scheiterte; die übrigen
+elf benannten Linuxschritte und beide Faultjobs bestanden. Die bisherigen drei
+Exportfälle mit drei eigenen Bereinigungen bestanden; neue eigene Bereinigung
+**DEFERRED / RETAINED_UNPROVEN**, separater Containercleanup bestätigt.
+
+Der veröffentlichte .NET-Vertrag erlaubt unter Unix ohne BirthTime einen
+CreationTime-Fallback aus veränderlichen Zeitwerten. Der konkrete CI-Branch und
+die Fehlerursache wurden nicht gemessen. Die Quellenkorrektur verwendet deshalb
+für Parent und Root Geräte-/Inode-/vollständigen Mode-Bindungen; Directorytyp wird
+positiv geprüft. GNU `stat` wird ohne Dereferenceoption und ohne Shell aufgerufen.
+Parent ist vor eigener Rootanlage gebunden, Root einmal danach unter vorhandener
+CreationAuthority; Drift führt zu Abweisung statt Neubindung.
+
+Ein vorhandenes Applicationprogramm wird einmal aufgelöst und mit vollem Pfad,
+regulärer NoReparse-Datei und privatem Hash vor/nach jedem Aufruf gebunden.
+Der bestehende gepinnte Prozesshelper führt höchstens einen Prozess für geordnet
+Parent/Root aus. Jede Projektion benötigt Exit0, vollständigen Capture, leeres
+Stderr und exakt ein/zwei begrenzte numerische Records. Einzelgrenze höchstens5s,
+kumulative eigene Prozesszeit höchstens60s und höchstens1024 Aufrufe; das
+Restbudget wird vor dem Spawn geprüft. Diese Quellgrenzen sind keine gemessenen
+Runnerwerte und keine harte Gesamt- oder Dateisystemdeadline. Die zusätzliche
+128-Byte-Akzeptanzgrenze ersetzt nicht die bestehenden 4-MiB-Transportcaps.
+
+Pfad-/Attribut-/Reparse-/Autoritätsgates, sämtliche immutable Datei-Hash-/Längen-/
+Zeitprüfungen und Journalneubindung ausschließlich nach eigenen Writes bleiben
+erhalten. Unbekannte Teilfiles werden nicht adoptiert oder blind gelöscht.
+Geräte-/Inodewerte, Mode, Toolpfade/-hashes und Stderr bleiben privat; öffentlich
+erscheinen ausschließlich feste Fehlercodes. Kein neuer Produkt-/SQL-Vertrag,
+kein Toolinstall, Provider-, Rechte-, Ziel- oder Workflowausbau.
+
+Pathnameprüfungen und spätere Operationen sind getrennt; atomare TOCTOU-,
+Inodereuse-, feindliche Same-UID- und Hard-Interrupt-Sicherheit sind damit nicht
+qualifiziert. Windows und andere Tools/Plattformen bleiben offen. Die Änderung
+ist eine Quellenkorrektur des Identitätsvertrags, kein nachgewiesener kausaler
+Fix eines historischen Fehlheads. Neue Native-/Cleanup-/Mainqualifikation folgt
+erst aus einer vollständigen eigenen Prüfung am neuen Quellenstand.
+
+Primärquellen: [Microsoft CreationTimeUtc](https://learn.microsoft.com/en-us/dotnet/api/system.io.filesysteminfo.creationtimeutc?view=net-10.0),
+[versionierte .NET-Implementierung](https://github.com/dotnet/runtime/blob/v10.0.0/src/libraries/System.Private.CoreLib/src/System/IO/FileStatus.Unix.cs),
+[GNU-stat-Dokumentation](https://github.com/coreutils/coreutils/blob/v9.5/doc/coreutils.texi),
+[GNU-stat-Implementierung](https://github.com/coreutils/coreutils/blob/v9.5/src/stat.c).
+Herstellerversionen sind Quellenbelege, keine Behauptung über Runnerbinaries.
