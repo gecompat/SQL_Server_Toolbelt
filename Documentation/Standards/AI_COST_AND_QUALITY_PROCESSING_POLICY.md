@@ -142,7 +142,7 @@ Wiederhole keine abgeschlossenen Analysen, sofern neue Erkenntnisse dies nicht e
 
 Die kanonischen Projektgrenzen für Erstlektüre, geprüfte Sessionanalyse,
 gemeinsames Wellenbudget, unabhängige Reviews und ereignisgetriebene Fortsetzung
-stehen in [.ai/WORKING_RULES.md](../../.ai/WORKING_RULES.md). Foundation1.20
+stehen in [.ai/WORKING_RULES.md](../../.ai/WORKING_RULES.md). Foundation1.21
 ergänzt sie über [PROCESSING_EFFICIENCY_POLICY.md](../../.ai/foundation/PROCESSING_EFFICIENCY_POLICY.md).
 Ein kompatibles `PROJECT_STRONGER` erhält Schutzgates, rechtfertigt aber keinen
 unbegründeten zusätzlichen Lese-, Review- oder Koordinationsaufwand.
@@ -171,6 +171,14 @@ Verwende eine kostenoptimierte Validierungsreihenfolge:
 3. Teste betroffene Integrationen oder Builds, wenn die Änderung sie berührt.
 4. Führe eine vollständige Testsuite nur aus, wenn das Risiko, die Änderung oder Projektregeln dies rechtfertigen.
 5. Wiederhole unveränderte erfolgreiche Tests nicht ohne konkreten Grund.
+
+Phasentrennung, vollständige Testbindungen, Wiederholungsgründe und begrenzte
+Logauswertung sind in der [Test- und Validierungsrichtlinie](TEST_AND_VALIDATION_POLICY.md)
+kanonisch geregelt. Weniger CI-Laufzeit belegt keine geringere Tokenmenge;
+unbekannte Verbräuche bleiben unbekannt. Die erforderliche Overheadbewertung
+bei Foundationintegration und materiellen Workflowänderungen wird im vorhandenen
+Projektentscheidungs-/Assessmentformat dokumentiert, ohne neue Telemetrie oder
+pro Aktion einen zusätzlichen Receipt einzuführen.
 
 Bevorzuge für lokale Tests:
 

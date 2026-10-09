@@ -9,6 +9,12 @@ on:
       - Modules/toolbelt.core.second-session/**
       - Tests/CI/run-w5b-event-log-linux.sh
       - .github/workflows/w5b-event-log-runtime.yml
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
   workflow_dispatch:
 
 permissions:

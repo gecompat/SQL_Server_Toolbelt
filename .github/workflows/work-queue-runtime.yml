@@ -8,6 +8,12 @@ on:
       - "Modules/toolbelt.core.work-type/**"
       - "Modules/toolbelt.core.result-table/**"
       - "Tests/CI/run-work-queue-linux.sh"
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
   push:
     branches: [main]
     paths:
@@ -16,6 +22,12 @@ on:
       - "Modules/toolbelt.core.work-type/**"
       - "Modules/toolbelt.core.result-table/**"
       - "Tests/CI/run-work-queue-linux.sh"
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
   workflow_dispatch:
 
 permissions:

@@ -5,6 +5,12 @@ on:
       - 'Modules/toolbelt.tsql.script-parser/**'
       - 'Tests/CI/run-script-parser-lab.ps1'
       - '.github/workflows/script-parser-guard.yml'
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
   workflow_dispatch:
 permissions:
   contents: read

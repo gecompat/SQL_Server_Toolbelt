@@ -46,8 +46,11 @@ python3 Tests/Documentation/validate_documentation.py --base origin/main --head 
 ```
 
 Er prüft nur die geänderten und explizit gekoppelten Artefakte. Ein vollständiger
-Audit mit `--all` ist für Releases sowie Änderungen an Governance,
-Kopplungsregeln oder Validator vorgesehen.
+Audit mit `--all` ist für Baseline, Releases, globale Fach-/Schutzverträge,
+Kopplungsregistry oder Validator, unbekannten Impact und ausdrücklichen Auftrag
+vorgesehen. Begrenzte Prozess-/Foundationänderungen verwenden ihre Impact-Pakete.
+Phasen und Wiederholungsgründe regelt die
+[Test- und Validierungsrichtlinie](Documentation/Standards/TEST_AND_VALIDATION_POLICY.md).
 
 ## Verwendeten Modulstand festhalten
 

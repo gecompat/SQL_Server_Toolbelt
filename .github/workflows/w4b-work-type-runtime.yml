@@ -7,10 +7,15 @@ on:
     paths:
       - Modules/toolbelt.core.work-type/**
       - Documentation/Architecture/WORK_TYPE_MODULE_DESIGN.md
-      - Documentation/Architecture/DECISIONS.md
       - Documentation/Standards/SQL_OBJECT_NAMING.md
       - Tests/CI/run-w4b-work-type-linux.sh
       - .github/workflows/w4b-work-type-runtime.yml
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
   workflow_dispatch:
 
 permissions:

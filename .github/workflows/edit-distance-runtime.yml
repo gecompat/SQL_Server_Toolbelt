@@ -1,10 +1,30 @@
 name: Edit Distance CLR Offline
 on:
   pull_request:
-    paths: ["Modules/toolbelt.string.edit-distance/**", "Documentation/Architecture/EDIT_DISTANCE_CONTRACT.md", "Documentation/Architecture/JARO_WINKLER_CONTRACT.md", ".github/workflows/edit-distance-runtime.yml"]
+    paths:
+      - "Modules/toolbelt.string.edit-distance/**"
+      - "Documentation/Architecture/EDIT_DISTANCE_CONTRACT.md"
+      - "Documentation/Architecture/JARO_WINKLER_CONTRACT.md"
+      - ".github/workflows/edit-distance-runtime.yml"
+
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
   push:
     branches: [main]
-    paths: ["Modules/toolbelt.string.edit-distance/**", ".github/workflows/edit-distance-runtime.yml"]
+    paths:
+      - "Modules/toolbelt.string.edit-distance/**"
+      - ".github/workflows/edit-distance-runtime.yml"
+
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
   workflow_dispatch:
 permissions:
   contents: read

@@ -309,10 +309,10 @@ class ProvenanceTests(unittest.TestCase):
         for key in ("schema_version", "contract", "source_repository", "selection"):
             self.assertEqual(record[key], baseline[key])
         expected = {"schema_version": 1, "contract": "foundation-installation-provenance/v1",
-                    "ruleset_version": "1.20.0",
+                    "ruleset_version": "1.21.0",
                     "source_repository": "https://github.com/gecompat/AI_Repository_Foundation",
-                    "source_commit": "39ae5c534bb0cf78046485754ed1be7867bf9534",
-                    "source_manifest_sha256": "d707d9dfe5cbcf7d323260891ec5d535493715d1413d7b6e421b2691aa1149d5"}
+                    "source_commit": "d720db4f2f0d043756a958d5195d0e62090b1c8f",
+                    "source_manifest_sha256": "5c4268140ba8cb6c3c38ce42cdd1ebecd8d5c3db23309bb90c77bc8b38ebf2f6"}
         for key, value in expected.items():
             self.assertEqual(record[key], value)
         self.assertRegex(record["recorded_at"], r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
@@ -335,6 +335,7 @@ class ProvenanceTests(unittest.TestCase):
                ".ai/foundation/schemas/processing-budget-request.schema.json"}
         upgraded = {"AGENTS.md", ".ai/foundation/FOUNDATION_RULESET.md",
                     ".ai/foundation/SEMANTIC_INTEGRATION_POLICY.md",
+                    ".ai/foundation/PROJECT_RULES.md",
                     ".ai/foundation/RULE_CONTEXT_CACHE_POLICY.md",
                     ".ai/foundation/AI_WORK_ORCHESTRATION_POLICY.md",
                     ".ai/foundation/feature_catalog.json", ".ai/foundation/WORKING_RULES.md",
@@ -359,13 +360,13 @@ class ProvenanceTests(unittest.TestCase):
             return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
         fields = ("source", "target", "kind", "merge", "source_sha256")
-        # Current manifest projection is bound to the exact 1.20 source above.
+        # Current manifest projection is bound to the exact 1.21 source above.
         # The old security baseline and all unrelated rows remain protected.
         self.assertEqual(projection(fields, rows),
-                         "30b896e122a32912bc6a38272900dcb113500442668b5483dc2385f5b1db9231")
+                         "249dffe06dac617ce48202f676e0d5d7060ca3f2f31f9861398fc1e3ff59c0df")
         self.assertEqual(projection(fields + ("installed_sha256", "integration_state", "reason"),
                                     [row for row in rows if row["target"] not in changed]),
-                         "e64fc178cc0fa2222daa364d4f9a64a3755b17c697e2378eee95a37ebbcd1f77")
+                         "54f1c7b8e75f6c7a6aaea4977c498a549d9113da1c4f74732a21221f70eb1c77")
         for row in rows:
             if row["target"] not in changed | upgraded | new:
                 self.assertEqual(row, old_rows[row["target"]])

@@ -6,11 +6,23 @@ on:
       - 'Modules/toolbelt.filesystem.windows/**'
       - 'Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md'
       - '.github/workflows/windows-filesystem-build.yml'
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
   push:
     branches: [main]
     paths:
       - 'Modules/toolbelt.filesystem.windows/**'
       - 'Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md'
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
 
 jobs:
   build-and-static-contract:

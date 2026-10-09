@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "installed_version": "1.20.0",
+  "source_version": "1.21.0",
+  "source_ref": "d720db4f2f0d043756a958d5195d0e62090b1c8f",
+  "assessments": [
+    {
+      "feature_id": "bounded-processing-efficiency",
+      "candidate_reasons": [
+        "material_change:1.21.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/WORKING_RULES.md",
+        "Documentation/Standards/TEST_AND_VALIDATION_POLICY.md",
+        ".ai/repo_map.yaml",
+        "Tests/Documentation/test_change_impact.py",
+        "Documentation/Architecture/FOUNDATION_1_21_INTEGRATION.md"
+      ],
+      "rationale": "Der ausdrückliche Auftrag autorisiert die Prozessbereinigung. Phasen, lokale Logauswertung, sourcegebundene Wiederverwendung und begründete Wiederholungen werden in den bestehenden kanonischen Projektregeln umgesetzt. Scope bleibt eine Foundation-/Prozesswelle; kein neuer Agent, keine Telemetrie und keine Fortsetzungsaktivierung.",
+      "recommendation": null,
+      "decision_required": null
+    },
+    {
+      "feature_id": "foundation-baseline",
+      "candidate_reasons": [
+        "material_change:1.21.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/WORKING_RULES.md",
+        "Documentation/Standards/TEST_AND_VALIDATION_POLICY.md",
+        ".ai/repo_map.yaml",
+        "Tests/Documentation/test_change_impact.py",
+        "Documentation/Architecture/FOUNDATION_1_21_INTEGRATION.md"
+      ],
+      "rationale": "Version1.21 ergänzt die REQUIRED Overheadbewertung. Projektpriorität, SQL-Einzelfreigaben, Datenschutz, Lizenzschutz und Lab-Ownership bleiben erhalten; aktive Governance bleibt über AGENTS und Repo-Map erreichbar.",
+      "recommendation": null,
+      "decision_required": null
+    },
+    {
+      "feature_id": "installed-foundation-provenance",
+      "candidate_reasons": [
+        "material_change:1.21.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/WORKING_RULES.md",
+        "Documentation/Standards/TEST_AND_VALIDATION_POLICY.md",
+        ".ai/repo_map.yaml",
+        "Tests/Documentation/test_change_impact.py",
+        "Documentation/Architecture/FOUNDATION_1_21_INTEGRATION.md"
+      ],
+      "rationale": "105 ausgewählte Quellen werden gegen den exakten Manifeststand geprüft. Die sieben semantisch begründeten Overrides und bestehende Auswahl bleiben erhalten; Provenienz wird exakt neu gebunden, ohne Securityoverride-Quellen oder Gründe zu verändern.",
+      "recommendation": null,
+      "decision_required": null
+    },
+    {
+      "feature_id": "layered-validation",
+      "candidate_reasons": [
+        "material_change:1.21.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/WORKING_RULES.md",
+        "Documentation/Standards/TEST_AND_VALIDATION_POLICY.md",
+        ".ai/repo_map.yaml",
+        "Tests/Documentation/test_change_impact.py",
+        "Documentation/Architecture/FOUNDATION_1_21_INTEGRATION.md"
+      ],
+      "rationale": "Foundationintegrität, Projektauswahl/Regressionsprüfung und SQL-Qualifikation bleiben getrennt. Bekannte Prozessänderungen wählen keine fremden Module; globale Verträge und unbekannte Inputs behalten Vollaudit. Gleiche Validatoren im Dokumentationsjob laufen einmal; Selbsttests bleiben bei Werkzeug-/Konfigurationsänderungen erhalten.",
+      "recommendation": null,
+      "decision_required": null
+    },
+    {
+      "feature_id": "processing-overhead-assessment",
+      "candidate_reasons": [
+        "introduced_in:1.21.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/WORKING_RULES.md",
+        "Documentation/Standards/TEST_AND_VALIDATION_POLICY.md",
+        ".ai/repo_map.yaml",
+        "Tests/Documentation/test_change_impact.py",
+        "Documentation/Architecture/FOUNDATION_1_21_INTEGRATION.md"
+      ],
+      "rationale": "Die zugehörige Integration bewertet tatsächliche Regeln, 14 breite Workflowfilter, Doppelvalidatoren, Branch-Push-/PR-Doppelqualifikation, Validator-Selbsttests, aktuelle Head-/Main-Gates, Logs, Reviews, Modellaufrufe und die pausierte Fortsetzung. Dispositionen sind umgesetzt oder mit begrenztem Schutzgrund erhalten; keine materielle offene Entscheidung.",
+      "recommendation": null,
+      "decision_required": null
+    },
+    {
+      "feature_id": "rules-only-transfer",
+      "candidate_reasons": [
+        "material_change:1.21.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/WORKING_RULES.md",
+        "Documentation/Standards/TEST_AND_VALIDATION_POLICY.md",
+        ".ai/repo_map.yaml",
+        "Tests/Documentation/test_change_impact.py",
+        "Documentation/Architecture/FOUNDATION_1_21_INTEGRATION.md"
+      ],
+      "rationale": "Ausschließlich zehn geänderte ausgewählte Manifestziele werden übernommen, davon nur die markierte AGENTS-Bridge. Keine Foundation-Projektdateien, Lizenzen oder unselektierten Capabilities werden kopiert.",
+      "recommendation": null,
+      "decision_required": null
+    },
+    {
+      "feature_id": "semantic-integration",
+      "candidate_reasons": [
+        "material_change:1.21.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/WORKING_RULES.md",
+        "Documentation/Standards/TEST_AND_VALIDATION_POLICY.md",
+        ".ai/repo_map.yaml",
+        "Tests/Documentation/test_change_impact.py",
+        "Documentation/Architecture/FOUNDATION_1_21_INTEGRATION.md"
+      ],
+      "rationale": "Der bisherige breite Governance-Selektor war DUPLICATE_GOVERNANCE mit der globalen Auditauswahl und zog bei Foundation-/Arbeitsregeländerungen fachfremde Statik nach. Autorisierte Eingrenzung erhält globale Schutzverträge und unbekannten Impact. Kompatible stärkere Sicherheits-/Frische-/Cleanupgates bleiben geschützt; keine Identitätsmigration.",
+      "recommendation": null,
+      "decision_required": null
+    }
+  ]
+}

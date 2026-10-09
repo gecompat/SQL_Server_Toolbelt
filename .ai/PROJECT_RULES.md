@@ -101,7 +101,7 @@ Details: [CODE_DOCUMENTATION.md](../Documentation/Standards/CODE_DOCUMENTATION.m
 - Dauerhafte Entscheidungen mit stabiler ID in [DECISIONS.md](../Documentation/Architecture/DECISIONS.md) dokumentieren.
 - Unlösbare Konflikte führen bis zur Klärung zu keiner Änderung.
 - Die Konsistenzprüfung arbeitet standardmäßig diff-basiert über die in `.ai/repo_map.yaml` registrierten Impact-Pakete.
-- Vollständige Repository-Audits sind für Baseline, Release, Governance- oder Kopplungsänderungen sowie auf ausdrücklichen Auftrag vorgesehen.
+- Vollständige Repository-Audits sind für Baseline, Release, globale Fach-/Schutzverträge, Kopplungsregistry und Validator sowie unbekannten Impact und ausdrücklichen Auftrag vorgesehen. Begrenzte Prozess-/Foundationänderungen verwenden die betroffenen Impact-Pakete gemäß der [Test- und Validierungsrichtlinie](../Documentation/Standards/TEST_AND_VALIDATION_POLICY.md).
 
 ## 10. Persönlicher Brainstorm-Backlog
 

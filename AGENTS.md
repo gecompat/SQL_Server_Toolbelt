@@ -12,6 +12,8 @@ Use `.ai/foundation/PROCESSING_EFFICIENCY_POLICY.md` for routine work, verified 
 A concrete task authorizes ordinary proportionate work inside its envelope; gate only real unresolved or exceeded boundaries. Preserve REQUIRED safety/privacy/integrity/evidence floors and compatible stronger project rules. Use `.ai/foundation/SEMANTIC_INTEGRATION_POLICY.md` for integration conflicts and efficiency recommendations. Keep active project governance transitively discoverable from this root outside the managed block; preserve/rehome unique adapter rules before thinning adapters.
 
 Foundation validation establishes FOUNDATION_INTEGRITY only. Run affected project semantic/runtime checks and required independent reviews. Use optional routing/execution contracts only for relevant selected operations. Optional capabilities grant no execution authority. Requested models, chat history, fingerprints, and cached analysis are not evidence or durable project truth.
+
+Installation/upgrade and material workflow-rule changes require the processing-overhead assessment: actual test triggers, duplicate checks, logs, review chains, and model calls. Preserve necessary gates; justify bounded stronger exceptions or expose pending decisions. Copying rules alone does not establish efficient integration.
 <!-- AI_REPOSITORY_FOUNDATION:END -->
 
 ## Regelpriorität

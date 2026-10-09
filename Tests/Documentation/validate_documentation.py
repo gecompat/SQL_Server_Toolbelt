@@ -4,7 +4,7 @@
 Die Prüfung verwendet ausschließlich die Python-Standardbibliothek. Im
 Normalbetrieb bestimmt sie den Scope aus dem Git-Diff und den in
 `.ai/repo_map.yaml` registrierten Impact-Paketen. Ein vollständiger Audit wird
-nur mit `--all` oder bei Änderungen an Governance und Validator ausgeführt.
+mit `--all`, bei globalen Verträgen/Kopplungen oder unbekanntem Impact ausgeführt.
 """
 
 from __future__ import annotations
@@ -298,7 +298,14 @@ def selected_checks(
     full_audit_paths: list[str],
     force_all: bool,
 ) -> tuple[set[str], list[str], bool]:
-    full_audit = force_all or any(path in full_audit_paths for path in changed)
+    # Unbekannte Inputs konservativ behandeln; bekannte Prozessdateien bleiben
+    # bei ihren registrierten Verbrauchern.
+    unknown = any(
+        not any(fnmatch.fnmatch(path, pattern)
+                for package in packages.values() for pattern in package["paths"])
+        for path in changed
+    )
+    full_audit = force_all or unknown or any(path in full_audit_paths for path in changed)
     selected: list[str] = []
     checks: set[str] = set()
     for name, package in packages.items():
@@ -1752,6 +1759,14 @@ def main() -> int:
         if result.returncode:
             raise ValidationError(f"Publication-Regressionen:\n{result.stdout}{result.stderr}")
         print(result.stderr.strip())
+    if "change_impact_selftests" in checks:
+        result = subprocess.run(
+            [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/test_change_impact.py")],
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=30,
+        )
+        if result.returncode:
+            raise ValidationError(f"Change-Impact-Regressionen:\n{result.stdout}{result.stderr}")
+        print(result.stdout.strip())
     if "foundation_host_redirects" in checks:
         run_foundation_redirects()
     if "foundation_http_responses" in checks:
@@ -1765,6 +1780,7 @@ def main() -> int:
             generate_api_catalog.check(write=arguments.write)
         except (ValueError, KeyError, AttributeError) as error:
             raise ValidationError(f"API-Katalog: {error}") from error
+    if "public_api_catalog_selftests" in checks:
         result = subprocess.run(
             [sys.executable, str(REPOSITORY_ROOT / "Tests/Documentation/test_api_catalog.py")],
             cwd=REPOSITORY_ROOT, capture_output=True, text=True,

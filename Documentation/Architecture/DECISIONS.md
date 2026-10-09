@@ -718,3 +718,34 @@ Plannerpflicht oder zusätzliche automatische Entwicklungswelle.
 Scope/betroffene Verträge: AGENTS-Bridge, `.ai/WORKING_RULES.md`, Kostenrichtlinie,
 Foundationmanifest/Provenienz, Dokumentationsvalidator und Repo-Map.
 [Vollständige Bewertung und Verfahren](FOUNDATION_1_20_INTEGRATION.md).
+
+## Datierter Entscheidungsstand 2026-10-09: Foundation1.21 und begründete Testzyklen
+
+Stabile Feature-Referenzen: `processing-overhead-assessment` und
+`layered-validation`; keine neue finale Sequenz-ID. Status: accepted.
+Autor: Codex. Grundlage ist der ausdrückliche Benutzerauftrag zum neuen
+Foundationstand und zur Bereinigung sinnloser Testzyklen.
+
+Entscheidung: Foundation1.21 aus dem exakten Commit
+`d720db4f2f0d043756a958d5195d0e62090b1c8f` bei erhaltener Auswahl und sieben
+Overrides integrieren. Begrenzte Prozessänderungen wählen ihre Verbraucher;
+globale Verträge, Selektor-/Registryänderungen und unbekannter Impact behalten
+Vollaudit. Zwei gleiche Dokumentationsjob-Validatoraufrufe entfallen;
+Werkzeug-Selbsttests werden von der laufenden Inputprüfung getrennt.
+14 breite Modulworkflowfilter schließen bekannte reine Dokumentation aus.
+Der allgemeine Entscheidungskatalog löst keine Work-Type-SQL-Matrix aus.
+Phonetik-Pushprüfungen werden auf `main` begrenzt, damit Branch-Push und PR
+nicht dieselbe Qualifikation doppelt starten.
+
+Begründung: Fachfremde Tests, gleiche Checks im gleichen Job und zusätzliche
+Modellanalysen grüner Logs liefern keinen neuen Nachweis. Diagnose und
+begrenzte Integration benötigen andere Abschlusskriterien als volle
+Support-/Releasequalifikation. Auswirkungen: weniger unnötige Testtrigger,
+begründete Wiederholung und lokale begrenzte Logauswertung; aktuelle Head-CI,
+negative Orakel, Qualification-/Cleanup-/Securitygates bleiben erhalten.
+
+Alternativen: bloßes Kopieren, globale Gateentfernung, neue Reader-/Receiptketten
+und Kürzung der deklarierten Supportmatrix verworfen. Scope: Foundation,
+Projektregeln, tatsächliche Testselektoren/Workflows und Offline-Regressionen.
+Keine Produktimplementierung, SQL-Testausführung oder automatische Fortsetzung.
+[Vollständige Bewertung, Ausnahmen und Nachweise](FOUNDATION_1_21_INTEGRATION.md).

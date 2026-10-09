@@ -7,6 +7,11 @@ für den benötigten Vertrag ausreichend zu validieren. Ein fachlich
 unabhängiges Referenzmodul ist keine pauschale Voraussetzung; die vollständige
 Eigenvalidierung des neuen Moduls bleibt verpflichtend.
 
+Diese Kriterien qualifizieren den deklarierten Modulstand. Sie erzwingen bei
+einer begrenzten Diagnose oder Korrektur keine erneute vollständige Matrix;
+Testauswahl und Wiederholung folgen der
+[Test- und Validierungsrichtlinie](TEST_AND_VALIDATION_POLICY.md).
+
 ## Implementierung
 
 - [ ] Alle Modulobjekte vollständig implementiert.

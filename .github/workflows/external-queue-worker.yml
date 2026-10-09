@@ -33,6 +33,12 @@ on:
       - "Modules/toolbelt.core.execution-cancel/**"
       - "Tests/CI/run-external-queue-worker-lab.ps1"
       - ".github/workflows/external-queue-worker.yml"
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
       # Reine Evidenzpflege ändert weder Worker noch SQL-Vertrag.
       - "!Workers/ExternalQueue/README.md"
       - "!Workers/ExternalQueue/Tests/README.md"

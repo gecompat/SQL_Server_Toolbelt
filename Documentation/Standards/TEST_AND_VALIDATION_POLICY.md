@@ -107,13 +107,67 @@ Nachweis noch eine Statusaufwertung und ersetzt keinen tatsächlichen
 Regressionsvergleich. Baselines, Messwerte und Runnerdaten bleiben außerhalb
 der Repository-Evidenz.
 
+## Phasen, Testbindung und Wiederholung
+
+Diagnose/Entwicklung, begrenzte Integration, Qualifikation des deklarierten
+Supportscopes und Release haben unterschiedliche Akzeptanzkriterien. Eine
+Fehlerkorrektur prüft betroffene Verträge und Verbraucher. Offene Plattform-,
+Minimalrechte-, Performance- oder Releasefälle bleiben sichtbar offen, ohne
+dadurch bei jeder Korrektur erneut die gesamte Matrix auszulösen. Die
+Definition of Done und vorgeschriebene Lifecycle-/Statistik-/Frischeprüfungen
+bleiben für eine entsprechende Qualifikations- oder Releaseaussage verbindlich.
+
+Wiederholungen brauchen geänderte relevante Inputs oder Umgebung, einen neuen
+Befund, eine vorgeschriebene Wiederholung/Frische oder einen noch unerfüllten
+Gate. Zur Bindung gehören Produktquellen, Tests/Fixtures/Generatoren,
+Toolversionen, Konfiguration, gemeinsame Abhängigkeiten, Umgebung und Scope.
+Identische Produktbytes allein reichen nicht. Bei unbekannter Wirkung wird
+konservativ breiter geprüft. Frühere Fehler bleiben Fehler; wiederverwendete
+Teilnachweise werden mit Originaldatum und aktuellem Anwendungsgrund benannt,
+nicht als frisch ausgeführt. Exakte aktuelle Head-/Integrations-CI bleibt
+ein eigener Pflichtnachweis; ein lokaler Erfolg ersetzt sie nicht.
+
+Ein identischer Validator läuft am gleichen Inputstand einmal über den
+zuständigen Suite-/Impactpfad. Seine negativen Kontrollen und eigenen
+Regressionen bleiben eigenständige Assertions. Validator-Selbsttests werden
+bei Änderungen am Werkzeug, seinen Abhängigkeiten, der Testkonfiguration,
+einem Befund oder ausdrücklich angeforderter Qualifikation ausgeführt;
+die Prüfung aktueller Projektinputs bleibt davon getrennt.
+
+Reine Modul-README-, CHANGELOG-, Objekt-/Testdokumentationsänderungen starten
+keine SQL-Runtimeprüfung. Fachliche Architekturverträge, Manifeste, Code,
+Fixtures, Generatoren, Adapter und unbekannte Moduldateien bleiben von den
+vorhandenen positiven Workflowfiltern erfasst. Manuelle Qualifikation bleibt
+unverändert. Selektoränderungen prüfen positive, negative, gemeinsame
+Abhängigkeits- und unbekannte Fälle; Pflichtstatus werden nicht als PASS
+erfunden. Laufende mutierende Tests behalten ihre Cleanup-/Cancellationgrenzen.
+
+## Logauswertung und Modellreviews
+
+Exitcode, fehlgeschlagene Schritte, Fehlerorte, Skips, Capturevollständigkeit
+und Cleanup zuerst mit vorhandenen lokalen Werkzeugen prüfen. Originale
+bleiben nach den Datenschutzregeln lokal; weitergegeben werden begrenzte,
+deduplizierte Befunde mit Quellenbindung und Einschränkungen. Ein leerer
+Fehlersuchtreffer beweist keinen Erfolg. Bei Unklarheit den erforderlichen
+Originalausschnitt mit ausreichendem Kontext lesen. Grüne Vollogs, kumulierte
+Receipts und komplette Chathistorien werden nicht routinemäßig neu analysiert.
+
+Zusätzliche Modellaufrufe/Reviews brauchen eine offene semantische Frage,
+geänderte Inputs, neue Befunde oder vorgeschriebene Unabhängigkeit. Hashes,
+Zähler, Status und Commitbindungen werden deterministisch geprüft. Ein Review
+erzwingt keinen Review seines Berichts; erforderliche unabhängige Fachreviews
+bleiben erhalten. Für Routinearbeit entsteht keine neue Reader-/Receiptkette.
+
 ## CI
 
 CI bleibt schlank und pfadbezogen. Der Dokumentationsvalidator bestimmt seinen
 Scope aus dem Git-Diff, der Modulregistry und den expliziten Impact-Paketen.
 Dokumentationsänderungen lösen keine unnötige Runtime-Vollmatrix aus. Ein
-vollständiger Audit läuft nur bei Governance- oder Kopplungsänderungen, vor
-einem Release, beim manuellen Aufruf oder auf ausdrücklichen Auftrag. Teure
+vollständiger Audit läuft bei globalen Fach-/Schutzverträgen, Änderungen an
+Kopplungsregistry oder Validator, unbekanntem Impact, vor einem Release,
+beim manuellen Aufruf oder auf ausdrücklichen Auftrag. Begrenzte Prozess-,
+Foundation- und Entscheidungsänderungen prüfen ihre registrierten Verbraucher;
+unveränderliche Basisschutzprüfungen bleiben aktiv. Teure
 oder spezielle Plattformtests dürfen manuell oder capability-spezifisch
 ausgeführt werden; fehlende Runner ergeben keinen grünen Nachweis.
 

@@ -81,52 +81,7 @@ jobs:
             python3 Modules/toolbelt.archive.zip-files/Tests/Static/validate_contract.py
           fi
 
-      - name: Validate Safe Cast source contract
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          EVENT_NAME: ${{ github.event_name }}
-        run: |
-          run_scope=false
-          if [ "$EVENT_NAME" = workflow_dispatch ]; then
-            run_scope=true
-          elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Modules/toolbelt.conversion.safe-cast/ .github/workflows/documentation-consistency.yml; then
-            :
-          else
-            scope_result=$?
-            if [ "$scope_result" -ne 1 ]; then
-              echo "DOCUMENTATION_SCOPE_DIFF_FAILED" >&2
-              exit "$scope_result"
-            fi
-            run_scope=true
-          fi
-          if [ "$run_scope" = true ]; then
-            python3 Modules/toolbelt.conversion.safe-cast/Tests/Static/validate_contract.py
-          fi
-
-      - name: Validate JSON Pointer source contract
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          EVENT_NAME: ${{ github.event_name }}
-        run: |
-          run_scope=false
-          if [ "$EVENT_NAME" = workflow_dispatch ]; then
-            run_scope=true
-          elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Modules/toolbelt.json.pointer/ .github/workflows/documentation-consistency.yml; then
-            :
-          else
-            scope_result=$?
-            if [ "$scope_result" -ne 1 ]; then
-              echo "DOCUMENTATION_SCOPE_DIFF_FAILED" >&2
-              exit "$scope_result"
-            fi
-            run_scope=true
-          fi
-          if [ "$run_scope" = true ]; then
-            python3 Modules/toolbelt.json.pointer/Tests/Static/validate_contract.py
-          fi
-
+      # SafeCast/JSON Pointer laufen bereits im Change-Impact-Validator.
       - name: Test owned module CI cleanup with synthetic Docker responses
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
