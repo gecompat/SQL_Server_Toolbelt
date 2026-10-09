@@ -108,19 +108,31 @@ VALUES
     , (6, 0x666F6F6261,   'Zm9vYmE=')
     , (7, 0x666F6F626172, 'Zm9vYmFy');
 
+-- Die festen positiven Werte einmal aufnehmen; NULL ist kein erfolgreicher Vergleich.
+DECLARE @ScalarResults TABLE
+(
+      ItemOrdinal  int            NOT NULL PRIMARY KEY
+    , EncodedValue varchar(max)   NULL
+    , DecodedValue varbinary(max) NULL
+);
+
+INSERT INTO @ScalarResults (ItemOrdinal, EncodedValue, DecodedValue)
+SELECT
+      vectors.ItemOrdinal
+    , toolbelt_conversion.SVF_Base64Encode(vectors.BinaryValue, DEFAULT)
+    , toolbelt_conversion.SVF_Base64Decode(vectors.StandardBase64)
+FROM @Vectors AS vectors;
+
 IF EXISTS
    (
        SELECT 1
        FROM @Vectors AS vectors
-       WHERE toolbelt_conversion.SVF_Base64Encode
-             (
-                 vectors.BinaryValue,
-                 DEFAULT
-             ) <> vectors.StandardBase64
-          OR toolbelt_conversion.SVF_Base64Decode
-             (
-                 vectors.StandardBase64
-             ) <> vectors.BinaryValue
+       JOIN @ScalarResults AS scalarResults
+         ON scalarResults.ItemOrdinal = vectors.ItemOrdinal
+       WHERE scalarResults.EncodedValue IS NULL
+          OR scalarResults.DecodedValue IS NULL
+          OR scalarResults.EncodedValue <> vectors.StandardBase64
+          OR scalarResults.DecodedValue <> vectors.BinaryValue
    )
 BEGIN
     THROW 52303, N'Ein RFC-4648-Standardvektor ist fehlgeschlagen.', 1;
@@ -132,33 +144,71 @@ BEGIN
     THROW 52304, N'NULL wird nicht vertragsgemäß weitergegeben.', 1;
 END;
 
+-- Getrennte Aufnahmen erhalten die Vektoridentität auch bei fehlenden TVF-Zeilen.
+-- Keine Ergebnistabelle begrenzt Mehrfachzeilen vor dem direkten COUNT je Vektor.
+DECLARE @EncodeResults TABLE
+(
+      ItemOrdinal  int          NOT NULL
+    , EncodedValue varchar(max) NULL
+);
+DECLARE @DecodeResults TABLE
+(
+      ItemOrdinal  int            NOT NULL
+    , DecodedValue varbinary(max) NULL
+);
+
+INSERT INTO @EncodeResults (ItemOrdinal, EncodedValue)
+SELECT vectors.ItemOrdinal, encoded.EncodedValue
+FROM @Vectors AS vectors
+CROSS APPLY toolbelt_conversion.TVF_Base64Encode
+            (
+                  vectors.BinaryValue
+                , DEFAULT
+            ) AS encoded;
+
+INSERT INTO @DecodeResults (ItemOrdinal, DecodedValue)
+SELECT encoded.ItemOrdinal, decoded.DecodedValue
+FROM @EncodeResults AS encoded
+CROSS APPLY toolbelt_conversion.TVF_Base64Decode
+            (
+                encoded.EncodedValue
+            ) AS decoded;
+
 IF EXISTS
    (
        SELECT 1
        FROM @Vectors AS vectors
-       CROSS APPLY toolbelt_conversion.TVF_Base64Encode
-                   (
-                         vectors.BinaryValue
-                       , DEFAULT
-                   ) AS encoded
-       CROSS APPLY toolbelt_conversion.TVF_Base64Decode
-                   (
-                       encoded.EncodedValue
-                   ) AS decoded
-       WHERE encoded.EncodedValue <> vectors.StandardBase64
-          OR decoded.DecodedValue <> vectors.BinaryValue
-          OR encoded.EncodedValue
-             <> toolbelt_conversion.SVF_Base64Encode
-                (
-                      vectors.BinaryValue
-                    , DEFAULT
-                )
-          OR decoded.DecodedValue
-             <> toolbelt_conversion.SVF_Base64Decode
-                (
-                    vectors.StandardBase64
-                )
+       WHERE (SELECT COUNT_BIG(*)
+              FROM @EncodeResults AS encoded
+              WHERE encoded.ItemOrdinal = vectors.ItemOrdinal) <> 1
+          OR (SELECT COUNT_BIG(*)
+              FROM @DecodeResults AS decoded
+              WHERE decoded.ItemOrdinal = vectors.ItemOrdinal) <> 1
    )
+   OR EXISTS
+      (
+          SELECT 1
+          FROM @Vectors AS vectors
+          JOIN @ScalarResults AS scalarResults
+            ON scalarResults.ItemOrdinal = vectors.ItemOrdinal
+          JOIN @EncodeResults AS encoded
+            ON encoded.ItemOrdinal = vectors.ItemOrdinal
+          WHERE encoded.EncodedValue IS NULL
+             OR encoded.EncodedValue <> vectors.StandardBase64
+             OR encoded.EncodedValue <> scalarResults.EncodedValue
+      )
+   OR EXISTS
+      (
+          SELECT 1
+          FROM @Vectors AS vectors
+          JOIN @ScalarResults AS scalarResults
+            ON scalarResults.ItemOrdinal = vectors.ItemOrdinal
+          JOIN @DecodeResults AS decoded
+            ON decoded.ItemOrdinal = vectors.ItemOrdinal
+          WHERE decoded.DecodedValue IS NULL
+             OR decoded.DecodedValue <> vectors.BinaryValue
+             OR decoded.DecodedValue <> scalarResults.DecodedValue
+      )
 BEGIN
     THROW 52313, N'Die SVF-/inline-TVF-Parität ist fehlgeschlagen.', 1;
 END;

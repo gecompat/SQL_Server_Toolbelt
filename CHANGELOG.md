@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-09 – Bestehende Base64-RFC-Testorakel schließen
+
+Quellenkandidat für die sieben vorhandenen RFC-4648-Vektoren: unerwartetes NULL
+sowie fehlende oder mehrfache direkte TVF-Ergebniszeilen ausdrücklich abweisen.
+Eingaben, Sollwerte und übrige Orakel bleiben unverändert; belegt ist eine
+Testorakellücke, kein gemessener Produktfehler. Quellenstand SOURCE_ONLY, neue
+Orakel **NOT_EXECUTED** und noch nicht qualifiziert. Historische Matrixnachweise,
+Produkt, API, Workflow, Modulversion `1.1.0` und Status bleiben unverändert.
+
 ## 2026-10-09 – Command-Setup der Safe-Cast-Metadatenprobe schützen
 
 Der bestehende SqlClient-Testhelper besitzt seinen Command bis zur erfolgreichen

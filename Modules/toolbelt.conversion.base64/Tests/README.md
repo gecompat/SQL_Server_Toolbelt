@@ -1,5 +1,22 @@
 # Base64-Testevidenz
 
+## 2026-10-09 – Quellenstand der sieben RFC-Orakel
+
+Der Quellenkandidat schließt eine Testorakellücke in den sieben vorhandenen
+RFC-4648-Vektoren: Positive SVF-/TVF-Wertprüfungen müssen unerwartetes NULL
+abweisen; jede direkt aufgenommene Encode-/Decode-TVF muss pro Fall genau eine
+Ergebniszeile liefern, auch bei fehlenden oder zusätzlichen Zeilen. Ein
+CROSS-APPLY-Zeilenverlust darf keinen positiven Fall verdecken. Die sieben
+Eingaben und Sollwerte, NULL-Eingabe-/OUTER-APPLY-Orakel und übrigen Fälle bleiben
+unverändert; keine neuen Vektoren oder Produktkorrektur.
+
+Quellenstand **SOURCE_ONLY**; neue verschärfte Orakel **NOT_EXECUTED**,
+Quellenreview und Runtimequalifikation stehen noch aus. Belegt ist eine
+Testorakellücke, kein gemessener Produktfehler. Datierte Matrixnachweise und
+generierte Evidenz behalten ihren ursprünglichen Scope. Modulversion `1.1.0`,
+`partially validated` und `unreleased` bleiben unverändert; breitere
+Large-LOB-Performance-Evidenz bleibt offen.
+
 Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich; breitere Large-LOB-Performance-Evidenz bleibt offen. Der Modulstatus bleibt `partially validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen; datierte ältere Einträge bleiben historische Evidenz.
 
 V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
