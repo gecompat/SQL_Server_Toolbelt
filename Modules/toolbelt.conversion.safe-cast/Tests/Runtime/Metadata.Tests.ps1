@@ -10,8 +10,15 @@ function Assert-SafeCastClient([bool]$Condition,[string]$Label){
  if(-not $Condition){throw ('SAFE_CAST_CLIENT_ORACLE_'+$Label)}
 }
 function New-SafeCastCommand([string]$Sql){
- $command=$Connection.CreateCommand();$command.CommandText=$Sql;$command.CommandTimeout=30
- if($CommandTimeoutProvider){$command.CommandTimeout=& $CommandTimeoutProvider}
+ $command=$Connection.CreateCommand()
+ try{
+  $command.CommandText=$Sql;$command.CommandTimeout=30
+  if($CommandTimeoutProvider){$command.CommandTimeout=& $CommandTimeoutProvider}
+ }catch{
+  # Bis zur Rueckgabe besitzt dieser Helper den Command, auch bei Setupfehlern.
+  $command.Dispose()
+  throw
+ }
  return $command
 }
 function Test-SafeCastBudget($Command){if($ReadBudgetProvider){& $ReadBudgetProvider $Command}}
@@ -43,8 +50,8 @@ FROM DBPREFIXsys.columns WHERE object_id=(
  WHERE s.name=N'toolbelt_conversion' AND o.name=@Name) ORDER BY column_id;
 '@
  $cmd=New-SafeCastCommand ($sql.Replace('DBPREFIX',$database))
- [void]$cmd.Parameters.Add('@Name',[Data.SqlDbType]::NVarChar,128);$cmd.Parameters['@Name'].Value=$name
  try{
+  [void]$cmd.Parameters.Add('@Name',[Data.SqlDbType]::NVarChar,128);$cmd.Parameters['@Name'].Value=$name
   $reader=$cmd.ExecuteReader()
   try{
    Test-SafeCastBudget $cmd
@@ -74,9 +81,9 @@ FROM DBPREFIXsys.columns WHERE object_id=(
  }finally{$cmd.Dispose()}
  foreach($scenario in @('OK','SQL_NULL','INVALID_ARGUMENT')){
   $cmd=New-SafeCastCommand ('SELECT Value,Status,ErrorCode FROM '+$prefix+$name+'(@Text,'+$(if($scenario-ceq'INVALID_ARGUMENT'){'0'}else{'DEFAULT'})+');')
-  [void]$cmd.Parameters.Add('@Text',[Data.SqlDbType]::NVarChar,-1)
-  $cmd.Parameters['@Text'].Value=if($scenario-ceq'SQL_NULL'){[DBNull]::Value}else{$spec.Text}
   try{
+   [void]$cmd.Parameters.Add('@Text',[Data.SqlDbType]::NVarChar,-1)
+   $cmd.Parameters['@Text'].Value=if($scenario-ceq'SQL_NULL'){[DBNull]::Value}else{$spec.Text}
    $reader=$cmd.ExecuteReader()
    try{
     Assert-SafeCastClient ($reader.FieldCount-eq3) 'CLIENT_FIELD_COUNT'
