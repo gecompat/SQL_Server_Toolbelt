@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-09 – Leere kanonische Base64-Zeichenfolge decodieren
+
+Quellenkorrektur im bestehenden TVF-Decoder: Nicht-NULL-Eingaben mit leerer
+kanonischer Zeichenfolge sollen `0x` ergeben; `NULL` bleibt `NULL`. Der bestehende
+SVF-Wrapper folgt dem TVF-Kern, ohne API-, Normalisierungs- oder Fehlervertrags-
+Änderung. Der erste PR311-Headlauf scheiterte mit Fehlerkategorie `52303`; konkrete
+Eingabe und Laufzeitursache bleiben ungemessen. Quellenstand **SOURCE_ONLY**,
+neue Runtimequalifikation offen. Frühere Quellenstände und Matrixnachweise
+bleiben historisch; Version `1.1.0`, Modulstatus und Releasezustand unverändert.
+
 ## 2026-10-09 – Bestehende Base64-RFC-Testorakel schließen
 
 Quellenkandidat für die sieben vorhandenen RFC-4648-Vektoren: unerwartetes NULL

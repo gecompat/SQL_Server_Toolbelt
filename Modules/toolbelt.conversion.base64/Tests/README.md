@@ -1,5 +1,20 @@
 # Base64-Testevidenz
 
+## 2026-10-09 – Leere Decode-Eingabe nach dem ersten PR311-Headlauf
+
+Die Quellenkorrektur für den bestehenden Decoder sieht vor: Eine Nicht-NULL-
+Eingabe mit leerer kanonischer Base64-Zeichenfolge ergibt `0x`; `NULL` bleibt
+`NULL`. Der SVF-Wrapper verwendet denselben TVF-Kern. API, Normalisierung und
+Fehlervertrag für ungültige Eingaben bleiben unverändert.
+
+Der erste PR311-Headlauf scheiterte im Runtime-Contract mit Fehlerkategorie
+`52303`. Die tatsächlich auslösende Eingabe und Laufzeitursache sind nicht
+gemessen. Die neue Quellenkorrektur ist **SOURCE_ONLY** und noch nicht
+runtimequalifiziert; der fehlgeschlagene Lauf ist kein PASS-Nachweis.
+Frühere Quellenstände, datierte Matrixnachweise und generierte Evidenz bleiben
+historisch erhalten. Modulversion `1.1.0`, `partially validated` und `unreleased`
+bleiben unverändert; keine neue Matrix-, Performance- oder Releasezusage.
+
 ## 2026-10-09 – Quellenstand der sieben RFC-Orakel
 
 Der Quellenkandidat schließt eine Testorakellücke in den sieben vorhandenen

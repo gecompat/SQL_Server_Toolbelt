@@ -177,6 +177,9 @@ RETURN
                                        )
                                  )
                            )
+                  -- Leere kanonische Eingaben besitzen keinen XML-Textknoten.
+                  WHEN @Value IS NOT NULL AND DATALENGTH(CanonicalValue) = 0
+                      THEN CONVERT(varbinary(max), 0x)
                   ELSE CONVERT
                        (
                            xml
