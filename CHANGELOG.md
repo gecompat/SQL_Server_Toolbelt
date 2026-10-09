@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-09 – Bestehende SemVer-Testorakel schließen
+
+Die bestehenden Contractfälle weisen unerwartetes NULL sowie fehlende oder
+mehrfache TVF-Ergebniszeilen ausdrücklich ab. Parser-, Präzedenz-,
+Build-Metadata-, Größen-, ASCII-, Sort-Key- und Paritätsorakel behalten ihre
+Inputs und Sollwerte; keine neue Negativsuite oder Produktkorrektur.
+Quellenstand SOURCE_ONLY, neue verschärfte Tests **NOT_EXECUTED**.
+Historische validierte Matrix, Modulversion `1.1.0`, Manifest, API und Workflow
+bleiben unverändert; keine neue Matrix- oder Releasezusage.
+
 ## 2026-10-09 – Integer-Base-Plusziffer konsistent decodieren
 
 Der bestehende Alphabetvertrag erlaubt `+` als reguläre Ziffer und reserviert
