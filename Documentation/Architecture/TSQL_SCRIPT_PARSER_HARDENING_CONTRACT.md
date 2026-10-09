@@ -35,6 +35,21 @@ und keine fremden Assembly-/CLR-Consumer vorhanden sind. Andere, unmarkierte
 oder unbekannte Binaries bleiben fail-closed. Der neue Trusthash muss separat und ausdrücklich administrativ
 freigegeben sein; Deploy/Uninstall registrieren oder entfernen keinen Trust.
 
+### Nachtrag 2026-10-09: Historisches Kandidaten-Gate und aktuelle Regression
+
+Der ursprünglich verwendete private 82-Fall-Runner für den neuen Pin ist nicht
+mehr verfügbar. Der Benutzer hat am 2026-10-09 ausdrücklich entschieden, ihn
+nicht als offene Restarbeit fortzuführen. Sein Status bleibt daher historisch
+`not executed`, ist jedoch **geschlossen** und wird nicht erneut eingeplant.
+
+Als Ersatz für künftige Regressionen wird eine getrennte aktuelle Offline-
+Qualifikation eingeführt: `Invoke-Contract.ps1 -QualificationProfile
+Reconstructed82` führt 82 isolierte Kindprozesse gegen den aktuellen Guard,
+Provider sowie das exakt gepinnte Binary-Paar aus. Der Lauf bindet Release-
+Manifest, Source- und Deployment-Fingerprints; er ist kein rückwirkender
+Vor-Source-Nachweis und ersetzt weder das historische Gate noch die offenen
+SQL-Live-/Trust-Gates.
+
 ## Parameter und eindeutige Fehlerpriorität
 
 Alle vier Einstiegspunkte verwenden dieselbe Parametervalidierung und denselben Rohtext-Wächter. `@SqlText IS NULL` liefert vor der Prüfung anderer Parameter eine leere Ergebnismenge; das bisherige Verhalten bei NULL-Text bleibt erhalten. Andernfalls gilt: Version, Parameter für Byte-Limit, Parameter für Tiefe, tatsächliche Eingabegröße, Rohtextprüfung, lexikalische Prüfung, gegebenenfalls Parsing, Ausgabeprüfung. Der frühere Fehler gewinnt; ein späterer Syntaxfehler verdeckt keinen vorherigen Grenzfehler.
