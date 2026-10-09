@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-09 – Command-Setup der Safe-Cast-Metadatenprobe schützen
+
+Der bestehende SqlClient-Testhelper besitzt seinen Command bis zur erfolgreichen
+Rückgabe und disponiert ihn bei einem Setupfehler davor. Beide Parameter-Setups
+liegen im bestehenden Command-try des Callers. Die geliehene Connection,
+SQL-Texte, Timeouts, ReadBudget und Orakel bleiben unverändert.
+Quellenstand SOURCE_ONLY; neue Ausnahmezweig-Qualifikation **NOT_EXECUTED**.
+Ein Disposefehler kann weiterhin den primären Fehler ersetzen. Historische
+Nachweise bleiben erhalten; kein gemessener Leak oder neuer API-/Runtimevertrag.
+
 ## 2026-10-09 – Bestehende SemVer-Testorakel schließen
 
 Die bestehenden Contractfälle weisen unerwartetes NULL sowie fehlende oder

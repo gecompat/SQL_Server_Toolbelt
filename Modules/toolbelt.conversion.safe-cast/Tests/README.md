@@ -18,6 +18,15 @@ optional `ToolbeltDatabase`, `CommandTimeoutProvider` und `ReadBudgetProvider`.
 Es prüft echte Clientmetadaten und Katalogbindungen für sechs Funktionen;
 18 direkte Reader müssen genau eine Row ohne weiteren Resultset liefern.
 
+Testwartung 2026-10-09 (SOURCE_ONLY): Der Helper besitzt seinen Command bis
+zur erfolgreichen Rückgabe und disponiert ihn bei einem Setupfehler davor.
+Beide Parameter-Setups liegen nun im bestehenden Command-try des Callers.
+Die übergebene Connection bleibt fremdes Eigentum; SQL, Timeouts, ReadBudget,
+Reader-/Resultsetorakel und Erfolgsmarker bleiben unverändert. Ein Disposefehler
+kann weiterhin den primären Fehler ersetzen. Die geänderten Ausnahmezweige
+sind noch nicht nativ ausgeführt; die unten datierten Nachweise behalten
+jeweils ihren historischen Umfang. Kein gemessener Leak- oder Ursachenbeleg.
+
 `Runtime/Lifecycle.Tests.sql` qualifiziert nur die installierte Baseline.
 Der eigene CI-Adapter besitzt Setup/Repeat, zentrale Consumer, Confirm,
 Caller-/AppLock-/Rollback-/Fremdslot-/Markerfälle und Uninstall/own cleanup.
