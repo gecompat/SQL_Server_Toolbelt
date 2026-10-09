@@ -140,9 +140,23 @@ Wiederhole keine abgeschlossenen Analysen, sofern neue Erkenntnisse dies nicht e
 
 ## Lokale Tests und Validierung
 
+Die kanonischen Projektgrenzen für Erstlektüre, geprüfte Sessionanalyse,
+gemeinsames Wellenbudget, unabhängige Reviews und ereignisgetriebene Fortsetzung
+stehen in [.ai/WORKING_RULES.md](../../.ai/WORKING_RULES.md). Foundation1.20
+ergänzt sie über [PROCESSING_EFFICIENCY_POLICY.md](../../.ai/foundation/PROCESSING_EFFICIENCY_POLICY.md).
+Ein kompatibles `PROJECT_STRONGER` erhält Schutzgates, rechtfertigt aber keinen
+unbegründeten zusätzlichen Lese-, Review- oder Koordinationsaufwand.
+
+Modell-, Tool- und Laufzeitinventare werden nur bei einer tatsächlich nötigen
+Auswahl im autorisierten Scope untersucht. Eine Routineänderung benötigt weder
+eine Providerrecherche noch einen neu erzeugten Ausführungsplan. Mechanische
+Quell-, Receipt-, PR-Text- und CI-Prüfungen sind deterministische lokale Arbeit;
+Modelle beurteilen die verbleibenden fachlichen Fragen. Die vorhandenen
+Adapter sind Discovery-Brücken, keine zusätzliche Governance- oder Reviewkette.
+
 Nutze lokale, nicht destruktive Tests bevorzugt, wenn eine lokale Projekt- oder Testumgebung verfügbar ist.
 
-Prüfe zunächst:
+Prüfe beim ersten betroffenen Scope; verwende später gültig gebundene, tatsächlich verfügbare Analysen:
 
 - vorhandene Projekt- und Agentenanweisungen,
 - Testkonfigurationen und dokumentierte Testbefehle,

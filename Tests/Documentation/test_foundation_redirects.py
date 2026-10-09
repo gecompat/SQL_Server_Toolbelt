@@ -305,13 +305,14 @@ class ProvenanceTests(unittest.TestCase):
                                    BASE + ":.ai/foundation/installation-provenance.json"],
                                   capture_output=True, check=True, timeout=2)
         baseline = json.loads(original.stdout.decode("utf-8", errors="strict"))
-        self.assertEqual({key: value for key, value in record.items() if key not in {"files", "recorded_at"}},
-                         {key: value for key, value in baseline.items() if key not in {"files", "recorded_at"}})
+        # Preserve selection and authority; version/manifest intentionally upgrade.
+        for key in ("schema_version", "contract", "source_repository", "selection"):
+            self.assertEqual(record[key], baseline[key])
         expected = {"schema_version": 1, "contract": "foundation-installation-provenance/v1",
-                    "ruleset_version": "1.19.0",
+                    "ruleset_version": "1.20.0",
                     "source_repository": "https://github.com/gecompat/AI_Repository_Foundation",
-                    "source_commit": "4aafd20442275d0fdedf291fc6e12e8fe1f683cc",
-                    "source_manifest_sha256": "5fae12cf28f454c2f99b591e86c3f4018e32b30288f0e8021acde0af3c9865b4"}
+                    "source_commit": "39ae5c534bb0cf78046485754ed1be7867bf9534",
+                    "source_manifest_sha256": "d707d9dfe5cbcf7d323260891ec5d535493715d1413d7b6e421b2691aa1149d5"}
         for key, value in expected.items():
             self.assertEqual(record[key], value)
         self.assertRegex(record["recorded_at"], r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
@@ -320,15 +321,25 @@ class ProvenanceTests(unittest.TestCase):
             "capabilities": ["ai-client-integration", "ai-executor", "ai-orchestrator", "ai-provisioning",
                              "ai-runtime-adapters", "ai-work", "artifact-registration-clients", "model-router", "rule-context-cache"]})
         rows = sorted(record["files"], key=lambda row: row["target"])
-        self.assertEqual(len(rows), 101)
-        self.assertEqual(len({row["target"] for row in rows}), 101)
+        self.assertEqual(len(rows), 105)
+        self.assertEqual(len({row["target"] for row in rows}), 105)
         changed = {".ai/foundation/ai_provisioning/host_preparation.py",
                    ".ai/foundation/ai_provisioning/AI_PROVISIONING.md",
                    ".ai/foundation/ai_runtime_adapters/reference_adapters.py",
                    ".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md",
                    ".ai/foundation/ai_runtime_adapters/runtime_configuration.py"}
         old_rows = {row["target"]: row for row in baseline["files"]}
-        self.assertEqual(set(old_rows), {row["target"] for row in rows})
+        new = {".ai/foundation/PROCESSING_EFFICIENCY_POLICY.md",
+               ".ai/foundation/FOUNDATION_REFERENCE.md",
+               ".ai/foundation/runtime/processing_efficiency.py",
+               ".ai/foundation/schemas/processing-budget-request.schema.json"}
+        upgraded = {"AGENTS.md", ".ai/foundation/FOUNDATION_RULESET.md",
+                    ".ai/foundation/SEMANTIC_INTEGRATION_POLICY.md",
+                    ".ai/foundation/RULE_CONTEXT_CACHE_POLICY.md",
+                    ".ai/foundation/AI_WORK_ORCHESTRATION_POLICY.md",
+                    ".ai/foundation/feature_catalog.json", ".ai/foundation/WORKING_RULES.md",
+                    ".ai/foundation/VALIDATION_POLICY.md", ".ai/foundation/repo_map.yaml"}
+        self.assertEqual(set(old_rows) | new, {row["target"] for row in rows})
         reasons = {
             ".ai/foundation/ai_provisioning/host_preparation.py":
                 "Toolbelt-Securitywartung2026-10-07: jeden Redirect vor Dispatch an ursprünglichen HTTPS-Host/Port443 binden, Same-origin-Verhalten und übrige Budgets erhalten.",
@@ -348,16 +359,17 @@ class ProvenanceTests(unittest.TestCase):
             return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
         fields = ("source", "target", "kind", "merge", "source_sha256")
-        # Aus dem genannten unveränderten Basecommit ermittelte Ordinalprojektionen.
+        # Current manifest projection is bound to the exact 1.20 source above.
+        # The old security baseline and all unrelated rows remain protected.
         self.assertEqual(projection(fields, rows),
-                         "526764da3bfe358fb86a293e8ee6dc54ed29aa3f3564692612960bb1620c4fb0")
+                         "30b896e122a32912bc6a38272900dcb113500442668b5483dc2385f5b1db9231")
         self.assertEqual(projection(fields + ("installed_sha256", "integration_state", "reason"),
                                     [row for row in rows if row["target"] not in changed]),
-                         "d1d3a6e01b1c5c004cc18e64015b749bed67b27dcc01c58d706d4e967d8030ce")
+                         "e64fc178cc0fa2222daa364d4f9a64a3755b17c697e2378eee95a37ebbcd1f77")
         for row in rows:
-            if row["target"] not in changed:
+            if row["target"] not in changed | upgraded | new:
                 self.assertEqual(row, old_rows[row["target"]])
-            else:
+            elif row["target"] in changed:
                 excluded = {"installed_sha256", "integration_state", "reason"}
                 self.assertEqual({key: value for key, value in row.items() if key not in excluded},
                                  {key: value for key, value in old_rows[row["target"]].items() if key not in excluded})

@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "contract": "foundation-installation-provenance/v1",
-  "ruleset_version": "1.19.0",
+  "ruleset_version": "1.20.0",
   "source_repository": "https://github.com/gecompat/AI_Repository_Foundation",
-  "source_commit": "4aafd20442275d0fdedf291fc6e12e8fe1f683cc",
-  "source_manifest_sha256": "5fae12cf28f454c2f99b591e86c3f4018e32b30288f0e8021acde0af3c9865b4",
-  "recorded_at": "2026-10-07T16:06:27Z",
+  "source_commit": "39ae5c534bb0cf78046485754ed1be7867bf9534",
+  "source_manifest_sha256": "d707d9dfe5cbcf7d323260891ec5d535493715d1413d7b6e421b2691aa1149d5",
+  "recorded_at": "2026-10-09T12:10:21Z",
   "selection": {
     "adapters": [
       "claude-code",
@@ -40,8 +40,8 @@
       "target": ".ai/foundation/AI_WORK_ORCHESTRATION_POLICY.md",
       "kind": "rule",
       "merge": "review_if_exists",
-      "source_sha256": "8351e7c8aad363598b4a801eaf5aa9c7e9f29e647d0f745c4bfba84de6a0b7ba",
-      "installed_sha256": "8351e7c8aad363598b4a801eaf5aa9c7e9f29e647d0f745c4bfba84de6a0b7ba",
+      "source_sha256": "077a2771dbd705455243d852376210bae3cf7b413f90292a3e31a7dd63ebe197",
+      "installed_sha256": "077a2771dbd705455243d852376210bae3cf7b413f90292a3e31a7dd63ebe197",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -96,12 +96,22 @@
       "reason": null
     },
     {
+      "source": "Documentation/Standards/FOUNDATION_REFERENCE.md",
+      "target": ".ai/foundation/FOUNDATION_REFERENCE.md",
+      "kind": "rule",
+      "merge": "review_if_exists",
+      "source_sha256": "12b01fb4f7a2cab3618c0e17bd8c8ed1e9a4c562889b7d0adc7815e6bbd515a2",
+      "installed_sha256": "12b01fb4f7a2cab3618c0e17bd8c8ed1e9a4c562889b7d0adc7815e6bbd515a2",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
       "source": "foundation/FOUNDATION_RULESET.template.md",
       "target": ".ai/foundation/FOUNDATION_RULESET.md",
       "kind": "rule",
       "merge": "review_if_exists",
-      "source_sha256": "c019cb5e52cb49eec3afe7764cabec8129af5431fd0f4b8ea44a084cfa22af2a",
-      "installed_sha256": "c019cb5e52cb49eec3afe7764cabec8129af5431fd0f4b8ea44a084cfa22af2a",
+      "source_sha256": "73ad2bc5cfca0f3a321a76f0d4e196b9f46ca54ec64b83eda7139023ad018ef5",
+      "installed_sha256": "73ad2bc5cfca0f3a321a76f0d4e196b9f46ca54ec64b83eda7139023ad018ef5",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -122,6 +132,16 @@
       "merge": "review_if_exists",
       "source_sha256": "e7721a5bc83bebe2b7b1f2d328534c9cff457b39476eea6915bf672fcd5406c9",
       "installed_sha256": "e7721a5bc83bebe2b7b1f2d328534c9cff457b39476eea6915bf672fcd5406c9",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "Documentation/Standards/PROCESSING_EFFICIENCY_POLICY.md",
+      "target": ".ai/foundation/PROCESSING_EFFICIENCY_POLICY.md",
+      "kind": "rule",
+      "merge": "review_if_exists",
+      "source_sha256": "2e24d8b22e741e0dcbab2b72eb7df02ced231d13e280d4da8aa79b29ee3df2ec",
+      "installed_sha256": "2e24d8b22e741e0dcbab2b72eb7df02ced231d13e280d4da8aa79b29ee3df2ec",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -150,8 +170,8 @@
       "target": ".ai/foundation/RULE_CONTEXT_CACHE_POLICY.md",
       "kind": "rule",
       "merge": "review_if_exists",
-      "source_sha256": "8e0a0dbe5141a7eb43ce0050508c6a2af7532ca221d30c785fd70c3ea4208346",
-      "installed_sha256": "8e0a0dbe5141a7eb43ce0050508c6a2af7532ca221d30c785fd70c3ea4208346",
+      "source_sha256": "55ace7430d8e692b1faf7d6d43c9f3069d6cb62a758c62a04babe35ffc172bc6",
+      "installed_sha256": "55ace7430d8e692b1faf7d6d43c9f3069d6cb62a758c62a04babe35ffc172bc6",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -170,8 +190,8 @@
       "target": ".ai/foundation/SEMANTIC_INTEGRATION_POLICY.md",
       "kind": "rule",
       "merge": "review_if_exists",
-      "source_sha256": "9f563131f16bf390528a49a114dc2b31b7ec580a4a78f29a3c484abe85fdcc3c",
-      "installed_sha256": "9f563131f16bf390528a49a114dc2b31b7ec580a4a78f29a3c484abe85fdcc3c",
+      "source_sha256": "cb86f4e622a43adb4cc32a55adc04c0bde1d1580276fbe88efff43c2f7010eab",
+      "installed_sha256": "cb86f4e622a43adb4cc32a55adc04c0bde1d1580276fbe88efff43c2f7010eab",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -210,8 +230,8 @@
       "target": ".ai/foundation/VALIDATION_POLICY.md",
       "kind": "rule",
       "merge": "review_if_exists",
-      "source_sha256": "974d0a24f6a7b509bf46eab355739d22bd2fd8b3439f08d9ad6c936a4b058f8f",
-      "installed_sha256": "974d0a24f6a7b509bf46eab355739d22bd2fd8b3439f08d9ad6c936a4b058f8f",
+      "source_sha256": "c1cb864b8b30672a4f7204d75add7de729b9d69962d2ccdbbc857def0e55b4db",
+      "installed_sha256": "c1cb864b8b30672a4f7204d75add7de729b9d69962d2ccdbbc857def0e55b4db",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -220,8 +240,8 @@
       "target": ".ai/foundation/WORKING_RULES.md",
       "kind": "rule",
       "merge": "review_if_exists",
-      "source_sha256": "dc78bc84b0e8e51c27ba237d3d2ba77c5988fbaa3110cddf90589d9f19386329",
-      "installed_sha256": "dc78bc84b0e8e51c27ba237d3d2ba77c5988fbaa3110cddf90589d9f19386329",
+      "source_sha256": "21b3beeb6c52767d911d4ca2ea1dd02449689271453c8ae1994a36958c344aa9",
+      "installed_sha256": "21b3beeb6c52767d911d4ca2ea1dd02449689271453c8ae1994a36958c344aa9",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -303,7 +323,7 @@
       "source_sha256": "539c56300de785ca1f980dd4bba11ba08b1cc6ad0022b09b0310164356b8c355",
       "installed_sha256": "4720303048ee637eaf0527dbbb978149e161f85155caebd8c026c53f1affe4c2",
       "integration_state": "INTENTIONAL_OVERRIDE",
-      "reason": "Gekoppelte Dokumentation des gezielten Toolbelt-Redirect-Securityoverrides; keine neue Ausführungsautorität oder Foundationversion."
+      "reason": "Gekoppelte Dokumentation des gezielten Toolbelt-Redirect-Securityoverrides; keine neue Ausf\u00fchrungsautorit\u00e4t oder Foundationversion."
     },
     {
       "source": "foundation/capabilities/ai-provisioning/host_preparation.py",
@@ -313,7 +333,7 @@
       "source_sha256": "2d4af24ba3342952cf82d8fce776cd0b887b6a1ef90fdf5a5accc08daf40446b",
       "installed_sha256": "bde211ac89b2413c317a157fb23407617d1067f2f8d839a0ae2c7f3fc1076fad",
       "integration_state": "INTENTIONAL_OVERRIDE",
-      "reason": "Toolbelt-Securitywartung2026-10-07: jeden Redirect vor Dispatch an ursprünglichen HTTPS-Host/Port443 binden, Same-origin-Verhalten und übrige Budgets erhalten."
+      "reason": "Toolbelt-Securitywartung2026-10-07: jeden Redirect vor Dispatch an urspr\u00fcnglichen HTTPS-Host/Port443 binden, Same-origin-Verhalten und \u00fcbrige Budgets erhalten."
     },
     {
       "source": "foundation/capabilities/ai-runtime-adapters/AI_RUNTIME_ADAPTERS.md",
@@ -323,7 +343,7 @@
       "source_sha256": "ce0777359cfd78cb7720bb8681b4947572d475714720a9e8d9fef3f49309ca7f",
       "installed_sha256": "f5fd5b0a7b4a9e9e9253a5a2e06a89f619864f3a2bc0c56e130ef378dd9e544d",
       "integration_state": "INTENTIONAL_OVERRIDE",
-      "reason": "Gekoppelte Dokumentation von HttpAdapter-/Discovery-Responsegrenzen, Redirectverweigerung und Discovery-Originprüfung; DNS/Proxy/Hostvertrauen, TOCTOU, Heap und Gesamtzeit bleiben separat, keine Runtimeaktivierung oder Foundationversion."
+      "reason": "Gekoppelte Dokumentation von HttpAdapter-/Discovery-Responsegrenzen, Redirectverweigerung und Discovery-Originpr\u00fcfung; DNS/Proxy/Hostvertrauen, TOCTOU, Heap und Gesamtzeit bleiben separat, keine Runtimeaktivierung oder Foundationversion."
     },
     {
       "source": "foundation/capabilities/ai-runtime-adapters/adapter_protocol.py",
@@ -343,7 +363,7 @@
       "source_sha256": "9d96cb55551990fbed7ea14021d5405a925727414a51de93eda10600190b3833",
       "installed_sha256": "283c65dafa4bbc103a630045d46f408204c91127d1dafd1fbda7544ace46c75f",
       "integration_state": "INTENTIONAL_OVERRIDE",
-      "reason": "Toolbelt-Securitywartung2026-10-07: HttpAdapter-Antworten vor JSON und Outputmutation auf16MiB begrenzen, Kurzreads und positive Restlänge prüfen, strukturierte Ablehnung vor Closefehlern erhalten."
+      "reason": "Toolbelt-Securitywartung2026-10-07: HttpAdapter-Antworten vor JSON und Outputmutation auf16MiB begrenzen, Kurzreads und positive Restl\u00e4nge pr\u00fcfen, strukturierte Ablehnung vor Closefehlern erhalten."
     },
     {
       "source": "foundation/capabilities/ai-runtime-adapters/runtime_configuration.py",
@@ -353,7 +373,7 @@
       "source_sha256": "3f5a298a33b503ee3533090a84f73a49eb4bf3e318a519a79235446a94455a22",
       "installed_sha256": "e133e40f40a795b82eac5b822df2a9aaf02de0124771f97aaddcf4e0bb531079",
       "integration_state": "INTENTIONAL_OVERRIDE",
-      "reason": "Toolbelt-Securitywartung2026-10-07: Discovery nutzt16MiB-Reader und NoRedirect; vor Vorschlag/Transport credential-freien HTTP(S)-Origin prüfen, ungültige Kandidaten ohne Inputecho vom Default isolieren; Transportfehler bleiben UNAVAILABLE."
+      "reason": "Toolbelt-Securitywartung2026-10-07: Discovery nutzt16MiB-Reader und NoRedirect; vor Vorschlag/Transport credential-freien HTTP(S)-Origin pr\u00fcfen, ung\u00fcltige Kandidaten ohne Inputecho vom Default isolieren; Transportfehler bleiben UNAVAILABLE."
     },
     {
       "source": "foundation/capabilities/ai-runtime-adapters/runtime_mcp.py",
@@ -420,8 +440,8 @@
       "target": ".ai/foundation/feature_catalog.json",
       "kind": "feature-catalog",
       "merge": "review_if_exists",
-      "source_sha256": "7ed0798907beb994138b9b233f7f341b3489f31cc3b8bde219b6283207cdcab9",
-      "installed_sha256": "7ed0798907beb994138b9b233f7f341b3489f31cc3b8bde219b6283207cdcab9",
+      "source_sha256": "f860992c3251fe8345e136ff519c985314d6374ece5c38eed9fbeae8be8b77e6",
+      "installed_sha256": "f860992c3251fe8345e136ff519c985314d6374ece5c38eed9fbeae8be8b77e6",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -530,8 +550,8 @@
       "target": ".ai/foundation/repo_map.yaml",
       "kind": "rule-index",
       "merge": "review_if_exists",
-      "source_sha256": "a5aa4c116b5b1020f5e080e9aef650dcc317a28c4f0b5b91cd6a97690b89eb64",
-      "installed_sha256": "a5aa4c116b5b1020f5e080e9aef650dcc317a28c4f0b5b91cd6a97690b89eb64",
+      "source_sha256": "6f59f6abd728202cbf4a290e312fb18dc6650f555ddd76f071c378a09e8f44d5",
+      "installed_sha256": "6f59f6abd728202cbf4a290e312fb18dc6650f555ddd76f071c378a09e8f44d5",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -542,6 +562,16 @@
       "merge": "review_if_exists",
       "source_sha256": "77ace825963862fd387ef37ac3b105abc95c652049fbf72855e205ab0455295b",
       "installed_sha256": "77ace825963862fd387ef37ac3b105abc95c652049fbf72855e205ab0455295b",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
+      "source": "foundation/runtime/processing_efficiency.py",
+      "target": ".ai/foundation/runtime/processing_efficiency.py",
+      "kind": "tool",
+      "merge": "review_if_exists",
+      "source_sha256": "98b9338500e73ef1d6468612d5187887cc9d4d06fb4693bd69bcb7d560e46e8d",
+      "installed_sha256": "98b9338500e73ef1d6468612d5187887cc9d4d06fb4693bd69bcb7d560e46e8d",
       "integration_state": "FOUNDATION_BASELINE",
       "reason": null
     },
@@ -866,6 +896,16 @@
       "reason": null
     },
     {
+      "source": "foundation/schemas/processing-budget-request.schema.json",
+      "target": ".ai/foundation/schemas/processing-budget-request.schema.json",
+      "kind": "schema",
+      "merge": "review_if_exists",
+      "source_sha256": "46e6e0dd3d4c243874fc434fce4c3768a65b2fcce8fd7bd13a7fa40f06a06b58",
+      "installed_sha256": "46e6e0dd3d4c243874fc434fce4c3768a65b2fcce8fd7bd13a7fa40f06a06b58",
+      "integration_state": "FOUNDATION_BASELINE",
+      "reason": null
+    },
+    {
       "source": "foundation/schemas/provision-approval.schema.json",
       "target": ".ai/foundation/schemas/provision-approval.schema.json",
       "kind": "schema",
@@ -1010,10 +1050,10 @@
       "target": "AGENTS.md",
       "kind": "entrypoint",
       "merge": "ai_merge_if_exists",
-      "source_sha256": "c0ca57c32ad6d69f69b802caf96e5c75e19a17dbd0f5f7671066cb3d51792b22",
-      "installed_sha256": "fcc8fb21544e2248fde9d2fa3741ff8990c87d9c3ad74b6d9100810f61b23423",
+      "source_sha256": "0ec06792d966de2ae87899d827cd4aa8c71685d0493b6d2a4186d0b774657c1d",
+      "installed_sha256": "7972267cc40bfe534dc0b028f6281dbfed2e64f737595d2c0c2f3398cc60c8f4",
       "integration_state": "INTENTIONAL_OVERRIDE",
-      "reason": "Preserved current project SQL, approval, Lab, privacy and discovery governance; managed Foundation block already equals the exact source template."
+      "reason": "Preserve Toolbelt authorization, privacy, SQL/Lab ownership, license and project discovery; merge the scoped Foundation 1.20 bridge only."
     },
     {
       "source": "CLAUDE.md",

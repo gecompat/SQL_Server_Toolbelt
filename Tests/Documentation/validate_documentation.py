@@ -1378,6 +1378,20 @@ def run_foundation_discovery() -> None:
     print(result.stdout.strip())
 
 
+def run_foundation_processing() -> None:
+    # Synthetic session consumers; no native client/config/cache attestation.
+    script = REPOSITORY_ROOT / "Tests/Documentation/test_foundation_processing.py"
+    try:
+        result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
+                                check=False, capture_output=True, text=True,
+                                encoding="utf-8", timeout=10)
+    except subprocess.TimeoutExpired as error:
+        raise ValidationError("Foundation-Processing-Regression überschritt ihr Offline-Zeitbudget.") from error
+    if result.returncode != 0:
+        raise ValidationError("Foundation-Processing-Regression fehlgeschlagen:\n" + result.stdout + result.stderr)
+    print(result.stderr.strip())
+
+
 def run_edit_distance_static() -> None:
     script = REPOSITORY_ROOT / "Modules/toolbelt.string.edit-distance/Tests/Static/validate_contract.py"
     result = subprocess.run((sys.executable, "-B", str(script)), cwd=REPOSITORY_ROOT,
@@ -1744,6 +1758,8 @@ def main() -> int:
         run_foundation_http_responses()
     if "foundation_discovery" in checks:
         run_foundation_discovery()
+    if "foundation_processing" in checks:
+        run_foundation_processing()
     if "public_api_catalog" in checks:
         try:
             generate_api_catalog.check(write=arguments.write)

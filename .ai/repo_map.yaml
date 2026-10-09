@@ -1085,6 +1085,18 @@ change_impact:
         - Documentation/Architecture/FOUNDATION_1_19_INTEGRATION.md
       checks:
         - foundation_discovery
+    foundation_processing:
+      paths:
+        - .ai/foundation/runtime/processing_efficiency.py
+        - .ai/foundation/PROCESSING_EFFICIENCY_POLICY.md
+        - .ai/foundation/FOUNDATION_RULESET.md
+        - .ai/WORKING_RULES.md
+        - AGENTS.md
+        - Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md
+        - Tests/Documentation/test_foundation_processing.py
+        - Tests/Documentation/validate_documentation.py
+      checks:
+        - foundation_processing
     governance:
       paths:
         - .ai/repo_map.yaml

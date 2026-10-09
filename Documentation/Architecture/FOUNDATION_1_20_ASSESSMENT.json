@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "installed_version": "1.19.0",
+  "source_version": "1.20.0",
+  "source_ref": "39ae5c534bb0cf78046485754ed1be7867bf9534",
+  "assessments": [
+    {
+      "feature_id": "ai-client-integration",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/foundation/ai_client_integration/AI_CLIENT_INTEGRATION.md",
+        "AGENTS.md"
+      ],
+      "rationale": "Existing selected client companions remain inactive. Scoped routine work needs no dispatch receipt, client configuration or model attestation; no new client/model authority is inferred."
+    },
+    {
+      "feature_id": "ai-host-preparation",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/foundation/ai_provisioning/AI_PROVISIONING.md",
+        ".ai/foundation/installation-provenance.json"
+      ],
+      "rationale": "Preserve selected provisioning and unchanged-source local pre-dispatch redirect protection. No host inventory, provisioning plan or OS operation is needed for this governance task."
+    },
+    {
+      "feature_id": "ai-runtime-adapters",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md",
+        ".ai/foundation/installation-provenance.json"
+      ],
+      "rationale": "Preserve selected adapters and current bounded-response/origin overrides. Do not rediscover endpoints or start runtimes for routine edits."
+    },
+    {
+      "feature_id": "ai-work-execution",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/foundation/ai_executor/AI_EXECUTOR.md",
+        ".ai/WORKING_RULES.md"
+      ],
+      "rationale": "The selected exact-plan executor remains optional; per-action plans/checkpoints are not required for ordinary repository edits. No invocation or replay is selected."
+    },
+    {
+      "feature_id": "ai-work-orchestration",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/foundation/AI_WORK_ORCHESTRATION_POLICY.md",
+        ".ai/WORKING_RULES.md"
+      ],
+      "rationale": "Adopt proportionality and one shared finite wave boundary. One implementation owner and a single independent semantic reviewer replace recurring coordination chains; optional structured operations retain their contracts."
+    },
+    {
+      "feature_id": "artifact-registration",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "ALREADY_EQUIVALENT",
+      "evidence": [
+        "Documentation/Architecture/DECISIONS.md",
+        ".ai/foundation/ARTIFACT_REGISTRATION_POLICY.md"
+      ],
+      "rationale": "DEC-2026-028 preserves established authority and forbids guessed new sequences. This dated extension uses the stable catalog feature reference, not a new final sequence; no allocation service is adopted."
+    },
+    {
+      "feature_id": "authorization-envelope",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "PROJECT_STRONGER",
+      "evidence": [
+        "AGENTS.md",
+        ".ai/WORKING_RULES.md"
+      ],
+      "rationale": "Individual public SQL/API approvals, concrete-operation privacy gates and Lab ownership remain stricter safety boundaries. Their enforcement does not require repeated reading or redundant permission questions for this explicitly authorized process cleanup."
+    },
+    {
+      "feature_id": "bounded-processing-efficiency",
+      "candidate_reasons": [
+        "introduced_in:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/WORKING_RULES.md",
+        "Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md",
+        "Tests/Documentation/test_foundation_processing.py"
+      ],
+      "rationale": "User explicitly selects effective scoped analysis reuse, local deterministic mechanical checks and bounded reviews. Without measured token telemetry the shared scope/agent default is one task/PR, one owner, one reviewer and at most one changed-input follow-up. Unknown discovery disables reuse; synthetic tests do not attest actual client settings."
+    },
+    {
+      "feature_id": "central-artifact-registry",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "NOT_APPLICABLE",
+      "evidence": [
+        "Documentation/Architecture/DECISIONS.md",
+        ".ai/foundation/installation-provenance.json"
+      ],
+      "rationale": "DEC-2026-030 establishes that no central Artifact Registry is decided; DEC-2026-028 preserves existing references and forbids guessed allocation. No repository-native JSON Registration Authority or migration is selected, so registry-specific processing is not applicable to this task. Existing optional reference clients remain companions; no equivalent registry implementation is claimed."
+    },
+    {
+      "feature_id": "ci-supersession-and-integration-queue",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "ALREADY_EQUIVALENT",
+      "evidence": [
+        ".ai/WORKING_RULES.md",
+        "Documentation/Architecture/FOUNDATION_1_19_INTEGRATION.md"
+      ],
+      "rationale": "Existing logical CI groups, retain-running mutating checks and exact final-head gates remain. No queue/admin change or unsafe cancellation is introduced; only stable metadata and necessary evidence are consumed once per qualified input."
+    },
+    {
+      "feature_id": "foundation-baseline",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        "AGENTS.md",
+        ".ai/foundation/FOUNDATION_RULESET.md"
+      ],
+      "rationale": "Merge only the managed bridge and manifest core. Short scoped routing replaces broad repeated bootstrap while preserving all Toolbelt authority outside the block."
+    },
+    {
+      "feature_id": "installed-foundation-provenance",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/foundation/installation-provenance.json"
+      ],
+      "rationale": "105 selected rows are manifest-hash verified; seven actual differences retain explicit semantic reasons. Source commit is the once-resolved pinned git archive identity, never inferred from the target repository."
+    },
+    {
+      "feature_id": "layered-validation",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        "Tests/Documentation/validate_documentation.py",
+        ".ai/repo_map.yaml",
+        ".ai/WORKING_RULES.md"
+      ],
+      "rationale": "Keep Foundation integrity separate from project semantics and runtime evidence. Run one impact-appropriate full governance audit with existing offline safeguards and the new reuse consumer scenarios; preserve required CI and independent semantic review."
+    },
+    {
+      "feature_id": "model-routing-interoperability",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "ALREADY_EQUIVALENT",
+      "evidence": [
+        "Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md",
+        ".ai/foundation/MODEL_ROUTING_POLICY.md"
+      ],
+      "rationale": "Retain richer cost/quality taxonomy and optional router. Concrete routing remains relevant-operation only, with no provider research for every edit, no invented token/model values or new remote payload/configuration authority."
+    },
+    {
+      "feature_id": "persistent-identity",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "ALREADY_EQUIVALENT",
+      "evidence": [
+        "Documentation/Architecture/DECISIONS.md",
+        ".ai/foundation/PERSISTENT_IDENTITY_POLICY.md"
+      ],
+      "rationale": "Keep DEC-2026-028 identity preservation, historical references and durable feature-key decision extensions. No new naming family or historical migration is proposed by the processing-only material change."
+    },
+    {
+      "feature_id": "repository-continuity-break-glass",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "ALREADY_EQUIVALENT",
+      "evidence": [
+        ".ai/WORKING_RULES.md",
+        "Documentation/Architecture/FOUNDATION_1_19_INTEGRATION.md"
+      ],
+      "rationale": "Equivalence is limited to the 1.20 proportional-processing delta: existing exact-head mandatory CI and no-admin/bypass rules already separate substantive failure from missing evidence. A failed or unknown check cannot become success. Outage policy remains installed, but no configured break-glass route or bypass actor is claimed; Ruleset administration is not authorized or needed."
+    },
+    {
+      "feature_id": "rule-context-cache",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/WORKING_RULES.md",
+        ".ai/foundation/RULE_CONTEXT_CACHE_POLICY.md",
+        "Tests/Documentation/test_foundation_processing.py"
+      ],
+      "rationale": "Default ephemeral session reuse no longer requires optional persistent records. Preserve the selected persistent planner and its exact MISS/HIT binding when actually used; never infer analysis availability from a fingerprint or checkpoint."
+    },
+    {
+      "feature_id": "rules-only-transfer",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/foundation/installation-provenance.json",
+        "Documentation/Architecture/FOUNDATION_1_20_INTEGRATION.md"
+      ],
+      "rationale": "Transfer only 105 selected manifest rows, preserving selected optional code, project-owned rule text, unchanged local safety overrides and licenses; no blanket directory transfer."
+    },
+    {
+      "feature_id": "semantic-integration",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/WORKING_RULES.md",
+        "Documentation/Architecture/FOUNDATION_1_20_INTEGRATION.md"
+      ],
+      "rationale": "The per-edit full-read rule is an explicitly authorized target-internal efficiency conflict, not protected stronger governance. Replace it; preserve genuine privacy/license/SQL floors. Thin adapters have no separate substantive review requirements."
+    },
+    {
+      "feature_id": "semantic-upgrade-applicability",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        "Documentation/Architecture/FOUNDATION_1_20_ASSESSMENT.json",
+        ".ai/foundation/feature_catalog.json"
+      ],
+      "rationale": "Evaluate all 21 candidates from the exact catalog, including already installed optional features. Record one classification each and retain separate recommendation/authorization boundaries; no unresolved adoption choice is hidden."
+    },
+    {
+      "feature_id": "session-lifecycle-management",
+      "candidate_reasons": [
+        "material_change:1.20.0"
+      ],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        ".ai/WORKING_RULES.md",
+        "Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md"
+      ],
+      "rationale": "Event-driven small deltas and bounded wait handling replace long repeating heartbeat histories. Current continuation automation stays PAUSED; no token thresholds, rotation, successor session or new development wave is selected."
+    }
+  ]
+}

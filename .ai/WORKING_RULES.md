@@ -1,18 +1,78 @@
 # WORKING_RULES.md – Arbeitsregeln für Entwickler und KI-Systeme
 
-## Preflight vor jeder Änderung
+## Preflight je Scope und Änderungswelle
 
 1. Scope und Schreibziel bestimmen.
 2. Änderung als reine Ideen-/Research-Pflege oder als Implementierung klassifizieren.
 3. Vor einer Implementierung die dokumentierte Besprechung von Zweck, Vertrag, Alternativen, Risiken und Scope sowie die anschließende ausdrückliche Benutzerfreigabe feststellen.
 4. Bei reiner Ideen-/Research-Pflege sicherstellen, dass weder ein Runtime-Objekt entsteht noch eine Implementierungsfreigabe behauptet wird.
-5. `AGENTS.md`, `.ai/PROJECT_RULES.md`, `.ai/WORKING_RULES.md`, relevanten Kontext, Standards und Entscheidungen lesen.
+5. Zu Beginn einer Sitzung die native Instruktionskette bestimmen und `AGENTS.md`, Foundation-Ruleset, `.ai/PROJECT_RULES.md`, diese Arbeitsregeln und die tatsächlich betroffenen Kontext-, Standard- und Entscheidungsabschnitte erstmals lesen und analysieren. Discovery-Verweise sind keine Volllektüreliste. Vor späteren Änderungswellen aktuelle Autorität, Scope, Quellinhalt und Abhängigkeiten lokal deterministisch prüfen und die tatsächlich verfügbare Sessionanalyse nach dem folgenden Abschnitt wiederverwenden.
 6. Bei Backlog- oder Research-Aufgaben zusätzlich `Backlog/personal_Backlog_Bainstorm.md` lesen und als nicht autoritative Hinweisquelle berücksichtigen.
 7. Abhängigkeiten und parallele Arbeiten prüfen.
 8. Datenschutz- und Secret-Stop-Gate durchführen.
 9. Neue Anforderungen auf Regelkonflikte prüfen.
 
 Ein Funktionskandidat, ein Design oder ein geplantes Arbeitspaket gilt nicht als Implementierungsfreigabe. Die funktionsbezogene Besprechung und die anschließende ausdrückliche Freigabe müssen vor dem Merge im Pull Request, Backlog oder Entscheidungsprotokoll nachvollziehbar dokumentiert sein.
+
+## Geprüfte Sessionanalyse
+
+Die [Processing-Regel](foundation/PROCESSING_EFFICIENCY_POLICY.md) gilt für die
+Wiederverwendung in derselben Sitzung. Lokale Hash-/Git-/Discovery-Prüfungen
+ermitteln die aktuellen Arbeitsbaumbytes einschließlich relevanter untracked,
+staged und unstaged Dateien, die effektive native Instruktionskette und deren
+Konfiguration sowie den vollständigen ausgewählten Abhängigkeitsgraphen.
+Die Analyse bleibt in Sessionmemory unter dem geprüften Analysekey verfügbar;
+ein Fingerprint, früherer Receipt oder Chatcheckpoint ersetzt sie nicht.
+Unveränderte, korrekt gebundene Analysen werden ohne erneute Modelllektüre
+verwendet. Eine geänderte Regel invalidiert sich und ihre transitiven
+semantischen Verbraucher; unabhängige Analysen bleiben nutzbar. Geänderte
+Instruktionsautorität, Scope oder Discovery erfordern eine neue gültige Bindung.
+Ein anderer Commit oder Worktree allein löscht belegbar identische Analysen
+nicht; aktuelle Bindung und inhaltliche Äquivalenz müssen geprüft sein.
+
+Fehlende Analyse oder unvollständige Discovery erzwingt Erstlektüre im
+betroffenen Scope. Unbekannte effektive Discoverywerte werden nicht geraten;
+die Einschränkung wird einmal benannt und bei unverändertem Zustand nicht
+erneut semantisch untersucht. Optionale persistente Cache-Nutzer erfüllen
+zusätzlich [RULE_CONTEXT_CACHE_POLICY.md](foundation/RULE_CONTEXT_CACHE_POLICY.md)
+mit dessen strengeren exakten Bindungen; dessen MISS wird nicht als HIT etikettiert.
+Datenschutz-, Freigabe-, Lizenz- und SQL-Sicherheitsgates werden für die konkrete
+Operation weiterhin angewendet, ohne deswegen unveränderte Regeltexte neu zu lesen.
+
+## Endliche Verarbeitung und Review
+
+Ein kohärenter Scope hat einen Implementierungsverantwortlichen. Routinearbeit
+benötigt keinen neuen Planner, DAG, CI-Reader oder Receipt je Aktion.
+Mechanische Hash-, Git-, Manifest-, Receipt-, CI-Status- und Textvergleichsprüfungen
+erfolgen lokal deterministisch mit vorhandenen Werkzeugen. CI-Nachweise bleiben
+an exakte Head-/Integrationsstände und tatsächliche Ergebnisse gebunden.
+
+Erforderliche unabhängige Reviews bleiben erhalten. Jeder zusätzliche Review
+braucht eine konkrete noch offene semantische Frage, feste Inputs und
+Akzeptanzkriterien. Ein Bericht löst keinen weiteren Bericht-Review aus.
+PR-Texte und Abschlussnachweise benötigen keinen eigenen Agenten, sofern keine
+solche Frage oder ausdrückliche unabhängige Reviewpflicht besteht. Neue Befunde
+werden am geänderten Input geprüft, nicht durch Wiederholung grüner Prüfungen.
+
+Vor längerer autonomer Arbeit werden Scope, Budgetquelle, Checkpoint und
+Abbruchgrenze gemeinsam für Root, Agenten, Koordination und Wiederholungen
+festgelegt. Ohne zuverlässige Token-/Kostenmessung gilt als Projektdefault:
+ein Arbeitspaket/ein PR, ein Implementierungsverantwortlicher, höchstens ein
+zusätzlicher unabhängiger Reviewagent und ein Folgeauftrag an denselben Reviewer
+nur für geänderte Inputs nach einem konkreten Befund. Erforderliche Prüfungen
+werden nicht weggelassen; unerledigte Gates werden am Checkpoint genannt.
+Keine neue Entwicklungswelle nach Abschluss. Ein begründeter größerer Scope
+benötigt ein ausdrücklich festgelegtes gemeinsames Limit vor weiterer Delegation.
+Unbekannte Verbräuche bleiben unbekannt, sind weder null noch gemessene Limits.
+
+Fortsetzungsautomationen sind ein Sicherheitsnetz. Ein unveränderter
+Wartezustand rechtfertigt keine Vollanalyse, neue Agenten, Testwiederholung oder
+lange Historienübergabe. Ein echter Inputwait wird einmal sichtbar mit Quelle,
+Auswirkung und benötigter Entscheidung gemeldet; weitere Arbeit folgt erst aus
+geänderten Fakten, FINISH-Ereignissen oder einer begrenzten nötigen Prüfung.
+Handoffs enthalten aktuelle Referenzen und neue Fakten statt kompletter
+Chat-/Receipt-Historien. Pausierte Automationen und eine Entwicklungspause
+bleiben erhalten, bis der Benutzer den betreffenden Scope ausdrücklich öffnet.
 
 ## Ideen- und Research-Pflege
 
