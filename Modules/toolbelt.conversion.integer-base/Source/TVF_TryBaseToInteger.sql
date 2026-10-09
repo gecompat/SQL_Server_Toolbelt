@@ -71,7 +71,6 @@ RETURN
                               OR input.Base < 2
                               OR input.Base > 93
                               OR input.InputLength = 0
-                              OR LEFT(@EncodedValue, 1) = '+'
                               OR
                                  (
                                      input.IsNegative = 1

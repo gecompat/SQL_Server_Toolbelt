@@ -1,8 +1,19 @@
 # Integer-Base Tests
 
+## Wartung 2026-10-09 – Plusziffer und positive Orakel
+
+Der Decoder unterscheidet reguläre `+`-Alphabetziffern von einem zusätzlichen
+positiven Vorzeichen. Dezimal-`+1` bleibt ungültig. Positive Encode-/Decode-,
+Roundtrip- und SVF-/TVF-Vergleiche weisen unerwartetes NULL ausdrücklich ab;
+die einzeilige TVF-Kardinalität bleibt Teil des Contracts. Der neue
+Quellenstand ist SOURCE_ONLY, neue Runtimequalifikation NOT_EXECUTED.
+Die folgenden datierten und generierten PASS-Nachweise werden beibehalten;
+sie qualifizieren die geänderte Quelle nicht erneut auf Windows oder Linux.
+
+
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
-Runtime: `validated`.
+Runtime: `partially validated`.
 
 Signatur-, Alphabet-, Kanonizitäts-, Grenzwert-, Overflow-, Roundtrip-,
 Deployment-, Kollisions-, zentrale und Lifecycle-Contracts sind vorhanden.

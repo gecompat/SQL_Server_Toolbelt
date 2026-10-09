@@ -7,9 +7,11 @@ genau eine Zeile mit `DecodedValue bigint`. Ungültige Alphabete, nicht
 kanonische Darstellungen, unbekannte Zeichen, `NULL` oder Overflow ergeben
 eine Zeile mit `NULL`.
 
-Führende Nullzeichen, `+`, `-0`, Whitespace, Präfixe und Gruppierungszeichen
-werden abgelehnt. Groß- und Kleinschreibung bleiben durch den binären
-Vergleich verschieden.
+`+` ist eine reguläre Alphabetziffer, wenn es im gewählten Alphabet enthalten
+ist. Ein zusätzliches positives Vorzeichen wird nicht interpretiert; mit dem
+Dezimalalphabet bleibt `+1` ungültig. Führende Nullzeichen, `-0`, Whitespace,
+Präfixe und Gruppierungszeichen werden abgelehnt. Groß- und Kleinschreibung
+bleiben durch den binären Vergleich verschieden.
 
 ```sql
 SELECT source.EncodedValue, decoded.DecodedValue
