@@ -16,7 +16,8 @@
 
 | Umgebung | Scope | Ergebnis |
 |---|---|---|
-| Privater Offline-Runner, 2026-10-02 | 82 isolierte Framework-Kindprozesse mit exakt gepinnter Dependency; Kandidaten-Rohtextwächter, Parser 150/160/170, unabhängige Wiederholung | `success`, ausschließlich Kandidaten-Gate vor Source |
+| Privater Offline-Runner, 2026-10-02 | 82 isolierte Framework-Kindprozesse mit exakt gepinnter Dependency; Kandidaten-Rohtextwächter, Parser 150/160/170, unabhängige Wiederholung | `success`, ausschließlich historisches Kandidaten-Gate vor Source; der nicht verfügbare Runner für den neuen Pin ist am 2026-10-09 durch Benutzerentscheidung geschlossen und wird nicht erneut eingeplant |
+| Rekonstruierte Offline-Qualifikation | 82 isolierte Kindprozesse mit aktuellem Guard/Provider und dem exakt gepinnten aktuellen Binary-Paar | `success`, 2026-10-09; getrennte aktuelle Regression, kein Ersatz für den historischen Vor-Source-Nachweis |
 | Windows (.NET Framework 4.8), 2026-10-02 | 245 begrenzte Kindprozesse: vier APIs, Grenzen, deterministische AST-/Property-/Offset-Orakel, Syntaxkorpus und Versionskontraste; unabhängig wiederholt | `success`; Ausgabequoten-Nachweis nur Accounting-Helper |
 | SQL_Server_Lab, 2026-10-02 | Windows SQL Server 2025/CU8, CL150/160/170; saubere Installation, lokale/zentrale Nutzung, echtes 1.0-Upgrade, Wiederholung, vier APIs, Grenzen/Syntax, Caller-TX/SET-Erhalt, Kollisions-/Dependency-Schutz, Fremdobjekterhalt, Lock-/Rollbackfehler, Uninstall und eigenes DB-/Trust-Cleanup | `success` |
 | Windows SQL Server 2019 | Live-Qualifikation nach schema-validiertem READY-/Login-Preflight | `not executed`: CLR-Aktivierung würde eine fachfremde Pending-Konfiguration mitaktivieren; keine Mutation, Entscheidung offen |

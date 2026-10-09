@@ -3,7 +3,8 @@ param(
     [Parameter(Mandatory)][string]$ScriptDomDllPath,
     [Parameter(Mandatory)][string]$ProviderAssemblyPath,
     [Parameter(Mandatory)][string]$TrustManifestPath,
-    [string]$EvidencePath
+    [string]$EvidencePath,
+    [ValidateSet('Full', 'Reconstructed82')][string]$QualificationProfile = 'Full'
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -119,6 +120,36 @@ quotedbytes,1048566,ACCEPT
 quotedbytes,1048567,INPUT
 '@ | ConvertFrom-Csv
 foreach($version in @(150,170)){foreach($case in $cross){Add-Case $version $case.Name ([int]$case.N) $case.Status}}
+if ($QualificationProfile -eq 'Reconstructed82') {
+    # The fixed base/cross profiles plus seven corpus cases yield exactly 82 isolated children.
+    if ($childCases -ne 13) { throw 'RECONSTRUCTED82_SETUP_COUNT_MISMATCH' }
+    foreach ($case in $base) { Invoke-Bounded $providerExe @('boundary', $case.Name, [string]$case.N, '160', $case.Status) 'FRAMEWORK_PASS' }
+    foreach ($version in @(150,170)) { foreach ($case in $cross) { Invoke-Bounded $providerExe @('boundary', $case.Name, [string]$case.N, [string]$version, $case.Status) 'FRAMEWORK_PASS' } }
+    $reconstructedCorpus = @(
+        'SELECT 1;',
+        "SELECT N'𝄞é' AS [x];",
+        'WITH c AS (SELECT 1 AS n) SELECT n FROM c;',
+        'SELECT 1 UNION ALL SELECT 2;',
+        'INSERT INTO dbo.t(n) VALUES(1);',
+        'CREATE TABLE dbo.t(n int NOT NULL);',
+        'CREATE PROCEDURE dbo.p AS BEGIN SELECT 1; END;',
+        'CREATE FUNCTION dbo.f() RETURNS int AS BEGIN RETURN 1; END;'
+    )
+    $corpusIndex = 0
+    foreach ($sql in $reconstructedCorpus) {
+        $file = Join-Path $tempRoot ('reconstructed82-' + $corpusIndex++ + '.sql')
+        [IO.File]::WriteAllText($file, $sql, [Text.UTF8Encoding]::new($false))
+        Invoke-Bounded $providerExe @('corpus', $file, '160') 'FRAMEWORK_PASS'
+    }
+    if ($childCases -ne 82) { throw ('RECONSTRUCTED82_COUNT_MISMATCH_' + $childCases) }
+    $evidence = [ordered]@{ status = 'PASS'; qualificationProfile = 'Reconstructed82'; providerSha512 = $providerHash; scriptDomSha512 = $pin; sourceFingerprint = $sourceFingerprint;
+        deploymentFingerprint = $deploymentFingerprint; deploymentArtifactSha256 = $manifest.deploymentArtifactSha256; harnessFingerprint = $harnessFingerprint; guardProfile = $manifest.guardProfile; buildProfile = $manifest.buildProfile; childCases = $childCases;
+        configuredThreadStackBytes = 262144; sqlExecuted = $false; historicalPreSourceEvidence = 'not reproduced or replaced' }
+    $json = $evidence | ConvertTo-Json -Depth 5 -Compress
+    if ($EvidencePath) { [IO.File]::WriteAllText($EvidencePath, $json, [Text.UTF8Encoding]::new($false)) }
+    $json
+    return
+}
 Add-Case 160 exponents 1 ACCEPT 5
 Add-Case 160 exponents 254 ACCEPT 511
 Add-Case 160 exponents 255 REJECT 513
@@ -185,7 +216,7 @@ foreach ($case in @(
     Invoke-Bounded $providerExe @('corpus', $file, [string]$case.Positive) 'FRAMEWORK_PASS'
     Invoke-Bounded $providerExe @('negative', $file, [string]$case.Negative) 'FRAMEWORK_PASS'
 }
-$evidence = [ordered]@{ status = 'PASS'; providerSha512 = $providerHash; scriptDomSha512 = $pin; sourceFingerprint = $sourceFingerprint;
+$evidence = [ordered]@{ status = 'PASS'; qualificationProfile = 'Full'; providerSha512 = $providerHash; scriptDomSha512 = $pin; sourceFingerprint = $sourceFingerprint;
     deploymentFingerprint = $deploymentFingerprint; deploymentArtifactSha256 = $manifest.deploymentArtifactSha256; harnessFingerprint = $harnessFingerprint; guardProfile = $manifest.guardProfile; buildProfile = $manifest.buildProfile; childCases = $childCases;
     configuredThreadStackBytes = 262144; sqlExecuted = $false; quotaEvidence = 'private lowered-limit accounting helper'; actualOutputCeilings = 'not qualified by helper' }
 $json = $evidence | ConvertTo-Json -Depth 5 -Compress

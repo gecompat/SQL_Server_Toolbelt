@@ -242,7 +242,7 @@ def main() -> int:
     require(read("../../Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md"),
             "Hardening-Vertrag", SCRIPT_DOM_SHA512, SCRIPT_DOM_FILE_VERSION)
     require(read("Clr/Properties/AssemblyInfo.cs"), "Assembly-Version", 'AssemblyVersion("2.0.0.0")', 'AssemblyFileVersion("2.0.0.0")')
-    require(read("Tests/Framework/Invoke-Contract.ps1"), "Framework-Gate", "FRAMEWORK_CHILD_TIMEOUT", "RELEASE_FINGERPRINT_MISMATCH", "TrustManifestPath", "sqlExecuted = $false")
+    require(read("Tests/Framework/Invoke-Contract.ps1"), "Framework-Gate", "FRAMEWORK_CHILD_TIMEOUT", "RELEASE_FINGERPRINT_MISMATCH", "TrustManifestPath", "sqlExecuted = $false", "Reconstructed82", "RECONSTRUCTED82_COUNT_MISMATCH_", "historicalPreSourceEvidence = 'not reproduced or replaced'")
 
     manifest = read("module.yaml")
     require(

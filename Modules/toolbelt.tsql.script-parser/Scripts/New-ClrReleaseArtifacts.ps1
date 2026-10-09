@@ -28,6 +28,7 @@ function Assert-ScriptDomPin([string]$Path) {
 Assert-ScriptDomPin $ScriptDomDllPath
 
 $msbuild = Get-Command msbuild -ErrorAction SilentlyContinue
+$msbuildArguments = @()
 if ($null -eq $msbuild) {
     $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
     if (Test-Path -LiteralPath $vswhere -PathType Leaf) {
@@ -44,10 +45,17 @@ if ($null -eq $msbuild) {
     }
 }
 if ($null -eq $msbuild) {
-    throw 'MSBuild und das .NET-Framework-4.8-Targeting-Pack werden benötigt.'
+    $dotnet = Get-Command dotnet -ErrorAction SilentlyContinue
+    if ($null -ne $dotnet) {
+        $msbuild = [pscustomobject]@{ Source = $dotnet.Source }
+        $msbuildArguments = @('msbuild')
+    }
+}
+if ($null -eq $msbuild) {
+    throw 'MSBuild oder dotnet msbuild sowie das .NET-Framework-4.8-Targeting-Pack werden benötigt.'
 }
 
-& $msbuild.Source $projectPath '/t:Rebuild' "/p:Configuration=$Configuration" '/p:Platform=AnyCPU' "/p:ScriptDomDllPath=$ScriptDomDllPath" '/m:1'
+& $msbuild.Source @msbuildArguments $projectPath '/t:Rebuild' "/p:Configuration=$Configuration" '/p:Platform=AnyCPU' "/p:ScriptDomDllPath=$ScriptDomDllPath" '/m:1'
 if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $assemblyPath -PathType Leaf) -or -not (Test-Path -LiteralPath $scriptDomPath -PathType Leaf)) {
     throw 'Der CLR-ScriptParser-Assembly-Build ist fehlgeschlagen.'
 }
