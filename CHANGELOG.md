@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-09 – Eigene Commands der Split-Metadatenprobe schützen
+
+Der Lab-only SqlClient-Testadapter schützt eigene Commands bereits vor Property- und Reader-Aufnahme. Ein Reader wird nur nach erfolgreicher Aufnahme disponiert; verschachtelte finally-Blöcke erreichen Command.Dispose auch bei einem Reader.Dispose-Fehler. SQL-Texte, Timeouts und Metadaten-/Resultsetorakel bleiben unverändert. Quellenstand SOURCE_ONLY; neue lokale/native Qualifikation NOT_EXECUTED. Hosted CI führt diesen Clienthelper nicht aus; kein gemessener Ressourcenverlust oder neuer öffentlicher Vertrag.
+
 ## 2026-10-09 – Eigenes Ausgabeziel des XLSX-Anzeige-Testadapters schützen
 
 Der historische Offline-Anzeigeadapter schreibt seine abschließende Evidenz nur nach erfolgreicher eigener Verzeichnisanlage. Ein bereits vorhandenes Ausgabeziel bleibt nach der Frischeabweisung ohne neue Evidenzdatei; Verzeichnisanlage verwendet keinen Force-Modus. Compiler-, Kultur-, Transportorakel und Prozessgrenzen bleiben unverändert. Der geänderte Kontrollfluss ist quellengeprüft; keine neue lokale Framework-, SQL-, SAFE- oder Releasequalifikation.

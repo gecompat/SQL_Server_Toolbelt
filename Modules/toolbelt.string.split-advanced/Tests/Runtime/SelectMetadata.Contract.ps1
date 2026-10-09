@@ -19,9 +19,12 @@ try {
     foreach($sql in @(
         "EXEC toolbelt_string.USP_SplitAdvanced @Input=NULL;",
         "EXEC toolbelt_string.USP_SplitAdvanced @Input=N'a;b',@SeparatorsJson=N'[`";`"]',@Debug=2;")) {
-        $command=$connection.CreateCommand(); $command.CommandText=$sql; $command.CommandTimeout=120
-        $reader=$command.ExecuteReader()
+        # Command schon bei Reader-Erzeugung schützen; beide Freigaben unabhängig versuchen.
+        $reader=$null
+        $command=$connection.CreateCommand()
         try {
+            $command.CommandText=$sql; $command.CommandTimeout=120
+            $reader=$command.ExecuteReader()
             $schema=$reader.GetSchemaTable()
             if($reader.FieldCount -ne 2 -or $schema.Rows[0].ColumnName -ne 'Value' -or
                $schema.Rows[1].ColumnName -ne 'Ordinal' -or
@@ -34,22 +37,33 @@ try {
                ($sql -notlike '*@Input=NULL*' -and $rowCount -ne 2) -or $reader.NextResult()) {
                 throw 'USP SELECT-Zeilen-/Resultsetvertrag falsch.'
             }
-        } finally { $reader.Dispose();$command.Dispose() }
+        } finally {
+            try { if($null -ne $reader){ $reader.Dispose() } }
+            finally { $command.Dispose() }
+        }
     }
     $messages.Clear()
+    $reader=$null
     $command=$connection.CreateCommand()
-    $command.CommandText="EXEC toolbelt_string.USP_SplitAdvanced @Hilfe=1,@Debug=255,@SeparatorsJson=N'invalid',@ResultTable=N'invalid';"
-    $reader=$command.ExecuteReader()
     try {
+        $command.CommandText="EXEC toolbelt_string.USP_SplitAdvanced @Hilfe=1,@Debug=255,@SeparatorsJson=N'invalid',@ResultTable=N'invalid';"
+        $reader=$command.ExecuteReader()
         if($reader.FieldCount -ne 12){ throw 'Help-Schema falsch.' }
         while($reader.Read()){}
         if($reader.NextResult() -or $messages.Count -ne 0){ throw 'Help erzeugte zusätzliche Ausgabe.' }
-    } finally { $reader.Dispose();$command.Dispose() }
+    } finally {
+        try { if($null -ne $reader){ $reader.Dispose() } }
+        finally { $command.Dispose() }
+    }
+    $reader=$null
     $command=$connection.CreateCommand()
-    $command.CommandText="CREATE TABLE #SelectContract(Dummy int NULL); EXEC toolbelt_string.USP_SplitAdvanced @Input=N'a;b',@SeparatorsJson=N'[`";`"]',@ResultTable=N'#SelectContract',@Debug=2;"
-    $reader=$command.ExecuteReader()
     try {
+        $command.CommandText="CREATE TABLE #SelectContract(Dummy int NULL); EXEC toolbelt_string.USP_SplitAdvanced @Input=N'a;b',@SeparatorsJson=N'[`";`"]',@ResultTable=N'#SelectContract',@Debug=2;"
+        $reader=$command.ExecuteReader()
         if($reader.FieldCount -ne 0 -or $reader.NextResult()){ throw 'ResultTable erzeugte fachliches SELECT.' }
-    } finally { $reader.Dispose();$command.Dispose() }
+    } finally {
+        try { if($null -ne $reader){ $reader.Dispose() } }
+        finally { $command.Dispose() }
+    }
     Write-Output 'Split USP client metadata/resultset contracts: success'
 } finally { $connection.Dispose() }

@@ -17,6 +17,12 @@ Caller bleibt separat offen; direkte lokale/zentral-DB-Probe ist kein Ersatz.
 
 Am 2026-10-01 ist zusätzlich die [GitHub-hosted Linux-Matrix 2019/2022/2025](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/36857332229) erfolgreich ausgeführt worden. Dieser ergänzende CI-Nachweis ersetzt weder die physischen Labtests noch fehlende Windows-/mapped-Caller-Proben. Der unten generierte Nachweis beschreibt den vorherigen lokalen Reviewlauf.
 
+## Command-/Reader-Ownership der Clientprobe – 2026-10-09
+
+`Runtime/SelectMetadata.Contract.ps1` schützt eigene Commands vor Property- und ExecuteReader-Aufnahme. Die Readerfreigabe ist nullgeschützt; ein unabhängiges verschachteltes finally erreicht Command.Dispose auch bei einem Reader.Dispose-Fehler. Dispose-Fehler können nach bestehender PowerShell-Semantik einen vorherigen Fehler ersetzen; keine Garantie zur getrennten Erhaltung beider Fehler.
+
+Quellenstand SOURCE_ONLY, neue lokale/native Qualifikation NOT_EXECUTED. Der vorhandene Caller führt diese Probe ausschließlich im Lab-Pfad aus; hosted CI allein qualifiziert die geänderte Aufnahme-/Fehlerroute nicht. SQL-Texte, Timeouts, Orakel und Erfolgmarker bleiben unverändert. Der folgende generierte Nachweis bleibt historische Evidenz seines damaligen Quellstands.
+
 ## Aktuelle Validierungsevidenz
 
 Die folgenden Befehle wurden am 2026-10-01 mit dem finalen 1.1.0-Adapter
