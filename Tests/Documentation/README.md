@@ -52,6 +52,16 @@ DNS-/Proxy-/Hostvertrauens- oder SQL-Nachweise.
 
 ## Vollständiger Audit
 
+Das Impact-Paket `foundation_processing` führt
+`python3 -B Tests/Documentation/test_foundation_processing.py` mit10s-Budget aus.
+Fünf Offline-Szenarien verwenden Kopien der aktuellen Projektregeln: die zweite
+unveränderte Welle liest keine Regel erneut, eine geänderte Arbeitsregel invalidiert
+die abhängige Kostenanalyse, eine neue Instruktion invalidiert alle Analysen,
+fehlende Analyse wird nicht aus einem Fingerprint erfunden und unvollständige
+Discovery erlaubt keine Wiederverwendung. Synthetische Discoverydaten attestieren
+keine reale Clientkonfiguration oder einen tatsächlichen Session-CACHE_HIT.
+Weder Netzwerk noch SQL wird verwendet.
+
 ```bash
 python3 Tests/Documentation/validate_documentation.py --all
 ```

@@ -691,3 +691,30 @@ Netzwerkzugriff bei jedem Dokumentationslauf wäre unnötig. Ein neuer
 Release-Orchestrator, Paketquelle, Telemetrie und neue SQL-API sind außerhalb
 des Auftrags. Betroffene Verträge: Modulmodell, Definition of Done,
 `publication_record`, Dokumentationsvalidator, CONTRIBUTING und Fehlerformular.
+
+## Datierter Entscheidungsstand 2026-10-09: Foundation1.20 und endliche Verarbeitung
+
+Stabile Feature-Referenz: `bounded-processing-efficiency`; keine neue finale
+Sequenz-ID. Status:accepted. Autor:Codex. Grundlage ist der ausdrückliche
+Benutzerauftrag zum Foundation-Upgrade und zur Bereinigung unwirtschaftlicher
+projektinterner Regeln; die sonstige Entwicklungspause bleibt erhalten.
+
+Entscheidung: Foundation1.20 aus dem exakten Commit
+`39ae5c534bb0cf78046485754ed1be7867bf9534` integrieren, bestehende optionale
+Auswahl erhalten und den Preflight auf Erstlektüre je Scope plus geprüfte
+Wiederverwendung verfügbarer Sessionanalysen umstellen. Mechanische Prüfungen
+bleiben lokal; zusätzliche Reviews benötigen eine offene semantische Frage.
+Ein gemeinsamer endlicher Scope-/Agentenrahmen umfasst Koordination und Retries.
+
+Begründung: Wiederholte Volllektüre und Reader-/Receipt-/PR-Reviewketten sparen
+keine zusätzliche Unsicherheit ein. Unbekannte Tokenwerte und fehlende
+Discovery-/Analyseinformationen dürfen nicht durch Behauptungen ersetzt werden.
+Auswirkungen: weniger unveränderte Modelllektüre, gezielte transitive Invalidierung,
+ereignisbasierte Handoffs; erforderliche unabhängige Reviews, Datenschutz,
+SQL-/Lab-Ownership, Lizenzschutz, Pflichtchecks und Pausen bleiben wirksam.
+Alternativen: Versionswechsel allein oder bloßes `PROJECT_STRONGER` ohne
+Effizienzprüfung verworfen; persistenter Cache bleibt optional, keine neue
+Plannerpflicht oder zusätzliche automatische Entwicklungswelle.
+Scope/betroffene Verträge: AGENTS-Bridge, `.ai/WORKING_RULES.md`, Kostenrichtlinie,
+Foundationmanifest/Provenienz, Dokumentationsvalidator und Repo-Map.
+[Vollständige Bewertung und Verfahren](FOUNDATION_1_20_INTEGRATION.md).
