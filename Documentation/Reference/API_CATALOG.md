@@ -332,7 +332,7 @@ Decodiert Base64-Text zu Binärdaten.
 
 Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql), [TVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Decode.md).
 
-<!-- Source/Vertrag SHA256: 66e8dbb9fee53b7db83de2f5483d3f3c485a6549133bc7cd54355ee895929cbb -->
+<!-- Source/Vertrag SHA256: 105e96f941befbd7ab2c7c81f9eaf1952c4d2180e6f2cca07f64be5df4e3f30c -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

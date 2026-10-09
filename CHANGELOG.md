@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## 2026-10-09 – Leere kanonische Base64-Zeichenfolge decodieren
+
+Quellenkorrektur im bestehenden TVF-Decoder: Nicht-NULL-Eingaben mit leerer
+kanonischer Zeichenfolge sollen `0x` ergeben; `NULL` bleibt `NULL`. Der bestehende
+SVF-Wrapper folgt dem TVF-Kern, ohne API-, Normalisierungs- oder Fehlervertrags-
+Änderung. Der erste PR311-Headlauf scheiterte mit Fehlerkategorie `52303`; konkrete
+Eingabe und Laufzeitursache bleiben ungemessen. Quellenstand **SOURCE_ONLY**,
+neue Runtimequalifikation offen. Frühere Quellenstände und Matrixnachweise
+bleiben historisch; Version `1.1.0`, Modulstatus und Releasezustand unverändert.
+
+## 2026-10-09 – Bestehende Base64-RFC-Testorakel schließen
+
+Quellenkandidat für die sieben vorhandenen RFC-4648-Vektoren: unerwartetes NULL
+sowie fehlende oder mehrfache direkte TVF-Ergebniszeilen ausdrücklich abweisen.
+Eingaben, Sollwerte und übrige Orakel bleiben unverändert; belegt ist eine
+Testorakellücke, kein gemessener Produktfehler. Quellenstand SOURCE_ONLY, neue
+Orakel **NOT_EXECUTED** und noch nicht qualifiziert. Historische Matrixnachweise,
+Produkt, API, Workflow, Modulversion `1.1.0` und Status bleiben unverändert.
+
 ## 2026-10-09 – Command-Setup der Safe-Cast-Metadatenprobe schützen
 
 Der bestehende SqlClient-Testhelper besitzt seinen Command bis zur erfolgreichen
