@@ -50,8 +50,8 @@ Semantische Namens- und Spaltenauflösung sowie automatisches Rewriting sind nic
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-07`
-- Nachweis: `local: Scripts/New-ClrReleaseArtifacts.ps1; Tests/Static/validate_contract.py; Tests/Framework/Invoke-Contract.ps1; Tests/Framework/Invoke-Guard.ps1; PowerShell syntax parse of Tests/CI/run-script-parser-lab.ps1`
-- Scope: ScriptDom 18.0.117.0 SHA-512 459E1372…F853DAC7; reproducible .NET Framework 4.8 release build, exact provider SHA-512 E03C6099…D51EDBF, static dependency/lifecycle contract, 245 bounded Framework child cases at 262144-byte stack and 60 guard checks passed. The 82-case pre-source runner was unavailable. No SQL executed, no trust/configuration changed, actual public output ceilings not qualified; live lifecycle and Table Clone trigger opt-in remain blocked by the missing schema-valid Lab contract.
+- Datum: `2026-10-09`
+- Nachweis: `local: Scripts/New-ClrReleaseArtifacts.ps1; Tests/Framework/Invoke-Contract.ps1 -QualificationProfile Reconstructed82; Tests/Static/validate_contract.py`
+- Scope: Aktuelle rekonstruierte Offline-Regression: exakter ScriptDom-18.0.117.0-Pin, reproduzierter .NET-Framework-4.8-Releasebuild und 82 isolierte Kindprozesse bei 262144 Byte Stack. Historischer vor-Source-Runner bleibt nicht ausgeführt, ist aber durch Benutzerentscheidung geschlossen; dieser Lauf ersetzt ihn nicht. Keine SQL-Ausführung, Trust-, Konfigurations- oder Rechteänderung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
