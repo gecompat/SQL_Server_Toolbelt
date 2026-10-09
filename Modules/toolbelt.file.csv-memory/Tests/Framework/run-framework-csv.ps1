@@ -32,10 +32,25 @@ function Check-Pins {
  if((ConvertTo-Json -InputObject @(Get-Pins) -Compress) -cne $before){throw 'CSV_FRAMEWORK_INPUT_DRIFT'}
 }
 $copy=Join-Path $output 'Toolbelt.File.CsvMemory.dll'
-$bytes=[IO.File]::ReadAllBytes($AssemblyPath)
-$file=[IO.File]::Open($copy,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
-try{$file.Write($bytes,0,$bytes.Length)}finally{$file.Dispose()}
-$bytes=$null
+# Fester Kopierpuffer statt ganzer DLLaufnahme; Länge und EOF bleiben an denselben Lesehandle gebunden.
+$sourceStream=$null;$file=$null;$buffer=$null
+try {
+ $sourceStream=[IO.File]::Open($AssemblyPath,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)
+ [long]$initialLength=$sourceStream.Length
+ [long]$remaining=$initialLength
+ $buffer=[byte[]]::new(65536)
+ $file=[IO.File]::Open($copy,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
+ while($remaining -gt 0){
+  $read=$sourceStream.Read($buffer,0,[int][Math]::Min([long]$buffer.Length,$remaining))
+  if($read -le 0){throw 'CSV_FRAMEWORK_COPY_LENGTH'}
+  $file.Write($buffer,0,$read)
+  $remaining-=$read
+ }
+ if($sourceStream.ReadByte() -ne -1 -or $sourceStream.Length -ne $initialLength -or $file.Length -ne $initialLength){throw 'CSV_FRAMEWORK_COPY_LENGTH'}
+} finally {
+ try{if($null -ne $file){$file.Dispose()}}finally{if($null -ne $sourceStream){$sourceStream.Dispose()}}
+ $buffer=$null
+}
 if((Get-FileHash -LiteralPath $copy -Algorithm SHA256).Hash -ine $ExpectedAssemblySHA256){throw 'CSV_FRAMEWORK_COPY_PIN'}
 $exe=Join-Path $output 'CsvHarness.exe'
 $arguments=@('/nologo','/noconfig','/nostdlib+','/checked+','/optimize+','/deterministic+','/langversion:7.3','/target:exe',('/out:'+$exe))+@($references|ForEach-Object{'/reference:'+$_})+@(('/reference:'+$copy),$source)
