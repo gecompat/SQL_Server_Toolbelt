@@ -5,7 +5,7 @@ $ErrorActionPreference='Stop'
 $module=Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $repo=Split-Path (Split-Path $module -Parent) -Parent
 $helper=Join-Path $repo 'Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1'
-$pins=@{};$phases=@();$failure=$null;$secondary=@();$run=$null
+$pins=@{};$phases=@();$failure=$null;$secondary=@();$run=$null;$owned=$false
 function Hash-Bytes([byte[]]$Bytes){return [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($Bytes))}
 function Capture([string]$Path){
  $bytes=[IO.File]::ReadAllBytes($Path);$hash=Hash-Bytes $bytes
@@ -44,7 +44,8 @@ try{
  if(-not$OutputDirectory){$OutputDirectory=Join-Path ([IO.Path]::GetTempPath()) ('ToolbeltXlsxDisplayFramework-'+[guid]::NewGuid().ToString('N'))}
  $script:run=[IO.Path]::GetFullPath($OutputDirectory)
  if(Test-Path -LiteralPath $run){throw 'DISPLAY_OUTPUT_EXISTS'}
- [void][IO.Directory]::CreateDirectory($run)
+ [void](New-Item -Path $run -ItemType Directory -ErrorAction Stop)
+ $owned=$true
  $sources=@();foreach($name in @('XlsxCellType.cs','XlsxCellDisplay.cs','XlsxCellDisplayBridge.cs')){
   $bytes=Capture (Join-Path $module ('Clr/'+$name));$path=Join-Path $run $name;Save $path $bytes;[void](Capture $path);$sources+=$path
  }
@@ -62,7 +63,7 @@ try{
 }catch{$failure='DISPLAY_FRAMEWORK_FAILED'}
 finally{
  try{Check-Pins}catch{if($null-eq$failure){$failure='DISPLAY_FINAL_PIN_FAILED'}else{$secondary+=@('DISPLAY_FINAL_PIN_FAILED')}}
- if($run){
+ if($owned){
   $record=[ordered]@{Scope='DISPLAY_CORE_AND_CLR_TRANSPORT_FRAMEWORK_ONLY';Result=if($failure){'FAILED'}else{'COMPLETE'};Failure=$failure;SecondaryFailures=$secondary;Phases=$phases;Inputs=@(foreach($path in $pins.Keys){[ordered]@{Name=[IO.Path]::GetFileName($path);SHA256=$pins[$path]}});SqlExecuted=$false;FullProductQualified=$false}
   try{Save (Join-Path $run 'RunEvidence.json') ([Text.UTF8Encoding]::new($false).GetBytes(($record|ConvertTo-Json -Depth 8)))}catch{if($null-eq$failure){$failure='DISPLAY_EVIDENCE_FAILED'}}
  }

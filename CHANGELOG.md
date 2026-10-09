@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2026-10-09 – Eigenes Ausgabeziel des XLSX-Anzeige-Testadapters schützen
+
+Der historische Offline-Anzeigeadapter schreibt seine abschließende Evidenz nur nach erfolgreicher eigener Verzeichnisanlage. Ein bereits vorhandenes Ausgabeziel bleibt nach der Frischeabweisung ohne neue Evidenzdatei; Verzeichnisanlage verwendet keinen Force-Modus. Compiler-, Kultur-, Transportorakel und Prozessgrenzen bleiben unverändert. Der geänderte Kontrollfluss ist quellengeprüft; keine neue lokale Framework-, SQL-, SAFE- oder Releasequalifikation.
+
 ## 2026-10-09 – Cologne-C-Kontextfälle im Differentialcorpus ergänzen
 
 Vier synthetische Fälle `HCL`, `ACL`, `-CR` und `ACR` ergänzen den Offline-Corpus auf 36 Fälle. Der einmalige lokale Vergleich unter Windows/.NET Framework 4.8, ausgewähltem JDK27 und unverändertem Apache Commons Codec 1.18.0 bestand mit vollständigen Codes und AJ-Endblank; die vier quellenabgeleiteten Sollcodes `45`, `085`, `47` und `087` stimmen tatsächlich. Die Assembly mit nachgewiesener Herkunft aus den fünf unveränderten aktuellen C#-Quellen wurde wiederverwendet, ohne neuen Produktbuild für diesen Lauf.
