@@ -21,8 +21,11 @@ Multiplikation geprüfte Akkumulation. `decimal(38,0)` hält die Magnitude des
 kleinsten `bigint` sicher, während explizite Grenzprüfungen einen Decode-
 Overflow verhindern.
 
-Die Textdarstellung ist kanonisch: kein `+`, kein Padding, keine Präfixe oder
-Gruppierung, keine führenden Nullzeichen und kein `-0`. Version `1.1.0`
+Die Textdarstellung ist kanonisch: kein zusätzliches positives Vorzeichen,
+kein Padding, keine Präfixe oder Gruppierung, keine führenden Nullzeichen und
+kein `-0`. `+` bleibt als reguläre Ziffer eines entsprechend gewählten Alphabets
+zulässig; nur `-` ist reserviert. Mit dem Dezimalalphabet bleibt `+1` ungültig.
+Version `1.1.0`
 verarbeitet ausschließlich `bigint`; eine spätere `decimal(38,0)`-Oberfläche
 ist ein eigener Vertrag.
 

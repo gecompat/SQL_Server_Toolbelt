@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-44 Module sind implementiert. 19 sind `validated`, 25 sind `partially validated`; 0 sind `not executed`.
+44 Module sind implementiert. 18 sind `validated`, 26 sind `partially validated`; 0 sind `not executed`.
 
 ### Queue1.1: ein Dateirepeat unmittelbar nach der Migration – 2026-10-08
 
@@ -2845,13 +2845,21 @@ werden nur mit tatsächlich ausgeführter Evidenz als bestanden geführt.
 | Priorität | `P1` |
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Encode/Decode verwenden denselben kanonischen Alphabetvertrag; Zeichen sind binär eindeutig; ungültiges Alphabet, ungültige Ziffer, Vorzeichen, `bigint`-Minimum, Null und Overflow sind dokumentiert und getestet; vollständiger Lifecycle und gekoppelte Dokumentation. |
 | Tests | Statischer Vertrag sowie vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Compatibility Levels 150/160/170 nach Zielversion erfolgreich. |
 | Blocker | Keine bekannten. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; formaler Kandidat `TC-2026-031`; kanonische Artefakte unter `Modules/toolbelt.conversion.integer-base/`; erfolgreicher [Runtime-Lauf 30518087070](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30518087070); persönlicher Brainstorm als Herkunft. |
-| Nächster Schritt | Keine autonome Validierung offen; Release bleibt unautorisiert. |
+| Nächster Schritt | Gezielte Qualifikation der Plusziffer-/NULL-Orakel-Wartung offen; Release bleibt unautorisiert. |
+
+Wartungsstand 2026-10-09 unter der bestehenden Einzelfreigabe vom 2026-07-30:
+`+` ist eine reguläre Ziffer des gewählten Alphabets, kein zusätzliches
+positives Vorzeichen; Dezimal-`+1` bleibt ungültig. Quellenstand SOURCE_ONLY,
+neue Runtimequalifikation NOT_EXECUTED. Die vorstehenden Tests und Evidenzen
+beschreiben historische Quellstände; daraus folgt keine neue Vollmatrix-
+qualifikation der geänderten Quelle. API, Alphabetumfang und Version `1.1.0`
+bleiben erhalten; keine Veröffentlichung.
 
 ### AP-2026-012: Semantic-Version Parser und Comparator implementieren
 

@@ -2,7 +2,7 @@ module_id: "toolbelt.conversion.integer-base"
 module_name: "Integer Base Conversion"
 version: "1.1.0"
 implementation_status: implemented
-validation_status: validated
+validation_status: partially validated
 release_status: unreleased
 description: "Codiert bigint-Werte kanonisch mit einem frei definierbaren ASCII-Alphabet und decodiert sie ohne Overflow."
 
@@ -15,14 +15,14 @@ compatibility_levels:
   - 160
   - 170
 platforms:
-  windows: validated
-  linux: validated
+  windows: partially validated
+  linux: partially validated
 
 providers:
   - id: tsql-inline-relational
     technology: T-SQL Inline TVFs mit rekursiver decimal(38,0)-Zwischenarithmetik und SVF-Wrappern
     platforms: [Windows, Linux]
-    status: validated
+    status: partially validated
 
 deployment_capabilities:
   local: true

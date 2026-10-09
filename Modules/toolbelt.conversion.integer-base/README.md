@@ -5,7 +5,13 @@ Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` 
 Kanonische Konvertierung des vollständigen `bigint`-Bereichs mit einem frei
 definierbaren druckbaren ASCII-Alphabet.
 
-Status: `implemented`, `validated`, `unreleased`.
+Status: `implemented`, `partially validated`, `unreleased`.
+
+Wartungsstand 2026-10-09: Die Korrektur der Plusziffer und die NULL-sicheren
+positiven Contract-Orakel sind SOURCE_ONLY; ihre neue Runtimequalifikation ist
+NOT_EXECUTED. Die folgenden datierten Nachweise gelten für ihre historischen
+Quellstände und belegen keine neue Windows-/Linux- oder Vollmatrixqualifikation
+der geänderten Quelle. Version `1.1.0` bleibt unveröffentlicht.
 
 Öffentliche Objekte:
 
@@ -18,8 +24,10 @@ Status: `implemented`, `validated`, `unreleased`.
 Die Basis ergibt sich aus der Alphabetlänge von 2 bis 93. Das erste Zeichen
 steht für Null; `-` ist ausschließlich als Vorzeichen reserviert. Alphabet und
 Ziffern werden binär geprüft, daher bleiben Groß- und Kleinschreibung
-verschieden. Führende Nullzeichen, `+`, `-0`, Whitespace, unbekannte Zeichen
-und Overflow werden abgelehnt.
+verschieden. `+` ist eine reguläre Ziffer, wenn es im gewählten Alphabet
+enthalten ist; ein zusätzliches positives Vorzeichen wird nicht interpretiert.
+Führende Nullzeichen, `-0`, Whitespace, unbekannte Zeichen und Overflow werden
+abgelehnt. Mit dem Dezimalalphabet bleibt `+1` ungültig.
 
 Das Modul hat keine Abhängigkeit zu Base64 oder anderen Toolbelt-Modulen.
 Zwischenarithmetik mit `decimal(38,0)` deckt auch

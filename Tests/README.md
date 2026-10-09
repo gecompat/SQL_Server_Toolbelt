@@ -14,7 +14,7 @@ gemeinsame SQL-Laufzeitkompatibilität; siehe
 ## Aktueller Stand
 
 Der Repository-Grundaufbau ist abgeschlossen. 44 Module sind implementiert;
-19 sind `validated`, 25 sind `partially validated`, 0 sind `not executed`. Für alle existieren
+18 sind `validated`, 26 sind `partially validated`, 0 sind `not executed`. Für alle existieren
 statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte.
 
 Die ResultTable-Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 mit

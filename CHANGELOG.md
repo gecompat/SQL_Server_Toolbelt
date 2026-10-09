@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-09 – Integer-Base-Plusziffer konsistent decodieren
+
+Der bestehende Alphabetvertrag erlaubt `+` als reguläre Ziffer und reserviert
+nur `-` als Vorzeichen. Der Decoder interpretiert kein zusätzliches positives
+Vorzeichen; mit dem Dezimalalphabet bleibt `+1` ungültig. NULL-sichere positive
+Orakel schützen die gezielten Plus-, Roundtrip- und SVF-/TVF-Fälle.
+Quellenstand SOURCE_ONLY, neue Runtimequalifikation NOT_EXECUTED; bisherige
+datierte Nachweise bleiben historisch. Modulversion `1.1.0` bleibt
+unveröffentlicht und teilweise validiert, ohne neue Matrix- oder Releasezusage.
+
+
 ## 2026-10-09 – Eigene Commands der Split-Metadatenprobe schützen
 
 Der Lab-only SqlClient-Testadapter schützt eigene Commands bereits vor Property- und Reader-Aufnahme. Ein Reader wird nur nach erfolgreicher Aufnahme disponiert; verschachtelte finally-Blöcke erreichen Command.Dispose auch bei einem Reader.Dispose-Fehler. SQL-Texte, Timeouts und Metadaten-/Resultsetorakel bleiben unverändert. Quellenstand SOURCE_ONLY; neue lokale/native Qualifikation NOT_EXECUTED. Hosted CI führt diesen Clienthelper nicht aus; kein gemessener Ressourcenverlust oder neuer öffentlicher Vertrag.
@@ -1965,7 +1976,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-44 Module sind implementiert. 19 sind `validated`, 25 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+44 Module sind implementiert. 18 sind `validated`, 26 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

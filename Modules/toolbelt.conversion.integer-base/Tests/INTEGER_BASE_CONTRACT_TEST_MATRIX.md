@@ -2,11 +2,17 @@
 
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
+Wartung 2026-10-09: Plus als Alphabetziffer an unterschiedlichen Positionen,
+Null/negative Werte, bigint-Grenzen und NULL-sichere positive Roundtrip- sowie
+SVF-/TVF-Orakel sind neuer Impact-Scope. Quellenstand SOURCE_ONLY, neue
+Runtimequalifikation NOT_EXECUTED. Die datierten Erfolgsnachweise und die
+bisherigen Plattformzeilen unten behalten ihren historischen Umfang.
+
 | Bereich | Fälle | Stand |
 |---|---|---|
 | Signatur | `bigint`, `varchar(93)`, `varchar(65)` | vorhanden |
 | Alphabet | Länge 2/93, druckbares ASCII, binär eindeutig, kein `-` | vorhanden |
-| Darstellung | Null, Vorzeichen, keine führenden Nullen, kein `+`/`-0` | vorhanden |
+| Darstellung | Null, kein zusätzliches positives Vorzeichen, keine führenden Nullen, kein `-0`; `+` als Alphabetziffer | vorhanden |
 | Basen | 2, 8, 10, 16, 36, 62 und 93 | vorhanden |
 | Grenzen | vollständiger `bigint`-Bereich und Decode-Overflow | vorhanden |
 | Roundtrip | positive, negative und Grenzwerte | vorhanden |

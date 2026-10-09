@@ -414,7 +414,7 @@ Decodiert einen Text anhand des angegebenen Alphabets in bigint.
 
 Vertrag und Quelle: [TVF_TryBaseToInteger.sql](../../Modules/toolbelt.conversion.integer-base/Source/TVF_TryBaseToInteger.sql), [TVF_TryBaseToInteger.md](../../Modules/toolbelt.conversion.integer-base/Documentation/TVF_TryBaseToInteger.md).
 
-<!-- Source/Vertrag SHA256: 909f17b3f01cde6742913129023602e4c828c9d932b3f175c1df779b56c4de96 -->
+<!-- Source/Vertrag SHA256: a5c16ef1376b6aacd0c929a1a26481f2285da598bac3afedf5c2d1bb5999a7dc -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -456,7 +456,7 @@ Decodiert einen Text anhand des angegebenen Alphabets in bigint.
 
 Vertrag und Quelle: [SVF_TryBaseToInteger.sql](../../Modules/toolbelt.conversion.integer-base/Source/SVF_TryBaseToInteger.sql), [SVF_TryBaseToInteger.md](../../Modules/toolbelt.conversion.integer-base/Documentation/SVF_TryBaseToInteger.md).
 
-<!-- Source/Vertrag SHA256: da0892b441d7becb84c9ee3bdd0e7d4d1061960158693a01567a011b6152a47e -->
+<!-- Source/Vertrag SHA256: 574c7805c6f53edbccedd4ff8ba735fa0d2b17118ce7c5b333460e71f0e47751 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
