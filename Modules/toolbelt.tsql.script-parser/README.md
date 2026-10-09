@@ -28,8 +28,8 @@ Upgrade von 1.0.0 und Wiederholung von 2.0.0 erfordern konsistente Modul-/Objekt
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-07`
-- Nachweis: `local: Scripts/New-ClrReleaseArtifacts.ps1; Tests/Static/validate_contract.py; Tests/Framework/Invoke-Contract.ps1; Tests/Framework/Invoke-Guard.ps1; PowerShell syntax parse of Tests/CI/run-script-parser-lab.ps1`
-- Scope: ScriptDom 18.0.117.0 SHA-512 459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7; reproducible .NET Framework 4.8 release build, exact provider SHA-512 E03C6099E2E919F3F930E2CCB5A753C47F16DABFC18B608F8BC33DEA5E93ED10D9A937CF599427FADED4EBBB11653E80D2C8BA23C49E5AAEEB0A80C60D51EDBF, static dependency/lifecycle contract, 245 bounded Framework child cases at 262144-byte stack and 60 guard checks passed. The unavailable historical 82-case pre-source runner is closed by the user's 2026-10-09 decision; the separate reconstructed 82-case current regression passed and does not replace historical evidence. No SQL executed, no trust/configuration changed, actual public output ceilings not qualified; live lifecycle and Table Clone trigger opt-in remain blocked by the missing schema-valid Lab contract.
+- Datum: `2026-10-09`
+- Nachweis: `local: Scripts/New-ClrReleaseArtifacts.ps1; Tests/Framework/Invoke-Contract.ps1 -QualificationProfile Reconstructed82; Tests/Static/validate_contract.py`
+- Scope: Aktuelle rekonstruierte Offline-Regression: exakter ScriptDom-18.0.117.0-Pin, reproduzierter .NET-Framework-4.8-Releasebuild und 82 isolierte Kindprozesse bei 262144 Byte Stack. Historischer vor-Source-Runner bleibt nicht ausgeführt, ist aber durch Benutzerentscheidung geschlossen; dieser Lauf ersetzt ihn nicht. Keine SQL-Ausführung, Trust-, Konfigurations- oder Rechteänderung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
