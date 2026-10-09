@@ -9,6 +9,17 @@ Compile und jeder Harnessprozess verwenden den bestehenden eigenen begrenzten
 Prozesshelper mit60 Sekunden; vollständige Ausgabekanäle und Eingabe-/Binarypins
 sind Pflicht. Private Diagnoseausgaben und Binaries werden nicht versioniert.
 
+Der DLL-Kopierblock verwendet einen festen 64-KiB-Puffer und einen Lesehandle
+mit `FileAccess.Read`/`FileShare.Read`. Die anfängliche `Int64`-Länge bindet die
+exakt zu kopierende Byteanzahl; vorzeitiges EOF, zusätzliche Bytes und eine
+abweichende abschließende Quell-/Kopielänge werden abgewiesen. Beide Handles
+werden auch bei Fehlern geschlossen; erst danach folgen die bestehende
+SHA256-Kopieprüfung und die unveränderten Eingabe-/Executable-Endpins.
+Partielle eigene Dateien werden bei Fehlern behalten. Der Puffer ersetzt nur
+das vollständige DLL-Bytearray; keine neue DLLgrößengrenze, Gesamt-Heap- oder
+harte Globaldeadlinegarantie. CLI, Compilerreferenz, Orakel und Prozessbudgets
+bleiben unverändert.
+
 Der feste Corpus läuft unter en-US/de-DE/tr-TR. Harte Input-/Quote-/Spalten-/
 Zeilen-/Millionenzellgrenzen laufen einmal unter en-US. Er prüft direkte
 Quotingorakel zusätzlich zu Roundtrips, vollständige späte Parserabweisung,

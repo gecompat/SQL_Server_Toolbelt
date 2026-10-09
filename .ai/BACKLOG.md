@@ -904,6 +904,14 @@ ist mit fünf erfolgreichen Checks am exakten Head gemergt. Main/origin-main
 und eigener Branch-Cleanup geprüft. Modulstatus bleibt teilweise validiert
 und unveröffentlicht; keine Übertragung der Freigabe auf Folgefunktionen.
 
+Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
+das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
+Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte
+Kopierprüfung: sechs synthetische Fälle **PASS**; exakte neue Head-CI
+**NOT_EXECUTED**. Keine gemessene OOM-
+Ursache, neue DLLcap, API-, Produkt-, Workflow- oder Statusänderung; historische
+PR169-/Native-/Marker-Nachweise bleiben unverändert, keine Heap-/Releaseclosure.
+
 Zusätzlicher begrenzter Marker-Nachweis am 2026-10-05: ein mechanisch vom
 öffentlichen Labadapter abgeleiteter, hashgebundener Adapter prüfte ausschließlich
 zwei synthetische Typdriftfälle auf Linux2019/latest CL150 lokal. Deploy und

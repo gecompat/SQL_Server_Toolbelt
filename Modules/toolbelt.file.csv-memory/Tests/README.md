@@ -4,6 +4,15 @@ Stand 2026-10-05: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. Die unten genannte CI ist an den exakten CSV-PR-Head
 gebunden; andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+Testwartung 2026-10-09 – Quellenstand: Der Frameworkrunner kopiert die gepinnte
+DLL mit festem 64-KiB-Puffer, `Int64`-Längenbindung und exakter EOF-Prüfung statt
+eines vollständigen DLL-Bytearrays. Bestehende Kopie-/Endpins, Harnessorakel,
+Kulturen und Prozessbudgets bleiben erhalten. Fokussierte Prüfung des neuen Kopierblocks: sechs synthetische Fälle **PASS**
+(0, 1, 65536 und 65537 Bytes, vorhandenes Ziel abgewiesen und erhalten,
+falscher Hash abgewiesen). Exakte neue Head-CI **NOT_EXECUTED**; kein neuer
+Framework-, SQL-, Heap- oder Cleanup-PASS. Die folgenden historischen Abnahmen behalten
+unverändert ihren damaligen Scope; Modulstatus und Produkt/API unverändert.
+
 Die statischen Verträge bestanden. `Tests/Framework/run-framework-csv.ps1`
 qualifizierte das exakt gepackte aktuelle .NET48-Binary in en-US, de-DE und
 tr-TR mit unabhängigen Orakeln sowie IL-/NoIO-Prüfungen; die harte Grenzphase

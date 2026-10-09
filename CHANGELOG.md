@@ -1627,6 +1627,13 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ## [Unreleased]
 
+- 2026-10-09: CSV-Framework-Testwartung ersetzt die vollständige DLL-Bytearray-
+  Kopie durch einen festen 64-KiB-Puffer mit `Int64`-Längenbindung und exakter
+  EOF-Prüfung. Bestehende Kopie-/Endpins, Harnessorakel und Prozessbudgets
+  bleiben erhalten. Sechs synthetische Kopierfälle **PASS**; neue Head-CI
+  **NOT_EXECUTED**; keine Produkt-,
+  API-, Workflow-, Modulstatus-, Heap- oder Releasequalifikation.
+
 - 2026-10-07: Regex-CI-Cleanup prüft volle Container-ID und Owner gemeinsam,
   entfernt per ID und verlangt frische Namensabwesenheit. Run-Attempt-/SQL-/
   CL-Name und Owner vor Setup geprüft; Cleanupfehler bleiben sichtbar und
