@@ -8,6 +8,12 @@ on:
       - 'Tests/CI/CsvLifecycle.Helpers.ps1'
       - 'Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1'
       - '.github/workflows/csv-memory-qualification.yml'
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
   push:
     branches: [main]
     paths:
@@ -17,6 +23,12 @@ on:
       - 'Tests/CI/CsvLifecycle.Helpers.ps1'
       - 'Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1'
       - '.github/workflows/csv-memory-qualification.yml'
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
   workflow_dispatch:
 permissions:
   contents: read

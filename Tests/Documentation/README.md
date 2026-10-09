@@ -70,8 +70,17 @@ Ein vollständiger Audit ist vorgesehen:
 
 - zur erstmaligen Baseline;
 - vor einem Release;
-- nach Änderungen an Governance, Repo-Map oder Validator;
+- nach Änderungen an globalen Fach-/Schutzverträgen, Repo-Map oder Validator;
+- bei unbekanntem Impact;
 - auf ausdrücklichen Auftrag.
+
+Begrenzte Arbeitsregel-, Foundation- und Entscheidungsänderungen verwenden die
+betroffenen Impact-Pakete. Kleine unveränderliche Basisschutzprüfungen laufen
+weiter bei jedem Aufruf. Der Governance-Selektor selbst löst keine fachfremden
+SQL-Modulvalidatoren aus. SafeCast und JSON Pointer werden in diesem Workflow
+ausschließlich über den Impact-Validator geprüft; keine zweite direkte Ausführung.
+`test_change_impact.py` prüft die Auswahl, unbekannte Inputs, Selbsttesttrennung,
+Workflowdokumentationsfilter und die erhaltenen gemeinsamen Abhängigkeiten.
 
 ## Generierte Statusabschnitte
 

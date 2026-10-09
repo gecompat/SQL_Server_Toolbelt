@@ -363,67 +363,32 @@ change_impact:
   full_audit_reasons:
     - initial_baseline
     - release
-    - governance_change
+    - global_contract_change
+    - unknown_impact
     - coupling_registry_change
     - explicit_request
   full_audit_paths:
     - .ai/repo_map.yaml
-    - .ai/README.md
-    - .ai/foundation/FOUNDATION_RULESET.md
-    - .ai/foundation/AI_REPOSITORY_FOUNDATION_NOTICE.md
-    - .ai/foundation/PROJECT_RULES.md
-    - .ai/foundation/SEMANTIC_INTEGRATION_POLICY.md
-    - .ai/foundation/PERSISTENT_IDENTITY_POLICY.md
-    - .ai/foundation/ARTIFACT_REGISTRATION_POLICY.md
-    - .ai/foundation/CENTRAL_ARTIFACT_REGISTRY_POLICY.md
-    - .ai/foundation/UPGRADE_APPLICABILITY_POLICY.md
-    - .ai/foundation/REPOSITORY_CONTINUITY_POLICY.md
-    - .ai/foundation/RULE_CONTEXT_CACHE_POLICY.md
-    - .ai/foundation/feature_catalog.json
-    - .ai/foundation/schemas/artifact-record.schema.json
-    - .ai/foundation/schemas/artifact-registry.schema.json
-    - .ai/foundation/schemas/artifact-registry-v2.schema.json
-    - .ai/foundation/schemas/artifact-registration-request.schema.json
-    - .ai/foundation/schemas/feature-catalog.schema.json
-    - .ai/foundation/schemas/upgrade-assessment.schema.json
-    - .ai/foundation/schemas/rule-context-cache.schema.json
-    - .ai/foundation/WORKING_RULES.md
-    - .ai/foundation/MODEL_ROUTING_POLICY.md
-    - .ai/foundation/VALIDATION_POLICY.md
-    - .ai/foundation/DATA_PRIVACY_AND_CONFIDENTIALITY.md
-    - .ai/foundation/SECURITY_AND_SAFE_OPERATIONS.md
-    - .ai/foundation/DOCUMENTATION_POLICY.md
-    - .ai/foundation/THIRD_PARTY_AND_LICENSING.md
-    - .ai/foundation/SOURCE_AND_EVIDENCE_POLICY.md
-    - .ai/foundation/DEPENDENCY_POLICY.md
-    - .ai/foundation/repo_map.yaml
     - .ai/PROJECT_RULES.md
-    - .ai/WORKING_RULES.md
-    - AGENTS.md
-    - Documentation/Architecture/DECISIONS.md
     - Documentation/Architecture/ARTIFACT_ROLES.md
     - Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md
-    - Documentation/Standards/AI_COST_AND_QUALITY_PROCESSING_POLICY.md
     - Documentation/Standards/DATA_PRIVACY_AND_CONFIDENTIALITY.md
     - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
     - Documentation/Standards/THIRD_PARTY_AND_SOURCE_POLICY.md
+    - Documentation/Standards/TSQL_ENGINEERING.md
+    - Documentation/Standards/USP_CONTRACT.md
+    - Documentation/Standards/MODULE_DEFINITION_OF_DONE.md
     - Tests/Documentation/validate_documentation.py
-    - Tests/Documentation/publication.py
-    - Tests/Documentation/test_publication.py
     - Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md
     - .github/workflows/documentation-consistency.yml
     - Templates/Module/module.yaml.template
   packages:
     publication_contract:
       paths:
-        - Modules/*/module.yaml
-        - Modules/**/*.json
-        - Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md
         - Tests/Documentation/publication.py
         - Tests/Documentation/test_publication.py
         - Tests/Documentation/validate_documentation.py
-        - CONTRIBUTING.md
-        - .github/ISSUE_TEMPLATE/bug-report.yml
+        - .github/workflows/documentation-consistency.yml
       checks:
         - publication_contract
         - markdown_links
@@ -438,6 +403,21 @@ change_impact:
         - "Tests/Documentation/test_api_catalog.py"
       checks:
         - public_api_catalog
+    public_api_catalog_selftests:
+      paths:
+        - Tests/Documentation/generate_api_catalog.py
+        - Tests/Documentation/test_api_catalog.py
+        - Tests/Documentation/validate_documentation.py
+      checks:
+        - public_api_catalog_selftests
+    change_impact_selftests:
+      paths:
+        - .ai/repo_map.yaml
+        - Tests/Documentation/validate_documentation.py
+        - Tests/Documentation/test_change_impact.py
+        - .github/workflows/**
+      checks:
+        - change_impact_selftests
     documentation:
       paths:
         - "*.md"
@@ -1121,27 +1101,3 @@ change_impact:
       checks:
         - generated_status
         - markdown_links
-        - brainstorm_history
-        - runtime_workflow_scope
-        - result_table_static
-        - base64_runtime_workflow_scope
-        - base64_static
-        - generate_series_runtime_workflow_scope
-        - generate_series_static
-        - identifier_runtime_workflow_scope
-        - identifier_static
-        - split_characters_runtime_workflow_scope
-        - split_characters_static
-        - split_advanced_static
-        - semantic_version_runtime_workflow_scope
-        - semantic_version_static
-        - integer_base_runtime_workflow_scope
-        - integer_base_static
-        - json_path_exists_static
-        - w2b_json_path_runtime_workflow_scope
-        - console_message_static
-        - json_constructors_static
-        - capability_catalog_static
-        - table_clone_static
-        - deterministic_static
-        - w2c_runtime_workflow_scope

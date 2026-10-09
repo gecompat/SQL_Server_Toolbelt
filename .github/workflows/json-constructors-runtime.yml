@@ -21,6 +21,12 @@ on:
       - "Tests/CI/run-json-schema-lab.ps1"
       - "Tests/CI/Test-JsonSchemaLabScope.ps1"
       - "Tests/CI/Test-JsonSchemaLabDisposition.ps1"
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
   push:
     branches:
       - main
@@ -43,6 +49,12 @@ on:
       - "Tests/CI/run-json-schema-lab.ps1"
       - "Tests/CI/Test-JsonSchemaLabScope.ps1"
       - "Tests/CI/Test-JsonSchemaLabDisposition.ps1"
+      # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
+      - "!Modules/*/Documentation/**"
+      - "!Modules/*/README.md"
+      - "!Modules/*/CHANGELOG.md"
+      - "!Modules/*/Tests/**/*.md"
+      - "!Modules/*/Tests/*.md"
   workflow_dispatch:
 
 permissions:

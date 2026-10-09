@@ -125,8 +125,10 @@ werden in `.ai/repo_map.yaml` ergänzt.
    Modul-Artefakte prüfen;
 3. Runtime-Tests ausschließlich bei Source-, Deployment-, Runtime-Test-,
    Manifest- oder CI-Adapteränderungen starten;
-4. vollständigen Audit nur für Baseline, Release, Governance- oder
-   Kopplungsänderungen sowie auf ausdrücklichen Auftrag ausführen.
+4. vollständigen Audit für Baseline, Release, globale Fach-/Schutzverträge,
+   Kopplungsregistry oder Validator sowie bei unbekanntem Impact und auf
+   ausdrücklichen Auftrag ausführen. Eine Foundation-, Arbeitsregel- oder
+   Entscheidungsänderung allein löst keine fachfremden Modulprüfungen aus.
 
 Eine angeforderte tokensparende oder schnelle Arbeitsweise reduziert nicht die
 Prüftiefe des ermittelten Impact-Scopes.
@@ -153,6 +155,14 @@ Für jede tatsächlich ausgeführte Prüfung dokumentieren:
 
 Nicht ausgeführte Prüfungen als `not executed` oder `not applicable` kennzeichnen. Ein agenteninterner Review ohne reproduzierbare Ausgabe wird nicht als CI-Nachweis dargestellt.
 
+Die [Test- und Validierungsrichtlinie](../Documentation/Standards/TEST_AND_VALIDATION_POLICY.md)
+ist die kanonische Quelle für Phasen, Wiederholung, Testbindung und
+Logauswertung. Diagnose und begrenzte Integration übernehmen nicht automatisch
+alle offenen Qualifikations-/Releasefälle eines Moduls. Ein grüner Test,
+neuer Commit, Bericht oder Timer allein begründet keine Wiederholung.
+Vor einem Push zusammengehörige lokale Korrekturen zu einem stabilen Kandidaten
+bündeln; CI bestätigt diesen Stand und dient nicht als primäre Fehlersuche.
+
 ## CI-Ablösung und laufende Prüfungen
 
 Runtime- und Qualification-Workflows mit mutierenden Testressourcen behalten
@@ -166,9 +176,12 @@ darf durch dessen vollständig ersetzenden neuen Head abgelöst werden.
 Die vorhandenen Concurrency-Gruppen bleiben erhalten. Der ausschließlich
 lesende Dokumentationsworkflow darf weiterhin laufende Arbeit ablösen.
 Abgebrochene, abgelöste oder nicht gestartete Prüfungen sind kein PASS.
-Integration erfordert die tatsächlichen Ergebnisse am exakten aktuellen Head;
-nach Headänderung oder konfliktbehafteter Integration gelten frühere Erfolge
-nur für ihren ursprünglichen Commit. Es wird keine Merge Queue aktiviert.
+Integration erfordert die tatsächlichen CI-Ergebnisse am exakten aktuellen Head;
+frühere CI-Erfolge ersetzen diesen Gate nicht. Lokale Teilnachweise dürfen nach
+geprüfter Quell-/Tool-/Konfigurations-/Umgebungs-/Scope- und Frischebindung
+weiter anwendbar sein; Originalausführung und aktuelle Anwendbarkeit bleiben
+getrennt. Konfliktänderungen invalidieren betroffene Nachweise. Es wird keine
+Merge Queue aktiviert.
 
 Bei Timeout, unbekanntem Cleanup oder Infrastrukturfehler bleibt die Evidenz
 unvollständig. Fremde Änderungen werden nicht überschrieben; ein mutierender
