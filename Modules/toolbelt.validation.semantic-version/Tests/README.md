@@ -1,5 +1,17 @@
 # Semantic-Version Tests
 
+## Testwartung 2026-10-09: bestehende Orakel schließen
+
+Die bestehenden Parser-, Präzedenz-, Build-Metadata-, Größen-, ASCII- und
+Sort-Key-Fälle erhalten NULL-geschlossene positive Erwartungen und direkte
+TVF-Zeilenzählung je Fall. Fehlende oder mehrfache Ergebniszeilen sowie
+NULL-offene Validitäts-/Fehlercodefelder können die vorhandenen Orakel nicht
+mehr scheinbar erfüllen. Eingaben, Sollwerte und negative Vergleichsfälle
+bleiben erhalten; keine neue Suite oder Produktsemantik.
+Neue verschärfte Contract-Tests: **NOT_EXECUTED**, Quellenstand SOURCE_ONLY.
+Historische Matrixnachweise bleiben auf ihren damaligen Testquellen gültig;
+Version `1.1.0`, Manifeststatus, Produktcode, API und Workflow unverändert.
+
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 Runtime: `validated`.

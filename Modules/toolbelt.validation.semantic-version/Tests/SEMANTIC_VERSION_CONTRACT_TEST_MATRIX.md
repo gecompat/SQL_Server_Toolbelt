@@ -1,5 +1,16 @@
 # Semantic-Version Contract-Testmatrix
 
+## Orakelwartung 2026-10-09
+
+Nur die vorhandenen Fälle werden verschärft: positive skalare Ergebnisse
+und Sort Keys müssen tatsächlich vorliegen; jede geprüfte TVF liefert genau
+eine passende Zeile. Die vorhandenen ungültigen Parserfälle weisen auch
+fehlende Zeilen und NULL-Validitäts-/Fehlercodefelder ab. Alte Inputs,
+Präzedenz-Sollwerte und negative Orakel bleiben erhalten.
+Quellenstand SOURCE_ONLY; neue verschärfte Tests **NOT_EXECUTED**.
+Die folgende historische erfolgreiche Matrix bleibt unverändert; daraus
+folgt keine neue Windows-, Patch-, Minimalrechte- oder Releasequalifikation.
+
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 | Bereich | Fälle | Stand |
