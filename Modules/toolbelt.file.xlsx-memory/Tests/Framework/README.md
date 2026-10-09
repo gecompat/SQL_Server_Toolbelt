@@ -49,6 +49,13 @@ oder Orakeländerung. Anschließend bestand die tatsächliche Frameworkqualifika
 erneut in de-DE/en-US/tr-TR mit je API652/Numeric370/6437 Assertions,
 zusammen19311.
 
+Der getrennte historische Anzeigeadapter `Invoke-Display.ps1` verlangt ein
+neues Ausgabeziel. Seine abschließende `RunEvidence.json` wird nur nach
+erfolgreicher eigener Verzeichnisanlage geschrieben. Ein bereits vorhandenes
+Ziel oder ein Anlagefehler erteilt keine Schreibautorität; es gibt keinen
+Force-Modus. Diese Kontrolle ist kein allgemeiner Filesystem-, Race- oder
+Dateibereinigungsnachweis.
+
 ## Gemeinsame Kandidatenqualifikation 1.2
 
 Die aktuelle CI baut den ZIP-1.4- und XLSX-1.2-Release jeweils einmal und
