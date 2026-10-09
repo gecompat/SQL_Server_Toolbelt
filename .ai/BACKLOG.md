@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-44 Module sind implementiert. 19 sind `validated`, 25 sind `partially validated`; 0 sind `not executed`.
+44 Module sind implementiert. 18 sind `validated`, 26 sind `partially validated`; 0 sind `not executed`.
 
 ### Queue1.1: ein Dateirepeat unmittelbar nach der Migration – 2026-10-08
 
