@@ -155,6 +155,15 @@ class ChangeImpactTests(unittest.TestCase):
         self.assertTrue(glob_matches("Modules/a/Tests/README.md", "Modules/*/Tests/**/*.md"))
         self.assertTrue(triggered("Source/a.sql", ["Source/**", "!Source/**", "Source/a.sql"]))
 
+    def test_push_does_not_duplicate_the_pull_request_branch_check(self):
+        for workflow in (ROOT / ".github/workflows").glob("*.yml"):
+            text = workflow.read_text(encoding="utf-8")
+            if "  pull_request:" not in text:
+                continue
+            push = re.search(r"^  push:\n((?:    .*\n|\n)+)", text, re.MULTILINE)
+            if push is not None:
+                self.assertRegex(push.group(1), r"(?m)^    branches:", workflow.name)
+
 
 if __name__ == "__main__":
     result = unittest.TextTestRunner(stream=io.StringIO()).run(

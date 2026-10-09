@@ -85,7 +85,7 @@
         "Tests/Documentation/test_change_impact.py",
         "Documentation/Architecture/FOUNDATION_1_21_INTEGRATION.md"
       ],
-      "rationale": "Die zugehörige Integration bewertet tatsächliche Regeln, 14 breite Workflowfilter, Doppelvalidatoren, Validator-Selbsttests, aktuelle Head-/Main-Gates, Logs, Reviews, Modellaufrufe und die pausierte Fortsetzung. Dispositionen sind umgesetzt oder mit begrenztem Schutzgrund erhalten; keine materielle offene Entscheidung.",
+      "rationale": "Die zugehörige Integration bewertet tatsächliche Regeln, 14 breite Workflowfilter, Doppelvalidatoren, Branch-Push-/PR-Doppelqualifikation, Validator-Selbsttests, aktuelle Head-/Main-Gates, Logs, Reviews, Modellaufrufe und die pausierte Fortsetzung. Dispositionen sind umgesetzt oder mit begrenztem Schutzgrund erhalten; keine materielle offene Entscheidung.",
       "recommendation": null,
       "decision_required": null
     },

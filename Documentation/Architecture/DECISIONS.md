@@ -734,6 +734,8 @@ Vollaudit. Zwei gleiche Dokumentationsjob-Validatoraufrufe entfallen;
 Werkzeug-Selbsttests werden von der laufenden Inputprüfung getrennt.
 14 breite Modulworkflowfilter schließen bekannte reine Dokumentation aus.
 Der allgemeine Entscheidungskatalog löst keine Work-Type-SQL-Matrix aus.
+Phonetik-Pushprüfungen werden auf `main` begrenzt, damit Branch-Push und PR
+nicht dieselbe Qualifikation doppelt starten.
 
 Begründung: Fachfremde Tests, gleiche Checks im gleichen Job und zusätzliche
 Modellanalysen grüner Logs liefern keinen neuen Nachweis. Diagnose und

@@ -38,6 +38,7 @@ Die kanonischen Projektquellen bleiben über AGENTS und Repo-Map erreichbar.
 | Veröffentlichung und API-Katalog: Werkzeug-Selbsttests bei gewöhnlichen Modulinputänderungen | Aktuelle Inputs versus negative Toolorakel | Umgesetzt: Projektinputprüfung bleibt erhalten; Selbsttests werden bei Werkzeug-/Test-/Konfigurationsänderung oder explizitem Vollaudit ausgewählt. Keine negativen Assertions entfernt. |
 | 14 Workflowfilter mit `Modules/<module>/**` | SQL-/Build-/Frameworkqualifikation | Umgesetzt: ausschließlich bekannte README-, CHANGELOG-, Objekt-/Testdokumentationspfade ausgeschlossen. Positive Code-, Manifest-, Fixture-, Generator-, Adapter-, gemeinsame Abhängigkeits- und unbekannte Dateifilter bleiben erhalten. Externe Fachverträge und `workflow_dispatch` bleiben wirksam. |
 | Work-Type-Workflow: jeder Anhang in `DECISIONS.md` | Work-Type-Vertrag | Umgesetzt: allgemeines Entscheidungsprotokoll aus Runtimefilter entfernt. Work-Type-Design, Source-/Test-/Manifestdateien und Workflow bleiben Trigger. Materielle Entscheidungen müssen weiterhin in die betroffenen Fachverträge/Quellen reconciled werden. |
+| Phonetikworkflow: Push auf jeden Arbeitsbranch und PR desselben Commits | Doppelte gleiche Qualifikation | Umgesetzt nach tatsächlichem Remote-Befund: Push auf `main` begrenzt, PR und manueller Trigger erhalten. Keine doppelte Branch-Push-/PRqualifikation; tatsächliche Main-Integration bleibt separat geprüft. Gestartete Prüfungen bleiben erhalten. |
 | Diagnose, begrenzte Integration und Modul-DoD | Supportmatrix und Statuswahrheit | Umgesetzt: Phasen ausdrücklich getrennt. Offene Qualifikationsfälle bleiben offen; ein begrenzter Fix erbt nicht alle offenen Release-/Matrixfälle als neue Testpflicht. Eine volle Qualifikationsaussage behält alle bisherigen Anforderungen. |
 | Neue Commits, PR-Head und Main-Integration | Tatsächliche CI-/Frischebindung | Begründete Ausnahme: echte aktuelle CI bleibt erforderlich. Lokale Teilnachweise können nach vollständiger relevanter Bindungsprüfung anwendbar bleiben und werden nie als neu ausgeführt bezeichnet. Keine erfundene grüne Prüfung oder GitHub-Adminänderung. |
 | Statische Vorprüfungen in getrennten Runtime-/Qualification-Jobs | Getrennte Runner-/Toolumgebung und Preflight vor Mutation | Begründete Ausnahme: je tatsächlich gestarteter Umgebung bleibt der günstige Preflight erhalten. Checkoutidentität allein beweist keine gleiche Tool-/Umgebungsbindung zwischen Jobs; keine neue jobübergreifende Receiptinfrastruktur. Dieselbe Prüfung im gleichen Dokumentationsjob wird dagegen dedupliziert. |
@@ -98,5 +99,9 @@ Trigger voraus. Ein gezielter Diagnoseaufruf isolierte diesen Befund. Die
 Regression erhält nun ausdrücklich dessen bisherigen fehlenden manuellen
 Trigger; anschließend wurde der noch unerfüllte vollständige Audit bestanden.
 Keine Änderung der Produkt-, Transport-, Cleanup- oder Qualificationorakel.
-Nach dem grünen Audit wurden nur diese Ergebnisse dokumentiert; kein erneuter
-grüner Build, Native-Lauf, Vollaudit oder zusätzlicher Modellreview ausgelöst.
+Nach dem grünen Audit wurden zunächst nur diese Ergebnisse dokumentiert.
+Der erste Push/PR zeigte anschließend die doppelte Phonetikqualifikation am
+gleichen Head durch zwei Events. Die daraufhin ergänzte Branchbegrenzung und
+elfte Selektorregression wurden gezielt gegen den neuen Input geprüft;
+kein erneuter lokaler grüner Vollaudit, Build oder Native-Lauf. Die aktuellen
+Remote-Headprüfungen sind ein separates Pflichtgate, keine neue Modellreviewkette.

@@ -12,6 +12,7 @@ on:
       - "!Modules/*/Tests/**/*.md"
       - "!Modules/*/Tests/*.md"
   push:
+    branches: [main]
     paths:
       - 'Modules/toolbelt.string.phonetic/**'
       - '.github/workflows/phonetic-runtime.yml'
