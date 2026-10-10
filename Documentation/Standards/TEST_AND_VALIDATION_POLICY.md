@@ -73,7 +73,11 @@ Für USPs zusätzlich:
 
 ## Versions- und Plattformmatrix
 
-Jede tatsächlich unterstützte Kombination wird separat bewertet:
+Jede tatsächlich unterstützte Kombination wird separat bewertet, sofern sie
+einen abweichenden Programmzweig aktiviert, einen anderen Provider verwendet
+oder ein relevantes abweichendes Engineverhalten zu erwarten ist. Ohne einen
+solchen Unterschied darf ein repräsentatives Ziel die gemeinsame Ausführung
+abdecken; Version oder Betriebssystem allein erzwingen keine Wiederholung.
 
 - SQL Server 2019, 2022 und 2025;
 - Windows und Linux;
@@ -81,7 +85,7 @@ Jede tatsächlich unterstützte Kombination wird separat bewertet:
 - jeder alternative Provider;
 - Cross-database-Aufruf, wenn unterstützt.
 
-Ein erfolgreicher Test auf einer Version, Plattform oder einem Provider beweist keine andere Kombination. `not applicable` setzt eine dokumentierte Capability-Entscheidung voraus.
+Ein erfolgreicher Test auf einer Version, Plattform oder einem Provider beweist keine andere Kombination, außer die dokumentierte Risikobewertung weist die gemeinsame Ausführung ohne abweichenden Zweig, Provider oder erwarteten Engineunterschied nach. `not applicable` setzt eine dokumentierte Capability-Entscheidung voraus.
 
 ## Collation- und Datentests
 
@@ -106,6 +110,16 @@ Streuung überschreitet, ist der Vergleich als `NOT_EXECUTED` beziehungsweise
 Nachweis noch eine Statusaufwertung und ersetzt keinen tatsächlichen
 Regressionsvergleich. Baselines, Messwerte und Runnerdaten bleiben außerhalb
 der Repository-Evidenz.
+
+Ein Performance-Nachweis wiederholt Plattformen oder SQL-Versionen nur bei
+einem für den Workload relevanten Programmzweig, Provider oder erwarteten
+Engineunterschied. Andernfalls genügt ein dokumentiertes repräsentatives Ziel;
+Docker ist dafür nur auf einem reservierten oder ausreichend skalierten,
+lastkontrollierten Host zulässig, wenn der Workload keine hostgebundene
+Fähigkeit benötigt. Eine Kalibrierung und ein unabhängiger Bestätigungslauf dürfen eine
+flüchtige Basis ausschließlich innerhalb desselben Laufs verwenden. Sie
+belegen Wiederholbarkeit auf diesem Ziel, nicht eine allgemeine oder
+plattformvergleichende Leistungszusage.
 
 ## Phasen, Testbindung und Wiederholung
 
@@ -192,8 +206,7 @@ erfolgreich. Von 27 implementierten Modulen sind 20 `validated`, 7
 
 Die sieben `partially validated`-Module bleiben bewusst begrenzt:
 
-- `toolbelt.core.result-table`: vergleichbare plattformübergreifende
-  Performance-Baseline;
+- `toolbelt.core.result-table`: repräsentative stabile Performance-Evidenz;
 - `toolbelt.conversion.base64`: breitere Large-LOB-Performance-Evidenz;
 - `toolbelt.core.generate-series`: breitere Very-large-series-
   Performance-Evidenz;

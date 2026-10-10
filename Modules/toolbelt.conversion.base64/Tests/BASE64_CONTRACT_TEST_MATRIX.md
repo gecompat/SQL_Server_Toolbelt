@@ -26,7 +26,7 @@ war für die Compatibility Levels 150, 160 und 170 erfolgreich.
 | Fehler | ungültiges Zeichen, Länge Rest eins und ungültiges Padding |
 | Roundtrip | Encode → Decode für Standard und URL-safe |
 | Größen | inline-TVF-Roundtrip mit 6.000, 6.001, 65.536 und 1.048.576 synthetischen Bytes; SVF-Parität bis 6.001 Bytes |
-| Performance | 4 MiB synthetischer Large-LOB-Roundtrip; drei unabhängige Batches mit je Warm-up und fünf Messungen; Batch-Median-Spanne höchstens 20 %; Regression gegen optionale lokale Basis, je Lauf überschreibbar |
+| Performance | 4 MiB synthetischer Large-LOB-Roundtrip; drei unabhängige Batches mit je Warm-up und fünf Messungen; Batch-Median-Spanne höchstens 20 %; Regression gegen optionale lokale Basis, je Lauf überschreibbar. Der offene Nachweis läuft risikobasiert genau einmal auf einem reservierten oder ausreichend skalierten, lastkontrollierten SQL-Server-2025-/Compatibility-Level-170-Ziel. |
 | Native Parität | SQL Server 2025 als semantische Referenz |
 | API-Parität | SVF und inline TVF für Normal-, Grenz-, `NULL`- und Fehlerfälle |
 | Mengenverwendung | `OUTER APPLY`, exakt eine Ergebniszeile, Resultspalten |
@@ -83,6 +83,15 @@ kann keine Statusaufwertung begründen. Ein Basiswert `0` deaktiviert nur die
 Regressionsentscheidung, nicht den synthetischen Workload oder das
 Stabilitäts-Gate. Basis und Messwerte bleiben beim Aufrufer und werden nicht
 gespeichert oder veröffentlicht.
+
+Der Benutzer entschied am 2026-10-10, dass Versions- oder Plattformwiederholungen
+für Performance nur bei einem relevanten Programmzweig, Provider oder erwarteten
+Engineunterschied erforderlich sind. Der Workload verwendet den bestehenden
+T-SQL/XML-Provider ohne eigenen Plattformzweig; deshalb erfolgt die offene
+Evidenz auf SQL Server 2025 mit Compatibility Level 170 auf einem reservierten
+oder ausreichend skalierten, lastkontrollierten Ziel. Der Adapter kann dafür
+einmal kalibrieren und unmittelbar danach unabhängig bestätigen; die Werte
+verbleiben flüchtig und belegen nur Wiederholbarkeit auf diesem Ziel.
 
 ## Aktuelle Validierungsevidenz
 

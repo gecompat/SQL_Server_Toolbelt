@@ -1051,7 +1051,7 @@
       "kind": "entrypoint",
       "merge": "ai_merge_if_exists",
       "source_sha256": "d324d2d0ea217e764e14b4c44d195ba909e225679aa99cdf0b050a56d0236539",
-      "installed_sha256": "2cbae64a653528414d1ba143ac85045b634f20d68f3f243b43272b3b939609a5",
+      "installed_sha256": "8fbde4db61f5bd6a0c198bc5e57d82e606b5b7fb7463af797b3b16f34385f75b",
       "integration_state": "INTENTIONAL_OVERRIDE",
       "reason": "Preserve Toolbelt authorization, privacy, SQL/Lab ownership, license and project discovery; merge the scoped Foundation 1.20 bridge only."
     },

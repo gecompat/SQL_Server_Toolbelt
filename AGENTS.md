@@ -91,6 +91,28 @@ Lab-Infrastruktur oder eine allgemeine Serveroptimierung.
 Diese eng begrenzte Freigabe ergänzt die Infrastrukturgrenze oben. Ein
 blockiertes Testziel stoppt keine unabhängige freigegebene Entwicklungswelle.
 
+### Ständige Trust-Freigabe für Entwicklungswellen
+
+Auf ausdrücklichen Benutzerauftrag vom 2026-10-10 sind hashgebundene
+`sp_add_trusted_assembly`-Einträge für bereits einzeln freigegebene
+CLR-Entwicklungs- und Testwellen auf ausdrücklich ausgewählten, schema-validen
+Labzielen grundsätzlich autorisiert. Diese Freigabe gilt nur für den exakten
+SHA2-512-Hash eines reproduzierbar gebauten und vor dem Eintrag geprüften
+Releaseartefakts. Sie ersetzt keine Funktions-, Rechte-, Infrastruktur- oder
+Produktionsfreigabe und erweitert weder `clr strict security`, `TRUSTWORTHY`
+noch andere Servereinstellungen.
+
+- Vorzustand, exakter Hash, eigener Eintrag und betroffener Testscope werden
+  ausschließlich im lokalen, nicht versionierten Wiederherstellungsjournal
+  erfasst; keine Hashes, Serverdetails oder Runtimeausgaben in öffentlicher
+  Evidenz speichern.
+- Vor einem Eintrag Assemblyherkunft, Buildbindung, notwendige vorhandene
+  Berechtigungen und mögliche Assemblyverbraucher prüfen. Keine Rechte erteilen
+  und keine unbekannten oder abweichenden Binaries vertrauen.
+- Nach Abschluss aller Verbraucher nur eindeutig eigene, unveränderte und
+  nicht mehr verwendete Einträge entfernen. Unklare Ownership, Drift oder
+  Verbrauch blockieren die Entfernung statt fremde Zustände zu überschreiben.
+
 ## Persönlicher Research-Input
 
 `Backlog/personal_Backlog_Bainstorm.md` ist ein vom Benutzer gepflegter Ideenpool. Vor jeder Backlog- oder Research-Aufgabe ist diese Datei als Hinweisquelle zu lesen und bei der Recherche zu berücksichtigen.
