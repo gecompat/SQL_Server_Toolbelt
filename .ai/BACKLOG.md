@@ -2240,7 +2240,7 @@ erhalten; keine allgemeine Heap-, Laufzeit-, SAFE- oder Cleanupzusage.
 | Tests | `Tests/CI/run-lab-local.ps1` mit `TestSuite=full`; getrennte synthetische File-Content-Fixtures; vorhandene manuelle Windows-Pläne für ResultTable, Windows Filesystem und ZIP Memory; vollständiger Dokumentations- und Datenschutzcheck. |
 | Blocker | Kein Gruppenblocker für einzeln bereite Linux- oder Windows-Ziele. Die automatisierte Matrix ist vollständig grün. Offen bleiben ausschließlich die sieben modulspezifisch dokumentierten Performance-, Client-/Treiber-, Fixture-, Interoperabilitäts- oder manuellen Sicherheitsgates. Das Projekt darf die Lab-Ressourcen nicht selbst starten oder reparieren. |
 | Evidenz | V0-Freigabe vom 2026-08-28 und Einzelzielfreigabe vom 2026-08-29; am 2026-09-01 bestanden alle automatisierten Adapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. W1-Collations/URI-Large-Input, W2a-Kollisionen/Bucket-Workload, W2b-Kollision, eingeschränkte Metadata Visibility sowie der korrigierte W5-Providervertrag sind eingeschlossen. Es werden keine Hosts, Credentials, konkreten Datenbanknamen, Laufzeiten oder vollständigen Logs übernommen. |
-| Nächster Schritt | Die sieben nicht autonom schließbaren Rest-Gates getrennt bearbeiten, sobald externe Fixtures, manuelle Sicherheitskontexte, Vergleichsbaselines oder Releaseentscheidungen vorliegen. Der Benutzer hat am 2026-09-19 ein Stabilitäts-Gate für den bestehenden Generate-Series-Performancevergleich freigegeben: Instabile Batch-Mediane werden ohne Messwertpersistenz als nicht ausgeführt klassifiziert und führen weder zu einem Erfolgsnachweis noch zu einer Statusaufwertung. Die ebenfalls ausdrücklich freigegebenen Stabilitäts-Gates für ResultTable und Base64 sind über [PR #108](https://github.com/gecompat/SQL_Server_Toolbelt/pull/108) gemergt: drei Batches mit je Warm-up und fünf Samples, standardmäßig höchstens 20 % Batch-Median-Varianz; Instabilität führt zu `NOT_EXECUTED` mit `PERFORMANCE_STABILITY_UNAVAILABLE`. Baseline `0` deaktiviert ausschließlich den Regressionsvergleich. Die Gates verhindern ungesicherte Aufwertungen, begründen selbst aber keine Aufwertung; Messwerte werden nicht persistiert. Eine tatsächliche Veröffentlichung bleibt ohne ausdrückliche Autorisierung ausgeschlossen. |
+| Nächster Schritt | Die sieben nicht autonom schließbaren Rest-Gates getrennt bearbeiten, sobald externe Fixtures, manuelle Sicherheitskontexte, Vergleichsbaselines oder Releaseentscheidungen vorliegen. Für ResultTable, Base64 und Generate Series ist nach Benutzerentscheidung vom 2026-10-10 genau ein repräsentativer Lauf auf SQL Server 2025 mit Compatibility Level 170 auf einem reservierten oder ausreichend skalierten, lastkontrollierten Ziel vorgesehen: drei Batches mit je Warm-up und fünf Samples, höchstens 20 % Batch-Median-Varianz, anschließende flüchtige Kalibrierung und unabhängige Bestätigung. Der erste Generate-Series-Versuch auf dem gemeinsam belasteten Entwicklungs-Docker-Host war `NOT_EXECUTED / PERFORMANCE_STABILITY_UNAVAILABLE` und wird nicht wiederholt. Instabilität führt zu `NOT_EXECUTED`; Kalibrierung und Bestätigung belegen nur Wiederholbarkeit dieses Ziels, keine plattformübergreifende Leistungszusage. Die Basis und Messwerte werden nicht persistiert. Eine tatsächliche Veröffentlichung bleibt ohne ausdrückliche Autorisierung ausgeschlossen. |
 
 Die V0c-Kohorte umfasst verbindlich:
 
@@ -2403,15 +2403,15 @@ Die V0c-Kohorte umfasst verbindlich:
 | Scope | `toolbelt.core.result-table`; Modulverzeichnis, `module.yaml`, `toolbelt_core.USP_PrepareResultTable`, parametergesteuertes Deploy- und Uninstall-Skript, Objekt- und Moduldokumentation, synthetische Beispiele sowie statische, Contract-, Runtime-, Collation-, Deployment- und Plattformtests. |
 | Dependencies | `AP-2026-002`, `RESULT_TABLE_MODULE_DESIGN.md`, `RESULT_TABLE_CONTRACT_TEST_MATRIX.md`, `DEC-2026-013` bis `DEC-2026-017` und `DEC-2026-019`. |
 | Priorität | `P0` |
-| Status | `active`; fachlich abgeschlossen und Windows-Nachweis vorhanden; offen ist ausschließlich die vergleichbare plattformübergreifende Performance-Baseline, die über `V0` geführt wird |
+| Status | `active`; fachlich abgeschlossen und Windows-Nachweis vorhanden; offen ist ausschließlich die repräsentative stabile Performance-Evidenz, die über `V0` geführt wird |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
 | Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Exakt ein persistentes SQL-Objekt in Version `1.0.0`; öffentliche Signatur und Help-Vertrag vollständig; `@LikeTable`-Schemaquelle, `@KeepData`-Matrix, Preflight, in-place-Umbau, Savepoint- und Fehlervertrag implementiert; lokale und zentrale Installation; kontrolliert wiederholbare Lifecycle-Skripte; keine nicht freigegebenen weiteren persistenten Objekttypen; Dokumentation und Manifest konsistent; alle verfügbaren Pflichtprüfungen ausgeführt und nicht verfügbare Prüfungen ehrlich ausgewiesen. |
 | Tests | Statischer Vertrag und vollständige Windows-/Linux-Matrix auf SQL Server 2019, 2022 und 2025 einschließlich Collation-, 1024-Spalten-, Transaktions-, natürlichem Savepoint-Enginefehler 2705, Multi-Session-, Central-/Lifecycle- und synthetischem Performance-Workload erfolgreich. |
-| Blocker | Kein Merge-Blocker für den implementierten und teilweise validierten Stand. Für `validated` fehlt eine vergleichbare plattformübergreifende Performance-Baseline. |
+| Blocker | Kein Merge-Blocker für den implementierten und teilweise validierten Stand. Für `validated` fehlt die repräsentative stabile Performance-Evidenz. |
 | Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.core.result-table/`; [Basislauf 30447442638](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30447442638), [erweiterter Lauf 30456207934](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30456207934), [Multi-Session-Lauf 30459004717](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30459004717) und [Savepoint-Enginefehler-Lauf 30692956855](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692956855) erfolgreich. |
-| Nächster Schritt | Die vorhandene Performancebasis je Ziel flüchtig gegen `Performance.Workload.sql` vergleichen; Default ist höchstens 20 % Median-Regression und der Wert ist je Lauf steuerbar. Erst nach vollständiger Pflichtmatrix auf `validated` setzen. |
+| Nächster Schritt | `Performance.Workload.sql` einmal auf einem reservierten oder ausreichend skalierten, lastkontrollierten SQL-Server-2025-/Compatibility-Level-170-Ziel kalibrieren und unabhängig bestätigen; höchstens 20 % Batch-Median-Varianz und Median-Regression. Werte bleiben flüchtig. Versions- oder Plattformwiederholung nur bei relevantem Zweig, Provider oder erwarteter Engineabweichung. |
 
 
 ### AP-2026-023: Windows Filesystem SQL CLR
@@ -2451,6 +2451,22 @@ Die Vorfreigabebesprechungen zu `TC-2026-032` und `TC-2026-034` bleiben
 nachfolgend historisch sichtbar. Ihr damaliger Freigabestatus wird durch den
 aktuellen aktiven Nachtrag vom 2026-10-01 oben ersetzt; die übrigen
 Folgescopes sind dadurch nicht freigegeben.
+
+### TC-2026-049: RunAs-Identitätsmodus für geeignete Dateisystemfunktionen
+
+| Feld | Wert |
+|---|---|
+| ID | `TC-2026-049` |
+| Ziel | Einen optionalen, explizit konfigurierten RunAs-Identitätsmodus für diejenigen Dateisystemfunktionen vorbereiten, deren Sicherheits- und Betriebsvertrag ihn tatsächlich rechtfertigt. |
+| Scope | Vor-Source-Entscheidung zu Identitätsquelle, Credential-/Secret-Grenze, erlaubten Funktionen, SQL-/Windows- und NTFS-Rechten, Root-Alias-Bindung, Audit-/Fehlerverhalten, Deployment, Trust, Lifecycle, Minimalrechten sowie Windows-Testmatrix. Der vorhandene `Caller`- und `ServiceAccount`-Vertrag bleibt unverändert. |
+| Nicht-Scope | Keine Implementierung, keine neue `@ExecutionIdentity`-Option, keine Credentials oder Secrets im Repository, keine Rechtevergabe, keine Testkontoerstellung durch das Projekt, kein allgemeiner Identity-Broker und keine implizite Ausweitung auf alle Toolbelt-Module. |
+| Abgrenzung | SQL `EXECUTE AS` ist nicht automatisch ein Windows-Dateisystem-RunAs-Kontext. Eine spätere Richtung muss Windows-Identität, Secret-Verwaltung und reale NTFS-Wirkung getrennt nachweisen. |
+| Dependencies | `AP-2026-023`, `toolbelt.filesystem.windows`, bestehender Root-Alias-/Reparse-/Caller-/ServiceAccount-Vertrag, bereitgestellte synthetische Windows-Testidentitäten und eine gesonderte funktionsbezogene Benutzerfreigabe. |
+| Priorität | `P1` |
+| Status | `proposed`; vom Benutzer am 2026-10-10 als eigene Entwicklungswelle angefordert, ohne Implementierungsfreigabe. |
+| Akzeptanzkriterien | Für jede einbezogene Funktion sind Zweck, Alternativen, Credentialbesitz, minimale Rechte, erlaubte Roots, Fehler-/Auditsemantik, Cleanup, Windows-Identitätsnachweis und Testfälle vor Source verbindlich entschieden. Nicht geeignete Funktionen bleiben ausdrücklich ausgeschlossen. |
+| Risiken | Persistente oder übertragbare Credentials, Servicekonto-Umgehung, `EXECUTE AS`-Fehlannahmen, Root-Escape über Reparse Points, unklare Cleanup-Ownership und unzureichend abgegrenzte Rechte. |
+| Nächster Schritt | Designbesprechung: konkrete Zielidentität und Credential-Quelle, Funktionsinventar sowie Alternativen (Caller, ServiceAccount, SQL Agent/Proxy oder externer Worker) vergleichen; erst danach eine explizite Implementierungsfreigabe einholen. |
 
 ### TC-2026-032: Unquoting und optionale Split-USP
 
@@ -2935,7 +2951,7 @@ bleiben erhalten; keine Veröffentlichung.
 | Tests | Statische Vertragsprüfung sowie vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Compatibility Levels 150/160/170 nach Zielversion erfolgreich. |
 | Blocker | Kein Merge-Blocker. Für `validated` fehlt eine breitere Performancebewertung sehr großer Reihen. |
 | Evidenz | Benutzerfreigabe vom 2026-07-30; kanonische Artefakte unter `Modules/toolbelt.core.generate-series/`; [Generate-Series Runtime Run 30496759324](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30496759324) erfolgreich. |
-| Nächster Schritt | Breitere Very-large-series-Performance-Evidenz mit dem 10-Millionen-Workload gegen eine flüchtige Vergleichsbasis erheben; Default ist höchstens 20 % Median-Regression und je Lauf steuerbar. |
+| Nächster Schritt | Den 10-Millionen-Workload einmal auf einem reservierten oder ausreichend skalierten, lastkontrollierten SQL-Server-2025-/Compatibility-Level-170-Ziel kalibrieren und unabhängig bestätigen; höchstens 20 % Batch-Median-Varianz und Median-Regression. Werte bleiben flüchtig. Versions- oder Plattformwiederholung nur bei relevantem Zweig, Provider oder erwarteter Engineabweichung. |
 
 ### AP-2026-008: Base64/Base64URL-Modul implementieren und validieren
 
@@ -2954,7 +2970,7 @@ bleiben erhalten; keine Veröffentlichung.
 | Tests | Statische Vertragsprüfung sowie vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Compatibility Levels 150/160/170 nach Zielversion erfolgreich. |
 | Blocker | Kein Merge-Blocker. Für `validated` fehlt eine breitere Performancebewertung großer LOBs. |
 | Evidenz | Benutzerfreigabe vom 2026-07-29; kanonische Artefakte unter `Modules/toolbelt.conversion.base64/`; [Base64 Runtime Run 30493304673](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30493304673) erfolgreich. |
-| Nächster Schritt | Breitere Large-LOB-Performance-Evidenz mit dem 4-MiB-Workload gegen eine flüchtige Vergleichsbasis erheben; Default ist höchstens 20 % Median-Regression und je Lauf steuerbar. |
+| Nächster Schritt | Den 4-MiB-Workload einmal auf einem reservierten oder ausreichend skalierten, lastkontrollierten SQL-Server-2025-/Compatibility-Level-170-Ziel kalibrieren und unabhängig bestätigen; höchstens 20 % Batch-Median-Varianz und Median-Regression. Werte bleiben flüchtig. Versions- oder Plattformwiederholung nur bei relevantem Zweig, Provider oder erwarteter Engineabweichung. |
 
 ### AP-2026-007: Entscheidungsvorbereitung für das zweite Modul
 

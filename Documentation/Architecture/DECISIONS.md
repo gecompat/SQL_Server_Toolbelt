@@ -523,6 +523,19 @@ bleibt ein separater Release-Nachweis.
 | Alternativen | Getrennte SQL-/CLR-Parser, ungeprüfte Binaryadoption und automatische Owner-/Rechtereparatur sind ausgeschlossen. |
 | Betroffene Verträge | `JSON_CLR_MIGRATION_CONTRACT.md`, `JSON_GROUP_CONSTRUCTORS_CONTRACT.md`, `KNOWN_CLR_ARTIFACTS.json`, `.ai/BACKLOG.md`, `toolbelt.json.constructors` |
 
+## DEC-2026-034: Risikobasierte Performance-Evidenz
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-10-10 |
+| Status | accepted |
+| Entscheidung | Performanceprüfungen wiederholen SQL-Versionen oder Plattformen nur bei einem relevanten abweichenden Programmzweig, Provider oder erwarteten Engineunterschied. Andernfalls genügt ein dokumentiertes repräsentatives Ziel; für ResultTable, Base64 und Generate Series ist dies SQL Server 2025 mit Compatibility Level 170 auf einem reservierten oder ausreichend skalierten, lastkontrollierten Ziel. |
+| Begründung | Betriebssystem und Produktversion allein ergeben keinen aussagekräftigen Performancevergleich. Eine Vollmatrix ohne technischen Unterschied erhöht Kosten und Umgebungsrauschen, ohne die Regressionserkenntnis zu verbessern. |
+| Scope | Ausschließlich Performance-Evidenz; funktionale Support- und Providerprüfungen behalten ihre eigene risikobasierte Matrix. |
+| Auswirkungen | Die drei Workloads verwenden drei Batches mit Warm-up und fünf Samples. Eine flüchtige Kalibrierung und ein unabhängiger Bestätigungslauf prüfen Wiederholbarkeit auf demselben Ziel. Ein geteilter Entwicklungs- oder Testhost ist keine zulässige Performancebasis; Docker ist nur auf einem reservierten oder ausreichend skalierten, lastkontrollierten Host zulässig. Messwerte, Baselines und Runnerdaten werden nicht als Repository-Evidenz gespeichert. Das ist keine allgemeine oder plattformübergreifende Leistungszusage. |
+| Alternativen | Vollständige Windows-/Linux- und 2019-/2022-/2025-Performance-Matrix sowie ein reiner Stabilitätslauf ohne Bestätigung wurden nicht gewählt. |
+| Betroffene Verträge | `TEST_AND_VALIDATION_POLICY.md`, `.ai/BACKLOG.md`, `toolbelt.core.result-table`, `toolbelt.conversion.base64`, `toolbelt.core.generate-series` |
+
 ## Datierter Entscheidungsstand 2026-10-05: sechs strikte Safe-Cast-TVFs
 
 RelatedReference: `RI-2026-076`. Funktionsbezogene Benutzerentscheidung nach

@@ -82,5 +82,6 @@ IF @BaselineMedianMilliseconds > 0
    AND @MedianMilliseconds > @BaselineMedianMilliseconds * (1 + @MaxMedianRegressionPercent / 100.0)
     THROW 52452, N'Der Generate-Series-Performance-Median überschreitet die zulässige Regression.', 1;
 
+PRINT N'TBX_PERFORMANCE_MEDIAN_MILLISECONDS=' + CONVERT(nvarchar(30), @MedianMilliseconds);
 PRINT N'Generate-Series Very-large-series-Performance-Workload: erfolgreich.';
 GO

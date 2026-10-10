@@ -25,7 +25,7 @@ war für die SQL-Server-2025-Linux-Matrix erfolgreich. Der Modulstatus ist
 | Fehler | Schritt `0`; Vorrang dieses Fehlers; Zeilenzahl außerhalb `bigint` |
 | Datentypen | `int`, `bigint` und Grenzwerte beider Typen |
 | Größen | eine Million synthetische Werte |
-| Performance | zehn Millionen synthetische Werte; drei unabhängige Serien mit je einem Warm-up und fünf Messwiederholungen; jede Serie liefert einen Median. Nur bei höchstens 20 % Streuung zwischen den Serien wird gegen eine lokal gehaltene Basis mit höchstens 20 % Median-Regression verglichen; beide Grenzen sind je Lauf überschreibbar. |
+| Performance | zehn Millionen synthetische Werte; drei unabhängige Serien mit je einem Warm-up und fünf Messwiederholungen; jede Serie liefert einen Median. Nur bei höchstens 20 % Streuung zwischen den Serien wird gegen eine lokal gehaltene Basis mit höchstens 20 % Median-Regression verglichen; beide Grenzen sind je Lauf überschreibbar. Der offene Nachweis läuft risikobasiert genau einmal auf einem reservierten oder ausreichend skalierten, lastkontrollierten SQL-Server-2025-/Compatibility-Level-170-Ziel. |
 | Row Goal | äußerer `TOP (10)` gegen eine sehr große gültige Reihe |
 | relationale Nutzung | typstabiler Join und korreliertes `CROSS APPLY` |
 | native Parität | SQL Server 2025 bei Compatibility Levels 160 und 170 |
@@ -86,6 +86,16 @@ veröffentlicht.
 Der Benutzer hat dieses Stabilitäts-Gate am 2026-09-19 für den bestehenden
 Generate-Series-Performancevertrag freigegeben. Es ändert weder den
 öffentlichen SQL-Vertrag noch die bestehende Regressionsgrenze.
+
+Der Benutzer entschied am 2026-10-10, dass Versions- oder Plattformwiederholungen
+für Performance nur bei einem relevanten Programmzweig, Provider oder erwarteten
+Engineunterschied erforderlich sind. Der T-SQL-Workload hat keinen solchen
+eigenen Zweig; deshalb erfolgt die offene Evidenz auf SQL Server 2025 mit
+Compatibility Level 170 auf einem reservierten oder ausreichend skalierten,
+lastkontrollierten Ziel. Der Adapter kann dafür einmal kalibrieren und
+unmittelbar danach unabhängig bestätigen; die Werte verbleiben flüchtig und
+belegen nur Wiederholbarkeit auf diesem Ziel. Der Versuch auf dem gemeinsam
+belasteten Entwicklungs-Docker-Host war `NOT_EXECUTED / PERFORMANCE_STABILITY_UNAVAILABLE` und wird nicht wiederholt.
 
 ## Aktuelle Validierungsevidenz
 

@@ -14,8 +14,18 @@ Status: ausstehend. Dieser Testplan ist für die manuelle Ausführung auf einem 
 
 1. Das Modul entsprechend `Deployment/README.md`, `Add-TrustedAssembly.sql` und `Deploy.sql` in einer Testdatenbank installieren. `clr enabled` und `clr strict security` müssen bereits aktiv sein; der Installer ändert keine Instanzoption.
 2. Einen RootAlias mit einem ausschließlich synthetischen Root konfigurieren. Für die Testreihe müssen `AllowRead`, `AllowWrite`, `AllowList`, `AllowDelete` und `AllowCreateDirectory` gezielt aktiviert sein; ein relativer `WorkPath` ist für die Staging-Prüfung zu setzen.
-3. Getrennte NTFS-Rechte vorbereiten: ein Windows-Caller mit erlaubtem Zugriff, ein Windows-Caller ohne Zugriff und – nur für `ServiceAccount` – das SQL-Server-Dienstkonto.
-4. Vor jedem Testlauf `@Hilfe = 1` jeder öffentlichen Procedure ausführen und die Rückgabe auf Parameter- und Resultset-Vertrag prüfen.
+3. Der berechtigte Testbetreiber erstellt ausschließlich für diesen Lauf eine
+   dedizierte Windows-Identität `TestUser`, ohne reale Konten- oder
+   Pfadangaben in Testartefakte zu übernehmen. `TestUser` erhält zunächst nur
+   die erforderlichen Rechte auf den synthetischen Root; die verweigerte
+   Caller-Reihe wird durch kontrolliertes Entziehen und anschließendes
+   Wiederherstellen derselben eigenen ACL geprüft. Das Projekt erstellt weder
+   Windows-Konten noch ACLs selbst.
+4. Getrennte NTFS-Rechte für `TestUser` und – nur für `ServiceAccount` – das
+   SQL-Server-Dienstkonto vorbereiten. Jede Änderung bleibt auf den
+   synthetischen Root begrenzt und wird nach der Reihe vom Testbetreiber
+   zurückgesetzt.
+5. Vor jedem Testlauf `@Hilfe = 1` jeder öffentlichen Procedure ausführen und die Rückgabe auf Parameter- und Resultset-Vertrag prüfen.
 
 Für den read-only Einstieg steht
 `Tests/Runtime/WindowsCallerListDirectory.Manual.sql` bereit. Es wird im
@@ -42,6 +52,12 @@ SQLCMD-Modus mit einem Betreiber-RootAlias ausgeführt und prüft `Caller` über
 | DEL-01 | Nichtrekursives und rekursives Directory-Delete | Nichtrekursiv nur leere Directory; rekursiv nur mit `@Recursive = 1`. |
 | DEL-02 | `@MaxDepth` und `@MaxEntries` | Startdirectory-Tiefe0; direkte Dateien bei0 erlaubt, Childdirectory bei0 verweigert. Exakte Grenze akzeptiert; Überschreitung vor erstem Delete verweigert, alle vorbereiteten Sentinelbytes und Directories erhalten. |
 | DEL-03 | TOCTOU-Beobachtung bei Junction-/Reparse-Point-Wechsel | Beobachtung dokumentieren; bei unerwarteter Traversierung sofort abbrechen und keinen weiteren Löschtest ausführen. |
+
+Die aktuelle Welle umfasst verbindlich `Caller` mit `TestUser`,
+`ServiceAccount` und die Reparse-Point-/Junction-Fälle `FS-03` und `DEL-03`.
+Ein eigenständiger RunAs-Identitätsmodus ist nicht Teil dieses Moduls und wird
+als `TC-2026-049` separat entworfen; SQL `EXECUTE AS` wird hierfür nicht als
+Windows-Identitätsnachweis behandelt.
 
 Limitabweisung im unveränderten Preflight ist mutationsfrei. Nach Beginn der
 Löschung sind bei I/O-/Racefehlern Teilzustände möglich; dies ist kein

@@ -175,6 +175,7 @@ BEGIN
     THROW 52121, N'Der Result-Table-Performance-Median überschreitet die zulässige Regression.', 1;
 END;
 
+PRINT N'TBX_PERFORMANCE_MEDIAN_MILLISECONDS=' + CONVERT(nvarchar(30), @MedianMilliseconds);
 PRINT N'USP_PrepareResultTable Performance-Workload: erfolgreich.';
 
 DROP TABLE #tbx_ResultTablePerformance_ShapeB;

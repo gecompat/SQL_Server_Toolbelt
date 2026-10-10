@@ -82,5 +82,6 @@ IF @BaselineMedianMilliseconds > 0
    AND @MedianMilliseconds > @BaselineMedianMilliseconds * (1 + @MaxMedianRegressionPercent / 100.0)
     THROW 52352, N'Der Base64-Large-LOB-Performance-Median überschreitet die zulässige Regression.', 1;
 
+PRINT N'TBX_PERFORMANCE_MEDIAN_MILLISECONDS=' + CONVERT(nvarchar(30), @MedianMilliseconds);
 PRINT N'Base64 Large-LOB-Performance-Workload: erfolgreich.';
 GO

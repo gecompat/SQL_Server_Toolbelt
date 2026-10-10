@@ -68,6 +68,15 @@ dem Vergleichsstand und demselben Ziel ermittelt. Der Aufrufer übergibt nur
 die daraus abgeleitete Basis; weder Basis noch Messwerte werden in Dateien,
 Commits, Pull Requests oder Testevidenz gespeichert.
 
+Der Benutzer entschied am 2026-10-10, dass Versions- oder Plattformwiederholungen
+für Performance nur bei einem relevanten Programmzweig, Provider oder erwarteten
+Engineunterschied erforderlich sind. Der Workload hat keinen solchen eigenen
+Zweig; deshalb erfolgt die offene Evidenz auf SQL Server 2025 mit Compatibility
+Level 170 auf einem reservierten oder ausreichend skalierten,
+lastkontrollierten Ziel. Der Adapter kann dafür einmal kalibrieren und
+unmittelbar danach unabhängig bestätigen; die Werte verbleiben flüchtig und
+belegen nur Wiederholbarkeit auf diesem Ziel.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->

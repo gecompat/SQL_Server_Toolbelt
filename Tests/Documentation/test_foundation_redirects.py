@@ -366,7 +366,7 @@ class ProvenanceTests(unittest.TestCase):
                          "249dffe06dac617ce48202f676e0d5d7060ca3f2f31f9861398fc1e3ff59c0df")
         self.assertEqual(projection(fields + ("installed_sha256", "integration_state", "reason"),
                                     [row for row in rows if row["target"] not in changed]),
-                         "54f1c7b8e75f6c7a6aaea4977c498a549d9113da1c4f74732a21221f70eb1c77")
+                         "452c73339246812225c4faa77dca89ce5ef5793d7bece1d998740c60b4160b4a")
         for row in rows:
             if row["target"] not in changed | upgraded | new:
                 self.assertEqual(row, old_rows[row["target"]])

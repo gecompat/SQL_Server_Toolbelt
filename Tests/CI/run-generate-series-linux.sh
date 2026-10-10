@@ -10,6 +10,7 @@ performance_baseline_milliseconds="${TBX_PERFORMANCE_BASELINE_MEDIAN_MILLISECOND
 performance_max_regression_percent="${TBX_PERFORMANCE_MAX_MEDIAN_REGRESSION_PERCENT:-20}"
 performance_max_batch_median_variance_percent="${TBX_PERFORMANCE_MAX_BATCH_MEDIAN_VARIANCE_PERCENT:-20}"
 run_performance_workload="${TBX_RUN_PERFORMANCE_WORKLOAD:-0}"
+performance_calibrate_and_confirm="${TBX_PERFORMANCE_CALIBRATE_AND_CONFIRM:-0}"
 case "${sql_version}" in
   2019) compatibility_levels="150"; max_compatibility_level="150" ;;
   2022) compatibility_levels="160"; max_compatibility_level="160" ;;
@@ -25,7 +26,9 @@ if [[ "${TBX_SQL_TARGET:-runner}" != lab ]]; then
     fi
 fi
 sa_password="Tbx!$(openssl rand -hex 16)Aa1"
-echo "::add-mask::${sa_password}"
+if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
+    echo "::add-mask::${sa_password}"
+fi
 
 container_owner=""; private_dir=""; container_options=()
 if [[ "${TBX_SQL_TARGET:-runner}" != lab ]]; then
@@ -175,10 +178,11 @@ for compatibility_level in ${compatibility_levels}; do
         -v CompatibilityLevel="${compatibility_level}"
 done
 
-if [[ "${run_performance_workload}" == "1" ]]; then
+run_performance_workload_once() {
+    local baseline_milliseconds="$1" performance_output median_milliseconds
     performance_output="$(mktemp)"
     if ! run_file "${local_database}" "${runtime_directory}" Performance.Workload.sql \
-        -v "PerformanceBaselineMedianMilliseconds=${performance_baseline_milliseconds}" \
+        -v "PerformanceBaselineMedianMilliseconds=${baseline_milliseconds}" \
         -v "PerformanceMaxMedianRegressionPercent=${performance_max_regression_percent}" \
         -v "PerformanceMaxBatchMedianVariancePercent=${performance_max_batch_median_variance_percent}" \
         >"${performance_output}" 2>&1; then
@@ -189,9 +193,36 @@ if [[ "${run_performance_workload}" == "1" ]]; then
         fi
         cat "${performance_output}" >&2
         rm -f "${performance_output}"
-        exit 1
+        return 1
     fi
+    median_milliseconds="$(sed -nE 's/.*TBX_PERFORMANCE_MEDIAN_MILLISECONDS=([0-9]+).*/\1/p' "${performance_output}")"
     rm -f "${performance_output}"
+    if [[ ! "${median_milliseconds}" =~ ^[1-9][0-9]*$ ]]; then
+        echo "PERFORMANCE_MEDIAN_CAPTURE_UNAVAILABLE" >&2
+        return 1
+    fi
+    printf '%s\n' "${median_milliseconds}"
+}
+
+if [[ "${run_performance_workload}" == "1" ]]; then
+    case "${performance_calibrate_and_confirm}" in
+        0)
+            run_performance_workload_once "${performance_baseline_milliseconds}" >/dev/null
+            ;;
+        1)
+            if [[ "${performance_baseline_milliseconds}" != "0" ]]; then
+                echo "TBX_PERFORMANCE_CALIBRATE_AND_CONFIRM verlangt PerformanceBaselineMedianMilliseconds=0." >&2
+                exit 1
+            fi
+            performance_calibration_milliseconds="$(run_performance_workload_once 0)"
+            run_performance_workload_once "${performance_calibration_milliseconds}" >/dev/null
+            echo "PERFORMANCE_CALIBRATION_AND_CONFIRMATION_VERIFIED"
+            ;;
+        *)
+            echo "TBX_PERFORMANCE_CALIBRATE_AND_CONFIRM muss 0 oder 1 sein." >&2
+            exit 1
+            ;;
+    esac
 elif [[ "${run_performance_workload}" != "0" ]]; then
     echo "TBX_RUN_PERFORMANCE_WORKLOAD muss 0 oder 1 sein." >&2
     exit 1
