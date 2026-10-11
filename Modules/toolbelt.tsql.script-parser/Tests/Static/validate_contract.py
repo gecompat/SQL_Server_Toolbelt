@@ -211,10 +211,21 @@ def main() -> int:
         SCRIPT_DOM_SHA512,
         "HASHBYTES(N'SHA2_512', af.content) NOT IN",
     )
+    trusted_dependency_guards = re.findall(
+        r"HASHBYTES\(N'SHA2_512',\s*af\.content\)\s+NOT\s+IN\s*\(\s*"
+        + r"0x" + re.escape(PREVIOUS_SCRIPT_DOM_SHA512)
+        + r"\s*,\s*"
+        + r"0x" + re.escape(SCRIPT_DOM_SHA512)
+        + r"\s*\)\s*\)\s*THROW\s+53117\b",
+        uninstall,
+        re.IGNORECASE,
+    )
+    if len(trusted_dependency_guards) != 2:
+        raise ContractError("Uninstall-Skript: unvollständige Dependency-Hash-Guards")
     require(
         read("Tests/Runtime/Lifecycle.Contract.sql"),
         "Lifecycle-Contract",
-        "E03C6099E2E919F3F930E2CCB5A753C47F16DABFC18B608F8BC33DEA5E93ED10D9A937CF599427FADED4EBBB11653E80D2C8BA23C49E5AAEEB0A80C60D51EDBF",
+        "2113ABD6828CE5A1454EF0259F7558F8744A0399E46345E4E54C9E012641BC983F5A0A08C6E2F7BF258A14EAEE5082FA6DE9E4DC25C813BDB5246D5D34701773",
         SCRIPT_DOM_SHA512,
     )
     for name in ("TVF_ParseScriptNodes", "TVF_ParseScriptNodeProperties", "TVF_TokenizeScript", "TVF_ParseScriptErrors"):

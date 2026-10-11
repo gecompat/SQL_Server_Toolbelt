@@ -48,10 +48,28 @@ function Read-ParserScript {
 }
 
 function Invoke-ParserBatches {
-    param([Data.SqlClient.SqlConnection]$Connection,[string]$Text)
+    param(
+        [Data.SqlClient.SqlConnection]$Connection,
+        [string]$Text,
+        [ValidatePattern('^[A-Z][A-Z0-9_]*$')][string]$Scope = 'UNSPECIFIED'
+    )
     # Erster SQL-Fehler stoppt alle folgenden Batches wie :On Error exit.
+    $batchOrdinal = 0
     foreach ($batch in [regex]::Split($Text, '(?im)^\s*GO\s*(?:--[^\r\n]*)?\r?$')) {
-        if (-not [string]::IsNullOrWhiteSpace($batch)) { Invoke-ParserSql $Connection $batch }
+        if (-not [string]::IsNullOrWhiteSpace($batch)) {
+            $batchOrdinal++
+            try { Invoke-ParserSql $Connection $batch }
+            catch {
+                # Nur für den äußeren Lifecycle-Pfad: deterministische, nicht sensible
+                # Fehlerlokalisierung statt der potenziell privaten SQL-Fehlermeldung.
+                $failure = $_.Exception
+                while ($failure.InnerException) { $failure = $failure.InnerException }
+                if ($Scope -ne 'UNSPECIFIED' -and $failure -is [Data.SqlClient.SqlException]) {
+                    throw ('PARSER_SQL_FAILED_' + $failure.Number + '_SCOPE_' + $Scope + '_BATCH_' + $batchOrdinal)
+                }
+                throw
+            }
+        }
     }
 }
 
@@ -421,21 +439,21 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
             $uninstall = Read-ParserScript (Join-Path $moduleRoot 'Deployment/Uninstall.sql') $variables
             if ($previous) {
                 # Saubere 2.0-Installation ist ein eigener Nachweis vor Upgrade.
-                Invoke-ParserBatches $consumer $deploy
-                Invoke-ParserBatches $consumer (Read-ParserScript (Join-Path $moduleRoot 'Tests/Runtime/Lifecycle.Contract.sql') $variables)
-                Invoke-ParserBatches $consumer $uninstall
+                Invoke-ParserBatches $consumer $deploy -Scope ($mode.ToUpperInvariant() + '_CLEAN_INSTALL')
+                Invoke-ParserBatches $consumer (Read-ParserScript (Join-Path $moduleRoot 'Tests/Runtime/Lifecycle.Contract.sql') $variables) -Scope ($mode.ToUpperInvariant() + '_CLEAN_LIFECYCLE')
+                Invoke-ParserBatches $consumer $uninstall -Scope ($mode.ToUpperInvariant() + '_CLEAN_UNINSTALL')
                 Assert-ForeignFixture $consumer $deploy $uninstall $dependencyPath
-                Invoke-ParserBatches $consumer (Read-ParserScript (Join-Path $PreviousReleaseDirectory 'Deploy.WithAssembly.sql') $variables)
+                Invoke-ParserBatches $consumer (Read-ParserScript (Join-Path $PreviousReleaseDirectory 'Deploy.WithAssembly.sql') $variables) -Scope ($mode.ToUpperInvariant() + '_PREVIOUS_INSTALL')
                 $oldVersion = Invoke-ParserSql $consumer "SELECT CONVERT(nvarchar(64),value) FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.tsql.script-parser.Version';" -Scalar
                 if ([string]$oldVersion -cne '1.0.0') { throw 'TRUE_UPGRADE_PREDECESSOR_MISSING' }
             }
-            Invoke-ParserBatches $consumer $deploy
-            Invoke-ParserBatches $consumer $deploy
+            Invoke-ParserBatches $consumer $deploy -Scope ($mode.ToUpperInvariant() + '_UPGRADE')
+            Invoke-ParserBatches $consumer $deploy -Scope ($mode.ToUpperInvariant() + '_REPEAT_INSTALL')
             $levels = if ($Version -eq '2019') {@(150)} else {@(150,160,170)}
             foreach ($level in $levels) {
                 Invoke-ParserSql $master ('ALTER DATABASE [' + $database + '] SET COMPATIBILITY_LEVEL=' + $level + ';')
                 foreach ($name in @('ScriptParser.Contract.sql','Bounds.Contract.sql','Syntax.Contract.sql','Lifecycle.Contract.sql')) {
-                    Invoke-ParserBatches $consumer (Read-ParserScript (Join-Path $moduleRoot ('Tests/Runtime/' + $name)) $variables)
+                    Invoke-ParserBatches $consumer (Read-ParserScript (Join-Path $moduleRoot ('Tests/Runtime/' + $name)) $variables) -Scope ($mode.ToUpperInvariant() + '_CL' + $level + '_' + $name.Replace('.','_').ToUpperInvariant())
                 }
             }
             Assert-CallerTransaction $consumer $deploy $uninstall
@@ -457,10 +475,10 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
                 $builder['Initial Catalog'] = $callerDatabase
                 $callerConnection = [Data.SqlClient.SqlConnection]::new($builder.ConnectionString)
                 $callerConnection.Open()
-                Invoke-ParserBatches $callerConnection (Read-ParserScript (Join-Path $moduleRoot 'Tests/Runtime/Central.Contract.sql') $variables)
+                Invoke-ParserBatches $callerConnection (Read-ParserScript (Join-Path $moduleRoot 'Tests/Runtime/Central.Contract.sql') $variables) -Scope 'CENTRAL_CALLER_CONTRACT'
                 $callerConnection.Dispose(); $callerConnection = $null
             }
-            Invoke-ParserBatches $consumer $uninstall
+            Invoke-ParserBatches $consumer $uninstall -Scope ($mode.ToUpperInvariant() + '_FINAL_UNINSTALL')
         }
         $remaining = Invoke-ParserSql $consumer "SELECT COUNT(*) FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_tsql') AND type=N'FT';" -Scalar
         if ([int]$remaining -ne 0) { throw 'UNINSTALL_OWNED_OBJECTS_REMAIN' }

@@ -29,8 +29,8 @@ Die [Hardening-Qualifikation](../../../Documentation/Architecture/TSQL_SCRIPT_PA
 Der Lab-Adapter [run-script-parser-lab.ps1](../../../Tests/CI/run-script-parser-lab.ps1) erfordert den frisch qualifizierten Release-Stand, die exakte vorherige 1.0.0-Assembly für echten Upgrade-Nachweis und bereits aktiviertes CLR bei unveränderter Strict Security. `-OptInExactTrust` bleibt der sichtbare administrative Testschritt mit vorhandenen Rechten und neuem privatem Journal. Die hashgebundene Trust-Freigabe für einzeln freigegebene Entwicklungswellen besteht seit 2026-10-10; das Deployment registriert Trust weiterhin nicht selbst. Vorhandene Einträge bleiben erhalten. Nur eindeutig neu angelegte Einträge ohne Assembly-Verbraucher werden nach eigenem Datenbank-Cleanup entfernt; unklare Scope-/Registrierungs-/Cleanup-Zustände bleiben ausdrücklich blockiert. Es gibt kein RECONFIGURE, keine Rechtevergabe, keinen Container- oder Provider-Fallback.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-09`
-- Nachweis: `local: Scripts/New-ClrReleaseArtifacts.ps1; Tests/Framework/Invoke-Contract.ps1 -QualificationProfile Reconstructed82; Tests/Static/validate_contract.py`
-- Scope: Aktuelle rekonstruierte Offline-Regression: exakter ScriptDom-18.0.117.0-Pin, reproduzierter .NET-Framework-4.8-Releasebuild und 82 isolierte Kindprozesse bei 262144 Byte Stack. Historischer vor-Source-Runner bleibt nicht ausgeführt, ist aber durch Benutzerentscheidung geschlossen; dieser Lauf ersetzt ihn nicht. Keine SQL-Ausführung, Trust-, Konfigurations- oder Rechteänderung.
+- Datum: `2026-10-11`
+- Nachweis: `local: Tests/CI/run-script-parser-lab.ps1 -Version 2025 -Patch base -OptInExactTrust`
+- Scope: Aktueller ScriptDom-18.0.117.0-Pin und reproduzierter Provider-Releasebuild: 245 begrenzte Framework-Kindprozesse sowie lokaler/zentraler Parser-Lifecycle auf einem schema-validierten ausgewählten Windows-SQL-Server-2025-Labziel bei CL150/160/170. Saubere Installation, echter 1.0.0-Upgrade, Wiederholung, vier APIs, Grenzen/Syntax, Caller-Transaktion/SET-Erhalt, Kollisionsschutz, Uninstall und eigenes Datenbank-/Trust-Cleanup bestanden. Keine Konfigurations- oder Rechteänderung; minimale Rechte, Windows 2019/2022, Table-Clone-Trigger und tatsächliche Ausgabeceilings bleiben getrennt offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

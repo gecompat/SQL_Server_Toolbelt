@@ -28,8 +28,8 @@ Upgrade von 1.0.0 und Wiederholung von 2.0.0 erfordern konsistente Modul-/Objekt
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-09`
-- Nachweis: `local: Scripts/New-ClrReleaseArtifacts.ps1; Tests/Framework/Invoke-Contract.ps1 -QualificationProfile Reconstructed82; Tests/Static/validate_contract.py`
-- Scope: Aktuelle rekonstruierte Offline-Regression: exakter ScriptDom-18.0.117.0-Pin, reproduzierter .NET-Framework-4.8-Releasebuild und 82 isolierte Kindprozesse bei 262144 Byte Stack. Historischer vor-Source-Runner bleibt nicht ausgeführt, ist aber durch Benutzerentscheidung geschlossen; dieser Lauf ersetzt ihn nicht. Keine SQL-Ausführung, Trust-, Konfigurations- oder Rechteänderung.
+- Datum: `2026-10-11`
+- Nachweis: `local: Tests/CI/run-script-parser-lab.ps1 -Version 2025 -Patch base -OptInExactTrust`
+- Scope: Aktueller ScriptDom-18.0.117.0-Pin und reproduzierter Provider-Releasebuild: 245 begrenzte Framework-Kindprozesse sowie lokaler/zentraler Parser-Lifecycle auf einem schema-validierten ausgewählten Windows-SQL-Server-2025-Labziel bei CL150/160/170. Saubere Installation, echter 1.0.0-Upgrade, Wiederholung, vier APIs, Grenzen/Syntax, Caller-Transaktion/SET-Erhalt, Kollisionsschutz, Uninstall und eigenes Datenbank-/Trust-Cleanup bestanden. Keine Konfigurations- oder Rechteänderung; minimale Rechte, Windows 2019/2022, Table-Clone-Trigger und tatsächliche Ausgabeceilings bleiben getrennt offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
