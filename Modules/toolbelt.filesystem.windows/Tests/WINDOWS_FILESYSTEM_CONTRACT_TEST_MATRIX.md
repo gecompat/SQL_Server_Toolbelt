@@ -29,6 +29,10 @@ Aktuelle Evidenz: Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 auf 
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
+## Recheck des Rechtevertrags 2026-10-12
+
+Der aktuelle Release-Build wurde auf einem isolierten Windows-SQL-Server-2025-Testziel erneut deployed. Ein synthetischer Windows-Caller mit ausschließlich `EXECUTE` auf den öffentlichen Prozeduren und `SELECT` auf `toolbelt_filesystem.FileSystemRoot` bestand `USP_ListDirectory`. `ServiceAccount` bestand denselben Listenpfad. SQL Authentication mit `Caller` sowie ein Junction-/Reparse-Point-Listenpfad wurden kontrolliert abgewiesen. Dieser Recheck qualifiziert keine vollständige I/O-, Limit-, TOCTOU- oder Cleanup-Matrix; der Status bleibt `partially validated` und `unreleased`.
+
 ## NoOverwrite-Korrektur 2026-10-03
 
 | Kategorie | Nachweis | Status |

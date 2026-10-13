@@ -22,10 +22,10 @@ namespace Toolbelt.Filesystem.Windows
         public static void ReadBinaryFileChunk(string rootAlias, string relativePath, long byteOffset, int maxBytes, string executionIdentity)
         {
             if (byteOffset < 0 || maxBytes < 1 || maxBytes > MaxChunkBytes) Fail("InvalidChunkRange");
-            Root root = GetRoot(rootAlias, "AllowRead");
+            WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root root = GetRoot(rootAlias, "AllowRead");
             string path = Resolve(root.RootPath, relativePath, false);
             byte[] value = null; long length = 0;
-            RunAs(executionIdentity, delegate
+            RunAs(callerIdentity, delegate
             {
                 AssertNoReparsePoint(root.RootPath, path);
                 using (FileStream input = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -48,9 +48,9 @@ namespace Toolbelt.Filesystem.Windows
         public static void ReadTextFileChunk(string rootAlias, string relativePath, long byteOffset, int maxBytes, string encodingName, string executionIdentity)
         {
             if (byteOffset < 0 || maxBytes < 4 || maxBytes > MaxChunkBytes) Fail("InvalidChunkRange");
-            Encoding encoding = StrictEncoding(encodingName); Root root = GetRoot(rootAlias, "AllowRead");
+            WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Encoding encoding = StrictEncoding(encodingName); Root root = GetRoot(rootAlias, "AllowRead");
             string path = Resolve(root.RootPath, relativePath, false); byte[] bytes = null; long length = 0; int used = 0; string text = null;
-            RunAs(executionIdentity, delegate
+            RunAs(callerIdentity, delegate
             {
                 AssertNoReparsePoint(root.RootPath, path);
                 using (FileStream input = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -73,8 +73,7 @@ namespace Toolbelt.Filesystem.Windows
         [SqlProcedure]
         public static void WriteBinaryFile(string rootAlias, string relativePath, SqlBytes content, bool overwrite, string executionIdentity)
         {
-            if (content.IsNull) Fail("ContentRequired"); Root root = GetRoot(rootAlias, "AllowWrite"); string target = Resolve(root.RootPath, relativePath, false); long written = 0;
-            FilesystemExecution execution = new FilesystemExecution(executionIdentity);
+            if (content.IsNull) Fail("ContentRequired"); FilesystemExecution execution = new FilesystemExecution(executionIdentity); Root root = GetRoot(rootAlias, "AllowWrite"); string target = Resolve(root.RootPath, relativePath, false); long written = 0;
             execution.Run(delegate
             {
                 AssertNoReparsePoint(root.RootPath, Path.GetDirectoryName(target));
@@ -90,8 +89,7 @@ namespace Toolbelt.Filesystem.Windows
         [SqlProcedure]
         public static void WriteTextFile(string rootAlias, string relativePath, SqlChars content, string encodingName, bool writeBom, bool overwrite, string executionIdentity)
         {
-            if (content.IsNull) Fail("ContentRequired"); Encoding encoding = StrictEncoding(encodingName); Root root = GetRoot(rootAlias, "AllowWrite"); string target = Resolve(root.RootPath, relativePath, false); long written = 0;
-            FilesystemExecution execution = new FilesystemExecution(executionIdentity);
+            if (content.IsNull) Fail("ContentRequired"); FilesystemExecution execution = new FilesystemExecution(executionIdentity); Encoding encoding = StrictEncoding(encodingName); Root root = GetRoot(rootAlias, "AllowWrite"); string target = Resolve(root.RootPath, relativePath, false); long written = 0;
             execution.Run(delegate
             {
                 AssertNoReparsePoint(root.RootPath, Path.GetDirectoryName(target)); if (!overwrite && File.Exists(target)) Fail("TargetExists");
@@ -104,9 +102,9 @@ namespace Toolbelt.Filesystem.Windows
         [SqlProcedure]
         public static void TranscodeTextFile(string sourceRootAlias, string sourceRelativePath, string sourceEncoding, string targetRootAlias, string targetRelativePath, string targetEncoding, bool writeBom, bool overwrite, string executionIdentity)
         {
-            Root source = GetRoot(sourceRootAlias, "AllowRead"), targetRoot = GetRoot(targetRootAlias, "AllowWrite"); Encoding input = StrictEncoding(sourceEncoding), output = StrictEncoding(targetEncoding);
+            WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root source = GetRoot(sourceRootAlias, "AllowRead"), targetRoot = GetRoot(targetRootAlias, "AllowWrite"); Encoding input = StrictEncoding(sourceEncoding), output = StrictEncoding(targetEncoding);
             string sourcePath = Resolve(source.RootPath, sourceRelativePath, false), targetPath = Resolve(targetRoot.RootPath, targetRelativePath, false); long written = 0;
-            RunAs(executionIdentity, delegate
+            RunAs(callerIdentity, delegate
             {
                 AssertNoReparsePoint(source.RootPath, sourcePath); AssertNoReparsePoint(targetRoot.RootPath, Path.GetDirectoryName(targetPath)); if (!overwrite && File.Exists(targetPath)) Fail("TargetExists");
                 WriteAtomically(targetRoot, targetPath, overwrite, delegate(FileStream destination)
@@ -122,9 +120,9 @@ namespace Toolbelt.Filesystem.Windows
         [SqlProcedure]
         public static void ListDirectory(string rootAlias, string relativePath, bool recursive, int maxDepth, int maxEntries, string executionIdentity)
         {
-            if (maxDepth < 0 || maxEntries < 1) Fail("InvalidListLimit"); Root root = GetRoot(rootAlias, "AllowList"); string start = Resolve(root.RootPath, relativePath, true);
+            if (maxDepth < 0 || maxEntries < 1) Fail("InvalidListLimit"); WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root root = GetRoot(rootAlias, "AllowList"); string start = Resolve(root.RootPath, relativePath, true);
             List<ListedEntry> entries = new List<ListedEntry>();
-            RunAs(executionIdentity, delegate
+            RunAs(callerIdentity, delegate
             {
                 AssertNoReparsePoint(root.RootPath, start); long ordinal = 0;
                 foreach (string item in Enumerate(start, recursive, maxDepth))
@@ -142,14 +140,14 @@ namespace Toolbelt.Filesystem.Windows
         }
 
         [SqlProcedure]
-        public static void CreateDirectory(string rootAlias, string relativePath, string executionIdentity) { Root root = GetRoot(rootAlias, "AllowCreateDirectory"); string path = Resolve(root.RootPath, relativePath, true); RunAs(executionIdentity, delegate { AssertNoReparsePoint(root.RootPath, Path.GetDirectoryName(path)); Directory.CreateDirectory(path); }); SendAction(rootAlias, relativePath, "created"); }
+        public static void CreateDirectory(string rootAlias, string relativePath, string executionIdentity) { WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root root = GetRoot(rootAlias, "AllowCreateDirectory"); string path = Resolve(root.RootPath, relativePath, true); RunAs(callerIdentity, delegate { AssertNoReparsePoint(root.RootPath, Path.GetDirectoryName(path)); Directory.CreateDirectory(path); }); SendAction(rootAlias, relativePath, "created"); }
         [SqlProcedure]
-        public static void RemoveFile(string rootAlias, string relativePath, string executionIdentity) { Root root = GetRoot(rootAlias, "AllowDelete"); string path = Resolve(root.RootPath, relativePath, false); RunAs(executionIdentity, delegate { AssertNoReparsePoint(root.RootPath, path); if (!File.Exists(path)) Fail("FileNotFound"); File.Delete(path); }); SendAction(rootAlias, relativePath, "removed"); }
+        public static void RemoveFile(string rootAlias, string relativePath, string executionIdentity) { WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root root = GetRoot(rootAlias, "AllowDelete"); string path = Resolve(root.RootPath, relativePath, false); RunAs(callerIdentity, delegate { AssertNoReparsePoint(root.RootPath, path); if (!File.Exists(path)) Fail("FileNotFound"); File.Delete(path); }); SendAction(rootAlias, relativePath, "removed"); }
         [SqlProcedure]
         public static void RemoveDirectory(string rootAlias, string relativePath, bool recursive, int maxDepth, int maxEntries, string executionIdentity)
         {
-            if (maxDepth < 0 || maxEntries < 1) Fail("InvalidListLimit"); Root root = GetRoot(rootAlias, "AllowDelete"); string path = Resolve(root.RootPath, relativePath, true); if (Same(root.RootPath, path)) Fail("RootDeletionForbidden");
-            RunAs(executionIdentity, delegate { RemoveDirectoryBounded(root.RootPath, path, recursive, maxDepth, maxEntries); }); SendAction(rootAlias, relativePath, "removed");
+            if (maxDepth < 0 || maxEntries < 1) Fail("InvalidListLimit"); WindowsIdentity callerIdentity = CaptureCallerIdentity(executionIdentity); Root root = GetRoot(rootAlias, "AllowDelete"); string path = Resolve(root.RootPath, relativePath, true); if (Same(root.RootPath, path)) Fail("RootDeletionForbidden");
+            RunAs(callerIdentity, delegate { RemoveDirectoryBounded(root.RootPath, path, recursive, maxDepth, maxEntries); }); SendAction(rootAlias, relativePath, "removed");
         }
 
         // Vollständiger begrenzter Prüfplan vor der ersten Mutation. Ein Directory
@@ -230,7 +228,8 @@ namespace Toolbelt.Filesystem.Windows
                 || String.Equals(value, "BASIC", StringComparison.Ordinal)
                 || String.Equals(value, "NEGOTIATE", StringComparison.Ordinal);
         }
-        private static void RunAs(string mode, Action action) { if (String.Equals(mode, "ServiceAccount", StringComparison.Ordinal)) { action(); return; } if (!String.Equals(mode, "Caller", StringComparison.Ordinal)) Fail("InvalidExecutionIdentity"); WindowsIdentity identity = GetCallerIdentity(); WindowsImpersonationContext context = null; try { context = identity.Impersonate(); action(); } finally { if (context != null) context.Undo(); } }
+        private static WindowsIdentity CaptureCallerIdentity(string mode) { if (String.Equals(mode, "ServiceAccount", StringComparison.Ordinal)) return null; if (!String.Equals(mode, "Caller", StringComparison.Ordinal)) Fail("InvalidExecutionIdentity"); return GetCallerIdentity(); }
+        private static void RunAs(WindowsIdentity identity, Action action) { if (identity == null) { action(); return; } WindowsImpersonationContext context = null; try { context = identity.Impersonate(); action(); } finally { if (context != null) context.Undo(); } }
         private static Encoding StrictEncoding(string name) { if (String.IsNullOrWhiteSpace(name)) Fail("EncodingRequired"); try { return Encoding.GetEncoding(name, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback); } catch (ArgumentException) { Fail("UnsupportedEncoding"); return null; } }
         private static string Resolve(string rootPath, string relativePath, bool allowEmpty) { if (String.IsNullOrWhiteSpace(rootPath) || relativePath == null || (!allowEmpty && relativePath.Length == 0)) Fail("InvalidPath"); if (Path.IsPathRooted(relativePath) || relativePath.IndexOf(':') >= 0) Fail("AbsolutePathForbidden"); string root = Path.GetFullPath(rootPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar), candidate = Path.GetFullPath(Path.Combine(root, relativePath)); if (!candidate.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) && !Same(root, candidate)) Fail("PathOutsideRoot"); return candidate; }
         private static void AssertNoReparsePoint(string rootPath, string candidate) { string root = Path.GetFullPath(rootPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar); string current = root; if (Directory.Exists(current) && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0) Fail("ReparsePointForbidden"); foreach (string part in Relative(root, candidate).Split(new[] {'\\', '/'}, StringSplitOptions.RemoveEmptyEntries)) { current = Path.Combine(current, part); if ((Directory.Exists(current) || File.Exists(current)) && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0) Fail("ReparsePointForbidden"); } }

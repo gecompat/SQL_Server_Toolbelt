@@ -14,7 +14,7 @@ if "SqlContext.WindowsIdentity" not in source or "CallerWindowsAuthenticationReq
     raise SystemExit("Caller-Modus muss ohne Windows-Token vor der Impersonierung ablehnen.")
 if "sys.server_principals WHERE name = ORIGINAL_LOGIN()" in source:
     raise SystemExit("Caller-Modus darf nicht von der Sichtbarkeit serverweiter Metadaten abhängen.")
-if source.index("RunAs(executionIdentity", source.index("public static void ListDirectory")) > source.index("SqlContext.Pipe.SendResultsStart", source.index("public static void ListDirectory")):
+if source.index("RunAs(callerIdentity", source.index("public static void ListDirectory")) > source.index("SqlContext.Pipe.SendResultsStart", source.index("public static void ListDirectory")):
     raise SystemExit("ListDirectory muss die Resultset-Ausgabe nach der Caller-Impersonation ausführen.")
 for name in ["ReadBinaryFileChunk", "ReadTextFileChunk", "WriteBinaryFile", "WriteTextFile", "TranscodeTextFile", "ListDirectory", "CreateDirectory", "RemoveFile", "RemoveDirectory"]:
     if f"USP_{name}" not in procedures or f"CLR_{name}" not in procedures:
