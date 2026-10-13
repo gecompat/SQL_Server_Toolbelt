@@ -44,6 +44,7 @@ objects:
   - { type: USP, schema: "toolbelt_filesystem", name: "USP_RemoveDirectory", visibility: public }
 permissions_required:
   - "EXECUTE on the required public procedure"
+  - "SELECT on toolbelt_filesystem.FileSystemRoot; this exposes configured physical root and work paths."
   - "A sysadmin must opt in to the exact SHA2-512 assembly hash."
   - "Windows Authentication and NTFS rights for Caller; Caller is the default."
   - "NTFS rights for the SQL Server service account only when ServiceAccount is explicitly selected."
@@ -122,4 +123,8 @@ validation_evidence:
   - date: "2026-10-04"
     workflow: "Privater ausgewählter Windows-Caller-/NTFS-Lauf"
     scope: "SQL Server 2025/CU8 Windows; 16 Pflichtfälle erfolgreich: neun öffentliche Prozeduren, Windows-/SQL-Authentifizierung, Caller-/ServiceAccount-NTFS-Verweigerungen, Binary-/UTF-8-/UTF-16-LE-I/O, NoOverwrite/Overwrite und Bereinigung nach Schreib-/Encodingfehlern. Zusätzlicher Race-Fall NOT_OBSERVED. Drei eigene Fixture-ACLs und ein Readonly-Attribut zurückgesetzt; eigene DB/Root/Trustbereinigung und separate frische Prüfung bestanden. Keine Konfigurations-, SQL-Rechte- oder Owneränderungen. Keine direkte CLR-/vollständige Matrix-/ZIP-Dateizugriffsqualifikation."
+    result: "success"
+  - date: "2026-10-12"
+    workflow: "Privater Windows-Recheck des transparenten Rechtevertrags"
+    scope: "SQL Server 2025 Windows; finaler Release-Build deployed. Windows-Caller mit EXECUTE plus SELECT auf FileSystemRoot und ServiceAccount-List erfolgreich; SQL-Authentication im Caller-Modus sowie Junction-/Reparse-List kontrolliert abgewiesen. Vollständige I/O-, Limit-, TOCTOU- und Cleanup-Matrix bleiben offen."
     result: "success"

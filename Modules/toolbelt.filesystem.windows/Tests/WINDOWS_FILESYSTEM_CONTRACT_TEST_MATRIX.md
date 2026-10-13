@@ -23,11 +23,15 @@ Aktuelle Evidenz: Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 auf 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-04`
-- Nachweis: `Privater ausgewählter Windows-Caller-/NTFS-Lauf`
-- Scope: SQL Server 2025/CU8 Windows; 16 Pflichtfälle erfolgreich: neun öffentliche Prozeduren, Windows-/SQL-Authentifizierung, Caller-/ServiceAccount-NTFS-Verweigerungen, Binary-/UTF-8-/UTF-16-LE-I/O, NoOverwrite/Overwrite und Bereinigung nach Schreib-/Encodingfehlern. Zusätzlicher Race-Fall NOT_OBSERVED. Drei eigene Fixture-ACLs und ein Readonly-Attribut zurückgesetzt; eigene DB/Root/Trustbereinigung und separate frische Prüfung bestanden. Keine Konfigurations-, SQL-Rechte- oder Owneränderungen. Keine direkte CLR-/vollständige Matrix-/ZIP-Dateizugriffsqualifikation.
+- Datum: `2026-10-12`
+- Nachweis: `Privater Windows-Recheck des transparenten Rechtevertrags`
+- Scope: SQL Server 2025 Windows; finaler Release-Build deployed. Windows-Caller mit EXECUTE plus SELECT auf FileSystemRoot und ServiceAccount-List erfolgreich; SQL-Authentication im Caller-Modus sowie Junction-/Reparse-List kontrolliert abgewiesen. Vollständige I/O-, Limit-, TOCTOU- und Cleanup-Matrix bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Recheck des Rechtevertrags 2026-10-12
+
+Der aktuelle Release-Build wurde auf einem isolierten Windows-SQL-Server-2025-Testziel erneut deployed. Ein synthetischer Windows-Caller mit ausschließlich `EXECUTE` auf den öffentlichen Prozeduren und `SELECT` auf `toolbelt_filesystem.FileSystemRoot` bestand `USP_ListDirectory`. `ServiceAccount` bestand denselben Listenpfad. SQL Authentication mit `Caller` sowie ein Junction-/Reparse-Point-Listenpfad wurden kontrolliert abgewiesen. Dieser Recheck qualifiziert keine vollständige I/O-, Limit-, TOCTOU- oder Cleanup-Matrix; der Status bleibt `partially validated` und `unreleased`.
 
 ## NoOverwrite-Korrektur 2026-10-03
 
