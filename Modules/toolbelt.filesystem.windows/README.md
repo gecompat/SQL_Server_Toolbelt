@@ -27,9 +27,9 @@ Der SQL-Server benötigt für die Laufzeit stattdessen die in den Deployment-Dok
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-04`
-- Nachweis: `Privater ausgewählter Windows-Caller-/NTFS-Lauf`
-- Scope: SQL Server 2025/CU8 Windows; 16 Pflichtfälle erfolgreich: neun öffentliche Prozeduren, Windows-/SQL-Authentifizierung, Caller-/ServiceAccount-NTFS-Verweigerungen, Binary-/UTF-8-/UTF-16-LE-I/O, NoOverwrite/Overwrite und Bereinigung nach Schreib-/Encodingfehlern. Zusätzlicher Race-Fall NOT_OBSERVED. Drei eigene Fixture-ACLs und ein Readonly-Attribut zurückgesetzt; eigene DB/Root/Trustbereinigung und separate frische Prüfung bestanden. Keine Konfigurations-, SQL-Rechte- oder Owneränderungen. Keine direkte CLR-/vollständige Matrix-/ZIP-Dateizugriffsqualifikation.
+- Datum: `2026-10-12`
+- Nachweis: `Privater Windows-Recheck des transparenten Rechtevertrags`
+- Scope: SQL Server 2025 Windows; finaler Release-Build deployed. Windows-Caller mit EXECUTE plus SELECT auf FileSystemRoot und ServiceAccount-List erfolgreich; SQL-Authentication im Caller-Modus sowie Junction-/Reparse-List kontrolliert abgewiesen. Vollständige I/O-, Limit-, TOCTOU- und Cleanup-Matrix bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
