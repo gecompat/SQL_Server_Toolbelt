@@ -23,15 +23,15 @@ Aktuelle Evidenz: Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 auf 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-12`
-- Nachweis: `Privater Windows-Recheck des transparenten Rechtevertrags`
-- Scope: SQL Server 2025 Windows; finaler Release-Build deployed. Windows-Caller mit EXECUTE plus SELECT auf FileSystemRoot und ServiceAccount-List erfolgreich; SQL-Authentication im Caller-Modus sowie Junction-/Reparse-List kontrolliert abgewiesen. Vollständige I/O-, Limit-, TOCTOU- und Cleanup-Matrix bleiben offen.
+- Datum: `2026-10-13`
+- Nachweis: `Abschlusslauf der autorisierten Windows-Identitäts-/Reparse-Welle`
+- Scope: SQL Server 2025 Windows; frischer Release-Build, Caller mit synthetischer Windows-Identität und ServiceAccount bestanden List-/Textwrite. SQL Authentication im Caller-Modus sowie Junction-List und -Delete wurden kontrolliert abgewiesen. Ein kontrollierter Wechsel eines ausschließlich synthetischen Root-Kindes zwischen Directory und Junction lief parallel zu 120 begrenzten ServiceAccount-Deleteversuchen; das externe Sentinel blieb erhalten. Eigene Datenbank-, Login-, Trust- und Testausgaben wurden bereinigt. Die breitere Codepage-, Chunk-, Limit- und Atomic-Write-Matrix bleibt getrennt offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
 ## Recheck des Rechtevertrags 2026-10-12
 
-Der aktuelle Release-Build wurde auf einem isolierten Windows-SQL-Server-2025-Testziel erneut deployed. Ein synthetischer Windows-Caller mit ausschließlich `EXECUTE` auf den öffentlichen Prozeduren und `SELECT` auf `toolbelt_filesystem.FileSystemRoot` bestand `USP_ListDirectory`. `ServiceAccount` bestand denselben Listenpfad. SQL Authentication mit `Caller` sowie ein Junction-/Reparse-Point-Listenpfad wurden kontrolliert abgewiesen. Dieser Recheck qualifiziert keine vollständige I/O-, Limit-, TOCTOU- oder Cleanup-Matrix; der Status bleibt `partially validated` und `unreleased`.
+Der aktuelle Release-Build wurde auf einem isolierten Windows-SQL-Server-2025-Testziel erneut deployed. Ein synthetischer Windows-Caller mit ausschließlich `EXECUTE` auf den öffentlichen Prozeduren und `SELECT` auf `toolbelt_filesystem.FileSystemRoot` bestand List und Textwrite; `ServiceAccount` bestand den expliziten Textwrite. SQL Authentication mit `Caller` sowie Junction-/Reparse-Point-List und -Delete wurden kontrolliert abgewiesen. Der begrenzte TOCTOU-Lauf wechselte einen ausschließlich synthetischen Root-Kindpfad wiederholt zwischen Directory und Junction, während 120 begrenzte ServiceAccount-Deletes ausgeführt wurden; das externe Sentinel blieb erhalten. Eigene Datenbank-, Login-, Trust- und Testausgaben wurden bereinigt. Der Status bleibt `partially validated` und `unreleased`, weil die vollständige I/O-, Codepage-, Limit- und Atomic-Write-Matrix nicht daraus folgt.
 
 ## NoOverwrite-Korrektur 2026-10-03
 

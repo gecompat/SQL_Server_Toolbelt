@@ -2423,15 +2423,15 @@ Die V0c-Kohorte umfasst verbindlich:
 | Scope | toolbelt.filesystem.windows, C#-.NET-Framework-4.8-Assembly, T-SQL-Fassade, Root-Alias-Konfiguration, Trust-/Deployment-Lifecycle, Dokumentation, Contract-Matrix und Windows-Build. |
 | Dependencies | toolbelt.core.result-table; separate administrative SHA2-512-Trust-Freigabe; Windows SQL Server mit kontrolliertem synthetischem Testroot. |
 | Priorität | P1 |
-| Status | `active`; fachlich abgeschlossen, offen ist ausschließlich der Windows-Nachweis, der über `V0b` geführt wird |
+| Status | `completed`; die autorisierte Windows-Identitäts-/Reparse-Welle ist abgeschlossen. Breitere Releasequalifikation bleibt getrennt in `V0b`. |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
 | Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Caller ist Default und wird bei SQL Authentication abgelehnt; ServiceAccount ist explizit; absolute Pfade und Reparse Points sind gesperrt; I/O arbeitet begrenzt/gestreamt; Write nutzt atomare Staging-Dateien; rekursives Delete besitzt Tiefe-/Eintragslimits; Linux ist korrekt not applicable. |
 | Tests | Statischer Vertragscheck und GitHub-Windows-Build; manueller Windows-SQL-Server-/NTFS-Test für Deployment, beide Identitätsmodi, Codepages, Limits, Reparse Points, atomare Writes und rekursives Delete. |
-| Blocker | Der ausgewählte Caller-/NTFS-/ServiceAccount-Lauf ist belegt; direkte CLR-/RunAs-, weitere Codepage-/Limit-/Reparse-/Delete-Fälle und Race-Beobachtung bleiben offen. Keine vollständige Matrix- oder ZIP-Dateizugriffsqualifikation. |
+| Blocker | Kein Blocker für die abgeschlossene autorisierte Welle. Direkte CLR-/RunAs-, weitere Codepage-/Limit-/Reparse-/Delete-Fälle sowie die vollständige Matrix- oder ZIP-Dateizugriffsqualifikation bleiben getrennte V0b-/Folgegates. |
 | Evidenz | Benutzerfreigabe am 2026-07-31; Implementierung und Windows-Build-/Static-Contract-Artefakte auf `main`; Build-Nachweis im Wartungslauf https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30692267356. |
-| Nächster Schritt | Den unabhängig geprüften Lauf vom 2026-10-04 mit 16 erfolgreichen Pflichtfällen und einem `NOT_OBSERVED`-Race-Fall als begrenzte Evidenz führen; verbleibende Fälle gemäß `Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md` scopebezogen prüfen. Eigene Fixture-ACLs/Attribute und DB/Root/Trust wurden wiederhergestellt, separate frische Prüfung erfolgreich. Private Runtimeausgaben bleiben außerhalb des Repositorys. |
+| Nächster Schritt | Abschlusslauf vom 2026-10-13 als begrenzte Evidenz führen: Caller-/ServiceAccount-Textwrite, SQL-Authentication-Ablehnung, Junction-List/-Delete und 120 begrenzte parallele Deleteversuche gegen einen kontrolliert zwischen Directory und Junction wechselnden Root-Kindpfad; externes Sentinel blieb erhalten. Eigene Datenbank, Login, Trust und Testausgaben wurden bereinigt. Weitere Matrixfälle ausschließlich als getrennte V0b-/Folgearbeit prüfen. Private Runtimeausgaben bleiben außerhalb des Repositorys. |
 
 
 Wartung 2026-10-07 (Codex), innerhalb des bestehenden `AP-2026-023`:

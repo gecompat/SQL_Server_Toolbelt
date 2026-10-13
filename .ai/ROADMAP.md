@@ -478,15 +478,17 @@ und ein vollständiger Upgradepfad aus einem realen 1.1.0-Stand bleiben offen.
 
 ### Phase 2.8 – Windows Filesystem
 
-**Status:** `in progress`; Runtime `partially validated`
+**Status:** `completed`; Runtime `partially validated`
 
 **Arbeitspaket:** `AP-2026-023`
 
 Die Windows-only Capability `toolbelt.filesystem.windows` stellt über eine `EXTERNAL_ACCESS`-SQL-CLR-Assembly Lesen/Schreiben von Text und Binary, explizite Codepages und Transcoding, Directory-Listing/Erzeugung sowie begrenztes Löschen bereit. `Caller` ist der Default; `ServiceAccount` ist eine explizite Alternative. Linux ist technisch `not applicable`.
 
-Windows-Build, Trust, Deployment, Help, SQL-Authentication-Ablehnung und ein
-kontrollierter ServiceAccount-Schreibpfad sind nachgewiesen. Caller-
-Impersonation und die breitere NTFS-/I/O-Matrix bleiben manuell offen.
+Windows-Build, Trust, Deployment, Help, SQL-Authentication-Ablehnung,
+kontrollierte Caller-/ServiceAccount-Schreibpfade sowie Junction-List/-Delete
+und ein begrenzter TOCTOU-Lauf sind nachgewiesen. Die breitere
+NTFS-/I/O-/Codepage-/Limit-Matrix bleibt als getrennte Releasequalifikation
+offen.
 
 ### Phase 2.9 – Error Envelope
 
