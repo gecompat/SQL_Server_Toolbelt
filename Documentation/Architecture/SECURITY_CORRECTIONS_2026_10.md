@@ -20,7 +20,7 @@ Arbeitsbaum dieser Korrekturwelle; historische Modulnachweise bleiben historisch
 | SC-032 | P2 | Vor Blockerabschluss ausdrücklich BARRIER_WAIT und kein Barrierclaim im Resultset verlangen. | Vollständiger Queue-Contract sowie zwei negative Injektionen des tatsächlichen Assertblocks bestanden. |
 | SC-035 | P2 | Logziel nur innerhalb des Repositorys, außerhalb `.git`, ohne ADS/Windows-Alias und existierende Reparsekomponenten; direkt vor Write erneut prüfen und LiteralPath verwenden. | Synthetische PowerShellprobe für Traversal, absolute Pfade, Gitmetadaten, ADS, Dot-/Spacealias, Junction und gültigen relativen Pfad bestanden. |
 | SC-037 | P3 | Identifierparser im Inline-Audit ausdrücklich als MSTVF mit offener Alternative/Ausnahme ausweisen. | Dokumentationsabgleich; keine Behauptung einer neuen Inline-Implementierung. |
-| SC-044 | P3 | Überschreibende SQLCMD-setvar-Defaults entfernen; Betreiber muss RootAlias/RelativePath bereitstellen. Leerer/Platzhalteralias wird abgewiesen. | Source-/Aufrufabgleich; echter Windows-Caller-Smoke mit Betreiberalias nicht ausgeführt. |
+| SC-044 | P3 | Überschreibende SQLCMD-setvar-Defaults entfernen; Betreiber muss RootAlias/RelativePath bereitstellen. Leerer/Platzhalteralias wird abgewiesen. | Statischer Caller-Vertrag bestanden: beide Betreiberwerte bleiben erhalten, kein aktives setvar, leere/Platzhalteraliase werden abgewiesen. Echter Windows-Caller-Smoke mit Betreiberalias nicht ausgeführt. |
 
 ## Reproduzierbare Prüfpfade
 
@@ -94,3 +94,8 @@ Foundationvalidator aus dem exakt gepinnten d720db4f-Sourcearchiv bestand mit
 `--target . --profile full` und unveränderter expliziter Adapter-/Capabilityauswahl;
 das Manifest wurde vor Ausführung gegen die installierte Quellpin geprüft.
 Das belegt FOUNDATION_INTEGRITY, keine vollständige Releasequalifikation.
+
+Der erste Windows-CI-Staticlauf erwartete noch den entfernten SQLCMD-Default.
+Der korrigierte Staticvertrag verlangt stattdessen nicht überschreibende
+Betreibervariablen und beide Aliasguards; lokal bestanden. Der erste
+fehlgeschlagene CI-Lauf ist kein PASS und wird durch einen neuen Head geprüft.
