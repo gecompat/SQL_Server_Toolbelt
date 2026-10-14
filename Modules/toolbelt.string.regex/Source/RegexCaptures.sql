@@ -7,14 +7,14 @@ CREATE FUNCTION toolbelt_string.TVF_RegexCapturesCore
  @Flags nvarchar(max), @Profile nvarchar(max), @MaxRows int)
 RETURNS TABLE(MatchOrdinal bigint, GroupOrdinal int, CaptureOrdinal bigint,
  GroupName nvarchar(128), Matched bit, StartPosition bigint, Length bigint, Value nvarchar(max))
-AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexCaptures];
+AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexCapturesBounded];
 GO
 CREATE FUNCTION toolbelt_string.SVF_RegexReplaceGroupsCore
 (@Input nvarchar(max), @Pattern nvarchar(max), @Replacement nvarchar(max),
  @Start int, @Occurrence int, @Flags nvarchar(max), @Profile nvarchar(max))
 RETURNS nvarchar(max)
 WITH CALLED ON NULL INPUT
-AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexReplaceGroups];
+AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexReplaceGroupsBounded];
 GO
 -- ============================================================================
 -- Objekt: toolbelt_string.TVF_RegexCaptures; Typ: inline TVF.

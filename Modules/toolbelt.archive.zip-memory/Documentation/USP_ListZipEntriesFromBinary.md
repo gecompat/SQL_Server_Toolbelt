@@ -43,6 +43,12 @@ Form und Daten, `@KeepData = 1` hängt an eine kompatible Form an.
 
 Ein leeres gültiges ZIP liefert ein leeres Resultset und Returncode `0`.
 
+Die Pfadklassifikation weist auch laufwerksrelative Namen wie `C:file` als
+`drive-qualified` und das alleinstehende `..` als `parent-traversal` aus.
+`.` sowie führende oder abschließende Dotsegmente (`./file`, `a/.`) sind
+`noncanonical`. Diese Fälle liefern `IsPathSafe=0`; gewöhnliche relative
+Namen und Verzeichniseinträge mit abschließendem `/` behalten `safe`.
+
 ## Fehler und Grenzen
 
 - `51320`: ungültige Parameter;

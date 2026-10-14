@@ -175,4 +175,18 @@ UPDATE #JsonEntries SET ValueKind=N'boolean',[Value]=N'true';
 EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries',@ResultTable=N'#JsonOutput',@KeepData=NULL,@Debug=NULL,@Hilfe=NULL;
 EXEC sys.sp_executesql N'SELECT @x=JsonValue FROM #JsonOutput',N'@x nvarchar(max) OUTPUT',@Actual OUTPUT;
 IF @Actual IS NULL OR CONVERT(varbinary(max),@Actual)<>CONVERT(varbinary(max),N'[true]') THROW 54600,N'Boolean true/NULL defaults wrong.',62;
+-- Escapingkosten über Spangrenzen: kein Split eines UTF16-Surrogatpaars.
+DECLARE @SpanValue nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),NCHAR(1)),1023)+NCHAR(55357)+NCHAR(56832)+NCHAR(1);
+UPDATE #JsonEntries SET ValueKind=N'string',[Value]=@SpanValue;
+SET @Expected=N'["'+STRING_ESCAPE(@SpanValue,'json')+N'"]';
+DECLARE @SpanBytes bigint=DATALENGTH(@Expected);
+EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries',@MaxResultBytes=@SpanBytes,@ResultTable=N'#JsonOutput';
+EXEC sys.sp_executesql N'SELECT @x=JsonValue FROM #JsonOutput',N'@x nvarchar(max) OUTPUT',@Actual OUTPUT;
+IF @Actual IS NULL OR CONVERT(varbinary(max),@Actual)<>CONVERT(varbinary(max),@Expected) THROW 54600,N'Stringkostenspan änderte das Ergebnis.',63;
+SET @SpanBytes-=1;
+BEGIN TRY
+ EXEC toolbelt_json.USP_JsonArray @EntriesTable=N'#JsonEntries',@MaxResultBytes=@SpanBytes;
+ THROW 54600,N'Die exakte Escapinggrenze blieb ungeprüft.',64;
+END TRY
+BEGIN CATCH IF ERROR_NUMBER()<>53609 THROW; END CATCH;
 PRINT N'JSON Constructors synthetic contract PASS.';

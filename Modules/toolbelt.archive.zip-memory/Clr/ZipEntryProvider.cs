@@ -810,10 +810,9 @@ namespace Toolbelt.Archive.ZipMemory
 
         private static string GetPathStatus(string entryName)
         {
-            if (entryName.Length > 2 &&
+            if (entryName.Length >= 2 &&
                 Char.IsLetter(entryName[0]) &&
-                entryName[1] == ':' &&
-                (entryName[2] == '/' || entryName[2] == '\\'))
+                entryName[1] == ':')
             {
                 return PathDriveQualified;
             }
@@ -824,7 +823,7 @@ namespace Toolbelt.Archive.ZipMemory
                 return PathAbsolute;
             }
 
-            if (entryName.IndexOf("../", StringComparison.Ordinal) >= 0 ||
+            if (entryName == ".." || entryName.IndexOf("../", StringComparison.Ordinal) >= 0 ||
                 entryName.IndexOf("..\\", StringComparison.Ordinal) >= 0 ||
                 entryName.IndexOf("/../", StringComparison.Ordinal) >= 0 ||
                 entryName.IndexOf("\\..\\", StringComparison.Ordinal) >= 0 ||
@@ -836,7 +835,8 @@ namespace Toolbelt.Archive.ZipMemory
                 return PathParentTraversal;
             }
 
-            if (entryName.IndexOf("\\", StringComparison.Ordinal) >= 0 ||
+            if (entryName.Length == 0 || entryName == "." || entryName.StartsWith("./", StringComparison.Ordinal) ||
+                entryName.EndsWith("/.", StringComparison.Ordinal) || entryName.IndexOf("\\", StringComparison.Ordinal) >= 0 ||
                 entryName.IndexOf("//", StringComparison.Ordinal) >= 0 ||
                 entryName.IndexOf("/./", StringComparison.Ordinal) >= 0 ||
                 entryName.IndexOf("\\.\\", StringComparison.Ordinal) >= 0 ||

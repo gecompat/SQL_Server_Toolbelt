@@ -341,9 +341,9 @@
       "kind": "ai-runtime-adapter-documentation",
       "merge": "review_if_exists",
       "source_sha256": "ce0777359cfd78cb7720bb8681b4947572d475714720a9e8d9fef3f49309ca7f",
-      "installed_sha256": "f5fd5b0a7b4a9e9e9253a5a2e06a89f619864f3a2bc0c56e130ef378dd9e544d",
+      "installed_sha256": "d14431c907fb9cdb72013881ec03daf86b7be584a6c6f71d0d0ace2f3d5703db",
       "integration_state": "INTENTIONAL_OVERRIDE",
-      "reason": "Gekoppelte Dokumentation von HttpAdapter-/Discovery-Responsegrenzen, Redirectverweigerung und Discovery-Originpr\u00fcfung; DNS/Proxy/Hostvertrauen, TOCTOU, Heap und Gesamtzeit bleiben separat, keine Runtimeaktivierung oder Foundationversion."
+      "reason": "Gekoppelte Dokumentation von HttpAdapter-/Discovery-Responsegrenzen, Redirectverweigerung und Discovery-Originpr\u00fcfung; DNS/Proxy/Hostvertrauen, TOCTOU, Heap und Gesamtzeit bleiben separat, keine Runtimeaktivierung oder Foundationversion. SC-034: gekoppelter expliziter Remoteautoritaetsvertrag."
     },
     {
       "source": "foundation/capabilities/ai-runtime-adapters/adapter_protocol.py",
@@ -361,9 +361,9 @@
       "kind": "ai-runtime-reference-adapters",
       "merge": "review_if_exists",
       "source_sha256": "9d96cb55551990fbed7ea14021d5405a925727414a51de93eda10600190b3833",
-      "installed_sha256": "283c65dafa4bbc103a630045d46f408204c91127d1dafd1fbda7544ace46c75f",
+      "installed_sha256": "3e2cc4929e3578b17234a6b52ff333a64909b649a0d600a64f8b57cf8572cf18",
       "integration_state": "INTENTIONAL_OVERRIDE",
-      "reason": "Toolbelt-Securitywartung2026-10-07: HttpAdapter-Antworten vor JSON und Outputmutation auf16MiB begrenzen, Kurzreads und positive Restl\u00e4nge pr\u00fcfen, strukturierte Ablehnung vor Closefehlern erhalten."
+      "reason": "Toolbelt-Securitywartung2026-10-07: HttpAdapter-Antworten vor JSON und Outputmutation auf16MiB begrenzen, Kurzreads und positive Restl\u00e4nge pr\u00fcfen, strukturierte Ablehnung vor Closefehlern erhalten. SC-034 (2026-10-14): Remote-, Local-Network- und Unknown-Invocation verlangen exakt remote_authorized=true vor Handleaufnahme, Inputread oder Transport; sonst Permission-Ablehnung."
     },
     {
       "source": "foundation/capabilities/ai-runtime-adapters/runtime_configuration.py",
@@ -571,9 +571,9 @@
       "kind": "tool",
       "merge": "review_if_exists",
       "source_sha256": "98b9338500e73ef1d6468612d5187887cc9d4d06fb4693bd69bcb7d560e46e8d",
-      "installed_sha256": "98b9338500e73ef1d6468612d5187887cc9d4d06fb4693bd69bcb7d560e46e8d",
-      "integration_state": "FOUNDATION_BASELINE",
-      "reason": null
+      "installed_sha256": "f354ff46ad74617f10c7aa23a4a4d47ef5973695a4c4b7b897f55791a112da77",
+      "integration_state": "INTENTIONAL_OVERRIDE",
+      "reason": "SC-030 (2026-10-14): rationale Dezimalrechnung aus validierten numerischen Inputs verhindert binaere Rundungsfehler an Soft-/Hardgrenzen; numerischer JSON-Ausgabevertrag und unbekannte Kosten bleiben erhalten."
     },
     {
       "source": "foundation/schemas/adapter-synthesis-report.schema.json",

@@ -1,5 +1,10 @@
 # Transactional Work Queue
 
+## Security-Korrektur 2026-10-14
+
+SC-029/SC-032: Die Legacyclaim-Prüfung erfolgt erneut unter einer bis Transaktionsende gehaltenen Tabellensperre. Der Barrier-Contract weist vorzeitige Barrierclaims vor Blockerabschluss ausdrücklich ab.
+[Nachweise und Grenzen](../../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md).
+
 ## Status
 
 `toolbelt.core.work-queue` Version `2.0.0` ergänzt den E1a-/E1b-Kern um

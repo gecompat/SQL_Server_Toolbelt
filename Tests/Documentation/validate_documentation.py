@@ -584,6 +584,17 @@ def evidence_documents(module: dict[str, object]) -> list[Path]:
         paths = values if isinstance(values, list) else [values]
         for relative in paths:
             target = (module_root / str(relative)).resolve()
+            # Sämtliche Schreibziele vor dem ersten Write prüfen. Die spätere
+            # Manifestprüfung darf keine bereits erfolgte Fremdmutation melden.
+            try:
+                resolved_parts = target.relative_to(REPOSITORY_ROOT.resolve()).parts
+                lexical_parts = (module_root / str(relative)).absolute().parts
+            except ValueError as error:
+                raise ValidationError("Evidenzziel liegt außerhalb des Repositorys.") from error
+            if (target.suffix.lower() != ".md" or not target.is_file()
+                    or any(part.rstrip(' .').lower() == ".git" for part in (*resolved_parts, *lexical_parts))
+                    or any(':' in part or part.endswith((' ', '.')) for part in resolved_parts)):
+                raise ValidationError("Evidenzziel ist kein zulässiges Markdownartefakt.")
             if target not in targets:
                 targets.append(target)
     return targets
@@ -594,13 +605,16 @@ def validate_generated_module_evidence(
 ) -> None:
     begin = f"<!-- BEGIN GENERATED:{GENERATED_EVIDENCE} -->"
     end = f"<!-- END GENERATED:{GENERATED_EVIDENCE} -->"
-    for module in modules:
+    # Kein gültiges erstes Modul darf geschrieben werden, wenn ein späteres
+    # Modul ein ungültiges Ziel liefert (auch wenn es noch keine Evidenz hat).
+    targets_by_module = [(module, evidence_documents(module)) for module in modules]
+    for module, targets in targets_by_module:
         entries = module["evidence_entries"]
         assert isinstance(entries, list)
         if not entries:
             continue
         generated = module_evidence_block(module)
-        for target in evidence_documents(module):
+        for target in targets:
             current = read(target)
             if begin in current:
                 expected = replace_generated_block(
@@ -1385,6 +1399,14 @@ def run_foundation_discovery() -> None:
     print(result.stdout.strip())
 
 
+def run_security_maintenance() -> None:
+    result = subprocess.run((sys.executable, '-B', str(REPOSITORY_ROOT / 'Tests/Documentation/test_security_maintenance.py')),
+                            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding='utf-8', timeout=30)
+    if result.returncode:
+        raise ValidationError('Security-Maintenance-Regression fehlgeschlagen:\n' + result.stdout + result.stderr)
+    print(result.stderr.strip())
+
+
 def run_foundation_processing() -> None:
     # Synthetic session consumers; no native client/config/cache attestation.
     script = REPOSITORY_ROOT / "Tests/Documentation/test_foundation_processing.py"
@@ -1775,6 +1797,8 @@ def main() -> int:
         run_foundation_discovery()
     if "foundation_processing" in checks:
         run_foundation_processing()
+    if "security_maintenance" in checks:
+        run_security_maintenance()
     if "public_api_catalog" in checks:
         try:
             generate_api_catalog.check(write=arguments.write)

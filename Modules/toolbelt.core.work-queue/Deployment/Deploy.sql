@@ -242,6 +242,17 @@ BEGIN TRY
     SELECT @CurrentVersion=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties WHERE class=0 AND name=@VersionPropertyName;
     IF ISNULL(@CurrentVersion,N'') COLLATE Latin1_General_100_BIN2<>ISNULL(@InstalledVersion,N'') COLLATE Latin1_General_100_BIN2
         THROW 51946,N'Der installierte Modulstand hat sich seit dem Preflight verändert.',2;
+    -- Legacyclaims unter einer bis COMMIT gehaltenen Tabellensperre prüfen.
+    -- Der erste Preflight allein schützt nicht vor einem späteren Workerclaim.
+    IF @InstalledVersion IN(N'1.0.0',N'1.1.0')
+    BEGIN
+        DECLARE @LockedLegacyClaim bit=0;
+        EXEC sys.sp_executesql
+            N'IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WITH(TABLOCKX,HOLDLOCK) WHERE Status=''CLAIMED'') SET @Value=1;',
+            N'@Value bit OUTPUT',@Value=@LockedLegacyClaim OUTPUT;
+        IF @LockedLegacyClaim=1
+            THROW 51948,N'Aktive Legacyclaims blockieren die Migration.',4;
+    END;
 IF @RepeatControl=0 AND (EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.worker-control.Version')
  OR EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(4000),value) COLLATE Latin1_General_100_BIN2=N'toolbelt.core.worker-control')
  OR EXISTS(SELECT 1 FROM sys.objects WHERE schema_id=SCHEMA_ID(N'toolbelt_core') AND name COLLATE Latin1_General_100_BIN2 IN(N'WorkerControlConfiguration',N'WorkerRegistration',N'WorkerSlotReservation',N'WorkerExecutionDisposition',N'WorkerExecutionCommitWitness',N'VW_WorkerStatus',N'VW_WorkerExecutionStatus',N'USP_BeginWorkerCompletion',N'USP_BeginWorkerTransactionWitness',N'USP_BindWorkerExecution',N'USP_ClaimWorkerWork',N'USP_CloseWorker',N'USP_DisableManagedWorkers',N'USP_EnableManagedWorkers',N'USP_FinalizeWorkerFailure',N'USP_HeartbeatWorker',N'USP_ReconcileWorkerExecution',N'USP_RecordWorkerCommit',N'USP_RecordWorkerRollback',N'USP_RecordWorkerUnknown',N'USP_RegisterWorker',N'USP_ReleaseHeldWork',N'USP_ReserveWorkerExecution',N'USP_SetWorkerCapacity',N'USP_SetWorkerConcurrency',N'USP_SetWorkerIntervals',N'USP_SetWorkerState',N'USP_StopWorkerExecution',N'USP_StopWorkers'))) THROW 54202,N'Der installierte Worker-Control-Consumer blockiert Queue-Lifecycle; sein Stand hat sich seit Preflight verändert.',2;

@@ -236,6 +236,10 @@ class HttpAdapter:
             {"operation_id", "model", "data_class", "input_path", "output_path"},
             {"operation_id", "model", "data_class", "input_path", "output_path", "remote_authorized"},
         )
+        # Einzelautorität vor Handleauflösung, Dateiinhalt und Transport prüfen.
+        # Eine erlaubte Datenklasse ersetzt keine Zustimmung zu diesem Aufruf.
+        if self.boundary in {"LOCAL_NETWORK", "REMOTE", "UNKNOWN"} and arguments.get("remote_authorized") is not True:
+            raise AdapterError("PERMISSION", "REMOTE_INVOCATION_NOT_AUTHORIZED", "invocation requires explicit remote authorization")
         if arguments["data_class"] not in self.allowed_data_classes:
             raise AdapterError("PERMISSION", "DATA_CLASS_NOT_AUTHORIZED", "data class is not authorized for this adapter")
         if self.boundary in {"LOCAL_NETWORK", "REMOTE", "UNKNOWN"} and arguments["data_class"] not in self.remote_data_classes:

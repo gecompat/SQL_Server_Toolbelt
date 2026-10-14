@@ -8,13 +8,13 @@ CREATE FUNCTION toolbelt_string.TVF_RegexMatchesCore
 (@Input nvarchar(max), @Pattern nvarchar(max), @Start int,
  @Flags nvarchar(max), @Profile nvarchar(max), @MaxRows int)
 RETURNS TABLE(Ordinal bigint, StartPosition bigint, Length bigint, Value nvarchar(max))
-AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexMatches];
+AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexMatchesBounded];
 GO
 CREATE FUNCTION toolbelt_string.TVF_RegexSplitCore
 (@Input nvarchar(max), @Pattern nvarchar(max),
  @Flags nvarchar(max), @Profile nvarchar(max), @MaxRows int)
 RETURNS TABLE(Ordinal bigint, StartPosition bigint, Length bigint, Value nvarchar(max))
-AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexSplit];
+AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexSplitBounded];
 GO
 -- ============================================================================
 -- Objekt: toolbelt_string.TVF_RegexMatches; Typ: inline TVF.

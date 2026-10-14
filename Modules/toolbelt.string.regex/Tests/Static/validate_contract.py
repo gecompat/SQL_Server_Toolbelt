@@ -54,6 +54,7 @@ def main() -> int:
         "Clr/Toolbelt.String.Regex.csproj",
         "Clr/Properties/AssemblyInfo.cs",
         "Clr/RegexProvider.cs",
+        "Clr/RegexBoundedIntake.cs",
         "Clr/RegexTransformations.cs",
         "Clr/RegexRelations.cs",
         "Clr/RegexCaptures.cs",
@@ -183,7 +184,7 @@ def main() -> int:
     require(manifest, "Manifest", 'version: "1.3.0"', 'permission_set: "SAFE"', "third_party_dependencies: []", 'workflow: "local: Tests/CI/run-lab-local.ps1"')
 
     relations = read("Clr/RegexRelations.cs")
-    require(relations, "R2b-Kern", "TransformationContext", "context.Search", "maxRows.Value > 100000",
+    require(relations + read("Clr/RegexBoundedIntake.cs"), "R2b-Kern", "TransformationContext", "context.Search", "maxRows.Value > 100000",
             "TBX_REGEX_TOO_MANY_ROWS", "TBX_REGEX_OUTPUT_TOO_LARGE", "tokenStart = match.Index + match.Length",
             "FillRelationRow", "return rows;", "DataAccessKind.None", "SystemDataAccessKind.None")
     forbid(relations, "R2b-Kern", "yield return", "new Regex(", "TranslatePattern(", "System.IO.", "System.Net.", "SqlConnection")

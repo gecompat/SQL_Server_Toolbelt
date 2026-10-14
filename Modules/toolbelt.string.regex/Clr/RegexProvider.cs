@@ -22,11 +22,6 @@ namespace Toolbelt.String.Regex
         private static readonly TimeSpan MatchTimeout =
             TimeSpan.FromMilliseconds(250);
 
-        [SqlFunction(
-            DataAccess = DataAccessKind.None,
-            SystemDataAccess = SystemDataAccessKind.None,
-            IsDeterministic = false,
-            IsPrecise = true)]
         public static SqlBoolean RegexIsMatch(
             SqlString input,
             SqlString pattern,
@@ -51,11 +46,6 @@ namespace Toolbelt.String.Regex
             }
         }
 
-        [SqlFunction(
-            DataAccess = DataAccessKind.None,
-            SystemDataAccess = SystemDataAccessKind.None,
-            IsDeterministic = false,
-            IsPrecise = true)]
         public static SqlInt32 RegexInstr(
             SqlString input,
             SqlString pattern,
@@ -122,11 +112,6 @@ namespace Toolbelt.String.Regex
             }
         }
 
-        [SqlFunction(
-            DataAccess = DataAccessKind.None,
-            SystemDataAccess = SystemDataAccessKind.None,
-            IsDeterministic = false,
-            IsPrecise = true)]
         public static SqlInt32 RegexCount(
             SqlString input,
             SqlString pattern,

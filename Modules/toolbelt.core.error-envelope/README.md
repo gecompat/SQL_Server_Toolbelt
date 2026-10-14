@@ -1,5 +1,10 @@
 # Error Envelope
 
+## Security-Korrektur 2026-10-14
+
+SC-039: Direkte Ausgabe bleibt auch bei XACT_STATE()=-1 lesend möglich. ResultTable wird dann vor jeder Mutation mit 51406 abgewiesen; Rollback und Original-Rethrow bleiben beim Caller.
+[Nachweise und Grenzen](../../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md).
+
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 ## Status

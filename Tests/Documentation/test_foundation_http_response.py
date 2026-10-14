@@ -221,6 +221,28 @@ class HttpResponseTests(unittest.TestCase):
         return dict(operation_id="synthetic-operation", model="contoso-model", data_class="PUBLIC",
                     input_path="synthetic-input", output_path="synthetic-output")
 
+    def test_remote_authority_precedes_handles_and_transport(self):
+        for name in ("OllamaAdapter", "OpenAICompatibleAdapter"):
+            for boundary in ("LOCAL_NETWORK", "REMOTE", "UNKNOWN"):
+                for authority in (None, False, 1, "true"):
+                    self.scenario()
+                    adapter = self.adapter(name)
+                    adapter.boundary = boundary
+                    arguments = self.arguments()
+                    if authority is not None:
+                        arguments["remote_authorized"] = authority
+                    with patch.dict(self.ns, safe_path=lambda *args: self.fail("UNAUTHORIZED_HANDLE_READ")):
+                        self.refusal(lambda: adapter.invoke(arguments),
+                                     "REMOTE_INVOCATION_NOT_AUTHORIZED", "PERMISSION")
+                    self.assertFalse(adapter.opener.calls)
+                    self.assertFalse(self.writes)
+                adapter = self.adapter(name, MemoryResponse(b'{"model":"contoso-model"}'))
+                adapter.boundary = boundary
+                arguments = self.arguments()
+                arguments["remote_authorized"] = True
+                self.assertEqual(adapter.invoke(arguments)["status"], "COMPLETED")
+                self.writes.clear()
+
     def test_real_constants_and_effect_traps(self):
         tree = ast.parse(self.source)
         values = {}

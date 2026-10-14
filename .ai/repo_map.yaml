@@ -1077,6 +1077,17 @@ change_impact:
         - Tests/Documentation/validate_documentation.py
       checks:
         - foundation_processing
+    security_maintenance:
+      paths:
+        - CheckLargeGitFilesPush.ps1
+        - Tests/Documentation/test_security_maintenance.py
+        - Tests/Documentation/test_security_paths.ps1
+        - Tests/CI/run-security-contracts-lab.ps1
+        - Tests/CI/run-security-zip-lab.ps1
+        - Tests/Documentation/validate_documentation.py
+        - .ai/foundation/runtime/processing_efficiency.py
+      checks:
+        - security_maintenance
     governance:
       paths:
         - .ai/repo_map.yaml

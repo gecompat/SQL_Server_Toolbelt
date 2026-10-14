@@ -105,3 +105,12 @@ gleichen Head durch zwei Events. Die daraufhin ergänzte Branchbegrenzung und
 elfte Selektorregression wurden gezielt gegen den neuen Input geprüft;
 kein erneuter lokaler grüner Vollaudit, Build oder Native-Lauf. Die aktuellen
 Remote-Headprüfungen sind ein separates Pflichtgate, keine neue Modellreviewkette.
+
+## Security-Wartung 2026-10-14
+
+SC-034 und SC-030 ergänzen die begründeten Overrides für explizite
+Remoteautorität und exakte Dezimalbudgetgrenzen. Quellpin, Version und
+Capabilityauswahl bleiben erhalten. Aktuelle Provenienz, Tests und die
+begrenzte Overheadbewertung stehen im
+[Security-Nachweis](SECURITY_CORRECTIONS_2026_10.md). Die oben genannten
+sieben Overrides beschreiben den historischen Integrationsstand vom 2026-10-09.

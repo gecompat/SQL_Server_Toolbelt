@@ -1,5 +1,10 @@
 # JSON Constructors
 
+## Security-Korrektur 2026-10-14
+
+SC-012: Der gemeinsame USP-Kern prüft exakte UTF-16-Escapingkosten über begrenzte Spans des vorhandenen CLR-Kerns vor vollständigen expandierten Stringfragmenten. Keine neue CLR-ABI oder zusätzliche fachliche Escapeimplementierung.
+[Nachweise und Grenzen](../../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md).
+
 Aktuelle Sourcewelle1.3.0: Die beiden freigegebenen CLR-Aggregate und die
 vier bestehenden USPs referenzieren die gemeinsame technische SAFE-Assembly
 `toolbelt.json.core`1.0 in derselben Datenbank. Sieben Constructoradapter,

@@ -49,7 +49,7 @@ resultset_contracts:
     kind: "data"
     resultset: "CapturedAtUtc datetime2(7), ExecutionId uniqueidentifier null, ErrorClass varchar(16), ErrorNumber int, ErrorSeverity int, ErrorState int, ErrorProcedure nvarchar(776) null, ErrorLine int null, ErrorMessage nvarchar(4000), XactState smallint, TransactionCount int, DatabaseName sysname, SessionId int, AdditionalContext nvarchar(4000) null"
     return_code_success: 0
-    error_range: "51400-51405"
+    error_range: "51400-51406"
 lifecycle_error_range: "51410-51413"
 clr:
   used: false
@@ -72,6 +72,7 @@ contracts:
   deployment: "1.0"
   validation: "1.0"
 tests:
+  client_metadata: "Tests/Runtime/Envelope.Metadata.ps1"
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/ErrorEnvelope.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"

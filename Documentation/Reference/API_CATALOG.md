@@ -173,7 +173,7 @@ Listet deklarierte Metadaten aller Central-Directory-Entries eines klassischen S
 
 Vertrag und Quelle: [USP_ListZipEntriesFromBinary.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_ListZipEntriesFromBinary.sql), [USP_ListZipEntriesFromBinary.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_ListZipEntriesFromBinary.md).
 
-<!-- Source/Vertrag SHA256: 2137ee0c115336aff82ac89cf32c04f2565507f8e3fdbaaa721132563aeb5ba4 -->
+<!-- Source/Vertrag SHA256: 501082fd8e593d78a0248a8010fab579e56768b5d4f56272f6a33e398d1c74aa -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -738,7 +738,7 @@ Erzeugt aus explizit im aufrufenden CATCH gelesenen ERROR_*-Werten genau eine st
 
 Vertrag und Quelle: [USP_CaptureErrorEnvelope.sql](../../Modules/toolbelt.core.error-envelope/Source/USP_CaptureErrorEnvelope.sql), [USP_CaptureErrorEnvelope.md](../../Modules/toolbelt.core.error-envelope/Documentation/USP_CaptureErrorEnvelope.md).
 
-<!-- Source/Vertrag SHA256: 9f623525e92e57089dd7c053fcfe3aa0544e043b8f3c0e12958cb0e6348a32cd -->
+<!-- Source/Vertrag SHA256: 965763fb432d149f92bbe74579fd8f114d6ac4c23f98407d95b932cd4928add5 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4030,7 +4030,7 @@ Liefert Gruppen-Captures einschließlich wiederholter Captures.
 
 Vertrag und Quelle: [RegexCaptures.sql](../../Modules/toolbelt.string.regex/Source/RegexCaptures.sql), [TVF_RegexCaptures.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexCaptures.md).
 
-<!-- Source/Vertrag SHA256: 348258b44f21db5729158ac438315c82b26bc406c695be2f4a08a1307adb6351 -->
+<!-- Source/Vertrag SHA256: a81b754628781d7d4b4e4e691e3229105526f6a47adf48f0d4e12fa516350f88 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4055,7 +4055,7 @@ Ersetzt Regex-Treffer mit dem getrennten Gruppen-Ersatzvertrag.
 
 Vertrag und Quelle: [RegexCaptures.sql](../../Modules/toolbelt.string.regex/Source/RegexCaptures.sql), [SVF_RegexReplaceGroups.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexReplaceGroups.md).
 
-<!-- Source/Vertrag SHA256: 81a81b396be9a23eb678578180aee4c20d65ff79fab6bbeba3067a96472d6435 -->
+<!-- Source/Vertrag SHA256: 110b2575e65a6e501f5f7449f493bb5074dbd3f16a8c36de49a42385482076c4 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4081,7 +4081,7 @@ Liefert vollständige Regex-Treffer mit Ordinals und Positionen.
 
 Vertrag und Quelle: [RegexRelations.sql](../../Modules/toolbelt.string.regex/Source/RegexRelations.sql), [TVF_RegexMatches.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexMatches.md).
 
-<!-- Source/Vertrag SHA256: 85fc741e7dd72f963d0bf3b0d2c63714b8199e99a53b9e2baffe2e8f344d5be7 -->
+<!-- Source/Vertrag SHA256: 09e913673871885f4b93d1aba5618ba6d93bb157244b0c12112d139a36a76b51 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4106,7 +4106,7 @@ Zerlegt einen Text an Regex-Treffern.
 
 Vertrag und Quelle: [RegexRelations.sql](../../Modules/toolbelt.string.regex/Source/RegexRelations.sql), [TVF_RegexSplit.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexSplit.md).
 
-<!-- Source/Vertrag SHA256: d987756ea0d27defdac7b3eabaa59f9553c14c560b36d346c42234e97917d6e9 -->
+<!-- Source/Vertrag SHA256: 7e9bff8b3b8550279be782236f58b49dd59f071e7ad3408aea7500ece23ca80d -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4130,7 +4130,7 @@ Prüft, ob ein regulärer Ausdruck im Text trifft.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [REGEX_FUNCTIONS.md](../../Modules/toolbelt.string.regex/Documentation/REGEX_FUNCTIONS.md).
 
-<!-- Source/Vertrag SHA256: 1bd7ae9af96eb3b8633afce9a4b7b4a358c430200a052138ae51e79d87a78aa7 -->
+<!-- Source/Vertrag SHA256: 4d7df74a97f6b25c830a054b73c5d8299b9201656e813f25cd45143bfbf447c4 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4152,7 +4152,7 @@ Liefert eine UTF-16-Position eines ausgewählten Regex-Treffers.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [REGEX_FUNCTIONS.md](../../Modules/toolbelt.string.regex/Documentation/REGEX_FUNCTIONS.md).
 
-<!-- Source/Vertrag SHA256: 1bd7ae9af96eb3b8633afce9a4b7b4a358c430200a052138ae51e79d87a78aa7 -->
+<!-- Source/Vertrag SHA256: 4d7df74a97f6b25c830a054b73c5d8299b9201656e813f25cd45143bfbf447c4 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4177,7 +4177,7 @@ Zählt Regex-Treffer ab der angegebenen Startposition.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [REGEX_FUNCTIONS.md](../../Modules/toolbelt.string.regex/Documentation/REGEX_FUNCTIONS.md).
 
-<!-- Source/Vertrag SHA256: 1bd7ae9af96eb3b8633afce9a4b7b4a358c430200a052138ae51e79d87a78aa7 -->
+<!-- Source/Vertrag SHA256: 4d7df74a97f6b25c830a054b73c5d8299b9201656e813f25cd45143bfbf447c4 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4200,7 +4200,7 @@ Ersetzt ganze Regex-Treffer durch einen literalen Ersatztext.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexReplace.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexReplace.md).
 
-<!-- Source/Vertrag SHA256: a8035edfac4e6bdce5fbff65b767319cd3fc863f2c12b730d9e6b96bd0f668e8 -->
+<!-- Source/Vertrag SHA256: 07b0a65da3682252f8377f7a487eb2de5ebf9c9011504edf0de5a4004caf830c -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4226,7 +4226,7 @@ Liefert den ausgewählten vollständigen Regex-Treffer.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexSubstring.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexSubstring.md).
 
-<!-- Source/Vertrag SHA256: 03f6d9fccbba63e78bb07dec086a6766ae88f94963158730e5f926f50852e992 -->
+<!-- Source/Vertrag SHA256: bd11bc32ab78402d3c411da466e0ed196196e48c28cae504b238893a4936954e -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

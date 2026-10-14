@@ -185,6 +185,7 @@ run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runt
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Transformations.Contract.sql
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Relations.Contract.sql -v "ToolbeltDatabase=${local_database}"
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Captures.Contract.sql -v "ToolbeltDatabase=${local_database}"
+run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Intake.Contract.sql
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Relations.Rights.sql
 deploy_regex "${local_database}" local "${assembly_hash}"
 run_file "${local_database}" /workspace/Modules/toolbelt.string.regex/Tests/Runtime Lifecycle.Contract.sql

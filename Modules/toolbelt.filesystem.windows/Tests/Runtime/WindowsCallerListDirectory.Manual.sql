@@ -2,16 +2,17 @@
 /*
  * Manueller Windows-Caller-Smoke-Test.
  *
- * In SSMS SQLCMD Mode aktivieren oder mit sqlcmd -v RootAlias=... ausführen.
+ * In SSMS SQLCMD Mode aktivieren und Betreibervariablen vor diesem Script
+ * definieren oder mit sqlcmd -v RootAlias=... RelativePath="" ausführen.
  * RootAlias und RelativePath sind Betreiberwerte und werden nicht in dieses
  * Repository oder in Test-Evidence übernommen.
  */
-:setvar RootAlias "__REQUIRED__"
-:setvar RelativePath ""
+-- Keine :setvar-Defaults: sie würden explizite sqlcmd -v-Werte überschreiben.
+-- Fehlende Variablen werden von SQLCMD vor Ausführung abgewiesen.
 
 SET NOCOUNT ON;
 
-IF N'$(RootAlias)' = N'__REQUIRED__'
+IF NULLIF(N'$(RootAlias)', N'') IS NULL OR N'$(RootAlias)' = N'__REQUIRED__'
     THROW 51549, N'Die SQLCMD-Variable RootAlias muss einen aktiven, fuer Listing freigegebenen Root-Alias enthalten.', 1;
 
 SELECT

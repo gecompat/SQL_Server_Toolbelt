@@ -26,7 +26,7 @@ CREATE FUNCTION [toolbelt_string].[SVF_RegexReplaceCore]
 )
 RETURNS nvarchar(max)
 WITH CALLED ON NULL INPUT
-AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexReplace];
+AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexReplaceBounded];
 GO
 
 -- ============================================================================
@@ -78,7 +78,7 @@ CREATE FUNCTION [toolbelt_string].[SVF_RegexSubstringCore]
 )
 RETURNS nvarchar(max)
 WITH CALLED ON NULL INPUT
-AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexSubstring];
+AS EXTERNAL NAME [Toolbelt_String_Regex].[Toolbelt.String.Regex.RegexProvider].[RegexSubstringBounded];
 GO
 
 -- ============================================================================
@@ -119,7 +119,7 @@ WITH CALLED ON NULL INPUT
 AS EXTERNAL NAME
     [Toolbelt_String_Regex]
     .[Toolbelt.String.Regex.RegexProvider]
-    .[RegexIsMatch];
+    .[RegexIsMatchBounded];
 GO
 
 CREATE FUNCTION [toolbelt_string].[SVF_RegexInstr]
@@ -136,7 +136,7 @@ WITH CALLED ON NULL INPUT
 AS EXTERNAL NAME
     [Toolbelt_String_Regex]
     .[Toolbelt.String.Regex.RegexProvider]
-    .[RegexInstr];
+    .[RegexInstrBounded];
 GO
 
 CREATE FUNCTION [toolbelt_string].[SVF_RegexCount]
@@ -151,5 +151,5 @@ WITH CALLED ON NULL INPUT
 AS EXTERNAL NAME
     [Toolbelt_String_Regex]
     .[Toolbelt.String.Regex.RegexProvider]
-    .[RegexCount];
+    .[RegexCountBounded];
 GO

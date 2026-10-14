@@ -206,6 +206,9 @@ DECLARE @BarrierId bigint=(SELECT MAX(WorkItemId) FROM toolbelt_core.WorkItem WH
 EXEC toolbelt_core.USP_EnqueueWorkWithPolicy @WorkTypeName='test.queue.none',@ExecutionGroup='barrier',@Priority=255;
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';
 IF EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE ExecutionGroup='barrier' AND ExecutionMode='SHARED' AND Status='CLAIMED' AND WorkItemId<>@BarrierBlockerId) THROW 52958,N'Die Barrier sperrte neue Shared Claims ihrer Gruppe nicht.',1;
+IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE WorkItemId=@BarrierId AND Status='BARRIER_WAIT')
+ OR EXISTS(SELECT 1 FROM #Claim WHERE WorkItemId=@BarrierId)
+ THROW 52958,N'Die Barrier wurde vor Abschluss ihres Blockers geclaimt.',2;
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.VW_WorkQueueBarrierBlockers WHERE BarrierWorkItemId=@BarrierId AND BlockingWorkItemId=@BarrierBlockerId AND IsResolved=0) THROW 52959,N'Der Barrier-Snapshot fehlt.',1;
 EXEC toolbelt_core.USP_CompleteWork @WorkItemId=@BarrierBlockerId,@ClaimToken=@BarrierBlockerToken;
 EXEC toolbelt_core.USP_ClaimWork @ResultTable=N'#Claim';

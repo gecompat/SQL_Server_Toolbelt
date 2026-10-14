@@ -1,5 +1,12 @@
 # CI-Testadapter
 
+Securitywartung 2026-10-14 (SC-2026-042): Second-Session- und Event-Log-
+Fixtures entfernen nach Linked-Server-Anlage das allgemeine Self-Mapping.
+Sie bilden ausschließlich `ORIGINAL_LOGIN()` mit dem bereits vorhandenen
+Testcredential auf denselben SQL-Login ab. Keine allgemeinen NULL-Mappings,
+Loginanlage oder Grants; vorhandene eigene Linked-Server-Cleanupgrenzen
+bleiben erhalten. Ein fremder Login erhält dadurch kein Testmapping.
+
 V0-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt die
 vollständige automatisierte Adaptermatrix auf physischen SQL-Server-2019-,
 2022- und 2025-Zielen unter Windows base und Linux latest. Manuelle und
@@ -571,6 +578,25 @@ Der
 war auf SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Die ergänzende lokale Windows-/Linux-Matrix 2019/2022/2025 war
 am 2026-09-01 erfolgreich; das Modul ist `validated`.
+
+## Gezielte Security-Korrekturtests
+
+`run-security-contracts-lab.ps1 -Platform linux -Version 2019 -Patch latest`
+verwendet die schema-validierte portable Labdiscovery und genau ein bereites
+Ziel. Der Test synchronisiert zwei Legacyupgrade-Races, injiziert zwei
+vorzeitige Barrierzustände und prüft die direkte Error-Envelope-Ausgabe per
+SqlClient. Synchronisationshooks existieren nur in Testkopien der SQL-Batches.
+Eigene GUID-Datenbanken werden danach entfernt und ihre Abwesenheit geprüft.
+
+`run-security-zip-lab.ps1 -ReleaseDirectory <frischer Releaseoutput>
+-OptInExactTrust` prüft frisches ZIP-Deployment sowie Reader-/Writer-Contracts
+auf Linux SQL2019/latest. Es verwendet vorhandene CLR-Konfiguration, schreibt
+ein privates Trustjournal außerhalb Git und entfernt nur eigene unveränderte
+Trusteinträge ohne Verbraucher. Historische Upgrades und harte Unterbrechung
+sind keine Bestandteile dieses begrenzten Tests.
+
+Die datierten Ergebnisse und Grenzen aller 13 Korrekturen stehen im
+[Security-Nachweis](../../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md).
 
 ## Quellen
 

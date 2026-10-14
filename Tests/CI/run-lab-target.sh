@@ -284,7 +284,13 @@ run_sqlcmd() {
                     cat > "${stdin_file}"
                     parsed+=("-i" "$(map_sqlcmd_file_path "${stdin_file}")")
                 else
-                    parsed+=("-i" "$(map_sqlcmd_file_path "$2")")
+                    # Relative SQL-Dateien gehören zum expliziten Modulworkdir,
+                    # nicht zum Repositoryroot des persistenten Adapters.
+                    input_file="$2"
+                    if [[ -n "${workdir}" && "${input_file}" != /* && ! "${input_file}" =~ ^[A-Za-z]: ]]; then
+                        input_file="${workdir}/${input_file}"
+                    fi
+                    parsed+=("-i" "$(map_sqlcmd_file_path "${input_file}")")
                 fi
                 shift 2
                 ;;
