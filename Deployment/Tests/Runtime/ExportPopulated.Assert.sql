@@ -228,10 +228,10 @@ IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=O
  AND CONVERT(varbinary(max),CONVERT(nvarchar(4000),value))=CONVERT(varbinary(max),N'Allowlist der Root-Pfade für toolbelt.file.content. Pfade müssen absolut sein; UNC-Pfade sind erlaubt.'))
  THROW 54982,N'Die File-Content-Beschreibung ist nicht kanonisch.',4;
 IF (SELECT COUNT(*) FROM sys.extended_properties p JOIN sys.tables t ON t.object_id=p.major_id JOIN sys.schemas s ON s.schema_id=t.schema_id
- WHERE p.class=1 AND p.name=N'Toolbelt.Test.ExportPopulated' AND p.minor_id=0 AND s.name IN(N'toolbelt_core',N'toolbelt_file'))<>14
+ WHERE p.class=1 AND p.name=N'Toolbelt.Test.ExportPopulated' AND p.minor_id=0 AND s.name IN(N'toolbelt_core',N'toolbelt_file'))<>15
  OR (SELECT COUNT(*) FROM sys.extended_properties p JOIN sys.tables t ON t.object_id=p.major_id JOIN sys.schemas s ON s.schema_id=t.schema_id
- WHERE p.class=1 AND p.name=N'Toolbelt.Test.ExportPopulated' AND p.minor_id>0 AND s.name IN(N'toolbelt_core',N'toolbelt_file'))<>14
- THROW 54982,N'Die 14 Tabellen-/Spaltenannotationzeugen sind unvollständig.',7;
+ WHERE p.class=1 AND p.name=N'Toolbelt.Test.ExportPopulated' AND p.minor_id>0 AND s.name IN(N'toolbelt_core',N'toolbelt_file'))<>15
+ THROW 54982,N'Die 15 Tabellen-/Spaltenannotationzeugen sind unvollständig.',7;
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkType WHERE WorkTypeName='toolbelt.event-log.write'
  AND CONVERT(varbinary(max),HandlerSchema)=CONVERT(varbinary(max),N'toolbelt_core')
  AND CONVERT(varbinary(max),HandlerProcedure)=CONVERT(varbinary(max),N'USP_WriteEventInternal')

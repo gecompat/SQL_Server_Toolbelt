@@ -225,3 +225,13 @@ aktiven Claim und Queue-Repeat. Die danach erreichte Control-Repeatfixture
 zählte noch zehn Tabellen; sie schließt nun ausdrücklich die elfte Tabelle
 WorkTypePermission und deren vorhandene Zeilen in den binären Erhaltungsnachweis
 ein. Keine Prüfung entfernt; der nachfolgende Head muss den gesamten Pfad bestehen.
+
+Auch die bestehenden vier SQL-Exportqualifikationen sind gekoppelt erweitert:
+aktuell 15 Tabellen/166 Felder, vollständige Principal-/Policyzeugen und feste
+Quellenbindung der aktuellen acht Legacyoberflächen. Historische Queues werden
+zuerst mit echter WorkType1.1-Abhängigkeit installiert; erst danach werden
+regulär die aktuellen gemeinsamen Module und die Queue exportiert migriert.
+Offline bestanden die gebundene Dependency-Erzeugung local/central ohne
+SQLverbindung und der unveränderte SQL-Exportselbsttest (29/153).
+Die bestehenden CI-Schritte und ihre Bereinigungsgrenzen bleiben erhalten;
+kein zusätzlicher Testtarget, keine neue Version- oder Parameterfiktion.

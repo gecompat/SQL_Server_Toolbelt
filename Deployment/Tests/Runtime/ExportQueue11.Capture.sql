@@ -10,7 +10,7 @@ CREATE TABLE #OldTables(SchemaName sysname COLLATE Latin1_General_100_BIN2,Table
 INSERT #OldTables VALUES
 (N'toolbelt_core',N'WorkType',18,2,NULL),
 (N'toolbelt_core',N'WorkItem',23,3,NULL),
-(N'toolbelt_core',N'ExecutionCancellation',5,3,NULL),
+(N'toolbelt_core',N'ExecutionCancellation',8,3,NULL),
 (N'toolbelt_core',N'SecondSessionProvider',8,1,NULL),
 (N'toolbelt_core',N'EventLog',24,3,NULL),
 (N'toolbelt_file',N'FileContentRootAllowlist',5,4,NULL);

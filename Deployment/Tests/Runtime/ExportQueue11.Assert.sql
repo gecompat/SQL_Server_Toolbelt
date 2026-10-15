@@ -10,7 +10,7 @@ CREATE TABLE #OldTables(SchemaName sysname COLLATE Latin1_General_100_BIN2,Table
 INSERT #OldTables VALUES
 (N'toolbelt_core',N'WorkType',18,2,NULL),
 (N'toolbelt_core',N'WorkItem',23,3,NULL),
-(N'toolbelt_core',N'ExecutionCancellation',5,3,NULL),
+(N'toolbelt_core',N'ExecutionCancellation',8,3,NULL),
 (N'toolbelt_core',N'SecondSessionProvider',8,1,NULL),
 (N'toolbelt_core',N'EventLog',24,3,NULL),
 (N'toolbelt_file',N'FileContentRootAllowlist',5,4,NULL);
@@ -74,6 +74,9 @@ INSERT #ExpectedColumns VALUES
 (N'toolbelt_core',N'ExecutionCancellation',3,N'RequestedBy',231,256,0,0,0,0,1,N'DATABASE'),
 (N'toolbelt_core',N'ExecutionCancellation',4,N'CancellationReason',231,1024,0,0,1,0,0,N'DATABASE'),
 (N'toolbelt_core',N'ExecutionCancellation',5,N'RowVersion',189,8,0,0,0,0,0,N'NONE'),
+(N'toolbelt_core',N'ExecutionCancellation',6,N'RequestedByPrincipalId',56,4,10,0,1,0,0,N'NONE'),
+(N'toolbelt_core',N'ExecutionCancellation',7,N'RequestedByPrincipalSid',165,85,0,0,1,0,0,N'NONE'),
+(N'toolbelt_core',N'ExecutionCancellation',8,N'RequestedByPrincipalCreatedAt',61,8,23,3,1,0,0,N'NONE'),
 (N'toolbelt_core',N'SecondSessionProvider',1,N'ProviderName',167,32,0,0,0,0,0,N'BIN2'),
 (N'toolbelt_core',N'SecondSessionProvider',2,N'LinkedServerName',231,256,0,0,0,0,1,N'DATABASE'),
 (N'toolbelt_core',N'SecondSessionProvider',3,N'IsEnabled',104,1,1,0,0,0,0,N'NONE'),
@@ -185,9 +188,17 @@ INSERT #ExpectedColumns VALUES
 (N'toolbelt_core',N'WorkQueueBarrierBlocker',4,N'BlockingClaimGeneration',127,8,19,0,0,0,0,N'NONE'),
 (N'toolbelt_core',N'WorkQueueBarrierBlocker',5,N'CapturedAtUtc',42,8,27,7,0,0,0,N'NONE');
 DELETE #ExpectedColumns WHERE @After=0 AND NOT EXISTS(SELECT 1 FROM #OldTables t WHERE t.SchemaName=#ExpectedColumns.SchemaName AND t.TableName=#ExpectedColumns.TableName AND #ExpectedColumns.Ordinal<=t.LegacyColumns);
-IF (SELECT COUNT(*) FROM #ExpectedColumns)<>CASE WHEN @After=0 THEN 83 ELSE 156 END
- OR (SELECT COUNT(*) FROM sys.tables WHERE is_ms_shipped=0)<>CASE WHEN @After=0 THEN 6 ELSE 14 END
- OR (SELECT COUNT(*) FROM (SELECT DISTINCT SchemaName,TableName FROM #ExpectedColumns)v)<>CASE WHEN @After=0 THEN 6 ELSE 14 END
+IF @After=1 INSERT #ExpectedColumns VALUES
+(N'toolbelt_core',N'WorkTypePermission',1,N'WorkTypeId',127,8,19,0,0,0,0,N'NONE'),
+(N'toolbelt_core',N'WorkTypePermission',2,N'PrincipalId',56,4,10,0,0,0,0,N'NONE'),
+(N'toolbelt_core',N'WorkTypePermission',3,N'PermissionName',167,32,0,0,0,0,0,N'BIN2'),
+(N'toolbelt_core',N'WorkTypePermission',4,N'PrincipalSid',165,85,0,0,0,0,0,N'NONE'),
+(N'toolbelt_core',N'WorkTypePermission',5,N'PrincipalCreatedAt',61,8,23,3,0,0,0,N'NONE'),
+(N'toolbelt_core',N'WorkTypePermission',6,N'WorkTypeVersion',173,8,0,0,0,0,0,N'NONE'),
+(N'toolbelt_core',N'WorkTypePermission',7,N'IsDenied',104,1,1,0,0,0,0,N'NONE');
+IF (SELECT COUNT(*) FROM #ExpectedColumns)<>CASE WHEN @After=0 THEN 86 ELSE 166 END
+ OR (SELECT COUNT(*) FROM sys.tables WHERE is_ms_shipped=0)<>CASE WHEN @After=0 THEN 6 ELSE 15 END
+ OR (SELECT COUNT(*) FROM (SELECT DISTINCT SchemaName,TableName FROM #ExpectedColumns)v)<>CASE WHEN @After=0 THEN 6 ELSE 15 END
  OR EXISTS(SELECT 1 FROM #ExpectedColumns e LEFT JOIN sys.columns c ON c.object_id=OBJECT_ID(QUOTENAME(e.SchemaName)+N'.'+QUOTENAME(e.TableName),N'U') AND c.column_id=e.Ordinal
  WHERE c.column_id IS NULL OR CONVERT(varbinary(max),c.name)<>CONVERT(varbinary(max),e.ColumnName)
  OR c.system_type_id<>e.TypeId OR c.user_type_id<>CASE WHEN e.SysnameAlias=1 THEN TYPE_ID(N'sysname') ELSE e.TypeId END
@@ -200,6 +211,9 @@ IF (SELECT COUNT(*) FROM #ExpectedColumns)<>CASE WHEN @After=0 THEN 83 ELSE 156 
  THROW 55012,N'EXPORT_QUEUE11_FULL_COLUMNS',5;
 -- BEFORE/AFTER: feste quellgebundene Command-/Stored-Headerabbildungen für die gemessene saubere Original1.1-Erstinstallation und den einmaligen aktuellen Neunmodul-Upgradepfad auf SQL2019/Linux (local).
 -- Vollständige UTF16LE-Erwartungen bleiben exakt; kein Normalizer oder Akzeptanzfallback. CI, zentraler Modus und weitere Plattformen sind durch diese Proben nicht qualifiziert.
+-- BEFORE bleibt vollständig an den unveränderten historischen Text gebunden.
+-- AFTER pinnt den gesamten aktuellen Deklarationstext ab dem qualifizierten
+-- Namen; nur CREATE/ALTER-Clientprefix und äußere Transportwhitespace entfallen.
 CREATE TABLE #ExpectedDefinitions(AfterValue bit,ObjectName sysname COLLATE Latin1_General_100_BIN2,DefinitionHash binary(32));
 INSERT #ExpectedDefinitions VALUES
 (0,N'VW_WorkQueue',0xC91C42047052991FFD347755C388D71A08733B9C9030AC591F857FEA07A57115),
@@ -210,17 +224,19 @@ INSERT #ExpectedDefinitions VALUES
 (0,N'USP_CompleteWork',0x455D87DA96C2B573D0278098360A8C2910D81D4DBE7DC90226CDE5ACD69864D4),
 (0,N'USP_FailWork',0xB5B4BC2FAB67D548BB26DBCBA6A0D68EB345356B21C02E5A50D76E1B20944817),
 (0,N'USP_GetWorkStatus',0xA8D311BEDB2A167F13A89A636D79299CF3807B19931F536C1627FC1A5470EDDE),
-(1,N'VW_WorkQueue',0x1A67364839088433C19D979B16B58EC8ED3E4B283DB4482FE5994D3B284ED4B4),
-(1,N'USP_EnqueueWork',0xAC83EB646A58F9D39D65C4C2920DDBAFF9533B64AD26198DDDB527A7A361E4AE),
-(1,N'USP_ClaimWork',0xC8CF70BBDC739DB3680A8ADE713620881B9C4C56439FF815E5ADD41D40D678B3),
-(1,N'USP_RenewWorkLease',0xE4EB9ACE46E076D5FA7AB570F90E1AECB75CC16B303C27DAE3EFD12EC57BE81C),
-(1,N'USP_RecoverExpiredWork',0x9EFA9F463B638079FABB5FE457B12ABB650A1D34A05242A36A880408539608B2),
-(1,N'USP_CompleteWork',0x5E642095C9083530C942161B229DFB758D0A39FC612738A27D370B90E02150D3),
-(1,N'USP_FailWork',0xB541A59D96E4B860E28050150A246CCBEDBE83170421FDC0EB2057F76A903F6A),
-(1,N'USP_GetWorkStatus',0x0EA98D63ABB2363DF84A3C7745C2AB12F66A268B8D347BB3F9BA9E44E7182F01);
+(1,N'VW_WorkQueue',0xD062999631B7D0A361A7CDBB12CD57A7549DF8563740E07B2E8BD1AF8ED82B60),
+(1,N'USP_EnqueueWork',0xE5EDCC89DE63199851C31C65959DE1B64BA1A85BA35EF8FC69451B7ADAAF07DB),
+(1,N'USP_ClaimWork',0xDABD8CC74C7F974C0BD30F75720D874FFE01133B6481AECA008D503868A6AD5A),
+(1,N'USP_RenewWorkLease',0x72DACB0223BBE47071F1D071D79DAB766397EA1462763FA344D19C196B89627B),
+(1,N'USP_RecoverExpiredWork',0x33F6E87A3D1503EF723662A2B64B07277DC832AEA7FC99C1445DD5B3567BC3C8),
+(1,N'USP_CompleteWork',0x8307EB9E4F18DB58F75A8B25ED8E91C981781513645C688AD3F945D491AFB044),
+(1,N'USP_FailWork',0xF0572BE19DFAFF4F5CE7EB065BB54197662E590135824AB790BAE0E30CE0D4CC),
+(1,N'USP_GetWorkStatus',0x0CAC7D9337CC0B8215FDEF5D7E23EFC9AE8F48C09DC9BE404984F2E2A3AFA432);
 IF (SELECT COUNT(*) FROM #ExpectedDefinitions WHERE AfterValue=@After)<>8
  OR EXISTS(SELECT 1 FROM #ExpectedDefinitions e LEFT JOIN sys.sql_modules m ON m.object_id=OBJECT_ID(N'toolbelt_core.'+QUOTENAME(e.ObjectName))
- WHERE e.AfterValue=@After AND (m.object_id IS NULL OR m.definition IS NULL OR HASHBYTES(N'SHA2_256',CONVERT(varbinary(max),m.definition))<>e.DefinitionHash
+ WHERE e.AfterValue=@After AND (m.object_id IS NULL OR m.definition IS NULL OR HASHBYTES(N'SHA2_256',CONVERT(varbinary(max),CASE WHEN @After=0 THEN m.definition
+ ELSE TRIM(NCHAR(9)+NCHAR(10)+N' ' FROM REPLACE(SUBSTRING(m.definition,
+ CHARINDEX(N'[toolbelt_core].['+e.ObjectName+N']',m.definition COLLATE Latin1_General_100_BIN2),2147483647),NCHAR(13),N'')) END))<>e.DefinitionHash
  OR m.uses_ansi_nulls<>1 OR m.uses_quoted_identifier<>1 OR m.execute_as_principal_id IS NOT NULL OR m.is_schema_bound<>0 OR m.uses_native_compilation<>0))
 BEGIN
  -- Nur die bereits abgelehnte BEFORE-Darstellung enger klassifizieren; kein zusätzlicher Erfolgsweg.

@@ -1,4 +1,4 @@
--- Acht alte Tabellen; alle 109 Legacyfelder bleiben im privaten Adaptermemory.
+-- Acht alte Tabellen; alle 112 Legacyfelder bleiben im privaten Adaptermemory.
 -- @After erlaubt ausschließlich die drei bekannten neuen WorkItem-Spalten.
 SET NOCOUNT ON;
 IF @After IS NULL
@@ -15,7 +15,7 @@ CREATE TABLE #tbx_UpgradeTables(SchemaName sysname COLLATE Latin1_General_100_BI
 INSERT #tbx_UpgradeTables VALUES
  (N'toolbelt_core',N'WorkType',18,NULL),(N'toolbelt_core',N'WorkItem',43,NULL),
  (N'toolbelt_core',N'WorkQueueScheduler',1,NULL),(N'toolbelt_core',N'WorkQueueBarrierBlocker',5,NULL),
- (N'toolbelt_core',N'ExecutionCancellation',5,NULL),(N'toolbelt_core',N'SecondSessionProvider',8,NULL),
+ (N'toolbelt_core',N'ExecutionCancellation',8,NULL),(N'toolbelt_core',N'SecondSessionProvider',8,NULL),
  (N'toolbelt_core',N'EventLog',24,NULL),(N'toolbelt_file',N'FileContentRootAllowlist',5,NULL);
 UPDATE #tbx_UpgradeTables SET ObjectId=OBJECT_ID(QUOTENAME(SchemaName)+N'.'+QUOTENAME(TableName),N'U');
 IF (SELECT COUNT(*) FROM #tbx_UpgradeTables)<>8 OR EXISTS(SELECT 1 FROM #tbx_UpgradeTables t WHERE ObjectId IS NULL

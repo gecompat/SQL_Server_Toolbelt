@@ -31,7 +31,7 @@ $sourceConnection=[Environment]::GetEnvironmentVariable($ConnectionStringEnviron
 function Assert-ExportRepeat([bool]$Condition,[string]$Code){if(-not$Condition){throw ('EXPORT_REPEAT.'+$Code)}}
 function Get-SafeFailureDiagnostic([Exception]$Exception,[string]$Phase) {
  # Ausschließlich feste Quellcode-Tokens und Phasen publizieren, keine freien Exceptiontexte.
- $allowedPhases=@('preflight','cleanup','local-export','local-create','local-install','local-seed','local-repeat1','local-repeat2','local-cleanup','central-export','central-create','central-install','central-seed','central-repeat1','central-repeat2','central-cleanup','local-bootstrap','local-historical','local-upgrade','central-bootstrap','central-historical','central-upgrade','local-parameter-seed','local-parameter-repeat','local-parameter-verify','central-parameter-seed','central-parameter-repeat','central-parameter-verify','queue11-acquire')
+ $allowedPhases=@('preflight','cleanup','local-export','local-create','local-install','local-seed','local-repeat1','local-repeat2','local-cleanup','central-export','central-create','central-install','central-seed','central-repeat1','central-repeat2','central-cleanup','local-current-dependencies','central-current-dependencies','local-bootstrap','local-historical','local-upgrade','central-bootstrap','central-historical','central-upgrade','local-parameter-seed','local-parameter-repeat','local-parameter-verify','central-parameter-seed','central-parameter-repeat','central-parameter-verify','queue11-acquire')
  $allowedCodes=@(
   # Endliche Acquisition-/Prozesscodes werden vom Writer erneut über dieselbe Liste geprüft.
   'QUEUE11_ACQUISITION_CALLER_BOUNDARY','QUEUE11_ACQUISITION_FRESH_STATE','QUEUE11_ACQUISITION_CI_SCOPE',
@@ -46,7 +46,7 @@ function Get-SafeFailureDiagnostic([Exception]$Exception,[string]$Phase) {
   'JOURNAL_SIZE','JOURNAL_READ','JOURNAL_DRIFT','OWNERSHIP_UNCONFIRMED',
   'UNRESOLVED_VARIABLE','UNSUPPORTED_DIRECTIVE','ERROR_ABORT_MISSING',
   'EXPORT_BYTES_CHANGED','EXPORT_BATCH_COUNT_CHANGED','EXPORT_NOT_FULLY_CONSUMED',
-  'SNAPSHOT_SHAPE','SNAPSHOT_EXTRA_RESULT','SNAPSHOT_TABLES14',
+  'SNAPSHOT_SHAPE','SNAPSHOT_EXTRA_RESULT','SNAPSHOT_TABLES15',
   'SNAPSHOT_CATEGORIES_CHANGED','SNAPSHOT_ROWCOUNT_CHANGED','SNAPSHOT_BYTES_CHANGED',
   'CLEANUP_UNCONFIRMED','CLEANUP_NAME','CONNECTION_INPUT_MISSING',
   'EXPORT_BOM','EXPORT_CLOSURE','EXPORT_ENDS9','EXPORT_GUARDS10',
@@ -238,8 +238,8 @@ function Invoke-OwnedFixture($Identity,[string]$Name,[hashtable]$Parameters=@{})
  try{Assert-OwnedConnection $connection $Identity;Invoke-ExportSql $connection ([IO.File]::ReadAllText((Join-Path $runtimeRoot $Name),$utf8)) $Parameters;Assert-OwnedConnection $connection $Identity}
  finally{$connection.Dispose()}
 }
-function Read-PrivateSnapshot($Identity,[string]$Name='ExportPopulated.Capture.sql',[hashtable]$Parameters=@{},[int]$TableCount=14){
- Assert-ExportRepeat ($TableCount-in@(0,8,14)) 'SNAPSHOT_TABLE_COUNT'
+function Read-PrivateSnapshot($Identity,[string]$Name='ExportPopulated.Capture.sql',[hashtable]$Parameters=@{},[int]$TableCount=15){
+ Assert-ExportRepeat ($TableCount-in@(0,8,15)) 'SNAPSHOT_TABLE_COUNT'
  if($TableCount-eq0){Assert-ExportRepeat ($Name-ceq'ExportParameter.Capture.sql'-and$Parameters.Count-eq0) 'PARAMETER_CAPTURE_BINDING'}
  $connection=New-ExportConnection $Identity.Name
  try{
@@ -260,7 +260,7 @@ function Read-PrivateSnapshot($Identity,[string]$Name='ExportPopulated.Capture.s
    foreach($category in $snapshot.Keys){$snapshot[$category].Sort([StringComparer]::Ordinal)}
    $actualTables=@($snapshot.Keys|Where-Object {$_.StartsWith('row:',[StringComparison]::Ordinal)}).Count
    if($TableCount-eq0){Assert-ParameterSnapshotShape $snapshot}
-   else{if($TableCount-eq8){Assert-ExportRepeat ($actualTables-eq8) 'SNAPSHOT_TABLES8'}else{Assert-ExportRepeat ($actualTables-eq14) 'SNAPSHOT_TABLES14'}}
+   else{if($TableCount-eq8){Assert-ExportRepeat ($actualTables-eq8) 'SNAPSHOT_TABLES8'}else{Assert-ExportRepeat ($actualTables-eq15) 'SNAPSHOT_TABLES15'}}
    return ,$snapshot
   }finally{$command.Dispose()}
  }finally{$connection.Dispose()}
@@ -304,6 +304,41 @@ function Assert-HistoricalFile($File){
  $item=Get-Item -LiteralPath $File.Path -ErrorAction Stop
  Assert-ExportRepeat ($item.Length-eq$File.Length-and$item.CreationTimeUtc.Ticks-eq$File.CreatedTicks-and[int]$item.Attributes-eq$File.Attributes-and($item.Attributes-band[IO.FileAttributes]::ReparsePoint)-eq0-and(Get-FileHash -LiteralPath $File.Path -Algorithm SHA256).Hash-ceq$File.SHA256) 'HISTORICAL_FILE_IDENTITY'
 }
+function New-LegacyQueueDependencyExport([string]$Mode){
+ # Genuine Queue2.0 benötigt beim Erstdeploy wirklich WorkType1.1. Erst danach
+ # werden die aktuellen gemeinsamen Module regulär exportiert und installiert.
+ $fragment=Join-Path $ownedRoot ($Mode+'-legacy-result-table.sql')
+ & (Join-Path $repositoryRoot 'Deployment/Deploy-All.ps1') -DeploymentMode $Mode -ModuleId @('toolbelt.core.result-table') -OutputSqlFile $fragment *> $null
+ $bytes=[IO.File]::ReadAllBytes($fragment)
+ $ownedFiles.Add([pscustomobject]@{Path=$fragment;Hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes));BatchCount=@(Get-ExportBatches ($utf8.GetString($bytes))).Count})
+ $helper=Join-Path $repositoryRoot 'Workers/ExternalQueue/Tests/Runtime/New-GenuineQueue20Capture.ps1'
+ Assert-ExportRepeat ((Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash-ceq'147C7D9D4BC3625DA1EAF5CFBFC717974A5138D4326C4153FBACF94E244BA8E0') 'HISTORICAL_CAPTURE_HELPER'
+ . $helper
+ $captureRoot=Join-Path $ownedRoot ('worktype11-'+$Mode)
+ $deploy=New-GenuineQueue20Capture -RepositoryRoot $repositoryRoot -OutputRoot $captureRoot -CaptureModule work-type -OwnedFiles $historicalFiles -OwnedDirectories $historicalDirectories
+ $expanded=[Text.StringBuilder]::new();[void]$expanded.AppendLine($utf8.GetString($bytes))
+ $count=0
+ foreach($line in [regex]::Split([IO.File]::ReadAllText($deploy,$utf8),'\r?\n')){
+  if($line.StartsWith(':r ',[StringComparison]::Ordinal)){
+   Assert-ExportRepeat ($line-cmatch'^:r ../Source/([A-Za-z0-9_]+\.sql)$') 'HISTORICAL_INCLUDE_SHAPE'
+   $relative='Source/'+$Matches[1]
+   $files=@($historicalFiles|Where-Object {$_.Path.StartsWith($captureRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::Ordinal)-and$_.PSObject.Properties.Name-ccontains'Relative'-and$_.Relative-ceq$relative})
+   Assert-ExportRepeat ($files.Count-eq1) 'HISTORICAL_INCLUDE_BINDING';Assert-HistoricalFile $files[0]
+   [void]$expanded.AppendLine([IO.File]::ReadAllText($files[0].Path,$utf8));$count++
+  }else{[void]$expanded.AppendLine($line)}
+ }
+ Assert-ExportRepeat ($count-eq6) 'HISTORICAL_INCLUDE_COUNT'
+ $text=$expanded.ToString().Replace('$(DeploymentMode)',$Mode)
+ $path=Join-Path $ownedRoot ($Mode+'-legacy-dependency.sql');$bytes=$utf8.GetBytes($text)
+ [IO.File]::WriteAllBytes($path,$bytes)
+ $record=[pscustomobject]@{Path=$path;Hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes));BatchCount=@(Get-ExportBatches $text).Count}
+ $ownedFiles.Add($record)
+ if($Scenario-ceq'Queue11Upgrade'){
+  foreach($file in @($historicalFiles|Where-Object {$_.Path.StartsWith($captureRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::Ordinal)})){Register-Queue11File $file}
+  Register-Queue11File $ownedFiles[$ownedFiles.Count-2];Register-Queue11File $record
+ }
+ return $record
+}
 function New-UpgradeBootstrap([string]$Mode){
  $path=Join-Path $ownedRoot ($Mode+'-bootstrap.sql')
  & (Join-Path $repositoryRoot 'Deployment/Deploy-All.ps1') -DeploymentMode $Mode -ModuleId @('toolbelt.core.event-log','toolbelt.file.content','toolbelt.core.execution-cancel') -OutputSqlFile $path *> $null
@@ -318,7 +353,7 @@ function New-UpgradeBootstrap([string]$Mode){
 }
 function New-UpgradeHistoricalExport([string]$Mode){
  $helper=Join-Path $repositoryRoot 'Workers/ExternalQueue/Tests/Runtime/New-GenuineQueue20Capture.ps1'
- Assert-ExportRepeat ((Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash-ceq'04A92F46ADECCDF33A7CB6D7882F30AC427449C1CD8F9EBBDD978EB193F7B377') 'HISTORICAL_CAPTURE_HELPER'
+ Assert-ExportRepeat ((Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash-ceq'147C7D9D4BC3625DA1EAF5CFBFC717974A5138D4326C4153FBACF94E244BA8E0') 'HISTORICAL_CAPTURE_HELPER'
  . $helper
  $captureRoot=Join-Path $ownedRoot ('queue20-'+$Mode)
  $deploy=New-GenuineQueue20Capture -RepositoryRoot $repositoryRoot -OutputRoot $captureRoot -OwnedFiles $historicalFiles -OwnedDirectories $historicalDirectories
@@ -504,15 +539,15 @@ function Invoke-Queue11ExportFile($Identity,$Export){
  return $started
 }
 function Assert-Queue11Fixtures {
- foreach($binding in @(@{Name='ExportQueue11.Setup.sql';Hash='04EB235CCEEC0036EDDD2C8B9D342EB800F76432656731BC6339B96E32E0ECEC'},@{Name='ExportQueue11.Capture.sql';Hash='58DB015EF05262E62670A0055BAECB2CD57AFFE23FDF33576382350347E7CE99'},@{Name='ExportQueue11.Assert.sql';Hash='E201EEF9EDB4B74A99E3DDC588AE8967E01664C80DBEDAADD0E4EAA1A0AAC985'},@{Name='ExportQueue11Repeat.Capture.sql';Hash='BD5A9F43905AB1F9C670841528F7E4A0223E5B1FBB428E7ACB97DBAC50C30AFF'})){
+ foreach($binding in @(@{Name='ExportQueue11.Setup.sql';Hash='04EB235CCEEC0036EDDD2C8B9D342EB800F76432656731BC6339B96E32E0ECEC'},@{Name='ExportQueue11.Capture.sql';Hash='CF6C388794512A2961B778A25056F3A9EEF236EC77640EEACACD78D0083882FC'},@{Name='ExportQueue11.Assert.sql';Hash='1629F436F82BEC3A9E474D05578B41201D6555961B0A832C4DA53815D16B197B'},@{Name='ExportQueue11Repeat.Capture.sql';Hash='CEA7124A183C843A6CE5E4FCC37EB5DA9842708FDD2E8C7CC193CC24DCE4CDE5'})){
   Assert-ExportRepeat ((Get-FileHash -LiteralPath (Join-Path $runtimeRoot $binding.Name) -Algorithm SHA256).Hash-ceq$binding.Hash) 'QUEUE11_SQL_FIXTURE_PIN'
  }
 }
 function Read-Queue11RepeatSnapshot($Identity){
  Assert-Queue11Fixtures
  $snapshot=Read-PrivateSnapshot $Identity 'ExportQueue11Repeat.Capture.sql'
- # Genau 14 endliche Zeugen, einschließlich der fünf absichtlich leeren Tabellen.
- $rows=[ordered]@{'toolbelt_core.WorkType'=2;'toolbelt_core.WorkItem'=3;'toolbelt_core.WorkQueueScheduler'=1;'toolbelt_core.WorkQueueBarrierBlocker'=0;'toolbelt_core.WorkQueueManagedGate'=1;'toolbelt_core.WorkerControlConfiguration'=1;'toolbelt_core.WorkerRegistration'=0;'toolbelt_core.WorkerSlotReservation'=0;'toolbelt_core.WorkerExecutionDisposition'=0;'toolbelt_core.WorkerExecutionCommitWitness'=0;'toolbelt_core.ExecutionCancellation'=3;'toolbelt_core.SecondSessionProvider'=1;'toolbelt_core.EventLog'=3;'toolbelt_file.FileContentRootAllowlist'=4}
+ # Genau 15 endliche Zeugen, einschließlich der sechs absichtlich leeren Tabellen.
+ $rows=[ordered]@{'toolbelt_core.WorkTypePermission'=0;'toolbelt_core.WorkType'=2;'toolbelt_core.WorkItem'=3;'toolbelt_core.WorkQueueScheduler'=1;'toolbelt_core.WorkQueueBarrierBlocker'=0;'toolbelt_core.WorkQueueManagedGate'=1;'toolbelt_core.WorkerControlConfiguration'=1;'toolbelt_core.WorkerRegistration'=0;'toolbelt_core.WorkerSlotReservation'=0;'toolbelt_core.WorkerExecutionDisposition'=0;'toolbelt_core.WorkerExecutionCommitWitness'=0;'toolbelt_core.ExecutionCancellation'=3;'toolbelt_core.SecondSessionProvider'=1;'toolbelt_core.EventLog'=3;'toolbelt_file.FileContentRootAllowlist'=4}
  $catalog=@('objects','children','schemas','tables','columns','identity','indexes','index_columns','defaults','checks','keys','foreign_keys','foreign_key_columns','triggers','modules','properties','permissions')
  $expected=@($rows.Keys|ForEach-Object {'row:'+$_})+@($catalog|ForEach-Object {'catalog:'+$_})
  Assert-ExportRepeat ((@($snapshot.Keys|Sort-Object)-join"`n")-ceq(@($expected|Sort-Object)-join"`n")) 'QUEUE11_REPEAT_CATEGORIES'
@@ -554,7 +589,7 @@ function Read-Queue11Snapshot($Identity,[bool]$After,[string]$Mode){
  }finally{$connection.Dispose()}
 }
 function Assert-Queue11SnapshotShape($Snapshot,[bool]$After){
- $rows=[ordered]@{'toolbelt_core.WorkType'=2;'toolbelt_core.WorkItem'=3;'toolbelt_core.ExecutionCancellation'=3;'toolbelt_core.SecondSessionProvider'=1;'toolbelt_core.EventLog'=3;'toolbelt_file.FileContentRootAllowlist'=4}
+ $rows=[ordered]@{'toolbelt_core.WorkTypePermission'=0;'toolbelt_core.WorkType'=2;'toolbelt_core.WorkItem'=3;'toolbelt_core.ExecutionCancellation'=3;'toolbelt_core.SecondSessionProvider'=1;'toolbelt_core.EventLog'=3;'toolbelt_file.FileContentRootAllowlist'=4}
  if($After){foreach($item in @(@{Name='WorkQueueBarrierBlocker';Rows=0},@{Name='WorkQueueManagedGate';Rows=1},@{Name='WorkQueueScheduler';Rows=1},@{Name='WorkerControlConfiguration';Rows=1},@{Name='WorkerExecutionCommitWitness';Rows=0},@{Name='WorkerExecutionDisposition';Rows=0},@{Name='WorkerRegistration';Rows=0},@{Name='WorkerSlotReservation';Rows=0})){$rows['toolbelt_core.'+$item.Name]=$item.Rows}}
  $catalog=@('schemas','tables','objects','columns','view-columns','identity','indexes','index-columns','defaults','checks','keys','foreign-keys','foreign-key-columns','modules','parameters','properties','permissions','rowversion-count')
  $expected=@($rows.Keys|ForEach-Object {'row:'+$_})+@($catalog|ForEach-Object {'catalog:'+$_})
@@ -665,6 +700,7 @@ try{
    Assert-ExportRepeat (-not(Test-Path -LiteralPath $queue11BootstrapPath)) 'QUEUE11_FILE_BOUNDARY'
    $queue11Bootstrap=New-UpgradeBootstrap $mode;Register-Queue11File $queue11Bootstrap
    $queue11Historical=New-Queue11HistoricalExport $mode
+   $queue11LegacyDependency=New-LegacyQueueDependencyExport $mode
    Assert-Queue11File $export.Path;Assert-Queue11File $queue11Bootstrap.Path;Assert-Queue11File $queue11Historical.Path
    Assert-Queue11Fixtures
    Save-PrivateOwnership
@@ -690,9 +726,11 @@ try{
   }finally{$connection.Dispose()}
   if($Scenario-ceq'Queue11Upgrade'){
    $phase=$mode+'-bootstrap';Save-PrivateOwnership
-   [void](Invoke-Queue11ExportFile $identity $queue11Bootstrap)
+   [void](Invoke-Queue11ExportFile $identity $queue11LegacyDependency)
    $phase=$mode+'-historical';Save-PrivateOwnership
    [void](Invoke-Queue11ExportFile $identity $queue11Historical)
+   $phase=$mode+'-current-dependencies';Save-PrivateOwnership
+   [void](Invoke-Queue11ExportFile $identity $queue11Bootstrap)
    $phase=$mode+'-seed';Save-PrivateOwnership;Assert-Queue11Fixtures
    Invoke-OwnedFixture $identity 'ExportQueue11.Setup.sql' @{'@InstallMode'=$mode}
    Invoke-OwnedFixture $identity 'ExportQueue11.Assert.sql' @{'@After'=$false;'@InstallMode'=$mode}
@@ -740,10 +778,13 @@ try{
   if($Scenario-ceq'Queue20Upgrade'){
    $phase=$mode+'-bootstrap';Save-PrivateOwnership
    $bootstrap=New-UpgradeBootstrap $mode
-   [void](Invoke-ExportFile $identity $bootstrap)
+   $legacyDependency=New-LegacyQueueDependencyExport $mode
+   [void](Invoke-ExportFile $identity $legacyDependency)
    $phase=$mode+'-historical';Save-PrivateOwnership
    $historical=New-UpgradeHistoricalExport $mode
    [void](Invoke-ExportFile $identity $historical)
+   $phase=$mode+'-current-dependencies';Save-PrivateOwnership
+   [void](Invoke-ExportFile $identity $bootstrap)
    $phase=$mode+'-seed';Save-PrivateOwnership
    Invoke-OwnedFixture $identity 'ExportUpgrade.Setup.sql'
    $previous=Read-PrivateSnapshot $identity 'ExportUpgrade.Capture.sql' @{'@After'=$false} 8
@@ -752,13 +793,13 @@ try{
    Invoke-OwnedFixture $identity 'ExportUpgrade.Assert.sql'
    $current=Read-PrivateSnapshot $identity 'ExportUpgrade.Capture.sql' @{'@After'=$true} 8
    Compare-PrivateSnapshots $previous $current
-   # Zusätzliche Wartungswelle NACH dem unveränderten Immediate-109-Feldervergleich.
+   # Zusätzliche Wartungswelle NACH dem unveränderten Immediate-112-Feldervergleich.
    # Bestehende Claim-/Lease-/Consumer-Guards bleiben unverändert; nur eigener unmanaged Abschluss.
    Invoke-OwnedFixture $identity 'ExportUpgradeRepeat.Assert.sql' @{'@Completed'=$false}
-   $beforeCompletion=Read-PrivateSnapshot $identity 'ExportUpgradeRepeat.Capture.sql' @{'@Completed'=$false} 14
+   $beforeCompletion=Read-PrivateSnapshot $identity 'ExportUpgradeRepeat.Capture.sql' @{'@Completed'=$false} 15
    Invoke-OwnedFixture $identity 'ExportUpgradeRepeat.Complete.sql'
    Invoke-OwnedFixture $identity 'ExportUpgradeRepeat.Assert.sql' @{'@Completed'=$true}
-   $afterCompletion=Read-PrivateSnapshot $identity 'ExportUpgradeRepeat.Capture.sql' @{'@Completed'=$true} 14
+   $afterCompletion=Read-PrivateSnapshot $identity 'ExportUpgradeRepeat.Capture.sql' @{'@Completed'=$true} 15
    # Nur vollständige WorkItem-Zeilen sind im Completionfenster veränderlich.
    # 42 stabile Felder aller drei sowie 46 Felder der beiden anderen WorkItems werden separat verglichen.
    $stableBefore=[Collections.Generic.Dictionary[string,Collections.Generic.List[string]]]::new([StringComparer]::Ordinal)
@@ -770,7 +811,7 @@ try{
    # Neue private Baseline, keine First-Ausnahme und keine Versionsnormalisierung.
    [void](Invoke-ExportFile $identity $export)
    Invoke-OwnedFixture $identity 'ExportUpgradeRepeat.Assert.sql' @{'@Completed'=$true}
-   $afterRepeat=Read-PrivateSnapshot $identity 'ExportUpgradeRepeat.Capture.sql' @{'@Completed'=$true} 14
+   $afterRepeat=Read-PrivateSnapshot $identity 'ExportUpgradeRepeat.Capture.sql' @{'@Completed'=$true} 15
    Compare-PrivateSnapshots $afterCompletion $afterRepeat
    # Keine weitere DML/Claimadmission nach diesem Repeatorakel; eigene DB vollständig bereinigen.
    $phase=$mode+'-cleanup';Save-PrivateOwnership;Remove-OwnedDatabase $identity
