@@ -51,3 +51,17 @@ Der Providerstand vom 2026-10-04 bestand einen privaten begrenzten produktiven C
 Die private native Zwei-Fall-Authentifizierungsprüfung auf SQL Server 2025/CU8 unter Windows bestand: Windows-Caller (NTLM) schrieb drei synthetische Bytes über `USP_WriteBinaryFile`; SQL-Authentifizierung wurde mit `51540/1` und `CallerWindowsAuthenticationRequired` vor Datei-/Staging-I/O abgewiesen. Eigene DB-, Root- und Trustbereinigung und eine separate frische Prüfung bestanden, ohne Konfigurations-, Rechte- oder Owneränderungen. Dieser begrenzte Probe-Scope ist kein vollständiger Produkttest.
 
 Aktueller kanonischer Projektbuild/Releaseartefakt, direkte CLR-/RunAs-Qualifikation aller neun Einstiegspunkte, vollständige NTFS-/Caller-/ServiceAccount-Matrix, Races, weitere Ziele und aktuelle Head-CI bleiben separate offene Gates. Status `partially validated`, Version1.0.0 und `unreleased` bleiben erhalten; frühere Nachweise sind historisch.
+
+## Freigegebene Security-Härtung 2026-10-15
+
+ServiceAccount verlangt zusätzlich Mitgliedschaft in der leeren DBrolle
+toolbelt_filesystem_service_account und AllowServiceAccount=1 am jeweiligen Root.
+Bestehende Roots erhalten die neue Spalte mit 0. Beide Grenzen werden auch im
+CLR-Einstieg vor I/O geprüft; beim Transcoding müssen beide Roots freigegeben
+sein. Nur der Betreiber konfiguriert Rolle und Rootfreigaben. Fehlermarker
+ServiceAccountNotAuthorized/RootNotAuthorized ersetzen keine NTFS-/Prozedurrechte.
+Neue native ServiceAccount-Qualifikation steht bis zum passenden Windowslauf aus.
+
+Der [freigegebene Vertrag](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md)
+beschreibt Scope, Migration und Grenzen. Historische Plattformnachweise gelten
+weiter ausschließlich für ihre datierten Quellen.

@@ -48,3 +48,16 @@ Evidenz Version `1.1.0`: https://github.com/gecompat/SQL_Server_Toolbelt/actions
 - Scope: Commit 32ee260e413b8de7f9b2046ffdc11618b0afd69b: zwei echte befüllte 1.1.0-Repeats lokal/zentral auf Linux2019/150,2022/160,2025/170 mit genau einem deaktivierten synthetischen loopback-Eintrag; alle acht Spalten einschließlich unterschiedlicher Auditzeiten, Unicode-/Padding-Autoren und Rowversionbytes sowie ausgewählter Katalog, vorhandene Permissions und eigene Annotationen/MS_Description erhalten. Keine RPC-/Configure-USP-Aufrufe im neuen Tabellenrepeat. Bestehende API-/Provider-/Rollback-/Parallelitäts-/Consumer-/Uninstallfälle und eigene CI-Bereinigung bestanden; abhängige W5b-Suite37693379826 ebenfalls SUCCESS am selben Head. Neue Windows-Repeats, weitere Repeat-CLs, nichtleere Benutzergrants, echte Minimalrechte, historische Übergänge und Hard-Interrupt-Recovery bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Freigegebene Security-Härtung 2026-10-15
+
+Lokaler und direkter Remoteeinstieg verlangen EXECUTE_NEW_SESSION im jeweiligen
+echten DBtoken; der Remoteprincipal benötigt weiterhin Handler-EXECUTE.
+Actor/Tenant ersetzen keine Autorisierung. Die Payload ist beiderseits vor
+JSONarbeit und RPC auf 1048576 UTF-16-Bytes begrenzt (51628); fehlende Autorität
+ergibt 51629. Lokal kommt Work-Type-/Autoritäts-/Payloadprüfung vor Providerprüfung.
+Zuerst Katalog 1.2.0 installieren und beiderseitige Delegation explizit konfigurieren.
+
+Der [freigegebene Vertrag](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md)
+beschreibt Scope, Migration und Grenzen. Historische Plattformnachweise gelten
+weiter ausschließlich für ihre datierten Quellen.

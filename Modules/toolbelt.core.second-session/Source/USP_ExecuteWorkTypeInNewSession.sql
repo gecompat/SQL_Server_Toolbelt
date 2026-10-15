@@ -67,6 +67,33 @@ BEGIN
     IF @SuppressResult = 1 AND @ResultTable IS NOT NULL
         THROW 51620, N'@SuppressResult = 1 kann nicht mit @ResultTable kombiniert werden.', 1;
 
+    DECLARE @ParameterMode varchar(16);
+    DECLARE @WorkTypeEnabled bit,@WorkTypeId bigint;
+    SELECT
+          @WorkTypeId=wt.WorkTypeId
+        , @ParameterMode = wt.ParameterMode
+        , @WorkTypeEnabled = wt.IsEnabled
+    FROM toolbelt_core.WorkType AS wt
+    WHERE wt.WorkTypeName = @WorkTypeName;
+
+    IF @ParameterMode IS NULL
+        THROW 51615, N'Der Work Type ist nicht registriert.', 1;
+    IF @WorkTypeEnabled = 0
+        THROW 51616, N'Der Work Type ist deaktiviert.', 1;
+    IF NOT EXISTS(SELECT 1 FROM toolbelt_core.TVF_WorkTypeAuthorization(@WorkTypeId,'EXECUTE_NEW_SESSION') WHERE IsAllowed=1)
+        THROW 51629,N'Keine lokale Startberechtigung für diesen Work Type.',1;
+    IF DATALENGTH(@PayloadJson)>1048576 THROW 51628,N'Payload überschreitet 1 MiB.',1;
+    IF @ParameterMode = 'NONE' AND @PayloadJson IS NOT NULL
+        THROW 51617, N'Der Work Type akzeptiert keine JSON-Payload.', 1;
+    IF @ParameterMode = 'JSON_PAYLOAD'
+       AND
+       (
+           @PayloadJson IS NULL
+           OR ISJSON(@PayloadJson) <> 1
+           OR LEFT(LTRIM(@PayloadJson), 1) <> N'{'
+       )
+        THROW 51618, N'Der Work Type benötigt eine JSON-Objekt-Payload.', 1;
+
     DECLARE
           @LinkedServerName sysname
         , @ProviderEnabled bit
@@ -89,29 +116,6 @@ BEGIN
         THROW 51613, N'Der Loopback-Second-Session-Provider ist deaktiviert.', 1;
     IF @LinkedServerExists = 0 OR @RpcOutEnabled = 0 OR @PromotionEnabled = 1
         THROW 51614, N'Die aktuelle Linked-Server-Konfiguration verletzt den Second-Session-Vertrag.', 1;
-
-    DECLARE @ParameterMode varchar(16);
-    DECLARE @WorkTypeEnabled bit;
-    SELECT
-          @ParameterMode = wt.ParameterMode
-        , @WorkTypeEnabled = wt.IsEnabled
-    FROM toolbelt_core.WorkType AS wt
-    WHERE wt.WorkTypeName = @WorkTypeName;
-
-    IF @ParameterMode IS NULL
-        THROW 51615, N'Der Work Type ist nicht registriert.', 1;
-    IF @WorkTypeEnabled = 0
-        THROW 51616, N'Der Work Type ist deaktiviert.', 1;
-    IF @ParameterMode = 'NONE' AND @PayloadJson IS NOT NULL
-        THROW 51617, N'Der Work Type akzeptiert keine JSON-Payload.', 1;
-    IF @ParameterMode = 'JSON_PAYLOAD'
-       AND
-       (
-           @PayloadJson IS NULL
-           OR ISJSON(@PayloadJson) <> 1
-           OR LEFT(LTRIM(@PayloadJson), 1) <> N'{'
-       )
-        THROW 51618, N'Der Work Type benötigt eine JSON-Objekt-Payload.', 1;
 
     DECLARE
           @CurrentExecutionId uniqueidentifier

@@ -78,6 +78,7 @@ documentation:
   public_objects:
     - "Documentation/USP_PrepareResultTable.md"
   architecture:
+    - "../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md"
     - "../../Documentation/Architecture/RESULT_TABLE_MODULE_DESIGN.md"
   test_matrix:
     - "../../Tests/RESULT_TABLE_CONTRACT_TEST_MATRIX.md"
@@ -91,6 +92,7 @@ contracts:
   validation: "1.0"
 
 tests:
+  schema_trust: "Tests/Runtime/SchemaTrust.Contract.sql"
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/USP_PrepareResultTable.Contract.sql"
   contract: "Tests/Runtime/USP_PrepareResultTable.Contract.sql"

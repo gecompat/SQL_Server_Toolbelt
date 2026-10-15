@@ -17,3 +17,12 @@ CREATE TABLE [toolbelt_filesystem].[FileSystemRoot]
 );
 END;
 GO
+
+-- Bestehende Roots werden bewusst nicht für Dienstidentität freigegeben.
+IF COL_LENGTH(N'toolbelt_filesystem.FileSystemRoot',N'AllowServiceAccount') IS NULL
+    ALTER TABLE toolbelt_filesystem.FileSystemRoot ADD AllowServiceAccount bit NOT NULL
+        CONSTRAINT DF_FileSystemRoot_AllowServiceAccount DEFAULT(0) WITH VALUES;
+GO
+IF DATABASE_PRINCIPAL_ID(N'toolbelt_filesystem_service_account') IS NULL
+    CREATE ROLE toolbelt_filesystem_service_account AUTHORIZATION dbo;
+GO

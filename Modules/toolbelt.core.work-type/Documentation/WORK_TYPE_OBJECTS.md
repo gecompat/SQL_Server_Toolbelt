@@ -23,3 +23,16 @@ Die Procedure verwendet bei vorhandener Caller-Transaktion einen Modul-Savepoint
 ## `USP_ResolveWorkType`
 
 Löst genau einen Work Type auf. Standardmäßig müssen der Eintrag enabled, die Zielprocedure vorhanden und für den aktuellen Principal ausführbar sein.
+
+## Resolver-Policy 1.2.0
+
+USP_ResolveWorkType ergänzt vor den Standardparametern RequiredPermission
+varchar(32)=NULL und SuppressResult bit=0. Die bisherigen benannten Aufrufe
+behalten ihre Defaults; positionale Aufrufe müssen auf benannte Parameter
+migriert werden. RequiredPermission prüft vor Metadatenausgabe dieselbe
+Policy; ein fehlendes Allow ergibt 51596, ungültige Aktion 51595.
+SuppressResult=1 liefert nach erfolgreicher Prüfung kein Fachresultset und
+ist mit ResultTable unvereinbar (51597). Der Worker nutzt diesen Pfad direkt
+vor Handlerausführung und benötigt dafür keine internen SELECT-Rechte.
+In einer Callertransaktion hält die Policyprüfung die Work-Type-Zeile bis
+zum Abschluss stabil. Help ignoriert beide neuen Argumente.

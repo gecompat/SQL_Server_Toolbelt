@@ -72,3 +72,16 @@ Systemzuständen und Log-Shrink bleiben außerhalb des Moduls. Ein Upgrade von
 ## Work Queue 2.1 – neutrale Managedintegration
 
 2.1 ergänzt interne Claim-/Fail-/Retrykerne und den queueeigenen WorkQueueManagedGate. Öffentliche Signaturen bleiben unverändert. Managedmodus ist opt-in; dann sind direkte Claims und Holdbypässe ausgeschlossen. Admission ist transient, einmalig und an genau eine gesunde äußere Admissiontransaktion gebunden. Das Modul hat keine Rückabhängigkeit auf Worker-Control. Der Deploy-Lifecycle erlaubt einen installierten Control1.0-Consumer nur beim vollständig geprüften ruhenden Queue2.1-Repeat; andere Consumerstände, aktive Managedgates, Claims und Holds bleiben gesperrt. Der Uninstall behält seine Consumerabweisung. [Repeatgrenze](../../Documentation/Architecture/WORKER_CONTROL_CONTRACT.md). Vorhandene 2.0-Evidenz qualifiziert diese neue Integration nicht; der echte 2.0→2.1-Upgrade bestand am 2026-10-04 auf 2019 Linux; SQL-Managedfälle bestanden auf 2019 Linux und 2025 Windows/exakt CU8. Der vollständige Providerabschluss bleibt offen.
+
+## Freigegebene Security-Härtung 2026-10-15
+
+Enqueue (einschließlich Policy/Barrier und Idempotency-Auskunft) verlangt ENQUEUE.
+Claim/Managedclaim verlangt CLAIM und Handler-EXECUTE vor Reservierung und
+Payloadausgabe. Die Worker prüfen CLAIM vor Handlerausführung erneut. Fehler
+51998 bedeutet fehlende Producerautorität; 51596 entzogene Workerautorität.
+DRAIN_BARRIER in Callertransaktionen wird mit 51997 vor Mutation abgewiesen.
+Normales SHARED-Enqueue bleibt erlaubt. Abhängigkeit: Katalog 1.2.0 mit Policy.
+
+Der [freigegebene Vertrag](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md)
+beschreibt Scope, Migration und Grenzen. Historische Plattformnachweise gelten
+weiter ausschließlich für ihre datierten Quellen.

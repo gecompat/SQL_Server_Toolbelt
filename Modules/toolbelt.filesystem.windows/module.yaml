@@ -78,6 +78,7 @@ documentation:
     - "Documentation/USP_RemoveDirectory.md"
     - "Documentation/WINDOWS_FILESYSTEM_PROCEDURES.md"
   architecture:
+    - "../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md"
     - "../../Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md"
   test_matrix:
     - "Tests/WINDOWS_FILESYSTEM_CONTRACT_TEST_MATRIX.md"

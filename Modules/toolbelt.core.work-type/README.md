@@ -4,7 +4,7 @@ Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` 
 
 ## Status
 
-`toolbelt.core.work-type` Version `1.1.0` ist implementiert und einschließlich der kontrollierten Removal-Capability auf SQL Server 2019/2022/2025 unter Windows base und Linux latest `validated`.
+`toolbelt.core.work-type` Version `1.2.0` ist implementiert und teilweise validiert. Die neue Policy wurde auf Linux SQL Server 2019 nativ geprüft; historische 1.1.0-Plattformnachweise sind keine neue Policyqualifikation.
 
 ## Zweck
 
@@ -39,3 +39,17 @@ SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich.
 - Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger W4-Moduladapter mit lokalem und zentralem Deployment, Transaktions-, Konkurrenz-, Lifecycle- und Uninstall-Tests
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Freigegebene Security-Härtung 2026-10-15
+
+Katalogversion 1.2.0 ergänzt die leere WorkTypePermission-Tabelle, die interne
+inline TVF_WorkTypeAuthorization und die Verwaltungs-USP
+[USP_SetWorkTypePermission](Documentation/USP_SetWorkTypePermission.md).
+ALLOW/DENY binden Work-Type-RowVersion und Principal-ID/SID/Erstellungszeit.
+Aktuelle DBtoken einschließlich Rollen entscheiden, DENY zuerst. Ohne ALLOW
+wird auch dbo abgewiesen. Nach Änderungen ist explizite Neukonfiguration nötig.
+Deployment übernimmt keine alten Rechte und erzeugt keine Policyeinträge.
+
+Der [freigegebene Vertrag](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md)
+beschreibt Scope, Migration und Grenzen. Historische Plattformnachweise gelten
+weiter ausschließlich für ihre datierten Quellen.

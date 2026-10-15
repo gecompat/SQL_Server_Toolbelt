@@ -109,7 +109,11 @@ run_query() { docker exec "${container_name}" "${sqlcmd_path}" -S localhost -U s
 run_file() {
   local db="$1" workdir="$2" file="$3"; shift 3
   docker exec --workdir "${workdir}" "${container_name}" "${sqlcmd_path}" \
-    -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i "${file}" "$@"
+    -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i "${file}" "$@" || return $?
+  if [[ "${workdir}" == "/workspace/Modules/toolbelt.core.work-type/Deployment" && "${file}" == "Deploy.sql" ]]; then
+    docker exec --workdir /workspace/Tests/CI "${container_name}" "${sqlcmd_path}" \
+      -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i WorkTypeAuthorization.Fixture.sql
+  fi
 }
 run_stdin() {
   local db="$1"; shift

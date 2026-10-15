@@ -100,3 +100,16 @@ modulspezifische Hochrisikofälle bleiben Releasevalidierung.
 - Scope: Physische SQL-Server-2025-Ziele unter Windows und Linux; vollständiger Moduladapter einschließlich explizit aktivierter synthetischer Performance-Workload ohne persistierte Basis
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Freigegebene Security-Härtung 2026-10-15
+
+Deployment verlangt vollständige DB-Metadatensicht und Schemaowner dbo.
+Schema-/Helperkontrollrechte sowie CONTROL/ALTER ANY SCHEMA der Datenbank sind
+nur für dbo und Mitglieder von db_owner beziehungsweise der vom Betreiber
+ausdrücklich vertrauenswürdig eingerichteten Rolle toolbelt_core_installer
+zulässig. Nicht freigegebene db_ddladmin-Mitglieder werden abgewiesen.
+51032/State2 stoppt vor dauerhafter Mutation; kein Ownertransfer oder REVOKE.
+
+Der [freigegebene Vertrag](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md)
+beschreibt Scope, Migration und Grenzen. Historische Plattformnachweise gelten
+weiter ausschließlich für ihre datierten Quellen.

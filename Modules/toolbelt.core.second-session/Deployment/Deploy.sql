@@ -21,6 +21,8 @@ IF OBJECT_ID(N'toolbelt_core.TVF_CurrentExecutionContext', N'IF') IS NULL
 IF OBJECT_ID(N'toolbelt_core.WorkType', N'U') IS NULL
    OR OBJECT_ID(N'toolbelt_core.VW_WorkTypes', N'V') IS NULL
     THROW 51644, N'Die Abhängigkeit toolbelt.core.work-type fehlt oder ist unvollständig.', 1;
+IF OBJECT_ID(N'toolbelt_core.TVF_WorkTypeAuthorization',N'IF') IS NULL
+    THROW 51644,N'Work-Type-Policy 1.2.0 fehlt; zuerst den Katalog aktualisieren.',1;
 
 IF OBJECT_ID(N'toolbelt_core.SecondSessionProvider', N'U') IS NOT NULL
    AND NOT EXISTS

@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - Tests/CI/WorkTypeAuthorization.Fixture.sql
       - Modules/toolbelt.core.second-session/**
       - Tests/CI/run-w5a-second-session-linux.sh
       - .github/workflows/w5a-second-session-runtime.yml

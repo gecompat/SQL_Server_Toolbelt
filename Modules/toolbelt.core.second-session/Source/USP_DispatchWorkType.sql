@@ -48,6 +48,7 @@ BEGIN
     IF @IsEnabled = 0
         THROW 51632, N'Der Work Type ist in der Remote-Datenbank deaktiviert.', 1;
 
+    IF DATALENGTH(@PayloadJson)>1048576 THROW 51628,N'Payload überschreitet 1 MiB.',1;
     IF @ParameterMode = 'NONE' AND @PayloadJson IS NOT NULL
         THROW 51633, N'Der Work Type akzeptiert keine JSON-Payload.', 1;
     IF @ParameterMode = 'JSON_PAYLOAD'
@@ -59,6 +60,9 @@ BEGIN
        )
         THROW 51634, N'Der Work Type benötigt eine JSON-Objekt-Payload.', 1;
 
+    DECLARE @WorkTypeId bigint=(SELECT WorkTypeId FROM toolbelt_core.WorkType WHERE WorkTypeName=@WorkTypeName);
+    IF NOT EXISTS(SELECT 1 FROM toolbelt_core.TVF_WorkTypeAuthorization(@WorkTypeId,'EXECUTE_NEW_SESSION') WHERE IsAllowed=1)
+        THROW 51629,N'Keine Remote-Startberechtigung für diesen Work Type.',1;
     DECLARE @HandlerQualifiedName nvarchar(517) =
         QUOTENAME(@HandlerSchema) + N'.' + QUOTENAME(@HandlerProcedure);
     DECLARE @HandlerObjectId int = COALESCE

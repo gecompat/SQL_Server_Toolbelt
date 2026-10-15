@@ -946,7 +946,9 @@
       "@ResultTable": "NULL = Resultset; sonst Name einer vorhandenen lokalen #Temp-Tabelle.",
       "@KeepData": "0 = Ergebnis ersetzen, 1 = an vorhandene kompatible Ergebnisdaten anhängen.",
       "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
-      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf.",
+      "@RequiredPermission": "Optionale Work-Type-Policyaktion; NULL prüft keine zusätzliche Policy.",
+      "@SuppressResult": "1 prüft ohne Fachresultset; nicht mit ResultTable kombinieren."
     }
   },
   "toolbelt_core.VW_WorkTypes": {
@@ -2402,6 +2404,24 @@
       "@KeepData": "0 Replace,1 Append; NULL entspricht0.",
       "@Debug": "Payloadfreie Messages; NULL entspricht0.",
       "@Hilfe": "Help zuerst ohne fachliche Argument-/Dependencyprüfung; NULL entspricht0."
+    }
+  },
+  "toolbelt_core.USP_SetWorkTypePermission": {
+    "summary": "Konfiguriert eine ausdrückliche Work-Type-Delegation an einen vorhandenen Datenbankprincipal.",
+    "examples": [
+      "EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='demo.noop', @Principal=N'ContosoProducer', @PermissionName='ENQUEUE', @PermissionState='ALLOW';"
+    ],
+    "requirements": [
+      "Work-Type-Katalog 1.2.0, vorhandener Work Type und vorhandener Datenbankprincipal.",
+      "EXECUTE sowie CONTROL auf toolbelt_core.WorkTypePermission; keine automatische Rechtevergabe."
+    ],
+    "parameter_notes": {
+      "@PermissionName": "ENQUEUE, CLAIM oder EXECUTE_NEW_SESSION.",
+      "@PermissionState": "ALLOW, DENY oder REMOVE; gültiges DENY hat Vorrang.",
+      "@Hilfe": "Nur Help ohne Seiteneffekt.",
+      "@WorkTypeName": "Vorhandener kanonischer Work Type.",
+      "@Principal": "Vorhandener Datenbankbenutzer oder Datenbankrolle.",
+      "@Debug": "Optionale Fortschrittsmeldung ohne fachliches Resultset."
     }
   }
 }

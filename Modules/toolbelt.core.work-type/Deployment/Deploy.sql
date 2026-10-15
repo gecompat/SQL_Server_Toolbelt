@@ -9,6 +9,15 @@ DECLARE @DeploymentMode nvarchar(16) = LOWER(N'$(DeploymentMode)');
 IF @DeploymentMode NOT IN (N'local', N'central')
     THROW 51541, N'DeploymentMode muss local oder central sein.', 1;
 
+IF EXISTS
+(
+ SELECT 1 FROM (VALUES(N'WorkTypePermission'),(N'TVF_WorkTypeAuthorization'),(N'USP_SetWorkTypePermission')) n(ObjectName)
+ JOIN sys.objects o ON o.schema_id=SCHEMA_ID(N'toolbelt_core') AND o.name=n.ObjectName
+ WHERE NOT EXISTS(SELECT 1 FROM sys.extended_properties ep WHERE ep.class=1 AND ep.major_id=o.object_id
+  AND ep.minor_id=0 AND ep.name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(256),ep.value)=N'toolbelt.core.work-type')
+)
+ THROW 51544,N'Ein Policyzielname ist durch ein frameworkfremdes Objekt belegt.',1;
+
 IF SCHEMA_ID(N'toolbelt_core') IS NULL
     EXEC(N'CREATE SCHEMA [toolbelt_core] AUTHORIZATION [dbo];');
 
@@ -82,6 +91,9 @@ GO
 BEGIN TRANSACTION;
 GO
 :r ../Source/WorkType.sql
+:r ../Source/WorkTypePermission.sql
+:r ../Source/TVF_WorkTypeAuthorization.sql
+:r ../Source/USP_SetWorkTypePermission.sql
 :r ../Source/VW_WorkTypes.sql
 :r ../Source/USP_RegisterWorkType.sql
 :r ../Source/USP_DisableWorkType.sql
@@ -95,6 +107,9 @@ DECLARE @Objects TABLE(ObjectName sysname, LevelType nvarchar(16));
 INSERT INTO @Objects(ObjectName, LevelType)
 VALUES
   (N'WorkType', N'TABLE')
+, (N'WorkTypePermission', N'TABLE')
+, (N'TVF_WorkTypeAuthorization', N'FUNCTION')
+, (N'USP_SetWorkTypePermission', N'PROCEDURE')
 , (N'VW_WorkTypes', N'VIEW')
 , (N'USP_RegisterWorkType', N'PROCEDURE')
 , (N'USP_DisableWorkType', N'PROCEDURE')
@@ -145,7 +160,7 @@ BEGIN
     )
         EXEC sys.sp_updateextendedproperty
               @name = N'Toolbelt.ModuleVersion'
-            , @value = N'1.1.0'
+            , @value = N'1.2.0'
             , @level0type = N'SCHEMA'
             , @level0name = N'toolbelt_core'
             , @level1type = @LevelType
@@ -153,7 +168,7 @@ BEGIN
     ELSE
         EXEC sys.sp_addextendedproperty
               @name = N'Toolbelt.ModuleVersion'
-            , @value = N'1.1.0'
+            , @value = N'1.2.0'
             , @level0type = N'SCHEMA'
             , @level0name = N'toolbelt_core'
             , @level1type = @LevelType
@@ -167,9 +182,9 @@ DEALLOCATE object_cursor;
 DECLARE @VersionProperty sysname = N'Toolbelt.Module.toolbelt.core.work-type.Version';
 DECLARE @ModeProperty sysname = N'Toolbelt.Module.toolbelt.core.work-type.DeploymentMode';
 IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = @VersionProperty)
-    EXEC sys.sp_updateextendedproperty @name = @VersionProperty, @value = N'1.1.0';
+    EXEC sys.sp_updateextendedproperty @name = @VersionProperty, @value = N'1.2.0';
 ELSE
-    EXEC sys.sp_addextendedproperty @name = @VersionProperty, @value = N'1.1.0';
+    EXEC sys.sp_addextendedproperty @name = @VersionProperty, @value = N'1.2.0';
 
 IF EXISTS (SELECT 1 FROM sys.extended_properties WHERE class = 0 AND name = @ModeProperty)
     EXEC sys.sp_updateextendedproperty @name = @ModeProperty, @value = @DeploymentMode;

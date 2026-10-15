@@ -8,6 +8,8 @@ CREATE OR ALTER PROCEDURE [toolbelt_core].[USP_ResolveWorkType]
       @WorkTypeName              varchar(128) = NULL
     , @RequireEnabled            bit          = 1
     , @RequireExecutableByCaller bit          = 1
+    , @RequiredPermission        varchar(32)  = NULL
+    , @SuppressResult            bit          = 0
     , @ResultTable               sysname      = NULL
     , @KeepData                  bit          = 0
     , @Debug                     tinyint      = 0
@@ -36,8 +38,29 @@ BEGIN
             , CAST(NULL AS bit) AS IsNullable
             , CAST(NULL AS nvarchar(4000)) AS DefaultValue
             , CAST(N'Löst einen registrierten Work Type auf und kann Enabled-, Existenz- und Caller-EXECUTE-Vertrag erzwingen.' AS nvarchar(max)) AS Description
-            , CAST(N'EXEC toolbelt_core.USP_ResolveWorkType @WorkTypeName=''demo.noop'';' AS nvarchar(max)) AS ExampleSql;
+            , CAST(N'EXEC toolbelt_core.USP_ResolveWorkType @WorkTypeName=''demo.noop'';' AS nvarchar(max)) AS ExampleSql
+        UNION ALL
+        SELECT CAST('1.0' AS varchar(16)),CAST(N'toolbelt_core' AS sysname),CAST(N'USP_ResolveWorkType' AS sysname),
+            CAST('PARAMETER' AS varchar(32)),v.Ordinal,v.Name,v.Type,CAST(0 AS bit),v.Nullable,v.DefaultValue,v.Description,CAST(NULL AS nvarchar(max))
+        FROM(VALUES
+          (4,CAST(N'@RequiredPermission' AS sysname),CAST('varchar(32)' AS varchar(256)),CAST(1 AS bit),CAST(N'NULL' AS nvarchar(4000)),CAST(N'Optionale ENQUEUE/CLAIM/EXECUTE_NEW_SESSION-Autorität vor Auflösung.' AS nvarchar(max))),
+          (5,N'@SuppressResult','bit',CAST(0 AS bit),N'0',N'1 unterdrückt das Fachresultset nach vollständiger Prüfung; nicht mit ResultTable.')
+        )v(Ordinal,Name,Type,Nullable,DefaultValue,Description);
         RETURN 0;
+    END;
+
+    IF @RequiredPermission IS NOT NULL AND @RequiredPermission COLLATE Latin1_General_100_BIN2 NOT IN('ENQUEUE','CLAIM','EXECUTE_NEW_SESSION')
+        THROW 51595,N'Die angeforderte Work-Type-Aktion ist ungültig.',1;
+    IF @SuppressResult IS NULL OR (@SuppressResult=1 AND @ResultTable IS NOT NULL)
+        THROW 51597,N'SuppressResult ist ungültig oder mit ResultTable kombiniert.',1;
+    IF @RequiredPermission IS NOT NULL
+    BEGIN
+        DECLARE @PermissionWorkTypeId bigint;
+        -- In einer Workertransaktion bleibt die Policy-/Registrierungsbindung
+        -- bis zum Handlerabschluss stabil. Ohne Caller-TX nur Statementscope.
+        SELECT @PermissionWorkTypeId=WorkTypeId FROM toolbelt_core.WorkType WITH(HOLDLOCK) WHERE WorkTypeName=@WorkTypeName;
+        IF NOT EXISTS(SELECT 1 FROM toolbelt_core.TVF_WorkTypeAuthorization(@PermissionWorkTypeId,@RequiredPermission) WHERE IsAllowed=1)
+            THROW 51596,N'Die erforderliche Work-Type-Autorität fehlt.',1;
     END;
 
     IF NULLIF(@WorkTypeName, '') IS NULL
@@ -122,6 +145,7 @@ BEGIN
         RAISERROR(N'USP_ResolveWorkType: Work Type wurde aufgelöst.', 10, 1) WITH NOWAIT;
 
 
+    IF @SuppressResult=1 RETURN 0;
     IF @ResultTable IS NULL
     BEGIN
         SELECT * FROM #tbx_Core_WorkType_Result;

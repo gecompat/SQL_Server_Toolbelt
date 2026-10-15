@@ -19,6 +19,7 @@ BEGIN
  END;
  IF NULLIF(@WorkTypeName,'') IS NULL OR NULLIF(@ExecutionGroup,'') IS NULL THROW 51965,N'Work Type und ExecutionGroup sind erforderlich.',1;
  IF @ExecutionMode NOT IN('SHARED','DRAIN_BARRIER') OR @MaxAttempts NOT BETWEEN 1 AND 10 OR @RetryBaseDelaySeconds NOT BETWEEN 1 AND 86400 OR @RetryMaxDelaySeconds NOT BETWEEN @RetryBaseDelaySeconds AND 86400 THROW 51966,N'Die Queue-Policy ist ungültig.',1;
+ IF @ExecutionMode='DRAIN_BARRIER' AND @@TRANCOUNT<>0 THROW 51997,N'Barrier-Enqueue benötigt eine Session ohne Callertransaktion.',1;
  IF DATALENGTH(@PayloadJson)>65536 THROW 51967,N'@PayloadJson darf höchstens 64 KiB umfassen.',1;
  IF @ResultTable IS NOT NULL THROW 51968,N'@ResultTable wird von dieser Version nicht unterstützt.',1;
  DECLARE @Initial int=@@TRANCOUNT,@WorkTypeId bigint,@Mode varchar(16),@Enabled bit,@Existing bigint,@Now datetime2(7)=SYSUTCDATETIME();
@@ -26,10 +27,13 @@ BEGIN
  BEGIN TRY
   SELECT @WorkTypeId=WorkTypeId,@Mode=ParameterMode,@Enabled=IsEnabled FROM toolbelt_core.WorkType WITH(UPDLOCK,HOLDLOCK) WHERE WorkTypeName=@WorkTypeName;
   IF @WorkTypeId IS NULL OR @Enabled<>1 THROW 51969,N'Der Work Type ist nicht aktiv.',1;
+  IF NOT EXISTS(SELECT 1 FROM toolbelt_core.TVF_WorkTypeAuthorization(@WorkTypeId,'ENQUEUE') WHERE IsAllowed=1)
+            THROW 51998,N'Keine Einreihberechtigung für diesen Work Type.',1;
   IF @Mode='NONE' AND @PayloadJson IS NOT NULL THROW 51970,N'NONE akzeptiert keine Payload.',1;
   IF @Mode='JSON_PAYLOAD' AND (@PayloadJson IS NULL OR ISJSON(@PayloadJson)<>1 OR LEFT(LTRIM(@PayloadJson),1)<>N'{') THROW 51971,N'JSON_PAYLOAD verlangt ein JSON-Objekt.',1;
   IF @ExecutionMode='DRAIN_BARRIER'
-     SELECT SchedulerId FROM toolbelt_core.WorkQueueScheduler WITH(UPDLOCK,HOLDLOCK) WHERE SchedulerId=1;
+     SELECT @Existing=SchedulerId FROM toolbelt_core.WorkQueueScheduler WITH(UPDLOCK,HOLDLOCK) WHERE SchedulerId=1;
+  SET @Existing=NULL;
   IF @IdempotencyKey IS NOT NULL
   BEGIN
    SELECT @Existing=WorkItemId FROM toolbelt_core.WorkItem WITH(UPDLOCK,HOLDLOCK) WHERE WorkTypeId=@WorkTypeId AND IdempotencyKey=@IdempotencyKey;

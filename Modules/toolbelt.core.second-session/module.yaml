@@ -35,7 +35,7 @@ dependencies:
     minimum_version: "1.0.0"
     reason: "Execution- und Correlation-Kontext in der Remote-Session."
   - module_id: "toolbelt.core.work-type"
-    minimum_version: "1.1.0"
+    minimum_version: "1.2.0"
     reason: "Allowlisted Stored-Procedure-Handler, ParameterMode und kontrollierter Lifecycle."
 schemas:
   - "toolbelt_core"
@@ -85,6 +85,7 @@ documentation:
   public_objects:
     - "Documentation/SECOND_SESSION_OBJECTS.md"
   architecture:
+    - "../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md"
     - "../../Documentation/Architecture/SECOND_SESSION_MODULE_DESIGN.md"
     - "../../Documentation/Architecture/DECISIONS.md"
   test_matrix:
@@ -96,6 +97,7 @@ contracts:
   deployment: "1.0"
   validation: "1.0"
 tests:
+  security: "Tests/Runtime/Security.Contract.sql"
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/SecondSession.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"

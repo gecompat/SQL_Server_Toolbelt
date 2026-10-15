@@ -450,6 +450,14 @@ EXEC toolbelt_core.USP_RequeueDeadLetter @WorkItemId=@WorkItemId, @RequeueReason
 EXEC toolbelt_core.USP_GetWorkStatus @WorkItemId=1;
 */
 
+-- toolbelt_core.USP_SetWorkTypePermission
+-- Konfiguriert eine ausdrückliche Work-Type-Delegation an einen vorhandenen Datenbankprincipal.
+-- Voraussetzung: Work-Type-Katalog 1.2.0, vorhandener Work Type und vorhandener Datenbankprincipal.
+-- Voraussetzung: EXECUTE sowie CONTROL auf toolbelt_core.WorkTypePermission; keine automatische Rechtevergabe.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='demo.noop', @Principal=N'ContosoProducer', @PermissionName='ENQUEUE', @PermissionState='ALLOW';
+*/
+
 -- toolbelt_core.VW_WorkTypes
 -- Zeigt registrierte Work Types und deren Konfiguration.
 /* Separat auswählen und ausführen:

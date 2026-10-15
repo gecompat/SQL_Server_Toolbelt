@@ -819,6 +819,7 @@ change_impact:
         - markdown_links
     work_type_contract:
       paths:
+        - Tests/CI/WorkTypeAuthorization.Fixture.sql
         - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.core.work-type/**
         - Documentation/Architecture/WORK_TYPE_MODULE_DESIGN.md
@@ -830,6 +831,7 @@ change_impact:
         - markdown_links
     work_queue_contract:
       paths:
+        - Tests/CI/WorkTypeAuthorization.Fixture.sql
         - Tests/CI/test_owned_container_cleanup.py
         - Workers/ExternalQueue/**
         - Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1
@@ -853,6 +855,7 @@ change_impact:
         - markdown_links
     event_log_contract:
       paths:
+        - Tests/CI/WorkTypeAuthorization.Fixture.sql
         - Tests/CI/test_owned_container_cleanup.py
         - Tests/CI/run-w5a-second-session-linux.sh
         - Modules/toolbelt.core.event-log/**

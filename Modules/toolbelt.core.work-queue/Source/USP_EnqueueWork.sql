@@ -158,6 +158,8 @@ BEGIN
                OBJECT_ID(QUOTENAME(@HandlerSchema) + N'.' + QUOTENAME(@HandlerProcedure), N'PC')
            ) IS NULL
             THROW 51902, N'Der registrierte Work-Type-Handler ist nicht verfügbar.', 1;
+        IF NOT EXISTS(SELECT 1 FROM toolbelt_core.TVF_WorkTypeAuthorization(@WorkTypeId,'ENQUEUE') WHERE IsAllowed=1)
+            THROW 51998,N'Keine Einreihberechtigung für diesen Work Type.',1;
         IF @ParameterMode = 'NONE' AND @PayloadJson IS NOT NULL
             THROW 51903, N'Für einen Work Type mit ParameterMode NONE muss @PayloadJson NULL sein.', 1;
         IF @ParameterMode = 'JSON_PAYLOAD'

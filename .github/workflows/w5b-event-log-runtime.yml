@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - Tests/CI/WorkTypeAuthorization.Fixture.sql
       - Modules/toolbelt.core.event-log/**
       - Modules/toolbelt.core.second-session/**
       - Tests/CI/run-w5b-event-log-linux.sh

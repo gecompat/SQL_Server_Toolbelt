@@ -2,7 +2,7 @@
 
 <!-- Generiert mit Tests/Documentation/generate_api_catalog.py --write; nicht direkt bearbeiten. -->
 
-158 öffentliche Schnittstellen aus 43 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
+159 öffentliche Schnittstellen aus 43 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
 
 Jedes Beispiel separat verwenden. Funktionen verlangen positionsbezogene Argumente; `DEFAULT` verwendet einen deklarierten Default, `NULL` kann davon abweichen. Prozeduren verwenden benannte Parameter. Vorlagen mit Handlern, Claims, Dateien oder Plan-Hashes erfordern die beschriebenen Voraussetzungen. Eine Syntaxvorlage ist kein Runtime-Nachweis.
 
@@ -1133,7 +1133,7 @@ Bereitet eine vorhandene lokale Temp-Tabelle anhand des Spaltenschemas einer vor
 
 Vertrag und Quelle: [USP_PrepareResultTable.sql](../../Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql), [USP_PrepareResultTable.md](../../Modules/toolbelt.core.result-table/Documentation/USP_PrepareResultTable.md).
 
-<!-- Source/Vertrag SHA256: 59d5bd2b2c2ba02c8c80309fc55b6f369b1c8250a3fb65e90cb202097103882a -->
+<!-- Source/Vertrag SHA256: a295ec6c326f59ced63b4deec8a9b973fe0e9a8b9d0736e0dfda3a05572e0331 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1220,7 +1220,7 @@ Führt einen registrierten Work Type synchron in einer getrennten SQL-Server-Ses
 
 Vertrag und Quelle: [USP_ExecuteWorkTypeInNewSession.sql](../../Modules/toolbelt.core.second-session/Source/USP_ExecuteWorkTypeInNewSession.sql), [SECOND_SESSION_OBJECTS.md](../../Modules/toolbelt.core.second-session/Documentation/SECOND_SESSION_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 4d7720fdb486f2da4e485336009390ce7d184ef57089b3143f1141e403fdd26a -->
+<!-- Source/Vertrag SHA256: acf643cafa64c55c3f3bec89b8b0c58e0b27e09167f24891fcc2878e26b0ddfc -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 
@@ -1290,7 +1290,7 @@ Reiht genau ein Work Item für einen registrierten, aktiven Work Type ein. Es wi
 
 Vertrag und Quelle: [USP_EnqueueWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: a99234dd6df65f4972b583746c8b46115822e1ca0ebdd415c2dc86e31f8a765c -->
+<!-- Source/Vertrag SHA256: 93c1ef5e2cfe45e627298c8fbe6f085bb4ace85ed86cc3ae2ea62e9e1f1b80ab -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1323,7 +1323,7 @@ Reiht je nach ExecutionMode SHARED- oder DRAIN_BARRIER-Arbeit mit unveränderlic
 
 Vertrag und Quelle: [USP_EnqueueWorkWithPolicy.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 8db3415e980fb66b5cbabf5da0a50dfb7e1aec79a2c61eebe0f0ae4a95780704 -->
+<!-- Source/Vertrag SHA256: 45613150164765dbb63b004abd8b497b941ca5ba65f9be1674b83d5ddd334b8b -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1677,15 +1677,50 @@ Hilfe:
 EXEC toolbelt_core.USP_GetWorkStatus @Hilfe=1;
 ```
 
+## toolbelt_core.USP_SetWorkTypePermission
+
+Modul `toolbelt.core.work-type` · Version `1.2.0` · `USP`
+
+Konfiguriert eine ausdrückliche Work-Type-Delegation an einen vorhandenen Datenbankprincipal.
+
+Vertrag und Quelle: [USP_SetWorkTypePermission.sql](../../Modules/toolbelt.core.work-type/Source/USP_SetWorkTypePermission.sql), [USP_SetWorkTypePermission.md](../../Modules/toolbelt.core.work-type/Documentation/USP_SetWorkTypePermission.md).
+
+<!-- Source/Vertrag SHA256: 36bcbad73e616561effd40af4f54986f38f5aff552a3725002d4cc3de8e1853e -->
+
+Voraussetzung: Work-Type-Katalog 1.2.0, vorhandener Work Type und vorhandener Datenbankprincipal.
+
+Voraussetzung: EXECUTE sowie CONTROL auf toolbelt_core.WorkTypePermission; keine automatische Rechtevergabe.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@WorkTypeName` | `varchar(128)` | `NULL` | Input | Vorhandener kanonischer Work Type. |
+| `@Principal` | `sysname` | `NULL` | Input | Vorhandener Datenbankbenutzer oder Datenbankrolle. |
+| `@PermissionName` | `varchar(32)` | `NULL` | Input | ENQUEUE, CLAIM oder EXECUTE_NEW_SESSION. |
+| `@PermissionState` | `varchar(8)` | `'ALLOW'` | Input | ALLOW, DENY oder REMOVE; gültiges DENY hat Vorrang. |
+| `@Debug` | `tinyint` | `0` | Input | Optionale Fortschrittsmeldung ohne fachliches Resultset. |
+| `@Hilfe` | `bit` | `0` | Input | Nur Help ohne Seiteneffekt. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='demo.noop', @Principal=N'ContosoProducer', @PermissionName='ENQUEUE', @PermissionState='ALLOW';
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_SetWorkTypePermission @Hilfe=1;
+```
+
 ## toolbelt_core.VW_WorkTypes
 
-Modul `toolbelt.core.work-type` · Version `1.1.0` · `VIEW`
+Modul `toolbelt.core.work-type` · Version `1.2.0` · `VIEW`
 
 Zeigt registrierte Work Types und deren Konfiguration.
 
 Vertrag und Quelle: [VW_WorkTypes.sql](../../Modules/toolbelt.core.work-type/Source/VW_WorkTypes.sql), [WORK_TYPE_OBJECTS.md](../../Modules/toolbelt.core.work-type/Documentation/WORK_TYPE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 9e4eead5f9e8ddeed5a3d961721c4c73e84e5d1e3927023f8e389b8b5a8c855e -->
+<!-- Source/Vertrag SHA256: dfd05a6bd0405fc86a2f0d633940733fb64aabc1f41fa1e42f72ca41ce645a8d -->
 
 Keine Eingabeparameter.
 
@@ -1695,13 +1730,13 @@ SELECT TOP (20) * FROM toolbelt_core.VW_WorkTypes;
 
 ## toolbelt_core.USP_RegisterWorkType
 
-Modul `toolbelt.core.work-type` · Version `1.1.0` · `USP`
+Modul `toolbelt.core.work-type` · Version `1.2.0` · `USP`
 
 Registriert ausschließlich eine vorhandene Stored Procedure als benannten Work Type. SQL-Text wird weder angenommen noch gespeichert.
 
 Vertrag und Quelle: [USP_RegisterWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_RegisterWorkType.sql), [WORK_TYPE_OBJECTS.md](../../Modules/toolbelt.core.work-type/Documentation/WORK_TYPE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: e1cc231d047c5810e4d7042a7e019b9b12eb9d544d77f09d343c19805f3b7cc6 -->
+<!-- Source/Vertrag SHA256: c77e9eb8f2d4fc19323644963eadc6b0b56fe6b7e7e611af4ab9513309d5fb59 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1737,13 +1772,13 @@ EXEC toolbelt_core.USP_RegisterWorkType @Hilfe=1;
 
 ## toolbelt_core.USP_DisableWorkType
 
-Modul `toolbelt.core.work-type` · Version `1.1.0` · `USP`
+Modul `toolbelt.core.work-type` · Version `1.2.0` · `USP`
 
 Deaktiviert einen registrierten Work Type idempotent und erhält seine Konfiguration.
 
 Vertrag und Quelle: [USP_DisableWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_DisableWorkType.sql), [WORK_TYPE_OBJECTS.md](../../Modules/toolbelt.core.work-type/Documentation/WORK_TYPE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 5c140c2fb4e7eb152aa793f6ee3f643d339063139ba323c55ed17c5f8496697c -->
+<!-- Source/Vertrag SHA256: 8f2067e9cd12a2ad4125f5fa054dd53ec473e0fadf688413846b143f5fd8fdf0 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1771,13 +1806,13 @@ EXEC toolbelt_core.USP_DisableWorkType @Hilfe=1;
 
 ## toolbelt_core.USP_RemoveWorkType
 
-Modul `toolbelt.core.work-type` · Version `1.1.0` · `USP`
+Modul `toolbelt.core.work-type` · Version `1.2.0` · `USP`
 
 Entfernt ausschließlich einen bereits deaktivierten Work Type. Die explizite Datenverlustfreigabe und optionale RowVersion-Prüfung verhindern versehentliche oder konkurrierende Löschungen.
 
 Vertrag und Quelle: [USP_RemoveWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_RemoveWorkType.sql), [WORK_TYPE_OBJECTS.md](../../Modules/toolbelt.core.work-type/Documentation/WORK_TYPE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 5ee46ae41189ee9e9a106552a221e036671ab6833a606b7a838f85c961323827 -->
+<!-- Source/Vertrag SHA256: d5a3cd5542f29d851526b3e8455e8f49028ba354508d1ff57b5492ae5a7d5f6c -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1805,13 +1840,13 @@ EXEC toolbelt_core.USP_RemoveWorkType @Hilfe=1;
 
 ## toolbelt_core.USP_ResolveWorkType
 
-Modul `toolbelt.core.work-type` · Version `1.1.0` · `USP`
+Modul `toolbelt.core.work-type` · Version `1.2.0` · `USP`
 
 Löst einen registrierten Work Type auf und kann Enabled-, Existenz- und Caller-EXECUTE-Vertrag erzwingen.
 
 Vertrag und Quelle: [USP_ResolveWorkType.sql](../../Modules/toolbelt.core.work-type/Source/USP_ResolveWorkType.sql), [WORK_TYPE_OBJECTS.md](../../Modules/toolbelt.core.work-type/Documentation/WORK_TYPE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 93644e989e57fba9601415f469ee6908c37a1b4edf4561b6bfe8c79291d1fdf2 -->
+<!-- Source/Vertrag SHA256: 45e600782a599da349be5b3f7f9bda3326b50a0281243e213dc91356502bab08 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1820,6 +1855,8 @@ Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim 
 | `@WorkTypeName` | `varchar(128)` | `NULL` | Input | Name eines vorhandenen, passenden registrierten Work Types. |
 | `@RequireEnabled` | `bit` | `1` | Input | 1 verlangt einen aktiven Work Type. |
 | `@RequireExecutableByCaller` | `bit` | `1` | Input | 1 prüft die vorhandene Ausführbarkeit des Handlers. |
+| `@RequiredPermission` | `varchar(32)` | `NULL` | Input | Optionale Work-Type-Policyaktion; NULL prüft keine zusätzliche Policy. |
+| `@SuppressResult` | `bit` | `0` | Input | 1 prüft ohne Fachresultset; nicht mit ResultTable kombinieren. |
 | `@ResultTable` | `sysname` | `NULL` | Input | NULL = Resultset; sonst Name einer vorhandenen lokalen #Temp-Tabelle. |
 | `@KeepData` | `bit` | `0` | Input | 0 = Ergebnis ersetzen, 1 = an vorhandene kompatible Ergebnisdaten anhängen. |
 | `@Debug` | `tinyint` | `0` | Input | Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen. |

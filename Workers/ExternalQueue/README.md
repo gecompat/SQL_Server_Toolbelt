@@ -9,7 +9,7 @@ Work-Queue-Kern; er installiert keine SQL-Objekte oder Dienste.
 
 PowerShell 7 mit funktionierendem `System.Data.SqlClient`; in derselben
 Datenbank vorhandene Module `toolbelt.core.work-queue` 2.0.0 oder 2.1.0,
-`toolbelt.core.work-type` 1.1.0, `toolbelt.core.execution-context` 1.0.0 und
+`toolbelt.core.work-type` 1.2.0, `toolbelt.core.execution-context` 1.0.0 und
 `toolbelt.core.execution-cancel` 1.0.0 samt deren Dependencies.
 Vorhandene Rechte gelten; der Worker vergibt keine Berechtigungen.
 
@@ -141,3 +141,12 @@ nicht automatisch.
 Aus dem ersten Legacy-Provider keine Veröffentlichung, Exactly-once-Zusage, dauerhafte Workerregistrierung,
 supervisorübergreifende Slotgarantie, Dienstinstallation oder Agent-/Broker-
 Implementierung aus diesem ersten Provider ableiten.
+
+## Work-Type-Autorität 2026-10-15
+
+Queue und Worker benötigen ausdrücklich konfigurierte CLAIM-Freigaben je
+Work Type und Handler-EXECUTE. Unmittelbar vor Handlerausführung prüft der
+Worker dieselbe Policy über USP_ResolveWorkType RequiredPermission=CLAIM,
+SuppressResult=1. Dafür genügen die bestehenden Resolver-EXECUTE-Rechte;
+interne Tabellen-/Funktions-SELECT-Grants sind nicht erforderlich. Der Worker
+prüft beim Start den Katalogmarker 1.2.0. Policyentzug ergibt 51596.

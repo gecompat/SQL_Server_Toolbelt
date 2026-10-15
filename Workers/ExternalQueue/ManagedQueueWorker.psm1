@@ -206,8 +206,9 @@ EXEC sys.sp_set_session_context @key=N'toolbelt.worker.execution_id',@value=@Exe
         $diagnosticPhase='RESOLVE_HANDLER'
         $handler=Resolve-ManagedHandler $connection $Context $transaction
         if($Shared.StopRequested -or (Read-ManagedExecution $connection $Context $transaction).IsHeld){throw 'WORKER.STOP_REQUESTED'}
-        $text='EXEC @HandlerReturnCode = '+$handler.Qualified+$(if($handler.Mode -ceq 'JSON_PAYLOAD'){' @PayloadJson=@PayloadJson'}else{''})+' WITH RESULT SETS NONE; IF @@TRANCOUNT<>1 OR XACT_STATE()<>1 OR ISNULL(toolbelt_core.SVF_CurrentExecutionId(),''00000000-0000-0000-0000-000000000000'')<>CONVERT(uniqueidentifier,SESSION_CONTEXT(N''toolbelt.worker.execution_id'')) THROW 50003,N''Worker transaction discipline violated'',1;'
+        $text='EXEC toolbelt_core.USP_ResolveWorkType @WorkTypeName=@SecurityWorkType,@RequireEnabled=1,@RequireExecutableByCaller=1,@RequiredPermission=''CLAIM'',@SuppressResult=1; EXEC @HandlerReturnCode = '+$handler.Qualified+$(if($handler.Mode -ceq 'JSON_PAYLOAD'){' @PayloadJson=@PayloadJson'}else{''})+' WITH RESULT SETS NONE; IF @@TRANCOUNT<>1 OR XACT_STATE()<>1 OR ISNULL(toolbelt_core.SVF_CurrentExecutionId(),''00000000-0000-0000-0000-000000000000'')<>CONVERT(uniqueidentifier,SESSION_CONTEXT(N''toolbelt.worker.execution_id'')) THROW 50003,N''Worker transaction discipline violated'',1;'
         $command=New-ManagedCommand $connection $text $Context $transaction;$command.CommandTimeout=0
+        [void](Add-ManagedParameter $command '@SecurityWorkType' VarChar $Context.Claim.WorkTypeName 128)
         if($handler.Mode -ceq 'JSON_PAYLOAD'){[void](Add-ManagedParameter $command '@PayloadJson' NVarChar $Context.Claim.PayloadJson -1)}
         $returnCode=$command.Parameters.Add('@HandlerReturnCode',[System.Data.SqlDbType]::Int);$returnCode.Direction=[System.Data.ParameterDirection]::Output
         $diagnosticPhase='HANDLER'
@@ -375,7 +376,7 @@ function Invoke-ManagedQueueWorker($Settings,[string]$ConnectionString,[guid]$Wo
 SELECT COUNT(*) FROM sys.extended_properties WHERE class=0 AND
  ((name=N'Toolbelt.Module.toolbelt.core.work-queue.Version' AND CONVERT(nvarchar(64),value)=N'2.1.0')
  OR(name=N'Toolbelt.Module.toolbelt.core.worker-control.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0')
- OR(name=N'Toolbelt.Module.toolbelt.core.work-type.Version' AND CONVERT(nvarchar(64),value)=N'1.1.0')
+ OR(name=N'Toolbelt.Module.toolbelt.core.work-type.Version' AND CONVERT(nvarchar(64),value)=N'1.2.0')
  OR(name=N'Toolbelt.Module.toolbelt.core.execution-context.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0')
  OR(name=N'Toolbelt.Module.toolbelt.core.execution-cancel.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0'));
 '@ $context
