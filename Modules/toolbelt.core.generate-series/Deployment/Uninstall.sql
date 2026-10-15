@@ -67,12 +67,12 @@ SELECT TOP (1)
 FROM sys.sql_expression_dependencies AS dependencies
 WHERE dependencies.referenced_id IN
       (
-          OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigInt')
+          OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigInt'), OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigIntStatus')
         , OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesInt')
       )
   AND dependencies.referencing_id NOT IN
       (
-          OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigInt')
+          OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigInt'), OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigIntStatus')
         , OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesInt')
       )
 ORDER BY
@@ -136,7 +136,7 @@ BEGIN TRY
      * Der int-Wrapper hängt vom bigint-Kern ab und wird deshalb zuerst
      * entfernt.
      */
-    VALUES (N'TVF_GenerateSeriesInt'), (N'TVF_GenerateSeriesBigInt');
+    VALUES (N'TVF_GenerateSeriesBigIntStatus'), (N'TVF_GenerateSeriesInt'), (N'TVF_GenerateSeriesBigInt');
 
     DECLARE
           @ObjectOrdinal int = 1

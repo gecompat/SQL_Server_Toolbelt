@@ -334,4 +334,26 @@ IF NOT EXISTS
    )
     THROW 52936, N'UTF-32-BE-BOM wurde nicht korrekt erkannt.', 1;
 
+-- SC-040: deterministic Unicode decoding from the single BLOB snapshot.
+DELETE FROM @TextResult;
+SET @FixturePath=@FixtureRoot+N'/utf8-unicode.txt';
+INSERT @TextResult EXEC toolbelt_file.USP_LoadTextFile @FilePath=@FixturePath;
+IF NOT EXISTS(SELECT 1 FROM @TextResult WHERE IsValid=1 AND Content=N'Contoso € 漢 🐼' AND BomPresent=1 AND EncodingDetected=N'UTF-8')
+    THROW 52936,N'UTF-8-Snapshot wurde nicht exakt dekodiert.',2;
+DELETE FROM @TextResult;
+SET @FixturePath=@FixtureRoot+N'/cp1252-unicode.txt';
+INSERT @TextResult EXEC toolbelt_file.USP_LoadTextFile @FilePath=@FixturePath;
+IF NOT EXISTS(SELECT 1 FROM @TextResult WHERE IsValid=1 AND Content=N'Contoso € ä' AND BomPresent=0 AND EncodingDetected=N'Windows-1252')
+    THROW 52936,N'CP1252-Snapshot wurde nicht exakt dekodiert.',3;
+SET @FixturePath=@FixtureRoot+N'/utf8-invalid.txt';
+BEGIN TRY
+    EXEC toolbelt_file.USP_LoadTextFile @FilePath=@FixturePath;
+    THROW 52936,N'Ungültiges UTF-8 akzeptiert.',4;
+END TRY BEGIN CATCH IF ERROR_NUMBER()<>51326 THROW; END CATCH;
+SET @FixturePath=@FixtureRoot+N'/utf16-odd.txt';
+BEGIN TRY
+    EXEC toolbelt_file.USP_LoadTextFile @FilePath=@FixturePath;
+    THROW 52936,N'Ungerades UTF-16 akzeptiert.',5;
+END TRY BEGIN CATCH IF ERROR_NUMBER()<>51326 THROW; END CATCH;
+
 PRINT N'File Content Contract-Test: erfolgreich';

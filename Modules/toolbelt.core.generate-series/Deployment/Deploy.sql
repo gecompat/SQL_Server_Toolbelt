@@ -42,7 +42,8 @@ INSERT INTO #tbx_GenerateSeriesReleaseObjects
 )
 VALUES
       (N'1.0.0', N'toolbelt_core', N'TVF_GenerateSeriesBigInt', 'IF')
-    , (N'1.0.0', N'toolbelt_core', N'TVF_GenerateSeriesInt', 'IF');
+    , (N'1.0.0', N'toolbelt_core', N'TVF_GenerateSeriesInt', 'IF')
+    , (N'1.0.0', N'toolbelt_core', N'TVF_GenerateSeriesBigIntStatus', 'TF');
 
 CREATE TABLE #tbx_GenerateSeriesDeployState
 (
@@ -175,7 +176,8 @@ VALUES
 );
 
 BEGIN TRY
-    BEGIN TRANSACTION;
+    IF OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigIntStatus') IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigIntStatus') AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(256),value)=N'toolbelt.core.generate-series') THROW 51054,N'Neuer Security-Zielname ist frameworkfremd belegt.',1;
+BEGIN TRANSACTION;
 
     EXEC @LockResult = sys.sp_getapplock
           @Resource    = N'toolbelt.deploy.toolbelt.core.generate-series'
@@ -360,7 +362,7 @@ BEGIN TRY
     );
 
     INSERT INTO @Objects (ObjectName)
-    VALUES (N'TVF_GenerateSeriesBigInt'), (N'TVF_GenerateSeriesInt');
+    VALUES (N'TVF_GenerateSeriesBigInt'), (N'TVF_GenerateSeriesInt'), (N'TVF_GenerateSeriesBigIntStatus');
 
     DECLARE
           @ObjectOrdinal int = 1

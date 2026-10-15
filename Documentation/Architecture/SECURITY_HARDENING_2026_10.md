@@ -64,9 +64,12 @@ Remoteautorität. Bestehende Installationen brauchen explizite Policykonfigurati
 
 ## Nachweisstand
 
-Implementierung begonnen. Neue Runtime- und CI-Nachweise: noch nicht ausgeführt.
-Die früheren Security-Abschlüsse bleiben historische Nachweise ihres jeweiligen
-Source- und Teststands. Neue Cloudabschlüsse erfolgen nur nach bestätigtem Fix.
+Alle 25 freigegebenen Korrekturen sind im Arbeitsbranch implementiert.
+Gezielte Nachweise sind unten ausgewiesen. Integration und CI am finalen Head
+stehen separat aus; frühere Nachweise ersetzen sie nicht. Der aktuelle externe
+Labvertrag wird seit der SC-045-Umstellung vor Verbindung abgewiesen. Die zuvor
+ausgeführten Produktprüfungen nutzten den damaligen Labtransport und qualifizieren
+keine authentifizierte TLS-Verbindung. Kein neuer Cloudabschluss.
 
 ## Teilnachweise Welle 1 — 2026-10-15
 
@@ -108,3 +111,84 @@ NOT_EXECUTED. Der fokussierte Sourcevertrag bestand nach der letzten
 Resolveränderung erneut. Ein paralleler Versuch kollidierte an einem bereits
 benannten Tempconstraint; ausschließlich der anschließende serielle Lauf ist
 PASS. Bestehende mutierende Läufe wurden nicht abgebrochen.
+
+## Aktueller Nachweis Wellen 2–4 — 2026-10-15
+
+| Prüfung | Ausführung und Ergebnis | Begrenzung |
+|---|---|---|
+| Foundation-Datei-I/O | `test_foundation_handles.py`: Windows 10 ausgeführt / 2 POSIX-Fälle übersprungen, erfolgreich; echte Command-stdin/stdout, Junction, Hardlink, Rootwechsel und Cleanup. HTTP-Response 10 Methoden/111 Fälle, Discovery 12/266, Redirects 8/204 und 105 Provenance-Dateien erfolgreich. | WSL-Linux: 11 von 12 Fällen ausgeführt, nur Windows-Junctionfall übersprungen; ebenfalls erfolgreich. Ubuntu-CI bestätigt separat. Kein externer HTTP-Transport. |
+| Windowsprovider | Reproduzierbarer Releasebuild; `Invoke-NoOverwrite.ps1` mit aktuellen Provider-/Harnesspins erfolgreich. `run-filesystem-security-lab.ps1` auf explizit ausgewähltem schema-validem Windows-SQL-2025-Ziel: Rollen-/Root-/Rollenownerablehnung und alle neun öffentlichen APIs erfolgreich. | Kein Gesamt-PASS für Caller-Token-/NTFS-/Live-Race-Matrix. Eigene DB, Dateien und exakter eigener Trust nachweislich entfernt; keine Instanzoption geändert. |
+| Textsnapshot | Sieben aus dem aktuellen Decoder extrahierte SQL-Fälle unter Linux SQL2019: UTF-8/UTF-16-LE/1252 mit Nicht-ASCII, leer sowie ungültige UTF-8-/UTF-16-Bytes erfolgreich. Öffentlicher FileContent-Contract um Dateifälle ergänzt. | Reiner Decoder-Nachweis; der komplette OPENROWSET-Dateilauf ist lokal mangels serverseitiger Fixtures NOT_EXECUTED. Container-CI prüft ihn separat. |
+| ZIP | `run-security-zip-lab.ps1` am frischen gebundenen Release unter Linux SQL2019: bestehende Extraktions-/Writerverträge erfolgreich. `Writer.Framework.ps1` am selben Release einschließlich neuem `EntrySecurity.Framework.cs`: sieben Default-/Hardlimit-/Längenlügenfälle sowie bisherige unabhängige Writer-Suite erfolgreich. | Frameworkgrenzen sind kein SQL-Marshaling-/Gesamtheap-PASS. Weitere Plattformen bleiben eigene Gates. |
+| Regex | `run-regex-captures-lab.ps1 -Version 2019 -Platform linux -Patch latest -ApiQualificationOnly -OptInExactTrust` am finalen Release: acht Frameworksuiten, bestehende SQL-APIs und SQLClient-Metadaten/Atomik erfolgreich; 100000/100001 Matches und 65536/65537 Replacementteile in Framework abgedeckt. | Local API; zentrale Nutzung, Upgrade/Lifecycle und tatsächliche Minimalrechte hier NOT_EXECUTED. |
+| Ressourcen-/Statusverträge | `run-security-hardening-lab.ps1`: auf Linux SQL2019 neue Security-Contracts für Base64, URI, Series, Split, Unquote, Pointer, Path, Cancellation, Console und EventLog erfolgreich; echte Zweiverbindungskonkurrenz um letzten Cancellationplatz, vollständige Consoleframes, Repeat und Reverse-Uninstall erfolgreich. | Ein ausgewähltes Ziel; keine vollständige Plattform-/CL-/Minimalrechtematrix. |
+| Neue Statusnamen | Fokussierter nativer Lauf unter Linux SQL2019: fremde Base64-/Series-/Split-Namen unverändert abgewiesen; Restore, Repeat, Uninstall und eigene DB-Bereinigung erfolgreich. | Gezielte Lifecycle-Guards, keine allgemeine fremde Deploymentqualifikation. |
+| Lab-TLS | `validate_lab_selector.py`: 17 Selektions-, 9 TLS-Builderfälle, 4 SQLClient-Policyfälle und 4 Shelltests erfolgreich. Aktueller schema-validierter Labvertrag wird vor Verbindungsaufbau gesperrt. | Authentifizierte Liveverbindung NOT_EXECUTED; gültige CA-Kette und passender Hostname sind externe Voraussetzung. Kein Fallback, keine Truststore-/Zertifikatsänderung. |
+
+Testdatum jeweils 2026-10-15. Eingefrorene Artefakte, private Logs und
+Wiederherstellungsjournale bleiben außerhalb versionierter/public Evidence.
+Historische Prüfläufe sind keine CI am finalen Commit. Die vier zuvor vollständig
+validierten Module Path Exists, URI, Split Characters und Execution Cancel stehen
+wegen der neuen öffentlichen Verträge jetzt bewusst auf `partially validated`.
+
+## Migration und verbleibende Betriebsgrenzen
+
+Work-Type-Einträge müssen nach Deploy ausdrücklich für ENQUEUE/CLAIM/
+EXECUTE_NEW_SESSION konfiguriert werden; Deny gewinnt und WorkTypeänderung
+invalidiert vorherige Freigaben. Kein automatischer Grant. ResultTable vertraut
+nur dbo und den ausgewiesenen Rollen samt vertrauenswürdigen Rollenownern;
+untrusted Schema-/DDL-/Securityadmin-/Impersonationskontrolle wird vor Mutation
+abgewiesen. Es werden keine fremden Owner/Rechte korrigiert.
+
+ServiceAccount benötigt die leere dbo-eigene Rolle und das explizite Rootflag.
+Windows braucht das neue, exakt vertrauensgebundene UNSAFE-Artefakt. Die Python-
+Commandadapter übernehmen Dateipfade ausschließlich als stdin/stdout-Handles;
+`{input_path}`/`{output_path}` in argv sind nicht mehr zulässig. HTTP- und Command-
+Adapter halten auf Windows alle Vorfahren ohne Renamefreigabe; POSIX verwendet
+gehaltene dirfd-/NOFOLLOW-Bindungen und private Stagedirectories. Ein privates
+Stagedirectory wird vor Nutzung auf Owner und fehlende Gruppen-/Otherrechte
+geprüft. Ein gleichberechtigter Prozess desselben OS-Principals ist keine
+zugesagte Isolation. Kein unsicherer Plattformfallback.
+
+Neue Status-TVFs liefern Limits explizit. Bestehende Base64-/URI-Werte liefern
+bei Limit NULL, Split keine Zeilen, JSON Path NULL. Dadurch darf ein Caller
+NULL/Leermengen nicht als negatives Fachresultat behandeln. Die alten
+mathematischen Series-APIs bleiben unverändert und dürfen untrusted nicht
+direkt freigegeben werden; SC-018 bleibt bei solchen Grants betrieblich offen.
+Kein Deployment nimmt bestehende Rechte automatisch zurück. Cancellation ist
+dauerhaft: Legacyzeilen zählen global; neue Anforderungen tragen den tatsächlichen
+Principal samt SID/Erstellzeit. Volle Quote erlaubt Wiederholung bestehender IDs,
+kein Purge. RecordedAtUtc-Retention ist ausschließlich ein expliziter neuer
+Aufruf; bestehende OccurredAtUtc-Semantik und automatische Jobs bleiben unverändert.
+
+Die Guards begrenzen logische Arbeit und Ausgabe; sie garantieren weder
+Gesamtheap noch konstante Laufzeit oder harte Echtzeit. ZIP verwendet ein exakt
+begrenztes Ausgabearray; SQL-/CLR-Marshaling kann zusätzliche Kopien anlegen.
+Ein Fenster für Dateiaustausch nach mehrfacher Pfadauflösung wird durch die
+jeweils gehaltenen Handles geschlossen; laufende Datenänderung durch vorhandene
+Schreibhandles ist keine zugesagte Dateiversionskontrolle.
+
+## Testtrigger und Verarbeitungsaufwand
+
+Die neuen SQL-Security-Contracts laufen einmal je ausgewähltem CI-Ziel nach
+Erstdeployment, nicht in jeder bestehenden CL-/Repeat-Schleife. Console-Großausgabe
+wird im Adapter verworfen und separat über Framegrößen geprüft. ZIP-Grenzfälle
+verwenden denselben bereits gebundenen Framework-Releaseoutput ohne weiteren
+Build. TLS-/Handleprüfungen sind kurze Offlinefälle; POSIX wurde lokal unter WSL-Linux geprüft und wird in Ubuntu-CI bestätigt. Registry-/Status-/API-Katalogänderungen erfordern einmal den Gesamtaudit.
+Keine zusätzliche periodische Automation, Reviewkette oder neue Entwicklungswelle.
+Notwendige stärkere Grenz-/Konkurrenzprüfungen sind auf die freigegebenen 25 Punkte
+begrenzt. Verlässliche Kosten-/Tokenmessungen liegen nicht vor.
+
+Alle SQLClient-Metadatenprüfungen mit frei konfiguriertem TBX_SQL_HOST verwenden
+`Set-SqlClientTlsPolicy.ps1`. Bei Lab verlangt er die validierten True/False-
+Transportflags und erzwingt Zertifikatsprüfung; außerhalb von Lab ist eine
+Zertifikatsausnahme ausschließlich für Loopback-CI erlaubt. Bereits übergebene
+Connections bleiben im Eigentum des kanonischen Lab-Builders. Zwei speziell
+an eigene CI-Container gebundene Pointer-/SafeCast-Clients verwenden ihren
+festen Loopback-Port und gehören nicht zum persistenten Labpfad.
+
+Abschließende lokale Strukturprüfung: vollständiger
+`validate_documentation.py --all --write` erfolgreich (44 Manifeste),
+`Deployment/Tests/Test-SqlExport.ps1` erfolgreich (29 Fälle/153 Assertions),
+Syntax aller 16 geänderten Shellskripte und 14 PowerShellskripte erfolgreich.
+Diese Offlineprüfungen ersetzen keine noch offene aktuelle Head-CI.

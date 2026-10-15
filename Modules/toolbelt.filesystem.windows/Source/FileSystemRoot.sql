@@ -1,3 +1,5 @@
+IF DATABASE_PRINCIPAL_ID(N'toolbelt_filesystem_service_account') IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.database_principals WHERE name=N'toolbelt_filesystem_service_account' AND type='R' AND owning_principal_id=1)
+    THROW 51537,N'Die ServiceAccount-Rolle muss eine von dbo kontrollierte Datenbankrolle sein; kein Ownertransfer.',1;
 IF OBJECT_ID(N'toolbelt_filesystem.FileSystemRoot', N'U') IS NULL
 BEGIN
 CREATE TABLE [toolbelt_filesystem].[FileSystemRoot]

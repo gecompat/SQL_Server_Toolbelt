@@ -518,8 +518,12 @@ Wichtige Anpassungen:
 - Für ZIP-Memory und Regex werden `TBX_ASSEMBLY_ROOT` und der jeweilige exakte
   Assembly-Hash aus den lokal gebauten Release-Artefakten gesetzt.
 - Verbindungen verwenden ausschließlich Werte des ausgewählten Eintrags mit
-  `Encrypt=True` und `TrustServerCertificate=True`; `Encrypt=Strict` wird nicht
-  verwendet.
+  `Encrypt=True` und `TrustServerCertificate=False`. Das Zertifikat muss über
+  die vorhandene Client-CA-Kette vertrauenswürdig sein und zum Vertrags-Hostnamen
+  passen. `sqlcmd -C`, abweichende Zertifikatsnamen und DSN-Overrides werden nicht
+  übernommen. Ungeeignete Vertragswerte brechen vor Verbindung ab; CA-, Zertifikats-
+  und Hostnamebereitstellung erfolgt außerhalb dieses Projekts. Kein automatischer
+  Fallback. `Encrypt=Strict` wird für SQL-Server-2019-Kompatibilität nicht verlangt.
 - Verändernde Tests erhalten eindeutige Datenbanknamen mit zufälliger
   Testlauf-ID. Der Adapter entfernt nur Datenbanken dieser ID. CLR-Adapter
   stellen zusätzlich nur die von ihrem Lauf geänderte CLR-/Trust-Konfiguration
@@ -612,3 +616,14 @@ Die datierten Ergebnisse und Grenzen aller 13 Korrekturen stehen im
 - Scope: Physische SQL-Server-2025-Ziele unter Windows und Linux; vollständiger Moduladapter einschließlich explizit aktivierter synthetischer Performance-Workload ohne persistierte Basis
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Gezielte Security-Abnahme 2026-10-15
+
+`run-security-hardening-lab.ps1` prüft Ressourcen-/Statusverträge,
+zwei konkurrierende Cancellationrequests, Consoleframes und Lifecycle in eigenen
+GUID-Datenbanken. `run-filesystem-security-lab.ps1` bindet den Releasehash und
+prüft Rolle, Rootflag sowie alle neun nativen Windows-APIs. Beide verwenden den
+kanonischen Lab-TLS-Builder; ein unpassender externer Vertrag sperrt sie.
+`validate_lab_selector.py` führt zusätzlich neun synthetische TLS-Builderfälle
+und vier Shelltests einschließlich acht abgewiesener Overrides ohne Netzwerk aus.
+Weitere Details: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).

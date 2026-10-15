@@ -49,12 +49,12 @@ CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadTextFile]
 
 | BOM | Encoding | Lesemodus |
 |---|---|---|
-| `EF BB BF` | UTF-8 | `OPENROWSET(BULK..., SINGLE_CLOB)` + `CAST` |
-| `FF FE` | UTF-16-LE | `OPENROWSET(BULK..., SINGLE_NCLOB)` |
+| `EF BB BF` | UTF-8 | UTF-8-Decoder des einmaligen `SINGLE_BLOB`-Snapshots |
+| `FF FE` | UTF-16-LE | UTF-16-LE-Decoder desselben Snapshots |
 | `FE FF` | UTF-16-BE | nicht unterstützt |
-| `00 00 FE FF` | UTF-32-LE | nicht unterstützt |
-| `FF FE 00 00` | UTF-32-BE | nicht unterstützt |
-| kein BOM | `@FallbackEncoding` | `OPENROWSET(BULK..., SINGLE_CLOB)` + `CAST` |
+| `00 00 FE FF` | UTF-32-BE | nicht unterstützt |
+| `FF FE 00 00` | UTF-32-LE | nicht unterstützt |
+| kein BOM | `@FallbackEncoding` | Explizite Windows-1252-Dekodierung desselben Snapshots |
 
 ## Fehlercodes
 
@@ -66,7 +66,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_file].[USP_LoadTextFile]
 | `51323` | Datei überschreitet `@MaxBytes`. |
 | `51324` | Fallback-Encoding wird nicht unterstützt. |
 | `51325` | Encoding wird nicht unterstützt (UTF-16-BE, UTF-32). |
-| `51326` | `OPENROWSET` konnte die Datei nicht lesen; die Engine-Meldung folgt mit Kontext. |
+| `51326` | `OPENROWSET`-/Decoderfehler, einschließlich ungültiger UTF-8-Bytes oder ungerader UTF-16-LE-Bytelänge. |
 
 ## Beispiel
 
@@ -80,3 +80,7 @@ EXEC toolbelt_file.USP_LoadTextFile
 - `EXECUTE` auf `toolbelt_file.USP_LoadTextFile`
 - Lesezugriff auf den Dateipfad
 - `ADMINISTER BULK OPERATIONS` oder `ad hoc distributed queries`
+
+## Byte-Snapshot ab 2026-10-15
+
+SC-040: USP_LoadTextFile verwendet genau einen SINGLE_BLOB-Snapshot. Bytezahl, BOM und Inhalt stammen aus derselben Aufnahme. UTF-8/UTF-16-LE-BOM wird vor Dekodierung entfernt; UTF-8 wird mit expliziter UTF8-Collation und binärem Roundtrip geprüft, UTF-16-LE verlangt gerade Bytezahl. Windows-1252 wird mit expliziter 1252-Collation auch auf Linux dekodiert. UTF-16-BE/UTF-32 bleiben ausgeschlossen. MaxBytes schützt nach der ersten Aufnahme; keine vorgezogene Heapgarantie.

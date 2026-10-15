@@ -10,7 +10,6 @@ import os
 import socket
 import subprocess
 import sys
-import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -19,6 +18,11 @@ from pathlib import Path
 from typing import Any
 
 from adapter_protocol import AdapterError, serve
+
+# Projektgebundene Abwehr: kein erfundener Upstream-/Provenienzdateieintrag.
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "Scripts" / "Security"))
+from secure_file_io import SecurePathError, open_read, open_atomic_output
+
 
 
 ROUTER_CONTRACT = "foundation-model-router/v2"
@@ -89,31 +93,6 @@ def required_keys(arguments: dict[str, Any], required: set[str], allowed: set[st
     if missing or unknown:
         detail = "missing=" + ",".join(missing) if missing else "unknown=" + ",".join(unknown)
         raise AdapterError("CONTRACT", "INVALID_ARGUMENTS", detail)
-
-
-def safe_path(raw: Any, roots: list[Path], field: str) -> Path:
-    if not isinstance(raw, str) or not raw:
-        raise AdapterError("CONTRACT", "INVALID_HANDLE", f"{field} must be a non-empty file path")
-    path = Path(raw).resolve()
-    if not any(path == root or root in path.parents for root in roots):
-        raise AdapterError("PERMISSION", "HANDLE_OUTSIDE_ALLOWED_ROOT", f"{field} is outside configured roots")
-    return path
-
-
-def atomic_write(path: Path, payload: bytes) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=path.parent)
-    try:
-        with os.fdopen(descriptor, "wb") as handle:
-            handle.write(payload)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, path)
-    finally:
-        try:
-            Path(temporary).unlink()
-        except FileNotFoundError:
-            pass
 
 
 def is_cloud_tag(name: str) -> bool:
@@ -244,17 +223,17 @@ class HttpAdapter:
             raise AdapterError("PERMISSION", "DATA_CLASS_NOT_AUTHORIZED", "data class is not authorized for this adapter")
         if self.boundary in {"LOCAL_NETWORK", "REMOTE", "UNKNOWN"} and arguments["data_class"] not in self.remote_data_classes:
             raise AdapterError("PERMISSION", "REMOTE_DATA_CLASS_NOT_AUTHORIZED", "data class is not authorized across this execution boundary")
-        input_path = safe_path(arguments["input_path"], self.read_roots, "input_path")
-        output_path = safe_path(arguments["output_path"], self.write_roots, "output_path")
         try:
-            text = input_path.read_text(encoding="utf-8")
-        except (OSError, UnicodeError) as exc:
-            raise AdapterError("INPUT", "INPUT_UNREADABLE", "input handle is unavailable or not UTF-8") from exc
-        payload["model"] = arguments["model"]
-        payload["messages"] = [{"role": "user", "content": text}]
-        result = self._request(self.invoke_path, payload)
-        body = canonical_json(result) + b"\n"
-        atomic_write(output_path, body)
+            with open_atomic_output(arguments["output_path"], self.write_roots) as destination:
+                with open_read(arguments["input_path"], self.read_roots) as source:
+                    text = source.read().decode("utf-8")
+                payload["model"] = arguments["model"]
+                payload["messages"] = [{"role": "user", "content": text}]
+                result = self._request(self.invoke_path, payload)
+                body = canonical_json(result) + b"\n"
+                destination.write(body)
+        except (SecurePathError, UnicodeError) as exc:
+            raise AdapterError("INPUT", "HANDLE_IO_REJECTED", "root-bound file operation failed") from exc
         actual_model = result.get("model") if isinstance(result, dict) else None
         if not isinstance(actual_model, str) or not actual_model:
             actual_model = None
@@ -464,35 +443,28 @@ class CommandAdapter:
         required_keys(arguments, {"operation_id", "data_class", "input_path", "output_path"}, {"operation_id", "data_class", "input_path", "output_path", "model"})
         if arguments["data_class"] not in self.data_classes:
             raise AdapterError("PERMISSION", "DATA_CLASS_NOT_AUTHORIZED", "data class is not authorized for this command")
-        input_path = safe_path(arguments["input_path"], self.read_roots, "input_path")
-        output_path = safe_path(arguments["output_path"], self.write_roots, "output_path")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        descriptor, temporary = tempfile.mkstemp(prefix=output_path.name + ".", suffix=".tmp", dir=output_path.parent)
-        os.close(descriptor)
+        if any("{input_path}" in item or "{output_path}" in item for item in self.invoke_argv):
+            raise AdapterError("CONFIGURATION", "HANDLE_PATH_ARGUMENT_UNSUPPORTED", "secure command mode requires stdin and stdout handles")
+        replacements = {
+            "{model}": str(arguments.get("model", "")),
+            "{operation_id}": str(arguments["operation_id"]),
+        }
+        argv = []
+        for item in self.invoke_argv:
+            if "{" in item and item not in replacements:
+                raise AdapterError("CONFIGURATION", "PARTIAL_PLACEHOLDER", "command placeholders must occupy a whole argument")
+            argv.append(replacements.get(item, item))
         try:
-            replacements = {
-                "{input_path}": str(input_path),
-                "{output_path}": temporary,
-                "{model}": str(arguments.get("model", "")),
-                "{operation_id}": str(arguments["operation_id"]),
-            }
-            argv = []
-            for item in self.invoke_argv:
-                if "{" in item and item not in replacements:
-                    raise AdapterError("CONFIGURATION", "PARTIAL_PLACEHOLDER", "command placeholders must occupy a whole argument")
-                argv.append(replacements.get(item, item))
-            with input_path.open("rb") as source, Path(temporary).open("wb") as destination:
-                result = self._run(argv, stdin=source, stdout=destination)
-            if result.returncode != 0:
-                raise AdapterError("PROTOCOL", "INVOKE_COMMAND_FAILED", "invoke command returned non-zero")
-            os.replace(temporary, output_path)
-        except Exception:
-            try:
-                Path(temporary).unlink()
-            except FileNotFoundError:
-                pass
-            raise
-        body = output_path.read_bytes()
+            with open_atomic_output(arguments["output_path"], self.write_roots) as destination:
+                with open_read(arguments["input_path"], self.read_roots) as source:
+                    result = self._run(argv, stdin=source, stdout=destination)
+                if result.returncode != 0:
+                    raise AdapterError("PROTOCOL", "INVOKE_COMMAND_FAILED", "command returned non-zero")
+                destination.flush()
+                destination.seek(0)
+                body = destination.read()
+        except SecurePathError as exc:
+            raise AdapterError("INPUT", "HANDLE_IO_REJECTED", "root-bound file operation failed") from exc
         return {"status": "COMPLETED", "operation_id": arguments["operation_id"], "output_sha256": digest_bytes(body), "output_bytes": len(body)}
 
     def cancel(self, arguments: dict[str, Any]) -> dict[str, Any]:

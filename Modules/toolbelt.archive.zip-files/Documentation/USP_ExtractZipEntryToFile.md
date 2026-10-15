@@ -15,7 +15,7 @@ Runtime nicht ausgeführt; unveröffentlicht.
 | 2 | `@EntryName` | `nvarchar(1024)` | `NULL` | Exakter ordinaler Entryname; kein abgeleiteter Dateipfad. |
 | 3 | `@RootAlias` | `sysname` | `NULL` | Vorhandener freigegebener Filesystem-Root-Alias. |
 | 4 | `@RelativePath` | `nvarchar(4000)` | `NULL` | Expliziter relativer Zielpfad; Zielverzeichnis muss bestehen. |
-| 5 | `@MaxEntryBytes` | `bigint` | `104857600` | 1 bis 2147483647 unkomprimierte Entrybytes; geerbte Obergrenze, kein Kapazitätsnachweis. |
+| 5 | `@MaxEntryBytes` | `bigint` | `16777216` | 1 bis 67108864 unkomprimierte Entrybytes; geerbte Obergrenze, kein Kapazitätsnachweis. |
 | 6 | `@MaxCompressionRatio` | `decimal(9,2)` | `200.00` | Mindestens 1; kanonische deklarierte und tatsächliche Readerprüfung. |
 | 7 | `@Overwrite` | `bit` | `0` | Unverändert an WriteBinaryFile; kein Direct-Write-Fallback. |
 | 8 | `@ExecutionIdentity` | `varchar(16)` | `'Caller'` | Caller als Default; ServiceAccount nur explizit gewählt. |
@@ -66,3 +66,7 @@ EXEC toolbelt_archive.USP_ExtractZipEntryToFile @Hilfe=1;
 
 Fachliche synthetische Beispiele im Help setzen einen zugelassenen Root-Alias
 und vorhandenes Zielverzeichnis voraus. [Runtime offen](../Tests/README.md).
+
+## Aktueller Sicherheitsvertrag
+
+SC-004: Extraktion erbt Default16 MiB und feste64-MiB-Entrygrenze; Dateifassade prüft diese vor dem Binaryprovider. Größere bisherige Extraktionsparameter sind zu migrieren. Keine stillen Teilpayloads.

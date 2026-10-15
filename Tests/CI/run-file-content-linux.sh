@@ -40,6 +40,10 @@ root = Path(sys.argv[1])
 (root / "utf32be-bom.txt").write_bytes(
     codecs.BOM_UTF32_BE + "UTF-32-BE-Test".encode("utf-32-be")
 )
+(root / "utf8-unicode.txt").write_bytes(codecs.BOM_UTF8 + "Contoso € 漢 🐼".encode("utf-8"))
+(root / "cp1252-unicode.txt").write_bytes("Contoso € ä".encode("cp1252"))
+(root / "utf8-invalid.txt").write_bytes(codecs.BOM_UTF8 + b"\xc0\xaf")
+(root / "utf16-odd.txt").write_bytes(codecs.BOM_UTF16_LE + b"A")
 (root / "sample.bin").write_bytes(bytes((0x00, 0x01, 0x02, 0xFF, 0xFE, 0x10, 0x20)))
 PY
 

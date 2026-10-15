@@ -229,6 +229,7 @@ PY
 
     run_file deploy_local "${local_db}" "${deployment}" Deploy.sql -v DeploymentMode=local
     run_file deploy_central "${central_db}" "${deployment}" Deploy.sql -v DeploymentMode=central
+    run_file security_local "${local_db}" "${runtime}" Security.Contract.sql
     run_file baseline_local "${local_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${local_db}"
     run_file baseline_central "${central_db}" "${runtime}" Lifecycle.Tests.sql -v "ToolbeltDatabase=${central_db}"
     # Erste darstellbare UTF-16-Größe oberhalb des harten 16-MiB-Limits.

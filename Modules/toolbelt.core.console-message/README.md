@@ -85,3 +85,9 @@ bereitgestellten Lab-Run.
 - Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger automatisierter Moduladapter; zusätzliche Client-/Treiber-, Buffering- und Framing-Evidenz bleibt offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Freigegebene Security-Härtung 2026-10-15
+
+SC-038: Nachricht höchstens1 MiB UTF-16 und512 Frames; Prüfung vor erster PRINT-/NOWAIT-Ausgabe. Keine Kürzung. NULL/Leer bleiben ohne Ausgabe und Hilfe bleibt vor Grenzprüfung. Fehler52801/52802.
+
+Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).

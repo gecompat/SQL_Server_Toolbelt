@@ -28,3 +28,9 @@ Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/3101828441
 - Scope: Commit 6f51078cfa1f13ace32212f07d46de8d55d39ef0: zwei echte befüllte 1.0.0-Repeats lokal/zentral auf Linux2019/150,2022/160,2025/170; alle 24 Eventspalten mit NULL-/Text-/Auditbytes, verbrauchter Identityhöchstwert/Folgeinsert, ausgewählter Katalog und eigene typisierte Annotationen/MS_Description erhalten. Erster Deploy reaktiviert eigenen abweichend deaktivierten WorkType kanonisch, zweiter erhält vollständige aktive Zeile/Rowversion; andere Registrierungen unverändert. Bestehende API-/Rollback-/Parallelitäts-/Consumer-/Uninstallfälle und eigene CI-Bereinigung bestanden. Neue Windows-Repeats, weitere Repeat-CLs, nichtleere Benutzergrants, Minimalrechte, historische Migrationen und Hard-Interrupt-Recovery bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Freigegebene Security-Härtung 2026-10-15
+
+SC-024: USP_DeleteRecordedEventsBefore ergänzt ausdrücklich aufgerufene Retention nach RecordedAtUtc und Index(RecordedAtUtc,EventId). BatchSize1..10000, MaxBatches1..100. OccurredAtUtc-Retention bleibt unverändert. Keine Jobs, automatische Löschung oder Rechtevergabe.
+
+Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).

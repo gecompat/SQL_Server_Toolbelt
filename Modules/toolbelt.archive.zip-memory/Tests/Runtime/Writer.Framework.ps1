@@ -167,6 +167,10 @@ public static class WriterFramework {
  }
 }
 '@
+# Derselbe gebundene Releaseoutput prüft auch deklarierte und tatsächliche
+# Extraktionsgrenzen; keine zusätzliche Assemblyaufnahme oder Buildwiederholung.
+Add-Type -ReferencedAssemblies @($copyPath,'System.Data.dll','System.Xml.dll','System.IO.Compression.dll') -TypeDefinition (Get-Content (Join-Path $PSScriptRoot 'EntrySecurity.Framework.cs') -Raw)
+if ([EntrySecurityContract]::Main() -ne 0) { throw 'ZIP_ENTRY_SECURITY_FAILED' }
 [WriterFramework]::Run()
 Assert-WriterBinary (($copyLease.Length -eq $length) -and (Get-WriterBinaryHash $copyLease) -ceq $ExpectedAssemblySHA512.ToUpperInvariant())
 }

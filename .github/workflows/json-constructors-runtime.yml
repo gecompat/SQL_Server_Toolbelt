@@ -3,6 +3,7 @@ name: JSON Constructors Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/Set-SqlClientTlsPolicy.ps1"
       - ".github/workflows/json-constructors-runtime.yml"
       - "Modules/toolbelt.json.constructors/.gitattributes"
       - "Modules/toolbelt.json.core/**"
@@ -31,6 +32,7 @@ on:
     branches:
       - main
     paths:
+      - "Tests/CI/Set-SqlClientTlsPolicy.ps1"
       - ".github/workflows/json-constructors-runtime.yml"
       - "Modules/toolbelt.json.constructors/.gitattributes"
       - "Modules/toolbelt.json.core/**"

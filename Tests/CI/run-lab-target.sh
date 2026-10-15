@@ -49,8 +49,8 @@ if [[ ! "${TBX_TEST_DB_SUFFIX}" =~ ^[a-f0-9]{12}$ ]]; then
     exit 65
 fi
 
-if [[ "${TBX_SQL_ENCRYPT:-}" != "True" || "${TBX_SQL_TRUST_SERVER_CERTIFICATE:-}" != "True" ]]; then
-    echo "Der Lab-Vertrag verlangt Encrypt=True und TrustServerCertificate=True." >&2
+if [[ "${TBX_SQL_ENCRYPT:-}" != "True" || "${TBX_SQL_TRUST_SERVER_CERTIFICATE:-}" != "False" ]]; then
+    echo "Der Lab-Vertrag verlangt Encrypt=True und TrustServerCertificate=False." >&2
     exit 65
 fi
 
@@ -72,7 +72,6 @@ base_sqlcmd_args=(
     -U "${TBX_SQL_USER}"
     -d "${TBX_SQL_DATABASE}"
     -N
-    -C
     -b
     -l 15
     -t 120
@@ -250,7 +249,6 @@ run_sqlcmd() {
         -S "tcp:${TBX_SQL_HOST},${TBX_SQL_PORT}"
         -U "${TBX_SQL_USER}"
         -N
-        -C
         -b
         -l 15
         -t 120
@@ -263,6 +261,20 @@ run_sqlcmd() {
 
     while (( $# )); do
         case "$1" in
+            -C|-N)
+                # Containeradapter dürfen ihre selbstsignierten Testoptionen
+                # mitbringen. Der Labaufruf erzwingt ausschließlich sein -N.
+                sqlcmd_variable_mode="0"
+                shift
+                ;;
+            -C*|-N*|-F*|-D|--*)
+                echo "Nicht zulässige Verbindungs-/TLS-Option im Lab-Adapter." >&2
+                return 64
+                ;;
+            -S?*|-U?*|-P?*)
+                sqlcmd_variable_mode="0"
+                shift
+                ;;
             -S|-U|-P)
                 sqlcmd_variable_mode="0"
                 shift 2

@@ -18,7 +18,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_archive].[USP_ExtractZipEntryFromBinary]
 (
       @ZipArchive          varbinary(max) = NULL
     , @EntryName           nvarchar(1024) = NULL
-    , @MaxEntryBytes       bigint         = 104857600
+    , @MaxEntryBytes       bigint         = 16777216
     , @MaxCompressionRatio decimal(9,2)   = 200.00
     , @FailIfEncrypted     bit            = 1
     , @ResultTable         sysname        = NULL
@@ -100,3 +100,7 @@ Server-Runtime und Release-Extremgrößenläufe bleiben offen.
 Siehe `../Examples/ExtractZipEntryFromBinary.sql`.
 
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30615544206
+
+## Aktueller Sicherheitsvertrag
+
+SC-004: Entryextraktion verwendet standardmäßig 16777216 Bytes (16 MiB), höchstens 67108864 Bytes (64 MiB). Deklarierte und tatsächlich gelesene Größe werden geprüft. Ein exakt dimensionierter finaler Entrybuffer ersetzt wachsenden MemoryStream und ToArray-Abschlusskopie. Archiv-/Compressed-/Ratio-/CRC-Grenzen bleiben bestehen. Die technische ArchiveSession teilt die feste Entryobergrenze.

@@ -1,15 +1,20 @@
 -- ============================================================================
--- Objekt: toolbelt_conversion.TVF_UriComponentDecode
--- Zweck:  Striktes einmaliges RFC-3986-Percent-Decoding einer URI-Komponente.
+-- Objekt:          toolbelt_conversion.TVF_UriComponentDecodeStatus
+-- Zweck:           Begrenzter kanonischer Statuskern; Legacy-Wertfassade unten.
+-- Parameter:       @Value nvarchar(max)
+-- Resultset:       DecodedValue nvarchar(max), IsValid bit, ValidationCode tinyint, Status varchar(16)
+-- Vertrag:         Documentation/TVF_UriComponentDecodeStatus.md
+-- Versionen:       SQL Server 2019/2022/2025; Windows/Linux
+-- Rechte:          SELECT/REFERENCES; keine zusätzlichen Rechte oder Grants.
+-- Performance:     MSTVF mit Vorabgrenzen; keine Inline-/Parallelitätszusage.
+-- Grenzen:         Freigegebener Vertrag SECURITY_HARDENING_2026_10.md.
 -- ============================================================================
-CREATE OR ALTER FUNCTION [toolbelt_conversion].[TVF_UriComponentDecode]
-(
-    @Value nvarchar(max)
-)
-RETURNS TABLE
-AS
-RETURN
-(
+CREATE OR ALTER FUNCTION [toolbelt_conversion].[TVF_UriComponentDecodeStatus](@Value nvarchar(max))
+RETURNS @Result TABLE(DecodedValue nvarchar(max) NULL,IsValid bit NULL,ValidationCode tinyint NULL,Status varchar(16) NOT NULL) AS
+BEGIN
+    IF @Value IS NULL BEGIN INSERT @Result VALUES(NULL,NULL,NULL,'SQL_NULL'); RETURN; END;
+    IF DATALENGTH(@Value)>65536 BEGIN INSERT @Result VALUES(NULL,0,14,'LIMIT'); RETURN; END;
+    DECLARE @Output nvarchar(max),@Valid bit,@Code tinyint;
     WITH Parameters AS
     (
         SELECT InputLength = CONVERT(bigint,DATALENGTH(@Value)/2)
@@ -144,9 +149,17 @@ RETURN
         GROUP BY data.ByteLength
     )
     SELECT
-          DecodedValue=CONVERT(nvarchar(max),CASE WHEN @Value IS NULL OR validation.HasNonAscii=1 OR validation.HasInvalidPercent=1 OR decoded.IsUtf8=0 OR decoded.HasNul=1 THEN NULL ELSE decoded.TextValue END)
-        , IsValid=CONVERT(bit,CASE WHEN @Value IS NULL THEN NULL WHEN validation.HasNonAscii=1 OR validation.HasInvalidPercent=1 OR decoded.IsUtf8=0 OR decoded.HasNul=1 THEN 0 ELSE 1 END)
-        , ValidationCode=CONVERT(tinyint,CASE WHEN @Value IS NULL THEN NULL WHEN validation.HasNonAscii=1 THEN 10 WHEN validation.HasInvalidPercent=1 THEN 11 WHEN decoded.IsUtf8=0 THEN 12 WHEN decoded.HasNul=1 THEN 13 ELSE 0 END)
-    FROM Validation AS validation CROSS JOIN Decoded AS decoded
-);
+          @Output=CONVERT(nvarchar(max),CASE WHEN @Value IS NULL OR validation.HasNonAscii=1 OR validation.HasInvalidPercent=1 OR decoded.IsUtf8=0 OR decoded.HasNul=1 THEN NULL ELSE decoded.TextValue END)
+        , @Valid=CONVERT(bit,CASE WHEN @Value IS NULL THEN NULL WHEN validation.HasNonAscii=1 OR validation.HasInvalidPercent=1 OR decoded.IsUtf8=0 OR decoded.HasNul=1 THEN 0 ELSE 1 END)
+        , @Code=CONVERT(tinyint,CASE WHEN @Value IS NULL THEN NULL WHEN validation.HasNonAscii=1 THEN 10 WHEN validation.HasInvalidPercent=1 THEN 11 WHEN decoded.IsUtf8=0 THEN 12 WHEN decoded.HasNul=1 THEN 13 ELSE 0 END)
+    FROM Validation AS validation CROSS JOIN Decoded AS decoded;
+    IF DATALENGTH(@Output)>1048576 INSERT @Result VALUES(NULL,0,14,'LIMIT'); ELSE INSERT @Result VALUES(@Output,@Valid,@Code,CASE WHEN @Valid=1 THEN 'OK' ELSE 'INVALID' END);
+    RETURN;
+END;
+GO
+-- Legacy-Wertfassade: gleicher Inputvertrag; Limitabbildung siehe Objektseite.
+-- Vertrag: Documentation/TVF_UriComponentDecode.md
+CREATE OR ALTER FUNCTION [toolbelt_conversion].[TVF_UriComponentDecode](@Value nvarchar(max))
+RETURNS TABLE AS RETURN
+(SELECT DecodedValue,IsValid,ValidationCode FROM toolbelt_conversion.TVF_UriComponentDecodeStatus(@Value));
 GO

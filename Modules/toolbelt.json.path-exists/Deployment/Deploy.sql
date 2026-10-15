@@ -45,6 +45,7 @@ IF HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'CREATE FUNCTION') <> 1
           N'In der Installationsdatenbank fehlt CREATE FUNCTION.',
           1;
 
+IF OBJECT_ID(N'toolbelt_json.TVF_JsonPathExistsStatus') IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_json.TVF_JsonPathExistsStatus') AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(256),value)=N'toolbelt.json.path-exists') THROW 51224,N'Neuer Security-Zielname ist frameworkfremd belegt.',1;
 BEGIN TRANSACTION;
 
 DECLARE @LockResult int;
@@ -121,7 +122,8 @@ BEGIN TRY
               @name = @ModeProperty
             , @value = N'$(DeploymentMode)';
 
-    COMMIT TRANSACTION;
+   IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_json.TVF_JsonPathExistsStatus') AND minor_id=0 AND name=N'Toolbelt.ModuleId') EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.json.path-exists',@level0type=N'SCHEMA',@level0name=N'toolbelt_json',@level1type=N'FUNCTION',@level1name=N'TVF_JsonPathExistsStatus';
+ COMMIT TRANSACTION;
 END TRY
 BEGIN CATCH
     IF XACT_STATE() <> 0

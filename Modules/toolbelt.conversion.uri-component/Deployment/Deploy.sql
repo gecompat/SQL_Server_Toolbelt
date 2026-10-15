@@ -11,6 +11,8 @@ IF @InstalledVersion IS NOT NULL AND @InstalledVersion<>N'1.0.0' THROW 51223,N'D
 IF @InstalledVersion IS NULL AND EXISTS(SELECT 1 FROM sys.objects WHERE object_id IN(OBJECT_ID(N'toolbelt_conversion.TVF_UriComponentEncode'),OBJECT_ID(N'toolbelt_conversion.TVF_UriComponentDecode'),OBJECT_ID(N'toolbelt_conversion.SVF_UriComponentEncode'),OBJECT_ID(N'toolbelt_conversion.SVF_UriComponentDecode'))) THROW 51224,N'Ein Zielobjekt stammt nicht aus einem bekannten Toolbelt-Release.',1;
 IF SCHEMA_ID(N'toolbelt_conversion') IS NOT NULL AND HAS_PERMS_BY_NAME(N'toolbelt_conversion',N'SCHEMA',N'ALTER')<>1 THROW 51222,N'Für toolbelt_conversion fehlt ALTER.',1;
 IF HAS_PERMS_BY_NAME(DB_NAME(),N'DATABASE',N'CREATE FUNCTION')<>1 THROW 51222,N'In der Installationsdatenbank fehlt CREATE FUNCTION.',1;
+IF OBJECT_ID(N'toolbelt_conversion.TVF_UriComponentEncodeStatus') IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_conversion.TVF_UriComponentEncodeStatus') AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(256),value)=N'toolbelt.conversion.uri-component') THROW 51224,N'Neuer Security-Zielname ist frameworkfremd belegt.',1;
+IF OBJECT_ID(N'toolbelt_conversion.TVF_UriComponentDecodeStatus') IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_conversion.TVF_UriComponentDecodeStatus') AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(256),value)=N'toolbelt.conversion.uri-component') THROW 51224,N'Neuer Security-Zielname ist frameworkfremd belegt.',1;
 BEGIN TRANSACTION;
 DECLARE @LockResult int;
 EXEC @LockResult=sys.sp_getapplock @Resource=N'toolbelt.deploy.toolbelt.conversion.uri-component',@LockMode=N'Exclusive',@LockOwner=N'Transaction',@LockTimeout=0,@DbPrincipal=N'public';
@@ -31,6 +33,8 @@ BEGIN TRY
  DECLARE @VersionProperty sysname=N'Toolbelt.Module.toolbelt.conversion.uri-component.Version',@ModeProperty sysname=N'Toolbelt.Module.toolbelt.conversion.uri-component.DeploymentMode';
  IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0 AND name=@VersionProperty) EXEC sys.sp_updateextendedproperty @name=@VersionProperty,@value=N'1.0.0'; ELSE EXEC sys.sp_addextendedproperty @name=@VersionProperty,@value=N'1.0.0';
  IF EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0 AND major_id=0 AND minor_id=0 AND name=@ModeProperty) EXEC sys.sp_updateextendedproperty @name=@ModeProperty,@value=N'$(DeploymentMode)'; ELSE EXEC sys.sp_addextendedproperty @name=@ModeProperty,@value=N'$(DeploymentMode)';
+IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_conversion.TVF_UriComponentEncodeStatus') AND minor_id=0 AND name=N'Toolbelt.ModuleId') EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.conversion.uri-component',@level0type=N'SCHEMA',@level0name=N'toolbelt_conversion',@level1type=N'FUNCTION',@level1name=N'TVF_UriComponentEncodeStatus';
+IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_conversion.TVF_UriComponentDecodeStatus') AND minor_id=0 AND name=N'Toolbelt.ModuleId') EXEC sys.sp_addextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.conversion.uri-component',@level0type=N'SCHEMA',@level0name=N'toolbelt_conversion',@level1type=N'FUNCTION',@level1name=N'TVF_UriComponentDecodeStatus';
  COMMIT TRANSACTION;
 END TRY
 BEGIN CATCH

@@ -190,6 +190,7 @@ local_db=tbx_w5b_local
 run_query master "CREATE DATABASE [${local_db}] COLLATE Latin1_General_100_CS_AS;"
 deploy_stack "${local_db}" local
 run_file "${local_db}" /workspace/Modules/toolbelt.core.event-log/Tests/Runtime Lifecycle.Contract.sql
+run_file "${local_db}" /workspace/Modules/toolbelt.core.event-log/Tests/Runtime Security.Contract.sql -t 180
 
 for level in ${compatibility_levels}; do
   run_query "${local_db}" "ALTER DATABASE [${local_db}] SET COMPATIBILITY_LEVEL=${level}; DELETE FROM toolbelt_core.EventLog;"

@@ -48,6 +48,8 @@ objects:
     name: "TVF_GenerateSeriesInt"
     visibility: public
 
+  - { type: TVF, schema: "toolbelt_core", name: "TVF_GenerateSeriesBigIntStatus", visibility: public }
+
 permissions_required:
   - "SELECT oder REFERENCES auf den Inline Table-valued Functions"
   - "DDL-Rechte für Deploy und Uninstall"
@@ -56,6 +58,8 @@ collation_contract: "not applicable"
 data_type_contract: "Getrennte int- und bigint-Funktionen; Value entspricht dem jeweiligen Parametertyp; decimal(38,0) wird nur intern für sichere Arithmetik verwendet."
 help_contract_version: "not applicable"
 resultset_contracts:
+  - name: "TVF_GenerateSeriesBigIntStatus"
+    columns: ["Value bigint", "Status varchar(16)", "RequestedRows decimal(38,0)"]
   - name: "TVF_GenerateSeriesBigInt"
     columns:
       - "Value bigint"
@@ -80,6 +84,7 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
+    - "Documentation/TVF_GenerateSeriesBigIntStatus.md"
     - "Documentation/TVF_GenerateSeriesBigInt.md"
     - "Documentation/TVF_GenerateSeriesInt.md"
   architecture:
@@ -95,6 +100,7 @@ contracts:
   validation: "1.0"
 
 tests:
+  security: "Tests/Runtime/Security.Contract.sql"
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/GenerateSeries.Contract.sql"
   contract: "Tests/Runtime/GenerateSeries.Contract.sql"

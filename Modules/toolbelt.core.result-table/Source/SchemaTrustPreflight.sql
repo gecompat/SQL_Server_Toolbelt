@@ -17,6 +17,14 @@ DECLARE @tbx_TrustedSchemaPrincipals TABLE(PrincipalId int PRIMARY KEY);
 )
 INSERT @tbx_TrustedSchemaPrincipals SELECT DISTINCT principal_id FROM Trusted OPTION(MAXRECURSION 32);
 
+-- Eine vertrauenswürdige Rolle darf nicht durch einen untrusted Rollenowner
+-- verwaltet werden; Rollenname allein ist keine Autorität.
+IF EXISTS(SELECT 1 FROM sys.database_principals r
+    JOIN @tbx_TrustedSchemaPrincipals t ON t.PrincipalId=r.principal_id
+    WHERE r.type='R' AND NOT EXISTS(SELECT 1 FROM @tbx_TrustedSchemaPrincipals owner
+        WHERE owner.PrincipalId=r.owning_principal_id))
+    THROW 51032,N'Eine vertrauenswürdige Rolle hat einen nicht freigegebenen Owner.',2;
+
 IF EXISTS
 (
     SELECT 1 FROM sys.database_permissions p
@@ -25,7 +33,9 @@ IF EXISTS
       AND
       (
         (p.class=3 AND p.major_id=SCHEMA_ID(N'toolbelt_core') AND p.permission_name IN(N'ALTER',N'CONTROL',N'TAKE OWNERSHIP'))
-        OR (p.class=0 AND p.permission_name IN(N'CONTROL',N'ALTER ANY SCHEMA'))
+        OR (p.class=0 AND p.permission_name IN(N'CONTROL',N'ALTER ANY SCHEMA',N'ALTER ANY ROLE',N'IMPERSONATE ANY USER'))
+        OR (p.class=4 AND p.permission_name IN(N'CONTROL',N'IMPERSONATE') AND EXISTS
+            (SELECT 1 FROM @tbx_TrustedSchemaPrincipals t WHERE t.PrincipalId=p.major_id))
         OR (p.class=1 AND p.major_id=OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable') AND p.permission_name IN(N'ALTER',N'CONTROL',N'TAKE OWNERSHIP'))
       )
 )
@@ -35,7 +45,7 @@ IF EXISTS
 IF EXISTS
 (
     SELECT 1 FROM sys.database_role_members m JOIN sys.database_principals r ON r.principal_id=m.role_principal_id
-    WHERE r.name=N'db_ddladmin'
+    WHERE r.name IN(N'db_ddladmin',N'db_securityadmin')
       AND NOT EXISTS(SELECT 1 FROM @tbx_TrustedSchemaPrincipals t WHERE t.PrincipalId=m.member_principal_id)
 )
     THROW 51032,N'Nicht freigegebene DDL-Administrationsmitgliedschaft verhindert die Schematrustfreigabe.',2;

@@ -74,6 +74,7 @@ contracts:
   deployment: "1.0"
   validation: "1.0"
 tests:
+  security: "Tests/Runtime/Security.Contract.sql"
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/ConsoleMessage.Contract.sql"
   contract: "Tests/Runtime/ConsoleMessage.Contract.sql"

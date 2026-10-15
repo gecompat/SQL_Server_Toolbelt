@@ -151,8 +151,9 @@ function ConvertTo-BashPath {
 function New-LabConnectionString {
     param([Parameter(Mandatory)]$Entry)
 
-    if (-not $Entry.encrypt -or -not $Entry.trustServerCertificate) {
-        throw 'Der ausgewählte Eintrag erfüllt den TLS-Vertrag nicht.'
+    if ($Entry.encrypt -isnot [bool] -or $Entry.encrypt -ne $true -or
+        $Entry.trustServerCertificate -isnot [bool] -or $Entry.trustServerCertificate -ne $false) {
+        throw 'Lab-TLS erfordert Encrypt=True und TrustServerCertificate=False sowie ein CA-vertrauenswürdiges Zertifikat für den Vertrags-Hostnamen.'
     }
 
     $builder = [System.Data.SqlClient.SqlConnectionStringBuilder]::new()
@@ -161,7 +162,7 @@ function New-LabConnectionString {
     $builder['User ID'] = [string]$Entry.username
     $builder['Password'] = [string]$Entry.password
     $builder['Encrypt'] = $true
-    $builder['TrustServerCertificate'] = $true
+    $builder['TrustServerCertificate'] = $false
     $builder['Connect Timeout'] = 15
     $builder['Application Name'] = 'SQL_Server_Toolbelt_Lab'
     return $builder.ConnectionString
@@ -514,7 +515,7 @@ try {
                     $env:TBX_SQL_VERSION = [string]$target.sqlVersion
                     $env:TBX_SQL_PATCH = [string]$target.patch
                     $env:TBX_SQL_ENCRYPT = 'True'
-                    $env:TBX_SQL_TRUST_SERVER_CERTIFICATE = 'True'
+                    $env:TBX_SQL_TRUST_SERVER_CERTIFICATE = 'False'
                     $env:TBX_TEST_DB_SUFFIX = $runSuffix
                     $env:TBX_TEST_SQLCMD_BIN = $sqlcmd.Source
                     $env:TBX_TEST_SUITE = $TestSuite

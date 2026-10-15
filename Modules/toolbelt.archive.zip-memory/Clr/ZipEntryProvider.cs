@@ -19,6 +19,7 @@ namespace Toolbelt.Archive.ZipMemory
         private const long MaxArchiveBytes = 268435456L;
         private const long MaxCompressedBytes = 134217728L;
         private const int MaxEntries = 10000;
+        private const long MaxExtractedEntryBytes = 67108864L;
         private const int MaxEntryNameCharacters = 1024;
 
         private const uint LocalHeaderSignature = 0x04034B50U;
@@ -330,11 +331,11 @@ namespace Toolbelt.Archive.ZipMemory
 
             if (maxEntryBytes.IsNull ||
                 maxEntryBytes.Value <= 0 ||
-                maxEntryBytes.Value > Int32.MaxValue)
+                maxEntryBytes.Value > MaxExtractedEntryBytes)
             {
                 throw new ZipProviderException(
                     51320,
-                    "@MaxEntryBytes muss zwischen 1 und 2147483647 liegen.");
+                    "@MaxEntryBytes muss zwischen 1 und 67108864 liegen.");
             }
 
             if (maxCompressionRatio.IsNull ||
@@ -946,10 +947,13 @@ namespace Toolbelt.Archive.ZipMemory
                 reader.OpenBoundedStream(
                     entry.PayloadOffset,
                     entry.CompressedBytes))
-            using (MemoryStream output = new MemoryStream())
             {
+                if (maxEntryBytes < 1 || maxEntryBytes > MaxExtractedEntryBytes || entry.UncompressedBytes > maxEntryBytes)
+                    throw new ZipProviderException(51325, "ZIP-Entry überschreitet die feste Extraktionsgrenze.");
+                byte[] output = new byte[checked((int)entry.UncompressedBytes)];
                 Stream payloadStream = compressed;
                 DeflateStream deflate = null;
+                long totalBytesRead = 0;
 
                 try
                 {
@@ -986,8 +990,9 @@ namespace Toolbelt.Archive.ZipMemory
                         }
 
                         total += read;
+                        totalBytesRead = total;
 
-                        if (total > maxEntryBytes)
+                        if (total > maxEntryBytes || total > output.LongLength)
                         {
                             throw new ZipProviderException(
                                 51325,
@@ -999,7 +1004,7 @@ namespace Toolbelt.Archive.ZipMemory
                             entry.CompressedBytes,
                             maxCompressionRatio);
 
-                        output.Write(buffer, 0, read);
+                        Buffer.BlockCopy(buffer, 0, output, checked((int)(total - read)), read);
                     }
                 }
                 finally
@@ -1017,7 +1022,9 @@ namespace Toolbelt.Archive.ZipMemory
                         "Der komprimierte Payload enthält nicht konsumierte Bytes.");
                 }
 
-                return output.ToArray();
+                if (output.LongLength != totalBytesRead)
+                    throw new ZipProviderException(51321, "Die tatsächliche ZIP-Entrygröße weicht von der Deklaration ab.");
+                return output;
             }
         }
 

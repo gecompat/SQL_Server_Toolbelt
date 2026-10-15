@@ -388,7 +388,7 @@ bleibt ein separater Release-Nachweis.
 | Entscheidung | Dateisystemzugriff ist ein lokales EXTERNAL_ACCESS-SQL-CLR-Modul für Windows. Default ist Caller über SqlContext.WindowsIdentity; ServiceAccount wird nur explizit verwendet. |
 | Begründung | Ein interaktiv angemeldeter Benutzer ist aus SQL Server nicht zuverlässig bestimmbar. Relative Pfade unter Root-Aliassen, Reparse-Point-Sperren und Staging begrenzen das Risiko. |
 | Scope | toolbelt.filesystem.windows; Text/Binary, Codepages, Transcoding, Directory-Operationen und rekursives Delete. |
-| Auswirkungen | Linux ist not applicable. TRUSTWORTHY ON, UNSAFE, xp_cmdshell und absolute/UNC-Pfade sind ausgeschlossen. Ein manueller Windows-Runtime-Nachweis ist verpflichtend. |
+| Auswirkungen | Ursprünglicher Vertrag: Linux not applicable; TRUSTWORTHY ON, UNSAFE, xp_cmdshell und absolute/UNC-Pfade ausgeschlossen; manueller Windows-Runtime-Nachweis verpflichtend. Die spätere ausdrückliche SC-023-Freigabe vom 2026-10-15 ersetzt ausschließlich den EXTERNAL_ACCESS-/UNSAFE-Teil; siehe Security-Härtung unten. |
 | Alternativen | OPENROWSET(BULK) bleibt für portable read-only Nutzung ein separates Modul; es ersetzt keine kontrollierten Writes, Impersonation oder Directory-Verwaltung. |
 | Betroffene Verträge | CLR_SECURITY_AND_PORTABILITY.md, USP_CONTRACT.md, WINDOWS_FILESYSTEM_MODULE_DESIGN.md |
 
@@ -762,3 +762,16 @@ und Kürzung der deklarierten Supportmatrix verworfen. Scope: Foundation,
 Projektregeln, tatsächliche Testselektoren/Workflows und Offline-Regressionen.
 Keine Produktimplementierung, SQL-Testausführung oder automatische Fortsetzung.
 [Vollständige Bewertung, Ausnahmen und Nachweise](FOUNDATION_1_21_INTEGRATION.md).
+
+
+## DEC-2026-035: Explizit freigegebene Security-Härtung
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-10-15 |
+| Status | accepted; ausdrücklich vom Benutzer zur Implementierung freigegeben |
+| Entscheidung | Die 25 einzeln besprochenen Securityverträge werden in vier geordneten Wellen umgesetzt. Windows Filesystem verwendet wegen handlegebundener P/Invoke-Operationen UNSAFE; dies ersetzt den betreffenden Teil von DEC-2026-024. Work-Type-Policy und ServiceAccount-Rolle/Root sind explizit zu konfigurieren. Ressourcenlimits erhalten die freigegebenen Status-/NULL-/Leermengenabbildungen. |
+| Begründung | Autorität muss am tatsächlichen Caller und Datei-I/O an gehaltenen Objekten hängen. Arbeit und Ausgabe brauchen vorgezogene feste Grenzen. Mehrfaches Nachschlagen von Pfaden und bloße Metadatensicht reichen nicht. |
+| Alternativen | Privilegierter Pfadfallback, automatischer Grant, Abschalten von strict security, TRUSTWORTHY ON und Lab-Zertifikatsausnahme verworfen. Kein genereller Wechsel anderer CLR-Module auf UNSAFE. |
+| Auswirkungen | Bestehende Installationen müssen Policies, Rollen/Rootflag und den neuen Releasehash ausdrücklich konfigurieren. Legacy-Series nur für trusted Principals. Der aktuelle Labvertrag wird bis zur externen CA-/Hostnamebereitstellung gesperrt. Keine Infrastruktur-/Truststoreverwaltung durch Toolbelt. |
+| Vertrag und Nachweise | [SECURITY_HARDENING_2026_10.md](SECURITY_HARDENING_2026_10.md); Status bleibt nach tatsächlich ausgeführten Teilprüfungen begrenzt, Integration/Head-CI und Cloudabschluss getrennt. |

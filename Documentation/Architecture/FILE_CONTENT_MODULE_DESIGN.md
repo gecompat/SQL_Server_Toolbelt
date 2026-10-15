@@ -89,18 +89,14 @@ werden nicht umklassifiziert und propagieren als `THROW`.
 
 ## Encoding-Erkennung
 
-Die ersten 4 Bytes der Datei werden als `SINGLE_BLOB` gelesen und auf BOMs
-geprüft. Dateien ohne BOM werden mit `@FallbackEncoding` gelesen. Im
-Version-1-Slice ist nur `Windows-1252` als Fallback erlaubt.
-
-- UTF-16-LE mit BOM: `OPENROWSET(BULK..., SINGLE_NCLOB)`.
-- UTF-8 mit BOM und Windows-1252 ohne BOM: `OPENROWSET(BULK..., SINGLE_CLOB)`
-  mit `CAST` nach `nvarchar(max)`. Das liefert für ASCII-Inhalte auf Windows
-  und Linux identische Ergebnisse. Nicht-ASCII-Zeichen werden auf Linux nicht
-  nach Windows-1252 decodiert, weil SQL Server Linux `CODEPAGE` in `BULK INSERT`
-  nicht unterstützt.
-- UTF-16-BE und UTF-32: werden als nicht unterstützt zurückgewiesen
-  (`ValidationCode 51325`).
+Die Datei wird genau einmal als `SINGLE_BLOB` aufgenommen. Bytezahl, erste vier
+BOM-Bytes und Textdecoder verwenden denselben Snapshot. `@MaxBytes` wird danach
+geprüft; es besteht keine Vorallokations- oder Heapgarantie für OPENROWSET.
+UTF-8-BOM und UTF-16-LE-BOM werden entfernt. UTF-8 wird über eine explizit
+UTF8-collatierte varchar-Spalte dekodiert und binär samt Länge zurückgeprüft;
+UTF-16 LE verlangt gerade Bytezahl. Ohne BOM wird Windows-1252 explizit auch
+unter Linux dekodiert. Ungültige Bytes/Providerfehler erzeugen 51326;
+UTF-16 BE und UTF-32 bleiben nicht unterstützt (51325).
 
 ## Abhängigkeiten
 

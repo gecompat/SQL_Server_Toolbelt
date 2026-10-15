@@ -2,7 +2,7 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-44 Module sind implementiert. 17 sind `validated`, 27 sind `partially validated`; 0 sind `not executed`.
+44 Module sind implementiert. 13 sind `validated`, 31 sind `partially validated`; 0 sind `not executed`.
 
 ## Freigegebene Security-Härtung — 2026-10-15
 
@@ -11,12 +11,50 @@ freigegeben, ausdrücklich einschließlich UNSAFE bei SC-023, Cancellationquoten
 und NULL-/Leermengenverhalten. Autor: Codex. Der verbindliche
 [Umsetzungsvertrag](../Documentation/Architecture/SECURITY_HARDENING_2026_10.md)
 nennt alle 25 Verträge, Grenzwerte, Migrationen und die vier geordneten Wellen.
-Implementierung begonnen: Welle 1 (SC-046/026/027/041/009/017/016).
-Übrige Wellen freigegeben und eingeplant. Frühere D/proposed-Angaben unten
+Alle vier Wellen sind im Arbeitsbranch implementiert. Gezielte native SQL-,
+Framework- und Offlineprüfungen sind erfolgt; Integration und aktuelle Head-CI
+bleiben eigene Abnahmegates. Der Source-/Teststand und seine Grenzen stehen im
+verlinkten Umsetzungsvertrag. Die 25 Punkte sind entwicklungsreif und freigegeben;
+kein weiterer fachlicher Entscheidungsbedarf. Frühere D/proposed-Angaben unten
 sind der historische Entscheidungsstand vor dieser ausdrücklichen Freigabe.
 Kein neuer Cloudabschluss und keine neue Runtimequalifikation allein durch
-Freigabe oder Sourceänderung. SC-045 benötigt weiterhin den externen Lab-
+Freigabe oder Sourceänderung. SC-045 sperrt den bisherigen unsicheren
+Labvertrag bereits vor dem Verbindungsaufbau; benötigt wird der externe Lab-
 Zertifikatsvertrag; SC-018 bleibt bei untrusted Legacydirektzugriff offen.
+
+### Aktueller Entwicklungsstand der 25 freigegebenen Punkte
+
+14 P1 und 11 P2; alle fachlichen Entscheidungen sind freigegeben. Die folgende
+Tabelle beschreibt den Arbeitsbranch. Cloud-/Integrationsstatus folgt erst nach
+getrennter bestätigter Abnahme.
+
+| Gruppe | Inhalt | Priorität | Aktueller Stand |
+|---|---|---|---|
+| `SC-2026-002` | RegexCount/RegexInstr: kumulatives Aufrufbudget | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-004` | ZIP-Extraktion: Speichergrenze für Binary- und Dateifassade | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-005` | Windows Directory Listing: feste Speicher-/Entrygrenze | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-009` | Windows Filesystem: getrennte ServiceAccount-Autorisierung | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-010` | Foundation-Handles: Pfadwechsel zwischen Prüfung und I/O | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-011` | Regex-Gruppenreplacement: vorzeitige Tokenallokation | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-016` | Queue-Barrier: Schedulerlock in Caller-Transaktion | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-017` | ResultTable-Deployment: Vertrauen in vorbestehenden Schemaowner | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-023` | Windows Filesystem: Reparse-/Rename-Race bei I/O | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-026` | Queue Claim: Handlerausführung versus Metadatensicht | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-027` | Second Session: ursprünglicher Caller versus Remote-Principal | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-040` | File-Content-Textread: Größe und Inhalt aus verschiedenen Reads | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-045` | Persistente Labverbindungen: Serverzertifikat nicht authentifiziert | P1 | freigegeben; implementiert; externer TLS-Labvertrag blockiert Liveabnahme |
+| `SC-2026-046` | Queue Enqueue: Producerautorität je Work Type | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-006` | JSON Pointer: kumulative Fragmentarbeit | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-013` | Unquoting: wiederholte LOB-Kopien bei dichten Quotes | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-015` | Cancellation: persistente Wachstums-/Retentiongrenze | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-018` | Zahlenreihen: maximaler angeforderter Umfang | P2 | freigegeben; implementiert; Legacygrants betreiberseitig beschränken |
+| `SC-2026-019` | Base64: LOB-/Zwischenspeicherbudget | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-020` | Einfacher Split: Zeilen-/Inputexpansion | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-021` | URI-Konvertierung: Byte-/Zeilenexpansion | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-022` | JSON Path Exists: Frontier-/Arbeitsbudget | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-024` | EventLog: Retention bei maximalem Caller-Zeitstempel | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-038` | Console-Ausgabe: Gesamtmessage-/Framebudget | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-041` | Second Session: Payloadlimit vor ISJSON und RPC | P2 | freigegeben; implementiert; Head-CI/Integration offen |
 
 ## Security-Cloud-Abgleich — integrierter Stand 2026-10-15
 
@@ -3436,7 +3474,7 @@ werden nur mit tatsächlich ausgeführter Evidenz als bestanden geführt.
 | Priorität | `P1` |
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | `1`/`0`/SQL-`NULL` als `int`; JSON `null` zählt als vorhanden; case-sensitive BIN2-Keyvergleich; Pfad- und JSON-Fehler verlassen den Funktionsvertrag nicht; vollständige Source-, Lifecycle-, Dokumentations-, Contract- und CI-Artefakte; Status nur aus tatsächlicher Evidenz. |
 | Tests | Statische Prüfung und SQL-Server-2025-Linux-Workflow für Compatibility Levels 150/160/170 mit nativer Parität, synthetischen Fehler-/Collation-Fällen, Wiederholungsdeployment, Lifecycle, Central und Uninstall erfolgreich. |
@@ -3475,12 +3513,16 @@ werden nur mit tatsächlich ausgeführter Evidenz als bestanden geführt.
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
 | Validation Status | `validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Anniversary-Regel, gerichtetes und typstabiles Trim sowie RFC-3986-Komponentenencoding sind explizit dokumentiert; keine implizite IRI-, Form-Encoding- oder Double-Decoding-Semantik. |
 | Tests | Statische Contracts und GitHub-hosted SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; Anniversary-, Grenzwert-, Unicode-/UTF-8-, Fehler-, Paritäts-, Wiederholungs-, lokaler, zentraler und Uninstall-Scope geprüft. |
 | Blocker | Keine. Die vollständige Windows-/Linux-Matrix einschließlich Collation-, ASCII-/Unicode-/Large-Input- und Kollisionsfällen ist erfolgreich. |
 | Evidenz | Benutzerfreigabe 2026-07-30; [W1 Portable Runtime 30553118399](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118399), [Documentation Consistency 30553118014](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118014) und lokaler physischer Linux-Lauf vom 2026-08-29. |
 | Nächster Schritt | Keine autonome Validierung offen; zusätzliche fachliche Ausbaustufen benötigen Einzelvertrag und Freigabe. |
+
+
+Securitystand 2026-10-15: URI Component ist teilweise validiert; die beiden anderen W1-Module bleiben validiert. Historische Matrixnachweise qualifizieren die neuen URI-Limits nicht vollständig.
 
 ### AP-2026-014: Inline-TVF-Alternativen für bestehende SVFs
 
@@ -3555,7 +3597,7 @@ bleiben erhalten; keine Veröffentlichung.
 | Priorität | `P1` |
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Literalvertrag bleibt von Regex getrennt; Token und Ordinal sind deterministisch; `NULL`, NUL, leerer Input, aufeinanderfolgende Separatoren, Separator am Rand, Collations und Größenklassen sind dokumentiert und getestet; vollständiger Lifecycle und gekoppelte Dokumentation. |
 | Tests | Statischer Vertrag sowie vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Compatibility Levels 150/160/170 nach Zielversion erfolgreich. |

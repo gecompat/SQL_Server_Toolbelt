@@ -74,7 +74,7 @@ try {
         if ([string]::IsNullOrWhiteSpace($Database)) { throw 'CAPTURE_DATABASE_ARGUMENT_REQUIRED' }
         $builder['Initial Catalog'] = $Database
         $builder['Encrypt'] = $true
-        $builder['TrustServerCertificate'] = $true
+        & (Join-Path $PSScriptRoot '../../../../Tests/CI/Set-SqlClientTlsPolicy.ps1') -Builder $builder
         $builder['Connect Timeout'] = 15
         $builder['Pooling'] = $false
         $Connection = [Data.SqlClient.SqlConnection]::new($builder.ConnectionString)

@@ -4,7 +4,7 @@ version: "1.0.0"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
-description: "Windows-only filesystem operations through an EXTERNAL_ACCESS SQL CLR provider with root aliases, Caller impersonation and bounded streaming."
+description: "Windows-only filesystem operations through an UNSAFE SQL CLR provider with root aliases, Caller impersonation and bounded streaming."
 sql_server_versions:
   - "2019"
   - "2022"
@@ -12,10 +12,10 @@ sql_server_versions:
 compatibility_levels: [150, 160, 170]
 platforms:
   windows: "partially validated: Build, Trust, Deployment, Help und ein ausgewählter Windows-Caller-/NTFS-/ServiceAccount-Lauf sind belegt; weitere Codepage-, Limit-, Reparse-, direkte CLR- und Race-Nachweise bleiben offen."
-  linux: "not applicable: SQL Server on Linux does not support EXTERNAL_ACCESS SQL CLR assemblies."
+  linux: "not applicable: SQL Server on Linux does not support UNSAFE SQL CLR assemblies."
 providers:
   - id: clr-windows-filesystem
-    technology: "C# SQL CLR .NET Framework 4.8; EXTERNAL_ACCESS; SqlContext.WindowsIdentity.Impersonate for Caller mode"
+    technology: "C# SQL CLR .NET Framework 4.8; UNSAFE; SqlContext.WindowsIdentity.Impersonate for Caller mode"
     platforms: [Windows]
     status: "partially validated"
 deployment_capabilities:
@@ -54,7 +54,7 @@ clr:
   target_framework: ".NET Framework 4.8"
   assembly_sql_name: "Toolbelt_Filesystem_Windows"
   assembly_file_name: "Toolbelt.Filesystem.Windows.dll"
-  permission_set: "EXTERNAL_ACCESS"
+  permission_set: "UNSAFE"
   trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"
   build_project: "Clr/Toolbelt.Filesystem.Windows.csproj"
   release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
@@ -89,6 +89,9 @@ contracts:
   deployment: "1.0"
   validation: "1.0"
 tests:
+  security: "Tests/Runtime/Security.Contract.sql"
+  service_account_role: "Tests/Runtime/ServiceAccount.Role.Contract.sql"
+  lab_security: "../../Tests/CI/run-filesystem-security-lab.ps1"
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/WindowsFilesystem.Contract.sql"
   framework: "Tests/Framework/Invoke-NoOverwrite.ps1"

@@ -8,7 +8,7 @@ manifest = (root / "module.yaml").read_text(encoding="utf-8")
 trust_deployment = (root / "Deployment" / "Add-TrustedAssembly.sql").read_text(encoding="utf-8")
 caller_smoke_test = (root / "Tests" / "Runtime" / "WindowsCallerListDirectory.Manual.sql").read_text(encoding="utf-8")
 
-for marker in ["SqlContext.WindowsIdentity", "ReparsePointForbidden", "MaxChunkBytes", "WriteAtomically", "EXTERNAL_ACCESS"]:
+for marker in ["SqlContext.WindowsIdentity", "ReparsePointForbidden", "MaxChunkBytes", "WriteAtomically", "UNSAFE"]:
     if marker not in source + manifest:
         raise SystemExit(f"Missing security or streaming marker: {marker}")
 if "SqlContext.WindowsIdentity" not in source or "CallerWindowsAuthenticationRequired" not in source:
@@ -79,11 +79,10 @@ for call, expected_count in (
 helper = source[source.index("private static void WriteAtomically("):source.index("private static SqlDataRecord Record(")]
 if "Root root, string target, bool overwrite, Action<FileStream> write" not in helper:
     raise SystemExit("Atomarer Schreibhelper benötigt den ursprünglichen Overwrite-Boolwert.")
-publication = "if (!overwrite) File.Move(staging, target); else if (File.Exists(target)) File.Replace(staging, target, null, true); else File.Move(staging, target);"
-if publication not in helper or helper.count("File.Replace(") != 1:
-    raise SystemExit("NoOverwrite darf weder Exists/Replace noch einen Fallback verwenden; true bleibt unverändert.")
-if "if (ownStage)" not in helper or "filesystem(delegate { if (File.Exists(staging)) File.Delete(staging); });" not in helper:
-    raise SystemExit("Eigene Stagingdatei muss auch nach fehlgeschlagener Veröffentlichung bereinigt werden.")
+for marker in ("NativePublish(output, target, overwrite)", "NativeDelete(output.SafeFileHandle)", "class NativeParents", "SetFileInformationByHandle", "HardLinkForbidden"):
+    if marker not in helper: raise SystemExit("Native Handlebindung fehlt: "+marker)
+if "File.Move(staging" in helper or "File.Replace(staging" in helper:
+    raise SystemExit("Staging darf nicht über erneut aufgelöste Namen publiziert werden.")
 if "WriteAtomicallyScoped(root, target, overwrite, write, delegate(Action action) { action(); });" not in helper:
     raise SystemExit("Historischer Helper muss denselben atomaren Publikationskern verwenden.")
 copy = source[source.index("private static long CopyBinaryContent("):source.index("private static void WriteAtomically(")]
@@ -97,7 +96,7 @@ for marker in (
     "context.Undo();",
     "filesystem(delegate { output.Flush(true); });",
     "filesystem(delegate { output.Dispose(); });",
-    "if (failure == null) filesystem(delegate { if (!overwrite) File.Move(staging, target);",
+    "filesystem(delegate { NativePublish(output, target, overwrite); published = true; });",
     "if (failure != null) failure.Throw();",
 ):
     if marker not in source:
@@ -131,15 +130,15 @@ for marker in (
     'if (plan.Count >= maxEntries) Fail("EntryLimitExceeded")',
     'if (current.Depth >= maxDepth) Fail("DepthLimitExceeded")',
     'for (int index = plan.Count - 1; index >= 0; index--)',
-    'Directory.Delete(entry.Path, false)',
-    'Directory.Delete(path, false)',
-    'Fail("DirectoryTreeChanged")',
+    'NativeDelete(plan[index].Handle)',
+    'NativeDelete(start)',
+    'NativeOpen(item, 0x10080, 3, null)',
 ):
     if marker not in remove:
         raise SystemExit("Begrenzter RemoveDirectory-Vertrag fehlt: " + marker)
 if "Directory.Delete(path, recursive)" in remove or "Enumerate(path, recursive, maxDepth)" in remove:
     raise SystemExit("RemoveDirectory darf keinen ungeprüften rekursiven Delete verwenden.")
-if remove.index('Fail("DirectoryNotEmpty")') > remove.index('Directory.Delete(entry.Path, false)'):
+if remove.index('Fail("DirectoryNotEmpty")') > remove.index('NativeDelete(plan[index].Handle)'):
     raise SystemExit("Alle fachlichen Limitprüfungen müssen vor der ersten Löschung liegen.")
 
 print("Windows filesystem static contract passed.")

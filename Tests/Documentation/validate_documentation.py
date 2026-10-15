@@ -1383,6 +1383,12 @@ def run_foundation_http_responses() -> None:
     if result.returncode != 0:
         raise ValidationError("Foundation-Response-Regression fehlgeschlagen:\n" + result.stdout + result.stderr)
     print(result.stdout.strip())
+    handles = subprocess.run((sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/test_foundation_handles.py")),
+                             cwd=REPOSITORY_ROOT, check=False, capture_output=True,
+                             text=True, encoding="utf-8", timeout=30)
+    if handles.returncode:
+        raise ValidationError("Handle-Regression fehlgeschlagen:\n" + handles.stdout + handles.stderr)
+    print(handles.stderr.strip())
 
 
 def run_foundation_discovery() -> None:

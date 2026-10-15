@@ -24,3 +24,13 @@ Aktuelle Evidenz: [Run 30553118399](https://github.com/gecompat/SQL_Server_Toolb
 - Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; RFC-3986-ASCII-Raum, Unicode/UTF-8, ungültige Prozentsequenzen, synthetischer Large-Input-Roundtrip, Kollisionsschutz, Lifecycle und Uninstall
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Freigegebene Security-Härtung 2026-10-15
+
+SC-021: Neue EncodeStatus-/DecodeStatus-TVFs prüfen64 KiB UTF-16-Input vor Series und Aggregation. Die mathematische maximale Ergebnisgröße unter dieser Inputgrenze liegt bereits unter1 MiB; zusätzlicher Ergebnischeck. Alte Wertfassaden liefern bei Limit NULL; DecodeStatus nennt LIMIT (IsValid=0/ValidationCode14).
+
+Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
+
+Aktueller Securitystand: `partially validated`, `unreleased`. Die bisherigen
+Matrixnachweise gelten historisch; die neuen Verträge sind gezielt auf Linux
+SQL Server 2019 geprüft. Weitere Plattform-/CL-Nachweise bleiben offen.

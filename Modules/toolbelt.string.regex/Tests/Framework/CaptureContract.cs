@@ -70,6 +70,19 @@ public static class CaptureContract
         Check(RegexProvider.RegexReplaceGroups(SqlString.Null,"(","$0",0,-1,SqlString.Null,SqlString.Null).IsNull);
         Check(!RegexProvider.RegexCaptures(SqlString.Null,"(",0,SqlString.Null,SqlString.Null,0).GetEnumerator().MoveNext());
     }
+    static void SecurityLimits()
+    {
+        Check(RegexProvider.RegexCount(new string('a',100000),"a",1,"c").Value==100000);
+        Check(RegexProvider.RegexInstr(new string('a',100000),"a",1,100000,0,"c").Value==100000);
+        Error(()=>RegexProvider.RegexCount(new string('a',100001),"a",1,"c"),"TBX_REGEX_MATCH_LIMIT");
+        Error(()=>RegexProvider.RegexInstr(new string('a',100001),"a",1,100001,0,"c"),"TBX_REGEX_MATCH_LIMIT");
+        string exact=new string('$',131072);
+        Check(Replace("a","(a)",exact)==new string('$',65536));
+        // Full parse precedes matching, including a missing pattern/start beyond input.
+        Error(()=>Replace("x","(a)",exact+"$$"),"TBX_REGEX_REPLACEMENT_LIMIT");
+        Error(()=>Replace("x","(a)",exact+"$$",0,4),"TBX_REGEX_REPLACEMENT_LIMIT");
+        Check(RegexProvider.RegexCount(SqlString.Null,"(",0,SqlString.Null).IsNull);
+    }
     static void Faults()
     {
         foreach(string p in new[]{"(?<X>a)(?<x>b)","(?<X>a)(?<X>b)","(?<0>a)","(?:a)","(?=a)","(a)\\1","(a)?+","(?<X>a", "(?<"+new string('x',129)+">a)"})
@@ -203,7 +216,7 @@ public static class CaptureContract
     public static int Main(string[] args)
     {
         Exception failure=null;
-        var thread=new Thread(()=>{try {switch(args[0]){case "intake":IntakeContract();break;case "legacy":Legacy();break;case "budget":Budget();break;case "core":Core();break;case "faults":Faults();break;case "history":History();break;case "output":Output();break;case "exhaustive":Exhaustive();break;default:throw new Exception();}} catch(Exception e){failure=e;}},256*1024);
+        var thread=new Thread(()=>{try {switch(args[0]){case "intake":IntakeContract();break;case "legacy":Legacy();break;case "budget":Budget();break;case "core":Core();break;case "faults":Faults();SecurityLimits();break;case "history":History();break;case "output":Output();break;case "exhaustive":Exhaustive();break;default:throw new Exception();}} catch(Exception e){failure=e;}},256*1024);
         thread.Start(); thread.Join();
         if(failure!=null){Console.Error.WriteLine(failure.ToString());return 1;}
         Console.WriteLine("PASS "+args[0]+" "+checks); return 0;

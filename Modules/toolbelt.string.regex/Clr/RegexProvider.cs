@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlTypes;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.SqlServer.Server;
@@ -84,14 +85,14 @@ namespace Toolbelt.String.Regex
                 return new SqlInt32(0);
             }
 
-            DotNetRegex regex = CreateRegex(pattern.Value, flags);
+            R1Traversal traversal = new R1Traversal(pattern.Value, flags);
             try
             {
-                Match match = regex.Match(value, start.Value - 1);
+                Match match = traversal.Search(value, start.Value - 1);
                 int current = 1;
                 while (match.Success && current < occurrence.Value)
                 {
-                    match = match.NextMatch();
+                    match = traversal.Next(value, match);
                     current++;
                 }
                 if (!match.Success)
@@ -135,18 +136,18 @@ namespace Toolbelt.String.Regex
                 return new SqlInt32(0);
             }
 
-            DotNetRegex regex = CreateRegex(pattern.Value, flags);
+            R1Traversal traversal = new R1Traversal(pattern.Value, flags);
             try
             {
                 int count = 0;
-                Match match = regex.Match(value, start.Value - 1);
+                Match match = traversal.Search(value, start.Value - 1);
                 while (match.Success)
                 {
                     checked
                     {
                         count++;
                     }
-                    match = match.NextMatch();
+                    match = traversal.Next(value, match);
                 }
                 return new SqlInt32(count);
             }
@@ -155,6 +156,39 @@ namespace Toolbelt.String.Regex
                 throw Error(
                     "TBX_REGEX_TIMEOUT",
                     "Die feste Ausführungsgrenze von 250 ms wurde überschritten.");
+            }
+        }
+
+        private sealed class R1Traversal
+        {
+            private readonly Stopwatch clock = Stopwatch.StartNew();
+            private DotNetRegex regex;
+            private int timeout = 250, successful;
+            internal R1Traversal(string pattern, SqlString flags)
+            { regex = CreateRegex(pattern, flags); Remaining(); }
+            private int Remaining()
+            {
+                long left = 500 - clock.ElapsedMilliseconds;
+                if (left <= 0) throw Error("TBX_REGEX_TIMEOUT", "Das Gesamtbudget von 500 ms wurde überschritten.");
+                return (int)left;
+            }
+            internal Match Search(string value, int cursor)
+            {
+                while (timeout > Remaining())
+                {
+                    timeout = Math.Max(1, Remaining() / 2);
+                    regex = new DotNetRegex(regex.ToString(), regex.Options, TimeSpan.FromMilliseconds(timeout));
+                }
+                Match match = regex.Match(value, cursor); Remaining();
+                if (match.Success && ++successful > 100000)
+                    throw Error("TBX_REGEX_MATCH_LIMIT", "Höchstens 100000 erfolgreiche Matchschritte sind erlaubt.");
+                return match;
+            }
+            internal Match Next(string value, Match previous)
+            {
+                Remaining();
+                int cursor = previous.Index + previous.Length + (previous.Length == 0 ? 1 : 0);
+                return cursor > value.Length ? Match.Empty : Search(value, cursor);
             }
         }
 

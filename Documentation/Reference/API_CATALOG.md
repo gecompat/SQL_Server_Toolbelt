@@ -2,7 +2,7 @@
 
 <!-- Generiert mit Tests/Documentation/generate_api_catalog.py --write; nicht direkt bearbeiten. -->
 
-159 öffentliche Schnittstellen aus 43 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
+167 öffentliche Schnittstellen aus 43 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
 
 Jedes Beispiel separat verwenden. Funktionen verlangen positionsbezogene Argumente; `DEFAULT` verwendet einen deklarierten Default, `NULL` kann davon abweichen. Prozeduren verwenden benannte Parameter. Vorlagen mit Handlern, Claims, Dateien oder Plan-Hashes erfordern die beschriebenen Voraussetzungen. Eine Syntaxvorlage ist kein Runtime-Nachweis.
 
@@ -60,7 +60,7 @@ Bereitet vollständiges ZIP/Entry-Binary vor und veröffentlicht über WriteBina
 
 Vertrag und Quelle: [USP_ExtractZipEntryToFile.sql](../../Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipEntryToFile.sql), [USP_ExtractZipEntryToFile.md](../../Modules/toolbelt.archive.zip-files/Documentation/USP_ExtractZipEntryToFile.md).
 
-<!-- Source/Vertrag SHA256: 7f5bd962372b2375e53b259ce493c6f07383caffa2a6777451d8f8d4f6b65237 -->
+<!-- Source/Vertrag SHA256: 560ff105cebcdcbdbb84bd366992a42281dd1950c0bdd20ed60243833b0c83a4 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -70,7 +70,7 @@ Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlan
 | `@EntryName` | `nvarchar(1024)` | `NULL` | Input | Exakter ordinaler Entryname; kein abgeleiteter Dateipfad. |
 | `@RootAlias` | `sysname` | `NULL` | Input | Vorhandener freigegebener Filesystem-Root-Alias. |
 | `@RelativePath` | `nvarchar(4000)` | `NULL` | Input | Expliziter relativer Zielpfad; Zielverzeichnis muss bestehen. |
-| `@MaxEntryBytes` | `bigint` | `104857600` | Input | 1 bis 2147483647 unkomprimierte Entrybytes; geerbte Obergrenze, kein Kapazitätsnachweis. |
+| `@MaxEntryBytes` | `bigint` | `16777216` | Input | Default16777216, höchstens67108864 unkomprimierte Entrybytes; deklarierte und tatsächliche Größe vor Ausgabe prüfen. |
 | `@MaxCompressionRatio` | `decimal(9,2)` | `200.00` | Input | Mindestens 1; kanonische deklarierte und tatsächliche Readerprüfung. |
 | `@Overwrite` | `bit` | `0` | Input | Unverändert an WriteBinaryFile; kein Direct-Write-Fallback. |
 | `@ExecutionIdentity` | `varchar(16)` | `'Caller'` | Input | Caller als Default; ServiceAccount nur explizit gewählt. |
@@ -137,13 +137,13 @@ Extrahiert einen einzelnen benannten ZIP-Entry aus einem varbinary(max)-Archiv i
 
 Vertrag und Quelle: [USP_ExtractZipEntryFromBinary.sql](../../Modules/toolbelt.archive.zip-memory/Source/USP_ExtractZipEntryFromBinary.sql), [USP_ExtractZipEntryFromBinary.md](../../Modules/toolbelt.archive.zip-memory/Documentation/USP_ExtractZipEntryFromBinary.md).
 
-<!-- Source/Vertrag SHA256: 21461f883dd7265578df504602ea474bc2e47725683a7f6fc04bdc8fbbff4e37 -->
+<!-- Source/Vertrag SHA256: 0213598844439a2f6098dd2c9137f5f0e3dc75d9105ab363c649d36d5facda91 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
 | `@ZipArchive` | `varbinary(max)` | `NULL` | Input | ZIP-Container als In-memory-BLOB. Das harte Providerlimit beträgt 268435456 Bytes. |
 | `@EntryName` | `nvarchar(1024)` | `NULL` | Input | Exakter Entry-Name. Der CLR-Provider vergleicht ordinal und case-sensitive. |
-| `@MaxEntryBytes` | `bigint` | `104857600` | Input | Obere Grenze für die tatsächlich ausgegebene unkomprimierte Entry-Größe. |
+| `@MaxEntryBytes` | `bigint` | `16777216` | Input | Obere Grenze für die tatsächlich ausgegebene unkomprimierte Entry-Größe. |
 | `@MaxCompressionRatio` | `decimal(9,2)` | `200.00` | Input | Obere Grenze für tatsächliche und deklarierte UncompressedBytes/CompressedBytes. |
 | `@FailIfEncrypted` | `bit` | `1` | Input | 1 lehnt verschlüsselte Entries ab. 0 liefert IsEncrypted=1 und keinen Payload. |
 | `@ResultTable` | `sysname` | `NULL` | Input | Optionale bestehende lokale Temp-Tabelle für den USP-ResultTable-Pfad. |
@@ -311,7 +311,7 @@ Codiert Binärdaten als Base64 oder Base64URL.
 
 Vertrag und Quelle: [TVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql), [TVF_Base64Encode.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Encode.md).
 
-<!-- Source/Vertrag SHA256: b7ad44dc8eaf0077d2f6088ed61e87e57a58f3133fff392492aea25b55c8d3db -->
+<!-- Source/Vertrag SHA256: 5e33aae78b8591a9cc3033662712efe765a0fe1881cb1301d6945d0d33790176 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -332,7 +332,7 @@ Decodiert Base64-Text zu Binärdaten.
 
 Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql), [TVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64Decode.md).
 
-<!-- Source/Vertrag SHA256: 105e96f941befbd7ab2c7c81f9eaf1952c4d2180e6f2cca07f64be5df4e3f30c -->
+<!-- Source/Vertrag SHA256: 84c1ff8683ef434d33dcd58b9c7c8b066d83d56748062a0b9df6c02c80aec09c -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -352,7 +352,7 @@ Codiert Binärdaten als Base64 oder Base64URL.
 
 Vertrag und Quelle: [SVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Encode.sql), [SVF_Base64Encode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Encode.md).
 
-<!-- Source/Vertrag SHA256: 58ea5d032aa1f55fa1c676bef7170d505d652dbebeda58d1a0a9f1182c470d10 -->
+<!-- Source/Vertrag SHA256: 827792b9dde8b8826638489dc9e5d5dbba6d16dbf91ba269558d0e3a94987d72 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -373,7 +373,7 @@ Decodiert Base64-Text zu Binärdaten.
 
 Vertrag und Quelle: [SVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/SVF_Base64Decode.sql), [SVF_Base64Decode.md](../../Modules/toolbelt.conversion.base64/Documentation/SVF_Base64Decode.md).
 
-<!-- Source/Vertrag SHA256: 0af89d9227a7932d41a83fd907514c7cf058886e394c0c36afdc6413ace137e0 -->
+<!-- Source/Vertrag SHA256: c5d94f1866fe1c40fe8f6b244449401e2a19880601e0fec663befc2e4542109b -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -383,6 +383,51 @@ Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag
 
 ```sql
 SELECT toolbelt_conversion.SVF_Base64Decode(N'SGk=') AS ResultValue;
+```
+
+## toolbelt_conversion.TVF_Base64EncodeStatus
+
+Modul `toolbelt.conversion.base64` · Version `1.1.0` · `TVF`
+
+Genau eine Zeile. OK enthält den Wert; LIMIT und SQL_NULL enthalten NULL. Der kanonische MSTVF-Kern prüft vor XML. Die bisherige TVF/SVF delegiert und liefert bei Überschreitung NULL.
+
+Vertrag und Quelle: [TVF_Base64Encode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql), [TVF_Base64EncodeStatus.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64EncodeStatus.md).
+
+<!-- Source/Vertrag SHA256: 6ffbef94eb6fc17850cc665bc5839ef66b2d8d54ddc361a46f43ece7aef0ef95 -->
+
+Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Value` | `varbinary(max)` | `kein Default` | Input | varbinary(max); NULL ergibt SQL_NULL; höchstens 16777216 Bytes vor XML. |
+| `@UrlSafe` | `bit` | `0` | Input | bit=0; 1 erzeugt Base64URL ohne Padding; NULL entspricht 0. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT * FROM toolbelt_conversion.TVF_Base64EncodeStatus(0xCAFE,0);
+```
+
+## toolbelt_conversion.TVF_Base64DecodeStatus
+
+Modul `toolbelt.conversion.base64` · Version `1.1.0` · `TVF`
+
+Genau eine Zeile: OK, SQL_NULL, INVALID oder LIMIT. Rohtextprüfung vor REPLACE, berechnete Ergebnisgröße vor XML. Standard-/URL-Alphabet und definierter Whitespace bleiben. Die bisherige TVF/SVF behält Syntaxfehler unterhalb der Grenzen und liefert bei LIMIT NULL.
+
+Vertrag und Quelle: [TVF_Base64Decode.sql](../../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql), [TVF_Base64DecodeStatus.md](../../Modules/toolbelt.conversion.base64/Documentation/TVF_Base64DecodeStatus.md).
+
+<!-- Source/Vertrag SHA256: 88dfdb95dce6901397711b0879966d1ee18e2c7af6c9830b163becf7be909cfb -->
+
+Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Value` | `varchar(max)` | `kein Default` | Input | varchar(max); höchstens 25165824 Rohtextbytes einschließlich Whitespace und 16777216 Ergebnisbytes. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT * FROM toolbelt_conversion.TVF_Base64DecodeStatus('YWJj');
 ```
 
 ## toolbelt_conversion.TVF_IntegerToBase
@@ -615,7 +660,7 @@ Codiert eine URI-Komponente mit UTF-8 und Prozent-Escapes nach RFC 3986.
 
 Vertrag und Quelle: [TVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql), [TVF_UriComponentEncode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentEncode.md).
 
-<!-- Source/Vertrag SHA256: b6e61dddac332225683b49bf50f888bac823c7925324fa66e3773bb72865a5eb -->
+<!-- Source/Vertrag SHA256: 8aa366a0e6efe6c58219eafd18e0e3563c91f2366b1c2a854dfd88b1b39bc11c -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -635,7 +680,7 @@ Decodiert eine Runde von Prozent-Escapes und prüft die UTF-8-Sequenz.
 
 Vertrag und Quelle: [TVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql), [TVF_UriComponentDecode.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentDecode.md).
 
-<!-- Source/Vertrag SHA256: f4be51eff557a0ea6613d716fcf50e6c9918832335b0eb1ac0c1cd6c0a5d0bb8 -->
+<!-- Source/Vertrag SHA256: dd357ff5aa8a992436f4c1e163f20c06a7f43dce76f3f42ae91b09580695fd5c -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -687,6 +732,50 @@ Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag
 SELECT toolbelt_conversion.SVF_UriComponentDecode(N'a%20b%2F%C3%A4') AS ResultValue;
 ```
 
+## toolbelt_conversion.TVF_UriComponentEncodeStatus
+
+Modul `toolbelt.conversion.uri-component` · Version `1.0.0` · `TVF`
+
+Genau eine Zeile: OK, SQL_NULL oder LIMIT. Eingang vor UTF-8-Konvertierung/Series prüfen. Aus höchstens 32768 Codeeinheiten entstehen selbst bei drei UTF-8-Bytes und drei Escapezeichen je Byte höchstens 589824 UTF-16-Ausgabebytes; die 1-MiB-Grenze ist damit schon vor Aggregation abgesichert. Altfassaden liefern bei LIMIT NULL.
+
+Vertrag und Quelle: [TVF_UriComponentEncode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql), [TVF_UriComponentEncodeStatus.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentEncodeStatus.md).
+
+<!-- Source/Vertrag SHA256: ae29d1dc3b402716fc81dcce847dcea630c343104fd224b03b97405eb77466ab -->
+
+Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Value` | `nvarchar(max)` | `kein Default` | Input | nvarchar(max); höchstens 65536 UTF-16-Bytes. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT * FROM toolbelt_conversion.TVF_UriComponentEncodeStatus(N'Contoso €');
+```
+
+## toolbelt_conversion.TVF_UriComponentDecodeStatus
+
+Modul `toolbelt.conversion.uri-component` · Version `1.0.0` · `TVF`
+
+Genau eine Zeile: OK, SQL_NULL, INVALID oder LIMIT. Strikte UTF-8-/Percent-/NUL-Regeln bleiben; bei LIMIT IsValid=0, ValidationCode=14, Wert NULL. Die Ausgabe ist durch den vor Series geprüften Eingang unter 1 MiB begrenzt. Altfassaden behalten ihre Spalten und liefern bei LIMIT NULL.
+
+Vertrag und Quelle: [TVF_UriComponentDecode.sql](../../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql), [TVF_UriComponentDecodeStatus.md](../../Modules/toolbelt.conversion.uri-component/Documentation/TVF_UriComponentDecodeStatus.md).
+
+<!-- Source/Vertrag SHA256: 1c2bbf431234cd6468d5e167c6c46afd91c74bb26e6f9aca25e96af4eca39971 -->
+
+Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Value` | `nvarchar(max)` | `kein Default` | Input | nvarchar(max); höchstens 65536 UTF-16-Bytes. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT * FROM toolbelt_conversion.TVF_UriComponentDecodeStatus(N'%E2%82%AC');
+```
+
 ## toolbelt_core.USP_WriteConsoleMessage
 
 Modul `toolbelt.core.console-message` · Version `1.0.0` · `USP`
@@ -695,7 +784,7 @@ Gibt einen langen Unicode-Text vollständig im Messages-Kanal aus. Gepufferte Au
 
 Vertrag und Quelle: [USP_WriteConsoleMessage.sql](../../Modules/toolbelt.core.console-message/Source/USP_WriteConsoleMessage.sql), [USP_WriteConsoleMessage.md](../../Modules/toolbelt.core.console-message/Documentation/USP_WriteConsoleMessage.md).
 
-<!-- Source/Vertrag SHA256: b1beac06a353d8f550fcb74dcf5abe51df7faca9ac7c8ae3dc63f946d51a194e -->
+<!-- Source/Vertrag SHA256: 9832923109a81d8111903588323ebcc8d47d4eef037d1878c80354c1b9a31744 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -874,6 +963,39 @@ Hilfe:
 EXEC toolbelt_core.USP_DeleteEventsBefore @Hilfe=1;
 ```
 
+## toolbelt_core.USP_DeleteRecordedEventsBefore
+
+Modul `toolbelt.core.event-log` · Version `1.0.0` · `USP`
+
+Nur ausdrücklich aufgerufene Retention nach RecordedAtUtc mit Index (RecordedAtUtc,EventId), deterministischen begrenzten Batches und bestehender Caller-Transaktions-/Savepointsemantik. Kein Job, keine Deploymentlöschung. Die OccurredAtUtc-Retention bleibt unverändert. Erfordert vorhandenes EXECUTE; erteilt keine Berechtigungen. Fehler 51710–51714 wie im bestehenden Retentionvertrag.
+
+Vertrag und Quelle: [USP_DeleteRecordedEventsBefore.sql](../../Modules/toolbelt.core.event-log/Source/USP_DeleteRecordedEventsBefore.sql), [USP_DeleteRecordedEventsBefore.md](../../Modules/toolbelt.core.event-log/Documentation/USP_DeleteRecordedEventsBefore.md).
+
+<!-- Source/Vertrag SHA256: 8cf4fe9860ef3cd440de2e0ed0bc3421dfdf8f1c1df5f898319b50ef4a19e8f8 -->
+
+Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@BeforeRecordedAtUtc` | `datetime2(7)` | `NULL` | Input | datetime2(7), erforderlich; exklusiver Cutoff für serverseitiges RecordedAtUtc. |
+| `@BatchSize` | `int` | `1000` | Input | int=1000; 1 bis 10000. |
+| `@MaxBatches` | `int` | `1` | Input | int=1; 1 bis 100. |
+| `@DeletedRows` | `bigint` | `NULL` | OUTPUT | bigint OUTPUT=NULL; initial 0, Anzahl dieses Aufrufs. |
+| `@Debug` | `tinyint` | `0` | Input | tinyint=0; feste Fortschrittsmeldung ohne Eventinhalt. |
+| `@Hilfe` | `bit` | `0` | Input | bit=0; 1 liefert ausschließlich Hilfe. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+DECLARE @n bigint; EXEC toolbelt_core.USP_DeleteRecordedEventsBefore @BeforeRecordedAtUtc='2026-01-01',@BatchSize=1000,@MaxBatches=1,@DeletedRows=@n OUTPUT;
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_core.USP_DeleteRecordedEventsBefore @Hilfe=1;
+```
+
 ## toolbelt_core.TVF_ExecutionCancellationStatus
 
 Modul `toolbelt.core.execution-cancel` · Version `1.0.0` · `TVF`
@@ -922,7 +1044,7 @@ Persistiert eine irreversible kooperative Cancellation-Anforderung. Die Procedur
 
 Vertrag und Quelle: [USP_RequestExecutionCancellation.sql](../../Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql), [EXECUTION_CANCELLATION_OBJECTS.md](../../Modules/toolbelt.core.execution-cancel/Documentation/EXECUTION_CANCELLATION_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: fa634ad65277a055b80e9735b38bffeb19412f8a7719183bc390a2e44649f0da -->
+<!-- Source/Vertrag SHA256: 736e1607b75c1903d8b18d64d7a76ecf3047a163de46f1576f754e48f60d097a -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1089,7 +1211,7 @@ Erzeugt eine Folge von bigint-Werten einschließlich erreichbarem Endwert.
 
 Vertrag und Quelle: [TVF_GenerateSeriesBigInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql), [TVF_GenerateSeriesBigInt.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesBigInt.md).
 
-<!-- Source/Vertrag SHA256: a2db9843c8603a9152bb4b9ec693d03e4a5ec0581aae3a8cb5a181476c696456 -->
+<!-- Source/Vertrag SHA256: f6c75b56e569d86a0f29074253c83a05dadefd86788fd67683b58dffcb40a98b -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1123,6 +1245,30 @@ Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag
 
 ```sql
 SELECT * FROM toolbelt_core.TVF_GenerateSeriesInt(1, 5, 1);
+```
+
+## toolbelt_core.TVF_GenerateSeriesBigIntStatus
+
+Modul `toolbelt.core.generate-series` · Version `1.0.0` · `TVF`
+
+Vor Expansion exakte Anzahl mit decimal(38,0) und Restrechnung bestimmen. Höchstens 1000000 OK-Zeilen. LIMIT, INVALID, SQL_NULL oder EMPTY liefern eine Kontrollzeile ohne Value. RequestedRows unterscheidet leere und zu große Reihen. Keine garantierte Reihenfolge. Die mathematischen Alt-APIs bleiben unverändert und benötigen vertrauenswürdige Direktgrants. Untrusted Legacygrants werden nicht automatisch entzogen; SC-018 bleibt in einer solchen Installation offen.
+
+Vertrag und Quelle: [TVF_GenerateSeriesBigInt.sql](../../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql), [TVF_GenerateSeriesBigIntStatus.md](../../Modules/toolbelt.core.generate-series/Documentation/TVF_GenerateSeriesBigIntStatus.md).
+
+<!-- Source/Vertrag SHA256: 352e5c43746cfb9ab1b13635e37feee6087998ddf02d450f3f88fc0fd171c4f6 -->
+
+Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Start` | `bigint` | `kein Default` | Input | bigint; inklusiver Start. |
+| `@Stop` | `bigint` | `kein Default` | Input | bigint; inklusives Ende bei erreichbarem Schritt. |
+| `@Step` | `bigint` | `NULL` | Input | bigint=NULL; Richtung automatisch; 0 ergibt INVALID. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT * FROM toolbelt_core.TVF_GenerateSeriesBigIntStatus(1,5,DEFAULT);
 ```
 
 ## toolbelt_core.USP_PrepareResultTable
@@ -2658,7 +2804,7 @@ Liest eine Textdatei als nvarchar(max) über OPENROWSET(BULK...). Erkennt BOM un
 
 Vertrag und Quelle: [USP_LoadTextFile.sql](../../Modules/toolbelt.file.content/Source/USP_LoadTextFile.sql), [USP_LoadTextFile.md](../../Modules/toolbelt.file.content/Documentation/USP_LoadTextFile.md).
 
-<!-- Source/Vertrag SHA256: 15c04ebe9f3afa17c93dcdb0aeb66d14b919e6f26290f446ea789d6861d8ddbb -->
+<!-- Source/Vertrag SHA256: 61efbc6fa936fba286a5887d1b5ce51f2900fd6badf4a5b241f4ce74b4817ddc -->
 
 Voraussetzung: Vorhandene Datei unter einem konfigurierten Allowlist-Root und passende SQL-/Dateirechte.
 
@@ -3491,7 +3637,7 @@ Prüft, ob ein unterstützter Pfad in einem JSON-Dokument existiert.
 
 Vertrag und Quelle: [TVF_JsonPathExists.sql](../../Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql), [TVF_JsonPathExists.md](../../Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExists.md).
 
-<!-- Source/Vertrag SHA256: 23151b299e705b82055cdf1fd0ca4ce8cf76bd4a5db5744bed7cae4b8f3a59a0 -->
+<!-- Source/Vertrag SHA256: f99996d40641d684a2faafc6fe0bc754c9911dfe288459d14531d37c0671704f -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -3504,6 +3650,29 @@ Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag
 SELECT * FROM toolbelt_json.TVF_JsonPathExists(N'{"items":[1,2]}', N'$.items[0]');
 ```
 
+## toolbelt_json.TVF_JsonPathExistsStatus
+
+Modul `toolbelt.json.path-exists` · Version `1.0.0` · `TVF`
+
+Genau eine Zeile: FOUND/1, MISSING/0, INVALID/0, SQL_NULL/NULL oder LIMIT/NULL. Höchstens 10000 Frontierwerte; maximal 10001 werden zur Überschreitungsfeststellung aufgenommen. Vor jedem OPENJSON werden die vorgesehenen Inputbytes gegen das kumulative 64-MiB-Budget gebucht. Containerroots werden ohne zusätzliche Wrapper-Ebene validiert. Die bisherige TVF liefert bei LIMIT NULL; kein falsches MISSING.
+
+Vertrag und Quelle: [TVF_JsonPathExists.sql](../../Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql), [TVF_JsonPathExistsStatus.md](../../Modules/toolbelt.json.path-exists/Documentation/TVF_JsonPathExistsStatus.md).
+
+<!-- Source/Vertrag SHA256: 9bd75eb14c494fd637ec22cb4d242d1fe7020338950d9e3fc292747404c565c3 -->
+
+Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Json` | `nvarchar(max)` | `kein Default` | Input | nvarchar(max); höchstens 16 MiB UTF-16, vor nativer Validierung lexikalische Containertiefe höchstens 128. |
+| `@Path` | `nvarchar(max)` | `kein Default` | Input | nvarchar(max); bestehender 4000-Codeeinheitenvertrag und höchstens 128 Segmente. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT * FROM toolbelt_json.TVF_JsonPathExistsStatus(N'{"a":null}',N'$.a');
+```
+
 ## toolbelt_json.TVF_ResolveJsonPointer
 
 Modul `toolbelt.json.pointer` · Version `1.0.0` · `TVF`
@@ -3512,7 +3681,7 @@ Löst einen RFC6901-Pointer mit exakten Keys und unterscheidet FOUND, MISSING, J
 
 Vertrag und Quelle: [TVF_ResolveJsonPointer.sql](../../Modules/toolbelt.json.pointer/Source/TVF_ResolveJsonPointer.sql), [TVF_ResolveJsonPointer.md](../../Modules/toolbelt.json.pointer/Documentation/TVF_ResolveJsonPointer.md).
 
-<!-- Source/Vertrag SHA256: dc6bfe78505445e34f91de6e5442be801a73a764af76f7c39419f9d31199a022 -->
+<!-- Source/Vertrag SHA256: c12f84343ee9e6e8064bbb961e9e31077923a94079f0f952ab811f5cf6bc7260 -->
 
 Voraussetzung: Vorhandenes SELECT; SQL Server2019+ und CL150+ auch beim zentralen Caller; lesende MSTVF ohne CLR. Freigegebener struktureller128er-Guard: darüber DEPTH_LIMIT vor JSON_SYNTAX; kein Release.
 
@@ -4167,7 +4336,7 @@ Prüft, ob ein regulärer Ausdruck im Text trifft.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [REGEX_FUNCTIONS.md](../../Modules/toolbelt.string.regex/Documentation/REGEX_FUNCTIONS.md).
 
-<!-- Source/Vertrag SHA256: 4d7df74a97f6b25c830a054b73c5d8299b9201656e813f25cd45143bfbf447c4 -->
+<!-- Source/Vertrag SHA256: 342d5b9c0cbc51d86fb178975a88f347666721e9ba8abcf11116870055ed17e7 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4189,7 +4358,7 @@ Liefert eine UTF-16-Position eines ausgewählten Regex-Treffers.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [REGEX_FUNCTIONS.md](../../Modules/toolbelt.string.regex/Documentation/REGEX_FUNCTIONS.md).
 
-<!-- Source/Vertrag SHA256: 4d7df74a97f6b25c830a054b73c5d8299b9201656e813f25cd45143bfbf447c4 -->
+<!-- Source/Vertrag SHA256: 342d5b9c0cbc51d86fb178975a88f347666721e9ba8abcf11116870055ed17e7 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4214,7 +4383,7 @@ Zählt Regex-Treffer ab der angegebenen Startposition.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [REGEX_FUNCTIONS.md](../../Modules/toolbelt.string.regex/Documentation/REGEX_FUNCTIONS.md).
 
-<!-- Source/Vertrag SHA256: 4d7df74a97f6b25c830a054b73c5d8299b9201656e813f25cd45143bfbf447c4 -->
+<!-- Source/Vertrag SHA256: 342d5b9c0cbc51d86fb178975a88f347666721e9ba8abcf11116870055ed17e7 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4312,7 +4481,7 @@ Entfernt ein unterstütztes äußeres Quote-Paar und decodiert dessen Escapes.
 
 Vertrag und Quelle: [TVF_UnquoteToken.sql](../../Modules/toolbelt.string.split-advanced/Source/TVF_UnquoteToken.sql), [TVF_UnquoteToken.md](../../Modules/toolbelt.string.split-advanced/Documentation/TVF_UnquoteToken.md).
 
-<!-- Source/Vertrag SHA256: 0b689f04f6ce42ddf852a918f49932aad7d13a93496966c44581e2edba41a136 -->
+<!-- Source/Vertrag SHA256: cca183a3114ad30aab61e448e228d95cdfbf45befcd2c4a008ccb8203e4c9343 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4375,7 +4544,7 @@ Zerlegt einen Text an jedem Zeichen der angegebenen Separatormenge.
 
 Vertrag und Quelle: [TVF_SplitByCharacters.sql](../../Modules/toolbelt.string.split-characters/Source/TVF_SplitByCharacters.sql), [TVF_SplitByCharacters.md](../../Modules/toolbelt.string.split-characters/Documentation/TVF_SplitByCharacters.md).
 
-<!-- Source/Vertrag SHA256: 8f496e5e182b3c0be7de4671a0515d5250a9988aa37b956cb7b65b87851e2ee3 -->
+<!-- Source/Vertrag SHA256: 846e2afd0581af071888183dd81160496b1f75c70438b6ded95810f8ee2a528d -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4387,6 +4556,30 @@ Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag
 
 ```sql
 SELECT * FROM toolbelt_string.TVF_SplitByCharacters(N'a,b;;c', N',;', 1);
+```
+
+## toolbelt_string.TVF_SplitByCharactersStatus
+
+Modul `toolbelt.string.split-characters` · Version `1.0.0` · `TVF`
+
+Erst vollständige Spanprüfung, danach höchstens 10000 OK-Tokenzeilen. LIMIT, INVALID, SQL_NULL und EMPTY liefern genau eine Kontrollzeile ohne Value/Ordinal. Keine Tokenpräfixe. Die bisherige TVF filtert ausschließlich OK; bei Grenzüberschreitung liefert sie keine Zeilen. Positionen und Separatorvergleich zählen BIN2-Codeeinheiten.
+
+Vertrag und Quelle: [TVF_SplitByCharacters.sql](../../Modules/toolbelt.string.split-characters/Source/TVF_SplitByCharacters.sql), [TVF_SplitByCharactersStatus.md](../../Modules/toolbelt.string.split-characters/Documentation/TVF_SplitByCharactersStatus.md).
+
+<!-- Source/Vertrag SHA256: f402d47643f3bf55eae83bed8552f289a38bf3d913a0553f0f667d7ad68c2faa -->
+
+Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@Input` | `nvarchar(max)` | `kein Default` | Input | nvarchar(max); höchstens 65536 UTF-16-Bytes. |
+| `@Separators` | `nvarchar(4000)` | `kein Default` | Input | nvarchar(4000); höchstens 64 unterschiedliche UTF-16-Codeeinheiten; Duplikate zählen einmal; NUL ist ungültig. |
+| `@KeepEmpty` | `bit` | `1` | Input | bit=1; NULL entspricht 1; 0 verwirft leere Tokens. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+SELECT * FROM toolbelt_string.TVF_SplitByCharactersStatus(N'a,b',N',',1) ORDER BY Ordinal;
 ```
 
 ## toolbelt_string.USP_CompareTextPairs

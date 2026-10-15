@@ -46,7 +46,9 @@ VALUES
     , (N'1.1.0', N'toolbelt_conversion', N'TVF_Base64Encode', 'IF')
     , (N'1.1.0', N'toolbelt_conversion', N'TVF_Base64Decode', 'IF')
     , (N'1.1.0', N'toolbelt_conversion', N'SVF_Base64Encode', 'FN')
-    , (N'1.1.0', N'toolbelt_conversion', N'SVF_Base64Decode', 'FN');
+    , (N'1.1.0', N'toolbelt_conversion', N'SVF_Base64Decode', 'FN')
+    , (N'1.1.0', N'toolbelt_conversion', N'TVF_Base64EncodeStatus', 'TF')
+    , (N'1.1.0', N'toolbelt_conversion', N'TVF_Base64DecodeStatus', 'TF');
 
 CREATE TABLE #tbx_Base64DeployState
 (
@@ -179,7 +181,9 @@ VALUES
 );
 
 BEGIN TRY
-    BEGIN TRANSACTION;
+    IF OBJECT_ID(N'toolbelt_conversion.TVF_Base64EncodeStatus') IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_conversion.TVF_Base64EncodeStatus') AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(256),value)=N'toolbelt.conversion.base64') THROW 51044,N'Neuer Security-Zielname ist frameworkfremd belegt.',1;
+IF OBJECT_ID(N'toolbelt_conversion.TVF_Base64DecodeStatus') IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_conversion.TVF_Base64DecodeStatus') AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(256),value)=N'toolbelt.conversion.base64') THROW 51044,N'Neuer Security-Zielname ist frameworkfremd belegt.',1;
+BEGIN TRANSACTION;
 
     EXEC @LockResult = sys.sp_getapplock
           @Resource    = N'toolbelt.deploy.toolbelt.conversion.base64'
@@ -372,7 +376,7 @@ BEGIN TRY
           (N'TVF_Base64Encode')
         , (N'TVF_Base64Decode')
         , (N'SVF_Base64Encode')
-        , (N'SVF_Base64Decode');
+        , (N'SVF_Base64Decode'), (N'TVF_Base64EncodeStatus'), (N'TVF_Base64DecodeStatus');
 
     DECLARE
           @ObjectOrdinal int = 1

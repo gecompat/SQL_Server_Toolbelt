@@ -210,34 +210,50 @@ namespace Toolbelt.String.Regex
             value = capture.Matched ? new SqlString(capture.Value) : SqlString.Null;
         }
 
-        private sealed class ReplacementPart
+        private struct ReplacementPart
         {
-            internal string Literal;
+            internal int Start, Length;
             internal CaptureDeclaration Group;
         }
         private static InvalidOperationException InvalidReplacement()
         { return Error("TBX_REGEX_INVALID_REPLACEMENT", "Replacement ist ungültig oder verweist auf eine unbekannte Gruppe."); }
-
-        private static List<ReplacementPart> ParseReplacement(string text, CapturePlan plan)
+        private static void AddReplacementPart(List<ReplacementPart> parts, int start, int length, CaptureDeclaration group, TransformationContext context)
+        {
+            context.Remaining();
+            if (parts.Count >= 65536) throw Error("TBX_REGEX_REPLACEMENT_LIMIT", "Replacement darf höchstens 65536 Teile enthalten.");
+            parts.Add(new ReplacementPart { Start = start, Length = length, Group = group });
+        }
+        private static List<ReplacementPart> ParseReplacement(string text, CapturePlan plan, TransformationContext context)
         {
             var result = new List<ReplacementPart>();
-            var literal = new StringBuilder();
-            for (int index = 0; index < text.Length; index++)
+            int literalStart = 0, index = 0;
+            while (index < text.Length)
             {
-                if (text[index] != '$') { literal.Append(text[index]); continue; }
+                context.Remaining();
+                // Unveränderte Literale als Span überspringen. Die begrenzte
+                // native Suche wird vor und nach dem Scan auf die gemeinsame
+                // Deadline geprüft, ohne einen Clock-Aufruf je Codeeinheit.
+                int dollar = text.IndexOf('$', index);
+                context.Remaining();
+                if (dollar < 0) break;
+                index = dollar;
+                if (index > literalStart) AddReplacementPart(result, literalStart, index - literalStart, null, context);
                 if (++index >= text.Length) throw InvalidReplacement();
-                if (text[index] == '$') { literal.Append('$'); continue; }
+                if (text[index] == '$')
+                {
+                    AddReplacementPart(result, index, 1, null, context);
+                    literalStart = ++index; continue;
+                }
                 CaptureDeclaration group = null;
                 if (text[index] >= '1' && text[index] <= '9')
                 {
                     int ordinal = 0;
                     do {
+                        context.Remaining();
                         int digit = text[index] - '0';
                         if (ordinal > (int.MaxValue - digit) / 10) throw InvalidReplacement();
-                        ordinal = ordinal * 10 + digit;
-                        index++;
+                        ordinal = ordinal * 10 + digit; index++;
                     } while (index < text.Length && text[index] >= '0' && text[index] <= '9');
-                    index--;
                     if (ordinal > plan.Groups.Count) throw InvalidReplacement();
                     group = plan.Groups[ordinal - 1];
                 }
@@ -245,19 +261,19 @@ namespace Toolbelt.String.Regex
                 {
                     int begin = ++index;
                     if (index >= text.Length || !NameStart(text[index])) throw InvalidReplacement();
-                    while (index < text.Length && NamePart(text[index])) index++;
-                    if (index >= text.Length || text[index] != '}' || index - begin > 128) throw InvalidReplacement();
-                    string name = text.Substring(begin, index - begin);
+                    while (index < text.Length && NamePart(text[index]))
+                    { context.Remaining(); if (index - begin >= 128) throw InvalidReplacement(); index++; }
+                    if (index >= text.Length || text[index] != '}') throw InvalidReplacement();
+                    string name = text.Substring(begin, index - begin); index++;
                     foreach (CaptureDeclaration declaration in plan.Groups)
-                        if (declaration.Named && declaration.Name == name) { group = declaration; break; }
+                    { context.Remaining(); if (declaration.Named && declaration.Name == name) { group = declaration; break; } }
                     if (group == null) throw InvalidReplacement();
                 }
                 else throw InvalidReplacement();
-                if (literal.Length > 0) { result.Add(new ReplacementPart { Literal = literal.ToString() }); literal.Clear(); }
-                result.Add(new ReplacementPart { Group = group });
+                AddReplacementPart(result, 0, 0, group, context); literalStart = index;
             }
-            if (literal.Length > 0) result.Add(new ReplacementPart { Literal = literal.ToString() });
-            return result;
+            if (text.Length > literalStart) AddReplacementPart(result, literalStart, text.Length - literalStart, null, context);
+            context.Remaining(); return result;
         }
 
         public static SqlString RegexReplaceGroups(SqlString input, SqlString pattern, SqlString replacement,
@@ -278,7 +294,7 @@ namespace Toolbelt.String.Regex
             context.CheckSize(value, "TBX_REGEX_INPUT_TOO_LARGE");
             context.CheckSize(replacement.Value, "TBX_REGEX_REPLACEMENT_TOO_LARGE");
             CapturePlan plan = context.InitializeCaptures(pattern.Value, value.Length);
-            List<ReplacementPart> parts = ParseReplacement(replacement.Value, plan);
+            List<ReplacementPart> parts = ParseReplacement(replacement.Value, plan, context);
             context.Remaining();
             int cursor = start.Value - 1;
             if (cursor > value.Length) return input;
@@ -294,7 +310,7 @@ namespace Toolbelt.String.Regex
                     context.Append(output, value, copied, match.Index - copied);
                     foreach (ReplacementPart part in parts)
                     {
-                        if (part.Group == null) context.Append(output, part.Literal, 0, part.Literal.Length);
+                        if (part.Group == null) context.Append(output, replacement.Value, part.Start, part.Length);
                         else
                         {
                             Group group = match.Groups[part.Group.EngineName];

@@ -151,6 +151,9 @@ BEGIN
     IF @Message IS NULL OR DATALENGTH(@Message) = 0
         RETURN 0;
 
+    IF DATALENGTH(@Message)>1048576
+        THROW 52801,N'Console-Nachrichten dürfen höchstens 1 MiB UTF-16 umfassen.',1;
+
     DECLARE
           @Position      bigint = 1
         , @CodeUnitCount bigint
@@ -167,6 +170,11 @@ BEGIN
     SET @CodeUnitCount =
         LEN((@Message + NCHAR(1)) COLLATE Latin1_General_100_BIN2) - 1;
     SET @ChunkSize = CASE WHEN @Immediate = 1 THEN 2000 ELSE 4000 END;
+
+    -- Höchstens ein Surrogate-Paar verschiebt eine Chunkgrenze um eine Einheit.
+    -- Diese obere Framezahl wird vor der ersten Ausgabe geprüft.
+    IF (@CodeUnitCount+@ChunkSize-2)/(@ChunkSize-1)>512
+        THROW 52802,N'Console-Nachrichten dürfen höchstens 512 Frames erzeugen.',1;
 
     WHILE @Position <= @CodeUnitCount
     BEGIN

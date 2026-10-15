@@ -110,7 +110,7 @@
     {
       "name": "@MaxEntryBytes",
       "type": "bigint",
-      "default": "104857600"
+      "default": "16777216"
     },
     {
       "name": "@MaxCompressionRatio",

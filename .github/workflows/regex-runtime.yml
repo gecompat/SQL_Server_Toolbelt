@@ -3,6 +3,7 @@ name: Regex CLR Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/Set-SqlClientTlsPolicy.ps1"
       - "Modules/toolbelt.string.regex/Clr/**"
       - "Modules/toolbelt.string.regex/Source/**"
       - "Modules/toolbelt.string.regex/Deployment/**"
@@ -16,6 +17,7 @@ on:
   push:
     branches: [main]
     paths:
+      - "Tests/CI/Set-SqlClientTlsPolicy.ps1"
       - "Modules/toolbelt.string.regex/Clr/**"
       - "Modules/toolbelt.string.regex/Source/**"
       - "Modules/toolbelt.string.regex/Deployment/**"

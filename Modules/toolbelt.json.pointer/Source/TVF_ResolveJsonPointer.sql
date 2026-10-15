@@ -63,6 +63,7 @@ BEGIN
         RETURN;
     END;
 
+    DECLARE @ParserWorkBytes bigint=0;
     DECLARE @PointerUnits int=CONVERT(int,DATALENGTH(@Pointer)/2),
             @JsonUnits int=CONVERT(int,DATALENGTH(@Json)/2),
             @Position int=1,@Unit int,@NextUnit int,@PendingHigh bit=0,
@@ -176,6 +177,11 @@ BEGIN
             RETURN;
         END;
         SET @SafeJson=@Wrapper;
+        IF DATALENGTH(@SafeJson)>67108864-@ParserWorkBytes
+        BEGIN
+            INSERT @Result VALUES('INVALID',NULL,NULL,'WORK_LIMIT'); RETURN;
+        END;
+        SET @ParserWorkBytes+=DATALENGTH(@SafeJson);
         SELECT @RootCount=COUNT_BIG(*),@Current=MAX([value]),@CurrentType=MAX([type])
         FROM OPENJSON(@SafeJson);
         IF @RootCount<>1
@@ -341,6 +347,11 @@ BEGIN
         IF @CurrentType IN(4,5)
         BEGIN
             SET @SafeJson=@Current;
+            IF DATALENGTH(@SafeJson)>67108864-@ParserWorkBytes
+            BEGIN
+                INSERT @Result VALUES('INVALID',NULL,NULL,'WORK_LIMIT'); RETURN;
+            END;
+            SET @ParserWorkBytes+=DATALENGTH(@SafeJson);
             SELECT @Matches=COUNT_BIG(*),@NextValue=MAX([value]),@NextType=MAX([type])
             FROM OPENJSON(@SafeJson)
             WHERE [key] COLLATE Latin1_General_100_BIN2=@Token COLLATE Latin1_General_100_BIN2

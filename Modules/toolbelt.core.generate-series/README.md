@@ -113,3 +113,9 @@ Very-large-series-Performance-Evidenz bleibt der Modulstatus
 - Scope: Physische SQL-Server-2025-Ziele unter Windows und Linux; vollständiger Moduladapter einschließlich explizit aktivierter synthetischer 10-Millionen-Performance-Workload ohne persistierte Basis
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Freigegebene Security-Härtung 2026-10-15
+
+SC-018: TVF_GenerateSeriesBigIntStatus berechnet die angeforderte Zeilenzahl exakt vor Expansion und begrenzt auf1000000 Zeilen. Alt-APIs bleiben mathematisch unverändert und nur für vertrauenswürdige Direktgrants vorgesehen. Bestehende untrusted Legacygrants werden nicht automatisch widerrufen; in solchen Installationen bleibt der Befund offen.
+
+Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).

@@ -137,3 +137,9 @@ exaktem SHA2-512 autorisiertem Releaseartefakt.
 - Scope: Release 1.4.0: finaler identischer Linux-2019-/Windows-2025-CU8-Adapter nach EOF-Pflege; echte ZIP-1.3-Assemblyhash-Upgradefixture, bestehender Writer-SQL-Vertrag, SAFE local/central und nichtdoomende ZIP-Deploy/Uninstall-Callerablehnung OFF/ON. Unabhängige Framework-Writerregression erneut erfolgreich; übrige Kapazitäts-/Plattformmatrix offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Freigegebene Security-Härtung 2026-10-15
+
+SC-004: Entryextraktion verwendet standardmäßig 16777216 Bytes (16 MiB), höchstens 67108864 Bytes (64 MiB). Deklarierte und tatsächlich gelesene Größe werden geprüft. Ein exakt dimensionierter finaler Entrybuffer ersetzt wachsenden MemoryStream und ToArray-Abschlusskopie. Archiv-/Compressed-/Ratio-/CRC-Grenzen bleiben bestehen. Die technische ArchiveSession teilt die feste Entryobergrenze.
+
+Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).

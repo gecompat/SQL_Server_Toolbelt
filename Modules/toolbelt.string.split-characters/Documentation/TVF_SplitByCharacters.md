@@ -94,3 +94,7 @@ Speicherressourcen beanspruchen.
 - Graphemcluster als Separatoratom.
 
 Diese Erweiterungen bleiben in `TC-2026-032` als eigener Vertrag.
+
+## Aktueller Sicherheitsvertrag
+
+SC-020: Neuer Statuskern prüft64 KiB UTF-16-Input,64 unterschiedliche Separatorcodeeinheiten und10000 Tokens vor Ausgabe. Duplikate zählen einmal. LIMIT enthält keine Tokenpräfixe. Alte TVF filtert OK und liefert bei Überschreitung keine Zeilen. EMPTY/SQL_NULL/INVALID haben eigene Kontrollzeilen im Statuskern; keine uneingeschränkte Inline-/Parallelitätszusage.

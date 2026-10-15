@@ -48,8 +48,8 @@ Queryfragment `Source/FileContentRootPredicate.sql` ein.
 - Pfad muss absolut sein; UNC-Pfade sind erlaubt.
 - Pfad muss unter einem Eintrag der Root-Allowlist liegen.
 - Binärer Inhalt wird 1:1 als `varbinary(max)` zurückgegeben.
-- Text wird nach BOM-Heuristik decodiert; unterstützt UTF-8, UTF-16 LE/BE,
-  UTF-32 LE/BE; Fallback ist `Windows-1252` als 8-Bit-Codepage.
+- Text wird aus einem Byte-Snapshot nach BOM decodiert: UTF-8 und UTF-16 LE;
+  UTF-16 BE und UTF-32 werden abgewiesen. Ohne BOM gilt `Windows-1252`.
 - Fehler werden als standardisiertes Resultset mit `IsValid = 0` und
   `ValidationCode` zurückgegeben, soweit fachlich klassifizierbar.
 
@@ -73,3 +73,9 @@ Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/3069226735
 - Scope: Commit 8effcee91106cb4b8924c7a839928d550c0653b6: befüllter 1.0.0-Repeat zweimal lokal und zentral, SQL Server 2019/150, 2022/160 und 2025/170 Linux; exakte Zeilen/Identity/Katalog/Annotationen und Uninstall; vorhandene Permissions nur beobachtet, keine Benutzergrants erzeugt; bestehende Datei-I/O-Suite anschließend erfolgreich; Windows/weitere Repeat-CLs/Minimalrechte/historische Migrationen offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Freigegebene Security-Härtung 2026-10-15
+
+SC-040: USP_LoadTextFile verwendet genau einen SINGLE_BLOB-Snapshot. Bytezahl, BOM und Inhalt stammen aus derselben Aufnahme. UTF-8/UTF-16-LE-BOM wird vor Dekodierung entfernt; UTF-8 wird mit expliziter UTF8-Collation und binärem Roundtrip geprüft, UTF-16-LE verlangt gerade Bytezahl. Windows-1252 wird mit expliziter 1252-Collation auch auf Linux dekodiert. UTF-16-BE/UTF-32 bleiben ausgeschlossen. MaxBytes schützt nach der ersten Aufnahme; keine vorgezogene Heapgarantie.
+
+Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).

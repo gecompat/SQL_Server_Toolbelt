@@ -181,6 +181,8 @@ run_file "${local_database}" "${dependency_deployment_directory}" Deploy.sql \
 run_file "${local_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
+# Freigegebene Securitygrenzen einmal pro physischem Testziel.
+run_file "${local_database}" "${runtime_directory}" Security.Contract.sql -t 180
 
 for compatibility_level in ${compatibility_levels}; do
     # Der native Regex-Operator wird nur bei Level 170 dynamisch in einer

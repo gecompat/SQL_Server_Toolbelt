@@ -144,6 +144,7 @@ tests:
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   writer: "Tests/Runtime/Writer.Contract.sql"
+  entry_security: "Tests/Runtime/EntrySecurity.Framework.cs"
   writer_framework: "Tests/Runtime/Writer.Framework.ps1"
   writer_metadata: "Tests/Runtime/Writer.Metadata.ps1"
   manual_windows: "Tests/Manual_Windows_Runtime_Testplan.md"

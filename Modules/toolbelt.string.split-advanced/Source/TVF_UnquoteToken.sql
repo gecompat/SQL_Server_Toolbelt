@@ -115,7 +115,8 @@ BEGIN
         -- Außenzeichen sind reserviert. Escape hat Vorrang vor doubled closing;
         -- ein Double darf das reservierte Endzeichen niemals als zweite Hälfte nutzen.
         SET @Position=2;
-        DECLARE @SpanStart bigint=2;
+        DECLARE @SpanStart bigint=2, @SpanOrdinal int=0;
+        DECLARE @Spans TABLE(Ordinal int NOT NULL PRIMARY KEY,StartPosition bigint NOT NULL,SpanLength bigint NOT NULL);
         WHILE @Position<@Length AND @Error IS NULL
         BEGIN
             SET @Code=UNICODE(SUBSTRING(@Input COLLATE Latin1_General_100_BIN2,@Position,1));
@@ -124,8 +125,13 @@ BEGIN
                OR (@Code=@Closing AND @Next=@Closing)
             BEGIN
                 -- Nur an Transformationen kopieren, unveränderte Spans nicht pro Zeichen.
-                SET @Output+=SUBSTRING(@Input COLLATE Latin1_General_100_BIN2,@SpanStart,@Position-@SpanStart)
-                             +SUBSTRING(@Input COLLATE Latin1_General_100_BIN2,@Position+1,1);
+                IF @Position>@SpanStart
+                BEGIN
+                    SET @SpanOrdinal+=1;
+                    INSERT @Spans VALUES(@SpanOrdinal,@SpanStart,@Position-@SpanStart);
+                END;
+                SET @SpanOrdinal+=1;
+                INSERT @Spans VALUES(@SpanOrdinal,@Position+1,1);
                 SET @Position+=2;
                 SET @SpanStart=@Position;
             END;
@@ -134,7 +140,16 @@ BEGIN
             ELSE SET @Position+=1;
         END;
         IF @Error IS NULL
-            SET @Output+=SUBSTRING(@Input COLLATE Latin1_General_100_BIN2,@SpanStart,@Length-@SpanStart);
+        BEGIN
+            IF @Length>@SpanStart
+            BEGIN
+                SET @SpanOrdinal+=1;
+                INSERT @Spans VALUES(@SpanOrdinal,@SpanStart,@Length-@SpanStart);
+            END;
+            SELECT @Output=COALESCE(STRING_AGG(CONVERT(nvarchar(max),
+                SUBSTRING(@Input COLLATE Latin1_General_100_BIN2,StartPosition,SpanLength)),N'')
+                WITHIN GROUP(ORDER BY Ordinal),N'') FROM @Spans;
+        END;
     END;
     IF @Error IS NULL INSERT @Result VALUES(@Output,1,NULL,NULL);
     ELSE INSERT @Result VALUES(NULL,0,@Error,@ErrorPosition);

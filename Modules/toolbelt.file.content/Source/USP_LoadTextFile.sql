@@ -19,8 +19,7 @@
 -- Fehlerverhalten: Fachliche Fehler werden als Resultset-Zeile mit
 --                  IsValid = 0 zurückgegeben. Unbehandelte Engine-Fehler
 --                  propagieren als THROW.
--- Performance:     Zwei OPENROWSET(BULK...)-Aufrufe: SINGLE_BLOB für BOM-
---                  Heuristik, SINGLE_CLOB/SINGLE_NCLOB für Text.
+-- Performance:     Ein SINGLE_BLOB-Snapshot für Größe, BOM und Text.
 -- Einschränkungen:  Dateigröße ist durch nvarchar(max) auf ca. 2 GB begrenzt.
 --                  Encoding-Erkennung erfolgt über BOM; Inhalt ohne BOM wird
 --                  mit @FallbackEncoding als 8-Bit-Codepage gelesen.
@@ -165,7 +164,7 @@ BEGIN
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'LIMITATION', 1
           , NULL, NULL, NULL, NULL, NULL
-          , N'Dateigröße ist durch nvarchar(max) auf ca. 2 GB begrenzt. Encoding-Erkennung erfolgt über BOM. UTF-16-LE wird über OPENROWSET(BULK..., SINGLE_NCLOB) gelesen. UTF-8 und Windows-1252 verwenden SINGLE_CLOB mit CAST; Nicht-ASCII-Zeichen werden auf Linux nicht nach Windows-1252 decodiert, weil SQL Server Linux CODEPAGE in BULK INSERT nicht unterstützt. UTF-16-BE und UTF-32 werden nicht unterstützt.'
+          , N'Ein SINGLE_BLOB-Snapshot bindet Größe, BOM und Text. UTF-8 und Windows-1252 werden mit expliziten Collations, UTF-16-LE aus geraden Bytefolgen dekodiert. UTF-16-BE und UTF-32 bleiben ausgeschlossen. Die erste BLOB-Allokation ist kein Vorallokationsbudget.'
           , NULL )
         , ( '1.0', N'toolbelt_file', N'USP_LoadTextFile', 'EXAMPLE', 1
           , NULL, NULL, NULL, NULL, NULL
@@ -284,6 +283,7 @@ BEGIN
     END;
 
     DECLARE @Sql nvarchar(max)
+          , @Snapshot varbinary(max)
           , @Header varbinary(4)
           , @EncodingDetected nvarchar(128)
           , @BomPresent bit = 0
@@ -292,7 +292,7 @@ BEGIN
 
     -- BOM-Heuristik und exakte Dateigröße über denselben SINGLE_BLOB-Lesezugriff.
     SET @Sql = N'SELECT TOP (1)'
-               + N' @Header = SUBSTRING(BulkColumn, 1, 4),'
+               + N' @Snapshot = BulkColumn, @Header = SUBSTRING(BulkColumn, 1, 4),'
                + N' @BytesRead = DATALENGTH(BulkColumn)'
                + N' FROM OPENROWSET(BULK '
                + QUOTENAME(@FilePath, N'''')
@@ -301,7 +301,8 @@ BEGIN
     BEGIN TRY
         EXEC sys.sp_executesql
               @stmt = @Sql
-            , @params = N'@Header varbinary(4) OUTPUT, @BytesRead bigint OUTPUT'
+            , @params = N'@Snapshot varbinary(max) OUTPUT, @Header varbinary(4) OUTPUT, @BytesRead bigint OUTPUT'
+            , @Snapshot = @Snapshot OUTPUT
             , @Header = @Header OUTPUT
             , @BytesRead = @BytesRead OUTPUT;
     END TRY
@@ -368,29 +369,34 @@ BEGIN
         SET @BomPresent = 0;
     END;
 
-    /*
-     * Für UTF-16-LE verwenden wir OPENROWSET(BULK..., SINGLE_NCLOB).
-     * Für UTF-8 und Windows-1252 verwenden wir OPENROWSET(BULK..., SINGLE_CLOB)
-     * und CAST nach nvarchar(max). Das liefert für ASCII-Inhalte auf Windows
-     * und Linux identische Ergebnisse. Nicht-ASCII-Zeichen werden auf Linux
-     * nicht nach Windows-1252 decodiert, weil SQL Server Linux CODEPAGE in
-     * BULK INSERT nicht unterstützt. Dies ist eine dokumentierte Limitation
-     * des Version-1-Slices.
-     */
-    SET @Sql = N'SET @Content = CAST((SELECT BulkColumn FROM OPENROWSET(BULK '
-               + QUOTENAME(@FilePath, N'''')
-               + N', '
-               + CASE @EncodingDetected
-                     WHEN N'UTF-16-LE' THEN N'SINGLE_NCLOB'
-                     ELSE N'SINGLE_CLOB'
-                 END
-               + N') AS x) AS nvarchar(max));';
-
+    -- Genau ein Byte-Snapshot für Größe, BOM und Decoder. Keine zweite
+    -- Pfadauflösung; OPENROWSET selbst besitzt keine Vorallokationsgarantie.
+    DECLARE @Payload varbinary(max) = SUBSTRING(@Snapshot,
+        CASE WHEN @BomPresent = 0 THEN 1 WHEN @EncodingDetected = N'UTF-8' THEN 4 ELSE 3 END,
+        2147483647);
     BEGIN TRY
-        EXEC sys.sp_executesql
-              @stmt = @Sql
-            , @params = N'@Content nvarchar(max) OUTPUT'
-            , @Content = @Content OUTPUT;
+        IF @EncodingDetected = N'UTF-16-LE'
+        BEGIN
+            IF DATALENGTH(@Payload) % 2 <> 0
+                THROW 51326, N'Ungültige UTF-16-LE-Bytelänge.', 1;
+            SET @Content = CONVERT(nvarchar(max), @Payload);
+        END
+        ELSE IF @EncodingDetected = N'UTF-8'
+        BEGIN
+            DECLARE @Utf8Bytes TABLE(Value varchar(max) COLLATE Latin1_General_100_BIN2_UTF8);
+            INSERT @Utf8Bytes(Value) VALUES(@Payload);
+            SELECT @Content = CONVERT(nvarchar(max), Value) FROM @Utf8Bytes;
+            DECLARE @Utf8Roundtrip varbinary(max) = CONVERT(varbinary(max),
+                CONVERT(varchar(max), @Content COLLATE Latin1_General_100_BIN2_UTF8));
+            IF DATALENGTH(@Utf8Roundtrip) <> DATALENGTH(@Payload) OR @Utf8Roundtrip <> @Payload
+                THROW 51326, N'Ungültige UTF-8-Bytesequenz.', 1;
+        END
+        ELSE
+        BEGIN
+            DECLARE @Cp1252Bytes TABLE(Value varchar(max) COLLATE Latin1_General_100_BIN2);
+            INSERT @Cp1252Bytes(Value) VALUES(@Payload);
+            SELECT @Content = CONVERT(nvarchar(max), Value) FROM @Cp1252Bytes;
+        END;
 
         SELECT
               @Content        AS Content

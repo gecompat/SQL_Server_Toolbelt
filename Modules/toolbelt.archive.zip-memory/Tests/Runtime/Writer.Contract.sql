@@ -10,7 +10,7 @@ IF @Archive IS NULL OR @Count IS NULL OR @Count<>4 OR @Total IS NULL OR @Total<>
 CREATE TABLE #Extracted(Dummy int);
 DECLARE @DirectEmpty varbinary(max),@EmptyCount int,@Payload varbinary(max);
 DECLARE @EmptyPublic TABLE(EntryName nvarchar(1024),CompressedBytes bigint,UncompressedBytes bigint,CompressionMethod int,Crc32 int,IsEncrypted bit,EntryPayload varbinary(max));
-SELECT @DirectEmpty=EntryPayload FROM [$(ToolbeltDatabase)].toolbelt_archive.TVF_InternalExtractZipEntryClr(@Archive,N'empty.txt',104857600,200,1);
+SELECT @DirectEmpty=EntryPayload FROM [$(ToolbeltDatabase)].toolbelt_archive.TVF_InternalExtractZipEntryClr(@Archive,N'empty.txt',16777216,200,1);
 IF @@ROWCOUNT<>1 OR @DirectEmpty IS NULL OR DATALENGTH(@DirectEmpty)<>0 THROW 51389,N'Empty Stored directFT contract failed.',30;
 EXEC [$(ToolbeltDatabase)].toolbelt_archive.USP_ExtractZipEntryFromBinary @ZipArchive=@Archive,@EntryName=N'empty.txt',@ResultTable=N'#Extracted';
 EXEC sys.sp_executesql N'SELECT @p=EntryPayload FROM #Extracted',N'@p varbinary(max) OUTPUT',@Payload OUTPUT;
@@ -27,12 +27,12 @@ EXEC [$(ToolbeltDatabase)].toolbelt_archive.USP_ExtractZipEntryFromBinary @ZipAr
 EXEC sys.sp_executesql N'SELECT @p=EntryPayload FROM #Extracted',N'@p varbinary(max) OUTPUT',@Payload OUTPUT;
 IF @Payload IS NULL BEGIN
  DECLARE @DirectPayload varbinary(max),@DirectLength bigint;
- SELECT @DirectPayload=EntryPayload,@DirectLength=UncompressedBytes FROM [$(ToolbeltDatabase)].toolbelt_archive.TVF_InternalExtractZipEntryClr(@Archive,N'empty.txt',104857600,200,1);
+ SELECT @DirectPayload=EntryPayload,@DirectLength=UncompressedBytes FROM [$(ToolbeltDatabase)].toolbelt_archive.TVF_InternalExtractZipEntryClr(@Archive,N'empty.txt',16777216,200,1);
  IF @DirectPayload IS NULL AND @DirectLength=0 THROW 51389,N'Existing Reader direct FT marshals zero-byte payload as NULL.',4;
  THROW 51389,N'Writer empty Deflate USP/resulttable alone returned NULL.',4;
 END;
 IF DATALENGTH(@Payload)<>0 THROW 51389,N'Writer empty Deflate roundtrip returned nonempty payload.',4;
-SELECT @DirectEmpty=EntryPayload FROM [$(ToolbeltDatabase)].toolbelt_archive.TVF_InternalExtractZipEntryClr(@Archive,N'empty.txt',104857600,200,1);
+SELECT @DirectEmpty=EntryPayload FROM [$(ToolbeltDatabase)].toolbelt_archive.TVF_InternalExtractZipEntryClr(@Archive,N'empty.txt',16777216,200,1);
 IF @@ROWCOUNT<>1 OR @DirectEmpty IS NULL OR DATALENGTH(@DirectEmpty)<>0 THROW 51389,N'Empty Deflate directFT contract failed.',31;
 INSERT @EmptyPublic EXEC [$(ToolbeltDatabase)].toolbelt_archive.USP_ExtractZipEntryFromBinary @ZipArchive=@Archive,@EntryName=N'empty.txt';
 IF (SELECT COUNT(*) FROM @EmptyPublic)<>1 OR NOT EXISTS(SELECT 1 FROM @EmptyPublic WHERE EntryPayload IS NOT NULL AND DATALENGTH(EntryPayload)=0 AND UncompressedBytes=0 AND CompressionMethod=8) THROW 51389,N'Empty Deflate public SELECT contract failed.',32;

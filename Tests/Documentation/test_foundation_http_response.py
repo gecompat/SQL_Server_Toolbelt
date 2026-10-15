@@ -59,7 +59,7 @@ def load_sources():
     isolated(PROTOCOL_PATH.read_text(encoding="utf-8"),
              {"AdapterError", "CircuitBreaker", "_content_free", "ProtocolServer"}, protocol.__dict__)
     source = ADAPTER_PATH.read_text(encoding="utf-8")
-    namespace = dict(AdapterError=protocol.AdapterError, urllib=urllib, socket=socket,
+    namespace = dict(AdapterError=protocol.AdapterError, SecurePathError=OSError, urllib=urllib, socket=socket,
                      json=json, os=os, Path=Path, hashlib=hashlib, datetime=datetime,
                      timedelta=timedelta, timezone=timezone,
                      ROUTER_CONTRACT="foundation-model-router/v2",
@@ -193,8 +193,16 @@ class HttpResponseTests(unittest.TestCase):
         self.traps = effect_traps()
         self.traps.__enter__()
         self.writes = []
-        self.ns["safe_path"] = lambda raw, roots, field: MemoryInput() if field == "input_path" else "synthetic-output"
-        self.ns["atomic_write"] = lambda path, body: self.writes.append((path, body))
+        @contextlib.contextmanager
+        def input_handle(raw, roots):
+            yield io.BytesIO(b"synthetic Contoso input")
+        @contextlib.contextmanager
+        def output_handle(raw, roots):
+            stream = io.BytesIO()
+            yield stream
+            self.writes.append((raw, stream.getvalue()))
+        self.ns["open_read"] = input_handle
+        self.ns["open_atomic_output"] = output_handle
 
     def tearDown(self):
         self.traps.__exit__(None, None, None)
@@ -231,7 +239,7 @@ class HttpResponseTests(unittest.TestCase):
                     arguments = self.arguments()
                     if authority is not None:
                         arguments["remote_authorized"] = authority
-                    with patch.dict(self.ns, safe_path=lambda *args: self.fail("UNAUTHORIZED_HANDLE_READ")):
+                    with patch.dict(self.ns, open_read=forbidden, open_atomic_output=forbidden):
                         self.refusal(lambda: adapter.invoke(arguments),
                                      "REMOTE_INVOCATION_NOT_AUTHORIZED", "PERMISSION")
                     self.assertFalse(adapter.opener.calls)

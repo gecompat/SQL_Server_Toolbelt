@@ -66,8 +66,6 @@ for marker in (
     "@Hilfe             bit           = 0",
     "OPENROWSET(BULK",
     "SINGLE_BLOB",
-    "SINGLE_CLOB",
-    "SINGLE_NCLOB",
     "EncodingDetected",
     "BomPresent",
     "51324",
@@ -125,3 +123,8 @@ if repeat_assert.count("EXCEPT") != 2 or "N'MS_Description'" not in repeat_asser
     raise SystemExit("Repeat muss bidirektional vergleichen und die kanonische Beschreibung separat prüfen.")
 
 print("File Content statische Vertragsprüfung: erfolgreich")
+
+if text_source.count("FROM OPENROWSET(BULK") != 1 or "SINGLE_CLOB" in text_source or "SINGLE_NCLOB" in text_source:
+    raise SystemExit("Textloader muss ausschließlich einen SINGLE_BLOB-Snapshot dekodieren.")
+for token in ("@Snapshot", "@Payload", "Latin1_General_100_BIN2_UTF8"):
+    if token not in text_source: raise SystemExit("Snapshotdecoder fehlt: " + token)

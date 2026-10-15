@@ -29,10 +29,8 @@ IF EXISTS
    (
        SELECT 1
        FROM sys.sql_expression_dependencies
-       WHERE referenced_id =
-             OBJECT_ID(N'toolbelt_json.TVF_JsonPathExists')
-         AND referencing_id <>
-             OBJECT_ID(N'toolbelt_json.TVF_JsonPathExists')
+       WHERE referenced_id IN(OBJECT_ID(N'toolbelt_json.TVF_JsonPathExists'),OBJECT_ID(N'toolbelt_json.TVF_JsonPathExistsStatus'))
+         AND referencing_id NOT IN(OBJECT_ID(N'toolbelt_json.TVF_JsonPathExists'),OBJECT_ID(N'toolbelt_json.TVF_JsonPathExistsStatus'))
    )
     THROW 51266,
           N'Die Deinstallation wird durch eine same-database Dependency blockiert.',
@@ -42,6 +40,7 @@ BEGIN TRY
     BEGIN TRANSACTION;
 
     DROP FUNCTION IF EXISTS [toolbelt_json].[TVF_JsonPathExists];
+    DROP FUNCTION IF EXISTS [toolbelt_json].[TVF_JsonPathExistsStatus];
 
     EXEC sys.sp_dropextendedproperty @name = @VersionProperty;
     EXEC sys.sp_dropextendedproperty @name = @ModeProperty;

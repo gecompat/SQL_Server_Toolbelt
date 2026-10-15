@@ -104,3 +104,13 @@ Das Modul entfernt seine Generate-Series-Dependency nicht.
 - Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger Moduladapter mit lokalem und zentralem Deployment, Vertrags-, Lifecycle-, Kollisions- und Uninstall-Tests
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Freigegebene Security-Härtung 2026-10-15
+
+SC-020: Neuer Statuskern prüft64 KiB UTF-16-Input,64 unterschiedliche Separatorcodeeinheiten und10000 Tokens vor Ausgabe. Duplikate zählen einmal. LIMIT enthält keine Tokenpräfixe. Alte TVF filtert OK und liefert bei Überschreitung keine Zeilen. EMPTY/SQL_NULL/INVALID haben eigene Kontrollzeilen im Statuskern; keine uneingeschränkte Inline-/Parallelitätszusage.
+
+Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
+
+Aktueller Securitystand: `partially validated`, `unreleased`. Die bisherigen
+Matrixnachweise gelten historisch; die neuen Verträge sind gezielt auf Linux
+SQL Server 2019 geprüft. Weitere Plattform-/CL-Nachweise bleiben offen.
