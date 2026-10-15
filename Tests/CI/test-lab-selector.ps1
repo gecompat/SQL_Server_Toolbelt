@@ -101,7 +101,7 @@ foreach ($pair in @(@($false,$false),@($true,$true),@('true',$false),@($true,'fa
 Write-Output "LAB_TLS_CONTRACT_PASS cases=$tlsCases"
 
 $tlsHelper=Join-Path $PSScriptRoot 'Set-SqlClientTlsPolicy.ps1'
-$tlsNames=@('TBX_SQL_TARGET','TBX_SQL_ENCRYPT','TBX_SQL_TRUST_SERVER_CERTIFICATE')
+$tlsNames=@('TBX_SQL_TARGET','TBX_SQL_ENCRYPT','TBX_SQL_TRUST_SERVER_CERTIFICATE','GITHUB_ACTIONS')
 $savedTls=@{};foreach($name in $tlsNames){$savedTls[$name]=[Environment]::GetEnvironmentVariable($name,'Process')}
 try {
     $env:TBX_SQL_TARGET='lab';$env:TBX_SQL_ENCRYPT='True';$env:TBX_SQL_TRUST_SERVER_CERTIFICATE='False'
@@ -116,5 +116,11 @@ try {
     $builder['Data Source']='tcp:database.example,1433'
     & $tlsHelper -Builder $builder
     if ($builder.TrustServerCertificate) {throw 'NON_LOOPBACK_TLS_BYPASS'}
-    Write-Output 'SQLCLIENT_TLS_POLICY_PASS cases=4'
+    $env:TBX_SQL_TARGET='';$env:GITHUB_ACTIONS='false';$builder['Data Source']='tcp:127.0.0.1,1433'
+    & $tlsHelper -Builder $builder
+    if ($builder.TrustServerCertificate) {throw 'UNMARKED_LOOPBACK_TLS_BYPASS'}
+    $env:TBX_SQL_TARGET='lab';$env:GITHUB_ACTIONS='true';$env:TBX_SQL_TRUST_SERVER_CERTIFICATE='False'
+    & $tlsHelper -Builder $builder
+    if ($builder.TrustServerCertificate) {throw 'GITHUB_LAB_TLS_BYPASS'}
+    Write-Output 'SQLCLIENT_TLS_POLICY_PASS cases=6'
 } finally {foreach($name in $tlsNames){[Environment]::SetEnvironmentVariable($name,$savedTls[$name],'Process')}}

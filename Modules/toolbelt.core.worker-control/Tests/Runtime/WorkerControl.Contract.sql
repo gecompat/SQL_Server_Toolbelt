@@ -44,6 +44,9 @@ GO
 CREATE OR ALTER PROCEDURE dbo.USP_TbxManagedNone AS BEGIN SET NOCOUNT ON;END;
 GO
 EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.worker.control',@HandlerSchema=N'dbo',@HandlerProcedure=N'USP_TbxManagedNone',@ParameterMode='NONE';
+-- Ausschließlich die synthetische dbo-Fixture delegieren; keine Produktdefaults.
+EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='test.worker.control',@Principal=N'dbo',@PermissionName='ENQUEUE';
+EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='test.worker.control',@Principal=N'dbo',@PermissionName='CLAIM';
 CREATE TABLE #Config(Dummy int NULL);
 CREATE TABLE #Worker(Dummy int NULL);
 CREATE TABLE #Claim(Dummy int NULL);

@@ -10,5 +10,5 @@ if ($env:TBX_SQL_TARGET -ceq 'lab') {
     }
     $Builder.TrustServerCertificate=$false
 } else {
-    $Builder.TrustServerCertificate=($Builder.DataSource -match '^(?:tcp:)?(?:localhost|127\.0\.0\.1)(?:,[0-9]{1,5})?$')
+    $Builder.TrustServerCertificate=(($env:TBX_SQL_TARGET -ceq 'runner' -or $env:GITHUB_ACTIONS -ceq 'true') -and $Builder.DataSource -match '^(?:tcp:)?(?:localhost|127\.0\.0\.1)(?:,[0-9]{1,5})?$')
 }

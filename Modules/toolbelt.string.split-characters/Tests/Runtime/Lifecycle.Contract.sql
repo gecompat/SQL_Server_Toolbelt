@@ -72,7 +72,7 @@ IF NOT EXISTS
    (
        SELECT 1
        FROM sys.sql_expression_dependencies AS dependencies
-       WHERE dependencies.referencing_id = @ObjectId
+       WHERE dependencies.referencing_id = OBJECT_ID(N'toolbelt_string.TVF_SplitByCharactersStatus', N'TF')
          AND dependencies.referenced_id =
              OBJECT_ID(N'toolbelt_core.TVF_GenerateSeriesBigInt', N'IF')
    )

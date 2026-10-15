@@ -113,12 +113,16 @@ try {
  $provenance=(Get-InputText (Join-Path $legacy 'provenance.json'))|ConvertFrom-Json
  if($provenance.moduleId -cne 'toolbelt.metadata.table-clone' -or $provenance.version -cne '1.0.0' -or $provenance.publicCommit -cne 'fdafa8038e4d5240dd727096f144c8d5fd884117' -or @($provenance.files).Count -ne 5){throw 'CLONE_LEGACY_PROVENANCE'}
  foreach($relative in $legacyFiles){$rows=@($provenance.files|Where-Object {$_.path -ceq $relative});if($rows.Count -ne 1 -or $rows[0].sha256 -cne $pins[[IO.Path]::GetFullPath((Join-Path $legacy $relative))]){throw 'CLONE_LEGACY_PROVENANCE'}}
+ Add-InputSnapshot (Join-Path $repo 'Tests/CI/Set-SqlClientTlsPolicy.ps1') 'repo/Tests/CI/Set-SqlClientTlsPolicy.ps1'
  Add-InputSnapshot $PSCommandPath 'adapter/run-table-clone-wave1-lab.ps1'
  $adapterHash=$pins[[IO.Path]::GetFullPath($PSCommandPath)]
  $clientText=Get-InputText (Join-Path $module 'Tests/Runtime/SelectMetadata.Contract.ps1')
  $clientNeedle='Get-Content (Join-Path $PSScriptRoot "../../Deployment/$lifecycle") -Raw'
  if(([regex]::Matches($clientText,[regex]::Escape($clientNeedle))).Count -ne 1){throw 'CLONE_CLIENT_SNAPSHOT_SEAM'}
  $clientText=$clientText.Replace($clientNeedle,'Get-InputText (Join-Path $module ("Deployment/"+$lifecycle))')
+ $tlsNeedle="Join-Path `$PSScriptRoot '../../../../Tests/CI/Set-SqlClientTlsPolicy.ps1'"
+ if(([regex]::Matches($clientText,[regex]::Escape($tlsNeedle))).Count -ne 1){throw 'CLONE_CLIENT_TLS_SNAPSHOT_SEAM'}
+ $clientText=$clientText.Replace($tlsNeedle,"Join-Path `$repo 'Tests/CI/Set-SqlClientTlsPolicy.ps1'")
  $clientErrors=$null;[void][Management.Automation.Language.Parser]::ParseInput($clientText,[ref]$null,[ref]$clientErrors)
  if($clientErrors.Count){throw 'CLONE_CLIENT_PARSE'}
  $clientScript=[scriptblock]::Create($clientText)
@@ -1285,7 +1289,7 @@ SELECT TransactionCountZero,TransactionStateZero,ObjectIdPresent,ObjectIdEqual,D
   $p=$hits[$index].Index;return $text.Substring(0,$p)+$replacement+$text.Substring($p+$needle.Length)
  }
  function Client($target,[string]$db){
-  $names=@('TBX_SQL_HOST','TBX_SQL_PORT','TBX_SQL_USER','TBX_SQL_PASSWORD');$old=@{};$builder=$null
+  $names=@('TBX_SQL_HOST','TBX_SQL_PORT','TBX_SQL_USER','TBX_SQL_PASSWORD','TBX_SQL_TARGET','TBX_SQL_ENCRYPT','TBX_SQL_TRUST_SERVER_CERTIFICATE');$old=@{};$builder=$null
   foreach($name in $names){$old[$name]=[Environment]::GetEnvironmentVariable($name,'Process')}
   try{
    $builder=[Data.SqlClient.SqlConnectionStringBuilder]::new((New-LabConnectionString -Entry $target))
@@ -1297,6 +1301,7 @@ SELECT TransactionCountZero,TransactionStateZero,ObjectIdPresent,ObjectIdEqual,D
    [Environment]::SetEnvironmentVariable('TBX_SQL_PORT',$Matches[2],'Process')
    [Environment]::SetEnvironmentVariable('TBX_SQL_USER',$builder.UserID,'Process')
    [Environment]::SetEnvironmentVariable('TBX_SQL_PASSWORD',$builder.Password,'Process')
+   $env:TBX_SQL_TARGET='lab';$env:TBX_SQL_ENCRYPT='True';$env:TBX_SQL_TRUST_SERVER_CERTIFICATE='False'
    [void](& $clientScript -Database $db)
   }finally{if($builder){$builder.Clear()};foreach($name in $names){[Environment]::SetEnvironmentVariable($name,$old[$name],'Process')}}
  }

@@ -4,14 +4,18 @@ DECLARE @Own TABLE(ExecutionId uniqueidentifier NOT NULL PRIMARY KEY);
 DECLARE @Pid int=USER_ID(),@Sid varbinary(85),@Created datetime,@Existing uniqueidentifier,@New uniqueidentifier=NEWID(),@Before binary(8),@Needed bigint;
 SELECT @Sid=sid,@Created=create_date FROM sys.database_principals WHERE principal_id=@Pid;
 SET @Needed=10000-(SELECT COUNT_BIG(*) FROM toolbelt_core.ExecutionCancellation WHERE RequestedByPrincipalId=@Pid AND RequestedByPrincipalSid=@Sid AND RequestedByPrincipalCreatedAt=@Created);
+;WITH Digits AS (SELECT n FROM (VALUES(0),(1),(2),(3),(4),(5),(6),(7),(8),(9)) d(n)),
+Numbers AS (SELECT ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS n FROM Digits a CROSS JOIN Digits b CROSS JOIN Digits c CROSS JOIN Digits d CROSS JOIN Digits e)
 INSERT toolbelt_core.ExecutionCancellation(ExecutionId,RequestedBy,CancellationReason,RequestedByPrincipalId,RequestedByPrincipalSid,RequestedByPrincipalCreatedAt)
 OUTPUT inserted.ExecutionId INTO @Own
-SELECT NEWID(),N'Contoso synthetic',N'first',@Pid,@Sid,@Created FROM toolbelt_core.TVF_GenerateSeriesBigInt(1,@Needed,1);
+SELECT NEWID(),N'Contoso synthetic',N'first',@Pid,@Sid,@Created FROM Numbers WHERE n<=@Needed;
 SELECT TOP(1) @Existing=o.ExecutionId,@Before=CONVERT(binary(8),c.RowVersion) FROM @Own o JOIN toolbelt_core.ExecutionCancellation c ON c.ExecutionId=o.ExecutionId;
 SET @Needed=100000-(SELECT COUNT_BIG(*) FROM toolbelt_core.ExecutionCancellation);
+;WITH Digits AS (SELECT n FROM (VALUES(0),(1),(2),(3),(4),(5),(6),(7),(8),(9)) d(n)),
+Numbers AS (SELECT ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) AS n FROM Digits a CROSS JOIN Digits b CROSS JOIN Digits c CROSS JOIN Digits d CROSS JOIN Digits e)
 INSERT toolbelt_core.ExecutionCancellation(ExecutionId,RequestedBy,CancellationReason)
 OUTPUT inserted.ExecutionId INTO @Own
-SELECT NEWID(),N'Contoso legacy',N'first' FROM toolbelt_core.TVF_GenerateSeriesBigInt(1,@Needed,1);
+SELECT NEWID(),N'Contoso legacy',N'first' FROM Numbers WHERE n<=@Needed;
 EXEC toolbelt_core.USP_RequestExecutionCancellation @ExecutionId=@Existing,@CancellationReason=N'changed';
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.ExecutionCancellation WHERE ExecutionId=@Existing AND RowVersion=@Before AND CancellationReason=N'first') THROW 52990,N'Quota idempotency altered request.',2;
 BEGIN TRY EXEC toolbelt_core.USP_RequestExecutionCancellation @ExecutionId=@New; THROW 52990,N'Database quota bypass.',3; END TRY
@@ -28,6 +32,6 @@ REVERT;
 INSERT @Own VALUES(@New);
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.ExecutionCancellation WHERE ExecutionId=@New AND RequestedByPrincipalId=USER_ID(N'ContosoSecurityCancellation')) THROW 52990,N'Quota principal binding.',5;
 DROP USER ContosoSecurityCancellation;
--- Cleanup only requests explicitly inserted/created by this synthetic fixture.
+-- Nur die ausdrücklich von dieser synthetischen Fixture erzeugten IDs entfernen.
 DELETE c FROM toolbelt_core.ExecutionCancellation c JOIN @Own o ON o.ExecutionId=c.ExecutionId;
 GO

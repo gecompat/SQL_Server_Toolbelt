@@ -109,12 +109,13 @@ function Assert-TranslateMetadata($Connection){
     }
 }
 function Invoke-DeterministicClientMetadata($Target,[string]$Database){
-    $names=@('TBX_SQL_HOST','TBX_SQL_PORT','TBX_SQL_USER','TBX_SQL_PASSWORD')
+    $names=@('TBX_SQL_HOST','TBX_SQL_PORT','TBX_SQL_USER','TBX_SQL_PASSWORD','TBX_SQL_TARGET','TBX_SQL_ENCRYPT','TBX_SQL_TRUST_SERVER_CERTIFICATE')
     $previous=@{}
     foreach($name in $names){$previous[$name]=[Environment]::GetEnvironmentVariable($name,'Process')}
     try{
         $env:TBX_SQL_HOST=[string]$Target.host;$env:TBX_SQL_PORT=[string]$Target.port
         $env:TBX_SQL_USER=[string]$Target.username;$env:TBX_SQL_PASSWORD=[string]$Target.password
+        $env:TBX_SQL_TARGET='lab';$env:TBX_SQL_ENCRYPT='True';$env:TBX_SQL_TRUST_SERVER_CERTIFICATE='False'
         & (Join-Path $module 'Tests/Runtime/SelectMetadata.Contract.ps1') -Database $Database
     }finally{foreach($name in $names){[Environment]::SetEnvironmentVariable($name,$previous[$name],'Process')}}
 }

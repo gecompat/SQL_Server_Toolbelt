@@ -123,7 +123,7 @@ PASS. Bestehende mutierende Läufe wurden nicht abgebrochen.
 | Regex | `run-regex-captures-lab.ps1 -Version 2019 -Platform linux -Patch latest -ApiQualificationOnly -OptInExactTrust` am finalen Release: acht Frameworksuiten, bestehende SQL-APIs und SQLClient-Metadaten/Atomik erfolgreich; 100000/100001 Matches und 65536/65537 Replacementteile in Framework abgedeckt. | Local API; zentrale Nutzung, Upgrade/Lifecycle und tatsächliche Minimalrechte hier NOT_EXECUTED. |
 | Ressourcen-/Statusverträge | `run-security-hardening-lab.ps1`: auf Linux SQL2019 neue Security-Contracts für Base64, URI, Series, Split, Unquote, Pointer, Path, Cancellation, Console und EventLog erfolgreich; echte Zweiverbindungskonkurrenz um letzten Cancellationplatz, vollständige Consoleframes, Repeat und Reverse-Uninstall erfolgreich. | Ein ausgewähltes Ziel; keine vollständige Plattform-/CL-/Minimalrechtematrix. |
 | Neue Statusnamen | Fokussierter nativer Lauf unter Linux SQL2019: fremde Base64-/Series-/Split-Namen unverändert abgewiesen; Restore, Repeat, Uninstall und eigene DB-Bereinigung erfolgreich. | Gezielte Lifecycle-Guards, keine allgemeine fremde Deploymentqualifikation. |
-| Lab-TLS | `validate_lab_selector.py`: 17 Selektions-, 9 TLS-Builderfälle, 4 SQLClient-Policyfälle und 4 Shelltests erfolgreich. Aktueller schema-validierter Labvertrag wird vor Verbindungsaufbau gesperrt. | Authentifizierte Liveverbindung NOT_EXECUTED; gültige CA-Kette und passender Hostname sind externe Voraussetzung. Kein Fallback, keine Truststore-/Zertifikatsänderung. |
+| Lab-TLS | `validate_lab_selector.py`: 17 Selektions-, 9 TLS-Builderfälle, 6 SQLClient-Policyfälle und 4 Shelltests erfolgreich. Aktueller schema-validierter Labvertrag wird vor Verbindungsaufbau gesperrt. | Authentifizierte Liveverbindung NOT_EXECUTED; gültige CA-Kette und passender Hostname sind externe Voraussetzung. Kein Fallback, keine Truststore-/Zertifikatsänderung. |
 
 Testdatum jeweils 2026-10-15. Eingefrorene Artefakte, private Logs und
 Wiederherstellungsjournale bleiben außerhalb versionierter/public Evidence.
@@ -190,5 +190,15 @@ festen Loopback-Port und gehören nicht zum persistenten Labpfad.
 Abschließende lokale Strukturprüfung: vollständiger
 `validate_documentation.py --all --write` erfolgreich (44 Manifeste),
 `Deployment/Tests/Test-SqlExport.ps1` erfolgreich (29 Fälle/153 Assertions),
-Syntax aller 16 geänderten Shellskripte und 14 PowerShellskripte erfolgreich.
+Syntax aller 16 geänderten Shellskripte und 17 PowerShellskripte erfolgreich.
 Diese Offlineprüfungen ersetzen keine noch offene aktuelle Head-CI.
+
+Die erste Head-CI identifizierte veraltete gekoppelte Testanbindungen:
+Second-Session-Abhängigkeitsorakel auf WorkType 1.2 aktualisiert,
+Cancellation-Grenzfixture ohne fremde Testdependency und explizite dbo-Delegation
+für den Managed-Control-Test ergänzt. Split normalisiert seine begrenzte
+Separatormenge über den deklarierten Generate-Series-Kern; Lifecycle prüft die
+Dependency am kanonischen Statuskern. Native SQLClient-Labaufrufe propagieren
+explizit den TLS-Kontext; die Table-Clone-Snapshotausführung bindet den neuen
+Helper transitiv. Diese Änderungen benötigen die folgende aktuelle Head-CI;
+Fehlversuche sind kein PASS. Laufende mutierende CI wurde nicht abgebrochen.

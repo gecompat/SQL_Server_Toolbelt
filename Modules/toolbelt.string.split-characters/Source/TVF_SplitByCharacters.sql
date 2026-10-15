@@ -22,18 +22,15 @@ BEGIN
     DECLARE @Position int=1,@Length int=CONVERT(int,DATALENGTH(@Input)/2),
             @SeparatorLength int=CONVERT(int,DATALENGTH(@Separators)/2),@Code int,
             @Start int=1,@Count int=0;
-    WHILE @Position<=@SeparatorLength
-    BEGIN
-        SET @Code=UNICODE(SUBSTRING(@Separators COLLATE Latin1_General_100_BIN2,@Position,1));
-        IF @Code=0 BEGIN INSERT @Result VALUES(NULL,NULL,'INVALID'); RETURN; END;
-        IF NOT EXISTS(SELECT 1 FROM @SeparatorCodes WHERE Code=@Code)
-        BEGIN
-            IF (SELECT COUNT(*) FROM @SeparatorCodes)>=64
-            BEGIN INSERT @Result VALUES(NULL,NULL,'LIMIT'); RETURN; END;
-            INSERT @SeparatorCodes VALUES(@Code);
-        END;
-        SET @Position+=1;
-    END;
+    -- Höchstens 65 unterschiedliche Codes aufnehmen; der zusätzliche Code
+    -- ist nur ein Limitwächter. Die feste 4000er-Separatorlänge begrenzt den Scan.
+    INSERT @SeparatorCodes(Code)
+    SELECT DISTINCT TOP(65) UNICODE(SUBSTRING(@Separators COLLATE Latin1_General_100_BIN2,positions.Value,1))
+    FROM toolbelt_core.TVF_GenerateSeriesBigInt(1,@SeparatorLength,1) positions;
+    IF EXISTS(SELECT 1 FROM @SeparatorCodes WHERE Code=0)
+    BEGIN INSERT @Result VALUES(NULL,NULL,'INVALID'); RETURN; END;
+    IF (SELECT COUNT(*) FROM @SeparatorCodes)>64
+    BEGIN INSERT @Result VALUES(NULL,NULL,'LIMIT'); RETURN; END;
     DECLARE @Spans TABLE(Ordinal int NOT NULL PRIMARY KEY,StartPosition int NOT NULL,SpanLength int NOT NULL);
     SET @Position=1;
     WHILE @Position<=@Length+1
