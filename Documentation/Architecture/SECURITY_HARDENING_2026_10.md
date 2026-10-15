@@ -262,3 +262,8 @@ regulär aktualisierte gemeinsame Policyabhängigkeit: sieben Tabellen/93 Felder
 AFTER unverändert 15/166. Die sechs ursprünglichen Legacytabellen bleiben separat
 vollständig verglichen; zusätzlich muss die Policytabelle in beiden Phasen leer
 bleiben. Keine automatische Delegation wird als Migrationsdefault zugelassen.
+
+Das Queue1.1-Schemaorakel bestand anschließend. Seine Zeilenaufnahme bezeugt nun
+auch die bereits vor der Queuemigration bestehende leere Policytabelle in beiden
+Phasen ausdrücklich. Der separate unveränderte Vergleich der sechs ursprünglichen
+Tabellen wird dadurch um einen Nullzeilen-Zeugen ergänzt, nicht reduziert.

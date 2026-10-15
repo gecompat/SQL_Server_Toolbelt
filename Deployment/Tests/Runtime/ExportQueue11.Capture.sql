@@ -33,6 +33,8 @@ CREATE TABLE #Snapshot(Category varchar(128) COLLATE Latin1_General_100_BIN2 NOT
 DECLARE @Id int,@Schema sysname,@Table sysname,@Fields int,@Category varchar(128),@Projection nvarchar(max),@Sql nvarchar(max),@Query nvarchar(max);
 CREATE TABLE #RowTables(SchemaName sysname COLLATE Latin1_General_100_BIN2,TableName sysname COLLATE Latin1_General_100_BIN2,LegacyColumns int,ObjectId int NULL);
 INSERT #RowTables SELECT SchemaName,TableName,LegacyColumns,ObjectId FROM #OldTables;
+-- Die aktuelle gemeinsame Policy bleibt auch während der Legacyqueue leer.
+INSERT #RowTables VALUES(N'toolbelt_core',N'WorkTypePermission',7,OBJECT_ID(N'toolbelt_core.WorkTypePermission',N'U'));
 IF @After=1 INSERT #RowTables VALUES
 (N'toolbelt_core',N'WorkQueueBarrierBlocker',5,OBJECT_ID(N'toolbelt_core.WorkQueueBarrierBlocker',N'U')),
 (N'toolbelt_core',N'WorkQueueManagedGate',4,OBJECT_ID(N'toolbelt_core.WorkQueueManagedGate',N'U')),
@@ -42,7 +44,7 @@ IF @After=1 INSERT #RowTables VALUES
 (N'toolbelt_core',N'WorkerExecutionDisposition',5,OBJECT_ID(N'toolbelt_core.WorkerExecutionDisposition',N'U')),
 (N'toolbelt_core',N'WorkerRegistration',12,OBJECT_ID(N'toolbelt_core.WorkerRegistration',N'U')),
 (N'toolbelt_core',N'WorkerSlotReservation',13,OBJECT_ID(N'toolbelt_core.WorkerSlotReservation',N'U'));
-IF EXISTS(SELECT 1 FROM #RowTables WHERE ObjectId IS NULL) OR (SELECT COUNT(*) FROM #RowTables)<>CASE WHEN @After=0 THEN 6 ELSE 14 END THROW 55011,N'EXPORT_QUEUE11_ROW_INVENTORY',5;
+IF EXISTS(SELECT 1 FROM #RowTables WHERE ObjectId IS NULL) OR (SELECT COUNT(*) FROM #RowTables)<>CASE WHEN @After=0 THEN 7 ELSE 15 END THROW 55011,N'EXPORT_QUEUE11_ROW_INVENTORY',5;
 DECLARE row_cursor CURSOR LOCAL FAST_FORWARD FOR SELECT ObjectId,SchemaName,TableName,LegacyColumns FROM #RowTables ORDER BY SchemaName,TableName;
 OPEN row_cursor;FETCH NEXT FROM row_cursor INTO @Id,@Schema,@Table,@Fields;
 WHILE @@FETCH_STATUS=0 BEGIN
