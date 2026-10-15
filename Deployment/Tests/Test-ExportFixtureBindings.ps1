@@ -43,4 +43,13 @@ foreach($binding in @(@{Name='ExportUpgradeRepeat.Capture.sql';Prefix='Upgrade'}
  $fieldNames=@($fields|ForEach-Object {$_.Groups[1].Value}|Sort-Object -Unique)
  if($counts.Count-ne15-or$fields.Count-ne166-or($countNames-join ',')-cne($fieldNames-join ',')){throw 'EXPORT_BINDING_REPEAT_WITNESS_CLOSURE'}
 }
+$current=[IO.File]::ReadAllText((Join-Path $PSScriptRoot 'Runtime/ExportQueue11Repeat.Capture.sql'))
+$start=$current.IndexOf('INSERT #tbx_Queue11RepeatObjects VALUES',[StringComparison]::Ordinal)
+$end=$current.IndexOf(';',$start)
+$objects=@([regex]::Matches($current.Substring($start,$end-$start),"\(N'toolbelt_(?:core|file)',N'([^']+)','([A-Z]+)'\)"))
+$names=@($objects|ForEach-Object {$_.Groups[1].Value}|Sort-Object -Unique)
+if($objects.Count-ne83-or$names.Count-ne83){throw 'EXPORT_BINDING_CURRENT_OBJECT_CLOSURE'}
+foreach($name in @('WorkTypePermission','TVF_WorkTypeAuthorization','USP_SetWorkTypePermission','USP_DeleteRecordedEventsBefore')){
+ if($names-cnotcontains$name){throw 'EXPORT_BINDING_SECURITY_OBJECT_MISSING'}
+}
 Write-Output 'EXPORT_FIXTURE_BINDINGS_PASS files=5 declarations=8 no-sql'

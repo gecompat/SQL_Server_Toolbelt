@@ -267,3 +267,9 @@ Das Queue1.1-Schemaorakel bestand anschließend. Seine Zeilenaufnahme bezeugt nu
 auch die bereits vor der Queuemigration bestehende leere Policytabelle in beiden
 Phasen ausdrücklich. Der separate unveränderte Vergleich der sechs ursprünglichen
 Tabellen wird dadurch um einen Nullzeilen-Zeugen ergänzt, nicht reduziert.
+
+Queue1.1-Erstinstallation und aktuelle Migration bestanden nun bis einschließlich
+Legacyvergleich. Die nachgelagerte geschlossene Objektinventarliste umfasst
+explizit die vier neuen Securityobjekte: 83 statt 79. Ihre positiven Bindungen
+und der Ausschluss unbekannter Zusatzobjekte bleiben erhalten. Der Offline-
+Intake prüft auch diese endliche Liste vor dem Runtimeeinsatz.

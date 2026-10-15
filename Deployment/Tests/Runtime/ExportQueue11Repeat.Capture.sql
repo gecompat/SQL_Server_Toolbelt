@@ -21,6 +21,10 @@ IF (SELECT COUNT(*) FROM #tbx_ExportObjects WHERE ObjectType='U')<>15
 -- Alle positiven Bindungen stammen aus den neun aktuellen Modulmanifesten.
 CREATE TABLE #tbx_Queue11RepeatObjects(SchemaName sysname COLLATE Latin1_General_100_BIN2 NOT NULL,ObjectName sysname COLLATE Latin1_General_100_BIN2 NOT NULL,ObjectType char(2) COLLATE Latin1_General_100_BIN2 NOT NULL,PRIMARY KEY(SchemaName,ObjectName));
 INSERT #tbx_Queue11RepeatObjects VALUES
+ (N'toolbelt_core',N'WorkTypePermission','U'),
+ (N'toolbelt_core',N'TVF_WorkTypeAuthorization','IF'),
+ (N'toolbelt_core',N'USP_SetWorkTypePermission','P'),
+ (N'toolbelt_core',N'USP_DeleteRecordedEventsBefore','P'),
  (N'toolbelt_core',N'TVF_CurrentExecutionContext','IF'),
  (N'toolbelt_core',N'SVF_CurrentExecutionId','FN'),
  (N'toolbelt_core',N'USP_BeginExecution','P'),
@@ -100,12 +104,12 @@ INSERT #tbx_Queue11RepeatObjects VALUES
  (N'toolbelt_core',N'USP_SetWorkerState','P'),
  (N'toolbelt_core',N'USP_StopWorkerExecution','P'),
  (N'toolbelt_core',N'USP_StopWorkers','P');
-IF (SELECT COUNT(*) FROM #tbx_ExportObjects)<>79
+IF (SELECT COUNT(*) FROM #tbx_ExportObjects)<>83
  OR EXISTS(SELECT SchemaName,ObjectName,ObjectType FROM #tbx_Queue11RepeatObjects
  EXCEPT SELECT SchemaName,ObjectName,ObjectType FROM #tbx_ExportObjects)
  OR EXISTS(SELECT SchemaName,ObjectName,ObjectType FROM #tbx_ExportObjects
  EXCEPT SELECT SchemaName,ObjectName,ObjectType FROM #tbx_Queue11RepeatObjects)
- THROW 55013,N'Die 79 sourcegebundenen Modulobjekte sind nicht exakt vorhanden.',10;
+ THROW 55013,N'Die 83 sourcegebundenen Modulobjekte sind nicht exakt vorhanden.',10;
 -- Ruhender installierter Verbund; kein Claim, Hold oder offener Bindungsslot.
 IF NOT EXISTS(SELECT 1 FROM toolbelt_core.WorkQueueManagedGate WHERE GateId=1 AND ManagedEnabled=0 AND PendingReservationId IS NULL)
  OR EXISTS(SELECT 1 FROM toolbelt_core.WorkItem WHERE Status='CLAIMED' OR ManagedHold<>0 OR ManagedReservationId IS NOT NULL OR ManagedCompletionNonce IS NOT NULL)
