@@ -6,7 +6,53 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 ## Security-Cloud-Abgleich — integrierter Stand 2026-10-15
 
-### Integrierter Stand und erneuter Cloud-Abgleich — 2026-10-15
+### Bestätigter Cloudabschluss — 2026-10-15
+
+Benutzerauftrag: nachweislich behobene Meldungen mit integrierten Fixes und
+Testbelegen schließen und den Backlog nachziehen. Autor: Codex. Geprüfter
+[Produktstand `97c6243`](https://github.com/gecompat/SQL_Server_Toolbelt/commit/97c6243a1031b19ecde70e2db8cff7f777d39916),
+mit unverändertem integriertem Produktcode aus PR #319.
+
+**25 Commit-Scan-Einträge wurden tatsächlich als `fixed` geschlossen:** alle
+16 Meldungen der 13 freigegebenen Korrekturen sowie neun weitere Meldungen
+aus SC-001, SC-003, SC-025 und SC-036. Jede Meldung wurde zuvor einzeln gelesen;
+der Abschluss verwendet ihre aktuelle Version und eine eigene Ursachen-,
+Fix- und Testbegründung. Die Cloud speichert dabei öffentliche Commit-/Test-/CI-
+Verweise und die jeweilige Nachweisgrenze. Die Duplikatgruppen bleiben im Backlog nachvollziehbar.
+
+Die anschließende vollständige Cloudabfrage bestätigt **64 Einträge ohne
+Folgeseite, 26 fixed / 38 new**. Alle 25 angeforderten Statuswechsel sind
+bestätigt; keine andere Meldung änderte ihren Status. Die bereits geschlossene
+SC-033 und die widerlegte Annahme SC-031 wurden nicht verändert.
+
+| Bestätigter Cloudstatus | Einträge | Bedeutung |
+|---|---:|---|
+| fixed | 26 | 25 jetzt geschlossen; einer zuvor fixed |
+| new — fachlich offen | 33 | 25 Designgruppen: 14 P1, 11 P2, alle Reife D/proposed |
+| new — Source korrigiert, Cloudabschluss ausstehend | 4 | Repository-Scan-Meldungen zu SC-001, SC-003, SC-007 und SC-008 |
+| new — Annahme widerlegt | 1 | SC-031; False-positive-Disposition ausstehend |
+| Gesamt | 64 | unverändert 46 deduplizierte Ursachengruppen |
+
+**Verbleibende Cloud-Metadatenarbeit:** Der verfügbare Abschlussconnector
+unterstützt ausschließlich Commit-Scan-Meldungen. Die geöffnete Cloud-App
+stellte in dieser Sitzung keinen steuerbaren App-Tab bereit. Deshalb bleiben
+die vier Repository-Scan-Originale `csf_e2f99398dcd060693934facd` (SC-001),
+`csf_129016cfee45980d62c7b93c` (SC-003), `csf_f07978ae04c2e64ac4908c27`
+(SC-007) und `csf_e2f164b021a66f1aa6e787e6` (SC-008) ausdrücklich `new`.
+Ihre Sourcefixes und Testbelege sind bestätigt; die Statuspflege ist kein
+weiteres Implementierungspaket. SC-031 benötigt gegebenenfalls eine passende
+False-positive-Disposition; der verfügbare Fixabschluss wird dafür nicht benutzt.
+
+Scope: eine endliche Status-/Dokumentationswelle, ein Verantwortlicher, keine
+neue Entwicklung, kein neuer Scan und keine Rechteänderung. Zusätzliche lokale
+Prüfung am 2026-10-15: die statischen Contracts von File Content, Script Parser
+und Integer Base jeweils erfolgreich. Für SC-036 bleibt neue SQL-Runtime-
+qualifikation ausdrücklich NOT_EXECUTED; der Sourcefix und positive Testorakel
+sind keine nachträglich behauptete Runtimeausführung. Die begrenzten
+Framework-/SQL-/CI-Belege und ihre Grenzen stehen je Gruppe und im
+[Umsetzungsnachweis](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md).
+
+### Historischer Integrationsabgleich vor dem Cloudabschluss — 2026-10-15
 
 Benutzerauftrag: PR #319 mergen, Backlog aktualisieren und sämtliche vorhandenen
 Security-Cloud-Einträge erneut gegen den integrierten Code prüfen. Autor: Codex.
@@ -17,10 +63,10 @@ Sein vollständiger Git-Tree ist identisch mit dem geprüften PR-Head
 45 erfolgreiche Checks und ein erwartungsgemäß übersprungener manueller Workload.
 Der Arbeitsbranch von PR #319 wurde nach dem Merge gelöscht.
 
-Die erneute vollständige Cloudabfrage liefert weiterhin **64 Einträge ohne
+Die vollständige Cloudabfrage vor dem anschließenden Abschluss lieferte **64 Einträge ohne
 Folgeseite**. Ihre IDs sind exakt einmal den vorhandenen **46 Gruppen**
-zugeordnet; keine zusätzliche oder verlorene Meldung. Cloudstatus weiterhin
-**63 new / 1 fixed**. Der Abgleich ändert keine Cloudstatuswerte und ist ein
+zugeordnet; keine zusätzliche oder verlorene Meldung. Cloudstatus damals
+**63 new / 1 fixed**. Dieser reine Abgleich änderte keine Cloudstatuswerte und war ein
 Sourceabgleich vorhandener Meldungen, kein neuer Repositoryscan.
 
 | Aktuelle Source-Disposition | Gruppen | Cloud-Einträge |
@@ -35,8 +81,9 @@ Sourceabgleich vorhandener Meldungen, kein neuer Repositoryscan.
 **Aktueller offener Security-Arbeitsvorrat:** 25 Gruppen, davon **14 P1 und
 11 P2**, alle Reife **D** und Status `proposed`. Kein verbleibender offener
 T-Punkt aus dieser Security-Triage; keine zusätzliche Implementierung freigegeben.
-Die 13 freigegebenen Korrekturen sind `implemented` und integriert. Cloudabschluss,
-neuer Scan und vollständige Release-/Windowsqualifikation sind davon getrennt.
+Die 13 freigegebenen Korrekturen sind `implemented` und integriert; ihre
+16 Commit-Scan-Meldungen sind inzwischen geschlossen (aktueller Stand oben).
+Neuer Scan und vollständige Release-/Windowsqualifikation sind davon getrennt.
 Der [Umsetzungsnachweis](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md)
 beschreibt die tatsächlich ausgeführten Tests und ihre Grenzen.
 
@@ -153,16 +200,17 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 ### Vollständige Ursachen- und Quellenzuordnung
 
-`SC-2026-` bezeichnet ausschließlich die hier neu vergebenen lokalen Triagegruppen, keine neuen fachlichen SQL-Funktionskandidaten. Die Cloudreferenzen verwenden die unveränderten ursprünglichen Finding-IDs; Art, Severity, Cloudstatus und beobachteter Quellstand sind pro Originaleintrag erhalten.
+`SC-2026-` bezeichnet ausschließlich die hier neu vergebenen lokalen Triagegruppen, keine neuen fachlichen SQL-Funktionskandidaten. Die Cloudreferenzen verwenden die unveränderten ursprünglichen Finding-IDs; Art, Severity, historischer Cloudstatus des Ausgangsabgleichs und beobachteter Quellstand sind pro Originaleintrag erhalten. Der aktuelle bestätigte Abschluss steht bei den betroffenen Gruppen zusätzlich unter „Cloudabschluss 2026-10-15“.
 
 #### SC-2026-001: File-Content: literale Root-Grenzen
 
-- **Disposition:** im aktuellen Source korrigiert; Cloud-Abschluss separat.
+- **Disposition:** im aktuellen Source korrigiert; Commit-Scan-Duplikate fixed, Repository-Scan-Abschluss ausstehend.
 - **Cloudreferenzen:** `a7fa61e21f008191befcf814c0e32db8` (commit_scan, high, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/f7338a28471e4381a7a5b14268852fdd8f35f4e7)); `5dc3a494839481919d0d8c172431416d` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/b640d74458ab452699beccbda4065b0ee8a287f3)); `0f31af13aac881919d98828d639576af` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/80aa52f5e2a918f31ace67147ed6d0fd47f92b73)); `c980ddd1a99c81918de88889e59f6c9a` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/a72cfe51d64763ccc59e025484bc1af96aa608d2)); `e9040a767a388191942fbb325f2fe1ee` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/ffb086865de228575c7330ad6adea53fc1bcf09b)); `csf_e2f99398dcd060693934facd` (repository_scan, low, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/1694a016cdb5a8d611d0689431fbe1e07342513d)).
 - **Aktuelle Bindung:** [Modules/toolbelt.file.content/Source/FileContentRootPredicate.sql](../Modules/toolbelt.file.content/Source/FileContentRootPredicate.sql), [Modules/toolbelt.file.content/Source/USP_LoadBinaryFile.sql](../Modules/toolbelt.file.content/Source/USP_LoadBinaryFile.sql), [Modules/toolbelt.file.content/Source/USP_LoadTextFile.sql](../Modules/toolbelt.file.content/Source/USP_LoadTextFile.sql), [Modules/toolbelt.file.content/Tests/Runtime/RootBoundary.Contract.sql](../Modules/toolbelt.file.content/Tests/Runtime/RootBoundary.Contract.sql).
 - **Abgleich:** Beide Fassaden verwenden jetzt dasselbe Queryfragment mit exakter Gleichheit oder einem literalen DirectoryPrefix einschließlich Separator und Bytelängen. Der frühere LIKE-Präfixfehler einschließlich Metazeichen ist entfernt. Das ist eine lexikalische Grenze, kein Symlink-/Race-Nachweis.
 - **Nächster Schritt / Akzeptanz:** Keine erneute Implementierung des alten Präfixfixes; Cloud-Abschluss separat anhand des aktuellen Fixes und RootBoundary-Vertrags prüfen. Der getrennte Textread-Race bleibt SC-2026-040.
-- **Recheck 2026-10-15:** Die bestehende Sourcekorrektur bleibt im integrierten Code erhalten. Keine Rücknahme durch PR #319; Cloudstatus weiterhin separat new.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Die bestehende Sourcekorrektur bleibt im integrierten Code erhalten. Keine Rücknahme durch PR #319; Cloudstatus weiterhin separat new.
+- **Cloudabschluss 2026-10-15:** 5 Commit-Scan-Meldungen bestätigt fixed; ein Repository-Scan-Original weiterhin new (fehlende verfügbare Abschlussfunktion). [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/6808b8273272b0ff579d0d54b379071b32448850), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Modules/toolbelt.file.content/Tests/Runtime/RootBoundary.Contract.sql), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37687448814). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-002: RegexCount/RegexInstr: kumulatives Aufrufbudget
 
@@ -175,12 +223,13 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-003: Windows Directory-Delete: Tiefe und Einträge
 
-- **Disposition:** im aktuellen Source korrigiert; Cloud-Abschluss separat.
+- **Disposition:** im aktuellen Source korrigiert; Commit-Scan-Duplikate fixed, Repository-Scan-Abschluss ausstehend.
 - **Cloudreferenzen:** `csf_129016cfee45980d62c7b93c` (repository_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/1694a016cdb5a8d611d0689431fbe1e07342513d)); `54f47484e0f08191b032510be5c0a6b5` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/7515010865fc1427536aac9b13295e73546b3c6a)).
 - **Aktuelle Bindung:** [Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs](../Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs), [Modules/toolbelt.filesystem.windows/Tests/README.md](../Modules/toolbelt.filesystem.windows/Tests/README.md).
 - **Abgleich:** RemoveDirectoryBounded plant vollständig vor der Mutation, weist zu tiefe Kinder und zu viele Einträge ab und verwendet ausschließlich nichtrekursive Directory.Delete-Aufrufe. Die alte unkontrollierte rekursive Löschung ist entfernt. Der Windows-Abschluss vom 2026-10-13 qualifiziert nur seinen benannten Teilscope.
 - **Nächster Schritt / Akzeptanz:** Altbefund nicht erneut als fehlender Tiefenfix planen. Die unabhängigen Race- und Speichergrenzen bleiben SC-2026-023 und SC-2026-005.
-- **Recheck 2026-10-15:** Die bestehende Sourcekorrektur bleibt im integrierten Code erhalten. Keine Rücknahme durch PR #319; Cloudstatus weiterhin separat new.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Die bestehende Sourcekorrektur bleibt im integrierten Code erhalten. Keine Rücknahme durch PR #319; Cloudstatus weiterhin separat new.
+- **Cloudabschluss 2026-10-15:** Eine Commit-Scan-Meldung bestätigt fixed; ein Repository-Scan-Original weiterhin new (fehlende verfügbare Abschlussfunktion). [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/a16c22ce53f91779b803893f34d17f69bbabc20f), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Modules/toolbelt.filesystem.windows/Tests/Framework/NoOverwriteHarness.cs), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644471688). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-004: ZIP-Extraktion: Speichergrenze für Binary- und Dateifassade
 
@@ -211,21 +260,23 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-007: Foundation-Provisioning: Redirect-Origin
 
-- **Disposition:** im aktuellen Source korrigiert; Cloud-Abschluss separat.
+- **Disposition:** im aktuellen Source korrigiert; Repository-Scan-Abschluss technisch ausstehend.
 - **Cloudreferenzen:** `csf_f07978ae04c2e64ac4908c27` (repository_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/1694a016cdb5a8d611d0689431fbe1e07342513d)).
 - **Aktuelle Bindung:** [.ai/foundation/ai_provisioning/host_preparation.py](../.ai/foundation/ai_provisioning/host_preparation.py), [Tests/Documentation/test_foundation_redirects.py](../Tests/Documentation/test_foundation_redirects.py), [Documentation/Architecture/FOUNDATION_1_19_INTEGRATION.md](../Documentation/Architecture/FOUNDATION_1_19_INTEGRATION.md).
 - **Abgleich:** _OriginBoundRedirectHandler prüft jeden Redirect vor Folgekontakt gegen den geplanten HTTPS-Origin; Download und Cost-Evidence verwenden _open_planned_https. Die gekoppelte synthetische Regression und der Targetoverride sind dokumentiert.
 - **Nächster Schritt / Akzeptanz:** Cloud-Altstand gegen diesen Override reconciliieren. Kein reales DNS-/Netzwerk- oder Provisionierungs-PASS aus der Offlineprüfung ableiten.
-- **Recheck 2026-10-15:** Die bestehende Sourcekorrektur bleibt im integrierten Code erhalten. Keine Rücknahme durch PR #319; Cloudstatus weiterhin separat new.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Die bestehende Sourcekorrektur bleibt im integrierten Code erhalten. Keine Rücknahme durch PR #319; Cloudstatus weiterhin separat new.
+- **Cloudabschluss 2026-10-15:** Repository-Scan-Original weiterhin new; Sourcefix bestätigt, Cloudabschluss wegen fehlender verfügbarer Abschlussfunktion ausstehend. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Tests/Documentation/test_foundation_redirects.py), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644472209). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-008: Foundation-HttpAdapter: begrenzter Responsebody
 
-- **Disposition:** im aktuellen Source korrigiert; Cloud-Abschluss separat.
+- **Disposition:** im aktuellen Source korrigiert; Repository-Scan-Abschluss technisch ausstehend.
 - **Cloudreferenzen:** `csf_e2f164b021a66f1aa6e787e6` (repository_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/1694a016cdb5a8d611d0689431fbe1e07342513d)).
 - **Aktuelle Bindung:** [.ai/foundation/ai_runtime_adapters/reference_adapters.py](../.ai/foundation/ai_runtime_adapters/reference_adapters.py), [Tests/Documentation/test_foundation_http_response.py](../Tests/Documentation/test_foundation_http_response.py), [Documentation/Architecture/FOUNDATION_1_19_INTEGRATION.md](../Documentation/Architecture/FOUNDATION_1_19_INTEGRATION.md).
 - **Abgleich:** _read_http_body begrenzt den Read vor JSON-Parsing auf 16 MiB, behandelt kurze Reads, unvollständige Antworten und Cleanup separat. _request nutzt diesen Reader. Der historische unbounded-read-Befund trifft auf diesen Pfad nicht mehr zu.
 - **Nächster Schritt / Akzeptanz:** Nur den konkreten Bodyread-Fix zum Cloud-Abschluss vorlegen; JSON-Tiefe, Gesamtzeit und reale Endpointqualifikation dadurch nicht schließen.
-- **Recheck 2026-10-15:** Die bestehende Sourcekorrektur bleibt im integrierten Code erhalten. Keine Rücknahme durch PR #319; Cloudstatus weiterhin separat new.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Die bestehende Sourcekorrektur bleibt im integrierten Code erhalten. Keine Rücknahme durch PR #319; Cloudstatus weiterhin separat new.
+- **Cloudabschluss 2026-10-15:** Repository-Scan-Original weiterhin new; Sourcefix bestätigt, Cloudabschluss wegen fehlender verfügbarer Abschlussfunktion ausstehend. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Tests/Documentation/test_foundation_http_response.py), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644472209). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-009: Windows Filesystem: getrennte ServiceAccount-Autorisierung
 
@@ -261,7 +312,8 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 - **Aktuelle Bindung:** [Modules/toolbelt.json.constructors/Source/USP_JsonConstructInternal.sql](../Modules/toolbelt.json.constructors/Source/USP_JsonConstructInternal.sql), [Modules/toolbelt.json.constructors/Clr/JsonEntryEvaluateBridge.cs](../Modules/toolbelt.json.constructors/Clr/JsonEntryEvaluateBridge.cs), [Modules/toolbelt.json.core/Clr/JsonCanonicalCore.cs](../Modules/toolbelt.json.core/Clr/JsonCanonicalCore.cs).
 - **Historischer Abgleich vor PR #319:** Der alte STRING_ESCAPE-/T-SQL-Unicode-Loop ist ersetzt, aber Stage0 liefert noch keine exakte Fragmentgröße. Stage1 fordert Evaluate(..., true) an; der gemeinsame Kern berechnet EscapedUnits und materialisiert Escape trotzdem. Das globale MaxResultBytes-Gate folgt erst nach Sammlung der Fragmente. Die Speicherexpansion bleibt als Restbefund.
 - **Akzeptanzplanung vor PR #319:** Bestehendes globales Ergebnisbudget mit exakter Escapingkostenermittlung vor Fragmentallokation durchsetzen, ohne zweiten JSON-Kern. Dichte Kontrollzeichen, Keys, gruppierte Inputs und bisherige Fehlerpriorität testen; alte CPU-Loop-Meldung nicht unverändert wiederholen.
-- **Recheck 2026-10-15:** Der SQL-Kern berechnet exakte Escapingkosten aller Einträge über begrenzte Spans desselben CLR-Kerns und prüft das Ergebnisbudget vor vollständigen Stringfragmenten. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Der SQL-Kern berechnet exakte Escapingkosten aller Einträge über begrenzte Spans desselben CLR-Kerns und prüft das Ergebnisbudget vor vollständigen Stringfragmenten. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Cloudabschluss 2026-10-15:** Die zugeordnete Commit-Scan-Meldung ist bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Modules/toolbelt.json.constructors/Tests/Runtime/JsonConstructors.Contract.sql), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644472511). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-013: Unquoting: wiederholte LOB-Kopien bei dichten Quotes
 
@@ -279,7 +331,8 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 - **Aktuelle Bindung:** [Modules/toolbelt.string.regex/Clr/RegexBoundedIntake.cs](../Modules/toolbelt.string.regex/Clr/RegexBoundedIntake.cs), [Modules/toolbelt.string.regex/Source/RegexFunctions.sql](../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [Modules/toolbelt.string.regex/Clr/RegexTransformations.cs](../Modules/toolbelt.string.regex/Clr/RegexTransformations.cs), [Modules/toolbelt.string.regex/Clr/RegexCaptures.cs](../Modules/toolbelt.string.regex/Clr/RegexCaptures.cs).
 - **Historischer Abgleich vor PR #319:** Öffentliche max-Fassaden leiten Eingaben an CLR weiter; SqlString.Value materialisiert vor CheckSize. Auch Pattern, Flags und Profile sind betroffen. Größenlimits bestehen, greifen aber spät.
 - **Akzeptanzplanung vor PR #319:** Vorhandene Profil-/Pattern-/Flaggrenzen vor vollständigen managed Kopien anwenden, beispielsweise mittels längenprüfender SqlChars-Intake oder sicherer Fassade. NULL-/Fehlerpriorität und keine Abschneidung erhalten; alle öffentlichen CLR-Pfade erfassen.
-- **Recheck 2026-10-15:** Alle neun SQL-Einstiege binden SqlChars-basierte Bounded-Methoden. Length wird vor Read/Stringkopie geprüft; R2 verwendet dieselbe Deadline für Intake und Fachkern. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Alle neun SQL-Einstiege binden SqlChars-basierte Bounded-Methoden. Length wird vor Read/Stringkopie geprüft; R2 verwendet dieselbe Deadline für Intake und Fachkern. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Cloudabschluss 2026-10-15:** Die zugeordnete Commit-Scan-Meldung ist bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Modules/toolbelt.string.regex/Clr/RegexBoundedIntake.cs), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644472010). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-015: Cancellation: persistente Wachstums-/Retentiongrenze
 
@@ -373,12 +426,13 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-025: ScriptDom: vorgeschalteter nichtrekursiver Wächter
 
-- **Disposition:** im aktuellen Source korrigiert; Cloud-Abschluss separat.
+- **Disposition:** im aktuellen Source korrigiert und alle zugeordneten Cloudmeldungen fixed.
 - **Cloudreferenzen:** `d26299210ac481918c7d9f7677b911f4` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/50ae2351abac173f7fbdba24c74c716d3afc44df)); `efbaa6546ec0819190d43fdb6263bda9` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/d77e572da03212bfba98c7c82ffd18d6cf63d4db)).
 - **Aktuelle Bindung:** [Modules/toolbelt.tsql.script-parser/Clr/ScriptParserProvider.cs](../Modules/toolbelt.tsql.script-parser/Clr/ScriptParserProvider.cs), [Modules/toolbelt.tsql.script-parser/Clr/PreparseGuard.cs](../Modules/toolbelt.tsql.script-parser/Clr/PreparseGuard.cs), [Modules/toolbelt.tsql.script-parser/Tests/README.md](../Modules/toolbelt.tsql.script-parser/Tests/README.md).
 - **Abgleich:** PreparseGuard.Guard läuft jetzt vor parser.Parse, mit festen Input-/Strukturgrenzen. Die aktuelle Windows-2025-/CL150/160/170-Qualifikation des neuen Pins ist seit 2026-10-11 dokumentiert. Historische Meldungen beschreiben den früheren Parser.
 - **Nächster Schritt / Akzeptanz:** Altbefunde auf den Wächterfix abgleichen. Allgemeine Stackgarantie, Windows 2019/2022 und tatsächliche Ausgabeceilings bleiben bestehende Qualifikationsgrenzen, kein Nachweis eines weiterhin fehlenden Vorwächters.
-- **Recheck 2026-10-15:** Die bestehende Sourcekorrektur bleibt im integrierten Code erhalten. Keine Rücknahme durch PR #319; Cloudstatus weiterhin separat new.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Die bestehende Sourcekorrektur bleibt im integrierten Code erhalten. Keine Rücknahme durch PR #319; Cloudstatus weiterhin separat new.
+- **Cloudabschluss 2026-10-15:** Alle 2 zugeordneten Commit-Scan-Meldungen bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/fc0b2e2a11ad63912e2f0fa421e664683aff9941), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Modules/toolbelt.tsql.script-parser/Tests/README.md). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-026: Queue Claim: Handlerausführung versus Metadatensicht
 
@@ -405,7 +459,8 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 - **Aktuelle Bindung:** [Modules/toolbelt.archive.zip-memory/Clr/ZipEntryProvider.cs](../Modules/toolbelt.archive.zip-memory/Clr/ZipEntryProvider.cs), [Documentation/Architecture/ZIP_METADATA_MODULE_DESIGN.md](../Documentation/Architecture/ZIP_METADATA_MODULE_DESIGN.md).
 - **Historischer Abgleich vor PR #319:** GetPathStatus erkennt Laufwerkprefix nur mit anschließendem Slash/Backslash. C:child und der exakte Name .. erreichen weiterhin PathSafe. Dies ist ein Metadatenvertragsfehler; das Listing schreibt selbst keine Dateien.
 - **Akzeptanzplanung vor PR #319:** Bestehende relative-kanonische Pfadzusage für Drive-relative und Dotsegmente durchsetzen. Listing-/Writerregressionen koppeln; IsPathSafe weiterhin nicht als OS-Containmentautorität darstellen.
-- **Recheck 2026-10-15:** GetPathStatus weist jeden Laufwerksprefix, alleinstehendes .. sowie nicht kanonische Dotsegmente ab. Listingvektoren und native Reader-/Writer-Verträge bestanden. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Recheck 2026-10-15 vor Cloudabschluss:** GetPathStatus weist jeden Laufwerksprefix, alleinstehendes .. sowie nicht kanonische Dotsegmente ab. Listingvektoren und native Reader-/Writer-Verträge bestanden. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Cloudabschluss 2026-10-15:** Alle 4 zugeordneten Commit-Scan-Meldungen bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Framework.ps1), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644471958). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-029: Queue-Legacyupgrade: aktiver Claim nach Preflight
 
@@ -414,7 +469,8 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 - **Aktuelle Bindung:** [Modules/toolbelt.core.work-queue/Deployment/Deploy.sql](../Modules/toolbelt.core.work-queue/Deployment/Deploy.sql), [Modules/toolbelt.core.work-queue/Source/WorkItem.sql](../Modules/toolbelt.core.work-queue/Source/WorkItem.sql).
 - **Historischer Abgleich vor PR #319:** Der aktive Legacyclaimcheck steht vor Deployment-TX/AppLock. Unter dem Lock wird Version/Managedhold geprüft, nicht derselbe Legacyclaimzustand unter claimverhindernder Sperre. Der Backfill kann später hinzugekommene Claims in eine abgeleitete Lease überführen.
 - **Akzeptanzplanung vor PR #319:** Bestehende Zusage 'kein Upgrade aktiver Legacyclaims' atomar bis zur Migration sichern. Zwei Sessions und genuine 1.0/1.1 mit claimendem Consumer deterministisch testen; historische Repeat-PASS ersetzen diesen Racefall nicht.
-- **Recheck 2026-10-15:** Aktive Legacyclaims werden in der Deploymenttransaktion unter TABLOCKX/HOLDLOCK erneut geprüft; die Sperre bleibt bis Transaktionsende. Zwei synchronisierte native Sessions belegen Abweisung und Sperrwirkung. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Aktive Legacyclaims werden in der Deploymenttransaktion unter TABLOCKX/HOLDLOCK erneut geprüft; die Sperre bleibt bis Transaktionsende. Zwei synchronisierte native Sessions belegen Abweisung und Sperrwirkung. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Cloudabschluss 2026-10-15:** Die zugeordnete Commit-Scan-Meldung ist bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Tests/CI/run-security-contracts-lab.ps1), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644471853). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-030: Foundation-Budget: exakte Dezimalgrenze
 
@@ -423,7 +479,8 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 - **Aktuelle Bindung:** [.ai/foundation/runtime/processing_efficiency.py](../.ai/foundation/runtime/processing_efficiency.py), [.ai/foundation/schemas/processing-budget-request.schema.json](../.ai/foundation/schemas/processing-budget-request.schema.json).
 - **Historischer Abgleich vor PR #319:** _amount erlaubt floats; measured/estimated/reserved werden mit normaler Addition summiert und projected >= hard verglichen. Exakte Dezimalgrenzen können binär unterrepräsentiert werden. Das optionale Hilfsmodul ist ohnehin keine Provider-Spending-Enforcement.
 - **Akzeptanzplanung vor PR #319:** Exakte Dezimal-/Fixed-scale-Abrechnung innerhalb des vorhandenen Schemas festlegen und Grenzregressionen ausführen; Foundation-Provenienz als Targetoverride erhalten, nicht direkt als Upstreamfix ausgeben.
-- **Recheck 2026-10-15:** Budgetaddition und Vergleiche verwenden Fraction aus validierten Dezimaldarstellungen; der numerische JSON-Vertrag bleibt erhalten. Exakte Grenz- und Dedupfälle bestanden. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Budgetaddition und Vergleiche verwenden Fraction aus validierten Dezimaldarstellungen; der numerische JSON-Vertrag bleibt erhalten. Exakte Grenz- und Dedupfälle bestanden. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Cloudabschluss 2026-10-15:** Die zugeordnete Commit-Scan-Meldung ist bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Tests/Documentation/test_security_maintenance.py), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644472209). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-031: ZIP-Writertest: behauptetes Add-Type-LiteralPath-Problem
 
@@ -441,7 +498,8 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 - **Aktuelle Bindung:** [Modules/toolbelt.core.work-queue/Tests/Runtime/WorkQueue.Contract.sql](../Modules/toolbelt.core.work-queue/Tests/Runtime/WorkQueue.Contract.sql), [Modules/toolbelt.core.work-queue/Source/USP_ClaimWorkCore.sql](../Modules/toolbelt.core.work-queue/Source/USP_ClaimWorkCore.sql).
 - **Historischer Abgleich vor PR #319:** Die Fixture verwirft nur neue SHARED-Claims; ein zu früh CLAIMED gesetztes Barrieritem würde vor Blockercompletion nicht ausdrücklich abgewiesen. Der Produktkern besitzt derzeit die unresolved-Blocker-Abwehr; dies ist ein Testorakelfehler, kein daraus bewiesener Produktfehler.
 - **Akzeptanzplanung vor PR #319:** BARRIER_WAIT beziehungsweise Nichtclaim der konkreten Barrier vor Completion assertieren. Begrenzte negative Injektion muss den fehlerhaften Zustand zuverlässig verwerfen.
-- **Recheck 2026-10-15:** Der Contract verlangt vor Blockerabschluss BARRIER_WAIT und keinen Barrierclaim im Resultset. Zwei negative Injektionen des tatsächlichen Assertblocks bestanden. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Der Contract verlangt vor Blockerabschluss BARRIER_WAIT und keinen Barrierclaim im Resultset. Zwei negative Injektionen des tatsächlichen Assertblocks bestanden. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Cloudabschluss 2026-10-15:** Die zugeordnete Commit-Scan-Meldung ist bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Tests/CI/run-security-contracts-lab.ps1), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644471853). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-033: Historische Restgate-Anzahl
 
@@ -459,7 +517,8 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 - **Aktuelle Bindung:** [.ai/foundation/ai_runtime_adapters/reference_adapters.py](../.ai/foundation/ai_runtime_adapters/reference_adapters.py), [.ai/foundation/ai_runtime_adapters/runtime_mcp.py](../.ai/foundation/ai_runtime_adapters/runtime_mcp.py), [.ai/foundation/ai_orchestrator/ai_orchestrator.py](../.ai/foundation/ai_orchestrator/ai_orchestrator.py).
 - **Historischer Abgleich vor PR #319:** _invoke_common prüft erlaubte Datenklassen, aber fordert remote_authorized nicht für LOCAL_NETWORK/REMOTE/UNKNOWN. Nur Ollama-Cloudtags haben einen speziellen Check. OpenAI-compatible und gewöhnliche Ollama-Modellnamen können weiterhin vor expliziter Einzelautorität Input lesen und versenden.
 - **Akzeptanzplanung vor PR #319:** Bestehende Remoteautoritätsgrenze gemeinsam vor Inputread/Netzwerksink durchsetzen. Fake-Sinks müssen false/fehlend für alle Provider und Remotegrenzen ohne Read/Send verwerfen; keine echten Dateien übertragen.
-- **Recheck 2026-10-15:** Die gemeinsame HTTP-Invocation fordert bei LOCAL_NETWORK/REMOTE/UNKNOWN exakt remote_authorized=True vor Handleauflösung, Inputread und Transport. Beide Provider sind durch Fake-Sinks geprüft. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Die gemeinsame HTTP-Invocation fordert bei LOCAL_NETWORK/REMOTE/UNKNOWN exakt remote_authorized=True vor Handleauflösung, Inputread und Transport. Beide Provider sind durch Fake-Sinks geprüft. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Cloudabschluss 2026-10-15:** Die zugeordnete Commit-Scan-Meldung ist bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Tests/Documentation/test_foundation_http_response.py), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644472209). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-035: Git-Dateigrößenhelper: escaped Logpfad
 
@@ -468,16 +527,18 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 - **Aktuelle Bindung:** [CheckLargeGitFilesPush.ps1](../CheckLargeGitFilesPush.ps1).
 - **Historischer Abgleich vor PR #319:** LogFileName wird nur auf IsPathRooted geprüft; Join-Path plus Out-File erlaubt relative ..-Ausbrüche, sobald eine große Datei gefunden wird. Keine vorhandene Workflowintegration erhöht den Scope; dies ist ein lokaler Toolingfehler.
 - **Akzeptanzplanung vor PR #319:** Dokumentierte Repositoryrelativität vor Directoryanlage/Write kanonisch durchsetzen und Reparse-/Gitmetadaten schützen. Nur eigene synthetische Tempverzeichnisse für Negativfälle nutzen.
-- **Recheck 2026-10-15:** Das Logziel wird kanonisch innerhalb des Repositorys, außerhalb Gitmetadaten, ADS, Windows-Aliaspfaden und vorhandenen Reparsekomponenten gehalten; erneute Prüfung vor Write und LiteralPath-Ausgabe. Synthetische Negativfälle bestanden. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Das Logziel wird kanonisch innerhalb des Repositorys, außerhalb Gitmetadaten, ADS, Windows-Aliaspfaden und vorhandenen Reparsekomponenten gehalten; erneute Prüfung vor Write und LiteralPath-Ausgabe. Synthetische Negativfälle bestanden. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Cloudabschluss 2026-10-15:** Die zugeordnete Commit-Scan-Meldung ist bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Tests/Documentation/test_security_maintenance.py), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644472209). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-036: Integer Base: Plus als Alphabetziffer
 
-- **Disposition:** im aktuellen Source korrigiert; Cloud-Abschluss separat.
+- **Disposition:** im aktuellen Source korrigiert und alle zugeordneten Cloudmeldungen fixed.
 - **Cloudreferenzen:** `2e440c30453c8191b11709c9acdc8f33` (commit_scan, informational, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/d9fb7f842ee4b855c1cbd31611cc5ec782d920db)).
 - **Aktuelle Bindung:** [Modules/toolbelt.conversion.integer-base/Source/TVF_TryBaseToInteger.sql](../Modules/toolbelt.conversion.integer-base/Source/TVF_TryBaseToInteger.sql), [Modules/toolbelt.conversion.integer-base/Source/SVF_TryBaseToInteger.sql](../Modules/toolbelt.conversion.integer-base/Source/SVF_TryBaseToInteger.sql), [Modules/toolbelt.conversion.integer-base/Tests/Runtime/IntegerBase.Contract.sql](../Modules/toolbelt.conversion.integer-base/Tests/Runtime/IntegerBase.Contract.sql).
 - **Abgleich:** Die SVF verwendet den kanonischen Decoder; nur '-' wird als Vorzeichen erkannt, '+' wird über das Alphabet geprüft. Positive Fälle mit 0+1 und negative Fälle ohne erlaubte Plusziffer sind vorhanden. Die Korrektur wurde mit PR308 integriert.
 - **Nächster Schritt / Akzeptanz:** Altbefund anhand des aktuellen relationalen Fixes reconciliieren; keine Alphabetverkleinerung auf Basis der historischen Meldung.
-- **Recheck 2026-10-15:** Die bestehende Sourcekorrektur bleibt im integrierten Code erhalten. Keine Rücknahme durch PR #319; Cloudstatus weiterhin separat new.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Die bestehende Sourcekorrektur bleibt im integrierten Code erhalten. Keine Rücknahme durch PR #319; Cloudstatus weiterhin separat new.
+- **Cloudabschluss 2026-10-15:** Die zugeordnete Commit-Scan-Meldung ist bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/1fb13198ec767fc4373ab9ebaadd4aeb29f7b557), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Modules/toolbelt.conversion.integer-base/Tests/README.md). Source und statischer Contract geprüft; neue SQL-Runtimequalifikation für diesen Fix NOT_EXECUTED.
 
 #### SC-2026-037: Inline-TVF-Audit: Identifierparser ist MSTVF
 
@@ -486,7 +547,8 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 - **Aktuelle Bindung:** [Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md](../Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md), [Modules/toolbelt.metadata.identifier/Source/TVF_ParseMultipartName.sql](../Modules/toolbelt.metadata.identifier/Source/TVF_ParseMultipartName.sql).
 - **Historischer Abgleich vor PR #319:** Die Auditzeile nennt die QuoteMultipartName-Anforderung erfüllt, der Parser besitzt RETURNS @Result TABLE und BEGIN. Die Inlineeigenschaft ist damit nicht belegt. Das ist eine Architektur-/Dokumentationsinkonsistenz ohne neuen Security-Exploit.
 - **Akzeptanzplanung vor PR #319:** Auditwahrheit korrigieren und relationale Alternative oder begründete Ausnahme als getrennte Designfrage erfassen. Kein neues Parserobjekt aus diesem Dokumentationsfix ableiten.
-- **Recheck 2026-10-15:** Der Audit benennt den Identifierparser ausdrücklich als MSTVF und die Inlineeigenschaft als nicht nachgewiesen. Alternative/Ausnahme bleibt getrennte Designarbeit; kein neues Parserobjekt wurde implementiert. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Der Audit benennt den Identifierparser ausdrücklich als MSTVF und die Inlineeigenschaft als nicht nachgewiesen. Alternative/Ausnahme bleibt getrennte Designarbeit; kein neues Parserobjekt wurde implementiert. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Cloudabschluss 2026-10-15:** Die zugeordnete Commit-Scan-Meldung ist bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Documentation/Architecture/SVF_INLINE_TVF_AUDIT.md), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644472209). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-038: Console-Ausgabe: Gesamtmessage-/Framebudget
 
@@ -504,7 +566,8 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 - **Aktuelle Bindung:** [Modules/toolbelt.core.error-envelope/Source/USP_CaptureErrorEnvelope.sql](../Modules/toolbelt.core.error-envelope/Source/USP_CaptureErrorEnvelope.sql), [Modules/toolbelt.core.error-envelope/Examples/ErrorEnvelope.sql](../Modules/toolbelt.core.error-envelope/Examples/ErrorEnvelope.sql).
 - **Historischer Abgleich vor PR #319:** Beide Temp-Tabellen und der INSERT werden weiter vor der @ResultTable-NULL-Verzweigung ausgeführt. Im uncommittable Caller kann die Envelope-Erzeugung den ursprünglichen Fehler durch eigene schreibende Arbeit verdecken.
 - **Akzeptanzplanung vor PR #319:** Die dokumentierte CATCH/THROW-Verwendung mit einem tatsächlich read-only direkten Pfad schützen. ResultTable-Mutation bei doomed Caller explizit abgrenzen; Originalfehler und Transaktionszustand im Enginefall testen.
-- **Recheck 2026-10-15:** Direkte Ausgabe läuft vor Temp-DDL/INSERT, auch bei XACT_STATE()=-1. ResultTable wird dann mit 51406 vor Mutation abgewiesen. Original-Rethrow, Callerzustand, 14 Clientspalten und Debugmeldung wurden geprüft. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Direkte Ausgabe läuft vor Temp-DDL/INSERT, auch bei XACT_STATE()=-1. ResultTable wird dann mit 51406 vor Mutation abgewiesen. Original-Rethrow, Callerzustand, 14 Clientspalten und Debugmeldung wurden geprüft. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Cloudabschluss 2026-10-15:** Die zugeordnete Commit-Scan-Meldung ist bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Tests/CI/run-security-contracts-lab.ps1), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644472232). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-040: File-Content-Textread: Größe und Inhalt aus verschiedenen Reads
 
@@ -531,7 +594,8 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 - **Aktuelle Bindung:** [Tests/CI/run-lab-target.sh](../Tests/CI/run-lab-target.sh), [Tests/CI/run-lab-local.ps1](../Tests/CI/run-lab-local.ps1), [Tests/CI/run-w5a-second-session-linux.sh](../Tests/CI/run-w5a-second-session-linux.sh), [Tests/CI/run-w5b-event-log-linux.sh](../Tests/CI/run-w5b-event-log-linux.sh).
 - **Historischer Abgleich vor PR #319:** Die W5-Skripte setzen @locallogin=NULL mit einem privilegierten Remote-Login. run-lab-target ersetzt die synthetische Passwordvariable mit dem ausgewählten Labcredential. Auf persistenten Zielen entsteht zeitweise ein Mapping für alle lokalen Logins, Cleanup begrenzt das Privilegfenster nicht.
 - **Akzeptanzplanung vor PR #319:** Persistenten Adapter ohne catch-all Mapping für fremde Logins ausführen oder diese Suites vor jeder Servermutation fail closed sperren. Bereits vorhandene Testloginrechte nutzen, keine Logins/Grants anlegen; Cleanup/Interrupt-Fälle qualifizieren.
-- **Recheck 2026-10-15:** Beide W5-Runner entfernen das Defaultmapping und mappen nur ORIGINAL_LOGIN auf denselben vorhandenen Testlogin. Katalogassertionen verlangen exakt dieses Mapping; keine Loginanlage oder Grants durch die Mappingkorrektur. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Beide W5-Runner entfernen das Defaultmapping und mappen nur ORIGINAL_LOGIN auf denselben vorhandenen Testlogin. Katalogassertionen verlangen exakt dieses Mapping; keine Loginanlage oder Grants durch die Mappingkorrektur. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Cloudabschluss 2026-10-15:** Die zugeordnete Commit-Scan-Meldung ist bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Tests/CI/README.md), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644472225), [W5b-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644472224). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-043: Dokumentationsgenerator: Zielpfade vor --write validieren
 
@@ -540,7 +604,8 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 - **Aktuelle Bindung:** [Tests/Documentation/validate_documentation.py](../Tests/Documentation/validate_documentation.py).
 - **Historischer Abgleich vor PR #319:** evidence_documents löst Manifestpfade auf; main ruft validate_generated_module_evidence vor validate_manifests auf. write_text kann vor dem späteren Containmentcheck schreiben; .git ist nicht separat als verbotenes Ziel ausgeschlossen.
 - **Akzeptanzplanung vor PR #319:** Alle Schreibziele vor dem ersten Write gegen Repositorygrenze, Gitmetadaten und zulässige Markdownartefakte validieren. Absolute/../Symlink/.git-Inputs in eigenem synthetischem Checkout prüfen, keine echte Gitkonfiguration beschädigen.
-- **Recheck 2026-10-15:** Alle registrierten Evidence-Ziele sämtlicher Module werden vor dem ersten Write auf vorhandenes Markdown innerhalb des Repositorys und Ausschluss von Gitmetadaten/ADS/Aliaspfaden geprüft. Ein später ungültiges Ziel verhindert auch frühere Writes. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Alle registrierten Evidence-Ziele sämtlicher Module werden vor dem ersten Write auf vorhandenes Markdown innerhalb des Repositorys und Ausschluss von Gitmetadaten/ADS/Aliaspfaden geprüft. Ein später ungültiges Ziel verhindert auch frühere Writes. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Cloudabschluss 2026-10-15:** Die zugeordnete Commit-Scan-Meldung ist bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Tests/Documentation/test_security_maintenance.py), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644472209). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-044: Windows-Smoke-Test: SQLCMD-Variablen werden überschrieben
 
@@ -549,7 +614,8 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 - **Aktuelle Bindung:** [Modules/toolbelt.filesystem.windows/Tests/Runtime/WindowsCallerListDirectory.Manual.sql](../Modules/toolbelt.filesystem.windows/Tests/Runtime/WindowsCallerListDirectory.Manual.sql).
 - **Historischer Abgleich vor PR #319:** Der dokumentierte -v-Aufruf kollidiert weiter mit :setvar RootAlias '__REQUIRED__'; die In-Datei-Definition gewinnt. Der Guard stoppt den Test vor der API. Fail-closed Testartefaktfehler, kein produktiver Rootbypass.
 - **Akzeptanzplanung vor PR #319:** Betreiberinput und Beispieldefaults so trennen, dass der dokumentierte Aufruf den Guard passieren kann. Keine realen Roots eintragen; SQLCMD-Variablenauflösung mit synthetischem Input prüfen.
-- **Recheck 2026-10-15:** Überschreibende setvar-Defaults sind entfernt; RootAlias/RelativePath stammen vom Betreiber. Leere/Platzhalteraliase werden abgewiesen; der korrigierte Staticvertrag und Windows-Build bestanden. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Recheck 2026-10-15 vor Cloudabschluss:** Überschreibende setvar-Defaults sind entfernt; RootAlias/RelativePath stammen vom Betreiber. Leere/Platzhalteraliase werden abgewiesen; der korrigierte Staticvertrag und Windows-Build bestanden. Produktstand `3d4f55f` ist bytegleich zum grünen PR-Head; [Testumfang und Grenzen](../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md). Cloudmeldung bleibt bis zu einem gesonderten Cloudabschluss unverändert.
+- **Cloudabschluss 2026-10-15:** Die zugeordnete Commit-Scan-Meldung ist bestätigt fixed. [Integrierter Fix](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204), [Testbeleg](https://github.com/gecompat/SQL_Server_Toolbelt/blob/97c6243a1031b19ecde70e2db8cff7f777d39916/Modules/toolbelt.filesystem.windows/Tests/Static/validate_contract.py), [erfolgreiche CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644471688). Grenzen wie im verlinkten Testbeleg; keine vollständige neue Releasequalifikation.
 
 #### SC-2026-045: Persistente Labverbindungen: Serverzertifikat nicht authentifiziert
 

@@ -65,8 +65,9 @@ SQL2019/2022/2025-Windows-/Linux-Releasequalifikation. Regex-Upgrades, vollstän
 Regex-Lifecycle, neue Minimalrechte, echter manueller Windows-Caller und harte
 Prozessunterbrechung/Cleanup sind hier nicht ausgeführt. Die bisherigen Modulversionen
 und der unveröffentlichte Releasezustand bleiben erhalten. Cloudmeldungen wurden
-in dieser Welle nicht geschlossen; dafür ist ein erneuter Scan des integrierten
-Codes gesonderte Evidenz. Die übrigen 25 Designgruppen sind nicht implementiert.
+in der Implementierungswelle nicht geschlossen. Der anschließend ausdrücklich
+beauftragte Statusabschluss ist unten dokumentiert; ein neuer Scan bleibt
+eine separate Evidenz. Die übrigen 25 Designgruppen sind nicht implementiert.
 
 Foundation bleibt 1.21.0 mit unveränderter Quellpin-/Capabilityauswahl. Zwei bestehende
 Overridebegründungen wurden für SC-034 erweitert und der Dezimalfix als gezielter
@@ -118,7 +119,7 @@ integrierten Code bestätigt die 46 Ursachen-Gruppen: 13 mit PR #319 korrigiert
 (33 Meldungen), eine bereits in Cloud fixed und eine widerlegte Annahme.
 Offen bleiben 14 P1- und 11 P2-Gruppen, alle mit erforderlicher Designentscheidung.
 Die Detail-Dispositionen und vollständigen Cloudreferenzen stehen im [Backlog](../../.ai/BACKLOG.md).
-Cloudstatus weiterhin 63 new/1 fixed; der vorhandene Repositoryscan ist historisch.
+Cloudstatus vor dem nachfolgenden Abschluss: 63 new/1 fixed; der vorhandene Repositoryscan ist historisch.
 Dies ist eine erneute Sourceprüfung vorhandener Einträge, kein neu gestarteter
 Scan und keine automatische Cloudschließung. Die früher genannten Grenzen
 vollständiger Windows-/Release-/Interruptqualifikation bleiben bestehen.
@@ -130,3 +131,41 @@ Erneut ausgeführt am 2026-10-15 auf dem integrierten Produktstand:
 Die unveränderten Fachquellen wurden deterministisch an den Ausgangsabgleich
 gebunden; fünf veränderte Verbraucher mit weiterhin offenen Ursachen separat
 im Source geprüft. Keine zusätzliche Runtimefunktion oder Designfreigabe.
+
+## Bestätigter Cloudabschluss 2026-10-15
+
+Auf ausdrücklichen Benutzerauftrag wurden nach Einzelread und Versionsprüfung
+**25 Commit-Scan-Meldungen als fixed geschlossen**. Jede Abschlussbegründung
+verweist auf den integrierten Commit, den passenden Test und gegebenenfalls
+die erfolgreiche CI; Nachweisgrenzen bleiben ausdrücklich enthalten. Alle
+16 Meldungen der 13 oben beschriebenen Korrekturen sind damit geschlossen.
+Neun weitere Commit-Scan-Meldungen betreffen bereits früher integrierte Fixes:
+
+| Gruppe | Jetzt geschlossene Meldungen | Fix und Nachweis |
+|---|---:|---|
+| SC-001 | 5 | Literale Rootgrenzen, Fix 6808b82; RootBoundary-Contract und erfolgreiche Linux-CI 37687448814; lexikalischer Vertrag, kein Symlink-/Racenachweis. |
+| SC-003 | 1 | Begrenzter vollständiger Löschplan, Fix a16c22c; zwölf DeleteBoundaryControls-Fälle im erfolgreichen aktuellen Frameworklauf 38644471688; keine vollständige neue NTFS-/Identitätsqualifikation. |
+| SC-025 | 2 | Nichtrekursiver Vorwächter vor allen vier ScriptDom-Einstiegen, Fix fc0b2e2; registrierte Qualifikation vom 2026-10-11 mit 245 Framework-Kindprozessen und Windows-SQL2025/CL150/160/170 local/central. |
+| SC-036 | 1 | Plus als Alphabetziffer, integriert durch PR #308; Source und statischer Contract geprüft, positive Runtimeorakel vorhanden. Neue SQL-Runtimequalifikation für diesen Fix ausdrücklich NOT_EXECUTED. |
+
+Die vollständige Cloudabfrage nach den Änderungen bestätigt exakt **64 Einträge,
+26 fixed / 38 new**, ohne Folgeseite und ohne weitere Statuswechsel. Die zuvor
+geschlossene SC-033 bleibt fixed. Die 38 new bestehen aus 33 Meldungen der
+weiterhin offenen 25 Designgruppen (14 P1/11 P2, alle D/proposed), vier
+sourcekorrigierten Repository-Scan-Originalen und der widerlegten SC-031.
+
+Die vier Repository-Scan-Originale zu SC-001/003/007/008 konnten nicht geschlossen
+werden: Der Connector bietet nur Commit-Scan-Abschlüsse; die geöffnete App
+stellte keinen steuerbaren Tab bereit. Für SC-007/008 bestehen die integrierten
+Redirect-/Responsefixes samt erfolgreichen Offline-Suites (8 Methoden/204 und
+10 Methoden/111 Szenarien). Der Backlog hält ihre IDs, Fix-/Testverweise und
+den weiterhin tatsächlichen Cloudstatus new fest. SC-031 wurde mangels
+passender False-positive-Funktion nicht als angeblicher Fix geschlossen.
+
+Zusätzlich ausgeführt am 2026-10-15: `python -X utf8 -B
+Modules/<Modul>/Tests/Static/validate_contract.py` für `toolbelt.file.content`,
+`toolbelt.tsql.script-parser` und `toolbelt.conversion.integer-base`, jeweils
+erfolgreich. Dieser Auftrag ändert ausschließlich Statusdokumentation und
+Cloudmetadaten. Kein neuer Scan, keine zusätzlichen SQL-/Last-/Racetests und
+keine neue Implementierungsfreigabe. Frühere belegte Tests behalten ihre
+genaue Sourcebindung und ihren dokumentierten Scope.
