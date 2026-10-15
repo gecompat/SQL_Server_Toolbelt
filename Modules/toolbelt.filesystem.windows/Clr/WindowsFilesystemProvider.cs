@@ -302,7 +302,7 @@ namespace Toolbelt.Filesystem.Windows
                     targetBinding = new NativeParents(target, false, false);
                     stageBinding = new NativeParents(staging, false, false);
                     uint access = 0x40010080U | (overwrite ? 0x40000U : 0U);
-                    output = new FileStream(NativeOpen(staging, access, 1, false), FileAccess.Write);
+                    output = new FileStream(NativeOpen(staging, access, 1, false, 0), FileAccess.Write);
                 });
                 write(output);
                 filesystem(delegate { output.Flush(true); });
@@ -356,10 +356,10 @@ namespace Toolbelt.Filesystem.Windows
             if (!GetFileInformationByHandle(handle, out info)) Fail("HandleInformationFailed");
             return info;
         }
-        private static SafeFileHandle NativeOpen(string path, uint access, uint creation, bool? directory)
+        private static SafeFileHandle NativeOpen(string path, uint access, uint creation, bool? directory, uint share = 1)
         {
             if (Environment.OSVersion.Platform != PlatformID.Win32NT || Path.GetPathRoot(path).Length != 3) Fail("NativeFilesystemUnsupported");
-            SafeFileHandle handle = CreateFileW(path, access, 1, IntPtr.Zero, creation, 0x02200000, IntPtr.Zero);
+            SafeFileHandle handle = CreateFileW(path, access, share, IntPtr.Zero, creation, 0x02200000, IntPtr.Zero);
             if (handle.IsInvalid) { handle.Dispose(); throw new IOException("TBXFS:HandleOpenFailed"); }
             try
             {

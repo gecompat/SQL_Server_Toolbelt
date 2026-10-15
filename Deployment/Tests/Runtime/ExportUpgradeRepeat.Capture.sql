@@ -47,6 +47,7 @@ IF EXISTS(SELECT 1 FROM(VALUES
  THROW 54997,N'Der gepinnte Export-Tabellen-Shape weicht ab.',5;
 CREATE TABLE #tbx_UpgradeRepeatCounts(SchemaName sysname COLLATE Latin1_General_100_BIN2,TableName sysname COLLATE Latin1_General_100_BIN2,ExpectedRows bigint,PRIMARY KEY(SchemaName,TableName));
 INSERT #tbx_UpgradeRepeatCounts VALUES
+ (N'toolbelt_core',N'WorkTypePermission',0),
  (N'toolbelt_core',N'WorkType',2),
  (N'toolbelt_core',N'WorkItem',3),
  (N'toolbelt_core',N'WorkQueueScheduler',1),

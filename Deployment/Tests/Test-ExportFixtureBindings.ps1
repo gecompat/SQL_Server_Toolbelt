@@ -29,4 +29,18 @@ foreach($definition in $definitions){
  $hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::Unicode.GetBytes($body)))
  if($hash-cne$definition.Groups[2].Value){throw 'EXPORT_BINDING_DEFINITION_BYTES'}
 }
+# Jeder deklarierte aktuelle Tabellen-Shape benötigt auch einen eigenen Count-
+# Zeugen; sonst würde ein leerer neuer Policybestand still aus dem Snapshot fallen.
+foreach($binding in @(@{Name='ExportUpgradeRepeat.Capture.sql';Prefix='Upgrade'},@{Name='ExportQueue11Repeat.Capture.sql';Prefix='Queue11'})){
+ $text=[IO.File]::ReadAllText((Join-Path $PSScriptRoot ('Runtime/'+$binding.Name)))
+ $marker='INSERT #tbx_'+$binding.Prefix+'RepeatCounts VALUES'
+ $begin=$text.IndexOf($marker,[StringComparison]::Ordinal)
+ $end=$text.IndexOf(';',$begin)
+ $counts=@([regex]::Matches($text.Substring($begin,$end-$begin),"\(N'toolbelt_(?:core|file)',N'([^']+)',[0-9]+\)"))
+ $fieldPattern="\(N'toolbelt_(?:core|file)',N'([^']+)',[0-9]+,N'[^']+'\)"
+ $fields=@([regex]::Matches($text,$fieldPattern))
+ $countNames=@($counts|ForEach-Object {$_.Groups[1].Value}|Sort-Object -Unique)
+ $fieldNames=@($fields|ForEach-Object {$_.Groups[1].Value}|Sort-Object -Unique)
+ if($counts.Count-ne15-or$fields.Count-ne166-or($countNames-join ',')-cne($fieldNames-join ',')){throw 'EXPORT_BINDING_REPEAT_WITNESS_CLOSURE'}
+}
 Write-Output 'EXPORT_FIXTURE_BINDINGS_PASS files=5 declarations=8 no-sql'

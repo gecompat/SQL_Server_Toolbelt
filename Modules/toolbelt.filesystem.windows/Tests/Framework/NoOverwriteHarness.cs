@@ -60,6 +60,13 @@ public static class NoOverwriteHarness
         string[] stageFiles=Directory.GetFiles(directory,".tbx-*.part");
         Check(stageFiles.Length==1);
         string path=Path.GetFullPath(stageFiles[0]);
+        // Unveröffentlichte Bytes dürfen auch bei breiterer Parent-DACL nicht
+        // über einen zweiten Reader sichtbar werden; altes FileShare.None bleibt.
+        bool readerDenied=false;
+        try { using(FileStream reader=File.Open(path,FileMode.Open,FileAccess.Read,FileShare.ReadWrite|FileShare.Delete)) { } }
+        catch(IOException) { readerDenied=true; }
+        Check(readerDenied);
+
         string name=Path.GetFileName(path);
         Guid id;
         Check(name.Length==42 && name.StartsWith(".tbx-",StringComparison.Ordinal) && name.EndsWith(".part",StringComparison.Ordinal));

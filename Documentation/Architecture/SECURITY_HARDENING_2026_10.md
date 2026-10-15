@@ -242,4 +242,16 @@ Alle fünf Pins sind jetzt exakt an die konsumierten Gitbytes gebunden.
 Der bestehende Exportselbsttest prüft diese Intakegrenze und die acht
 Deklarationspins zusätzlich offline (5 Dateien/8 Deklarationen); dieser Test
 und die 29/153 bisherigen Fälle bestanden. Keine Ausnahme für abweichende
-Sourcebytes und keine zusätzliche SQL-Testwelle.
+Sourcebytes und keine zusätzlichen SQL-Ziele oder Prüfstufen.
+
+Der native Provider behält zusätzlich die bisherige exklusive Stagedatei-
+Freigabe bei: kein zweiter Reader vor Publikation, auch nicht bei breiterer
+Parent-DACL. Der aktuelle gebundene Windows-Frameworklauf prüft diese Eigenschaft
+in allen neun Writefällen zusätzlich und bestand; die zuvor qualifizierten
+SQL-API-Läufe werden dadurch nicht zu einer neuen vollständigen Windowsmatrix.
+
+Die beiden aktuellen Export-Repeats führen für die zusätzliche leere Policytabelle
+nun jeweils einen expliziten Nullzeilen-Zählzeugen. Der Offline-Intake vergleicht
+alle 15 Tabellenzeugen mit den 166 Feldbindungen, damit keine deklarierte Tabelle
+stillschweigend aus der Aufnahme fällt. Bestehende Migrations- und Vergleichs-
+prüfungen werden vollständig beibehalten.
