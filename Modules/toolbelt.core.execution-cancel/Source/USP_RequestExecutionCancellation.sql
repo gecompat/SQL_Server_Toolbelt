@@ -24,7 +24,7 @@ BEGIN
         , ('PARAMETER', 1, N'@ExecutionId', 'uniqueidentifier', 0, 1, NULL, N'Zielausführung; ohne Wert wird die aktuelle sessiongebundene ExecutionId verwendet.', NULL)
         , ('PARAMETER', 2, N'@CancellationReason', 'nvarchar(512)', 0, 1, NULL, N'Optionaler, nicht sensibler Grund. Nur die erste Anforderung speichert ihn.', NULL)
         , ('PARAMETER', 3, N'@Debug', 'tinyint', 0, 0, N'0', N'Gibt eine Fortschrittsmeldung aus.', NULL)
-        , ('ERROR', 1, N'52600-52606', NULL, NULL, NULL, NULL, N'Parameter-, Context- oder Transaktionsfehler.', NULL)
+        , ('ERROR', 1, N'52600-52606', NULL, NULL, NULL, NULL, N'Parameter-, Context-, Transaktions- oder Quotenfehler: 52605 bei 100000 DBrequests, 52606 bei 10000 je Principal; bestehende IDs bleiben idempotent.', NULL)
         , ('RESULT_COLUMN', 1, NULL, NULL, NULL, NULL, NULL, N'Kein fachliches Resultset; den Status liefert TVF_ExecutionCancellationStatus.', NULL)
         , ('EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, N'Fordert Cancellation für die aktuelle Ausführung an.', N'EXEC toolbelt_core.USP_RequestExecutionCancellation @CancellationReason=N''planned maintenance'';')
         ) AS v(Section, Ordinal, ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue, Description, ExampleSql)

@@ -281,12 +281,12 @@ BEGIN
 END;
 
 DECLARE @LargeInput nvarchar(max) =
-    REPLICATE(CONVERT(nvarchar(max), N'x,'), 10000) + N'z';
+    REPLICATE(CONVERT(nvarchar(max), N'x,'), 9999) + N'z';
 
 IF (SELECT COUNT_BIG(*)
-    FROM toolbelt_string.TVF_SplitByCharacters(@LargeInput, N',', 1)) <> 10001
+    FROM toolbelt_string.TVF_SplitByCharacters(@LargeInput, N',', 1)) <> 10000
    OR (SELECT MAX(Ordinal)
-       FROM toolbelt_string.TVF_SplitByCharacters(@LargeInput, N',', 1)) <> 10001
+       FROM toolbelt_string.TVF_SplitByCharacters(@LargeInput, N',', 1)) <> 10000
 BEGIN
     THROW 52614, N'Die LOB- oder Ordinalverarbeitung ist fehlgeschlagen.', 1;
 END;

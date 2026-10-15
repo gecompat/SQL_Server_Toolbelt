@@ -22,6 +22,9 @@ Freigabe oder Sourceänderung. SC-045 sperrt den bisherigen unsicheren
 Labvertrag bereits vor dem Verbindungsaufbau; benötigt wird der externe Lab-
 Zertifikatsvertrag; SC-018 bleibt bei untrusted Legacydirektzugriff offen.
 
+Implementierung zur Review: [PR #322](https://github.com/gecompat/SQL_Server_Toolbelt/pull/322).
+Aktuelle Head-CI und Integration werden am PR getrennt nachgewiesen.
+
 ### Aktueller Entwicklungsstand der 25 freigegebenen Punkte
 
 14 P1 und 11 P2; alle fachlichen Entscheidungen sind freigegeben. Die folgende

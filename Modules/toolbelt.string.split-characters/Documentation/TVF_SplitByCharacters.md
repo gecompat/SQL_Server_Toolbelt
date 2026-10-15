@@ -80,11 +80,12 @@ nicht als Regex oder SQL-Text interpretiert.
 
 ## Performance
 
-Die Inline-TVF verwendet `toolbelt_core.TVF_GenerateSeriesBigInt` zur
-Positionsbildung. Die Verarbeitung ist synchron und linear zur Anzahl der
-UTF-16-Codeelemente in `@Input`; die Eingabe wird nicht künstlich auf
-`nvarchar(4000)` begrenzt. Sehr große LOBs können entsprechend CPU- und
-Speicherressourcen beanspruchen.
+Der begrenzte Statuskern normalisiert höchstens 64 unterschiedliche
+Separatorcodeeinheiten über `toolbelt_core.TVF_GenerateSeriesBigInt`.
+Danach validiert er Spans vollständig vor der ersten Tokenausgabe: höchstens
+64 KiB UTF-16-Input und 10000 Tokens. Die alte Inlineoberfläche ist ein Wrapper
+über dem MSTVF-Kern. Frühere Inline-/Plan-/Parallelitätsannahmen gelten nicht
+für den Statuskern; Heap und konstante Laufzeit sind nicht zugesagt.
 
 ## Nicht Bestandteil von Version 1
 

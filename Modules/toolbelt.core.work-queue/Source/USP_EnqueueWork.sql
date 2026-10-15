@@ -62,7 +62,7 @@ BEGIN
             , ('RESULT_COLUMN', 20, N'RecoveryCount', 'bigint', 0, 0, NULL, N'Nach Enqueue 0.', NULL)
             , ('RESULT_COLUMN', 21, N'LastRecoveredAtUtc', 'datetime2(7)', 0, 1, NULL, N'Nach Enqueue NULL.', NULL)
             , ('RESULT_COLUMN', 22, N'LastRecoveredBy', 'sysname', 0, 1, NULL, N'Nach Enqueue NULL.', NULL)
-            , ('ERROR', 1, N'51900-51908', NULL, NULL, NULL, NULL, N'Work-Type-, Payload-, Transaktions- oder ResultTable-Fehler.', NULL)
+            , ('ERROR', 1, N'51900-51908,51998', NULL, NULL, NULL, NULL, N'Work-Type-, Payload-, Transaktions- oder ResultTable-Fehler. 51998: explizites ENQUEUE fehlt oder DENY gewinnt; Prüfung vor Insert und Idempotencyauskunft.', NULL)
             , ('EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, N'Reiht synthetische JSON-Arbeit ein.', N'EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName=''demo.json'', @PayloadJson=N''{"value":1}'';')
         ) AS v(Section, Ordinal, ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue, Description, ExampleSql)
         ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'RESULT_COLUMN' THEN 3 WHEN 'ERROR' THEN 4 ELSE 5 END, v.Ordinal;

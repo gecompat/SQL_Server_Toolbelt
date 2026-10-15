@@ -81,7 +81,7 @@ BEGIN
         VALUES
           ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'DESCRIPTION', 1
           , NULL, NULL, NULL, NULL, NULL
-          , N'Gibt einen langen Unicode-Text vollständig im Messages-Kanal aus. Gepufferte Ausgabe verwendet PRINT; unmittelbare Ausgabe verwendet RAISERROR mit Severity 0 und NOWAIT.'
+          , N'Gibt bis zu 1 MiB UTF-16 in höchstens 512 Frames vollständig im Messages-Kanal aus. Gepufferte Ausgabe verwendet PRINT; unmittelbare Ausgabe verwendet RAISERROR mit Severity 0 und NOWAIT.'
           , NULL )
         , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'PARAMETER', 1
           , N'@Message', 'nvarchar(max)', 0, 1, N'NULL'
@@ -102,6 +102,10 @@ BEGIN
         , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'RESULT_COLUMN', 1
           , NULL, NULL, NULL, NULL, NULL
           , N'Die Procedure besitzt kein fachliches Resultset. Text wird ausschließlich als Messages ausgegeben.'
+          , NULL )
+        , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'ERROR', 1
+          , N'52801-52802', NULL, NULL, NULL, NULL
+          , N'52801: über 1 MiB UTF-16; 52802: über 512 Frames. Ablehnung vor erster Ausgabe, keine Kürzung.'
           , NULL )
         , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'PERMISSION', 1
           , NULL, NULL, NULL, NULL, NULL

@@ -14,7 +14,7 @@ BEGIN
  BEGIN
   SELECT CAST('1.0' AS varchar(16)) HelpContractVersion,CAST(N'toolbelt_core' AS sysname) SchemaName,CAST(N'USP_EnqueueWorkWithPolicy' AS sysname) ObjectName,
          CAST('DESCRIPTION' AS varchar(32)) Section,1 Ordinal,CAST(NULL AS sysname) ItemName,CAST(NULL AS varchar(256)) SqlDataType,CAST(NULL AS bit) IsRequired,CAST(NULL AS bit) IsNullable,CAST(NULL AS nvarchar(4000)) DefaultValue,
-         CAST(N'Reiht SHARED-Arbeit mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein.' AS nvarchar(max)) Description,CAST(NULL AS nvarchar(max)) ExampleSql;
+         CAST(N'Reiht SHARED oder DRAIN_BARRIER mit unveränderlicher Retry-Policy und optionalem Idempotency Key ein. Explizites ENQUEUE ohne DENY ist erforderlich (51998). DRAIN_BARRIER ist nur ohne Callertransaktion erlaubt (51997).' AS nvarchar(max)) Description,CAST(NULL AS nvarchar(max)) ExampleSql;
   RETURN 0;
  END;
  IF NULLIF(@WorkTypeName,'') IS NULL OR NULLIF(@ExecutionGroup,'') IS NULL THROW 51965,N'Work Type und ExecutionGroup sind erforderlich.',1;

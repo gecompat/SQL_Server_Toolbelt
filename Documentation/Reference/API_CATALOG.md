@@ -784,7 +784,7 @@ Gibt einen langen Unicode-Text vollständig im Messages-Kanal aus. Gepufferte Au
 
 Vertrag und Quelle: [USP_WriteConsoleMessage.sql](../../Modules/toolbelt.core.console-message/Source/USP_WriteConsoleMessage.sql), [USP_WriteConsoleMessage.md](../../Modules/toolbelt.core.console-message/Documentation/USP_WriteConsoleMessage.md).
 
-<!-- Source/Vertrag SHA256: 9832923109a81d8111903588323ebcc8d47d4eef037d1878c80354c1b9a31744 -->
+<!-- Source/Vertrag SHA256: 2d183c07709029f8c8a04ffe6fa6cde3c61382af10b788a2d3f429852a096274 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1044,7 +1044,7 @@ Persistiert eine irreversible kooperative Cancellation-Anforderung. Die Procedur
 
 Vertrag und Quelle: [USP_RequestExecutionCancellation.sql](../../Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql), [EXECUTION_CANCELLATION_OBJECTS.md](../../Modules/toolbelt.core.execution-cancel/Documentation/EXECUTION_CANCELLATION_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 736e1607b75c1903d8b18d64d7a76ecf3047a163de46f1576f754e48f60d097a -->
+<!-- Source/Vertrag SHA256: 0061d44b02a333d61fe43435414acc85af49119e16b0942585032f9f80e897d5 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -1366,7 +1366,7 @@ Führt einen registrierten Work Type synchron in einer getrennten SQL-Server-Ses
 
 Vertrag und Quelle: [USP_ExecuteWorkTypeInNewSession.sql](../../Modules/toolbelt.core.second-session/Source/USP_ExecuteWorkTypeInNewSession.sql), [SECOND_SESSION_OBJECTS.md](../../Modules/toolbelt.core.second-session/Documentation/SECOND_SESSION_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: acf643cafa64c55c3f3bec89b8b0c58e0b27e09167f24891fcc2878e26b0ddfc -->
+<!-- Source/Vertrag SHA256: f8311fa60114c48f5420eaaec3497190f2765a8b8513d849639292540fe5afd7 -->
 
 Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 
@@ -1436,7 +1436,7 @@ Reiht genau ein Work Item für einen registrierten, aktiven Work Type ein. Es wi
 
 Vertrag und Quelle: [USP_EnqueueWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 93c1ef5e2cfe45e627298c8fbe6f085bb4ace85ed86cc3ae2ea62e9e1f1b80ab -->
+<!-- Source/Vertrag SHA256: 848bc87e3a93cfcc31e4d5adf96fa7c7942bf2a82f33e804b1dd0940e5bce4e9 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1469,7 +1469,7 @@ Reiht je nach ExecutionMode SHARED- oder DRAIN_BARRIER-Arbeit mit unveränderlic
 
 Vertrag und Quelle: [USP_EnqueueWorkWithPolicy.sql](../../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 45613150164765dbb63b004abd8b497b941ca5ba65f9be1674b83d5ddd334b8b -->
+<!-- Source/Vertrag SHA256: d5a0a54547ca15f175d16b39b165965cce982eb298989017348200812ff6f43a -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -1554,7 +1554,7 @@ Beansprucht atomar höchstens das älteste beanspruchbare Work Item und eröffne
 
 Vertrag und Quelle: [USP_ClaimWork.sql](../../Modules/toolbelt.core.work-queue/Source/USP_ClaimWork.sql), [WORK_QUEUE_OBJECTS.md](../../Modules/toolbelt.core.work-queue/Documentation/WORK_QUEUE_OBJECTS.md).
 
-<!-- Source/Vertrag SHA256: 09c5eb4932a76230a8b4d6fd85b5a6ec22ad6b20378bc6d9d89ca440684b6c70 -->
+<!-- Source/Vertrag SHA256: 1867dacf7f0959e24f5de7efc303c551532aeabc616947924cc00d091dce0956 -->
 
 Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 
@@ -3057,7 +3057,7 @@ Liest einen begrenzten Binär-Chunk aus einer per RootAlias freigegebenen Datei.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadBinaryFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadBinaryFileChunk.md).
 
-<!-- Source/Vertrag SHA256: fb0f84cb00125890d6b18faea13daab47458989ea7c51ea262f153352d577eee -->
+<!-- Source/Vertrag SHA256: 234d9cb32d132d495cf2ce2f2c287fd33a67b16dd6938bf01bee3c20e2f3cfae -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3097,7 +3097,7 @@ Liest einen begrenzten Text-Chunk mit expliziter Codepage und liefert die nächs
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ReadTextFileChunk.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ReadTextFileChunk.md).
 
-<!-- Source/Vertrag SHA256: 9f5a0cf3231abf1f55e7675fd43be6f85029c4b7d620a1bdfb99dc33fdd34be1 -->
+<!-- Source/Vertrag SHA256: c3717bd3f1ba30094f8851e49902b042b022376a13428541054598fbf600333f -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3138,7 +3138,7 @@ Schreibt Binärdaten gestreamt in eine atomar veröffentlichte Zieldatei.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteBinaryFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteBinaryFile.md).
 
-<!-- Source/Vertrag SHA256: 59560732647bf78327ba5559df2e03d497a43bbd0c8854f8cc2df82c2305f8fd -->
+<!-- Source/Vertrag SHA256: a769a6a2e3ffd1dbedace8c10c7f798f3c2ec73e75b6f883c08ea049a44e9fd0 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3178,7 +3178,7 @@ Schreibt Text gestreamt mit expliziter Codepage und optionalem BOM.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_WriteTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_WriteTextFile.md).
 
-<!-- Source/Vertrag SHA256: dc6dc5ae73e39fe036b28ab330a119ee7290979157eb7305ea73926a6b351871 -->
+<!-- Source/Vertrag SHA256: a79de3962b5f73095906ab9d370a3ff721ea2a31edf45f1ddb38fa4cb4a6e44b -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3220,7 +3220,7 @@ Konvertiert eine Textdatei gestreamt zwischen zwei expliziten Codepages.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_TranscodeTextFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_TranscodeTextFile.md).
 
-<!-- Source/Vertrag SHA256: 72d88fbe1f277551413f2a2a3eaa1f370ca28e3741c31521183880f05686a0a5 -->
+<!-- Source/Vertrag SHA256: 8ce0e16b8ecaee9d7b08bbc9f265b38569341d9bb8f3cb6be33b97e3a767f722 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3264,7 +3264,7 @@ Listet Verzeichniseinträge unter einem freigegebenen Root mit harten Grenzen.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_ListDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_ListDirectory.md).
 
-<!-- Source/Vertrag SHA256: f7c4180865e65e14f448d3824a71c8462e16e5f09d78e0c7bf17918ba1b176ba -->
+<!-- Source/Vertrag SHA256: b823f1947b5e86fea389ab0e7e64f0822b93243f9b70deb0d7b75cfdaa34514e -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3305,7 +3305,7 @@ Erstellt ein Verzeichnis unter einem freigegebenen Root.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_CreateDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_CreateDirectory.md).
 
-<!-- Source/Vertrag SHA256: 31869a885113333c415677e4feaef4eec00c081542cab1234cba93de21159cad -->
+<!-- Source/Vertrag SHA256: 2b40b3ee587b283aad65ff8baa25c04ff09ed11c16ac73244876fa0cc536a954 -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3343,7 +3343,7 @@ Entfernt eine Datei unter einem freigegebenen Root.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveFile.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveFile.md).
 
-<!-- Source/Vertrag SHA256: 1d087c2f7f26620cf35114609c93462a0f4651187df6334f42576bf61cf835e2 -->
+<!-- Source/Vertrag SHA256: 2fff70ddb8ae64ebaf9d8bb0f9d326e2c2d74cf790d9cc34ecf7edb906452f2d -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -3381,7 +3381,7 @@ Entfernt ein Verzeichnis; rekursives Entfernen ist explizit und begrenzt.
 
 Vertrag und Quelle: [Procedures.sql](../../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [USP_RemoveDirectory.md](../../Modules/toolbelt.filesystem.windows/Documentation/USP_RemoveDirectory.md).
 
-<!-- Source/Vertrag SHA256: 3740cdde54d3f09be809da3fe9cc33e9139fc74e85ea9b9c17050c339b03d09f -->
+<!-- Source/Vertrag SHA256: 1e4befce734044a9c9f00814e240b555663ce6a612a9b693fbf96cc76d459f8b -->
 
 Voraussetzung: Konfigurierter Root-Alias und passende NTFS-Rechte. Caller verlangt Windows Authentication; SQL-Login sa benötigt bei bewusster Wahl ServiceAccount. Datei-Schreib-/Löschaufrufe haben reale Seiteneffekte.
 
@@ -4544,7 +4544,7 @@ Zerlegt einen Text an jedem Zeichen der angegebenen Separatormenge.
 
 Vertrag und Quelle: [TVF_SplitByCharacters.sql](../../Modules/toolbelt.string.split-characters/Source/TVF_SplitByCharacters.sql), [TVF_SplitByCharacters.md](../../Modules/toolbelt.string.split-characters/Documentation/TVF_SplitByCharacters.md).
 
-<!-- Source/Vertrag SHA256: c1a372d38c81292604dff683f4f6eff3e769b9fcbbbee4122fe85336db13247a -->
+<!-- Source/Vertrag SHA256: d894e13cf3ccfaef5ac346d5dd7590757085913a0c0b8e79cd417716c7f32878 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

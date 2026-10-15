@@ -202,3 +202,10 @@ Dependency am kanonischen Statuskern. Native SQLClient-Labaufrufe propagieren
 explizit den TLS-Kontext; die Table-Clone-Snapshotausführung bindet den neuen
 Helper transitiv. Diese Änderungen benötigen die folgende aktuelle Head-CI;
 Fehlversuche sind kein PASS. Laufende mutierende CI wurde nicht abgebrochen.
+
+Der bisherige positive Split-LOB-Vertrag wurde auf exakt 10000 Tokens gebunden;
+10001 wird im Securityvertrag separat mit LIMIT und ohne Legacyteilmenge geprüft.
+Die SQL-Helptexte nennen die neuen Payload-/Console-/Quotengrenzen sowie
+Work-Type-/ServiceAccount-Rechte. Console-Adapterexporte wurden aus derselben
+Quelle regeneriert. Zusätzliche statische Prüfungen aller sechs davon betroffenen
+Module bestanden; aktuelle Runtimeabnahme folgt mit dem finalen Head.
