@@ -188,7 +188,9 @@ INSERT #ExpectedColumns VALUES
 (N'toolbelt_core',N'WorkQueueBarrierBlocker',4,N'BlockingClaimGeneration',127,8,19,0,0,0,0,N'NONE'),
 (N'toolbelt_core',N'WorkQueueBarrierBlocker',5,N'CapturedAtUtc',42,8,27,7,0,0,0,N'NONE');
 DELETE #ExpectedColumns WHERE @After=0 AND NOT EXISTS(SELECT 1 FROM #OldTables t WHERE t.SchemaName=#ExpectedColumns.SchemaName AND t.TableName=#ExpectedColumns.TableName AND #ExpectedColumns.Ordinal<=t.LegacyColumns);
-IF @After=1 INSERT #ExpectedColumns VALUES
+-- Die aktuellen gemeinsamen Abhängigkeiten sind bereits vor der isolierten
+-- Queuemigration installiert; ihre Policytabelle ist deshalb BEFORE wie AFTER vorhanden.
+INSERT #ExpectedColumns VALUES
 (N'toolbelt_core',N'WorkTypePermission',1,N'WorkTypeId',127,8,19,0,0,0,0,N'NONE'),
 (N'toolbelt_core',N'WorkTypePermission',2,N'PrincipalId',56,4,10,0,0,0,0,N'NONE'),
 (N'toolbelt_core',N'WorkTypePermission',3,N'PermissionName',167,32,0,0,0,0,0,N'BIN2'),
@@ -196,9 +198,11 @@ IF @After=1 INSERT #ExpectedColumns VALUES
 (N'toolbelt_core',N'WorkTypePermission',5,N'PrincipalCreatedAt',61,8,23,3,0,0,0,N'NONE'),
 (N'toolbelt_core',N'WorkTypePermission',6,N'WorkTypeVersion',173,8,0,0,0,0,0,N'NONE'),
 (N'toolbelt_core',N'WorkTypePermission',7,N'IsDenied',104,1,1,0,0,0,0,N'NONE');
-IF (SELECT COUNT(*) FROM #ExpectedColumns)<>CASE WHEN @After=0 THEN 86 ELSE 166 END
- OR (SELECT COUNT(*) FROM sys.tables WHERE is_ms_shipped=0)<>CASE WHEN @After=0 THEN 6 ELSE 15 END
- OR (SELECT COUNT(*) FROM (SELECT DISTINCT SchemaName,TableName FROM #ExpectedColumns)v)<>CASE WHEN @After=0 THEN 6 ELSE 15 END
+IF EXISTS(SELECT 1 FROM toolbelt_core.WorkTypePermission)
+ THROW 55012,N'EXPORT_QUEUE11_POLICY_MUST_REMAIN_EMPTY',21;
+IF (SELECT COUNT(*) FROM #ExpectedColumns)<>CASE WHEN @After=0 THEN 93 ELSE 166 END
+ OR (SELECT COUNT(*) FROM sys.tables WHERE is_ms_shipped=0)<>CASE WHEN @After=0 THEN 7 ELSE 15 END
+ OR (SELECT COUNT(*) FROM (SELECT DISTINCT SchemaName,TableName FROM #ExpectedColumns)v)<>CASE WHEN @After=0 THEN 7 ELSE 15 END
  OR EXISTS(SELECT 1 FROM #ExpectedColumns e LEFT JOIN sys.columns c ON c.object_id=OBJECT_ID(QUOTENAME(e.SchemaName)+N'.'+QUOTENAME(e.TableName),N'U') AND c.column_id=e.Ordinal
  WHERE c.column_id IS NULL OR CONVERT(varbinary(max),c.name)<>CONVERT(varbinary(max),e.ColumnName)
  OR c.system_type_id<>e.TypeId OR c.user_type_id<>CASE WHEN e.SysnameAlias=1 THEN TYPE_ID(N'sysname') ELSE e.TypeId END

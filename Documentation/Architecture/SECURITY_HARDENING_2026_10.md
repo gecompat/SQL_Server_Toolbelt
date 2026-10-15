@@ -255,3 +255,10 @@ nun jeweils einen expliziten Nullzeilen-Zählzeugen. Der Offline-Intake vergleic
 alle 15 Tabellenzeugen mit den 166 Feldbindungen, damit keine deklarierte Tabelle
 stillschweigend aus der Aufnahme fällt. Bestehende Migrations- und Vergleichs-
 prüfungen werden vollständig beibehalten.
+
+Exportierte Queue2.0-Migration und Parameter-Metadatenrepeat bestanden local/
+central. Die Queue1.1-Fixture bindet BEFORE nun ausdrücklich auch die bereits
+regulär aktualisierte gemeinsame Policyabhängigkeit: sieben Tabellen/93 Felder,
+AFTER unverändert 15/166. Die sechs ursprünglichen Legacytabellen bleiben separat
+vollständig verglichen; zusätzlich muss die Policytabelle in beiden Phasen leer
+bleiben. Keine automatische Delegation wird als Migrationsdefault zugelassen.
