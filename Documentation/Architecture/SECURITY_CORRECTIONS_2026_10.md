@@ -99,3 +99,34 @@ Der erste Windows-CI-Staticlauf erwartete noch den entfernten SQLCMD-Default.
 Der korrigierte Staticvertrag verlangt stattdessen nicht überschreibende
 Betreibervariablen und beide Aliasguards; lokal bestanden. Der erste
 fehlgeschlagene CI-Lauf ist kein PASS und wird durch einen neuen Head geprüft.
+
+## Integration und erneuter Befundabgleich 2026-10-15
+
+[PR #319](https://github.com/gecompat/SQL_Server_Toolbelt/pull/319) ist auf
+`main` integriert: [Mergecommit 3d4f55f](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3d4f55f9bbce0be7ddad2f106dff50b31d435204).
+Sein vollständiger Git-Tree ist identisch mit dem geprüften Head
+`7cc4650da381801536ecbfe77224703a81675efd`. Alle 13 PR-Workflows bestanden;
+45 Checks erfolgreich, ein ausschließlich manueller Zusatzworkload erwartungsgemäß
+übersprungen. Auch die abschließende [JSON-CI](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38644472511)
+für Linux SQL2019/2022/2025 bestand. Der frühe fehlgeschlagene Windows-Staticlauf
+bleibt Historie und wird nicht als PASS gezählt. Aussagen über damals offene
+Integration/CI in vorherigen Abschnitten waren zeitgebunden.
+
+Der vollständige erneute Abgleich aller 64 bestehenden Cloudmeldungen gegen den
+integrierten Code bestätigt die 46 Ursachen-Gruppen: 13 mit PR #319 korrigiert
+(16 Meldungen), 6 zuvor sourcekorrigiert (13 Meldungen), 25 weiterhin offen
+(33 Meldungen), eine bereits in Cloud fixed und eine widerlegte Annahme.
+Offen bleiben 14 P1- und 11 P2-Gruppen, alle mit erforderlicher Designentscheidung.
+Die Detail-Dispositionen und vollständigen Cloudreferenzen stehen im [Backlog](../../.ai/BACKLOG.md).
+Cloudstatus weiterhin 63 new/1 fixed; der vorhandene Repositoryscan ist historisch.
+Dies ist eine erneute Sourceprüfung vorhandener Einträge, kein neu gestarteter
+Scan und keine automatische Cloudschließung. Die früher genannten Grenzen
+vollständiger Windows-/Release-/Interruptqualifikation bleiben bestehen.
+
+Erneut ausgeführt am 2026-10-15 auf dem integrierten Produktstand:
+`test_security_maintenance.py` (3 Methoden), `test_foundation_http_response.py`
+(10 Methoden/111 Szenarien) und `test_foundation_redirects.py`
+(8 Methoden/204 Szenarien/105 Provenienzdateien), jeweils erfolgreich.
+Die unveränderten Fachquellen wurden deterministisch an den Ausgangsabgleich
+gebunden; fünf veränderte Verbraucher mit weiterhin offenen Ursachen separat
+im Source geprüft. Keine zusätzliche Runtimefunktion oder Designfreigabe.
