@@ -392,7 +392,7 @@ try{
    Invoke-FixtureFile $controlDeploy
    Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/RepeatInstalled.Verify.sql')
   }
-  'PASS: installed quiescent control1.0 and queue2.1 repeat twice; ten binary table snapshots, identities and catalog preserved.'
+  'PASS: installed quiescent control1.0 and queue2.1 repeat twice; eleven binary table snapshots including WorkTypePermission, identities and catalog preserved.'
   'PASS: caller and implicit transaction guards, state and metadata denials, bounded writer fence and post-source rollback.'
   'NOT_EXECUTED: nonempty synthetic grant witness, active managed refresh and remaining platforms.'
   return

@@ -219,3 +219,9 @@ Die lokale Offlineaufnahme beider Module bestand (24 eigene gebundene Dateien);
 beide geänderten PowerShellhelper sind syntaktisch geprüft. Der historische
 SQL-Upgradepfad benötigt die folgende Head-CI; die vorherige fehlgeschlagene
 Installation gegen den zu neuen Katalog ist kein PASS.
+
+Der aktuelle genuine SQL-Upgradepfad bestand bereits einschließlich erhaltenem
+aktiven Claim und Queue-Repeat. Die danach erreichte Control-Repeatfixture
+zählte noch zehn Tabellen; sie schließt nun ausdrücklich die elfte Tabelle
+WorkTypePermission und deren vorhandene Zeilen in den binären Erhaltungsnachweis
+ein. Keine Prüfung entfernt; der nachfolgende Head muss den gesamten Pfad bestehen.
