@@ -1,5 +1,10 @@
 # Dokumentations- und Konsistenzprüfung
 
+## Security-Korrektur 2026-10-14
+
+SC-043: Vor --write werden sämtliche registrierten Evidence-Ziele aller Module vollständig geprüft: vorhandenes Markdown innerhalb des Repositorys, keine Gitmetadaten, ADS oder Windows-Aliaspfade. Ein ungültiges späteres Ziel verhindert alle Evidencewrites.
+[Nachweise und Grenzen](../../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md).
+
 `validate_documentation.py` hält Status, Modulmanifeste, gekoppelte
 Dokumentation und Change-Impact-Regeln synchron.
 

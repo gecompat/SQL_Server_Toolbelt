@@ -65,6 +65,7 @@ BEGIN
             , ('RESULT_COLUMN', 2, N'ExecutionId', 'uniqueidentifier', 0, 1, NULL, N'Explizite oder aus SESSION_CONTEXT gelesene Execution-ID.', NULL)
             , ('RESULT_COLUMN', 3, N'ErrorClass', 'varchar(16)', 0, 0, NULL, N'ENGINE, TOOLBELT oder USER.', NULL)
             , ('ERROR', 1, N'51400-51405', NULL, NULL, NULL, NULL, N'Validierungs- und Dependencyfehler des Moduls.', NULL)
+            , ('ERROR', 2, N'51406', NULL, NULL, NULL, NULL, N'ResultTable-Ausgabe bei XACT_STATE()=-1 wird vor jeder Schreiboperation abgewiesen. Direkte Ausgabe bleibt lesend möglich.', NULL)
             , ('EXAMPLE', 1, NULL, NULL, NULL, NULL, NULL, N'Aufruf innerhalb eines CATCH mit anschließendem unverändertem THROW.', N'BEGIN CATCH EXEC toolbelt_core.USP_CaptureErrorEnvelope @ErrorNumber=ERROR_NUMBER(), @ErrorSeverity=ERROR_SEVERITY(), @ErrorState=ERROR_STATE(), @ErrorProcedure=ERROR_PROCEDURE(), @ErrorLine=ERROR_LINE(), @ErrorMessage=ERROR_MESSAGE(); THROW; END CATCH;')
         ) AS v(Section, Ordinal, ItemName, SqlDataType, IsRequired, IsNullable, DefaultValue, Description, ExampleSql)
         ORDER BY CASE v.Section WHEN 'DESCRIPTION' THEN 1 WHEN 'PARAMETER' THEN 2 WHEN 'RESULT_COLUMN' THEN 3 WHEN 'ERROR' THEN 4 ELSE 5 END, v.Ordinal;
@@ -84,6 +85,26 @@ BEGIN
 
     IF @ExecutionId IS NULL
         SET @ExecutionId = TRY_CONVERT(uniqueidentifier, SESSION_CONTEXT(N'toolbelt.execution.id'));
+
+    -- Ein doomed Caller darf für die direkte Fehlerausgabe weder Temp-DDL
+    -- noch INSERT ausführen. Typen/Nullability entsprechen dem bisherigen Schema.
+    IF @ResultTable IS NULL
+    BEGIN
+        IF @Debug > 0
+            RAISERROR(N'USP_CaptureErrorEnvelope: eine standardisierte Fehlerzeile wurde erzeugt.', 10, 1) WITH NOWAIT;
+        SELECT ISNULL(CONVERT(datetime2(7),SYSUTCDATETIME()),CONVERT(datetime2(7),'20000101')) AS CapturedAtUtc,
+            @ExecutionId AS ExecutionId,
+            ISNULL(CONVERT(varchar(16),CASE WHEN @ErrorNumber BETWEEN 51000 AND 51999 THEN 'TOOLBELT' WHEN @ErrorNumber<50000 THEN 'ENGINE' ELSE 'USER' END),'USER') AS ErrorClass,
+            ISNULL(@ErrorNumber,0) AS ErrorNumber, ISNULL(@ErrorSeverity,0) AS ErrorSeverity,
+            ISNULL(@ErrorState,0) AS ErrorState, @ErrorProcedure AS ErrorProcedure,
+            @ErrorLine AS ErrorLine, ISNULL(@ErrorMessage,N'') AS ErrorMessage,
+            ISNULL(CONVERT(smallint,XACT_STATE()),CONVERT(smallint,0)) AS XactState, ISNULL(@@TRANCOUNT,0) AS TransactionCount,
+            ISNULL(DB_NAME(),CONVERT(sysname,N'')) AS DatabaseName, ISNULL(CONVERT(int,@@SPID),0) AS SessionId,
+            @AdditionalContext AS AdditionalContext;
+        RETURN 0;
+    END;
+    IF XACT_STATE()=-1
+        THROW 51406,N'ResultTable-Ausgabe erfordert zuerst den Rollback des uncommittable Callers.',1;
 
     CREATE TABLE #tbx_ErrorEnvelopeShape
     (
@@ -141,12 +162,6 @@ BEGIN
 
     IF @Debug > 0
         RAISERROR(N'USP_CaptureErrorEnvelope: eine standardisierte Fehlerzeile wurde erzeugt.', 10, 1) WITH NOWAIT;
-
-    IF @ResultTable IS NULL
-    BEGIN
-        SELECT * FROM #tbx_ErrorEnvelopeResult;
-        RETURN 0;
-    END;
 
     IF OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable', N'P') IS NULL
         THROW 51405, N'Für @ResultTable fehlt toolbelt.core.result-table.', 1;

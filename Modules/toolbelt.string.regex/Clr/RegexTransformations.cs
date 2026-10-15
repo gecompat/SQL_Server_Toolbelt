@@ -165,13 +165,18 @@ namespace Toolbelt.String.Regex
                 throw Error("TBX_REGEX_INVALID_ARGUMENT", "Start oder Occurrence ist ungültig.");
         }
 
-        [SqlFunction(DataAccess = DataAccessKind.None, SystemDataAccess = SystemDataAccessKind.None,
-            IsDeterministic = false, IsPrecise = true)]
         public static SqlString RegexSubstring(SqlString input, SqlString pattern, SqlInt32 start,
             SqlInt32 occurrence, SqlString flags, SqlString profile)
         {
             if (input.IsNull || pattern.IsNull) return SqlString.Null;
-            var context = new TransformationContext(profile);
+            return RegexSubstringInternal(input,pattern,start,occurrence,flags,profile,new TransformationContext(profile));
+        }
+
+        private static SqlString RegexSubstringInternal(SqlString input, SqlString pattern, SqlInt32 start,
+            SqlInt32 occurrence, SqlString flags, SqlString profile, TransformationContext context)
+        {
+            if (input.IsNull || pattern.IsNull) return SqlString.Null;
+            // Der Intake und der Kern teilen dieselbe Deadline.
             ValidateTransformationArguments(start, occurrence, false);
             context.ValidateFlags(flags);
             string value = input.Value;
@@ -198,13 +203,18 @@ namespace Toolbelt.String.Regex
             return SqlString.Null;
         }
 
-        [SqlFunction(DataAccess = DataAccessKind.None, SystemDataAccess = SystemDataAccessKind.None,
-            IsDeterministic = false, IsPrecise = true)]
         public static SqlString RegexReplace(SqlString input, SqlString pattern, SqlString replacement,
             SqlInt32 start, SqlInt32 occurrence, SqlString flags, SqlString profile)
         {
             if (input.IsNull || pattern.IsNull || replacement.IsNull) return SqlString.Null;
-            var context = new TransformationContext(profile);
+            return RegexReplaceInternal(input,pattern,replacement,start,occurrence,flags,profile,new TransformationContext(profile));
+        }
+
+        private static SqlString RegexReplaceInternal(SqlString input, SqlString pattern, SqlString replacement,
+            SqlInt32 start, SqlInt32 occurrence, SqlString flags, SqlString profile, TransformationContext context)
+        {
+            if (input.IsNull || pattern.IsNull || replacement.IsNull) return SqlString.Null;
+            // Der Intake und der Kern teilen dieselbe Deadline.
             ValidateTransformationArguments(start, occurrence, true);
             context.ValidateFlags(flags);
             string value = input.Value, literal = replacement.Value;

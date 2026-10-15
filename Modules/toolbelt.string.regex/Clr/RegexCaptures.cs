@@ -134,15 +134,20 @@ namespace Toolbelt.String.Regex
             internal string Value;
         }
 
-        [SqlFunction(DataAccess = DataAccessKind.None, SystemDataAccess = SystemDataAccessKind.None,
-            IsDeterministic = false, IsPrecise = true, FillRowMethodName = "FillCaptureRow",
-            TableDefinition = "MatchOrdinal bigint, GroupOrdinal int, CaptureOrdinal bigint, GroupName nvarchar(128), Matched bit, StartPosition bigint, Length bigint, Value nvarchar(max)")]
         public static IEnumerable RegexCaptures(SqlString input, SqlString pattern, SqlInt32 start,
             SqlString flags, SqlString profile, SqlInt32 maxRows)
         {
             var rows = new List<CaptureRow>();
             if (input.IsNull || pattern.IsNull) return rows;
-            var context = new TransformationContext(profile);
+            return RegexCapturesInternal(input,pattern,start,flags,profile,maxRows,new TransformationContext(profile));
+        }
+
+        private static IEnumerable RegexCapturesInternal(SqlString input, SqlString pattern, SqlInt32 start,
+            SqlString flags, SqlString profile, SqlInt32 maxRows, TransformationContext context)
+        {
+            var rows = new List<CaptureRow>();
+            if (input.IsNull || pattern.IsNull) return rows;
+            // Der Intake und der Kern teilen dieselbe Deadline.
             if (start.IsNull || start.Value < 1 || maxRows.IsNull || maxRows.Value < 1 || maxRows.Value > 100000)
                 throw Error("TBX_REGEX_INVALID_ARGUMENT", "Start oder MaxRows ist ungültig.");
             context.ValidateFlags(flags);
@@ -255,13 +260,18 @@ namespace Toolbelt.String.Regex
             return result;
         }
 
-        [SqlFunction(DataAccess = DataAccessKind.None, SystemDataAccess = SystemDataAccessKind.None,
-            IsDeterministic = false, IsPrecise = true)]
         public static SqlString RegexReplaceGroups(SqlString input, SqlString pattern, SqlString replacement,
             SqlInt32 start, SqlInt32 occurrence, SqlString flags, SqlString profile)
         {
             if (input.IsNull || pattern.IsNull || replacement.IsNull) return SqlString.Null;
-            var context = new TransformationContext(profile);
+            return RegexReplaceGroupsInternal(input,pattern,replacement,start,occurrence,flags,profile,new TransformationContext(profile));
+        }
+
+        private static SqlString RegexReplaceGroupsInternal(SqlString input, SqlString pattern, SqlString replacement,
+            SqlInt32 start, SqlInt32 occurrence, SqlString flags, SqlString profile, TransformationContext context)
+        {
+            if (input.IsNull || pattern.IsNull || replacement.IsNull) return SqlString.Null;
+            // Der Intake und der Kern teilen dieselbe Deadline.
             ValidateTransformationArguments(start, occurrence, true);
             context.ValidateFlags(flags);
             string value = input.Value;

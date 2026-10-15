@@ -23,7 +23,7 @@ if (Test-Path -LiteralPath $OutputDirectory) {
 }
 $sourcePaths = @(
     'Clr/Toolbelt.String.Regex.csproj', 'Clr/Properties/AssemblyInfo.cs',
-    'Clr/RegexProvider.cs', 'Clr/RegexTransformations.cs', 'Clr/RegexRelations.cs',
+    'Clr/RegexProvider.cs', 'Clr/RegexBoundedIntake.cs', 'Clr/RegexTransformations.cs', 'Clr/RegexRelations.cs',
     'Clr/RegexCaptures.cs', 'Source/RegexFunctions.sql', 'Source/RegexRelations.sql',
     'Source/RegexCaptures.sql', 'Deployment/Deploy.sql', 'Deployment/Uninstall.sql',
     'Scripts/New-ClrReleaseArtifacts.ps1'

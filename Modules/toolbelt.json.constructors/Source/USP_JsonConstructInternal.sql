@@ -137,7 +137,15 @@ BEGIN
  @Stage tinyint,@BridgeCode int,@BridgeState int,@BridgePhase tinyint,@ExpectedRaw bigint,@ExpectedKey bigint,@ExpectedStrong bigint;
  DECLARE @Entry TABLE(Fragment nvarchar(max) NULL,ErrorNumber int NULL,ErrorState int NULL,FaultPhase tinyint NULL,
  RawValueBytes bigint NULL,KeyBytes bigint NULL,StrongMinimumBytes bigint NULL,FragmentBytes bigint NULL);
+ -- Kostenpass verwendet denselben bekannten CLR-Kern in kleinen Stringspans.
+ -- Er erzeugt keine vollständigen expandierten Fragmente. Alle fachlichen
+ -- Fehler werden in ursprünglicher Reihenfolge vor dem globalen Budget geprüft.
+ DECLARE @CostPass tinyint=0,@ExactTotal bigint=0,@StringCost bigint,
+ @FullString nvarchar(max),@Chunk nvarchar(1024),@ChunkStart int,@ChunkUnits int,@FullUnits int;
+ DECLARE @ChunkCost TABLE(Fragment nvarchar(max) NULL,ErrorNumber int NULL,FragmentBytes bigint NULL);
  DECLARE Entries CURSOR LOCAL FAST_FORWARD FOR SELECT GroupOrdinal,Ordinal,[Key],ValueKind,[Value] FROM #tbx_JsonConstructor_Input ORDER BY GroupOrdinal,Ordinal;
+ WHILE @CostPass<=1
+ BEGIN
  OPEN Entries;
  FETCH NEXT FROM Entries INTO @GroupOrdinal,@Ordinal,@Key,@Kind,@Value;
  WHILE @@FETCH_STATUS=0
@@ -151,6 +159,11 @@ BEGIN
   WHILE @Stage<=1
   BEGIN
    DELETE FROM @Entry;
+   IF @CostPass=0 AND @Stage=1 AND @Kind=N'string'
+   BEGIN
+    SET @FullString=@Value; SET @Value=N''; SET @ExpectedRaw=0;
+    SET @ExpectedStrong=4+CASE WHEN @ObjectMode=1 THEN @ExpectedKey+6 ELSE 0 END;
+   END;
    INSERT @Entry SELECT Fragment,ErrorNumber,ErrorState,FaultPhase,RawValueBytes,KeyBytes,StrongMinimumBytes,FragmentBytes
     FROM toolbelt_json.FT_JsonEntryEvaluateInternal(@ObjectMode,@Key,@Kind,@Value,@Stage,CONVERT(tinyint,1));
    IF (SELECT COUNT_BIG(*) FROM @Entry)<>1
@@ -185,10 +198,42 @@ BEGIN
    END;
    SET @Stage+=1;
   END;
-  INSERT #tbx_JsonConstructor_Fragments SELECT @GroupOrdinal,@Ordinal,Fragment FROM @Entry;
+  IF @CostPass=0
+  BEGIN
+   SELECT @StringCost=FragmentBytes FROM @Entry;
+   IF @Kind=N'string'
+   BEGIN
+    SET @FullUnits=CONVERT(int,DATALENGTH(@FullString)/2); SET @ChunkStart=1;
+    WHILE @ChunkStart<=@FullUnits
+    BEGIN
+     SET @ChunkUnits=CASE WHEN @FullUnits-@ChunkStart+1>1024 THEN 1024 ELSE @FullUnits-@ChunkStart+1 END;
+     -- Ein Surrogatpaar darf keine Span-Grenze kreuzen; Raw-UTF16 wurde bereits geprüft.
+     IF UNICODE(SUBSTRING(@FullString COLLATE Latin1_General_100_BIN2,@ChunkStart+@ChunkUnits-1,1)) BETWEEN 55296 AND 56319
+      SET @ChunkUnits-=1;
+     IF @ChunkUnits<=0 THROW 53611,N'JSON: Stringkostenspan ist inkohärent.',2;
+     SET @Chunk=SUBSTRING(@FullString COLLATE Latin1_General_100_BIN2,@ChunkStart,@ChunkUnits);
+     DELETE @ChunkCost;
+     INSERT @ChunkCost SELECT Fragment,ErrorNumber,FragmentBytes
+      FROM toolbelt_json.FT_JsonEntryEvaluateInternal(CONVERT(bit,0),NULL,N'string',@Chunk,CONVERT(tinyint,1),CONVERT(tinyint,1));
+     IF (SELECT COUNT_BIG(*) FROM @ChunkCost)<>1 OR EXISTS(SELECT 1 FROM @ChunkCost WHERE
+      ErrorNumber IS NULL OR ErrorNumber<>0 OR Fragment IS NULL OR FragmentBytes IS NULL
+      OR FragmentBytes<>DATALENGTH(Fragment) OR FragmentBytes<4)
+      THROW 53611,N'JSON: Stringkostenbridge ist inkohärent.',2;
+     SELECT @StringCost+=FragmentBytes-4 FROM @ChunkCost;
+     SET @ChunkStart+=@ChunkUnits;
+    END;
+   END;
+   SET @ExactTotal+=@StringCost;
+  END
+  ELSE INSERT #tbx_JsonConstructor_Fragments SELECT @GroupOrdinal,@Ordinal,Fragment FROM @Entry;
   FETCH NEXT FROM Entries INTO @GroupOrdinal,@Ordinal,@Key,@Kind,@Value;
  END;
- CLOSE Entries; DEALLOCATE Entries;
+ CLOSE Entries;
+ IF @CostPass=0 AND @ExactTotal+@SyntaxBytes>@MaxResultBytes
+  THROW 53609,N'JSON: Ergebnisbytegrenze überschritten.',3;
+ SET @CostPass+=1;
+ END;
+ DEALLOCATE Entries;
  DECLARE @Count bigint=(SELECT COUNT_BIG(*) FROM #tbx_JsonConstructor_Fragments),@Bytes bigint;
  SELECT @Bytes=COALESCE(SUM(CONVERT(bigint,DATALENGTH(Fragment))),0)+@SyntaxBytes FROM #tbx_JsonConstructor_Fragments;
  IF @Bytes>@MaxResultBytes THROW 53609,N'JSON: Ergebnisbytegrenze überschritten.',3;

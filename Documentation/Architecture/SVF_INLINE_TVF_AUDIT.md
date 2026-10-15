@@ -17,7 +17,7 @@ Parallelitätsnachteile bei.
 
 | Vorhandene SVF | Kanonischer relationaler Kern | Ergebnis | Maßnahme |
 |---|---|---|---|
-| `toolbelt_metadata.SVF_QuoteMultipartName` | `toolbelt_metadata.TVF_ParseMultipartName` | erfüllt | Keine Source-Änderung erforderlich; `OUTER APPLY` als bevorzugte Mengenverwendung deutlicher dokumentieren. |
+| `toolbelt_metadata.SVF_QuoteMultipartName` | `toolbelt_metadata.TVF_ParseMultipartName` (Multi-statement-TVF) | Inline-Anforderung nicht nachgewiesen | Korrektur SC-2026-037, 2026-10-14: Der vorhandene relationale Parser ist kein Inline-TVF. Eine semantisch äquivalente Inline-Alternative oder technisch begründete Ausnahme benötigt getrennte Designarbeit; diese Dokumentationskorrektur implementiert kein neues Objekt. |
 | `toolbelt_conversion.SVF_Base64Encode` | `toolbelt_conversion.TVF_Base64Encode` | erfüllt | SVF delegiert an den relationalen Kern. |
 | `toolbelt_conversion.SVF_Base64Decode` | `toolbelt_conversion.TVF_Base64Decode` | erfüllt | Fehler-, Leerzeilen- und LOB-Vertrag bleiben erhalten. |
 | `toolbelt_conversion.SVF_IntegerToBase` | `toolbelt_conversion.TVF_IntegerToBase` | erfüllt | Rekursiver relationaler Kern deckt den vollständigen `bigint`-Bereich ab. |

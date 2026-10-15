@@ -146,7 +146,15 @@ GO
 -- hält den administrativ vorbereiteten Provider versionsübergreifend.
 EXEC master.dbo.sp_addlinkedserver @server=N'$(LinkedServerName)',@srvproduct=N'',@provider=N'MSOLEDBSQL',@datasrc=N'127.0.0.1',@provstr=N'encrypt=$(ProviderEncrypt)';
 GO
-EXEC master.dbo.sp_addlinkedsrvlogin @rmtsrvname=N'$(LinkedServerName)',@useself=N'False',@locallogin=NULL,@rmtuser=N'sa',@rmtpassword=N'$(SaPassword)';
+-- Allgemeines Self-Mapping entfernen; vorhandenen ausführenden Testlogin
+-- ausschließlich auf sich selbst abbilden, ohne neue Logins oder Grants.
+EXEC master.dbo.sp_droplinkedsrvlogin @rmtsrvname=N'$(LinkedServerName)',@locallogin=NULL;
+DECLARE @TestLogin sysname=ORIGINAL_LOGIN();
+EXEC master.dbo.sp_addlinkedsrvlogin @rmtsrvname=N'$(LinkedServerName)',@useself=N'False',@locallogin=@TestLogin,@rmtuser=@TestLogin,@rmtpassword=N'$(SaPassword)';
+IF EXISTS(SELECT 1 FROM sys.linked_logins WHERE server_id=(SELECT server_id FROM sys.servers WHERE name=N'$(LinkedServerName)')
+ AND (local_principal_id<>SUSER_ID(@TestLogin) OR uses_self_credential<>0 OR remote_name<>@TestLogin))
+ OR (SELECT COUNT_BIG(*) FROM sys.linked_logins WHERE server_id=(SELECT server_id FROM sys.servers WHERE name=N'$(LinkedServerName)'))<>1
+ THROW 53042,N'Das Testmapping ist nicht ausschließlich loginbezogen.',1;
 GO
 EXEC master.dbo.sp_serveroption N'$(LinkedServerName)',N'rpc out',N'true';
 EXEC master.dbo.sp_serveroption N'$(LinkedServerName)',N'remote proc transaction promotion',N'false';

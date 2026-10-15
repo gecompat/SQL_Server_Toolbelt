@@ -58,4 +58,35 @@ BEGIN CATCH
 END CATCH;
 
 DROP TABLE #Envelope;
+-- Echte Engine-Doom-Situation: direkte Ausgabe erhält den Originalfehler;
+-- ResultTable wird vor DDL/DML gezielt abgewiesen und der Caller nicht repariert.
+CREATE TABLE #EnvelopeDoomProbe(Id int NOT NULL PRIMARY KEY);
+INSERT #EnvelopeDoomProbe VALUES(1);
+SET XACT_ABORT ON;
+BEGIN TRY
+ BEGIN TRANSACTION;
+ INSERT #EnvelopeDoomProbe VALUES(1);
+ THROW 52406,N'Der natürliche Constraintfehler blieb aus.',1;
+END TRY
+BEGIN CATCH
+ DECLARE @OriginalNumber int=ERROR_NUMBER(),@OriginalMessage nvarchar(4000)=ERROR_MESSAGE();
+ IF @OriginalNumber<>2627 OR XACT_STATE()<>-1 BEGIN IF @@TRANCOUNT>0 ROLLBACK; THROW; END;
+ BEGIN TRY
+  EXEC toolbelt_core.USP_CaptureErrorEnvelope @ErrorNumber=@OriginalNumber,@ErrorSeverity=16,@ErrorState=1,@ErrorMessage=@OriginalMessage,@ResultTable=N'#EnvelopeDoomProbe';
+  THROW 52407,N'Doomed ResultTable wurde nicht abgewehrt.',1;
+ END TRY
+ BEGIN CATCH
+  IF ERROR_NUMBER()<>51406 OR XACT_STATE()<>-1 BEGIN ROLLBACK; THROW; END;
+ END CATCH;
+ BEGIN TRY
+  EXEC toolbelt_core.USP_CaptureErrorEnvelope @ErrorNumber=@OriginalNumber,@ErrorSeverity=16,@ErrorState=1,@ErrorMessage=@OriginalMessage;
+  THROW;
+ END TRY
+ BEGIN CATCH
+  IF ERROR_NUMBER()<>@OriginalNumber BEGIN ROLLBACK; THROW; END;
+  ROLLBACK;
+ END CATCH;
+END CATCH;
+SET XACT_ABORT OFF;
+DROP TABLE #EnvelopeDoomProbe;
 PRINT N'Error Envelope Contract: erfolgreich';

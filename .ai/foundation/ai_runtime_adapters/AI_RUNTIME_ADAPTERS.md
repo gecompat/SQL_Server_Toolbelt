@@ -2,6 +2,13 @@
 
 Status: OPTIONAL REFERENCE CAPABILITY
 
+Securitywartung 2026-10-14 (SC-2026-034): HTTP-Invocations über
+`LOCAL_NETWORK`, `REMOTE` oder `UNKNOWN` verlangen vor Handleauflösung und
+Inputread `remote_authorized` exakt als Boolean `true`. Erlaubte Datenklassen
+ersetzen diese Einzelautorität nicht. Die gemeinsame Prüfung gilt für Ollama
+und OpenAI-compatible unabhängig vom Modellnamen; lokale HOST-/PROCESS-
+Aufrufe und reine Probe-/Catalogoperationen behalten ihren Vertrag.
+
 This capability implements `foundation-ai-adapter-jsonl/v1` over newline-delimited stdio. Every request contains only `protocol`, `request_id`, `operation`, and `arguments`; operations are `probe`, `catalog`, `invoke`, `cancel`, and optional `provision`. Results contain control metadata only. Invocation payloads move through explicitly allowlisted files, and generated content is written to an output handle rather than stdout.
 
 `reference_adapters.py` supports three replaceable paths:

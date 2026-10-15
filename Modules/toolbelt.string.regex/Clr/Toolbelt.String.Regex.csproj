@@ -26,6 +26,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegexProvider.cs" />
+    <Compile Include="RegexBoundedIntake.cs" />
     <Compile Include="RegexTransformations.cs" />
     <Compile Include="RegexRelations.cs" />
     <Compile Include="RegexCaptures.cs" />

@@ -109,6 +109,24 @@ public static class WriterFramework {
   try {Create(e,method,cap); throw new Exception("Expected "+category);} catch(Exception x){Assert(x.Message.StartsWith("TBX_ZIP_WRITE_"+category+":"),"Error category "+x.Message);}
  }
  public static void Run() {
+  // SC-028: exercise the listing facade, not an alternative path parser.
+  var pathNames=new[]{"C:file","c:","C:/file","..","a/..","../file",".","./file","a/.","a/./b","a//b","/file","a/file","directory/"};
+  var statuses=new[]{"drive-qualified","drive-qualified","drive-qualified","parent-traversal","parent-traversal","parent-traversal","noncanonical","noncanonical","noncanonical","noncanonical","noncanonical","absolute","safe","safe"};
+  for(int p=0;p<pathNames.Length;p++) {
+   byte[] archive;
+   using(var pathStream=new MemoryStream()) {
+    using(var pathZip=new ZipArchive(pathStream,ZipArchiveMode.Create,true)){pathZip.CreateEntry(pathNames[p]);}
+    archive=pathStream.ToArray();
+   }
+   int rows=0;
+   foreach(object row in ZipEntryProvider.ListZipEntriesFromBinary(new SqlBytes(archive),100)) {
+    SqlInt32 error,ordinal,method,crc,duplicates; SqlString message,name,status;
+    SqlBoolean directory,encrypted,extractable,safe; SqlInt64 compressed,uncompressed; DateTime? modified;
+    ZipEntryProvider.FillListRow(row,out error,out message,out ordinal,out name,out directory,out compressed,out uncompressed,out method,out crc,out encrypted,out extractable,out duplicates,out safe,out status,out modified);
+    Assert((error.IsNull||error.Value==0)&&name.Value==pathNames[p]&&status.Value==statuses[p]&&safe.Value==(statuses[p]=="safe"),"listing path classification");rows++;
+   }
+   Assert(rows==1,"listing path row count");
+  }
   var names=new[]{"empty.txt","unicode-\u00e4\ud83d\ude00.txt","space ","space"};
   var bytes=new[]{new byte[0],new byte[]{0,255,1,2},Encoding.UTF8.GetBytes("tail "),new byte[200000]};
   var e=Envelope(names,bytes);

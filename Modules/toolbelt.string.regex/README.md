@@ -1,5 +1,10 @@
 # toolbelt.string.regex
 
+## Security-Korrektur 2026-10-14
+
+SC-014: Alle neun SQL-CLR-Einstiege prüfen SqlChars-Längen vor begrenzter Stringaufnahme. Öffentliche SQL-Signaturen und Limits bleiben erhalten; R2 teilt eine Deadline über Intake und Auswertung.
+[Nachweise und Grenzen](../../Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md).
+
 ## Status
 
 Version `1.3.0` implementiert die einzeln freigegebenen

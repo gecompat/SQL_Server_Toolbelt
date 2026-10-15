@@ -20,6 +20,35 @@ $DefaultLogFileName = 'large_files_log.txt'
 $ParallelMinFiles      = 40
 $ParallelThrottleLimit = [Math]::Max(1, [Math]::Min([Environment]::ProcessorCount, 8))
 
+function Resolve-SafeLogFile {
+    param([string]$GitRoot, [string]$LogFileName)
+    if ([string]::IsNullOrWhiteSpace($LogFileName) -or [IO.Path]::IsPathRooted($LogFileName) -or $LogFileName.Contains(':')) {
+        throw 'LogFileName muss ein relativer Dateipfad ohne Alternate Data Stream sein.'
+    }
+    $rootPath = [IO.Path]::GetFullPath($GitRoot).TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+    $targetPath = [IO.Path]::GetFullPath((Join-Path $rootPath $LogFileName))
+    $pathComparison = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+    if (-not $targetPath.StartsWith($rootPath + [IO.Path]::DirectorySeparatorChar, $pathComparison)) {
+        throw 'LogFileName verlässt das Repository.'
+    }
+    $relativeParts = $targetPath.Substring($rootPath.Length + 1).Split([char[]]@('\','/'))
+    if ($relativeParts -contains '.git' -or $relativeParts -contains '..' -or @($relativeParts | Where-Object { $_.EndsWith('.') -or $_.EndsWith(' ') }).Count -gt 0) {
+        throw 'Gitmetadaten sind kein zulässiges Logziel.'
+    }
+    # Existierende Komponenten dürfen keine Reparseweiterleitung erzeugen.
+    $cursorPath = $targetPath
+    while ($cursorPath.Length -ge $rootPath.Length) {
+        if (Test-Path -LiteralPath $cursorPath) {
+            if (([IO.File]::GetAttributes($cursorPath) -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+                throw 'Reparse Points sind kein zulässiges Logziel.'
+            }
+        }
+        if ($cursorPath -eq $rootPath) { break }
+        $cursorPath = Split-Path -Parent $cursorPath
+    }
+    return $targetPath
+}
+
 function Write-ScriptMessage {
     param(
         [Parameter(Mandatory = $true)]
@@ -205,7 +234,7 @@ try {
         throw 'LogFileName muss relativ zum Git-Root angegeben werden, nicht als absoluter Pfad.'
     }
 
-    $LogFile      = Join-Path $GitRoot $LogFileName
+    $LogFile      = Resolve-SafeLogFile -GitRoot $GitRoot -LogFileName $LogFileName
     $GitLogPath   = ($LogFileName -replace '\\', '/')
     $LimitBytes   = [int64][Math]::Round($LimitMB * 1MB)
     $LogDirectory = Split-Path -Parent $LogFile
@@ -318,8 +347,10 @@ try {
         )
 
     if ($largeFiles.Count -gt 0) {
+        # Nach der Dateisuche die Grenze unmittelbar vor Mutation erneut prüfen.
+        $LogFile = Resolve-SafeLogFile -GitRoot $GitRoot -LogFileName $LogFileName
         if (-not [string]::IsNullOrWhiteSpace($LogDirectory)) {
-            $null = New-Item -ItemType Directory -Path $LogDirectory -Force
+            $null = [IO.Directory]::CreateDirectory($LogDirectory)
         }
 
         if ($AllFiles) {
@@ -340,7 +371,7 @@ try {
             $logLines += "{0}`t{1:N2} MB" -f $item.RelativePath, $item.SizeMB
         }
 
-        $logLines | Out-File -FilePath $LogFile -Encoding UTF8
+        $logLines | Out-File -LiteralPath $LogFile -Encoding UTF8
 
         Write-ScriptMessage -Message '---------------------------' -Color DarkCyan -BlankLineBefore
         Write-ScriptMessage -Message ("Folgende Files größer als {0} MB wurden gefunden:" -f $LimitMB) -Color Red -BlankLineAfter

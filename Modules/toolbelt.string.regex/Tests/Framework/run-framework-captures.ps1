@@ -25,7 +25,7 @@ Copy-Item -LiteralPath $assembly -Destination $privateAssembly
 $exe=Join-Path $testRoot 'CaptureContract.exe'
 & $csc /nologo /target:exe /optimize+ /out:$exe /reference:$privateAssembly /reference:System.Data.dll (Join-Path $PSScriptRoot 'CaptureContract.cs')
 if($LASTEXITCODE -ne 0){throw 'Capture-Vertragsfixture kompiliert nicht.'}
-foreach($case in @('legacy','budget','core','faults','history','output','exhaustive')){
+foreach($case in @('intake','legacy','budget','core','faults','history','output','exhaustive')){
     $info=[Diagnostics.ProcessStartInfo]::new()
     $info.FileName=$exe; $info.Arguments=$case
     $info.UseShellExecute=$false; $info.CreateNoWindow=$true

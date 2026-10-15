@@ -116,6 +116,7 @@ contracts:
 tests:
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/Regex.Contract.sql"
+  intake: "Tests/Runtime/Intake.Contract.sql"
   transformations: "Tests/Runtime/Transformations.Contract.sql"
   relations: "Tests/Runtime/Relations.Contract.sql"
   relations_framework: "Tests/Runtime/run-framework-relations.ps1"

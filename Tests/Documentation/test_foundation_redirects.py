@@ -323,7 +323,8 @@ class ProvenanceTests(unittest.TestCase):
         rows = sorted(record["files"], key=lambda row: row["target"])
         self.assertEqual(len(rows), 105)
         self.assertEqual(len({row["target"] for row in rows}), 105)
-        changed = {".ai/foundation/ai_provisioning/host_preparation.py",
+        changed = {".ai/foundation/runtime/processing_efficiency.py",
+                   ".ai/foundation/ai_provisioning/host_preparation.py",
                    ".ai/foundation/ai_provisioning/AI_PROVISIONING.md",
                    ".ai/foundation/ai_runtime_adapters/reference_adapters.py",
                    ".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md",
@@ -342,14 +343,15 @@ class ProvenanceTests(unittest.TestCase):
                     ".ai/foundation/VALIDATION_POLICY.md", ".ai/foundation/repo_map.yaml"}
         self.assertEqual(set(old_rows) | new, {row["target"] for row in rows})
         reasons = {
+            ".ai/foundation/runtime/processing_efficiency.py": "SC-030 (2026-10-14): rationale Dezimalrechnung aus validierten numerischen Inputs verhindert binaere Rundungsfehler an Soft-/Hardgrenzen; numerischer JSON-Ausgabevertrag und unbekannte Kosten bleiben erhalten.",
             ".ai/foundation/ai_provisioning/host_preparation.py":
                 "Toolbelt-Securitywartung2026-10-07: jeden Redirect vor Dispatch an ursprünglichen HTTPS-Host/Port443 binden, Same-origin-Verhalten und übrige Budgets erhalten.",
             ".ai/foundation/ai_provisioning/AI_PROVISIONING.md":
                 "Gekoppelte Dokumentation des gezielten Toolbelt-Redirect-Securityoverrides; keine neue Ausführungsautorität oder Foundationversion.",
             ".ai/foundation/ai_runtime_adapters/reference_adapters.py":
-                "Toolbelt-Securitywartung2026-10-07: HttpAdapter-Antworten vor JSON und Outputmutation auf16MiB begrenzen, Kurzreads und positive Restlänge prüfen, strukturierte Ablehnung vor Closefehlern erhalten.",
+                "Toolbelt-Securitywartung2026-10-07: HttpAdapter-Antworten vor JSON und Outputmutation auf16MiB begrenzen, Kurzreads und positive Restlänge prüfen, strukturierte Ablehnung vor Closefehlern erhalten. SC-034 (2026-10-14): Remote-, Local-Network- und Unknown-Invocation verlangen exakt remote_authorized=true vor Handleaufnahme, Inputread oder Transport; sonst Permission-Ablehnung.",
             ".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md":
-                "Gekoppelte Dokumentation von HttpAdapter-/Discovery-Responsegrenzen, Redirectverweigerung und Discovery-Originprüfung; DNS/Proxy/Hostvertrauen, TOCTOU, Heap und Gesamtzeit bleiben separat, keine Runtimeaktivierung oder Foundationversion.",
+                "Gekoppelte Dokumentation von HttpAdapter-/Discovery-Responsegrenzen, Redirectverweigerung und Discovery-Originprüfung; DNS/Proxy/Hostvertrauen, TOCTOU, Heap und Gesamtzeit bleiben separat, keine Runtimeaktivierung oder Foundationversion. SC-034: gekoppelter expliziter Remoteautoritaetsvertrag.",
             ".ai/foundation/ai_runtime_adapters/runtime_configuration.py":
                 "Toolbelt-Securitywartung2026-10-07: Discovery nutzt16MiB-Reader und NoRedirect; vor Vorschlag/Transport credential-freien HTTP(S)-Origin prüfen, ungültige Kandidaten ohne Inputecho vom Default isolieren; Transportfehler bleiben UNAVAILABLE.",
         }
@@ -366,11 +368,11 @@ class ProvenanceTests(unittest.TestCase):
                          "249dffe06dac617ce48202f676e0d5d7060ca3f2f31f9861398fc1e3ff59c0df")
         self.assertEqual(projection(fields + ("installed_sha256", "integration_state", "reason"),
                                     [row for row in rows if row["target"] not in changed]),
-                         "452c73339246812225c4faa77dca89ce5ef5793d7bece1d998740c60b4160b4a")
+                         "a225b97a547690e12e5dd76b8f1bccd948781e43178c7bf814adad79e2d8a3ea")
         for row in rows:
             if row["target"] not in changed | upgraded | new:
                 self.assertEqual(row, old_rows[row["target"]])
-            elif row["target"] in changed:
+            elif row["target"] in changed and row["target"] in old_rows:
                 excluded = {"installed_sha256", "integration_state", "reason"}
                 self.assertEqual({key: value for key, value in row.items() if key not in excluded},
                                  {key: value for key, value in old_rows[row["target"]].items() if key not in excluded})

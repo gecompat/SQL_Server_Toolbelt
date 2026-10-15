@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-14 – 13 freigegebene Security-Korrekturen
+
+Explizite HTTP-Autorität, begrenzte Labmappings und Evidence-Schreibpfade,
+JSON-Escapingvorprüfung, begrenzte Regex-CLR-Einstiege, ZIP-Pfadklassifikation,
+gesperrte Legacyclaim-Prüfung und doomed Error-Envelope-Ausgabe korrigiert.
+Exakte Dezimalbudgets, Barrier-Negativorakel, Git-Logpfade, MSTVF-Audit und
+SQLCMD-Betreibervariablen ergänzt. Gezielte Offline-/CLR-/SQL-Nachweise und
+verbleibende Qualifikationsgrenzen: [Security-Korrekturen](Documentation/Architecture/SECURITY_CORRECTIONS_2026_10.md).
+Keine neue Releasefreigabe oder Cloudschließung.
+
 ## 2026-10-09 – Leere kanonische Base64-Zeichenfolge decodieren
 
 Quellenkorrektur im bestehenden TVF-Decoder: Nicht-NULL-Eingaben mit leerer

@@ -21,10 +21,10 @@ namespace Toolbelt.String.Regex
         // erfolgen vor der Rückgabe an den SQL-Enumerator. Fachfehler können
         // deshalb keine verwertbare Teilmenge ausgeben. List<T> ist mscorlib.
         private static IEnumerable BuildRelation(SqlString input, SqlString pattern,
-            SqlInt32 start, SqlString flags, SqlString profile, SqlInt32 maxRows, bool split)
+            SqlInt32 start, SqlString flags, SqlString profile, SqlInt32 maxRows, bool split, TransformationContext context = null)
         {
             if (input.IsNull || pattern.IsNull) return new RelationRow[0];
-            var context = new TransformationContext(profile);
+            context = context ?? new TransformationContext(profile);
             if (start.IsNull || start.Value < 1 || maxRows.IsNull ||
                 maxRows.Value < 1 || maxRows.Value > 100000)
                 throw Error("TBX_REGEX_INVALID_ARGUMENT", "Start und MaxRows müssen gültige positive Grenzen sein.");
@@ -79,18 +79,12 @@ namespace Toolbelt.String.Regex
             context.Remaining();
         }
 
-        [SqlFunction(DataAccess = DataAccessKind.None, SystemDataAccess = SystemDataAccessKind.None,
-            FillRowMethodName = "FillRelationRow", TableDefinition = "Ordinal bigint, StartPosition bigint, Length bigint, Value nvarchar(max)",
-            IsDeterministic = false, IsPrecise = true)]
         public static IEnumerable RegexMatches(SqlString input, SqlString pattern, SqlInt32 start,
             SqlString flags, SqlString profile, SqlInt32 maxRows)
         {
             return BuildRelation(input, pattern, start, flags, profile, maxRows, false);
         }
 
-        [SqlFunction(DataAccess = DataAccessKind.None, SystemDataAccess = SystemDataAccessKind.None,
-            FillRowMethodName = "FillRelationRow", TableDefinition = "Ordinal bigint, StartPosition bigint, Length bigint, Value nvarchar(max)",
-            IsDeterministic = false, IsPrecise = true)]
         public static IEnumerable RegexSplit(SqlString input, SqlString pattern,
             SqlString flags, SqlString profile, SqlInt32 maxRows)
         {

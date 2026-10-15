@@ -188,7 +188,7 @@ function Assert-NoAssemblyConsumer {
 $manifest = Get-Content -LiteralPath (Join-Path $ReleaseDirectory 'Toolbelt.String.Regex.trust-manifest.json') -Raw | ConvertFrom-Json
 $providerPath = Join-Path $ReleaseDirectory 'Toolbelt.String.Regex.dll'
 $sourcePaths=@('Clr/Toolbelt.String.Regex.csproj','Clr/Properties/AssemblyInfo.cs',
-    'Clr/RegexProvider.cs','Clr/RegexTransformations.cs','Clr/RegexRelations.cs','Clr/RegexCaptures.cs',
+    'Clr/RegexProvider.cs','Clr/RegexBoundedIntake.cs','Clr/RegexTransformations.cs','Clr/RegexRelations.cs','Clr/RegexCaptures.cs',
     'Source/RegexFunctions.sql','Source/RegexRelations.sql','Source/RegexCaptures.sql',
     'Deployment/Deploy.sql','Deployment/Uninstall.sql','Scripts/New-ClrReleaseArtifacts.ps1')
 if (@($manifest.sourceFingerprints).Count -ne $sourcePaths.Count) { throw 'RELEASE_SOURCE_MANIFEST_INVALID' }
@@ -357,7 +357,7 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
                 $levels=switch($Version){'2019'{@(150)}'2022'{@(150,160)}'2025'{@(150,160,170)}}
                 foreach($level in $levels){
                     Invoke-CaptureSql $master ('ALTER DATABASE ['+$database+'] SET COMPATIBILITY_LEVEL='+$level+';')
-                    foreach($name in @('Regex.Contract.sql','Transformations.Contract.sql','Relations.Contract.sql','Captures.Contract.sql')){
+                    foreach($name in @('Regex.Contract.sql','Transformations.Contract.sql','Relations.Contract.sql','Captures.Contract.sql','Intake.Contract.sql')){
                         Invoke-CaptureBatches $consumer (Read-CaptureScript (Join-Path $moduleRoot ('Tests/Runtime/'+$name)) $variables)
                     }
                     & (Join-Path $moduleRoot 'Tests/Runtime/Captures.Metadata.ps1') -Connection $consumer -ToolbeltDatabase $database
@@ -438,7 +438,7 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
             $levels = switch ($Version) { '2019' {@(150)} '2022' {@(150,160)} '2025' {@(150,160,170)} }
             foreach ($level in $levels) {
                 Invoke-CaptureSql $master ('ALTER DATABASE [' + $database + '] SET COMPATIBILITY_LEVEL=' + $level + ';')
-                foreach ($name in @('Regex.Contract.sql','Transformations.Contract.sql','Relations.Contract.sql','Captures.Contract.sql','Lifecycle.Contract.sql')) {
+                foreach ($name in @('Regex.Contract.sql','Transformations.Contract.sql','Relations.Contract.sql','Captures.Contract.sql','Intake.Contract.sql','Lifecycle.Contract.sql')) {
                     $contractStage='API_'+$name.Replace('.Contract.sql','').ToUpperInvariant()
                     Invoke-CaptureBatches $consumer (Read-CaptureScript (Join-Path $moduleRoot ('Tests/Runtime/' + $name)) $variables) -Stage $contractStage
                 }

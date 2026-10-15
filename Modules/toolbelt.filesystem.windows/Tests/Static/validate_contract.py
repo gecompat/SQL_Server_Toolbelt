@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 root = Path(__file__).resolve().parents[2]
 source = (root / "Clr" / "WindowsFilesystemProvider.cs").read_text(encoding="utf-8")
@@ -58,9 +59,11 @@ if "TBXFS:EntryLimitExceeded" not in procedures or "Die Verzeichnisausgabe ueber
     raise SystemExit("USP_ListDirectory muss bei der Eintragsgrenze eine verständliche Fehlermeldung ausgeben.")
 if procedures.count("Dateisystemprovider konnte") != 8:
     raise SystemExit("Jede übrige öffentliche Dateisystem-Fassade muss ihren Providerfehler einordnen.")
-for marker in ("RootAlias \"__REQUIRED__\"", "USP_ListDirectory", "@ExecutionIdentity = 'Caller'", "@MaxEntries = 10000"):
+for marker in ("N'$(RootAlias)' = N'__REQUIRED__'", "NULLIF(N'$(RootAlias)', N'') IS NULL", "USP_ListDirectory", "@ExecutionIdentity = 'Caller'", "@MaxEntries = 10000", "@RelativePath = N'$(RelativePath)'"):
     if marker not in caller_smoke_test:
         raise SystemExit(f"Manueller Caller-Smoke-Test enthält nicht: {marker}")
+if re.search(r'(?im)^\s*:setvar\s+(?:RootAlias|RelativePath)\b', caller_smoke_test):
+    raise SystemExit('Caller-Smoke-Test darf explizite SQLCMD-Betreibervariablen nicht überschreiben.')
 if "@Content varbinary(max) = NULL" in procedures[: procedures.index("CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_InternalEmitHelp]")]:
     raise SystemExit("CLR-varbinary(max)-Binding darf keinen Defaultwert verwenden.")
 if "@Content nvarchar(max) = NULL" in procedures[: procedures.index("CREATE OR ALTER PROCEDURE [toolbelt_filesystem].[USP_InternalEmitHelp]")]:

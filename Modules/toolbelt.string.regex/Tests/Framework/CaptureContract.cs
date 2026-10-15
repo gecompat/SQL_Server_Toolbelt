@@ -183,10 +183,27 @@ public static class CaptureContract
             }
         }
     }
+    static SqlChars Ch(string value) {return value==null?SqlChars.Null:new SqlChars(value.ToCharArray());}
+    static void IntakeContract() {
+        Check(RegexProvider.RegexIsMatchBounded(Ch("abc"),Ch("a"),Ch("c")).Value);
+        Check(RegexProvider.RegexCountBounded(Ch("aba"),Ch("a"),1,Ch("c")).Value==2);
+        Check(RegexProvider.RegexInstrBounded(Ch("aba"),Ch("a"),1,2,0,Ch("c")).Value==3);
+        Check(RegexProvider.RegexSubstringBounded(Ch("aba"),Ch("a"),1,2,Ch("c"),Ch("standard")).Value=="a");
+        Check(RegexProvider.RegexReplaceBounded(Ch("aba"),Ch("a"),Ch("x"),1,0,Ch("c"),Ch("standard")).Value=="xbx");
+        Check(RegexProvider.RegexReplaceGroupsBounded(Ch("a"),Ch("(a)"),Ch("$1"),1,0,Ch("c"),Ch("standard")).Value=="a");
+        int n=0;foreach(object row in RegexProvider.RegexMatchesBounded(Ch("aba"),Ch("a"),1,Ch("c"),Ch("standard"),10))n++;Check(n==2);
+        n=0;foreach(object row in RegexProvider.RegexSplitBounded(Ch("a,b"),Ch(","),Ch("c"),Ch("standard"),10))n++;Check(n==2);
+        n=0;foreach(object row in RegexProvider.RegexCapturesBounded(Ch("a"),Ch("(a)"),1,Ch("c"),Ch("standard"),10))n++;Check(n==1);
+        Check(RegexProvider.RegexCountBounded(SqlChars.Null,Ch("x"),0,SqlChars.Null).IsNull);
+        Check(RegexProvider.RegexCountBounded(Ch("a"),Ch(new string('a',4001)),3,Ch("c")).Value==0);
+        Error(()=>RegexProvider.RegexCountBounded(Ch(new string('a',1048577)),Ch("a"),1,Ch("c")),"TBX_REGEX_INPUT_TOO_LARGE");
+        Error(()=>RegexProvider.RegexReplaceBounded(Ch("a"),Ch("a"),Ch("b"),0,0,Ch(new string('c',1000)),Ch("standard")),"TBX_REGEX_INVALID_ARGUMENT");
+        Error(()=>RegexProvider.RegexReplaceBounded(Ch("a"),Ch("a"),Ch("b"),1,0,Ch(new string('c',1000)),Ch("standard")),"TBX_REGEX_INVALID_FLAGS");
+    }
     public static int Main(string[] args)
     {
         Exception failure=null;
-        var thread=new Thread(()=>{try {switch(args[0]){case "legacy":Legacy();break;case "budget":Budget();break;case "core":Core();break;case "faults":Faults();break;case "history":History();break;case "output":Output();break;case "exhaustive":Exhaustive();break;default:throw new Exception();}} catch(Exception e){failure=e;}},256*1024);
+        var thread=new Thread(()=>{try {switch(args[0]){case "intake":IntakeContract();break;case "legacy":Legacy();break;case "budget":Budget();break;case "core":Core();break;case "faults":Faults();break;case "history":History();break;case "output":Output();break;case "exhaustive":Exhaustive();break;default:throw new Exception();}} catch(Exception e){failure=e;}},256*1024);
         thread.Start(); thread.Join();
         if(failure!=null){Console.Error.WriteLine(failure.ToString());return 1;}
         Console.WriteLine("PASS "+args[0]+" "+checks); return 0;

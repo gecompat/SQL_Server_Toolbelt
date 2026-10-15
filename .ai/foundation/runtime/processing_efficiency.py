@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import json
 import math
+from fractions import Fraction
 from pathlib import Path
 import re
 from typing import Any
@@ -141,7 +142,9 @@ def budget_decision(request: dict) -> dict:
     if not isinstance(request["entries"], list):
         raise ValueError("entries must be a list")
     seen = {}
-    measured = estimated = reserved = 0
+    # Dezimalzahlen des JSON-Vertrags exakt summieren. Fraction aus der
+    # Dezimaldarstellung vermeidet auch Kontextpräzisionsverlust großer Werte.
+    measured = estimated = reserved = Fraction(0)
     unknown = has_estimates = False
     for entry in request["entries"]:
         if not isinstance(entry, dict) or set(entry) != {"invocation_id", "actor", "consumed", "reserved", "provenance"}:
@@ -155,27 +158,29 @@ def budget_decision(request: dict) -> dict:
             continue
         seen[entry["invocation_id"]] = entry
         consumed = _amount(entry["consumed"], nullable=True)
-        reserved += _amount(entry["reserved"])
+        reserved += Fraction(str(_amount(entry["reserved"])))
         provenance = entry["provenance"]
         if provenance not in ("MEASURED", "ESTIMATED", "UNKNOWN") or (consumed is None) != (provenance == "UNKNOWN"):
             raise ValueError("consumption and provenance disagree")
         if provenance == "MEASURED":
-            measured += consumed
+            measured += Fraction(str(consumed))
         elif provenance == "ESTIMATED":
-            estimated += consumed
+            estimated += Fraction(str(consumed))
             has_estimates = True
         else:
             unknown = True
-    projected = _amount(measured + estimated + reserved + next_cost)
+    projected = measured + estimated + reserved + Fraction(str(next_cost))
     action = "ALLOW_NEW_WORK"
     if hard is not None and (unknown or has_estimates):
         action = "BUDGET_UNVERIFIED"
-    if hard is not None and projected >= hard:
+    if hard is not None and projected >= Fraction(str(hard)):
         action = "STOP_NEW_WORK"
-    elif action == "ALLOW_NEW_WORK" and soft is not None and projected >= soft:
+    elif action == "ALLOW_NEW_WORK" and soft is not None and projected >= Fraction(str(soft)):
         action = "CHECKPOINT"
-    return {"action": action, "wave_id": request["wave_id"], "unit": request["unit"], "measured": measured,
-            "estimated": estimated, "reserved": reserved, "projected": projected,
+    def json_number(value: Fraction) -> int | float:
+        return _amount(value.numerator if value.denominator == 1 else float(value))
+    return {"action": action, "wave_id": request["wave_id"], "unit": request["unit"], "measured": json_number(measured),
+            "estimated": json_number(estimated), "reserved": json_number(reserved), "projected": json_number(projected),
             "unknown_consumption": unknown, "unique_invocations": len(seen),
             "reservation_applied": False, "provider_limit_enforced": False}
 

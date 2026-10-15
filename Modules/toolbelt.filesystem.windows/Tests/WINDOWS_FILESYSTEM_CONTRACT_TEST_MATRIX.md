@@ -23,9 +23,9 @@ Aktuelle Evidenz: Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 auf 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-13`
-- Nachweis: `Abschlusslauf der autorisierten Windows-Identitäts-/Reparse-Welle`
-- Scope: SQL Server 2025 Windows; frischer Release-Build, Caller mit synthetischer Windows-Identität und ServiceAccount bestanden List-/Textwrite. SQL Authentication im Caller-Modus sowie Junction-List und -Delete wurden kontrolliert abgewiesen. Ein kontrollierter Wechsel eines ausschließlich synthetischen Root-Kindes zwischen Directory und Junction lief parallel zu 120 begrenzten ServiceAccount-Deleteversuchen; das externe Sentinel blieb erhalten. Eigene Datenbank-, Login-, Trust- und Testausgaben wurden bereinigt. Die breitere Codepage-, Chunk-, Limit- und Atomic-Write-Matrix bleibt getrennt offen.
+- Datum: `2026-10-12`
+- Nachweis: `Privater Windows-Recheck des transparenten Rechtevertrags`
+- Scope: SQL Server 2025 Windows; finaler Release-Build deployed. Windows-Caller mit EXECUTE plus SELECT auf FileSystemRoot und ServiceAccount-List erfolgreich; SQL-Authentication im Caller-Modus sowie Junction-/Reparse-List kontrolliert abgewiesen. Vollständige I/O-, Limit-, TOCTOU- und Cleanup-Matrix bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -76,3 +76,16 @@ Aktueller kanonischer Projektbuild/Releaseartefakt, direkte CLR-/RunAs-Qualifika
 | Race | Ein begrenzter Versuch, Ziel während Staging anzulegen | `NOT_OBSERVED`; kein Race-PASS |
 
 16 Pflichtfälle bestanden; ein zusätzlicher Race-Fall wurde nicht beobachtet. Direkte CLR-/RunAs-Aufrufe, weitere Codepages und Limits, Reparse-/rekursive Delete-Fälle, weitere Ziele und ZIP-Dateizugriff sind dadurch nicht qualifiziert. Keine Konfigurations-, SQL-Rechte- oder Owneränderungen; Status `partially validated` und `unreleased` unverändert. Frühere Evidenzabschnitte bleiben historische Nachweise.
+
+## Historisch dokumentierter Eintrag vom 2026-10-13
+
+Der folgende Eintrag stand vor der Security-Welle im generierten Abschnitt,
+ist aber nicht in der aktuellen Manifest-Evidenzliste registriert. Er bleibt
+als historisch dokumentierte Aussage erhalten. Die Security-Welle prüfte diesen
+Windows-Lauf nicht erneut; der generierte Abschnitt folgt dem Manifest.
+Autor der Reconciliation: Codex, 2026-10-14.
+
+- Datum: `2026-10-13`
+- Nachweis: `Abschlusslauf der autorisierten Windows-Identitäts-/Reparse-Welle`
+- Scope: SQL Server 2025 Windows; frischer Release-Build, Caller mit synthetischer Windows-Identität und ServiceAccount bestanden List-/Textwrite. SQL Authentication im Caller-Modus sowie Junction-List und -Delete wurden kontrolliert abgewiesen. Ein kontrollierter Wechsel eines ausschließlich synthetischen Root-Kindes zwischen Directory und Junction lief parallel zu 120 begrenzten ServiceAccount-Deleteversuchen; das externe Sentinel blieb erhalten. Eigene Datenbank-, Login-, Trust- und Testausgaben wurden bereinigt. Die breitere Codepage-, Chunk-, Limit- und Atomic-Write-Matrix bleibt getrennt offen.
+- Ergebnis: `success`
