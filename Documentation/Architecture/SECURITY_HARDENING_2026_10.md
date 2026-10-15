@@ -209,3 +209,13 @@ Die SQL-Helptexte nennen die neuen Payload-/Console-/Quotengrenzen sowie
 Work-Type-/ServiceAccount-Rechte. Console-Adapterexporte wurden aus derselben
 Quelle regeneriert. Zusätzliche statische Prüfungen aller sechs davon betroffenen
 Module bestanden; aktuelle Runtimeabnahme folgt mit dem finalen Head.
+
+Der genuine Worker-Upgradepfad bindet nun WorkType1.1 und Queue2.0 aus demselben
+öffentlichen historischen Commit blobidentisch vor der ersten DB-Mutation.
+Anschließend aktualisiert er regulär auf WorkType1.2, delegiert ausschließlich
+den vorhandenen synthetischen Upgrade-Work-Type und aktualisiert Queue2.1.
+Keine historischen Sourceänderungen oder fingierten Versionsmarker.
+Die lokale Offlineaufnahme beider Module bestand (24 eigene gebundene Dateien);
+beide geänderten PowerShellhelper sind syntaktisch geprüft. Der historische
+SQL-Upgradepfad benötigt die folgende Head-CI; die vorherige fehlgeschlagene
+Installation gegen den zu neuen Katalog ist kein PASS.
