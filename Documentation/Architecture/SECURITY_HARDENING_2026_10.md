@@ -235,3 +235,11 @@ Offline bestanden die gebundene Dependency-Erzeugung local/central ohne
 SQLverbindung und der unveränderte SQL-Exportselbsttest (29/153).
 Die bestehenden CI-Schritte und ihre Bereinigungsgrenzen bleiben erhalten;
 kein zusätzlicher Testtarget, keine neue Version- oder Parameterfiktion.
+
+Die native befüllte Exportprüfung bestand inzwischen local/central. Der
+nachfolgende Legacyexport stoppte vor SQL an einem Windows-/LF-Sourcepin.
+Alle fünf Pins sind jetzt exakt an die konsumierten Gitbytes gebunden.
+Der bestehende Exportselbsttest prüft diese Intakegrenze und die acht
+Deklarationspins zusätzlich offline (5 Dateien/8 Deklarationen); dieser Test
+und die 29/153 bisherigen Fälle bestanden. Keine Ausnahme für abweichende
+Sourcebytes und keine zusätzliche SQL-Testwelle.

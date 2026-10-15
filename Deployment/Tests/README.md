@@ -897,3 +897,9 @@ Quellen und Versionsmarker bleiben unverändert. Die acht AFTER-Definitionen
 werden vollständig ab dem qualifizierten Objektnamen an die aktuellen Quellen
 gebunden; nur CREATE/ALTER-Clientprefix und äußere Transportwhitespace werden
 normalisiert. BEFORE behält seine festen historischen Volltexthashes.
+
+`Test-SqlExport.ps1` prüft vor seinen 29 bisherigen Fällen zusätzlich mit
+`Test-ExportFixtureBindings.ps1` die exakten konsumierten Bytes von fünf
+Helper-/Fixturedateien und die acht aktuellen Deklarationspins ohne SQLzugriff.
+Damit werden veraltete Hashes und abweichende Zeilenenden vor der Runtimewelle
+erkannt; die Zahl oder der Scope der SQL-Ziele wird nicht erweitert.

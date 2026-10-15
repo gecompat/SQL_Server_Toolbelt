@@ -312,7 +312,7 @@ function New-LegacyQueueDependencyExport([string]$Mode){
  $bytes=[IO.File]::ReadAllBytes($fragment)
  $ownedFiles.Add([pscustomobject]@{Path=$fragment;Hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes));BatchCount=@(Get-ExportBatches ($utf8.GetString($bytes))).Count})
  $helper=Join-Path $repositoryRoot 'Workers/ExternalQueue/Tests/Runtime/New-GenuineQueue20Capture.ps1'
- Assert-ExportRepeat ((Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash-ceq'147C7D9D4BC3625DA1EAF5CFBFC717974A5138D4326C4153FBACF94E244BA8E0') 'HISTORICAL_CAPTURE_HELPER'
+ Assert-ExportRepeat ((Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash-ceq'27F1F38785ED0B9BE02640ED2B923517A77FA0682FDCFC3B102D670ABFA28EA5') 'HISTORICAL_CAPTURE_HELPER'
  . $helper
  $captureRoot=Join-Path $ownedRoot ('worktype11-'+$Mode)
  $deploy=New-GenuineQueue20Capture -RepositoryRoot $repositoryRoot -OutputRoot $captureRoot -CaptureModule work-type -OwnedFiles $historicalFiles -OwnedDirectories $historicalDirectories
@@ -353,7 +353,7 @@ function New-UpgradeBootstrap([string]$Mode){
 }
 function New-UpgradeHistoricalExport([string]$Mode){
  $helper=Join-Path $repositoryRoot 'Workers/ExternalQueue/Tests/Runtime/New-GenuineQueue20Capture.ps1'
- Assert-ExportRepeat ((Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash-ceq'147C7D9D4BC3625DA1EAF5CFBFC717974A5138D4326C4153FBACF94E244BA8E0') 'HISTORICAL_CAPTURE_HELPER'
+ Assert-ExportRepeat ((Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash-ceq'27F1F38785ED0B9BE02640ED2B923517A77FA0682FDCFC3B102D670ABFA28EA5') 'HISTORICAL_CAPTURE_HELPER'
  . $helper
  $captureRoot=Join-Path $ownedRoot ('queue20-'+$Mode)
  $deploy=New-GenuineQueue20Capture -RepositoryRoot $repositoryRoot -OutputRoot $captureRoot -OwnedFiles $historicalFiles -OwnedDirectories $historicalDirectories
@@ -539,7 +539,7 @@ function Invoke-Queue11ExportFile($Identity,$Export){
  return $started
 }
 function Assert-Queue11Fixtures {
- foreach($binding in @(@{Name='ExportQueue11.Setup.sql';Hash='04EB235CCEEC0036EDDD2C8B9D342EB800F76432656731BC6339B96E32E0ECEC'},@{Name='ExportQueue11.Capture.sql';Hash='CF6C388794512A2961B778A25056F3A9EEF236EC77640EEACACD78D0083882FC'},@{Name='ExportQueue11.Assert.sql';Hash='1629F436F82BEC3A9E474D05578B41201D6555961B0A832C4DA53815D16B197B'},@{Name='ExportQueue11Repeat.Capture.sql';Hash='CEA7124A183C843A6CE5E4FCC37EB5DA9842708FDD2E8C7CC193CC24DCE4CDE5'})){
+ foreach($binding in @(@{Name='ExportQueue11.Setup.sql';Hash='04EB235CCEEC0036EDDD2C8B9D342EB800F76432656731BC6339B96E32E0ECEC'},@{Name='ExportQueue11.Capture.sql';Hash='DF44F23E6BD7139786BF3E95CCFD5FE7258173891EC28CB4C3DC4A9499F94199'},@{Name='ExportQueue11.Assert.sql';Hash='8E7D4265C1775D77BBA2E0D52F7CAF04BFD93D768597C1B9FC28D6AACF1C7FEE'},@{Name='ExportQueue11Repeat.Capture.sql';Hash='35590F1D8110FAA5F1EAFC7A294F382F9DBCF3E0F3E40B3C02616A1E09CEDBB0'})){
   Assert-ExportRepeat ((Get-FileHash -LiteralPath (Join-Path $runtimeRoot $binding.Name) -Algorithm SHA256).Hash-ceq$binding.Hash) 'QUEUE11_SQL_FIXTURE_PIN'
  }
 }
@@ -894,5 +894,5 @@ if($cleanupFailed){[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_CLEANUP_DEF
 if($Scenario-ceq'Queue11Upgrade'){[Console]::Out.WriteLine('EXPORT_QUEUE11_UPGRADE_PASS local central SQL2019 CL150 six-legacy-tables genuine1.1-to2.1 original-clean');[Console]::Out.WriteLine('EXPORT_QUEUE11_POSTMIGRATION_REPEAT_PASS local central SQL2019 CL150 fourteen-tables one-cycle same-file')}
 elseif($Scenario-ceq'Queue20Upgrade'){[Console]::Out.WriteLine('EXPORT_QUEUE20_UPGRADE_PASS local central SQL2019 CL150 eight-legacy-tables genuine2.0-to2.1 first-control')}
 elseif($Scenario-ceq'ParameterMetadata'){[Console]::Out.WriteLine('EXPORT_PARAMETER_METADATA_PASS local central SQL2019 CL150 three-modules two-procedures eleven-parameters one-cycle')}
-else{[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_PASS local central SQL2019 CL150 fourteen-tables two-cycles')}
+else{[Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_PASS local central SQL2019 CL150 fifteen-tables two-cycles')}
 [Console]::Out.WriteLine('EXPORT_POPULATED_REPEAT_CLEANUP_VERIFIED')
