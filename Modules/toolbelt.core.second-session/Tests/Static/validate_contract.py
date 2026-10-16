@@ -79,7 +79,7 @@ if manifest.count("\nvalidation_evidence:\n") != 1:
 for dependency_contract in (
     'module_id: "toolbelt.core.result-table"\n    minimum_version: "1.0.0"',
     'module_id: "toolbelt.core.execution-context"\n    minimum_version: "1.0.0"',
-    'module_id: "toolbelt.core.work-type"\n    minimum_version: "1.1.0"',
+    'module_id: "toolbelt.core.work-type"\n    minimum_version: "1.2.0"',
 ):
     if dependency_contract not in manifest:
         raise SystemExit("Second-Session-Abhängigkeitsvertrag fehlt oder ist falsch: " + dependency_contract.replace("\n", " / "))

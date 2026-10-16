@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Security.AccessControl;
 using System.Data.SqlTypes;
 using System.Runtime.ExceptionServices;
 using System.Text;
@@ -56,7 +57,16 @@ public static class NoOverwriteHarness
     }
     static void CaptureStage(FileStream stream)
     {
-        string path=Path.GetFullPath(stream.Name);
+        string[] stageFiles=Directory.GetFiles(directory,".tbx-*.part");
+        Check(stageFiles.Length==1);
+        string path=Path.GetFullPath(stageFiles[0]);
+        // Unveröffentlichte Bytes dürfen auch bei breiterer Parent-DACL nicht
+        // über einen zweiten Reader sichtbar werden; altes FileShare.None bleibt.
+        bool readerDenied=false;
+        try { using(FileStream reader=File.Open(path,FileMode.Open,FileAccess.Read,FileShare.ReadWrite|FileShare.Delete)) { } }
+        catch(IOException) { readerDenied=true; }
+        Check(readerDenied);
+
         string name=Path.GetFileName(path);
         Guid id;
         Check(name.Length==42 && name.StartsWith(".tbx-",StringComparison.Ordinal) && name.EndsWith(".part",StringComparison.Ordinal));
@@ -125,6 +135,46 @@ public static class NoOverwriteHarness
         CreateSentinel(); Invoke(true,false,true,false,typeof(InvalidOperationException)); TargetEquals(Sentinel); ClearTarget();
         Check(stages==9); Check(sentinelCreates==5); Check(Owned.Count==10); Check(maxSimultaneous<=2);
     }
+    static void NativeHandleControls()
+    {
+        // Deterministische Austauschversuche im geöffneten Writecallback.
+        string container=Path.Combine(Path.GetTempPath(),"ToolbeltNativeHandles-"+Guid.NewGuid().ToString("N"));
+        string allowed=Path.Combine(container,"allowed"),moved=Path.Combine(container,"moved");
+        string targetPath=Path.Combine(allowed,"target.bin");
+        Directory.CreateDirectory(allowed);
+        Type rootType=typeof(WindowsFilesystemProvider).GetNestedType("Root",BindingFlags.NonPublic);
+        object localRoot=Activator.CreateInstance(rootType,true);
+        rootType.GetField("RootPath").SetValue(localRoot,allowed);
+        try
+        {
+            Action<FileStream> write=delegate(FileStream stream) {
+                bool denied=false;
+                try { Directory.Move(allowed,moved); } catch(IOException) { denied=true; }
+                Check(denied);
+                string[] files=Directory.GetFiles(allowed,".tbx-*.part");Check(files.Length==1);
+                denied=false;
+                try { File.Delete(files[0]); } catch(IOException) { denied=true; }
+                Check(denied);stream.Write(Payload,0,Payload.Length);
+            };
+            helper.Invoke(null,new object[]{localRoot,targetPath,false,write});
+            Check(Same(File.ReadAllBytes(targetPath),Payload));
+            FileSecurity policy=File.GetAccessControl(targetPath);
+            policy.SetAccessRuleProtection(true,true);File.SetAccessControl(targetPath,policy);
+            string accessBefore=File.GetAccessControl(targetPath).GetSecurityDescriptorSddlForm(AccessControlSections.Access);
+            helper.Invoke(null,new object[]{localRoot,targetPath,true,write});
+            Check(File.GetAccessControl(targetPath).GetSecurityDescriptorSddlForm(AccessControlSections.Access)==accessBefore);
+            Check(Same(File.ReadAllBytes(targetPath),Payload));
+            Check(!Directory.Exists(moved));Check(Directory.GetFiles(allowed).Length==1);
+            File.Delete(targetPath);Directory.Delete(allowed,false);Directory.Delete(container,false);
+        }
+        finally
+        {
+            // Nur eigene erwartete Dateien; unklare Reste bleiben zur Diagnose.
+            if(File.Exists(targetPath)&&Same(File.ReadAllBytes(targetPath),Payload))File.Delete(targetPath);
+            if(Directory.Exists(allowed)&&Directory.GetFileSystemEntries(allowed).Length==0)Directory.Delete(allowed,false);
+            if(Directory.Exists(container)&&Directory.GetFileSystemEntries(container).Length==0)Directory.Delete(container,false);
+        }
+    }
     public static int Main(string[] args)
     {
         bool success=false,cleanup=true;
@@ -144,7 +194,7 @@ public static class NoOverwriteHarness
             rootType.GetField("WorkPath",BindingFlags.Instance|BindingFlags.Public).SetValue(root,null);
             helper=provider.GetMethod("WriteAtomically",BindingFlags.Static|BindingFlags.NonPublic);
             Check(helper!=null && helper.GetParameters().Length==4);
-            CallerAuthenticationPolicy(); Run(); StreamingIdentityControls.Run(); DeleteBoundaryControls.Run(); success=true;
+            CallerAuthenticationPolicy(); Run(); NativeHandleControls(); StreamingIdentityControls.Run(); DeleteBoundaryControls.Run(); success=true;
         }
         catch { success=false; }
         finally
@@ -421,7 +471,7 @@ static class StreamingIdentityControls
                     Check(Object.ReferenceEquals(observed,input.Raised));
                     string[] secondary=observed.Data["Toolbelt.Filesystem.SecondaryFailures"] as string[];
                     Check(secondary!=null&&secondary.Length==1);
-                    Check(secondary[0]==(failOperation==2?"DISPOSE_FAILED":"CLEANUP_FAILED"));
+                    Check(secondary[0]==(failOperation==2?"CLEANUP_FAILED":"DISPOSE_FAILED"));
                 }
                 Check(Directory.GetDirectories(directory).Length==0);
                 string[] files=Directory.GetFiles(directory);
@@ -451,11 +501,11 @@ static class StreamingIdentityControls
     {
         Case(false,false,0,false,null);
         Case(true,false,0,false,null);
-        Case(false,true,2,true,"SYNTHETIC_READ"); // Disposefehler ersetzt Readfehler nicht.
+        Case(false,true,2,true,"SYNTHETIC_READ"); // Cleanupfehler ersetzt Readfehler nicht.
         Case(false,false,2,false,"SYNTHETIC_FS_2"); // Write
-        Case(false,false,3,false,"SYNTHETIC_FS_3"); // Flush
-        Case(false,false,5,false,"SYNTHETIC_FS_5"); // Publication
-        Case(false,true,3,true,"SYNTHETIC_READ"); // Cleanupfehler ersetzt Readfehler nicht.
+        Case(false,false,3,false,"SYNTHETIC_FS_3"); // Flush nach einem synthetischen Write
+        Case(false,false,4,false,"SYNTHETIC_FS_4"); // Handlepublication
+        Case(false,true,3,true,"SYNTHETIC_READ"); // Disposefehler ersetzt Readfehler nicht.
         Check(Cases==7);Check(!active);
     }
 }

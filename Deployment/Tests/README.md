@@ -883,3 +883,23 @@ Beide Proben liefen ohne Fixture-Seed, Claim, Worker oder Repeat und sind kein b
 Der [Assert](Runtime/ExportQueue11.Assert.sql) benötigt explizites NULL an `#ExpectedChecks.ConstraintName`, weil sein absichtlich anonymer SchedulerCHECK-Witness dort NULL einfügt. Die Testkorrektur ändert ausschließlich diese Deklaration und den zentralen Caller-Dateipin; Scheduler-/systemnamed-Bindung, übrige CHECK-Orakel, sechzehn Definitions-Erwartungen, States und Ownership-/Zeit-/Cleanupgates bleiben erhalten.
 
 Neunter Head26dc: [Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37803232821), [Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37803232680), `local-upgrade / UNCLASSIFIED / SQL515/2`. Die gemeinsame Phase umfasst Export und weitere Assertions; tatsächliche Fehlerstelle, Tabelle/Spalte, Ursache und AFTER-Reachability bleiben ungemessen. Drei bisherige eigene Exportbereinigungen und Containercleanup bestanden; neue Bereinigung DEFERRED/RETAINED_UNPROVEN, kein vierter OwnCleanup oder Queue1.1-End-PASS. Die Quellenkorrektur erklärt diesen Lauf nicht rückwirkend. Neue Headqualifikation, befüllte Migration, zentraler Modus und vollständiger Merge-/Main-/Retentionabschluss bleiben offen; frühere Nachweise und Historiestände bleiben erhalten.
+
+## Security-Verträge 2026-10-15
+
+Aktuelle gemeinsame Exporte prüfen 15 persistente Tabellen und 166 Felder,
+einschließlich WorkTypePermission und der drei Cancellation-Principalspalten.
+Die reguläre Repeatfixture enthält eine ausdrücklich konfigurierte synthetische
+Policyzeile; historische Queue-Repeats bezeugen auch die leere Policytabelle.
+Genuine Queue1.1/2.0 wird zuerst mit einer blobgebundenen WorkType1.1-Abhängigkeit
+installiert. Danach folgen regulär die aktuellen gemeinsamen Module, die
+synthetischen Daten und die aktuelle Queue-/Controlmigration. Historische
+Quellen und Versionsmarker bleiben unverändert. Die acht AFTER-Definitionen
+werden vollständig ab dem qualifizierten Objektnamen an die aktuellen Quellen
+gebunden; nur CREATE/ALTER-Clientprefix und äußere Transportwhitespace werden
+normalisiert. BEFORE behält seine festen historischen Volltexthashes.
+
+`Test-SqlExport.ps1` prüft vor seinen 29 bisherigen Fällen zusätzlich mit
+`Test-ExportFixtureBindings.ps1` die exakten konsumierten Bytes von fünf
+Helper-/Fixturedateien und die acht aktuellen Deklarationspins ohne SQLzugriff.
+Damit werden veraltete Hashes und abweichende Zeilenenden vor der Runtimewelle
+erkannt; die Zahl oder der Scope der SQL-Ziele wird nicht erweitert.

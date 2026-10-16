@@ -97,6 +97,8 @@ deploy "${local_db}" Modules/toolbelt.core.execution-cancel local
 run_file "${local_db}" /workspace/Modules/toolbelt.core.execution-cancel/Deployment \
  ../Tests/Runtime/RepeatCurrent.Contract.sql -v DeploymentMode=local
 run_file "${local_db}" /workspace/Modules/toolbelt.core.execution-cancel/Tests/Runtime Lifecycle.Contract.sql
+# Freigegebene Securitygrenzen einmal pro physischem Testziel.
+run_file "${local_db}" /workspace/Modules/toolbelt.core.execution-cancel/Tests/Runtime Security.Contract.sql -t 180
 for level in ${levels}; do
  run_query "${local_db}" "ALTER DATABASE [${local_db}] SET COMPATIBILITY_LEVEL=${level};"
  run_file "${local_db}" /workspace/Modules/toolbelt.core.execution-cancel/Tests/Runtime ExecutionCancellation.Contract.sql

@@ -361,9 +361,9 @@
       "kind": "ai-runtime-reference-adapters",
       "merge": "review_if_exists",
       "source_sha256": "9d96cb55551990fbed7ea14021d5405a925727414a51de93eda10600190b3833",
-      "installed_sha256": "3e2cc4929e3578b17234a6b52ff333a64909b649a0d600a64f8b57cf8572cf18",
+      "installed_sha256": "cf11a770ec4d861c7514657d29028687c7161fb22142c080df9822aaa03deb61",
       "integration_state": "INTENTIONAL_OVERRIDE",
-      "reason": "Toolbelt-Securitywartung2026-10-07: HttpAdapter-Antworten vor JSON und Outputmutation auf16MiB begrenzen, Kurzreads und positive Restl\u00e4nge pr\u00fcfen, strukturierte Ablehnung vor Closefehlern erhalten. SC-034 (2026-10-14): Remote-, Local-Network- und Unknown-Invocation verlangen exakt remote_authorized=true vor Handleaufnahme, Inputread oder Transport; sonst Permission-Ablehnung."
+      "reason": "Toolbelt-Securitywartung2026-10-07: HttpAdapter-Antworten vor JSON und Outputmutation auf16MiB begrenzen, Kurzreads und positive Restl\u00e4nge pr\u00fcfen, strukturierte Ablehnung vor Closefehlern erhalten. SC-034 (2026-10-14): Remote-, Local-Network- und Unknown-Invocation verlangen exakt remote_authorized=true vor Handleaufnahme, Inputread oder Transport; sonst Permission-Ablehnung. SC-010 (2026-10-15): Projektgebundene Handle-I/O via Scripts/Security/secure_file_io.py; POSIX dirfd/nofollow und Windows gepinnte Eltern/native Publikation. Command stdin/stdout statt Pfadargumenten; kein unsicherer Fallback."
     },
     {
       "source": "foundation/capabilities/ai-runtime-adapters/runtime_configuration.py",

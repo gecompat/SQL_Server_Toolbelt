@@ -109,7 +109,11 @@ run_query() { docker exec "${container_name}" "${sqlcmd_path}" -S localhost -U s
 run_file() {
   local db="$1" workdir="$2" file="$3"; shift 3
   docker exec --workdir "${workdir}" "${container_name}" "${sqlcmd_path}" \
-    -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i "${file}" "$@"
+    -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i "${file}" "$@" || return $?
+  if [[ "${workdir}" == "/workspace/Modules/toolbelt.core.work-type/Deployment" && "${file}" == "Deploy.sql" ]]; then
+    docker exec --workdir /workspace/Tests/CI "${container_name}" "${sqlcmd_path}" \
+      -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i WorkTypeAuthorization.Fixture.sql
+  fi
 }
 run_stdin() {
   local db="$1"; shift
@@ -186,6 +190,7 @@ local_db=tbx_w5b_local
 run_query master "CREATE DATABASE [${local_db}] COLLATE Latin1_General_100_CS_AS;"
 deploy_stack "${local_db}" local
 run_file "${local_db}" /workspace/Modules/toolbelt.core.event-log/Tests/Runtime Lifecycle.Contract.sql
+run_file "${local_db}" /workspace/Modules/toolbelt.core.event-log/Tests/Runtime Security.Contract.sql -t 180
 
 for level in ${compatibility_levels}; do
   run_query "${local_db}" "ALTER DATABASE [${local_db}] SET COMPATIBILITY_LEVEL=${level}; DELETE FROM toolbelt_core.EventLog;"

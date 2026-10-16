@@ -819,6 +819,7 @@ change_impact:
         - markdown_links
     work_type_contract:
       paths:
+        - Tests/CI/WorkTypeAuthorization.Fixture.sql
         - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.core.work-type/**
         - Documentation/Architecture/WORK_TYPE_MODULE_DESIGN.md
@@ -830,6 +831,7 @@ change_impact:
         - markdown_links
     work_queue_contract:
       paths:
+        - Tests/CI/WorkTypeAuthorization.Fixture.sql
         - Tests/CI/test_owned_container_cleanup.py
         - Workers/ExternalQueue/**
         - Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1
@@ -853,6 +855,7 @@ change_impact:
         - markdown_links
     event_log_contract:
       paths:
+        - Tests/CI/WorkTypeAuthorization.Fixture.sql
         - Tests/CI/test_owned_container_cleanup.py
         - Tests/CI/run-w5a-second-session-linux.sh
         - Modules/toolbelt.core.event-log/**
@@ -948,6 +951,7 @@ change_impact:
         - Modules/toolbelt.filesystem.windows/Tests/Framework/NoOverwriteHarness.cs
         - Modules/toolbelt.filesystem.windows/Tests/Framework/Test-WitnessControls.ps1
       paths:
+        - Tests/CI/run-filesystem-security-lab.ps1
         - Modules/toolbelt.filesystem.windows/**
         - Documentation/Architecture/WINDOWS_FILESYSTEM_MODULE_DESIGN.md
         - Documentation/Standards/USP_CONTRACT.md
@@ -1034,6 +1038,19 @@ change_impact:
         - integer_base_runtime_workflow_scope
         - integer_base_static
         - w2a_runtime_workflow_scope
+    approved_security_hardening:
+      paths:
+        - Documentation/Architecture/SECURITY_HARDENING_2026_10.md
+        - Tests/CI/run-security-hardening-lab.ps1
+        - Tests/CI/run-filesystem-security-lab.ps1
+        - Tests/CI/test_lab_tls.py
+        - Tests/CI/Set-SqlClientTlsPolicy.ps1
+        - Tests/CI/test-lab-selector.ps1
+        - Tests/CI/validate_lab_selector.py
+        - Tests/CI/run-lab-local.ps1
+        - Tests/CI/run-lab-target.sh
+      checks:
+        - markdown_links
     foundation_host_redirects:
       paths:
         - .ai/foundation/ai_provisioning/host_preparation.py
@@ -1046,6 +1063,8 @@ change_impact:
         - foundation_host_redirects
     foundation_http_responses:
       paths:
+        - Scripts/Security/secure_file_io.py
+        - Tests/Documentation/test_foundation_handles.py
         - .ai/foundation/ai_runtime_adapters/reference_adapters.py
         - .ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md
         - .ai/foundation/installation-provenance.json

@@ -160,6 +160,12 @@ BEGIN SET NOCOUNT ON;
 END;
 '@
     Sql "EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.managed.long',@HandlerSchema=N'dbo',@HandlerProcedure=N'USP_TbxManagedLong',@ParameterMode='NONE'; EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.managed.short',@HandlerSchema=N'dbo',@HandlerProcedure=N'USP_TbxManagedShort',@ParameterMode='NONE';"
+    foreach($securityType in @('test.managed.long','test.managed.short')){
+        foreach($securityAction in @('ENQUEUE','CLAIM')){
+            Sql "EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='$securityType',@Principal=N'dbo',@PermissionName='$securityAction';"
+        }
+    }
+
     $fixturePhase='enable-budget'
     $beforeBudget=[int](Sql 'SELECT MaxConcurrentExecutions FROM toolbelt_core.WorkerControlConfiguration WHERE ConfigurationId=1;' -Scalar)
     $beforeEnabled=[bool](Sql 'SELECT ManagedEnabled FROM toolbelt_core.WorkQueueManagedGate WHERE GateId=1;' -Scalar)

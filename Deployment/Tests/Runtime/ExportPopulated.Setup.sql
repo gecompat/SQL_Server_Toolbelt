@@ -269,7 +269,9 @@ INSERT toolbelt_core.EventLog(OccurredAtUtc,EventName,EventLevel,ExecutionId,Cor
  VALUES(@Now,'test.export.deleted','INFO','00000000-0000-0000-0000-000000008204','00000000-0000-0000-0000-000000008214',N'Contoso',7,0,0,8);
 DELETE toolbelt_core.EventLog WHERE EventName='test.export.deleted';
 
--- Eigene typisierte Annotationen über alle 14 Tabellen, vorhandene fremde Properties niemals übernehmen.
+-- Nur der eigene synthetische Sentinel bezeugt persistente Policyzeilen.
+EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='test.export.sentinel',@Principal=N'dbo',@PermissionName='ENQUEUE';
+-- Eigene typisierte Annotationen über alle 15 Tabellen, vorhandene fremde Properties niemals übernehmen.
 DECLARE @Schema sysname,@Table sysname,@Column sysname,@Id int;
 DECLARE annotations CURSOR LOCAL FAST_FORWARD FOR
  SELECT s.name,t.name,MIN(c.name) FROM sys.tables t JOIN sys.schemas s ON s.schema_id=t.schema_id

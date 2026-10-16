@@ -251,6 +251,7 @@ if [[ "${test_suite}" == "full" ]]; then
     run_file "${local_database}" "${deployment_directory}" Deploy.sql \
         -v DeploymentMode=local
     run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
+    run_file "${local_database}" "${runtime_directory}" SchemaTrust.Contract.sql
 
     central_database="tbx_result_table_central"
     consumer_database="tbx_result_table_consumer"

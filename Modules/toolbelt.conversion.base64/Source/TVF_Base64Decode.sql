@@ -1,198 +1,54 @@
 -- ============================================================================
--- Objekt:          toolbelt_conversion.TVF_Base64Decode
--- Zweck:           Base64 oder Base64URL in Binärdaten decodieren
+-- Objekt:          toolbelt_conversion.TVF_Base64DecodeStatus
+-- Zweck:           Begrenzter kanonischer Statuskern; Legacy-Wertfassade unten.
 -- Parameter:       @Value varchar(max)
--- Resultset:       genau eine Zeile; DecodedValue varbinary(max)
--- Dependencies:    keine Toolbelt-Module; T-SQL/XML-Provider
--- Versionen:       SQL Server 2019, 2022 und 2025
--- Performance:     kanonischer relationaler Kern für APPLY
--- Collation:       ASCII-Vertrag; Syntaxprüfung ist binär
--- Einschränkungen: ignoriert nur Space, Tab, CR und LF
+-- Resultset:       DecodedValue varbinary(max), Status varchar(16)
+-- Vertrag:         Documentation/TVF_Base64DecodeStatus.md
+-- Versionen:       SQL Server 2019/2022/2025; Windows/Linux
+-- Rechte:          SELECT/REFERENCES; keine zusätzlichen Rechte oder Grants.
+-- Performance:     MSTVF mit Vorabgrenzen; keine Inline-/Parallelitätszusage.
+-- Grenzen:         Freigegebener Vertrag SECURITY_HARDENING_2026_10.md.
 -- ============================================================================
-
-CREATE OR ALTER FUNCTION [toolbelt_conversion].[TVF_Base64Decode]
-(
-    @Value varchar(max)
-)
-RETURNS TABLE
+CREATE OR ALTER FUNCTION [toolbelt_conversion].[TVF_Base64DecodeStatus]
+(@Value varchar(max))
+RETURNS @Result TABLE(DecodedValue varbinary(max) NULL,Status varchar(16) NOT NULL)
 WITH SCHEMABINDING
 AS
-RETURN
-(
-    WITH Normalized AS
-    (
-        SELECT NormalizedValue =
-            REPLACE
-            (
-                REPLACE
-                (
-                    REPLACE
-                    (
-                        REPLACE
-                        (
-                            REPLACE
-                            (
-                                REPLACE(@Value, '-', '+')
-                              , '_'
-                              , '/'
-                            )
-                          , CHAR(32)
-                          , ''
-                        )
-                      , CHAR(9)
-                      , ''
-                    )
-                  , CHAR(13)
-                  , ''
-                )
-              , CHAR(10)
-              , ''
-            )
-    ),
-    Shape AS
-    (
-        SELECT
-              NormalizedValue
-            , ValueLength = DATALENGTH(NormalizedValue)
-            , FirstPadding = NULLIF
-              (
-                  CHARINDEX
-                  (
-                        '='
-                      , NormalizedValue COLLATE Latin1_General_100_BIN2
-                  )
-                , 0
-              )
-        FROM Normalized
-    ),
-    Validation AS
-    (
-        SELECT
-              NormalizedValue
-            , ValueLength
-            , FirstPadding
-            , PaddingCount =
-                  CASE
-                      WHEN FirstPadding IS NULL THEN 0
-                      ELSE ValueLength - FirstPadding + 1
-                  END
-            , LengthRemainder =
-                  ISNULL(FirstPadding - 1, ValueLength) % 4
-            , HasInvalidCharacter =
-                  CASE
-                      WHEN NormalizedValue COLLATE Latin1_General_100_BIN2
-                               LIKE '%[^A-Za-z0-9+/=]%'
-                          THEN 1
-                      ELSE 0
-                  END
-        FROM Shape
-    ),
-    FormatCheck AS
-    (
-        SELECT
-              NormalizedValue
-            , FirstPadding
-            , LengthRemainder
-            , InvalidFormat =
-              CASE
-                  WHEN @Value IS NULL
-                      THEN 0
-                  WHEN HasInvalidCharacter = 1
-                    OR
-                    (
-                        FirstPadding IS NOT NULL
-                        AND
-                        (
-                            PaddingCount NOT IN (1, 2)
-                            OR REPLACE
-                               (
-                                   SUBSTRING
-                                   (
-                                         NormalizedValue
-                                       , FirstPadding
-                                       , PaddingCount
-                                   )
-                                 , '='
-                                 , ''
-                               ) <> ''
-                            OR ValueLength % 4 <> 0
-                            OR
-                               (
-                                   PaddingCount = 1
-                                   AND (FirstPadding - 1) % 4 <> 3
-                               )
-                            OR
-                               (
-                                   PaddingCount = 2
-                                   AND (FirstPadding - 1) % 4 <> 2
-                               )
-                        )
-                    )
-                    OR (FirstPadding IS NULL AND LengthRemainder = 1)
-                      THEN 1
-                  ELSE 0
-              END
-        FROM Validation
-    ),
-    Canonical AS
-    (
-        SELECT
-              NormalizedValue
-            , InvalidFormat
-            , CanonicalValue =
-              CASE
-                  WHEN @Value IS NULL OR InvalidFormat = 1
-                      THEN ''
-                  WHEN FirstPadding IS NULL AND LengthRemainder = 2
-                      THEN NormalizedValue + '=='
-                  WHEN FirstPadding IS NULL AND LengthRemainder = 3
-                      THEN NormalizedValue + '='
-                  ELSE NormalizedValue
-              END
-        FROM FormatCheck
-    )
-    SELECT DecodedValue =
-        CONVERT
-        (
-              varbinary(max)
-            , CASE
-                  WHEN @Value IS NULL
-                      THEN NULL
-                  WHEN InvalidFormat = 1
-                      /*
-                       * Derselbe feste, eingabewertfreie Fehlerpfad wie in
-                       * der bisherigen SVF: varchar -> int muss scheitern.
-                       */
-                      THEN CONVERT
-                           (
-                                 varbinary(max)
-                               , CONVERT
-                                 (
-                                       int
-                                     , LEFT
-                                       (
-                                           'toolbelt.invalid.base64'
-                                           + ISNULL(NormalizedValue, '')
-                                         , 23
-                                       )
-                                 )
-                           )
-                  -- Leere kanonische Eingaben besitzen keinen XML-Textknoten.
-                  WHEN @Value IS NOT NULL AND DATALENGTH(CanonicalValue) = 0
-                      THEN CONVERT(varbinary(max), 0x)
-                  ELSE CONVERT
-                       (
-                           xml
-                         , '<base64>'
-                           + CanonicalValue
-                           + '</base64>'
-                       ).value
-                       (
-                           N'xs:base64Binary((/base64/text())[1])'
-                         , N'varbinary(max)'
-                       )
-              END
-        )
-    FROM Canonical
-);
+BEGIN
+    IF @Value IS NULL BEGIN INSERT @Result VALUES(NULL,'SQL_NULL'); RETURN; END;
+    IF DATALENGTH(@Value)>25165824 BEGIN INSERT @Result VALUES(NULL,'LIMIT'); RETURN; END;
+    DECLARE @Canonical varchar(max),@InvalidFormat bit=0,@Expected bigint,@Decoded varbinary(max),
+        @Normalized varchar(max),@Length bigint,@FirstPadding bigint,@PaddingCount bigint,@LengthRemainder bigint;
+    -- Normalisierung einmal materialisieren; CTE-Expansion scannte große
+    -- gültige Inputs mehrfach. Die binäre ASCII-Prüfung nutzt denselben Stand.
+    SET @Normalized=REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(@Value,'-','+'),'_','/'),CHAR(32),''),CHAR(9),''),CHAR(13),''),CHAR(10),'');
+    SET @Length=DATALENGTH(@Normalized);
+    SET @FirstPadding=NULLIF(CHARINDEX('=',@Normalized COLLATE Latin1_General_100_BIN2),0);
+    SET @PaddingCount=CASE WHEN @FirstPadding IS NULL THEN 0 ELSE @Length-@FirstPadding+1 END;
+    SET @LengthRemainder=COALESCE(@FirstPadding-1,@Length)%4;
+    IF @Normalized COLLATE Latin1_General_100_BIN2 LIKE '%[^A-Za-z0-9+/=]%'
+        SET @InvalidFormat=1;
+    IF (@FirstPadding IS NULL AND @LengthRemainder=1)
+       OR (@FirstPadding IS NOT NULL AND (@PaddingCount NOT IN(1,2)
+           OR DATALENGTH(REPLACE(SUBSTRING(@Normalized,@FirstPadding,@PaddingCount),'=',''))<>0
+           OR @Length%4<>0 OR (@PaddingCount=1 AND @LengthRemainder<>3) OR (@PaddingCount=2 AND @LengthRemainder<>2)))
+        SET @InvalidFormat=1;
+    SET @Canonical=CASE WHEN @FirstPadding IS NULL AND @LengthRemainder=2 THEN @Normalized+'=='
+                        WHEN @FirstPadding IS NULL AND @LengthRemainder=3 THEN @Normalized+'=' ELSE @Normalized END;
+    IF @InvalidFormat=1 BEGIN INSERT @Result VALUES(NULL,'INVALID'); RETURN; END;
+    SET @Expected=(DATALENGTH(@Canonical)/4)*CONVERT(bigint,3)
+        -CASE WHEN RIGHT(@Canonical,2)='==' THEN 2 WHEN RIGHT(@Canonical,1)='=' THEN 1 ELSE 0 END;
+    IF @Expected>16777216 BEGIN INSERT @Result VALUES(NULL,'LIMIT'); RETURN; END;
+    IF DATALENGTH(@Canonical)=0 SET @Decoded=0x;
+    ELSE SET @Decoded=CAST(N'' AS xml).value(N'xs:base64Binary(sql:variable("@Canonical"))',N'varbinary(max)');
+    INSERT @Result VALUES(@Decoded,'OK'); RETURN;
+END;
+GO
+-- Legacy-Wertfassade: gleicher Inputvertrag; Limitabbildung siehe Objektseite.
+-- Vertrag: Documentation/TVF_Base64Decode.md
+CREATE OR ALTER FUNCTION [toolbelt_conversion].[TVF_Base64Decode](@Value varchar(max))
+RETURNS TABLE AS RETURN
+(SELECT DecodedValue=CASE WHEN Status='INVALID'
+    THEN CONVERT(varbinary(max),CONVERT(int,LEFT('toolbelt.invalid.base64'+ISNULL(@Value,''),23)))
+    ELSE DecodedValue END FROM toolbelt_conversion.TVF_Base64DecodeStatus(@Value));
 GO

@@ -91,6 +91,20 @@ SELECT toolbelt_conversion.SVF_Base64Encode(0x4869, 0) AS ResultValue;
 SELECT toolbelt_conversion.SVF_Base64Decode(N'SGk=') AS ResultValue;
 */
 
+-- toolbelt_conversion.TVF_Base64EncodeStatus
+-- Genau eine Zeile. OK enthält den Wert; LIMIT und SQL_NULL enthalten NULL. Der kanonische MSTVF-Kern prüft vor XML. Die bisherige TVF/SVF delegiert und liefert bei Überschreitung NULL.
+-- Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+/* Separat auswählen und ausführen:
+SELECT * FROM toolbelt_conversion.TVF_Base64EncodeStatus(0xCAFE,0);
+*/
+
+-- toolbelt_conversion.TVF_Base64DecodeStatus
+-- Genau eine Zeile: OK, SQL_NULL, INVALID oder LIMIT. Rohtextprüfung vor REPLACE, berechnete Ergebnisgröße vor XML. Standard-/URL-Alphabet und definierter Whitespace bleiben. Die bisherige TVF/SVF behält Syntaxfehler unterhalb der Grenzen und liefert bei LIMIT NULL.
+-- Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+/* Separat auswählen und ausführen:
+SELECT * FROM toolbelt_conversion.TVF_Base64DecodeStatus('YWJj');
+*/
+
 -- toolbelt_conversion.TVF_IntegerToBase
 -- Codiert einen bigint-Wert in einem frei festgelegten Zahlensystem.
 /* Separat auswählen und ausführen:
@@ -181,6 +195,20 @@ SELECT toolbelt_conversion.SVF_UriComponentEncode(N'a b/ä') AS ResultValue;
 SELECT toolbelt_conversion.SVF_UriComponentDecode(N'a%20b%2F%C3%A4') AS ResultValue;
 */
 
+-- toolbelt_conversion.TVF_UriComponentEncodeStatus
+-- Genau eine Zeile: OK, SQL_NULL oder LIMIT. Eingang vor UTF-8-Konvertierung/Series prüfen. Aus höchstens 32768 Codeeinheiten entstehen selbst bei drei UTF-8-Bytes und drei Escapezeichen je Byte höchstens 589824 UTF-16-Ausgabebytes; die 1-MiB-Grenze ist damit schon vor Aggregation abgesichert. Altfassaden liefern bei LIMIT NULL.
+-- Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+/* Separat auswählen und ausführen:
+SELECT * FROM toolbelt_conversion.TVF_UriComponentEncodeStatus(N'Contoso €');
+*/
+
+-- toolbelt_conversion.TVF_UriComponentDecodeStatus
+-- Genau eine Zeile: OK, SQL_NULL, INVALID oder LIMIT. Strikte UTF-8-/Percent-/NUL-Regeln bleiben; bei LIMIT IsValid=0, ValidationCode=14, Wert NULL. Die Ausgabe ist durch den vor Series geprüften Eingang unter 1 MiB begrenzt. Altfassaden behalten ihre Spalten und liefern bei LIMIT NULL.
+-- Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+/* Separat auswählen und ausführen:
+SELECT * FROM toolbelt_conversion.TVF_UriComponentDecodeStatus(N'%E2%82%AC');
+*/
+
 -- toolbelt_core.USP_WriteConsoleMessage
 -- Gibt einen langen Unicode-Text vollständig im Messages-Kanal aus. Gepufferte Ausgabe verwendet PRINT; unmittelbare Ausgabe verwendet RAISERROR mit Severity 0 und NOWAIT.
 /* Separat auswählen und ausführen:
@@ -236,6 +264,13 @@ EXEC toolbelt_core.USP_WriteEvent @EventName='demo.completed', @Message=N'Synthe
 -- Voraussetzung: Für Second-Session-Ausführung und rollback-unabhängiges Schreiben: administrativ angelegter Loopback-Linked-Server und konfigurierter Provider. Löschen von Events verändert persistente Daten.
 /* Separat auswählen und ausführen:
 DECLARE @n bigint; EXEC toolbelt_core.USP_DeleteEventsBefore @BeforeOccurredAtUtc='2026-01-01', @BatchSize=1000, @MaxBatches=5, @DeletedRows=@n OUTPUT;
+*/
+
+-- toolbelt_core.USP_DeleteRecordedEventsBefore
+-- Nur ausdrücklich aufgerufene Retention nach RecordedAtUtc mit Index (RecordedAtUtc,EventId), deterministischen begrenzten Batches und bestehender Caller-Transaktions-/Savepointsemantik. Kein Job, keine Deploymentlöschung. Die OccurredAtUtc-Retention bleibt unverändert. Erfordert vorhandenes EXECUTE; erteilt keine Berechtigungen. Fehler 51710–51714 wie im bestehenden Retentionvertrag.
+-- Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+/* Separat auswählen und ausführen:
+DECLARE @n bigint; EXEC toolbelt_core.USP_DeleteRecordedEventsBefore @BeforeRecordedAtUtc='2026-01-01',@BatchSize=1000,@MaxBatches=1,@DeletedRows=@n OUTPUT;
 */
 
 -- toolbelt_core.TVF_ExecutionCancellationStatus
@@ -309,6 +344,13 @@ SELECT * FROM toolbelt_core.TVF_GenerateSeriesBigInt(1, 5, 1);
 -- Erzeugt eine Folge von int-Werten einschließlich erreichbarem Endwert.
 /* Separat auswählen und ausführen:
 SELECT * FROM toolbelt_core.TVF_GenerateSeriesInt(1, 5, 1);
+*/
+
+-- toolbelt_core.TVF_GenerateSeriesBigIntStatus
+-- Vor Expansion exakte Anzahl mit decimal(38,0) und Restrechnung bestimmen. Höchstens 1000000 OK-Zeilen. LIMIT, INVALID, SQL_NULL oder EMPTY liefern eine Kontrollzeile ohne Value. RequestedRows unterscheidet leere und zu große Reihen. Keine garantierte Reihenfolge. Die mathematischen Alt-APIs bleiben unverändert und benötigen vertrauenswürdige Direktgrants. Untrusted Legacygrants werden nicht automatisch entzogen; SC-018 bleibt in einer solchen Installation offen.
+-- Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+/* Separat auswählen und ausführen:
+SELECT * FROM toolbelt_core.TVF_GenerateSeriesBigIntStatus(1,5,DEFAULT);
 */
 
 -- toolbelt_core.USP_PrepareResultTable
@@ -448,6 +490,14 @@ EXEC toolbelt_core.USP_RequeueDeadLetter @WorkItemId=@WorkItemId, @RequeueReason
 -- Voraussetzung: Registrierter ausführbarer Handler bzw. eigener Work Item/Claim erforderlich. Beispiele mit IDs/Tokens sind Vorlagen; echte eigene Werte aus dem vorherigen Aufruf verwenden. Queue-/Katalogaufrufe können persistenten Zustand ändern.
 /* Separat auswählen und ausführen:
 EXEC toolbelt_core.USP_GetWorkStatus @WorkItemId=1;
+*/
+
+-- toolbelt_core.USP_SetWorkTypePermission
+-- Konfiguriert eine ausdrückliche Work-Type-Delegation an einen vorhandenen Datenbankprincipal.
+-- Voraussetzung: Work-Type-Katalog 1.2.0, vorhandener Work Type und vorhandener Datenbankprincipal.
+-- Voraussetzung: EXECUTE sowie CONTROL auf toolbelt_core.WorkTypePermission; keine automatische Rechtevergabe.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='demo.noop', @Principal=N'ContosoProducer', @PermissionName='ENQUEUE', @PermissionState='ALLOW';
 */
 
 -- toolbelt_core.VW_WorkTypes
@@ -905,6 +955,13 @@ SELECT toolbelt_json.AGF_JsonObject(Ordinal,[Key],ValueKind,[Value],Profile) AS 
 SELECT * FROM toolbelt_json.TVF_JsonPathExists(N'{"items":[1,2]}', N'$.items[0]');
 */
 
+-- toolbelt_json.TVF_JsonPathExistsStatus
+-- Genau eine Zeile: FOUND/1, MISSING/0, INVALID/0, SQL_NULL/NULL oder LIMIT/NULL. Höchstens 10000 Frontierwerte; maximal 10001 werden zur Überschreitungsfeststellung aufgenommen. Vor jedem OPENJSON werden die vorgesehenen Inputbytes gegen das kumulative 64-MiB-Budget gebucht. Containerroots werden ohne zusätzliche Wrapper-Ebene validiert. Die bisherige TVF liefert bei LIMIT NULL; kein falsches MISSING.
+-- Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+/* Separat auswählen und ausführen:
+SELECT * FROM toolbelt_json.TVF_JsonPathExistsStatus(N'{"a":null}',N'$.a');
+*/
+
 -- toolbelt_json.TVF_ResolveJsonPointer
 -- Löst einen RFC6901-Pointer mit exakten Keys und unterscheidet FOUND, MISSING, JSON_NULL, SQL_NULL und INVALID. Der freigegebene feste128er-Guard gibt darüber DEPTH_LIMIT vor JSON_SYNTAX zurück.
 -- Voraussetzung: Vorhandenes SELECT; SQL Server2019+ und CL150+ auch beim zentralen Caller; lesende MSTVF ohne CLR. Freigegebener struktureller128er-Guard: darüber DEPTH_LIMIT vor JSON_SYNTAX; kein Release.
@@ -1142,6 +1199,13 @@ EXEC toolbelt_string.USP_SplitAdvanced @Hilfe=1;
 -- Zerlegt einen Text an jedem Zeichen der angegebenen Separatormenge.
 /* Separat auswählen und ausführen:
 SELECT * FROM toolbelt_string.TVF_SplitByCharacters(N'a,b;;c', N',;', 1);
+*/
+
+-- toolbelt_string.TVF_SplitByCharactersStatus
+-- Erst vollständige Spanprüfung, danach höchstens 10000 OK-Tokenzeilen. LIMIT, INVALID, SQL_NULL und EMPTY liefern genau eine Kontrollzeile ohne Value/Ordinal. Keine Tokenpräfixe. Die bisherige TVF filtert ausschließlich OK; bei Grenzüberschreitung liefert sie keine Zeilen. Positionen und Separatorvergleich zählen BIN2-Codeeinheiten.
+-- Voraussetzung: Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe.
+/* Separat auswählen und ausführen:
+SELECT * FROM toolbelt_string.TVF_SplitByCharactersStatus(N'a,b',N',',1) ORDER BY Ordinal;
 */
 
 -- toolbelt_string.USP_CompareTextPairs

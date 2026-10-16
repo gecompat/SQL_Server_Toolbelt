@@ -68,15 +68,15 @@ SELECT TOP (1)
 FROM sys.sql_expression_dependencies AS dependencies
 WHERE dependencies.referenced_id IN
       (
-          OBJECT_ID(N'toolbelt_conversion.TVF_Base64Encode')
-        , OBJECT_ID(N'toolbelt_conversion.TVF_Base64Decode')
+          OBJECT_ID(N'toolbelt_conversion.TVF_Base64Encode'), OBJECT_ID(N'toolbelt_conversion.TVF_Base64EncodeStatus')
+        , OBJECT_ID(N'toolbelt_conversion.TVF_Base64Decode'), OBJECT_ID(N'toolbelt_conversion.TVF_Base64DecodeStatus')
         , OBJECT_ID(N'toolbelt_conversion.SVF_Base64Encode')
         , OBJECT_ID(N'toolbelt_conversion.SVF_Base64Decode')
       )
   AND dependencies.referencing_id NOT IN
       (
-          OBJECT_ID(N'toolbelt_conversion.TVF_Base64Encode')
-        , OBJECT_ID(N'toolbelt_conversion.TVF_Base64Decode')
+          OBJECT_ID(N'toolbelt_conversion.TVF_Base64Encode'), OBJECT_ID(N'toolbelt_conversion.TVF_Base64EncodeStatus')
+        , OBJECT_ID(N'toolbelt_conversion.TVF_Base64Decode'), OBJECT_ID(N'toolbelt_conversion.TVF_Base64DecodeStatus')
         , OBJECT_ID(N'toolbelt_conversion.SVF_Base64Encode')
         , OBJECT_ID(N'toolbelt_conversion.SVF_Base64Decode')
       )
@@ -141,7 +141,7 @@ BEGIN TRY
           (N'SVF_Base64Encode')
         , (N'SVF_Base64Decode')
         , (N'TVF_Base64Encode')
-        , (N'TVF_Base64Decode');
+        , (N'TVF_Base64Decode'), (N'TVF_Base64EncodeStatus'), (N'TVF_Base64DecodeStatus');
 
     DECLARE
           @ObjectOrdinal int = 1

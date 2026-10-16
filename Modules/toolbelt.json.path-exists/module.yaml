@@ -2,7 +2,7 @@ module_id: "toolbelt.json.path-exists"
 module_name: "JSON Path Exists"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: validated
+validation_status: "partially validated"
 release_status: unreleased
 description: "Prüft SQL/JSON-Pfade auf SQL Server 2019+ ohne fachliche Fehler."
 sql_server_versions:
@@ -11,13 +11,13 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: validated
-  linux: validated
+  windows: "partially validated"
+  linux: "partially validated"
 providers:
   - id: tsql-stateful
     technology: T-SQL Multi-statement TVF
     platforms: [Windows, Linux]
-    status: validated
+    status: "partially validated"
 deployment_capabilities:
   local: true
   central: true
@@ -32,6 +32,8 @@ objects:
     schema: "toolbelt_json"
     name: "TVF_JsonPathExists"
     visibility: public
+  - { type: TVF, schema: "toolbelt_json", name: "TVF_JsonPathExistsStatus", visibility: public }
+
 permissions_required:
   - "SELECT oder REFERENCES auf der Table-valued Function"
   - "DDL-Rechte für Deploy und Uninstall"
@@ -39,6 +41,8 @@ collation_contract: "JSON-Schlüssel werden case-sensitive und collation-unabhä
 data_type_contract: "Json und Path sind nvarchar(max); Path ist auf 4.000 UTF-16-Codeunits begrenzt; PathExists ist int und liefert 1, 0 oder NULL."
 help_contract_version: "not applicable"
 resultset_contracts:
+  - name: "TVF_JsonPathExistsStatus"
+    columns: ["PathExists int", "Status varchar(16)"]
   - name: "TVF_JsonPathExists"
     columns: ["PathExists int"]
 lifecycle_error_range: "51260-51269"
@@ -55,8 +59,10 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
+    - "Documentation/TVF_JsonPathExistsStatus.md"
     - "Documentation/TVF_JsonPathExists.md"
   architecture:
+    - "../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md"
     - "../../Documentation/Architecture/JSON_PATH_EXISTS_MODULE_DESIGN.md"
   test_matrix:
     - "Tests/JSON_PATH_EXISTS_CONTRACT_TEST_MATRIX.md"
@@ -67,6 +73,7 @@ contracts:
   deployment: "1.0"
   validation: "1.0"
 tests:
+  security: "Tests/Runtime/Security.Contract.sql"
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/JsonPathExists.Contract.sql"
   contract: "Tests/Runtime/JsonPathExists.Contract.sql"

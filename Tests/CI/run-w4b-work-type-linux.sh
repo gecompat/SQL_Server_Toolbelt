@@ -123,7 +123,11 @@ run_file() {
   local file="$3"
   shift 3
   docker exec --workdir "${workdir}" "${container_name}" "${sqlcmd_path}" \
-    -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i "${file}" "$@"
+    -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i "${file}" "$@" || return $?
+  if [[ "${workdir}" == "/workspace/Modules/toolbelt.core.work-type/Deployment" && "${file}" == "Deploy.sql" ]]; then
+    docker exec --workdir /workspace/Tests/CI "${container_name}" "${sqlcmd_path}" \
+      -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i WorkTypeAuthorization.Fixture.sql
+  fi
 }
 
 deploy() {
@@ -144,6 +148,8 @@ run_file "${local_db}" /workspace/Modules/toolbelt.core.work-type/Tests/Runtime 
 for level in ${compatibility_levels}; do
   run_query "${local_db}" "ALTER DATABASE [${local_db}] SET COMPATIBILITY_LEVEL = ${level};"
   run_file "${local_db}" /workspace/Modules/toolbelt.core.work-type/Tests/Runtime WorkType.Contract.sql
+  run_file "${local_db}" /workspace/Modules/toolbelt.core.work-type/Tests/Runtime Authorization.Contract.sql
+  run_file "${local_db}" /workspace/Modules/toolbelt.core.work-type/Deployment ../Tests/Runtime/Authorization.Repeat.Contract.sql -v DeploymentMode=local
   run_file "${local_db}" /workspace/Modules/toolbelt.core.work-type/Tests/Runtime Remove.Contract.sql
 done
 

@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2026-10-15 – 25 freigegebene Security-Härtungen
+
+Work-Type-Autorität, ServiceAccount-Rolle/Root, Schema-Vertrauen und
+Transaktionsgrenzen ergänzt. Foundation- und native Windows-Dateizugriffe
+binden Handles; Windows benötigt nun ausdrücklich UNSAFE. Textdateien werden
+aus einem Byte-Snapshot dekodiert. ZIP-/Regex-/Listinggrenzen, JSON-Parserbudgets,
+Statusvarianten für Reihen/Base64/Split/URI/JSON Path, Cancellationquoten,
+RecordedAtUtc-Retention und Consolelimits implementiert und gezielt geprüft.
+Lab-TLS verlangt gültige CA-/Hostnameprüfung; der aktuelle externe Labvertrag
+wird vor Verbindungsaufbau abgewiesen. Zertifikatsbereitstellung bleibt extern.
+Verträge, Migration und genaue Nachweisgrenzen:
+[Security-Härtung](Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
+Integration, aktuelle Head-CI und Cloudabschluss werden getrennt geführt.
+
 ## 2026-10-14 – 13 freigegebene Security-Korrekturen
 
 Explizite HTTP-Autorität, begrenzte Labmappings und Evidence-Schreibpfade,
@@ -2025,7 +2039,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-44 Module sind implementiert. 18 sind `validated`, 26 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+44 Module sind implementiert. 13 sind `validated`, 31 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

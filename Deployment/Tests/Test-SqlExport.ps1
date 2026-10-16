@@ -5,6 +5,7 @@ param()
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+& (Join-Path $PSScriptRoot 'Test-ExportFixtureBindings.ps1')
 $script:cases = 0
 $script:assertions = 0
 $script:caseId = 'setup'

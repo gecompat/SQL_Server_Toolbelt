@@ -2,7 +2,7 @@
 
 `toolbelt.filesystem.windows` stellt kontrollierte Dateisystemoperationen für SQL Server unter Windows bereit.
 
-Der Provider ist bewusst Windows-only und benötigt eine per SHA2-512 autorisierte `EXTERNAL_ACCESS`-Assembly. Er akzeptiert nur Root-Aliasse und relative Pfade. Konkrete Pfade werden ausschließlich vom Betreiber in `toolbelt_filesystem.FileSystemRoot` konfiguriert und gehören nicht in Deployment-Skripte, Beispiele oder Test-Evidence. Caller benötigen neben `EXECUTE` auf der jeweiligen öffentlichen Procedure auch `SELECT` auf dieser Konfiguration; dadurch können sie die freigegebenen physischen Root- und Work-Pfade einsehen.
+Der Provider ist bewusst Windows-only und benötigt eine per SHA2-512 autorisierte `UNSAFE`-Assembly. Er akzeptiert nur Root-Aliasse und relative Pfade. Konkrete Pfade werden ausschließlich vom Betreiber in `toolbelt_filesystem.FileSystemRoot` konfiguriert und gehören nicht in Deployment-Skripte, Beispiele oder Test-Evidence. Caller benötigen neben `EXECUTE` auf der jeweiligen öffentlichen Procedure auch `SELECT` auf dieser Konfiguration; dadurch können sie die freigegebenen physischen Root- und Work-Pfade einsehen.
 
 Die öffentliche API umfasst begrenztes Lesen von Binary/Text, gestreamtes Schreiben, Transcoding, Directory-Listing, Directory-Erzeugung sowie File-/Directory-Delete. Standardmodus ist `Caller`: Der per Windows Authentication angemeldete SQL-Caller wird ausschließlich während des Dateisystemzugriffs impersoniert. `ServiceAccount` ist eine explizite Alternative für kontrollierte Server-Jobs. SQL Authentication mit `Caller` wird abgelehnt.
 
@@ -51,3 +51,23 @@ Der Providerstand vom 2026-10-04 bestand einen privaten begrenzten produktiven C
 Die private native Zwei-Fall-Authentifizierungsprüfung auf SQL Server 2025/CU8 unter Windows bestand: Windows-Caller (NTLM) schrieb drei synthetische Bytes über `USP_WriteBinaryFile`; SQL-Authentifizierung wurde mit `51540/1` und `CallerWindowsAuthenticationRequired` vor Datei-/Staging-I/O abgewiesen. Eigene DB-, Root- und Trustbereinigung und eine separate frische Prüfung bestanden, ohne Konfigurations-, Rechte- oder Owneränderungen. Dieser begrenzte Probe-Scope ist kein vollständiger Produkttest.
 
 Aktueller kanonischer Projektbuild/Releaseartefakt, direkte CLR-/RunAs-Qualifikation aller neun Einstiegspunkte, vollständige NTFS-/Caller-/ServiceAccount-Matrix, Races, weitere Ziele und aktuelle Head-CI bleiben separate offene Gates. Status `partially validated`, Version1.0.0 und `unreleased` bleiben erhalten; frühere Nachweise sind historisch.
+
+## Freigegebene Security-Härtung 2026-10-15
+
+ServiceAccount verlangt zusätzlich Mitgliedschaft in der leeren DBrolle
+toolbelt_filesystem_service_account und AllowServiceAccount=1 am jeweiligen Root.
+Bestehende Roots erhalten die neue Spalte mit 0. Beide Grenzen werden auch im
+CLR-Einstieg vor I/O geprüft; beim Transcoding müssen beide Roots freigegeben
+sein. Nur der Betreiber konfiguriert Rolle und Rootfreigaben. Fehlermarker
+ServiceAccountNotAuthorized/RootNotAuthorized ersetzen keine NTFS-/Prozedurrechte.
+Neue native ServiceAccount-Qualifikation steht bis zum passenden Windowslauf aus.
+
+Der [freigegebene Vertrag](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md)
+beschreibt Scope, Migration und Grenzen. Historische Plattformnachweise gelten
+weiter ausschließlich für ihre datierten Quellen.
+
+## Freigegebene Security-Härtung 2026-10-15
+
+SC-009/023/005: Native UNSAFE-Handlebindung auf lokalen Windows-Laufwerken für alle neun APIs. Alle Eltern werden ohne Write-/Delete-Sharing gehalten, Reparse Points und Dateihardlinks verworfen. Lesen nutzt den geprüften Handle; Publikation/Löschen erfolgen am exakten Handle. Bestehende Ziel-DACL wird handlegebunden übernommen; Fehler verhindern Publikation. Kein UNC-/Pfadfallback. ServiceAccount benötigt Mitgliedschaft in toolbelt_filesystem_service_account UND AllowServiceAccount=1 am aktiven Root. Listing: höchstens 10000 Einträge, Tiefe64 und 16 MiB gespeicherter UTF-16-Pfadtext, atomar vor Ausgabe. Caller, strict security und exakter Releasehash-Trust bleiben erforderlich. Keine Rechtevergabe durch Deployment.
+
+Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).

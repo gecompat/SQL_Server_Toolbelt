@@ -12,7 +12,7 @@ IF @DeploymentMode=N'central' AND @ConfirmNoExternalConsumers<>1
     THROW 51748,N'Zentraler Uninstall benötigt ConfirmNoExternalConsumers = 1.',1;
 IF EXISTS
 (
-    SELECT 1 FROM (VALUES(N'EventLog'),(N'VW_Events'),(N'USP_WriteEventInternal'),(N'USP_WriteEvent'),(N'USP_DeleteEventsBefore'))o(ObjectName)
+    SELECT 1 FROM (VALUES(N'EventLog'),(N'VW_Events'),(N'USP_WriteEventInternal'),(N'USP_WriteEvent'),(N'USP_DeleteEventsBefore'),(N'USP_DeleteRecordedEventsBefore'))o(ObjectName)
     WHERE OBJECT_ID(N'toolbelt_core.'+o.ObjectName) IS NOT NULL
       AND NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_core.'+o.ObjectName) AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(256),value)=N'toolbelt.core.event-log')
 )
@@ -39,6 +39,7 @@ BEGIN
     SET @rv=(SELECT CONVERT(binary(8),RowVersion) FROM toolbelt_core.WorkType WHERE WorkTypeName='toolbelt.event-log.write');
     EXEC toolbelt_core.USP_RemoveWorkType @WorkTypeName='toolbelt.event-log.write',@ExpectedRowVersion=@rv,@AllowDelete=1;
 END;
+DROP PROCEDURE IF EXISTS toolbelt_core.USP_DeleteRecordedEventsBefore;
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_DeleteEventsBefore;
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_WriteEvent;
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_WriteEventInternal;

@@ -70,19 +70,19 @@ INSERT #tbx_ExportObjects
 INSERT #tbx_ExportObjects SELECT o.object_id,s.name,o.name,o.type FROM sys.objects o JOIN sys.schemas s ON s.schema_id=o.schema_id
  WHERE s.name=N'toolbelt_file' AND o.name IN(N'FileContentRootAllowlist',N'USP_LoadBinaryFile',N'USP_LoadTextFile')
  AND NOT EXISTS(SELECT 1 FROM #tbx_ExportObjects x WHERE x.ObjectId=o.object_id);
-IF (SELECT COUNT(*) FROM #tbx_ExportObjects WHERE ObjectType='U')<>14
- OR EXISTS(SELECT TableName FROM(VALUES(N'WorkType'),(N'WorkItem'),(N'WorkQueueScheduler'),(N'WorkQueueBarrierBlocker'),(N'WorkQueueManagedGate'),(N'WorkerControlConfiguration'),(N'WorkerRegistration'),(N'WorkerSlotReservation'),(N'WorkerExecutionDisposition'),(N'WorkerExecutionCommitWitness'),(N'ExecutionCancellation'),(N'SecondSessionProvider'),(N'EventLog'))v(TableName)
+IF (SELECT COUNT(*) FROM #tbx_ExportObjects WHERE ObjectType='U')<>15
+ OR EXISTS(SELECT TableName FROM(VALUES(N'WorkTypePermission'),(N'WorkType'),(N'WorkItem'),(N'WorkQueueScheduler'),(N'WorkQueueBarrierBlocker'),(N'WorkQueueManagedGate'),(N'WorkerControlConfiguration'),(N'WorkerRegistration'),(N'WorkerSlotReservation'),(N'WorkerExecutionDisposition'),(N'WorkerExecutionCommitWitness'),(N'ExecutionCancellation'),(N'SecondSessionProvider'),(N'EventLog'))v(TableName)
  EXCEPT SELECT ObjectName FROM #tbx_ExportObjects WHERE ObjectType='U' AND SchemaName=N'toolbelt_core')
  OR NOT EXISTS(SELECT 1 FROM #tbx_ExportObjects WHERE ObjectType='U' AND SchemaName=N'toolbelt_file' AND ObjectName=N'FileContentRootAllowlist')
- THROW 54981,N'Exportsnapshot erwartet genau 14 persistente Tabellen.',2;
+ THROW 54981,N'Exportsnapshot erwartet genau 15 persistente Tabellen.',2;
 -- Aktueller gepinnter Shape: zusätzliche oder fehlende Felder sind kein stiller PASS.
 IF EXISTS(SELECT 1 FROM(VALUES
- (N'toolbelt_core',N'WorkType',18),(N'toolbelt_core',N'WorkItem',46),
+ (N'toolbelt_core',N'WorkTypePermission',7),(N'toolbelt_core',N'WorkType',18),(N'toolbelt_core',N'WorkItem',46),
  (N'toolbelt_core',N'WorkQueueScheduler',1),(N'toolbelt_core',N'WorkQueueBarrierBlocker',5),
  (N'toolbelt_core',N'WorkQueueManagedGate',4),(N'toolbelt_core',N'WorkerControlConfiguration',5),
  (N'toolbelt_core',N'WorkerRegistration',12),(N'toolbelt_core',N'WorkerSlotReservation',13),
  (N'toolbelt_core',N'WorkerExecutionDisposition',5),(N'toolbelt_core',N'WorkerExecutionCommitWitness',5),
- (N'toolbelt_core',N'ExecutionCancellation',5),(N'toolbelt_core',N'SecondSessionProvider',8),
+ (N'toolbelt_core',N'ExecutionCancellation',8),(N'toolbelt_core',N'SecondSessionProvider',8),
  (N'toolbelt_core',N'EventLog',24),(N'toolbelt_file',N'FileContentRootAllowlist',5)
  )v(SchemaName,TableName,ColumnCount)
  JOIN #tbx_ExportObjects o ON o.SchemaName=v.SchemaName AND o.ObjectName=v.TableName AND o.ObjectType='U'
@@ -105,7 +105,7 @@ WHILE @@FETCH_STATUS=0 BEGIN
  END;
  ELSE EXEC sys.sp_executesql @Sql,N'@Category varchar(128)',@Category=@Category;
  IF NOT EXISTS(SELECT 1 FROM #tbx_ExportSnapshot WHERE Category=@Category)
-  THROW 54981,N'Eine der 14 Exporttabellen ist unbezeugt.',3;
+  THROW 54981,N'Eine der 15 Exporttabellen ist unbezeugt.',3;
  FETCH NEXT FROM tables_cursor INTO @Id,@Schema,@Table;
 END;
 CLOSE tables_cursor;DEALLOCATE tables_cursor;

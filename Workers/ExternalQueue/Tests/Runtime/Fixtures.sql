@@ -135,3 +135,19 @@ EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.worker.resultset',@H
 EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.worker.context-drift',@HandlerSchema=N'dbo',@HandlerProcedure=N'USP_TbxWorkerContextDrift',@ParameterMode='NONE';
 EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.worker.readonly-mutation',@HandlerSchema=N'dbo',@HandlerProcedure=N'USP_TbxWorkerReadonlyMutation',@ParameterMode='NONE';
 GO
+
+-- Ausdrückliche Testpolicy für die vorhandene dbo-Testidentität.
+DECLARE @SecurityName varchar(128),@SecurityAction varchar(32);
+DECLARE SecurityPermissions CURSOR LOCAL FAST_FORWARD FOR
+SELECT w.WorkTypeName,a.PermissionName FROM toolbelt_core.WorkType w
+CROSS JOIN(VALUES('ENQUEUE'),('CLAIM'))a(PermissionName)
+WHERE w.WorkTypeName LIKE 'test.worker.%';
+OPEN SecurityPermissions;
+FETCH NEXT FROM SecurityPermissions INTO @SecurityName,@SecurityAction;
+WHILE @@FETCH_STATUS=0
+BEGIN
+ EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName=@SecurityName,@Principal=N'dbo',@PermissionName=@SecurityAction;
+ FETCH NEXT FROM SecurityPermissions INTO @SecurityName,@SecurityAction;
+END;
+CLOSE SecurityPermissions; DEALLOCATE SecurityPermissions;
+GO

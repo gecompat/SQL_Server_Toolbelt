@@ -54,10 +54,12 @@ Captures werden nicht ausgegeben.
 ## Fehler und Betrieb
 
 Ungültige Pattern, Flags oder Positionsparameter, Größenverletzungen und der
-feste 250-ms-Timeout erzeugen SQL-Fehler 6522. Die .NET-Innermeldung beginnt
+Engine-Timeout (höchstens 250 ms je Suche) erzeugen SQL-Fehler 6522.
+Count/Instr prüfen zusätzlich kooperativ 500 ms Gesamtzeit und höchstens
+100000 erfolgreiche Matchschritte; eine Überschreitung liefert keinen Teilwert. Die .NET-Innermeldung beginnt
 stabil mit `TBX_REGEX_INVALID_PATTERN`, `TBX_REGEX_INVALID_FLAGS`,
 `TBX_REGEX_INVALID_ARGUMENT`, `TBX_REGEX_INPUT_TOO_LARGE`,
-`TBX_REGEX_PATTERN_TOO_LARGE` oder `TBX_REGEX_TIMEOUT`.
+`TBX_REGEX_PATTERN_TOO_LARGE`, `TBX_REGEX_MATCH_LIMIT` oder `TBX_REGEX_TIMEOUT`.
 
 Die Begrenzung macht eine Backtracking-Engine nicht linear. Regex-Prädikate
 sind nicht SARGable; selektive Schlüssel-, Bereichs- oder LIKE-Prädikate
@@ -115,3 +117,8 @@ ungekürzte Validierung und fügt Aufrufkosten hinzu; Inlining und Parallelität
 werden nicht zugesagt. SELECT-Aufrufe verwenden explizite DEFAULT-Platzhalter;
 EXEC erlaubt das Weglassen von Defaultparametern. Die internen Kerne sind
 keine weitere öffentliche API und werden mit dem Modul installiert/entfernt.
+
+Der Replacementparser speichert Literalspans und Gruppenreferenzen statt
+kopierter Literalstrings, validiert auch bei fehlendem Match und erlaubt
+höchstens 65536 Teile. Parsing, Gruppennamen und Zahlenreferenzen verbrauchen
+dasselbe kooperative R2-Gesamtbudget wie Suche und Ausgabe.

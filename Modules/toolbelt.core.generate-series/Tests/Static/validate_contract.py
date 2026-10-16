@@ -147,7 +147,7 @@ def main() -> int:
 
     require(
         uninstall,
-        r"VALUES\s*\(\s*N'TVF_GenerateSeriesInt'\s*\)\s*,\s*"
+        r"VALUES\s*\(\s*N'TVF_GenerateSeriesBigIntStatus'\s*\)\s*,\s*\(\s*N'TVF_GenerateSeriesInt'\s*\)\s*,\s*"
         r"\(\s*N'TVF_GenerateSeriesBigInt'\s*\)",
         "Uninstall-Reihenfolge Wrapper vor Kern",
     )

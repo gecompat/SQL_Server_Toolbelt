@@ -10,7 +10,7 @@ namespace Toolbelt.Archive.ZipMemory
         /// Technische CLR-Fassade ohne SQL-Binding. Einmaliger kanonischer ZIP-Index
         /// und CRC-geprüfte begrenzte Partmaterialisierung für den XLSX-Spike.
         /// Der Aufrufer besitzt den seekbaren Stream und hält ihn unverändert.
-        /// Keine Streaming-/Memory-Grant-Zusage; ToArray erzeugt eine Payloadkopie.
+        /// Keine Streaming-/Memory-Grant-Zusage; Exakter Entrybuffer ohne abschließende Payloadkopie.
         /// </summary>
         public sealed class ArchiveSession
         {
@@ -30,7 +30,7 @@ namespace Toolbelt.Archive.ZipMemory
                 {
                 if (source == null || maxArchiveBytes < 1 || maxArchiveBytes > MaxArchiveBytes ||
                     maxParts < 1 || maxParts > MaxEntries || maxPartBytes < 1 ||
-                    maxPartBytes > Int32.MaxValue || maxTotalBytes < 1 || maxRatio < 1)
+                    maxPartBytes > MaxExtractedEntryBytes || maxTotalBytes < 1 || maxRatio < 1)
                     throw new ArgumentException("Ungültige technische ZIP-Grenzen.");
                 if (length < 0 || length > maxArchiveBytes)
                     throw new InvalidDataException("ZIP_ARCHIVE_LIMIT");

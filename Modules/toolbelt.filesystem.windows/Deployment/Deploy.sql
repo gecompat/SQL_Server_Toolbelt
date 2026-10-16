@@ -29,9 +29,9 @@ BEGIN TRY
     IF @LockResult < 0 THROW 51535, N'Ein paralleles Deployment dieses Moduls ist bereits aktiv.', 1;
     IF SCHEMA_ID(N'toolbelt_filesystem') IS NULL EXEC sys.sp_executesql N'CREATE SCHEMA [toolbelt_filesystem];';
     IF @InstalledAssemblyHash IS NULL
-        SET @AssemblyDdl = N'CREATE ASSEMBLY [Toolbelt_Filesystem_Windows] FROM ' + CONVERT(nvarchar(max), @AssemblyBits, 1) + N' WITH PERMISSION_SET = EXTERNAL_ACCESS;';
+        SET @AssemblyDdl = N'CREATE ASSEMBLY [Toolbelt_Filesystem_Windows] FROM ' + CONVERT(nvarchar(max), @AssemblyBits, 1) + N' WITH PERMISSION_SET = UNSAFE;';
     ELSE IF @InstalledAssemblyHash <> @AssemblyHash
-        SET @AssemblyDdl = N'ALTER ASSEMBLY [Toolbelt_Filesystem_Windows] FROM ' + CONVERT(nvarchar(max), @AssemblyBits, 1) + N';';
+        SET @AssemblyDdl = N'ALTER ASSEMBLY [Toolbelt_Filesystem_Windows] FROM ' + CONVERT(nvarchar(max), @AssemblyBits, 1) + N' WITH PERMISSION_SET = UNSAFE;';
     IF @AssemblyDdl IS NOT NULL
         EXEC sys.sp_executesql @AssemblyDdl;
 END TRY

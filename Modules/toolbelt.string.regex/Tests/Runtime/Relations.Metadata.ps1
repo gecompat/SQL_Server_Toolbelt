@@ -11,7 +11,7 @@ $builder['Initial Catalog']=$Database
 $builder['User ID']=$env:TBX_SQL_USER
 $builder['Password']=$env:TBX_SQL_PASSWORD
 $builder['Encrypt']=$true
-$builder['TrustServerCertificate']=$true
+& (Join-Path $PSScriptRoot '../../../../Tests/CI/Set-SqlClientTlsPolicy.ps1') -Builder $builder
 $builder['Connect Timeout']=15
 $connection=New-Object System.Data.SqlClient.SqlConnection($builder.ConnectionString)
 $quoted='['+$ToolbeltDatabase.Replace(']',']]')+'].toolbelt_string.'

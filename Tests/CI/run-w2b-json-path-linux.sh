@@ -136,6 +136,7 @@ run_lifecycle() {
 
 deploy_module "${database}" local
 run_lifecycle "${database}"
+run_file "${database}" /workspace/Modules/toolbelt.json.path-exists/Tests/Runtime Security.Contract.sql -t 180
 
 for level in ${compatibility_levels}; do
   run_query "${database}" \

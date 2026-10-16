@@ -1,44 +1,66 @@
 -- ============================================================================
--- Objekt:          toolbelt_json.TVF_JsonPathExists
--- Typ:             Multi-statement Table-valued Function
--- Zweck:           Prüft einen SQL/JSON-Pfad portabel auf Existenz.
--- Vertrag:         Documentation/TVF_JsonPathExists.md
+-- Objekt:          toolbelt_json.TVF_JsonPathExistsStatus
+-- Zweck:           Begrenzter kanonischer Statuskern; Legacy-Wertfassade unten.
 -- Parameter:       @Json nvarchar(max), @Path nvarchar(max)
--- Resultset:       PathExists int
--- Dependencies:    keine Modulabhängigkeit
--- Rechte:          SELECT oder REFERENCES
--- Versionen:       SQL Server 2019/2022/2025
--- Plattformen:     Windows/Linux, T-SQL
--- Fehlerverhalten: Keine fachlichen Fehler; ungültiges JSON oder ungültige
---                  Pfade liefern 0, SQL-NULL wird propagiert.
--- Performance:     Pfadsegmente und Wildcard-Treffer werden zustandsbehaftet
---                  in Table Variables materialisiert.
--- Einschränkungen: Pfade sind auf 4.000 UTF-16-Codeunits begrenzt. SQL Server
---                  2025 Preview-Ranges, Listen und last sind nicht enthalten.
+-- Resultset:       PathExists int, Status varchar(16)
+-- Vertrag:         Documentation/TVF_JsonPathExistsStatus.md
+-- Versionen:       SQL Server 2019/2022/2025; Windows/Linux
+-- Rechte:          SELECT/REFERENCES; keine zusätzlichen Rechte oder Grants.
+-- Performance:     MSTVF mit Vorabgrenzen; keine Inline-/Parallelitätszusage.
+-- Grenzen:         Freigegebener Vertrag SECURITY_HARDENING_2026_10.md.
 -- ============================================================================
-CREATE OR ALTER FUNCTION [toolbelt_json].[TVF_JsonPathExists]
+CREATE OR ALTER FUNCTION [toolbelt_json].[TVF_JsonPathExistsStatus]
 (
       @Json nvarchar(max)
     , @Path nvarchar(max)
 )
 RETURNS @Result TABLE
 (
-    PathExists int NULL
+    PathExists int NULL, Status varchar(16) NOT NULL
 )
 AS
 BEGIN
     IF @Json IS NULL OR @Path IS NULL
     BEGIN
-        INSERT @Result (PathExists) VALUES (NULL);
+        INSERT @Result (PathExists,Status) VALUES (NULL,'SQL_NULL');
         RETURN;
     END;
 
+    IF DATALENGTH(@Json)>16777216
+    BEGIN INSERT @Result VALUES(NULL,'LIMIT'); RETURN; END;
+    DECLARE @WorkBytes bigint=0,@Charge bigint,@RawPosition int=1,
+        @RawLength int=CONVERT(int,DATALENGTH(@Json)/2),@RawDepth int=0,
+        @RawQuoted bit=0,@RawEscaped bit=0,@RawUnit nchar(1),@RootUnit nchar(1),
+        @RawChunk nvarchar(4000),@RawChunkStart int=-4000;
+    -- Vor nativer JSON-Prüfung lexikalische Tiefe samt Quoting/Escapes begrenzen.
+    -- Chunkweises SUBSTRING vermeidet wiederholtes vollständiges LOB-Scanning.
+    WHILE @RawPosition<=@RawLength
+    BEGIN
+        IF @RawPosition>@RawChunkStart+4000
+        BEGIN SET @RawChunkStart=@RawPosition-1; SET @RawChunk=SUBSTRING(@Json COLLATE Latin1_General_100_BIN2,@RawPosition,4000); END;
+        SET @RawUnit=SUBSTRING(@RawChunk COLLATE Latin1_General_100_BIN2,@RawPosition-@RawChunkStart,1);
+        IF @RootUnit IS NULL AND UNICODE(@RawUnit) NOT IN(9,10,13,32) SET @RootUnit=@RawUnit;
+        IF @RawQuoted=1
+        BEGIN
+            IF @RawEscaped=1 SET @RawEscaped=0;
+            ELSE IF @RawUnit=N'\' SET @RawEscaped=1;
+            ELSE IF @RawUnit=N'"' SET @RawQuoted=0;
+        END
+        ELSE IF @RawUnit=N'"' SET @RawQuoted=1;
+        ELSE IF @RawUnit IN(N'[',N'{')
+        BEGIN
+            SET @RawDepth+=1;
+            IF @RawDepth>128 BEGIN INSERT @Result VALUES(NULL,'LIMIT'); RETURN; END;
+        END
+        ELSE IF @RawUnit IN(N']',N'}') SET @RawDepth-=1;
+        SET @RawPosition+=1;
+    END;
     -- Der V1-Vertrag begrenzt den Pfad bewusst. Dadurch bleiben alle
     -- Parserpositionen int-basiert und der pro Aufruf materialisierte Zustand
     -- kontrollierbar.
     IF DATALENGTH(@Path) > 8000
     BEGIN
-        INSERT @Result (PathExists) VALUES (0);
+        INSERT @Result (PathExists,Status) VALUES (0,'INVALID');
         RETURN;
     END;
 
@@ -81,6 +103,7 @@ BEGIN
 
     WHILE @Invalid = 0 AND @Position <= @PathLength
     BEGIN
+        IF @SegmentOrdinal>128 BEGIN INSERT @Result VALUES(NULL,'LIMIT'); RETURN; END;
         IF SUBSTRING(@PathText, @Position, 1) = N'.'
         BEGIN
             SET @Position += 1;
@@ -127,6 +150,9 @@ BEGIN
                     BREAK;
                 END;
 
+                SET @Charge=DATALENGTH(@Envelope);
+                IF @Charge>67108864-@WorkBytes BEGIN INSERT @Result VALUES(NULL,'LIMIT'); RETURN; END;
+                SET @WorkBytes+=@Charge;
                 SELECT @Token = json_value.[value]
                 FROM OPENJSON(@Envelope) AS json_value
                 WHERE json_value.[key] = N'0'
@@ -229,19 +255,18 @@ BEGIN
 
     IF @Invalid = 1
     BEGIN
-        INSERT @Result (PathExists) VALUES (0);
+        INSERT @Result (PathExists,Status) VALUES (0,'INVALID');
         RETURN;
     END;
 
-    -- Das zusätzliche Array macht auch skalare JSON-Werte auf SQL Server 2019
-    -- prüfbar. Genau ein Element verhindert, dass eine kommaseparierte Folge
-    -- fälschlich als einzelner JSON-Wert gilt.
-    SET @Envelope = N'[' + @Json + N']';
-
-    IF ISJSON(@Envelope) <> 1
+    IF @RootUnit IN(N'[',N'{')
     BEGIN
-        INSERT @Result (PathExists) VALUES (0);
-        RETURN;
+        IF ISJSON(@Json)<>1 BEGIN INSERT @Result VALUES(0,'INVALID'); RETURN; END;
+    END
+    ELSE
+    BEGIN
+        SET @Envelope=CAST(N'[' AS nvarchar(max))+@Json+N']';
+        IF ISJSON(@Envelope)<>1 BEGIN INSERT @Result VALUES(0,'INVALID'); RETURN; END;
     END;
 
     DECLARE @Frontier TABLE
@@ -255,13 +280,20 @@ BEGIN
         , JsonType int NOT NULL
     );
 
-    INSERT @Frontier (JsonValue, JsonType)
-    SELECT json_value.[value], json_value.[type]
-    FROM OPENJSON(@Envelope) AS json_value;
+    IF @RootUnit IN(N'[',N'{')
+        INSERT @Frontier VALUES(@Json,CASE @RootUnit WHEN N'[' THEN 4 ELSE 5 END);
+    ELSE
+    BEGIN
+        SET @Charge=DATALENGTH(@Envelope);
+        IF @Charge>67108864-@WorkBytes BEGIN INSERT @Result VALUES(NULL,'LIMIT'); RETURN; END;
+        SET @WorkBytes+=@Charge;
+        INSERT @Frontier (JsonValue,JsonType)
+        SELECT [value],[type] FROM OPENJSON(@Envelope);
+    END;
 
     IF (SELECT COUNT_BIG(*) FROM @Frontier) <> 1
     BEGIN
-        INSERT @Result (PathExists) VALUES (0);
+        INSERT @Result (PathExists,Status) VALUES (0,'INVALID');
         RETURN;
     END;
 
@@ -278,8 +310,11 @@ BEGIN
 
         DELETE @NextFrontier;
 
+        SELECT @Charge=COALESCE(SUM(CONVERT(bigint,CASE WHEN JsonType IN(4,5) THEN DATALENGTH(JsonValue) ELSE 4 END)),0) FROM @Frontier;
+        IF @Charge>67108864-@WorkBytes BEGIN INSERT @Result VALUES(NULL,'LIMIT'); RETURN; END;
+        SET @WorkBytes+=@Charge;
         INSERT @NextFrontier (JsonValue, JsonType)
-        SELECT child.[value], child.[type]
+        SELECT TOP (10001) child.[value], child.[type]
         FROM @Frontier AS parent
         CROSS APPLY OPENJSON
         (
@@ -308,6 +343,8 @@ BEGIN
                 AND parent.JsonType = 4
             );
 
+        IF (SELECT COUNT_BIG(*) FROM @NextFrontier)>10000
+        BEGIN INSERT @Result VALUES(NULL,'LIMIT'); RETURN; END;
         DELETE @Frontier;
 
         INSERT @Frontier (JsonValue, JsonType)
@@ -320,9 +357,21 @@ BEGIN
         SET @SegmentOrdinal += 1;
     END;
 
-    INSERT @Result (PathExists)
-    SELECT CASE WHEN EXISTS (SELECT 1 FROM @Frontier) THEN 1 ELSE 0 END;
+    INSERT @Result (PathExists,Status)
+    SELECT CASE WHEN EXISTS (SELECT 1 FROM @Frontier) THEN 1 ELSE 0 END,
+           CASE WHEN EXISTS (SELECT 1 FROM @Frontier) THEN 'FOUND' ELSE 'MISSING' END;
 
+    RETURN;
+END;
+GO
+
+-- Legacy-Wertfassade: gleicher Inputvertrag; Limitabbildung siehe Objektseite.
+-- Vertrag: Documentation/TVF_JsonPathExists.md
+CREATE OR ALTER FUNCTION [toolbelt_json].[TVF_JsonPathExists](@Json nvarchar(max),@Path nvarchar(max))
+RETURNS @Result TABLE(PathExists int NULL)
+AS
+BEGIN
+    INSERT @Result SELECT PathExists FROM toolbelt_json.TVF_JsonPathExistsStatus(@Json,@Path);
     RETURN;
 END;
 GO

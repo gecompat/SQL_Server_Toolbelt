@@ -190,7 +190,7 @@ def main() -> int:
         "öffentliche Procedure",
         "CREATE OR ALTER PROCEDURE [toolbelt_archive].[USP_ExtractZipEntryFromBinary]",
         "@ZipArchive          varbinary(max) = NULL",
-        "@MaxEntryBytes       bigint         = 104857600",
+        "@MaxEntryBytes       bigint         = 16777216",
         "@MaxCompressionRatio decimal(9,2)   = 200.00",
         "TVF_InternalExtractZipEntryClr",
         "THROW @ProviderErrorNumber",

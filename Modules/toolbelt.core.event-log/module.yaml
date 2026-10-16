@@ -45,6 +45,8 @@ objects:
   - {type: USP, schema: "toolbelt_core", name: "USP_WriteEvent", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_DeleteEventsBefore", visibility: public}
   - {type: USP, schema: "toolbelt_core", name: "USP_WriteEventInternal", visibility: internal}
+  - { type: USP, schema: "toolbelt_core", name: "USP_DeleteRecordedEventsBefore", visibility: public }
+
 permissions_required:
   - "EXECUTE auf toolbelt_core.USP_WriteEvent für schreibende Consumer"
   - "SELECT auf toolbelt_core.VW_Events für lesende Consumer"
@@ -77,6 +79,7 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
+    - "Documentation/USP_DeleteRecordedEventsBefore.md"
     - "Documentation/EVENT_LOG_OBJECTS.md"
   architecture:
     - "../../Documentation/Architecture/EVENT_LOG_MODULE_DESIGN.md"
@@ -89,6 +92,7 @@ contracts:
   deployment: "1.0"
   validation: "1.0"
 tests:
+  security: "Tests/Runtime/Security.Contract.sql"
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/EventLog.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"

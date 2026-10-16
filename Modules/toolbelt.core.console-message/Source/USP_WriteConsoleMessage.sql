@@ -81,7 +81,7 @@ BEGIN
         VALUES
           ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'DESCRIPTION', 1
           , NULL, NULL, NULL, NULL, NULL
-          , N'Gibt einen langen Unicode-Text vollständig im Messages-Kanal aus. Gepufferte Ausgabe verwendet PRINT; unmittelbare Ausgabe verwendet RAISERROR mit Severity 0 und NOWAIT.'
+          , N'Gibt bis zu 1 MiB UTF-16 in höchstens 512 Frames vollständig im Messages-Kanal aus. Gepufferte Ausgabe verwendet PRINT; unmittelbare Ausgabe verwendet RAISERROR mit Severity 0 und NOWAIT.'
           , NULL )
         , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'PARAMETER', 1
           , N'@Message', 'nvarchar(max)', 0, 1, N'NULL'
@@ -102,6 +102,10 @@ BEGIN
         , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'RESULT_COLUMN', 1
           , NULL, NULL, NULL, NULL, NULL
           , N'Die Procedure besitzt kein fachliches Resultset. Text wird ausschließlich als Messages ausgegeben.'
+          , NULL )
+        , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'ERROR', 1
+          , N'52801-52802', NULL, NULL, NULL, NULL
+          , N'52801: über 1 MiB UTF-16; 52802: über 512 Frames. Ablehnung vor erster Ausgabe, keine Kürzung.'
           , NULL )
         , ( '1.0', N'toolbelt_core', N'USP_WriteConsoleMessage', 'PERMISSION', 1
           , NULL, NULL, NULL, NULL, NULL
@@ -151,6 +155,9 @@ BEGIN
     IF @Message IS NULL OR DATALENGTH(@Message) = 0
         RETURN 0;
 
+    IF DATALENGTH(@Message)>1048576
+        THROW 52801,N'Console-Nachrichten dürfen höchstens 1 MiB UTF-16 umfassen.',1;
+
     DECLARE
           @Position      bigint = 1
         , @CodeUnitCount bigint
@@ -167,6 +174,11 @@ BEGIN
     SET @CodeUnitCount =
         LEN((@Message + NCHAR(1)) COLLATE Latin1_General_100_BIN2) - 1;
     SET @ChunkSize = CASE WHEN @Immediate = 1 THEN 2000 ELSE 4000 END;
+
+    -- Höchstens ein Surrogate-Paar verschiebt eine Chunkgrenze um eine Einheit.
+    -- Diese obere Framezahl wird vor der ersten Ausgabe geprüft.
+    IF (@CodeUnitCount+@ChunkSize-2)/(@ChunkSize-1)>512
+        THROW 52802,N'Console-Nachrichten dürfen höchstens 512 Frames erzeugen.',1;
 
     WHILE @Position <= @CodeUnitCount
     BEGIN

@@ -27,6 +27,7 @@ CREATE TABLE #tbx_ControlRepeatObjects(ObjectId int NOT NULL PRIMARY KEY,ObjectN
 INSERT #tbx_ControlRepeatObjects
  SELECT o.object_id,o.name,o.type FROM sys.objects o JOIN sys.extended_properties ep ON ep.class=1 AND ep.major_id=o.object_id AND ep.minor_id=0 AND ep.name=N'Toolbelt.ModuleId'
  WHERE o.schema_id=SCHEMA_ID(N'toolbelt_core') AND CONVERT(nvarchar(256),ep.value) IN(N'toolbelt.core.work-queue',N'toolbelt.core.worker-control',N'toolbelt.core.work-type') AND o.type IN('U','P','V');
-IF (SELECT COUNT(*) FROM #tbx_ControlRepeatObjects WHERE ObjectType='U')<>10
- THROW 54960,N'Repeat erwartet alle zehn persistenten Tabellen.',5;
+IF (SELECT COUNT(*) FROM #tbx_ControlRepeatObjects WHERE ObjectType='U')<>11
+ OR NOT EXISTS(SELECT 1 FROM #tbx_ControlRepeatObjects WHERE ObjectType='U' AND ObjectName=N'WorkTypePermission')
+ THROW 54960,N'Repeat erwartet alle elf persistenten Tabellen einschließlich WorkTypePermission.',5;
 GO

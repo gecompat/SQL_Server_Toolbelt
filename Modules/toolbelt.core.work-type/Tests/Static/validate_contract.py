@@ -4,6 +4,11 @@ from pathlib import Path
 root = Path(__file__).resolve().parents[2]
 required = [
     'Source/WorkType.sql',
+    'Source/WorkTypePermission.sql',
+    'Source/TVF_WorkTypeAuthorization.sql',
+    'Source/USP_SetWorkTypePermission.sql',
+    'Documentation/USP_SetWorkTypePermission.md',
+    'Tests/Runtime/Authorization.Contract.sql',
     'Source/VW_WorkTypes.sql',
     'Source/USP_RegisterWorkType.sql',
     'Source/USP_DisableWorkType.sql',

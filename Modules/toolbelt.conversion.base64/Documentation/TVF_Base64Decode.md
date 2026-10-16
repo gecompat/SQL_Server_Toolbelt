@@ -31,19 +31,19 @@ OUTER APPLY
     toolbelt_conversion.TVF_Base64Decode(source.EncodedValue) AS decoded;
 ```
 
-Die inline TVF ist der kanonische relationale Kern. Die SVF bleibt für
+Die inline TVF ist die kompatible relationale Wertfassade über dem begrenzten MSTVF-Statuskern. Die SVF bleibt für
 skalare Einzelaufrufe erhalten.
-
-Wegen der inline expandierten XML-Methode muss in der aufrufenden Sitzung
-`QUOTED_IDENTIFIER` eingeschaltet sein. Das Deployment setzt die Option für
-die Objekterstellung; der direkte TVF-Aufruf muss sie für seinen eigenen
-Batch ebenfalls einschalten.
 
 ## Grenzen
 
-Der ASCII-Vertrag wird mit `Latin1_General_100_BIN2` geprüft. Große LOBs
-werden synchron verarbeitet; die Kanonisierung erfolgt innerhalb eines
-direkten XML-Dokumentausdrucks, damit XQuery keinen relationalen LOB über
-`sql:column` lesen muss. Physische
-SQL-Server-2019-/2022- und Windows-Läufe bleiben bis zur Releasevalidierung
-`not executed`.
+Der ASCII-Vertrag wird mit `Latin1_General_100_BIN2` geprüft. Der begrenzte
+MSTVF-Kern materialisiert die normalisierte Zeichenfolge einmal und übergibt
+sie direkt per `sql:variable` an `xs:base64Binary`; er baut kein zusätzliches
+XML-Dokument aus dem Base64-Text auf. Das Deployment bindet seine benötigten
+SET-Optionen. Alte Plan-/Inlining- und Parallelitätsannahmen sind für den neuen
+Statuskern nicht zugesagt. Gezielte Linux-2019-Grenz-/Roundtriptests bestanden;
+die vollständige aktuelle Plattformmatrix bleibt offen.
+
+## Aktueller Sicherheitsvertrag
+
+SC-019: Der kanonische begrenzte MSTVF-Statuskern prüft vor Normalisierung/XML. Encode16 MiB Binary, Decode24 MiB Rohtext einschließlich Whitespace und16 MiB Ergebnis. Neue Statusoberflächen unterscheiden OK, SQL_NULL, INVALID, LIMIT; bestehende TVF-/SVF-Werte bei LIMIT NULL. Syntaxfehler unterhalb der Grenzen bleiben in bisherigen Fassaden. Inlinewrapper über MSTVF; keine bisherige Plan-/Inliningzusage übernehmen.

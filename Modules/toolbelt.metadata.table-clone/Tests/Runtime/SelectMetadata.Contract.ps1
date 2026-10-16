@@ -12,7 +12,7 @@ $builder['Pooling']=$false
 $builder['Enlist']=$false
 $builder['ConnectRetryCount']=0
 $builder['Encrypt']=$true
-$builder['TrustServerCertificate']=$true
+& (Join-Path $PSScriptRoot '../../../../Tests/CI/Set-SqlClientTlsPolicy.ps1') -Builder $builder
 $connection=[System.Data.SqlClient.SqlConnection]::new($builder.ConnectionString)
 $command=$null
 $messages=[System.Collections.Generic.List[string]]::new()

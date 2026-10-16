@@ -1,10 +1,17 @@
 # Gepinnte Originalquellen; keine Rekonstruktion historischer Versionmarker.
 function New-GenuineQueue20Capture {
  param([string]$RepositoryRoot,[string]$OutputRoot,
+       [ValidateSet('work-queue','work-type')][string]$CaptureModule='work-queue',
        [Collections.Generic.List[object]]$OwnedFiles,[Collections.Generic.List[string]]$OwnedDirectories)
  $commit='62e7b06588b28c45c58f7ec335e4e5c45f120e3e'
- $module='Modules/toolbelt.core.work-queue'
+ $module='Modules/toolbelt.core.'+$CaptureModule
  $files=@('Deployment/Deploy.sql','Source/WorkItem.sql','Source/VW_WorkQueue.sql','Source/VW_WorkQueueBarrierBlockers.sql','Source/USP_EnqueueWork.sql','Source/USP_EnqueueWorkWithPolicy.sql','Source/USP_EnqueueBarrierWork.sql','Source/USP_ClaimWork.sql','Source/USP_RenewWorkLease.sql','Source/USP_RecoverExpiredWork.sql','Source/USP_CompleteWork.sql','Source/USP_FailWork.sql','Source/USP_ScheduleWorkRetry.sql','Source/USP_RequeueDeadLetter.sql','Source/USP_GetWorkStatus.sql')
+ $includeCount=14
+ if($CaptureModule-ceq'work-type'){
+  # Echte WorkType1.1-Abhängigkeit desselben historischen Queue2.0-Commits.
+  $files=@('Deployment/Deploy.sql','Source/WorkType.sql','Source/VW_WorkTypes.sql','Source/USP_RegisterWorkType.sql','Source/USP_DisableWorkType.sql','Source/USP_RemoveWorkType.sql','Source/USP_ResolveWorkType.sql')
+  $includeCount=6
+ }
  $helper=Join-Path $RepositoryRoot 'Modules/toolbelt.json.constructors/Scripts/Invoke-OwnedProcess.ps1'
  $helperHash=(Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash
  Assert-Fixture ($helperHash-ceq'7B3E838EE5D294B3DECF3153D2D02276BE401E6F76EE8D810F20C5DCC51D1BD4') 'HISTORICAL_PROCESS_HELPER'
@@ -21,11 +28,11 @@ function New-GenuineQueue20Capture {
   $budget=[Math]::Min(5000,60000-[int]$watch.ElapsedMilliseconds)
   Assert-Fixture ($budget-gt0) 'HISTORICAL_CAPTURE_DEADLINE'
   $spec=$commit+':'+$module+'/'+$relative
-  $blob=Invoke-OwnedProcess -FileName $git -Arguments @('-C',$RepositoryRoot,'rev-parse','--verify',$spec) -TimeoutMilliseconds $budget
+  $blob=Invoke-OwnedProcess -FileName $git -Arguments @('--no-lazy-fetch','--no-replace-objects','--no-optional-locks','-C',$RepositoryRoot,'rev-parse','--verify',$spec) -TimeoutMilliseconds $budget
   Assert-Fixture ($blob.ExitCode-eq0 -and $blob.CaptureComplete -and $blob.Stderr.Length-eq0 -and $blob.Stdout.Trim()-cmatch'^[0-9a-f]{40}$') 'HISTORICAL_BLOB_ID'
   $budget=[Math]::Min(5000,60000-[int]$watch.ElapsedMilliseconds)
   Assert-Fixture ($budget-gt0) 'HISTORICAL_CAPTURE_DEADLINE'
-  $capture=Invoke-OwnedProcess -FileName $git -Arguments @('-C',$RepositoryRoot,'cat-file','blob',$spec) -TimeoutMilliseconds $budget -BinaryOutputPath $target
+  $capture=Invoke-OwnedProcess -FileName $git -Arguments @('--no-lazy-fetch','--no-replace-objects','--no-optional-locks','-C',$RepositoryRoot,'cat-file','blob',$spec) -TimeoutMilliseconds $budget -BinaryOutputPath $target
   Assert-Fixture ($capture.ExitCode-eq0 -and $capture.CaptureComplete -and $capture.Stderr.Length-eq0) 'HISTORICAL_BLOB_CAPTURE'
   $bytes=[IO.File]::ReadAllBytes($target)
   $prefix=[Text.Encoding]::ASCII.GetBytes('blob '+$bytes.Length+[char]0)
@@ -39,13 +46,13 @@ function New-GenuineQueue20Capture {
  Assert-Fixture ((Get-FileHash -LiteralPath $git -Algorithm SHA256).Hash-ceq$gitHash -and (Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash-ceq$helperHash) 'HISTORICAL_TOOL_DRIFT'
  $deploy=Join-Path $OutputRoot 'Deployment/Deploy.sql'
  $includes=@([IO.File]::ReadAllLines($deploy)|Where-Object {$_-match'^:r '})
- Assert-Fixture ($includes.Count-eq14) 'HISTORICAL_INCLUDE_COUNT'
+ Assert-Fixture ($includes.Count-eq$includeCount) 'HISTORICAL_INCLUDE_COUNT'
  foreach($line in $includes){
   Assert-Fixture ($line-cmatch'^:r ../Source/([A-Za-z0-9_]+\.sql)$') 'HISTORICAL_INCLUDE_SHAPE'
   Assert-Fixture ($files-ccontains('Source/'+$Matches[1])) 'HISTORICAL_INCLUDE_BINDING'
  }
  $manifest=Join-Path $OutputRoot 'SourcePins.json'
- [IO.File]::WriteAllText($manifest,(ConvertTo-Json -InputObject ([ordered]@{Commit=$commit;Files=$OwnedFiles.ToArray();GitSHA256=$gitHash;HelperSHA256=$helperHash}) -Depth 5),[Text.UTF8Encoding]::new($false))
+ [IO.File]::WriteAllText($manifest,(ConvertTo-Json -InputObject ([ordered]@{Commit=$commit;Module=$module;Files=$OwnedFiles.ToArray();GitSHA256=$gitHash;HelperSHA256=$helperHash}) -Depth 5),[Text.UTF8Encoding]::new($false))
  $item=Get-Item -LiteralPath $manifest
  $OwnedFiles.Add([pscustomobject]@{Path=$manifest;SHA256=(Get-FileHash -LiteralPath $manifest).Hash;Length=$item.Length;CreatedTicks=$item.CreationTimeUtc.Ticks;Attributes=[int]$item.Attributes})
  return $deploy

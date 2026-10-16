@@ -161,6 +161,8 @@ done
 run_file "${database}" \
   /workspace/Modules/toolbelt.metadata.capability-catalog/Tests/Runtime \
   MetadataVisibility.Contract.sql
+# Synthetischen 1-MiB-Payload nicht in CI-Logs vervielfachen.
+run_file "${database}" /workspace/Modules/toolbelt.core.console-message/Tests/Runtime Security.Contract.sql -t 180 >/dev/null
 
 set +e
 console_output="$(

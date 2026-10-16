@@ -110,3 +110,9 @@ werden unter AppLock erneut geprüft. Diese Erwartung ersetzt keine Trustfreigab
 - Scope: Finaler Capture/Replace-Gesamtadapter lokal/zentral auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170: sieben alte und zwei neue APIs, unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, echter 1.2-zu-1.3-Upgrade, Reinstall, explizite erwartete SHA2_512-Binaryhashbindung, Caller-TX/SET-Erhalt, AppLock, post-DROP-Rollback, Versions-/Marker-/Future-Slot-/Schema-Kollisionen, Dependencies, Uninstall und verifiziertes eigenes DB-/Trustcleanup. Framework tatsächlich 100000 Captures und Standard/Large. Frühere API-only- und fehlgeschlagene Adapterstände bleiben historische Evidenz. Neue Capture-Minimalrechte, weitere Ziele, ältere 1.0/1.1-Capture-Upgrades, tatsächliche große SQL-Capture-Ausgabe und SQL-100k-Durchsatz nicht ausgeführt; aktueller CI-Nachweis separat als PR-Mergegate erforderlich, teilweise validiert/unreleased.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Freigegebene Security-Härtung 2026-10-15
+
+SC-002/011: Count und Instr prüfen kooperativ500 ms Gesamtzeit einschließlich Vorbereitung und höchstens100000 erfolgreiche Matchschritte. Jeder Suchtimeout liegt im Restbudget, höchstens250 ms. Überschreitungen werfen TBX_REGEX_TIMEOUT beziehungsweise TBX_REGEX_MATCH_LIMIT, nie Teilcount/fehlender Treffer. IsMatch behält250 ms. Gruppenreplacement speichert kompakte Textspans, höchstens65536 Teile, prüft die bestehende R2-Deadline im gesamten Parser und validiert auch ohne Treffer vollständig; darüber TBX_REGEX_REPLACEMENT_LIMIT.
+
+Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).

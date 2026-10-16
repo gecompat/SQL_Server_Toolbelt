@@ -1,25 +1,23 @@
 -- ============================================================================
--- Objekt:          toolbelt_conversion.TVF_Base64Encode
--- Zweck:           Binärdaten als Base64 oder Base64URL codieren
+-- Objekt:          toolbelt_conversion.TVF_Base64EncodeStatus
+-- Zweck:           Begrenzter kanonischer Statuskern; Legacy-Wertfassade unten.
 -- Parameter:       @Value varbinary(max), @UrlSafe bit = 0
--- Resultset:       genau eine Zeile; EncodedValue varchar(max)
--- Dependencies:    keine Toolbelt-Module; T-SQL/XML-Provider
--- Versionen:       SQL Server 2019, 2022 und 2025
--- Performance:     kanonischer relationaler Kern für APPLY
--- Collation:       Rückgabewert verwendet die Datenbank-Default-Collation
--- Einschränkungen: Base64URL wird ohne Padding ausgegeben
+-- Resultset:       EncodedValue varchar(max), Status varchar(16)
+-- Vertrag:         Documentation/TVF_Base64EncodeStatus.md
+-- Versionen:       SQL Server 2019/2022/2025; Windows/Linux
+-- Rechte:          SELECT/REFERENCES; keine zusätzlichen Rechte oder Grants.
+-- Performance:     MSTVF mit Vorabgrenzen; keine Inline-/Parallelitätszusage.
+-- Grenzen:         Freigegebener Vertrag SECURITY_HARDENING_2026_10.md.
 -- ============================================================================
-
-CREATE OR ALTER FUNCTION [toolbelt_conversion].[TVF_Base64Encode]
-(
-      @Value   varbinary(max)
-    , @UrlSafe bit = 0
-)
-RETURNS TABLE
+CREATE OR ALTER FUNCTION [toolbelt_conversion].[TVF_Base64EncodeStatus]
+(@Value varbinary(max),@UrlSafe bit=0)
+RETURNS @Result TABLE(EncodedValue varchar(max) NULL,Status varchar(16) NOT NULL)
 WITH SCHEMABINDING
 AS
-RETURN
-(
+BEGIN
+    IF @Value IS NULL BEGIN INSERT @Result VALUES(NULL,'SQL_NULL'); RETURN; END;
+    IF DATALENGTH(@Value)>16777216 BEGIN INSERT @Result VALUES(NULL,'LIMIT'); RETURN; END;
+    DECLARE @Encoded varchar(max);
     WITH Encoded AS
     (
         SELECT EncodedValue =
@@ -42,7 +40,7 @@ RETURN
                   REPLACE(REPLACE(EncodedValue, '+', '-'), '/', '_')
         FROM Encoded
     )
-    SELECT EncodedValue =
+    SELECT @Encoded =
         CONVERT
         (
               varchar(max)
@@ -63,6 +61,14 @@ RETURN
                        )
               END
         )
-    FROM UrlSafe
-);
+    FROM UrlSafe;
+    INSERT @Result VALUES(@Encoded,'OK'); RETURN;
+END;
+GO
+-- Legacy-Wertfassade: gleicher Inputvertrag; Limitabbildung siehe Objektseite.
+-- Vertrag: Documentation/TVF_Base64Encode.md
+CREATE OR ALTER FUNCTION [toolbelt_conversion].[TVF_Base64Encode]
+(@Value varbinary(max),@UrlSafe bit=0)
+RETURNS TABLE AS RETURN
+(SELECT EncodedValue FROM toolbelt_conversion.TVF_Base64EncodeStatus(@Value,@UrlSafe));
 GO

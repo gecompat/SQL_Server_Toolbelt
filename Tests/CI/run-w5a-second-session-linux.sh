@@ -129,7 +129,11 @@ run_file() {
   local file="$3"
   shift 3
   docker exec --workdir "${workdir}" "${container_name}" "${sqlcmd_path}" \
-    -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i "${file}" "$@"
+    -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i "${file}" "$@" || return $?
+  if [[ "${workdir}" == "/workspace/Modules/toolbelt.core.work-type/Deployment" && "${file}" == "Deploy.sql" ]]; then
+    docker exec --workdir /workspace/Tests/CI "${container_name}" "${sqlcmd_path}" \
+      -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i WorkTypeAuthorization.Fixture.sql
+  fi
 }
 
 run_stdin() {
@@ -196,6 +200,7 @@ run_file "${local_db}" /workspace/Modules/toolbelt.core.second-session/Deploymen
 configure_linked_server
 
 run_file "${local_db}" /workspace/Modules/toolbelt.core.second-session/Tests/Runtime Lifecycle.Contract.sql
+run_file "${local_db}" /workspace/Modules/toolbelt.core.second-session/Tests/Runtime Security.Contract.sql
 for level in ${compatibility_levels}; do
   run_query "${local_db}" "ALTER DATABASE [${local_db}] SET COMPATIBILITY_LEVEL = ${level};"
   run_file "${local_db}" /workspace/Modules/toolbelt.core.second-session/Tests/Runtime SecondSession.Contract.sql \

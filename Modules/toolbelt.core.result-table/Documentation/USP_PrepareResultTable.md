@@ -184,3 +184,7 @@ Siehe [PrepareResultTable.sql](../Examples/PrepareResultTable.sql).
 - Microsoft (2026): [sys.types](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-types-transact-sql?view=sql-server-ver17).
 - Microsoft (2026): [SAVE TRANSACTION](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/save-transaction-transact-sql?view=sql-server-ver17).
 - Microsoft (2026): [XACT_STATE](https://learn.microsoft.com/en-us/sql/t-sql/functions/xact-state-transact-sql?view=sql-server-ver17).
+
+## Securityvertrag 2026-10-15
+
+Deployment benötigt Schemaowner dbo und freigegebene Kontrollprincipals; Details im Modul-README.

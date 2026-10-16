@@ -110,7 +110,7 @@ def main() -> int:
         "PaddingCount",
         "LengthRemainder",
         "toolbelt.invalid.base64",
-        "xs:base64Binary((/base64/text())[1])",
+        'xs:base64Binary(sql:variable("@Canonical"))',
         "InvalidFormat",
     ):
         if marker not in decode_tvf:

@@ -278,6 +278,13 @@ try{
  Assert-Fixture ((Invoke-FixtureSql 'SELECT COUNT(*) FROM sys.databases WHERE name=@Database;' @{'@Database'=$database} -Scalar)-eq0) 'DATABASE_UNIQUENESS'
  $phase='create'
  if($managedScope){[void][IO.Directory]::CreateDirectory($temporaryRoot);Save-ManagedFixtureJournal}
+ if($QueueUpgradeOnly){
+  # Alle unveränderten historischen Quellen vor der ersten DB-Mutation binden.
+  $phase='queue-upgrade-capture';Save-ManagedFixtureJournal
+  . (Join-Path $PSScriptRoot 'New-GenuineQueue20Capture.ps1')
+  $historicalWorkTypeDeploy=New-GenuineQueue20Capture -RepositoryRoot $root -OutputRoot (Join-Path $temporaryRoot 'worktype11') -CaptureModule work-type -OwnedFiles $historicalFiles -OwnedDirectories $historicalDirectories
+  $historicalDeploy=New-GenuineQueue20Capture -RepositoryRoot $root -OutputRoot (Join-Path $temporaryRoot 'queue20') -OwnedFiles $historicalFiles -OwnedDirectories $historicalDirectories
+ }
  Invoke-FixtureSql "CREATE DATABASE [$database] COLLATE Latin1_General_100_CS_AS;";$created=$true
  if($managedScope){$phase='created';Save-ManagedFixtureJournal}
  $connection.ChangeDatabase($database);$builder['Initial Catalog']=$database
@@ -302,14 +309,18 @@ try{
  foreach($module in @('result-table','execution-context','execution-cancel','work-type','work-queue')){
   $phase='deploy-'+$module
   Save-ManagedFixtureJournal
-  if($QueueUpgradeOnly -and $module-ceq'work-queue'){
-   $phase='queue-upgrade-capture';Save-ManagedFixtureJournal
-   . (Join-Path $PSScriptRoot 'New-GenuineQueue20Capture.ps1')
-   $historicalDeploy=New-GenuineQueue20Capture -RepositoryRoot $root -OutputRoot (Join-Path $temporaryRoot 'queue20') -OwnedFiles $historicalFiles -OwnedDirectories $historicalDirectories
+  if($QueueUpgradeOnly -and $module-ceq'work-type'){
+   Invoke-FixtureFile $historicalWorkTypeDeploy
+  }elseif($QueueUpgradeOnly -and $module-ceq'work-queue'){
    $phase='queue-upgrade-original20';Save-ManagedFixtureJournal
    Invoke-FixtureFile $historicalDeploy
    $phase='queue-upgrade-setup';Save-ManagedFixtureJournal
    Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.work-queue/Tests/Runtime/UpgradeFrom2_0.Setup.sql')
+   $phase='queue-upgrade-worktype12';Save-ManagedFixtureJournal
+   Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.work-type/Deployment/Deploy.sql')
+   # Die vorhandene synthetische Upgradefixture explizit delegieren; Produkt
+   # und historische Quellen erhalten weder automatische Grants noch Fakeversionen.
+   Invoke-FixtureSql "EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='test.queue.upgrade20',@Principal=N'dbo',@PermissionName='ENQUEUE';EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='test.queue.upgrade20',@Principal=N'dbo',@PermissionName='CLAIM';"
    $phase='queue-upgrade-current21';Save-ManagedFixtureJournal
    Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.work-queue/Deployment/Deploy.sql')
    $phase='queue-upgrade-verify';Save-ManagedFixtureJournal
@@ -328,7 +339,7 @@ try{
    Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.work-queue/Tests/Runtime/RepeatCurrent.Verify.sql')
   }
   'PASS: queue2.1 repeat twice; all seven states and five persistent table snapshots preserved.'
-  'PASS: genuine queue2.0 to2.1 focused upgrade; preserved rows, original active claim and legacy eight-field admission.'
+  'PASS: genuine worktype1.1 and queue2.0 to worktype1.2 and queue2.1 focused upgrade; preserved rows, original active claim and legacy eight-field admission.'
   $phase='control-repeat-complete-claims';Save-ManagedFixtureJournal
   Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/RepeatInstalled.Setup.sql')
   $phase='control-repeat-install';$managedControlDeploymentStarted=$true;Save-ManagedFixtureJournal
@@ -381,7 +392,7 @@ try{
    Invoke-FixtureFile $controlDeploy
    Invoke-FixtureFile (Join-Path $root 'Modules/toolbelt.core.worker-control/Tests/Runtime/RepeatInstalled.Verify.sql')
   }
-  'PASS: installed quiescent control1.0 and queue2.1 repeat twice; ten binary table snapshots, identities and catalog preserved.'
+  'PASS: installed quiescent control1.0 and queue2.1 repeat twice; eleven binary table snapshots including WorkTypePermission, identities and catalog preserved.'
   'PASS: caller and implicit transaction guards, state and metadata denials, bounded writer fence and post-source rollback.'
   'NOT_EXECUTED: nonempty synthetic grant witness, active managed refresh and remaining platforms.'
   return

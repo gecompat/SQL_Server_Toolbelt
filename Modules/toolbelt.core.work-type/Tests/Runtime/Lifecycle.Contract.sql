@@ -18,9 +18,9 @@ IF NOT EXISTS
     SELECT 1 FROM sys.extended_properties
     WHERE class=0
       AND name=N'Toolbelt.Module.toolbelt.core.work-type.Version'
-      AND CONVERT(nvarchar(32), value)=N'1.1.0'
+      AND CONVERT(nvarchar(32), value)=N'1.2.0'
 )
-    THROW 52532, N'Modulmarker für Version 1.1.0 fehlt.', 1;
+    THROW 52532, N'Modulmarker für Version 1.2.0 fehlt.', 1;
 
 IF NOT EXISTS
 (
@@ -29,7 +29,7 @@ IF NOT EXISTS
     WHERE ep.class = 1
       AND ep.major_id = OBJECT_ID(N'toolbelt_core.USP_RemoveWorkType')
       AND ep.name = N'Toolbelt.ModuleVersion'
-      AND CONVERT(nvarchar(32), ep.value) = N'1.1.0'
+      AND CONVERT(nvarchar(32), ep.value) = N'1.2.0'
 )
     THROW 52533, N'Objektmarker für USP_RemoveWorkType fehlt.', 1;
 

@@ -138,3 +138,25 @@ RETURN
     CROSS JOIN Ordinals AS ordinals
 );
 GO
+
+-- Begrenzte Oberfläche für untrusted Aufrufe. Die mathematische Altfassade
+-- bleibt unter der ausdrücklichen Betreiberpolicy für vertrauenswürdige Principals.
+CREATE OR ALTER FUNCTION [toolbelt_core].[TVF_GenerateSeriesBigIntStatus]
+(@Start bigint,@Stop bigint,@Step bigint=NULL)
+RETURNS @Result TABLE(Value bigint NULL,Status varchar(16) NOT NULL,RequestedRows decimal(38,0) NULL)
+AS
+BEGIN
+    IF @Start IS NULL OR @Stop IS NULL
+    BEGIN INSERT @Result VALUES(NULL,'SQL_NULL',NULL); RETURN; END;
+    SET @Step=COALESCE(@Step,CASE WHEN @Start<=@Stop THEN CONVERT(bigint,1) ELSE CONVERT(bigint,-1) END);
+    IF @Step=0 BEGIN INSERT @Result VALUES(NULL,'INVALID',NULL); RETURN; END;
+    IF (@Step>0 AND @Start>@Stop) OR (@Step<0 AND @Start<@Stop)
+    BEGIN INSERT @Result VALUES(NULL,'EMPTY',0); RETURN; END;
+    DECLARE @Distance decimal(38,0)=ABS(CONVERT(decimal(38,0),@Stop)-CONVERT(decimal(38,0),@Start)),
+            @Magnitude decimal(38,0)=ABS(CONVERT(decimal(38,0),@Step)),@Rows decimal(38,0);
+    SET @Rows=(@Distance-(@Distance%@Magnitude))/@Magnitude+1;
+    IF @Rows>1000000 BEGIN INSERT @Result VALUES(NULL,'LIMIT',@Rows); RETURN; END;
+    INSERT @Result SELECT Value,'OK',@Rows FROM toolbelt_core.TVF_GenerateSeriesBigInt(@Start,@Stop,@Step);
+    RETURN;
+END;
+GO

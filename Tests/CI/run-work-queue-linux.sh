@@ -115,7 +115,11 @@ done
 run_query() { docker exec "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d "$1" -Q "$2"; }
 run_file() {
   local db="$1" workdir="$2" file="$3"; shift 3
-  docker exec --workdir "${workdir}" "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i "${file}" "$@"
+  docker exec --workdir "${workdir}" "${container_name}" "${sqlcmd_path}" -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i "${file}" "$@" || return $?
+  if [[ "${workdir}" == "/workspace/Modules/toolbelt.core.work-type/Deployment" && "${file}" == "Deploy.sql" ]]; then
+    docker exec --workdir /workspace/Tests/CI "${container_name}" "${sqlcmd_path}" \
+      -S localhost -U sa -P "${sa_password}" -C -b -d "${db}" -i WorkTypeAuthorization.Fixture.sql
+  fi
 }
 deploy() { run_file "$1" "/workspace/$2/Deployment" Deploy.sql -v DeploymentMode="$3"; }
 uninstall() { run_file "$1" "/workspace/$2/Deployment" Uninstall.sql -v ConfirmNoExternalConsumers="$3" AllowDataLoss="$4"; }
@@ -171,6 +175,7 @@ run_file "${local_db}" /workspace/Modules/toolbelt.core.work-queue/Tests/Runtime
 for level in ${compatibility_levels}; do
   run_query "${local_db}" "ALTER DATABASE [${local_db}] SET COMPATIBILITY_LEVEL=${level};"
   run_file "${local_db}" /workspace/Modules/toolbelt.core.work-queue/Tests/Runtime WorkQueue.Contract.sql
+  run_file "${local_db}" /workspace/Modules/toolbelt.core.work-queue/Tests/Runtime Authorization.Contract.sql
 done
 
 run_query "${local_db}" "EXEC(N'CREATE OR ALTER PROCEDURE dbo.USP_TbxQueueConcurrent AS BEGIN SET NOCOUNT ON; END;'); EXEC toolbelt_core.USP_RegisterWorkType @WorkTypeName='test.queue.concurrent',@HandlerSchema=N'dbo',@HandlerProcedure=N'USP_TbxQueueConcurrent'; CREATE TABLE #S(Dummy int NULL); EXEC toolbelt_core.USP_EnqueueWork @WorkTypeName='test.queue.concurrent',@ResultTable=N'#S';"

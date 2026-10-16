@@ -18,7 +18,7 @@ CREATE OR ALTER PROCEDURE toolbelt_archive.USP_ExtractZipEntryToFile
     , @EntryName nvarchar(1024) = NULL
     , @RootAlias sysname = NULL
     , @RelativePath nvarchar(4000) = NULL
-    , @MaxEntryBytes bigint = 104857600
+    , @MaxEntryBytes bigint = 16777216
     , @MaxCompressionRatio decimal(9,2) = 200.00
     , @Overwrite bit = 0
     , @ExecutionIdentity varchar(16) = 'Caller'
@@ -41,7 +41,7 @@ BEGIN
         ('PARAMETER',2,N'@EntryName','nvarchar(1024)',CONVERT(bit,1),CONVERT(bit,0),N'NULL',N'Exakter ordinaler Entryname; kein abgeleiteter Dateipfad.',NULL) ,
         ('PARAMETER',3,N'@RootAlias','sysname',CONVERT(bit,1),CONVERT(bit,0),N'NULL',N'Vorhandener freigegebener Filesystem-Root-Alias.',NULL) ,
         ('PARAMETER',4,N'@RelativePath','nvarchar(4000)',CONVERT(bit,1),CONVERT(bit,0),N'NULL',N'Expliziter relativer Zielpfad; Zielverzeichnis muss bestehen.',NULL) ,
-        ('PARAMETER',5,N'@MaxEntryBytes','bigint',CONVERT(bit,0),CONVERT(bit,0),N'104857600',N'1 bis 2147483647 unkomprimierte Entrybytes; geerbte Obergrenze, kein Kapazitätsnachweis.',NULL) ,
+        ('PARAMETER',5,N'@MaxEntryBytes','bigint',CONVERT(bit,0),CONVERT(bit,0),N'16777216',N'1 bis 67108864 unkomprimierte Entrybytes; geerbte Obergrenze, kein Kapazitätsnachweis.',NULL) ,
         ('PARAMETER',6,N'@MaxCompressionRatio','decimal(9,2)',CONVERT(bit,0),CONVERT(bit,0),N'200.00',N'Mindestens 1; kanonische deklarierte und tatsächliche Readerprüfung.',NULL) ,
         ('PARAMETER',7,N'@Overwrite','bit',CONVERT(bit,0),CONVERT(bit,0),N'0',N'Unverändert an WriteBinaryFile; kein Direct-Write-Fallback.',NULL) ,
         ('PARAMETER',8,N'@ExecutionIdentity','varchar(16)',CONVERT(bit,0),CONVERT(bit,0),N'''Caller''',N'Caller als Default; ServiceAccount nur explizit gewählt.',NULL) ,
@@ -115,6 +115,9 @@ BEGIN
                AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(128),e.value))=CONVERT(varbinary(max),N'local')))
     ) THROW 54622,N'TBX_ZIP_FILE_DEPENDENCY: Lokale Dependencies mit kohärenten P-Slots und Versionsmarkern fehlen.',1;
     DECLARE @Payload varbinary(max),@Sql nvarchar(max);
+    IF @MaxEntryBytes IS NULL OR @MaxEntryBytes NOT BETWEEN 1 AND 67108864
+        THROW 51320, N'@MaxEntryBytes muss zwischen 1 und 67108864 liegen.', 1;
+
     BEGIN TRY
         CREATE TABLE #ZipFiles_ExtractStage(EntryName nvarchar(1024) NOT NULL,CompressedBytes bigint NOT NULL,UncompressedBytes bigint NOT NULL,CompressionMethod int NOT NULL,Crc32 int NULL,IsEncrypted bit NOT NULL,EntryPayload varbinary(max) NULL);
         EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary

@@ -102,6 +102,7 @@ run_file "${database}" /workspace/Modules/toolbelt.conversion.uri-component/Depl
 run_file "${database}" /workspace/Modules/toolbelt.datetime.calendar-difference/Tests/Runtime Lifecycle.Contract.sql
 run_file "${database}" /workspace/Modules/toolbelt.string.directional-trim/Tests/Runtime Lifecycle.Contract.sql
 run_file "${database}" /workspace/Modules/toolbelt.conversion.uri-component/Tests/Runtime Lifecycle.Contract.sql
+run_file "${database}" /workspace/Modules/toolbelt.conversion.uri-component/Tests/Runtime Security.Contract.sql
 run_file "${database}" /workspace/Modules/toolbelt.string.directional-trim/Tests/Runtime Collation.Contract.sql -v ExpectedCaseMode=CS
 for level in ${compatibility_levels}; do
  run_query "${database}" "ALTER DATABASE [${database}] SET COMPATIBILITY_LEVEL = ${level};"

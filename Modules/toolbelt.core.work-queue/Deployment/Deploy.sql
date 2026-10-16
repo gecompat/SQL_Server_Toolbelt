@@ -3,7 +3,7 @@
 -- ============================================================================
 -- Zweck:     Erst- und Wiederholungsdeployment
 -- Modul:     toolbelt.core.work-queue v2.1.0 (neutrale Managedintegration)
--- Erfordert: toolbelt.core.result-table 1.0.0; toolbelt.core.work-type 1.1.0
+-- Erfordert: toolbelt.core.result-table 1.0.0; toolbelt.core.work-type 1.2.0
 -- Modus:     SQLCMD; Ausführung aus diesem Deployment-Verzeichnis
 -- Parameter: DeploymentMode=local|central
 -- ============================================================================
@@ -31,6 +31,8 @@ BEGIN
  RAISERROR(N'Installierter Queue-/Control-Repeat benötigt initial LOCK_TIMEOUT -1.',16,1);
  RETURN;
 END;
+IF OBJECT_ID(N'toolbelt_core.TVF_WorkTypeAuthorization',N'IF') IS NULL
+    THROW 51942,N'Work-Type-Policy 1.2.0 fehlt; zuerst den Katalog aktualisieren.',1;
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 SET QUOTED_IDENTIFIER ON;
@@ -115,9 +117,9 @@ SELECT @WorkTypeVersion=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_proper
 WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.work-type.Version';
 IF ISNULL(@ResultTableVersion,N'') COLLATE Latin1_General_100_BIN2<>N'1.0.0'
  OR OBJECT_ID(N'toolbelt_core.USP_PrepareResultTable',N'P') IS NULL
- OR ISNULL(@WorkTypeVersion,N'') COLLATE Latin1_General_100_BIN2<>N'1.1.0'
+ OR ISNULL(@WorkTypeVersion,N'') COLLATE Latin1_General_100_BIN2<>N'1.2.0'
  OR OBJECT_ID(N'toolbelt_core.WorkType',N'U') IS NULL
-    THROW 51942,N'toolbelt.core.result-table 1.0.0 und toolbelt.core.work-type 1.1.0 müssen in derselben Datenbank installiert sein.',1;
+    THROW 51942,N'toolbelt.core.result-table 1.0.0 und toolbelt.core.work-type 1.2.0 müssen in derselben Datenbank installiert sein.',1;
 
 SELECT @InstalledVersion=TRY_CONVERT(nvarchar(64),value) FROM sys.extended_properties
 WHERE class=0 AND name=@VersionPropertyName;

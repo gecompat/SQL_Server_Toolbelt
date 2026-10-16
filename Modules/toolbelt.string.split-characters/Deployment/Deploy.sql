@@ -41,7 +41,8 @@ INSERT INTO #tbx_SplitCharactersReleaseObjects
     , ObjectType
 )
 VALUES
-      (N'1.0.0', N'toolbelt_string', N'TVF_SplitByCharacters', 'IF');
+      (N'1.0.0', N'toolbelt_string', N'TVF_SplitByCharacters', 'IF')
+    , (N'1.0.0', N'toolbelt_string', N'TVF_SplitByCharactersStatus', 'TF');
 
 CREATE TABLE #tbx_SplitCharactersDeployState
 (
@@ -189,7 +190,8 @@ VALUES
 );
 
 BEGIN TRY
-    BEGIN TRANSACTION;
+    IF OBJECT_ID(N'toolbelt_string.TVF_SplitByCharactersStatus') IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_string.TVF_SplitByCharactersStatus') AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(256),value)=N'toolbelt.string.split-characters') THROW 51074,N'Neuer Security-Zielname ist frameworkfremd belegt.',1;
+BEGIN TRANSACTION;
 
     EXEC @LockResult = sys.sp_getapplock
           @Resource    = N'toolbelt.deploy.toolbelt.string.split-characters'
@@ -372,7 +374,7 @@ BEGIN TRY
     );
 
     INSERT INTO @Objects (ObjectName)
-    VALUES (N'TVF_SplitByCharacters');
+    VALUES (N'TVF_SplitByCharacters'), (N'TVF_SplitByCharactersStatus');
 
     DECLARE
           @ObjectOrdinal int = 1

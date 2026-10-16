@@ -2,7 +2,7 @@ module_id: "toolbelt.string.split-characters"
 module_name: "Literal Multi-Separator Split"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: validated
+validation_status: "partially validated"
 release_status: unreleased
 description: "Teilt Unicode-Text portabel an einer Menge einzelner literal interpretierter Separatorzeichen."
 
@@ -17,14 +17,14 @@ compatibility_levels:
   - 170
 
 platforms:
-  windows: validated
-  linux: validated
+  windows: "partially validated"
+  linux: "partially validated"
 
 providers:
   - id: tsql-inline
-    technology: T-SQL Inline TVF
+    technology: "T-SQL bounded status MSTVF with legacy inline wrapper"
     platforms: [Windows, Linux]
-    status: validated
+    status: "partially validated"
 
 deployment_capabilities:
   local: true
@@ -48,6 +48,8 @@ objects:
     name: "TVF_SplitByCharacters"
     visibility: public
 
+  - { type: TVF, schema: "toolbelt_string", name: "TVF_SplitByCharactersStatus", visibility: public }
+
 permissions_required:
   - "SELECT oder REFERENCES auf den Inline Table-valued Functions"
   - "DDL-Rechte für Deploy und Uninstall"
@@ -56,6 +58,8 @@ collation_contract: "Separatoren werden als einzelne UTF-16-Codeeinheiten mit La
 data_type_contract: "Input und Value sind nvarchar(max); Separators ist nvarchar(4000); Ordinal ist bigint und beginnt bei 1."
 help_contract_version: "not applicable"
 resultset_contracts:
+  - name: "TVF_SplitByCharactersStatus"
+    columns: ["Value nvarchar(max)", "Ordinal bigint", "Status varchar(16)"]
   - name: "TVF_SplitByCharacters"
     columns:
       - "Value nvarchar(max)"
@@ -78,8 +82,10 @@ lifecycle:
 documentation:
   module: "README.md"
   public_objects:
+    - "Documentation/TVF_SplitByCharactersStatus.md"
     - "Documentation/TVF_SplitByCharacters.md"
   architecture:
+    - "../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md"
     - "../../Documentation/Architecture/SPLIT_CHARACTERS_MODULE_DESIGN.md"
   test_matrix:
     - "Tests/SPLIT_CHARACTERS_CONTRACT_TEST_MATRIX.md"
@@ -92,6 +98,7 @@ contracts:
   validation: "1.0"
 
 tests:
+  security: "Tests/Runtime/Security.Contract.sql"
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/SplitCharacters.Contract.sql"
   contract: "Tests/Runtime/SplitCharacters.Contract.sql"

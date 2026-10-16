@@ -133,7 +133,7 @@
       "@EntryName": "Exakter ordinaler Entryname; kein abgeleiteter Dateipfad.",
       "@RootAlias": "Vorhandener freigegebener Filesystem-Root-Alias.",
       "@RelativePath": "Expliziter relativer Zielpfad; Zielverzeichnis muss bestehen.",
-      "@MaxEntryBytes": "1 bis 2147483647 unkomprimierte Entrybytes; geerbte Obergrenze, kein Kapazitätsnachweis.",
+      "@MaxEntryBytes": "Default16777216, höchstens67108864 unkomprimierte Entrybytes; deklarierte und tatsächliche Größe vor Ausgabe prüfen.",
       "@MaxCompressionRatio": "Mindestens 1; kanonische deklarierte und tatsächliche Readerprüfung.",
       "@Overwrite": "Unverändert an WriteBinaryFile; kein Direct-Write-Fallback.",
       "@ExecutionIdentity": "Caller als Default; ServiceAccount nur explizit gewählt.",
@@ -946,7 +946,9 @@
       "@ResultTable": "NULL = Resultset; sonst Name einer vorhandenen lokalen #Temp-Tabelle.",
       "@KeepData": "0 = Ergebnis ersetzen, 1 = an vorhandene kompatible Ergebnisdaten anhängen.",
       "@Debug": "Diagnostikstufe; 0 deaktiviert Debug. Siehe Objektvertrag für weitere Stufen.",
-      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf."
+      "@Hilfe": "1 = ausschließlich Hilfe, 0 = fachlicher Aufruf.",
+      "@RequiredPermission": "Optionale Work-Type-Policyaktion; NULL prüft keine zusätzliche Policy.",
+      "@SuppressResult": "1 prüft ohne Fachresultset; nicht mit ResultTable kombinieren."
     }
   },
   "toolbelt_core.VW_WorkTypes": {
@@ -2402,6 +2404,131 @@
       "@KeepData": "0 Replace,1 Append; NULL entspricht0.",
       "@Debug": "Payloadfreie Messages; NULL entspricht0.",
       "@Hilfe": "Help zuerst ohne fachliche Argument-/Dependencyprüfung; NULL entspricht0."
+    }
+  },
+  "toolbelt_core.USP_SetWorkTypePermission": {
+    "summary": "Konfiguriert eine ausdrückliche Work-Type-Delegation an einen vorhandenen Datenbankprincipal.",
+    "examples": [
+      "EXEC toolbelt_core.USP_SetWorkTypePermission @WorkTypeName='demo.noop', @Principal=N'ContosoProducer', @PermissionName='ENQUEUE', @PermissionState='ALLOW';"
+    ],
+    "requirements": [
+      "Work-Type-Katalog 1.2.0, vorhandener Work Type und vorhandener Datenbankprincipal.",
+      "EXECUTE sowie CONTROL auf toolbelt_core.WorkTypePermission; keine automatische Rechtevergabe."
+    ],
+    "parameter_notes": {
+      "@PermissionName": "ENQUEUE, CLAIM oder EXECUTE_NEW_SESSION.",
+      "@PermissionState": "ALLOW, DENY oder REMOVE; gültiges DENY hat Vorrang.",
+      "@Hilfe": "Nur Help ohne Seiteneffekt.",
+      "@WorkTypeName": "Vorhandener kanonischer Work Type.",
+      "@Principal": "Vorhandener Datenbankbenutzer oder Datenbankrolle.",
+      "@Debug": "Optionale Fortschrittsmeldung ohne fachliches Resultset."
+    }
+  },
+  "toolbelt_conversion.TVF_Base64EncodeStatus": {
+    "summary": "Genau eine Zeile. OK enthält den Wert; LIMIT und SQL_NULL enthalten NULL. Der kanonische MSTVF-Kern prüft vor XML. Die bisherige TVF/SVF delegiert und liefert bei Überschreitung NULL.",
+    "examples": [
+      "SELECT * FROM toolbelt_conversion.TVF_Base64EncodeStatus(0xCAFE,0);"
+    ],
+    "requirements": [
+      "Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe."
+    ],
+    "parameter_notes": {
+      "@Value": "varbinary(max); NULL ergibt SQL_NULL; höchstens 16777216 Bytes vor XML.",
+      "@UrlSafe": "bit=0; 1 erzeugt Base64URL ohne Padding; NULL entspricht 0."
+    }
+  },
+  "toolbelt_conversion.TVF_Base64DecodeStatus": {
+    "summary": "Genau eine Zeile: OK, SQL_NULL, INVALID oder LIMIT. Rohtextprüfung vor REPLACE, berechnete Ergebnisgröße vor XML. Standard-/URL-Alphabet und definierter Whitespace bleiben. Die bisherige TVF/SVF behält Syntaxfehler unterhalb der Grenzen und liefert bei LIMIT NULL.",
+    "examples": [
+      "SELECT * FROM toolbelt_conversion.TVF_Base64DecodeStatus('YWJj');"
+    ],
+    "requirements": [
+      "Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe."
+    ],
+    "parameter_notes": {
+      "@Value": "varchar(max); höchstens 25165824 Rohtextbytes einschließlich Whitespace und 16777216 Ergebnisbytes."
+    }
+  },
+  "toolbelt_conversion.TVF_UriComponentEncodeStatus": {
+    "summary": "Genau eine Zeile: OK, SQL_NULL oder LIMIT. Eingang vor UTF-8-Konvertierung/Series prüfen. Aus höchstens 32768 Codeeinheiten entstehen selbst bei drei UTF-8-Bytes und drei Escapezeichen je Byte höchstens 589824 UTF-16-Ausgabebytes; die 1-MiB-Grenze ist damit schon vor Aggregation abgesichert. Altfassaden liefern bei LIMIT NULL.",
+    "examples": [
+      "SELECT * FROM toolbelt_conversion.TVF_UriComponentEncodeStatus(N'Contoso €');"
+    ],
+    "requirements": [
+      "Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe."
+    ],
+    "parameter_notes": {
+      "@Value": "nvarchar(max); höchstens 65536 UTF-16-Bytes."
+    }
+  },
+  "toolbelt_conversion.TVF_UriComponentDecodeStatus": {
+    "summary": "Genau eine Zeile: OK, SQL_NULL, INVALID oder LIMIT. Strikte UTF-8-/Percent-/NUL-Regeln bleiben; bei LIMIT IsValid=0, ValidationCode=14, Wert NULL. Die Ausgabe ist durch den vor Series geprüften Eingang unter 1 MiB begrenzt. Altfassaden behalten ihre Spalten und liefern bei LIMIT NULL.",
+    "examples": [
+      "SELECT * FROM toolbelt_conversion.TVF_UriComponentDecodeStatus(N'%E2%82%AC');"
+    ],
+    "requirements": [
+      "Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe."
+    ],
+    "parameter_notes": {
+      "@Value": "nvarchar(max); höchstens 65536 UTF-16-Bytes."
+    }
+  },
+  "toolbelt_string.TVF_SplitByCharactersStatus": {
+    "summary": "Erst vollständige Spanprüfung, danach höchstens 10000 OK-Tokenzeilen. LIMIT, INVALID, SQL_NULL und EMPTY liefern genau eine Kontrollzeile ohne Value/Ordinal. Keine Tokenpräfixe. Die bisherige TVF filtert ausschließlich OK; bei Grenzüberschreitung liefert sie keine Zeilen. Positionen und Separatorvergleich zählen BIN2-Codeeinheiten.",
+    "examples": [
+      "SELECT * FROM toolbelt_string.TVF_SplitByCharactersStatus(N'a,b',N',',1) ORDER BY Ordinal;"
+    ],
+    "requirements": [
+      "Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe."
+    ],
+    "parameter_notes": {
+      "@Input": "nvarchar(max); höchstens 65536 UTF-16-Bytes.",
+      "@Separators": "nvarchar(4000); höchstens 64 unterschiedliche UTF-16-Codeeinheiten; Duplikate zählen einmal; NUL ist ungültig.",
+      "@KeepEmpty": "bit=1; NULL entspricht 1; 0 verwirft leere Tokens."
+    }
+  },
+  "toolbelt_core.TVF_GenerateSeriesBigIntStatus": {
+    "summary": "Vor Expansion exakte Anzahl mit decimal(38,0) und Restrechnung bestimmen. Höchstens 1000000 OK-Zeilen. LIMIT, INVALID, SQL_NULL oder EMPTY liefern eine Kontrollzeile ohne Value. RequestedRows unterscheidet leere und zu große Reihen. Keine garantierte Reihenfolge. Die mathematischen Alt-APIs bleiben unverändert und benötigen vertrauenswürdige Direktgrants. Untrusted Legacygrants werden nicht automatisch entzogen; SC-018 bleibt in einer solchen Installation offen.",
+    "examples": [
+      "SELECT * FROM toolbelt_core.TVF_GenerateSeriesBigIntStatus(1,5,DEFAULT);"
+    ],
+    "requirements": [
+      "Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe."
+    ],
+    "parameter_notes": {
+      "@Start": "bigint; inklusiver Start.",
+      "@Stop": "bigint; inklusives Ende bei erreichbarem Schritt.",
+      "@Step": "bigint=NULL; Richtung automatisch; 0 ergibt INVALID."
+    }
+  },
+  "toolbelt_json.TVF_JsonPathExistsStatus": {
+    "summary": "Genau eine Zeile: FOUND/1, MISSING/0, INVALID/0, SQL_NULL/NULL oder LIMIT/NULL. Höchstens 10000 Frontierwerte; maximal 10001 werden zur Überschreitungsfeststellung aufgenommen. Vor jedem OPENJSON werden die vorgesehenen Inputbytes gegen das kumulative 64-MiB-Budget gebucht. Containerroots werden ohne zusätzliche Wrapper-Ebene validiert. Die bisherige TVF liefert bei LIMIT NULL; kein falsches MISSING.",
+    "examples": [
+      "SELECT * FROM toolbelt_json.TVF_JsonPathExistsStatus(N'{\"a\":null}',N'$.a');"
+    ],
+    "requirements": [
+      "Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe."
+    ],
+    "parameter_notes": {
+      "@Json": "nvarchar(max); höchstens 16 MiB UTF-16, vor nativer Validierung lexikalische Containertiefe höchstens 128.",
+      "@Path": "nvarchar(max); bestehender 4000-Codeeinheitenvertrag und höchstens 128 Segmente."
+    }
+  },
+  "toolbelt_core.USP_DeleteRecordedEventsBefore": {
+    "summary": "Nur ausdrücklich aufgerufene Retention nach RecordedAtUtc mit Index (RecordedAtUtc,EventId), deterministischen begrenzten Batches und bestehender Caller-Transaktions-/Savepointsemantik. Kein Job, keine Deploymentlöschung. Die OccurredAtUtc-Retention bleibt unverändert. Erfordert vorhandenes EXECUTE; erteilt keine Berechtigungen. Fehler 51710–51714 wie im bestehenden Retentionvertrag.",
+    "examples": [
+      "DECLARE @n bigint; EXEC toolbelt_core.USP_DeleteRecordedEventsBefore @BeforeRecordedAtUtc='2026-01-01',@BatchSize=1000,@MaxBatches=1,@DeletedRows=@n OUTPUT;"
+    ],
+    "requirements": [
+      "Vorhandenes SELECT auf die TVF beziehungsweise EXECUTE auf die USP; keine automatische Rechtevergabe."
+    ],
+    "parameter_notes": {
+      "@BeforeRecordedAtUtc": "datetime2(7), erforderlich; exklusiver Cutoff für serverseitiges RecordedAtUtc.",
+      "@BatchSize": "int=1000; 1 bis 10000.",
+      "@MaxBatches": "int=1; 1 bis 100.",
+      "@DeletedRows": "bigint OUTPUT=NULL; initial 0, Anzahl dieses Aufrufs.",
+      "@Debug": "tinyint=0; feste Fortschrittsmeldung ohne Eventinhalt.",
+      "@Hilfe": "bit=0; 1 liefert ausschließlich Hilfe."
     }
   }
 }

@@ -167,6 +167,8 @@ create_database "${local_database}" "Latin1_General_100_CS_AS"
 run_file "${local_database}" "${deployment_directory}" Deploy.sql \
     -v DeploymentMode=local
 run_file "${local_database}" "${runtime_directory}" Lifecycle.Contract.sql
+# Freigegebene Securitygrenzen einmal pro physischem Testziel.
+run_file "${local_database}" "${runtime_directory}" Security.Contract.sql -t 180
 
 for compatibility_level in ${compatibility_levels}; do
     # Der relationale native Operator muss in einer neuen Session unter dem

@@ -9,7 +9,7 @@ ist lokal durchsuchbar; die Ausgabe wird in der Dokumentations-CI auf Synchronit
 
 ## Aktueller Status
 
-**44 Module sind implementiert. 18 sind `validated`, 26 sind `partially validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
+**44 Module sind implementiert. 13 sind `validated`, 31 sind `partially validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
 abgeleitet.**
 
 ## Implementierte Module
@@ -23,17 +23,17 @@ abgeleitet.**
 | `toolbelt.conversion.base64` | Base64 and Base64URL Conversion | `1.1.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.conversion.integer-base` | Integer Base Conversion | `1.1.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.conversion.safe-cast` | Strict Safe Casts | `1.0.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.conversion.uri-component` | URI Component Percent-Encoding | `1.0.0` | `toolbelt_conversion` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.conversion.uri-component` | URI Component Percent-Encoding | `1.0.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.console-message` | Console Message | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.error-envelope` | Error Envelope | `1.0.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.event-log` | Rollback-independent Event Log | `1.0.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.core.execution-cancel` | Cooperative Execution Cancellation | `1.0.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.core.execution-cancel` | Cooperative Execution Cancellation | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.execution-context` | Execution Context | `1.0.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.generate-series` | Portable Integer Series | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.result-table` | Result Table Infrastructure | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.second-session` | Second Session | `1.1.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.work-queue` | Transactional Work Queue | `2.1.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.core.work-type` | Work Type Catalog | `1.1.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.core.work-type` | Work Type Catalog | `1.2.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.worker-control` | Managed Worker Control | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.datetime.bucket` | Date/Time Bucket Compatibility | `1.0.0` | `toolbelt_datetime` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.datetime.calendar-difference` | Calendar Difference | `1.0.0` | `toolbelt_datetime` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
@@ -45,7 +45,7 @@ abgeleitet.**
 | `toolbelt.filesystem.windows` | Windows Filesystem | `1.0.0` | `toolbelt_filesystem` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.json.constructors` | JSON Constructors | `1.3.0` | `toolbelt_json` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.json.core` | Shared SAFE JSON Core | `1.0.0` | `` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.json.path-exists` | JSON Path Exists | `1.0.0` | `toolbelt_json` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.json.path-exists` | JSON Path Exists | `1.0.0` | `toolbelt_json` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.json.pointer` | JSON Pointer Resolution | `1.0.0` | `toolbelt_json` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.json.schema` | Bounded JSON Schema Validation | `1.0.1` | `toolbelt_json` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.capability-catalog` | Module Capability Catalog | `1.0.0` | `toolbelt_metadata` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
@@ -57,7 +57,7 @@ abgeleitet.**
 | `toolbelt.string.phonetic` | Bounded Cologne Phonetic and Double Metaphone | `1.0.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.regex` | Bounded Regular Expressions | `1.3.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.split-advanced` | Quote/Escape Multi-Separator Split | `1.1.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.string.split-characters` | Literal Multi-Separator Split | `1.0.0` | `toolbelt_string` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.string.split-characters` | Literal Multi-Separator Split | `1.0.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.text-pairs` | Bounded Text Pair Comparison | `1.0.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.tsql.script-parser` | T-SQL Script Parser | `2.0.0` | `toolbelt_tsql` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.validation.semantic-version` | Semantic Version Validation | `1.1.0` | `toolbelt_validation` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |

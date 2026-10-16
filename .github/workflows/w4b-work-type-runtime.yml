@@ -5,6 +5,7 @@ on:
     branches:
       - main
     paths:
+      - Tests/CI/WorkTypeAuthorization.Fixture.sql
       - Modules/toolbelt.core.work-type/**
       - Documentation/Architecture/WORK_TYPE_MODULE_DESIGN.md
       - Documentation/Standards/SQL_OBJECT_NAMING.md

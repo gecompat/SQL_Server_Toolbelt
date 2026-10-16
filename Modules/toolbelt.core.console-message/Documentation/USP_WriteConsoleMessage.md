@@ -21,8 +21,9 @@ zwischen gepuffertem `PRINT` und sofort gesendetem
 ## Ergebnis- und Fehlervertrag
 
 Die normale Ausführung liefert kein Resultset und gibt bei Erfolg `RETURN 0`
-zurück. Die Procedure erzeugt keine fachlichen Toolbelt-Fehler. Tatsächliche
-Engine- oder Clientfehler werden nicht umklassifiziert.
+zurück. Fehler `52801` weist mehr als 1 MiB UTF-16 zurück; `52802` mehr als
+512 Frames. Beide Grenzen werden vor erster Ausgabe geprüft, ohne Teiltext
+oder Kürzung. Tatsächliche Engine- oder Clientfehler werden nicht umklassifiziert.
 
 `@Hilfe = 1` liefert das Help-Resultset gemäß
 [`USP_CONTRACT.md`](../../../Documentation/Standards/USP_CONTRACT.md). Der

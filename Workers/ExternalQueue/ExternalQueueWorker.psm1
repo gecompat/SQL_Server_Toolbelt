@@ -240,7 +240,7 @@ SELECT CASE WHEN NOT EXISTS(SELECT 1 FROM toolbelt_core.VW_WorkQueue
                 $command = & $newCommand $connection @'
 SELECT COUNT(*) FROM sys.extended_properties WHERE class=0 AND
  ((name=N'Toolbelt.Module.toolbelt.core.work-queue.Version' AND CONVERT(nvarchar(64),value) IN(N'2.0.0',N'2.1.0'))
- OR(name=N'Toolbelt.Module.toolbelt.core.work-type.Version' AND CONVERT(nvarchar(64),value)=N'1.1.0')
+ OR(name=N'Toolbelt.Module.toolbelt.core.work-type.Version' AND CONVERT(nvarchar(64),value)=N'1.2.0')
  OR(name=N'Toolbelt.Module.toolbelt.core.execution-context.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0')
  OR(name=N'Toolbelt.Module.toolbelt.core.execution-cancel.Version' AND CONVERT(nvarchar(64),value)=N'1.0.0'));
 '@ $Settings.ControlTimeoutSeconds
@@ -314,8 +314,9 @@ EXEC sys.sp_set_session_context @key=N'toolbelt.worker.execution_id',@value=@Exe
             if ($before -ne 'ACTIVE') {
                 $slot.ImmediateOutcome = [pscustomobject]@{State=$(if($before -eq 'CANCELLED'){'FAILED'}else{'UNKNOWN'});Code='WORKER.CANCELLED';SqlNumber=50001}; return
             }
-            $text = 'EXEC @HandlerReturnCode = ' + $qualified + $(if ($mode -ceq 'JSON_PAYLOAD') { ' @PayloadJson=@PayloadJson' } else { '' }) + ' WITH RESULT SETS NONE; IF @@TRANCOUNT<>1 OR XACT_STATE()<>1 OR ISNULL(toolbelt_core.SVF_CurrentExecutionId(),''00000000-0000-0000-0000-000000000000'')<>CONVERT(uniqueidentifier,SESSION_CONTEXT(N''toolbelt.worker.execution_id'')) THROW 50003,N''Worker transaction discipline violated'',1;'
+            $text = 'EXEC toolbelt_core.USP_ResolveWorkType @WorkTypeName=@SecurityWorkType,@RequireEnabled=1,@RequireExecutableByCaller=1,@RequiredPermission=''CLAIM'',@SuppressResult=1; EXEC @HandlerReturnCode = ' + $qualified + $(if ($mode -ceq 'JSON_PAYLOAD') { ' @PayloadJson=@PayloadJson' } else { '' }) + ' WITH RESULT SETS NONE; IF @@TRANCOUNT<>1 OR XACT_STATE()<>1 OR ISNULL(toolbelt_core.SVF_CurrentExecutionId(),''00000000-0000-0000-0000-000000000000'')<>CONVERT(uniqueidentifier,SESSION_CONTEXT(N''toolbelt.worker.execution_id'')) THROW 50003,N''Worker transaction discipline violated'',1;'
             $slot.Command = & $newCommand $slot.Handler $text 0 $slot.Transaction
+            & $addParameter $slot.Command '@SecurityWorkType' VarChar $slot.Claim.WorkTypeName 128
             if ($mode -ceq 'JSON_PAYLOAD') { & $addParameter $slot.Command '@PayloadJson' NVarChar $slot.Claim.PayloadJson -1 }
             $returnCode = $slot.Command.Parameters.Add('@HandlerReturnCode',[System.Data.SqlDbType]::Int); $returnCode.Direction = [System.Data.ParameterDirection]::Output
             $slot.DispatchStarted = $true

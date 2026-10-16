@@ -67,11 +67,11 @@ SELECT TOP (1)
 FROM sys.sql_expression_dependencies AS dependencies
 WHERE dependencies.referenced_id IN
       (
-          OBJECT_ID(N'toolbelt_string.TVF_SplitByCharacters')
+          OBJECT_ID(N'toolbelt_string.TVF_SplitByCharacters'), OBJECT_ID(N'toolbelt_string.TVF_SplitByCharactersStatus')
       )
   AND dependencies.referencing_id NOT IN
       (
-          OBJECT_ID(N'toolbelt_string.TVF_SplitByCharacters')
+          OBJECT_ID(N'toolbelt_string.TVF_SplitByCharacters'), OBJECT_ID(N'toolbelt_string.TVF_SplitByCharactersStatus')
       )
 ORDER BY
       OBJECT_SCHEMA_NAME(dependencies.referencing_id)
@@ -130,7 +130,7 @@ BEGIN TRY
     );
 
     INSERT INTO @ReleaseObjects (ObjectName)
-    VALUES (N'TVF_SplitByCharacters');
+    VALUES (N'TVF_SplitByCharacters'), (N'TVF_SplitByCharactersStatus');
 
     DECLARE
           @ObjectOrdinal int = 1

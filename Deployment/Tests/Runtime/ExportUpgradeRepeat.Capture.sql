@@ -1,4 +1,4 @@
--- Privater migrationsspezifischer Snapshot: alle 14 Tabellen/156 Felder, auch fünf leere Tabellen.
+-- Privater migrationsspezifischer Snapshot: alle 15 Tabellen/166 Felder, auch fünf leere Tabellen.
 SET NOCOUNT ON;
 IF @Completed IS NULL THROW 54997,N'Der begrenzte Completionzustand fehlt.',1;
 IF @@TRANCOUNT<>0 THROW 54997,N'Der Upgrade-Repeat verlangt eine neutrale Sitzung.',1;
@@ -27,19 +27,19 @@ INSERT #tbx_ExportObjects
 INSERT #tbx_ExportObjects SELECT o.object_id,s.name,o.name,o.type FROM sys.objects o JOIN sys.schemas s ON s.schema_id=o.schema_id
  WHERE s.name=N'toolbelt_file' AND o.name IN(N'FileContentRootAllowlist',N'USP_LoadBinaryFile',N'USP_LoadTextFile')
  AND NOT EXISTS(SELECT 1 FROM #tbx_ExportObjects x WHERE x.ObjectId=o.object_id);
-IF (SELECT COUNT(*) FROM #tbx_ExportObjects WHERE ObjectType='U')<>14
- OR EXISTS(SELECT TableName FROM(VALUES(N'WorkType'),(N'WorkItem'),(N'WorkQueueScheduler'),(N'WorkQueueBarrierBlocker'),(N'WorkQueueManagedGate'),(N'WorkerControlConfiguration'),(N'WorkerRegistration'),(N'WorkerSlotReservation'),(N'WorkerExecutionDisposition'),(N'WorkerExecutionCommitWitness'),(N'ExecutionCancellation'),(N'SecondSessionProvider'),(N'EventLog'))v(TableName)
+IF (SELECT COUNT(*) FROM #tbx_ExportObjects WHERE ObjectType='U')<>15
+ OR EXISTS(SELECT TableName FROM(VALUES(N'WorkTypePermission'),(N'WorkType'),(N'WorkItem'),(N'WorkQueueScheduler'),(N'WorkQueueBarrierBlocker'),(N'WorkQueueManagedGate'),(N'WorkerControlConfiguration'),(N'WorkerRegistration'),(N'WorkerSlotReservation'),(N'WorkerExecutionDisposition'),(N'WorkerExecutionCommitWitness'),(N'ExecutionCancellation'),(N'SecondSessionProvider'),(N'EventLog'))v(TableName)
  EXCEPT SELECT ObjectName FROM #tbx_ExportObjects WHERE ObjectType='U' AND SchemaName=N'toolbelt_core')
  OR NOT EXISTS(SELECT 1 FROM #tbx_ExportObjects WHERE ObjectType='U' AND SchemaName=N'toolbelt_file' AND ObjectName=N'FileContentRootAllowlist')
- THROW 54997,N'Exportsnapshot erwartet genau 14 persistente Tabellen.',2;
+ THROW 54997,N'Exportsnapshot erwartet genau 15 persistente Tabellen.',2;
 -- Aktueller gepinnter Shape: zusätzliche oder fehlende Felder sind kein stiller PASS.
 IF EXISTS(SELECT 1 FROM(VALUES
- (N'toolbelt_core',N'WorkType',18),(N'toolbelt_core',N'WorkItem',46),
+ (N'toolbelt_core',N'WorkTypePermission',7),(N'toolbelt_core',N'WorkType',18),(N'toolbelt_core',N'WorkItem',46),
  (N'toolbelt_core',N'WorkQueueScheduler',1),(N'toolbelt_core',N'WorkQueueBarrierBlocker',5),
  (N'toolbelt_core',N'WorkQueueManagedGate',4),(N'toolbelt_core',N'WorkerControlConfiguration',5),
  (N'toolbelt_core',N'WorkerRegistration',12),(N'toolbelt_core',N'WorkerSlotReservation',13),
  (N'toolbelt_core',N'WorkerExecutionDisposition',5),(N'toolbelt_core',N'WorkerExecutionCommitWitness',5),
- (N'toolbelt_core',N'ExecutionCancellation',5),(N'toolbelt_core',N'SecondSessionProvider',8),
+ (N'toolbelt_core',N'ExecutionCancellation',8),(N'toolbelt_core',N'SecondSessionProvider',8),
  (N'toolbelt_core',N'EventLog',24),(N'toolbelt_file',N'FileContentRootAllowlist',5)
  )v(SchemaName,TableName,ColumnCount)
  JOIN #tbx_ExportObjects o ON o.SchemaName=v.SchemaName AND o.ObjectName=v.TableName AND o.ObjectType='U'
@@ -47,6 +47,7 @@ IF EXISTS(SELECT 1 FROM(VALUES
  THROW 54997,N'Der gepinnte Export-Tabellen-Shape weicht ab.',5;
 CREATE TABLE #tbx_UpgradeRepeatCounts(SchemaName sysname COLLATE Latin1_General_100_BIN2,TableName sysname COLLATE Latin1_General_100_BIN2,ExpectedRows bigint,PRIMARY KEY(SchemaName,TableName));
 INSERT #tbx_UpgradeRepeatCounts VALUES
+ (N'toolbelt_core',N'WorkTypePermission',0),
  (N'toolbelt_core',N'WorkType',2),
  (N'toolbelt_core',N'WorkItem',3),
  (N'toolbelt_core',N'WorkQueueScheduler',1),
@@ -182,6 +183,10 @@ INSERT #tbx_UpgradeRepeatFields VALUES
  (N'toolbelt_core',N'ExecutionCancellation',3,N'RequestedBy'),
  (N'toolbelt_core',N'ExecutionCancellation',4,N'CancellationReason'),
  (N'toolbelt_core',N'ExecutionCancellation',5,N'RowVersion'),
+(N'toolbelt_core',N'ExecutionCancellation',6,N'RequestedByPrincipalId'),
+(N'toolbelt_core',N'ExecutionCancellation',7,N'RequestedByPrincipalSid'),
+(N'toolbelt_core',N'ExecutionCancellation',8,N'RequestedByPrincipalCreatedAt'),
+(N'toolbelt_core',N'WorkTypePermission',1,N'WorkTypeId'),(N'toolbelt_core',N'WorkTypePermission',2,N'PrincipalId'),(N'toolbelt_core',N'WorkTypePermission',3,N'PermissionName'),(N'toolbelt_core',N'WorkTypePermission',4,N'PrincipalSid'),(N'toolbelt_core',N'WorkTypePermission',5,N'PrincipalCreatedAt'),(N'toolbelt_core',N'WorkTypePermission',6,N'WorkTypeVersion'),(N'toolbelt_core',N'WorkTypePermission',7,N'IsDenied'),
  (N'toolbelt_core',N'SecondSessionProvider',1,N'ProviderName'),
  (N'toolbelt_core',N'SecondSessionProvider',2,N'LinkedServerName'),
  (N'toolbelt_core',N'SecondSessionProvider',3,N'IsEnabled'),
@@ -219,11 +224,11 @@ INSERT #tbx_UpgradeRepeatFields VALUES
  (N'toolbelt_file',N'FileContentRootAllowlist',3,N'Description'),
  (N'toolbelt_file',N'FileContentRootAllowlist',4,N'IsActive'),
  (N'toolbelt_file',N'FileContentRootAllowlist',5,N'CreatedAt');
-IF (SELECT COUNT(*) FROM #tbx_UpgradeRepeatFields)<>156
+IF (SELECT COUNT(*) FROM #tbx_UpgradeRepeatFields)<>166
  OR EXISTS(SELECT 1 FROM #tbx_UpgradeRepeatFields e JOIN #tbx_ExportObjects o ON o.SchemaName=e.SchemaName AND o.ObjectName=e.TableName AND o.ObjectType='U'
  LEFT JOIN sys.columns c ON c.object_id=o.ObjectId AND c.column_id=e.Ordinal
  WHERE c.column_id IS NULL OR CONVERT(varbinary(max),c.name)<>CONVERT(varbinary(max),e.ColumnName))
- THROW 54997,N'Die sourcegebundenen 156 Feldnamen und Ordinalpositionen weichen ab.',9;
+ THROW 54997,N'Die sourcegebundenen 166 Feldnamen und Ordinalpositionen weichen ab.',9;
 CREATE TABLE #tbx_ExportSnapshot(Category varchar(128) COLLATE Latin1_General_100_BIN2 NOT NULL,Payload varbinary(max) NOT NULL);
 DECLARE @Id int,@Schema sysname,@Table sysname,@Category varchar(128),@Projection nvarchar(max),@Sql nvarchar(max),@ExpectedRows bigint,@ObservedRows bigint;
 DECLARE tables_cursor CURSOR LOCAL FAST_FORWARD FOR
@@ -291,7 +296,7 @@ WHILE @@FETCH_STATUS=0 BEGIN
  FETCH NEXT FROM catalog_cursor INTO @Category,@Query;
 END;
 CLOSE catalog_cursor;DEALLOCATE catalog_cursor;
-IF (SELECT COUNT(DISTINCT Category) FROM #tbx_ExportSnapshot WHERE Category LIKE 'row:%')<>14
+IF (SELECT COUNT(DISTINCT Category) FROM #tbx_ExportSnapshot WHERE Category LIKE 'row:%')<>15
  OR (SELECT COUNT(DISTINCT Category) FROM #tbx_ExportSnapshot WHERE Category LIKE 'catalog:%')<>17
  THROW 54997,N'Der vollständige Upgrade-Repeat-Snapshot fehlt.',8;
 SELECT Category,Payload FROM #tbx_ExportSnapshot;

@@ -2,7 +2,62 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-44 Module sind implementiert. 18 sind `validated`, 26 sind `partially validated`; 0 sind `not executed`.
+44 Module sind implementiert. 13 sind `validated`, 31 sind `partially validated`; 0 sind `not executed`.
+
+## Freigegebene Security-Härtung — 2026-10-15
+
+Der Benutzer hat nach konkreter Besprechung alle 25 noch offenen Punkte
+freigegeben, ausdrücklich einschließlich UNSAFE bei SC-023, Cancellationquoten
+und NULL-/Leermengenverhalten. Autor: Codex. Der verbindliche
+[Umsetzungsvertrag](../Documentation/Architecture/SECURITY_HARDENING_2026_10.md)
+nennt alle 25 Verträge, Grenzwerte, Migrationen und die vier geordneten Wellen.
+Alle vier Wellen sind im Arbeitsbranch implementiert. Gezielte native SQL-,
+Framework- und Offlineprüfungen sind erfolgt; Integration und aktuelle Head-CI
+bleiben eigene Abnahmegates. Der Source-/Teststand und seine Grenzen stehen im
+verlinkten Umsetzungsvertrag. Die 25 Punkte sind entwicklungsreif und freigegeben;
+kein weiterer fachlicher Entscheidungsbedarf. Frühere D/proposed-Angaben unten
+sind der historische Entscheidungsstand vor dieser ausdrücklichen Freigabe.
+Kein neuer Cloudabschluss und keine neue Runtimequalifikation allein durch
+Freigabe oder Sourceänderung. SC-045 sperrt den bisherigen unsicheren
+Labvertrag bereits vor dem Verbindungsaufbau; benötigt wird der externe Lab-
+Zertifikatsvertrag; SC-018 bleibt bei untrusted Legacydirektzugriff offen.
+
+Implementierung zur Review: [PR #322](https://github.com/gecompat/SQL_Server_Toolbelt/pull/322).
+Aktuelle Head-CI und Integration werden am PR getrennt nachgewiesen.
+
+### Aktueller Entwicklungsstand der 25 freigegebenen Punkte
+
+14 P1 und 11 P2; alle fachlichen Entscheidungen sind freigegeben. Die folgende
+Tabelle beschreibt den Arbeitsbranch. Cloud-/Integrationsstatus folgt erst nach
+getrennter bestätigter Abnahme.
+
+| Gruppe | Inhalt | Priorität | Aktueller Stand |
+|---|---|---|---|
+| `SC-2026-002` | RegexCount/RegexInstr: kumulatives Aufrufbudget | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-004` | ZIP-Extraktion: Speichergrenze für Binary- und Dateifassade | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-005` | Windows Directory Listing: feste Speicher-/Entrygrenze | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-009` | Windows Filesystem: getrennte ServiceAccount-Autorisierung | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-010` | Foundation-Handles: Pfadwechsel zwischen Prüfung und I/O | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-011` | Regex-Gruppenreplacement: vorzeitige Tokenallokation | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-016` | Queue-Barrier: Schedulerlock in Caller-Transaktion | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-017` | ResultTable-Deployment: Vertrauen in vorbestehenden Schemaowner | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-023` | Windows Filesystem: Reparse-/Rename-Race bei I/O | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-026` | Queue Claim: Handlerausführung versus Metadatensicht | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-027` | Second Session: ursprünglicher Caller versus Remote-Principal | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-040` | File-Content-Textread: Größe und Inhalt aus verschiedenen Reads | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-045` | Persistente Labverbindungen: Serverzertifikat nicht authentifiziert | P1 | freigegeben; implementiert; externer TLS-Labvertrag blockiert Liveabnahme |
+| `SC-2026-046` | Queue Enqueue: Producerautorität je Work Type | P1 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-006` | JSON Pointer: kumulative Fragmentarbeit | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-013` | Unquoting: wiederholte LOB-Kopien bei dichten Quotes | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-015` | Cancellation: persistente Wachstums-/Retentiongrenze | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-018` | Zahlenreihen: maximaler angeforderter Umfang | P2 | freigegeben; implementiert; Legacygrants betreiberseitig beschränken |
+| `SC-2026-019` | Base64: LOB-/Zwischenspeicherbudget | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-020` | Einfacher Split: Zeilen-/Inputexpansion | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-021` | URI-Konvertierung: Byte-/Zeilenexpansion | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-022` | JSON Path Exists: Frontier-/Arbeitsbudget | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-024` | EventLog: Retention bei maximalem Caller-Zeitstempel | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-038` | Console-Ausgabe: Gesamtmessage-/Framebudget | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-041` | Second Session: Payloadlimit vor ISJSON und RPC | P2 | freigegeben; implementiert; Head-CI/Integration offen |
 
 ## Security-Cloud-Abgleich — integrierter Stand 2026-10-15
 
@@ -214,7 +269,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-002: RegexCount/RegexInstr: kumulatives Aufrufbudget
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `csf_acbc515e6fd3aa84023f24d8` (repository_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/1694a016cdb5a8d611d0689431fbe1e07342513d)); `1c7bac4ff69c8191b981d5d506b79d18` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3e961410316a2d020a0e0e1601eed4ec67a3f927)); `bfb8af87629481919eb98c3c2fae8571` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/f216701dd641ec87aa1e951293b3560fa599eb5a)).
 - **Aktuelle Bindung:** [Modules/toolbelt.string.regex/Clr/RegexProvider.cs](../Modules/toolbelt.string.regex/Clr/RegexProvider.cs), [Modules/toolbelt.string.regex/README.md](../Modules/toolbelt.string.regex/README.md).
 - **Abgleich:** Die Match-/NextMatch-Schleifen verwenden weiterhin nur den MatchTimeout des einzelnen Regex-Vorgangs; es gibt in diesen R1b-Pfaden weder Gesamtdeadline noch kumulativen Iterationszähler. Die aktuelle README beschreibt ausdrücklich 250 ms je Engine-Suchschritt. Ein Gesamtbudget wäre daher eine zusätzliche Annahme-/Fehlergrenze; die TransformationContext-Grenze späterer APIs gilt hier nicht.
@@ -233,7 +288,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-004: ZIP-Extraktion: Speichergrenze für Binary- und Dateifassade
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `csf_da1743e38c405a64696499c8` (repository_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/1694a016cdb5a8d611d0689431fbe1e07342513d)); `e3b086bd0c2081919d2c129b5b2f18cb` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3774ad3c02502157712888de0b288e18af91ec64)); `e6882df7e80c81919dcb91bd76478274` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/7a448ebf00437062901e2f1092bd8efd3cd8fccd)).
 - **Aktuelle Bindung:** [Modules/toolbelt.archive.zip-memory/Clr/ZipEntryProvider.cs](../Modules/toolbelt.archive.zip-memory/Clr/ZipEntryProvider.cs), [Modules/toolbelt.archive.zip-memory/Source/USP_ExtractZipEntryFromBinary.sql](../Modules/toolbelt.archive.zip-memory/Source/USP_ExtractZipEntryFromBinary.sql), [Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipEntryToFile.sql](../Modules/toolbelt.archive.zip-files/Source/USP_ExtractZipEntryToFile.sql).
 - **Abgleich:** MaxEntryBytes kann weiterhin bis int.MaxValue reichen. ReadPayload schreibt in einen MemoryStream und erzeugt anschließend mit ToArray eine weitere vollständige Kopie; die Dateifassade konsumiert diesen Binarypfad. Verhältnisprüfung ersetzt keine feste Heapgrenze.
@@ -242,7 +297,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-005: Windows Directory Listing: feste Speicher-/Entrygrenze
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `csf_acb1b696267d7ff4fc370f07` (repository_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/1694a016cdb5a8d611d0689431fbe1e07342513d)); `47b219f8ff908191a7975231879bf68c` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/24dd1fdf3a497d0bf1280b11593df9d39aac3429)); `a524201126408191a3f702aea3d04ecc` (commit_scan, low, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/96c65cd695d85640131e8a4619b79b0706bcd8c1)).
 - **Aktuelle Bindung:** [Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs](../Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs), [Modules/toolbelt.filesystem.windows/Source/Procedures.sql](../Modules/toolbelt.filesystem.windows/Source/Procedures.sql).
 - **Abgleich:** ListDirectory prüft nur maxEntries >= 1, übernimmt den callerwählbaren int und materialisiert ListedEntry-Objekte einschließlich Pfadstrings vollständig vor der Ausgabe. Eine feste obere Entry-/Bytegrenze fehlt.
@@ -251,7 +306,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-006: JSON Pointer: kumulative Fragmentarbeit
 
-- **Disposition:** offen — proposed. Priorität **P2**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P2**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `csf_b988f59961929cb71f34cee4` (repository_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/1694a016cdb5a8d611d0689431fbe1e07342513d)).
 - **Aktuelle Bindung:** [Modules/toolbelt.json.pointer/Source/TVF_ResolveJsonPointer.sql](../Modules/toolbelt.json.pointer/Source/TVF_ResolveJsonPointer.sql), [Modules/toolbelt.json.pointer/Tests/JSON_POINTER_TEST_MATRIX.md](../Modules/toolbelt.json.pointer/Tests/JSON_POINTER_TEST_MATRIX.md).
 - **Abgleich:** 16-MiB-Input und Tiefe 128 sind unveränderliche Obergrenzen. Trotzdem parst OPENJSON je Pointersegment das aktuelle, möglicherweise fast gleich große Fragment erneut. Vorhandene synthetische Maximalläufe schließen keinen Heap-/Parallelitäts- oder kumulativen Arbeitsvertrag.
@@ -280,7 +335,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-009: Windows Filesystem: getrennte ServiceAccount-Autorisierung
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** in_progress; Welle 1. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `csf_f96db3c40b4a0e8a75158b17` (repository_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/1694a016cdb5a8d611d0689431fbe1e07342513d)).
 - **Aktuelle Bindung:** [Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs](../Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs), [Modules/toolbelt.filesystem.windows/Source/Procedures.sql](../Modules/toolbelt.filesystem.windows/Source/Procedures.sql), [Modules/toolbelt.filesystem.windows/README.md](../Modules/toolbelt.filesystem.windows/README.md).
 - **Abgleich:** ServiceAccount bleibt callerwählbar. CaptureCallerIdentity liefert dafür null, RunAs führt unter Dienstidentität aus; eine getrennte Modusberechtigung oder per-Root-Identitypolicy fehlt. EXECUTE plus Konfigurations-SELECT ist derzeit die dokumentierte gemeinsame Grenze, deshalb keine automatische Umdeutung bestehender Grants.
@@ -289,7 +344,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-010: Foundation-Handles: Pfadwechsel zwischen Prüfung und I/O
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `csf_fb60517522ef41042bd26859` (repository_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/1694a016cdb5a8d611d0689431fbe1e07342513d)).
 - **Aktuelle Bindung:** [.ai/foundation/ai_runtime_adapters/reference_adapters.py](../.ai/foundation/ai_runtime_adapters/reference_adapters.py).
 - **Abgleich:** safe_path prüft Path.resolve; spätere read_text/open/os.replace verwenden wieder Pfadnamen. Verzeichniswechsel nach der Prüfung bleiben möglich, falls ein anderer Actor den freigegebenen Root verändern darf.
@@ -298,7 +353,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-011: Regex-Gruppenreplacement: vorzeitige Tokenallokation
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `61c2b3af7f748191a050c987b02c8d5b` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/8dcb7474accda118c8fbd5a19f64c43cebb17af8)).
 - **Aktuelle Bindung:** [Modules/toolbelt.string.regex/Clr/RegexCaptures.cs](../Modules/toolbelt.string.regex/Clr/RegexCaptures.cs).
 - **Abgleich:** ParseReplacement erstellt weiter eine List<ReplacementPart> mit Literalstrings pro Segment/Referenz. Das erste context.Remaining nach dem Parser kommt zu spät; eine Tokenobergrenze oder kompakte Darstellung fehlt.
@@ -317,7 +372,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-013: Unquoting: wiederholte LOB-Kopien bei dichten Quotes
 
-- **Disposition:** offen — proposed. Priorität **P2**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P2**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `6dbf312a39848191962b1c3a25fcb14f` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/f00626a0ee3519da9c7198ed028c55e146af5fdd)).
 - **Aktuelle Bindung:** [Modules/toolbelt.string.split-advanced/Source/TVF_UnquoteToken.sql](../Modules/toolbelt.string.split-advanced/Source/TVF_UnquoteToken.sql).
 - **Abgleich:** Der auf 65.536 Codeeinheiten begrenzte Parser hängt bei jedem verdoppelten Quote weiter an nvarchar(max) an. Die Grenze begrenzt Input, nicht kumulative Kopierarbeit; vorhandene Korrektheitsfälle sind keine Performancequalifikation.
@@ -336,7 +391,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-015: Cancellation: persistente Wachstums-/Retentiongrenze
 
-- **Disposition:** offen — proposed. Priorität **P2**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P2**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `5d9e80c1737c819189bf75a6140bbeb7` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/be1839780e7213da6bba785ebaaeaf6d2a9510ac)).
 - **Aktuelle Bindung:** [Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql](../Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql), [Modules/toolbelt.core.execution-cancel/Source/ExecutionCancellation.sql](../Modules/toolbelt.core.execution-cancel/Source/ExecutionCancellation.sql).
 - **Abgleich:** Jede neue gültige ExecutionId darf eine dauerhafte Cancellationzeile erzeugen. Es existiert kein Executionregister-Abgleich, Quotavertrag oder unterstützter Purge; Irreversibilität ist derzeit ausdrücklich Teil des Vertrags.
@@ -345,7 +400,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-016: Queue-Barrier: Schedulerlock in Caller-Transaktion
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** in_progress; Welle 1. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `7c85ea21678c8191857dba5eeed8f8ed` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/0ce9e962cf4ab6a8a7476c300aa8f7aed403a572)).
 - **Aktuelle Bindung:** [Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql](../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql), [Modules/toolbelt.core.work-queue/Source/USP_EnqueueBarrierWork.sql](../Modules/toolbelt.core.work-queue/Source/USP_EnqueueBarrierWork.sql), [Modules/toolbelt.core.work-queue/Source/USP_ClaimWorkCore.sql](../Modules/toolbelt.core.work-queue/Source/USP_ClaimWorkCore.sql).
 - **Abgleich:** Der Policy-Enqueue verwendet bei aktiver Caller-TX einen Savepoint. DRAIN_BARRIER hält UPDLOCK/HOLDLOCK auf der globalen Schedulerzeile bis zum äußeren Commit; Claims benötigen dieselbe Zeile. Eine gruppenlokale Barrier kann so globale Claims blockieren.
@@ -354,7 +409,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-017: ResultTable-Deployment: Vertrauen in vorbestehenden Schemaowner
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** in_progress; Welle 1. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `8384333831ac81919df287cf3616ff4e` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/3fbecb532a13b72fc3ce38effe7e0d4899837c89)).
 - **Aktuelle Bindung:** [Modules/toolbelt.core.result-table/Deployment/Deploy.sql](../Modules/toolbelt.core.result-table/Deployment/Deploy.sql).
 - **Abgleich:** Bestehendes toolbelt_core wird anhand ALTER-Recht akzeptiert; eine Schemaowner-/effektive CONTROL-Policy fehlt. Objektmarker und Locking schließen spätere Manipulation durch einen untrusted Schemaowner nicht aus.
@@ -363,7 +418,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-018: Zahlenreihen: maximaler angeforderter Umfang
 
-- **Disposition:** offen — proposed. Priorität **P2**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P2**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `6b48cd8901cc8191958fe318335aa453` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/997e93af2ab0f86904c2461f0ca127a0cf55873c)).
 - **Aktuelle Bindung:** [Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql](../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesBigInt.sql), [Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql](../Modules/toolbelt.core.generate-series/Source/TVF_GenerateSeriesInt.sql).
 - **Abgleich:** RequestedRows steuert TOP über E64; es gibt keinen operativen Ceiling unterhalb des mathematischen bigint-Bereichs. Äußere TOP-Rowgoals schützen nicht Aggregation oder INSERT aller angeforderten Zeilen. Der breite Wertebereich ist gewollter Bestandvertrag.
@@ -372,7 +427,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-019: Base64: LOB-/Zwischenspeicherbudget
 
-- **Disposition:** offen — proposed. Priorität **P2**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P2**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `7bbee6623ae88191821d6292c99dc1d5` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/074e98e00e3e59d872ebf25b09fa8772f3b03c54)).
 - **Aktuelle Bindung:** [Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql](../Modules/toolbelt.conversion.base64/Source/TVF_Base64Encode.sql), [Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql](../Modules/toolbelt.conversion.base64/Source/TVF_Base64Decode.sql).
 - **Abgleich:** Die SVFs delegieren inzwischen an TVFs; XML-Materialisierung und volle REPLACE-Kopien im kanonischen Kern besitzen weiter keinen operativen LOB-Ceiling. Die Wrapperumstellung allein schließt die Ressourcenfrage nicht.
@@ -381,7 +436,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-020: Einfacher Split: Zeilen-/Inputexpansion
 
-- **Disposition:** offen — proposed. Priorität **P2**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P2**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `d742ef1db0f48191962a40788db9cc67` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/b9416f8297b069e6a681e593f376c09d50bc9169)).
 - **Aktuelle Bindung:** [Modules/toolbelt.string.split-characters/Source/TVF_SplitByCharacters.sql](../Modules/toolbelt.string.split-characters/Source/TVF_SplitByCharacters.sql).
 - **Abgleich:** InputLength aus nvarchar(max) fließt in GenerateSeries; LEAD/ROW_NUMBER über Separatorgrenzen und KeepEmpty können sehr große Rowsets erzeugen. Es gibt keinen operativen Input-/Token-Ceiling.
@@ -390,7 +445,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-021: URI-Konvertierung: Byte-/Zeilenexpansion
 
-- **Disposition:** offen — proposed. Priorität **P2**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P2**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `2a008add79d0819196ca6b3459eb226b` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/38af40811d1f06a8c3647170015e14aa80aed1ef)).
 - **Aktuelle Bindung:** [Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql](../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentEncode.sql), [Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql](../Modules/toolbelt.conversion.uri-component/Source/TVF_UriComponentDecode.sql).
 - **Abgleich:** Die kanonischen TVFs materialisieren UTF-8-/Hexdarstellungen und GenerateSeries pro Byte beziehungsweise Codeeinheit. SVF-Wrapper haben kein vorgeschaltetes Ressourcenbudget.
@@ -399,7 +454,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-022: JSON Path Exists: Frontier-/Arbeitsbudget
 
-- **Disposition:** offen — proposed. Priorität **P2**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P2**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `cc75398d6d588191a8ff40725dca0c7e` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/8f18a58401178f1efe7469b85eac1f53fc35c186)); `48877b4426288191b1a1f8da7014da7a` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/13be436fa31541d15c213edc500b7827e28b3809)).
 - **Aktuelle Bindung:** [Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql](../Modules/toolbelt.json.path-exists/Source/TVF_JsonPathExists.sql).
 - **Abgleich:** Nur der Pfad ist auf 4.000 Codeeinheiten begrenzt. Json ist max; Frontiers materialisieren verschachtelte Fragmente, Wildcards vervielfachen sie, OPENJSON läuft pro Segment. Byte-/Frontier-/kumulative Budgets fehlen.
@@ -408,7 +463,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-023: Windows Filesystem: Reparse-/Rename-Race bei I/O
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `b4f06ce6b2f48191b42232c0dd5a19fe` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/6afebf2314d2da512ba01fd1dbeae17ed91ac380)).
 - **Aktuelle Bindung:** [Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs](../Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs), [Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md](../Modules/toolbelt.filesystem.windows/Tests/Manual_Windows_Runtime_Testplan.md).
 - **Abgleich:** AssertNoReparsePoint prüft Pfadkomponenten, spätere FileStream/Move/Replace/Delete öffnen wieder nach Namen. Frische Delete-Prüfungen und der bestandene begrenzte Racekorpus sind keine atomare Handlebindung für sämtliche Lese-/Schreib-/Transcodingpfade.
@@ -417,7 +472,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-024: EventLog: Retention bei maximalem Caller-Zeitstempel
 
-- **Disposition:** offen — proposed. Priorität **P2**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P2**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `a1daef31e0188191a1c3dfe773de15f6` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/6b0834752c33544f5310dc679df4f45ae3b6e094)).
 - **Aktuelle Bindung:** [Modules/toolbelt.core.event-log/Source/USP_WriteEvent.sql](../Modules/toolbelt.core.event-log/Source/USP_WriteEvent.sql), [Modules/toolbelt.core.event-log/Source/USP_WriteEventInternal.sql](../Modules/toolbelt.core.event-log/Source/USP_WriteEventInternal.sql), [Modules/toolbelt.core.event-log/Source/USP_DeleteEventsBefore.sql](../Modules/toolbelt.core.event-log/Source/USP_DeleteEventsBefore.sql).
 - **Abgleich:** OccurredAtUtc ist callerbestimmt; Retention verwendet strikt OccurredAtUtc < cutoff. Das maximale datetime2(7) ist durch keinen zulässigen späteren cutoff erfassbar. RecordedAtUtc steuert diese Retention nicht.
@@ -436,7 +491,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-026: Queue Claim: Handlerausführung versus Metadatensicht
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** in_progress; Welle 1. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `ceab6a1c8cf08191b58a4fd37f52063f` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/e7a9dcf235a30f9c64b36252d2de6de14345e61d)).
 - **Aktuelle Bindung:** [Modules/toolbelt.core.work-queue/Source/USP_ClaimWorkCore.sql](../Modules/toolbelt.core.work-queue/Source/USP_ClaimWorkCore.sql).
 - **Abgleich:** Die Claimkandidaten joinen weiter sys.procedures, ohne effektives Handler-EXECUTE oder explizite Work-Type-Workerzuordnung zu prüfen. Lease/Recovery verhindern nicht die ursprüngliche unberechtigte Payload-/Claimausgabe.
@@ -445,7 +500,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-027: Second Session: ursprünglicher Caller versus Remote-Principal
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** in_progress; Welle 1. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `3ef2d67e50648191aa4959c7cbcdc590` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/d3f1ac13f740702aefb38763e59f1e0814b11b33)); `0fb8c445332481919ceac7a8a6b4e926` (commit_scan, medium, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/843c2bffd373022fa2df78787bf8605e7b78c680)).
 - **Aktuelle Bindung:** [Modules/toolbelt.core.second-session/Source/USP_ExecuteWorkTypeInNewSession.sql](../Modules/toolbelt.core.second-session/Source/USP_ExecuteWorkTypeInNewSession.sql), [Modules/toolbelt.core.second-session/Source/USP_DispatchWorkType.sql](../Modules/toolbelt.core.second-session/Source/USP_DispatchWorkType.sql), [Documentation/Architecture/SECOND_SESSION_MODULE_DESIGN.md](../Documentation/Architecture/SECOND_SESSION_MODULE_DESIGN.md).
 - **Abgleich:** Die lokale Procedure prüft Work-Type-/Payloadstatus; nur der Dispatcher prüft EXECUTE unter dem gemappten Remote-Principal. Ein fixes privilegiertes Mapping kann dadurch Originalcallerrechte überbrücken. Der dokumentierte Bestandvertrag beschreibt ausdrücklich die Remoteprüfung.
@@ -552,7 +607,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-038: Console-Ausgabe: Gesamtmessage-/Framebudget
 
-- **Disposition:** offen — proposed. Priorität **P2**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P2**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `21b0c8a6c5fc8191988f8346172debb7` (commit_scan, informational, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/9ce5614d217dc53b214c470714f98284dd736644)).
 - **Aktuelle Bindung:** [Modules/toolbelt.core.console-message/Source/USP_WriteConsoleMessage.sql](../Modules/toolbelt.core.console-message/Source/USP_WriteConsoleMessage.sql).
 - **Abgleich:** PRINT/NOWAIT begrenzen nur einzelne Frames. Die gesamte nvarchar(max)-Message wird vollständig in einer Schleife versendet, ohne Gesamtbyte-/Frameceiling.
@@ -571,7 +626,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-040: File-Content-Textread: Größe und Inhalt aus verschiedenen Reads
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `83cbb105b7e08191a4e7b1f089b2d965` (commit_scan, informational, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/f35a168cb2a839091aa7990369d8d673ff1ab8a6)).
 - **Aktuelle Bindung:** [Modules/toolbelt.file.content/Source/USP_LoadTextFile.sql](../Modules/toolbelt.file.content/Source/USP_LoadTextFile.sql).
 - **Abgleich:** SINGLE_BLOB erfasst Header/BytesRead, danach öffnet SINGLE_CLOB/SINGLE_NCLOB denselben Pfad erneut. Der zweite Contentread wird erfolgreich ausgegeben, ohne eine gekoppelte Größen-/Identitätsprüfung; atomarer Dateiaustausch kann das erste MaxBytes-Gate entwerten.
@@ -580,7 +635,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-041: Second Session: Payloadlimit vor ISJSON und RPC
 
-- **Disposition:** offen — proposed. Priorität **P2**, Reife **D**.
+- **Disposition:** in_progress; Welle 1. Priorität **P2**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `d65d0b6e037c819181f21f579fb0b6b1` (commit_scan, informational, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/9ae522f020acd13e8c0e4c8c283d40c4466fd480)).
 - **Aktuelle Bindung:** [Modules/toolbelt.core.second-session/Source/USP_ExecuteWorkTypeInNewSession.sql](../Modules/toolbelt.core.second-session/Source/USP_ExecuteWorkTypeInNewSession.sql), [Modules/toolbelt.core.second-session/Source/USP_DispatchWorkType.sql](../Modules/toolbelt.core.second-session/Source/USP_DispatchWorkType.sql).
 - **Abgleich:** Beide Pfade akzeptieren nvarchar(max), führen ISJSON/LTRIM aus und transportieren die Payload ohne DATALENGTH-Ceiling. Der separate Queue-64-KiB-Vertrag gilt nicht automatisch für synchrone Second Session.
@@ -619,7 +674,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-045: Persistente Labverbindungen: Serverzertifikat nicht authentifiziert
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** approved; spätere freigegebene Welle. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `27ec5c43064881918bd95a37876d02da` (commit_scan, informational, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/30be188d22aed636c57cf35fc112b24ae9b25704)).
 - **Aktuelle Bindung:** [Tests/CI/run-lab-local.ps1](../Tests/CI/run-lab-local.ps1), [Tests/CI/run-lab-target.sh](../Tests/CI/run-lab-target.sh).
 - **Abgleich:** Encrypt=True wird mit TrustServerCertificate=True beziehungsweise sqlcmd -C kombiniert. TLS verschlüsselt, authentifiziert so aber das Zielzertifikat nicht. Dies ist auch ein ausgewählter externer Labvertragswert, keine allein lokal frei änderbare Vorgabe.
@@ -628,7 +683,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-046: Queue Enqueue: Producerautorität je Work Type
 
-- **Disposition:** offen — proposed. Priorität **P1**, Reife **D**.
+- **Disposition:** in_progress; Welle 1. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `1b336f85bd48819193bdd96274b39e8f` (commit_scan, informational, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/e5443172d86eceeb563b7e74c1a515473792839f)).
 - **Aktuelle Bindung:** [Modules/toolbelt.core.work-queue/Source/USP_EnqueueWork.sql](../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWork.sql), [Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql](../Modules/toolbelt.core.work-queue/Source/USP_EnqueueWorkWithPolicy.sql).
 - **Abgleich:** Enqueue prüft Enabled/Handlerexistenz/ParameterMode; weder Producer-Handler-EXECUTE noch eine explizite Work-Type-Enqueuepolicy wird verlangt. Ein privilegierter Worker kann dadurch einen Auftrag eines nicht direkt ausführungsberechtigten Producers ausführen.
@@ -3422,7 +3477,7 @@ werden nur mit tatsächlich ausgeführter Evidenz als bestanden geführt.
 | Priorität | `P1` |
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | `1`/`0`/SQL-`NULL` als `int`; JSON `null` zählt als vorhanden; case-sensitive BIN2-Keyvergleich; Pfad- und JSON-Fehler verlassen den Funktionsvertrag nicht; vollständige Source-, Lifecycle-, Dokumentations-, Contract- und CI-Artefakte; Status nur aus tatsächlicher Evidenz. |
 | Tests | Statische Prüfung und SQL-Server-2025-Linux-Workflow für Compatibility Levels 150/160/170 mit nativer Parität, synthetischen Fehler-/Collation-Fällen, Wiederholungsdeployment, Lifecycle, Central und Uninstall erfolgreich. |
@@ -3461,12 +3516,16 @@ werden nur mit tatsächlich ausgeführter Evidenz als bestanden geführt.
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
 | Validation Status | `validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Anniversary-Regel, gerichtetes und typstabiles Trim sowie RFC-3986-Komponentenencoding sind explizit dokumentiert; keine implizite IRI-, Form-Encoding- oder Double-Decoding-Semantik. |
 | Tests | Statische Contracts und GitHub-hosted SQL-Server-2025-Linux-Lauf mit Compatibility Levels 150/160/170 erfolgreich; Anniversary-, Grenzwert-, Unicode-/UTF-8-, Fehler-, Paritäts-, Wiederholungs-, lokaler, zentraler und Uninstall-Scope geprüft. |
 | Blocker | Keine. Die vollständige Windows-/Linux-Matrix einschließlich Collation-, ASCII-/Unicode-/Large-Input- und Kollisionsfällen ist erfolgreich. |
 | Evidenz | Benutzerfreigabe 2026-07-30; [W1 Portable Runtime 30553118399](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118399), [Documentation Consistency 30553118014](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118014) und lokaler physischer Linux-Lauf vom 2026-08-29. |
 | Nächster Schritt | Keine autonome Validierung offen; zusätzliche fachliche Ausbaustufen benötigen Einzelvertrag und Freigabe. |
+
+
+Securitystand 2026-10-15: URI Component ist teilweise validiert; die beiden anderen W1-Module bleiben validiert. Historische Matrixnachweise qualifizieren die neuen URI-Limits nicht vollständig.
 
 ### AP-2026-014: Inline-TVF-Alternativen für bestehende SVFs
 
@@ -3541,7 +3600,7 @@ bleiben erhalten; keine Veröffentlichung.
 | Priorität | `P1` |
 | Status | `completed` |
 | Implementation Status | `implemented` – abgeleitet aus `module.yaml` |
-| Validation Status | `validated` – abgeleitet aus `module.yaml` |
+| Validation Status | `partially validated` – abgeleitet aus `module.yaml` |
 | Release Status | `unreleased` – abgeleitet aus `module.yaml` |
 | Akzeptanzkriterien | Literalvertrag bleibt von Regex getrennt; Token und Ordinal sind deterministisch; `NULL`, NUL, leerer Input, aufeinanderfolgende Separatoren, Separator am Rand, Collations und Größenklassen sind dokumentiert und getestet; vollständiger Lifecycle und gekoppelte Dokumentation. |
 | Tests | Statischer Vertrag sowie vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich Compatibility Levels 150/160/170 nach Zielversion erfolgreich. |

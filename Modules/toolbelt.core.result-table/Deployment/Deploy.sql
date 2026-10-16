@@ -108,6 +108,8 @@ BEGIN
     THROW 51033, N'Die installierte Modulversion ist diesem Deployment nicht als unterstütztes Vorgängerrelease bekannt.', 1;
 END;
 
+:r ../Source/SchemaTrustPreflight.sql
+
 IF @SchemaId IS NULL
 BEGIN
     IF HAS_PERMS_BY_NAME(DB_NAME(), N'DATABASE', N'CREATE SCHEMA') <> 1
@@ -264,7 +266,7 @@ BEGIN TRY
 
     IF @SchemaId IS NULL
     BEGIN
-        EXEC sys.sp_executesql N'CREATE SCHEMA [toolbelt_core];';
+        EXEC sys.sp_executesql N'CREATE SCHEMA [toolbelt_core] AUTHORIZATION [dbo];';
         SET @SchemaCreated = 1;
         SET @SchemaId = SCHEMA_ID(N'toolbelt_core');
 

@@ -25,7 +25,7 @@ IF OBJECT_ID(N'toolbelt_core.EventLog', N'U') IS NOT NULL
     THROW 51740, N'Der Zielname toolbelt_core.EventLog ist frameworkfremd belegt.', 1;
 DECLARE @ObjectChecks TABLE(ObjectName sysname, ObjectType char(2));
 INSERT INTO @ObjectChecks VALUES
-  (N'VW_Events',N'V'),(N'USP_WriteEventInternal',N'P'),(N'USP_WriteEvent',N'P'),(N'USP_DeleteEventsBefore',N'P');
+  (N'VW_Events',N'V'),(N'USP_WriteEventInternal',N'P'),(N'USP_WriteEvent',N'P'),(N'USP_DeleteEventsBefore',N'P'),(N'USP_DeleteRecordedEventsBefore',N'P');
 IF EXISTS
 (
     SELECT 1 FROM @ObjectChecks o
@@ -39,6 +39,7 @@ IF EXISTS
 )
     THROW 51745, N'Mindestens ein Event-Log-Zielname ist frameworkfremd belegt.', 1;
 GO
+IF OBJECT_ID(N'toolbelt_core.USP_DeleteRecordedEventsBefore') IS NOT NULL AND NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=1 AND major_id=OBJECT_ID(N'toolbelt_core.USP_DeleteRecordedEventsBefore') AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(256),value)=N'toolbelt.core.event-log') THROW 51224,N'Neuer Security-Zielname ist frameworkfremd belegt.',1;
 BEGIN TRANSACTION;
 GO
 :r ../Source/EventLog.sql
@@ -46,6 +47,7 @@ GO
 :r ../Source/USP_WriteEventInternal.sql
 :r ../Source/USP_WriteEvent.sql
 :r ../Source/USP_DeleteEventsBefore.sql
+:r ../Source/USP_DeleteRecordedEventsBefore.sql
 GO
 EXEC toolbelt_core.USP_RegisterWorkType
       @WorkTypeName = 'toolbelt.event-log.write'
@@ -62,7 +64,7 @@ EXEC toolbelt_core.USP_RegisterWorkType
 DECLARE @DeploymentMode nvarchar(16) = LOWER(N'$(DeploymentMode)');
 DECLARE @Objects TABLE(ObjectName sysname, LevelType nvarchar(16));
 INSERT INTO @Objects VALUES
-  (N'EventLog',N'TABLE'),(N'VW_Events',N'VIEW'),(N'USP_WriteEventInternal',N'PROCEDURE'),(N'USP_WriteEvent',N'PROCEDURE'),(N'USP_DeleteEventsBefore',N'PROCEDURE');
+  (N'EventLog',N'TABLE'),(N'VW_Events',N'VIEW'),(N'USP_WriteEventInternal',N'PROCEDURE'),(N'USP_WriteEvent',N'PROCEDURE'),(N'USP_DeleteEventsBefore',N'PROCEDURE'),(N'USP_DeleteRecordedEventsBefore',N'PROCEDURE');
 DECLARE @ObjectName sysname,@LevelType nvarchar(16);
 DECLARE c CURSOR LOCAL FAST_FORWARD FOR SELECT ObjectName,LevelType FROM @Objects;
 OPEN c; FETCH NEXT FROM c INTO @ObjectName,@LevelType;

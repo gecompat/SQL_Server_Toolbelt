@@ -57,3 +57,7 @@ BEGIN
         INCLUDE ([EventName], [EventLevel], [Category]);
 END;
 GO
+
+IF NOT EXISTS(SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID(N'toolbelt_core.EventLog') AND name=N'IX_EventLog_RecordedAtUtc_EventId')
+    CREATE INDEX IX_EventLog_RecordedAtUtc_EventId ON toolbelt_core.EventLog(RecordedAtUtc,EventId);
+GO

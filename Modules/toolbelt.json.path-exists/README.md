@@ -52,3 +52,13 @@ bleiben `not executed`. Modulstatus: `partially validated`.
 - Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; Pfad-, JSON-, NULL-, Wildcard-, BIN2-, native Paritäts-, Kollisions-, Lifecycle- und Uninstall-Verträge
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Freigegebene Security-Härtung 2026-10-15
+
+SC-022: TVF_JsonPathExistsStatus unterscheidet FOUND/MISSING/INVALID/SQL_NULL/LIMIT. Grenzen:16 MiB Input, lexikalische Tiefe128 vor nativem Parser,128 Segmente,10000 Frontierwerte und64 MiB kumulative Parserinputs. Legacy PathExists ist bei LIMIT NULL statt0. MSTVF-Statuskern, keine partielle Frontierausgabe.
+
+Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
+
+Aktueller Securitystand: `partially validated`, `unreleased`. Die bisherigen
+Matrixnachweise gelten historisch; die neuen Verträge sind gezielt auf Linux
+SQL Server 2019 geprüft. Weitere Plattform-/CL-Nachweise bleiben offen.

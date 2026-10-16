@@ -105,7 +105,10 @@ BEGIN
             JOIN toolbelt_core.WorkType wt ON wt.WorkTypeId=wi.WorkTypeId AND wt.IsEnabled=1
             JOIN sys.schemas hs ON hs.name=wt.HandlerSchema
             JOIN sys.procedures hp ON hp.schema_id=hs.schema_id AND hp.name=wt.HandlerProcedure AND hp.is_ms_shipped=0
-            WHERE wi.ManagedHold=0 AND
+            CROSS APPLY toolbelt_core.TVF_WorkTypeAuthorization(wt.WorkTypeId,'CLAIM') authority
+            WHERE authority.IsAllowed=1
+            AND ISNULL(HAS_PERMS_BY_NAME(QUOTENAME(wt.HandlerSchema)+N'.'+QUOTENAME(wt.HandlerProcedure),N'OBJECT',N'EXECUTE'),0)=1
+            AND wi.ManagedHold=0 AND
             (
             (
                 (wi.Status='QUEUED' OR (wi.Status='RETRY_WAIT' AND wi.NextAttemptAtUtc<=@NowUtc))

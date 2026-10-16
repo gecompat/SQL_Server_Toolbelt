@@ -3,6 +3,7 @@ name: Work-Queue Runtime
 on:
   pull_request:
     paths:
+      - Tests/CI/WorkTypeAuthorization.Fixture.sql
       - ".github/workflows/work-queue-runtime.yml"
       - "Modules/toolbelt.core.work-queue/**"
       - "Modules/toolbelt.core.work-type/**"

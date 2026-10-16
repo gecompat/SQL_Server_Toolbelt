@@ -33,7 +33,7 @@ dependencies:
     location: same_database
     reason: "ResultTable-Ausgabe der sieben resultseterzeugenden USPs."
   - module_id: "toolbelt.core.work-type"
-    minimum_version: "1.1.0"
+    minimum_version: "1.2.0"
     location: same_database
     reason: "Ausschließlich registrierte aktive Work Types und kontrollierte Handlerauflösung."
 schemas:
@@ -121,6 +121,7 @@ documentation:
   public_objects:
     - "Documentation/WORK_QUEUE_OBJECTS.md"
   architecture:
+    - "../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md"
     - "../../Documentation/Architecture/WORK_QUEUE_MODULE_DESIGN.md"
     - "../../Documentation/Architecture/DECISIONS.md"
   test_matrix:
@@ -148,6 +149,7 @@ supported_upgrades:
     to: "2.0.0"
     condition: "Keine WorkItem-Zeile befindet sich beim Preflight im Zustand CLAIMED."
 tests:
+  authorization: "Tests/Runtime/Authorization.Contract.sql"
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/WorkQueue.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"

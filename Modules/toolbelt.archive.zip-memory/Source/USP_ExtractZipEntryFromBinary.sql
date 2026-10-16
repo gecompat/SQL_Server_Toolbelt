@@ -7,7 +7,7 @@ CREATE OR ALTER PROCEDURE [toolbelt_archive].[USP_ExtractZipEntryFromBinary]
 (
       @ZipArchive          varbinary(max) = NULL
     , @EntryName           nvarchar(1024) = NULL
-    , @MaxEntryBytes       bigint         = 104857600
+    , @MaxEntryBytes       bigint         = 16777216
     , @MaxCompressionRatio decimal(9,2)   = 200.00
     , @FailIfEncrypted     bit            = 1
     , @ResultTable         sysname        = NULL
@@ -71,7 +71,7 @@ BEGIN
           , N'Exakter Entry-Name. Der CLR-Provider vergleicht ordinal und case-sensitive.'
           , NULL )
         , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'PARAMETER', 3
-          , N'@MaxEntryBytes', 'bigint', 0, 1, N'104857600'
+          , N'@MaxEntryBytes', 'bigint', 0, 1, N'16777216'
           , N'Obere Grenze für die tatsächlich ausgegebene unkomprimierte Entry-Größe.'
           , NULL )
         , ( '1.0', N'toolbelt_archive', N'USP_ExtractZipEntryFromBinary', 'PARAMETER', 4
@@ -186,8 +186,8 @@ EXEC toolbelt_archive.USP_ExtractZipEntryFromBinary
         THROW 51320, N'@EntryName muss gesetzt sein.', 1;
     IF @MaxEntryBytes IS NULL
        OR @MaxEntryBytes <= 0
-       OR @MaxEntryBytes > 2147483647
-        THROW 51320, N'@MaxEntryBytes muss zwischen 1 und 2147483647 liegen.', 1;
+       OR @MaxEntryBytes > 67108864
+        THROW 51320, N'@MaxEntryBytes muss zwischen 1 und 67108864 liegen.', 1;
     IF @MaxCompressionRatio IS NULL OR @MaxCompressionRatio < 1
         THROW 51320, N'@MaxCompressionRatio muss größer oder gleich 1 sein.', 1;
 
