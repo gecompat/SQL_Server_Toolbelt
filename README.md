@@ -27,7 +27,7 @@ Maßgeblich ist der vollständige englische Wortlaut in [LICENSE.md](./LICENSE.m
 # SQL Server Toolbelt
 
 <!-- BEGIN GENERATED:MODULE_STATUS_BADGE -->
-[![Status: 44 Module implementiert – 31 teilweise validiert](https://img.shields.io/badge/Status-44%20Module%20implementiert%20%7C%2031%20teilweise%20validiert-yellow)](./Modules/README.md)
+[![Status: 45 Module implementiert – 32 teilweise validiert](https://img.shields.io/badge/Status-45%20Module%20implementiert%20%7C%2032%20teilweise%20validiert-yellow)](./Modules/README.md)
 <!-- END GENERATED:MODULE_STATUS_BADGE -->
 [![Lizenz: Attribution & Non-Commercial Redistribution](https://img.shields.io/badge/Lizenz-Attribution%20%26%20Non--Commercial-red)](./LICENSE.md)
 [![SQL Server: 2019, 2022, 2025](https://img.shields.io/badge/SQL%20Server-2019%20%7C%202022%20%7C%202025-blue)](./Documentation/Architecture/DEPLOYMENT_MODEL.md)
@@ -65,7 +65,7 @@ SSIS-Provider sind abgegrenzt.
 
 `toolbelt.json.constructors` 1.1.0 implementiert die beiden einzeln freigegebenen Gruppen-USPs über den gemeinsamen T-SQL-Kern. Auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170 bestanden lokal und zentral die API-/100000-/16-MiB-/Clientprüfungen als Teil insgesamt fehlgeschlagener früherer Läufe. Die finalen fokussierten Läufe mit ausschließlich InstalledMetadata.Contract.sql als Runtime-Auswahl bestanden Metadaten, genuine 1.0-Upgrades, Lifecycle, Central und eigene Bereinigung. Neue Minimalrechte bleiben offen; die Uninstall-Voraussetzung VIEW DEFINITION/SELECT wurde am 2026-10-02 einzeln freigegeben und die neue Gateumsetzung bestand fokussierte native Lifecycle-Läufe, negative CI-Injektionen bleiben offen; aktuelle CI wird als separater PR-Mergegate nachgewiesen. Teilweise validiert und unveröffentlicht; historische 1.0-Evidenz bleibt getrennt.
 
-**Der Repository-Grundaufbau ist abgeschlossen. 44 Module sind implementiert; 13 sind `validated`, 31 sind `partially validated`, 0 sind `not executed`, alle sind `unreleased`.**
+**Der Repository-Grundaufbau ist abgeschlossen. 45 Module sind implementiert; 13 sind `validated`, 32 sind `partially validated`, 0 sind `not executed`, alle sind `unreleased`.**
 
 Securitystand 2026-10-15: Die 25 ausdrücklich freigegebenen Härtungen sind
 implementiert und gezielt geprüft. Die neuen Verträge für URI, Path Exists,
@@ -351,13 +351,21 @@ stellt deterministische, rein lesende SQL-CLR Table-Valued Functions auf Basis
 von Microsoft ScriptDom (.NET Framework 4.8) bereit, um T-SQL-Statements
 syntaktisch in AST-Knoten, Knoteneigenschaften, einen verlustfreien Tokenstrom
 und strukturierte Fehlerlisten zu zerlegen. Der Modulstatus ist
-für 2.0.0 `partially validated` und `unreleased`: integrierte Framework-Prüfungen
-und Windows SQL Server 2025/CU8 CL150/160/170 sind erfolgreich. Windows 2019
-ist konfigurationsbedingt blockiert; Windows 2022 und weitere ausdrücklich
-benannte Qualifikationen bleiben offen. Historische 1.0.0-Evidenz gilt nur
-für 1.0.0; Linux ist nicht anwendbar.
+für 2.0.1 `partially validated` und `unreleased`: 245 isolierte Framework-
+Kindprozesse und 60 Guardfälle bestehen am unveränderten ScriptDom-Pin.
+Das SSIS-gekoppelte Upgrade von 2.0.0 und die Table-Clone-Triggerregression
+sind zusätzlich nativ geprüft; der Umfang steht in der
+[SSIS-Prüfmatrix](./Modules/toolbelt.tsql.ssis-debug/Tests/README.md).
+Weitere Parserqualifikation bleibt gesondert. Historische Runtime-Evidenz
+gilt für ihre damaligen Versionen und Binarypins; Linux ist nicht anwendbar.
 
 ## Modulprinzip
+
+[`toolbelt.tsql.ssis-debug`](./Modules/toolbelt.tsql.ssis-debug/README.md)
+erzeugt JSON-Bindings und einzeln ausführbare CTE-Debugstufen aus DTSX.
+Windows-/UNSAFE-Profil; Offline- und native Stufen-/Lookup-/Upgradeprüfungen
+bestanden. [Prüfumfang und verbleibende Gates](./Modules/toolbelt.tsql.ssis-debug/Tests/README.md)
+sind dokumentiert; authentifizierte TLS-Abnahme bleibt separat.
 
 - Ein Modul ist Lifecycle-, Deployment- und Dokumentationseinheit.
 - Module können einzelne zentrale Capabilities oder mehrere zusammengehörige Objekte enthalten.

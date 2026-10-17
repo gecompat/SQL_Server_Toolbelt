@@ -1,6 +1,6 @@
 module_id: "toolbelt.metadata.table-clone"
 module_name: "Table Clone Planner, Executor and Data Copy"
-version: "4.1.0"
+version: "4.1.1"
 implementation_status: implemented
 validation_status: "partially validated"
 release_status: unreleased
@@ -30,8 +30,8 @@ dependencies:
     location: same_database
     reason: "Kanonischer ResultTable-Vertrag, keine kopierte Runtime."
   - module_id: "toolbelt.tsql.script-parser"
-    minimum_version: "2.0.0"
-    exact_version: "2.0.0"
+    minimum_version: "2.0.1"
+    exact_version: "2.0.1"
     location: same_database
     required_when: "Runtime: IncludeTriggers = 1 auf Windows; IncludeTriggers = 0 und Moduldeployment benötigen den Parser nicht."
     reason: "Bereits separat installierter Parser; exakte Provider-/ScriptDom-Binarypins und vier AST-TVFs werden vor dem Opt-in geprüft. Keine automatische Installation."
@@ -170,4 +170,12 @@ validation_evidence:
   - date: "2026-10-04"
     workflow: "Begrenzter privater Datenkopie-Nativeadapter (PowerShell/SqlClient); unabhängige physische Prozess-/Journalprüfung"
     scope: "Version4.1.0, normaler Scope: SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170 ausschließlich lokal. Copy.Contract.sql und Copy.Safety.sql mit fünf gruppierten Form-/KEEP-/REGENERATE-/Self-FK-/Byte-/FK-Zustands-/Safety-/Rollback-Orakeln je einmal Clean4.1 bestanden. Clean/Repeat, genuine4.0→4.1 aus unveränderten öffentlichen Blobs mit frischer Session, vier Slots13/14/14/9, vier resolved-Copy-Consumer-Ablehnungen53926/1, Uninstall/Repeat und fünffeldrige Clientausgabe mit genauen SQL-/CLR-Typen, NOT NULL, exakten Werten, EOF und keinem Folgeresult bestanden. Je zwei eigene Datenbanken entfernt; vollständige Prozesskanäle, Inputpins, Journale und frischer Cleanup-Audit unabhängig physisch geprüft. Keine Serverkonfigurations-, Rechte-, Owner- oder Truständerungen. Erster Linuxfehler51020/1 nach Installation kein PASS: privater FK-Brückenname korrigiert, betroffener Scope wiederholt. Zusätzlich auf Linux2019/latest CL150 vier dynamische Identity-Fälle bestanden: KEEP bei ursprünglichem OFF, spätes CHECK547 mit Rollback, vorbestehendes Target-ON und Other-ON mit Original8107; direkte INSERT-Proben in derselben Verbindung, Caller-TX/SET sowie vier typgenaue NOT-NULL-Witnesszeilen/EOF geprüft. SNAPSHOT-Quellkonsistenz und bis Ende gehaltene Targetsperren durch tatsächliche Sperrbeziehungen und konkurrierende Writes belegt; isolierter Nichtleer-Lauf beobachtet Blockierung und Original53944/1 mit gesunder Session und erhaltenen Targets. Identity und positiver SNAPSHOT-Fall sind abgeschlossene Teilnachweise aus insgesamt fehlgeschlagenen Adapterläufen; unveränderte Produktbytes geprüft und erfolgreiche Fälle nicht wiederholt. Adapterfehler266, Nichtleer-Rendezvous und Cleanup3701 kein PASS. SNAPSHOT ausschließlich in eigenen synthetischen DBs privat journalisiert, vorbereitet, wiederhergestellt; eigene DBs entfernt und Prozesskanäle/Pins/Journale/frische Bereinigung unabhängig physisch geprüft. Head-CI separat im Pull Request. Weitere native Ziele/CL, zentrale Nutzung, tatsächliche Minimalrechte, große Nutzdaten-/Heapmatrix und vollständige Produktqualifikation nicht ausgeführt; teilweise validiert und unveröffentlicht."
+    result: "success"
+  - date: "2026-10-16"
+    workflow: "local: Tests/Static/validate_contract.py; unabhängige begrenzte Dependency-Coreprüfung"
+    scope: "Patch4.1.1: exakter Parser2.0.1-Hash und unveränderter ScriptDom-Pin, Release-/Planhashversion, bekannte Vorgängermanifeste und gekoppelter Source-/Runtime-Testvertrag statisch geprüft. Kein neuer Table-Clone-Funktionsumfang und kein nativer Nachweis für diesen Patch; echtes4.1.0-Upgrade und Trigger-Consumerregression wegen Lab-TLS-Preflight offen."
+    result: "success"
+  - date: "2026-10-17"
+    workflow: "local: Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Modes local,central -PredecessorRoot (je Version)"
+    scope: "Eng begrenzte Patch4.1.1-Consumerregression: Windows SQL2019/2022/2025 lokal/zentral, echter Originalrelease4.1.0 mit exaktem Parser2.0.0 installiert; ursprüngliche Triggerfixture vor und aktuelle Triggerfixture nach dem gekoppelten4.1.1/2.0.1-Upgrade bestanden. Repeat und eigene Datenbank-/Trust-/Konfigurationsbereinigung mit frischem Audit bestanden. Functional verschlüsselt mit explizitem TrustServerCertificate=True; authentifizierte TLS-Abnahme separat not executed. Keine neue Vollqualifikation von Planner/Executor/Copy, weiteren Plattformkombinationen oder Head-CI."
     result: "success"

@@ -1,6 +1,6 @@
 module_id: "toolbelt.tsql.script-parser"
 module_name: "T-SQL Script Parser"
-version: "2.0.0"
+version: "2.0.1"
 implementation_status: implemented
 validation_status: partially validated
 release_status: unreleased
@@ -11,7 +11,7 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "partially validated: 245 isolated Framework children and 60 guard checks passed with ScriptDom 18.0.117.0. Windows SQL Server 2025 CU8 CL150/160/170 local/central/true upgrade/lifecycle evidence is historical and used ScriptDom 18.0.56.2; it does not qualify the new pin. New SQL lifecycle qualification is pending. Windows 2019 configuration is blocked; Windows 2022, minimal rights and actual output ceilings remain open. Historical 1.0.0 evidence does not qualify 2.0.0."
+  windows: "partially validated: Patch2.0.1 mit ScriptDom18.0.117.0 besteht245 Framework-Kinder und60 Guardfälle; SSIS-gekoppelter2.0.0-Upgrade und Table-Clone-Triggerregression2019/2022/2025 lokal/zentral bestanden. Weitere Parser-/Minimalrechte-/Ausgabeobergrenzen- und Head-CI-Qualifikation bleibt getrennt offen."
   linux: "not applicable: SQL Server on Linux does not support UNSAFE SQL CLR assemblies."
 providers:
   - id: clr-tsql-scriptdom
@@ -103,4 +103,12 @@ validation_evidence:
   - date: "2026-10-11"
     workflow: "local: Tests/CI/run-script-parser-lab.ps1 -Version 2025 -Patch base -OptInExactTrust"
     scope: "Aktueller ScriptDom-18.0.117.0-Pin und reproduzierter Provider-Releasebuild: 245 begrenzte Framework-Kindprozesse sowie lokaler/zentraler Parser-Lifecycle auf einem schema-validierten ausgewählten Windows-SQL-Server-2025-Labziel bei CL150/160/170. Saubere Installation, echter 1.0.0-Upgrade, Wiederholung, vier APIs, Grenzen/Syntax, Caller-Transaktion/SET-Erhalt, Kollisionsschutz, Uninstall und eigenes Datenbank-/Trust-Cleanup bestanden. Keine Konfigurations- oder Rechteänderung; minimale Rechte, Windows 2019/2022, Table-Clone-Trigger und tatsächliche Ausgabeceilings bleiben getrennt offen."
+    result: "success"
+  - date: "2026-10-16"
+    workflow: "local: Tests/Framework/Invoke-Contract.ps1 -QualificationProfile Full; Tests/Framework/Invoke-Guard.ps1; Tests/Static/validate_contract.py"
+    scope: "Patch2.0.1 und unveränderter ScriptDom18.0.117.0-Pin:245 isolierte Framework-Kindprozesse sowie60 Guardfälle bestanden; kanonische Vorfilterextraktion bei unveränderten öffentlichen Limits und statische Release-/Dependencykopplung geprüft. Unabhängiger SSIS-Core-/Securityreview einschließlich enger Parser-/Consumeränderungen bestanden. Keine SQL-Verbindung, Trust-/Rechte- oder Konfigurationsänderung. Neue native Upgrade-/Consumer-/Lifecyclequalifikation bleibt wegen TLS-Preflight offen."
+    result: "success"
+  - date: "2026-10-17"
+    workflow: "local: Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Modes local,central -PredecessorRoot (je Version)"
+    scope: "Eng begrenzter gekoppelter Nachweis auf Windows SQL2019/2022/2025 lokal/zentral: Originalrelease2.0.0 mit exakt passendem TableClone4.1.0-Consumer installiert, ursprüngliche Triggerfixture ausgeführt, echter Upgrade auf Parser2.0.1/TableClone4.1.1, aktuelle Triggerfixture und Repeat bestanden. Installierter SSIS-Consumer schützt Parser/ScriptDom vor Uninstall; eigene Datenbank-/Trust-/Konfigurationsbereinigung mit frischem Audit bestanden. Functional mit erforderlicher Verschlüsselung und explizitem TrustServerCertificate=True; authentifizierte TLS-Abnahme separat not executed. Keine neue Vollqualifikation der vier Parser-APIs, Minimalrechte, tatsächlichen Ausgabeceilings oder Head-CI."
     result: "success"

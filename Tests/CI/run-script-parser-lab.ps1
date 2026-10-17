@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)][ValidateSet('2019','2025')][string]$Version,
+    [Parameter(Mandatory)][ValidateSet('2019','2022','2025')][string]$Version,
     [string]$Patch = 'base',
     [Parameter(Mandatory)][string]$ReleaseDirectory,
     [string]$PreviousReleaseDirectory,
@@ -140,11 +140,11 @@ function Assert-CollisionPreflight {
             if ((Get-ParserSnapshot $Connection) -cne $faultState) { throw 'COLLISION_PREFLIGHT_MUTATED_METADATA' }
         }
         $restore = switch ($fault) {
-            UnknownVersion { "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.tsql.script-parser.Version',@value=N'2.0.0';" }
-            MissingVersion { "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.tsql.script-parser.Version',@value=N'2.0.0';" }
+            UnknownVersion { "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.Module.toolbelt.tsql.script-parser.Version',@value=N'2.0.1';" }
+            MissingVersion { "EXEC sys.sp_addextendedproperty @name=N'Toolbelt.Module.toolbelt.tsql.script-parser.Version',@value=N'2.0.1';" }
             ForeignProviderMarker { "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.tsql.script-parser',@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_Tsql_ScriptParser';" }
             ForeignFunctionMarker { "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleId',@value=N'toolbelt.tsql.script-parser',@level0type=N'SCHEMA',@level0name=N'toolbelt_tsql',@level1type=N'FUNCTION',@level1name=N'TVF_ParseScriptNodes';" }
-            InconsistentFunctionVersion { "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'2.0.0',@level0type=N'SCHEMA',@level0name=N'toolbelt_tsql',@level1type=N'FUNCTION',@level1name=N'TVF_ParseScriptNodes';" }
+            InconsistentFunctionVersion { "EXEC sys.sp_updateextendedproperty @name=N'Toolbelt.ModuleVersion',@value=N'2.0.1',@level0type=N'SCHEMA',@level0name=N'toolbelt_tsql',@level1type=N'FUNCTION',@level1name=N'TVF_ParseScriptNodes';" }
         }
         Invoke-ParserSql $Connection $restore
         if ((Get-ParserSnapshot $Connection) -cne $baseline) { throw 'COLLISION_FIXTURE_RESTORE_MISMATCH' }
@@ -275,7 +275,7 @@ function Assert-NoAssemblyConsumer {
 
 $manifestPath = Join-Path $ReleaseDirectory 'Toolbelt.Tsql.ScriptParser.trust-manifest.json'
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-if ($manifest.moduleVersion -cne '2.0.0' -or $manifest.permissionSet -cne 'UNSAFE') { throw 'RELEASE_IDENTITY_INVALID' }
+if ($manifest.moduleVersion -cne '2.0.1' -or $manifest.permissionSet -cne 'UNSAFE') { throw 'RELEASE_IDENTITY_INVALID' }
 foreach ($name in @('sqlServerHexLiteral','scriptDomSqlServerHexLiteral')) {
     if ([string]$manifest.$name -cnotmatch '^0x[0-9A-F]{128}$') { throw 'RELEASE_HASH_FORMAT_INVALID' }
 }
@@ -391,7 +391,7 @@ SELECT CASE WHEN EXISTS(SELECT 1 FROM sys.configurations WHERE name=N'clr enable
             $targetHasher = [Security.Cryptography.SHA256]::Create()
             try { $targetFingerprint = [BitConverter]::ToString($targetHasher.ComputeHash([Text.Encoding]::UTF8.GetBytes([string]$target.key))).Replace('-','') }
             finally { $targetHasher.Dispose() }
-            $ledger = [pscustomobject]@{SchemaVersion='1.0';Wave='parser-hardening-2.0.0';RunId=$runId;Platform='windows';Version=$Version;RequestedPatch=$Patch;ActualPatch=[string]$target.patch;TargetKeyFingerprint=$targetFingerprint;State='ACTIVE';Entries=$entries;OwnedDatabases=@()}
+            $ledger = [pscustomobject]@{SchemaVersion='1.0';Wave='parser-hardening-2.0.1';RunId=$runId;Platform='windows';Version=$Version;RequestedPatch=$Patch;ActualPatch=[string]$target.patch;TargetKeyFingerprint=$targetFingerprint;State='ACTIVE';Entries=$entries;OwnedDatabases=@()}
             Save-TrustLedger $ledger $journalPath
             foreach ($entry in $entries) {
                 if (-not $entry.PriorExists) {

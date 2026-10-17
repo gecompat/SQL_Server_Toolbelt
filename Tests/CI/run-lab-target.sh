@@ -49,8 +49,11 @@ if [[ ! "${TBX_TEST_DB_SUFFIX}" =~ ^[a-f0-9]{12}$ ]]; then
     exit 65
 fi
 
-if [[ "${TBX_SQL_ENCRYPT:-}" != "True" || "${TBX_SQL_TRUST_SERVER_CERTIFICATE:-}" != "False" ]]; then
-    echo "Der Lab-Vertrag verlangt Encrypt=True und TrustServerCertificate=False." >&2
+if [[ "${TBX_SQL_ENCRYPT:-}" != "True" ||
+      ! "${TBX_SQL_TRUST_SERVER_CERTIFICATE:-}" =~ ^(True|False)$ ||
+      ! "${TBX_SQL_TEST_PURPOSE:-Functional}" =~ ^(Functional|AuthenticatedTls)$ ||
+      ( "${TBX_SQL_TEST_PURPOSE:-Functional}" == "AuthenticatedTls" && "${TBX_SQL_TRUST_SERVER_CERTIFICATE}" != "False" ) ]]; then
+    echo "Lab-Transportvertrag passt nicht zum ausdrücklichen Testzweck." >&2
     exit 65
 fi
 
@@ -76,6 +79,9 @@ base_sqlcmd_args=(
     -l 15
     -t 120
 )
+if [[ "${TBX_SQL_TRUST_SERVER_CERTIFICATE}" == "True" ]]; then
+    base_sqlcmd_args+=(-C)
+fi
 
 run_control_query() {
     local query="$1"
@@ -245,6 +251,13 @@ run_sqlcmd() {
     local workdir="$1"
     shift
 
+    if [[ "${TBX_SQL_ENCRYPT:-}" != "True" ||
+          ! "${TBX_SQL_TRUST_SERVER_CERTIFICATE:-}" =~ ^(True|False)$ ||
+          ! "${TBX_SQL_TEST_PURPOSE:-Functional}" =~ ^(Functional|AuthenticatedTls)$ ||
+          ( "${TBX_SQL_TEST_PURPOSE:-Functional}" == "AuthenticatedTls" && "${TBX_SQL_TRUST_SERVER_CERTIFICATE}" != "False" ) ]]; then
+        return 65
+    fi
+
     local -a parsed=(
         -S "tcp:${TBX_SQL_HOST},${TBX_SQL_PORT}"
         -U "${TBX_SQL_USER}"
@@ -256,6 +269,9 @@ run_sqlcmd() {
         -r 1
         -j
     )
+    if [[ "${TBX_SQL_TRUST_SERVER_CERTIFICATE}" == "True" ]]; then
+        parsed+=(-C)
+    fi
     local stdin_file=""
     local sqlcmd_variable_mode="0"
 
@@ -263,7 +279,7 @@ run_sqlcmd() {
         case "$1" in
             -C|-N)
                 # Containeradapter dürfen ihre selbstsignierten Testoptionen
-                # mitbringen. Der Labaufruf erzwingt ausschließlich sein -N.
+                # mitbringen. Der Labvertrag bestimmt -C, niemals der Caller.
                 sqlcmd_variable_mode="0"
                 shift
                 ;;

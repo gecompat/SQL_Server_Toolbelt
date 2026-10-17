@@ -7,7 +7,7 @@ IF NOT EXISTS
    (
        SELECT 1 FROM sys.extended_properties
        WHERE class = 0 AND name = N'Toolbelt.Module.toolbelt.tsql.script-parser.Version'
-         AND TRY_CONVERT(nvarchar(64), value) = N'2.0.0'
+         AND TRY_CONVERT(nvarchar(64), value) = N'2.0.1'
    )
     THROW 53121, N'Der Modulversionsmarker fehlt.', 1;
 
@@ -42,7 +42,7 @@ IF EXISTS
       AND o.name IN (N'TVF_ParseScriptNodes', N'TVF_ParseScriptNodeProperties', N'TVF_TokenizeScript', N'TVF_ParseScriptErrors')
       AND (TRY_CONVERT(int, managed.value) IS NULL OR TRY_CONVERT(int, managed.value) <> 1
            OR TRY_CONVERT(nvarchar(128), moduleId.value) IS NULL OR TRY_CONVERT(nvarchar(128), moduleId.value) <> N'toolbelt.tsql.script-parser'
-           OR TRY_CONVERT(nvarchar(64), version.value) IS NULL OR TRY_CONVERT(nvarchar(64), version.value) <> N'2.0.0'))
+           OR TRY_CONVERT(nvarchar(64), version.value) IS NULL OR TRY_CONVERT(nvarchar(64), version.value) <> N'2.0.1'))
     THROW 53123, N'Die Funktionsmarker sind nicht kohärent.', 2;
 
 IF NOT EXISTS
@@ -62,7 +62,7 @@ IF NOT EXISTS
        INNER JOIN sys.assembly_files AS af ON af.assembly_id = a.assembly_id AND af.file_id = 1
        WHERE a.name = N'Toolbelt_Tsql_ScriptParser'
          AND HASHBYTES(N'SHA2_512', af.content) =
-             0x2113ABD6828CE5A1454EF0259F7558F8744A0399E46345E4E54C9E012641BC983F5A0A08C6E2F7BF258A14EAEE5082FA6DE9E4DC25C813BDB5246D5D34701773
+             0x30B557FDA544369E08E2002EFF0624F26E21B532516020CC620897D7887512C129CCE6948D306FE3521F6362B9FBE8A4AAD02980340E1D06FC4A542B3AD472AA
    )
  OR NOT EXISTS
    (

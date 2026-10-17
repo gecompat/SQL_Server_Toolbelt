@@ -70,8 +70,11 @@ def validate_hardening(provider: str) -> None:
         if match is None or "return BuildResult(" not in match.group():
             raise ContractError("TVF umgeht gemeinsame Materialisierung: " + method)
     guard = read("Clr/PreparseGuard.cs")
-    require(guard, "Guard", "AtomLimit=512", "StructureLimit=32", "CommentLimit=16", "rawUnits", "8192",
-            "Math.Min(StructureLimit,requestedDepth)", "UnicodeCategory.DecimalDigitNumber")
+    require(guard, "Guard", "AtomLimit=512", "StructureLimit=32", "CommentLimit=16", "8192",
+            "new GuardProfile(AtomLimit,8192,StructureLimit,CommentLimit,0,0)")
+    core = read("Clr/PreparseGuardCore.cs")
+    require(core, "Common Guard", "rawUnits", "Math.Min(profile.StructureLimit,requestedDepth)", "UnicodeCategory.DecimalDigitNumber", "parameterOffsets")
+    forbid(core, "Common Guard", "using Microsoft.SqlServer", "Parse(", "GetTokenStream", "stack.Push('{')")
     forbid(guard, "Guard", "ScriptDom", "Parse(", "GetTokenStream", "stack.Push('{')")
 
 
@@ -225,7 +228,7 @@ def main() -> int:
     require(
         read("Tests/Runtime/Lifecycle.Contract.sql"),
         "Lifecycle-Contract",
-        "2113ABD6828CE5A1454EF0259F7558F8744A0399E46345E4E54C9E012641BC983F5A0A08C6E2F7BF258A14EAEE5082FA6DE9E4DC25C813BDB5246D5D34701773",
+        "30B557FDA544369E08E2002EFF0624F26E21B532516020CC620897D7887512C129CCE6948D306FE3521F6362B9FBE8A4AAD02980340E1D06FC4A542B3AD472AA",
         SCRIPT_DOM_SHA512,
     )
     for name in ("TVF_ParseScriptNodes", "TVF_ParseScriptNodeProperties", "TVF_TokenizeScript", "TVF_ParseScriptErrors"):
@@ -252,7 +255,7 @@ def main() -> int:
             "TableClone Trigger-Consumer", SCRIPT_DOM_SHA512)
     require(read("../../Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md"),
             "Hardening-Vertrag", SCRIPT_DOM_SHA512, SCRIPT_DOM_FILE_VERSION)
-    require(read("Clr/Properties/AssemblyInfo.cs"), "Assembly-Version", 'AssemblyVersion("2.0.0.0")', 'AssemblyFileVersion("2.0.0.0")')
+    require(read("Clr/Properties/AssemblyInfo.cs"), "Assembly-Version", 'AssemblyVersion("2.0.1.0")', 'AssemblyFileVersion("2.0.1.0")')
     require(read("Tests/Framework/Invoke-Contract.ps1"), "Framework-Gate", "FRAMEWORK_CHILD_TIMEOUT", "RELEASE_FINGERPRINT_MISMATCH", "TrustManifestPath", "sqlExecuted = $false", "Reconstructed82", "RECONSTRUCTED82_COUNT_MISMATCH_", "historicalPreSourceEvidence = 'not reproduced or replaced'")
 
     manifest = read("module.yaml")

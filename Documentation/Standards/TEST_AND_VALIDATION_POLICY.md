@@ -39,6 +39,22 @@ Mindestens dokumentieren:
 
 Ein agenteninterner Review ohne reproduzierbare Ausgabe ist kein CI- oder Runtime-Nachweis.
 
+## Fachtests und Verbindungstransport
+
+Benutzerklarstellung vom 2026-10-16: Ein für die Funktion unabhängiger
+Transportaspekt darf ihre fachliche Prüfung nicht blockieren. Labtests
+verwenden standardmäßig `TestPurpose=Functional` und übernehmen den
+schema-validierten booleschen TrustServerCertificate-Wert. Encrypt bleibt
+True. Ein Verbindungsfehler löst weder Trustumschaltung noch Providerfallback aus.
+
+`TestPurpose=AuthenticatedTls` verlangt zusätzlich TrustServerCertificate=False.
+Dieser Modus ist für Serveridentitäts-/Zertifikatsprüfungen und konkrete davon
+abhängige Funktionsverträge erforderlich. Ein erfolgreicher Fachtest mit
+Trust-Override qualifiziert keine authentifizierte TLS-Verbindung; deren
+Nachweis wird separat geführt. Die fachliche Freigabe gilt ausschließlich
+für den geprüften Funktions-, Parameter- und Sessionkontext. Ändert ein anderer
+Verbindungsmodus diesen Vertrag, erhält er eigene Tests.
+
 ## API- und Contract-Tests
 
 Für alle öffentlichen Objekte:

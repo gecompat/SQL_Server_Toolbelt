@@ -8,7 +8,7 @@
 -- Resultset: Ordinal int, ObjectKind varchar(32), TargetName nvarchar(776),
 --            ScriptText nvarchar(max); alle NOT NULL
 -- Dependencies: toolbelt.core.result-table >=1.0.0 same_database;
---               IncludeTriggers=1: exakt gepinnter Parser 2.0.0 same_database
+--               IncludeTriggers=1: exakt gepinnter Parser 2.0.1 same_database
 -- Rechte: EXECUTE, datenbankweite VIEW DEFINITION für vollständige FK-/Kollisionssicht
 -- Versionen/Plattformen: SQL Server 2019/2022/2025 CL150+, Windows/Linux;
 --                       Trigger-Opt-in ausschließlich Windows
@@ -49,7 +49,7 @@ BEGIN
         ('PARAMETER',6,N'@IncludeExtendedProperties','bit',0,0,N'0',N'1 plant unterstützte Properties typgetreu; 0 lehnt relevante Properties ab.',NULL),
         ('PARAMETER',7,N'@TableMap','sysname',0,1,N'NULL',N'NULL ist W1-Einzelmodus; sonst fünfspaltige lokale Map mit 1-64 eindeutigen positiven MapOrdinals und vier nvarchar(max) NOT NULL-Identifiern.',NULL),
         ('PARAMETER',8,N'@ExternalReferenceRule','varchar(16)',0,0,N'REJECT',N'Byteexakt REJECT oder KEEP; KEEP nur im Mapmodus für sichtbare externe Referenzziele.',NULL),
-        ('PARAMETER',9,N'@IncludeTriggers','bit',0,0,N'0',N'1 plant gewöhnliche gemappte DML-Trigger über den vorhandenen exakt gepinnten Windows-Parser 2.0.0; 0 behält die bisherige Triggerablehnung. Keine Installation oder Ausführung.',NULL),
+        ('PARAMETER',9,N'@IncludeTriggers','bit',0,0,N'0',N'1 plant gewöhnliche gemappte DML-Trigger über den vorhandenen exakt gepinnten Windows-Parser 2.0.1; 0 behält die bisherige Triggerablehnung. Keine Installation oder Ausführung.',NULL),
         ('PARAMETER',10,N'@ResultTable','sysname',0,1,N'NULL',N'NULL liefert SELECT; sonst bestehende caller-lokale Temp-Tabelle.',NULL),
         ('PARAMETER',11,N'@KeepData','bit',0,1,N'0',N'0 Replace, 1 Append; NULL entspricht0.',NULL),
         ('PARAMETER',12,N'@Debug','tinyint',0,1,N'0',N'Nur Messages; keine persistierte Quellmetadaten-Ausgabe.',NULL),

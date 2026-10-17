@@ -6,7 +6,7 @@ $tempRoot = Join-Path ([IO.Path]::GetTempPath()) ('ToolbeltParserPureGuard-' + [
 New-Item -ItemType Directory -Path $tempRoot | Out-Null
 $executable = Join-Path $tempRoot 'GuardTests.exe'
 $compiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
-$compilerOutput = & $compiler /nologo /optimize+ /target:exe "/out:$executable" (Join-Path $moduleRoot 'Clr/PreparseGuard.cs') (Join-Path $PSScriptRoot 'GuardTests.cs') (Join-Path $PSScriptRoot 'TestInputs.cs') 2>&1
+$compilerOutput = & $compiler /nologo /optimize+ /target:exe "/out:$executable" (Join-Path $moduleRoot 'Clr/PreparseGuard.cs') (Join-Path $moduleRoot 'Clr/PreparseGuardCore.cs') (Join-Path $PSScriptRoot 'GuardTests.cs') (Join-Path $PSScriptRoot 'TestInputs.cs') 2>&1
 if ($LASTEXITCODE -ne 0) { throw 'GUARD_BUILD_FAILED' }
 $psi = [Diagnostics.ProcessStartInfo]::new($executable)
 $psi.UseShellExecute = $false; $psi.CreateNoWindow = $true; $psi.WindowStyle = 'Hidden'; $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true

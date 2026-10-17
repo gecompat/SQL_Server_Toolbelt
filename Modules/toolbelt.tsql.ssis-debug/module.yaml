@@ -1,0 +1,93 @@
+module_id: "toolbelt.tsql.ssis-debug"
+module_name: "SSIS Data Flow Debug SELECT"
+version: "1.0.0"
+implementation_status: implemented
+validation_status: partially validated
+release_status: unreleased
+description: "DTSX-Analyse mit JSON-Bindings, editierbaren DECLAREs und selbstständig ausführbaren CTE-Prüfstufen; kein Paketexecutor."
+sql_server_versions:
+  - "2019"
+  - "2022"
+  - "2025"
+compatibility_levels: [150, 160, 170]
+platforms:
+  windows: "partially validated: begrenzte V1-Fachmatrix auf SQL2019/2022/2025 lokal/zentral bestanden; aktuelle Head-/Integrations-CI und Release bleiben separat offen."
+  linux: "not applicable: UNSAFE SQL CLR wird nicht unterstützt."
+providers:
+  - id: clr-ssis-debug
+    technology: "C# SQL CLR .NET Framework 4.8; ScriptDom; UNSAFE"
+    platforms: [Windows]
+    status: implemented
+deployment_capabilities:
+  local: true
+  central: true
+  central_with_synonyms: false
+  local_required: false
+  central_preferred: false
+dependencies:
+  - module_id: "toolbelt.core.result-table"
+    minimum_version: "1.0.0"
+    location: same_database
+    reason: "Kanonischer ResultTable-Vertrag."
+  - module_id: "toolbelt.tsql.script-parser"
+    minimum_version: "2.0.1"
+    exact_version: "2.0.1"
+    location: same_database
+    reason: "Gemeinsamer Vorfilter als Buildquelle; exakte Parser-/ScriptDom-Binarypins."
+schemas:
+  - "toolbelt_tsql"
+objects:
+  - { type: ASSEMBLY, name: "Toolbelt_Tsql_SsisDebug", visibility: internal }
+  - { type: USP, schema: "toolbelt_tsql", name: "USP_ExplainSsisDataFlow", visibility: public }
+  - { type: CLR_USP, schema: "toolbelt_tsql", name: "USP_ExplainSsisDataFlowInternal", visibility: internal }
+permissions_required:
+  - "EXECUTE auf die öffentliche Prozedur; expliziter Metadatenzugriff in den freigegebenen Datenbanken."
+  - "SELECT auf die Quellen erst beim manuellen Ausführen des generierten SQL."
+  - "Administrativer Opt-in des exakten SHA2-512-Releasehashs; keine automatische Rechtevergabe."
+clr:
+  used: true
+  language: "C#"
+  target_framework: ".NET Framework 4.8"
+  assembly_sql_name: "Toolbelt_Tsql_SsisDebug"
+  assembly_file_name: "Toolbelt.Tsql.SsisDebug.dll"
+  permission_set: "UNSAFE"
+  trust_method: "SHA2-512 via sys.sp_add_trusted_assembly"
+  build_project: "Clr/Toolbelt.Tsql.SsisDebug.csproj"
+  release_artifact_script: "Scripts/New-ClrReleaseArtifacts.ps1"
+  trust_removed_by_uninstall: false
+lifecycle:
+  trust_opt_in: "Deployment/Add-TrustedAssembly.sql"
+  deploy_template: "Deployment/Deploy.sql"
+  uninstall: "Deployment/Uninstall.sql"
+  execution_mode: "SQLCMD"
+documentation:
+  module: "README.md"
+  public_objects:
+    - "Documentation/USP_ExplainSsisDataFlow.md"
+  architecture:
+    - "../../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md"
+  test_matrix:
+    - "Tests/README.md"
+  evidence:
+    - "Tests/README.md"
+contracts:
+  usp: "1.0"
+  deployment: "1.0"
+  validation: "1.0"
+tests:
+  static: "Tests/Static/validate_contract.py"
+  framework: "Tests/Framework/Invoke-Contract.ps1"
+  runtime: "Tests/Runtime/Invoke-LabContract.ps1"
+validation_evidence:
+  - date: "2026-10-16"
+    workflow: "local: Tests/Framework/Invoke-Contract.ps1 -Profile Full"
+    scope: "18 isolierte Framework-Kindprozesse mit262144-Byte-Stack/40-Sekunden-Watchdog einschließlich konkreter Typ-/NULL-/Längen-/Zeit-Reviewregressionen; zwölf isolierte SQL-Syntaxprüfungen150/160/170 und statische Kopplung bestanden. Begrenzte unabhängige Core-/Securityprüfung nach einem Folgeauftrag bestanden; finaler reproduzierbarer Releasebuild bytegleich zur geprüften Assembly. Native SQL-, ResultTable-, Cache-, Upgrade- und Lifecyclequalifikation wegen Lab-TLS-Preflight offen; kein SQL-Einstieg geladen."
+    result: "success"
+  - date: "2026-10-17"
+    workflow: "local: Tests/Runtime/Invoke-LabContract.ps1 -Version 2019/2022/2025 -Patch base -Modes local,central (je Version)"
+    scope: "Windows SQL Server 2019/2022/2025, je lokaler und zentraler Deploymentmodus: 36 Kernassertionen pro Lauf (216 insgesamt) einschließlich Format 6/8, JSON-Vorlage, Zielabfragen, Composite-Lookup-Cache, ResultTable, Help und Callertransaktion. Deployment/Repeat/Uninstall/Repeat und eigener Cleanup bestanden. Functional mit Encrypt=True und explizitem TrustServerCertificate=True; authentifizierte TLS-Abnahme not executed. Aktueller reproduzierbarer Releasebuild, Full18 und Syntax12 bestanden. Vollständige Stufen-/Cacheinvalidierungs-, Parallelitäts-, Minimalrechte-, Fremdobjekt- und echte Vorgängerupgrade-Matrix offen; keine vollständige Nutzungs-/Releasequalifikation."
+    result: "success"
+  - date: "2026-10-17"
+    workflow: "local: Tests/Runtime/Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Patch base -Modes local,central -PredecessorRoot (je Version); Framework/Invoke-Contract.ps1 -Profile Full; Framework/Invoke-Syntax.ps1"
+    scope: "Finaler reproduzierbarer Produktbuild: Windows SQL2019/BIN2, SQL2022/CS_AS und SQL2025/CI_AS_SC_UTF8, jeweils local/central mit181 Kern-,61 API- und15 Lifecycleassertionen (1542 insgesamt). Alle Stufen frisch und einzeln ausgeführt; direkte DECLARE-/Cacheinvalidierung, Unicode-Lookup, Conversion/Overwrite/Shadowing, ResultTable/Help/Caller-TX/SET, Parallel-DML/Sch-M, Cross-DB, Analyse ohne Quell-SELECT, Katalog-/Computed-/Funktionsgrenzen und atomarer Fremdobjekt-/Consumer-/Lock-Schutz bestanden. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture, Deployment/Repeat/Uninstall/Repeat und frische Cleanup-Audits bestanden. Full21 und Syntax12 bestanden; unveränderte Parser245/Guard60 wiederverwendet. Functional: Encrypt=True, explizit TrustServerCertificate=True; authentifizierte TLS-Abnahme separat not executed. Kein SDK-Paritäts-, Produktionslast-, Head-CI- oder Releasenachweis."
+    result: "success"

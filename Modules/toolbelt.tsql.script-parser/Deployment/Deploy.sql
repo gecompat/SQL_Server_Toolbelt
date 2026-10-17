@@ -147,7 +147,7 @@ IF @InstalledScriptDomAssemblyHash IS NOT NULL
     IF EXISTS (SELECT 1 FROM sys.extended_properties
                WHERE class = 0 AND major_id = 0 AND minor_id = 0
                  AND name = N'Toolbelt.Module.toolbelt.tsql.script-parser.Version')
-       AND (@InstalledVersion IS NULL OR @InstalledVersion NOT IN (N'1.0.0', N'2.0.0'))
+       AND (@InstalledVersion IS NULL OR @InstalledVersion NOT IN (N'1.0.0', N'2.0.0', N'2.0.1'))
         THROW 53119, N'Die installierte ScriptParser-Version wird von diesem Lifecycle nicht unterstützt.', 1;
 
     IF EXISTS
@@ -213,7 +213,7 @@ BEGIN TRY
     IF EXISTS (SELECT 1 FROM sys.extended_properties
                WHERE class = 0 AND major_id = 0 AND minor_id = 0
                  AND name = N'Toolbelt.Module.toolbelt.tsql.script-parser.Version')
-       AND (@InstalledVersion IS NULL OR @InstalledVersion NOT IN (N'1.0.0', N'2.0.0'))
+       AND (@InstalledVersion IS NULL OR @InstalledVersion NOT IN (N'1.0.0', N'2.0.0', N'2.0.1'))
         THROW 53119, N'Die installierte ScriptParser-Version wird von diesem Lifecycle nicht unterstützt.', 1;
 
     IF EXISTS
@@ -406,11 +406,11 @@ BEGIN TRY
        )
         EXEC sys.sp_updateextendedproperty
               @name = N'Toolbelt.Module.toolbelt.tsql.script-parser.Version'
-            , @value = N'2.0.0';
+            , @value = N'2.0.1';
     ELSE
         EXEC sys.sp_addextendedproperty
               @name = N'Toolbelt.Module.toolbelt.tsql.script-parser.Version'
-            , @value = N'2.0.0';
+            , @value = N'2.0.1';
 
     IF EXISTS
        (
@@ -507,12 +507,12 @@ BEGIN TRY
             WHERE class = 1 AND major_id = OBJECT_ID(N'toolbelt_tsql.' + @FunctionName) AND name = N'Toolbelt.ModuleVersion'
         )
             EXEC sys.sp_updateextendedproperty
-                  @name = N'Toolbelt.ModuleVersion', @value = N'2.0.0'
+                  @name = N'Toolbelt.ModuleVersion', @value = N'2.0.1'
                 , @level0type = N'SCHEMA', @level0name = N'toolbelt_tsql'
                 , @level1type = N'FUNCTION', @level1name = @FunctionName;
         ELSE
             EXEC sys.sp_addextendedproperty
-                  @name = N'Toolbelt.ModuleVersion', @value = N'2.0.0'
+                  @name = N'Toolbelt.ModuleVersion', @value = N'2.0.1'
                 , @level0type = N'SCHEMA', @level0name = N'toolbelt_tsql'
                 , @level1type = N'FUNCTION', @level1name = @FunctionName;
 

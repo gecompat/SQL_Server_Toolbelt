@@ -166,7 +166,7 @@ BEGIN
     DECLARE @Header varbinary(max)=0x,@Text nvarchar(max),@Ordinal int,@Kind varchar(32),@Target nvarchar(776),@Script nvarchar(max);
     SET @Text=N'Toolbelt.TableClone.Execute.Hash';
     SET @Header=@Header+CONVERT(binary(4),DATALENGTH(@Text))+CONVERT(varbinary(max),@Text)+CONVERT(binary(4),CONVERT(int,1));
-    SET @Text=N'4.1.0'; SET @Header=@Header+CONVERT(binary(4),DATALENGTH(@Text))+CONVERT(varbinary(max),@Text)+CONVERT(binary(4),DB_ID());
+    SET @Text=N'4.1.1'; SET @Header=@Header+CONVERT(binary(4),DATALENGTH(@Text))+CONVERT(varbinary(max),@Text)+CONVERT(binary(4),DB_ID());
     SET @Text=DB_NAME(); SET @Header=@Header+CONVERT(binary(4),DATALENGTH(@Text))+CONVERT(varbinary(max),@Text)
         +CONVERT(binary(1),@IncludeIdentity)+CONVERT(binary(1),@IncludeExtendedProperties)+CONVERT(binary(1),@MapMode);
     SET @Text=CONVERT(nvarchar(max),@ExternalReferenceRule); SET @Header=@Header+CONVERT(binary(4),DATALENGTH(@Text))+CONVERT(varbinary(max),@Text);

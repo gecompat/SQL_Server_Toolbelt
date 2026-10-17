@@ -67,7 +67,7 @@ $scriptDomBytes = [IO.File]::ReadAllBytes($scriptDomPath)
 $assemblyHex = [BitConverter]::ToString($assemblyBytes).Replace('-', '')
 $sha512 = (Get-FileHash -Algorithm SHA512 -LiteralPath $assemblyPath).Hash.ToUpperInvariant()
 $scriptDomSha512 = (Get-FileHash -Algorithm SHA512 -LiteralPath $scriptDomPath).Hash.ToUpperInvariant()
-$description = 'SQL Server Toolbelt toolbelt.tsql.script-parser CLR provider 2.0.0'
+$description = 'SQL Server Toolbelt toolbelt.tsql.script-parser CLR provider 2.0.1'
 $sourceEntries = @(Get-ChildItem -LiteralPath (Join-Path $moduleRoot 'Clr') -Recurse -File |
     Where-Object { $_.Extension -in '.cs', '.csproj' -and $_.FullName -notmatch '[\\/](bin|obj)[\\/]' } |
     Sort-Object { $_.FullName.Substring($moduleRoot.Length).Replace('\', '/') } |
@@ -84,8 +84,8 @@ finally { $deploymentHasher.Dispose() }
 $manifest = [ordered]@{
     schemaVersion = '1.0'
     moduleId = 'toolbelt.tsql.script-parser'
-    moduleVersion = '2.0.0'
-    sourceVersion = '2.0.0'
+    moduleVersion = '2.0.1'
+    sourceVersion = '2.0.1'
     sourceFingerprintSha256 = $sourceFingerprint
     deploymentFingerprintSha256 = $deploymentFingerprint
     deploymentSourceFiles = @($deploymentEntries)

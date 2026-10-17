@@ -9,7 +9,7 @@ ist lokal durchsuchbar; die Ausgabe wird in der Dokumentations-CI auf Synchronit
 
 ## Aktueller Status
 
-**44 Module sind implementiert. 13 sind `validated`, 31 sind `partially validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
+**45 Module sind implementiert. 13 sind `validated`, 32 sind `partially validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
 abgeleitet.**
 
 ## Implementierte Module
@@ -50,7 +50,7 @@ abgeleitet.**
 | `toolbelt.json.schema` | Bounded JSON Schema Validation | `1.0.1` | `toolbelt_json` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.capability-catalog` | Module Capability Catalog | `1.0.0` | `toolbelt_metadata` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.metadata.identifier` | Identifier and Multipart Name Toolkit | `1.0.0` | `toolbelt_metadata` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.metadata.table-clone` | Table Clone Planner, Executor and Data Copy | `4.1.0` | `toolbelt_metadata` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.metadata.table-clone` | Table Clone Planner, Executor and Data Copy | `4.1.1` | `toolbelt_metadata` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.pseudonymization.deterministic` | Deterministic Synthetic Mapping | `1.2.0` | `toolbelt_pseudonymization` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.directional-trim` | Directional TRIM Compatibility | `1.0.0` | `toolbelt_string` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.edit-distance` | Bounded Unicode Edit Distance | `1.1.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
@@ -59,7 +59,8 @@ abgeleitet.**
 | `toolbelt.string.split-advanced` | Quote/Escape Multi-Separator Split | `1.1.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.split-characters` | Literal Multi-Separator Split | `1.0.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.string.text-pairs` | Bounded Text Pair Comparison | `1.0.0` | `toolbelt_string` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.tsql.script-parser` | T-SQL Script Parser | `2.0.0` | `toolbelt_tsql` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.tsql.script-parser` | T-SQL Script Parser | `2.0.1` | `toolbelt_tsql` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.tsql.ssis-debug` | SSIS Data Flow Debug SELECT | `1.0.0` | `toolbelt_tsql` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.validation.semantic-version` | Semantic Version Validation | `1.1.0` | `toolbelt_validation` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 <!-- END GENERATED:MODULE_STATUS_TABLE -->
 

@@ -13,8 +13,8 @@ gemeinsame SQL-Laufzeitkompatibilität; siehe
 
 ## Aktueller Stand
 
-Der Repository-Grundaufbau ist abgeschlossen. 44 Module sind implementiert;
-13 sind `validated`, 31 sind `partially validated`, 0 sind `not executed`. Für alle existieren
+Der Repository-Grundaufbau ist abgeschlossen. 45 Module sind implementiert;
+13 sind `validated`, 32 sind `partially validated`, 0 sind `not executed`. Für alle existieren
 statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte.
 
 Die ResultTable-Runtime-Action auf GitHub-hosted Linux war am 2026-07-29 mit
@@ -125,6 +125,7 @@ Ihre Teilnachweise sind getrennt von historischen Constructorständen dokumentie
 | `toolbelt.core.console-message` | [CONSOLE_MESSAGE_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.core.console-message/Tests/CONSOLE_MESSAGE_CONTRACT_TEST_MATRIX.md) | `partially validated`; automatisierte Windows-/Linux-Matrix 2019/2022/2025 erfolgreich; zusätzliche Client-/Treiber-, Buffering- und Framing-Evidenz offen |
 | `toolbelt.metadata.capability-catalog` | [CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.metadata.capability-catalog/Tests/CAPABILITY_CATALOG_CONTRACT_TEST_MATRIX.md) | `validated`; vollständige Windows-/Linux-Matrix 2019/2022/2025 einschließlich eingeschränkter Metadatensichtbarkeit ohne Rechteausweitung |
 | `toolbelt.tsql.script-parser` | [TSQL_SCRIPT_PARSER_CONTRACT_TEST_MATRIX.md](../Modules/toolbelt.tsql.script-parser/Tests/TSQL_SCRIPT_PARSER_CONTRACT_TEST_MATRIX.md) | `validated`; physische Windows-SQL-Server-Matrix 2019/2022/2025 für Build, Deployment, Feature, Central und Uninstall erfolgreich |
+| `toolbelt.tsql.ssis-debug` | [SSIS-Debug-Prüfmatrix](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md) | `partially validated`; Full21/Syntax12 und native Windows2019/2022/2025 local/central mit1542 Assertions bestanden; Head-CI/Release getrennt, TLS-Abnahme separat |
 
 Eine Testmatrix ist noch kein Nachweis einer erfolgreichen Ausführung.
 

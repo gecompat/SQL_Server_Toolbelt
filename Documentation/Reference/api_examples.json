@@ -1,4 +1,31 @@
 {
+  "toolbelt_tsql.USP_ExplainSsisDataFlow": {
+    "summary": "DTSX2-Debuganalyse mit JSON-Vorlage und eigenständig ausführbaren DECLARE-/CTE-Stufen. Unterstützte Lesereferenzen erhalten NOLOCK; Lookupauswahlen werden sitzungslokal festgehalten. Keine Ausführung von Quell-SQL oder SSIS während der Analyse. Teilweise validiert; native SQL-Gates offen.",
+    "examples": [
+      "EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;",
+      "-- @PackageBytes vom Client übergeben.\nDECLARE @PackageBytes varbinary(max)=NULL;\nEXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='bindings-template';"
+    ],
+    "requirements": [
+      "Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Begrenzte native V1-Fachmatrix bestanden; Head-/Integrations-CI und Release separat offen.",
+      "DTSX als Bytes übergeben. Für explain explizite Same-instance-Datenbank-/Connection-Allowlist und vorhandene vollständige Metadatensicht; keine Credentials im JSON."
+    ],
+    "parameter_notes": {
+      "@PackageBytes": "Ein DTSX2-Paket als UTF-8-/UTF-16-Bytes; höchstens 16 MiB; im Hilfemodus ignoriert.",
+      "@Operation": "bindings-template erzeugt die Vorlage; explain erzeugt Artefakte.",
+      "@ProjectContext": "JSON-Schema 1 für Projektparameter und logische Connections.",
+      "@Bindings": "Vollständiges Vorlagen-JSON zurückgeben; nur values bearbeiten.",
+      "@CatalogBindings": "JSON mit defaultDatabase, expliziten databases und Connection-ID-Mapping; bei bindings-template NULL.",
+      "@TargetFlow": "Stabile Ziel-ID aus StageIndex; NULL analysiert alle Ziele getrennt.",
+      "@InspectStage": "all oder konkrete Stufen-ID mit TargetFlow; jeder Batch enthält alle Vorgänger.",
+      "@LookupPolicies": "Optionale fachliche Sortierung je Lookup; Standard ist beliebige materialisierte Auswahl.",
+      "@ComparisonCollation": "Explizite bekannte Collation; Default ist die zugeordnete Defaultdatenbank.",
+      "@TSqlVersion": "150, 160 oder 170; Default 150.",
+      "@ResultTable": "Vorhandene lokale Temp-Tabelle oder NULL für ein Resultset.",
+      "@KeepData": "0 ersetzt, 1 hängt an; NULL entspricht 0.",
+      "@Debug": "Redigierte Fortschrittsmeldungen ohne vertrauliche Nutzlast.",
+      "@Hilfe": "1 liefert ausschließlich die Standardhilfe vor jeder fachlichen Validierung."
+    }
+  },
   "toolbelt_json.TVF_ResolveJsonPointer": {
     "summary": "Löst einen RFC6901-Pointer mit exakten Keys und unterscheidet FOUND, MISSING, JSON_NULL, SQL_NULL und INVALID. Der freigegebene feste128er-Guard gibt darüber DEPTH_LIMIT vor JSON_SYNTAX zurück.",
     "examples": [
