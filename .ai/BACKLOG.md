@@ -91,61 +91,75 @@ Vormerkungen bleiben bis dahin auffindbar. Debugfunktion `researched`, spätere
 USP-Funktionen `proposed`; alle konkreten Implementierungsfreigaben offen.
 Runtime-/SSIS-/SQL-Nachweise `not executed`. SQL_Server_Lab bleibt unverändert.
 
-## Freigegebene Security-Härtung — 2026-10-15
+## Integrierte Security-Härtung — 2026-10-16
 
 Der Benutzer hat nach konkreter Besprechung alle 25 noch offenen Punkte
 freigegeben, ausdrücklich einschließlich UNSAFE bei SC-023, Cancellationquoten
 und NULL-/Leermengenverhalten. Autor: Codex. Der verbindliche
 [Umsetzungsvertrag](../Documentation/Architecture/SECURITY_HARDENING_2026_10.md)
 nennt alle 25 Verträge, Grenzwerte, Migrationen und die vier geordneten Wellen.
-Alle vier Wellen sind im Arbeitsbranch implementiert. Gezielte native SQL-,
-Framework- und Offlineprüfungen sind erfolgt; Integration und aktuelle Head-CI
-bleiben eigene Abnahmegates. Der Source-/Teststand und seine Grenzen stehen im
+Alle vier Wellen sind über [PR #322](https://github.com/gecompat/SQL_Server_Toolbelt/pull/322)
+am 2026-10-16 in `main` integriert. Gezielte native SQL-, Framework- und
+Offlineprüfungen sowie die unten gebundene Head-CI sind erfolgt.
+Der Source-/Teststand und seine Grenzen stehen im
 verlinkten Umsetzungsvertrag. Die 25 Punkte sind entwicklungsreif und freigegeben;
 kein weiterer fachlicher Entscheidungsbedarf. Frühere D/proposed-Angaben unten
 sind der historische Entscheidungsstand vor dieser ausdrücklichen Freigabe.
 Kein neuer Cloudabschluss und keine neue Runtimequalifikation allein durch
-Freigabe oder Sourceänderung. Gemäß Benutzerklarstellung vom 2026-10-16
-verlangt SC-045 den externen Zertifikatsvertrag für die eigene TLS-Abnahme;
-unabhängige Fachtests bleiben mit dem schema-validierten Labvertrag möglich.
-SC-018 bleibt bei untrusted Legacydirektzugriff offen.
+Freigabe, Sourceänderung oder Merge. **SC-045 bleibt P1 und offen bis zur
+erfolgreichen authentifizierten TLS-Lab-Abnahme.** `TestPurpose=AuthenticatedTls`
+verweigert Trust-Override bereits vor dem Verbindungsaufbau; der Livebeleg für
+Zertifikatskette und Servernamen mit SQLClient und `sqlcmd` auf ausgewählten,
+schema-validierten Labzielen bleibt offen. Gemäß Benutzerklarstellung vom
+2026-10-16 dürfen unabhängige Fachtests den schema-validierten Labtransport
+mit explizitem Trustwert verwenden. Dies ist kein TLS-Nachweis. SC-018 bleibt
+bei untrusted Legacydirektzugriff offen.
 
-Implementierung zur Review: [PR #322](https://github.com/gecompat/SQL_Server_Toolbelt/pull/322).
-Aktuelle Head-CI und Integration werden am PR getrennt nachgewiesen.
+**Integrationsnachweis:** [Merge `985b9d8`](https://github.com/gecompat/SQL_Server_Toolbelt/commit/985b9d8a9df1dad9b1c13e868b7eac0a7758bd6f).
+Am geprüften [PR-Head `8772e9d`](https://github.com/gecompat/SQL_Server_Toolbelt/commit/8772e9d6a1d538e6fcb22da3f0bd03c83a28e88a)
+sind 93 CI-Prüfungen erfolgreich, keine fehlgeschlagen oder ausstehend
+(Statusabfrage mit `gh pr view 322` am 2026-10-16). Nur die ausdrücklich
+manuelle JSON-Pointer-Lastprüfung ist `SKIPPED`, kein PASS. Die vormals
+ausstehende [Deterministic-Mapping-Matrix](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/38709629603)
+bestand alle sechs Linux-Kombinationen für SQL Server 2019/2022/2025.
+Der Merge enthält denselben vollständigen Dateistand wie der geprüfte PR-Head;
+dies behauptet keine neuen CI-Ergebnisse am Mergecommit oder vollständige
+Windows-/Minimalrechte-/Heap-/Releasequalifikation. Kein Cloudstatus wurde
+mit diesem Integrationsauftrag geändert; Modulvalidierungsstatus bleibt separat.
 
 ### Aktueller Entwicklungsstand der 25 freigegebenen Punkte
 
 14 P1 und 11 P2; alle fachlichen Entscheidungen sind freigegeben. Die folgende
-Tabelle beschreibt den Arbeitsbranch. Cloud-/Integrationsstatus folgt erst nach
-getrennter bestätigter Abnahme.
+Tabelle beschreibt den integrierten Stand. Der Cloudabschluss bleibt eine
+getrennte Abnahme; insbesondere ist SC-045 weiterhin offen.
 
 | Gruppe | Inhalt | Priorität | Aktueller Stand |
 |---|---|---|---|
-| `SC-2026-002` | RegexCount/RegexInstr: kumulatives Aufrufbudget | P1 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-004` | ZIP-Extraktion: Speichergrenze für Binary- und Dateifassade | P1 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-005` | Windows Directory Listing: feste Speicher-/Entrygrenze | P1 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-009` | Windows Filesystem: getrennte ServiceAccount-Autorisierung | P1 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-010` | Foundation-Handles: Pfadwechsel zwischen Prüfung und I/O | P1 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-011` | Regex-Gruppenreplacement: vorzeitige Tokenallokation | P1 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-016` | Queue-Barrier: Schedulerlock in Caller-Transaktion | P1 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-017` | ResultTable-Deployment: Vertrauen in vorbestehenden Schemaowner | P1 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-023` | Windows Filesystem: Reparse-/Rename-Race bei I/O | P1 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-026` | Queue Claim: Handlerausführung versus Metadatensicht | P1 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-027` | Second Session: ursprünglicher Caller versus Remote-Principal | P1 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-040` | File-Content-Textread: Größe und Inhalt aus verschiedenen Reads | P1 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-045` | Persistente Labverbindungen: Serverzertifikat nicht authentifiziert | P1 | Testzwecke getrennt gemäß Benutzerklarstellung 2026-10-16; authentifizierte TLS-Liveabnahme offen, unabhängige Fachtests erlaubt |
-| `SC-2026-046` | Queue Enqueue: Producerautorität je Work Type | P1 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-006` | JSON Pointer: kumulative Fragmentarbeit | P2 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-013` | Unquoting: wiederholte LOB-Kopien bei dichten Quotes | P2 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-015` | Cancellation: persistente Wachstums-/Retentiongrenze | P2 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-018` | Zahlenreihen: maximaler angeforderter Umfang | P2 | freigegeben; implementiert; Legacygrants betreiberseitig beschränken |
-| `SC-2026-019` | Base64: LOB-/Zwischenspeicherbudget | P2 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-020` | Einfacher Split: Zeilen-/Inputexpansion | P2 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-021` | URI-Konvertierung: Byte-/Zeilenexpansion | P2 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-022` | JSON Path Exists: Frontier-/Arbeitsbudget | P2 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-024` | EventLog: Retention bei maximalem Caller-Zeitstempel | P2 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-038` | Console-Ausgabe: Gesamtmessage-/Framebudget | P2 | freigegeben; implementiert; Head-CI/Integration offen |
-| `SC-2026-041` | Second Session: Payloadlimit vor ISJSON und RPC | P2 | freigegeben; implementiert; Head-CI/Integration offen |
+| `SC-2026-002` | RegexCount/RegexInstr: kumulatives Aufrufbudget | P1 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-004` | ZIP-Extraktion: Speichergrenze für Binary- und Dateifassade | P1 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-005` | Windows Directory Listing: feste Speicher-/Entrygrenze | P1 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-009` | Windows Filesystem: getrennte ServiceAccount-Autorisierung | P1 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-010` | Foundation-Handles: Pfadwechsel zwischen Prüfung und I/O | P1 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-011` | Regex-Gruppenreplacement: vorzeitige Tokenallokation | P1 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-016` | Queue-Barrier: Schedulerlock in Caller-Transaktion | P1 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-017` | ResultTable-Deployment: Vertrauen in vorbestehenden Schemaowner | P1 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-023` | Windows Filesystem: Reparse-/Rename-Race bei I/O | P1 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-026` | Queue Claim: Handlerausführung versus Metadatensicht | P1 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-027` | Second Session: ursprünglicher Caller versus Remote-Principal | P1 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-040` | File-Content-Textread: Größe und Inhalt aus verschiedenen Reads | P1 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-045` | Persistente Labverbindungen: Serverzertifikat nicht authentifiziert | P1 | offen (P1); Code integriert; Head-CI bestanden; authentifizierte TLS-Lab-Abnahme ausstehend; unabhängige Fachtests gemäß Benutzerklarstellung erlaubt |
+| `SC-2026-046` | Queue Enqueue: Producerautorität je Work Type | P1 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-006` | JSON Pointer: kumulative Fragmentarbeit | P2 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-013` | Unquoting: wiederholte LOB-Kopien bei dichten Quotes | P2 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-015` | Cancellation: persistente Wachstums-/Retentiongrenze | P2 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-018` | Zahlenreihen: maximaler angeforderter Umfang | P2 | implementiert; in main integriert; Head-CI bestanden; Legacygrants betreiberseitig beschränken |
+| `SC-2026-019` | Base64: LOB-/Zwischenspeicherbudget | P2 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-020` | Einfacher Split: Zeilen-/Inputexpansion | P2 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-021` | URI-Konvertierung: Byte-/Zeilenexpansion | P2 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-022` | JSON Path Exists: Frontier-/Arbeitsbudget | P2 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-024` | EventLog: Retention bei maximalem Caller-Zeitstempel | P2 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-038` | Console-Ausgabe: Gesamtmessage-/Framebudget | P2 | implementiert; in main integriert; Head-CI bestanden |
+| `SC-2026-041` | Second Session: Payloadlimit vor ISJSON und RPC | P2 | implementiert; in main integriert; Head-CI bestanden |
 
 ## Security-Cloud-Abgleich — integrierter Stand 2026-10-15
 

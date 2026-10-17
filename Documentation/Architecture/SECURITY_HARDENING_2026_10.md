@@ -104,12 +104,26 @@ Remoteautorität. Bestehende Installationen brauchen explizite Policykonfigurati
 
 ## Nachweisstand
 
-Alle 25 freigegebenen Korrekturen sind im Arbeitsbranch implementiert.
-Gezielte Nachweise sind unten ausgewiesen. Integration und CI am finalen Head
-stehen separat aus; frühere Nachweise ersetzen sie nicht. Der aktuelle externe
-Labvertrag wird seit der SC-045-Umstellung vor Verbindung abgewiesen. Die zuvor
-ausgeführten Produktprüfungen nutzten den damaligen Labtransport und qualifizieren
-keine authentifizierte TLS-Verbindung. Kein neuer Cloudabschluss.
+Alle 25 freigegebenen Korrekturen sind seit dem 2026-10-16 über
+[PR #322](https://github.com/gecompat/SQL_Server_Toolbelt/pull/322) in `main`
+integriert ([Merge `985b9d8`](https://github.com/gecompat/SQL_Server_Toolbelt/commit/985b9d8a9df1dad9b1c13e868b7eac0a7758bd6f)).
+Die Statusabfrage mit `gh pr view 322` am 2026-10-16 bestätigt am finalen
+[PR-Head `8772e9d`](https://github.com/gecompat/SQL_Server_Toolbelt/commit/8772e9d6a1d538e6fcb22da3f0bd03c83a28e88a)
+93 erfolgreiche CI-Prüfungen, keine Fehler und keine ausstehenden Prüfungen.
+Nur die ausdrücklich manuelle JSON-Pointer-Lastprüfung ist `SKIPPED`, kein PASS.
+Der Merge-Dateistand ist zum geprüften Head identisch; eigene Mergecommit-CI
+und vollständige Plattform-/Minimalrechte-/Heap-/Releasequalifikation werden
+daraus nicht abgeleitet. Die gezielten lokalen Teilnachweise folgen unten.
+
+**SC-045 bleibt P1 und offen bis zur erfolgreichen authentifizierten
+TLS-Lab-Abnahme.** Der zuletzt für `AuthenticatedTls` geprüfte externe
+Labvertrag wurde vor der Verbindung abgewiesen. Die zuvor ausgeführten Produktprüfungen nutzten den
+damaligen Labtransport und qualifizieren keine authentifizierte TLS-Verbindung.
+Erforderlich bleibt ein erfolgreicher Livebeleg für Zertifikatskette und
+Servernamen mit SQLClient und `sqlcmd` auf ausdrücklich ausgewählten,
+schema-validierten Labzielen. SC-018 verlangt weiterhin die betreiberseitige
+Beschränkung der Legacydirektgrants auf vertrauenswürdige Principals.
+Kein neuer Cloudabschluss oder pauschales Modulstatusupgrade durch den Merge.
 
 ## Teilnachweise Welle 1 — 2026-10-15
 
