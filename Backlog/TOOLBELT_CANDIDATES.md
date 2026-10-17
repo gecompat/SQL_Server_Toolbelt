@@ -1166,3 +1166,79 @@ Objekt-, Dependency- und Wellenplanung: [TOOLBELT_CANDIDATE_IMPLEMENTATION_PLAN.
 | **Status** | `implemented`; Runtime `validated`; gemeinsame Umsetzung mit `TC-2026-020` als W6c Work Queue 2.0.0 |
 | **Benutzerfreigabe** | Vertrag und Scope wurden am 2026-09-10 besprochen; der Benutzer hat die Umsetzung anschließend ausdrücklich freigegeben. |
 | **Nächster Schritt** | Den validierten Scope stabil halten. Die kooperative Cancellation bleibt ein getrennter, unautorisierter Slice. |
+
+## SSIS-/DTSX-Debug-SELECT – Vormerkung ohne finale TC-Referenz
+
+Die folgenden drei getrennten Vormerkungen folgen dem Benutzerauftrag vom
+2026-10-16. Sie sind kein aktives Arbeitspaket und keine Implementierungsfreigabe.
+Gemäß `DEC-2026-028` wird keine finale TC-Sequenz aus der vorhandenen Liste
+erraten; die sichere Referenzvergabe bleibt offen. Bis dahin dienen die
+benannten Abschnitte zur Auffindbarkeit, ohne neue Referenzfamilie/Allocator.
+
+| Feld | Wert |
+|---|---|
+| **ID** | Noch nicht vergeben; keine neue finale TC-Referenz behauptet |
+| **Titel** | SSIS-/DTSX-Workflow erklären und als schrittweise prüfbares T-SQL-Debug-SELECT ausgeben |
+| **Herkunft** | Expliziter Analyse-/Planungsauftrag und Präzisierungen zu einzeln ausführbaren CTE-Stufen sowie Paket → bearbeitbare JSON-Variablenvorlage → erneute Analyse vom 2026-10-16 |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | T-SQL / Metadata / Integration |
+| **SQL-Server-Lücke** | Kein im Repository vorhandener DTSX-zu-Debug-SELECT-Translator; vorhandener ScriptDom-Parser liefert Syntax, keine SSIS-Semantik oder Schreibgrenzenfreigabe. |
+| **Betroffene Versionen** | SQL Server 2019, 2022, 2025; Windows/Linux providerabhängig, noch nicht qualifiziert |
+| **Spätere native Funktion** | In den geprüften Primärquellen keine unmittelbar passende native Funktion belegt |
+| **Use-Case-Typ** | Realistisch |
+| **Nutzen** | Datenfluss, Formeln, Splitpriorität, Lookupauswahl und Zielspaltenherkunft verstehen; über benannte CTEs und vollständige Prüfblöcke schrittweise zum Fehler navigieren. JSON-Eingabevorlage aus dem Paket erzeugen, Werte bearbeiten und mit Scope-/Typ-/Paketbindung zurückgeben; Defaults, Expressions und fehlenden Laufzeitkontext unterscheiden. |
+| **Mögliche Technologie** | Nach Benutzerbesprechung: direkter T-SQL-/SSMS-Aufruf über SQL-CLR-USP, C#-XML-/Ausdrucks-/Graphkern und direkter begrenzter ScriptDom-Einstieg; kein SSIS-Runtime-Nachbau. Das synthetische Beispiel überschreitet bereits die vorhandene öffentliche 512-Atome-API. Daher gemeinsamer kanonischer Vorfilter mit getrennt qualifiziertem SSIS-Profil, unveränderte öffentliche Parsergrenzen. Details im [V1-Vertrag zur Freigabe](../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md). |
+| **Performance und Security** | Paket und enthaltenes SQL niemals beim Analysieren ausführen. Generiertes SQL per AST-Allowlist und Dependencybindung prüfen; keine persistenten Änderungen, ausschließlich eigene lokale Temp-Tabellen. Jeder Lookup dedupliziert per ROW_NUMBER über sämtliche wirksamen Schlüssel; beliebige Auswahl sichtbar, bei Wiederverwendung einmal materialisiert. Ressourcen- und Kontextgrenzen offen zu qualifizieren. |
+| **Plattformgrenzen** | V1-Generator Windows SQL Server 2019/2022/2025; ausdrücklich vorgeschlagene neue UNSAFE-Assembly mit direkter ScriptDom-Referenz, vor SQL-Laden unabhängig zu qualifizieren. SQL150 als Default, 160/170 explizit. DTSX2 2012/01 und 2014/01 als Support-/Qualifikationsziel für genannte VS-Herkunft 2012 bis 2026; keine pauschale Paketkompatibilität oder Azure-Zusage. |
+| **Dependencies** | Vorgeschlagener Parserpatch exakt 2.0.1, gekoppelter Table-Clone-Consumerpatch 4.1.1 nur für Pins/Dependency/Regression und ResultTable mindestens 1.0.0. Dasselbe bereits kanonisch gepinnte ScriptDom-Binary, kein Zweitdeploy oder automatisches Installieren/Vertrauen. Explizit erlaubte Same-instance-Katalogabfragen mit vorhandenen Callerrechten und NOLOCK an unterstützten Lesereferenzen. |
+| **Duplikatprüfung** | Persönlicher Brainstorm, Research-Inbox, drei Kandidatenlisten, .ai/BACKLOG und Module geprüft; SSIS-Queue-Worker ist ein anderer Vertrag. |
+| **Status** | V1 ausdrücklich freigegeben und implementiert; Modul `partially validated`, `unreleased`; [native Nachweise und CI-Gates](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md) |
+| **Primärquellen** | [Machbarkeitsanalyse mit Repositorybefunden, Quellen und synthetischem SQL](../Documentation/Research/SSIS_DTSX_DEBUG_SELECT_FEASIBILITY.md), [MS-DTSX2](https://learn.microsoft.com/en-us/openspecs/sql_data_portability/ms-dtsx2/39efc022-1b2b-4538-8656-d147845d9135), [SSIS Lookup](https://learn.microsoft.com/sql/integration-services/data-flow/transformations/lookup-transformation), [ScriptDOM](https://github.com/microsoft/SqlScriptDOM) |
+| **Prüfdatum** | 2026-10-16 |
+| **Nächster Schritt** | Freigegebenen [V1-Vertrag](../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md) mit PR-/CI-Nachweisen integrieren; kein automatischer Merge oder Release. Sichere finale Referenzvergabe und spätere USP-/Schreibfunktionen bleiben getrennt. |
+
+### Spätere Funktion: parametrisierte USP-Kapselung
+
+| Feld | Wert |
+|---|---|
+| **ID** | Noch nicht vergeben; getrennte spätere Vormerkung |
+| **Titel** | Geeigneten generierten Ablauf in einer parametrisierten Stored Procedure mit einem Aufruf kapseln |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | T-SQL / Integration |
+| **SQL-Server-Lücke** | CREATE PROCEDURE existiert nativ; die geprüfte Übersetzung samt Parametern, Debug-Stufen und Lebenszyklus ist eine eigene Generatorfunktion. |
+| **Betroffene Versionen** | SQL Server 2019, 2022, 2025 nach qualifiziertem Erzeugerprofil |
+| **Spätere native Funktion** | Keine zusätzliche passende native SSIS-Konvertierung belegt |
+| **Use-Case-Typ** | Realistisch; gesonderter Folgeschritt |
+| **Nutzen** | Einen ausdrücklich ausgewählten und geprüften Ablauf über einen Aufruf mit typisierten Parametern wiederverwenden. |
+| **Mögliche Technologie** | Derselbe kanonische Übersetzungskern; eigener Generator für Prozedurdefinitionen und gesonderter Toolbelt-Installationsvertrag. |
+| **Performance und Security** | Zunächst Debug-Lesegrenze erhalten. Prozedurerzeugung ist persistente DDL und ausdrücklich nicht Teil des Debug-Skripts. Definition versus Installation, Rechte, Temp-Scope, Revalidierung und Ergebnisschema separat festlegen. |
+| **Plattformgrenzen** | Folgen den gewählten Generator-/Installationsprovidern; ungeprüft |
+| **Dependencies** | Geeigneter vollständig geprüfter Debug-Ablauf, Parameter-/USP-Vertrag, Modul-/Lifecyclemodell |
+| **Duplikatprüfung** | Keine vorhandene SSIS-zu-USP-Kapselung im geprüften Toolbelt; Analyzer-USP und die hier erzeugte Ablauf-USP sind verschiedene Funktionen. |
+| **Status** | `proposed`; keine Implementierungs-, Installations- oder Ausführungsfreigabe |
+| **Primärquellen** | [Analyse und Voraussetzungen](../Documentation/Research/SSIS_DTSX_DEBUG_SELECT_FEASIBILITY.md#kleine-umsetzungsschritte-und-getrennte-spätere-funktionen), [USP-Vertrag](../Documentation/Standards/USP_CONTRACT.md), [Deploymentmodell](../Documentation/Architecture/DEPLOYMENT_MODEL.md) |
+| **Prüfdatum** | 2026-10-16 |
+| **Nächster Schritt** | Nach qualifiziertem Debug-Slice konkreten Parametrierungs-, Resultset-, Installations-/Update-/Uninstall- und Revalidierungsvertrag besprechen und eigens freigeben. |
+
+### Spätere Option: SSIS-gleiche USP für einen validierten Teilumfang
+
+| Feld | Wert |
+|---|---|
+| **ID** | Noch nicht vergeben; getrennte weitergehende Vormerkung |
+| **Titel** | SSIS-gleiches Verhalten einschließlich schreibender Zielverarbeitung innerhalb eines ausdrücklich definierten Teilumfangs |
+| **Ziel-Repository** | `SQL_Server_Toolbelt` |
+| **Kategorie** | T-SQL / Integration |
+| **SQL-Server-Lücke** | Kein vorhandener Toolbelt-Vertrag zur belegten Ablösung bestimmter SSIS-Daten-/Laufzeitsemantik durch T-SQL-USPs. |
+| **Betroffene Versionen** | SQL Server 2019, 2022, 2025; konkrete SSIS-/Paketversionen gesondert festlegen |
+| **Spätere native Funktion** | Keine allgemeine native Gleichwertigkeitsgarantie belegt |
+| **Use-Case-Typ** | Realistisch nur für geeignete begrenzte Paketprofile; Machbarkeit je Profil offen |
+| **Nutzen** | Ausgewählte ETL-Verarbeitung bei belegter fachlicher Gleichwertigkeit in T-SQL betreiben. |
+| **Mögliche Technologie** | Eigener schreibender Ablaufvertrag auf Basis des überprüften Modells; keine bloße Freischaltung von INSERT im Debug-Generator. |
+| **Performance und Security** | Eigene Schreib-/Ausführungsrechte und ausdrückliche Funktionsfreigabe. Transaktionen, Fehler, Lookup-/NULL-/Typ-/Collationregeln, Duplikate, Identity/Defaults/Trigger, Wiederholung/Idempotenz, Parallelität und gewünschte weitere Laufzeitfunktionen einzeln definieren. Differentialtests gegen SSIS, Negativ-/Rollback- und Berechtigungsnachweise erforderlich. Keine allgemeine Gleichwertigkeit behaupten. |
+| **Plattformgrenzen** | SSIS-Referenzruntime und SQL-Ziel getrennt qualifizieren; keine automatische Übertragung einer Windows-Referenz auf alle Provider |
+| **Dependencies** | Explizites Teilprofil, vollständig gebundenes Modell, geeignete USP-Kapselung, isolierte synthetische SSIS-/SQL-Vergleichsumgebung, eigener Lifecycle- und Recoveryvertrag |
+| **Duplikatprüfung** | Debug-SELECT und späterer SSIS-Queue-Worker liefern diese Schreib-/Laufzeitgarantie nicht. |
+| **Status** | `proposed`; sämtliche Implementierungs-/Schreib-/Ausführungsgates offen |
+| **Primärquellen** | [Analyse und getrennte Folgeschritte](../Documentation/Research/SSIS_DTSX_DEBUG_SELECT_FEASIBILITY.md#kleine-umsetzungsschritte-und-getrennte-spätere-funktionen), [Microsoft SSIS](https://learn.microsoft.com/en-us/sql/integration-services/ssis-how-to-create-an-etl-package?view=sql-server-ver17) |
+| **Prüfdatum** | 2026-10-16 |
+| **Nächster Schritt** | Einen konkreten geeigneten Pakettyp auswählen, genaue Gleichwertigkeitskriterien und erforderliche Runtimeeigenschaften besprechen; danach eigene Implementierungs-/Test-/Schreibfreigabe einholen. |

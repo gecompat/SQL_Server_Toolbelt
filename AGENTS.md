@@ -60,6 +60,23 @@ vollständige Connection Strings dürfen nicht protokolliert, kopiert oder
 committed werden. Falls vorhanden, ist der übrige Prompt aus
 `SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE` zu befolgen.
 
+### Fachliche Tests und Transportqualifikation
+
+Auf ausdrückliche Klarstellung des Benutzers vom 2026-10-16 dürfen fachliche
+Toolbelt-Tests den schema-validierten Labvertrag einschließlich
+`TrustServerCertificate=True` verwenden, sofern die konkrete Funktion keine
+Zertifikatsprüfung benötigt. Der gemeinsame Standard ist `TestPurpose=Functional`.
+Verschlüsselung bleibt erforderlich; der explizite boolesche Trustwert wird
+übernommen, niemals nach einem Verbindungsfehler automatisch umgeschaltet.
+Ein solcher Lauf belegt Funktionsverhalten und keine authentifizierte
+TLS-Verbindung. Diese Abnahme bleibt separat `not executed`.
+
+Für Tests der Serveridentität oder einen entsprechenden Funktionsvertrag gilt
+`TestPurpose=AuthenticatedTls` mit `TrustServerCertificate=False`. Die fehlende
+TLS-Labqualifikation blockiert diese Tests, nicht unabhängige Fachtests.
+Diese Klarstellung ersetzt die bisher pauschale Lab-TLS-Sperre aus SC-2026-045;
+sie erlaubt keine Änderungen an Labressourcen, Zertifikaten oder Truststores.
+
 ### Autorisierte SQL-Testparameter
 
 Auf ausdrücklichen Benutzerauftrag vom 2026-10-01 dürfen die zuvor

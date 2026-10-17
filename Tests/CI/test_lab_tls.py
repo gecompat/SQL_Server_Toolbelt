@@ -14,7 +14,7 @@ if BASH is None:
     raise SystemExit("Lab TLS tests NOT_EXECUTED: bash fehlt")
 
 class LabTls(unittest.TestCase):
-    def call(self, *args):
+    def call(self, *args, trust="False", purpose="Functional", encrypt="True"):
         # Identitätsmapper und CLI-Recorder statt Dateizugriff/SQL-Verbindung.
         setup = r'''set -euo pipefail
 TBX_SQL_HOST=localhost TBX_SQL_PORT=1433 TBX_SQL_USER=Contoso
@@ -24,7 +24,8 @@ rewrite_test_database_names() { printf '%s\n' "$1"; }
 map_workspace_path() { printf '%s\n' "$1"; }
 map_sqlcmd_file_path() { printf '%s\n' "$1"; }
 '''
-        return subprocess.run([BASH, "-s", "--", *args], input=setup + FUNCTION + '\nrun_sqlcmd "" "$@"',
+        contract = f'TBX_SQL_ENCRYPT={encrypt} TBX_SQL_TRUST_SERVER_CERTIFICATE={trust} TBX_SQL_TEST_PURPOSE={purpose}\n'
+        return subprocess.run([BASH, "-s", "--", *args], input=setup + contract + FUNCTION + '\nrun_sqlcmd "" "$@"',
                               text=True, capture_output=True, timeout=10)
 
     def test_container_options_cannot_disable_certificate_validation(self):
@@ -50,9 +51,26 @@ map_sqlcmd_file_path() { printf '%s\n' "$1"; }
         self.assertNotIn("synthetic", result.stdout)
 
     def test_both_cli_entrypoints_enforce_validation(self):
-        self.assertIn('TBX_SQL_TRUST_SERVER_CERTIFICATE:-}" != "False"', SOURCE)
-        self.assertNotIn('\n    -C\n', SOURCE)
-        self.assertNotIn('\n        -C\n', SOURCE)
+        self.assertEqual(SOURCE.count('TBX_SQL_TEST_PURPOSE:-Functional'), 4)
+        self.assertIn('base_sqlcmd_args+=(-C)', SOURCE)
+        self.assertIn('parsed+=(-C)', FUNCTION)
+
+    def test_functional_preserves_explicit_trust_contract(self):
+        result = self.call('-C', '-N', '-Q', 'SELECT 1', trust='True')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines().count('-C'), 1)
+        self.assertEqual(result.stdout.splitlines().count('-N'), 1)
+
+    def test_authenticated_tls_and_malformed_contracts_reject(self):
+        for contract in ({'trust': 'True', 'purpose': 'AuthenticatedTls'}, {'purpose': 'unknown'},
+                         {'trust': 'false'}, {'encrypt': 'False'}):
+            with self.subTest(contract=contract):
+                result = self.call('-Q', 'SELECT 1', **contract)
+                self.assertEqual(result.returncode, 65)
+                self.assertEqual(result.stdout, '')
+        result = self.call('-C', '-Q', 'SELECT 1', purpose='AuthenticatedTls')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn('-C', result.stdout.splitlines())
 
 if __name__ == "__main__":
     unittest.main()

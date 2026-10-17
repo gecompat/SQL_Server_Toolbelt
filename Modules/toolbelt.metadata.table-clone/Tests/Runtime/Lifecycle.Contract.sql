@@ -1,6 +1,6 @@
 SET NOCOUNT ON;
 IF NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=0
-    AND name=N'Toolbelt.Module.toolbelt.metadata.table-clone.Version' AND CONVERT(nvarchar(64),value)=N'4.1.0')
+    AND name=N'Toolbelt.Module.toolbelt.metadata.table-clone.Version' AND CONVERT(nvarchar(64),value)=N'4.1.1')
     THROW 54920,N'Module marker missing.',1;
 DECLARE @Release TABLE(Name sysname NOT NULL);
 INSERT @Release VALUES(N'USP_ScriptTableClone'),(N'USP_ScriptTableCloneInternal'),(N'USP_ExecuteTableClone'),(N'USP_CopyTableCloneData');
@@ -9,7 +9,7 @@ IF EXISTS(SELECT 1 FROM @Release r LEFT JOIN sys.objects o ON o.object_id=OBJECT
     OR NOT EXISTS(SELECT 1 FROM sys.extended_properties ep WHERE ep.class=1 AND ep.major_id=o.object_id
         AND ep.name=N'Toolbelt.ModuleId' AND CONVERT(nvarchar(128),ep.value)=N'toolbelt.metadata.table-clone')
     OR NOT EXISTS(SELECT 1 FROM sys.extended_properties ep WHERE ep.class=1 AND ep.major_id=o.object_id
-        AND ep.name=N'Toolbelt.ModuleVersion' AND CONVERT(nvarchar(64),ep.value)=N'4.1.0')
+        AND ep.name=N'Toolbelt.ModuleVersion' AND CONVERT(nvarchar(64),ep.value)=N'4.1.1')
     OR NOT EXISTS(SELECT 1 FROM sys.extended_properties ep WHERE ep.class=1 AND ep.major_id=o.object_id
         AND ep.name=N'Toolbelt.SourceHash' AND CONVERT(varchar(64),ep.value)=CONVERT(varchar(64),
             HASHBYTES('SHA2_256',CONVERT(varbinary(max),OBJECT_DEFINITION(o.object_id))),2)))

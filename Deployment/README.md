@@ -56,6 +56,14 @@ CLR-Module benötigen ihre aktuellen, separat erzeugten Binary-Eingaben. Mit `-P
 
 Der Runner erzeugt keine CLR-Binaries und ändert keine Serverkonfiguration, Trust-Einträge oder Berechtigungen. Solche Voraussetzungen müssen gemäß den jeweiligen Modulregeln separat vorbereitet sein. Jedes Modul führt weiterhin sein eigenes Deployment-Preflight aus. Ein Fehler stoppt die Sequenz; zuvor erfolgreich installierte Module werden nicht zurückgerollt. Wiederholung und Upgrade bleiben an die vom jeweiligen Modul unterstützten Versionen und Lifecycle-Zustände gebunden.
 
+Für `toolbelt.tsql.ssis-debug` werden `AssemblyBits` und
+`ExpectedAssemblySha512` ausdrücklich übergeben. `PublicProcedureSql` und
+`InternalProcedureSql` füllt der Runner ausschließlich aus den kanonischen
+Modul-Sources als gequotete SQL-Stringliterale. Diese beiden internen Werte
+sind nicht über `ModuleVariables` überschreibbar. Die Definitionen werden
+beim Planen oder Exportieren nicht ausgeführt; Parser-/ResultTable-Dependencies
+werden wie üblich in die Auswahl aufgenommen.
+
 ## Eigenständige SQL-Datei
 
 Der zusätzliche Modus `-OutputSqlFile` erzeugt aus denselben aktuellen

@@ -152,7 +152,7 @@ function Invoke-JsonClientMetadata($Target,[string]$Database){
     try{
         $env:TBX_SQL_HOST=[string]$Target.host;$env:TBX_SQL_PORT=[string]$Target.port
         $env:TBX_SQL_USER=[string]$Target.username;$env:TBX_SQL_PASSWORD=[string]$Target.password
-        $env:TBX_SQL_TARGET='lab';$env:TBX_SQL_ENCRYPT='True';$env:TBX_SQL_TRUST_SERVER_CERTIFICATE='False'
+        $env:TBX_SQL_TARGET='lab';$env:TBX_SQL_ENCRYPT=[string]$Target.encrypt;$env:TBX_SQL_TRUST_SERVER_CERTIFICATE=[string]$Target.trustServerCertificate
         & (Join-Path $module 'Tests/Runtime/SelectMetadata.Contract.ps1') -Database $Database
     }finally{foreach($name in $names){[Environment]::SetEnvironmentVariable($name,$previous[$name],'Process')}}
 }

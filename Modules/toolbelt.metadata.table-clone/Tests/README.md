@@ -49,12 +49,24 @@ SqlClient-Metadatentest prüft die frühesten kanonischen Guard-Batches auf
 derselben offenen Caller-Session bei XACT_ABORT ON/OFF mit Count/State,
 synthetischen Daten und Modulmarker. Keine serverweite sys.messages-Änderung.
 
+## SSIS-Patch: CI-Integration vom 2026-10-17
+
+Der erste [Table-Clone-CI-Lauf zu PR324](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/39042512905)
+scheiterte unter Linux SQL2019/2022/2025 am Release-Kohärenzguard. Nach dem
+Wrong-kind-Negativfall hatte der Runner seine eigene Prozedur mit dem alten
+Marker4.1.0 statt dem installierten4.1.1 wiederhergestellt. Beide synthetischen
+Marker sind jetzt auf4.1.1 gebunden; Wrong-kind-Ablehnung und erwartete
+Fehlerkategorie bleiben bestehen. Kein Produktguard wurde gelockert.
+Die drei Fehlerjobs bestätigten ihren eigenen Containercleanup; sie bleiben
+FAILED und werden nicht als native Patchqualifikation gezählt. Shellsyntax
+und statischer Table-Clone-Vertrag bestanden vor dem erneuten CI-Lauf.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-04`
-- Nachweis: `Begrenzter privater Datenkopie-Nativeadapter (PowerShell/SqlClient); unabhängige physische Prozess-/Journalprüfung`
-- Scope: Version4.1.0, normaler Scope: SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170 ausschließlich lokal. Copy.Contract.sql und Copy.Safety.sql mit fünf gruppierten Form-/KEEP-/REGENERATE-/Self-FK-/Byte-/FK-Zustands-/Safety-/Rollback-Orakeln je einmal Clean4.1 bestanden. Clean/Repeat, genuine4.0→4.1 aus unveränderten öffentlichen Blobs mit frischer Session, vier Slots13/14/14/9, vier resolved-Copy-Consumer-Ablehnungen53926/1, Uninstall/Repeat und fünffeldrige Clientausgabe mit genauen SQL-/CLR-Typen, NOT NULL, exakten Werten, EOF und keinem Folgeresult bestanden. Je zwei eigene Datenbanken entfernt; vollständige Prozesskanäle, Inputpins, Journale und frischer Cleanup-Audit unabhängig physisch geprüft. Keine Serverkonfigurations-, Rechte-, Owner- oder Truständerungen. Erster Linuxfehler51020/1 nach Installation kein PASS: privater FK-Brückenname korrigiert, betroffener Scope wiederholt. Zusätzlich auf Linux2019/latest CL150 vier dynamische Identity-Fälle bestanden: KEEP bei ursprünglichem OFF, spätes CHECK547 mit Rollback, vorbestehendes Target-ON und Other-ON mit Original8107; direkte INSERT-Proben in derselben Verbindung, Caller-TX/SET sowie vier typgenaue NOT-NULL-Witnesszeilen/EOF geprüft. SNAPSHOT-Quellkonsistenz und bis Ende gehaltene Targetsperren durch tatsächliche Sperrbeziehungen und konkurrierende Writes belegt; isolierter Nichtleer-Lauf beobachtet Blockierung und Original53944/1 mit gesunder Session und erhaltenen Targets. Identity und positiver SNAPSHOT-Fall sind abgeschlossene Teilnachweise aus insgesamt fehlgeschlagenen Adapterläufen; unveränderte Produktbytes geprüft und erfolgreiche Fälle nicht wiederholt. Adapterfehler266, Nichtleer-Rendezvous und Cleanup3701 kein PASS. SNAPSHOT ausschließlich in eigenen synthetischen DBs privat journalisiert, vorbereitet, wiederhergestellt; eigene DBs entfernt und Prozesskanäle/Pins/Journale/frische Bereinigung unabhängig physisch geprüft. Head-CI separat im Pull Request. Weitere native Ziele/CL, zentrale Nutzung, tatsächliche Minimalrechte, große Nutzdaten-/Heapmatrix und vollständige Produktqualifikation nicht ausgeführt; teilweise validiert und unveröffentlicht.
+- Datum: `2026-10-17`
+- Nachweis: `local: Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Modes local,central -PredecessorRoot (je Version)`
+- Scope: Eng begrenzte Patch4.1.1-Consumerregression: Windows SQL2019/2022/2025 lokal/zentral, echter Originalrelease4.1.0 mit exaktem Parser2.0.0 installiert; ursprüngliche Triggerfixture vor und aktuelle Triggerfixture nach dem gekoppelten4.1.1/2.0.1-Upgrade bestanden. Repeat und eigene Datenbank-/Trust-/Konfigurationsbereinigung mit frischem Audit bestanden. Functional verschlüsselt mit explizitem TrustServerCertificate=True; authentifizierte TLS-Abnahme separat not executed. Keine neue Vollqualifikation von Planner/Executor/Copy, weiteren Plattformkombinationen oder Head-CI.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

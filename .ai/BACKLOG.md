@@ -2,7 +2,94 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
-44 Module sind implementiert. 13 sind `validated`, 31 sind `partially validated`; 0 sind `not executed`.
+45 Module sind implementiert. 13 sind `validated`, 32 sind `partially validated`; 0 sind `not executed`.
+
+## Research-Vormerkung: SSIS-/DTSX-Debug-SELECT — 2026-10-16
+
+**Funktionsbezogene Implementierungsfreigabe vom 2026-10-16:** Nach Besprechung
+des [V1-Vertrags](../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md)
+hat der Benutzer die Umsetzung einschließlich UNSAFE-Assembly, begrenztem
+Parserzugang und gekoppelten Dependency-/Pinanpassungen ausdrücklich beauftragt,
+mit den vereinbarten Tests. Neue Produktquellen und reproduzierbarer Build
+liegen vor: [SSIS-Debug-Modul](../Modules/toolbelt.tsql.ssis-debug/README.md).
+21 isolierte Framework-Kindprozesse sowie unveränderte Parserregression 245/Guard60 bestanden;
+unabhängige Coreprüfung nach Korrekturen und einem Folgeauftrag bestanden,
+zwölf isolierte SQL-Syntaxprüfungen bestanden. Stand 2026-10-17: Native
+Fachverträge auf Windows SQL Server 2019/2022/2025 in lokalem und zentralem
+Deploymentmodus bestanden, je 181 Kern-, 61 API- und 15 Lifecycleassertionen
+(1.542 insgesamt). Alle CTE-Stufen einzeln, direkte DECLARE-/Cacheinvalidierung,
+Parallel-DML/Sch-M, Cross-DB, Analyse ohne Quell-SELECT und atomarer Fremdobjekt-/
+Consumer-/Lock-Schutz bestanden. Echte Parser-2.0.0→2.0.1-/TableClone-4.1.0→4.1.1-
+Upgrades mit Triggerregression, Deployment/Repeat/Uninstall/Repeat und frische
+Cleanup-Audits bestanden. WHERE-Erhalt, reine TVF ohne Alias, doomed Caller-TX,
+lokale Computed-Spaltenkanten und COLLATE-Rendering korrigiert.
+`Functional` übernimmt den expliziten Trustwert bei
+erforderlicher Verschlüsselung; authentifizierte TLS-Abnahme bleibt separat
+`not executed`. Aktuelle Head-/Integrations-CI und Release bleiben getrennt
+offen; siehe [aktuelle Prüfmatrix](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md).
+Frühere Aussagen „keine Implementierungsfreigabe“ im folgenden
+Rechercheverlauf dokumentieren den damaligen Stand und sind damit abgelöst.
+Keine finale TC-/AP-Sequenz wird geraten; keine Merge-/Releasefreigabe.
+
+Benutzerauftrag ausschließlich zur Analyse und Planung einer Toolbelt-Funktion:
+DTSX-Workflow erklären und pro tatsächlichem Zielfluss lesbares Microsoft-T-SQL
+erzeugen. Die Präzisierung des Benutzers macht benannte CTE-Zwischenstufen und
+einzeln ausführbare Prüfblöcke zum Kernumfang, um schrittweise Fehler einzugrenzen.
+Keine Paket-/SQL-Ausführung beim Einlesen; generiertes SQL ohne persistente
+Änderungen, nur eigene lokale Temp-Tabellen bei Bedarf. Alle Lookups erhalten
+ROW_NUMBER-Deduplizierung über den vollständigen Schlüssel; beliebige Auswahl
+ist sichtbar und wird bei Wiederverwendung innerhalb des Laufs festgehalten.
+
+Ergänzter Benutzervorschlag desselben Tages: aus DTSX und optionalem Projektkontext
+eine JSON-Vorlage der erkannten Eingaben erzeugen, Werte darin bearbeiten und
+dieselbe Struktur als `@Bindings` zurückgeben. Scope-/Typ-/Paketbindung,
+Default-/Expressionherkunft und fehlenden Runtimekontext erhalten; eigene
+skalare Deklarationen je Prüfblock und Cacheinvalidierung bei Wertänderung.
+Die [JSON-Rundreise](../Documentation/Research/SSIS_DTSX_DEBUG_SELECT_FEASIBILITY.md#json-vorlage-aus-dem-paket-und-rückgabe-bearbeiteter-werte)
+bleibt Schnittstellenentwurf, keine Implementierung.
+
+Benutzerbestätigung vom 2026-10-16 zur Darstellung: bearbeitbare Werte stehen
+als typisierte `DECLARE`s am Anfang des generierten T-SQL. Direkte Änderungen
+im Skript erlauben CTE-Stufentests ohne erneuten JSON-/Generatoraufruf;
+jeder Prüfblock enthält seine Deklarationen und WITH-Kette im selben Batch.
+Auch direkt geänderte Initialwerte erfordern den Neuaufbau davon abhängiger
+eigener Temp-Caches. Diese Bestätigung ist keine Implementierungsfreigabe.
+
+V1-Besprechung vom 2026-10-16: Der Benutzer wählt direkten T-SQL-/SSMS-Aufruf,
+den vorgeschlagenen ersten Komponentenumfang und pragmatische SQL-Vergleiche;
+rein lesende Katalogprüfung ist erlaubt. Herkunft der Pakete: Visual Studio
+2012 bis 2026. Zusätzlich verlangt er NOLOCK an allen unterstützten lesenden
+Objektreferenzen, auch für paralleles Debuggen eines laufenden Pakets.
+Der [konkrete V1-Vertrag zur Freigabe](../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md)
+definiert zwei DTSX2-Formatprofile, die Windows-SQL-CLR-Fassade, JSON-/DECLARE-/
+CTE-/Cache-Verträge, explizite Same-instance-Katalogbindings, Hintgrenzen,
+AST-Schreibschutz, Ressourcen und Abnahme. Status `proposed contract`;
+Auftrag ist die Vertragsausarbeitung, noch keine Implementierungsfreigabe.
+
+Lokaler Offlinebefund: Das synthetische SQL-Beispiel mit NOLOCK ist syntaktisch
+gültig, überschreitet aber den vorhandenen Quellen-Vorfilter bei Atom 513.
+Der Vorschlag enthält deshalb ausdrücklich einen getrennt qualifizierten
+begrenzten ScriptDom-Einstieg in einer neuen Windows-/UNSAFE-Assembly sowie
+einen kanonischen gemeinsamen Vorfilter als Parserpatch 2.0.1. Die bisherigen
+öffentlichen Parsergrenzen bleiben erhalten. Wegen exakter Binarybindung gehört
+ein reiner Dependency-/Pin-/Regressionspatch für Table Clone, vorgeschlagen
+4.1.1, zum Freigabegegenstand; keine Erweiterung seiner Fachfunktion.
+
+Die [Machbarkeitsanalyse](../Documentation/Research/SSIS_DTSX_DEBUG_SELECT_FEASIBILITY.md)
+enthält Iststand, Architekturvarianten einschließlich optionaler CLR-Fassade,
+Komponenten-/Herkunftsmodell, Unterstützungsmatrix, synthetisches Stufenbeispiel,
+Schnittstellenentwurf und die geplante Prüfung der Schreibgrenze.
+Die [drei getrennten Toolbelt-Vormerkungen](../Backlog/TOOLBELT_CANDIDATES.md#ssis-dtsx-debug-select--vormerkung-ohne-finale-tc-referenz)
+betreffen (1) Debug-SELECT, (2) spätere parametrisierte USP-Kapselung mit einem
+Aufruf und (3) die weitergehende SSIS-gleiche USP mit eigenem Schreib-/Runtime-
+Vertrag und belegtem Teilumfang. Die beiden USP-Erweiterungen sind keine
+Schreib- oder Laufzeiterweiterung der Debugfunktion.
+
+Dies aktiviert kein AP und ändert keine Entwicklungspriorität. Keine finale
+TC-/AP-Sequenz wird ohne sichere Vergabe geraten (`DEC-2026-028`); die benannten
+Vormerkungen bleiben bis dahin auffindbar. Debugfunktion `researched`, spätere
+USP-Funktionen `proposed`; alle konkreten Implementierungsfreigaben offen.
+Runtime-/SSIS-/SQL-Nachweise `not executed`. SQL_Server_Lab bleibt unverändert.
 
 ## Integrierte Security-Härtung — 2026-10-16
 
@@ -20,11 +107,13 @@ kein weiterer fachlicher Entscheidungsbedarf. Frühere D/proposed-Angaben unten
 sind der historische Entscheidungsstand vor dieser ausdrücklichen Freigabe.
 Kein neuer Cloudabschluss und keine neue Runtimequalifikation allein durch
 Freigabe, Sourceänderung oder Merge. **SC-045 bleibt P1 und offen bis zur
-erfolgreichen authentifizierten TLS-Lab-Abnahme.** Die integrierte Policy
-verweigert unsichere Lab-Transportwerte bereits vor dem Verbindungsaufbau;
-ein erfolgreicher Livebeleg für Zertifikatskette und Servernamen mit SQLClient
-und `sqlcmd` auf ausdrücklich ausgewählten, schema-validierten Labzielen steht
-aus. SC-018 bleibt bei untrusted Legacydirektzugriff offen.
+erfolgreichen authentifizierten TLS-Lab-Abnahme.** `TestPurpose=AuthenticatedTls`
+verweigert Trust-Override bereits vor dem Verbindungsaufbau; der Livebeleg für
+Zertifikatskette und Servernamen mit SQLClient und `sqlcmd` auf ausgewählten,
+schema-validierten Labzielen bleibt offen. Gemäß Benutzerklarstellung vom
+2026-10-16 dürfen unabhängige Fachtests den schema-validierten Labtransport
+mit explizitem Trustwert verwenden. Dies ist kein TLS-Nachweis. SC-018 bleibt
+bei untrusted Legacydirektzugriff offen.
 
 **Integrationsnachweis:** [Merge `985b9d8`](https://github.com/gecompat/SQL_Server_Toolbelt/commit/985b9d8a9df1dad9b1c13e868b7eac0a7758bd6f).
 Am geprüften [PR-Head `8772e9d`](https://github.com/gecompat/SQL_Server_Toolbelt/commit/8772e9d6a1d538e6fcb22da3f0bd03c83a28e88a)
@@ -58,7 +147,7 @@ getrennte Abnahme; insbesondere ist SC-045 weiterhin offen.
 | `SC-2026-026` | Queue Claim: Handlerausführung versus Metadatensicht | P1 | implementiert; in main integriert; Head-CI bestanden |
 | `SC-2026-027` | Second Session: ursprünglicher Caller versus Remote-Principal | P1 | implementiert; in main integriert; Head-CI bestanden |
 | `SC-2026-040` | File-Content-Textread: Größe und Inhalt aus verschiedenen Reads | P1 | implementiert; in main integriert; Head-CI bestanden |
-| `SC-2026-045` | Persistente Labverbindungen: Serverzertifikat nicht authentifiziert | P1 | offen (P1); Code integriert; Head-CI bestanden; authentifizierte TLS-Lab-Abnahme ausstehend |
+| `SC-2026-045` | Persistente Labverbindungen: Serverzertifikat nicht authentifiziert | P1 | offen (P1); Code integriert; Head-CI bestanden; authentifizierte TLS-Lab-Abnahme ausstehend; unabhängige Fachtests gemäß Benutzerklarstellung erlaubt |
 | `SC-2026-046` | Queue Enqueue: Producerautorität je Work Type | P1 | implementiert; in main integriert; Head-CI bestanden |
 | `SC-2026-006` | JSON Pointer: kumulative Fragmentarbeit | P2 | implementiert; in main integriert; Head-CI bestanden |
 | `SC-2026-013` | Unquoting: wiederholte LOB-Kopien bei dichten Quotes | P2 | implementiert; in main integriert; Head-CI bestanden |
@@ -687,6 +776,7 @@ Aktuell offen sind **14 P1- und 11 P2-Gruppen**, alle **25 D**. Die historischen
 
 #### SC-2026-045: Persistente Labverbindungen: Serverzertifikat nicht authentifiziert
 
+- **Aktualisierung 2026-10-16:** Der Benutzer hebt die pauschale TLS-Sperre für unabhängige Fachtests auf. `Functional` übernimmt den schema-validierten Trustwert; `AuthenticatedTls` verlangt False. Kein automatischer Fallback, keine Zertifikats-/Truststoreänderung und kein TLS-PASS aus fachlicher Evidenz. [Aktueller Vertrag und Verarbeitungsaufwand](../Documentation/Architecture/SECURITY_HARDENING_2026_10.md#klarstellung-sc-045-vom-2026-10-16). Die nachfolgenden früheren Sperr-/Entscheidungsstände bleiben Historie.
 - **Disposition:** approved; spätere freigegebene Welle. Priorität **P1**, Reife **T** nach Vertragsfreigabe vom 2026-10-15.
 - **Cloudreferenzen:** `27ec5c43064881918bd95a37876d02da` (commit_scan, informational, new; [Quellstand](https://github.com/gecompat/SQL_Server_Toolbelt/commit/30be188d22aed636c57cf35fc112b24ae9b25704)).
 - **Aktuelle Bindung:** [Tests/CI/run-lab-local.ps1](../Tests/CI/run-lab-local.ps1), [Tests/CI/run-lab-target.sh](../Tests/CI/run-lab-target.sh).

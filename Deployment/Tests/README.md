@@ -3,6 +3,14 @@
 `Test-SqlExport.ps1` prüft den Exportvertrag offline mit synthetischen Dateien.
 Es verbindet sich nicht mit SQL Server und ersetzt keine Runtimequalifikation.
 
+SSIS-V1-Integration vom 2026-10-17: Der geschlossene aktuelle Bestand umfasst
+45 Module. Der Offlineexport besteht 33 Fälle mit178 Assertions einschließlich
+vollständigem Export/Repeat, ausgewähltem zentralem SSIS-/Parser-/ResultTable-
+Abschluss, exakt übernommenen öffentlichen/internen Prozedurdefinitionen und
+Ablehnung abweichender SHA2-512-Eingaben sowie beider Definitionsüberschreibungen.
+Kleine synthetische Binarywerte sind keine installierbaren oder vertrauenswürdigen
+Assemblies. Kein nativer Gesamtdeployment- oder TLS-Nachweis.
+
 ## Befüllter gemeinsamer Exportrepeat
 
 `Invoke-ExportPopulatedRepeat.ps1` ist ein begrenzter CI-Adapter für das bereits

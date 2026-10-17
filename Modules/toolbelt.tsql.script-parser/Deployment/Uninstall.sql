@@ -38,7 +38,7 @@ IF @ConfirmNoExternalConsumers IS NULL
     IF EXISTS (SELECT 1 FROM sys.extended_properties
                WHERE class = 0 AND major_id = 0 AND minor_id = 0
                  AND name = N'Toolbelt.Module.toolbelt.tsql.script-parser.Version')
-       AND (@InstalledVersion IS NULL OR @InstalledVersion NOT IN (N'1.0.0', N'2.0.0'))
+       AND (@InstalledVersion IS NULL OR @InstalledVersion NOT IN (N'1.0.0', N'2.0.0', N'2.0.1'))
         THROW 53119, N'Die installierte ScriptParser-Version wird von diesem Lifecycle nicht unterstützt.', 1;
 
     IF EXISTS
@@ -155,7 +155,7 @@ BEGIN TRY
     IF EXISTS (SELECT 1 FROM sys.extended_properties
                WHERE class = 0 AND major_id = 0 AND minor_id = 0
                  AND name = N'Toolbelt.Module.toolbelt.tsql.script-parser.Version')
-       AND (@InstalledVersion IS NULL OR @InstalledVersion NOT IN (N'1.0.0', N'2.0.0'))
+       AND (@InstalledVersion IS NULL OR @InstalledVersion NOT IN (N'1.0.0', N'2.0.0', N'2.0.1'))
         THROW 53119, N'Die installierte ScriptParser-Version wird von diesem Lifecycle nicht unterstützt.', 1;
 
     IF EXISTS

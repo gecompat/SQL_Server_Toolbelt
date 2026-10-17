@@ -1238,6 +1238,20 @@ SELECT * FROM toolbelt_tsql.TVF_TokenizeScript(N'SELECT 1 AS SyntheticValue;', 1
 SELECT * FROM toolbelt_tsql.TVF_ParseScriptErrors(N'SELECT 1 AS SyntheticValue;', 160, 1, 2097152, 256);
 */
 
+-- toolbelt_tsql.USP_ExplainSsisDataFlow
+-- DTSX2-Debuganalyse mit JSON-Vorlage und eigenständig ausführbaren DECLARE-/CTE-Stufen. Unterstützte Lesereferenzen erhalten NOLOCK; Lookupauswahlen werden sitzungslokal festgehalten. Keine Ausführung von Quell-SQL oder SSIS während der Analyse. Teilweise validiert; native SQL-Gates offen.
+-- Voraussetzung: Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Begrenzte native V1-Fachmatrix bestanden; Head-/Integrations-CI und Release separat offen.
+-- Voraussetzung: DTSX als Bytes übergeben. Für explain explizite Same-instance-Datenbank-/Connection-Allowlist und vorhandene vollständige Metadatensicht; keine Credentials im JSON.
+/* Separat auswählen und ausführen:
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;
+*/
+
+/* Separat auswählen und ausführen:
+-- @PackageBytes vom Client übergeben.
+DECLARE @PackageBytes varbinary(max)=NULL;
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='bindings-template';
+*/
+
 -- toolbelt_validation.TVF_ParseSemanticVersion
 -- Prüft und zerlegt eine Version nach SemVer 2.0.0.
 /* Separat auswählen und ausführen:

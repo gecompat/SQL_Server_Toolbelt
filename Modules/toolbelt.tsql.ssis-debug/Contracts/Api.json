@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "description": "Erklärt einen begrenzten DTSX2-Datenfluss und erzeugt JSON-Eingabevorlagen sowie vollständige, einzeln prüfbare T-SQL-CTE-Batches mit NOLOCK. Paket und enthaltenes SQL werden beim Analysieren niemals ausgeführt.",
+  "parameters": [
+    {"name":"@PackageBytes","type":"varbinary(max)","default":"NULL","required":true,"nullable":false,"description":"Genau ein DTSX2-Paket als UTF-8-/UTF-16-Binärwert, höchstens16MiB. Kein Dateizugriff."},
+    {"name":"@Operation","type":"varchar(32)","default":"explain","required":false,"nullable":false,"description":"Exakt bindings-template oder explain; NULL ungültig."},
+    {"name":"@ProjectContext","type":"nvarchar(max)","default":"NULL","required":false,"nullable":true,"description":"Optionaler Projektparameter-/Connection-Kontext, JSON-Schema1; keine Credentials."},
+    {"name":"@Bindings","type":"nvarchar(max)","default":"NULL","required":false,"nullable":true,"description":"Zurückgegebene vollständige JSON-Vorlage; nur values bearbeiten. Im Template-Modus NULL."},
+    {"name":"@CatalogBindings","type":"nvarchar(max)","default":"NULL","required":false,"nullable":true,"description":"Explizite Same-instance-Allowlist mit defaultDatabase, databases und connections; Template verlangt NULL."},
+    {"name":"@TargetFlow","type":"varchar(64)","default":"NULL","required":false,"nullable":true,"description":"Ausgegebene Zielfluss-ID; NULL berücksichtigt alle Ziele getrennt."},
+    {"name":"@InspectStage","type":"varchar(64)","default":"NULL","required":false,"nullable":true,"description":"NULL liefert Zielskript und Verzeichnis; all alle Stufen; konkrete ID verlangt TargetFlow."},
+    {"name":"@LookupPolicies","type":"nvarchar(max)","default":"NULL","required":false,"nullable":true,"description":"Optionale gebundene Auswahlordnung je Lookup. Standard beliebige, einmal materialisierte Auswahl."},
+    {"name":"@ComparisonCollation","type":"sysname","default":"NULL","required":false,"nullable":true,"description":"Bekannte explizite Vergleichscollation; NULL verwendet die zugeordnete Defaultdatenbank."},
+    {"name":"@TSqlVersion","type":"smallint","default":"150","required":false,"nullable":false,"description":"Exakt150,160 oder170; kein automatischer Dialektwechsel."},
+    {"name":"@ResultTable","type":"sysname","default":"NULL","required":false,"nullable":true,"description":"NULL liefert ein Resultset; sonst vorhandene lokale Temp-Tabelle nach Standardvertrag."},
+    {"name":"@KeepData","type":"bit","default":"0","required":false,"nullable":true,"description":"0 ersetzt,1 hängt an; NULL entspricht0. Kanonischer ResultTable-Helper."},
+    {"name":"@Debug","type":"tinyint","default":"0","required":false,"nullable":true,"description":"Nur redigierte Messages mit Ablauf/Zählern, keine Secretwerte oder zusätzlichen Resultsets."},
+    {"name":"@Hilfe","type":"bit","default":"0","required":false,"nullable":true,"description":"1 liefert ausschließlich standardisierte Hilfe, ignoriert alle Fach-/ResultTable-/Debugparameter."}
+  ],
+  "columns": [
+    {"name":"ArtifactKind","type":"varchar(32)","nullable":false,"description":"BindingsTemplate, Workflow, StageIndex, PreparationSql, StageSql, TargetSql, CleanupSql, ColumnLineage oder Diagnostic."},
+    {"name":"TargetFlowId","type":"varchar(64)","nullable":true,"description":"Modellinterne Zielfluss-ID; keine dauerhafte Projektreferenz."},
+    {"name":"StageId","type":"varchar(64)","nullable":true,"description":"Modellinterne Prüfpunkt-ID, innerhalb derselben Paketbindung stabil."},
+    {"name":"Ordinal","type":"int","nullable":false,"description":"Globale1-basierte Ausgabeordnung."},
+    {"name":"ComponentId","type":"nvarchar(4000)","nullable":true,"description":"Ursprüngliche gebundene Komponenten-ID."},
+    {"name":"EvidenceClass","type":"varchar(24)","nullable":false,"description":"descriptive, translated, pragmatic, missing_context oder unsupported."},
+    {"name":"Severity","type":"varchar(16)","nullable":true,"description":"info, warning oder error für Diagnosen."},
+    {"name":"DiagnosticCode","type":"varchar(64)","nullable":true,"description":"Stabiler maschinenlesbarer Diagnosecode."},
+    {"name":"IsComplete","type":"bit","nullable":false,"description":"Benötigter Pfad und Kontext vollständig im V1-Profil vorhanden."},
+    {"name":"SafetyStatus","type":"varchar(24)","nullable":false,"description":"not_applicable, not_checked, passed oder blocked."},
+    {"name":"IsExecutable","type":"bit","nullable":false,"description":"Vollständiger, im gebundenen Profil geprüfter Batch; kein bereits ausgeführter Runtime-Nachweis."},
+    {"name":"Content","type":"nvarchar(max)","nullable":false,"description":"Artefaktinhalt, insbesondere vollständiger SQL-Prüfblock oder JSON-Vorlage."},
+    {"name":"DetailsJson","type":"nvarchar(max)","nullable":true,"description":"Zusätzliche gültige JSON-Metadaten."}
+  ]
+}

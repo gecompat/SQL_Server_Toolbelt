@@ -53,7 +53,7 @@ def calculate(request):
     if not request['map_mode'] and (len(mapping) != 1 or ordinals != [1]):
         raise ValueError('Einzelmodus verlangt die synthetische Mapzeile 1.')
     header = (
-        frame('Toolbelt.TableClone.Execute.Hash') + i32(1) + frame('4.1.0')
+        frame('Toolbelt.TableClone.Execute.Hash') + i32(1) + frame('4.1.1')
         + i32(request['install_db_id']) + frame(request['install_db_name'])
         + bit(request['include_identity']) + bit(request['include_extended_properties'])
         + bit(request['map_mode']) + frame(request['external_reference_rule'])

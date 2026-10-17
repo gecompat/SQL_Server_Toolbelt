@@ -9,7 +9,7 @@ core = (MOD / 'Source/USP_ScriptTableCloneInternal.sql').read_text(encoding='utf
 deploy = (MOD / 'Deployment/Deploy.sql').read_text(encoding='utf-8')
 uninstall = (MOD / 'Deployment/Uninstall.sql').read_text(encoding='utf-8')
 trigger_contract = (ROOT / 'Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md').read_text(encoding='utf-8')
-parser_hash = '2113ABD6828CE5A1454EF0259F7558F8744A0399E46345E4E54C9E012641BC983F5A0A08C6E2F7BF258A14EAEE5082FA6DE9E4DC25C813BDB5246D5D34701773'
+parser_hash = '30B557FDA544369E08E2002EFF0624F26E21B532516020CC620897D7887512C129CCE6948D306FE3521F6362B9FBE8A4AAD02980340E1D06FC4A542B3AD472AA'
 scriptdom_hash = '459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7'
 params = [('SourceSchema','nvarchar(max)','NULL'),('SourceTable','nvarchar(max)','NULL'),
           ('TargetSchema','nvarchar(max)','NULL'),('TargetTable','nvarchar(max)','NULL'),
@@ -185,15 +185,15 @@ for option in ('ANSI_NULLS ON','ANSI_PADDING ON','ANSI_WARNINGS ON','ARITHABORT 
     'CONCAT_NULL_YIELDS_NULL ON','QUOTED_IDENTIFIER ON','NUMERIC_ROUNDABORT OFF'):
     assert f'SET {option};' in execute
 assert execute.index('EXEC toolbelt_core.USP_PrepareResultTable') < execute.index('COMMIT TRANSACTION;')
-for version in ('1.0.0','2.0.0','3.0.0','3.1.0','4.0.0','4.1.0'):
+for version in ('1.0.0','2.0.0','3.0.0','3.1.0','4.0.0','4.1.0','4.1.1'):
     assert f"CONVERT(varbinary(max),N'{version}')" in deploy+uninstall
 assert ':r ../Source/USP_ExecuteTableClone.sql' in deploy
 assert "VALUES(N'USP_ExecuteTableClone');" in uninstall
 assert uninstall.index("INSERT INTO @ReleaseObjects (ObjectName) VALUES(N'USP_ExecuteTableClone');") < uninstall.index("VALUES(N'USP_ScriptTableClone'),(N'USP_ScriptTableCloneInternal');",uninstall.index('DECLARE @ReleaseObjects TABLE'))
 for fixture in ('Execute.Contract.sql','Execute.Safety.sql'):
     assert (MOD/'Tests/Runtime'/fixture).is_file()
-assert "SET @Text=N'4.1.0';" in execute
-assert "frame('4.1.0')" in (MOD/'Examples/CalculatePlanHash.py').read_text(encoding='utf-8')
+assert "SET @Text=N'4.1.1';" in execute
+assert "frame('4.1.1')" in (MOD/'Examples/CalculatePlanHash.py').read_text(encoding='utf-8')
 assert '@IncludeTriggers' not in execute_signature
 print('Executor14 / Hash-v1 mit Release4.1 / triggerfreie Grenze gekoppelt; keine SQL-Ausführung.')
 

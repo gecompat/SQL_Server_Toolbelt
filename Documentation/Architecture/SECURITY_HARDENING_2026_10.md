@@ -9,12 +9,52 @@ UNSAFE für SC-023, Cancellationquoten sowie NULL-/Leermengenverhalten.
 Der Auftrag umfasst autonome Umsetzung, Tests und gekoppelte Dokumentation
 in der nachfolgenden Reihenfolge. Cloudstatus ist kein Implementierungsstatus.
 
+## Klarstellung SC-045 vom 2026-10-16
+
+Der Benutzer hat die pauschale Blockierung unabhängiger Funktionsprüfungen
+durch die Lab-TLS-Qualifikation ausdrücklich aufgehoben. Aktuell gelten
+[getrennte Testzwecke](../Standards/TEST_AND_VALIDATION_POLICY.md#fachtests-und-verbindungstransport):
+`Functional` übernimmt den schema-validierten booleschen Trustwert bei
+Encrypt=True; `AuthenticatedTls` verlangt False. Ein Fachtest mit True
+belegt keine Serverzertifikatsprüfung. Die frühere pauschale Sperre in den
+historischen Nachweisen unten beschreibt den damaligen Stand.
+
+Der gemeinsame Connection-Builder, Preflight, sqlcmd-Adapter und SQLClient-
+Metadatenhelper verwenden diese Trennung. Der lokale Runner reicht Testzweck
+und Vertragswert weiter und stellt Prozessvariablen anschließend wieder her.
+Metadatenaufrufer übernehmen den Zielwert. Kein automatisches Umschalten bei
+Fehlern, keine Ziel-/Providerersetzung, keine Lab-/Zertifikats-/Truststoreänderung.
+Der Aufruf `run-lab-local.ps1 -TestPurpose AuthenticatedTls` bleibt mit einem
+Trust-Override-Vertrag gesperrt. Authentifizierte Lab-Livequalifikation und
+Cloudabschluss bleiben offen. Für einen tatsächlich zertifikatsabhängigen
+Funktionsvertrag ist der strenge Testzweck erforderlich.
+
+**Verarbeitungsaufwand:** Die Änderung verwendet bestehende Adapter und
+`validate_lab_selector.py`; keine neue periodische Prüfung, Reviewkette oder
+Providerprovisionierung. 17 Selektionsfälle bleiben unverändert, 21
+Builderfälle und 13 SQLClient-Policyfälle prüfen beide Testzwecke; sechs
+Shelltests sichern die CLI-Grenze. Der betroffene Dokumentations-/Governance-
+Audit läuft am stabilen Stand. Native SSIS-Fachnachweise stehen separat in
+der [Modulprüfmatrix](../../Modules/toolbelt.tsql.ssis-debug/Tests/README.md);
+andere Modul-Runtime-Matrizen werden durch diese Transportkorrektur nicht erneut qualifiziert.
+Keine zusätzlichen Modellreviews oder Agenten; Kosten-/Tokenmessung unbekannt.
+Der erste Gesamtaudit fand die nach der AGENTS-Änderung veraltete installierte
+Root-Provenienz. Deren einzelner Installedhash und begründeter Projekt-Override
+wurden an die freigegebene Klarstellung gebunden. Der Folgeaudit verlangte
+zusätzlich den aktualisierten exakten Snapshot der vollständigen
+Installedhash-/Grundprojektion. Dieser Prüfwert wurde für die nachgewiesene
+Änderung ausschließlich der AGENTS-Zeile fortgeschrieben, ohne Felder oder
+Dateien von der Prüfung auszunehmen. Foundation-Bridge, Quellpin, Version,
+Auswahl und übrige 104 Transferzeilen bleiben unverändert; kein SQL-Wert-,
+Typ- oder Security-Gateorakel wurde gelockert. Der erneute Audit ist ein zuvor
+unerfüllter Gate.
+
 | Welle | Punkte | Verbindlicher freigegebener Scope |
 |---|---|---|
 | 1 | SC-046/026/027/041 | Gemeinsame Work-Type-Policy: ENQUEUE, CLAIM, EXECUTE_NEW_SESSION; explizites Allow, Deny vor Allow, keine automatische Rechteübernahme. Claim zusätzlich Handler-EXECUTE; lokales Second-Session-Startrecht zusätzlich Remote-EXECUTE. Payload höchstens 1 MiB vor JSON/RPC. |
 | 1 | SC-009/017/016 | ServiceAccount nur mit eigener Rolle und Rootfreigabe; Schemaowner dbo und vertrauenswürdige Kontrollprincipals; DRAIN_BARRIER ohne Callertransaktion. |
 | 2 | SC-010/023/040 | Plattformgebundene Handleoperationen ohne unsicheren Pfadfallback; gesonderter nativer UNSAFE-Windowsprovider mit Root-/Zielbindung für alle neun APIs; Text/BOM/Größe aus einem Byte-Snapshot. |
-| 2 | SC-045 | Lab-TLS mit CA-/Hostnameprüfung, kein TrustServerCertificate/-C. Zertifikatsbereitstellung, Hostnamevertrag und Truststorepflege sind externe Labvoraussetzungen, keine Infrastrukturänderung durch Toolbelt. |
+| 2 | SC-045 | Eigene Lab-TLS-Abnahme mit CA-/Hostnameprüfung und ohne Trust-Override; unabhängige Fachtests bleiben mit dem schema-validierten Labvertrag möglich, gemäß Klarstellung vom 2026-10-16. Zertifikatsbereitstellung und Truststorepflege bleiben externe Labverantwortung. |
 | 3 | SC-004 | ZIP-Entry Default 16 MiB, Hardlimit 64 MiB in Binary-/Dateifassade; deklarierte und tatsächliche Größe; keine MemoryStream-Abschlusskopie. |
 | 3 | SC-005 | Listing atomar vor erster Ausgabe: höchstens 10000 Einträge, Tiefe 64, 16 MiB gespeicherte UTF-16-Pfade. |
 | 3 | SC-002/011 | Count/Instr: kooperativ 500 ms insgesamt, 100000 erfolgreiche Matchschritte. Replacement: kompakte Spans, maximal 65536 Teile, bestehende R2-Deadline auch im Parser. |
@@ -76,8 +116,8 @@ und vollständige Plattform-/Minimalrechte-/Heap-/Releasequalifikation werden
 daraus nicht abgeleitet. Die gezielten lokalen Teilnachweise folgen unten.
 
 **SC-045 bleibt P1 und offen bis zur erfolgreichen authentifizierten
-TLS-Lab-Abnahme.** Der zuletzt geprüfte externe Labvertrag wurde vor der
-Verbindung abgewiesen. Die zuvor ausgeführten Produktprüfungen nutzten den
+TLS-Lab-Abnahme.** Der zuletzt für `AuthenticatedTls` geprüfte externe
+Labvertrag wurde vor der Verbindung abgewiesen. Die zuvor ausgeführten Produktprüfungen nutzten den
 damaligen Labtransport und qualifizieren keine authentifizierte TLS-Verbindung.
 Erforderlich bleibt ein erfolgreicher Livebeleg für Zertifikatskette und
 Servernamen mit SQLClient und `sqlcmd` auf ausdrücklich ausgewählten,

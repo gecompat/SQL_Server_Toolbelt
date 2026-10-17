@@ -5,6 +5,7 @@ param(
     [string[]]$LinuxPatches = @('latest'),
     [string[]]$WindowsPatches = @('base'),
     [string]$TestSuite = 'full',
+    [ValidateSet('Functional', 'AuthenticatedTls', IgnoreCase=$false)][string]$TestPurpose = 'Functional',
     [string[]]$RunScripts = @(
         'run-result-table-linux.sh',
         'run-base64-linux.sh',
@@ -149,11 +150,17 @@ function ConvertTo-BashPath {
 }
 
 function New-LabConnectionString {
-    param([Parameter(Mandatory)]$Entry)
+    param(
+        [Parameter(Mandatory)]$Entry,
+        [ValidateSet('Functional', 'AuthenticatedTls', IgnoreCase=$false)][string]$TestPurpose = 'Functional'
+    )
 
     if ($Entry.encrypt -isnot [bool] -or $Entry.encrypt -ne $true -or
-        $Entry.trustServerCertificate -isnot [bool] -or $Entry.trustServerCertificate -ne $false) {
-        throw 'Lab-TLS erfordert Encrypt=True und TrustServerCertificate=False sowie ein CA-vertrauenswürdiges Zertifikat für den Vertrags-Hostnamen.'
+        $Entry.trustServerCertificate -isnot [bool]) {
+        throw 'Labverbindungen erfordern Encrypt=True und einen ausdrücklich booleschen TrustServerCertificate-Vertragswert.'
+    }
+    if ($TestPurpose -ceq 'AuthenticatedTls' -and $Entry.trustServerCertificate) {
+        throw 'LAB_AUTHENTICATED_TLS_REQUIRED'
     }
 
     $builder = [System.Data.SqlClient.SqlConnectionStringBuilder]::new()
@@ -162,20 +169,24 @@ function New-LabConnectionString {
     $builder['User ID'] = [string]$Entry.username
     $builder['Password'] = [string]$Entry.password
     $builder['Encrypt'] = $true
-    $builder['TrustServerCertificate'] = $false
+    # Fachtests übernehmen den Vertrag; niemals nach TLS-Fehlern auf True wechseln.
+    $builder['TrustServerCertificate'] = $Entry.trustServerCertificate
     $builder['Connect Timeout'] = 15
     $builder['Application Name'] = 'SQL_Server_Toolbelt_Lab'
     return $builder.ConnectionString
 }
 
 function Invoke-LabPreflight {
-    param([Parameter(Mandatory)]$Entry)
+    param(
+        [Parameter(Mandatory)]$Entry,
+        [ValidateSet('Functional', 'AuthenticatedTls', IgnoreCase=$false)][string]$TestPurpose = 'Functional'
+    )
 
     $started = [DateTimeOffset]::UtcNow
     $connection = $null
     try {
         $connection = [System.Data.SqlClient.SqlConnection]::new(
-            (New-LabConnectionString -Entry $Entry))
+            (New-LabConnectionString -Entry $Entry -TestPurpose $TestPurpose))
         $connection.Open()
 
         $command = $connection.CreateCommand()
@@ -398,6 +409,7 @@ $sql2025OnlyAdapters = @()
 
 $managedEnvironmentNames = @(
     'TBX_SQL_TARGET',
+    'TBX_SQL_TEST_PURPOSE',
     'TBX_SQL_HOST',
     'TBX_SQL_PORT',
     'TBX_SQL_USER',
@@ -433,6 +445,7 @@ foreach ($name in $managedEnvironmentNames) {
 
 $results = [System.Collections.Generic.List[object]]::new()
 $adapterResults = [System.Collections.Generic.List[object]]::new()
+Write-Output ('Lab test purpose: ' + $TestPurpose + '; functional results do not qualify authenticated TLS.')
 
 try {
     foreach ($target in $targets) {
@@ -445,7 +458,7 @@ try {
         $notExecutedTests = 0
 
         try {
-            $preflight = Invoke-LabPreflight -Entry $target
+            $preflight = Invoke-LabPreflight -Entry $target -TestPurpose $TestPurpose
             $actualVersion = $preflight.ActualVersion
 
             foreach ($runScript in $RunScripts) {
@@ -506,6 +519,7 @@ try {
                 foreach ($compatibilityLevel in $compatibilityLevels) {
                     $runSuffix = [Guid]::NewGuid().ToString('N').Substring(0, 12)
                     $env:TBX_SQL_TARGET = 'lab'
+                    $env:TBX_SQL_TEST_PURPOSE = $TestPurpose
                     $env:TBX_SQL_HOST = [string]$target.host
                     $env:TBX_SQL_PORT = [string]$target.port
                     $env:TBX_SQL_USER = [string]$target.username
@@ -515,7 +529,7 @@ try {
                     $env:TBX_SQL_VERSION = [string]$target.sqlVersion
                     $env:TBX_SQL_PATCH = [string]$target.patch
                     $env:TBX_SQL_ENCRYPT = 'True'
-                    $env:TBX_SQL_TRUST_SERVER_CERTIFICATE = 'False'
+                    $env:TBX_SQL_TRUST_SERVER_CERTIFICATE = [string]$target.trustServerCertificate
                     $env:TBX_TEST_DB_SUFFIX = $runSuffix
                     $env:TBX_TEST_SQLCMD_BIN = $sqlcmd.Source
                     $env:TBX_TEST_SUITE = $TestSuite
@@ -640,6 +654,8 @@ try {
             RequestedVersion = [string]$target.sqlVersion
             RequestedPatch = [string]$target.patch
             ActualVersion = $actualVersion
+            TestPurpose = $TestPurpose
+            TrustServerCertificate = $target.trustServerCertificate
             Status = $targetStatus
             DurationMs = [int]([DateTimeOffset]::UtcNow - $targetStarted).TotalMilliseconds
             Cause = $cause

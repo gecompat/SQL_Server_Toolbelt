@@ -368,7 +368,9 @@ class ProvenanceTests(unittest.TestCase):
                          "249dffe06dac617ce48202f676e0d5d7060ca3f2f31f9861398fc1e3ff59c0df")
         self.assertEqual(projection(fields + ("installed_sha256", "integration_state", "reason"),
                                     [row for row in rows if row["target"] not in changed]),
-                         "a225b97a547690e12e5dd76b8f1bccd948781e43178c7bf814adad79e2d8a3ea")
+                         # 2026-10-16: autorisierte Fachtest-/TLS-Trennung in AGENTS;
+                         # vollständige Projektion bleibt inklusive aller Rootfelder gebunden.
+                         "82af608904f4181f648c33ea205a0411cf7e266cf0a57683af85e61cb44abba9")
         for row in rows:
             if row["target"] not in changed | upgraded | new:
                 self.assertEqual(row, old_rows[row["target"]])

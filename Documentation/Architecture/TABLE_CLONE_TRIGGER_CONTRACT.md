@@ -11,6 +11,16 @@ sind keine Trigger-Rewriting-Qualifikation. RelatedReference: `TC-2026-044`.
 
 ## ScriptDom-Dependency-Nachtrag 2026-10-07
 
+Aktueller Patchnachtrag 2026-10-16: Der ausdrücklich freigegebene SSIS-Debug-
+Vertrag extrahiert den gemeinsamen Vorfilter ohne Änderung des öffentlichen
+Parserprofils. Table Clone **4.1.1** bindet deshalb ausschließlich Parser
+**2.0.1**, Provider-SHA-512
+`30B557FDA544369E08E2002EFF0624F26E21B532516020CC620897D7887512C129CCE6948D306FE3521F6362B9FBE8A4AAD02980340E1D06FC4A542B3AD472AA`.
+Der ScriptDom-Pin bleibt unverändert. Planhash-Version, Lifecycle und
+Dependencyprüfung werden gemeinsam angepasst; keine fachliche Erweiterung.
+Frühere Nachweise darunter gelten für ihre damaligen Versionen. Die neue
+SQL-Upgrade-/Consumerqualifikation bleibt bis zum bestandenen Labgate offen.
+
 Der Benutzer hat den Wechsel des separaten ScriptParser-2.0.0-Providers auf
 ScriptDom 18.0.117.0 ausdrücklich ausgewählt und die Prüfung aller betroffenen
 CLR-Consumer beauftragt. Das Trigger-Opt-in akzeptiert deshalb ausschließlich

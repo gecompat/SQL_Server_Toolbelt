@@ -1301,7 +1301,7 @@ SELECT TransactionCountZero,TransactionStateZero,ObjectIdPresent,ObjectIdEqual,D
    [Environment]::SetEnvironmentVariable('TBX_SQL_PORT',$Matches[2],'Process')
    [Environment]::SetEnvironmentVariable('TBX_SQL_USER',$builder.UserID,'Process')
    [Environment]::SetEnvironmentVariable('TBX_SQL_PASSWORD',$builder.Password,'Process')
-   $env:TBX_SQL_TARGET='lab';$env:TBX_SQL_ENCRYPT='True';$env:TBX_SQL_TRUST_SERVER_CERTIFICATE='False'
+   $env:TBX_SQL_TARGET='lab';$env:TBX_SQL_ENCRYPT=[string]$builder.Encrypt;$env:TBX_SQL_TRUST_SERVER_CERTIFICATE=[string]$builder.TrustServerCertificate
    [void](& $clientScript -Database $db)
   }finally{if($builder){$builder.Clear()};foreach($name in $names){[Environment]::SetEnvironmentVariable($name,$old[$name],'Process')}}
  }

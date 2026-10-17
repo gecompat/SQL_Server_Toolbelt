@@ -81,9 +81,10 @@ foreach ($id in @(
     'toolbelt.file.xlsx-memory', 'toolbelt.filesystem.windows',
     'toolbelt.json.constructors', 'toolbelt.json.core', 'toolbelt.json.schema',
     'toolbelt.string.edit-distance', 'toolbelt.string.phonetic',
-    'toolbelt.string.regex', 'toolbelt.tsql.script-parser'
+    'toolbelt.string.regex', 'toolbelt.tsql.script-parser', 'toolbelt.tsql.ssis-debug'
 )) { $allInputs[$id] = @{ AssemblyBits = '0x0102' } }
 $allInputs['toolbelt.tsql.script-parser']['ScriptDomAssemblyBits'] = '0x0304'
+$allInputs['toolbelt.tsql.ssis-debug']['ExpectedAssemblySha512'] = '0x' + ('CD' * 64)
 $allInputs['toolbelt.string.edit-distance']['ExpectedInstalledAssemblyHash'] = '0x'
 $allInputs['toolbelt.string.phonetic']['ExpectedInstalledAssemblyHash'] = '0x'
 $allInputs['toolbelt.string.regex']['ExpectedInstalledAssemblyHash'] = '0x'
@@ -109,13 +110,13 @@ try {
         $manifest = [IO.File]::ReadAllText((Join-Path $_.FullName 'module.yaml'), $utf8)
         [regex]::Match($manifest, '(?m)^module_id:\s*["'']?([^"''\s]+)').Groups[1].Value
     })
-    Assert-Export ($manifestIds.Count -eq 44) 'inventory44'
-    Assert-Export ($allIds.Count -eq 44) 'closure44'
-    Assert-Export (@($allIds | Sort-Object -Unique).Count -eq 44) 'unique44'
+    Assert-Export ($manifestIds.Count -eq 45) 'inventory45'
+    Assert-Export ($allIds.Count -eq 45) 'closure45'
+    Assert-Export (@($allIds | Sort-Object -Unique).Count -eq 45) 'unique45'
     Assert-Export ((@($allIds | Sort-Object) -join ',') -ceq (@($manifestIds | Sort-Object) -join ',')) 'exact-inventory'
-    Assert-Export ([regex]::Matches($allText, '(?m)^-- END MODULE ').Count -eq 44) 'end44'
-    Assert-Export ([regex]::Matches($allText, 'IF @@TRANCOUNT <> 0 OR \(2 & @@OPTIONS\) <> 0').Count -eq 45) 'guards45'
-    Assert-Export ([regex]::Matches($allText, '(?m)^GO\n-- END MODULE ').Count -eq 44) 'batch-boundaries44'
+    Assert-Export ([regex]::Matches($allText, '(?m)^-- END MODULE ').Count -eq 45) 'end45'
+    Assert-Export ([regex]::Matches($allText, 'IF @@TRANCOUNT <> 0 OR \(2 & @@OPTIONS\) <> 0').Count -eq 46) 'guards46'
+    Assert-Export ([regex]::Matches($allText, '(?m)^GO\n-- END MODULE ').Count -eq 45) 'batch-boundaries45'
     Assert-Export ($allText -match '0x0102' -and $allText -match '0x0304') 'synthetic-binaries'
 
     Start-ExportCase 'actual-determinism'
@@ -132,6 +133,18 @@ try {
     Assert-Export (-not $schemaText.Contains('toolbelt.string.regex')) 'selection-only'
     Assert-Export ([regex]::Matches($schemaText, 'IF @@TRANCOUNT <> 0 OR \(2 & @@OPTIONS\) <> 0').Count -eq 4) 'selected-guards4'
 
+    Start-ExportCase 'actual-ssis-selected-central'
+    $ssisPath = Join-Path $ownedRoot 'ssis.sql'
+    $ssisInputs = @{'toolbelt.tsql.script-parser'=$allInputs['toolbelt.tsql.script-parser'];'toolbelt.tsql.ssis-debug'=$allInputs['toolbelt.tsql.ssis-debug']}
+    Invoke-Export $runner @{DeploymentMode='central';ModuleId=@('toolbelt.tsql.ssis-debug');ModuleVariables=$ssisInputs;OutputSqlFile=$ssisPath}
+    $ssisText = Read-Export $ssisPath
+    Assert-Export ((@(Get-MarkedIds $ssisText) -join ',') -ceq 'toolbelt.core.result-table,toolbelt.tsql.script-parser,toolbelt.tsql.ssis-debug') 'ssis-exact-closure'
+    foreach ($name in @('USP_ExplainSsisDataFlow','USP_ExplainSsisDataFlowInternal')) {
+        $source=[IO.File]::ReadAllText((Join-Path $repositoryRoot ('Modules/toolbelt.tsql.ssis-debug/Source/'+$name+'.sql'))).Replace("`r`n","`n")
+        $definition=[regex]::Replace($source.Substring($source.IndexOf('CREATE OR ALTER PROCEDURE')), '(?i)\nGO\s*\z', '')
+        Assert-Export ($ssisText.Contains("N'"+$definition.Replace("'","''")+"'")) 'ssis-exact-canonical-definition'
+    }
+
     $rejectCases = @(
         @{ Id = 'missing-binary'; Args = @{ModuleId = @('toolbelt.json.schema')}; Reason = 'Fehlende SQLCMD-Eingaben' },
         @{ Id = 'invalid-binary'; Args = @{ModuleId = @('toolbelt.json.core'); ModuleVariables = @{'toolbelt.json.core' = @{AssemblyBits = '0x1'}}}; Reason = 'gerades.*Hex-Binary' },
@@ -139,6 +152,9 @@ try {
         @{ Id = 'reserved-variable'; Args = @{ModuleId = @('toolbelt.json.core'); ModuleVariables = @{'toolbelt.json.core' = @{AssemblyBits = '0x01'; DeploymentMode = 'central'}}}; Reason = 'reservierte SQLCMD-Variable' },
         @{ Id = 'unknown-variable'; Args = @{ModuleId = @('toolbelt.json.core'); ModuleVariables = @{'toolbelt.json.core' = @{AssemblyBits = '0x01'; Unknown = 'Contoso'}}}; Reason = 'Unbekannte.*SQLCMD-Variable' },
         @{ Id = 'unknown-module'; Args = @{ModuleId = @('toolbelt.contoso.missing')}; Reason = 'Unbekanntes Deployment-Modul' },
+        @{ Id = 'ssis-invalid-hash'; Args = @{ModuleId = @('toolbelt.tsql.ssis-debug'); ModuleVariables = @{'toolbelt.tsql.ssis-debug' = @{ExpectedAssemblySha512='0x12'}}}; Reason = 'SHA2-512-Hash' },
+        @{ Id = 'ssis-public-override'; Args = @{ModuleId = @('toolbelt.tsql.ssis-debug'); ModuleVariables = @{'toolbelt.tsql.ssis-debug' = @{PublicProcedureSql='Contoso'}}}; Reason = 'reservierte SQLCMD-Variable' },
+        @{ Id = 'ssis-internal-override'; Args = @{ModuleId = @('toolbelt.tsql.ssis-debug'); ModuleVariables = @{'toolbelt.tsql.ssis-debug' = @{InternalProcedureSql='Contoso'}}}; Reason = 'reservierte SQLCMD-Variable' },
         @{ Id = 'unselected-input'; Args = @{ModuleId = @('toolbelt.json.core'); ModuleVariables = $schemaInputs}; Reason = 'nicht ausgewähltes Modul' }
     )
     foreach ($case in $rejectCases) {

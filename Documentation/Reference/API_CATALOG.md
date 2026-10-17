@@ -2,7 +2,7 @@
 
 <!-- Generiert mit Tests/Documentation/generate_api_catalog.py --write; nicht direkt bearbeiten. -->
 
-167 öffentliche Schnittstellen aus 43 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
+168 öffentliche Schnittstellen aus 44 Modulen. Dieser Katalog ergänzt die verbindlichen Objektverträge mit kurzen Erklärungen, Source-Signaturen und synthetischen Beispielaufrufen.
 
 Jedes Beispiel separat verwenden. Funktionen verlangen positionsbezogene Argumente; `DEFAULT` verwendet einen deklarierten Default, `NULL` kann davon abweichen. Prozeduren verwenden benannte Parameter. Vorlagen mit Handlern, Claims, Dateien oder Plan-Hashes erfordern die beschriebenen Voraussetzungen. Eine Syntaxvorlage ist kein Runtime-Nachweis.
 
@@ -3801,13 +3801,13 @@ SELECT toolbelt_metadata.SVF_QuoteMultipartName(N'dbo.[Order Items]') AS ResultV
 
 ## toolbelt_metadata.USP_ScriptTableClone
 
-Modul `toolbelt.metadata.table-clone` · Version `4.1.0` · `USP`
+Modul `toolbelt.metadata.table-clone` · Version `4.1.1` · `USP`
 
 Vollständige DDL-Vorschau innerhalb des begrenzten unterstützten Strukturumfangs; niemals DDL-Ausführung oder Datenkopie. Unsupported führt zum Abbruch.
 
 Vertrag und Quelle: [USP_ScriptTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ScriptTableClone.sql), [USP_ScriptTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ScriptTableClone.md).
 
-<!-- Source/Vertrag SHA256: 9290b1be57167f307067ba30ceba3f78025a052650b36c2aa83994b44cee4523 -->
+<!-- Source/Vertrag SHA256: 216bd0869836bd6b575da996fc5d11172b229c4f53efc5a5e69ebe580eec4777 -->
 
 Voraussetzung: Vorhandene synthetische Quelltabelle und sichtbares Zielschema; Zielname darf noch nicht existieren. IncludeTriggers=1 verlangt Windows und den separat installierten Parser 2.0.
 
@@ -3845,13 +3845,13 @@ EXEC toolbelt_metadata.USP_ScriptTableClone @Hilfe=1;
 
 ## toolbelt_metadata.USP_ExecuteTableClone
 
-Modul `toolbelt.metadata.table-clone` · Version `4.1.0` · `USP`
+Modul `toolbelt.metadata.table-clone` · Version `4.1.1` · `USP`
 
 Erzeugt den V3-Plan neu und führt nur dessen hashgebundene DDL für neue same-database Ziele aus; keine Datenkopie.
 
 Vertrag und Quelle: [USP_ExecuteTableClone.sql](../../Modules/toolbelt.metadata.table-clone/Source/USP_ExecuteTableClone.sql), [USP_ExecuteTableClone.md](../../Modules/toolbelt.metadata.table-clone/Documentation/USP_ExecuteTableClone.md).
 
-<!-- Source/Vertrag SHA256: 4ac5d6a2405153bdf03cb4d6cfa0f0c69ee3196f7a0356b2e1947062b33bd2c7 -->
+<!-- Source/Vertrag SHA256: d65320e67f6f49bf6e084bbaec64e45203edd75d1b3ae63171cb28846f89a527 -->
 
 Voraussetzung: Erzeugt neue Tabellen. @CalculatedPlanHash ist ein notwendiger Platzhalter für die externe kanonische Hashberechnung; der Beispielaufruf ist bis dahin nicht ausführbar.
 
@@ -3893,7 +3893,7 @@ EXEC toolbelt_metadata.USP_ExecuteTableClone @Hilfe=1;
 
 ## toolbelt_metadata.USP_CopyTableCloneData
 
-Modul `toolbelt.metadata.table-clone` · Version `4.1.0` · `USP`
+Modul `toolbelt.metadata.table-clone` · Version `4.1.1` · `USP`
 
 Kopiert einen begrenzten SameDB-Tabellenverbund atomar in bereits vorhandene leere formgleiche Ziele; keine Strukturkopie oder Rechtevergabe.
 
@@ -4620,7 +4620,7 @@ EXEC toolbelt_string.USP_CompareTextPairs @Hilfe=1;
 
 ## toolbelt_tsql.TVF_ParseScriptNodes
 
-Modul `toolbelt.tsql.script-parser` · Version `2.0.0` · `CLR_TVF`
+Modul `toolbelt.tsql.script-parser` · Version `2.0.1` · `CLR_TVF`
 
 Liefert die AST-Knoten eines begrenzten T-SQL-Skripts.
 
@@ -4644,7 +4644,7 @@ SELECT * FROM toolbelt_tsql.TVF_ParseScriptNodes(N'SELECT 1 AS SyntheticValue;',
 
 ## toolbelt_tsql.TVF_ParseScriptNodeProperties
 
-Modul `toolbelt.tsql.script-parser` · Version `2.0.0` · `CLR_TVF`
+Modul `toolbelt.tsql.script-parser` · Version `2.0.1` · `CLR_TVF`
 
 Liefert Eigenschaften der geparsten T-SQL-AST-Knoten.
 
@@ -4668,7 +4668,7 @@ SELECT * FROM toolbelt_tsql.TVF_ParseScriptNodeProperties(N'SELECT 1 AS Syntheti
 
 ## toolbelt_tsql.TVF_TokenizeScript
 
-Modul `toolbelt.tsql.script-parser` · Version `2.0.0` · `CLR_TVF`
+Modul `toolbelt.tsql.script-parser` · Version `2.0.1` · `CLR_TVF`
 
 Liefert Tokens eines T-SQL-Skripts.
 
@@ -4692,7 +4692,7 @@ SELECT * FROM toolbelt_tsql.TVF_TokenizeScript(N'SELECT 1 AS SyntheticValue;', 1
 
 ## toolbelt_tsql.TVF_ParseScriptErrors
 
-Modul `toolbelt.tsql.script-parser` · Version `2.0.0` · `CLR_TVF`
+Modul `toolbelt.tsql.script-parser` · Version `2.0.1` · `CLR_TVF`
 
 Liefert Parserfehler eines T-SQL-Skripts, ohne das Skript auszuführen.
 
@@ -4712,6 +4712,55 @@ Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag
 
 ```sql
 SELECT * FROM toolbelt_tsql.TVF_ParseScriptErrors(N'SELECT 1 AS SyntheticValue;', 160, 1, 2097152, 256);
+```
+
+## toolbelt_tsql.USP_ExplainSsisDataFlow
+
+Modul `toolbelt.tsql.ssis-debug` · Version `1.0.0` · `USP`
+
+DTSX2-Debuganalyse mit JSON-Vorlage und eigenständig ausführbaren DECLARE-/CTE-Stufen. Unterstützte Lesereferenzen erhalten NOLOCK; Lookupauswahlen werden sitzungslokal festgehalten. Keine Ausführung von Quell-SQL oder SSIS während der Analyse. Teilweise validiert; native SQL-Gates offen.
+
+Vertrag und Quelle: [USP_ExplainSsisDataFlow.sql](../../Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlow.sql), [USP_ExplainSsisDataFlow.md](../../Modules/toolbelt.tsql.ssis-debug/Documentation/USP_ExplainSsisDataFlow.md).
+
+<!-- Source/Vertrag SHA256: d488550895482fac3af5f29ddecab7518ef3bcb289d7edd5b3c4dc5d9ed0c967 -->
+
+Voraussetzung: Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Begrenzte native V1-Fachmatrix bestanden; Head-/Integrations-CI und Release separat offen.
+
+Voraussetzung: DTSX als Bytes übergeben. Für explain explizite Same-instance-Datenbank-/Connection-Allowlist und vorhandene vollständige Metadatensicht; keine Credentials im JSON.
+
+| Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
+|---|---|---|---|---|
+| `@PackageBytes` | `varbinary(max)` | `NULL` | Input | Ein DTSX2-Paket als UTF-8-/UTF-16-Bytes; höchstens 16 MiB; im Hilfemodus ignoriert. |
+| `@Operation` | `varchar(32)` | `N'explain'` | Input | bindings-template erzeugt die Vorlage; explain erzeugt Artefakte. |
+| `@ProjectContext` | `nvarchar(max)` | `NULL` | Input | JSON-Schema 1 für Projektparameter und logische Connections. |
+| `@Bindings` | `nvarchar(max)` | `NULL` | Input | Vollständiges Vorlagen-JSON zurückgeben; nur values bearbeiten. |
+| `@CatalogBindings` | `nvarchar(max)` | `NULL` | Input | JSON mit defaultDatabase, expliziten databases und Connection-ID-Mapping; bei bindings-template NULL. |
+| `@TargetFlow` | `varchar(64)` | `NULL` | Input | Stabile Ziel-ID aus StageIndex; NULL analysiert alle Ziele getrennt. |
+| `@InspectStage` | `varchar(64)` | `NULL` | Input | all oder konkrete Stufen-ID mit TargetFlow; jeder Batch enthält alle Vorgänger. |
+| `@LookupPolicies` | `nvarchar(max)` | `NULL` | Input | Optionale fachliche Sortierung je Lookup; Standard ist beliebige materialisierte Auswahl. |
+| `@ComparisonCollation` | `sysname` | `NULL` | Input | Explizite bekannte Collation; Default ist die zugeordnete Defaultdatenbank. |
+| `@TSqlVersion` | `smallint` | `150` | Input | 150, 160 oder 170; Default 150. |
+| `@ResultTable` | `sysname` | `NULL` | Input | Vorhandene lokale Temp-Tabelle oder NULL für ein Resultset. |
+| `@KeepData` | `bit` | `0` | Input | 0 ersetzt, 1 hängt an; NULL entspricht 0. |
+| `@Debug` | `tinyint` | `0` | Input | Redigierte Fortschrittsmeldungen ohne vertrauliche Nutzlast. |
+| `@Hilfe` | `bit` | `0` | Input | 1 liefert ausschließlich die Standardhilfe vor jeder fachlichen Validierung. |
+
+Erlaubte Werte, fachliche Pflicht und Grenzen stehen im verlinkten Objektvertrag.
+
+```sql
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;
+```
+
+```sql
+-- @PackageBytes vom Client übergeben.
+DECLARE @PackageBytes varbinary(max)=NULL;
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @PackageBytes=@PackageBytes,@Operation='bindings-template';
+```
+
+Hilfe:
+
+```sql
+EXEC toolbelt_tsql.USP_ExplainSsisDataFlow @Hilfe=1;
 ```
 
 ## toolbelt_validation.TVF_ParseSemanticVersion

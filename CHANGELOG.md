@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## 2026-10-17 – SSIS-V1-Fachmatrix und native Korrekturen
+
+Die freigegebenen Fachtests übernehmen den expliziten Trustwert des
+schema-validierten Labvertrags bei erforderlicher Verschlüsselung.
+Windows SQL Server 2019/2022/2025 bestehen jeweils lokal und zentral
+181 Kern-, 61 API- und 15 Lifecycleassertionen: insgesamt 1.542. Einzeln
+ausgeführte CTE-Stufen, DECLARE-/Cacheinvalidierung, Parallelzugriffe,
+Cross-DB/Minimalrechte und echte Parser-/Table-Clone-Upgrades sind enthalten.
+WHERE-Erhalt, reine TVF ohne Alias, doomed Callertransaktion, lokale
+Computed-Spaltenkanten und COLLATE-Rendering korrigiert. Reproduzierbarer
+Build, Full21, Syntax12, Deployment/Repeat/Uninstall/Repeat und frische
+Cleanup-Audits bestanden. Alle Fachläufe verwendeten explizit
+`TrustServerCertificate=True`; authentifizierte TLS-Abnahme bleibt separat
+`not executed`. Head-/Integrations-CI und Release bleiben offen.
+Details: [Prüfmatrix](Modules/toolbelt.tsql.ssis-debug/Tests/README.md).
+
+## 2026-10-16 – SSIS-Debug-V1 und begrenzte Dependency-Patches
+
+Nach ausdrücklicher Funktionsfreigabe: neue Windows-/UNSAFE-Assembly mit
+`USP_ExplainSsisDataFlow`, JSON-Eingabevorlage, bearbeitbaren DECLAREs und
+eigenständig ausführbaren CTE-Stufen. Composite-Lookups werden dedupliziert
+und sitzungslokal wiederverwendet; unterstützte Lesereferenzen erhalten NOLOCK.
+Parser 2.0.1 teilt seinen Vorfilter bei unveränderten öffentlichen Grenzen;
+Table Clone 4.1.1 bindet den neuen exakten Parserpin. Frameworkqualifikation
+bestanden; native SQL-/Upgrade-/Lifecycle-Gates sind wegen des TLS-Preflights
+offen. Kein neuer SQL-Einstieg geladen, kein Merge oder Release.
+Details: [V1-Vertrag](Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md).
+
 ## 2026-10-15 – 25 freigegebene Security-Härtungen
 
 Work-Type-Autorität, ServiceAccount-Rolle/Root, Schema-Vertrauen und
@@ -2039,7 +2067,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-44 Module sind implementiert. 13 sind `validated`, 31 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+45 Module sind implementiert. 13 sind `validated`, 32 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

@@ -13,6 +13,20 @@ Dieses Verzeichnis enthält drei kanonische Kandidatenlisten, eine deduplizierte
 | [personal_Backlog_Bainstorm.md](./personal_Backlog_Bainstorm.md) | freie Gedanken des Benutzers als verpflichtend zu berücksichtigende, nicht autoritative Research-Hinweise |
 | [CANDIDATE_TEMPLATE.md](./CANDIDATE_TEMPLATE.md) | verbindliche Vorlage für formale Kandidaten |
 
+Aktuelle gezielte Research-Ergänzung:
+[SSIS-/DTSX-Debug-SELECT mit einzeln prüfbaren CTE-Stufen](../Documentation/Research/SSIS_DTSX_DEBUG_SELECT_FEASIBILITY.md).
+Die [benannten Vormerkungen](./TOOLBELT_CANDIDATES.md#ssis-dtsx-debug-select--vormerkung-ohne-finale-tc-referenz)
+trennen Debugfunktion, spätere USP-Kapselung und einen gesondert zu validierenden
+schreibenden SSIS-Teilvertrag. Debug-V1 ist ausdrücklich freigegeben und
+implementiert; die beiden späteren Funktionen bleiben ohne Implementierungsfreigabe. Finale
+Referenzvergabe gemäß `DEC-2026-028` noch offen.
+
+Zur konkreten Abnahme liegt der
+[SSIS-/DTSX-V1-Vertrag](../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md)
+mit direkter SQL-Fassade, JSON-/DECLARE-/CTE-Vertrag, lesender Katalogprüfung und
+angefordertem NOLOCK-Debugprofil vor. Die Freigabe vom 2026-10-16 und die
+[Prüfnachweise](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md) sind dokumentiert.
+
 ## Rolle der Research-Inbox
 
 - Die Inbox verdichtet Mehrfachnennungen zu stabilen `RI-`-IDs und bewahrt alle zugehörigen Quellen.

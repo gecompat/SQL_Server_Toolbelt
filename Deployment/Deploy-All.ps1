@@ -414,6 +414,21 @@ function Get-ProvidedModuleVariables {
     )
 
     $provided = @{}
+    # Die SSIS-Fassade erwartet zwei kanonische Prozedurdefinitionen als
+    # SQL-Stringliterale. Sie stammen ausschließlich aus den eigenen Sources,
+    # niemals aus einem frei übergebenen SQLCMD-Wert. Keine SQL-Ausführung.
+    if ($Module.ModuleId -eq 'toolbelt.tsql.ssis-debug') {
+        foreach ($entry in @(
+            @{ Variable = 'PublicProcedureSql'; Name = 'USP_ExplainSsisDataFlow' },
+            @{ Variable = 'InternalProcedureSql'; Name = 'USP_ExplainSsisDataFlowInternal' }
+        )) {
+            $source = [IO.File]::ReadAllText((Join-Path $Module.Directory ('Source/' + $entry.Name + '.sql')), [Text.Encoding]::UTF8)
+            $start = $source.IndexOf('CREATE OR ALTER PROCEDURE', [StringComparison]::Ordinal)
+            if ($start -lt 0) { throw 'SSIS_CANONICAL_PROCEDURE_MISSING' }
+            $definition = [regex]::Replace($source.Substring($start), '(?i)\r?\nGO\s*\z', '')
+            $provided[$entry.Variable] = "N'" + $definition.Replace("'", "''") + "'"
+        }
+    }
     if ($AllModuleVariables.Contains($Module.ModuleId)) {
         $moduleValues = $AllModuleVariables[$Module.ModuleId]
         if ($moduleValues -isnot [System.Collections.IDictionary]) {
@@ -422,7 +437,7 @@ function Get-ProvidedModuleVariables {
 
         foreach ($key in $moduleValues.Keys) {
             $name = [string]$key
-            if ($name -eq 'DeploymentMode' -or $name -notin $Module.Variables) {
+            if ($name -eq 'DeploymentMode' -or $name -notin $Module.Variables -or $provided.ContainsKey($name)) {
                 throw "Unbekannte oder reservierte SQLCMD-Variable '$name' für '$($Module.ModuleId)'."
             }
 
@@ -444,7 +459,7 @@ function Get-ProvidedModuleVariables {
                 }
                 $value = '0x' + $value.Substring(2)
             }
-            elseif ($name -eq 'ExpectedComparisonAssemblyHash') {
+            elseif ($name -in @('ExpectedComparisonAssemblyHash', 'ExpectedAssemblySha512')) {
                 if ($value -notmatch '^0x[0-9A-Fa-f]{128}$') {
                     throw "'$name' für '$($Module.ModuleId)' muss 0x gefolgt von einem SHA2-512-Hash aus 128 Hex-Zeichen sein."
                 }

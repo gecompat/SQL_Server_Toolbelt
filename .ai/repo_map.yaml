@@ -146,6 +146,8 @@ sources_of_truth:
   regex_module: Modules/toolbelt.string.regex/module.yaml
   tsql_script_parser_module_design: Documentation/Architecture/TSQL_SCRIPT_PARSER_MODULE_DESIGN.md
   tsql_script_parser_module: Modules/toolbelt.tsql.script-parser/module.yaml
+  ssis_debug_contract: Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md
+  ssis_debug_module: Modules/toolbelt.tsql.ssis-debug/module.yaml
   migration_idempotency_verifier_design: Documentation/Architecture/MIGRATION_IDEMPOTENCY_VERIFIER_DESIGN.md
   migration_idempotency_workflow: .github/workflows/q1-migration-idempotency.yml
   roadmap: .ai/ROADMAP.md
@@ -356,6 +358,7 @@ module_registry:
     - Modules/toolbelt.file.xlsx-memory/module.yaml
     - Modules/toolbelt.filesystem.windows/module.yaml
     - Modules/toolbelt.tsql.script-parser/module.yaml
+    - Modules/toolbelt.tsql.ssis-debug/module.yaml
 
 change_impact:
   strategy: diff_first_registered_dependencies
@@ -972,6 +975,14 @@ change_impact:
         - Documentation/Architecture/TSQL_SCRIPT_PARSER_HARDENING_CONTRACT.md
         - Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md
         - Documentation/Architecture/TSQL_SCRIPTDOM_PROVIDER_SPIKE.md
+      checks:
+        - markdown_links
+    ssis_debug_contract:
+      paths:
+        - .github/workflows/ssis-debug-build.yml
+        - Modules/toolbelt.tsql.ssis-debug/**
+        - Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md
+        - Documentation/Research/SSIS_DTSX_DEBUG_SELECT_FEASIBILITY.md
       checks:
         - markdown_links
     w2c_contracts:

@@ -11,7 +11,7 @@ $ErrorActionPreference = 'Stop'
 $moduleRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $pin = '459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7'
 $manifest = Get-Content -LiteralPath $TrustManifestPath -Raw | ConvertFrom-Json
-if ($manifest.moduleVersion -cne '2.0.0' -or $manifest.buildProfile -cne 'net48-anycpu-release-deterministic') { throw 'RELEASE_PROFILE_MISMATCH' }
+if ($manifest.moduleVersion -cne '2.0.1' -or $manifest.buildProfile -cne 'net48-anycpu-release-deterministic') { throw 'RELEASE_PROFILE_MISMATCH' }
 $sourceEntries = @(Get-ChildItem -LiteralPath (Join-Path $moduleRoot 'Clr') -Recurse -File |
     Where-Object { $_.Extension -in '.cs', '.csproj' -and $_.FullName -notmatch '[\\/](bin|obj)[\\/]' } |
     Sort-Object { $_.FullName.Substring($moduleRoot.Length).Replace('\', '/') } |
@@ -29,7 +29,7 @@ $providerHash = (Get-FileHash -LiteralPath $ProviderAssemblyPath -Algorithm SHA5
 if ((Get-FileHash -LiteralPath $ScriptDomDllPath -Algorithm SHA512).Hash -cne $pin -or $manifest.scriptDomSha512 -cne $pin -or
     $manifest.sha512 -cne $providerHash -or $manifest.sourceFingerprintSha256 -cne $sourceFingerprint -or
     $manifest.deploymentFingerprintSha256 -cne $deploymentFingerprint) { throw 'RELEASE_FINGERPRINT_MISMATCH' }
-if ([Reflection.AssemblyName]::GetAssemblyName($ProviderAssemblyPath).Version.ToString() -cne '2.0.0.0') { throw 'PROVIDER_VERSION_MISMATCH' }
+if ([Reflection.AssemblyName]::GetAssemblyName($ProviderAssemblyPath).Version.ToString() -cne '2.0.1.0') { throw 'PROVIDER_VERSION_MISMATCH' }
 $deploymentArtifact = Join-Path (Split-Path -Parent $TrustManifestPath) 'Deploy.WithAssembly.sql'
 if ((Get-FileHash -LiteralPath $deploymentArtifact -Algorithm SHA256).Hash -cne $manifest.deploymentArtifactSha256) { throw 'DEPLOYMENT_ARTIFACT_MISMATCH' }
 $harnessEntries = @(Get-ChildItem -LiteralPath $PSScriptRoot -File | Sort-Object Name |
@@ -42,7 +42,7 @@ New-Item -ItemType Directory -Path $tempRoot | Out-Null
 $compiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
 $guardExe = Join-Path $tempRoot 'GuardTests.exe'
 $providerExe = Join-Path $tempRoot 'ProviderTests.exe'
-$compileOutput = & $compiler /nologo /optimize+ /target:exe "/out:$guardExe" (Join-Path $moduleRoot 'Clr/PreparseGuard.cs') (Join-Path $PSScriptRoot 'GuardTests.cs') (Join-Path $PSScriptRoot 'TestInputs.cs') 2>&1
+$compileOutput = & $compiler /nologo /optimize+ /target:exe "/out:$guardExe" (Join-Path $moduleRoot 'Clr/PreparseGuard.cs') (Join-Path $moduleRoot 'Clr/PreparseGuardCore.cs') (Join-Path $PSScriptRoot 'GuardTests.cs') (Join-Path $PSScriptRoot 'TestInputs.cs') 2>&1
 if ($LASTEXITCODE -ne 0) { throw 'GUARD_HARNESS_BUILD_FAILED' }
 $compileOutput = & $compiler /nologo /optimize+ /target:exe "/out:$providerExe" /reference:System.Data.dll "/reference:$ProviderAssemblyPath" (Join-Path $PSScriptRoot 'ProviderTests.cs') (Join-Path $PSScriptRoot 'TestInputs.cs') 2>&1
 if ($LASTEXITCODE -ne 0) { throw 'PROVIDER_HARNESS_BUILD_FAILED' }

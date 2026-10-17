@@ -775,3 +775,15 @@ Keine Produktimplementierung, SQL-Testausführung oder automatische Fortsetzung.
 | Alternativen | Privilegierter Pfadfallback, automatischer Grant, Abschalten von strict security, TRUSTWORTHY ON und Lab-Zertifikatsausnahme verworfen. Kein genereller Wechsel anderer CLR-Module auf UNSAFE. |
 | Auswirkungen | Bestehende Installationen müssen Policies, Rollen/Rootflag und den neuen Releasehash ausdrücklich konfigurieren. Legacy-Series nur für trusted Principals. Der aktuelle Labvertrag wird bis zur externen CA-/Hostnamebereitstellung gesperrt. Keine Infrastruktur-/Truststoreverwaltung durch Toolbelt. |
 | Vertrag und Nachweise | [SECURITY_HARDENING_2026_10.md](SECURITY_HARDENING_2026_10.md); Status bleibt nach tatsächlich ausgeführten Teilprüfungen begrenzt, Integration/Head-CI und Cloudabschluss getrennt. |
+
+**Änderung vom 2026-10-16 – Codex, ausdrückliche Benutzerklarstellung:**
+Die pauschale TLS-Sperre für unabhängige fachliche Labtests ist ersetzt.
+`TestPurpose=Functional` übernimmt den schema-validierten Labtransport mit
+Encrypt=True und dessen booleschem Trustwert. `AuthenticatedTls` verlangt
+weiterhin TrustServerCertificate=False. Ein fachliches PASS ersetzt keinen
+TLS-Nachweis. Der Benutzer begründet dies damit, dass eine vom Transport
+unabhängige Funktion mit dem vorhandenen Labzugang testbar bleiben muss.
+Dies ändert ausschließlich die Testvoraussetzung für SC-045; Zertifikats-/
+Truststoreverwaltung, automatische Fallbacks und andere Securityverträge
+werden dadurch nicht freigegeben. Maßgeblich sind [AGENTS.md](../../AGENTS.md#fachliche-tests-und-transportqualifikation)
+und die [Testregel](../Standards/TEST_AND_VALIDATION_POLICY.md#fachtests-und-verbindungstransport).
