@@ -49,6 +49,18 @@ SqlClient-Metadatentest prüft die frühesten kanonischen Guard-Batches auf
 derselben offenen Caller-Session bei XACT_ABORT ON/OFF mit Count/State,
 synthetischen Daten und Modulmarker. Keine serverweite sys.messages-Änderung.
 
+## SSIS-Patch: CI-Integration vom 2026-10-17
+
+Der erste [Table-Clone-CI-Lauf zu PR324](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/39042512905)
+scheiterte unter Linux SQL2019/2022/2025 am Release-Kohärenzguard. Nach dem
+Wrong-kind-Negativfall hatte der Runner seine eigene Prozedur mit dem alten
+Marker4.1.0 statt dem installierten4.1.1 wiederhergestellt. Beide synthetischen
+Marker sind jetzt auf4.1.1 gebunden; Wrong-kind-Ablehnung und erwartete
+Fehlerkategorie bleiben bestehen. Kein Produktguard wurde gelockert.
+Die drei Fehlerjobs bestätigten ihren eigenen Containercleanup; sie bleiben
+FAILED und werden nicht als native Patchqualifikation gezählt. Shellsyntax
+und statischer Table-Clone-Vertrag bestanden vor dem erneuten CI-Lauf.
+
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
