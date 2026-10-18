@@ -75,7 +75,7 @@ jobs:
           -ScriptDomDllPath $env:SSIS_SCRIPT_DOM_PATH
           -ProviderAssemblyPath Modules/toolbelt.tsql.ssis-debug/Clr/bin/Release/Toolbelt.Tsql.SsisDebug.dll
           -Profile Full
-      - name: Public and internal source syntax SQL150 SQL160 SQL170
+      - name: Source and SSMS example syntax SQL150 SQL160 SQL170
         shell: pwsh
         run: >-
           ./Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-Syntax.ps1

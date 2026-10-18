@@ -4722,7 +4722,7 @@ DTSX2-Debuganalyse mit JSON-Vorlage und eigenständig ausführbaren DECLARE-/CTE
 
 Vertrag und Quelle: [USP_ExplainSsisDataFlow.sql](../../Modules/toolbelt.tsql.ssis-debug/Source/USP_ExplainSsisDataFlow.sql), [USP_ExplainSsisDataFlow.md](../../Modules/toolbelt.tsql.ssis-debug/Documentation/USP_ExplainSsisDataFlow.md).
 
-<!-- Source/Vertrag SHA256: d488550895482fac3af5f29ddecab7518ef3bcb289d7edd5b3c4dc5d9ed0c967 -->
+<!-- Source/Vertrag SHA256: df8540befaa625e81383ebcb0494250ef5397fea65d4f20fcb1003ca26c4f171 -->
 
 Voraussetzung: Windows SQL Server 2019/2022/2025, separate UNSAFE-Assembly, exakter Parser 2.0.1/ScriptDom-Pin und Result Table 1.0.0. Begrenzte native V1-Fachmatrix bestanden; Head-/Integrations-CI und Release separat offen.
 

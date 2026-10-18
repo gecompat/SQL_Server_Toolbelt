@@ -10,6 +10,11 @@ Die [API-Beschreibung](Documentation/USP_ExplainSsisDataFlow.md) zeigt den
 SSMS-Aufruf. [Testumfang und offene Gates](Tests/README.md) sind getrennt
 ausgewiesen. Das Modul ist teilweise validiert und unveröffentlicht.
 
+Das [vollständige SSMS-Beispiel](Examples/README.md) mit
+[`SsmsDebugWalkthrough.sql`](Examples/SsmsDebugWalkthrough.sql) und synthetischer
+DTSX-Fixture zeigt Import, JSON-Vorlage, Werteänderung, Stufenauswahl und direkte
+DECLARE-Änderungen einschließlich erwarteter Ergebnisse und Cleanup.
+
 Die Analyse führt keine Quellabfrage und kein SSIS-Paket aus. Für die
 Dependencyprüfung werden ausschließlich Metadaten derselben SQL-Instanz
 gelesen. Connections werden explizit auf Datenbanken abgebildet; Credentials
