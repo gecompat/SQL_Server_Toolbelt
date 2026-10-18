@@ -5,6 +5,11 @@ erzeugt, anschließend dasselbe JSON-Dokument mit geänderten Einträgen unter
 `values` zurückgegeben. `availableInputs` und die Paket-/Kontexthashes bleiben
 unverändert. Sensitive Eingaben werden nicht exportiert.
 
+Das [vollständige SSMS-Beispiel](../Examples/README.md) enthält ein
+[ausführliches SQL-Script](../Examples/SsmsDebugWalkthrough.sql) mit Demodaten,
+Paketimport, JSON-Änderung, gezielt angeforderter Einzelstufe und direkter
+DECLARE-Bearbeitung. Es verwendet die vorhandene synthetische DTSX-Fixture.
+
 ```sql
 -- @PackageBytes wird vom Client übergeben; keine Dateizugriffe im CLR-Provider.
 EXEC toolbelt_tsql.USP_ExplainSsisDataFlow

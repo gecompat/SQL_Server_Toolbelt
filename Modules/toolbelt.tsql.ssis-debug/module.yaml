@@ -64,6 +64,10 @@ documentation:
   module: "README.md"
   public_objects:
     - "Documentation/USP_ExplainSsisDataFlow.md"
+  examples:
+    - "Examples/README.md"
+    - "Examples/SsmsDebugWalkthrough.sql"
+    - "Tests/Fixtures/synthetic-8.dtsx"
   architecture:
     - "../../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md"
   test_matrix:

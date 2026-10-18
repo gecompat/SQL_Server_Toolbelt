@@ -125,14 +125,23 @@ Agentenumfang statt behauptetem Geldlimit.
 Der PR ergänzt eine begrenzte Windows-CI in
 [`ssis-debug-build.yml`](../../../.github/workflows/ssis-debug-build.yml):
 ein Job für den zweimaligen aktuellen Providerbuild mit exaktem ScriptDom-Pin,
-Full21, sechs Source-Syntaxfälle und PowerShell-Adaptersyntax. `-SourceOnly`
-verlangt keine privaten Releaseartefakte; der normale Syntaxrunner behält
-seine zwölf Fälle einschließlich expandierter Deploymentartefakte.
+Full21, neun Source-/Beispielsyntaxfälle und PowerShell-Adaptersyntax.
+`-SourceOnly` verlangt keine privaten Releaseartefakte; der normale Syntaxrunner
+prüft fünfzehn Fälle einschließlich expandierter Deploymentartefakte.
 Dieser CI-Build ist kein neues qualifiziertes SQL-Releasebinary; weder
 Dependency-/Trustpins noch native Nachweise werden automatisch umgebunden.
 Keine zusätzliche Labmatrix oder TLS-Abnahme. Vorhandene Consumer-CI bleibt
 wegen Parser-/Dependency- und gemeinsamem Transportcode erforderlich;
 keine weitere Reviewdelegation allein für PR-Text oder CI-Auswertung.
+
+Das [vollständige SSMS-Beispiel](../Examples/README.md) verwendet dieselbe
+synthetische Format-8-Fixture und die bereits nativ geprüften Demotabellen.
+`Invoke-Syntax.ps1` prüft dessen vollständiges SQL zusätzlich mit150/160/170,
+ohne OPENROWSET, Demo-DDL oder Generatoraufrufe auszuführen. Diese begrenzte
+Erweiterung verwendet den vorhandenen Windowsjob und denselben ScriptDom-Pin;
+sie ergänzt drei Parseraufrufe, keine weiteren Jobs, Builds, Frameworkkinder,
+SQL-/Labzugriffe oder Reviewagents. Die manuelle SSMS-Bedienung einschließlich
+Dateileserechten ist damit kein neuer Runtime-Nachweis.
 
 Die PR-Integration besteht zusätzlich den Offline-Gesamtexport mit45 Modulen
 (33 Fälle/178 Assertions). Der generische Deployer übernimmt beide SSIS-

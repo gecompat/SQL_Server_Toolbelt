@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-18 – Vollständiges SSMS-Beispiel für SSIS-Debug
+
+Das Modul enthält einen dauerhaft verlinkten Walkthrough mit synthetischer
+DTSX-Fixture: Import der Originalbytes, JSON-Vorlage und Werteänderung,
+einzeln angeforderte CTE-Stufen, direkte DECLARE-Änderung und Cache-Cleanup.
+Der bestehende Syntaxrunner prüft das Beispiel zusätzlich mit SQL150/160/170;
+öffentliche API, Provider und Deployment bleiben unverändert.
+Details: [SSMS-Beispiel](Modules/toolbelt.tsql.ssis-debug/Examples/README.md).
+
 ## 2026-10-17 – SSIS-V1-Fachmatrix und native Korrekturen
 
 Die freigegebenen Fachtests übernehmen den expliziten Trustwert des
