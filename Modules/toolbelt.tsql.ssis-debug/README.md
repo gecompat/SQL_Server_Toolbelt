@@ -20,6 +20,10 @@ SQL-Server-Vorbereitung, einen PowerShell-Installer mit Offline-Artefaktprüfung
 und die anschließende Installationskontrolle für Parser, ResultTable und
 SSIS-Debug einschließlich des getrennten Assembly-Trust-Opt-ins.
 
+Das [vollständige ZIP-Installationspaket](InstallPackages/README.md) enthält
+den passenden Artefaktsatz einschließlich DLLs, SQL-/PowerShell-Skripten und
+SSMS-Beispiel zum Testen ohne eigenen Build.
+
 Die Analyse führt keine Quellabfrage und kein SSIS-Paket aus. Für die
 Dependencyprüfung werden ausschließlich Metadaten derselben SQL-Instanz
 gelesen. Connections werden explizit auf Datenbanken abgebildet; Credentials
@@ -50,8 +54,8 @@ authentifizierte TLS-Abnahme bleibt `not executed`.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-17`
-- Nachweis: `local: Tests/Runtime/Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Patch base -Modes local,central -PredecessorRoot (je Version); Framework/Invoke-Contract.ps1 -Profile Full; Framework/Invoke-Syntax.ps1`
-- Scope: Finaler reproduzierbarer Produktbuild: Windows SQL2019/BIN2, SQL2022/CS_AS und SQL2025/CI_AS_SC_UTF8, jeweils local/central mit181 Kern-,61 API- und15 Lifecycleassertionen (1542 insgesamt). Alle Stufen frisch und einzeln ausgeführt; direkte DECLARE-/Cacheinvalidierung, Unicode-Lookup, Conversion/Overwrite/Shadowing, ResultTable/Help/Caller-TX/SET, Parallel-DML/Sch-M, Cross-DB, Analyse ohne Quell-SELECT, Katalog-/Computed-/Funktionsgrenzen und atomarer Fremdobjekt-/Consumer-/Lock-Schutz bestanden. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture, Deployment/Repeat/Uninstall/Repeat und frische Cleanup-Audits bestanden. Full21 und Syntax12 bestanden; unveränderte Parser245/Guard60 wiederverwendet. Functional: Encrypt=True, explizit TrustServerCertificate=True; authentifizierte TLS-Abnahme separat not executed. Kein SDK-Paritäts-, Produktionslast-, Head-CI- oder Releasenachweis.
+- Datum: `2026-10-18`
+- Nachweis: `local: Parser-Releasebuilder in zwei Buildroots; Parser Framework Full; SSIS Releasebuilder, Framework Full, Syntax und InstallationExample; Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Modes local,central -PredecessorRoot (je Version)`
+- Scope: Neuer freigegebener Buildsatz ohne Parser-PDB-Debugdaten: Parser aus zwei verschiedenen Verzeichnissen bytegleich und alle57 Methoden-ILs unverändert;245 Parser- und21 SSIS-Frameworkfälle,21 SQL-Syntaxfälle sowie55 Installerassertionen bestanden. Windows2019/BIN2,2022/CS_AS und2025/CI_AS_SC_UTF8 jeweils local/central:181 Kern-,61 API- und15 Lifecycleassertionen je Lauf,1542 insgesamt. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture und Repeat bestanden; drei eigene Journale PASS_CLEANED. Functional mit explizitem Lab-Trustwert bei erforderlicher Verschlüsselung. Authentifizierte TLS-Abnahme, aktueller Head-CI- und Releaseabschluss separat; kein Produktions- oder vollständiger SDK-Paritätsnachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -1,5 +1,11 @@
 # T-SQL Script Parser
 
+Buildnachtrag 2026-10-18: Für das ausdrücklich gewünschte
+[SSIS-Debug-Installationspaket](../toolbelt.tsql.ssis-debug/InstallPackages/README.md)
+enthält der Releasebuild keine PDB-Debugdaten und verwendet synthetische
+Quellpfade. Der neue Binaryhash wird in den beiden betroffenen Consumern
+ausdrücklich gebunden; die öffentlichen APIs und Limits bleiben unverändert.
+
 Patch 2.0.1 vom 2026-10-16 extrahiert den gemeinsamen lexikalischen Vorfilter
 für das separat freigegebene [SSIS-Debug-Modul](../toolbelt.tsql.ssis-debug/README.md).
 Die vier öffentlichen TVFs behalten ihre bisherigen Grenzen. Die aktuelle
@@ -38,8 +44,8 @@ Upgrade von 1.0.0 und Wiederholung von 2.0.0 erfordern konsistente Modul-/Objekt
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-17`
-- Nachweis: `local: Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Modes local,central -PredecessorRoot (je Version)`
-- Scope: Eng begrenzter gekoppelter Nachweis auf Windows SQL2019/2022/2025 lokal/zentral: Originalrelease2.0.0 mit exakt passendem TableClone4.1.0-Consumer installiert, ursprüngliche Triggerfixture ausgeführt, echter Upgrade auf Parser2.0.1/TableClone4.1.1, aktuelle Triggerfixture und Repeat bestanden. Installierter SSIS-Consumer schützt Parser/ScriptDom vor Uninstall; eigene Datenbank-/Trust-/Konfigurationsbereinigung mit frischem Audit bestanden. Functional mit erforderlicher Verschlüsselung und explizitem TrustServerCertificate=True; authentifizierte TLS-Abnahme separat not executed. Keine neue Vollqualifikation der vier Parser-APIs, Minimalrechte, tatsächlichen Ausgabeceilings oder Head-CI.
+- Datum: `2026-10-18`
+- Nachweis: `local: Scripts/New-ClrReleaseArtifacts.ps1 in zwei verschiedenen Buildroots; Framework/Invoke-Contract.ps1 -QualificationProfile Full; SSIS Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Modes local,central -PredecessorRoot (je Version)`
+- Scope: Ausdrücklich freigegebener pfadbereinigter Build2.0.1: DebugType=none und synthetischer PathMap, bytegleicher Build aus zwei Verzeichnissen,57 Methoden-ILs unverändert,245 begrenzte Frameworkfälle bestanden. Neu gebundene SSIS-/TableClone-Consumer auf Windows2019/2022/2025 lokal/zentral: echter Parser2.0.0-Upgrade und Triggerfixtures, wiederholtes Deployment sowie Consumer-/Uninstallschutz bestanden; eigene Journale PASS_CLEANED. ScriptDom unverändert. Keine neue Vollqualifikation aller nativen Parser-APIs oder Ausgabeceilings; Functional, authentifizierte TLS-Abnahme und aktueller Head-CI-/Releaseabschluss separat.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

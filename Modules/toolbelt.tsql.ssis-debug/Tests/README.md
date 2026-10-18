@@ -171,9 +171,42 @@ nachträglich als neuer CI-Binarynachweis ausgewiesen.
 
 ## Aktuelle Validierungsevidenz
 
+Neue Buildqualifikation vom 2026-10-18: Der Parserbuild ohne PDB-Debugdaten
+ist aus zwei verschiedenen Verzeichnissen bytegleich; alle 57 Methoden-ILs
+bleiben unverändert. Neu ausgeführt: 245 Parser-Frameworkfälle, 21 SSIS-
+Frameworkfälle, 21 Syntaxprüfungen und 55 Installerassertionen. Der neu
+gebundene Satz besteht auf Windows SQL2019/BIN2, SQL2022/CS_AS und
+SQL2025/CI_AS_SC_UTF8 jeweils lokal und zentral 181 Kern-, 61 API- und
+15 Lifecycleassertionen (1.542 insgesamt), echte Parser-/Table-Clone-Upgrades
+einschließlich beider Triggerfixtures und Repeat. Die drei eigenen Journale
+enden mit `PASS_CLEANED`. Funktionale Tests verwendeten den expliziten
+Trustwert des schema-validierten Labvertrags mit erforderlicher Verschlüsselung;
+authentifizierte TLS-, Head-CI- und Releaseabnahme bleiben getrennt.
+
+Die geänderten Binary-/Dependencypins begründen diese neue begrenzte
+Qualifikation. Ein vollständiger Releaseaudit, Performance- oder weiterer
+Minimalrechtenachweis wird daraus nicht abgeleitet. Die Prüfung erfolgt in
+einer kohärenten Welle ohne zusätzliche Reviewagents; erfolgreiche unveränderte
+Prüfungen werden nicht erneut ausgeführt. Private Builds-/Nativeprotokolle und
+Wiederherstellungsjournale bleiben außerhalb des Repositorys.
+
+Das versionierte [Installationspaket](../InstallPackages/README.md) wird im
+bestehenden SSIS-Offlinejob zusätzlich mit
+`Tests/Static/validate_install_package.py` geprüft. Der Check liest nur das ZIP:
+Dateipfade, vollständige Hashlisten, drei DLLs, beide Deployments, aktuelle
+Dependency-Pins, Pflichtskripte und CodeView-/PDB-Freiheit der Toolbelt-Binaries.
+Er ergänzt denselben Job ohne weiteren Build, neue Jobs oder SQL-/Labzugriffe.
+Die Ausnahme in `.gitignore` gilt nur für die benannte ZIP, deren Prüfsumme
+und die zugehörige README. Ungefilterte Laufzeitlogs und private Journale
+werden nicht aufgenommen.
+
+Der Benutzer hat am 2026-10-18 die Veröffentlichung mit eingebettetem lokalen
+Parser-Buildpfad abgelehnt und stattdessen Pfadbereinigung und neue Qualifikation
+freigegeben. Die ursprüngliche Nativevidenz wird nicht auf neue Hashes umgedeutet.
+
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-17`
-- Nachweis: `local: Tests/Runtime/Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Patch base -Modes local,central -PredecessorRoot (je Version); Framework/Invoke-Contract.ps1 -Profile Full; Framework/Invoke-Syntax.ps1`
-- Scope: Finaler reproduzierbarer Produktbuild: Windows SQL2019/BIN2, SQL2022/CS_AS und SQL2025/CI_AS_SC_UTF8, jeweils local/central mit181 Kern-,61 API- und15 Lifecycleassertionen (1542 insgesamt). Alle Stufen frisch und einzeln ausgeführt; direkte DECLARE-/Cacheinvalidierung, Unicode-Lookup, Conversion/Overwrite/Shadowing, ResultTable/Help/Caller-TX/SET, Parallel-DML/Sch-M, Cross-DB, Analyse ohne Quell-SELECT, Katalog-/Computed-/Funktionsgrenzen und atomarer Fremdobjekt-/Consumer-/Lock-Schutz bestanden. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture, Deployment/Repeat/Uninstall/Repeat und frische Cleanup-Audits bestanden. Full21 und Syntax12 bestanden; unveränderte Parser245/Guard60 wiederverwendet. Functional: Encrypt=True, explizit TrustServerCertificate=True; authentifizierte TLS-Abnahme separat not executed. Kein SDK-Paritäts-, Produktionslast-, Head-CI- oder Releasenachweis.
+- Datum: `2026-10-18`
+- Nachweis: `local: Parser-Releasebuilder in zwei Buildroots; Parser Framework Full; SSIS Releasebuilder, Framework Full, Syntax und InstallationExample; Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Modes local,central -PredecessorRoot (je Version)`
+- Scope: Neuer freigegebener Buildsatz ohne Parser-PDB-Debugdaten: Parser aus zwei verschiedenen Verzeichnissen bytegleich und alle57 Methoden-ILs unverändert;245 Parser- und21 SSIS-Frameworkfälle,21 SQL-Syntaxfälle sowie55 Installerassertionen bestanden. Windows2019/BIN2,2022/CS_AS und2025/CI_AS_SC_UTF8 jeweils local/central:181 Kern-,61 API- und15 Lifecycleassertionen je Lauf,1542 insgesamt. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture und Repeat bestanden; drei eigene Journale PASS_CLEANED. Functional mit explizitem Lab-Trustwert bei erforderlicher Verschlüsselung. Authentifizierte TLS-Abnahme, aktueller Head-CI- und Releaseabschluss separat; kein Produktions- oder vollständiger SDK-Paritätsnachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -11,11 +11,16 @@ sind keine Trigger-Rewriting-Qualifikation. RelatedReference: `TC-2026-044`.
 
 ## ScriptDom-Dependency-Nachtrag 2026-10-07
 
+Buildnachtrag 2026-10-18: Der Benutzer verlangt vor der Aufnahme des
+SSIS-Debug-ZIPs ins Repository einen Parserbuild ohne lokalen Debugpfad und
+dessen neue Qualifikation. Der folgende aktuelle Pin bindet diesen Build;
+der ScriptDom-Pin und der fachliche Triggervertrag bleiben unverändert.
+
 Aktueller Patchnachtrag 2026-10-16: Der ausdrücklich freigegebene SSIS-Debug-
 Vertrag extrahiert den gemeinsamen Vorfilter ohne Änderung des öffentlichen
 Parserprofils. Table Clone **4.1.1** bindet deshalb ausschließlich Parser
 **2.0.1**, Provider-SHA-512
-`30B557FDA544369E08E2002EFF0624F26E21B532516020CC620897D7887512C129CCE6948D306FE3521F6362B9FBE8A4AAD02980340E1D06FC4A542B3AD472AA`.
+`7F34D0472DBE5913C8D019A72B2684D89CB4CA79590B599DD5B06154D6A40C5494334D8F46218E10E9D1BC5DB983A8750BA77A685D68865D9BCDF30C3D853506`.
 Der ScriptDom-Pin bleibt unverändert. Planhash-Version, Lifecycle und
 Dependencyprüfung werden gemeinsam angepasst; keine fachliche Erweiterung.
 Frühere Nachweise darunter gelten für ihre damaligen Versionen. Die neue
