@@ -13,6 +13,28 @@ gemeinsame SQL-Laufzeitkompatibilität; siehe
 
 ## Aktueller Stand
 
+Der manuelle [SQLGlot-Research-Spike](Research/SqlDialect/README.md) prüft
+synthetische T-SQL-/Databricks-Parser-/Generatorfälle mit gepinntem lokalem
+Python-Paket. Der ergänzte native Lab-Runner hat 81 feste Fälle auf sechs
+SQL-Server-Labzielen erfolgreich geprüft: Ergebnisse, NULL-Verhalten und
+Clientdatentypen, insgesamt 486 Fallausführungen. Die drei COUNT-/ROW_NUMBER-
+Roundtrip-Lücken sind behoben. Kein Toolbelt-Modul installiert; Databricks- und authentifizierte
+TLS-Qualifikation bleiben getrennt offen. Performance ist wie unten beschrieben
+teilweise qualifiziert.
+Die [native Databricks-Prüfung](../Documentation/Research/SQLGLOT_NATIVE_DATABRICKS_PROBE.md)
+bleibt wegen des aktuell fehlenden Zugangs auf Benutzerauftrag vom 2026-10-17
+`not executed`. Es wird keine zusätzliche Infrastruktur eingerichtet.
+Der ergänzende [lokale Spark-SQL-Lauf](../Documentation/Research/SQLGLOT_NATIVE_SPARK_PROBE.md)
+bestand am 2026-10-17 auf Apache Spark 4.0.2 mit 57 positiven und neun
+negativen Fällen. Gleiche synthetische Daten und Abfragen, Ergebnisparität
+mit den gebundenen SQL-Server-Nachweisen; kein Databricks-Nachweis daraus.
+Die portable Testlaufzeit liegt nur unter `.runtime/`, ohne Cloud-/Labänderung.
+Die [anschließende Performance-/Planprüfung](../Documentation/Research/SQL_DIALECT_PERFORMANCE_PROBE.md)
+bestand mit 34 SQL-Server- und 20 Spark-Ergebnis-/Planfällen auf größeren
+synthetischen Mengen. 18 Zeitserien erfüllen das Stabilitätsgate, 36 bleiben
+für Zeitvergleiche `not executed`; Performance insgesamt `partially validated`.
+Messwerte und Rohpläne bleiben ausschließlich lokal unter `.runtime/`.
+
 Der Repository-Grundaufbau ist abgeschlossen. 45 Module sind implementiert;
 13 sind `validated`, 32 sind `partially validated`, 0 sind `not executed`. Für alle existieren
 statische sowie synthetische Runtime- und Lifecycle-Contract-Testartefakte.

@@ -27,6 +27,13 @@ mit direkter SQL-Fassade, JSON-/DECLARE-/CTE-Vertrag, lesender Katalogprüfung u
 angefordertem NOLOCK-Debugprofil vor. Die Freigabe vom 2026-10-16 und die
 [Prüfnachweise](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md) sind dokumentiert.
 
+Weitere gezielte Research-Ergänzung:
+[T-SQL ↔ Databricks SQL, zusätzliche Dialekte und DataFrame-Sprachen](../Documentation/Research/SQL_DIALECT_TRANSFORMATION_FEASIBILITY.md)
+mit Quellen-Ziel-Matrizen, APPLY-Regeln, Performanceplanung und getrennten
+Ausbauwellen. Die [benannte Vormerkung](./TOOLBELT_CANDIDATES.md#sql-dialekt-transformation--vormerkung-ohne-finale-tc-referenz)
+hat Status `researched`; keine Implementierungsfreigabe und keine vorweggenommene
+finale TC-Referenz.
+
 ## Rolle der Research-Inbox
 
 - Die Inbox verdichtet Mehrfachnennungen zu stabilen `RI-`-IDs und bewahrt alle zugehörigen Quellen.
