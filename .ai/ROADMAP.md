@@ -95,7 +95,7 @@ XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 45 Module sind implementiert. 13 sind `validated`, 32 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
+abgeschlossen. 45 Module sind implementiert. 18 sind `validated`, 27 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Die vollständige lokale Adaptermatrix war am 2026-09-01 auf physischen
@@ -586,6 +586,8 @@ repariert oder löscht keine Lab-Ressourcen selbst.
 
 V0 verändert keine öffentlichen SQL-Signaturen oder fachlichen Verträge.
 Neue Q1-/D1-Runtime-Objekte bleiben außerhalb dieser Freigabe.
+
+Nachqualifikation 2026-10-19: Die 16 V0c-Module bestanden die aktuelle vollständige Fachmatrix auf allen sechs Windows-/Linux-Zielkombinationen. Nach zusätzlichen Client-, Minimalrechte- und zentralen Statusprüfungen sind 13 Module `validated`; die drei kontrollierten Performance-Gates bleiben offen. Alle Module bleiben `unreleased`. Voraussetzungen und Wiederaufnahme stehen im [V0c-Gatebericht](../Tests/V0C_RELEASE_GATE_STATUS.md).
 
 ### Phase 4.2 – Q1 Lifecycle- und Upgrade-Automation
 

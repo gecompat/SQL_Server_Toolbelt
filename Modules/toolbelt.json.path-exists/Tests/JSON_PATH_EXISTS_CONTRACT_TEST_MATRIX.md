@@ -28,8 +28,8 @@ Aktuelle Evidenz:
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
+- Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; Pfad-, JSON-, NULL-, Wildcard-, BIN2-, native Paritäts-, Kollisions-, Lifecycle- und Uninstall-Verträge
+- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; Security-Budgets, NULL/Limit, Minimalrechte und zentrale Status-API
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

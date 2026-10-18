@@ -421,8 +421,8 @@ Ein Einzellauf ist kein allgemeingültiger Benchmark.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-11`
+- Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2025-Ziele unter Windows und Linux; vollständiger Moduladapter einschließlich explizit aktivierter synthetischer Performance-Workload ohne persistierte Basis
+- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; SchemaTrust-Sicherheitsfälle; Performancevergleich separat offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-19 – Fachqualifikation der ersten Releasekohorte
+
+Alle 16 V0c-Module bestehen die vollständige aktuelle Windows-/Linux-Matrix
+auf SQL Server 2019/2022/2025. Zusätzliche ADO.NET-Client-, Minimalrechte- und
+zentrale Statusprüfungen schließen die autonom ausführbaren Rest-Gates.
+Der Base64-Performancevergleich weist unerwartetes NULL nun ausdrücklich ab.
+Der statische Split-Characters-Vertrag akzeptiert auch quotiertes `validated`.
+13 Kohortenmodule sind validiert; drei kontrollierte Performance-Nachweise
+und die tatsächliche Veröffentlichungsentscheidung bleiben offen.
+Details: [V0c-Gatebericht](Tests/V0C_RELEASE_GATE_STATUS.md).
+
 ## 2026-10-18 – SSIS-Debug als vollständiges ZIP-Installationspaket
 
 Ein versionierter Testartefaktsatz enthält die drei passenden Assemblies,
@@ -2096,7 +2107,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-45 Module sind implementiert. 13 sind `validated`, 32 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+45 Module sind implementiert. 18 sind `validated`, 27 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

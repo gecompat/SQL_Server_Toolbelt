@@ -7,9 +7,14 @@ und Sort Keys müssen tatsächlich vorliegen; jede geprüfte TVF liefert genau
 eine passende Zeile. Die vorhandenen ungültigen Parserfälle weisen auch
 fehlende Zeilen und NULL-Validitäts-/Fehlercodefelder ab. Alte Inputs,
 Präzedenz-Sollwerte und negative Orakel bleiben erhalten.
-Quellenstand SOURCE_ONLY; neue verschärfte Tests **NOT_EXECUTED**.
+Stand 2026-10-09: Quellenstand SOURCE_ONLY; verschärfte Tests **NOT_EXECUTED**.
 Die folgende historische erfolgreiche Matrix bleibt unverändert; daraus
 folgt keine neue Windows-, Patch-, Minimalrechte- oder Releasequalifikation.
+
+Nachqualifikation 2026-10-19: Der vollständige Adapter einschließlich dieser
+verschärften Orakel bestand auf SQL Server 2019/2022/2025 unter Windows mit
+freigegebenen CU-Äquivalenten zu base und Linux latest. Eine Veröffentlichung
+wurde nicht vorgenommen.
 
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
@@ -32,8 +37,8 @@ https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377984
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
+- Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger Moduladapter mit lokalem und zentralem Deployment, Vertrags-, Lifecycle-, Kollisions- und Uninstall-Tests
+- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger Adapter einschließlich der am 2026-10-09 verschärften NULL- und Kardinalitätsorakel, Upgrade, Central, Lifecycle und Uninstall
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

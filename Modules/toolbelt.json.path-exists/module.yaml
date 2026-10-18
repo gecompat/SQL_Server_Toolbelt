@@ -2,7 +2,7 @@ module_id: "toolbelt.json.path-exists"
 module_name: "JSON Path Exists"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: "validated"
 release_status: unreleased
 description: "Prüft SQL/JSON-Pfade auf SQL Server 2019+ ohne fachliche Fehler."
 sql_server_versions:
@@ -11,13 +11,13 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "partially validated"
-  linux: "partially validated"
+  windows: "validated"
+  linux: "validated"
 providers:
   - id: tsql-stateful
     technology: T-SQL Multi-statement TVF
     platforms: [Windows, Linux]
-    status: "partially validated"
+    status: "validated"
 deployment_capabilities:
   local: true
   central: true
@@ -73,6 +73,8 @@ contracts:
   deployment: "1.0"
   validation: "1.0"
 tests:
+  status_permissions: "../../Tests/V0C_StatusPermissions.Contract.sql"
+  status_central: "../../Tests/V0C_StatusCentral.Contract.sql"
   security: "Tests/Runtime/Security.Contract.sql"
   static: "Tests/Static/validate_contract.py"
   runtime: "Tests/Runtime/JsonPathExists.Contract.sql"
@@ -96,4 +98,8 @@ validation_evidence:
   - date: "2026-09-01"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; Pfad-, JSON-, NULL-, Wildcard-, BIN2-, native Paritäts-, Kollisions-, Lifecycle- und Uninstall-Verträge"
+    result: "success"
+  - date: "2026-10-19"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; Security-Budgets, NULL/Limit, Minimalrechte und zentrale Status-API"
     result: "success"

@@ -327,3 +327,16 @@ Legacyvergleich. Die nachgelagerte geschlossene Objektinventarliste umfasst
 explizit die vier neuen Securityobjekte: 83 statt 79. Ihre positiven Bindungen
 und der Ausschluss unbekannter Zusatzobjekte bleiben erhalten. Der Offline-
 Intake prüft auch diese endliche Liste vor dem Runtimeeinsatz.
+
+## V0c-Nachqualifikation — 2026-10-19
+
+Die aktuelle Fachmatrix der ersten 16 Module bestand auf SQL Server
+2019/2022/2025 unter Windows und Linux einschließlich der betreffenden
+Security-Contracts. Sieben Statusfunktionen bestanden zusätzliche lokale
+Minimalrechte- und echte zentrale Aufrufe auf allen sechs Zielen. Die
+begrenzte Series-Oberfläche benötigt dabei keinen direkten SELECT-Zugriff
+auf die unbegrenzten Alt-APIs. SC-018 bleibt deren ausdrückliche Betreibergrenze;
+unbekannte reale Grants werden nicht als geschlossen erklärt. Nur die
+betroffenen V0c-Module werden nachqualifiziert; andere Wellen und deren offene
+Minimalrechte-/Plattformgates bleiben unverändert. Details und Status:
+[V0c-Gatebericht](../../Tests/V0C_RELEASE_GATE_STATUS.md).

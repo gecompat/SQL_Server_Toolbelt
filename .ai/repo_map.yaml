@@ -529,6 +529,8 @@ change_impact:
         - markdown_links
     base64_contract:
       paths:
+        - Tests/V0C_StatusPermissions.Contract.sql
+        - Tests/V0C_StatusCentral.Contract.sql
         - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.conversion.base64/**
         - Documentation/Architecture/BASE64_MODULE_DESIGN.md
@@ -543,6 +545,8 @@ change_impact:
         - markdown_links
     generate_series_contract:
       paths:
+        - Tests/V0C_StatusPermissions.Contract.sql
+        - Tests/V0C_StatusCentral.Contract.sql
         - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.core.generate-series/**
         - Documentation/Architecture/GENERATE_SERIES_MODULE_DESIGN.md
@@ -586,6 +590,8 @@ change_impact:
         - markdown_links
     split_characters_contract:
       paths:
+        - Tests/V0C_StatusPermissions.Contract.sql
+        - Tests/V0C_StatusCentral.Contract.sql
         - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.string.split-characters/**
         - Modules/toolbelt.core.generate-series/**
@@ -676,6 +682,8 @@ change_impact:
         - markdown_links
     w1_portable_contracts:
       paths:
+        - Tests/V0C_StatusPermissions.Contract.sql
+        - Tests/V0C_StatusCentral.Contract.sql
         - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.datetime.calendar-difference/**
         - Modules/toolbelt.string.directional-trim/**
@@ -722,6 +730,8 @@ change_impact:
         - markdown_links
     w2b_json_path_contract:
       paths:
+        - Tests/V0C_StatusPermissions.Contract.sql
+        - Tests/V0C_StatusCentral.Contract.sql
         - Tests/CI/test_owned_container_cleanup.py
         - Modules/toolbelt.json.path-exists/**
         - Documentation/Architecture/JSON_PATH_EXISTS_MODULE_DESIGN.md
@@ -1004,6 +1014,7 @@ change_impact:
         - Documentation/Standards/TEST_AND_VALIDATION_POLICY.md
         - Documentation/Standards/USP_CONTRACT.md
         - Tests/CI/run-w2c-linux.sh
+        - Tests/CI/run-console-clients-lab.ps1
         - .github/workflows/w2c-runtime.yml
       checks:
         - markdown_links
