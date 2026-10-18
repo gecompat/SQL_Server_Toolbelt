@@ -68,9 +68,9 @@ Historische V1-Nachweise bleiben getrennt; Welle1/2.0.0 ist teilweise validiert 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-17`
-- Nachweis: `local: Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Modes local,central -PredecessorRoot (je Version)`
-- Scope: Eng begrenzte Patch4.1.1-Consumerregression: Windows SQL2019/2022/2025 lokal/zentral, echter Originalrelease4.1.0 mit exaktem Parser2.0.0 installiert; ursprüngliche Triggerfixture vor und aktuelle Triggerfixture nach dem gekoppelten4.1.1/2.0.1-Upgrade bestanden. Repeat und eigene Datenbank-/Trust-/Konfigurationsbereinigung mit frischem Audit bestanden. Functional verschlüsselt mit explizitem TrustServerCertificate=True; authentifizierte TLS-Abnahme separat not executed. Keine neue Vollqualifikation von Planner/Executor/Copy, weiteren Plattformkombinationen oder Head-CI.
+- Datum: `2026-10-18`
+- Nachweis: `local: Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-LabContract.ps1 -Full -Version 2019/2022/2025 -Modes local,central -PredecessorRoot (je Version); Tests/Static/validate_contract.py`
+- Scope: Eng begrenzte neue Bindung an den ausdrücklich freigegebenen Parserbuild ohne PDB-Debugpfad. Windows2019/2022/2025 lokal/zentral: ursprünglicher Parser2.0.0-/TableClone4.1.0-Stand mit Triggerfixture, echter Upgrade auf Parser2.0.1/TableClone4.1.1, aktuelle Triggerfixture und wiederholtes Deployment bestanden. Drei eigene SSIS-Nativejournale PASS_CLEANED. Fachliche TableClone-API unverändert; keine neue Gesamtqualifikation von Planner, Executor, Copy, Performance oder Minimalrechten. Functional mit erforderlicher Verschlüsselung; authentifizierte TLS-Abnahme und aktueller Head-CI-/Releaseabschluss separat.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

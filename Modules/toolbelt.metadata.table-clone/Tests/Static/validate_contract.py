@@ -9,7 +9,7 @@ core = (MOD / 'Source/USP_ScriptTableCloneInternal.sql').read_text(encoding='utf
 deploy = (MOD / 'Deployment/Deploy.sql').read_text(encoding='utf-8')
 uninstall = (MOD / 'Deployment/Uninstall.sql').read_text(encoding='utf-8')
 trigger_contract = (ROOT / 'Documentation/Architecture/TABLE_CLONE_TRIGGER_CONTRACT.md').read_text(encoding='utf-8')
-parser_hash = '30B557FDA544369E08E2002EFF0624F26E21B532516020CC620897D7887512C129CCE6948D306FE3521F6362B9FBE8A4AAD02980340E1D06FC4A542B3AD472AA'
+parser_hash = '7F34D0472DBE5913C8D019A72B2684D89CB4CA79590B599DD5B06154D6A40C5494334D8F46218E10E9D1BC5DB983A8750BA77A685D68865D9BCDF30C3D853506'
 scriptdom_hash = '459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7'
 params = [('SourceSchema','nvarchar(max)','NULL'),('SourceTable','nvarchar(max)','NULL'),
           ('TargetSchema','nvarchar(max)','NULL'),('TargetTable','nvarchar(max)','NULL'),

@@ -60,7 +60,7 @@ $manifest=Get-Content -LiteralPath (Join-Path $ssisRelease 'Toolbelt.Tsql.SsisDe
 VerifyFiles $manifest $moduleRoot
  # Qualifizierter Kandidat mit geprüftem Kern und gezielten nativen
  # Integrationskorrekturen. Kein Freigeben beliebiger Binaries.
-$qualifiedProvider='3EC1A673003A263464E69FE53475F6AAB2FD031B788E051FAC1503E475427A707E2565CD2BC56566B0C416AB1AC36190EBCCF6449A573EE22A1CD99D0689FACB'
+$qualifiedProvider='84BA992E7482B644B5EE8B4EBBC1AFF537CD690A9D3D4366A0B037FE10E5BD3AD40352DC16C7D643B5180185D011E83AD7411EF359CB3FFC3F75E046B46E66FC'
 if($manifest.sha512 -cne $qualifiedProvider -or (Get-FileHash (Join-Path $ssisRelease 'Toolbelt.Tsql.SsisDebug.dll') -Algorithm SHA512).Hash -cne $qualifiedProvider -or
  (Get-FileHash (Join-Path $ssisRelease 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash -cne $manifest.deploymentArtifactSha256){throw 'SSIS_LAB_QUALIFIED_RELEASE_MISMATCH'}
 $trustInputs=@(@{File=(Join-Path $parserRelease 'Microsoft.SqlServer.TransactSql.ScriptDom.dll');Hash=$manifest.scriptDomSha512},@{File=(Join-Path $parserRelease 'Toolbelt.Tsql.ScriptParser.dll');Hash=$manifest.parserSha512},@{File=(Join-Path $ssisRelease 'Toolbelt.Tsql.SsisDebug.dll');Hash=$manifest.sha512})

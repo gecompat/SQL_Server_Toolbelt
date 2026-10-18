@@ -21,6 +21,12 @@ Installationsrechner.
 
 ## 1. Passenden Artefaktsatz bereitstellen
 
+Für einen Test ohne eigenen Build das
+[vorbereitete ZIP-Installationspaket](../../InstallPackages/README.md)
+vollständig entpacken und mit dessen `START-HERE.txt` beginnen. Die folgenden
+Schritte und relativen Pfade gelten auch im entpackten Paketroot. Das ZIP
+enthält bereits alle benötigten DLLs, Deployments und Trustmanifeste.
+
 Ein frischer Git-Klon enthält die Quellen, aber keine Buildartefakte in
 `Artifacts/`. Vor der Installation einen vom Betreiber geprüften,
 zusammengehörigen Buildsatz bereitstellen:

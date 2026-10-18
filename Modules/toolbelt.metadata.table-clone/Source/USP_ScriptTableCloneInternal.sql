@@ -613,7 +613,7 @@ BEGIN
         SELECT @TrProviderId=assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_Tsql_ScriptParser' COLLATE DATABASE_DEFAULT AND permission_set=3;
         SELECT @TrDomId=assembly_id FROM sys.assemblies WHERE name=N'Microsoft.SqlServer.TransactSql.ScriptDom' COLLATE DATABASE_DEFAULT;
         IF @TrProviderId IS NULL OR @TrDomId IS NULL
-          OR NOT EXISTS(SELECT 1 FROM sys.assembly_files WHERE assembly_id=@TrProviderId AND file_id=1 AND HASHBYTES('SHA2_512',content)=0x30B557FDA544369E08E2002EFF0624F26E21B532516020CC620897D7887512C129CCE6948D306FE3521F6362B9FBE8A4AAD02980340E1D06FC4A542B3AD472AA)
+          OR NOT EXISTS(SELECT 1 FROM sys.assembly_files WHERE assembly_id=@TrProviderId AND file_id=1 AND HASHBYTES('SHA2_512',content)=0x7F34D0472DBE5913C8D019A72B2684D89CB4CA79590B599DD5B06154D6A40C5494334D8F46218E10E9D1BC5DB983A8750BA77A685D68865D9BCDF30C3D853506)
           OR NOT EXISTS(SELECT 1 FROM sys.assembly_files WHERE assembly_id=@TrDomId AND file_id=1 AND HASHBYTES('SHA2_512',content)=0x459E137268A4CA378023CD7E68A04655CEC2C19A8D01546E81B1A7ABF1FE2F9226A03CC3FA2323081C3C1B05626AF988C98527711D577919CF409367F853DAC7)
           OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@TrProviderId AND minor_id=0 AND name=N'Toolbelt.Managed' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'int' AND TRY_CONVERT(int,value)=1)
           OR NOT EXISTS(SELECT 1 FROM sys.extended_properties WHERE class=5 AND major_id=@TrProviderId AND minor_id=0 AND name=N'Toolbelt.ModuleId' AND SQL_VARIANT_PROPERTY(value,'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value))=CONVERT(varbinary(max),N'toolbelt.tsql.script-parser'))

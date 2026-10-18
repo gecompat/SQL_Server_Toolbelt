@@ -1,1 +1,7 @@
 Artifacts/
+
+# Nur der ausdrücklich bereitgestellte Installationssatz wird versioniert.
+InstallPackages/*
+!InstallPackages/README.md
+!InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip
+!InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip.sha256

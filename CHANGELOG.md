@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-18 – SSIS-Debug als vollständiges ZIP-Installationspaket
+
+Ein versionierter Testartefaktsatz enthält die drei passenden Assemblies,
+ResultTable, Deploy-/Trustskripte, Installationsanleitung und SSMS-Beispiel
+einschließlich synthetischer DTSX-Fixture. Der Parserbuild erzeugt keine
+PDB-Debugdaten und verwendet synthetische Quellpfade. Die exakten Parserpins
+von SSIS-Debug und Table Clone sind neu gebunden. Ein gezielter Offlinecheck
+prüft ZIP-Inhalt, Prüfsummen, Dependencybindung und pfadfreie Toolbelt-Binaries.
+Der Modul-/Releasestatus wird dadurch nicht angehoben.
+Details: [Installationspaket](Modules/toolbelt.tsql.ssis-debug/InstallPackages/README.md).
+
 ## 2026-10-18 – Installationsanleitung für das SSIS-Debug-Beispiel
 
 Das Modul enthält die lokale Installationsanleitung mit SQL-Server-Vorbereitung,
