@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-10-18 – Installationsanleitung für das SSIS-Debug-Beispiel
+
+Das Modul enthält die lokale Installationsanleitung mit SQL-Server-Vorbereitung,
+PowerShell-Installation und Kontrolle für ResultTable, Parser und SSIS-Debug.
+Vorhandene Lifecycle-/Trustskripte werden mit exakten Artefakthashes verwendet;
+ein Offline-Prüfmodus öffnet keine SQL-Verbindung. Herkunft der Buildartefakte,
+exakter Parserpin, Ausführungsreihenfolge und Transportwahl sind dokumentiert.
+Details: [Installation](Modules/toolbelt.tsql.ssis-debug/Examples/Installation/README.md).
+
 ## 2026-10-18 – Vollständiges SSMS-Beispiel für SSIS-Debug
 
 Das Modul enthält einen dauerhaft verlinkten Walkthrough mit synthetischer

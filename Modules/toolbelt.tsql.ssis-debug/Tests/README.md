@@ -125,9 +125,9 @@ Agentenumfang statt behauptetem Geldlimit.
 Der PR ergänzt eine begrenzte Windows-CI in
 [`ssis-debug-build.yml`](../../../.github/workflows/ssis-debug-build.yml):
 ein Job für den zweimaligen aktuellen Providerbuild mit exaktem ScriptDom-Pin,
-Full21, neun Source-/Beispielsyntaxfälle und PowerShell-Adaptersyntax.
+Full21, fünfzehn Source-/Beispielsyntaxfälle und PowerShell-Adaptersyntax.
 `-SourceOnly` verlangt keine privaten Releaseartefakte; der normale Syntaxrunner
-prüft fünfzehn Fälle einschließlich expandierter Deploymentartefakte.
+prüft einundzwanzig Fälle einschließlich expandierter Deploymentartefakte.
 Dieser CI-Build ist kein neues qualifiziertes SQL-Releasebinary; weder
 Dependency-/Trustpins noch native Nachweise werden automatisch umgebunden.
 Keine zusätzliche Labmatrix oder TLS-Abnahme. Vorhandene Consumer-CI bleibt
@@ -142,6 +142,21 @@ Erweiterung verwendet den vorhandenen Windowsjob und denselben ScriptDom-Pin;
 sie ergänzt drei Parseraufrufe, keine weiteren Jobs, Builds, Frameworkkinder,
 SQL-/Labzugriffe oder Reviewagents. Die manuelle SSMS-Bedienung einschließlich
 Dateileserechten ist damit kein neuer Runtime-Nachweis.
+
+Die [Installationsanleitung](../Examples/Installation/README.md) ergänzt zwei
+SQL-Beispiele für Vorbereitung und Kontrolle. Der bestehende Syntaxrunner
+prüft beide mit150/160/170, also sechs zusätzliche Parseraufrufe.
+`Tests/Framework/Invoke-InstallationExample.ps1` prüft mit synthetischen Dateien,
+Manifesten und einem sqlcmd-Prozessdoppel die Artefakt-/Pinabweisung vor dem
+ersten externen Aufruf, den verbindungslosen ValidateOnly-Modus, die fünf Phasen mit
+exakten Trustparametern, Arbeitsverzeichnisse, beide expliziten Transportwerte
+und den Abbruch an jeder Phase ohne Folgeaufruf oder Transportfallback.
+Es werden weder eine echte SQL-Verbindung noch CLR-/Trust-/Datenbankänderungen
+ausgeführt. Beide Erweiterungen laufen im vorhandenen Windowsjob; keine
+weiteren Jobs, Builds, Framework-CLR-Kinder, Labzugriffe oder Reviewagents.
+Die Beispiele und diese Offlineprüfung sind keine neue native Installation
+oder Releasequalifikation. Die bestehenden Manifest-/Offline-Exportgates
+bleiben erhalten; unbekannte Token-/Kostenverbräuche werden nicht beziffert.
 
 Die PR-Integration besteht zusätzlich den Offline-Gesamtexport mit45 Modulen
 (33 Fälle/178 Assertions). Der generische Deployer übernimmt beide SSIS-

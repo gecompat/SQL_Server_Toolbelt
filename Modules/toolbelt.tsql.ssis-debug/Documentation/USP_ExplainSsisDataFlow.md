@@ -10,6 +10,11 @@ Das [vollständige SSMS-Beispiel](../Examples/README.md) enthält ein
 Paketimport, JSON-Änderung, gezielt angeforderter Einzelstufe und direkter
 DECLARE-Bearbeitung. Es verwendet die vorhandene synthetische DTSX-Fixture.
 
+Die [vollständige lokale Installationsanleitung](../Examples/Installation/README.md)
+führt durch Servervorbereitung, Parser-/ResultTable-Installation, exakten
+Assembly-Trust und Kontrolle vor dem SSMS-Walkthrough. SQL- und PowerShell-
+Skripte sind dort getrennt verlinkt.
+
 ```sql
 -- @PackageBytes wird vom Client übergeben; keine Dateizugriffe im CLR-Provider.
 EXEC toolbelt_tsql.USP_ExplainSsisDataFlow

@@ -7,6 +7,9 @@ zwei Sources über Union All, berechnet `Adjusted`, ergänzt einen Lookup und
 verteilt die Zeilen über Conditional Split auf High und Default. Die Fixture
 bleibt im Testverzeichnis die gemeinsame Quelle für Beispiel und Tests.
 
+Die [Installationsanleitung mit SQL- und PowerShell-Skripten](Installation/README.md)
+zeigt die Voraussetzungen einschließlich Parser, ResultTable und Assembly-Trust.
+
 ## Voraussetzungen und Start
 
 1. Eine eigene Testdatenbank `ContosoSsisDebug` auf Windows SQL Server

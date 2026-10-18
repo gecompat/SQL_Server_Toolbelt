@@ -68,6 +68,10 @@ documentation:
     - "Examples/README.md"
     - "Examples/SsmsDebugWalkthrough.sql"
     - "Tests/Fixtures/synthetic-8.dtsx"
+    - "Examples/Installation/README.md"
+    - "Examples/Installation/PrepareServer.sql"
+    - "Examples/Installation/Install-Local.ps1"
+    - "Examples/Installation/VerifyInstallation.sql"
   architecture:
     - "../../Documentation/Architecture/SSIS_DTSX_DEBUG_SELECT_V1_CONTRACT.md"
   test_matrix:
