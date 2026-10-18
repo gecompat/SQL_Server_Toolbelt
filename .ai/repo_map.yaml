@@ -490,6 +490,15 @@ change_impact:
         - .ai/ROADMAP.md
       checks:
         - markdown_links
+    sql_dialect_research:
+      paths:
+        - Documentation/Research/SQL_DIALECT_TRANSFORMATION_FEASIBILITY.md
+        - Documentation/Research/TSQL_DATABRICKS_V1_SCOPE_PROPOSAL.md
+        - Documentation/Research/SQLGLOT_*.md
+        - Documentation/Research/SQL_DIALECT_PERFORMANCE_PROBE.md
+        - Tests/Research/SqlDialect/**
+      checks:
+        - markdown_links
     regex_provider_research:
       paths:
         - Documentation/Research/REGEX_SEMANTICS_PROVIDER_SPIKE.md

@@ -4,6 +4,135 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 45 Module sind implementiert. 13 sind `validated`, 32 sind `partially validated`; 0 sind `not executed`.
 
+## Research-Vormerkung: SQL-Dialekt-Transformation — 2026-10-16
+
+**Abschluss des beauftragten Researchscopes, 2026-10-18:** Machbarkeit,
+Regelspike, native SQL-Server-/Spark-Semantik und begrenzte Performance-/
+Planprüfung sind dokumentiert. Databricks und die nicht stabilen Zeitvergleiche
+bleiben offen; keine Produkt-V1- oder Releasefreigabe. Der folgende Verlauf
+hält die jeweils damaligen Nachweise fest; maßgeblich ist der jüngste Stand.
+
+Benutzerauftrag zur Recherche und Backlogplanung von T-SQL ↔ Databricks SQL
+in beiden Richtungen, Erweiterungen um Spark SQL/weitere Dialekte und
+Python-/weitere Sprachausgabe. Die [Machbarkeitsanalyse](../Documentation/Research/SQL_DIALECT_TRANSFORMATION_FEASIBILITY.md)
+enthält eine gerichtete SQL-Quellen-Ziel-Matrix, eine Sprach-/API-Matrix,
+Provideralternativen, semantische Grenzen, OUTER-APPLY-/Top-N-Regeln und
+Performance-/Qualifikationsplanung. Empfohlen ist zunächst ein begrenzter
+lesender SQL-Kern; Routinen, schreibende Profile und DataFrame-Generatoren
+bleiben getrennte spätere Funktionen.
+
+Die [benannte Vormerkung](../Backlog/TOOLBELT_CANDIDATES.md#sql-dialekt-transformation--vormerkung-ohne-finale-tc-referenz)
+ist `researched`; keine Implementierungsfreigabe, kein aktives AP und keine
+Prioritätsänderung. Finale TC-/AP-Vergabe gemäß `DEC-2026-028` noch offen.
+Konvertierungs-, Engine- und Performanceversuche `not executed`; keine
+Dependencyinstallation, Lab-/Cloudänderung oder Ausführung von Quelltext.
+
+Benutzerauftrag zur Konkretisierung vom 2026-10-16:
+Der [erste V1-Vertragsvorschlag](../Documentation/Research/TSQL_DATABRICKS_V1_SCOPE_PROPOSAL.md)
+definiert eine lesende Abfrage mit CTEs, einer APPLY-/LATERAL-Stufe,
+begrenzt automatischer Top-N-/Voraggregationsumschreibung und einer expliziten
+Positivliste. Kontextabhängige Fälle, manuelle Grenzen, Zähl-/Rankingtypen,
+NULL-/Duplikat-/Zeit-/Collationverträge und messbare Performanceabnahme sind
+getrennt beschrieben. Weiterhin `researched`, keine Implementierungsfreigabe.
+
+Anschließend ausdrücklich beauftragter Provider-Spike vom 2026-10-16:
+[SQLGlot 30.23.0](../Documentation/Research/SQLGLOT_TSQL_DATABRICKS_SPIKE.md)
+wurde isoliert lokal mit 32 synthetischen Eingaben und 34 bestandenen
+Beobachtungsassertions geprüft. 26 Generator-/Reparse-Ergebnisse, fünf
+LATERAL-Generatorablehnungen und eine Zielparserablehnung nach Command-Fallback;
+die Generatorergebnisse enthalten ausdrücklich problematische Fälle und sind
+keine semantischen PASSes. Zwei feste AST-Rückrichtungsversuche zeigen einen
+möglichen eigenen LATERAL→APPLY-Adapter. Typen, Parameter, Hints und Limitoptionen
+benötigen eigene Regeln. Dies ersetzt ausschließlich den vorherigen
+`not executed`-Stand der lokalen Providerexperimente: keine native Engine-,
+Ergebnis- oder Performancequalifikation, weiterhin keine V1-Implementierungsfreigabe.
+Die SQLGlot-Testdependency wurde ausschließlich isoliert lokal installiert;
+keine Projekt-Runtimedependency, Lab-/Cloudänderung oder SQL-Ausführung.
+
+Weitere ausdrückliche Beauftragung vom 2026-10-16:
+Der [Spikekern mit eigenen AST-Regeln](../Documentation/Research/SQLGLOT_TSQL_DATABRICKS_RULE_SPIKE.md)
+ist ausschließlich unter `Tests/Research/SqlDialect` ergänzt. 100 feste
+Regelfälle mit 476 Assertions bestanden: 30 positive Umschreibungen und
+70 negative Fälle ohne Teil-SQL, davon 13 mit fehlendem Kontext. Geprüft sind
+beide Richtungen für begrenzte LATERAL/APPLY-, Parameter-, Cast-/COUNT-/
+ROW_NUMBER- und Limitregeln. Providerbaseline unverändert erneut bestanden.
+Kein allgemeiner Binder, keine native Ergebnis-/Performancequalifikation,
+weiterhin `researched` und keine automatische V1-Implementierungsfreigabe.
+
+Anschließend ausdrücklich beauftragte native Labprüfung mit synthetischen
+Daten und Prüfung geeigneter Lab-Bereitstellungswege vom 2026-10-16:
+[57 native T-SQL-Fälle vorbereitet](../Documentation/Research/SQLGLOT_NATIVE_TSQL_LAB_PROBE.md),
+Wert-/NULL-/Multimengen- und Clienttyporakel ergänzt. Lokale Korpus-/
+Vergleicherprüfungen bestanden. Sechs ausgewählte Ziele vor SQL-Anmeldung
+wegen TLS-Vertragsabweichung abgewiesen; **keine native Abfrage ausgeführt**.
+Lab-1.0-Exporter und Schema erfordern Trust-Override; eine neue
+Standardumgebung liefert denselben Vertrag. Authentifizierte Bereitstellung
+und Consumer-Cutover hängen am offenen Lab-Stream TLS-001. Drei weitere
+COUNT-/ROW_NUMBER-Roundtrips scheitern am eigenen Cast-Gate. Native
+SQL-Server-, Databricks- und Performancequalifikation bleiben getrennt offen;
+keine Infrastruktur-/Truständerung oder allgemeine V1-Freigabe.
+
+**Aktualisierung nach Benutzerklarstellung vom 2026-10-16:** Unabhängige
+fachliche Tests verwenden den schema-validierten Labtransport; die TLS-
+Qualifikation bleibt gesondert. Der [native Researchlauf](../Documentation/Research/SQLGLOT_NATIVE_TSQL_LAB_PROBE.md)
+bestand nach zwei Harnesskorrekturen mit 57 Fällen auf allen sechs Zielen,
+insgesamt 342 erfolgreichen Fallausführungen. Ergebnisse, NULL-/Duplikat-
+Verhalten und deklarierte Clienttypen bestätigt. Die frühere TLS-Sperre oben
+ist damit für diese Fachtests überholt; Databricks, Performance und drei am
+Cast-Gate abgewiesene Roundtrips bleiben offen. Keine allgemeine V1-Freigabe.
+
+**Benutzerauftrag und Abschluss vom 2026-10-17:** Die drei offenen
+COUNT-/ROW_NUMBER-Roundtrips sind im Researchkern behoben. Ausschließlich
+begrenzte INT-/BIGINT-Ergebnis-Casts werden zusätzlich erkannt; Gruppen-/
+Partitionsgrenzen und eindeutige Rankingordnung bleiben erforderlich.
+140 feste AST-Eingaben und 42 Roundtrips bestanden mit 852 Assertions.
+Der [erweiterte native Korpus](../Documentation/Research/SQLGLOT_NATIVE_TSQL_LAB_PROBE.md)
+bestand mit 81 Fällen auf sechs Labzielen, insgesamt 486 Fallausführungen.
+COUNT bleibt INT, ROW_NUMBER BIGINT; NULL-/Leerfälle und Clientmetadaten der
+betroffenen T-SQL-Enden stimmen überein. Kein Roundtrip des nativen Korpus
+mehr abgewiesen. Databricks, Performance und allgemeine Ausdruckstypbindung
+bleiben offen; keine allgemeine V1-Implementierungsfreigabe.
+
+**Databricks-Prüfstand und Benutzerklarstellung vom 2026-10-17:** Der Spike
+bleibt SQL_Server_Toolbelt zugeordnet. Aktuell ist kein Databricks-Zugang
+vorhanden. Die [nativen Databricks-Tests](../Documentation/Research/SQLGLOT_NATIVE_DATABRICKS_PROBE.md)
+bleiben auf ausdrücklichen Benutzerauftrag offen (`not executed`), ohne
+zusätzliche Infrastruktur einzurichten. 57 SELECTs für dieselben synthetischen
+Daten sind den 81 T-SQL-Fällen zugeordnet; lokale Harnesskontrollen bestanden,
+aber keine Databricks-Abfrage wurde ausgeführt. Native LATERAL-/Top-N-,
+COUNT-/ROW_NUMBER-, Ergebnis-/NULL-/Typ- und Performancenachweise bleiben
+offen. Fortsetzung erst mit einem später verfügbaren ausgewählten Zugang und
+festgelegtem Profil; keine weiteren nativen Versuche bis dahin. Die 486
+bestandenen SQL-Server-Fallausführungen behalten ihren getrennten Scope.
+Keine allgemeine V1-Implementierungsfreigabe.
+
+**Anschließender Benutzerauftrag zur Testlösung vom 2026-10-17:** Ein
+[nativer lokaler Spark-SQL-Lauf](../Documentation/Research/SQLGLOT_NATIVE_SPARK_PROBE.md)
+ermöglicht die tatsächliche Ausführung ohne Databricks-Zugang. Auf Apache
+Spark 4.0.2 bestanden alle 57 positiven SELECTs und neun Negativfälle. Die
+Werte der 57 Abfragen stimmen mit allen zugeordneten 81 T-SQL-Fällen der
+gebundenen sechs Labziele überein. LATERAL mit korreliertem LIMIT/Cutoff,
+Top-N, COUNT/ROW_NUMBER, NULL-/Leerfälle und vereinbarte SQL-Typen bestätigt;
+abweichende Clienttypen und Nullability getrennt dokumentiert. Ein anfänglicher
+Parameter-Harnessfehler wurde vor dem grünen Gesamtlauf behoben. Portable
+Testdependencies nur unter `.runtime/`, keine Systeminstallation, Cloud-,
+Container- oder Labbereitstellung. Native Databricks-, typisierte NULL-
+Parameter- und Performanceabnahmen bleiben offen. Weiterhin `researched`,
+keine V1-Implementierungsfreigabe.
+
+**Benutzerauftrag zur Performanceprüfung vom 2026-10-17:** Die
+[native APPLY-/LATERAL-/Top-N-Welle](../Documentation/Research/SQL_DIALECT_PERFORMANCE_PROBE.md)
+verwendet 100.000 und 1.000.000 synthetische Events sowie 2.000 linke Zeilen.
+34 SQL-Server-2025-/Windows- und 20 Spark-4.0.2-Fälle bestanden Ergebnis-
+und Planprüfung; vier native Kontrollen erkennen den unzulässigen Cutoff
+nach globaler Rangbildung. 11 SQL- und sieben Spark-Zeitserien bestehen
+das feste Stabilitäts-/Bestätigungsgate, 36 Zeitvergleiche bleiben mangels
+Stabilität `not executed`. Performance insgesamt `partially validated`.
+Index-/Selektivitäts-, Window-, Korrelations-/Cutoff- und Planregeln sind
+begrenzt dokumentiert. Rohpläne und Messwerte nur unter `.runtime/`; keine
+Engine-übergreifende Geschwindigkeitsrangliste, keine Server-/Labänderung,
+keine native Databricks-Abnahme und kein produktiver Optimierer.
+
 ## Research-Vormerkung: SSIS-/DTSX-Debug-SELECT — 2026-10-16
 
 **Funktionsbezogene Implementierungsfreigabe vom 2026-10-16:** Nach Besprechung
