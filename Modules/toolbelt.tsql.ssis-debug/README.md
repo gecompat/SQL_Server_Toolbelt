@@ -15,6 +15,11 @@ Das [vollständige SSMS-Beispiel](Examples/README.md) mit
 DTSX-Fixture zeigt Import, JSON-Vorlage, Werteänderung, Stufenauswahl und direkte
 DECLARE-Änderungen einschließlich erwarteter Ergebnisse und Cleanup.
 
+Die [Installationsanleitung](Examples/Installation/README.md) enthält die
+SQL-Server-Vorbereitung, einen PowerShell-Installer mit Offline-Artefaktprüfung
+und die anschließende Installationskontrolle für Parser, ResultTable und
+SSIS-Debug einschließlich des getrennten Assembly-Trust-Opt-ins.
+
 Die Analyse führt keine Quellabfrage und kein SSIS-Paket aus. Für die
 Dependencyprüfung werden ausschließlich Metadaten derselben SQL-Instanz
 gelesen. Connections werden explizit auf Datenbanken abgebildet; Credentials

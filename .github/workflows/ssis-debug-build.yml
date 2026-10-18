@@ -88,4 +88,7 @@ jobs:
             [void][Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$errors)
             if ($errors.Count) { throw 'SSIS_CI_NATIVE_ADAPTER_SYNTAX_INVALID' }
           }
+      - name: Installation example contract without SQL access
+        shell: pwsh
+        run: ./Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-InstallationExample.ps1
 # Offline evidence only: no SQL host, trusted assembly, Lab or authenticated TLS qualification.

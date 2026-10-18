@@ -14,6 +14,7 @@ $compiler=Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
 if($LASTEXITCODE -ne 0){throw 'SYNTAX_HARNESS_BUILD_FAILED'}
 $checks=0
 $files=@('Source/USP_ExplainSsisDataFlow.sql','Source/USP_ExplainSsisDataFlowInternal.sql','Examples/SsmsDebugWalkthrough.sql')
+$files+=@('Examples/Installation/PrepareServer.sql','Examples/Installation/VerifyInstallation.sql')
 if(-not $SourceOnly){$files+=@('Artifacts/Deploy.WithAssembly.sql','Artifacts/Uninstall.Expanded.sql')}
 foreach($relative in $files){
  $path=Join-Path $moduleRoot $relative
