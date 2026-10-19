@@ -2,6 +2,18 @@
 
 ## Status
 
+Aktualisierung 2026-10-19: Zwölf aktuelle vollständige Pointer-Labadapter
+bestanden auf Windows und Linux: SQL2019 CL150, SQL2022 CL150/160 und
+SQL2025 CL150/160/170, jeweils local/central/Consumer. Je 3072 feste
+Contract-/Safety-Oracles, 15 Clientreader und 42 Lifecyclefälle; frische
+read-only Audits bestätigten Input-/Fixturepins und 36 eigene DBs abwesend.
+Der seit den alten Läufen ergänzte SC-006-Source ist gebunden; die separate
+Securityfixture und neue Lastfälle waren nicht Teil dieser Labwelle.
+Die physischen Ziel-/CL-Lücken des full-Adapters sind damit geschlossen.
+Minimalrechte, Heap/Parallelität, harte Runner-/Host-Recovery, authentifizierte
+TLS-Abnahme und Release bleiben separat; teilweise validiert, unveröffentlicht.
+[Qualifikationsbericht](../Modules/toolbelt.json.pointer/Tests/QUALIFICATION_2026-10-19.md).
+
 JSON Pointer1.0.0 und die anschließende128er-Prioritätsänderung sind einzeln
 freigegeben und umgesetzt. Finale Adapter auf Linux2019/latest CL150 und
 Windows2025/exaktCU8 CL170 bestanden je local/central/Consumer,3072 feste

@@ -30,7 +30,15 @@ MISSING/SQL_NULL/INVALID besitzen keinen Typ/Wert. ErrorCode nur bei INVALID.
 Priorität: SQL_NULL → PARAMETER → INPUT_LIMIT → POINTER_LIMIT →
 POINTER_SYNTAX → Pointer-UNICODE → fester Strukturguard128/DEPTH_LIMIT →
 JSON_SYNTAX → caller-seitig abgesenktes DEPTH_LIMIT →
-Dokument-UNICODE → Auflösung mit DUPLICATE_KEY/ARRAY_INDEX.
+Dokument-UNICODE → Auflösung mit DUPLICATE_KEY/ARRAY_INDEX und dem vor jedem
+OPENJSON-Aufruf geprüften kumulativen Parserbudget.
+
+Die ausdrücklich freigegebene Härtung SC-006 begrenzt die Summe aller
+OPENJSON-Operandbytes auf 67108864 (64 MiB), einschließlich Scalarwrapper
+und wiederholter Fragmente. Vor einer Überschreitung folgt genau eine Zeile
+INVALID/WORK_LIMIT mit JsonType/Value=SQL-NULL. Kein neuer Parameter, kein
+Teilwert und keine Laufzeit-/Heapzusage; bereits früher festgestellte
+Ergebnisse behalten ihre Priorität.
 
 Der feste Guard beobachtet Klammern außerhalb von Strings escape-aware mit
 nicht negativem Zähler. Über128 hat DEPTH_LIMIT auch bei fehlerhafter Syntax

@@ -40,9 +40,9 @@ benötigen. Keine allgemeine Heap-, Durchsatz-, Laufzeit- oder APPLY-Zusage.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-06`
+- Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-json-pointer-lab.ps1 -QualificationScope full`
-- Scope: Zusätzliche vollständige Läufe auf demselben schema-validierten, exakt ausgewählten Windows2025/CU8-Ziel mit CL150 und CL160 bestanden jeweils local/central/Consumer, Contract/Safety, direkte Clientmetadaten, Repeat und42 Lifecyclefälle. Je Exit0, vollständige Kanäle und leeresStderr; frische unabhängige Audits bestätigten COMPLETE42, drei eigene DBs abwesend, je zwei Marker-/Fremdslot-/Dependencyfixtures exakt restauriert mit zwei Abweisungen, unveränderte Inputpins und Nullscope Konfiguration/Rechte/Trust. CL150/160 sind getrennte neue Nachweise; CL170 und Linux2019 CL150 bleiben frühere Nachweise. Weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und vollständige Runtime-Head-CI offen; teilweise validiert, unveröffentlicht.
+- Scope: Aktuelle physische Windows-/Linux-Matrix SQL2019 CL150, SQL2022 CL150/160, SQL2025 CL150/160/170: zwölf vollständige local/central/Consumer-Adapter erfolgreich, je 3072 feste Contract-/Safety-APPLY-Oracles, 15 direkte Clientreader und 42 Lifecyclefälle. Alle Exit0, vollständige Kanäle, leeres Stderr. Zwölf frische read-only Kontrollverbindungen bestätigten tatsächliche Version/Plattform, unveränderte Input-/Sourcepins vor dem Evidenznachtrag, je zwei exakt restaurierte Marker-/Fremdslot-/Dependencyfixtures mit je zwei Abweisungen und alle 36 eigenen DBs abwesend. Keine Konfigurations-/Rechte-/Truständerungen. Functional mit erforderlicher Verschlüsselung und explizitem Lab-Trustwert; authentifizierte TLS-Abnahme separat. Aktueller Source einschließlich freigegebener SC-006-Härtung gebunden; deren separate Security.Contract.sql gehört nicht zum physischen full-Adapter. Keine neue Last-, Minimalrechte-, Heap-/Parallel-, Host-Recovery- oder Releasequalifikation; aktuelle Head-CI separat. Weiterhin teilweise validiert und unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

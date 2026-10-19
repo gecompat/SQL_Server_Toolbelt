@@ -13,6 +13,11 @@ Benutzer anschließend ausdrücklich „Diese Prioritätsänderung freigegeben�
 Der folgende Vertrag enthält diese eng begrenzte Prioritätsänderung einschließlich
 des geschützten Scalarwrappers. Parameter und übrige Semantik bleiben gleich.
 
+Ergänzung 2026-10-19: Die später ausdrücklich freigegebene
+[Security-Härtung SC-006 vom 2026-10-15](SECURITY_HARDENING_2026_10.md)
+begrenzt zusätzlich die kumulativen OPENJSON-Operanden auf 64 MiB.
+Dieser bereits implementierte Vertrag ist unten nachgeführt; keine neue API.
+
 ## Zweck und Oberfläche
 
 `toolbelt.json.pointer` 1.0.0 löst die Stringform eines JSON Pointers nach
@@ -71,6 +76,13 @@ in einen nativen Zahlentyp konvertiert. Metadaten-Nullability ist verbindlich.
    Keys/Strings; nach bestätigter Syntax hat Tiefe Vorrang vor Unicode.
 8. Auflösung: mehrere passende decodierte Objektkeys ergeben
    INVALID/DUPLICATE_KEY; ungültige Arrayindexlexik INVALID/ARRAY_INDEX.
+   Vor jedem OPENJSON-Aufruf wird dessen vollständige Operandbytezahl zum
+   bisherigen Aufwand gerechnet. Würde die Summe 67108864 überschreiten,
+   folgt INVALID/WORK_LIMIT mit JsonType/Value=SQL-NULL;
+   der Parseraufruf findet nicht statt. Genau 64 MiB sind zulässig.
+   Bereits davor festgestellte Ergebnisse, etwa ungültige Arrayindexlexik oder
+   Weiterlaufen durch einen Scalar, bleiben erhalten. Die Grenze ersetzt
+   weder Input-/Tiefenprüfung noch ein Laufzeit- oder Heapbudget.
 
 Keine Eingabe-/Enginefehlertexte im Ergebnis. Technische Enginefehler werden
 nicht in ein erfundenes fachliches Ergebnis umgedeutet.
@@ -124,7 +136,12 @@ und APPLY-Kosten dürfen nicht als Inline-TVF-Eigenschaften beworben werden.
 Inputgröße/Tiefe begrenzen eigene Scans und Traversalschritte; wiederholtes
 Fragmentparsing/-kopieren kann nominell Arbeit proportional zu Input mal Tiefe
 benötigen. Keine Heap-, Dauer-, Maximalworkload- oder Performancezusage.
-Es wird kein zusätzliches unbesprochenes Arbeitsbudget eingeführt.
+Das ausdrücklich freigegebene feste Parserbudget zählt ausschließlich
+DATALENGTH der tatsächlich an OPENJSON übergebenen Operanden, einschließlich
+eines gegebenenfalls erzeugten Scalarwrappers und wiederholt gelesener
+Containerfragmente. ISJSON und eigene Policy-/Strukturscans werden nicht
+mitgezählt. Es gibt keinen zusätzlichen Parameter oder teilweise ausgegebenen
+Wert bei WORK_LIMIT.
 
 ## Lifecycle und Validierung
 
