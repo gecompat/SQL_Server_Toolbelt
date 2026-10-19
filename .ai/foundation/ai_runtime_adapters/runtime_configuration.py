@@ -22,12 +22,13 @@ from typing import Any, Callable, Iterator
 
 from adapter_protocol import AdapterError
 from reference_adapters import NoRedirect, OllamaAdapter, OpenAICompatibleAdapter, _read_http_body, canonical_json
+from stdio_adapter import StdioAdapter
 
 
 CONTRACT = "foundation-ai-runtime-configuration/v1"
 DATA_CLASSES = {"PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"}
 BOUNDARIES = {"HOST", "LOCAL_NETWORK", "REMOTE", "UNKNOWN"}
-ADAPTERS = {"ollama", "openai-compatible"}
+ADAPTERS = {"ollama", "openai-compatible", "stdio"}
 SELECTION_MODES = {"MANUAL", "PINNED", "ROUTER"}
 CONNECTION_ID = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 ENVIRONMENT_NAME = re.compile(r"^[A-Z_][A-Z0-9_]*$")
@@ -135,37 +136,53 @@ def validate_credential(value: Any) -> dict[str, Any]:
 
 
 def validate_connection(connection_id: str, value: Any) -> dict[str, Any]:
-    if not CONNECTION_ID.fullmatch(connection_id):
+    if not isinstance(connection_id, str) or not CONNECTION_ID.fullmatch(connection_id):
         raise ConfigurationError("INVALID_CONNECTION_ID", "connection id must use lowercase letters, digits, dot, dash, or underscore")
     if not isinstance(value, dict):
         raise ConfigurationError("INVALID_CONNECTION", "connection must be an object")
     required = {
-        "label", "adapter", "endpoint", "execution_boundary", "trust_loopback_host", "network_authorized",
-        "allowed_data_classes", "remote_data_classes", "allow_remote_models", "credential", "read_roots",
+        "label", "adapter", "execution_boundary", "network_authorized",
+        "allowed_data_classes", "remote_data_classes", "credential", "read_roots",
         "write_roots", "timeout_seconds", "health_ttl_seconds", "catalog_ttl_seconds", "model_selection",
     }
-    _require_exact_keys(value, required, required, f"connection {connection_id}")
+    stdio = value.get("adapter") == "stdio"
+    required |= {"argv", "environment_allowlist"} if stdio else {"endpoint", "trust_loopback_host", "allow_remote_models"}
+    allowed = required | ({"cwd", "trust_model_metadata"} if stdio else set())
+    _require_exact_keys(value, required, allowed, f"connection {connection_id}")
     result = deepcopy(value)
     if not isinstance(result["label"], str) or not result["label"].strip():
         raise ConfigurationError("INVALID_LABEL", "connection label must be non-empty")
-    if result["adapter"] not in ADAPTERS:
+    if not isinstance(result["adapter"], str) or result["adapter"] not in ADAPTERS:
         raise ConfigurationError("INVALID_ADAPTER", "adapter is invalid")
-    endpoint = result["endpoint"]
-    if not isinstance(endpoint, str):
-        raise ConfigurationError("INVALID_ENDPOINT", "endpoint must be a credential-free HTTP(S) origin")
-    parsed = urllib.parse.urlparse(endpoint)
-    if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
-        raise ConfigurationError("INVALID_ENDPOINT", "endpoint must be a credential-free HTTP(S) origin")
-    if parsed.path not in {"", "/"}:
-        raise ConfigurationError("INVALID_ENDPOINT", "endpoint must not contain an API path")
-    result["endpoint"] = endpoint.rstrip("/")
-    if result["execution_boundary"] not in BOUNDARIES:
+    if stdio:
+        argv = result["argv"]
+        if not isinstance(argv, list) or not argv or any(not isinstance(item, str) or "\x00" in item for item in argv) or not Path(argv[0]).is_absolute():
+            raise ConfigurationError("INVALID_ARGV", "argv must be an exact string array with an absolute executable")
+        if Path(argv[0]).suffix.lower() in {".bat", ".cmd", ".ps1", ".sh"}:
+            raise ConfigurationError("SHELL_PROGRAM_FORBIDDEN", "configure an executable protocol program, not a shell script")
+        allowlist = result["environment_allowlist"]
+        if not isinstance(allowlist, list) or any(not isinstance(item, str) or not ENVIRONMENT_NAME.fullmatch(item) for item in allowlist) or len(allowlist) != len(set(allowlist)):
+            raise ConfigurationError("INVALID_ENV_ALLOWLIST", "environment_allowlist must contain unique explicit variable names")
+        if "cwd" in result and (not isinstance(result["cwd"], str) or "\x00" in result["cwd"] or not Path(result["cwd"]).is_absolute()):
+            raise ConfigurationError("INVALID_CWD", "cwd must be an absolute directory path")
+        if "trust_model_metadata" in result and not isinstance(result["trust_model_metadata"], bool):
+            raise ConfigurationError("INVALID_BOOLEAN", "trust_model_metadata must be boolean")
+    else:
+        endpoint = result["endpoint"]
+        if not isinstance(endpoint, str):
+            raise ConfigurationError("INVALID_ENDPOINT", "endpoint must be a credential-free HTTP(S) origin")
+        parsed = urllib.parse.urlparse(endpoint)
+        if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
+            raise ConfigurationError("INVALID_ENDPOINT", "endpoint must be a credential-free HTTP(S) origin")
+        if parsed.path not in {"", "/"}:
+            raise ConfigurationError("INVALID_ENDPOINT", "endpoint must not contain an API path")
+        result["endpoint"] = endpoint.rstrip("/")
+    if not isinstance(result["execution_boundary"], str) or result["execution_boundary"] not in BOUNDARIES:
         raise ConfigurationError("INVALID_BOUNDARY", "execution boundary is invalid")
-    for field in ("trust_loopback_host", "network_authorized", "allow_remote_models"):
+    for field in (("network_authorized",) if stdio else ("trust_loopback_host", "network_authorized", "allow_remote_models")):
         if not isinstance(result[field], bool):
             raise ConfigurationError("INVALID_BOOLEAN", f"{field} must be boolean")
-    loopback = parsed.hostname.lower() in {"localhost", "127.0.0.1", "::1"}
-    if result["execution_boundary"] == "HOST" and loopback and not result["trust_loopback_host"]:
+    if not stdio and result["execution_boundary"] == "HOST" and parsed.hostname.lower() in {"localhost", "127.0.0.1", "::1"} and not result["trust_loopback_host"]:
         raise ConfigurationError("UNPROVEN_LOOPBACK_BOUNDARY", "HOST for loopback requires explicit trust_loopback_host confirmation")
     for field in ("allowed_data_classes", "remote_data_classes"):
         classes = result[field]
@@ -173,19 +190,21 @@ def validate_connection(connection_id: str, value: Any) -> dict[str, Any]:
             raise ConfigurationError("INVALID_DATA_CLASSES", f"{field} contains an invalid data class")
         result[field] = list(dict.fromkeys(classes))
     result["credential"] = validate_credential(result["credential"])
+    if stdio and result["credential"]["source"] != "NONE" and result["credential"]["export_as"] not in result["environment_allowlist"]:
+        raise ConfigurationError("CREDENTIAL_NOT_ALLOWLISTED", "credential export must be explicitly allowlisted")
     result["read_roots"] = _absolute_roots(result["read_roots"], "read_roots")
     result["write_roots"] = _absolute_roots(result["write_roots"], "write_roots")
     for field, minimum, maximum in (
         ("timeout_seconds", 0.1, 600), ("health_ttl_seconds", 1, 3600), ("catalog_ttl_seconds", 1, 86400)
     ):
         number = result[field]
-        if isinstance(number, bool) or not isinstance(number, (int, float)) or number < minimum or number > maximum:
+        if isinstance(number, bool) or not isinstance(number, (int, float)) or not minimum <= number <= maximum or (field != "timeout_seconds" and not isinstance(number, int)):
             raise ConfigurationError("INVALID_TIMEOUT", f"{field} is out of bounds")
     selection = result["model_selection"]
     if not isinstance(selection, dict):
         raise ConfigurationError("INVALID_MODEL_SELECTION", "model_selection must be an object")
     _require_exact_keys(selection, {"mode", "default_model"}, {"mode", "default_model"}, "model_selection")
-    if selection["mode"] not in SELECTION_MODES:
+    if not isinstance(selection["mode"], str) or selection["mode"] not in SELECTION_MODES:
         raise ConfigurationError("INVALID_MODEL_SELECTION", "model selection mode is invalid")
     default_model = selection["default_model"]
     if default_model is not None and (not isinstance(default_model, str) or not default_model):
@@ -338,19 +357,24 @@ def public_connection(connection_id: str, connection: dict[str, Any]) -> dict[st
     credential_summary = {"source": credential["source"]}
     if credential["source"] != "NONE":
         credential_summary["export_as"] = credential["export_as"]
-    return {
+    summary = {
         "connection_id": connection_id,
         "status": "CONFIGURED",
         "label": connection["label"],
         "adapter": connection["adapter"],
-        "endpoint": connection["endpoint"],
         "execution_boundary": connection["execution_boundary"],
-        "allow_remote_models": connection["allow_remote_models"],
         "allowed_data_classes": connection["allowed_data_classes"],
         "remote_data_classes": connection["remote_data_classes"],
         "model_selection": connection["model_selection"],
         "credential": credential_summary,
     }
+    if connection["adapter"] == "stdio":
+        summary["trust_model_metadata"] = connection.get("trust_model_metadata", False)
+        summary["transport"] = "EXPLICIT_PROGRAM"
+    else:
+        summary["endpoint"] = connection["endpoint"]
+        summary["allow_remote_models"] = connection["allow_remote_models"]
+    return summary
 
 
 def read_dotenv_value(path: Path, key: str) -> str:
@@ -408,6 +432,8 @@ def credential_environment(connection: dict[str, Any]) -> Iterator[None]:
 def adapter_configuration(connection: dict[str, Any]) -> dict[str, Any]:
     credential = connection["credential"]
     exported = credential.get("export_as") if credential["source"] != "NONE" else None
+    if connection["adapter"] == "stdio":
+        return {key: deepcopy(value) for key, value in connection.items() if key not in {"label", "adapter", "credential", "model_selection"}}
     return {
         "provider": connection["label"],
         "endpoint": connection["endpoint"],
@@ -428,8 +454,10 @@ def adapter_configuration(connection: dict[str, Any]) -> dict[str, Any]:
 
 
 def create_adapter(connection: dict[str, Any]) -> Any:
+    connection = validate_connection("runtime", connection)
     config = adapter_configuration(connection)
-    return OllamaAdapter(config) if connection["adapter"] == "ollama" else OpenAICompatibleAdapter(config)
+    constructors = {"ollama": OllamaAdapter, "openai-compatible": OpenAICompatibleAdapter, "stdio": StdioAdapter}
+    return constructors[connection["adapter"]](config)
 
 
 def execute_adapter(connection: dict[str, Any], operation: str, arguments: dict[str, Any]) -> dict[str, Any]:
@@ -561,9 +589,9 @@ def _csv_classes(raw: str) -> list[str]:
     return list(dict.fromkeys(values))
 
 
-def _connection_defaults(state_dir: Path, endpoint: str) -> dict[str, Any]:
+def _connection_defaults(state_dir: Path, endpoint: str, adapter: str = "ollama") -> dict[str, Any]:
     handles = (state_dir / "handles").resolve()
-    return {
+    value = {
         "label": "Ollama local",
         "adapter": "ollama",
         "endpoint": endpoint,
@@ -581,6 +609,14 @@ def _connection_defaults(state_dir: Path, endpoint: str) -> dict[str, Any]:
         "catalog_ttl_seconds": 300,
         "model_selection": {"mode": "ROUTER", "default_model": None},
     }
+    if adapter == "stdio":
+        for field in ("endpoint", "trust_loopback_host", "allow_remote_models"):
+            del value[field]
+        value.update(label="Explicit JSONL program", adapter=adapter, argv=[], environment_allowlist=[],
+                     network_authorized=False, trust_model_metadata=False)
+    elif adapter == "openai-compatible":
+        value.update(label="HTTP interface", adapter=adapter)
+    return value
 
 
 def ask_connection(
@@ -591,23 +627,39 @@ def ask_connection(
 ) -> dict[str, Any]:
     value = deepcopy(current)
     value["label"] = _ask(input_fn, "Anzeigename", value["label"])
-    value["adapter"] = _ask_choice(input_fn, "Runtime-Typ", ["OLLAMA", "OPENAI-COMPATIBLE"], value["adapter"].upper()).lower()
-    value["endpoint"] = _ask(input_fn, "Adresse (Schema://Hostname/IP:Port)", value["endpoint"])
+    stdio = value["adapter"] == "stdio"
+    if stdio:
+        raw = _ask(input_fn, "Exakte Argumentliste als JSON (absolutes Programm zuerst)", json.dumps(value["argv"]) if value["argv"] else "")
+        try:
+            value["argv"] = json.loads(raw)
+        except ValueError as exc:
+            raise ConfigurationError("INVALID_ARGV", "enter a JSON argument array") from exc
+        value["environment_allowlist"] = [item.strip() for item in _ask(input_fn, "Explizite Umgebungs-Allowlist, komma-separiert", ",".join(value["environment_allowlist"])).split(",") if item.strip()]
+        cwd = _ask(input_fn, "Optionales absolutes Arbeitsverzeichnis", value.get("cwd", ""))
+        if cwd:
+            value["cwd"] = cwd
+        else:
+            value.pop("cwd", None)
+        value["trust_model_metadata"] = _ask_bool(input_fn, "Adapter als Quelle beobachteter Backend-Modellidentität vertrauen?", value.get("trust_model_metadata", False))
+    else:
+        value["endpoint"] = _ask(input_fn, "Adresse (Schema://Hostname/IP:Port)", value["endpoint"])
     value["execution_boundary"] = _ask_choice(input_fn, "Ausführungsgrenze", ["HOST", "LOCAL_NETWORK", "REMOTE", "UNKNOWN"], value["execution_boundary"])
-    parsed = urllib.parse.urlparse(value["endpoint"])
-    loopback = (parsed.hostname or "").lower() in {"localhost", "127.0.0.1", "::1"}
-    value["trust_loopback_host"] = value["execution_boundary"] == "HOST" and loopback and _ask_bool(
-        input_fn, "Bestätigst du, dass dieser Loopback-Dienst wirklich auf diesem Host läuft?", value["trust_loopback_host"]
-    )
-    value["network_authorized"] = _ask_bool(input_fn, "HTTP-Zugriff auf genau diesen Endpunkt erlauben?", value["network_authorized"])
+    if not stdio:
+        parsed = urllib.parse.urlparse(value["endpoint"])
+        loopback = (parsed.hostname or "").lower() in {"localhost", "127.0.0.1", "::1"}
+        value["trust_loopback_host"] = value["execution_boundary"] == "HOST" and loopback and _ask_bool(
+            input_fn, "Bestätigst du, dass dieser Loopback-Dienst wirklich auf diesem Host läuft?", value["trust_loopback_host"]
+        )
+    value["network_authorized"] = _ask_bool(input_fn, "Netzwerkzugriff für diesen Backend-Pfad erlauben?", value["network_authorized"])
     while True:
         try:
             value["allowed_data_classes"] = _csv_classes(_ask(input_fn, "Erlaubte Datenklassen, komma-separiert", ",".join(value["allowed_data_classes"])))
             break
         except ConfigurationError as exc:
             output_fn(str(exc))
-    value["allow_remote_models"] = _ask_bool(input_fn, "Ollama-Cloud-Tags grundsätzlich zulassen?", value["allow_remote_models"])
-    if value["allow_remote_models"] or value["execution_boundary"] in {"LOCAL_NETWORK", "REMOTE", "UNKNOWN"}:
+    if not stdio:
+        value["allow_remote_models"] = _ask_bool(input_fn, "Remote-Modelle zulassen (Ollama-Cloud-Tags)?", value["allow_remote_models"])
+    if value.get("allow_remote_models", False) or value["execution_boundary"] in {"LOCAL_NETWORK", "REMOTE", "UNKNOWN"}:
         while True:
             try:
                 default_remote = ",".join(value["remote_data_classes"]) or "PUBLIC"
@@ -631,15 +683,15 @@ def ask_connection(
     if source == "NONE":
         value["credential"] = {"source": "NONE"}
     elif source == "ENVIRONMENT":
-        source_name = _ask(input_fn, "Name der bestehenden Umgebungsvariable", value["credential"].get("source_name", "OLLAMA_API_KEY"))
-        export_as = _ask(input_fn, "Für Adapter bereitstellen als", value["credential"].get("export_as", "OLLAMA_API_KEY"))
+        source_name = _ask(input_fn, "Name der bestehenden Umgebungsvariable", value["credential"].get("source_name", "ADAPTER_API_KEY" if stdio else "OLLAMA_API_KEY"))
+        export_as = _ask(input_fn, "Für Adapter bereitstellen als", value["credential"].get("export_as", "ADAPTER_API_KEY" if stdio else "OLLAMA_API_KEY"))
         value["credential"] = {"source": source, "source_name": source_name, "export_as": export_as}
     else:
         dotenv_path = _ask(input_fn, "Absoluter Pfad zur .env-Datei", value["credential"].get("path", ""))
         if not dotenv_path:
             raise ConfigurationError("DOTENV_PATH_REQUIRED", "dotenv reference path cannot be empty")
-        key = _ask(input_fn, "Schlüssel in der .env-Datei", value["credential"].get("key", "OLLAMA"))
-        export_as = _ask(input_fn, "Für Adapter bereitstellen als", value["credential"].get("export_as", "OLLAMA_API_KEY"))
+        key = _ask(input_fn, "Schlüssel in der .env-Datei", value["credential"].get("key", "ADAPTER" if stdio else "OLLAMA"))
+        export_as = _ask(input_fn, "Für Adapter bereitstellen als", value["credential"].get("export_as", "ADAPTER_API_KEY" if stdio else "OLLAMA_API_KEY"))
         value["credential"] = {"source": source, "path": str(Path(dotenv_path).resolve()), "key": key, "export_as": export_as}
     return validate_connection(connection_id, value)
 
@@ -651,28 +703,29 @@ def interactive_configure(
     output_fn: Callable[[str], None] = print,
 ) -> dict[str, Any]:
     configuration = store.load_for_edit()
-    if not configuration["connections"]:
-        output_fn("Keine Runtime konfiguriert. Ich prüfe sichere lokale Standardadressen read-only.")
-    discoveries = discover_candidates(probe=True)
+    adapter = _ask_choice(input_fn, "Adapter-Typ", ["OLLAMA", "OPENAI-COMPATIBLE", "STDIO"], "OLLAMA").lower()
+    discoveries = discover_candidates(probe=True) if adapter == "ollama" else []
     healthy = next((row for row in discoveries if row["state"] == "HEALTHY"), None)
     endpoint = healthy["endpoint"] if healthy else DEFAULT_OLLAMA_ENDPOINT
     if healthy:
         output_fn(f"Gefunden: Ollama {healthy.get('version') or 'Version unbekannt'} unter {endpoint}")
-    else:
+    elif adapter == "ollama":
         output_fn(f"Kein erreichbarer lokaler Dienst gefunden; Vorschlag bleibt {endpoint}.")
     existing_ids = ", ".join(sorted(configuration["connections"])) or "keine"
-    connection_id = _ask(input_fn, f"Verbindungs-ID (vorhanden: {existing_ids})", "ollama-local")
+    connection_id = _ask(input_fn, f"Verbindungs-ID (vorhanden: {existing_ids})", "ollama-local" if adapter == "ollama" else adapter + "-runtime")
     if not CONNECTION_ID.fullmatch(connection_id):
         raise ConfigurationError("INVALID_CONNECTION_ID", "connection id is invalid")
     existing = configuration["connections"].get(connection_id)
     try:
-        current = validate_connection(connection_id, existing) if existing is not None else _connection_defaults(store.path.parent, endpoint)
+        current = validate_connection(connection_id, existing) if existing is not None else _connection_defaults(store.path.parent, endpoint, adapter)
+        if current["adapter"] != adapter:
+            current = _connection_defaults(store.path.parent, endpoint, adapter)
     except ConfigurationError as exc:
         output_fn(f"Vorhandene Verbindung {connection_id} ist ungültig ({exc.code}); sichere Standardwerte werden zur Reparatur vorgeschlagen.")
-        current = _connection_defaults(store.path.parent, endpoint)
+        current = _connection_defaults(store.path.parent, endpoint, adapter)
     while True:
         candidate = ask_connection(connection_id, current, input_fn, output_fn)
-        output_fn(json.dumps(public_connection(connection_id, candidate), indent=2, ensure_ascii=False))
+        output_fn(json.dumps(candidate, indent=2, ensure_ascii=False))
         while True:
             action = _ask_choice(input_fn, "Aktion", ["TEST", "SAVE", "BACK", "ABORT"], "TEST")
             if action == "TEST":
@@ -702,6 +755,8 @@ def noninteractive_connection(args: argparse.Namespace, store: ConfigurationStor
         current = validate_connection(args.connection_id, raw_current) if raw_current is not None else _connection_defaults(store.path.parent, args.endpoint or DEFAULT_OLLAMA_ENDPOINT)
     except ConfigurationError:
         current = _connection_defaults(store.path.parent, args.endpoint or DEFAULT_OLLAMA_ENDPOINT)
+    if args.adapter is not None and current["adapter"] != args.adapter:
+        current = _connection_defaults(store.path.parent, args.endpoint or DEFAULT_OLLAMA_ENDPOINT, args.adapter)
     value = deepcopy(current)
     for name in ("label", "adapter", "endpoint", "execution_boundary", "timeout_seconds"):
         supplied = getattr(args, name, None)
@@ -713,6 +768,17 @@ def noninteractive_connection(args: argparse.Namespace, store: ConfigurationStor
         value["network_authorized"] = args.network_authorized
     if args.allow_remote_models is not None:
         value["allow_remote_models"] = args.allow_remote_models
+    if args.argv_json is not None:
+        try:
+            value["argv"] = json.loads(args.argv_json)
+        except ValueError as exc:
+            raise ConfigurationError("INVALID_ARGV", "--argv-json must be a JSON array") from exc
+    if args.environment_allowlist is not None:
+        value["environment_allowlist"] = args.environment_allowlist
+    if args.cwd is not None:
+        value["cwd"] = args.cwd
+    if args.trust_model_metadata is not None:
+        value["trust_model_metadata"] = args.trust_model_metadata
     if args.allowed_data_classes is not None:
         value["allowed_data_classes"] = args.allowed_data_classes
     if args.remote_data_classes is not None:
@@ -726,12 +792,13 @@ def noninteractive_connection(args: argparse.Namespace, store: ConfigurationStor
     if args.credential_dotenv:
         value["credential"] = {
             "source": "DOTENV_REFERENCE", "path": str(Path(args.credential_dotenv).resolve()),
-            "key": args.credential_key, "export_as": args.credential_export_as,
+            "key": args.credential_key or ("ADAPTER" if value["adapter"] == "stdio" else "OLLAMA"),
+            "export_as": args.credential_export_as or ("ADAPTER_API_KEY" if value["adapter"] == "stdio" else "OLLAMA_API_KEY"),
         }
     elif args.credential_environment:
         value["credential"] = {
             "source": "ENVIRONMENT", "source_name": args.credential_environment,
-            "export_as": args.credential_export_as,
+            "export_as": args.credential_export_as or ("ADAPTER_API_KEY" if value["adapter"] == "stdio" else "OLLAMA_API_KEY"),
         }
     connection = validate_connection(args.connection_id, value)
     updated = deepcopy(existing)
@@ -756,6 +823,10 @@ def build_parser() -> argparse.ArgumentParser:
     configure.add_argument("--label")
     configure.add_argument("--adapter", choices=sorted(ADAPTERS))
     configure.add_argument("--endpoint")
+    configure.add_argument("--argv-json", help="Exact JSON argv array, starting with an absolute executable; no shell")
+    configure.add_argument("--environment-allowlist", nargs="*")
+    configure.add_argument("--cwd")
+    configure.add_argument("--trust-model-metadata", action=argparse.BooleanOptionalAction, default=None)
     configure.add_argument("--execution-boundary", choices=sorted(BOUNDARIES))
     configure.add_argument("--trust-loopback-host", action=argparse.BooleanOptionalAction, default=None)
     configure.add_argument("--network-authorized", action=argparse.BooleanOptionalAction, default=None)
@@ -769,11 +840,19 @@ def build_parser() -> argparse.ArgumentParser:
     configure.add_argument("--default-model")
     configure.add_argument("--credential-environment")
     configure.add_argument("--credential-dotenv")
-    configure.add_argument("--credential-key", default="OLLAMA")
-    configure.add_argument("--credential-export-as", default="OLLAMA_API_KEY")
+    configure.add_argument("--credential-key")
+    configure.add_argument("--credential-export-as")
     for name in ("probe", "catalog"):
         command = sub.add_parser(name)
         command.add_argument("connection_id")
+    invoke = sub.add_parser("invoke")
+    invoke.add_argument("connection_id")
+    invoke.add_argument("--operation-id", required=True)
+    invoke.add_argument("--model")
+    invoke.add_argument("--data-class", required=True, choices=sorted(DATA_CLASSES))
+    invoke.add_argument("--input-path", required=True)
+    invoke.add_argument("--output-path", required=True)
+    invoke.add_argument("--remote-authorized", action="store_true")
     remove = sub.add_parser("remove")
     remove.add_argument("connection_id")
     remove.add_argument("--yes", action="store_true")
@@ -805,6 +884,14 @@ def main(argv: list[str] | None = None) -> int:
         elif command in {"probe", "catalog"}:
             connection = store.load_connection(args.connection_id)
             result = execute_adapter(connection, command, {})
+        elif command == "invoke":
+            connection = store.load_connection(args.connection_id)
+            model = args.model or (connection["model_selection"]["default_model"] if connection["model_selection"]["mode"] == "PINNED" else None)
+            if not model:
+                raise ConfigurationError("MODEL_SELECTION_REQUIRED", "supply --model or configure PINNED selection")
+            result = execute_adapter(connection, "invoke", {"operation_id": args.operation_id, "model": model,
+                "data_class": args.data_class, "input_path": args.input_path, "output_path": args.output_path,
+                "remote_authorized": args.remote_authorized})
         elif command == "remove":
             configuration = store.load_for_edit()
             if args.connection_id not in configuration["connections"]:

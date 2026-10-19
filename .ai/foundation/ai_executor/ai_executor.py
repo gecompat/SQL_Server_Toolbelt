@@ -147,63 +147,29 @@ def ensure_external(path: Path) -> Path:
     return resolved
 
 
+def _state_io() -> Any:
+    here = Path(__file__).resolve().parent
+    path = next((item for item in (here.parent / "runtime" / "state_io.py",
+                                  here.parents[1] / "runtime" / "state_io.py") if item.is_file()), None)
+    if path is None:
+        raise ExecutionError("CORE_RUNTIME_UNAVAILABLE", "shared state runtime is unavailable")
+    spec = importlib.util.spec_from_file_location("foundation_executor_state_io", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 @contextlib.contextmanager
 def file_lock(path: Path, timeout_seconds: float = 5.0) -> Iterator[None]:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    handle = path.open("a+b")
-    handle.seek(0, os.SEEK_END)
-    if handle.tell() == 0:
-        handle.write(b"0")
-        handle.flush()
-    deadline = time.monotonic() + timeout_seconds
-    locked = False
-    while not locked:
-        try:
-            handle.seek(0)
-            if os.name == "nt":
-                import msvcrt
-
-                msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
-            else:
-                import fcntl
-
-                fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-            locked = True
-        except (OSError, BlockingIOError):
-            if time.monotonic() >= deadline:
-                handle.close()
-                raise ExecutionError("STATE_LOCK_TIMEOUT", "timed out waiting for executor state lock")
-            time.sleep(0.05)
     try:
-        yield
-    finally:
-        handle.seek(0)
-        if os.name == "nt":
-            import msvcrt
-
-            msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
-        else:
-            import fcntl
-
-            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
-        handle.close()
+        with _state_io().file_lock(path, timeout_seconds):
+            yield
+    except TimeoutError as exc:
+        raise ExecutionError("STATE_LOCK_TIMEOUT", "timed out waiting for executor state lock") from exc
 
 
 def atomic_write(path: Path, value: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=path.parent)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as handle:
-            json.dump(value, handle, indent=2, sort_keys=True, ensure_ascii=False)
-            handle.write("\n")
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, path)
-    finally:
-        try:
-            Path(temporary).unlink()
-        except FileNotFoundError:
-            pass
+    _state_io().atomic_write(path, value)
 
 
 class CheckpointStore:
