@@ -2,7 +2,16 @@
 
 Die sechs einzeln freigegebenen Inline-TVFs folgen dem
 [kanonischen Vertrag](../../../Documentation/Architecture/SAFE_CAST_CONTRACT.md).
-Testcode ist kein Ausführungsnachweis. Die begrenzte native Qualifikation auf
+Testcode ist kein Ausführungsnachweis. Am 2026-10-19 bestanden alle zwölf
+aktuellen Labadapter: Windows/Linux SQL2019 CL150, SQL2022 CL150/160 und
+SQL2025 CL150/160/170, je local/central/Consumer mit 38 Lifecyclefällen.
+Frische Audits bestätigten Inputs, Fixtures und 36 eigene DBs abwesend.
+[Scope und Rest-Gates](QUALIFICATION_2026-10-19.md). Minimalrechte, harte
+Runner-/Host-Recovery, Kapazität und Release bleiben offen; teilweise validiert.
+
+## Historische Erstqualifikation vom 2026-10-05/06
+
+Die begrenzte native Qualifikation auf
 Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 besteht jeweils local/
 central/Consumer einschließlich Clientmetadaten und 38 Lifecyclefällen.
 Frische unabhängige Audits bestätigen die eigene Bereinigung und Inputpins.
@@ -14,9 +23,12 @@ ausgeführt; frische unabhängige Audits bestätigten eigene Bereinigung,
 Fixturewiederherstellung und unveränderte Input-/Sourcepins. Andere physische
 Ziele, Minimalrechte, Heap und vollständige Runtime-Head-CI bleiben offen.
 
+## Aktuelle Prüfartefakte
+
 | Artefakt | Fester Prüfscope |
 |---|---|
 | `Modules/toolbelt.conversion.safe-cast/Tests/Runtime/Contract.Tests.sql` | 182 synthetische feste Fälle; sechs Zieltypen, acht Statuswerte, stabile Codes und typed Value-Oracles; je CROSS/OUTER APPLY, drei Language/DATEFORMAT-Sitzungsformen und vier explizite Inputcollations |
+| `Modules/toolbelt.conversion.safe-cast/Tests/Framework/Test-CommandSetup.ps1` | Zwei Setupfehler am echten SqlCommand des source-extrahierten Helpers; Disposed genau einmal, fremde Connection nicht freigegeben, kein SQL |
 | `Modules/toolbelt.conversion.safe-cast/Tests/Runtime/Metadata.Tests.ps1` | Sechs echte schemagebundene IFs, je zwei Parameter und drei Spalten; Default 8192, tatsächliche Katalogtypen/Längen/Precision/Scale/Collation/Nullability; 18 direkte Reader für OK/SQL_NULL/INVALID_ARGUMENT, genau eine Zeile ohne weiteren Resultset |
 | `Modules/toolbelt.conversion.safe-cast/Tests/Runtime/Lifecycle.Tests.sql` | Installierte Baseline: genau sechs markierte Objekte, IF/SCHEMABINDING und Parameter-/Spaltenzahlen |
 | `Modules/toolbelt.conversion.safe-cast/Tests/CI/Test-SafeCastLifecycle.ps1` | CI-Adapter der unveränderten kanonischen Helper: 18 local-/20 central-Fälle pro CL; gleicher Callerzustand, AppLock, Rollback, typisierte Marker, Fremdslot, Confirm0; gepinnte eigene DB-Identität, privates Restorejournal, bestätigter Uninstall/Repeat und frische Abwesenheitsprüfung |
@@ -111,8 +123,8 @@ Gesamtfehlläufe bleiben getrennt fehlgeschlagen; keine gesamte Zielmatrixzusage
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-06`
-- Nachweis: `local: Tests/CI/run-safe-cast-lab.ps1`
-- Scope: Auf demselben bereits ausgewählten schema-validierten Windows2025/exaktCU8-Ziel bestanden zusätzlich CL150 und CL160 mit jeweils vollständigem local/central/Consumer-Adapter: je 13104 feste API-Oracles, 54 direkte Clientreader und 38 Lifecyclefälle. Je Exit0, vollständige Kanäle und leeres Stderr. Frische unabhängige Audits bestätigten COMPLETE38, drei eigene DBs abwesend, je zwei Marker-/Fremdslotfixtures exakt restauriert mit zwei Abweisungen sowie unveränderte Input- und sechs Sourcepins. Keine Konfigurations-/Rechte-/Truständerungen. Weitere physische Ziele, Minimalrechte, Heap und vollständige Runtime-Head-CI bleiben offen.
+- Datum: `2026-10-19`
+- Nachweis: `local: Tests/CI/run-safe-cast-lab.ps1; Tests/Framework/Test-CommandSetup.ps1`
+- Scope: Aktuelle physische Windows-/Linux-Matrix SQL2019 CL150, SQL2022 CL150/160, SQL2025 CL150/160/170: zwölf vollständige local/central/Consumer-Adapter erfolgreich, je 13104 feste APPLY-Oracles, 54 direkte Clientreader und 38 Lifecyclefälle. Alle Exit0, vollständige Kanäle, leeres Stderr. Zwölf frische read-only Kontrollverbindungen bestätigten tatsächliche Version/Plattform, unveränderte Input-/Sourcepins vor dem Dokumentationsnachtrag, je zwei exakt restaurierte Marker-/Fremdslotfixtures und alle 36 eigenen DBs abwesend. Keine Konfigurations-/Rechte-/Truständerungen. Aktueller Metadatenhelper im normalen nativen Pfad bestanden; zusätzlich zwei echte source-extrahierte SqlCommand-Setupfehler mit genau einer Dispose-Beobachtung und unveränderter fremder Connection ohne SQL bestanden. Functional mit erforderlicher Verschlüsselung und explizitem Lab-Trustwert; authentifizierte TLS-Abnahme separat. Minimalrechte, harter Runner-/Hostausfall, Heap-/Produktionskapazität, exakte Head-CI und Veröffentlichung bleiben separate Nachweise; weiterhin teilweise validiert und unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
