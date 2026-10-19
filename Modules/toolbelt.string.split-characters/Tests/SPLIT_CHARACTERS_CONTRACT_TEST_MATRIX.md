@@ -25,13 +25,14 @@ Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` 
 Der
 [Split-Characters Runtime Run 30516116708](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30516116708)
 war für SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
-erfolgreich. Die Release-Matrix bleibt offen.
+erfolgreich. Die vollständige Release-Fachmatrix ist seit der Nachqualifikation
+vom 2026-10-19 belegt; die Veröffentlichung bleibt `unreleased`.
 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
+- Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger Moduladapter mit lokalem und zentralem Deployment, Vertrags-, Lifecycle-, Kollisions- und Uninstall-Tests
+- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; Security-Grenzen, atomare Limitfälle, Minimalrechte und zentrale Status-API
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

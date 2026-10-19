@@ -2,7 +2,7 @@ module_id: "toolbelt.core.console-message"
 module_name: "Console Message"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: "validated"
 release_status: unreleased
 description: "Gibt lange Unicode-Texte gepuffert oder unmittelbar im SQL-Server-Messages-Kanal aus."
 sql_server_versions:
@@ -11,17 +11,17 @@ sql_server_versions:
   - "2025"
 compatibility_levels: [150, 160, 170]
 platforms:
-  windows: "partially validated"
-  linux: "partially validated"
+  windows: "validated"
+  linux: "validated"
 providers:
   - id: tsql-print
     technology: T-SQL PRINT
     platforms: [Windows, Linux]
-    status: "partially validated"
+    status: "validated"
   - id: tsql-raiserror-nowait
     technology: T-SQL RAISERROR WITH NOWAIT
     platforms: [Windows, Linux]
-    status: "partially validated"
+    status: "validated"
 deployment_capabilities:
   local: true
   central: true
@@ -79,6 +79,7 @@ tests:
   runtime: "Tests/Runtime/ConsoleMessage.Contract.sql"
   contract: "Tests/Runtime/ConsoleMessage.Contract.sql"
   message_capture: "Tests/Runtime/ConsoleOutput.Contract.sql"
+  client_capture: "Tests/Runtime/ConsoleClient.Contract.ps1"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
   project_adapter_static: "Tests/Static/validate_contract.py"
@@ -104,4 +105,8 @@ validation_evidence:
   - date: "2026-09-01"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger automatisierter Moduladapter; zusätzliche Client-/Treiber-, Buffering- und Framing-Evidenz bleibt offen"
+    result: "success"
+  - date: "2026-10-19"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; Security-Grenzen und ODBC/sqlcmd-Ausgabe; zusätzlich run-console-clients-lab.ps1 mit ADO.NET-Frames, Unicode, atomarer Ablehnung und NOWAIT-Beobachtung auf allen sechs Zielen"
     result: "success"

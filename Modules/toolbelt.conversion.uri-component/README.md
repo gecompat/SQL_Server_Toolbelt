@@ -1,5 +1,7 @@
 # URI Component Percent-Encoding
 
+Nachqualifikation 2026-10-19: Der vollständige aktuelle Moduladapter bestand auf SQL Server 2019/2022/2025 unter Windows und Linux. Runtime: `validated`; Release: `unreleased`. Die folgenden datierten älteren Abschnitte beschreiben ihren damaligen Stand. Details: [V0c-Gatebericht](../../Tests/V0C_RELEASE_GATE_STATUS.md).
+
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 Das Modul implementiert `TC-2026-024` als RFC-3986-URI-Komponentenvertrag. Es verwendet UTF-8-Octets, Großbuchstaben in `%HH`, `%20` für Leerzeichen und niemals `+`.
@@ -14,14 +16,14 @@ FROM toolbelt_conversion.TVF_UriComponentEncode(N'Kaffee & Tee') AS encoded;
 
 Details: [Encode](./Documentation/TVF_UriComponentEncode.md), [Decode](./Documentation/TVF_UriComponentDecode.md), [Moduldesign](../../Documentation/Architecture/URI_COMPONENT_MODULE_DESIGN.md).
 
-Aktuelle Evidenz: [Run 30553118399](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118399) sowie der lokale Lauf vom 2026-08-29 – vollständiger Adapter auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich; Modulstatus `partially validated`.
+Aktuelle Evidenz: [Run 30553118399](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30553118399) sowie der lokale Lauf vom 2026-08-29 – vollständiger Adapter auf physischen SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich; Modulstatus nach Nachqualifikation 2026-10-19: `validated`.
 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
+- Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; RFC-3986-ASCII-Raum, Unicode/UTF-8, ungültige Prozentsequenzen, synthetischer Large-Input-Roundtrip, Kollisionsschutz, Lifecycle und Uninstall
+- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; Security-Grenzen, Unicode/UTF-8, Minimalrechte und zentrale Status-APIs
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -31,6 +33,6 @@ SC-021: Neue EncodeStatus-/DecodeStatus-TVFs prüfen64 KiB UTF-16-Input vor Seri
 
 Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
 
-Aktueller Securitystand: `partially validated`, `unreleased`. Die bisherigen
-Matrixnachweise gelten historisch; die neuen Verträge sind gezielt auf Linux
-SQL Server 2019 geprüft. Weitere Plattform-/CL-Nachweise bleiben offen.
+Aktueller Securitystand nach der Nachqualifikation vom 2026-10-19: `validated`,
+`unreleased`. Die neuen Verträge, die vollständige Fachmatrix, lokale
+Minimalrechte und zentrale Statusaufrufe sind auf allen sechs Zielen geprüft.

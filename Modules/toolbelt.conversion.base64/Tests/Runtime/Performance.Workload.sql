@@ -36,7 +36,7 @@ BEGIN
         DECLARE @Encoded varchar(max) = toolbelt_conversion.SVF_Base64Encode(@Synthetic, 0);
         DECLARE @Decoded varbinary(max) = toolbelt_conversion.SVF_Base64Decode(@Encoded);
 
-        IF @Decoded <> @Synthetic
+        IF @Decoded IS NULL OR @Decoded <> @Synthetic
             THROW 52351, N'Der Large-LOB-Performance-Workload verlor synthetische Daten.', 1;
 
         IF @SampleOrdinal > 0

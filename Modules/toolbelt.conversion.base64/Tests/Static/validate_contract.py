@@ -64,6 +64,7 @@ def main() -> int:
         "PerformanceMaxMedianRegressionPercent",
         "PerformanceMaxBatchMedianVariancePercent",
         "4194304",
+        "@Decoded IS NULL OR @Decoded <> @Synthetic",
         "@SampleOrdinal < 6",
         "@BatchOrdinal <= 3",
         "52352",

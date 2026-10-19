@@ -1,5 +1,11 @@
 # CI-Testadapter
 
+Die aktuelle Abnahme der ersten 16 Module und die verbleibenden externen
+Voraussetzungen stehen im [V0c-Gatebericht](../V0C_RELEASE_GATE_STATUS.md).
+`run-console-clients-lab.ps1` ergänzt die W2c-Suite um echte ADO.NET-
+`InfoMessage`-Prüfungen; Aufruf und Aussagegrenzen stehen in der
+[Console-Message-Testanleitung](../../Modules/toolbelt.core.console-message/Tests/README.md#clientprüfung-2026-10-19).
+
 Securitywartung 2026-10-14 (SC-2026-042): Second-Session- und Event-Log-
 Fixtures entfernen nach Linked-Server-Anlage das allgemeine Self-Mapping.
 Sie bilden ausschließlich `ORIGINAL_LOGIN()` mit dem bereits vorhandenen
@@ -611,9 +617,9 @@ Die datierten Ergebnisse und Grenzen aller 13 Korrekturen stehen im
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-11`
+- Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2025-Ziele unter Windows und Linux; vollständiger Moduladapter einschließlich explizit aktivierter synthetischer Performance-Workload ohne persistierte Basis
+- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; SchemaTrust-Sicherheitsfälle; Performancevergleich separat offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

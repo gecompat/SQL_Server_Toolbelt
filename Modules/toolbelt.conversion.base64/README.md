@@ -1,5 +1,7 @@
 # Base64 and Base64URL Conversion
 
+Nachqualifikation 2026-10-19: Der vollständige aktuelle Moduladapter bestand auf SQL Server 2019/2022/2025 unter Windows und Linux. Die abgegrenzte Performance-Abnahme bleibt offen; Runtime: `partially validated`, Release: `unreleased`. Die folgenden datierten älteren Abschnitte beschreiben ihren damaligen Stand. Details: [V0c-Gatebericht](../../Tests/V0C_RELEASE_GATE_STATUS.md).
+
 Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich; breitere Large-LOB-Performance-Evidenz bleibt offen. Der Modulstatus bleibt `partially validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen; datierte ältere Einträge bleiben historische Evidenz.
 
 V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
@@ -118,9 +120,9 @@ Large-LOB-Performance-Evidenz bleibt der Modulstatus `partially validated`.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-11`
+- Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2025-Ziele unter Windows und Linux; vollständiger Moduladapter einschließlich explizit aktivierter synthetischer 4-MiB-Large-LOB-Workload ohne persistierte Basis
+- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; Security-Grenzen, Empty-Decode und NULL-sichere RFC-Orakel; Minimalrechte und zentrale Status-APIs zusätzlich geprüft; Performancevergleich separat offen
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

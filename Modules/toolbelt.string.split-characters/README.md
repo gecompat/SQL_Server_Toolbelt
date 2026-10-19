@@ -1,5 +1,7 @@
 # toolbelt.string.split-characters
 
+Nachqualifikation 2026-10-19: Der vollständige aktuelle Moduladapter bestand auf SQL Server 2019/2022/2025 unter Windows und Linux. Runtime: `validated`; Release: `unreleased`. Die folgenden datierten älteren Abschnitte beschreiben ihren damaligen Stand. Details: [V0c-Gatebericht](../../Tests/V0C_RELEASE_GATE_STATUS.md).
+
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
 ## Zweck
@@ -20,8 +22,8 @@ Der
 [Split-Characters Runtime Run 30516116708](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30516116708)
 war auf SQL Server 2025 Linux mit Compatibility Levels 150, 160 und 170
 erfolgreich. Der vollständige Adapter ist am 2026-08-29 zusätzlich auf physischen
-SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich; Windows-Läufe
-bleiben `not executed`.
+SQL-Server-2019-, 2022- und 2025-Linux-Zielen erfolgreich; Die Windows-Matrix ist seit der Nachqualifikation
+vom 2026-10-19 erfolgreich belegt.
 
 ## Öffentliche Oberfläche
 
@@ -99,9 +101,9 @@ Das Modul entfernt seine Generate-Series-Dependency nicht.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
+- Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger Moduladapter mit lokalem und zentralem Deployment, Vertrags-, Lifecycle-, Kollisions- und Uninstall-Tests
+- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; Security-Grenzen, atomare Limitfälle, Minimalrechte und zentrale Status-API
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -111,6 +113,6 @@ SC-020: Neuer Statuskern prüft64 KiB UTF-16-Input,64 unterschiedliche Separator
 
 Details und abgegrenzte Nachweise: [Security-Härtung](../../Documentation/Architecture/SECURITY_HARDENING_2026_10.md).
 
-Aktueller Securitystand: `partially validated`, `unreleased`. Die bisherigen
-Matrixnachweise gelten historisch; die neuen Verträge sind gezielt auf Linux
-SQL Server 2019 geprüft. Weitere Plattform-/CL-Nachweise bleiben offen.
+Aktueller Securitystand nach der Nachqualifikation vom 2026-10-19: `validated`,
+`unreleased`. Die neuen Verträge, die vollständige Fachmatrix, lokale
+Minimalrechte und zentrale Statusaufrufe sind auf allen sechs Zielen geprüft.

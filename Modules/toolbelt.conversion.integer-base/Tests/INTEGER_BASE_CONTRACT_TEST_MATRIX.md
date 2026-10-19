@@ -28,8 +28,8 @@ https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/30535377860
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
+- Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger Moduladapter mit lokalem und zentralem Deployment, Vertrags-, Lifecycle-, Kollisions- und Uninstall-Tests
+- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; Plus als Alphabetziffer, bigint-Grenzen und NULL-/kardinalitätssichere Orakel einschließlich Upgrade von 1.0.0
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

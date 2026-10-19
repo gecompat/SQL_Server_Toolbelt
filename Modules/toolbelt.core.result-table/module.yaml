@@ -136,3 +136,7 @@ validation_evidence:
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Physische SQL-Server-2025-Ziele unter Windows und Linux; vollständiger Moduladapter einschließlich explizit aktivierter synthetischer Performance-Workload ohne persistierte Basis"
     result: "success"
+  - date: "2026-10-19"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; SchemaTrust-Sicherheitsfälle; Performancevergleich separat offen"
+    result: "success"

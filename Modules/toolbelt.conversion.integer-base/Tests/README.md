@@ -1,5 +1,7 @@
 # Integer-Base Tests
 
+Nachqualifikation 2026-10-19: Der vollständige aktuelle Moduladapter bestand auf SQL Server 2019/2022/2025 unter Windows und Linux. Runtime: `validated`; Release: `unreleased`. Die folgenden datierten älteren Abschnitte beschreiben ihren damaligen Stand. Details: [V0c-Gatebericht](../../../Tests/V0C_RELEASE_GATE_STATUS.md).
+
 ## Wartung 2026-10-09 – Plusziffer und positive Orakel
 
 Der Decoder unterscheidet reguläre `+`-Alphabetziffern von einem zusätzlichen
@@ -13,7 +15,7 @@ sie qualifizieren die geänderte Quelle nicht erneut auf Windows oder Linux.
 
 Vollständige Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` belegt den erfolgreichen Moduladapter auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest. Dieser Nachweis ersetzt frühere offene oder `not executed`-Aussagen; datierte ältere Einträge bleiben als historische Evidenz erhalten.
 
-Runtime: `partially validated`.
+Runtime: `validated`.
 
 Signatur-, Alphabet-, Kanonizitäts-, Grenzwert-, Overflow-, Roundtrip-,
 Deployment-, Kollisions-, zentrale und Lifecycle-Contracts sind vorhanden.
@@ -32,8 +34,8 @@ bleiben `not executed`.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-09-01`
+- Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL-Server-2019-, 2022- und 2025-Ziele unter Windows base und Linux latest; vollständiger Moduladapter mit lokalem und zentralem Deployment, Vertrags-, Lifecycle-, Kollisions- und Uninstall-Tests
+- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; Plus als Alphabetziffer, bigint-Grenzen und NULL-/kardinalitätssichere Orakel einschließlich Upgrade von 1.0.0
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
