@@ -1750,6 +1750,20 @@ Runner-/Host-Recovery und Release bleiben offen; `partially validated`,
 
 ### RI-2026-076: sechs Safe-Cast-TVFs – einzeln freigegeben 2026-10-05
 
+**Nachqualifikation 2026-10-19:** Der Benutzer beauftragte nach der getrennten
+Statusbereinigung die autonom ausführbaren Safe-Cast-Labfälle und einen
+eigenen PR. Zwölf aktuelle Adapter bestanden auf physischen Windows-/Linux-
+Zielen: 2019 CL150, 2022 CL150/160, 2025 CL150/160/170, je local/central/
+Consumer und 38 Lifecyclefälle. Frische read-only Audits bestätigten alle
+Inputs vor dem Evidenznachtrag, exakte Fixturewiederherstellung und 36 eigene
+DBs abwesend. Zwei echte source-extrahierte ADO.NET-Setupfehler bestanden ohne
+SQL; keine Produkt-, Konfigurations-, Rechte- oder Truständerung. Physische
+Ziel-/CL-Lücken sind für diesen aktuellen Scope geschlossen. Minimalrechte,
+harte Runner-/Host-Recovery, Kapazität, Head-CI und Release bleiben separat;
+`partially validated`, `unreleased`.
+[Bericht und Reproduktion](../Modules/toolbelt.conversion.safe-cast/Tests/QUALIFICATION_2026-10-19.md).
+Die folgenden älteren Zielnachweise behalten Datum und ursprünglichen Scope.
+
 Nach der Vertragsbesprechung in [PR170](https://github.com/gecompat/SQL_Server_Toolbelt/pull/170)
 und der konkreten anschließenden Frage antwortete der Benutzer ausdrücklich:
 „Diese sechs Funktionen freigegeben“. Damit sind genau `TVF_TryCastBigInt`,

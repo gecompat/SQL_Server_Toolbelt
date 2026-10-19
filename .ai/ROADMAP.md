@@ -74,6 +74,16 @@ Baseline, nicht die 38 gezielten Lab-Lifecyclefälle. Minimalrechte,
 Hard-Interrupt-Recovery, Heap, weitere physische Ziele und Releasequalifikation
 bleiben offen.
 
+Aktualisierung 2026-10-19: Zwölf aktuelle Safe-Cast-Labadapter auf Windows
+und Linux SQL2019 CL150, SQL2022 CL150/160 und SQL2025 CL150/160/170 bestanden
+je local/central/Consumer mit 38 Lifecyclefällen. Alle Input-/Fixturepins
+und 36 eigene DBs abwesend wurden vor dem Evidenznachtrag frisch lesend
+bestätigt. Zwei echte ADO.NET-Setupfehlerproben bestanden ohne SQL. Die
+historischen physischen Ziel-/CL-Lücken sind für diesen Scope geschlossen.
+Minimalrechte, harte Runner-/Host-Recovery, Kapazität, Head-CI und Release
+bleiben separat; teilweise validiert und unveröffentlicht.
+[Qualifikationsbericht](../Modules/toolbelt.conversion.safe-cast/Tests/QUALIFICATION_2026-10-19.md).
+
 `toolbelt.pseudonymization.deterministic` 1.1.0 ergänzt die einzeln freigegebene
 ASCII-Translation. Vollständige Adapter auf Linux 2019/latest local/central
 und Windows 2025/CU8 central CL150/160/170 erfolgreich; Windows local durch

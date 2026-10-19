@@ -43,8 +43,8 @@ Eingabetext; keine allgemeine Heap-, Durchsatz- oder Parallelitätszusage.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-06`
-- Nachweis: `local: Tests/CI/run-safe-cast-lab.ps1`
-- Scope: Auf demselben bereits ausgewählten schema-validierten Windows2025/exaktCU8-Ziel bestanden zusätzlich CL150 und CL160 mit jeweils vollständigem local/central/Consumer-Adapter: je 13104 feste API-Oracles, 54 direkte Clientreader und 38 Lifecyclefälle. Je Exit0, vollständige Kanäle und leeres Stderr. Frische unabhängige Audits bestätigten COMPLETE38, drei eigene DBs abwesend, je zwei Marker-/Fremdslotfixtures exakt restauriert mit zwei Abweisungen sowie unveränderte Input- und sechs Sourcepins. Keine Konfigurations-/Rechte-/Truständerungen. Weitere physische Ziele, Minimalrechte, Heap und vollständige Runtime-Head-CI bleiben offen.
+- Datum: `2026-10-19`
+- Nachweis: `local: Tests/CI/run-safe-cast-lab.ps1; Tests/Framework/Test-CommandSetup.ps1`
+- Scope: Aktuelle physische Windows-/Linux-Matrix SQL2019 CL150, SQL2022 CL150/160, SQL2025 CL150/160/170: zwölf vollständige local/central/Consumer-Adapter erfolgreich, je 13104 feste APPLY-Oracles, 54 direkte Clientreader und 38 Lifecyclefälle. Alle Exit0, vollständige Kanäle, leeres Stderr. Zwölf frische read-only Kontrollverbindungen bestätigten tatsächliche Version/Plattform, unveränderte Input-/Sourcepins vor dem Dokumentationsnachtrag, je zwei exakt restaurierte Marker-/Fremdslotfixtures und alle 36 eigenen DBs abwesend. Keine Konfigurations-/Rechte-/Truständerungen. Aktueller Metadatenhelper im normalen nativen Pfad bestanden; zusätzlich zwei echte source-extrahierte SqlCommand-Setupfehler mit genau einer Dispose-Beobachtung und unveränderter fremder Connection ohne SQL bestanden. Functional mit erforderlicher Verschlüsselung und explizitem Lab-Trustwert; authentifizierte TLS-Abnahme separat. Minimalrechte, harter Runner-/Hostausfall, Heap-/Produktionskapazität, exakte Head-CI und Veröffentlichung bleiben separate Nachweise; weiterhin teilweise validiert und unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
