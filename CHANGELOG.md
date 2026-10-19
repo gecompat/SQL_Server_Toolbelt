@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2026-10-19 – JSON-Pointer-Matrix im Lab nachqualifiziert
+
+Zwölf vollständige Adapter bestanden auf Windows/Linux SQL2019 CL150,
+SQL2022 CL150/160 und SQL2025 CL150/160/170 mit local/central/Consumer,
+festen API-/Safetyorakeln, Clientmetadaten und je 42 Lifecyclefällen.
+Frische Audits bestätigten Inputbindung, Fixturewiederherstellung und die
+Abwesenheit aller 36 eigenen Datenbanken. Der kanonische Vertrag und die
+Objektdokumentation führen das bereits freigegebene SC-006-Parserbudget nach;
+keine Produkt-/Harnessänderung oder Statusaufwertung.
+Minimalrechte, Heap/Parallelität, harte Host-Recovery und Release bleiben offen.
+[Bericht](Modules/toolbelt.json.pointer/Tests/QUALIFICATION_2026-10-19.md).
+
 ## 2026-10-19 – Pflicht-Lastfälle und optionale Zeitmessungen
 
 Auf ausdrücklichen Benutzerauftrag ersetzt DEC-2026-036 den bisherigen

@@ -1,5 +1,19 @@
 # JSON Pointer1.0.0 – Testmatrix
 
+Aktualisierung 2026-10-19: Zwölf aktuelle vollständige Pointer-Labadapter
+bestanden auf Windows und Linux: SQL2019 CL150, SQL2022 CL150/160 und
+SQL2025 CL150/160/170, jeweils local/central/Consumer. Je 3072 feste
+Contract-/Safety-Oracles, 15 Clientreader und 42 Lifecyclefälle; frische
+read-only Audits bestätigten Input-/Fixturepins und 36 eigene DBs abwesend.
+Der seit den alten Läufen ergänzte SC-006-Source ist gebunden; die separate
+Securityfixture und neue Lastfälle waren nicht Teil dieser Labwelle.
+Die physischen Ziel-/CL-Lücken des full-Adapters sind damit geschlossen.
+Minimalrechte, Heap/Parallelität, harte Runner-/Host-Recovery, authentifizierte
+TLS-Abnahme und Release bleiben separat; teilweise validiert, unveröffentlicht.
+[Aktueller Bericht und Reproduktion](QUALIFICATION_2026-10-19.md).
+
+Die folgenden datierten Nachweise dokumentieren ihren historischen Stand.
+
 Der [kanonische Vertrag](../../../Documentation/Architecture/JSON_POINTER_CONTRACT.md)
 bestimmt feste Erwartungen. Historische Engineproben ersetzen keine API-Prüfung.
 
@@ -391,8 +405,8 @@ Hard-Interrupt-Recovery bleibt offen.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-06`
+- Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-json-pointer-lab.ps1 -QualificationScope full`
-- Scope: Zusätzliche vollständige Läufe auf demselben schema-validierten, exakt ausgewählten Windows2025/CU8-Ziel mit CL150 und CL160 bestanden jeweils local/central/Consumer, Contract/Safety, direkte Clientmetadaten, Repeat und42 Lifecyclefälle. Je Exit0, vollständige Kanäle und leeresStderr; frische unabhängige Audits bestätigten COMPLETE42, drei eigene DBs abwesend, je zwei Marker-/Fremdslot-/Dependencyfixtures exakt restauriert mit zwei Abweisungen, unveränderte Inputpins und Nullscope Konfiguration/Rechte/Trust. CL150/160 sind getrennte neue Nachweise; CL170 und Linux2019 CL150 bleiben frühere Nachweise. Weitere physische Ziele, Minimalrechte,16MiB-Maximalworkload/Heap und vollständige Runtime-Head-CI offen; teilweise validiert, unveröffentlicht.
+- Scope: Aktuelle physische Windows-/Linux-Matrix SQL2019 CL150, SQL2022 CL150/160, SQL2025 CL150/160/170: zwölf vollständige local/central/Consumer-Adapter erfolgreich, je 3072 feste Contract-/Safety-APPLY-Oracles, 15 direkte Clientreader und 42 Lifecyclefälle. Alle Exit0, vollständige Kanäle, leeres Stderr. Zwölf frische read-only Kontrollverbindungen bestätigten tatsächliche Version/Plattform, unveränderte Input-/Sourcepins vor dem Evidenznachtrag, je zwei exakt restaurierte Marker-/Fremdslot-/Dependencyfixtures mit je zwei Abweisungen und alle 36 eigenen DBs abwesend. Keine Konfigurations-/Rechte-/Truständerungen. Functional mit erforderlicher Verschlüsselung und explizitem Lab-Trustwert; authentifizierte TLS-Abnahme separat. Aktueller Source einschließlich freigegebener SC-006-Härtung gebunden; deren separate Security.Contract.sql gehört nicht zum physischen full-Adapter. Keine neue Last-, Minimalrechte-, Heap-/Parallel-, Host-Recovery- oder Releasequalifikation; aktuelle Head-CI separat. Weiterhin teilweise validiert und unveröffentlicht.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
