@@ -131,11 +131,15 @@ Die vorhandene funktionale Supportmatrix bleibt erhalten.
 Diese Fälle enthalten keine Zeitmessung, Baseline oder Streuungsgrenze und
 benötigen keinen reservierten Messhost. Fehler, Timeouts und fehlgeschlagener
 Cleanup bleiben erfolglose beziehungsweise unvollständige Nachweise.
-Laufzeitmessungen sind optionale zusätzliche Evidenz und blockieren weder
+Für diese drei Module sind Laufzeitmessungen optionale zusätzliche Evidenz und blockieren weder
 `validated` noch die Releaseentscheidung. Konkrete künftig vereinbarte
 Leistungszusagen benötigen einen eigenen Abnahmevertrag.
 
-## Performance-Messungen (optional)
+## Performance-Messungen
+
+Die vorstehende Optionalität gilt ausschließlich für ResultTable, Base64 und
+Generate Series gemäß DEC-2026-036. Andere ausdrücklich vereinbarte
+modulspezifische Pflicht-Lastfälle und Leistungsnachweise bleiben unverändert.
 
 - vergleichbare Abfrage, Parameter, Daten- und Cache-Zustände;
 - Messumgebung und Datenmenge dokumentieren;
