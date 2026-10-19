@@ -3,6 +3,7 @@ name: Base64 Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - ".github/workflows/base64-runtime.yml"
       - "Modules/toolbelt.conversion.base64/module.yaml"
       - "Modules/toolbelt.conversion.base64/Source/**"
@@ -14,6 +15,7 @@ on:
     branches:
       - main
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - ".github/workflows/base64-runtime.yml"
       - "Modules/toolbelt.conversion.base64/module.yaml"
       - "Modules/toolbelt.conversion.base64/Source/**"

@@ -150,6 +150,67 @@ class ChangeImpactTests(unittest.TestCase):
             for patterns in workflow_paths(workflow.read_text(encoding="utf-8")):
                 self.assertFalse(triggered("Documentation/Architecture/DECISIONS.md", patterns), workflow.name)
 
+    def test_common_lab_wrapper_reaches_every_actual_ci_consumer(self):
+        consumers = 0
+        for workflow in (ROOT / ".github/workflows").glob("*.yml"):
+            text = workflow.read_text(encoding="utf-8")
+            if "bash Tests/CI/run-lab-target.sh " not in text:
+                continue
+            groups = workflow_paths(text)
+            self.assertTrue(groups, workflow.name)
+            consumers += 1
+            for patterns in groups:
+                self.assertTrue(triggered("Tests/CI/run-lab-target.sh", patterns), workflow.name)
+        self.assertGreaterEqual(consumers, 27)
+
+    def test_deployed_module_inputs_reach_the_actual_shell_consumers(self):
+        for workflow in (ROOT / ".github/workflows").glob("*.yml"):
+            text = workflow.read_text(encoding="utf-8")
+            scripts = set(re.findall(r"bash (Tests/CI/run-[\w-]+\.sh)", text))
+            scripts.update(re.findall(
+                r"Tests/CI/run-lab-target\.sh (Tests/CI/run-[\w-]+\.sh)", text))
+            for script in scripts:
+                source = (ROOT / script).read_text(encoding="utf-8")
+                modules = set(re.findall(r"Modules/(toolbelt\.[\w.-]+)", source))
+                for patterns in workflow_paths(text):
+                    for module in modules:
+                        for leaf in ("Source/Fixture.sql", "Deployment/Deploy.sql", "module.yaml"):
+                            self.assertTrue(triggered(f"Modules/{module}/{leaf}", patterns),
+                                            (workflow.name, script, module, leaf))
+                    if "Tests/CI/WorkTypeAuthorization.Fixture.sql" in source:
+                        self.assertTrue(triggered("Tests/CI/WorkTypeAuthorization.Fixture.sql", patterns),
+                                        workflow.name)
+
+    def test_documentation_directory_cannot_hide_binary_pins_or_oracles(self):
+        for workflow in (ROOT / ".github/workflows").glob("*.yml"):
+            for patterns in workflow_paths(workflow.read_text(encoding="utf-8")):
+                for pattern in patterns:
+                    if not re.fullmatch(r"Modules/[^/]+/\*\*", pattern):
+                        continue
+                    module = pattern[:-3]
+                    self.assertFalse(triggered(f"{module}/Documentation/Overview.md", patterns))
+                    for leaf in ("KNOWN_CLR_ARTIFACTS.json", "oracle.sql", "UnknownInput.bin"):
+                        self.assertTrue(triggered(f"{module}/Documentation/{leaf}", patterns),
+                                        (workflow.name, leaf))
+        for patterns in workflow_paths((ROOT / ".github/workflows/json-constructors-runtime.yml")
+                                       .read_text(encoding="utf-8")):
+            self.assertTrue(triggered(
+                "Modules/toolbelt.json.constructors/Documentation/KNOWN_CLR_ARTIFACTS.json", patterns))
+
+    def test_ssis_exact_parser_dependency_reaches_offline_contract(self):
+        text = (ROOT / ".github/workflows/ssis-debug-build.yml").read_text(encoding="utf-8")
+        for patterns in workflow_paths(text):
+            for leaf in ("module.yaml", "Clr/Toolbelt.Tsql.ScriptParser.csproj",
+                         "Scripts/New-ClrReleaseArtifacts.ps1", "Clr/PreparseGuardCore.cs"):
+                self.assertTrue(triggered(f"Modules/toolbelt.tsql.script-parser/{leaf}", patterns), leaf)
+            self.assertFalse(triggered("Modules/toolbelt.tsql.script-parser/README.md", patterns))
+
+    def test_each_filtered_workflow_keeps_its_current_definition_gate(self):
+        for workflow in (ROOT / ".github/workflows").glob("*.yml"):
+            path = workflow.relative_to(ROOT).as_posix()
+            for patterns in workflow_paths(workflow.read_text(encoding="utf-8")):
+                self.assertTrue(triggered(path, patterns), workflow.name)
+
     def test_glob_subset_preserves_order_and_directory_boundaries(self):
         self.assertFalse(glob_matches("Modules/a/b/README.md", "Modules/*/README.md"))
         self.assertTrue(glob_matches("Modules/a/Tests/README.md", "Modules/*/Tests/**/*.md"))

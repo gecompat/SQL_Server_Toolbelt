@@ -3,6 +3,7 @@ name: ResultTable Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - ".github/workflows/result-table-runtime.yml"
       - "Modules/toolbelt.core.result-table/module.yaml"
       - "Modules/toolbelt.core.result-table/Source/**"
@@ -13,6 +14,7 @@ on:
     branches:
       - main
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - ".github/workflows/result-table-runtime.yml"
       - "Modules/toolbelt.core.result-table/module.yaml"
       - "Modules/toolbelt.core.result-table/Source/**"

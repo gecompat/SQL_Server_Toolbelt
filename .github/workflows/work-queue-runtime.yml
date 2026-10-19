@@ -3,6 +3,7 @@ name: Work-Queue Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - Tests/CI/WorkTypeAuthorization.Fixture.sql
       - ".github/workflows/work-queue-runtime.yml"
       - "Modules/toolbelt.core.work-queue/**"
@@ -10,7 +11,7 @@ on:
       - "Modules/toolbelt.core.result-table/**"
       - "Tests/CI/run-work-queue-linux.sh"
       # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
-      - "!Modules/*/Documentation/**"
+      - "!Modules/*/Documentation/**/*.md"
       - "!Modules/*/README.md"
       - "!Modules/*/CHANGELOG.md"
       - "!Modules/*/Tests/**/*.md"
@@ -18,13 +19,15 @@ on:
   push:
     branches: [main]
     paths:
+      - Tests/CI/WorkTypeAuthorization.Fixture.sql
+      - "Tests/CI/run-lab-target.sh"
       - ".github/workflows/work-queue-runtime.yml"
       - "Modules/toolbelt.core.work-queue/**"
       - "Modules/toolbelt.core.work-type/**"
       - "Modules/toolbelt.core.result-table/**"
       - "Tests/CI/run-work-queue-linux.sh"
       # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
-      - "!Modules/*/Documentation/**"
+      - "!Modules/*/Documentation/**/*.md"
       - "!Modules/*/README.md"
       - "!Modules/*/CHANGELOG.md"
       - "!Modules/*/Tests/**/*.md"

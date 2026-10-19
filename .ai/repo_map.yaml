@@ -1075,6 +1075,7 @@ change_impact:
         - Tests/CI/run-security-hardening-lab.ps1
         - Tests/CI/run-filesystem-security-lab.ps1
         - Tests/CI/test_lab_tls.py
+        - Tests/CI/test_lab_cleanup.py
         - Tests/CI/Set-SqlClientTlsPolicy.ps1
         - Tests/CI/test-lab-selector.ps1
         - Tests/CI/validate_lab_selector.py

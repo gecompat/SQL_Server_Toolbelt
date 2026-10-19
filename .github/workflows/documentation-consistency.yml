@@ -133,7 +133,7 @@ jobs:
           run_scope=false
           if [ "$EVENT_NAME" = workflow_dispatch ]; then
             run_scope=true
-          elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Tests/CI/run-lab-local.ps1 Tests/CI/test-lab-selector.ps1 Tests/CI/validate_lab_selector.py Tests/CI/run-lab-target.sh Tests/CI/test_lab_tls.py Tests/CI/Set-SqlClientTlsPolicy.ps1 .github/workflows/documentation-consistency.yml; then
+          elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Tests/CI/run-lab-local.ps1 Tests/CI/test-lab-selector.ps1 Tests/CI/validate_lab_selector.py Tests/CI/run-lab-target.sh Tests/CI/test_lab_tls.py Tests/CI/test_lab_cleanup.py Tests/CI/Set-SqlClientTlsPolicy.ps1 .github/workflows/documentation-consistency.yml; then
             :
           else
             scope_result=$?

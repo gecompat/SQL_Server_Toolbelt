@@ -3,6 +3,7 @@ name: W2b JSON Path Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - "Modules/toolbelt.json.path-exists/Source/**"
       - "Modules/toolbelt.json.path-exists/Deployment/**"
       - "Modules/toolbelt.json.path-exists/Tests/Runtime/**"
@@ -13,6 +14,7 @@ on:
   push:
     branches: [main]
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - "Modules/toolbelt.json.path-exists/Source/**"
       - "Modules/toolbelt.json.path-exists/Deployment/**"
       - "Modules/toolbelt.json.path-exists/Tests/Runtime/**"

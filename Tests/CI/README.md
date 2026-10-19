@@ -1,5 +1,14 @@
 # CI-Testadapter
 
+Die [Impact- und Aufwandsprüfung vom 2026-10-19](CHANGE_IMPACT_REVIEW_2026-10-19.md)
+dokumentiert gemeinsame Adapter-/Consumer-Abhängigkeiten und offene
+Attestierungsvoraussetzungen. `python -B Tests/CI/validate_lab_selector.py`
+prüft Zielauswahl, TLS und den tatsächlichen Lab-Cleanup ausschließlich mit
+synthetischen Antworten. Der Cleanup-Teil ist separat über
+`python -B Tests/CI/test_lab_cleanup.py` ausführbar: SQL-/Dateifehler,
+Restressourcen, bestehender Fehlerstatus und optionale Zeitmessungen dürfen
+keinen falschen Gesamterfolg erzeugen. Dies ist kein SQL-/Provider-Nachweis.
+
 Die drei Adapter für ResultTable, Base64 und Generate Series führen den jeweiligen
 `Load.Contract.sql` auf SQL Server 2025/CL170 automatisch ohne Opt-in aus.
 Die Pflichtfälle prüfen Daten, Schema beziehungsweise vollständige Wertemengen.

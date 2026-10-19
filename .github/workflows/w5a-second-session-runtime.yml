@@ -5,12 +5,22 @@ on:
     branches:
       - main
     paths:
+      - "Tests/CI/run-lab-target.sh"
+      - "Modules/toolbelt.core.execution-context/Source/**"
+      - "Modules/toolbelt.core.execution-context/Deployment/**"
+      - "Modules/toolbelt.core.execution-context/module.yaml"
+      - "Modules/toolbelt.core.result-table/Source/**"
+      - "Modules/toolbelt.core.result-table/Deployment/**"
+      - "Modules/toolbelt.core.result-table/module.yaml"
+      - "Modules/toolbelt.core.work-type/Source/**"
+      - "Modules/toolbelt.core.work-type/Deployment/**"
+      - "Modules/toolbelt.core.work-type/module.yaml"
       - Tests/CI/WorkTypeAuthorization.Fixture.sql
       - Modules/toolbelt.core.second-session/**
       - Tests/CI/run-w5a-second-session-linux.sh
       - .github/workflows/w5a-second-session-runtime.yml
       # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
-      - "!Modules/*/Documentation/**"
+      - "!Modules/*/Documentation/**/*.md"
       - "!Modules/*/README.md"
       - "!Modules/*/CHANGELOG.md"
       - "!Modules/*/Tests/**/*.md"

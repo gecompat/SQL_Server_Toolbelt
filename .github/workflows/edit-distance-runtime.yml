@@ -8,7 +8,7 @@ on:
       - ".github/workflows/edit-distance-runtime.yml"
 
       # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
-      - "!Modules/*/Documentation/**"
+      - "!Modules/*/Documentation/**/*.md"
       - "!Modules/*/README.md"
       - "!Modules/*/CHANGELOG.md"
       - "!Modules/*/Tests/**/*.md"
@@ -20,7 +20,7 @@ on:
       - ".github/workflows/edit-distance-runtime.yml"
 
       # Reine Moduldokumentation benötigt keine Runtime-/Buildmatrix.
-      - "!Modules/*/Documentation/**"
+      - "!Modules/*/Documentation/**/*.md"
       - "!Modules/*/README.md"
       - "!Modules/*/CHANGELOG.md"
       - "!Modules/*/Tests/**/*.md"

@@ -3,6 +3,7 @@ name: File Content Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - "Modules/toolbelt.file.content/Source/**"
       - "Modules/toolbelt.file.content/Deployment/**"
       - "Modules/toolbelt.file.content/Tests/Runtime/**"
@@ -13,6 +14,7 @@ on:
   push:
     branches: [main]
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - "Modules/toolbelt.file.content/Source/**"
       - "Modules/toolbelt.file.content/Deployment/**"
       - "Modules/toolbelt.file.content/Tests/Runtime/**"

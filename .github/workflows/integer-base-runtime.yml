@@ -3,6 +3,7 @@ name: IntegerBase Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - ".github/workflows/integer-base-runtime.yml"
       - "Modules/toolbelt.conversion.integer-base/module.yaml"
       - "Modules/toolbelt.conversion.integer-base/Source/**"
@@ -14,6 +15,7 @@ on:
     branches:
       - main
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - ".github/workflows/integer-base-runtime.yml"
       - "Modules/toolbelt.conversion.integer-base/module.yaml"
       - "Modules/toolbelt.conversion.integer-base/Source/**"
