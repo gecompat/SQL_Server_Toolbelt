@@ -140,6 +140,9 @@ shim_path="${lab_work_dir}/docker"
 
 cleanup_lab_run() {
     local exit_code=$?
+    local cleanup_failed=0
+    # Kein erneuter Cleanup beim Exit aus einem Signal-/EXIT-Handler.
+    trap - EXIT INT TERM
     set +e
 
     run_control_query "
@@ -158,11 +161,12 @@ IF EXISTS (SELECT 1 FROM sys.servers WHERE name = @LinkedServer)
     EXEC master.dbo.sp_dropserver
          @server = @LinkedServer,
          @droplogins = N'droplogins';
-" >/dev/null 2>&1
+" >/dev/null 2>&1 || cleanup_failed=1
 
     if [[ "${clr_adapter}" == "run-zip-memory-linux.sh" || "${clr_adapter}" == "run-regex-linux.sh" || "${clr_adapter}" == "run-script-parser-windows.sh" ]]; then
         if [[ "${trust_before}" == "0" ]]; then
             run_control_query "
+DECLARE @OwnedHash varbinary(64) = CONVERT(varbinary(64), N'${clr_hash}', 1);
 IF EXISTS
    (
        SELECT 1
@@ -170,30 +174,55 @@ IF EXISTS
        WHERE hash = CONVERT(varbinary(64), N'${clr_hash}', 1)
    )
     EXEC sys.sp_drop_trusted_assembly
-         @hash = CONVERT(varbinary(64), N'${clr_hash}', 1);
-" >/dev/null 2>&1
+         @hash = @OwnedHash;
+IF EXISTS (SELECT 1 FROM sys.trusted_assemblies WHERE hash = CONVERT(varbinary(64), N'${clr_hash}', 1))
+    THROW 51000, N'LAB_TRUST_RESTORE_UNVERIFIED', 1;
+" >/dev/null 2>&1 || cleanup_failed=1
         fi
         if [[ "${clr_dependency_trust_before}" == "0" ]]; then
-            run_control_query "IF EXISTS (SELECT 1 FROM sys.trusted_assemblies WHERE hash = CONVERT(varbinary(64), N'${clr_dependency_hash}', 1)) EXEC sys.sp_drop_trusted_assembly @hash = CONVERT(varbinary(64), N'${clr_dependency_hash}', 1);" >/dev/null 2>&1
+            run_control_query "DECLARE @OwnedHash varbinary(64) = CONVERT(varbinary(64), N'${clr_dependency_hash}', 1);
+IF EXISTS (SELECT 1 FROM sys.trusted_assemblies WHERE hash = @OwnedHash) EXEC sys.sp_drop_trusted_assembly @hash = @OwnedHash;
+IF EXISTS (SELECT 1 FROM sys.trusted_assemblies WHERE hash = CONVERT(varbinary(64), N'${clr_dependency_hash}', 1)) THROW 51000, N'LAB_TRUST_RESTORE_UNVERIFIED', 1;" >/dev/null 2>&1 || cleanup_failed=1
         fi
 
         if [[ "${clr_enabled_before}" == "0" ]]; then
             run_control_query "
 EXEC sys.sp_configure N'clr enabled', 0;
 RECONFIGURE;
-" >/dev/null 2>&1
+IF EXISTS (SELECT 1 FROM sys.configurations WHERE name = N'clr enabled' AND (value <> 0 OR value_in_use <> 0))
+    THROW 51000, N'LAB_CONFIGURATION_RESTORE_UNVERIFIED', 1;
+" >/dev/null 2>&1 || cleanup_failed=1
         fi
 
         if [[ "${show_advanced_before}" == "0" ]]; then
             run_control_query "
 EXEC sys.sp_configure N'show advanced options', 0;
 RECONFIGURE;
-" >/dev/null 2>&1
+IF EXISTS (SELECT 1 FROM sys.configurations WHERE name = N'show advanced options' AND (value <> 0 OR value_in_use <> 0))
+    THROW 51000, N'LAB_CONFIGURATION_RESTORE_UNVERIFIED', 1;
+" >/dev/null 2>&1 || cleanup_failed=1
         fi
     fi
 
-    rm -rf "${lab_work_dir}"
+    # Frische Verbindung nach allen Restores: ein erfolgreicher DROP-Aufruf
+    # allein beweist nicht die Abwesenheit eigener Restressourcen.
+    run_control_query "
+IF EXISTS (SELECT 1 FROM sys.databases WHERE name LIKE N'%[_]${TBX_TEST_DB_SUFFIX}')
+    OR EXISTS (SELECT 1 FROM sys.servers WHERE name = N'TBX_LOOPBACK_${TBX_TEST_DB_SUFFIX}')
+    THROW 51000, N'LAB_OWNED_RESOURCES_REMAIN', 1;
+" >/dev/null 2>&1 || cleanup_failed=1
+
+    rm -rf "${lab_work_dir}" || cleanup_failed=1
     unset SQLCMDPASSWORD
+    if [[ "${cleanup_failed}" -ne 0 ]]; then
+        echo "LAB_CLEANUP_UNVERIFIED" >&2
+        # Exit 75 bezeichnet eine nicht ausgeführte optionale Zeitmessung.
+        # Fehlgeschlagener Cleanup darf darin ebenso wenig verschwinden wie
+        # hinter einem zuvor erfolgreichen fachlichen Test.
+        if [[ "${exit_code}" -eq 0 || "${exit_code}" -eq 75 ]]; then
+            exit_code=1
+        fi
+    fi
     exit "${exit_code}"
 }
 

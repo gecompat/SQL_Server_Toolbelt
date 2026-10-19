@@ -2,6 +2,10 @@
 
 Dieses Verzeichnis enthält die gemeinsame Test-Infrastruktur und Testdokumentation.
 
+Die [workflowübergreifende Impact-Prüfung](CI/CHANGE_IMPACT_REVIEW_2026-10-19.md)
+beschreibt die tatsächlichen Consumer-Trigger, den deterministischen lokalen
+Cleanup-Test und die Grenzen einer späteren Local-to-Remote-Wiederverwendung.
+
 Die Offline-Prüfung des repositoryweiten SQL-Exports liegt unter
 [`Deployment/Tests/Test-SqlExport.ps1`](../Deployment/Tests/Test-SqlExport.ps1).
 Sie prüft die aktuelle vollständige Modulclosure, Dependency-Auswahl, rekursive

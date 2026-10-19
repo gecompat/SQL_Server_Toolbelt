@@ -18,4 +18,7 @@ result = subprocess.run([
 if result.returncode:
     raise SystemExit(result.returncode)
 import sys
-raise SystemExit(subprocess.run([sys.executable, "-B", str(ROOT / "Tests/CI/test_lab_tls.py")], cwd=ROOT, check=False).returncode)
+for test in ("test_lab_tls.py", "test_lab_cleanup.py"):
+    result = subprocess.run([sys.executable, "-B", str(ROOT / "Tests/CI" / test)], cwd=ROOT, check=False)
+    if result.returncode:
+        raise SystemExit(result.returncode)

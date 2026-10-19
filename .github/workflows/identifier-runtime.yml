@@ -3,6 +3,7 @@ name: Identifier Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - ".github/workflows/identifier-runtime.yml"
       - "Modules/toolbelt.metadata.identifier/module.yaml"
       - "Modules/toolbelt.metadata.identifier/Source/**"
@@ -14,6 +15,7 @@ on:
     branches:
       - main
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - ".github/workflows/identifier-runtime.yml"
       - "Modules/toolbelt.metadata.identifier/module.yaml"
       - "Modules/toolbelt.metadata.identifier/Source/**"

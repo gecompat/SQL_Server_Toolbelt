@@ -103,6 +103,9 @@ abdecken; Version oder Betriebssystem allein erzwingen keine Wiederholung.
 
 Ein erfolgreicher Test auf einer Version, Plattform oder einem Provider beweist keine andere Kombination, außer die dokumentierte Risikobewertung weist die gemeinsame Ausführung ohne abweichenden Zweig, Provider oder erwarteten Engineunterschied nach. `not applicable` setzt eine dokumentierte Capability-Entscheidung voraus.
 
+SQL Server 2025 mit CL150 ersetzt insbesondere nicht automatisch eine native
+SQL-Server-2019-Prüfung. Engine und Compatibility Level sind getrennte Bindungen.
+
 ## Collation- und Datentests
 
 - abweichende Server-, Toolbelt-, Zieldatenbank- und TempDB-Collations;
@@ -217,6 +220,32 @@ erzwingt keinen Review seines Berichts; erforderliche unabhängige Fachreviews
 bleiben erhalten. Für Routinearbeit entsteht keine neue Reader-/Receiptkette.
 
 ## CI
+
+### Lokale Auswertung und Remote-Wiederverwendung
+
+Vorhandene deterministische Runner entscheiden über Oracles, Exitstatus,
+Vollständigkeit und Cleanup; ein erfolgreicher Routine-Test benötigt keine
+zusätzliche modellbasierte Bestätigung. Unveränderte Blocker werden ohne
+automatischen Wiederholungslauf benannt. Diagnose und Logauswertung folgen
+dem vorstehenden Abschnitt.
+
+Eine automatische Local-to-Remote-Attestierung ist derzeit `NOT_IMPLEMENTED`.
+Lokale JSON-Dateien, Modellurteile, Sourcehashes oder Build-Provenance allein
+ersetzen keinen aktuellen CI-Gate. Die bestehende Remote-CI wird ausgeführt
+(`EXECUTE_REQUIRED`), bis ein unabhängig vertrauenswürdiger Verifikator
+Aussteller/Autorität, Herkunft/Integrität, Frische, aktuelle Head-/Integration,
+sämtliche relevanten Code-/Test-/Oracle-/Fixture-/Dependency-Inputs und die
+tatsächliche Engine-/CL-/Plattform-/Provider-/Rechte-/Transportbindung sowie
+Abschluss und Cleanup nachweisen kann. Externe Zustandsänderungen müssen
+ebenfalls invalidieren. Fehlende oder manipulierte Nachweise führen nie zu
+`REUSED_VERIFIED`; ohne ausführbaren Pflicht-Gate bleibt die Abnahme offen.
+Eine spätere Implementierung erhält eigene positive und negative
+Verifikations-/Eventtests einschließlich aktueller Required Checks.
+
+Die [Impact-Prüfung](../../Tests/CI/CHANGE_IMPACT_REVIEW_2026-10-19.md)
+hält die aktuelle Umsetzung, erhaltene Gates und ausdrücklich offene Grenzen fest.
+
+### Bestehende Ausführung
 
 CI bleibt schlank und pfadbezogen. Der Dokumentationsvalidator bestimmt seinen
 Scope aus dem Git-Diff, der Modulregistry und den expliziten Impact-Paketen.

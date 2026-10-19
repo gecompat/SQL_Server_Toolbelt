@@ -3,6 +3,7 @@ name: W2c Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - "Modules/toolbelt.core.console-message/Source/**"
       - "Modules/toolbelt.core.console-message/Deployment/**"
       - "Modules/toolbelt.core.console-message/Tests/Runtime/**"
@@ -19,6 +20,7 @@ on:
   push:
     branches: [main]
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - "Modules/toolbelt.core.console-message/Source/**"
       - "Modules/toolbelt.core.console-message/Deployment/**"
       - "Modules/toolbelt.core.console-message/Tests/Runtime/**"

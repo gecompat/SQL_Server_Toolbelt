@@ -3,6 +3,7 @@ name: Split-Characters Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - ".github/workflows/split-characters-runtime.yml"
       - "Modules/toolbelt.string.split-characters/module.yaml"
       - "Modules/toolbelt.string.split-characters/Source/**"
@@ -17,6 +18,7 @@ on:
     branches:
       - main
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - ".github/workflows/split-characters-runtime.yml"
       - "Modules/toolbelt.string.split-characters/module.yaml"
       - "Modules/toolbelt.string.split-characters/Source/**"

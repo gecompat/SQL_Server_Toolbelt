@@ -3,6 +3,9 @@ name: Table Clone Runtime
 on:
   pull_request:
     paths:
+      - "Modules/toolbelt.core.result-table/Source/**"
+      - "Modules/toolbelt.core.result-table/Deployment/**"
+      - "Modules/toolbelt.core.result-table/module.yaml"
       - "Tests/CI/Set-SqlClientTlsPolicy.ps1"
       - ".github/workflows/table-clone-runtime.yml"
       - "Modules/toolbelt.metadata.table-clone/module.yaml"
@@ -16,6 +19,9 @@ on:
     branches:
       - main
     paths:
+      - "Modules/toolbelt.core.result-table/Source/**"
+      - "Modules/toolbelt.core.result-table/Deployment/**"
+      - "Modules/toolbelt.core.result-table/module.yaml"
       - "Tests/CI/Set-SqlClientTlsPolicy.ps1"
       - ".github/workflows/table-clone-runtime.yml"
       - "Modules/toolbelt.metadata.table-clone/module.yaml"

@@ -3,6 +3,7 @@ name: Regex Provider Spike
 on:
   pull_request:
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - ".github/workflows/regex-provider-spike.yml"
       - "Tests/Research/Regex/*.sql"
       - "Tests/Research/Regex/*.cs"
@@ -13,6 +14,7 @@ on:
     branches:
       - main
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - ".github/workflows/regex-provider-spike.yml"
       - "Tests/Research/Regex/*.sql"
       - "Tests/Research/Regex/*.cs"

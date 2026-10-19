@@ -3,6 +3,10 @@ name: W1 Portable Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/run-lab-target.sh"
+      - "Modules/toolbelt.core.generate-series/Source/**"
+      - "Modules/toolbelt.core.generate-series/Deployment/**"
+      - "Modules/toolbelt.core.generate-series/module.yaml"
       - "Modules/toolbelt.datetime.calendar-difference/Source/**"
       - "Modules/toolbelt.datetime.calendar-difference/Deployment/**"
       - "Modules/toolbelt.datetime.calendar-difference/Tests/Runtime/**"
@@ -23,6 +27,10 @@ on:
   push:
     branches: [main]
     paths:
+      - "Tests/CI/run-lab-target.sh"
+      - "Modules/toolbelt.core.generate-series/Source/**"
+      - "Modules/toolbelt.core.generate-series/Deployment/**"
+      - "Modules/toolbelt.core.generate-series/module.yaml"
       - "Modules/toolbelt.datetime.calendar-difference/Source/**"
       - "Modules/toolbelt.datetime.calendar-difference/Deployment/**"
       - "Modules/toolbelt.datetime.calendar-difference/Tests/Runtime/**"

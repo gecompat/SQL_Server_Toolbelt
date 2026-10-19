@@ -3,6 +3,9 @@ name: Deterministic Mapping Runtime
 on:
   pull_request:
     paths:
+      - "Modules/toolbelt.core.result-table/Source/**"
+      - "Modules/toolbelt.core.result-table/Deployment/**"
+      - "Modules/toolbelt.core.result-table/module.yaml"
       - "Tests/CI/Set-SqlClientTlsPolicy.ps1"
       - ".github/workflows/deterministic-runtime.yml"
       - "Modules/toolbelt.pseudonymization.deterministic/module.yaml"
@@ -16,6 +19,9 @@ on:
   push:
     branches: [main]
     paths:
+      - "Modules/toolbelt.core.result-table/Source/**"
+      - "Modules/toolbelt.core.result-table/Deployment/**"
+      - "Modules/toolbelt.core.result-table/module.yaml"
       - "Tests/CI/Set-SqlClientTlsPolicy.ps1"
       - ".github/workflows/deterministic-runtime.yml"
       - "Modules/toolbelt.pseudonymization.deterministic/module.yaml"

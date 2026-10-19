@@ -3,6 +3,7 @@ name: ZIP Memory CLR Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - "Tests/CI/Set-SqlClientTlsPolicy.ps1"
       - "Modules/toolbelt.archive.zip-memory/Clr/**"
       - "Modules/toolbelt.archive.zip-memory/Source/**"
@@ -19,6 +20,7 @@ on:
   push:
     branches: [main]
     paths:
+      - "Tests/CI/run-lab-target.sh"
       - "Tests/CI/Set-SqlClientTlsPolicy.ps1"
       - "Modules/toolbelt.archive.zip-memory/Clr/**"
       - "Modules/toolbelt.archive.zip-memory/Source/**"

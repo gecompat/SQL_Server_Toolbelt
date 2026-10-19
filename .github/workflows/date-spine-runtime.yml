@@ -3,6 +3,13 @@ name: Date-Spine Runtime
 on:
   pull_request:
     paths:
+      - "Tests/CI/run-lab-target.sh"
+      - "Modules/toolbelt.core.generate-series/Source/**"
+      - "Modules/toolbelt.core.generate-series/Deployment/**"
+      - "Modules/toolbelt.core.generate-series/module.yaml"
+      - "Modules/toolbelt.datetime.truncate/Source/**"
+      - "Modules/toolbelt.datetime.truncate/Deployment/**"
+      - "Modules/toolbelt.datetime.truncate/module.yaml"
       - ".github/workflows/date-spine-runtime.yml"
       - "Modules/toolbelt.datetime.date-spine/module.yaml"
       - "Modules/toolbelt.datetime.date-spine/Source/**"
@@ -14,6 +21,13 @@ on:
     branches:
       - main
     paths:
+      - "Tests/CI/run-lab-target.sh"
+      - "Modules/toolbelt.core.generate-series/Source/**"
+      - "Modules/toolbelt.core.generate-series/Deployment/**"
+      - "Modules/toolbelt.core.generate-series/module.yaml"
+      - "Modules/toolbelt.datetime.truncate/Source/**"
+      - "Modules/toolbelt.datetime.truncate/Deployment/**"
+      - "Modules/toolbelt.datetime.truncate/module.yaml"
       - ".github/workflows/date-spine-runtime.yml"
       - "Modules/toolbelt.datetime.date-spine/module.yaml"
       - "Modules/toolbelt.datetime.date-spine/Source/**"
