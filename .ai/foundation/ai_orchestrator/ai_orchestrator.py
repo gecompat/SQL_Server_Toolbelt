@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import subprocess
@@ -88,21 +89,21 @@ def external_root(path: Path) -> Path:
     return value
 
 
+def _shared_runtime(name: str) -> Any:
+    here = Path(__file__).resolve().parent
+    candidates = [here.parent / "runtime" / (name + ".py"),
+                  here.parents[1] / "runtime" / (name + ".py")]
+    source = next((item for item in candidates if item.is_file()), None)
+    if source is None:
+        raise OrchestrationError("CORE_RUNTIME_UNAVAILABLE", "shared core runtime is unavailable")
+    spec = importlib.util.spec_from_file_location("foundation_orchestrator_" + name, source)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def atomic_json(path: Path, value: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary = tempfile.mkstemp(prefix=path.name + ".", suffix=".tmp", dir=path.parent)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as handle:
-            json.dump(value, handle, indent=2, sort_keys=True, ensure_ascii=False)
-            handle.write("\n")
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, path)
-    finally:
-        try:
-            Path(temporary).unlink()
-        except FileNotFoundError:
-            pass
+    _shared_runtime("state_io").atomic_write(path, value)
 
 
 def _input_digest(path: Path) -> str:
@@ -247,6 +248,12 @@ def empty_evidence(at: datetime) -> dict[str, Any]:
 
 
 def refresh_evidence(sources_path: Path, state_root: Path, *, at: datetime | None = None) -> dict[str, Any]:
+    root = external_root(state_root)
+    with _shared_runtime("state_io").file_lock(root / "evidence.lock"):
+        return _refresh_evidence(sources_path, root, at=at)
+
+
+def _refresh_evidence(sources_path: Path, state_root: Path, *, at: datetime | None = None) -> dict[str, Any]:
     observed = at or utc_now()
     sources = _load_json(sources_path, "INVALID_EVIDENCE_SOURCES")
     if set(sources) != {"schema_version", "contract", "sources"} or sources.get("schema_version") != 1 or sources.get("contract") != SOURCE_CONTRACT or not isinstance(sources["sources"], list):
@@ -329,7 +336,7 @@ def _dependencies(capability_root: Path) -> tuple[Any, Any]:
         raise OrchestrationError("OPTIONAL_DEPENDENCY_UNAVAILABLE", "router or runtime adapter capability is unavailable", "AVAILABILITY") from exc
 
 
-def _catalog(store: Any, runtime: Any) -> tuple[list[dict[str, Any]], dict[str, tuple[str, str]], list[dict[str, str]]]:
+def _catalog(store: Any, runtime: Any, router: Any) -> tuple[list[dict[str, Any]], dict[str, tuple[str, str]], list[dict[str, str]]]:
     fragments: list[dict[str, Any]] = []
     mapping: dict[str, tuple[str, str]] = {}
     statuses: list[dict[str, str]] = []
@@ -341,9 +348,9 @@ def _catalog(store: Any, runtime: Any) -> tuple[list[dict[str, Any]], dict[str, 
         try:
             connection = store.load_connection(connection_id)
             result = runtime.execute_adapter(connection, "catalog", {})
+            candidates = [router.validate_fragment(source) for source in result.get("fragments", [])]
             count = 0
-            for source in result.get("fragments", []):
-                fragment = deepcopy(source)
+            for fragment in candidates:
                 original = fragment.get("provider")
                 if not isinstance(original, str) or not original:
                     continue
@@ -390,7 +397,7 @@ def _load_evidence(path: Path, at: datetime) -> tuple[dict[str, Any], list[str]]
         return empty_evidence(at), [exc.code]
 
 
-def plan_or_execute(raw: Any, *, execute: bool, config_path: Path | None = None, state_root: Path | None = None, evidence_path: Path | None = None, evidence_sources_path: Path | None = None, capability_root: Path | None = None, at: datetime | None = None) -> dict[str, Any]:
+def plan_or_execute(raw: Any, *, execute: bool, config_path: Path | None = None, state_root: Path | None = None, evidence_path: Path | None = None, evidence_sources_path: Path | None = None, capability_root: Path | None = None, eligible_models: set[tuple[str, str]] | None = None, at: datetime | None = None) -> dict[str, Any]:
     request = validate_request(raw)
     observed = at or utc_now()
     root = external_root(state_root or default_state_dir())
@@ -423,17 +430,26 @@ def plan_or_execute(raw: Any, *, execute: bool, config_path: Path | None = None,
     try:
         router, runtime = _dependencies(capability_root or Path(__file__).resolve().parent)
         store = runtime.ConfigurationStore(config_path)
-        fragments, mapping, catalogs = _catalog(store, runtime)
+        fragments, mapping, catalogs = _catalog(store, runtime, router)
     except OrchestrationError as exc:
         return _report(request, status="UNAVAILABLE", router_status="UNAVAILABLE", route=None, catalogs=[], attempts=[], validation="UNAVAILABLE", reasons=[exc.code], actions=["INSTALL_OPTIONAL_ROUTER_AND_RUNTIME_CAPABILITIES"], at=observed)
     evidence, evidence_reasons = _load_evidence(evidence_file, observed)
+    if eligible_models is not None:
+        fragments = deepcopy(fragments)
+        for fragment in fragments:
+            connection_id = mapping[fragment["provider"]][0]
+            fragment["models"] = {name: model for name, model in fragment["models"].items()
+                                  if (connection_id, name) in eligible_models}
+        fragments = [item for item in fragments if item["models"]]
     fragments = _overlay(fragments, evidence)
     try:
         router_request = deepcopy(request["router_request"])
         if router_request.get("allowed_providers"):
             allowed = set(router_request["allowed_providers"])
             router_request["allowed_providers"] = sorted(provider for provider, pair in mapping.items() if provider in allowed or pair[0] in allowed or pair[1] in allowed)
-        decision = router.route_v2(router_request, fragments, runtime_store=router.RuntimeStore(root / "router"), fragment_store=router.ProviderFragmentStore(root / "fragments"), at=observed)
+        # Client-start eligibility must not be broadened by cached worker catalogs.
+        fragment_store = router.ProviderFragmentStore(root / "fragments") if eligible_models is None else None
+        decision = router.route_v2(router_request, fragments, runtime_store=router.RuntimeStore(root / "router"), fragment_store=fragment_store, at=observed)
     except Exception as exc:
         return _report(request, status="UNAVAILABLE", router_status="UNAVAILABLE", route=None, catalogs=catalogs, attempts=[], validation="UNAVAILABLE", reasons=[getattr(exc, "code", "ROUTER_UNAVAILABLE")], actions=["REVIEW_ROUTER_REQUEST_OR_RUNTIME_EVIDENCE"], at=observed)
     route = decision.get("v1_decision", {}).get("route")
@@ -513,10 +529,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path)
     parser.add_argument("--state-root", type=Path)
+    parser.add_argument("--control-config", type=Path, help="External trusted job/client control configuration")
     parser.add_argument("--evidence", type=Path)
     parser.add_argument("--evidence-sources", type=Path, help="Optional external exact-argv sources refreshed when due before planning")
     sub = parser.add_subparsers(dest="command", required=True)
-    for name in ("plan", "execute"):
+    for name in ("plan", "execute", "control"):
         command = sub.add_parser(name)
         command.add_argument("request", type=Path)
     refresh = sub.add_parser("refresh-evidence")
@@ -525,11 +542,16 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "refresh-evidence":
             result = refresh_evidence(args.sources, args.state_root or default_state_dir())
+        elif args.command == "control":
+            from orchestration_control import control, read
+            result = control(read(args.request), control_config=args.control_config,
+                             state_root=args.state_root, config_path=args.config, evidence_path=args.evidence,
+                             evidence_sources_path=args.evidence_sources)
         else:
             request = _load_json(args.request, "INVALID_ORCHESTRATION_REQUEST")
             result = plan_or_execute(request, execute=args.command == "execute", config_path=args.config, state_root=args.state_root, evidence_path=args.evidence, evidence_sources_path=args.evidence_sources)
         print(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False))
-        return 0 if result.get("status") in {"COMPLETE", "COMPLETED", "PLANNED"} else 3
+        return 0 if result.get("status") in {"COMPLETE", "COMPLETED", "PLANNED", "OK"} else 3
     except OrchestrationError as exc:
         print(json.dumps({"status": "ERROR", "reason_code": exc.code, "message": str(exc)}, ensure_ascii=False), file=sys.stderr)
         return 2

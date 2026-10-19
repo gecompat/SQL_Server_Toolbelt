@@ -309,10 +309,10 @@ class ProvenanceTests(unittest.TestCase):
         for key in ("schema_version", "contract", "source_repository", "selection"):
             self.assertEqual(record[key], baseline[key])
         expected = {"schema_version": 1, "contract": "foundation-installation-provenance/v1",
-                    "ruleset_version": "1.21.0",
+                    "ruleset_version": "1.24.0",
                     "source_repository": "https://github.com/gecompat/AI_Repository_Foundation",
-                    "source_commit": "d720db4f2f0d043756a958d5195d0e62090b1c8f",
-                    "source_manifest_sha256": "5c4268140ba8cb6c3c38ce42cdd1ebecd8d5c3db23309bb90c77bc8b38ebf2f6"}
+                    "source_commit": "96391403a1b89e19d4824838806d7190d8033389",
+                    "source_manifest_sha256": "acddcc5d9c930229279e627f341c5f4afa24ec00f4f77353ede5d137d90b0f48"}
         for key, value in expected.items():
             self.assertEqual(record[key], value)
         self.assertRegex(record["recorded_at"], r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
@@ -321,26 +321,40 @@ class ProvenanceTests(unittest.TestCase):
             "capabilities": ["ai-client-integration", "ai-executor", "ai-orchestrator", "ai-provisioning",
                              "ai-runtime-adapters", "ai-work", "artifact-registration-clients", "model-router", "rule-context-cache"]})
         rows = sorted(record["files"], key=lambda row: row["target"])
-        self.assertEqual(len(rows), 105)
-        self.assertEqual(len({row["target"] for row in rows}), 105)
+        self.assertEqual(len(rows), 112)
+        self.assertEqual(len({row["target"] for row in rows}), 112)
         changed = {".ai/foundation/runtime/processing_efficiency.py",
                    ".ai/foundation/ai_provisioning/host_preparation.py",
                    ".ai/foundation/ai_provisioning/AI_PROVISIONING.md",
                    ".ai/foundation/ai_runtime_adapters/reference_adapters.py",
                    ".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md",
-                   ".ai/foundation/ai_runtime_adapters/runtime_configuration.py"}
+                   ".ai/foundation/ai_runtime_adapters/runtime_configuration.py",
+                   ".ai/foundation/ai_runtime_adapters/stdio_adapter.py"}
         old_rows = {row["target"]: row for row in baseline["files"]}
         new = {".ai/foundation/PROCESSING_EFFICIENCY_POLICY.md",
                ".ai/foundation/FOUNDATION_REFERENCE.md",
                ".ai/foundation/runtime/processing_efficiency.py",
-               ".ai/foundation/schemas/processing-budget-request.schema.json"}
+               ".ai/foundation/schemas/processing-budget-request.schema.json",
+               ".ai/foundation/TEST_EVIDENCE_REUSE_POLICY.md",
+               ".ai/foundation/runtime/state_io.py",
+               ".ai/foundation/schemas/orchestrator-control.schema.json",
+               ".ai/foundation/ai_orchestrator/orchestration_control.py",
+               ".ai/foundation/ai_orchestrator/control.example.py",
+               ".ai/foundation/ai_runtime_adapters/stdio_adapter.py",
+               ".ai/foundation/ai_runtime_adapters/stdio_demo.py"}
         upgraded = {"AGENTS.md", ".ai/foundation/FOUNDATION_RULESET.md",
                     ".ai/foundation/SEMANTIC_INTEGRATION_POLICY.md",
                     ".ai/foundation/PROJECT_RULES.md",
                     ".ai/foundation/RULE_CONTEXT_CACHE_POLICY.md",
                     ".ai/foundation/AI_WORK_ORCHESTRATION_POLICY.md",
                     ".ai/foundation/feature_catalog.json", ".ai/foundation/WORKING_RULES.md",
-                    ".ai/foundation/VALIDATION_POLICY.md", ".ai/foundation/repo_map.yaml"}
+                    ".ai/foundation/VALIDATION_POLICY.md", ".ai/foundation/repo_map.yaml",
+                    ".ai/foundation/ai_executor/ai_executor.py",
+                    ".ai/foundation/ai_orchestrator/AI_ORCHESTRATOR.md",
+                    ".ai/foundation/ai_orchestrator/ai_orchestrator.py",
+                    ".ai/foundation/ai_orchestrator/orchestrator_mcp.py",
+                    ".ai/foundation/model_router/MODEL_ROUTER.md",
+                    ".ai/foundation/schemas/ai-runtime-configuration.schema.json"}
         self.assertEqual(set(old_rows) | new, {row["target"] for row in rows})
         reasons = {
             ".ai/foundation/runtime/processing_efficiency.py": "SC-030 (2026-10-14): rationale Dezimalrechnung aus validierten numerischen Inputs verhindert binaere Rundungsfehler an Soft-/Hardgrenzen; numerischer JSON-Ausgabevertrag und unbekannte Kosten bleiben erhalten.",
@@ -351,9 +365,9 @@ class ProvenanceTests(unittest.TestCase):
             ".ai/foundation/ai_runtime_adapters/reference_adapters.py":
                 "Toolbelt-Securitywartung2026-10-07: HttpAdapter-Antworten vor JSON und Outputmutation auf16MiB begrenzen, Kurzreads und positive Restlänge prüfen, strukturierte Ablehnung vor Closefehlern erhalten. SC-034 (2026-10-14): Remote-, Local-Network- und Unknown-Invocation verlangen exakt remote_authorized=true vor Handleaufnahme, Inputread oder Transport; sonst Permission-Ablehnung. SC-010 (2026-10-15): Projektgebundene Handle-I/O via Scripts/Security/secure_file_io.py; POSIX dirfd/nofollow und Windows gepinnte Eltern/native Publikation. Command stdin/stdout statt Pfadargumenten; kein unsicherer Fallback.",
             ".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md":
-                "Gekoppelte Dokumentation von HttpAdapter-/Discovery-Responsegrenzen, Redirectverweigerung und Discovery-Originprüfung; DNS/Proxy/Hostvertrauen, TOCTOU, Heap und Gesamtzeit bleiben separat, keine Runtimeaktivierung oder Foundationversion. SC-034: gekoppelter expliziter Remoteautoritaetsvertrag.",
+                "Gekoppelte Dokumentation von HttpAdapter-/Discovery-Responsegrenzen, Redirectverweigerung und Discovery-Originprüfung; DNS/Proxy/Hostvertrauen, TOCTOU, Heap und Gesamtzeit bleiben separat, keine Runtimeaktivierung oder Foundationversion. SC-034: gekoppelter expliziter Remoteautoritaetsvertrag. Foundation 1.24.0 kompatibel dreifach integriert; Discovery-Origin-/NoRedirect-/Response-Grenzen erhalten. Neue Stdio-Invocation bleibt gemäß SC-010 gesperrt.",
             ".ai/foundation/ai_runtime_adapters/runtime_configuration.py":
-                "Toolbelt-Securitywartung2026-10-07: Discovery nutzt16MiB-Reader und NoRedirect; vor Vorschlag/Transport credential-freien HTTP(S)-Origin prüfen, ungültige Kandidaten ohne Inputecho vom Default isolieren; Transportfehler bleiben UNAVAILABLE.",
+                "Toolbelt-Securitywartung2026-10-07: Discovery nutzt16MiB-Reader und NoRedirect; vor Vorschlag/Transport credential-freien HTTP(S)-Origin prüfen, ungültige Kandidaten ohne Inputecho vom Default isolieren; Transportfehler bleiben UNAVAILABLE. Foundation 1.24.0 kompatibel dreifach integriert; Discovery-Origin-/NoRedirect-/Response-Grenzen erhalten. Neue Stdio-Invocation bleibt gemäß SC-010 gesperrt.",
         }
 
         def projection(fields, entries):
@@ -362,20 +376,22 @@ class ProvenanceTests(unittest.TestCase):
             return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
         fields = ("source", "target", "kind", "merge", "source_sha256")
-        # Current manifest projection is bound to the exact 1.21 source above.
+        # Current manifest projection is bound to the exact 1.24 source above.
         # The old security baseline and all unrelated rows remain protected.
         self.assertEqual(projection(fields, rows),
-                         "249dffe06dac617ce48202f676e0d5d7060ca3f2f31f9861398fc1e3ff59c0df")
+                         "3ab6e9b0c6c000451b37ccd008163c323196f05521ab99d51a41bdbc87f245ca")
         self.assertEqual(projection(fields + ("installed_sha256", "integration_state", "reason"),
                                     [row for row in rows if row["target"] not in changed]),
                          # 2026-10-16: autorisierte Fachtest-/TLS-Trennung in AGENTS;
                          # vollständige Projektion bleibt inklusive aller Rootfelder gebunden.
-                         "82af608904f4181f648c33ea205a0411cf7e266cf0a57683af85e61cb44abba9")
+                         "1c775ff92e8731e2b304c0768226b5c864c281a584b7663580d4e56dbd5d52a6")
         for row in rows:
             if row["target"] not in changed | upgraded | new:
                 self.assertEqual(row, old_rows[row["target"]])
             elif row["target"] in changed and row["target"] in old_rows:
                 excluded = {"installed_sha256", "integration_state", "reason"}
+                if row["target"] in {".ai/foundation/ai_runtime_adapters/AI_RUNTIME_ADAPTERS.md", ".ai/foundation/ai_runtime_adapters/runtime_configuration.py"}:
+                    excluded.add("source_sha256")
                 self.assertEqual({key: value for key, value in row.items() if key not in excluded},
                                  {key: value for key, value in old_rows[row["target"]].items() if key not in excluded})
                 self.assertEqual(row["reason"], reasons[row["target"]])

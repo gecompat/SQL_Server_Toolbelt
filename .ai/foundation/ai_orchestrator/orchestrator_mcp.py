@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from orchestration_control import control
 from ai_orchestrator import OrchestrationError, default_state_dir, plan_or_execute, refresh_evidence
 
 
@@ -20,6 +21,7 @@ MAX_MESSAGE_BYTES = 1024 * 1024
 def tools() -> list[dict[str, Any]]:
     request = {"request": {"type": "object", "description": "foundation-ai-orchestration/v1 request with external content handles"}}
     return [
+        {"name": "orchestration_control", "description": "Reserve deterministic client actions for a configured job; no model invocation or scheduler.", "inputSchema": {"type": "object", "properties": {"request": {"type": "object"}}, "required": ["request"], "additionalProperties": False}},
         {"name": "orchestration_status", "description": "Report external paths and optional configuration presence without probing or invoking anything.", "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False}},
         {"name": "orchestration_plan", "description": "Refresh configured evidence when due, isolate live catalogs, and return a content-free route or truthful manual status.", "inputSchema": {"type": "object", "properties": request, "required": ["request"], "additionalProperties": False}},
         {"name": "orchestration_execute", "description": "Execute a routed bounded fallback chain through external handles and return only attestation, hashes, status, and validation metadata.", "inputSchema": {"type": "object", "properties": request, "required": ["request"], "additionalProperties": False}},
@@ -32,7 +34,10 @@ def tool_result(value: dict[str, Any], error: bool = False) -> dict[str, Any]:
 
 
 class Server:
-    def __init__(self, *, config: Path | None, state_root: Path | None, evidence: Path | None, evidence_sources: Path | None) -> None:
+    def __init__(self, *, config: Path | None, state_root: Path | None, evidence: Path | None, evidence_sources: Path | None, control_config: Path | None = None) -> None:
+        self.control_config = control_config
+        self.control_state_root = state_root
+        self.control_evidence = evidence
         self.config = config.resolve() if config else None
         self.state_root = (state_root or default_state_dir()).resolve()
         self.evidence = evidence.resolve() if evidence else self.state_root / "model-runtime-evidence.json"
@@ -40,6 +45,10 @@ class Server:
 
     def call(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         try:
+            if name == "orchestration_control" and set(arguments) == {"request"}:
+                return tool_result(control(arguments["request"], control_config=self.control_config,
+                                           state_root=self.control_state_root, config_path=self.config,
+                                           evidence_path=self.control_evidence, evidence_sources_path=self.evidence_sources))
             if name == "orchestration_status" and not arguments:
                 return tool_result({"status": "READY" if self.config and self.config.is_file() else "CONFIGURATION_REQUIRED", "runtime_configuration_path": str(self.config) if self.config else None, "evidence_path": str(self.evidence), "evidence_available": self.evidence.is_file(), "evidence_sources_path": str(self.evidence_sources) if self.evidence_sources else None, "evidence_sources_available": bool(self.evidence_sources and self.evidence_sources.is_file())})
             if name in {"orchestration_plan", "orchestration_execute"} and set(arguments) == {"request"}:
@@ -96,11 +105,12 @@ def serve(server: Server) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path)
+    parser.add_argument("--control-config", type=Path)
     parser.add_argument("--state-root", type=Path)
     parser.add_argument("--evidence", type=Path)
     parser.add_argument("--evidence-sources", type=Path)
     args = parser.parse_args(argv)
-    return serve(Server(config=args.config, state_root=args.state_root, evidence=args.evidence, evidence_sources=args.evidence_sources))
+    return serve(Server(control_config=args.control_config, config=args.config, state_root=args.state_root, evidence=args.evidence, evidence_sources=args.evidence_sources))
 
 
 if __name__ == "__main__":

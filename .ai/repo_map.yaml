@@ -27,6 +27,8 @@ sources_of_truth:
   foundation_ai_work_orchestration_policy: .ai/foundation/AI_WORK_ORCHESTRATION_POLICY.md
   foundation_model_routing_policy: .ai/foundation/MODEL_ROUTING_POLICY.md
   foundation_validation_policy: .ai/foundation/VALIDATION_POLICY.md
+  foundation_upgrade_assessment: Documentation/Architecture/FOUNDATION_1_24_ASSESSMENT.json
+  foundation_upgrade_review: Documentation/Architecture/FOUNDATION_1_24_INTEGRATION.md
   copilot_bridge: .github/copilot-instructions.md
   claude_bridge: CLAUDE.md
   gemini_bridge: GEMINI.md
@@ -1095,6 +1097,7 @@ change_impact:
         - foundation_host_redirects
     foundation_http_responses:
       paths:
+        - .ai/foundation/ai_runtime_adapters/stdio_adapter.py
         - Scripts/Security/secure_file_io.py
         - Tests/Documentation/test_foundation_handles.py
         - .ai/foundation/ai_runtime_adapters/reference_adapters.py

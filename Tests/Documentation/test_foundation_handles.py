@@ -14,6 +14,7 @@ IO = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(IO)
 sys.path.insert(0, str(ROOT / ".ai/foundation/ai_runtime_adapters"))
 import reference_adapters as ADAPTERS
+import stdio_adapter as STDIO
 
 
 class Handles(unittest.TestCase):
@@ -122,6 +123,25 @@ class Handles(unittest.TestCase):
                     command.invoke({"operation_id": "contoso-op", "data_class": "PUBLIC",
                         "input_path": str(self.root / "input"), "output_path": str(self.root / "output")})
                 self.assertEqual(failure.exception.code, "HANDLE_PATH_ARGUMENT_UNSUPPORTED")
+
+    def test_stdio_invoke_cannot_bypass_held_handle_contract(self):
+        for boundary in ["HOST", "REMOTE", "LOCAL_NETWORK", "UNKNOWN"]:
+            with self.subTest(boundary=boundary):
+                adapter = STDIO.StdioAdapter({
+                    "argv": [sys.executable, "-c", "raise SystemExit('unexpected process')"],
+                    "execution_boundary": boundary, "timeout_seconds": 1,
+                    "read_roots": [str(self.root)], "write_roots": [str(self.root)],
+                    "network_authorized": True, "environment_allowlist": []})
+                with mock.patch.object(adapter, "_call", side_effect=AssertionError("unexpected transport")), \
+                     mock.patch.object(STDIO.subprocess, "Popen", side_effect=AssertionError("unexpected process")), \
+                     mock.patch.object(Path, "open", side_effect=AssertionError("unexpected file access")):
+                    with self.assertRaises(ADAPTERS.AdapterError) as failure:
+                        adapter.invoke({"operation_id": "contoso-op", "data_class": "PUBLIC",
+                            "input_path": str(self.outside / "input"),
+                            "output_path": str(self.outside / "output")})
+                    self.assertEqual(failure.exception.code, "TOOLBELT_STDIO_INVOKE_UNAVAILABLE")
+                self.assertFalse((self.outside / "output").exists())
+                self.assertEqual((self.outside / "input").read_bytes(), b"outside-sentinel")
 
     def test_input_root_rename_keeps_open_identity(self):
         moved = self.base / "moved"
