@@ -14,12 +14,14 @@ Der [Differentialrunner](Differential/run-differential-phonetic.ps1) bestand ein
 
 Dies schließt nur diesen endlichen Offline-Corpus. SQL-/SAFE-, vollständige Scanner-/Zielmatrix-, Minimalrechte- und Releasequalifikation bleiben offen; Version 1.0.0 bleibt `partially validated` und `unreleased`. stderr ist nur als leerer zurückgegebener decodierter Text belegt. Private Dateien bleiben erhalten; kein Datei-Cleanup-PASS. Die folgenden PR301-Quellen- und früheren Nachweise behalten ihren damaligen Stand.
 
-## Differential-EntryPoint – Quellenstand 2026-10-08
+## Historischer Differential-EntryPoint vor dem Lauf vom 2026-10-08
 
 Der zusätzliche [Runner](Differential/run-differential-phonetic.ps1) und sein
 [Transportvertrag](Differential/TRANSPORT.md) liegen als Testquellen vor.
-Der Vergleich mit 32 synthetischen Fällen ist `NOT_EXECUTED`; daraus folgt
-kein Scanner-, SAFE-, SQL-, Matrix- oder Release-PASS.
+Der Vergleich mit 32 synthetischen Fällen war in diesem Vorbereitungsstand
+`NOT_EXECUTED`; der spätere 32-Fälle-Lauf und die 36-Fälle-Erweiterung sind
+oben nachgewiesen. Beide belegen keine vollständige Scanner-, SAFE-, SQL-,
+Matrix- oder Releasequalifikation.
 Der ausgewählte Consumerpfad benötigt Windows, PowerShell 7.3+, explizite
 Csc- und .NET-Framework-4.8-Referenzen, Java/Javac sowie eine vorhandene Assembly
 mit belegter aktueller Sourceprovenienz. Name und Version der DLL genügen nicht.
@@ -86,8 +88,8 @@ in Repository oder Evidenz kopiert.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-04`
-- Nachweis: `Begrenzte private Offline-/Nativeadapter mit unabhängiger physischer Prozess- und Bereinigungsprüfung`
-- Scope: Am 2026-10-04 bestanden Build, Frameworkprüfungen mit jeweils 223 Assertions unter en-US/de-DE/tr-TR und die eigene IL-/Metadatenprüfung (keine unbekannten eigenen IL-Aufrufe). Begrenzte private Labadapter bestanden auf SQL Server 2019 Linux/latest CL150 und SQL Server 2025 Windows/exakt CU8 CL170. Je Ziel: vier Fixtures einmal lokal, acht echte Clientreader je local/central sowie zwei lokale Größenwitnesses; Clean/Repeat, resolved Consumer-Ablehnungen, zentrale Bestätigung und Uninstall/Repeat mit frischer eigener Bereinigung. Keine Konfigurations-, Rechte- oder Owneränderungen. Java-Differential, unresolved Consumer, weitere Ziele/CL, tatsächliche Minimalrechte, vollständige Lifecyclematrix und aktuelle Head-CI bleiben offen. Teilweise validiert und unveröffentlicht; kein vollständiger Produkt-PASS.
+- Datum: `2026-10-09`
+- Nachweis: `local: Tests/Differential/run-differential-phonetic.ps1 mit DifferentialCorpus.tsv`
+- Scope: Bereits dokumentierter einmaliger Offlinevergleich unter Windows/.NET Framework 4.8 mit explizitem JDK27 und unveränderten Apache-Commons-Codec-1.18.0-Quellen: 36 feste Fälle, davon 20 Cologne und 16 Double Metaphone, stimmen in vollständigen Primary-/Alternatebytes überein. Vier Ergänzungen HCL/ACL/-CR/ACR liefern 45/085/47/087; die 32 bisherigen Fälle bleiben unverändert. Vorhandene Assembly mit belegter Herkunft aus fünf unveränderten aktuellen C#-Quellen wiederverwendet, kein neuer Produktbuild. Zwei Compiler und zwei Consumer erfolgreich. stderr nur decodiert leer; kein Datei-Cleanup-PASS. Keine vollständige Scanner-, SQL-, SAFE-, Zielmatrix-, Minimalrechte- oder Releasequalifikation.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

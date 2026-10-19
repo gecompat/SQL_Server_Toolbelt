@@ -229,7 +229,20 @@ unveränderliche Basisschutzprüfungen bleiben aktiv. Teure
 oder spezielle Plattformtests dürfen manuell oder capability-spezifisch
 ausgeführt werden; fehlende Runner ergeben keinen grünen Nachweis.
 
-## Aktueller Stand
+## Aktueller Qualifikationsstand vom 2026-10-19
+
+45 Module sind implementiert: 21 `validated` und 24 `partially validated`;
+alle bleiben `unreleased`. Die 16 Module der ersten Releasekohorte haben
+keine offenen Pflichtgates mehr. Die drei großen Ergebnis-Lasttests sind
+bestanden, Laufzeitmessungen gemäß DEC-2026-036 optional. Veröffentlichung
+und authentifizierte TLS-Abnahme bleiben getrennt. Maßgeblich sind die
+Modulmanifeste und der [V0c-Gatebericht](../../Tests/V0C_RELEASE_GATE_STATUS.md).
+
+### Historischer Stand vom 2026-09-01
+
+Die folgenden Zahlen und Restfälle beschreiben ausschließlich den damaligen
+27-Modul-Bestand. Sie sind kein aktueller Arbeitsvorrat und werden nicht
+auf spätere Modulversionen übertragen.
 
 Am 2026-09-01 waren die vollständigen automatisierten Adapter auf physischen
 SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest

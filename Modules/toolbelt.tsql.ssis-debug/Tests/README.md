@@ -1,6 +1,7 @@
 # SSIS-Debug: Prüfmatrix und Evidenz
 
-Stand 2026-10-17. Alle eingecheckten DTSX-Fixtures sind synthetisch und werden
+Stand 2026-10-19. Die nativen Nachweise unten behalten ihre ursprünglichen
+Ausführungsdaten und Buildbindungen. Alle eingecheckten DTSX-Fixtures sind synthetisch und werden
 mit `Fixtures/build_fixtures.py` erzeugt; keine Kundenpakete oder Runtimewerte.
 
 `Framework/Invoke-Contract.ps1` prüft den exakten ScriptDom-Pin und führt
@@ -105,7 +106,15 @@ schema-validierten Vertrags; Encrypt bleibt True, kein automatischer Fallback.
 Diese Fachläufe verwenden explizit `TrustServerCertificate=True`.
 Authentifizierte TLS-Abnahme bleibt separat `not executed`.
 
-Aktuelle Head-/Integrations-CI und Release bleiben getrennte offene Gates.
+Die damalige offene Integrations-CI ist inzwischen abgeschlossen:
+[PR #327](https://github.com/gecompat/SQL_Server_Toolbelt/pull/327) wurde am
+2026-10-18 integriert. Am Mergecommit `2df46efc9e5e255b545408c9b1acab91679b7b11`
+bestanden [SSIS Offline](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/39151017241),
+[Table Clone Runtime](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/39151017199)
+und [Dokumentation](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/39151017301).
+Diese am 2026-10-19 lesend bestätigten Ergebnisse gelten für genau diesen
+Commit und Workflow-Scope. Jeder spätere PR benötigt eigene Head-CI;
+Release und authentifizierte TLS-Abnahme bleiben separat offen.
 SSIS-SDK-/Engineparität, Produktionslast und eine vollständige Kombination
 aller Ressourcenmaxima werden nicht behauptet. Linux ist für diese UNSAFE-
 Assembly nicht anwendbar. Der Modulstatus bleibt teilweise validiert und
@@ -181,7 +190,9 @@ SQL2025/CI_AS_SC_UTF8 jeweils lokal und zentral 181 Kern-, 61 API- und
 einschließlich beider Triggerfixtures und Repeat. Die drei eigenen Journale
 enden mit `PASS_CLEANED`. Funktionale Tests verwendeten den expliziten
 Trustwert des schema-validierten Labvertrags mit erforderlicher Verschlüsselung;
-authentifizierte TLS-, Head-CI- und Releaseabnahme bleiben getrennt.
+authentifizierte TLS- und Releaseabnahme bleiben getrennt. Die zugehörige
+Integrations-CI ist oben mit dem exakten Mergecommit nachgewiesen; der
+native Lauf selbst war kein CI-Nachweis.
 
 Die geänderten Binary-/Dependencypins begründen diese neue begrenzte
 Qualifikation. Ein vollständiger Releaseaudit, Performance- oder weiterer

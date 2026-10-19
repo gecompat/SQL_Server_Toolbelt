@@ -4,7 +4,17 @@
 > 18.0.56.2. Sie qualifizieren nicht den am 2026-10-07 ausgewählten
 > ScriptDom 18.0.117.0-Pin.
 
-## ScriptDom 18.0.117.0 – erneute Qualifikation
+## Aktueller begrenzter 2.0.1-Nachweis vom 2026-10-18
+
+Der pfadbereinigte Build besteht 245 Frameworkfälle und echte Parser-Upgrades
+mit SSIS-/Table-Clone-Consumern einschließlich Triggerfixtures auf Windows
+SQL Server 2019/2022/2025 jeweils lokal und zentral; siehe die
+[aktuelle Evidenz](README.md#aktueller-status-vom-2026-10-19). Die früheren
+2019-/2022-/Trigger-Lücken unten beziehen sich auf den damaligen 2.0.0-Scope,
+nicht auf eine weiterhin blockierte Consumerprüfung. Vollständige native
+Parser-APIs, tatsächliche Ausgabeceilings und Minimalrechte bleiben offen.
+
+## Historische ScriptDom-18.0.117.0-Qualifikation mit Parser 2.0.0
 
 | Bereich | Pflichtnachweis | Status |
 |---|---|---|
@@ -26,7 +36,7 @@
 | Lifecycle | SHA2-512-Trust, Erst- und Wiederholungsdeployment, Dependency-Schutz, Central-Modus, Uninstall |
 | Plattform | Windows (SQL Server 2019, 2022, 2025) |
 
-## Major 2.0.0: getrennte Pflichtnachweise
+## Historischer Major-2.0.0-Scope: getrennte Pflichtnachweise
 
 | Bereich | Prüfung | Status |
 |---|---|---|

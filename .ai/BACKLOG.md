@@ -158,7 +158,16 @@ erforderlicher Verschlüsselung; authentifizierte TLS-Abnahme bleibt separat
 offen; siehe [aktuelle Prüfmatrix](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md).
 Frühere Aussagen „keine Implementierungsfreigabe“ im folgenden
 Rechercheverlauf dokumentieren den damaligen Stand und sind damit abgelöst.
-Keine finale TC-/AP-Sequenz wird geraten; keine Merge-/Releasefreigabe.
+Keine finale TC-/AP-Sequenz wird geraten; die damalige Freigabe war keine Veröffentlichungserlaubnis.
+
+**Integrationsstand vom 2026-10-19:** SSIS-Debug einschließlich Beispielen,
+Installationsanleitung und pfadbereinigtem ZIP ist über PR #324 bis #327
+in `main` integriert. Der begrenzte Offline-/Table-Clone-/Dokumentationsscope
+bestand am exakten PR-327-Mergecommit; direkte Runverweise stehen in der
+[SSIS-Prüfmatrix](../Modules/toolbelt.tsql.ssis-debug/Tests/README.md).
+Frühere offene CI-/Mergeangaben bezeichnen ihren damaligen Stand.
+Vollständige Produktqualifikation, authentifizierte TLS-Abnahme und
+Veröffentlichung bleiben davon getrennt.
 
 Benutzerauftrag ausschließlich zur Analyse und Planung einer Toolbelt-Funktion:
 DTSX-Workflow erklären und pro tatsächlichem Zielfluss lesbares Microsoft-T-SQL
@@ -216,9 +225,11 @@ Schreib- oder Laufzeiterweiterung der Debugfunktion.
 
 Dies aktiviert kein AP und ändert keine Entwicklungspriorität. Keine finale
 TC-/AP-Sequenz wird ohne sichere Vergabe geraten (`DEC-2026-028`); die benannten
-Vormerkungen bleiben bis dahin auffindbar. Debugfunktion `researched`, spätere
-USP-Funktionen `proposed`; alle konkreten Implementierungsfreigaben offen.
-Runtime-/SSIS-/SQL-Nachweise `not executed`. SQL_Server_Lab bleibt unverändert.
+Vormerkungen bleiben bis dahin auffindbar. Historischer Researchstand vor der oben dokumentierten Einzelfreigabe:
+Debugfunktion damals `researched`, spätere USP-Funktionen `proposed`;
+Implementierungsfreigaben und Runtime-Nachweise waren zu diesem Zeitpunkt
+noch offen. Die implementierte Debugfunktion und ihre späteren Nachweise
+stehen am Anfang dieses Abschnitts. Die USP-Folgescopes bleiben unfreigegeben.
 
 ## Integrierte Security-Härtung — 2026-10-16
 
@@ -411,7 +422,14 @@ an ihre ursprünglichen Ausführungen und den identischen Produktstand gebunden.
 
 **Abgleich:** Jeder der 64 Einträge ist genau einer der folgenden 46 Ursachen-/Vertragsgruppen zugeordnet; 18 Mehrfachmeldungen erzeugen kein eigenes Arbeitspaket. Verschiedene Actors, Sinks und fehlende Grenzen bleiben getrennt, auch wenn sie dieselbe Moduldatei betreffen. Insbesondere Queue-Producerautorität und Worker-Claimautorität sind keine Duplikate. Es gibt 38 offene Gruppen (49 Cloud-Einträge), 6 im Source korrigierte Gruppen (13 Einträge), 1 bereits in Cloud geschlossene Gruppe und 1 widerlegte Meldung. `new` ist kein Beweis eines aktuellen Exploits; ein Sourcefix ist keine vollständige Runtime-/Releasequalifikation.
 
-### Aktueller offener priorisierter Arbeitsvorrat
+### Historischer priorisierter Arbeitsvorrat vom 2026-10-14
+
+Die folgenden D-/T-Einstufungen und offenen Zahlen dokumentieren den Stand
+vor der Einzelfreigabe und Integration vom 2026-10-16. Aktuell gilt der
+Abschnitt [Integrierte Security-Härtung](#integrierte-security-härtung--2026-10-16):
+alle 25 Punkte sind freigegeben und ihr Code integriert; SC-045 bleibt bis
+zur authentifizierten TLS-Abnahme offen, SC-018 bei untrusted Legacygrants.
+Cloud-Metadatenstatus und tatsächliche Laufzeitnachweise bleiben getrennt.
 
 #### Implementierungsfreigabe 2026-10-14 — Security-Korrekturwelle
 
