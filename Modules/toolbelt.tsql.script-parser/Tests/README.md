@@ -12,7 +12,22 @@
 - `Runtime/Lifecycle.Snapshot.sql` und `Runtime/Lifecycle.CollisionFixture.sql` — private Vergleichssnapshots und synthetische Fehlerzustände, ohne öffentliche Runtime-Evidenz.
 - `Runtime/Central.Contract.sql` — Cross-Database-Aufruf im Central-Deployment-Modus.
 
-## Status
+## Aktueller Status vom 2026-10-19
+
+Parser 2.0.1 bleibt `partially validated` und `unreleased`. Der pfadbereinigte
+Build und 245 Frameworkfälle sind seit 2026-10-18 nachgewiesen. Auf Windows
+SQL Server 2019/2022/2025 bestanden lokal und zentral echte Parser-Upgrades,
+SSIS-/Table-Clone-Consumer, Triggerfixtures, Repeat und eigener Cleanup.
+Die [SSIS-Evidenz](../../toolbelt.tsql.ssis-debug/Tests/README.md#aktuelle-validierungsevidenz)
+beschreibt diesen begrenzten Scope. Alle nativen Parser-APIs, tatsächliche
+Ausgabeceilings und Minimalrechte sind dadurch nicht vollständig qualifiziert.
+Die frühere Pending-Konfiguration ist kein pauschaler aktueller Testblocker.
+
+## Historischer Status des 2.0.0-Vollscopes
+
+Die folgende Tabelle erhält die damaligen Ergebnisse. Ihre nicht ausgeführten
+Vollscope-Fälle sind von den später erfolgreichen 2.0.1-Consumerprüfungen
+zu unterscheiden.
 
 | Umgebung | Scope | Ergebnis |
 |---|---|---|

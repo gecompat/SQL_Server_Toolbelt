@@ -588,5 +588,6 @@ toolbelt.string.phonetic implementiert ausschließlich die einzeln freigegebenen
 Kölner- und Double-Metaphone-TVFs über eine eigene SAFE-Assembly. Der vollständige
 Scanner ist begrenzt, ohne Vierzeichen-Clamp oder zusätzliche Normalisierung.
 Apache-Header/LICENSE/NOTICE und der markierte Port bleiben erhalten.
-Begrenzte Build-/Framework-/IL- und native Installations-, Fixture-, Client- und Lifecycleteilnachweise liegen vor. Java-Differential, vollständige Zielmatrix, Minimalrechte und aktuelle Head-CI bleiben offen; teilweise validiert und unveröffentlicht. Der Vertrag liegt in
+Begrenzte Build-/Framework-/IL- und native Installations-, Fixture-, Client-
+und Lifecycleteilnachweise liegen vor. Der endliche Java-Differentialkorpus bestand mit 32 Fällen am 2026-10-08 und erweitert mit 36 Fällen am 2026-10-09; vollständige Scannerabdeckung, Zielmatrix, Minimalrechte und Releasequalifikation bleiben offen. Die [Phonetik-Evidenz](../Modules/toolbelt.string.phonetic/Tests/README.md) grenzt die Offline- und nativen Nachweise ab. Teilweise validiert und unveröffentlicht. Der Vertrag liegt in
 Documentation/Architecture/PHONETIC_CONTRACT.md.

@@ -104,13 +104,23 @@ erfolgreich. Seit 2026-09-01 decken zusätzlich alle fünfzehn GitHub-hosted
 Modul-Runtime-Workflows die SQL-Server-Versionen 2019, 2022 und 2025 unter
 Linux ab; damit besteht ein von der Lab-Verfügbarkeit unabhängiger
 Evidenzkanal. Second Session und Event Log verwenden die versionsabhängig
-ermittelte OLE-DB-Provideroption. Sieben Bestandsmodule bleiben wegen
+ermittelte OLE-DB-Provideroption. Sieben Bestandsmodule blieben damals wegen
 ausdrücklich abgegrenzter Performance-, Client-/Treiber-, Fixture-,
 Interoperabilitäts- oder manueller Sicherheitsfälle `partially validated`.
+Der aktuelle Bestand umfasst 45 Module, davon 21 `validated` und 24
+`partially validated`; alle 16 V0c-Module sind seit der Nachqualifikation
+vom 2026-10-19 `validated`. Der
+[V0c-Gatebericht](../Tests/V0C_RELEASE_GATE_STATUS.md) ersetzt die historischen
+Kohorten-Restfälle; alle Module bleiben `unreleased`.
 Script Parser 1.0.0 war auf Windows SQL Server 2019, 2022 und 2025 validiert;
 die einzeln freigegebene Härtung 2.0.0 ist aktiv und `partially validated`:
 245 integrierte Framework-Kindprozesse und Windows 2025/CU8 CL150/160/170
-bestanden; Windows 2019 ist konfigurationsbedingt blockiert, Windows 2022 offen.
+bestanden. Die damaligen 2019-/2022-Lücken betreffen diesen historischen
+2.0.0-Vollscope. Der freigegebene 2.0.1-Build besteht seit 2026-10-18
+Parser-Upgrades und SSIS-/Table-Clone-Consumerprüfungen auf Windows
+2019/2022/2025 lokal und zentral. Das ist keine Vollqualifikation aller
+nativen Parser-APIs oder Ausgabeceilings; siehe die
+[aktuelle Parser-Evidenz](../Modules/toolbelt.tsql.script-parser/Tests/README.md).
 Der vor Source qualifizierte Wächterkandidat ersetzt keine integrierte
 Framework- oder Live-SQL-Abnahme. File Content benötigt weiterhin
 separat bereitgestellte serverseitige Fixtures. S2 zu `TC-2026-032` wurde am
