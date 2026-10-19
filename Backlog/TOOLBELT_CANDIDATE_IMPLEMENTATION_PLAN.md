@@ -16,7 +16,7 @@ Abhängigkeiten und ausführbare Entwicklungswellen.
 
 ## Verbindlichkeit und Aussagegrenzen
 
-- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 45 Module sind implementiert; 18 sind `validated`, 27 sind `partially validated`, 0 sind `not executed`.
+- **Dokumentiert:** Die Kandidatenliste enthält 48 Kandidaten. 45 Module sind implementiert; 21 sind `validated`, 24 sind `partially validated`, 0 sind `not executed`.
 - **Planungsvorschlag:** Noch nicht implementierte Modul-IDs, Objektnamen und
   Objektzuschnitte in diesem Dokument sind Arbeitsnamen für die
   Vertragsbesprechung. Sie sind noch kein öffentlicher Runtime-Vertrag.
@@ -181,10 +181,10 @@ XLSX-Raw-Slice ergänzt am 2026-10-02: Die ältere Archive-/Office-Planung weite
 | `TC-2026-032` S2 | `toolbelt.string.split-advanced` | `toolbelt_string.TVF_SplitAdvanced` | Freigegeben und implementiert; risikobasiert 2019 Linux und 2025 Linux/Windows geprüft, weitere Zielkombinationen nicht ausgeführt. USP/Unquoting bleiben spätere Einzelslices. |
 | `TC-2026-001` | `toolbelt.string.split-characters` | `toolbelt_string.TVF_SplitByCharacters` | Keine autonome Validierung offen; `TC-2026-032` bleibt getrennt. |
 | `TC-2026-002` | `toolbelt.datetime.calendar-difference` | `toolbelt_datetime.TVF_CalendarDifference` | Keine autonome Validierung offen. |
-| `TC-2026-003` | `toolbelt.core.result-table` | `toolbelt_core.USP_PrepareResultTable` | Vergleichbare plattformübergreifende Performance-Evidenz mit vorgegebenen Abnahmekriterien. |
-| `TC-2026-006` | `toolbelt.core.generate-series` | `toolbelt_core.TVF_GenerateSeriesBigInt`, `toolbelt_core.TVF_GenerateSeriesInt` | Breitere Very-large-series-Performance-Evidenz mit Vergleichsbaseline. |
+| `TC-2026-003` | `toolbelt.core.result-table` | `toolbelt_core.USP_PrepareResultTable` | Pflicht-Lastfall mit Daten-/Schema-/Indexergebnisprüfung erfolgreich; Laufzeitmessung gemäß DEC-2026-036 optional. |
+| `TC-2026-006` | `toolbelt.core.generate-series` | `toolbelt_core.TVF_GenerateSeriesBigInt`, `toolbelt_core.TVF_GenerateSeriesInt` | Zehn-Millionen-Pflicht-Lastfall mit vollständiger Wertemengenprüfung erfolgreich; Laufzeitmessung optional. |
 | `TC-2026-008` | `toolbelt.string.directional-trim` | `toolbelt_string.TVF_TrimDirectionalNvarchar`, `toolbelt_string.TVF_TrimDirectionalVarchar` | Keine autonome Validierung offen. |
-| `TC-2026-012` | `toolbelt.conversion.base64` | `toolbelt_conversion.TVF_Base64Encode`, `toolbelt_conversion.TVF_Base64Decode`, `toolbelt_conversion.SVF_Base64Encode`, `toolbelt_conversion.SVF_Base64Decode` | Breitere Large-LOB-Performance-Evidenz mit Vergleichsbaseline. |
+| `TC-2026-012` | `toolbelt.conversion.base64` | `toolbelt_conversion.TVF_Base64Encode`, `toolbelt_conversion.TVF_Base64Decode`, `toolbelt_conversion.SVF_Base64Encode`, `toolbelt_conversion.SVF_Base64Decode` | 4-MiB-Pflicht-Lastfall mit exaktem Roundtrip erfolgreich; Laufzeitmessung optional. |
 | `TC-2026-024` | `toolbelt.conversion.uri-component` | `toolbelt_conversion.TVF_UriComponentEncode`, `toolbelt_conversion.TVF_UriComponentDecode`, `toolbelt_conversion.SVF_UriComponentEncode`, `toolbelt_conversion.SVF_UriComponentDecode` | Keine autonome Validierung offen. |
 | `TC-2026-029` | `toolbelt.metadata.identifier` | `toolbelt_metadata.TVF_ParseMultipartName`, `toolbelt_metadata.SVF_QuoteMultipartName` | Keine autonome Validierung offen. |
 | `TC-2026-030` | `toolbelt.validation.semantic-version` | `toolbelt_validation.TVF_ParseSemanticVersion`, `toolbelt_validation.TVF_CompareSemanticVersion`, `toolbelt_validation.TVF_SemanticVersionSortKey`, `toolbelt_validation.SVF_CompareSemanticVersion`, `toolbelt_validation.SVF_SemanticVersionSortKey` | Keine autonome Validierung offen. |

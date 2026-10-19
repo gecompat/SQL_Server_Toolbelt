@@ -14,7 +14,7 @@ unveröffentlicht; keine Schemafreigabe daraus.
 
 | Aussage | Einordnung |
 |---|---|
-| Aktueller Projektstand | **Dokumentiert:** 45 Module sind implementiert; 18 sind `validated`, 27 sind `partially validated`, 0 sind `not executed`. |
+| Aktueller Projektstand | **Dokumentiert:** 45 Module sind implementiert; 21 sind `validated`, 24 sind `partially validated`, 0 sind `not executed`. |
 | Reihenfolge in diesem Dokument | **Einschätzung:** Grobe Arbeits- und Konzentrationshilfe, bewusst ohne Scheingenauigkeit. |
 | Implementierungsfreigabe | **Abgeschlossen beziehungsweise aktiv:** Die bisher implementierten Einzelkandidaten, W1, W2a, W2b-A und W2c wurden nach ausdrücklicher Freigabe umgesetzt. Andere Rang- oder Fokusangaben autorisieren weiterhin keine Implementierung. |
 | Quellen | Die `RI-`-Einträge und ihre vollständigen Source-IDs bleiben in der [Research-Inbox](./TOOLBELT_RESEARCH_INBOX.md) erhalten. Formale Kandidaten stehen in [TOOLBELT_CANDIDATES.md](./TOOLBELT_CANDIDATES.md). |
@@ -43,8 +43,8 @@ Die Größen sind relative Einschätzungen, keine Aufwandsschätzungen.
 | Reihenfolge | Kandidat | Komplexität | Begründung |
 |---:|---|---:|---|
 | 1 | `TC-2026-003` – ResultTable-Routing | `L` | Implementiertes Kernmodul; eine vergleichbare plattformübergreifende Performance-Baseline bleibt als getrennte Releasevalidierung offen. |
-| 2 | `TC-2026-012` – Base64/Base64URL | `M` | Implementiert; Windows/Linux 2019/2022/2025 erfolgreich, breitere Large-LOB-Performance-Evidenz bleibt offen. |
-| 3 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Implementiert; Windows/Linux 2019/2022/2025 erfolgreich, breitere Very-large-series-Performance-Evidenz bleibt offen. |
+| 2 | `TC-2026-012` – Base64/Base64URL | `M` | Implementiert; Windows/Linux 2019/2022/2025 erfolgreich, 4-MiB-Pflicht-Lastfall erfolgreich; Laufzeitmessung optional. |
+| 3 | `TC-2026-006` – Zahlenreihen / `GENERATE_SERIES` | `M` | Implementiert; Windows/Linux 2019/2022/2025 erfolgreich, Zehn-Millionen-Pflicht-Lastfall erfolgreich; Laufzeitmessung optional. |
 | 4 | `TC-2026-029` – Identifier- und Multipart-Name-Toolkit | `M` | Implementiert und auf Windows/Linux 2019/2022/2025 `validated`. |
 | 5 | `TC-2026-001` – Split mit mehreren einzelnen Trennzeichen | `M` | Implementiert und auf Windows/Linux 2019/2022/2025 `validated`; breitere Quote-/Escape-Stufe bleibt getrennt. |
 | 6 | `TC-2026-030` – Semantic-Version Parser/Comparator | `S–M` | Implementiert und auf Windows/Linux 2019/2022/2025 `validated`. |

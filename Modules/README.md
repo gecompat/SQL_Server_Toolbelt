@@ -9,7 +9,7 @@ ist lokal durchsuchbar; die Ausgabe wird in der Dokumentations-CI auf Synchronit
 
 ## Aktueller Status
 
-**45 Module sind implementiert. 18 sind `validated`, 27 sind `partially validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
+**45 Module sind implementiert. 21 sind `validated`, 24 sind `partially validated`; 0 sind `not executed`. Der Einzelstatus wird aus den Manifesten
 abgeleitet.**
 
 ## Implementierte Module
@@ -20,7 +20,7 @@ abgeleitet.**
 | `toolbelt.archive.zip-files` | Windows ZIP File Facades | `1.0.0` | `toolbelt_archive` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.archive.zip-memory` | ZIP Memory Inspection | `1.4.0` | `toolbelt_archive` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.binary.bit-operations` | Bigint Bit Operations Compatibility | `1.0.0` | `toolbelt_binary` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.conversion.base64` | Base64 and Base64URL Conversion | `1.1.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.conversion.base64` | Base64 and Base64URL Conversion | `1.1.0` | `toolbelt_conversion` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.conversion.integer-base` | Integer Base Conversion | `1.1.0` | `toolbelt_conversion` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.conversion.safe-cast` | Strict Safe Casts | `1.0.0` | `toolbelt_conversion` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.conversion.uri-component` | URI Component Percent-Encoding | `1.0.0` | `toolbelt_conversion` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
@@ -29,8 +29,8 @@ abgeleitet.**
 | `toolbelt.core.event-log` | Rollback-independent Event Log | `1.0.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.execution-cancel` | Cooperative Execution Cancellation | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.execution-context` | Execution Context | `1.0.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.core.generate-series` | Portable Integer Series | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
-| `toolbelt.core.result-table` | Result Table Infrastructure | `1.0.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.core.generate-series` | Portable Integer Series | `1.0.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
+| `toolbelt.core.result-table` | Result Table Infrastructure | `1.0.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.second-session` | Second Session | `1.1.0` | `toolbelt_core` | `implemented` | `validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.work-queue` | Transactional Work Queue | `2.1.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |
 | `toolbelt.core.work-type` | Work Type Catalog | `1.2.0` | `toolbelt_core` | `implemented` | `partially validated` | `unreleased` | 2019, 2022, 2025 |

@@ -7,14 +7,19 @@ Die Kohorte steht in [BACKLOG.md](../.ai/BACKLOG.md#v0av0bv0c-releasevalidierung
 
 ## Stand der 16 Module
 
-13 Module sind `validated`; drei bleiben wegen der Performance-Abnahme
-`partially validated`. Alle 16 bleiben `unreleased`.
+Alle 16 Module sind `validated` und bleiben `unreleased`. Der Benutzer hat
+den Abnahmevertrag am 2026-10-19 ausdrücklich geändert: große Lastfälle mit
+Ergebnisprüfung bleiben Pflicht, Laufzeitmessungen sind optional. Die drei
+neuen Pflichtfixtures bestanden im vorhandenen Lab.
+[DEC-2026-036](../Documentation/Architecture/DECISIONS.md#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen)
+ersetzt den bisherigen verpflichtenden Zeitvergleich; ältere datierte
+Nachweise und damalige Einschränkungen bleiben historisch nachvollziehbar.
 
 | Modul | Version | Validierung |
 |---|---|---|
-| `toolbelt.core.result-table` | 1.0.0 | `partially validated` |
-| `toolbelt.conversion.base64` | 1.1.0 | `partially validated` |
-| `toolbelt.core.generate-series` | 1.0.0 | `partially validated` |
+| `toolbelt.core.result-table` | 1.0.0 | `validated` |
+| `toolbelt.conversion.base64` | 1.1.0 | `validated` |
+| `toolbelt.core.generate-series` | 1.0.0 | `validated` |
 | `toolbelt.metadata.identifier` | 1.0.0 | `validated` |
 | `toolbelt.string.split-characters` | 1.0.0 | `validated` |
 | `toolbelt.validation.semantic-version` | 1.1.0 | `validated` |
@@ -42,7 +47,30 @@ Die Kohorte steht in [BACKLOG.md](../.ai/BACKLOG.md#v0av0bv0c-releasevalidierung
 | Plattform und Cleanup | Hostplattform aller sechs Ziele lesend verifiziert; keine Rückstände im eigenen Laufumfang, fremder Bestand bleibt unberührt | `success` |
 | Dokumentation, Dependency- und Manifestkonsistenz | `python -B Tests/Documentation/validate_documentation.py --all --write`; vollständiger Audit, betroffene statische Verträge und Datenschutzprüfung | `success` |
 
-Produktbasis ist `1dc2311d11fac2e83afe3892bdb3c3aa36158d12`.
+## Pflicht-Lastqualifikation nach Vertragsänderung
+
+Produktbasis der Ergänzung ist `23a8ab3c2b4b576f64b92c26ee7a7b439561fda7`.
+Öffentliche SQL-Quellen und Deployment bleiben unverändert; die vorhandene
+Sechs-Ziel-Fachmatrix gilt weiterhin für diese identischen Produktquellen.
+Am 2026-10-19 bestanden auf dem explizit ausgewählten bereiten
+SQL-2025-Linux/latest-Labziel drei vollständige aktuelle Moduladapter:
+
+| Pflichtfall | Ergebnisprüfung | Ergebnis |
+|---|---|---|
+| [ResultTable](../Modules/toolbelt.core.result-table/Tests/Runtime/Load.Contract.sql) | 100000 vollständige Zeilen über 50 KeepData-Aufrufe, 20 Leerungen mit Indexerhalt, zehn Schemawechsel in beide Richtungen mit beidseitigem Metadatenvergleich | `success` |
+| [Base64](../Modules/toolbelt.conversion.base64/Tests/Runtime/Load.Contract.sql) | 4 MiB, erwartete Ausgabelänge, NULL-sicherer vollständiger Binärvergleich nach Encode/Decode | `success` |
+| [Generate Series](../Modules/toolbelt.core.generate-series/Tests/Runtime/Load.Contract.sql) | zehn Millionen Zeilen, zehn Millionen unterschiedliche Werte, Minimum 1 und Maximum 10000000 | `success` |
+
+Die Adapter setzen CL170 vor der neuen Testsession. Fach-/Security-,
+lokale/centrale Lifecycle- und Uninstallfälle bestanden ebenfalls.
+Ein frischer lesender Audit bestätigte tatsächliche Zielversion/Plattform
+und die Abwesenheit von Datenbanken aus dem eigenen aktuellen Testumfang.
+Keine Konfigurations-, Rechte- oder Truständerung am Server.
+`TBX_RUN_PERFORMANCE_WORKLOAD=0`: kein Timing, keine Baseline, keine
+Kalibrierung oder Performancezusage. Die fehlende Lastkontrolle des geteilten
+Hosts ist für diese Ergebnisprüfungen keine Voraussetzung.
+
+Historische Produktbasis der ersten Fachwelle ist `1dc2311d11fac2e83afe3892bdb3c3aa36158d12`.
 Die fachlichen SQL-Quellen bleiben unverändert. Die Qualifikation ergänzt
 ältere datierte Nachweise; sie wird nicht auf andere Module übertragen.
 GitHub-CI am abschließenden PR-Head wird getrennt im PR ausgewiesen.
@@ -55,7 +83,7 @@ TLS-Abnahme: separat `not executed`; kein Blocker für diese Fachprüfungen.
 Es werden keine realen Endpoints, Credentials, Runtime-Logs oder Messwerte
 versioniert. Eigene Testdatenbanken werden scopegebunden entfernt.
 
-## Reproduktion
+## Reproduktion der ersten Fachwelle
 
 Die vorhandenen Labvariablen müssen auf einen schema-validen Vertrag mit
 den explizit ausgewählten bereiten Zielen verweisen. In PowerShell 7 im
@@ -97,7 +125,8 @@ unter anderen Endbenutzeridentitäten.
 Der Base64-Performance-Workload konnte ein unerwartetes NULL bei der
 Roundtrip-Prüfung übersehen. Die Bedingung weist NULL nun ausdrücklich ab;
 das extrahierte Orakel wurde mit positiven und negativen Werten geprüft.
-Die Performance-Messung selbst wurde nicht ausgeführt.
+Die optionale Performance-Messung selbst wurde nicht ausgeführt; der neue
+getrennte 4-MiB-Pflichtfall wurde danach vollständig erfolgreich ausgeführt.
 
 Die statische Split-Characters-Prüfung akzeptierte den gültigen YAML-Wert
 `validation_status: "validated"` nicht, obwohl die unquotierte Schreibweise
@@ -116,22 +145,45 @@ es wird keine universelle Aussage für weitere Clients abgeleitet.
 Der zusätzliche ADO.NET-Clientprozess lief unter Windows/PowerShell 7;
 die sechs Plattformkombinationen bezeichnen die SQL-Server-Ziele.
 
+## Reproduktion der Pflicht-Lastfälle
+
+Im Repositoryroot in PowerShell 7, mit dem bereits schema-validierten
+Labvertrag und dem expliziten bereiten Linux-/2025-/latest-Ziel:
+
+```powershell
+$priorPerformance = $env:TBX_RUN_PERFORMANCE_WORKLOAD
+try {
+    $env:TBX_RUN_PERFORMANCE_WORKLOAD = '0'
+    ./Tests/CI/run-lab-local.ps1 -TestPurpose Functional -TestSuite full `
+        -Versions 2025 -Platforms linux -LinuxPatches latest `
+        -RunScripts run-result-table-linux.sh,run-base64-linux.sh,run-generate-series-linux.sh `
+        -StopOnFailure
+    if ($LASTEXITCODE -ne 0) { throw 'Pflicht-Lastqualifikation fehlgeschlagen.' }
+} finally {
+    $env:TBX_RUN_PERFORMANCE_WORKLOAD = $priorPerformance
+}
+```
+
+Die Pflicht-Lastfälle laufen ohne eigenes Opt-in in den drei vorhandenen
+Adaptern auf SQL 2025/CL170. Andere Versions-/Plattformwiederholungen benötigen
+einen relevanten abweichenden Zweig, Provider oder erwarteten Engineunterschied.
+Die vollständige funktionale Supportmatrix bleibt unverändert erforderlich.
+
 ## Externe Voraussetzungen und Entscheidungen
 
-| Punkt | Benötigt | Wiederaufnahme / Grenze |
-|---|---|---|
-| ResultTable-Performance | Ein reserviertes oder ausreichend skaliertes, nachweislich lastkontrolliertes SQL-Server-2025-/CL170-Ziel | Vorhandenen Performanceadapter mit flüchtiger Kalibrierung und unabhängiger Bestätigung ausführen |
-| Base64-Performance | Dasselbe qualifizierte Ziel | NULL-sicher korrigierten Workload mit Kalibrierung und Bestätigung ausführen |
-| Generate-Series-Performance | Dasselbe qualifizierte Ziel | Bestehenden Zehn-Millionen-Workload verwenden; der bekannte instabile gemeinsame Entwicklungs-Docker-Host wird nicht erneut versucht |
-| Veröffentlichung | Ausdrückliche Benutzerentscheidung nach Erledigung der fehlenden Gates | Alle 16 Module bleiben `unreleased`; ein kleinerer Releaseumfang wäre eine eigene Entscheidung |
+Für die Pflichtvalidierung der ersten 16 Module fehlt kein externer Lasttest
+mehr. Offen bleibt die ausdrückliche Entscheidung über die tatsächliche
+Veröffentlichung; alle Module bleiben `unreleased`.
 
-Für alle drei Performancefälle gelten unverändert drei Batches mit je
-Warm-up und fünf Samples, höchstens 20 % Batch-Median-Varianz und die
-bestehende Regressionsgrenze. Instabilität bedeutet `not executed`, keinen
-PASS. Kalibrierung und Bestätigung belegen Wiederholbarkeit dieses Ziels,
-keine plattformübergreifende Leistungszusage. Basis und Messwerte bleiben
-flüchtig. READY im Labvertrag allein belegt keine Lastkontrolle.
-Toolbelt startet oder skaliert hierfür keine Labressourcen selbst.
+Optionale Zeitmessungen sind `not executed` und kein Validierungs- oder
+Release-Gate. Bei einem späteren eigenen Auftrag gelten weiterhin reserviertes
+oder ausreichend skaliertes lastkontrolliertes SQL 2025/CL170, drei Batches
+mit je Warm-up und fünf Samples, höchstens 20 % Batch-Median-Spanne sowie
+höchstens 20 % Verschlechterung bei der unabhängigen Bestätigung gegenüber
+der flüchtigen Kalibrierung. Instabilität ist kein Performance-PASS. Diese
+Messungen belegen Wiederholbarkeit dieses Ziels, keine allgemeine Laufzeit.
+Toolbelt startet oder skaliert keine Labressourcen; reale Messwerte, Baselines
+und Runtime-Logs werden nicht als Repository-Evidenz gespeichert.
 
 SC-018 bleibt außerdem eine Betreibergrenze: Unvertrauenswürdige Principals
 dürfen die unbegrenzten mathematischen Series-Alt-APIs nicht direkt erhalten.
@@ -147,8 +199,10 @@ offen. Sie werden durch diese Welle weder ausgeführt noch als erledigt markiert
 ## Prüfaufwand
 
 Ein Arbeitspaket, ein PR und ein Implementierungsverantwortlicher; keine
-zusätzlichen Agenten oder neuen Workflows. Die elf vorhandenen Adapter sind
-auf die 16 Kohortenmodule begrenzt. Der vollständige Dokumentationsaudit ist
+zusätzlichen Agenten oder neuen Workflows. Die erste Fachwelle verwendete elf Adapter für 16 Module; die geänderten
+Pflicht-Lastfälle erforderten danach nur die drei betroffenen vollständigen
+Adapter auf einem bereiten Labziel. Keine Wiederholung der 66 grünen
+Matrixläufe und keine Ausführung der optionalen Zeitreihen. Der vollständige Dokumentationsaudit ist
 für diesen Qualifikationsstand und die betroffene Kopplungsregistry erforderlich.
 CI bestätigt anschließend den stabilen PR-Head nach den bestehenden Filtern.
 Zuverlässige Token-/Kostenmessung ist nicht verfügbar; dafür wird kein

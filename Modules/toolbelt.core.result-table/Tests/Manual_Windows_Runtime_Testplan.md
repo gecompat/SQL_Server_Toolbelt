@@ -82,6 +82,6 @@ belegen nur Wiederholbarkeit auf diesem Ziel.
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; SchemaTrust-Sicherheitsfälle; Performancevergleich separat offen
+- Scope: SQL Server 2025 Linux/latest CL170; vollständiger aktueller Moduladapter einschließlich Pflicht-Lastfall: 100000 Zeilen über 50 KeepData-Aufrufe, 20 Leerungen mit Indexerhalt und zehn Schemawechsel in beide Richtungen; lokales/zentral Deploy, Lifecycle, Uninstall und frischer eigener Cleanupaudit erfolgreich; ergänzt die unveränderte Sechs-Ziel-Fachmatrix. Laufzeitmessung optional und nicht ausgeführt gemäß DEC-2026-036
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

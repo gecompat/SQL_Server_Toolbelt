@@ -1,5 +1,12 @@
 # CI-Testadapter
 
+Die drei Adapter für ResultTable, Base64 und Generate Series führen den jeweiligen
+`Load.Contract.sql` auf SQL Server 2025/CL170 automatisch ohne Opt-in aus.
+Die Pflichtfälle prüfen Daten, Schema beziehungsweise vollständige Wertemengen.
+`TBX_RUN_PERFORMANCE_WORKLOAD=0` überspringt ausschließlich optionale Zeitmessungen.
+Ein vorhandenes bereites Labziel genügt für die Pflichtfälle; siehe
+[DEC-2026-036](../../Documentation/Architecture/DECISIONS.md#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen).
+
 Die aktuelle Abnahme der ersten 16 Module und die verbleibenden externen
 Voraussetzungen stehen im [V0c-Gatebericht](../V0C_RELEASE_GATE_STATUS.md).
 `run-console-clients-lab.ps1` ergänzt die W2c-Suite um echte ADO.NET-
@@ -619,7 +626,7 @@ Die datierten Ergebnisse und Grenzen aller 13 Korrekturen stehen im
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; SchemaTrust-Sicherheitsfälle; Performancevergleich separat offen
+- Scope: SQL Server 2025 Linux/latest CL170; vollständiger aktueller Moduladapter einschließlich Pflicht-Lastfall: 100000 Zeilen über 50 KeepData-Aufrufe, 20 Leerungen mit Indexerhalt und zehn Schemawechsel in beide Richtungen; lokales/zentral Deploy, Lifecycle, Uninstall und frischer eigener Cleanupaudit erfolgreich; ergänzt die unveränderte Sechs-Ziel-Fachmatrix. Laufzeitmessung optional und nicht ausgeführt gemäß DEC-2026-036
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

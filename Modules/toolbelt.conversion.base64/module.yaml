@@ -2,7 +2,7 @@ module_id: "toolbelt.conversion.base64"
 module_name: "Base64 and Base64URL Conversion"
 version: "1.1.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: "validated"
 release_status: unreleased
 description: "Codiert varbinary(max) als Base64 oder Base64URL und decodiert beide RFC-4648-Alphabete."
 
@@ -117,6 +117,7 @@ tests:
   contract: "Tests/Runtime/Base64.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
+  load: "Tests/Runtime/Load.Contract.sql"
   performance_workload: "Tests/Runtime/Performance.Workload.sql"
   github_hosted_linux: "../../.github/workflows/base64-runtime.yml"
 
@@ -152,4 +153,8 @@ validation_evidence:
   - date: "2026-10-19"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; Security-Grenzen, Empty-Decode und NULL-sichere RFC-Orakel; Minimalrechte und zentrale Status-APIs zusätzlich geprüft; Performancevergleich separat offen"
+    result: "success"
+  - date: "2026-10-19"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "SQL Server 2025 Linux/latest CL170; vollständiger aktueller Moduladapter einschließlich Pflicht-Lastfall: exakter 4-MiB-Roundtrip mit NULL-, Längen- und Inhaltsorakeln; lokales/zentral Deploy, Lifecycle, Uninstall und frischer eigener Cleanupaudit erfolgreich; ergänzt die unveränderte Sechs-Ziel-Fachmatrix. Laufzeitmessung optional und nicht ausgeführt gemäß DEC-2026-036"
     result: "success"

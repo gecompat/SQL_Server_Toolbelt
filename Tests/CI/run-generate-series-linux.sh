@@ -180,6 +180,13 @@ for compatibility_level in ${compatibility_levels}; do
         -v CompatibilityLevel="${compatibility_level}"
 done
 
+# Pflicht-Lastfall einmal auf dem repräsentativen Ziel; Laufzeitmessung separat.
+if [[ "${sql_version}" == "2025" ]]; then
+    run_query "${local_database}" \
+        "ALTER DATABASE [${local_database}] SET COMPATIBILITY_LEVEL = 170;"
+    run_file "${local_database}" "${runtime_directory}" Load.Contract.sql
+fi
+
 run_performance_workload_once() {
     local baseline_milliseconds="$1" performance_output median_milliseconds
     performance_output="$(mktemp)"

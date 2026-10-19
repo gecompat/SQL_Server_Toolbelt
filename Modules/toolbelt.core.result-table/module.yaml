@@ -2,7 +2,7 @@ module_id: "toolbelt.core.result-table"
 module_name: "Result Table Infrastructure"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: "validated"
 release_status: unreleased
 description: "Bereitet vorhandene lokale Temp-Tabellen anhand eines Referenztabellenschemas für Toolbelt-USP-Resultsets vor."
 
@@ -103,6 +103,7 @@ tests:
   boundary_transaction: "Tests/Runtime/BoundaryAndTransaction.Contract.sql"
   savepoint_engine_error: "Tests/Runtime/SavepointEngineError.Contract.sql"
   multi_session: "Tests/Runtime/MultiSession.Contract.sql"
+  load: "Tests/Runtime/Load.Contract.sql"
   performance_workload: "Tests/Runtime/Performance.Workload.sql"
   manual_windows: "Tests/Manual_Windows_Runtime_Testplan.md"
   github_hosted_linux: "../../.github/workflows/result-table-runtime.yml"
@@ -139,4 +140,8 @@ validation_evidence:
   - date: "2026-10-19"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; SchemaTrust-Sicherheitsfälle; Performancevergleich separat offen"
+    result: "success"
+  - date: "2026-10-19"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "SQL Server 2025 Linux/latest CL170; vollständiger aktueller Moduladapter einschließlich Pflicht-Lastfall: 100000 Zeilen über 50 KeepData-Aufrufe, 20 Leerungen mit Indexerhalt und zehn Schemawechsel in beide Richtungen; lokales/zentral Deploy, Lifecycle, Uninstall und frischer eigener Cleanupaudit erfolgreich; ergänzt die unveränderte Sechs-Ziel-Fachmatrix. Laufzeitmessung optional und nicht ausgeführt gemäß DEC-2026-036"
     result: "success"

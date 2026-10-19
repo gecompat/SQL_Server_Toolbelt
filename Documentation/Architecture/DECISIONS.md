@@ -528,7 +528,7 @@ bleibt ein separater Release-Nachweis.
 | Feld | Wert |
 |---|---|
 | Datum | 2026-10-10 |
-| Status | accepted |
+| Status | superseded durch [DEC-2026-036](#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen); ursprünglicher Vertrag bleibt historisch erhalten |
 | Entscheidung | Performanceprüfungen wiederholen SQL-Versionen oder Plattformen nur bei einem relevanten abweichenden Programmzweig, Provider oder erwarteten Engineunterschied. Andernfalls genügt ein dokumentiertes repräsentatives Ziel; für ResultTable, Base64 und Generate Series ist dies SQL Server 2025 mit Compatibility Level 170 auf einem reservierten oder ausreichend skalierten, lastkontrollierten Ziel. |
 | Begründung | Betriebssystem und Produktversion allein ergeben keinen aussagekräftigen Performancevergleich. Eine Vollmatrix ohne technischen Unterschied erhöht Kosten und Umgebungsrauschen, ohne die Regressionserkenntnis zu verbessern. |
 | Scope | Ausschließlich Performance-Evidenz; funktionale Support- und Providerprüfungen behalten ihre eigene risikobasierte Matrix. |
@@ -787,3 +787,29 @@ Dies ändert ausschließlich die Testvoraussetzung für SC-045; Zertifikats-/
 Truststoreverwaltung, automatische Fallbacks und andere Securityverträge
 werden dadurch nicht freigegeben. Maßgeblich sind [AGENTS.md](../../AGENTS.md#fachliche-tests-und-transportqualifikation)
 und die [Testregel](../Standards/TEST_AND_VALIDATION_POLICY.md#fachtests-und-verbindungstransport).
+
+
+## DEC-2026-036: Verpflichtende Lasttests und optionale Laufzeitmessungen
+
+| Feld | Wert |
+|---|---|
+| Datum | 2026-10-19 |
+| Status | accepted; ausdrücklicher unmittelbarer Benutzerauftrag |
+| Entscheidung | Für ResultTable, Base64 und Generate Series bleiben große synthetische Lastfälle mit Ergebnisprüfung Pflicht. Laufzeitmessungen einschließlich Kalibrierung, Stabilitäts- und Bestätigungsvergleich sind optionale ergänzende Evidenz und keine Voraussetzung für `validated` oder eine Releaseentscheidung. Diese Entscheidung ersetzt DEC-2026-034. |
+| Begründung | Die bisherigen Zeitvergleiche derselben Implementierung belegen Wiederholbarkeit auf einem Ziel, aber keine vereinbarte absolute Laufzeit oder Verbesserung gegenüber einer Vorgängerversion. Korrekte Ergebnisse bei der vereinbarten Last sind das verpflichtende Funktionskriterium. |
+| Scope | Ausschließlich die drei abgegrenzten Lastfälle und ihre Abnahme; öffentliche SQL-Verträge, funktionale Supportmatrix, Security, Cleanup und Veröffentlichung bleiben unverändert. |
+| Auswirkungen | Drei getrennte `Load.Contract.sql` werden auf dem repräsentativen SQL-2025-/CL170-Ziel automatisch ohne Opt-in ausgeführt. Ein vorhandenes schema-valides Labziel genügt; für diese Ergebnisprüfungen ist keine Lastkontrolle nötig. Optionale Zeitmessungen behalten ihre bisherigen Stabilitäts-, Kalibrierungs- und Regressionsgrenzen und die Anforderung eines kontrollierten Messhosts. Nicht ausgeführte Zeitmessungen werden weiterhin ehrlich ausgewiesen. |
+| Alternativen | Reservierten Host für jede Validierung verlangen, Pflicht-Lastfälle ersatzlos streichen oder Instabilität als Performance-PASS werten wurden verworfen. |
+| Autorisierung | Der Benutzer beauftragte ausdrücklich die Vertragsänderung, die offenen Lasttests im vorhandenen Lab und einen PR. Keine neue fachliche Funktion und keine Veröffentlichungsfreigabe. |
+| Betroffene Verträge | [Testregel](../Standards/TEST_AND_VALIDATION_POLICY.md), [Gatebericht](../../Tests/V0C_RELEASE_GATE_STATUS.md), Modulmanifeste, Contract-Matrizen und die drei bestehenden CI-Adapter. |
+
+Prüfaufwand: ein Arbeitspaket, ein PR, ein Implementierungsverantwortlicher,
+keine zusätzlichen Agenten oder Workflows. Drei geänderte Moduladapter werden
+auf einem explizit ausgewählten bereiten Labziel qualifiziert; die bereits
+grüne 66-Läufe-Fachmatrix wird nicht erneut ausgeführt. Bestehende Runtime-CI
+und aktuelle Head-Prüfungen bleiben erhalten. Die Pflichtfälle laufen einmal
+auf SQL 2025/CL170; die optionalen 3-Batch-/5-Sample-Zeitreihen werden dafür
+nicht ausgeführt. Ein vollständiger Dokumentationsaudit ist wegen des globalen
+Abnahmevertrags und der gekoppelten Statuspflege erforderlich. Runtime-Logs
+bleiben lokal, Repository/PR enthalten nur abstrahierte Ergebnisse. Keine
+neue Reviewkette, Telemetrie oder behauptete Token-/Kostenmessung.

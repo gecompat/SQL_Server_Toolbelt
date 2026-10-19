@@ -1,3 +1,5 @@
+-- Optionale Zeitmessung; der Pflicht-Lastfall steht separat in Load.Contract.sql.
+-- Kein Validierungs- oder Release-Gate gemäß DEC-2026-036.
 -- ============================================================================
 -- Reproduzierbarer synthetischer Performance-Workload
 -- Zweck: vergleichbare Regressionsevidenz, kein allgemeingültiger Benchmark

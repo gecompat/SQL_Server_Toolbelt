@@ -111,7 +111,31 @@ Ein erfolgreicher Test auf einer Version, Plattform oder einem Provider beweist 
 - Randwerte, Fehlerwerte und leere Eingaben;
 - keine Produktionsdaten.
 
-## Performance-Messungen
+## Große Lastfälle mit Ergebnisprüfung
+
+Benutzerentscheidung vom 2026-10-19, [DEC-2026-036](../Architecture/DECISIONS.md#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen):
+Für ResultTable, Base64 und Generate Series sind die synthetischen großen
+Lastfälle mit fachlichen Ergebnisorakeln Pflicht für `validated`.
+Die einmalige repräsentative Ausführung erfolgt auf SQL Server 2025 mit
+Compatibility Level 170 im vorhandenen schema-validierten Lab oder in der
+bestehenden Runtime-CI. Eine Plattformwiederholung ist nur bei einem relevanten
+abweichenden Zweig, Provider oder erwarteten Engineunterschied erforderlich.
+Die vorhandene funktionale Supportmatrix bleibt erhalten.
+
+- ResultTable: 100000 Zeilen unverändert über 50 KeepData-Aufrufe, 20 vollständige
+  Leerungen mit Indexerhalt und zehn Schemawechsel in beide Richtungen.
+- Base64: vollständiger 4-MiB-Roundtrip mit NULL-, Längen- und Inhaltsprüfung.
+- Generate Series: exakt zehn Millionen unterschiedliche Werte von 1 bis
+  10000000, vollständig serverseitig ausgewertet.
+
+Diese Fälle enthalten keine Zeitmessung, Baseline oder Streuungsgrenze und
+benötigen keinen reservierten Messhost. Fehler, Timeouts und fehlgeschlagener
+Cleanup bleiben erfolglose beziehungsweise unvollständige Nachweise.
+Laufzeitmessungen sind optionale zusätzliche Evidenz und blockieren weder
+`validated` noch die Releaseentscheidung. Konkrete künftig vereinbarte
+Leistungszusagen benötigen einen eigenen Abnahmevertrag.
+
+## Performance-Messungen (optional)
 
 - vergleichbare Abfrage, Parameter, Daten- und Cache-Zustände;
 - Messumgebung und Datenmenge dokumentieren;
@@ -119,7 +143,7 @@ Ein erfolgreicher Test auf einer Version, Plattform oder einem Provider beweist 
 - Einzellauf nicht als allgemeingültigen Benchmark darstellen;
 - Ergebnisse als empirisch kennzeichnen.
 
-Ein Performance-Regressionsvergleich darf nur auf einer nachweislich stabilen
+Ein optional beauftragter Performance-Regressionsvergleich darf nur auf einer nachweislich stabilen
 Messumgebung beruhen. Wenn ein moduldefiniertes Stabilitäts-Gate die zulässige
 Streuung überschreitet, ist der Vergleich als `NOT_EXECUTED` beziehungsweise
 `INFRASTRUCTURE_UNAVAILABLE` auszuweisen. Das ist weder ein erfolgreicher
