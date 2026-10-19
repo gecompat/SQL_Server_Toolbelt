@@ -1,5 +1,7 @@
 # ResultTable-Contract-Testmatrix
 
+Abnahmeänderung 2026-10-19: Große Lastfälle mit Ergebnisprüfung sind Pflicht; Laufzeitmessungen sind optional und kein Validierungs- oder Release-Gate. Maßgeblich ist [DEC-2026-036](../Documentation/Architecture/DECISIONS.md#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen). Ältere datierte Aussagen zur verpflichtenden Performance-Abnahme beschreiben den damaligen Vertrag.
+
 Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf
 physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und
 Linux latest erfolgreich. Eine vergleichbare plattformübergreifende
@@ -20,7 +22,7 @@ Windows- und modulspezifische Fälle bleiben unberührt.
 | Modul | `toolbelt.core.result-table` |
 | Objekt | `toolbelt_core.USP_PrepareResultTable` |
 | Testcode | statischer Validator, Runtime-/Lifecycle-Verträge sowie zusätzliche Collation-, 1024-Spalten-, Transaktions-, Multi-Session- und Performance-Workloads implementiert und unter Linux ausgeführt |
-| Runtime-Status | `partially validated` |
+| Runtime-Status | `validated`; Pflicht-Lastfall und funktionale Supportmatrix erfolgreich |
 
 Diese Matrix bleibt das verbindliche Validierungsinventar. Die erste Linux-Welle ist ausgeführt; offene Kombinationen behalten ihren eigenen Status `not executed`.
 
@@ -394,11 +396,11 @@ Windows und eine plattformübergreifend vergleichbare Performance-Baseline bleib
 | `RT-C-017` | Fehler während Lifecycle-Transaktion | vollständiger Rollback ohne halben Installationsstand |
 | `RT-C-018` | paralleles Deploy oder Uninstall desselben Moduls | Application Lock verhindert überlappende Mutation |
 
-## 17. Performance-Messungen
+## 17. Optionale Performance-Messungen
 
 Performance-Ergebnisse sind empirisch und je Plattform getrennt zu dokumentieren.
 
-Mindestens vergleichen:
+Bei einem eigenen Performanceauftrag nach dessen Scope vergleichen:
 
 - passendes Schema ohne DDL;
 - Replace nur durch Datenentfernung;
@@ -423,6 +425,13 @@ Ein Einzellauf ist kein allgemeingültiger Benchmark.
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; SchemaTrust-Sicherheitsfälle; Performancevergleich separat offen
+- Scope: SQL Server 2025 Linux/latest CL170; vollständiger aktueller Moduladapter einschließlich Pflicht-Lastfall: 100000 Zeilen über 50 KeepData-Aufrufe, 20 Leerungen mit Indexerhalt und zehn Schemawechsel in beide Richtungen; lokales/zentral Deploy, Lifecycle, Uninstall und frischer eigener Cleanupaudit erfolgreich; ergänzt die unveränderte Sechs-Ziel-Fachmatrix. Laufzeitmessung optional und nicht ausgeführt gemäß DEC-2026-036
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Pflicht-Lastfall ab 2026-10-19
+
+ResultTable: 100000 unveränderte Zeilen, 50 KeepData-Aufrufe, 20 Leerungen mit Indexerhalt und zehn Schemawechsel in beide Richtungen.
+[Load.Contract.sql](../Modules/toolbelt.core.result-table/Tests/Runtime/Load.Contract.sql) läuft automatisch auf dem repräsentativen SQL-2025-/CL170-Ziel.
+Keine Zeitmessung, Baseline oder Streuung entscheidet über dieses Ergebnisgate.
+Die optionale Performanceprüfung behält ihre eigenen bisherigen Grenzen.

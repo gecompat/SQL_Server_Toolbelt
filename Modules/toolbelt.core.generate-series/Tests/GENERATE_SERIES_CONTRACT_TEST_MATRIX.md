@@ -1,5 +1,7 @@
 # Generate-Series-Contract-Testmatrix
 
+Abnahmeänderung 2026-10-19: Große Lastfälle mit Ergebnisprüfung sind Pflicht; Laufzeitmessungen sind optional und kein Validierungs- oder Release-Gate. Maßgeblich ist [DEC-2026-036](../../../Documentation/Architecture/DECISIONS.md#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen). Ältere datierte Aussagen zur verpflichtenden Performance-Abnahme beschreiben den damaligen Vertrag.
+
 Plattform-Evidenz 2026-09-01: `local: Tests/CI/run-lab-local.ps1` war auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base und Linux latest erfolgreich; breitere Very-large-series-Performance-Evidenz bleibt offen. Der Modulstatus bleibt `partially validated`. Dieser Nachweis ersetzt frühere offene Windows-Aussagen; datierte ältere Einträge bleiben historische Evidenz.
 
 V0a-Evidenz 2026-08-29: `local: Tests/CI/run-lab-local.ps1` belegt
@@ -25,7 +27,7 @@ war für die SQL-Server-2025-Linux-Matrix erfolgreich. Der Modulstatus ist
 | Fehler | Schritt `0`; Vorrang dieses Fehlers; Zeilenzahl außerhalb `bigint` |
 | Datentypen | `int`, `bigint` und Grenzwerte beider Typen |
 | Größen | eine Million synthetische Werte |
-| Performance | zehn Millionen synthetische Werte; drei unabhängige Serien mit je einem Warm-up und fünf Messwiederholungen; jede Serie liefert einen Median. Nur bei höchstens 20 % Streuung zwischen den Serien wird gegen eine lokal gehaltene Basis mit höchstens 20 % Median-Regression verglichen; beide Grenzen sind je Lauf überschreibbar. Der offene Nachweis läuft risikobasiert genau einmal auf einem reservierten oder ausreichend skalierten, lastkontrollierten SQL-Server-2025-/Compatibility-Level-170-Ziel. |
+| Performance (optional) | zehn Millionen synthetische Werte; drei unabhängige Serien mit je einem Warm-up und fünf Messwiederholungen; jede Serie liefert einen Median. Nur bei höchstens 20 % Streuung zwischen den Serien wird gegen eine lokal gehaltene Basis mit höchstens 20 % Median-Regression verglichen; beide Grenzen sind je Lauf überschreibbar. Ein optional beauftragter Nachweis läuft risikobasiert genau einmal auf einem reservierten oder ausreichend skalierten, lastkontrollierten SQL-Server-2025-/Compatibility-Level-170-Ziel. |
 | Row Goal | äußerer `TOP (10)` gegen eine sehr große gültige Reihe |
 | relationale Nutzung | typstabiler Join und korreliertes `CROSS APPLY` |
 | native Parität | SQL Server 2025 bei Compatibility Levels 160 und 170 |
@@ -69,7 +71,7 @@ Alle Grenzwerte, Bereiche und relationalen Testdaten sind synthetisch.
 Runtime-Ausgaben und Runner-Eigenschaften werden nicht als Repository-Evidenz
 gespeichert.
 
-## Performance-Vergleich
+## Optionaler Performance-Vergleich
 
 `Tests/Runtime/Performance.Workload.sql` verwendet die SQLCMD-Variablen
 `PerformanceBaselineMedianMilliseconds` und
@@ -90,7 +92,7 @@ Generate-Series-Performancevertrag freigegeben. Es ändert weder den
 Der Benutzer entschied am 2026-10-10, dass Versions- oder Plattformwiederholungen
 für Performance nur bei einem relevanten Programmzweig, Provider oder erwarteten
 Engineunterschied erforderlich sind. Der T-SQL-Workload hat keinen solchen
-eigenen Zweig; deshalb erfolgt die offene Evidenz auf SQL Server 2025 mit
+eigenen Zweig; deshalb erfolgt eine optionale Messung auf SQL Server 2025 mit
 Compatibility Level 170 auf einem reservierten oder ausreichend skalierten,
 lastkontrollierten Ziel. Der Adapter kann dafür einmal kalibrieren und
 unmittelbar danach unabhängig bestätigen; die Werte verbleiben flüchtig und
@@ -102,6 +104,13 @@ belasteten Entwicklungs-Docker-Host war `NOT_EXECUTED / PERFORMANCE_STABILITY_UN
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; begrenzte Statusoberfläche einschließlich Minimalrechten und zentraler Nutzung; Performancevergleich separat offen
+- Scope: SQL Server 2025 Linux/latest CL170; vollständiger aktueller Moduladapter einschließlich Pflicht-Lastfall: zehn Millionen Werte mit Anzahl, Eindeutigkeit und Grenzen 1..10000000; lokales/zentral Deploy, Lifecycle, Uninstall und frischer eigener Cleanupaudit erfolgreich; ergänzt die unveränderte Sechs-Ziel-Fachmatrix. Laufzeitmessung optional und nicht ausgeführt gemäß DEC-2026-036
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Pflicht-Lastfall ab 2026-10-19
+
+Generate Series: exakt zehn Millionen unterschiedliche Werte im Bereich 1..10000000.
+[Load.Contract.sql](Runtime/Load.Contract.sql) läuft automatisch auf dem repräsentativen SQL-2025-/CL170-Ziel.
+Keine Zeitmessung, Baseline oder Streuung entscheidet über dieses Ergebnisgate.
+Die optionale Performanceprüfung behält ihre eigenen bisherigen Grenzen.

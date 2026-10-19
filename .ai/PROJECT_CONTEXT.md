@@ -240,7 +240,7 @@ werden in der Modul-Testdokumentation von den finalen Nachweisen getrennt.
 
 `toolbelt.file.content` ist als portabler Read-only-Dateiprovider implementiert und auf SQL Server 2025 Linux teilweise validiert. `toolbelt.filesystem.windows` ist implementiert, benötigt aber weiterhin den manuellen Windows-SQL-Server-/NTFS-Runtime-Nachweis. `toolbelt.archive.zip-memory` ist als SAFE-SQL-CLR-Provider unter SQL Server 2019/2022/2025 Linux teilweise validiert.
 
-45 Module sind implementiert. 18 sind `validated`, 27 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
+45 Module sind implementiert. 21 sind `validated`, 24 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den jeweiligen
 `module.yaml`-Manifesten abgeleitet.
 
 `toolbelt.datetime.date-spine` implementiert D1 mit drei öffentlichen Inline
@@ -277,19 +277,17 @@ Toolbelt-Runner verwaltet keine Lab-Infrastruktur. Die Windows-/Linux-Matrix
 Client-/Treiber- und Buffering-Grenzen `partially validated`.
 
 Der Repository-Grundaufbau ist initialisiert und konsolidiert. Das Kernmodul
-`toolbelt.core.result-table` ist implementiert und teilweise validiert: Die
-Windows-/Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; eine
-vergleichbare plattformübergreifende Performance-Baseline bleibt offen.
+`toolbelt.core.result-table` ist implementiert und validiert: Die
+Windows-/Linux-Matrix ist auf SQL Server 2019, 2022 und 2025 erfolgreich; der
+Pflicht-Lastfall auf SQL 2025 Linux CL170 bestand am 2026-10-19.
 Das unabhängige Modul `toolbelt.conversion.base64` ist implementiert; sein
 vollständiger Adapter ist auf physischen SQL-Server-2019-, 2022- und
-2025-Zielen unter Windows base und Linux latest erfolgreich. Das Modul bleibt
-wegen der noch offenen breiteren Large-LOB-Performance-Evidenz `partially validated`.
+2025-Zielen unter Windows base und Linux latest erfolgreich. Der 4-MiB-Pflicht-Lastfall bestand auf SQL 2025 Linux CL170; das Modul ist `validated`.
 
 Das unabhängige Modul `toolbelt.core.generate-series` ist mit portablen
 Inline TVFs für `int` und `bigint` implementiert. Sein vollständiger Adapter
 ist auf physischen SQL-Server-2019-, 2022- und 2025-Zielen unter Windows base
-und Linux latest erfolgreich. Das Modul bleibt wegen der noch offenen
-Very-large-series-Performance-Evidenz `partially validated`.
+und Linux latest erfolgreich. Der Zehn-Millionen-Pflicht-Lastfall bestand auf SQL 2025 Linux CL170; das Modul ist `validated`. Laufzeitmessungen sind für alle drei Module gemäß DEC-2026-036 optional, Release bleibt `unreleased`.
 
 Das Modul `toolbelt.metadata.identifier` implementiert einen zustandsbasierten
 Parser und einen Quote-Wrapper für ein- bis vierteilige SQL-Namen. Code,

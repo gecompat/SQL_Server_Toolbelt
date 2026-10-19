@@ -1,5 +1,7 @@
 # Base64-Contract-Testmatrix
 
+Abnahmeänderung 2026-10-19: Große Lastfälle mit Ergebnisprüfung sind Pflicht; Laufzeitmessungen sind optional und kein Validierungs- oder Release-Gate. Maßgeblich ist [DEC-2026-036](../../../Documentation/Architecture/DECISIONS.md#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen). Ältere datierte Aussagen zur verpflichtenden Performance-Abnahme beschreiben den damaligen Vertrag.
+
 Wartung 2026-10-19: Der Roundtrip-Vergleich im Performance-Workload weist
 unerwartetes `NULL` nun ausdrücklich ab. Das aus dem Workload extrahierte
 Orakel bestand eine funktionale Prüfung mit NULL, abweichendem und korrektem
@@ -32,7 +34,7 @@ war für die Compatibility Levels 150, 160 und 170 erfolgreich.
 | Fehler | ungültiges Zeichen, Länge Rest eins und ungültiges Padding |
 | Roundtrip | Encode → Decode für Standard und URL-safe |
 | Größen | inline-TVF-Roundtrip mit 6.000, 6.001, 65.536 und 1.048.576 synthetischen Bytes; SVF-Parität bis 6.001 Bytes |
-| Performance | 4 MiB synthetischer Large-LOB-Roundtrip; drei unabhängige Batches mit je Warm-up und fünf Messungen; Batch-Median-Spanne höchstens 20 %; Regression gegen optionale lokale Basis, je Lauf überschreibbar. Der offene Nachweis läuft risikobasiert genau einmal auf einem reservierten oder ausreichend skalierten, lastkontrollierten SQL-Server-2025-/Compatibility-Level-170-Ziel. |
+| Performance (optional) | 4 MiB synthetischer Large-LOB-Roundtrip; drei unabhängige Batches mit je Warm-up und fünf Messungen; Batch-Median-Spanne höchstens 20 %; Regression gegen optionale lokale Basis, je Lauf überschreibbar. Ein optional beauftragter Nachweis läuft risikobasiert genau einmal auf einem reservierten oder ausreichend skalierten, lastkontrollierten SQL-Server-2025-/Compatibility-Level-170-Ziel. |
 | Native Parität | SQL Server 2025 als semantische Referenz |
 | API-Parität | SVF und inline TVF für Normal-, Grenz-, `NULL`- und Fehlerfälle |
 | Mengenverwendung | `OUTER APPLY`, exakt eine Ergebniszeile, Resultspalten |
@@ -75,7 +77,7 @@ eine Releasefreigabe.
 Alle Werte sind synthetisch. Decodierte Inhalte, Fehlerinputs und Runtime-
 Ausgaben werden nicht als Repository-Evidenz gespeichert.
 
-## Performance-Vergleich
+## Optionaler Performance-Vergleich
 
 `Tests/Runtime/Performance.Workload.sql` verwendet die SQLCMD-Variablen
 `PerformanceBaselineMedianMilliseconds` und
@@ -104,6 +106,13 @@ verbleiben flüchtig und belegen nur Wiederholbarkeit auf diesem Ziel.
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-19`
 - Nachweis: `local: Tests/CI/run-lab-local.ps1`
-- Scope: Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; Security-Grenzen, Empty-Decode und NULL-sichere RFC-Orakel; Minimalrechte und zentrale Status-APIs zusätzlich geprüft; Performancevergleich separat offen
+- Scope: SQL Server 2025 Linux/latest CL170; vollständiger aktueller Moduladapter einschließlich Pflicht-Lastfall: exakter 4-MiB-Roundtrip mit NULL-, Längen- und Inhaltsorakeln; lokales/zentral Deploy, Lifecycle, Uninstall und frischer eigener Cleanupaudit erfolgreich; ergänzt die unveränderte Sechs-Ziel-Fachmatrix. Laufzeitmessung optional und nicht ausgeführt gemäß DEC-2026-036
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+## Pflicht-Lastfall ab 2026-10-19
+
+Base64: exakter 4-MiB-Roundtrip mit NULL-, Längen- und Inhaltsprüfung.
+[Load.Contract.sql](Runtime/Load.Contract.sql) läuft automatisch auf dem repräsentativen SQL-2025-/CL170-Ziel.
+Keine Zeitmessung, Baseline oder Streuung entscheidet über dieses Ergebnisgate.
+Die optionale Performanceprüfung behält ihre eigenen bisherigen Grenzen.

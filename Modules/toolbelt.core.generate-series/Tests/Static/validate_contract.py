@@ -36,10 +36,16 @@ def main() -> int:
     module_documentation = read("README.md")
     matrix = read("Tests/GENERATE_SERIES_CONTRACT_TEST_MATRIX.md")
     runtime = read("Tests/Runtime/GenerateSeries.Contract.sql")
+    read("Tests/Runtime/Load.Contract.sql")
     performance_workload = read("Tests/Runtime/Performance.Workload.sql")
     ci_adapter = (
         MODULE_ROOT.parents[1] / "Tests" / "CI" / "run-generate-series-linux.sh"
     ).read_text(encoding="utf-8")
+
+    if "Load.Contract.sql" not in ci_adapter or "load:" not in manifest:
+        raise ContractError("Der Pflicht-Lastfall muss im Adapter und Manifest gekoppelt sein.")
+    if ci_adapter.index("Load.Contract.sql") > ci_adapter.index('if [[ "${run_performance_workload}" == "1" ]]'):
+        raise ContractError("Der Pflicht-Lastfall darf nicht vom Performance-Opt-in abhängen.")
 
     combined = "\n".join(
         (

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-19 – Pflicht-Lastfälle und optionale Zeitmessungen
+
+Auf ausdrücklichen Benutzerauftrag ersetzt DEC-2026-036 den bisherigen
+Performance-Abnahmevertrag: große Lastfälle mit Ergebnisprüfung bleiben Pflicht,
+Laufzeitmessungen werden optional. Drei neue automatisch ausgeführte
+`Load.Contract.sql` bestanden mit den vollständigen Moduladaptern auf
+SQL Server 2025 Linux/latest CL170 einschließlich eigenem Cleanup. ResultTable,
+Base64 und Generate Series sind damit validiert; alle 16 Kohortenmodule
+bleiben unveröffentlicht. Frühere datierte Einschränkungen gelten historisch.
+Details: [Gatebericht](Tests/V0C_RELEASE_GATE_STATUS.md).
+
 ## 2026-10-19 – Fachqualifikation der ersten Releasekohorte
 
 Alle 16 V0c-Module bestehen die vollständige aktuelle Windows-/Linux-Matrix
@@ -2107,7 +2118,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 
 ### Status
 
-45 Module sind implementiert. 18 sind `validated`, 27 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
+45 Module sind implementiert. 21 sind `validated`, 24 sind `partially validated`; 0 sind `not executed`. Die verbindliche, je Modul und Plattform getrennte Evidenz
 steht in den Manifesten. Offene Windows- und modulspezifische Releasefälle
 werden nicht aus Linux- oder Compatibility-Level-Läufen abgeleitet.
 

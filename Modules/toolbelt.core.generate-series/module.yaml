@@ -2,7 +2,7 @@ module_id: "toolbelt.core.generate-series"
 module_name: "Portable Integer Series"
 version: "1.0.0"
 implementation_status: implemented
-validation_status: "partially validated"
+validation_status: "validated"
 release_status: unreleased
 description: "Erzeugt portable int- und bigint-Zahlenreihen auf SQL Server 2019, 2022 und 2025."
 
@@ -108,6 +108,7 @@ tests:
   contract: "Tests/Runtime/GenerateSeries.Contract.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Contract.sql"
   central: "Tests/Runtime/Central.Contract.sql"
+  load: "Tests/Runtime/Load.Contract.sql"
   performance_workload: "Tests/Runtime/Performance.Workload.sql"
   github_hosted_linux: "../../.github/workflows/generate-series-runtime.yml"
 
@@ -139,4 +140,8 @@ validation_evidence:
   - date: "2026-10-19"
     workflow: "local: Tests/CI/run-lab-local.ps1"
     scope: "Physische SQL Server 2019/2022/2025 unter Windows mit freigegebenen CU-Äquivalenten zu base und Linux latest; vollständiger lokaler/zentraler Moduladapter, versionsabhängige CL150/160/170, Lifecycle und Uninstall; begrenzte Statusoberfläche einschließlich Minimalrechten und zentraler Nutzung; Performancevergleich separat offen"
+    result: "success"
+  - date: "2026-10-19"
+    workflow: "local: Tests/CI/run-lab-local.ps1"
+    scope: "SQL Server 2025 Linux/latest CL170; vollständiger aktueller Moduladapter einschließlich Pflicht-Lastfall: zehn Millionen Werte mit Anzahl, Eindeutigkeit und Grenzen 1..10000000; lokales/zentral Deploy, Lifecycle, Uninstall und frischer eigener Cleanupaudit erfolgreich; ergänzt die unveränderte Sechs-Ziel-Fachmatrix. Laufzeitmessung optional und nicht ausgeführt gemäß DEC-2026-036"
     result: "success"

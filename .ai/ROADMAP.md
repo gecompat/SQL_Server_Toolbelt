@@ -95,7 +95,7 @@ XLSX-Raw-Reader `toolbelt.file.xlsx-memory` 1.0.0 und kanonische ZIP-Fassade 1.4
 
 Repository-Grundaufbau, Foundation-Korrektur, Research-Wellen,
 Toolbelt-Landschaftsrecherche und die bisherigen Entwicklungswellen sind
-abgeschlossen. 45 Module sind implementiert. 18 sind `validated`, 27 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
+abgeschlossen. 45 Module sind implementiert. 21 sind `validated`, 24 sind `partially validated`; 0 sind `not executed`. Die verbindlichen Einzelstatus werden aus den
 jeweiligen `module.yaml`-Manifesten abgeleitet.
 
 Die vollständige lokale Adaptermatrix war am 2026-09-01 auf physischen
@@ -298,8 +298,7 @@ Stand `toolbelt.conversion.base64`:
 - SQL Server 2025 unter Linux mit Compatibility Levels 150, 160 und 170
   einschließlich RFC-4648-, Fehler-, Größen-, Deployment- und
   Lifecycle-Contracts erfolgreich;
-- wegen der noch offenen breiteren Large-LOB-Performance-Evidenz
-  `validation_status: partially validated`.
+- Pflicht-Lastfall mit exaktem 4-MiB-Roundtrip auf SQL 2025 Linux CL170 am 2026-10-19 erfolgreich; `validation_status: validated`, Zeitmessung optional.
 
 Stand `toolbelt.core.generate-series`:
 
@@ -315,8 +314,7 @@ Stand `toolbelt.core.generate-series`:
 - vollständiger Adapter am 2026-09-01 auf physischen
   SQL-Server-2019-/2022-/2025-Zielen unter Windows base und Linux latest
   erfolgreich;
-- wegen der noch offenen Very-large-series-Performance-Evidenz
-  `validation_status: partially validated`.
+- Pflicht-Lastfall mit zehn Millionen vollständig geprüften Werten auf SQL 2025 Linux CL170 am 2026-10-19 erfolgreich; `validation_status: validated`, Zeitmessung optional.
 
 Stand `toolbelt.metadata.identifier`:
 
@@ -587,7 +585,7 @@ repariert oder löscht keine Lab-Ressourcen selbst.
 V0 verändert keine öffentlichen SQL-Signaturen oder fachlichen Verträge.
 Neue Q1-/D1-Runtime-Objekte bleiben außerhalb dieser Freigabe.
 
-Nachqualifikation 2026-10-19: Die 16 V0c-Module bestanden die aktuelle vollständige Fachmatrix auf allen sechs Windows-/Linux-Zielkombinationen. Nach zusätzlichen Client-, Minimalrechte- und zentralen Statusprüfungen sind 13 Module `validated`; die drei kontrollierten Performance-Gates bleiben offen. Alle Module bleiben `unreleased`. Voraussetzungen und Wiederaufnahme stehen im [V0c-Gatebericht](../Tests/V0C_RELEASE_GATE_STATUS.md).
+Nachqualifikation 2026-10-19: Die 16 V0c-Module bestanden die aktuelle vollständige Fachmatrix auf allen sechs Windows-/Linux-Zielkombinationen. Nach zusätzlichen Client-, Minimalrechte- und zentralen Statusprüfungen sind nach den zusätzlichen Pflicht-Lastfällen alle 16 Module `validated`; Zeitmessungen sind gemäß ausdrücklicher Benutzerentscheidung optional. Alle Module bleiben `unreleased`. Voraussetzungen und Wiederaufnahme stehen im [V0c-Gatebericht](../Tests/V0C_RELEASE_GATE_STATUS.md).
 
 ### Phase 4.2 – Q1 Lifecycle- und Upgrade-Automation
 

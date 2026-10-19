@@ -35,6 +35,7 @@ BOUNDARY_TRANSACTION_CONTRACT = (
 MULTI_SESSION_CONTRACT = (
     MODULE_ROOT / "Tests" / "Runtime" / "MultiSession.Contract.sql"
 )
+LOAD_CONTRACT = MODULE_ROOT / "Tests" / "Runtime" / "Load.Contract.sql"
 PERFORMANCE_WORKLOAD = (
     MODULE_ROOT / "Tests" / "Runtime" / "Performance.Workload.sql"
 )
@@ -103,6 +104,7 @@ def main() -> int:
             COLLATION_CONTRACT,
             BOUNDARY_TRANSACTION_CONTRACT,
             MULTI_SESSION_CONTRACT,
+            LOAD_CONTRACT,
             PERFORMANCE_WORKLOAD,
             RUNTIME_WORKFLOW,
             LINUX_RUNNER,
@@ -216,9 +218,9 @@ def main() -> int:
         "Manifest-Implementierungsstatus ist nicht implemented.",
     )
     require(
-        r"validation_status:\s*\"partially validated\"",
+        r"validation_status:\s*\"(?:partially validated|validated)\"",
         manifest,
-        "Manifest bildet die belegte Teilvalidierung nicht ab.",
+        "Manifest enthält keinen zulässigen belegten Validierungsstatus.",
     )
     require(
         r"release_status:\s*unreleased",
@@ -363,6 +365,10 @@ def main() -> int:
             "Der Linux-Adapter wartet nicht kontrolliert auf die Multi-Session-Worker."
         )
 
+    if "Load.Contract.sql" not in linux_runner or "load:" not in manifest:
+        raise AssertionError("Der Pflicht-Lastfall muss im Adapter und Manifest gekoppelt sein.")
+    if linux_runner.index("Load.Contract.sql") > linux_runner.index('if [[ "${run_performance_workload}" == "1" ]]'):
+        raise AssertionError("Der Pflicht-Lastfall darf nicht vom Performance-Opt-in abhängen.")
     performance_workload = files[PERFORMANCE_WORKLOAD]
     for marker in (
         "@Iteration < 50",
@@ -459,7 +465,7 @@ def main() -> int:
 
     print("Statische ResultTable-Vertragsprüfung: erfolgreich")
     print(f"Geprüfte Artefakte: {len(files)}")
-    print("Runtime-Evidenz: partially validated")
+    print("Runtime-Evidenz: siehe module.yaml; diese Prüfung führt kein SQL aus.")
     return 0
 
 
