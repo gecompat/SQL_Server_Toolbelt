@@ -1007,6 +1007,39 @@ Neue exakte Head-CI, Queue1.1-Migration, normaler Merge, Main-CI und vollständi
 
 ### Genuine Queue1.1 als weitere Deploymentwartung
 
+**Abgleich und begrenzter Abschluss vom 2026-10-20:** Der menschliche
+Fortsetzungsauftrag vom 2026-10-20 hebt die frühere allgemeine
+Entwicklungspause auf. Die Bestandsprüfung fand keine offenen PRs oder
+unübernommenen Branches. Die folgende Queue1.1-Historie wird durch einen
+bereits ausgeführten späteren Nachweis ergänzt, nicht rückwirkend geändert.
+
+Der [Main-Worker-Lauf vom 2026-10-19](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/39272472951)
+am Commit `bea86dd361c7e27f7ae66bd12ac02ddb4c22c44e` bestand alle drei Jobs.
+Die tatsächlichen Checkout-Commitzeilen, API-Schrittstatus und abgegrenzten
+Ergebnisse des Queue1.1-Schritts wurden am 2026-10-20 lesend geprüft:
+genuine1.1→2.1, unmittelbarer Daten-/Katalogvergleich und anschließender
+Repeat derselben Exportdatei bestanden auf SQL Server 2019 Linux/CL150
+lokal und zentral. Eigene Datenbank-/Dateibereinigung dieses Falls sowie
+der getrennte Containercleanup sind belegt. Die relevanten Produkt-,
+Export-, Fixture-, Helper-, Worker- und Workflowquellen sind gegenüber
+`64cc498c81a51ac4419ac6d4f6e7e728986d3163` unverändert. Das ist ein gebundener
+Nachtrag zum Lauf vom 19.10., kein neuer SQL-Lauf oder aktueller Head-CI-Ersatz.
+
+Damit ist die begrenzte Queue1.1-Deploymentwartung einschließlich des
+Dateirepeats integriert und nativ nachgewiesen. Historische FAILED-/SKIPPED-
+Läufe, ungemessene Ursachen und damals fehlende Cleanupnachweise bleiben
+erhalten. Die Bereinigung des erfolgreichen Laufs belegt keine nachträgliche
+Bereinigung oder vollständige private Retention früherer Versuche.
+Weitere Plattformen/CLs, nichtleere Benutzergrants, echte Minimalrechte,
+allgemeiner Gesamtdeployment-Lifecycle und Release bleiben getrennt offen.
+Der Windows-`FileSystemRoot`-Repeat bleibt der nächste noch offene Eintrag
+der untenstehenden Wartungsreihenfolge; er benötigt seine eigenen
+Windows-/Assembly-/Trustvoraussetzungen. Details und Grenzen stehen im
+[aktuellen Deploymentabgleich](../Deployment/Tests/README.md#queue11-abgleich-des-späteren-main-nachweises-2026-10-20).
+
+Die folgenden offenen Angaben beschreiben die jeweiligen historischen
+Quellenstände vor diesem späteren erfolgreichen Nachweis.
+
 Vierter exakter Head `0437beadf435173baafe9e9f27223f2fe0c8f7be`:
 [Worker-CI FAILED](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37751627937),
 [Dokumentations-CI PASS](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/37751627892).

@@ -11,6 +11,52 @@ Ablehnung abweichender SHA2-512-Eingaben sowie beider Definitionsüberschreibung
 Kleine synthetische Binarywerte sind keine installierbaren oder vertrauenswürdigen
 Assemblies. Kein nativer Gesamtdeployment- oder TLS-Nachweis.
 
+## Queue1.1: Abgleich des späteren Main-Nachweises 2026-10-20
+
+Die nachfolgenden Queue1.1-Fehlerberichte und damaligen offenen Gates bleiben
+historische Evidenz. Der spätere [External-Queue-Worker-Lauf vom 2026-10-19](https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/39272472951)
+am Maincommit `bea86dd361c7e27f7ae66bd12ac02ddb4c22c44e` ist erfolgreich.
+Am 2026-10-20 wurden dessen Job-/Schrittstatus und Originalausgabe mit
+`gh run view 39272472951 --log` und
+`gh api repos/gecompat/SQL_Server_Toolbelt/actions/runs/39272472951/jobs`
+lesend geprüft. Alle drei Jobs bestanden; die tatsächlichen Checkout-
+Commitzeilen sind an diesen Commit gebunden. Die Ergebnisse wurden im
+Queue1.1-Aufrufabschnitt abgegrenzt, damit Cleanupmarker vorheriger
+Exportfälle nicht als eigener Queue1.1-Nachweis zählen.
+
+| Prüfung im bestehenden CI-Adapter | Scope | Ergebnis des Laufs vom 2026-10-19 |
+|---|---|---|
+| `Invoke-ExportPopulatedRepeat.ps1 -Scenario Queue11Upgrade` | SQL Server 2019 Linux, CL150, local/central; gepinnter Originalinstaller1.1, aktueller Neunmodul-Export und unmittelbarer Vergleich der sechs Legacytabellen einschließlich gesonderter WorkItem-Rowversionregeln | bestanden |
+| Repeat derselben Exportdatei | local/central; vollständige Daten-/Katalogvergleiche nach der Migration, ohne weitere persistente DML zwischen den Snapshots | bestanden |
+| Eigener DB-/Dateicleanup | Genau dieser Queue1.1-Fall; sein eigener Abschlussmarker nach Migration und Repeat, ohne Failure-/Deferredmarker | bestanden |
+| Separater Containercleanup | Erfolgreicher eigener Cleanupschritt des Linuxjobs | bestanden |
+| Deterministische Faultjobs | Ubuntu und Windows; keine native Windows-SQL-Qualifikation | bestanden |
+
+Die aktuelle Repeatassertion prüft 15 Tabellen einschließlich der leeren
+`WorkTypePermission`. Der bestehende feste Repeat-Ergebnistext enthält noch
+die historische Bezeichnung `fourteen-tables`; er ist kein eigenständiges
+Zähloracle. Maßgeblich sind die 15 expliziten Tabellen-/Countzeugen in
+`Read-Queue11RepeatSnapshot` und die vollständigen Snapshotvergleiche.
+Der [Security-Vertragsnachtrag](#security-verträge-2026-10-15) beschreibt die
+bereits integrierte Erweiterung. Dieser Evidenzabgleich ändert keine Marker,
+Orakel, Quellenpins oder Runtimeverträge.
+
+Ein lokaler Git-Vergleich bestätigt die unveränderten relevanten Produkt-,
+Deployment-, Fixture-, Helper-, Worker- und Workflowquellen zwischen dem
+geprüften Commit und `64cc498c81a51ac4419ac6d4f6e7e728986d3163`.
+Der Nachweis bleibt an seine ursprüngliche Ausführung gebunden. Am
+20.10.2026 wurde dafür kein SQL-Test wiederholt und keine Labressource
+verändert. Die Dokumentationsänderung erhält eigene aktuelle Head-/Main-CI;
+der alte Runtimeerfolg ersetzt diese Gates nicht.
+
+Damit ist der begrenzte Queue1.1-Migrations-/Repeat-Scope nativ nachgewiesen
+und bereits integriert. Ein erfolgreicher späterer Cleanup erklärt keine
+frühere Fehlerursache und belegt weder historische Dateibereinigung noch
+vollständige private Retention früherer Versuche. Windows-SQL, weitere
+Versionen/CLs, nichtleere Benutzergrants, echte Minimalrechte, allgemeiner
+Gesamtdeployment-Lifecycle, authentifizierte TLS-Abnahme und Release bleiben
+offen. Originalausgaben und private Laufzeitdaten werden nicht versioniert.
+
 ## Befüllter gemeinsamer Exportrepeat
 
 `Invoke-ExportPopulatedRepeat.ps1` ist ein begrenzter CI-Adapter für das bereits
