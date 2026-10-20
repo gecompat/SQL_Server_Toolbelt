@@ -14,20 +14,25 @@ Restaurierungsdefinition. [CREATE FUNCTION](https://learn.microsoft.com/en-us/sq
 beschreibt CLR-Parameterdefaults; [sys.parameters](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-parameters-transact-sql)
 führt das Defaultflag und den Wert für CLR-Objekte.
 
-Der finale fünfte Lauf bestand auf Windows2025/base CL170 mit erlaubtem
+Der fünfte Lauf vor der letzten Längenkorrektur bestand auf Windows2025/base CL170 mit erlaubtem
 bereitem CU-Äquivalent im zweiten Defaultsversuch local/central. Deploy und
 Uninstall liefern SQL55324/state7: zehn Abweisungen pro Modus,20 pro Ziel.
 Der erfasste Snapshot schützt das Defaultflag; ein separates Orakel prüft
-Basistyp und Wertbytes des nicht-NULL-Defaults beziehungsweise NULL exakt
+Basistyp und Binärwert des nicht-NULL-Defaults beziehungsweise NULL
 vor/nach jeder Abweisung und vor der Restaurierung. Konvertierbare, aber
 abweichende numerische Werte bestehen dieses Orakel nicht. Fremde Wertdrift
 blockiert das restaurierende ALTER auch bei unverändertem Snapshot.
 Objekt-/Erstellungsidentität, CLR-Bindung und typisierte Ownership bleiben
 Restaurierungsvoraussetzungen; anschließend muss die exakte Baseline stimmen.
 
-Der unabhängige Review fand die Mehrdeutigkeit der zuvor verwendeten
+Der letzte Reviewbefund verlangt zusätzlich gleiche DATALENGTH beim variablen
+Textdefault. Der aktuelle Quellstand enthält diese Prüfung; ihre native
+Abnahme ist **not executed** und blockiert den Merge. Die fünf vorgegebenen
+nativen Versuche sind verbraucht; alle Testressourcen sind bereinigt.
+
+Der unabhängige Review fand zuvor die Mehrdeutigkeit der verwendeten
 numerischen TRY_CONVERT-Probes. Der letzte Windowslauf qualifiziert die
-verschärften Assertions repräsentativ; keine abweichende Plattformlogik im
+Assertions vor der abschließenden Längenprüfung repräsentativ; keine abweichende Plattformlogik im
 Helfer. Linux2019/latest CL150 zweiter und Windows erster Defaultsversuch
 bestanden vorher20 Abweisungen mit den engeren numerischen Probes. Sie werden
 nicht nachträglich als Ausführung des finalen Bytesorakels dargestellt.

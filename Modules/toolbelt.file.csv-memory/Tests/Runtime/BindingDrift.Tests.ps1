@@ -3,7 +3,7 @@ function Get-CsvBindingDriftCases([ValidateSet('metadata','defaults',IgnoreCase=
  $measure='SVF_InternalMeasureCsvCell';$quote='SVF_InternalQuoteCsvCell';$parse='TVF_InternalParseCsv'
  if($Family -ceq 'defaults'){
   foreach($row in @(
-   @('measure-separator-default',$measure,'MeasureCell','FS','@Separator nvarchar(2)',"@Separator nvarchar(2)=N';'",2,"SQL_VARIANT_PROPERTY(default_value,N'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),default_value)=CONVERT(varbinary(max),N';')"),
+   @('measure-separator-default',$measure,'MeasureCell','FS','@Separator nvarchar(2)',"@Separator nvarchar(2)=N';'",2,"SQL_VARIANT_PROPERTY(default_value,N'BaseType')=N'nvarchar' AND DATALENGTH(default_value)=DATALENGTH(N';') AND CONVERT(varbinary(max),default_value)=CONVERT(varbinary(max),N';')"),
    @('measure-header-default',$measure,'MeasureCell','FS','@IsHeader bit','@IsHeader bit=0',4,"SQL_VARIANT_PROPERTY(default_value,N'BaseType')=N'bit' AND CONVERT(varbinary(max),default_value)=CONVERT(varbinary(max),CONVERT(bit,0))"),
    @('quote-null-token-default',$quote,'QuoteCell','FS','@NullToken nvarchar(128)','@NullToken nvarchar(128)=NULL',3,'default_value IS NULL'),
    @('quote-limit-default',$quote,'QuoteCell','FS','@MaxOutputBytes bigint','@MaxOutputBytes bigint=1024',5,"SQL_VARIANT_PROPERTY(default_value,N'BaseType')=N'bigint' AND CONVERT(varbinary(max),default_value)=CONVERT(varbinary(max),CONVERT(bigint,1024))"),
