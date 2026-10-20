@@ -4,6 +4,66 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Begrenzte Marker-Guards 2026-10-20
+
+`Tests/CI/run-csv-memory-lab.ps1 -TestScope ownership-markers` wählt einen
+getrennten Prüfscope. Nach unverändertem Clean/Repeat mit exakter SAFE-Assembly
+ändert die eigene Fixture zehn Marker gezielt: `Toolbelt.Managed` als `int`
+statt `bit` auf allen fünf Slots, ModuleId als `varchar` statt `nvarchar`,
+Version mit trailing space, Visibility in anderer Großschreibung,
+Assembly-Managed mit falschem Basistyp und DeploymentMode mit trailing space.
+Deploy und Uninstall müssen jeden Fall mit SQL55324/state2, 4 oder 5 passend
+zum Marker abweisen. Das ergibt 20 Abweisungen pro Modus und 40 je Ziel;
+diese Fälle werden nicht zu den bisherigen 29 Lifecyclefällen addiert.
+
+Die Fixture prüft vor der Änderung die erwartete Markeridentität einschließlich
+Basistyp, MaxLength und Wertbytes. Der erfasste Objekt-/Assembly-/Schema-/
+Release-Metadatenzustand muss nach jeder Abweisung identisch bleiben; beide
+Transaktionszustände müssen null sein. Die erlaubten Lifecycle-Optionen
+NOCOUNT und XACT_ABORT werden vor dem Abweisungstest vorbereitet und danach
+exakt verglichen. Restaurierung erfolgt ausschließlich bei unveränderter
+eigener Mutation und muss die erfasste Baseline exakt wiederherstellen.
+Das ist keine vollständige Rechte-, Marker- oder Fremdslotmatrix.
+
+| Ausführung | Ergebnis und Grenze |
+|---|---|
+| Linux2019/latest CL150, Guardversuch1 | FAILED vor dem ersten Abweisungsorakel an der kombinierten Sitzungsabfrage; frischer Audit eigene DB/eigener Trusthash abwesend |
+| Linux2019/latest CL150, Default-Regressionslauf | PASS local/central, drei SQLfixtures, Client/Consumer, 29 gezielte Lifecyclefälle, Exit0/vollständige Kanäle/leeres Stderr; frischer Audit drei eigene DBs/ein eigener Trusthash abwesend |
+| Linux2019/latest CL150, Guardversuch2 | FAILED an der Optionsgleichheit der neutralen Fixture; keine vollständige Guardabnahme, frischer Audit eigene DB/eigener Trusthash abwesend |
+| Linux2019/latest CL150, ausdrücklich freigegebener Guardversuch3 | PASS local/central mit 40 erwarteten Abweisungen, exakter Markerrestaurierung, Clean/Repeat und Uninstall/Repeat; Exit0/vollständige Kanäle/leeres Stderr, frischer Audit zwei eigene DBs/ein eigener Trusthash abwesend |
+| Windows2025/base mit bereitem erlaubtem CU-Äquivalent CL170, Guardversuch1 | PASS local/central, 40 erwartete Abweisungen und exakte Markerrestaurierung, Clean/Repeat und Uninstall/Repeat; Exit0/vollständige Kanäle/leeres Stderr, frischer Audit zwei eigene DBs/ein eigener Trusthash abwesend |
+
+Ein lesender synthetischer Diagnosevergleich auf Linux zeigte: XACT_STATE
+allein und zusammen mit TRANCOUNT war null, im gemeinsamen SELECT mit
+OPTIONS abweichend; die getrennten Nullzustandsprüfungen bestanden. Die
+Korrektur verwendet diese getrennten Prüfungen. Zusätzlich bereitet die
+neutrale Fixture die vom Produktpreflight ausdrücklich gesetzten Optionen
+vor. Das ursprüngliche Caller-Transaktions-/SET-Orakel im Defaultscope bleibt
+unverändert. Die beiden Linux-Fehlläufe bleiben FAILED. Nach ausdrücklicher
+Benutzerfreigabe bestand der dritte Linux-Guardlauf am korrigierten Stand;
+er war der fünfte und letzte native Lauf dieser Welle. Beide ausgewählten
+Ziele sind damit im begrenzten Markerscope local/central bestanden.
+
+`Tests/Framework/Test-LifecycleGuardControls.ps1` bestand 27 synthetische
+Offlinekontrollen: direkte TestScope-Parameterprüfung einschließlich abgewiesener
+Großschreibungsvarianten, fehlende/falsche/mehrfache Fehler, Metadaten-/Sessiondrift,
+fehlende Mutationsbeobachtung und fremde Drift vor Restaurierung werden
+abgewiesen. Der vorhandene CSV-Workflow führt diese Kontrollen und die neue
+Helper-AST-Prüfung im bestehenden statischen Schritt aus. Positive/negative
+Pfadfilter, Jobs, Build-/Frameworkgrenzen und Cancellation bleiben unverändert;
+kein Labzugriff aus CI. Die zusätzlichen Kontrollen haben einen eigenen
+Fail-closed-Zweck; keine erneute lokale Zwölfzielmatrix oder neue Reviewkette.
+Verarbeitungs-/Tokenkosten sind unbekannt, es wird keine Ersparnis behauptet.
+
+Produkt, Deployment und CLR-Bytes bleiben unverändert. Der Default-Regressionslauf
+erfolgte vor der letzten ausschließlich guardbezogenen Fixturekorrektur; der
+Defaultpfad importiert den Guardhelper nicht. Frühere Defaultnachweise bleiben
+an ihre ursprünglichen Ausführungen gebunden. Build-/Frameworknachweise werden
+nach geprüfter Paket-/Quell-/Toolbindung wiederverwendet, nicht frisch behauptet.
+Im Guardscope werden API-/Client-/CrossDB-Consumer-Tests ausdrücklich nicht
+ausgeführt. Keine Konfigurations-/Rechte-/Owner-/Infrastrukturänderungen;
+Functional-Transport, authentifiziertes TLS und Release weiterhin offen.
+
 ## Zusätzliche Compatibility Levels 2026-10-20
 
 Nach Abschluss der Standard-CL-Ergänzung in
@@ -229,7 +289,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-20`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1; zusätzliche CL-Welle nach PR339`
-- Scope: Sechs zusätzliche Kombinationen Windows/Linux jeweils SQL2022 CL150 sowie SQL2025 CL150 und CL160 bestanden je im ersten nativen Versuch local/central mit aktuellem Quellen-/ResultTable-Abhängigkeitsstand: drei SQLfixtures, Client, Clean/Repeat, fünf Slots/drei Bindings, je 29 gezielte Lifecyclefälle, frischer SC-/UTF8-Consumer, Uninstall/Repeat; Exit0, vollständige Kanäle, leeres Stderr. Je frischer unabhängiger Audit drei eigene DBs/einen eigenen Trusthash abwesend und Inputpins unverändert. Zwei autorisierte temporäre SQL2022-CLR-Konfigurationen vollständig restauriert; keine Rechte-/Owner-/Infrastrukturänderungen. Paket, ursprüngliche Build-/Frameworknachweise und sechs Standard-CL-Läufe nach erneuter Inputprüfung wiederverwendet, nicht neu ausgeführt. Damit zwölf zulässige Plattform-/Engine-/CL-Kombinationen im begrenzten Gesamtadapter bestanden; Minimalrechte, Driftvollmatrix, weitere Collations, Heap, authentifiziertes TLS und Release bleiben offen.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope ownership-markers; Linux-Abschlusslauf`
+- Scope: Ausdrücklich freigegebener dritter Linux2019/latest CL150 Guardlauf PASS, fünfter und letzter nativer Lauf der Welle. Local/central je zehn Markeränderungen und 20 erwartete Deploy-/Uninstallabweisungen SQL55324/state2/4/5; insgesamt 40, erfasster Metadatenzustand unverändert, Marker exakt restauriert. Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/einen eigenen Trusthash abwesend, Inputpins unverändert. Damit Linux und Windows2025/base mit erlaubtem CU-Äquivalent CL170 im begrenzten Markerscope bestanden. Zwei frühere Linux-Guardfehlläufe bleiben FAILED, separater Default-Regressionslauf bleibt getrennt. Unabhängiger Quell-/Oracle-/Privacyreview am korrigierten Stand PASS; neue Laufmetriken deterministisch geprüft. Keine Produkt-/Konfigurations-/Rechte-/Owner-/Infrastrukturänderung; keine vollständige Marker-/Fremdslot-/Minimalrechte-/Heap-/TLS-/Releaseabnahme.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
