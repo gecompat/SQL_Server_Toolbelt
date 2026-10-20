@@ -6,6 +6,7 @@ $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot '../Runtime/MarkerAbsence.Tests.ps1')
 . (Join-Path $PSScriptRoot '../Runtime/ForeignKinds.Tests.ps1')
 . (Join-Path $PSScriptRoot '../Runtime/BindingDrift.Tests.ps1')
+. (Join-Path $PSScriptRoot '../Runtime/NamedConsumers.Tests.ps1')
 $checks=0
 function Check([bool]$Condition){if(-not $Condition){throw 'CSV_GUARD_CONTROL_FAILED'};$script:checks++}
 # Nur den tatsächlichen Parameter-AST ausführen, niemals den Labadapterkörper.
@@ -16,8 +17,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','binding-drift','binding-defaults')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','BINDING-DRIFT','BINDING-DEFAULTS')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','binding-drift','binding-defaults','named-consumers')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -138,6 +139,33 @@ $witness=[pscustomobject]@{Witness=[int]1}
 Check (Test-CsvBindingDriftWitness @($witness))
 foreach($rows in @(@(),@($witness,$witness),@([pscustomobject]@{Other=1}),@([pscustomobject]@{Witness=1;Extra=1}),@([pscustomobject]@{Witness='1'}),@([pscustomobject]@{Witness=0}),@([pscustomobject]@{Witness=[DBNull]::Value}),@($null))){Check (-not (Test-CsvBindingDriftWitness $rows))}
 Check (-not (Test-CsvBindingDriftWitness $null))
+$namedCases=@(Get-CsvNamedConsumerCases);$namedDatabase='Toolbelt_CsvTypes_'+('a'*32)
+Check ($namedCases.Count -eq 5 -and @($namedCases.Name|Sort-Object -Unique).Count -eq 5)
+foreach($case in $namedCases){Check ((New-CsvNamedConsumerSql $namedDatabase $case).StartsWith('CREATE PROCEDURE toolbelt_file.USP_CsvGuardSqlConsumer AS '))}
+foreach($field in @('Name','Reference')){
+ $case=$namedCases[0].PSObject.Copy();$case.$field='invalid';$caught=$false
+ try{New-CsvNamedConsumerSql $namedDatabase $case|Out-Null}catch{$caught=$_.Exception.Message -ceq 'CSV_NAMED_CASE_INVALID'};Check $caught
+}
+foreach($database in @('AdventureWorks',($namedDatabase+' '),($namedDatabase+'];DROP TABLE x;--'),$namedDatabase.ToUpperInvariant())){
+ $caught=$false;try{New-CsvNamedConsumerSql $database $namedCases[0]|Out-Null}catch{$caught=$true};Check $caught
+}
+Check (Test-CsvNamedWitness @([pscustomobject]@{Witness=[int]1}))
+foreach($rows in @(@(),@($witness,$witness),@([pscustomobject]@{Other=1}),@([pscustomobject]@{Witness=1;Extra=1}),@([pscustomobject]@{Witness='1'}),@([pscustomobject]@{Witness=0}),@([pscustomobject]@{Witness=[DBNull]::Value}),@($null))){Check (-not (Test-CsvNamedWitness $rows))}
+Check (-not (Test-CsvNamedWitness $null))
+$namedEntry=[pscustomobject]@{Name=$namedDatabase;State='OWNED';Marker=$true;Id=[int]73;Creation=('A'*18)}
+$namedConnection=[pscustomobject]@{Database=$namedDatabase}
+$script:ledger=[pscustomobject]@{RunId=('a'*32);Databases=@($namedEntry)}
+Check ((Get-CsvNamedDatabaseEntry $namedConnection $namedDatabase).Id -eq 73)
+foreach($field in @('State','Marker','Id','Creation')){
+ $entry=$namedEntry.PSObject.Copy();$entry.$field=if($field -ceq 'Marker'){'true'}else{'invalid'}
+ $script:ledger.Databases=@($entry);$caught=$false
+ try{Get-CsvNamedDatabaseEntry $namedConnection $namedDatabase|Out-Null}catch{$caught=$true};Check $caught
+}
+foreach($entries in @(@(),@($namedEntry,$namedEntry))){
+ $script:ledger.Databases=$entries;$caught=$false;try{Get-CsvNamedDatabaseEntry $namedConnection $namedDatabase|Out-Null}catch{$caught=$true};Check $caught
+}
+$script:ledger.Databases=@($namedEntry);$caught=$false
+try{Get-CsvNamedDatabaseEntry ([pscustomobject]@{Database='AdventureWorks'}) $namedDatabase|Out-Null}catch{$caught=$true};Check $caught
 # Adapterfunktionen werden für sechs Fehlerwege durch synthetische Doubles ersetzt.
 function Get-CsvSnapshot($Connection){$script:snapshots++;if($script:scenario -eq 'metadata' -and $script:snapshots -gt 1){return 'changed'};return 'baseline'}
 function Get-CsvGuardErrorIdentities($Exception){if($script:scenario -eq 'wrong-error'){return [pscustomobject]@{Number=55324;State=4}};return [pscustomobject]@{Number=55324;State=5}}
@@ -249,4 +277,36 @@ foreach($scenario in @('pass','restore-drift','restore-mismatch','unobserved','i
 $script:scenario='pass';$script:snapshots=0;$script:bindingSql=0;$script:bindingIdentities=0;$script:bindingWitnesses=0;$script:rejections=0
 $count=Invoke-CsvBindingDriftGuards $null 'synthetic-deploy' 'synthetic-uninstall' $moduleRoot 'local' -Family 'defaults'
 Check ($count -eq 10 -and $script:bindingSql -eq 10 -and $script:rejections -eq 10 -and $script:bindingWitnesses -eq 20)
+# Der tatsächliche Dependency- und Dropablauf muss bei Katalog-/Identitätsdrift
+# abbrechen. Die SQL-Grenze liefert ausschließlich synthetische Resultate.
+function Assert-CsvNamedDatabase($Connection,$Database){}
+function Get-CsvGuardFixtureIdentity($Connection,$Type,$Name){
+ $script:namedIdentities++
+ [pscustomobject]@{Id=$(if($script:scenario -ceq 'named-identity-drift' -and $script:namedIdentities -gt 1){21}else{20});Created=('A'*18)}
+}
+function Add-CsvGuardFixtureOwner($Connection,$Type,$Name){[pscustomobject]@{Id=20;Created=('A'*18)}}
+function Invoke-CsvSql($Connection,$Sql,$Parameters,[switch]$Rows){
+ if($Sql -ceq (Get-CsvNamedDependencyWitnessSql)){
+  $script:namedWitnesses++
+  if($script:scenario -ceq 'named-dependency-drift' -and $script:namedWitnesses -gt 1){return [pscustomobject]@{Witness=('B'*64)}}
+  return [pscustomobject]@{Witness=('A'*64)}
+ }
+ if($Sql.StartsWith('CREATE PROCEDURE ')){$script:namedCreates++}
+ if($Sql.Contains('DROP PROCEDURE toolbelt_file.[')){$script:namedDrops++}
+}
+function Get-CsvSnapshot($Connection){
+ $script:snapshots++;if($script:snapshots -eq 1){return 'baseline'}
+ $step=($script:snapshots-2)%4
+ if($script:scenario -ceq 'named-drop-drift' -and $step -eq 2){return 'foreign'}
+ if($script:scenario -ceq 'named-restore-mismatch' -and $step -eq 3){return 'different'}
+ if($script:scenario -ceq 'named-unobserved'){return 'baseline'}
+ if($step -in @(0,3)){return 'baseline'};return 'mutated'
+}
+foreach($scenario in @('pass','named-drop-drift','named-restore-mismatch','named-unobserved','named-dependency-drift','named-identity-drift')){
+ $script:scenario=$scenario;$script:snapshots=0;$script:namedIdentities=0;$script:namedWitnesses=0;$script:namedCreates=0;$script:namedDrops=0;$script:rejections=0;$caught=$false;$count=0
+ try{$count=Invoke-CsvNamedConsumerGuards $namedConnection 'synthetic-deploy' 'synthetic-uninstall' $namedDatabase 'local'}catch{$caught=$true}
+ Check ($caught -eq ($scenario -cne 'pass'))
+ if($scenario -ceq 'pass'){Check ($count -eq 10 -and $script:rejections -eq 10 -and $script:namedCreates -eq 5 -and $script:namedDrops -eq 5 -and $script:namedWitnesses -eq 20)}
+ if($scenario -cin @('named-drop-drift','named-unobserved','named-dependency-drift','named-identity-drift')){Check ($script:namedDrops -eq 0)}
+}
 Write-Output ('PASS CSV_GUARD_ORACLE_CONTROLS CHECKS='+$checks+' SYNTHETIC_ONLY')
