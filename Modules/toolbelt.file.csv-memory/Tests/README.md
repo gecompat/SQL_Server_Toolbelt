@@ -6,39 +6,52 @@ andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
 ## Explizite SameDB-SQL-Verbraucher 2026-10-20
 
-Der getrennte Scope `-TestScope named-consumers` legt nacheinander einen eigenen
-SQL-Verbraucher für jeden der fünf reservierten CSV-Namen an. Die geschlossene
-Definition nennt ausdrücklich die eigene journalgebundene Testdatenbank; die
-Verbraucher werden nicht ausgeführt. Deploy und Uninstall sollen SQL55325/state3
-liefern: zehn Abweisungen pro Modus,20 je Ziel. Keine neue API-/Clientprüfung.
-
-Der erste Linux2019/latest CL150 Versuch bleibt FAILED: Der neue Katalogwitness
-verlangte pauschal eine NULL-Ziel-ID und bestätigte die erste Fixture nicht.
-Keine abgeschlossene Guardzählung; Exit1/vollständige Kanäle/leeres Stderr,
-frischer unabhängiger Audit eine eigene DB/ein eigener Trusthash abwesend,
-Konfiguration und Runtimeinputs unverändert. Der korrigierte native Scope ist
-noch **not executed**.
+Der getrennte Scope `-TestScope named-consumers` bestand im finalen vierten
+nativen Lauf auf Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent,
+zweiter Versuch local/central. Ein eigener Consumer referenziert nacheinander
+jeden der fünf CSV-Namen ausdrücklich mit der eigenen journalgebundenen DB.
+Die Consumer werden nicht ausgeführt. Deploy und Uninstall liefern
+SQL55325/state3: zehn Abweisungen pro Modus,20 je Ziel.
 
 [sys.sql_expression_dependencies](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-sql-expression-dependencies-transact-sql)
-unterscheidet lokale Bindung und nicht aufgelöste IDs. Die korrigierte Fixture
-fordert genau ein referenziertes Ziel mit exaktem Schema-/Objektnamen und dessen
+unterscheidet lokale Bindung und nicht aufgelöste IDs. Die Fixture verlangt
+genau ein referenziertes Objekt mit exaktem Schema-/Objektnamen und dessen
 nativer ID oder NULL. Der Katalogdatenbankname darf NULL oder byte-/längengenau
 die eigene DB sein; fremder Server und Callerabhängigkeit sind ausgeschlossen.
 Damit wird ausdrücklich kein isolierter NULL-ID-Preflightzweig qualifiziert.
-Der Fingerprint aller erfassten Dependencyzeilen bindet die ursprüngliche
-Katalogform vor/nach jeder Abweisung und vor der Fixtureentfernung.
+Der Fingerprint aller erfassten Dependencyzeilen bindet die tatsächlich
+vorgefundene Katalogform unmittelbar vor/nach jeder Abweisung und vor Drop.
 
 Zusätzlich gelten eigener typisierter Datenbank-/Fixturemarker, journalgebundene
 DB-ID/Erstellungsidentität, gleiche Consumer-ID/Erstellungsidentität und
-unveränderter erfasster Gesamtsnapshot. Nach Drop muss die Baseline stimmen.
-Ohne initialen Dependencywitness bleibt ausschließlich OwnDB-Cleanup zuständig.
-298 synthetische Offlinekontrollen einschließlich Identitäts-/Dependencydrift,
-PowerShell-AST und SQL150-Grammatik aller40 expandierten Batches PASS.
-Ein neuer funktionsreiner Helper und AST-Eintrag im bestehenden CI-Schritt;
-keine neuen Jobs, Filter, Cancellation- oder Build-/Frameworkgrenzen.
-Token-/Kostenwirkung unbekannt; kein grüner Vollmatrixreplay oder zusätzlicher
-PASS-Logreview. Produkt-/Deployment-/CLR- und gemeinsame Helper unverändert;
-Minimalrechte, authentifiziertes TLS, Heap, Vollmatrix und Release bleiben offen.
+unveränderter erfasster Gesamtsnapshot. Nach geschütztem Drop muss die Baseline
+stimmen. Ohne initialen Dependencywitness übernimmt ausschließlich OwnDB-Cleanup.
+
+Der erste Linux2019/latest CL150 Versuch bleibt FAILED am neuen Witness mit
+pauschaler NULL-ID- und expliziter DB-Feldannahme, vor dem ersten Guardfall.
+Exit1/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit eine eigene
+DB/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert.
+Nach Korrektur bestanden zweiter Linuxlauf und erster Windowslauf je20
+Abweisungen local/central. Der unabhängige Review verlangte danach zusätzlich
+die unmittelbare Dependencyprüfung vor jeder Lifecycleoperation, weil der
+Gesamtsnapshot diese Katalogzeilen nicht erfasst. Diese beiden früheren
+Erfolge bleiben enger; der letzte Windowslauf qualifiziert die Korrektur
+repräsentativ, ohne erneute Zielvollmatrix.
+
+Alle drei erfolgreichen Läufe bestanden Clean/Repeat, Uninstall/Repeat,
+Exit0/vollständige Kanäle/leeres Stderr und je einen frischen unabhängigen Audit:
+zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert.
+301 Offlinekontrollen einschließlich Drift ausschließlich vor der zweiten
+Operation mit unterbundener Ausführung/Fixtureentfernung, PowerShell-AST und
+SQL150-Grammatik aller40 expandierten CREATE-/Owner-/Identitäts-/Witness-/
+Drop-Batches PASS. Inkrementeller Docvalidator samt16Impactselftests PASS.
+
+Ein funktionsreiner Helper und AST-Eintrag im bestehenden CI-Schritt; keine
+neuen Jobs, Filter, Cancellation- oder Build-/Frameworkgrenzen. Token-/Kostenwirkung
+unbekannt, kein grüner Vollmatrixreplay oder zusätzlicher PASS-Logreview.
+Produkt-/Deployment-/CLR- und gemeinsame Helper unverändert. Keine Consumer-API-
+ausführung, neue Default-/API-/Client-, Minimalrechte-, authentifizierte TLS-,
+Heap-, Vollmatrix- oder Releaseabnahme. Status `partially validated`, `unreleased`.
 
 ## Gezielte CLR-Parameterdefaults 2026-10-20
 

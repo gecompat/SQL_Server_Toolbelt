@@ -289,6 +289,7 @@ function Invoke-CsvSql($Connection,$Sql,$Parameters,[switch]$Rows){
  if($Sql -ceq (Get-CsvNamedDependencyWitnessSql)){
   $script:namedWitnesses++
   if($script:scenario -ceq 'named-dependency-drift' -and $script:namedWitnesses -gt 1){return [pscustomobject]@{Witness=('B'*64)}}
+  if($script:scenario -ceq 'named-pre-second-drift' -and $script:namedWitnesses -ge 4){return [pscustomobject]@{Witness=('B'*64)}}
   return [pscustomobject]@{Witness=('A'*64)}
  }
  if($Sql.StartsWith('CREATE PROCEDURE ')){$script:namedCreates++}
@@ -302,11 +303,12 @@ function Get-CsvSnapshot($Connection){
  if($script:scenario -ceq 'named-unobserved'){return 'baseline'}
  if($step -in @(0,3)){return 'baseline'};return 'mutated'
 }
-foreach($scenario in @('pass','named-drop-drift','named-restore-mismatch','named-unobserved','named-dependency-drift','named-identity-drift')){
+foreach($scenario in @('pass','named-drop-drift','named-restore-mismatch','named-unobserved','named-dependency-drift','named-identity-drift','named-pre-second-drift')){
  $script:scenario=$scenario;$script:snapshots=0;$script:namedIdentities=0;$script:namedWitnesses=0;$script:namedCreates=0;$script:namedDrops=0;$script:rejections=0;$caught=$false;$count=0
  try{$count=Invoke-CsvNamedConsumerGuards $namedConnection 'synthetic-deploy' 'synthetic-uninstall' $namedDatabase 'local'}catch{$caught=$true}
  Check ($caught -eq ($scenario -cne 'pass'))
- if($scenario -ceq 'pass'){Check ($count -eq 10 -and $script:rejections -eq 10 -and $script:namedCreates -eq 5 -and $script:namedDrops -eq 5 -and $script:namedWitnesses -eq 20)}
- if($scenario -cin @('named-drop-drift','named-unobserved','named-dependency-drift','named-identity-drift')){Check ($script:namedDrops -eq 0)}
+ if($scenario -ceq 'pass'){Check ($count -eq 10 -and $script:rejections -eq 10 -and $script:namedCreates -eq 5 -and $script:namedDrops -eq 5 -and $script:namedWitnesses -eq 30)}
+ if($scenario -cin @('named-drop-drift','named-unobserved','named-dependency-drift','named-identity-drift','named-pre-second-drift')){Check ($script:namedDrops -eq 0)}
+ if($scenario -ceq 'named-pre-second-drift'){Check ($script:rejections -eq 1)}
 }
 Write-Output ('PASS CSV_GUARD_ORACLE_CONTROLS CHECKS='+$checks+' SYNTHETIC_ONLY')

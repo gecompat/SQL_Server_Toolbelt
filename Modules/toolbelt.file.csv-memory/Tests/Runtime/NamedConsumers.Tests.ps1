@@ -106,6 +106,7 @@ function Invoke-CsvNamedConsumerGuards($Connection,[string]$Deploy,[string]$Unin
   try{
    $witness=Get-CsvNamedDependency $Connection $Database $case $identity
    foreach($text in @($Deploy,$Uninstall)){
+    Assert-CsvNamedDependency $Connection $Database $case $identity $witness
     Assert-CsvGuardRejected $Connection $text 55325 3 $mutated
     Assert-CsvNamedDependency $Connection $Database $case $identity $witness
     $passed++
