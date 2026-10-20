@@ -17,8 +17,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','binding-drift','binding-defaults','named-consumers')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','binding-drift','binding-defaults','named-consumers','marker-values')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','MARKER-VALUES')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -111,6 +111,22 @@ foreach($mode in @('local','central')){
  $cases=@(Get-CsvMarkerGuardCases $mode)
  Check ($cases.Count -eq 10)
  Check (@($cases|Where-Object {$_.Original -ceq $_.Mutated}).Count -eq 0)
+ $valueCases=@(Get-CsvMarkerGuardCases $mode 'values')
+ Check ($valueCases.Count -eq 25 -and @($valueCases|ForEach-Object {$_.Scope+'|'+$_.Object+'|'+$_.Property}|Sort-Object -Unique).Count -eq 25)
+ foreach($case in $valueCases){$caught=$false;try{Assert-CsvMarkerGuardCase $case}catch{$caught=$true};Check (-not $caught)}
+}
+$caught=$false;try{Get-CsvMarkerGuardCases 'local' 'VALUES'|Out-Null}catch{$caught=$true};Check $caught
+foreach($field in @('Scope','Object','Property','Original','Mutated','State')){
+ $case=$valueCases[0].PSObject.Copy();$case.$field=if($field -ceq 'State'){'5'}else{'invalid'}
+ $caught=$false;try{Assert-CsvMarkerGuardCase $case}catch{$caught=$true};Check $caught
+}
+function Invoke-CsvSql($Connection,$Sql,$Parameters){$script:markerTransitionSql++}
+$script:markerTransitionSql=0;$case=$valueCases[0]
+Set-CsvGuardMarker $null $case $case.Original $case.Mutated
+Set-CsvGuardMarker $null $case $case.Mutated $case.Original
+Check ($script:markerTransitionSql -eq 2)
+foreach($transition in @(@($case.Original,$case.Original),@('invalid',$case.Mutated),@($case.Original,'invalid'))){
+ $caught=$false;try{Set-CsvGuardMarker $null $case $transition[0] $transition[1]}catch{$caught=$true};Check ($caught -and $script:markerTransitionSql -eq 2)
 }
 $bindingCases=@(Get-CsvBindingDriftCases)
 $defaultCases=@(Get-CsvBindingDriftCases 'defaults')
@@ -200,6 +216,9 @@ foreach($scenario in @('pass','restore-drift','restore-mismatch','unobserved')){
  if($scenario -eq 'pass'){Check ($count -eq 20 -and $script:markerSets -eq 20 -and $script:rejections -eq 20)}
  if($scenario -eq 'restore-drift'){Check ($script:markerSets -eq 1)}
 }
+$script:scenario='pass';$script:snapshots=0;$script:markerSets=0;$script:rejections=0
+$count=Invoke-CsvMarkerGuards $null 'synthetic-deploy' 'synthetic-uninstall' 'local' -Family 'values'
+Check ($count -eq 50 -and $script:markerSets -eq 50 -and $script:rejections -eq 50)
 function Set-CsvMarkerPresence($Connection,$Case,$Action){$script:presenceSets++}
 foreach($scenario in @('pass','restore-drift','restore-mismatch','unobserved')){
  $script:scenario=$scenario;$script:snapshots=0;$script:presenceSets=0;$script:rejections=0;$caught=$false;$count=0

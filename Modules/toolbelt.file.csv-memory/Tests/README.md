@@ -4,6 +4,42 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Falsche Ownership-/Release-Markerwerte 2026-10-20
+
+Der getrennte Scope `-TestScope marker-values` bestand auf Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
+im ersten Versuch local/central. Die neue geschlossene Wertefamilie ergänzt
+den vorhandenen Markerhelfer um25 Fälle: vier Marker je CSV-Objekt, drei an
+der Assembly, zwei an der Datenbank. Managed wird bit0, Modul-ID, Version,
+Sichtbarkeit und Modus werden synthetisch inkohärent. Deploy und Uninstall
+müssen SQL55324/state2/4/5 liefern:50 Abweisungen pro Modus,100 pro Ziel.
+
+Jeder Übergang prüft den bisherigen sql_variant-Basistyp, seine MaxLength,
+DATALENGTH und Wertbytes. Falldeskriptor und beide Übergangsrichtungen sind
+an die geschlossenen Familien gebunden; freie Erwartungs-/Zielausdrücke sind
+unzulässig. Erfasster Mutationszustand und neutrale Sitzung müssen bei jeder
+Abweisung erhalten bleiben. Restaurierung erfolgt nur bei unverändertem
+erfasstem Zustand und exakt erwarteter Markermutation, danach exakte Baseline.
+Die reine fehlende-Marker-Familie wird nicht verändert.
+
+Wegen der Änderung am gemeinsamen Markerhelfer bestand zusätzlich die bisherige
+`ownership-markers`-Familie auf Linux2019/latest CL150 local/central mit40
+Abweisungen. Alle drei Läufe: Clean/Repeat, Uninstall/Repeat, Exit0/vollständige
+Kanäle/leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener
+Trusthash abwesend, Konfiguration und Runtimeinputs unverändert.
+367 Offlinekontrollen einschließlich falscher Deskriptorfelder, unzulässiger
+Übergänge ohne SQL-Aufruf, unveränderter Mutation und Restaurierungsdrift PASS.
+SQL150-Grammatik aller140 expandierten Änderungs-/Restaurierungsbatches beider
+Familien in beiden Modi sowie PowerShell-AST und Static PASS.
+
+Keine neue Helferdatei oder Workflow-/Job-/Filter-/Cancellation-/Buildgrenze.
+Eine gezielte Legacyregression deckt den geänderten Helferkonsumenten ab;
+keine grüne Vollmatrixwiederholung oder zusätzliche PASS-Logreviewkette.
+Token-/Kostenwirkung unbekannt. Produkt-/Deployment-/CLR- und gemeinsame
+Snapshotquellen unverändert. Keine neue Default-/API-/Client-, Minimalrechte-,
+Heap-, authentifizierte TLS-, vollständige Driftmatrix- oder Releaseabnahme.
+Status bleibt `partially validated`, `unreleased`.
+
 ## Explizite SameDB-SQL-Verbraucher 2026-10-20
 
 Der getrennte Scope `-TestScope named-consumers` bestand im finalen vierten
