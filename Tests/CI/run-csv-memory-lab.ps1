@@ -10,7 +10,7 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedDriverSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{128}$')][string]$ExpectedAssemblySHA512,
  [ValidateNotNullOrEmpty()][ValidateCount(1,2)][ValidateSet('local','central')][string[]]$DeploymentModes=@('local','central'),
- [ValidateSet('default','ownership-markers','foreign-slots',IgnoreCase=$false)][string]$TestScope='default',
+ [ValidateSet('default','ownership-markers','foreign-slots','marker-absence',IgnoreCase=$false)][string]$TestScope='default',
  [switch]$OptInExactTrust
 )
 Set-StrictMode -Version Latest
@@ -320,6 +320,7 @@ try{
  if($TestScope -cne 'default'){
   $guardPaths=@($guardPath)
   if($TestScope -ceq 'foreign-slots'){$guardPaths+=@(Join-Path $module 'Tests/Runtime/ForeignGuards.Tests.ps1')}
+  if($TestScope -ceq 'marker-absence'){$guardPaths+=@(Join-Path $module 'Tests/Runtime/MarkerAbsence.Tests.ps1')}
   foreach($selectedGuardPath in $guardPaths){
   $guardErrors=$null
   $guardTree=[Management.Automation.Language.Parser]::ParseFile($selectedGuardPath,[ref]$null,[ref]$guardErrors)
@@ -435,6 +436,10 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
      $stage='MARKER_GUARDS_'+$mode
      $ledger.GuardCasesPassed+=Invoke-CsvMarkerGuards $connection $deploy $uninstall $mode
      Save-CsvJournal
+    }elseif($TestScope -ceq 'marker-absence'){
+     $stage='MARKER_ABSENCE_'+$mode
+     $ledger.GuardCasesPassed+=Invoke-CsvMarkerAbsenceGuards $connection $deploy $uninstall $mode
+     Save-CsvJournal
     }elseif($TestScope -ceq 'foreign-slots'){
      $stage='FOREIGN_GUARDS_'+$mode
      $guards=Invoke-CsvForeignGuards $connection $deploy $uninstall $mode
@@ -473,7 +478,7 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
   }
   Assert-CsvPins
   if($TestScope -cne 'default'){
-   $perMode=if($TestScope -ceq 'ownership-markers'){20}else{14}
+   $perMode=switch -CaseSensitive ($TestScope){'ownership-markers'{20};'marker-absence'{54};'foreign-slots'{14};default{throw 'CSV_GUARD_SCOPE_UNKNOWN'}}
    if($ledger.GuardCasesPassed -ne ($perMode*$DeploymentModes.Count)){throw 'CSV_GUARD_COMPLETENESS_REQUIRED'}
    if($TestScope -ceq 'foreign-slots' -and $ledger.GuardWitnessControls -ne (2*$DeploymentModes.Count)){throw 'CSV_FOREIGN_WITNESS_COMPLETENESS_REQUIRED'}
   }
@@ -499,7 +504,7 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
  if($failed){Write-Output ('FAILED: CSV_'+$ledger.OriginalFailure.Stage+'_SQL'+$ledger.OriginalFailure.SqlNumber+'_STATE'+$ledger.OriginalFailure.SqlState+'_'+$ledger.OriginalFailure.Reason);exit 1}
  $completed=$ledger.CompletedModes -join ','
  if($TestScope -cne 'default'){
-  $guardLabel=if($TestScope -ceq 'ownership-markers'){'marker-restoration'}else{'foreign-slot/consumer-protection'}
+  $guardLabel=switch -CaseSensitive ($TestScope){'ownership-markers'{'marker-restoration'};'marker-absence'{'marker-absence-restoration'};'foreign-slots'{'foreign-slot/consumer-protection'};default{throw 'CSV_GUARD_SCOPE_UNKNOWN'}}
   Write-Output ('PASS: CSV_GUARDS '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL'+$CompatibilityLevel+' modes='+$completed+' scope='+$TestScope+' guard-cases='+$ledger.GuardCasesPassed+' witness-controls='+$ledger.GuardWitnessControls+' '+$guardLabel+'/repeat/uninstall; owned-cleanup. API/client/full drift matrix NOT_EXECUTED.')
   continue
  }

@@ -3,6 +3,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot '../Runtime/OwnershipGuards.Tests.ps1')
 . (Join-Path $PSScriptRoot '../Runtime/ForeignGuards.Tests.ps1')
+. (Join-Path $PSScriptRoot '../Runtime/MarkerAbsence.Tests.ps1')
 $checks=0
 function Check([bool]$Condition){if(-not $Condition){throw 'CSV_GUARD_CONTROL_FAILED'};$script:checks++}
 # Nur den tatsächlichen Parameter-AST ausführen, niemals den Labadapterkörper.
@@ -13,8 +14,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -28,6 +29,17 @@ $caught=$false;try{& $validateModes -DeploymentModes $null|Out-Null}catch{$caugh
 $caught=$false;try{& $validateModes -DeploymentModes @('local','central','local')|Out-Null}catch{$caught=$true};Check $caught
 $caught=$false;try{& $validateModes -DeploymentModes @('unknown')|Out-Null}catch{$caught=$true};Check $caught
 $slots=@(Get-CsvForeignSlotNames)
+foreach($mode in @('local','central')){
+ $absenceCases=@(Get-CsvMarkerAbsenceCases $mode)
+ Check ($absenceCases.Count -eq 27)
+ Check (@($absenceCases|ForEach-Object {$_.Scope+'|'+$_.Object+'|'+$_.Property}|Sort-Object -Unique).Count -eq 27)
+ foreach($case in $absenceCases){$caught=$false;try{$location=Get-CsvMarkerAbsenceLocation $case}catch{$caught=$true};Check (-not $caught)}
+}
+foreach($field in @('Scope','Object','Property','Original','State')){
+ $case=(Get-CsvMarkerAbsenceCases 'local'|Select-Object -First 1).PSObject.Copy()
+ $case.$field=if($field -ceq 'State'){9}else{'invalid'}
+ $caught=$false;try{Get-CsvMarkerAbsenceLocation $case|Out-Null}catch{$caught=$true};Check $caught
+}
 Check ($slots.Count -eq 5)
 Check (@($slots|Sort-Object -Unique).Count -eq 5)
 foreach($case in @(@('TABLE','USP_ParseCsv'),@('PROCEDURE','USP_CsvGuardSqlConsumer'),@('FUNCTION','SVF_CsvGuardClrConsumer'))){
@@ -89,5 +101,13 @@ foreach($scenario in @('pass','restore-drift','restore-mismatch','unobserved')){
  Check ($caught -eq ($scenario -ne 'pass'))
  if($scenario -eq 'pass'){Check ($count -eq 20 -and $script:markerSets -eq 20 -and $script:rejections -eq 20)}
  if($scenario -eq 'restore-drift'){Check ($script:markerSets -eq 1)}
+}
+function Set-CsvMarkerPresence($Connection,$Case,$Action){$script:presenceSets++}
+foreach($scenario in @('pass','restore-drift','restore-mismatch','unobserved')){
+ $script:scenario=$scenario;$script:snapshots=0;$script:presenceSets=0;$script:rejections=0;$caught=$false;$count=0
+ try{$count=Invoke-CsvMarkerAbsenceGuards $null 'synthetic-deploy' 'synthetic-uninstall' 'local'}catch{$caught=$true}
+ Check ($caught -eq ($scenario -ne 'pass'))
+ if($scenario -eq 'pass'){Check ($count -eq 54 -and $script:presenceSets -eq 54 -and $script:rejections -eq 54)}
+ if($scenario -eq 'restore-drift'){Check ($script:presenceSets -eq 1)}
 }
 Write-Output ('PASS CSV_GUARD_ORACLE_CONTROLS CHECKS='+$checks+' SYNTHETIC_ONLY')

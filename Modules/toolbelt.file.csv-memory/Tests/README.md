@@ -4,6 +4,36 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Fehlende Ownershipmarker 2026-10-20
+
+Der getrennte Scope `-TestScope marker-absence` bestand auf Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
+local/central im ersten nativen Versuch. Pro Modus wurden 27 Marker einzeln
+entfernt: vier je CSV-Zielobjekt, drei an der Assembly, zwei datenbankweite
+Release-/Modusmarker und zwei Schemamarker. Die ursprünglichen typisierten
+Werte und ihre Bytes werden vor dem Entfernen geprüft. Deploy und Uninstall
+müssen jeweils SQL55324/state1/2/3/4/5 liefern: 54 Abweisungen pro Modus,
+108 pro Ziel. Fehlender Versionsmarker führt dabei zum unvollständigen Zustand
+state3; der ursprüngliche Wert wird erst bei unverändertem erfasstem
+Mutationszustand und weiterhin fehlendem Marker restauriert. Anschließend muss
+der vollständige erfasste Snapshot wieder der Baseline entsprechen.
+
+Je Ziel bestanden Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle
+und leeres Stderr. Frische unabhängige Audits bestätigen zwei eigene DBs/einen
+eigenen Trusthash abwesend, Konfiguration und Runtimeinputs unverändert.
+121 synthetische Offlinekontrollen einschließlich ungültiger Fallfelder,
+unbeobachteter Mutation und Restaurierungsdrift sowie SQL150-Grammatikprüfung
+aller 108 expandierten Remove-/Restore-Batches bestanden.
+
+Der neue Helper wird nur im gewählten Scope geladen. Der gemeinsame
+Snapshothelper, Produkt-, Deployment- und CLR-Quellen sind unverändert; kein
+zusätzlicher Default-/API-/Client-/Heap-/TLS-Nachweis. Der bestehende CI-Schritt
+ergänzt nur die Helper-AST und nutzt die erweiterten Offlinekontrollen;
+Filter, Jobs, Cancellation und Build-/Frameworkgrenzen bleiben unverändert.
+Keine erneute Zielvollmatrix; Review am stabilen getesteten Kandidaten statt
+einer gesonderten PASS-Logreviewkette. Token-/Kostenwirkung unbekannt.
+Weitere Wert-/Typ-/Binding-/Owner-/Rechte-/Driftvarianten und Release bleiben offen.
+
 ## Begrenzte Fremdslot-/Verbraucher-Guards 2026-10-20
 
 Der getrennte Testscope `-TestScope foreign-slots` ist für Linux2019/latest
@@ -351,7 +381,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-20`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope foreign-slots; separater Default-Regressionslauf`
-- Scope: Korrigierter gemeinsamer Snapshothelper normalisiert leere Katalogteile als []; strenge Vierhash-Prüfung bleibt. Linux2019/latest CL150 im zweiten, Windows2025/base mit erlaubtem CU-Äquivalent CL170 im ersten Guardversuch local/central PASS: fünf tabellenbelegte Zielslots sowie zusätzlicher SQL-/CLR-Verbraucher, je Deploy/Uninstall SQL55324/state3 und SQL55325/state3/2, je Ziel 28 Abweisungen und vier inverse NULL-/Leer-/Index-Witnesskontrollen. Je Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend. Separater Linux-Defaultregressionslauf local/central mit drei SQLfixtures, Client, 29 Lifecyclefällen und frischem SC-/UTF8-Consumer PASS; drei eigene DBs/ein eigener Trusthash frisch abwesend. 50 Offlinekontrollen, SQL150-Grammatik der elf Fixture-Batches und des Snapshots sowie lesende Leerkatalogprobe PASS. Alle Inputpins und Konfigurationen unverändert; keine Produkt-/Deployment-/CLR-/Rechte-/Owner-/Infrastrukturänderung. Erster Linuxfehllauf bleibt FAILED. Keine neue Zwölfziel-, Marker-, Minimalrechte-, Driftvollmatrix-, Heap-, authentifizierte TLS- oder Releaseabnahme.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope marker-absence`
+- Scope: Linux2019/latest CL150 und Windows2025/base mit erlaubtem CU-Äquivalent CL170 jeweils local/central im ersten nativen Versuch PASS. Je Modus 27 einzelne Markerentfernungen: 20 Objekt-, drei Assembly-, zwei Datenbank- und zwei Schemamarker, je Deploy/Uninstall SQL55324/state1/2/3/4/5; je Ziel 108 Abweisungen, unveränderter erfasster Mutationszustand und exakte typisierte Restaurierung. Je Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Inputpins und Konfiguration unverändert. 121 synthetische Offlinekontrollen und SQL150-Grammatik aller 108 expandierten Remove-/Restore-Batches PASS. Gemeinsamer Snapshothelper unverändert; keine Produkt-/Deployment-/CLR-/Rechte-/Owner-/Infrastrukturänderung. Kein zusätzlicher Default-/API-/Client-, vollständiger Wert-/Typ-/Binding-/Driftmatrix-, Minimalrechte-, Heap-, authentifizierter TLS- oder Releasenachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
