@@ -4,6 +4,39 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Fremde Views und Prozeduren 2026-10-20
+
+Der getrennte Scope `-TestScope foreign-kinds` bestand auf Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
+local/central im ersten nativen Versuch. Nach echtem Uninstall wird jeder der
+fünf reservierten CSV-Zielnamen einzeln als fremde View und SQL-Prozedur
+angelegt. Beide Lifecycleoperationen müssen SQL55324/state3 liefern: zehn
+Fixtures und 20 Abweisungen je Modus, 40 je Ziel. Der erfasste Katalogzustand
+einschließlich Definitionen, Parametern und Spalten bleibt unverändert; ein
+gesondertes Ergebnisorakel prüft genau eine Zeile mit zwei geordneten Spalten,
+Int32-Wert und ordinalem Text einschließlich Padding. Die Entfernung verlangt
+zusätzlich unveränderten erfassten Zustand, eigene typisierte Laufmarkierung,
+Objekt-ID und Erstellungsidentität. Danach muss die saubere Baseline stimmen.
+
+Je Ziel bestanden Clean/Repeat, erneutes Deploy nach den Fremdfixtures,
+Uninstall/Repeat, Exit0, vollständige Kanäle und leeres Stderr. Frische
+unabhängige Audits bestätigen je zwei eigene DBs/einen eigenen Trusthash
+abwesend sowie unveränderte Konfiguration und Runtimeinputs.
+163 synthetische Offlinekontrollen einschließlich ungültiger Fallfelder,
+abweichender Ergebnisform/-werte, verlorenen Paddings, Identitätsdrift und
+blockierter Fixtureentfernung bestanden. SQL150-Grammatik aller 60 expandierten
+DDL-/Read-/Ownership-/Drop-Batches und Helper-/Adapter-AST ebenfalls bestanden.
+
+Produkt, Deployment, CLR und gemeinsame Snapshot-/Abweisungshelper sind
+unverändert. Der neue Helper wird nur im Fremdarten-Scope geladen; der
+vorhandene Fremdslothelper liefert dort ausschließlich die bekannte Namensliste.
+Der bestehende CI-Schritt ergänzt nur die neue AST und erweiterten
+Offlinekontrollen. Filter, Jobs, Cancellation und Build-/Frameworkgrenzen
+bleiben unverändert; keine erneute Zielvollmatrix oder PASS-Logreviewkette.
+Token-/Kostenwirkung unbekannt. Weitere Objektarten, Synonyme, zusätzliche
+Verbraucher-/Binding-/Owner-/Rechte-/Driftvarianten, Heap, authentifiziertes TLS
+und Release bleiben offen; kein neuer Default-/API-/Clientnachweis.
+
 ## Fehlende Ownershipmarker 2026-10-20
 
 Der getrennte Scope `-TestScope marker-absence` bestand auf Linux2019/latest
@@ -381,7 +414,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-20`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope marker-absence`
-- Scope: Linux2019/latest CL150 und Windows2025/base mit erlaubtem CU-Äquivalent CL170 jeweils local/central im ersten nativen Versuch PASS. Je Modus 27 einzelne Markerentfernungen: 20 Objekt-, drei Assembly-, zwei Datenbank- und zwei Schemamarker, je Deploy/Uninstall SQL55324/state1/2/3/4/5; je Ziel 108 Abweisungen, unveränderter erfasster Mutationszustand und exakte typisierte Restaurierung. Je Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Inputpins und Konfiguration unverändert. 121 synthetische Offlinekontrollen und SQL150-Grammatik aller 108 expandierten Remove-/Restore-Batches PASS. Gemeinsamer Snapshothelper unverändert; keine Produkt-/Deployment-/CLR-/Rechte-/Owner-/Infrastrukturänderung. Kein zusätzlicher Default-/API-/Client-, vollständiger Wert-/Typ-/Binding-/Driftmatrix-, Minimalrechte-, Heap-, authentifizierter TLS- oder Releasenachweis.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope foreign-kinds`
+- Scope: Linux2019/latest CL150 und Windows2025/base mit erlaubtem CU-Äquivalent CL170 jeweils local/central im ersten nativen Versuch PASS. Fünf reservierte CSV-Namen einzeln als fremde View und SQL-Prozedur, je Deploy/Uninstall SQL55324/state3: 20 Abweisungen pro Modus, 40 pro Ziel. Erfasster Katalogzustand mit Definitionen/Parametern/Spalten und gesonderte synthetische Ergebnisorakel einschließlich Padding unverändert; Fixtureentfernung prüft eigenen typisierten Laufmarker, Objekt-ID, Erstellungsidentität und erfassten Zustand, danach saubere Baseline. Je Clean/Repeat, erneutes Deploy, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration und Runtimeinputs unverändert. 163 Offlinekontrollen, SQL150-Grammatik aller 60 expandierten Fixture-Batches und Helper-/Adapter-AST PASS. Keine Produkt-/Deployment-/CLR-/gemeinsame Helper-/Rechte-/Owner-/Infrastrukturänderung. Kein neuer Default-/API-/Client-, Synonym-/übrige Fremdart-/Verbraucher-/Binding-/Driftvollmatrix-, Minimalrechte-, Heap-, authentifizierter TLS- oder Releasenachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
