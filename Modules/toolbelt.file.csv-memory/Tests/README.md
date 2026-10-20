@@ -4,6 +4,45 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Gezielte CLR-Parameterdefaults 2026-10-20
+
+Der getrennte Scope `-TestScope binding-defaults` ergänzt die bestehende
+Binding-Fallliste um fünf geschlossene Parameterdefaults: Separatortext und
+Headerbit beim Messen, NULL-Token und Ausgabelimit beim Quoten, Zeilenlimit
+beim Parser. Die kanonischen Quellen liefern jeweils die eigene ALTER- und
+Restaurierungsdefinition. [CREATE FUNCTION](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql)
+beschreibt CLR-Parameterdefaults; [sys.parameters](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-parameters-transact-sql)
+führt das Defaultflag und den Wert für CLR-Objekte.
+
+Linux2019/latest CL150 bestand im zweiten, Windows2025/base CL170 mit erlaubtem
+bereitem CU-Äquivalent im ersten Defaultsversuch jeweils local/central.
+Deploy und Uninstall liefern SQL55324/state7: zehn Abweisungen pro Modus,
+20 pro Ziel. Der erfasste Katalogsnapshot schützt das Defaultflag; ein
+separates Orakel schützt zusätzlich den konkreten Defaultwert einschließlich
+NULL vor und nach jeder Abweisung und vor der Restaurierung. Fremde Wertdrift
+blockiert das restaurierende ALTER auch bei unverändertem Snapshot.
+Objekt-/Erstellungsidentität, CLR-Bindung und typisierte Ownership bleiben
+Restaurierungsvoraussetzungen; anschließend muss die exakte Baseline stimmen.
+
+Der erste Linuxlauf bestand die Abweisungen und Restaurierung, prüfte den
+Defaultwert aber nur vor den Abweisungen. Er ist vollständig bereinigt und
+bleibt als engerer Teilnachweis erhalten; für den finalen Wertschutz gilt
+allein der zweite Lauf. Wegen des erweiterten gemeinsamen Binding-Helfers
+bestand zusätzlich ein Linux2019/latest CL150 `binding-drift`-Regressionslauf
+local/central mit 32 Abweisungen. Alle vier Läufe: Exit0, vollständige Kanäle,
+leeres Stderr, frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash
+abwesend, Konfiguration und Inputs unverändert.
+
+255 Offlinekontrollen einschließlich Wertdrift bei unverändertem synthetischem
+Snapshot, PowerShell-AST und SQL150-Grammatik aller 52 expandierten Batches PASS.
+Keine neue Helferdatei, Workflow-, Job-, Filter-, Cancellation- oder
+Build-/Frameworkgrenze. Ein gezielter nativer Legacy-Regressionslauf deckt den
+geänderten Helferkonsumenten ab; keine neue grüne Zielvollmatrix oder
+PASS-Logreviewkette. Token-/Kostenwirkung unbekannt. Produkt-, Deployment-,
+CLR-Quellen und gemeinsame Snapshot-/Abweisungshelper unverändert; kein neuer
+Defaultadapter-/API-/Client-/Minimalrechte-/Heap-/authentifizierter TLS-/Release-
+oder vollständiger Driftmatrixnachweis. Status bleibt `partially validated`, `unreleased`.
+
 ## Gezielte interne CLR-Bindingdrift 2026-10-20
 
 Der getrennte Scope `-TestScope binding-drift` bestand auf Linux2019/latest

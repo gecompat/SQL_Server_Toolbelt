@@ -2074,6 +2074,11 @@ Produkt-/Deployment-/CLR-Quellen und gemeinsame Snapshot-/Abweisungshelper
 unverändert. Keine Statusaufwertung oder neue Default-/API-/Client-/Minimalrechte-/
 Heap-/authentifizierte TLS-/Release- oder vollständige Binding-/Driftmatrixabnahme.
 
+Nach PR346, 2026-10-20: Der ausdrücklich neu beauftragte Zwei-Wellen-Rahmen
+umfasst zunächst CLR-Parameterdefaults und danach benannte SameDB-SQL-Verbraucher.
+
+Linux2019/latest CL150 im zweiten und Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 im ersten Defaultsversuch local/central PASS. Fünf einzelne Parameterdefaults an den drei internen CLR-Funktionen: Text, bit, NULL und zwei bigint-Werte; je Deploy/Uninstall SQL55324/state7, 20 Abweisungen pro Ziel. Konkretes Defaultflag-/Wertorakel vor und nach jeder Abweisung sowie vor der Restaurierung, unveränderter erfasster Mutationszustand und Objektidentität, exakte Baseline nach kanonischem ALTER. Separater Linux-Binding-Regressionslauf local/central mit 32 Abweisungen PASS. Je Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration und Runtimeinputs unverändert. Erster Linuxlauf bestand den engeren Scope und Cleanup, wird wegen fehlender wiederholter Defaultwertprüfung nicht als finaler Nachweis verwendet. 255 synthetische Offlinekontrollen und SQL150-Grammatik aller 52 expandierten Batches PASS. Produkt-/Deployment-/CLR-Quellen und gemeinsame Snapshot-/Abweisungshelper unverändert. Kein neuer Defaultadapter-/API-/Client-/Minimalrechte-/Heap-/authentifizierter TLS-/Release- oder vollständiger Driftmatrixnachweis.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte
