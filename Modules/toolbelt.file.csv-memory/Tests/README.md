@@ -4,6 +4,48 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Fremde Synonyme und SQL-Funktionen 2026-10-20
+
+Der getrennte Scope `-TestScope foreign-aliases` erweitert den bestehenden
+Fremdarten-Helfer um eine geschlossene zweite Fallfamilie. Jeder der fünf
+reservierten CSV-Namen wird einzeln als Synonym und SQL-Skalarfunktion belegt.
+Die Synonyme zeigen ausschließlich auf eine eigene synthetische Tabelle in
+derselben Testdatenbank. Deploy und Uninstall müssen SQL55324/state3 liefern:
+20 Abweisungen je Modus, 40 je Ziel. Neben erfassten Definitionen, Parametern,
+Spalten und Ergebniswerten wird das Synonymziel bytegenau geprüft.
+[`sys.synonyms.base_object_name`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-synonyms-transact-sql)
+liefert einen vollständig quotierten Namen; der Sollwert enthält deshalb die
+Klammerung. Falsches Ziel, Padding, unquotierte Darstellung, falscher Datentyp
+und leere/mehrdeutige Witnesses bestehen die Offlinekontrollen nicht.
+
+Linux2019/latest CL150 bestand im zweiten, Windows2025/base CL170 mit erlaubtem
+bereitem CU-Äquivalent im ersten Aliasversuch jeweils local/central. Der erste
+Linuxversuch bleibt FAILED: Der Target-Cleanup verdeckte einen Fixturefehler,
+und der neue Sollwert erwartete fälschlich einen unquotierten Zielnamen.
+Nach einem Fixtureabbruch übernimmt jetzt der äußere journalgebundene OwnDB-
+Cleanup; eine nachfolgende Targetaktion darf die ursprüngliche Diagnose nicht
+überdecken. Die streng geprüfte Targetentfernung im erfolgreichen Pfad bleibt
+erhalten. Der Fehllauf ist frisch bereinigt: eine eigene DB/ein eigener Trusthash
+abwesend, Konfiguration und Inputs unverändert.
+
+Wegen der Änderung am bestehenden Helfer bestand zusätzlich ein separater
+Linux2019/latest CL150 View-/Prozedur-Regressionslauf local/central mit 40
+Abweisungen. Jeder erfolgreiche Lauf bestand Clean/Repeat, eigene typisierte
+Fixtureentfernung mit Objekt-ID/Erstellungsidentität und Zustandserhalt, saubere
+Baseline, Redeploy und Uninstall/Repeat; Exit0, vollständige Kanäle und leeres
+Stderr. Je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash
+abwesend, Konfiguration und Runtimeinputs unverändert.
+
+194 Offlinekontrollen einschließlich Diagnoseerhalt bei Aliasabbruch und die
+SQL150-Grammatik aller 173 expandierten Fixture-Batches bestanden. Die letzte
+Diagnosekontrolle wurde nach dem Windowslauf ergänzt; sie verändert keine
+native Runtimequelle und wird vom Labadapter nicht ausgeführt. Keine zusätzliche
+Helferdatei, Workflow-/Job-/Filter-/Cancellationänderung oder erneute Zielvollmatrix;
+ein gezielter Legacy-Regressionslauf deckt den geänderten Helferkonsumenten ab.
+Produkt, Deployment, CLR und gemeinsame Snapshot-/Abweisungshelper unverändert.
+Token-/Kostenwirkung unbekannt. Keine neue Default-/API-/Client-/Binding-/
+Minimalrechte-/Heap-/authentifizierte TLS-/Release- oder vollständige Driftmatrixabnahme.
+
 ## Fremde Views und Prozeduren 2026-10-20
 
 Der getrennte Scope `-TestScope foreign-kinds` bestand auf Linux2019/latest
@@ -414,7 +456,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-20`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope foreign-kinds`
-- Scope: Linux2019/latest CL150 und Windows2025/base mit erlaubtem CU-Äquivalent CL170 jeweils local/central im ersten nativen Versuch PASS. Fünf reservierte CSV-Namen einzeln als fremde View und SQL-Prozedur, je Deploy/Uninstall SQL55324/state3: 20 Abweisungen pro Modus, 40 pro Ziel. Erfasster Katalogzustand mit Definitionen/Parametern/Spalten und gesonderte synthetische Ergebnisorakel einschließlich Padding unverändert; Fixtureentfernung prüft eigenen typisierten Laufmarker, Objekt-ID, Erstellungsidentität und erfassten Zustand, danach saubere Baseline. Je Clean/Repeat, erneutes Deploy, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration und Runtimeinputs unverändert. 163 Offlinekontrollen, SQL150-Grammatik aller 60 expandierten Fixture-Batches und Helper-/Adapter-AST PASS. Keine Produkt-/Deployment-/CLR-/gemeinsame Helper-/Rechte-/Owner-/Infrastrukturänderung. Kein neuer Default-/API-/Client-, Synonym-/übrige Fremdart-/Verbraucher-/Binding-/Driftvollmatrix-, Minimalrechte-, Heap-, authentifizierter TLS- oder Releasenachweis.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope foreign-aliases; separater foreign-kinds-Regressionslauf`
+- Scope: Linux2019/latest CL150 im zweiten und Windows2025/base mit erlaubtem CU-Äquivalent CL170 im ersten Aliasversuch local/central PASS. Fünf reservierte Namen je als fremdes Synonym und SQL-Skalarfunktion, je Deploy/Uninstall SQL55324/state3: 40 Abweisungen pro Ziel, unveränderter erfasster Zustand und Ergebniswitness, Synonymziel bytegenau vollständig quotiert auf die eigene sameDB-Fixture begrenzt. Eigene Targettabelle und alle Fremdfixtures mit typisiertem Laufmarker, Objekt-ID, Erstellungsidentität und Zustandserhalt geprüft und entfernt; saubere Baseline, Redeploy und Uninstall/Repeat. Separater Linux-View-/Prozedur-Regressionslauf local/central mit 40 Abweisungen PASS. Je erfolgreichem Lauf Exit0, vollständige Kanäle, leeres Stderr, frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend; Konfiguration und Runtimeinputs unverändert. 194 Offlinekontrollen einschließlich Diagnoseerhalt bei Aliasabbruch sowie SQL150-Grammatik aller 173 expandierten Batches PASS. Keine Produkt-/Deployment-/CLR-/Snapshot-/Abweisungshelper-/Rechte-/Owner-/Infrastrukturänderung. Erster Fehllauf bleibt FAILED; kein zusätzlicher Default-/API-/Client-/Binding-/Minimalrechte-/Heap-/TLS-/Release- oder vollständiger Driftmatrixnachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
