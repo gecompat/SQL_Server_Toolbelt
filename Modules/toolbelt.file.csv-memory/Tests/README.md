@@ -1,8 +1,62 @@
 # CSV-Prüfungen und Evidenz
 
-Stand 2026-10-05: Version1.0.0 ist implementiert, `partially validated` und
-unveröffentlicht. Die unten genannte CI ist an den exakten CSV-PR-Head
-gebunden; andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
+Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
+unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
+andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
+
+## Ergänzende native Zielwelle 2026-10-20
+
+Der unveränderte öffentliche Adapter `Tests/CI/run-csv-memory-lab.ps1` bestand
+auf vier zusätzlich ausgewählten physischen Labzielen, jeweils im ersten
+nativen Versuch:
+
+| Lab-Auswahl | Compatibility Level | Modi | Ergebnis |
+|---|---|---|---|
+| Windows / SQL2019 / base mit erlaubtem bereitem CU-Äquivalent | 150 | local, central | bestanden |
+| Windows / SQL2022 / base mit erlaubtem bereitem CU-Äquivalent | 160 | local, central | bestanden |
+| Linux / SQL2022 / latest | 160 | local, central | bestanden |
+| Linux / SQL2025 / latest | 170 | local, central | bestanden |
+
+Vertrag und Schema wurden vor Auswahl validiert, die tatsächliche Plattform
+und SQL-Hauptversion vor jedem Lauf geprüft. Windows-base verwendet die
+projektspezifisch erlaubte deterministische Auswahl bereiter base-/CU-Ziele.
+Alle vier Läufe konsumierten dasselbe neue Releasepaket: zwei vollständige
+.NET48-Builds am selben lokalen Buildort lieferten identische SHA2-512-Bytes.
+`Scripts/New-ClrReleaseArtifacts.ps1` band das erste Binary an aktuelle Quellen;
+`Tests/Framework/run-framework-csv.ps1` bestand mit diesen gepackten Bytes in
+en-US, de-DE und tr-TR einschließlich IL-/NoIO-Orakeln und harter Grenzphase
+in en-US. Statische Verträge und Adapter-AST bestanden ebenfalls.
+
+Je Ziel bestanden beide Modi mit `Contract.Tests.sql`, `Safety.Tests.sql`,
+`Lifecycle.Tests.sql`, Clientmetadaten, Clean/Repeat, fünf Slots/drei CLR-Bindings,
+29 gezielten Caller-/SET-/Lock-/Rollback-/Confirm0-Fällen, frischem
+SC-/UTF8-Consumer und Uninstall/Repeat. Die 29 Fälle zählen je Lauf dieselben
+gezielten Prüfungen und keine vollständige Fremdslot-/Driftmatrix.
+Der äußere Watchdog begrenzte jeden tatsächlich gestarteten eigenen Prozess;
+Exit0, vollständig konsumierte Ausgabekanäle und leeres Stderr bestanden.
+Nach Prozessende bestätigte je eine frische unabhängige Verbindung drei eigene
+Datenbanken und einen eigenen Trusthash abwesend sowie unveränderte Inputpins.
+
+Die notwendige temporäre CLR-Testkonfiguration auf drei ausgewählten Zielen
+erfolgte unter der bestehenden Benutzerfreigabe. Vorzustand und zuvor
+vorgemerkter Konfigurationsscope blieben ausschließlich im privaten Journal;
+nach Abschluss aller eigenen Verbraucher wurde der vollständige Ausgangszustand
+unter Driftprüfung wiederhergestellt. `clr strict security` blieb aktiv;
+keine Rechte-, Owner- oder Lab-Infrastrukturänderungen.
+Der vierte Lauf benötigte keine Konfigurationsänderung.
+Die äußeren Vorprüfungen auf Windows2019 und Windows2022 hatten zuvor wegen
+der fehlenden CLR-Voraussetzung gestoppt, jeweils vor Aufruf des nativen
+Adapters und ohne Testressourcen anzulegen.
+
+Diese Welle ändert keine Produkt-, Deployment-, CLR-, Adapter- oder
+Testorakelquellen. Historische Läufe auf Linux2019/CL150 und Windows2025/CL170
+werden nicht als frisch ausgeführt dargestellt: insbesondere stammt die dortige
+ResultTable-Abhängigkeit aus ihrem damaligen Stand. Zusätzliche CLs,
+Minimalrechte, Fremdslot-/Driftvollmatrix, weitere Collations, Heap und Release
+bleiben offen. Transport war `Functional`; authentifiziertes TLS ist
+`not executed`. Aktuelle Head-/Main-CI ist ein gesonderter Integrationsgate.
+
+## Historische Nachweise
 
 Testwartung 2026-10-09 – Quellenstand: Der Frameworkrunner kopiert die gepinnte
 DLL mit festem 64-KiB-Puffer, `Int64`-Längenbindung und exakter EOF-Prüfung statt
@@ -51,8 +105,9 @@ und im fünften Gesamtlauf eine generische Assertion in `Metadata.Tests.ps1`.
 Der fünfte Lauf belegte lediglich lokale Clean/Repeat-/Binding- und SQLfixture-
 Teilresultate. Die Produktkorrekturen betreffen das NCHAR-CASE-Padding des LF-
 Writers und drei deklarierte NOT-NULL-Spalten im Help-first-Pfad. Erst der achte
-Lauf liefert den genannten Gesamtadapter-PASS. SQL Server 2022, übrige Windows-/Linux-Ziele und Compatibility Levels,
-weitere Collations bleiben offen.
+Lauf liefert den genannten Gesamtadapter-PASS. Zum damaligen Stand blieben
+SQL Server 2022, übrige Windows-/Linux-Ziele und Compatibility Levels sowie
+weitere Collations offen; die Ergänzung vom 2026-10-20 steht oben getrennt.
 
 Zusätzlicher begrenzter Marker-Nachweis am 2026-10-05: ein mechanisch vom
 öffentlichen Labadapter abgeleiteter, hashgebundener Adapter prüfte ausschließlich
@@ -105,8 +160,8 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-05`
-- Nachweis: `local: hashgebundener Typed-Marker-Teiladapter aus Tests/CI/run-csv-memory-lab.ps1`
-- Scope: Zwei separate synthetische Markerfälle auf Linux2019/latest CL150 lokal: Deploy/Uninstall weisen Toolbelt.Managed als int statt bit auf USP_ParseCsv mit SQL55324/state5 ab; vollständige Metadaten unverändert, neutraler Transaktionszustand und exakte eigene Restaurierung bestanden. Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit bestätigt eine eigene DB/einen eigenen Trusthash abwesend, keine Konfigurations-/Rechteänderungen. Kein neuer Gesamtadapter-, API-, Client-, Central-, Windows-, Minimalrechte-, Heap- oder vollständiger Fremdslot-/Driftmatrix-Nachweis; nicht zum bisherigen 29-Fall-Zähler addiert.
+- Datum: `2026-10-20`
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1`
+- Scope: Vier zusätzliche physische Labzielkombinationen bestanden jeweils im ersten nativen Versuch mit demselben reproduzierbar gebauten Releasepaket: Windows2019/base CL150 und Windows2022/base CL160 mit erlaubten bereiten CU-Äquivalenten sowie Linux2022/latest CL160 und Linux2025/latest CL170. Je local/central, drei SQLfixtures, Clientmetadaten, Clean/Repeat, fünf Slots/drei Bindings, 29 gezielte Caller-/SET-/Lock-/Rollback-/Confirm0-Fälle, frischer SC-/UTF8-Consumer und Uninstall/Repeat; Exit0, vollständige Kanäle, leeres Stderr. Je frischer unabhängiger Audit drei eigene DBs/einen eigenen Trusthash abwesend und Inputpins unverändert. Autorisierte temporäre CLR-Testkonfiguration auf drei Zielen einschließlich zuvor vorgemerktem Scope privat erfasst und vollständig in den Ausgangszustand restauriert; keine Rechte-/Infrastrukturänderungen. Historische Nachweise bleiben datiert; zusätzliche CLs, Minimalrechte, Fremdslot-/Driftvollmatrix, Heap, authentifiziertes TLS und Release bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

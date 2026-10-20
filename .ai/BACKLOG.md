@@ -1938,6 +1938,26 @@ ist mit fünf erfolgreichen Checks am exakten Head gemergt. Main/origin-main
 und eigener Branch-Cleanup geprüft. Modulstatus bleibt teilweise validiert
 und unveröffentlicht; keine Übertragung der Freigabe auf Folgefunktionen.
 
+Ergänzende begrenzte Zielwelle 2026-10-20 nach dem ausdrücklich beauftragten
+FileSystemRoot-Abschluss und autonomen Start der nächsten Welle: vier weitere
+physische Kombinationen bestanden jeweils im ersten nativen Gesamtadapterlauf:
+Windows2019/base CL150 und Windows2022/base CL160 mit erlaubten bereiten
+CU-Äquivalenten sowie Linux2022/latest CL160 und Linux2025/latest CL170.
+Dasselbe neue reproduzierbar gebaute Releasepaket bestand vorher den
+Framework-/IL-/NoIO-Scope in drei Kulturen. Je Ziel bestanden local/central,
+drei SQLfixtures, Client, Clean/Repeat, fünf Slots/drei Bindings, 29 gezielte
+Lifecyclefälle, frischer SC-/UTF8-Consumer und Uninstall/Repeat. Je Exit0,
+vollständige Kanäle/leeres Stderr und frischer unabhängiger OwnDB-/Trustaudit
+bestanden. Autorisierte temporäre CLR-Testkonfiguration auf drei Zielen samt
+vorgemerktem Scope privat erfasst und vollständig in den Ausgangszustand
+restauriert; keine Rechte-/Infrastrukturänderungen. Historische Läufe bleiben
+an ihr Datum und ihre damaligen Abhängigkeiten gebunden; keine neue Ausführung
+auf Linux2019 oder Windows2025. Weitere CLs, Minimalrechte, Fremdslot-/
+Driftvollmatrix, Heap, authentifiziertes TLS und Release bleiben offen.
+Status weiterhin `partially validated`, `unreleased`;
+[Testnachweis](../Modules/toolbelt.file.csv-memory/Tests/README.md) und
+[Matrix](../Modules/toolbelt.file.csv-memory/Tests/CSV_TEST_MATRIX.md).
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte
