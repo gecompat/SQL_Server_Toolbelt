@@ -10,7 +10,7 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedDriverSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{128}$')][string]$ExpectedAssemblySHA512,
  [ValidateNotNullOrEmpty()][ValidateCount(1,2)][ValidateSet('local','central')][string[]]$DeploymentModes=@('local','central'),
- [ValidateSet('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','binding-drift','binding-defaults','named-consumers',IgnoreCase=$false)][string]$TestScope='default',
+ [ValidateSet('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','binding-drift','binding-defaults','named-consumers','marker-values',IgnoreCase=$false)][string]$TestScope='default',
  [switch]$OptInExactTrust
 )
 Set-StrictMode -Version Latest
@@ -435,7 +435,11 @@ IF NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.asse
  THROW 51594,N'CSV exact binary witness failed.',3;
 IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness failed.',4;
 '@ @{'@Hash'=[Convert]::FromHexString($hash)}
-    if($TestScope -ceq 'ownership-markers'){
+    if($TestScope -ceq 'marker-values'){
+     $stage='MARKER_VALUES_'+$mode
+     $ledger.GuardCasesPassed+=Invoke-CsvMarkerGuards $connection $deploy $uninstall $mode -Family 'values'
+     Save-CsvJournal
+    }elseif($TestScope -ceq 'ownership-markers'){
      $stage='MARKER_GUARDS_'+$mode
      $ledger.GuardCasesPassed+=Invoke-CsvMarkerGuards $connection $deploy $uninstall $mode
      Save-CsvJournal
@@ -501,7 +505,7 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
   }
   Assert-CsvPins
   if($TestScope -cne 'default'){
-   $perMode=switch -CaseSensitive ($TestScope){'ownership-markers'{20};'marker-absence'{54};'foreign-slots'{14};'foreign-kinds'{20};'foreign-aliases'{20};'binding-drift'{16};'binding-defaults'{10};'named-consumers'{10};default{throw 'CSV_GUARD_SCOPE_UNKNOWN'}}
+   $perMode=switch -CaseSensitive ($TestScope){'ownership-markers'{20};'marker-values'{50};'marker-absence'{54};'foreign-slots'{14};'foreign-kinds'{20};'foreign-aliases'{20};'binding-drift'{16};'binding-defaults'{10};'named-consumers'{10};default{throw 'CSV_GUARD_SCOPE_UNKNOWN'}}
    if($ledger.GuardCasesPassed -ne ($perMode*$DeploymentModes.Count)){throw 'CSV_GUARD_COMPLETENESS_REQUIRED'}
    if($TestScope -ceq 'foreign-slots' -and $ledger.GuardWitnessControls -ne (2*$DeploymentModes.Count)){throw 'CSV_FOREIGN_WITNESS_COMPLETENESS_REQUIRED'}
   }
@@ -527,7 +531,7 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
  if($failed){Write-Output ('FAILED: CSV_'+$ledger.OriginalFailure.Stage+'_SQL'+$ledger.OriginalFailure.SqlNumber+'_STATE'+$ledger.OriginalFailure.SqlState+'_'+$ledger.OriginalFailure.Reason);exit 1}
  $completed=$ledger.CompletedModes -join ','
  if($TestScope -cne 'default'){
-  $guardLabel=switch -CaseSensitive ($TestScope){'ownership-markers'{'marker-restoration'};'marker-absence'{'marker-absence-restoration'};'foreign-slots'{'foreign-slot/consumer-protection'};'foreign-kinds'{'foreign-view/procedure-preservation'};'foreign-aliases'{'foreign-synonym/function-preservation'};'binding-drift'{'binding-restoration'};'binding-defaults'{'binding-default-restoration'};'named-consumers'{'named-consumer-preservation'};default{throw 'CSV_GUARD_SCOPE_UNKNOWN'}}
+  $guardLabel=switch -CaseSensitive ($TestScope){'ownership-markers'{'marker-restoration'};'marker-values'{'marker-value-restoration'};'marker-absence'{'marker-absence-restoration'};'foreign-slots'{'foreign-slot/consumer-protection'};'foreign-kinds'{'foreign-view/procedure-preservation'};'foreign-aliases'{'foreign-synonym/function-preservation'};'binding-drift'{'binding-restoration'};'binding-defaults'{'binding-default-restoration'};'named-consumers'{'named-consumer-preservation'};default{throw 'CSV_GUARD_SCOPE_UNKNOWN'}}
   Write-Output ('PASS: CSV_GUARDS '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL'+$CompatibilityLevel+' modes='+$completed+' scope='+$TestScope+' guard-cases='+$ledger.GuardCasesPassed+' witness-controls='+$ledger.GuardWitnessControls+' '+$guardLabel+'/repeat/uninstall; owned-cleanup. API/client/full drift matrix NOT_EXECUTED.')
   continue
  }

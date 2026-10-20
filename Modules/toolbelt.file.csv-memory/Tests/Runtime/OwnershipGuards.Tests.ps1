@@ -48,7 +48,22 @@ function Assert-CsvGuardRejected($Connection,[string]$Sql,[int]$Number,[int]$Sta
  if((Get-CsvGuardSessionOptions $Connection) -ne $before){throw 'CSV_GUARD_REJECTION_CHANGED_SESSION'}
 }
 
-function Get-CsvMarkerGuardCases([ValidateSet('local','central')][string]$Mode){
+function Get-CsvMarkerGuardCases([ValidateSet('local','central')][string]$Mode,[ValidateSet('types','values',IgnoreCase=$false)][string]$Family='types'){
+ if($Family -ceq 'values'){
+  foreach($slot in @('USP_ParseCsv','USP_WriteCsv','TVF_InternalParseCsv','SVF_InternalMeasureCsvCell','SVF_InternalQuoteCsvCell')){
+   [pscustomobject]@{Scope='OBJECT';Object=$slot;Property='Toolbelt.Managed';Original='CONVERT(bit,1)';Mutated='CONVERT(bit,0)';State=5}
+   [pscustomobject]@{Scope='OBJECT';Object=$slot;Property='Toolbelt.ModuleId';Original="CONVERT(nvarchar(128),N'toolbelt.file.csv-memory')";Mutated="CONVERT(nvarchar(128),N'toolbelt.file.csv-foreign')";State=5}
+   [pscustomobject]@{Scope='OBJECT';Object=$slot;Property='Toolbelt.ModuleVersion';Original="CONVERT(nvarchar(16),N'1.0.0')";Mutated="CONVERT(nvarchar(16),N'9.9.9')";State=5}
+   $visibility=if($slot.StartsWith('USP_',[StringComparison]::Ordinal)){'public'}else{'internal'}
+   [pscustomobject]@{Scope='OBJECT';Object=$slot;Property='Toolbelt.Visibility';Original="CONVERT(nvarchar(16),N'$visibility')";Mutated="CONVERT(nvarchar(16),N'unknown')";State=5}
+  }
+  [pscustomobject]@{Scope='ASSEMBLY';Object='Toolbelt_File_CsvMemory';Property='Toolbelt.Managed';Original='CONVERT(bit,1)';Mutated='CONVERT(bit,0)';State=4}
+  [pscustomobject]@{Scope='ASSEMBLY';Object='Toolbelt_File_CsvMemory';Property='Toolbelt.ModuleId';Original="CONVERT(nvarchar(128),N'toolbelt.file.csv-memory')";Mutated="CONVERT(nvarchar(128),N'toolbelt.file.csv-foreign')";State=4}
+  [pscustomobject]@{Scope='ASSEMBLY';Object='Toolbelt_File_CsvMemory';Property='Toolbelt.ModuleVersion';Original="CONVERT(nvarchar(16),N'1.0.0')";Mutated="CONVERT(nvarchar(16),N'9.9.9')";State=4}
+  [pscustomobject]@{Scope='DATABASE';Object='';Property='Toolbelt.Module.toolbelt.file.csv-memory.Version';Original="CONVERT(nvarchar(16),N'1.0.0')";Mutated="CONVERT(nvarchar(16),N'9.9.9')";State=2}
+  [pscustomobject]@{Scope='DATABASE';Object='';Property='Toolbelt.Module.toolbelt.file.csv-memory.DeploymentMode';Original="CONVERT(nvarchar(16),N'$Mode')";Mutated="CONVERT(nvarchar(16),N'invalid')";State=2}
+  return
+ }
  foreach($slot in @('USP_ParseCsv','USP_WriteCsv','TVF_InternalParseCsv','SVF_InternalMeasureCsvCell','SVF_InternalQuoteCsvCell')){
   [pscustomobject]@{Scope='OBJECT';Object=$slot;Property='Toolbelt.Managed';Original='CONVERT(bit,1)';Mutated='CONVERT(int,1)';State=5}
  }
@@ -59,7 +74,14 @@ function Get-CsvMarkerGuardCases([ValidateSet('local','central')][string]$Mode){
  [pscustomobject]@{Scope='DATABASE';Object='';Property='Toolbelt.Module.toolbelt.file.csv-memory.DeploymentMode';Original="CONVERT(nvarchar(16),N'$Mode')";Mutated="CONVERT(nvarchar(16),N'$Mode ')";State=2}
 }
 
+function Assert-CsvMarkerGuardCase($Case){
+ $known=@(foreach($mode in @('local','central')){Get-CsvMarkerGuardCases $mode;Get-CsvMarkerGuardCases $mode 'values'})
+ if($Case.State -isnot [int] -or @($known|Where-Object {$_.Scope -ceq $Case.Scope -and $_.Object -ceq $Case.Object -and $_.Property -ceq $Case.Property -and $_.Original -ceq $Case.Original -and $_.Mutated -ceq $Case.Mutated -and $_.State -eq $Case.State}).Count -lt 1){throw 'CSV_GUARD_MARKER_CASE_INVALID'}
+}
+
 function Set-CsvGuardMarker($Connection,$Case,[string]$Expected,[string]$Value){
+ Assert-CsvMarkerGuardCase $Case
+ if(-not (($Expected -ceq $Case.Original -and $Value -ceq $Case.Mutated) -or ($Expected -ceq $Case.Mutated -and $Value -ceq $Case.Original))){throw 'CSV_GUARD_MARKER_TRANSITION_INVALID'}
  # Alle Identifier und SQL-Wertausdrücke stammen aus der geschlossenen Fallliste.
  $class=0;$major='0';$levels=''
  if($Case.Scope -ceq 'OBJECT'){
@@ -83,9 +105,9 @@ EXEC sys.sp_updateextendedproperty @name=N'$($Case.Property)',@value=@Value$leve
 "@
 }
 
-function Invoke-CsvMarkerGuards($Connection,[string]$Deploy,[string]$Uninstall,[ValidateSet('local','central')][string]$Mode){
- $cases=@(Get-CsvMarkerGuardCases $Mode)
- if($cases.Count -ne 10){throw 'CSV_GUARD_MARKER_CASE_SET'}
+function Invoke-CsvMarkerGuards($Connection,[string]$Deploy,[string]$Uninstall,[ValidateSet('local','central')][string]$Mode,[ValidateSet('types','values',IgnoreCase=$false)][string]$Family='types'){
+ $cases=@(Get-CsvMarkerGuardCases $Mode $Family);$expected=if($Family -ceq 'values'){25}else{10}
+ if($cases.Count -ne $expected -or @($cases|ForEach-Object {$_.Scope+'|'+$_.Object+'|'+$_.Property}|Sort-Object -Unique).Count -ne $expected){throw 'CSV_GUARD_MARKER_CASE_SET'}
  $passed=0
  foreach($case in $cases){
   $script:stage='MARKER_GUARD_'+$Mode+'_'+$passed
@@ -107,6 +129,6 @@ function Invoke-CsvMarkerGuards($Connection,[string]$Deploy,[string]$Uninstall,[
    }
   }
  }
- if($passed -ne 20){throw 'CSV_GUARD_MARKER_COUNT'}
+ if($passed -ne (2*$expected)){throw 'CSV_GUARD_MARKER_COUNT'}
  return $passed
 }

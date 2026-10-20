@@ -4,6 +4,42 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Falsche Ownership-/Release-Markerwerte 2026-10-20
+
+Der getrennte Scope `-TestScope marker-values` bestand auf Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
+im ersten Versuch local/central. Die neue geschlossene Wertefamilie ergänzt
+den vorhandenen Markerhelfer um25 Fälle: vier Marker je CSV-Objekt, drei an
+der Assembly, zwei an der Datenbank. Managed wird bit0, Modul-ID, Version,
+Sichtbarkeit und Modus werden synthetisch inkohärent. Deploy und Uninstall
+müssen SQL55324/state2/4/5 liefern:50 Abweisungen pro Modus,100 pro Ziel.
+
+Jeder Übergang prüft den bisherigen sql_variant-Basistyp, seine MaxLength,
+DATALENGTH und Wertbytes. Falldeskriptor und beide Übergangsrichtungen sind
+an die geschlossenen Familien gebunden; freie Erwartungs-/Zielausdrücke sind
+unzulässig. Erfasster Mutationszustand und neutrale Sitzung müssen bei jeder
+Abweisung erhalten bleiben. Restaurierung erfolgt nur bei unverändertem
+erfasstem Zustand und exakt erwarteter Markermutation, danach exakte Baseline.
+Die reine fehlende-Marker-Familie wird nicht verändert.
+
+Wegen der Änderung am gemeinsamen Markerhelfer bestand zusätzlich die bisherige
+`ownership-markers`-Familie auf Linux2019/latest CL150 local/central mit40
+Abweisungen. Alle drei Läufe: Clean/Repeat, Uninstall/Repeat, Exit0/vollständige
+Kanäle/leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener
+Trusthash abwesend, Konfiguration und Runtimeinputs unverändert.
+367 Offlinekontrollen einschließlich falscher Deskriptorfelder, unzulässiger
+Übergänge ohne SQL-Aufruf, unveränderter Mutation und Restaurierungsdrift PASS.
+SQL150-Grammatik aller140 expandierten Änderungs-/Restaurierungsbatches beider
+Familien in beiden Modi sowie PowerShell-AST und Static PASS.
+
+Keine neue Helferdatei oder Workflow-/Job-/Filter-/Cancellation-/Buildgrenze.
+Eine gezielte Legacyregression deckt den geänderten Helferkonsumenten ab;
+keine grüne Vollmatrixwiederholung oder zusätzliche PASS-Logreviewkette.
+Token-/Kostenwirkung unbekannt. Produkt-/Deployment-/CLR- und gemeinsame
+Snapshotquellen unverändert. Keine neue Default-/API-/Client-, Minimalrechte-,
+Heap-, authentifizierte TLS-, vollständige Driftmatrix- oder Releaseabnahme.
+Status bleibt `partially validated`, `unreleased`.
+
 ## Explizite SameDB-SQL-Verbraucher 2026-10-20
 
 Der getrennte Scope `-TestScope named-consumers` bestand im finalen vierten
@@ -589,7 +625,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-20`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope named-consumers; finaler Korrekturlauf`
-- Scope: Finaler vierter nativer Lauf dieser Welle Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 im zweiten Versuch local/central PASS: fünf nacheinander angelegte Consumer mit explizitem eigenem SameDB-Namen, je Deploy/Uninstall SQL55325/state3,20 Abweisungen. Exakte Zielnamen/eigene DB, zulässige lokale ID- oder Namensbindung und Fingerprint sämtlicher erfasster Dependencyzeilen; Erhalt unmittelbar vor/nach jeder Abweisung und vor geschütztem Fixture-Drop, Gesamtsnapshot und Baseline erhalten. Typisierte OwnDB-/Fixturemarker und Objekt-/Erstellungsidentitäten geprüft. Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert. Vorheriger zweiter Linuxlauf und erster Windowslauf bestanden je20 Abweisungen ohne zusätzliche unmittelbare Vorabprüfung der zweiten Operation; enger datiert. Erster Linuxfehllauf bleibt FAILED und bereinigt. 301Offlinekontrollen einschließlich Dependencydrift ausschließlich vor der zweiten Operation,40SQL150-Batches,AST/Static und Docvalidator samt16Impactselftests PASS. Produkt-/Deployment-/CLR-/gemeinsame Helper unverändert. Kein isolierter NULL-ID-Preflightzweig, Consumer-APIausführung oder neuer Default-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/TLS-/Release-Nachweis.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope marker-values; ownership-markers-Regressionslauf`
+- Scope: Linux2019/latest CL150 und Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 jeweils im ersten marker-values-Versuch local/central PASS. 25 einzelne falsche Markerwerte:20 Objektmarker an fünf Slots, drei Assemblymarker und zwei Datenbankmarker; je Deploy/Uninstall SQL55324/state2/4/5,50 Abweisungen je Modus und100 je Ziel. Typisierte Werte mit exakter Bytelänge/Wertbytes vor Mutation und Restaurierung geprüft, erfasster Mutationszustand und neutrale Sitzung erhalten, exakte Baseline restauriert. Geschlossene Falldeskriptoren und ausschließlich inverse zulässige Übergänge; keine freien SQL-Wertausdrücke. Separate Linux-Regression bisheriger ownership-markers-Familie local/central40 Abweisungen PASS. Je erfolgreichem Lauf Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert. 367Offlinekontrollen,140SQL150-Änderungs-/Restaurierungsbatches beider Familien und AST/Static PASS. Produkt-/Deployment-/CLR-/gemeinsame Snapshothelper unverändert; keine neue Default-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
