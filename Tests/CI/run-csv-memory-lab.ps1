@@ -10,7 +10,7 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedDriverSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{128}$')][string]$ExpectedAssemblySHA512,
  [ValidateSet('local','central')][string[]]$DeploymentModes=@('local','central'),
- [ValidateSet('default','ownership-markers')][string]$TestScope='default',
+ [ValidateSet('default','ownership-markers',IgnoreCase=$false)][string]$TestScope='default',
  [switch]$OptInExactTrust
 )
 Set-StrictMode -Version Latest
@@ -463,6 +463,7 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
    }finally{if($connection){$connection.Dispose()}}
   }
   Assert-CsvPins
+  if($TestScope -ceq 'ownership-markers' -and $ledger.GuardCasesPassed -ne (20*$DeploymentModes.Count)){throw 'CSV_GUARD_COMPLETENESS_REQUIRED'}
  }catch{$failed=$true;$ledger.OriginalFailure=Get-CsvFailure $_.Exception}
  finally{
   $script:cleanupPhase=$true

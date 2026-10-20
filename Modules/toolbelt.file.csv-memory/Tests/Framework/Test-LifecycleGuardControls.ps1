@@ -4,6 +4,18 @@ $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot '../Runtime/OwnershipGuards.Tests.ps1')
 $checks=0
 function Check([bool]$Condition){if(-not $Condition){throw 'CSV_GUARD_CONTROL_FAILED'};$script:checks++}
+# Nur den tatsächlichen Parameter-AST ausführen, niemals den Labadapterkörper.
+$driver=Join-Path $PSScriptRoot '../../../../Tests/CI/run-csv-memory-lab.ps1'
+$parseErrors=$null
+$driverTree=[Management.Automation.Language.Parser]::ParseFile($driver,[ref]$null,[ref]$parseErrors)
+if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
+$parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
+if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
+$validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
+foreach($value in @('default','ownership-markers')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS')){
+ $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
+}
 $expected=[pscustomobject]@{Number=55324;State=5}
 Check (Test-CsvGuardErrorIdentities @($expected) 55324 5)
 Check (-not (Test-CsvGuardErrorIdentities @() 55324 5))

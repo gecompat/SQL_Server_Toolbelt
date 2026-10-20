@@ -41,8 +41,9 @@ vor. Das ursprüngliche Caller-Transaktions-/SET-Orakel im Defaultscope bleibt
 unverändert. Die beiden Linux-Fehlläufe bleiben FAILED; der aktuelle korrigierte
 Guard-Gesamtstand ist auf Linux noch `not executed`.
 
-`Tests/Framework/Test-LifecycleGuardControls.ps1` bestand 23 synthetische
-Offlinekontrollen: fehlende/falsche/mehrfache Fehler, Metadaten-/Sessiondrift,
+`Tests/Framework/Test-LifecycleGuardControls.ps1` bestand 27 synthetische
+Offlinekontrollen: direkte TestScope-Parameterprüfung einschließlich abgewiesener
+Großschreibungsvarianten, fehlende/falsche/mehrfache Fehler, Metadaten-/Sessiondrift,
 fehlende Mutationsbeobachtung und fremde Drift vor Restaurierung werden
 abgewiesen. Der vorhandene CSV-Workflow führt diese Kontrollen und die neue
 Helper-AST-Prüfung im bestehenden statischen Schritt aus. Positive/negative
@@ -286,6 +287,6 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-20`
 - Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope ownership-markers; Test-LifecycleGuardControls.ps1`
-- Scope: Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 local/central PASS: zehn synthetische Markeränderungen je Modus, je Deploy-/Uninstallabweisung SQL55324/state2/4/5, 40 Abweisungen mit unverändertem erfasstem Metadatenzustand und exakter Restaurierung. Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr und frischer Audit zwei eigene DBs/ein eigener Trusthash abwesend. 23 synthetische Offline-Fail-closed-Kontrollen PASS. Keine Produkt-/Konfigurations-/Rechte-/Owner-/Infrastrukturänderung; kein neuer API-/Client-/CrossDB-, Linux-Guard-, Minimalrechte-, Driftvollmatrix-, Heap-, TLS- oder Release-PASS.
+- Scope: Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 local/central PASS: zehn synthetische Markeränderungen je Modus, je Deploy-/Uninstallabweisung SQL55324/state2/4/5, 40 Abweisungen mit unverändertem erfasstem Metadatenzustand und exakter Restaurierung. Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr und frischer Audit zwei eigene DBs/ein eigener Trusthash abwesend. 27 synthetische Offline-Fail-closed-Kontrollen PASS. Keine Produkt-/Konfigurations-/Rechte-/Owner-/Infrastrukturänderung; kein neuer API-/Client-/CrossDB-, Linux-Guard-, Minimalrechte-, Driftvollmatrix-, Heap-, TLS- oder Release-PASS.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

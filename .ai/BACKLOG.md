@@ -1992,7 +1992,7 @@ bestand local/central mit 40 Abweisungen und frischem OwnDB-/Trustaudit. Zwei
 Linux2019-Guardversuche scheiterten an neuen Fixture-Sitzungsprüfungen und
 bleiben FAILED, beide frisch bereinigt. Ein separater Linux-Defaultlauf mit
 29 Lifecyclefällen und vollständigem API-/Client-/Consumer-Scope bestand;
-der zuletzt korrigierte Linux-Guardscope ist noch not executed. 23 synthetische
+der zuletzt korrigierte Linux-Guardscope ist noch not executed. 27 synthetische
 Fail-closed-Kontrollen bestanden. Keine Produkt-, Konfigurations-, Rechte-,
 Owner- oder Infrastrukturänderung; teilweise validiert und unveröffentlicht.
 
