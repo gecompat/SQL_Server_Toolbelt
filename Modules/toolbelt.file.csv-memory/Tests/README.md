@@ -30,6 +30,7 @@ Das ist keine vollständige Rechte-, Marker- oder Fremdslotmatrix.
 | Linux2019/latest CL150, Guardversuch1 | FAILED vor dem ersten Abweisungsorakel an der kombinierten Sitzungsabfrage; frischer Audit eigene DB/eigener Trusthash abwesend |
 | Linux2019/latest CL150, Default-Regressionslauf | PASS local/central, drei SQLfixtures, Client/Consumer, 29 gezielte Lifecyclefälle, Exit0/vollständige Kanäle/leeres Stderr; frischer Audit drei eigene DBs/ein eigener Trusthash abwesend |
 | Linux2019/latest CL150, Guardversuch2 | FAILED an der Optionsgleichheit der neutralen Fixture; keine vollständige Guardabnahme, frischer Audit eigene DB/eigener Trusthash abwesend |
+| Linux2019/latest CL150, ausdrücklich freigegebener Guardversuch3 | PASS local/central mit 40 erwarteten Abweisungen, exakter Markerrestaurierung, Clean/Repeat und Uninstall/Repeat; Exit0/vollständige Kanäle/leeres Stderr, frischer Audit zwei eigene DBs/ein eigener Trusthash abwesend |
 | Windows2025/base mit bereitem erlaubtem CU-Äquivalent CL170, Guardversuch1 | PASS local/central, 40 erwartete Abweisungen und exakte Markerrestaurierung, Clean/Repeat und Uninstall/Repeat; Exit0/vollständige Kanäle/leeres Stderr, frischer Audit zwei eigene DBs/ein eigener Trusthash abwesend |
 
 Ein lesender synthetischer Diagnosevergleich auf Linux zeigte: XACT_STATE
@@ -38,8 +39,10 @@ OPTIONS abweichend; die getrennten Nullzustandsprüfungen bestanden. Die
 Korrektur verwendet diese getrennten Prüfungen. Zusätzlich bereitet die
 neutrale Fixture die vom Produktpreflight ausdrücklich gesetzten Optionen
 vor. Das ursprüngliche Caller-Transaktions-/SET-Orakel im Defaultscope bleibt
-unverändert. Die beiden Linux-Fehlläufe bleiben FAILED; der aktuelle korrigierte
-Guard-Gesamtstand ist auf Linux noch `not executed`.
+unverändert. Die beiden Linux-Fehlläufe bleiben FAILED. Nach ausdrücklicher
+Benutzerfreigabe bestand der dritte Linux-Guardlauf am korrigierten Stand;
+er war der fünfte und letzte native Lauf dieser Welle. Beide ausgewählten
+Ziele sind damit im begrenzten Markerscope local/central bestanden.
 
 `Tests/Framework/Test-LifecycleGuardControls.ps1` bestand 27 synthetische
 Offlinekontrollen: direkte TestScope-Parameterprüfung einschließlich abgewiesener
