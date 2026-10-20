@@ -9,47 +9,43 @@ andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 Der getrennte Scope `-TestScope binding-defaults` ergänzt die bestehende
 Binding-Fallliste um fünf geschlossene Parameterdefaults: Separatortext und
 Headerbit beim Messen, NULL-Token und Ausgabelimit beim Quoten, Zeilenlimit
-beim Parser. Die kanonischen Quellen liefern jeweils die eigene ALTER- und
-Restaurierungsdefinition. [CREATE FUNCTION](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql)
+beim Parser. Die kanonischen Quellen liefern ALTER- und Restaurierungsdefinition.
+[CREATE FUNCTION](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql)
 beschreibt CLR-Parameterdefaults; [sys.parameters](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-parameters-transact-sql)
-führt das Defaultflag und den Wert für CLR-Objekte.
+führt deren Flag und Wert für CLR-Objekte.
 
-Der fünfte Lauf vor der letzten Längenkorrektur bestand auf Windows2025/base CL170 mit erlaubtem
-bereitem CU-Äquivalent im zweiten Defaultsversuch local/central. Deploy und
-Uninstall liefern SQL55324/state7: zehn Abweisungen pro Modus,20 pro Ziel.
-Der erfasste Snapshot schützt das Defaultflag; ein separates Orakel prüft
-Basistyp und Binärwert des nicht-NULL-Defaults beziehungsweise NULL
-vor/nach jeder Abweisung und vor der Restaurierung. Konvertierbare, aber
-abweichende numerische Werte bestehen dieses Orakel nicht. Fremde Wertdrift
-blockiert das restaurierende ALTER auch bei unverändertem Snapshot.
-Objekt-/Erstellungsidentität, CLR-Bindung und typisierte Ownership bleiben
-Restaurierungsvoraussetzungen; anschließend muss die exakte Baseline stimmen.
+Der ausdrücklich freigegebene sechste und letzte native Lauf bestand auf
+Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent im dritten
+Defaultsversuch local/central. Deploy und Uninstall liefern SQL55324/state7:
+zehn Abweisungen pro Modus,20 pro Ziel. Der erfasste Snapshot schützt das Flag;
+ein separates Orakel prüft Basistyp, Wertbytes und beim Text die Bytelänge
+beziehungsweise NULL exakt vor/nach jeder Abweisung und vor der Restaurierung.
+Konvertierbare oder mit Nullbytes verlängerte abweichende Text-/Zahlenwerte
+bestehen dieses Orakel nicht. Fremde Wertdrift blockiert das restaurierende
+ALTER auch bei unverändertem Snapshot. Objekt-/Erstellungsidentität,
+CLR-Bindung und typisierte Ownership bleiben Restaurierungsvoraussetzungen;
+anschließend muss die exakte Baseline stimmen.
 
-Der letzte Reviewbefund verlangt zusätzlich gleiche DATALENGTH beim variablen
-Textdefault. Der aktuelle Quellstand enthält diese Prüfung; ihre native
-Abnahme ist **not executed** und blockiert den Merge. Die fünf vorgegebenen
-nativen Versuche sind verbraucht; alle Testressourcen sind bereinigt.
+Der unabhängige Review korrigierte zunächst numerische Konversionsmehrdeutigkeit,
+danach die fehlende Textlängenbindung. Die finalen Assertions wurden vor dem
+sechsten Lauf unabhängig ohne weitere Quellbefunde geprüft; seine neuen
+Laufmetriken anschließend deterministisch. Der Lauf qualifiziert die letzte
+Assertion repräsentativ auf Windows; keine abweichende Plattformlogik im Helfer.
 
-Der unabhängige Review fand zuvor die Mehrdeutigkeit der verwendeten
-numerischen TRY_CONVERT-Probes. Der letzte Windowslauf qualifiziert die
-Assertions vor der abschließenden Längenprüfung repräsentativ; keine abweichende Plattformlogik im
-Helfer. Linux2019/latest CL150 zweiter und Windows erster Defaultsversuch
-bestanden vorher20 Abweisungen mit den engeren numerischen Probes. Sie werden
-nicht nachträglich als Ausführung des finalen Bytesorakels dargestellt.
-Der erste Linuxlauf bestand Abweisungen/Restaurierung ohne wiederholten
-Defaultwertwitness und bleibt ein entsprechend engerer Teilnachweis.
-
-Wegen des erweiterten gemeinsamen Binding-Helfers bestand zusätzlich ein
-Linux2019/latest CL150 `binding-drift`-Regressionslauf local/central mit32
-Abweisungen, vor der letzten ausschließlich defaultspezifischen Probeänderung.
-Alle fünf Läufe: Exit0/vollständige Kanäle/leeres Stderr, je frischer unabhängiger
+Frühere Nachweise bleiben enger: Linux2019/latest CL150 zweiter und Windows
+erster Defaultsversuch mit konvertierenden numerischen Probes; erster Linuxlauf
+ohne wiederholten Wertwitness; zweiter Windowslauf vor der DATALENGTH-Korrektur.
+Alle bestanden20 Abweisungen in ihrem damaligen Umfang. Zusätzlich bestand eine
+Linux2019/latest CL150 `binding-drift`-Regression local/central mit32 Abweisungen
+vor den letzten ausschließlich defaultspezifischen Probekorrekturen.
+Alle sechs Läufe: Exit0/vollständige Kanäle/leeres Stderr; je frischer unabhängiger
 Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert.
 255 Offlinekontrollen einschließlich Wertdrift bei unverändertem synthetischem
 Snapshot, PowerShell-AST und SQL150-Grammatik aller52 expandierten Batches PASS.
 
 Keine neue Helferdatei, Workflow-, Job-, Filter-, Cancellation- oder
-Build-/Frameworkgrenze. Eine gezielte Legacyregression und eine begrenzte
-Abnahme der Reviewkorrektur; keine grüne Zielvollmatrix oder PASS-Logreviewkette.
+Build-/Frameworkgrenze. Gezielte Legacyregression und begrenzte Abnahme der
+Reviewkorrekturen; keine grüne Zielvollmatrix oder PASS-Logreviewkette.
 Token-/Kostenwirkung unbekannt. Produkt-, Deployment-, CLR-Quellen und gemeinsame
 Snapshot-/Abweisungshelper unverändert; kein neuer Defaultadapter-/API-/Client-/
 Minimalrechte-/Heap-/authentifizierter TLS-/Release- oder Driftvollmatrixnachweis.
