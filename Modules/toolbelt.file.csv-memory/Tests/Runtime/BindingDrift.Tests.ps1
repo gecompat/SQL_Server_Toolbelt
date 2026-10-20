@@ -1,6 +1,12 @@
 # Begrenzte CLR-Metadatendrift in der eigenen installierten Testdatenbank.
-function Get-CsvBindingDriftCases([ValidateSet('metadata','defaults',IgnoreCase=$false)][string]$Family='metadata'){
+function Get-CsvBindingDriftCases([ValidateSet('metadata','defaults','execution',IgnoreCase=$false)][string]$Family='metadata'){
  $measure='SVF_InternalMeasureCsvCell';$quote='SVF_InternalQuoteCsvCell';$parse='TVF_InternalParseCsv'
+ if($Family -ceq 'execution'){
+  foreach($row in @(@('measure-owner',$measure,'MeasureCell','FS'),@('quote-owner',$quote,'QuoteCell','FS'),@('parse-owner',$parse,'Parse','FT'))){
+   [pscustomobject]@{Id=$row[0];Name=$row[1];Method=$row[2];Kind=$row[3];Needle="`nAS EXTERNAL NAME";Replacement="`nWITH EXECUTE AS OWNER`nAS EXTERNAL NAME";State=5;Probe='EXISTS(SELECT 1 FROM sys.assembly_modules WHERE object_id=OBJECT_ID(@Object) AND execute_as_principal_id=-2)'}
+  }
+  return
+ }
  if($Family -ceq 'defaults'){
   foreach($row in @(
    @('measure-separator-default',$measure,'MeasureCell','FS','@Separator nvarchar(2)',"@Separator nvarchar(2)=N';'",2,"SQL_VARIANT_PROPERTY(default_value,N'BaseType')=N'nvarchar' AND DATALENGTH(default_value)=DATALENGTH(N';') AND CONVERT(varbinary(max),default_value)=CONVERT(varbinary(max),N';')"),
@@ -24,7 +30,7 @@ function Get-CsvBindingDriftCases([ValidateSet('metadata','defaults',IgnoreCase=
 }
 
 function Assert-CsvBindingDriftCase($Case){
- $known=@(@(Get-CsvBindingDriftCases;Get-CsvBindingDriftCases 'defaults')|Where-Object {$_.Id -ceq $Case.Id -and $_.Name -ceq $Case.Name -and $_.Method -ceq $Case.Method -and $_.Kind -ceq $Case.Kind -and $_.Needle -ceq $Case.Needle -and $_.Replacement -ceq $Case.Replacement -and $_.State -eq $Case.State -and $_.Probe -ceq $Case.Probe})
+ $known=@(@(Get-CsvBindingDriftCases;Get-CsvBindingDriftCases 'defaults';Get-CsvBindingDriftCases 'execution')|Where-Object {$_.Id -ceq $Case.Id -and $_.Name -ceq $Case.Name -and $_.Method -ceq $Case.Method -and $_.Kind -ceq $Case.Kind -and $_.Needle -ceq $Case.Needle -and $_.Replacement -ceq $Case.Replacement -and $_.State -eq $Case.State -and $_.Probe -ceq $Case.Probe})
  if($known.Count -ne 1){throw 'CSV_BINDING_CASE_INVALID'}
 }
 
@@ -77,8 +83,8 @@ function Assert-CsvBindingDriftWitness($Connection,$Case){
  if(-not (Test-CsvBindingDriftWitness $rows)){throw 'CSV_BINDING_MUTATION_WITNESS_MISSING'}
 }
 
-function Invoke-CsvBindingDriftGuards($Connection,[string]$Deploy,[string]$Uninstall,[string]$ModuleRoot,[ValidateSet('local','central')][string]$Mode,[ValidateSet('metadata','defaults',IgnoreCase=$false)][string]$Family='metadata'){
- $cases=@(Get-CsvBindingDriftCases $Family);$expected=if($Family -ceq 'defaults'){5}else{8}
+function Invoke-CsvBindingDriftGuards($Connection,[string]$Deploy,[string]$Uninstall,[string]$ModuleRoot,[ValidateSet('local','central')][string]$Mode,[ValidateSet('metadata','defaults','execution',IgnoreCase=$false)][string]$Family='metadata'){
+ $cases=@(Get-CsvBindingDriftCases $Family);$expected=switch -CaseSensitive ($Family){'defaults'{5};'execution'{3};'metadata'{8};default{throw 'CSV_BINDING_FAMILY_INVALID'}}
  if($cases.Count -ne $expected -or @($cases.Id|Sort-Object -Unique).Count -ne $expected){throw 'CSV_BINDING_CASE_SET_INVALID'}
  $passed=0
  foreach($case in $cases){
@@ -95,6 +101,7 @@ function Invoke-CsvBindingDriftGuards($Connection,[string]$Deploy,[string]$Unins
    Assert-CsvBindingDriftIdentity $Connection $case $identity
    Assert-CsvBindingDriftWitness $Connection $case
    foreach($text in @($Deploy,$Uninstall)){
+    Assert-CsvBindingDriftWitness $Connection $case
     Assert-CsvGuardRejected $Connection $text 55324 $case.State $mutated
     # Der gemeinsame Snapshot erfasst das Defaultflag, nicht den Defaultwert.
     # Auch Werte, die keinen Snapshotteil ändern, bleiben separat geschützt.

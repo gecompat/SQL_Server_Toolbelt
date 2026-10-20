@@ -4,6 +4,45 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## CLR-Ausführungskontexte 2026-10-20/21
+
+Der getrennte Scope `-TestScope binding-execution` bestand auf Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
+im ersten Versuch local/central. Jede der drei internen Funktionen wird einzeln
+mit `WITH EXECUTE AS OWNER` aus ihrer kanonischen Quelle verändert. Ein eigener
+Katalogwitness verlangt den dokumentierten Metadatenwert-2;
+[sys.assembly_modules](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-assembly-modules-transact-sql)
+unterscheidet diesen Kontext vom standardmäßigen Caller mit NULL.
+[CREATE FUNCTION](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql)
+beschreibt die CLR-Funktionsoption. Die Funktionen werden im geänderten Kontext
+nicht ausgeführt; dies qualifiziert keine Fachausführung unter OWNER.
+
+Deploy und Uninstall müssen SQL55324/state5 liefern: sechs Abweisungen je Modus,
+zwölf je Ziel. Der Witness wird unmittelbar vor/nach jeder Operation und vor
+Restaurierung geprüft. Gleiche Objekt-/Erstellungsidentität, passende CLR-Bindung,
+typisierte Ownership und unveränderter erfasster Mutationszustand bleiben
+Voraussetzung. Die kanonische ALTER-Definition restauriert exakt die Caller-Baseline.
+Keine Rechtevergabe oder Änderung von Objekt-/Schemaeigentümern.
+
+Die neue unmittelbare Vorabprüfung gilt auch für die bisherigen Bindingfamilien.
+Daher bestanden zusätzlich `binding-drift` auf Linux2019/latest CL150 mit32
+und `binding-defaults` auf Windows2025/base CL170 mit20 Abweisungen, jeweils
+local/central. Alle vier Läufe: Clean/Repeat, Uninstall/Repeat, Exit0/vollständige
+Kanäle/leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener
+Trusthash abwesend, Konfiguration und Runtimeinputs unverändert.
+384 Offlinekontrollen einschließlich Drift unmittelbar vor der zweiten
+Operation mit unterbundener Ausführung/Restaurierung PASS. SQL150-Grammatik
+aller64 expandierten ALTER-/Identitäts-/Witness-Batches der drei Familien,
+PowerShell-AST und Static PASS.
+
+Keine neue Helferdatei oder Workflow-/Job-/Filter-/Cancellation-/Buildgrenze.
+Zwei gezielte Legacyregressionen decken die geänderten Helferkonsumenten ab;
+keine grüne Vollmatrixwiederholung oder zusätzliche PASS-Logreviewkette.
+Token-/Kostenwirkung unbekannt. Produkt-/Deployment-/CLR-/Snapshotquellen
+unverändert; keine neue Default-/API-/Client-, Minimalrechte-, Heap-,
+authentifizierte TLS-, vollständige Driftmatrix- oder Releaseabnahme.
+Status bleibt `partially validated`, `unreleased`.
+
 ## Falsche Ownership-/Release-Markerwerte 2026-10-20
 
 Der getrennte Scope `-TestScope marker-values` bestand auf Linux2019/latest
@@ -624,8 +663,8 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-20`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope marker-values; ownership-markers-Regressionslauf`
-- Scope: Linux2019/latest CL150 und Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 jeweils im ersten marker-values-Versuch local/central PASS. 25 einzelne falsche Markerwerte:20 Objektmarker an fünf Slots, drei Assemblymarker und zwei Datenbankmarker; je Deploy/Uninstall SQL55324/state2/4/5,50 Abweisungen je Modus und100 je Ziel. Typisierte Werte mit exakter Bytelänge/Wertbytes vor Mutation und Restaurierung geprüft, erfasster Mutationszustand und neutrale Sitzung erhalten, exakte Baseline restauriert. Geschlossene Falldeskriptoren und ausschließlich inverse zulässige Übergänge; keine freien SQL-Wertausdrücke. Separate Linux-Regression bisheriger ownership-markers-Familie local/central40 Abweisungen PASS. Je erfolgreichem Lauf Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert. 367Offlinekontrollen,140SQL150-Änderungs-/Restaurierungsbatches beider Familien und AST/Static PASS. Produkt-/Deployment-/CLR-/gemeinsame Snapshothelper unverändert; keine neue Default-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
+- Datum: `2026-10-21`
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope binding-execution; binding-drift/defaults-Regressionen`
+- Scope: Ausführung am2026-10-20/21: Linux2019/latest CL150 und Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 jeweils erster binding-execution-Versuch local/central PASS. Drei interne CLR-Funktionen einzeln mit EXECUTE AS OWNER als Fixturemetadatum; konkreter execute_as_principal_id=-2-Witness, je Deploy/Uninstall SQL55324/state5, sechs Abweisungen pro Modus und zwölf je Ziel. Witness unmittelbar vor/nach jeder Operation und vor Restaurierung, gleiche Objekt-/Erstellungsidentität, typisierte Ownership und CLR-Bindung, erfasster Zustand erhalten und Caller-Baseline exakt restauriert. Funktionen im geänderten Kontext nicht ausgeführt. Separate Regressionen bisheriger Metadatenfamilie Linux32 und Defaultfamilie Windows20 Abweisungen local/central PASS. Alle vier Läufe Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit je zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert. 384Offlinekontrollen einschließlich Witnessdrift vor zweiter Operation,64SQL150-Batches aller drei Familien und AST/Static PASS. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen unverändert; keine Rechtevergabe oder Objektowneränderung, keine neue Default-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
