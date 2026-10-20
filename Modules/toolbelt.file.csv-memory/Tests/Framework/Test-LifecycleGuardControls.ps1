@@ -5,6 +5,7 @@ $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot '../Runtime/ForeignGuards.Tests.ps1')
 . (Join-Path $PSScriptRoot '../Runtime/MarkerAbsence.Tests.ps1')
 . (Join-Path $PSScriptRoot '../Runtime/ForeignKinds.Tests.ps1')
+. (Join-Path $PSScriptRoot '../Runtime/BindingDrift.Tests.ps1')
 $checks=0
 function Check([bool]$Condition){if(-not $Condition){throw 'CSV_GUARD_CONTROL_FAILED'};$script:checks++}
 # Nur den tatsächlichen Parameter-AST ausführen, niemals den Labadapterkörper.
@@ -15,8 +16,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','binding-drift')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','BINDING-DRIFT')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -110,6 +111,28 @@ foreach($mode in @('local','central')){
  Check ($cases.Count -eq 10)
  Check (@($cases|Where-Object {$_.Original -ceq $_.Mutated}).Count -eq 0)
 }
+$bindingCases=@(Get-CsvBindingDriftCases)
+$moduleRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+Check ($bindingCases.Count -eq 8 -and @($bindingCases.Id|Sort-Object -Unique).Count -eq 8)
+foreach($case in $bindingCases){
+ $source=[IO.File]::ReadAllText((Join-Path $moduleRoot ('Source/'+$case.Name+'.sql')))
+ $mutate=New-CsvBindingDriftSql $source $case
+ $restore=New-CsvBindingDriftSql $source $case -Restore
+ Check ($mutate -cne $restore -and $mutate.StartsWith('ALTER FUNCTION ') -and $restore.StartsWith('ALTER FUNCTION '))
+}
+foreach($field in @('Id','Name','Method','Kind','Needle','Replacement','State','Probe')){
+ $case=$bindingCases[0].PSObject.Copy();$case.$field=if($field -ceq 'State'){9}else{'invalid'}
+ $caught=$false;try{New-CsvBindingDriftSql 'synthetic' $case|Out-Null}catch{$caught=$_.Exception.Message -ceq 'CSV_BINDING_CASE_INVALID'};Check $caught
+}
+$case=$bindingCases[0]
+$source=[IO.File]::ReadAllText((Join-Path $moduleRoot ('Source/'+$case.Name+'.sql')))
+foreach($invalidSource in @($source.Replace($case.Needle,'invalid'),($source+$source),$source.Replace($case.Name,'Unknown'))){
+ $caught=$false;try{New-CsvBindingDriftSql $invalidSource $case|Out-Null}catch{$caught=$true};Check $caught
+}
+$witness=[pscustomobject]@{Witness=[int]1}
+Check (Test-CsvBindingDriftWitness @($witness))
+foreach($rows in @(@(),@($witness,$witness),@([pscustomobject]@{Other=1}),@([pscustomobject]@{Witness=1;Extra=1}),@([pscustomobject]@{Witness='1'}),@([pscustomobject]@{Witness=0}),@([pscustomobject]@{Witness=[DBNull]::Value}),@($null))){Check (-not (Test-CsvBindingDriftWitness $rows))}
+Check (-not (Test-CsvBindingDriftWitness $null))
 # Adapterfunktionen werden für sechs Fehlerwege durch synthetische Doubles ersetzt.
 function Get-CsvSnapshot($Connection){$script:snapshots++;if($script:scenario -eq 'metadata' -and $script:snapshots -gt 1){return 'changed'};return 'baseline'}
 function Get-CsvGuardErrorIdentities($Exception){if($script:scenario -eq 'wrong-error'){return [pscustomobject]@{Number=55324;State=4}};return [pscustomobject]@{Number=55324;State=5}}
@@ -193,4 +216,26 @@ function Assert-CsvForeignKindWitness($Connection,$Case){if($Case.Name -cne 'Csv
 $script:aliasSnapshots=0;$script:kindDrops=0;$caught=$false
 try{Invoke-CsvForeignKindGuards $null 'synthetic-deploy' 'synthetic-uninstall' 'local' -Family 'synonym-function'|Out-Null}catch{$caught=$_.Exception.Message -ceq 'SYNTHETIC_ALIAS_ORIGINAL'}
 Check ($caught -and $script:kindDrops -eq 0 -and $script:aliasSnapshots -eq 5)
+# Tatsächliche Restaurierungssteuerung mit synthetischen SQL-/Kataloggrenzen.
+# Fremde Snapshots und ausgetauschte Objektidentitäten erlauben kein ALTER.
+function Invoke-CsvSql($Connection,$Sql){$script:bindingSql++}
+function Get-CsvBindingDriftIdentity($Connection,$Case){
+ $script:bindingIdentities++
+ [pscustomobject]@{Id=$(if($script:scenario -ceq 'identity-drift' -and $script:bindingIdentities -gt 1){74}else{73});Created=('A'*18)}
+}
+function Assert-CsvBindingDriftWitness($Connection,$Case){}
+function Get-CsvSnapshot($Connection){
+ $script:snapshots++;$step=($script:snapshots-1)%4
+ if($script:scenario -ceq 'restore-drift' -and $step -eq 2){return 'foreign'}
+ if($script:scenario -ceq 'restore-mismatch' -and $step -eq 3){return 'different'}
+ if($script:scenario -ceq 'unobserved'){return 'baseline'}
+ if($step -in @(0,3)){return 'baseline'};return 'mutated'
+}
+foreach($scenario in @('pass','restore-drift','restore-mismatch','unobserved','identity-drift')){
+ $script:scenario=$scenario;$script:snapshots=0;$script:bindingSql=0;$script:bindingIdentities=0;$script:rejections=0;$caught=$false;$count=0
+ try{$count=Invoke-CsvBindingDriftGuards $null 'synthetic-deploy' 'synthetic-uninstall' $moduleRoot 'local'}catch{$caught=$true}
+ Check ($caught -eq ($scenario -cne 'pass'))
+ if($scenario -ceq 'pass'){Check ($count -eq 16 -and $script:bindingSql -eq 16 -and $script:rejections -eq 16)}
+ if($scenario -cin @('restore-drift','unobserved','identity-drift')){Check ($script:bindingSql -eq 1)}
+}
 Write-Output ('PASS CSV_GUARD_ORACLE_CONTROLS CHECKS='+$checks+' SYNTHETIC_ONLY')

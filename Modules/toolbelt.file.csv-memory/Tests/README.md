@@ -4,6 +4,43 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Gezielte interne CLR-Bindingdrift 2026-10-20
+
+Der getrennte Scope `-TestScope binding-drift` bestand auf Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
+local/central im ersten nativen Versuch. Acht einzelne Änderungen betreffen
+die drei bereits installierten internen CLR-Funktionen: zwei NULL-Aufrufoptionen,
+vier Parameter-/Resultattextlängen und je einen Parameter-/Resultatspaltennamen.
+Die geschlossene Fallliste erzeugt `ALTER FUNCTION` aus den kanonischen Quellen;
+die CLR-Assembly und die öffentlichen API-Verträge werden nicht geändert.
+
+Ein eigener Katalogwitness belegt jeweils die konkrete Änderung. Deploy und
+Uninstall müssen SQL55324/state5 für die NULL-Optionen beziehungsweise state7
+für die Signaturen liefern: 16 Abweisungen pro Modus, 32 je Ziel. Der gesamte
+erfasste Mutationszustand und der neutrale Sitzungszustand müssen erhalten
+bleiben. Restaurierung verlangt weiterhin dieselbe Objekt-ID/Erstellungsidentität,
+passende CLR-Bindung, typisierte Ownershipmarker und den unveränderten erfassten
+Mutationszustand. Die kanonische ALTER-Definition muss anschließend exakt die
+Baseline wiederherstellen. Bei unklarer Identität oder fremder Drift unterbleibt
+die Restaurierung; der äußere journalgebundene OwnDB-Cleanup bleibt zuständig.
+
+Je Lauf bestanden Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle
+und leeres Stderr. Frische unabhängige Audits bestätigen je zwei eigene DBs
+und einen eigenen Trusthash abwesend; Konfiguration und Runtimeinputs unverändert.
+235 synthetische Offlinekontrollen einschließlich ungültiger Falldeskriptoren,
+fehlender/mehrdeutiger Quellnaht, falscher Witnessform, unbeobachteter Mutation,
+Identitätsdrift und blockierter Restaurierung bestanden. PowerShell-AST und
+SQL150-Grammatik aller 32 expandierten ALTER-/Identitäts-/Witness-Batches PASS.
+
+Der neue funktionsreine Helper wird nur im gewählten nativen Scope importiert.
+Der bestehende CI-Schritt ergänzt seine AST und die Offlinekontrollen; Jobs,
+Filter, Cancellation und Build-/Frameworkgrenzen bleiben unverändert.
+Keine erneute grüne Zielvollmatrix oder zusätzliche PASS-Logreviewkette;
+Token-/Kostenwirkung unbekannt. Produkt-, Deployment-, CLR-Quellen und gemeinsame
+Snapshot-/Abweisungshelper unverändert. Kein neuer Default-/API-/Client-,
+Minimalrechte-, Heap-, authentifizierter TLS-, Release- oder vollständiger
+Binding-/Driftmatrixnachweis. Modulstatus bleibt `partially validated`, `unreleased`.
+
 ## Fremde Synonyme und SQL-Funktionen 2026-10-20
 
 Der getrennte Scope `-TestScope foreign-aliases` erweitert den bestehenden
@@ -456,7 +493,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-20`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope foreign-aliases; separater foreign-kinds-Regressionslauf`
-- Scope: Linux2019/latest CL150 im zweiten und Windows2025/base mit erlaubtem CU-Äquivalent CL170 im ersten Aliasversuch local/central PASS. Fünf reservierte Namen je als fremdes Synonym und SQL-Skalarfunktion, je Deploy/Uninstall SQL55324/state3: 40 Abweisungen pro Ziel, unveränderter erfasster Zustand und Ergebniswitness, Synonymziel bytegenau vollständig quotiert auf die eigene sameDB-Fixture begrenzt. Eigene Targettabelle und alle Fremdfixtures mit typisiertem Laufmarker, Objekt-ID, Erstellungsidentität und Zustandserhalt geprüft und entfernt; saubere Baseline, Redeploy und Uninstall/Repeat. Separater Linux-View-/Prozedur-Regressionslauf local/central mit 40 Abweisungen PASS. Je erfolgreichem Lauf Exit0, vollständige Kanäle, leeres Stderr, frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend; Konfiguration und Runtimeinputs unverändert. 194 Offlinekontrollen einschließlich Diagnoseerhalt bei Aliasabbruch sowie SQL150-Grammatik aller 173 expandierten Batches PASS. Keine Produkt-/Deployment-/CLR-/Snapshot-/Abweisungshelper-/Rechte-/Owner-/Infrastrukturänderung. Erster Fehllauf bleibt FAILED; kein zusätzlicher Default-/API-/Client-/Binding-/Minimalrechte-/Heap-/TLS-/Release- oder vollständiger Driftmatrixnachweis.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope binding-drift; Test-LifecycleGuardControls.ps1`
+- Scope: Linux2019/latest CL150 und Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 jeweils local/central im ersten nativen Versuch PASS. Acht einzelne Änderungen an den drei internen CLR-Funktionen: zwei NULL-Aufrufoptionen, vier Textlängen, ein Parametername und ein Resultatspaltenname. Je Deploy/Uninstall SQL55324/state5/7: 16 Abweisungen pro Modus, 32 je Ziel; konkreter Katalogwitness, unveränderter erfasster Mutationszustand und neutrale Sitzung, exakte Baseline nach kanonischem ALTER unter unveränderter Objektidentität. Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration und Runtimeinputs unverändert. 235 synthetische Offlinekontrollen, PowerShell-AST und SQL150-Grammatik aller 32 expandierten ALTER-/Identitäts-/Witness-Batches PASS. Produkt-/Deployment-/CLR-Quellen und gemeinsame Snapshot-/Abweisungshelper unverändert; keine Rechte-/Owner-/Infrastrukturänderung oder Statusaufwertung. Kein neuer Default-/API-/Client-/Minimalrechte-/Heap-/authentifizierter TLS-/Release- oder vollständiger Binding-/Driftmatrixnachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
