@@ -78,7 +78,7 @@ Rechte vergeben.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-20`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1; zusätzliche CL-Welle nach PR339`
-- Scope: Sechs zusätzliche Kombinationen Windows/Linux jeweils SQL2022 CL150 sowie SQL2025 CL150 und CL160 bestanden je im ersten nativen Versuch local/central mit aktuellem Quellen-/ResultTable-Abhängigkeitsstand: drei SQLfixtures, Client, Clean/Repeat, fünf Slots/drei Bindings, je 29 gezielte Lifecyclefälle, frischer SC-/UTF8-Consumer, Uninstall/Repeat; Exit0, vollständige Kanäle, leeres Stderr. Je frischer unabhängiger Audit drei eigene DBs/einen eigenen Trusthash abwesend und Inputpins unverändert. Zwei autorisierte temporäre SQL2022-CLR-Konfigurationen vollständig restauriert; keine Rechte-/Owner-/Infrastrukturänderungen. Paket, ursprüngliche Build-/Frameworknachweise und sechs Standard-CL-Läufe nach erneuter Inputprüfung wiederverwendet, nicht neu ausgeführt. Damit zwölf zulässige Plattform-/Engine-/CL-Kombinationen im begrenzten Gesamtadapter bestanden; Minimalrechte, Driftvollmatrix, weitere Collations, Heap, authentifiziertes TLS und Release bleiben offen.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope ownership-markers; Test-LifecycleGuardControls.ps1`
+- Scope: Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 local/central PASS: zehn synthetische Markeränderungen je Modus, je Deploy-/Uninstallabweisung SQL55324/state2/4/5, 40 Abweisungen mit unverändertem erfasstem Metadatenzustand und exakter Restaurierung. Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr und frischer Audit zwei eigene DBs/ein eigener Trusthash abwesend. 23 synthetische Offline-Fail-closed-Kontrollen PASS. Keine Produkt-/Konfigurations-/Rechte-/Owner-/Infrastrukturänderung; kein neuer API-/Client-/CrossDB-, Linux-Guard-, Minimalrechte-, Driftvollmatrix-, Heap-, TLS- oder Release-PASS.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
