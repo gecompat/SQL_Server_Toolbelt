@@ -3,11 +3,11 @@ function Get-CsvBindingDriftCases([ValidateSet('metadata','defaults',IgnoreCase=
  $measure='SVF_InternalMeasureCsvCell';$quote='SVF_InternalQuoteCsvCell';$parse='TVF_InternalParseCsv'
  if($Family -ceq 'defaults'){
   foreach($row in @(
-   @('measure-separator-default',$measure,'MeasureCell','FS','@Separator nvarchar(2)',"@Separator nvarchar(2)=N';'",2,"CONVERT(varbinary(max),default_value)=CONVERT(varbinary(max),N';')"),
-   @('measure-header-default',$measure,'MeasureCell','FS','@IsHeader bit','@IsHeader bit=0',4,'TRY_CONVERT(bit,default_value)=0'),
+   @('measure-separator-default',$measure,'MeasureCell','FS','@Separator nvarchar(2)',"@Separator nvarchar(2)=N';'",2,"SQL_VARIANT_PROPERTY(default_value,N'BaseType')=N'nvarchar' AND CONVERT(varbinary(max),default_value)=CONVERT(varbinary(max),N';')"),
+   @('measure-header-default',$measure,'MeasureCell','FS','@IsHeader bit','@IsHeader bit=0',4,"SQL_VARIANT_PROPERTY(default_value,N'BaseType')=N'bit' AND CONVERT(varbinary(max),default_value)=CONVERT(varbinary(max),CONVERT(bit,0))"),
    @('quote-null-token-default',$quote,'QuoteCell','FS','@NullToken nvarchar(128)','@NullToken nvarchar(128)=NULL',3,'default_value IS NULL'),
-   @('quote-limit-default',$quote,'QuoteCell','FS','@MaxOutputBytes bigint','@MaxOutputBytes bigint=1024',5,'TRY_CONVERT(bigint,default_value)=1024'),
-   @('parse-rows-default',$parse,'Parse','FT','@MaxRows bigint','@MaxRows bigint=10',5,'TRY_CONVERT(bigint,default_value)=10')
+   @('quote-limit-default',$quote,'QuoteCell','FS','@MaxOutputBytes bigint','@MaxOutputBytes bigint=1024',5,"SQL_VARIANT_PROPERTY(default_value,N'BaseType')=N'bigint' AND CONVERT(varbinary(max),default_value)=CONVERT(varbinary(max),CONVERT(bigint,1024))"),
+   @('parse-rows-default',$parse,'Parse','FT','@MaxRows bigint','@MaxRows bigint=10',5,"SQL_VARIANT_PROPERTY(default_value,N'BaseType')=N'bigint' AND CONVERT(varbinary(max),default_value)=CONVERT(varbinary(max),CONVERT(bigint,10))")
   )){[pscustomobject]@{Id=$row[0];Name=$row[1];Method=$row[2];Kind=$row[3];Needle=$row[4];Replacement=$row[5];State=7;Probe=('EXISTS(SELECT 1 FROM sys.parameters WHERE object_id=OBJECT_ID(@Object) AND parameter_id='+$row[6]+' AND has_default_value=1 AND '+$row[7]+')')}}
   return
  }
