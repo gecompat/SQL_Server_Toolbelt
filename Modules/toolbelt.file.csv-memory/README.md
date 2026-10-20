@@ -56,8 +56,8 @@ den ausdrücklich dokumentierten Toolbelt-Dialekt.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-05`
-- Nachweis: `local: hashgebundener Typed-Marker-Teiladapter aus Tests/CI/run-csv-memory-lab.ps1`
-- Scope: Zwei separate synthetische Markerfälle auf Linux2019/latest CL150 lokal: Deploy/Uninstall weisen Toolbelt.Managed als int statt bit auf USP_ParseCsv mit SQL55324/state5 ab; vollständige Metadaten unverändert, neutraler Transaktionszustand und exakte eigene Restaurierung bestanden. Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit bestätigt eine eigene DB/einen eigenen Trusthash abwesend, keine Konfigurations-/Rechteänderungen. Kein neuer Gesamtadapter-, API-, Client-, Central-, Windows-, Minimalrechte-, Heap- oder vollständiger Fremdslot-/Driftmatrix-Nachweis; nicht zum bisherigen 29-Fall-Zähler addiert.
+- Datum: `2026-10-20`
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1`
+- Scope: Vier zusätzliche physische Labzielkombinationen bestanden jeweils im ersten nativen Versuch mit demselben reproduzierbar gebauten Releasepaket: Windows2019/base CL150 und Windows2022/base CL160 mit erlaubten bereiten CU-Äquivalenten sowie Linux2022/latest CL160 und Linux2025/latest CL170. Je local/central, drei SQLfixtures, Clientmetadaten, Clean/Repeat, fünf Slots/drei Bindings, 29 gezielte Caller-/SET-/Lock-/Rollback-/Confirm0-Fälle, frischer SC-/UTF8-Consumer und Uninstall/Repeat; Exit0, vollständige Kanäle, leeres Stderr. Je frischer unabhängiger Audit drei eigene DBs/einen eigenen Trusthash abwesend und Inputpins unverändert. Autorisierte temporäre CLR-Testkonfiguration auf drei Zielen einschließlich zuvor vorgemerktem Scope privat erfasst und vollständig in den Ausgangszustand restauriert; keine Rechte-/Infrastrukturänderungen. Historische Nachweise bleiben datiert; zusätzliche CLs, Minimalrechte, Fremdslot-/Driftvollmatrix, Heap, authentifiziertes TLS und Release bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
