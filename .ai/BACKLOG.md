@@ -2043,6 +2043,22 @@ Produkt-/Deployment-/CLR-/Rechte-/Owner-/Infrastrukturänderung oder
 Statusaufwertung; weitere Fremdarten, Synonyme, Verbraucher-/Binding-/
 Driftvollmatrix, Minimalrechte, Heap, authentifiziertes TLS und Release offen.
 
+Nach PR344, 2026-10-20: Der getrennte Alias-Guardscope bestand auf
+Linux2019/latest CL150 im zweiten und Windows2025/base CL170 mit erlaubtem
+CU-Äquivalent im ersten Versuch jeweils local/central. Fünf reservierte Namen
+je als fremdes Synonym und SQL-Skalarfunktion, je Deploy/Uninstall SQL55324/state3,
+40 Abweisungen pro Ziel; bytegenau vollständig quotiertes Synonymziel auf eigene
+sameDB-Fixture, erfasster Zustand und Ergebniswerte unverändert. Separater
+Linux-View-/Prozedur-Regressionslauf mit 40 Abweisungen bestanden. Je erfolgreichem
+Lauf Exit0, vollständige Kanäle, leeres Stderr, frischer unabhängiger Audit zwei
+eigene DBs/ein eigener Trusthash abwesend; Konfiguration und Runtimeinputs
+unverändert. Erster Linuxversuch bleibt FAILED am zusätzlichen Target-Cleanup,
+frisch bereinigt; falsches unquotiertes Sollformat und Diagnoseüberdeckung
+korrigiert. 194 Offlinekontrollen und SQL150-Grammatik aller 173 expandierten
+Fixture-Batches bestanden. Keine Produkt-/Deployment-/CLR-/Rechte-/Owner-/
+Infrastrukturänderung oder Statusaufwertung. Die anschließend beauftragte
+getrennte Folgewelle betrifft gezielte interne CLR-Bindingdrift; noch not executed.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte

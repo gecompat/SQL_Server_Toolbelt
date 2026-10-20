@@ -1,14 +1,30 @@
 # Zusätzliche Fremdobjektarten ausschließlich in eigenen synthetischen DBs.
-function Get-CsvForeignKindCases {
+function Get-CsvForeignKindCases([ValidateSet('view-procedure','synonym-function',IgnoreCase=$false)][string]$Family='view-procedure'){
  foreach($name in @(Get-CsvForeignSlotNames)){
+  if($Family -ceq 'synonym-function'){
+   [pscustomobject]@{Name=$name;Type='SYNONYM';Kind='SN';Sql="CREATE SYNONYM toolbelt_file.[$name] FOR toolbelt_file.CsvGuardAliasTarget;";Read="SELECT Marker,Payload FROM toolbelt_file.[$name];"}
+   [pscustomobject]@{Name=$name;Type='FUNCTION';Kind='FN';Sql="CREATE FUNCTION toolbelt_file.[$name](@Delta int) RETURNS int AS BEGIN RETURN 73+@Delta; END;";Read="SELECT toolbelt_file.[$name](0) Marker,CONVERT(nvarchar(32),N'guard ') Payload;"}
+   continue
+  }
   [pscustomobject]@{Name=$name;Type='VIEW';Kind='V';Sql="CREATE VIEW toolbelt_file.[$name] AS SELECT CONVERT(int,73) Marker,CONVERT(nvarchar(32),N'guard ') Payload;";Read="SELECT Marker,Payload FROM toolbelt_file.[$name];"}
   [pscustomobject]@{Name=$name;Type='PROCEDURE';Kind='P';Sql="CREATE PROCEDURE toolbelt_file.[$name] AS SELECT CONVERT(int,73) Marker,CONVERT(nvarchar(32),N'guard ') Payload;";Read="EXEC toolbelt_file.[$name];"}
  }
 }
 
+function Get-CsvAliasTargetCase {
+ [pscustomobject]@{Name='CsvGuardAliasTarget';Type='TABLE';Kind='U';Sql="CREATE TABLE toolbelt_file.CsvGuardAliasTarget(Marker int NOT NULL,Payload nvarchar(32) NOT NULL);INSERT toolbelt_file.CsvGuardAliasTarget VALUES(73,N'guard ');";Read='SELECT Marker,Payload FROM toolbelt_file.CsvGuardAliasTarget;'}
+}
+
 function Assert-CsvForeignKindCase($Case){
- $known=@(Get-CsvForeignKindCases)
+ $known=@(Get-CsvForeignKindCases;Get-CsvForeignKindCases 'synonym-function';Get-CsvAliasTargetCase)
  if(@($known|Where-Object {$_.Name -ceq $Case.Name -and $_.Type -ceq $Case.Type -and $_.Kind -ceq $Case.Kind -and $_.Sql -ceq $Case.Sql -and $_.Read -ceq $Case.Read}).Count -ne 1){throw 'CSV_FOREIGN_KIND_CASE_INVALID'}
+}
+
+function Test-CsvAliasTarget([object[]]$Rows){
+ if($null -eq $Rows -or $Rows.Count -ne 1 -or $null -eq $Rows[0]){return $false}
+ $columns=@($Rows[0].PSObject.Properties.Name)
+ return $columns.Count -eq 1 -and $columns[0] -ceq 'TargetBytes' -and $Rows[0].TargetBytes -is [byte[]] -and
+  [Convert]::ToHexString($Rows[0].TargetBytes) -ceq [Convert]::ToHexString([Text.Encoding]::Unicode.GetBytes('[toolbelt_file].[CsvGuardAliasTarget]'))
 }
 
 function Test-CsvForeignKindResult([object[]]$Rows){
@@ -61,17 +77,32 @@ DROP $($Case.Type) toolbelt_file.[$($Case.Name)];
 
 function Assert-CsvForeignKindWitness($Connection,$Case){
  [void](Get-CsvForeignKindIdentity $Connection $Case)
+ if($Case.Kind -ceq 'SN'){
+  $target=@(Invoke-CsvSql $Connection 'SELECT CONVERT(varbinary(max),base_object_name) TargetBytes FROM sys.synonyms WHERE object_id=OBJECT_ID(@Object);' @{'@Object'=('toolbelt_file.'+$Case.Name)} -Rows)
+  if(-not (Test-CsvAliasTarget $target)){throw 'CSV_ALIAS_TARGET_CHANGED'}
+ }
  if(-not (Test-CsvForeignKindResult @(Invoke-CsvSql $Connection $Case.Read -Rows))){throw 'CSV_FOREIGN_KIND_RESULT_CHANGED'}
 }
 
-function Invoke-CsvForeignKindGuards($Connection,[string]$Deploy,[string]$Uninstall,[ValidateSet('local','central')][string]$Mode){
- $cases=@(Get-CsvForeignKindCases)
+function Invoke-CsvForeignKindGuards($Connection,[string]$Deploy,[string]$Uninstall,[ValidateSet('local','central')][string]$Mode,[ValidateSet('view-procedure','synonym-function',IgnoreCase=$false)][string]$Family='view-procedure'){
+ $cases=@(Get-CsvForeignKindCases $Family)
  if($cases.Count -ne 10 -or @($cases|ForEach-Object {$_.Name+'|'+$_.Type}|Sort-Object -Unique).Count -ne 10){throw 'CSV_FOREIGN_KIND_CASE_SET_INVALID'}
  Invoke-CsvBatches $Connection $Uninstall
+ $targetCase=$null;$targetIdentity=$null;$outer=$null
+ if($Family -ceq 'synonym-function'){
+  $outer=Get-CsvSnapshot $Connection
+  $targetCase=Get-CsvAliasTargetCase
+  Invoke-CsvSql $Connection $targetCase.Sql
+  $targetIdentity=Add-CsvForeignKindOwner $Connection $targetCase
+ }
  $clean=Get-CsvSnapshot $Connection;$passed=0
+ if($null -ne $targetCase -and $clean -ceq $outer){throw 'CSV_ALIAS_TARGET_MUTATION_UNOBSERVED'}
+ $fixturesComplete=$false
+ try{
  foreach($case in $cases){
   $script:stage='FOREIGN_KIND_'+$Mode+'_'+$passed
   Assert-CsvForeignKindCase $case
+  if($null -ne $targetCase){Assert-CsvForeignKindWitness $Connection $targetCase}
   if((Get-CsvSnapshot $Connection) -cne $clean){throw 'CSV_FOREIGN_KIND_BASELINE_CHANGED'}
   Invoke-CsvSql $Connection $case.Sql
   $identity=Add-CsvForeignKindOwner $Connection $case
@@ -89,6 +120,18 @@ function Invoke-CsvForeignKindGuards($Connection,[string]$Deploy,[string]$Uninst
    Assert-CsvForeignKindWitness $Connection $case
    Remove-CsvForeignKind $Connection $case $identity
    if((Get-CsvSnapshot $Connection) -cne $clean){throw 'CSV_FOREIGN_KIND_RESTORE_MISMATCH'}
+  }
+ }
+ $fixturesComplete=$true
+ }finally{
+  # Bei Fixturefehlern übernimmt der äußere journalgebundene OwnDB-Cleanup.
+  # Keine weitere Targetaktion darf die ursprüngliche Diagnose verdecken.
+  if($null -ne $targetIdentity -and $fixturesComplete){
+   $script:stage='FOREIGN_ALIAS_TARGET_DROP_'+$Mode
+   if((Get-CsvSnapshot $Connection) -cne $clean){throw 'CSV_ALIAS_TARGET_DROP_DRIFT'}
+   Assert-CsvForeignKindWitness $Connection $targetCase
+   Remove-CsvForeignKind $Connection $targetCase $targetIdentity
+   if((Get-CsvSnapshot $Connection) -cne $outer){throw 'CSV_ALIAS_TARGET_RESTORE_MISMATCH'}
   }
  }
  Invoke-CsvBatches $Connection $Deploy

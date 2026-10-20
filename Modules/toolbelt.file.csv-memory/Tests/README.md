@@ -4,6 +4,48 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Fremde Synonyme und SQL-Funktionen 2026-10-20
+
+Der getrennte Scope `-TestScope foreign-aliases` erweitert den bestehenden
+Fremdarten-Helfer um eine geschlossene zweite Fallfamilie. Jeder der fünf
+reservierten CSV-Namen wird einzeln als Synonym und SQL-Skalarfunktion belegt.
+Die Synonyme zeigen ausschließlich auf eine eigene synthetische Tabelle in
+derselben Testdatenbank. Deploy und Uninstall müssen SQL55324/state3 liefern:
+20 Abweisungen je Modus, 40 je Ziel. Neben erfassten Definitionen, Parametern,
+Spalten und Ergebniswerten wird das Synonymziel bytegenau geprüft.
+[`sys.synonyms.base_object_name`](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-synonyms-transact-sql)
+liefert einen vollständig quotierten Namen; der Sollwert enthält deshalb die
+Klammerung. Falsches Ziel, Padding, unquotierte Darstellung, falscher Datentyp
+und leere/mehrdeutige Witnesses bestehen die Offlinekontrollen nicht.
+
+Linux2019/latest CL150 bestand im zweiten, Windows2025/base CL170 mit erlaubtem
+bereitem CU-Äquivalent im ersten Aliasversuch jeweils local/central. Der erste
+Linuxversuch bleibt FAILED: Der Target-Cleanup verdeckte einen Fixturefehler,
+und der neue Sollwert erwartete fälschlich einen unquotierten Zielnamen.
+Nach einem Fixtureabbruch übernimmt jetzt der äußere journalgebundene OwnDB-
+Cleanup; eine nachfolgende Targetaktion darf die ursprüngliche Diagnose nicht
+überdecken. Die streng geprüfte Targetentfernung im erfolgreichen Pfad bleibt
+erhalten. Der Fehllauf ist frisch bereinigt: eine eigene DB/ein eigener Trusthash
+abwesend, Konfiguration und Inputs unverändert.
+
+Wegen der Änderung am bestehenden Helfer bestand zusätzlich ein separater
+Linux2019/latest CL150 View-/Prozedur-Regressionslauf local/central mit 40
+Abweisungen. Jeder erfolgreiche Lauf bestand Clean/Repeat, eigene typisierte
+Fixtureentfernung mit Objekt-ID/Erstellungsidentität und Zustandserhalt, saubere
+Baseline, Redeploy und Uninstall/Repeat; Exit0, vollständige Kanäle und leeres
+Stderr. Je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash
+abwesend, Konfiguration und Runtimeinputs unverändert.
+
+194 Offlinekontrollen einschließlich Diagnoseerhalt bei Aliasabbruch und die
+SQL150-Grammatik aller 173 expandierten Fixture-Batches bestanden. Die letzte
+Diagnosekontrolle wurde nach dem Windowslauf ergänzt; sie verändert keine
+native Runtimequelle und wird vom Labadapter nicht ausgeführt. Keine zusätzliche
+Helferdatei, Workflow-/Job-/Filter-/Cancellationänderung oder erneute Zielvollmatrix;
+ein gezielter Legacy-Regressionslauf deckt den geänderten Helferkonsumenten ab.
+Produkt, Deployment, CLR und gemeinsame Snapshot-/Abweisungshelper unverändert.
+Token-/Kostenwirkung unbekannt. Keine neue Default-/API-/Client-/Binding-/
+Minimalrechte-/Heap-/authentifizierte TLS-/Release- oder vollständige Driftmatrixabnahme.
+
 ## Fremde Views und Prozeduren 2026-10-20
 
 Der getrennte Scope `-TestScope foreign-kinds` bestand auf Linux2019/latest

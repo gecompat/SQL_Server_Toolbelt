@@ -15,8 +15,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -31,6 +31,25 @@ $caught=$false;try{& $validateModes -DeploymentModes @('local','central','local'
 $caught=$false;try{& $validateModes -DeploymentModes @('unknown')|Out-Null}catch{$caught=$true};Check $caught
 $slots=@(Get-CsvForeignSlotNames)
 $kindCases=@(Get-CsvForeignKindCases)
+$aliasCases=@(Get-CsvForeignKindCases 'synonym-function')
+Check ($aliasCases.Count -eq 10)
+Check (@($aliasCases|ForEach-Object {$_.Name+'|'+$_.Type}|Sort-Object -Unique).Count -eq 10)
+foreach($case in @($aliasCases)+@((Get-CsvAliasTargetCase))){$caught=$false;try{Assert-CsvForeignKindCase $case}catch{$caught=$true};Check (-not $caught)}
+$caught=$false;try{Get-CsvForeignKindCases 'SYNONYM-FUNCTION'|Out-Null}catch{$caught=$true};Check $caught
+foreach($field in @('Name','Type','Kind','Sql','Read')){
+ $case=$aliasCases[0].PSObject.Copy();$case.$field='invalid'
+ $caught=$false;try{Assert-CsvForeignKindCase $case}catch{$caught=$true};Check $caught
+}
+$targetBytes=[Text.Encoding]::Unicode.GetBytes('[toolbelt_file].[CsvGuardAliasTarget]')
+Check (Test-CsvAliasTarget @([pscustomobject]@{TargetBytes=$targetBytes}))
+Check (-not (Test-CsvAliasTarget @()))
+Check (-not (Test-CsvAliasTarget @([pscustomobject]@{TargetBytes=$targetBytes},[pscustomobject]@{TargetBytes=$targetBytes})))
+Check (-not (Test-CsvAliasTarget @([pscustomobject]@{TargetBytes=[Text.Encoding]::Unicode.GetBytes('toolbelt_file.Other')})))
+Check (-not (Test-CsvAliasTarget @([pscustomobject]@{TargetBytes=[Text.Encoding]::Unicode.GetBytes('toolbelt_file.CsvGuardAliasTarget')})))
+Check (-not (Test-CsvAliasTarget @([pscustomobject]@{TargetBytes=[Text.Encoding]::Unicode.GetBytes('toolbelt_file.CsvGuardAliasTarget ')})))
+Check (-not (Test-CsvAliasTarget @([pscustomobject]@{TargetBytes=[Convert]::ToHexString($targetBytes)})))
+Check (-not (Test-CsvAliasTarget @([pscustomobject]@{TargetBytes=[DBNull]::Value})))
+Check (-not (Test-CsvAliasTarget @([pscustomobject]@{TargetBytes=$targetBytes;Extra=1})))
 Check ($kindCases.Count -eq 10)
 Check (@($kindCases|ForEach-Object {$_.Name+'|'+$_.Type}|Sort-Object -Unique).Count -eq 10)
 foreach($case in $kindCases){$caught=$false;try{Assert-CsvForeignKindCase $case}catch{$caught=$true};Check (-not $caught)}
@@ -164,4 +183,14 @@ foreach($scenario in @('pass','drop-drift','restore-mismatch','unobserved','witn
  if($scenario -ceq 'pass'){Check ($count -eq 20 -and $script:kindDrops -eq 10 -and $script:rejections -eq 20)}
  if($scenario -cin @('drop-drift','witness-drift')){Check ($script:kindDrops -eq 0)}
 }
+# Ein gescheiterter Alias-Witness muss seine Diagnose bis zum OwnDB-Cleanup
+# behalten; ein weiterer Target-Cleanup würde hier gezielt anders scheitern.
+function Get-CsvSnapshot($Connection){
+ $script:aliasSnapshots++
+ switch($script:aliasSnapshots){1{'outer'};2{'clean-target'};3{'clean-target'};4{'fixture'};5{'fixture'};default{throw 'SYNTHETIC_ALIAS_MASKED'}}
+}
+function Assert-CsvForeignKindWitness($Connection,$Case){if($Case.Name -cne 'CsvGuardAliasTarget'){throw 'SYNTHETIC_ALIAS_ORIGINAL'}}
+$script:aliasSnapshots=0;$script:kindDrops=0;$caught=$false
+try{Invoke-CsvForeignKindGuards $null 'synthetic-deploy' 'synthetic-uninstall' 'local' -Family 'synonym-function'|Out-Null}catch{$caught=$_.Exception.Message -ceq 'SYNTHETIC_ALIAS_ORIGINAL'}
+Check ($caught -and $script:kindDrops -eq 0 -and $script:aliasSnapshots -eq 5)
 Write-Output ('PASS CSV_GUARD_ORACLE_CONTROLS CHECKS='+$checks+' SYNTHETIC_ONLY')
