@@ -18,8 +18,18 @@ eigenen DBs/einem eigenen Trusthash abwesend. Drei autorisierte temporäre
 CLR-Konfigurationen vollständig restauriert, keine Rechte-/Infrastrukturänderung.
 Ein neues gemeinsames reproduzierbar gebautes Releasepaket bestand vorher
 Framework/IL/NoIO in drei Kulturen; keine hostübergreifende Buildzusage.
-Die älteren beiden Ziele wurden nicht erneut ausgeführt; ihre damaligen
-Abhängigkeiten sind keine aktuelle Gesamtmatrixbindung. Zusätzliche CLs,
+In dieser Vierzielwelle wurden die älteren beiden Ziele nicht erneut ausgeführt.
+Die nachfolgende getrennte Standard-CL-Ergänzung vom 2026-10-20 bestand auf
+Linux2019/latest CL150 und Windows2025/base CL170 (erlaubtes bereites
+CU-Äquivalent) jeweils local/central im ersten nativen Versuch mit aktuellen
+ResultTable-Abhängigkeiten und demselben unveränderten Paket. Je identischer
+SQL-/Client-/29-Lifecycle-/Consumer-/Uninstall-Scope, Exit0, vollständige Kanäle,
+leeres Stderr und frischer unabhängiger Audit drei eigene DBs/ein eigener
+Trusthash abwesend. Keine Konfigurations-/Rechte-/Infrastrukturänderungen.
+Vorherige Build-/Frameworknachweise wurden nach Inputbindung wiederverwendet,
+nicht erneut ausgeführt. Damit ist der begrenzte Standard-CL-Adapter auf allen
+sechs physischen Kombinationen am aktuellen Quellen-/Abhängigkeitsstand bestanden.
+Zusätzliche CLs,
 Minimalrechte, Vollmatrixdrift, Heap, authentifiziertes TLS und Release bleiben offen.
 
 | Scope | Pflichtfälle | Status |
@@ -34,10 +44,10 @@ Minimalrechte, Vollmatrixdrift, Heap, authentifiziertes TLS und Release bleiben 
 | Gezielter Lifecycle | Caller/SET, AppLock, injected Rollback, Confirm0, Uninstall/Repeat | passed; 29 konkrete Caller-/Lock-/Rollback-/Confirm0-Prüfungen, kein Fremdslot-/Driftvollmatrix-Nachweis |
 | Typed-Marker-Teilnachweis | synthetisches int statt bit auf USP_ParseCsv, Deploy/Uninstall SQL55324/state5, unveränderte Metadaten und exakte Restaurierung | passed; zwei separate Fälle Linux2019/latest CL150 lokal, frischer unabhängiger Audit eine eigene DB/ein eigener Trusthash abwesend; kein Gesamtadapter-/Windows-/Central-Nachweis |
 | Fremdslots/Markerdrift | weitergehende Lifecycle-Kollisions-/Driftmatrix | not executed; der separate Zweifall-Nachweis ersetzt die Vollmatrix nicht |
-| Client | echte SqlDataReader-Spalten/Nullability/Resultsetanzahl, keine Help-Seiteneffekte | passed im achten historischen Lauf und in vier ergänzenden Läufen vom 2026-10-20; historischer fünfter Metadata-Fehllauf bleibt FAILED |
+| Client | echte SqlDataReader-Spalten/Nullability/Resultsetanzahl, keine Help-Seiteneffekte | passed im achten historischen Lauf und in sechs ergänzenden Standard-CL-Läufen vom 2026-10-20; historischer fünfter Metadata-Fehllauf bleibt FAILED |
 | Modi | local, central, CrossDB mit caller-lokalen Temps und abweichender Collation | passed local/central und frischer SC-/UTF8-Consumer; keine Collationvollmatrix |
-| Plattform | SQL2019/2022/2025 Windows/Linux und relevante CL getrennt | 2026-10-05: Linux2019/latest CL150, Windows2025/exaktCU8 CL170. 2026-10-20: Windows2019/base CL150, Windows2022/base CL160 (erlaubte CU-Äquivalente), Linux2022/latest CL160, Linux2025/latest CL170. Zusätzliche CLs not executed; keine gemeinsame aktuelle Vollmatrixbindung |
-| Gesamtadapter/Cleanup | Prozessausgang, vollständige Kanäle, frischer unabhängiger OwnDB-/Trustaudit | historische Läufe und vier ergänzende Läufe vom 2026-10-20 PASS mit Exit0/vollständigen Kanälen/leeren Stderr; je drei OwnDB/ein OwnTrust abwesend. 2026-10-20: drei temporäre CLR-Konfigurationen vollständig restauriert; keine Rechte-/Infrastrukturänderungen |
+| Plattform | SQL2019/2022/2025 Windows/Linux und relevante CL getrennt | 2026-10-20: Windows/base mit erlaubten CU-Äquivalenten und Linux/latest jeweils SQL2019 CL150, SQL2022 CL160, SQL2025 CL170 bestanden. Zusätzliche CLs not executed; keine vollständige Supportqualifikation |
+| Gesamtadapter/Cleanup | Prozessausgang, vollständige Kanäle, frischer unabhängiger OwnDB-/Trustaudit | sechs ergänzende Standard-CL-Läufe vom 2026-10-20 PASS mit Exit0/vollständigen Kanälen/leeren Stderr; je drei OwnDB/ein OwnTrust abwesend. Vierzielwelle: drei temporäre CLR-Konfigurationen restauriert; folgende zwei Läufe: keine Konfigurationsänderung. Keine Rechte-/Infrastrukturänderungen |
 | Head-CI | separater Nachweis am exakten PR-Head | passed historisch für [PR169](https://github.com/gecompat/SQL_Server_Toolbelt/pull/169), Head89f36f848ab68a1a72898ddd5f081fc47740f119, fünf erfolgreiche Checks; kein CSV-SQL2022-Runtime-Nachweis; neue Heads separat prüfen |
 | Rechte | vorhandene Minimalrechte, eingeschränkte Metadata-Visibility | not executed |
 | Kapazität | vollständige Ceiling-/Heap-/Performancequalifikation | not executed |
@@ -57,7 +67,7 @@ Rechte vergeben.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-20`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1`
-- Scope: Vier zusätzliche physische Labzielkombinationen bestanden jeweils im ersten nativen Versuch mit demselben reproduzierbar gebauten Releasepaket: Windows2019/base CL150 und Windows2022/base CL160 mit erlaubten bereiten CU-Äquivalenten sowie Linux2022/latest CL160 und Linux2025/latest CL170. Je local/central, drei SQLfixtures, Clientmetadaten, Clean/Repeat, fünf Slots/drei Bindings, 29 gezielte Caller-/SET-/Lock-/Rollback-/Confirm0-Fälle, frischer SC-/UTF8-Consumer und Uninstall/Repeat; Exit0, vollständige Kanäle, leeres Stderr. Je frischer unabhängiger Audit drei eigene DBs/einen eigenen Trusthash abwesend und Inputpins unverändert. Autorisierte temporäre CLR-Testkonfiguration auf drei Zielen einschließlich zuvor vorgemerktem Scope privat erfasst und vollständig in den Ausgangszustand restauriert; keine Rechte-/Infrastrukturänderungen. Historische Nachweise bleiben datiert; zusätzliche CLs, Minimalrechte, Fremdslot-/Driftvollmatrix, Heap, authentifiziertes TLS und Release bleiben offen.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1; Standard-CL-Ergänzung nach PR338`
+- Scope: Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent bestanden mit aktuellen ResultTable-Abhängigkeiten jeweils local/central im ersten nativen Versuch: drei SQLfixtures, Client, Clean/Repeat, fünf Slots/drei Bindings, je 29 gezielte Lifecyclefälle, frischer SC-/UTF8-Consumer, Uninstall/Repeat; Exit0, vollständige Kanäle, leeres Stderr. Je frischer unabhängiger Audit drei eigene DBs/einen eigenen Trusthash abwesend und Inputpins unverändert. Keine Konfigurations-/Rechte-/Owner-/Infrastrukturänderungen. Unverändertes Paket und ursprüngliche Build-/Frameworknachweise vom selben Tag nach Prüfung aller relevanten Inputbindungen wiederverwendet, nicht neu ausgeführt. Zusammen mit PR338 begrenzter Standard-CL-Adapter auf allen sechs physischen Kombinationen am aktuellen Quellen-/Abhängigkeitsstand bestanden; zusätzliche CLs, Minimalrechte, Driftvollmatrix, Heap, authentifiziertes TLS und Release bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

@@ -4,7 +4,33 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
-## Ergänzende native Zielwelle 2026-10-20
+## Aktuelle Standard-CL-Bindung 2026-10-20
+
+Nach [PR338](https://github.com/gecompat/SQL_Server_Toolbelt/pull/338) bestanden
+zwei zusätzliche native Läufe mit den aktuellen ResultTable-Abhängigkeiten:
+Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem
+CU-Äquivalent, jeweils local/central im ersten nativen Versuch. Beide Läufe
+verwenden das unveränderte Paket aus der vorherigen Vierzielwelle. Dessen
+Source-/Binarybindungen sowie Frameworkrunner, Harness, Prozesshelfer,
+Compiler und .NET48-Referenzen wurden vor Wiederverwendung geprüft;
+Build und Framework wurden hier nicht erneut ausgeführt.
+
+Je Ziel bestanden drei SQLfixtures, Clientmetadaten, Clean/Repeat, fünf
+Slots/drei Bindings, dieselben 29 gezielten Lifecyclefälle, frischer
+SC-/UTF8-Consumer und Uninstall/Repeat. Äußerer Watchdog, Exit0, vollständige
+Kanäle und leeres Stderr bestanden; je frische unabhängige Verbindung bestätigt
+drei eigene DBs/einen eigenen Trusthash abwesend und unveränderte Inputpins.
+Keine Konfigurations-, Rechte-, Owner- oder Infrastrukturänderungen.
+
+Zusammen mit den vier Läufen aus PR338 ist damit der begrenzte Gesamtadapter
+auf allen sechs physischen Windows-/Linux-/SQL2019/2022/2025-Kombinationen
+mit deren Standard-CL150/160/170 am aktuellen Quellen-/Abhängigkeitsstand
+bestanden. Die früheren Läufe vom 2026-10-05 bleiben historische Evidenz.
+Zusätzliche CLs, Minimalrechte, Fremdslot-/Driftvollmatrix, weitere Collations,
+Heap und Release bleiben offen. Functional-Transport qualifiziert kein
+authentifiziertes TLS; aktuelle Head-/Main-CI bleibt ein separater Gate.
+
+## Vorherige ergänzende native Zielwelle 2026-10-20
 
 Der unveränderte öffentliche Adapter `Tests/CI/run-csv-memory-lab.ps1` bestand
 auf vier zusätzlich ausgewählten physischen Labzielen, jeweils im ersten
@@ -49,9 +75,10 @@ der fehlenden CLR-Voraussetzung gestoppt, jeweils vor Aufruf des nativen
 Adapters und ohne Testressourcen anzulegen.
 
 Diese Welle ändert keine Produkt-, Deployment-, CLR-, Adapter- oder
-Testorakelquellen. Historische Läufe auf Linux2019/CL150 und Windows2025/CL170
-werden nicht als frisch ausgeführt dargestellt: insbesondere stammt die dortige
-ResultTable-Abhängigkeit aus ihrem damaligen Stand. Zusätzliche CLs,
+Testorakelquellen. In dieser Vierzielwelle wurden die historischen Läufe auf
+Linux2019/CL150 und Windows2025/CL170 nicht neu ausgeführt; ihr damaliger
+ResultTable-Stand wird erst durch die getrennte Standard-CL-Ergänzung oben
+aktuell qualifiziert. Zusätzliche CLs,
 Minimalrechte, Fremdslot-/Driftvollmatrix, weitere Collations, Heap und Release
 bleiben offen. Transport war `Functional`; authentifiziertes TLS ist
 `not executed`. Aktuelle Head-/Main-CI ist ein gesonderter Integrationsgate.
@@ -161,7 +188,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-20`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1`
-- Scope: Vier zusätzliche physische Labzielkombinationen bestanden jeweils im ersten nativen Versuch mit demselben reproduzierbar gebauten Releasepaket: Windows2019/base CL150 und Windows2022/base CL160 mit erlaubten bereiten CU-Äquivalenten sowie Linux2022/latest CL160 und Linux2025/latest CL170. Je local/central, drei SQLfixtures, Clientmetadaten, Clean/Repeat, fünf Slots/drei Bindings, 29 gezielte Caller-/SET-/Lock-/Rollback-/Confirm0-Fälle, frischer SC-/UTF8-Consumer und Uninstall/Repeat; Exit0, vollständige Kanäle, leeres Stderr. Je frischer unabhängiger Audit drei eigene DBs/einen eigenen Trusthash abwesend und Inputpins unverändert. Autorisierte temporäre CLR-Testkonfiguration auf drei Zielen einschließlich zuvor vorgemerktem Scope privat erfasst und vollständig in den Ausgangszustand restauriert; keine Rechte-/Infrastrukturänderungen. Historische Nachweise bleiben datiert; zusätzliche CLs, Minimalrechte, Fremdslot-/Driftvollmatrix, Heap, authentifiziertes TLS und Release bleiben offen.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1; Standard-CL-Ergänzung nach PR338`
+- Scope: Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent bestanden mit aktuellen ResultTable-Abhängigkeiten jeweils local/central im ersten nativen Versuch: drei SQLfixtures, Client, Clean/Repeat, fünf Slots/drei Bindings, je 29 gezielte Lifecyclefälle, frischer SC-/UTF8-Consumer, Uninstall/Repeat; Exit0, vollständige Kanäle, leeres Stderr. Je frischer unabhängiger Audit drei eigene DBs/einen eigenen Trusthash abwesend und Inputpins unverändert. Keine Konfigurations-/Rechte-/Owner-/Infrastrukturänderungen. Unverändertes Paket und ursprüngliche Build-/Frameworknachweise vom selben Tag nach Prüfung aller relevanten Inputbindungen wiederverwendet, nicht neu ausgeführt. Zusammen mit PR338 begrenzter Standard-CL-Adapter auf allen sechs physischen Kombinationen am aktuellen Quellen-/Abhängigkeitsstand bestanden; zusätzliche CLs, Minimalrechte, Driftvollmatrix, Heap, authentifiziertes TLS und Release bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
