@@ -4,6 +4,55 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Explizite SameDB-SQL-Verbraucher 2026-10-20
+
+Der getrennte Scope `-TestScope named-consumers` bestand im finalen vierten
+nativen Lauf auf Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent,
+zweiter Versuch local/central. Ein eigener Consumer referenziert nacheinander
+jeden der fünf CSV-Namen ausdrücklich mit der eigenen journalgebundenen DB.
+Die Consumer werden nicht ausgeführt. Deploy und Uninstall liefern
+SQL55325/state3: zehn Abweisungen pro Modus,20 je Ziel.
+
+[sys.sql_expression_dependencies](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-sql-expression-dependencies-transact-sql)
+unterscheidet lokale Bindung und nicht aufgelöste IDs. Die Fixture verlangt
+genau ein referenziertes Objekt mit exaktem Schema-/Objektnamen und dessen
+nativer ID oder NULL. Der Katalogdatenbankname darf NULL oder byte-/längengenau
+die eigene DB sein; fremder Server und Callerabhängigkeit sind ausgeschlossen.
+Damit wird ausdrücklich kein isolierter NULL-ID-Preflightzweig qualifiziert.
+Der Fingerprint aller erfassten Dependencyzeilen bindet die tatsächlich
+vorgefundene Katalogform unmittelbar vor/nach jeder Abweisung und vor Drop.
+
+Zusätzlich gelten eigener typisierter Datenbank-/Fixturemarker, journalgebundene
+DB-ID/Erstellungsidentität, gleiche Consumer-ID/Erstellungsidentität und
+unveränderter erfasster Gesamtsnapshot. Nach geschütztem Drop muss die Baseline
+stimmen. Ohne initialen Dependencywitness übernimmt ausschließlich OwnDB-Cleanup.
+
+Der erste Linux2019/latest CL150 Versuch bleibt FAILED am neuen Witness mit
+pauschaler NULL-ID- und expliziter DB-Feldannahme, vor dem ersten Guardfall.
+Exit1/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit eine eigene
+DB/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert.
+Nach Korrektur bestanden zweiter Linuxlauf und erster Windowslauf je20
+Abweisungen local/central. Der unabhängige Review verlangte danach zusätzlich
+die unmittelbare Dependencyprüfung vor jeder Lifecycleoperation, weil der
+Gesamtsnapshot diese Katalogzeilen nicht erfasst. Diese beiden früheren
+Erfolge bleiben enger; der letzte Windowslauf qualifiziert die Korrektur
+repräsentativ, ohne erneute Zielvollmatrix.
+
+Alle drei erfolgreichen Läufe bestanden Clean/Repeat, Uninstall/Repeat,
+Exit0/vollständige Kanäle/leeres Stderr und je einen frischen unabhängigen Audit:
+zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert.
+301 Offlinekontrollen einschließlich Drift ausschließlich vor der zweiten
+Operation mit unterbundener Ausführung/Fixtureentfernung, PowerShell-AST und
+SQL150-Grammatik aller40 expandierten CREATE-/Owner-/Identitäts-/Witness-/
+Drop-Batches PASS. Inkrementeller Docvalidator samt16Impactselftests PASS.
+
+Ein funktionsreiner Helper und AST-Eintrag im bestehenden CI-Schritt; keine
+neuen Jobs, Filter, Cancellation- oder Build-/Frameworkgrenzen. Token-/Kostenwirkung
+unbekannt, kein grüner Vollmatrixreplay oder zusätzlicher PASS-Logreview.
+Produkt-/Deployment-/CLR- und gemeinsame Helper unverändert. Keine Consumer-API-
+ausführung, neue Default-/API-/Client-, Minimalrechte-, authentifizierte TLS-,
+Heap-, Vollmatrix- oder Releaseabnahme. Status `partially validated`, `unreleased`.
+
 ## Gezielte CLR-Parameterdefaults 2026-10-20
 
 Der getrennte Scope `-TestScope binding-defaults` ergänzt die bestehende
@@ -540,7 +589,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-20`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope binding-defaults; separater binding-drift-Regressionslauf`
-- Scope: Ausdrücklich freigegebener sechster und letzter nativer Lauf dieser Welle: Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 im dritten Defaultsversuch local/central PASS. Fünf Parameterdefaults, je Deploy/Uninstall SQL55324/state7:20 Abweisungen; exakte Basistyp-/Wertbytesprüfung mit DATALENGTH beim Text und separatem NULL-Witness vor/nach Abweisung sowie vor Restaurierung, danach exakte Baseline. Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert. Dieser repräsentative Windowslauf qualifiziert den finalen korrigierten Assertionstand. Alle fünf vorangehenden Läufe bleiben mit engeren Orakeln bzw. als frühere Linux-Bindingregression32 datiert und frisch bereinigt; keine nachträgliche Aufwertung. 255Offlinekontrollen,52SQL150-Batches,AST,Static und Docvalidator PASS. Unabhängiger Quell-/Orakelreview der finalen Assertions PASS vor diesem Abschlusslauf; neue Laufmetriken deterministisch geprüft. Produkt-/Deployment-/CLR-Quellen und gemeinsame Snapshot-/Abweisungshelper unverändert. Kein neuer Defaultadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierter TLS-/Release-Nachweis.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope named-consumers; finaler Korrekturlauf`
+- Scope: Finaler vierter nativer Lauf dieser Welle Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 im zweiten Versuch local/central PASS: fünf nacheinander angelegte Consumer mit explizitem eigenem SameDB-Namen, je Deploy/Uninstall SQL55325/state3,20 Abweisungen. Exakte Zielnamen/eigene DB, zulässige lokale ID- oder Namensbindung und Fingerprint sämtlicher erfasster Dependencyzeilen; Erhalt unmittelbar vor/nach jeder Abweisung und vor geschütztem Fixture-Drop, Gesamtsnapshot und Baseline erhalten. Typisierte OwnDB-/Fixturemarker und Objekt-/Erstellungsidentitäten geprüft. Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert. Vorheriger zweiter Linuxlauf und erster Windowslauf bestanden je20 Abweisungen ohne zusätzliche unmittelbare Vorabprüfung der zweiten Operation; enger datiert. Erster Linuxfehllauf bleibt FAILED und bereinigt. 301Offlinekontrollen einschließlich Dependencydrift ausschließlich vor der zweiten Operation,40SQL150-Batches,AST/Static und Docvalidator samt16Impactselftests PASS. Produkt-/Deployment-/CLR-/gemeinsame Helper unverändert. Kein isolierter NULL-ID-Preflightzweig, Consumer-APIausführung oder neuer Default-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/TLS-/Release-Nachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
