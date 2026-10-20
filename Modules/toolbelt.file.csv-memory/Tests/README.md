@@ -4,6 +4,62 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Begrenzte Marker-Guards 2026-10-20
+
+`Tests/CI/run-csv-memory-lab.ps1 -TestScope ownership-markers` wählt einen
+getrennten Prüfscope. Nach unverändertem Clean/Repeat mit exakter SAFE-Assembly
+ändert die eigene Fixture zehn Marker gezielt: `Toolbelt.Managed` als `int`
+statt `bit` auf allen fünf Slots, ModuleId als `varchar` statt `nvarchar`,
+Version mit trailing space, Visibility in anderer Großschreibung,
+Assembly-Managed mit falschem Basistyp und DeploymentMode mit trailing space.
+Deploy und Uninstall müssen jeden Fall mit SQL55324/state2, 4 oder 5 passend
+zum Marker abweisen. Das ergibt 20 Abweisungen pro Modus und 40 je Ziel;
+diese Fälle werden nicht zu den bisherigen 29 Lifecyclefällen addiert.
+
+Die Fixture prüft vor der Änderung die erwartete Markeridentität einschließlich
+Basistyp, MaxLength und Wertbytes. Der erfasste Objekt-/Assembly-/Schema-/
+Release-Metadatenzustand muss nach jeder Abweisung identisch bleiben; beide
+Transaktionszustände müssen null sein. Die erlaubten Lifecycle-Optionen
+NOCOUNT und XACT_ABORT werden vor dem Abweisungstest vorbereitet und danach
+exakt verglichen. Restaurierung erfolgt ausschließlich bei unveränderter
+eigener Mutation und muss die erfasste Baseline exakt wiederherstellen.
+Das ist keine vollständige Rechte-, Marker- oder Fremdslotmatrix.
+
+| Ausführung | Ergebnis und Grenze |
+|---|---|
+| Linux2019/latest CL150, Guardversuch1 | FAILED vor dem ersten Abweisungsorakel an der kombinierten Sitzungsabfrage; frischer Audit eigene DB/eigener Trusthash abwesend |
+| Linux2019/latest CL150, Default-Regressionslauf | PASS local/central, drei SQLfixtures, Client/Consumer, 29 gezielte Lifecyclefälle, Exit0/vollständige Kanäle/leeres Stderr; frischer Audit drei eigene DBs/ein eigener Trusthash abwesend |
+| Linux2019/latest CL150, Guardversuch2 | FAILED an der Optionsgleichheit der neutralen Fixture; keine vollständige Guardabnahme, frischer Audit eigene DB/eigener Trusthash abwesend |
+| Windows2025/base mit bereitem erlaubtem CU-Äquivalent CL170, Guardversuch1 | PASS local/central, 40 erwartete Abweisungen und exakte Markerrestaurierung, Clean/Repeat und Uninstall/Repeat; Exit0/vollständige Kanäle/leeres Stderr, frischer Audit zwei eigene DBs/ein eigener Trusthash abwesend |
+
+Ein lesender synthetischer Diagnosevergleich auf Linux zeigte: XACT_STATE
+allein und zusammen mit TRANCOUNT war null, im gemeinsamen SELECT mit
+OPTIONS abweichend; die getrennten Nullzustandsprüfungen bestanden. Die
+Korrektur verwendet diese getrennten Prüfungen. Zusätzlich bereitet die
+neutrale Fixture die vom Produktpreflight ausdrücklich gesetzten Optionen
+vor. Das ursprüngliche Caller-Transaktions-/SET-Orakel im Defaultscope bleibt
+unverändert. Die beiden Linux-Fehlläufe bleiben FAILED; der aktuelle korrigierte
+Guard-Gesamtstand ist auf Linux noch `not executed`.
+
+`Tests/Framework/Test-LifecycleGuardControls.ps1` bestand 23 synthetische
+Offlinekontrollen: fehlende/falsche/mehrfache Fehler, Metadaten-/Sessiondrift,
+fehlende Mutationsbeobachtung und fremde Drift vor Restaurierung werden
+abgewiesen. Der vorhandene CSV-Workflow führt diese Kontrollen und die neue
+Helper-AST-Prüfung im bestehenden statischen Schritt aus. Positive/negative
+Pfadfilter, Jobs, Build-/Frameworkgrenzen und Cancellation bleiben unverändert;
+kein Labzugriff aus CI. Die zusätzlichen Kontrollen haben einen eigenen
+Fail-closed-Zweck; keine erneute lokale Zwölfzielmatrix oder neue Reviewkette.
+Verarbeitungs-/Tokenkosten sind unbekannt, es wird keine Ersparnis behauptet.
+
+Produkt, Deployment und CLR-Bytes bleiben unverändert. Der Default-Regressionslauf
+erfolgte vor der letzten ausschließlich guardbezogenen Fixturekorrektur; der
+Defaultpfad importiert den Guardhelper nicht. Frühere Defaultnachweise bleiben
+an ihre ursprünglichen Ausführungen gebunden. Build-/Frameworknachweise werden
+nach geprüfter Paket-/Quell-/Toolbindung wiederverwendet, nicht frisch behauptet.
+Im Guardscope werden API-/Client-/CrossDB-Consumer-Tests ausdrücklich nicht
+ausgeführt. Keine Konfigurations-/Rechte-/Owner-/Infrastrukturänderungen;
+Functional-Transport, authentifiziertes TLS und Release weiterhin offen.
+
 ## Zusätzliche Compatibility Levels 2026-10-20
 
 Nach Abschluss der Standard-CL-Ergänzung in

@@ -1985,6 +1985,17 @@ Kombinationen im begrenzten Gesamtadapter bestanden. Minimalrechte,
 Fremdslot-/Driftvollmatrix, weitere Collations, Heap, authentifiziertes TLS und
 Release bleiben offen; `partially validated`, `unreleased` bleiben unverändert.
 
+Nächste begrenzte Lifecyclewelle 2026-10-20: getrennt wählbarer Marker-Guardscope
+mit zehn eigenen Markeränderungen, je Deploy-/Uninstallabweisung und exakter
+Restaurierung. Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170
+bestand local/central mit 40 Abweisungen und frischem OwnDB-/Trustaudit. Zwei
+Linux2019-Guardversuche scheiterten an neuen Fixture-Sitzungsprüfungen und
+bleiben FAILED, beide frisch bereinigt. Ein separater Linux-Defaultlauf mit
+29 Lifecyclefällen und vollständigem API-/Client-/Consumer-Scope bestand;
+der zuletzt korrigierte Linux-Guardscope ist noch not executed. 23 synthetische
+Fail-closed-Kontrollen bestanden. Keine Produkt-, Konfigurations-, Rechte-,
+Owner- oder Infrastrukturänderung; teilweise validiert und unveröffentlicht.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte

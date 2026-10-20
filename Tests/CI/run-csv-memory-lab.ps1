@@ -10,6 +10,7 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedDriverSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{128}$')][string]$ExpectedAssemblySHA512,
  [ValidateSet('local','central')][string[]]$DeploymentModes=@('local','central'),
+ [ValidateSet('default','ownership-markers')][string]$TestScope='default',
  [switch]$OptInExactTrust
 )
 Set-StrictMode -Version Latest
@@ -315,6 +316,13 @@ try{
   . ([scriptblock]::Create($definitions[0].Extent.Text))
  }
  $prompt=Get-EnvironmentVariableValue 'SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE'
+ $guardPath=Join-Path $module 'Tests/Runtime/OwnershipGuards.Tests.ps1'
+ if($TestScope -cne 'default'){
+  $guardErrors=$null
+  $guardTree=[Management.Automation.Language.Parser]::ParseFile($guardPath,[ref]$null,[ref]$guardErrors)
+  if($guardErrors.Count -or @($guardTree.EndBlock.Statements|Where-Object {$_ -isnot [Management.Automation.Language.FunctionDefinitionAst]}).Count){throw 'CSV_GUARD_HELPER_EFFECTS'}
+  foreach($definition in $guardTree.EndBlock.Statements){. ([scriptblock]::Create($definition.Extent.Text))}
+ }
  if(-not $prompt -or (Get-FileHash -LiteralPath $prompt -Algorithm SHA256).Hash -cne $ExpectedPromptSHA256.ToUpperInvariant() -or [string]::IsNullOrWhiteSpace([IO.File]::ReadAllText($prompt))){throw 'CSV_REVIEWED_PROMPT_REQUIRED'}
  $discovery=@(& {Resolve-LabContract} *>&1)
  $contracts=@($discovery|Where-Object {$_ -is [pscustomobject] -and $_.PSObject.Properties.Name -contains 'Contract'})
@@ -365,6 +373,8 @@ foreach($target in $targets){
  $script:scopeClock=[Diagnostics.Stopwatch]::StartNew();$script:cleanupPhase=$false
  $script:ledger=[ordered]@{RunId=$runId;SelectorIdentity=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes([string]$target.key)));Platform=$Platform;Version=$Version;Patch=[string]$target.patch;CompatibilityLevel=$CompatibilityLevel;State='PREPARED';Databases=@();Trust=@();ConfigurationChanges=0;RightsChanges=0;OriginalFailure=$null;CleanupFailure=$null;DispositionVerified=$false;RuntimeTests=@('Contract.Tests.sql','Safety.Tests.sql','Lifecycle.Tests.sql');CompletedModes=@();LifecycleCasesPassed=0;DriverSHA256=$ExpectedDriverSHA256.ToUpperInvariant();AssemblySHA512=$hash}
  $script:journalHealthy=$true;$control=$null;$failed=$false;$cleanupBlocked=$false
+ $ledger.TestScope=$TestScope;$ledger.GuardCasesPassed=0
+ if($TestScope -cne 'default'){$ledger.RuntimeTests=@()}
  $capturedClock=$script:scopeClock;$capturedWork=$script:workMilliseconds
  $timeoutProvider={
   $remaining=$capturedWork-$capturedClock.ElapsedMilliseconds
@@ -417,6 +427,11 @@ IF NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.asse
  THROW 51594,N'CSV exact binary witness failed.',3;
 IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness failed.',4;
 '@ @{'@Hash'=[Convert]::FromHexString($hash)}
+    if($TestScope -ceq 'ownership-markers'){
+     $stage='MARKER_GUARDS_'+$mode
+     $ledger.GuardCasesPassed+=Invoke-CsvMarkerGuards $connection $deploy $uninstall $mode
+     Save-CsvJournal
+    }else{
     foreach($test in $ledger.RuntimeTests){
      Assert-CsvPins;$stage='API_'+$mode+'_'+$test;Write-Output ('RUNNING: '+$stage)
      Invoke-CsvBatches $connection (Read-CsvSql (Join-Path $module ('Tests/Runtime/'+$test)) $variables)
@@ -439,6 +454,7 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
      $unconfirmed=$variables.Clone();$unconfirmed.ConfirmNoExternalConsumers=0
      $stage='CONFIRM0';Assert-CsvConfirmPrepared $connection (Read-CsvSql (Join-Path $module 'Deployment/Uninstall.sql') $unconfirmed)
      $ledger.LifecycleCasesPassed++;Save-CsvJournal
+    }
     }
     $stage='UNINSTALL_'+$mode;Invoke-CsvBatches $connection $uninstall
     Invoke-CsvSql $connection "IF EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'Toolbelt_File_CsvMemory') THROW 51594,N'CSV uninstall witness failed.',5;"
@@ -468,6 +484,10 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
  if($cleanupBlocked){Write-Output 'FAILED: CSV_CLEANUP_BLOCKED';exit 1}
  if($failed){Write-Output ('FAILED: CSV_'+$ledger.OriginalFailure.Stage+'_SQL'+$ledger.OriginalFailure.SqlNumber+'_STATE'+$ledger.OriginalFailure.SqlState+'_'+$ledger.OriginalFailure.Reason);exit 1}
  $completed=$ledger.CompletedModes -join ','
+ if($TestScope -cne 'default'){
+  Write-Output ('PASS: CSV_GUARDS '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL'+$CompatibilityLevel+' modes='+$completed+' scope='+$TestScope+' guard-cases='+$ledger.GuardCasesPassed+' marker-restoration/repeat/uninstall; owned-cleanup. API/client/full drift matrix NOT_EXECUTED.')
+  continue
+ }
  $consumerLabel=if('central' -cin $ledger.CompletedModes){'/consumer/Confirm0'}else{''}
  Write-Output ('PASS: CSV '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL'+$CompatibilityLevel+' modes='+$completed+$consumerLabel+' contract/safety/client/repeat/uninstall; lifecycle-cases='+$ledger.LifecycleCasesPassed+' caller/lock/rollback; owned-cleanup. Further CL/platform/MinimalRights/full ceilings NOT_EXECUTED.')
 }
