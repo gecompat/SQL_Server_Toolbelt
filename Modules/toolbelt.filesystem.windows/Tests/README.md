@@ -40,6 +40,11 @@ erhält privat Exceptiontypkette, geschlossen gefilterte ErrorId und Quellzeile
 sowie getrennte Setup-/Capture-/Controlphasen. Die ursprüngliche Fehlerphase
 wird nach erfolgreichem Cleanup nicht als Cleanupfehler umgedeutet. Dies
 ist Diagnosevorbereitung und erklärt den zweiten Fehlversuch noch nicht.
+Die vorhandenen `Framework/Test-WitnessControls.ps1` führen zusätzlich 30
+rein synthetische Kontrollen der tatsächlichen Diagnosefunktion aus:
+zwei freie Meldungen einschließlich eines falschen `FS_REPEAT_`-Präfixes
+werden redigiert; alle 28 definierten Fehlercodes bleiben erkennbar.
+Typ-/Quellzeilen- und Primärphasenerhalt werden ohne SQL geprüft.
 
 Reproduzierbarer Aufruf nach eigener Freigabe eines endlichen Runsets:
 
