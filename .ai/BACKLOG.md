@@ -2074,6 +2074,9 @@ Produkt-/Deployment-/CLR-Quellen und gemeinsame Snapshot-/Abweisungshelper
 unverändert. Keine Statusaufwertung oder neue Default-/API-/Client-/Minimalrechte-/
 Heap-/authentifizierte TLS-/Release- oder vollständige Binding-/Driftmatrixabnahme.
 
+Nach PR346, 2026-10-20: Neuer Zwei-Wellen-Auftrag CLR-Parameterdefaults, danach
+benannte SameDB-SQL-Verbraucher. Ausdrücklich freigegebener sechster und letzter nativer Lauf dieser Welle: Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 im dritten Defaultsversuch local/central PASS. Fünf Parameterdefaults, je Deploy/Uninstall SQL55324/state7:20 Abweisungen; exakte Basistyp-/Wertbytesprüfung mit DATALENGTH beim Text und separatem NULL-Witness vor/nach Abweisung sowie vor Restaurierung, danach exakte Baseline. Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert. Dieser repräsentative Windowslauf qualifiziert den finalen korrigierten Assertionstand. Alle fünf vorangehenden Läufe bleiben mit engeren Orakeln bzw. als frühere Linux-Bindingregression32 datiert und frisch bereinigt; keine nachträgliche Aufwertung. 255Offlinekontrollen,52SQL150-Batches,AST,Static und Docvalidator PASS. Unabhängiger Quell-/Orakelreview der finalen Assertions PASS vor diesem Abschlusslauf; neue Laufmetriken deterministisch geprüft. Produkt-/Deployment-/CLR-Quellen und gemeinsame Snapshot-/Abweisungshelper unverändert. Kein neuer Defaultadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierter TLS-/Release-Nachweis.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte

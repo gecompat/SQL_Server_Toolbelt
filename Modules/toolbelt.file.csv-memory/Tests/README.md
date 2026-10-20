@@ -4,6 +4,53 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Gezielte CLR-Parameterdefaults 2026-10-20
+
+Der getrennte Scope `-TestScope binding-defaults` ergänzt die bestehende
+Binding-Fallliste um fünf geschlossene Parameterdefaults: Separatortext und
+Headerbit beim Messen, NULL-Token und Ausgabelimit beim Quoten, Zeilenlimit
+beim Parser. Die kanonischen Quellen liefern ALTER- und Restaurierungsdefinition.
+[CREATE FUNCTION](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql)
+beschreibt CLR-Parameterdefaults; [sys.parameters](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-parameters-transact-sql)
+führt deren Flag und Wert für CLR-Objekte.
+
+Der ausdrücklich freigegebene sechste und letzte native Lauf bestand auf
+Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent im dritten
+Defaultsversuch local/central. Deploy und Uninstall liefern SQL55324/state7:
+zehn Abweisungen pro Modus,20 pro Ziel. Der erfasste Snapshot schützt das Flag;
+ein separates Orakel prüft Basistyp, Wertbytes und beim Text die Bytelänge
+beziehungsweise NULL exakt vor/nach jeder Abweisung und vor der Restaurierung.
+Konvertierbare oder mit Nullbytes verlängerte abweichende Text-/Zahlenwerte
+bestehen dieses Orakel nicht. Fremde Wertdrift blockiert das restaurierende
+ALTER auch bei unverändertem Snapshot. Objekt-/Erstellungsidentität,
+CLR-Bindung und typisierte Ownership bleiben Restaurierungsvoraussetzungen;
+anschließend muss die exakte Baseline stimmen.
+
+Der unabhängige Review korrigierte zunächst numerische Konversionsmehrdeutigkeit,
+danach die fehlende Textlängenbindung. Die finalen Assertions wurden vor dem
+sechsten Lauf unabhängig ohne weitere Quellbefunde geprüft; seine neuen
+Laufmetriken anschließend deterministisch. Der Lauf qualifiziert die letzte
+Assertion repräsentativ auf Windows; keine abweichende Plattformlogik im Helfer.
+
+Frühere Nachweise bleiben enger: Linux2019/latest CL150 zweiter und Windows
+erster Defaultsversuch mit konvertierenden numerischen Probes; erster Linuxlauf
+ohne wiederholten Wertwitness; zweiter Windowslauf vor der DATALENGTH-Korrektur.
+Alle bestanden20 Abweisungen in ihrem damaligen Umfang. Zusätzlich bestand eine
+Linux2019/latest CL150 `binding-drift`-Regression local/central mit32 Abweisungen
+vor den letzten ausschließlich defaultspezifischen Probekorrekturen.
+Alle sechs Läufe: Exit0/vollständige Kanäle/leeres Stderr; je frischer unabhängiger
+Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert.
+255 Offlinekontrollen einschließlich Wertdrift bei unverändertem synthetischem
+Snapshot, PowerShell-AST und SQL150-Grammatik aller52 expandierten Batches PASS.
+
+Keine neue Helferdatei, Workflow-, Job-, Filter-, Cancellation- oder
+Build-/Frameworkgrenze. Gezielte Legacyregression und begrenzte Abnahme der
+Reviewkorrekturen; keine grüne Zielvollmatrix oder PASS-Logreviewkette.
+Token-/Kostenwirkung unbekannt. Produkt-, Deployment-, CLR-Quellen und gemeinsame
+Snapshot-/Abweisungshelper unverändert; kein neuer Defaultadapter-/API-/Client-/
+Minimalrechte-/Heap-/authentifizierter TLS-/Release- oder Driftvollmatrixnachweis.
+Status bleibt `partially validated`, `unreleased`.
+
 ## Gezielte interne CLR-Bindingdrift 2026-10-20
 
 Der getrennte Scope `-TestScope binding-drift` bestand auf Linux2019/latest
@@ -493,7 +540,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-20`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope binding-drift; Test-LifecycleGuardControls.ps1`
-- Scope: Linux2019/latest CL150 und Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 jeweils local/central im ersten nativen Versuch PASS. Acht einzelne Änderungen an den drei internen CLR-Funktionen: zwei NULL-Aufrufoptionen, vier Textlängen, ein Parametername und ein Resultatspaltenname. Je Deploy/Uninstall SQL55324/state5/7: 16 Abweisungen pro Modus, 32 je Ziel; konkreter Katalogwitness, unveränderter erfasster Mutationszustand und neutrale Sitzung, exakte Baseline nach kanonischem ALTER unter unveränderter Objektidentität. Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration und Runtimeinputs unverändert. 235 synthetische Offlinekontrollen, PowerShell-AST und SQL150-Grammatik aller 32 expandierten ALTER-/Identitäts-/Witness-Batches PASS. Produkt-/Deployment-/CLR-Quellen und gemeinsame Snapshot-/Abweisungshelper unverändert; keine Rechte-/Owner-/Infrastrukturänderung oder Statusaufwertung. Kein neuer Default-/API-/Client-/Minimalrechte-/Heap-/authentifizierter TLS-/Release- oder vollständiger Binding-/Driftmatrixnachweis.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope binding-defaults; separater binding-drift-Regressionslauf`
+- Scope: Ausdrücklich freigegebener sechster und letzter nativer Lauf dieser Welle: Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 im dritten Defaultsversuch local/central PASS. Fünf Parameterdefaults, je Deploy/Uninstall SQL55324/state7:20 Abweisungen; exakte Basistyp-/Wertbytesprüfung mit DATALENGTH beim Text und separatem NULL-Witness vor/nach Abweisung sowie vor Restaurierung, danach exakte Baseline. Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert. Dieser repräsentative Windowslauf qualifiziert den finalen korrigierten Assertionstand. Alle fünf vorangehenden Läufe bleiben mit engeren Orakeln bzw. als frühere Linux-Bindingregression32 datiert und frisch bereinigt; keine nachträgliche Aufwertung. 255Offlinekontrollen,52SQL150-Batches,AST,Static und Docvalidator PASS. Unabhängiger Quell-/Orakelreview der finalen Assertions PASS vor diesem Abschlusslauf; neue Laufmetriken deterministisch geprüft. Produkt-/Deployment-/CLR-Quellen und gemeinsame Snapshot-/Abweisungshelper unverändert. Kein neuer Defaultadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierter TLS-/Release-Nachweis.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
