@@ -132,3 +132,7 @@ validation_evidence:
     workflow: "Privater Windows-Recheck des transparenten Rechtevertrags"
     scope: "SQL Server 2025 Windows; finaler Release-Build deployed. Windows-Caller mit EXECUTE plus SELECT auf FileSystemRoot und ServiceAccount-List erfolgreich; SQL-Authentication im Caller-Modus sowie Junction-/Reparse-List kontrolliert abgewiesen. Vollständige I/O-, Limit-, TOCTOU- und Cleanup-Matrix bleiben offen."
     result: "success"
+  - date: "2026-10-20"
+    workflow: "Modules/toolbelt.filesystem.windows/Tests/Invoke-RootRepeatLab.ps1"
+    scope: "Windows SQL Server2025 CL170 lokal; vier synthetische FileSystemRoot-Zeilen mit allen zehn Spalten, zwei befüllte Repeats derselben Produktbytes in frischen Sitzungen, zwölf Daten-/Katalogkategorien und zwei inverse NULL-/Paddingkontrollen bestanden. Reproduzierbarer Releasebuild, Exit0, vollständige Kanäle, leeres Stderr, eigene DB-/Trustbereinigung und frischer lesender Input-/Abwesenheitsaudit bestanden. Drei historische Fehlversuche bleiben FAILED. Keine Konfigurations-/Rechte-/Dateisystemänderungen; weitere Ziele/CLs, nichtleere Grants, Minimalrechte, I/O, authentifizierte TLS-Abnahme und Release bleiben offen."
+    result: "success"

@@ -55,3 +55,16 @@ foreach($code in $throwCodes){
     $diagnosticCount++
 }
 'PASS ROOT_REPEAT_DIAGNOSIS_CONTROLS CHECKS='+$diagnosticCount+' SYNTHETIC_ONLY'
+
+# Die tatsächliche Payloadkonvertierung muss SQL NULL und leere Bytes trennen.
+$payloadFunctions=@($repeatAst.FindAll({param($node)$node-is[Management.Automation.Language.FunctionDefinitionAst]-and$node.Name-ceq'Get-CapturePayload'},$true))
+if($payloadFunctions.Count-ne1){throw 'FS_REPEAT_PAYLOAD_FUNCTION'}
+. ([scriptblock]::Create($payloadFunctions[0].Extent.Text))
+if((Get-CapturePayload 'permissions' ([DBNull]::Value))-cne'SQL_NULL'){throw 'FS_REPEAT_PAYLOAD_NULL'}
+if((Get-CapturePayload 'permissions' ([byte[]]@()))-cne'BINARY:'){throw 'FS_REPEAT_PAYLOAD_EMPTY'}
+if((Get-CapturePayload 'rows' ([byte[]]@(0,1,255)))-cne'BINARY:0001FF'){throw 'FS_REPEAT_PAYLOAD_BYTES'}
+foreach($invalid in @(@{Category='rows';Value=[DBNull]::Value},@{Category='permissions';Value='not binary'})){
+    $rejected=$false;try{[void](Get-CapturePayload $invalid.Category $invalid.Value)}catch{$rejected=$_.Exception.Message-ceq'FS_REPEAT_CAPTURE_SHAPE'}
+    if(-not$rejected){throw 'FS_REPEAT_PAYLOAD_FALSE_ACCEPT'}
+}
+'PASS ROOT_REPEAT_CAPTURE_CONTROLS CHECKS=5 SYNTHETIC_ONLY'

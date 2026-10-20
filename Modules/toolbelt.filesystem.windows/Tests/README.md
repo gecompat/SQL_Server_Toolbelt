@@ -2,6 +2,15 @@
 
 ## Befüllter FileSystemRoot-Repeat 2026-10-20
 
+**Begrenzter Abschluss nach zusätzlicher Benutzerfreigabe:** Der vierte
+vollständige Adapterlauf bestand auf Windows SQL Server2025/CL170 lokal:
+zwei befüllte Repeats, beide inversen Kontrollen und zwölf Daten-/
+Katalogkategorien mit allen zehn Spalten. Exit0, vollständige Captures und
+leeres Stderr; eigener Cleanup und frischer lesender DB-/Trust-/Inputpinaudit
+bestanden. Produktquellen und Release-Binary bleiben unverändert. Dieser
+Nachweis umfasst keine weiteren Windowsversionen/CLs, nichtleeren Grants,
+Minimalrechte, Datei-I/O, authentifizierte TLS-Verbindung oder Release.
+
 Der [Labadapter](Invoke-RootRepeatLab.ps1) verwendet ausschließlich explizit
 ausgewählte schema-valide Windowsziele und ein zweimal reproduzierbar
 gebautes, exakt gebundenes Release-Binary. Er installiert den vorhandenen
@@ -11,7 +20,7 @@ vier synthetische Rootzeilen mit allen zehn aktuellen Spalten einschließlich
 `AllowServiceAccount`, NULL-/Leerstring-/Unicode-/Padding- und Flagvarianten.
 Dateisystem-APIs werden nicht aufgerufen; die Pfade bleiben Katalogwerte.
 
-Geplant sind zwei tatsächliche Repeats derselben expandierten Produktbytes
+Geprüft wurden zwei tatsächliche Repeats derselben expandierten Produktbytes
 in frischen ungepoolten Sitzungen. Zwölf Daten-/Katalogkategorien vergleichen
 Zeilen, Tabelle, Spalten, Indizes, Indexspalten, Constraints, typisierte
 Extended Properties, vorhandene Permissions, ServiceAccount-Rolle, Assembly,
@@ -20,6 +29,9 @@ Leerstring und signifikantes Padding erkennen und danach den exakten
 Ausgangssnapshot wiederherstellen. Dies erteilt keine Rechte und qualifiziert
 weder Datei-I/O noch eine zentrale Installation; das Modul ist local-only.
 
+Die folgenden Fehler- und Warteangaben beschreiben den Vorbereitungsstand
+vor der zusätzlichen ausdrücklichen Benutzerfreigabe für höchstens zwei
+weitere vollständige Läufe und einen gezielten Abschlussreview.
 Die ersten beiden begrenzten nativen Versuche auf Windows SQL2025/CL170
 bleiben **FAILED**. Versuch1 wies vor dem Setup den zusammengesetzten
 Sessionguard mit SQL52970/State1 ab. Eine getrennte rein lesende Probe
@@ -45,6 +57,23 @@ rein synthetische Kontrollen der tatsächlichen Diagnosefunktion aus:
 zwei freie Meldungen einschließlich eines falschen `FS_REPEAT_`-Präfixes
 werden redigiert; alle 28 definierten Fehlercodes bleiben erkennbar.
 Typ-/Quellzeilen- und Primärphasenerhalt werden ohne SQL geprüft.
+
+Versuch3 bleibt ebenfalls **FAILED**: Die neue private Diagnose lokalisierte
+einen lokalen InvalidCast im ersten Capture bei der Bytearraykonvertierung;
+beide Repeatzähler blieben null. Eigener Cleanup und frischer Abwesenheitsaudit
+bestanden. Eine neue rein lesende synthetische Probe bestätigte:
+`CONVERT(varbinary(max), <leeres FOR XML ... TYPE>)` liefert SQL NULL und der
+Client `DBNull`; ein nichtleeres XML liefert Bytes. Das erklärt den
+Konvertierungsmechanismus, ohne nachträglich eine nicht erfasste Kategorie
+des früheren Laufs als gemessen auszugeben.
+
+Der korrigierte Capture akzeptiert SQL NULL ausschließlich in der ausdrücklich
+leeren Permissionskategorie. Er unterscheidet dies von leeren Binarybytes und
+verwirft falsche Kategorien/Typen sowie NULL in allen Pflichtkategorien.
+Fünf zusätzliche synthetische Payloadkontrollen bestanden. Versuch4 bestand
+anschließend mit genau dieser Korrektur den oben abgegrenzten Gesamtscope.
+Alle drei fehlgeschlagenen Läufe bleiben FAILED; daraus wird keine allgemeine
+Filesystem-, Rechte-, Plattform- oder Releasequalifikation abgeleitet.
 
 Reproduzierbarer Aufruf nach eigener Freigabe eines endlichen Runsets:
 

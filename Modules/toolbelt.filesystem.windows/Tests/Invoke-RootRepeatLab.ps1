@@ -52,6 +52,17 @@ function Save-Journal {
     # Nur eigene Identitäten/Hashes/Zustände, keine Verbindungsdaten oder Endpoints.
     [IO.File]::WriteAllText($journal,($ledger|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))
 }
+function Get-CapturePayload([string]$Category,$Value){
+    # Ein leeres FOR-XML-Ergebnis wird beim Binarycast zu SQL NULL.
+    # Nur das ausdrücklich leere Permissionset darf so repräsentiert sein;
+    # NULL bleibt von einem tatsächlichen leeren Binarywert unterscheidbar.
+    if($Value-is[DBNull]){
+        if($Category-cne'permissions'){throw 'FS_REPEAT_CAPTURE_SHAPE'}
+        return 'SQL_NULL'
+    }
+    if($Value-isnot[byte[]]){throw 'FS_REPEAT_CAPTURE_SHAPE'}
+    return 'BINARY:'+([Convert]::ToHexString($Value))
+}
 function Sql($Connection,[string]$Text,[hashtable]$Parameters=@{},[switch]$Scalar,[switch]$Snapshot){
     $remaining=$(if($cleanupPhase){360000}else{300000})-$clock.ElapsedMilliseconds
     if($remaining-lt1000){throw 'FS_REPEAT_DEADLINE'}
@@ -63,10 +74,14 @@ function Sql($Connection,[string]$Text,[hashtable]$Parameters=@{},[switch]$Scala
         $result=[Collections.Generic.Dictionary[string,string]]::new([StringComparer]::Ordinal)
         $reader=$command.ExecuteReader()
         try{
-            if($reader.FieldCount-ne2){throw 'FS_REPEAT_CAPTURE_SHAPE'}
+            $categories=@('rows','table','columns','indexes','index_columns','constraints','properties','permissions','role','assembly','bindings','marker')
+            if($reader.FieldCount-ne2-or$reader.GetName(0)-cne'Category'-or$reader.GetName(1)-cne'Payload'-or
+               $reader.GetFieldType(0)-ne[string]-or$reader.GetFieldType(1)-ne[byte[]]){throw 'FS_REPEAT_CAPTURE_SHAPE'}
             while($reader.Read()){
                 if($clock.ElapsedMilliseconds-ge300000){$command.Cancel();throw 'FS_REPEAT_DEADLINE'}
-                $result.Add($reader.GetString(0),[Convert]::ToHexString([byte[]]$reader.GetValue(1)))
+                $category=$reader.GetString(0)
+                if($category-cnotin$categories){throw 'FS_REPEAT_CAPTURE_SHAPE'}
+                $result.Add($category,(Get-CapturePayload $category $reader.GetValue(1)))
             }
             if($reader.NextResult()-or$result.Count-ne12){throw 'FS_REPEAT_CAPTURE_SHAPE'}
         }finally{$reader.Dispose()}
