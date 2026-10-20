@@ -1624,6 +1624,23 @@ Chatverlauf ersetzen diese Repositoryquellen nicht.
 | 4 (gezielt bestanden) | `toolbelt.core.second-session` / `SecondSessionProvider` | Deaktivierter Einzelprovider einschließlich acht Spalten, Audit-/Rowversionbytes und ausgewähltem Katalog lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Neue Windows-Repeats, weitere CLs, Benutzergrants, Minimalrechte und historische Übergänge offen; keine Provider- oder Rechteausweitung. |
 | 5 | `toolbelt.filesystem.windows` / `FileSystemRoot` | Befüllten Repeat unter bestehenden Windows-/Assembly-/Trustvoraussetzungen qualifizieren; fehlende Windows-Runtime nicht durch Offlineparser ersetzen. |
 
+Wiederaufnahme dieses fünften Scopes durch ausdrücklichen Benutzerauftrag
+vom 2026-10-20: Der aktuelle Rootkatalog hat einschließlich der zuvor
+integrierten ServiceAccount-Securityspalte zehn Spalten. Ein neuer
+[begrenzter Adapter mit Fixture](../Modules/toolbelt.filesystem.windows/Tests/README.md#befüllter-filesystemroot-repeat-2026-10-20)
+bereitet den lokalen Vierzeilen-/Zwei-Repeat-Nachweis und zwölf ausgewählte
+Daten-/Katalogkategorien vor. Vier synthetische Pfadwerte werden nicht als
+Dateisystemzugriff verwendet; zentrale Installation ist für dieses Modul
+nicht unterstützt. Reproduzierbarer doppelter Releasebuild und Offline-
+Grammatikprüfung bestanden. Zwei native Windows-SQL2025-/CL170-Versuche
+bleiben FAILED: zuerst Sessionguard SQL52970/State1, danach ein lokaler
+Fixture-/Adapterfehler SQL0/0. Jeweils eigener Cleanup und frische lesende
+DB-/Trust-Abwesenheitsprüfung bestanden. Kein Repeat-PASS oder Modulstatus-
+Upgrade; die Ursache des zweiten Fehlers ist ungemessen. Diagnosekorrektur,
+unabhängiger Review und aktuelle CI bleiben getrennte Nachweise. Das
+ursprünglich endliche Limit von zwei vollständigen Versuchen ist verbraucht;
+ein weiterer nativer Versuch benötigt eine ausdrückliche neue Begrenzung.
+
 Danach die exportierte gemeinsame Modulfolge mit befüllten Tabellen prüfen.
 Gesamtdeployment bleibt nicht atomar; Objekt-/Berechtigungserhaltung, lokale
 und zentrale Modi, weitere Plattformen und echte Minimalrechte benötigen

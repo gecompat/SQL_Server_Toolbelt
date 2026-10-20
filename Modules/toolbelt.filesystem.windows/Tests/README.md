@@ -1,5 +1,66 @@
 # Test-Evidence
 
+## Befüllter FileSystemRoot-Repeat 2026-10-20
+
+Der [Labadapter](Invoke-RootRepeatLab.ps1) verwendet ausschließlich explizit
+ausgewählte schema-valide Windowsziele und ein zweimal reproduzierbar
+gebautes, exakt gebundenes Release-Binary. Er installiert den vorhandenen
+ResultTable-Kern und das unveränderte lokale Filesystemmodul in einer
+eigenen Datenbank. Die [Fixture](Runtime/FileSystemRoot.Repeat.sql) enthält
+vier synthetische Rootzeilen mit allen zehn aktuellen Spalten einschließlich
+`AllowServiceAccount`, NULL-/Leerstring-/Unicode-/Padding- und Flagvarianten.
+Dateisystem-APIs werden nicht aufgerufen; die Pfade bleiben Katalogwerte.
+
+Geplant sind zwei tatsächliche Repeats derselben expandierten Produktbytes
+in frischen ungepoolten Sitzungen. Zwölf Daten-/Katalogkategorien vergleichen
+Zeilen, Tabelle, Spalten, Indizes, Indexspalten, Constraints, typisierte
+Extended Properties, vorhandene Permissions, ServiceAccount-Rolle, Assembly,
+CLR-Bindings und Versionsmarker. Zwei inverse Kontrollen müssen NULL versus
+Leerstring und signifikantes Padding erkennen und danach den exakten
+Ausgangssnapshot wiederherstellen. Dies erteilt keine Rechte und qualifiziert
+weder Datei-I/O noch eine zentrale Installation; das Modul ist local-only.
+
+Die ersten beiden begrenzten nativen Versuche auf Windows SQL2025/CL170
+bleiben **FAILED**. Versuch1 wies vor dem Setup den zusammengesetzten
+Sessionguard mit SQL52970/State1 ab. Eine getrennte rein lesende Probe
+bestätigte die Abweisung dieses Ausdrucks und den Erfolg derselben drei
+Prädikate als einzelne Statements; die Fixture erhält alle Prädikate.
+Versuch2 scheiterte im Fixtureabschnitt an einem noch nicht klassifizierten
+lokalen Adapterfehler, SQL0/0. Kein Repeat oder inverser Kontrollfall ist
+dadurch nachgewiesen. Beide Prozesse endeten mit Exit1, vollständigen
+Captures und leerem Stderr. Eigener DB-/Trustcleanup und jeweils eine
+frische lesende Abwesenheitsprüfung bestanden. Die zwei vollständigen
+Versuche der ersten Wellenbegrenzung sind verbraucht; keine stille
+Wiederholung oder Statusaufwertung. Journale, Hashes und Rohausgaben bleiben
+privat. Der unabhängige Review und die aktuelle Head-CI sind getrennte Gates.
+
+Der Quellenreview beanstandete die verlorene lokale Diagnose und die
+unbelegte Ursachenzuordnung im Guardkommentar. Der korrigierte Adapter
+erhält privat Exceptiontypkette, geschlossen gefilterte ErrorId und Quellzeile
+sowie getrennte Setup-/Capture-/Controlphasen. Die ursprüngliche Fehlerphase
+wird nach erfolgreichem Cleanup nicht als Cleanupfehler umgedeutet. Dies
+ist Diagnosevorbereitung und erklärt den zweiten Fehlversuch noch nicht.
+
+Reproduzierbarer Aufruf nach eigener Freigabe eines endlichen Runsets:
+
+```powershell
+$dll = '<reproduzierbar gebautes Release-Binary>'
+$provider = 'Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs'
+./Modules/toolbelt.filesystem.windows/Tests/Invoke-RootRepeatLab.ps1 `
+    -Version 2025 -Patch base -CompatibilityLevel 170 `
+    -AssemblyPath $dll `
+    -ExpectedAssemblySHA512 (Get-FileHash $dll -Algorithm SHA512).Hash `
+    -ExpectedProviderSHA256 (Get-FileHash $provider -Algorithm SHA256).Hash `
+    -JournalPath '<neue private Journaldatei außerhalb des Repositorys>'
+```
+
+Der Caller benötigt einen eigenen äußeren Prozesswatchdog; die inneren
+Grenzen betragen 300 Sekunden Arbeit und insgesamt 360 Sekunden einschließlich
+Cleanup. `Functional` übernimmt den ausdrücklichen Lab-Trustwert bei
+erforderlicher Verschlüsselung. Ein vorhandener Assemblytrust bleibt
+unverändert; ein eigener exakter Hash wird nur ohne Verbraucher und bei
+unveränderter Identität entfernt. Unklare Zustände werden erhalten.
+
 ## Begrenzte Delete-Grenzkorrektur 2026-10-07
 
 Der bestehende [Framework-Harness](Framework/README.md) enthält zwölf kleine
