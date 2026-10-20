@@ -1,5 +1,100 @@
 # Test-Evidence
 
+## Befüllter FileSystemRoot-Repeat 2026-10-20
+
+**Begrenzter Abschluss nach zusätzlicher Benutzerfreigabe:** Der vierte
+vollständige Adapterlauf bestand auf Windows SQL Server2025/CL170 lokal:
+zwei befüllte Repeats, beide inversen Kontrollen und zwölf Daten-/
+Katalogkategorien mit allen zehn Spalten. Exit0, vollständige Captures und
+leeres Stderr; eigener Cleanup und frischer lesender DB-/Trust-/Inputpinaudit
+bestanden. Produktquellen und Release-Binary bleiben unverändert. Dieser
+Nachweis umfasst keine weiteren Windowsversionen/CLs, nichtleeren Grants,
+Minimalrechte, Datei-I/O, authentifizierte TLS-Verbindung oder Release.
+
+Der [Labadapter](Invoke-RootRepeatLab.ps1) verwendet ausschließlich explizit
+ausgewählte schema-valide Windowsziele und ein zweimal reproduzierbar
+gebautes, exakt gebundenes Release-Binary. Er installiert den vorhandenen
+ResultTable-Kern und das unveränderte lokale Filesystemmodul in einer
+eigenen Datenbank. Die [Fixture](Runtime/FileSystemRoot.Repeat.sql) enthält
+vier synthetische Rootzeilen mit allen zehn aktuellen Spalten einschließlich
+`AllowServiceAccount`, NULL-/Leerstring-/Unicode-/Padding- und Flagvarianten.
+Dateisystem-APIs werden nicht aufgerufen; die Pfade bleiben Katalogwerte.
+
+Geprüft wurden zwei tatsächliche Repeats derselben expandierten Produktbytes
+in frischen ungepoolten Sitzungen. Zwölf Daten-/Katalogkategorien vergleichen
+Zeilen, Tabelle, Spalten, Indizes, Indexspalten, Constraints, typisierte
+Extended Properties, vorhandene Permissions, ServiceAccount-Rolle, Assembly,
+CLR-Bindings und Versionsmarker. Zwei inverse Kontrollen müssen NULL versus
+Leerstring und signifikantes Padding erkennen und danach den exakten
+Ausgangssnapshot wiederherstellen. Dies erteilt keine Rechte und qualifiziert
+weder Datei-I/O noch eine zentrale Installation; das Modul ist local-only.
+
+Die folgenden Fehler- und Warteangaben beschreiben den Vorbereitungsstand
+vor der zusätzlichen ausdrücklichen Benutzerfreigabe für höchstens zwei
+weitere vollständige Läufe und einen gezielten Abschlussreview.
+Die ersten beiden begrenzten nativen Versuche auf Windows SQL2025/CL170
+bleiben **FAILED**. Versuch1 wies vor dem Setup den zusammengesetzten
+Sessionguard mit SQL52970/State1 ab. Eine getrennte rein lesende Probe
+bestätigte die Abweisung dieses Ausdrucks und den Erfolg derselben drei
+Prädikate als einzelne Statements; die Fixture erhält alle Prädikate.
+Versuch2 scheiterte im Fixtureabschnitt an einem noch nicht klassifizierten
+lokalen Adapterfehler, SQL0/0. Kein Repeat oder inverser Kontrollfall ist
+dadurch nachgewiesen. Beide Prozesse endeten mit Exit1, vollständigen
+Captures und leerem Stderr. Eigener DB-/Trustcleanup und jeweils eine
+frische lesende Abwesenheitsprüfung bestanden. Die zwei vollständigen
+Versuche der ersten Wellenbegrenzung sind verbraucht; keine stille
+Wiederholung oder Statusaufwertung. Journale, Hashes und Rohausgaben bleiben
+privat. Der unabhängige Review und die aktuelle Head-CI sind getrennte Gates.
+
+Der Quellenreview beanstandete die verlorene lokale Diagnose und die
+unbelegte Ursachenzuordnung im Guardkommentar. Der korrigierte Adapter
+erhält privat Exceptiontypkette, geschlossen gefilterte ErrorId und Quellzeile
+sowie getrennte Setup-/Capture-/Controlphasen. Die ursprüngliche Fehlerphase
+wird nach erfolgreichem Cleanup nicht als Cleanupfehler umgedeutet. Dies
+ist Diagnosevorbereitung und erklärt den zweiten Fehlversuch noch nicht.
+Die vorhandenen `Framework/Test-WitnessControls.ps1` führen zusätzlich 30
+rein synthetische Kontrollen der tatsächlichen Diagnosefunktion aus:
+zwei freie Meldungen einschließlich eines falschen `FS_REPEAT_`-Präfixes
+werden redigiert; alle 28 definierten Fehlercodes bleiben erkennbar.
+Typ-/Quellzeilen- und Primärphasenerhalt werden ohne SQL geprüft.
+
+Versuch3 bleibt ebenfalls **FAILED**: Die neue private Diagnose lokalisierte
+einen lokalen InvalidCast im ersten Capture bei der Bytearraykonvertierung;
+beide Repeatzähler blieben null. Eigener Cleanup und frischer Abwesenheitsaudit
+bestanden. Eine neue rein lesende synthetische Probe bestätigte:
+`CONVERT(varbinary(max), <leeres FOR XML ... TYPE>)` liefert SQL NULL und der
+Client `DBNull`; ein nichtleeres XML liefert Bytes. Das erklärt den
+Konvertierungsmechanismus, ohne nachträglich eine nicht erfasste Kategorie
+des früheren Laufs als gemessen auszugeben.
+
+Der korrigierte Capture akzeptiert SQL NULL ausschließlich in der ausdrücklich
+leeren Permissionskategorie. Er unterscheidet dies von leeren Binarybytes und
+verwirft falsche Kategorien/Typen sowie NULL in allen Pflichtkategorien.
+Fünf zusätzliche synthetische Payloadkontrollen bestanden. Versuch4 bestand
+anschließend mit genau dieser Korrektur den oben abgegrenzten Gesamtscope.
+Alle drei fehlgeschlagenen Läufe bleiben FAILED; daraus wird keine allgemeine
+Filesystem-, Rechte-, Plattform- oder Releasequalifikation abgeleitet.
+
+Reproduzierbarer Aufruf nach eigener Freigabe eines endlichen Runsets:
+
+```powershell
+$dll = '<reproduzierbar gebautes Release-Binary>'
+$provider = 'Modules/toolbelt.filesystem.windows/Clr/WindowsFilesystemProvider.cs'
+./Modules/toolbelt.filesystem.windows/Tests/Invoke-RootRepeatLab.ps1 `
+    -Version 2025 -Patch base -CompatibilityLevel 170 `
+    -AssemblyPath $dll `
+    -ExpectedAssemblySHA512 (Get-FileHash $dll -Algorithm SHA512).Hash `
+    -ExpectedProviderSHA256 (Get-FileHash $provider -Algorithm SHA256).Hash `
+    -JournalPath '<neue private Journaldatei außerhalb des Repositorys>'
+```
+
+Der Caller benötigt einen eigenen äußeren Prozesswatchdog; die inneren
+Grenzen betragen 300 Sekunden Arbeit und insgesamt 360 Sekunden einschließlich
+Cleanup. `Functional` übernimmt den ausdrücklichen Lab-Trustwert bei
+erforderlicher Verschlüsselung. Ein vorhandener Assemblytrust bleibt
+unverändert; ein eigener exakter Hash wird nur ohne Verbraucher und bei
+unveränderter Identität entfernt. Unklare Zustände werden erhalten.
+
 ## Begrenzte Delete-Grenzkorrektur 2026-10-07
 
 Der bestehende [Framework-Harness](Framework/README.md) enthält zwölf kleine
@@ -24,9 +119,9 @@ Der .NET-Framework-4.8-Build und der statische Vertrag waren im Wartungslauf htt
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-12`
-- Nachweis: `Privater Windows-Recheck des transparenten Rechtevertrags`
-- Scope: SQL Server 2025 Windows; finaler Release-Build deployed. Windows-Caller mit EXECUTE plus SELECT auf FileSystemRoot und ServiceAccount-List erfolgreich; SQL-Authentication im Caller-Modus sowie Junction-/Reparse-List kontrolliert abgewiesen. Vollständige I/O-, Limit-, TOCTOU- und Cleanup-Matrix bleiben offen.
+- Datum: `2026-10-20`
+- Nachweis: `Modules/toolbelt.filesystem.windows/Tests/Invoke-RootRepeatLab.ps1`
+- Scope: Windows SQL Server2025 CL170 lokal; vier synthetische FileSystemRoot-Zeilen mit allen zehn Spalten, zwei befüllte Repeats derselben Produktbytes in frischen Sitzungen, zwölf Daten-/Katalogkategorien und zwei inverse NULL-/Paddingkontrollen bestanden. Reproduzierbarer Releasebuild, Exit0, vollständige Kanäle, leeres Stderr, eigene DB-/Trustbereinigung und frischer lesender Input-/Abwesenheitsaudit bestanden. Drei historische Fehlversuche bleiben FAILED. Keine Konfigurations-/Rechte-/Dateisystemänderungen; weitere Ziele/CLs, nichtleere Grants, Minimalrechte, I/O, authentifizierte TLS-Abnahme und Release bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

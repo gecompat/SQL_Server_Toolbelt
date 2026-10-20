@@ -28,3 +28,43 @@ foreach($text in $bad){$rejected=$false;try{[void](Test-NoOverwriteWitness $text
 if((Get-FileHash -LiteralPath $path).Hash-cne$hash){throw 'FS_TEST_CONTROL_SOURCE_DRIFT'}
 if($n-ne26){throw 'FS_TEST_CONTROL_COUNT'}
 'PASS NO_OVERWRITE_WITNESS_CONTROLS CHECKS='+$n+' SYNTHETIC_ONLY'
+
+# Tatsächliche Repeatdiagnose isoliert laden: keine Labdiscovery oder SQL-Verbindung.
+$repeatPath=Join-Path $PSScriptRoot '../Invoke-RootRepeatLab.ps1'
+$repeatText=[IO.File]::ReadAllText($repeatPath);$repeatErrors=$null
+$repeatAst=[Management.Automation.Language.Parser]::ParseInput($repeatText,[ref]$null,[ref]$repeatErrors)
+if($repeatErrors.Count){throw 'FS_REPEAT_DIAG_AST'}
+$diagnostics=@($repeatAst.FindAll({param($node)$node-is[Management.Automation.Language.FunctionDefinitionAst]-and$node.Name-ceq'Get-Failure'},$true))
+if($diagnostics.Count-ne1){throw 'FS_REPEAT_DIAG_FUNCTION'}
+. ([scriptblock]::Create($diagnostics[0].Extent.Text))
+$stage='CONTROL_CAPTURE';$diagnosticCount=0
+foreach($message in @('SYNTHETIC_SENSITIVE_VALUE','FS_REPEAT_SYNTHETIC_SECRET_MARKER')){
+    try{throw [InvalidOperationException]::new($message)}catch{$diagnostic=Get-Failure $_}
+    if($diagnostic.Reason-cne'UNCLASSIFIED'-or$diagnostic.ErrorId-cne'REDACTED_UNCLASSIFIED_ERROR_ID'-or
+       ($diagnostic|ConvertTo-Json -Depth 4).Contains($message)-or$diagnostic.ExceptionTypes.Count-lt1-or
+       $diagnostic.SourceLine-lt1){throw 'FS_REPEAT_DIAG_FREE_TEXT'}
+    $diagnosticCount++
+}
+$stage='CLEANUP'
+if($diagnostic.Stage-cne'CONTROL_CAPTURE'){throw 'FS_REPEAT_DIAG_PRIMARY_STAGE'}
+$throwCodes=@([regex]::Matches($repeatText,"throw '(FS_REPEAT_[A-Z0-9_]+)'")|ForEach-Object{$_.Groups[1].Value}|Sort-Object -Unique)
+if($throwCodes.Count-ne28){throw 'FS_REPEAT_DIAG_CODE_INVENTORY'}
+foreach($code in $throwCodes){
+    $errorRecord=[Management.Automation.ErrorRecord]::new([InvalidOperationException]::new($code),'SyntheticUnknownId',[Management.Automation.ErrorCategory]::InvalidData,$null)
+    if((Get-Failure $errorRecord).Reason-cne$code){throw 'FS_REPEAT_DIAG_KNOWN_CODE'}
+    $diagnosticCount++
+}
+'PASS ROOT_REPEAT_DIAGNOSIS_CONTROLS CHECKS='+$diagnosticCount+' SYNTHETIC_ONLY'
+
+# Die tatsächliche Payloadkonvertierung muss SQL NULL und leere Bytes trennen.
+$payloadFunctions=@($repeatAst.FindAll({param($node)$node-is[Management.Automation.Language.FunctionDefinitionAst]-and$node.Name-ceq'Get-CapturePayload'},$true))
+if($payloadFunctions.Count-ne1){throw 'FS_REPEAT_PAYLOAD_FUNCTION'}
+. ([scriptblock]::Create($payloadFunctions[0].Extent.Text))
+if((Get-CapturePayload 'permissions' ([DBNull]::Value))-cne'SQL_NULL'){throw 'FS_REPEAT_PAYLOAD_NULL'}
+if((Get-CapturePayload 'permissions' ([byte[]]@()))-cne'BINARY:'){throw 'FS_REPEAT_PAYLOAD_EMPTY'}
+if((Get-CapturePayload 'rows' ([byte[]]@(0,1,255)))-cne'BINARY:0001FF'){throw 'FS_REPEAT_PAYLOAD_BYTES'}
+foreach($invalid in @(@{Category='rows';Value=[DBNull]::Value},@{Category='permissions';Value='not binary'})){
+    $rejected=$false;try{[void](Get-CapturePayload $invalid.Category $invalid.Value)}catch{$rejected=$_.Exception.Message-ceq'FS_REPEAT_CAPTURE_SHAPE'}
+    if(-not$rejected){throw 'FS_REPEAT_PAYLOAD_FALSE_ACCEPT'}
+}
+'PASS ROOT_REPEAT_CAPTURE_CONTROLS CHECKS=5 SYNTHETIC_ONLY'

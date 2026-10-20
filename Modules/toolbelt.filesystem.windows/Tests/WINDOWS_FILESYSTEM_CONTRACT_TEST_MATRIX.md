@@ -23,9 +23,9 @@ Aktuelle Evidenz: Manuelle Windows-CLR-Preflight-Validierung vom 2026-08-04 auf 
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-12`
-- Nachweis: `Privater Windows-Recheck des transparenten Rechtevertrags`
-- Scope: SQL Server 2025 Windows; finaler Release-Build deployed. Windows-Caller mit EXECUTE plus SELECT auf FileSystemRoot und ServiceAccount-List erfolgreich; SQL-Authentication im Caller-Modus sowie Junction-/Reparse-List kontrolliert abgewiesen. Vollständige I/O-, Limit-, TOCTOU- und Cleanup-Matrix bleiben offen.
+- Datum: `2026-10-20`
+- Nachweis: `Modules/toolbelt.filesystem.windows/Tests/Invoke-RootRepeatLab.ps1`
+- Scope: Windows SQL Server2025 CL170 lokal; vier synthetische FileSystemRoot-Zeilen mit allen zehn Spalten, zwei befüllte Repeats derselben Produktbytes in frischen Sitzungen, zwölf Daten-/Katalogkategorien und zwei inverse NULL-/Paddingkontrollen bestanden. Reproduzierbarer Releasebuild, Exit0, vollständige Kanäle, leeres Stderr, eigene DB-/Trustbereinigung und frischer lesender Input-/Abwesenheitsaudit bestanden. Drei historische Fehlversuche bleiben FAILED. Keine Konfigurations-/Rechte-/Dateisystemänderungen; weitere Ziele/CLs, nichtleere Grants, Minimalrechte, I/O, authentifizierte TLS-Abnahme und Release bleiben offen.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

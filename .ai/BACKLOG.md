@@ -1622,7 +1622,41 @@ Chatverlauf ersetzen diese Repositoryquellen nicht.
 | 2 (gezielt bestanden) | `toolbelt.core.execution-cancel` / `ExecutionCancellation` | Befüllte Repeats mit exakten Zeilen-, Rowversion- und ausgewählten Katalogvergleichen lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Neue Windows-Repeats, weitere CLs, nichtleere Benutzergrants, Minimalrechte und historische Übergänge bleiben offen. |
 | 3 (gezielt bestanden) | `toolbelt.core.event-log` / `EventLog` | Daten-/Identity-/ausgewählter Katalogerhalt und vertragsgemäße WorkType-Reaktivierung mit anschließend unverändertem aktivem Repeat lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Neue Windows-Repeats, weitere CLs, Benutzergrants, Minimalrechte und historische Übergänge bleiben offen. |
 | 4 (gezielt bestanden) | `toolbelt.core.second-session` / `SecondSessionProvider` | Deaktivierter Einzelprovider einschließlich acht Spalten, Audit-/Rowversionbytes und ausgewähltem Katalog lokal/zentral in obiger Linux-/Default-CL-Matrix bestanden. Neue Windows-Repeats, weitere CLs, Benutzergrants, Minimalrechte und historische Übergänge offen; keine Provider- oder Rechteausweitung. |
-| 5 | `toolbelt.filesystem.windows` / `FileSystemRoot` | Befüllten Repeat unter bestehenden Windows-/Assembly-/Trustvoraussetzungen qualifizieren; fehlende Windows-Runtime nicht durch Offlineparser ersetzen. |
+| 5 (gezielt bestanden) | `toolbelt.filesystem.windows` / `FileSystemRoot` | Windows SQL2025/CL170 lokal: vier Rootzeilen mit allen zehn aktuellen Spalten, zwei befüllte Repeats, zwölf Daten-/Katalogkategorien und zwei inverse Kontrollen bestanden. Weitere Windowsversionen/CLs, nichtleere Grants, Minimalrechte und Datei-I/O bleiben getrennt; zentrale Installation ist nicht unterstützt. |
+
+Wiederaufnahme dieses fünften Scopes durch ausdrücklichen Benutzerauftrag
+vom 2026-10-20: Der aktuelle Rootkatalog hat einschließlich der zuvor
+integrierten ServiceAccount-Securityspalte zehn Spalten. Ein neuer
+[begrenzter Adapter mit Fixture](../Modules/toolbelt.filesystem.windows/Tests/README.md#befüllter-filesystemroot-repeat-2026-10-20)
+bereitet den lokalen Vierzeilen-/Zwei-Repeat-Nachweis und zwölf ausgewählte
+Daten-/Katalogkategorien vor. Vier synthetische Pfadwerte werden nicht als
+Dateisystemzugriff verwendet; zentrale Installation ist für dieses Modul
+nicht unterstützt. Reproduzierbarer doppelter Releasebuild und Offline-
+Grammatikprüfung bestanden. Zwei native Windows-SQL2025-/CL170-Versuche
+bleiben FAILED: zuerst Sessionguard SQL52970/State1, danach ein lokaler
+Fixture-/Adapterfehler SQL0/0. Jeweils eigener Cleanup und frische lesende
+DB-/Trust-Abwesenheitsprüfung bestanden. Kein Repeat-PASS oder Modulstatus-
+Upgrade; die Ursache des zweiten Fehlers ist ungemessen. Diagnosekorrektur,
+unabhängiger Review und aktuelle CI bleiben getrennte Nachweise. Das
+ursprünglich endliche Limit von zwei vollständigen Versuchen ist verbraucht;
+ein weiterer nativer Versuch benötigt eine ausdrückliche neue Begrenzung.
+
+Anschließende ausdrückliche Benutzerfreigabe vom 2026-10-20: höchstens zwei
+zusätzliche native Läufe und ein gezielter Abschlussreview. Versuch3 bleibt
+FAILED im ersten Capture mit privater InvalidCast-/Quellzeilendiagnose;
+eigener Cleanup und frische Abwesenheitsprüfung bestanden. Eine rein lesende
+synthetische Probe bestätigte SQL NULL/DBNull beim leeren XML-Binarycast.
+Der Capture unterscheidet nun ausdrücklich das leere Permissionset von
+leeren Bytes, bewahrt alle übrigen Pflichtkategorien und verwirft falsche
+Typen/Kategorien. Fünf synthetische Payloadkontrollen bestanden.
+Versuch4 bestand den vollständigen begrenzten Adapter: beide Repeats und
+beide inversen Kontrollen, Exit0, vollständige Kanäle, leeres Stderr, eigene
+DB-/Trustbereinigung und frischer lesender Input-/Abwesenheitsaudit. Drei
+historische FAILs bleiben erhalten; Produktquellen und Releasebytes sind
+unverändert. Die zunächst offenen Wiederholungsangaben oben sind damit
+für diesen ausgewählten Windows-SQL2025-/CL170-/Local-Scope abgelöst.
+Weitere Ziel-/Rechte-/I/O-/TLS- und Releasequalifikation bleiben getrennt;
+kein neuer öffentlicher Funktionsvertrag oder Modulstatus-Upgrade.
 
 Danach die exportierte gemeinsame Modulfolge mit befüllten Tabellen prüfen.
 Gesamtdeployment bleibt nicht atomar; Objekt-/Berechtigungserhaltung, lokale
