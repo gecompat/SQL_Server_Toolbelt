@@ -4,7 +4,47 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
-## Aktuelle Standard-CL-Bindung 2026-10-20
+## Zusätzliche Compatibility Levels 2026-10-20
+
+Nach Abschluss der Standard-CL-Ergänzung in
+[PR339](https://github.com/gecompat/SQL_Server_Toolbelt/pull/339) bestanden
+sechs weitere native Gesamtadapterläufe, jeweils im ersten Versuch:
+
+| Plattformen | SQL Server / Lab-Auswahl | Zusätzlich geprüfte CL | Modi |
+|---|---|---|---|
+| Windows, Linux | 2022 / Windows base mit erlaubtem bereitem CU-Äquivalent, Linux latest | 150 | local, central |
+| Windows, Linux | 2025 / Windows base mit erlaubtem bereitem CU-Äquivalent, Linux latest | 150, 160 | local, central |
+
+Der unveränderte öffentliche Labadapter setzte die eigene Testdatenbank pro
+Modus auf den ausgewählten CL. Je Lauf bestanden die drei SQLfixtures,
+Clientmetadaten, Clean/Repeat, fünf Slots/drei Bindings, dieselben 29 gezielten
+Caller-/SET-/Lock-/Rollback-/Confirm0-Fälle, frischer SC-/UTF8-Consumer und
+Uninstall/Repeat. Je äußerer Watchdog, Exit0, vollständige Kanäle und leeres
+Stderr sowie frischer unabhängiger Audit mit drei eigenen DBs/einem eigenen
+Trusthash abwesend und unveränderten Inputpins bestanden.
+
+Auf den beiden ausgewählten SQL2022-Zielen war eine autorisierte temporäre
+CLR-Aktivierung nötig. Vorzustand und vorgemerkter Scope wurden privat erfasst;
+nach jedem betroffenen Verbraucher wurde der vollständige Ausgangszustand
+unter Driftprüfung restauriert. Die vier SQL2025-Läufe benötigten keine
+Konfigurationsänderung. Keine Rechte-, Owner- oder Infrastrukturänderungen;
+`clr strict security` blieb aktiv.
+
+Paket und ursprüngliche Build-/Frameworknachweise aus der ersten Welle vom
+2026-10-20 wurden nach erneuter Source-/Binary-/Runner-/Harness-/Helper-/Compiler-/
+Frameworkreferenzbindung wiederverwendet; kein neuer lokaler Build oder
+Frameworklauf. Die Standard-CL-Nachweise wurden ebenfalls nach aktueller
+Inputprüfung weiterverwendet und nicht erneut ausgeführt.
+
+Damit ist der begrenzte Gesamtadapter am aktuellen Quellen-/Abhängigkeitsstand
+auf allen zwölf zulässigen Kombinationen bestanden: Windows und Linux jeweils
+SQL2019/CL150, SQL2022/CL150/160 und SQL2025/CL150/160/170, lokal und zentral.
+Die je 29 gezielten Lifecyclefälle bleiben derselbe Teilumfang; Minimalrechte,
+Fremdslot-/Driftvollmatrix, weitere Collations, Heap, authentifiziertes TLS und
+Release bleiben offen. `partially validated`, `unreleased` bleiben unverändert;
+aktuelle Head-/Main-CI ist ein eigener Integrationsgate.
+
+## Standard-CL-Bindung 2026-10-20
 
 Nach [PR338](https://github.com/gecompat/SQL_Server_Toolbelt/pull/338) bestanden
 zwei zusätzliche native Läufe mit den aktuellen ResultTable-Abhängigkeiten:
@@ -26,8 +66,9 @@ Zusammen mit den vier Läufen aus PR338 ist damit der begrenzte Gesamtadapter
 auf allen sechs physischen Windows-/Linux-/SQL2019/2022/2025-Kombinationen
 mit deren Standard-CL150/160/170 am aktuellen Quellen-/Abhängigkeitsstand
 bestanden. Die früheren Läufe vom 2026-10-05 bleiben historische Evidenz.
-Zusätzliche CLs, Minimalrechte, Fremdslot-/Driftvollmatrix, weitere Collations,
-Heap und Release bleiben offen. Functional-Transport qualifiziert kein
+Die zusätzlichen CL-Nachweise stehen in der getrennten Folgewelle oben.
+Minimalrechte, Fremdslot-/Driftvollmatrix, weitere Collations, Heap und Release
+bleiben offen. Functional-Transport qualifiziert kein
 authentifiziertes TLS; aktuelle Head-/Main-CI bleibt ein separater Gate.
 
 ## Vorherige ergänzende native Zielwelle 2026-10-20

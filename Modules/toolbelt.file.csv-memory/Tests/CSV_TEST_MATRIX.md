@@ -29,8 +29,18 @@ Trusthash abwesend. Keine Konfigurations-/Rechte-/Infrastrukturänderungen.
 Vorherige Build-/Frameworknachweise wurden nach Inputbindung wiederverwendet,
 nicht erneut ausgeführt. Damit ist der begrenzte Standard-CL-Adapter auf allen
 sechs physischen Kombinationen am aktuellen Quellen-/Abhängigkeitsstand bestanden.
-Zusätzliche CLs,
-Minimalrechte, Vollmatrixdrift, Heap, authentifiziertes TLS und Release bleiben offen.
+Die anschließende getrennte CL-Welle nach PR339 bestand auf Windows und Linux
+jeweils SQL2022/CL150 sowie SQL2025/CL150 und CL160, mit derselben Lab-Patchauswahl
+und aktuellem Quellen-/Abhängigkeitsstand. Sechs erste native Versuche, je
+local/central, vollständiger oben genannter Adapterumfang, Exit0, vollständige
+Kanäle/leeres Stderr und frischer unabhängiger Audit drei eigene DBs/ein eigener
+Trusthash abwesend. Zwei autorisierte temporäre SQL2022-CLR-Konfigurationen
+vollständig restauriert; keine Rechte-/Owner-/Infrastrukturänderung.
+Build-/Framework- und Standard-CL-Nachweise nach erneuter Inputprüfung
+wiederverwendet, nicht erneut ausgeführt. Damit sind alle zwölf zulässigen
+Plattform-/Engine-/CL-Kombinationen im begrenzten Gesamtadapter bestanden.
+Minimalrechte, Vollmatrixdrift, weitere Collations, Heap, authentifiziertes TLS
+und Release bleiben offen.
 
 | Scope | Pflichtfälle | Status |
 |---|---|---|
@@ -44,10 +54,10 @@ Minimalrechte, Vollmatrixdrift, Heap, authentifiziertes TLS und Release bleiben 
 | Gezielter Lifecycle | Caller/SET, AppLock, injected Rollback, Confirm0, Uninstall/Repeat | passed; 29 konkrete Caller-/Lock-/Rollback-/Confirm0-Prüfungen, kein Fremdslot-/Driftvollmatrix-Nachweis |
 | Typed-Marker-Teilnachweis | synthetisches int statt bit auf USP_ParseCsv, Deploy/Uninstall SQL55324/state5, unveränderte Metadaten und exakte Restaurierung | passed; zwei separate Fälle Linux2019/latest CL150 lokal, frischer unabhängiger Audit eine eigene DB/ein eigener Trusthash abwesend; kein Gesamtadapter-/Windows-/Central-Nachweis |
 | Fremdslots/Markerdrift | weitergehende Lifecycle-Kollisions-/Driftmatrix | not executed; der separate Zweifall-Nachweis ersetzt die Vollmatrix nicht |
-| Client | echte SqlDataReader-Spalten/Nullability/Resultsetanzahl, keine Help-Seiteneffekte | passed im achten historischen Lauf und in sechs ergänzenden Standard-CL-Läufen vom 2026-10-20; historischer fünfter Metadata-Fehllauf bleibt FAILED |
+| Client | echte SqlDataReader-Spalten/Nullability/Resultsetanzahl, keine Help-Seiteneffekte | passed in zwölf nativen Läufen vom 2026-10-20 (sechs Standard-CL, sechs zusätzliche CL); historischer fünfter Metadata-Fehllauf bleibt FAILED |
 | Modi | local, central, CrossDB mit caller-lokalen Temps und abweichender Collation | passed local/central und frischer SC-/UTF8-Consumer; keine Collationvollmatrix |
-| Plattform | SQL2019/2022/2025 Windows/Linux und relevante CL getrennt | 2026-10-20: Windows/base mit erlaubten CU-Äquivalenten und Linux/latest jeweils SQL2019 CL150, SQL2022 CL160, SQL2025 CL170 bestanden. Zusätzliche CLs not executed; keine vollständige Supportqualifikation |
-| Gesamtadapter/Cleanup | Prozessausgang, vollständige Kanäle, frischer unabhängiger OwnDB-/Trustaudit | sechs ergänzende Standard-CL-Läufe vom 2026-10-20 PASS mit Exit0/vollständigen Kanälen/leeren Stderr; je drei OwnDB/ein OwnTrust abwesend. Vierzielwelle: drei temporäre CLR-Konfigurationen restauriert; folgende zwei Läufe: keine Konfigurationsänderung. Keine Rechte-/Infrastrukturänderungen |
+| Plattform | SQL2019/2022/2025 Windows/Linux und relevante CL getrennt | 2026-10-20: Windows/base mit erlaubten CU-Äquivalenten und Linux/latest jeweils SQL2019 CL150, SQL2022 CL150/160, SQL2025 CL150/160/170 bestanden; zwölf zulässige Kombinationen im begrenzten Adapter, weitere Pflichtscopes offen |
+| Gesamtadapter/Cleanup | Prozessausgang, vollständige Kanäle, frischer unabhängiger OwnDB-/Trustaudit | zwölf native Läufe vom 2026-10-20 PASS mit Exit0/vollständigen Kanälen/leeren Stderr; je drei OwnDB/ein OwnTrust abwesend. Standard-CL-Wellen: drei temporäre CLR-Konfigurationen restauriert; zusätzliche CL-Welle: zwei restauriert. Keine Rechte-/Infrastrukturänderungen |
 | Head-CI | separater Nachweis am exakten PR-Head | passed historisch für [PR169](https://github.com/gecompat/SQL_Server_Toolbelt/pull/169), Head89f36f848ab68a1a72898ddd5f081fc47740f119, fünf erfolgreiche Checks; kein CSV-SQL2022-Runtime-Nachweis; neue Heads separat prüfen |
 | Rechte | vorhandene Minimalrechte, eingeschränkte Metadata-Visibility | not executed |
 | Kapazität | vollständige Ceiling-/Heap-/Performancequalifikation | not executed |
