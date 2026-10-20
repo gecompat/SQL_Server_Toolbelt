@@ -25,7 +25,17 @@ function Get-Failure($ErrorRecord){
     # Strukturierte Diagnose bleibt privat; kein freier Exception-/SQLtext.
     $number=0;$state=0;$reason='UNCLASSIFIED';$item=$ErrorRecord.Exception
     $types=[Collections.Generic.List[string]]::new()
-    while($item-and$types.Count-lt16){$types.Add($item.GetType().FullName);if($item-is[Data.SqlClient.SqlException]){$number=$item.Number;$state=$item.State};if($item.Message-cmatch'^FS_REPEAT_[A-Z0-9_]+$'){$reason=$item.Message};$item=$item.InnerException}
+    $knownReasons=@(
+        'FS_REPEAT_BINARY_DRIFT','FS_REPEAT_BINARY_SOURCE_BINDING','FS_REPEAT_CAPTURE_SHAPE','FS_REPEAT_CL_VERSION',
+        'FS_REPEAT_CLEANUP_NAME','FS_REPEAT_CONTROL_RESTORE_CHANGED','FS_REPEAT_DATABASE_OWNERSHIP_UNCONFIRMED',
+        'FS_REPEAT_DATABASE_REMAINS','FS_REPEAT_DEADLINE','FS_REPEAT_DEPLOY_TRANSACTION','FS_REPEAT_EXISTING_CLR_PRIVILEGES_REQUIRED',
+        'FS_REPEAT_HELPER_DISCOVERY','FS_REPEAT_HELPER_PARSE','FS_REPEAT_INCLUDE_BOUNDARY','FS_REPEAT_INPUT_DRIFT',
+        'FS_REPEAT_JOURNAL_EXISTS','FS_REPEAT_NEGATIVE_CONTROL_MISSED','FS_REPEAT_OWNERSHIP_UNCONFIRMED',
+        'FS_REPEAT_PREEXISTING_TRUST_DRIFT','FS_REPEAT_PRIVATE_JOURNAL_OUTSIDE_REPOSITORY_REQUIRED',
+        'FS_REPEAT_READY_TARGET_MISSING','FS_REPEAT_SNAPSHOT_CHANGED','FS_REPEAT_TRUST_ADD_UNCONFIRMED',
+        'FS_REPEAT_TRUST_CONSUMER_VISIBILITY','FS_REPEAT_TRUST_DRIFT','FS_REPEAT_TRUST_OWNERSHIP_UNCONFIRMED',
+        'FS_REPEAT_TRUST_REMAINS','FS_REPEAT_UNRESOLVED_TEMPLATE')
+    while($item-and$types.Count-lt16){$types.Add($item.GetType().FullName);if($item-is[Data.SqlClient.SqlException]){$number=$item.Number;$state=$item.State};if($item.Message-cin$knownReasons){$reason=$item.Message};$item=$item.InnerException}
     $errorId=[string]$ErrorRecord.FullyQualifiedErrorId
     # Auch alphanumerische ErrorIds können den freien Throwtext enthalten.
     $knownIds=@('MethodInvocationException','InvokeMethodOnNull','PropertyNotFoundStrict','VariableIsUndefined',
@@ -33,7 +43,9 @@ function Get-Failure($ErrorRecord){
         'CannotConvertArgumentNoMessage','ParameterArgumentTransformationError,Sql',
         'ParameterArgumentValidationError,Sql','ParameterArgumentValidationErrorNullNotAllowed,Sql','PositionalParameterNotFound,Sql')
     if($errorId-cnotin$knownIds){$errorId='REDACTED_UNCLASSIFIED_ERROR_ID'}
-    return [ordered]@{Stage=$stage;SqlNumber=$number;SqlState=$state;Reason=$reason;ExceptionTypes=$types.ToArray();ErrorId=$errorId;SourceLine=$ErrorRecord.InvocationInfo.ScriptLineNumber}
+    $sourceLine=0
+    if($null-ne$ErrorRecord.InvocationInfo){$sourceLine=[int]$ErrorRecord.InvocationInfo.ScriptLineNumber}
+    return [ordered]@{Stage=$stage;SqlNumber=$number;SqlState=$state;Reason=$reason;ExceptionTypes=$types.ToArray();ErrorId=$errorId;SourceLine=$sourceLine}
 }
 
 function Save-Journal {
