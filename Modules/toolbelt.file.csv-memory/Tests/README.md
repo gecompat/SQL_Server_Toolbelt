@@ -4,6 +4,36 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Fehlende Ownershipmarker 2026-10-20
+
+Der getrennte Scope `-TestScope marker-absence` bestand auf Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
+local/central im ersten nativen Versuch. Pro Modus wurden 27 Marker einzeln
+entfernt: vier je CSV-Zielobjekt, drei an der Assembly, zwei datenbankweite
+Release-/Modusmarker und zwei Schemamarker. Die ursprünglichen typisierten
+Werte und ihre Bytes werden vor dem Entfernen geprüft. Deploy und Uninstall
+müssen jeweils SQL55324/state1/2/3/4/5 liefern: 54 Abweisungen pro Modus,
+108 pro Ziel. Fehlender Versionsmarker führt dabei zum unvollständigen Zustand
+state3; der ursprüngliche Wert wird erst bei unverändertem erfasstem
+Mutationszustand und weiterhin fehlendem Marker restauriert. Anschließend muss
+der vollständige erfasste Snapshot wieder der Baseline entsprechen.
+
+Je Ziel bestanden Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle
+und leeres Stderr. Frische unabhängige Audits bestätigen zwei eigene DBs/einen
+eigenen Trusthash abwesend, Konfiguration und Runtimeinputs unverändert.
+121 synthetische Offlinekontrollen einschließlich ungültiger Fallfelder,
+unbeobachteter Mutation und Restaurierungsdrift sowie SQL150-Grammatikprüfung
+aller 108 expandierten Remove-/Restore-Batches bestanden.
+
+Der neue Helper wird nur im gewählten Scope geladen. Der gemeinsame
+Snapshothelper, Produkt-, Deployment- und CLR-Quellen sind unverändert; kein
+zusätzlicher Default-/API-/Client-/Heap-/TLS-Nachweis. Der bestehende CI-Schritt
+ergänzt nur die Helper-AST und nutzt die erweiterten Offlinekontrollen;
+Filter, Jobs, Cancellation und Build-/Frameworkgrenzen bleiben unverändert.
+Keine erneute Zielvollmatrix; Review am stabilen getesteten Kandidaten statt
+einer gesonderten PASS-Logreviewkette. Token-/Kostenwirkung unbekannt.
+Weitere Wert-/Typ-/Binding-/Owner-/Rechte-/Driftvarianten und Release bleiben offen.
+
 ## Begrenzte Fremdslot-/Verbraucher-Guards 2026-10-20
 
 Der getrennte Testscope `-TestScope foreign-slots` ist für Linux2019/latest

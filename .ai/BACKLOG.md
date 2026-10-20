@@ -2015,6 +2015,20 @@ und SQL150-Grammatikprüfungen der elf Fixture-Batches und des korrigierten
 Snapshots bestanden. Keine Produkt-, Deployment-, CLR-, Rechte-/Owner-/
 Infrastrukturänderung oder Statusaufwertung; keine neue Zwölfzielabnahme.
 
+Nach PR342 bestand die begrenzte Welle fehlender Ownershipmarker 2026-10-20:
+Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem CU-Äquivalent
+jeweils local/central im ersten Versuch. Je Modus 27 einzelne Entfernungen
+(20 Objekt-, drei Assembly-, zwei Datenbank-, zwei Schemamarker), beide
+Lifecycleoperationen mit SQL55324/state1/2/3/4/5 abgewiesen; je Ziel 108
+Abweisungen, unveränderter erfasster Mutationszustand und exakte typisierte
+Restaurierung. Je Exit0, vollständige Kanäle, leeres Stderr und frischer
+unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend; Inputs und
+Konfiguration unverändert. 121 Offlinekontrollen und SQL150-Grammatik aller
+108 expandierten Fixture-Batches bestanden. Keine Produkt-/Deployment-/CLR-/
+Rechte-/Owner-/Infrastrukturänderung oder Statusaufwertung. Die anschließend
+beauftragte getrennte Folgewelle prüft fremde Views/Prozeduren auf Zielslots;
+deren native Ausführung ist hier noch not executed.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte
