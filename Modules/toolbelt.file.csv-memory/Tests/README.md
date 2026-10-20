@@ -4,7 +4,33 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
-## Ergänzende native Zielwelle 2026-10-20
+## Aktuelle Standard-CL-Bindung 2026-10-20
+
+Nach [PR338](https://github.com/gecompat/SQL_Server_Toolbelt/pull/338) bestanden
+zwei zusätzliche native Läufe mit den aktuellen ResultTable-Abhängigkeiten:
+Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem
+CU-Äquivalent, jeweils local/central im ersten nativen Versuch. Beide Läufe
+verwenden das unveränderte Paket aus der vorherigen Vierzielwelle. Dessen
+Source-/Binarybindungen sowie Frameworkrunner, Harness, Prozesshelfer,
+Compiler und .NET48-Referenzen wurden vor Wiederverwendung geprüft;
+Build und Framework wurden hier nicht erneut ausgeführt.
+
+Je Ziel bestanden drei SQLfixtures, Clientmetadaten, Clean/Repeat, fünf
+Slots/drei Bindings, dieselben 29 gezielten Lifecyclefälle, frischer
+SC-/UTF8-Consumer und Uninstall/Repeat. Äußerer Watchdog, Exit0, vollständige
+Kanäle und leeres Stderr bestanden; je frische unabhängige Verbindung bestätigt
+drei eigene DBs/einen eigenen Trusthash abwesend und unveränderte Inputpins.
+Keine Konfigurations-, Rechte-, Owner- oder Infrastrukturänderungen.
+
+Zusammen mit den vier Läufen aus PR338 ist damit der begrenzte Gesamtadapter
+auf allen sechs physischen Windows-/Linux-/SQL2019/2022/2025-Kombinationen
+mit deren Standard-CL150/160/170 am aktuellen Quellen-/Abhängigkeitsstand
+bestanden. Die früheren Läufe vom 2026-10-05 bleiben historische Evidenz.
+Zusätzliche CLs, Minimalrechte, Fremdslot-/Driftvollmatrix, weitere Collations,
+Heap und Release bleiben offen. Functional-Transport qualifiziert kein
+authentifiziertes TLS; aktuelle Head-/Main-CI bleibt ein separater Gate.
+
+## Vorherige ergänzende native Zielwelle 2026-10-20
 
 Der unveränderte öffentliche Adapter `Tests/CI/run-csv-memory-lab.ps1` bestand
 auf vier zusätzlich ausgewählten physischen Labzielen, jeweils im ersten
@@ -49,9 +75,10 @@ der fehlenden CLR-Voraussetzung gestoppt, jeweils vor Aufruf des nativen
 Adapters und ohne Testressourcen anzulegen.
 
 Diese Welle ändert keine Produkt-, Deployment-, CLR-, Adapter- oder
-Testorakelquellen. Historische Läufe auf Linux2019/CL150 und Windows2025/CL170
-werden nicht als frisch ausgeführt dargestellt: insbesondere stammt die dortige
-ResultTable-Abhängigkeit aus ihrem damaligen Stand. Zusätzliche CLs,
+Testorakelquellen. In dieser Vierzielwelle wurden die historischen Läufe auf
+Linux2019/CL150 und Windows2025/CL170 nicht neu ausgeführt; ihr damaliger
+ResultTable-Stand wird erst durch die getrennte Standard-CL-Ergänzung oben
+aktuell qualifiziert. Zusätzliche CLs,
 Minimalrechte, Fremdslot-/Driftvollmatrix, weitere Collations, Heap und Release
 bleiben offen. Transport war `Functional`; authentifiziertes TLS ist
 `not executed`. Aktuelle Head-/Main-CI ist ein gesonderter Integrationsgate.

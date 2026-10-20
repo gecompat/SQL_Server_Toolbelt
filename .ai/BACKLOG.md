@@ -1958,6 +1958,19 @@ Status weiterhin `partially validated`, `unreleased`;
 [Testnachweis](../Modules/toolbelt.file.csv-memory/Tests/README.md) und
 [Matrix](../Modules/toolbelt.file.csv-memory/Tests/CSV_TEST_MATRIX.md).
 
+Nachfolgende begrenzte Standard-CL-Ergänzung 2026-10-20: Die zuvor nur historisch
+qualifizierten Ziele Linux2019/latest CL150 und Windows2025/base CL170 mit
+erlaubtem bereitem CU-Äquivalent bestanden mit aktuellen ResultTable-Abhängigkeiten
+jeweils local/central im ersten nativen Versuch. Je gleicher SQL-/Client-/
+29-Lifecycle-/Consumer-/Uninstall-Scope, Exit0, vollständige Kanäle, leeres
+Stderr und frischer unabhängiger Cleanup-Audit bestanden; keine Konfigurations-,
+Rechte-, Owner- oder Infrastrukturänderungen. Paket und ursprüngliche
+Build-/Frameworknachweise vom selben Tag wurden nach Inputprüfung wiederverwendet,
+nicht neu ausgeführt. Mit PR338 sind damit alle sechs physischen Kombinationen
+am aktuellen Quellen-/Abhängigkeitsstand mit Standard-CL150/160/170 im begrenzten
+Adapter bestanden. Zusätzliche CLs und die übrigen oben genannten Grenzen bleiben
+offen; `partially validated`, `unreleased` bleiben unverändert.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte
