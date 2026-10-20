@@ -4,6 +4,68 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Begrenzte Fremdslot-/Verbraucher-Guards 2026-10-20
+
+Der getrennte Testscope `-TestScope foreign-slots` ist für Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
+local/central bestanden: pro Ziel 28 Abweisungen und vier inverse Kontrollen.
+Linux bestand im zweiten, Windows im ersten nativen Versuch. Je Clean/Repeat,
+Uninstall/Repeat, Exit0, vollständige Kanäle und leeres Stderr; frischer
+unabhängiger Audit bestätigt zwei eigene DBs/einen eigenen Trusthash abwesend
+und unveränderte Inputpins. Konfiguration und Rechte blieben unverändert.
+
+Nach echtem Uninstall belegt die eigene Fixture jeden der fünf CSV-Zielnamen
+einzeln mit einer fremden Tabelle einschließlich zwei synthetischer Zeilen,
+NULL/Padding, Primärschlüssel und Zusatzindex. Deploy und Uninstall müssen
+jeweils mit SQL55324/state3 abbrechen. Der erfasste Katalogzustand und ein
+separater Index-/Constraint-/Wertbytes-Snapshot müssen identisch bleiben.
+Zwei inverse Kontrollen pro Modus ändern vorher NULL in leer und entfernen
+den Zusatzindex; der Witness muss beides erkennen und exakt restaurierbar sein.
+
+Nach erneuter Installation prüft je ein zusätzlicher SQL- und CLR-Verbraucher
+die Schutzpfade SQL55325/state3 beziehungsweise state2, ebenfalls gegen beide
+Lifecycleoperationen. Das ergibt 14 Abweisungen und zwei inverse Kontrollen
+pro Modus, 28 beziehungsweise vier pro Ziel; getrennt von Marker- und
+Defaultzählern. Fixtureentfernung verlangt den unveränderten erfassten Zustand,
+Objekt-ID, Erstellungsidentität und den eigenen typisierten Laufmarker.
+Uninstall/Repeat und frischer OwnDB-/Trustaudit bleiben Abschlussgates.
+
+Der erste Linux-Guardversuch bleibt `FAILED`: vor dem ersten Guardfall war der
+Snapshot nach Uninstall ungültig. Die lesende Diagnose isolierte einen leeren
+`FOR JSON`-Skalar als NULL; die Verkettung verlor damit den Gesamtsnapshot.
+Der gemeinsame Helper bildet leere Katalogteile jetzt als `[]` ab, behält alle
+erfassten Felder und die strenge Vierhash-Prüfung bei. Die SQL150-Grammatik und
+die lesende Leerkatalogprobe bestanden. Der frische Audit des Fehllaufs
+bestätigt eine eigene DB/einen eigenen Trusthash abwesend, keine Konfigurations-
+oder Rechteänderung. Die korrigierten erfolgreichen Guardläufe stehen getrennt.
+
+Wegen der Änderung am gemeinsamen Helper wurde der reservierte Default-
+Regressionslauf auf Linux2019/latest CL150 local/central ausgeführt: drei
+SQLfixtures, Clientmetadaten, 29 gezielte Lifecyclefälle, frischer SC-/UTF8-
+Consumer und Uninstall/Repeat PASS; Exit0, vollständige Kanäle, leeres Stderr
+und frischer unabhängiger Audit drei eigene DBs/ein eigener Trusthash abwesend,
+Inputpins und Konfiguration unverändert. Keine neue Zwölfzielabnahme.
+
+50 Offline-Fail-closed-Kontrollen und die Grammatikprüfung von elf synthetisch
+expandierten SQLstrings mit TSql150Parser bestanden. Die bisherigen Kontrollen
+gegen fehlende/falsche Fehler, Session-/Metadatendrift und Restaurierungsdrift
+bleiben enthalten; neue Kontrollen prüfen Scopewerte, Fixture-Namensgrenzen und
+ungültige/leere/abweichende Witnesses. Der unabhängige Review fand eine leere
+Modusliste als möglichen Nullfälle-PASS; der Adapter verlangt jetzt ein oder
+zwei Modi und weist leere/null Eingaben vor SQL-Zugriff ab. Sieben zusätzliche
+Parameterkontrollen sichern die Korrektur. Der bestehende CSV-Workflow ergänzt nur
+die neue Helper-AST im bisherigen Schritt. Filter, Jobs, Cancellation und
+Build-/Frameworkgrenzen bleiben erhalten; keine neue Reviewkette oder
+Zwölfzielwiederholung. Token-/Kostenwirkung unbekannt.
+
+Produkt, Deployment und CLR sind unverändert. Der neue Fremdslothelper wird nur
+im Fremdslotscope geladen. Der gemeinsame Snapshothelper wurde korrigiert;
+Default- und Markerpfade behalten ihren bisherigen Teilumfang. Frühere Nachweise
+behalten ihre ursprünglichen Ausführungsbindungen und sind keine erneute
+Abnahme dieses Helpers. Weitere
+Fremdobjektarten, Verbraucher-/Driftvarianten, Minimalrechte, zusätzliche
+Collations, Heap, authentifiziertes TLS und Release bleiben offen.
+
 ## Begrenzte Marker-Guards 2026-10-20
 
 `Tests/CI/run-csv-memory-lab.ps1 -TestScope ownership-markers` wählt einen
@@ -289,7 +351,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-20`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope ownership-markers; Linux-Abschlusslauf`
-- Scope: Ausdrücklich freigegebener dritter Linux2019/latest CL150 Guardlauf PASS, fünfter und letzter nativer Lauf der Welle. Local/central je zehn Markeränderungen und 20 erwartete Deploy-/Uninstallabweisungen SQL55324/state2/4/5; insgesamt 40, erfasster Metadatenzustand unverändert, Marker exakt restauriert. Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/einen eigenen Trusthash abwesend, Inputpins unverändert. Damit Linux und Windows2025/base mit erlaubtem CU-Äquivalent CL170 im begrenzten Markerscope bestanden. Zwei frühere Linux-Guardfehlläufe bleiben FAILED, separater Default-Regressionslauf bleibt getrennt. Unabhängiger Quell-/Oracle-/Privacyreview am korrigierten Stand PASS; neue Laufmetriken deterministisch geprüft. Keine Produkt-/Konfigurations-/Rechte-/Owner-/Infrastrukturänderung; keine vollständige Marker-/Fremdslot-/Minimalrechte-/Heap-/TLS-/Releaseabnahme.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope foreign-slots; separater Default-Regressionslauf`
+- Scope: Korrigierter gemeinsamer Snapshothelper normalisiert leere Katalogteile als []; strenge Vierhash-Prüfung bleibt. Linux2019/latest CL150 im zweiten, Windows2025/base mit erlaubtem CU-Äquivalent CL170 im ersten Guardversuch local/central PASS: fünf tabellenbelegte Zielslots sowie zusätzlicher SQL-/CLR-Verbraucher, je Deploy/Uninstall SQL55324/state3 und SQL55325/state3/2, je Ziel 28 Abweisungen und vier inverse NULL-/Leer-/Index-Witnesskontrollen. Je Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend. Separater Linux-Defaultregressionslauf local/central mit drei SQLfixtures, Client, 29 Lifecyclefällen und frischem SC-/UTF8-Consumer PASS; drei eigene DBs/ein eigener Trusthash frisch abwesend. 50 Offlinekontrollen, SQL150-Grammatik der elf Fixture-Batches und des Snapshots sowie lesende Leerkatalogprobe PASS. Alle Inputpins und Konfigurationen unverändert; keine Produkt-/Deployment-/CLR-/Rechte-/Owner-/Infrastrukturänderung. Erster Linuxfehllauf bleibt FAILED. Keine neue Zwölfziel-, Marker-, Minimalrechte-, Driftvollmatrix-, Heap-, authentifizierte TLS- oder Releaseabnahme.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

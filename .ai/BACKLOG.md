@@ -1998,6 +1998,23 @@ OwnDB-/Trustaudit als fünfter und letzter nativer Lauf dieser Welle. 27 synthet
 Fail-closed-Kontrollen bestanden. Keine Produkt-, Konfigurations-, Rechte-,
 Owner- oder Infrastrukturänderung; teilweise validiert und unveröffentlicht.
 
+Die nach PR341 beauftragte getrennte Fremdslot-/Verbraucherwelle bestand auf
+Linux2019/latest CL150 im zweiten und Windows2025/base CL170 mit erlaubtem
+CU-Äquivalent im ersten nativen Versuch jeweils local/central: fünf
+tabellenbelegte CSV-Zielslots sowie je ein SQL-/CLR-Verbraucher gegen Deploy und
+Uninstall, je Ziel 28 Abweisungen und vier NULL-/Leer-/Index-Witnesskontrollen.
+Je Exit0, vollständige Kanäle, leeres Stderr und frischer unabhängiger Audit
+zwei eigene DBs/ein eigener Trusthash abwesend. Erster Linuxversuch bleibt
+FAILED am Leerkatalogsnapshot, frisch bereinigt; leerer FOR-JSON-Skalar jetzt
+als [] im gemeinsamen Snapshothelper, strenges Zustandsorakel erhalten.
+Separater Linux-Defaultregressionslauf local/central mit SQLfixtures, Client,
+29 Lifecyclefällen und SC-/UTF8-Consumer PASS, frischer Audit drei eigene
+DBs/ein eigener Trusthash abwesend. Inputpins und Konfiguration unverändert.
+50 Offlinekontrollen einschließlich der im Review gefundenen leeren Modusliste
+und SQL150-Grammatikprüfungen der elf Fixture-Batches und des korrigierten
+Snapshots bestanden. Keine Produkt-, Deployment-, CLR-, Rechte-/Owner-/
+Infrastrukturänderung oder Statusaufwertung; keine neue Zwölfzielabnahme.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte

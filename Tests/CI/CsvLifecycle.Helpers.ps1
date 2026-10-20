@@ -96,7 +96,7 @@ IF @Result<0 THROW 51593,N'Synthetic holder lock not acquired.',5;
 }
 function Get-CsvCompleteSnapshotSql {
  @'
-SELECT @Snapshot=CONVERT(varchar(64),HASHBYTES('SHA2_256',CONVERT(varbinary(max),(
+SELECT @Snapshot=CONVERT(varchar(64),HASHBYTES('SHA2_256',CONVERT(varbinary(max),ISNULL((
  SELECT o.object_id,o.name,o.type,o.principal_id,m.definition,m.uses_ansi_nulls,m.uses_quoted_identifier,m.is_schema_bound,m.execute_as_principal_id,
   am.assembly_id,am.assembly_class,am.assembly_method,am.null_on_null_input,am.execute_as_principal_id AS ClrExecuteAs,
   TRY_CONVERT(int,OBJECTPROPERTYEX(o.object_id,'IsDeterministic')) AS IsDeterministic,
@@ -108,25 +108,24 @@ SELECT @Snapshot=CONVERT(varchar(64),HASHBYTES('SHA2_256',CONVERT(varbinary(max)
   (SELECT c.column_id,c.name,c.system_type_id,c.user_type_id,c.max_length,c.precision,c.scale,c.is_nullable,c.collation_name
    FROM sys.columns c WHERE c.object_id=o.object_id ORDER BY c.column_id FOR JSON PATH,INCLUDE_NULL_VALUES) AS Columns
  FROM sys.objects o LEFT JOIN sys.sql_modules m ON m.object_id=o.object_id LEFT JOIN sys.assembly_modules am ON am.object_id=o.object_id
- WHERE o.schema_id=SCHEMA_ID(N'toolbelt_file') ORDER BY o.name,o.object_id FOR JSON PATH,INCLUDE_NULL_VALUES))),2)
- +'|'+CONVERT(varchar(64),HASHBYTES('SHA2_256',CONVERT(varbinary(max),(
+ WHERE o.schema_id=SCHEMA_ID(N'toolbelt_file') ORDER BY o.name,o.object_id FOR JSON PATH,INCLUDE_NULL_VALUES),N'[]'))),2)
+ +'|'+CONVERT(varchar(64),HASHBYTES('SHA2_256',CONVERT(varbinary(max),ISNULL((
  SELECT class,major_id,minor_id,name,TRY_CONVERT(nvarchar(128),SQL_VARIANT_PROPERTY(value,'BaseType')) AS BaseType,TRY_CONVERT(int,SQL_VARIANT_PROPERTY(value,'MaxLength')) AS MaxLength,
   CONVERT(varchar(max),CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),value)),2) AS ValueBytes
  FROM sys.extended_properties WHERE (class=0 AND name LIKE N'Toolbelt.Module.toolbelt.file.csv-memory.%')
   OR(class=3 AND major_id=SCHEMA_ID(N'toolbelt_file'))
   OR(class=5 AND major_id=(SELECT assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_File_CsvMemory'))
- ORDER BY class,major_id,minor_id,name FOR JSON PATH,INCLUDE_NULL_VALUES))),2)
- +'|'+CONVERT(varchar(64),HASHBYTES('SHA2_256',CONVERT(varbinary(max),(
+ ORDER BY class,major_id,minor_id,name FOR JSON PATH,INCLUDE_NULL_VALUES),N'[]'))),2)
+ +'|'+CONVERT(varchar(64),HASHBYTES('SHA2_256',CONVERT(varbinary(max),ISNULL((
  SELECT a.assembly_id,a.name,a.principal_id,a.permission_set,a.is_user_defined,f.file_id,f.name AS FileName,CONVERT(varchar(128),HASHBYTES('SHA2_512',f.content),2) AS BinaryHash
  FROM sys.assemblies a LEFT JOIN sys.assembly_files f ON f.assembly_id=a.assembly_id
- WHERE a.name=N'Toolbelt_File_CsvMemory' ORDER BY a.assembly_id,f.file_id FOR JSON PATH,INCLUDE_NULL_VALUES))),2)
- +'|'+CONVERT(varchar(64),HASHBYTES('SHA2_256',CONVERT(varbinary(max),(
- SELECT schema_id,name,principal_id FROM sys.schemas WHERE schema_id=SCHEMA_ID(N'toolbelt_file') FOR JSON PATH,INCLUDE_NULL_VALUES))),2);
+ WHERE a.name=N'Toolbelt_File_CsvMemory' ORDER BY a.assembly_id,f.file_id FOR JSON PATH,INCLUDE_NULL_VALUES),N'[]'))),2)
+ +'|'+CONVERT(varchar(64),HASHBYTES('SHA2_256',CONVERT(varbinary(max),ISNULL((
+ SELECT schema_id,name,principal_id FROM sys.schemas WHERE schema_id=SCHEMA_ID(N'toolbelt_file') FOR JSON PATH,INCLUDE_NULL_VALUES),N'[]'))),2);
 '@
 }
 function Get-CsvSnapshot($Connection){
- $sql=(Get-CsvCompleteSnapshotSql).Replace('SELECT @Snapshot=','SELECT ')
- $sql=$sql.Replace('FOR JSON PATH,INCLUDE_NULL_VALUES))),2);','FOR JSON PATH,INCLUDE_NULL_VALUES))),2) AS Snapshot;')
+ $sql='DECLARE @Snapshot nvarchar(max);'+(Get-CsvCompleteSnapshotSql)+' SELECT @Snapshot AS Snapshot;'
  $rows=@(Invoke-CsvSql $Connection $sql -Rows)
  if($rows.Count-ne1-or$rows[0].Snapshot-is[DBNull]-or[string]$rows[0].Snapshot-notmatch'\A[A-F0-9]{64}(\|[A-F0-9]{64}){3}\z'){throw 'CSV_COMPLETE_SNAPSHOT_INVALID'}
  return [string]$rows[0].Snapshot
