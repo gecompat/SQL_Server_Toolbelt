@@ -2057,7 +2057,22 @@ frisch bereinigt; falsches unquotiertes Sollformat und Diagnoseüberdeckung
 korrigiert. 194 Offlinekontrollen und SQL150-Grammatik aller 173 expandierten
 Fixture-Batches bestanden. Keine Produkt-/Deployment-/CLR-/Rechte-/Owner-/
 Infrastrukturänderung oder Statusaufwertung. Die anschließend beauftragte
-getrennte Folgewelle betrifft gezielte interne CLR-Bindingdrift; noch not executed.
+getrennte Folgewelle betrifft gezielte interne CLR-Bindingdrift.
+
+Nach PR345, 2026-10-20: Der getrennte Binding-Guardscope bestand auf
+Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem CU-Äquivalent
+jeweils local/central im ersten nativen Versuch. Acht einzelne Änderungen an
+den drei internen CLR-Funktionen: zwei NULL-Aufrufoptionen, vier Textlängen,
+ein Parametername und ein Resultatspaltenname. Je Deploy/Uninstall SQL55324/state5/7,
+32 Abweisungen pro Ziel mit konkretem Katalogwitness, unverändertem erfasstem
+Mutationszustand und exakter Restaurierung bei unveränderter Objektidentität.
+Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle, leeres Stderr;
+je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend,
+Konfiguration und Runtimeinputs unverändert. 235 Offlinekontrollen,
+Helper-/Adapter-AST und SQL150-Grammatik aller 32 expandierten Batches bestanden.
+Produkt-/Deployment-/CLR-Quellen und gemeinsame Snapshot-/Abweisungshelper
+unverändert. Keine Statusaufwertung oder neue Default-/API-/Client-/Minimalrechte-/
+Heap-/authentifizierte TLS-/Release- oder vollständige Binding-/Driftmatrixabnahme.
 
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
