@@ -2027,7 +2027,21 @@ Konfiguration unverändert. 121 Offlinekontrollen und SQL150-Grammatik aller
 108 expandierten Fixture-Batches bestanden. Keine Produkt-/Deployment-/CLR-/
 Rechte-/Owner-/Infrastrukturänderung oder Statusaufwertung. Die anschließend
 beauftragte getrennte Folgewelle prüft fremde Views/Prozeduren auf Zielslots;
-deren native Ausführung ist hier noch not executed.
+deren native Ausführung war zu diesem Zeitpunkt noch not executed.
+
+Anschließender Nachweis nach PR343, 2026-10-20: Getrennter Scope foreign-kinds
+bestand auf Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem
+CU-Äquivalent jeweils local/central im ersten Versuch. Fünf reservierte Namen
+je als fremde View und SQL-Prozedur, je Deploy/Uninstall SQL55324/state3;
+40 Abweisungen pro Ziel, erfasste Definitionen/Signaturen und synthetische
+Ergebnisse einschließlich Padding unverändert, geschützte eigene
+Fixtureentfernung und saubere Baseline. Je Exit0, vollständige Kanäle, leeres
+Stderr und frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash
+abwesend, Konfiguration und Runtimeinputs unverändert. 163 Offlinekontrollen
+und SQL150-Grammatik aller 60 expandierten Fixture-Batches bestanden. Keine
+Produkt-/Deployment-/CLR-/Rechte-/Owner-/Infrastrukturänderung oder
+Statusaufwertung; weitere Fremdarten, Synonyme, Verbraucher-/Binding-/
+Driftvollmatrix, Minimalrechte, Heap, authentifiziertes TLS und Release offen.
 
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-

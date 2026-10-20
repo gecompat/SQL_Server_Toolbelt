@@ -51,7 +51,7 @@ jobs:
         run: |
           python Modules/toolbelt.file.csv-memory/Tests/Static/validate_contract.py
           if ($LASTEXITCODE) { throw 'CSV static contract failed.' }
-          foreach ($path in @('Tests/CI/run-csv-memory-lab.ps1','Tests/CI/CsvLifecycle.Helpers.ps1','Modules/toolbelt.file.csv-memory/Tests/Runtime/Metadata.Tests.ps1','Modules/toolbelt.file.csv-memory/Tests/Runtime/OwnershipGuards.Tests.ps1','Modules/toolbelt.file.csv-memory/Tests/Runtime/ForeignGuards.Tests.ps1','Modules/toolbelt.file.csv-memory/Tests/Runtime/MarkerAbsence.Tests.ps1')) {
+          foreach ($path in @('Tests/CI/run-csv-memory-lab.ps1','Tests/CI/CsvLifecycle.Helpers.ps1','Modules/toolbelt.file.csv-memory/Tests/Runtime/Metadata.Tests.ps1','Modules/toolbelt.file.csv-memory/Tests/Runtime/OwnershipGuards.Tests.ps1','Modules/toolbelt.file.csv-memory/Tests/Runtime/ForeignGuards.Tests.ps1','Modules/toolbelt.file.csv-memory/Tests/Runtime/MarkerAbsence.Tests.ps1','Modules/toolbelt.file.csv-memory/Tests/Runtime/ForeignKinds.Tests.ps1')) {
             $errors=$null; $tokens=$null
             [Management.Automation.Language.Parser]::ParseFile($path,[ref]$tokens,[ref]$errors) | Out-Null
             if ($errors.Count) { throw 'CSV adapter parse failed.' }

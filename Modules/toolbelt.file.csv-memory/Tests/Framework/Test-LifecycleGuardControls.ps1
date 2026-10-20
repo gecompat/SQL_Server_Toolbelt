@@ -4,6 +4,7 @@ $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot '../Runtime/OwnershipGuards.Tests.ps1')
 . (Join-Path $PSScriptRoot '../Runtime/ForeignGuards.Tests.ps1')
 . (Join-Path $PSScriptRoot '../Runtime/MarkerAbsence.Tests.ps1')
+. (Join-Path $PSScriptRoot '../Runtime/ForeignKinds.Tests.ps1')
 $checks=0
 function Check([bool]$Condition){if(-not $Condition){throw 'CSV_GUARD_CONTROL_FAILED'};$script:checks++}
 # Nur den tatsächlichen Parameter-AST ausführen, niemals den Labadapterkörper.
@@ -14,8 +15,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots','marker-absence')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -29,6 +30,28 @@ $caught=$false;try{& $validateModes -DeploymentModes $null|Out-Null}catch{$caugh
 $caught=$false;try{& $validateModes -DeploymentModes @('local','central','local')|Out-Null}catch{$caught=$true};Check $caught
 $caught=$false;try{& $validateModes -DeploymentModes @('unknown')|Out-Null}catch{$caught=$true};Check $caught
 $slots=@(Get-CsvForeignSlotNames)
+$kindCases=@(Get-CsvForeignKindCases)
+Check ($kindCases.Count -eq 10)
+Check (@($kindCases|ForEach-Object {$_.Name+'|'+$_.Type}|Sort-Object -Unique).Count -eq 10)
+foreach($case in $kindCases){$caught=$false;try{Assert-CsvForeignKindCase $case}catch{$caught=$true};Check (-not $caught)}
+foreach($field in @('Name','Type','Kind','Sql','Read')){
+ $case=$kindCases[0].PSObject.Copy();$case.$field='invalid'
+ $caught=$false;try{Assert-CsvForeignKindCase $case}catch{$caught=$true};Check $caught
+}
+$good=[pscustomobject][ordered]@{Marker=[int]73;Payload='guard '}
+Check (Test-CsvForeignKindResult @($good))
+Check (-not (Test-CsvForeignKindResult @()))
+Check (-not (Test-CsvForeignKindResult @($good,$good)))
+Check (-not (Test-CsvForeignKindResult @([pscustomobject]@{Marker=73;Payload='guard ';Extra=1})))
+Check (-not (Test-CsvForeignKindResult @([pscustomobject]@{Marker='73';Payload='guard '})))
+Check (-not (Test-CsvForeignKindResult @([pscustomobject]@{Marker=73;Payload='guard'})))
+Check (-not (Test-CsvForeignKindResult @([pscustomobject]@{Marker=73;Payload='GUARD '})))
+Check (-not (Test-CsvForeignKindResult @([pscustomobject]@{Marker=73;Payload=[DBNull]::Value})))
+Check (-not (Test-CsvForeignKindResult @([pscustomobject]@{Marker=73})))
+Check (-not (Test-CsvForeignKindResult @([pscustomobject][ordered]@{Payload='guard ';Marker=73})))
+Check (-not (Test-CsvForeignKindResult @([pscustomobject]@{Marker=74;Payload='guard '})))
+Check (-not (Test-CsvForeignKindResult @($null)))
+Check (-not (Test-CsvForeignKindResult $null))
 foreach($mode in @('local','central')){
  $absenceCases=@(Get-CsvMarkerAbsenceCases $mode)
  Check ($absenceCases.Count -eq 27)
@@ -109,5 +132,36 @@ foreach($scenario in @('pass','restore-drift','restore-mismatch','unobserved')){
  Check ($caught -eq ($scenario -ne 'pass'))
  if($scenario -eq 'pass'){Check ($count -eq 54 -and $script:presenceSets -eq 54 -and $script:rejections -eq 54)}
  if($scenario -eq 'restore-drift'){Check ($script:presenceSets -eq 1)}
+}
+# Echte Dropfunktion: Identitätsdrift muss vor jedem SQL-Batch abbrechen.
+function Invoke-CsvSql($Connection,$Sql){$script:kindSql++}
+function Get-CsvForeignKindIdentity($Connection,$Case){[pscustomobject]@{Id=20;Created=('A'*18)}}
+foreach($identity in @([pscustomobject]@{Id=19;Created=('A'*18)},[pscustomobject]@{Id=20;Created=('B'*18)})){
+ $script:kindSql=0;$caught=$false
+ try{Remove-CsvForeignKind $null $kindCases[0] $identity}catch{$caught=$true}
+ Check ($caught -and $script:kindSql -eq 0)
+}
+function Invoke-CsvBatches($Connection,$Sql){}
+function Add-CsvForeignKindOwner($Connection,$Case){[pscustomobject]@{Id=20;Created=('A'*18)}}
+function Remove-CsvForeignKind($Connection,$Case,$Identity){$script:kindDrops++}
+function Assert-CsvForeignKindWitness($Connection,$Case){
+ $script:kindWitnesses++
+ if($script:scenario -ceq 'witness-drift' -and $script:kindWitnesses -gt 1){throw 'SYNTHETIC_KIND_WITNESS_CHANGED'}
+}
+function Get-CsvSnapshot($Connection){
+ $script:snapshots++
+ if($script:snapshots -eq 1){return 'clean'}
+ $step=($script:snapshots-2)%4
+ if($script:scenario -ceq 'drop-drift' -and $step -eq 2){return 'foreign'}
+ if($script:scenario -ceq 'restore-mismatch' -and $step -eq 3){return 'different'}
+ if($script:scenario -ceq 'unobserved' -and $step -eq 1){return 'clean'}
+ if($step -in @(0,3)){return 'clean'};return 'mutated'
+}
+foreach($scenario in @('pass','drop-drift','restore-mismatch','unobserved','witness-drift')){
+ $script:scenario=$scenario;$script:snapshots=0;$script:kindDrops=0;$script:kindWitnesses=0;$script:rejections=0;$caught=$false;$count=0
+ try{$count=Invoke-CsvForeignKindGuards $null 'synthetic-deploy' 'synthetic-uninstall' 'local'}catch{$caught=$true}
+ Check ($caught -eq ($scenario -cne 'pass'))
+ if($scenario -ceq 'pass'){Check ($count -eq 20 -and $script:kindDrops -eq 10 -and $script:rejections -eq 20)}
+ if($scenario -cin @('drop-drift','witness-drift')){Check ($script:kindDrops -eq 0)}
 }
 Write-Output ('PASS CSV_GUARD_ORACLE_CONTROLS CHECKS='+$checks+' SYNTHETIC_ONLY')
