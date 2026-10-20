@@ -1971,6 +1971,20 @@ am aktuellen Quellen-/Abhängigkeitsstand mit Standard-CL150/160/170 im begrenzt
 Adapter bestanden. Zusätzliche CLs und die übrigen oben genannten Grenzen bleiben
 offen; `partially validated`, `unreleased` bleiben unverändert.
 
+Anschließende getrennte CL-Welle 2026-10-20 nach PR339: sechs zusätzliche
+Kombinationen Windows/Linux jeweils SQL2022 CL150 sowie SQL2025 CL150 und CL160
+bestanden je im ersten nativen Versuch mit beiden Modi und demselben begrenzten
+SQL-/Client-/29-Lifecycle-/Consumer-/Uninstall-Scope. Exit0, vollständige Kanäle,
+leeres Stderr und je frischer unabhängiger OwnDB-/Trustaudit bestanden.
+Zwei autorisierte temporäre CLR-Konfigurationen auf SQL2022 vollständig
+restauriert; keine Rechte-/Owner-/Infrastrukturänderungen. Paket, ursprüngliche
+Build-/Frameworknachweise und die sechs Standard-CL-Läufe wurden nach erneuter
+Inputprüfung wiederverwendet, nicht erneut ausgeführt. Am aktuellen Quellen-/
+Abhängigkeitsstand sind damit alle zwölf zulässigen Plattform-/Engine-/CL-
+Kombinationen im begrenzten Gesamtadapter bestanden. Minimalrechte,
+Fremdslot-/Driftvollmatrix, weitere Collations, Heap, authentifiziertes TLS und
+Release bleiben offen; `partially validated`, `unreleased` bleiben unverändert.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte
