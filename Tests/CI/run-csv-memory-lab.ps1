@@ -9,7 +9,7 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedPromptSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedDriverSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{128}$')][string]$ExpectedAssemblySHA512,
- [ValidateSet('local','central')][string[]]$DeploymentModes=@('local','central'),
+ [ValidateNotNullOrEmpty()][ValidateCount(1,2)][ValidateSet('local','central')][string[]]$DeploymentModes=@('local','central'),
  [ValidateSet('default','ownership-markers','foreign-slots',IgnoreCase=$false)][string]$TestScope='default',
  [switch]$OptInExactTrust
 )

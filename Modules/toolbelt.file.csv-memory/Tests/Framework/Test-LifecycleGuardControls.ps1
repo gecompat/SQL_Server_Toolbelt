@@ -17,6 +17,16 @@ foreach($value in @('default','ownership-markers','foreign-slots')){Check ((& $v
 foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
+$modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
+if($modeParameters.Count -ne 1){throw 'CSV_GUARD_MODE_PARAMETER_IDENTITY'}
+$validateModes=[scriptblock]::Create('param('+$modeParameters[0].Extent.Text+') $DeploymentModes -join '',''')
+Check ((& $validateModes -DeploymentModes @('local')) -ceq 'local')
+Check ((& $validateModes -DeploymentModes @('central')) -ceq 'central')
+Check ((& $validateModes -DeploymentModes @('local','central')) -ceq 'local,central')
+$caught=$false;try{& $validateModes -DeploymentModes @()|Out-Null}catch{$caught=$true};Check $caught
+$caught=$false;try{& $validateModes -DeploymentModes $null|Out-Null}catch{$caught=$true};Check $caught
+$caught=$false;try{& $validateModes -DeploymentModes @('local','central','local')|Out-Null}catch{$caught=$true};Check $caught
+$caught=$false;try{& $validateModes -DeploymentModes @('unknown')|Out-Null}catch{$caught=$true};Check $caught
 $slots=@(Get-CsvForeignSlotNames)
 Check ($slots.Count -eq 5)
 Check (@($slots|Sort-Object -Unique).Count -eq 5)

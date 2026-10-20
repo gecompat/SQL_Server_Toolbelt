@@ -2001,7 +2001,8 @@ Owner- oder Infrastrukturänderung; teilweise validiert und unveröffentlicht.
 Die nach PR341 beauftragte getrennte Fremdslot-/Verbraucherwelle ist vorbereitet:
 fünf tabellenbelegte CSV-Zielslots sowie je ein SQL-/CLR-Verbraucher werden gegen
 Deploy und Uninstall geprüft, mit zusätzlichen NULL-/Leer- und Index-Witnesskontrollen.
-43 Offlinekontrollen und elf SQL150-Grammatikprüfungen bestanden; native
+50 Offlinekontrollen einschließlich der im Review gefundenen leeren Modusliste
+und elf SQL150-Grammatikprüfungen bestanden; native
 Ausführung auf Linux2019/CL150 und Windows2025/CL170 local/central noch not executed.
 Keine Produkt-, Deployment-, CLR- oder Statusaufwertung.
 

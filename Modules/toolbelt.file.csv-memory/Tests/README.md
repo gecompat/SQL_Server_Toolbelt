@@ -26,11 +26,14 @@ Defaultzählern. Fixtureentfernung verlangt den unveränderten erfassten Zustand
 Objekt-ID, Erstellungsidentität und den eigenen typisierten Laufmarker.
 Uninstall/Repeat und frischer OwnDB-/Trustaudit bleiben Abschlussgates.
 
-43 Offline-Fail-closed-Kontrollen und die Grammatikprüfung von elf synthetisch
+50 Offline-Fail-closed-Kontrollen und die Grammatikprüfung von elf synthetisch
 expandierten SQLstrings mit TSql150Parser bestanden. Die bisherigen Kontrollen
 gegen fehlende/falsche Fehler, Session-/Metadatendrift und Restaurierungsdrift
 bleiben enthalten; neue Kontrollen prüfen Scopewerte, Fixture-Namensgrenzen und
-ungültige/leere/abweichende Witnesses. Der bestehende CSV-Workflow ergänzt nur
+ungültige/leere/abweichende Witnesses. Der unabhängige Review fand eine leere
+Modusliste als möglichen Nullfälle-PASS; der Adapter verlangt jetzt ein oder
+zwei Modi und weist leere/null Eingaben vor SQL-Zugriff ab. Sieben zusätzliche
+Parameterkontrollen sichern die Korrektur. Der bestehende CSV-Workflow ergänzt nur
 die neue Helper-AST im bisherigen Schritt. Filter, Jobs, Cancellation und
 Build-/Frameworkgrenzen bleiben erhalten; keine neue Reviewkette oder
 Zwölfzielwiederholung. Token-/Kostenwirkung unbekannt.
