@@ -4,6 +4,45 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## CLR-Ausführungskontexte 2026-10-20/21
+
+Der getrennte Scope `-TestScope binding-execution` bestand auf Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
+im ersten Versuch local/central. Jede der drei internen Funktionen wird einzeln
+mit `WITH EXECUTE AS OWNER` aus ihrer kanonischen Quelle verändert. Ein eigener
+Katalogwitness verlangt den dokumentierten Metadatenwert-2;
+[sys.assembly_modules](https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-assembly-modules-transact-sql)
+unterscheidet diesen Kontext vom standardmäßigen Caller mit NULL.
+[CREATE FUNCTION](https://learn.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql)
+beschreibt die CLR-Funktionsoption. Die Funktionen werden im geänderten Kontext
+nicht ausgeführt; dies qualifiziert keine Fachausführung unter OWNER.
+
+Deploy und Uninstall müssen SQL55324/state5 liefern: sechs Abweisungen je Modus,
+zwölf je Ziel. Der Witness wird unmittelbar vor/nach jeder Operation und vor
+Restaurierung geprüft. Gleiche Objekt-/Erstellungsidentität, passende CLR-Bindung,
+typisierte Ownership und unveränderter erfasster Mutationszustand bleiben
+Voraussetzung. Die kanonische ALTER-Definition restauriert exakt die Caller-Baseline.
+Keine Rechtevergabe oder Änderung von Objekt-/Schemaeigentümern.
+
+Die neue unmittelbare Vorabprüfung gilt auch für die bisherigen Bindingfamilien.
+Daher bestanden zusätzlich `binding-drift` auf Linux2019/latest CL150 mit32
+und `binding-defaults` auf Windows2025/base CL170 mit20 Abweisungen, jeweils
+local/central. Alle vier Läufe: Clean/Repeat, Uninstall/Repeat, Exit0/vollständige
+Kanäle/leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener
+Trusthash abwesend, Konfiguration und Runtimeinputs unverändert.
+384 Offlinekontrollen einschließlich Drift unmittelbar vor der zweiten
+Operation mit unterbundener Ausführung/Restaurierung PASS. SQL150-Grammatik
+aller64 expandierten ALTER-/Identitäts-/Witness-Batches der drei Familien,
+PowerShell-AST und Static PASS.
+
+Keine neue Helferdatei oder Workflow-/Job-/Filter-/Cancellation-/Buildgrenze.
+Zwei gezielte Legacyregressionen decken die geänderten Helferkonsumenten ab;
+keine grüne Vollmatrixwiederholung oder zusätzliche PASS-Logreviewkette.
+Token-/Kostenwirkung unbekannt. Produkt-/Deployment-/CLR-/Snapshotquellen
+unverändert; keine neue Default-/API-/Client-, Minimalrechte-, Heap-,
+authentifizierte TLS-, vollständige Driftmatrix- oder Releaseabnahme.
+Status bleibt `partially validated`, `unreleased`.
+
 ## Falsche Ownership-/Release-Markerwerte 2026-10-20
 
 Der getrennte Scope `-TestScope marker-values` bestand auf Linux2019/latest
