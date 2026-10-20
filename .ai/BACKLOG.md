@@ -1998,6 +1998,13 @@ OwnDB-/Trustaudit als fünfter und letzter nativer Lauf dieser Welle. 27 synthet
 Fail-closed-Kontrollen bestanden. Keine Produkt-, Konfigurations-, Rechte-,
 Owner- oder Infrastrukturänderung; teilweise validiert und unveröffentlicht.
 
+Die nach PR341 beauftragte getrennte Fremdslot-/Verbraucherwelle ist vorbereitet:
+fünf tabellenbelegte CSV-Zielslots sowie je ein SQL-/CLR-Verbraucher werden gegen
+Deploy und Uninstall geprüft, mit zusätzlichen NULL-/Leer- und Index-Witnesskontrollen.
+43 Offlinekontrollen und elf SQL150-Grammatikprüfungen bestanden; native
+Ausführung auf Linux2019/CL150 und Windows2025/CL170 local/central noch not executed.
+Keine Produkt-, Deployment-, CLR- oder Statusaufwertung.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte

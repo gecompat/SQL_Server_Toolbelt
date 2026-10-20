@@ -4,6 +4,43 @@ Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Begrenzte Fremdslot-/Verbraucher-Guards 2026-10-20
+
+Der getrennte Testscope `-TestScope foreign-slots` ist für Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
+local/central vorbereitet. Native Ausführung dieses Scopes: `not executed`.
+
+Nach echtem Uninstall belegt die eigene Fixture jeden der fünf CSV-Zielnamen
+einzeln mit einer fremden Tabelle einschließlich zwei synthetischer Zeilen,
+NULL/Padding, Primärschlüssel und Zusatzindex. Deploy und Uninstall müssen
+jeweils mit SQL55324/state3 abbrechen. Der erfasste Katalogzustand und ein
+separater Index-/Constraint-/Wertbytes-Snapshot müssen identisch bleiben.
+Zwei inverse Kontrollen pro Modus ändern vorher NULL in leer und entfernen
+den Zusatzindex; der Witness muss beides erkennen und exakt restaurierbar sein.
+
+Nach erneuter Installation prüft je ein zusätzlicher SQL- und CLR-Verbraucher
+die Schutzpfade SQL55325/state3 beziehungsweise state2, ebenfalls gegen beide
+Lifecycleoperationen. Das ergibt 14 Abweisungen und zwei inverse Kontrollen
+pro Modus, 28 beziehungsweise vier pro Ziel; getrennt von Marker- und
+Defaultzählern. Fixtureentfernung verlangt den unveränderten erfassten Zustand,
+Objekt-ID, Erstellungsidentität und den eigenen typisierten Laufmarker.
+Uninstall/Repeat und frischer OwnDB-/Trustaudit bleiben Abschlussgates.
+
+43 Offline-Fail-closed-Kontrollen und die Grammatikprüfung von elf synthetisch
+expandierten SQLstrings mit TSql150Parser bestanden. Die bisherigen Kontrollen
+gegen fehlende/falsche Fehler, Session-/Metadatendrift und Restaurierungsdrift
+bleiben enthalten; neue Kontrollen prüfen Scopewerte, Fixture-Namensgrenzen und
+ungültige/leere/abweichende Witnesses. Der bestehende CSV-Workflow ergänzt nur
+die neue Helper-AST im bisherigen Schritt. Filter, Jobs, Cancellation und
+Build-/Frameworkgrenzen bleiben erhalten; keine neue Reviewkette oder
+Zwölfzielwiederholung. Token-/Kostenwirkung unbekannt.
+
+Produkt, Deployment und CLR sind unverändert. Der neue Helper wird nur im
+Fremdslotscope geladen; Default- und Markerpfade behalten ihren bisherigen
+Teilumfang und ihre ursprünglichen Ausführungsbindungen. Weitere
+Fremdobjektarten, Verbraucher-/Driftvarianten, Minimalrechte, zusätzliche
+Collations, Heap, authentifiziertes TLS und Release bleiben offen.
+
 ## Begrenzte Marker-Guards 2026-10-20
 
 `Tests/CI/run-csv-memory-lab.ps1 -TestScope ownership-markers` wählt einen

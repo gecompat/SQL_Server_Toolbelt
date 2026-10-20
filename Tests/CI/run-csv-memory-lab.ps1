@@ -10,7 +10,7 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedDriverSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{128}$')][string]$ExpectedAssemblySHA512,
  [ValidateSet('local','central')][string[]]$DeploymentModes=@('local','central'),
- [ValidateSet('default','ownership-markers',IgnoreCase=$false)][string]$TestScope='default',
+ [ValidateSet('default','ownership-markers','foreign-slots',IgnoreCase=$false)][string]$TestScope='default',
  [switch]$OptInExactTrust
 )
 Set-StrictMode -Version Latest
@@ -318,10 +318,14 @@ try{
  $prompt=Get-EnvironmentVariableValue 'SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE'
  $guardPath=Join-Path $module 'Tests/Runtime/OwnershipGuards.Tests.ps1'
  if($TestScope -cne 'default'){
+  $guardPaths=@($guardPath)
+  if($TestScope -ceq 'foreign-slots'){$guardPaths+=@(Join-Path $module 'Tests/Runtime/ForeignGuards.Tests.ps1')}
+  foreach($selectedGuardPath in $guardPaths){
   $guardErrors=$null
-  $guardTree=[Management.Automation.Language.Parser]::ParseFile($guardPath,[ref]$null,[ref]$guardErrors)
+  $guardTree=[Management.Automation.Language.Parser]::ParseFile($selectedGuardPath,[ref]$null,[ref]$guardErrors)
   if($guardErrors.Count -or @($guardTree.EndBlock.Statements|Where-Object {$_ -isnot [Management.Automation.Language.FunctionDefinitionAst]}).Count){throw 'CSV_GUARD_HELPER_EFFECTS'}
   foreach($definition in $guardTree.EndBlock.Statements){. ([scriptblock]::Create($definition.Extent.Text))}
+  }
  }
  if(-not $prompt -or (Get-FileHash -LiteralPath $prompt -Algorithm SHA256).Hash -cne $ExpectedPromptSHA256.ToUpperInvariant() -or [string]::IsNullOrWhiteSpace([IO.File]::ReadAllText($prompt))){throw 'CSV_REVIEWED_PROMPT_REQUIRED'}
  $discovery=@(& {Resolve-LabContract} *>&1)
@@ -373,7 +377,7 @@ foreach($target in $targets){
  $script:scopeClock=[Diagnostics.Stopwatch]::StartNew();$script:cleanupPhase=$false
  $script:ledger=[ordered]@{RunId=$runId;SelectorIdentity=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes([string]$target.key)));Platform=$Platform;Version=$Version;Patch=[string]$target.patch;CompatibilityLevel=$CompatibilityLevel;State='PREPARED';Databases=@();Trust=@();ConfigurationChanges=0;RightsChanges=0;OriginalFailure=$null;CleanupFailure=$null;DispositionVerified=$false;RuntimeTests=@('Contract.Tests.sql','Safety.Tests.sql','Lifecycle.Tests.sql');CompletedModes=@();LifecycleCasesPassed=0;DriverSHA256=$ExpectedDriverSHA256.ToUpperInvariant();AssemblySHA512=$hash}
  $script:journalHealthy=$true;$control=$null;$failed=$false;$cleanupBlocked=$false
- $ledger.TestScope=$TestScope;$ledger.GuardCasesPassed=0
+ $ledger.TestScope=$TestScope;$ledger.GuardCasesPassed=0;$ledger.GuardWitnessControls=0
  if($TestScope -cne 'default'){$ledger.RuntimeTests=@()}
  $capturedClock=$script:scopeClock;$capturedWork=$script:workMilliseconds
  $timeoutProvider={
@@ -431,6 +435,11 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
      $stage='MARKER_GUARDS_'+$mode
      $ledger.GuardCasesPassed+=Invoke-CsvMarkerGuards $connection $deploy $uninstall $mode
      Save-CsvJournal
+    }elseif($TestScope -ceq 'foreign-slots'){
+     $stage='FOREIGN_GUARDS_'+$mode
+     $guards=Invoke-CsvForeignGuards $connection $deploy $uninstall $mode
+     $ledger.GuardCasesPassed+=$guards.GuardCases;$ledger.GuardWitnessControls+=$guards.WitnessControls
+     Save-CsvJournal
     }else{
     foreach($test in $ledger.RuntimeTests){
      Assert-CsvPins;$stage='API_'+$mode+'_'+$test;Write-Output ('RUNNING: '+$stage)
@@ -463,7 +472,11 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
    }finally{if($connection){$connection.Dispose()}}
   }
   Assert-CsvPins
-  if($TestScope -ceq 'ownership-markers' -and $ledger.GuardCasesPassed -ne (20*$DeploymentModes.Count)){throw 'CSV_GUARD_COMPLETENESS_REQUIRED'}
+  if($TestScope -cne 'default'){
+   $perMode=if($TestScope -ceq 'ownership-markers'){20}else{14}
+   if($ledger.GuardCasesPassed -ne ($perMode*$DeploymentModes.Count)){throw 'CSV_GUARD_COMPLETENESS_REQUIRED'}
+   if($TestScope -ceq 'foreign-slots' -and $ledger.GuardWitnessControls -ne (2*$DeploymentModes.Count)){throw 'CSV_FOREIGN_WITNESS_COMPLETENESS_REQUIRED'}
+  }
  }catch{$failed=$true;$ledger.OriginalFailure=Get-CsvFailure $_.Exception}
  finally{
   $script:cleanupPhase=$true
@@ -486,7 +499,8 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
  if($failed){Write-Output ('FAILED: CSV_'+$ledger.OriginalFailure.Stage+'_SQL'+$ledger.OriginalFailure.SqlNumber+'_STATE'+$ledger.OriginalFailure.SqlState+'_'+$ledger.OriginalFailure.Reason);exit 1}
  $completed=$ledger.CompletedModes -join ','
  if($TestScope -cne 'default'){
-  Write-Output ('PASS: CSV_GUARDS '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL'+$CompatibilityLevel+' modes='+$completed+' scope='+$TestScope+' guard-cases='+$ledger.GuardCasesPassed+' marker-restoration/repeat/uninstall; owned-cleanup. API/client/full drift matrix NOT_EXECUTED.')
+  $guardLabel=if($TestScope -ceq 'ownership-markers'){'marker-restoration'}else{'foreign-slot/consumer-protection'}
+  Write-Output ('PASS: CSV_GUARDS '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL'+$CompatibilityLevel+' modes='+$completed+' scope='+$TestScope+' guard-cases='+$ledger.GuardCasesPassed+' witness-controls='+$ledger.GuardWitnessControls+' '+$guardLabel+'/repeat/uninstall; owned-cleanup. API/client/full drift matrix NOT_EXECUTED.')
   continue
  }
  $consumerLabel=if('central' -cin $ledger.CompletedModes){'/consumer/Confirm0'}else{''}

@@ -96,6 +96,7 @@ tests:
   boundaries: "Tests/Runtime/Safety.Tests.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   ownership_guards: "Tests/Runtime/OwnershipGuards.Tests.ps1"
+  foreign_guards: "Tests/Runtime/ForeignGuards.Tests.ps1"
   guard_controls: "Tests/Framework/Test-LifecycleGuardControls.ps1"
   lab: "../../Tests/CI/run-csv-memory-lab.ps1"
   github_hosted: "../../.github/workflows/csv-memory-qualification.yml"

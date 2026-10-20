@@ -2,6 +2,7 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot '../Runtime/OwnershipGuards.Tests.ps1')
+. (Join-Path $PSScriptRoot '../Runtime/ForeignGuards.Tests.ps1')
 $checks=0
 function Check([bool]$Condition){if(-not $Condition){throw 'CSV_GUARD_CONTROL_FAILED'};$script:checks++}
 # Nur den tatsächlichen Parameter-AST ausführen, niemals den Labadapterkörper.
@@ -12,10 +13,26 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS')){
+foreach($value in @('default','ownership-markers','foreign-slots')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
+$slots=@(Get-CsvForeignSlotNames)
+Check ($slots.Count -eq 5)
+Check (@($slots|Sort-Object -Unique).Count -eq 5)
+foreach($case in @(@('TABLE','USP_ParseCsv'),@('PROCEDURE','USP_CsvGuardSqlConsumer'),@('FUNCTION','SVF_CsvGuardClrConsumer'))){
+ $caught=$false;try{Assert-CsvGuardFixtureName $case[0] $case[1]}catch{$caught=$true};Check (-not $caught)
+}
+foreach($case in @(@('TABLE','Unknown'),@('PROCEDURE','USP_ParseCsv'),@('FUNCTION','USP_CsvGuardSqlConsumer'))){
+ $caught=$false;try{Assert-CsvGuardFixtureName $case[0] $case[1]}catch{$caught=$true};Check $caught
+}
+$hash='A'*64
+Check (Test-CsvForeignWitness $hash $hash)
+Check (-not (Test-CsvForeignWitness $hash ('B'*64)))
+Check (-not (Test-CsvForeignWitness $hash ('a'*64)))
+Check (-not (Test-CsvForeignWitness '' ''))
+Check (-not (Test-CsvForeignWitness ('-'*64) ('-'*64)))
+Check (-not (Test-CsvForeignWitness $null $hash))
 $expected=[pscustomobject]@{Number=55324;State=5}
 Check (Test-CsvGuardErrorIdentities @($expected) 55324 5)
 Check (-not (Test-CsvGuardErrorIdentities @() 55324 5))
