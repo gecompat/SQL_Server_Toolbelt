@@ -8,7 +8,11 @@ andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
 Der getrennte Testscope `-TestScope foreign-slots` ist für Linux2019/latest
 CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
-local/central vorbereitet. Native Ausführung dieses Scopes: `not executed`.
+local/central bestanden: pro Ziel 28 Abweisungen und vier inverse Kontrollen.
+Linux bestand im zweiten, Windows im ersten nativen Versuch. Je Clean/Repeat,
+Uninstall/Repeat, Exit0, vollständige Kanäle und leeres Stderr; frischer
+unabhängiger Audit bestätigt zwei eigene DBs/einen eigenen Trusthash abwesend
+und unveränderte Inputpins. Konfiguration und Rechte blieben unverändert.
 
 Nach echtem Uninstall belegt die eigene Fixture jeden der fünf CSV-Zielnamen
 einzeln mit einer fremden Tabelle einschließlich zwei synthetischer Zeilen,
@@ -26,6 +30,22 @@ Defaultzählern. Fixtureentfernung verlangt den unveränderten erfassten Zustand
 Objekt-ID, Erstellungsidentität und den eigenen typisierten Laufmarker.
 Uninstall/Repeat und frischer OwnDB-/Trustaudit bleiben Abschlussgates.
 
+Der erste Linux-Guardversuch bleibt `FAILED`: vor dem ersten Guardfall war der
+Snapshot nach Uninstall ungültig. Die lesende Diagnose isolierte einen leeren
+`FOR JSON`-Skalar als NULL; die Verkettung verlor damit den Gesamtsnapshot.
+Der gemeinsame Helper bildet leere Katalogteile jetzt als `[]` ab, behält alle
+erfassten Felder und die strenge Vierhash-Prüfung bei. Die SQL150-Grammatik und
+die lesende Leerkatalogprobe bestanden. Der frische Audit des Fehllaufs
+bestätigt eine eigene DB/einen eigenen Trusthash abwesend, keine Konfigurations-
+oder Rechteänderung. Die korrigierten erfolgreichen Guardläufe stehen getrennt.
+
+Wegen der Änderung am gemeinsamen Helper wurde der reservierte Default-
+Regressionslauf auf Linux2019/latest CL150 local/central ausgeführt: drei
+SQLfixtures, Clientmetadaten, 29 gezielte Lifecyclefälle, frischer SC-/UTF8-
+Consumer und Uninstall/Repeat PASS; Exit0, vollständige Kanäle, leeres Stderr
+und frischer unabhängiger Audit drei eigene DBs/ein eigener Trusthash abwesend,
+Inputpins und Konfiguration unverändert. Keine neue Zwölfzielabnahme.
+
 50 Offline-Fail-closed-Kontrollen und die Grammatikprüfung von elf synthetisch
 expandierten SQLstrings mit TSql150Parser bestanden. Die bisherigen Kontrollen
 gegen fehlende/falsche Fehler, Session-/Metadatendrift und Restaurierungsdrift
@@ -38,9 +58,11 @@ die neue Helper-AST im bisherigen Schritt. Filter, Jobs, Cancellation und
 Build-/Frameworkgrenzen bleiben erhalten; keine neue Reviewkette oder
 Zwölfzielwiederholung. Token-/Kostenwirkung unbekannt.
 
-Produkt, Deployment und CLR sind unverändert. Der neue Helper wird nur im
-Fremdslotscope geladen; Default- und Markerpfade behalten ihren bisherigen
-Teilumfang und ihre ursprünglichen Ausführungsbindungen. Weitere
+Produkt, Deployment und CLR sind unverändert. Der neue Fremdslothelper wird nur
+im Fremdslotscope geladen. Der gemeinsame Snapshothelper wurde korrigiert;
+Default- und Markerpfade behalten ihren bisherigen Teilumfang. Frühere Nachweise
+behalten ihre ursprünglichen Ausführungsbindungen und sind keine erneute
+Abnahme dieses Helpers. Weitere
 Fremdobjektarten, Verbraucher-/Driftvarianten, Minimalrechte, zusätzliche
 Collations, Heap, authentifiziertes TLS und Release bleiben offen.
 
