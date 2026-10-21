@@ -10,7 +10,7 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedDriverSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{128}$')][string]$ExpectedAssemblySHA512,
  [ValidateNotNullOrEmpty()][ValidateCount(1,2)][ValidateSet('local','central')][string[]]$DeploymentModes=@('local','central'),
- [ValidateSet('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths',IgnoreCase=$false)][string]$TestScope='default',
+ [ValidateSet('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings',IgnoreCase=$false)][string]$TestScope='default',
  [switch]$OptInExactTrust
 )
 Set-StrictMode -Version Latest
@@ -22,7 +22,7 @@ $script:workMilliseconds=960000L;$script:totalMilliseconds=1200000L
 # CSV-Ressourcenscope, keine fachliche Parser-/Writerlogik oder fremde Journale.
 
 function Get-CsvCommandTimeout {
- param([ValidateRange(1,60)][int]$Maximum=60)
+ param([ValidateRange(1,300)][int]$Maximum=60)
  if($null -eq $script:scopeClock){throw 'CSV_SCOPE_CLOCK_REQUIRED'}
  $limit=if($script:cleanupPhase){$script:totalMilliseconds}else{$script:workMilliseconds}
  $remaining=$limit-$script:scopeClock.ElapsedMilliseconds
@@ -50,8 +50,8 @@ function Get-CsvFailure($Exception){
  [ordered]@{Stage=$script:stage;Batch=$script:batchIndex;SqlNumber=$(if($sql){$sql.Number}else{0});SqlState=$(if($sql){$sql.State}else{0});Reason=$reason}
 }
 
-function Invoke-CsvSql($Connection,[string]$Sql,[hashtable]$Parameters=@{},[switch]$Rows){
- $timeout=Get-CsvCommandTimeout
+function Invoke-CsvSql($Connection,[string]$Sql,[hashtable]$Parameters=@{},[switch]$Rows,[ValidateRange(1,300)][int]$MaximumTimeout=60){
+ $timeout=Get-CsvCommandTimeout $MaximumTimeout
  $command=$Connection.CreateCommand();$command.CommandTimeout=$timeout;$command.CommandText=$Sql
  try{
   foreach($name in $Parameters.Keys){
@@ -90,6 +90,15 @@ function Invoke-CsvBatches($Connection,[string]$Sql){
  foreach($batch in [regex]::Split($Sql,'(?im)^\s*GO\s*(?:--[^\r\n]*)?$')){
   if(-not [string]::IsNullOrWhiteSpace($batch)){$script:batchIndex++;Invoke-CsvSql $Connection $batch}
  }
+}
+
+function Get-CsvShapeCeilingCount([object[]]$Rows){
+ if($null -eq $Rows -or $Rows.Count -ne 1 -or $null -eq $Rows[0]){throw 'CSV_SHAPE_COMPLETION_REQUIRED'}
+ $names=@($Rows[0].PSObject.Properties.Name)
+ if($names.Count -ne 2 -or 'Fixture' -cnotin $names -or 'CasesPassed' -cnotin $names -or
+  $Rows[0].Fixture -isnot [string] -or $Rows[0].Fixture -cne 'CSV_SHAPE_CEILINGS' -or
+  $Rows[0].CasesPassed -isnot [int] -or $Rows[0].CasesPassed -ne 8){throw 'CSV_SHAPE_COMPLETION_REQUIRED'}
+ return $Rows[0].CasesPassed
 }
 
 function Open-CsvConnection($Target,[string]$Database){
@@ -317,7 +326,7 @@ try{
  }
  $prompt=Get-EnvironmentVariableValue 'SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE'
  $guardPath=Join-Path $module 'Tests/Runtime/OwnershipGuards.Tests.ps1'
- if($TestScope -cne 'default'){
+ if($TestScope -cnotin @('default','shape-ceilings')){
   $guardPaths=@($guardPath)
   if($TestScope -cin @('foreign-slots','foreign-kinds','foreign-aliases','foreign-table-functions','named-consumers')){$guardPaths+=@(Join-Path $module 'Tests/Runtime/ForeignGuards.Tests.ps1')}
   if($TestScope -ceq 'named-consumers'){$guardPaths+=@(Join-Path $module 'Tests/Runtime/NamedConsumers.Tests.ps1')}
@@ -381,7 +390,7 @@ foreach($target in $targets){
  $script:scopeClock=[Diagnostics.Stopwatch]::StartNew();$script:cleanupPhase=$false
  $script:ledger=[ordered]@{RunId=$runId;SelectorIdentity=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes([string]$target.key)));Platform=$Platform;Version=$Version;Patch=[string]$target.patch;CompatibilityLevel=$CompatibilityLevel;State='PREPARED';Databases=@();Trust=@();ConfigurationChanges=0;RightsChanges=0;OriginalFailure=$null;CleanupFailure=$null;DispositionVerified=$false;RuntimeTests=@('Contract.Tests.sql','Safety.Tests.sql','Lifecycle.Tests.sql');CompletedModes=@();LifecycleCasesPassed=0;DriverSHA256=$ExpectedDriverSHA256.ToUpperInvariant();AssemblySHA512=$hash}
  $script:journalHealthy=$true;$control=$null;$failed=$false;$cleanupBlocked=$false
- $ledger.TestScope=$TestScope;$ledger.GuardCasesPassed=0;$ledger.GuardWitnessControls=0
+ $ledger.TestScope=$TestScope;$ledger.GuardCasesPassed=0;$ledger.GuardWitnessControls=0;$ledger.ShapeCeilingCasesPassed=0
  if($TestScope -cne 'default'){$ledger.RuntimeTests=@()}
  $capturedClock=$script:scopeClock;$capturedWork=$script:workMilliseconds
  $timeoutProvider={
@@ -435,7 +444,20 @@ IF NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.asse
  THROW 51594,N'CSV exact binary witness failed.',3;
 IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness failed.',4;
 '@ @{'@Hash'=[Convert]::FromHexString($hash)}
-    if($TestScope -ceq 'schema-values'){
+    if($TestScope -ceq 'shape-ceilings'){
+     Assert-CsvPins;$stage='SHAPE_CEILINGS_'+$mode
+     $shapeSql=Read-CsvSql (Join-Path $module 'Tests/Runtime/ShapeCeilings.Tests.sql') $variables
+     $shapeBatches=@([regex]::Split($shapeSql,'(?im)^\s*GO\s*(?:--[^\r\n]*)?$')|Where-Object {-not [string]::IsNullOrWhiteSpace($_)})
+     if($shapeBatches.Count -ne 8){throw 'CSV_SHAPE_PHASES_REQUIRED'}
+     for($phase=0;$phase -lt 8;$phase++){
+      $stage='SHAPE_CEILINGS_'+$mode+'_'+($phase+1);Write-Output ('RUNNING: '+$stage)
+      $phaseTimeout=if($phase -eq 1){300}else{120}
+      $rows=@(Invoke-CsvSql $connection $shapeBatches[$phase] -Rows -MaximumTimeout $phaseTimeout)
+      if($phase -lt 7 -and $rows.Count -ne 0){throw 'CSV_SHAPE_EARLY_RESULT'}
+     }
+     $ledger.ShapeCeilingCasesPassed+=Get-CsvShapeCeilingCount $rows
+     Save-CsvJournal
+    }elseif($TestScope -ceq 'schema-values'){
      $stage='SCHEMA_VALUES_'+$mode
      $ledger.GuardCasesPassed+=Invoke-CsvMarkerGuards $connection $deploy $uninstall $mode -Family 'schema-values'
      Save-CsvJournal
@@ -520,7 +542,9 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
    }finally{if($connection){$connection.Dispose()}}
   }
   Assert-CsvPins
-  if($TestScope -cne 'default'){
+  if($TestScope -ceq 'shape-ceilings'){
+   if($ledger.ShapeCeilingCasesPassed -ne (8*$DeploymentModes.Count) -or $ledger.GuardCasesPassed -ne 0 -or $ledger.LifecycleCasesPassed -ne 0){throw 'CSV_SHAPE_COMPLETENESS_REQUIRED'}
+  }elseif($TestScope -cne 'default'){
    $perMode=switch -CaseSensitive ($TestScope){'ownership-markers'{20};'marker-values'{50};'schema-values'{8};'marker-absence'{54};'foreign-slots'{14};'foreign-kinds'{20};'foreign-aliases'{20};'foreign-table-functions'{20};'binding-drift'{16};'binding-defaults'{10};'binding-execution'{6};'binding-return-lengths'{4};'named-consumers'{10};default{throw 'CSV_GUARD_SCOPE_UNKNOWN'}}
    if($ledger.GuardCasesPassed -ne ($perMode*$DeploymentModes.Count)){throw 'CSV_GUARD_COMPLETENESS_REQUIRED'}
    if($TestScope -ceq 'foreign-slots' -and $ledger.GuardWitnessControls -ne (2*$DeploymentModes.Count)){throw 'CSV_FOREIGN_WITNESS_COMPLETENESS_REQUIRED'}
@@ -546,6 +570,10 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
  if($cleanupBlocked){Write-Output 'FAILED: CSV_CLEANUP_BLOCKED';exit 1}
  if($failed){Write-Output ('FAILED: CSV_'+$ledger.OriginalFailure.Stage+'_SQL'+$ledger.OriginalFailure.SqlNumber+'_STATE'+$ledger.OriginalFailure.SqlState+'_'+$ledger.OriginalFailure.Reason);exit 1}
  $completed=$ledger.CompletedModes -join ','
+ if($TestScope -ceq 'shape-ceilings'){
+  Write-Output ('PASS: CSV_SHAPE_CEILINGS '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL'+$CompatibilityLevel+' modes='+$completed+' functional-cases='+$ledger.ShapeCeilingCasesPassed+' row/column-limit-success/rejection/source/target-preservation/repeat/uninstall; owned-cleanup. Cell/text ceilings/client/heap/full matrix NOT_EXECUTED.')
+  continue
+ }
  if($TestScope -cne 'default'){
   $guardLabel=switch -CaseSensitive ($TestScope){'ownership-markers'{'marker-restoration'};'marker-values'{'marker-value-restoration'};'schema-values'{'schema-value-restoration'};'marker-absence'{'marker-absence-restoration'};'foreign-slots'{'foreign-slot/consumer-protection'};'foreign-kinds'{'foreign-view/procedure-preservation'};'foreign-aliases'{'foreign-synonym/function-preservation'};'foreign-table-functions'{'foreign-inline/multistatement-tvf-preservation'};'binding-drift'{'binding-restoration'};'binding-defaults'{'binding-default-restoration'};'binding-execution'{'binding-execution-restoration'};'binding-return-lengths'{'binding-return-length-restoration'};'named-consumers'{'named-consumer-preservation'};default{throw 'CSV_GUARD_SCOPE_UNKNOWN'}}
   Write-Output ('PASS: CSV_GUARDS '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL'+$CompatibilityLevel+' modes='+$completed+' scope='+$TestScope+' guard-cases='+$ledger.GuardCasesPassed+' witness-controls='+$ledger.GuardWitnessControls+' '+$guardLabel+'/repeat/uninstall; owned-cleanup. API/client/full drift matrix NOT_EXECUTED.')

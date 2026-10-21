@@ -4,6 +4,57 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Native tatsächliche Zeilen-/Spaltendecken 2026-10-21
+
+Der neue getrennte Scope `-TestScope shape-ceilings` enthält acht serverseitige
+Fälle je Modus: Parser/Writer genau an 100000 DATA-Records beziehungsweise
+1024 Spalten sowie jeweils ein tatsächliches Element darüber mit SQL55303/state1,
+exakten Wert-/Ordinal-/Textbytes und unverändertem Quell-/Zielinhalt. Ein
+getrennter typisierter Abschlusswitness zählt nur alle acht abgeschlossenen
+Fälle; dieser Funktionszähler ist kein Lifecycle-Guardzähler.
+
+Die native Abnahme dieses Scopes ist **offen**. Vier Versuche sind FAILED,
+nicht als PASS oder Ceilingqualifikation zu lesen:
+
+- Linux2019/latest CL150 Versuch1: zusammengefasster Batch am60-Sekunden-
+  Kommandolimit abgebrochen; keine einzelne Grenzphase daraus qualifiziert.
+- Nach Aufteilung in acht Phasen Linux2019/latest CL150 Versuch2 und
+  Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent Versuch1:
+  lokale Parserphase100000 bestanden, anschließende lokale Writerphase100000
+  am120-Sekunden-Kommandolimit abgebrochen.
+- Windows Versuch2: gleicher Parserbefund, Writerphase100000 auch bei
+  maximal300 Sekunden abgebrochen. Die übrigen Phasen und central wurden
+  in diesen drei phasengetrennten Läufen nicht erreicht.
+
+Alle vier Fehlläufe Exit1/vollständig erfasste Kanäle/leeres Stderr und
+FAILED_CLEANED; je frischer separater Audit eine eigene DB/ein eigener Trusthash
+abwesend, Konfiguration/Rechte und eingefrorene Eingaben unverändert.
+Die Zeitlimits stammen aus dem Adapter; der Timeout belegt weder einen
+bestimmten Engpass noch eine Verletzung eines öffentlichen Laufzeitvertrags.
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen bleiben unverändert.
+
+Die separate Defaultregression auf Linux2019/latest CL150 bestand mit dem
+finalen Adapter im ersten Versuch local/central: drei bestehende SQLfixtures,
+Clientmetadaten, Clean/Repeat, fünf Slots/drei Bindings, 29 Lifecyclefälle,
+frischer SC-/UTF8-Consumer und Uninstall/Repeat. Exit0/vollständige Kanäle/
+leeres Stderr; frischer Audit drei eigene DBs/ein eigener Trusthash abwesend,
+Konfiguration/Rechte und Eingaben unverändert. Dieser PASS ersetzt die
+fehlgeschlagene tatsächliche Grenzabnahme nicht.
+
+509 synthetische Offlinekontrollen, SQL150-Grammatik aller acht Phasen,
+AST2 und statische Verträge bestanden. Negative Abschlusskontrollen weisen
+fehlende, zusätzliche, falsch typisierte und falsche Zähler-/Fixturedaten ab.
+Der Defaulttimeout bleibt60 Sekunden; nur die Writer-Zeilendecke erhält
+maximal300, andere Grenzphasen maximal120 Sekunden, stets gekürzt auf die
+verbleibende unveränderte Arbeits-/Gesamtdeadline mit Cleanupreserve.
+Vorhandenes Releasepaket an manifestierte Quellen/exakte Binarybytes gebunden;
+kein neuer lokaler Build-/Frameworklauf oder Workflow-/Infrastrukturwechsel.
+
+Unabhängiger Erstreview: keine semantischen Codefindings, native Grenzabnahme
+weiterhin offen; die gezielte Timeoutanpassung folgt dieser Bewertung.
+Tatsächliche Spalten-/Zell-/Textdecken, neue vollständige Grenzfehler-/
+Centralabnahme, Heap, Minimalrechte, Gesamtmatrix, authentifiziertes TLS und
+Release bleiben nicht ausgeführt. Status `partially validated`, `unreleased`.
 ## Interne CLR-Rückgabelängen 2026-10-21
 
 Der getrennte Scope `-TestScope binding-return-lengths` bestand auf

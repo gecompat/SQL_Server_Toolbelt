@@ -1,4 +1,4 @@
-# Offline-Negativkontrollen für das Abweisungsorakel; kein SQL/Labzugriff.
+# Offline-Negativkontrollen für Abweisungs-/Abschlussorakel; kein SQL/Labzugriff.
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot '../Runtime/OwnershipGuards.Tests.ps1')
@@ -17,8 +17,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION','BINDING-RETURN-LENGTHS')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION','BINDING-RETURN-LENGTHS','SHAPE-CEILINGS')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -31,6 +31,41 @@ $caught=$false;try{& $validateModes -DeploymentModes @()|Out-Null}catch{$caught=
 $caught=$false;try{& $validateModes -DeploymentModes $null|Out-Null}catch{$caught=$true};Check $caught
 $caught=$false;try{& $validateModes -DeploymentModes @('local','central','local')|Out-Null}catch{$caught=$true};Check $caught
 $caught=$false;try{& $validateModes -DeploymentModes @('unknown')|Out-Null}catch{$caught=$true};Check $caught
+# Abschlusswitness aus dem tatsächlichen Adapter, ohne dessen Labkörper zu starten.
+$shapeFunctions=@($driverTree.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Get-CsvShapeCeilingCount'},$true))
+if($shapeFunctions.Count -ne 1){throw 'CSV_SHAPE_HELPER_IDENTITY'}
+. ([scriptblock]::Create($shapeFunctions[0].Extent.Text))
+$shapeRow=[pscustomobject]@{Fixture='CSV_SHAPE_CEILINGS';CasesPassed=[int]8}
+Check ((Get-CsvShapeCeilingCount @($shapeRow)) -eq 8)
+foreach($bad in @(
+ @{Rows=@()},@{Rows=@($null)},@{Rows=@($shapeRow,$shapeRow)},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_SHAPE_CEILINGS';CasesPassed=[int]7})},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_SHAPE_CEILINGS';CasesPassed=[int]9})},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_SHAPE_CEILINGS';CasesPassed='8'})},
+ @{Rows=@([pscustomobject]@{Fixture='csv_shape_ceilings';CasesPassed=[int]8})},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_SHAPE_CEILINGS ';CasesPassed=[int]8})},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_SHAPE_CEILINGS';CasesPassed=[DBNull]::Value})},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_SHAPE_CEILINGS'})},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_SHAPE_CEILINGS';CasesPassed=[int]8;Unexpected=1})}
+)){
+ $caught=$false;try{Get-CsvShapeCeilingCount @bad|Out-Null}catch{$caught=$true};Check $caught
+}
+# Längere Grenzphasen behalten Default, Gesamtdeadline und Cleanupreserve bei.
+$timeoutFunctions=@($driverTree.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Get-CsvCommandTimeout'},$true))
+if($timeoutFunctions.Count -ne 1){throw 'CSV_TIMEOUT_HELPER_IDENTITY'}
+. ([scriptblock]::Create($timeoutFunctions[0].Extent.Text))
+$script:scopeClock=[pscustomobject]@{ElapsedMilliseconds=0L}
+$script:workMilliseconds=960000L;$script:totalMilliseconds=1200000L;$script:cleanupPhase=$false
+Check ((Get-CsvCommandTimeout) -eq 60)
+Check ((Get-CsvCommandTimeout 120) -eq 120)
+Check ((Get-CsvCommandTimeout 300) -eq 300)
+$caught=$false;try{Get-CsvCommandTimeout 301|Out-Null}catch{$caught=$true};Check $caught
+$script:scopeClock.ElapsedMilliseconds=959000L;Check ((Get-CsvCommandTimeout 300) -eq 1)
+$script:scopeClock.ElapsedMilliseconds=959001L
+$caught=$false;try{Get-CsvCommandTimeout 300|Out-Null}catch{$caught=$true};Check $caught
+$script:cleanupPhase=$true;$script:scopeClock.ElapsedMilliseconds=1199000L;Check ((Get-CsvCommandTimeout 300) -eq 1)
+$script:scopeClock.ElapsedMilliseconds=1199001L
+$caught=$false;try{Get-CsvCommandTimeout 300|Out-Null}catch{$caught=$true};Check $caught
 $slots=@(Get-CsvForeignSlotNames)
 $kindCases=@(Get-CsvForeignKindCases)
 $aliasCases=@(Get-CsvForeignKindCases 'synonym-function')

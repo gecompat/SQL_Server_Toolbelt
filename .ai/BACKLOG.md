@@ -2197,6 +2197,24 @@ Diese zwei Fälle sind ein separater Teilnachweis; sie erweitern weder den
 29-Fall-Zähler noch die API-/Client-/Central-/Windows- oder vollständige
 Fremdslot-/Driftmatrixqualifikation.
 
+Fortlaufende begrenzte CSV-Welle nach vollständig abgeschlossenem PR355,
+2026-10-21: `shape-ceilings` ergänzt acht gezählte tatsächliche Zeilen-/
+Spalten-Grenz-/+1-Fälle je Modus. Native Grenzabnahme offen: vier Versuche
+FAILED_CLEANED, Linux erster Gesamtbatchtimeout60; danach Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent lokale
+Parserphase100000 bestanden, anschließender Writer100000 Timeout120,
+Windows zweiter Versuch auch bei300. Je frischer Audit eine eigene DB/ein
+eigener Trusthash abwesend, Konfiguration/Rechte/Eingaben unverändert.
+Keine konkrete Engpassursache oder öffentliche Laufzeitverletzung belegt;
+Produktquellen unverändert. Separate finale Linux-Defaultregression im ersten
+Versuch local/central mit drei SQLfixtures/Client/Consumer/29 Lifecyclefällen
+und frischem Audit drei eigene DBs/ein eigener Trusthash abwesend PASS.
+509 Offlinekontrollen, acht SQL150-Phasen und AST/Static PASS. Unabhängiger
+Erstreview ohne semantische Codefindings; native Grenzabnahme bleibt offen.
+Keine neue Funktion, Rechte-/Infrastruktur-/Releasefreigabe, keine Heap- oder
+Ceilingqualifikation; `partially validated`, `unreleased`. Fortlaufender
+Benutzerauftrag und gemeinsames endliches Ledger bleiben gültig, kein Reset.
+
 ### Queue-Worker 2 – autonome Umsetzung freigegeben 2026-10-04
 
 Nach Besprechung von Zweck, Verträgen, Alternativen und Risiken beauftragte
