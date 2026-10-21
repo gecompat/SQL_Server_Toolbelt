@@ -4,6 +4,35 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Finale benannte SameDB-Verbraucher auf Linux 2026-10-21
+
+Direkt nach Abschluss von PR351 begann die ausgewählte Folgewelle. Der
+unveränderte öffentliche Adapter `-TestScope named-consumers` bestand auf
+Linux2019/latest CL150 im ersten Versuch local/central. Fünf nacheinander
+angelegte SQL-Verbraucher referenzieren die fünf reservierten CSV-Slots mit
+explizitem Namen der eigenen Datenbank. Deploy und Uninstall lieferten je
+SQL55325/state3: zehn Abweisungen pro Modus, 20 insgesamt.
+
+Die finalen Assertions prüfen den Fingerprint sämtlicher erfasster
+Dependencyzeilen unmittelbar vor/nach jeder Operation und vor Fixture-Drop.
+Exakte Zielnamen, zulässige lokale ID-/Namensbindung, typisierte Laufmarker
+und Objekt-/Erstellungsidentitäten bestanden. Erfasster Mutationszustand
+und Dependencywitness blieben erhalten; geschütztes Entfernen jeder eigenen
+Fixture stellte die Baseline exakt wieder her.
+
+Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle und leeres Stderr
+bestanden. Der frische unabhängige Audit bestätigte zwei eigene DBs/einen
+eigenen Trusthash abwesend; Konfiguration und eingefrorene Runtimeinputs
+blieben unverändert. Das vorhandene Releasepaket wurde erneut an alle
+manifestierten Produktquellen und seine exakten Binarybytes gebunden.
+
+Dieser Lauf ergänzt den finalen Windowsnachweis nach PR348 um Linux mit
+dem aktuellen Assertionstand. Frühere Linux-Teilnachweise und der erste
+fehlgeschlagene Katalogwitness bleiben datiert erhalten. Keine isolierte
+Abnahme des NULL-ID-Preflightzweigs, fachliche Consumerausführung oder neue
+Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/
+authentifizierte TLS-/Releaseabnahme. Kein neuer lokaler Build-/Frameworklauf.
+
 ## Finale CLR-Defaults auf Linux 2026-10-21
 
 Der unveränderte öffentliche Adapter `-TestScope binding-defaults` bestand auf

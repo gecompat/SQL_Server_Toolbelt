@@ -2101,6 +2101,25 @@ Historische engere/fehlgeschlagene Läufe bleiben erhalten; `partially validated
 `unreleased`. Keine Produkt-/Test-/Deployment-/CLR-Quelländerung oder neue
 Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/TLS-Abnahme.
 
+Nach PR351, 2026-10-21: Nach grünem Review, exakter Head-/tatsächlicher
+Main-Push-CI und eigenem Branchcleanup wurde die freigegebene Folgewelle
+direkt begonnen. Der unveränderte `named-consumers`-Adapter bestand auf
+Linux2019/latest CL150 im ersten Versuch local/central mit finalem
+Assertionstand: fünf benannte SameDB-Verbraucher, je Deploy/Uninstall
+SQL55325/state3, 20 Abweisungen. Dependencyfingerprint unmittelbar vor/nach
+jeder Operation und vor geschütztem Fixture-Drop, exakte Zielnamen,
+zulässige lokale ID-/Namensbindung, typisierte Laufmarker und Objekt-/
+Erstellungsidentitäten sowie Baseline erhalten. Clean/Repeat,
+Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr und frischer
+unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend PASS;
+Konfiguration und eingefrorene Runtimeinputs unverändert. Vorhandenes
+Releasepaket erneut an alle manifestierten Quellen/exakten Binarybytes
+gebunden. Frühere engere/fehlgeschlagene Läufe bleiben erhalten;
+`partially validated`, `unreleased`. Keine Produkt-/Test-/Deployment-/CLR-/
+Workflowänderung, isolierte NULL-ID-Preflightabnahme, Consumerausführung
+oder neue Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/
+Heap-/authentifizierte TLS-/Releaseabnahme; kein neuer lokaler Build-/Frameworklauf.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte
