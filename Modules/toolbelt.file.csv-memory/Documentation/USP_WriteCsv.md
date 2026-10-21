@@ -39,7 +39,9 @@ definiert alle Grenzen und Fehler55300..55309. Valuebytes sind die Summe der
 UTF16-Snapshotwerte, NULL zählt0; Outputbytes schließen Quotes, Token,
 Separatoren und sämtliche Recordabschlüsse ein. Exakte globale Messung erfolgt
 vor Fragmentallokation; geordnete nvarchar(max)-Aggregation statt wachsender
-Zeilenverkettung. Kein Heap- oder Performanceversprechen.
+Zeilenverkettung. Die internen Maß- und Fragmenttabellen besitzen unbenannte
+Clustered-Primärschlüssel auf den bereits als eindeutig geprüften Zellordinals
+für den vollständigen Fragment-/Maßabgleich. Kein Heap- oder Performanceversprechen.
 
 ResultTable-Routing und Transaktionen folgen dem
 [USP-Vertrag](../../../Documentation/Standards/USP_CONTRACT.md); unerwartete

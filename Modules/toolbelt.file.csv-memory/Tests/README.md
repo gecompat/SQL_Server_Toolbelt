@@ -4,6 +4,53 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Korrigierter Writer an tatsächlichen Formgrenzen 2026-10-21
+
+Nach der ausdrücklich freigegebenen begrenzten Erweiterung wurde der eigene
+Writeraufruf gezielt beobachtet. Der dritte Diagnoselauf ordnete den verbleibenden
+Aufwand dem kanonischen Fragment-/Maßabgleich zu. Die beiden ersten Diagnoseläufe
+waren durch den Beobachter unzureichend: der Planabruf überschritt sein eigenes
+Zeitlimit. Alle drei Läufe sind getrennte Diagnose, keine Funktionsabnahme;
+je Exit1/vollständige Kanäle/leeres Stderr, frischer Audit eine eigene DB/ein
+eigener Trusthash abwesend, Konfiguration/Rechte/Eingaben unverändert. Private
+Statements, Messwerte und Pläne werden nicht als öffentliche Evidenz gespeichert.
+Ein bestimmter Plan oder eine quadratische Laufzeit wird nicht behauptet.
+
+`USP_WriteCsv` besitzt jetzt auf beiden internen Maß-/Fragmenttabellen unbenannte
+Clustered-Primärschlüssel auf RowOrdinal/ColumnOrdinal. Das Zellraster wird
+bereits vorher auf Eindeutigkeit geprüft; öffentlicher Vertrag, Messung vor
+Fragmentallokation und Fehler-/Transaktionsrouting bleiben erhalten. CLR,
+Parser-/Deployment-/gemeinsame Snapshotquellen und Workflow sind unverändert.
+Das neu aus den aktuellen SQLquellen gepackte Paket enthält exakt dieselben
+CLR-Bytes; kein neuer lokaler Build-/Frameworklauf wird behauptet.
+
+Der korrigierte Kandidat bestand auf Windows2025/base CL170 mit erlaubtem
+bereitem CU-Äquivalent im ersten Kandidatenlauf local/central:
+`-TestScope shape-ceilings-and-default` führte genau acht Formgrenzfälle pro
+Modus aus, insgesamt16, darunter acht erwartete SQL55303/state1-Abweisungen.
+Erfolge genau bei100000 DATA-Records und1024 Spalten, echte +1-Fehler,
+Wert-/Ordinal-/Textbytes und unveränderter Quell-/Zielinhalt sind geprüft.
+Der typisierte Abschluss zählt ausschließlich vollständig geprüfte Phasen.
+Im selben Installationsscope bestanden zusätzlich alle drei bestehenden
+Default-SQLfixtures, Clientmetadaten, 29 Caller-/SET-/Lock-/Rollback-/Confirm0-
+Lifecyclefälle, frischer SC-/UTF8-Consumer, Clean/Repeat und Uninstall/Repeat.
+Exit0/vollständige Kanäle/leeres Stderr, frischer separater Audit drei eigene
+DBs/ein eigener Trusthash abwesend; Konfiguration/Rechte/Inputs unverändert.
+
+Die Kombination erhält den gesamten Defaultumfang bei einem nativen Aufruf;
+sie ersetzt keine ausgelassene Prüfung. Die vier freigegebenen Zusatzaufrufe
+sind mit drei Diagnoseaufrufen und diesem kombinierten Abschlusslauf verbraucht,
+ohne Budgetreset. 535 Offlinekontrollen einschließlich typisiertem Abschluss,
+Deadline/Cleanupreserve und falschen Funktions-/Guard-/Lifecyclezählern in
+local/central/einzelnen Modi bestanden. SQL150: acht Formfixturephasen sowie
+äußerer und expandierter Writerbody, AST/Static bestanden.
+
+**Offen bleibt der abschließende Linuxlauf desselben korrigierten Kandidaten.**
+Die ältere Defaultregression unten betrifft den Stand vor der Indexkorrektur;
+die früheren vier Grenzfehlläufe bleiben FAILED und werden nicht umgedeutet.
+Der neue Windows-PASS qualifiziert weder Linux noch die tatsächlichen vollen
+Zell-/Textdecken, Heap, Minimalrechte, die Gesamtmatrix, authentifiziertes TLS
+oder Release. Status weiterhin `partially validated`, `unreleased`.
 ## Native tatsächliche Zeilen-/Spaltendecken 2026-10-21
 
 Der neue getrennte Scope `-TestScope shape-ceilings` enthält acht serverseitige

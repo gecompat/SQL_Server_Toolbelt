@@ -2215,6 +2215,23 @@ Keine neue Funktion, Rechte-/Infrastruktur-/Releasefreigabe, keine Heap- oder
 Ceilingqualifikation; `partially validated`, `unreleased`. Fortlaufender
 Benutzerauftrag und gemeinsames endliches Ledger bleiben gültig, kein Reset.
 
+Ausdrücklich freigegebene Erweiterung derselben PR356-Welle 2026-10-21:
+drei separate Windows-Diagnoseaufrufe frisch bereinigt; die ersten beiden
+Beobachterzeitlimits bleiben unzureichende Diagnose, der dritte ordnet den
+Aufwand dem kanonischen Fragment-/Maßabgleich zu. Keine konkrete Plan-/
+Komplexitätsbehauptung. Unbenannte Clustered-Primärschlüssel auf bereits vorher
+geprüften eindeutigen Zellordinals beider interner Maß-/Fragmenttabellen,
+öffentlicher Vertrag/CLR/Deployment/Snapshot/Workflow unverändert. Neu gepackte
+SQLquellen mit gleichen CLR-Bytes. Windows2025/base CL170 mit erlaubtem bereitem
+CU-Äquivalent korrigierter Kandidat local/central im kombinierten Scope
+shape-ceilings-and-default PASS:16 Formgrenzfälle, darunter acht SQL55303/state1,
+alle drei Defaultfixtures/Client/Consumer/29 Lifecyclefälle und frischer Audit
+drei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Rechte/Inputs
+unverändert. 535 Offlinekontrollen und SQL150/AST/Static PASS. Dieselben vier
+Zusatzaufrufe vollständig gezählt, kein Reset; abschließender Linuxkandidat
+noch offen. Frühere vier Grenz-FAILs bleiben erhalten, kein Gesamt-PASS,
+keine Heap-/Zell-/Textvollgrenze oder Veröffentlichung.
+
 ### Queue-Worker 2 – autonome Umsetzung freigegeben 2026-10-04
 
 Nach Besprechung von Zweck, Verträgen, Alternativen und Risiken beauftragte

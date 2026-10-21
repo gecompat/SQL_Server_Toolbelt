@@ -10,7 +10,7 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedDriverSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{128}$')][string]$ExpectedAssemblySHA512,
  [ValidateNotNullOrEmpty()][ValidateCount(1,2)][ValidateSet('local','central')][string[]]$DeploymentModes=@('local','central'),
- [ValidateSet('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings',IgnoreCase=$false)][string]$TestScope='default',
+ [ValidateSet('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings','shape-ceilings-and-default',IgnoreCase=$false)][string]$TestScope='default',
  [switch]$OptInExactTrust
 )
 Set-StrictMode -Version Latest
@@ -326,7 +326,7 @@ try{
  }
  $prompt=Get-EnvironmentVariableValue 'SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE'
  $guardPath=Join-Path $module 'Tests/Runtime/OwnershipGuards.Tests.ps1'
- if($TestScope -cnotin @('default','shape-ceilings')){
+ if($TestScope -cnotin @('default','shape-ceilings','shape-ceilings-and-default')){
   $guardPaths=@($guardPath)
   if($TestScope -cin @('foreign-slots','foreign-kinds','foreign-aliases','foreign-table-functions','named-consumers')){$guardPaths+=@(Join-Path $module 'Tests/Runtime/ForeignGuards.Tests.ps1')}
   if($TestScope -ceq 'named-consumers'){$guardPaths+=@(Join-Path $module 'Tests/Runtime/NamedConsumers.Tests.ps1')}
@@ -391,7 +391,7 @@ foreach($target in $targets){
  $script:ledger=[ordered]@{RunId=$runId;SelectorIdentity=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes([string]$target.key)));Platform=$Platform;Version=$Version;Patch=[string]$target.patch;CompatibilityLevel=$CompatibilityLevel;State='PREPARED';Databases=@();Trust=@();ConfigurationChanges=0;RightsChanges=0;OriginalFailure=$null;CleanupFailure=$null;DispositionVerified=$false;RuntimeTests=@('Contract.Tests.sql','Safety.Tests.sql','Lifecycle.Tests.sql');CompletedModes=@();LifecycleCasesPassed=0;DriverSHA256=$ExpectedDriverSHA256.ToUpperInvariant();AssemblySHA512=$hash}
  $script:journalHealthy=$true;$control=$null;$failed=$false;$cleanupBlocked=$false
  $ledger.TestScope=$TestScope;$ledger.GuardCasesPassed=0;$ledger.GuardWitnessControls=0;$ledger.ShapeCeilingCasesPassed=0
- if($TestScope -cne 'default'){$ledger.RuntimeTests=@()}
+ if($TestScope -cnotin @('default','shape-ceilings-and-default')){$ledger.RuntimeTests=@()}
  $capturedClock=$script:scopeClock;$capturedWork=$script:workMilliseconds
  $timeoutProvider={
   $remaining=$capturedWork-$capturedClock.ElapsedMilliseconds
@@ -444,7 +444,7 @@ IF NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.asse
  THROW 51594,N'CSV exact binary witness failed.',3;
 IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness failed.',4;
 '@ @{'@Hash'=[Convert]::FromHexString($hash)}
-    if($TestScope -ceq 'shape-ceilings'){
+    if($TestScope -cin @('shape-ceilings','shape-ceilings-and-default')){
      Assert-CsvPins;$stage='SHAPE_CEILINGS_'+$mode
      $shapeSql=Read-CsvSql (Join-Path $module 'Tests/Runtime/ShapeCeilings.Tests.sql') $variables
      $shapeBatches=@([regex]::Split($shapeSql,'(?im)^\s*GO\s*(?:--[^\r\n]*)?$')|Where-Object {-not [string]::IsNullOrWhiteSpace($_)})
@@ -457,7 +457,10 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
      }
      $ledger.ShapeCeilingCasesPassed+=Get-CsvShapeCeilingCount $rows
      Save-CsvJournal
-    }elseif($TestScope -ceq 'schema-values'){
+    }
+    # Der kombinierte Scope führt danach denselben unveränderten Defaultpfad aus.
+    if($TestScope -cne 'shape-ceilings'){
+    if($TestScope -ceq 'schema-values'){
      $stage='SCHEMA_VALUES_'+$mode
      $ledger.GuardCasesPassed+=Invoke-CsvMarkerGuards $connection $deploy $uninstall $mode -Family 'schema-values'
      Save-CsvJournal
@@ -535,6 +538,7 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
      $ledger.LifecycleCasesPassed++;Save-CsvJournal
     }
     }
+    }
     $stage='UNINSTALL_'+$mode;Invoke-CsvBatches $connection $uninstall
     Invoke-CsvSql $connection "IF EXISTS(SELECT 1 FROM sys.assemblies WHERE name=N'Toolbelt_File_CsvMemory') THROW 51594,N'CSV uninstall witness failed.',5;"
     $stage='UNINSTALL_REPEAT_'+$mode;Invoke-CsvBatches $connection $uninstall
@@ -542,8 +546,9 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
    }finally{if($connection){$connection.Dispose()}}
   }
   Assert-CsvPins
-  if($TestScope -ceq 'shape-ceilings'){
-   if($ledger.ShapeCeilingCasesPassed -ne (8*$DeploymentModes.Count) -or $ledger.GuardCasesPassed -ne 0 -or $ledger.LifecycleCasesPassed -ne 0){throw 'CSV_SHAPE_COMPLETENESS_REQUIRED'}
+  if($TestScope -cin @('shape-ceilings','shape-ceilings-and-default')){
+   $expectedLifecycle=if($TestScope -ceq 'shape-ceilings-and-default'){14*$DeploymentModes.Count+[int]('central' -cin $DeploymentModes)}else{0}
+   if($ledger.ShapeCeilingCasesPassed -ne (8*$DeploymentModes.Count) -or $ledger.GuardCasesPassed -ne 0 -or $ledger.LifecycleCasesPassed -ne $expectedLifecycle){throw 'CSV_SHAPE_COMPLETENESS_REQUIRED'}
   }elseif($TestScope -cne 'default'){
    $perMode=switch -CaseSensitive ($TestScope){'ownership-markers'{20};'marker-values'{50};'schema-values'{8};'marker-absence'{54};'foreign-slots'{14};'foreign-kinds'{20};'foreign-aliases'{20};'foreign-table-functions'{20};'binding-drift'{16};'binding-defaults'{10};'binding-execution'{6};'binding-return-lengths'{4};'named-consumers'{10};default{throw 'CSV_GUARD_SCOPE_UNKNOWN'}}
    if($ledger.GuardCasesPassed -ne ($perMode*$DeploymentModes.Count)){throw 'CSV_GUARD_COMPLETENESS_REQUIRED'}
@@ -570,6 +575,10 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
  if($cleanupBlocked){Write-Output 'FAILED: CSV_CLEANUP_BLOCKED';exit 1}
  if($failed){Write-Output ('FAILED: CSV_'+$ledger.OriginalFailure.Stage+'_SQL'+$ledger.OriginalFailure.SqlNumber+'_STATE'+$ledger.OriginalFailure.SqlState+'_'+$ledger.OriginalFailure.Reason);exit 1}
  $completed=$ledger.CompletedModes -join ','
+ if($TestScope -ceq 'shape-ceilings-and-default'){
+  Write-Output ('PASS: CSV_SHAPE_AND_DEFAULT '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL'+$CompatibilityLevel+' modes='+$completed+' functional-cases='+$ledger.ShapeCeilingCasesPassed+' lifecycle-cases='+$ledger.LifecycleCasesPassed+' row/column-limit-success/rejection/source/target-preservation/contract/safety/client/caller/lock/rollback/consumer/Confirm0/repeat/uninstall; owned-cleanup. Cell/text ceilings/heap/full matrix NOT_EXECUTED.')
+  continue
+ }
  if($TestScope -ceq 'shape-ceilings'){
   Write-Output ('PASS: CSV_SHAPE_CEILINGS '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL'+$CompatibilityLevel+' modes='+$completed+' functional-cases='+$ledger.ShapeCeilingCasesPassed+' row/column-limit-success/rejection/source/target-preservation/repeat/uninstall; owned-cleanup. Cell/text ceilings/client/heap/full matrix NOT_EXECUTED.')
   continue

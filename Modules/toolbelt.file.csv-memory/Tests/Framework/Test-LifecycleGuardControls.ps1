@@ -17,8 +17,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION','BINDING-RETURN-LENGTHS','SHAPE-CEILINGS')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings','shape-ceilings-and-default')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION','BINDING-RETURN-LENGTHS','SHAPE-CEILINGS','SHAPE-CEILINGS-AND-DEFAULT')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -66,6 +66,21 @@ $caught=$false;try{Get-CsvCommandTimeout 300|Out-Null}catch{$caught=$true};Check
 $script:cleanupPhase=$true;$script:scopeClock.ElapsedMilliseconds=1199000L;Check ((Get-CsvCommandTimeout 300) -eq 1)
 $script:scopeClock.ElapsedMilliseconds=1199001L
 $caught=$false;try{Get-CsvCommandTimeout 300|Out-Null}catch{$caught=$true};Check $caught
+$completionNodes=@($driverTree.FindAll({param($n)$n -is [Management.Automation.Language.IfStatementAst] -and $n.Extent.Text.StartsWith("if(`$TestScope -cin @('shape-ceilings','shape-ceilings-and-default'))") -and $n.Extent.Text.Contains('CSV_SHAPE_COMPLETENESS_REQUIRED')},$true))
+if($completionNodes.Count -ne 1){throw 'CSV_SHAPE_COMPLETENESS_IDENTITY'}
+$checkCompletion=[scriptblock]::Create($completionNodes[0].Extent.Text)
+foreach($TestScope in @('shape-ceilings','shape-ceilings-and-default')){
+ foreach($selection in @(@{Modes=@('local')},@{Modes=@('central')},@{Modes=@('local','central')})){
+  $DeploymentModes=$selection.Modes
+  $expected=if($TestScope -ceq 'shape-ceilings-and-default'){14*$DeploymentModes.Count+[int]('central' -cin $DeploymentModes)}else{0}
+  $baseline=[pscustomobject]@{ShapeCeilingCasesPassed=8*$DeploymentModes.Count;GuardCasesPassed=0;LifecycleCasesPassed=$expected}
+  $ledger=$baseline.PSObject.Copy();$caught=$false;try{& $checkCompletion}catch{$caught=$true};Check (-not $caught)
+  foreach($field in @('ShapeCeilingCasesPassed','GuardCasesPassed','LifecycleCasesPassed')){
+   $ledger=$baseline.PSObject.Copy();$ledger.$field++
+   $caught=$false;try{& $checkCompletion}catch{$caught=$true};Check $caught
+  }
+ }
+}
 $slots=@(Get-CsvForeignSlotNames)
 $kindCases=@(Get-CsvForeignKindCases)
 $aliasCases=@(Get-CsvForeignKindCases 'synonym-function')
