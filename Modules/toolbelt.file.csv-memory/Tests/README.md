@@ -4,6 +4,18 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Direkte SELECT-/TDS-Ausgabe an vollständigen Textdecken 2026-10-21
+
+'-TestScope select-output-ceilings': Bestehende öffentliche Parser-/Writeraufrufe mit ResultTable=NULL liefern direkt über System.Data.SqlClient. Unquotierter ASCII-Text mit CRLF und separatorbedingt quotierter ASCII-Text: Input/Output genau16777216 UTF16-Bytes sowie16777218 Bytes. Client prüft genau ein Resultset je Erfolg, Feldnamen/Reihenfolge, SQL-/CLR-Typen, vollständige Strings ordinal und numerische Typen/Werte. Vier Übergrenzfälle je Modus verlangen SQL55303/state1 ohne vorherige Resultsetmetadaten oder Zeilen. Writerquellen separat gesetzt, vollständiger Quellerhalt und Wertcharge strikt unter16MiB; kein INSERT EXEC. Acht bestätigte Readerphasen werden erst danach als typisierter Abschluss gezählt.
+
+Acht Readerphasen je Modus: vier vollständige direkte Resultsets und vier erwartete55303/state1-Abweisungen ohne partielle Ausgabe. Der Adapter prüft Feldnamen, Reihenfolge, SQL-/CLR-Typen und vollständige Inhalte; Writerquellen werden unabhängig gesetzt und vollständig erhalten. Jede Phase bestätigt exakt einen Erfolgspunkt; typisierter Abschluss erst nach allen acht Punkten.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 972 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'select-output-ceilings' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Nur System.Data.SqlClient im bestehenden PowerShell-Labadapter und die expliziten synthetischen Fälle: keine SMO-/ODBC-/JDBC-/sonstige Clientmatrix, neue Default-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme oder unabhängig erfolgreiche MaxValueBytes-Vollgrenze. Status weiterhin partially validated, unreleased.
+
 ## Budgetparameter-Abweisung mit vollständigem Datenerhalt 2026-10-21
 
 '-TestScope budget-parameter-preservation': Acht ausgewählte feste Budgetobergrenzen jeweils um1 überschritten: Parser MaxInputBytes, MaxRows, MaxColumns, MaxCells; Writer MaxValueBytes, MaxOutputBytes, MaxRows, MaxCells. Alle übrigen Argumente gültig, KeepData=0. Vorbefüllte passende Parser-/Writerziele enthalten je genau16777216 synthetische UTF16-Bytes; die getrennt gesetzte Writerquelle enthält16777212 Bytes und wäre mit CRLF regulär ausgabefähig. Vor und nach jeder SQL55303/state1-Abweisung vollständige bytegenaue Ziel-/Quellorakel samt Zeilenzahl und Metadaten; Calleridentitäten, Spaltenzahlen, drei Primärschlüssel und neutraler Transaktionszustand erhalten. Ergänzt vorhandene kleine NULL/0/Obergrenzenprüfungen; keine neue Funktion oder vollständige Budgetparametermatrix behauptet.

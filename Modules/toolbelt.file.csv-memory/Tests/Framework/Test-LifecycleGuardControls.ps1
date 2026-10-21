@@ -17,8 +17,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings','shape-ceilings-and-default','cell-ceilings','text-ceilings','quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION','BINDING-RETURN-LENGTHS','SHAPE-CEILINGS','SHAPE-CEILINGS-AND-DEFAULT','CELL-CEILINGS','TEXT-CEILINGS','QUOTE-EXPANSION','CRLF-CEILINGS','NULL-TOKEN-CEILINGS','HEADER-TEXT-CEILINGS','UNICODE-TEXT-CEILINGS','CONTROL-TEXT-CEILINGS','KEEPDATA-CEILINGS','BUDGET-PARAMETER-PRESERVATION')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings','shape-ceilings-and-default','cell-ceilings','text-ceilings','quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION','BINDING-RETURN-LENGTHS','SHAPE-CEILINGS','SHAPE-CEILINGS-AND-DEFAULT','CELL-CEILINGS','TEXT-CEILINGS','QUOTE-EXPANSION','CRLF-CEILINGS','NULL-TOKEN-CEILINGS','HEADER-TEXT-CEILINGS','UNICODE-TEXT-CEILINGS','CONTROL-TEXT-CEILINGS','KEEPDATA-CEILINGS','BUDGET-PARAMETER-PRESERVATION','SELECT-OUTPUT-CEILINGS')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -135,7 +135,7 @@ foreach($selection in @(@{Modes=@('local')},@{Modes=@('central')},@{Modes=@('loc
 $expansionFunctions=@($driverTree.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Get-CsvExpansionFixture'},$true))
 if($expansionFunctions.Count -ne 1){throw 'CSV_EXPANSION_HELPER_IDENTITY'}
 . ([scriptblock]::Create($expansionFunctions[0].Extent.Text))
-foreach($expansionScope in @('quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation')){
+foreach($expansionScope in @('quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings')){
 $expansionFixture=Get-CsvExpansionFixture $expansionScope
 $expansionRow=[pscustomobject]@{Fixture=$expansionFixture.Fixture;CasesPassed=[int]8}
 Check ((Get-CsvShapeCeilingCount @($expansionRow) -ExpectedFixture $expansionFixture.Fixture) -eq 8)
@@ -527,4 +527,51 @@ foreach($scenario in @('pass','named-drop-drift','named-restore-mismatch','named
  if($scenario -cin @('named-drop-drift','named-unobserved','named-dependency-drift','named-identity-drift','named-pre-second-drift')){Check ($script:namedDrops -eq 0)}
  if($scenario -ceq 'named-pre-second-drift'){Check ($script:rejections -eq 1)}
 }
+. (Join-Path $PSScriptRoot 'CsvDirectSelect.Helpers.ps1')
+$directBaseline=Get-CsvDirectSelectCase 0
+Check ($directBaseline.Rows[0].Values[3].Length -eq 8388606)
+$directBaseline.Rows[0].Values[3]='synthetic'
+function Copy-DirectControl {
+ [pscustomobject]@{Schema=@($directBaseline.Schema|ForEach-Object {$_.PSObject.Copy()});Rows=@([pscustomobject]@{Values=$directBaseline.Rows[0].Values.Clone()})}
+}
+$directActual=Copy-DirectControl
+$caught=$false;try{Assert-CsvDirectSelectRows $directActual.Schema $directActual.Rows $directBaseline}catch{$caught=$true};Check (-not $caught)
+foreach($mutation in @('missing-column','extra-column','reordered-column','name-case','sql-type','clr-type','missing-row','extra-row','width','rowkind','rowordinal-type','columnordinal-type','value','null','prefix-only')){
+ $directActual=Copy-DirectControl
+ switch -CaseSensitive ($mutation){
+  'missing-column'{$directActual.Schema=$directActual.Schema[0..2]}
+  'extra-column'{$directActual.Schema+=@($directActual.Schema[0])}
+  'reordered-column'{$directActual.Schema=$directActual.Schema[1,0,2,3]}
+  'name-case'{$directActual.Schema[0].Name='rowkind'}
+  'sql-type'{$directActual.Schema[3].SqlType='varchar'}
+  'clr-type'{$directActual.Schema[1].ClrType='System.Int32'}
+  'missing-row'{$directActual.Rows=@()}
+  'extra-row'{$directActual.Rows+=@($directActual.Rows[0])}
+  'width'{$directActual.Rows[0].Values=$directActual.Rows[0].Values[0..2]}
+  'rowkind'{$directActual.Rows[0].Values[0]='data'}
+  'rowordinal-type'{$directActual.Rows[0].Values[1]=[int]1}
+  'columnordinal-type'{$directActual.Rows[0].Values[2]=[long]1}
+  'value'{$directActual.Rows[0].Values[3]='synthetiC'}
+  'null'{$directActual.Rows[0].Values[3]=[DBNull]::Value}
+  'prefix-only'{$directActual.Rows[0].Values[3]='syntheti'}
+ }
+ $caught=$false;try{Assert-CsvDirectSelectRows $directActual.Schema $directActual.Rows $directBaseline}catch{$caught=$true};Check $caught
+}
+$directBaseline.Rows[0].Values[3]=[DBNull]::Value
+$directActual=Copy-DirectControl
+$caught=$false;try{Assert-CsvDirectSelectRows $directActual.Schema $directActual.Rows $directBaseline}catch{$caught=$true};Check (-not $caught)
+foreach($replacement in @('','NULL',$null)){
+ $directActual=Copy-DirectControl;$directActual.Rows[0].Values[3]=$replacement
+ $caught=$false;try{Assert-CsvDirectSelectRows $directActual.Schema $directActual.Rows $directBaseline}catch{$caught=$true};Check $caught
+}
+foreach($phase in @(1,4,5)){
+ $directCase=Get-CsvDirectSelectCase $phase
+ if($phase -eq 4){Check ($directCase.Rows[0].Values[3].Length -eq 8388604 -and $directCase.Rows[0].Values[3][0] -ceq ',')}
+ else{Check ($directCase.Rows[0].Values[0].Length -eq 8388608 -and $directCase.Rows[0].Values[0].EndsWith(([string][char]13+[char]10),[StringComparison]::Ordinal))}
+}
+foreach($phase in @(2,3,6,7)){
+ $directCase=Get-CsvDirectSelectCase $phase
+ Check ($directCase.ErrorNumber -eq 55303 -and $directCase.ErrorState -eq 1 -and $directCase.Schema.Count -eq 0 -and $directCase.Rows.Count -eq 0)
+}
+foreach($phase in @(-1,8)){$caught=$false;try{Get-CsvDirectSelectCase $phase|Out-Null}catch{$caught=$true};Check $caught}
 Write-Output ('PASS CSV_GUARD_ORACLE_CONTROLS CHECKS='+$checks+' SYNTHETIC_ONLY')
