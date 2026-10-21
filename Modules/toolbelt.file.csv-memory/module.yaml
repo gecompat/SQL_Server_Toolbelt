@@ -99,6 +99,7 @@ tests:
   text_ceilings: "Tests/Runtime/TextCeilings.Tests.sql"
   quote_expansion: "Tests/Runtime/QuoteExpansion.Tests.sql"
   crlf_ceilings: "Tests/Runtime/CrlfCeilings.Tests.sql"
+  null_token_ceilings: "Tests/Runtime/NullTokenCeilings.Tests.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   ownership_guards: "Tests/Runtime/OwnershipGuards.Tests.ps1"
   foreign_guards: "Tests/Runtime/ForeignGuards.Tests.ps1"

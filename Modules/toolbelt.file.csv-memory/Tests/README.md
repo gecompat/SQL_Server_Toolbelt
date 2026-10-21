@@ -4,6 +4,20 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## NullTokenexpansion an vollständigen Textdecken 2026-10-21
+
+'-TestScope null-token-ceilings': Parserinput/Writerausgabe genau16777216 UTF16-Bytes und kleinstes tatsächliches Darüber16777218 Bytes mit128-Zeichen-NullToken. Zwei Spalten prüfen die SQL-NULL-Expansion; drei Spalten unterscheiden quotiertes Tokenliteral, unquotiertes SQL-NULL und großen Textwert. Tokenbytes, Quotehüllen, Separatoren und LF zählen vollständig, globale Writerwertcharge strikt unter16MiB; übrige Budgets nicht bindend.
+
+Acht gezählte Phasen je Modus; SQL55303/state1 ausschließlich für vier
+Übergrenzfälle je Modus. Vollständige Werte/Outputbytes, DataRows/ColumnCount,
+unabhängig gesetzte Writer-Übergrenzquellen und Quell-/vorheriger Zielerhalt.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 708 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'null-token-ceilings' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ## CRLF an vollständigen Textdecken 2026-10-21
 
 '-TestScope crlf-ceilings': Parserinput/Writerausgabe an exakt16777216 UTF16-Bytes und kleinstem tatsächlichem Darüber16777218 Bytes, unquotierter und wegen Separator quotierter Record mit CRLF. Beide Recordabschlusszeichen und Quotehüllen zählen vollständig; die globale Writerwertcharge bleibt strikt unter16MiB, übrige Budgets nicht bindend.
