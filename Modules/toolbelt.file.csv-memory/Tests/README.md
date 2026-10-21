@@ -10,7 +10,7 @@ andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
 Acht SQLphasen je Modus, alle acht ausschließlich mit51025/state1: vier voneinander getrennte Schemaabweichungen für Parser und Writer. Vollständige16MiB-Zielwerte, unabhängig gesetzte Writerquelle, Objektidentitäten und bidirektionale Spalten-/Index-/Indexspaltensnapshots werden vor beziehungsweise nach der Abweisung geprüft. Transaktionsneutralität steht in eigenen IFs; nur der abschließende typisierte Witness darf als Resultset erscheinen.
 Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
-Cleanupreserve bleiben erhalten. 1114 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+Cleanupreserve bleiben erhalten. 1126 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
 
 Native Abnahme und unabhängiger Review für 'schema-target-preservation' sind offen.
 

@@ -2341,7 +2341,7 @@ Keine Funktionserweiterung oder Budgetreset. Produkt-/Deployment-/CLR-/gemeinsam
 
 2026-10-21: Nach vollständigem Abschluss der vorigen Welle tatsächlich mit 'schema-target-preservation' fortgesetzt.
 Acht belegte synthetische Caller-ResultTables mit je einem vollständigen16777216-Byte-Wert: für Parser und Writer jeweils genau eine Abweichung in Spaltenname, Integerbreite, NULLbarkeit oder Collation. Gültiger Parserinput beziehungsweise unabhängig gesetzte Writerquelle mit vollständigem Output an16777216 Bytes. KeepData=1 muss ausschließlich SQL51025/state1 liefern. Vollständige Zielwerte und Writerquelle bleiben bytegenau erhalten; Callerobjektidentität sowie bidirektional verglichene Spalten-, Index- und Indexspaltensnapshots bleiben gleich. Getrennte Transaktionsneutralität und typisierter Abschluss. Kein Schemaumbau und keine neue Funktion.
-1114 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden. Native Abnahme und unabhängiger Review für 'schema-target-preservation' sind offen.
+1126 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden. Native Abnahme und unabhängiger Review für 'schema-target-preservation' sind offen.
 Keine Funktionserweiterung oder Budgetreset. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
 ### Queue-Worker 2 – autonome Umsetzung freigegeben 2026-10-04

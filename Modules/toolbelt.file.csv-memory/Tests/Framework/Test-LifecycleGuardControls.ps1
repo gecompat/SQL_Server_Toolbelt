@@ -648,4 +648,13 @@ foreach($mutation in @('null-as-token','literal-as-null','missing-row','reordere
  $caught=$false;try{Assert-CsvDirectSelectRows $unicodeActual.Schema $unicodeActual.Rows $unicodeCase}catch{$caught=$true};Check $caught
 }
 foreach($scope in @('SELECT-UNICODE-NULL','unknown')){$caught=$false;try{Get-CsvDirectSelectCase 0 -Scope $scope|Out-Null}catch{$caught=$true};Check $caught}
+# Den tatsaechlichen Abschlusszweig auswerten; alle bisherigen Scopeaussagen erhalten.
+$summaryNodes=@($driverTree.FindAll({param($n)$n -is [Management.Automation.Language.AssignmentStatementAst] -and $n.Left.Extent.Text -ceq '$completionSummary'},$true))
+if($summaryNodes.Count -ne 1){throw 'CSV_COMPLETION_SUMMARY_IDENTITY'}
+$summarize=[scriptblock]::Create($summaryNodes[0].Extent.Text+'; $completionSummary')
+foreach($TestScope in @('quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation')){
+ $isDirectSelect=$TestScope -cin @('select-output-ceilings','select-unicode-null')
+ $expected=if($isDirectSelect){'direct-SELECT/TDS/types/full-UTF16-text/exact-16MiB/plus-two/no-partial-result/source-preservation/repeat/uninstall'}elseif($TestScope -ceq 'budget-parameter-preservation'){'eight-invalid-upper-budgets-per-mode/full-16MiB-caller-targets/source-target-preservation/repeat/uninstall'}elseif($TestScope -ceq 'schema-target-preservation'){'eight-KeepData1-schema-rejections-SQL51025-state1-per-mode/full-16MiB-caller-targets/source-target-schema-preservation/repeat/uninstall'}else{'exact-16MiB/plus-two-UTF16-bytes/input/output/source/target-preservation/repeat/uninstall'}
+ Check ((& $summarize) -ceq $expected)
+}
 Write-Output ('PASS CSV_GUARD_ORACLE_CONTROLS CHECKS='+$checks+' SYNTHETIC_ONLY')
