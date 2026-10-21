@@ -4,6 +4,20 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## KeepData und Datenerhalt an vollständigen Textdecken 2026-10-21
+
+'-TestScope keepdata-ceilings': Passende vorbefüllte caller-lokale Parser-/Writerziele mit KeepData=1 und KeepData=0. Parserinput und Writerausgabe je genau16777216 UTF16-Bytes; +2 Bytes werden ausschließlich mit SQL55303/state1 abgewiesen. Erfolgreiches Append erhält synthetische Altzeilen, Replace entfernt diese; fehlgeschlagene Aufrufe erhalten die vollständigen bisherigen Zielwerte. Separat gesetzte Writerquellen bleiben vollständig bytegenau erhalten und ihre Wertcharge strikt unter16MiB. Ziel-/Quellidentität, Spaltenzahlen und beide Caller-Primärschlüssel bleiben erhalten; keine Gesamt-Heapgrenze abgeleitet.
+
+Acht gezählte Phasen je Modus; SQL55303/state1 ausschließlich für vier
+Übergrenzfälle je Modus. Vollständige Werte/Outputbytes, DataRows/ColumnCount,
+unabhängig gesetzte Writer-Übergrenzquellen und Quell-/vorheriger Zielerhalt.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 864 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'keepdata-ceilings' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ## Kontrollcodeeinheiten an vollständigen UTF16-Textdecken 2026-10-21
 
 '-TestScope control-text-ceilings': Parserinput/Writerausgabe genau16777216 UTF16-Bytes und kleinstes tatsächliches Darüber16777218 Bytes: feste synthetische UTF16-Einheiten aus NUL, getrenntem High-/Low-Surrogat, ASCII und BOM. Zweite Familie enthält führenden BOM und separatorbedingt quotierte Werte mit CRLF. Vollständige Bytevergleiche prüfen den Erhalt sämtlicher Codeeinheiten einschließlich führendem BOM als gewöhnlichem Text; Quotehüllen/CRLF vollständig mitgezählt, globale Writerwertcharge auch beim Übergrenzfall strikt unter16MiB.
