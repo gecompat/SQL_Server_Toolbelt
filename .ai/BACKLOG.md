@@ -2289,6 +2289,11 @@ Keine Funktionserweiterung oder Budgetreset;
 Produkt/CLR/Deployment/Snapshots/Workflow unverändert, keine neue Default-/
 Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme.
 
+2026-10-21: Nach vollständigem Abschluss der vorigen Welle tatsächlich mit 'crlf-ceilings' fortgesetzt.
+Parserinput/Writerausgabe an exakt16777216 UTF16-Bytes und kleinstem tatsächlichem Darüber16777218 Bytes, unquotierter und wegen Separator quotierter Record mit CRLF. Beide Recordabschlusszeichen und Quotehüllen zählen vollständig; die globale Writerwertcharge bleibt strikt unter16MiB, übrige Budgets nicht bindend.
+669 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden. Native Abnahme und unabhängiger Review für 'crlf-ceilings' sind offen.
+Keine Funktionserweiterung oder Budgetreset. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### Queue-Worker 2 – autonome Umsetzung freigegeben 2026-10-04
 
 Nach Besprechung von Zweck, Verträgen, Alternativen und Risiken beauftragte
