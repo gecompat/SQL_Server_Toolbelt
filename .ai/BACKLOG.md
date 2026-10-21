@@ -2232,6 +2232,19 @@ Zusatzaufrufe vollständig gezählt, kein Reset; abschließender Linuxkandidat
 noch offen. Frühere vier Grenz-FAILs bleiben erhalten, kein Gesamt-PASS,
 keine Heap-/Zell-/Textvollgrenze oder Veröffentlichung.
 
+Nach zusätzlicher ausdrücklicher Freigabe abschließender gleicher korrigierter
+Kandidat auf Linux2019/latest CL150 im kombinierten Scope local/central PASS:
+16 Formgrenzfälle einschließlich acht SQL55303/state1-Abweisungen, alle drei
+Defaultfixtures/Client/Consumer/29 Lifecyclefälle/CleanRepeat/UninstallRepeat.
+Exit0/vollständige Kanäle/leeres Stderr, frischer Audit drei eigene DBs/ein
+eigener Trusthash abwesend, Konfiguration/Rechte/Runtimeinputs unverändert.
+Damit beide ausgewählten korrigierten Ziele geprüft; frühere FAILED-/
+Diagnoseaufrufe bleiben getrennt. Unabhängiger Abschlussreview ohne semantische
+Findings; generierter Katalogfingerprint als einziges Finding durch exakten
+Generatornachtrag/Validator geschlossen. Keine neue Funktion, Heap-/Zell-/
+Textvollgrenze, vollständige Matrix, Minimalrechte, authentifiziertes TLS oder
+Veröffentlichung. Gemeinsames Ledger ohne Reset fortgesetzt.
+
 ### Queue-Worker 2 – autonome Umsetzung freigegeben 2026-10-04
 
 Nach Besprechung von Zweck, Verträgen, Alternativen und Risiken beauftragte

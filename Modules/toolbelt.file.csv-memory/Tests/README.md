@@ -45,10 +45,21 @@ Deadline/Cleanupreserve und falschen Funktions-/Guard-/Lifecyclezählern in
 local/central/einzelnen Modi bestanden. SQL150: acht Formfixturephasen sowie
 äußerer und expandierter Writerbody, AST/Static bestanden.
 
-**Offen bleibt der abschließende Linuxlauf desselben korrigierten Kandidaten.**
+Nach zusätzlicher ausdrücklicher Freigabe bestand derselbe korrigierte Kandidat
+auch auf Linux2019/latest CL150 local/central im kombinierten Scope:
+16 Formgrenzfälle einschließlich acht SQL55303/state1-Abweisungen sowie alle
+drei Default-SQLfixtures, Clientmetadaten, 29 Lifecyclefälle, frischer SC-/UTF8-
+Consumer, Clean/Repeat und Uninstall/Repeat PASS. Exit0/vollständige Kanäle/
+leeres Stderr; frischer separater Audit drei eigene DBs/ein eigener Trusthash
+abwesend, Konfiguration/Rechte und eingefrorene Eingaben unverändert.
+Der zusätzliche Aufruf bleibt vollständig im gemeinsamen Ledger gezählt.
+Die finalen Windows-/Linuxpins erlauben ausschließlich nachgepflegte gekoppelte
+Evidenz-/Manifest-/Dokumentationsdateien, keine ausführbare Drift.
+Unabhängiger Abschlussreview ohne semantische Findings; einziges Finding zum
+generierten API-Katalogfingerprint durch Generatornachtrag und Validator geschlossen.
 Die ältere Defaultregression unten betrifft den Stand vor der Indexkorrektur;
 die früheren vier Grenzfehlläufe bleiben FAILED und werden nicht umgedeutet.
-Der neue Windows-PASS qualifiziert weder Linux noch die tatsächlichen vollen
+Die neuen Windows-/Linux-PASSes qualifizieren nicht die tatsächlichen vollen
 Zell-/Textdecken, Heap, Minimalrechte, die Gesamtmatrix, authentifiziertes TLS
 oder Release. Status weiterhin `partially validated`, `unreleased`.
 ## Native tatsächliche Zeilen-/Spaltendecken 2026-10-21

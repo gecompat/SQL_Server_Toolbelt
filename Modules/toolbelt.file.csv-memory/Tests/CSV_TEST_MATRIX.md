@@ -6,8 +6,8 @@ Linux2019/latest CL150 und Windows2025/exaktCU8 CL170 local/central mit
 identischem finalem Produkt-/Binarypaar; frische unabhängige Linux-/Windowsaudits
 PASS. [Evidenz](README.md) beschreibt
 historische Fehlläufe und Einschränkungen. Kleine exakte/+1-Fixtures bleiben
-getrennt von den neuen tatsächlichen Zeilen-/Spaltendecken auf Windows;
-deren abschließender Linuxnachweis ist offen. Keine Heap- oder vollständige
+getrennt von den neuen tatsächlichen Zeilen-/Spaltendecken auf Windows und Linux.
+Keine Heap- oder vollständige
 Ceilingqualifikation daraus ableiten.
 
 Die ergänzende Welle vom 2026-10-20 bestand auf Windows2019/base CL150,
@@ -49,8 +49,8 @@ und Release bleiben offen.
 | Statisch | Source-/Lifecycle-/Trust-/Generator-Verträge | passed; kein Runtime-Nachweis |
 | Parser/NULL/Text/Writer | Tatsächliche synthetische Assertions in Contract.Tests.sql und Safety.Tests.sql | passed local/central im jeweils datierten Zielscope vom 2026-10-05 und 2026-10-20 |
 | SQL-Budgets | Tatsächliche exakte/+1- und Expansionsassertions in Safety.Tests.sql | passed local/central; kein Heapnachweis |
-| Tatsächliche Zeilen-/Spaltendecken | ShapeCeilings.Tests.sql: acht Parser-/Writer-Grenz-/+1-Fälle pro Modus und gezählter Abschluss | offen/FAILED: vier native Versuche vom2026-10-21 frisch bereinigt. Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent: lokale Parserphase100000 bestanden, Writerphase100000 Timeout120 beziehungsweise Windows auch300 Sekunden; übrige Phasen/central nicht erreicht. Linux erster zusammengefasster60-Sekunden-Fehllauf bleibt getrennt. Separate finale Linux-Defaultregression local/central einschließlich29 Lifecyclefällen bestanden und frisch bereinigt; keine tatsächliche Ceilingabnahme. |
-| Korrigierter Writer an Formgrenzen | Maß-/Fragmentabgleich mit Schlüsseln, echte100000 Zeilen/1024 Spalten und +1; kombinierter Defaultumfang | Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent korrigierter Kandidat local/central PASS:16 Formfälle einschließlich acht SQL55303/state1, drei Defaultfixtures/Client/Consumer/29 Lifecyclefälle, Clean/Repeat und Uninstall/Repeat. Frischer Audit drei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Rechte/Inputs unverändert. Abschließender Linuxkandidat offen; vier frühere Grenz-FAILs und drei separate bereinigte Diagnoseaufrufe bleiben datiert. Keine Zell-/Textvollgrenze oder Heap-/Gesamtmatrix-/Releaseabnahme. |
+| Historische Formgrenzversuche vor Korrektur | ShapeCeilings.Tests.sql: acht Parser-/Writer-Grenz-/+1-Fälle pro Modus und gezählter Abschluss | offen/FAILED: vier native Versuche vom2026-10-21 frisch bereinigt. Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent: lokale Parserphase100000 bestanden, Writerphase100000 Timeout120 beziehungsweise Windows auch300 Sekunden; übrige Phasen/central nicht erreicht. Linux erster zusammengefasster60-Sekunden-Fehllauf bleibt getrennt. Separate finale Linux-Defaultregression local/central einschließlich29 Lifecyclefällen bestanden und frisch bereinigt; keine tatsächliche Ceilingabnahme. |
+| Korrigierter Writer an Formgrenzen | Maß-/Fragmentabgleich mit Schlüsseln, echte100000 Zeilen/1024 Spalten und +1; kombinierter Defaultumfang | Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent und Linux2019/latest CL150 korrigierter Kandidat jeweils local/central PASS:je16 Formfälle einschließlich acht SQL55303/state1, drei Defaultfixtures/Client/Consumer/29 Lifecyclefälle, Clean/Repeat und Uninstall/Repeat. Frischer Audit drei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Rechte/Inputs unverändert. Je frischer Audit drei eigene DBs/ein eigener Trusthash abwesend; vier frühere Grenz-FAILs und drei separate bereinigte Diagnoseaufrufe bleiben datiert. Keine Zell-/Textvollgrenze oder Heap-/Gesamtmatrix-/Releaseabnahme. |
 | USP/ResultTable/Transaktionen | Tatsächliche Contract-/Safety-/Lifecycle-SQLassertions | passed local/central; keine weitergehende Vollmatrix |
 | CLR | Exakt gepacktes .NET48-Binary, unabhängige Orakel/Roundtrip, IL/NoIO/Attribute, keine Drittanbieter | passed; drei Kulturen en-US/de-DE/tr-TR, harte Grenzphase en-US; kein SQLnachweis |
 | Installation | Clean/Repeat, fünf Slots/drei native CLR-Bindings | passed local/central im jeweils datierten Zielscope vom 2026-10-05 und 2026-10-20 |
