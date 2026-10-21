@@ -4,6 +4,38 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Interne CLR-Rückgabelängen 2026-10-21
+
+Der getrennte Scope `-TestScope binding-return-lengths` bestand auf
+Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem
+CU-Äquivalent jeweils im ersten Versuch local/central. Zwei einzeln aus
+kanonischen Quellen abgeleitete ALTER-Fixtures ändern die skalare
+QuoteCell-Rückgabe von nvarchar(max) auf nvarchar(4000) beziehungsweise
+die interne Parser-RowKind-Spalte von nvarchar(6) auf nvarchar(5).
+Deploy und Uninstall lieferten SQL55324/state7: vier Abweisungen je Modus,
+acht je Ziel. Die geänderten Funktionen wurden dabei nicht fachlich ausgeführt.
+
+Ein konkreter Katalogwitness prüft die Rückgabe mit parameter_id 0 und
+max_length 8000 beziehungsweise column_id 1 mit max_length 10 unmittelbar
+vor/nach jeder Operation und vor Restore. Gleiche Objekt-/Erstellungsidentität,
+CLR-Bindung und typisierte Ownership sowie erfasster Mutationszustand blieben
+erhalten; kanonisches ALTER restaurierte exakt die Baseline.
+
+Die separate Linuxregression `binding-drift` bestand local/central mit 32
+Abweisungen. Alle drei Läufe Clean/Repeat, Uninstall/Repeat, Exit0/vollständige
+Kanäle/leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener
+Trusthash abwesend, Konfiguration/Runtimeinputs unverändert. 487 synthetische
+Offlinekontrollen einschließlich ungültiger Deskriptoren und Identitäts-/
+Witness-/Restaurierungsdrift bestanden; Drift vor der zweiten Operation
+blockiert diese und das Restore. 72 expandierte SQL150-ALTER-/Identitäts-/
+Witness-Batches aller vier Bindingfamilien und AST/Static PASS.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert.
+Vorhandenes Releasepaket an manifestierte Quellen/exakte Binarybytes gebunden;
+kein neuer lokaler Build-/Frameworklauf, keine fachliche Ausführung unter
+abweichender Länge oder neue Default-Gesamtadapter-/API-/Client-/Vollmatrix-/
+Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
+
 ## Falsche Schemamarkerwerte 2026-10-21
 
 Der getrennte Scope `-TestScope schema-values` bestand auf Linux2019/latest
@@ -144,7 +176,7 @@ Voraussetzung. Die kanonische ALTER-Definition restauriert exakt die Caller-Base
 Keine Rechtevergabe oder Änderung von Objekt-/Schemaeigentümern.
 
 Die neue unmittelbare Vorabprüfung gilt auch für die bisherigen Bindingfamilien.
-Daher bestanden zusätzlich `binding-drift` auf Linux2019/latest CL150 mit32
+Daher bestanden zusätzlich `binding-drift` auf Linux2019/latest CL150 mit 32
 und `binding-defaults` auf Windows2025/base CL170 mit20 Abweisungen, jeweils
 local/central. Alle vier Läufe: Clean/Repeat, Uninstall/Repeat, Exit0/vollständige
 Kanäle/leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener
@@ -279,7 +311,7 @@ Frühere Nachweise bleiben enger: Linux2019/latest CL150 zweiter und Windows
 erster Defaultsversuch mit konvertierenden numerischen Probes; erster Linuxlauf
 ohne wiederholten Wertwitness; zweiter Windowslauf vor der DATALENGTH-Korrektur.
 Alle bestanden20 Abweisungen in ihrem damaligen Umfang. Zusätzlich bestand eine
-Linux2019/latest CL150 `binding-drift`-Regression local/central mit32 Abweisungen
+Linux2019/latest CL150 `binding-drift`-Regression local/central mit 32 Abweisungen
 vor den letzten ausschließlich defaultspezifischen Probekorrekturen.
 Alle sechs Läufe: Exit0/vollständige Kanäle/leeres Stderr; je frischer unabhängiger
 Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert.

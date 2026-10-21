@@ -2158,6 +2158,24 @@ neue Gesamt-/Vollmatrix-/Minimalrechte-/Heap-/TLS-/Releaseabnahme.
 `partially validated`, `unreleased`. Anschließend sind skalare Rückgabelängen
 und die noch offene Parser-RowKind-Länge als nächste begrenzte Welle ausgewählt.
 
+Nach PR354, 2026-10-21: Die direkt gestartete Rückgabelängenwelle bestand auf
+Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem
+CU-Äquivalent jeweils im ersten Versuch local/central. Zwei einzelne interne
+CLR-Metadatenänderungen: QuoteCell-Rückgabe nvarchar(max)→nvarchar(4000) und
+Parser-RowKind nvarchar(6)→nvarchar(5), je Deploy/Uninstall SQL55324/state7,
+acht Abweisungen je Ziel. Konkrete Rückgabe-/Spaltenlängenwitnesses unmittelbar
+vor/nach Operation und vor Restore, gleiche Identität/CLR-Bindung/Ownership
+und erfasster Zustand erhalten, Baseline exakt restauriert. Keine fachliche
+Ausführung unter abweichender Länge. Separate Linux-Bindingregression mit 32
+Abweisungen local/central PASS. Alle drei Läufe Clean/Repeat, Uninstall/Repeat,
+Exit0/vollständige Kanäle/leeres Stderr und frischer unabhängiger Audit je zwei
+eigene DBs/ein eigener Trusthash abwesend; Konfiguration/Inputs unverändert.
+487 Offlinekontrollen, 72 expandierte SQL150-Batches aller vier Bindingfamilien
+sowie AST/Static PASS. Produkt-/Deployment-/CLR-/Snapshotquellen und Workflow
+unverändert; keine neue API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/TLS-/
+Releaseabnahme, kein neuer lokaler Build-/Frameworklauf. Weiterhin
+`partially validated`, `unreleased`.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte

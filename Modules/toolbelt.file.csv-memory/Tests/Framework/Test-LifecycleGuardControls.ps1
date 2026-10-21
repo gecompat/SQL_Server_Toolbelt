@@ -17,8 +17,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION','BINDING-RETURN-LENGTHS')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -158,20 +158,23 @@ Check ($script:markerTransitionSql -eq 10)
 $bindingCases=@(Get-CsvBindingDriftCases)
 $defaultCases=@(Get-CsvBindingDriftCases 'defaults')
 $executionCases=@(Get-CsvBindingDriftCases 'execution')
+$returnCases=@(Get-CsvBindingDriftCases 'return-lengths')
 $moduleRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 Check ($bindingCases.Count -eq 8 -and @($bindingCases.Id|Sort-Object -Unique).Count -eq 8)
 Check ($defaultCases.Count -eq 5 -and @($defaultCases.Id|Sort-Object -Unique).Count -eq 5)
 $caught=$false;try{Get-CsvBindingDriftCases 'DEFAULTS'|Out-Null}catch{$caught=$true};Check $caught
 Check ($executionCases.Count -eq 3 -and @($executionCases.Id|Sort-Object -Unique).Count -eq 3)
+Check ($returnCases.Count -eq 2 -and @($returnCases.Id|Sort-Object -Unique).Count -eq 2)
+$caught=$false;try{Get-CsvBindingDriftCases 'RETURN-LENGTHS'|Out-Null}catch{$caught=$true};Check $caught
 $caught=$false;try{Get-CsvBindingDriftCases 'EXECUTION'|Out-Null}catch{$caught=$true};Check $caught
-foreach($case in @($bindingCases)+@($defaultCases)+@($executionCases)){
+foreach($case in @($bindingCases)+@($defaultCases)+@($executionCases)+@($returnCases)){
  $source=[IO.File]::ReadAllText((Join-Path $moduleRoot ('Source/'+$case.Name+'.sql')))
  $mutate=New-CsvBindingDriftSql $source $case
  $restore=New-CsvBindingDriftSql $source $case -Restore
  Check ($mutate -cne $restore -and $mutate.StartsWith('ALTER FUNCTION ') -and $restore.StartsWith('ALTER FUNCTION '))
 }
 foreach($field in @('Id','Name','Method','Kind','Needle','Replacement','State','Probe')){
- foreach($original in @($bindingCases[0],$defaultCases[0],$executionCases[0])){
+ foreach($original in @($bindingCases[0],$defaultCases[0],$executionCases[0],$returnCases[0],$returnCases[1])){
   $case=$original.PSObject.Copy();$case.$field=if($field -ceq 'State'){9}else{'invalid'}
   $caught=$false;try{New-CsvBindingDriftSql 'synthetic' $case|Out-Null}catch{$caught=$_.Exception.Message -ceq 'CSV_BINDING_CASE_INVALID'};Check $caught
  }
@@ -341,6 +344,14 @@ Check ($count -eq 10 -and $script:bindingSql -eq 10 -and $script:rejections -eq 
 $script:scenario='pass';$script:snapshots=0;$script:bindingSql=0;$script:bindingIdentities=0;$script:bindingWitnesses=0;$script:rejections=0
 $count=Invoke-CsvBindingDriftGuards $null 'synthetic-deploy' 'synthetic-uninstall' $moduleRoot 'local' -Family 'execution'
 Check ($count -eq 6 -and $script:bindingSql -eq 6 -and $script:rejections -eq 6 -and $script:bindingWitnesses -eq 18)
+foreach($scenario in @('pass','restore-drift','restore-mismatch','unobserved','identity-drift','witness-drift','binding-pre-second-drift')){
+ $script:scenario=$scenario;$script:snapshots=0;$script:bindingSql=0;$script:bindingIdentities=0;$script:bindingWitnesses=0;$script:rejections=0;$caught=$false;$count=0
+ try{$count=Invoke-CsvBindingDriftGuards $null 'synthetic-deploy' 'synthetic-uninstall' $moduleRoot 'local' -Family 'return-lengths'}catch{$caught=$true}
+ Check ($caught -eq ($scenario -cne 'pass'))
+ if($scenario -ceq 'pass'){Check ($count -eq 4 -and $script:bindingSql -eq 4 -and $script:rejections -eq 4 -and $script:bindingWitnesses -eq 12)}
+ if($scenario -cin @('restore-drift','unobserved','identity-drift','witness-drift','binding-pre-second-drift')){Check ($script:bindingSql -eq 1)}
+ if($scenario -ceq 'binding-pre-second-drift'){Check ($script:rejections -eq 1)}
+}
 $script:scenario='binding-pre-second-drift';$script:snapshots=0;$script:bindingSql=0;$script:bindingIdentities=0;$script:bindingWitnesses=0;$script:rejections=0;$caught=$false
 try{Invoke-CsvBindingDriftGuards $null 'synthetic-deploy' 'synthetic-uninstall' $moduleRoot 'local' -Family 'defaults'|Out-Null}catch{$caught=$true}
 Check ($caught -and $script:rejections -eq 1 -and $script:bindingSql -eq 1)

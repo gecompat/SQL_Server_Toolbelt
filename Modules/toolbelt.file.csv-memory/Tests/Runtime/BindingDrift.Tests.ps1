@@ -1,6 +1,11 @@
 # Begrenzte CLR-Metadatendrift in der eigenen installierten Testdatenbank.
-function Get-CsvBindingDriftCases([ValidateSet('metadata','defaults','execution',IgnoreCase=$false)][string]$Family='metadata'){
+function Get-CsvBindingDriftCases([ValidateSet('metadata','defaults','execution','return-lengths',IgnoreCase=$false)][string]$Family='metadata'){
  $measure='SVF_InternalMeasureCsvCell';$quote='SVF_InternalQuoteCsvCell';$parse='TVF_InternalParseCsv'
+ if($Family -ceq 'return-lengths'){
+  [pscustomobject]@{Id='quote-return-length';Name=$quote;Method='QuoteCell';Kind='FS';Needle='RETURNS nvarchar(max)';Replacement='RETURNS nvarchar(4000)';State=7;Probe='EXISTS(SELECT 1 FROM sys.parameters WHERE object_id=OBJECT_ID(@Object) AND parameter_id=0 AND max_length=8000)'}
+  [pscustomobject]@{Id='parse-rowkind-length';Name=$parse;Method='Parse';Kind='FT';Needle='RowKind nvarchar(6)';Replacement='RowKind nvarchar(5)';State=7;Probe='EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID(@Object) AND column_id=1 AND max_length=10)'}
+  return
+ }
  if($Family -ceq 'execution'){
   foreach($row in @(@('measure-owner',$measure,'MeasureCell','FS'),@('quote-owner',$quote,'QuoteCell','FS'),@('parse-owner',$parse,'Parse','FT'))){
    [pscustomobject]@{Id=$row[0];Name=$row[1];Method=$row[2];Kind=$row[3];Needle="`nAS EXTERNAL NAME";Replacement="`nWITH EXECUTE AS OWNER`nAS EXTERNAL NAME";State=5;Probe='EXISTS(SELECT 1 FROM sys.assembly_modules WHERE object_id=OBJECT_ID(@Object) AND execute_as_principal_id=-2)'}
@@ -30,7 +35,7 @@ function Get-CsvBindingDriftCases([ValidateSet('metadata','defaults','execution'
 }
 
 function Assert-CsvBindingDriftCase($Case){
- $known=@(@(Get-CsvBindingDriftCases;Get-CsvBindingDriftCases 'defaults';Get-CsvBindingDriftCases 'execution')|Where-Object {$_.Id -ceq $Case.Id -and $_.Name -ceq $Case.Name -and $_.Method -ceq $Case.Method -and $_.Kind -ceq $Case.Kind -and $_.Needle -ceq $Case.Needle -and $_.Replacement -ceq $Case.Replacement -and $_.State -eq $Case.State -and $_.Probe -ceq $Case.Probe})
+ $known=@(@(Get-CsvBindingDriftCases;Get-CsvBindingDriftCases 'defaults';Get-CsvBindingDriftCases 'execution';Get-CsvBindingDriftCases 'return-lengths')|Where-Object {$_.Id -ceq $Case.Id -and $_.Name -ceq $Case.Name -and $_.Method -ceq $Case.Method -and $_.Kind -ceq $Case.Kind -and $_.Needle -ceq $Case.Needle -and $_.Replacement -ceq $Case.Replacement -and $_.State -eq $Case.State -and $_.Probe -ceq $Case.Probe})
  if($known.Count -ne 1){throw 'CSV_BINDING_CASE_INVALID'}
 }
 
@@ -83,8 +88,8 @@ function Assert-CsvBindingDriftWitness($Connection,$Case){
  if(-not (Test-CsvBindingDriftWitness $rows)){throw 'CSV_BINDING_MUTATION_WITNESS_MISSING'}
 }
 
-function Invoke-CsvBindingDriftGuards($Connection,[string]$Deploy,[string]$Uninstall,[string]$ModuleRoot,[ValidateSet('local','central')][string]$Mode,[ValidateSet('metadata','defaults','execution',IgnoreCase=$false)][string]$Family='metadata'){
- $cases=@(Get-CsvBindingDriftCases $Family);$expected=switch -CaseSensitive ($Family){'defaults'{5};'execution'{3};'metadata'{8};default{throw 'CSV_BINDING_FAMILY_INVALID'}}
+function Invoke-CsvBindingDriftGuards($Connection,[string]$Deploy,[string]$Uninstall,[string]$ModuleRoot,[ValidateSet('local','central')][string]$Mode,[ValidateSet('metadata','defaults','execution','return-lengths',IgnoreCase=$false)][string]$Family='metadata'){
+ $cases=@(Get-CsvBindingDriftCases $Family);$expected=switch -CaseSensitive ($Family){'defaults'{5};'execution'{3};'return-lengths'{2};'metadata'{8};default{throw 'CSV_BINDING_FAMILY_INVALID'}}
  if($cases.Count -ne $expected -or @($cases.Id|Sort-Object -Unique).Count -ne $expected){throw 'CSV_BINDING_CASE_SET_INVALID'}
  $passed=0
  foreach($case in $cases){
