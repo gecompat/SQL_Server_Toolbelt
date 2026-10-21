@@ -4,6 +4,18 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Schemaabweisung mit vollständigem Caller-Datenerhalt 2026-10-21
+
+'-TestScope schema-target-preservation': Acht belegte synthetische Caller-ResultTables mit je einem vollständigen16777216-Byte-Wert: für Parser und Writer jeweils genau eine Abweichung in Spaltenname, Integerbreite, NULLbarkeit oder Collation. Gültiger Parserinput beziehungsweise unabhängig gesetzte Writerquelle mit vollständigem Output an16777216 Bytes. KeepData=1 muss ausschließlich SQL51025/state1 liefern. Vollständige Zielwerte und Writerquelle bleiben bytegenau erhalten; Callerobjektidentität sowie bidirektional verglichene Spalten-, Index- und Indexspaltensnapshots bleiben gleich. Getrennte Transaktionsneutralität und typisierter Abschluss. Kein Schemaumbau und keine neue Funktion.
+
+Acht SQLphasen je Modus, alle acht ausschließlich mit51025/state1: vier voneinander getrennte Schemaabweichungen für Parser und Writer. Vollständige16MiB-Zielwerte, unabhängig gesetzte Writerquelle, Objektidentitäten und bidirektionale Spalten-/Index-/Indexspaltensnapshots werden vor beziehungsweise nach der Abweisung geprüft. Transaktionsneutralität steht in eigenen IFs; nur der abschließende typisierte Witness darf als Resultset erscheinen.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1114 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'schema-target-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ## Callertransaktionen mit vollständigen CSV-Zielwerten 2026-10-21
 
 '-TestScope caller-transaction-preservation': Bestehende öffentliche Parser-/Writeraufrufe in einer committable Callertransaktion mit XACT_ABORT OFF. Vier Erfolge genau an16777216 UTF16-Bytes und vier SQL55303/state1-Abweisungen bei16777218 Bytes je Modus. Caller-Sentinel, @@TRANCOUNT und XACT_STATE werden vor und nach Aufruf sowie nach eigenem COMMIT oder ROLLBACK getrennt geprüft. Vollständige Parserziele/Writeroutputs und unabhängig gesetzte Writerquellen werden bytegenau verglichen; Calleridentität und Schlüssel bleiben erhalten. Ursprüngliches XACT_ABORT wird wiederhergestellt. Keine Abnahme von doomed Transaktionen oder einer vollständigen SET-Optionsmatrix. Nach den nativen PASS wurde genau eine ueberzaehlige EOF-Leerzeile der neuen Fixture entfernt; alle vorherigen SQLbytes sind gegen den unabhaengigen Reviewstand und beide nativen Eingabepins exakt identisch belegt.
