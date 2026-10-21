@@ -1,6 +1,12 @@
 # Zusätzliche Fremdobjektarten ausschließlich in eigenen synthetischen DBs.
-function Get-CsvForeignKindCases([ValidateSet('view-procedure','synonym-function',IgnoreCase=$false)][string]$Family='view-procedure'){
+function Get-CsvForeignKindCases([ValidateSet('view-procedure','synonym-function','table-functions',IgnoreCase=$false)][string]$Family='view-procedure'){
  foreach($name in @(Get-CsvForeignSlotNames)){
+  if($Family -ceq 'table-functions'){
+   # Beide SQL-TVF-Arten belegen nur den reservierten Namen; keine CSV-Fachlogik.
+   [pscustomobject]@{Name=$name;Type='FUNCTION';Kind='IF';Sql="CREATE FUNCTION toolbelt_file.[$name]() RETURNS TABLE AS RETURN (SELECT CONVERT(int,73) Marker,CONVERT(nvarchar(32),N'guard ') Payload);";Read="SELECT Marker,Payload FROM toolbelt_file.[$name]();"}
+   [pscustomobject]@{Name=$name;Type='FUNCTION';Kind='TF';Sql="CREATE FUNCTION toolbelt_file.[$name]() RETURNS @Rows TABLE(Marker int,Payload nvarchar(32)) AS BEGIN INSERT @Rows VALUES(73,N'guard ');RETURN;END;";Read="SELECT Marker,Payload FROM toolbelt_file.[$name]();"}
+   continue
+  }
   if($Family -ceq 'synonym-function'){
    [pscustomobject]@{Name=$name;Type='SYNONYM';Kind='SN';Sql="CREATE SYNONYM toolbelt_file.[$name] FOR toolbelt_file.CsvGuardAliasTarget;";Read="SELECT Marker,Payload FROM toolbelt_file.[$name];"}
    [pscustomobject]@{Name=$name;Type='FUNCTION';Kind='FN';Sql="CREATE FUNCTION toolbelt_file.[$name](@Delta int) RETURNS int AS BEGIN RETURN 73+@Delta; END;";Read="SELECT toolbelt_file.[$name](0) Marker,CONVERT(nvarchar(32),N'guard ') Payload;"}
@@ -16,7 +22,7 @@ function Get-CsvAliasTargetCase {
 }
 
 function Assert-CsvForeignKindCase($Case){
- $known=@(Get-CsvForeignKindCases;Get-CsvForeignKindCases 'synonym-function';Get-CsvAliasTargetCase)
+ $known=@(Get-CsvForeignKindCases;Get-CsvForeignKindCases 'synonym-function';Get-CsvForeignKindCases 'table-functions';Get-CsvAliasTargetCase)
  if(@($known|Where-Object {$_.Name -ceq $Case.Name -and $_.Type -ceq $Case.Type -and $_.Kind -ceq $Case.Kind -and $_.Sql -ceq $Case.Sql -and $_.Read -ceq $Case.Read}).Count -ne 1){throw 'CSV_FOREIGN_KIND_CASE_INVALID'}
 }
 
@@ -84,9 +90,9 @@ function Assert-CsvForeignKindWitness($Connection,$Case){
  if(-not (Test-CsvForeignKindResult @(Invoke-CsvSql $Connection $Case.Read -Rows))){throw 'CSV_FOREIGN_KIND_RESULT_CHANGED'}
 }
 
-function Invoke-CsvForeignKindGuards($Connection,[string]$Deploy,[string]$Uninstall,[ValidateSet('local','central')][string]$Mode,[ValidateSet('view-procedure','synonym-function',IgnoreCase=$false)][string]$Family='view-procedure'){
+function Invoke-CsvForeignKindGuards($Connection,[string]$Deploy,[string]$Uninstall,[ValidateSet('local','central')][string]$Mode,[ValidateSet('view-procedure','synonym-function','table-functions',IgnoreCase=$false)][string]$Family='view-procedure'){
  $cases=@(Get-CsvForeignKindCases $Family)
- if($cases.Count -ne 10 -or @($cases|ForEach-Object {$_.Name+'|'+$_.Type}|Sort-Object -Unique).Count -ne 10){throw 'CSV_FOREIGN_KIND_CASE_SET_INVALID'}
+ if($cases.Count -ne 10 -or @($cases|ForEach-Object {$_.Name+'|'+$_.Kind}|Sort-Object -Unique).Count -ne 10){throw 'CSV_FOREIGN_KIND_CASE_SET_INVALID'}
  Invoke-CsvBatches $Connection $Uninstall
  $targetCase=$null;$targetIdentity=$null;$outer=$null
  if($Family -ceq 'synonym-function'){
@@ -111,6 +117,7 @@ function Invoke-CsvForeignKindGuards($Connection,[string]$Deploy,[string]$Uninst
   try{
    Assert-CsvForeignKindWitness $Connection $case
    foreach($text in @($Deploy,$Uninstall)){
+    Assert-CsvForeignKindWitness $Connection $case
     Assert-CsvGuardRejected $Connection $text 55324 3 $mutated
     Assert-CsvForeignKindWitness $Connection $case
     $passed++
