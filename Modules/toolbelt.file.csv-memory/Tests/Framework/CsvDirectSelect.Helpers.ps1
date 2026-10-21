@@ -1,25 +1,41 @@
 # Synthetische SELECT-/TDS-Orakel; keine Datei-, Netzwerk- oder Labverwaltung.
 function Get-CsvDirectSelectCase {
- param([ValidateRange(0,7)][int]$Phase)
+ param([ValidateRange(0,7)][int]$Phase,[ValidateSet('select-output-ceilings','select-unicode-null',IgnoreCase=$false)][string]$Scope='select-output-ceilings')
  if($Phase%4 -ge 2){return [pscustomobject]@{ErrorNumber=55303;ErrorState=1;Schema=@();Rows=@()}}
- $quoted=$Phase -ge 4
- $value=if($quoted){','+[string]::new([char]'x',8388603)}else{[string]::new([char]'x',8388606)}
+ $secondFamily=$Phase -ge 4
+ if($Scope -ceq 'select-unicode-null'){
+  if($secondFamily){
+   $value=[string]::new([char]0x4E2D,8388594)
+   $parserRows=@(
+    [pscustomobject]@{Values=@('DATA',[long]1,[int]1,[DBNull]::Value)},
+    [pscustomobject]@{Values=@('DATA',[long]1,[int]2,'NULL')},
+    [pscustomobject]@{Values=@('DATA',[long]1,[int]3,$value)})
+   $text='NULL,"NULL",'+$value+[char]13+[char]10;$columns=3
+  }else{
+   $value=([string][char]0xD83D+[char]0xDE00)*4194303
+   $parserRows=@([pscustomobject]@{Values=@('DATA',[long]1,[int]1,$value)})
+   $text=$value+[char]13+[char]10;$columns=1
+  }
+ }else{
+  $value=if($secondFamily){','+[string]::new([char]'x',8388603)}else{[string]::new([char]'x',8388606)}
+  $parserRows=@([pscustomobject]@{Values=@('DATA',[long]1,[int]1,$value)})
+  $text=if($secondFamily){'"'+$value+'"'+[char]13+[char]10}else{$value+[char]13+[char]10};$columns=1
+ }
  if($Phase%4 -eq 0){
   $schema=@(
    [pscustomobject]@{Name='RowKind';SqlType='varchar';ClrType='System.String'},
    [pscustomobject]@{Name='RowOrdinal';SqlType='bigint';ClrType='System.Int64'},
    [pscustomobject]@{Name='ColumnOrdinal';SqlType='int';ClrType='System.Int32'},
    [pscustomobject]@{Name='Value';SqlType='nvarchar';ClrType='System.String'})
-  $values=@('DATA',[long]1,[int]1,$value)
+  $rows=$parserRows
  }else{
   $schema=@(
    [pscustomobject]@{Name='CsvText';SqlType='nvarchar';ClrType='System.String'},
    [pscustomobject]@{Name='DataRows';SqlType='bigint';ClrType='System.Int64'},
    [pscustomobject]@{Name='ColumnCount';SqlType='int';ClrType='System.Int32'})
-  $text=if($quoted){'"'+$value+'"'+[char]13+[char]10}else{$value+[char]13+[char]10}
-  $values=@($text,[long]1,[int]1)
+  $rows=@([pscustomobject]@{Values=@($text,[long]1,[int]$columns)})
  }
- return [pscustomobject]@{ErrorNumber=0;ErrorState=0;Schema=$schema;Rows=@([pscustomobject]@{Values=$values})}
+ return [pscustomobject]@{ErrorNumber=0;ErrorState=0;Schema=$schema;Rows=$rows}
 }
 
 function Assert-CsvDirectSelectRows {
@@ -44,8 +60,8 @@ function Assert-CsvDirectSelectRows {
 }
 
 function Invoke-CsvDirectSelectPhase {
- param($Connection,[string]$Sql,[ValidateRange(0,7)][int]$Phase)
- $expected=Get-CsvDirectSelectCase $Phase
+ param($Connection,[string]$Sql,[ValidateRange(0,7)][int]$Phase,[ValidateSet('select-output-ceilings','select-unicode-null',IgnoreCase=$false)][string]$Scope='select-output-ceilings')
+ $expected=Get-CsvDirectSelectCase -Phase $Phase -Scope $Scope
  $timeout=Get-CsvCommandTimeout -Maximum 300
  $command=$null;$reader=$null;$sets=0;$schema=@();$rows=[Collections.Generic.List[object]]::new();$caughtExpected=$false
  try{

@@ -4,6 +4,18 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Direkte Unicode-/NULL-Resultsets an vollständigen Textdecken 2026-10-21
+
+'-TestScope select-unicode-null': Direkte öffentliche SELECT-Ausgaben ohne ResultTable über System.Data.SqlClient. Erste Familie:4194303 gültige UTF16-Surrogatpaare mit CRLF. Zweite Familie: unquotierter NullToken als SQL-NULL, quotierter identischer Token als literaler Text und großer BMP-Wert in drei Spalten. Vollständiger Input/Output genau16777216 Bytes, kleinstes Darüber16777218 Bytes. Client prüft vollständige ordinale Strings, DBNull getrennt vom literalen NULL-Text, Zeilen-/Spaltenreihenfolge, Feldnamen und SQL-/CLR-Typen; Writerwerte separat gesetzt und globale Wertcharge unter16MiB. Vier Übergrenzfälle je Modus ausschließlich SQL55303/state1 ohne vorherige Resultsetmetadaten oder Zeilen; vollständiger Quellerhalt. Keine Aussage über ungepaarte Surrogate oder andere Clients.
+
+Acht bestätigte Readerphasen je Modus: vier vollständige Unicode-/NULL-Resultsets und vier55303/state1-Abweisungen ohne partielle Ausgabe. Ein- und Dreizell-Parserresultate, DBNull/literaler Token, vollständige ordinale Werte, SQL-/CLR-Typen und numerische Metadaten werden geprüft. Writerquellen unabhängig gesetzt, vollständiger Quellerhalt, innere Helperpins sowie bisherige ASCII-/Drift-/Timeout-/Disposekontrollen bleiben erhalten.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1036 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'select-unicode-null' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Nur System.Data.SqlClient im bestehenden PowerShell-Labadapter und die expliziten synthetischen Fälle: keine SMO-/ODBC-/JDBC-/sonstige Clientmatrix, neue Default-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme oder unabhängig erfolgreiche MaxValueBytes-Vollgrenze. Status weiterhin partially validated, unreleased.
+
 ## Direkte SELECT-/TDS-Ausgabe an vollständigen Textdecken 2026-10-21
 
 '-TestScope select-output-ceilings': Bestehende öffentliche Parser-/Writeraufrufe mit ResultTable=NULL liefern direkt über System.Data.SqlClient. Unquotierter ASCII-Text mit CRLF und separatorbedingt quotierter ASCII-Text: Input/Output genau16777216 UTF16-Bytes sowie16777218 Bytes. Client prüft genau ein Resultset je Erfolg, Feldnamen/Reihenfolge, SQL-/CLR-Typen, vollständige Strings ordinal und numerische Typen/Werte. Vier Übergrenzfälle je Modus verlangen SQL55303/state1 ohne vorherige Resultsetmetadaten oder Zeilen. Writerquellen separat gesetzt, vollständiger Quellerhalt und Wertcharge strikt unter16MiB; kein INSERT EXEC. Acht bestätigte Readerphasen werden erst danach als typisierter Abschluss gezählt.
