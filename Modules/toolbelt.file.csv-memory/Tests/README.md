@@ -1,8 +1,32 @@
 # CSV-Prüfungen und Evidenz
 
-Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
+Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
+
+## Finale CLR-Defaults auf Linux 2026-10-21
+
+Der unveränderte öffentliche Adapter `-TestScope binding-defaults` bestand auf
+Linux2019/latest CL150 im ersten Versuch local/central. Fünf einzelne
+Parameterdefaults an den drei internen CLR-Funktionen führten je Deploy und
+Uninstall zu SQL55324/state7: zehn Abweisungen pro Modus, 20 insgesamt.
+Die finalen Assertions prüfen Basistyp, Wertbytes und beim Text DATALENGTH;
+der NULL-Default besitzt einen eigenen Witness. Die unmittelbare Prüfung
+vor/nach jeder Operation und vor Restaurierung, gleiche Objekt-/Erstellungs-
+identität und unveränderter erfasster Mutationszustand bestanden. Die
+kanonischen ALTER-Definitionen restaurierten jeweils exakt die Baseline.
+
+Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle und leeres Stderr
+bestanden. Der frische unabhängige Audit bestätigte zwei eigene DBs/einen
+eigenen Trusthash abwesend; Konfiguration und eingefrorene Runtimeinputs
+blieben unverändert. Das vorhandene Releasepaket wurde vor Verwendung erneut
+an alle manifestierten Produktquellen und seine exakten Binarybytes gebunden;
+kein neuer lokaler Build oder Frameworklauf wurde daraus abgeleitet.
+
+Dieser Lauf ergänzt die bisherigen finalen Windowsnachweise um Linux mit
+dem aktuellen Assertionstand nach PR350. Frühere engere Orakel und Fehlläufe
+bleiben erhalten. Kein neuer Default-Gesamtadapter-, API-/Client-, Vollmatrix-,
+Minimalrechte-, Heap-, authentifizierter TLS- oder Releasenachweis.
 
 ## CLR-Ausführungskontexte 2026-10-20/21
 
@@ -664,7 +688,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-21`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope binding-execution; binding-drift/defaults-Regressionen`
-- Scope: Ausführung am2026-10-20/21: Linux2019/latest CL150 und Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 jeweils erster binding-execution-Versuch local/central PASS. Drei interne CLR-Funktionen einzeln mit EXECUTE AS OWNER als Fixturemetadatum; konkreter execute_as_principal_id=-2-Witness, je Deploy/Uninstall SQL55324/state5, sechs Abweisungen pro Modus und zwölf je Ziel. Witness unmittelbar vor/nach jeder Operation und vor Restaurierung, gleiche Objekt-/Erstellungsidentität, typisierte Ownership und CLR-Bindung, erfasster Zustand erhalten und Caller-Baseline exakt restauriert. Funktionen im geänderten Kontext nicht ausgeführt. Separate Regressionen bisheriger Metadatenfamilie Linux32 und Defaultfamilie Windows20 Abweisungen local/central PASS. Alle vier Läufe Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit je zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert. 384Offlinekontrollen einschließlich Witnessdrift vor zweiter Operation,64SQL150-Batches aller drei Familien und AST/Static PASS. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen unverändert; keine Rechtevergabe oder Objektowneränderung, keine neue Default-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope binding-defaults; finale Linuxergänzung`
+- Scope: Linux2019/latest CL150 im ersten Versuch local/central mit aktuellem Assertionstand nach PR350 PASS: fünf Parameterdefaults an drei internen CLR-Funktionen, je Deploy/Uninstall SQL55324/state7, zehn Abweisungen pro Modus und 20 insgesamt. Exakte Basistyp-/Wertbytes-/Textbytelängenprüfung und eigener NULL-Witness unmittelbar vor/nach jeder Operation sowie vor Restore, gleiche Objekt-/Erstellungsidentität und unveränderter erfasster Zustand; kanonische ALTER-Restaurierung exakt zur Baseline. Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration und eingefrorene Runtimeinputs unverändert. Vorhandenes Releasepaket erneut an alle manifestierten Produktquellen und exakten Binarybytes gebunden; kein neuer lokaler Build-/Frameworklauf. Produkt-/Test-/Deployment-/CLR-/Workflowquellen unverändert. Historische engere und fehlgeschlagene Läufe bleiben erhalten; keine neue Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

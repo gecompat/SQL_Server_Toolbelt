@@ -2084,6 +2084,23 @@ falsche Markerwerte und danach CLR-Ausführungskontexte. Linux2019/latest CL150 
 
 Nach PR349, 2026-10-21: Die ausgewählte zweite Welle prüft CLR-Ausführungskontexte. Ausführung am2026-10-20/21: Linux2019/latest CL150 und Windows2025/base mit erlaubtem bereitem CU-Äquivalent CL170 jeweils erster binding-execution-Versuch local/central PASS. Drei interne CLR-Funktionen einzeln mit EXECUTE AS OWNER als Fixturemetadatum; konkreter execute_as_principal_id=-2-Witness, je Deploy/Uninstall SQL55324/state5, sechs Abweisungen pro Modus und zwölf je Ziel. Witness unmittelbar vor/nach jeder Operation und vor Restaurierung, gleiche Objekt-/Erstellungsidentität, typisierte Ownership und CLR-Bindung, erfasster Zustand erhalten und Caller-Baseline exakt restauriert. Funktionen im geänderten Kontext nicht ausgeführt. Separate Regressionen bisheriger Metadatenfamilie Linux32 und Defaultfamilie Windows20 Abweisungen local/central PASS. Alle vier Läufe Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit je zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Inputs unverändert. 384Offlinekontrollen einschließlich Witnessdrift vor zweiter Operation,64SQL150-Batches aller drei Familien und AST/Static PASS. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen unverändert; keine Rechtevergabe oder Objektowneränderung, keine neue Default-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
 
+Nach PR350, 2026-10-21: Der erneute ausdrückliche Benutzerauftrag verlangt
+die nächste begrenzte Welle samt vollständigem Abschluss und anschließend
+den direkten autonomen Start der Folgewelle. Ausgewählt sind finale
+CLR-Defaults auf Linux, danach finale benannte SameDB-Verbraucher auf Linux.
+Der unveränderte `binding-defaults`-Adapter bestand auf Linux2019/latest CL150
+im ersten Versuch local/central: fünf Defaults, je Deploy/Uninstall
+SQL55324/state7, 20 Abweisungen. Finale Typ-/Wertbytes-/Textlängen-/NULL-Witnesses
+unmittelbar vor/nach Operation und vor Restore, unveränderte Identität und
+erfasster Zustand sowie exakte Baseline bestanden. Clean/Repeat, Uninstall/Repeat,
+Exit0, vollständige Kanäle/leeres Stderr und frischer unabhängiger Audit zwei
+eigene DBs/ein eigener Trusthash abwesend PASS; Konfiguration und Runtimeinputs
+unverändert. Vorhandenes Releasepaket erneut an alle manifestierten Quellen
+und exakten Binarybytes gebunden, kein neuer lokaler Build-/Frameworknachweis.
+Historische engere/fehlgeschlagene Läufe bleiben erhalten; `partially validated`,
+`unreleased`. Keine Produkt-/Test-/Deployment-/CLR-Quelländerung oder neue
+Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/TLS-Abnahme.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte
