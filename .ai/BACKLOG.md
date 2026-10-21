@@ -2279,8 +2279,13 @@ Parser/Writer genau16MiB und kleinstes tatsächliches Darüber+2 UTF16-Bytes,
 je eine/zwei quotehaltige Zellen: vollständige unabhängig konstruierte Quote-/
 Textbytes einschließlich Separator/LF, globale Summe bei einzeln kleineren
 Fragmenten, Writerwertcharge unter eigener Decke und Quell-/Zielerhalt.
-630 Offlinekontrollen/acht SQL150-Phasen/AST/Static bestanden; native Abnahme und
-unabhängiger Review offen. Keine Funktionserweiterung oder Budgetreset;
+630 Offlinekontrollen/acht SQL150-Phasen/AST/Static bestanden. Unabhängiger
+Quell-/Orakelreview ohne Findings; gleicher Kandidat auf Linux2019/latest CL150
+und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster
+Versuch local/central PASS:16 Fälle je Ziel einschließlich acht SQL55303/state1,
+Clean/Repeat und Uninstall/Repeat; je frischer Audit zwei eigene DBs/ein eigener
+Trusteintrag abwesend, Konfiguration/Rechte/Inputs unverändert.
+Keine Funktionserweiterung oder Budgetreset;
 Produkt/CLR/Deployment/Snapshots/Workflow unverändert, keine neue Default-/
 Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme.
 

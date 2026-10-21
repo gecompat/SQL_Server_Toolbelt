@@ -21,7 +21,14 @@ SQL55303/state1 wird ausschließlich für die vier Übergrenzfälle je Modus erw
 Der typisierte Abschluss verlangt alle acht Phasen; getrennte Funktionszähler,
 geschlossene Scope-/Fixturezuordnung und die bestehende Deadline/Cleanupreserve
 bleiben erhalten. 630 synthetische Offlinekontrollen, acht SQL150-Phasen,
-AST/Static bestanden. Native Abnahme und unabhängiger Review sind offen.
+AST/Static bestanden. Unabhängiger Quell-/Orakelreview vor den nativen Läufen
+ohne Findings. Gleicher ausführbarer Kandidat auf Linux2019/latest CL150 und
+Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster
+Versuch local/central PASS:16 Fälle je Ziel, darunter acht SQL55303/state1.
+Clean/Repeat und Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr;
+je frischer separater Audit zwei eigene DBs/ein eigener Trusteintrag abwesend,
+Konfiguration/Rechte/Inputs unverändert. Danach ausschließlich gekoppelte
+Manifest-/Evidenz-/Dokumentationsdateien nachgepflegt, keine ausführbare Drift.
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert;
 vorhandenes quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer
