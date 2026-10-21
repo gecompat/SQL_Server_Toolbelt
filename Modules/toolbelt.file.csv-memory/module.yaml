@@ -104,6 +104,7 @@ tests:
   unicode_text_ceilings: "Tests/Runtime/UnicodeTextCeilings.Tests.sql"
   control_text_ceilings: "Tests/Runtime/ControlTextCeilings.Tests.sql"
   keepdata_ceilings: "Tests/Runtime/KeepDataCeilings.Tests.sql"
+  budget_parameter_preservation: "Tests/Runtime/BudgetParameterPreservation.Tests.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   ownership_guards: "Tests/Runtime/OwnershipGuards.Tests.ps1"
   foreign_guards: "Tests/Runtime/ForeignGuards.Tests.ps1"
