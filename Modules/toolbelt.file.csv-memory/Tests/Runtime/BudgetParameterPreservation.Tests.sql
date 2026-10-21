@@ -27,8 +27,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 BEGIN TRY EXEC toolbelt_file.USP_ParseCsv @Text=N'd',@ResultTable=N'#CsvBudgetCells',@KeepData=0,@MaxInputBytes=16777217; END TRY
 BEGIN CATCH IF ERROR_NUMBER()<>55303 OR ERROR_STATE()<>1 THROW; SET @Caught=1; END CATCH;
 IF @Caught=0 THROW 55396,N'CSV budget: ungueltiger Ressourcenparameter wurde akzeptiert.',4;
@@ -44,8 +45,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 INSERT #CsvBudgetProgress VALUES(1);
 
 GO
@@ -65,8 +67,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 BEGIN TRY EXEC toolbelt_file.USP_ParseCsv @Text=N'd',@ResultTable=N'#CsvBudgetCells',@KeepData=0,@MaxRows=100001; END TRY
 BEGIN CATCH IF ERROR_NUMBER()<>55303 OR ERROR_STATE()<>1 THROW; SET @Caught=1; END CATCH;
 IF @Caught=0 THROW 55396,N'CSV budget: ungueltiger Ressourcenparameter wurde akzeptiert.',4;
@@ -82,8 +85,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 INSERT #CsvBudgetProgress VALUES(2);
 
 GO
@@ -103,8 +107,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 BEGIN TRY EXEC toolbelt_file.USP_ParseCsv @Text=N'd',@ResultTable=N'#CsvBudgetCells',@KeepData=0,@MaxColumns=1025; END TRY
 BEGIN CATCH IF ERROR_NUMBER()<>55303 OR ERROR_STATE()<>1 THROW; SET @Caught=1; END CATCH;
 IF @Caught=0 THROW 55396,N'CSV budget: ungueltiger Ressourcenparameter wurde akzeptiert.',4;
@@ -120,8 +125,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 INSERT #CsvBudgetProgress VALUES(3);
 
 GO
@@ -141,8 +147,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 BEGIN TRY EXEC toolbelt_file.USP_ParseCsv @Text=N'd',@ResultTable=N'#CsvBudgetCells',@KeepData=0,@MaxCells=1000001; END TRY
 BEGIN CATCH IF ERROR_NUMBER()<>55303 OR ERROR_STATE()<>1 THROW; SET @Caught=1; END CATCH;
 IF @Caught=0 THROW 55396,N'CSV budget: ungueltiger Ressourcenparameter wurde akzeptiert.',4;
@@ -158,8 +165,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 INSERT #CsvBudgetProgress VALUES(4);
 
 GO
@@ -179,8 +187,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 BEGIN TRY EXEC toolbelt_file.USP_WriteCsv @CellsTable=N'#CsvBudgetSource',@LineEnding='CRLF',@ResultTable=N'#CsvBudgetOutput',@KeepData=0,@MaxValueBytes=16777217; END TRY
 BEGIN CATCH IF ERROR_NUMBER()<>55303 OR ERROR_STATE()<>1 THROW; SET @Caught=1; END CATCH;
 IF @Caught=0 THROW 55396,N'CSV budget: ungueltiger Ressourcenparameter wurde akzeptiert.',4;
@@ -196,8 +205,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 INSERT #CsvBudgetProgress VALUES(5);
 
 GO
@@ -217,8 +227,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 BEGIN TRY EXEC toolbelt_file.USP_WriteCsv @CellsTable=N'#CsvBudgetSource',@LineEnding='CRLF',@ResultTable=N'#CsvBudgetOutput',@KeepData=0,@MaxOutputBytes=16777217; END TRY
 BEGIN CATCH IF ERROR_NUMBER()<>55303 OR ERROR_STATE()<>1 THROW; SET @Caught=1; END CATCH;
 IF @Caught=0 THROW 55396,N'CSV budget: ungueltiger Ressourcenparameter wurde akzeptiert.',4;
@@ -234,8 +245,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 INSERT #CsvBudgetProgress VALUES(6);
 
 GO
@@ -255,8 +267,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 BEGIN TRY EXEC toolbelt_file.USP_WriteCsv @CellsTable=N'#CsvBudgetSource',@LineEnding='CRLF',@ResultTable=N'#CsvBudgetOutput',@KeepData=0,@MaxRows=100001; END TRY
 BEGIN CATCH IF ERROR_NUMBER()<>55303 OR ERROR_STATE()<>1 THROW; SET @Caught=1; END CATCH;
 IF @Caught=0 THROW 55396,N'CSV budget: ungueltiger Ressourcenparameter wurde akzeptiert.',4;
@@ -272,8 +285,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 INSERT #CsvBudgetProgress VALUES(7);
 
 GO
@@ -293,8 +307,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 BEGIN TRY EXEC toolbelt_file.USP_WriteCsv @CellsTable=N'#CsvBudgetSource',@LineEnding='CRLF',@ResultTable=N'#CsvBudgetOutput',@KeepData=0,@MaxCells=1000001; END TRY
 BEGIN CATCH IF ERROR_NUMBER()<>55303 OR ERROR_STATE()<>1 THROW; SET @Caught=1; END CATCH;
 IF @Caught=0 THROW 55396,N'CSV budget: ungueltiger Ressourcenparameter wurde akzeptiert.',4;
@@ -310,8 +325,9 @@ IF NOT EXISTS(SELECT 1 FROM #CsvBudgetIdentity WHERE CellsId=OBJECT_ID(N'tempdb.
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetSource'))<>4
  OR (SELECT COUNT(*) FROM tempdb.sys.columns WHERE object_id=OBJECT_ID(N'tempdb..#CsvBudgetOutput'))<>3
  OR (SELECT COUNT(*) FROM tempdb.sys.key_constraints WHERE parent_object_id IN(OBJECT_ID(N'tempdb..#CsvBudgetCells'),OBJECT_ID(N'tempdb..#CsvBudgetSource'),OBJECT_ID(N'tempdb..#CsvBudgetOutput')) AND type='PK')<>3
- OR @@TRANCOUNT<>0 OR XACT_STATE()<>0
- THROW 55396,N'CSV budget: Calleridentitaet, Schluessel oder Transaktionszustand weicht ab.',3;
+ THROW 55396,N'CSV budget: Calleridentitaet oder Schluessel weicht ab.',3;
+-- Neutralitaet getrennt von Katalogabfragen pruefen.
+IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Transaktionszustand ist nicht neutral.',6;
 INSERT #CsvBudgetProgress VALUES(8);
 DECLARE @Cases int=(SELECT COUNT(*) FROM #CsvBudgetProgress);
 IF @Cases<>8 OR @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 55396,N'CSV budget: Abschlusswitness fehlt.',5;
