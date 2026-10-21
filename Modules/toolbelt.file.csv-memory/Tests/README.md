@@ -1,8 +1,32 @@
 # CSV-Prüfungen und Evidenz
 
-Stand 2026-10-20: Version1.0.0 ist implementiert, `partially validated` und
+Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
+
+## Finale CLR-Defaults auf Linux 2026-10-21
+
+Der unveränderte öffentliche Adapter `-TestScope binding-defaults` bestand auf
+Linux2019/latest CL150 im ersten Versuch local/central. Fünf einzelne
+Parameterdefaults an den drei internen CLR-Funktionen führten je Deploy und
+Uninstall zu SQL55324/state7: zehn Abweisungen pro Modus, 20 insgesamt.
+Die finalen Assertions prüfen Basistyp, Wertbytes und beim Text DATALENGTH;
+der NULL-Default besitzt einen eigenen Witness. Die unmittelbare Prüfung
+vor/nach jeder Operation und vor Restaurierung, gleiche Objekt-/Erstellungs-
+identität und unveränderter erfasster Mutationszustand bestanden. Die
+kanonischen ALTER-Definitionen restaurierten jeweils exakt die Baseline.
+
+Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle und leeres Stderr
+bestanden. Der frische unabhängige Audit bestätigte zwei eigene DBs/einen
+eigenen Trusthash abwesend; Konfiguration und eingefrorene Runtimeinputs
+blieben unverändert. Das vorhandene Releasepaket wurde vor Verwendung erneut
+an alle manifestierten Produktquellen und seine exakten Binarybytes gebunden;
+kein neuer lokaler Build oder Frameworklauf wurde daraus abgeleitet.
+
+Dieser Lauf ergänzt die bisherigen finalen Windowsnachweise um Linux mit
+dem aktuellen Assertionstand nach PR350. Frühere engere Orakel und Fehlläufe
+bleiben erhalten. Kein neuer Default-Gesamtadapter-, API-/Client-, Vollmatrix-,
+Minimalrechte-, Heap-, authentifizierter TLS- oder Releasenachweis.
 
 ## CLR-Ausführungskontexte 2026-10-20/21
 
