@@ -2273,6 +2273,17 @@ und Uninstall/Repeat. Keine Funktionserweiterung oder Budgetreset.
 Keine unabhängige MaxValueBytes-Vollgrenze, neue Default-/Client-/
 Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS- oder Releaseabnahme.
 
+2026-10-21: Nach vollständigem Abschluss von PR358 und ausdrücklicher Erweiterung
+des gemeinsamen endlichen Rahmens wurde `quote-expansion` tatsächlich begonnen.
+Parser/Writer genau16MiB und kleinstes tatsächliches Darüber+2 UTF16-Bytes,
+je eine/zwei quotehaltige Zellen: vollständige unabhängig konstruierte Quote-/
+Textbytes einschließlich Separator/LF, globale Summe bei einzeln kleineren
+Fragmenten, Writerwertcharge unter eigener Decke und Quell-/Zielerhalt.
+630 Offlinekontrollen/acht SQL150-Phasen/AST/Static bestanden; native Abnahme und
+unabhängiger Review offen. Keine Funktionserweiterung oder Budgetreset;
+Produkt/CLR/Deployment/Snapshots/Workflow unverändert, keine neue Default-/
+Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme.
+
 ### Queue-Worker 2 – autonome Umsetzung freigegeben 2026-10-04
 
 Nach Besprechung von Zweck, Verträgen, Alternativen und Risiken beauftragte

@@ -4,6 +4,31 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Quoteverdopplung an vollständigen Textdecken 2026-10-21
+
+`-TestScope quote-expansion` enthält acht gezählte Phasen je Modus: Parser
+und Writer an16777216 UTF16-Bytes sowie dem kleinsten tatsächlichen Darüber
+16777218 Bytes, jeweils für eine und zwei quotehaltige Zellen. Die unabhängigen
+Textorakel konstruieren die verdoppelten Quotes direkt aus synthetischen
+Wiederholungen; kein Aufruf des Produktquoters erzeugt die Erwartung. Quotehüllen,
+Separator und abschließendes LF zählen vollständig. Die Zweizellfälle prüfen
+die globale Summe, während jede einzelne serialisierte Zelle unter16MiB liegt.
+
+Parserwerte, vollständige Outputbytes, Metadaten und Quell-/vorheriger
+Zielinhalt sind bytegenau geprüft; die Writer-Übergrenzquellen werden unabhängig
+vom Parser gesetzt und bleiben mit ihrer globalen Wertcharge strikt unter16MiB.
+SQL55303/state1 wird ausschließlich für die vier Übergrenzfälle je Modus erwartet.
+Der typisierte Abschluss verlangt alle acht Phasen; getrennte Funktionszähler,
+geschlossene Scope-/Fixturezuordnung und die bestehende Deadline/Cleanupreserve
+bleiben erhalten. 630 synthetische Offlinekontrollen, acht SQL150-Phasen,
+AST/Static bestanden. Native Abnahme und unabhängiger Review sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert;
+vorhandenes quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer
+lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-
+Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/
+authentifizierte TLS- oder Releaseabnahme. `partially validated`, `unreleased`.
+
 ## Tatsächliche Input-/Outputtextdecken 2026-10-21
 
 Der getrennte Scope `-TestScope text-ceilings` enthält acht gezählte Phasen
