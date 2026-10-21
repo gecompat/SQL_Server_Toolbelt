@@ -12,7 +12,7 @@ Acht gezählte Abweisungsphasen je Modus, jede exakt SQL55303/state1. Vollständ
 Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
 Cleanupreserve bleiben erhalten. 903 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
 
-Native Abnahme und unabhängiger Review für 'budget-parameter-preservation' sind offen.
+Erstreview ohne Befunde. Der erste Linuxlauf scheiterte anschließend im zusammengesetzten Fixturewitness mit SQL55396/state3 und wurde vollständig bereinigt. Danach Katalog- und Neutralitätsprüfung ohne Verlust von Bedingungen getrennt und gezielt nachgeprüft; keine offenen Source-/Orakelbefunde. Die ursprüngliche Teilursache bleibt unbelegt; der korrigierte Kandidat besteht beide Ziele. Alle Fehlläufe/Folgeaufträge zählen weiter. Identischer ausführbarer Kandidat auf Linux2019/latest CL150 im zweiten Versuch und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent im ersten Versuch local/central PASS:16 Fälle je Ziel einschließlich 16 SQL55303/state1-Abweisungen. Clean/Repeat und Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer separater Audit zwei eigene DBs/ein eigener Trusteintrag abwesend, Konfiguration/Rechte/Inputs unverändert. Danach nur gekoppelte Manifest-/Evidenz-/Dokumentationsdateien nachgepflegt.
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
