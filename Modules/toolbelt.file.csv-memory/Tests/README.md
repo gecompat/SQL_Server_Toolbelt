@@ -4,6 +4,38 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Falsche Schemamarkerwerte 2026-10-21
+
+Der getrennte Scope `-TestScope schema-values` bestand auf Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
+im ersten Versuch local/central. Vier einzelne Änderungen am eigenen
+`toolbelt_file`-Schema: Managed-int von 1 auf 0 sowie die Kategorie `file`
+auf `json`, `FILE` und `file ` mit abschließendem Leerzeichen. Deploy und
+Uninstall lieferten SQL55324/state1: acht Abweisungen je Modus, 16 je Ziel.
+
+Die neue geschlossene Markerfamilie verwendet den vorhandenen typisierten
+Übergangsschutz auch für die Schemaklasse. Basistyp, deklarierte Bytelänge,
+tatsächliche DATALENGTH und Wertbytes sind vor Mutation und Restaurierung
+exakt gebunden. Mehrere Fälle derselben Property bleiben anhand ihres
+geschlossenen Mutationswerts eindeutig. Erfasster Zustand und neutrale
+Sitzung blieben nach jeder Abweisung erhalten; die Baseline wurde nach
+jedem Fall exakt restauriert. Keine Schema-/Objektowneränderung.
+
+Die separate Linuxregression `marker-values` bestand local/central mit
+100 Abweisungen für bisherige Objekt-/Assembly-/Datenbankwerte. Alle drei
+Läufe Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr;
+je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend,
+Konfiguration und eingefrorene Runtimeinputs unverändert. 451 synthetische
+Offlinekontrollen einschließlich geschlossener Deskriptoren, inverser
+Schemaübergänge und blockierter Restaurierung bei Drift bestanden. Alle
+156 expandierten Änderungs-/Restaurierungsbatches der drei Markerfamilien
+in beiden Modi SQL150-Grammatik sowie AST/Static PASS.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert;
+vorhandenes Releasepaket an manifestierte Quellen/exakte Binarybytes gebunden.
+Kein neuer lokaler Build-/Frameworklauf oder neuer Default-Gesamtadapter-/
+API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierter TLS-/Releasenachweis.
+
 ## Fremde SQL-TVFs auf reservierten Namen 2026-10-21
 
 Der getrennte Scope `-TestScope foreign-table-functions` bestand auf
@@ -751,7 +783,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-21`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope foreign-table-functions; foreign-kinds/aliases-Regressionen`
-- Scope: Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster Versuch local/central PASS. Fünf reservierte CSV-Namen einzeln als fremde Inline-TVF und Multi-Statement-TVF, je Deploy/Uninstall SQL55324/state3: 20 Abweisungen je Modus, 40 je Ziel. Geschlossene Deskriptoren mit tatsächlichem IF-/TF-Katalogtyp; typisierter Laufmarker, Objekt-/Erstellungsidentität, erfasste Definitionen/Signaturen und synthetisches Ergebnis einschließlich Padding erhalten, Witness unmittelbar vor/nach jeder Operation sowie vor geschütztem Drop, exakte saubere Baseline. Die gemeinsame zusätzliche Vorabprüfung ist separat durch Linuxregressionen foreign-kinds und foreign-aliases mit je 40 Abweisungen qualifiziert. Alle vier Läufe Clean/Repeat, Redeploy, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Runtimeinputs unverändert. 423 synthetische Offlinekontrollen einschließlich Drift vor zweiter Operation mit unterbundener Operation/Fixtureentfernung,217 expandierte SQL150-Erzeugungs-/Lese-/Marker-/Identitäts-/Dropbatches aller drei Familien einschließlich Aliastarget und AST/Static PASS. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; vorhandenes Releasepaket an manifestierte Quellen/exakte Binarybytes gebunden, kein neuer lokaler Build-/Frameworklauf. Frühere Fehlläufe bleiben erhalten; keine neue Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope schema-values; marker-values-Regression`
+- Scope: Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster Versuch local/central PASS. Vier einzelne Schemamarkeränderungen: Managed-int 1 auf 0 und Kategorie file auf json, FILE oder file mit abschließendem Leerzeichen. Je Deploy/Uninstall SQL55324/state1, acht Abweisungen pro Modus und 16 je Ziel; geschlossene Mutationdeskriptoren, exakte Basistyp-/MaxLength-/DATALENGTH-/Wertbytesbindung vor Mutation und Restaurierung, erfasster Zustand und neutrale Sitzung erhalten, Baseline exakt restauriert. Separate Linux-marker-values-Regression local/central mit 100 Abweisungen PASS. Alle drei Läufe Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Runtimeinputs unverändert. 451 Offlinekontrollen einschließlich geschlossener Schemaklassenübergänge und blockierter Restaurierung bei Drift, 156 expandierte SQL150-Änderungs-/Restaurierungsbatches aller drei Markerfamilien/beider Modi und AST/Static PASS. Produkt-/Deployment-/CLR-/Snapshotquellen und Workflow unverändert; vorhandenes Releasepaket an manifestierte Quellen/exakte Binarybytes gebunden, kein neuer lokaler Build-/Frameworklauf. Keine Rechte-/Owneränderung oder neue Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

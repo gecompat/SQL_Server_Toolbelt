@@ -48,7 +48,14 @@ function Assert-CsvGuardRejected($Connection,[string]$Sql,[int]$Number,[int]$Sta
  if((Get-CsvGuardSessionOptions $Connection) -ne $before){throw 'CSV_GUARD_REJECTION_CHANGED_SESSION'}
 }
 
-function Get-CsvMarkerGuardCases([ValidateSet('local','central')][string]$Mode,[ValidateSet('types','values',IgnoreCase=$false)][string]$Family='types'){
+function Get-CsvMarkerGuardCases([ValidateSet('local','central')][string]$Mode,[ValidateSet('types','values','schema-values',IgnoreCase=$false)][string]$Family='types'){
+ if($Family -ceq 'schema-values'){
+  [pscustomobject]@{Scope='SCHEMA';Object='toolbelt_file';Property='Toolbelt.Managed';Original='CONVERT(int,1)';Mutated='CONVERT(int,0)';State=1}
+  foreach($value in @("CONVERT(nvarchar(4),N'json')","CONVERT(nvarchar(4),N'FILE')","CONVERT(nvarchar(5),N'file ')") ){
+   [pscustomobject]@{Scope='SCHEMA';Object='toolbelt_file';Property='Toolbelt.SchemaCategory';Original="CONVERT(nvarchar(4),N'file')";Mutated=$value;State=1}
+  }
+  return
+ }
  if($Family -ceq 'values'){
   foreach($slot in @('USP_ParseCsv','USP_WriteCsv','TVF_InternalParseCsv','SVF_InternalMeasureCsvCell','SVF_InternalQuoteCsvCell')){
    [pscustomobject]@{Scope='OBJECT';Object=$slot;Property='Toolbelt.Managed';Original='CONVERT(bit,1)';Mutated='CONVERT(bit,0)';State=5}
@@ -75,7 +82,7 @@ function Get-CsvMarkerGuardCases([ValidateSet('local','central')][string]$Mode,[
 }
 
 function Assert-CsvMarkerGuardCase($Case){
- $known=@(foreach($mode in @('local','central')){Get-CsvMarkerGuardCases $mode;Get-CsvMarkerGuardCases $mode 'values'})
+ $known=@(foreach($mode in @('local','central')){Get-CsvMarkerGuardCases $mode;Get-CsvMarkerGuardCases $mode 'values';Get-CsvMarkerGuardCases $mode 'schema-values'})
  if($Case.State -isnot [int] -or @($known|Where-Object {$_.Scope -ceq $Case.Scope -and $_.Object -ceq $Case.Object -and $_.Property -ceq $Case.Property -and $_.Original -ceq $Case.Original -and $_.Mutated -ceq $Case.Mutated -and $_.State -eq $Case.State}).Count -lt 1){throw 'CSV_GUARD_MARKER_CASE_INVALID'}
 }
 
@@ -91,6 +98,9 @@ function Set-CsvGuardMarker($Connection,$Case,[string]$Expected,[string]$Value){
  }elseif($Case.Scope -ceq 'ASSEMBLY'){
   $class=5;$major="(SELECT assembly_id FROM sys.assemblies WHERE name=N'Toolbelt_File_CsvMemory')"
   $levels=",@level0type=N'ASSEMBLY',@level0name=N'Toolbelt_File_CsvMemory'"
+ }elseif($Case.Scope -ceq 'SCHEMA'){
+  $class=3;$major="SCHEMA_ID(N'toolbelt_file')"
+  $levels=",@level0type=N'SCHEMA',@level0name=N'toolbelt_file'"
  }elseif($Case.Scope -cne 'DATABASE'){throw 'CSV_GUARD_MARKER_SCOPE'}
  Invoke-CsvSql $Connection @"
 DECLARE @Expected sql_variant=$Expected,@Actual sql_variant,@Value sql_variant=$Value;
@@ -105,9 +115,9 @@ EXEC sys.sp_updateextendedproperty @name=N'$($Case.Property)',@value=@Value$leve
 "@
 }
 
-function Invoke-CsvMarkerGuards($Connection,[string]$Deploy,[string]$Uninstall,[ValidateSet('local','central')][string]$Mode,[ValidateSet('types','values',IgnoreCase=$false)][string]$Family='types'){
- $cases=@(Get-CsvMarkerGuardCases $Mode $Family);$expected=if($Family -ceq 'values'){25}else{10}
- if($cases.Count -ne $expected -or @($cases|ForEach-Object {$_.Scope+'|'+$_.Object+'|'+$_.Property}|Sort-Object -Unique).Count -ne $expected){throw 'CSV_GUARD_MARKER_CASE_SET'}
+function Invoke-CsvMarkerGuards($Connection,[string]$Deploy,[string]$Uninstall,[ValidateSet('local','central')][string]$Mode,[ValidateSet('types','values','schema-values',IgnoreCase=$false)][string]$Family='types'){
+ $cases=@(Get-CsvMarkerGuardCases $Mode $Family);$expected=switch -CaseSensitive ($Family){'values'{25};'schema-values'{4};'types'{10};default{throw 'CSV_GUARD_MARKER_FAMILY'}}
+ if($cases.Count -ne $expected -or @($cases|ForEach-Object {$_.Scope+'|'+$_.Object+'|'+$_.Property+'|'+$_.Mutated}|Sort-Object -Unique).Count -ne $expected){throw 'CSV_GUARD_MARKER_CASE_SET'}
  $passed=0
  foreach($case in $cases){
   $script:stage='MARKER_GUARD_'+$Mode+'_'+$passed
