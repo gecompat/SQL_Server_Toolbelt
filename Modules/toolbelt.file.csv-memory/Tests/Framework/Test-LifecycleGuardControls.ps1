@@ -17,8 +17,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings','shape-ceilings-and-default','cell-ceilings','text-ceilings','quote-expansion','crlf-ceilings','null-token-ceilings')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION','BINDING-RETURN-LENGTHS','SHAPE-CEILINGS','SHAPE-CEILINGS-AND-DEFAULT','CELL-CEILINGS','TEXT-CEILINGS','QUOTE-EXPANSION','CRLF-CEILINGS','NULL-TOKEN-CEILINGS')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings','shape-ceilings-and-default','cell-ceilings','text-ceilings','quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION','BINDING-RETURN-LENGTHS','SHAPE-CEILINGS','SHAPE-CEILINGS-AND-DEFAULT','CELL-CEILINGS','TEXT-CEILINGS','QUOTE-EXPANSION','CRLF-CEILINGS','NULL-TOKEN-CEILINGS','HEADER-TEXT-CEILINGS')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -135,7 +135,7 @@ foreach($selection in @(@{Modes=@('local')},@{Modes=@('central')},@{Modes=@('loc
 $expansionFunctions=@($driverTree.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Get-CsvExpansionFixture'},$true))
 if($expansionFunctions.Count -ne 1){throw 'CSV_EXPANSION_HELPER_IDENTITY'}
 . ([scriptblock]::Create($expansionFunctions[0].Extent.Text))
-foreach($expansionScope in @('quote-expansion','crlf-ceilings','null-token-ceilings')){
+foreach($expansionScope in @('quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings')){
 $expansionFixture=Get-CsvExpansionFixture $expansionScope
 $expansionRow=[pscustomobject]@{Fixture=$expansionFixture.Fixture;CasesPassed=[int]8}
 Check ((Get-CsvShapeCeilingCount @($expansionRow) -ExpectedFixture $expansionFixture.Fixture) -eq 8)
