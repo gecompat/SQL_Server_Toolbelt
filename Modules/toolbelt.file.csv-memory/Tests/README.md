@@ -4,6 +4,115 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Korrigierter Writer an tatsächlichen Formgrenzen 2026-10-21
+
+Nach der ausdrücklich freigegebenen begrenzten Erweiterung wurde der eigene
+Writeraufruf gezielt beobachtet. Der dritte Diagnoselauf ordnete den verbleibenden
+Aufwand dem kanonischen Fragment-/Maßabgleich zu. Die beiden ersten Diagnoseläufe
+waren durch den Beobachter unzureichend: der Planabruf überschritt sein eigenes
+Zeitlimit. Alle drei Läufe sind getrennte Diagnose, keine Funktionsabnahme;
+je Exit1/vollständige Kanäle/leeres Stderr, frischer Audit eine eigene DB/ein
+eigener Trusthash abwesend, Konfiguration/Rechte/Eingaben unverändert. Private
+Statements, Messwerte und Pläne werden nicht als öffentliche Evidenz gespeichert.
+Ein bestimmter Plan oder eine quadratische Laufzeit wird nicht behauptet.
+
+`USP_WriteCsv` besitzt jetzt auf beiden internen Maß-/Fragmenttabellen unbenannte
+Clustered-Primärschlüssel auf RowOrdinal/ColumnOrdinal. Das Zellraster wird
+bereits vorher auf Eindeutigkeit geprüft; öffentlicher Vertrag, Messung vor
+Fragmentallokation und Fehler-/Transaktionsrouting bleiben erhalten. CLR,
+Parser-/Deployment-/gemeinsame Snapshotquellen und Workflow sind unverändert.
+Das neu aus den aktuellen SQLquellen gepackte Paket enthält exakt dieselben
+CLR-Bytes; kein neuer lokaler Build-/Frameworklauf wird behauptet.
+
+Der korrigierte Kandidat bestand auf Windows2025/base CL170 mit erlaubtem
+bereitem CU-Äquivalent im ersten Kandidatenlauf local/central:
+`-TestScope shape-ceilings-and-default` führte genau acht Formgrenzfälle pro
+Modus aus, insgesamt16, darunter acht erwartete SQL55303/state1-Abweisungen.
+Erfolge genau bei100000 DATA-Records und1024 Spalten, echte +1-Fehler,
+Wert-/Ordinal-/Textbytes und unveränderter Quell-/Zielinhalt sind geprüft.
+Der typisierte Abschluss zählt ausschließlich vollständig geprüfte Phasen.
+Im selben Installationsscope bestanden zusätzlich alle drei bestehenden
+Default-SQLfixtures, Clientmetadaten, 29 Caller-/SET-/Lock-/Rollback-/Confirm0-
+Lifecyclefälle, frischer SC-/UTF8-Consumer, Clean/Repeat und Uninstall/Repeat.
+Exit0/vollständige Kanäle/leeres Stderr, frischer separater Audit drei eigene
+DBs/ein eigener Trusthash abwesend; Konfiguration/Rechte/Inputs unverändert.
+
+Die Kombination erhält den gesamten Defaultumfang bei einem nativen Aufruf;
+sie ersetzt keine ausgelassene Prüfung. Die vier freigegebenen Zusatzaufrufe
+sind mit drei Diagnoseaufrufen und diesem kombinierten Abschlusslauf verbraucht,
+ohne Budgetreset. 535 Offlinekontrollen einschließlich typisiertem Abschluss,
+Deadline/Cleanupreserve und falschen Funktions-/Guard-/Lifecyclezählern in
+local/central/einzelnen Modi bestanden. SQL150: acht Formfixturephasen sowie
+äußerer und expandierter Writerbody, AST/Static bestanden.
+
+Nach zusätzlicher ausdrücklicher Freigabe bestand derselbe korrigierte Kandidat
+auch auf Linux2019/latest CL150 local/central im kombinierten Scope:
+16 Formgrenzfälle einschließlich acht SQL55303/state1-Abweisungen sowie alle
+drei Default-SQLfixtures, Clientmetadaten, 29 Lifecyclefälle, frischer SC-/UTF8-
+Consumer, Clean/Repeat und Uninstall/Repeat PASS. Exit0/vollständige Kanäle/
+leeres Stderr; frischer separater Audit drei eigene DBs/ein eigener Trusthash
+abwesend, Konfiguration/Rechte und eingefrorene Eingaben unverändert.
+Der zusätzliche Aufruf bleibt vollständig im gemeinsamen Ledger gezählt.
+Die finalen Windows-/Linuxpins erlauben ausschließlich nachgepflegte gekoppelte
+Evidenz-/Manifest-/Dokumentationsdateien, keine ausführbare Drift.
+Unabhängiger Abschlussreview ohne semantische Findings; einziges Finding zum
+generierten API-Katalogfingerprint durch Generatornachtrag und Validator geschlossen.
+Die ältere Defaultregression unten betrifft den Stand vor der Indexkorrektur;
+die früheren vier Grenzfehlläufe bleiben FAILED und werden nicht umgedeutet.
+Die neuen Windows-/Linux-PASSes qualifizieren nicht die tatsächlichen vollen
+Zell-/Textdecken, Heap, Minimalrechte, die Gesamtmatrix, authentifiziertes TLS
+oder Release. Status weiterhin `partially validated`, `unreleased`.
+## Native tatsächliche Zeilen-/Spaltendecken 2026-10-21
+
+Der neue getrennte Scope `-TestScope shape-ceilings` enthält acht serverseitige
+Fälle je Modus: Parser/Writer genau an 100000 DATA-Records beziehungsweise
+1024 Spalten sowie jeweils ein tatsächliches Element darüber mit SQL55303/state1,
+exakten Wert-/Ordinal-/Textbytes und unverändertem Quell-/Zielinhalt. Ein
+getrennter typisierter Abschlusswitness zählt nur alle acht abgeschlossenen
+Fälle; dieser Funktionszähler ist kein Lifecycle-Guardzähler.
+
+Die native Abnahme dieses Scopes ist **offen**. Vier Versuche sind FAILED,
+nicht als PASS oder Ceilingqualifikation zu lesen:
+
+- Linux2019/latest CL150 Versuch1: zusammengefasster Batch am60-Sekunden-
+  Kommandolimit abgebrochen; keine einzelne Grenzphase daraus qualifiziert.
+- Nach Aufteilung in acht Phasen Linux2019/latest CL150 Versuch2 und
+  Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent Versuch1:
+  lokale Parserphase100000 bestanden, anschließende lokale Writerphase100000
+  am120-Sekunden-Kommandolimit abgebrochen.
+- Windows Versuch2: gleicher Parserbefund, Writerphase100000 auch bei
+  maximal300 Sekunden abgebrochen. Die übrigen Phasen und central wurden
+  in diesen drei phasengetrennten Läufen nicht erreicht.
+
+Alle vier Fehlläufe Exit1/vollständig erfasste Kanäle/leeres Stderr und
+FAILED_CLEANED; je frischer separater Audit eine eigene DB/ein eigener Trusthash
+abwesend, Konfiguration/Rechte und eingefrorene Eingaben unverändert.
+Die Zeitlimits stammen aus dem Adapter; der Timeout belegt weder einen
+bestimmten Engpass noch eine Verletzung eines öffentlichen Laufzeitvertrags.
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen bleiben unverändert.
+
+Die separate Defaultregression auf Linux2019/latest CL150 bestand mit dem
+finalen Adapter im ersten Versuch local/central: drei bestehende SQLfixtures,
+Clientmetadaten, Clean/Repeat, fünf Slots/drei Bindings, 29 Lifecyclefälle,
+frischer SC-/UTF8-Consumer und Uninstall/Repeat. Exit0/vollständige Kanäle/
+leeres Stderr; frischer Audit drei eigene DBs/ein eigener Trusthash abwesend,
+Konfiguration/Rechte und Eingaben unverändert. Dieser PASS ersetzt die
+fehlgeschlagene tatsächliche Grenzabnahme nicht.
+
+509 synthetische Offlinekontrollen, SQL150-Grammatik aller acht Phasen,
+AST2 und statische Verträge bestanden. Negative Abschlusskontrollen weisen
+fehlende, zusätzliche, falsch typisierte und falsche Zähler-/Fixturedaten ab.
+Der Defaulttimeout bleibt60 Sekunden; nur die Writer-Zeilendecke erhält
+maximal300, andere Grenzphasen maximal120 Sekunden, stets gekürzt auf die
+verbleibende unveränderte Arbeits-/Gesamtdeadline mit Cleanupreserve.
+Vorhandenes Releasepaket an manifestierte Quellen/exakte Binarybytes gebunden;
+kein neuer lokaler Build-/Frameworklauf oder Workflow-/Infrastrukturwechsel.
+
+Unabhängiger Erstreview: keine semantischen Codefindings, native Grenzabnahme
+weiterhin offen; die gezielte Timeoutanpassung folgt dieser Bewertung.
+Tatsächliche Spalten-/Zell-/Textdecken, neue vollständige Grenzfehler-/
+Centralabnahme, Heap, Minimalrechte, Gesamtmatrix, authentifiziertes TLS und
+Release bleiben nicht ausgeführt. Status `partially validated`, `unreleased`.
 ## Interne CLR-Rückgabelängen 2026-10-21
 
 Der getrennte Scope `-TestScope binding-return-lengths` bestand auf
@@ -815,7 +924,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-21`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope binding-return-lengths; binding-drift-Regression`
-- Scope: Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster Versuch local/central PASS. Zwei interne CLR-Metadatenänderungen: QuoteCell-Rückgabe nvarchar(max) auf nvarchar(4000) und Parser-RowKind nvarchar(6) auf nvarchar(5). Je Deploy/Uninstall SQL55324/state7, vier Abweisungen je Modus und acht je Ziel. Konkreter Rückgabewitness parameter_id 0/max_length 8000 und Spaltenwitness column_id 1/max_length 10 unmittelbar vor/nach Operation sowie vor Restore; gleiche Objekt-/Erstellungsidentität, CLR-Bindung/typisierte Ownership und erfasster Mutationszustand erhalten, kanonisches ALTER restauriert exakt die Baseline. Funktionen im geänderten Zustand nicht fachlich ausgeführt. Separate Linux-binding-drift-Regression local/central mit 32 Abweisungen PASS. Alle drei Läufe Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Runtimeinputs unverändert. 487 Offlinekontrollen einschließlich Identitäts-/Witness-/Restaurierungsdrift und blockierter zweiter Operation/Restore, 72 expandierte SQL150-Batches aller vier Bindingfamilien sowie AST/Static PASS. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; vorhandenes Releasepaket an manifestierte Quellen/exakte Binarybytes gebunden, kein neuer lokaler Build-/Frameworklauf. Keine fachliche Ausführung unter abweichender Länge oder neue Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope shape-ceilings-and-default`
+- Scope: Abschließender gleicher korrigierter Writerkandidat auf Linux2019/latest CL150 nach ausdrücklich zusätzlicher Freigabe local/central PASS:16 Formgrenzfälle einschließlich acht SQL55303/state1-Abweisungen, exakt100000 DATA-Records/1024 Spalten und echte+1-Fehler, vollständige Wert-/Ordinal-/Textbytes und Quell-/Zielerhalt. Im selben Aufruf sämtliche drei Default-SQLfixtures/Client/frischer SC-/UTF8-Consumer/29 Lifecyclefälle/CleanRepeat/UninstallRepeat PASS. Exit0/vollständige Kanäle/leeres Stderr; frischer Audit drei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Rechte/Runtimeinputs unverändert. Vorheriger gleicher Windows2025/base CL170-Kandidat mit erlaubtem bereitem CU-Äquivalent PASS bleibt separat erhalten. Beide finalen Pins nur nachgepflegte gekoppelte Evidenz/Manifest/Dokumentation, keine ausführbare Drift;535 Offlinekontrollen/SQL150/AST/Static/inkrementeller Dokumentationsvalidator PASS. Unabhängiger Abschlussreview ohne semantische Findings; einziges generiertes Katalogfingerprintfinding mit Generatornachtrag/Validator geschlossen. Exakte gleiche CLRbytes, neu gebundene SQLquellen; kein neuer lokaler Build-/Frameworklauf. Frühere vier Grenz-FAILs/drei Diagnoseaufrufe bleiben getrennt, kein Reset. Keine tatsächliche Zell-/Textvollgrenze, Heap-, Minimalrechte-, Gesamtmatrix-, authentifizierte TLS- oder Releaseabnahme.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

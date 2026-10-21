@@ -2197,6 +2197,54 @@ Diese zwei Fälle sind ein separater Teilnachweis; sie erweitern weder den
 29-Fall-Zähler noch die API-/Client-/Central-/Windows- oder vollständige
 Fremdslot-/Driftmatrixqualifikation.
 
+Fortlaufende begrenzte CSV-Welle nach vollständig abgeschlossenem PR355,
+2026-10-21: `shape-ceilings` ergänzt acht gezählte tatsächliche Zeilen-/
+Spalten-Grenz-/+1-Fälle je Modus. Native Grenzabnahme offen: vier Versuche
+FAILED_CLEANED, Linux erster Gesamtbatchtimeout60; danach Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent lokale
+Parserphase100000 bestanden, anschließender Writer100000 Timeout120,
+Windows zweiter Versuch auch bei300. Je frischer Audit eine eigene DB/ein
+eigener Trusthash abwesend, Konfiguration/Rechte/Eingaben unverändert.
+Keine konkrete Engpassursache oder öffentliche Laufzeitverletzung belegt;
+Produktquellen unverändert. Separate finale Linux-Defaultregression im ersten
+Versuch local/central mit drei SQLfixtures/Client/Consumer/29 Lifecyclefällen
+und frischem Audit drei eigene DBs/ein eigener Trusthash abwesend PASS.
+509 Offlinekontrollen, acht SQL150-Phasen und AST/Static PASS. Unabhängiger
+Erstreview ohne semantische Codefindings; native Grenzabnahme bleibt offen.
+Keine neue Funktion, Rechte-/Infrastruktur-/Releasefreigabe, keine Heap- oder
+Ceilingqualifikation; `partially validated`, `unreleased`. Fortlaufender
+Benutzerauftrag und gemeinsames endliches Ledger bleiben gültig, kein Reset.
+
+Ausdrücklich freigegebene Erweiterung derselben PR356-Welle 2026-10-21:
+drei separate Windows-Diagnoseaufrufe frisch bereinigt; die ersten beiden
+Beobachterzeitlimits bleiben unzureichende Diagnose, der dritte ordnet den
+Aufwand dem kanonischen Fragment-/Maßabgleich zu. Keine konkrete Plan-/
+Komplexitätsbehauptung. Unbenannte Clustered-Primärschlüssel auf bereits vorher
+geprüften eindeutigen Zellordinals beider interner Maß-/Fragmenttabellen,
+öffentlicher Vertrag/CLR/Deployment/Snapshot/Workflow unverändert. Neu gepackte
+SQLquellen mit gleichen CLR-Bytes. Windows2025/base CL170 mit erlaubtem bereitem
+CU-Äquivalent korrigierter Kandidat local/central im kombinierten Scope
+shape-ceilings-and-default PASS:16 Formgrenzfälle, darunter acht SQL55303/state1,
+alle drei Defaultfixtures/Client/Consumer/29 Lifecyclefälle und frischer Audit
+drei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Rechte/Inputs
+unverändert. 535 Offlinekontrollen und SQL150/AST/Static PASS. Dieselben vier
+Zusatzaufrufe vollständig gezählt, kein Reset; abschließender Linuxkandidat
+noch offen. Frühere vier Grenz-FAILs bleiben erhalten, kein Gesamt-PASS,
+keine Heap-/Zell-/Textvollgrenze oder Veröffentlichung.
+
+Nach zusätzlicher ausdrücklicher Freigabe abschließender gleicher korrigierter
+Kandidat auf Linux2019/latest CL150 im kombinierten Scope local/central PASS:
+16 Formgrenzfälle einschließlich acht SQL55303/state1-Abweisungen, alle drei
+Defaultfixtures/Client/Consumer/29 Lifecyclefälle/CleanRepeat/UninstallRepeat.
+Exit0/vollständige Kanäle/leeres Stderr, frischer Audit drei eigene DBs/ein
+eigener Trusthash abwesend, Konfiguration/Rechte/Runtimeinputs unverändert.
+Damit beide ausgewählten korrigierten Ziele geprüft; frühere FAILED-/
+Diagnoseaufrufe bleiben getrennt. Unabhängiger Abschlussreview ohne semantische
+Findings; generierter Katalogfingerprint als einziges Finding durch exakten
+Generatornachtrag/Validator geschlossen. Keine neue Funktion, Heap-/Zell-/
+Textvollgrenze, vollständige Matrix, Minimalrechte, authentifiziertes TLS oder
+Veröffentlichung. Gemeinsames Ledger ohne Reset fortgesetzt.
+
 ### Queue-Worker 2 – autonome Umsetzung freigegeben 2026-10-04
 
 Nach Besprechung von Zweck, Verträgen, Alternativen und Risiken beauftragte

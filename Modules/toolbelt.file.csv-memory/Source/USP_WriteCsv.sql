@@ -159,7 +159,10 @@ BEGIN
    OR EXISTS(SELECT 1 FROM #tbx_CsvWrite_Input GROUP BY RowOrdinal HAVING MIN(ColumnOrdinal)<>1 OR MAX(ColumnOrdinal)<>@ColumnCount OR COUNT_BIG(*)<>@ColumnCount)
    OR (@DataRows>0 AND ((SELECT MIN(RowOrdinal) FROM #tbx_CsvWrite_Input WHERE CONVERT(varbinary(max),RowKind)=0x44415441)<>1 OR (SELECT MAX(RowOrdinal) FROM #tbx_CsvWrite_Input WHERE CONVERT(varbinary(max),RowKind)=0x44415441)<>@DataRows))
    THROW 55306,N''CSV: Quelle ist kein vollständiges rechteckiges Zellraster.'',1;
-  CREATE TABLE #tbx_CsvWrite_Measure(RowOrdinal bigint NOT NULL,ColumnOrdinal int NOT NULL,Bytes bigint NULL);
+  -- Das zuvor geprüfte eindeutige Zellraster auch für den vollständigen
+  -- Fragment-/Maßabgleich indizieren und gezielte Zellzugriffe ermöglichen.
+  -- Unbenannte Temp-Constraints vermeiden Namenskollisionen zwischen Sitzungen.
+  CREATE TABLE #tbx_CsvWrite_Measure(RowOrdinal bigint NOT NULL,ColumnOrdinal int NOT NULL,Bytes bigint NULL,PRIMARY KEY CLUSTERED(RowOrdinal,ColumnOrdinal));
   INSERT #tbx_CsvWrite_Measure SELECT RowOrdinal,ColumnOrdinal,toolbelt_file.SVF_InternalMeasureCsvCell([Value],@Separator,@NullToken,CONVERT(bit,CASE WHEN RowOrdinal=0 THEN 1 ELSE 0 END)) FROM #tbx_CsvWrite_Input;
   IF EXISTS(SELECT 1 FROM #tbx_CsvWrite_Measure WHERE Bytes IS NULL OR (Bytes<0 AND Bytes NOT BETWEEN -55309 AND -55300))
    THROW 55309,N''CSV: interner Messstatus ungültig.'',1;
@@ -176,7 +179,7 @@ BEGIN
   SELECT @OutputBytes=COALESCE(SUM(Bytes),0)+@Records*DATALENGTH(@Ending)+(@PreCells-@Records)*CONVERT(bigint,DATALENGTH(@Separator)) FROM #tbx_CsvWrite_Measure;
   IF @OutputBytes>@MaxOutputBytes THROW 55303,N''CSV: globale Outputbytegrenze überschritten.'',1;
   -- Erst der vollständige globale Charge-PASS erlaubt LOB-Fragmente und Aggregation.
-  CREATE TABLE #tbx_CsvWrite_Fragments(RowOrdinal bigint NOT NULL,ColumnOrdinal int NOT NULL,Fragment nvarchar(max) COLLATE Latin1_General_100_BIN2 NULL);
+  CREATE TABLE #tbx_CsvWrite_Fragments(RowOrdinal bigint NOT NULL,ColumnOrdinal int NOT NULL,Fragment nvarchar(max) COLLATE Latin1_General_100_BIN2 NULL,PRIMARY KEY CLUSTERED(RowOrdinal,ColumnOrdinal));
   INSERT #tbx_CsvWrite_Fragments SELECT RowOrdinal,ColumnOrdinal,toolbelt_file.SVF_InternalQuoteCsvCell([Value],@Separator,@NullToken,CONVERT(bit,CASE WHEN RowOrdinal=0 THEN 1 ELSE 0 END),@MaxOutputBytes) FROM #tbx_CsvWrite_Input;
   IF EXISTS(SELECT 1 FROM #tbx_CsvWrite_Fragments f JOIN #tbx_CsvWrite_Measure m ON m.RowOrdinal=f.RowOrdinal AND m.ColumnOrdinal=f.ColumnOrdinal WHERE f.Fragment IS NULL OR DATALENGTH(f.Fragment)<>m.Bytes)
    THROW 55309,N''CSV: Quotingcharge und Fragment weichen ab.'',1;
