@@ -102,6 +102,7 @@ tests:
   null_token_ceilings: "Tests/Runtime/NullTokenCeilings.Tests.sql"
   header_text_ceilings: "Tests/Runtime/HeaderTextCeilings.Tests.sql"
   unicode_text_ceilings: "Tests/Runtime/UnicodeTextCeilings.Tests.sql"
+  control_text_ceilings: "Tests/Runtime/ControlTextCeilings.Tests.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   ownership_guards: "Tests/Runtime/OwnershipGuards.Tests.ps1"
   foreign_guards: "Tests/Runtime/ForeignGuards.Tests.ps1"
