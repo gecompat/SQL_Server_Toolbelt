@@ -4,6 +4,35 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Finale benannte SameDB-Verbraucher auf Linux 2026-10-21
+
+Direkt nach Abschluss von PR351 begann die ausgewählte Folgewelle. Der
+unveränderte öffentliche Adapter `-TestScope named-consumers` bestand auf
+Linux2019/latest CL150 im ersten Versuch local/central. Fünf nacheinander
+angelegte SQL-Verbraucher referenzieren die fünf reservierten CSV-Slots mit
+explizitem Namen der eigenen Datenbank. Deploy und Uninstall lieferten je
+SQL55325/state3: zehn Abweisungen pro Modus, 20 insgesamt.
+
+Die finalen Assertions prüfen den Fingerprint sämtlicher erfasster
+Dependencyzeilen unmittelbar vor/nach jeder Operation und vor Fixture-Drop.
+Exakte Zielnamen, zulässige lokale ID-/Namensbindung, typisierte Laufmarker
+und Objekt-/Erstellungsidentitäten bestanden. Erfasster Mutationszustand
+und Dependencywitness blieben erhalten; geschütztes Entfernen jeder eigenen
+Fixture stellte die Baseline exakt wieder her.
+
+Clean/Repeat, Uninstall/Repeat, Exit0, vollständige Kanäle und leeres Stderr
+bestanden. Der frische unabhängige Audit bestätigte zwei eigene DBs/einen
+eigenen Trusthash abwesend; Konfiguration und eingefrorene Runtimeinputs
+blieben unverändert. Das vorhandene Releasepaket wurde erneut an alle
+manifestierten Produktquellen und seine exakten Binarybytes gebunden.
+
+Dieser Lauf ergänzt den finalen Windowsnachweis nach PR348 um Linux mit
+dem aktuellen Assertionstand. Frühere Linux-Teilnachweise und der erste
+fehlgeschlagene Katalogwitness bleiben datiert erhalten. Keine isolierte
+Abnahme des NULL-ID-Preflightzweigs, fachliche Consumerausführung oder neue
+Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/
+authentifizierte TLS-/Releaseabnahme. Kein neuer lokaler Build-/Frameworklauf.
+
 ## Finale CLR-Defaults auf Linux 2026-10-21
 
 Der unveränderte öffentliche Adapter `-TestScope binding-defaults` bestand auf
@@ -688,7 +717,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-21`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope binding-defaults; finale Linuxergänzung`
-- Scope: Linux2019/latest CL150 im ersten Versuch local/central mit aktuellem Assertionstand nach PR350 PASS: fünf Parameterdefaults an drei internen CLR-Funktionen, je Deploy/Uninstall SQL55324/state7, zehn Abweisungen pro Modus und 20 insgesamt. Exakte Basistyp-/Wertbytes-/Textbytelängenprüfung und eigener NULL-Witness unmittelbar vor/nach jeder Operation sowie vor Restore, gleiche Objekt-/Erstellungsidentität und unveränderter erfasster Zustand; kanonische ALTER-Restaurierung exakt zur Baseline. Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration und eingefrorene Runtimeinputs unverändert. Vorhandenes Releasepaket erneut an alle manifestierten Produktquellen und exakten Binarybytes gebunden; kein neuer lokaler Build-/Frameworklauf. Produkt-/Test-/Deployment-/CLR-/Workflowquellen unverändert. Historische engere und fehlgeschlagene Läufe bleiben erhalten; keine neue Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope named-consumers; finale Linuxergänzung nach PR351`
+- Scope: Direkter Start der ausgewählten Folgewelle nach vollständigem PR351-Abschluss. Linux2019/latest CL150 im ersten Versuch local/central mit finalem Assertionstand PASS: fünf benannte Referenzen auf eigene SameDB-Slots, je Deploy/Uninstall SQL55325/state3, zehn Abweisungen pro Modus und 20 insgesamt. Fingerprint sämtlicher erfasster Dependencyzeilen unmittelbar vor/nach jeder Operation und vor geschütztem Fixture-Drop, exakte Zielnamen, zulässige lokale ID-/Namensbindung, typisierte OwnDB-/Fixturemarker und Objekt-/Erstellungsidentitäten; erfasster Zustand/Witness erhalten und Baseline exakt restauriert. Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration und eingefrorene Runtimeinputs unverändert. Vorhandenes Releasepaket erneut an alle manifestierten Produktquellen und exakten Binarybytes gebunden; kein neuer lokaler Build-/Frameworklauf. Produkt-/Test-/Deployment-/CLR-/Workflowquellen unverändert. Frühere engere und fehlgeschlagene Läufe bleiben erhalten; keine isolierte NULL-ID-Preflightabnahme, fachliche Consumerausführung oder neue Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
