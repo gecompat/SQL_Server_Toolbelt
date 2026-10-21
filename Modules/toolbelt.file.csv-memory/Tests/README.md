@@ -4,6 +4,20 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Unicode an vollständigen UTF16-Textdecken 2026-10-21
+
+'-TestScope unicode-text-ceilings': Parserinput/Writerausgabe genau16777216 UTF16-Bytes und kleinstes tatsächliches Darüber16777218 Bytes:4194303 gültige Surrogatpaare mit CRLF sowie separatorbedingt quotierter BMP-Text mit CRLF. Synthetische Codeeinheiten werden aus festen UTF16-Binärliteralen aufgebaut und vollständig bytegenau verglichen. Kein UTF8-/Unicode-Scalar-Zähler; Quotehüllen/CRLF vollständig mitgezählt, globale Writerwertcharge auch beim Übergrenzfall strikt unter16MiB.
+
+Acht gezählte Phasen je Modus; SQL55303/state1 ausschließlich für vier
+Übergrenzfälle je Modus. Vollständige Werte/Outputbytes, DataRows/ColumnCount,
+unabhängig gesetzte Writer-Übergrenzquellen und Quell-/vorheriger Zielerhalt.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 786 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identischer ausführbarer Kandidat auf Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster Versuch local/central PASS:16 Fälle je Ziel einschließlich acht SQL55303/state1-Abweisungen. Clean/Repeat und Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer separater Audit zwei eigene DBs/ein eigener Trusteintrag abwesend, Konfiguration/Rechte/Inputs unverändert. Danach nur gekoppelte Manifest-/Evidenz-/Dokumentationsdateien nachgepflegt.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ## Header an vollständigen Textdecken 2026-10-21
 
 '-TestScope header-text-ceilings': Parserinput/Writerausgabe genau16777216 UTF16-Bytes und kleinstes tatsächliches Darüber16777218 Bytes mit vollständigem Header und einem DATArecord. Unquotierter128-Zeichen-Header mit LF sowie separatorhaltiger quotierter Header und DATAwert mit CRLF; Headerwerte, Quotehüllen und sämtliche Recordabschlüsse zählen. Globale Writerwertcharge aus HEADER und DATA strikt unter16MiB, übrige Budgets nicht bindend; vollständige HEADER=0/DATA=1-Wert- und Outputmetadatenorakel.
@@ -1062,7 +1076,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-21`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope header-text-ceilings`
-- Scope: Parserinput/Writerausgabe genau16777216 UTF16-Bytes und kleinstes tatsächliches Darüber16777218 Bytes mit vollständigem Header und einem DATArecord. Unquotierter128-Zeichen-Header mit LF sowie separatorhaltiger quotierter Header und DATAwert mit CRLF; Headerwerte, Quotehüllen und sämtliche Recordabschlüsse zählen. Globale Writerwertcharge aus HEADER und DATA strikt unter16MiB, übrige Budgets nicht bindend; vollständige HEADER=0/DATA=1-Wert- und Outputmetadatenorakel. Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identischer ausführbarer Kandidat auf Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster Versuch local/central PASS:16 Fälle je Ziel einschließlich acht SQL55303/state1-Abweisungen. Clean/Repeat und Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer separater Audit zwei eigene DBs/ein eigener Trusteintrag abwesend, Konfiguration/Rechte/Inputs unverändert. Danach nur gekoppelte Manifest-/Evidenz-/Dokumentationsdateien nachgepflegt. 747 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope unicode-text-ceilings`
+- Scope: Parserinput/Writerausgabe genau16777216 UTF16-Bytes und kleinstes tatsächliches Darüber16777218 Bytes:4194303 gültige Surrogatpaare mit CRLF sowie separatorbedingt quotierter BMP-Text mit CRLF. Synthetische Codeeinheiten werden aus festen UTF16-Binärliteralen aufgebaut und vollständig bytegenau verglichen. Kein UTF8-/Unicode-Scalar-Zähler; Quotehüllen/CRLF vollständig mitgezählt, globale Writerwertcharge auch beim Übergrenzfall strikt unter16MiB. Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identischer ausführbarer Kandidat auf Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster Versuch local/central PASS:16 Fälle je Ziel einschließlich acht SQL55303/state1-Abweisungen. Clean/Repeat und Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer separater Audit zwei eigene DBs/ein eigener Trusteintrag abwesend, Konfiguration/Rechte/Inputs unverändert. Danach nur gekoppelte Manifest-/Evidenz-/Dokumentationsdateien nachgepflegt. 786 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
