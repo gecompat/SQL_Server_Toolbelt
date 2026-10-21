@@ -24,9 +24,16 @@ Lifecyclezähler. Pro Phase maximal300 Sekunden innerhalb der unveränderten
 Arbeits-/Gesamtdeadline und Cleanupreserve. 591 synthetische Offlinekontrollen,
 acht SQL150-Fixturephasen, AST/Static bestanden.
 
-Native Ausführung und unabhängiger Review dieses Kandidaten sind **offen**;
-vorhandene Assertions sind kein PASS. Produkt-/Deployment-/CLR-/gemeinsame
-Snapshotquellen und Workflow unverändert. Vorhandenes quellengebundenes Paket
+Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem
+CU-Äquivalent bestanden jeweils im ersten Versuch local/central:16 Fälle je
+Ziel einschließlich acht SQL55303/state1-Abweisungen, Clean/Repeat und
+Uninstall/Repeat. Je Exit0/vollständige Kanäle/leeres Stderr; frischer separater
+Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Rechte und
+eingefrorene Eingaben unverändert. Unabhängiger Quell-/Orakelreview vor den
+nativen Läufen ohne Findings; gleicher ausführbarer Kandidat. Nachgepflegt
+werden ausschließlich gekoppelte Manifest-/Evidenz-/Dokumentationsdateien.
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert.
+Vorhandenes quellengebundenes Paket
 mit gleichen CLR-Bytes; kein neuer lokaler Build-/Frameworklauf. Der Scope
 belegt keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze: Wert-/Output-
 budgets sind gekoppelt. Neue Default-/Clientabnahme, Heap, Minimalrechte,
