@@ -146,4 +146,3 @@ DROP TABLE #CsvKeepOutput;
 DROP TABLE #CsvKeepSource;
 DROP TABLE #CsvKeepCells;
 SELECT CONVERT(nvarchar(32),N'CSV_KEEPDATA_CEILINGS') Fixture,CONVERT(int,@Cases) CasesPassed;
-
