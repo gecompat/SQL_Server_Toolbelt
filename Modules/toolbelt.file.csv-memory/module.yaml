@@ -107,6 +107,7 @@ tests:
   budget_parameter_preservation: "Tests/Runtime/BudgetParameterPreservation.Tests.sql"
   select_output_ceilings: "Tests/Runtime/DirectSelectCeilings.Tests.sql"
   select_unicode_null: "Tests/Runtime/DirectSelectUnicodeNull.Tests.sql"
+  caller_transaction_preservation: "Tests/Runtime/CallerTransactionPreservation.Tests.sql"
   select_reader: "Tests/Framework/CsvDirectSelect.Helpers.ps1"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   ownership_guards: "Tests/Runtime/OwnershipGuards.Tests.ps1"

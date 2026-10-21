@@ -4,6 +4,18 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Callertransaktionen mit vollständigen CSV-Zielwerten 2026-10-21
+
+'-TestScope caller-transaction-preservation': Bestehende öffentliche Parser-/Writeraufrufe in einer committable Callertransaktion mit XACT_ABORT OFF. Vier Erfolge genau an16777216 UTF16-Bytes und vier SQL55303/state1-Abweisungen bei16777218 Bytes je Modus. Caller-Sentinel, @@TRANCOUNT und XACT_STATE werden vor und nach Aufruf sowie nach eigenem COMMIT oder ROLLBACK getrennt geprüft. Vollständige Parserziele/Writeroutputs und unabhängig gesetzte Writerquellen werden bytegenau verglichen; Calleridentität und Schlüssel bleiben erhalten. Ursprüngliches XACT_ABORT wird wiederhergestellt. Keine Abnahme von doomed Transaktionen oder einer vollständigen SET-Optionsmatrix.
+
+Acht SQLphasen je Modus: Parsererfolg, Parserabweisung, Writererfolg und Writerabweisung jeweils mit anschließendem Callerrollback sowie Callercommit. Budgetfehler ausschließlich55303/state1. Caller-Sentinel beweist den Erhalt unabhängiger Callerarbeit; Transaktionszustand steht in eigenen IFs. Vollständige Ziel-/Quellwerte, Calleridentitäten und PKs sowie wiederhergestelltes XACT_ABORT werden geprüft.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1075 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'caller-transaction-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ## Direkte Unicode-/NULL-Resultsets an vollständigen Textdecken 2026-10-21
 
 '-TestScope select-unicode-null': Direkte öffentliche SELECT-Ausgaben ohne ResultTable über System.Data.SqlClient. Erste Familie:4194303 gültige UTF16-Surrogatpaare mit CRLF. Zweite Familie: unquotierter NullToken als SQL-NULL, quotierter identischer Token als literaler Text und großer BMP-Wert in drei Spalten. Vollständiger Input/Output genau16777216 Bytes, kleinstes Darüber16777218 Bytes. Client prüft vollständige ordinale Strings, DBNull getrennt vom literalen NULL-Text, Zeilen-/Spaltenreihenfolge, Feldnamen und SQL-/CLR-Typen; Writerwerte separat gesetzt und globale Wertcharge unter16MiB. Vier Übergrenzfälle je Modus ausschließlich SQL55303/state1 ohne vorherige Resultsetmetadaten oder Zeilen; vollständiger Quellerhalt. Keine Aussage über ungepaarte Surrogate oder andere Clients.
