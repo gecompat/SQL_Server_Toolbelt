@@ -12,7 +12,7 @@ Acht Readerphasen je Modus: vier vollständige direkte Resultsets und vier erwar
 Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
 Cleanupreserve bleiben erhalten. 983 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
 
-Native Abnahme und unabhängiger Review für 'select-output-ceilings' sind offen.
+Erstreview mit zwei Adapterbefunden zur Helper-Pinbindung und Command-Freigabe. Beide vor nativen Läufen korrigiert, mit synthetischen Drift-/Timeout-/Disposefällen geprüft und gezielt unabhängig nachgeprüft; keine offenen Befunde. Identischer ausführbarer Kandidat auf Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster Versuch local/central PASS:16 Fälle je Ziel einschließlich 8 SQL55303/state1-Abweisungen. Clean/Repeat und Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer separater Audit zwei eigene DBs/ein eigener Trusteintrag abwesend, Konfiguration/Rechte/Inputs unverändert. Danach nur gekoppelte Manifest-/Evidenz-/Dokumentationsdateien nachgepflegt.
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Nur System.Data.SqlClient im bestehenden PowerShell-Labadapter und die expliziten synthetischen Fälle: keine SMO-/ODBC-/JDBC-/sonstige Clientmatrix, neue Default-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme oder unabhängig erfolgreiche MaxValueBytes-Vollgrenze. Status weiterhin partially validated, unreleased.
 
