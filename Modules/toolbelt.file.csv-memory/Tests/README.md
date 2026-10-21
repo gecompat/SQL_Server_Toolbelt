@@ -12,7 +12,7 @@ Acht SQLphasen je Modus, alle acht ausschließlich mit51025/state1: vier voneina
 Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
 Cleanupreserve bleiben erhalten. 1126 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
 
-Native Abnahme und unabhängiger Review für 'schema-target-preservation' sind offen.
+Initialer unabhängiger Review fand die unpassende generische Plus-zwei-Abschlussmeldung. Vor nativen Läufen korrigiert und zwölf Kontrollen des tatsächlichen Summary-AST ergänzt; gezielter unabhängiger Folgeauftrag am korrigierten festen Kandidaten ohne offene Befunde. Identischer ausführbarer Kandidat auf Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster Versuch local/central PASS:16 Fälle je Ziel einschließlich 16 SQL51025/state1-Abweisungen. Clean/Repeat und Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer separater Audit zwei eigene DBs/ein eigener Trusteintrag abwesend, Konfiguration/Rechte/Inputs unverändert. Danach nur gekoppelte Manifest-/Evidenz-/Dokumentationsdateien nachgepflegt.
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
