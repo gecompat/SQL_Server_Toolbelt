@@ -96,6 +96,7 @@ tests:
   boundaries: "Tests/Runtime/Safety.Tests.sql"
   shape_ceilings: "Tests/Runtime/ShapeCeilings.Tests.sql"
   cell_ceilings: "Tests/Runtime/CellCeilings.Tests.sql"
+  text_ceilings: "Tests/Runtime/TextCeilings.Tests.sql"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   ownership_guards: "Tests/Runtime/OwnershipGuards.Tests.ps1"
   foreign_guards: "Tests/Runtime/ForeignGuards.Tests.ps1"

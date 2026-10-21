@@ -2258,6 +2258,16 @@ unverändert; keine neue Funktion, Textvollgrenze, Default-/Client-/Heap-/
 Minimalrechte-/Gesamtmatrix-/authentifizierte TLS- oder Releaseabnahme.
 Gemeinsamer endlicher Kampagnenscope ohne Budgetreset fortgesetzt.
 
+2026-10-21: Nach vollständig abgeschlossenem PR357 wurde die nächste begrenzte
+Welle `text-ceilings` tatsächlich begonnen. Acht synthetische Phasen prüfen
+Parserinput/Writerausgabe an16MiB und kleinstem tatsächlichem Darüber+2 UTF16-
+Bytes, unquotiert/quotiert einschließlich LF/Quotes; Writerquellwerte bleiben
+strikt unter ihrer eigenen Decke. Vollständige Byte-/Metadaten-/Quell-/Zielorakel
+und typisierter Abschluss;591 Offlinekontrollen/acht SQL150-Phasen/AST/Static PASS.
+Native Abnahme und unabhängiger Review offen; keine Funktionserweiterung oder
+Budgetreset. Keine unabhängige MaxValueBytes-Vollgrenze, neue Default-/Client-/
+Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS- oder Releaseabnahme.
+
 ### Queue-Worker 2 – autonome Umsetzung freigegeben 2026-10-04
 
 Nach Besprechung von Zweck, Verträgen, Alternativen und Risiken beauftragte

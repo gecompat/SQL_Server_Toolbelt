@@ -4,6 +4,34 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Tatsächliche Input-/Outputtextdecken 2026-10-21
+
+Der getrennte Scope `-TestScope text-ceilings` enthält acht gezählte Phasen
+je Modus: Parserinput und Writerausgabe jeweils genau16777216 UTF16-Bytes
+(16MiB) und das kleinste darstellbare Darüber16777218 Bytes. Unquotierte und
+quotierte Texte werden getrennt geprüft; Quotes und alle LF gehören zum
+jeweiligen Budget. Die unquotierte Writerausgabe umfasst zwei Records, damit
+auch beim Übergrenzfall die globale Quellwertcharge strikt unter16MiB bleibt.
+Die quotierte Writerquelle beginnt mit einem Separator und benötigt daher
+zwei Quotes; ihre Wertcharge bleibt ebenfalls strikt unter der Wertdecke.
+
+Alle übrigen Budgets sind nicht bindend. Vollständige Wert-/Outputbytes,
+DataRows/ColumnCount und Quell-/vorheriger Zielinhalt werden geprüft.
+Übergrenzfälle erwarten ausschließlich SQL55303/state1. Acht getrennte
+SQLphasen geben erst nach allen Assertions einen typisierten Abschluss aus;
+der Adapter verlangt acht Fälle je Modus und null fremde Funktions-/Guard-/
+Lifecyclezähler. Pro Phase maximal300 Sekunden innerhalb der unveränderten
+Arbeits-/Gesamtdeadline und Cleanupreserve. 591 synthetische Offlinekontrollen,
+acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Ausführung und unabhängiger Review dieses Kandidaten sind **offen**;
+vorhandene Assertions sind kein PASS. Produkt-/Deployment-/CLR-/gemeinsame
+Snapshotquellen und Workflow unverändert. Vorhandenes quellengebundenes Paket
+mit gleichen CLR-Bytes; kein neuer lokaler Build-/Frameworklauf. Der Scope
+belegt keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze: Wert-/Output-
+budgets sind gekoppelt. Neue Default-/Clientabnahme, Heap, Minimalrechte,
+Gesamtmatrix, authentifiziertes TLS und Release bleiben nicht ausgeführt.
+
 ## Tatsächliche Gesamtzelldecke 2026-10-21
 
 Der getrennte Scope `-TestScope cell-ceilings` bestand auf Linux2019/latest
