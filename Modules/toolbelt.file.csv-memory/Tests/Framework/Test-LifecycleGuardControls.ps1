@@ -574,4 +574,50 @@ foreach($phase in @(2,3,6,7)){
  Check ($directCase.ErrorNumber -eq 55303 -and $directCase.ErrorState -eq 1 -and $directCase.Schema.Count -eq 0 -and $directCase.Rows.Count -eq 0)
 }
 foreach($phase in @(-1,8)){$caught=$false;try{Get-CsvDirectSelectCase $phase|Out-Null}catch{$caught=$true};Check $caught}
+# Tatsächliche Pin-/Deadlinefunktionen verwenden, niemals den Adapterkörper.
+foreach($name in @('Add-CsvDirectSelectPin','Assert-CsvPins','Assert-CsvReadBudget')){
+ $definitions=@($driverTree.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq $name},$true))
+ if($definitions.Count -ne 1){throw 'CSV_SELECT_CONTROL_FUNCTION_IDENTITY'}
+ . ([scriptblock]::Create($definitions[0].Extent.Text))
+}
+$directControlRoot=Join-Path ([IO.Path]::GetTempPath()) ('ToolbeltCsvSynthetic_'+[guid]::NewGuid().ToString('N'))
+$directControlFolder=Join-Path $directControlRoot 'Tests/Framework'
+$directControlFile=Join-Path $directControlFolder 'CsvDirectSelect.Helpers.ps1'
+[void][IO.Directory]::CreateDirectory($directControlFolder)
+try{
+ [IO.File]::WriteAllText($directControlFile,'synthetic before')
+ $script:freeze=@{};$directBound=Add-CsvDirectSelectPin $directControlRoot
+ Check ($directBound -ceq $directControlFile -and $script:freeze.ContainsKey($directControlFile))
+ $caught=$false;try{Assert-CsvPins}catch{$caught=$true};Check (-not $caught)
+ [IO.File]::WriteAllText($directControlFile,'synthetic after')
+ $TestScope='select-output-ceilings'
+ foreach($marker in @('$passed=Invoke-CsvDirectSelectPhase','$rows=@([pscustomobject]@{Fixture=$expansion.Fixture;CasesPassed=[int]$directCases})')){
+  $nodes=@($driverTree.FindAll({param($n)$n -is [Management.Automation.Language.IfStatementAst] -and $n.Extent.Text.StartsWith("if(`$TestScope -ceq 'select-output-ceilings'){") -and $n.Extent.Text.Contains($marker)},$true))
+  if($nodes.Count -ne 1){throw 'CSV_SELECT_PIN_CONTROL_IDENTITY'}
+  $caught=$false;try{& ([scriptblock]::Create($nodes[0].Extent.Text))}catch{$caught=$_.Exception.Message -ceq 'CSV_SOURCE_PIN_CHANGED'};Check $caught
+ }
+}finally{
+ Remove-Item -LiteralPath $directControlFile
+ Remove-Item -LiteralPath $directControlFolder
+ Remove-Item -LiteralPath (Join-Path $directControlRoot 'Tests')
+ Remove-Item -LiteralPath $directControlRoot
+}
+$directConnectionFake=[pscustomobject]@{}
+$directConnectionFake|Add-Member ScriptMethod CreateCommand {$script:directCreates++;return $script:directCommandFake}
+$script:directReaderFake=[pscustomobject]@{FieldCount=0}
+$script:directReaderFake|Add-Member ScriptMethod Read {if($script:directScenario -ceq 'read-timeout'){$script:scopeClock.ElapsedMilliseconds=959001L;return $true};return $false}
+$script:directReaderFake|Add-Member ScriptMethod NextResult {return $false}
+$script:directReaderFake|Add-Member ScriptMethod Dispose {$script:directReaderDisposes++;if($script:directScenario -ceq 'reader-dispose'){throw 'CSV_SYNTHETIC_READER_DISPOSE'}}
+$script:directCommandFake=[pscustomobject]@{CommandTimeout=0;CommandText=''}
+$script:directCommandFake|Add-Member ScriptMethod ExecuteReader {return $script:directReaderFake}
+$script:directCommandFake|Add-Member ScriptMethod Cancel {$script:directCancels++}
+$script:directCommandFake|Add-Member ScriptMethod Dispose {$script:directCommandDisposes++}
+foreach($directScenario in @('initial-timeout','reader-dispose','read-timeout')){
+ $script:directScenario=$directScenario;$script:directCreates=0;$script:directReaderDisposes=0;$script:directCommandDisposes=0;$script:directCancels=0
+ $script:cleanupPhase=$false;$script:scopeClock.ElapsedMilliseconds=if($directScenario -ceq 'initial-timeout'){959001L}else{0L}
+ $caught=$false;try{Invoke-CsvDirectSelectPhase $directConnectionFake 'synthetic only' 0|Out-Null}catch{$caught=$true};Check $caught
+ if($directScenario -ceq 'initial-timeout'){Check ($script:directCreates -eq 0 -and $script:directCommandDisposes -eq 0)}
+ else{Check ($script:directCreates -eq 1 -and $script:directReaderDisposes -eq 1 -and $script:directCommandDisposes -eq 1)}
+ if($directScenario -ceq 'read-timeout'){Check ($script:directCancels -eq 1)}
+}
 Write-Output ('PASS CSV_GUARD_ORACLE_CONTROLS CHECKS='+$checks+' SYNTHETIC_ONLY')

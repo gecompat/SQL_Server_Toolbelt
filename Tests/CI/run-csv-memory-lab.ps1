@@ -305,6 +305,12 @@ function Assert-CsvDisposition($Control){
  }
 }
 
+function Add-CsvDirectSelectPin([string]$Module){
+ $path=Join-Path $Module 'Tests/Framework/CsvDirectSelect.Helpers.ps1'
+ $script:freeze[$path]=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
+ return $path
+}
+
 function Assert-CsvPins {
  foreach($path in $script:freeze.Keys){
   if((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -cne $script:freeze[$path]){throw 'CSV_SOURCE_PIN_CHANGED'}
@@ -374,6 +380,7 @@ try{
   $manifest.permissionSet -cne 'SAFE' -or $manifest.sqlServerHexLiteral -cne ('0x'+$hash)){throw 'CSV_ARTIFACT_PIN'}
  $artifact=[pscustomobject]@{Label='current';Hash=$hash;Bits='0x'+[Convert]::ToHexString($binary)}
  $script:freeze=@{}
+ $directSelectPath=Add-CsvDirectSelectPin $module
  foreach($path in @($PSCommandPath,$helperPath,$lifecyclePath,$prompt,$binaryPath,$manifestPath,$contracts[0].Path,$contracts[0].SchemaPath)){$script:freeze[$path]=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash}
  $requiredFiles=@(Get-ChildItem -LiteralPath (Join-Path $module 'Clr') -File -Recurse | Where-Object {$_.Extension -in @('.cs','.csproj') -and $_.FullName -notmatch '[\\/](bin|obj)[\\/]'})
  foreach($directory in @('Source','Deployment')){$requiredFiles+=@(Get-ChildItem -LiteralPath (Join-Path $module $directory) -File -Filter '*.sql')}
@@ -466,12 +473,14 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
      $expansionBatches=@([regex]::Split($expansionSql,'(?im)^\s*GO\s*(?:--[^\r\n]*)?$')|Where-Object {-not [string]::IsNullOrWhiteSpace($_)})
      if($expansionBatches.Count -ne 8){throw 'CSV_EXPANSION_PHASES_REQUIRED'}
      $directCases=0
-     if($TestScope -ceq 'select-output-ceilings'){. (Join-Path $module 'Tests/Framework/CsvDirectSelect.Helpers.ps1')}
+     if($TestScope -ceq 'select-output-ceilings'){. $directSelectPath}
      for($phase=0;$phase -lt 8;$phase++){
       $stage=$expansion.Stage+'_'+$mode+'_'+($phase+1);Write-Output ('RUNNING: '+$stage)
       if($TestScope -ceq 'select-output-ceilings'){
+       Assert-CsvPins
        $passed=Invoke-CsvDirectSelectPhase $connection $expansionBatches[$phase] $phase
        if($passed -isnot [int] -or $passed -ne 1){throw 'CSV_SELECT_PHASE_COMPLETION_REQUIRED'}
+       Assert-CsvPins
        $directCases+=$passed
       }else{
        $rows=@(Invoke-CsvSql $connection $expansionBatches[$phase] -Rows -MaximumTimeout 300)
@@ -479,6 +488,7 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
       }
      }
      if($TestScope -ceq 'select-output-ceilings'){
+      Assert-CsvPins
       $rows=@([pscustomobject]@{Fixture=$expansion.Fixture;CasesPassed=[int]$directCases})
      }
      $ledger.ExpansionCasesPassed+=Get-CsvShapeCeilingCount $rows -ExpectedFixture $expansion.Fixture

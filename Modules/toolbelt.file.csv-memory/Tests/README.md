@@ -10,7 +10,7 @@ andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
 Acht Readerphasen je Modus: vier vollständige direkte Resultsets und vier erwartete55303/state1-Abweisungen ohne partielle Ausgabe. Der Adapter prüft Feldnamen, Reihenfolge, SQL-/CLR-Typen und vollständige Inhalte; Writerquellen werden unabhängig gesetzt und vollständig erhalten. Jede Phase bestätigt exakt einen Erfolgspunkt; typisierter Abschluss erst nach allen acht Punkten.
 Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
-Cleanupreserve bleiben erhalten. 972 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+Cleanupreserve bleiben erhalten. 983 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
 
 Native Abnahme und unabhängiger Review für 'select-output-ceilings' sind offen.
 

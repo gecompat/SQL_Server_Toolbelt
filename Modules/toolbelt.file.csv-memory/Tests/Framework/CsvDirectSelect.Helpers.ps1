@@ -46,9 +46,10 @@ function Assert-CsvDirectSelectRows {
 function Invoke-CsvDirectSelectPhase {
  param($Connection,[string]$Sql,[ValidateRange(0,7)][int]$Phase)
  $expected=Get-CsvDirectSelectCase $Phase
- $command=$Connection.CreateCommand();$command.CommandTimeout=Get-CsvCommandTimeout -Maximum 300;$command.CommandText=$Sql
- $reader=$null;$sets=0;$schema=@();$rows=[Collections.Generic.List[object]]::new();$caughtExpected=$false
+ $timeout=Get-CsvCommandTimeout -Maximum 300
+ $command=$null;$reader=$null;$sets=0;$schema=@();$rows=[Collections.Generic.List[object]]::new();$caughtExpected=$false
  try{
+  $command=$Connection.CreateCommand();$command.CommandTimeout=$timeout;$command.CommandText=$Sql
   $reader=$command.ExecuteReader()
   do{
    Assert-CsvReadBudget $command
@@ -72,8 +73,8 @@ function Invoke-CsvDirectSelectPhase {
   if($sets -ne 0 -or $rows.Count -ne 0){throw 'CSV_SELECT_ERROR_AFTER_RESULT'}
   $caughtExpected=$true
  }finally{
-  if($null -ne $reader){$reader.Dispose()}
-  $command.Dispose()
+  try{if($null -ne $reader){$reader.Dispose()}}
+  finally{if($null -ne $command){$command.Dispose()}}
  }
  if($expected.ErrorNumber -ne 0){
   if(-not $caughtExpected){throw 'CSV_SELECT_EXPECTED_ERROR_MISSING'}
