@@ -4,6 +4,38 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Falsche Schemamarkerwerte 2026-10-21
+
+Der getrennte Scope `-TestScope schema-values` bestand auf Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
+im ersten Versuch local/central. Vier einzelne Änderungen am eigenen
+`toolbelt_file`-Schema: Managed-int von 1 auf 0 sowie die Kategorie `file`
+auf `json`, `FILE` und `file ` mit abschließendem Leerzeichen. Deploy und
+Uninstall lieferten SQL55324/state1: acht Abweisungen je Modus, 16 je Ziel.
+
+Die neue geschlossene Markerfamilie verwendet den vorhandenen typisierten
+Übergangsschutz auch für die Schemaklasse. Basistyp, deklarierte Bytelänge,
+tatsächliche DATALENGTH und Wertbytes sind vor Mutation und Restaurierung
+exakt gebunden. Mehrere Fälle derselben Property bleiben anhand ihres
+geschlossenen Mutationswerts eindeutig. Erfasster Zustand und neutrale
+Sitzung blieben nach jeder Abweisung erhalten; die Baseline wurde nach
+jedem Fall exakt restauriert. Keine Schema-/Objektowneränderung.
+
+Die separate Linuxregression `marker-values` bestand local/central mit
+100 Abweisungen für bisherige Objekt-/Assembly-/Datenbankwerte. Alle drei
+Läufe Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr;
+je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend,
+Konfiguration und eingefrorene Runtimeinputs unverändert. 451 synthetische
+Offlinekontrollen einschließlich geschlossener Deskriptoren, inverser
+Schemaübergänge und blockierter Restaurierung bei Drift bestanden. Alle
+156 expandierten Änderungs-/Restaurierungsbatches der drei Markerfamilien
+in beiden Modi SQL150-Grammatik sowie AST/Static PASS.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert;
+vorhandenes Releasepaket an manifestierte Quellen/exakte Binarybytes gebunden.
+Kein neuer lokaler Build-/Frameworklauf oder neuer Default-Gesamtadapter-/
+API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierter TLS-/Releasenachweis.
+
 ## Fremde SQL-TVFs auf reservierten Namen 2026-10-21
 
 Der getrennte Scope `-TestScope foreign-table-functions` bestand auf

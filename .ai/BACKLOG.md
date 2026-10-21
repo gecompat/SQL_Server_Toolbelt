@@ -2139,6 +2139,25 @@ keine neue API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/TLS-/Releaseabnahme.
 `partially validated`, `unreleased`; historische Fehlläufe bleiben erhalten.
 Die nachfolgende ausgewählte Welle betrifft falsche Schemamarkerwerte.
 
+Nach PR353, 2026-10-21: Die direkt gestartete Schemamarkerwelle bestand auf
+Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem
+CU-Äquivalent jeweils im ersten Versuch local/central. Vier einzelne
+Änderungen am eigenen Schema: Managed-int 1→0 sowie Kategorie file→json,
+FILE und file mit abschließendem Leerzeichen; je Deploy/Uninstall
+SQL55324/state1, 16 Abweisungen je Ziel. Geschlossene Mutationdeskriptoren,
+exakte Basistyp-/MaxLength-/DATALENGTH-/Wertbytes vor Mutation/Restaurierung,
+erfasster Zustand und neutrale Sitzung erhalten, Baseline exakt restauriert.
+Separate Linuxregression bisheriger Objekt-/Assembly-/Datenbankmarkerwerte
+local/central mit 100 Abweisungen PASS. Alle drei Läufe Clean/Repeat,
+Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr und frischer
+unabhängiger Audit je zwei eigene DBs/ein eigener Trusthash abwesend;
+Konfiguration/Runtimeinputs unverändert. 451 Offlinekontrollen, 156
+expandierte SQL150-Übergänge und AST/Static PASS. Produkt-/Deployment-/CLR-/
+Snapshotquellen und Workflow unverändert; keine Rechte-/Owneränderung oder
+neue Gesamt-/Vollmatrix-/Minimalrechte-/Heap-/TLS-/Releaseabnahme.
+`partially validated`, `unreleased`. Anschließend sind skalare Rückgabelängen
+und die noch offene Parser-RowKind-Länge als nächste begrenzte Welle ausgewählt.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte
