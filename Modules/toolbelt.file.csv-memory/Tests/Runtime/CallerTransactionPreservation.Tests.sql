@@ -308,4 +308,3 @@ DROP TABLE #CsvTxnSource;
 DROP TABLE #CsvTxnCells;
 DROP TABLE #CsvTxnBaseline;
 SELECT CONVERT(nvarchar(32),N'CSV_CALLER_TRANSACTION_GUARDS') Fixture,CONVERT(int,@Cases) CasesPassed;
-
