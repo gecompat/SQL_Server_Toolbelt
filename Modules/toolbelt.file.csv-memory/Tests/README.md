@@ -4,6 +4,41 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Tatsächliche Input-/Outputtextdecken 2026-10-21
+
+Der getrennte Scope `-TestScope text-ceilings` enthält acht gezählte Phasen
+je Modus: Parserinput und Writerausgabe jeweils genau16777216 UTF16-Bytes
+(16MiB) und das kleinste darstellbare Darüber16777218 Bytes. Unquotierte und
+quotierte Texte werden getrennt geprüft; Quotes und alle LF gehören zum
+jeweiligen Budget. Die unquotierte Writerausgabe umfasst zwei Records, damit
+auch beim Übergrenzfall die globale Quellwertcharge strikt unter16MiB bleibt.
+Die quotierte Writerquelle beginnt mit einem Separator und benötigt daher
+zwei Quotes; ihre Wertcharge bleibt ebenfalls strikt unter der Wertdecke.
+
+Alle übrigen Budgets sind nicht bindend. Vollständige Wert-/Outputbytes,
+DataRows/ColumnCount und Quell-/vorheriger Zielinhalt werden geprüft.
+Übergrenzfälle erwarten ausschließlich SQL55303/state1. Acht getrennte
+SQLphasen geben erst nach allen Assertions einen typisierten Abschluss aus;
+der Adapter verlangt acht Fälle je Modus und null fremde Funktions-/Guard-/
+Lifecyclezähler. Pro Phase maximal300 Sekunden innerhalb der unveränderten
+Arbeits-/Gesamtdeadline und Cleanupreserve. 591 synthetische Offlinekontrollen,
+acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem
+CU-Äquivalent bestanden jeweils im ersten Versuch local/central:16 Fälle je
+Ziel einschließlich acht SQL55303/state1-Abweisungen, Clean/Repeat und
+Uninstall/Repeat. Je Exit0/vollständige Kanäle/leeres Stderr; frischer separater
+Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Rechte und
+eingefrorene Eingaben unverändert. Unabhängiger Quell-/Orakelreview vor den
+nativen Läufen ohne Findings; gleicher ausführbarer Kandidat. Nachgepflegt
+werden ausschließlich gekoppelte Manifest-/Evidenz-/Dokumentationsdateien.
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert.
+Vorhandenes quellengebundenes Paket
+mit gleichen CLR-Bytes; kein neuer lokaler Build-/Frameworklauf. Der Scope
+belegt keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze: Wert-/Output-
+budgets sind gekoppelt. Neue Default-/Clientabnahme, Heap, Minimalrechte,
+Gesamtmatrix, authentifiziertes TLS und Release bleiben nicht ausgeführt.
+
 ## Tatsächliche Gesamtzelldecke 2026-10-21
 
 Der getrennte Scope `-TestScope cell-ceilings` bestand auf Linux2019/latest
@@ -953,7 +988,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-21`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope cell-ceilings`
-- Scope: Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster Versuch local/central PASS: acht gezählte Fälle je Modus,16 je Ziel, darunter je acht SQL55303/state1-Abweisungen. Parser/Writer genau1000000 Zellen im Raster1000x1000 sowie gültiges Rechteck9901x101 mit genau1000001 Zellen, ohne/mit Header; übrige Budgets nicht bindend. Vollständige Raster-/Wert-/Textbyteorakel und unabhängige Writer-Übergrenzquelle, exakte Ausgabemetadaten und Quell-/Zielerhalt. Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Rechte/Runtimeinputs unverändert. 559 Offlinekontrollen, acht SQL150-Fixturephasen und AST/Static PASS. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; vorhandenes Paket an manifestierte Quellen/exakte Binarybytes gebunden, kein neuer lokaler Build-/Frameworklauf. Keine neue Default-/Clientabnahme, Textvollgrenze, Heap-, Minimalrechte-, Gesamtmatrix-, authentifizierte TLS- oder Releasequalifikation.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope text-ceilings`
+- Scope: Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster Versuch local/central PASS: acht gezählte Fälle je Modus,16 je Ziel einschließlich acht SQL55303/state1-Abweisungen. Parserinput/Writerausgabe genau16777216 UTF16-Bytes und kleinstes tatsächliches Darüber16777218 Bytes, unquotiert/quotiert; sämtliche LF/Quotes mitgezählt. Unquotierter Writer mit zwei Records, beide Writer-Übergrenzquellen strikt unter der separaten globalen Wertdecke; übrige Budgets nicht bindend. Vollständige Wert-/Outputbytes, DataRows/ColumnCount und Quell-/vorheriger Zielerhalt. Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Rechte/Runtimeinputs unverändert. Unabhängiger Quell-/Orakelreview vor nativen Läufen ohne Findings, identische ausführbare Pins; danach ausschließlich gekoppelte Manifest-/Evidenz-/Dokumentationsdateien. 591 Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static PASS. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert, quellengebundenes Paket/exakte CLRbytes wiederverwendet; kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Clientabnahme, Heap-, Minimalrechte-, Gesamtmatrix-, authentifizierte TLS- oder Releasequalifikation.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

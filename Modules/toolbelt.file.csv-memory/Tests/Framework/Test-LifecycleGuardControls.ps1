@@ -17,8 +17,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings','shape-ceilings-and-default','cell-ceilings')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION','BINDING-RETURN-LENGTHS','SHAPE-CEILINGS','SHAPE-CEILINGS-AND-DEFAULT','CELL-CEILINGS')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings','shape-ceilings-and-default','cell-ceilings','text-ceilings')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION','BINDING-RETURN-LENGTHS','SHAPE-CEILINGS','SHAPE-CEILINGS-AND-DEFAULT','CELL-CEILINGS','TEXT-CEILINGS')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -102,6 +102,34 @@ foreach($selection in @(@{Modes=@('local')},@{Modes=@('central')},@{Modes=@('loc
  foreach($field in @('CellCeilingCasesPassed','ShapeCeilingCasesPassed','GuardCasesPassed','LifecycleCasesPassed')){
   $ledger=$baseline.PSObject.Copy();$ledger.$field++
   $caught=$false;try{& $checkCellCompletion}catch{$caught=$true};Check $caught
+ }
+}
+$textRow=[pscustomobject]@{Fixture='CSV_TEXT_CEILINGS';CasesPassed=[int]8}
+Check ((Get-CsvShapeCeilingCount @($textRow) -ExpectedFixture 'CSV_TEXT_CEILINGS') -eq 8)
+foreach($bad in @(
+ @{Rows=@($textRow)},@{Rows=@($textRow);ExpectedFixture='CSV_CELL_CEILINGS'},
+ @{Rows=@($shapeRow);ExpectedFixture='CSV_TEXT_CEILINGS'},@{Rows=@($cellRow);ExpectedFixture='CSV_TEXT_CEILINGS'},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_TEXT_CEILINGS';CasesPassed=[int]7});ExpectedFixture='CSV_TEXT_CEILINGS'},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_TEXT_CEILINGS';CasesPassed=[int]9});ExpectedFixture='CSV_TEXT_CEILINGS'},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_TEXT_CEILINGS';CasesPassed='8'});ExpectedFixture='CSV_TEXT_CEILINGS'},
+ @{Rows=@([pscustomobject]@{Fixture='csv_text_ceilings';CasesPassed=[int]8});ExpectedFixture='CSV_TEXT_CEILINGS'},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_TEXT_CEILINGS ';CasesPassed=[int]8});ExpectedFixture='CSV_TEXT_CEILINGS'},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_TEXT_CEILINGS'});ExpectedFixture='CSV_TEXT_CEILINGS'},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_TEXT_CEILINGS';CasesPassed=[int]8;Unexpected=1});ExpectedFixture='CSV_TEXT_CEILINGS'}
+)){
+ $caught=$false;try{Get-CsvShapeCeilingCount @bad|Out-Null}catch{$caught=$true};Check $caught
+}
+$textCompletionNodes=@($driverTree.FindAll({param($n)$n -is [Management.Automation.Language.IfStatementAst] -and $n.Extent.Text.StartsWith("if(`$TestScope -ceq 'text-ceilings')") -and $n.Extent.Text.Contains('CSV_TEXT_COMPLETENESS_REQUIRED')},$true))
+if($textCompletionNodes.Count -ne 1){throw 'CSV_TEXT_COMPLETENESS_IDENTITY'}
+$checkTextCompletion=[scriptblock]::Create($textCompletionNodes[0].Extent.Text)
+$TestScope='text-ceilings'
+foreach($selection in @(@{Modes=@('local')},@{Modes=@('central')},@{Modes=@('local','central')})){
+ $DeploymentModes=$selection.Modes
+ $baseline=[pscustomobject]@{TextCeilingCasesPassed=8*$DeploymentModes.Count;CellCeilingCasesPassed=0;ShapeCeilingCasesPassed=0;GuardCasesPassed=0;LifecycleCasesPassed=0}
+ $ledger=$baseline.PSObject.Copy();$caught=$false;try{& $checkTextCompletion}catch{$caught=$true};Check (-not $caught)
+ foreach($field in @('TextCeilingCasesPassed','CellCeilingCasesPassed','ShapeCeilingCasesPassed','GuardCasesPassed','LifecycleCasesPassed')){
+  $ledger=$baseline.PSObject.Copy();$ledger.$field++
+  $caught=$false;try{& $checkTextCompletion}catch{$caught=$true};Check $caught
  }
 }
 $slots=@(Get-CsvForeignSlotNames)
