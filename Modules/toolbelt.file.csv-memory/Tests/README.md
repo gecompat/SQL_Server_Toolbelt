@@ -4,6 +4,35 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Tatsächliche Gesamtzelldecke 2026-10-21
+
+Der getrennte Scope `-TestScope cell-ceilings` bestand auf Linux2019/latest
+CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
+im ersten Versuch local/central: acht gezählte Fälle je Modus, 16 je Ziel.
+Parser und Writer akzeptieren genau1000000 Zellen im Raster1000×1000,
+ohne sowie mit Header. Das gültige Rechteck9901×101 enthält genau1000001
+Zellen und wird von beiden mit SQL55303/state1 abgewiesen, vier Abweisungen
+je Modus und acht je Ziel. Zeilen-/Spalten-/Textbudgets bleiben dabei unter
+ihren Grenzen; Headerzellen zählen zur Gesamtzelldecke.
+
+Primärschlüssel und vollständige Bereichs-/Anzahl-/Wertbyteorakel belegen das
+Raster. Die Writer-Übergrenzquelle entsteht unabhängig vom Parser. Exakte
+Ausgabebytes, DataRows/ColumnCount, unveränderte Writerquelle und vorheriger
+Zielinhalt nach Abweisung sind geprüft. Acht getrennte SQLphasen liefern erst
+nach allen Assertions einen typisierten Abschlusswitness; der Adapter zählt
+keine Guard-/Lifecyclefälle als Funktionsfälle. Je Phase maximal300 Sekunden,
+weiterhin begrenzt durch die unveränderte Arbeits-/Gesamtdeadline und Cleanupreserve.
+
+Beide Läufe Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres
+Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash
+abwesend. Konfiguration/Rechte und eingefrorene ausführbare Eingaben unverändert.
+559 Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert;
+vorhandenes Paket an manifestierte Quellen/exakte Binarybytes gebunden,
+kein neuer lokaler Build-/Frameworklauf. Keine neue Default-/Clientabnahme,
+Textvollgrenze, Heap-, Minimalrechte-, Gesamtmatrix-, authentifizierte TLS-
+oder Releasequalifikation. Status `partially validated`, `unreleased`.
+
 ## Korrigierter Writer an tatsächlichen Formgrenzen 2026-10-21
 
 Nach der ausdrücklich freigegebenen begrenzten Erweiterung wurde der eigene
@@ -924,7 +953,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-21`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope shape-ceilings-and-default`
-- Scope: Abschließender gleicher korrigierter Writerkandidat auf Linux2019/latest CL150 nach ausdrücklich zusätzlicher Freigabe local/central PASS:16 Formgrenzfälle einschließlich acht SQL55303/state1-Abweisungen, exakt100000 DATA-Records/1024 Spalten und echte+1-Fehler, vollständige Wert-/Ordinal-/Textbytes und Quell-/Zielerhalt. Im selben Aufruf sämtliche drei Default-SQLfixtures/Client/frischer SC-/UTF8-Consumer/29 Lifecyclefälle/CleanRepeat/UninstallRepeat PASS. Exit0/vollständige Kanäle/leeres Stderr; frischer Audit drei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Rechte/Runtimeinputs unverändert. Vorheriger gleicher Windows2025/base CL170-Kandidat mit erlaubtem bereitem CU-Äquivalent PASS bleibt separat erhalten. Beide finalen Pins nur nachgepflegte gekoppelte Evidenz/Manifest/Dokumentation, keine ausführbare Drift;535 Offlinekontrollen/SQL150/AST/Static/inkrementeller Dokumentationsvalidator PASS. Unabhängiger Abschlussreview ohne semantische Findings; einziges generiertes Katalogfingerprintfinding mit Generatornachtrag/Validator geschlossen. Exakte gleiche CLRbytes, neu gebundene SQLquellen; kein neuer lokaler Build-/Frameworklauf. Frühere vier Grenz-FAILs/drei Diagnoseaufrufe bleiben getrennt, kein Reset. Keine tatsächliche Zell-/Textvollgrenze, Heap-, Minimalrechte-, Gesamtmatrix-, authentifizierte TLS- oder Releaseabnahme.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope cell-ceilings`
+- Scope: Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster Versuch local/central PASS: acht gezählte Fälle je Modus,16 je Ziel, darunter je acht SQL55303/state1-Abweisungen. Parser/Writer genau1000000 Zellen im Raster1000x1000 sowie gültiges Rechteck9901x101 mit genau1000001 Zellen, ohne/mit Header; übrige Budgets nicht bindend. Vollständige Raster-/Wert-/Textbyteorakel und unabhängige Writer-Übergrenzquelle, exakte Ausgabemetadaten und Quell-/Zielerhalt. Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Rechte/Runtimeinputs unverändert. 559 Offlinekontrollen, acht SQL150-Fixturephasen und AST/Static PASS. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; vorhandenes Paket an manifestierte Quellen/exakte Binarybytes gebunden, kein neuer lokaler Build-/Frameworklauf. Keine neue Default-/Clientabnahme, Textvollgrenze, Heap-, Minimalrechte-, Gesamtmatrix-, authentifizierte TLS- oder Releasequalifikation.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
