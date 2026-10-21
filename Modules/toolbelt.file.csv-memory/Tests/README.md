@@ -4,6 +4,20 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Unicode an vollständigen UTF16-Textdecken 2026-10-21
+
+'-TestScope unicode-text-ceilings': Parserinput/Writerausgabe genau16777216 UTF16-Bytes und kleinstes tatsächliches Darüber16777218 Bytes:4194303 gültige Surrogatpaare mit CRLF sowie separatorbedingt quotierter BMP-Text mit CRLF. Synthetische Codeeinheiten werden aus festen UTF16-Binärliteralen aufgebaut und vollständig bytegenau verglichen. Kein UTF8-/Unicode-Scalar-Zähler; Quotehüllen/CRLF vollständig mitgezählt, globale Writerwertcharge auch beim Übergrenzfall strikt unter16MiB.
+
+Acht gezählte Phasen je Modus; SQL55303/state1 ausschließlich für vier
+Übergrenzfälle je Modus. Vollständige Werte/Outputbytes, DataRows/ColumnCount,
+unabhängig gesetzte Writer-Übergrenzquellen und Quell-/vorheriger Zielerhalt.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 786 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'unicode-text-ceilings' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ## Header an vollständigen Textdecken 2026-10-21
 
 '-TestScope header-text-ceilings': Parserinput/Writerausgabe genau16777216 UTF16-Bytes und kleinstes tatsächliches Darüber16777218 Bytes mit vollständigem Header und einem DATArecord. Unquotierter128-Zeichen-Header mit LF sowie separatorhaltiger quotierter Header und DATAwert mit CRLF; Headerwerte, Quotehüllen und sämtliche Recordabschlüsse zählen. Globale Writerwertcharge aus HEADER und DATA strikt unter16MiB, übrige Budgets nicht bindend; vollständige HEADER=0/DATA=1-Wert- und Outputmetadatenorakel.
