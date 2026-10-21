@@ -17,8 +17,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings','shape-ceilings-and-default')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION','BINDING-RETURN-LENGTHS','SHAPE-CEILINGS','SHAPE-CEILINGS-AND-DEFAULT')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings','shape-ceilings-and-default','cell-ceilings')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','SCHEMA-VALUES','MARKER-VALUES','BINDING-EXECUTION','BINDING-RETURN-LENGTHS','SHAPE-CEILINGS','SHAPE-CEILINGS-AND-DEFAULT','CELL-CEILINGS')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -37,6 +37,16 @@ if($shapeFunctions.Count -ne 1){throw 'CSV_SHAPE_HELPER_IDENTITY'}
 . ([scriptblock]::Create($shapeFunctions[0].Extent.Text))
 $shapeRow=[pscustomobject]@{Fixture='CSV_SHAPE_CEILINGS';CasesPassed=[int]8}
 Check ((Get-CsvShapeCeilingCount @($shapeRow)) -eq 8)
+$cellRow=[pscustomobject]@{Fixture='CSV_CELL_CEILINGS';CasesPassed=[int]8}
+Check ((Get-CsvShapeCeilingCount @($cellRow) -ExpectedFixture 'CSV_CELL_CEILINGS') -eq 8)
+foreach($bad in @(
+ @{Rows=@($cellRow)},@{Rows=@($shapeRow);ExpectedFixture='CSV_CELL_CEILINGS'},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_CELL_CEILINGS';CasesPassed=[int]7});ExpectedFixture='CSV_CELL_CEILINGS'},
+ @{Rows=@([pscustomobject]@{Fixture='CSV_CELL_CEILINGS';CasesPassed=[int]9});ExpectedFixture='CSV_CELL_CEILINGS'},
+ @{Rows=@($cellRow);ExpectedFixture='csv_cell_ceilings'},@{Rows=@($cellRow);ExpectedFixture='UNKNOWN'}
+)){
+ $caught=$false;try{Get-CsvShapeCeilingCount @bad|Out-Null}catch{$caught=$true};Check $caught
+}
 foreach($bad in @(
  @{Rows=@()},@{Rows=@($null)},@{Rows=@($shapeRow,$shapeRow)},
  @{Rows=@([pscustomobject]@{Fixture='CSV_SHAPE_CEILINGS';CasesPassed=[int]7})},
@@ -79,6 +89,19 @@ foreach($TestScope in @('shape-ceilings','shape-ceilings-and-default')){
    $ledger=$baseline.PSObject.Copy();$ledger.$field++
    $caught=$false;try{& $checkCompletion}catch{$caught=$true};Check $caught
   }
+ }
+}
+$cellCompletionNodes=@($driverTree.FindAll({param($n)$n -is [Management.Automation.Language.IfStatementAst] -and $n.Extent.Text.StartsWith("if(`$TestScope -ceq 'cell-ceilings')") -and $n.Extent.Text.Contains('CSV_CELL_COMPLETENESS_REQUIRED')},$true))
+if($cellCompletionNodes.Count -ne 1){throw 'CSV_CELL_COMPLETENESS_IDENTITY'}
+$checkCellCompletion=[scriptblock]::Create($cellCompletionNodes[0].Extent.Text)
+$TestScope='cell-ceilings'
+foreach($selection in @(@{Modes=@('local')},@{Modes=@('central')},@{Modes=@('local','central')})){
+ $DeploymentModes=$selection.Modes
+ $baseline=[pscustomobject]@{CellCeilingCasesPassed=8*$DeploymentModes.Count;ShapeCeilingCasesPassed=0;GuardCasesPassed=0;LifecycleCasesPassed=0}
+ $ledger=$baseline.PSObject.Copy();$caught=$false;try{& $checkCellCompletion}catch{$caught=$true};Check (-not $caught)
+ foreach($field in @('CellCeilingCasesPassed','ShapeCeilingCasesPassed','GuardCasesPassed','LifecycleCasesPassed')){
+  $ledger=$baseline.PSObject.Copy();$ledger.$field++
+  $caught=$false;try{& $checkCellCompletion}catch{$caught=$true};Check $caught
  }
 }
 $slots=@(Get-CsvForeignSlotNames)

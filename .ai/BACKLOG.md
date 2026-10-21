@@ -2245,6 +2245,19 @@ Generatornachtrag/Validator geschlossen. Keine neue Funktion, Heap-/Zell-/
 Textvollgrenze, vollständige Matrix, Minimalrechte, authentifiziertes TLS oder
 Veröffentlichung. Gemeinsames Ledger ohne Reset fortgesetzt.
 
+2026-10-21: Die ausdrücklich autorisierte fortlaufende CSV-Memory-Qualifikation
+wurde nach Abschluss der Formgrenzen mit `cell-ceilings` tatsächlich fortgesetzt.
+Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem
+CU-Äquivalent jeweils erster Versuch local/central PASS: je16 Fälle, genau1000000
+Zellen sowie gültiges Rechteck mit1000001 Zellen, Parser/Writer ohne/mit Header;
+je acht erwartete SQL55303/state1-Abweisungen, vollständige Raster-/Wert-/
+Textbytes und Quell-/Zielerhalt. Je frischer Audit zwei eigene DBs/ein eigener
+Trusthash abwesend, Konfiguration/Rechte/Inputs unverändert. 559 Offlinekontrollen,
+acht SQL150-Phasen/AST/Static bestanden. Produkt/CLR/Deployment/Snapshots/Workflow
+unverändert; keine neue Funktion, Textvollgrenze, Default-/Client-/Heap-/
+Minimalrechte-/Gesamtmatrix-/authentifizierte TLS- oder Releaseabnahme.
+Gemeinsamer endlicher Kampagnenscope ohne Budgetreset fortgesetzt.
+
 ### Queue-Worker 2 – autonome Umsetzung freigegeben 2026-10-04
 
 Nach Besprechung von Zweck, Verträgen, Alternativen und Risiken beauftragte
