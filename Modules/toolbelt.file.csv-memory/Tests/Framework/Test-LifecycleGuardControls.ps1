@@ -17,8 +17,8 @@ if($parseErrors.Count){throw 'CSV_GUARD_PARAMETER_PARSE'}
 $parameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'TestScope'})
 if($parameters.Count -ne 1){throw 'CSV_GUARD_PARAMETER_IDENTITY'}
 $validateScope=[scriptblock]::Create('param('+$parameters[0].Extent.Text+') $TestScope')
-foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','binding-drift','binding-defaults','named-consumers','marker-values','binding-execution')){Check ((& $validateScope -TestScope $value) -ceq $value)}
-foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','MARKER-VALUES','BINDING-EXECUTION')){
+foreach($value in @('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','marker-values','binding-execution')){Check ((& $validateScope -TestScope $value) -ceq $value)}
+foreach($value in @('DEFAULT','OWNERSHIP-MARKERS','FOREIGN-SLOTS','MARKER-ABSENCE','FOREIGN-KINDS','FOREIGN-ALIASES','FOREIGN-TABLE-FUNCTIONS','BINDING-DRIFT','BINDING-DEFAULTS','NAMED-CONSUMERS','MARKER-VALUES','BINDING-EXECUTION')){
  $caught=$false;try{& $validateScope -TestScope $value|Out-Null}catch{$caught=$true};Check $caught
 }
 $modeParameters=@($driverTree.ParamBlock.Parameters|Where-Object {$_.Name.VariablePath.UserPath -ceq 'DeploymentModes'})
@@ -34,6 +34,19 @@ $caught=$false;try{& $validateModes -DeploymentModes @('unknown')|Out-Null}catch
 $slots=@(Get-CsvForeignSlotNames)
 $kindCases=@(Get-CsvForeignKindCases)
 $aliasCases=@(Get-CsvForeignKindCases 'synonym-function')
+$tableCases=@(Get-CsvForeignKindCases 'table-functions')
+Check ($tableCases.Count -eq 10)
+Check (@($tableCases|ForEach-Object {$_.Name+'|'+$_.Kind}|Sort-Object -Unique).Count -eq 10)
+Check (@($tableCases|Where-Object Kind -CEQ 'IF').Count -eq 5)
+Check (@($tableCases|Where-Object Kind -CEQ 'TF').Count -eq 5)
+foreach($case in $tableCases){$caught=$false;try{Assert-CsvForeignKindCase $case}catch{$caught=$true};Check (-not $caught)}
+$caught=$false;try{Get-CsvForeignKindCases 'TABLE-FUNCTIONS'|Out-Null}catch{$caught=$true};Check $caught
+foreach($original in $tableCases[0..1]){
+ foreach($field in @('Name','Type','Kind','Sql','Read')){
+  $case=$original.PSObject.Copy();$case.$field='invalid'
+  $caught=$false;try{Assert-CsvForeignKindCase $case}catch{$caught=$true};Check $caught
+ }
+}
 Check ($aliasCases.Count -eq 10)
 Check (@($aliasCases|ForEach-Object {$_.Name+'|'+$_.Type}|Sort-Object -Unique).Count -eq 10)
 foreach($case in @($aliasCases)+@((Get-CsvAliasTargetCase))){$caught=$false;try{Assert-CsvForeignKindCase $case}catch{$caught=$true};Check (-not $caught)}
@@ -244,6 +257,7 @@ function Remove-CsvForeignKind($Connection,$Case,$Identity){$script:kindDrops++}
 function Assert-CsvForeignKindWitness($Connection,$Case){
  $script:kindWitnesses++
  if($script:scenario -ceq 'witness-drift' -and $script:kindWitnesses -gt 1){throw 'SYNTHETIC_KIND_WITNESS_CHANGED'}
+ if($script:scenario -ceq 'before-second' -and $script:kindWitnesses -ge 4){throw 'SYNTHETIC_KIND_PRE_SECOND_CHANGED'}
 }
 function Get-CsvSnapshot($Connection){
  $script:snapshots++
@@ -254,12 +268,15 @@ function Get-CsvSnapshot($Connection){
  if($script:scenario -ceq 'unobserved' -and $step -eq 1){return 'clean'}
  if($step -in @(0,3)){return 'clean'};return 'mutated'
 }
-foreach($scenario in @('pass','drop-drift','restore-mismatch','unobserved','witness-drift')){
+foreach($family in @('view-procedure','table-functions')){
+foreach($scenario in @('pass','drop-drift','restore-mismatch','unobserved','witness-drift','before-second')){
  $script:scenario=$scenario;$script:snapshots=0;$script:kindDrops=0;$script:kindWitnesses=0;$script:rejections=0;$caught=$false;$count=0
- try{$count=Invoke-CsvForeignKindGuards $null 'synthetic-deploy' 'synthetic-uninstall' 'local'}catch{$caught=$true}
+ try{$count=Invoke-CsvForeignKindGuards $null 'synthetic-deploy' 'synthetic-uninstall' 'local' -Family $family}catch{$caught=$true}
  Check ($caught -eq ($scenario -cne 'pass'))
- if($scenario -ceq 'pass'){Check ($count -eq 20 -and $script:kindDrops -eq 10 -and $script:rejections -eq 20)}
+ if($scenario -ceq 'pass'){Check ($count -eq 20 -and $script:kindDrops -eq 10 -and $script:rejections -eq 20 -and $script:kindWitnesses -eq 60)}
  if($scenario -cin @('drop-drift','witness-drift')){Check ($script:kindDrops -eq 0)}
+ if($scenario -ceq 'before-second'){Check ($script:rejections -eq 1 -and $script:kindDrops -eq 0)}
+}
 }
 # Ein gescheiterter Alias-Witness muss seine Diagnose bis zum OwnDB-Cleanup
 # behalten; ein weiterer Target-Cleanup würde hier gezielt anders scheitern.

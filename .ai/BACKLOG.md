@@ -2120,6 +2120,25 @@ Workflowänderung, isolierte NULL-ID-Preflightabnahme, Consumerausführung
 oder neue Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/
 Heap-/authentifizierte TLS-/Releaseabnahme; kein neuer lokaler Build-/Frameworklauf.
 
+Fortlaufender Benutzerauftrag nach PR352, 2026-10-21: Der Benutzer hat den
+30-Minuten-Heartbeat erneut aktiviert und ausdrücklich den autonomen Start
+jeweils weiterer begrenzter CSV-Memory-Wellen beauftragt. Die nächste
+Fremdslotwelle prüft Inline-/Multi-Statement-TVFs auf allen fünf reservierten
+Namen. Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem
+CU-Äquivalent jeweils erster Versuch local/central PASS: je 40 Abweisungen
+SQL55324/state3, erfasste Metadaten und synthetische Ergebniswerte einschließlich
+Padding unverändert, geschützte Fixtureentfernung und exakte Baseline.
+Gemeinsamer Helper prüft den Ergebniswitness jetzt unmittelbar vor jeder
+Operation; separate Linux-View-/Prozedur- und Synonym-/Skalarfunktionsregressionen
+mit je 40 Abweisungen bestanden. Alle vier Läufe Exit0/vollständige Kanäle/
+leeres Stderr, je frischer unabhängiger Audit zwei eigene DBs/ein eigener
+Trusthash abwesend; Konfiguration und Runtimeinputs unverändert.
+423 Offlinekontrollen, 217 expandierte SQL150-Batches sowie AST/Static PASS.
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert;
+keine neue API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/TLS-/Releaseabnahme.
+`partially validated`, `unreleased`; historische Fehlläufe bleiben erhalten.
+Die nachfolgende ausgewählte Welle betrifft falsche Schemamarkerwerte.
+
 Testwartung 2026-10-09 – Quellenstand: Der bestehende CSV-Frameworkrunner ersetzt
 das ganze DLL-Bytearray durch einen festen 64-KiB-Kopierpuffer mit `Int64`-
 Längenbindung, exakter EOF-Prüfung und unveränderten Kopie-/Endpins. Fokussierte

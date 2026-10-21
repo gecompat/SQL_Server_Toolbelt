@@ -4,6 +4,40 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Fremde SQL-TVFs auf reservierten Namen 2026-10-21
+
+Der getrennte Scope `-TestScope foreign-table-functions` bestand auf
+Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem
+CU-Äquivalent jeweils im ersten Versuch local/central. Jeder der fünf
+reservierten CSV-Namen wird einzeln durch eine fremde Inline-TVF (`IF`)
+und eine Multi-Statement-TVF (`TF`) belegt. Deploy und Uninstall müssen
+SQL55324/state3 liefern: 20 Abweisungen je Modus, 40 je Ziel.
+
+Geschlossene Deskriptoren unterscheiden die beiden FUNCTION-Arten über
+ihren tatsächlichen Katalogtyp. Der gemeinsame Helper prüft den eigenen
+typisierten Laufmarker, Objekt-/Erstellungsidentität, erfasste Definitionen
+und Signaturen sowie das unabhängige synthetische Ergebnis einschließlich
+trailing space. Ergebniswitnesses gelten unmittelbar vor/nach jeder
+Abweisung und vor geschütztem Fixture-Drop; anschließend ist die saubere
+Baseline exakt wiederhergestellt. Die zusätzliche Vorabprüfung gilt auch
+für die bisherigen Familien. Deshalb bestanden separate Linuxregressionen
+`foreign-kinds` und `foreign-aliases` mit jeweils 40 Abweisungen local/central.
+
+Alle vier Läufe: Clean/Repeat, Redeploy, Uninstall/Repeat, Exit0, vollständige
+Kanäle und leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein
+eigener Trusthash abwesend, Konfiguration und eingefrorene Runtimeinputs
+unverändert. 423 synthetische Offlinekontrollen einschließlich Witnessdrift
+unmittelbar vor der zweiten Operation mit unterbundener Operation und
+Fixtureentfernung PASS. SQL150-Grammatik aller 217 expandierten Erzeugungs-,
+Lese-, Marker-, Identitäts- und Dropbatches aller drei Familien einschließlich
+Aliastarget sowie PowerShell-AST/Static PASS.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert.
+Das vorhandene Releasepaket bleibt an manifestierte Produktquellen und exakte
+Binarybytes gebunden; kein neuer lokaler Build-/Frameworklauf. Keine neue
+Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/
+authentifizierte TLS-/Releaseabnahme; frühere Fehlläufe bleiben erhalten.
+
 ## Finale benannte SameDB-Verbraucher auf Linux 2026-10-21
 
 Direkt nach Abschluss von PR351 begann die ausgewählte Folgewelle. Der
@@ -717,7 +751,7 @@ Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Log
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-21`
-- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope named-consumers; finale Linuxergänzung nach PR351`
-- Scope: Direkter Start der ausgewählten Folgewelle nach vollständigem PR351-Abschluss. Linux2019/latest CL150 im ersten Versuch local/central mit finalem Assertionstand PASS: fünf benannte Referenzen auf eigene SameDB-Slots, je Deploy/Uninstall SQL55325/state3, zehn Abweisungen pro Modus und 20 insgesamt. Fingerprint sämtlicher erfasster Dependencyzeilen unmittelbar vor/nach jeder Operation und vor geschütztem Fixture-Drop, exakte Zielnamen, zulässige lokale ID-/Namensbindung, typisierte OwnDB-/Fixturemarker und Objekt-/Erstellungsidentitäten; erfasster Zustand/Witness erhalten und Baseline exakt restauriert. Clean/Repeat, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration und eingefrorene Runtimeinputs unverändert. Vorhandenes Releasepaket erneut an alle manifestierten Produktquellen und exakten Binarybytes gebunden; kein neuer lokaler Build-/Frameworklauf. Produkt-/Test-/Deployment-/CLR-/Workflowquellen unverändert. Frühere engere und fehlgeschlagene Läufe bleiben erhalten; keine isolierte NULL-ID-Preflightabnahme, fachliche Consumerausführung oder neue Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
+- Nachweis: `local: Tests/CI/run-csv-memory-lab.ps1 -TestScope foreign-table-functions; foreign-kinds/aliases-Regressionen`
+- Scope: Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster Versuch local/central PASS. Fünf reservierte CSV-Namen einzeln als fremde Inline-TVF und Multi-Statement-TVF, je Deploy/Uninstall SQL55324/state3: 20 Abweisungen je Modus, 40 je Ziel. Geschlossene Deskriptoren mit tatsächlichem IF-/TF-Katalogtyp; typisierter Laufmarker, Objekt-/Erstellungsidentität, erfasste Definitionen/Signaturen und synthetisches Ergebnis einschließlich Padding erhalten, Witness unmittelbar vor/nach jeder Operation sowie vor geschütztem Drop, exakte saubere Baseline. Die gemeinsame zusätzliche Vorabprüfung ist separat durch Linuxregressionen foreign-kinds und foreign-aliases mit je 40 Abweisungen qualifiziert. Alle vier Läufe Clean/Repeat, Redeploy, Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer unabhängiger Audit zwei eigene DBs/ein eigener Trusthash abwesend, Konfiguration/Runtimeinputs unverändert. 423 synthetische Offlinekontrollen einschließlich Drift vor zweiter Operation mit unterbundener Operation/Fixtureentfernung,217 expandierte SQL150-Erzeugungs-/Lese-/Marker-/Identitäts-/Dropbatches aller drei Familien einschließlich Aliastarget und AST/Static PASS. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; vorhandenes Releasepaket an manifestierte Quellen/exakte Binarybytes gebunden, kein neuer lokaler Build-/Frameworklauf. Frühere Fehlläufe bleiben erhalten; keine neue Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
