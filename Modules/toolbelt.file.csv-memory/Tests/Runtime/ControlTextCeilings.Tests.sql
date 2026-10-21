@@ -4,8 +4,8 @@ SET NOCOUNT ON;
 CREATE TABLE #CsvExpansionCells(RowKind varchar(6) COLLATE Latin1_General_100_BIN2 NOT NULL,RowOrdinal bigint NOT NULL,ColumnOrdinal int NOT NULL,[Value] nvarchar(max) COLLATE Latin1_General_100_BIN2 NULL,PRIMARY KEY(RowOrdinal,ColumnOrdinal));
 CREATE TABLE #CsvExpansionOutput(CsvText nvarchar(max) COLLATE Latin1_General_100_BIN2 NOT NULL,DataRows bigint NOT NULL,ColumnCount int NOT NULL);
 CREATE TABLE #CsvExpansionProgress(Id int NOT NULL PRIMARY KEY CHECK(Id BETWEEN 1 AND 8));
--- NUL, getrennte Surrogate und BOM im Wert: Parser genau16MiB.
-DECLARE @V1 nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),0x000000D8780000DCFFFE),1677721)+N'x',
+-- Fuehrender Input-BOM, NUL und getrennte Surrogate: Parser genau16MiB.
+DECLARE @V1 nvarchar(max)=CONVERT(nvarchar(max),0xFFFE)+REPLICATE(CONVERT(nvarchar(max),0x000000D8780000DCFFFE),1677721),
  @Text nvarchar(max);
 SET @Text=@V1+NCHAR(13)+NCHAR(10);
 IF DATALENGTH(@Text)<>16777216 THROW 55396,N'CSV expansion: exakte Inputfixture weicht ab.',1;
@@ -15,8 +15,8 @@ IF (SELECT COUNT_BIG(*) FROM #CsvExpansionCells)<>1
 INSERT #CsvExpansionProgress VALUES(1);
 
 GO
--- NUL, getrennte Surrogate und BOM im Wert: Writer genau16MiB, vollständige Quell-/Zielbytes.
-DECLARE @V1 nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),0x000000D8780000DCFFFE),1677721)+N'x',
+-- Fuehrender Input-BOM, NUL und getrennte Surrogate: Writer genau16MiB, vollständige Quell-/Zielbytes.
+DECLARE @V1 nvarchar(max)=CONVERT(nvarchar(max),0xFFFE)+REPLICATE(CONVERT(nvarchar(max),0x000000D8780000DCFFFE),1677721),
  @ExpectedText nvarchar(max);
 SET @ExpectedText=@V1+NCHAR(13)+NCHAR(10);
 IF DATALENGTH(@ExpectedText)<>16777216 OR (SELECT SUM(CONVERT(bigint,COALESCE(DATALENGTH([Value]),0))) FROM #CsvExpansionCells)>=16777216
@@ -31,9 +31,9 @@ IF (SELECT COUNT_BIG(*) FROM #CsvExpansionOutput)<>1
 INSERT #CsvExpansionProgress VALUES(2);
 
 GO
--- NUL, getrennte Surrogate und BOM im Wert: Parser16MiB+2, vorheriges ResultTable erhalten.
-DECLARE @V1 nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),0x000000D8780000DCFFFE),1677721)+N'x',
- @OverV1 nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),0x000000D8780000DCFFFE),1677721)+N'xx',
+-- Fuehrender Input-BOM, NUL und getrennte Surrogate: Parser16MiB+2, vorheriges ResultTable erhalten.
+DECLARE @V1 nvarchar(max)=CONVERT(nvarchar(max),0xFFFE)+REPLICATE(CONVERT(nvarchar(max),0x000000D8780000DCFFFE),1677721),
+ @OverV1 nvarchar(max)=CONVERT(nvarchar(max),0xFFFE)+REPLICATE(CONVERT(nvarchar(max),0x000000D8780000DCFFFE),1677721)+N'x',
  @Text nvarchar(max),@Caught bit=0;
 SET @Text=@OverV1+NCHAR(13)+NCHAR(10);
 IF DATALENGTH(@Text)<>16777218 THROW 55396,N'CSV expansion: Plus-zwei-Inputfixture weicht ab.',5;
@@ -44,10 +44,10 @@ IF @Caught=0 OR (SELECT COUNT_BIG(*) FROM #CsvExpansionCells)<>1
 INSERT #CsvExpansionProgress VALUES(3);
 
 GO
--- NUL, getrennte Surrogate und BOM im Wert: unabhängig gesetzte Writer-Übergrenzquelle,16MiB+2 Output.
+-- Fuehrender Input-BOM, NUL und getrennte Surrogate: unabhängig gesetzte Writer-Übergrenzquelle,16MiB+2 Output.
 TRUNCATE TABLE #CsvExpansionCells;
-DECLARE @V1 nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),0x000000D8780000DCFFFE),1677721)+N'xx',
- @OldV1 nvarchar(max)=REPLICATE(CONVERT(nvarchar(max),0x000000D8780000DCFFFE),1677721)+N'x',
+DECLARE @V1 nvarchar(max)=CONVERT(nvarchar(max),0xFFFE)+REPLICATE(CONVERT(nvarchar(max),0x000000D8780000DCFFFE),1677721)+N'x',
+ @OldV1 nvarchar(max)=CONVERT(nvarchar(max),0xFFFE)+REPLICATE(CONVERT(nvarchar(max),0x000000D8780000DCFFFE),1677721),
  @ExpectedText nvarchar(max),@OverText nvarchar(max),@Caught bit=0;
 INSERT #CsvExpansionCells(RowKind,RowOrdinal,ColumnOrdinal,[Value]) VALUES('DATA',1,1,@V1);
 SET @ExpectedText=@OldV1+NCHAR(13)+NCHAR(10);
