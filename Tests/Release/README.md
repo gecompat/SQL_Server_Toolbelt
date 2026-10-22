@@ -16,5 +16,7 @@ Dokumentationsvalidator ruft diesen Test impactbezogen auf.
 Der tatsächliche Paketbau ruft zusätzlich den vorhandenen verbindungsfreien
 SQL-Exporter für die stabilen Kandidaten lokal und zentral auf. Der anschließende
 Prüfmodus vergleicht alle Dateien, Prüfsummen und den eingefrorenen Gitstand.
+Die generierten SQL-Dateien werden erneut offline exportiert und bytegenau
+verglichen; ein nachträglich passend gehashtes SQL kann diese Bindung nicht ersetzen.
 Das ist eine Packagingprüfung; eine native Installation oder die fachliche
 Veröffentlichungsabnahme wird daraus nicht abgeleitet.

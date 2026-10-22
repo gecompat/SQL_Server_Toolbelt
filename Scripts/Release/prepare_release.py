@@ -326,8 +326,14 @@ def verify(path: Path) -> None:
     validate_plan(source, json.loads(source[PLAN]))
     require(manifest["product_commit"] == json.loads(source[PLAN])["product_commit"], "Produktbasis widersprüchlich.")
     require(files["START-HERE.md"] == start_here(source), "Paketeinstieg abweichend.")
+    # Die zwei zusätzlichen SQL-Dateien sind keine Gitblobs. Ihre Hashes
+    # allein würden nur ein selbst konsistentes Manifest belegen. Erneuter
+    # Offline-Export aus dem eingefrorenen Gitstand bindet auch diese Bytes.
+    expected_exports = export_stable(source, json.loads(source[PLAN]))
     for mode in ("local", "central"):
-        text = files[f"Install-Stable-{mode}.sql"].decode("utf-8")
+        name = f"Install-Stable-{mode}.sql"
+        require(files[name] == expected_exports[name], "SQL-Export weicht von der eingefrorenen Quelle ab.")
+        text = files[name].decode("utf-8")
         require(":ON ERROR EXIT" in text and "$(" not in text, "Unvollständiger SQL-Export.")
     print("Paketintegrität, Quellcommit, 45-Modul-Plan und transitive Kanalgrenzen: PASS; keine native Installationsabnahme.")
 

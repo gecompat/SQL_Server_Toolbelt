@@ -60,6 +60,10 @@ Zeitstempel und Reihenfolge sind fest. Bytegleiche ZIPs werden bei identischen
 Inputs und identischer Python-/Kompressionsruntime erzeugt; eine digitale
 Herausgebersignatur oder native Installationsqualifikation folgt daraus nicht.
 
+Der Prüfmodus erzeugt beide stabilen SQL-Exports erneut aus dem eingefrorenen
+Gitstand und vergleicht ihre vollständigen Bytes. Er startet dafür ausschließlich
+den vorhandenen Offline-Exporter; keine SQL-Verbindung wird aufgebaut.
+
 Ein Fehler bei Manifest, Dependencyclosure, Quellbindung, Export oder
 Paketintegrität stoppt den Vorgang. Es gibt keinen Git-, Provider- oder
 Binaryfallback. Die [Release-Tests](../../Tests/Release/README.md) prüfen auch
