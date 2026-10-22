@@ -117,7 +117,10 @@ kanonischen Uninstalls in umgekehrter Dependencyreihenfolge. Verwende sie nur,
 wenn alle externen Consumer zuvor geprüft und entfernt sind. Diese Dateien
 bestätigen diesen Umstand ausdrücklich; sie ermitteln keine fremden Anwendungen.
 Trusteinträge bleiben erhalten, da andere Datenbanken dieselben DLLs verwenden
-können. Alternativ kannst du ausschließlich deine neu angelegte, nicht mehr
+können. Eine Wiederholung nach vollständig erfolgreicher Entfernung verwendet
+`SQL/UninstallAbsent-<Profil>.sql`; sie erwartet ausdrücklich abwesende
+Assemblies und bewahrt damit den Anwesenheitsvertrag. Alternativ kannst du
+ausschließlich deine neu angelegte, nicht mehr
 benötigte Demodatenbank nach Kontrolle ihres Inhalts über SSMS löschen.
 
 ## Wenn etwas nicht funktioniert

@@ -116,14 +116,15 @@ def exports(files: dict[str, bytes], artifacts: list[dict]) -> dict[str, bytes]:
                 result[f'SQL/{action}-{profile}.sql'] = out.read_bytes()
             sql = result[f'SQL/Install-{profile}.sql'].decode('utf-8')
             order = re.findall(r'(?m)^-- BEGIN MODULE (toolbelt\.[a-z0-9.-]+)', sql)
-            uninstall = ':ON ERROR EXIT\n-- Nur nach Prüfung aller externen Consumer; Trust bleibt erhalten.\n'
             by_module = {a['module_id']: a for a in selected}
-            for mid in reversed(order):
-                values = {'DeploymentMode': profile.split('-')[1]}
-                if mid in by_module:
-                    values['ExpectedInstalledAssemblyHash'] = '0x' + by_module[mid]['sha512']
-                uninstall += expand_uninstall(files, f'Modules/{mid}/Deployment/Uninstall.sql', values) + '\nGO\n'
-            result[f'SQL/Uninstall-{profile}.sql'] = uninstall.encode('utf-8')
+            for action in ('Uninstall', 'UninstallAbsent'):
+                uninstall = ':ON ERROR EXIT\n-- Nur nach Prüfung aller externen Consumer; Trust bleibt erhalten.\n'
+                for mid in reversed(order):
+                    values = {'DeploymentMode': profile.split('-')[1]}
+                    if mid in by_module:
+                        values['ExpectedInstalledAssemblyHash'] = '0x' if action == 'UninstallAbsent' else '0x' + by_module[mid]['sha512']
+                    uninstall += expand_uninstall(files, f'Modules/{mid}/Deployment/Uninstall.sql', values) + '\nGO\n'
+                result[f'SQL/{action}-{profile}.sql'] = uninstall.encode('utf-8')
             trusted = list(selected)
             if profile.startswith('Windows-'):
                 trusted += [a for a in artifacts if not a['module_id']]
@@ -221,7 +222,7 @@ def verify(path: Path) -> dict:
     for profile, selected in profiles(metadata['artifacts']).items():
         trusted = list(selected) + ([a for a in metadata['artifacts'] if not a['module_id']] if profile.startswith('Windows-') else [])
         release.require(data[f'SQL/Trust-{profile}.sql'] == trust_sql(trusted), 'Trust-SQL driftet.')
-        for action in ('Install','Repeat','Uninstall'):
+        for action in ('Install','Repeat','Uninstall','UninstallAbsent'):
             sql = data[f'SQL/{action}-{profile}.sql']
             release.require(b'$(' not in sql and re.search(br'(?im)^\s*:(?!on error exit\s*$)',sql) is None, 'Unaufgelöste SQLCMD-Direktive.')
     print('PASS CLR_PACKAGE 12 modules, 13 DLLs, four explicit deployment profiles; no build needed on installation')

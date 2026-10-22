@@ -142,7 +142,10 @@ try {
   Invoke-ClrSmoke $db;$db.Dispose()
   if($mode -ceq 'central'){$db=Open-ReleaseConnection $names.consumer;Invoke-ClrSmoke $db ('['+$names.central+'].');$db.Dispose()}
   $stage='UNINSTALL_'+$mode
-  foreach($repeat in 1..2){$db=Open-ReleaseConnection $names[$mode];Invoke-ReleaseBatches $db $files["SQL/Uninstall-$profile.sql"];$db.Dispose()}
+  foreach($action in @('Uninstall','UninstallAbsent')){
+   $stage=$action+'_'+$mode;$db=Open-ReleaseConnection $names[$mode]
+   Invoke-ReleaseBatches $db $files["SQL/$action-$profile.sql"];$db.Dispose()
+  }
   $db=Open-ReleaseConnection $names[$mode]
   $left=@(Invoke-ReleaseSql $db "SELECT (SELECT COUNT(*) FROM sys.assemblies WITH (NOLOCK) WHERE is_user_defined=1) Assemblies,(SELECT COUNT(*) FROM sys.extended_properties WITH (NOLOCK) WHERE class=0 AND name LIKE N'Toolbelt.Module.%') Markers;" -Rows)
   if($left.Count -ne 1 -or $left[0].Assemblies -ne 0 -or $left[0].Markers -ne 0){throw 'RELEASE_CLR_UNINSTALL_RESIDUE'}
