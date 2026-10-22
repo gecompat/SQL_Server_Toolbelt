@@ -6,6 +6,10 @@ belegte Plattform. Eine Zielplattform oder vorhandener Code bedeutet noch
 keine vollständige Validierung; den aktuellen Umfang bestimmen das jeweilige
 `module.yaml`, die Modulbeschreibung und ihre Testmatrix.
 
+Die [Vorbereitung des Gesamtpakets v1.0.0](../Releases/README.md) führt zur
+Freigabematrix mit stabilen und Preview-Kandidaten, zum prüfbaren Quellpaket
+und zu dessen Liefergrenzen. Es ist noch keine Version veröffentlicht.
+
 ## Ein Modul kennenlernen und vorbereiten
 
 1. Suche das benötigte Modul in der [Modulübersicht](../Modules/README.md).

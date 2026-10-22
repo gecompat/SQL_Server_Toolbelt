@@ -4,6 +4,23 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 45 Module sind implementiert. 21 sind `validated`, 24 sind `partially validated`; 0 sind `not executed`.
 
+## Releasevorbereitung v1.0.0 — 2026-10-22
+
+Ausdrücklicher unmittelbarer Benutzerauftrag: Gesamtpaket v1.0.0 mit
+Freigabematrix und klarer Trennung stabil/Preview vorbereiten und einen PR
+erstellen; noch nicht veröffentlichen. Die autonome Weiterentwicklung bleibt
+pausiert. Die aktuelle Foundation 1.25.0 ist bereits integriert und mit dem
+aktuellen Foundation-Upstreamcommit abgeglichen; kein zusätzlicher Upgrade.
+
+Die [Vorbereitung](../Releases/1.0.0/README.md) friert alle 45 Module ein.
+19 stabile und 26 Preview-Kandidaten berücksichtigen transitive Dependencies;
+Second Session und Event Log bleiben wegen Work Type vorläufig Preview.
+Keine Modulstatusaufwertung, API- oder Produktänderung. Das Gesamt-ZIP ist
+ein Quellpaket mit zusätzlichen stabilen SQL-Exports und dem bestehenden
+SSIS-Installationssatz; weitere vorgebaute CLR-Pakete bleiben ein sichtbares
+Liefergate. Konkrete Supportkombinationen, fachlicher Release-Review und
+Veröffentlichungsfreigabe sind weiterhin ausstehend. Kein Tag oder Release.
+
 ## Dokumentationspflege aus Foundation 1.25 — 2026-10-22
 
 Der ausdrücklich beauftragte [Foundation-Upgrade](../Documentation/Architecture/FOUNDATION_1_25_INTEGRATION.md)

@@ -1779,6 +1779,14 @@ def main() -> int:
 
     if "generated_status" in checks:
         validate_generated_status(modules, arguments.write)
+    if "release_preparation" in checks:
+        result = subprocess.run(
+            [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Release/test_prepare_release.py")],
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=30,
+        )
+        if result.returncode:
+            raise ValidationError(f"Releasevorbereitung-Regressionen:\n{result.stdout}{result.stderr}")
+        print(result.stderr.strip())
     if "publication_contract" in checks:
         result = subprocess.run(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/test_publication.py")],

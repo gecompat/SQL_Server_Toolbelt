@@ -20,6 +20,12 @@ Die Prüfung vergleicht zusätzlich:
 
 ## Inkrementelle Prüfung
 
+Der Impactscope `release_preparation` prüft die Vorbereitung des
+[Gesamtpakets v1.0.0](../../Releases/1.0.0/README.md) über
+`Tests/Release/test_prepare_release.py`. Kanalvorschläge, Dependencyclosure,
+Statuswahrheit und sichere ZIP-Pfade werden offline geprüft; keine SQL-,
+Build-, Tag- oder Veröffentlichungsaktion folgt daraus.
+
 ```bash
 python3 Tests/Documentation/validate_documentation.py \
   --base origin/main \

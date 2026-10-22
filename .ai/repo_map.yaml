@@ -389,6 +389,15 @@ change_impact:
     - .github/workflows/documentation-consistency.yml
     - Templates/Module/module.yaml.template
   packages:
+    release_preparation:
+      paths:
+        - Releases/**
+        - Scripts/Release/**
+        - Tests/Release/**
+        - Modules/*/module.yaml
+      checks:
+        - release_preparation
+        - markdown_links
     publication_contract:
       paths:
         - Tests/Documentation/publication.py
