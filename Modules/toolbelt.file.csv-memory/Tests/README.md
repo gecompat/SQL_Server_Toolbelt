@@ -71,6 +71,18 @@ und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
 Evidenzbereich; Anleitung und Auswahl stehen davor.
 
 <!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### Leere CSV-Ergebnisse mit korrektem Replace und Append 2026-10-22
+
+'-TestScope empty-result-preservation': Acht erfolgreiche Leerresultatfälle je Modus: Parser mit leerem Text beziehungsweise quotierter leerer Zelle sowie Writer mit leerer Quelle beziehungsweise einer nicht-NULL-leeren DATA-Zelle, jeweils KeepData=0/1. Parser liefert keine Zeile beziehungsweise eine nicht-NULL-leere Zelle; Writer liefert immer eine Outputzeile mit leerem Text und Metadaten0/0 beziehungsweise CRLF mit Metadaten1/1. Vor jeder Operation wird ein vollständiger16MiB-Altwert unabhängig gesetzt. Replace entfernt diesen vertragsgemäß, Append erhält ihn vollständig samt ursprünglichen Metadaten. Beide Zielschemas und die Quelle behalten Objektidentität sowie bidirektionale Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots. Keine beabsichtigte SQL-Abweisung oder neue Bytegrenzabnahme.
+
+Acht positive SQLphasen je Modus. Jeder Aufruf muss Returncode0 liefern; unabhängige Orakel prüfen vollständige alte Werte nur bei Append, korrekte Ersetzung bei Replace, leere Strings getrennt von SQL-NULL, alle Ergebniszeilen und Metadaten. Transaktionsneutralität isoliert, Quelleninhalt unverändert, beide Zielschemas erhalten. Nur abschließender typisierter8er-Witness.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1526 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'empty-result-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### Writer-Headerabweisung mit vollem Datenerhalt 2026-10-22
 
 '-TestScope writer-header-preservation': Vier bestehende ungültige HEADER-Formen jeweils mit KeepData=0/1: HEADER bei HasHeader=0, fehlender HEADER bei HasHeader=1, falscher HEADER-RowOrdinal und HEADER-Spaltenlücke. Acht ausschließlich SQL55306/state1-Abweisungen je Modus. Alle unabhängig gesetzten Quellzeilen einschließlich vollständigem großem Wert unter16MiB sowie vorheriger16MiB-Altoutput bleiben erhalten. Beide Objektidentitäten und bidirektionale Quellen-/Zielspalten-, Index-, Indexspalten- und Checkconstraint-Snapshots unverändert. Keine neue Bytegrenzabnahme.
