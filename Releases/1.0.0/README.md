@@ -52,6 +52,20 @@ Generator überschreibt keine bestehenden Pakete. Der ZIP-Inhalt kommt aus
 dem ausdrücklich ausgewählten Commit. Die eigene Artefaktablage bleibt
 ausgeschlossen, sodass kein ZIP sich selbst enthält. Gitmetadaten, ignorierte
 Builds, Secrets und private `.runtime`-Daten werden nicht übernommen.
+`PREPARATION.bundle` erhält einen reproduzierbaren Snapshotcommit mit exakt
+demselben Quellbaum, ohne Paketablage und mit ausschließlich synthetischen
+Autor-/Committerdaten (`Codex`, `codex@localhost`). Sein einziger Parent ist die
+angegebene Produktbasis. Arbeitscommit-Metadaten, `.git`-Konfiguration und
+Reflogs werden nicht übernommen. Dadurch
+bleibt der Quellcommit nach Squash-Merge und Branchcleanup rekonstruierbar.
+Der Prüfmodus importiert das Bundle nur in ein eigenes temporäres Repository;
+der vorhandene Objektstore und seine Refs werden nicht geändert. Er braucht
+die lokal verfügbare Produktbasis, keinen Remote- oder Credentialzugriff.
+Der Paketbau erzeugt dazu nur unreferenzierte immutable Gitobjekte und einen
+temporären eigenen Index. Der echte Index, Branches und Tags bleiben erhalten.
+`preparation_origin_commit` nennt den Arbeitsstand als Herkunft; `source_commit`
+bindet den bytegleichen bereinigten Snapshot. Die Herkunfts-ID ist kein
+Veröffentlichungsnachweis.
 
 `PACKAGE-MANIFEST.json` bindet jede Datei mit Größe und SHA-256 an den
 Quellcommit und die unveränderte Produktbasis. `SHA256SUMS.txt` deckt auch

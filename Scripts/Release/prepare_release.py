@@ -12,6 +12,7 @@ from collections import Counter
 import hashlib
 import io
 import json
+import os
 from pathlib import Path, PurePosixPath
 import re
 import shutil
@@ -81,8 +82,9 @@ def encoded(value: object) -> bytes:
     return (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
 
 
-def git(*args: str) -> bytes:
-    result = subprocess.run(["git", "-C", str(ROOT), *args], capture_output=True, timeout=90)
+def git(*args: str, repository: Path | None = None, env: dict | None = None) -> bytes:
+    result = subprocess.run(["git", "-C", str(repository or ROOT), *args],
+                            capture_output=True, timeout=90, env=env)
     require(result.returncode == 0, "Git-Quellbindung fehlgeschlagen; kein Ersatzstand.")
     return result.stdout
 
@@ -118,10 +120,10 @@ def read_zip(data: bytes) -> dict[str, bytes]:
         return result
 
 
-def snapshot(commit: str) -> tuple[str, dict[str, bytes]]:
-    resolved = git("rev-parse", "--verify", commit + "^{commit}").decode().strip()
+def snapshot(commit: str, repository: Path | None = None, env: dict | None = None) -> tuple[str, dict[str, bytes]]:
+    resolved = git("rev-parse", "--verify", commit + "^{commit}", repository=repository, env=env).decode().strip()
     require(re.fullmatch(r"[0-9a-f]{40}", resolved) is not None, "Ungültiger Quellcommit.")
-    files = read_zip(git("archive", "--format=zip", resolved))
+    files = read_zip(git("archive", "--format=zip", resolved, repository=repository, env=env))
     return resolved, {p: b for p, b in files.items() if not p.startswith(ARTIFACTS)}
 
 
@@ -227,16 +229,78 @@ def validate_plan(files: dict[str, bytes], plan: dict) -> None:
                 {p: b for p, b in product.items() if p.startswith(prefix)}, "Produktinputs gegenüber der qualifizierten Basis geändert.")
 
 
-def export_stable(files: dict[str, bytes], plan: dict) -> dict[str, bytes]:
-    pwsh = shutil.which("pwsh")
-    require(pwsh is not None, "PowerShell 7 fehlt für den vorhandenen Offline-SQL-Exporter.")
-    stable = [m["module_id"] for m in plan["modules"] if m["proposed_channel"] == "stable"]
+def runtime_root() -> Path:
     runtime = ROOT / ".runtime"
     runtime.mkdir(exist_ok=True)
     # st_file_attributes existiert unter Windows bereits vor Python 3.12;
     # Path.is_junction wäre erst ab 3.12 verfügbar.
     require(not runtime.is_symlink() and not (getattr(runtime.lstat(), "st_file_attributes", 0)
             & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)), "Reparse-Runtime abgewiesen.")
+    return runtime
+
+
+def preparation_bundle(commit: str, product_commit: str) -> tuple[str, bytes]:
+    """Nur Vorbereitungsdateien und synthetische Commitmetadaten ausliefern.
+
+    Ein eigener temporärer Index entfernt die Paketablage aus dem Quellbaum.
+    Der reproduzierbare Snapshotcommit erhält nur die bekannte Produktbasis
+    als Parent, keine persönlichen Metadaten der Arbeitscommits. Weder echter
+    Index noch Branches/Tags werden geändert; nur immutable Gitobjekte entstehen.
+    """
+    runtime = runtime_root()
+    with tempfile.TemporaryDirectory(prefix="release-bundle-", dir=runtime) as temp:
+        require(Path(temp).resolve().parent == runtime.resolve(), "Bundle außerhalb des eigenen Scopes.")
+        bundle = Path(temp) / "preparation.bundle"
+        date = git("show", "-s", "--format=%cI", commit).decode().strip()
+        env = dict(os.environ, GIT_INDEX_FILE=str(Path(temp) / "snapshot.index"),
+                   GIT_AUTHOR_NAME="Codex", GIT_AUTHOR_EMAIL="codex@localhost",
+                   GIT_COMMITTER_NAME="Codex", GIT_COMMITTER_EMAIL="codex@localhost",
+                   GIT_AUTHOR_DATE=date, GIT_COMMITTER_DATE=date)
+        git("read-tree", commit, env=env)
+        excluded = [p.decode("utf-8") for p in git("ls-tree", "-rz", "--name-only", commit, "--", ARTIFACTS).split(b"\0") if p]
+        if excluded:
+            git("update-index", "--force-remove", "--", *excluded, env=env)
+        tree = git("write-tree", env=env).decode().strip()
+        frozen = git("commit-tree", tree, "-p", product_commit, "-m",
+                     "Codex: Freeze v1.0.0 preparation tree with synthetic metadata", env=env).decode().strip()
+        require(snapshot(frozen)[1] == snapshot(commit)[1], "Sanitizer hat Quellbytes geändert.")
+        git("-c", "pack.threads=1", "bundle", "create", str(bundle), frozen, "^" + product_commit)
+        git("bundle", "verify", str(bundle))
+        return frozen, bundle.read_bytes()
+
+
+def recovered_snapshot(bundle_bytes: bytes, commit: str) -> dict[str, bytes]:
+    """Bundle lokal importieren, ohne Objektstore oder Refs des Checkouts zu ändern.
+
+    Das eigene temporäre Bare-Repository liest die bekannte Produktbasis über
+    einen privaten Alternate. Fetch benutzt ausschließlich die gehaltene lokale
+    Bundledatei, keinen Remote und keine Credentials. Auch nach Squash/Branch-
+    Cleanup bleibt der Vorbereitungscommit dadurch rekonstruierbar.
+    """
+    require(len(bundle_bytes) <= 16 * 1024 * 1024, "Vorbereitungsbundle zu groß.")
+    runtime = runtime_root()
+    objects = git("rev-parse", "--path-format=absolute", "--git-path", "objects").decode().strip()
+    with tempfile.TemporaryDirectory(prefix="release-verify-", dir=runtime) as temp:
+        target = Path(temp).resolve()
+        require(target.parent == runtime.resolve(), "Bundleprüfung außerhalb des eigenen Scopes.")
+        bundle = target / "preparation.bundle"
+        bundle.write_bytes(bundle_bytes)
+        env = dict(os.environ, GIT_ALTERNATE_OBJECT_DIRECTORIES=objects,
+                   GIT_TERMINAL_PROMPT="0", GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull)
+        git("init", "--bare", "--quiet", repository=target, env=env)
+        git("bundle", "verify", str(bundle), repository=target, env=env)
+        git("-c", "gc.auto=0", "-c", "maintenance.auto=false", "fetch", "--quiet", "--no-tags",
+            "--no-write-fetch-head", str(bundle), commit, repository=target, env=env)
+        resolved, files = snapshot(commit, repository=target, env=env)
+        require(resolved == commit, "Rekonstruierter Quellcommit abweichend.")
+        return files
+
+
+def export_stable(files: dict[str, bytes], plan: dict) -> dict[str, bytes]:
+    pwsh = shutil.which("pwsh")
+    require(pwsh is not None, "PowerShell 7 fehlt für den vorhandenen Offline-SQL-Exporter.")
+    stable = [m["module_id"] for m in plan["modules"] if m["proposed_channel"] == "stable"]
+    runtime = runtime_root()
     with tempfile.TemporaryDirectory(prefix="release-", dir=runtime) as temp:
         target = Path(temp).resolve()
         require(target.parent == runtime.resolve(), "Temporärer Export außerhalb des eigenen Scopes.")
@@ -292,8 +356,10 @@ def build(commit: str, output: Path) -> None:
     validate_plan(files, plan)
     files.update(export_stable(files, plan))
     files["START-HERE.md"] = start_here(files)
+    frozen, files["PREPARATION.bundle"] = preparation_bundle(resolved, plan["product_commit"])
     manifest = {"schema_version": "1.0", "project_version": VERSION,
-                "state": "prepared_not_published", "source_commit": resolved,
+                "state": "prepared_not_published", "source_commit": frozen,
+                "preparation_origin_commit": resolved,
                 "product_commit": plan["product_commit"], "package_kind": plan["package_kind"],
                 "files": [{"path": p, "bytes": len(b), "sha256": sha(b)} for p, b in sorted(files.items())]}
     files["PACKAGE-MANIFEST.json"] = encoded(manifest)
@@ -322,8 +388,8 @@ def verify(path: Path) -> None:
         require(len(files[p]) == entry["bytes"] and sha(files[p]) == entry["sha256"], "Dateihash stimmt nicht.")
     expected_sums = "".join(f"{sha(b)}  {p}\n" for p, b in sorted(files.items()) if p != "SHA256SUMS.txt").encode("utf-8")
     require(files["SHA256SUMS.txt"] == expected_sums, "Dateiprüfsummen unvollständig.")
-    _, source = snapshot(manifest["source_commit"])
-    require(set(files) == set(source) | {"START-HERE.md", "Install-Stable-local.sql", "Install-Stable-central.sql", "PACKAGE-MANIFEST.json", "SHA256SUMS.txt"}, "Unerwartete Paketdateien.")
+    source = recovered_snapshot(files["PREPARATION.bundle"], manifest["source_commit"])
+    require(set(files) == set(source) | {"START-HERE.md", "PREPARATION.bundle", "Install-Stable-local.sql", "Install-Stable-central.sql", "PACKAGE-MANIFEST.json", "SHA256SUMS.txt"}, "Unerwartete Paketdateien.")
     for p, b in source.items():
         require(files[p] == b, "Paket weicht vom eingefrorenen Gitstand ab.")
     validate_plan(source, json.loads(source[PLAN]))

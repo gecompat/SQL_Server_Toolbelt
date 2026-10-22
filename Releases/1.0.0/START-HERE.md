@@ -24,3 +24,7 @@ Plattformzusage. Bestehende Modulversionen und `unreleased` bleiben erhalten.
 die Dateiintegrität. Sie ersetzen keine Herausgebersignatur oder fachliche
 Abnahme. Es gibt keine automatische Server-, Rechte-, Trust- oder
 Labkonfigurationsänderung. Die [Lizenz](../../LICENSE.md) gilt unverändert.
+
+`PREPARATION.bundle` erhält den Quellcommit auch nach Branchcleanup. Der
+Prüfmodus benötigt einen vollständigen Checkout mit der genannten Produktbasis
+und rekonstruiert die Vorbereitung ausschließlich lokal und temporär.
