@@ -17,6 +17,7 @@ sources_of_truth:
   license: LICENSE.md
   project_context: .ai/PROJECT_CONTEXT.md
   project_rules: .ai/PROJECT_RULES.md
+  lab_qualified_tls_consumer: Documentation/Architecture/LAB_QUALIFIED_TLS_CONSUMER.md
   working_rules: .ai/WORKING_RULES.md
   ai_entry_point: AGENTS.md
   foundation_ruleset_index: .ai/foundation/repo_map.yaml
@@ -1074,6 +1075,7 @@ change_impact:
     approved_security_hardening:
       paths:
         - Documentation/Architecture/SECURITY_HARDENING_2026_10.md
+        - Documentation/Architecture/LAB_QUALIFIED_TLS_CONSUMER.md
         - Tests/CI/run-security-hardening-lab.ps1
         - Tests/CI/run-filesystem-security-lab.ps1
         - Tests/CI/test_lab_tls.py
@@ -1083,6 +1085,10 @@ change_impact:
         - Tests/CI/validate_lab_selector.py
         - Tests/CI/run-lab-local.ps1
         - Tests/CI/run-lab-target.sh
+        - Tests/CI/LabQualifiedContract.ps1
+        - Tests/CI/Assert-LabQualifiedTlsBinding.ps1
+        - Tests/CI/test-lab-qualified-contract.ps1
+        - Tests/CI/run-authenticated-tls-lab.sh
       checks:
         - markdown_links
     foundation_host_redirects:

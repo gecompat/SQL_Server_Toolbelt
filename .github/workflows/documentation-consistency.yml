@@ -133,7 +133,7 @@ jobs:
           run_scope=false
           if [ "$EVENT_NAME" = workflow_dispatch ]; then
             run_scope=true
-          elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Tests/CI/run-lab-local.ps1 Tests/CI/test-lab-selector.ps1 Tests/CI/validate_lab_selector.py Tests/CI/run-lab-target.sh Tests/CI/test_lab_tls.py Tests/CI/test_lab_cleanup.py Tests/CI/Set-SqlClientTlsPolicy.ps1 .github/workflows/documentation-consistency.yml; then
+          elif git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Tests/CI/run-lab-local.ps1 Tests/CI/test-lab-selector.ps1 Tests/CI/validate_lab_selector.py Tests/CI/run-lab-target.sh Tests/CI/test_lab_tls.py Tests/CI/test_lab_cleanup.py Tests/CI/Set-SqlClientTlsPolicy.ps1 Tests/CI/LabQualifiedContract.ps1 Tests/CI/Assert-LabQualifiedTlsBinding.ps1 Tests/CI/test-lab-qualified-contract.ps1 Tests/CI/run-authenticated-tls-lab.sh .github/workflows/documentation-consistency.yml; then
             :
           else
             scope_result=$?
@@ -146,3 +146,35 @@ jobs:
           if [ "$run_scope" = true ]; then
             python3 Tests/CI/validate_lab_selector.py
           fi
+
+  qualified-consumer-windows:
+    name: Qualified Lab consumer Windows fixture
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Select affected Windows consumer fixture
+        id: scope
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          $runScope = $env:EVENT_NAME -eq 'workflow_dispatch'
+          if (-not $runScope) {
+            git diff --quiet $env:BASE_SHA $env:HEAD_SHA -- Tests/CI/run-lab-local.ps1 Tests/CI/LabQualifiedContract.ps1 Tests/CI/Assert-LabQualifiedTlsBinding.ps1 Tests/CI/test-lab-qualified-contract.ps1 Tests/CI/Set-SqlClientTlsPolicy.ps1 .github/workflows/documentation-consistency.yml
+            $scopeResult = $LASTEXITCODE
+            if ($scopeResult -notin 0,1) { throw 'QUALIFIED_CONSUMER_SCOPE_DIFF_FAILED' }
+            $LASTEXITCODE = 0
+            $runScope = $scopeResult -eq 1
+          }
+          "run=$($runScope.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+      - name: Test private Windows bytes and ACL boundaries without SQL
+        if: steps.scope.outputs.run == 'true'
+        shell: pwsh
+        run: |
+          if ($PSVersionTable.PSVersion -lt [version]'7.5') { throw 'QUALIFIED_CONSUMER_PWSH75_REQUIRED' }
+          ./Tests/CI/test-lab-qualified-contract.ps1

@@ -126,13 +126,15 @@ foreach($purpose in @('Unknown','authenticatedtls')) {
 Write-Output "LAB_TLS_CONTRACT_PASS cases=$tlsCases"
 
 $tlsHelper=Join-Path $PSScriptRoot 'Set-SqlClientTlsPolicy.ps1'
-$tlsNames=@('TBX_SQL_TARGET','TBX_SQL_ENCRYPT','TBX_SQL_TRUST_SERVER_CERTIFICATE','TBX_SQL_TEST_PURPOSE','GITHUB_ACTIONS')
+$contextNames=@('TBX_LAB_QUALIFIED_CONTEXT_FILE','TBX_LAB_QUALIFIED_CONTEXT_SHA256','TBX_LAB_QUALIFIED_PWSH')
+$tlsNames=@('TBX_SQL_TARGET','TBX_SQL_ENCRYPT','TBX_SQL_TRUST_SERVER_CERTIFICATE','TBX_SQL_TEST_PURPOSE','GITHUB_ACTIONS')+$contextNames
 $savedTls=@{};foreach($name in $tlsNames){$savedTls[$name]=[Environment]::GetEnvironmentVariable($name,'Process')}
 try {
+    foreach($name in $contextNames){[Environment]::SetEnvironmentVariable($name,$null,'Process')}
     $policyCases=@(
         @('lab','Functional','True','False','false','tcp:localhost,1433',$false,$false),
         @('lab','Functional','True','True','false','tcp:localhost,1433',$true,$false),
-        @('lab','AuthenticatedTls','True','False','false','tcp:localhost,1433',$false,$false),
+        @('lab','AuthenticatedTls','True','False','false','tcp:localhost,1433',$false,$true),
         @('lab','AuthenticatedTls','True','True','false','tcp:localhost,1433',$false,$true),
         @('lab','Unknown','True','False','false','tcp:localhost,1433',$false,$true),
         @('lab','Functional','True','false','false','tcp:localhost,1433',$false,$true),
@@ -142,7 +144,7 @@ try {
         @('runner','','True','True','false','tcp:127.0.0.1,1433',$true,$false),
         @('runner','','True','True','false','tcp:database.example,1433',$false,$false),
         @('','','True','True','false','tcp:127.0.0.1,1433',$false,$false),
-        @('lab','AuthenticatedTls','True','False','true','tcp:localhost,1433',$false,$false)
+        @('lab','AuthenticatedTls','True','False','true','tcp:localhost,1433',$false,$true)
     )
     foreach($test in $policyCases) {
         $env:TBX_SQL_TARGET=$test[0];$env:TBX_SQL_TEST_PURPOSE=$test[1];$env:TBX_SQL_ENCRYPT=$test[2]
@@ -153,4 +155,20 @@ try {
         if(-not $rejected -and (-not $builder.Encrypt -or $builder.TrustServerCertificate -ne $test[6])){throw 'SQLCLIENT_TRANSPORT_CHANGED'}
     }
     Write-Output ('SQLCLIENT_TLS_POLICY_PASS cases='+$policyCases.Count)
+    $runnerCases=0
+    foreach($target in @('runner','')){
+        foreach($actions in @('true','false')){
+            foreach($intent in @('AuthenticatedTls','Unknown')+$contextNames){
+                foreach($name in $contextNames){[Environment]::SetEnvironmentVariable($name,$null,'Process')}
+                $env:TBX_SQL_TARGET=$target;$env:GITHUB_ACTIONS=$actions;$env:TBX_SQL_TEST_PURPOSE='Functional'
+                if($intent -in $contextNames){[Environment]::SetEnvironmentVariable($intent,'synthetic','Process')}
+                else{$env:TBX_SQL_TEST_PURPOSE=$intent}
+                $builder['Data Source']='tcp:localhost,1433';$rejected=$false
+                try{& $tlsHelper -Builder $builder}catch{$rejected=$true}
+                if(-not $rejected){throw 'AUTHENTICATED_RUNNER_BYPASS'}
+                $runnerCases++
+            }
+        }
+    }
+    Write-Output "SQLCLIENT_RUNNER_INTENT_PASS cases=$runnerCases"
 } finally {foreach($name in $tlsNames){[Environment]::SetEnvironmentVariable($name,$savedTls[$name],'Process')}}
