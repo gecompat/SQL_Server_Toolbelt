@@ -111,6 +111,24 @@ Base64 und Generate Series sind kein pauschales Releasegate.
 
 ## Aufwand und Fortsetzung
 
+Der zusätzliche menschliche Installationsauftrag wird durch `INSTALL.md`
+und direkte Einstiege aus Root-README, Dokumentationsübersicht und Paketstart
+erfüllt. Die Anleitung trennt den Endanwenderweg mit verpflichtendem
+ZIP-Prüfsummenvergleich von der weiterhin vollständigen Maintainer-/CI-
+Quellprüfung. SSMS-Menüs und Verbindungsdialoge sind anhand der verlinkten
+Microsoft-Primärquellen geprüft; ein neuer SSMS-GUI-Lauf ist `not executed`.
+Die gezeigten Funktionen und Parameter entsprechen den nativen Paketorakeln.
+
+Die bisherige Root-README-Prosa bleibt mit rebasierten Links unter
+`Documentation/History/` erhalten. Frühere Abschnittslinks bleiben erreichbar,
+geschützte Lizenztexte bleiben unverändert. Der Inventarcheck liest den
+kanonischen generierten Modulkatalog und kontrolliert die beiden Einstiege
+aus der Root-README. Fehlende, zusätzliche oder doppelte Module sowie fehlende
+Installations-/Kataloglinks werden weiter abgewiesen; drei gezielte
+Regressionen laufen in der bestehenden Katalogsuite. Es entsteht weder eine
+zweite Modulliste noch ein neuer CI-Job. Die Release-Freigabematrix führt pro
+Modul direkt zur lesbaren Modul-README statt zuerst zum YAML-Manifest.
+
 Ein Implementierungsverantwortlicher, ein Arbeitspaket und ein PR; keine
 Delegation, neue CI-Workflows oder automatischen Folgewellen. Native Prüfungen
 wurden endlich ausgewählt, Inputs privat eingefroren und pro Fall begrenzt;

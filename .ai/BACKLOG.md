@@ -32,6 +32,13 @@ Quellpaket übernommen; Supportabnahme, deren fehlende Pflichtnachweise,
 vollständiger CLR-Installationssatz und Veröffentlichung bleiben getrennt offen.
 Keine Änderung an fachlichen SQL-Objekten, Modulversionen oder Prüfstatuswerten.
 
+Ergänzung desselben Benutzerauftrags: leicht auffindbare, auch für unerfahrene
+Anwender verständliche Installationsanleitung. [INSTALL.md](../INSTALL.md)
+führt vom ZIP über SSMS zu Installation, erwarteten Ergebnissen und
+Fehlerklärung; README, Dokumentationsübersicht und Paketstart verlinken sie.
+Paketpflege mit vollständiger Quellprüfung und der Endanwenderweg mit
+verpflichtendem Prüfsummenvergleich bleiben klar unterschieden.
+
 ## Dokumentationspflege aus Foundation 1.25 — 2026-10-22
 
 Der ausdrücklich beauftragte [Foundation-Upgrade](../Documentation/Architecture/FOUNDATION_1_25_INTEGRATION.md)
@@ -42,7 +49,7 @@ Funktionsfreigabe:
 
 | Scope | Verantwortliche Rolle | Auslöser und Abnahme |
 |---|---|---|
-| Root-README: umfangreiche narrative Modul-/Testhistorie nach dem frühen Einstieg | Dokumentationsverantwortlicher des nächsten betroffenen Produktüberblicks | Bei der nächsten materiellen Änderung dieses Überblicks aktuelle Orientierung von datierter Evidenz trennen, Links/Generatorverbraucher erhalten; Leser gelangt zur Modulauswahl ohne Testchronologie |
+| Root-README: umfangreiche narrative Modul-/Testhistorie nach dem frühen Einstieg | Dokumentationsverantwortlicher des nächsten betroffenen Produktüberblicks | 2026-10-22 erledigt im ausdrücklichen Installationsauftrag: früher direkter Installationseinstieg; bisherige Prosa und Abschnittslinks unter Documentation/History erhalten; aktuelle Modulwerte und Orientierung bleiben bei den kanonischen Quellen |
 | CSV-Memory-Tests/README: vorangestellte Qualifikationschronologie | Implementierungsverantwortlicher der nächsten CSV-Memory-Welle, vor deren Review | Testanleitung und aktuelle Auswahl zuerst erklären; datierte Wellenbelege in einer eindeutig bezeichneten Evidenzstrecke erhalten, erforderliche Links und Validator-/Manifestkopplungen gemeinsam prüfen |
 | Weitere Modul-/Testanleitungen mit vorangestellten historischen Security-/Abnahmeabschnitten | Verantwortlicher des jeweils materiell geänderten Moduls | Bei der nächsten betroffenen Anleitung Einführung, Voraussetzungen, Anwendung und Fehlerklärung vor historische Belege stellen; bestehende IDs und Evidenzgrenzen erhalten |
 

@@ -197,7 +197,7 @@ def make_plan(files: dict[str, bytes], product_commit: str) -> dict:
     }
 
 
-def matrix(plan: dict) -> bytes:
+def matrix(plan: dict, module_page: str = "README.md") -> bytes:
     counts = Counter(m["proposed_channel"] for m in plan["modules"])
     lines = ["# Freigabematrix für v1.0.0", "",
              "Status: **Vorbereitung, nicht veröffentlicht**. Diese Tabelle wird aus `release-plan.json` und den Modulmanifesten erzeugt.", "",
@@ -208,7 +208,7 @@ def matrix(plan: dict) -> bytes:
              "|---|---|---|---|---|"]
     for m in plan["modules"]:
         mid = m["module_id"]
-        ref = f"../../Modules/{mid}/module.yaml"
+        ref = f"../../Modules/{mid}/{module_page}"
         evidence = next((p for p in reversed(m["evidence_references"]) if p.endswith("README.md")))
         deps = ", ".join(f"`{x}`" for x in m["dependencies"]) or "—"
         lines.append(f"| [`{mid}`]({ref}) {m['module_version']} | **{m['proposed_channel']}** | {m['validation_status']} | {deps} | [Nachweise](../../{evidence}); {m['pending_before_publication']} |")
@@ -220,7 +220,10 @@ def matrix(plan: dict) -> bytes:
 def validate_plan(files: dict[str, bytes], plan: dict) -> None:
     require(re.fullmatch(r"[0-9a-f]{40}", plan.get("product_commit", "")) is not None, "Produktcommit fehlt.")
     require(plan == make_plan(files, plan["product_commit"]), "Releaseplan ist veraltet oder aufgewertet.")
-    require(files.get(MATRIX) == matrix(plan), "Freigabematrix ist veraltet.")
+    # Frühe unveröffentlichte Kandidaten führten beim Modulnamen zum Manifest.
+    # Beide exakt erzeugten Lesepfade behalten dieselben gebundenen Fakten;
+    # neue Pakete verwenden immer den direkt verständlichen README-Einstieg.
+    require(files.get(MATRIX) in (matrix(plan), matrix(plan, "module.yaml")), "Freigabematrix ist veraltet.")
     receipt = json.loads(files[".ai/foundation/installation-provenance.json"])
     require(plan["foundation"] == {"version": receipt["ruleset_version"], "source_commit": receipt["source_commit"]},
             "Foundationbindung stimmt nicht.")

@@ -5,6 +5,11 @@ Benutzerauftrag umfasst das Gesamtpaket, die Trennung stabil/Preview und einen
 Pull Request. Er umfasst keine Veröffentlichung und setzt die pausierte
 autonome Weiterentwicklung nicht fort.
 
+Für den ersten praktischen Test beginne mit der
+[Installationsanleitung für SSMS](../../INSTALL.md). Sie benötigt für die
+stabilen T-SQL-Kandidaten keinen eigenen Build. Die folgenden Abschnitte
+erklären Lieferumfang, Paketpflege und Freigabegrenzen.
+
 ## Was enthalten ist
 
 Alle 45 implementierten Module mit ihren unveränderten Modulversionen,
@@ -88,9 +93,12 @@ negative Fälle und laufen über den bestehenden Dokumentationsworkflow.
 ## Auspacken und erster Test
 
 1. Gesamte ZIP in ein neues Verzeichnis entpacken und `START-HERE.md` lesen.
-2. Vor Ausführung ZIP-Prüfsumme und Paketmanifest mit dem obigen Prüfmodus in
-   einem vollständigen Checkout prüfen. Der referenzierte Quellcommit muss
-   lokal verfügbar sein. Prüfsummen allein sind kein Herkunftsnachweis.
+2. Vor Ausführung die ZIP-Prüfsumme mit der separat aus demselben Stand
+   bezogenen Prüfsumme vergleichen, wie in der Installationsanleitung erklärt.
+   Die vollständige Source-/Paketprüfung mit dem obigen Prüfmodus bleibt
+   Bestandteil der Paketpflege und CI und kann unabhängig in einem vollständigen
+   Checkout wiederholt werden. Der referenzierte Quellcommit muss dort lokal
+   verfügbar sein. Prüfsummen allein sind kein Herkunftsnachweis.
 3. Den [Deploymentablauf](../../Deployment/README.md) und die Objektseiten der
    gewünschten Module lesen. Als erste Vorschau im entpackten Paket ausführen:
 

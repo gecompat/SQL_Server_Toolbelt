@@ -1,34 +1,30 @@
-# SQL Server Toolbelt 1.0.0 – Releasekandidat
+# SQL Server Toolbelt 1.0.0 – Hier beginnen
 
-Dieses Gesamtpaket ist eine **unveröffentlichte Quellpaket-Vorbereitung** für
-45 Module. Es enthält 19 stabile und 26 Preview-Kandidaten. Die Kennzeichnung
-ist ein Vorschlag für den Release-Review, keine neue Produktions- oder
-Plattformzusage. Bestehende Modulversionen und `unreleased` bleiben erhalten.
+Öffne zuerst die **[Installationsanleitung Schritt für Schritt](../../INSTALL.md)**.
+Sie führt vom entpackten Paket über SSMS und eine neue Demodatenbank zum
+ersten erfolgreichen Aufruf. Für den Einstieg mit den 19 stabilen
+T-SQL-Kandidaten brauchst du keinen eigenen Build, Git oder Python.
 
-1. Lies [Lieferumfang, Voraussetzungen und offene Releasegates](README.md).
-2. Prüfe [Modulversion, Kanalvorschlag und Nachweisgrenzen](FREIGABEMATRIX.md).
-3. Lies [Deployment](../../Deployment/README.md), verwende zunächst `-PlanOnly`
-   mit einer bewussten Modulauswahl und teste ausschließlich in einem eigenen
-   Testsystem. Beispiele nicht gesammelt ausführen.
-4. `Install-Stable-local.sql` und `Install-Stable-central.sql` bündeln nur die
-   stabilen Kandidaten. Sie benötigen SQLCMD-Modus und eine frische exklusive
-   Sitzung in der richtigen Datenbank. Der Bau hat diese Dateien nicht gegen
-   einen SQL Server ausgeführt.
-5. CLR-Provider benötigen passende Binaries und separaten exakten Trust.
-   Das enthaltene [SSIS-ZIP](../../Modules/toolbelt.tsql.ssis-debug/InstallPackages/README.md)
-   hat fertige qualifizierte DLLs; andere CLR-Module enthalten ihre Quellen
-   und vorhandenen Buildskripte. Dieses Gesamtpaket verspricht keine allgemeine
-   Installation aller CLR-Module ohne eigenen Build.
+| Datei oder Bereich | Wofür du ihn brauchst |
+|---|---|
+| `Install-Stable-local.sql` im Paketroot | Fertige SQL-Datei für die 19 stabilen Kandidaten direkt in deiner Testdatenbank; Ablauf in der Installationsanleitung |
+| `Install-Stable-central.sql` im Paketroot | Alternative gemeinsame Installation; unterstützte Consumerpfade und Rechte je Modul beachten |
+| [SSIS-Installationssatz](../../Modules/toolbelt.tsql.ssis-debug/InstallPackages/README.md) | Separates Windows-ZIP mit passenden DLLs, Trustskripten und vollständigem SSMS-Beispiel |
+| [Modulübersicht](../../Modules/README.md) | Weitere Funktionen, Parameter, Voraussetzungen und Beispiele |
+| [Freigabematrix](FREIGABEMATRIX.md) | Modulversionen, stabile/Preview-Kandidaten und ihre Nachweisgrenzen |
+| [Paketpflege und Prüfung](README.md) | Vollständiger verbindungsfreier Source-/Paketcheck und reproduzierbarer Neubau für Maintainer |
+| [Offene Releasegates](RELEASE-GATES.md) | Was geprüft ist und welche Freigaben beziehungsweise Nachweise noch fehlen |
 
-`PACKAGE-MANIFEST.json`, `SHA256SUMS.txt` und die externe ZIP-Prüfsumme prüfen
-die Dateiintegrität. Sie ersetzen keine Herausgebersignatur oder fachliche
-Abnahme. Es gibt keine automatische Server-, Rechte-, Trust- oder
-Labkonfigurationsänderung. Die [Lizenz](../../LICENSE.md) gilt unverändert.
+Das Gesamtpaket ist eine **unveröffentlichte Quellpaket-Vorbereitung** mit
+45 Modulen: 19 stabile und 26 Preview-Kandidaten. Die Kennzeichnung ist noch
+keine Produktions- oder Plattformzusage. Alle Modulmanifeste bleiben `unreleased`.
+Das Gesamt-ZIP liefert für die weiteren CLR-Module noch keinen vollständigen
+fertig qualifizierten DLL-Installationssatz. Der gesonderte SSIS-Satz enthält
+bereits seine qualifizierten DLLs; die jeweilige Anleitung ist maßgeblich.
 
-`PREPARATION.bundle` erhält den Quellcommit auch nach Branchcleanup. Der
-Prüfmodus benötigt einen vollständigen Checkout mit der genannten Produktbasis
-und rekonstruiert die Vorbereitung ausschließlich lokal und temporär.
-
-Die [Releasegates](RELEASE-GATES.md) zeigen die ausgeführte Installation der
-stabilen Paketexports und die Grenzen der CLR-Buildprüfung. Sie sind keine
-Veröffentlichungsfreigabe für das Gesamtpaket oder die Preview-Module.
+`PACKAGE-MANIFEST.json`, `SHA256SUMS.txt` und die externe ZIP-Prüfsumme binden
+den Paketinhalt. Sie ersetzen keine Herausgebersignatur oder fachliche
+Abnahme. Der vollständige Maintainer-Prüfmodus verwendet `PREPARATION.bundle`
+und einen Git-Checkout mit der angegebenen Produktbasis; Endanwender folgen
+der Prüfsummen- und Installationsanleitung. Die [Lizenz](../../LICENSE.md)
+gilt unverändert. Das Paket ändert keine Server-, Rechte- oder Trustkonfiguration.

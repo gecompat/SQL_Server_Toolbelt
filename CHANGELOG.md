@@ -9,6 +9,9 @@ Alle zwölf CLR-Projekte bestehen zwei bytegleiche isolierte Builds mit
 PE-/Buildpfadprüfung. Die SQL-Payloads und Adapter bleiben an die tatsächliche
 Evidenz gebunden; neue Binaryhashes werden nicht als nativ qualifiziert oder
 ausgeliefert dargestellt. Modulstatus und Veröffentlichung bleiben unverändert.
+Die [Installationsanleitung](INSTALL.md) führt ohne eigenen Build durch den
+SSMS-Einstieg und ersten Test. Historische Modulnotizen bleiben getrennt
+erhalten; README, Dokumentationsübersicht und ZIP-Einstieg verlinken den Weg.
 
 ## 2026-10-22 – Gesamtpaket v1.0.0 vorbereitet, nicht veröffentlicht
 

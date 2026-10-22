@@ -82,6 +82,12 @@ class PreparationTests(unittest.TestCase):
         files[key] = files[key].replace(b'version: "1.0.0"', b'version: "9.0.0"', 1)
         with self.assertRaises(release.ReleaseError):
             release.validate_plan(files, self.plan)
+
+    def test_historical_manifest_links_preserve_frozen_package_validation(self):
+        files = dict(self.files)
+        files[release.MATRIX] = release.matrix(self.plan, "module.yaml")
+        release.validate_plan(files, self.plan)
+        self.assertIn(b"/toolbelt.core.result-table/README.md)", release.matrix(self.plan))
         files = dict(self.files)
         files[release.MATRIX] = b"stale"
         with self.assertRaises(release.ReleaseError):

@@ -33,6 +33,7 @@ SQL2025 CL150/160/170. Weitere bereite Patchziele überschreiten diese
 Runsetgrenze und werden nicht stillschweigend weggelassen oder nachgetestet.
 
 ```powershell
+[void][IO.Directory]::CreateDirectory("$PWD/.runtime")
 ./Tests/Release/Invoke-StablePackageMatrix.ps1 `
   -EvidenceDirectory "$PWD/.runtime/release-native-new" -PlanOnly
 ./Tests/Release/Invoke-StablePackageMatrix.ps1 `

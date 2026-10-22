@@ -12,8 +12,9 @@ Die Prüfung vergleicht zusätzlich:
 
 - die aktuelle Modulzahl in README, Changelog, Roadmap, Projektkontext,
   Testübersicht und Backlog-Plan mit der Manifest-Registry;
-- die Modulverzeichnisse in Root-README und Testmatrix mit allen registrierten
-  `module.yaml`-Manifesten;
+- den Installationseinstieg und den Link zum kanonischen Modulkatalog in der
+  Root-README sowie die generierten Inventare in `Modules/README.md` und der
+  Testmatrix mit allen registrierten `module.yaml`-Manifesten;
 - die als implementiert geführten Kandidaten mit der
   Implementiert-Tabelle des kandidatenübergreifenden Plans;
 - Statusverweise der Research-Inbox mit der kanonischen Kandidatenliste.
