@@ -4,6 +4,18 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Spaete CSV-Syntaxabweisung mit vollem Zielerhalt 2026-10-22
+
+'-TestScope late-parser-syntax': Vier späte Quote-Syntaxfehler im letzten Record bei exakt16777216 UTF16-Inputbytes: offenes Quote am EOF, Text nach geschlossenem Quote, Quote im unquotierten Feld und Text nach Quote hinter CRLF. Jeweils KeepData=0 und1, insgesamt acht Fälle je Modus. Ausschließlich SQL55301/state1; vorheriger vollständiger16MiB-Callerwert, Objektidentität und bidirektional verglichene Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots bleiben unverändert. Transaktionsneutralität separat geprüft, keine partielle Zielmutation.
+
+Acht SQLphasen je Modus, ausschließlich55301/state1-Abweisungen. Vier gültig begonnene Inputs mit Syntaxfehler im letzten Record jeweils mit Replace- und Append-Einstellung. Vollständige16MiB-Input-/Zielbytes, Zielinhalt und Zielmetadaten werden vor/nach dem Aufruf geprüft; Transaktionsneutralität separat, nur abschließender typisierter Witness als Resultset.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1166 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'late-parser-syntax' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ## Schemaabweisung mit vollständigem Caller-Datenerhalt 2026-10-21
 
 '-TestScope schema-target-preservation': Acht belegte synthetische Caller-ResultTables mit je einem vollständigen16777216-Byte-Wert: für Parser und Writer jeweils genau eine Abweichung in Spaltenname, Integerbreite, NULLbarkeit oder Collation. Gültiger Parserinput beziehungsweise unabhängig gesetzte Writerquelle mit vollständigem Output an16777216 Bytes. KeepData=1 muss ausschließlich SQL51025/state1 liefern. Vollständige Zielwerte und Writerquelle bleiben bytegenau erhalten; Callerobjektidentität sowie bidirektional verglichene Spalten-, Index- und Indexspaltensnapshots bleiben gleich. Getrennte Transaktionsneutralität und typisierter Abschluss. Kein Schemaumbau und keine neue Funktion.
