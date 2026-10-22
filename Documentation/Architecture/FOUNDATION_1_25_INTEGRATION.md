@@ -85,11 +85,38 @@ des gesamten Repositorys wird ausdrücklich nicht behauptet.
 
 ## Validierung und Grenzen
 
-Vor dem Merge ausstehend: Foundation-Integrität mit der erhaltenen Auswahl,
-voller Offline-Projektaudit, fester unabhängiger Review und exakte Head-CI.
-Merge, tatsächliche Main-Push-CI und eigener Branchcleanup folgen erst nach
-diesen Gates. Die konkreten Resultate werden nach Ausführung im bestehenden
-PR-Nachweis dokumentiert.
+Lokal am 2026-10-22 unter Windows/Python bestanden:
+
+- Foundation-Quelltool `tools/foundation_validator.py --target <Toolbelt>
+  --adapters <bestehende Auswahl> --capabilities <bestehende Auswahl>
+  --profile full`: `FOUNDATION_INTEGRITY` ohne Fehler oder blockierende
+  Findings. Acht Warnungen betreffen die erhaltenen erklärten Code-/Guide-
+  Overrides; AGENTS und der gewählte Discoveryadapter bleiben ebenfalls
+  als intentionale Abweichungen im Receipt erfasst.
+- Vollständiger Quellkatalogvergleich: genau ein Kandidat, genau eine
+  passende Bewertung und vorhandene Evidenzpfade.
+- `python Tests/Documentation/validate_documentation.py --base
+  eb8c0b3b2cfd2603f73eb77a64943f44ed348ba5 --head
+  51ba7d986075804cdb5dae101cb9f6852db63a58`: voller Offlineaudit erfolgreich,
+  45 Modulmanifeste und alle betroffenen Pakete. Enthalten sind 204
+  Redirect-Szenarien mit 112 Provenienzdateien, 111 HTTP-Response- und 266
+  Discoveryszenarien sowie bestehende Processing-/Securityprüfungen.
+  Die Handle-Suite besteht mit 13 Tests; zwei POSIX-Fälle werden unter
+  Windows plattformbedingt übersprungen.
+- Unabhängiger vollständiger 21-Dateien-Review am selben festen Head:
+  PASS ohne Befund. Nachpflege danach ausschließlich dieses Ergebnisnachweises.
+
+Der erste Audit und die gezielte Diagnose scheiterten an noch auf 1.24
+gebundenen Provenienzerwartungen. Deren feste Version, Quellcommit,
+Manifesthash, Projektionen und bekannte Upgradeziele sind auf den vorher
+manifestgeprüften 1.25-Stand aktualisiert. Historische Securitybaseline,
+Auswahl, Schutzgründe, alle Datei-Hashprüfungen und Transport-/Negativorakel
+bleiben erhalten. Der korrigierte volle Audit besteht; die früheren
+Fehlresultate werden nicht als Erfolg umgedeutet.
+
+Dieser lokale Nachweis ersetzt keine exakte finale Head-CI, keinen Merge
+und keine tatsächliche Main-Push-CI. Deren Ergebnisse und eigener
+Branchcleanup werden im bestehenden PR-Nachweis separat festgehalten.
 
 Native SQL-/Lab-, Live-Provider-, authentifizierte TLS- und reale
 Modellabnahmen sind `not applicable` für diesen reinen Governance- und
