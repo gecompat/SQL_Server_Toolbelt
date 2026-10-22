@@ -17,6 +17,17 @@ fi
 
 run_script_path="$(readlink -f "${run_script}")"
 
+# Authenticated intent and any part of its private context cannot enter the
+# disposable runner shortcut. Functional runners without context stay cheap.
+if [[ ! "${TBX_SQL_TEST_PURPOSE:-Functional}" =~ ^(Functional|AuthenticatedTls)$ ||
+      ( ( "${TBX_SQL_TEST_PURPOSE:-Functional}" == "AuthenticatedTls" ||
+          -n "${TBX_LAB_QUALIFIED_CONTEXT_FILE:-}${TBX_LAB_QUALIFIED_CONTEXT_SHA256:-}${TBX_LAB_QUALIFIED_PWSH:-}" ) &&
+        ( "${TBX_SQL_TARGET:-}" != "lab" || -z "${TBX_LAB_QUALIFIED_CONTEXT_FILE:-}" ||
+          -z "${TBX_LAB_QUALIFIED_CONTEXT_SHA256:-}" || -z "${TBX_LAB_QUALIFIED_PWSH:-}" ) ) ]]; then
+    echo "LAB_QUALIFIED_CONTEXT_REQUIRED" >&2
+    exit 65
+fi
+
 # GitHub Actions und andere disposable Runner verwenden weiterhin den
 # unveränderten Containerpfad. Nur der bereits validierte lokale Orchestrator
 # setzt TBX_SQL_TARGET=lab und aktiviert damit diesen Adapter.
@@ -86,6 +97,10 @@ fi
 run_control_query() {
     local query="$1"
     shift
+    if [[ "${TBX_SQL_TEST_PURPOSE:-Functional}" == "AuthenticatedTls" || -n "${TBX_LAB_QUALIFIED_CONTEXT_FILE:-}" ]]; then
+        if [[ -z "${TBX_LAB_QUALIFIED_PWSH:-}" || -z "${TBX_LAB_QUALIFIED_CONTEXT_FILE:-}" || -z "${TBX_LAB_QUALIFIED_CONTEXT_SHA256:-}" ]]; then return 65; fi
+        "${TBX_LAB_QUALIFIED_PWSH}" -NoLogo -NoProfile -File "${repo_root}/Tests/CI/Assert-LabQualifiedTlsBinding.ps1" -Sqlcmd || return 65
+    fi
     "${lab_sqlcmd}" "${base_sqlcmd_args[@]}" "$@" -Q "${query}"
 }
 
@@ -286,7 +301,6 @@ run_sqlcmd() {
           ( "${TBX_SQL_TEST_PURPOSE:-Functional}" == "AuthenticatedTls" && "${TBX_SQL_TRUST_SERVER_CERTIFICATE}" != "False" ) ]]; then
         return 65
     fi
-
     local -a parsed=(
         -S "tcp:${TBX_SQL_HOST},${TBX_SQL_PORT}"
         -U "${TBX_SQL_USER}"
@@ -380,6 +394,19 @@ run_sqlcmd() {
         esac
     done
 
+    # Erst nach der Argument-/Dateiaufbereitung und unmittelbar vor sqlcmd
+    # erneut pruefen. Ein abgewiesener Aufruf entfernt seine eigene Stdin-Kopie.
+    if [[ "${TBX_SQL_TEST_PURPOSE:-Functional}" == "AuthenticatedTls" || -n "${TBX_LAB_QUALIFIED_CONTEXT_FILE:-}" ]]; then
+        local guard_status=65
+        if [[ -n "${TBX_LAB_QUALIFIED_PWSH:-}" && -n "${TBX_LAB_QUALIFIED_CONTEXT_FILE:-}" && -n "${TBX_LAB_QUALIFIED_CONTEXT_SHA256:-}" ]]; then
+            guard_status=0
+            "${TBX_LAB_QUALIFIED_PWSH}" -NoLogo -NoProfile -File "${lab_workspace}/Tests/CI/Assert-LabQualifiedTlsBinding.ps1" -Sqlcmd || guard_status=65
+        fi
+        if [[ "${guard_status}" -ne 0 ]]; then
+            if [[ -n "${stdin_file}" ]]; then rm -f -- "${stdin_file}"; fi
+            return 65
+        fi
+    fi
     if [[ -n "${workdir}" ]]; then
         set +e
         (cd "${workdir}" && "${lab_sqlcmd}" "${parsed[@]}")

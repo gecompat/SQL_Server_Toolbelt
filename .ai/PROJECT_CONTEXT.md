@@ -1,5 +1,18 @@
 # PROJECT_CONTEXT.md – Projektzusammenhang
 
+## TLS-001 / SC-2026-045: gebundener V2-Consumer
+
+Der [Consumervertrag](../Documentation/Architecture/LAB_QUALIFIED_TLS_CONSUMER.md)
+setzt den gebundenen Lab-V2-Cutover um.
+V2 verwendet denselben geprüften Bytesnapshot mit explizitem Labkontext;
+Schema oder Runtime-READY ersetzen Signatur, Frische und Driftprüfung nicht.
+V1-Functional bleibt erhalten. Die native Windows-Teilmatrix bestand Docker
+und Podman mit SQL 2019 CU32, 2022 CU27 und 2025 CU9 separat: tatsächlicher
+Preflight, beide Clientstacks, Signatur-Negativfall und eigener Cleanup.
+Zwei ursprüngliche Fehlversuche bleiben erhalten; alle acht eigenen Labs sind
+entfernt. Linux-Clientprozesse, Hyper-V und die übrigen TLS-001-Schritte bleiben
+offen; dies ist kein pauschaler SC-045-Abschluss.
+
 ## JSON-Pointer-Welle 2026-10-05
 
 Die Antworten „Diese Pointer-Funktion freigegeben“ und anschließend

@@ -6,6 +6,10 @@ param(
     [string[]]$WindowsPatches = @('base'),
     [string]$TestSuite = 'full',
     [ValidateSet('Functional', 'AuthenticatedTls', IgnoreCase=$false)][string]$TestPurpose = 'Functional',
+    [string]$LabModuleFile,
+    [string]$LabTlsStateRoot,
+    [string]$LabTlsRunId,
+    [string]$LabTlsInstanceId,
     [string[]]$RunScripts = @(
         'run-result-table-linux.sh',
         'run-base64-linux.sh',
@@ -38,6 +42,7 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
 
 # Bei Aufruf über `pwsh -File` werden kommagetrennte Werte als ein Argument
 # übergeben. Die Normalisierung hält CLI- und interaktive Aufrufe gleichwertig.
@@ -73,6 +78,7 @@ function Get-EnvironmentVariableValue {
 }
 
 function Resolve-LabContract {
+    param([string]$TestPurpose='Functional',[object]$TlsContext)
     $contractPath = Get-EnvironmentVariableValue -Name 'SQL_SERVER_LAB_TEST_ENV_FILE'
     if ([string]::IsNullOrWhiteSpace($contractPath)) {
         $dataRoot = Get-EnvironmentVariableValue -Name 'SQL_SERVER_LAB_DATA_ROOT'
@@ -101,12 +107,27 @@ function Resolve-LabContract {
         throw 'SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE verweist nicht auf eine lesbare Datei.'
     }
 
-    $json = Get-Content -LiteralPath $contractPath -Raw
-    if (-not (Test-Json -Json $json -SchemaFile $schemaPath -ErrorAction Stop)) {
-        throw 'Der SQL_Server_Lab-Testvertrag ist nicht schema-valide.'
-    }
-
-    $contract = $json | ConvertFrom-Json
+    $stream=$null;$memory=$null;$textReader=$null;$snapshot=$null
+    try {
+        $stream=[IO.File]::Open($contractPath,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)
+        $bytes=Read-LabContractStreamBytes $stream 4194304
+        # BOM-Erkennung erhaelt bestehende V1-Fachvertraege. V2 muss zusaetzlich
+        # die geschlossene UTF-8-/Signaturpruefung des Labreaders bestehen.
+        $memory=[IO.MemoryStream]::new($bytes,$false)
+        $textReader=[IO.StreamReader]::new($memory,[Text.UTF8Encoding]::new($false,$true),$true)
+        $json=$textReader.ReadToEnd()
+        if (-not (Test-Json -Json $json -SchemaFile $schemaPath -ErrorAction Stop)) {
+            throw 'Der SQL_Server_Lab-Testvertrag ist nicht schema-valide.'
+        }
+        $contract = $json | ConvertFrom-Json
+        if($contract.contractVersion -ceq 'SqlServerLab.TestEnvironment/2.0'){
+            if($null -eq $TlsContext){throw 'LAB_QUALIFIED_CONTEXT_REQUIRED'}
+            Assert-LabQualifiedPrivateStream $stream
+            $snapshot=Read-LabQualifiedSnapshot $bytes $TlsContext
+            $contract=$snapshot.Contract
+        } elseif($contract.contractVersion -cne 'SqlServerLab.TestEnvironment/1.0') {throw 'LAB_CONTRACT_VERSION_UNSUPPORTED'}
+        elseif($TestPurpose -ceq 'AuthenticatedTls') {throw 'LAB_QUALIFIED_V2_REQUIRED'}
+    } finally {if($textReader){$textReader.Dispose()};if($memory){$memory.Dispose()};if($stream){$stream.Dispose()}}
     if ([string]$contract.groupStatus -cnotin @('READY', 'INCOMPLETE')) {
         throw 'Die SQL_Server_Lab-Gruppe ist weder READY noch für einzeln bereite Ziele verwendbar.'
     }
@@ -115,6 +136,7 @@ function Resolve-LabContract {
         Contract = $contract
         Path = $contractPath
         SchemaPath = $schemaPath
+        Snapshot = $snapshot
     }
 }
 
@@ -179,14 +201,24 @@ function New-LabConnectionString {
 function Invoke-LabPreflight {
     param(
         [Parameter(Mandatory)]$Entry,
-        [ValidateSet('Functional', 'AuthenticatedTls', IgnoreCase=$false)][string]$TestPurpose = 'Functional'
+        [ValidateSet('Functional', 'AuthenticatedTls', IgnoreCase=$false)][string]$TestPurpose = 'Functional',
+        [object]$Snapshot,
+        [object]$TlsContext
     )
 
     $started = [DateTimeOffset]::UtcNow
     $connection = $null
     try {
-        $connection = [System.Data.SqlClient.SqlConnection]::new(
-            (New-LabConnectionString -Entry $Entry -TestPurpose $TestPurpose))
+        if($null -ne $Snapshot){
+            $current=Read-LabQualifiedSnapshot $Snapshot.ExportBytes $TlsContext
+            if($current.Contract.environments[0].key -cne $Entry.key){throw 'LAB_QUALIFIED_TARGET_CHANGED'}
+            $Entry=$current.Contract.environments[0]
+            Assert-LabQualifiedConnectWindow $current
+        } elseif($TestPurpose -ceq 'AuthenticatedTls'){throw 'LAB_QUALIFIED_V2_REQUIRED'}
+        $builder=[Data.SqlClient.SqlConnectionStringBuilder]::new((New-LabConnectionString -Entry $Entry -TestPurpose $TestPurpose))
+        if($null -ne $Snapshot){$builder.Pooling=$false;$builder.ConnectRetryCount=0}
+        $connection = [System.Data.SqlClient.SqlConnection]::new($builder.ConnectionString)
+        $builder.Clear()
         $connection.Open()
 
         $command = $connection.CreateCommand()
@@ -214,6 +246,11 @@ function Invoke-LabPreflight {
         $actualMajor = [int]($actualVersion.Split('.')[0])
         if ($actualMajor -ne $expectedMajor) {
             throw 'Die erkannte SQL-Hauptversion entspricht nicht der Auswahl.'
+        }
+        if($null -ne $Snapshot){
+            if($actualVersion -cne $current.Qualification.SqlBuild){throw 'LAB_QUALIFIED_BUILD_CHANGED'}
+            $command.CommandText='SELECT encrypt_option FROM sys.dm_exec_connections WHERE session_id=@@SPID;'
+            if([string]$command.ExecuteScalar() -cne 'TRUE'){throw 'LAB_QUALIFIED_TRANSPORT_NOT_ENCRYPTED'}
         }
 
         return [PSCustomObject]@{
@@ -262,7 +299,7 @@ function Get-SafeFailureCause {
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $bash = Resolve-GitBash
-$sqlcmd = Get-Command sqlcmd -ErrorAction Stop
+$sqlcmd = Get-Command sqlcmd -CommandType Application -ErrorAction Stop | Select-Object -First 1
 $adapterPath = Join-Path $PSScriptRoot 'run-lab-target.sh'
 $adapterBashPath = ConvertTo-BashPath -Bash $bash -Path $adapterPath
 $zipReleaseRoot = $null
@@ -279,7 +316,8 @@ $resolvedRegexReleaseRoot = Resolve-Path `
 if ($null -ne $resolvedRegexReleaseRoot) {
     $regexReleaseRoot = $resolvedRegexReleaseRoot.Path
 }
-$lab = Resolve-LabContract
+$tlsContext=if($LabModuleFile -or $LabTlsStateRoot -or $LabTlsRunId){[pscustomobject]@{ModuleFile=$LabModuleFile;StateRoot=$LabTlsStateRoot;RunId=$LabTlsRunId;InstanceId=$LabTlsInstanceId}}else{$null}
+$lab = Resolve-LabContract -TestPurpose $TestPurpose -TlsContext $tlsContext
 
 $requestedSelectors = [System.Collections.Generic.List[object]]::new()
 foreach ($platform in $Platforms) {
@@ -417,9 +455,13 @@ $managedEnvironmentNames = @(
     'TBX_SQL_DATABASE',
     'TBX_SQL_KEY',
     'TBX_SQL_VERSION',
+    'TBX_SQL_RESOLVED_VERSION',
     'TBX_SQL_PATCH',
     'TBX_SQL_ENCRYPT',
     'TBX_SQL_TRUST_SERVER_CERTIFICATE',
+    'TBX_LAB_QUALIFIED_CONTEXT_FILE',
+    'TBX_LAB_QUALIFIED_CONTEXT_SHA256',
+    'TBX_LAB_QUALIFIED_PWSH',
     'TBX_TEST_DB_SUFFIX',
     'TBX_TEST_SQLCMD_BIN',
     'TBX_TEST_SUITE',
@@ -456,10 +498,12 @@ try {
         $passedTests = 0
         $failedTests = 0
         $notExecutedTests = 0
+        $qualifiedContext=$null
 
         try {
-            $preflight = Invoke-LabPreflight -Entry $target -TestPurpose $TestPurpose
+            $preflight = Invoke-LabPreflight -Entry $target -TestPurpose $TestPurpose -Snapshot $lab.Snapshot -TlsContext $tlsContext
             $actualVersion = $preflight.ActualVersion
+            if($null -ne $lab.Snapshot){$qualifiedContext=Open-LabQualifiedConsumerContext $lab.Snapshot $tlsContext $sqlcmd.Source}
 
             foreach ($runScript in $RunScripts) {
                 $runScriptPath = Join-Path $PSScriptRoot $runScript
@@ -527,9 +571,13 @@ try {
                     $env:TBX_SQL_DATABASE = [string]$target.database
                     $env:TBX_SQL_KEY = [string]$target.key
                     $env:TBX_SQL_VERSION = [string]$target.sqlVersion
+                    $env:TBX_SQL_RESOLVED_VERSION = [string]$target.resolvedVersion
                     $env:TBX_SQL_PATCH = [string]$target.patch
                     $env:TBX_SQL_ENCRYPT = 'True'
                     $env:TBX_SQL_TRUST_SERVER_CERTIFICATE = [string]$target.trustServerCertificate
+                    $env:TBX_LAB_QUALIFIED_CONTEXT_FILE=if($qualifiedContext){$qualifiedContext.Path}else{$null}
+                    $env:TBX_LAB_QUALIFIED_CONTEXT_SHA256=if($qualifiedContext){$qualifiedContext.Sha256}else{$null}
+                    $env:TBX_LAB_QUALIFIED_PWSH=if($qualifiedContext){[Environment]::ProcessPath}else{$null}
                     $env:TBX_TEST_DB_SUFFIX = $runSuffix
                     $env:TBX_TEST_SQLCMD_BIN = $sqlcmd.Source
                     $env:TBX_TEST_SUITE = $TestSuite
@@ -638,6 +686,13 @@ try {
             }
             if ($StopOnFailure) {
                 throw
+            }
+        }
+        finally {
+            try {Close-LabQualifiedConsumerContext $qualifiedContext}
+            catch {
+                $targetStatus='FAILED';$failedTests++;$cause='QUALIFIED_CONTEXT_CLEANUP_UNVERIFIED'
+                if($StopOnFailure){throw 'LAB_CONTEXT_CLEANUP_UNVERIFIED_RETAINED'}
             }
         }
 

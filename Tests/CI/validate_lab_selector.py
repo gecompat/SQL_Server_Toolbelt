@@ -17,6 +17,12 @@ result = subprocess.run([
 ], cwd=ROOT, check=False)
 if result.returncode:
     raise SystemExit(result.returncode)
+result = subprocess.run([
+    pwsh, "-NoLogo", "-NoProfile", "-File",
+    str(ROOT / "Tests/CI/test-lab-qualified-contract.ps1"),
+], cwd=ROOT, check=False)
+if result.returncode:
+    raise SystemExit(result.returncode)
 import sys
 for test in ("test_lab_tls.py", "test_lab_cleanup.py"):
     result = subprocess.run([sys.executable, "-B", str(ROOT / "Tests/CI" / test)], cwd=ROOT, check=False)

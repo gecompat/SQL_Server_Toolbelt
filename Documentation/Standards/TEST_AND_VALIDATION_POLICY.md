@@ -48,6 +48,10 @@ schema-validierten booleschen TrustServerCertificate-Wert. Encrypt bleibt
 True. Ein Verbindungsfehler löst weder Trustumschaltung noch Providerfallback aus.
 
 `TestPurpose=AuthenticatedTls` verlangt zusätzlich TrustServerCertificate=False.
+Es verlangt außerdem den [gebundenen V2-Snapshot](../Architecture/LAB_QUALIFIED_TLS_CONSUMER.md)
+mit explizitem Labmodul-/Run-/Instanz-/StateRoot-Kontext. Ein Schemaoverride
+allein qualifiziert keinen Export. Die gemeinsame native Abnahme bleibt
+von synthetischen Consumer- und Transportflagsprüfungen getrennt.
 Dieser Modus ist für Serveridentitäts-/Zertifikatsprüfungen und konkrete davon
 abhängige Funktionsverträge erforderlich. Ein erfolgreicher Fachtest mit
 Trust-Override qualifiziert keine authentifizierte TLS-Verbindung; deren

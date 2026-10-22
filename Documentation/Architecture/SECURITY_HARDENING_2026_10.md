@@ -11,6 +11,14 @@ in der nachfolgenden Reihenfolge. Cloudstatus ist kein Implementierungsstatus.
 
 ## Klarstellung SC-045 vom 2026-10-16
 
+Der [gebundene V2-Consumer](LAB_QUALIFIED_TLS_CONSUMER.md) ergänzt den
+qualifizierten Cutover vom 2026-10-22. V2-Bytes werden im
+gewählten Labkontext vor Clientverbindungen erneut geprüft; V1-Functional
+bleibt erhalten. Die gemeinsame native Windows-Abnahme bestand alle sechs
+Containerprofile mit beiden echten Stacks, Signatur-Negativfall und eigenem
+Cleanup. Linuxclients und Hyper-V bleiben offen; CI wird in den zugehörigen
+PRs geführt. Die Windows-Teilmatrix ist kein pauschaler SC-045-Abschluss.
+
 Der Benutzer hat die pauschale Blockierung unabhängiger Funktionsprüfungen
 durch die Lab-TLS-Qualifikation ausdrücklich aufgehoben. Aktuell gelten
 [getrennte Testzwecke](../Standards/TEST_AND_VALIDATION_POLICY.md#fachtests-und-verbindungstransport):
