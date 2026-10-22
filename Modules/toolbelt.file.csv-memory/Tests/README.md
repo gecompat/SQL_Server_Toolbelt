@@ -71,6 +71,18 @@ und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
 Evidenzbereich; Anleitung und Auswahl stehen davor.
 
 <!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### Abgesenktes globales Writer-Wertbytebudget mit vollem Callerwerterhalt 2026-10-22
+
+'-TestScope lower-value-budget-preservation': Acht Writerfälle je Modus: eine beziehungsweise zwei DATA-Zellen mit globaler Wertcharge genau1048576 oder1048578UTF16-Bytes, jeweils KeepData=0/1 und MaxValueBytes1048576. Vier Erfolge und vier SQL55303/state1-Abweisungen je Modus. Bei zwei Zellen bleibt jede einzelne unter der Grenze; die Summe entscheidet. Die unabhängig gesetzte vollständige CRLF-Ausgabe bleibt unter dem separaten Defaultoutputbudget16MiB und kann den Wertguard nicht verdecken. Je Fall eigener16MiB-Altzielwert: Erfolg ersetzt beziehungsweise ergänzt ihn exakt, Abweisung erhält ihn vollständig. Alle Quellwerte, Multiplizitäten, Metadaten, Objekt-IDs und bidirektionalen Katalogsnapshots bleiben erhalten. Qualifiziert wird ausschließlich das abgesenkte1MiB-Wertbudget.
+
+Acht getrennte SQLphasen mit KeepData=0/1. Vier Return0-Erfolge und vier exakt55303/state1-Abweisungen je Modus. Vollständige Byte-/Längen-/Zeilen-/Metadatenprüfungen, unveränderte Quellen und Schemata, getrennte neutrale Transaktion, eigener Fallcleanup vor Fortschritt und nur finaler typisierter8er-Witness.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1886 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'lower-value-budget-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Nur der ausdrücklich beschriebene Parameter-/Dialektumfang; keine unabhängig erfolgreiche Default-MaxValueBytes-Vollgrenze16MiB, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### Identische CSV-Quell-/Zielobjekte mit vollem Callerwerterhalt 2026-10-22
 
 '-TestScope source-target-alias-preservation': Acht ausschließlich SQL55308/state1-Abweisungen je Modus: identische Quelle und ResultTable mit normalem beziehungsweise Punkt/Klammer-Namen, jeweils DATA/HasHeader0 oder HEADER/HasHeader1 und KeepData=0/1. Die einzelne physische kanonische Callertabelle enthält unabhängig gesetzte genau16777216UTF16-Bytes. Vollständige Zeile, Kind/Ordinals, Multiplizität, Objekt-ID und bidirektionale Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots bleiben erhalten. Identische Raw-Argumente lösen dasselbe tatsächliche Objekt auf. Abweisung vor Snapshot-/Outputcharge, Transaktionsbeginn oder Zielanpassung; keine erfolgreiche Writer-/Bytegrenz- oder andere Namensaliasqualifikation.
