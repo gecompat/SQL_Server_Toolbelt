@@ -4,6 +4,18 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Spaete CSV-Rechteckabweisung mit vollem Zielerhalt 2026-10-22
+
+'-TestScope late-parser-rectangular': Vier syntaktisch gültige Inputs mit abweichender Spaltenzahl erst im letzten Record bei exakt16777216 UTF16-Inputbytes: zusätzliche beziehungsweise fehlende Schluss-Spalte nach LF oder CRLF. Jeweils KeepData=0 und1, insgesamt acht Fälle je Modus. Ausschließlich SQL55302/state1; vorheriger vollständiger16MiB-Callerwert, Objektidentität und bidirektional verglichene Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots bleiben unverändert. Transaktionsneutralität separat geprüft, keine partielle Zielmutation.
+
+Acht SQLphasen je Modus: vier gültig gescannte, am Schluss nicht rechteckige Inputs jeweils mit Replace- und Append-Einstellung. Alle acht ausschließlich55302/state1. Vollständige16MiB-Input-/Zielbytes sowie Zielinhalt und Zielmetadaten vor/nach geprüft; isolierter Neutralitätswitness und genau ein typisierter Abschluss.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1206 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'late-parser-rectangular' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ## Spaete CSV-Syntaxabweisung mit vollem Zielerhalt 2026-10-22
 
 '-TestScope late-parser-syntax': Vier späte Quote-Syntaxfehler im letzten Record bei exakt16777216 UTF16-Inputbytes: offenes Quote am EOF, Text nach geschlossenem Quote, Quote im unquotierten Feld und Text nach Quote hinter CRLF. Jeweils KeepData=0 und1, insgesamt acht Fälle je Modus. Ausschließlich SQL55301/state1; vorheriger vollständiger16MiB-Callerwert, Objektidentität und bidirektional verglichene Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots bleiben unverändert. Transaktionsneutralität separat geprüft, keine partielle Zielmutation.

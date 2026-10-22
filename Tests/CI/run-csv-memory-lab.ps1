@@ -10,7 +10,7 @@ param(
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{64}$')][string]$ExpectedDriverSHA256,
  [Parameter(Mandatory)][ValidatePattern('^[A-Fa-f0-9]{128}$')][string]$ExpectedAssemblySHA512,
  [ValidateNotNullOrEmpty()][ValidateCount(1,2)][ValidateSet('local','central')][string[]]$DeploymentModes=@('local','central'),
- [ValidateSet('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings','shape-ceilings-and-default','cell-ceilings','text-ceilings','quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax',IgnoreCase=$false)][string]$TestScope='default',
+ [ValidateSet('default','ownership-markers','foreign-slots','marker-absence','foreign-kinds','foreign-aliases','foreign-table-functions','binding-drift','binding-defaults','named-consumers','schema-values','marker-values','binding-execution','binding-return-lengths','shape-ceilings','shape-ceilings-and-default','cell-ceilings','text-ceilings','quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax','late-parser-rectangular',IgnoreCase=$false)][string]$TestScope='default',
  [switch]$OptInExactTrust
 )
 Set-StrictMode -Version Latest
@@ -92,7 +92,7 @@ function Invoke-CsvBatches($Connection,[string]$Sql){
  }
 }
 
-function Get-CsvExpansionFixture([ValidateSet('quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax',IgnoreCase=$false)][string]$Scope){
+function Get-CsvExpansionFixture([ValidateSet('quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax','late-parser-rectangular',IgnoreCase=$false)][string]$Scope){
  switch -CaseSensitive ($Scope){
   'quote-expansion'{return [pscustomobject]@{File='QuoteExpansion.Tests.sql';Fixture='CSV_QUOTE_EXPANSION';Stage='QUOTE_EXPANSION'}}
   'crlf-ceilings'{return [pscustomobject]@{File='CrlfCeilings.Tests.sql';Fixture='CSV_CRLF_CEILINGS';Stage='CRLF_CEILINGS'}}
@@ -107,11 +107,12 @@ function Get-CsvExpansionFixture([ValidateSet('quote-expansion','crlf-ceilings',
   'caller-transaction-preservation'{return [pscustomobject]@{File='CallerTransactionPreservation.Tests.sql';Fixture='CSV_CALLER_TRANSACTION_GUARDS';Stage='CALLER_TRANSACTION_GUARDS'}}
   'schema-target-preservation'{return [pscustomobject]@{File='SchemaTargetPreservation.Tests.sql';Fixture='CSV_SCHEMA_TARGET_GUARDS';Stage='SCHEMA_TARGET_GUARDS'}}
   'late-parser-syntax'{return [pscustomobject]@{File='LateParserSyntaxPreservation.Tests.sql';Fixture='CSV_LATE_PARSER_SYNTAX';Stage='LATE_PARSER_SYNTAX'}}
+  'late-parser-rectangular'{return [pscustomobject]@{File='LateParserRectangularPreservation.Tests.sql';Fixture='CSV_LATE_PARSER_RECTANGULAR';Stage='LATE_PARSER_RECTANGULAR'}}
   default{throw 'CSV_EXPANSION_SCOPE_REQUIRED'}
  }
 }
 
-function Get-CsvShapeCeilingCount([object[]]$Rows,[ValidateSet('CSV_SHAPE_CEILINGS','CSV_CELL_CEILINGS','CSV_TEXT_CEILINGS','CSV_QUOTE_EXPANSION','CSV_CRLF_CEILINGS','CSV_NULL_TOKEN_CEILINGS','CSV_HEADER_TEXT_CEILINGS','CSV_UNICODE_TEXT_CEILINGS','CSV_CONTROL_TEXT_CEILINGS','CSV_KEEPDATA_CEILINGS','CSV_BUDGET_PARAMETER_GUARDS','CSV_SELECT_OUTPUT_CEILINGS','CSV_SELECT_UNICODE_NULL','CSV_CALLER_TRANSACTION_GUARDS','CSV_SCHEMA_TARGET_GUARDS','CSV_LATE_PARSER_SYNTAX',IgnoreCase=$false)][string]$ExpectedFixture='CSV_SHAPE_CEILINGS'){
+function Get-CsvShapeCeilingCount([object[]]$Rows,[ValidateSet('CSV_SHAPE_CEILINGS','CSV_CELL_CEILINGS','CSV_TEXT_CEILINGS','CSV_QUOTE_EXPANSION','CSV_CRLF_CEILINGS','CSV_NULL_TOKEN_CEILINGS','CSV_HEADER_TEXT_CEILINGS','CSV_UNICODE_TEXT_CEILINGS','CSV_CONTROL_TEXT_CEILINGS','CSV_KEEPDATA_CEILINGS','CSV_BUDGET_PARAMETER_GUARDS','CSV_SELECT_OUTPUT_CEILINGS','CSV_SELECT_UNICODE_NULL','CSV_CALLER_TRANSACTION_GUARDS','CSV_SCHEMA_TARGET_GUARDS','CSV_LATE_PARSER_SYNTAX','CSV_LATE_PARSER_RECTANGULAR',IgnoreCase=$false)][string]$ExpectedFixture='CSV_SHAPE_CEILINGS'){
  if($null -eq $Rows -or $Rows.Count -ne 1 -or $null -eq $Rows[0]){throw 'CSV_SHAPE_COMPLETION_REQUIRED'}
  $names=@($Rows[0].PSObject.Properties.Name)
  if($names.Count -ne 2 -or 'Fixture' -cnotin $names -or 'CasesPassed' -cnotin $names -or
@@ -351,7 +352,7 @@ try{
  }
  $prompt=Get-EnvironmentVariableValue 'SQL_SERVER_LAB_TEST_ENV_PROMPT_FILE'
  $guardPath=Join-Path $module 'Tests/Runtime/OwnershipGuards.Tests.ps1'
- if($TestScope -cnotin @('default','shape-ceilings','shape-ceilings-and-default','cell-ceilings','text-ceilings','quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax')){
+ if($TestScope -cnotin @('default','shape-ceilings','shape-ceilings-and-default','cell-ceilings','text-ceilings','quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax','late-parser-rectangular')){
   $guardPaths=@($guardPath)
   if($TestScope -cin @('foreign-slots','foreign-kinds','foreign-aliases','foreign-table-functions','named-consumers')){$guardPaths+=@(Join-Path $module 'Tests/Runtime/ForeignGuards.Tests.ps1')}
   if($TestScope -ceq 'named-consumers'){$guardPaths+=@(Join-Path $module 'Tests/Runtime/NamedConsumers.Tests.ps1')}
@@ -470,7 +471,7 @@ IF NOT EXISTS(SELECT 1 FROM sys.assemblies a JOIN sys.assembly_files f ON f.asse
  THROW 51594,N'CSV exact binary witness failed.',3;
 IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness failed.',4;
 '@ @{'@Hash'=[Convert]::FromHexString($hash)}
-    if($TestScope -cin @('quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax')){
+    if($TestScope -cin @('quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax','late-parser-rectangular')){
      Assert-CsvPins
      $expansion=Get-CsvExpansionFixture $TestScope
      $expansionSql=Read-CsvSql (Join-Path $module ('Tests/Runtime/'+$expansion.File)) $variables
@@ -537,7 +538,7 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
      Save-CsvJournal
     }
     # Der kombinierte Scope führt danach denselben unveränderten Defaultpfad aus.
-    if($TestScope -cnotin @('shape-ceilings','cell-ceilings','text-ceilings','quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax')){
+    if($TestScope -cnotin @('shape-ceilings','cell-ceilings','text-ceilings','quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax','late-parser-rectangular')){
     if($TestScope -ceq 'schema-values'){
      $stage='SCHEMA_VALUES_'+$mode
      $ledger.GuardCasesPassed+=Invoke-CsvMarkerGuards $connection $deploy $uninstall $mode -Family 'schema-values'
@@ -624,7 +625,7 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
    }finally{if($connection){$connection.Dispose()}}
   }
   Assert-CsvPins
-  if($TestScope -cin @('quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax')){
+  if($TestScope -cin @('quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax','late-parser-rectangular')){
    if($ledger.ExpansionCasesPassed -ne (8*$DeploymentModes.Count) -or $ledger.TextCeilingCasesPassed -ne 0 -or $ledger.CellCeilingCasesPassed -ne 0 -or $ledger.ShapeCeilingCasesPassed -ne 0 -or $ledger.GuardCasesPassed -ne 0 -or $ledger.LifecycleCasesPassed -ne 0){throw 'CSV_EXPANSION_COMPLETENESS_REQUIRED'}
   }
   if($TestScope -ceq 'text-ceilings'){
@@ -636,7 +637,7 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
   if($TestScope -cin @('shape-ceilings','shape-ceilings-and-default')){
    $expectedLifecycle=if($TestScope -ceq 'shape-ceilings-and-default'){14*$DeploymentModes.Count+[int]('central' -cin $DeploymentModes)}else{0}
    if($ledger.ShapeCeilingCasesPassed -ne (8*$DeploymentModes.Count) -or $ledger.GuardCasesPassed -ne 0 -or $ledger.LifecycleCasesPassed -ne $expectedLifecycle){throw 'CSV_SHAPE_COMPLETENESS_REQUIRED'}
-  }elseif($TestScope -cnotin @('default','cell-ceilings','text-ceilings','quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax')){
+  }elseif($TestScope -cnotin @('default','cell-ceilings','text-ceilings','quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax','late-parser-rectangular')){
    $perMode=switch -CaseSensitive ($TestScope){'ownership-markers'{20};'marker-values'{50};'schema-values'{8};'marker-absence'{54};'foreign-slots'{14};'foreign-kinds'{20};'foreign-aliases'{20};'foreign-table-functions'{20};'binding-drift'{16};'binding-defaults'{10};'binding-execution'{6};'binding-return-lengths'{4};'named-consumers'{10};default{throw 'CSV_GUARD_SCOPE_UNKNOWN'}}
    if($ledger.GuardCasesPassed -ne ($perMode*$DeploymentModes.Count)){throw 'CSV_GUARD_COMPLETENESS_REQUIRED'}
    if($TestScope -ceq 'foreign-slots' -and $ledger.GuardWitnessControls -ne (2*$DeploymentModes.Count)){throw 'CSV_FOREIGN_WITNESS_COMPLETENESS_REQUIRED'}
@@ -662,9 +663,9 @@ IF @@TRANCOUNT<>0 OR XACT_STATE()<>0 THROW 51594,N'CSV neutral session witness f
  if($cleanupBlocked){Write-Output 'FAILED: CSV_CLEANUP_BLOCKED';exit 1}
  if($failed){Write-Output ('FAILED: CSV_'+$ledger.OriginalFailure.Stage+'_SQL'+$ledger.OriginalFailure.SqlNumber+'_STATE'+$ledger.OriginalFailure.SqlState+'_'+$ledger.OriginalFailure.Reason);exit 1}
  $completed=$ledger.CompletedModes -join ','
- if($TestScope -cin @('quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax')){
+ if($TestScope -cin @('quote-expansion','crlf-ceilings','null-token-ceilings','header-text-ceilings','unicode-text-ceilings','control-text-ceilings','keepdata-ceilings','budget-parameter-preservation','select-output-ceilings','select-unicode-null','caller-transaction-preservation','schema-target-preservation','late-parser-syntax','late-parser-rectangular')){
   $expansion=Get-CsvExpansionFixture $TestScope
-  $completionSummary=if($isDirectSelect){'direct-SELECT/TDS/types/full-UTF16-text/exact-16MiB/plus-two/no-partial-result/source-preservation/repeat/uninstall'}elseif($TestScope -ceq 'budget-parameter-preservation'){'eight-invalid-upper-budgets-per-mode/full-16MiB-caller-targets/source-target-preservation/repeat/uninstall'}elseif($TestScope -ceq 'schema-target-preservation'){'eight-KeepData1-schema-rejections-SQL51025-state1-per-mode/full-16MiB-caller-targets/source-target-schema-preservation/repeat/uninstall'}elseif($TestScope -ceq 'late-parser-syntax'){'eight-late-parser-syntax-rejections-SQL55301-state1-per-mode/exact-16MiB-input/KeepData0-1/full-16MiB-target-schema-preservation/repeat/uninstall'}else{'exact-16MiB/plus-two-UTF16-bytes/input/output/source/target-preservation/repeat/uninstall'}
+  $completionSummary=if($isDirectSelect){'direct-SELECT/TDS/types/full-UTF16-text/exact-16MiB/plus-two/no-partial-result/source-preservation/repeat/uninstall'}elseif($TestScope -ceq 'budget-parameter-preservation'){'eight-invalid-upper-budgets-per-mode/full-16MiB-caller-targets/source-target-preservation/repeat/uninstall'}elseif($TestScope -ceq 'schema-target-preservation'){'eight-KeepData1-schema-rejections-SQL51025-state1-per-mode/full-16MiB-caller-targets/source-target-schema-preservation/repeat/uninstall'}elseif($TestScope -ceq 'late-parser-syntax'){'eight-late-parser-syntax-rejections-SQL55301-state1-per-mode/exact-16MiB-input/KeepData0-1/full-16MiB-target-schema-preservation/repeat/uninstall'}elseif($TestScope -ceq 'late-parser-rectangular'){'eight-late-parser-width-rejections-SQL55302-state1-per-mode/exact-16MiB-input/KeepData0-1/full-16MiB-target-schema-preservation/repeat/uninstall'}else{'exact-16MiB/plus-two-UTF16-bytes/input/output/source/target-preservation/repeat/uninstall'}
   Write-Output ('PASS: CSV_'+$expansion.Stage+' '+$Platform+'/'+$Version+'/'+$ledger.Patch+' CL'+$CompatibilityLevel+' modes='+$completed+' functional-cases='+$ledger.ExpansionCasesPassed+' '+$completionSummary+'; owned-cleanup. Independent MaxValueBytes ceiling/client/heap/full matrix NOT_EXECUTED.')
   continue
  }
