@@ -132,6 +132,7 @@ tests:
   header_row_budget_preservation: "Tests/Runtime/HeaderRowBudgetPreservation.Tests.sql"
   alternate_separator_preservation: "Tests/Runtime/AlternateSeparatorPreservation.Tests.sql"
   lower_input_budget_preservation: "Tests/Runtime/LowerInputBudgetPreservation.Tests.sql"
+  header_cell_budget_preservation: "Tests/Runtime/HeaderCellBudgetPreservation.Tests.sql"
   select_reader: "Tests/Framework/CsvDirectSelect.Helpers.ps1"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   ownership_guards: "Tests/Runtime/OwnershipGuards.Tests.ps1"
