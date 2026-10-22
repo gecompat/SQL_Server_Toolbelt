@@ -364,11 +364,11 @@ def export_stable(files: dict[str, bytes], plan: dict) -> dict[str, bytes]:
         return result
 
 
-def write_zip(payload: dict[str, bytes]) -> bytes:
+def write_zip(payload: dict[str, bytes], root_name: str = NAME) -> bytes:
     output = io.BytesIO()
     with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for path, data in sorted(payload.items()):
-            info = zipfile.ZipInfo(NAME + "/" + path, date_time=(1980, 1, 1, 0, 0, 0))
+            info = zipfile.ZipInfo(root_name + "/" + path, date_time=(1980, 1, 1, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.create_system = 3
             info.external_attr = (stat.S_IFREG | 0o644) << 16
