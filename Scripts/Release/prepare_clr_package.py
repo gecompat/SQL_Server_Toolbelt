@@ -55,10 +55,12 @@ def expand_uninstall(files: dict[str, bytes], path: str, expected: dict, stack=(
     text = files[path].decode('utf-8-sig')
     def include(match):
         child = (Path(path).parent / match[1].strip().strip('"\'')).as_posix()
-        # Die kanonischen Includes bleiben innerhalb ihres Moduls.
+        # JSON-Lifecycle-Skripte referenzieren ihre gepinnten Core-/Consumer-
+        # Dependencies auch modulübergreifend. Nur versionierte SQL-Quellen.
         import posixpath
         child = posixpath.normpath(child)
-        release.require(child.startswith('/'.join(path.split('/')[:2]) + '/'), 'Uninstall außerhalb des Moduls.')
+        release.require(child.startswith('Modules/') and child.endswith('.sql') and child in files,
+                        'Uninstall außerhalb der versionierten Modulquellen.')
         return expand_uninstall(files, child, expected, stack + (path,))
     text = re.sub(r'(?im)^\s*:r\s+([^\r\n]+)\s*$', include, text)
     values = dict(expected, ConfirmNoExternalConsumers='1')

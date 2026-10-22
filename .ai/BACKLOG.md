@@ -39,6 +39,24 @@ Fehlerklärung; README, Dokumentationsübersicht und Paketstart verlinken sie.
 Paketpflege mit vollständiger Quellprüfung und der Endanwenderweg mit
 verpflichtendem Prüfsummenvergleich bleiben klar unterschieden.
 
+## Vorgebaute CLR-Installation v1.0.0 — 2026-10-22
+
+Ausdrücklicher unmittelbarer Benutzerauftrag: fertige DLLs mitliefern, den
+Quellcode beibehalten und eine schnelle Installation ohne eigenen Build
+ermöglichen. Ein abgegrenztes Paketierungsarbeitspaket/ein PR, keine neue
+fachliche API und keine Änderung der Stable-/Preview-Einstufung. Allgemeine
+autonome Weiterentwicklung und Veröffentlichung bleiben pausiert.
+
+Der vorhandene reproduzierbare Doppelbuild ist an identische Produktquellen
+gebunden. SSIS-/Parser-/ScriptDom-Binaries werden aus dem bestehenden
+qualifizierten Satz übernommen; andere Provider bleiben exakt an ihre
+Buildbytes gebunden. Vier explizite Installationsprofile erhalten Windows-,
+SAFE-/UNSAFE- und lokale/zentralen Grenzen sowie kanonische Hash-/Lifecycle-
+Guards. Fertige SQL-Dateien enthalten die Assemblybytes; DLLs, Quellcode,
+Trustwerte und Attributionen werden zusätzlich ausgeliefert. Offline- und
+native Paketprüfung stehen vor der tatsächlichen Übernahme des Pakets an.
+Alle vorhandenen fachlichen Releasegates bleiben sichtbar.
+
 ## Dokumentationspflege aus Foundation 1.25 — 2026-10-22
 
 Der ausdrücklich beauftragte [Foundation-Upgrade](../Documentation/Architecture/FOUNDATION_1_25_INTEGRATION.md)
