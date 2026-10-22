@@ -5,6 +5,9 @@ import io
 import json
 from pathlib import Path
 import stat
+import shutil
+import subprocess
+import sys
 import unittest
 import warnings
 import zipfile
@@ -113,11 +116,53 @@ class PreparationTests(unittest.TestCase):
 
     def test_root_entrypoint_links_are_rebased(self):
         data = {f"{release.DIRECTORY}/START-HERE.md":
-                b"[guide](README.md) [matrix](FREIGABEMATRIX.md) [deployment](../../Deployment/README.md)"}
+                b"[guide](README.md) [matrix](FREIGABEMATRIX.md) [gates](RELEASE-GATES.md) [deployment](../../Deployment/README.md)"}
         actual = release.start_here(data).decode()
         self.assertIn(f"({release.DIRECTORY}/README.md)", actual)
         self.assertIn(f"({release.DIRECTORY}/FREIGABEMATRIX.md)", actual)
         self.assertIn("(Deployment/README.md)", actual)
+        self.assertIn(f"({release.DIRECTORY}/RELEASE-GATES.md)", actual)
+
+    def test_native_harness_guards_without_sql_access(self):
+        pwsh = shutil.which("pwsh")
+        if pwsh is None:
+            self.skipTest("PowerShell 7 fehlt; kein SQL-Ersatzlauf")
+        result = subprocess.run([pwsh, "-NoProfile", "-NonInteractive", "-File",
+                                 str(ROOT / "Tests/Release/Test-StablePackageHarness.ps1")],
+                                capture_output=True, timeout=30)
+        self.assertEqual(result.returncode, 0, "Native Harnessguards fehlgeschlagen")
+        self.assertIn(b"PASS RELEASE_HARNESS", result.stdout)
+
+    def test_build_candidate_rejects_embedded_private_paths(self):
+        sys.path.insert(0, str(ROOT / "Scripts/Release"))
+        import check_clr_builds
+        nested = ROOT / "Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip"
+        with zipfile.ZipFile(nested) as archive:
+            name = next(n for n in archive.namelist() if n.endswith("/Toolbelt.Tsql.SsisDebug.dll"))
+            binary = archive.read(name)
+        private = ROOT / ".runtime" / "synthetic-build-input"
+        check_clr_builds.check_binary(binary, [private])
+        for encoding in ("utf-8", "utf-16-le"):
+            with self.subTest(encoding=encoding), self.assertRaises(check_clr_builds.release.ReleaseError):
+                check_clr_builds.check_binary(binary + str(private).encode(encoding), [private])
+
+    def test_native_evidence_cannot_cover_changed_inputs(self):
+        evidence = json.loads((ROOT / release.QUALIFICATION).read_bytes())
+        files = dict(self.files)
+        paths = (evidence["native_package"]["driver"], evidence["native_package"]["method"],
+                 evidence["clr_build_inputs"]["method"])
+        for path in paths:
+            files[path] = (ROOT / path).read_bytes()
+        files[release.QUALIFICATION] = release.encoded(evidence)
+        release.validate_qualification(files, self.plan)
+        for path in paths:
+            changed = dict(files)
+            changed[path] += b"# changed input\n"
+            with self.assertRaises(release.ReleaseError):
+                release.validate_qualification(changed, self.plan)
+        with self.assertRaises(release.ReleaseError):
+            release.validate_qualification(files, self.plan,
+                                          {"Install-Stable-local.sql": b"SELECT 1;", "Install-Stable-central.sql": b"SELECT 1;"})
 
 
 if __name__ == "__main__":

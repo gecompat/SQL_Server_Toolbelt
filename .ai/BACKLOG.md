@@ -21,6 +21,17 @@ SSIS-Installationssatz; weitere vorgebaute CLR-Pakete bleiben ein sichtbares
 Liefergate. Konkrete Supportkombinationen, fachlicher Release-Review und
 Veröffentlichungsfreigabe sind weiterhin ausstehend. Kein Tag oder Release.
 
+Anschließender ausdrücklicher Benutzerauftrag vom 2026-10-22: ohne weitere
+Entscheidungen ausführbare Release-/Paketierungsgates abarbeiten und dafür
+einen PR erstellen; nicht veröffentlichen und die Entwicklungspause erhalten.
+Der [Gatebericht](../Releases/1.0.0/RELEASE-GATES.md) belegt zwölf native
+stabile Paketfälle einschließlich eigenem Cleanup und die zweimal isolierten,
+bytegleichen Builds aller zwölf CLR-Projekte. Der bereinigte Marker-Erstfehler
+bleibt fehlgeschlagen. Neue CLR-Binaries werden nicht unqualifiziert ins
+Quellpaket übernommen; Supportabnahme, deren fehlende Pflichtnachweise,
+vollständiger CLR-Installationssatz und Veröffentlichung bleiben getrennt offen.
+Keine Änderung an fachlichen SQL-Objekten, Modulversionen oder Prüfstatuswerten.
+
 ## Dokumentationspflege aus Foundation 1.25 — 2026-10-22
 
 Der ausdrücklich beauftragte [Foundation-Upgrade](../Documentation/Architecture/FOUNDATION_1_25_INTEGRATION.md)

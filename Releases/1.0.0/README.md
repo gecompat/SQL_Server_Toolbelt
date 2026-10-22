@@ -36,14 +36,16 @@ Voraussetzungen sind ein vollständiger Git-Checkout, Python 3.10 oder neuer
 und PowerShell 7. Es werden weder SQL Server, `sqlcmd`, Labzugang noch
 Verbindungsdaten benötigt. Die Python-Werkzeuge nutzen die Standardbibliothek.
 
-Im Repositoryroot, nach Commit der Releasevorbereitung:
+Im Repositoryroot, nach Commit der Releasevorbereitung, in einem neuen
+privaten Ausgabeordner; das versionierte ZIP wird dabei nicht überschrieben:
 
 ```powershell
 python -B Scripts/Release/prepare_release.py --check
+New-Item -ItemType Directory .runtime/release-rebuild
 python -B Scripts/Release/prepare_release.py --build --source-commit HEAD `
-  --output Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip
+  --output .runtime/release-rebuild/SQL-Server-Toolbelt-1.0.0-candidate-source.zip
 python -B Scripts/Release/prepare_release.py `
-  --verify Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip
+  --verify .runtime/release-rebuild/SQL-Server-Toolbelt-1.0.0-candidate-source.zip
 ```
 
 Das Zielverzeichnis muss bestehen; ZIP und Prüfsumme dürfen noch nicht
@@ -107,10 +109,14 @@ negative Fälle und laufen über den bestehenden Dokumentationsworkflow.
    Loopback-Provider gemäß den Modulregeln vorbereiten; das Paket ändert diese
    Voraussetzungen nicht. Uninstall folgt dem jeweiligen Modulvertrag.
 
-Die breite Installationsabnahme des erzeugten Gesamtpakets ist `not executed`.
-Bestehende native Modulnachweise bleiben mit ihrem dokumentierten Scope
-verlinkt. Packagingchecks behaupten keine neue Rechte-, Speicher-,
-Parallelitäts-, Recovery- oder TLS-Qualifikation.
+Die gepackten Exports der 19 stabilen Kandidaten bestanden auf zwölf
+Windows-/Linux-/SQL-/CL-Kombinationen Erstinstallation, Wiederholung,
+zentralen Consumer und Uninstall. Der [Gatebericht](RELEASE-GATES.md)
+nennt den exakten Scope, die Eingabebindung und den bereinigten Erstfehler.
+Die Gesamtinstallation aller 45 Module einschließlich Preview und CLR ist
+weiter `not executed`. Bestehende native Modulnachweise bleiben mit ihrem
+dokumentierten Scope verlinkt. Der Pakettest behauptet keine neue Rechte-,
+Speicher-, Parallelitäts-, Recovery- oder TLS-Qualifikation.
 
 ## Vor einer Veröffentlichung
 
@@ -132,6 +138,8 @@ Parallelitäts-, Recovery- oder TLS-Qualifikation.
 
 Authentifizierte TLS-Abnahme und optionale Laufzeitmessungen bleiben getrennt.
 Es werden kein Tag, GitHub-Release oder Veröffentlichungszeitpunkt vorgetäuscht.
+Der [aktuelle Gatebericht](RELEASE-GATES.md) unterscheidet erledigte technische
+Vorarbeiten, noch fehlende Nachweise und Entscheidungen zur Veröffentlichung.
 
 ## Quellen und Pflege
 

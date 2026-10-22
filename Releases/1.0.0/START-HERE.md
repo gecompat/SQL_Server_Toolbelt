@@ -28,3 +28,7 @@ Labkonfigurationsänderung. Die [Lizenz](../../LICENSE.md) gilt unverändert.
 `PREPARATION.bundle` erhält den Quellcommit auch nach Branchcleanup. Der
 Prüfmodus benötigt einen vollständigen Checkout mit der genannten Produktbasis
 und rekonstruiert die Vorbereitung ausschließlich lokal und temporär.
+
+Die [Releasegates](RELEASE-GATES.md) zeigen die ausgeführte Installation der
+stabilen Paketexports und die Grenzen der CLR-Buildprüfung. Sie sind keine
+Veröffentlichungsfreigabe für das Gesamtpaket oder die Preview-Module.

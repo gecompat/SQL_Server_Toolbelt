@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-22 – Stabile Paketexports nativ geprüft
+
+Der [Gatebericht zur v1.0.0-Vorbereitung](Releases/1.0.0/RELEASE-GATES.md)
+belegt zwölf Windows-/Linux-/SQL-/CL-Paketfälle mit Erstinstallation,
+Wiederholung, zentralem Consumer, Uninstall und unabhängigen Cleanupaudits.
+Alle zwölf CLR-Projekte bestehen zwei bytegleiche isolierte Builds mit
+PE-/Buildpfadprüfung. Die SQL-Payloads und Adapter bleiben an die tatsächliche
+Evidenz gebunden; neue Binaryhashes werden nicht als nativ qualifiziert oder
+ausgeliefert dargestellt. Modulstatus und Veröffentlichung bleiben unverändert.
+
 ## 2026-10-22 – Gesamtpaket v1.0.0 vorbereitet, nicht veröffentlicht
 
 Die [Releasevorbereitung](Releases/1.0.0/README.md) enthält alle 45 Module
