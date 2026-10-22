@@ -71,6 +71,18 @@ und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
 Evidenzbereich; Anleitung und Auswahl stehen davor.
 
 <!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### Writer-Quellnamenabweisung mit vollem Callerwerterhalt 2026-10-22
+
+'-TestScope writer-local-source-name-preservation': Vier bestehende ungültige oder fehlende Writerquellen jeweils KeepData=0/1: NULL, globaler Tempname, Name ohne lokalen Praefix und fehlende lokale Quelle. Acht ausschließlich SQL55304/state1-Abweisungen je Modus. Vollständiger16MiB-Altoutput und eine unabhängig vorhandene gültige synthetische Callerquelle unter16MiB bleiben bytegenau erhalten, einschließlich Objektidentitäten und bidirektionaler Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots. Die ungültig benannten Quellen werden weder angelegt noch als gültige Eingaben qualifiziert; erwartete Abwesenheit bleibt erhalten. Keine neue Bytegrenzabnahme.
+
+Acht SQLphasen: vier Quellnamensformen jeweils Replace/Append. Exakte55304/state1-Signatur, vollständiger Callerquell-/Altzielerhalt, getrennte Transaktionsneutralität, ausdrückliche Abwesenheitszeugen für fehlende lokale/globale Namen und nur ein finaler typisierter8er-Abschluss.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1606 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'writer-local-source-name-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### Reservierte Writer-Tempnamen mit vollem Callerwerterhalt 2026-10-22
 
 '-TestScope reserved-temp-namespace-preservation': Vier einzeln belegte private Writerslots Input, Measure, Fragments und Result, jeweils KeepData=0/1. Acht ausschließlich SQL55304/state1-Abweisungen je Modus vor der Workbatch. Die synthetische Callerprobe besitzt absichtlich fremdes Schema und einen unabhängig gesetzten16MiB-Wert; dieser sowie gültige DATA-Quelle unter16MiB und vollständiger16MiB-Altoutput bleiben bytegenau erhalten. Alle drei Objektidentitäten und bidirektionalen Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots bleiben unverändert. Jede eigene Probe wird vor dem nächsten Fall entfernt. Kein vollständiger Namespace-, Parser- oder neuer Bytegrenzumfang.
