@@ -201,7 +201,7 @@ class ClrPackageTests(unittest.TestCase):
 
     def test_corrupt_external_checksum_and_duplicate_zip_entries_fail(self):
         import tempfile
-        with tempfile.TemporaryDirectory(prefix='clr-negative-',dir=ROOT / '.runtime') as temp:
+        with tempfile.TemporaryDirectory(prefix='clr-negative-',dir=self.clr.release.runtime_root()) as temp:
             path = Path(temp) / self.package.name
             path.write_bytes(self.package.read_bytes())
             checksum = Path(str(path)+'.sha256')
