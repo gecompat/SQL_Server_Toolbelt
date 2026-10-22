@@ -264,7 +264,16 @@ def preparation_bundle(commit: str, product_commit: str) -> tuple[str, bytes]:
         frozen = git("commit-tree", tree, "-p", product_commit, "-m",
                      "Codex: Freeze v1.0.0 preparation tree with synthetic metadata", env=env).decode().strip()
         require(snapshot(frozen)[1] == snapshot(commit)[1], "Sanitizer hat Quellbytes geändert.")
-        git("-c", "pack.threads=1", "bundle", "create", str(bundle), frozen, "^" + product_commit)
+        # Git bundle benötigt einen benannten Ref. Dieser entsteht nur im
+        # eigenen temporären Bare-Repository, niemals im Arbeitscheckout.
+        bare = Path(temp) / "repository"
+        bare.mkdir()
+        bundle_env = dict(env, GIT_ALTERNATE_OBJECT_DIRECTORIES=
+                          git("rev-parse", "--path-format=absolute", "--git-path", "objects").decode().strip())
+        git("init", "--bare", "--quiet", repository=bare, env=bundle_env)
+        git("update-ref", "refs/heads/preparation", frozen, repository=bare, env=bundle_env)
+        git("-c", "pack.threads=1", "bundle", "create", str(bundle), "refs/heads/preparation",
+            "^" + product_commit, repository=bare, env=bundle_env)
         git("bundle", "verify", str(bundle))
         return frozen, bundle.read_bytes()
 
