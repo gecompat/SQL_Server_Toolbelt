@@ -1,0 +1,1021 @@
+{
+  "schema_version": "1.0",
+  "project_version": "1.0.0",
+  "state": "prepared_not_published",
+  "publication_authorized": false,
+  "product_commit": "756e7fb0444aedf04949409a8fab2189b9fa890f",
+  "package_kind": "complete_source_candidate",
+  "foundation": {
+    "version": "1.25.0",
+    "source_commit": "9e1b9974de58ea775d40c7c6045cd5057ba8b30c"
+  },
+  "channel_semantics": "Vorschläge für den Release-Review; keine Veröffentlichung und keine Aufwertung der Modulmanifeste.",
+  "support_scope_review": "pending; deklarierte Zielversionen sind keine neue Supportzusage",
+  "modules": [
+    {
+      "module_id": "toolbelt.archive.zip-files",
+      "module_version": "1.0.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.archive.zip-memory",
+        "toolbelt.filesystem.windows",
+        "toolbelt.core.result-table"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "f68dc93584d0a4a8acc8a70092ef75372885539b6a10916a087fa0d757b844e0",
+      "evidence_references": [
+        "Modules/toolbelt.archive.zip-files/module.yaml",
+        "Modules/toolbelt.archive.zip-files/README.md",
+        "Modules/toolbelt.archive.zip-files/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "ZIP-/NTFS-/Identitätsfälle und weitere Zielkombinationen vollständig zuordnen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.archive.zip-memory",
+      "module_version": "1.4.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.result-table"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "d02e251b453a72b100cb31d54c1677ec2109279962813f5d8552ecef342d8ab5",
+      "evidence_references": [
+        "Modules/toolbelt.archive.zip-memory/module.yaml",
+        "Modules/toolbelt.archive.zip-memory/README.md",
+        "Modules/toolbelt.archive.zip-memory/Tests/README.md"
+      ],
+      "binary_delivery": "source_and_build_scripts",
+      "pending_before_publication": "SQL-LOB-Ceilings, relevante Kapazitätsgrenzen und jeweilige Reader-/Writer-Scopegrenzen prüfen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.binary.bit-operations",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "6ef4875b2322db99788a581489657cb37664a29b8f23eb66af3e561cfbabc51d",
+      "evidence_references": [
+        "Modules/toolbelt.binary.bit-operations/module.yaml",
+        "Modules/toolbelt.binary.bit-operations/README.md",
+        "Modules/toolbelt.binary.bit-operations/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.conversion.base64",
+      "module_version": "1.1.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "7f97edb71c229d90673a9a928d14f44b8b3fc59c30bed3ebfd0e8d9904e3f62a",
+      "evidence_references": [
+        "Modules/toolbelt.conversion.base64/module.yaml",
+        "Modules/toolbelt.conversion.base64/README.md",
+        "Modules/toolbelt.conversion.base64/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.conversion.integer-base",
+      "module_version": "1.1.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "9523d8e7d375c064d9c70726aaddc7bae86264a3997361a1b6f92a17010fffdc",
+      "evidence_references": [
+        "Modules/toolbelt.conversion.integer-base/module.yaml",
+        "Modules/toolbelt.conversion.integer-base/README.md",
+        "Modules/toolbelt.conversion.integer-base/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.conversion.safe-cast",
+      "module_version": "1.0.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "3afcbf3f9ba2c59770f7fd8409692a33a99ea5751b8065413d55aa388f37a847",
+      "evidence_references": [
+        "Modules/toolbelt.conversion.safe-cast/module.yaml",
+        "Modules/toolbelt.conversion.safe-cast/README.md",
+        "Modules/toolbelt.conversion.safe-cast/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Minimalrechte und harte Recovery separat; vollständige physische Fachmatrix seit 2026-10-19 belegt.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.conversion.uri-component",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.generate-series"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "821d5920645d301216d8ad7cf08b77b9dc3220e2d80aa9684ed06d8c5c02a380",
+      "evidence_references": [
+        "Modules/toolbelt.conversion.uri-component/module.yaml",
+        "Modules/toolbelt.conversion.uri-component/README.md",
+        "Modules/toolbelt.conversion.uri-component/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.core.console-message",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "da7ff5edefc88024f28ccfda58e5c4f1dc47246a00b9338ab8cfa2c8be142875",
+      "evidence_references": [
+        "Modules/toolbelt.core.console-message/module.yaml",
+        "Modules/toolbelt.core.console-message/README.md",
+        "Modules/toolbelt.core.console-message/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.core.error-envelope",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.result-table"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "1c1a1f892095aeb9f11e17c85283919b206be0b119f6854a5f50a0430921ad52",
+      "evidence_references": [
+        "Modules/toolbelt.core.error-envelope/module.yaml",
+        "Modules/toolbelt.core.error-envelope/README.md",
+        "Modules/toolbelt.core.error-envelope/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.core.event-log",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.second-session",
+        "toolbelt.core.work-type",
+        "toolbelt.core.execution-context"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "6135e50252ad0884cd7bf452938ba11a60fbe7e910ff1324c63895f30d160825",
+      "evidence_references": [
+        "Modules/toolbelt.core.event-log/module.yaml",
+        "Modules/toolbelt.core.event-log/README.md",
+        "Modules/toolbelt.core.event-log/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Transitive Preview-Dependency; Kanal bleibt bis zur gemeinsamen Freigabe Preview.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.core.execution-cancel",
+      "module_version": "1.0.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.execution-context"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "f8ce0f89078e930eb2b3622650d505fed7bca70095dd113f5eb4ee4b12e2656b",
+      "evidence_references": [
+        "Modules/toolbelt.core.execution-cancel/module.yaml",
+        "Modules/toolbelt.core.execution-cancel/README.md",
+        "Modules/toolbelt.core.execution-cancel/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Weitere Lifecycle-/Rechtekombinationen und harte Recovery außerhalb kooperativer Cancellation offen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.core.execution-context",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "e544a50988babb69cf8fe40f517ad010b7d197c7cfa2d1e25685e837e20ea06b",
+      "evidence_references": [
+        "Modules/toolbelt.core.execution-context/module.yaml",
+        "Modules/toolbelt.core.execution-context/README.md",
+        "Modules/toolbelt.core.execution-context/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.core.generate-series",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "4368b16029d98d2232fc62a10e675d16017f11eacdac28dafb21cb5946d9558a",
+      "evidence_references": [
+        "Modules/toolbelt.core.generate-series/module.yaml",
+        "Modules/toolbelt.core.generate-series/README.md",
+        "Modules/toolbelt.core.generate-series/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.core.result-table",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+      "evidence_references": [
+        "Modules/toolbelt.core.result-table/module.yaml",
+        "Modules/toolbelt.core.result-table/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.core.second-session",
+      "module_version": "1.1.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.result-table",
+        "toolbelt.core.execution-context",
+        "toolbelt.core.work-type"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "2c965d0db90c4769695aabf4d1e8824ccd77fe2414d74b5170bc4b1b8adbb96a",
+      "evidence_references": [
+        "Modules/toolbelt.core.second-session/module.yaml",
+        "Modules/toolbelt.core.second-session/README.md",
+        "Modules/toolbelt.core.second-session/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Transitive Preview-Dependency; Kanal bleibt bis zur gemeinsamen Freigabe Preview.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.core.work-queue",
+      "module_version": "2.1.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.result-table",
+        "toolbelt.core.work-type"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "6ebc04dc4157b9dc3afc6513d7038af273e03da7e49b6a070fb1273ffa646d8b",
+      "evidence_references": [
+        "Modules/toolbelt.core.work-queue/module.yaml",
+        "Modules/toolbelt.core.work-queue/README.md",
+        "Modules/toolbelt.core.work-queue/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Versionsgebundene Upgrade-/Lifecycle-/Recoveryabnahme und weitere Zielkombinationen prüfen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.core.work-type",
+      "module_version": "1.2.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.result-table"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "a0858bd39eaaee5db1605d68fb5fd17c0baa2bb2cb635c20b85e20a8a9084e07",
+      "evidence_references": [
+        "Modules/toolbelt.core.work-type/module.yaml",
+        "Modules/toolbelt.core.work-type/README.md",
+        "Modules/toolbelt.core.work-type/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständigen Registry-/Rechte-/Upgrade-Scope der Version 1.2.0 abnehmen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.core.worker-control",
+      "module_version": "1.0.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.work-queue",
+        "toolbelt.core.execution-context",
+        "toolbelt.core.execution-cancel",
+        "toolbelt.core.result-table"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "a285d4e4f76ca548135051ce11df0244d7acdb584eb385bd53b1e314fb7d8449",
+      "evidence_references": [
+        "Modules/toolbelt.core.worker-control/module.yaml",
+        "Modules/toolbelt.core.worker-control/README.md",
+        "Modules/toolbelt.core.worker-control/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Echten Committransportverlust, Recovery, Minimalrechte und weitere Workerhostkombinationen abnehmen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.datetime.bucket",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "841c8d0b23002a01755a573fa46e49b67077de64f08399f0c2811a71ef683f31",
+      "evidence_references": [
+        "Modules/toolbelt.datetime.bucket/module.yaml",
+        "Modules/toolbelt.datetime.bucket/README.md",
+        "Modules/toolbelt.datetime.bucket/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.datetime.calendar-difference",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "c41863e8cda1c3ef8d6da4c5e8e2c903cdf67898ffbdc12194fdee74a9180503",
+      "evidence_references": [
+        "Modules/toolbelt.datetime.calendar-difference/module.yaml",
+        "Modules/toolbelt.datetime.calendar-difference/README.md",
+        "Modules/toolbelt.datetime.calendar-difference/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.datetime.date-spine",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.generate-series",
+        "toolbelt.datetime.truncate"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "31909eb3105bde36828c49cc51c5c3c3a0048fc8922b81b7c633c00e594e8089",
+      "evidence_references": [
+        "Modules/toolbelt.datetime.date-spine/module.yaml",
+        "Modules/toolbelt.datetime.date-spine/README.md",
+        "Modules/toolbelt.datetime.date-spine/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.datetime.truncate",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "4b88a67c9eb6ebbc38165d59c39305d3fc3847d33f33277aa51637ffb9f5b1d4",
+      "evidence_references": [
+        "Modules/toolbelt.datetime.truncate/module.yaml",
+        "Modules/toolbelt.datetime.truncate/README.md",
+        "Modules/toolbelt.datetime.truncate/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.file.content",
+      "module_version": "1.0.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "c3e50a4bf68f7c3a4a057ac0b629660958b62c5883257bd3080a46952b2f6fae",
+      "evidence_references": [
+        "Modules/toolbelt.file.content/module.yaml",
+        "Modules/toolbelt.file.content/README.md",
+        "Modules/toolbelt.file.content/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Synthetische serverseitige Dateifixtures, Plattform-/Identitäts- und Rechtefälle gesondert bereitstellen und zuordnen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.file.csv-memory",
+      "module_version": "1.0.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.result-table"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "2ba19891a0e367828e47bd0a3957e32eeb95830f30d36ee02a9d217f9f4de6e9",
+      "evidence_references": [
+        "Modules/toolbelt.file.csv-memory/module.yaml",
+        "Modules/toolbelt.file.csv-memory/README.md",
+        "Modules/toolbelt.file.csv-memory/Tests/README.md"
+      ],
+      "binary_delivery": "source_and_build_scripts",
+      "pending_before_publication": "Default-MaxValueBytes 16 MiB, globale Defaultzellgrenze, weitere Ziel-/Rechte-/Clientfälle separat abnehmen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.file.xlsx-memory",
+      "module_version": "1.2.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.result-table",
+        "toolbelt.archive.zip-memory"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "388090b1fff2a50ad1dd1bcadf296a26d130f631282249f9a37f83ff821543a0",
+      "evidence_references": [
+        "Modules/toolbelt.file.xlsx-memory/module.yaml",
+        "Modules/toolbelt.file.xlsx-memory/README.md",
+        "Modules/toolbelt.file.xlsx-memory/Tests/README.md"
+      ],
+      "binary_delivery": "source_and_build_scripts",
+      "pending_before_publication": "Raw-/Typ-/Anzeige-Scope, Genuine-Upgrades, weitere Ziele und Minimalrechte getrennt zuordnen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.filesystem.windows",
+      "module_version": "1.0.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.result-table"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "b7a46d58161f133d3315af0d4666b4a2727831b2f193f1006c2476c7c5351124",
+      "evidence_references": [
+        "Modules/toolbelt.filesystem.windows/module.yaml",
+        "Modules/toolbelt.filesystem.windows/README.md",
+        "Modules/toolbelt.filesystem.windows/Tests/README.md"
+      ],
+      "binary_delivery": "source_and_build_scripts",
+      "pending_before_publication": "Windows-/Identitäts-/NTFS-/Reparse-/Delete-/Rechtefälle; Linux bleibt außerhalb des Providers.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.json.constructors",
+      "module_version": "1.3.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.json.core",
+        "toolbelt.core.result-table"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "bb56f8dee396c0a4f833f59266a47231980c96a7d8c9eac674d7f111e663cab1",
+      "evidence_references": [
+        "Modules/toolbelt.json.constructors/module.yaml",
+        "Modules/toolbelt.json.constructors/README.md",
+        "Modules/toolbelt.json.constructors/Tests/README.md"
+      ],
+      "binary_delivery": "source_and_build_scripts",
+      "pending_before_publication": "Core-Dependency, Constructor-/Upgrade-/CL-Scope und Minimalrechte gemeinsam abnehmen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.json.core",
+      "module_version": "1.0.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "a233fa3adebdb0aa1ddee2641e9656bede7174c848989583c489aaa3a35b2efc",
+      "evidence_references": [
+        "Modules/toolbelt.json.core/module.yaml",
+        "Modules/toolbelt.json.core/README.md"
+      ],
+      "binary_delivery": "source_and_build_scripts",
+      "pending_before_publication": "Gemeinsamen CLR-Core, Consumerclosure, Lifecycle und Rechte pro Supportkombination abnehmen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.json.path-exists",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "f7491deefa31c5ed0709906423d42799786b554495a4b3d290291fa6f02348e6",
+      "evidence_references": [
+        "Modules/toolbelt.json.path-exists/module.yaml",
+        "Modules/toolbelt.json.path-exists/README.md",
+        "Modules/toolbelt.json.path-exists/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.json.pointer",
+      "module_version": "1.0.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "c11d38eb55b2130ad23350a93f3b81ae10deff6d56e86c478114fc77643261a1",
+      "evidence_references": [
+        "Modules/toolbelt.json.pointer/module.yaml",
+        "Modules/toolbelt.json.pointer/README.md",
+        "Modules/toolbelt.json.pointer/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Minimalrechte, Heap/Parallelität und harte Recovery separat; physische Full-Matrix seit 2026-10-19 belegt.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.json.schema",
+      "module_version": "1.0.1",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.json.core",
+        "toolbelt.core.result-table"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "5d79eec3773e39ee35c38647eaa912fd08494c433ccf88eb8e311cbc84d90c47",
+      "evidence_references": [
+        "Modules/toolbelt.json.schema/module.yaml",
+        "Modules/toolbelt.json.schema/README.md"
+      ],
+      "binary_delivery": "source_and_build_scripts",
+      "pending_before_publication": "Coreclosure, weitere Lifecycle-/Ziel-/Rechtekombinationen und Budgetgrenzen abnehmen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.metadata.capability-catalog",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "e775f6f2aab4e869beadc9b9b44bbf6902e2a25d5a8b8781a8df23ab36edb6be",
+      "evidence_references": [
+        "Modules/toolbelt.metadata.capability-catalog/module.yaml",
+        "Modules/toolbelt.metadata.capability-catalog/README.md",
+        "Modules/toolbelt.metadata.capability-catalog/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.metadata.identifier",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "ba6e6facc3155598fa3ba55ebe8225479b94e3b48c4e6d032e83174e8f202207",
+      "evidence_references": [
+        "Modules/toolbelt.metadata.identifier/module.yaml",
+        "Modules/toolbelt.metadata.identifier/README.md",
+        "Modules/toolbelt.metadata.identifier/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.metadata.table-clone",
+      "module_version": "4.1.1",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.result-table",
+        "toolbelt.tsql.script-parser"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "081e44156b7b304ebd25c840a54efd09efb8d3dfab33e0e31cba7df85eb2414c",
+      "evidence_references": [
+        "Modules/toolbelt.metadata.table-clone/module.yaml",
+        "Modules/toolbelt.metadata.table-clone/README.md",
+        "Modules/toolbelt.metadata.table-clone/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Planner, Executor und Copy gesondert prüfen; Parser-Upgrade ist keine aktuelle Gesamt-API-Abnahme.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.pseudonymization.deterministic",
+      "module_version": "1.2.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.result-table"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "47ba50cbdfa2d2f8448911043f83fdf61a42acb8f1379da9d55525e82d8498ee",
+      "evidence_references": [
+        "Modules/toolbelt.pseudonymization.deterministic/module.yaml",
+        "Modules/toolbelt.pseudonymization.deterministic/README.md",
+        "Modules/toolbelt.pseudonymization.deterministic/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Versionsgebundene Translate-/Geo-/UDT-Grenzen, weitere Ziele und Minimalrechte zuordnen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.string.directional-trim",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.generate-series"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "4894dced71d9aaee587037177827aaaa89c19aead4e59e09ee809ce06ced23df",
+      "evidence_references": [
+        "Modules/toolbelt.string.directional-trim/module.yaml",
+        "Modules/toolbelt.string.directional-trim/README.md",
+        "Modules/toolbelt.string.directional-trim/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.string.edit-distance",
+      "module_version": "1.1.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "d7c4b70e0c4ae3c6db7a8a31eb69dc85139f0a0b8d96f545f8063a6317bd2238",
+      "evidence_references": [
+        "Modules/toolbelt.string.edit-distance/module.yaml",
+        "Modules/toolbelt.string.edit-distance/README.md",
+        "Modules/toolbelt.string.edit-distance/Tests/README.md"
+      ],
+      "binary_delivery": "source_and_build_scripts",
+      "pending_before_publication": "Distanz-/Jaro-Scope, weitere physische Ziele, Minimalrechte und Kapazitätsgrenzen abnehmen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.string.phonetic",
+      "module_version": "1.0.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "6c089a998710af96cd2c6852f681be343ce2f5eea204e0ac3e54813b635c10e0",
+      "evidence_references": [
+        "Modules/toolbelt.string.phonetic/module.yaml",
+        "Modules/toolbelt.string.phonetic/README.md",
+        "Modules/toolbelt.string.phonetic/Tests/README.md"
+      ],
+      "binary_delivery": "source_and_build_scripts",
+      "pending_before_publication": "Vollständige Scannerabdeckung sowie native Ziel-/Rechte-/Lifecyclematrix abnehmen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.string.regex",
+      "module_version": "1.3.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "02f36e424ab7b64eee6630ce3a71cf398c25e50543704c081f155134680d4e33",
+      "evidence_references": [
+        "Modules/toolbelt.string.regex/module.yaml",
+        "Modules/toolbelt.string.regex/README.md",
+        "Modules/toolbelt.string.regex/Tests/README.md"
+      ],
+      "binary_delivery": "source_and_build_scripts",
+      "pending_before_publication": "Capture-/Replace-Grenzen, ältere Upgradepfade, große SQL-Ausgabe und Minimalrechte abnehmen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.string.split-advanced",
+      "module_version": "1.1.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.result-table"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "8f2e97983e42de3b7170fa5e06b265bf93ae04a830b0dd719ada902c853d6276",
+      "evidence_references": [
+        "Modules/toolbelt.string.split-advanced/module.yaml",
+        "Modules/toolbelt.string.split-advanced/README.md",
+        "Modules/toolbelt.string.split-advanced/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Weitere Zielkombinationen und genaue Unquoting-/Split-Grenzen getrennt abnehmen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.string.split-characters",
+      "module_version": "1.0.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.generate-series"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "04b8345815d203c1f381e4027a6f22606775aa28410e57c3e356d3b03aeff6ff",
+      "evidence_references": [
+        "Modules/toolbelt.string.split-characters/module.yaml",
+        "Modules/toolbelt.string.split-characters/README.md",
+        "Modules/toolbelt.string.split-characters/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    },
+    {
+      "module_id": "toolbelt.string.text-pairs",
+      "module_version": "1.0.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.string.edit-distance",
+        "toolbelt.core.result-table"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "bea5986f10343e72cb24f944d61be35226d615a1cef431cb4f0396f3d16a7b45",
+      "evidence_references": [
+        "Modules/toolbelt.string.text-pairs/module.yaml",
+        "Modules/toolbelt.string.text-pairs/README.md",
+        "Modules/toolbelt.string.text-pairs/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Providerclosure, Paar-/Clientgrenzen, weitere Ziele und Minimalrechte abnehmen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.tsql.script-parser",
+      "module_version": "2.0.1",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "9aa29956f866987964c9972abe05b430ad2b02be84923d031de73c60909a8358",
+      "evidence_references": [
+        "Modules/toolbelt.tsql.script-parser/module.yaml",
+        "Modules/toolbelt.tsql.script-parser/README.md",
+        "Modules/toolbelt.tsql.script-parser/Tests/README.md"
+      ],
+      "binary_delivery": "qualified_ssis_install_zip_and_sources",
+      "pending_before_publication": "Alle angebotenen nativen Parser-APIs, Ausgabeceilings und Minimalrechte vollständig zuordnen.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.tsql.ssis-debug",
+      "module_version": "1.0.0",
+      "validation_status": "partially validated",
+      "current_release_status": "unreleased",
+      "dependencies": [
+        "toolbelt.core.result-table",
+        "toolbelt.tsql.script-parser"
+      ],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "26c1e7256ce81c1faa2ef84fc464b4dad342a4298a163a44910c7b0bd0e92a35",
+      "evidence_references": [
+        "Modules/toolbelt.tsql.ssis-debug/module.yaml",
+        "Modules/toolbelt.tsql.ssis-debug/README.md",
+        "Modules/toolbelt.tsql.ssis-debug/Tests/README.md"
+      ],
+      "binary_delivery": "qualified_ssis_install_zip_and_sources",
+      "pending_before_publication": "Windows-Abnahme lokal/zentral belegt; Parserclosure, endgültige Rechte- und Releaseabnahme separat.",
+      "proposed_channel": "preview"
+    },
+    {
+      "module_id": "toolbelt.validation.semantic-version",
+      "module_version": "1.1.0",
+      "validation_status": "validated",
+      "current_release_status": "unreleased",
+      "dependencies": [],
+      "declared_sql_versions": [
+        "2019",
+        "2022",
+        "2025"
+      ],
+      "manifest_sha256": "bc8e2e6c5ed64e3312902bd5b40e632d2800d4e9850e6ff2824851d7c8167949",
+      "evidence_references": [
+        "Modules/toolbelt.validation.semantic-version/module.yaml",
+        "Modules/toolbelt.validation.semantic-version/README.md",
+        "Modules/toolbelt.validation.semantic-version/Tests/README.md"
+      ],
+      "binary_delivery": "sql_sources",
+      "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
+      "proposed_channel": "stable"
+    }
+  ]
+}

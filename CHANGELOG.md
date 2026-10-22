@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 2026-10-22 – Gesamtpaket v1.0.0 vorbereitet, nicht veröffentlicht
+
+Die [Releasevorbereitung](Releases/1.0.0/README.md) enthält alle 45 Module
+mit unveränderten Versionen und einer dependencygebundenen Freigabematrix:
+19 stabile und 26 Preview-Kandidaten. Der eingefrorene Quellpaketbau erzeugt
+zusätzlich lokale/zentrale SQL-Exports der stabilen Kandidaten. Vorhandene
+SSIS-Binaries sind als separater Installationssatz enthalten; weitere CLR-
+Binaryinputs und die konkrete Veröffentlichungsabnahme bleiben sichtbar offen.
+Alle Modulmanifeste bleiben `unreleased`; kein Tag oder Release angelegt.
+
 ## 2026-10-19 – JSON-Pointer-Matrix im Lab nachqualifiziert
 
 Zwölf vollständige Adapter bestanden auf Windows/Linux SQL2019 CL150,

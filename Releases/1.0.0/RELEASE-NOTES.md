@@ -1,0 +1,36 @@
+# v1.0.0 – Entwurf der Release Notes
+
+**Nicht veröffentlicht.** Die Projektversion bündelt den aktuellen Bestand
+von 45 implementierten Modulen; ihre individuellen Versionsnummern bleiben
+erhalten. Kanalvorschläge: 19 stabil, 26 Preview. Die
+[Freigabematrix](FREIGABEMATRIX.md) nennt jede Version, Dependencies und offene
+Abnahmegrenzen; der [Plan](release-plan.json) ist die maschinenlesbare Ableitung.
+
+## Umfang
+
+- Kern-, Datums-, Konvertierungs-, Metadaten-, Text-, JSON-, Datei-/Archiv-,
+  Pseudonymisierungs- und Orchestrierungsmodule mit ihren bestehenden APIs.
+- SSIS-Debug einschließlich JSON-Variablenvorlage, änderbaren DECLARE-Werten,
+  einzeln testbaren CTE-Stufen, SSMS-Beispiel und vorhandenem Windows-Installationssatz.
+- Vollständige Quellen und Anleitungen sowie zusätzliche eigenständige
+  SQL-Exports der stabilen Kandidaten für lokales/zentrales Deployment.
+- Erhaltene AI Repository Foundation 1.25.0 mit gebundener Provenienz und
+  getrennten menschlichen Lesewegen; keine neue optionale Runtime aktiviert.
+
+## Grenzen und Migration
+
+Diese Vorbereitung verändert weder SQL-APIs noch Modulversionen oder
+Deployment-/Trustregeln. Upgrades bleiben an die tatsächlich unterstützten
+historischen Modulversionen gebunden; die Projektversion 1.0.0 ist kein
+universeller Upgradepfad. Backups und ein eigener Installationstest sind
+gemäß dem jeweiligen Modulvertrag einzuplanen.
+
+Alle Modulmanifeste sind noch `unreleased`. Preview ist keine pauschale
+Qualifikation. Weitere CLR-Binaries und genaue Supportkombinationen müssen
+vor einer entsprechenden öffentlichen Lieferzusage gebunden sein. Die
+authentifizierte TLS-Abnahme bleibt separat; unabhängige Functional-Nachweise
+gelten ausschließlich für ihren dokumentierten Transport-/Funktionsscope.
+
+Tatsächlicher Tag, Veröffentlichungsdatum, URL und finale Assethashes werden
+erst bei einer separat autorisierten Veröffentlichung eingetragen. Bis dahin
+ist [README](README.md#vor-einer-veröffentlichung) die verbleibende Checkliste.
