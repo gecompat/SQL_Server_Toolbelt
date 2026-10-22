@@ -71,6 +71,18 @@ und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
 Evidenzbereich; Anleitung und Auswahl stehen davor.
 
 <!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### Ungewöhnliche Caller-Tempnamen mit korrektem Replace und Append 2026-10-22
+
+'-TestScope quoted-temp-name-preservation': Acht erfolgreiche Fälle je Modus: Parserziele mit Punkt/Klammer beziehungsweise Leerzeichen/Klammer, Writerquelle mit Punkt/Klammer und Writerziel mit Leerzeichen/Klammer, jeweils KeepData=0/1. Direkte SQL-Bezeichner werden korrekt geklammert, APIargumente behalten ihren unveränderten Raw-Namen; Objekt-IDs werden über den qualifizierten geklammerten Namen aufgelöst. Unabhängige DATA-Quelle16777160Bytes und vollständiger CRLF-Input/Output16777164Bytes liegen unter16MiB. Je Fall eigener16MiB-Altzielwert: Replace entfernt, Append erhält ihn samt alten Schlüsseln und Metadaten vollständig. Quelle bleibt read-only; beide IDs und bidirektionale Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots unverändert. Keine neue allgemeine Namens-, Alias- oder Bytegrenzqualifikation.
+
+Acht positive Phasen: vier konkrete ungewöhnliche lokale Namensformen jeweils Replace/Append. Return0, vollständige neue/alte Zeilen und Bytewerte, Metadaten, Quelle/IDs/Kataloge, getrennte Neutralität und eigener Fallcleanup; nur finaler typisierter8er-Witness.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1806 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'quoted-temp-name-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### Abschließende leere CSV-Felder mit korrektem Replace und Append 2026-10-22
 
 '-TestScope trailing-empty-field-preservation': Acht erfolgreiche Fälle je Modus: Parser mit leerem letztem Feld am EOF beziehungsweise vor CRLF und Writer mit einem beziehungsweise zwei abschließenden leeren Feldern, jeweils KeepData=0/1. Eine unabhängig gesetzte große erste DATA-Zelle bleibt vollständig enthalten, Quelle und Text liegen unter16MiB. Leere Felder bleiben ausdrücklich nicht-NULL-leer; EOF und finaler Recordabschluss erzeugen keinen zusätzlichen Record. Writer liefert exakt die abschließenden Separatoren und CRLF mit DataRows1 und ColumnCount2 beziehungsweise3. Vor jeder Operation eigener16MiB-Altzielwert: Replace entfernt ihn, Append erhält ihn vollständig. Quelleninhalt, Identitäten und bidirektionale Katalogsnapshots bleiben erhalten. Keine neue Bytegrenzabnahme.
