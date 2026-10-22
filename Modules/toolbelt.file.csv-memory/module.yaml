@@ -112,6 +112,7 @@ tests:
   late_parser_syntax: "Tests/Runtime/LateParserSyntaxPreservation.Tests.sql"
   late_parser_rectangular: "Tests/Runtime/LateParserRectangularPreservation.Tests.sql"
   writer_cell_preservation: "Tests/Runtime/WriterCellPreservation.Tests.sql"
+  target_constraint_preservation: "Tests/Runtime/TargetConstraintPreservation.Tests.sql"
   select_reader: "Tests/Framework/CsvDirectSelect.Helpers.ps1"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   ownership_guards: "Tests/Runtime/OwnershipGuards.Tests.ps1"

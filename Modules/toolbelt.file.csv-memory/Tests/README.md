@@ -4,6 +4,18 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## CSV-Constraintfehler mit vollem Ziel- und Callerarbeitserhalt 2026-10-22
+
+'-TestScope target-constraint-preservation': Fehlschlagende CHECK-Zielinserts der bestehenden Parser-/Writerprozeduren bei vollständigem16MiB-Parserinput beziehungsweise vollständigem16MiB-Writeroutput. Je API KeepData=0/1 und eigene beziehungsweise committable Callertransaktion mit XACT_ABORT OFF: acht Fälle je Modus, ausschließlich ursprünglicher Enginefehler SQL547 ohne Behauptung eines festen ERROR_STATE. Vollständiger16MiB-Altzielwert und unabhängige Writerquelle bleiben erhalten; Objektidentitäten und bidirektionale Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots unverändert. Caller-Sentinel und eigene Commit-/Rollbackentscheidung werden geprüft, ursprüngliches XACT_ABORT wiederhergestellt.
+
+Acht SQLphasen je Modus: Parser/Writer jeweils KeepData0/1 mit und ohne Callertransaktion. CHECK-Insert muss ausschließlich547 werfen; Schema ist passend. Vollständiger Ziel-/Quellerhalt und unabhängige Callerarbeit werden nach dem Prozedurfehler und nach eigenem Callerabschluss geprüft. Zustandswitnesses isoliert, XACT_ABORT wiederhergestellt. Kein fester Fehlerstate und keine doomed-Transaktionsmatrix behauptet.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1286 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'target-constraint-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ## Writer-Zellabweisung mit vollem Quell- und Zielerhalt 2026-10-22
 
 '-TestScope writer-cell-preservation': Acht unabhängig gesetzte ungültige Writer-Zellformen: falscher RowKind, RowOrdinal0/negativ, ColumnOrdinal0/negativ, doppelter Zellschlüssel, Lücke in Zeilenordinals und Lücke in Spaltenordinals. Vier Fälle mit KeepData=0 und vier mit1. Quellencharge jeweils unter16MiB, vorheriger vollständiger Writeroutput genau16777216 UTF16-Bytes. Ausschließlich SQL55306/state1; alle Quellzeilen mit vollständigen Werten und Multiplizität sowie alter Output bleiben erhalten. Quellen-/Zielidentität und bidirektionale Zielspalten-/Index-/Indexspalten-/Checkconstraint-Snapshots unverändert. Keine neue Bytegrenzabnahme.
