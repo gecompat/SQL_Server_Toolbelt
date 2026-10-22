@@ -54,6 +54,15 @@ SQL Server Toolbelt ist eine modulare Erweiterungsbibliothek für Microsoft SQL 
 
 SQL-Server-Entwickler und -Administratoren, die wiederverwendbare, dokumentierte und testbare Erweiterungsobjekte einsetzen möchten.
 
+## Einstieg
+
+Die [Lesewege](./Documentation/README.md) führen von der Modulauswahl über
+Voraussetzungen und Deployment zu Aufrufbeispielen und Fehlerklärung.
+Die Module sind unveröffentlicht; Unterstützung und Nachweise gelten jeweils
+für den im Modul dokumentierten Umfang. Für Beiträge gilt
+[CONTRIBUTING.md](./CONTRIBUTING.md). Der ausdrücklich getrennte Einstieg für
+KI-Systeme ist [AGENTS.md](./AGENTS.md).
+
 ## Aktueller Status
 
 [`toolbelt.core.worker-control`](./Modules/toolbelt.core.worker-control/README.md)

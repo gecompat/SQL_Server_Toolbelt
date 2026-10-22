@@ -51,6 +51,15 @@ Interne Hilfsobjekte dürfen einen kürzeren Header verwenden, müssen Zweck, De
 
 Kommentare, öffentliche Dokumentation, Help-Resultset, Beispiele und Tests müssen denselben Vertrag abbilden. Eine Änderung an Parametern, Resultspalten, Defaults oder Semantik aktualisiert alle gekoppelten Artefakte im selben Pull Request.
 
+Für menschliche Lesewege, Verzeichniszwecke und den getrennten KI-Einstieg
+gilt die [Foundation-Dokumentationsrichtlinie](../../.ai/foundation/DOCUMENTATION_POLICY.md).
+Der Autor prüft den betroffenen Ablauf einschließlich notwendiger Folgeseiten,
+Ergebnisdeutung und Fehlerklärung. Auch reine Verhaltens-, Konfigurations-
+oder Generatoränderungen können solche Pfade betreffen. Bestehende Prüfungen
+und gezielte Lektüre genügen; grüne Links allein belegen keine Lesbarkeit.
+Unabhängige Altlasten werden gemäß ihrer konkreten Planung schrittweise
+bearbeitet, statt aus jeder Änderung eine Gesamtrevision abzuleiten.
+
 ## Stil
 
 - sachlich, präzise, professionell und vollständig;
