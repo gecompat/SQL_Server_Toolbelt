@@ -4,6 +4,18 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Writer-Zellabweisung mit vollem Quell- und Zielerhalt 2026-10-22
+
+'-TestScope writer-cell-preservation': Acht unabhängig gesetzte ungültige Writer-Zellformen: falscher RowKind, RowOrdinal0/negativ, ColumnOrdinal0/negativ, doppelter Zellschlüssel, Lücke in Zeilenordinals und Lücke in Spaltenordinals. Vier Fälle mit KeepData=0 und vier mit1. Quellencharge jeweils unter16MiB, vorheriger vollständiger Writeroutput genau16777216 UTF16-Bytes. Ausschließlich SQL55306/state1; alle Quellzeilen mit vollständigen Werten und Multiplizität sowie alter Output bleiben erhalten. Quellen-/Zielidentität und bidirektionale Zielspalten-/Index-/Indexspalten-/Checkconstraint-Snapshots unverändert. Keine neue Bytegrenzabnahme.
+
+Acht SQLphasen je Modus, ausschließlich55306/state1. Ungültige Quellen werden unabhängig vom Parser gesetzt; vollständige Quellwerte einschließlich der doppelten Schlüssel und ihre Anzahl vor/nach verglichen. Vier Replace-/vier Appendfälle mit vollständigem16MiB-Altoutput und unveränderten Zielmetadaten. Isolierter Neutralitätswitness, nur abschließender typisierter Witness als Resultset.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1246 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'writer-cell-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ## Spaete CSV-Rechteckabweisung mit vollem Zielerhalt 2026-10-22
 
 '-TestScope late-parser-rectangular': Vier syntaktisch gültige Inputs mit abweichender Spaltenzahl erst im letzten Record bei exakt16777216 UTF16-Inputbytes: zusätzliche beziehungsweise fehlende Schluss-Spalte nach LF oder CRLF. Jeweils KeepData=0 und1, insgesamt acht Fälle je Modus. Ausschließlich SQL55302/state1; vorheriger vollständiger16MiB-Callerwert, Objektidentität und bidirektional verglichene Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots bleiben unverändert. Transaktionsneutralität separat geprüft, keine partielle Zielmutation.
