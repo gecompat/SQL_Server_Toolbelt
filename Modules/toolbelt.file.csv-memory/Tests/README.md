@@ -71,6 +71,18 @@ und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
 Evidenzbereich; Anleitung und Auswahl stehen davor.
 
 <!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### HEADER ohne DATA mit korrektem Replace und Append 2026-10-22
+
+'-TestScope header-only-preservation': Acht erfolgreiche Fälle je Modus: Parser und Writer mit einem beziehungsweise zwei HEADER-Feldern ohne DATA, jeweils KeepData=0/1. Ein unabhängig gesetzter großer Headerwert bleibt vollständig erhalten, die Quellencharge liegt unter16MiB. Parser liefert nur HEADER-Zellen mit RowOrdinal0 und vollständigen Spaltenordinals; Writer liefert genau eine vollständige CRLF-Ausgabe mit DataRows0 und ColumnCount1 beziehungsweise2. Vor jeder Operation steht ein eigener16MiB-Altzielwert: Replace entfernt ihn, Append erhält ihn samt alten Schlüsseln und Metadaten. Quelleninhalt und beide kanonischen Schemata bleiben unverändert. Keine neue Bytegrenzabnahme.
+
+Acht positive SQLphasen: beide APIs, eine oder zwei Headerspalten, jeweils Replace/Append. Returncode0, alle vollständigen neuen und gegebenenfalls alten Zeilen, binäre Texte und Längen, Metadaten, Identitäten/Kataloge, getrennte Neutralität und Fallcleanup; nur finaler typisierter8er-Witness.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1686 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'header-only-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### Reservierte Temppräfixe mit vollem Callerwerterhalt 2026-10-22
 
 '-TestScope reserved-temp-prefix-preservation': Vier bestehende Präfixabweisungen jeweils KeepData=0/1: reserviertes Parserziel, reserviertes Writerziel, reservierte Writerquelle und Writerquelle mit gemischtem #TbX_-Präfix. Acht ausschließlich SQL55304/state1-Abweisungen je Modus. Der jeweilige16MiB-Altzielwert und die unabhängig gesetzte gültige synthetische Callerquelle unter16MiB bleiben bytegenau erhalten. Parseraufrufe erhalten separat gesetzten16MiB-Text. Beide Objektidentitäten und bidirektionale Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots bleiben unverändert; eigener Fallaufbau und Cleanup vor dem nächsten Fall. Keine gesamte Namespace- oder neue Bytegrenzabnahme.

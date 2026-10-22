@@ -122,6 +122,7 @@ tests:
   reserved_temp_namespace_preservation: "Tests/Runtime/ReservedTempNamespacePreservation.Tests.sql"
   writer_local_source_name_preservation: "Tests/Runtime/WriterLocalSourceNamePreservation.Tests.sql"
   reserved_temp_prefix_preservation: "Tests/Runtime/ReservedTempPrefixPreservation.Tests.sql"
+  header_only_preservation: "Tests/Runtime/HeaderOnlyPreservation.Tests.sql"
   select_reader: "Tests/Framework/CsvDirectSelect.Helpers.ps1"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   ownership_guards: "Tests/Runtime/OwnershipGuards.Tests.ps1"
