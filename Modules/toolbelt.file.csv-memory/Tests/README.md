@@ -1,10 +1,94 @@
 # CSV-Prüfungen und Evidenz
 
+Diese Anleitung richtet sich an Entwickler, die einen ausdrücklich gewählten
+CSV-Testumfang prüfen. Modulstatus und Unterstützung bestimmen das
+[Modulmanifest](../module.yaml), die [Modulbeschreibung](../README.md) und die
+[Matrix](CSV_TEST_MATRIX.md). Historische Nachweise qualifizieren ausschließlich
+ihren genannten Stand; eine neue Welle übernimmt daraus keinen Gesamt-PASS.
+
+## Testumfang auswählen
+
+1. Bestimme den betroffenen Vertrag und den festen Kandidaten. Die öffentliche
+   Syntax des [Labdrivers](../../../Tests/CI/run-csv-memory-lab.ps1) ist maßgeblich:
+   `TestScope` ist eine geschlossene, case-sensitive Auswahl. Seine Zuordnung
+   nennt die konkrete Runtime-Fixture; die Matrix erläutert deren Grenzen.
+2. Beginne mit den betroffenen Offlineprüfungen. Vom Repository-Root aus:
+
+   ```powershell
+   python Modules/toolbelt.file.csv-memory/Tests/Static/validate_contract.py
+   pwsh -NoProfile -File Modules/toolbelt.file.csv-memory/Tests/Framework/Test-LifecycleGuardControls.ps1
+   ```
+
+   Erwartet werden erfolgreicher Exitcode und die jeweiligen begrenzten
+   Kontrollzähler. Diese Prüfungen verwenden kein Lab und belegen keine
+   native SQL-, Framework-Binary- oder Heapqualifikation.
+3. Für Binary-/Frameworktests das exakt gebaute und gepackte Releaseartefakt
+   verwenden. [Modulbeschreibung](../README.md) und
+   [Frameworkrunner](Framework/run-framework-csv.ps1) beschreiben Hashbindung,
+   unabhängige Orakel und Grenzen. Ein fremdes SAFE-Binary genügt nicht.
+4. Für native Tests zuerst die [Lab- und Sicherheitsregeln](../../../AGENTS.md)
+   prüfen: schema-validierter Vertrag, ausdrücklich ausgewählte bereite Ziele,
+   bestehende Rechte sowie separat autorisierte Konfigurations-/Truständerungen.
+   Der Driver benötigt `ReleaseDirectory`, einen privaten `JournalManifestPath`,
+   `ExpectedPromptSHA256`, `ExpectedDriverSHA256` und `ExpectedAssemblySHA512`.
+   Diese Werte werden vor dem Lauf am gewählten Input ermittelt und gebunden;
+   Zugangsdaten, konkrete Endpoints und private Journale bleiben lokal.
+5. `Platform`, `Version`, `Patch`, `CompatibilityLevel`, `DeploymentModes` und
+   `TestScope` ausdrücklich zum gewählten Scope setzen. `default` prüft den
+   registrierten Standardumfang; ein gezielter Scope ersetzt diesen nicht.
+   Fehler-/Erhaltungswellen bestehen aus acht SQLphasen je Installationsmodus.
+   Nur der abschließende typisierte Witness zählt; vorzeitige oder unvollständige
+   Resultsets sind Fehler. Der tatsächliche Driver und die Matrix bestimmen
+   auch die jeweils getrennten Funktions-/Lifecyclezähler.
+
+## Ergebnis und Bereinigung prüfen
+
+Ein PASS-Text allein ist kein Erfolg. Prüfe Exitcode, vollständige stdout-/
+stderr-Erfassung, erwartete Modi und Zähler, unveränderte eingefrorene Inputs
+und den ursprünglichen Transaktionszustand. Ein externer Watchdog begrenzt
+nur den eigenen Prozess; Arbeitsdeadline und Cleanupreserve bleiben getrennt.
+Nach Prozessende weist ein frischer separater Audit den eigenen Datenbank-/
+Trustcleanup nach. Vorgefundene oder inzwischen fremd verwendete Einträge
+werden nicht adoptiert oder gelöscht; Drift und unklare Ownership blockieren
+nur die entsprechende Änderung/Bereinigung.
+
+Bei Abweichungen den ursprünglichen Fehler und den privaten Journalzustand
+lokal sichern, gegen Fixture und Fehlervertrag prüfen und gezielt korrigieren.
+Ein Fehllauf bleibt ein Fehllauf; keine blinden Wiederholungen und kein
+Umschalten von Trust-/Transportwerten. Für Argument- und Formfehler verlangt
+die jeweilige Fixture ausdrücklich den genannten Fehlercode und State.
+Die [Matrix](CSV_TEST_MATRIX.md) trennt ausgeführte Teilprüfungen von offenen
+Scopes; die [CI](../../../.github/workflows/csv-memory-qualification.yml)
+qualifiziert ihren eigenen exakten Head. Lokale Nativevidenz und CI werden
+getrennt gebunden. Rohdaten und Wiederherstellungsjournale gehören nicht ins
+Repository oder in den PR.
+
+## Datierte Qualifikationsnachweise
+
+Die folgenden unveränderten früheren Abschnitte dokumentieren ihre damaligen
+Kandidaten, Fehlversuche und Einschränkungen. Ihre bisherigen Überschriften
+und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
+Evidenzbereich; Anleitung und Auswahl stehen davor.
+
+<!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### Parser-Argumentabweisung mit vollem Zielerhalt 2026-10-22
+
+'-TestScope parser-argument-preservation': Vier bestehende Parser-Argumentfehler jeweils mit KeepData=0/1: Text=NULL, HasHeader=NULL, zweistelliger Separator und leerer NullToken. Acht ausschließlich SQL55300/state1-Abweisungen je Modus. Vorheriger synthetischer Zellwert genau16777216 UTF16-Bytes bleibt vollständig samt Zeilenzahl, Schlüsseln, Objektidentität und bidirektionalen Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots erhalten. Die drei Fälle mit vorhandenem Text verwenden unabhängig gesetzten16MiB-Input; der fehlende Text bleibt ausdrücklich NULL. Keine neue allgemeine Bytegrenzabnahme.
+
+Acht SQLphasen je Modus: vier Argumentformen jeweils Replace/Append. Exakte Fehlernummer und State, voller Altzielwert und neutrale Transaktion werden getrennt geprüft. Ein typisierter8er-Abschluss, keine vorzeitigen Resultsets. Der Testlesepfad steht vor den unverändert datierten Nachweisen; bisherige Linkanker und generierte Evidenz bleiben erhalten.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1406 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'parser-argument-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
+
 Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
-## Writer-Quellmetadatenabweisung mit vollem Datenerhalt 2026-10-22
+### Writer-Quellmetadatenabweisung mit vollem Datenerhalt 2026-10-22
 
 '-TestScope source-metadata-preservation': Acht unabhängig gesetzte nicht unterstützte Writer-Quellmetadaten: fünfte Spalte, umbenannte Value-Spalte, RowKind als nvarchar beziehungsweise varchar(7), RowOrdinal als int, ColumnOrdinal als bigint, Value als nvarchar(4000) beziehungsweise varchar(max). Vier KeepData=0- und vier KeepData=1-Fälle. Ausschließlich SQL55305/state1. Vollständiger16MiB-Altoutput und alle Quellwerte werden in ihren tatsächlichen Datentypen bytegenau erhalten; für nvarchar(4000) bewusst4000 Zeichen, andere Value-Fixtures8388580 ASCII-Zeichen. Beide Objektidentitäten und bidirektionale Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots von Quelle und Ziel unverändert. Keine einheitliche16MiB-Quellencharge oder neue Bytegrenzabnahme behauptet.
 
@@ -16,7 +100,7 @@ Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identis
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## NULL-Darstellungsabweisung mit vollem Datenerhalt 2026-10-22
+### NULL-Darstellungsabweisung mit vollem Datenerhalt 2026-10-22
 
 '-TestScope null-representation-preservation': SQL-NULL in DATA ohne NullToken und SQL-NULL im HEADER trotz aktiviertem NullToken, jeweils in ein- und zweispaltigen beziehungsweise ein- und zweizeiligen gültigen Zellrastern. Vier Formen jeweils mit KeepData=0/1, acht Fälle je Modus. Ausschließlich SQL55307/state1; vollständiger16MiB-Altoutput und alle unabhängig gesetzten Quellwerte einschließlich tatsächlicher SQL-NULLs bleiben erhalten. Quellencharge unter16MiB, Quell-/Zielidentitäten und bidirektionale Zielspalten-/Index-/Indexspalten-/Checkconstraint-Snapshots unverändert. Keine neue Bytegrenz- oder allgemeine Clientabnahme.
 
@@ -28,7 +112,7 @@ Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identis
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## CSV-Constraintfehler mit vollem Ziel- und Callerarbeitserhalt 2026-10-22
+### CSV-Constraintfehler mit vollem Ziel- und Callerarbeitserhalt 2026-10-22
 
 '-TestScope target-constraint-preservation': Fehlschlagende CHECK-Zielinserts der bestehenden Parser-/Writerprozeduren bei vollständigem16MiB-Parserinput beziehungsweise vollständigem16MiB-Writeroutput. Je API KeepData=0/1 und eigene beziehungsweise committable Callertransaktion mit XACT_ABORT OFF: acht Fälle je Modus, ausschließlich ursprünglicher Enginefehler SQL547 ohne Behauptung eines festen ERROR_STATE. Vollständiger16MiB-Altzielwert und unabhängige Writerquelle bleiben erhalten; Objektidentitäten und bidirektionale Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots unverändert. Caller-Sentinel und eigene Commit-/Rollbackentscheidung werden geprüft, ursprüngliches XACT_ABORT wiederhergestellt.
 
@@ -40,7 +124,7 @@ Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identis
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## Writer-Zellabweisung mit vollem Quell- und Zielerhalt 2026-10-22
+### Writer-Zellabweisung mit vollem Quell- und Zielerhalt 2026-10-22
 
 '-TestScope writer-cell-preservation': Acht unabhängig gesetzte ungültige Writer-Zellformen: falscher RowKind, RowOrdinal0/negativ, ColumnOrdinal0/negativ, doppelter Zellschlüssel, Lücke in Zeilenordinals und Lücke in Spaltenordinals. Vier Fälle mit KeepData=0 und vier mit1. Quellencharge jeweils unter16MiB, vorheriger vollständiger Writeroutput genau16777216 UTF16-Bytes. Ausschließlich SQL55306/state1; alle Quellzeilen mit vollständigen Werten und Multiplizität sowie alter Output bleiben erhalten. Quellen-/Zielidentität und bidirektionale Zielspalten-/Index-/Indexspalten-/Checkconstraint-Snapshots unverändert. Keine neue Bytegrenzabnahme.
 
@@ -52,7 +136,7 @@ Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identis
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## Spaete CSV-Rechteckabweisung mit vollem Zielerhalt 2026-10-22
+### Spaete CSV-Rechteckabweisung mit vollem Zielerhalt 2026-10-22
 
 '-TestScope late-parser-rectangular': Vier syntaktisch gültige Inputs mit abweichender Spaltenzahl erst im letzten Record bei exakt16777216 UTF16-Inputbytes: zusätzliche beziehungsweise fehlende Schluss-Spalte nach LF oder CRLF. Jeweils KeepData=0 und1, insgesamt acht Fälle je Modus. Ausschließlich SQL55302/state1; vorheriger vollständiger16MiB-Callerwert, Objektidentität und bidirektional verglichene Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots bleiben unverändert. Transaktionsneutralität separat geprüft, keine partielle Zielmutation.
 
@@ -64,7 +148,7 @@ Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identis
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## Spaete CSV-Syntaxabweisung mit vollem Zielerhalt 2026-10-22
+### Spaete CSV-Syntaxabweisung mit vollem Zielerhalt 2026-10-22
 
 '-TestScope late-parser-syntax': Vier späte Quote-Syntaxfehler im letzten Record bei exakt16777216 UTF16-Inputbytes: offenes Quote am EOF, Text nach geschlossenem Quote, Quote im unquotierten Feld und Text nach Quote hinter CRLF. Jeweils KeepData=0 und1, insgesamt acht Fälle je Modus. Ausschließlich SQL55301/state1; vorheriger vollständiger16MiB-Callerwert, Objektidentität und bidirektional verglichene Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots bleiben unverändert. Transaktionsneutralität separat geprüft, keine partielle Zielmutation.
 
@@ -76,7 +160,7 @@ Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identis
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## Schemaabweisung mit vollständigem Caller-Datenerhalt 2026-10-21
+### Schemaabweisung mit vollständigem Caller-Datenerhalt 2026-10-21
 
 '-TestScope schema-target-preservation': Acht belegte synthetische Caller-ResultTables mit je einem vollständigen16777216-Byte-Wert: für Parser und Writer jeweils genau eine Abweichung in Spaltenname, Integerbreite, NULLbarkeit oder Collation. Gültiger Parserinput beziehungsweise unabhängig gesetzte Writerquelle mit vollständigem Output an16777216 Bytes. KeepData=1 muss ausschließlich SQL51025/state1 liefern. Vollständige Zielwerte und Writerquelle bleiben bytegenau erhalten; Callerobjektidentität sowie bidirektional verglichene Spalten-, Index- und Indexspaltensnapshots bleiben gleich. Getrennte Transaktionsneutralität und typisierter Abschluss. Kein Schemaumbau und keine neue Funktion.
 
@@ -88,7 +172,7 @@ Initialer unabhängiger Review fand die unpassende generische Plus-zwei-Abschlus
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## Callertransaktionen mit vollständigen CSV-Zielwerten 2026-10-21
+### Callertransaktionen mit vollständigen CSV-Zielwerten 2026-10-21
 
 '-TestScope caller-transaction-preservation': Bestehende öffentliche Parser-/Writeraufrufe in einer committable Callertransaktion mit XACT_ABORT OFF. Vier Erfolge genau an16777216 UTF16-Bytes und vier SQL55303/state1-Abweisungen bei16777218 Bytes je Modus. Caller-Sentinel, @@TRANCOUNT und XACT_STATE werden vor und nach Aufruf sowie nach eigenem COMMIT oder ROLLBACK getrennt geprüft. Vollständige Parserziele/Writeroutputs und unabhängig gesetzte Writerquellen werden bytegenau verglichen; Calleridentität und Schlüssel bleiben erhalten. Ursprüngliches XACT_ABORT wird wiederhergestellt. Keine Abnahme von doomed Transaktionen oder einer vollständigen SET-Optionsmatrix. Nach den nativen PASS wurde genau eine ueberzaehlige EOF-Leerzeile der neuen Fixture entfernt; alle vorherigen SQLbytes sind gegen den unabhaengigen Reviewstand und beide nativen Eingabepins exakt identisch belegt.
 
@@ -100,7 +184,7 @@ Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identis
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## Direkte Unicode-/NULL-Resultsets an vollständigen Textdecken 2026-10-21
+### Direkte Unicode-/NULL-Resultsets an vollständigen Textdecken 2026-10-21
 
 '-TestScope select-unicode-null': Direkte öffentliche SELECT-Ausgaben ohne ResultTable über System.Data.SqlClient. Erste Familie:4194303 gültige UTF16-Surrogatpaare mit CRLF. Zweite Familie: unquotierter NullToken als SQL-NULL, quotierter identischer Token als literaler Text und großer BMP-Wert in drei Spalten. Vollständiger Input/Output genau16777216 Bytes, kleinstes Darüber16777218 Bytes. Client prüft vollständige ordinale Strings, DBNull getrennt vom literalen NULL-Text, Zeilen-/Spaltenreihenfolge, Feldnamen und SQL-/CLR-Typen; Writerwerte separat gesetzt und globale Wertcharge unter16MiB. Vier Übergrenzfälle je Modus ausschließlich SQL55303/state1 ohne vorherige Resultsetmetadaten oder Zeilen; vollständiger Quellerhalt. Keine Aussage über ungepaarte Surrogate oder andere Clients.
 
@@ -112,7 +196,7 @@ Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identis
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Nur System.Data.SqlClient im bestehenden PowerShell-Labadapter und die expliziten synthetischen Fälle: keine SMO-/ODBC-/JDBC-/sonstige Clientmatrix, neue Default-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme oder unabhängig erfolgreiche MaxValueBytes-Vollgrenze. Status weiterhin partially validated, unreleased.
 
-## Direkte SELECT-/TDS-Ausgabe an vollständigen Textdecken 2026-10-21
+### Direkte SELECT-/TDS-Ausgabe an vollständigen Textdecken 2026-10-21
 
 '-TestScope select-output-ceilings': Bestehende öffentliche Parser-/Writeraufrufe mit ResultTable=NULL liefern direkt über System.Data.SqlClient. Unquotierter ASCII-Text mit CRLF und separatorbedingt quotierter ASCII-Text: Input/Output genau16777216 UTF16-Bytes sowie16777218 Bytes. Client prüft genau ein Resultset je Erfolg, Feldnamen/Reihenfolge, SQL-/CLR-Typen, vollständige Strings ordinal und numerische Typen/Werte. Vier Übergrenzfälle je Modus verlangen SQL55303/state1 ohne vorherige Resultsetmetadaten oder Zeilen. Writerquellen separat gesetzt, vollständiger Quellerhalt und Wertcharge strikt unter16MiB; kein INSERT EXEC. Acht bestätigte Readerphasen werden erst danach als typisierter Abschluss gezählt.
 
@@ -124,7 +208,7 @@ Erstreview mit zwei Adapterbefunden zur Helper-Pinbindung und Command-Freigabe. 
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Nur System.Data.SqlClient im bestehenden PowerShell-Labadapter und die expliziten synthetischen Fälle: keine SMO-/ODBC-/JDBC-/sonstige Clientmatrix, neue Default-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme oder unabhängig erfolgreiche MaxValueBytes-Vollgrenze. Status weiterhin partially validated, unreleased.
 
-## Budgetparameter-Abweisung mit vollständigem Datenerhalt 2026-10-21
+### Budgetparameter-Abweisung mit vollständigem Datenerhalt 2026-10-21
 
 '-TestScope budget-parameter-preservation': Acht ausgewählte feste Budgetobergrenzen jeweils um1 überschritten: Parser MaxInputBytes, MaxRows, MaxColumns, MaxCells; Writer MaxValueBytes, MaxOutputBytes, MaxRows, MaxCells. Alle übrigen Argumente gültig, KeepData=0. Vorbefüllte passende Parser-/Writerziele enthalten je genau16777216 synthetische UTF16-Bytes; die getrennt gesetzte Writerquelle enthält16777212 Bytes und wäre mit CRLF regulär ausgabefähig. Vor und nach jeder SQL55303/state1-Abweisung vollständige bytegenaue Ziel-/Quellorakel samt Zeilenzahl und Metadaten; Calleridentitäten, Spaltenzahlen, drei Primärschlüssel und neutraler Transaktionszustand erhalten. Ergänzt vorhandene kleine NULL/0/Obergrenzenprüfungen; keine neue Funktion oder vollständige Budgetparametermatrix behauptet.
 
@@ -136,7 +220,7 @@ Erstreview ohne Befunde. Der erste Linuxlauf scheiterte anschließend im zusamme
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## KeepData und Datenerhalt an vollständigen Textdecken 2026-10-21
+### KeepData und Datenerhalt an vollständigen Textdecken 2026-10-21
 
 '-TestScope keepdata-ceilings': Passende vorbefüllte caller-lokale Parser-/Writerziele mit KeepData=1 und KeepData=0. Parserinput und Writerausgabe je genau16777216 UTF16-Bytes; +2 Bytes werden ausschließlich mit SQL55303/state1 abgewiesen. Erfolgreiches Append erhält synthetische Altzeilen, Replace entfernt diese; fehlgeschlagene Aufrufe erhalten die vollständigen bisherigen Zielwerte. Separat gesetzte Writerquellen bleiben vollständig bytegenau erhalten und ihre Wertcharge strikt unter16MiB. Ziel-/Quellidentität, Spaltenzahlen und beide Caller-Primärschlüssel bleiben erhalten; keine Gesamt-Heapgrenze abgeleitet.
 
@@ -150,7 +234,7 @@ Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identis
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## Kontrollcodeeinheiten an vollständigen UTF16-Textdecken 2026-10-21
+### Kontrollcodeeinheiten an vollständigen UTF16-Textdecken 2026-10-21
 
 '-TestScope control-text-ceilings': Parserinput/Writerausgabe genau16777216 UTF16-Bytes und kleinstes tatsächliches Darüber16777218 Bytes: feste synthetische UTF16-Einheiten aus NUL, getrenntem High-/Low-Surrogat, ASCII und BOM. Zweite Familie enthält führenden BOM und separatorbedingt quotierte Werte mit CRLF. Vollständige Bytevergleiche prüfen den Erhalt sämtlicher Codeeinheiten einschließlich führendem BOM als gewöhnlichem Text; Quotehüllen/CRLF vollständig mitgezählt, globale Writerwertcharge auch beim Übergrenzfall strikt unter16MiB.
 
@@ -164,7 +248,7 @@ Der unabhängige Erstreview fand eine fehlende Abdeckung des BOM an Inputpositio
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## Unicode an vollständigen UTF16-Textdecken 2026-10-21
+### Unicode an vollständigen UTF16-Textdecken 2026-10-21
 
 '-TestScope unicode-text-ceilings': Parserinput/Writerausgabe genau16777216 UTF16-Bytes und kleinstes tatsächliches Darüber16777218 Bytes:4194303 gültige Surrogatpaare mit CRLF sowie separatorbedingt quotierter BMP-Text mit CRLF. Synthetische Codeeinheiten werden aus festen UTF16-Binärliteralen aufgebaut und vollständig bytegenau verglichen. Kein UTF8-/Unicode-Scalar-Zähler; Quotehüllen/CRLF vollständig mitgezählt, globale Writerwertcharge auch beim Übergrenzfall strikt unter16MiB.
 
@@ -178,7 +262,7 @@ Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identis
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## Header an vollständigen Textdecken 2026-10-21
+### Header an vollständigen Textdecken 2026-10-21
 
 '-TestScope header-text-ceilings': Parserinput/Writerausgabe genau16777216 UTF16-Bytes und kleinstes tatsächliches Darüber16777218 Bytes mit vollständigem Header und einem DATArecord. Unquotierter128-Zeichen-Header mit LF sowie separatorhaltiger quotierter Header und DATAwert mit CRLF; Headerwerte, Quotehüllen und sämtliche Recordabschlüsse zählen. Globale Writerwertcharge aus HEADER und DATA strikt unter16MiB, übrige Budgets nicht bindend; vollständige HEADER=0/DATA=1-Wert- und Outputmetadatenorakel.
 
@@ -192,7 +276,7 @@ Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identis
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## NullTokenexpansion an vollständigen Textdecken 2026-10-21
+### NullTokenexpansion an vollständigen Textdecken 2026-10-21
 
 '-TestScope null-token-ceilings': Parserinput/Writerausgabe genau16777216 UTF16-Bytes und kleinstes tatsächliches Darüber16777218 Bytes mit128-Zeichen-NullToken. Zwei Spalten prüfen die SQL-NULL-Expansion; drei Spalten unterscheiden quotiertes Tokenliteral, unquotiertes SQL-NULL und großen Textwert. Tokenbytes, Quotehüllen, Separatoren und LF zählen vollständig, globale Writerwertcharge strikt unter16MiB; übrige Budgets nicht bindend.
 
@@ -206,7 +290,7 @@ Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identis
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## CRLF an vollständigen Textdecken 2026-10-21
+### CRLF an vollständigen Textdecken 2026-10-21
 
 '-TestScope crlf-ceilings': Parserinput/Writerausgabe an exakt16777216 UTF16-Bytes und kleinstem tatsächlichem Darüber16777218 Bytes, unquotierter und wegen Separator quotierter Record mit CRLF. Beide Recordabschlusszeichen und Quotehüllen zählen vollständig; die globale Writerwertcharge bleibt strikt unter16MiB, übrige Budgets nicht bindend.
 
@@ -220,7 +304,7 @@ Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identis
 
 Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
-## Quoteverdopplung an vollständigen Textdecken 2026-10-21
+### Quoteverdopplung an vollständigen Textdecken 2026-10-21
 
 `-TestScope quote-expansion` enthält acht gezählte Phasen je Modus: Parser
 und Writer an16777216 UTF16-Bytes sowie dem kleinsten tatsächlichen Darüber
@@ -252,7 +336,7 @@ lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-
 Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/
 authentifizierte TLS- oder Releaseabnahme. `partially validated`, `unreleased`.
 
-## Tatsächliche Input-/Outputtextdecken 2026-10-21
+### Tatsächliche Input-/Outputtextdecken 2026-10-21
 
 Der getrennte Scope `-TestScope text-ceilings` enthält acht gezählte Phasen
 je Modus: Parserinput und Writerausgabe jeweils genau16777216 UTF16-Bytes
@@ -287,7 +371,7 @@ belegt keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze: Wert-/Output-
 budgets sind gekoppelt. Neue Default-/Clientabnahme, Heap, Minimalrechte,
 Gesamtmatrix, authentifiziertes TLS und Release bleiben nicht ausgeführt.
 
-## Tatsächliche Gesamtzelldecke 2026-10-21
+### Tatsächliche Gesamtzelldecke 2026-10-21
 
 Der getrennte Scope `-TestScope cell-ceilings` bestand auf Linux2019/latest
 CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
@@ -316,7 +400,7 @@ kein neuer lokaler Build-/Frameworklauf. Keine neue Default-/Clientabnahme,
 Textvollgrenze, Heap-, Minimalrechte-, Gesamtmatrix-, authentifizierte TLS-
 oder Releasequalifikation. Status `partially validated`, `unreleased`.
 
-## Korrigierter Writer an tatsächlichen Formgrenzen 2026-10-21
+### Korrigierter Writer an tatsächlichen Formgrenzen 2026-10-21
 
 Nach der ausdrücklich freigegebenen begrenzten Erweiterung wurde der eigene
 Writeraufruf gezielt beobachtet. Der dritte Diagnoselauf ordnete den verbleibenden
@@ -374,7 +458,7 @@ die früheren vier Grenzfehlläufe bleiben FAILED und werden nicht umgedeutet.
 Die neuen Windows-/Linux-PASSes qualifizieren nicht die tatsächlichen vollen
 Zell-/Textdecken, Heap, Minimalrechte, die Gesamtmatrix, authentifiziertes TLS
 oder Release. Status weiterhin `partially validated`, `unreleased`.
-## Native tatsächliche Zeilen-/Spaltendecken 2026-10-21
+### Native tatsächliche Zeilen-/Spaltendecken 2026-10-21
 
 Der neue getrennte Scope `-TestScope shape-ceilings` enthält acht serverseitige
 Fälle je Modus: Parser/Writer genau an 100000 DATA-Records beziehungsweise
@@ -425,7 +509,7 @@ weiterhin offen; die gezielte Timeoutanpassung folgt dieser Bewertung.
 Tatsächliche Spalten-/Zell-/Textdecken, neue vollständige Grenzfehler-/
 Centralabnahme, Heap, Minimalrechte, Gesamtmatrix, authentifiziertes TLS und
 Release bleiben nicht ausgeführt. Status `partially validated`, `unreleased`.
-## Interne CLR-Rückgabelängen 2026-10-21
+### Interne CLR-Rückgabelängen 2026-10-21
 
 Der getrennte Scope `-TestScope binding-return-lengths` bestand auf
 Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem
@@ -457,7 +541,7 @@ kein neuer lokaler Build-/Frameworklauf, keine fachliche Ausführung unter
 abweichender Länge oder neue Default-Gesamtadapter-/API-/Client-/Vollmatrix-/
 Minimalrechte-/Heap-/authentifizierte TLS-/Releaseabnahme.
 
-## Falsche Schemamarkerwerte 2026-10-21
+### Falsche Schemamarkerwerte 2026-10-21
 
 Der getrennte Scope `-TestScope schema-values` bestand auf Linux2019/latest
 CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
@@ -489,7 +573,7 @@ vorhandenes Releasepaket an manifestierte Quellen/exakte Binarybytes gebunden.
 Kein neuer lokaler Build-/Frameworklauf oder neuer Default-Gesamtadapter-/
 API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/authentifizierter TLS-/Releasenachweis.
 
-## Fremde SQL-TVFs auf reservierten Namen 2026-10-21
+### Fremde SQL-TVFs auf reservierten Namen 2026-10-21
 
 Der getrennte Scope `-TestScope foreign-table-functions` bestand auf
 Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem
@@ -523,7 +607,7 @@ Binarybytes gebunden; kein neuer lokaler Build-/Frameworklauf. Keine neue
 Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/
 authentifizierte TLS-/Releaseabnahme; frühere Fehlläufe bleiben erhalten.
 
-## Finale benannte SameDB-Verbraucher auf Linux 2026-10-21
+### Finale benannte SameDB-Verbraucher auf Linux 2026-10-21
 
 Direkt nach Abschluss von PR351 begann die ausgewählte Folgewelle. Der
 unveränderte öffentliche Adapter `-TestScope named-consumers` bestand auf
@@ -552,7 +636,7 @@ Abnahme des NULL-ID-Preflightzweigs, fachliche Consumerausführung oder neue
 Default-Gesamtadapter-/API-/Client-/Vollmatrix-/Minimalrechte-/Heap-/
 authentifizierte TLS-/Releaseabnahme. Kein neuer lokaler Build-/Frameworklauf.
 
-## Finale CLR-Defaults auf Linux 2026-10-21
+### Finale CLR-Defaults auf Linux 2026-10-21
 
 Der unveränderte öffentliche Adapter `-TestScope binding-defaults` bestand auf
 Linux2019/latest CL150 im ersten Versuch local/central. Fünf einzelne
@@ -576,7 +660,7 @@ dem aktuellen Assertionstand nach PR350. Frühere engere Orakel und Fehlläufe
 bleiben erhalten. Kein neuer Default-Gesamtadapter-, API-/Client-, Vollmatrix-,
 Minimalrechte-, Heap-, authentifizierter TLS- oder Releasenachweis.
 
-## CLR-Ausführungskontexte 2026-10-20/21
+### CLR-Ausführungskontexte 2026-10-20/21
 
 Der getrennte Scope `-TestScope binding-execution` bestand auf Linux2019/latest
 CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
@@ -615,7 +699,7 @@ unverändert; keine neue Default-/API-/Client-, Minimalrechte-, Heap-,
 authentifizierte TLS-, vollständige Driftmatrix- oder Releaseabnahme.
 Status bleibt `partially validated`, `unreleased`.
 
-## Falsche Ownership-/Release-Markerwerte 2026-10-20
+### Falsche Ownership-/Release-Markerwerte 2026-10-20
 
 Der getrennte Scope `-TestScope marker-values` bestand auf Linux2019/latest
 CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
@@ -651,7 +735,7 @@ Snapshotquellen unverändert. Keine neue Default-/API-/Client-, Minimalrechte-,
 Heap-, authentifizierte TLS-, vollständige Driftmatrix- oder Releaseabnahme.
 Status bleibt `partially validated`, `unreleased`.
 
-## Explizite SameDB-SQL-Verbraucher 2026-10-20
+### Explizite SameDB-SQL-Verbraucher 2026-10-20
 
 Der getrennte Scope `-TestScope named-consumers` bestand im finalen vierten
 nativen Lauf auf Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent,
@@ -700,7 +784,7 @@ Produkt-/Deployment-/CLR- und gemeinsame Helper unverändert. Keine Consumer-API
 ausführung, neue Default-/API-/Client-, Minimalrechte-, authentifizierte TLS-,
 Heap-, Vollmatrix- oder Releaseabnahme. Status `partially validated`, `unreleased`.
 
-## Gezielte CLR-Parameterdefaults 2026-10-20
+### Gezielte CLR-Parameterdefaults 2026-10-20
 
 Der getrennte Scope `-TestScope binding-defaults` ergänzt die bestehende
 Binding-Fallliste um fünf geschlossene Parameterdefaults: Separatortext und
@@ -747,7 +831,7 @@ Snapshot-/Abweisungshelper unverändert; kein neuer Defaultadapter-/API-/Client-
 Minimalrechte-/Heap-/authentifizierter TLS-/Release- oder Driftvollmatrixnachweis.
 Status bleibt `partially validated`, `unreleased`.
 
-## Gezielte interne CLR-Bindingdrift 2026-10-20
+### Gezielte interne CLR-Bindingdrift 2026-10-20
 
 Der getrennte Scope `-TestScope binding-drift` bestand auf Linux2019/latest
 CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
@@ -784,7 +868,7 @@ Snapshot-/Abweisungshelper unverändert. Kein neuer Default-/API-/Client-,
 Minimalrechte-, Heap-, authentifizierter TLS-, Release- oder vollständiger
 Binding-/Driftmatrixnachweis. Modulstatus bleibt `partially validated`, `unreleased`.
 
-## Fremde Synonyme und SQL-Funktionen 2026-10-20
+### Fremde Synonyme und SQL-Funktionen 2026-10-20
 
 Der getrennte Scope `-TestScope foreign-aliases` erweitert den bestehenden
 Fremdarten-Helfer um eine geschlossene zweite Fallfamilie. Jeder der fünf
@@ -826,7 +910,7 @@ Produkt, Deployment, CLR und gemeinsame Snapshot-/Abweisungshelper unverändert.
 Token-/Kostenwirkung unbekannt. Keine neue Default-/API-/Client-/Binding-/
 Minimalrechte-/Heap-/authentifizierte TLS-/Release- oder vollständige Driftmatrixabnahme.
 
-## Fremde Views und Prozeduren 2026-10-20
+### Fremde Views und Prozeduren 2026-10-20
 
 Der getrennte Scope `-TestScope foreign-kinds` bestand auf Linux2019/latest
 CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
@@ -859,7 +943,7 @@ Token-/Kostenwirkung unbekannt. Weitere Objektarten, Synonyme, zusätzliche
 Verbraucher-/Binding-/Owner-/Rechte-/Driftvarianten, Heap, authentifiziertes TLS
 und Release bleiben offen; kein neuer Default-/API-/Clientnachweis.
 
-## Fehlende Ownershipmarker 2026-10-20
+### Fehlende Ownershipmarker 2026-10-20
 
 Der getrennte Scope `-TestScope marker-absence` bestand auf Linux2019/latest
 CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
@@ -889,7 +973,7 @@ Keine erneute Zielvollmatrix; Review am stabilen getesteten Kandidaten statt
 einer gesonderten PASS-Logreviewkette. Token-/Kostenwirkung unbekannt.
 Weitere Wert-/Typ-/Binding-/Owner-/Rechte-/Driftvarianten und Release bleiben offen.
 
-## Begrenzte Fremdslot-/Verbraucher-Guards 2026-10-20
+### Begrenzte Fremdslot-/Verbraucher-Guards 2026-10-20
 
 Der getrennte Testscope `-TestScope foreign-slots` ist für Linux2019/latest
 CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils
@@ -951,7 +1035,7 @@ Abnahme dieses Helpers. Weitere
 Fremdobjektarten, Verbraucher-/Driftvarianten, Minimalrechte, zusätzliche
 Collations, Heap, authentifiziertes TLS und Release bleiben offen.
 
-## Begrenzte Marker-Guards 2026-10-20
+### Begrenzte Marker-Guards 2026-10-20
 
 `Tests/CI/run-csv-memory-lab.ps1 -TestScope ownership-markers` wählt einen
 getrennten Prüfscope. Nach unverändertem Clean/Repeat mit exakter SAFE-Assembly
@@ -1011,7 +1095,7 @@ Im Guardscope werden API-/Client-/CrossDB-Consumer-Tests ausdrücklich nicht
 ausgeführt. Keine Konfigurations-/Rechte-/Owner-/Infrastrukturänderungen;
 Functional-Transport, authentifiziertes TLS und Release weiterhin offen.
 
-## Zusätzliche Compatibility Levels 2026-10-20
+### Zusätzliche Compatibility Levels 2026-10-20
 
 Nach Abschluss der Standard-CL-Ergänzung in
 [PR339](https://github.com/gecompat/SQL_Server_Toolbelt/pull/339) bestanden
@@ -1051,7 +1135,7 @@ Fremdslot-/Driftvollmatrix, weitere Collations, Heap, authentifiziertes TLS und
 Release bleiben offen. `partially validated`, `unreleased` bleiben unverändert;
 aktuelle Head-/Main-CI ist ein eigener Integrationsgate.
 
-## Standard-CL-Bindung 2026-10-20
+### Standard-CL-Bindung 2026-10-20
 
 Nach [PR338](https://github.com/gecompat/SQL_Server_Toolbelt/pull/338) bestanden
 zwei zusätzliche native Läufe mit den aktuellen ResultTable-Abhängigkeiten:
@@ -1078,7 +1162,7 @@ Minimalrechte, Fremdslot-/Driftvollmatrix, weitere Collations, Heap und Release
 bleiben offen. Functional-Transport qualifiziert kein
 authentifiziertes TLS; aktuelle Head-/Main-CI bleibt ein separater Gate.
 
-## Vorherige ergänzende native Zielwelle 2026-10-20
+### Vorherige ergänzende native Zielwelle 2026-10-20
 
 Der unveränderte öffentliche Adapter `Tests/CI/run-csv-memory-lab.ps1` bestand
 auf vier zusätzlich ausgewählten physischen Labzielen, jeweils im ersten
@@ -1131,7 +1215,7 @@ Minimalrechte, Fremdslot-/Driftvollmatrix, weitere Collations, Heap und Release
 bleiben offen. Transport war `Functional`; authentifiziertes TLS ist
 `not executed`. Aktuelle Head-/Main-CI ist ein gesonderter Integrationsgate.
 
-## Historische Nachweise
+### Historische Nachweise
 
 Testwartung 2026-10-09 – Quellenstand: Der Frameworkrunner kopiert die gepinnte
 DLL mit festem 64-KiB-Puffer, `Int64`-Längenbindung und exakter EOF-Prüfung statt
@@ -1231,6 +1315,8 @@ Weitere Versionen, Plattformen, Minimalrechte, Ceiling- und Heapfälle bleiben
 sichtbar offen bis zu einer tatsächlich erfolgreichen begrenzten Qualifikation.
 Die [Matrix](CSV_TEST_MATRIX.md) trennt erfolgreiche Teilprüfungen und offene
 Pflichtscopes. Manifest-Evidenz enthält keine privaten Journale, Pfade oder Logs.
+
+<!-- CSV_WAVE_EVIDENCE:END -->
 
 ## Aktuelle Validierungsevidenz
 

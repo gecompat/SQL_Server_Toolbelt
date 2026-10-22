@@ -18,6 +18,12 @@ Funktionsfreigabe:
 | CSV-Memory-Tests/README: vorangestellte Qualifikationschronologie | Implementierungsverantwortlicher der nächsten CSV-Memory-Welle, vor deren Review | Testanleitung und aktuelle Auswahl zuerst erklären; datierte Wellenbelege in einer eindeutig bezeichneten Evidenzstrecke erhalten, erforderliche Links und Validator-/Manifestkopplungen gemeinsam prüfen |
 | Weitere Modul-/Testanleitungen mit vorangestellten historischen Security-/Abnahmeabschnitten | Verantwortlicher des jeweils materiell geänderten Moduls | Bei der nächsten betroffenen Anleitung Einführung, Voraussetzungen, Anwendung und Fehlerklärung vor historische Belege stellen; bestehende IDs und Evidenzgrenzen erhalten |
 
+2026-10-22: Der CSV-Testlesepfad wird mit der Parser-Argumentwelle bereinigt:
+Auswahl, Voraussetzungen, Ausführung, Ergebnisdeutung und Fehlerklärung stehen
+vor den datierten Nachweisen. Die bisherigen Abschnitte und Linkanker sowie
+die generierte Manifest-Evidenz bleiben im selben Dokument erhalten. Weitere
+Legacy-Scopes der Tabelle bleiben an ihre eigenen Auslöser gebunden.
+
 Keine pauschale Dateiverschiebung, neue Registry oder zusätzliche Reviewkette.
 Unveränderte unabhängige Dokumente bleiben außerhalb des jeweiligen Änderungsumfangs.
 
@@ -2389,6 +2395,11 @@ Keine Funktionserweiterung oder Budgetreset. Produkt-/Deployment-/CLR-/gemeinsam
 2026-10-22: Nach vollständigem Abschluss der vorigen Welle tatsächlich mit 'source-metadata-preservation' fortgesetzt.
 Acht unabhängig gesetzte nicht unterstützte Writer-Quellmetadaten: fünfte Spalte, umbenannte Value-Spalte, RowKind als nvarchar beziehungsweise varchar(7), RowOrdinal als int, ColumnOrdinal als bigint, Value als nvarchar(4000) beziehungsweise varchar(max). Vier KeepData=0- und vier KeepData=1-Fälle. Ausschließlich SQL55305/state1. Vollständiger16MiB-Altoutput und alle Quellwerte werden in ihren tatsächlichen Datentypen bytegenau erhalten; für nvarchar(4000) bewusst4000 Zeichen, andere Value-Fixtures8388580 ASCII-Zeichen. Beide Objektidentitäten und bidirektionale Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots von Quelle und Ziel unverändert. Keine einheitliche16MiB-Quellencharge oder neue Bytegrenzabnahme behauptet.
 1366 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden. Unabhängiger Quell-/Orakelreview vor den nativen Läufen ohne Findings. Identischer ausführbarer Kandidat auf Linux2019/latest CL150 und Windows2025/base CL170 mit erlaubtem bereitem CU-Äquivalent jeweils erster Versuch local/central PASS:16 Fälle je Ziel einschließlich 16 SQL55305/state1-Abweisungen. Clean/Repeat und Uninstall/Repeat, Exit0/vollständige Kanäle/leeres Stderr; je frischer separater Audit zwei eigene DBs/ein eigener Trusteintrag abwesend, Konfiguration/Rechte/Inputs unverändert. Danach nur gekoppelte Manifest-/Evidenz-/Dokumentationsdateien nachgepflegt.
+Keine Funktionserweiterung oder Budgetreset. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
+2026-10-22: Nach vollständigem Abschluss der vorigen Welle tatsächlich mit 'parser-argument-preservation' fortgesetzt.
+Vier bestehende Parser-Argumentfehler jeweils mit KeepData=0/1: Text=NULL, HasHeader=NULL, zweistelliger Separator und leerer NullToken. Acht ausschließlich SQL55300/state1-Abweisungen je Modus. Vorheriger synthetischer Zellwert genau16777216 UTF16-Bytes bleibt vollständig samt Zeilenzahl, Schlüsseln, Objektidentität und bidirektionalen Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots erhalten. Die drei Fälle mit vorhandenem Text verwenden unabhängig gesetzten16MiB-Input; der fehlende Text bleibt ausdrücklich NULL. Keine neue allgemeine Bytegrenzabnahme.
+1406 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden. Native Abnahme und unabhängiger Review für 'parser-argument-preservation' sind offen.
 Keine Funktionserweiterung oder Budgetreset. Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
 
 ### Queue-Worker 2 – autonome Umsetzung freigegeben 2026-10-04

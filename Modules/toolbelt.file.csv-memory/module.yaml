@@ -115,6 +115,7 @@ tests:
   target_constraint_preservation: "Tests/Runtime/TargetConstraintPreservation.Tests.sql"
   null_representation_preservation: "Tests/Runtime/NullRepresentationPreservation.Tests.sql"
   source_metadata_preservation: "Tests/Runtime/SourceMetadataPreservation.Tests.sql"
+  parser_argument_preservation: "Tests/Runtime/ParserArgumentPreservation.Tests.sql"
   select_reader: "Tests/Framework/CsvDirectSelect.Helpers.ps1"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   ownership_guards: "Tests/Runtime/OwnershipGuards.Tests.ps1"
