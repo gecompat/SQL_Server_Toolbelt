@@ -78,6 +78,7 @@ bezeichnet den abgegrenzten Paketsatz, keine zusätzliche allgemeine Supportfrei
    Server und Datenbank und führe ohne Textmarkierung mit **F5** aus.
    Die SQL-Datei enthält die DLL-Bytes bereits. Du musst keine DLL auf den
    SQL-Server-Rechner kopieren und keinen Server-Dateipfad eintragen.
+   Die Datei ist UTF-8; behalte diese Codierung bei, falls SSMS danach fragt.
 6. Prüfe nach Ende der Ausführung die Registerkarte **Meldungen**. Anschließend:
 
    ```sql
@@ -105,6 +106,7 @@ Windowsidentitäten und Dateirechte. Diese Anleitung erzeugt keine Dateifixtures
 Optional kannst du statt SSMS PowerShell 7 und ein vorhandenes ODBC-`sqlcmd`
 verwenden. Der optionale Helper nutzt Windows-Anmeldung und prüft vor jedem
 Tool-/SQL-Zugriff alle Paketdateien. Im entpackten Paketroot:
+Die Übergabe an ODBC-`sqlcmd` verwendet ausdrücklich UTF-8.
 
 ```powershell
 pwsh -File ./Install-ClrPackage.ps1 -ValidateOnly

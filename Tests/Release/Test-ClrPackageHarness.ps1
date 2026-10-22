@@ -35,4 +35,21 @@ foreach($file in @('Invoke-ClrPackageLab.ps1','Invoke-ClrPackageMatrix.ps1')){
   }finally{[Globalization.CultureInfo]::CurrentCulture=$original}
  }
 }
-'PASS CLR_HARNESS syntax and original shared budget after JSON roundtrip, two cultures; no SQL'
+$errors=$null;$installer=[Management.Automation.Language.Parser]::ParseFile((Join-Path $root 'Scripts/Release/Install-ClrPackage.ps1'),[ref]$null,[ref]$errors)
+if($errors.Count){throw 'CLR_INSTALLER_PARSE'}
+$entry=@($installer.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Invoke-ClREntry'},$true))
+if($entry.Count -ne 1){throw 'CLR_INSTALLER_ENTRY_MISSING'}
+. ([scriptblock]::Create($entry[0].Extent.Text))
+$ServerInstance='localhost'
+$sqlcmd=[pscustomobject]@{Source={ $script:captured=@($args);$global:LASTEXITCODE=0 }}
+foreach($trust in @($false,$true)){
+ $TrustServerCertificate=$trust
+ Invoke-ClREntry 'synthetic.sql' 'ToolbeltSynthetic'
+ $expected='-S|localhost|-d|ToolbeltSynthetic|-E|-N|-f|65001|-b|-i|synthetic.sql'
+ if($trust){$expected+='|-C'}
+ if(($script:captured -join '|') -cne $expected){throw 'CLR_INSTALLER_TRANSPORT_OR_UTF8_CONTRACT'}
+}
+$script:calls=0;$sqlcmd=[pscustomobject]@{Source={$script:calls++;$global:LASTEXITCODE=1}}
+$rejected=$false;try{Invoke-ClREntry 'synthetic.sql' 'ToolbeltSynthetic'}catch{$rejected=$_.Exception.Message -ceq 'CLR_PACKAGE_SQLCMD_FAILED_STOP'}
+if(-not $rejected -or $script:calls -ne 1){throw 'CLR_INSTALLER_RETRY_OR_ERROR_BYPASS'}
+'PASS CLR_HARNESS shared budget/culture/coverage, encrypted UTF8 arguments, explicit trust and no retry; no SQL'

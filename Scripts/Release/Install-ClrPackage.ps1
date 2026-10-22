@@ -27,7 +27,7 @@ if([string]::IsNullOrWhiteSpace($ServerInstance) -or [string]::IsNullOrWhiteSpac
 if($Action -like 'Uninstall*' -and -not $ConfirmNoExternalConsumers){throw 'CLR_PACKAGE_EXPLICIT_CONSUMER_CONFIRMATION_REQUIRED'}
 $sqlcmd=Get-Command -Name $SqlcmdPath -CommandType Application -ErrorAction Stop
 function Invoke-ClREntry([string]$Path,[string]$Catalog){
- $arguments=@('-S',$ServerInstance,'-d',$Catalog,'-E','-N','-b','-i',$Path)
+ $arguments=@('-S',$ServerInstance,'-d',$Catalog,'-E','-N','-f','65001','-b','-i',$Path)
  if($TrustServerCertificate){$arguments+=@('-C')}
  & $sqlcmd.Source @arguments
  if($LASTEXITCODE -ne 0){throw 'CLR_PACKAGE_SQLCMD_FAILED_STOP'}

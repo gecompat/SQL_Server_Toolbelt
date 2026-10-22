@@ -190,7 +190,7 @@
     "Scripts/Release/prepare_clr_package.py": "19432f5bc4112dd8d1e29053563bb0685abfff0898b0059079a1310a64630d91",
     "Scripts/Release/prepare_release.py": "c1d8b78474720aab03037bd42d12284ff8a237daf472515872dab0cec821b630",
     "Scripts/Release/check_clr_builds.py": "4aece76b135c8bbd443bb5a64a9faac3221db2055ee7d75a59ed4b04d654b6d3",
-    "Scripts/Release/Install-ClrPackage.ps1": "ba9b7018407fdd8332f991f3bf2aa3f3560cf1062adfef0e2310bed7430411e9",
+    "Scripts/Release/Install-ClrPackage.ps1": "2f030e922b2ab48d7ee9a284dc2694ede427d8643c29fbdc31638cb5c03adac2",
     "Tests/Release/Invoke-ClrPackageLab.ps1": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
     "Tests/Release/Invoke-ClrPackageMatrix.ps1": "756ff4620c5c47cf2af17b00b194ec4cfa22980b8ef14d9ef390483bb18c5781",
     "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
