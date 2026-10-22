@@ -4,6 +4,18 @@ Stand 2026-10-21: Version1.0.0 ist implementiert, `partially validated` und
 unveröffentlicht. CI und native Labnachweise besitzen getrennte Bindungen;
 andere SAFE-Assemblies qualifizieren diese CSV-Bytes nicht.
 
+## Writer-Quellmetadatenabweisung mit vollem Datenerhalt 2026-10-22
+
+'-TestScope source-metadata-preservation': Acht unabhängig gesetzte nicht unterstützte Writer-Quellmetadaten: fünfte Spalte, umbenannte Value-Spalte, RowKind als nvarchar beziehungsweise varchar(7), RowOrdinal als int, ColumnOrdinal als bigint, Value als nvarchar(4000) beziehungsweise varchar(max). Vier KeepData=0- und vier KeepData=1-Fälle. Ausschließlich SQL55305/state1. Vollständiger16MiB-Altoutput und alle Quellwerte werden in ihren tatsächlichen Datentypen bytegenau erhalten; für nvarchar(4000) bewusst4000 Zeichen, andere Value-Fixtures8388580 ASCII-Zeichen. Beide Objektidentitäten und bidirektionale Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots von Quelle und Ziel unverändert. Keine einheitliche16MiB-Quellencharge oder neue Bytegrenzabnahme behauptet.
+
+Acht SQLphasen je Modus, ausschließlich55305/state1. Jede Quelle hat genau eine ausgewählte Metadatenabweichung und einen vollständig geprüften synthetischen Payload. Typgerechte Längen-/Binärorakel vermeiden implizite UTF16-/varchar-Verwechslung. Vier Replace-/vier Appendfälle, voller16MiB-Altoutput, beide Metadatensnapshots, isolierte Neutralität und genau ein typisierter Abschluss.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1366 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'source-metadata-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ## NULL-Darstellungsabweisung mit vollem Datenerhalt 2026-10-22
 
 '-TestScope null-representation-preservation': SQL-NULL in DATA ohne NullToken und SQL-NULL im HEADER trotz aktiviertem NullToken, jeweils in ein- und zweispaltigen beziehungsweise ein- und zweizeiligen gültigen Zellrastern. Vier Formen jeweils mit KeepData=0/1, acht Fälle je Modus. Ausschließlich SQL55307/state1; vollständiger16MiB-Altoutput und alle unabhängig gesetzten Quellwerte einschließlich tatsächlicher SQL-NULLs bleiben erhalten. Quellencharge unter16MiB, Quell-/Zielidentitäten und bidirektionale Zielspalten-/Index-/Indexspalten-/Checkconstraint-Snapshots unverändert. Keine neue Bytegrenz- oder allgemeine Clientabnahme.
