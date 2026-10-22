@@ -214,8 +214,9 @@ Consumerpfade gelten weiterhin je Modul.
 Wenn `ToolbeltDemo` ausschließlich für diese Anleitung neu angelegt wurde
 und du keine ihrer Inhalte mehr brauchst, kannst du **genau diese eigene
 Demodatenbank** entfernen. Schließe zuerst die Abfragefenster, die mit ihr
-verbunden sind. Wähle dann im Objekt-Explorer Rechtsklick → **Löschen / Delete**
-entfernen. Kontrolliere vor der Bestätigung Namen und Inhalt; das entfernt
+verbunden sind. Klicke dann im Objekt-Explorer mit der rechten Maustaste auf
+`ToolbeltDemo` und wähle **Löschen / Delete**. Kontrolliere vor der Bestätigung
+Namen und Inhalt; das entfernt
 auch alle später dort angelegten Daten. Eine Datenbank mit anderen Inhalten
 bleibt bestehen.
 

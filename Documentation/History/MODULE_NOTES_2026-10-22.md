@@ -388,4 +388,3 @@ erzeugt JSON-Bindings und einzeln ausführbare CTE-Debugstufen aus DTSX.
 Windows-/UNSAFE-Profil; Offline- und native Stufen-/Lookup-/Upgradeprüfungen
 bestanden. [Prüfumfang und verbleibende Gates](../../Modules/toolbelt.tsql.ssis-debug/Tests/README.md)
 sind dokumentiert; authentifizierte TLS-Abnahme bleibt separat.
-
