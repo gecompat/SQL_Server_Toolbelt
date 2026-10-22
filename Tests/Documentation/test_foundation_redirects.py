@@ -309,10 +309,10 @@ class ProvenanceTests(unittest.TestCase):
         for key in ("schema_version", "contract", "source_repository", "selection"):
             self.assertEqual(record[key], baseline[key])
         expected = {"schema_version": 1, "contract": "foundation-installation-provenance/v1",
-                    "ruleset_version": "1.24.0",
+                    "ruleset_version": "1.25.0",
                     "source_repository": "https://github.com/gecompat/AI_Repository_Foundation",
-                    "source_commit": "96391403a1b89e19d4824838806d7190d8033389",
-                    "source_manifest_sha256": "acddcc5d9c930229279e627f341c5f4afa24ec00f4f77353ede5d137d90b0f48"}
+                    "source_commit": "9e1b9974de58ea775d40c7c6045cd5057ba8b30c",
+                    "source_manifest_sha256": "582d3dd2825c5124d7df34874182fef80dafe45bbb7ff239a4fad55c09a4a597"}
         for key, value in expected.items():
             self.assertEqual(record[key], value)
         self.assertRegex(record["recorded_at"], r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
@@ -343,6 +343,8 @@ class ProvenanceTests(unittest.TestCase):
                ".ai/foundation/ai_runtime_adapters/stdio_adapter.py",
                ".ai/foundation/ai_runtime_adapters/stdio_demo.py"}
         upgraded = {"AGENTS.md", ".ai/foundation/FOUNDATION_RULESET.md",
+                    ".ai/foundation/DOCUMENTATION_POLICY.md",
+                    ".ai/foundation/UPGRADE_APPLICABILITY_POLICY.md",
                     ".ai/foundation/SEMANTIC_INTEGRATION_POLICY.md",
                     ".ai/foundation/PROJECT_RULES.md",
                     ".ai/foundation/RULE_CONTEXT_CACHE_POLICY.md",
@@ -376,15 +378,15 @@ class ProvenanceTests(unittest.TestCase):
             return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
         fields = ("source", "target", "kind", "merge", "source_sha256")
-        # Current manifest projection is bound to the exact 1.24 source above.
-        # The old security baseline and all unrelated rows remain protected.
+        # Die Projektion ist an das geprüfte 1.25-Quellmanifest gebunden;
+        # alte Securitybaseline und alle unabhängigen Zeilen bleiben geschützt.
         self.assertEqual(projection(fields, rows),
-                         "3ab6e9b0c6c000451b37ccd008163c323196f05521ab99d51a41bdbc87f245ca")
+                         "7dad9be50540af3f67df833ae1fb0aab879bd6b52cbd975f8e8241e53219f07c")
         self.assertEqual(projection(fields + ("installed_sha256", "integration_state", "reason"),
                                     [row for row in rows if row["target"] not in changed]),
-                         # 2026-10-16: autorisierte Fachtest-/TLS-Trennung in AGENTS;
-                         # vollständige Projektion bleibt inklusive aller Rootfelder gebunden.
-                         "1c775ff92e8731e2b304c0768226b5c864c281a584b7663580d4e56dbd5d52a6")
+                         # 2026-10-22: vollständige 1.25-Projektion einschließlich
+                         # Root-Bridge; alle bisherigen Sicherheitsgründe bleiben erhalten.
+                         "33c38058f194b745811560a6a5d7dcc255ea3132d7ac7b014dfa54ac579a3e51")
         for row in rows:
             if row["target"] not in changed | upgraded | new:
                 self.assertEqual(row, old_rows[row["target"]])
