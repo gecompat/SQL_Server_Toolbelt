@@ -23,7 +23,8 @@ import prepare_release as release
 from check_clr_builds import check_binary
 
 PACKAGE = 'SQL-Server-Toolbelt-1.0.0-CLR-Install'
-LOCATION = 'Releases/1.0.0/InstallPackages/' + PACKAGE + '.zip'
+LOCATION = release.CLR_PACKAGE
+QUALIFICATION = 'Releases/1.0.0/clr-qualification.json'
 SSIS = 'Modules/toolbelt.tsql.ssis-debug/InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip'
 WINDOWS_ONLY = {'toolbelt.filesystem.windows', 'toolbelt.tsql.script-parser', 'toolbelt.tsql.ssis-debug'}
 
@@ -45,6 +46,9 @@ def trust_sql(artifacts: list[dict]) -> bytes:
     text += "IF @@TRANCOUNT<>0 THROW 51593,N'Keine Callertransaktion erlaubt.',1;\n"
     text += "IF ISNULL(IS_SRVROLEMEMBER(N'sysadmin'),0)<>1 THROW 51593,N'Vorhandene administrative Rechte erforderlich.',2;\n"
     for a in artifacts:
+        release.require(re.fullmatch(r'[A-Za-z0-9_.-]+\.dll', a['file']) is not None
+                        and re.fullmatch(r'[a-f0-9]{128}', a['sha512']) is not None,
+                        'Ungültiger Trustinput.')
         text += f"IF NOT EXISTS(SELECT 1 FROM sys.trusted_assemblies WITH (NOLOCK) WHERE hash=0x{a['sha512']})\n"
         text += f" EXEC sys.sp_add_trusted_assembly @hash=0x{a['sha512']},@description=N'Toolbelt 1.0.0 {a['file']}';\n"
     return (text + 'GO\n').encode()
@@ -183,7 +187,11 @@ def build(build_directory: Path, output: Path) -> None:
         elif path.startswith('Deployment/'):
             payload['Sources/' + path] = data
     payload['LICENSE.md'] = files['LICENSE.md']
-    payload['START-HERE.md'] = files['Releases/1.0.0/CLR-INSTALL.md'].replace(b'(../../', b'(https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/')
+    guide = files['Releases/1.0.0/CLR-INSTALL.md'].replace(b'(../../', b'(https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/')
+    payload['START-HERE.md'] = guide.replace(b'(InstallPackages/', b'(https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/InstallPackages/')
+    payload['Install-ClrPackage.ps1'] = files['Scripts/Release/Install-ClrPackage.ps1']
+    if QUALIFICATION in files:
+        payload['QUALIFICATION.json'] = files[QUALIFICATION]
     metadata = {'schema_version':'1.0','state':'prepared_not_published','source_commit':commit,
                 'build_source_commit':report['source_commit'],'publication_authorized':False,
                 'artifacts':[{k:v for k,v in a.items() if k != '_bytes'} for a in artifacts],
@@ -204,6 +212,9 @@ def verify(path: Path) -> dict:
         names = archive.namelist()
         release.require(len(names) == len(set(names)) and len(names) < 10000, 'Doppelte/zu viele ZIP-Einträge.')
         prefix = PACKAGE + '/'
+        for name in names:
+            release.safe_path(name)
+            release.require((archive.getinfo(name).external_attr >> 16) & 0o170000 in (0,0o100000), 'Kein regulärer ZIP-Dateieintrag.')
         release.require(all(p.startswith(prefix) and '\\' not in p and '..' not in p.split('/') and not p.endswith('/') for p in names), 'Unsicherer ZIP-Pfad.')
         release.require(sum(i.file_size for i in archive.infolist()) < 256*1024*1024, 'CLR-ZIP zu groß.')
         data = {p[len(prefix):]:archive.read(p) for p in names}
@@ -225,6 +236,10 @@ def verify(path: Path) -> dict:
         for action in ('Install','Repeat','Uninstall','UninstallAbsent'):
             sql = data[f'SQL/{action}-{profile}.sql']
             release.require(b'$(' not in sql and re.search(br'(?im)^\s*:(?!on error exit\s*$)',sql) is None, 'Unaufgelöste SQLCMD-Direktive.')
+    qualification = release.ROOT / QUALIFICATION
+    if qualification.is_file():
+        release.validate_clr_qualification(data, json.loads(qualification.read_bytes()),
+                                         {p:(release.ROOT / p).read_bytes() for p in json.loads(qualification.read_bytes())['method_bindings']})
     print('PASS CLR_PACKAGE 12 modules, 13 DLLs, four explicit deployment profiles; no build needed on installation')
     return metadata
 

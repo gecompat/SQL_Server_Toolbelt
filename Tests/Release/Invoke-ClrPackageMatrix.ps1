@@ -16,6 +16,12 @@ function Get-ReleaseMatrixAllowance([double]$Elapsed,[switch]$CaseStart) {
     if ((4800-$Elapsed) -lt $reserve) {throw 'RELEASE_WAVE_BUDGET_EXHAUSTED'}
     return 400000
 }
+function Assert-ClrWaveCoverage($Budget,[int]$Start,[switch]$Final) {
+    $done=@($Budget.completed)
+    if (@($done|Select-Object -Unique).Count -ne $done.Count -or @($done|Where-Object {$_ -lt 0 -or $_ -gt 11}).Count) {throw 'RELEASE_CLR_INVALID_HISTORY'}
+    if ($Start -gt 0) {foreach($prior in 0..($Start-1)){if($prior -notin $done){throw 'RELEASE_CLR_PREFIX_NOT_COMPLETE'}}}
+    if ($Final -and $done.Count -ne 12){throw 'RELEASE_CLR_FULL_COVERAGE_REQUIRED'}
+}
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $driver=Join-Path $PSScriptRoot 'Invoke-ClrPackageLab.ps1'
 $private=[IO.Path]::GetFullPath((Join-Path $repo '.runtime'))+[IO.Path]::DirectorySeparatorChar
@@ -84,6 +90,7 @@ while ($parent -and $parent.FullName.Length -ge $private.TrimEnd('\','/').Length
 if (Test-Path -LiteralPath $budgetPath) {$budget=Get-Content -LiteralPath $budgetPath -Raw|ConvertFrom-Json -AsHashtable}
 else {$budget=@{startedUtc=[DateTime]::UtcNow.ToString('o');attempts=0;limit=18;seconds=7200;completed=@()}}
 if ($budget.limit -ne 18 -or $budget.seconds -ne 7200) {throw 'RELEASE_BUDGET_CONTRACT'}
+Assert-ClrWaveCoverage $budget $StartCaseIndex
 function Save-ClrBudget {[IO.File]::WriteAllText($budgetPath,($budget|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))}
 Save-ClrBudget
 $watch=[Diagnostics.Stopwatch]::StartNew()
@@ -120,4 +127,5 @@ foreach ($index in $StartCaseIndex..11) {
     $budget.completed+=@($index);Save-ClrBudget
     Write-Output "PASS RELEASE_CASE $index install/repeat/consumer/uninstall; independent cleanup/pins"
 }
+Assert-ClrWaveCoverage $budget $StartCaseIndex -Final
 Write-Output 'PASS RELEASE_MATRIX 12 target/CL cases; 24 deployment paths; 36 own databases removed; no publication'

@@ -33,6 +33,7 @@ MATRIX = f"{DIRECTORY}/FREIGABEMATRIX.md"
 QUALIFICATION = f"{DIRECTORY}/qualification.json"
 NAME = f"SQL-Server-Toolbelt-{VERSION}-candidate-source"
 ARTIFACTS = f"{DIRECTORY}/Artifacts/"
+CLR_PACKAGE = f"{DIRECTORY}/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip"
 MAX_BYTES = 256 * 1024 * 1024
 MAX_FILES = 10000
 
@@ -185,6 +186,8 @@ def make_plan(files: dict[str, bytes], product_commit: str) -> dict:
             module["pending_before_publication"] = "Transitive Preview-Dependency; Kanal bleibt bis zur gemeinsamen Freigabe Preview."
         if mid in ("toolbelt.tsql.script-parser", "toolbelt.tsql.ssis-debug"):
             module["binary_delivery"] = "qualified_ssis_install_zip_and_sources"
+        if CLR_PACKAGE in files and module['binary_delivery'] != 'sql_sources':
+            module['binary_delivery'] = 'prebuilt_clr_install_zip_and_sources'
     return {
         "schema_version": "1.0", "project_version": VERSION,
         "state": "prepared_not_published", "publication_authorized": False,
@@ -212,7 +215,10 @@ def matrix(plan: dict, module_page: str = "README.md") -> bytes:
         evidence = next((p for p in reversed(m["evidence_references"]) if p.endswith("README.md")))
         deps = ", ".join(f"`{x}`" for x in m["dependencies"]) or "—"
         lines.append(f"| [`{mid}`]({ref}) {m['module_version']} | **{m['proposed_channel']}** | {m['validation_status']} | {deps} | [Nachweise](../../{evidence}); {m['pending_before_publication']} |")
-    lines += ["", "Die Spalte `binary_delivery` im [maschinenlesbaren Plan](release-plan.json) benennt die Lieferform. Das Gesamt-ZIP ist ein Quellpaket. Der separat enthaltene SSIS-Installationssatz enthält bereits qualifizierte DLLs. Weitere CLR-Provider benötigen ihre dokumentierten Build-/Trustinputs; ein vollständiges vorgebautes CLR-Installationspaket wird hier nicht behauptet.", "",
+    delivery = ("Die Spalte `binary_delivery` im [maschinenlesbaren Plan](release-plan.json) benennt die Lieferform. Das Gesamt-ZIP enthält zusätzlich den [vorgebauten CLR-Installationssatz](CLR-INSTALL.md): zwölf Toolbelt-DLLs, ScriptDom, Quellcode und fertige SQL-Dateien mit exakten Trustwerten. Die vier Profile erhalten Windows-/Portable- und lokale/zentrale Grenzen. Kein eigener Build für die Installation; fachliche Preview-/Releasegates bleiben separat."
+                if any(m['binary_delivery'] == 'prebuilt_clr_install_zip_and_sources' for m in plan['modules']) else
+                "Die Spalte `binary_delivery` im [maschinenlesbaren Plan](release-plan.json) benennt die Lieferform. Das Gesamt-ZIP ist ein Quellpaket. Der separat enthaltene SSIS-Installationssatz enthält bereits qualifizierte DLLs. Weitere CLR-Provider benötigen ihre dokumentierten Build-/Trustinputs; ein vollständiges vorgebautes CLR-Installationspaket wird hier nicht behauptet.")
+    lines += ["", delivery, "",
               "Vor Veröffentlichung gelten die [offenen Releasegates](README.md#vor-einer-veröffentlichung) und der [kanonische Veröffentlichungsvertrag](../../Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md#öffentlicher-veröffentlichungsnachweis).", ""]
     return "\n".join(lines).encode("utf-8")
 
@@ -232,6 +238,24 @@ def validate_plan(files: dict[str, bytes], plan: dict) -> None:
         require({p: b for p, b in files.items() if p.startswith(prefix)} ==
                 {p: b for p, b in product.items() if p.startswith(prefix)}, "Produktinputs gegenüber der qualifizierten Basis geändert.")
     validate_qualification(files, plan)
+    if CLR_PACKAGE in files:
+        qualified = json.loads(files[f'{DIRECTORY}/clr-qualification.json'])
+        inner = read_zip(files[CLR_PACKAGE])
+        prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
+        validate_clr_qualification({p[len(prefix):]:b for p,b in inner.items()}, qualified, files)
+
+
+def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, sources: dict[str,bytes]) -> None:
+    """Aktuelle Lieferbytes an die tatsächlich ausgeführte native Paketwelle binden."""
+    require(qualification['publication_authorized'] is False and qualification['native_cases_passed'] == 12,
+            'Keine CLR-Veröffentlichungsfreigabe oder vollständige Paketmatrix.')
+    require(payload.get('QUALIFICATION.json') == encoded(qualification), 'CLR-Qualifikationsprojektion fehlt oder driftet.')
+    require(qualification['sql_payload_sha256'] == {p:sha(b) for p,b in payload.items() if p.startswith('SQL/')},
+            'CLR-SQL-Payload gegenüber nativem Nachweis geändert.')
+    require(qualification['binary_sha512'] == {p:hashlib.sha512(b).hexdigest() for p,b in payload.items() if p.startswith('Binaries/')},
+            'CLR-Binary gegenüber nativem Nachweis geändert.')
+    for path, expected in qualification['method_bindings'].items():
+        require(path in sources and sha(sources[path]) == expected, 'CLR-Methodenbindung veraltet.')
 
 
 def validate_qualification(files: dict[str, bytes], plan: dict, exports: dict[str, bytes] | None = None) -> None:
@@ -382,6 +406,7 @@ def start_here(files: dict[str, bytes]) -> bytes:
     return (text.replace("(README.md)", f"({DIRECTORY}/README.md)")
             .replace("(FREIGABEMATRIX.md)", f"({DIRECTORY}/FREIGABEMATRIX.md)")
             .replace("(RELEASE-GATES.md)", f"({DIRECTORY}/RELEASE-GATES.md)")
+            .replace("(CLR-INSTALL.md)", f"({DIRECTORY}/CLR-INSTALL.md)")
             .replace("(../../", "(")).encode("utf-8")
 
 
