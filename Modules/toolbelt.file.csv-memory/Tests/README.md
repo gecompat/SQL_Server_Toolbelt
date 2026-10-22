@@ -71,6 +71,18 @@ und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
 Evidenzbereich; Anleitung und Auswahl stehen davor.
 
 <!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### Writer-Headerabweisung mit vollem Datenerhalt 2026-10-22
+
+'-TestScope writer-header-preservation': Vier bestehende ungültige HEADER-Formen jeweils mit KeepData=0/1: HEADER bei HasHeader=0, fehlender HEADER bei HasHeader=1, falscher HEADER-RowOrdinal und HEADER-Spaltenlücke. Acht ausschließlich SQL55306/state1-Abweisungen je Modus. Alle unabhängig gesetzten Quellzeilen einschließlich vollständigem großem Wert unter16MiB sowie vorheriger16MiB-Altoutput bleiben erhalten. Beide Objektidentitäten und bidirektionale Quellen-/Zielspalten-, Index-, Indexspalten- und Checkconstraint-Snapshots unverändert. Keine neue Bytegrenzabnahme.
+
+Acht SQLphasen je Modus: vier HEADER-Formen jeweils Replace/Append. Jede Quellzeile vollständig mit Multiplizität geprüft, genaue Fehlernummer und State, Transaktionsneutralität und nur ein finaler typisierter8er-Abschluss.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1486 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'writer-header-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### Writer-Argumentabweisung mit vollem Datenerhalt 2026-10-22
 
 '-TestScope writer-argument-preservation': Vier bestehende Writer-Argumentfehler jeweils mit KeepData=0/1: HasHeader=NULL, LineEnding=NULL, kleingeschriebenes lf und zweistelliger Separator. Acht ausschließlich SQL55300/state1-Abweisungen je Modus. Unabhängig gesetzte gültige DATA-Quelle unter16MiB und vollständiger16MiB-Altoutput bleiben bytegenau erhalten. Beide Objektidentitäten und bidirektionale Quellen-/Zielspalten-, Index-, Indexspalten- und Checkconstraint-Snapshots bleiben unverändert. Keine neue Bytegrenzabnahme.
