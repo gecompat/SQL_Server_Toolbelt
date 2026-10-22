@@ -71,6 +71,18 @@ und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
 Evidenzbereich; Anleitung und Auswahl stehen davor.
 
 <!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### Reservierte Writer-Tempnamen mit vollem Callerwerterhalt 2026-10-22
+
+'-TestScope reserved-temp-namespace-preservation': Vier einzeln belegte private Writerslots Input, Measure, Fragments und Result, jeweils KeepData=0/1. Acht ausschließlich SQL55304/state1-Abweisungen je Modus vor der Workbatch. Die synthetische Callerprobe besitzt absichtlich fremdes Schema und einen unabhängig gesetzten16MiB-Wert; dieser sowie gültige DATA-Quelle unter16MiB und vollständiger16MiB-Altoutput bleiben bytegenau erhalten. Alle drei Objektidentitäten und bidirektionalen Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots bleiben unverändert. Jede eigene Probe wird vor dem nächsten Fall entfernt. Kein vollständiger Namespace-, Parser- oder neuer Bytegrenzumfang.
+
+Acht SQLphasen: vier konkrete reservierte Writer-Slots jeweils Replace/Append. Exakte Fehlernummer/State, volle Probe-/Quell-/Zielwerte und getrennte neutrale Transaktion vor und nach jeder Abweisung. Fortschritt erst nach allen Orakeln und eigener Probeentfernung; nur finaler typisierter8er-Witness.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1566 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'reserved-temp-namespace-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### Leere CSV-Ergebnisse mit korrektem Replace und Append 2026-10-22
 
 '-TestScope empty-result-preservation': Acht erfolgreiche Leerresultatfälle je Modus: Parser mit leerem Text beziehungsweise quotierter leerer Zelle sowie Writer mit leerer Quelle beziehungsweise einer nicht-NULL-leeren DATA-Zelle, jeweils KeepData=0/1. Parser liefert keine Zeile beziehungsweise eine nicht-NULL-leere Zelle; Writer liefert immer eine Outputzeile mit leerem Text und Metadaten0/0 beziehungsweise CRLF mit Metadaten1/1. Vor jeder Operation wird ein vollständiger16MiB-Altwert unabhängig gesetzt. Replace entfernt diesen vertragsgemäß, Append erhält ihn vollständig samt ursprünglichen Metadaten. Beide Zielschemas und die Quelle behalten Objektidentität sowie bidirektionale Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots. Keine beabsichtigte SQL-Abweisung oder neue Bytegrenzabnahme.

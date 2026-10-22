@@ -119,6 +119,7 @@ tests:
   writer_argument_preservation: "Tests/Runtime/WriterArgumentPreservation.Tests.sql"
   writer_header_preservation: "Tests/Runtime/WriterHeaderPreservation.Tests.sql"
   empty_result_preservation: "Tests/Runtime/EmptyResultPreservation.Tests.sql"
+  reserved_temp_namespace_preservation: "Tests/Runtime/ReservedTempNamespacePreservation.Tests.sql"
   select_reader: "Tests/Framework/CsvDirectSelect.Helpers.ps1"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   ownership_guards: "Tests/Runtime/OwnershipGuards.Tests.ps1"
