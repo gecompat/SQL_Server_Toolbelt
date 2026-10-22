@@ -105,8 +105,8 @@ Windowsidentitäten und Dateirechte. Diese Anleitung erzeugt keine Dateifixtures
 
 Optional kannst du statt SSMS PowerShell 7 und ein vorhandenes ODBC-`sqlcmd`
 verwenden. Der optionale Helper nutzt Windows-Anmeldung und prüft vor jedem
-Tool-/SQL-Zugriff alle Paketdateien. Im entpackten Paketroot:
-Die Übergabe an ODBC-`sqlcmd` verwendet ausdrücklich UTF-8.
+Tool-/SQL-Zugriff alle Paketdateien. Die Übergabe an ODBC-`sqlcmd` verwendet
+ausdrücklich UTF-8. Im entpackten Paketroot:
 
 ```powershell
 pwsh -File ./Install-ClrPackage.ps1 -ValidateOnly
