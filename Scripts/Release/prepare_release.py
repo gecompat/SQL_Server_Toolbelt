@@ -30,6 +30,7 @@ VERSION = "1.0.0"
 DIRECTORY = f"Releases/{VERSION}"
 PLAN = f"{DIRECTORY}/release-plan.json"
 MATRIX = f"{DIRECTORY}/FREIGABEMATRIX.md"
+QUALIFICATION = f"{DIRECTORY}/qualification.json"
 NAME = f"SQL-Server-Toolbelt-{VERSION}-candidate-source"
 ARTIFACTS = f"{DIRECTORY}/Artifacts/"
 MAX_BYTES = 256 * 1024 * 1024
@@ -196,7 +197,7 @@ def make_plan(files: dict[str, bytes], product_commit: str) -> dict:
     }
 
 
-def matrix(plan: dict) -> bytes:
+def matrix(plan: dict, module_page: str = "README.md") -> bytes:
     counts = Counter(m["proposed_channel"] for m in plan["modules"])
     lines = ["# Freigabematrix für v1.0.0", "",
              "Status: **Vorbereitung, nicht veröffentlicht**. Diese Tabelle wird aus `release-plan.json` und den Modulmanifesten erzeugt.", "",
@@ -207,7 +208,7 @@ def matrix(plan: dict) -> bytes:
              "|---|---|---|---|---|"]
     for m in plan["modules"]:
         mid = m["module_id"]
-        ref = f"../../Modules/{mid}/module.yaml"
+        ref = f"../../Modules/{mid}/{module_page}"
         evidence = next((p for p in reversed(m["evidence_references"]) if p.endswith("README.md")))
         deps = ", ".join(f"`{x}`" for x in m["dependencies"]) or "—"
         lines.append(f"| [`{mid}`]({ref}) {m['module_version']} | **{m['proposed_channel']}** | {m['validation_status']} | {deps} | [Nachweise](../../{evidence}); {m['pending_before_publication']} |")
@@ -219,7 +220,10 @@ def matrix(plan: dict) -> bytes:
 def validate_plan(files: dict[str, bytes], plan: dict) -> None:
     require(re.fullmatch(r"[0-9a-f]{40}", plan.get("product_commit", "")) is not None, "Produktcommit fehlt.")
     require(plan == make_plan(files, plan["product_commit"]), "Releaseplan ist veraltet oder aufgewertet.")
-    require(files.get(MATRIX) == matrix(plan), "Freigabematrix ist veraltet.")
+    # Frühe unveröffentlichte Kandidaten führten beim Modulnamen zum Manifest.
+    # Beide exakt erzeugten Lesepfade behalten dieselben gebundenen Fakten;
+    # neue Pakete verwenden immer den direkt verständlichen README-Einstieg.
+    require(files.get(MATRIX) in (matrix(plan), matrix(plan, "module.yaml")), "Freigabematrix ist veraltet.")
     receipt = json.loads(files[".ai/foundation/installation-provenance.json"])
     require(plan["foundation"] == {"version": receipt["ruleset_version"], "source_commit": receipt["source_commit"]},
             "Foundationbindung stimmt nicht.")
@@ -227,6 +231,31 @@ def validate_plan(files: dict[str, bytes], plan: dict) -> None:
     for prefix in ("Modules/", "Deployment/", "Workers/"):
         require({p: b for p, b in files.items() if p.startswith(prefix)} ==
                 {p: b for p, b in product.items() if p.startswith(prefix)}, "Produktinputs gegenüber der qualifizierten Basis geändert.")
+    validate_qualification(files, plan)
+
+
+def validate_qualification(files: dict[str, bytes], plan: dict, exports: dict[str, bytes] | None = None) -> None:
+    """Bindet vorhandene datierte Evidenz; führt keinen Runtime-Nachweis aus.
+
+    Historische Pakete ohne diesen Nachtrag bleiben mit ihrem damaligen Scope
+    prüfbar. Ein vorhandener Nachtrag darf dagegen keine geänderten SQL- oder
+    Adapterbytes weiterhin als damals geprüft darstellen.
+    """
+    if QUALIFICATION not in files:
+        return
+    evidence = json.loads(files[QUALIFICATION])
+    require(evidence["product_commit"] == plan["product_commit"] and evidence["publication_authorized"] is False,
+            "Qualifikationsbasis oder Veröffentlichungsgrenze abweichend.")
+    native = evidence["native_package"]
+    require(sha(files[native["driver"]]) == native["driver_sha256"]
+            and sha(files[native["method"]]) == native["method_sha256"],
+            "Nativer Paketadapter gegenüber dem Nachweis geändert.")
+    build = evidence["clr_build_inputs"]
+    require(sha(files[build["method"]]) == build["method_sha256"] and build["distributed"] is False,
+            "Offline-Buildprüfung gegenüber dem Nachweis geändert oder als Auslieferung dargestellt.")
+    if exports is not None:
+        require(native["sql_payload_sha256"] == {p: sha(b) for p, b in exports.items()},
+                "Stabile Paket-SQL-Bytes gegenüber der nativen Abnahme geändert.")
 
 
 def runtime_root() -> Path:
@@ -352,6 +381,7 @@ def start_here(files: dict[str, bytes]) -> bytes:
     text = files[f"{DIRECTORY}/START-HERE.md"].decode("utf-8")
     return (text.replace("(README.md)", f"({DIRECTORY}/README.md)")
             .replace("(FREIGABEMATRIX.md)", f"({DIRECTORY}/FREIGABEMATRIX.md)")
+            .replace("(RELEASE-GATES.md)", f"({DIRECTORY}/RELEASE-GATES.md)")
             .replace("(../../", "(")).encode("utf-8")
 
 
@@ -363,7 +393,9 @@ def build(commit: str, output: Path) -> None:
     require(PLAN in files, "Quellcommit enthält keinen Releaseplan; Änderungen zuerst committen.")
     plan = json.loads(files[PLAN])
     validate_plan(files, plan)
-    files.update(export_stable(files, plan))
+    exports = export_stable(files, plan)
+    validate_qualification(files, plan, exports)
+    files.update(exports)
     files["START-HERE.md"] = start_here(files)
     frozen, files["PREPARATION.bundle"] = preparation_bundle(resolved, plan["product_commit"])
     manifest = {"schema_version": "1.0", "project_version": VERSION,
@@ -408,6 +440,7 @@ def verify(path: Path) -> None:
     # allein würden nur ein selbst konsistentes Manifest belegen. Erneuter
     # Offline-Export aus dem eingefrorenen Gitstand bindet auch diese Bytes.
     expected_exports = export_stable(source, json.loads(source[PLAN]))
+    validate_qualification(source, json.loads(source[PLAN]), expected_exports)
     for mode in ("local", "central"):
         name = f"Install-Stable-{mode}.sql"
         require(files[name] == expected_exports[name], "SQL-Export weicht von der eingefrorenen Quelle ab.")

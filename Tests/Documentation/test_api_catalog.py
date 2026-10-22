@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 import generate_api_catalog as catalog
+import validate_documentation as documentation
 
 
 class CatalogTests(unittest.TestCase):
@@ -97,6 +98,29 @@ class CatalogTests(unittest.TestCase):
         page = catalog.render(self.root)["API_CATALOG.html"]
         self.assertIn("&#x27;example&#x27;", page)
         self.assertIn("../../Modules/toolbelt.test/README.md", page)
+
+
+class CatalogNavigationTests(unittest.TestCase):
+    root = "[Installieren](./INSTALL.md) [Module](./Modules/README.md)"
+
+    @staticmethod
+    def table(rows):
+        return "<!-- BEGIN GENERATED:MODULE_STATUS_TABLE -->\n" + "".join(
+            f"| `{mid}` | synthetic |\n" for mid in rows) + "<!-- END GENERATED:MODULE_STATUS_TABLE -->"
+
+    def test_one_canonical_catalog_needs_no_duplicate_root_inventory(self):
+        documentation.validate_catalog_navigation(self.root, self.table(["toolbelt.test"]), {"toolbelt.test"})
+
+    def test_missing_installation_or_catalog_link_fails(self):
+        for link in ("[Installieren](./INSTALL.md)", "[Module](./Modules/README.md)"):
+            with self.subTest(link=link), self.assertRaises(documentation.ValidationError):
+                documentation.validate_catalog_navigation(link, self.table(["toolbelt.test"]), {"toolbelt.test"})
+
+    def test_missing_extra_duplicate_or_unframed_inventory_fails(self):
+        for content in (self.table([]), self.table(["toolbelt.other"]),
+                        self.table(["toolbelt.test", "toolbelt.test"]), "| `toolbelt.test` | synthetic |"):
+            with self.subTest(content=content), self.assertRaises(documentation.ValidationError):
+                documentation.validate_catalog_navigation(self.root, content, {"toolbelt.test"})
 
 
 if __name__ == "__main__":

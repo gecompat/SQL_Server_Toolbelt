@@ -883,21 +883,28 @@ def candidate_statuses() -> dict[str, str]:
     return statuses
 
 
+def validate_catalog_navigation(root_text: str, catalog_text: str, module_ids: set[str]) -> None:
+    # Der Einstieg zeigt auf den einen generierten Modulkatalog. Historische
+    # Einzelbeschreibungen in der Root-README sind keine Inventarquelle.
+    for target in ("INSTALL.md", "Modules/README.md"):
+        if not re.search(r"\]\((?:\./)?" + re.escape(target) + r"(?:#[^)]*)?\)", root_text):
+            raise ValidationError(f"README-Einstieg fehlt: {target}")
+    block = re.search(r"<!-- BEGIN GENERATED:MODULE_STATUS_TABLE -->(.*?)"
+                      r"<!-- END GENERATED:MODULE_STATUS_TABLE -->", catalog_text, re.DOTALL)
+    if block is None:
+        raise ValidationError("Generiertes Modulinventar fehlt in Modules/README.md.")
+    catalog_ids = re.findall(r"^\| `(toolbelt\.[^`]+)` \|", block.group(1), re.MULTILINE)
+    if set(catalog_ids) != module_ids or len(catalog_ids) != len(module_ids):
+        raise ValidationError(
+            "Modules/README.md-Inventar weicht von der Manifest-Registry ab: "
+            f"fehlend={sorted(module_ids - set(catalog_ids))}, "
+            f"zusätzlich={sorted(set(catalog_ids) - module_ids)}; doppelte Zeilen ebenfalls unzulässig."
+        )
+
+
 def validate_inventory_truth(modules: list[dict[str, object]]) -> None:
     module_ids = {str(module["id"]) for module in modules}
-
-    readme_ids = set(
-        re.findall(
-            r"\]\(\./Modules/(toolbelt\.[^/]+)/README\.md\)",
-            read(README),
-        )
-    )
-    if readme_ids != module_ids:
-        raise ValidationError(
-            "README-Modulinventar weicht von der Manifest-Registry ab: "
-            f"fehlend={sorted(module_ids - readme_ids)}, "
-            f"zusätzlich={sorted(readme_ids - module_ids)}"
-        )
+    validate_catalog_navigation(read(README), read(MODULES_README), module_ids)
 
     tests_text = read(REPOSITORY_ROOT / "Tests" / "README.md")
     tests_section = tests_text.split("## Modulspezifische Testmatrizen", 1)[-1]

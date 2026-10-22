@@ -1,0 +1,224 @@
+{
+  "schema_version": "1.0",
+  "project_version": "1.0.0",
+  "executed_on": "2026-10-22",
+  "publication_authorized": false,
+  "product_commit": "756e7fb0444aedf04949409a8fab2189b9fa890f",
+  "native_package": {
+    "method": "Tests/Release/Invoke-StablePackageMatrix.ps1",
+    "driver": "Tests/Release/Invoke-StablePackageLab.ps1",
+    "driver_sha256": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "archive_git_commit": "5b83a73aab3639b0d45b56e334fb38dc24509279",
+    "archive_sha256": "954db1512dedff97fcc67e9bfaa71434c0207bc0f8c565c55bb4bdd5639f1c3e",
+    "sql_payload_sha256": {
+      "Install-Stable-local.sql": "97f04d7c4655084cea49ee3087bd3961f17fc3b45693979dcbdf3bc936e19cd2",
+      "Install-Stable-central.sql": "5b12db3ad2b294a1cd0b42151ec7a9fc53854e2b36f9b58599cb8334b1e41ee1"
+    },
+    "result": "success",
+    "test_purpose": "Functional",
+    "encrypt": true,
+    "trust_value": "explicit_schema_validated_lab_value",
+    "cases": [
+      {
+        "platform": "linux",
+        "sql_server_version": "2019",
+        "compatibility_level": 150,
+        "deployment_modes": [
+          "local",
+          "central"
+        ],
+        "consumer": true
+      },
+      {
+        "platform": "linux",
+        "sql_server_version": "2022",
+        "compatibility_level": 150,
+        "deployment_modes": [
+          "local",
+          "central"
+        ],
+        "consumer": true
+      },
+      {
+        "platform": "linux",
+        "sql_server_version": "2022",
+        "compatibility_level": 160,
+        "deployment_modes": [
+          "local",
+          "central"
+        ],
+        "consumer": true
+      },
+      {
+        "platform": "linux",
+        "sql_server_version": "2025",
+        "compatibility_level": 150,
+        "deployment_modes": [
+          "local",
+          "central"
+        ],
+        "consumer": true
+      },
+      {
+        "platform": "linux",
+        "sql_server_version": "2025",
+        "compatibility_level": 160,
+        "deployment_modes": [
+          "local",
+          "central"
+        ],
+        "consumer": true
+      },
+      {
+        "platform": "linux",
+        "sql_server_version": "2025",
+        "compatibility_level": 170,
+        "deployment_modes": [
+          "local",
+          "central"
+        ],
+        "consumer": true
+      },
+      {
+        "platform": "windows",
+        "sql_server_version": "2019",
+        "compatibility_level": 150,
+        "deployment_modes": [
+          "local",
+          "central"
+        ],
+        "consumer": true
+      },
+      {
+        "platform": "windows",
+        "sql_server_version": "2022",
+        "compatibility_level": 150,
+        "deployment_modes": [
+          "local",
+          "central"
+        ],
+        "consumer": true
+      },
+      {
+        "platform": "windows",
+        "sql_server_version": "2022",
+        "compatibility_level": 160,
+        "deployment_modes": [
+          "local",
+          "central"
+        ],
+        "consumer": true
+      },
+      {
+        "platform": "windows",
+        "sql_server_version": "2025",
+        "compatibility_level": 150,
+        "deployment_modes": [
+          "local",
+          "central"
+        ],
+        "consumer": true
+      },
+      {
+        "platform": "windows",
+        "sql_server_version": "2025",
+        "compatibility_level": 160,
+        "deployment_modes": [
+          "local",
+          "central"
+        ],
+        "consumer": true
+      },
+      {
+        "platform": "windows",
+        "sql_server_version": "2025",
+        "compatibility_level": 170,
+        "deployment_modes": [
+          "local",
+          "central"
+        ],
+        "consumer": true
+      }
+    ],
+    "stable_modules": 19,
+    "api_smoke_oracles_per_path": 5,
+    "own_databases_removed": 36,
+    "independent_cleanup_and_pin_audits": 12,
+    "prior_failed_attempts": [
+      {
+        "result": "failed_cleaned",
+        "cause": "Harness marker parameter used nvarchar(max) where sql_variant requires a bounded type.",
+        "recovery": "Exact own creation intent, database identity, empty scope and marker reconciled; database removed; fresh absence audit passed.",
+        "own_databases_removed": 1
+      }
+    ],
+    "method_sha256": "e1b3653640c1f7dfe0cc8069cb925cb068a11243a6c79d87829b2e9f0df1d391",
+    "prior_successful_matrix": {
+      "result": "success",
+      "own_databases_removed": 36,
+      "reason_for_changed_input_confirmation": "Outer admission now reserves both work and cleanup-audit time before starting a case; final 12 cases rerun on corrected wrapper."
+    },
+    "final_independent_absence_audit": {
+      "result": "success",
+      "own_database_names": 73,
+      "includes_prior_attempts": true
+    }
+  },
+  "clr_build_inputs": {
+    "method": "Scripts/Release/check_clr_builds.py",
+    "source_commit": "5b83a73aab3639b0d45b56e334fb38dc24509279",
+    "result": "success",
+    "projects": 12,
+    "isolated_builds_per_project": 2,
+    "byte_equality": true,
+    "no_codeview": true,
+    "private_build_path_guards": true,
+    "known_json_closure_matches": 3,
+    "native_qualification": "not executed",
+    "distributed": false,
+    "method_sha256": "4aece76b135c8bbd443bb5a64a9faac3221db2055ee7d75a59ed4b04d654b6d3"
+  },
+  "limitations": [
+    "Package smoke and lifecycle integration do not requalify every public API.",
+    "No Preview/CLR whole-package native installation, new binary trust, minimal rights, heap/parallel or hard recovery qualification.",
+    "Support scope, channels and publication remain unapproved.",
+    "Authenticated TLS and optional runtime measurements remain separate."
+  ],
+  "clr_framework_candidates": {
+    "result": "success",
+    "scope": "SELECTED_FRAMEWORK_ONLY",
+    "sql_executed": false,
+    "suites": [
+      {
+        "module_id": "toolbelt.file.csv-memory",
+        "method": "Modules/toolbelt.file.csv-memory/Tests/Framework/run-framework-csv.ps1"
+      },
+      {
+        "module_id": "toolbelt.string.phonetic",
+        "method": "Modules/toolbelt.string.phonetic/Tests/Framework/run-framework-phonetic.ps1"
+      },
+      {
+        "module_id": "toolbelt.archive.zip-memory",
+        "method": "Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Framework.ps1"
+      },
+      {
+        "module_id": "toolbelt.string.regex",
+        "method": "Modules/toolbelt.string.regex/Tests/Runtime/run-framework-transformations.ps1"
+      },
+      {
+        "module_id": "toolbelt.string.regex",
+        "method": "Modules/toolbelt.string.regex/Tests/Runtime/run-framework-relations.ps1"
+      },
+      {
+        "module_id": "toolbelt.string.regex",
+        "method": "Modules/toolbelt.string.regex/Tests/Framework/run-framework-captures.ps1"
+      },
+      {
+        "module_id": "toolbelt.tsql.ssis-debug",
+        "method": "Modules/toolbelt.tsql.ssis-debug/Tests/Framework/Invoke-Contract.ps1"
+      }
+    ],
+    "prior_setup_failure": "CSV evidence path inside checkout rejected before framework execution; repeated with an explicitly private external evidence directory.",
+    "binary_binding": "Exact private build-check candidates; no native, full framework or distribution claim."
+  }
+}

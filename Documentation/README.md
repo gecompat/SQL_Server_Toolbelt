@@ -1,5 +1,15 @@
 # Dokumentation und Lesewege
 
+## Toolbelt zum ersten Mal installieren
+
+Die [Installationsanleitung Schritt für Schritt](../INSTALL.md) beginnt mit
+dem fertigen ZIP und führt über SSMS und eine neue Demodatenbank zu einer
+geprüften Installation samt ersten Aufrufen. Sie erklärt Voraussetzungen,
+erwartete Ergebnisse und konkrete Hilfe bei Fehlern, ohne einen eigenen Build
+für die stabilen T-SQL-Kandidaten vorauszusetzen.
+
+## Ein Modul gezielt auswählen
+
 SQL Server Toolbelt richtet sich an Entwickler und Administratoren mit
 T-SQL- und SQL-Server-Grundkenntnissen. Wähle zunächst ein Modul und dessen
 belegte Plattform. Eine Zielplattform oder vorhandener Code bedeutet noch
@@ -48,10 +58,12 @@ belegt ausschließlich ihre genannten Ziele und Fälle.
 
 | Bereich | Zweck und nächste Quelle |
 |---|---|
+| `INSTALL.md` | Durchgehender menschlicher Einstieg für Installation, ersten Test und Fehlerklärung |
 | `Modules/` | Implementierung, Modulmanifest, Objektseiten, Deployment und modulspezifische Tests |
 | `Deployment/` | Repository-Runner und ausführbare Vorbereitungsschritte |
 | `Documentation/Architecture/` | Gemeinsame Fachverträge, Architekturentscheidungen und ausdrücklich datierte Integrationsnachweise |
 | `Documentation/Standards/` | Gemeinsame Engineering-, Datenschutz- und Qualitätsregeln |
+| `Documentation/History/` | Erhaltene versionsgebundene Modul-/Testnotizen, ausdrücklich keine aktuelle Supportquelle |
 | `Documentation/Reference/` | Abgeleiteter API-Katalog; [Quellen und Generierung](Reference/README.md#quellen-und-pflege) |
 | `Backlog/` | Ideen und recherchierte Kandidaten; keine automatische Implementierungsfreigabe |
 | `Tests/` | Testprogramme und Nachweisgrenzen; [Dokumentationsprüfung](../Tests/Documentation/README.md) |

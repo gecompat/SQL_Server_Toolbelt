@@ -1,4 +1,4 @@
-# Releasevorbereitung offline prüfen
+# Releasevorbereitung prüfen
 
 Die Tests prüfen den [Releasegenerator](../../Scripts/Release/prepare_release.py)
 und die [v1.0.0-Freigabematrix](../../Releases/1.0.0/README.md). Es werden
@@ -20,3 +20,74 @@ Die generierten SQL-Dateien werden erneut offline exportiert und bytegenau
 verglichen; ein nachträglich passend gehashtes SQL kann diese Bindung nicht ersetzen.
 Das ist eine Packagingprüfung; eine native Installation oder die fachliche
 Veröffentlichungsabnahme wird daraus nicht abgeleitet.
+
+## Natives stabiles Paket im Lab prüfen
+
+Der [Matrixrunner](Invoke-StablePackageMatrix.ps1) prüft die tatsächlich
+gepackten `Install-Stable-local.sql` und `Install-Stable-central.sql` für die
+19 stabilen Kandidaten. Er verwendet ausschließlich den schema-validierten
+Labvertrag, dessen Zusatzprompt vor dem Aufruf gelesen werden muss. Es gibt
+keinen Provider- oder TLS-Fallback. Die jetzige endliche Auswahl umfasst
+zwölf Kombinationen: Windows/Linux SQL2019 CL150, SQL2022 CL150/160 und
+SQL2025 CL150/160/170. Weitere bereite Patchziele überschreiten diese
+Runsetgrenze und werden nicht stillschweigend weggelassen oder nachgetestet.
+
+```powershell
+[void][IO.Directory]::CreateDirectory("$PWD/.runtime")
+./Tests/Release/Invoke-StablePackageMatrix.ps1 `
+  -EvidenceDirectory "$PWD/.runtime/release-native-new" -PlanOnly
+./Tests/Release/Invoke-StablePackageMatrix.ps1 `
+  -EvidenceDirectory "$PWD/.runtime/release-native-new"
+```
+
+`-PlanOnly` verbindet sich nicht mit SQL und legt kein Evidenzverzeichnis an.
+Der eigentliche Lauf benötigt ein neues direktes privates Arbeitsverzeichnis
+unter `.runtime`, vorhandene administrative Testrechte und die vollständigen
+Paketprüfwerkzeuge. Der Runner prüft das Archiv vor SQL, friert Eingaben und
+Auswahl ein und startet pro Fall einen eigenen Prozess mit äußerem
+400-Sekunden-Watchdog. Der Fall besitzt 300 Sekunden Arbeits- und insgesamt
+360 Sekunden einschließlich Cleanupbudget; die ganze Matrix höchstens 4800
+Sekunden. Kein automatischer Retry und keine neue Testwelle bei Fehlern.
+
+Jeder Fall erzeugt drei eigene Datenbanken, prüft SQL-Version/Plattform und CL,
+installiert den jeweiligen Gesamt-Export in frischer Sitzung und wiederholt ihn.
+Die 19 Versions-/Modusmarker sowie Objektdefinitionen müssen erhalten bleiben.
+Fünf feste Smoke-Oracles prüfen Series, Base64, Date Spine, JSON Path Exists
+und ResultTable auch über den zentralen Consumerpfad. Reverse Dependencyorder
+und zweimaliger Uninstall dürfen keine Modulobjekte/-marker zurücklassen.
+Die Paketprüfung ersetzt keine erneute vollständige Qualifikation aller APIs.
+
+Vor DROP werden eigener Name, Datenbank-ID, Erstellungsidentität, eigener
+Marker und Bereinigungssichtbarkeit geprüft. Ein gesonderter Prozess prüft
+anschließend lesend alle Namen auf Abwesenheit und die eingefrorenen Inputs.
+Bei unbekannter Ownership oder Cleanup stoppt die Matrix. Journale und
+Diagnosen bleiben privat; es werden keine Rechte, Logins, Serveroptionen,
+Trusteinträge, Labressourcen oder fremden Datenbanken geändert.
+
+Die rein lokalen Negativtests in `Test-StablePackageHarness.ps1` prüfen
+Pfad-/Ownershipgrenzen und abgewiesene SQLCMD-Direktiven ohne SQL-Anmeldung.
+Sie laufen innerhalb der bestehenden Release-Regressionssuite und des
+Dokumentationsjobs; die native Matrix wird dadurch nicht gestartet.
+
+## CLR-Buildinputs isoliert prüfen
+
+```powershell
+python -B Scripts/Release/check_clr_builds.py `
+  --msbuild $msbuild --output .runtime/release-clr-new
+```
+
+`$msbuild` benennt ein vorhandenes MSBuild mit .NET-Framework-4.8-Targeting-Pack,
+zum Beispiel portabel über `vswhere` entdeckt. Das Tool installiert nichts und
+verlangt einen unveränderten Produktbaum. Es baut alle zwölf CLR-Projekte in
+zwei getrennten eigenen Git-Quellkopien. Die bereits enthaltene ScriptDom-DLL
+wird gegen ihren kanonischen Pin geprüft; JSON und ZIP werden vor ihren
+Consumers gebaut. Releaseflags schließen PDB-Daten aus, `PathMap` verwendet
+einen synthetischen Pfad. Beide Builds müssen identische DLL-Bytes liefern.
+
+Buildlogs, DLLs, SHA-256-/SHA-512-Kandidatenliste und Buildpfade bleiben im
+neuen `.runtime`-Unterverzeichnis. Kein vorhandenes Buildartefakt wird ersetzt.
+Ein Erfolg bestätigt Reproduzierbarkeit und die PE-/Buildpfadprüfungen,
+keine vollständige IL-/Framework-/SQL-Abnahme, Trustfreigabe oder Auslieferung.
+Neue Binaryhashes benötigen weiter ihren konkreten Qualifikations-/Consumer-
+und Releaseumfang. Der [Gatebericht](../../Releases/1.0.0/RELEASE-GATES.md)
+trennt diese Grenzen von den tatsächlich ausgeführten Pakettests.

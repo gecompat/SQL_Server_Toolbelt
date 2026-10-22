@@ -16,6 +16,8 @@ Abnahmegrenzen; der [Plan](release-plan.json) ist die maschinenlesbare Ableitung
   SQL-Exports der stabilen Kandidaten für lokales/zentrales Deployment.
 - Erhaltene AI Repository Foundation 1.25.0 mit gebundener Provenienz und
   getrennten menschlichen Lesewegen; keine neue optionale Runtime aktiviert.
+- Reproduzierbare CLR-Buildprüfung und nativer Pakettest der stabilen Exports;
+  ausgeführter Scope und verbleibende Grenzen im [Gatebericht](RELEASE-GATES.md).
 
 ## Grenzen und Migration
 
