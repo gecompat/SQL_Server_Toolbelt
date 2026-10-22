@@ -71,6 +71,18 @@ und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
 Evidenzbereich; Anleitung und Auswahl stehen davor.
 
 <!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### Writer-Argumentabweisung mit vollem Datenerhalt 2026-10-22
+
+'-TestScope writer-argument-preservation': Vier bestehende Writer-Argumentfehler jeweils mit KeepData=0/1: HasHeader=NULL, LineEnding=NULL, kleingeschriebenes lf und zweistelliger Separator. Acht ausschließlich SQL55300/state1-Abweisungen je Modus. Unabhängig gesetzte gültige DATA-Quelle unter16MiB und vollständiger16MiB-Altoutput bleiben bytegenau erhalten. Beide Objektidentitäten und bidirektionale Quellen-/Zielspalten-, Index-, Indexspalten- und Checkconstraint-Snapshots bleiben unverändert. Keine neue Bytegrenzabnahme.
+
+Acht SQLphasen je Modus: vier Argumentformen jeweils Replace/Append. Vollständige unabhängig gesetzte Quelle und alter Output, getrennte Neutralität, genaue Fehlernummer/State und ein typisierter8er-Abschluss.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1446 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'writer-argument-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### Parser-Argumentabweisung mit vollem Zielerhalt 2026-10-22
 
 '-TestScope parser-argument-preservation': Vier bestehende Parser-Argumentfehler jeweils mit KeepData=0/1: Text=NULL, HasHeader=NULL, zweistelliger Separator und leerer NullToken. Acht ausschließlich SQL55300/state1-Abweisungen je Modus. Vorheriger synthetischer Zellwert genau16777216 UTF16-Bytes bleibt vollständig samt Zeilenzahl, Schlüsseln, Objektidentität und bidirektionalen Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots erhalten. Die drei Fälle mit vorhandenem Text verwenden unabhängig gesetzten16MiB-Input; der fehlende Text bleibt ausdrücklich NULL. Keine neue allgemeine Bytegrenzabnahme.
