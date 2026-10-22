@@ -222,6 +222,24 @@ class ClrPackageTests(unittest.TestCase):
         self.assertEqual(result.returncode,0,result.stderr.decode(errors='replace'))
         self.assertIn(b'PASS CLR_HARNESS',result.stdout)
 
+    def test_clr_qualification_rejects_sql_binary_and_method_drift(self):
+        qualification = json.loads((ROOT / self.clr.QUALIFICATION).read_bytes())
+        with zipfile.ZipFile(self.package) as archive:
+            prefix=self.clr.PACKAGE+'/'
+            payload={p[len(prefix):]:archive.read(p) for p in archive.namelist()}
+        sources={p:(ROOT/p).read_bytes() for p in qualification['method_bindings']}
+        self.clr.release.validate_clr_qualification(payload,qualification,sources)
+        for prefix in ('SQL/','Binaries/'):
+            changed=dict(payload)
+            name=next(p for p in changed if p.startswith(prefix))
+            changed[name]+=b'changed'
+            with self.subTest(kind=prefix),self.assertRaises(self.clr.release.ReleaseError):
+                self.clr.release.validate_clr_qualification(changed,qualification,sources)
+        changed=dict(sources)
+        changed[next(iter(changed))]+=b'# changed input\n'
+        with self.assertRaises(self.clr.release.ReleaseError):
+            self.clr.release.validate_clr_qualification(payload,qualification,changed)
+
 
 if __name__ == "__main__":
     unittest.main()

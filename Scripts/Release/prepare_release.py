@@ -240,6 +240,7 @@ def validate_plan(files: dict[str, bytes], plan: dict) -> None:
     validate_qualification(files, plan)
     if CLR_PACKAGE in files:
         qualified = json.loads(files[f'{DIRECTORY}/clr-qualification.json'])
+        require(qualified['product_commit'] == plan['product_commit'], 'CLR-Produktbindung veraltet.')
         inner = read_zip(files[CLR_PACKAGE])
         prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
         validate_clr_qualification({p[len(prefix):]:b for p,b in inner.items()}, qualified, files)
@@ -487,6 +488,11 @@ def main() -> None:
     args = parser.parse_args()
     if args.refresh:
         product, files = snapshot(args.product_commit or "HEAD")
+        # Produktquellen bleiben eingefroren. Die Lieferform entsteht dagegen
+        # aus dem aktuellen Vorbereitungsstand, nicht aus der früheren Basis.
+        _, preparation = snapshot(args.source_commit)
+        if CLR_PACKAGE in preparation:
+            files[CLR_PACKAGE] = preparation[CLR_PACKAGE]
         plan = make_plan(files, product)
         (ROOT / PLAN).parent.mkdir(parents=True, exist_ok=True)
         (ROOT / PLAN).write_bytes(encoded(plan))

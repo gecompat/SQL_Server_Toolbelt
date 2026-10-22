@@ -188,7 +188,7 @@
   },
   "method_bindings": {
     "Scripts/Release/prepare_clr_package.py": "19432f5bc4112dd8d1e29053563bb0685abfff0898b0059079a1310a64630d91",
-    "Scripts/Release/prepare_release.py": "5fb7e8c53a276d2100c7a674f0dc402d333926f1690ab2cd232e6c32cd783111",
+    "Scripts/Release/prepare_release.py": "c1d8b78474720aab03037bd42d12284ff8a237daf472515872dab0cec821b630",
     "Scripts/Release/check_clr_builds.py": "4aece76b135c8bbd443bb5a64a9faac3221db2055ee7d75a59ed4b04d654b6d3",
     "Scripts/Release/Install-ClrPackage.ps1": "ba9b7018407fdd8332f991f3bf2aa3f3560cf1062adfef0e2310bed7430411e9",
     "Tests/Release/Invoke-ClrPackageLab.ps1": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
@@ -235,5 +235,6 @@
   },
   "cost_and_tokens": "UNKNOWN",
   "executed_matrix_source_note": "Git source text; exact executed worktree SHA retained separately, including worktree line endings.",
-  "executed_case_driver_sha256": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69"
+  "executed_case_driver_sha256": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
+  "product_commit": "756e7fb0444aedf04949409a8fab2189b9fa890f"
 }

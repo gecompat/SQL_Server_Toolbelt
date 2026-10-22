@@ -12,7 +12,7 @@ Preview-Kandidaten; alle 45 Modulmanifeste bleiben `unreleased`.
 | Gepackte stabile SQL-Exports | Zwölf erfolgreiche Labfälle; jeweils Erstinstallation, Repeat, fünf feste Funktionsorakel, zentraler Consumer sowie Uninstall/Repeat | Genau 19 stabile Kandidaten, keine Vollabnahme aller APIs oder Preview-Module |
 | Installationsmetadaten | Alle 19 Versions-/Deploymentmarker vorhanden; Objektdefinitionen nach Repeat unverändert; nach Uninstall keine Modulobjekte/-marker | Eigene administrative synthetische Testdatenbanken, kein Minimalrechtenachweis |
 | Bereinigung | 36 eigene Datenbanken entfernt; zwölf separate lesende Auditprozesse bestätigten Abwesenheit und Inputpins | Keine fremden Ressourcen, Server-, Rechte-, Login- oder Truständerungen |
-| CLR-Buildinputs | Zwölf vorhandene Projekte jeweils zweimal isoliert gebaut; identische DLL-Bytes, keine CodeView-Einträge und keine geprüften privaten Buildpfade | Offlinebuild, keine vollständige IL-/Framework-/SQL-Abnahme und keine Auslieferung neuer Binaries |
+| CLR-Buildinputs | Zwölf vorhandene Projekte jeweils zweimal isoliert gebaut; identische DLL-Bytes, keine CodeView-Einträge und keine geprüften privaten Buildpfade | Der erste Offlinebuild allein war keine vollständige IL-/Framework-/SQL-Abnahme; die anschließende Paketlieferung ist unten getrennt beschrieben |
 | JSON-Binarybindung | Die drei erneut erzeugten JSON-Binaries stimmen exakt mit den kanonischen bekannten Closure-Pins überein | Keine Erweiterung des vorhandenen nativen Supportumfangs |
 | Ausgewählte Frameworkprüfungen | Sieben bestehende Suiten auf den neuen Kandidaten bestanden: CSV, Phonetic, ZIP-Writer, drei Regex-Suiten und SSIS Full | Fünf CLR-Module in begrenzten Frameworkprofilen; keine vollständige IL-/Framework- oder SQL-Qualifikation aller zwölf Projekte |
 
@@ -94,13 +94,67 @@ betroffenen Nachweis. Die Paket-/Negativtests und der vollständige
 Dokumentationsaudit laufen im bestehenden CI; ein grüner Strukturcheck allein
 bestätigt keine native Ausführung. Einzelheiten der Ausführung stehen im PR.
 
+## Fertige CLR-DLLs und native Paketinstallation
+
+Der anschließende ausdrückliche Benutzerauftrag verlangt fertige DLLs mit
+Quellcode und eine schnelle Installation ohne eigenen Build. Der zusätzliche
+[CLR-Installationssatz](CLR-INSTALL.md) enthält zwölf Toolbelt-DLLs, ScriptDom,
+Quellcode, Lizenzhinweise, exakte Trustwerte und fertige SQL-Dateien mit
+eingebetteten Assemblybytes. Vier Profile erhalten Windows/Portable und
+local/central; das Windows-Dateisystemmodul bleibt ausschließlich lokal.
+Ein optionaler PowerShell-Helper prüft alle Paketdateien vor Tool-/SQL-Zugriff.
+
+Zehn DLLs stammen unverändert aus dem bereits reproduzierbaren Doppelbuild
+mit identischen Produktquellen. SSIS und Parser sowie ScriptDom werden exakt
+aus dem bestehenden qualifizierten SSIS-Paket übernommen. Die vorhandenen
+Modulversionen und Dependency-/Consumerpins ändern sich nicht. Die
+[CLR-Qualifikationsprojektion](clr-qualification.json) bindet alle ausgelieferten
+SQL-Payloads und DLL-Bytes an den tatsächlich getesteten Satz sowie an die
+aktuellen Prüf-/Paketierungsquellen. Dokumentations- und Helperergänzungen
+ändern diese SQL-/DLL-Bytes nicht; der finale ZIP-Hash ist entsprechend neu.
+
+Die endliche Welle bestand zwölf tatsächliche Ziel-/CL-Fälle: Windows und
+Linux SQL2019 CL150, SQL2022 CL150/160 und SQL2025 CL150/160/170. Windows
+prüfte die Windows-Profile, Linux die neun SAFE-Module der portablen Profile.
+Jeweils Erstinstallation, explizit hashgebundener Repeat, exakte Assemblyhashes
+und Modulmarkermenge, ein festes Phonetik-Wertorakel, zwei JSON-Help-Aufrufe,
+zentraler Consumer, Uninstall und ausdrücklich abwesender Uninstallrepeat
+bestanden. Es gab 24 Deploymentpfade mit 36 eigenen Datenbanken und zwölf
+separate lesende Cleanup-/Pinaudits. Das ist eine Paketinstallationsprüfung,
+keine vollständige neue Abnahme sämtlicher öffentlichen APIs.
+
+Ein erster Paketadapterlauf scheiterte am Uninstallrepeat mit noch auf
+Anwesenheit gebundenem Hash. Die getrennte Datei `UninstallAbsent` erhält
+den vorhandenen Guard; das Produkt wurde nicht geändert. Der Versuch bleibt
+`failed_cleaned`. Ein JSON-Datumskulturfehler stoppte eine Fortsetzung vor SQL;
+ein weiterer Preflight wies deaktiviertes CLR vor Mutation ab. Unter der
+stehenden Testkonfigurationsfreigabe wurde erforderliches CLR vorübergehend
+aktiviert. Vorgemerkte Zustände und Auswirkungen wurden privat journalisiert;
+die übrigen Konfigurationszustände blieben wirksam unverändert. Keine Rechte,
+Sicherheitslockerung oder Infrastrukturänderung. Nach allen Verbrauchern
+bestanden Wiederherstellung und ein neuer unabhängiger Konfigurationsaudit.
+Ein abschließender lesender Gesamtaudit bestätigte alle **39 eigenen
+Datenbanknamen** aus Erstfehler und erfolgreicher Welle als abwesend, eigene
+Trusteinträge entfernt und vorbestehende Trustfingerprints erhalten.
+
+Alle Versuche teilten dasselbe ursprüngliche Restbudget; keine grünen Fälle
+wurden zur Statusauffrischung wiederholt. Nach Abschluss wurden ausschließlich
+die Präfix-/Gesamtabdeckungsgrenzen des Matrixwrappers verschärft und positiv/
+negativ ohne SQL geprüft. Der exakte ausgeführte Wrapperhash und seine
+Quellreferenz bleiben getrennt vom aktuellen Wrapper gebunden; Case-Driver,
+funktionale SQL-/DLL-Inputs und tatsächliche Ergebnisse bleiben unverändert.
+Die Datumskulturregression prüft den echten Budgetausdruck über JSON-Roundtrip
+mit zwei Kulturen. Neue Laufzeit-, Minimalrechte-, Heap-/Parallelitäts-,
+Host-Recovery-, authentifizierte TLS- oder allgemeine Produktionszusagen folgen
+aus der Paketprüfung nicht. GUI-Installation bleibt `not executed`.
+
 ## Was vor Veröffentlichung offen bleibt
 
 | Gate | Konkret erforderlich | Abhängigkeit |
 |---|---|---|
 | Fachlicher Releaseumfang | Modulversionen und stabile/Preview-Kanäle sowie SQL-/CL-/Plattform-/Provider-/Deployment-/Consumerkombinationen ausdrücklich abnehmen | Releaseentscheidung des Benutzers; die Matrix ist weiterhin ein Vorschlag |
 | Pflichtqualifikation im gewählten Umfang | Fehlende Minimalrechte-, API-/Lifecycle-, Datei-/Identitäts-/Worker-, Heap-/Parallelitäts- oder Recoveryfälle je Modul prüfen oder die betreffende Kombination außerhalb des veröffentlichten Umfangs halten | Konkreter Supportumfang; gegebenenfalls bereitgestellte Principals, Fixtures oder gesonderte Recoveryumgebung |
-| Vollständiger CLR-Installationssatz | Ausgewählte qualifizierte DLLs, exakte Trustmanifeste, Dependency-/Consumerpins, Binaryinputs und Herkunft/Lizenzhinweise gemeinsam binden und packen | Bestehender SSIS-Satz ist vorhanden. Die Offline-Neubauten allein schließen dieses Gate nicht; neue Hashes brauchen ihre eigene Qualifikation |
+| CLR-Releaseumfang abnehmen | Den jetzt vorhandenen vorgebauten CLR-Installationssatz mit seinen begrenzten Paketnachweisen in den zugesagten Releaseumfang übernehmen | Das Liefergate „DLLs ohne eigenen Build“ ist technisch erledigt; vollständige fachliche Pflichtnachweise der gewählten Preview-Kombinationen bleiben erforderlich |
 | Gesamter endgültiger Lieferumfang | Den tatsächlich zu veröffentlichenden Paketstand mit den freigegebenen Modulen einschließlich gewählter CLR-/Previewanteile installieren und die zugesagten Upgrade-/Uninstallwege prüfen | Finaler Lieferumfang und zugehörige Voraussetzungen; die Installation aller 45 Module ist `not executed` |
 | Finaler Releasekandidat | Paketintegrität, Dokumentationsaudit und echte CI am endgültigen Head bestätigen; geänderte Inputs mit betroffenem Nachweis abgleichen | Nach Abschluss der noch offenen Inhalte; heutige grüne CI qualifiziert keine späteren Änderungen |
 | Öffentliche Veröffentlichung | Separater ausdrücklicher Auftrag; danach tatsächlichen Tag, Release-URL, Zeitpunkt, Assethashes und `publication_record` je veröffentlichter Modulversion pflegen | Noch nicht autorisiert; kein Tag, kein GitHub-Release und keine Statusaufwertung |
