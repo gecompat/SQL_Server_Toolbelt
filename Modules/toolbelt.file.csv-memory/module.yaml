@@ -124,6 +124,7 @@ tests:
   reserved_temp_prefix_preservation: "Tests/Runtime/ReservedTempPrefixPreservation.Tests.sql"
   header_only_preservation: "Tests/Runtime/HeaderOnlyPreservation.Tests.sql"
   null_token_value_preservation: "Tests/Runtime/NullTokenValuePreservation.Tests.sql"
+  trailing_empty_field_preservation: "Tests/Runtime/TrailingEmptyFieldPreservation.Tests.sql"
   select_reader: "Tests/Framework/CsvDirectSelect.Helpers.ps1"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   ownership_guards: "Tests/Runtime/OwnershipGuards.Tests.ps1"

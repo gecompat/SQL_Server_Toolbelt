@@ -71,6 +71,18 @@ und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
 Evidenzbereich; Anleitung und Auswahl stehen davor.
 
 <!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### Abschließende leere CSV-Felder mit korrektem Replace und Append 2026-10-22
+
+'-TestScope trailing-empty-field-preservation': Acht erfolgreiche Fälle je Modus: Parser mit leerem letztem Feld am EOF beziehungsweise vor CRLF und Writer mit einem beziehungsweise zwei abschließenden leeren Feldern, jeweils KeepData=0/1. Eine unabhängig gesetzte große erste DATA-Zelle bleibt vollständig enthalten, Quelle und Text liegen unter16MiB. Leere Felder bleiben ausdrücklich nicht-NULL-leer; EOF und finaler Recordabschluss erzeugen keinen zusätzlichen Record. Writer liefert exakt die abschließenden Separatoren und CRLF mit DataRows1 und ColumnCount2 beziehungsweise3. Vor jeder Operation eigener16MiB-Altzielwert: Replace entfernt ihn, Append erhält ihn vollständig. Quelleninhalt, Identitäten und bidirektionale Katalogsnapshots bleiben erhalten. Keine neue Bytegrenzabnahme.
+
+Acht positive SQLphasen: vier EOF-/Record-/Writerformen jeweils Replace/Append. Return0, vollständige große Zellbytes, ausdrückliche Nicht-NULL-Leerwerte, exakte Zeilenzahl/Ordinals/Outputbytes/Metadaten, getrennte Neutralität und Fallcleanup; nur finaler typisierter8er-Witness.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1766 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'trailing-empty-field-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### NullToken-Text und SQL-NULL mit korrektem Replace und Append 2026-10-22
 
 '-TestScope null-token-value-preservation': Acht erfolgreiche Fälle je Modus: Parser und Writer mit aktivem Tokenwort „NULL“ beziehungsweise „NULL “ mit abschließendem Leerzeichen, jeweils KeepData=0/1. Unquoted Token wird SQL-NULL, quoted Token bleibt vollständiger Text; beim gepaddeten Token bleibt ungepaddetes NULL ebenfalls Text. Eine unabhängig gesetzte große zusätzliche DATA-Zelle ist vollständig enthalten, Quelle und Text bleiben unter16MiB. Writer liefert exakt kanonisches Quoting und CRLF sowie DataRows1 und die vollständige Breite3 beziehungsweise4. Vor jeder Operation eigener16MiB-Altzielwert: Replace entfernt ihn, Append erhält ihn vollständig. Quelleninhalt, Identitäten und bidirektionale Katalogsnapshots bleiben erhalten. Keine neue Bytegrenzabnahme.
