@@ -25,6 +25,9 @@ Der Impactscope `release_preparation` prüft die Vorbereitung des
 `Tests/Release/test_prepare_release.py`. Kanalvorschläge, Dependencyclosure,
 Statuswahrheit und sichere ZIP-Pfade werden offline geprüft; keine SQL-,
 Build-, Tag- oder Veröffentlichungsaktion folgt daraus.
+Anschließend prüft derselbe Scope das versionierte Gesamt-ZIP einschließlich
+vollständiger Hash-/Gitbindung und beider erneut offline erzeugter SQL-Exports.
+Das benötigt PowerShell 7, aber weder SQL Server noch `sqlcmd`.
 
 ```bash
 python3 Tests/Documentation/validate_documentation.py \

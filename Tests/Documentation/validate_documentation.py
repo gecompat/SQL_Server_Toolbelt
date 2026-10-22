@@ -1787,6 +1787,14 @@ def main() -> int:
         if result.returncode:
             raise ValidationError(f"Releasevorbereitung-Regressionen:\n{result.stdout}{result.stderr}")
         print(result.stderr.strip())
+        result = subprocess.run(
+            [sys.executable, "-B", str(REPOSITORY_ROOT / "Scripts/Release/prepare_release.py"),
+             "--verify", str(REPOSITORY_ROOT / "Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip")],
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=150,
+        )
+        if result.returncode:
+            raise ValidationError(f"Releasepaket-Integrität:\n{result.stdout}{result.stderr}")
+        print(result.stdout.strip())
     if "publication_contract" in checks:
         result = subprocess.run(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Documentation/test_publication.py")],
