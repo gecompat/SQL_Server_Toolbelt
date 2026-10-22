@@ -233,7 +233,10 @@ def export_stable(files: dict[str, bytes], plan: dict) -> dict[str, bytes]:
     stable = [m["module_id"] for m in plan["modules"] if m["proposed_channel"] == "stable"]
     runtime = ROOT / ".runtime"
     runtime.mkdir(exist_ok=True)
-    require(not runtime.is_symlink() and not runtime.is_junction(), "Reparse-Runtime abgewiesen.")
+    # st_file_attributes existiert unter Windows bereits vor Python 3.12;
+    # Path.is_junction wäre erst ab 3.12 verfügbar.
+    require(not runtime.is_symlink() and not (getattr(runtime.lstat(), "st_file_attributes", 0)
+            & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)), "Reparse-Runtime abgewiesen.")
     with tempfile.TemporaryDirectory(prefix="release-", dir=runtime) as temp:
         target = Path(temp).resolve()
         require(target.parent == runtime.resolve(), "Temporärer Export außerhalb des eigenen Scopes.")
