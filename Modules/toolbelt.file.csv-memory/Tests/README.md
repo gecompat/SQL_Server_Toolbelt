@@ -71,6 +71,18 @@ und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
 Evidenzbereich; Anleitung und Auswahl stehen davor.
 
 <!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### Abgesenktes Parser-Inputbytebudget mit vollem Callerwerterhalt 2026-10-22
+
+'-TestScope lower-input-budget-preservation': Acht Parserfälle je Modus: unabhängig gesetzter vollständiger Input genau1048576 beziehungsweise1048578UTF16-Bytes, ohne beziehungsweise mit HEADER, jeweils MaxInputBytes1048576 und KeepData=0/1. Vier Return0-Erfolge und vier SQL55303/state1-Abweisungen je Modus. Die DATA-Zelle enthält Separator und Quote; Input enthält Quotehüllen, Quoteverdoppelung und CRLF sowie gegebenenfalls den Headerrecord. Die dekodierte Rohwertsumme bleibt auch bei Abweisung unter1MiB, damit ausschließlich das ganze Inputbudget entscheidet. Erfolgreiche Ergebnisse enthalten alle vollständigen HEADER-/DATA-Zellen und Ordinals. Je Fall eigener16MiB-Altzielwert: Erfolg ersetzt beziehungsweise ergänzt ihn exakt, Abweisung erhält ihn vollständig. Unabhängige Callerquelle, vollständige Bytewerte, Multiplizitäten, Objekt-IDs und bidirektionale Katalogsnapshots bleiben erhalten. Qualifiziert wird ausschließlich das abgesenkte1MiB-Inputbudget.
+
+Acht getrennte SQLphasen mit KeepData=0/1. Vier Return0-Erfolge und vier exakt55303/state1-Abweisungen je Modus. Vollständige Byte-/Längen-/Zeilen-/Metadatenprüfungen, unveränderte Quellen und Schemata, getrennte neutrale Transaktion, eigener Fallcleanup vor Fortschritt und nur finaler typisierter8er-Witness.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 2046 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'lower-input-budget-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Nur der ausdrücklich beschriebene Parameter-/Dialektumfang; keine unabhängig erfolgreiche Default-MaxValueBytes-Vollgrenze16MiB, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### Semikolon und Tab mit korrektem CSV-Quoting und Callerwerterhalt 2026-10-22
 
 '-TestScope alternate-separator-preservation': Acht erfolgreiche Fälle je Modus: Parser und Writer mit Semikolon beziehungsweise Tab als Separator, jeweils KeepData=0/1. Die zweite DATA-Zelle enthält den gewählten Separator und bleibt als eine vollständig quotierte Zelle erhalten. Unabhängige Rohwertsumme16777106Bytes und vollständige CRLF-Ausgabe16777116Bytes liegen unter16MiB. Parser liefert exakt zwei DATA-Zellen, Writer kanonisches Quoting mit DataRows1/ColumnCount2. Je Fall eigener16MiB-Altzielwert: Replace entfernt ihn, Append erhält ihn vollständig mit alten Schlüsseln und Metadaten. Quelle, Multiplizitäten, beide Objekt-IDs und bidirektionale Katalogsnapshots bleiben unverändert. Keine beabsichtigte SQL-Abweisung und keine neue Bytegrenzabnahme.
