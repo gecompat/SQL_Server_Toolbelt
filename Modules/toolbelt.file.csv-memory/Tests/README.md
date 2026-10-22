@@ -71,6 +71,18 @@ und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
 Evidenzbereich; Anleitung und Auswahl stehen davor.
 
 <!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### NullToken-Text und SQL-NULL mit korrektem Replace und Append 2026-10-22
+
+'-TestScope null-token-value-preservation': Acht erfolgreiche Fälle je Modus: Parser und Writer mit aktivem Tokenwort „NULL“ beziehungsweise „NULL “ mit abschließendem Leerzeichen, jeweils KeepData=0/1. Unquoted Token wird SQL-NULL, quoted Token bleibt vollständiger Text; beim gepaddeten Token bleibt ungepaddetes NULL ebenfalls Text. Eine unabhängig gesetzte große zusätzliche DATA-Zelle ist vollständig enthalten, Quelle und Text bleiben unter16MiB. Writer liefert exakt kanonisches Quoting und CRLF sowie DataRows1 und die vollständige Breite3 beziehungsweise4. Vor jeder Operation eigener16MiB-Altzielwert: Replace entfernt ihn, Append erhält ihn vollständig. Quelleninhalt, Identitäten und bidirektionale Katalogsnapshots bleiben erhalten. Keine neue Bytegrenzabnahme.
+
+Acht positive SQLphasen: beide APIs und zwei Tokenformen, jeweils Replace/Append. Return0, NULL-Prädikate getrennt von vollständigen Textbyte-/Längenprüfungen, alle neuen/alten Zeilen und Metadaten, neutrale Transaktion und Fallcleanup; nur finaler typisierter8er-Witness.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1726 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'null-token-value-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### HEADER ohne DATA mit korrektem Replace und Append 2026-10-22
 
 '-TestScope header-only-preservation': Acht erfolgreiche Fälle je Modus: Parser und Writer mit einem beziehungsweise zwei HEADER-Feldern ohne DATA, jeweils KeepData=0/1. Ein unabhängig gesetzter großer Headerwert bleibt vollständig erhalten, die Quellencharge liegt unter16MiB. Parser liefert nur HEADER-Zellen mit RowOrdinal0 und vollständigen Spaltenordinals; Writer liefert genau eine vollständige CRLF-Ausgabe mit DataRows0 und ColumnCount1 beziehungsweise2. Vor jeder Operation steht ein eigener16MiB-Altzielwert: Replace entfernt ihn, Append erhält ihn samt alten Schlüsseln und Metadaten. Quelleninhalt und beide kanonischen Schemata bleiben unverändert. Keine neue Bytegrenzabnahme.
