@@ -130,6 +130,7 @@ tests:
   lower_value_budget_preservation: "Tests/Runtime/LowerValueBudgetPreservation.Tests.sql"
   lower_output_budget_preservation: "Tests/Runtime/LowerOutputBudgetPreservation.Tests.sql"
   header_row_budget_preservation: "Tests/Runtime/HeaderRowBudgetPreservation.Tests.sql"
+  alternate_separator_preservation: "Tests/Runtime/AlternateSeparatorPreservation.Tests.sql"
   select_reader: "Tests/Framework/CsvDirectSelect.Helpers.ps1"
   lifecycle: "Tests/Runtime/Lifecycle.Tests.sql"
   ownership_guards: "Tests/Runtime/OwnershipGuards.Tests.ps1"

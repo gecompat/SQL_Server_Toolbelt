@@ -71,6 +71,18 @@ und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
 Evidenzbereich; Anleitung und Auswahl stehen davor.
 
 <!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### Semikolon und Tab mit korrektem CSV-Quoting und Callerwerterhalt 2026-10-22
+
+'-TestScope alternate-separator-preservation': Acht erfolgreiche Fälle je Modus: Parser und Writer mit Semikolon beziehungsweise Tab als Separator, jeweils KeepData=0/1. Die zweite DATA-Zelle enthält den gewählten Separator und bleibt als eine vollständig quotierte Zelle erhalten. Unabhängige Rohwertsumme16777106Bytes und vollständige CRLF-Ausgabe16777116Bytes liegen unter16MiB. Parser liefert exakt zwei DATA-Zellen, Writer kanonisches Quoting mit DataRows1/ColumnCount2. Je Fall eigener16MiB-Altzielwert: Replace entfernt ihn, Append erhält ihn vollständig mit alten Schlüsseln und Metadaten. Quelle, Multiplizitäten, beide Objekt-IDs und bidirektionale Katalogsnapshots bleiben unverändert. Keine beabsichtigte SQL-Abweisung und keine neue Bytegrenzabnahme.
+
+Acht getrennte SQLphasen mit KeepData=0/1. Acht Return0-Erfolge je Modus. Vollständige Byte-/Längen-/Zeilen-/Metadatenprüfungen, unveränderte Quellen und Schemata, getrennte neutrale Transaktion, eigener Fallcleanup vor Fortschritt und nur finaler typisierter8er-Witness.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 2006 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'alternate-separator-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Nur der ausdrücklich beschriebene Parameter-/Dialektumfang; keine unabhängig erfolgreiche Default-MaxValueBytes-Vollgrenze16MiB, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### HEADER bei abgesenktem DATA-Zeilenbudget mit vollem Callerwerterhalt 2026-10-22
 
 '-TestScope header-row-budget-preservation': Acht Fälle je Modus: Parser und Writer mit HEADER und einer beziehungsweise zwei DATA-Zeilen, jeweils HasHeader1, MaxRows1 und KeepData=0/1. Vier Erfolge mit einer DATA-Zeile und vier SQL55303/state1-Abweisungen mit zwei DATA-Zeilen je Modus. Der unabhängig gesetzte Header umfasst1048520UTF16-Bytes; alle anderen Budgets bleiben unter ihren Grenzen. HEADER wird nicht als DATA-Zeile gezählt. Erfolgreicher Parser liefert vollständige HEADER-/DATA-Zellen und Ordinals, erfolgreicher Writer exakte CRLF-Ausgabe mit DataRows1/ColumnCount1. Je Fall eigener16MiB-Altzielwert: Erfolg ersetzt beziehungsweise ergänzt ihn exakt, Abweisung erhält ihn vollständig. Alle Quellwerte, Multiplizitäten, Objekt-IDs und bidirektionalen Katalogsnapshots bleiben erhalten.
