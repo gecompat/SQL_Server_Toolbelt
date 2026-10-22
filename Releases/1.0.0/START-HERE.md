@@ -9,6 +9,7 @@ T-SQL-Kandidaten brauchst du keinen eigenen Build, Git oder Python.
 |---|---|
 | `Install-Stable-local.sql` im Paketroot | Fertige SQL-Datei für die 19 stabilen Kandidaten direkt in deiner Testdatenbank; Ablauf in der Installationsanleitung |
 | `Install-Stable-central.sql` im Paketroot | Alternative gemeinsame Installation; unterstützte Consumerpfade und Rechte je Modul beachten |
+| [CLR-Installation mit fertigen DLLs](CLR-INSTALL.md) | Zusätzliches ZIP mit zwölf Toolbelt-DLLs, ScriptDom, Quellcode, exaktem Trust und fertigen SQL-Dateien; kein eigener Build nötig |
 | [SSIS-Installationssatz](../../Modules/toolbelt.tsql.ssis-debug/InstallPackages/README.md) | Separates Windows-ZIP mit passenden DLLs, Trustskripten und vollständigem SSMS-Beispiel |
 | [Modulübersicht](../../Modules/README.md) | Weitere Funktionen, Parameter, Voraussetzungen und Beispiele |
 | [Freigabematrix](FREIGABEMATRIX.md) | Modulversionen, stabile/Preview-Kandidaten und ihre Nachweisgrenzen |
@@ -18,9 +19,10 @@ T-SQL-Kandidaten brauchst du keinen eigenen Build, Git oder Python.
 Das Gesamtpaket ist eine **unveröffentlichte Quellpaket-Vorbereitung** mit
 45 Modulen: 19 stabile und 26 Preview-Kandidaten. Die Kennzeichnung ist noch
 keine Produktions- oder Plattformzusage. Alle Modulmanifeste bleiben `unreleased`.
-Das Gesamt-ZIP liefert für die weiteren CLR-Module noch keinen vollständigen
-fertig qualifizierten DLL-Installationssatz. Der gesonderte SSIS-Satz enthält
-bereits seine qualifizierten DLLs; die jeweilige Anleitung ist maßgeblich.
+Das Gesamt-ZIP enthält zusätzlich den CLR-Installationskandidaten unter
+`Releases/1.0.0/InstallPackages/`. Windows-/Portable- und lokale/zentrale Profile
+erhalten die Modulgrenzen. Die Paketprüfung ersetzt keine vollständige neue
+API-/Rechte-/Releaseabnahme sämtlicher Preview-Module.
 
 `PACKAGE-MANIFEST.json`, `SHA256SUMS.txt` und die externe ZIP-Prüfsumme binden
 den Paketinhalt. Sie ersetzen keine Herausgebersignatur oder fachliche

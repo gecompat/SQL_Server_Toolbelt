@@ -171,5 +171,57 @@ class PreparationTests(unittest.TestCase):
                                           {"Install-Stable-local.sql": b"SELECT 1;", "Install-Stable-central.sql": b"SELECT 1;"})
 
 
+class ClrPackageTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+        import prepare_clr_package
+        cls.clr = prepare_clr_package
+        cls.package = ROOT / prepare_clr_package.LOCATION
+
+    def test_actual_prebuilt_package_and_platform_boundaries(self):
+        metadata = self.clr.verify(self.package)
+        self.assertEqual(len(metadata['artifacts']), 13)
+        self.assertEqual(len(metadata['profiles']['Windows-local']), 12)
+        self.assertEqual(len(metadata['profiles']['Windows-central']), 11)
+        for mode in ('local', 'central'):
+            selected = metadata['profiles']['Portable-' + mode]
+            self.assertEqual(len(selected), 9)
+            self.assertFalse(set(selected) & self.clr.WINDOWS_ONLY)
+
+    def test_uninstall_repeat_preserves_absence_contract(self):
+        with zipfile.ZipFile(self.package) as archive:
+            prefix = self.clr.PACKAGE + '/SQL/'
+            for profile in ('Windows-local','Windows-central','Portable-local','Portable-central'):
+                present = archive.read(prefix + 'Uninstall-' + profile + '.sql')
+                absent = archive.read(prefix + 'UninstallAbsent-' + profile + '.sql')
+                self.assertNotEqual(present, absent)
+                self.assertIn(b"N'0x'", absent)
+                self.assertNotIn(b'$(' , absent)
+
+    def test_corrupt_external_checksum_and_duplicate_zip_entries_fail(self):
+        import tempfile
+        with tempfile.TemporaryDirectory(prefix='clr-negative-',dir=ROOT / '.runtime') as temp:
+            path = Path(temp) / self.package.name
+            path.write_bytes(self.package.read_bytes())
+            checksum = Path(str(path)+'.sha256')
+            checksum.write_text('0'*64+'  '+path.name+'\n',encoding='ascii')
+            with self.assertRaisesRegex(self.clr.release.ReleaseError,'Prüfsumme'):
+                self.clr.verify(path)
+            with warnings.catch_warnings(), zipfile.ZipFile(path,'w') as archive:
+                warnings.simplefilter('ignore',UserWarning)
+                archive.writestr(self.clr.PACKAGE+'/duplicate.txt','a')
+                archive.writestr(self.clr.PACKAGE+'/duplicate.txt','b')
+            checksum.write_text(self.clr.digest(path.read_bytes())+'  '+path.name+'\n',encoding='ascii')
+            with self.assertRaisesRegex(self.clr.release.ReleaseError,'Doppelte'):
+                self.clr.verify(path)
+
+    def test_clr_budget_regression_without_sql(self):
+        result = subprocess.run([shutil.which('pwsh'),'-NoProfile','-NonInteractive','-File',
+                                 str(ROOT / 'Tests/Release/Test-ClrPackageHarness.ps1')],capture_output=True,timeout=30)
+        self.assertEqual(result.returncode,0,result.stderr.decode(errors='replace'))
+        self.assertIn(b'PASS CLR_HARNESS',result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

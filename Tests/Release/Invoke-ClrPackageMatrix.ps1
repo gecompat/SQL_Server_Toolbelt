@@ -88,7 +88,7 @@ function Save-ClrBudget {[IO.File]::WriteAllText($budgetPath,($budget|ConvertTo-
 Save-ClrBudget
 $watch=[Diagnostics.Stopwatch]::StartNew()
 foreach ($index in $StartCaseIndex..11) {
-    $elapsed=([DateTime]::UtcNow-[DateTime]::Parse($budget.startedUtc).ToUniversalTime()).TotalSeconds
+    $elapsed=([DateTime]::UtcNow-([DateTime]$budget.startedUtc).ToUniversalTime()).TotalSeconds
     if ($elapsed -gt ($budget.seconds-805) -or $budget.attempts -ge $budget.limit -or $index -in $budget.completed){throw 'RELEASE_SHARED_BUDGET_EXHAUSTED_OR_CASE_COMPLETE'}
     $budget.attempts++;Save-ClrBudget
     if ((Get-FileHash -LiteralPath $runsetPath -Algorithm SHA256).Hash -cne $runsetHash) {throw 'RELEASE_RUNSET_DRIFT'}
@@ -100,7 +100,7 @@ foreach ($index in $StartCaseIndex..11) {
         if ($audit) {$start.ArgumentList.Add('-AuditOnly')}
         $child=[Diagnostics.Process]::new(); $child.StartInfo=$start
         try {
-            $elapsed=([DateTime]::UtcNow-[DateTime]::Parse($budget.startedUtc).ToUniversalTime()).TotalSeconds
+            $elapsed=([DateTime]::UtcNow-([DateTime]$budget.startedUtc).ToUniversalTime()).TotalSeconds
             if ($elapsed -gt ($budget.seconds-405)){throw 'RELEASE_SHARED_BUDGET_EXHAUSTED'}
             $allowance=400000
             [void]$child.Start(); $stdout=$child.StandardOutput.ReadToEndAsync(); $stderr=$child.StandardError.ReadToEndAsync()

@@ -8,6 +8,9 @@ Preview- und Prüfstatus; die Paketierung erweitert keine Supportzusage.
 
 ## Voraussetzungen und Download
 
+Wenn du das CLR-ZIP bereits vollständig entpackt hast, kontrolliere nur noch
+Prüfsumme und Ordnerinhalt und fahre mit der Profilauswahl fort.
+
 Du benötigst eine laufende SQL-Server-2019-/2022-/2025-Testinstanz, SSMS auf
 deinem Windows-Rechner und ein vorhandenes administratives SQL-Konto.
 Visual Studio, MSBuild, ein .NET-SDK, Python oder ein eigener Build sind für
@@ -98,6 +101,22 @@ Konfigurationsabhängige Dateioperationen benötigen weiterhin eigene Root-Alias
 Windowsidentitäten und Dateirechte. Diese Anleitung erzeugt keine Dateifixtures.
 
 ## Wiederholung, zentrale Installation und Aufräumen
+
+Optional kannst du statt SSMS PowerShell 7 und ein vorhandenes ODBC-`sqlcmd`
+verwenden. Der optionale Helper nutzt Windows-Anmeldung und prüft vor jedem
+Tool-/SQL-Zugriff alle Paketdateien. Im entpackten Paketroot:
+
+```powershell
+pwsh -File ./Install-ClrPackage.ps1 -ValidateOnly
+pwsh -File ./Install-ClrPackage.ps1 -ServerInstance localhost -Database ToolbeltClrDemo `
+  -Profile Windows-local -RegisterExactTrust
+```
+
+Ersetze Server und Datenbank durch die vereinbarten eigenen Testziele.
+`-TrustServerCertificate` wird nur bei ausdrücklicher Erlaubnis für die konkrete
+Verbindung ergänzt; Verschlüsselung bleibt aktiviert. Die PowerShell-Option
+`-Action Repeat` wählt die Repeatdatei; für Uninstall ist zusätzlich die
+ausdrückliche Option `-ConfirmNoExternalConsumers` erforderlich.
 
 Ein vollständig erfolgreich installiertes Profil lässt sich mit der passenden
 `SQL/Repeat-<Profil>.sql` in einer frischen Sitzung wiederholen. Die Repeatdatei
