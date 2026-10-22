@@ -4,6 +4,23 @@ Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein
 
 45 Module sind implementiert. 21 sind `validated`, 24 sind `partially validated`; 0 sind `not executed`.
 
+## Dokumentationspflege aus Foundation 1.25 — 2026-10-22
+
+Der ausdrücklich beauftragte [Foundation-Upgrade](../Documentation/Architecture/FOUNDATION_1_25_INTEGRATION.md)
+übernimmt die Dokumentationsrichtlinie und verbessert den zentralen menschlichen
+sowie den getrennten KI-Einstieg. Folgende sichtbare Altlasten bleiben konkret
+geplant; daraus folgt keine vollständige Dokumentationskonformität oder neue
+Funktionsfreigabe:
+
+| Scope | Verantwortliche Rolle | Auslöser und Abnahme |
+|---|---|---|
+| Root-README: umfangreiche narrative Modul-/Testhistorie nach dem frühen Einstieg | Dokumentationsverantwortlicher des nächsten betroffenen Produktüberblicks | Bei der nächsten materiellen Änderung dieses Überblicks aktuelle Orientierung von datierter Evidenz trennen, Links/Generatorverbraucher erhalten; Leser gelangt zur Modulauswahl ohne Testchronologie |
+| CSV-Memory-Tests/README: vorangestellte Qualifikationschronologie | Implementierungsverantwortlicher der nächsten CSV-Memory-Welle, vor deren Review | Testanleitung und aktuelle Auswahl zuerst erklären; datierte Wellenbelege in einer eindeutig bezeichneten Evidenzstrecke erhalten, erforderliche Links und Validator-/Manifestkopplungen gemeinsam prüfen |
+| Weitere Modul-/Testanleitungen mit vorangestellten historischen Security-/Abnahmeabschnitten | Verantwortlicher des jeweils materiell geänderten Moduls | Bei der nächsten betroffenen Anleitung Einführung, Voraussetzungen, Anwendung und Fehlerklärung vor historische Belege stellen; bestehende IDs und Evidenzgrenzen erhalten |
+
+Keine pauschale Dateiverschiebung, neue Registry oder zusätzliche Reviewkette.
+Unveränderte unabhängige Dokumente bleiben außerhalb des jeweiligen Änderungsumfangs.
+
 ## Research-Vormerkung: SQL-Dialekt-Transformation — 2026-10-16
 
 **Abschluss des beauftragten Researchscopes, 2026-10-18:** Machbarkeit,

@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "installed_version": "1.24.0",
+  "source_version": "1.25.0",
+  "source_ref": "9e1b9974de58ea775d40c7c6045cd5057ba8b30c",
+  "assessments": [
+    {
+      "feature_id": "human-documentation-paths",
+      "candidate_reasons": ["introduced_in:1.25.0"],
+      "classification": "APPLY_DEFAULT",
+      "evidence": [
+        "README.md",
+        "Documentation/README.md",
+        "Deployment/README.md",
+        "Documentation/Reference/README.md",
+        "AGENTS.md",
+        ".ai/README.md",
+        ".ai/WORKING_RULES.md",
+        "Documentation/Standards/CODE_DOCUMENTATION.md",
+        ".ai/BACKLOG.md",
+        "Documentation/Architecture/FOUNDATION_1_25_INTEGRATION.md"
+      ],
+      "rationale": "Die neue erforderliche Dokumentationsrichtlinie wird integriert. Ein früher menschlicher Einstieg führt über Modulauswahl und Voraussetzungen zur bestehenden Deploymentanleitung, Ergebnisdeutung und Fehlerklärung. AGENTS bleibt der getrennte KI-Einstieg; die technische Untersuchung benennt kanonische und abgeleitete Quellen, Format, Generator und Nachweisgrenzen. Aktive Projektregeln übernehmen die diff- und abhängigkeitsbasierte Pfadauswahl. Sichtbare historische Altlasten sind im bestehenden Backlog mit Scope, verantwortlicher Rolle und Auslöser geplant; keine vollständige Dokumentationskonformität oder fachliche Runtimeabnahme wird behauptet.",
+      "recommendation": null,
+      "decision_required": null,
+      "selected_capabilities": []
+    }
+  ]
+}

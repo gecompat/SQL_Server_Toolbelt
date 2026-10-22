@@ -133,6 +133,14 @@ werden in `.ai/repo_map.yaml` ergänzt.
 Eine angeforderte tokensparende oder schnelle Arbeitsweise reduziert nicht die
 Prüftiefe des ermittelten Impact-Scopes.
 
+Bei Änderungen an Verhalten, APIs, Defaults, Konfiguration, Schemas,
+Generatoren oder Ablageorten die betroffenen menschlichen Lesewege gemäß
+[DOCUMENTATION_POLICY.md](foundation/DOCUMENTATION_POLICY.md) auswählen und
+einschließlich notwendiger Folgeseiten prüfen. Aktuelle Quellen und transitive
+Abhängigkeiten bestimmen den Scope auch ohne Markdown-Diff. Pfade, Ergebnis
+und verbleibende Altlasten im vorhandenen PR-/Validierungsnachweis festhalten;
+keine zusätzliche Reviewkette oder Dokumentationsregistry einführen.
+
 ## Branch-, Commit- und Pull-Request-Regeln
 
 - Branch-Name beschreibt den Scope kurz und eindeutig.
