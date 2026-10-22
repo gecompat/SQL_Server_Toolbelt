@@ -71,6 +71,18 @@ und Linkanker bleiben erhalten. Neue Wellen ergänzen ausschließlich diesen
 Evidenzbereich; Anleitung und Auswahl stehen davor.
 
 <!-- CSV_WAVE_EVIDENCE:BEGIN -->
+### Reservierte Temppräfixe mit vollem Callerwerterhalt 2026-10-22
+
+'-TestScope reserved-temp-prefix-preservation': Vier bestehende Präfixabweisungen jeweils KeepData=0/1: reserviertes Parserziel, reserviertes Writerziel, reservierte Writerquelle und Writerquelle mit gemischtem #TbX_-Präfix. Acht ausschließlich SQL55304/state1-Abweisungen je Modus. Der jeweilige16MiB-Altzielwert und die unabhängig gesetzte gültige synthetische Callerquelle unter16MiB bleiben bytegenau erhalten. Parseraufrufe erhalten separat gesetzten16MiB-Text. Beide Objektidentitäten und bidirektionale Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots bleiben unverändert; eigener Fallaufbau und Cleanup vor dem nächsten Fall. Keine gesamte Namespace- oder neue Bytegrenzabnahme.
+
+Acht Phasen: vier konkrete Präfixformen jeweils Replace/Append. Exakte55304/state1-Signatur, volle Quell-/Altzielwerte, getrennte neutrale Transaktion und Fallcleanup vor Fortschritt. Nur finaler typisierter8er-Witness.
+Typisierter Abschluss, getrennte Funktionszähler und bestehende Deadline/
+Cleanupreserve bleiben erhalten. 1646 synthetische Offlinekontrollen, acht SQL150-Fixturephasen, AST/Static bestanden.
+
+Native Abnahme und unabhängiger Review für 'reserved-temp-prefix-preservation' sind offen.
+
+Produkt-/Deployment-/CLR-/gemeinsame Snapshotquellen und Workflow unverändert; quellengebundenes Paket/exakte CLRbytes wiederverwendet, kein neuer lokaler Build-/Frameworklauf. Keine unabhängig erfolgreiche MaxValueBytes-Vollgrenze, neue Default-/Client-/Heap-/Minimalrechte-/Gesamtmatrix-/authentifizierte TLS-/Releaseabnahme. Status weiterhin 'partially validated', 'unreleased'.
+
 ### Writer-Quellnamenabweisung mit vollem Callerwerterhalt 2026-10-22
 
 '-TestScope writer-local-source-name-preservation': Vier bestehende ungültige oder fehlende Writerquellen jeweils KeepData=0/1: NULL, globaler Tempname, Name ohne lokalen Praefix und fehlende lokale Quelle. Acht ausschließlich SQL55304/state1-Abweisungen je Modus. Vollständiger16MiB-Altoutput und eine unabhängig vorhandene gültige synthetische Callerquelle unter16MiB bleiben bytegenau erhalten, einschließlich Objektidentitäten und bidirektionaler Spalten-/Index-/Indexspalten-/Checkconstraint-Snapshots. Die ungültig benannten Quellen werden weder angelegt noch als gültige Eingaben qualifiziert; erwartete Abwesenheit bleibt erhalten. Keine neue Bytegrenzabnahme.
