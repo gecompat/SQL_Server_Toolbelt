@@ -36,7 +36,7 @@ IF @HasWorkType=0 AND
 DECLARE @WrongWorkType bit=0;
 IF @HasWorkType=1
     EXEC sys.sp_executesql
-        N'IF EXISTS(SELECT 1 FROM toolbelt_core.WorkType WITH (NOLOCK)
+        N'IF EXISTS(SELECT 1 FROM toolbelt_core.WorkType
            WHERE WorkTypeName=''toolbelt.event-log.write''
              AND (HandlerSchema<>N''toolbelt_core'' OR HandlerProcedure<>N''USP_WriteEventInternal'' OR ParameterMode<>''JSON_PAYLOAD'')) SET @Wrong=1;',
         N'@Wrong bit OUTPUT',@Wrong=@WrongWorkType OUTPUT;
@@ -46,12 +46,12 @@ IF @WrongWorkType=1
 BEGIN TRANSACTION;
 IF @HasWorkType=1
     EXEC sys.sp_executesql N'
-IF EXISTS(SELECT 1 FROM toolbelt_core.WorkType WITH (NOLOCK) WHERE WorkTypeName=''toolbelt.event-log.write'')
+IF EXISTS(SELECT 1 FROM toolbelt_core.WorkType WHERE WorkTypeName=''toolbelt.event-log.write'')
 BEGIN
-    DECLARE @rv binary(8)=(SELECT CONVERT(binary(8),RowVersion) FROM toolbelt_core.WorkType WITH (NOLOCK) WHERE WorkTypeName=''toolbelt.event-log.write'');
-    IF EXISTS(SELECT 1 FROM toolbelt_core.WorkType WITH (NOLOCK) WHERE WorkTypeName=''toolbelt.event-log.write'' AND IsEnabled=1)
+    DECLARE @rv binary(8)=(SELECT CONVERT(binary(8),RowVersion) FROM toolbelt_core.WorkType WHERE WorkTypeName=''toolbelt.event-log.write'');
+    IF EXISTS(SELECT 1 FROM toolbelt_core.WorkType WHERE WorkTypeName=''toolbelt.event-log.write'' AND IsEnabled=1)
         EXEC toolbelt_core.USP_DisableWorkType @WorkTypeName=''toolbelt.event-log.write'',@ExpectedRowVersion=@rv,@DisabledReason=N''Event-Log-Uninstall'';
-    SET @rv=(SELECT CONVERT(binary(8),RowVersion) FROM toolbelt_core.WorkType WITH (NOLOCK) WHERE WorkTypeName=''toolbelt.event-log.write'');
+    SET @rv=(SELECT CONVERT(binary(8),RowVersion) FROM toolbelt_core.WorkType WHERE WorkTypeName=''toolbelt.event-log.write'');
     EXEC toolbelt_core.USP_RemoveWorkType @WorkTypeName=''toolbelt.event-log.write'',@ExpectedRowVersion=@rv,@AllowDelete=1;
 END;';
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_DeleteRecordedEventsBefore;
