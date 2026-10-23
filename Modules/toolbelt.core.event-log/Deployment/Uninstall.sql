@@ -22,23 +22,38 @@ IF OBJECT_ID(N'toolbelt_core.EventLog',N'U') IS NOT NULL
     EXEC sys.sp_executesql N'IF EXISTS(SELECT 1 FROM toolbelt_core.EventLog) SET @v=1;',N'@v bit OUTPUT',@v=@HasData OUTPUT;
 IF @HasData=1 AND @AllowDataLoss<>1
     THROW 51749,N'Die EventLog-Tabelle enthält Daten; AllowDataLoss = 1 ist erforderlich.',1;
-IF EXISTS
+-- Ein vollständiger Paket-Uninstall entfernt anschließend auch WorkType.
+-- Späte Kompilierung verhindert SQL208 beim zweiten, bereits leeren Lauf.
+DECLARE @HasWorkType bit=CASE WHEN OBJECT_ID(N'toolbelt_core.WorkType',N'U') IS NULL THEN 0 ELSE 1 END;
+IF @HasWorkType=0 AND
 (
-    SELECT 1 FROM toolbelt_core.WorkType
-    WHERE WorkTypeName='toolbelt.event-log.write'
-      AND (HandlerSchema<>N'toolbelt_core' OR HandlerProcedure<>N'USP_WriteEventInternal' OR ParameterMode<>'JSON_PAYLOAD')
+    @DeploymentMode IS NOT NULL
+    OR EXISTS(SELECT 1 FROM sys.extended_properties WITH (NOLOCK) WHERE class=0 AND name=N'Toolbelt.Module.toolbelt.core.event-log.Version')
+    OR EXISTS(SELECT 1 FROM (VALUES(N'EventLog'),(N'VW_Events'),(N'USP_WriteEventInternal'),(N'USP_WriteEvent'),(N'USP_DeleteEventsBefore'),(N'USP_DeleteRecordedEventsBefore'))o(ObjectName)
+              WHERE OBJECT_ID(N'toolbelt_core.'+o.ObjectName) IS NOT NULL)
 )
+    THROW 51748,N'Installierter Event-Log-Zustand ohne WorkType-Dependency blockiert Uninstall.',3;
+DECLARE @WrongWorkType bit=0;
+IF @HasWorkType=1
+    EXEC sys.sp_executesql
+        N'IF EXISTS(SELECT 1 FROM toolbelt_core.WorkType WITH (NOLOCK)
+           WHERE WorkTypeName=''toolbelt.event-log.write''
+             AND (HandlerSchema<>N''toolbelt_core'' OR HandlerProcedure<>N''USP_WriteEventInternal'' OR ParameterMode<>''JSON_PAYLOAD'')) SET @Wrong=1;',
+        N'@Wrong bit OUTPUT',@Wrong=@WrongWorkType OUTPUT;
+IF @WrongWorkType=1
     THROW 51748,N'Der Event-Log-Work-Type entspricht nicht dem Modulvertrag und wird nicht entfernt.',2;
 
 BEGIN TRANSACTION;
-IF EXISTS(SELECT 1 FROM toolbelt_core.WorkType WHERE WorkTypeName='toolbelt.event-log.write')
+IF @HasWorkType=1
+    EXEC sys.sp_executesql N'
+IF EXISTS(SELECT 1 FROM toolbelt_core.WorkType WITH (NOLOCK) WHERE WorkTypeName=''toolbelt.event-log.write'')
 BEGIN
-    DECLARE @rv binary(8)=(SELECT CONVERT(binary(8),RowVersion) FROM toolbelt_core.WorkType WHERE WorkTypeName='toolbelt.event-log.write');
-    IF EXISTS(SELECT 1 FROM toolbelt_core.WorkType WHERE WorkTypeName='toolbelt.event-log.write' AND IsEnabled=1)
-        EXEC toolbelt_core.USP_DisableWorkType @WorkTypeName='toolbelt.event-log.write',@ExpectedRowVersion=@rv,@DisabledReason=N'Event-Log-Uninstall';
-    SET @rv=(SELECT CONVERT(binary(8),RowVersion) FROM toolbelt_core.WorkType WHERE WorkTypeName='toolbelt.event-log.write');
-    EXEC toolbelt_core.USP_RemoveWorkType @WorkTypeName='toolbelt.event-log.write',@ExpectedRowVersion=@rv,@AllowDelete=1;
-END;
+    DECLARE @rv binary(8)=(SELECT CONVERT(binary(8),RowVersion) FROM toolbelt_core.WorkType WITH (NOLOCK) WHERE WorkTypeName=''toolbelt.event-log.write'');
+    IF EXISTS(SELECT 1 FROM toolbelt_core.WorkType WITH (NOLOCK) WHERE WorkTypeName=''toolbelt.event-log.write'' AND IsEnabled=1)
+        EXEC toolbelt_core.USP_DisableWorkType @WorkTypeName=''toolbelt.event-log.write'',@ExpectedRowVersion=@rv,@DisabledReason=N''Event-Log-Uninstall'';
+    SET @rv=(SELECT CONVERT(binary(8),RowVersion) FROM toolbelt_core.WorkType WITH (NOLOCK) WHERE WorkTypeName=''toolbelt.event-log.write'');
+    EXEC toolbelt_core.USP_RemoveWorkType @WorkTypeName=''toolbelt.event-log.write'',@ExpectedRowVersion=@rv,@AllowDelete=1;
+END;';
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_DeleteRecordedEventsBefore;
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_DeleteEventsBefore;
 DROP PROCEDURE IF EXISTS toolbelt_core.USP_WriteEvent;

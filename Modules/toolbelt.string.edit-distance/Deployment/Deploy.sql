@@ -163,7 +163,35 @@ BEGIN TRY
             THROW 55033, N'Die installierte Assembly-Zuordnung ist nicht kohärent.', 4;
         IF EXISTS (SELECT 1 FROM sys.sql_expression_dependencies d
               JOIN @Slots s ON s.ObjectId = d.referenced_id AND s.SinceRelease <= @Release
-              WHERE NOT EXISTS (SELECT 1 FROM @Slots own WHERE own.ObjectId = d.referencing_id AND own.SinceRelease <= @Release))
+              WHERE NOT EXISTS (SELECT 1 FROM @Slots own WHERE own.ObjectId = d.referencing_id AND own.SinceRelease <= @Release)
+                -- Der bekannte Text-Pairs-Consumer bleibt bei einem exakt
+                -- hashgebundenen 1.1.0-Repeat erhalten. Upgrade, Binary- und
+                -- Moduswechsel sowie unbekannte Consumer bleiben gesperrt.
+                AND NOT EXISTS (SELECT 1 WHERE @Release = 11 AND @ExpectedAbsence = 0
+                  AND @ExpectedInstalledAssemblyHash = @AssemblyHash
+                  AND @InstalledAssemblyHash = @AssemblyHash
+                  AND CONVERT(varbinary(max), @InstalledMode) = CONVERT(varbinary(max), @DeploymentMode)
+                  AND d.referencing_id = OBJECT_ID(N'toolbelt_string.USP_CompareTextPairs', N'P')
+                  AND EXISTS (SELECT 1 FROM sys.extended_properties e WITH (NOLOCK)
+                    WHERE e.class=0 AND e.major_id=0 AND e.minor_id=0
+                      AND e.name=N'Toolbelt.Module.toolbelt.string.text-pairs.Version'
+                      AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),N'1.0.0'))
+                  AND EXISTS (SELECT 1 FROM sys.extended_properties e WITH (NOLOCK)
+                    WHERE e.class=0 AND e.major_id=0 AND e.minor_id=0
+                      AND e.name=N'Toolbelt.Module.toolbelt.string.text-pairs.DeploymentMode'
+                      AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),@InstalledMode))
+                  AND EXISTS (SELECT 1 FROM sys.extended_properties e WITH (NOLOCK)
+                    WHERE e.class=1 AND e.major_id=d.referencing_id AND e.minor_id=0
+                      AND e.name=N'Toolbelt.ModuleId'
+                      AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),N'toolbelt.string.text-pairs'))
+                  AND EXISTS (SELECT 1 FROM sys.extended_properties e WITH (NOLOCK)
+                    WHERE e.class=1 AND e.major_id=d.referencing_id AND e.minor_id=0
+                      AND e.name=N'Toolbelt.ModuleVersion'
+                      AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),N'1.0.0'))
+                  AND EXISTS (SELECT 1 FROM sys.extended_properties e WITH (NOLOCK)
+                    WHERE e.class=1 AND e.major_id=d.referencing_id AND e.minor_id=0
+                      AND e.name=N'Toolbelt.DeploymentMode'
+                      AND CONVERT(varbinary(max),TRY_CONVERT(nvarchar(max),e.value))=CONVERT(varbinary(max),@InstalledMode))))
             THROW 55038, N'Eine fremde same-database Dependency blockiert den Lifecycle.', 1;
         IF EXISTS (SELECT 1 FROM sys.assembly_modules m WHERE m.assembly_id = @AssemblyId
               AND NOT EXISTS (SELECT 1 FROM @Slots s WHERE s.ObjectId = m.object_id AND s.SinceRelease <= @Release AND s.Kind IN ('FS', 'FT')))
