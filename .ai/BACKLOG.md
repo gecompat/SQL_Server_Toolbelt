@@ -52,6 +52,12 @@ im Paket. Weitere fachliche und externe Releasegates bleiben im Gatebericht.
 
 ## Releasevorbereitung v1.0.0 — 2026-10-22
 
+Folgeauftrag vom 2026-10-23: Nachweiszuordnung und im vorhandenen Lab
+ausführbare API-/Grenzfälle abarbeiten und einen PR erstellen. Der
+[API-Bericht](../Releases/1.0.0/API-QUALIFICATION.md) hält Ergebnisse und
+externe Restvoraussetzungen fest; keine neuen öffentlichen Funktionen,
+keine Veröffentlichung und keine Wiederaufnahme autonomer Entwicklung.
+
 Ausdrücklicher unmittelbarer Benutzerauftrag: Gesamtpaket v1.0.0 mit
 Freigabematrix und klarer Trennung stabil/Preview vorbereiten und einen PR
 erstellen; noch nicht veröffentlichen. Die autonome Weiterentwicklung bleibt

@@ -209,6 +209,12 @@ authentifizierte TLS-Zusage. Alle Module bleiben `unreleased`.
 
 ## Was vor Veröffentlichung offen bleibt
 
+Die [Zuordnung aller 45 Module](EVIDENCE-MAP.md) und der
+[API-/Grenzbericht](API-QUALIFICATION.md) konkretisieren die fachlichen
+Restfälle. Vorhandene volle Matrizen und CSV-Grenznachweise bleiben in ihrem
+ursprünglichen Scope gültig; die nachfolgende Tabelle ist keine Aussage,
+dass sämtliche genannten Einzelprüfungen noch fehlen.
+
 | Gate | Konkret erforderlich | Abhängigkeit |
 |---|---|---|
 | Fachlicher Zielumfang | Erledigt: 45 bestehende Modulversionen, 19 stabil/26 Preview und SQL-/CL-/Plattform-/Deployment-Zielumfang sind ausdrücklich übernommen | [Benutzerfreigabe](SUPPORT.md#freigabe); konkrete öffentliche Kombinationen brauchen weiterhin ihre vollständigen Pflichtnachweise |

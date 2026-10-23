@@ -295,5 +295,91 @@ class ClrPackageTests(unittest.TestCase):
             self.clr.release.validate_clr_qualification(payload,qualification,changed)
 
 
+class ApiQualificationTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(ROOT / 'Tests/Release'))
+        import prepare_api_qualification
+        cls.api = prepare_api_qualification
+
+    def test_fixture_bytes_preserve_independent_sparse_unicode_oracles(self):
+        import xml.etree.ElementTree as ET
+        source = (ROOT / 'Spikes/XlsxMemory/Test-Framework.ps1').read_bytes()
+        blob = self.api.xlsx_fixture(source)
+        self.assertEqual(blob, self.api.xlsx_fixture(source))
+        with zipfile.ZipFile(io.BytesIO(blob)) as z:
+            self.assertEqual(len(z.namelist()), 6)
+            ns = {'m': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+            cells = ET.fromstring(z.read('xl/worksheets/sheet1.xml')).findall('.//m:c', ns)
+            self.assertEqual(len(cells), 9)
+            self.assertEqual(cells[-1].get('r'), 'XFD1048576')
+            self.assertIn('😀', z.read('xl/sharedStrings.xml').decode())
+        with zipfile.ZipFile(io.BytesIO(self.api.xlsx_fixture(source, True))) as z:
+            self.assertEqual(len(ET.fromstring(z.read('xl/worksheets/sheet1.xml')).findall('.//m:c', ns)), 100)
+            self.assertEqual(len(ET.fromstring(z.read('xl/sharedStrings.xml')).find('.//m:t', ns).text), 500000)
+
+    def test_fixture_source_change_fails_closed(self):
+        with self.assertRaises((ValueError, IndexError)):
+            self.api.xlsx_fixture(b'changed canonical source')
+
+    def test_no_publication_finite_scope_and_owned_cleanup_remain_explicit(self):
+        plan = json.loads((ROOT / 'Tests/Release/api-qualification-spec.json').read_bytes())
+        self.assertFalse(plan['publication_authorized'])
+        self.assertEqual(len(plan['tests']), 164)
+        self.assertEqual(len({x['id'] for x in plan['tests']}), 164)
+        self.assertEqual(plan['reused_full_matrices'], ['toolbelt.conversion.safe-cast', 'toolbelt.json.pointer'])
+        for t in plan['tests']:
+            self.assertTrue((ROOT / t['source']).is_file())
+        self.assertLess(plan['budget']['max_case_attempts'], 100)
+        self.assertFalse(plan['budget']['delegation'])
+
+    def test_evidence_assignment_preserves_every_canonical_manifest(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/evidence-map.json').read_bytes())
+        plan = json.loads((ROOT / release.PLAN).read_bytes())
+        self.assertEqual({m['module_id'] for m in report['modules']}, {m['module_id'] for m in plan['modules']})
+        self.assertEqual(len(report['modules']), 45)
+        self.assertFalse(report['module_statuses_changed'])
+        self.assertFalse(report['publication_authorized'])
+        for m in report['modules']:
+            self.assertFalse(m['record_snapshot_is_execution_commit'])
+            canonical = (ROOT / m['manifest']).read_bytes().replace(b'\r\n', b'\n')
+            self.assertEqual(hashlib.sha256(canonical).hexdigest(), m['manifest_sha256'])
+
+    @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required for offline adapter guards')
+    def test_target_reuse_and_cleanup_reserve_without_sql(self):
+        script = r'''
+$ErrorActionPreference='Stop'
+$e=$null;$ast=[Management.Automation.Language.Parser]::ParseFile('Tests/Release/Invoke-ApiQualificationLab.ps1',[ref]$null,[ref]$e)
+if($e.Count){throw 'PARSE'}
+foreach($name in @('Test-ApiSelected','Get-ReleaseTimeout')){
+ $node=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq $name},$true))
+ if($node.Count -ne 1){throw 'FUNCTION'}
+ . ([scriptblock]::Create($node[0].Extent.Text))
+}
+$case=[pscustomobject]@{group='csv';Platform='linux';Version='2019';CL=150;workSeconds=300;cleanupSeconds=360}
+$test=[pscustomobject]@{group='csv';only_missing_boundary_targets=$true}
+if(Test-ApiSelected $test){throw 'DUPLICATE_QUALIFIED_BOUNDARY'}
+$case.Version='2022'
+if(-not (Test-ApiSelected $test)){throw 'MISSING_2022_BOUNDARY'}
+$test=[pscustomobject]@{group='csv';only_additional_cl=$true}
+if(-not (Test-ApiSelected $test)){throw 'MISSING_LOWER_CL'}
+$case.CL=160
+if(Test-ApiSelected $test){throw 'DUPLICATE_QUALIFIED_CL'}
+$clock=[pscustomobject]@{ElapsedMilliseconds=345000};$cleanup=$false;$caught=$false
+try{[void](Get-ReleaseTimeout)}catch{if($_.Exception.Message -cne 'RELEASE_API_DEADLINE'){throw};$caught=$true}
+if(-not $caught){throw 'WORK_OVERRAN'}
+$cleanup=$true
+if((Get-ReleaseTimeout) -ne 15){throw 'CLEANUP_RESERVE_LOST'}
+$clock.ElapsedMilliseconds=360001;$caught=$false
+try{[void](Get-ReleaseTimeout)}catch{if($_.Exception.Message -cne 'RELEASE_API_DEADLINE'){throw};$caught=$true}
+if(-not $caught){throw 'CLEANUP_UNBOUNDED'}
+'PASS OFFLINE_API_GUARDS'
+'''
+        result = subprocess.run(['pwsh', '-NoProfile', '-NonInteractive', '-Command', script], cwd=ROOT, capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('PASS OFFLINE_API_GUARDS', result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

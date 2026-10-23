@@ -1,0 +1,276 @@
+# API-/Grenzqualifikation des unverÃ¤nderten vollstÃ¤ndigen Releasepakets.
+[CmdletBinding()]
+param([Parameter(Mandatory)][string]$RunsetPath,[Parameter(Mandatory)][ValidateRange(0,999)][int]$CaseIndex,[switch]$AuditOnly)
+Set-StrictMode -Version Latest
+$ErrorActionPreference='Stop'
+$repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
+$clock=[Diagnostics.Stopwatch]::StartNew(); $cleanup=$false
+$connections=[Collections.Generic.List[object]]::new()
+# Nur die geprÃ¼ften Funktionsdefinitionen importieren; kein fremder Teststart.
+function Import-ClrFunctions([string]$Path,[string[]]$Names,[hashtable]$Replace=@{}) {
+ $errors=$null; $ast=[Management.Automation.Language.Parser]::ParseFile($Path,[ref]$null,[ref]$errors)
+ if($errors.Count){throw 'RELEASE_HELPER_PARSE'}
+ foreach($name in $Names){
+  $nodes=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq $name},$true))
+  if($nodes.Count -ne 1){throw 'RELEASE_HELPER_AMBIGUOUS'}
+  $text=$nodes[0].Extent.Text
+  foreach($key in $Replace.Keys){$text=$text.Replace($key,$Replace[$key])}
+  # Definitionen in den Aufruferscope zurÃ¼ckgeben, ohne sie auszufÃ¼hren.
+  [scriptblock]::Create($text)
+ }
+}
+foreach($block in Import-ClrFunctions (Join-Path $PSScriptRoot 'Invoke-StablePackageLab.ps1') @(
+ 'Assert-ReleasePin','Assert-ReleasePrivatePath','Invoke-ReleaseSql','Open-ReleaseConnection',
+ 'Invoke-ReleaseBatches','Save-ReleaseJournal','Assert-ReleaseInputs','Assert-ReleaseOwnIdentity','Invoke-ReleaseSmoke')){. $block}
+foreach($block in Import-ClrFunctions (Join-Path $repo 'Tests/CI/run-csv-memory-lab.ps1') @('Get-CsvTrust','Assert-CsvTrustCleanupScope') @{
+ 'Get-CsvTrust'='Get-ClrTrust';'Assert-CsvTrustCleanupScope'='Assert-ClrTrustCleanupScope';
+ 'Invoke-CsvOwnSql'='Invoke-ReleaseSql';'Invoke-CsvSql'='Invoke-ReleaseSql'}){. $block}
+
+function Assert-ClrInstalled($Connection,[string]$Profile) {
+ $expected=@($script:metadata.profiles.$Profile)
+ $rows=@(Invoke-ReleaseSql $Connection "SELECT name,CONVERT(nvarchar(128),value) value FROM sys.extended_properties WITH (NOLOCK) WHERE class=0 AND name LIKE N'Toolbelt.Module.%.Version';" -Rows)
+ if($rows.Count -ne @($script:metadata.complete_profiles.$Profile).Count){throw 'RELEASE_CLR_MODULE_COUNT'}
+ foreach($mid in @($script:metadata.complete_profiles.$Profile)){
+  if(@($rows|Where-Object {$_.name -ceq ('Toolbelt.Module.'+$mid+'.Version') -and $_.value -ceq $script:metadata.versions.$mid}).Count -ne 1){throw 'RELEASE_CLR_MODULE_MARKER'}
+ }
+ $assemblies=@(Invoke-ReleaseSql $Connection "SELECT a.name,CONVERT(varchar(128),HASHBYTES('SHA2_512',f.content),2) Hash FROM sys.assemblies a WITH (NOLOCK) JOIN sys.assembly_files f WITH (NOLOCK) ON f.assembly_id=a.assembly_id AND f.file_id=1 WHERE a.is_user_defined=1 ORDER BY a.name;" -Rows)
+ $wanted=@($script:metadata.artifacts|Where-Object {$_.module_id -in $expected -or ($Profile.StartsWith('Windows-') -and -not $_.module_id)})
+ if($assemblies.Count -ne $wanted.Count){throw 'RELEASE_CLR_ASSEMBLY_COUNT'}
+ foreach($a in $wanted){if(@($assemblies|Where-Object {$_.name -ceq $a.sql_name -and $_.Hash -ceq $a.sha512.ToUpperInvariant()}).Count -ne 1){throw 'RELEASE_CLR_ASSEMBLY_HASH'}}
+ $definitions=@(Invoke-ReleaseSql $Connection "SELECT s.name SchemaName,o.name ObjectName,o.type,CONVERT(varchar(64),HASHBYTES('SHA2_256',m.definition),2) Hash FROM sys.objects o WITH (NOLOCK) JOIN sys.schemas s WITH (NOLOCK) ON s.schema_id=o.schema_id LEFT JOIN sys.sql_modules m WITH (NOLOCK) ON m.object_id=o.object_id WHERE o.is_ms_shipped=0 AND s.name LIKE N'toolbelt[_]%' ORDER BY s.name,o.name;" -Rows)
+ return (@{assemblies=$assemblies;definitions=$definitions}|ConvertTo-Json -Depth 5 -Compress)
+}
+function Get-ReleaseTimeout {
+ $limit=if($script:cleanup){$script:case.cleanupSeconds}else{$script:case.workSeconds}
+ $remaining=1000*$limit-$script:clock.ElapsedMilliseconds
+ if($remaining -lt 1000){throw 'RELEASE_API_DEADLINE'}
+ return [int][Math]::Min(300,[Math]::Floor($remaining/1000))
+}
+function Test-ApiSelected($Test) {
+ if($Test.group -cne $script:case.group){return $false}
+ if($Test.PSObject.Properties['only_additional_cl'] -and $Test.only_additional_cl){
+  return (($script:case.Version -ceq '2022' -and $script:case.CL -eq 150) -or
+          ($script:case.Version -ceq '2025' -and $script:case.CL -lt 170))
+ }
+ if($Test.PSObject.Properties['only_missing_boundary_targets'] -and $Test.only_missing_boundary_targets){
+  return -not (($script:case.Platform -ceq 'linux' -and $script:case.Version -ceq '2019') -or
+   ($script:case.Platform -ceq 'windows' -and $script:case.Version -ceq '2025' -and $script:case.CL -eq 170))
+ }
+ return $true
+}
+function Assert-ApiProduct($Connection,[string]$Profile,[string]$Original) {
+ $now=(Assert-ClrInstalled $Connection $Profile)|ConvertFrom-Json
+ $before=$Original|ConvertFrom-Json
+ if(($now.assemblies|ConvertTo-Json -Depth 5 -Compress) -cne ($before.assemblies|ConvertTo-Json -Depth 5 -Compress)){throw 'RELEASE_API_ASSEMBLY_DRIFT'}
+ foreach($old in $before.definitions){
+  $matches=@($now.definitions|Where-Object {$_.SchemaName -ceq $old.SchemaName -and $_.ObjectName -ceq $old.ObjectName})
+  if($matches.Count -ne 1 -or ($matches[0]|ConvertTo-Json -Compress) -cne ($old|ConvertTo-Json -Compress)){throw 'RELEASE_API_PRODUCT_DRIFT'}
+ }
+ # Leserechte/ProduktidentitÃ¤t werden nicht aus unmarkierten Testhilfsobjekten abgeleitet.
+}
+function Invoke-ApiEnvironment([string]$Path,[string]$Database,[string]$ToolbeltDatabase) {
+ $keys=@('TBX_SQL_HOST','TBX_SQL_PORT','TBX_SQL_USER','TBX_SQL_PASSWORD','TBX_SQL_TARGET','TBX_SQL_TEST_PURPOSE','TBX_SQL_ENCRYPT','TBX_SQL_TRUST_SERVER_CERTIFICATE')
+ $previous=@{};foreach($key in $keys){$previous[$key]=[Environment]::GetEnvironmentVariable($key,'Process')}
+ $builder=[Data.SqlClient.SqlConnectionStringBuilder]::new((New-LabConnectionString -Entry $script:target -TestPurpose Functional))
+ try{
+  if($builder.IntegratedSecurity -or $builder.DataSource -cnotmatch '^tcp:(.+),(\d+)$'){throw 'RELEASE_API_EXPLICIT_SQL_IDENTITY_REQUIRED'}
+  $hostValue=$Matches[1];$portValue=$Matches[2]
+  $values=@($hostValue,$portValue,$builder.UserID,$builder.Password,'lab','Functional','True',$builder.TrustServerCertificate.ToString())
+  for($i=0;$i -lt $keys.Count;$i++){[Environment]::SetEnvironmentVariable($keys[$i],$values[$i],'Process')}
+  $arguments=@{Database=$Database}
+  if($Path.EndsWith('Relations.Metadata.ps1')){$arguments.ToolbeltDatabase=$ToolbeltDatabase}
+  & $Path @arguments | Out-Null
+ }finally{
+  $builder.Clear();foreach($key in $keys){[Environment]::SetEnvironmentVariable($key,$previous[$key],'Process')}
+ }
+}
+function Invoke-ApiFixture($Test,[string]$Database,[string]$Central='') {
+ $path=Join-Path $script:runset.sourceRoot $Test.source
+ $db=Open-ReleaseConnection $Database
+ try{
+  [void](Get-ReleaseTimeout)
+  if($Test.kind -ceq 'sql'){
+   $text=[IO.File]::ReadAllText($path)
+   $toolbelt=if($Central){$Central}else{$Database}
+   foreach($pair in @(@('ToolbeltDatabase',$toolbelt),@('CentralDb',$toolbelt),@('CompatibilityLevel',[string]$script:case.CL))){$text=$text.Replace('$('+$pair[0]+')',$pair[1])}
+   foreach($pair in @(@('XlsxFixture','standard'),@('XlsxRepeatedFixture','repeated'))){
+    if($text.Contains('$('+$pair[0]+')')){$text=$text.Replace('$('+$pair[0]+')','0x'+[Convert]::ToHexString([IO.File]::ReadAllBytes((Join-Path $script:runset.inputDirectory ('fixture-'+$pair[1]+'.xlsx')))))}
+   }
+   if($script:case.group -ceq 'translate-large'){
+    $batchIndex=0
+    foreach($batch in [regex]::Split($text,'(?im)^\s*GO\s*(?:--[^\r\n]*)?$')){
+     if(-not [string]::IsNullOrWhiteSpace($batch)){
+      $script:ledger['activeBatch']=$batchIndex;Save-ReleaseJournal
+      Invoke-ReleaseSql $db $batch;$batchIndex++
+     }
+    }
+    $script:ledger['completedLargeBatches']=$batchIndex;Save-ReleaseJournal
+   }else{Invoke-ReleaseBatches $db $text}
+  }else{
+   $arguments=@{Connection=$db}
+   switch -CaseSensitive ($Test.kind){
+    'environment-script' {Invoke-ApiEnvironment $path $Database $(if($Central){$Central}else{$Database});break}
+    'xlsx-metadata' {
+     . $path
+     $args2=@{Connection=$db;Fixture=[IO.File]::ReadAllBytes((Join-Path $script:runset.inputDirectory 'fixture-standard.xlsx'))}
+     if($Central){$args2.ToolbeltDatabase=$Central}
+     Test-XlsxMetadata @args2 | Out-Null;break
+    }
+    'connection-script' {
+     if(-not $path.EndsWith('Metadata.Tests.ps1')){$arguments.CommandTimeoutProvider={Get-ReleaseTimeout};$arguments.ReadBudgetProvider={[void](Get-ReleaseTimeout)};if($Central){$arguments.ToolbeltDatabase=$Central}}
+     & $path @arguments | Out-Null;break
+    }
+    'composition-script' {$arguments.ToolbeltDatabase=$(if($Central){$Central}else{$Database});$arguments.CommandTimeoutProvider={Get-ReleaseTimeout};$arguments.ReadBudgetProvider={[void](Get-ReleaseTimeout)};& $path @arguments | Out-Null;break}
+    'captures-metadata' {$arguments.Database=$Database;$arguments.ToolbeltDatabase=$(if($Central){$Central}else{$Database});$arguments.IncludeLargeBoundary=$true;& $path @arguments | Out-Null;break}
+    'ssis-core' {$arguments.Full=$true;if($Central){$arguments.CrossDatabase=$Central};& $path @arguments | Out-Null;break}
+    'ssis-api' {& $path @arguments | Out-Null;break}
+    default {throw 'RELEASE_API_UNKNOWN_ADAPTER'}
+   }
+  }
+  Invoke-ReleaseSql $db "IF @@TRANCOUNT<>0 THROW 51594,N'API fixture left a transaction.',1;"
+  [void](Get-ReleaseTimeout)
+ }finally{$db.Dispose()}
+ $script:ledger.completedFixtures+=@([ordered]@{id=$Test.id;context=$(if($Central){'consumer'}else{$script:mode});result='PASS'})
+ Save-ReleaseJournal
+}
+
+$control=$null;$ledger=$null;$journal=$null;$failure=$null;$stage='PREPARE'
+try {
+ $RunsetPath=Assert-ReleasePrivatePath $RunsetPath
+ $runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json
+ if($runset.qualificationScope -cne 'api-boundaries'){throw 'RELEASE_COMPLETE_SCOPE'}
+ if($CaseIndex -ge $runset.cases.Count){throw 'RELEASE_API_RUNSET'}
+ $case=$runset.cases[$CaseIndex]
+ $journal=Assert-ReleasePrivatePath (Join-Path (Split-Path -Parent $RunsetPath) ('case-'+$CaseIndex+'.json'))
+ Assert-ReleaseInputs
+ . (Join-Path $repo 'Tests/CI/LabQualifiedContract.ps1')
+ foreach($block in Import-ClrFunctions (Join-Path $repo 'Tests/CI/run-lab-local.ps1') @('Get-EnvironmentVariableValue','Resolve-LabContract','Test-LabTargetReady','Get-LabTargetsForSelector','New-LabConnectionString')){. $block}
+ $lab=Resolve-LabContract -TestPurpose Functional
+ $targets=@(Get-LabTargetsForSelector -Contract $lab.Contract -Selector $case)
+ if($targets.Count -ne 1){throw 'RELEASE_CLR_TARGET_AMBIGUOUS'}
+ $target=$targets[0]
+ $targetIdentity=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes([string]$target.key)))
+ $control=Open-ReleaseConnection 'master'
+ if($AuditOnly){
+  $ledger=Get-Content -LiteralPath $journal -Raw|ConvertFrom-Json
+  if($ledger.targetIdentity -cne $targetIdentity -or $ledger.state -cnotin @('COMPLETE','FAILED_CLEANED')){throw 'RELEASE_CLR_AUDIT_STATE'}
+  foreach($entry in $ledger.databases){
+   $r=@(Invoke-ReleaseSql $control 'SELECT DB_ID(@Name) Id;' @{'@Name'=$entry.name} -Rows)
+   if($entry.state -cne 'DROPPED' -or $r.Count -ne 1 -or $r[0].Id -isnot [DBNull]){throw 'RELEASE_CLR_AUDIT_DB_PRESENT'}
+  }
+  foreach($entry in $ledger.trust){
+   $actual=Get-ClrTrust $control ([Convert]::FromHexString($entry.hash))
+   if(($entry.preexisting -and ($null -eq $actual -or $actual.Fingerprint -cne $entry.fingerprint)) -or
+      (-not $entry.preexisting -and $null -ne $actual)){throw 'RELEASE_CLR_AUDIT_TRUST_DRIFT'}
+  }
+  Assert-ReleaseInputs
+  'PASS RELEASE_CLR_INDEPENDENT_CLEANUP_AND_PINS';exit 0
+ }
+ if(Test-Path -LiteralPath $journal){throw 'RELEASE_CLR_CASE_ALREADY_ATTEMPTED'}
+ $stage='PREFLIGHT'
+ $pre=@(Invoke-ReleaseSql $control "SELECT @@VERSION Version,CONVERT(int,SERVERPROPERTY('ProductMajorVersion')) Major,(SELECT host_platform FROM sys.dm_os_host_info WITH (NOLOCK)) Platform,IS_SRVROLEMEMBER(N'sysadmin') IsAdmin,(SELECT value_in_use FROM sys.configurations WITH (NOLOCK) WHERE name='clr enabled') ClrReady; SELECT name,state_desc FROM sys.databases WITH (NOLOCK) ORDER BY database_id;" -Rows)
+ if($pre[0].IsAdmin -ne 1 -or $pre[0].Major -ne @{'2019'=15;'2022'=16;'2025'=17}[$case.Version] -or $pre[0].Platform -ine $case.Platform){throw 'RELEASE_CLR_PREFLIGHT'}
+ if($pre[0].ClrReady -ne 1){throw 'RELEASE_CLR_DISABLED_NO_MUTATION'}
+ $archive=[IO.Compression.ZipFile]::OpenRead($runset.package)
+ $files=@{}
+ try{foreach($e in $archive.Entries){
+  $relative=$e.FullName.Substring('Toolbelt-Complete-Qualification/'.Length)
+  if($relative.StartsWith('SQL/') -or $relative.StartsWith('Fixtures/') -or $relative -ceq 'CLR-PACKAGE.json'){
+   $reader=[IO.StreamReader]::new($e.Open(),[Text.Encoding]::UTF8)
+   try{$files[$relative]=$reader.ReadToEnd()}finally{$reader.Dispose()}
+  }
+ }}finally{$archive.Dispose()}
+ $metadata=$files['CLR-PACKAGE.json']|ConvertFrom-Json
+ $platformProfile=if($case.Platform -ceq 'windows'){'Windows'}else{'Portable'}
+ $ledger=[ordered]@{owner=[guid]::NewGuid().ToString('N');targetIdentity=$targetIdentity;qualificationScope=$runset.qualificationScope;state='PREPARED';databases=@();trust=@();completedModes=@();completedFixtures=@();failure=$null}
+ Save-ReleaseJournal
+ $stage='TRUST'
+ $wanted=@($metadata.artifacts|Where-Object {$_.module_id -in @($metadata.profiles."$platformProfile-local") -or ($platformProfile -ceq 'Windows' -and -not $_.module_id)})
+ foreach($a in $wanted){
+  $hash=[Convert]::FromHexString($a.sha512);$before=Get-ClrTrust $control $hash
+  $entry=[ordered]@{hash=$a.sha512;preexisting=($null -ne $before);fingerprint=$null;state='PREEXISTING';description=$null}
+  if($before){$entry.fingerprint=$before.Fingerprint}
+  $ledger.trust+=@($entry);Save-ReleaseJournal
+  if(-not $before){
+   Assert-ClrTrustCleanupScope $control $hash
+   $entry.state='ADDING';$entry.description='Toolbelt synthetic CLR package '+$ledger.owner+' '+$a.file;Save-ReleaseJournal
+   Invoke-ReleaseSql $control 'DECLARE @H varbinary(64)=@Hash,@D nvarchar(4000)=@Description; EXEC sys.sp_add_trusted_assembly @hash=@H,@description=@D;' @{'@Hash'=$hash;'@Description'=$entry.description}
+   $actual=Get-ClrTrust $control $hash
+   if($null -eq $actual -or $actual.description -cne $entry.description){throw 'RELEASE_CLR_TRUST_OWNERSHIP_UNKNOWN'}
+   $entry.fingerprint=$actual.Fingerprint;$entry.state='OWNED';Save-ReleaseJournal
+  }
+ }
+ Invoke-ReleaseBatches $control $files["SQL/Trust-$platformProfile-local.sql"]
+ $names=@{}
+ foreach($label in @('local','central','consumer')){
+  $stage='CREATE_'+$label;$suffix=@{local='l';central='c';consumer='u'}[$label]
+  $name='Toolbelt_Release_'+$ledger.owner+'_'+$suffix
+  $entry=[ordered]@{name=$name;id=$null;created=$null;state='CREATING'}
+  $ledger.databases+=@($entry);Save-ReleaseJournal
+  Invoke-ReleaseSql $control "IF DB_ID(N'$name') IS NOT NULL THROW 51591,N'Database collision.',4; CREATE DATABASE [$name] COLLATE Latin1_General_100_CI_AS_SC;"
+  $id=@(Invoke-ReleaseSql $control 'SELECT database_id Id,CONVERT(varchar(16),CONVERT(varbinary(8),create_date),2) Created FROM sys.databases WITH (NOLOCK) WHERE name=@Name;' @{'@Name'=$name} -Rows)
+  if($id.Count -ne 1){throw 'RELEASE_CLR_DB_IDENTITY'}
+  $entry.id=$id[0].Id;$entry.created=$id[0].Created;$entry.state='CREATED';Save-ReleaseJournal
+  $db=Open-ReleaseConnection $name
+  Invoke-ReleaseSql $db "DECLARE @O nvarchar(32)=@Owner; EXEC sys.sp_addextendedproperty @name=N'Test.Release.Owner',@value=@O;" @{'@Owner'=$ledger.owner}
+  $entry.state='OWNED';Save-ReleaseJournal;$db.Dispose()
+  Invoke-ReleaseSql $control "ALTER DATABASE [$name] SET COMPATIBILITY_LEVEL=$($case.CL);"
+  $names[$label]=$name
+ }
+ $spec=Get-Content -LiteralPath $runset.spec -Raw|ConvertFrom-Json
+ $selected=@($spec.tests|Where-Object {Test-ApiSelected $_})
+ if(-not $selected.Count){throw 'RELEASE_API_NO_FIXTURES'}
+ foreach($mode in @('local','central')){
+  $profile="$platformProfile-$mode";$stage='INSTALL_'+$mode
+  $db=Open-ReleaseConnection $names[$mode]
+  Invoke-ReleaseBatches $db $files["SQL/Install-$profile.sql"]
+  # Dieselbe explizite dbo-Testpolicy wie in den kanonischen alten Fachtests.
+  # Ausschließlich eigene disposable DB, keine Rechte-/Loginvergabe und kein
+  # Minimalrechtenachweis. Echte Security-Negativtests gehören nicht hierher.
+  if($case.group -ceq 'core'){
+   Invoke-ReleaseBatches $db ([IO.File]::ReadAllText((Join-Path $runset.sourceRoot 'Tests/CI/WorkTypeAuthorization.Fixture.sql')))
+  }
+  $first=Assert-ClrInstalled $db $profile;$db.Dispose()
+  foreach($test in @($selected|Where-Object context -ceq 'installed')){
+   if($test.PSObject.Properties['deployment_modes'] -and $mode -cnotin $test.deployment_modes){continue}
+   $stage=$mode+':'+$test.id
+   Invoke-ApiFixture $test $names[$mode]
+  }
+  if($mode -ceq 'central'){
+   foreach($test in @($selected|Where-Object context -ceq 'consumer')){
+    $stage='consumer:'+$test.id;Invoke-ApiFixture $test $names.consumer $names.central
+   }
+  }
+  $stage='INTEGRITY_'+$mode;$db=Open-ReleaseConnection $names[$mode]
+  Assert-ApiProduct $db $profile $first;$db.Dispose()
+  $ledger.completedModes+=@($mode);Save-ReleaseJournal
+ }
+ Assert-ReleaseInputs
+}catch{
+ $errorDetail=$_.Exception;$sqlFailure=$null
+ while($true){if($errorDetail -is [Data.SqlClient.SqlException]){$sqlFailure=$errorDetail};if(-not $errorDetail.InnerException){break};$errorDetail=$errorDetail.InnerException}
+ $failure=[ordered]@{stage=$stage;sqlNumber=$(if($sqlFailure){$sqlFailure.Number}else{0});reason=$(if($errorDetail.Message -cmatch '^RELEASE_[A-Z0-9_]+$'){$errorDetail.Message}else{'RELEASE_API_UNCLASSIFIED'})}
+ if($ledger -and -not $AuditOnly){$ledger.failure=$failure;$ledger['privateDiagnostic']=$errorDetail.Message;$ledger['privateSourcePosition']=$_.ScriptStackTrace;Save-ReleaseJournal}
+}finally{
+ foreach($connection in $connections){try{$connection.Dispose()}catch{}}
+ if($ledger -and -not $AuditOnly){
+  $cleanup=$true
+  try{
+   $control=Open-ReleaseConnection 'master'
+   foreach($entry in $ledger.databases){Assert-ReleaseOwnIdentity $control $entry;$entry.state='DROPPED';Save-ReleaseJournal}
+   foreach($entry in $ledger.trust){
+    $hash=[Convert]::FromHexString($entry.hash);$actual=Get-ClrTrust $control $hash
+    if($entry.preexisting){if($null -eq $actual -or $actual.Fingerprint -cne $entry.fingerprint){throw 'RELEASE_CLR_PREEXISTING_TRUST_DRIFT'};continue}
+    if($entry.state -cne 'OWNED' -or $null -eq $actual -or $actual.Fingerprint -cne $entry.fingerprint -or $actual.description -cne $entry.description){throw 'RELEASE_CLR_TRUST_CLEANUP_IDENTITY'}
+    Assert-ClrTrustCleanupScope $control $hash
+    Invoke-ReleaseSql $control 'DECLARE @H varbinary(64)=@Hash; EXEC sys.sp_drop_trusted_assembly @hash=@H;' @{'@Hash'=$hash}
+    if($null -ne (Get-ClrTrust $control $hash)){throw 'RELEASE_CLR_TRUST_NOT_REMOVED'}
+    $entry.state='REMOVED';Save-ReleaseJournal
+   }
+   $ledger.state=if($failure){'FAILED_CLEANED'}else{'COMPLETE'};Save-ReleaseJournal
+  }catch{$ledger.state='CLEANUP_BLOCKED';$ledger['privateCleanupDiagnostic']=$_.Exception.Message;Save-ReleaseJournal;$failure=@{stage='CLEANUP';sqlNumber=0;reason='RELEASE_CLR_CLEANUP_BLOCKED'}}
+  finally{if($control){$control.Dispose()}}
+ }
+}
+if($failure){Write-Output ('FAIL '+($failure|ConvertTo-Json -Compress));exit 1}
+"PASS RELEASE_API_PACKAGE group=$($case.group) fixtures=$($ledger.completedFixtures.Count); independent audit required"

@@ -1,5 +1,66 @@
 # Releasevorbereitung prüfen
 
+## API- und Grenzqualifikation
+
+`api-qualification-spec.json` benennt die 164 ausgewählten kanonischen
+Fixtures, ihre Adapter und die gezielten Ergänzungen. Der
+[Ergebnisbericht](../../Releases/1.0.0/API-QUALIFICATION.md) und die
+[45-Modul-Zuordnung](../../Releases/1.0.0/EVIDENCE-MAP.md) begrenzen den
+Nachweis. Modulmanifeste bleiben die Quelle der alten Evidenz; diese Liste
+ist keine zweite allgemeine Testregistry und wertet keine Module auf.
+
+Nach Paketprüfung und dem unten beschriebenen Erzeugen eines neuen privaten
+Complete-Payloads (oder bei verifiziert bytegleichem vorhandenem Payload):
+
+```powershell
+python -B Tests/Release/prepare_api_qualification.py `
+  --source-zip Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip `
+  --complete-input .runtime/complete-new/complete.zip `
+  --output .runtime/api-new-inputs
+./Tests/Release/Invoke-ApiQualificationMatrix.ps1 `
+  -InputDirectory .runtime/api-new-inputs -PlanOnly
+./Tests/Release/Invoke-ApiQualificationMatrix.ps1 `
+  -InputDirectory .runtime/api-new-inputs `
+  -EvidenceDirectory .runtime/api-new-run -FreezeOnly
+```
+
+Diese Schritte bauen keine DLL und verbinden sich nicht mit SQL Server.
+Der Stager prüft das ausgelieferte Paket, unveränderte Produktquellen und
+SQL-/DLL-Payloads, übernimmt die kanonischen Fixturebytes und erzeugt zwei
+synthetische XLSX-Eingaben. Relative Kompositionshelfer behalten ihre
+kanonischen Hashes. Der Plan umfasst 54 Ziel-/CL-/Gruppenfälle mit eigenen
+Datenbanken für local/central/Consumer. Die Auswahl ergänzt insbesondere
+SQL2022/CL150, niedrigere SSIS-CLs und noch unbelegte CSV-Grenzziele.
+
+Vor nativer Ausführung Zusatzprompt lesen, Labvertrag/Schema prüfen, aktuelle
+Verbraucher und vorhandene Rechte klären sowie gegebenenfalls die separat
+autorisierte temporäre CLR-Konfiguration privat journalisieren. Erst danach:
+
+```powershell
+./Tests/Release/Invoke-ApiQualificationMatrix.ps1 `
+  -FrozenRunset .runtime/api-new-run/runset.json
+```
+
+Jeder Fall hat einen eigenen äußeren Watchdog und einen separaten
+Cleanup-/Pinaudit; auch `FAILED_CLEANED` verlangt diesen Audit. Unbekanntes
+Cleanup stoppt weitere Mutationen bis zur Reconciliation. Korrekturen
+brauchen neue relevante Inputs, einen neuen privaten Evidenceordner,
+`-ChangedInputReason` und denselben `-SharedBudgetFile`; Start, verbrauchte
+Versuche und erfolgreiche Fälle bleiben erhalten. Keine blinden Retries.
+Nach allen Verbrauchern sind eigene Konfiguration und Trustzustände
+wiederherzustellen und unabhängig zu prüfen.
+
+Die Coregruppe lädt die vorhandene `WorkTypeAuthorization.Fixture.sql`
+ausschließlich in eigene disposable Datenbanken: explizite dbo-Policy für
+alte Fachfixtures, kein Deploymentinclude, keine echten Minimalrechte.
+Serverdatei-, Provider-, Principal- und harte Recoveryvoraussetzungen werden
+dadurch nicht bereitgestellt. Erfolgreiche frühere Lifecycle-/Lastnachweise
+werden nicht allein zur Statusauffrischung wiederholt.
+
+Offline-Regressionsprüfung ohne SQL: `python -B
+Tests/Release/test_prepare_release.py`. Die bestehende Dokumentations-CI
+führt diese Suite aus; es gibt keinen zusätzlichen Workflow.
+
 ## Gemeinsamer Gesamtpaket-Test
 
 Der freigegebene [Support-Zielumfang](../../Releases/1.0.0/SUPPORT.md) wird durch
