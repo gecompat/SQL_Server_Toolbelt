@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'Scripts/Release'))
 import prepare_release as release
+import prepare_ssis_functional_fixture as ssis
 
 
 def sha(data: bytes) -> str:
@@ -80,10 +81,13 @@ def prepare(source_zip: Path, complete_input: Path, output: Path) -> None:
         dest.parent.mkdir(parents=True,exist_ok=True); dest.write_bytes(b)
     for label,repeated in [('standard',False),('repeated',True)]:
         (output/('fixture-'+label+'.xlsx')).write_bytes(xlsx_fixture(source['Spikes/XlsxMemory/Test-Framework.ps1'],repeated))
+    ssis_root = output/'SsisFunctional'
+    ssis_derivation = ssis.prepare(sources, ssis_root)
     (output/'spec.json').write_bytes(release.encoded(spec))
     (output/'input.json').write_bytes(release.encoded({'schema_version':'1.0','source_zip_sha256':sha(source_zip.read_bytes()),
         'complete_input_sha256':sha(complete_input.read_bytes()),'product_commit':qualification['product_commit'],
         'complete_input':str(complete_input.resolve()),'source_root':str(sources.resolve()),'spec':str((output/'spec.json').resolve()),
+        'ssis_functional_root':str(ssis_root.resolve()),'ssis_derivation':ssis_derivation,
         'native_execution':'NOT_EXECUTED','publication_authorized':False}))
     print('PASS API_INPUTS canonical fixture sources, unchanged qualified SQL/DLL payloads; no SQL connection')
 

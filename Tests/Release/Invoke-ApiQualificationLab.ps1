@@ -1,6 +1,6 @@
 # API-/Grenzqualifikation des unveränderten vollständigen Releasepakets.
 [CmdletBinding()]
-param([Parameter(Mandatory)][string]$RunsetPath,[Parameter(Mandatory)][ValidateRange(0,999)][int]$CaseIndex,[switch]$AuditOnly)
+param([Parameter(Mandatory)][string]$RunsetPath,[Parameter(Mandatory)][ValidateRange(0,999)][int]$CaseIndex,[switch]$AuditOnly,[switch]$PreflightOnly)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
@@ -61,7 +61,8 @@ function Get-ReleaseTimeout {
  $limit=if($script:cleanup){$script:case.cleanupSeconds}else{$script:case.workSeconds}
  $remaining=1000*$limit-$script:clock.ElapsedMilliseconds
  if($remaining -lt 1000){throw 'RELEASE_API_DEADLINE'}
- return [int][Math]::Min(300,[Math]::Floor($remaining/1000))
+ $commandCap=if($script:case.group -ceq 'formats' -and -not $script:cleanup){1200}else{300}
+ return [int][Math]::Min($commandCap,[Math]::Floor($remaining/1000))
 }
 function Test-ApiSelected($Test) {
  if($Test.group -cne $script:case.group){return $false}
@@ -101,8 +102,22 @@ function Invoke-ApiEnvironment([string]$Path,[string]$Database,[string]$Toolbelt
   $builder.Clear();foreach($key in $keys){[Environment]::SetEnvironmentVariable($key,$previous[$key],'Process')}
  }
 }
+function New-ApiBudgetProviders($Clock,[int]$WorkSeconds) {
+ $sourceWatch=$Clock;$workBudget=$WorkSeconds
+ $timeoutProvider={
+  $left=1000*$workBudget-$sourceWatch.ElapsedMilliseconds
+  if($left -lt 1000){throw 'RELEASE_API_DEADLINE'}
+  [int][Math]::Min(120,[Math]::Floor($left/1000))
+ }.GetNewClosure()
+ $readProvider={[void](& $timeoutProvider)}.GetNewClosure()
+ return @{Timeout=$timeoutProvider;Read=$readProvider}
+}
 function Invoke-ApiFixture($Test,[string]$Database,[string]$Central='') {
  $path=Join-Path $script:runset.sourceRoot $Test.source
+ if($Test.kind -ceq 'ssis-core'){
+  if(-not $script:runset.PSObject.Properties['ssisFunctionalRoot']){throw 'RELEASE_API_SSIS_FUNCTIONAL_FIXTURE_REQUIRED'}
+  $path=Join-Path $script:runset.ssisFunctionalRoot 'Tests/Runtime/Invoke-CoreContract.ps1'
+ }
  $db=Open-ReleaseConnection $Database
  try{
   [void](Get-ReleaseTimeout)
@@ -125,6 +140,10 @@ function Invoke-ApiFixture($Test,[string]$Database,[string]$Central='') {
    }else{Invoke-ReleaseBatches $db $text}
   }else{
    $arguments=@{Connection=$db}
+   # Delegierte Scriptblöcke behalten nur ihre gebundenen Werte. $script:
+   # würde im ScriptScope des Metadatenhelfers statt im Adapter gesucht.
+   $providers=New-ApiBudgetProviders $script:clock ([int]$script:case.workSeconds)
+   $timeoutProvider=$providers.Timeout;$readProvider=$providers.Read
    switch -CaseSensitive ($Test.kind){
     'environment-script' {Invoke-ApiEnvironment $path $Database $(if($Central){$Central}else{$Database});break}
     'xlsx-metadata' {
@@ -134,12 +153,12 @@ function Invoke-ApiFixture($Test,[string]$Database,[string]$Central='') {
      Test-XlsxMetadata @args2 | Out-Null;break
     }
     'connection-script' {
-     if(-not $path.EndsWith('Metadata.Tests.ps1')){$arguments.CommandTimeoutProvider={Get-ReleaseTimeout};$arguments.ReadBudgetProvider={[void](Get-ReleaseTimeout)};if($Central){$arguments.ToolbeltDatabase=$Central}}
+     if(-not $path.EndsWith('Metadata.Tests.ps1')){$arguments.CommandTimeoutProvider=$timeoutProvider;$arguments.ReadBudgetProvider=$readProvider;if($Central){$arguments.ToolbeltDatabase=$Central}}
      & $path @arguments | Out-Null;break
     }
-    'composition-script' {$arguments.ToolbeltDatabase=$(if($Central){$Central}else{$Database});$arguments.CommandTimeoutProvider={Get-ReleaseTimeout};$arguments.ReadBudgetProvider={[void](Get-ReleaseTimeout)};& $path @arguments | Out-Null;break}
+    'composition-script' {$arguments.ToolbeltDatabase=$(if($Central){$Central}else{$Database});$arguments.CommandTimeoutProvider=$timeoutProvider;$arguments.ReadBudgetProvider=$readProvider;& $path @arguments | Out-Null;break}
     'captures-metadata' {$arguments.Database=$Database;$arguments.ToolbeltDatabase=$(if($Central){$Central}else{$Database});$arguments.IncludeLargeBoundary=$true;& $path @arguments | Out-Null;break}
-    'ssis-core' {$arguments.Full=$true;if($Central){$arguments.CrossDatabase=$Central};& $path @arguments | Out-Null;break}
+    'ssis-core' {$arguments.Full=$true;if($script:mode -ceq 'central'){$arguments.CrossDatabase=$script:names.consumer};& $path @arguments | Out-Null;break}
     'ssis-api' {& $path @arguments | Out-Null;break}
     default {throw 'RELEASE_API_UNKNOWN_ADAPTER'}
    }
@@ -149,6 +168,80 @@ function Invoke-ApiFixture($Test,[string]$Database,[string]$Central='') {
  }finally{$db.Dispose()}
  $script:ledger.completedFixtures+=@([ordered]@{id=$Test.id;context=$(if($Central){'consumer'}else{$script:mode});result='PASS'})
  Save-ReleaseJournal
+}
+
+function Get-ApiSqlFailure($ErrorRecord) {
+ $errorDetail=$ErrorRecord.Exception;$found=$null
+ while($true){if($errorDetail -is [Data.SqlClient.SqlException]){$found=$errorDetail};if(-not $errorDetail.InnerException){break};$errorDetail=$errorDetail.InnerException}
+ return $found
+}
+function Get-ApiFixtureBinding($Test) {
+ $record=[ordered]@{}
+ foreach($name in @($Test.PSObject.Properties.Name|Sort-Object -CaseSensitive)){$record[$name]=$Test.$name}
+ return ($record|ConvertTo-Json -Depth 8 -Compress)
+}
+function Read-ApiCarry($Control) {
+ $script:carried=@();$script:carriedBlocked=@()
+ if(-not $script:runset.PSObject.Properties['carryForward']){return}
+ foreach($item in @($script:runset.carryForward|Where-Object key -ceq $script:case.key)){
+  $old=Get-Content -LiteralPath $item.journal -Raw|ConvertFrom-Json
+  $prior=Get-Content -LiteralPath $item.runset -Raw|ConvertFrom-Json
+  $oldCase=$prior.cases[$item.index]
+  $regexBlock=$oldCase.group -ceq 'text' -and $old.failure.sqlNumber -eq 6522 -and $old.privateDiagnostic -cmatch 'TBX_REGEX_TIMEOUT'
+  $formatDeadline=$oldCase.group -ceq 'formats' -and $old.failure.sqlNumber -eq -2 -and $script:case.workSeconds -gt $oldCase.workSeconds
+  $callbackScope=$oldCase.group -ceq 'formats' -and $old.failure.sqlNumber -eq 0 -and $old.privateDiagnostic.Contains('$script:cleanup')
+  if($old.state -cne 'FAILED_CLEANED' -or $old.targetIdentity -cne $script:targetIdentity -or $oldCase.key -cne $script:case.key -or -not ($regexBlock -or $formatDeadline -or $callbackScope)){
+   throw 'RELEASE_API_CARRY_SCOPE'
+  }
+  $oldPin=@($prior.pins|Where-Object path -ceq $prior.package)
+  $newPin=@($script:runset.pins|Where-Object path -ceq $script:runset.package)
+  if($oldPin.Count -ne 1 -or $newPin.Count -ne 1 -or $oldPin[0].sha256 -cne $newPin[0].sha256){throw 'RELEASE_API_CARRY_PRODUCT_DRIFT'}
+  if([IO.File]::ReadAllText($item.audit) -cnotmatch '^PASS RELEASE_CLR_INDEPENDENT_CLEANUP_AND_PINS'){throw 'RELEASE_API_CARRY_AUDIT'}
+  foreach($entry in $old.databases){
+   $rows=@(Invoke-ReleaseSql $Control 'SELECT DB_ID(@Name) Id;' @{'@Name'=$entry.name} -Rows)
+   if($entry.state -cne 'DROPPED' -or $rows[0].Id -isnot [DBNull]){throw 'RELEASE_API_CARRY_DB_PRESENT'}
+  }
+  foreach($entry in $old.trust){
+   $now=Get-ClrTrust $Control ([Convert]::FromHexString($entry.hash))
+   if(($entry.preexisting -and ($null -eq $now -or $now.Fingerprint -cne $entry.fingerprint)) -or (-not $entry.preexisting -and $null -ne $now)){throw 'RELEASE_API_CARRY_TRUST_DRIFT'}
+  }
+  $spec=Get-Content -LiteralPath $script:runset.spec -Raw|ConvertFrom-Json
+  $priorSpec=Get-Content -LiteralPath $prior.spec -Raw|ConvertFrom-Json
+  $blockedId=$old.failure.stage.Substring('local:'.Length)
+  $expectedId=if($regexBlock){'toolbelt.string.regex:Transformations.Contract.sql'}elseif($callbackScope){'toolbelt.file.xlsx-memory:Types.Metadata.ps1'}else{'toolbelt.json.constructors:JsonGroups.Boundaries.sql'}
+  if($old.failure.stage -cne ('local:'+ $blockedId) -or $blockedId -cne $expectedId){throw 'RELEASE_API_CARRY_ERROR_SCOPE'}
+  $priorPass=@($old.completedFixtures)+@($old.reusedFixtures)
+  $records=$priorPass+@([pscustomobject]@{id=$blockedId;context='local'})
+  foreach($record in $records){
+   if($record.context -cne 'local'){throw 'RELEASE_API_CARRY_CONTEXT'}
+   $currentTest=@($spec.tests|Where-Object id -ceq $record.id);$oldTest=@($priorSpec.tests|Where-Object id -ceq $record.id)
+   if($currentTest.Count -ne 1 -or $oldTest.Count -ne 1 -or (Get-ApiFixtureBinding $currentTest[0]) -cne (Get-ApiFixtureBinding $oldTest[0])){throw 'RELEASE_API_CARRY_FIXTURE_SCOPE'}
+   $source=Join-Path $prior.sourceRoot $oldTest[0].source
+   $pin=@($prior.pins|Where-Object path -ceq $source)
+   if($pin.Count -ne 1){throw 'RELEASE_API_CARRY_FIXTURE_PIN'}
+   Assert-ReleasePin (Join-Path $script:runset.sourceRoot $currentTest[0].source) $pin[0].sha256
+  }
+  $script:carried=$priorPass
+  if($regexBlock){$script:carriedBlocked=@([ordered]@{id=$blockedId;context='local';reason='TBX_REGEX_TIMEOUT';source='previous_failed_cleaned_attempt'})}
+ }
+}
+function Invoke-ApiChecked($Test,[string]$Database,[string]$Central,[string]$Profile,[string]$Original) {
+ $context=if($Central){'consumer'}else{$script:mode}
+ if(@($script:carried|Where-Object {$_.id -ceq $Test.id -and $_.context -ceq $context}).Count){
+  $script:ledger.reusedFixtures+=@([ordered]@{id=$Test.id;context=$context;result='PASS_PREVIOUS_AUDITED_INPUTS'});Save-ReleaseJournal;return
+ }
+ if(@($script:carriedBlocked|Where-Object {$_.id -ceq $Test.id -and $_.context -ceq $context}).Count){
+  $script:ledger.blockedFixtures+=@([ordered]@{id=$Test.id;context=$context;reason='TBX_REGEX_TIMEOUT';source='previous_failed_cleaned_attempt'});Save-ReleaseJournal;return
+ }
+ try{Invoke-ApiFixture $Test $Database $Central}catch{
+  $sql=Get-ApiSqlFailure $_
+  if($Test.module_id -cne 'toolbelt.string.regex' -or $null -eq $sql -or $sql.Number -ne 6522 -or $sql.Message -cnotmatch 'TBX_REGEX_TIMEOUT'){throw}
+  # Ein tatsächlich aufgetretener Budgetfehler bleibt ein offener positiver
+  # Grenznachweis. Keine Friständerung, kein PASS und kein unveränderter Retry.
+  $verify=Open-ReleaseConnection $Database
+  try{Invoke-ReleaseSql $verify "IF @@TRANCOUNT<>0 THROW 51594,N'Blocked fixture left a transaction.',1;";if(-not $Central){Assert-ApiProduct $verify $Profile $Original}}finally{$verify.Dispose()}
+  $script:ledger.blockedFixtures+=@([ordered]@{id=$Test.id;context=$context;reason='TBX_REGEX_TIMEOUT';source='current_attempt'});Save-ReleaseJournal
+ }
 }
 
 $control=$null;$ledger=$null;$journal=$null;$failure=$null;$stage='PREPARE'
@@ -171,7 +264,7 @@ try {
  $control=Open-ReleaseConnection 'master'
  if($AuditOnly){
   $ledger=Get-Content -LiteralPath $journal -Raw|ConvertFrom-Json
-  if($ledger.targetIdentity -cne $targetIdentity -or $ledger.state -cnotin @('COMPLETE','FAILED_CLEANED')){throw 'RELEASE_CLR_AUDIT_STATE'}
+  if($ledger.targetIdentity -cne $targetIdentity -or $ledger.state -cnotin @('COMPLETE','PARTIAL','FAILED_CLEANED')){throw 'RELEASE_CLR_AUDIT_STATE'}
   foreach($entry in $ledger.databases){
    $r=@(Invoke-ReleaseSql $control 'SELECT DB_ID(@Name) Id;' @{'@Name'=$entry.name} -Rows)
    if($entry.state -cne 'DROPPED' -or $r.Count -ne 1 -or $r[0].Id -isnot [DBNull]){throw 'RELEASE_CLR_AUDIT_DB_PRESENT'}
@@ -189,6 +282,8 @@ try {
  $pre=@(Invoke-ReleaseSql $control "SELECT @@VERSION Version,CONVERT(int,SERVERPROPERTY('ProductMajorVersion')) Major,(SELECT host_platform FROM sys.dm_os_host_info WITH (NOLOCK)) Platform,IS_SRVROLEMEMBER(N'sysadmin') IsAdmin,(SELECT value_in_use FROM sys.configurations WITH (NOLOCK) WHERE name='clr enabled') ClrReady; SELECT name,state_desc FROM sys.databases WITH (NOLOCK) ORDER BY database_id;" -Rows)
  if($pre[0].IsAdmin -ne 1 -or $pre[0].Major -ne @{'2019'=15;'2022'=16;'2025'=17}[$case.Version] -or $pre[0].Platform -ine $case.Platform){throw 'RELEASE_CLR_PREFLIGHT'}
  if($pre[0].ClrReady -ne 1){throw 'RELEASE_CLR_DISABLED_NO_MUTATION'}
+ Read-ApiCarry $control
+ if($PreflightOnly){'PASS RELEASE_API_PREFLIGHT_ONLY actual target and carried cleanup/input bindings; no mutation';exit 0}
  $archive=[IO.Compression.ZipFile]::OpenRead($runset.package)
  $files=@{}
  try{foreach($e in $archive.Entries){
@@ -200,7 +295,7 @@ try {
  }}finally{$archive.Dispose()}
  $metadata=$files['CLR-PACKAGE.json']|ConvertFrom-Json
  $platformProfile=if($case.Platform -ceq 'windows'){'Windows'}else{'Portable'}
- $ledger=[ordered]@{owner=[guid]::NewGuid().ToString('N');targetIdentity=$targetIdentity;qualificationScope=$runset.qualificationScope;state='PREPARED';databases=@();trust=@();completedModes=@();completedFixtures=@();failure=$null}
+ $ledger=[ordered]@{owner=[guid]::NewGuid().ToString('N');targetIdentity=$targetIdentity;qualificationScope=$runset.qualificationScope;state='PREPARED';databases=@();trust=@();completedModes=@();completedFixtures=@();reusedFixtures=@();blockedFixtures=@();failure=$null}
  Save-ReleaseJournal
  $stage='TRUST'
  $wanted=@($metadata.artifacts|Where-Object {$_.module_id -in @($metadata.profiles."$platformProfile-local") -or ($platformProfile -ceq 'Windows' -and -not $_.module_id)})
@@ -252,11 +347,11 @@ try {
   foreach($test in @($selected|Where-Object context -ceq 'installed')){
    if($test.PSObject.Properties['deployment_modes'] -and $mode -cnotin $test.deployment_modes){continue}
    $stage=$mode+':'+$test.id
-   Invoke-ApiFixture $test $names[$mode]
+   Invoke-ApiChecked $test $names[$mode] '' $profile $first
   }
   if($mode -ceq 'central'){
    foreach($test in @($selected|Where-Object context -ceq 'consumer')){
-    $stage='consumer:'+$test.id;Invoke-ApiFixture $test $names.consumer $names.central
+    $stage='consumer:'+$test.id;Invoke-ApiChecked $test $names.consumer $names.central $profile $first
    }
   }
   $stage='INTEGRITY_'+$mode;$db=Open-ReleaseConnection $names[$mode]
@@ -288,10 +383,11 @@ try {
     if($null -ne (Get-ClrTrust $control $hash)){throw 'RELEASE_CLR_TRUST_NOT_REMOVED'}
     $entry.state='REMOVED';Save-ReleaseJournal
    }
-   $ledger.state=if($failure){'FAILED_CLEANED'}else{'COMPLETE'};Save-ReleaseJournal
+   $ledger.state=if($failure){'FAILED_CLEANED'}elseif($ledger.blockedFixtures.Count){'PARTIAL'}else{'COMPLETE'};Save-ReleaseJournal
   }catch{$ledger.state='CLEANUP_BLOCKED';$ledger['privateCleanupDiagnostic']=$_.Exception.Message;Save-ReleaseJournal;$failure=@{stage='CLEANUP';sqlNumber=0;reason='RELEASE_CLR_CLEANUP_BLOCKED'}}
   finally{if($control){$control.Dispose()}}
  }
 }
 if($failure){Write-Output ('FAIL '+($failure|ConvertTo-Json -Compress));exit 1}
-"PASS RELEASE_API_PACKAGE group=$($case.group) fixtures=$($ledger.completedFixtures.Count); independent audit required"
+$result=if($ledger.blockedFixtures.Count){'PARTIAL'}else{'PASS'}
+"$result RELEASE_API_PACKAGE group=$($case.group) fixtures=$($ledger.completedFixtures.Count) reused=$($ledger.reusedFixtures.Count) blocked=$($ledger.blockedFixtures.Count); independent audit required"

@@ -322,6 +322,22 @@ class ApiQualificationTests(unittest.TestCase):
         with self.assertRaises((ValueError, IndexError)):
             self.api.xlsx_fixture(b'changed canonical source')
 
+    def test_ssis_functional_projection_preserves_cross_database_oracles(self):
+        import prepare_ssis_functional_fixture
+        import re
+        source = (ROOT / 'Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-V1Cases.ps1').read_bytes()
+        adapted = prepare_ssis_functional_fixture.functional_v1(source).decode('utf-8')
+        text = source.decode('utf-8-sig')
+        start = text.index('# Rechte ausschließlich')
+        end = text.index('if($CrossDatabase){', start)
+        self.assertTrue(adapted.startswith(text[:start]))
+        self.assertTrue(adapted.endswith(text[end:]))
+        for oracle in ['CROSS_DATABASE_GENERATED_SQL', 'CROSS_DATABASE_CALLER_AND_COLLATION', 'NOLOCK_DIRTY_READ', 'NOLOCK_STILL_WAITING_FOR_SCHEMA']:
+            self.assertIn(oracle, adapted)
+        self.assertIsNone(re.search(r'\b(GRANT|DENY|REVOKE|CREATE\s+USER|CREATE\s+LOGIN|EXECUTE\s+AS|ALTER\s+ROLE)\b', adapted, re.I))
+        with self.assertRaises(ValueError):
+            prepare_ssis_functional_fixture.functional_v1(source.replace(b'if($CrossDatabase){', b'changed-source'))
+
     def test_no_publication_finite_scope_and_owned_cleanup_remain_explicit(self):
         plan = json.loads((ROOT / 'Tests/Release/api-qualification-spec.json').read_bytes())
         self.assertFalse(plan['publication_authorized'])
@@ -352,7 +368,7 @@ class ApiQualificationTests(unittest.TestCase):
 $ErrorActionPreference='Stop'
 $e=$null;$ast=[Management.Automation.Language.Parser]::ParseFile('Tests/Release/Invoke-ApiQualificationLab.ps1',[ref]$null,[ref]$e)
 if($e.Count){throw 'PARSE'}
-foreach($name in @('Test-ApiSelected','Get-ReleaseTimeout','Get-ApiCasePins','Assert-ReleaseInputs')){
+foreach($name in @('Test-ApiSelected','Get-ReleaseTimeout','Get-ApiCasePins','Assert-ReleaseInputs','Get-ApiFixtureBinding','New-ApiBudgetProviders')){
  $node=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq $name},$true))
  if($node.Count -ne 1){throw 'FUNCTION'}
  . ([scriptblock]::Create($node[0].Extent.Text))
@@ -387,6 +403,32 @@ Assert-ReleaseInputs
 if($checked -ne 4){throw 'GROUP_INPUT_CHECK_LOST'}
 $checked=0;Assert-ReleaseInputs -All
 if($checked -ne 6){throw 'WHOLE_INPUT_AUDIT_LOST'}
+$ast=[Management.Automation.Language.Parser]::ParseFile('Tests/Release/Invoke-ApiQualificationMatrix.ps1',[ref]$null,[ref]$e)
+$node=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Get-ApiCaseOutcome'},$true))
+if($node.Count -ne 1){throw 'OUTCOME_FUNCTION'}
+. ([scriptblock]::Create($node[0].Extent.Text))
+if((Get-ApiCaseOutcome $true $true 'PARTIAL') -cne 'PARTIAL' -or
+   (Get-ApiCaseOutcome $true $true 'COMPLETE') -cne 'PASS' -or
+   (Get-ApiCaseOutcome $false $true '') -cne 'FAILED_CLEANED' -or
+   (Get-ApiCaseOutcome $true $false 'COMPLETE') -cne 'CLEANUP_UNKNOWN'){throw 'FALSE_CASE_PROMOTION'}
+$caught=$false
+try{[void](Get-ApiCaseOutcome $true $true 'FAILED_CLEANED')}catch{if($_.Exception.Message -cne 'RELEASE_API_UNEXPECTED_STATE'){throw};$caught=$true}
+if(-not $caught){throw 'UNEXPECTED_LEDGER_ACCEPTED'}
+$left=[pscustomobject][ordered]@{id='synthetic';group='text';context='local'}
+$right=[pscustomobject][ordered]@{context='local';group='text';id='synthetic'}
+if((Get-ApiFixtureBinding $left) -cne (Get-ApiFixtureBinding $right)){throw 'JSON_KEY_ORDER_DRIFT'}
+$right.context='central'
+if((Get-ApiFixtureBinding $left) -ceq (Get-ApiFixtureBinding $right)){throw 'REAL_FIXTURE_DRIFT_IGNORED'}
+$sourceClock=[pscustomobject]@{ElapsedMilliseconds=45000}
+$providers=New-ApiBudgetProviders $sourceClock 300
+$consumer=New-Module -ScriptBlock {Set-StrictMode -Version Latest}
+$actual=& $consumer {param($callback) & $callback} $providers.Timeout
+if($actual -ne 120){throw 'CALLBACK_SCRIPT_SCOPE_LOST'}
+$sourceClock.ElapsedMilliseconds=299000
+if((& $consumer {param($callback) & $callback} $providers.Timeout) -ne 1){throw 'CALLBACK_CLOCK_NOT_SHARED'}
+$sourceClock.ElapsedMilliseconds=300001;$caught=$false
+try{& $consumer {param($callback) & $callback} $providers.Read}catch{if($_.Exception.Message -cne 'RELEASE_API_DEADLINE'){throw};$caught=$true}
+if(-not $caught){throw 'CALLBACK_DEADLINE_LOST'}
 'PASS OFFLINE_API_GUARDS'
 '''
         result = subprocess.run(['pwsh', '-NoProfile', '-NonInteractive', '-Command', script], cwd=ROOT, capture_output=True, text=True, timeout=20)

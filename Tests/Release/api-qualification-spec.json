@@ -775,7 +775,8 @@
       "kind": "ssis-core",
       "source": "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CoreContract.ps1",
       "context": "installed",
-      "only_additional_cl": true
+      "only_additional_cl": true,
+      "fixture_scope": "canonical functional V1/component oracles; synthetic principal/right block explicitly omitted; real central consumer bound"
     },
     {
       "id": "toolbelt.tsql.ssis-debug:Invoke-ApiCases.ps1",
@@ -1410,6 +1411,9 @@
     "translate_outer_seconds": 1480,
     "core_work_seconds": 960,
     "core_cleanup_deadline_seconds": 1200,
-    "core_outer_seconds": 1240
+    "core_outer_seconds": 1240,
+    "formats_work_seconds": 1800,
+    "formats_cleanup_deadline_seconds": 2160,
+    "formats_outer_seconds": 2200
   }
 }
