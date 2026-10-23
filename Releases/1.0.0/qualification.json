@@ -3,7 +3,7 @@
   "project_version": "1.0.0",
   "executed_on": "2026-10-22",
   "publication_authorized": false,
-  "product_commit": "756e7fb0444aedf04949409a8fab2189b9fa890f",
+  "product_commit": "a20ede0b8de92203244d9b15d30426bf5f9a8b37",
   "native_package": {
     "method": "Tests/Release/Invoke-StablePackageMatrix.ps1",
     "driver": "Tests/Release/Invoke-StablePackageLab.ps1",
@@ -179,9 +179,9 @@
     "method_sha256": "4aece76b135c8bbd443bb5a64a9faac3221db2055ee7d75a59ed4b04d654b6d3"
   },
   "limitations": [
-    "Package smoke and lifecycle integration do not requalify every public API.",
-    "No Preview/CLR whole-package native installation, new binary trust, minimal rights, heap/parallel or hard recovery qualification.",
-    "Support scope, channels and publication remain unapproved.",
+    "This record preserves the original 19-stable-package and selected-framework execution scope.",
+    "Current complete and CLR native qualification are recorded separately.",
+    "Target channels/support scope approved; full per-combination public-API/security qualification and publication remain pending.",
     "Authenticated TLS and optional runtime measurements remain separate."
   ],
   "clr_framework_candidates": {
@@ -220,5 +220,10 @@
     ],
     "prior_setup_failure": "CSV evidence path inside checkout rejected before framework execution; repeated with an explicitly private external evidence directory.",
     "binary_binding": "Exact private build-check candidates; no native, full framework or distribution claim."
+  },
+  "executed_product_commit": "756e7fb0444aedf04949409a8fab2189b9fa890f",
+  "applicability_review": {
+    "date": "2026-10-23",
+    "reason": "Only two Preview lifecycle SQL sources changed; stable SQL exports remain byte-identical. Original execution and framework scope retained; current complete/CLR evidence is separate."
   }
 }

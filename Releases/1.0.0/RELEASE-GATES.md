@@ -149,6 +149,64 @@ mit zwei Kulturen. Neue Laufzeit-, Minimalrechte-, Heap-/Parallelitäts-,
 Host-Recovery-, authentifizierte TLS- oder allgemeine Produktionszusagen folgen
 aus der Paketprüfung nicht. GUI-Installation bleibt `not executed`.
 
+## Gemeinsame Paketqualifikation und Lifecycle-Korrekturen am 2026-10-23
+
+Die [maschinenlesbare Projektion](complete-qualification.json) bindet die
+tatsächliche korrigierte Vollmatrix und ihre Daten-/Methodeninputs. Zwölf
+Windows-/Linux-Fälle bestanden: SQL2019 CL150, SQL2022 CL150/160 und SQL2025
+CL150/160/170, jeweils lokal/zentral und mit zentralem Consumer. Windows-local
+enthielt 45 Module, Windows-central 43, Portable-local/central jeweils 40;
+Plattform- und Dependencygrenzen blieben wirksam.
+
+Je Fall bestanden Erstinstallation, explizit hashgebundener Repeat,
+Assembly-/Versionsmarker- und Definitionsvergleich, feste Smoke-Oracles,
+der unveränderte Pointer-Securityfixture, zentraler Consumer, Uninstall und
+Absent-Repeat. Die beiden ursprünglich gefundenen Lifecycle-Blocker sind
+damit behoben:
+
+- Edit Distance akzeptiert ausschließlich den bekannten Text-Pairs-Consumer
+  bei gleicher Version, gleichem Hash und gleichem Modus. 24 Fremdconsumer-
+  und 24 abweichende Versionsmarkerfälle wurden weiterhin mit SQL55038
+  abgewiesen; Text-Pairs-Objektidentität und eigene Annotation blieben in
+  allen 24 Deploymentpfaden erhalten.
+- Event Log kompiliert den optionalen WorkType-Zugriff erst nach dessen
+  Existenzprüfung. Alle 24 vollständigen Absent-Repeats nach Entfernung der
+  Registry bestanden. 24 unvollständige Event-Log-Markerfälle ohne Dependency
+  blieben mit SQL51748 gesperrt und wurden durch die Abweisung nicht entfernt.
+
+Zusätzlich bestanden zwölf **eigenständige** CLR-Paketfälle mit den geänderten
+Installations-SQL-Dateien, wiederum Erst-/Repeat-/Consumer-/Uninstall-/Absent-
+Repeat und separaten Cleanup-/Pinaudits. Die [CLR-Projektion](clr-qualification.json)
+unterscheidet diese tatsächliche Ausführung vom früheren Nachweis. Die privaten
+Testkandidaten trugen ausdrücklich `qualification_state=pending`; sie wurden
+nicht als qualifizierte Releaseassets ausgegeben. Endgültige ZIPs nehmen erst
+danach die tatsächlichen Nachweise auf und müssen exakt dieselben SQL-/DLL-
+Bytes enthalten.
+
+Die erste Diagnose blieb `failed_cleaned` (SQL55038), die zweite ebenfalls
+`failed_cleaned` (SQL208 beim Absent-Repeat). Dazwischen bestanden zwölf
+ausdrücklich begrenzte Install-/Consumer-/Einmal-Uninstallfälle; diese wurden
+nie als erfolgreiche Vollqualifikation umetikettiert. Nach dem zusätzlichen
+ausdrücklichen Korrekturauftrag wurden zwölf neue Vollfälle und zwölf neue
+CLR-Fälle geprüft. Alle Phasen behielten denselben ursprünglichen Start und
+Verbrauch im erweiterten Restbudget: 38 tatsächliche Caseversuche, Grenze
+42/14400 Sekunden, keine blinden Retries oder Budgetresets.
+
+Ein abschließender unabhängiger lesender Audit bestätigte alle **114 eigenen
+Datenbanknamen** als abwesend, eigene Trusteinträge entfernt und vorbestehende
+Trustfingerprints erhalten. Nach Abschluss aller Verbraucher wurden die
+temporären CLR-Einstellungen wiederhergestellt; ein weiterer unabhängiger
+Prozess bestätigte Originalkonfiguration und Datenbank-/Assemblykataloge.
+Keine Rechte-/Login-/Labinfrastrukturänderung. Journale, tatsächliche
+Parameterwerte und Rohlogs bleiben ausschließlich privat.
+
+Die Produktquellen sind bytegleich als synthetischer Produkt-Snapshot
+gebunden; Originalausführung und aktueller Snapshot stehen getrennt in den
+Projektionen und in [product-source.json](product-source.json). Dies nimmt
+keine persönliche Commitmetadaten ins Paket auf und erweitert keine API-,
+Minimalrechte-, Heap-/Parallelitäts-, Dateiidentitäts-, Worker-Recovery- oder
+authentifizierte TLS-Zusage. Alle Module bleiben `unreleased`.
+
 ## Was vor Veröffentlichung offen bleibt
 
 | Gate | Konkret erforderlich | Abhängigkeit |
@@ -156,13 +214,28 @@ aus der Paketprüfung nicht. GUI-Installation bleibt `not executed`.
 | Fachlicher Zielumfang | Erledigt: 45 bestehende Modulversionen, 19 stabil/26 Preview und SQL-/CL-/Plattform-/Deployment-Zielumfang sind ausdrücklich übernommen | [Benutzerfreigabe](SUPPORT.md#freigabe); konkrete öffentliche Kombinationen brauchen weiterhin ihre vollständigen Pflichtnachweise |
 | Pflichtqualifikation im gewählten Umfang | Fehlende Minimalrechte-, API-/Lifecycle-, Datei-/Identitäts-/Worker-, Heap-/Parallelitäts- oder Recoveryfälle je Modul prüfen oder die betreffende Kombination außerhalb des veröffentlichten Umfangs halten | Konkreter Supportumfang; gegebenenfalls bereitgestellte Principals, Fixtures oder gesonderte Recoveryumgebung |
 | CLR-Lieferumfang | Erledigt: vorgebauter Installationssatz samt Quellen ist in den Zielumfang übernommen | Keine weitere Build-/Lieferentscheidung offen; vollständige fachliche Pflichtnachweise der gewählten Preview-Kombinationen bleiben erforderlich |
-| Gesamter endgültiger Lieferumfang | Den tatsächlich zu veröffentlichenden Paketstand mit den freigegebenen Modulen einschließlich gewählter CLR-/Previewanteile installieren und die zugesagten Upgrade-/Uninstallwege prüfen | Finaler Lieferumfang und zugehörige Voraussetzungen; die Installation aller 45 Module ist `not executed` |
+| Gemeinsamer Paket-Lifecycle | Erledigt für die vier abgegrenzten Profile: Erst-/Repeat-/Uninstall-/Absent-Repeat und zentrale Consumer in zwölf physischen Ziel-/CL-Fällen; eigenständige CLR-Profile nochmals separat geprüft | Kein universeller historischer Upgradepfad und keine vollständige neue APIabnahme aller 45 Module |
 | Finaler Releasekandidat | Paketintegrität, Dokumentationsaudit und echte CI am endgültigen Head bestätigen; geänderte Inputs mit betroffenem Nachweis abgleichen | Nach Abschluss der noch offenen Inhalte; heutige grüne CI qualifiziert keine späteren Änderungen |
 | Öffentliche Veröffentlichung | Separater ausdrücklicher Auftrag; danach tatsächlichen Tag, Release-URL, Zeitpunkt, Assethashes und `publication_record` je veröffentlichter Modulversion pflegen | Noch nicht autorisiert; kein Tag, kein GitHub-Release und keine Statusaufwertung |
 
 Preview ersetzt keine Pflichtprüfung im zugesagten Scope. Authentifizierte
 TLS-Abnahme bleibt getrennt; die optionalen Laufzeitmessungen für ResultTable,
 Base64 und Generate Series sind kein pauschales Releasegate.
+
+Die verbleibenden Arbeiten sind damit genauer getrennt:
+
+| Punkt | Noch erforderlich | Voraussetzung / Verantwortung |
+|---|---|---|
+| Fachliche Modulabnahme | Die offenen API-, Ausgabegrenzen-, Lifecycle-/Upgrade- und Clientfälle aus der Freigabematrix pro veröffentlichter Kombination zuordnen und abschließen; Paket-Smoke ist kein Ersatz | Modulverantwortlicher; bestehende unveränderte Nachweise nur in ihrem belegten Scope weiterverwenden |
+| Minimalrechte | Echte Aufrufe unter den benötigten getrennten Testidentitäten, einschließlich negativer Rechtefälle | Vorkonfigurierte passende Principals und Rechte oder ein separat ausdrücklich freigegebener enger Security-Testaufbau; hier wurden keine Logins/Rechte erteilt |
+| Datei-/Identitätsmodule | Serverseitige synthetische Datei-, NTFS-/Reparse-/Caller-/ServiceAccount-Fixtures und ihre jeweiligen positiven/negativen Fälle | Bereitgestellte Fixtures/Identitäten mit geklärter Ownership; keine eigenmächtige Änderung der Labinfrastruktur |
+| Provider/Worker und harte Recovery | Erforderliche administrierte Provider-/Workerhostkombinationen und kontrollierter echter Transport-/Hostverlust | Vorkonfigurierte Provider und geeignete gesonderte Recoveryumgebung; laufende mutierende Tests werden nicht als Ersatz hart abgebrochen |
+| Weitere Ressourcen-/Parallelgrenzen | Die modulspezifisch weiterhin verpflichtenden Last-/Heap-/Parallelfälle | Je Modul begrenzter gesonderter Testscope und passende Voraussetzungen; die drei ausdrücklich optionalen Laufzeitmessungen bleiben optional |
+| Endanwender-Clientwege | SSMS-GUI und native Ausführung des optionalen ODBC-PowerShell-Helfers bleiben `not executed` | Manuelle GUI-/passende Clientidentitätsprüfung; native Paket-SQL wurde tatsächlich über SqlClient geprüft |
+
+Für Kanalaufteilung, grundsätzlichen Plattform-/Deployment-Zielumfang und die
+Lieferung fertiger CLR-DLLs ist keine erneute Grundsatzentscheidung offen.
+Die explizite öffentliche Veröffentlichungsfreigabe bleibt ausstehend.
 
 ## Aufwand und Fortsetzung
 

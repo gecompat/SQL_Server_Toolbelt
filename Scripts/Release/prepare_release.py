@@ -475,6 +475,7 @@ def start_here(files: dict[str, bytes]) -> bytes:
             .replace("(FREIGABEMATRIX.md)", f"({DIRECTORY}/FREIGABEMATRIX.md)")
             .replace("(RELEASE-GATES.md)", f"({DIRECTORY}/RELEASE-GATES.md)")
             .replace("(CLR-INSTALL.md)", f"({DIRECTORY}/CLR-INSTALL.md)")
+            .replace("(SUPPORT.md)", f"({DIRECTORY}/SUPPORT.md)")
             .replace("(../../", "(")).encode("utf-8")
 
 

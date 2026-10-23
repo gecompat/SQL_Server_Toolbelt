@@ -63,13 +63,25 @@ ausgeschlossen, sodass kein ZIP sich selbst enthält. Gitmetadaten, ignorierte
 Builds, Secrets und private `.runtime`-Daten werden nicht übernommen.
 `PREPARATION.bundle` erhält einen reproduzierbaren Snapshotcommit mit exakt
 demselben Quellbaum, ohne Paketablage und mit ausschließlich synthetischen
-Autor-/Committerdaten (`Codex`, `codex@localhost`). Sein einziger Parent ist die
-angegebene Produktbasis. Arbeitscommit-Metadaten, `.git`-Konfiguration und
-Reflogs werden nicht übernommen. Dadurch
+Autor-/Committerdaten (`Codex`, `codex@localhost`). Sein Parent ist der
+bytegleiche synthetische Produkt-Snapshot aus [product-source.json](product-source.json).
+Dieser ersetzt ausschließlich Commitmetadaten des Entwicklungsstands und
+hat den darin genannten öffentlichen Main-Commit als Parent. Beide neuen
+Snapshotobjekte sind im Bundle enthalten. Arbeitscommit-Metadaten,
+`.git`-Konfiguration und Reflogs werden nicht übernommen. Dadurch
 bleibt der Quellcommit nach Squash-Merge und Branchcleanup rekonstruierbar.
 Der Prüfmodus importiert das Bundle nur in ein eigenes temporäres Repository;
 der vorhandene Objektstore und seine Refs werden nicht geändert. Er braucht
-die lokal verfügbare Produktbasis, keinen Remote- oder Credentialzugriff.
+die lokal verfügbare öffentliche Main-Basis, keinen Remote- oder Credentialzugriff.
+Der frühere Arbeitsbranch und seine persönlichen Commitmetadaten sind für die
+Prüfung nicht erforderlich. Auch der Plancheck kann die Produktbasis aus dem
+prüfsummengebundenen lokalen Paket in einem privaten temporären Repository
+wiederherstellen; er verändert dabei keine Checkout-Refs oder dessen Objektstore.
+Für einen eigenen Neubau in einem frischen Checkout kann der Maintainer das
+geprüfte `PREPARATION.bundle` aus dem entpackten Paket ausdrücklich lokal
+importieren: `git fetch --no-tags --no-write-fetch-head <PREPARATION.bundle> refs/heads/preparation`.
+Dieser lokale Import ergänzt immutable Gitobjekte und benötigt keinen
+früheren Arbeitsbranch oder Netzwerkzugriff; Branches und Tags bleiben erhalten.
 Der Paketbau erzeugt dazu nur unreferenzierte immutable Gitobjekte und einen
 temporären eigenen Index. Der echte Index, Branches und Tags bleiben erhalten.
 `preparation_origin_commit` nennt den Arbeitsstand als Herkunft; `source_commit`

@@ -258,6 +258,24 @@ class ClrPackageTests(unittest.TestCase):
         self.assertEqual(result.returncode,0,result.stderr.decode(errors='replace'))
         self.assertIn(b'PASS CLR_HARNESS',result.stdout)
 
+    def test_unqualified_candidate_requires_explicit_private_verification(self):
+        import tempfile
+        with zipfile.ZipFile(self.package) as archive:
+            prefix=self.clr.PACKAGE+'/'
+            payload={p[len(prefix):]:archive.read(p) for p in archive.namelist()}
+        metadata=json.loads(payload.pop('CLR-PACKAGE.json'))
+        payload.pop('QUALIFICATION.json')
+        metadata['qualification_state']='pending'
+        metadata['files']={p:{'sha256':self.clr.digest(b),'size':len(b)} for p,b in sorted(payload.items())}
+        payload['CLR-PACKAGE.json']=self.clr.release.encoded(metadata)
+        with tempfile.TemporaryDirectory(prefix='clr-pending-',dir=self.clr.release.runtime_root()) as temp:
+            path=Path(temp)/self.package.name
+            path.write_bytes(self.clr.release.write_zip(payload,self.clr.PACKAGE))
+            Path(str(path)+'.sha256').write_text(self.clr.digest(path.read_bytes())+'  '+path.name+'\n',encoding='ascii')
+            with self.assertRaisesRegex(self.clr.release.ReleaseError,'Kandidat'):
+                self.clr.verify(path)
+            self.assertEqual(self.clr.verify(path,allow_unqualified_candidate=True)['qualification_state'],'pending')
+
     def test_clr_qualification_rejects_sql_binary_and_method_drift(self):
         qualification = json.loads((ROOT / self.clr.QUALIFICATION).read_bytes())
         with zipfile.ZipFile(self.package) as archive:
