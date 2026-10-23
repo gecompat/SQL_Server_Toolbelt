@@ -47,7 +47,32 @@ jobs:
         run: python -B Modules/toolbelt.string.edit-distance/Tests/Static/validate_contract.py
       - name: Framework contract
         shell: pwsh
-        run: Modules/toolbelt.string.edit-distance/Tests/Framework/run-framework-distance.ps1
+        run: |
+          $Error.Clear()
+          try {
+            & Modules/toolbelt.string.edit-distance/Tests/Framework/run-framework-distance.ps1
+          } catch {
+            # Der Prozesshelfer verwirft absichtlich private Prozessdetails.
+            # Nur feste Fehlercodes und Quellzeilen melden, keine Argumente,
+            # Runnerpfade, Child-Ausgaben oder beliebigen Exceptiontexte.
+            $failures = @($Error | Select-Object -First 8)
+            $codes = @($failures | ForEach-Object {
+              if ($_.Exception.Message -cmatch '^OWNED_PROCESS_[A-Z_]+$') {
+                $_.Exception.Message
+              }
+            } | Select-Object -Unique)
+            $kinds = @($failures | ForEach-Object {
+              $source = switch ([IO.Path]::GetFileName([string]$_.InvocationInfo.ScriptName)) {
+                'Invoke-OwnedProcess.ps1' {'owned-process'}
+                'run-framework-distance.ps1' {'framework'}
+                default {'workflow'}
+              }
+              '{0}:{1}:{2}' -f $source,$_.InvocationInfo.ScriptLineNumber,$_.Exception.GetType().Name
+            } | Select-Object -Unique)
+            Write-Output ('FRAMEWORK_FAILURE_CODES=' + ($codes -join ','))
+            Write-Output ('FRAMEWORK_FAILURE_KINDS=' + ($kinds -join ','))
+            throw
+          }
       - name: Exact Release build
         shell: pwsh
         run: Modules/toolbelt.string.edit-distance/Scripts/New-ClrReleaseArtifacts.ps1 -OutputDirectory "$env:RUNNER_TEMP/EditDistanceRelease"
