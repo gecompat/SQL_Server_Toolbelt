@@ -2,6 +2,40 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
+## v1.0.0: Supportumfang und ausführbare Releaseprüfungen — 2026-10-23
+
+Der Benutzer hat den zuvor vorgeschlagenen Zielumfang ausdrücklich übernommen:
+45 Module, 19 stabil/26 Preview, SQL2019/2022/2025 mit den jeweiligen CLs auf
+Windows/Linux, lokales/zentrales Deployment und Consumer nach Modulvertrag.
+Neuinstallation, gebundener Repeat und Uninstall; historische Upgrades nur für
+belegte Ausgangsversionen. [Supportvertrag](../Releases/1.0.0/SUPPORT.md).
+Genau ein PR für ausführbare Prüfungen und verbleibende Blocker; keine neue
+Funktion, Veröffentlichung oder autonome Weiterentwicklung.
+
+Der gemeinsame Pakettest hat nach erfolgreicher Erstinstallation einen
+Releaseblocker gefunden: Edit Distance verweigert den Repeat mit SQL55038,
+sobald Text Pairs als abhängiger Consumer installiert ist. Der ursprüngliche Versuch bleibt `failed_cleaned` und ein frischer
+unabhängiger Audit bestätigt DB-Abwesenheit, Trustwiederherstellung und Inputs.
+Unabhängige Install-/Consumer-/Uninstallprüfungen werden als eigener Teilscope
+geführt, niemals als erfolgreicher Gesamt-Repeat oder vollständige APIabnahme.
+Ergebnisse und externe Voraussetzungen stehen im
+[Gatebericht](../Releases/1.0.0/RELEASE-GATES.md). Alle Modulversionen und
+Release-/Validierungsstatuswerte bleiben unverändert.
+
+Anschließender ausdrücklicher Benutzerauftrag: „Behebe bitte auch die beiden
+Lifecycle-Blocker beim Paket-Repeat und beim wiederholten Uninstall und prüfe
+die korrigierten Abläufe. Noch nicht veröffentlichen; die autonome
+Weiterentwicklung bleibt pausiert.“ Freigegeben sind die begrenzte
+Same-Version-/Same-Hash-/Same-Mode-Ausnahme für den exakt bekannten
+Text-Pairs-Consumer im Edit-Distance-Deploy und der spät kompilierte optionale
+WorkType-Zugriff im Event-Log-Uninstall. Fremde/abweichende Consumer sowie
+installierter Event-Log-Zustand ohne Dependency bleiben Fehler. Alternativen
+wie ein Guard-Bypass, Auslassen der fehlgeschlagenen Vollfälle oder Löschen
+und Neuaufbauen des Text-Pairs-Consumers mit Verlust seiner Annotationen
+werden nicht verwendet. Die erweiterte endliche Korrekturqualifikation
+behält ursprünglichen Start, Versuche und Teilnachweise im gemeinsamen
+privaten Budget; keine neue autonome Entwicklungswelle.
+
 45 Module sind implementiert. 21 sind `validated`, 24 sind `partially validated`; 0 sind `not executed`.
 
 ## Releasevorbereitung v1.0.0 — 2026-10-22

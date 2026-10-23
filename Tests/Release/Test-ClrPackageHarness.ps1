@@ -1,10 +1,10 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
-foreach($file in @('Invoke-ClrPackageLab.ps1','Invoke-ClrPackageMatrix.ps1')){
+foreach($file in @('Invoke-ClrPackageLab.ps1','Invoke-ClrPackageMatrix.ps1','Invoke-CompletePackageLab.ps1','Invoke-CompletePackageMatrix.ps1')){
  $errors=$null;$ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot $file),[ref]$null,[ref]$errors)
  if($errors.Count){throw 'CLR_HARNESS_PARSE'}
- if($file -ceq 'Invoke-ClrPackageMatrix.ps1'){
+ if($file.EndsWith('Matrix.ps1')){
   $coverage=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Assert-ClrWaveCoverage'},$true))
   if($coverage.Count -ne 1){throw 'CLR_COVERAGE_GUARD_MISSING'}
   . ([scriptblock]::Create($coverage[0].Extent.Text))

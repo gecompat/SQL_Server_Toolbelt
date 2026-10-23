@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "state": "approved_target_scope_not_published",
+  "approved_on": "2026-10-23",
+  "approval_reference": "Releases/1.0.0/SUPPORT.md#freigabe",
+  "modules": 45,
+  "channels": {"stable": 19, "preview": 26},
+  "platforms": ["Windows", "Linux"],
+  "sql_compatibility_levels": {"2019": [150], "2022": [150, 160], "2025": [150, 160, 170]},
+  "deployment_modes": ["local", "central"],
+  "central_consumer": "only_where_supported_by_module_contract",
+  "lifecycle": ["first_install", "explicit_hash_bound_repeat", "uninstall", "absent_uninstall_repeat"],
+  "historical_upgrades": "only_explicitly_qualified_source_versions",
+  "support_combinations": "only_completely_qualified_module_platform_provider_deployment_dependency_combinations",
+  "preview_waives_required_tests": false,
+  "publication_authorized": false,
+  "autonomous_development": "paused"
+}

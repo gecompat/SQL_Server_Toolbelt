@@ -188,7 +188,17 @@ def make_plan(files: dict[str, bytes], product_commit: str) -> dict:
             module["binary_delivery"] = "qualified_ssis_install_zip_and_sources"
         if CLR_PACKAGE in files and module['binary_delivery'] != 'sql_sources':
             module['binary_delivery'] = 'prebuilt_clr_install_zip_and_sources'
-    return {
+    scope_path = f'{DIRECTORY}/support-scope.json'
+    approved_scope = None
+    if scope_path in files:
+        approved_scope = json.loads(files[scope_path])
+        require(approved_scope['state'] == 'approved_target_scope_not_published'
+                and approved_scope['publication_authorized'] is False
+                and approved_scope['preview_waives_required_tests'] is False
+                and approved_scope['modules'] == 45
+                and approved_scope['channels'] == dict(Counter(proposed.values()))
+                and f'{DIRECTORY}/SUPPORT.md' in files, 'Supportfreigabe widersprüchlich.')
+    plan = {
         "schema_version": "1.0", "project_version": VERSION,
         "state": "prepared_not_published", "publication_authorized": False,
         "product_commit": product_commit,
@@ -198,6 +208,11 @@ def make_plan(files: dict[str, bytes], product_commit: str) -> dict:
         "support_scope_review": "pending; deklarierte Zielversionen sind keine neue Supportzusage",
         "modules": list(modules.values()),
     }
+    if approved_scope is not None:
+        plan['approved_target_scope'] = approved_scope
+        plan['channel_semantics'] = 'Zielkanäle ausdrücklich freigegeben; Pflichtqualifikation und öffentliche Veröffentlichung bleiben separat.'
+        plan['support_scope_review'] = 'target_scope_approved; complete_per_combination_qualification_pending'
+    return plan
 
 
 def matrix(plan: dict, module_page: str = "README.md") -> bytes:
@@ -218,6 +233,11 @@ def matrix(plan: dict, module_page: str = "README.md") -> bytes:
     delivery = ("Die Spalte `binary_delivery` im [maschinenlesbaren Plan](release-plan.json) benennt die Lieferform. Das Gesamt-ZIP enthält zusätzlich den [vorgebauten CLR-Installationssatz](CLR-INSTALL.md): zwölf Toolbelt-DLLs, ScriptDom, Quellcode und fertige SQL-Dateien mit exakten Trustwerten. Die vier Profile erhalten Windows-/Portable- und lokale/zentrale Grenzen. Kein eigener Build für die Installation; fachliche Preview-/Releasegates bleiben separat."
                 if any(m['binary_delivery'] == 'prebuilt_clr_install_zip_and_sources' for m in plan['modules']) else
                 "Die Spalte `binary_delivery` im [maschinenlesbaren Plan](release-plan.json) benennt die Lieferform. Das Gesamt-ZIP ist ein Quellpaket. Der separat enthaltene SSIS-Installationssatz enthält bereits qualifizierte DLLs. Weitere CLR-Provider benötigen ihre dokumentierten Build-/Trustinputs; ein vollständiges vorgebautes CLR-Installationspaket wird hier nicht behauptet.")
+    if 'approved_target_scope' in plan:
+        lines[6] = ('Die Zielkanäle und der [Supportumfang](SUPPORT.md) sind ausdrücklich freigegeben. '
+                    'Die konkrete öffentliche Supportzusage bleibt an vollständige Pflichtnachweise je Kombination gebunden. '
+                    'Preview ersetzt keine fehlende Pflichtprüfung im zugesagten Umfang.')
+        lines[10] = lines[10].replace('Vorschlag', 'Zielkanal')
     lines += ["", delivery, "",
               "Vor Veröffentlichung gelten die [offenen Releasegates](README.md#vor-einer-veröffentlichung) und der [kanonische Veröffentlichungsvertrag](../../Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md#öffentlicher-veröffentlichungsnachweis).", ""]
     return "\n".join(lines).encode("utf-8")
@@ -493,6 +513,9 @@ def main() -> None:
         _, preparation = snapshot(args.source_commit)
         if CLR_PACKAGE in preparation:
             files[CLR_PACKAGE] = preparation[CLR_PACKAGE]
+        for path in (f'{DIRECTORY}/support-scope.json', f'{DIRECTORY}/SUPPORT.md'):
+            if path in preparation:
+                files[path] = preparation[path]
         plan = make_plan(files, product)
         (ROOT / PLAN).parent.mkdir(parents=True, exist_ok=True)
         (ROOT / PLAN).write_bytes(encoded(plan))

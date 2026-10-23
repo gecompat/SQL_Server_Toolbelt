@@ -1,9 +1,10 @@
 # v1.0.0: erledigte Prüfungen und offene Releasegates
 
-Stand 2026-10-22. Dies ist der Prüfbericht zur unveröffentlichten
+Stand 2026-10-23. Dies ist der Prüfbericht zur unveröffentlichten
 [Releasevorbereitung](README.md), keine Freigabe von Supportkombinationen.
 Die [Freigabematrix](FREIGABEMATRIX.md) bleibt bei 19 stabilen und 26
-Preview-Kandidaten; alle 45 Modulmanifeste bleiben `unreleased`.
+Preview-Kandidaten; diese Zielkanäle und der [Supportumfang](SUPPORT.md) sind
+ausdrücklich freigegeben. Alle 45 Modulmanifeste bleiben `unreleased`.
 
 ## Was technisch geprüft ist
 
@@ -152,9 +153,9 @@ aus der Paketprüfung nicht. GUI-Installation bleibt `not executed`.
 
 | Gate | Konkret erforderlich | Abhängigkeit |
 |---|---|---|
-| Fachlicher Releaseumfang | Modulversionen und stabile/Preview-Kanäle sowie SQL-/CL-/Plattform-/Provider-/Deployment-/Consumerkombinationen ausdrücklich abnehmen | Releaseentscheidung des Benutzers; die Matrix ist weiterhin ein Vorschlag |
+| Fachlicher Zielumfang | Erledigt: 45 bestehende Modulversionen, 19 stabil/26 Preview und SQL-/CL-/Plattform-/Deployment-Zielumfang sind ausdrücklich übernommen | [Benutzerfreigabe](SUPPORT.md#freigabe); konkrete öffentliche Kombinationen brauchen weiterhin ihre vollständigen Pflichtnachweise |
 | Pflichtqualifikation im gewählten Umfang | Fehlende Minimalrechte-, API-/Lifecycle-, Datei-/Identitäts-/Worker-, Heap-/Parallelitäts- oder Recoveryfälle je Modul prüfen oder die betreffende Kombination außerhalb des veröffentlichten Umfangs halten | Konkreter Supportumfang; gegebenenfalls bereitgestellte Principals, Fixtures oder gesonderte Recoveryumgebung |
-| CLR-Releaseumfang abnehmen | Den jetzt vorhandenen vorgebauten CLR-Installationssatz mit seinen begrenzten Paketnachweisen in den zugesagten Releaseumfang übernehmen | Das Liefergate „DLLs ohne eigenen Build“ ist technisch erledigt; vollständige fachliche Pflichtnachweise der gewählten Preview-Kombinationen bleiben erforderlich |
+| CLR-Lieferumfang | Erledigt: vorgebauter Installationssatz samt Quellen ist in den Zielumfang übernommen | Keine weitere Build-/Lieferentscheidung offen; vollständige fachliche Pflichtnachweise der gewählten Preview-Kombinationen bleiben erforderlich |
 | Gesamter endgültiger Lieferumfang | Den tatsächlich zu veröffentlichenden Paketstand mit den freigegebenen Modulen einschließlich gewählter CLR-/Previewanteile installieren und die zugesagten Upgrade-/Uninstallwege prüfen | Finaler Lieferumfang und zugehörige Voraussetzungen; die Installation aller 45 Module ist `not executed` |
 | Finaler Releasekandidat | Paketintegrität, Dokumentationsaudit und echte CI am endgültigen Head bestätigen; geänderte Inputs mit betroffenem Nachweis abgleichen | Nach Abschluss der noch offenen Inhalte; heutige grüne CI qualifiziert keine späteren Änderungen |
 | Öffentliche Veröffentlichung | Separater ausdrücklicher Auftrag; danach tatsächlichen Tag, Release-URL, Zeitpunkt, Assethashes und `publication_record` je veröffentlichter Modulversion pflegen | Noch nicht autorisiert; kein Tag, kein GitHub-Release und keine Statusaufwertung |

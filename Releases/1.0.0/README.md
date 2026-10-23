@@ -20,10 +20,11 @@ lokales beziehungsweise zentrales Deployment. Sie ändern keine öffentlichen
 SQL-Verträge und werden durch den bestehenden Offline-Exporter erzeugt.
 
 Die [Freigabematrix](FREIGABEMATRIX.md) unterscheidet 19 stabile und 26
-Preview-Kandidaten. Ausgangspunkt ist der Manifest-Prüfstatus; transitive
+Preview-Kandidaten. Der [Support-Zielumfang](SUPPORT.md) und die Kanalzuordnung
+sind seit 2026-10-23 ausdrücklich freigegeben. Ausgangspunkt ist der Manifest-Prüfstatus; transitive
 Preview-Dependencies begrenzen den Kanal. Deshalb sind Second Session und
-Event Log trotz eigenem `validated` vorläufig Preview. Alle Vorschläge
-benötigen vor Veröffentlichung die konkrete fachliche Supportabnahme.
+Event Log trotz eigenem `validated` vorläufig Preview. Vor Veröffentlichung
+bleibt die vollständige Pflichtqualifikation jeder zugesagten Kombination erforderlich.
 
 Das Gesamt-ZIP enthält zusätzlich den
 [CLR-Installationskandidaten mit fertigen DLLs](CLR-INSTALL.md). Er liefert alle

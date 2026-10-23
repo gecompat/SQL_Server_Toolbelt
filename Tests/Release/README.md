@@ -1,5 +1,42 @@
 # Releasevorbereitung prüfen
 
+## Gemeinsamer Gesamtpaket-Test
+
+Der freigegebene [Support-Zielumfang](../../Releases/1.0.0/SUPPORT.md) wird durch
+`prepare_complete_package.py` aus dem tatsächlichen Gesamt-ZIP in private
+Testinputs übersetzt. Es verwendet dessen Modul-/Deploymentquellen, fertig
+mitgelieferte DLLs und kanonischen Offline-Exporter. Kein Build oder SQL-Zugriff.
+Windows-local umfasst 45 Module, Windows-central 43, Portable-local/central
+jeweils 40. Fehlende Plattformfähigkeiten begrenzen transitiv ihre Consumer.
+
+```powershell
+python -B Tests/Release/prepare_complete_package.py `
+  --package Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip `
+  --output .runtime/complete-new/complete.zip
+./Tests/Release/Invoke-CompletePackageMatrix.ps1 `
+  -PackagePath .runtime/complete-new/complete.zip `
+  -EvidenceDirectory "$PWD/.runtime/complete-new-run" -PlanOnly
+```
+
+Das private Ausgabe-Elternverzeichnis muss neu angelegt werden. Native
+Ausführung erfolgt nur nach Lesen des Labprompts, schema-validierter Auswahl,
+Preflight und eingefrorenem Runset/Restbudget wie beim CLR-Paketadapter unten.
+Der Defaultscope `full` verlangt Repeat und Absent-Repeat. Der ausdrücklich
+getrennte Scope `install-uninstall` prüft Erstinstallation, feste Smoke-Oracles,
+den unveränderten JSON-Pointer-Securityfixture, zentrale Consumer und einmaligen
+Uninstall. Er qualifiziert **keinen** Repeat oder Absent-Repeat und ersetzt
+keine API-/Minimalrechte-/Recoverymatrix. Die tatsächlichen Fälle, Fehler und
+Blocker stehen im [Gatebericht](../../Releases/1.0.0/RELEASE-GATES.md).
+
+Beide Scopes teilen bei Korrekturfortsetzungen denselben expliziten
+`-SharedBudgetFile`: 18 Caseversuche/7200 Sekunden, kein Budgetreset. Bereits
+vollständig qualifizierte Fälle werden nicht erneut ausgeführt. Das Journal
+führt den ausgewählten Scope; Fehler bleiben Fehler. Neue abhängige Arbeit
+setzt unabhängige Cleanup-/Inputaudits voraus. Der Runner verändert weder
+Labinfrastruktur noch Rechte oder Logins; eine notwendige temporäre
+CLR-Konfiguration wird separat unter der bestehenden engen Autorität
+journalisiert und nach allen Verbrauchern wiederhergestellt.
+
 ## Vorgebaute CLR-Lieferung
 
 Die [CLR-Installationsanleitung](../../Releases/1.0.0/CLR-INSTALL.md) ist der

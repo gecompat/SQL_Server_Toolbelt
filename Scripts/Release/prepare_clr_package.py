@@ -136,7 +136,10 @@ def exports(files: dict[str, bytes], artifacts: list[dict]) -> dict[str, bytes]:
     return result
 
 
-def build(build_directory: Path, output: Path) -> None:
+def build(build_directory: Path, output: Path, unqualified_candidate: bool = False) -> None:
+    if unqualified_candidate:
+        release.require(output.resolve().is_relative_to(release.runtime_root().resolve()),
+                        'Unqualifizierte Kandidaten ausschließlich privat unter .runtime.')
     commit, files = release.snapshot('HEAD')
     report = json.loads((build_directory / 'build-check.json').read_bytes())
     release.require(report['scope'] == 'OFFLINE_BUILD_ONLY' and len(report['builds']) == 12, 'Buildnachweis fehlt.')
@@ -190,9 +193,10 @@ def build(build_directory: Path, output: Path) -> None:
     guide = files['Releases/1.0.0/CLR-INSTALL.md'].replace(b'(../../', b'(https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/')
     payload['START-HERE.md'] = guide.replace(b'(InstallPackages/', b'(https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/InstallPackages/')
     payload['Install-ClrPackage.ps1'] = files['Scripts/Release/Install-ClrPackage.ps1']
-    if QUALIFICATION in files:
+    if QUALIFICATION in files and not unqualified_candidate:
         payload['QUALIFICATION.json'] = files[QUALIFICATION]
     metadata = {'schema_version':'1.0','state':'prepared_not_published','source_commit':commit,
+                'qualification_state':'pending' if unqualified_candidate else 'qualified',
                 'build_source_commit':report['source_commit'],'publication_authorized':False,
                 'artifacts':[{k:v for k,v in a.items() if k != '_bytes'} for a in artifacts],
                 'profiles':{k:[a['module_id'] for a in v] for k,v in profiles(artifacts).items()},
@@ -202,10 +206,10 @@ def build(build_directory: Path, output: Path) -> None:
     release.require(not output.exists() and not Path(str(output)+'.sha256').exists(), 'Ausgabe existiert bereits.')
     output.write_bytes(archive)
     Path(str(output)+'.sha256').write_text(digest(archive) + '  ' + output.name + '\n', encoding='ascii')
-    verify(output)
+    verify(output, allow_unqualified_candidate=unqualified_candidate)
 
 
-def verify(path: Path) -> dict:
+def verify(path: Path, allow_unqualified_candidate: bool = False) -> dict:
     checksum = Path(str(path) + '.sha256').read_text(encoding='ascii').split()
     release.require(checksum == [digest(path.read_bytes()), path.name], 'CLR-ZIP-Prüfsumme abweichend.')
     with zipfile.ZipFile(path) as archive:
@@ -237,10 +241,16 @@ def verify(path: Path) -> dict:
             sql = data[f'SQL/{action}-{profile}.sql']
             release.require(b'$(' not in sql and re.search(br'(?im)^\s*:(?!on error exit\s*$)',sql) is None, 'Unaufgelöste SQLCMD-Direktive.')
     qualification = release.ROOT / QUALIFICATION
-    if qualification.is_file():
+    pending = metadata.get('qualification_state') == 'pending'
+    if pending:
+        release.require(allow_unqualified_candidate and path.resolve().is_relative_to(release.runtime_root().resolve())
+                        and 'QUALIFICATION.json' not in data,
+                        'Privater Kandidat besitzt noch keine native Qualifikation.')
+    elif qualification.is_file():
         release.validate_clr_qualification(data, json.loads(qualification.read_bytes()),
                                          {p:(release.ROOT / p).read_bytes() for p in json.loads(qualification.read_bytes())['method_bindings']})
-    print('PASS CLR_PACKAGE 12 modules, 13 DLLs, four explicit deployment profiles; no build needed on installation')
+    print('PASS CLR_CANDIDATE native NOT_EXECUTED; private qualification input only' if pending else
+          'PASS CLR_PACKAGE 12 modules, 13 DLLs, four explicit deployment profiles; no build needed on installation')
     return metadata
 
 
@@ -249,12 +259,13 @@ if __name__ == '__main__':
     parser.add_argument('--build-directory',type=Path)
     parser.add_argument('--output',type=Path)
     parser.add_argument('--verify',type=Path)
+    parser.add_argument('--unqualified-candidate',action='store_true',help='Expliziter privater Testinput, kein qualifiziertes Releaseasset.')
     args = parser.parse_args()
     try:
         if args.verify:
-            verify(args.verify)
+            verify(args.verify, allow_unqualified_candidate=args.unqualified_candidate)
         else:
             release.require(args.build_directory is not None and args.output is not None, 'Buildverzeichnis und neue Ausgabe erforderlich.')
-            build(args.build_directory, args.output)
+            build(args.build_directory, args.output, unqualified_candidate=args.unqualified_candidate)
     except (release.ReleaseError,OSError,ValueError,KeyError,subprocess.TimeoutExpired,zipfile.BadZipFile) as error:
         print(f'CLR_PACKAGE_FAILED: {error}',file=sys.stderr); sys.exit(1)
