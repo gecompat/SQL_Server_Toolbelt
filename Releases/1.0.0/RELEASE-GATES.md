@@ -239,6 +239,18 @@ Die explizite öffentliche Veröffentlichungsfreigabe bleibt ausstehend.
 
 ## Aufwand und Fortsetzung
 
+Die Head-CI fand außerdem eine zu enge äußere 30-Sekunden-Grenze der
+Release-Regressionssuite. Diese ist auf weiterhin endliche 120 Sekunden
+angehoben; Umfang, Assertions und einzelne Prozessgrenzen bleiben erhalten.
+Ein zunächst nur generisch fehlgeschlagener Edit-Distance-Frameworklauf
+bestand lokal und im folgenden Head-Lauf. Seine genaue Erstursache bleibt
+nicht reproduziert; der bestehende Workflow meldet künftig begrenzt feste
+Prozessfehlercodes und Quellzeilen statt privater Prozessdetails. Beide
+CI-Anpassungen ändern keine Produkt-, SQL-, DLL- oder nativen Testinputs.
+Es entstehen keine neuen Jobs, Trigger, Testfälle oder Reviewketten; die
+größere äußere Reserve gilt nur der vorhandenen Offline-Regressionssuite.
+Aktuelle Head-Ergebnisse werden im bestehenden PR geführt.
+
 Der zusätzliche menschliche Installationsauftrag wird durch `INSTALL.md`
 und direkte Einstiege aus Root-README, Dokumentationsübersicht und Paketstart
 erfüllt. Die Anleitung trennt den Endanwenderweg mit verpflichtendem

@@ -1787,9 +1787,12 @@ def main() -> int:
     if "generated_status" in checks:
         validate_generated_status(modules, arguments.write)
     if "release_preparation" in checks:
+        # Die Suite prüft große ZIPs und isolierte Git-Bundle-Recovery mehrfach.
+        # Ein 30-s-Gesamtlimit ist dafür auf kalten CI-Läufen zu knapp; alle
+        # Testfälle und ihre eigenen Prozessgrenzen bleiben unverändert.
         result = subprocess.run(
             [sys.executable, "-B", str(REPOSITORY_ROOT / "Tests/Release/test_prepare_release.py")],
-            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=30,
+            cwd=REPOSITORY_ROOT, capture_output=True, text=True, encoding="utf-8", timeout=120,
         )
         if result.returncode:
             raise ValidationError(f"Releasevorbereitung-Regressionen:\n{result.stdout}{result.stderr}")
