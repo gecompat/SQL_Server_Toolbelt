@@ -29,7 +29,13 @@ keine API-/Minimalrechte-/Recoverymatrix. Die tatsächlichen Fälle, Fehler und
 Blocker stehen im [Gatebericht](../../Releases/1.0.0/RELEASE-GATES.md).
 
 Beide Scopes teilen bei Korrekturfortsetzungen denselben expliziten
-`-SharedBudgetFile`: 18 Caseversuche/7200 Sekunden, kein Budgetreset. Bereits
+`-SharedBudgetFile`. Die erste Diagnosewelle hatte 18 Caseversuche/7200 Sekunden.
+Der anschließende ausdrückliche Auftrag zur Behebung beider Lifecyclefehler
+erweitert den gemeinsamen Rahmen für die korrigierte Vollmatrix auf
+30 Versuche/10800 Sekunden und für die dadurch erforderliche eigenständige
+CLR-Paketabnahme auf insgesamt 42 Versuche/14400 Sekunden. Ursprünglicher Start,
+verbrauchte Versuche und Teilnachweise bleiben erhalten; die Scopes besitzen
+getrennte Fortschrittslisten. Kein Budgetreset. Bereits
 vollständig qualifizierte Fälle werden nicht erneut ausgeführt. Das Journal
 führt den ausgewählten Scope; Fehler bleiben Fehler. Neue abhängige Arbeit
 setzt unabhängige Cleanup-/Inputaudits voraus. Der Runner verändert weder
@@ -82,6 +88,15 @@ blockiert Cleanup. Vorbestehender Trust bleibt erhalten. Ein separater Prozess
 prüft anschließend Datenbankabwesenheit, Trustfingerprints und Inputpins.
 Der konkrete [Gatebericht](../../Releases/1.0.0/RELEASE-GATES.md) grenzt die
 tatsächliche Installation von einer vollständigen neuen API-/Releaseabnahme ab.
+
+Für geänderte Installations-SQL kann ein neuer privater CLR-Testkandidat mit
+`prepare_clr_package.py --unqualified-candidate` gebaut werden. Er bleibt
+ausschließlich unter `.runtime`, trägt `qualification_state=pending`, enthält
+keinen vorgetäuschten Qualifikationsnachweis und wird vom normalen Prüfmodus
+abgewiesen. Der native CLR-Matrixrunner akzeptiert ihn nur mit dem ebenfalls
+ausdrücklichen Schalter `-UnqualifiedCandidate`. Erst nach realer Abnahme werden
+Qualifikationsprojektion, endgültiges Paket und deren Bindungen erneuert;
+der öffentliche Releaseplan akzeptiert keinen ungeprüften Kandidaten.
 
 ## Quellpaket und gemeinsame Regressionen
 

@@ -38,6 +38,12 @@ Moduls. Auch Preview erfordert alle Pflichtnachweise im zugesagten Scope.
 Fehlende Nachweise begrenzen die veröffentlichbare Kombination; sie werden
 nicht durch die Freigabe des Zielumfangs erlassen.
 
+Der anschließende ausdrückliche Auftrag vom selben Tag umfasst zusätzlich die
+Behebung und Prüfung der beiden gefundenen Lifecycle-Blocker: Paket-Repeat mit
+bekanntem Text-Pairs-Consumer sowie wiederholter Uninstall nach Entfernung von
+WorkType. Diese begrenzten Korrekturen ändern keine fachliche API, Modulversion,
+allgemeine Infrastruktur- oder Veröffentlichungsfreigabe.
+
 Der maschinenlesbare [Releaseplan](release-plan.json) projiziert diese
 Entscheidung. Die [offenen Gates](RELEASE-GATES.md) nennen Ergebnisse,
 verbleibende Blocker und benötigte externe Voraussetzungen. Die
