@@ -1,95 +1,156 @@
 # API-Nachweise für den Releasekandidaten
 
-Der Benutzer hat am 2026-10-23 die Nachweiszuordnung und die im vorhandenen
-Lab ausführbaren API- und Grenzfälle beauftragt. Öffentliche SQL-Verträge,
-Modulversionen und Support-Zielumfang bleiben bestehen. Veröffentlichung
-und autonome Weiterentwicklung sind weiterhin nicht freigegeben.
+Stand 2026-10-23: **74 ausgewählte Ziel-/CL-/Gruppenfälle abgeschlossen;
+73 vollständig bestanden, ein Regex-Fall partiell**. Insgesamt sind
+3231 Fixtureaufrufe bestanden beziehungsweise nach frischer Bindungsprüfung
+übernommen; ein Fixtureaufruf bleibt blockiert. Das ist keine vollständige
+Releasefreigabe aller Module. Alle 45 Modulversionen bleiben `unreleased`,
+die Kanalaufteilung bleibt 19 stabil/26 Preview.
 
-Die [Zuordnung aller 45 Module](EVIDENCE-MAP.md) führt zu den kanonischen
-Manifestnachweisen und trennt sie von dieser zusätzlichen Prüfwelle.
-Die [feste Testliste](../../Tests/Release/api-qualification-spec.json) enthält
-165 vorhandene beziehungsweise ergänzende Fixturedefinitionen. Ihre
-Ausführung, Eingrenzung und Grenzen beschreibt
+Der unmittelbare Benutzerauftrag vom 2026-10-23 umfasst Nachweiszuordnung,
+ausführbare API-/Grenzprüfungen und einen PR. Öffentliche SQL-Verträge,
+Modulversionen, Sicherheitsbudgets und Support-Zielumfang bleiben unverändert.
+Veröffentlichung und autonome Weiterentwicklung sind weiterhin nicht freigegeben.
+
+## Nachweis und genaue Auswahl
+
+Die [Zuordnung aller 45 Module](EVIDENCE-MAP.md) führt zu ihren kanonischen
+Manifestnachweisen. [api-qualification.json](api-qualification.json) enthält
+die tatsächlichen abstrakten Fälle, Modul-/Fixturezuordnung, bestandene,
+übernommene und blockierte Aufrufe, Quellenbindungen und Ergebnisgrenzen.
+Eigene DB-/Trustidentitäten, Endpoints, Labvertrag und Rohlogs bleiben privat.
+Eine Fixture kann mehrere SQL-Batches und Assertions enthalten; die Anzahl
+der Fixtureaufrufe ist keine behauptete Anzahl einzelner SQL-API-Aufrufe.
+
+| Gruppe | Ziel-/CL-Fälle | Ergebnis / zusätzlicher Scope |
+|---|---:|---|
+| Core | 12 | Bestanden: ausgewählte portable APIs und zentrale Consumer |
+| Text | 12 | 11 bestanden, einer partiell wegen Regex-Timeout; direkte Clientmetadaten eingeschlossen |
+| Formate | 12 | Bestanden: ausgewählte JSON-/ZIP-/XLSX-APIs einschließlich großer Ergebnisorakel und Metadaten |
+| Windows | 6 | Bestanden: Parser/TableClone; SSIS-Funktionsfälle und Metadaten gezielt auf drei fehlenden niedrigeren CLs |
+| CSV | 12 | Bestanden: ausgewählte API-/Safety-/Metadaten- und fehlende große Grenzfälle |
+| Cancellation-Negativfälle | 12 | Bestanden: strikte Fehler-/Callertransaktionsorakel, jeweils local und central |
+| Große Translate-Fälle | 8 | Bestanden: nur die bisher nicht belegten Ziele, jeweils local und central |
+
+Die physische Matrix ist Windows/Linux mit SQL2019 CL150, SQL2022 CL150/160
+und SQL2025 CL150/160/170, soweit das Modul die Plattform unterstützt.
+Eigene synthetische Datenbanken verwenden die unveränderten qualifizierten
+Gesamtpayloads der vier Profile: Windows-local 45 Module, Windows-central 43,
+Portable-local/central je 40. Die neue Welle wählt zusätzliche Fixtures für
+37 Module aus; daraus folgt keine Prüfung aller APIs dieser 37 Module.
+
+Safe-Cast und JSON Pointer behalten ihre unveränderten vollen physischen
+Matrixnachweise vom 2026-10-19. CSV-Millionenzell-/Zeilen-/Spaltengrenzen auf
+Linux SQL2019/CL150 und Windows SQL2025/CL170 und vorhandene große Translate-
+Nachweise werden in ihrem ursprünglichen Scope wiederverwendet. SSIS ergänzt
+Windows SQL2022/CL150 sowie SQL2025/CL150/160. Die frühere volle Paket-
+Lifecyclematrix und großen ResultTable-/Base64-/Generate-Series-Prüfungen
+bleiben getrennte Nachweise; optionale Laufzeitmessungen sind kein Pflichtgate.
+
+## Neue strikte Grenzzeugen
+
+Die zusätzliche [CSV-Defaultfixture](../../Tests/Release/Runtime/DefaultSnapshotCeiling.sql)
+prüft die gemeinsame 16-MiB-Grenze mit vollständigen Byteorakeln:
+cap minus sechs Rohbytes ergibt exakt cap Ausgabebytes; cap und cap plus
+zwei Rohbytes werden ohne Quell-/Zielmutation abgelehnt. Omitted/explicit
+DEFAULT und Replace/Append sind getrennt geprüft. Beide Guards melden
+55303/State1. Eine erfolgreiche Ausgabe mit genau cap Rohbytes ist unter
+derselben Ausgabedecke wegen Separator/CRLF unmöglich; eine isoliert
+beobachtbare Guardpriorität wird nicht behauptet. Die beiden Direct-SELECT-
+Suiten verwenden ihre kanonischen Clientorakel für alle acht Phasen,
+einschließlich erwartetem Fehler ohne vorzeitiges Resultset.
+
+Die alte Cancellation-Fixture konnte eigene Assertions als erwartete Fehler
+akzeptieren und verwendete einen unzuverlässigen Temp-Tabellen-FK-Zeugen.
+Die zusätzliche [strikte Fixture](../../Tests/Release/Runtime/Cancellation.StrictErrors.sql)
+prüft 52601/52600 exakt und beweist mit einem echten FK-Fehler547 eine doomed
+Callertransaktion. Sie verlangt den unveränderten Callerzustand ohne neuen
+Cancellationeintrag. Eine Garantie, dass eine aktive Callertransaktion nach
+dem vorhandenen XACT_ABORT-ON-Guard committable bleibt, ist kein öffentlicher
+Vertrag und wird nicht als Orakel erfunden.
+
+Für SSIS wird ausschließlich der genau begrenzte Principal-/Rechteblock
+aus einer privaten kanonischen V1-Fixtureableitung ausgelassen. Sonstige
+funktionale Assertions bleiben bytegleich. NOLOCK-Zeugen, tatsächlicher
+zentraler Consumer und Ausführung des generierten SQL sind eingeschlossen.
+Dies qualifiziert keine SSIS-Minimalrechte und behauptet keinen neuen
+vollständigen Securitylauf der kanonischen Fullsuite.
+
+## Offener tatsächlicher Fachbefund
+
+`toolbelt.string.regex:Transformations.Contract.sql` wurde unter
+**Linux SQL2022/CL150, local** durch einen unerwarteten intrinsischen
+`TBX_REGEX_TIMEOUT`/SQL6522 nicht vollständig abgeschlossen. Damit fehlt
+der vollständige positive Grenznachweis dieser Fixture in genau diesem
+Kontext. Die anderen elf Textkombinationen bestanden vollständig.
+Der Timeout wird weder als PASS noch als TLS-/Clientproblem eingeordnet.
+Die vorhandenen Regex-Sicherheitsbudgets wurden nicht erhöht.
+
+Nächster Schritt ist eine eng abgegrenzte Diagnose des konkreten Aufrufs
+gegen den bestehenden Vertrag; erst ein konkreter Befund mit geändertem
+relevantem Input begründet eine erneute Prüfung. Aus der Einzelbeobachtung
+wird kein pauschaler Produktfehler oder allgemeiner Erfolg abgeleitet.
+Der Gesamtfall und die Regex-Zuordnung bleiben ausdrücklich partiell.
+
+## Methoden, Korrekturen und Bereinigung
+
+Reproduzierbare Vorbereitung und Aufruf stehen in
 [Tests/Release](../../Tests/Release/README.md#api--und-grenzqualifikation).
+Die feste Liste umfasst 165 Fixturedefinitionen. Jedes eingefrorene Runset
+bindet Payload, kanonisch gestagte Testquellen, Kompositionshelfer,
+synthetische XLSX-Fixtures, Labvertrag/Schema/Zusatzprompt und Methodenbytes.
+Produkt-SQL/DLLs wurden gegen die bereits nativ qualifizierten
+[Gesamtpayloads](complete-qualification.json) und den
+[Produktsnapshot](product-source.json) verglichen und nicht geändert.
+Methodenrevisionen sind im Gitverlauf und in den tatsächlichen privaten
+Runsets erhalten; die öffentliche Projektion nennt die öffentlichen
+Methodenhashes der akzeptierten vollständigen/partiellen Fälle. Historische
+Bindungen übernommener Präfixe bleiben in den privaten Carry-Runsets erhalten.
+Ein Manifestpflegecommit ist weiterhin nur
+ein Vergleichssnapshot, kein erfundener historischer Ausführungscommit.
 
-## Abgegrenzte zusätzliche Prüfung
+Konkrete Adapterbefunde wurden vor Fortsetzung korrigiert: fehlende
+kanonische dbo-Queue-Testpolicy, lokaler Capability-Test im zentralen Modus,
+eigene verbleibende SqlClient-Pools, scriptübergreifende Budgetcallbacks,
+ausgelassener SSIS-Consumerparameter, erwartete CSV-Direct-SELECT-Fehler und
+zu enge aggregierte Harnessfristen. Der erste strikte Cancellation-Entwurf
+forderte eine nicht dokumentierte Committable-Garantie; nur dieses
+unbegründete Testorakel wurde korrigiert. Ein Carry-Preflight wies außerdem
+JSON-Keyreihenfolge fälschlich als semantische Änderung ab; vor Mutation
+wurde die kanonische Bindung korrigiert. Alte Fehler und bereinigte
+Teilversuche bleiben erhalten. Bereits bestandene unabhängige Fixturepräfixe
+wurden nur nach frischer Cleanup-, Kontext- und Byteprüfung übernommen.
 
-Geplant sind 54 Abläufe in fünf Gruppen: Core, Text, Formate und CSV jeweils
-auf zwölf physischen Ziel-/CL-Kombinationen; Parser/TableClone/SSIS auf den
-sechs Windows-Kombinationen. Acht getrennte große Translate-Abläufe ergänzen
-nur die noch nicht belegten Ziele. SQL Server 2019 mit CL150, 2022 mit CL150/160 und
-2025 mit CL150/160/170; jeweils Windows/Linux, soweit unterstützt. Jeder
-Ablauf verwendet eigene synthetische Datenbanken und das unveränderte,
-bereits qualifizierte Installationspayload, mit lokaler und zentraler
-Installation sowie kanonischen zentralen Consumerfällen.
+Die ursprüngliche gemeinsame Grenze von 90 Versuchen/36000 Sekunden blieb
+über alle Revisionen erhalten; tatsächlich verbraucht: 86 Case-/Recoveryversuche.
+Jede Revision hatte einen endlichen Plan, eigene Besitzmarker und private
+Restorejournale. Innere Arbeits-/Cleanupfristen, äußerer Prozesswatchdog
+und unabhängiger Cleanup-/Pinaudit bleiben getrennt. Die gezielte
+SqlClient-Pool-Reconciliation prüfte Eigentümerschaft vor Entfernung;
+laufende mutierende Tests wurden nicht zur Fehlerbehebung hart abgebrochen.
 
-Safe-Cast und JSON Pointer besitzen bereits volle physische Matrixnachweise.
-Sie werden nicht zur Statusauffrischung wiederholt. Auch die CSV-
-Millionenzellgrenze und die realen Zeilen-/Spaltengrenzen sind bereits auf
-Linux SQL2019/CL150 und Windows SQL2025/CL170 belegt. Diese konkreten
-Grenzfixtures werden nur auf den übrigen Zielen ergänzt. Bei SSIS werden
-die fehlenden niedrigeren CLs ergänzt. Frühere erfolgreiche Paket-Lifecycle-
-und große ResultTable-/Base64-/Generate-Series-Prüfungen bleiben eigenständige
-Nachweise. Diese API-Welle ist kein neuer Lifecycle-, Rechte- oder Heaptest.
-
-Die neue CSV-Defaultfixture prüft mit unabhängigen vollständigen Byteorakeln
-die gemeinsame 16-MiB-Grenze: cap minus sechs Rohbytes ergibt exakt cap
-Ausgabebytes; cap und cap plus zwei Rohbytes werden ohne Quell-/Zielmutation
-abgelehnt. Omitted/explicit DEFAULT und Replace/Append werden getrennt
-geprüft. Snapshot- und Outputguard melden beide 55303/State1. Eine isolierte
-erfolgreiche CSV-Ausgabe mit genau cap Rohbytes ist unter derselben
-Ausgabedecke wegen Separator/CRLF unmöglich; eine getrennte beobachtbare
-Guardpriorität wird nicht behauptet.
-
-## Ergebnis und Bindung
-
-Noch kein abgeschlossener Erfolgslauf dieser neuen Welle. Drei bereinigt
-fehlgeschlagene Adapterversuche bleiben in der Historie erhalten. Die privaten
-Runsets binden Paket, kanonisch gestagte Testquellen, relative Helfer,
-synthetische XLSX-Fixtures, Labvertrag/Schema/Zusatzprompt und die Runner.
-Fachtests verwenden Functional, Encrypt=True und den expliziten booleschen
-Lab-Trustwert; kein Transportfallback. Eigene DB-/Trustidentitäten und
-temporäre CLR-Konfiguration bleiben ausschließlich in privaten Journalen.
-
-Vor dem ersten Eingriff wurden 54 Fälle, höchstens 90 gemeinsame Versuche
-und 36000 Sekunden festgeschrieben. Ein geänderter relevanter Input und ein
-konkreter Befund sind Voraussetzung für weitere Versuche. Der ursprüngliche
-Budgetstart bleibt erhalten. Ordentliche Arbeit/Cleanup/äußerer Watchdog
-sind 300/360/400 Sekunden, bei den großen CSV-Fixtures 960/1200/1240;
-zusätzlich werden 90 Sekunden für den unabhängigen Audit reserviert.
-
-Der erste Corelauf scheiterte an der fehlenden expliziten dbo-Testpolicy
-der alten Queue-Fachfixture. Cleanup und unabhängiger Audit waren erfolgreich.
-Der Adapter bindet nun die dafür vorhandene kanonische
-`WorkTypeAuthorization.Fixture.sql` ein. Sie gilt ausschließlich für die
-eigene disposable Datenbank und ist kein Deploymentinclude. Es werden
-keine Logins, SQL-Rechte oder Anwendungsprincipals angelegt oder verändert.
-Der fehlgeschlagene Lauf bleibt als solcher erhalten. Ein weiterer
-Adapterlauf benutzte die explizit lokale Capability-Fixture fälschlich im
-zentralen Modus; sie wird nun nur lokal ausgeführt. Der kanonische zentrale
-Capability-Test prüft weiterhin ausdrücklich den central-Marker. Produkt-
-SQL, DLLs und feste Fehler-/Erhaltungsorakel wurden nicht geändert.
+Alle 252 eigenen historischen Datenbanknamen sind im frischen separaten
+Gesamtaudit abwesend; 66 unterschiedliche zielgebundene Trustzustände sind
+wiederhergestellt beziehungsweise unverändert erhalten. Temporäre eigene
+CLR-Konfiguration wurde nach allen Verbrauchern wiederhergestellt und
+separat auditiert. Keine Logins, Rechte, Labressourcen, Truststores,
+`clr strict security` oder `TRUSTWORTHY` wurden geändert.
+Fachtests verwendeten `TestPurpose=Functional`, `Encrypt=True` und den
+expliziten booleschen Lab-Trustwert, ohne Transportfallback.
 
 ## Verbleibende Voraussetzungen
 
-| Gate | Betroffener Scope / nächste Voraussetzung |
+| Gate | Noch erforderlicher Scope / Voraussetzung |
 |---|---|
-| Echte Minimalrechte | Alle beanspruchten Rechteverträge: bereitgestellte getrennte Principals und negative Rechtefälle oder separat freigegebener enger Security-Testaufbau. Die dbo-Fachfixture qualifiziert dies nicht. |
+| Regex-Grenznachweis | Beschriebener positiver Fixtureabschluss Linux SQL2022/CL150 local; begrenzte Diagnose vor einer begründeten Nachprüfung. |
+| Echte Minimalrechte | Getrennte passende Principals und negative Rechtefälle oder separat freigegebener enger Security-Testaufbau. Dbo-Fachfixtures qualifizieren dies nicht. |
 | Serverdateien und Identitäten | ZIP-Files, File-Content und Filesystem-Windows: eigene synthetische serverseitige Dateien, Caller-/ServiceAccount-, NTFS-/Reparse-/Zugriffsfixtures mit geklärter Ownership. |
-| Zweite Session / EventLog | Vorkonfigurierter administrierter Provider; direkte API-, Rollback- und Sessionunabhängigkeit müssen darüber geprüft werden. Paketinstallation allein genügt nicht. |
+| Zweite Session / EventLog | Vorkonfigurierter administrierter Provider; direkte API-, Rollback- und Sessionunabhängigkeitsfälle darüber. Paketinstallation allein genügt nicht. |
 | Worker und harte Recovery | Passende Worker-/Providerhosts und kontrollierter echter Transport-/Hostverlust; keine harte Unterbrechung laufender Mutationen als Ersatz. |
-| Weitere Ressourcen-/Parallelverträge | Modulspezifische Heap-/Parallel-/Recoveryfälle bleiben offen, soweit nicht durch einen konkreten vorhandenen Nachweis belegt. Die drei optionalen Laufzeitmessungen sind kein Gate. |
-| Endanwender-Clients | Manuelle SSMS-GUI und nativer optionaler ODBC-PowerShell-Helfer. Direkte SqlClient-Metadaten qualifizieren diese Wege nicht. |
-| Authentifizierte TLS | Separater Identitätsnachweis; kein pauschaler Blocker unabhängiger Fachtests. |
-| Veröffentlichung | Finales Paket und aktuelle Head-CI, vollständige Pflichtnachweise je zugesagter Kombination sowie ausdrücklicher Veröffentlichungsauftrag. Kein Tag oder Release aus diesem Auftrag. |
+| Weitere Modulpflichtfälle | Unbelegte API-, Client-, Upgrade-, Heap-/Parallel-/Recoveryfälle bleiben je Modulmanifest offen; ausgewählte grüne Fixtures ersetzen sie nicht. |
+| Endanwender-Clients | Manuelle SSMS-GUI und nativer optionaler ODBC-PowerShell-Helfer bleiben `not executed`; direkte SqlClient-Metadaten qualifizieren diese Wege nicht. |
+| Authentifizierte TLS | Separater Identitätsnachweis, hier `not executed`; kein pauschaler Blocker unabhängiger Fachtests. |
+| Veröffentlichung | Endgültiger Paket-/Head-CI-Nachweis, vollständige Pflichtqualifikation jeder zugesagten Kombination und ausdrücklicher Veröffentlichungsauftrag. Kein Tag/Release aus diesem Auftrag. |
 
-Ein Verantwortlicher, ein PR, keine Delegation und keine weiteren Wellen.
+Ein Verantwortlicher, ein PR, keine Delegation oder weitere Welle.
 Kosten-/Tokenmessung: UNKNOWN. Die autonome Verarbeitung bleibt pausiert.
-
-Die Quellprüfung der alten Cancellation-Fixture fand außerdem Negativzweige,
-die ihre selbst geworfene Assertion als erwarteten Fehler akzeptieren, und
-einen nicht verlässlichen Temp-Tabellen-FK-Zeugen. Eine zusätzliche eigene
-Fixture prüft 52601/52600 exakt, beweist einen echten FK-Fehler547 mit
-XACT_STATE=-1 und verlangt unveränderten Zustand ohne Cancellationeintrag.
-Sie ist als zwölf getrennte Gap-Abläufe vorgesehen; die nächste eingefrorene
-Revision umfasst damit 74 Fälle unter demselben gemeinsamen Budget.

@@ -1,0 +1,6129 @@
+{
+  "schema_version": "1.0",
+  "purpose": "additional_release_api_and_boundary_evidence",
+  "date": "2026-10-23",
+  "source_base_commit": "61b8bfcaab8827a58ac138c8668cccc073724b6d",
+  "qualified_product_source": "Releases/1.0.0/product-source.json",
+  "planned_target_cl_group_cases": 74,
+  "completed_cases": 74,
+  "fully_passed_cases": 73,
+  "partial_cases": 1,
+  "cases": [
+    {
+      "group": "core",
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 88,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "core:linux:2019:150"
+    },
+    {
+      "group": "core",
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 88,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "core:linux:2022:150"
+    },
+    {
+      "group": "core",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 88,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "core:windows:2025:160"
+    },
+    {
+      "group": "core",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "result": "validated",
+      "passed_fixture_calls": 88,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "core:windows:2025:170"
+    },
+    {
+      "group": "core",
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 88,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "core:linux:2022:160"
+    },
+    {
+      "group": "core",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 88,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "core:linux:2025:150"
+    },
+    {
+      "group": "core",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 88,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "core:linux:2025:160"
+    },
+    {
+      "group": "core",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "result": "validated",
+      "passed_fixture_calls": 88,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "core:linux:2025:170"
+    },
+    {
+      "group": "core",
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 88,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "core:windows:2019:150"
+    },
+    {
+      "group": "core",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 88,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "core:windows:2022:150"
+    },
+    {
+      "group": "core",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 88,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "core:windows:2022:160"
+    },
+    {
+      "group": "core",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 88,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "core:windows:2025:150"
+    },
+    {
+      "group": "text",
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 41,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "text:linux:2019:150"
+    },
+    {
+      "group": "text",
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "partially validated",
+      "passed_fixture_calls": 26,
+      "reused_fixture_calls": 14,
+      "blocked_fixture_calls": [
+        {
+          "id": "toolbelt.string.regex:Transformations.Contract.sql",
+          "context": "local",
+          "reason": "TBX_REGEX_TIMEOUT"
+        }
+      ],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "text:linux:2022:150"
+    },
+    {
+      "group": "text",
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 41,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "text:linux:2022:160"
+    },
+    {
+      "group": "text",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 41,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "text:linux:2025:150"
+    },
+    {
+      "group": "text",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 41,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "text:linux:2025:160"
+    },
+    {
+      "group": "text",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "result": "validated",
+      "passed_fixture_calls": 41,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "text:linux:2025:170"
+    },
+    {
+      "group": "text",
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 41,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "text:windows:2019:150"
+    },
+    {
+      "group": "text",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 41,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "text:windows:2022:150"
+    },
+    {
+      "group": "text",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 41,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "text:windows:2022:160"
+    },
+    {
+      "group": "text",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 41,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "text:windows:2025:150"
+    },
+    {
+      "group": "text",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 41,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "text:windows:2025:160"
+    },
+    {
+      "group": "text",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "result": "validated",
+      "passed_fixture_calls": 41,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "text:windows:2025:170"
+    },
+    {
+      "group": "formats",
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 33,
+      "reused_fixture_calls": 19,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "formats:linux:2019:150"
+    },
+    {
+      "group": "formats",
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 52,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "formats:linux:2022:150"
+    },
+    {
+      "group": "formats",
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 52,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "formats:linux:2022:160"
+    },
+    {
+      "group": "formats",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 52,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "formats:linux:2025:150"
+    },
+    {
+      "group": "formats",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 52,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "formats:linux:2025:160"
+    },
+    {
+      "group": "formats",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "result": "validated",
+      "passed_fixture_calls": 52,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "formats:linux:2025:170"
+    },
+    {
+      "group": "formats",
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 52,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "formats:windows:2019:150"
+    },
+    {
+      "group": "formats",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 52,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "formats:windows:2022:150"
+    },
+    {
+      "group": "formats",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 52,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "formats:windows:2022:160"
+    },
+    {
+      "group": "formats",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 52,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "formats:windows:2025:150"
+    },
+    {
+      "group": "formats",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 52,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "formats:windows:2025:160"
+    },
+    {
+      "group": "formats",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "result": "validated",
+      "passed_fixture_calls": 52,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "formats:windows:2025:170"
+    },
+    {
+      "group": "windows",
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 34,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "windows:windows:2019:150"
+    },
+    {
+      "group": "windows",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 38,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "windows:windows:2022:150"
+    },
+    {
+      "group": "windows",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 34,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "windows:windows:2022:160"
+    },
+    {
+      "group": "windows",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 38,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "windows:windows:2025:150"
+    },
+    {
+      "group": "windows",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 38,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "windows:windows:2025:160"
+    },
+    {
+      "group": "windows",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "result": "validated",
+      "passed_fixture_calls": 34,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "windows:windows:2025:170"
+    },
+    {
+      "group": "csv",
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "csv:linux:2019:150"
+    },
+    {
+      "group": "csv",
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 74,
+      "reused_fixture_calls": 6,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "csv:linux:2022:150"
+    },
+    {
+      "group": "csv",
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 17,
+      "reused_fixture_calls": 63,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "csv:linux:2022:160"
+    },
+    {
+      "group": "csv",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 80,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "csv:linux:2025:150"
+    },
+    {
+      "group": "csv",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 80,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "csv:linux:2025:160"
+    },
+    {
+      "group": "csv",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "result": "validated",
+      "passed_fixture_calls": 80,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "csv:linux:2025:170"
+    },
+    {
+      "group": "csv",
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 80,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "csv:windows:2019:150"
+    },
+    {
+      "group": "csv",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 80,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "csv:windows:2022:150"
+    },
+    {
+      "group": "csv",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 80,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "csv:windows:2022:160"
+    },
+    {
+      "group": "csv",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 80,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "csv:windows:2025:150"
+    },
+    {
+      "group": "csv",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 80,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "csv:windows:2025:160"
+    },
+    {
+      "group": "csv",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "csv:windows:2025:170"
+    },
+    {
+      "group": "gaps",
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "gaps:linux:2019:150"
+    },
+    {
+      "group": "gaps",
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "gaps:linux:2022:150"
+    },
+    {
+      "group": "gaps",
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "gaps:linux:2022:160"
+    },
+    {
+      "group": "gaps",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "gaps:linux:2025:150"
+    },
+    {
+      "group": "gaps",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "gaps:linux:2025:160"
+    },
+    {
+      "group": "gaps",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "gaps:linux:2025:170"
+    },
+    {
+      "group": "gaps",
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "gaps:windows:2019:150"
+    },
+    {
+      "group": "gaps",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "gaps:windows:2022:150"
+    },
+    {
+      "group": "gaps",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "gaps:windows:2022:160"
+    },
+    {
+      "group": "gaps",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "gaps:windows:2025:150"
+    },
+    {
+      "group": "gaps",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "gaps:windows:2025:160"
+    },
+    {
+      "group": "gaps",
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "gaps:windows:2025:170"
+    },
+    {
+      "group": "translate-large",
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "translate-large:linux:2022:150"
+    },
+    {
+      "group": "translate-large",
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "translate-large:linux:2022:160"
+    },
+    {
+      "group": "translate-large",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "translate-large:linux:2025:150"
+    },
+    {
+      "group": "translate-large",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "translate-large:linux:2025:160"
+    },
+    {
+      "group": "translate-large",
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Portable",
+      "case_id": "translate-large:linux:2025:170"
+    },
+    {
+      "group": "translate-large",
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "translate-large:windows:2019:150"
+    },
+    {
+      "group": "translate-large",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "translate-large:windows:2022:150"
+    },
+    {
+      "group": "translate-large",
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "result": "validated",
+      "passed_fixture_calls": 2,
+      "reused_fixture_calls": 0,
+      "blocked_fixture_calls": [],
+      "independent_cleanup_and_pin_audit": true,
+      "module_profile": "Windows",
+      "case_id": "translate-large:windows:2022:160"
+    }
+  ],
+  "history_states": {
+    "FAILED_CLEANED": 10,
+    "COMPLETE": 73,
+    "PARTIAL": 1
+  },
+  "shared_attempts_consumed": 86,
+  "shared_attempt_limit": 90,
+  "shared_wave_seconds": 36000,
+  "accepted_case_public_method_sha256": {
+    "Tests/CI/LabQualifiedContract.ps1": [
+      "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15"
+    ],
+    "Tests/CI/run-csv-memory-lab.ps1": [
+      "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a"
+    ],
+    "Tests/CI/run-lab-local.ps1": [
+      "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846"
+    ],
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": [
+      "035e068b131dae9f811b1f2a75eae5d3d251f3e5f695e49e69278c7e6272ca27",
+      "09d0098ce098a38dc763133d3f2e8cf7ec3993c18931bd3c713a00a3e023b645",
+      "62dce4a0510fa7624caa411521e4750b69a89ed2e52175c9e23ef2d3dad8a6d7",
+      "78fc16aa935636d2ad47dd6f638ff5bfe47cd1f5a93d26b24e19b2f8b831d5c8",
+      "9a3b4166c27e2cfdaa5879ce50323b44c8d88e0075d28ca0a1a290ff2b8e8752",
+      "ea292559a6ccce05c5597b83bae2569802b1d213f8cb2a5377e4a6706156d761",
+      "f6049bbd830ac71db0604d6b73b0f57e1bbac50a5a962ea5055772a7c37edaaa"
+    ],
+    "Tests/Release/Invoke-ApiQualificationMatrix.ps1": [
+      "2186275fb1b8878a27b72c3ee481abb0215f7df0ee733bd11574e26fba7a450f",
+      "37355045014a0946af157b25dbe2365e1ba39729c2b8120f1891fb823d1a62d3",
+      "38a826f00dde2e880ad2c6b1eb8b805b9db48d3f5355530ad8edab4de6c73930",
+      "9b841700367ae29f83912c30ea56150d1fc71837d40e5f1bc19608d669e4e919",
+      "e067b996c576951dc3fa530106c0f71877b47fbfc05df2ac2c379a73aed58616"
+    ],
+    "Tests/Release/Invoke-CompletePackageLab.ps1": [
+      "bdbba1cdb2fd0d2156f8b90975eb3a330bb45e9cde655e78ae4e76a6a937f98c"
+    ],
+    "Tests/Release/Invoke-StablePackageLab.ps1": [
+      "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a"
+    ],
+    "Tests/Release/prepare_api_qualification.py": [
+      "8aa374061824a58ab5773bf3ecd3666c11b65c0a5bc0b5ca70363ed800232db0",
+      "a2a63fdbe1e398276cf6833eff1148fbbc7b369c31b8dba00e997d6f3398619b"
+    ],
+    "Tests/Release/prepare_ssis_functional_fixture.py": [
+      "6906b96f20e3827361153ae73ea9a678d8dd1f4ad964c81f8f1394dfb8286161"
+    ]
+  },
+  "private_runsets_retained": true,
+  "authenticated_tls": "not executed",
+  "module_statuses_changed": false,
+  "publication_authorized": false,
+  "limits": [
+    "Exact module evidence scopes remain authoritative.",
+    "PASS applies to the executed fixture set, not complete mandatory release qualification.",
+    "No minimum-rights, file identity, provider/host recovery, heap/parallel or GUI claim."
+  ],
+  "fixture_spec": "Tests/Release/api-qualification-spec.json",
+  "fixture_spec_sha256": "c5877b70a4c12dd34824f1f9413b9525680875d13df5e385991ff9fabe959b0c",
+  "fixture_source_sha256": {
+    "Modules/toolbelt.binary.bit-operations/Tests/Runtime/BitOperations.Contract.sql": "0e50789c39a94a1a543c753ca821fa50e119b8cb1831fd86ee16b0f33f64fba3",
+    "Modules/toolbelt.conversion.base64/Tests/Runtime/Base64.Contract.sql": "6af7aa40950af292f68b9177cd66a7ba4e9d4cd7feb969f6824291705cc194f0",
+    "Modules/toolbelt.conversion.integer-base/Tests/Runtime/IntegerBase.Contract.sql": "0148f2ebf90c0c82cbf67fe8c0bbb01cdb8fdc5befcfedce172a04eac146a599",
+    "Modules/toolbelt.conversion.uri-component/Tests/Runtime/UriComponent.Contract.sql": "9bd233093ea1f82d3a7e4efe9c838d50a74597882b14d59d7fd088727ffdeedd",
+    "Modules/toolbelt.core.console-message/Tests/Runtime/ConsoleMessage.Contract.sql": "98dfb7013372f5b09b29b0a35c53765e9da667ac3fadab93876b3311bfae3504",
+    "Modules/toolbelt.core.error-envelope/Tests/Runtime/ErrorEnvelope.Contract.sql": "cb0985ba7c891dc06e583879f3f52a392609dfdec7cf5ef86705bfbfbde53269",
+    "Modules/toolbelt.core.execution-context/Tests/Runtime/ExecutionContext.Contract.sql": "b87f0d84fa71d7bdb786adb2231d1672962b8d65d34b42553e88c682db22c2a2",
+    "Modules/toolbelt.core.generate-series/Tests/Runtime/GenerateSeries.Contract.sql": "45f9e0ca093a059929f8839ffeca23a4be0301decad83fe3055c51bfbc8259e0",
+    "Modules/toolbelt.core.result-table/Tests/Runtime/USP_PrepareResultTable.Contract.sql": "ee48c9a44696ace4492091310d755ffc02b0fbbf45b34d51a6bdfb4705d8db47",
+    "Modules/toolbelt.datetime.bucket/Tests/Runtime/DateTimeBucket.Contract.sql": "1bc6ea09593142a8ea0f7b34909551ede70cc49305261e76bc21c3dce1043c4c",
+    "Modules/toolbelt.datetime.calendar-difference/Tests/Runtime/CalendarDifference.Contract.sql": "a54cb8b6a731f4aca72caf3ff4b2743340f886cc6ebb5ce5d3868b44757125a4",
+    "Modules/toolbelt.datetime.date-spine/Tests/Runtime/DateSpine.Contract.sql": "261b1dba91009c881aacfff19da09a5badda383622c91efb688359c6a4c11fec",
+    "Modules/toolbelt.datetime.truncate/Tests/Runtime/DateTimeTruncate.Contract.sql": "e788c6ce20ee14034754db2938a65a727ce592c5ee7e52d6b3f8916c0317ec2f",
+    "Modules/toolbelt.json.path-exists/Tests/Runtime/JsonPathExists.Contract.sql": "5652f8f535ade75ef4187c4e4d44b7d06e130af93f3dceb8163b1fea48c3103a",
+    "Modules/toolbelt.metadata.capability-catalog/Tests/Runtime/ModuleCapabilities.Contract.sql": "02ebeea9b43bf73d45bf6e937c9208305a522823e5f14c6b48e7412b93c0f5b3",
+    "Modules/toolbelt.metadata.identifier/Tests/Runtime/Identifier.Contract.sql": "f211d506dce20d7d7f4a9623a0d8d2599ece14e32cc319401e2210954ed5f913",
+    "Modules/toolbelt.string.directional-trim/Tests/Runtime/DirectionalTrim.Contract.sql": "3e7dbdf1008d7f39afd9fa9a5090f2be28d05a797b5932f3c549fb2e27d95666",
+    "Modules/toolbelt.string.split-characters/Tests/Runtime/SplitCharacters.Contract.sql": "cd96f4752f8d2b6d23fe87fb630c5cde22bfaee23097aa16b67d86a577fd1ac1",
+    "Modules/toolbelt.validation.semantic-version/Tests/Runtime/SemanticVersion.Contract.sql": "12e7ca622cc348cbc5eb8bf3b4638e1a7941f6f79a231fd68dbcb16797d2c5db",
+    "Modules/toolbelt.core.work-type/Tests/Runtime/WorkType.Contract.sql": "bdeda31ba9ae2589f83bf710ac3a23cd191ae97706d62012d22f07d59a781716",
+    "Modules/toolbelt.core.work-type/Tests/Runtime/Remove.Contract.sql": "bef789e7773bd61f14a0eec94d14c4574805f301582fc779088f187097f9a2ec",
+    "Modules/toolbelt.core.work-queue/Tests/Runtime/WorkQueue.Contract.sql": "bee4cc3a5b67094a3a1a00384af6a3e8e6479780c427b071e5ae23fb2e782c18",
+    "Modules/toolbelt.core.execution-cancel/Tests/Runtime/ExecutionCancellation.Contract.sql": "25f2eca8b79edd536bc26618b13e3aec70486722941cc683d13a588166823bf0",
+    "Modules/toolbelt.core.worker-control/Tests/Runtime/WorkerControl.Contract.sql": "fd11acabbbec0f35ec1800b8b7f7f3a98790979b8641e407410d08a70e216a66",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/Lookup.Contract.sql": "4a993a10035cf7c40e2ab892e8bb9fe551d780fa0b357ee13e87a47e7481fd23",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/Lookup.Boundaries.sql": "2cc70ba97da79c3cef16c4c01542e58960ffe13858e5fcc859610e800daec5e6",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/Range.Contract.sql": "777504d66983679be8ca83d4aaf86aa2e2b605d0c9ea885043300bef95d258aa",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/DateShift.Contract.sql": "7c09d70e4be3cff092303652c8417a04ef6941a26e7ece8d8eaadc8d78b91cde",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/Translate.Contract.sql": "3f33e8a95ea177231808c1a502e1df69ee18184f7e54cc8013b0e7974e17f0ae",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/Translate.Safety.sql": "a6ddb8384d610aea2062f4b033f268ea8f6eb67b01a836ffc8716224527fd045",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/GeoJitter.Contract.sql": "33824f0e8bba43475185d58ca5e34354cf1da900f0de46098d409841a67b4db2",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/GeoJitter.Safety.sql": "ad28d609cfe7fed7e79ff25a28756b4e3154d045c82735ca1a3aecf22fa6247c",
+    "Modules/toolbelt.string.split-advanced/Tests/Runtime/SplitAdvanced.Contract.sql": "878e2c561f36028d33c73fa27ba3aacdc1c6d5b43f777117843b1aa083f92534",
+    "Modules/toolbelt.string.split-advanced/Tests/Runtime/UnquoteToken.Contract.sql": "53fbb2f5d0c7398960a80c1f7b5902535f80d8c93fca6d27f1bb4fbc7073cd42",
+    "Modules/toolbelt.string.split-advanced/Tests/Runtime/SplitAdvancedUsp.Contract.sql": "fb20f1167581a8b35a16d76b2e8b28735e21e38373f714ebfdd9c04757227b0b",
+    "Modules/toolbelt.string.edit-distance/Tests/Runtime/Distance.Contract.sql": "7a551c96802c3e476b30826a9fae1ff45ffdcacb01e3ca1776b959c2dc9de471",
+    "Modules/toolbelt.string.edit-distance/Tests/Runtime/Distance.Boundaries.sql": "0064fc31fd36d8e4a99f7a46be6958595fb641f365face3acf431ff06eb3e34b",
+    "Modules/toolbelt.string.edit-distance/Tests/Runtime/Jaro.Contract.sql": "940b755b667295fb34d23888be6cd422614cd5e5dbf4e98b7b134d23925924f6",
+    "Modules/toolbelt.string.edit-distance/Tests/Runtime/Jaro.Boundaries.sql": "bea569197b57e5d6632c758c218630500039926a7c5e268f1bf2090296aa51ae",
+    "Modules/toolbelt.string.edit-distance/Tests/Runtime/InstalledMetadata.Contract.sql": "9faad3add5b165aa5c36c54262be73e3f55f32b3e786a501102b634cbecd21fb",
+    "Modules/toolbelt.string.text-pairs/Tests/Runtime/TextPairs.Contract.sql": "3108ce6289abf821574cc63aba9374dec59266df389ae8a1e88b5b5d9c34999b",
+    "Modules/toolbelt.string.text-pairs/Tests/Runtime/TextPairs.Boundaries.sql": "808cf2b0b5b5f987b14a36c47e4a026ca9224421767ece22c4001fac54d3cd6f",
+    "Modules/toolbelt.string.text-pairs/Tests/Runtime/TextPairs.Atomicity.sql": "1587a8b986bafef4c8fa96bfc0a3e0ab57bdade023ebca81ad08dbb733df16d6",
+    "Modules/toolbelt.string.text-pairs/Tests/Runtime/Help.Contract.sql": "75e8da4304e45ceb491f63b9580e32f0736c23bbab17d522e2f3afda3f34ce9c",
+    "Modules/toolbelt.string.text-pairs/Tests/Runtime/InstalledMetadata.Contract.sql": "1fda7eda656ee1cb3f3dd3dc04f9152d831d2e6880cabdc08eeed710a1b1b898",
+    "Modules/toolbelt.string.phonetic/Tests/Runtime/Phonetic.Contract.sql": "2486ac933af4d3e607a75f3ed7f4587f7316b299470704ece538d9f8c440fc17",
+    "Modules/toolbelt.string.phonetic/Tests/Runtime/Phonetic.Boundaries.sql": "8e2ecdfba45a8673a55cd9bbab800660f254b4592fabcfd0ab8e8bebfc84e826",
+    "Modules/toolbelt.string.phonetic/Tests/Runtime/InstalledMetadata.Contract.sql": "0a65f6d8d726a9d5894c94dfd2d88dd8aeaac01178a9ba5a0819ee7dc21511df",
+    "Modules/toolbelt.string.regex/Tests/Runtime/Regex.Contract.sql": "93f2a664a1dba0dd00d3f0b0cab4568f332961afcd79defafd986282377b799f",
+    "Modules/toolbelt.string.regex/Tests/Runtime/Transformations.Contract.sql": "39a860431dafa359205f3f3a2d130f49174b3a5a726b7387b4aaca12c00e7c13",
+    "Modules/toolbelt.string.regex/Tests/Runtime/Relations.Contract.sql": "926a5ecdbb75106d93494634ab64d6da9518a591249898299509625b12f24600",
+    "Modules/toolbelt.string.regex/Tests/Runtime/Captures.Contract.sql": "2acfa8e1a0c3115314e7efb812dd70d15668614668ef9a05a8638a4788ac98c9",
+    "Modules/toolbelt.string.regex/Tests/Runtime/Intake.Contract.sql": "5cbefd1be2825c70d66244af62552b5bc52bfa3a1c722dabdd850e83edc98efe",
+    "Modules/toolbelt.string.regex/Tests/Runtime/Captures.Metadata.ps1": "d1e98534d9e8260b046bdf7791eadab8582008fe2c7567bc42c3c53bc8128f73",
+    "Modules/toolbelt.archive.zip-memory/Tests/Runtime/ZipMemory.Contract.sql": "78d2d697c61ae65b2eca37a5e908da06f333db7b7a9393d586477405adc1a865",
+    "Modules/toolbelt.archive.zip-memory/Tests/Runtime/Encoding.Contract.sql": "e01fa1e45fd81ab34859d3d96708189ddcfeb7310e0815cf9325be3e86b8fb68",
+    "Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Contract.sql": "0b16ae4bdf0721541fa7fd9617ca3a392fcf6865b61a92802db3aea2e92320fb",
+    "Modules/toolbelt.archive.zip-memory/Tests/Runtime/Metadata.Contract.sql": "c245490f77b98885355224009ce81b2499ebcc1d6ed9358aae9167eb19bf8d7b",
+    "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Xlsx.Contract.sql": "efa6cd746c51e3047a13008e385e61d2ce5b543e6a84103a10599ac7c1a63683",
+    "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Types.Contract.sql": "3e275825d0a080b3ceee4c621e84ae685a2bc76085aa5284ced69fa70b1e4bc2",
+    "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Types.Safety.sql": "28b56c2dd46f5304e806498fa2c3294d5024b5ed06815eeafbb7f29b51bd2508",
+    "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Display.Contract.sql": "a7ae20d2c2d2f31172afc291ce387ae57fdd9994e104e8bfdfc1b3805ded0908",
+    "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Display.Safety.sql": "5713554942036ba8930b736938017c70109630396053e7d8bc5bd6e012623aa1",
+    "Modules/toolbelt.json.constructors/Tests/Runtime/JsonConstructors.Contract.sql": "925fae15129568c87d29cd6fe8e609d73d4e4e9cdd2b367b14ea31dfd1e5204e",
+    "Modules/toolbelt.json.constructors/Tests/Runtime/JsonAggregates.Contract.sql": "7661812c9bc5f77266e94d97d81ace3b4ae7f5f29a3244219219f75b1525fac0",
+    "Modules/toolbelt.json.constructors/Tests/Runtime/JsonEntryBridge.Contract.sql": "c3920d65482bf9325d16d449c5168b4be976e01c50cf4f02c5ad67be3e1f5121",
+    "Modules/toolbelt.json.constructors/Tests/Runtime/JsonGroups.Contract.sql": "2d46c17fcdab4590d7a17a8864c9084437222b8a9295eeb3e45d8916dbf1af3e",
+    "Modules/toolbelt.json.constructors/Tests/Runtime/JsonGroups.Boundaries.sql": "0b73f8965d17a781d535714320e0ceae6bc1ef3f8d33f234b3e6e4a753338ab6",
+    "Modules/toolbelt.json.constructors/Tests/Runtime/InstalledMetadata.Contract.sql": "bface6e7ab9376701547b233d1472fba7204139b80b826d7a1732eef8f674957",
+    "Modules/toolbelt.json.constructors/Tests/Runtime/Collation.Contract.sql": "0629364933a687cc23ab7aa0bab54037d7456f7daa4675658f8923b6053a54e4",
+    "Modules/toolbelt.json.schema/Tests/Runtime/Contract.Tests.sql": "533aaed38a30306c0864b163c182893f8b3d3027565162b0f37cce7c2ddde651",
+    "Modules/toolbelt.json.schema/Tests/Runtime/Safety.Tests.sql": "ec8a4b5835390728c0fdd7a3e6015a2bad65c737c591566ca12d26c41cd5edc5",
+    "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Xlsx.Metadata.ps1": "b9fb89e4336d292c3018fdee90aa78fa2e5e58afae3cc37b1f1d7af970e4042e",
+    "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Types.Metadata.ps1": "3133b5c716b5cd7f715a5c0b1c772b5af378db2c69b30dce4b3983ed9f29e9fb",
+    "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Display.Metadata.ps1": "6a65a858c6f754652b778170d80ec1087c5562a58126fc15b558e81d58942d11",
+    "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-TypesComposition.ps1": "956e84c65863d7c9ae0836c4d7f543a7f88f56bdfe21d4226dcb3dcf3277d019",
+    "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-DisplayComposition.ps1": "df577a617e2a52d07766dfcd332c57aeeaa4b0f4a44ab6b8d97fdaf4119a23f9",
+    "Modules/toolbelt.json.schema/Tests/Runtime/Metadata.Tests.ps1": "a61f20b6ae120a2cce0311b8b2b9555ac688e014aba2112a3bab06c305ac9177",
+    "Modules/toolbelt.tsql.script-parser/Tests/Runtime/ScriptParser.Contract.sql": "697e6a4588b4e1acdb204b353e612b1ac5645e43ad3a83b4fa6fda438f8ebe3b",
+    "Modules/toolbelt.tsql.script-parser/Tests/Runtime/Bounds.Contract.sql": "963580efa5701ca2d10d2eeb106cc2d606ae1f32a2a30b1cb65e54680ff4c7b2",
+    "Modules/toolbelt.tsql.script-parser/Tests/Runtime/Syntax.Contract.sql": "b8192c1100c029d48b2a2717a92d819d44c03e04e95029654958a342fcf30c6e",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/TableClone.Contract.sql": "eefd7186cf5fdeb93e23d31aae75cef1cc81a4e911e32d25606cd2264ef2739c",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Execute.Contract.sql": "36cab22c799b7f97cf8a65d491831459764f79f0dbaa1478c80140406b7ad1b3",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Execute.Safety.sql": "803399fc147b2070538e6da5fcc37f46748a158962393990963caf2c9c5116c1",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Copy.Contract.sql": "3734b9c69766a68ec5591325b7fbc9d377c50be0b7ef0adaf5c81906bcd29a0e",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Copy.Safety.sql": "3755ab6aee7a425253799e051a2ac0980892598aa4d7bf0110f03548c5449e64",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Wave1.Contract.sql": "802a7d47a8b51ca3a94c3fe6750c692bd307262c464e4bc601150dfb4a1d0038",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Wave1.Bytes.sql": "a23433027dd2ba11f49e28ec3c668b00b09f1a394c87787e5041d1cfdf828ff0",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Wave1.DateTimeOffset.sql": "dcc67cc8aae63d31bf220eedb41ac20f64259ce2cb3b3c406b89d6b7519071bf",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Wave2.Contract.sql": "bec168f280d0f3dc6ec01553efc79d28b3b788e0f585b2eb8ef0d33d98dc7fd3",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Wave2.Caps.sql": "38dab1472da5603b96b43ecd70d54a7256a4ac70360ed17a027a008174d58dc7",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Wave2.Safety.sql": "fa4fe5623267323a11d0a7259707d59aeb5b753f1499d4200f838986a7284ce9",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Trigger.Contract.sql": "eb3922a2a47f349e83713ac9816331eb6752e58aaa88581b69023ec07e468ac1",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Trigger.Safety.sql": "19c982c77d543f6bfe9bfd640ca81d9e98fd7b02bdf200045ea945e216d4e339",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CoreContract.ps1": "3ad32d1730cb4afe80376f8f53acda30bf20be2e8e461de9233bb14347c0214a",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ApiCases.ps1": "000c9ad6c088b0e3f52fef0a9a71c3886c2a47057c5ca0d52fe44e1681dccb00",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/AlternateSeparatorPreservation.Tests.sql": "922cf897eed6d66652f9f006bbd5fd3a6e161a4d236093863447ec43e400f30c",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/BudgetParameterPreservation.Tests.sql": "2a265bc17c3c304258e88dc08cc574a08e26af06800c0bd0123f900c5da7f6f2",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/CallerTransactionPreservation.Tests.sql": "f47118fe3b0590c6c8d5c91d0be92e07deef8997d7372aa1a614c84f718d3e85",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/CellCeilings.Tests.sql": "3341a5c7c4810f83480a6e42acb6e58cd5a895bfe27059b7424ae3e91eb367ea",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/ControlTextCeilings.Tests.sql": "74cd97c6d539b598a13476d027116b869282b3de8b2e88ce2862475cb851d8e3",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/CrlfCeilings.Tests.sql": "53c22e746d9ab616981a0992c6790f1684d333ac435db847932f3da55e6a45f7",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/DirectSelectCeilings.Tests.sql": "fe02d9e1fe074ab489049b0980aee899ee06162c99083f09dcae901aba46e3b9",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/DirectSelectUnicodeNull.Tests.sql": "eeef7c84e71f10f649516e5f565e88e4bca8b123c8369d57817034b2710726f1",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/EmptyResultPreservation.Tests.sql": "9e12efafce26854b6ea584067d46cd672bbf3227a62f6e9c4c449b3740ffff1e",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/HeaderCellBudgetPreservation.Tests.sql": "9aa738403e66657783cdc7abcc65e798472b80a7fc729a9fe173d8777c4ebc6c",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/HeaderOnlyPreservation.Tests.sql": "696dc25595d8771561cee5543113a4728af65834c95a812d3a147192a612a41a",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/HeaderRowBudgetPreservation.Tests.sql": "5b8cfb584ead4136e9d784bab19a7af96a2b61709c6a15d76b1be918c29fb9c5",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/HeaderTextCeilings.Tests.sql": "2c7d2ace09785af0da9a6944406d64ea01d5339e8beeef19efc7f91c03d0e204",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/KeepDataCeilings.Tests.sql": "7b377177381b32e000bf71a23c78ad5faab6df90386f90e5e1bdad672f8a5dcf",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/LateParserRectangularPreservation.Tests.sql": "5c593f5590941e526fa35e010c95ee01b7f13dddc85630c164debea6131b9da5",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/LateParserSyntaxPreservation.Tests.sql": "24bbf0a4762f0742ca9f0924bbfe6a5e12adb11f21436ce18a9e6c12d6d42cd2",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/LowerInputBudgetPreservation.Tests.sql": "3fb4f647e11d5772c814317e5840d58a12c4370c78fd5699ada853897396a55c",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/LowerOutputBudgetPreservation.Tests.sql": "3ce47875c0dedfd72cac7c09a4280a41318429d9c9251a59a25ab276f4ae4986",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/LowerValueBudgetPreservation.Tests.sql": "40001d4a078b69e95924187cc5204dc8cb3834a97cc56d56352e9e3168b4c43d",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/NullRepresentationPreservation.Tests.sql": "15707884e523c76cc5308cb96fdc0f80013f8c4ebcbf7f526ec9561ce4aa23bc",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/NullTokenCeilings.Tests.sql": "5c2311374c51114921432335319c1391916aec0dac4e56ebd5b04648c627074a",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/NullTokenValuePreservation.Tests.sql": "347fac80bd4be9bfd1f97cebbd590ba157a96c331b3622bf2b1200006e9e3cfb",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/ParserArgumentPreservation.Tests.sql": "0f3abe7cf41ff602fb50f840e55a3d57c58d49169f3fb79ae8da2499e68dae60",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/QuotedTempNamePreservation.Tests.sql": "a55801aabf4bd99efac35b8db36fffa491b1a9152592fce7e436f4628778d88c",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/QuoteExpansion.Tests.sql": "f80eed84444834c2c512226c5318c0afd2040821b96e7174c184fcb6b152cf04",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/ReservedTempNamespacePreservation.Tests.sql": "2f822e22d7e697dbd640a89e1387ab69717bd607ac6fbd05689f7239c915e67c",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/ReservedTempPrefixPreservation.Tests.sql": "78c252335dacf0b9e49e4e4dcbed33efefa17784ad98655274af35842acc83ee",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/SchemaTargetPreservation.Tests.sql": "4aedf9601837e398069f9d1f004c408b6351af6391002f2f87feb9bc4a0a464d",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/ShapeCeilings.Tests.sql": "9696d1c6490bd9d9cfffb8f343bb532bf65ba194a4c52e23f9082b8fe005857e",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/SourceMetadataPreservation.Tests.sql": "1da3a8982cbe51d5a5a6fcaf630cdc83496ea90351a6e09295d14fa76169d7b0",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/SourceTargetAliasPreservation.Tests.sql": "fa211693631e61f0ad5bf5b41680414c9b4b46070d3443eade0aa512d4eafbed",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/TargetConstraintPreservation.Tests.sql": "4396216e05e744207befb22aa6ee008e6f99965ca9020cd604d8f966ebafb052",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/TextCeilings.Tests.sql": "d94eed7c47e070111d72db703458f331143a796c549edb3e54350e65289703d0",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/TrailingEmptyFieldPreservation.Tests.sql": "c5e3993532afad4fa60384109cea4ecb8f9fc24460879f4b22103642fcebe97a",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/UnicodeTextCeilings.Tests.sql": "4abafc2723b0d6b376dba4ed335d3cb5d8a0a4be2868dc1ca471f0636da4912d",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/WriterArgumentPreservation.Tests.sql": "0f9b42ae98842767aaba6d30e9902a45ace27a7e2c99772d98bf30fae670c033",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/WriterCellPreservation.Tests.sql": "bcf13e0635875708730f0530b33bec1f5ee03e4627ee6c692aa91ad7be297244",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/WriterHeaderPreservation.Tests.sql": "096f5a26d04e9dd753d5d08493e15dd0d34f8ae55af2d5e781cc8965dba50d35",
+    "Modules/toolbelt.file.csv-memory/Tests/Runtime/WriterLocalSourceNamePreservation.Tests.sql": "bdef3ec5ea78b18fff134900b8253eaa8e5b88f5e148f13203a4dedeae943da8",
+    "Tests/Release/Runtime/DefaultSnapshotCeiling.sql": "7bc171c70e4f5aff6bcba31f64f38afa3311c38a51ae6e853c7e053981dfa016",
+    "Modules/toolbelt.binary.bit-operations/Tests/Runtime/Central.Contract.sql": "52550a21c58adcf18bbb95ea053a1a0611051cd3fc21ee2242503cb4052672c3",
+    "Modules/toolbelt.conversion.base64/Tests/Runtime/Central.Contract.sql": "1a6c54f63748d4928b6d525ad86892d6f5bcc9a94d650cb2470aa03df8fca331",
+    "Modules/toolbelt.conversion.integer-base/Tests/Runtime/Central.Contract.sql": "f812abd1457742be591f37379e75fec618b8f958c635f5d677837c8b5d12317a",
+    "Modules/toolbelt.conversion.uri-component/Tests/Runtime/Central.Contract.sql": "20674305e33f53b985321ba89f16efa0b41024abb2cec3962a6e34869d71f65a",
+    "Modules/toolbelt.core.console-message/Tests/Runtime/Central.Contract.sql": "4ecb75cc9325de85ca2d5475d86b9ae80f884642673e69c7d3c79e7746370353",
+    "Modules/toolbelt.core.error-envelope/Tests/Runtime/Central.Contract.sql": "34efc7102a9e25c661ee10dfb592b1ee75ea2b48c4c0f7240d0ded6b78f41f1b",
+    "Modules/toolbelt.core.execution-context/Tests/Runtime/Central.Contract.sql": "4372ca7216e30e05ef7a643273d371e641864ab1a5633ed99321d385eceb8eb1",
+    "Modules/toolbelt.core.generate-series/Tests/Runtime/Central.Contract.sql": "796bade7dae500b50b3d33ecb524f3b5920e9c1d6da3d4d5a864efcdba903d58",
+    "Modules/toolbelt.core.result-table/Tests/Runtime/Central.Contract.sql": "0252fcda6519b07ce2a93d8624dfbd3ffc2ed2a81634352d57d38fde7d154ebd",
+    "Modules/toolbelt.datetime.bucket/Tests/Runtime/Central.Contract.sql": "f301c59b2169afa25f14935cec38d1072ee1fa2ac32576518bf6ec7cd17e6da9",
+    "Modules/toolbelt.datetime.calendar-difference/Tests/Runtime/Central.Contract.sql": "a1d8bd9fd3d4d9cc0d7ad568b7426d5fee04c7b0072fcfe3db2522d03c7972b2",
+    "Modules/toolbelt.datetime.date-spine/Tests/Runtime/Central.Contract.sql": "02f15eb3facb250eb186ddb0afe164a233e537eb1c960e39ad800911318377f7",
+    "Modules/toolbelt.datetime.truncate/Tests/Runtime/Central.Contract.sql": "41062284a02136d405ebe5ecef3307a3a05750362b826f79e0e17b9c7e270d69",
+    "Modules/toolbelt.json.path-exists/Tests/Runtime/Central.Contract.sql": "82e48030ee9c65d48880dd72c94ec9a3af5624d767bf3a7ec2ad2c950d4b656e",
+    "Modules/toolbelt.metadata.capability-catalog/Tests/Runtime/Central.Contract.sql": "2563e932c208b8a7a1f26b9e6345b9787ef07b8a1d0b9fb9eb4c074cf32d7cf6",
+    "Modules/toolbelt.metadata.identifier/Tests/Runtime/Central.Contract.sql": "f7e85b99d5dd24c13ea9e710589e387b41688c16211d58e5f228b13e03dc100a",
+    "Modules/toolbelt.string.directional-trim/Tests/Runtime/Central.Contract.sql": "ef898ed6793c27d364085fd706a5e658615964a5235c8335dc1449b47d191c3d",
+    "Modules/toolbelt.string.split-characters/Tests/Runtime/Central.Contract.sql": "f625c69fbc72e917161bc98c7323d66f83a3d810653203593f958e6214450184",
+    "Modules/toolbelt.validation.semantic-version/Tests/Runtime/Central.Contract.sql": "3da32a61bfe360bf384164f987b6f26dae2b87c393ec9f61582847103c4004e8",
+    "Modules/toolbelt.string.split-advanced/Tests/Runtime/Central.Contract.sql": "ee44d2b7f4deeafd8755d2f83518e10aee7e8ff04db5764732246c2e060cf1ea",
+    "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/Central.Contract.sql": "437a80d8c01e00627a5f2888407c8431545398e43543f41cbef332387d6e5cbf",
+    "Modules/toolbelt.archive.zip-memory/Tests/Runtime/Central.Contract.sql": "779cd9a942a460d7f28f85dd77cfd7d06092dd08e32757c831303746c02e11f1",
+    "Modules/toolbelt.json.constructors/Tests/Runtime/Central.Contract.sql": "8b1d6290eb81de58f56ebd4bd858c330e01736c8908f92f14ef58a83d84d2793",
+    "Modules/toolbelt.string.regex/Tests/Runtime/Central.Contract.sql": "822a71dd4ff8a5252e8e9ff71a4717355105d9f92c05296498b610d7dd9f0c96",
+    "Modules/toolbelt.tsql.script-parser/Tests/Runtime/Central.Contract.sql": "4373d030c72e66550e08f178e37b63f41724de021af392a291fb1d5ee7b45d1a",
+    "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Central.Contract.sql": "ca6b7bf7d035ea06b543f261d23730c3cf93b17099166b9f3724a22c735ca1e0",
+    "Modules/toolbelt.json.constructors/Tests/Runtime/SelectMetadata.Contract.ps1": "d613ab2868dad125fe86edfad46a11d98156d57e690cfe87e071465501a0f0c0",
+    "Modules/toolbelt.string.regex/Tests/Runtime/Relations.Metadata.ps1": "98a28844b6d2108246b13073f50da73060a83be77f8377f53f1e6b36848735fb",
+    "Tests/Release/Runtime/Cancellation.StrictErrors.sql": "1d1c94d4cf369608058c978ba37e4e02ce538b0d138f092ab292b7dd78675e6b"
+  },
+  "module_results": [
+    {
+      "module_id": "toolbelt.archive.zip-memory",
+      "cases": [
+        {
+          "case_id": "formats:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 5,
+          "reused": 4,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 9,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 9,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 9,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 9,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 9,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 9,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 9,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 9,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 9,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 9,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 9,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.binary.bit-operations",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.conversion.base64",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.conversion.integer-base",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.conversion.uri-component",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.console-message",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.error-envelope",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.execution-cancel",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "gaps:linux:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "gaps:linux:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "gaps:linux:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "gaps:linux:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "gaps:linux:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "gaps:linux:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "gaps:windows:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "gaps:windows:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "gaps:windows:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "gaps:windows:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "gaps:windows:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "gaps:windows:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.execution-context",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.generate-series",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.result-table",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.work-queue",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.work-type",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.core.worker-control",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.datetime.bucket",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.datetime.calendar-difference",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.datetime.date-spine",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.datetime.truncate",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.file.csv-memory",
+      "cases": [
+        {
+          "case_id": "csv:linux:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "csv:linux:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 74,
+          "reused": 6,
+          "blocked": []
+        },
+        {
+          "case_id": "csv:linux:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 17,
+          "reused": 63,
+          "blocked": []
+        },
+        {
+          "case_id": "csv:linux:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 80,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "csv:linux:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 80,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "csv:linux:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 80,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "csv:windows:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 80,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "csv:windows:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 80,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "csv:windows:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 80,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "csv:windows:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 80,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "csv:windows:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 80,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "csv:windows:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.file.xlsx-memory",
+      "cases": [
+        {
+          "case_id": "formats:linux:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 14,
+          "reused": 6,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 20,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 20,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 20,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 20,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 20,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 20,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 20,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 20,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 20,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 20,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 20,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.json.constructors",
+      "cases": [
+        {
+          "case_id": "formats:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 7,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 17,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 17,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 17,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 17,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 17,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 17,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 17,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 17,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 17,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 17,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 17,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.json.path-exists",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.json.schema",
+      "cases": [
+        {
+          "case_id": "formats:linux:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 2,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:linux:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "formats:windows:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.metadata.capability-catalog",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "consumer",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "consumer",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "consumer",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "consumer",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "consumer",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "consumer",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "consumer",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "consumer",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "consumer",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "consumer",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "consumer",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "consumer",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.metadata.identifier",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.metadata.table-clone",
+      "cases": [
+        {
+          "case_id": "windows:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 27,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "windows:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 27,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "windows:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 27,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "windows:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 27,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "windows:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 27,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "windows:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 27,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.pseudonymization.deterministic",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "translate-large:linux:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "translate-large:linux:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "translate-large:linux:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "translate-large:linux:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "translate-large:linux:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "translate-large:windows:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "translate-large:windows:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "translate-large:windows:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 2,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.string.directional-trim",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.string.edit-distance",
+      "cases": [
+        {
+          "case_id": "text:linux:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 5,
+          "reused": 5,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.string.phonetic",
+      "cases": [
+        {
+          "case_id": "text:linux:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 3,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 6,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.string.regex",
+      "cases": [
+        {
+          "case_id": "text:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 13,
+          "reused": 1,
+          "blocked": [
+            "toolbelt.string.regex:Transformations.Contract.sql:local"
+          ]
+        },
+        {
+          "case_id": "text:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 15,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.string.split-advanced",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.string.split-characters",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.string.text-pairs",
+      "cases": [
+        {
+          "case_id": "text:linux:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 5,
+          "reused": 5,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:linux:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2019:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2022:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "text:windows:2025:170",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 10,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.tsql.script-parser",
+      "cases": [
+        {
+          "case_id": "windows:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "windows:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "windows:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "windows:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "windows:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "windows:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 7,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.tsql.ssis-debug",
+      "cases": [
+        {
+          "case_id": "windows:windows:2022:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "windows:windows:2025:150",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "windows:windows:2025:160",
+          "contexts": [
+            "central",
+            "local"
+          ],
+          "passed": 4,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    },
+    {
+      "module_id": "toolbelt.validation.semantic-version",
+      "cases": [
+        {
+          "case_id": "core:linux:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:linux:2025:170",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2019:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2022:160",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        },
+        {
+          "case_id": "core:windows:2025:150",
+          "contexts": [
+            "central",
+            "consumer",
+            "local"
+          ],
+          "passed": 3,
+          "reused": 0,
+          "blocked": []
+        }
+      ]
+    }
+  ],
+  "fixture_definitions": 165,
+  "functional_calls_passed": 3231,
+  "functional_calls_blocked": 1,
+  "final_independent_audit": {
+    "all_owned_database_names_absent": true,
+    "owned_database_names_checked": 252,
+    "trust_states_restored": true,
+    "distinct_per_target_trust_states_checked": 66,
+    "current_input_pins_unchanged": true,
+    "configuration_restored": true,
+    "separate_configuration_audit": true
+  },
+  "qualification_inputs": "Releases/1.0.0/complete-qualification.json",
+  "product_payload_unchanged": true,
+  "ssis_scope": "canonical functional projection; principal/rights block excluded; actual central consumer and generated SQL executed on three additional Windows CL combinations"
+}

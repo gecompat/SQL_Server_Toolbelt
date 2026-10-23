@@ -352,15 +352,43 @@ class ApiQualificationTests(unittest.TestCase):
     def test_evidence_assignment_preserves_every_canonical_manifest(self):
         import hashlib
         report = json.loads((ROOT / 'Releases/1.0.0/evidence-map.json').read_bytes())
+        api = json.loads((ROOT / 'Releases/1.0.0/api-qualification.json').read_bytes())
+        spec_path = ROOT / api['fixture_spec']
+        spec = json.loads(spec_path.read_bytes())
         plan = json.loads((ROOT / release.PLAN).read_bytes())
         self.assertEqual({m['module_id'] for m in report['modules']}, {m['module_id'] for m in plan['modules']})
         self.assertEqual(len(report['modules']), 45)
         self.assertFalse(report['module_statuses_changed'])
         self.assertFalse(report['publication_authorized'])
+        self.assertFalse(api['publication_authorized'])
+        self.assertEqual(hashlib.sha256(spec_path.read_bytes().replace(b'\r\n', b'\n')).hexdigest(), api['fixture_spec_sha256'])
+        self.assertEqual(api['fixture_definitions'], len(spec['tests']))
+        self.assertEqual(set(api['fixture_source_sha256']), {t['source'] for t in spec['tests']})
+        self.assertEqual(api['completed_cases'], api['planned_target_cl_group_cases'])
+        self.assertEqual(api['fully_passed_cases'] + api['partial_cases'], api['completed_cases'])
+        cases = {c['case_id']: c for c in api['cases']}
+        self.assertEqual(len(cases), api['completed_cases'])
+        for case in cases.values():
+            self.assertTrue(case['independent_cleanup_and_pin_audit'])
+            self.assertEqual(case['result'], 'partially validated' if case['blocked_fixture_calls'] else 'validated')
+        for path, digest in api['fixture_source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes().replace(b'\r\n', b'\n')).hexdigest(), digest)
+        module_results = {m['module_id']: m for m in api['module_results']}
+        self.assertEqual(set(module_results), {t['module_id'] for t in spec['tests']})
+        self.assertEqual(api['functional_calls_passed'], sum(c['passed_fixture_calls'] + c['reused_fixture_calls'] for c in cases.values()))
+        self.assertEqual(api['functional_calls_blocked'], sum(len(c['blocked_fixture_calls']) for c in cases.values()))
+        for key in ('all_owned_database_names_absent', 'trust_states_restored', 'current_input_pins_unchanged', 'configuration_restored', 'separate_configuration_audit'):
+            self.assertTrue(api['final_independent_audit'][key])
         for m in report['modules']:
             self.assertFalse(m['record_snapshot_is_execution_commit'])
             canonical = (ROOT / m['manifest']).read_bytes().replace(b'\r\n', b'\n')
             self.assertEqual(hashlib.sha256(canonical).hexdigest(), m['manifest_sha256'])
+            self.assertEqual(set(m['additional_fixture_ids']), {t['id'] for t in spec['tests'] if t['module_id'] == m['module_id']})
+            if m['additional_fixture_ids']:
+                result = module_results[m['module_id']]
+                self.assertEqual(m['additional_case_ids'], [c['case_id'] for c in result['cases']])
+                self.assertTrue(all(c['case_id'] in cases for c in result['cases']))
+                self.assertEqual(m['additional_result'], 'partially validated' if any(c['blocked'] for c in result['cases']) else 'validated selected fixture scope')
 
     @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required for offline adapter guards')
     def test_target_reuse_and_cleanup_reserve_without_sql(self):

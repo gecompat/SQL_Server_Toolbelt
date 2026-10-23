@@ -49,7 +49,22 @@
         "toolbelt.archive.zip-memory:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "formats:linux:2019:150",
+        "formats:linux:2022:150",
+        "formats:linux:2022:160",
+        "formats:linux:2025:150",
+        "formats:linux:2025:160",
+        "formats:linux:2025:170",
+        "formats:windows:2019:150",
+        "formats:windows:2022:150",
+        "formats:windows:2022:160",
+        "formats:windows:2025:150",
+        "formats:windows:2025:160",
+        "formats:windows:2025:170"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.binary.bit-operations",
@@ -69,7 +84,22 @@
         "toolbelt.binary.bit-operations:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.conversion.base64",
@@ -89,7 +119,22 @@
         "toolbelt.conversion.base64:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.conversion.integer-base",
@@ -109,7 +154,22 @@
         "toolbelt.conversion.integer-base:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.conversion.safe-cast",
@@ -126,7 +186,7 @@
       "canonical_runtime_changes_since_record_snapshot": [],
       "additional_fixture_ids": [],
       "prior_full_matrix_reused": true,
-      "additional_result": "not applicable: no additional fixture selected; previous exact scopes remain authoritative"
+      "additional_result": "not executed: prior unchanged full physical matrix reused in its original scope"
     },
     {
       "module_id": "toolbelt.conversion.uri-component",
@@ -146,7 +206,22 @@
         "toolbelt.conversion.uri-component:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.core.console-message",
@@ -166,7 +241,22 @@
         "toolbelt.core.console-message:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.core.error-envelope",
@@ -186,7 +276,22 @@
         "toolbelt.core.error-envelope:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.core.event-log",
@@ -227,7 +332,34 @@
         "toolbelt.core.execution-cancel:Cancellation.StrictErrors.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150",
+        "gaps:linux:2019:150",
+        "gaps:linux:2022:150",
+        "gaps:linux:2022:160",
+        "gaps:linux:2025:150",
+        "gaps:linux:2025:160",
+        "gaps:linux:2025:170",
+        "gaps:windows:2019:150",
+        "gaps:windows:2022:150",
+        "gaps:windows:2022:160",
+        "gaps:windows:2025:150",
+        "gaps:windows:2025:160",
+        "gaps:windows:2025:170"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.core.execution-context",
@@ -247,7 +379,22 @@
         "toolbelt.core.execution-context:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.core.generate-series",
@@ -267,7 +414,22 @@
         "toolbelt.core.generate-series:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.core.result-table",
@@ -287,7 +449,22 @@
         "toolbelt.core.result-table:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.core.second-session",
@@ -329,7 +506,22 @@
         "toolbelt.core.work-queue:WorkQueue.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.core.work-type",
@@ -349,7 +541,22 @@
         "toolbelt.core.work-type:Remove.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.core.worker-control",
@@ -368,7 +575,22 @@
         "toolbelt.core.worker-control:WorkerControl.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.datetime.bucket",
@@ -388,7 +610,22 @@
         "toolbelt.datetime.bucket:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.datetime.calendar-difference",
@@ -408,7 +645,22 @@
         "toolbelt.datetime.calendar-difference:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.datetime.date-spine",
@@ -428,7 +680,22 @@
         "toolbelt.datetime.date-spine:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.datetime.truncate",
@@ -448,7 +715,22 @@
         "toolbelt.datetime.truncate:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.file.content",
@@ -525,7 +807,22 @@
         "toolbelt.file.csv-memory:DefaultSnapshotCeiling.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "csv:linux:2019:150",
+        "csv:linux:2022:150",
+        "csv:linux:2022:160",
+        "csv:linux:2025:150",
+        "csv:linux:2025:160",
+        "csv:linux:2025:170",
+        "csv:windows:2019:150",
+        "csv:windows:2022:150",
+        "csv:windows:2022:160",
+        "csv:windows:2025:150",
+        "csv:windows:2025:160",
+        "csv:windows:2025:170"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.file.xlsx-memory",
@@ -553,7 +850,22 @@
         "toolbelt.file.xlsx-memory:Invoke-DisplayComposition.ps1"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "formats:linux:2019:150",
+        "formats:linux:2022:150",
+        "formats:linux:2022:160",
+        "formats:linux:2025:150",
+        "formats:linux:2025:160",
+        "formats:linux:2025:170",
+        "formats:windows:2019:150",
+        "formats:windows:2022:150",
+        "formats:windows:2022:160",
+        "formats:windows:2025:150",
+        "formats:windows:2025:160",
+        "formats:windows:2025:170"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.filesystem.windows",
@@ -599,7 +911,22 @@
         "toolbelt.json.constructors:SelectMetadata.Contract.ps1"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "formats:linux:2019:150",
+        "formats:linux:2022:150",
+        "formats:linux:2022:160",
+        "formats:linux:2025:150",
+        "formats:linux:2025:160",
+        "formats:linux:2025:170",
+        "formats:windows:2019:150",
+        "formats:windows:2022:150",
+        "formats:windows:2022:160",
+        "formats:windows:2025:150",
+        "formats:windows:2025:160",
+        "formats:windows:2025:170"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.json.core",
@@ -616,7 +943,7 @@
       "canonical_runtime_changes_since_record_snapshot": [],
       "additional_fixture_ids": [],
       "prior_full_matrix_reused": false,
-      "additional_result": "not applicable: no exported SQL objects; dependency exercised through Constructors and Schema"
+      "additional_result": "no independent SQL API; native embedding covered by selected Constructors and Schema fixtures; prior own framework/lifecycle scopes retained"
     },
     {
       "module_id": "toolbelt.json.path-exists",
@@ -636,7 +963,22 @@
         "toolbelt.json.path-exists:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.json.pointer",
@@ -653,7 +995,7 @@
       "canonical_runtime_changes_since_record_snapshot": [],
       "additional_fixture_ids": [],
       "prior_full_matrix_reused": true,
-      "additional_result": "not applicable: no additional fixture selected; previous exact scopes remain authoritative"
+      "additional_result": "not executed: prior unchanged full physical matrix reused in its original scope"
     },
     {
       "module_id": "toolbelt.json.schema",
@@ -674,7 +1016,22 @@
         "toolbelt.json.schema:Metadata.Tests.ps1"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "formats:linux:2019:150",
+        "formats:linux:2022:150",
+        "formats:linux:2022:160",
+        "formats:linux:2025:150",
+        "formats:linux:2025:160",
+        "formats:linux:2025:170",
+        "formats:windows:2019:150",
+        "formats:windows:2022:150",
+        "formats:windows:2022:160",
+        "formats:windows:2025:150",
+        "formats:windows:2025:160",
+        "formats:windows:2025:170"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.metadata.capability-catalog",
@@ -694,7 +1051,22 @@
         "toolbelt.metadata.capability-catalog:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.metadata.identifier",
@@ -714,7 +1086,22 @@
         "toolbelt.metadata.identifier:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.metadata.table-clone",
@@ -746,7 +1133,16 @@
         "toolbelt.metadata.table-clone:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "windows:windows:2019:150",
+        "windows:windows:2022:150",
+        "windows:windows:2022:160",
+        "windows:windows:2025:150",
+        "windows:windows:2025:160",
+        "windows:windows:2025:170"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.pseudonymization.deterministic",
@@ -773,7 +1169,30 @@
         "toolbelt.pseudonymization.deterministic:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150",
+        "translate-large:linux:2022:150",
+        "translate-large:linux:2022:160",
+        "translate-large:linux:2025:150",
+        "translate-large:linux:2025:160",
+        "translate-large:linux:2025:170",
+        "translate-large:windows:2019:150",
+        "translate-large:windows:2022:150",
+        "translate-large:windows:2022:160"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.string.directional-trim",
@@ -793,7 +1212,22 @@
         "toolbelt.string.directional-trim:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.string.edit-distance",
@@ -818,7 +1252,22 @@
         "toolbelt.string.edit-distance:InstalledMetadata.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "text:linux:2019:150",
+        "text:linux:2022:150",
+        "text:linux:2022:160",
+        "text:linux:2025:150",
+        "text:linux:2025:160",
+        "text:linux:2025:170",
+        "text:windows:2019:150",
+        "text:windows:2022:150",
+        "text:windows:2022:160",
+        "text:windows:2025:150",
+        "text:windows:2025:160",
+        "text:windows:2025:170"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.string.phonetic",
@@ -839,7 +1288,22 @@
         "toolbelt.string.phonetic:InstalledMetadata.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "text:linux:2019:150",
+        "text:linux:2022:150",
+        "text:linux:2022:160",
+        "text:linux:2025:150",
+        "text:linux:2025:160",
+        "text:linux:2025:170",
+        "text:windows:2019:150",
+        "text:windows:2022:150",
+        "text:windows:2022:160",
+        "text:windows:2025:150",
+        "text:windows:2025:160",
+        "text:windows:2025:170"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.string.regex",
@@ -868,7 +1332,22 @@
         "toolbelt.string.regex:Relations.Metadata.ps1"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "partially validated",
+      "additional_case_ids": [
+        "text:linux:2019:150",
+        "text:linux:2022:150",
+        "text:linux:2022:160",
+        "text:linux:2025:150",
+        "text:linux:2025:160",
+        "text:linux:2025:170",
+        "text:windows:2019:150",
+        "text:windows:2022:150",
+        "text:windows:2022:160",
+        "text:windows:2025:150",
+        "text:windows:2025:160",
+        "text:windows:2025:170"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.string.split-advanced",
@@ -890,7 +1369,22 @@
         "toolbelt.string.split-advanced:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.string.split-characters",
@@ -910,7 +1404,22 @@
         "toolbelt.string.split-characters:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.string.text-pairs",
@@ -933,7 +1442,22 @@
         "toolbelt.string.text-pairs:InstalledMetadata.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "text:linux:2019:150",
+        "text:linux:2022:150",
+        "text:linux:2022:160",
+        "text:linux:2025:150",
+        "text:linux:2025:160",
+        "text:linux:2025:170",
+        "text:windows:2019:150",
+        "text:windows:2022:150",
+        "text:windows:2022:160",
+        "text:windows:2025:150",
+        "text:windows:2025:160",
+        "text:windows:2025:170"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.tsql.script-parser",
@@ -955,7 +1479,16 @@
         "toolbelt.tsql.script-parser:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "windows:windows:2019:150",
+        "windows:windows:2022:150",
+        "windows:windows:2022:160",
+        "windows:windows:2025:150",
+        "windows:windows:2025:160",
+        "windows:windows:2025:170"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.tsql.ssis-debug",
@@ -975,7 +1508,13 @@
         "toolbelt.tsql.ssis-debug:Invoke-ApiCases.ps1"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "windows:windows:2022:150",
+        "windows:windows:2025:150",
+        "windows:windows:2025:160"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     },
     {
       "module_id": "toolbelt.validation.semantic-version",
@@ -995,7 +1534,22 @@
         "toolbelt.validation.semantic-version:Central.Contract.sql"
       ],
       "prior_full_matrix_reused": false,
-      "additional_result": "not executed"
+      "additional_result": "validated selected fixture scope",
+      "additional_case_ids": [
+        "core:linux:2019:150",
+        "core:linux:2022:150",
+        "core:windows:2025:160",
+        "core:windows:2025:170",
+        "core:linux:2022:160",
+        "core:linux:2025:150",
+        "core:linux:2025:160",
+        "core:linux:2025:170",
+        "core:windows:2019:150",
+        "core:windows:2022:150",
+        "core:windows:2022:160",
+        "core:windows:2025:150"
+      ],
+      "additional_evidence": "Releases/1.0.0/api-qualification.json"
     }
   ]
 }

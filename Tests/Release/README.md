@@ -28,9 +28,14 @@ Diese Schritte bauen keine DLL und verbinden sich nicht mit SQL Server.
 Der Stager prüft das ausgelieferte Paket, unveränderte Produktquellen und
 SQL-/DLL-Payloads, übernimmt die kanonischen Fixturebytes und erzeugt zwei
 synthetische XLSX-Eingaben. Relative Kompositionshelfer behalten ihre
-kanonischen Hashes. Der Plan umfasst 54 Ziel-/CL-/Gruppenfälle mit eigenen
+kanonischen Hashes. Der Plan umfasst 74 Ziel-/CL-/Gruppenfälle mit eigenen
 Datenbanken für local/central/Consumer. Die Auswahl ergänzt insbesondere
 SQL2022/CL150, niedrigere SSIS-CLs und noch unbelegte CSV-Grenzziele.
+Core, Text, Formate, CSV und strikte Cancellation-Negativfälle haben je zwölf
+Fälle; Parser/TableClone/SSIS sechs Windows-Fälle; acht getrennte Translate-
+Großfälle ergänzen die noch nicht belegten Ziele. Die vollen Safe-Cast- und
+JSON-Pointer-Matrizen sowie bereits gültige unveränderte CSV-/Translate-
+Großnachweise werden in ihrem tatsächlichen Scope wiederverwendet.
 
 Vor nativer Ausführung Zusatzprompt lesen, Labvertrag/Schema prüfen, aktuelle
 Verbraucher und vorhandene Rechte klären sowie gegebenenfalls die separat
@@ -50,9 +55,43 @@ Versuche und erfolgreiche Fälle bleiben erhalten. Keine blinden Retries.
 Nach allen Verbrauchern sind eigene Konfiguration und Trustzustände
 wiederherzustellen und unabhängig zu prüfen.
 
+Die gemeinsame Obergrenze ist 90 Case-/Recoveryversuche und 36000 Sekunden
+ab dem ursprünglichen Start. Arbeitszeit/Cleanup-Gesamtdeadline/äußerer
+Watchdog sind in Sekunden 300/360/400 für gewöhnliche Fälle,
+960/1200/1240 für Core, 1800/2160/2200 für Formate und CSV sowie
+1200/1440/1480 für große Translate-Fälle. Je Fall bleiben zusätzlich
+90 Sekunden für den unabhängigen Audit reserviert. Das sind Harnessgrenzen;
+die öffentlichen Ressourcen- und intrinsischen Regex-Zeitbudgets ändern sich
+dadurch nicht.
+
+`-CarryForwardCases <privates-case-journal>` übernimmt ausschließlich einen
+vom Adapter ausdrücklich unterstützten, vollständig bestandenen Präfix nach
+konkretem Befund. Das eingefrorene Runset bindet altes Journal, alten Runset
+und damaligen Audit. Vor neuen Mutationen prüft ein lesender Preflight erneut
+Zielidentität, bereinigten Vorzustand, bytegleiche Produkt-/Fixtureinputs und
+die tatsächlichen Kontexte. Abweichungen werden abgewiesen. Ein beobachteter
+intrinsischer Regex-Timeout bleibt ein blockierter Fixtureaufruf und der
+gesamte Fall `PARTIAL`; er wird weder als Erfolg noch als neuer Retry gezählt.
+Die gemeinsame Fortschrittsdatei trennt vollständige und partielle Fälle.
+
 Die Coregruppe lädt die vorhandene `WorkTypeAuthorization.Fixture.sql`
 ausschließlich in eigene disposable Datenbanken: explizite dbo-Policy für
 alte Fachfixtures, kein Deploymentinclude, keine echten Minimalrechte.
+Die zusätzliche Cancellation-Fixture prüft die dokumentierten Fehlernummern
+strikt und beweist eine doomed Callertransaktion mit einem echten FK-Zeugen.
+Die zusätzliche CSV-Fixture prüft die gemeinsame Default-16-MiB-Grenze mit
+vollständigen Byte- und Erhaltungsorakeln; die beiden Direct-SELECT-Suiten
+verwenden ihre kanonischen Clientorakel einschließlich erwarteter Fehler.
+
+Für SSIS erzeugt `prepare_ssis_functional_fixture.py` eine private Ableitung
+der kanonischen V1-Fixture: Nur der exakt begrenzte Principal-/Rechteblock
+wird ausgelassen, sonstige Assertions bleiben bytegleich. Die drei fehlenden
+niedrigeren Windows-CLs prüfen die funktionalen Fälle einschließlich NOLOCK-
+Zeugen. Im zentralen Modus wird die eigene Consumerdatenbank ausdrücklich
+übergeben; das tatsächlich generierte SQL wird ausgeführt. Diese Ableitung
+qualifiziert keine SSIS-Minimalrechte. Direkte API-Metadaten verwenden den
+kanonischen Metadatenhelfer.
+
 Serverdatei-, Provider-, Principal- und harte Recoveryvoraussetzungen werden
 dadurch nicht bereitgestellt. Erfolgreiche frühere Lifecycle-/Lastnachweise
 werden nicht allein zur Statusauffrischung wiederholt.

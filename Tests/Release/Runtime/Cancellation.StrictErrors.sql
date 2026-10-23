@@ -23,7 +23,9 @@ BEGIN CATCH
  IF ERROR_NUMBER()<>52600 BEGIN ROLLBACK; THROW; END;
  SET @Caught=1;
 END CATCH;
-IF @Caught<>1 OR XACT_STATE()<>1
+-- Der öffentliche Vertrag verspricht Ablehnung, keine committable-Garantie:
+-- der vorhandene XACT_ABORT-ON-Guard darf den Caller doomed markieren.
+IF @Caught<>1 OR @@TRANCOUNT<>1 OR XACT_STATE()=0
 BEGIN
  IF @@TRANCOUNT<>0 ROLLBACK;
  THROW 52790,N'Cancellation: Caller-Transaktionsguard ist falsch.',2;

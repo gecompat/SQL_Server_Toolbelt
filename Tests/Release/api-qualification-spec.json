@@ -8,8 +8,8 @@
     "formats",
     "windows",
     "csv",
-    "translate-large",
-    "gaps"
+    "gaps",
+    "translate-large"
   ],
   "tests": [
     {

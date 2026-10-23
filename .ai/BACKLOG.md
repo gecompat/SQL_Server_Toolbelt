@@ -58,6 +58,14 @@ ausführbare API-/Grenzfälle abarbeiten und einen PR erstellen. Der
 externe Restvoraussetzungen fest; keine neuen öffentlichen Funktionen,
 keine Veröffentlichung und keine Wiederaufnahme autonomer Entwicklung.
 
+Ergebnis dieses Folgeauftrags: Nachweiszuordnung aller 45 Module und 74
+ausgewählte API-/Grenzfälle abgeschlossen; 73 vollständig bestanden, ein
+Regex-Fall Linux SQL2022/CL150 local partiell. Eigene Ressourcen, Trust und
+temporäre CLR-Konfiguration unabhängig bereinigt beziehungsweise
+wiederhergestellt geprüft. Externe Rechte-/Datei-/Provider-/Recovery- und
+weitere unbelegte Modulpflichtfälle bleiben im API-Bericht sichtbar offen.
+Keine Statusaufwertung und keine weitere Entwicklungswelle.
+
 Ausdrücklicher unmittelbarer Benutzerauftrag: Gesamtpaket v1.0.0 mit
 Freigabematrix und klarer Trennung stabil/Preview vorbereiten und einen PR
 erstellen; noch nicht veröffentlichen. Die autonome Weiterentwicklung bleibt
