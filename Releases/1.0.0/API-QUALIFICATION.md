@@ -8,7 +8,7 @@ und autonome Weiterentwicklung sind weiterhin nicht freigegeben.
 Die [Zuordnung aller 45 Module](EVIDENCE-MAP.md) führt zu den kanonischen
 Manifestnachweisen und trennt sie von dieser zusätzlichen Prüfwelle.
 Die [feste Testliste](../../Tests/Release/api-qualification-spec.json) enthält
-164 vorhandene beziehungsweise ergänzende Fixturedefinitionen. Ihre
+165 vorhandene beziehungsweise ergänzende Fixturedefinitionen. Ihre
 Ausführung, Eingrenzung und Grenzen beschreibt
 [Tests/Release](../../Tests/Release/README.md#api--und-grenzqualifikation).
 
@@ -85,3 +85,11 @@ SQL, DLLs und feste Fehler-/Erhaltungsorakel wurden nicht geändert.
 
 Ein Verantwortlicher, ein PR, keine Delegation und keine weiteren Wellen.
 Kosten-/Tokenmessung: UNKNOWN. Die autonome Verarbeitung bleibt pausiert.
+
+Die Quellprüfung der alten Cancellation-Fixture fand außerdem Negativzweige,
+die ihre selbst geworfene Assertion als erwarteten Fehler akzeptieren, und
+einen nicht verlässlichen Temp-Tabellen-FK-Zeugen. Eine zusätzliche eigene
+Fixture prüft 52601/52600 exakt, beweist einen echten FK-Fehler547 mit
+XACT_STATE=-1 und verlangt unveränderten Zustand ohne Cancellationeintrag.
+Sie ist als zwölf getrennte Gap-Abläufe vorgesehen; die nächste eingefrorene
+Revision umfasst damit 74 Fälle unter demselben gemeinsamen Budget.

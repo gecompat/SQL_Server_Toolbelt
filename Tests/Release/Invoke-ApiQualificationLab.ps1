@@ -1,12 +1,12 @@
-# API-/Grenzqualifikation des unverÃ¤nderten vollstÃ¤ndigen Releasepakets.
+# API-/Grenzqualifikation des unveränderten vollständigen Releasepakets.
 [CmdletBinding()]
 param([Parameter(Mandatory)][string]$RunsetPath,[Parameter(Mandatory)][ValidateRange(0,999)][int]$CaseIndex,[switch]$AuditOnly)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $repo=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $clock=[Diagnostics.Stopwatch]::StartNew(); $cleanup=$false
-$connections=[Collections.Generic.List[object]]::new()
-# Nur die geprÃ¼ften Funktionsdefinitionen importieren; kein fremder Teststart.
+$connections=[Collections.Generic.List[object]]::new();$casePins=$null
+# Nur die geprüften Funktionsdefinitionen importieren; kein fremder Teststart.
 function Import-ClrFunctions([string]$Path,[string[]]$Names,[hashtable]$Replace=@{}) {
  $errors=$null; $ast=[Management.Automation.Language.Parser]::ParseFile($Path,[ref]$null,[ref]$errors)
  if($errors.Count){throw 'RELEASE_HELPER_PARSE'}
@@ -15,13 +15,13 @@ function Import-ClrFunctions([string]$Path,[string[]]$Names,[hashtable]$Replace=
   if($nodes.Count -ne 1){throw 'RELEASE_HELPER_AMBIGUOUS'}
   $text=$nodes[0].Extent.Text
   foreach($key in $Replace.Keys){$text=$text.Replace($key,$Replace[$key])}
-  # Definitionen in den Aufruferscope zurÃ¼ckgeben, ohne sie auszufÃ¼hren.
+  # Definitionen in den Aufruferscope zurückgeben, ohne sie auszuführen.
   [scriptblock]::Create($text)
  }
 }
 foreach($block in Import-ClrFunctions (Join-Path $PSScriptRoot 'Invoke-StablePackageLab.ps1') @(
  'Assert-ReleasePin','Assert-ReleasePrivatePath','Invoke-ReleaseSql','Open-ReleaseConnection',
- 'Invoke-ReleaseBatches','Save-ReleaseJournal','Assert-ReleaseInputs','Assert-ReleaseOwnIdentity','Invoke-ReleaseSmoke')){. $block}
+ 'Invoke-ReleaseBatches','Save-ReleaseJournal','Assert-ReleaseOwnIdentity','Invoke-ReleaseSmoke')){. $block}
 foreach($block in Import-ClrFunctions (Join-Path $repo 'Tests/CI/run-csv-memory-lab.ps1') @('Get-CsvTrust','Assert-CsvTrustCleanupScope') @{
  'Get-CsvTrust'='Get-ClrTrust';'Assert-CsvTrustCleanupScope'='Assert-ClrTrustCleanupScope';
  'Invoke-CsvOwnSql'='Invoke-ReleaseSql';'Invoke-CsvSql'='Invoke-ReleaseSql'}){. $block}
@@ -39,6 +39,23 @@ function Assert-ClrInstalled($Connection,[string]$Profile) {
  foreach($a in $wanted){if(@($assemblies|Where-Object {$_.name -ceq $a.sql_name -and $_.Hash -ceq $a.sha512.ToUpperInvariant()}).Count -ne 1){throw 'RELEASE_CLR_ASSEMBLY_HASH'}}
  $definitions=@(Invoke-ReleaseSql $Connection "SELECT s.name SchemaName,o.name ObjectName,o.type,CONVERT(varchar(64),HASHBYTES('SHA2_256',m.definition),2) Hash FROM sys.objects o WITH (NOLOCK) JOIN sys.schemas s WITH (NOLOCK) ON s.schema_id=o.schema_id LEFT JOIN sys.sql_modules m WITH (NOLOCK) ON m.object_id=o.object_id WHERE o.is_ms_shipped=0 AND s.name LIKE N'toolbelt[_]%' ORDER BY s.name,o.name;" -Rows)
  return (@{assemblies=$assemblies;definitions=$definitions}|ConvertTo-Json -Depth 5 -Compress)
+}
+function Assert-ReleaseInputs([switch]$All) {
+ $pins=if($All -or $null -eq $script:casePins){$script:runset.pins}else{$script:casePins}
+ foreach($pin in $pins){Assert-ReleasePin $pin.path $pin.sha256}
+}
+function Get-ApiCasePins($Runset,$Case) {
+ $spec=Get-Content -LiteralPath $Runset.spec -Raw|ConvertFrom-Json
+ $tests=@($spec.tests|Where-Object group -ceq $Case.group)
+ if(-not $tests.Count){throw 'RELEASE_API_EMPTY_PIN_SCOPE'}
+ $modules=@($tests.module_id|Select-Object -Unique)
+ $prefix=$Runset.sourceRoot.TrimEnd('\','/')+[IO.Path]::DirectorySeparatorChar
+ foreach($pin in $Runset.pins){
+  if(-not $pin.path.StartsWith($prefix,[StringComparison]::OrdinalIgnoreCase)){$pin;continue}
+  $relative=[IO.Path]::GetRelativePath($Runset.sourceRoot,$pin.path).Replace('\','/')
+  if($relative.StartsWith('Tests/CI/') -or $relative -cin @($tests.source)){$pin;continue}
+  foreach($mid in $modules){if($relative.StartsWith('Modules/'+$mid+'/')){$pin;break}}
+ }
 }
 function Get-ReleaseTimeout {
  $limit=if($script:cleanup){$script:case.cleanupSeconds}else{$script:case.workSeconds}
@@ -66,7 +83,7 @@ function Assert-ApiProduct($Connection,[string]$Profile,[string]$Original) {
   $matches=@($now.definitions|Where-Object {$_.SchemaName -ceq $old.SchemaName -and $_.ObjectName -ceq $old.ObjectName})
   if($matches.Count -ne 1 -or ($matches[0]|ConvertTo-Json -Compress) -cne ($old|ConvertTo-Json -Compress)){throw 'RELEASE_API_PRODUCT_DRIFT'}
  }
- # Leserechte/ProduktidentitÃ¤t werden nicht aus unmarkierten Testhilfsobjekten abgeleitet.
+ # Leserechte/Produktidentität werden nicht aus unmarkierten Testhilfsobjekten abgeleitet.
 }
 function Invoke-ApiEnvironment([string]$Path,[string]$Database,[string]$ToolbeltDatabase) {
  $keys=@('TBX_SQL_HOST','TBX_SQL_PORT','TBX_SQL_USER','TBX_SQL_PASSWORD','TBX_SQL_TARGET','TBX_SQL_TEST_PURPOSE','TBX_SQL_ENCRYPT','TBX_SQL_TRUST_SERVER_CERTIFICATE')
@@ -142,9 +159,10 @@ try {
  if($CaseIndex -ge $runset.cases.Count){throw 'RELEASE_API_RUNSET'}
  $case=$runset.cases[$CaseIndex]
  $journal=Assert-ReleasePrivatePath (Join-Path (Split-Path -Parent $RunsetPath) ('case-'+$CaseIndex+'.json'))
- Assert-ReleaseInputs
+ Assert-ReleaseInputs -All
  . (Join-Path $repo 'Tests/CI/LabQualifiedContract.ps1')
  foreach($block in Import-ClrFunctions (Join-Path $repo 'Tests/CI/run-lab-local.ps1') @('Get-EnvironmentVariableValue','Resolve-LabContract','Test-LabTargetReady','Get-LabTargetsForSelector','New-LabConnectionString')){. $block}
+ $casePins=@(Get-ApiCasePins $runset $case)
  $lab=Resolve-LabContract -TestPurpose Functional
  $targets=@(Get-LabTargetsForSelector -Contract $lab.Contract -Selector $case)
  if($targets.Count -ne 1){throw 'RELEASE_CLR_TARGET_AMBIGUOUS'}
@@ -163,7 +181,7 @@ try {
    if(($entry.preexisting -and ($null -eq $actual -or $actual.Fingerprint -cne $entry.fingerprint)) -or
       (-not $entry.preexisting -and $null -ne $actual)){throw 'RELEASE_CLR_AUDIT_TRUST_DRIFT'}
   }
-  Assert-ReleaseInputs
+  Assert-ReleaseInputs -All
   'PASS RELEASE_CLR_INDEPENDENT_CLEANUP_AND_PINS';exit 0
  }
  if(Test-Path -LiteralPath $journal){throw 'RELEASE_CLR_CASE_ALREADY_ATTEMPTED'}
@@ -245,7 +263,7 @@ try {
   Assert-ApiProduct $db $profile $first;$db.Dispose()
   $ledger.completedModes+=@($mode);Save-ReleaseJournal
  }
- Assert-ReleaseInputs
+ Assert-ReleaseInputs -All
 }catch{
  $errorDetail=$_.Exception;$sqlFailure=$null
  while($true){if($errorDetail -is [Data.SqlClient.SqlException]){$sqlFailure=$errorDetail};if(-not $errorDetail.InnerException){break};$errorDetail=$errorDetail.InnerException}
@@ -253,6 +271,9 @@ try {
  if($ledger -and -not $AuditOnly){$ledger.failure=$failure;$ledger['privateDiagnostic']=$errorDetail.Message;$ledger['privateSourcePosition']=$_.ScriptStackTrace;Save-ReleaseJournal}
 }finally{
  foreach($connection in $connections){try{$connection.Dispose()}catch{}}
+ # Nur Pools dieses eigenen Testprozesses; Metadatenhelfer können eigene
+ # SqlClient-Verbindungen anlegen. Vor dem DROP dürfen keine Idle-Pools bleiben.
+ [Data.SqlClient.SqlConnection]::ClearAllPools()
  if($ledger -and -not $AuditOnly){
   $cleanup=$true
   try{

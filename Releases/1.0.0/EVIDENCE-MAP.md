@@ -26,7 +26,7 @@ qualifizierten SQL-/DLL-Payloads wurden vor der neuen Labwelle verglichen.
 | [core.console-message](../../Modules/toolbelt.core.console-message/module.yaml) | stable | 6 | 2 | keine kanonische Runtimeänderung |
 | [core.error-envelope](../../Modules/toolbelt.core.error-envelope/module.yaml) | stable | 4 | 2 | keine kanonische Runtimeänderung |
 | [core.event-log](../../Modules/toolbelt.core.event-log/module.yaml) | preview | 4 | Voraussetzungen separat | Delta zu prüfen; siehe JSON |
-| [core.execution-cancel](../../Modules/toolbelt.core.execution-cancel/module.yaml) | preview | 3 | 1 | Delta zu prüfen; siehe JSON |
+| [core.execution-cancel](../../Modules/toolbelt.core.execution-cancel/module.yaml) | preview | 3 | 2 | Delta zu prüfen; siehe JSON |
 | [core.execution-context](../../Modules/toolbelt.core.execution-context/module.yaml) | stable | 4 | 2 | keine kanonische Runtimeänderung |
 | [core.generate-series](../../Modules/toolbelt.core.generate-series/module.yaml) | stable | 8 | 2 | keine kanonische Runtimeänderung |
 | [core.result-table](../../Modules/toolbelt.core.result-table/module.yaml) | stable | 9 | 2 | keine kanonische Runtimeänderung |

@@ -8,7 +8,8 @@
     "formats",
     "windows",
     "csv",
-    "translate-large"
+    "translate-large",
+    "gaps"
   ],
   "tests": [
     {
@@ -1366,6 +1367,14 @@
       "group": "text",
       "kind": "environment-script",
       "source": "Modules/toolbelt.string.regex/Tests/Runtime/Relations.Metadata.ps1",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.core.execution-cancel:Cancellation.StrictErrors.sql",
+      "module_id": "toolbelt.core.execution-cancel",
+      "group": "gaps",
+      "kind": "sql",
+      "source": "Tests/Release/Runtime/Cancellation.StrictErrors.sql",
       "context": "installed"
     }
   ],

@@ -2,7 +2,7 @@
 
 ## API- und Grenzqualifikation
 
-`api-qualification-spec.json` benennt die 164 ausgewählten kanonischen
+`api-qualification-spec.json` benennt die 165 ausgewählten kanonischen
 Fixtures, ihre Adapter und die gezielten Ergänzungen. Der
 [Ergebnisbericht](../../Releases/1.0.0/API-QUALIFICATION.md) und die
 [45-Modul-Zuordnung](../../Releases/1.0.0/EVIDENCE-MAP.md) begrenzen den

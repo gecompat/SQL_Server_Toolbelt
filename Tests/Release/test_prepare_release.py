@@ -325,8 +325,8 @@ class ApiQualificationTests(unittest.TestCase):
     def test_no_publication_finite_scope_and_owned_cleanup_remain_explicit(self):
         plan = json.loads((ROOT / 'Tests/Release/api-qualification-spec.json').read_bytes())
         self.assertFalse(plan['publication_authorized'])
-        self.assertEqual(len(plan['tests']), 164)
-        self.assertEqual(len({x['id'] for x in plan['tests']}), 164)
+        self.assertEqual(len(plan['tests']), 165)
+        self.assertEqual(len({x['id'] for x in plan['tests']}), 165)
         self.assertEqual(plan['reused_full_matrices'], ['toolbelt.conversion.safe-cast', 'toolbelt.json.pointer'])
         for t in plan['tests']:
             self.assertTrue((ROOT / t['source']).is_file())
@@ -352,7 +352,7 @@ class ApiQualificationTests(unittest.TestCase):
 $ErrorActionPreference='Stop'
 $e=$null;$ast=[Management.Automation.Language.Parser]::ParseFile('Tests/Release/Invoke-ApiQualificationLab.ps1',[ref]$null,[ref]$e)
 if($e.Count){throw 'PARSE'}
-foreach($name in @('Test-ApiSelected','Get-ReleaseTimeout')){
+foreach($name in @('Test-ApiSelected','Get-ReleaseTimeout','Get-ApiCasePins','Assert-ReleaseInputs')){
  $node=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq $name},$true))
  if($node.Count -ne 1){throw 'FUNCTION'}
  . ([scriptblock]::Create($node[0].Extent.Text))
@@ -374,6 +374,19 @@ if((Get-ReleaseTimeout) -ne 15){throw 'CLEANUP_RESERVE_LOST'}
 $clock.ElapsedMilliseconds=360001;$caught=$false
 try{[void](Get-ReleaseTimeout)}catch{if($_.Exception.Message -cne 'RELEASE_API_DEADLINE'){throw};$caught=$true}
 if(-not $caught){throw 'CLEANUP_UNBOUNDED'}
+$root=Join-Path (Get-Location) '.runtime/offline-not-opened/Source'
+$paths=@('Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Xlsx.Metadata.ps1','Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Types.Composition.xlsx','Modules/toolbelt.string.regex/Tests/Runtime/Relations.Metadata.ps1','Tests/CI/Set-SqlClientTlsPolicy.ps1','Tests/Release/Runtime/DefaultSnapshotCeiling.sql')
+$pins=@(@{path=(Join-Path (Get-Location) 'Tests/Release/Invoke-ApiQualificationLab.ps1');sha256='synthetic'})
+$pins+=@($paths|ForEach-Object {@{path=(Join-Path $root $_);sha256='synthetic'}})
+$runset=[pscustomobject]@{sourceRoot=$root;spec=(Join-Path (Get-Location) 'Tests/Release/api-qualification-spec.json');pins=$pins}
+$case.group='formats';$casePins=@(Get-ApiCasePins $runset $case)
+if($casePins.Count -ne 4 -or @($casePins|Where-Object {$_.path -match 'regex|DefaultSnapshot'}).Count){throw 'GROUP_PIN_SCOPE'}
+$checked=0
+function Assert-ReleasePin($Path,$Expected){$script:checked++}
+Assert-ReleaseInputs
+if($checked -ne 4){throw 'GROUP_INPUT_CHECK_LOST'}
+$checked=0;Assert-ReleaseInputs -All
+if($checked -ne 6){throw 'WHOLE_INPUT_AUDIT_LOST'}
 'PASS OFFLINE_API_GUARDS'
 '''
         result = subprocess.run(['pwsh', '-NoProfile', '-NonInteractive', '-Command', script], cwd=ROOT, capture_output=True, text=True, timeout=20)

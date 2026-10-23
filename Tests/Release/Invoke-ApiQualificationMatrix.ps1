@@ -25,6 +25,7 @@ if($FrozenRunset){
 }else{
  $inputPath=Assert-ReleasePrivatePath (Join-Path $InputDirectory 'input.json')
  $input=Get-Content -LiteralPath $inputPath -Raw|ConvertFrom-Json
+ if((Get-FileHash -LiteralPath $input.complete_input -Algorithm SHA256).Hash -ine $input.complete_input_sha256){throw 'RELEASE_API_STAGED_PACKAGE_DRIFT'}
  $spec=Get-Content -LiteralPath $input.spec -Raw|ConvertFrom-Json
  $cases=@()
  foreach($group in $spec.groups){
@@ -48,8 +49,8 @@ if($FrozenRunset){
    }
   }
  }
- if($cases.Count -ne 62 -or $spec.tests.Count -ne 164){throw 'RELEASE_API_FINITE_SCOPE_CHANGED'}
- if($PlanOnly){'PASS RELEASE_API_PLAN 62 cases, 164 canonical fixture definitions; no SQL connection';return}
+ if($cases.Count -ne 74 -or $spec.tests.Count -ne 165){throw 'RELEASE_API_FINITE_SCOPE_CHANGED'}
+ if($PlanOnly){'PASS RELEASE_API_PLAN 74 cases, 165 canonical fixture definitions; no SQL connection';return}
  $evidence=Assert-ReleasePrivatePath $EvidenceDirectory
  if(Test-Path -LiteralPath $evidence){throw 'RELEASE_API_NEW_EVIDENCE_REQUIRED'}
  [void][IO.Directory]::CreateDirectory($evidence)
@@ -63,7 +64,7 @@ if($FrozenRunset){
  $paths=@($driver,$PSCommandPath,(Join-Path $PSScriptRoot 'Invoke-StablePackageLab.ps1'),(Join-Path $PSScriptRoot 'Invoke-CompletePackageLab.ps1'),
   (Join-Path $PSScriptRoot 'prepare_api_qualification.py'),(Join-Path $repo 'Tests/CI/run-csv-memory-lab.ps1'),
   (Join-Path $repo 'Tests/CI/LabQualifiedContract.ps1'),$helper,$lab.Path,$lab.SchemaPath,$prompt,$inputPath,$input.spec,$input.complete_input)
- # VollstÃƒÂ¤ndige, kanonisch gestagte Modultests mitsamt relativen Hilfen und Fixtures.
+ # Vollständige, kanonisch gestagte Modultests mitsamt relativen Hilfen und Fixtures.
  $paths+=@(Get-ChildItem -LiteralPath $input.source_root -Recurse -File|Where-Object {$_.FullName -match '[\\/]Tests[\\/]|[\\/]Contracts[\\/]|[\\/]Fixtures[\\/]|[\\/]Tests[\\/]CI[\\/]'}|Select-Object -ExpandProperty FullName)
  $paths+=@(Get-ChildItem -LiteralPath $InputDirectory -File|Select-Object -ExpandProperty FullName)
  $pins=@($paths|Sort-Object -Unique|ForEach-Object {@{path=$_;sha256=(Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash}})
@@ -122,4 +123,4 @@ for($index=0;$index -lt $runset.cases.Count;$index++){
  if(-not ($workOk -and $auditOk)){throw ('RELEASE_API_CASE_STOP_'+$index+'_'+$record.result)}
  Write-Output "PASS RELEASE_API_CASE $index group=$($case.group); independent cleanup and pins"
 }
-'PASS RELEASE_API_MATRIX 62 target/CL/group cases; no publication'
+'PASS RELEASE_API_MATRIX 74 target/CL/group cases; no publication'

@@ -223,7 +223,8 @@
         "Modules/toolbelt.core.execution-cancel/Source/USP_RequestExecutionCancellation.sql"
       ],
       "additional_fixture_ids": [
-        "toolbelt.core.execution-cancel:ExecutionCancellation.Contract.sql"
+        "toolbelt.core.execution-cancel:ExecutionCancellation.Contract.sql",
+        "toolbelt.core.execution-cancel:Cancellation.StrictErrors.sql"
       ],
       "prior_full_matrix_reused": false,
       "additional_result": "not executed"
