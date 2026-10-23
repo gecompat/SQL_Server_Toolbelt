@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2026-10-22 – Fertige CLR-DLLs ohne eigenen Build installieren
+
+Der [CLR-Installationssatz](Releases/1.0.0/CLR-INSTALL.md) liefert zwölf
+Toolbelt-DLLs und ScriptDom mit Quellcode, Attributionen, exakten Trustwerten,
+fertigen SQL-Dateien und optionalem PowerShell-Helper. Windows-/Portable-
+und lokale/zentrale Profile erhalten die bisherigen Modulgrenzen. Zwölf
+native Paketfälle mit Repeat, Consumer, Uninstall/Absent-Repeat und
+unabhängigen Cleanupaudits bestanden. Eigene Konfigurationsänderungen sind
+wiederhergestellt; der Schlussaudit bestätigt 39 eigene Datenbanknamen
+abwesend und den Trustzustand wiederhergestellt. Ein erster Adapterfehler
+bleibt fehlgeschlagen und bereinigt. Modulversionen, Stable-/Preview-Vorschläge,
+fachliche Releasegates und `unreleased` bleiben unverändert; keine Veröffentlichung.
+
 ## 2026-10-22 – Stabile Paketexports nativ geprüft
 
 Der [Gatebericht zur v1.0.0-Vorbereitung](Releases/1.0.0/RELEASE-GATES.md)

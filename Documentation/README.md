@@ -7,6 +7,9 @@ dem fertigen ZIP und führt über SSMS und eine neue Demodatenbank zu einer
 geprüften Installation samt ersten Aufrufen. Sie erklärt Voraussetzungen,
 erwartete Ergebnisse und konkrete Hilfe bei Fehlern, ohne einen eigenen Build
 für die stabilen T-SQL-Kandidaten vorauszusetzen.
+Für die zusätzlichen CLR-Module führt
+[CLR ohne eigenen Build installieren](../Releases/1.0.0/CLR-INSTALL.md)
+zu den fertigen DLLs und dem passenden SQL-Installationsprofil.
 
 ## Ein Modul gezielt auswählen
 

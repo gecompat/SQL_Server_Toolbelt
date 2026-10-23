@@ -38,6 +38,8 @@ Beginne mit [Toolbelt installieren – Schritt für Schritt](./INSTALL.md).
 Die Anleitung erklärt Download, SSMS-Anmeldung, neue Demodatenbank,
 Installation, erwartete Testergebnisse und Hilfe bei Fehlermeldungen.
 Für den Einstieg mit den stabilen T-SQL-Kandidaten ist kein eigener Build nötig.
+Für CLR-Module gibt es zusätzlich die
+[Installation mit fertigen DLLs](./Releases/1.0.0/CLR-INSTALL.md), ebenfalls ohne eigenen Build.
 
 ## Zweck
 

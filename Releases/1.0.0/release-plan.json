@@ -56,7 +56,7 @@
         "Modules/toolbelt.archive.zip-memory/README.md",
         "Modules/toolbelt.archive.zip-memory/Tests/README.md"
       ],
-      "binary_delivery": "source_and_build_scripts",
+      "binary_delivery": "prebuilt_clr_install_zip_and_sources",
       "pending_before_publication": "SQL-LOB-Ceilings, relevante Kapazitätsgrenzen und jeweilige Reader-/Writer-Scopegrenzen prüfen.",
       "proposed_channel": "preview"
     },
@@ -546,7 +546,7 @@
         "Modules/toolbelt.file.csv-memory/README.md",
         "Modules/toolbelt.file.csv-memory/Tests/README.md"
       ],
-      "binary_delivery": "source_and_build_scripts",
+      "binary_delivery": "prebuilt_clr_install_zip_and_sources",
       "pending_before_publication": "Default-MaxValueBytes 16 MiB, globale Defaultzellgrenze, weitere Ziel-/Rechte-/Clientfälle separat abnehmen.",
       "proposed_channel": "preview"
     },
@@ -570,7 +570,7 @@
         "Modules/toolbelt.file.xlsx-memory/README.md",
         "Modules/toolbelt.file.xlsx-memory/Tests/README.md"
       ],
-      "binary_delivery": "source_and_build_scripts",
+      "binary_delivery": "prebuilt_clr_install_zip_and_sources",
       "pending_before_publication": "Raw-/Typ-/Anzeige-Scope, Genuine-Upgrades, weitere Ziele und Minimalrechte getrennt zuordnen.",
       "proposed_channel": "preview"
     },
@@ -593,7 +593,7 @@
         "Modules/toolbelt.filesystem.windows/README.md",
         "Modules/toolbelt.filesystem.windows/Tests/README.md"
       ],
-      "binary_delivery": "source_and_build_scripts",
+      "binary_delivery": "prebuilt_clr_install_zip_and_sources",
       "pending_before_publication": "Windows-/Identitäts-/NTFS-/Reparse-/Delete-/Rechtefälle; Linux bleibt außerhalb des Providers.",
       "proposed_channel": "preview"
     },
@@ -617,7 +617,7 @@
         "Modules/toolbelt.json.constructors/README.md",
         "Modules/toolbelt.json.constructors/Tests/README.md"
       ],
-      "binary_delivery": "source_and_build_scripts",
+      "binary_delivery": "prebuilt_clr_install_zip_and_sources",
       "pending_before_publication": "Core-Dependency, Constructor-/Upgrade-/CL-Scope und Minimalrechte gemeinsam abnehmen.",
       "proposed_channel": "preview"
     },
@@ -637,7 +637,7 @@
         "Modules/toolbelt.json.core/module.yaml",
         "Modules/toolbelt.json.core/README.md"
       ],
-      "binary_delivery": "source_and_build_scripts",
+      "binary_delivery": "prebuilt_clr_install_zip_and_sources",
       "pending_before_publication": "Gemeinsamen CLR-Core, Consumerclosure, Lifecycle und Rechte pro Supportkombination abnehmen.",
       "proposed_channel": "preview"
     },
@@ -702,7 +702,7 @@
         "Modules/toolbelt.json.schema/module.yaml",
         "Modules/toolbelt.json.schema/README.md"
       ],
-      "binary_delivery": "source_and_build_scripts",
+      "binary_delivery": "prebuilt_clr_install_zip_and_sources",
       "pending_before_publication": "Coreclosure, weitere Lifecycle-/Ziel-/Rechtekombinationen und Budgetgrenzen abnehmen.",
       "proposed_channel": "preview"
     },
@@ -835,7 +835,7 @@
         "Modules/toolbelt.string.edit-distance/README.md",
         "Modules/toolbelt.string.edit-distance/Tests/README.md"
       ],
-      "binary_delivery": "source_and_build_scripts",
+      "binary_delivery": "prebuilt_clr_install_zip_and_sources",
       "pending_before_publication": "Distanz-/Jaro-Scope, weitere physische Ziele, Minimalrechte und Kapazitätsgrenzen abnehmen.",
       "proposed_channel": "preview"
     },
@@ -856,7 +856,7 @@
         "Modules/toolbelt.string.phonetic/README.md",
         "Modules/toolbelt.string.phonetic/Tests/README.md"
       ],
-      "binary_delivery": "source_and_build_scripts",
+      "binary_delivery": "prebuilt_clr_install_zip_and_sources",
       "pending_before_publication": "Vollständige Scannerabdeckung sowie native Ziel-/Rechte-/Lifecyclematrix abnehmen.",
       "proposed_channel": "preview"
     },
@@ -877,7 +877,7 @@
         "Modules/toolbelt.string.regex/README.md",
         "Modules/toolbelt.string.regex/Tests/README.md"
       ],
-      "binary_delivery": "source_and_build_scripts",
+      "binary_delivery": "prebuilt_clr_install_zip_and_sources",
       "pending_before_publication": "Capture-/Replace-Grenzen, ältere Upgradepfade, große SQL-Ausgabe und Minimalrechte abnehmen.",
       "proposed_channel": "preview"
     },
@@ -968,7 +968,7 @@
         "Modules/toolbelt.tsql.script-parser/README.md",
         "Modules/toolbelt.tsql.script-parser/Tests/README.md"
       ],
-      "binary_delivery": "qualified_ssis_install_zip_and_sources",
+      "binary_delivery": "prebuilt_clr_install_zip_and_sources",
       "pending_before_publication": "Alle angebotenen nativen Parser-APIs, Ausgabeceilings und Minimalrechte vollständig zuordnen.",
       "proposed_channel": "preview"
     },
@@ -992,7 +992,7 @@
         "Modules/toolbelt.tsql.ssis-debug/README.md",
         "Modules/toolbelt.tsql.ssis-debug/Tests/README.md"
       ],
-      "binary_delivery": "qualified_ssis_install_zip_and_sources",
+      "binary_delivery": "prebuilt_clr_install_zip_and_sources",
       "pending_before_publication": "Windows-Abnahme lokal/zentral belegt; Parserclosure, endgültige Rechte- und Releaseabnahme separat.",
       "proposed_channel": "preview"
     },

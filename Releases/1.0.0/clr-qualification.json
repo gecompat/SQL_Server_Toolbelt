@@ -1,0 +1,240 @@
+{
+  "schema_version": "1.0",
+  "publication_authorized": false,
+  "date": "2026-10-22",
+  "scope": "PACKAGE_INSTALLATION_ONLY; no new full module API, minimal-rights, memory, recovery or release qualification",
+  "native_cases_passed": 12,
+  "deployment_paths_passed": 24,
+  "matrix": [
+    {
+      "platform": "Windows",
+      "sql": "2019",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Windows",
+      "sql": "2022",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Windows",
+      "sql": "2022",
+      "compatibility_level": 160,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Windows",
+      "sql": "2025",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Windows",
+      "sql": "2025",
+      "compatibility_level": 160,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Windows",
+      "sql": "2025",
+      "compatibility_level": 170,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2019",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2022",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2022",
+      "compatibility_level": 160,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2025",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2025",
+      "compatibility_level": 160,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2025",
+      "compatibility_level": 170,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    }
+  ],
+  "transport": {
+    "purpose": "Functional",
+    "encrypt": true,
+    "trust": "explicit schema-validated Lab boolean; no fallback",
+    "authenticated_tls": "not executed"
+  },
+  "profile_limits": {
+    "Windows-local": "12 CLR modules + ResultTable",
+    "Windows-central": "11 CLR modules + ResultTable; filesystem local only",
+    "Portable-local": "9 SAFE CLR modules + ResultTable",
+    "Portable-central": "9 SAFE CLR modules + ResultTable"
+  },
+  "assertions": [
+    "first installation",
+    "explicit hash-bound repeat in fresh connection",
+    "exact DLL hashes and module-marker set",
+    "fixed phonetic value and JSON help smokes",
+    "central consumer",
+    "reverse uninstall and explicit absent repeat",
+    "independent cleanup and frozen input audits"
+  ],
+  "native_archive_sha256": "23f5c7a1882fa522c92ec57cf0cba7c97e509fa64b113a66a98d3b233da63cd1",
+  "sql_payload_sha256": {
+    "SQL/Install-Portable-central.sql": "0f75b634bab12d8772c135310f0ded358b2e01bbae14d7940dee5b74486aaae1",
+    "SQL/Install-Portable-local.sql": "7442209a54881e2204eadddeadd5fca63a5259b511624c9827a1d8868242bd81",
+    "SQL/Install-Windows-central.sql": "e52bad52424d47fb6e066fee8483f58ba47adaeb2e75dab28e5eed61cc9d0848",
+    "SQL/Install-Windows-local.sql": "d1ae56a46bd1854c0350ec795e3f9fbe4f7d869a689c4dd61e36b39aa29ed558",
+    "SQL/Repeat-Portable-central.sql": "c9f78caccaa40be1871237adf2de034764e115c94a38e1862347849c3682cf40",
+    "SQL/Repeat-Portable-local.sql": "055fb9fb3b6b50b16c4dbc278132da522e062f38f738d5d666de97dc4f812753",
+    "SQL/Repeat-Windows-central.sql": "f1815dff96c58498d5087c76482ff531d04b24d622fb8243a4749c92aa21fe0c",
+    "SQL/Repeat-Windows-local.sql": "16afb7146b895c4314b82e831864ffe2ef007b09b81aedf9cbcf0f534e2fa04b",
+    "SQL/Trust-Portable-central.sql": "5ec7c9b4154921cd3a27b3cac10d3a81010173f2f1cf4f14732c8f3dde522f08",
+    "SQL/Trust-Portable-local.sql": "5ec7c9b4154921cd3a27b3cac10d3a81010173f2f1cf4f14732c8f3dde522f08",
+    "SQL/Trust-Windows-central.sql": "38885427883e2665d026e5f05433731bb97094fdbb2078198efeff654f18c7d2",
+    "SQL/Trust-Windows-local.sql": "c45bb7d1a59caa926096fdc89b32c4038e15ec60af5ed711a438fc2b4f0a497e",
+    "SQL/Uninstall-Portable-central.sql": "1169464fcc3b720c114a568e488feb5d676d6b74d09dceee0a155caaf1964128",
+    "SQL/Uninstall-Portable-local.sql": "1169464fcc3b720c114a568e488feb5d676d6b74d09dceee0a155caaf1964128",
+    "SQL/Uninstall-Windows-central.sql": "ab3300e8b6f8ffcf545fb4d998153e1ed07cb2ec7c3c8ca3b0749aec4d6882b1",
+    "SQL/Uninstall-Windows-local.sql": "69c2eb4423d4225fd765a08d95570d2b92fc8db7057d6e6a10a481137c529621",
+    "SQL/UninstallAbsent-Portable-central.sql": "ba784ca610119ffd446d5cd2142891203690e560ea3b338c784c0f3df6ea0c37",
+    "SQL/UninstallAbsent-Portable-local.sql": "ba784ca610119ffd446d5cd2142891203690e560ea3b338c784c0f3df6ea0c37",
+    "SQL/UninstallAbsent-Windows-central.sql": "b55af25113f749280ba6ce55580ba13da29015a4e1e2d2ac4cc0b7f605c59edc",
+    "SQL/UninstallAbsent-Windows-local.sql": "f56726cd1a4d4930aaa8e48df6fa27225189cfa7a7c533eae64b22d15ff16848"
+  },
+  "binary_sha512": {
+    "Binaries/Microsoft.SqlServer.TransactSql.ScriptDom.dll": "459e137268a4ca378023cd7e68a04655cec2c19a8d01546e81b1a7abf1fe2f9226a03cc3fa2323081c3c1b05626af988c98527711d577919cf409367f853dac7",
+    "Binaries/Toolbelt.Archive.ZipMemory.dll": "a3185897b72adbaa81c462cabedc6a770ebedf6b123b1f148d8a659b146130d90c163b76840d59aa8148661b00316cd02d8c5c05174e3394659edc53ff9f1894",
+    "Binaries/Toolbelt.File.CsvMemory.dll": "fb4ad8b4d0affff25d660f2231ee3024ad9702d4fbd01769290f2ab65fd1621facf7ef62dc92f4f6175e6db658051e417aa6bb7fb7e48c924f2e9ac61d51f960",
+    "Binaries/Toolbelt.File.XlsxMemory.dll": "afa7709f78447d122bb2b1d7c37668eda31ac82d8bd2d124a36d1d6924d3c2a430ecf5f34afe0b00c622ce1a3c07eb0043e5a5fe559c52fbfa5a0a9121995fb3",
+    "Binaries/Toolbelt.Filesystem.Windows.dll": "c5cb30b58e4a76a10af20c50c593fbe0184963587e02b448c5d2cc3a131a32b6835c0708796b6d2039a5f1d970afd964dedf244bf22a325d8f95db4fa07f0052",
+    "Binaries/Toolbelt.JsonConstructors.dll": "8ab08a17d1be0b861043463e223154dffbed8273bc2c197cd7c8b791c3c06c4af418358e8e743d72068a3a9f726f7f85f50bcfa431df0484202ab562e1edb4bf",
+    "Binaries/Toolbelt.JsonCore.dll": "4680e9d34a0870924b5ca003cc5983882fc8ffb653e702bcc549e5f65dde11934c55ba7b356b519503ac5ce1e2478fe64876fea0295176ff13b5b4a6ab61b894",
+    "Binaries/Toolbelt.JsonSchema.dll": "523b65979267457e8326ed2d5ec96d0309e9e1c7d5a0b2fbc0a3de68dcf7a9bb5a4f9cdda704ee0ba9f19097edbfb66eb8d649c0f2941b4a16adc2880bef880f",
+    "Binaries/Toolbelt.String.EditDistance.dll": "c81e7a841dc0670b850f46d932337f55b6225d2a834d4480ae3d514875b84bf56261ff580df56155a59c0f8a56b6fe54e798d046329f4122e7228467cca90404",
+    "Binaries/Toolbelt.String.Phonetic.dll": "c1155aa10d9fce61ae33cf8e6f6c68528d219db4835d74b3a35e129f851f66e2fca47c99a6f8f74f3d38239f9be84968459366bbfbeb0125c077b61a8d1989e9",
+    "Binaries/Toolbelt.String.Regex.dll": "c353c0242a2854baca8996c6e2429b9efa755ee696b8e9497b288c5cdd8252f752b2504c4d84d5a35f419186247636afb3b9d6f73d2e4f93315793037341dcb8",
+    "Binaries/Toolbelt.Tsql.ScriptParser.dll": "7f34d0472dbe5913c8d019a72b2684d89cb4ca79590b599dd5b06154d6a40c5494334d8f46218e10e9d1bc5db983a8750ba77a685d68865d9bcdf30c3d853506",
+    "Binaries/Toolbelt.Tsql.SsisDebug.dll": "84ba992e7482b644b5ee8b4ebbc1aff537cd690a9d3d4366a0b037fe10e5bd3ad40352dc16c7d643b5180185d011e83ad7411ef359cb3ffc3f75e046b46e66fc"
+  },
+  "method_bindings": {
+    "Scripts/Release/prepare_clr_package.py": "19432f5bc4112dd8d1e29053563bb0685abfff0898b0059079a1310a64630d91",
+    "Scripts/Release/prepare_release.py": "c1d8b78474720aab03037bd42d12284ff8a237daf472515872dab0cec821b630",
+    "Scripts/Release/check_clr_builds.py": "4aece76b135c8bbd443bb5a64a9faac3221db2055ee7d75a59ed4b04d654b6d3",
+    "Scripts/Release/Install-ClrPackage.ps1": "2f030e922b2ab48d7ee9a284dc2694ede427d8643c29fbdc31638cb5c03adac2",
+    "Tests/Release/Invoke-ClrPackageLab.ps1": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
+    "Tests/Release/Invoke-ClrPackageMatrix.ps1": "756ff4620c5c47cf2af17b00b194ec4cfa22980b8ef14d9ef390483bb18c5781",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py": "e7a01dddf939f28eedc421b8da22395bf4a4c96dc871dffdd7cf109f9254915d"
+  },
+  "executed_matrix_source_commit": "58bd2e516afdaea0034efee03dee7ec9f52e7494",
+  "executed_matrix_sha256": "9c0adc92c5b21ec0c3a32f3bf298616066ab09754227b462d2aa97d266c01aff",
+  "current_matrix_delta": "After native completion, additive prefix/final-coverage guards only; pure positive/negative guard tests added. Case driver and all tested SQL/DLL bytes unchanged. No native replay claimed. Canonical LF working-tree normalization, no program-text change.",
+  "cleanup": {
+    "final_independent_database_absence_count": 39,
+    "complete_cases": 12,
+    "failed_cleaned_cases": 1,
+    "own_trust_absent": true,
+    "preexisting_trust_fingerprints_preserved": true,
+    "own_configuration_restored_and_independently_audited": true,
+    "rights_changes": 0,
+    "infrastructure_changes": 0
+  },
+  "history": [
+    {
+      "outcome": "failed_cleaned",
+      "cause": "Initial package adapter repeated uninstall with present hash. Corrected explicit UninstallAbsent export; original failure preserved."
+    },
+    {
+      "outcome": "not_executed",
+      "cause": "Continuation JSON timestamp culture conversion rejected before SQL. Corrected typed DateTime conversion; original shared budget retained."
+    },
+    {
+      "outcome": "blocked_before_mutation",
+      "cause": "CLR disabled at one target preflight. Explicit standing test configuration authority used with private state/impact journal and restoration audit."
+    }
+  ],
+  "builds": {
+    "source_commit": "5b83a73aab3639b0d45b56e334fb38dc24509279",
+    "product_bytes_unchanged": true,
+    "reproducible_double_build_modules_reused": 10,
+    "ssis_parser_binaries": "unchanged existing qualified package",
+    "third_party": "unchanged pinned ScriptDom with existing licenses"
+  },
+  "cost_and_tokens": "UNKNOWN",
+  "executed_matrix_source_note": "Git source text; exact executed worktree SHA retained separately, including worktree line endings.",
+  "executed_case_driver_sha256": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
+  "product_commit": "756e7fb0444aedf04949409a8fab2189b9fa890f"
+}

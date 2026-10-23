@@ -18,6 +18,9 @@ Abnahmegrenzen; der [Plan](release-plan.json) ist die maschinenlesbare Ableitung
   getrennten menschlichen Lesewegen; keine neue optionale Runtime aktiviert.
 - Reproduzierbare CLR-Buildprüfung und nativer Pakettest der stabilen Exports;
   ausgeführter Scope und verbleibende Grenzen im [Gatebericht](RELEASE-GATES.md).
+- Zusätzlicher [CLR-Installationssatz ohne eigenen Build](CLR-INSTALL.md):
+  zwölf Toolbelt-DLLs, ScriptDom, Quellcode, Trust und fertige SQL-Dateien;
+  Windows-/Portable- sowie lokale/zentrale Profile sind nativ paketgeprüft.
 
 ## Grenzen und Migration
 
@@ -28,8 +31,9 @@ universeller Upgradepfad. Backups und ein eigener Installationstest sind
 gemäß dem jeweiligen Modulvertrag einzuplanen.
 
 Alle Modulmanifeste sind noch `unreleased`. Preview ist keine pauschale
-Qualifikation. Weitere CLR-Binaries und genaue Supportkombinationen müssen
-vor einer entsprechenden öffentlichen Lieferzusage gebunden sein. Die
+Qualifikation. Die vorgebauten CLR-Binaries sind an ihre Paketnachweise gebunden;
+genaue Supportkombinationen und vollständige fachliche Pflichtnachweise müssen
+vor einer öffentlichen Supportzusage abgenommen sein. Die
 authentifizierte TLS-Abnahme bleibt separat; unabhängige Functional-Nachweise
 gelten ausschließlich für ihren dokumentierten Transport-/Funktionsscope.
 

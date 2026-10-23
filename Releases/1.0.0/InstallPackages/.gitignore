@@ -1,0 +1,6 @@
+# Nur der ausdrücklich geprüfte Installationssatz wird versioniert.
+*
+!.gitignore
+!README.md
+!SQL-Server-Toolbelt-1.0.0-CLR-Install.zip
+!SQL-Server-Toolbelt-1.0.0-CLR-Install.zip.sha256

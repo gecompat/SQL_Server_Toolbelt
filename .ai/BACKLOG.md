@@ -16,9 +16,9 @@ Die [Vorbereitung](../Releases/1.0.0/README.md) friert alle 45 Module ein.
 19 stabile und 26 Preview-Kandidaten berücksichtigen transitive Dependencies;
 Second Session und Event Log bleiben wegen Work Type vorläufig Preview.
 Keine Modulstatusaufwertung, API- oder Produktänderung. Das Gesamt-ZIP ist
-ein Quellpaket mit zusätzlichen stabilen SQL-Exports und dem bestehenden
-SSIS-Installationssatz; weitere vorgebaute CLR-Pakete bleiben ein sichtbares
-Liefergate. Konkrete Supportkombinationen, fachlicher Release-Review und
+zunächst ein Quellpaket mit zusätzlichen stabilen SQL-Exports und dem bestehenden
+SSIS-Installationssatz. Das damalige Liefergate weiterer vorgebauter CLR-Pakete
+ist durch das unten beschriebene Folgepaket bearbeitet. Konkrete Supportkombinationen, fachlicher Release-Review und
 Veröffentlichungsfreigabe sind weiterhin ausstehend. Kein Tag oder Release.
 
 Anschließender ausdrücklicher Benutzerauftrag vom 2026-10-22: ohne weitere
@@ -38,6 +38,32 @@ führt vom ZIP über SSMS zu Installation, erwarteten Ergebnissen und
 Fehlerklärung; README, Dokumentationsübersicht und Paketstart verlinken sie.
 Paketpflege mit vollständiger Quellprüfung und der Endanwenderweg mit
 verpflichtendem Prüfsummenvergleich bleiben klar unterschieden.
+
+## Vorgebaute CLR-Installation v1.0.0 — 2026-10-22
+
+Ausdrücklicher unmittelbarer Benutzerauftrag: fertige DLLs mitliefern, den
+Quellcode beibehalten und eine schnelle Installation ohne eigenen Build
+ermöglichen. Ein abgegrenztes Paketierungsarbeitspaket/ein PR, keine neue
+fachliche API und keine Änderung der Stable-/Preview-Einstufung. Allgemeine
+autonome Weiterentwicklung und Veröffentlichung bleiben pausiert.
+
+Der vorhandene reproduzierbare Doppelbuild ist an identische Produktquellen
+gebunden. SSIS-/Parser-/ScriptDom-Binaries werden aus dem bestehenden
+qualifizierten Satz übernommen; andere Provider bleiben exakt an ihre
+Buildbytes gebunden. Vier explizite Installationsprofile erhalten Windows-,
+SAFE-/UNSAFE- und lokale/zentralen Grenzen sowie kanonische Hash-/Lifecycle-
+Guards. Fertige SQL-Dateien enthalten die Assemblybytes; DLLs, Quellcode,
+Trustwerte und Attributionen werden zusätzlich ausgeliefert. Zwölf native
+Paketfälle lokal/zentral/Consumer einschließlich explizitem Hashrepeat und
+abwesendem Uninstallrepeat bestanden. Der separate Schlussaudit bestätigte
+39 eigene DB-Namen abwesend, eigenen Trust entfernt, vorbestehenden Trust
+erhalten und die Konfiguration nach Abschluss wiederhergestellt. Erster
+Uninstalladapterfehler bleibt `failed_cleaned`, Setup-/Preflightstopps bleiben
+sichtbar. Kein Budgetreset oder Replay erfolgreicher Fälle.
+[Anleitung](../Releases/1.0.0/CLR-INSTALL.md),
+[Nachweisbindung](../Releases/1.0.0/clr-qualification.json) und
+[Gatebericht](../Releases/1.0.0/RELEASE-GATES.md) begrenzen den Scope.
+Alle vorhandenen fachlichen Releasegates bleiben sichtbar.
 
 ## Dokumentationspflege aus Foundation 1.25 — 2026-10-22
 

@@ -25,15 +25,16 @@ Preview-Dependencies begrenzen den Kanal. Deshalb sind Second Session und
 Event Log trotz eigenem `validated` vorläufig Preview. Alle Vorschläge
 benötigen vor Veröffentlichung die konkrete fachliche Supportabnahme.
 
-Das Quellpaket ist **kein vollständig vorgebautes CLR-Installationspaket**.
-Der enthaltene [SSIS-Installationssatz](../../Modules/toolbelt.tsql.ssis-debug/InstallPackages/README.md)
-liefert bereits die gemeinsam qualifizierten SSIS-/Parser-/ScriptDom-Binaries.
-Andere CLR-Module benötigen ihre dokumentierten passenden Binary-/Trustinputs.
-Die maschinenlesbare Lieferform steht pro Modul in
-[release-plan.json](release-plan.json). Fehlende Binaries werden nicht durch
-ungeprüfte lokale DLLs oder einen stillen Neubuild ersetzt. Ein allgemeines
-„alle CLR-Module ohne eigenen Build installieren“-Paket bleibt ein offenes
-Liefergate vor einer entsprechenden Veröffentlichungszusage.
+Das Gesamt-ZIP enthält zusätzlich den
+[CLR-Installationskandidaten mit fertigen DLLs](CLR-INSTALL.md). Er liefert alle
+zwölf Toolbelt-CLR-Module und ScriptDom, SQL-Dateien mit eingebetteten Bytes,
+explizite Trustwerte, Quellcode und Attributionen. Die vier Profile unterscheiden
+Windows/Portable und local/central; das Windows-Dateisystemmodul bleibt lokal.
+Auf dem Installationsrechner sind keine Buildwerkzeuge erforderlich.
+SSIS-/Parser-/ScriptDom-Binaries bleiben exakt aus dem bestehenden qualifizierten
+Satz erhalten. Die maschinenlesbare Lieferform steht pro Modul in
+[release-plan.json](release-plan.json). Paketinstallation und vollständige
+fachliche Releasefreigabe sind getrennt; Preview-Grenzen bleiben bestehen.
 
 ## Paket bauen und unabhängig prüfen
 
@@ -135,9 +136,10 @@ Speicher-, Parallelitäts-, Recovery- oder TLS-Qualifikation.
 - Offene CSV-/Parser-/Datei-I/O-/Worker-/Recovery- und weitere Modulgrenzen
   aus der Matrix behandeln oder außerhalb des zugesagten Umfangs halten.
   Die Liste ist kein Auftrag für zusätzliche Entwicklungs- oder Labwellen.
-- Lieferform festlegen und gegebenenfalls fehlende gemeinsam gebundene
-  CLR-Binaries einschließlich Trustmanifeste, Herkunft und Lizenzhinweise
-  ergänzen. Keine privaten Buildpfade oder unqualifizierten Rebuilds ausliefern.
+- Den CLR-Installationskandidaten einschließlich seiner gebundenen Binaries,
+  Trustwerte, Herkunft, Lizenzhinweise und abgegrenzten Paketnachweise in den
+  konkret freigegebenen Lieferumfang aufnehmen. Keine spätere Binaryänderung
+  ohne Prüfung der betroffenen Dependencies und Nachweise übernehmen.
 - Endgültige Artefakte und deren Installationsweg prüfen; vollständigen
   Dokumentationsaudit und tatsächliche CI des endgültigen Heads nachweisen.
 - Konkrete öffentliche Veröffentlichung separat freigeben. Erst danach

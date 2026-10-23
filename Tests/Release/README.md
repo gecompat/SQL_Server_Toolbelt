@@ -1,5 +1,53 @@
 # Releasevorbereitung prüfen
 
+## Vorgebaute CLR-Lieferung
+
+Die [CLR-Installationsanleitung](../../Releases/1.0.0/CLR-INSTALL.md) ist der
+Endanwenderweg. [prepare_clr_package.py](../../Scripts/Release/prepare_clr_package.py)
+packt die zwei bereits bytegleichen Builds mit eingefrorenen Produktquellen;
+SSIS-/Parser-/ScriptDom-Bytes bleiben aus dem bestehenden qualifizierten ZIP
+erhalten. Ein neues privates Ausgabeverzeichnis und der vorhandene
+`build-check.json`-Satz werden ausdrücklich übergeben:
+
+```powershell
+python -B Scripts/Release/prepare_clr_package.py --build-directory $QualifiedDoubleBuild `
+  --output .runtime/clr-package-new/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip
+python -B Scripts/Release/prepare_clr_package.py `
+  --verify Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip
+```
+
+Das Ausgabeziel muss neu sein und sein Elternverzeichnis bestehen. Das Tool
+kompiliert und verbindet sich nicht mit SQL. Der aktuelle Paketcheck bindet
+DLLs und SQL an die tatsächlich ausgeführte Welle in `clr-qualification.json`;
+veränderte SQL-/DLL-/Methodenbytes erfordern eine betroffene Neuabnahme.
+Reine Dokumentationsänderungen werden nur bei exakt erhaltenen funktionalen
+Payloads übernommen. Dateipfade, PE-/Buildpfadguard, Trustwerte, Profile und
+innere/äußere Prüfsummen werden geprüft. Die Standardregressionssuite prüft
+das echte versionierte CLR-ZIP zusätzlich; keine neue CI oder Labwelle.
+
+`Invoke-ClrPackageMatrix.ps1` nutzt den schema-validierten Labvertrag und
+zwölf explizite Windows-/Linux-/SQL-/CL-Fälle, mit den jeweiligen Windows-
+beziehungsweise Portable-Profilen. Jeder Case hat 300/360 Sekunden Arbeit/
+Cleanup und einen äußeren 400-Sekunden-Watchdog. Sämtliche Korrekturfortsetzungen
+teilen eine private ursprüngliche Budgetdatei mit höchstens 18 Caseversuchen
+und 7200 Sekunden; erfolgreiche Fälle werden nicht wiederholt. Eine Fortsetzung
+ab `-StartCaseIndex` setzt das vollständig geprüfte Präfix voraus. Neue Quellen
+werden in einem neuen privaten `EvidenceDirectory` eingefroren und verwenden
+denselben `SharedBudgetFile`; jeder Versuch bleibt getrennt. Automatische
+Retries, Provider-/Trustfallbacks und Labinfrastrukturverwaltung fehlen.
+
+Der Adapter setzt bereits aktiviertes CLR und vorhandene administrative Rechte
+voraus. Die stehende enge Testkonfigurationsfreigabe kann separat mit privatem
+Vor-/Wiederherstellungsjournal verwendet werden. Der Case übernimmt keine
+pauschale Serverkonfiguration. Neue Trusteinträge bekommen eine eindeutige
+eigene Beschreibung und vollständigen Fingerprint; Consumer-/Datenbankdrift
+blockiert Cleanup. Vorbestehender Trust bleibt erhalten. Ein separater Prozess
+prüft anschließend Datenbankabwesenheit, Trustfingerprints und Inputpins.
+Der konkrete [Gatebericht](../../Releases/1.0.0/RELEASE-GATES.md) grenzt die
+tatsächliche Installation von einer vollständigen neuen API-/Releaseabnahme ab.
+
+## Quellpaket und gemeinsame Regressionen
+
 Die Tests prüfen den [Releasegenerator](../../Scripts/Release/prepare_release.py)
 und die [v1.0.0-Freigabematrix](../../Releases/1.0.0/README.md). Es werden
 keine SQL-Verbindungen, Labressourcen, Builds, Tags oder Veröffentlichungen erzeugt.
