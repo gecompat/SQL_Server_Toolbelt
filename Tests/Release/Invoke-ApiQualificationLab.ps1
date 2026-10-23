@@ -202,7 +202,8 @@ function Read-ApiCarry($Control) {
   $formatDeadline=$oldCase.group -ceq 'formats' -and $old.failure.sqlNumber -eq -2 -and $script:case.workSeconds -gt $oldCase.workSeconds
   $callbackScope=$oldCase.group -ceq 'formats' -and $old.failure.sqlNumber -eq 0 -and $old.privateDiagnostic.Contains('$script:cleanup')
   $csvClientAdapter=$oldCase.group -ceq 'csv' -and $old.failure.sqlNumber -eq 55303 -and $old.failure.stage -ceq 'local:toolbelt.file.csv-memory:DirectSelectCeilings.Tests.sql'
-  if($old.state -cne 'FAILED_CLEANED' -or $old.targetIdentity -cne $script:targetIdentity -or $oldCase.key -cne $script:case.key -or -not ($regexBlock -or $formatDeadline -or $callbackScope -or $csvClientAdapter)){
+  $csvDeadline=$oldCase.group -ceq 'csv' -and $old.failure.sqlNumber -eq -2 -and $script:case.workSeconds -gt $oldCase.workSeconds -and $old.failure.stage -ceq 'central:toolbelt.file.csv-memory:QuotedTempNamePreservation.Tests.sql'
+  if($old.state -cne 'FAILED_CLEANED' -or $old.targetIdentity -cne $script:targetIdentity -or $oldCase.key -cne $script:case.key -or -not ($regexBlock -or $formatDeadline -or $callbackScope -or $csvClientAdapter -or $csvDeadline)){
    throw 'RELEASE_API_CARRY_SCOPE'
   }
   $oldPin=@($prior.pins|Where-Object path -ceq $prior.package)
@@ -219,13 +220,14 @@ function Read-ApiCarry($Control) {
   }
   $spec=Get-Content -LiteralPath $script:runset.spec -Raw|ConvertFrom-Json
   $priorSpec=Get-Content -LiteralPath $prior.spec -Raw|ConvertFrom-Json
-  $blockedId=$old.failure.stage.Substring('local:'.Length)
-  $expectedId=if($regexBlock){'toolbelt.string.regex:Transformations.Contract.sql'}elseif($callbackScope){'toolbelt.file.xlsx-memory:Types.Metadata.ps1'}elseif($csvClientAdapter){'toolbelt.file.csv-memory:DirectSelectCeilings.Tests.sql'}else{'toolbelt.json.constructors:JsonGroups.Boundaries.sql'}
-  if($old.failure.stage -cne ('local:'+ $blockedId) -or $blockedId -cne $expectedId){throw 'RELEASE_API_CARRY_ERROR_SCOPE'}
+  $failureContext=if($csvDeadline){'central'}else{'local'}
+  $blockedId=$old.failure.stage.Substring(($failureContext+':').Length)
+  $expectedId=if($regexBlock){'toolbelt.string.regex:Transformations.Contract.sql'}elseif($callbackScope){'toolbelt.file.xlsx-memory:Types.Metadata.ps1'}elseif($csvClientAdapter){'toolbelt.file.csv-memory:DirectSelectCeilings.Tests.sql'}elseif($csvDeadline){'toolbelt.file.csv-memory:QuotedTempNamePreservation.Tests.sql'}else{'toolbelt.json.constructors:JsonGroups.Boundaries.sql'}
+  if($old.failure.stage -cne ($failureContext+':'+ $blockedId) -or $blockedId -cne $expectedId){throw 'RELEASE_API_CARRY_ERROR_SCOPE'}
   $priorPass=@($old.completedFixtures)+@($old.reusedFixtures)
-  $records=$priorPass+@([pscustomobject]@{id=$blockedId;context='local'})
+  $records=$priorPass+@([pscustomobject]@{id=$blockedId;context=$failureContext})
   foreach($record in $records){
-   if($record.context -cne 'local'){throw 'RELEASE_API_CARRY_CONTEXT'}
+   if($record.context -cnotin $(if($csvDeadline){@('local','central')}else{@('local')})){throw 'RELEASE_API_CARRY_CONTEXT'}
    $currentTest=@($spec.tests|Where-Object id -ceq $record.id);$oldTest=@($priorSpec.tests|Where-Object id -ceq $record.id)
    if($currentTest.Count -ne 1 -or $oldTest.Count -ne 1 -or (Get-ApiFixtureBinding $currentTest[0]) -cne (Get-ApiFixtureBinding $oldTest[0])){throw 'RELEASE_API_CARRY_FIXTURE_SCOPE'}
    $source=Join-Path $prior.sourceRoot $oldTest[0].source
