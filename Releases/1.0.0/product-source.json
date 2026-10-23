@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "kind": "synthetic_product_snapshot",
+  "source_commit": "0a2bd2ebacbd4e6148ac4197ca87e2f8cb0a3400",
+  "product_commit": "a20ede0b8de92203244d9b15d30426bf5f9a8b37",
+  "base_commit": "5bd70a253f1ef4fcec616039236360971110f001",
+  "tree_oid": "9d7da5346b39e12536922119581a19208ea698c4"
+}

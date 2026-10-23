@@ -60,6 +60,18 @@ Large erlaubt 32768×32768 mit k1 (98302 Zellen); exakt4096×4096 erreicht16M,40
 
 ## Provider und Lifecycle
 
+Ergänzung 2026-10-23 zum ausdrücklich beauftragten Paket-Lifecycle-Fix:
+Beim 1.1.0-Repeat darf ausschließlich der bekannte Procedure-Consumer
+`toolbelt_string.USP_CompareTextPairs` aus Text Pairs 1.0.0 erhalten bleiben,
+wenn seine Modul-/Objekt-/Modusmarker kohärent sind und expliziter erwarteter
+Hash, installierter Hash, Zielbinary und Deploymentmodus unverändert sind.
+Die Prüfung erfolgt in beiden bestehenden Durchläufen, davon einer unter
+AppLock. Andere same-database Dependencies und Assemblyconsumer bleiben
+gesperrt. Dies ist keine Ausnahme für Upgrade, Binarywechsel, unbekannte
+Versionen oder Moduswechsel. Der Consumer wird nicht gelöscht; seine Identität
+und eigene Annotationen werden im [Releaseadapter](../../Tests/Release/README.md)
+zusammen mit Fremdconsumer- und Markerdiff-Abweisungen geprüft.
+
 Eigene Assembly ausschließlich dieses Moduls, vorgeschlagener SQL-Name `Toolbelt_String_EditDistance`, Datei `Toolbelt.String.EditDistance.dll`, .NET Framework4.8/Release/AnyCPU/deterministisch, SAFE. Direkte Referenzen ausschließlich vorhandene Framework System/System.Data; kein NuGet/Drittanbieter/Download. SQL-Zugriff DataAccessNone/SystemDataAccessNone, kein ContextConnection. Memory-only; keine Datei/Netzwerk/Prozess/Registry/Thread APIs im Provider. Framework-Harness-IO bleibt außerhalb Providerquellen.
 
 TSQL bevorzugt, aber sequenzielle bandierte DP mit zwei/drei Zeilen besitzt keinen sinnvollen reinen relationalen Inlineausdruck. TSQL-MSTVF würde wiederholte Tabellenupdates benötigen; externe Runtime verändert Transport/Autorisierung und ist kein Fallback. Native SQL2025-Preview ist kein versionsübergreifender Algorithmusvertrag. CLR-Deploy-/Build-/Trustaufwand und Runtimebindung bleiben reale Grenzen.

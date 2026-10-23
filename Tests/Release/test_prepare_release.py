@@ -37,6 +37,42 @@ class PreparationTests(unittest.TestCase):
         self.assertEqual(self.plan["state"], "prepared_not_published")
         self.assertTrue(all(m["current_release_status"] == "unreleased" for m in self.plan["modules"]))
 
+    def test_approved_target_scope_does_not_publish_or_waive_tests(self):
+        scope = self.plan['approved_target_scope']
+        self.assertEqual(scope['channels'], {'stable': 19, 'preview': 26})
+        self.assertEqual(scope['sql_compatibility_levels'], {'2019': [150], '2022': [150, 160], '2025': [150, 160, 170]})
+        self.assertIs(scope['publication_authorized'], False)
+        self.assertIs(scope['preview_waives_required_tests'], False)
+        self.assertIn(b'SUPPORT.md', release.matrix(self.plan))
+        for flag in ('publication_authorized', 'preview_waives_required_tests'):
+            changed = dict(self.files)
+            forged = copy.deepcopy(scope)
+            forged[flag] = True
+            changed[release.DIRECTORY + '/support-scope.json'] = release.encoded(forged)
+            with self.assertRaises(release.ReleaseError):
+                release.make_plan(changed, self.plan['product_commit'])
+
+    def test_complete_profiles_preserve_platform_and_dependency_boundaries(self):
+        spec = importlib.util.spec_from_file_location('complete', ROOT / 'Tests/Release/prepare_complete_package.py')
+        complete = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(complete)
+        profiles = complete.module_profiles(self.files)
+        self.assertEqual({p: len(m) for p, m in profiles.items()},
+                         {'Windows-local': 45, 'Windows-central': 43, 'Portable-local': 40, 'Portable-central': 40})
+        self.assertNotIn('toolbelt.filesystem.windows', profiles['Windows-central'])
+        self.assertNotIn('toolbelt.archive.zip-files', profiles['Windows-central'])
+        for profile in ('Portable-local', 'Portable-central'):
+            self.assertNotIn('toolbelt.tsql.script-parser', profiles[profile])
+            self.assertNotIn('toolbelt.metadata.table-clone', profiles[profile])
+            self.assertNotIn('toolbelt.tsql.ssis-debug', profiles[profile])
+            for mid in profiles[profile]:
+                self.assertTrue(set(release.dependencies(self.files[f'Modules/{mid}/module.yaml'].decode('utf-8-sig'))) <= set(profiles[profile]))
+        broken = dict(self.files)
+        key = 'Modules/toolbelt.filesystem.windows/module.yaml'
+        broken[key] = broken[key].replace(b'  local: true', b'  local: false')
+        with self.assertRaises(complete.release.ReleaseError):
+            complete.module_profiles(broken)
+
     def test_product_and_foundation_bindings(self):
         release.validate_plan(self.files, self.plan)
 
@@ -221,6 +257,24 @@ class ClrPackageTests(unittest.TestCase):
                                  str(ROOT / 'Tests/Release/Test-ClrPackageHarness.ps1')],capture_output=True,timeout=30)
         self.assertEqual(result.returncode,0,result.stderr.decode(errors='replace'))
         self.assertIn(b'PASS CLR_HARNESS',result.stdout)
+
+    def test_unqualified_candidate_requires_explicit_private_verification(self):
+        import tempfile
+        with zipfile.ZipFile(self.package) as archive:
+            prefix=self.clr.PACKAGE+'/'
+            payload={p[len(prefix):]:archive.read(p) for p in archive.namelist()}
+        metadata=json.loads(payload.pop('CLR-PACKAGE.json'))
+        payload.pop('QUALIFICATION.json')
+        metadata['qualification_state']='pending'
+        metadata['files']={p:{'sha256':self.clr.digest(b),'size':len(b)} for p,b in sorted(payload.items())}
+        payload['CLR-PACKAGE.json']=self.clr.release.encoded(metadata)
+        with tempfile.TemporaryDirectory(prefix='clr-pending-',dir=self.clr.release.runtime_root()) as temp:
+            path=Path(temp)/self.package.name
+            path.write_bytes(self.clr.release.write_zip(payload,self.clr.PACKAGE))
+            Path(str(path)+'.sha256').write_text(self.clr.digest(path.read_bytes())+'  '+path.name+'\n',encoding='ascii')
+            with self.assertRaisesRegex(self.clr.release.ReleaseError,'Kandidat'):
+                self.clr.verify(path)
+            self.assertEqual(self.clr.verify(path,allow_unqualified_candidate=True)['qualification_state'],'pending')
 
     def test_clr_qualification_rejects_sql_binary_and_method_drift(self):
         qualification = json.loads((ROOT / self.clr.QUALIFICATION).read_bytes())

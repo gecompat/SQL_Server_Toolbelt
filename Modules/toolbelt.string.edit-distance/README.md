@@ -17,6 +17,13 @@ Finale Gesamtadapter am 2026-10-02 auf Linux 2019/latest CL150 und Windows 2025/
 
 ## Aufruf
 
+Der Lifecycle erlaubt einen exakt hashgebundenen 1.1.0-Repeat mit dem bekannten
+Text-Pairs-Consumer 1.0.0, wenn Modul-/Objektmarker und Deploymentmodus
+übereinstimmen. Der Consumer wird dabei nicht entfernt. Unbekannte Consumer,
+abweichende Marker, ein Binarywechsel oder ein Moduswechsel bleiben gesperrt.
+Die [Releaseprüfung](../../Releases/1.0.0/RELEASE-GATES.md) führt die gezielten
+positiven und negativen Nachweise; weitergehende Supportgrenzen bleiben bestehen.
+
 ```sql
 SELECT * FROM toolbelt_string.TVF_LevenshteinDistance(N'kitten', N'sitting', DEFAULT, DEFAULT);
 SELECT * FROM toolbelt_string.TVF_OsaDistance(N'CA', N'AC', DEFAULT, DEFAULT);

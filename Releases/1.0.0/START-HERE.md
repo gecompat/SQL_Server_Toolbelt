@@ -13,6 +13,7 @@ T-SQL-Kandidaten brauchst du keinen eigenen Build, Git oder Python.
 | [SSIS-Installationssatz](../../Modules/toolbelt.tsql.ssis-debug/InstallPackages/README.md) | Separates Windows-ZIP mit passenden DLLs, Trustskripten und vollständigem SSMS-Beispiel |
 | [Modulübersicht](../../Modules/README.md) | Weitere Funktionen, Parameter, Voraussetzungen und Beispiele |
 | [Freigabematrix](FREIGABEMATRIX.md) | Modulversionen, stabile/Preview-Kandidaten und ihre Nachweisgrenzen |
+| [Supportumfang](SUPPORT.md) | Freigegebener Zielumfang und die Grenze zur tatsächlichen öffentlichen Supportzusage |
 | [Paketpflege und Prüfung](README.md) | Vollständiger verbindungsfreier Source-/Paketcheck und reproduzierbarer Neubau für Maintainer |
 | [Offene Releasegates](RELEASE-GATES.md) | Was geprüft ist und welche Freigaben beziehungsweise Nachweise noch fehlen |
 
@@ -27,6 +28,8 @@ API-/Rechte-/Releaseabnahme sämtlicher Preview-Module.
 `PACKAGE-MANIFEST.json`, `SHA256SUMS.txt` und die externe ZIP-Prüfsumme binden
 den Paketinhalt. Sie ersetzen keine Herausgebersignatur oder fachliche
 Abnahme. Der vollständige Maintainer-Prüfmodus verwendet `PREPARATION.bundle`
-und einen Git-Checkout mit der angegebenen Produktbasis; Endanwender folgen
+und einen Git-Checkout mit der öffentlichen Basis aus `product-source.json`.
+Der bytegleiche Produkt-Snapshot ist im Bundle enthalten, damit die Prüfung
+auch nach Squash-Merge und Branchcleanup möglich bleibt; Endanwender folgen
 der Prüfsummen- und Installationsanleitung. Die [Lizenz](../../LICENSE.md)
 gilt unverändert. Das Paket ändert keine Server-, Rechte- oder Trustkonfiguration.

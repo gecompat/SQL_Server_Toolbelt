@@ -2,7 +2,8 @@
 
 **Nicht veröffentlicht.** Die Projektversion bündelt den aktuellen Bestand
 von 45 implementierten Modulen; ihre individuellen Versionsnummern bleiben
-erhalten. Kanalvorschläge: 19 stabil, 26 Preview. Die
+erhalten. Freigegebene Zielkanäle: 19 stabil, 26 Preview. Der
+[Support-Zielumfang](SUPPORT.md) erteilt noch keine öffentliche Supportzusage. Die
 [Freigabematrix](FREIGABEMATRIX.md) nennt jede Version, Dependencies und offene
 Abnahmegrenzen; der [Plan](release-plan.json) ist die maschinenlesbare Ableitung.
 

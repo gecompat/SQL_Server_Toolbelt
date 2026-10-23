@@ -34,6 +34,7 @@ QUALIFICATION = f"{DIRECTORY}/qualification.json"
 NAME = f"SQL-Server-Toolbelt-{VERSION}-candidate-source"
 ARTIFACTS = f"{DIRECTORY}/Artifacts/"
 CLR_PACKAGE = f"{DIRECTORY}/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip"
+PRODUCT_SOURCE = f"{DIRECTORY}/product-source.json"
 MAX_BYTES = 256 * 1024 * 1024
 MAX_FILES = 10000
 
@@ -188,7 +189,17 @@ def make_plan(files: dict[str, bytes], product_commit: str) -> dict:
             module["binary_delivery"] = "qualified_ssis_install_zip_and_sources"
         if CLR_PACKAGE in files and module['binary_delivery'] != 'sql_sources':
             module['binary_delivery'] = 'prebuilt_clr_install_zip_and_sources'
-    return {
+    scope_path = f'{DIRECTORY}/support-scope.json'
+    approved_scope = None
+    if scope_path in files:
+        approved_scope = json.loads(files[scope_path])
+        require(approved_scope['state'] == 'approved_target_scope_not_published'
+                and approved_scope['publication_authorized'] is False
+                and approved_scope['preview_waives_required_tests'] is False
+                and approved_scope['modules'] == 45
+                and approved_scope['channels'] == dict(Counter(proposed.values()))
+                and f'{DIRECTORY}/SUPPORT.md' in files, 'Supportfreigabe widersprüchlich.')
+    plan = {
         "schema_version": "1.0", "project_version": VERSION,
         "state": "prepared_not_published", "publication_authorized": False,
         "product_commit": product_commit,
@@ -198,6 +209,18 @@ def make_plan(files: dict[str, bytes], product_commit: str) -> dict:
         "support_scope_review": "pending; deklarierte Zielversionen sind keine neue Supportzusage",
         "modules": list(modules.values()),
     }
+    if approved_scope is not None:
+        plan['approved_target_scope'] = approved_scope
+        plan['channel_semantics'] = 'Zielkanäle ausdrücklich freigegeben; Pflichtqualifikation und öffentliche Veröffentlichung bleiben separat.'
+        plan['support_scope_review'] = 'target_scope_approved; complete_per_combination_qualification_pending'
+    if PRODUCT_SOURCE in files:
+        product_source = json.loads(files[PRODUCT_SOURCE])
+        require(product_source['product_commit'] == product_commit
+                and product_source['kind'] == 'synthetic_product_snapshot'
+                and all(re.fullmatch(r'[a-f0-9]{40}', product_source[k]) for k in
+                        ('source_commit','product_commit','base_commit','tree_oid')), 'Produktprovenienz widersprüchlich.')
+        plan['product_snapshot'] = product_source
+    return plan
 
 
 def matrix(plan: dict, module_page: str = "README.md") -> bytes:
@@ -218,12 +241,18 @@ def matrix(plan: dict, module_page: str = "README.md") -> bytes:
     delivery = ("Die Spalte `binary_delivery` im [maschinenlesbaren Plan](release-plan.json) benennt die Lieferform. Das Gesamt-ZIP enthält zusätzlich den [vorgebauten CLR-Installationssatz](CLR-INSTALL.md): zwölf Toolbelt-DLLs, ScriptDom, Quellcode und fertige SQL-Dateien mit exakten Trustwerten. Die vier Profile erhalten Windows-/Portable- und lokale/zentrale Grenzen. Kein eigener Build für die Installation; fachliche Preview-/Releasegates bleiben separat."
                 if any(m['binary_delivery'] == 'prebuilt_clr_install_zip_and_sources' for m in plan['modules']) else
                 "Die Spalte `binary_delivery` im [maschinenlesbaren Plan](release-plan.json) benennt die Lieferform. Das Gesamt-ZIP ist ein Quellpaket. Der separat enthaltene SSIS-Installationssatz enthält bereits qualifizierte DLLs. Weitere CLR-Provider benötigen ihre dokumentierten Build-/Trustinputs; ein vollständiges vorgebautes CLR-Installationspaket wird hier nicht behauptet.")
+    if 'approved_target_scope' in plan:
+        lines[6] = ('Die Zielkanäle und der [Supportumfang](SUPPORT.md) sind ausdrücklich freigegeben. '
+                    'Die konkrete öffentliche Supportzusage bleibt an vollständige Pflichtnachweise je Kombination gebunden. '
+                    'Preview ersetzt keine fehlende Pflichtprüfung im zugesagten Umfang.')
+        lines[10] = lines[10].replace('Vorschlag', 'Zielkanal')
     lines += ["", delivery, "",
               "Vor Veröffentlichung gelten die [offenen Releasegates](README.md#vor-einer-veröffentlichung) und der [kanonische Veröffentlichungsvertrag](../../Documentation/Architecture/MODULE_AND_DEPENDENCY_MODEL.md#öffentlicher-veröffentlichungsnachweis).", ""]
     return "\n".join(lines).encode("utf-8")
 
 
-def validate_plan(files: dict[str, bytes], plan: dict) -> None:
+def validate_plan(files: dict[str, bytes], plan: dict, product_files: dict[str, bytes] | None = None,
+                  product_tree: str | None = None) -> None:
     require(re.fullmatch(r"[0-9a-f]{40}", plan.get("product_commit", "")) is not None, "Produktcommit fehlt.")
     require(plan == make_plan(files, plan["product_commit"]), "Releaseplan ist veraltet oder aufgewertet.")
     # Frühe unveröffentlichte Kandidaten führten beim Modulnamen zum Manifest.
@@ -233,7 +262,27 @@ def validate_plan(files: dict[str, bytes], plan: dict) -> None:
     receipt = json.loads(files[".ai/foundation/installation-provenance.json"])
     require(plan["foundation"] == {"version": receipt["ruleset_version"], "source_commit": receipt["source_commit"]},
             "Foundationbindung stimmt nicht.")
-    _, product = snapshot(plan["product_commit"])
+    if product_files is None:
+        available = subprocess.run(['git','cat-file','-e',plan['product_commit']+'^{commit}'],
+                                   cwd=ROOT, capture_output=True).returncode == 0
+        if available:
+            _, product_files = snapshot(plan['product_commit'])
+            product_tree = git('rev-parse',plan['product_commit']+'^{tree}').decode().strip()
+        else:
+            require('product_snapshot' in plan, 'Produktbasis fehlt im Checkout.')
+            archive = ROOT / ARTIFACTS / (NAME + '.zip')
+            data = archive.read_bytes()
+            require(archive.with_suffix('.zip.sha256').read_text(encoding='ascii').split() ==
+                    [sha(data),archive.name], 'Produkt-Recoveryarchiv ist beschädigt.')
+            raw = read_zip(data)
+            prefix = NAME + '/'
+            manifest = json.loads(raw[prefix+'PACKAGE-MANIFEST.json'])
+            require(manifest['product_commit'] == plan['product_commit'], 'Recoveryprodukt stimmt nicht.')
+            _, product_files, product_tree = recovered_snapshot(raw[prefix+'PREPARATION.bundle'],
+                manifest['source_commit'], plan['product_commit'])
+    if 'product_snapshot' in plan:
+        require(product_tree == plan['product_snapshot']['tree_oid'], 'Produktbaum stimmt nicht.')
+    product = product_files
     for prefix in ("Modules/", "Deployment/", "Workers/"):
         require({p: b for p, b in files.items() if p.startswith(prefix)} ==
                 {p: b for p, b in product.items() if p.startswith(prefix)}, "Produktinputs gegenüber der qualifizierten Basis geändert.")
@@ -293,7 +342,23 @@ def runtime_root() -> Path:
     return runtime
 
 
-def preparation_bundle(commit: str, product_commit: str) -> tuple[str, bytes]:
+def freeze_product(commit: str, base: str) -> dict:
+    source, _ = snapshot(commit)
+    base, _ = snapshot(base)
+    git('merge-base','--is-ancestor',base,source)
+    tree = git('rev-parse',source+'^{tree}').decode().strip()
+    date = git('show','-s','--format=%cI',source).decode().strip()
+    env = dict(os.environ,GIT_AUTHOR_NAME='Codex',GIT_AUTHOR_EMAIL='codex@localhost',
+               GIT_COMMITTER_NAME='Codex',GIT_COMMITTER_EMAIL='codex@localhost',
+               GIT_AUTHOR_DATE=date,GIT_COMMITTER_DATE=date)
+    frozen = git('commit-tree',tree,'-p',base,'-m',
+                 'Codex: Freeze v1.0.0 product tree with synthetic metadata',env=env).decode().strip()
+    require(snapshot(frozen)[1] == snapshot(source)[1], 'Produkt-Sanitizer hat Quellbytes geändert.')
+    return {'schema_version':'1.0','kind':'synthetic_product_snapshot','source_commit':source,
+            'product_commit':frozen,'base_commit':base,'tree_oid':tree}
+
+
+def preparation_bundle(commit: str, product_commit: str, base_commit: str | None = None) -> tuple[str, bytes]:
     """Nur Vorbereitungsdateien und synthetische Commitmetadaten ausliefern.
 
     Ein eigener temporärer Index entfernt die Paketablage aus dem Quellbaum.
@@ -327,12 +392,12 @@ def preparation_bundle(commit: str, product_commit: str) -> tuple[str, bytes]:
         git("init", "--bare", "--quiet", repository=bare, env=bundle_env)
         git("update-ref", "refs/heads/preparation", frozen, repository=bare, env=bundle_env)
         git("-c", "pack.threads=1", "bundle", "create", str(bundle), "refs/heads/preparation",
-            "^" + product_commit, repository=bare, env=bundle_env)
+            "^" + (base_commit or product_commit), repository=bare, env=bundle_env)
         git("bundle", "verify", str(bundle))
         return frozen, bundle.read_bytes()
 
 
-def recovered_snapshot(bundle_bytes: bytes, commit: str) -> dict[str, bytes]:
+def recovered_snapshot(bundle_bytes: bytes, commit: str, product_commit: str) -> tuple[dict, dict, str]:
     """Bundle lokal importieren, ohne Objektstore oder Refs des Checkouts zu ändern.
 
     Das eigene temporäre Bare-Repository liest die bekannte Produktbasis über
@@ -356,7 +421,9 @@ def recovered_snapshot(bundle_bytes: bytes, commit: str) -> dict[str, bytes]:
             "--no-write-fetch-head", str(bundle), commit, repository=target, env=env)
         resolved, files = snapshot(commit, repository=target, env=env)
         require(resolved == commit, "Rekonstruierter Quellcommit abweichend.")
-        return files
+        _, product = snapshot(product_commit, repository=target, env=env)
+        tree = git('rev-parse',product_commit+'^{tree}',repository=target,env=env).decode().strip()
+        return files, product, tree
 
 
 def export_stable(files: dict[str, bytes], plan: dict) -> dict[str, bytes]:
@@ -408,6 +475,7 @@ def start_here(files: dict[str, bytes]) -> bytes:
             .replace("(FREIGABEMATRIX.md)", f"({DIRECTORY}/FREIGABEMATRIX.md)")
             .replace("(RELEASE-GATES.md)", f"({DIRECTORY}/RELEASE-GATES.md)")
             .replace("(CLR-INSTALL.md)", f"({DIRECTORY}/CLR-INSTALL.md)")
+            .replace("(SUPPORT.md)", f"({DIRECTORY}/SUPPORT.md)")
             .replace("(../../", "(")).encode("utf-8")
 
 
@@ -423,7 +491,8 @@ def build(commit: str, output: Path) -> None:
     validate_qualification(files, plan, exports)
     files.update(exports)
     files["START-HERE.md"] = start_here(files)
-    frozen, files["PREPARATION.bundle"] = preparation_bundle(resolved, plan["product_commit"])
+    frozen, files["PREPARATION.bundle"] = preparation_bundle(resolved, plan["product_commit"],
+        plan.get('product_snapshot',{}).get('base_commit'))
     manifest = {"schema_version": "1.0", "project_version": VERSION,
                 "state": "prepared_not_published", "source_commit": frozen,
                 "preparation_origin_commit": resolved,
@@ -455,11 +524,11 @@ def verify(path: Path) -> None:
         require(len(files[p]) == entry["bytes"] and sha(files[p]) == entry["sha256"], "Dateihash stimmt nicht.")
     expected_sums = "".join(f"{sha(b)}  {p}\n" for p, b in sorted(files.items()) if p != "SHA256SUMS.txt").encode("utf-8")
     require(files["SHA256SUMS.txt"] == expected_sums, "Dateiprüfsummen unvollständig.")
-    source = recovered_snapshot(files["PREPARATION.bundle"], manifest["source_commit"])
+    source, product, tree = recovered_snapshot(files["PREPARATION.bundle"], manifest["source_commit"], manifest['product_commit'])
     require(set(files) == set(source) | {"START-HERE.md", "PREPARATION.bundle", "Install-Stable-local.sql", "Install-Stable-central.sql", "PACKAGE-MANIFEST.json", "SHA256SUMS.txt"}, "Unerwartete Paketdateien.")
     for p, b in source.items():
         require(files[p] == b, "Paket weicht vom eingefrorenen Gitstand ab.")
-    validate_plan(source, json.loads(source[PLAN]))
+    validate_plan(source, json.loads(source[PLAN]), product_files=product, product_tree=tree)
     require(manifest["product_commit"] == json.loads(source[PLAN])["product_commit"], "Produktbasis widersprüchlich.")
     require(files["START-HERE.md"] == start_here(source), "Paketeinstieg abweichend.")
     # Die zwei zusätzlichen SQL-Dateien sind keine Gitblobs. Ihre Hashes
@@ -482,17 +551,27 @@ def main() -> None:
     modes.add_argument("--check", action="store_true")
     modes.add_argument("--build", action="store_true")
     modes.add_argument("--verify", type=Path)
+    modes.add_argument('--freeze-product', action='store_true')
     parser.add_argument("--source-commit", default="HEAD")
     parser.add_argument("--product-commit")
     parser.add_argument("--output", type=Path)
+    parser.add_argument('--base-commit')
     args = parser.parse_args()
-    if args.refresh:
+    if args.freeze_product:
+        require(args.product_commit is not None and args.base_commit is not None, 'Explizite Produktquelle und öffentliche Basis erforderlich.')
+        record = freeze_product(args.product_commit,args.base_commit)
+        (ROOT / PRODUCT_SOURCE).write_bytes(encoded(record))
+        print('Synthetischer Produktbaum eingefroren; keine Quelldatei, Branch oder Veröffentlichung verändert.')
+    elif args.refresh:
         product, files = snapshot(args.product_commit or "HEAD")
         # Produktquellen bleiben eingefroren. Die Lieferform entsteht dagegen
         # aus dem aktuellen Vorbereitungsstand, nicht aus der früheren Basis.
         _, preparation = snapshot(args.source_commit)
         if CLR_PACKAGE in preparation:
             files[CLR_PACKAGE] = preparation[CLR_PACKAGE]
+        for path in (f'{DIRECTORY}/support-scope.json', f'{DIRECTORY}/SUPPORT.md', PRODUCT_SOURCE):
+            if path in preparation:
+                files[path] = preparation[path]
         plan = make_plan(files, product)
         (ROOT / PLAN).parent.mkdir(parents=True, exist_ok=True)
         (ROOT / PLAN).write_bytes(encoded(plan))

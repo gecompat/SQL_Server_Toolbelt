@@ -1,13 +1,16 @@
 {
   "schema_version": "1.0",
   "publication_authorized": false,
-  "date": "2026-10-22",
-  "scope": "PACKAGE_INSTALLATION_ONLY; no new full module API, minimal-rights, memory, recovery or release qualification",
+  "date": "2026-10-23",
+  "product_commit": "a20ede0b8de92203244d9b15d30426bf5f9a8b37",
+  "executed_product_commit": "0a2bd2ebacbd4e6148ac4197ca87e2f8cb0a3400",
+  "product_tree_oid": "9d7da5346b39e12536922119581a19208ea698c4",
+  "scope": "STANDALONE_CLR_PROFILE_PACKAGE_INSTALLATION_ONLY; no full API/minimal-rights/heap/recovery claim",
   "native_cases_passed": 12,
   "deployment_paths_passed": 24,
   "matrix": [
     {
-      "platform": "Windows",
+      "platform": "Linux",
       "sql": "2019",
       "compatibility_level": 150,
       "modes": [
@@ -17,7 +20,7 @@
       "consumer": true
     },
     {
-      "platform": "Windows",
+      "platform": "Linux",
       "sql": "2022",
       "compatibility_level": 150,
       "modes": [
@@ -27,7 +30,7 @@
       "consumer": true
     },
     {
-      "platform": "Windows",
+      "platform": "Linux",
       "sql": "2022",
       "compatibility_level": 160,
       "modes": [
@@ -37,7 +40,7 @@
       "consumer": true
     },
     {
-      "platform": "Windows",
+      "platform": "Linux",
       "sql": "2025",
       "compatibility_level": 150,
       "modes": [
@@ -47,7 +50,7 @@
       "consumer": true
     },
     {
-      "platform": "Windows",
+      "platform": "Linux",
       "sql": "2025",
       "compatibility_level": 160,
       "modes": [
@@ -57,7 +60,7 @@
       "consumer": true
     },
     {
-      "platform": "Windows",
+      "platform": "Linux",
       "sql": "2025",
       "compatibility_level": 170,
       "modes": [
@@ -67,7 +70,7 @@
       "consumer": true
     },
     {
-      "platform": "Linux",
+      "platform": "Windows",
       "sql": "2019",
       "compatibility_level": 150,
       "modes": [
@@ -77,7 +80,7 @@
       "consumer": true
     },
     {
-      "platform": "Linux",
+      "platform": "Windows",
       "sql": "2022",
       "compatibility_level": 150,
       "modes": [
@@ -87,7 +90,7 @@
       "consumer": true
     },
     {
-      "platform": "Linux",
+      "platform": "Windows",
       "sql": "2022",
       "compatibility_level": 160,
       "modes": [
@@ -97,7 +100,7 @@
       "consumer": true
     },
     {
-      "platform": "Linux",
+      "platform": "Windows",
       "sql": "2025",
       "compatibility_level": 150,
       "modes": [
@@ -107,7 +110,7 @@
       "consumer": true
     },
     {
-      "platform": "Linux",
+      "platform": "Windows",
       "sql": "2025",
       "compatibility_level": 160,
       "modes": [
@@ -117,7 +120,7 @@
       "consumer": true
     },
     {
-      "platform": "Linux",
+      "platform": "Windows",
       "sql": "2025",
       "compatibility_level": 170,
       "modes": [
@@ -127,37 +130,15 @@
       "consumer": true
     }
   ],
-  "transport": {
-    "purpose": "Functional",
-    "encrypt": true,
-    "trust": "explicit schema-validated Lab boolean; no fallback",
-    "authenticated_tls": "not executed"
-  },
-  "profile_limits": {
-    "Windows-local": "12 CLR modules + ResultTable",
-    "Windows-central": "11 CLR modules + ResultTable; filesystem local only",
-    "Portable-local": "9 SAFE CLR modules + ResultTable",
-    "Portable-central": "9 SAFE CLR modules + ResultTable"
-  },
-  "assertions": [
-    "first installation",
-    "explicit hash-bound repeat in fresh connection",
-    "exact DLL hashes and module-marker set",
-    "fixed phonetic value and JSON help smokes",
-    "central consumer",
-    "reverse uninstall and explicit absent repeat",
-    "independent cleanup and frozen input audits"
-  ],
-  "native_archive_sha256": "23f5c7a1882fa522c92ec57cf0cba7c97e509fa64b113a66a98d3b233da63cd1",
   "sql_payload_sha256": {
-    "SQL/Install-Portable-central.sql": "0f75b634bab12d8772c135310f0ded358b2e01bbae14d7940dee5b74486aaae1",
-    "SQL/Install-Portable-local.sql": "7442209a54881e2204eadddeadd5fca63a5259b511624c9827a1d8868242bd81",
-    "SQL/Install-Windows-central.sql": "e52bad52424d47fb6e066fee8483f58ba47adaeb2e75dab28e5eed61cc9d0848",
-    "SQL/Install-Windows-local.sql": "d1ae56a46bd1854c0350ec795e3f9fbe4f7d869a689c4dd61e36b39aa29ed558",
-    "SQL/Repeat-Portable-central.sql": "c9f78caccaa40be1871237adf2de034764e115c94a38e1862347849c3682cf40",
-    "SQL/Repeat-Portable-local.sql": "055fb9fb3b6b50b16c4dbc278132da522e062f38f738d5d666de97dc4f812753",
-    "SQL/Repeat-Windows-central.sql": "f1815dff96c58498d5087c76482ff531d04b24d622fb8243a4749c92aa21fe0c",
-    "SQL/Repeat-Windows-local.sql": "16afb7146b895c4314b82e831864ffe2ef007b09b81aedf9cbcf0f534e2fa04b",
+    "SQL/Install-Portable-central.sql": "06f9531b607bf07ccc75bac41ce62626f2836cd565def767927ea66ffb62b77b",
+    "SQL/Install-Portable-local.sql": "41619e67d191d76c37134e98d25740a5a7f8fb6c315a80b25529a1dfb5d4fc83",
+    "SQL/Install-Windows-central.sql": "071f635cbe08a559e001e561af4efd3b3621c04db08843666ffbd1dfa37f1cce",
+    "SQL/Install-Windows-local.sql": "9833d142ffa4ab18ef7b514943f6fcba0ad0b9285448ba70754e0d715239feb9",
+    "SQL/Repeat-Portable-central.sql": "ff2231c495c6e93e00e7a27433a0ca4bcb24592fc512e2c7a843e36700c0eb4a",
+    "SQL/Repeat-Portable-local.sql": "5df318edf765627a417eef4831fffbd37746ef75fa34627f3111d6e107ef06e5",
+    "SQL/Repeat-Windows-central.sql": "f2f1b4546bc6bc162665b32b96d7d0708d269b2e382db86aa0fa661e1989b504",
+    "SQL/Repeat-Windows-local.sql": "0fd74a59586582cbbf3178f5ec78bdd317e3e5289f0787b13fb5b6f8fe6a2274",
     "SQL/Trust-Portable-central.sql": "5ec7c9b4154921cd3a27b3cac10d3a81010173f2f1cf4f14732c8f3dde522f08",
     "SQL/Trust-Portable-local.sql": "5ec7c9b4154921cd3a27b3cac10d3a81010173f2f1cf4f14732c8f3dde522f08",
     "SQL/Trust-Windows-central.sql": "38885427883e2665d026e5f05433731bb97094fdbb2078198efeff654f18c7d2",
@@ -187,54 +168,52 @@
     "Binaries/Toolbelt.Tsql.SsisDebug.dll": "84ba992e7482b644b5ee8b4ebbc1aff537cd690a9d3d4366a0b037fe10e5bd3ad40352dc16c7d643b5180185d011e83ad7411ef359cb3ffc3f75e046b46e66fc"
   },
   "method_bindings": {
-    "Scripts/Release/prepare_clr_package.py": "19432f5bc4112dd8d1e29053563bb0685abfff0898b0059079a1310a64630d91",
-    "Scripts/Release/prepare_release.py": "c1d8b78474720aab03037bd42d12284ff8a237daf472515872dab0cec821b630",
-    "Scripts/Release/check_clr_builds.py": "4aece76b135c8bbd443bb5a64a9faac3221db2055ee7d75a59ed4b04d654b6d3",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py": "e7a01dddf939f28eedc421b8da22395bf4a4c96dc871dffdd7cf109f9254915d",
     "Scripts/Release/Install-ClrPackage.ps1": "2f030e922b2ab48d7ee9a284dc2694ede427d8643c29fbdc31638cb5c03adac2",
-    "Tests/Release/Invoke-ClrPackageLab.ps1": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
-    "Tests/Release/Invoke-ClrPackageMatrix.ps1": "756ff4620c5c47cf2af17b00b194ec4cfa22980b8ef14d9ef390483bb18c5781",
-    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Scripts/Release/check_clr_builds.py": "4aece76b135c8bbd443bb5a64a9faac3221db2055ee7d75a59ed4b04d654b6d3",
+    "Scripts/Release/prepare_clr_package.py": "3349cfc6313f7743f4102d8baf36a281161b4a739ec711d8cbe7337a38a0ac6d",
+    "Scripts/Release/prepare_release.py": "6f531caf344576e12c8929bdb777b4d36b032f07f3bcc0bf31fb69cb3258bdb6",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
     "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a",
     "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-ClrPackageLab.ps1": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
+    "Tests/Release/Invoke-ClrPackageMatrix.ps1": "c71330d986baee828752f5ea6344791c7851e5b90866dc00a8935817550be61f",
+    "Tests/Release/Invoke-CompletePackageLab.ps1": "bdbba1cdb2fd0d2156f8b90975eb3a330bb45e9cde655e78ae4e76a6a937f98c",
+    "Tests/Release/Invoke-CompletePackageMatrix.ps1": "35d66e43c9059334c51a01fc91c6fc7d82ebf0cbe9f62a474a3fb662b8f093c5",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/prepare_complete_package.py": "b4aed4fe49f29f4cb0a2fdb458e2765683f5641401be888f33923bf923b02764"
+  },
+  "executed_method_bindings": {
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py": "e7a01dddf939f28eedc421b8da22395bf4a4c96dc871dffdd7cf109f9254915d",
+    "Scripts/Release/check_clr_builds.py": "4aece76b135c8bbd443bb5a64a9faac3221db2055ee7d75a59ed4b04d654b6d3",
+    "Scripts/Release/prepare_clr_package.py": "3349cfc6313f7743f4102d8baf36a281161b4a739ec711d8cbe7337a38a0ac6d",
+    "Scripts/Release/prepare_release.py": "f69210a69d5fe1848d3959d5edad2ce567ea8d00e10903516479d2ee2cf9192b",
     "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
-    "Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py": "e7a01dddf939f28eedc421b8da22395bf4a4c96dc871dffdd7cf109f9254915d"
+    "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-ClrPackageLab.ps1": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
+    "Tests/Release/Invoke-ClrPackageMatrix.ps1": "c71330d986baee828752f5ea6344791c7851e5b90866dc00a8935817550be61f",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a"
   },
-  "executed_matrix_source_commit": "58bd2e516afdaea0034efee03dee7ec9f52e7494",
-  "executed_matrix_sha256": "9c0adc92c5b21ec0c3a32f3bf298616066ab09754227b462d2aa97d266c01aff",
-  "current_matrix_delta": "After native completion, additive prefix/final-coverage guards only; pure positive/negative guard tests added. Case driver and all tested SQL/DLL bytes unchanged. No native replay claimed. Canonical LF working-tree normalization, no program-text change.",
-  "cleanup": {
-    "final_independent_database_absence_count": 39,
-    "complete_cases": 12,
-    "failed_cleaned_cases": 1,
-    "own_trust_absent": true,
-    "preexisting_trust_fingerprints_preserved": true,
-    "own_configuration_restored_and_independently_audited": true,
-    "rights_changes": 0,
-    "infrastructure_changes": 0
-  },
-  "history": [
-    {
-      "outcome": "failed_cleaned",
-      "cause": "Initial package adapter repeated uninstall with present hash. Corrected explicit UninstallAbsent export; original failure preserved."
-    },
-    {
-      "outcome": "not_executed",
-      "cause": "Continuation JSON timestamp culture conversion rejected before SQL. Corrected typed DateTime conversion; original shared budget retained."
-    },
-    {
-      "outcome": "blocked_before_mutation",
-      "cause": "CLR disabled at one target preflight. Explicit standing test configuration authority used with private state/impact journal and restoration audit."
-    }
-  ],
-  "builds": {
-    "source_commit": "5b83a73aab3639b0d45b56e334fb38dc24509279",
-    "product_bytes_unchanged": true,
-    "reproducible_double_build_modules_reused": 10,
-    "ssis_parser_binaries": "unchanged existing qualified package",
-    "third_party": "unchanged pinned ScriptDom with existing licenses"
-  },
-  "cost_and_tokens": "UNKNOWN",
-  "executed_matrix_source_note": "Git source text; exact executed worktree SHA retained separately, including worktree line endings.",
+  "executed_matrix_source_commit": "0068e3582cc3ee9d1e91f45e6d4f3814a0917d53",
+  "executed_matrix_sha256": "c71330d986baee828752f5ea6344791c7851e5b90866dc00a8935817550be61f",
   "executed_case_driver_sha256": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
-  "product_commit": "756e7fb0444aedf04949409a8fab2189b9fa890f"
+  "native_candidate_sha256": "c1b867a553fc776dead8479922d77f81ac5a057e458d05250aef22ab3118905b",
+  "current_preparation_delta": "After native execution only SUPPORT navigation rebasing; SQL/DLL/matrix/driver bytes unchanged. Final package adds qualification metadata and uses the byte-identical synthetic product snapshot. No native replay claimed.",
+  "historical_clr_qualification": "https://github.com/gecompat/SQL_Server_Toolbelt/blob/5bd70a253f1ef4fcec616039236360971110f001/Releases/1.0.0/clr-qualification.json",
+  "cleanup": {
+    "own_database_names_absent": 114,
+    "independent": true,
+    "own_trust_removed": true,
+    "preexisting_trust_preserved": true,
+    "configuration_restored_and_independently_audited": true
+  },
+  "builds": {
+    "source_commit": "0a2bd2ebacbd4e6148ac4197ca87e2f8cb0a3400",
+    "double_build_modules": 12,
+    "delivered_double_build_modules": 10,
+    "parser_ssis": "unchanged existing qualified binaries",
+    "scriptdom": "unchanged original pinned dependency"
+  },
+  "cost_and_tokens": "UNKNOWN"
 }

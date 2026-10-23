@@ -4,11 +4,11 @@ Status: **Vorbereitung, nicht veröffentlicht**. Diese Tabelle wird aus `release
 
 Alle 45 Module sind enthalten: **19 stabile Kandidaten, 26 Preview-Kandidaten**. Alle Modulmanifeste bleiben `unreleased`.
 
-`stable` und `preview` sind vorgeschlagene Kanäle. Die konkrete Plattform-/Provider-/Deployment-/CL-Freigabe und deren vollständige Pflichtnachweise benötigen noch den fachlichen Release-Review. Preview ersetzt keine fehlende Pflichtprüfung im zugesagten Umfang.
+Die Zielkanäle und der [Supportumfang](SUPPORT.md) sind ausdrücklich freigegeben. Die konkrete öffentliche Supportzusage bleibt an vollständige Pflichtnachweise je Kombination gebunden. Preview ersetzt keine fehlende Pflichtprüfung im zugesagten Umfang.
 
 Second Session und Event Log bleiben trotz eigenem `validated` wegen der transitiven Preview-Dependency Work Type vorläufig Preview. Modulversionen bleiben unabhängig von der Projektversion 1.0.0.
 
-| Modul / Version | Vorschlag | Prüfstatus | Direkte Dependencies | Evidenz / offene Abnahme |
+| Modul / Version | Zielkanal | Prüfstatus | Direkte Dependencies | Evidenz / offene Abnahme |
 |---|---|---|---|---|
 | [`toolbelt.archive.zip-files`](../../Modules/toolbelt.archive.zip-files/README.md) 1.0.0 | **preview** | partially validated | `toolbelt.archive.zip-memory`, `toolbelt.filesystem.windows`, `toolbelt.core.result-table` | [Nachweise](../../Modules/toolbelt.archive.zip-files/Tests/README.md); ZIP-/NTFS-/Identitätsfälle und weitere Zielkombinationen vollständig zuordnen. |
 | [`toolbelt.archive.zip-memory`](../../Modules/toolbelt.archive.zip-memory/README.md) 1.4.0 | **preview** | partially validated | `toolbelt.core.result-table` | [Nachweise](../../Modules/toolbelt.archive.zip-memory/Tests/README.md); SQL-LOB-Ceilings, relevante Kapazitätsgrenzen und jeweilige Reader-/Writer-Scopegrenzen prüfen. |

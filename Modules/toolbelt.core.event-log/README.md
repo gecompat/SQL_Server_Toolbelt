@@ -18,6 +18,13 @@ Das Modul speichert keinen frei ausführbaren SQL-Text. `DataJson` ist auf ein J
 
 Der interne Handler `USP_WriteEventInternal` wird als Work Type `toolbelt.event-log.write` registriert. Deploy und Uninstall verändern keinen Linked Server und keine Login-Mappings.
 
+Ein wiederholter Uninstall ist auch nach dem Entfernen der WorkType-Dependency
+möglich, wenn sämtliche Event-Log-Objekte und Modulmarker bereits fehlen.
+Ein noch installierter oder inkonsistent markierter Event-Log-Zustand ohne
+WorkType bleibt mit Fehler 51748 gesperrt. Der optionale Registryzugriff wird
+erst nach der Existenzprüfung kompiliert. Die
+[Releaseprüfung](../../Releases/1.0.0/RELEASE-GATES.md) dokumentiert den tatsächlichen Scope.
+
 Evidenz: https://github.com/gecompat/SQL_Server_Toolbelt/actions/runs/31018284410
 
 ## Aktuelle Validierungsevidenz

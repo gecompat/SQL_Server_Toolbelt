@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## 2026-10-23 – Supportziel und korrigierter Paket-Lifecycle
+
+Der [Support-Zielumfang](Releases/1.0.0/SUPPORT.md) für 45 Module mit
+19 stabilen und 26 Preview-Kanälen ist ausdrücklich übernommen. Der
+hashgebundene Edit-Distance-Repeat erhält den bekannten Text-Pairs-Consumer;
+unbekannte oder abweichende Consumer bleiben gesperrt. Event-Log-Uninstall
+funktioniert erneut, wenn WorkType nach dem vollständigen Uninstall bereits
+fehlt; noch installierter Zustand ohne Dependency bleibt ein Fehler.
+Zwölf vollständige gemeinsame und zwölf eigenständige CLR-Paketfälle bestanden
+inklusive Negativfällen, Consumer und frischen Cleanupaudits. Alle 114 eigenen
+Datenbanknamen sind abwesend, Trust und temporäre Konfiguration wiederhergestellt.
+Frühere Fehler und begrenzte Teilnachweise bleiben nachvollziehbar.
+Synthetische Produktmetadaten erhalten die Source-Recovery nach Squash-Merge.
+Weitere fachliche Modulprüfungen und externe Voraussetzungen stehen im
+[Gatebericht](Releases/1.0.0/RELEASE-GATES.md); keine Veröffentlichung oder
+Wiederaufnahme autonomer Weiterentwicklung.
+
 ## 2026-10-22 – Fertige CLR-DLLs ohne eigenen Build installieren
 
 Der [CLR-Installationssatz](Releases/1.0.0/CLR-INSTALL.md) liefert zwölf

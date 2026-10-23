@@ -3,14 +3,14 @@
   "project_version": "1.0.0",
   "state": "prepared_not_published",
   "publication_authorized": false,
-  "product_commit": "756e7fb0444aedf04949409a8fab2189b9fa890f",
+  "product_commit": "a20ede0b8de92203244d9b15d30426bf5f9a8b37",
   "package_kind": "complete_source_candidate",
   "foundation": {
     "version": "1.25.0",
     "source_commit": "9e1b9974de58ea775d40c7c6045cd5057ba8b30c"
   },
-  "channel_semantics": "Vorschläge für den Release-Review; keine Veröffentlichung und keine Aufwertung der Modulmanifeste.",
-  "support_scope_review": "pending; deklarierte Zielversionen sind keine neue Supportzusage",
+  "channel_semantics": "Zielkanäle ausdrücklich freigegeben; Pflichtqualifikation und öffentliche Veröffentlichung bleiben separat.",
+  "support_scope_review": "target_scope_approved; complete_per_combination_qualification_pending",
   "modules": [
     {
       "module_id": "toolbelt.archive.zip-files",
@@ -1017,5 +1017,58 @@
       "pending_before_publication": "Vollständige bestehende Evidenz an den konkreten veröffentlichten Supportumfang binden.",
       "proposed_channel": "stable"
     }
-  ]
+  ],
+  "approved_target_scope": {
+    "schema_version": "1.0",
+    "state": "approved_target_scope_not_published",
+    "approved_on": "2026-10-23",
+    "approval_reference": "Releases/1.0.0/SUPPORT.md#freigabe",
+    "modules": 45,
+    "channels": {
+      "stable": 19,
+      "preview": 26
+    },
+    "platforms": [
+      "Windows",
+      "Linux"
+    ],
+    "sql_compatibility_levels": {
+      "2019": [
+        150
+      ],
+      "2022": [
+        150,
+        160
+      ],
+      "2025": [
+        150,
+        160,
+        170
+      ]
+    },
+    "deployment_modes": [
+      "local",
+      "central"
+    ],
+    "central_consumer": "only_where_supported_by_module_contract",
+    "lifecycle": [
+      "first_install",
+      "explicit_hash_bound_repeat",
+      "uninstall",
+      "absent_uninstall_repeat"
+    ],
+    "historical_upgrades": "only_explicitly_qualified_source_versions",
+    "support_combinations": "only_completely_qualified_module_platform_provider_deployment_dependency_combinations",
+    "preview_waives_required_tests": false,
+    "publication_authorized": false,
+    "autonomous_development": "paused"
+  },
+  "product_snapshot": {
+    "schema_version": "1.0",
+    "kind": "synthetic_product_snapshot",
+    "source_commit": "0a2bd2ebacbd4e6148ac4197ca87e2f8cb0a3400",
+    "product_commit": "a20ede0b8de92203244d9b15d30426bf5f9a8b37",
+    "base_commit": "5bd70a253f1ef4fcec616039236360971110f001",
+    "tree_oid": "9d7da5346b39e12536922119581a19208ea698c4"
+  }
 }

@@ -3,6 +3,7 @@ param(
     [string]$PackagePath='Releases/1.0.0/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip',
     [Parameter(Mandatory)][string]$EvidenceDirectory,
     [switch]$PlanOnly,
+    [switch]$UnqualifiedCandidate,
     [ValidateRange(0,11)][int]$StartCaseIndex=0,
     [string]$SharedBudgetFile
 )
@@ -64,13 +65,21 @@ foreach ($platform in @('linux','windows')) {
 if ($cases.Count -ne 12) {throw 'RELEASE_FINITE_TWELVE_CASE_BOUNDARY'}
 if ($PlanOnly) {'PASS RELEASE_PLAN twelve target/CL cases, local/central/consumer; no SQL connection'; return}
 # Vor dem ersten SQL-Zugriff das tatsächliche Archiv samt Quell-/Exportbindung prüfen.
-& python -B (Join-Path $repo 'Scripts/Release/prepare_clr_package.py') --verify $package
+$verifyArgs=@('-B',(Join-Path $repo 'Scripts/Release/prepare_clr_package.py'),'--verify',$package)
+if($UnqualifiedCandidate){$verifyArgs+=@('--unqualified-candidate')}
+& python @verifyArgs
 if ($LASTEXITCODE -ne 0) {throw 'RELEASE_PACKAGE_VERIFICATION_FAILED'}
 [void][IO.Directory]::CreateDirectory($evidence)
+$archive=[IO.Compression.ZipFile]::OpenRead($package)
+try{
+ $reader=[IO.StreamReader]::new($archive.GetEntry('SQL-Server-Toolbelt-1.0.0-CLR-Install/CLR-PACKAGE.json').Open(),[Text.Encoding]::UTF8)
+ try{$productCommit=($reader.ReadToEnd()|ConvertFrom-Json).build_source_commit}finally{$reader.Dispose()}
+}finally{$archive.Dispose()}
+if($productCommit -cnotmatch '^[a-f0-9]{40}$'){throw 'RELEASE_CLR_BUILD_SOURCE_COMMIT'}
 $paths=@($driver,$PSCommandPath,(Join-Path $repo 'Tests/Release/Invoke-StablePackageLab.ps1'),(Join-Path $repo 'Tests/CI/run-csv-memory-lab.ps1'),(Join-Path $repo 'Scripts/Release/check_clr_builds.py'),(Join-Path $repo 'Scripts/Release/prepare_release.py'),(Join-Path $repo 'Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py'),$helper,(Join-Path $repo 'Tests/CI/LabQualifiedContract.ps1'),
     (Join-Path $repo 'Scripts/Release/prepare_clr_package.py'),$package,($package+'.sha256'),$lab.Path,$lab.SchemaPath,$prompt)
 $pins=@($paths|Sort-Object -Unique|ForEach-Object {[ordered]@{path=$_;sha256=(Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash}})
-$runset=[ordered]@{schemaVersion='1.0';productCommit='756e7fb0444aedf04949409a8fab2189b9fa890f';
+$runset=[ordered]@{schemaVersion='1.0';productCommit=$productCommit;
     package=$package;contractSha256=(Get-FileHash -LiteralPath $lab.Path -Algorithm SHA256).Hash;
     schemaSha256=(Get-FileHash -LiteralPath $lab.SchemaPath -Algorithm SHA256).Hash;
     promptSha256=(Get-FileHash -LiteralPath $prompt -Algorithm SHA256).Hash;pins=$pins;cases=$cases;
@@ -89,14 +98,17 @@ while ($parent -and $parent.FullName.Length -ge $private.TrimEnd('\','/').Length
 }
 if (Test-Path -LiteralPath $budgetPath) {$budget=Get-Content -LiteralPath $budgetPath -Raw|ConvertFrom-Json -AsHashtable}
 else {$budget=@{startedUtc=[DateTime]::UtcNow.ToString('o');attempts=0;limit=18;seconds=7200;completed=@()}}
-if ($budget.limit -ne 18 -or $budget.seconds -ne 7200) {throw 'RELEASE_BUDGET_CONTRACT'}
-Assert-ClrWaveCoverage $budget $StartCaseIndex
+if ($budget.limit -eq 42 -and $budget.seconds -eq 14400 -and $budget.ContainsKey('completedScopes')) {
+ $scopeDone=@($budget.completedScopes['clr-profile'])
+} elseif($budget.limit -eq 18 -and $budget.seconds -eq 7200) {$scopeDone=@($budget.completed)}
+else {throw 'RELEASE_BUDGET_CONTRACT'}
+Assert-ClrWaveCoverage @{completed=$scopeDone} $StartCaseIndex
 function Save-ClrBudget {[IO.File]::WriteAllText($budgetPath,($budget|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))}
 Save-ClrBudget
 $watch=[Diagnostics.Stopwatch]::StartNew()
 foreach ($index in $StartCaseIndex..11) {
     $elapsed=([DateTime]::UtcNow-([DateTime]$budget.startedUtc).ToUniversalTime()).TotalSeconds
-    if ($elapsed -gt ($budget.seconds-805) -or $budget.attempts -ge $budget.limit -or $index -in $budget.completed){throw 'RELEASE_SHARED_BUDGET_EXHAUSTED_OR_CASE_COMPLETE'}
+    if ($elapsed -gt ($budget.seconds-805) -or $budget.attempts -ge $budget.limit -or $index -in $scopeDone){throw 'RELEASE_SHARED_BUDGET_EXHAUSTED_OR_CASE_COMPLETE'}
     $budget.attempts++;Save-ClrBudget
     if ((Get-FileHash -LiteralPath $runsetPath -Algorithm SHA256).Hash -cne $runsetHash) {throw 'RELEASE_RUNSET_DRIFT'}
     foreach ($audit in @($false,$true)) {
@@ -124,8 +136,10 @@ foreach ($index in $StartCaseIndex..11) {
             }
         } finally {$child.Dispose()}
     }
-    $budget.completed+=@($index);Save-ClrBudget
+    $scopeDone+=@($index)
+    if($budget.ContainsKey('completedScopes')){$budget.completedScopes['clr-profile']=$scopeDone}else{$budget.completed=$scopeDone}
+    Save-ClrBudget
     Write-Output "PASS RELEASE_CASE $index install/repeat/consumer/uninstall; independent cleanup/pins"
 }
-Assert-ClrWaveCoverage $budget $StartCaseIndex -Final
+Assert-ClrWaveCoverage @{completed=$scopeDone} $StartCaseIndex -Final
 Write-Output 'PASS RELEASE_MATRIX 12 target/CL cases; 24 deployment paths; 36 own databases removed; no publication'
