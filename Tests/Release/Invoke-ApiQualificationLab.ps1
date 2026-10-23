@@ -128,7 +128,18 @@ function Invoke-ApiFixture($Test,[string]$Database,[string]$Central='') {
    foreach($pair in @(@('XlsxFixture','standard'),@('XlsxRepeatedFixture','repeated'))){
     if($text.Contains('$('+$pair[0]+')')){$text=$text.Replace('$('+$pair[0]+')','0x'+[Convert]::ToHexString([IO.File]::ReadAllBytes((Join-Path $script:runset.inputDirectory ('fixture-'+$pair[1]+'.xlsx')))))}
    }
-   if($script:case.group -ceq 'translate-large'){
+   if($Test.id -cin @('toolbelt.file.csv-memory:DirectSelectCeilings.Tests.sql','toolbelt.file.csv-memory:DirectSelectUnicodeNull.Tests.sql')){
+    $helper=Join-Path $script:runset.sourceRoot 'Modules/toolbelt.file.csv-memory/Tests/Framework/CsvDirectSelect.Helpers.ps1'
+    foreach($block in Import-ClrFunctions $helper @('Get-CsvDirectSelectCase','Assert-CsvDirectSelectRows','Invoke-CsvDirectSelectPhase') @{
+      'Get-CsvCommandTimeout -Maximum 300'='Get-ReleaseTimeout';'Assert-CsvReadBudget $command'='[void](Get-ReleaseTimeout)'}){. $block}
+    $scope=if($Test.id.EndsWith('DirectSelectCeilings.Tests.sql')){'select-output-ceilings'}else{'select-unicode-null'}
+    $batches=@([regex]::Split($text,'(?im)^\s*GO\s*(?:--[^\r\n]*)?$')|Where-Object {-not [string]::IsNullOrWhiteSpace($_)})
+    if($batches.Count -ne 8){throw 'RELEASE_API_CSV_DIRECT_PHASES'}
+    for($phase=0;$phase -lt 8;$phase++){
+     $passed=Invoke-CsvDirectSelectPhase $db $batches[$phase] $phase -Scope $scope
+     if($passed -isnot [int] -or $passed -ne 1){throw 'RELEASE_API_CSV_DIRECT_ORACLE'}
+    }
+   }elseif($script:case.group -ceq 'translate-large'){
     $batchIndex=0
     foreach($batch in [regex]::Split($text,'(?im)^\s*GO\s*(?:--[^\r\n]*)?$')){
      if(-not [string]::IsNullOrWhiteSpace($batch)){
@@ -190,7 +201,8 @@ function Read-ApiCarry($Control) {
   $regexBlock=$oldCase.group -ceq 'text' -and $old.failure.sqlNumber -eq 6522 -and $old.privateDiagnostic -cmatch 'TBX_REGEX_TIMEOUT'
   $formatDeadline=$oldCase.group -ceq 'formats' -and $old.failure.sqlNumber -eq -2 -and $script:case.workSeconds -gt $oldCase.workSeconds
   $callbackScope=$oldCase.group -ceq 'formats' -and $old.failure.sqlNumber -eq 0 -and $old.privateDiagnostic.Contains('$script:cleanup')
-  if($old.state -cne 'FAILED_CLEANED' -or $old.targetIdentity -cne $script:targetIdentity -or $oldCase.key -cne $script:case.key -or -not ($regexBlock -or $formatDeadline -or $callbackScope)){
+  $csvClientAdapter=$oldCase.group -ceq 'csv' -and $old.failure.sqlNumber -eq 55303 -and $old.failure.stage -ceq 'local:toolbelt.file.csv-memory:DirectSelectCeilings.Tests.sql'
+  if($old.state -cne 'FAILED_CLEANED' -or $old.targetIdentity -cne $script:targetIdentity -or $oldCase.key -cne $script:case.key -or -not ($regexBlock -or $formatDeadline -or $callbackScope -or $csvClientAdapter)){
    throw 'RELEASE_API_CARRY_SCOPE'
   }
   $oldPin=@($prior.pins|Where-Object path -ceq $prior.package)
@@ -208,7 +220,7 @@ function Read-ApiCarry($Control) {
   $spec=Get-Content -LiteralPath $script:runset.spec -Raw|ConvertFrom-Json
   $priorSpec=Get-Content -LiteralPath $prior.spec -Raw|ConvertFrom-Json
   $blockedId=$old.failure.stage.Substring('local:'.Length)
-  $expectedId=if($regexBlock){'toolbelt.string.regex:Transformations.Contract.sql'}elseif($callbackScope){'toolbelt.file.xlsx-memory:Types.Metadata.ps1'}else{'toolbelt.json.constructors:JsonGroups.Boundaries.sql'}
+  $expectedId=if($regexBlock){'toolbelt.string.regex:Transformations.Contract.sql'}elseif($callbackScope){'toolbelt.file.xlsx-memory:Types.Metadata.ps1'}elseif($csvClientAdapter){'toolbelt.file.csv-memory:DirectSelectCeilings.Tests.sql'}else{'toolbelt.json.constructors:JsonGroups.Boundaries.sql'}
   if($old.failure.stage -cne ('local:'+ $blockedId) -or $blockedId -cne $expectedId){throw 'RELEASE_API_CARRY_ERROR_SCOPE'}
   $priorPass=@($old.completedFixtures)+@($old.reusedFixtures)
   $records=$priorPass+@([pscustomobject]@{id=$blockedId;context='local'})
