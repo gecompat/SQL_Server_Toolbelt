@@ -87,9 +87,11 @@ privaten Journale und Wiederherstellungsgates bleiben aktiv.
 
 Der vorhandene Windows-CI-Job baut zusätzlich genau einen externen Host und
 führt die gemeinsamen Gegenproben gegen die bereits gebaute CLR-Assembly aus.
-`jsonschema==4.26.0` bleibt eine reine Testabhängigkeit. Dadurch entstehen
-keine weiteren Jobs, Labzugriffe oder CLR-Frameworkkinder; die bestehenden
-Generatorprüfungen werden nicht verdoppelt. Die unabhängige Prüfung dieses
+`jsonschema==4.26.0` bleibt eine reine Testabhängigkeit. Die acht synthetischen
+Eingaben laufen jeweils in einem .NET-Framework-Paritätsprozess und einem
+externen .NET-Prozess; hinzu kommt die einmalige Kompilierung des Paritätshosts.
+Es entstehen keine weiteren Jobs oder Labzugriffe. Die bestehenden 21
+Generator-Frameworkkinder werden nicht verdoppelt. Die unabhängige Prüfung dieses
 Änderungsschritts umfasste einen Reviewer und einen Folgeauftrag zu dessen
 konkreten Befunden. Weitere Reviews werden dadurch nicht ausgelöst.
 
