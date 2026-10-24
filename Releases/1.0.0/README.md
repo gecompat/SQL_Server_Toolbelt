@@ -45,6 +45,8 @@ SSIS-/Parser-/ScriptDom-Binaries bleiben exakt aus dem bestehenden qualifizierte
 Satz erhalten. Die maschinenlesbare Lieferform steht pro Modul in
 [release-plan.json](release-plan.json). Paketinstallation und vollständige
 fachliche Releasefreigabe sind getrennt; Preview-Grenzen bleiben bestehen.
+Der [native ODBC-Clientnachweis](CLR-CLIENT-QUALIFICATION.md) ergänzt die
+Paketprüfung für den optionalen PowerShell-Helper mit expliziter SQL-Anmeldung.
 
 ## Paket bauen und unabhängig prüfen
 

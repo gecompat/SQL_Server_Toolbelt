@@ -291,6 +291,19 @@ Pfad-/Ownershipgrenzen und abgewiesene SQLCMD-Direktiven ohne SQL-Anmeldung.
 Sie laufen innerhalb der bestehenden Release-Regressionssuite und des
 Dokumentationsjobs; die native Matrix wird dadurch nicht gestartet.
 
+## Optionalen CLR-Installer nativ prüfen
+
+Der optionale ODBC-Clientpfad des bestehenden CLR-Paketharness wird in einem
+privaten eingefrorenen Runset ausdrücklich mit `client = OdbcSqlcmd`,
+`extractedPackage` und einem vorab gepinnten `sqlcmd` gewählt. Er ruft den
+vollständigen Pakethelper mit dem freigegebenen vorhandenen SQL-Konto auf;
+ohne Auswahl bleibt SqlClient erhalten. Paket, entpackte Metadaten, Helper,
+Tool und Labvertrag müssen vor Mutationen gebunden sein. Runsets und
+Zugangsdaten gehören nicht ins Repository. Umfang, unveränderte Grenzen und
+Ergebnisse stehen im [Clientnachweis](../../Releases/1.0.0/CLR-CLIENT-QUALIFICATION.md).
+Die vorhandenen Offline-Harnessprüfungen bleiben im selben Release-Testlauf;
+es entsteht kein zusätzlicher CI-Job oder automatischer Labtest.
+
 ## CLR-Buildinputs isoliert prüfen
 
 ```powershell

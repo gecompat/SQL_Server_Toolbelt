@@ -111,8 +111,11 @@ aus dem bestehenden qualifizierten SSIS-Paket übernommen. Die vorhandenen
 Modulversionen und Dependency-/Consumerpins ändern sich nicht. Die
 [CLR-Qualifikationsprojektion](clr-qualification.json) bindet alle ausgelieferten
 SQL-Payloads und DLL-Bytes an den tatsächlich getesteten Satz sowie an die
-aktuellen Prüf-/Paketierungsquellen. Dokumentations- und Helperergänzungen
-ändern diese SQL-/DLL-Bytes nicht; der finale ZIP-Hash ist entsprechend neu.
+aktuellen Prüf-/Paketierungsquellen. Die spätere
+[ODBC-Clientqualifikation](CLR-CLIENT-QUALIFICATION.md) verwendet für dieselben
+Binärwerte kurze SQL-Zeilenfortsetzungen und prüft alle zwölf Kombinationen
+erneut über den optionalen Pakethelper. DLL-Bytes bleiben identisch; SQL- und
+ZIP-Hashes ändern sich durch die ausdrücklich gebundene neue Lieferform.
 
 Die endliche Welle bestand zwölf tatsächliche Ziel-/CL-Fälle: Windows und
 Linux SQL2019 CL150, SQL2022 CL150/160 und SQL2025 CL150/160/170. Windows
@@ -255,7 +258,7 @@ Die verbleibenden Arbeiten sind damit genauer getrennt:
 | Datei-/Identitätsmodule | Serverseitige synthetische Datei-, NTFS-/Reparse-/Caller-/ServiceAccount-Fixtures und ihre jeweiligen positiven/negativen Fälle | Bereitgestellte Fixtures/Identitäten mit geklärter Ownership; keine eigenmächtige Änderung der Labinfrastruktur |
 | Provider/Worker und harte Recovery | Erforderliche administrierte Provider-/Workerhostkombinationen und kontrollierter echter Transport-/Hostverlust | Vorkonfigurierte Provider und geeignete gesonderte Recoveryumgebung; laufende mutierende Tests werden nicht als Ersatz hart abgebrochen |
 | Weitere Ressourcen-/Parallelgrenzen | Die modulspezifisch weiterhin verpflichtenden Last-/Heap-/Parallelfälle | Je Modul begrenzter gesonderter Testscope und passende Voraussetzungen; die drei ausdrücklich optionalen Laufzeitmessungen bleiben optional |
-| Endanwender-Clientwege | SSMS-GUI und native Ausführung des optionalen ODBC-PowerShell-Helfers bleiben `not executed` | Manuelle GUI-/passende Clientidentitätsprüfung; native Paket-SQL wurde tatsächlich über SqlClient geprüft |
+| Endanwender-Clientwege | Der optionale ODBC-PowerShell-Helper ist mit expliziter SQL-Anmeldung auf zwölf Ziel-/CL-Kombinationen [nativ geprüft](CLR-CLIENT-QUALIFICATION.md); SSMS-GUI und Windows-Anmeldung bleiben `not executed` | Noch ausstehende GUI-/Windows-Identitätsprüfung; fachliche Modul- und TLS-Gates bleiben separat |
 
 Für Kanalaufteilung, grundsätzlichen Plattform-/Deployment-Zielumfang und die
 Lieferung fertiger CLR-DLLs ist keine erneute Grundsatzentscheidung offen.

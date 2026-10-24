@@ -48,11 +48,35 @@ EXEC ${Prefix}toolbelt_json.USP_ValidateJsonSchema @Hilfe=1;
 "@
 }
 
+function Invoke-ClrPackageAction($Connection,[string]$Action,[string]$Profile,[string]$Catalog) {
+ # Der zusätzliche Clientpfad wird ausdrücklich im eingefrorenen Runset
+ # gewählt. Ohne Auswahl bleibt der bisherige SqlClient-Pakettest erhalten.
+ if($script:client -ceq 'SqlClient'){
+  Invoke-ReleaseBatches $Connection $script:files["SQL/$Action-$Profile.sql"]
+  return
+ }
+ [void](Get-ReleaseTimeout)
+ $builder=[Data.SqlClient.SqlConnectionStringBuilder]::new((New-LabConnectionString -Entry $script:target -TestPurpose Functional))
+ try{
+  if($builder.IntegratedSecurity -or -not $builder.Encrypt){throw 'RELEASE_CLR_CLIENT_EXPLICIT_SQL_IDENTITY_REQUIRED'}
+  $credential=[Management.Automation.PSCredential]::new($builder.UserID,(ConvertTo-SecureString $builder.Password -AsPlainText -Force))
+  $options=@{PackageRoot=$script:runset.extractedPackage;Profile=$Profile;Action=$Action;
+   ServerInstance=$builder.DataSource;Database=$Catalog;SqlcmdPath=$script:runset.sqlcmd;
+   Credential=$credential;TrustServerCertificate=$builder.TrustServerCertificate}
+  if($Action -ceq 'Install'){$options.RegisterExactTrust=$true}
+  if($Action -like 'Uninstall*'){$options.ConfirmNoExternalConsumers=$true}
+  & (Join-Path $script:runset.extractedPackage 'Install-ClrPackage.ps1') @options
+  [void](Get-ReleaseTimeout)
+ }finally{$builder.Clear();$credential=$null;$options=$null}
+}
+
 $control=$null;$ledger=$null;$journal=$null;$failure=$null;$stage='PREPARE'
 try {
  $RunsetPath=Assert-ReleasePrivatePath $RunsetPath
  $runset=Get-Content -LiteralPath $RunsetPath -Raw|ConvertFrom-Json
  if($runset.cases.Count -ne 12){throw 'RELEASE_CLR_RUNSET'}
+ $client=if($runset.PSObject.Properties.Name -contains 'client'){[string]$runset.client}else{'SqlClient'}
+ if($client -cnotin @('SqlClient','OdbcSqlcmd')){throw 'RELEASE_CLR_CLIENT_SELECTION'}
  $case=$runset.cases[$CaseIndex]
  $journal=Assert-ReleasePrivatePath (Join-Path (Split-Path -Parent $RunsetPath) ('case-'+$CaseIndex+'.json'))
  Assert-ReleaseInputs
@@ -66,7 +90,7 @@ try {
  $control=Open-ReleaseConnection 'master'
  if($AuditOnly){
   $ledger=Get-Content -LiteralPath $journal -Raw|ConvertFrom-Json
-  if($ledger.targetIdentity -cne $targetIdentity -or $ledger.state -cne 'COMPLETE'){throw 'RELEASE_CLR_AUDIT_STATE'}
+  if($ledger.targetIdentity -cne $targetIdentity -or $ledger.state -cnotin @('COMPLETE','FAILED_CLEANED')){throw 'RELEASE_CLR_AUDIT_STATE'}
   foreach($entry in $ledger.databases){
    $r=@(Invoke-ReleaseSql $control 'SELECT DB_ID(@Name) Id;' @{'@Name'=$entry.name} -Rows)
    if($entry.state -cne 'DROPPED' -or $r.Count -ne 1 -or $r[0].Id -isnot [DBNull]){throw 'RELEASE_CLR_AUDIT_DB_PRESENT'}
@@ -134,17 +158,17 @@ try {
  foreach($mode in @('local','central')){
   $profile="$platformProfile-$mode";$stage='INSTALL_'+$mode
   $db=Open-ReleaseConnection $names[$mode]
-  Invoke-ReleaseBatches $db $files["SQL/Install-$profile.sql"]
+  Invoke-ClrPackageAction $db 'Install' $profile $names[$mode]
   $first=Assert-ClrInstalled $db $profile;Invoke-ClrSmoke $db;$db.Dispose()
   $stage='REPEAT_'+$mode;$db=Open-ReleaseConnection $names[$mode]
-  Invoke-ReleaseBatches $db $files["SQL/Repeat-$profile.sql"]
+  Invoke-ClrPackageAction $db 'Repeat' $profile $names[$mode]
   if((Assert-ClrInstalled $db $profile) -cne $first){throw 'RELEASE_CLR_REPEAT_DRIFT'}
   Invoke-ClrSmoke $db;$db.Dispose()
   if($mode -ceq 'central'){$db=Open-ReleaseConnection $names.consumer;Invoke-ClrSmoke $db ('['+$names.central+'].');$db.Dispose()}
   $stage='UNINSTALL_'+$mode
   foreach($action in @('Uninstall','UninstallAbsent')){
    $stage=$action+'_'+$mode;$db=Open-ReleaseConnection $names[$mode]
-   Invoke-ReleaseBatches $db $files["SQL/$action-$profile.sql"];$db.Dispose()
+   Invoke-ClrPackageAction $db $action $profile $names[$mode];$db.Dispose()
   }
   $db=Open-ReleaseConnection $names[$mode]
   $left=@(Invoke-ReleaseSql $db "SELECT (SELECT COUNT(*) FROM sys.assemblies WITH (NOLOCK) WHERE is_user_defined=1) Assemblies,(SELECT COUNT(*) FROM sys.extended_properties WITH (NOLOCK) WHERE class=0 AND name LIKE N'Toolbelt.Module.%') Markers;" -Rows)

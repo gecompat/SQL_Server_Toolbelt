@@ -33,6 +33,23 @@ def digest(data: bytes, algorithm='sha256') -> str:
     return hashlib.new(algorithm, data).hexdigest()
 
 
+def format_assembly_literals(sql: bytes, artifacts: list[dict]) -> bytes:
+    """Nur bekannte Assemblyliterale umbrechen; ihre Bytes bleiben identisch.
+
+    Mehrere Megabyte lange Einzelzeilen überlasten den ODBC-sqlcmd-Einlesepfad.
+    Die dokumentierte T-SQL-Zeilenfortsetzung erhält denselben Binärwert und
+    vermeidet zusätzliche Ausdrücke, Konvertierungen oder SQL-Anweisungen.
+    """
+    for artifact in artifacts:
+        literal = b'0x' + artifact['_bytes'].hex().encode('ascii')
+        if len(literal) > 4096 and literal in sql:
+            digits = literal[2:]
+            continued = b'0x' + b'\\\n'.join(digits[i:i+4096] for i in range(0, len(digits), 4096))
+            release.require(continued.replace(b'\\\n', b'') == literal, 'Assemblyliteralkodierung abweichend.')
+            sql = sql.replace(literal, continued)
+    return sql
+
+
 def profiles(artifacts: list[dict]) -> dict[str, list[dict]]:
     modules = [a for a in artifacts if a['module_id']]
     return {f'{platform}-{mode}': [a for a in modules
@@ -117,7 +134,7 @@ def exports(files: dict[str, bytes], artifacts: list[dict]) -> dict[str, bytes]:
                                             '-InputFile', str(inp), '-OutputFile', str(out)],
                                            cwd=root, capture_output=True, timeout=120)
                 release.require(completed.returncode == 0 and out.is_file(), 'CLR-Offlineexport fehlgeschlagen.')
-                result[f'SQL/{action}-{profile}.sql'] = out.read_bytes()
+                result[f'SQL/{action}-{profile}.sql'] = format_assembly_literals(out.read_bytes(), artifacts)
             sql = result[f'SQL/Install-{profile}.sql'].decode('utf-8')
             order = re.findall(r'(?m)^-- BEGIN MODULE (toolbelt\.[a-z0-9.-]+)', sql)
             by_module = {a['module_id']: a for a in selected}

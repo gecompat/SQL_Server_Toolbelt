@@ -215,6 +215,53 @@ class ClrPackageTests(unittest.TestCase):
         cls.clr = prepare_clr_package
         cls.package = ROOT / prepare_clr_package.LOCATION
 
+    def test_assembly_line_continuation_preserves_exact_binary_and_other_sql(self):
+        binary = bytes(range(256)) * 48
+        literal = b'0x' + binary.hex().encode('ascii')
+        source = b"-- unveraenderter Kontext\nDECLARE @B varbinary(max)=" + literal + b";\nSELECT 0x1234, N'Contoso';\n"
+        actual = self.clr.format_assembly_literals(source, [{'_bytes': binary}])
+        self.assertLess(max(map(len, actual.splitlines())), 4200)
+        self.assertEqual(actual.replace(b'\\\n', b''), source)
+        self.assertEqual(self.clr.format_assembly_literals(actual, [{'_bytes': binary}]), actual)
+        self.assertEqual(self.clr.format_assembly_literals(source, [{'_bytes': b'other'}]), source)
+        for newline in (b'\n', b'\r\n'):
+            token = actual[actual.index(b'0x'):actual.index(b';')].replace(b'\\\n', b'\\' + newline)
+            self.assertEqual(bytes.fromhex(token[2:].replace(b'\\' + newline, b'').decode('ascii')), binary)
+
+    def test_native_odbc_followup_binds_client_payload_and_cleanup_scope(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/clr-client-qualification.json').read_bytes())
+        qualification = json.loads((ROOT / self.clr.QUALIFICATION).read_bytes())
+        self.assertFalse(report['publication_authorized'])
+        self.assertEqual(report['result'], 'PASS')
+        self.assertEqual(report['authentication'], 'explicit SQL credential')
+        self.assertEqual(report['windows_integrated_authentication'], 'not executed')
+        self.assertTrue(report['encrypt'])
+        self.assertEqual(report['trust'], 'explicit schema-validated Functional Lab value')
+        self.assertFalse(report['fallback'])
+        self.assertEqual(report['limits'], {'work_seconds': 300, 'cleanup_deadline_seconds': 360, 'outer_watchdog_seconds': 400})
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertEqual(len(report['native_cases']), 12)
+        self.assertTrue(all(c['result'] == 'PASS' and c['independent_cleanup_and_pin_audit']
+                            and c['deployment_modes'] == ['local', 'central'] for c in report['native_cases']))
+        self.assertEqual(report['final_independent_audit']['current_owned_database_names_absent'], 36)
+        self.assertTrue(report['final_independent_audit']['temporary_clr_configuration_restored'])
+        self.assertEqual(qualification['client_followup']['evidence'], 'Releases/1.0.0/clr-client-qualification.json')
+        with zipfile.ZipFile(self.package) as archive:
+            prefix = self.clr.PACKAGE + '/'
+            sql = {p[len(prefix):]: archive.read(p) for p in archive.namelist() if p.startswith(prefix + 'SQL/')}
+            binaries = {p[len(prefix):]: hashlib.sha512(archive.read(p)).hexdigest()
+                        for p in archive.namelist() if p.startswith(prefix + 'Binaries/')}
+        self.assertEqual(report['sql_payload_sha256'], {p: hashlib.sha256(b).hexdigest() for p, b in sql.items()})
+        self.assertEqual(report['normalized_prior_sql_payload_sha256'],
+                         {p: hashlib.sha256(b.replace(b'\\\n', b'')).hexdigest() for p, b in sql.items()})
+        self.assertEqual(report['binary_sha512'], binaries)
+        self.assertTrue(all(max(map(len, b.splitlines())) < 8192 for b in sql.values()))
+
     def test_actual_prebuilt_package_and_platform_boundaries(self):
         metadata = self.clr.verify(self.package)
         self.assertEqual(len(metadata['artifacts']), 13)
@@ -430,7 +477,14 @@ class ApiQualificationTests(unittest.TestCase):
                 self.assertEqual(current, followup['source_sha256'][path])
                 with zipfile.ZipFile(ROOT / release.ARTIFACTS / (release.NAME + '.zip')) as archive:
                     delivered = archive.read(release.NAME + '/' + path)
-                self.assertEqual(hashlib.sha256(delivered.replace(b'\r\n', b'\n')).hexdigest(), digest)
+                    manifest = json.loads(archive.read(release.NAME + '/PACKAGE-MANIFEST.json'))
+                    bundle = archive.read(release.NAME + '/PREPARATION.bundle')
+                self.assertEqual(hashlib.sha256(delivered.replace(b'\r\n', b'\n')).hexdigest(), current)
+                # Der neue Paketstand liefert den aktuellen Treiber. Der
+                # historische Nachweis bleibt am unveränderten Produktbaum
+                # des mitgelieferten Bundles verifizierbar, auch nach Squash.
+                _, product, _ = release.recovered_snapshot(bundle, manifest['source_commit'], report['product_commit'])
+                self.assertEqual(hashlib.sha256(product[path].replace(b'\r\n', b'\n')).hexdigest(), digest)
             else:
                 self.assertEqual(current, digest)
         data = release.read_zip((ROOT / release.CLR_PACKAGE).read_bytes())

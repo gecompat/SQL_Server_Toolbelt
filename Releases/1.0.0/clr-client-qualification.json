@@ -1,0 +1,278 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-24",
+  "publication_authorized": false,
+  "result": "PASS",
+  "scope": "packaged optional ODBC PowerShell installer; four existing profiles; no full module/API/rights/resource/recovery claim",
+  "authentication": "explicit SQL credential",
+  "windows_integrated_authentication": "not executed",
+  "ssms_gui": "not executed",
+  "encrypt": true,
+  "trust": "explicit schema-validated Functional Lab value",
+  "authenticated_tls": "not executed",
+  "fallback": false,
+  "source_commit": "5bf3290d1dc6919f211a4284ac341073976b2924",
+  "native_candidate_sha256": "4246788314edb526802d44f23a7d17e30037dcca970972a519bc4ea10d498254",
+  "source_sha256": {
+    "Scripts/Release/Install-ClrPackage.ps1": "d95884cf01b0fccda9b8d2b1725110e56cfd7b30368108e2b1c43c1b555a345d",
+    "Scripts/Release/prepare_clr_package.py": "5afe0eb99c8a21bc254443022a423810c0ec9721c729d778a387d77598e0a28d",
+    "Tests/Release/Invoke-ClrPackageLab.ps1": "f5d49ef99ff15499efee3c00bc378dafb6c4383da4eb683e54739bdc9b2e0b9c",
+    "Tests/Release/Test-ClrPackageHarness.ps1": "c6cbfb4b30486c3230ca6f3f6980721231054325391e0af35eed98954cec55f7",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a"
+  },
+  "sql_payload_sha256": {
+    "SQL/Install-Portable-central.sql": "ed5662c3a1c1eaf8383b6cf334ca1bf18df40afbc3f4688a9d765847589c98eb",
+    "SQL/Install-Portable-local.sql": "f52d9098776482862e919ec809ffae282bc5a5e15f2841cd1cfbbe4500d475f3",
+    "SQL/Install-Windows-central.sql": "c981ffebcdb6b4808f5ec97c1cf18806caae552a4d358177750a5b5bc844f106",
+    "SQL/Install-Windows-local.sql": "0ddf0f15a041f04fe7f298fa100945954241f1b52163f2908c34fcb9f47f3104",
+    "SQL/Repeat-Portable-central.sql": "d34df59cd8f766747186f528fe0f9e83348f697b83e1b96d7dc2b5bc08d000cd",
+    "SQL/Repeat-Portable-local.sql": "2b1ca499e071a90651ede00efe64b7336ff3f3c286554b6529c1e984b074613f",
+    "SQL/Repeat-Windows-central.sql": "f56dd77af9657495e72441b6dc461d2b6ed0013148d0f59a3dd1815866c8c8af",
+    "SQL/Repeat-Windows-local.sql": "2c6b731f2e106cfe352eef971eef89c5f8e03d3f9b58dd43e31b11371eccd4b0",
+    "SQL/Trust-Portable-central.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Portable-local.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Windows-central.sql": "0788cbd6ca713dc0283a74c1ce4a9e43644961ad04d774ea32fb617bac8086f8",
+    "SQL/Trust-Windows-local.sql": "eeaa11650de3c8c51acf4347ae7228640b91302d67c5ca8ee27d427b53fdcbad",
+    "SQL/Uninstall-Portable-central.sql": "46e930eec8b5d7c5096b5c9cac193290b2945490f274b1c9d86d63b28e0defd1",
+    "SQL/Uninstall-Portable-local.sql": "46e930eec8b5d7c5096b5c9cac193290b2945490f274b1c9d86d63b28e0defd1",
+    "SQL/Uninstall-Windows-central.sql": "3862115e827db72753886b40bf29417bab748b4df83e0fff1f592b00f28f254e",
+    "SQL/Uninstall-Windows-local.sql": "9586ef975ab1a3f06581a762898d32bf39ded433d0b4fdbf71e6d44a1356c2ad",
+    "SQL/UninstallAbsent-Portable-central.sql": "ba784ca610119ffd446d5cd2142891203690e560ea3b338c784c0f3df6ea0c37",
+    "SQL/UninstallAbsent-Portable-local.sql": "ba784ca610119ffd446d5cd2142891203690e560ea3b338c784c0f3df6ea0c37",
+    "SQL/UninstallAbsent-Windows-central.sql": "b55af25113f749280ba6ce55580ba13da29015a4e1e2d2ac4cc0b7f605c59edc",
+    "SQL/UninstallAbsent-Windows-local.sql": "f56726cd1a4d4930aaa8e48df6fa27225189cfa7a7c533eae64b22d15ff16848"
+  },
+  "normalized_prior_sql_payload_sha256": {
+    "SQL/Install-Portable-central.sql": "a8603859e2ce26e2b2661416fbc5a0d663da6e5409951e8914c38cd0e92591f4",
+    "SQL/Install-Portable-local.sql": "f8b399996c5e74e914ebc9685d7c996c189b682e060bf566fcbfe8154d1d6cc6",
+    "SQL/Install-Windows-central.sql": "e2318a31ab2f642450c3fcd5e8133d2b6e5a8bf6e525456d1102ff39f28aad6c",
+    "SQL/Install-Windows-local.sql": "74cd24d125654574e2888024003c4657ae04721f8a3b014c7af4717434c923d4",
+    "SQL/Repeat-Portable-central.sql": "bb28c7d5c585b9b15a50164a73e5ced930b9cadb1f58558983c9f8f5b7ee074b",
+    "SQL/Repeat-Portable-local.sql": "bc5707e8807bf86e8b2794f2a2b37e20ab85567eb05efec6265383e5033278d7",
+    "SQL/Repeat-Windows-central.sql": "d2895911a17a35364af1cafef73dbbf99d2f6bf4ef243cc085e74fcb58bcae50",
+    "SQL/Repeat-Windows-local.sql": "602eabe1f8360db81d04507a771e00121d0f64d94e17b4ff99ccfe9e2f83f586",
+    "SQL/Trust-Portable-central.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Portable-local.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Windows-central.sql": "0788cbd6ca713dc0283a74c1ce4a9e43644961ad04d774ea32fb617bac8086f8",
+    "SQL/Trust-Windows-local.sql": "eeaa11650de3c8c51acf4347ae7228640b91302d67c5ca8ee27d427b53fdcbad",
+    "SQL/Uninstall-Portable-central.sql": "46e930eec8b5d7c5096b5c9cac193290b2945490f274b1c9d86d63b28e0defd1",
+    "SQL/Uninstall-Portable-local.sql": "46e930eec8b5d7c5096b5c9cac193290b2945490f274b1c9d86d63b28e0defd1",
+    "SQL/Uninstall-Windows-central.sql": "3862115e827db72753886b40bf29417bab748b4df83e0fff1f592b00f28f254e",
+    "SQL/Uninstall-Windows-local.sql": "9586ef975ab1a3f06581a762898d32bf39ded433d0b4fdbf71e6d44a1356c2ad",
+    "SQL/UninstallAbsent-Portable-central.sql": "ba784ca610119ffd446d5cd2142891203690e560ea3b338c784c0f3df6ea0c37",
+    "SQL/UninstallAbsent-Portable-local.sql": "ba784ca610119ffd446d5cd2142891203690e560ea3b338c784c0f3df6ea0c37",
+    "SQL/UninstallAbsent-Windows-central.sql": "b55af25113f749280ba6ce55580ba13da29015a4e1e2d2ac4cc0b7f605c59edc",
+    "SQL/UninstallAbsent-Windows-local.sql": "f56726cd1a4d4930aaa8e48df6fa27225189cfa7a7c533eae64b22d15ff16848"
+  },
+  "binary_sha512": {
+    "Binaries/Microsoft.SqlServer.TransactSql.ScriptDom.dll": "459e137268a4ca378023cd7e68a04655cec2c19a8d01546e81b1a7abf1fe2f9226a03cc3fa2323081c3c1b05626af988c98527711d577919cf409367f853dac7",
+    "Binaries/Toolbelt.Archive.ZipMemory.dll": "a3185897b72adbaa81c462cabedc6a770ebedf6b123b1f148d8a659b146130d90c163b76840d59aa8148661b00316cd02d8c5c05174e3394659edc53ff9f1894",
+    "Binaries/Toolbelt.File.CsvMemory.dll": "fb4ad8b4d0affff25d660f2231ee3024ad9702d4fbd01769290f2ab65fd1621facf7ef62dc92f4f6175e6db658051e417aa6bb7fb7e48c924f2e9ac61d51f960",
+    "Binaries/Toolbelt.File.XlsxMemory.dll": "afa7709f78447d122bb2b1d7c37668eda31ac82d8bd2d124a36d1d6924d3c2a430ecf5f34afe0b00c622ce1a3c07eb0043e5a5fe559c52fbfa5a0a9121995fb3",
+    "Binaries/Toolbelt.Filesystem.Windows.dll": "c5cb30b58e4a76a10af20c50c593fbe0184963587e02b448c5d2cc3a131a32b6835c0708796b6d2039a5f1d970afd964dedf244bf22a325d8f95db4fa07f0052",
+    "Binaries/Toolbelt.JsonConstructors.dll": "8ab08a17d1be0b861043463e223154dffbed8273bc2c197cd7c8b791c3c06c4af418358e8e743d72068a3a9f726f7f85f50bcfa431df0484202ab562e1edb4bf",
+    "Binaries/Toolbelt.JsonCore.dll": "4680e9d34a0870924b5ca003cc5983882fc8ffb653e702bcc549e5f65dde11934c55ba7b356b519503ac5ce1e2478fe64876fea0295176ff13b5b4a6ab61b894",
+    "Binaries/Toolbelt.JsonSchema.dll": "523b65979267457e8326ed2d5ec96d0309e9e1c7d5a0b2fbc0a3de68dcf7a9bb5a4f9cdda704ee0ba9f19097edbfb66eb8d649c0f2941b4a16adc2880bef880f",
+    "Binaries/Toolbelt.String.EditDistance.dll": "c81e7a841dc0670b850f46d932337f55b6225d2a834d4480ae3d514875b84bf56261ff580df56155a59c0f8a56b6fe54e798d046329f4122e7228467cca90404",
+    "Binaries/Toolbelt.String.Phonetic.dll": "c1155aa10d9fce61ae33cf8e6f6c68528d219db4835d74b3a35e129f851f66e2fca47c99a6f8f74f3d38239f9be84968459366bbfbeb0125c077b61a8d1989e9",
+    "Binaries/Toolbelt.String.Regex.dll": "515a52fa8803634f0c8c93a383016195a22f868596d3b361bb00d6f8d6a622b637be76377bf256e6297848b87aae59f5644892ec43c1a0aadb6602d0c0738eb1",
+    "Binaries/Toolbelt.Tsql.ScriptParser.dll": "7f34d0472dbe5913c8d019a72b2684d89cb4ca79590b599dd5b06154d6a40c5494334d8f46218e10e9d1bc5db983a8750ba77a685d68865d9bcdf30c3d853506",
+    "Binaries/Toolbelt.Tsql.SsisDebug.dll": "84ba992e7482b644b5ee8b4ebbc1aff537cd690a9d3d4366a0b037fe10e5bd3ad40352dc16c7d643b5180185d011e83ad7411ef359cb3ffc3f75e046b46e66fc"
+  },
+  "limits": {
+    "work_seconds": 300,
+    "cleanup_deadline_seconds": 360,
+    "outer_watchdog_seconds": 400
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "deployment_modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "deployment_modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "deployment_modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "deployment_modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "deployment_modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "deployment_modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "deployment_modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "deployment_modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "deployment_modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "deployment_modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "deployment_modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "deployment_modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "actions_per_deployment": [
+    "Install with exact trust registration",
+    "Repeat",
+    "Uninstall with own-consumer confirmation",
+    "UninstallAbsent"
+  ],
+  "oracles": [
+    "exact assembly hashes",
+    "exact module marker count",
+    "fixed phonetic value",
+    "two JSON help calls",
+    "central consumer",
+    "no module/assembly residue after both uninstalls"
+  ],
+  "corrections": [
+    "select exactly one configured sqlcmd executable before execution",
+    "explicit optional SQL credential, password only in child process environment",
+    "known exact binary literals use documented T-SQL line continuation"
+  ],
+  "earlier_revision": {
+    "source_commit": "b57e21e458544a9bb8d5df1797ed4df3c2fb16e8",
+    "completed_case_count": 1,
+    "failed_cleaned_case_count": 1,
+    "failure": "RELEASE_DEADLINE after Windows Install and Repeat on original long physical binary literal lines",
+    "independent_cleanup_and_pin_reconciliation": true,
+    "counts_as_current_matrix": false
+  },
+  "final_independent_audit": {
+    "current_owned_database_names_absent": 36,
+    "current_trust_states_restored": 132,
+    "temporary_clr_configuration_restored": true,
+    "separate_configuration_audit": true,
+    "current_input_pins_unchanged": true,
+    "historical_input_sources_preserved": true
+  },
+  "remaining_gates": [
+    "SSMS GUI client path",
+    "Windows integrated-authentication client path not qualified here",
+    "all remaining module-specific minimum-rights, provider, file/identity, resource and host-recovery gates",
+    "final publication requires separate human authorization"
+  ],
+  "cost_and_tokens": "UNKNOWN"
+}
