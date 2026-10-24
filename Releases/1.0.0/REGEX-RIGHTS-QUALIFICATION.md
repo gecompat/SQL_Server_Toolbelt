@@ -67,9 +67,13 @@ Beide Produktbäume lassen sich über den öffentlichen Main-Vorstand und die
 mitgelieferten Quellbundles unabhängig rekonstruieren. Der bestehende
 Release-Test prüft die konkreten Änderungen erneut statt eine pauschale
 Anwendbarkeit zu behaupten. Der erneute Doppelbuild aller zwölf Projekte
-liefert identische Binaries. Die neu erzeugten rohen Paket-SQL-Dateien erhalten
-ihren eigenen nativen Paketnachweis; grüne ältere Paketläufe werden nicht
-nachträglich als Ausführung der neuen Dateien bezeichnet.
+liefert identische Binaries. Die neu erzeugten rohen Paket-SQL-Dateien
+bestanden zwölf aktuelle ODBC-CLR-Paketfälle und zwölf vollständige
+Gesamtpaket-Lifecyclefälle mit eigenen Cleanup-/Pinaudits und separaten
+Konfigurationsaudits. Grüne ältere Paketläufe werden nicht nachträglich als
+Ausführung der neuen Dateien bezeichnet. Die aktuelle Bindung steht in
+[CLR-Qualifikation](clr-qualification.json) und
+[Gesamtpaketqualifikation](complete-qualification.json).
 
 ## Weitere Grenzen
 

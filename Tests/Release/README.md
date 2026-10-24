@@ -291,6 +291,21 @@ Pfad-/Ownershipgrenzen und abgewiesene SQLCMD-Direktiven ohne SQL-Anmeldung.
 Sie laufen innerhalb der bestehenden Release-Regressionssuite und des
 Dokumentationsjobs; die native Matrix wird dadurch nicht gestartet.
 
+## Skalarrechte und dokumentierte Produktrevision prüfen
+
+Die zusätzliche [Regex-Skalarrechtequalifikation](../../Releases/1.0.0/REGEX-RIGHTS-QUALIFICATION.md)
+verwendet im API-Harness einen eigenen, endlich ausgewählten SQL-Fixturescope.
+Sie legt ausschließlich in eigenen temporären Datenbanken Benutzer ohne Login
+an und prüft feste Werte, fehlende Rechte, REFERENCES allein, EXECUTE allein,
+Rechteentzug sowie gesperrte interne Kerne. Die separate Projektion enthält
+auch zwei absichtlich abgewiesene Orakelvarianten; diese sind keine funktionalen
+Erfolge. Der Quellvergleich für die anschließende Rechte-Dokumentationskorrektur
+erlaubt nur fünf konkrete SQL-Headerkommentare, bekannte Markdown-Seiten und
+den engen Manifestnachtrag. Andere Runtime-, Versions-, Objekt- oder
+Dependencyänderungen werden abgewiesen. Beide Produktstände sind aus den
+gebundenen öffentlichen bzw. aktuellen Quellbundles rekonstruierbar;
+unreferenzierte alte Gitobjekte sind dafür keine Voraussetzung.
+
 ## Optionalen CLR-Installer nativ prüfen
 
 Der optionale ODBC-Clientpfad des bestehenden CLR-Paketharness wird in einem

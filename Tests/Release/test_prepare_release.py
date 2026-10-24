@@ -532,8 +532,17 @@ class ApiQualificationTests(unittest.TestCase):
                     bundle = archive.read(release.NAME + '/PREPARATION.bundle')
                 self.assertEqual(hashlib.sha256(delivered.replace(b'\r\n', b'\n')).hexdigest(), current)
                 # Der neue Paketstand liefert den aktuellen Treiber. Der
-                # historische Nachweis bleibt am unveränderten Produktbaum
-                # des mitgelieferten Bundles verifizierbar, auch nach Squash.
+                # historische Nachweis verwendet sein eigenes altes Bundle;
+                # ein frischer Checkout braucht keine unreferenzierten
+                # früheren Snapshotobjekte im lokalen Git-Objektstore.
+                if manifest['product_commit'] != report['product_commit']:
+                    applicability = json.loads((ROOT / 'Releases/1.0.0/runtime-source-equivalence.json').read_bytes())
+                    historical = release.git('show', applicability['public_baseline_commit'] + ':' + release.ARTIFACTS + release.NAME + '.zip')
+                    self.assertEqual(hashlib.sha256(historical).hexdigest(), applicability['previous_source_zip_sha256'])
+                    raw = release.read_zip(historical)
+                    manifest = json.loads(raw[release.NAME + '/PACKAGE-MANIFEST.json'])
+                    bundle = raw[release.NAME + '/PREPARATION.bundle']
+                    self.assertEqual(manifest['product_commit'], report['product_commit'])
                 _, product, _ = release.recovered_snapshot(bundle, manifest['source_commit'], report['product_commit'])
                 self.assertEqual(hashlib.sha256(product[path].replace(b'\r\n', b'\n')).hexdigest(), digest)
             else:

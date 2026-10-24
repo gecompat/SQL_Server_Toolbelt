@@ -50,7 +50,7 @@
   "other_product_runtime_build_worker_inputs": "byte-identical",
   "binary_rebuild": "all twelve projects double-built and byte-identical to prior qualified builds; delivered parser/SSIS/ScriptDom pins retained",
   "rights_execution": "twelve actual target/CL cases plus two intentional rejection controls, before documentation-only refreeze; bound separately",
-  "package_followup": "Twelve new raw-SQL ODBC CLR profile cases PASS with independent cleanup/pin/configuration audits; complete package followup remains pending.",
+  "package_followup": "Twelve new raw-SQL ODBC CLR profile cases and twelve new full complete-package lifecycle cases PASS, each with independent cleanup/pin/configuration audits; no unchanged-input replay or budget increase.",
   "historical_reports_preserved": true,
   "cost_and_tokens": "UNKNOWN"
 }
