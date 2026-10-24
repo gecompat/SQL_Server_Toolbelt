@@ -131,14 +131,14 @@
     }
   ],
   "sql_payload_sha256": {
-    "SQL/Install-Portable-central.sql": "a8603859e2ce26e2b2661416fbc5a0d663da6e5409951e8914c38cd0e92591f4",
-    "SQL/Install-Portable-local.sql": "f8b399996c5e74e914ebc9685d7c996c189b682e060bf566fcbfe8154d1d6cc6",
-    "SQL/Install-Windows-central.sql": "e2318a31ab2f642450c3fcd5e8133d2b6e5a8bf6e525456d1102ff39f28aad6c",
-    "SQL/Install-Windows-local.sql": "74cd24d125654574e2888024003c4657ae04721f8a3b014c7af4717434c923d4",
-    "SQL/Repeat-Portable-central.sql": "bb28c7d5c585b9b15a50164a73e5ced930b9cadb1f58558983c9f8f5b7ee074b",
-    "SQL/Repeat-Portable-local.sql": "bc5707e8807bf86e8b2794f2a2b37e20ab85567eb05efec6265383e5033278d7",
-    "SQL/Repeat-Windows-central.sql": "d2895911a17a35364af1cafef73dbbf99d2f6bf4ef243cc085e74fcb58bcae50",
-    "SQL/Repeat-Windows-local.sql": "602eabe1f8360db81d04507a771e00121d0f64d94e17b4ff99ccfe9e2f83f586",
+    "SQL/Install-Portable-central.sql": "ed5662c3a1c1eaf8383b6cf334ca1bf18df40afbc3f4688a9d765847589c98eb",
+    "SQL/Install-Portable-local.sql": "f52d9098776482862e919ec809ffae282bc5a5e15f2841cd1cfbbe4500d475f3",
+    "SQL/Install-Windows-central.sql": "c981ffebcdb6b4808f5ec97c1cf18806caae552a4d358177750a5b5bc844f106",
+    "SQL/Install-Windows-local.sql": "0ddf0f15a041f04fe7f298fa100945954241f1b52163f2908c34fcb9f47f3104",
+    "SQL/Repeat-Portable-central.sql": "d34df59cd8f766747186f528fe0f9e83348f697b83e1b96d7dc2b5bc08d000cd",
+    "SQL/Repeat-Portable-local.sql": "2b1ca499e071a90651ede00efe64b7336ff3f3c286554b6529c1e984b074613f",
+    "SQL/Repeat-Windows-central.sql": "f56dd77af9657495e72441b6dc461d2b6ed0013148d0f59a3dd1815866c8c8af",
+    "SQL/Repeat-Windows-local.sql": "2c6b731f2e106cfe352eef971eef89c5f8e03d3f9b58dd43e31b11371eccd4b0",
     "SQL/Trust-Portable-central.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
     "SQL/Trust-Portable-local.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
     "SQL/Trust-Windows-central.sql": "0788cbd6ca713dc0283a74c1ce4a9e43644961ad04d774ea32fb617bac8086f8",
@@ -169,14 +169,14 @@
   },
   "method_bindings": {
     "Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py": "e7a01dddf939f28eedc421b8da22395bf4a4c96dc871dffdd7cf109f9254915d",
-    "Scripts/Release/Install-ClrPackage.ps1": "2f030e922b2ab48d7ee9a284dc2694ede427d8643c29fbdc31638cb5c03adac2",
+    "Scripts/Release/Install-ClrPackage.ps1": "d95884cf01b0fccda9b8d2b1725110e56cfd7b30368108e2b1c43c1b555a345d",
     "Scripts/Release/check_clr_builds.py": "4aece76b135c8bbd443bb5a64a9faac3221db2055ee7d75a59ed4b04d654b6d3",
-    "Scripts/Release/prepare_clr_package.py": "3349cfc6313f7743f4102d8baf36a281161b4a739ec711d8cbe7337a38a0ac6d",
+    "Scripts/Release/prepare_clr_package.py": "5afe0eb99c8a21bc254443022a423810c0ec9721c729d778a387d77598e0a28d",
     "Scripts/Release/prepare_release.py": "6f531caf344576e12c8929bdb777b4d36b032f07f3bcc0bf31fb69cb3258bdb6",
     "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
     "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a",
     "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
-    "Tests/Release/Invoke-ClrPackageLab.ps1": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
+    "Tests/Release/Invoke-ClrPackageLab.ps1": "f5d49ef99ff15499efee3c00bc378dafb6c4383da4eb683e54739bdc9b2e0b9c",
     "Tests/Release/Invoke-ClrPackageMatrix.ps1": "c71330d986baee828752f5ea6344791c7851e5b90866dc00a8935817550be61f",
     "Tests/Release/Invoke-CompletePackageLab.ps1": "bdbba1cdb2fd0d2156f8b90975eb3a330bb45e9cde655e78ae4e76a6a937f98c",
     "Tests/Release/Invoke-CompletePackageMatrix.ps1": "35d66e43c9059334c51a01fc91c6fc7d82ebf0cbe9f62a474a3fb662b8f093c5",
@@ -184,22 +184,24 @@
     "Tests/Release/prepare_complete_package.py": "b4aed4fe49f29f4cb0a2fdb458e2765683f5641401be888f33923bf923b02764"
   },
   "executed_method_bindings": {
+    "Scripts/Release/Install-ClrPackage.ps1": "d95884cf01b0fccda9b8d2b1725110e56cfd7b30368108e2b1c43c1b555a345d",
+    "Tests/Release/Invoke-ClrPackageLab.ps1": "f5d49ef99ff15499efee3c00bc378dafb6c4383da4eb683e54739bdc9b2e0b9c",
     "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
-    "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a",
     "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
-    "Tests/Release/Invoke-ClrPackageLab.ps1": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
-    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a"
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a"
   },
-  "executed_case_driver_sha256": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
-  "native_candidate_sha256": "987edbe75046239b3adcfc45c5af3c178659cd450402153c63b721935ac0cfb2",
-  "current_preparation_delta": "Final delivery adds current qualification metadata and troubleshooting navigation; SQL and DLL bytes must remain equal to this native candidate. Other 12 binaries are byte-identical to prior delivery.",
+  "executed_case_driver_sha256": "f5d49ef99ff15499efee3c00bc378dafb6c4383da4eb683e54739bdc9b2e0b9c",
+  "native_candidate_sha256": "4246788314edb526802d44f23a7d17e30037dcca970972a519bc4ea10d498254",
+  "current_preparation_delta": "Final delivery adds qualification metadata; SQL and DLL bytes must equal the current native ODBC candidate. All thirteen binaries remain byte-identical to prior delivery.",
   "historical_clr_qualification": "https://github.com/gecompat/SQL_Server_Toolbelt/blob/5bd70a253f1ef4fcec616039236360971110f001/Releases/1.0.0/clr-qualification.json",
   "cleanup": {
     "own_database_names_absent": 120,
     "independent": true,
     "own_trust_removed": true,
     "preexisting_trust_preserved": true,
-    "configuration_restored_and_independently_audited": true
+    "configuration_restored_and_independently_audited": true,
+    "client_followup_owned_database_names_absent": 36
   },
   "builds": {
     "source_commit": "bb379ed4c73172914615fa1aaf6eec49d7b162ba",
@@ -211,7 +213,25 @@
     "current_delivery_rebuild_binary_equality_required": true
   },
   "cost_and_tokens": "UNKNOWN",
-  "current_applicability_delta": "After execution only the module evidence manifest and generated Markdown changed; runtime/build/test-oracle source bytes unchanged. Current rebuild must deliver byte-identical binaries and SQL.",
-  "execution_dispatch": "Private bounded single-owner loop invokes the unchanged canonical case driver with frozen runsets; matrix orchestration not replayed.",
-  "historical_qualification": "https://github.com/gecompat/SQL_Server_Toolbelt/blob/466d0ca6b52636da715a3c40dcce8ea121606df6/Releases/1.0.0/clr-qualification.json"
+  "current_applicability_delta": "Module/Deployment sources and binary bytes unchanged. Current package SQL differs only by documented binary-literal line continuations; all twelve target/CL cases requalified through the packaged explicit SQL-auth ODBC helper.",
+  "execution_dispatch": "Private bounded single-owner loop invokes the current canonical case driver with frozen OdbcSqlcmd runsets; original shared budget retained.",
+  "historical_qualification": "https://github.com/gecompat/SQL_Server_Toolbelt/blob/466d0ca6b52636da715a3c40dcce8ea121606df6/Releases/1.0.0/clr-qualification.json",
+  "historical_client_preparation_qualification": "https://github.com/gecompat/SQL_Server_Toolbelt/blob/29c033562f4e4a1d35e20e79058b87f14c1210ce/Releases/1.0.0/clr-qualification.json",
+  "historical_native_candidate_sha256": "987edbe75046239b3adcfc45c5af3c178659cd450402153c63b721935ac0cfb2",
+  "historical_executed_method_bindings": {
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-ClrPackageLab.ps1": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a"
+  },
+  "historical_executed_case_driver_sha256": "5dae6b724586887d394f81e3ea901478bbaf9a0a82ccb74f33cd5b268c1afa69",
+  "client_followup": {
+    "evidence": "Releases/1.0.0/clr-client-qualification.json",
+    "result": "PASS",
+    "native_cases_passed": 12,
+    "sql_literal_formatting_only": true,
+    "binary_bytes_unchanged": true,
+    "authentication": "explicit SQL credential"
+  }
 }

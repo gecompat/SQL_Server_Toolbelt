@@ -182,3 +182,6 @@ Hashes und Quellen. Der Compilerquellcode liegt unter `Sources/Modules`,
 die unveränderte Deploymentlogik unter `Sources/Deployment`. Die vollständigen
 Projektquellen und weiterführenden Dokumente enthält außerdem das Gesamt-ZIP.
 Lizenz und ScriptDom-/ANTLR-Attributionen bleiben im Paket enthalten.
+Den begrenzten nativen Nachweis des optionalen ODBC-Helfers mit SQL-Anmeldung
+beschreibt die [Clientqualifikation](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/CLR-CLIENT-QUALIFICATION.md).
+SSMS-GUI und Windows-Anmeldung bleiben dort separat als ungeprüft ausgewiesen.

@@ -160,7 +160,7 @@ expliziten booleschen Lab-Trustwert, ohne Transportfallback.
 | Zweite Session / EventLog | Vorkonfigurierter administrierter Provider; direkte API-, Rollback- und Sessionunabhängigkeitsfälle darüber. Paketinstallation allein genügt nicht. |
 | Worker und harte Recovery | Passende Worker-/Providerhosts und kontrollierter echter Transport-/Hostverlust; keine harte Unterbrechung laufender Mutationen als Ersatz. |
 | Weitere Modulpflichtfälle | Unbelegte API-, Client-, Upgrade-, Heap-/Parallel-/Recoveryfälle bleiben je Modulmanifest offen; ausgewählte grüne Fixtures ersetzen sie nicht. |
-| Endanwender-Clients | Manuelle SSMS-GUI und nativer optionaler ODBC-PowerShell-Helfer bleiben `not executed`; direkte SqlClient-Metadaten qualifizieren diese Wege nicht. |
+| Endanwender-Clients | Der optionale ODBC-PowerShell-Helper ist mit expliziter SQL-Anmeldung [separat nativ geprüft](CLR-CLIENT-QUALIFICATION.md). Manuelle SSMS-GUI und Windows-Anmeldung bleiben `not executed`; direkte SqlClient-Metadaten qualifizieren diese Wege nicht. |
 | Authentifizierte TLS | Separater Identitätsnachweis, hier `not executed`; kein pauschaler Blocker unabhängiger Fachtests. |
 | Veröffentlichung | Endgültiger Paket-/Head-CI-Nachweis, vollständige Pflichtqualifikation jeder zugesagten Kombination und ausdrücklicher Veröffentlichungsauftrag. Kein Tag/Release aus diesem Auftrag. |
 
