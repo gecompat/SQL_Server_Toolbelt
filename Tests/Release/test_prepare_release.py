@@ -421,7 +421,18 @@ class ApiQualificationTests(unittest.TestCase):
                                 and b['reason'] == 'TBX_REGEX_TIMEOUT' for b in case['blocked']))
         self.assertEqual(report['package_cases_passed'], {'clr': 12, 'complete_full': 12})
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes().replace(b'\r\n', b'\n')).hexdigest(), digest)
+            current = hashlib.sha256((ROOT / path).read_bytes().replace(b'\r\n', b'\n')).hexdigest()
+            if path == 'Tests/Release/Invoke-ApiQualificationLab.ps1':
+                # Historische Ausführung bleibt an den tatsächlich gelieferten
+                # Adapter gebunden; Diagnosepflege ist keine rückwirkende CI.
+                followup = json.loads((ROOT / 'Releases/1.0.0/capture-timeout-investigation.json').read_bytes())
+                self.assertEqual(followup['historical_method_bindings'], {path: digest})
+                self.assertEqual(current, followup['source_sha256'][path])
+                with zipfile.ZipFile(ROOT / release.ARTIFACTS / (release.NAME + '.zip')) as archive:
+                    delivered = archive.read(release.NAME + '/' + path)
+                self.assertEqual(hashlib.sha256(delivered.replace(b'\r\n', b'\n')).hexdigest(), digest)
+            else:
+                self.assertEqual(current, digest)
         data = release.read_zip((ROOT / release.CLR_PACKAGE).read_bytes())
         prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
         binary = data[prefix + 'Binaries/Toolbelt.String.Regex.dll']
@@ -434,6 +445,52 @@ class ApiQualificationTests(unittest.TestCase):
         historical = json.loads((ROOT / 'Releases/1.0.0/api-qualification.json').read_bytes())
         self.assertEqual(historical['partial_cases'], 1)
         self.assertEqual(historical['functional_calls_blocked'], 1)
+
+    def test_capture_investigation_preserves_open_gate_and_exact_sources(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/capture-timeout-investigation.json').read_bytes())
+        for flag in ('publication_authorized', 'production_changed', 'historical_timeout_reproduced',
+                     'unique_historical_cause_proven'):
+            self.assertIs(report[flag], False)
+        self.assertTrue(report['autonomous_development_paused'])
+        self.assertEqual(report['capture_release_gate'], 'open')
+        previous = json.loads((ROOT / 'Releases/1.0.0/regex-timeout-qualification.json').read_bytes())
+        self.assertEqual(report['safety_limits'], previous['safety_limits'])
+        self.assertEqual(report['source_base_commit'], 'e9147db029732e6704883b8a60b5b8634bf7851b')
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes().replace(b'\r\n', b'\n')).hexdigest(), digest)
+        controls = report['deliberate_timeout_controls']
+        self.assertEqual([(c['synthetic_fault_phase'], c['synthetic_fault_case']) for c in controls],
+                         [('rows', 1), ('negative', 27)])
+        for control in controls:
+            self.assertEqual(control['actual_case_state'], 'PARTIAL')
+            self.assertEqual(control['contexts'], ['local', 'central'])
+            self.assertTrue(control['original_sql6522_and_timeout_preserved'])
+            self.assertTrue(control['private_clr_stack_and_exact_case_retained'])
+            self.assertTrue(control['independent_cleanup_and_pin_audit'])
+        calls = report['original_context_case']['passed_fixture_calls']
+        self.assertEqual(len(calls), 7)
+        self.assertTrue(all(c['result'] == 'PASS' for c in calls))
+        self.assertEqual({(c['fixture'], c['context']) for c in calls
+                          if 'Captures.' in c['fixture']},
+                         {('toolbelt.string.regex:' + f, mode)
+                          for f in ('Captures.Contract.sql', 'Captures.Metadata.ps1')
+                          for mode in ('local', 'central')})
+        self.assertEqual(report['per_call_diagnostic']['capture_calls_traced'], 58)
+        self.assertTrue(report['final_independent_audit']['all_owned_database_names_absent'])
+        self.assertTrue(report['final_independent_audit']['trust_states_restored'])
+        self.assertFalse(report['final_independent_audit']['configuration_changed'])
+        self.assertEqual(report['shared_wave']['attempts_consumed'], 4)
+        self.assertNotIn('privateDiagnostic', json.dumps(report))
+        self.assertNotIn('privateFixtureCase', json.dumps(report))
+
+    @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required for offline adapter guards')
+    def test_capture_failure_diagnostic_without_sql(self):
+        result = subprocess.run([shutil.which('pwsh'), '-NoProfile', '-NonInteractive', '-File',
+                                 str(ROOT / 'Tests/Release/Test-ApiCaptureDiagnostic.ps1')],
+                                cwd=ROOT, capture_output=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors='replace'))
+        self.assertIn(b'PASS API_CAPTURE_DIAGNOSTIC', result.stdout)
 
     @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required for offline adapter guards')
     def test_target_reuse_and_cleanup_reserve_without_sql(self):

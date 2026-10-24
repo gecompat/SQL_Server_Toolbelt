@@ -81,6 +81,11 @@ als auch mit ihrem ursprünglichen Drei-Fixture-Vorlauf.
 Dies beweist weder eine eindeutige Ursache noch eine Capture-Korrektur.
 Es gab keinen unveränderten Retry und keine Budgeterhöhung.
 
+Die anschließende [Capture-Untersuchung](CAPTURE-TIMEOUT-INVESTIGATION.md)
+behebt einen Diagnoseverlust im Release-Testadapter und prüft ihn mit gezielten
+Fehlerproben. Auch dort ist die historische Ursache nicht reproduziert;
+eine Capture-Produktkorrektur oder Schließung dieses Gates wird nicht behauptet.
+
 Der ursprüngliche positive Transformationsabschluss ist auf der korrigierten
 DLL belegt. Der neue Capture-Befund verhindert weiterhin eine vollständige
 Regex-API-Freigabe; erforderliche Capture-, Minimalrechte-, Ressourcen-/Parallel-,
