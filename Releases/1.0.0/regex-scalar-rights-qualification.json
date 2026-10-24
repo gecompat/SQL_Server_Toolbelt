@@ -1,0 +1,206 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-24",
+  "publication_authorized": false,
+  "scope": "six public scalar APIs; exact database-user EXECUTE minimum locally and in direct central context; no lowpriv cross-database login mapping claim",
+  "result": "PASS",
+  "execution_product_commit": "e3cf6f148d533f0081f1a35797427b691ffd1844",
+  "current_documentation_product_commit": "becbc2d9fe76339926c1902a930d869949a2bb74",
+  "documentation_only_applicability": "Releases/1.0.0/runtime-source-equivalence.json",
+  "public_scalar_apis": [
+    "SVF_RegexIsMatch",
+    "SVF_RegexInstr",
+    "SVF_RegexCount",
+    "SVF_RegexReplace",
+    "SVF_RegexSubstring",
+    "SVF_RegexReplaceGroups"
+  ],
+  "source_sha256": {
+    "Modules/toolbelt.string.regex/Clr/RegexProvider.cs": "ec6898f02ba7b412b5cceee02acaa5e1b390195e4392ad9a6fb420e526c55312",
+    "Modules/toolbelt.string.regex/Clr/RegexCaptures.cs": "4bdad4efe605c4430b1a37f86b6f65e217d425bcaa1e60456aaec3d63a0241f5",
+    "Modules/toolbelt.string.regex/Clr/RegexBoundedIntake.cs": "db379190f75742e660b4f7955c5d8e59ec31170f5a27eeb3455eb25986b2a41f",
+    "Modules/toolbelt.string.regex/Clr/RegexTransformations.cs": "bb528af709a222513e4786a3ebee82f350bd65a01886056a16e9d3ed65d030f9",
+    "Tests/Release/Runtime/Regex.Scalar.Rights.sql": "916aad40f3b4811479f5b4ec3e1ff6a2e4859f79bc4543e12fe159d1068b85ff",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "probes_per_context": 36,
+  "positive_value_probes": 144,
+  "strict_permission_denial_probes": 720,
+  "phases": [
+    "no grants",
+    "REFERENCES alone",
+    "EXECUTE alone after REFERENCES revoked",
+    "EXECUTE revoked"
+  ],
+  "expected_denial_sql_number": 229,
+  "internal_core_direct_calls": "three cores denied in all four phases",
+  "test_identity": "own temporary database user WITHOUT LOGIN; no role/schema/server grants",
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "expected_sql_number": 52094,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-reference",
+      "actual_state": "FAILED_CLEANED",
+      "expected_sql_number": 52094,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "limits": {
+    "work_seconds": 300,
+    "cleanup_deadline_seconds": 360,
+    "outer_watchdog_seconds": 400
+  },
+  "final_independent_audit": {
+    "all_owned_database_names_absent": true,
+    "positive_case_database_names_absent": 36,
+    "positive_case_trust_states_restored": 132,
+    "control_cleanup_separately_verified": true,
+    "temporary_clr_configuration_restored": true,
+    "separate_configuration_audit": true,
+    "fixture_and_input_pins_preserved": true
+  },
+  "remaining_gates": [
+    "lowpriv cross-database identity mapping",
+    "module resource/parallel/host-recovery and client gates",
+    "other modules and final release gates remain separately scoped"
+  ],
+  "cost_and_tokens": "UNKNOWN"
+}

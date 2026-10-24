@@ -47,6 +47,9 @@ Satz erhalten. Die maschinenlesbare Lieferform steht pro Modul in
 fachliche Releasefreigabe sind getrennt; Preview-Grenzen bleiben bestehen.
 Der [native ODBC-Clientnachweis](CLR-CLIENT-QUALIFICATION.md) ergänzt die
 Paketprüfung für den optionalen PowerShell-Helper mit expliziter SQL-Anmeldung.
+Die [Regex-Rechtequalifikation](REGEX-RIGHTS-QUALIFICATION.md) belegt die engen
+EXECUTE-Rechte für alle sechs Skalarfunktionen und erklärt die korrigierte
+Dokumentation samt getrennter historischer und aktueller Produktbindung.
 
 ## Paket bauen und unabhängig prüfen
 

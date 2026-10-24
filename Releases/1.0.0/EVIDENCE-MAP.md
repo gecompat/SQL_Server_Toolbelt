@@ -60,7 +60,7 @@ qualifizierten SQL-/DLL-Payloads wurden vor der neuen Labwelle verglichen.
 | [string.directional-trim](../../Modules/toolbelt.string.directional-trim/module.yaml) | stable | 5 | 2; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |
 | [string.edit-distance](../../Modules/toolbelt.string.edit-distance/module.yaml) | preview | 3 | 5; ausgewählte Fixtures bestanden | Delta; ausgewählte Fixtures nativ geprüft |
 | [string.phonetic](../../Modules/toolbelt.string.phonetic/module.yaml) | preview | 3 | 3; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |
-| [string.regex](../../Modules/toolbelt.string.regex/module.yaml) | preview | 6 | 8 historische Fixtures partiell; [aktuelle Nachprüfung](REGEX-TIMEOUT-QUALIFICATION.md) separat | Literal-Replace-Grenzen bestanden; Capture-Teilnachweis offen |
+| [string.regex](../../Modules/toolbelt.string.regex/module.yaml) | preview | 7 | 8 historische Fixtures partiell; [Timeout-Nachprüfung](REGEX-TIMEOUT-QUALIFICATION.md) und [Skalarrechte](REGEX-RIGHTS-QUALIFICATION.md) separat | Literal-Replace-Grenzen und sechs Skalarrechte bestanden; Capture-Releasegate begrenzt angenommen, weitere Modulabnahme offen |
 | [string.split-advanced](../../Modules/toolbelt.string.split-advanced/module.yaml) | preview | 3 | 4; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |
 | [string.split-characters](../../Modules/toolbelt.string.split-characters/module.yaml) | stable | 6 | 2; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |
 | [string.text-pairs](../../Modules/toolbelt.string.text-pairs/module.yaml) | preview | 2 | 5; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |

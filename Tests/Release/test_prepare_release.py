@@ -240,6 +240,31 @@ class ClrPackageTests(unittest.TestCase):
             with self.subTest(path=path, data=data[-30:]), self.assertRaises(release.ReleaseError):
                 release.validate_regex_documentation_delta(old, changed)
 
+    def test_exact_scalar_rights_report_keeps_scope_and_source_bindings(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/regex-scalar-rights-qualification.json').read_bytes())
+        self.assertFalse(report['publication_authorized'])
+        self.assertEqual(report['result'], 'PASS')
+        self.assertEqual(len(report['public_scalar_apis']), 6)
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        cases = report['native_cases']
+        self.assertEqual(len(cases), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in cases}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['independent_cleanup_and_pin_audit']
+                            and c['contexts'] == ['local', 'direct_central'] for c in cases))
+        self.assertEqual(report['positive_value_probes'], 144)
+        self.assertEqual(report['strict_permission_denial_probes'], 720)
+        self.assertEqual(report['expected_denial_sql_number'], 229)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-reference'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['expected_sql_number'] == 52094
+                            and c['independent_cleanup_and_pin_audit'] for c in report['oracle_rejection_controls']))
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+        self.assertEqual(report['final_independent_audit']['positive_case_database_names_absent'], 36)
+        self.assertTrue(report['final_independent_audit']['temporary_clr_configuration_restored'])
+        self.assertTrue(report['remaining_gates'])
+
     def test_assembly_line_continuation_preserves_exact_binary_and_other_sql(self):
         binary = bytes(range(256)) * 48
         literal = b'0x' + binary.hex().encode('ascii')
@@ -282,7 +307,8 @@ class ClrPackageTests(unittest.TestCase):
             binaries = {p[len(prefix):]: hashlib.sha512(archive.read(p)).hexdigest()
                         for p in archive.namelist() if p.startswith(prefix + 'Binaries/')}
         self.assertEqual(report['sql_payload_sha256'], {p: hashlib.sha256(b).hexdigest() for p, b in sql.items()})
-        self.assertEqual(report['normalized_prior_sql_payload_sha256'],
+        normalized = report.get('normalized_current_source_sql_payload_sha256', report['normalized_prior_sql_payload_sha256'])
+        self.assertEqual(normalized,
                          {p: hashlib.sha256(b.replace(b'\\\n', b'')).hexdigest() for p, b in sql.items()})
         self.assertEqual(report['binary_sha512'], binaries)
         self.assertTrue(all(max(map(len, b.splitlines())) < 8192 for b in sql.values()))

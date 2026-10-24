@@ -3,7 +3,7 @@
   "project_version": "1.0.0",
   "executed_on": "2026-10-22",
   "publication_authorized": false,
-  "product_commit": "e3cf6f148d533f0081f1a35797427b691ffd1844",
+  "product_commit": "becbc2d9fe76339926c1902a930d869949a2bb74",
   "native_package": {
     "method": "Tests/Release/Invoke-StablePackageMatrix.ps1",
     "driver": "Tests/Release/Invoke-StablePackageLab.ps1",
@@ -225,5 +225,7 @@
   "applicability_review": {
     "date": "2026-10-24",
     "reason": "Only Preview Regex runtime changed. Stable SQL and other binaries remain byte-identical; original execution and selected-framework scope preserved. Corrected Regex and current complete/CLR evidence are separate."
-  }
+  },
+  "previous_preparation_product_commit": "e3cf6f148d533f0081f1a35797427b691ffd1844",
+  "documentation_only_product_equivalence": "Releases/1.0.0/runtime-source-equivalence.json"
 }

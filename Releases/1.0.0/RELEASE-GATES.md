@@ -1,6 +1,6 @@
 # v1.0.0: erledigte Prüfungen und offene Releasegates
 
-Stand 2026-10-23. Dies ist der Prüfbericht zur unveröffentlichten
+Basisbericht vom 2026-10-23 mit Nachträgen vom 2026-10-24. Dies ist der Prüfbericht zur unveröffentlichten
 [Releasevorbereitung](README.md), keine Freigabe von Supportkombinationen.
 Die [Freigabematrix](FREIGABEMATRIX.md) bleibt bei 19 stabilen und 26
 Preview-Kandidaten; diese Zielkanäle und der [Supportumfang](SUPPORT.md) sind
@@ -253,8 +253,8 @@ Die verbleibenden Arbeiten sind damit genauer getrennt:
 
 | Punkt | Noch erforderlich | Voraussetzung / Verantwortung |
 |---|---|---|
-| Fachliche Modulabnahme | Nachweiszuordnung aller 45 Module liegt vor. Noch unbelegte API-, Ausgabegrenzen-, Lifecycle-/Upgrade- und Clientfälle je zugesagter Kombination abschließen. Historisches Capture-Timeout-Gate begrenzt angenommen; gefundene skalare Rechte-Dokumentation korrigieren und im finalen Paket binden. Ausgewählte grüne Fixtures ersetzen keine volle Modulabnahme | Modulverantwortlicher; bestehende unveränderte Nachweise nur in ihrem belegten Scope weiterverwenden |
-| Minimalrechte | Echte Aufrufe unter den benötigten getrennten Testidentitäten, einschließlich negativer Rechtefälle | Vorkonfigurierte passende Principals und Rechte oder ein separat ausdrücklich freigegebener enger Security-Testaufbau; hier wurden keine Logins/Rechte erteilt |
+| Fachliche Modulabnahme | Nachweiszuordnung aller 45 Module liegt vor. Noch unbelegte API-, Ausgabegrenzen-, Lifecycle-/Upgrade- und Clientfälle je zugesagter Kombination abschließen. Historisches Capture-Timeout-Gate begrenzt angenommen; skalare Rechte-Dokumentation korrigiert und [begrenzt qualifiziert](REGEX-RIGHTS-QUALIFICATION.md). Ausgewählte grüne Fixtures ersetzen keine volle Modulabnahme | Modulverantwortlicher; bestehende unveränderte Nachweise nur in ihrem belegten Scope weiterverwenden |
+| Minimalrechte | Die sechs Regex-Skalarfunktionen sind lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen mit eigenen Benutzern ohne Login geprüft; andere APIs und echte CrossDB-Identitätsmappings bleiben separat | Der ausdrücklich freigegebene enge Datenbank-Testaufbau wurde vollständig bereinigt. Keine Server-Logins oder fremden Rechte; weitere Principals nur mit passender Freigabe |
 | Datei-/Identitätsmodule | Serverseitige synthetische Datei-, NTFS-/Reparse-/Caller-/ServiceAccount-Fixtures und ihre jeweiligen positiven/negativen Fälle | Bereitgestellte Fixtures/Identitäten mit geklärter Ownership; keine eigenmächtige Änderung der Labinfrastruktur |
 | Provider/Worker und harte Recovery | Erforderliche administrierte Provider-/Workerhostkombinationen und kontrollierter echter Transport-/Hostverlust | Vorkonfigurierte Provider und geeignete gesonderte Recoveryumgebung; laufende mutierende Tests werden nicht als Ersatz hart abgebrochen |
 | Weitere Ressourcen-/Parallelgrenzen | Die modulspezifisch weiterhin verpflichtenden Last-/Heap-/Parallelfälle | Je Modul begrenzter gesonderter Testscope und passende Voraussetzungen; die drei ausdrücklich optionalen Laufzeitmessungen bleiben optional |
