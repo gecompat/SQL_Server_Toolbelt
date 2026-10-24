@@ -341,3 +341,20 @@ keine vollständige IL-/Framework-/SQL-Abnahme, Trustfreigabe oder Auslieferung.
 Neue Binaryhashes benötigen weiter ihren konkreten Qualifikations-/Consumer-
 und Releaseumfang. Der [Gatebericht](../../Releases/1.0.0/RELEASE-GATES.md)
 trennt diese Grenzen von den tatsächlich ausgeführten Pakettests.
+
+## Execution Context mit einzelnen Objektrechten prüfen
+
+`Runtime/ExecutionContext.Rights.sql` ist eine zusätzliche feste SQL-Fixture
+für den bestehenden API-Harness. Sie legt ausschließlich in dessen eigenen
+temporären Datenbanken einen Benutzer ohne Login an. Für jedes der fünf
+öffentlichen APIs prüft sie fehlende Rechte, genau das eine vorgesehene
+Objektrecht und dessen Entzug. Auch während der positiven Phase müssen die
+vier anderen APIs mit SQL229 gesperrt bleiben. Feste Identitäts-/Contextwerte,
+Nested-/Clear-Verhalten, TVF-Zeile und scalar/NULL sind unabhängig vorgegeben.
+Ein vorhandener Principal oder Sessioncontext blockiert den Test.
+
+Der [Rechtebericht](../../Releases/1.0.0/EXECUTION-CONTEXT-RIGHTS-QUALIFICATION.md)
+und seine JSON-Projektion binden die tatsächlich abgeschlossene Zwölfermatrix,
+zwei absichtlich verworfene Orakelvarianten und frische unabhängige Audits.
+Produkt- und Paket-SQL-/DLL-Bytes blieben unverändert. Kein neuer CI-Job,
+automatischer Labstart oder Replay einer bereits grünen Vollmatrix.

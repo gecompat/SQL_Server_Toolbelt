@@ -35,6 +35,11 @@ Capture-Timeout-Gate ist für die gebundene DLL mit ausdrücklich angenommenem
 Restrisiko [begrenzt abgeschlossen](CAPTURE-RELEASE-ACCEPTANCE.md); weitere
 Modul- und Paketgates bleiben offen.
 
+Die [Execution-Context-Minimalrechte](EXECUTION-CONTEXT-RIGHTS-QUALIFICATION.md)
+sind für alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
+lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.
+Echte CrossDB-Identitätsmappings und andere Modulpflichtfälle bleiben separat.
+
 Das Gesamt-ZIP enthält zusätzlich den
 [CLR-Installationskandidaten mit fertigen DLLs](CLR-INSTALL.md). Er liefert alle
 zwölf Toolbelt-CLR-Module und ScriptDom, SQL-Dateien mit eingebetteten Bytes,

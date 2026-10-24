@@ -400,6 +400,41 @@ class ApiQualificationTests(unittest.TestCase):
         import prepare_api_qualification
         cls.api = prepare_api_qualification
 
+    def test_execution_context_rights_report_binds_isolated_scope_and_current_payload(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/execution-context-rights-qualification.json').read_bytes())
+        self.assertFalse(report['publication_authorized'])
+        self.assertFalse(report['module_status_changed'])
+        self.assertFalse(report['product_and_package_payload_changed'])
+        self.assertEqual(report['result'], 'PASS')
+        self.assertEqual({a['name']: a['permission'] for a in report['public_apis']}, {
+            'USP_BeginExecution': 'EXECUTE', 'USP_SetExecutionContext': 'EXECUTE',
+            'USP_EndExecution': 'EXECUTE', 'TVF_CurrentExecutionContext': 'SELECT',
+            'SVF_CurrentExecutionId': 'EXECUTE'})
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        self.assertEqual(len(report['native_cases']), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['independent_cleanup_and_pin_audit']
+                            and c['contexts'] == ['local', 'direct_central'] for c in report['native_cases']))
+        self.assertEqual(report['positive_api_scenarios'], 120)
+        self.assertEqual(report['strict_permission_denial_probes'], 720)
+        self.assertEqual(report['expected_denial_sql_number'], 229)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-depth', 'extra-object'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['expected_sql_number'] == 52095
+                            and c['independent_cleanup_and_pin_audit'] for c in report['oracle_rejection_controls']))
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+        package = json.loads((ROOT / 'Releases/1.0.0/complete-qualification.json').read_bytes())
+        self.assertEqual(report['product_commit'], package['product_commit'])
+        self.assertEqual(report['qualification_package_sql_sha256'], package['sql_payload_sha256'])
+        audit = report['final_independent_audit']
+        self.assertEqual(audit['positive_case_database_names_absent'], 36)
+        self.assertEqual(audit['positive_case_trust_states_restored'], 132)
+        self.assertEqual(audit['configuration_scopes_audited'], 6)
+        self.assertTrue(audit['temporary_clr_configuration_restored'] and audit['separate_configuration_audit'])
+        self.assertTrue(report['remaining_gates'])
+
     def test_fixture_bytes_preserve_independent_sparse_unicode_oracles(self):
         import xml.etree.ElementTree as ET
         source = (ROOT / 'Spikes/XlsxMemory/Test-Framework.ps1').read_bytes()
