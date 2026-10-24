@@ -215,6 +215,56 @@ class ClrPackageTests(unittest.TestCase):
         cls.clr = prepare_clr_package
         cls.package = ROOT / prepare_clr_package.LOCATION
 
+    def test_regex_permission_documentation_delta_rejects_runtime_or_metadata_drift(self):
+        prefix = 'Modules/toolbelt.string.regex/'
+        core = b'-- Dependencies: SAFE Toolbelt_String_Regex; Rechte: SELECT/REFERENCES.\n'
+        facade = b'-- Dependencies: interner SAFE-CLR-Kern; Rechte: SELECT/REFERENCES.\n'
+        manifest = b'version: "1.3.0"\npermissions_required:\n  - "SELECT oder REFERENCES auf den Regex-Skalarfunktionen"\nvalidation_evidence:\n'
+        old = {prefix+'Source/RegexFunctions.sql': core*2+facade*2,
+               prefix+'Source/RegexCaptures.sql': facade,
+               prefix+'module.yaml': manifest, 'Modules/Contoso/Source/fixture.sql': b'SELECT 1;'}
+        current = dict(old)
+        for p in (prefix+'Source/RegexFunctions.sql', prefix+'Source/RegexCaptures.sql'):
+            current[p] = old[p].replace(core.rstrip(b'\n'), b'-- Dependencies: SAFE Toolbelt_String_Regex; keine direkten Fachcallergrants.').replace(
+                facade.rstrip(b'\n'), b'-- Dependencies: interner SAFE-CLR-Kern; Rechte: EXECUTE auf dieser Fassade.')
+        current[prefix+'module.yaml'] = manifest.replace(b'SELECT oder REFERENCES auf den Regex-Skalarfunktionen',
+            'EXECUTE auf den öffentlichen Regex-Skalarfunktionen; keine direkten Fachcallergrants auf interne CLR-Kerne'.encode()) + (
+            b'\n  - date: "2026-10-24"\n    workflow: "synthetic fixture"\n    scope: "synthetic proof"\n    result: "success"\n')
+        release.validate_regex_documentation_delta(old, current)
+        for path, data in (
+            (prefix+'Source/RegexFunctions.sql', current[prefix+'Source/RegexFunctions.sql']+b'SELECT 2;'),
+            (prefix+'module.yaml', current[prefix+'module.yaml'].replace(b'1.3.0', b'9.0.0')),
+            (prefix+'module.yaml', current[prefix+'module.yaml']+b'objects: []\n'),
+            ('Modules/Contoso/Source/fixture.sql', b'SELECT 2;')):
+            changed = dict(current, **{path: data})
+            with self.subTest(path=path, data=data[-30:]), self.assertRaises(release.ReleaseError):
+                release.validate_regex_documentation_delta(old, changed)
+
+    def test_exact_scalar_rights_report_keeps_scope_and_source_bindings(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/regex-scalar-rights-qualification.json').read_bytes())
+        self.assertFalse(report['publication_authorized'])
+        self.assertEqual(report['result'], 'PASS')
+        self.assertEqual(len(report['public_scalar_apis']), 6)
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        cases = report['native_cases']
+        self.assertEqual(len(cases), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in cases}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['independent_cleanup_and_pin_audit']
+                            and c['contexts'] == ['local', 'direct_central'] for c in cases))
+        self.assertEqual(report['positive_value_probes'], 144)
+        self.assertEqual(report['strict_permission_denial_probes'], 720)
+        self.assertEqual(report['expected_denial_sql_number'], 229)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-reference'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['expected_sql_number'] == 52094
+                            and c['independent_cleanup_and_pin_audit'] for c in report['oracle_rejection_controls']))
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+        self.assertEqual(report['final_independent_audit']['positive_case_database_names_absent'], 36)
+        self.assertTrue(report['final_independent_audit']['temporary_clr_configuration_restored'])
+        self.assertTrue(report['remaining_gates'])
+
     def test_assembly_line_continuation_preserves_exact_binary_and_other_sql(self):
         binary = bytes(range(256)) * 48
         literal = b'0x' + binary.hex().encode('ascii')
@@ -257,7 +307,8 @@ class ClrPackageTests(unittest.TestCase):
             binaries = {p[len(prefix):]: hashlib.sha512(archive.read(p)).hexdigest()
                         for p in archive.namelist() if p.startswith(prefix + 'Binaries/')}
         self.assertEqual(report['sql_payload_sha256'], {p: hashlib.sha256(b).hexdigest() for p, b in sql.items()})
-        self.assertEqual(report['normalized_prior_sql_payload_sha256'],
+        normalized = report.get('normalized_current_source_sql_payload_sha256', report['normalized_prior_sql_payload_sha256'])
+        self.assertEqual(normalized,
                          {p: hashlib.sha256(b.replace(b'\\\n', b'')).hexdigest() for p, b in sql.items()})
         self.assertEqual(report['binary_sha512'], binaries)
         self.assertTrue(all(max(map(len, b.splitlines())) < 8192 for b in sql.values()))
@@ -481,8 +532,17 @@ class ApiQualificationTests(unittest.TestCase):
                     bundle = archive.read(release.NAME + '/PREPARATION.bundle')
                 self.assertEqual(hashlib.sha256(delivered.replace(b'\r\n', b'\n')).hexdigest(), current)
                 # Der neue Paketstand liefert den aktuellen Treiber. Der
-                # historische Nachweis bleibt am unveränderten Produktbaum
-                # des mitgelieferten Bundles verifizierbar, auch nach Squash.
+                # historische Nachweis verwendet sein eigenes altes Bundle;
+                # ein frischer Checkout braucht keine unreferenzierten
+                # früheren Snapshotobjekte im lokalen Git-Objektstore.
+                if manifest['product_commit'] != report['product_commit']:
+                    applicability = json.loads((ROOT / 'Releases/1.0.0/runtime-source-equivalence.json').read_bytes())
+                    historical = release.git('show', applicability['public_baseline_commit'] + ':' + release.ARTIFACTS + release.NAME + '.zip')
+                    self.assertEqual(hashlib.sha256(historical).hexdigest(), applicability['previous_source_zip_sha256'])
+                    raw = release.read_zip(historical)
+                    manifest = json.loads(raw[release.NAME + '/PACKAGE-MANIFEST.json'])
+                    bundle = raw[release.NAME + '/PREPARATION.bundle']
+                    self.assertEqual(manifest['product_commit'], report['product_commit'])
                 _, product, _ = release.recovered_snapshot(bundle, manifest['source_commit'], report['product_commit'])
                 self.assertEqual(hashlib.sha256(product[path].replace(b'\r\n', b'\n')).hexdigest(), digest)
             else:
@@ -492,7 +552,8 @@ class ApiQualificationTests(unittest.TestCase):
         binary = data[prefix + 'Binaries/Toolbelt.String.Regex.dll']
         self.assertEqual(hashlib.sha256(binary).hexdigest(), report['delivered_regex_binary_sha256'])
         current_plan = json.loads((ROOT / release.PLAN).read_bytes())
-        self.assertEqual(report['product_commit'], current_plan['product_commit'])
+        if report['product_commit'] != current_plan['product_commit']:
+            release.validate_regex_product_applicability(report['product_commit'], current_plan['product_commit'])
         self.assertTrue(all(report['final_independent_audit'][key] for key in (
             'all_owned_database_names_absent', 'trust_states_restored',
             'current_input_pins_unchanged', 'configuration_restored', 'separate_configuration_audit')))

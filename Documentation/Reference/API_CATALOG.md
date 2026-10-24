@@ -4236,7 +4236,7 @@ Liefert Gruppen-Captures einschließlich wiederholter Captures.
 
 Vertrag und Quelle: [RegexCaptures.sql](../../Modules/toolbelt.string.regex/Source/RegexCaptures.sql), [TVF_RegexCaptures.md](../../Modules/toolbelt.string.regex/Documentation/TVF_RegexCaptures.md).
 
-<!-- Source/Vertrag SHA256: a81b754628781d7d4b4e4e691e3229105526f6a47adf48f0d4e12fa516350f88 -->
+<!-- Source/Vertrag SHA256: 1c3ccb5f9ff3cf3a35dc1e476683fed11ad3bd7f55a4650634daeeca6fe69ea0 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4261,7 +4261,7 @@ Ersetzt Regex-Treffer mit dem getrennten Gruppen-Ersatzvertrag.
 
 Vertrag und Quelle: [RegexCaptures.sql](../../Modules/toolbelt.string.regex/Source/RegexCaptures.sql), [SVF_RegexReplaceGroups.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexReplaceGroups.md).
 
-<!-- Source/Vertrag SHA256: 110b2575e65a6e501f5f7449f493bb5074dbd3f16a8c36de49a42385482076c4 -->
+<!-- Source/Vertrag SHA256: 259a59ea30947091f74a31b020c231b501bd025c8a302056b42cdad2116a0132 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4336,7 +4336,7 @@ Prüft, ob ein regulärer Ausdruck im Text trifft.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [REGEX_FUNCTIONS.md](../../Modules/toolbelt.string.regex/Documentation/REGEX_FUNCTIONS.md).
 
-<!-- Source/Vertrag SHA256: 48c86c05a886d5563ef578e35c3e998c6f3f5084f9710edbc42e264fb0c487ca -->
+<!-- Source/Vertrag SHA256: 59a75f1d070361f57c53fa0830a72e93686b2ea0a2c02f8c3abcf94982d85797 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4358,7 +4358,7 @@ Liefert eine UTF-16-Position eines ausgewählten Regex-Treffers.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [REGEX_FUNCTIONS.md](../../Modules/toolbelt.string.regex/Documentation/REGEX_FUNCTIONS.md).
 
-<!-- Source/Vertrag SHA256: 48c86c05a886d5563ef578e35c3e998c6f3f5084f9710edbc42e264fb0c487ca -->
+<!-- Source/Vertrag SHA256: 59a75f1d070361f57c53fa0830a72e93686b2ea0a2c02f8c3abcf94982d85797 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4383,7 +4383,7 @@ Zählt Regex-Treffer ab der angegebenen Startposition.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [REGEX_FUNCTIONS.md](../../Modules/toolbelt.string.regex/Documentation/REGEX_FUNCTIONS.md).
 
-<!-- Source/Vertrag SHA256: 48c86c05a886d5563ef578e35c3e998c6f3f5084f9710edbc42e264fb0c487ca -->
+<!-- Source/Vertrag SHA256: 59a75f1d070361f57c53fa0830a72e93686b2ea0a2c02f8c3abcf94982d85797 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4406,7 +4406,7 @@ Ersetzt ganze Regex-Treffer durch einen literalen Ersatztext.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexReplace.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexReplace.md).
 
-<!-- Source/Vertrag SHA256: 07b0a65da3682252f8377f7a487eb2de5ebf9c9011504edf0de5a4004caf830c -->
+<!-- Source/Vertrag SHA256: 6d8fcf46c26d288cf77091b5c7838367d31477dac0e662b19b6861189b34a9f6 -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4432,7 +4432,7 @@ Liefert den ausgewählten vollständigen Regex-Treffer.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [SVF_RegexSubstring.md](../../Modules/toolbelt.string.regex/Documentation/SVF_RegexSubstring.md).
 
-<!-- Source/Vertrag SHA256: bd11bc32ab78402d3c411da466e0ed196196e48c28cae504b238893a4936954e -->
+<!-- Source/Vertrag SHA256: f23291c74ff932fcbf59f664a3cc23fd5b0420f8316f90f1b5ac8890f782ceeb -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

@@ -25,10 +25,17 @@ Repeat die unveränderte äußere Arbeitsgrenze. Das Paket enthielt eine fast
 14 MB lange Einzelzeile für ScriptDom. Die korrigierte Paketierung unterteilt
 ausschließlich bekannte Assemblyliterale mit der dokumentierten
 [T-SQL-Zeilenfortsetzung](https://learn.microsoft.com/en-us/sql/t-sql/language-elements/sql-server-utilities-statements-backslash?view=sql-server-ver17).
-Die längste aktuelle SQL-Zeile bleibt unter 8 KB. Nach Entfernen dieser
-Zeilenfortsetzungen stimmen alle SQL-Dateien bytegenau mit dem bisherigen
-Paket überein. Alle dreizehn DLLs, Modulquellen, SQL-Verträge, Hash- und
-Consumerguards sowie die Regex-Sicherheitsbudgets bleiben unverändert.
+Die längste aktuelle SQL-Zeile bleibt unter 8 KB. Bei dieser ersten
+Clientkorrektur stimmten nach Entfernen der Zeilenfortsetzungen alle
+SQL-Dateien bytegenau mit dem bisherigen Paket überein.
+
+Die spätere [Rechte-Dokumentationskorrektur](REGEX-RIGHTS-QUALIFICATION.md)
+ergänzt fünf exakt gebundene SQL-Headerkommentare und die zugehörigen
+Metadaten. Diese neu erzeugten rohen Dateien bestanden erneut alle zwölf
+ODBC-Paketfälle. Die erste Clientqualifikation bleibt unverändert über den
+in der Projektion genannten öffentlichen Main-Vorstand zugänglich. Alle
+dreizehn DLLs, ausführbaren Modulquellen, SQL-Verträge, Hash-/Consumerguards
+und Regex-Sicherheitsbudgets bleiben identisch.
 
 ## Tatsächlich ausgeführter Umfang
 

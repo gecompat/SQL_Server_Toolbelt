@@ -1311,11 +1311,11 @@
       "channel": "preview",
       "validation_status_unchanged": "partially validated",
       "manifest": "Modules/toolbelt.string.regex/module.yaml",
-      "manifest_sha256": "d31ef77e58ee700d956ace3ae0a037be1ecfa5a66024183b25ba0ffc571653bc",
+      "manifest_sha256": "58ab69d53b10c93e529d72f514618d55da18de1d85c63b14e18f1c3fd328878b",
       "canonical_evidence_section": "validation_evidence",
-      "existing_evidence_count": 6,
+      "existing_evidence_count": 7,
       "latest_record_date": "2026-10-24",
-      "record_snapshot_commit": "b807deb79e248d3012d140cbac92525212c5dd03",
+      "record_snapshot_commit": "20362bac9e1156395bc4661ddac261653e7a9a62",
       "record_snapshot_is_execution_commit": false,
       "canonical_runtime_changes_since_record_snapshot": [],
       "additional_fixture_ids": [
@@ -1347,7 +1347,13 @@
       "additional_evidence": "Releases/1.0.0/api-qualification.json",
       "previous_record_snapshot_commit": "1d8f2f2be840cb819e687c205cdd5cbd1f3565e5",
       "followup_evidence": "Releases/1.0.0/regex-timeout-qualification.json",
-      "followup_scope": "Corrected literal Replace/Substring boundaries pass on twelve target/CLs; Capture partial remains explicit; historical additional_result unchanged."
+      "followup_scope": "Corrected literal Replace/Substring boundaries pass on twelve target/CLs; Capture partial remains explicit; historical additional_result unchanged.",
+      "pre_rights_record_snapshot_commit": "b807deb79e248d3012d140cbac92525212c5dd03",
+      "current_release_followup": [
+        "Releases/1.0.0/capture-release-acceptance.json",
+        "Releases/1.0.0/regex-scalar-rights-qualification.json"
+      ],
+      "documentation_product_applicability": "Releases/1.0.0/runtime-source-equivalence.json"
     },
     {
       "module_id": "toolbelt.string.split-advanced",

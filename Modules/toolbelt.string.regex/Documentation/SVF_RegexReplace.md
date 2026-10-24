@@ -24,7 +24,8 @@ um eine UTF-16-Codeeinheit vor; der terminale leere Treffer wird einmal ersetzt.
 
 Die gemeinsamen [R2a-Grenzen und Betriebsregeln](./REGEX_FUNCTIONS.md#r2a-transformationsvertrag)
 gelten. SQL-Fehler 6522 trägt `TBX_REGEX_*`, kein abgeschnittenes Teilergebnis.
-SELECT/REFERENCES auf der Funktion ist erforderlich. Unterstützter Provider:
+EXECUTE auf der öffentlichen Funktion ist erforderlich; direkte Rechte auf
+dem internen CLR-Kern werden dem Fachcaller nicht erteilt. Unterstützter Provider:
 dieselbe SAFE-CLR-Assembly für SQL Server 2019/2022/2025 Windows/Linux.
 
 Allgemeines Regex-Matching und Outputbau sind nicht als äquivalenter

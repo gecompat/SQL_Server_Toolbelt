@@ -11,8 +11,8 @@
   "trust": "explicit schema-validated Functional Lab value",
   "authenticated_tls": "not executed",
   "fallback": false,
-  "source_commit": "5bf3290d1dc6919f211a4284ac341073976b2924",
-  "native_candidate_sha256": "4246788314edb526802d44f23a7d17e30037dcca970972a519bc4ea10d498254",
+  "source_commit": "cd9e7f62d1f9704662c939675ccc4d4cce2d365b",
+  "native_candidate_sha256": "f60eac2f6ab8954214f1e895814462c001f55eecf8045fffad52703f2778d39c",
   "source_sha256": {
     "Scripts/Release/Install-ClrPackage.ps1": "d95884cf01b0fccda9b8d2b1725110e56cfd7b30368108e2b1c43c1b555a345d",
     "Scripts/Release/prepare_clr_package.py": "5afe0eb99c8a21bc254443022a423810c0ec9721c729d778a387d77598e0a28d",
@@ -24,14 +24,14 @@
     "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a"
   },
   "sql_payload_sha256": {
-    "SQL/Install-Portable-central.sql": "ed5662c3a1c1eaf8383b6cf334ca1bf18df40afbc3f4688a9d765847589c98eb",
-    "SQL/Install-Portable-local.sql": "f52d9098776482862e919ec809ffae282bc5a5e15f2841cd1cfbbe4500d475f3",
-    "SQL/Install-Windows-central.sql": "c981ffebcdb6b4808f5ec97c1cf18806caae552a4d358177750a5b5bc844f106",
-    "SQL/Install-Windows-local.sql": "0ddf0f15a041f04fe7f298fa100945954241f1b52163f2908c34fcb9f47f3104",
-    "SQL/Repeat-Portable-central.sql": "d34df59cd8f766747186f528fe0f9e83348f697b83e1b96d7dc2b5bc08d000cd",
-    "SQL/Repeat-Portable-local.sql": "2b1ca499e071a90651ede00efe64b7336ff3f3c286554b6529c1e984b074613f",
-    "SQL/Repeat-Windows-central.sql": "f56dd77af9657495e72441b6dc461d2b6ed0013148d0f59a3dd1815866c8c8af",
-    "SQL/Repeat-Windows-local.sql": "2c6b731f2e106cfe352eef971eef89c5f8e03d3f9b58dd43e31b11371eccd4b0",
+    "SQL/Install-Portable-central.sql": "09b2f8359bff2262ff20a1716b751887acdc25866d04faca1c814d2912ded8c4",
+    "SQL/Install-Portable-local.sql": "c38184a0c179d72ed6b85c009aaa5161c5460fa2b7d491dedc29380212253016",
+    "SQL/Install-Windows-central.sql": "5e7b1499c6289d51a4221815ff223303966a77d8c060f2b26a724fb344201723",
+    "SQL/Install-Windows-local.sql": "046c2cf68d4cef9a638ec5849dd13872acb2ce7381cccf467222700bc83bfe20",
+    "SQL/Repeat-Portable-central.sql": "4872dc7140732faedf456b20b67d0fb1431b6898d2e11de015d253d3024b68fc",
+    "SQL/Repeat-Portable-local.sql": "a11c382d5d998286ecbef0405070c40e399cbd6e35d2df6f1f9679c641dfd792",
+    "SQL/Repeat-Windows-central.sql": "c4fd990ae96ee3543d1215098686aabca0709a856c16a466f74015eff440fe8a",
+    "SQL/Repeat-Windows-local.sql": "aec6ae01e5f78da859ca06ec1951af5c106ee2b06c05d471a5a8d7596d08d02f",
     "SQL/Trust-Portable-central.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
     "SQL/Trust-Portable-local.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
     "SQL/Trust-Windows-central.sql": "0788cbd6ca713dc0283a74c1ce4a9e43644961ad04d774ea32fb617bac8086f8",
@@ -274,5 +274,34 @@
     "all remaining module-specific minimum-rights, provider, file/identity, resource and host-recovery gates",
     "final publication requires separate human authorization"
   ],
-  "cost_and_tokens": "UNKNOWN"
+  "cost_and_tokens": "UNKNOWN",
+  "product_commit": "becbc2d9fe76339926c1902a930d869949a2bb74",
+  "normalized_current_source_sql_payload_sha256": {
+    "SQL/Install-Portable-central.sql": "3f39150bf918b033cd1b0d5c69b53ee329a744ce58dc70ee6c4a2a3c1d8dd353",
+    "SQL/Install-Portable-local.sql": "19b1d99763ee9dda553e92d38f174b4f4f415029ea1fbd9dec0b9b7dea717d14",
+    "SQL/Install-Windows-central.sql": "04fe2b7fe31c36315401c59a2aa5dc1dfe837d9d6c32253413b903021329d766",
+    "SQL/Install-Windows-local.sql": "ae42e48bb97f12003fcd218643a0da90282cfbd69e755e24ff5243a17ccdccaf",
+    "SQL/Repeat-Portable-central.sql": "612fc75251b654eeed465ec60923903672c66f730bedaa8f36dbcfcb0fd37fc2",
+    "SQL/Repeat-Portable-local.sql": "e3db1e18b1baaeeb5ea5d7540583c6782829e98ef4ac159c34ffb93900c89f40",
+    "SQL/Repeat-Windows-central.sql": "3b20e687b4713f0d836c0f68ebe6f879a4886514ea5662ecd9a5475f15858c27",
+    "SQL/Repeat-Windows-local.sql": "9facf7df23efe31df33c6aa711a4a4e255dc39259219aada9b0a42fc3c736a04",
+    "SQL/Trust-Portable-central.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Portable-local.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Windows-central.sql": "0788cbd6ca713dc0283a74c1ce4a9e43644961ad04d774ea32fb617bac8086f8",
+    "SQL/Trust-Windows-local.sql": "eeaa11650de3c8c51acf4347ae7228640b91302d67c5ca8ee27d427b53fdcbad",
+    "SQL/Uninstall-Portable-central.sql": "46e930eec8b5d7c5096b5c9cac193290b2945490f274b1c9d86d63b28e0defd1",
+    "SQL/Uninstall-Portable-local.sql": "46e930eec8b5d7c5096b5c9cac193290b2945490f274b1c9d86d63b28e0defd1",
+    "SQL/Uninstall-Windows-central.sql": "3862115e827db72753886b40bf29417bab748b4df83e0fff1f592b00f28f254e",
+    "SQL/Uninstall-Windows-local.sql": "9586ef975ab1a3f06581a762898d32bf39ded433d0b4fdbf71e6d44a1356c2ad",
+    "SQL/UninstallAbsent-Portable-central.sql": "ba784ca610119ffd446d5cd2142891203690e560ea3b338c784c0f3df6ea0c37",
+    "SQL/UninstallAbsent-Portable-local.sql": "ba784ca610119ffd446d5cd2142891203690e560ea3b338c784c0f3df6ea0c37",
+    "SQL/UninstallAbsent-Windows-central.sql": "b55af25113f749280ba6ce55580ba13da29015a4e1e2d2ac4cc0b7f605c59edc",
+    "SQL/UninstallAbsent-Windows-local.sql": "f56726cd1a4d4930aaa8e48df6fa27225189cfa7a7c533eae64b22d15ff16848"
+  },
+  "previous_client_qualification": {
+    "url": "https://github.com/gecompat/SQL_Server_Toolbelt/blob/0b56129a305a23b9548e5569e1731218d2c9a967/Releases/1.0.0/clr-client-qualification.json",
+    "sha256": "c253e731cfd5a10bee531fd78714c8bfedfd7058c19f1f95d06fa6e5c7ee1e92",
+    "native_cases_passed": 12
+  },
+  "documentation_only_product_equivalence": "Releases/1.0.0/runtime-source-equivalence.json"
 }

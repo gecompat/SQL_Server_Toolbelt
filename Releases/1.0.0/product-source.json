@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "kind": "synthetic_product_snapshot",
-  "source_commit": "b807deb79e248d3012d140cbac92525212c5dd03",
-  "product_commit": "e3cf6f148d533f0081f1a35797427b691ffd1844",
-  "base_commit": "466d0ca6b52636da715a3c40dcce8ea121606df6",
-  "tree_oid": "4f59388baa28e94636b27b8d34546bf1d99e2855"
+  "source_commit": "20362bac9e1156395bc4661ddac261653e7a9a62",
+  "product_commit": "becbc2d9fe76339926c1902a930d869949a2bb74",
+  "base_commit": "0b56129a305a23b9548e5569e1731218d2c9a967",
+  "tree_oid": "8c23d50a63c35cbe5d8a24337496c9979db9494a"
 }

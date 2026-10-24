@@ -6,7 +6,7 @@ GO
 -- Typ: CLR SVF; Zweck: SAFE-CLR-Kern der öffentlichen Replace-Fassade.
 -- Vertrag: Documentation/SVF_RegexReplace.md; Parameter: max-Texte, Start=1,
 -- Occurrence=0, Flags=c, Profile=standard; Resultset: nvarchar(max).
--- Dependencies: SAFE Toolbelt_String_Regex; Rechte: SELECT/REFERENCES.
+-- Dependencies: SAFE Toolbelt_String_Regex; keine direkten Fachcallergrants.
 -- Versionen: SQL Server 2019/2022/2025; Plattformen: Windows/Linux.
 -- Fehlerverhalten: SQL 6522 / TBX_REGEX_*; keine Teilresultate/Seiteneffekte.
 -- Performance: vollständige Materialisierung, kooperatives Gesamtbudget.
@@ -34,7 +34,7 @@ GO
 -- Typ: T-SQL SVF; Zweck: Regex-Gesamttreffer durch literal Unicode ersetzen.
 -- Vertrag: Documentation/SVF_RegexReplace.md; max-Texte, Start=1,
 -- Occurrence=0, Flags=c, Profile=standard; Ergebnis: nvarchar(max).
--- Dependencies: interner SAFE-CLR-Kern; Rechte: SELECT/REFERENCES.
+-- Dependencies: interner SAFE-CLR-Kern; Rechte: EXECUTE auf dieser Fassade.
 -- Versionen: SQL Server 2019/2022/2025; Plattformen: Windows/Linux.
 -- Fehler: SQL 6522 / TBX_REGEX_*; NULL-Short-Circuit, keine Teilresultate.
 -- Performance: Materialisierung und zusätzlicher SVF-Aufrufoverhead;
@@ -61,7 +61,7 @@ GO
 -- Typ: CLR SVF; Zweck: SAFE-CLR-Kern der öffentlichen Substring-Fassade.
 -- Vertrag: Documentation/SVF_RegexSubstring.md; Parameter: max-Texte,
 -- Start=1, Occurrence=1, Flags=c, Profile=standard; Resultset: nvarchar(max).
--- Dependencies: SAFE Toolbelt_String_Regex; Rechte: SELECT/REFERENCES.
+-- Dependencies: SAFE Toolbelt_String_Regex; keine direkten Fachcallergrants.
 -- Versionen: SQL Server 2019/2022/2025; Plattformen: Windows/Linux.
 -- Fehlerverhalten: SQL 6522 / TBX_REGEX_*; ohne Treffer NULL, leerer Treffer N''.
 -- Performance: vollständige Materialisierung, kooperatives Gesamtbudget.
@@ -86,7 +86,7 @@ GO
 -- Typ: T-SQL SVF; Zweck: n-ten Regex-Gesamttreffer als Unicode-Text liefern.
 -- Vertrag: Documentation/SVF_RegexSubstring.md; max-Texte, Start=1,
 -- Occurrence=1, Flags=c, Profile=standard; Ergebnis: nvarchar(max).
--- Dependencies: interner SAFE-CLR-Kern; Rechte: SELECT/REFERENCES.
+-- Dependencies: interner SAFE-CLR-Kern; Rechte: EXECUTE auf dieser Fassade.
 -- Versionen: SQL Server 2019/2022/2025; Plattformen: Windows/Linux.
 -- Fehler: SQL 6522 / TBX_REGEX_*; ohne Treffer NULL, leerer Treffer N''.
 -- Performance: Materialisierung und zusätzlicher SVF-Aufrufoverhead;

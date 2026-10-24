@@ -124,6 +124,11 @@ werden nicht zugesagt. SELECT-Aufrufe verwenden explizite DEFAULT-Platzhalter;
 EXEC erlaubt das Weglassen von Defaultparametern. Die internen Kerne sind
 keine weitere öffentliche API und werden mit dem Modul installiert/entfernt.
 
+Alle sechs öffentlichen Regex-Skalarfunktionen benötigen EXECUTE auf der
+jeweiligen Funktion. Für die öffentlichen Regex-TVFs ist SELECT erforderlich.
+Interne CLR-Kerne erhalten keine direkten Fachcallergrants. Ein vorhandenes
+Datenbankkonto und passende CrossDB-Nutzermappings bleiben eigene Voraussetzungen.
+
 Der Replacementparser speichert Literalspans und Gruppenreferenzen statt
 kopierter Literalstrings, validiert auch bei fehlendem Match und erlaubt
 höchstens 65536 Teile. Parsing, Gruppennamen und Zahlenreferenzen verbrauchen

@@ -50,7 +50,7 @@ GO
 -- Vertrag: Documentation/Architecture/REGEX_CAPTURE_REPLACE_CONTRACT.md.
 -- Parameter: Input/Pattern/Replacement max, Start=1, Occurrence=0 (alle),
 -- Flags=c, Profile=standard; Ergebnis nvarchar(max), NULL => NULL.
--- Dependencies: interner SAFE-CLR-Kern; Rechte: SELECT/REFERENCES.
+-- Dependencies: interner SAFE-CLR-Kern; Rechte: EXECUTE auf dieser Fassade.
 -- Versionen/Plattformen: SQL Server 2019/2022/2025, Windows/Linux.
 -- Fehler: SQL6522/TBX_REGEX_*; strikte Referenzprüfung vor erster Suche.
 -- Performance: begrenzte Materialisierung, kooperatives Gesamtbudget.
