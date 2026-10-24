@@ -492,6 +492,45 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors='replace'))
         self.assertIn(b'PASS API_CAPTURE_DIAGNOSTIC', result.stdout)
 
+    def test_capture_release_acceptance_keeps_exact_binary_and_historical_failures(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/capture-release-acceptance.json').read_bytes())
+        self.assertEqual(report['qualification_state'], 'complete for stated binary and scope')
+        self.assertEqual(report['historical_capture_timeout_gate'], 'accepted for exact qualified binary')
+        self.assertEqual(report['historical_cause'], 'unknown, not reproduced')
+        for flag in ('publication_authorized', 'product_correction_claimed',
+                     'historical_timeout_reproduced', 'module_validation_status_promoted'):
+            self.assertIs(report[flag], False)
+        previous = json.loads((ROOT / 'Releases/1.0.0/regex-timeout-qualification.json').read_bytes())
+        self.assertEqual(report['safety_limits'], previous['safety_limits'])
+        self.assertEqual(report['delivered_regex_binary_sha256'], previous['delivered_regex_binary_sha256'])
+        with zipfile.ZipFile(ROOT / release.CLR_PACKAGE) as archive:
+            binary = archive.read('SQL-Server-Toolbelt-1.0.0-CLR-Install/Binaries/Toolbelt.String.Regex.dll')
+        self.assertEqual(hashlib.sha256(binary).hexdigest(), report['delivered_regex_binary_sha256'])
+        for group in ('source_sha256', 'prior_evidence_sha256'):
+            for path, digest in report[group].items():
+                self.assertEqual(hashlib.sha256((ROOT / path).read_bytes().replace(b'\r\n', b'\n')).hexdigest(), digest)
+        cases = report['minimal_rights']['native_cases']
+        self.assertEqual(len(cases), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in cases},
+                         {(p, v, cl) for p in ('linux', 'windows')
+                          for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170)))
+                          for cl in cls})
+        self.assertTrue(all(c['result'] == 'PASS' and c['independent_cleanup_and_pin_audit']
+                            and c['deployment_contexts'] == ['local', 'direct_central'] for c in cases))
+        self.assertEqual(report['minimal_rights']['public_scalar_execute_only'], 'PASS')
+        self.assertEqual(report['minimal_rights']['effective_references_permission_in_positive_phase'], 0)
+        controls = report['oracle_rejection_controls']
+        self.assertEqual({c['synthetic_fault'] for c in controls}, {'wrong-value', 'wrong-error', 'extra-reference'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED'
+                            and c['independent_cleanup_and_pin_audit'] for c in controls))
+        self.assertFalse(report['earlier_rights_revision']['proves_execute_alone'])
+        self.assertTrue(report['final_independent_audit']['all_owned_database_names_absent'])
+        self.assertTrue(report['final_independent_audit']['temporary_clr_configuration_restored'])
+        self.assertTrue(report['remaining_gates'])
+        historical = json.loads((ROOT / 'Releases/1.0.0/capture-timeout-investigation.json').read_bytes())
+        self.assertEqual(historical['capture_release_gate'], 'open')
+
     @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required for offline adapter guards')
     def test_target_reuse_and_cleanup_reserve_without_sql(self):
         script = r'''

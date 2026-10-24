@@ -2,6 +2,36 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
+## Autonomer Abschluss von v1.0.0 — 2026-10-24
+
+Der unmittelbare Benutzerauftrag nimmt die zuvor pausierte Releasearbeit
+wieder auf: fehlende Komponenten und Nachweise im bestehenden freigegebenen
+Releaseumfang selbständig fertigstellen, bis v1.0.0 belastbar gebaut werden
+kann. Anschließend wurde ein Heartbeat als letztes Sicherheitsnetz gegen
+Stillstand ausdrücklich angefordert. Bereits laufende Arbeit wird fortgesetzt,
+nicht doppelt gestartet; unbekannte oder externe Voraussetzungen bleiben
+sichtbare Gates. Die direkte Antwort „Ja, Release-PRs nach grünen
+Pflichtprüfungen selbst mergen“ erlaubt deren Integration nach vollständigen
+Prüfungen und verlangt anschließend echte Main-CI.
+
+Diese Fortsetzung ersetzt die früheren Pausen und Ein-PR-Grenzen ausschließlich
+für den Abschluss dieses Releaseumfangs. Ein gemeinsamer endlicher Programm-
+und Testverbrauch bleibt privat nachvollziehbar. Neue öffentliche Funktionen
+benötigen weiterhin ihren konkreten Vertrag; Veröffentlichung, Tags,
+Labinfrastrukturänderungen und fachliche Gateausnahmen sind nicht pauschal
+freigegeben. Die weitere direkte Antwort „Ja, dieser begrenzte Testaufbau ist
+freigegeben“ erlaubt ausschließlich in eigenen temporären Lab-Datenbanken
+Benutzer ohne Login und gezielte Datenbankgrants/-entzüge mit vollständigem
+Cleanup; keine Server-Logins oder fremden Rechte. Die direkte Antwort „Ja, mit
+diesen Nachweisen und dokumentiertem Restrisiko“ erlaubt den Capture-
+Gateabschluss nach vollständiger Prüfung der unveränderten Funktions-,
+Größen-, Timeout- und Atomaritätsorakel am finalen Binary. Der historische
+Timeout bleibt ausdrücklich „Ursache ungeklärt, nicht reproduziert“; keine
+Budgeterhöhung, Ersetzung strikter Fehlerorakel oder behauptete Produktkorrektur.
+Die kanonischen [Releasegates](../Releases/1.0.0/RELEASE-GATES.md) bleiben
+verbindlich. Historische Ergebnisse und Freigabegrenzen unten werden nicht
+rückwirkend umgeschrieben.
+
 ## v1.0.0: Supportumfang und ausführbare Releaseprüfungen — 2026-10-23
 
 Der Benutzer hat den zuvor vorgeschlagenen Zielumfang ausdrücklich übernommen:

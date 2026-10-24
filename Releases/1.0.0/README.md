@@ -1,9 +1,9 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
-Status: **Releasevorbereitung, nicht veröffentlicht**. Der ausdrückliche
-Benutzerauftrag umfasst das Gesamtpaket, die Trennung stabil/Preview und einen
-Pull Request. Er umfasst keine Veröffentlichung und setzt die pausierte
-autonome Weiterentwicklung nicht fort.
+Status: **Releasevorbereitung, nicht veröffentlicht**. Der aktuelle
+Benutzerauftrag erlaubt die autonome Fertigstellung des Gesamtpakets im
+freigegebenen Stable-/Preview-Zielumfang sowie die Integration grüner
+Release-PRs. Veröffentlichung, Tag und GitHub-Release sind nicht freigegeben.
 
 Für den ersten praktischen Test beginne mit der
 [Installationsanleitung für SSMS](../../INSTALL.md). Sie benötigt für die
@@ -30,8 +30,10 @@ Die [Nachweiszuordnung aller 45 Module](EVIDENCE-MAP.md) führt zu den
 kanonischen Modulbelegen. Der [API-/Grenzbericht](API-QUALIFICATION.md)
 trennt zusätzliche Labprüfungen von weiter offenen externen Voraussetzungen.
 Die [Regex-Timeout-Nachprüfung](REGEX-TIMEOUT-QUALIFICATION.md) belegt die
-Korrektur der Literal-Replace-Materialisierung und kennzeichnet den zusätzlichen
-Capture-Teilnachweis weiterhin als offen.
+Korrektur der Literal-Replace-Materialisierung. Das anschließende historische
+Capture-Timeout-Gate ist für die gebundene DLL mit ausdrücklich angenommenem
+Restrisiko [begrenzt abgeschlossen](CAPTURE-RELEASE-ACCEPTANCE.md); weitere
+Modul- und Paketgates bleiben offen.
 
 Das Gesamt-ZIP enthält zusätzlich den
 [CLR-Installationskandidaten mit fertigen DLLs](CLR-INSTALL.md). Er liefert alle

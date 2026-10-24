@@ -222,11 +222,16 @@ temporäre CLR-Konfiguration unabhängig als wiederhergestellt geprüft.
 Die [Regex-Nachprüfung vom 2026-10-24](REGEX-TIMEOUT-QUALIFICATION.md)
 belegt den ursprünglichen positiven Transformationsabschluss auf einer DLL
 mit weniger LOB-Kopien und unveränderten Sicherheitsbudgets. Ein zusätzlicher
-Capture-Timeout unter Linux SQL2019/CL150 local bleibt offen. Die neu
+Capture-Timeout unter Linux SQL2019/CL150 local war zunächst offen. Die neu
 geprüften CLR-/Gesamtpaket-Lifecycles ersetzen keine übrigen Pflichtfälle.
 Die anschließende [Capture-Diagnose](CAPTURE-TIMEOUT-INVESTIGATION.md) erhält
 jetzt den zuvor verlorenen Unterfall und CLR-Stack. Der historische Fehler
-ließ sich weiterhin nicht reproduzieren; das Produktgate bleibt offen.
+ließ sich weiterhin nicht reproduzieren. Nach ausdrücklicher Freigabe der
+Abschlussregel ist das historische Timeout-Gate für die exakt gebundene DLL
+mit [dokumentiertem Restrisiko angenommen](CAPTURE-RELEASE-ACCEPTANCE.md).
+Neue Minimalrechtetests lokal/direkt zentral bestanden in zwölf physischen
+Ziel-/CL-Fällen. Die gefundene falsche skalare Rechte-Dokumentation, echte
+Lowpriv-CrossDB-Mappings und übrige Modulpflichtfälle bleiben offen.
 
 | Gate | Konkret erforderlich | Abhängigkeit |
 |---|---|---|
@@ -245,7 +250,7 @@ Die verbleibenden Arbeiten sind damit genauer getrennt:
 
 | Punkt | Noch erforderlich | Voraussetzung / Verantwortung |
 |---|---|---|
-| Fachliche Modulabnahme | Nachweiszuordnung aller 45 Module liegt vor. Noch unbelegte API-, Ausgabegrenzen-, Lifecycle-/Upgrade- und Clientfälle je zugesagter Kombination abschließen; der zusätzliche Regex-Capture-Teilnachweis bleibt offen. Ausgewählte grüne Fixtures ersetzen keine volle Modulabnahme | Modulverantwortlicher; bestehende unveränderte Nachweise nur in ihrem belegten Scope weiterverwenden |
+| Fachliche Modulabnahme | Nachweiszuordnung aller 45 Module liegt vor. Noch unbelegte API-, Ausgabegrenzen-, Lifecycle-/Upgrade- und Clientfälle je zugesagter Kombination abschließen. Historisches Capture-Timeout-Gate begrenzt angenommen; gefundene skalare Rechte-Dokumentation korrigieren und im finalen Paket binden. Ausgewählte grüne Fixtures ersetzen keine volle Modulabnahme | Modulverantwortlicher; bestehende unveränderte Nachweise nur in ihrem belegten Scope weiterverwenden |
 | Minimalrechte | Echte Aufrufe unter den benötigten getrennten Testidentitäten, einschließlich negativer Rechtefälle | Vorkonfigurierte passende Principals und Rechte oder ein separat ausdrücklich freigegebener enger Security-Testaufbau; hier wurden keine Logins/Rechte erteilt |
 | Datei-/Identitätsmodule | Serverseitige synthetische Datei-, NTFS-/Reparse-/Caller-/ServiceAccount-Fixtures und ihre jeweiligen positiven/negativen Fälle | Bereitgestellte Fixtures/Identitäten mit geklärter Ownership; keine eigenmächtige Änderung der Labinfrastruktur |
 | Provider/Worker und harte Recovery | Erforderliche administrierte Provider-/Workerhostkombinationen und kontrollierter echter Transport-/Hostverlust | Vorkonfigurierte Provider und geeignete gesonderte Recoveryumgebung; laufende mutierende Tests werden nicht als Ersatz hart abgebrochen |
@@ -295,6 +300,7 @@ der konkrete Markerfehler begründete den korrigierten Folgeversuch.
 Die zwei isolierten CLR-Builds prüfen ausdrücklich Reproduzierbarkeit, keine
 Statusauffrischung vorhandener Modulnachweise. Zusätzliche Harness-/Pfadguards
 laufen ohne SQL innerhalb der bestehenden Release-Regressionssuite. Kosten-
-und Tokenverbrauch sind `UNKNOWN`. Die autonome Weiterentwicklung und ihre
-Automation bleiben pausiert; eine spätere Veröffentlichung benötigt einen
-eigenen Auftrag.
+und Tokenverbrauch sind `UNKNOWN`. Die spätere ausdrückliche
+[Releasefortsetzung](SUPPORT.md#releasefortsetzung-vom-2026-10-24) aktiviert
+jetzt autonome Arbeit im bestehenden v1.0.0-Zielumfang und einen Heartbeat als
+Stillstand-Sicherungsnetz; Veröffentlichung bleibt ein eigener Auftrag.

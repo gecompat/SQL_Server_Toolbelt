@@ -53,3 +53,14 @@ Installationsanleitungen [für T-SQL](../../INSTALL.md) und
 Authentifizierte TLS-Abnahme und die vereinbarten optionalen Laufzeitmessungen
 bleiben getrennt. Dieser Auftrag aktiviert keine allgemeine autonome
 Weiterentwicklung, Automation, Veröffentlichung oder neue fachliche Funktion.
+
+## Releasefortsetzung vom 2026-10-24
+
+Der spätere unmittelbare Auftrag aktiviert die autonome Fertigstellung von
+v1.0.0 im oben beschriebenen Zielumfang. Release-PRs dürfen nach vollständigen
+lokalen Prüfungen und grünen Pflichtprüfungen selbständig gemergt werden;
+danach sind die tatsächlichen Main-Workflows zu prüfen. Ein ausdrücklich
+angeforderter Heartbeat dient nur als Stillstand-Sicherungsnetz. Diese
+Fortsetzung erteilt keine Veröffentlichungsfreigabe und hebt keine fachlichen
+Pflichtprüfungen oder Sicherheitsgrenzen auf. Die Einzelentscheidungen und
+offenen Grenzen stehen im [aktuellen Backlogauftrag](../../.ai/BACKLOG.md#autonomer-abschluss-von-v100--2026-10-24).
