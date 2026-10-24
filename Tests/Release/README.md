@@ -74,6 +74,22 @@ intrinsischer Regex-Timeout bleibt ein blockierter Fixtureaufruf und der
 gesamte Fall `PARTIAL`; er wird weder als Erfolg noch als neuer Retry gezählt.
 Die gemeinsame Fortschrittsdatei trennt vollständige und partielle Fälle.
 
+Bei einem unerwarteten Fehler der kanonischen `Captures.Contract.sql`
+ergänzt der API-Adapter ausschließlich im ausgeführten Testtext Phase und
+Fallnummer. Die strikten Orakel, Produktbytes und der ursprüngliche SQL-Fehler
+bleiben erhalten. Erfolgreiche Aufrufe erzeugen keine zusätzlichen Meldungen.
+Auch ein als `PARTIAL` erfasster Regex-Timeout hält seinen vollständigen
+Fehlertext samt CLR-Stack und synthetischem Unterfall im **privaten**
+Casejournal (`blockedFixtures[].privateDiagnostic` und `privateFixtureCase`).
+Diese Felder dürfen nicht in öffentliche Ergebnisse oder PRs kopiert werden.
+Die Diagnose erklärt einen Fehler; sie hebt ihn weder auf noch erlaubt sie
+einen unveränderten Retry. Die Offline-Regressionssuite prüft die bytegenau
+erhaltene Fixture, Fail-closed-Verhalten bei Quelldrift und den gebundenen
+Eventcallback über `Test-ApiCaptureDiagnostic.ps1`.
+Der [Capture-Untersuchungsbericht](../../Releases/1.0.0/CAPTURE-TIMEOUT-INVESTIGATION.md)
+trennt absichtliche Fehlerproben, bestandene Originalfixtures und die weiterhin
+offene historische Ursache.
+
 Die Coregruppe lädt die vorhandene `WorkTypeAuthorization.Fixture.sql`
 ausschließlich in eigene disposable Datenbanken: explizite dbo-Policy für
 alte Fachfixtures, kein Deploymentinclude, keine echten Minimalrechte.

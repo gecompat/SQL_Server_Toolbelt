@@ -112,17 +112,58 @@ function New-ApiBudgetProviders($Clock,[int]$WorkSeconds) {
  $readProvider={[void](& $timeoutProvider)}.GetNewClosure()
  return @{Timeout=$timeoutProvider;Read=$readProvider}
 }
+function Add-ApiCaptureFailureContext([string]$Text) {
+ # Nur die Testfixture annotieren, nicht Produkt-SQL oder deren Orakel ändern.
+ # Bei Erfolg gibt es keine Zusatznachricht und keinen Timer im Fachaufruf.
+ $markers=[ordered]@{
+  '-- Binärvergleich erhält Case, Surrogate, NULL und nachgestellte Leerzeichen.'='row-oracle'
+  'DECLARE @Replace table'='replace'
+  'IF [$(ToolbeltDatabase)].toolbelt_string.SVF_RegexReplace('='defaults'
+  'DECLARE @Errors table'='negative'
+ }
+ if($Text.Contains('@ApiCapturePhase')){throw 'RELEASE_API_CAPTURE_ALREADY_ANNOTATED'}
+ foreach($marker in $markers.Keys){
+  if(([regex]::Matches($Text,[regex]::Escape($marker))).Count -ne 1){throw 'RELEASE_API_CAPTURE_FIXTURE_DRIFT'}
+  $Text=$Text.Replace($marker,"SET @ApiCapturePhase=N'"+$markers[$marker]+"';`n"+$marker)
+ }
+ return "DECLARE @ApiCapturePhase nvarchar(20)=N'rows';`nBEGIN TRY`n"+$Text+@'
+
+END TRY
+BEGIN CATCH
+ RAISERROR(N'TBX_REGEX_CAPTURE_CASE|%s|%d',10,1,@ApiCapturePhase,@Case) WITH NOWAIT;
+ THROW;
+END CATCH;
+'@
+}
+function New-ApiCaptureDiagnostic {
+ $state=@{Marker=''}
+ $action={param($sender,$eventArgs)
+  foreach($item in $eventArgs.Errors){
+   if($item.Message -cmatch '^TBX_REGEX_CAPTURE_CASE\|(rows|row-oracle|replace|defaults|negative)\|[0-9]+$'){
+    $state.Marker=$item.Message
+   }
+  }
+ }.GetNewClosure()
+ return @{State=$state;Action=$action;Handler=[Data.SqlClient.SqlInfoMessageEventHandler]$action}
+}
 function Invoke-ApiFixture($Test,[string]$Database,[string]$Central='') {
  $path=Join-Path $script:runset.sourceRoot $Test.source
  if($Test.kind -ceq 'ssis-core'){
   if(-not $script:runset.PSObject.Properties['ssisFunctionalRoot']){throw 'RELEASE_API_SSIS_FUNCTIONAL_FIXTURE_REQUIRED'}
   $path=Join-Path $script:runset.ssisFunctionalRoot 'Tests/Runtime/Invoke-CoreContract.ps1'
  }
+ $script:activeFixtureCase=''
+ $captureDiagnostic=$null
  $db=Open-ReleaseConnection $Database
  try{
   [void](Get-ReleaseTimeout)
   if($Test.kind -ceq 'sql'){
    $text=[IO.File]::ReadAllText($path)
+   if($Test.id -ceq 'toolbelt.string.regex:Captures.Contract.sql'){
+    $text=Add-ApiCaptureFailureContext $text
+    $captureDiagnostic=New-ApiCaptureDiagnostic
+    $db.add_InfoMessage($captureDiagnostic.Handler)
+   }
    $toolbelt=if($Central){$Central}else{$Database}
    foreach($pair in @(@('ToolbeltDatabase',$toolbelt),@('CentralDb',$toolbelt),@('CompatibilityLevel',[string]$script:case.CL))){$text=$text.Replace('$('+$pair[0]+')',$pair[1])}
    foreach($pair in @(@('XlsxFixture','standard'),@('XlsxRepeatedFixture','repeated'))){
@@ -176,7 +217,14 @@ function Invoke-ApiFixture($Test,[string]$Database,[string]$Central='') {
   }
   Invoke-ReleaseSql $db "IF @@TRANCOUNT<>0 THROW 51594,N'API fixture left a transaction.',1;"
   [void](Get-ReleaseTimeout)
- }finally{$db.Dispose()}
+ }finally{
+  if($captureDiagnostic){
+   $db.remove_InfoMessage($captureDiagnostic.Handler)
+   $script:activeFixtureCase=$captureDiagnostic.State.Marker
+   if($script:activeFixtureCase){$script:ledger['privateFixtureCase']=$script:activeFixtureCase;Save-ReleaseJournal}
+  }
+  $db.Dispose()
+ }
  $script:ledger.completedFixtures+=@([ordered]@{id=$Test.id;context=$(if($Central){'consumer'}else{$script:mode});result='PASS'})
  Save-ReleaseJournal
 }
@@ -254,7 +302,10 @@ function Invoke-ApiChecked($Test,[string]$Database,[string]$Central,[string]$Pro
   # Grenznachweis. Keine Friständerung, kein PASS und kein unveränderter Retry.
   $verify=Open-ReleaseConnection $Database
   try{Invoke-ReleaseSql $verify "IF @@TRANCOUNT<>0 THROW 51594,N'Blocked fixture left a transaction.',1;";if(-not $Central){Assert-ApiProduct $verify $Profile $Original}}finally{$verify.Dispose()}
-  $script:ledger.blockedFixtures+=@([ordered]@{id=$Test.id;context=$context;reason='TBX_REGEX_TIMEOUT';source='current_attempt'});Save-ReleaseJournal
+  # Rohdiagnose ausschließlich im bereits privat geschützten Casejournal.
+  # Der bisher verlorene CLR-Stack/Fehlertext und der synthetische Unterfall
+  # bleiben erhalten; ein Timeout bleibt unverändert PARTIAL statt PASS.
+  $script:ledger.blockedFixtures+=@([ordered]@{id=$Test.id;context=$context;reason='TBX_REGEX_TIMEOUT';source='current_attempt';privateDiagnostic=$sql.Message;privateFixtureCase=$script:activeFixtureCase});Save-ReleaseJournal
  }
 }
 

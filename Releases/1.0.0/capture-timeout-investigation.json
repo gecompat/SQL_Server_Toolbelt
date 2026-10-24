@@ -1,0 +1,140 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-24",
+  "source_base_commit": "e9147db029732e6704883b8a60b5b8634bf7851b",
+  "scope": "Capture timeout investigation and private release-test diagnostics; no product correction",
+  "publication_authorized": false,
+  "autonomous_development_paused": true,
+  "production_changed": false,
+  "historical_timeout_reproduced": false,
+  "unique_historical_cause_proven": false,
+  "capture_release_gate": "open",
+  "safety_limits": {
+    "standard_total_ms": 500,
+    "large_total_ms": 2000,
+    "search_max_ms": 250,
+    "standard_utf16_bytes": 2097152,
+    "large_utf16_bytes": 16777216
+  },
+  "source_sha256": {
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Test-ApiCaptureDiagnostic.ps1": "3043c450172f1bbbf4286b8ee5dd53ab8e8ae3a6e7b63cf3e4cfcab950740cde",
+    "Modules/toolbelt.string.regex/Clr/RegexCaptures.cs": "4bdad4efe605c4430b1a37f86b6f65e217d425bcaa1e60456aaec3d63a0241f5",
+    "Modules/toolbelt.string.regex/Clr/RegexBoundedIntake.cs": "db379190f75742e660b4f7955c5d8e59ec31170f5a27eeb3455eb25986b2a41f",
+    "Modules/toolbelt.string.regex/Clr/RegexTransformations.cs": "bb528af709a222513e4786a3ebee82f350bd65a01886056a16e9d3ed65d030f9",
+    "Modules/toolbelt.string.regex/Tests/Runtime/Captures.Contract.sql": "2acfa8e1a0c3115314e7efb812dd70d15668614668ef9a05a8638a4788ac98c9",
+    "Modules/toolbelt.string.regex/Tests/Runtime/Captures.Metadata.ps1": "d1e98534d9e8260b046bdf7791eadab8582008fe2c7567bc42c3c53bc8128f73"
+  },
+  "historical_method_bindings": {
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "62de2d067a168ac4b9d17be0106ca5608cbd7687e8066035d2de86b68e8c2fdd"
+  },
+  "original_method_source": "versioned candidate-source ZIP, same member path",
+  "native_platform": "linux",
+  "native_sql_version": "2019",
+  "native_compatibility_level": 150,
+  "per_call_diagnostic": {
+    "fixture_calls_passed": 4,
+    "capture_calls_traced": 58,
+    "historical_oracles_unchanged": true,
+    "result": "PASS",
+    "independent_cleanup_and_pin_audit": true
+  },
+  "deliberate_timeout_controls": [
+    {
+      "synthetic_fault_phase": "rows",
+      "synthetic_fault_case": 1,
+      "contexts": [
+        "local",
+        "central"
+      ],
+      "actual_case_state": "PARTIAL",
+      "original_sql6522_and_timeout_preserved": true,
+      "private_clr_stack_and_exact_case_retained": true,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault_phase": "negative",
+      "synthetic_fault_case": 27,
+      "contexts": [
+        "local",
+        "central"
+      ],
+      "actual_case_state": "PARTIAL",
+      "original_sql6522_and_timeout_preserved": true,
+      "private_clr_stack_and_exact_case_retained": true,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "original_context_case": {
+    "result": "PASS",
+    "passed_fixture_calls": [
+      {
+        "fixture": "toolbelt.string.regex:Regex.Contract.sql",
+        "context": "local",
+        "result": "PASS"
+      },
+      {
+        "fixture": "toolbelt.string.regex:Transformations.Contract.sql",
+        "context": "local",
+        "result": "PASS"
+      },
+      {
+        "fixture": "toolbelt.string.regex:Relations.Contract.sql",
+        "context": "local",
+        "result": "PASS"
+      },
+      {
+        "fixture": "toolbelt.string.regex:Captures.Contract.sql",
+        "context": "local",
+        "result": "PASS"
+      },
+      {
+        "fixture": "toolbelt.string.regex:Captures.Metadata.ps1",
+        "context": "local",
+        "result": "PASS"
+      },
+      {
+        "fixture": "toolbelt.string.regex:Captures.Contract.sql",
+        "context": "central",
+        "result": "PASS"
+      },
+      {
+        "fixture": "toolbelt.string.regex:Captures.Metadata.ps1",
+        "context": "central",
+        "result": "PASS"
+      }
+    ],
+    "independent_cleanup_and_pin_audit": true
+  },
+  "final_independent_audit": {
+    "all_owned_database_names_absent": true,
+    "owned_database_names_checked": 12,
+    "trust_states_restored": true,
+    "distinct_target_trust_states_checked": 9,
+    "frozen_execution_inputs_unchanged": true,
+    "original_method_binding_separately_preserved": true,
+    "configuration_changed": false
+  },
+  "transport": {
+    "test_purpose": "Functional",
+    "encrypt": true,
+    "trust": "explicit schema-validated Lab boolean",
+    "authenticated_tls": "not executed"
+  },
+  "shared_wave": {
+    "attempts_consumed": 4,
+    "maximum_attempts": 48,
+    "maximum_seconds": 21600,
+    "original_start_retained": true,
+    "cost_and_tokens": "UNKNOWN"
+  },
+  "not_executed": [
+    "Capture product correction: no reproducible defect identified",
+    "new unchanged Windows/Linux matrix replay",
+    "new CLR build or package lifecycle: no product, DLL or deployment changes",
+    "minimal-rights, heap/parallel and host-recovery qualification",
+    "authenticated TLS",
+    "publication"
+  ],
+  "native_driver_adaptation": "Private canonical adapter copy; only stable-helper import resolves the repository path instead of private PSScriptRoot; exact substitution verified."
+}

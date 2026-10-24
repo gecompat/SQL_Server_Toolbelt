@@ -224,6 +224,9 @@ belegt den ursprünglichen positiven Transformationsabschluss auf einer DLL
 mit weniger LOB-Kopien und unveränderten Sicherheitsbudgets. Ein zusätzlicher
 Capture-Timeout unter Linux SQL2019/CL150 local bleibt offen. Die neu
 geprüften CLR-/Gesamtpaket-Lifecycles ersetzen keine übrigen Pflichtfälle.
+Die anschließende [Capture-Diagnose](CAPTURE-TIMEOUT-INVESTIGATION.md) erhält
+jetzt den zuvor verlorenen Unterfall und CLR-Stack. Der historische Fehler
+ließ sich weiterhin nicht reproduzieren; das Produktgate bleibt offen.
 
 | Gate | Konkret erforderlich | Abhängigkeit |
 |---|---|---|
