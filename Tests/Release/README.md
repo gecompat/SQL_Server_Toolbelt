@@ -358,3 +358,18 @@ und seine JSON-Projektion binden die tatsächlich abgeschlossene Zwölfermatrix,
 zwei absichtlich verworfene Orakelvarianten und frische unabhängige Audits.
 Produkt- und Paket-SQL-/DLL-Bytes blieben unverändert. Kein neuer CI-Job,
 automatischer Labstart oder Replay einer bereits grünen Vollmatrix.
+
+## ResultTable-/Error-Envelope-Callerprofile: noch nicht qualifiziert
+
+`Runtime/ResultTable.ErrorEnvelope.Rights.sql` prüft die dokumentierten
+Objektrechtkombinationen mit einem eigenen Benutzer ohne Login und einer
+eigenen synthetischen Referenztabelle innerhalb der markierten Harness-DB.
+Die fünf Profile betreffen Temp-Schema/KeepData, reine Referenz-Metadatensicht,
+deren atomare Abweisung sowie direkte und ResultTable-Envelope-Ausgabe.
+Rollen-, Schema-, datenbankweite und Servergrants sind ausgeschlossen.
+
+Das Schemaorakel verwendet logische Spaltenpositionen, keine als fortlaufend
+angenommenen physischen IDs. Der [Diagnosebericht](../../Releases/1.0.0/TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
+erhält alle drei bereinigten Fehlversuche, die genaue Testkorrektur und die
+offene native Nachprüfung. Offline-Syntax und ein grüner Strukturtest schließen
+diesen Pflichtblock nicht. Keine automatische Labaktivierung und kein neuer CI-Job.

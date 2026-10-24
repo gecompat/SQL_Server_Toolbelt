@@ -40,6 +40,11 @@ sind für alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
 lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.
 Echte CrossDB-Identitätsmappings und andere Modulpflichtfälle bleiben separat.
 
+Die neue [ResultTable-/Error-Envelope-Callerprüfung](TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
+ist nach Korrektur eines Testorakels noch nicht nativ qualifiziert. Bereinigte
+Fehlversuche, unveränderte Produktquellen und die nötige Restprüfung sind dort
+getrennt ausgewiesen; dieser Block bleibt vor Veröffentlichung offen.
+
 Das Gesamt-ZIP enthält zusätzlich den
 [CLR-Installationskandidaten mit fertigen DLLs](CLR-INSTALL.md). Er liefert alle
 zwölf Toolbelt-CLR-Module und ScriptDom, SQL-Dateien mit eingebetteten Bytes,

@@ -104,6 +104,11 @@ im [API-Bericht](API-QUALIFICATION.md#verbleibende-voraussetzungen) und im
 [Release-Gatebericht](RELEASE-GATES.md#was-vor-veröffentlichung-offen-bleibt).
 Die Modulmanifeste bleiben die Quelle für modulspezifische Pflichtfälle.
 
+Die zusätzliche [ResultTable-/Error-Envelope-Callerprüfung](TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
+ist nach einem korrigierten Testorakel noch nicht nativ qualifiziert. Die
+bestehenden funktionalen Modulnachweise bleiben in ihrem ursprünglichen Scope;
+drei bereinigte Fehlversuche ersetzen keine neue Callerrechte-Abnahme.
+
 JSON Core exportiert keine eigenen SQL-Objekte. Seine native API-Einbindung
 erfolgt über Constructors und Schema; eigene Assembly-/Lifecycle- und
 Frameworknachweise bleiben separat im Modulmanifest verzeichnet.

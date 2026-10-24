@@ -400,6 +400,35 @@ class ApiQualificationTests(unittest.TestCase):
         import prepare_api_qualification
         cls.api = prepare_api_qualification
 
+    def test_table_envelope_diagnosis_preserves_failed_fixture_and_unexecuted_correction(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/table-envelope-rights-investigation.json').read_bytes())
+        self.assertEqual(report['result'], 'not qualified')
+        self.assertFalse(report['publication_authorized'])
+        self.assertFalse(report['runtime_product_changed'])
+        self.assertFalse(report['module_statuses_changed'])
+        self.assertEqual(report['corrected_native_qualification'], 'not executed')
+        self.assertEqual(report['fully_passed_positive_cases'], 0)
+        self.assertEqual(len(report['attempts']), 3)
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['sql_number'] == 52096
+                            and c['independent_cleanup_and_original_pin_audit'] for c in report['attempts']))
+        self.assertEqual(sum(c['database_names_absent'] for c in report['attempts']), 9)
+        self.assertEqual(sum(c['trust_states_restored'] for c in report['attempts']), 27)
+        corrected = (ROOT / report['fixture_path']).read_bytes()
+        self.assertEqual(hashlib.sha256(corrected).hexdigest(), report['corrected_fixture_sha256'])
+        start = corrected.index(b'DECLARE @Shape nvarchar(max)=')
+        end = corrected.index(b'DECLARE @Profiles table', start)
+        historical = corrected[:start] + report['historical_shape_declaration'].encode('utf-8') + corrected[end:]
+        self.assertNotEqual(corrected, historical)
+        self.assertEqual(hashlib.sha256(historical).hexdigest(), report['original_fixture_sha256'])
+        self.assertEqual(hashlib.sha256(corrected[:start] + corrected[end:]).hexdigest(),
+                         report['extra_view_guard_applicability']['unchanged_non_shape_sha256'])
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+        self.assertEqual(report['required_followup']['positive_target_cl_cases'], 12)
+        self.assertEqual(report['required_followup']['fresh_standalone_oracle_controls'], 1)
+        self.assertTrue(report['known_documentation_gap'])
+
     def test_execution_context_rights_report_binds_isolated_scope_and_current_payload(self):
         import hashlib
         report = json.loads((ROOT / 'Releases/1.0.0/execution-context-rights-qualification.json').read_bytes())

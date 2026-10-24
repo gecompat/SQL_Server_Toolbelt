@@ -9,12 +9,19 @@ IF USER_ID(N'ContosoTableCaller') IS NOT NULL OR OBJECT_ID(N'dbo.ContosoRightsRe
  THROW 52096,N'Vorhandene Principals oder Referenzobjekte werden nicht uebernommen.',2;
 
 DECLARE @Shape nvarchar(max)=N'
+ DECLARE @ShapeMatches int;
+ ;WITH ColumnsByOrdinal AS
+ (
+  SELECT ROW_NUMBER() OVER(ORDER BY column_id) AS Ordinal,name,system_type_id,max_length,is_nullable,collation_name,precision,scale
+  FROM tempdb.sys.columns WITH (NOLOCK) WHERE object_id=@Before
+ )
+ SELECT @ShapeMatches=COUNT(*) FROM ColumnsByOrdinal WHERE
+   ((Ordinal=1 AND name=N''Id'' AND system_type_id=TYPE_ID(N''int'') AND is_nullable=0)
+    OR (Ordinal=2 AND name=N''Label'' AND system_type_id=TYPE_ID(N''nvarchar'') AND max_length=32 AND is_nullable=1 AND collation_name=N''Latin1_General_100_BIN2'')
+    OR (Ordinal=3 AND name=N''Amount'' AND system_type_id=TYPE_ID(N''decimal'') AND precision=12 AND scale=4 AND is_nullable=1));
  IF OBJECT_ID(N''tempdb..#ContosoRightsTarget'')<>@Before
   OR (SELECT COUNT(*) FROM tempdb.sys.columns WITH (NOLOCK) WHERE object_id=@Before)<>3
-  OR (SELECT COUNT(*) FROM tempdb.sys.columns WITH (NOLOCK) WHERE object_id=@Before AND
-   ((column_id=1 AND name=N''Id'' AND system_type_id=TYPE_ID(N''int'') AND is_nullable=0)
-    OR (column_id=2 AND name=N''Label'' AND system_type_id=TYPE_ID(N''nvarchar'') AND max_length=32 AND is_nullable=1 AND collation_name=N''Latin1_General_100_BIN2'')
-    OR (column_id=3 AND name=N''Amount'' AND system_type_id=TYPE_ID(N''decimal'') AND precision=12 AND scale=4 AND is_nullable=1)))<>3
+  OR @ShapeMatches<>3
   THROW 52096,N''Temp-Identitaet oder feste Schemametadaten verletzt.'',3;';
 DECLARE @Profiles table(Id int PRIMARY KEY,Helper bit,Envelope bit,ViewDefinition bit,SqlText nvarchar(max));
 INSERT @Profiles VALUES
