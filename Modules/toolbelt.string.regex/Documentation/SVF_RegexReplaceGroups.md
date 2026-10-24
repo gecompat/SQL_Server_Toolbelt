@@ -44,6 +44,7 @@ SELECT toolbelt_string.SVF_RegexReplaceGroups(
 -- a:b:$
 ```
 
-SELECT oder REFERENCES auf der Fassade ist erforderlich. CrossDB-
+EXECUTE auf der Fassade ist erforderlich; dem Fachcaller werden keine
+direkten Rechte auf dem internen CLR-Kern erteilt. CrossDB-
 Nutzermappings bleiben ein eigener Prüfkontext. Der reine Memorykern greift
 nicht auf Daten, Dateien, Netzwerk oder global veränderliche Caches zu.

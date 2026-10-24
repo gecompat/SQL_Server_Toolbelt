@@ -295,6 +295,82 @@ def validate_plan(files: dict[str, bytes], plan: dict, product_files: dict[str, 
         validate_clr_qualification({p[len(prefix):]:b for p,b in inner.items()}, qualified, files)
 
 
+def validate_regex_documentation_delta(previous: dict[str, bytes], current: dict[str, bytes]) -> set[str]:
+    """Erlaubt ausschließlich die belegte Regex-Rechte-Dokumentationskorrektur.
+
+    Keine allgemeine Kommentar-/Whitespacebereinigung: Die zwei SQL-Dateien
+    müssen exakt den fünf bekannten Headerkorrekturen entsprechen. Alle
+    übrigen Runtime-/Buildquellen bleiben bytegleich. Der Manifestnachtrag
+    darf nur den dokumentierenden Evidenzblock ergänzen.
+    """
+    prefix = 'Modules/toolbelt.string.regex/'
+    markdown = {prefix + p for p in (
+        'README.md', 'Tests/README.md', 'Tests/REGEX_CONTRACT_TEST_MATRIX.md',
+        'Documentation/REGEX_FUNCTIONS.md', 'Documentation/SVF_RegexReplace.md',
+        'Documentation/SVF_RegexSubstring.md', 'Documentation/SVF_RegexReplaceGroups.md')}
+    sql = {prefix + 'Source/RegexFunctions.sql': (2, 2),
+           prefix + 'Source/RegexCaptures.sql': (0, 1)}
+    manifest = prefix + 'module.yaml'
+    runtime_paths = {p for p in set(previous) | set(current) if p.startswith(('Modules/', 'Deployment/', 'Workers/'))}
+    changed = {p for p in runtime_paths if previous.get(p) != current.get(p)}
+    require(changed and changed <= markdown | set(sql) | {manifest}, 'Unzulässiger Runtime-Delta neben der Rechte-Dokumentation.')
+    replacements = (
+        (b'-- Dependencies: SAFE Toolbelt_String_Regex; Rechte: SELECT/REFERENCES.',
+         b'-- Dependencies: SAFE Toolbelt_String_Regex; keine direkten Fachcallergrants.'),
+        (b'-- Dependencies: interner SAFE-CLR-Kern; Rechte: SELECT/REFERENCES.',
+         b'-- Dependencies: interner SAFE-CLR-Kern; Rechte: EXECUTE auf dieser Fassade.'))
+    for path, counts in sql.items():
+        require(path in previous and path in current, 'Regex-SQL-Quelle fehlt.')
+        expected = previous[path]
+        for (before, after), count in zip(replacements, counts):
+            require(expected.count(before) == count, 'Historischer SQL-Header stimmt nicht.')
+            expected = expected.replace(before, after)
+        require(current[path] == expected, 'Ausführbare Regex-SQL-Quelle geändert.')
+    before = b'  - "SELECT oder REFERENCES auf den Regex-Skalarfunktionen"'
+    after = '  - "EXECUTE auf den öffentlichen Regex-Skalarfunktionen; keine direkten Fachcallergrants auf interne CLR-Kerne"'.encode('utf-8')
+    require(manifest in previous and manifest in current and previous[manifest].count(before) == 1, 'Historische Rechte-Metadaten fehlen.')
+    expected = previous[manifest].replace(before, after).rstrip(b'\n')
+    require(current[manifest].startswith(expected), 'Fachliche Manifestfelder neben den Rechten geändert.')
+    suffix = current[manifest][len(expected):].strip(b'\n')
+    require(re.fullmatch(rb'  - date: "[^\r\n]*"\n    workflow: "[^\r\n]*"\n    scope: "[^\r\n]*"\n    result: "success"\n?', suffix) is not None,
+            'Unerwarteter Manifestnachtrag statt begrenzter Evidenz.')
+    return changed
+
+
+def validate_regex_product_applicability(previous_product: str, current_product: str) -> None:
+    """Historische Ausführung erhalten, neue reine Dokumentationsbasis prüfen.
+
+    Der öffentliche Main-Vorstand enthält das unveränderte ältere Quell-ZIP.
+    Beide Produktbäume werden aus ihren geprüften lokalen Bundles rekonstruiert;
+    dafür sind keine Branches, Netzabrufe oder alten Arbeitscommits nötig.
+    """
+    record = json.loads((ROOT / DIRECTORY / 'runtime-source-equivalence.json').read_bytes())
+    require(record['schema_version'] == '1.0' and record['publication_authorized'] is False
+            and record['previous_product_commit'] == previous_product
+            and record['current_product_commit'] == current_product, 'Runtime-Anwendbarkeitsbindung fehlt oder driftet.')
+    base = record['public_baseline_commit']
+    require(re.fullmatch(r'[0-9a-f]{40}', base) is not None, 'Ungültige öffentliche Anwendbarkeitsbasis.')
+    historical = git('show', base + ':' + ARTIFACTS + NAME + '.zip')
+    require(sha(historical) == record['previous_source_zip_sha256'], 'Historisches Quellpaket driftet.')
+    source = ROOT / ARTIFACTS / (NAME + '.zip')
+    data = source.read_bytes()
+    require(source.with_suffix('.zip.sha256').read_text(encoding='ascii').split() == [sha(data), source.name],
+            'Aktuelles Anwendbarkeitsarchiv driftet.')
+    products = []
+    for archive, expected in ((historical, previous_product), (data, current_product)):
+        raw = read_zip(archive); prefix = NAME + '/'
+        manifest = json.loads(raw[prefix+'PACKAGE-MANIFEST.json'])
+        require(manifest['product_commit'] == expected, 'Anwendbarkeitsarchiv enthält anderen Produktstand.')
+        _, product, tree = recovered_snapshot(raw[prefix+'PREPARATION.bundle'], manifest['source_commit'], expected)
+        products.append((product, tree))
+    changed = validate_regex_documentation_delta(products[0][0], products[1][0])
+    require(sorted(changed) == record['changed_product_paths'] and
+            products[0][1] == record['previous_product_tree'] and products[1][1] == record['current_product_tree'],
+            'Anwendbarkeitsdelta oder Produktbaum driftet.')
+    for index, key in ((0, 'previous_source_sha256'), (1, 'current_source_sha256')):
+        require(record[key] == {p: sha(products[index][0][p]) for p in sorted(changed)}, 'Anwendbarkeitsquellhash driftet.')
+
+
 def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, sources: dict[str,bytes]) -> None:
     """Aktuelle Lieferbytes an die tatsächlich ausgeführte native Paketwelle binden."""
     require(qualification['publication_authorized'] is False and qualification['native_cases_passed'] == 12,

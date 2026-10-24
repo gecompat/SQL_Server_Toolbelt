@@ -21,7 +21,9 @@ terminalen leeren Treffer liefern. Leere Treffer bewegen den Suchcursor um
 eine Codeeinheit; am Ende wird genau ein leerer Treffer berücksichtigt.
 
 Die [R2a-Grenzen und Betriebsregeln](./REGEX_FUNCTIONS.md#r2a-transformationsvertrag)
-gelten. SQL-Fehler 6522 trägt `TBX_REGEX_*`; SELECT/REFERENCES ist erforderlich.
+gelten. SQL-Fehler 6522 trägt `TBX_REGEX_*`; EXECUTE auf der öffentlichen
+Funktion ist erforderlich. Der Fachcaller benötigt keinen direkten Grant
+auf dem internen CLR-Kern.
 Provider: SAFE CLR für SQL Server 2019/2022/2025 Windows/Linux.
 
 Die CLR-Suche ist nicht als äquivalenter relationaler Ausdruck belegt. Eine

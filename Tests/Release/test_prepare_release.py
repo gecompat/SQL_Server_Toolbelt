@@ -215,6 +215,31 @@ class ClrPackageTests(unittest.TestCase):
         cls.clr = prepare_clr_package
         cls.package = ROOT / prepare_clr_package.LOCATION
 
+    def test_regex_permission_documentation_delta_rejects_runtime_or_metadata_drift(self):
+        prefix = 'Modules/toolbelt.string.regex/'
+        core = b'-- Dependencies: SAFE Toolbelt_String_Regex; Rechte: SELECT/REFERENCES.\n'
+        facade = b'-- Dependencies: interner SAFE-CLR-Kern; Rechte: SELECT/REFERENCES.\n'
+        manifest = b'version: "1.3.0"\npermissions_required:\n  - "SELECT oder REFERENCES auf den Regex-Skalarfunktionen"\nvalidation_evidence:\n'
+        old = {prefix+'Source/RegexFunctions.sql': core*2+facade*2,
+               prefix+'Source/RegexCaptures.sql': facade,
+               prefix+'module.yaml': manifest, 'Modules/Contoso/Source/fixture.sql': b'SELECT 1;'}
+        current = dict(old)
+        for p in (prefix+'Source/RegexFunctions.sql', prefix+'Source/RegexCaptures.sql'):
+            current[p] = old[p].replace(core.rstrip(b'\n'), b'-- Dependencies: SAFE Toolbelt_String_Regex; keine direkten Fachcallergrants.').replace(
+                facade.rstrip(b'\n'), b'-- Dependencies: interner SAFE-CLR-Kern; Rechte: EXECUTE auf dieser Fassade.')
+        current[prefix+'module.yaml'] = manifest.replace(b'SELECT oder REFERENCES auf den Regex-Skalarfunktionen',
+            'EXECUTE auf den öffentlichen Regex-Skalarfunktionen; keine direkten Fachcallergrants auf interne CLR-Kerne'.encode()) + (
+            b'\n  - date: "2026-10-24"\n    workflow: "synthetic fixture"\n    scope: "synthetic proof"\n    result: "success"\n')
+        release.validate_regex_documentation_delta(old, current)
+        for path, data in (
+            (prefix+'Source/RegexFunctions.sql', current[prefix+'Source/RegexFunctions.sql']+b'SELECT 2;'),
+            (prefix+'module.yaml', current[prefix+'module.yaml'].replace(b'1.3.0', b'9.0.0')),
+            (prefix+'module.yaml', current[prefix+'module.yaml']+b'objects: []\n'),
+            ('Modules/Contoso/Source/fixture.sql', b'SELECT 2;')):
+            changed = dict(current, **{path: data})
+            with self.subTest(path=path, data=data[-30:]), self.assertRaises(release.ReleaseError):
+                release.validate_regex_documentation_delta(old, changed)
+
     def test_assembly_line_continuation_preserves_exact_binary_and_other_sql(self):
         binary = bytes(range(256)) * 48
         literal = b'0x' + binary.hex().encode('ascii')
@@ -492,7 +517,8 @@ class ApiQualificationTests(unittest.TestCase):
         binary = data[prefix + 'Binaries/Toolbelt.String.Regex.dll']
         self.assertEqual(hashlib.sha256(binary).hexdigest(), report['delivered_regex_binary_sha256'])
         current_plan = json.loads((ROOT / release.PLAN).read_bytes())
-        self.assertEqual(report['product_commit'], current_plan['product_commit'])
+        if report['product_commit'] != current_plan['product_commit']:
+            release.validate_regex_product_applicability(report['product_commit'], current_plan['product_commit'])
         self.assertTrue(all(report['final_independent_audit'][key] for key in (
             'all_owned_database_names_absent', 'trust_states_restored',
             'current_input_pins_unchanged', 'configuration_restored', 'separate_configuration_audit')))
