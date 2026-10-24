@@ -41,7 +41,7 @@ Für jedes API wurden drei Phasen geprüft:
    mit SQL229 scheitern.
 
 Die Wertorakel umfassen Root-/Nested-Begin mit fester Identität und Tiefe,
-Correlation-/Actor-/Tenant-Änderung und deren Clear-Verhalten, verschachteltes
+Correlation-/Actor-/Tenant-Änderung, Clear von Actor und Tenant, verschachteltes
 und abschließendes End, die vollständige feste TVF-Zeile sowie skalare
 Identität und leeren Context. Die Fixture verlangt anfangs sechs leere
 Toolbelt-Sessionkeys und entfernt anschließend ausschließlich diesen eigenen

@@ -213,7 +213,7 @@
   "isolation": "every positive API scenario also denies all four other public APIs with SQL229; scalar wrapper succeeds without a direct TVF SELECT grant",
   "value_oracles": [
     "explicit root and nested identity/depth",
-    "correlation, actor and tenant set/clear",
+    "correlation/actor/tenant changes and actor/tenant clear",
     "nested and final End cleanup",
     "fixed six-column TVF row and empty context",
     "fixed scalar identity and NULL on empty context"
