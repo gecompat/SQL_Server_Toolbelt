@@ -29,6 +29,9 @@ bleibt die vollständige Pflichtqualifikation jeder zugesagten Kombination erfor
 Die [Nachweiszuordnung aller 45 Module](EVIDENCE-MAP.md) führt zu den
 kanonischen Modulbelegen. Der [API-/Grenzbericht](API-QUALIFICATION.md)
 trennt zusätzliche Labprüfungen von weiter offenen externen Voraussetzungen.
+Die [Regex-Timeout-Nachprüfung](REGEX-TIMEOUT-QUALIFICATION.md) belegt die
+Korrektur der Literal-Replace-Materialisierung und kennzeichnet den zusätzlichen
+Capture-Teilnachweis weiterhin als offen.
 
 Das Gesamt-ZIP enthält zusätzlich den
 [CLR-Installationskandidaten mit fertigen DLLs](CLR-INSTALL.md). Er liefert alle

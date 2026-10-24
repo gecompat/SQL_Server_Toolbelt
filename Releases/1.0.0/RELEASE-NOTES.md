@@ -7,6 +7,10 @@ erhalten. Freigegebene Zielkanäle: 19 stabil, 26 Preview. Der
 [Freigabematrix](FREIGABEMATRIX.md) nennt jede Version, Dependencies und offene
 Abnahmegrenzen; der [Plan](release-plan.json) ist die maschinenlesbare Ableitung.
 
+Die [Regex-Nachprüfung](REGEX-TIMEOUT-QUALIFICATION.md) beschreibt die
+Materialisierungskorrektur bei unveränderten Sicherheitsbudgets und den
+verbleibenden Capture-Teilnachweis. Auch Preview benötigt seine Pflichtnachweise.
+
 ## Umfang
 
 - Kern-, Datums-, Konvertierungs-, Metadaten-, Text-, JSON-, Datei-/Archiv-,

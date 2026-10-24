@@ -390,6 +390,51 @@ class ApiQualificationTests(unittest.TestCase):
                 self.assertTrue(all(c['case_id'] in cases for c in result['cases']))
                 self.assertEqual(m['additional_result'], 'partially validated' if any(c['blocked'] for c in result['cases']) else 'validated selected fixture scope')
 
+    def test_regex_followup_binds_corrected_delivery_and_preserves_history(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/regex-timeout-qualification.json').read_bytes())
+        self.assertFalse(report['publication_authorized'])
+        self.assertTrue(report['autonomous_development_paused'])
+        self.assertFalse(report['historical_timeout_reproduced'])
+        self.assertFalse(report['unique_historical_cause_proven'])
+        self.assertEqual(report['old_binary_regression'], 'REPLACE_REDUNDANT_NO_MATCH_COPY')
+        self.assertEqual(report['safety_limits'], {
+            'standard_total_ms': 500, 'large_total_ms': 2000,
+            'search_max_ms': 250, 'standard_utf16_bytes': 2097152,
+            'large_utf16_bytes': 16777216})
+        self.assertEqual(len(report['native_api_cases']), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level'])
+                          for c in report['native_api_cases']},
+                         {(p, v, cl) for p in ('linux', 'windows')
+                          for v, levels in (('2019', (150,)), ('2022', (150, 160)),
+                                            ('2025', (150, 160, 170))) for cl in levels})
+        self.assertEqual(sum(c['fixture_calls_passed'] for c in report['native_api_cases']),
+                         report['fixture_calls_passed'])
+        self.assertTrue(all(c['result'] in ('PASS', 'PARTIAL') and c['independent_cleanup_and_pins']
+                            for c in report['native_api_cases']))
+        self.assertTrue(all('toolbelt.string.regex:Transformations.Contract.sql:' + mode in c['passed']
+                            and 'toolbelt.string.regex:Materialization.Boundaries.sql:' + mode in c['passed']
+                            for c in report['native_api_cases'] for mode in ('local', 'central')))
+        for case in report['native_api_cases']:
+            self.assertEqual(case['result'], 'PARTIAL' if case['blocked'] else 'PASS')
+            self.assertTrue(all(b['id'] == 'toolbelt.string.regex:Captures.Contract.sql'
+                                and b['reason'] == 'TBX_REGEX_TIMEOUT' for b in case['blocked']))
+        self.assertEqual(report['package_cases_passed'], {'clr': 12, 'complete_full': 12})
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes().replace(b'\r\n', b'\n')).hexdigest(), digest)
+        data = release.read_zip((ROOT / release.CLR_PACKAGE).read_bytes())
+        prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
+        binary = data[prefix + 'Binaries/Toolbelt.String.Regex.dll']
+        self.assertEqual(hashlib.sha256(binary).hexdigest(), report['delivered_regex_binary_sha256'])
+        current_plan = json.loads((ROOT / release.PLAN).read_bytes())
+        self.assertEqual(report['product_commit'], current_plan['product_commit'])
+        self.assertTrue(all(report['final_independent_audit'][key] for key in (
+            'all_owned_database_names_absent', 'trust_states_restored',
+            'current_input_pins_unchanged', 'configuration_restored', 'separate_configuration_audit')))
+        historical = json.loads((ROOT / 'Releases/1.0.0/api-qualification.json').read_bytes())
+        self.assertEqual(historical['partial_cases'], 1)
+        self.assertEqual(historical['functional_calls_blocked'], 1)
+
     @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required for offline adapter guards')
     def test_target_reuse_and_cleanup_reserve_without_sql(self):
         script = r'''

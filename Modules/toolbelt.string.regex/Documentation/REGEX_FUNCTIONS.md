@@ -107,8 +107,14 @@ Quell-Collation ausdrücklich nach `nvarchar(max)` konvertiert, bevor eine
 zentrale Datenbank aufgerufen wird. Unicode-Output wird nicht still in eine
 andere Codepage zurückkonvertiert. Varchar-Wrapper und bounded/max-
 Performancevarianten sind ohne Verlustfreiheitsvertrag und Messnutzen nicht
-Teil von R2a. Quelle/Builder/Ergebnis werden materialisiert; LOB-Parallelität,
-Streaming und Native-RE2-Parität sind nicht zugesagt.
+Teil von R2a. Die Quelle wird begrenzt materialisiert. Replace legt den
+Ausgabebuilder erst beim ersten ausgewählten Ersatz an; ohne Ersatz wird der
+validierte Quellstring wiederverwendet. Ein ausdrücklich einzelner Treffer
+über die ganze Quelle kann ebenso den validierten Literalersatz direkt
+zurückgeben. Validierung, erforderliche Suche und abschließende Deadlineprüfung
+bleiben erhalten. Bei Occurrence=0 wird nach terminalen leeren Treffern
+weitergesucht. LOB-Parallelität, Streaming und Native-RE2-Parität sind nicht
+zugesagt.
 
 SQL Server weist Defaultwerte auf CLR-max-Parametern mit Fehler 1096 zurück.
 Die öffentlichen R2a-SVFs sind daher T-SQL-Fassaden mit max-Defaults vor zwei

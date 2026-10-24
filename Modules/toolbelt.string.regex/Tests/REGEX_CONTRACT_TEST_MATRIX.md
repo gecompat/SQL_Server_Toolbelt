@@ -35,6 +35,15 @@ qualifizieren keine neu hinzugefügte Capture-API.
 
 ## R2b-Zusatzscope 1.2.0
 
+Für den R2a-Materialisierungspfad prüft
+`Framework/ReplaceMaterialization.Contract.cs` bytegleiche Ergebnisse und die
+Wiederverwendung bereits validierter vollständiger Strings. Die bestehende
+Framework-Transformationssuite führt ihn zusammen mit den unveränderten
+Restbudget-/Enumerationsprüfungen aus. Occurrence=0, terminale leere Treffer,
+fehlende Occurrence und ungültige Pattern bleiben eigene feste Orakel.
+Die Werte 500/2000 ms, höchstens 250 ms je Suche und 2/16 MiB werden nicht
+erhöht. Dies ist keine Laufzeit- oder SQL-Durchsatzgarantie.
+
 Framework-Build und relationaler Frameworkvertrag am 2026-10-01 PASS;
 keine SQL-SAFE-Evidence allein daraus. Der vollständige Adapter lief am
 2026-10-01 auf SQL Server 2025 Windows/CU8 bei CL150/160/170 und SQL Server
@@ -82,8 +91,8 @@ die Lab-Umgebungen nicht beendet.
 ## Aktuelle Validierungsevidenz
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
-- Datum: `2026-10-02`
-- Nachweis: `local: Tests/CI/run-regex-captures-lab.ps1; Windows PowerShell: Tests/Framework/run-framework-captures.ps1`
-- Scope: Finaler Capture/Replace-Gesamtadapter lokal/zentral auf Linux 2019/latest CL150 und Windows 2025/CU8 CL150/160/170: sieben alte und zwei neue APIs, unabhängige Orakel, SQLClient acht nullable Spalten/Defaults/Atomicity, Standard-Namenscharge, echter 1.2-zu-1.3-Upgrade, Reinstall, explizite erwartete SHA2_512-Binaryhashbindung, Caller-TX/SET-Erhalt, AppLock, post-DROP-Rollback, Versions-/Marker-/Future-Slot-/Schema-Kollisionen, Dependencies, Uninstall und verifiziertes eigenes DB-/Trustcleanup. Framework tatsächlich 100000 Captures und Standard/Large. Frühere API-only- und fehlgeschlagene Adapterstände bleiben historische Evidenz. Neue Capture-Minimalrechte, weitere Ziele, ältere 1.0/1.1-Capture-Upgrades, tatsächliche große SQL-Capture-Ausgabe und SQL-100k-Durchsatz nicht ausgeführt; aktueller CI-Nachweis separat als PR-Mergegate erforderlich, teilweise validiert/unreleased.
+- Datum: `2026-10-24`
+- Nachweis: `local: Tests/Release/Invoke-ApiQualificationLab.ps1, Invoke-ClrPackageLab.ps1 und Invoke-CompletePackageLab.ps1; Windows PowerShell: run-framework-transformations.ps1`
+- Scope: Begrenzte Literal-Replace-Korrektur ohne Budgeterhöhung: deterministisches Kopierorakel alt fehlerhaft/neu erfolgreich, unveränderte Restbudget-/Relations-/Intake-/Captures-Frameworksuiten; ursprüngliche Transformationsfixture und sieben vollständige Bytegrenzorakel auf Windows/Linux SQL2019 CL150, SQL2022 CL150/160 und SQL2025 CL150/160/170 jeweils lokal/zentral erfolgreich. Zwölf CLR- und zwölf vollständige Paket-Lifecyclefälle erfolgreich, unabhängiger DB-/Trustcleanup und Konfigurationsaudit. Historischer Timeout nicht reproduziert; Kopien keine bewiesene alleinige Ursache. Zusätzliche breite API-Regression enthält weiterhin einen offenen Capture-Timeout Linux SQL2019/CL150 local; keine vollständige Regex-Freigabe. Release-Prüfbericht separat über Tests/README.md; weitere Minimalrechte-/Ressourcen-/Parallel-/Recovery-/Clientgates und aktuelle Head-CI getrennt.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->

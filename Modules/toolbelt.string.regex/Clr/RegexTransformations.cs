@@ -223,7 +223,10 @@ namespace Toolbelt.String.Regex
             context.Initialize(pattern.Value);
             int cursor = start.Value - 1;
             if (cursor > value.Length) return input;
-            var result = new StringBuilder();
+            // Erst beim tatsächlich zu ersetzenden Treffer materialisieren.
+            // No-match und eine nicht erreichte Occurrence behalten den bereits
+            // begrenzt eingelesenen String statt eines weiteren kompletten LOBs.
+            StringBuilder result = null;
             int copied = 0, ordinal = 0;
             while (cursor <= value.Length)
             {
@@ -232,12 +235,27 @@ namespace Toolbelt.String.Regex
                 ordinal++;
                 if (occurrence.Value == 0 || ordinal == occurrence.Value)
                 {
+                    // Ein ausdrücklich einzelner Gesamtersatz benötigt weder
+                    // Präfix noch Suffix. Die Literalgröße ist oben bereits
+                    // geprüft. Occurrence=0 muss weiter nach terminalen leeren
+                    // Treffern suchen und darf diesen Pfad nicht verwenden.
+                    if (occurrence.Value != 0 && match.Index == 0 && match.Length == value.Length)
+                    {
+                        context.Remaining();
+                        return new SqlString(literal);
+                    }
+                    if (result == null) result = new StringBuilder();
                     context.Append(result, value, copied, match.Index - copied);
                     context.Append(result, literal, 0, literal.Length);
                     copied = match.Index + match.Length;
                     if (occurrence.Value != 0) break;
                 }
                 cursor = match.Index + match.Length + (match.Length == 0 ? 1 : 0);
+            }
+            if (result == null)
+            {
+                context.Remaining();
+                return new SqlString(value);
             }
             context.Append(result, value, copied, value.Length - copied);
             string output = result.ToString();

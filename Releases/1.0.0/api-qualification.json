@@ -3,7 +3,7 @@
   "purpose": "additional_release_api_and_boundary_evidence",
   "date": "2026-10-23",
   "source_base_commit": "61b8bfcaab8827a58ac138c8668cccc073724b6d",
-  "qualified_product_source": "Releases/1.0.0/product-source.json",
+  "qualified_product_source": "https://github.com/gecompat/SQL_Server_Toolbelt/blob/466d0ca6b52636da715a3c40dcce8ea121606df6/Releases/1.0.0/product-source.json",
   "planned_target_cl_group_cases": 74,
   "completed_cases": 74,
   "fully_passed_cases": 73,
@@ -6125,5 +6125,7 @@
   },
   "qualification_inputs": "Releases/1.0.0/complete-qualification.json",
   "product_payload_unchanged": true,
-  "ssis_scope": "canonical functional projection; principal/rights block excluded; actual central consumer and generated SQL executed on three additional Windows CL combinations"
+  "ssis_scope": "canonical functional projection; principal/rights block excluded; actual central consumer and generated SQL executed on three additional Windows CL combinations",
+  "historical_product_commit": "a20ede0b8de92203244d9b15d30426bf5f9a8b37",
+  "regex_followup": "Releases/1.0.0/regex-timeout-qualification.json"
 }
