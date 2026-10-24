@@ -6,6 +6,12 @@ kanonischen `validation_evidence`-Einträgen der Modulmanifeste und den
 Beschreibung jedes Nachweises begrenzt seinen Scope; ein aktueller grüner
 Pakettest ersetzt sie nicht. Kein Modul wird hierdurch hochgestuft.
 
+Tabelle und JSON-Projektion bewahren die zusätzliche Welle vom 2026-10-23.
+Spätere Nachprüfungen werden darunter getrennt zugeordnet. Insbesondere ist
+das damalige Capture-Timeout-Gate inzwischen für die gebundene DLL mit
+[ausdrücklich akzeptiertem Restrisiko angenommen](CAPTURE-RELEASE-ACCEPTANCE.md);
+die historischen partiellen Aufrufe bleiben unverändert.
+
 [evidence-map.json](evidence-map.json) bindet die kanonischen Git-/LF-Bytes aller 45 Manifeste,
 vorhandene Nachweisanzahl/-daten, zusätzliche Fixture-IDs und die
 Quelländerungen seit der letzten Manifestpflege. Deren Commit ist ein
@@ -80,7 +86,11 @@ falsch. Weitere Ziele und der gemeinsame Default-Bytefall wurden gezielt
 ergänzt und bestanden. Der historische Regex-Teilnachweis bleibt erhalten.
 Die [aktuelle Nachprüfung](REGEX-TIMEOUT-QUALIFICATION.md) belegt die
 Literal-Replace-Korrektur und den ursprünglichen Transformationsabschluss
-auf der neuen DLL; ein zusätzlicher Capture-Timeout bleibt offen.
+auf der neuen DLL. Das historische Capture-Timeout-Gate wurde anschließend
+für die gebundene DLL mit ausdrücklich akzeptiertem Restrisiko
+[begrenzt angenommen](CAPTURE-RELEASE-ACCEPTANCE.md); neue Minimalrechte lokal/
+direkt zentral sind dort separat belegt. Die historische Projektion bleibt
+unverändert; keine vollständige Regex-Modulfreigabe.
 EventLog-/Edit-Distance-Deploymentänderungen haben bereits die getrennte
 Paket-Lifecycleabnahme bestanden.
 

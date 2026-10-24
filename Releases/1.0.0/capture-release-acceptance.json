@@ -1,0 +1,253 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-24",
+  "source_base_commit": "031defd5feb30a7044382bcfb5de6515000c9c77",
+  "publication_authorized": false,
+  "product_correction_claimed": false,
+  "historical_timeout_reproduced": false,
+  "historical_capture_timeout_gate": "accepted for exact qualified binary",
+  "human_acceptance": "direct user reply: Ja, mit diesen Nachweisen und dokumentiertem Restrisiko",
+  "historical_cause": "unknown, not reproduced",
+  "safety_limits": {
+    "standard_total_ms": 500,
+    "large_total_ms": 2000,
+    "search_max_ms": 250,
+    "standard_utf16_bytes": 2097152,
+    "large_utf16_bytes": 16777216
+  },
+  "delivered_regex_binary_sha256": "3c022b9c5d1d3e0e12cae32144f058afb535dad7002cc3d0ef339b326e4d15d5",
+  "source_sha256": {
+    "Modules/toolbelt.string.regex/Clr/RegexProvider.cs": "ec6898f02ba7b412b5cceee02acaa5e1b390195e4392ad9a6fb420e526c55312",
+    "Modules/toolbelt.string.regex/Clr/RegexCaptures.cs": "4bdad4efe605c4430b1a37f86b6f65e217d425bcaa1e60456aaec3d63a0241f5",
+    "Modules/toolbelt.string.regex/Clr/RegexBoundedIntake.cs": "db379190f75742e660b4f7955c5d8e59ec31170f5a27eeb3455eb25986b2a41f",
+    "Modules/toolbelt.string.regex/Clr/RegexTransformations.cs": "bb528af709a222513e4786a3ebee82f350bd65a01886056a16e9d3ed65d030f9",
+    "Modules/toolbelt.string.regex/Tests/Runtime/Captures.Contract.sql": "2acfa8e1a0c3115314e7efb812dd70d15668614668ef9a05a8638a4788ac98c9",
+    "Modules/toolbelt.string.regex/Tests/Runtime/Captures.Metadata.ps1": "d1e98534d9e8260b046bdf7791eadab8582008fe2c7567bc42c3c53bc8128f73",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Runtime/Regex.Capture.Rights.sql": "766160e656be6b4a2b00cab4fa90769d428ec53cda1d30d1d6cf9384adccd220"
+  },
+  "prior_evidence_sha256": {
+    "Releases/1.0.0/regex-timeout-qualification.json": "c4ca6e6d14f8236c6168dc4dc325bbce481cd5e352257b435f79430d61cd2b89",
+    "Releases/1.0.0/capture-timeout-investigation.json": "b1f95b85b516ee52991615adeaa68c537cc439ae6a2594914a34196ef6205894"
+  },
+  "acceptance_basis": [
+    "Existing source/binary-bound function, size and direct-client timeout/atomicity oracles retained",
+    "Original previously blocked fixture passed with original prefix under new error-only annotation; no historical FAIL/PARTIAL rewritten",
+    "Controlled unexpected timeouts retain PARTIAL, original SQL6522, precise case and private CLR stack",
+    "New local/direct-central minimum-rights cases and strict rejection controls; no server login or cross-database identity qualification"
+  ],
+  "minimal_rights": {
+    "native_cases": [
+      {
+        "platform": "linux",
+        "sql_version": "2019",
+        "compatibility_level": 150,
+        "deployment_contexts": [
+          "local",
+          "direct_central"
+        ],
+        "result": "PASS",
+        "fixture_calls_passed": 2,
+        "independent_cleanup_and_pin_audit": true
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2025",
+        "compatibility_level": 170,
+        "deployment_contexts": [
+          "local",
+          "direct_central"
+        ],
+        "result": "PASS",
+        "fixture_calls_passed": 2,
+        "independent_cleanup_and_pin_audit": true
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2022",
+        "compatibility_level": 150,
+        "deployment_contexts": [
+          "local",
+          "direct_central"
+        ],
+        "result": "PASS",
+        "fixture_calls_passed": 2,
+        "independent_cleanup_and_pin_audit": true
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2022",
+        "compatibility_level": 160,
+        "deployment_contexts": [
+          "local",
+          "direct_central"
+        ],
+        "result": "PASS",
+        "fixture_calls_passed": 2,
+        "independent_cleanup_and_pin_audit": true
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2025",
+        "compatibility_level": 150,
+        "deployment_contexts": [
+          "local",
+          "direct_central"
+        ],
+        "result": "PASS",
+        "fixture_calls_passed": 2,
+        "independent_cleanup_and_pin_audit": true
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2025",
+        "compatibility_level": 160,
+        "deployment_contexts": [
+          "local",
+          "direct_central"
+        ],
+        "result": "PASS",
+        "fixture_calls_passed": 2,
+        "independent_cleanup_and_pin_audit": true
+      },
+      {
+        "platform": "linux",
+        "sql_version": "2025",
+        "compatibility_level": 170,
+        "deployment_contexts": [
+          "local",
+          "direct_central"
+        ],
+        "result": "PASS",
+        "fixture_calls_passed": 2,
+        "independent_cleanup_and_pin_audit": true
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2019",
+        "compatibility_level": 150,
+        "deployment_contexts": [
+          "local",
+          "direct_central"
+        ],
+        "result": "PASS",
+        "fixture_calls_passed": 2,
+        "independent_cleanup_and_pin_audit": true
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2022",
+        "compatibility_level": 150,
+        "deployment_contexts": [
+          "local",
+          "direct_central"
+        ],
+        "result": "PASS",
+        "fixture_calls_passed": 2,
+        "independent_cleanup_and_pin_audit": true
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2022",
+        "compatibility_level": 160,
+        "deployment_contexts": [
+          "local",
+          "direct_central"
+        ],
+        "result": "PASS",
+        "fixture_calls_passed": 2,
+        "independent_cleanup_and_pin_audit": true
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2025",
+        "compatibility_level": 150,
+        "deployment_contexts": [
+          "local",
+          "direct_central"
+        ],
+        "result": "PASS",
+        "fixture_calls_passed": 2,
+        "independent_cleanup_and_pin_audit": true
+      },
+      {
+        "platform": "windows",
+        "sql_version": "2025",
+        "compatibility_level": 160,
+        "deployment_contexts": [
+          "local",
+          "direct_central"
+        ],
+        "result": "PASS",
+        "fixture_calls_passed": 2,
+        "independent_cleanup_and_pin_audit": true
+      }
+    ],
+    "fixture_calls_passed": 24,
+    "public_tvf_select_only": "PASS",
+    "public_scalar_execute_only": "PASS",
+    "references_alone_rejected": "PASS",
+    "no_grant_and_revocation_rejected": "PASS SQL229",
+    "internal_core_direct_calls_rejected": "PASS SQL229",
+    "cross_database_minimum_rights": "not executed; requires separately authorized real identity mapping",
+    "effective_references_permission_in_positive_phase": 0
+  },
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "expected_sql_error": 52093,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "wrong-error",
+      "actual_state": "FAILED_CLEANED",
+      "expected_sql_error": 229,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-reference",
+      "actual_state": "FAILED_CLEANED",
+      "expected_sql_error": 52093,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "final_independent_audit": {
+    "all_owned_database_names_absent": true,
+    "owned_database_names_checked": 87,
+    "distinct_target_trust_states_checked": 66,
+    "trust_states_restored": true,
+    "frozen_input_pins_unchanged": false,
+    "temporary_clr_configuration_restored": true,
+    "separate_configuration_audits_passed": 6,
+    "original_and_final_execution_bindings_verified_separately": true
+  },
+  "current_program_consumption": {
+    "native_case_recovery_attempts": 29,
+    "native_limit": 120,
+    "original_start_retained": true,
+    "cost_and_tokens": "UNKNOWN"
+  },
+  "transport": {
+    "test_purpose": "Functional",
+    "encrypt": true,
+    "trust": "explicit schema-validated Lab boolean",
+    "authenticated_tls": "not executed"
+  },
+  "remaining_gates": [
+    "Correct discovered scalar EXECUTE permission documentation in canonical module sources and final packaged sources",
+    "Final package refresh/integrity and actual current Head/Main CI",
+    "Other module API/rights/identity/provider/worker/resource/recovery/client release gates",
+    "Publication remains separately unauthorized"
+  ],
+  "module_validation_status_promoted": false,
+  "qualification_state": "complete for stated binary and scope",
+  "earlier_rights_revision": {
+    "native_cases_passed": 12,
+    "oracle_rejection_controls": 2,
+    "positive_scalar_permissions": "EXECUTE plus REFERENCES",
+    "proves_execute_alone": false,
+    "retained_as_historical_evidence": true,
+    "changed_input_reason": "Revoke REFERENCES before positive call; verify effective EXECUTE without REFERENCES; repeat only affected new permission context."
+  }
+}

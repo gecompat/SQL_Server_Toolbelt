@@ -1,5 +1,10 @@
 # Capture-Timeout: Diagnose und offener Produktbefund
 
+Dieser Bericht bewahrt den Untersuchungsstand vor der anschließenden
+Benutzerentscheidung. Die spätere [begrenzte Capture-Abnahme](CAPTURE-RELEASE-ACCEPTANCE.md)
+schließt das historische Timeout-Gate für die gebundene DLL mit ausdrücklich
+akzeptiertem Restrisiko; sie behauptet keine nachträglich bewiesene Ursache.
+
 Stand: 2026-10-24. Dieser Bericht folgt der
 [vorherigen Regex-Untersuchung](REGEX-TIMEOUT-QUALIFICATION.md) und dem
 ausdrücklichen Auftrag zur Capture-Timeout-Behebung. Es wird nichts

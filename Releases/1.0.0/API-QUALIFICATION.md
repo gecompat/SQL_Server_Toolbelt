@@ -19,6 +19,10 @@ Produktbasis. Die [Nachprüfung vom 2026-10-24](REGEX-TIMEOUT-QUALIFICATION.md)
 bindet die korrigierte DLL separat: der ursprüngliche Transformationsabschluss
 ist belegt; ein zusätzlicher Capture-Timeout bleibt offen. Die folgenden
 historischen Zahlen werden dadurch nicht rückwirkend verändert.
+Die spätere [Capture-Abnahme](CAPTURE-RELEASE-ACCEPTANCE.md) nimmt das
+historische Timeout-Gate für die unveränderte DLL nach ausdrücklich
+freigegebener Abschlussregel mit Restrisiko an. Sie ersetzt weder die
+historischen Teilergebnisse noch übrige Modulpflichtfälle.
 
 ## Nachweis und genaue Auswahl
 

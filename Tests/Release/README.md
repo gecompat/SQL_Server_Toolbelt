@@ -89,6 +89,12 @@ Eventcallback über `Test-ApiCaptureDiagnostic.ps1`.
 Der [Capture-Untersuchungsbericht](../../Releases/1.0.0/CAPTURE-TIMEOUT-INVESTIGATION.md)
 trennt absichtliche Fehlerproben, bestandene Originalfixtures und die weiterhin
 offene historische Ursache.
+Die spätere [Capture-Abnahme](../../Releases/1.0.0/CAPTURE-RELEASE-ACCEPTANCE.md)
+dokumentiert die ausdrücklich freigegebene Abschlussregel mit Restrisiko und
+die zusätzliche `Runtime/Regex.Capture.Rights.sql`. Diese Fixture benötigt
+den separat freigegebenen Aufbau eines Benutzers ohne Login in einer eigenen
+temporären Testdatenbank; sie ist kein Installationsskript. Der native Scope
+ist lokal/direkt zentral, keine Lowpriv-CrossDB-Anmeldung.
 
 Die Coregruppe lädt die vorhandene `WorkTypeAuthorization.Fixture.sql`
 ausschließlich in eigene disposable Datenbanken: explizite dbo-Policy für
