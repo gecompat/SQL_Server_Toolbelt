@@ -4876,3 +4876,19 @@ Prozesswatchdog und unabhängiger frischer OwnDB-/OwnTrustaudit bestanden ohne
 Konfigurations-/Rechteänderungen. Originale Vorgänger-Uninstalls, weitere
 Kontexte, Minimalrechte und Heap bleiben offen; keine erneute API-/Consumer-/
 Upgrade- oder Lifecycle-six-Qualifikation.
+
+
+## Freigegebener SSIS-Modellaustausch mit Analyze
+
+Der Benutzer hat den projektübergreifenden Vertrag mit der Antwort „Ich gebe
+den Vertrag frei. Setze ihn schrittweise in Analyze und Toolbelt um“ ausdrücklich
+zur Umsetzung in beiden Repositories freigegeben. Die zusätzliche Zielbedingung
+lautet, dass Parser und Lineage einmal gepflegt werden und Analyze ohne CLR
+eigenständig bleibt. Die Umsetzung erweitert das vorhandene Modul
+`toolbelt.tsql.ssis-debug`; sie erzeugt keinen SSIS-Paketexecutor und keine
+automatische Installation auf einem Analyze-Server.
+
+Der [Austauschvertrag](https://github.com/gecompat/SQL_Server_Analyze/blob/main/Documentation/Architecture/SSIS_Analyze_Toolbelt_Exchange_Contract.md)
+und der [Moduleinstieg](../Modules/toolbelt.tsql.ssis-debug/Exchange/README.md)
+beschreiben Zuständigkeit, Host, gemeinsame Sollfälle und noch begrenzte
+semantische Abdeckung. Native Diagnose und Loginterpretation bleiben Analyze.

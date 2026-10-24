@@ -5,8 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Xml;
-using System.Xml.Linq;
 
 namespace Toolbelt.Tsql.SsisDebug
 {
@@ -55,6 +53,7 @@ namespace Toolbelt.Tsql.SsisDebug
     internal sealed class Package
     {
         internal string Hash, Profile;
+        internal Toolbelt.Ssis.Exchange.PackageDocument Document;
         internal readonly List<Input> Inputs = new List<Input>();
         internal readonly List<Flow> Flows = new List<Flow>();
         internal readonly Dictionary<string, string> Connections = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -152,97 +151,77 @@ namespace Toolbelt.Tsql.SsisDebug
         }
     }
 
+    // Projektion des kanonischen typisierten Kerns in den bestehenden Debugvertrag.
+    // Kein XML-Leser und keine eigene native Port-/Spaltenreferenzauflösung.
     internal static class PackageReader
     {
-        internal static readonly XNamespace Dts = "www.microsoft.com/SqlServer/Dts";
-        internal static string A(XElement e, string name) { return (string)e.Attribute(name) ?? (string)e.Attribute(Dts + name) ?? ""; }
-        internal static int N(XElement e, string name) { string value = A(e, name); int n; if (value == "") return 0; if (!Int32.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out n) || n < 0) throw new DebugFault("invalid_lineage", "Numerisches XML-Attribut ungültig."); return n; }
-        internal static Dictionary<string, string> Props(XElement e, string container = "properties", string property = "property")
-        {
-            var r = new Dictionary<string, string>(StringComparer.Ordinal);
-            XElement c = e.Element(container);
-            if (c != null) foreach (var p in c.Elements(property)) { string n = A(p, "name"); if (r.ContainsKey(n)) throw new DebugFault("invalid_lineage", "Doppelte Komponenteneigenschaft."); r.Add(n, p.Value); }
-            return r;
-        }
-        internal static string P(Dictionary<string, string> p, string name, string fallback = "") { string v; return p.TryGetValue(name, out v) ? v : fallback; }
+        internal static string P(Dictionary<string,string> properties, string key, string fallback = "")
+        { string value; return properties.TryGetValue(key,out value) ? value : fallback; }
         internal static Package Read(byte[] bytes, Budget budget)
         {
-            Budget.Limit(bytes.LongLength, 16777216);
-            if (bytes.Length == 0) throw new DebugFault("unsupported_package_format", "Leeres Paket.");
-            if (bytes.Length >= 4 && ((bytes[0] == 0 && bytes[1] == 0) || (bytes[2] == 0 && bytes[3] == 0))) throw new DebugFault("unsupported_package_format", "UTF-32 nicht unterstützt.");
-            var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = 16777216, MaxCharactersFromEntities = 0 };
-            XDocument doc;
             try
             {
-                // Tiefen-/Knotenprüfung vor dem Aufbau des DOM; kein externer Resolver.
-                using (var ms = new MemoryStream(bytes)) using (var r = XmlReader.Create(ms, settings))
-                { int nodes = 0; while (r.Read()) { budget.Check(); Budget.Limit(r.Depth, 128); Budget.Limit(++nodes, 262144); if (r.NodeType == XmlNodeType.XmlDeclaration) { string encoding = r.GetAttribute("encoding"); if (encoding != null && !new[] { "utf-8", "utf-16", "utf-16le", "utf-16be" }.Contains(encoding.ToLowerInvariant())) throw new DebugFault("unsupported_package_format", "Nur UTF-8/UTF-16 unterstützt."); } if (r.NamespaceURI == "http://www.w3.org/2001/XInclude") throw new DebugFault("unsupported_package_format", "XInclude nicht unterstützt."); } }
-                using (var ms = new MemoryStream(bytes)) using (var r = XmlReader.Create(ms, settings)) doc = XDocument.Load(r, LoadOptions.None);
-            }
-            catch (XmlException) { throw new DebugFault("unsupported_package_format", "XML/Encoding ungültig; nur UTF-8/UTF-16 ohne DTD."); }
-            var root = doc.Root;
-            if (root == null || root.Name != Dts + "Executable") throw new DebugFault("unsupported_package_format", "DTSX2-Root fehlt.");
-            var formats = root.Elements(Dts + "Property").Where(x => A(x, "Name") == "PackageFormatVersion").Select(x => x.Value).ToList();
-            string format = formats.Count == 1 ? formats[0] : null;
-            if (format != "6" && format != "8") return new Package { Hash = Util.Hash(bytes), Profile = "unsupported" };
-            var result = new Package { Hash = Util.Hash(bytes), Profile = format == "6" ? "2012/01" : "2014/01" };
-            var ids = new HashSet<string>(StringComparer.Ordinal); int components = 0, columns = 0, paths = 0;
-            foreach (XElement e in root.DescendantsAndSelf())
-            {
-                budget.Check();
-                if (e.Name.Namespace != Dts && e.Name.Namespace != XNamespace.None) continue;
-                string id = A(e, "refId"); Budget.Limit(id.Length, 4000); if (id != "" && !ids.Add(id)) throw new DebugFault("invalid_lineage", "Doppelte refId.");
-                if (e.Name == Dts + "Executable") result.Workflow.Add(A(e, "ExecutableType"));
-            }
-            foreach (XElement v in root.Descendants(Dts + "Variable"))
-            {
-                XElement parent = v.Ancestors(Dts + "Executable").FirstOrDefault(); XElement value = v.Element(Dts + "VariableValue");
-                string name = A(v, "Namespace") + "::" + A(v, "ObjectName"), expr = A(v, "Expression");
-                var input = new Input { Kind = "variable", DtsId = A(v, "DTSID") == "" ? null : A(v, "DTSID"), Scope = parent == null ? "Package" : A(parent, "refId"), Name = name, Type = value == null ? "" : A(value, "DataType"), Sensitive = Util.Flag(A(v, "Sensitive")), Expression = Util.Flag(A(v, "EvaluateAsExpression")) ? expr : null };
-                input.SqlType = Types.Sql(input.Type); input.HasDefault = value != null && input.Expression == null; input.Default = input.HasDefault ? Default(value.Value, input) : null;
-                // Unbekannte schreibende Tasks/Loops vor dem Datenfluss sind kein Designwertbeweis.
-                input.RuntimeAssigned = result.Workflow.Any(t => t.IndexOf("Script", StringComparison.OrdinalIgnoreCase) >= 0 || t.IndexOf("For", StringComparison.OrdinalIgnoreCase) >= 0 || t.IndexOf("ExecuteSQL", StringComparison.OrdinalIgnoreCase) >= 0);
-                result.Inputs.Add(input);
-            }
-            foreach (XElement v in root.Descendants(Dts + "PackageParameter"))
-            {
-                XElement value = v.Elements(Dts + "Property").FirstOrDefault(p => A(p, "Name") == "ParameterValue");
-                var input = new Input { Kind = "package-parameter", Scope = "Package", Name = "$Package::" + A(v, "ObjectName"), Type = A(v, "DataType"), Sensitive = Util.Flag(A(v, "Sensitive")), HasDefault = value != null };
-                input.SqlType = Types.Sql(input.Type); input.Default = value == null ? null : Default(value.Value, input); result.Inputs.Add(input);
-            }
-            foreach (XElement c in root.Descendants(Dts + "ConnectionManagers").Elements(Dts + "ConnectionManager"))
-            {
-                string id = A(c, "refId"), kind = A(c, "CreationName");
-                if (id == "" || result.Connections.ContainsKey(id)) throw new DebugFault("invalid_lineage", "Connection-ID ungültig.");
-                result.Connections.Add(id, kind.StartsWith("OLEDB", StringComparison.Ordinal) ? "sqlserver-oledb" : kind.IndexOf("ADO.NET", StringComparison.OrdinalIgnoreCase) >= 0 ? "sqlserver-adonet" : "unsupported");
-            }
-            foreach (XElement exe in root.DescendantsAndSelf(Dts + "Executable"))
-            {
-                string kind = A(exe, "ExecutableType");
-                if (!(kind == "SSIS.Pipeline" || kind == "SSIS.Pipeline.3" || kind == "STOCK:SSIS.Pipeline" || kind == "Microsoft.Pipeline")) continue;
-                XElement pipeline = exe.Element(Dts + "ObjectData") == null ? null : exe.Element(Dts + "ObjectData").Element("pipeline");
-                if (pipeline == null) throw new DebugFault("invalid_lineage", "Pipeline-Struktur fehlt.");
-                var flow = new Flow { Id = A(exe, "refId"), Name = A(exe, "ObjectName") };
-                foreach (XElement c in pipeline.Elements("components").Elements("component"))
+                var document = Toolbelt.Ssis.Exchange.PackageDocument.Read(bytes,budget.Check);
+                var result = new Package { Hash = document.PackageSha256.ToUpperInvariant(), Profile = document.XmlProfile == "UNKNOWN" ? "unsupported" : document.XmlProfile, Document = document };
+                if (result.Profile == "unsupported") return result;
+                var definitions = document.Definitions;
+                if (document.HasDuplicateNativeIds) throw new DebugFault("invalid_lineage","Doppelte refId.");
+                if (document.HasOverlongNativeIds) throw new DebugFault("resource_limit","Feste Kennungsgrenze überschritten.");
+                foreach (var executable in definitions.Where(x => x.Kind == "PACKAGE" || x.Kind == "EXECUTABLE" && x.Attributes["isEventHandler"] as bool? != true)) result.Workflow.Add(executable.Get("ExecutableType"));
+                foreach (var variable in definitions.Where(x => x.Kind == "VARIABLE"))
                 {
-                    Budget.Limit(++components, 512);
-                    var component = new Component { Id = A(c, "refId"), Scope = flow.Id, Name = A(c, "name"), Class = A(c, "componentClassID"), Version = N(c, "version"), Properties = Props(c), HasPropertyExpressions = c.Descendants(Dts + "PropertyExpression").Any() };
-                    component.Kind = ComponentKind(component.Class, component.Version, component.Properties);
-                    var connections = c.Elements("connections").Elements("connection").ToList();
-                    if (connections.Count == 1) component.Connection = A(connections[0], "connectionManagerRefId");
-                    foreach (XElement port in c.Elements("inputs").Elements("input")) component.Inputs.Add(ReadPort(port, true, ref columns));
-                    foreach (XElement port in c.Elements("outputs").Elements("output")) component.Outputs.Add(ReadPort(port, false, ref columns));
-                    if (component.Id == "") throw new DebugFault("invalid_lineage", "Komponenten-ID fehlt."); flow.Components.Add(component);
+                    var input = new Input { Kind = "variable", DtsId = variable.Get("DTSID") == "" ? null : variable.Get("DTSID"), Scope = variable.LegacyScope,
+                        Name = variable.Get("Namespace")+"::"+variable.Name, Type = variable.VariableDataType, Sensitive = Util.Flag(variable.Get("Sensitive")),
+                        Expression = Util.Flag(variable.Get("EvaluateAsExpression")) ? variable.Get("Expression") : null };
+                    input.SqlType=Types.Sql(input.Type); input.HasDefault=variable.HasDefault && input.Expression==null; input.Default=input.HasDefault?Default(variable.ValueText,input):null;
+                    input.RuntimeAssigned=result.Workflow.Any(t => t.IndexOf("Script",StringComparison.OrdinalIgnoreCase)>=0 || t.IndexOf("For",StringComparison.OrdinalIgnoreCase)>=0 || t.IndexOf("ExecuteSQL",StringComparison.OrdinalIgnoreCase)>=0);
+                    result.Inputs.Add(input);
                 }
-                foreach (XElement path in pipeline.Elements("paths").Elements("path"))
-                { Budget.Limit(++paths, 2048); string input = A(path, "endId"), output = A(path, "startId"); if (flow.Paths.ContainsKey(input)) throw new DebugFault("ambiguous_path", "Mehrere Kanten an einem Input."); flow.Paths.Add(input, output); }
-                var outputs = new HashSet<string>(flow.Components.SelectMany(c => c.Outputs).Select(p => p.Id), StringComparer.Ordinal);
-                var inputs = new HashSet<string>(flow.Components.SelectMany(c => c.Inputs).Select(p => p.Id), StringComparer.Ordinal);
-                if (flow.Paths.Any(p => !outputs.Contains(p.Value) || !inputs.Contains(p.Key))) throw new DebugFault("invalid_lineage", "Dangling Pipelinekante.");
-                result.Flows.Add(flow);
+                foreach (var parameter in definitions.Where(x => x.Kind == "PARAMETER"))
+                {
+                    var input=new Input {Kind="package-parameter",Scope="Package",Name="$Package::"+parameter.Name,Type=parameter.Get("DataType"),Sensitive=Util.Flag(parameter.Get("Sensitive")),HasDefault=parameter.HasDefault};
+                    input.SqlType=Types.Sql(input.Type); input.Default=parameter.HasDefault?Default(parameter.ValueText,input):null; result.Inputs.Add(input);
+                }
+                foreach (var connection in definitions.Where(x => x.Kind == "CONNECTION"))
+                {
+                    string id=connection.Get("refId"),kind=connection.Get("CreationName");
+                    if(id=="" || result.Connections.ContainsKey(id)) throw new DebugFault("invalid_lineage","Connection-ID ungültig.");
+                    result.Connections.Add(id,kind.StartsWith("OLEDB",StringComparison.Ordinal)?"sqlserver-oledb":kind.IndexOf("ADO.NET",StringComparison.OrdinalIgnoreCase)>=0?"sqlserver-adonet":"unsupported");
+                }
+                int components=0,columns=0,paths=0;
+                var byId=definitions.ToDictionary(x=>x.Id,StringComparer.Ordinal);
+                foreach (var executable in definitions.Where(x=>x.IsPipeline))
+                {
+                    if(!executable.HasPipeline) throw new DebugFault("invalid_lineage","Pipeline-Struktur fehlt.");
+                    if(document.IncompletePipelineScopes.Contains(executable.Id)) throw new DebugFault("invalid_lineage","Dangling Pipelinekante.");
+                    var flow=new Flow {Id=executable.Get("refId"),Name=executable.Name};
+                    foreach(var definition in definitions.Where(x=>x.Kind=="COMPONENT" && x.Parent==executable.Id))
+                    {
+                        Budget.Limit(++components,512);
+                        var component=new Component {Id=definition.Get("refId"),Scope=flow.Id,Name=definition.Name,Class=definition.Get("componentClassID"),Version=definition.Nonnegative("version"),Properties=definition.Properties,HasPropertyExpressions=definition.HasPropertyExpressions,Kind=definition.ComponentKind};
+                        string manager; if(definition.Native.TryGetValue("@singleConnection",out manager)) component.Connection=manager;
+                        foreach(var port in definitions.Where(x=>x.Kind=="PORT" && x.Parent==definition.Id))
+                        {
+                            var projection=ReadPort(port,definitions,ref columns);
+                            if((string)port.Attributes["direction"]=="INPUT") component.Inputs.Add(projection); else component.Outputs.Add(projection);
+                        }
+                        if(component.Id=="") throw new DebugFault("invalid_lineage","Komponenten-ID fehlt."); flow.Components.Add(component);
+                    }
+                    foreach(var path in document.Relationships.Where(x=>x.Kind=="PIPELINE_PATH" && x.Scope==executable.Id))
+                    {
+                        Budget.Limit(++paths,2048);
+                        if(path.Resolution!="RESOLVED") throw new DebugFault("invalid_lineage","Dangling Pipelinekante.");
+                        string input=byId[path.To].Get("refId"),output=byId[path.From].Get("refId");
+                        if(flow.Paths.ContainsKey(input)) throw new DebugFault("ambiguous_path","Mehrere Kanten an einem Input.");
+                        flow.Paths.Add(input,output);
+                    }
+                    result.Flows.Add(flow);
+                }
+                if(result.Inputs.Where(v=>v.DtsId!=null).GroupBy(v=>v.DtsId,StringComparer.OrdinalIgnoreCase).Any(g=>g.Count()>1)) throw new DebugFault("invalid_lineage","Doppelte Variablen-DTSID.");
+                Budget.Limit(result.Inputs.Count,2048); return result;
             }
-            if (result.Inputs.Where(v => v.DtsId != null).GroupBy(v => v.DtsId, StringComparer.OrdinalIgnoreCase).Any(g => g.Count() > 1)) throw new DebugFault("invalid_lineage", "Doppelte Variablen-DTSID.");
-            Budget.Limit(result.Inputs.Count, 2048); return result;
+            catch(Toolbelt.Ssis.Exchange.ModelException error)
+            { throw new DebugFault(error.Code=="LIMIT_EXCEEDED"?"resource_limit":error.Code=="UNSUPPORTED_PACKAGE_FORMAT"?"unsupported_package_format":"invalid_lineage","Neutraler DTSX-Kern: "+error.Code); }
         }
         private static object Default(string text, Input v)
         {
@@ -253,43 +232,24 @@ namespace Toolbelt.Tsql.SsisDebug
             try { Types.Literal(v, value); } catch (DebugFault) { v.HasDefault = false; v.Origin = "design-unresolved"; }
             return value;
         }
-        private static Port ReadPort(XElement e, bool input, ref int count)
+        private static Port ReadPort(Toolbelt.Ssis.Exchange.PackageDocument.Definition definition, IList<Toolbelt.Ssis.Exchange.PackageDocument.Definition> objects, ref int count)
         {
-            var p = new Port { Id = A(e, "refId"), Name = A(e, "name"), Sync = A(e, "synchronousInputId"), Error = Util.Flag(A(e, "isErrorOut")), ErrorDisposition = A(e, "errorRowDisposition"), TruncationDisposition = A(e, "truncationRowDisposition"), Properties = Props(e) };
-            if (p.Id == "") throw new DebugFault("invalid_lineage", "Port-ID fehlt.");
-            foreach (XElement c in e.Elements(input ? "inputColumns" : "outputColumns").Elements(input ? "inputColumn" : "outputColumn")) p.Columns.Add(ReadColumn(c, ref count));
-            foreach (XElement c in e.Elements("externalMetadataColumns").Elements("externalMetadataColumn")) p.External.Add(ReadColumn(c, ref count));
-            return p;
-        }
-        private static Column ReadColumn(XElement c, ref int count)
-        {
-            Budget.Limit(++count, 8192); string t = A(c, "dataType"); if (t == "") t = A(c, "cachedDataType");
-            return new Column { Id = A(c, "refId"), Lineage = A(c, "lineageId"), Name = A(c, "name") == "" ? A(c, "cachedName") : A(c, "name"), Type = t, SqlType = Types.Sql(t, N(c, "length") == 0 ? N(c, "cachedLength") : N(c, "length"), N(c, "precision") == 0 ? N(c, "cachedPrecision") : N(c, "precision"), c.Attribute("scale") == null ? N(c, "cachedScale") : N(c, "scale")), External = A(c, "externalMetadataColumnId"), CodePage = N(c, "codePage") == 0 ? N(c, "cachedCodePage") : N(c, "codePage"), Properties = Props(c) };
-        }
-        private static string ComponentKind(string id, int version, Dictionary<string, string> properties)
-        {
-            // Nur strukturell qualifizierte native Komponentenprofile.
-            bool source = id == "Microsoft.OLEDBSource" || id == "{165A526D-D5DE-47FF-96A6-F8274C19826B}";
-            bool destination = id == "Microsoft.OLEDBDestination" || id == "{4ADA7EAA-136C-4215-8098-D7A7C27FC0D1}";
-            bool lookup = id == "Microsoft.Lookup" || id == "{671046B0-AA63-4C9F-90E4-C06E0B710CE3}";
-            bool managed = id == "Microsoft.ManagedComponentHost" || id == "{874F7595-FB5F-40FF-96AF-FBFF8250E3EF}";
-            if (source ? version != 7 : destination ? version != 4 : lookup ? version != 6 : managed ? version != 0 && version != 1 : version != 1) return "unsupported";
-            switch (id)
+            var port=new Port {Id=definition.Get("refId"),Name=definition.Name,Sync=definition.Get("synchronousInputId"),Error=Util.Flag(definition.Get("isErrorOut")),ErrorDisposition=definition.Get("errorRowDisposition"),TruncationDisposition=definition.Get("truncationRowDisposition"),Properties=definition.Properties};
+            if(port.Id=="") throw new DebugFault("invalid_lineage","Port-ID fehlt.");
+            foreach(var column in objects.Where(x=>x.Kind=="COLUMN" && x.Parent==definition.Id))
             {
-                case "{165A526D-D5DE-47FF-96A6-F8274C19826B}": case "Microsoft.OLEDBSource": return "source";
-                case "{4ADA7EAA-136C-4215-8098-D7A7C27FC0D1}": case "Microsoft.OLEDBDestination": return "destination";
-                case "{B594E9A8-4351-4939-891C-CFE1AB93E925}": case "Microsoft.UnionAll": return "union";
-                case "{49928E82-9C4E-49F0-AABE-3812B82707EC}": case "Microsoft.DerivedColumn": return "derived";
-                case "{62B1106C-7DB8-4EC8-ADD6-4C664DFFC54A}": case "Microsoft.DataConvert": return "convert";
-                case "{671046B0-AA63-4C9F-90E4-C06E0B710CE3}": case "Microsoft.Lookup": return "lookup";
-                case "{7F88F654-4E20-4D14-84F4-AF9C925D3087}": case "Microsoft.ConditionalSplit": return "split";
-                case "Microsoft.ManagedComponentHost": case "{874F7595-FB5F-40FF-96AF-FBFF8250E3EF}":
-                    string name = P(properties, "UserComponentTypeName");
-                    if (Regex.IsMatch(name, "\\AMicrosoft\\.SqlServer\\.Dts\\.Pipeline\\.ADONETSource, Microsoft\\.SqlServer\\.ADONETSrc, Version=(11|12|13|14|15|16|17)\\.0\\.0\\.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91\\z")) return "source";
-                    if (Regex.IsMatch(name, "\\AMicrosoft\\.SqlServer\\.Dts\\.Pipeline\\.ADONETDestination, Microsoft\\.SqlServer\\.ADONETDest, Version=(11|12|13|14|15|16|17)\\.0\\.0\\.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91\\z")) return "destination";
-                    return "unsupported";
-                default: return "unsupported";
+                var projection=ReadColumn(column,ref count);
+                if((string)column.Attributes["columnRole"]=="EXTERNAL_METADATA") port.External.Add(projection); else port.Columns.Add(projection);
             }
+            return port;
+        }
+        private static Column ReadColumn(Toolbelt.Ssis.Exchange.PackageDocument.Definition definition, ref int count)
+        {
+            Budget.Limit(++count,8192); string type=(string)definition.Attributes["typeCode"]??"";
+            int length=definition.Nonnegative("length"),precision=definition.Nonnegative("precision");
+            return new Column {Id=definition.Get("refId"),Lineage=definition.Get("lineageId"),Name=definition.Name,Type=type,
+                SqlType=Types.Sql(type,length==0?definition.Nonnegative("cachedLength"):length,precision==0?definition.Nonnegative("cachedPrecision"):precision,definition.Get("scale")==""?definition.Nonnegative("cachedScale"):definition.Nonnegative("scale")),
+                External=definition.Get("externalMetadataColumnId"),CodePage=definition.Nonnegative("codePage")==0?definition.Nonnegative("cachedCodePage"):definition.Nonnegative("codePage"),Properties=definition.Properties};
         }
     }
 }

@@ -19,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="*.cs" />
+    <Compile Include="..\Exchange\Core\*.cs"><Link>SharedExchange\%(Filename)%(Extension)</Link></Compile>
     <Compile Include="..\..\toolbelt.tsql.script-parser\Clr\PreparseGuardCore.cs"><Link>Shared\PreparseGuardCore.cs</Link></Compile>
   </ItemGroup>
   <Target Name="RequireExplicitScriptDom" BeforeTargets="ResolveReferences">

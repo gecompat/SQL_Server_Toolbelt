@@ -6,12 +6,16 @@ param(
  [switch]$Full,
  [switch]$ApiOnly,
  [string]$PredecessorRoot,
+ [string]$SsisReleaseDirectory,
+ [string]$ParserReleaseDirectory,
+ [ValidatePattern('^[0-9A-F]{128}$')][string]$QualifiedProviderSha512='84BA992E7482B644B5EE8B4EBBC1AFF537CD690A9D3D4366A0B037FE10E5BD3AD40352DC16C7D643B5180185D011E83AD7411EF359CB3FFC3F75E046B46E66FC',
  [ValidateSet('Latin1_General_100_BIN2','Latin1_General_100_CS_AS','Latin1_General_100_CI_AS_SC_UTF8')][string]$DatabaseCollation='Latin1_General_100_BIN2'
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $moduleRoot=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $repoRoot=Split-Path -Parent (Split-Path -Parent $moduleRoot)
+. (Join-Path $repoRoot 'Tests/CI/LabQualifiedContract.ps1')
 $astErrors=$null;$astTokens=$null
 $ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $repoRoot 'Tests/CI/run-lab-local.ps1'),[ref]$astTokens,[ref]$astErrors)
 if($astErrors.Count){throw 'LAB_DISCOVERY_SYNTAX_INVALID'}
@@ -54,13 +58,13 @@ function VerifyFiles($Manifest,[string]$Root){
   foreach($entry in $Manifest.$key){$parts=$entry.Split(':',2);$path=[IO.Path]::GetFullPath((Join-Path $Root $parts[0]));if(-not $path.StartsWith($repoRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase) -or (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -cne $parts[1]){throw 'SSIS_LAB_SOURCE_BINDING_MISMATCH'}}
  }
 }
-$ssisRelease=Join-Path $moduleRoot 'Artifacts'
-$parserRelease=Join-Path $repoRoot 'Modules/toolbelt.tsql.script-parser/Artifacts'
+$ssisRelease=if($SsisReleaseDirectory){[IO.Path]::GetFullPath($SsisReleaseDirectory)}else{Join-Path $moduleRoot 'Artifacts'}
+$parserRelease=if($ParserReleaseDirectory){[IO.Path]::GetFullPath($ParserReleaseDirectory)}else{Join-Path $repoRoot 'Modules/toolbelt.tsql.script-parser/Artifacts'}
 $manifest=Get-Content -LiteralPath (Join-Path $ssisRelease 'Toolbelt.Tsql.SsisDebug.trust-manifest.json') -Raw|ConvertFrom-Json
 VerifyFiles $manifest $moduleRoot
  # Qualifizierter Kandidat mit geprüftem Kern und gezielten nativen
  # Integrationskorrekturen. Kein Freigeben beliebiger Binaries.
-$qualifiedProvider='84BA992E7482B644B5EE8B4EBBC1AFF537CD690A9D3D4366A0B037FE10E5BD3AD40352DC16C7D643B5180185D011E83AD7411EF359CB3FFC3F75E046B46E66FC'
+$qualifiedProvider=$QualifiedProviderSha512
 if($manifest.sha512 -cne $qualifiedProvider -or (Get-FileHash (Join-Path $ssisRelease 'Toolbelt.Tsql.SsisDebug.dll') -Algorithm SHA512).Hash -cne $qualifiedProvider -or
  (Get-FileHash (Join-Path $ssisRelease 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash -cne $manifest.deploymentArtifactSha256){throw 'SSIS_LAB_QUALIFIED_RELEASE_MISMATCH'}
 $trustInputs=@(@{File=(Join-Path $parserRelease 'Microsoft.SqlServer.TransactSql.ScriptDom.dll');Hash=$manifest.scriptDomSha512},@{File=(Join-Path $parserRelease 'Toolbelt.Tsql.ScriptParser.dll');Hash=$manifest.parserSha512},@{File=(Join-Path $ssisRelease 'Toolbelt.Tsql.SsisDebug.dll');Hash=$manifest.sha512})
