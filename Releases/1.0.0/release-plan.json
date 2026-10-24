@@ -3,7 +3,7 @@
   "project_version": "1.0.0",
   "state": "prepared_not_published",
   "publication_authorized": false,
-  "product_commit": "a20ede0b8de92203244d9b15d30426bf5f9a8b37",
+  "product_commit": "e3cf6f148d533f0081f1a35797427b691ffd1844",
   "package_kind": "complete_source_candidate",
   "foundation": {
     "version": "1.25.0",
@@ -871,7 +871,7 @@
         "2022",
         "2025"
       ],
-      "manifest_sha256": "02f36e424ab7b64eee6630ce3a71cf398c25e50543704c081f155134680d4e33",
+      "manifest_sha256": "d31ef77e58ee700d956ace3ae0a037be1ecfa5a66024183b25ba0ffc571653bc",
       "evidence_references": [
         "Modules/toolbelt.string.regex/module.yaml",
         "Modules/toolbelt.string.regex/README.md",
@@ -1066,9 +1066,9 @@
   "product_snapshot": {
     "schema_version": "1.0",
     "kind": "synthetic_product_snapshot",
-    "source_commit": "0a2bd2ebacbd4e6148ac4197ca87e2f8cb0a3400",
-    "product_commit": "a20ede0b8de92203244d9b15d30426bf5f9a8b37",
-    "base_commit": "5bd70a253f1ef4fcec616039236360971110f001",
-    "tree_oid": "9d7da5346b39e12536922119581a19208ea698c4"
+    "source_commit": "b807deb79e248d3012d140cbac92525212c5dd03",
+    "product_commit": "e3cf6f148d533f0081f1a35797427b691ffd1844",
+    "base_commit": "466d0ca6b52636da715a3c40dcce8ea121606df6",
+    "tree_oid": "4f59388baa28e94636b27b8d34546bf1d99e2855"
   }
 }
