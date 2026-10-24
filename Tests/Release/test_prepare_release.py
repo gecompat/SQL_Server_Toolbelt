@@ -295,5 +295,174 @@ class ClrPackageTests(unittest.TestCase):
             self.clr.release.validate_clr_qualification(payload,qualification,changed)
 
 
+class ApiQualificationTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(ROOT / 'Tests/Release'))
+        import prepare_api_qualification
+        cls.api = prepare_api_qualification
+
+    def test_fixture_bytes_preserve_independent_sparse_unicode_oracles(self):
+        import xml.etree.ElementTree as ET
+        source = (ROOT / 'Spikes/XlsxMemory/Test-Framework.ps1').read_bytes()
+        blob = self.api.xlsx_fixture(source)
+        self.assertEqual(blob, self.api.xlsx_fixture(source))
+        with zipfile.ZipFile(io.BytesIO(blob)) as z:
+            self.assertEqual(len(z.namelist()), 6)
+            ns = {'m': 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'}
+            cells = ET.fromstring(z.read('xl/worksheets/sheet1.xml')).findall('.//m:c', ns)
+            self.assertEqual(len(cells), 9)
+            self.assertEqual(cells[-1].get('r'), 'XFD1048576')
+            self.assertIn('😀', z.read('xl/sharedStrings.xml').decode())
+        with zipfile.ZipFile(io.BytesIO(self.api.xlsx_fixture(source, True))) as z:
+            self.assertEqual(len(ET.fromstring(z.read('xl/worksheets/sheet1.xml')).findall('.//m:c', ns)), 100)
+            self.assertEqual(len(ET.fromstring(z.read('xl/sharedStrings.xml')).find('.//m:t', ns).text), 500000)
+
+    def test_fixture_source_change_fails_closed(self):
+        with self.assertRaises((ValueError, IndexError)):
+            self.api.xlsx_fixture(b'changed canonical source')
+
+    def test_ssis_functional_projection_preserves_cross_database_oracles(self):
+        import prepare_ssis_functional_fixture
+        import re
+        source = (ROOT / 'Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-V1Cases.ps1').read_bytes()
+        adapted = prepare_ssis_functional_fixture.functional_v1(source).decode('utf-8')
+        text = source.decode('utf-8-sig')
+        start = text.index('# Rechte ausschließlich')
+        end = text.index('if($CrossDatabase){', start)
+        self.assertTrue(adapted.startswith(text[:start]))
+        self.assertTrue(adapted.endswith(text[end:]))
+        for oracle in ['CROSS_DATABASE_GENERATED_SQL', 'CROSS_DATABASE_CALLER_AND_COLLATION', 'NOLOCK_DIRTY_READ', 'NOLOCK_STILL_WAITING_FOR_SCHEMA']:
+            self.assertIn(oracle, adapted)
+        self.assertIsNone(re.search(r'\b(GRANT|DENY|REVOKE|CREATE\s+USER|CREATE\s+LOGIN|EXECUTE\s+AS|ALTER\s+ROLE)\b', adapted, re.I))
+        with self.assertRaises(ValueError):
+            prepare_ssis_functional_fixture.functional_v1(source.replace(b'if($CrossDatabase){', b'changed-source'))
+
+    def test_no_publication_finite_scope_and_owned_cleanup_remain_explicit(self):
+        plan = json.loads((ROOT / 'Tests/Release/api-qualification-spec.json').read_bytes())
+        self.assertFalse(plan['publication_authorized'])
+        self.assertEqual(len(plan['tests']), 165)
+        self.assertEqual(len({x['id'] for x in plan['tests']}), 165)
+        self.assertEqual(plan['reused_full_matrices'], ['toolbelt.conversion.safe-cast', 'toolbelt.json.pointer'])
+        for t in plan['tests']:
+            self.assertTrue((ROOT / t['source']).is_file())
+        self.assertLess(plan['budget']['max_case_attempts'], 100)
+        self.assertFalse(plan['budget']['delegation'])
+
+    def test_evidence_assignment_preserves_every_canonical_manifest(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/evidence-map.json').read_bytes())
+        api = json.loads((ROOT / 'Releases/1.0.0/api-qualification.json').read_bytes())
+        spec_path = ROOT / api['fixture_spec']
+        spec = json.loads(spec_path.read_bytes())
+        plan = json.loads((ROOT / release.PLAN).read_bytes())
+        self.assertEqual({m['module_id'] for m in report['modules']}, {m['module_id'] for m in plan['modules']})
+        self.assertEqual(len(report['modules']), 45)
+        self.assertFalse(report['module_statuses_changed'])
+        self.assertFalse(report['publication_authorized'])
+        self.assertFalse(api['publication_authorized'])
+        self.assertEqual(hashlib.sha256(spec_path.read_bytes().replace(b'\r\n', b'\n')).hexdigest(), api['fixture_spec_sha256'])
+        self.assertEqual(api['fixture_definitions'], len(spec['tests']))
+        self.assertEqual(set(api['fixture_source_sha256']), {t['source'] for t in spec['tests']})
+        self.assertEqual(api['completed_cases'], api['planned_target_cl_group_cases'])
+        self.assertEqual(api['fully_passed_cases'] + api['partial_cases'], api['completed_cases'])
+        cases = {c['case_id']: c for c in api['cases']}
+        self.assertEqual(len(cases), api['completed_cases'])
+        for case in cases.values():
+            self.assertTrue(case['independent_cleanup_and_pin_audit'])
+            self.assertEqual(case['result'], 'partially validated' if case['blocked_fixture_calls'] else 'validated')
+        for path, digest in api['fixture_source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes().replace(b'\r\n', b'\n')).hexdigest(), digest)
+        module_results = {m['module_id']: m for m in api['module_results']}
+        self.assertEqual(set(module_results), {t['module_id'] for t in spec['tests']})
+        self.assertEqual(api['functional_calls_passed'], sum(c['passed_fixture_calls'] + c['reused_fixture_calls'] for c in cases.values()))
+        self.assertEqual(api['functional_calls_blocked'], sum(len(c['blocked_fixture_calls']) for c in cases.values()))
+        for key in ('all_owned_database_names_absent', 'trust_states_restored', 'current_input_pins_unchanged', 'configuration_restored', 'separate_configuration_audit'):
+            self.assertTrue(api['final_independent_audit'][key])
+        for m in report['modules']:
+            self.assertFalse(m['record_snapshot_is_execution_commit'])
+            canonical = (ROOT / m['manifest']).read_bytes().replace(b'\r\n', b'\n')
+            self.assertEqual(hashlib.sha256(canonical).hexdigest(), m['manifest_sha256'])
+            self.assertEqual(set(m['additional_fixture_ids']), {t['id'] for t in spec['tests'] if t['module_id'] == m['module_id']})
+            if m['additional_fixture_ids']:
+                result = module_results[m['module_id']]
+                self.assertEqual(m['additional_case_ids'], [c['case_id'] for c in result['cases']])
+                self.assertTrue(all(c['case_id'] in cases for c in result['cases']))
+                self.assertEqual(m['additional_result'], 'partially validated' if any(c['blocked'] for c in result['cases']) else 'validated selected fixture scope')
+
+    @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required for offline adapter guards')
+    def test_target_reuse_and_cleanup_reserve_without_sql(self):
+        script = r'''
+$ErrorActionPreference='Stop'
+$e=$null;$ast=[Management.Automation.Language.Parser]::ParseFile('Tests/Release/Invoke-ApiQualificationLab.ps1',[ref]$null,[ref]$e)
+if($e.Count){throw 'PARSE'}
+foreach($name in @('Test-ApiSelected','Get-ReleaseTimeout','Get-ApiCasePins','Assert-ReleaseInputs','Get-ApiFixtureBinding','New-ApiBudgetProviders')){
+ $node=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq $name},$true))
+ if($node.Count -ne 1){throw 'FUNCTION'}
+ . ([scriptblock]::Create($node[0].Extent.Text))
+}
+$case=[pscustomobject]@{group='csv';Platform='linux';Version='2019';CL=150;workSeconds=300;cleanupSeconds=360}
+$test=[pscustomobject]@{group='csv';only_missing_boundary_targets=$true}
+if(Test-ApiSelected $test){throw 'DUPLICATE_QUALIFIED_BOUNDARY'}
+$case.Version='2022'
+if(-not (Test-ApiSelected $test)){throw 'MISSING_2022_BOUNDARY'}
+$test=[pscustomobject]@{group='csv';only_additional_cl=$true}
+if(-not (Test-ApiSelected $test)){throw 'MISSING_LOWER_CL'}
+$case.CL=160
+if(Test-ApiSelected $test){throw 'DUPLICATE_QUALIFIED_CL'}
+$clock=[pscustomobject]@{ElapsedMilliseconds=345000};$cleanup=$false;$caught=$false
+try{[void](Get-ReleaseTimeout)}catch{if($_.Exception.Message -cne 'RELEASE_API_DEADLINE'){throw};$caught=$true}
+if(-not $caught){throw 'WORK_OVERRAN'}
+$cleanup=$true
+if((Get-ReleaseTimeout) -ne 15){throw 'CLEANUP_RESERVE_LOST'}
+$clock.ElapsedMilliseconds=360001;$caught=$false
+try{[void](Get-ReleaseTimeout)}catch{if($_.Exception.Message -cne 'RELEASE_API_DEADLINE'){throw};$caught=$true}
+if(-not $caught){throw 'CLEANUP_UNBOUNDED'}
+$root=Join-Path (Get-Location) '.runtime/offline-not-opened/Source'
+$paths=@('Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Xlsx.Metadata.ps1','Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Types.Composition.xlsx','Modules/toolbelt.string.regex/Tests/Runtime/Relations.Metadata.ps1','Tests/CI/Set-SqlClientTlsPolicy.ps1','Tests/Release/Runtime/DefaultSnapshotCeiling.sql')
+$pins=@(@{path=(Join-Path (Get-Location) 'Tests/Release/Invoke-ApiQualificationLab.ps1');sha256='synthetic'})
+$pins+=@($paths|ForEach-Object {@{path=(Join-Path $root $_);sha256='synthetic'}})
+$runset=[pscustomobject]@{sourceRoot=$root;spec=(Join-Path (Get-Location) 'Tests/Release/api-qualification-spec.json');pins=$pins}
+$case.group='formats';$casePins=@(Get-ApiCasePins $runset $case)
+if($casePins.Count -ne 4 -or @($casePins|Where-Object {$_.path -match 'regex|DefaultSnapshot'}).Count){throw 'GROUP_PIN_SCOPE'}
+$checked=0
+function Assert-ReleasePin($Path,$Expected){$script:checked++}
+Assert-ReleaseInputs
+if($checked -ne 4){throw 'GROUP_INPUT_CHECK_LOST'}
+$checked=0;Assert-ReleaseInputs -All
+if($checked -ne 6){throw 'WHOLE_INPUT_AUDIT_LOST'}
+$ast=[Management.Automation.Language.Parser]::ParseFile('Tests/Release/Invoke-ApiQualificationMatrix.ps1',[ref]$null,[ref]$e)
+$node=@($ast.FindAll({param($n)$n -is [Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -ceq 'Get-ApiCaseOutcome'},$true))
+if($node.Count -ne 1){throw 'OUTCOME_FUNCTION'}
+. ([scriptblock]::Create($node[0].Extent.Text))
+if((Get-ApiCaseOutcome $true $true 'PARTIAL') -cne 'PARTIAL' -or
+   (Get-ApiCaseOutcome $true $true 'COMPLETE') -cne 'PASS' -or
+   (Get-ApiCaseOutcome $false $true '') -cne 'FAILED_CLEANED' -or
+   (Get-ApiCaseOutcome $true $false 'COMPLETE') -cne 'CLEANUP_UNKNOWN'){throw 'FALSE_CASE_PROMOTION'}
+$caught=$false
+try{[void](Get-ApiCaseOutcome $true $true 'FAILED_CLEANED')}catch{if($_.Exception.Message -cne 'RELEASE_API_UNEXPECTED_STATE'){throw};$caught=$true}
+if(-not $caught){throw 'UNEXPECTED_LEDGER_ACCEPTED'}
+$left=[pscustomobject][ordered]@{id='synthetic';group='text';context='local'}
+$right=[pscustomobject][ordered]@{context='local';group='text';id='synthetic'}
+if((Get-ApiFixtureBinding $left) -cne (Get-ApiFixtureBinding $right)){throw 'JSON_KEY_ORDER_DRIFT'}
+$right.context='central'
+if((Get-ApiFixtureBinding $left) -ceq (Get-ApiFixtureBinding $right)){throw 'REAL_FIXTURE_DRIFT_IGNORED'}
+$sourceClock=[pscustomobject]@{ElapsedMilliseconds=45000}
+$providers=New-ApiBudgetProviders $sourceClock 300
+$consumer=New-Module -ScriptBlock {Set-StrictMode -Version Latest}
+$actual=& $consumer {param($callback) & $callback} $providers.Timeout
+if($actual -ne 120){throw 'CALLBACK_SCRIPT_SCOPE_LOST'}
+$sourceClock.ElapsedMilliseconds=299000
+if((& $consumer {param($callback) & $callback} $providers.Timeout) -ne 1){throw 'CALLBACK_CLOCK_NOT_SHARED'}
+$sourceClock.ElapsedMilliseconds=300001;$caught=$false
+try{& $consumer {param($callback) & $callback} $providers.Read}catch{if($_.Exception.Message -cne 'RELEASE_API_DEADLINE'){throw};$caught=$true}
+if(-not $caught){throw 'CALLBACK_DEADLINE_LOST'}
+'PASS OFFLINE_API_GUARDS'
+'''
+        result = subprocess.run(['pwsh', '-NoProfile', '-NonInteractive', '-Command', script], cwd=ROOT, capture_output=True, text=True, timeout=20)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('PASS OFFLINE_API_GUARDS', result.stdout)
+
+
 if __name__ == "__main__":
     unittest.main()

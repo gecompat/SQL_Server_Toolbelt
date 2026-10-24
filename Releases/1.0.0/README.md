@@ -26,6 +26,10 @@ Preview-Dependencies begrenzen den Kanal. Deshalb sind Second Session und
 Event Log trotz eigenem `validated` vorläufig Preview. Vor Veröffentlichung
 bleibt die vollständige Pflichtqualifikation jeder zugesagten Kombination erforderlich.
 
+Die [Nachweiszuordnung aller 45 Module](EVIDENCE-MAP.md) führt zu den
+kanonischen Modulbelegen. Der [API-/Grenzbericht](API-QUALIFICATION.md)
+trennt zusätzliche Labprüfungen von weiter offenen externen Voraussetzungen.
+
 Das Gesamt-ZIP enthält zusätzlich den
 [CLR-Installationskandidaten mit fertigen DLLs](CLR-INSTALL.md). Er liefert alle
 zwölf Toolbelt-CLR-Module und ScriptDom, SQL-Dateien mit eingebetteten Bytes,

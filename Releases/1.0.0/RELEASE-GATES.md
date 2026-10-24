@@ -209,6 +209,20 @@ authentifizierte TLS-Zusage. Alle Module bleiben `unreleased`.
 
 ## Was vor Veröffentlichung offen bleibt
 
+Die [Zuordnung aller 45 Module](EVIDENCE-MAP.md) und der
+[API-/Grenzbericht](API-QUALIFICATION.md) konkretisieren die fachlichen
+Restfälle. Vorhandene volle Matrizen und CSV-Grenznachweise bleiben in ihrem
+ursprünglichen Scope gültig; die nachfolgende Tabelle ist keine Aussage,
+dass sämtliche genannten Einzelprüfungen noch fehlen.
+
+Die zusätzliche API-/Grenzwelle ist abgeschlossen: 74 ausgewählte Fälle,
+73 vollständig bestanden und ein Regex-Teilnachweis; zusätzliche Fixtures
+für 37 Module. Alle eigenen Datenbanknamen sind abwesend, Trust und
+temporäre CLR-Konfiguration unabhängig als wiederhergestellt geprüft.
+Der positive Regex-Fixtureabschluss Linux SQL2022/CL150 local bleibt
+wegen eines unerwarteten intrinsischen Timeouts offen. Diese Teilabnahme
+ersetzt keine übrigen modulspezifischen Pflichtfälle.
+
 | Gate | Konkret erforderlich | Abhängigkeit |
 |---|---|---|
 | Fachlicher Zielumfang | Erledigt: 45 bestehende Modulversionen, 19 stabil/26 Preview und SQL-/CL-/Plattform-/Deployment-Zielumfang sind ausdrücklich übernommen | [Benutzerfreigabe](SUPPORT.md#freigabe); konkrete öffentliche Kombinationen brauchen weiterhin ihre vollständigen Pflichtnachweise |
@@ -226,7 +240,7 @@ Die verbleibenden Arbeiten sind damit genauer getrennt:
 
 | Punkt | Noch erforderlich | Voraussetzung / Verantwortung |
 |---|---|---|
-| Fachliche Modulabnahme | Die offenen API-, Ausgabegrenzen-, Lifecycle-/Upgrade- und Clientfälle aus der Freigabematrix pro veröffentlichter Kombination zuordnen und abschließen; Paket-Smoke ist kein Ersatz | Modulverantwortlicher; bestehende unveränderte Nachweise nur in ihrem belegten Scope weiterverwenden |
+| Fachliche Modulabnahme | Nachweiszuordnung aller 45 Module liegt vor. Noch unbelegte API-, Ausgabegrenzen-, Lifecycle-/Upgrade- und Clientfälle je zugesagter Kombination abschließen; der Regex-Teilnachweis bleibt offen. Ausgewählte grüne Fixtures ersetzen keine volle Modulabnahme | Modulverantwortlicher; bestehende unveränderte Nachweise nur in ihrem belegten Scope weiterverwenden |
 | Minimalrechte | Echte Aufrufe unter den benötigten getrennten Testidentitäten, einschließlich negativer Rechtefälle | Vorkonfigurierte passende Principals und Rechte oder ein separat ausdrücklich freigegebener enger Security-Testaufbau; hier wurden keine Logins/Rechte erteilt |
 | Datei-/Identitätsmodule | Serverseitige synthetische Datei-, NTFS-/Reparse-/Caller-/ServiceAccount-Fixtures und ihre jeweiligen positiven/negativen Fälle | Bereitgestellte Fixtures/Identitäten mit geklärter Ownership; keine eigenmächtige Änderung der Labinfrastruktur |
 | Provider/Worker und harte Recovery | Erforderliche administrierte Provider-/Workerhostkombinationen und kontrollierter echter Transport-/Hostverlust | Vorkonfigurierte Provider und geeignete gesonderte Recoveryumgebung; laufende mutierende Tests werden nicht als Ersatz hart abgebrochen |

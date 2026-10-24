@@ -1,0 +1,1419 @@
+{
+  "schema_version": "1.0",
+  "purpose": "release_api_and_boundary_qualification_not_publication",
+  "source_base_commit": "61b8bfcaab8827a58ac138c8668cccc073724b6d",
+  "groups": [
+    "core",
+    "text",
+    "formats",
+    "windows",
+    "csv",
+    "gaps",
+    "translate-large"
+  ],
+  "tests": [
+    {
+      "id": "toolbelt.binary.bit-operations:BitOperations.Contract.sql",
+      "module_id": "toolbelt.binary.bit-operations",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.binary.bit-operations/Tests/Runtime/BitOperations.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.conversion.base64:Base64.Contract.sql",
+      "module_id": "toolbelt.conversion.base64",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.conversion.base64/Tests/Runtime/Base64.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.conversion.integer-base:IntegerBase.Contract.sql",
+      "module_id": "toolbelt.conversion.integer-base",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.conversion.integer-base/Tests/Runtime/IntegerBase.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.conversion.uri-component:UriComponent.Contract.sql",
+      "module_id": "toolbelt.conversion.uri-component",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.conversion.uri-component/Tests/Runtime/UriComponent.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.core.console-message:ConsoleMessage.Contract.sql",
+      "module_id": "toolbelt.core.console-message",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.console-message/Tests/Runtime/ConsoleMessage.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.core.error-envelope:ErrorEnvelope.Contract.sql",
+      "module_id": "toolbelt.core.error-envelope",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.error-envelope/Tests/Runtime/ErrorEnvelope.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.core.execution-context:ExecutionContext.Contract.sql",
+      "module_id": "toolbelt.core.execution-context",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.execution-context/Tests/Runtime/ExecutionContext.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.core.generate-series:GenerateSeries.Contract.sql",
+      "module_id": "toolbelt.core.generate-series",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.generate-series/Tests/Runtime/GenerateSeries.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.core.result-table:USP_PrepareResultTable.Contract.sql",
+      "module_id": "toolbelt.core.result-table",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.result-table/Tests/Runtime/USP_PrepareResultTable.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.datetime.bucket:DateTimeBucket.Contract.sql",
+      "module_id": "toolbelt.datetime.bucket",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.datetime.bucket/Tests/Runtime/DateTimeBucket.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.datetime.calendar-difference:CalendarDifference.Contract.sql",
+      "module_id": "toolbelt.datetime.calendar-difference",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.datetime.calendar-difference/Tests/Runtime/CalendarDifference.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.datetime.date-spine:DateSpine.Contract.sql",
+      "module_id": "toolbelt.datetime.date-spine",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.datetime.date-spine/Tests/Runtime/DateSpine.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.datetime.truncate:DateTimeTruncate.Contract.sql",
+      "module_id": "toolbelt.datetime.truncate",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.datetime.truncate/Tests/Runtime/DateTimeTruncate.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.json.path-exists:JsonPathExists.Contract.sql",
+      "module_id": "toolbelt.json.path-exists",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.json.path-exists/Tests/Runtime/JsonPathExists.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.capability-catalog:ModuleCapabilities.Contract.sql",
+      "module_id": "toolbelt.metadata.capability-catalog",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.capability-catalog/Tests/Runtime/ModuleCapabilities.Contract.sql",
+      "context": "installed",
+      "deployment_modes": [
+        "local"
+      ]
+    },
+    {
+      "id": "toolbelt.metadata.identifier:Identifier.Contract.sql",
+      "module_id": "toolbelt.metadata.identifier",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.identifier/Tests/Runtime/Identifier.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.directional-trim:DirectionalTrim.Contract.sql",
+      "module_id": "toolbelt.string.directional-trim",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.directional-trim/Tests/Runtime/DirectionalTrim.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.split-characters:SplitCharacters.Contract.sql",
+      "module_id": "toolbelt.string.split-characters",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.split-characters/Tests/Runtime/SplitCharacters.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.validation.semantic-version:SemanticVersion.Contract.sql",
+      "module_id": "toolbelt.validation.semantic-version",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.validation.semantic-version/Tests/Runtime/SemanticVersion.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.core.work-type:WorkType.Contract.sql",
+      "module_id": "toolbelt.core.work-type",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.work-type/Tests/Runtime/WorkType.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.core.work-type:Remove.Contract.sql",
+      "module_id": "toolbelt.core.work-type",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.work-type/Tests/Runtime/Remove.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.core.work-queue:WorkQueue.Contract.sql",
+      "module_id": "toolbelt.core.work-queue",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.work-queue/Tests/Runtime/WorkQueue.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.core.execution-cancel:ExecutionCancellation.Contract.sql",
+      "module_id": "toolbelt.core.execution-cancel",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.execution-cancel/Tests/Runtime/ExecutionCancellation.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.core.worker-control:WorkerControl.Contract.sql",
+      "module_id": "toolbelt.core.worker-control",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.worker-control/Tests/Runtime/WorkerControl.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.pseudonymization.deterministic:Lookup.Contract.sql",
+      "module_id": "toolbelt.pseudonymization.deterministic",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/Lookup.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.pseudonymization.deterministic:Lookup.Boundaries.sql",
+      "module_id": "toolbelt.pseudonymization.deterministic",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/Lookup.Boundaries.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.pseudonymization.deterministic:Range.Contract.sql",
+      "module_id": "toolbelt.pseudonymization.deterministic",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/Range.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.pseudonymization.deterministic:DateShift.Contract.sql",
+      "module_id": "toolbelt.pseudonymization.deterministic",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/DateShift.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.pseudonymization.deterministic:Translate.Contract.sql",
+      "module_id": "toolbelt.pseudonymization.deterministic",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/Translate.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.pseudonymization.deterministic:Translate.Safety.sql",
+      "module_id": "toolbelt.pseudonymization.deterministic",
+      "group": "translate-large",
+      "kind": "sql",
+      "source": "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/Translate.Safety.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.pseudonymization.deterministic:GeoJitter.Contract.sql",
+      "module_id": "toolbelt.pseudonymization.deterministic",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/GeoJitter.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.pseudonymization.deterministic:GeoJitter.Safety.sql",
+      "module_id": "toolbelt.pseudonymization.deterministic",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/GeoJitter.Safety.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.split-advanced:SplitAdvanced.Contract.sql",
+      "module_id": "toolbelt.string.split-advanced",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.split-advanced/Tests/Runtime/SplitAdvanced.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.split-advanced:UnquoteToken.Contract.sql",
+      "module_id": "toolbelt.string.split-advanced",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.split-advanced/Tests/Runtime/UnquoteToken.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.split-advanced:SplitAdvancedUsp.Contract.sql",
+      "module_id": "toolbelt.string.split-advanced",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.split-advanced/Tests/Runtime/SplitAdvancedUsp.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.edit-distance:Distance.Contract.sql",
+      "module_id": "toolbelt.string.edit-distance",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.edit-distance/Tests/Runtime/Distance.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.edit-distance:Distance.Boundaries.sql",
+      "module_id": "toolbelt.string.edit-distance",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.edit-distance/Tests/Runtime/Distance.Boundaries.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.edit-distance:Jaro.Contract.sql",
+      "module_id": "toolbelt.string.edit-distance",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.edit-distance/Tests/Runtime/Jaro.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.edit-distance:Jaro.Boundaries.sql",
+      "module_id": "toolbelt.string.edit-distance",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.edit-distance/Tests/Runtime/Jaro.Boundaries.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.edit-distance:InstalledMetadata.Contract.sql",
+      "module_id": "toolbelt.string.edit-distance",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.edit-distance/Tests/Runtime/InstalledMetadata.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.text-pairs:TextPairs.Contract.sql",
+      "module_id": "toolbelt.string.text-pairs",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.text-pairs/Tests/Runtime/TextPairs.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.text-pairs:TextPairs.Boundaries.sql",
+      "module_id": "toolbelt.string.text-pairs",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.text-pairs/Tests/Runtime/TextPairs.Boundaries.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.text-pairs:TextPairs.Atomicity.sql",
+      "module_id": "toolbelt.string.text-pairs",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.text-pairs/Tests/Runtime/TextPairs.Atomicity.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.text-pairs:Help.Contract.sql",
+      "module_id": "toolbelt.string.text-pairs",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.text-pairs/Tests/Runtime/Help.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.text-pairs:InstalledMetadata.Contract.sql",
+      "module_id": "toolbelt.string.text-pairs",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.text-pairs/Tests/Runtime/InstalledMetadata.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.phonetic:Phonetic.Contract.sql",
+      "module_id": "toolbelt.string.phonetic",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.phonetic/Tests/Runtime/Phonetic.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.phonetic:Phonetic.Boundaries.sql",
+      "module_id": "toolbelt.string.phonetic",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.phonetic/Tests/Runtime/Phonetic.Boundaries.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.phonetic:InstalledMetadata.Contract.sql",
+      "module_id": "toolbelt.string.phonetic",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.phonetic/Tests/Runtime/InstalledMetadata.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.regex:Regex.Contract.sql",
+      "module_id": "toolbelt.string.regex",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.regex/Tests/Runtime/Regex.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.regex:Transformations.Contract.sql",
+      "module_id": "toolbelt.string.regex",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.regex/Tests/Runtime/Transformations.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.regex:Relations.Contract.sql",
+      "module_id": "toolbelt.string.regex",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.regex/Tests/Runtime/Relations.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.regex:Captures.Contract.sql",
+      "module_id": "toolbelt.string.regex",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.regex/Tests/Runtime/Captures.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.regex:Intake.Contract.sql",
+      "module_id": "toolbelt.string.regex",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.regex/Tests/Runtime/Intake.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.regex:Captures.Metadata.ps1",
+      "module_id": "toolbelt.string.regex",
+      "group": "text",
+      "kind": "captures-metadata",
+      "source": "Modules/toolbelt.string.regex/Tests/Runtime/Captures.Metadata.ps1",
+      "context": "installed",
+      "large": true
+    },
+    {
+      "id": "toolbelt.archive.zip-memory:ZipMemory.Contract.sql",
+      "module_id": "toolbelt.archive.zip-memory",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.archive.zip-memory/Tests/Runtime/ZipMemory.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.archive.zip-memory:Encoding.Contract.sql",
+      "module_id": "toolbelt.archive.zip-memory",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.archive.zip-memory/Tests/Runtime/Encoding.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.archive.zip-memory:Writer.Contract.sql",
+      "module_id": "toolbelt.archive.zip-memory",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.archive.zip-memory/Tests/Runtime/Writer.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.archive.zip-memory:Metadata.Contract.sql",
+      "module_id": "toolbelt.archive.zip-memory",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.archive.zip-memory/Tests/Runtime/Metadata.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.file.xlsx-memory:Xlsx.Contract.sql",
+      "module_id": "toolbelt.file.xlsx-memory",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Xlsx.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.file.xlsx-memory:Types.Contract.sql",
+      "module_id": "toolbelt.file.xlsx-memory",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Types.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.file.xlsx-memory:Types.Safety.sql",
+      "module_id": "toolbelt.file.xlsx-memory",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Types.Safety.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.file.xlsx-memory:Display.Contract.sql",
+      "module_id": "toolbelt.file.xlsx-memory",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Display.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.file.xlsx-memory:Display.Safety.sql",
+      "module_id": "toolbelt.file.xlsx-memory",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Display.Safety.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.json.constructors:JsonConstructors.Contract.sql",
+      "module_id": "toolbelt.json.constructors",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.json.constructors/Tests/Runtime/JsonConstructors.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.json.constructors:JsonAggregates.Contract.sql",
+      "module_id": "toolbelt.json.constructors",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.json.constructors/Tests/Runtime/JsonAggregates.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.json.constructors:JsonEntryBridge.Contract.sql",
+      "module_id": "toolbelt.json.constructors",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.json.constructors/Tests/Runtime/JsonEntryBridge.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.json.constructors:JsonGroups.Contract.sql",
+      "module_id": "toolbelt.json.constructors",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.json.constructors/Tests/Runtime/JsonGroups.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.json.constructors:JsonGroups.Boundaries.sql",
+      "module_id": "toolbelt.json.constructors",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.json.constructors/Tests/Runtime/JsonGroups.Boundaries.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.json.constructors:InstalledMetadata.Contract.sql",
+      "module_id": "toolbelt.json.constructors",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.json.constructors/Tests/Runtime/InstalledMetadata.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.json.constructors:Collation.Contract.sql",
+      "module_id": "toolbelt.json.constructors",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.json.constructors/Tests/Runtime/Collation.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.json.schema:Contract.Tests.sql",
+      "module_id": "toolbelt.json.schema",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.json.schema/Tests/Runtime/Contract.Tests.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.json.schema:Safety.Tests.sql",
+      "module_id": "toolbelt.json.schema",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.json.schema/Tests/Runtime/Safety.Tests.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.file.xlsx-memory:Xlsx.Metadata.ps1",
+      "module_id": "toolbelt.file.xlsx-memory",
+      "group": "formats",
+      "kind": "xlsx-metadata",
+      "source": "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Xlsx.Metadata.ps1",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.file.xlsx-memory:Types.Metadata.ps1",
+      "module_id": "toolbelt.file.xlsx-memory",
+      "group": "formats",
+      "kind": "connection-script",
+      "source": "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Types.Metadata.ps1",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.file.xlsx-memory:Display.Metadata.ps1",
+      "module_id": "toolbelt.file.xlsx-memory",
+      "group": "formats",
+      "kind": "connection-script",
+      "source": "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Display.Metadata.ps1",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.file.xlsx-memory:Invoke-TypesComposition.ps1",
+      "module_id": "toolbelt.file.xlsx-memory",
+      "group": "formats",
+      "kind": "composition-script",
+      "source": "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-TypesComposition.ps1",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.file.xlsx-memory:Invoke-DisplayComposition.ps1",
+      "module_id": "toolbelt.file.xlsx-memory",
+      "group": "formats",
+      "kind": "composition-script",
+      "source": "Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-DisplayComposition.ps1",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.json.schema:Metadata.Tests.ps1",
+      "module_id": "toolbelt.json.schema",
+      "group": "formats",
+      "kind": "connection-script",
+      "source": "Modules/toolbelt.json.schema/Tests/Runtime/Metadata.Tests.ps1",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.tsql.script-parser:ScriptParser.Contract.sql",
+      "module_id": "toolbelt.tsql.script-parser",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.tsql.script-parser/Tests/Runtime/ScriptParser.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.tsql.script-parser:Bounds.Contract.sql",
+      "module_id": "toolbelt.tsql.script-parser",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.tsql.script-parser/Tests/Runtime/Bounds.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.tsql.script-parser:Syntax.Contract.sql",
+      "module_id": "toolbelt.tsql.script-parser",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.tsql.script-parser/Tests/Runtime/Syntax.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:TableClone.Contract.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/TableClone.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:Execute.Contract.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Execute.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:Execute.Safety.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Execute.Safety.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:Copy.Contract.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Copy.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:Copy.Safety.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Copy.Safety.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:Wave1.Contract.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Wave1.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:Wave1.Bytes.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Wave1.Bytes.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:Wave1.DateTimeOffset.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Wave1.DateTimeOffset.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:Wave2.Contract.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Wave2.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:Wave2.Caps.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Wave2.Caps.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:Wave2.Safety.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Wave2.Safety.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:Trigger.Contract.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Trigger.Contract.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:Trigger.Safety.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Trigger.Safety.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.tsql.ssis-debug:Invoke-CoreContract.ps1",
+      "module_id": "toolbelt.tsql.ssis-debug",
+      "group": "windows",
+      "kind": "ssis-core",
+      "source": "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-CoreContract.ps1",
+      "context": "installed",
+      "only_additional_cl": true,
+      "fixture_scope": "canonical functional V1/component oracles; synthetic principal/right block explicitly omitted; real central consumer bound"
+    },
+    {
+      "id": "toolbelt.tsql.ssis-debug:Invoke-ApiCases.ps1",
+      "module_id": "toolbelt.tsql.ssis-debug",
+      "group": "windows",
+      "kind": "ssis-api",
+      "source": "Modules/toolbelt.tsql.ssis-debug/Tests/Runtime/Invoke-ApiCases.ps1",
+      "context": "installed",
+      "only_additional_cl": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:AlternateSeparatorPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/AlternateSeparatorPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:BudgetParameterPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/BudgetParameterPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:CallerTransactionPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/CallerTransactionPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:CellCeilings.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/CellCeilings.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:ControlTextCeilings.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/ControlTextCeilings.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:CrlfCeilings.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/CrlfCeilings.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:DirectSelectCeilings.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/DirectSelectCeilings.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:DirectSelectUnicodeNull.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/DirectSelectUnicodeNull.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:EmptyResultPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/EmptyResultPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:HeaderCellBudgetPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/HeaderCellBudgetPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:HeaderOnlyPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/HeaderOnlyPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:HeaderRowBudgetPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/HeaderRowBudgetPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:HeaderTextCeilings.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/HeaderTextCeilings.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:KeepDataCeilings.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/KeepDataCeilings.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:LateParserRectangularPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/LateParserRectangularPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:LateParserSyntaxPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/LateParserSyntaxPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:LowerInputBudgetPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/LowerInputBudgetPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:LowerOutputBudgetPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/LowerOutputBudgetPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:LowerValueBudgetPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/LowerValueBudgetPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:NullRepresentationPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/NullRepresentationPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:NullTokenCeilings.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/NullTokenCeilings.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:NullTokenValuePreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/NullTokenValuePreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:ParserArgumentPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/ParserArgumentPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:QuotedTempNamePreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/QuotedTempNamePreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:QuoteExpansion.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/QuoteExpansion.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:ReservedTempNamespacePreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/ReservedTempNamespacePreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:ReservedTempPrefixPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/ReservedTempPrefixPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:SchemaTargetPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/SchemaTargetPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:ShapeCeilings.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/ShapeCeilings.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:SourceMetadataPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/SourceMetadataPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:SourceTargetAliasPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/SourceTargetAliasPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:TargetConstraintPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/TargetConstraintPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:TextCeilings.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/TextCeilings.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:TrailingEmptyFieldPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/TrailingEmptyFieldPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:UnicodeTextCeilings.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/UnicodeTextCeilings.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:WriterArgumentPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/WriterArgumentPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:WriterCellPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/WriterCellPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:WriterHeaderPreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/WriterHeaderPreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:WriterLocalSourceNamePreservation.Tests.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Modules/toolbelt.file.csv-memory/Tests/Runtime/WriterLocalSourceNamePreservation.Tests.sql",
+      "context": "installed",
+      "only_missing_boundary_targets": true
+    },
+    {
+      "id": "toolbelt.file.csv-memory:DefaultSnapshotCeiling.sql",
+      "module_id": "toolbelt.file.csv-memory",
+      "group": "csv",
+      "kind": "sql",
+      "source": "Tests/Release/Runtime/DefaultSnapshotCeiling.sql",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.binary.bit-operations:Central.Contract.sql",
+      "module_id": "toolbelt.binary.bit-operations",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.binary.bit-operations/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.conversion.base64:Central.Contract.sql",
+      "module_id": "toolbelt.conversion.base64",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.conversion.base64/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.conversion.integer-base:Central.Contract.sql",
+      "module_id": "toolbelt.conversion.integer-base",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.conversion.integer-base/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.conversion.uri-component:Central.Contract.sql",
+      "module_id": "toolbelt.conversion.uri-component",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.conversion.uri-component/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.core.console-message:Central.Contract.sql",
+      "module_id": "toolbelt.core.console-message",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.console-message/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.core.error-envelope:Central.Contract.sql",
+      "module_id": "toolbelt.core.error-envelope",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.error-envelope/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.core.execution-context:Central.Contract.sql",
+      "module_id": "toolbelt.core.execution-context",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.execution-context/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.core.generate-series:Central.Contract.sql",
+      "module_id": "toolbelt.core.generate-series",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.generate-series/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.core.result-table:Central.Contract.sql",
+      "module_id": "toolbelt.core.result-table",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.core.result-table/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.datetime.bucket:Central.Contract.sql",
+      "module_id": "toolbelt.datetime.bucket",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.datetime.bucket/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.datetime.calendar-difference:Central.Contract.sql",
+      "module_id": "toolbelt.datetime.calendar-difference",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.datetime.calendar-difference/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.datetime.date-spine:Central.Contract.sql",
+      "module_id": "toolbelt.datetime.date-spine",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.datetime.date-spine/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.datetime.truncate:Central.Contract.sql",
+      "module_id": "toolbelt.datetime.truncate",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.datetime.truncate/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.json.path-exists:Central.Contract.sql",
+      "module_id": "toolbelt.json.path-exists",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.json.path-exists/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.metadata.capability-catalog:Central.Contract.sql",
+      "module_id": "toolbelt.metadata.capability-catalog",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.capability-catalog/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.metadata.identifier:Central.Contract.sql",
+      "module_id": "toolbelt.metadata.identifier",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.identifier/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.string.directional-trim:Central.Contract.sql",
+      "module_id": "toolbelt.string.directional-trim",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.directional-trim/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.string.split-characters:Central.Contract.sql",
+      "module_id": "toolbelt.string.split-characters",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.split-characters/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.validation.semantic-version:Central.Contract.sql",
+      "module_id": "toolbelt.validation.semantic-version",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.validation.semantic-version/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.string.split-advanced:Central.Contract.sql",
+      "module_id": "toolbelt.string.split-advanced",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.split-advanced/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.pseudonymization.deterministic:Central.Contract.sql",
+      "module_id": "toolbelt.pseudonymization.deterministic",
+      "group": "core",
+      "kind": "sql",
+      "source": "Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.archive.zip-memory:Central.Contract.sql",
+      "module_id": "toolbelt.archive.zip-memory",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.archive.zip-memory/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.json.constructors:Central.Contract.sql",
+      "module_id": "toolbelt.json.constructors",
+      "group": "formats",
+      "kind": "sql",
+      "source": "Modules/toolbelt.json.constructors/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.string.regex:Central.Contract.sql",
+      "module_id": "toolbelt.string.regex",
+      "group": "text",
+      "kind": "sql",
+      "source": "Modules/toolbelt.string.regex/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.tsql.script-parser:Central.Contract.sql",
+      "module_id": "toolbelt.tsql.script-parser",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.tsql.script-parser/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.metadata.table-clone:Central.Contract.sql",
+      "module_id": "toolbelt.metadata.table-clone",
+      "group": "windows",
+      "kind": "sql",
+      "source": "Modules/toolbelt.metadata.table-clone/Tests/Runtime/Central.Contract.sql",
+      "context": "consumer"
+    },
+    {
+      "id": "toolbelt.json.constructors:SelectMetadata.Contract.ps1",
+      "module_id": "toolbelt.json.constructors",
+      "group": "formats",
+      "kind": "environment-script",
+      "source": "Modules/toolbelt.json.constructors/Tests/Runtime/SelectMetadata.Contract.ps1",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.string.regex:Relations.Metadata.ps1",
+      "module_id": "toolbelt.string.regex",
+      "group": "text",
+      "kind": "environment-script",
+      "source": "Modules/toolbelt.string.regex/Tests/Runtime/Relations.Metadata.ps1",
+      "context": "installed"
+    },
+    {
+      "id": "toolbelt.core.execution-cancel:Cancellation.StrictErrors.sql",
+      "module_id": "toolbelt.core.execution-cancel",
+      "group": "gaps",
+      "kind": "sql",
+      "source": "Tests/Release/Runtime/Cancellation.StrictErrors.sql",
+      "context": "installed"
+    }
+  ],
+  "reused_full_matrices": [
+    "toolbelt.conversion.safe-cast",
+    "toolbelt.json.pointer"
+  ],
+  "external_gates": [
+    "real_minimum_rights",
+    "server_file_identity_fixtures",
+    "second_session_provider_configuration",
+    "controlled_transport_host_recovery",
+    "authenticated_tls",
+    "ssms_gui"
+  ],
+  "publication_authorized": false,
+  "budget": {
+    "max_case_attempts": 90,
+    "wave_seconds": 36000,
+    "ordinary_work_seconds": 300,
+    "ordinary_cleanup_deadline_seconds": 360,
+    "ordinary_outer_seconds": 400,
+    "csv_work_seconds": 1800,
+    "csv_cleanup_deadline_seconds": 2160,
+    "csv_outer_seconds": 2200,
+    "audit_reserve_seconds": 90,
+    "model_cost": "UNKNOWN",
+    "one_pr": true,
+    "one_owner": true,
+    "delegation": false,
+    "translate_work_seconds": 1200,
+    "translate_cleanup_deadline_seconds": 1440,
+    "translate_outer_seconds": 1480,
+    "core_work_seconds": 960,
+    "core_cleanup_deadline_seconds": 1200,
+    "core_outer_seconds": 1240,
+    "formats_work_seconds": 1800,
+    "formats_cleanup_deadline_seconds": 2160,
+    "formats_outer_seconds": 2200
+  }
+}
