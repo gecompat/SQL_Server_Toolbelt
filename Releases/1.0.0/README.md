@@ -41,7 +41,7 @@ lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.
 Echte CrossDB-Identitätsmappings und andere Modulpflichtfälle bleiben separat.
 
 Die neue [ResultTable-/Error-Envelope-Callerprüfung](TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
-ist nach Korrektur eines Testorakels noch nicht nativ qualifiziert. Bereinigte
+ist nach Korrektur der Testorakel noch nicht nativ qualifiziert. Bereinigte
 Fehlversuche, unveränderte Produktquellen und die nötige Restprüfung sind dort
 getrennt ausgewiesen; dieser Block bleibt vor Veröffentlichung offen.
 

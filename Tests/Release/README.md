@@ -370,6 +370,6 @@ Rollen-, Schema-, datenbankweite und Servergrants sind ausgeschlossen.
 
 Das Schemaorakel verwendet logische Spaltenpositionen, keine als fortlaufend
 angenommenen physischen IDs. Der [Diagnosebericht](../../Releases/1.0.0/TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
-erhält alle drei bereinigten Fehlversuche, die genaue Testkorrektur und die
+erhält alle vier bereinigten Fehlversuche, die genaue Testkorrektur und die
 offene native Nachprüfung. Offline-Syntax und ein grüner Strukturtest schließen
 diesen Pflichtblock nicht. Keine automatische Labaktivierung und kein neuer CI-Job.

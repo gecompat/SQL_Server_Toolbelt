@@ -81,7 +81,7 @@ INSERT @Profiles VALUES
   WHERE CapturedAtUtc IS NOT NULL AND ExecutionId=''11111111-1111-1111-1111-111111111111'' AND ErrorClass=''ENGINE''
    AND ErrorNumber=8134 AND ErrorSeverity=16 AND ErrorState=1 AND ErrorProcedure=N''ContosoProbe'' AND ErrorLine=7
    AND CONVERT(varbinary(max),ErrorMessage)=CONVERT(varbinary(max),N''Contoso synthetic error'')
-   AND XactState=0 AND TransactionCount=0 AND DatabaseName=DB_NAME() AND SessionId=@@SPID
+   AND XactState=1 AND TransactionCount=1 AND DatabaseName=DB_NAME() AND SessionId=@@SPID
    AND CONVERT(varbinary(max),AdditionalContext)=CONVERT(varbinary(max),N''Contoso context''))
   THROW 52096,N''Direktes Envelope-Wertorakel verletzt.'',10;'),
 (5,1,1,0,N'

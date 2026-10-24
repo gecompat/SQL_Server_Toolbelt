@@ -24,19 +24,28 @@ Der qualifizierte ScriptDom-Pin prüfte anschließend die äußere Fixture,
 alle fünf aufgelösten Profile und verschachtelte SQL-Literale für150/160/170:
 27 Parses bestanden, ohne SQL auszuführen. Dies ist kein nativer PASS.
 
+Der nächste Baselinelauf passierte die Helperprofile und erreichte einen
+weiteren fehlerhaften Testvergleich: Die Erfassung mit `INSERT ... EXEC`
+führt die aufgerufene Procedure in der Systemtransaktion des Inserts aus.
+Die Fixture erwartet dort jetzt strikt `XactState=1` und `TransactionCount=1`
+statt des äußeren 0/0-Zustands. Die ursprünglichen fachlichen Werte bleiben
+unverändert. [Primärquelle zum INSERT-EXEC-Kontext](https://www.sommarskog.se/error_handling/Part2.html#INSERTEXEC).
+Auch diese Korrektur ist bis zur nächsten nativen Ausführung kein PASS.
+
 ## Tatsächliche Versuche und Cleanup
 
-Es gab genau drei native Versuche, jeweils unter Linux SQL2019/CL150 local:
+Es gab bisher vier native Versuche, jeweils unter Linux SQL2019/CL150 local:
 
 | Versuch | Tatsächlicher Zustand | Bedeutung |
 |---|---|---|
 | Absichtlich falsche Breite | `FAILED_CLEANED`, SQL52096 | Kein gültiger unabhängiger Breitennachweis: Auch die unveränderte Baseline scheiterte bereits an der falschen ID-Annahme. |
 | Zusätzliches fremdes Metadatenrecht | `FAILED_CLEANED`, SQL52096 | Der erwartete Rechteguard wurde vor Ausführung des Schemaorakels erreicht; historischer begrenzter Kontrollnachweis. |
 | Erste Baseline | `FAILED_CLEANED`, SQL52096 | Schemaorakel fehlerhaft; kein vollständig bestandener positiver Fall. |
+| Baseline mit logischen Ordinalen | `FAILED_CLEANED`, SQL52096 | Helperprofile bestanden vor dem späteren Fehler: Die direkte Envelope-Erfassung erwartete fälschlich 0/0 im INSERT-EXEC-Systemtransaktionskontext. |
 
-Nach allen drei Versuchen bestätigten zusätzliche unabhängige Cleanup-/Pinaudits
-alle neun eigenen Datenbanknamen als abwesend und alle 27 Trustzustände als
-wiederhergestellt. Der einzige begonnene Konfigurationsscope wurde
+Nach allen vier Versuchen bestätigten zusätzliche unabhängige Cleanup-/Pinaudits
+alle zwölf eigenen Datenbanknamen als abwesend und alle 36 Trustzustände als
+wiederhergestellt. Die beiden begonnenen Konfigurationsscopes wurden
 wiederhergestellt und nochmals unabhängig auditiert. Andere vorbereitete
 Zielscopes wurden nicht aktiviert. Originalbytes, Journale und Rohlogs bleiben
 lokal; kein Fehlversuch wird als Erfolg umetikettiert.
@@ -44,8 +53,8 @@ lokal; kein Fehlversuch wird als Erfolg umetikettiert.
 Die [maschinenlesbare Diagnose](table-envelope-rights-investigation.json)
 bindet Original-/Korrekturhashes und die unveränderten Produkt-/Harnessquellen.
 Die kompakte alte Shape-Deklaration erlaubt die Rekonstruktion der tatsächlich
-fehlgeschlagenen Fixture. Außerhalb dieser einen Deklaration sind alle Bytes
-gleich. Der frühere Zusatzrecht-Guard ist deshalb getrennt auf seinen
+fehlgeschlagenen Fixture. Die beiden Änderungen betreffen nur die Shape-Deklaration und ein späteres
+Transaktionswert-Literal. Alle anderen Bytes sind gleich. Der frühere Zusatzrecht-Guard ist deshalb getrennt auf seinen
 unveränderten Pfad gebunden; er wird nicht als Lauf der korrigierten Baseline
 bezeichnet und benötigt keinen bloßen Status-Replay.
 

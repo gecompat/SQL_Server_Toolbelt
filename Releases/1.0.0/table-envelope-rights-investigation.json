@@ -46,6 +46,19 @@
       "independent_cleanup_and_original_pin_audit": true,
       "database_names_absent": 3,
       "trust_states_restored": 9
+    },
+    {
+      "role": "logical-ordinal-baseline-before-capture-context-correction",
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "attempted_context": "local",
+      "actual_state": "FAILED_CLEANED",
+      "sql_number": 52096,
+      "completed_fixtures": 0,
+      "independent_cleanup_and_original_pin_audit": true,
+      "database_names_absent": 3,
+      "trust_states_restored": 9
     }
   ],
   "fully_passed_positive_cases": 0,
@@ -53,7 +66,7 @@
   "original_fixture_execution_source_commit": "f3eadf6a0078dc332e3540cc840dba894aa3d948",
   "fixture_path": "Tests/Release/Runtime/ResultTable.ErrorEnvelope.Rights.sql",
   "original_fixture_sha256": "e903fe3af12819b593e985a65cce97769d62b1af024efb11321b8a98108999b1",
-  "corrected_fixture_sha256": "9ca73b68d2d92da0f4cc8e569d92738558df798cd701a49485023960fc10c584",
+  "corrected_fixture_sha256": "a42a747d892c12c9d4d9e9b276e0bddcd7a64d1208f0807a4ad379d55e59f227",
   "historical_shape_declaration": "DECLARE @Shape nvarchar(max)=N'\n IF OBJECT_ID(N''tempdb..#ContosoRightsTarget'')<>@Before\n  OR (SELECT COUNT(*) FROM tempdb.sys.columns WITH (NOLOCK) WHERE object_id=@Before)<>3\n  OR (SELECT COUNT(*) FROM tempdb.sys.columns WITH (NOLOCK) WHERE object_id=@Before AND\n   ((column_id=1 AND name=N''Id'' AND system_type_id=TYPE_ID(N''int'') AND is_nullable=0)\n    OR (column_id=2 AND name=N''Label'' AND system_type_id=TYPE_ID(N''nvarchar'') AND max_length=32 AND is_nullable=1 AND collation_name=N''Latin1_General_100_BIN2'')\n    OR (column_id=3 AND name=N''Amount'' AND system_type_id=TYPE_ID(N''decimal'') AND precision=12 AND scale=4 AND is_nullable=1)))<>3\n  THROW 52096,N''Temp-Identitaet oder feste Schemametadaten verletzt.'',3;';\n",
   "source_sha256": {
     "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
@@ -77,12 +90,12 @@
     "sql_execution": false
   },
   "final_independent_audit": {
-    "all_three_attempts_audited": true,
     "all_owned_database_names_absent": true,
     "trust_states_restored": true,
     "activated_configuration_scope_restored_and_audited": true,
     "other_prepared_configuration_scopes_started": false,
-    "original_input_bytes_retained": true
+    "original_input_bytes_retained": true,
+    "all_four_attempts_audited": true
   },
   "required_followup": {
     "positive_target_cl_cases": 12,
@@ -132,11 +145,19 @@
   ],
   "cost_and_tokens": "UNKNOWN",
   "extra_view_guard_applicability": {
-    "change_scope": "only the Shape string declaration; all other fixture bytes unchanged",
-    "unchanged_non_shape_sha256": "63146ed994d3638f9cd418ae722a7a2084e32404f8a9fb8af1d893848b34dd25",
+    "change_scope": "Shape string declaration and one later direct-profile capture-context literal only; remaining source bytes unchanged; neither changed SQL fragment executes before the observed extra-view guard",
     "original_observed_guard": "Nicht exakt die vorgesehene Objektrechtkombination.",
     "original_error_number": 52096,
     "stops_before_shape_execution": true,
-    "scope": "historical Linux2019/CL150 local extra-view guard only; no corrected baseline PASS claim"
+    "scope": "historical Linux2019/CL150 local extra-view guard only; no corrected baseline PASS claim",
+    "unchanged_source_after_declared_test_deltas_sha256": "63146ed994d3638f9cd418ae722a7a2084e32404f8a9fb8af1d893848b34dd25"
+  },
+  "intermediate_fixture_execution_source_commit": "730acd74a40211b8b034b60735add80f875b1168",
+  "intermediate_fixture_sha256": "9ca73b68d2d92da0f4cc8e569d92738558df798cd701a49485023960fc10c584",
+  "capture_context_correction": {
+    "original_literal": "AND XactState=0 AND TransactionCount=0",
+    "corrected_literal": "AND XactState=1 AND TransactionCount=1",
+    "reason": "INSERT EXEC introduces the capturing statement system transaction; the procedure observes1/1 on supported SQL versions, not the outer pre-statement0/0",
+    "primary_source": "https://www.sommarskog.se/error_handling/Part2.html#INSERTEXEC"
   }
 }

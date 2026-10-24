@@ -409,20 +409,25 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertFalse(report['module_statuses_changed'])
         self.assertEqual(report['corrected_native_qualification'], 'not executed')
         self.assertEqual(report['fully_passed_positive_cases'], 0)
-        self.assertEqual(len(report['attempts']), 3)
+        self.assertEqual(len(report['attempts']), 4)
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['sql_number'] == 52096
                             and c['independent_cleanup_and_original_pin_audit'] for c in report['attempts']))
-        self.assertEqual(sum(c['database_names_absent'] for c in report['attempts']), 9)
-        self.assertEqual(sum(c['trust_states_restored'] for c in report['attempts']), 27)
+        self.assertEqual(sum(c['database_names_absent'] for c in report['attempts']), 12)
+        self.assertEqual(sum(c['trust_states_restored'] for c in report['attempts']), 36)
         corrected = (ROOT / report['fixture_path']).read_bytes()
         self.assertEqual(hashlib.sha256(corrected).hexdigest(), report['corrected_fixture_sha256'])
         start = corrected.index(b'DECLARE @Shape nvarchar(max)=')
         end = corrected.index(b'DECLARE @Profiles table', start)
-        historical = corrected[:start] + report['historical_shape_declaration'].encode('utf-8') + corrected[end:]
+        capture = report['capture_context_correction']
+        intermediate = corrected.replace(capture['corrected_literal'].encode(), capture['original_literal'].encode())
+        self.assertEqual(hashlib.sha256(intermediate).hexdigest(), report['intermediate_fixture_sha256'])
+        historical = (corrected[:start] + report['historical_shape_declaration'].encode('utf-8') + corrected[end:]).replace(
+            capture['corrected_literal'].encode(), capture['original_literal'].encode())
         self.assertNotEqual(corrected, historical)
         self.assertEqual(hashlib.sha256(historical).hexdigest(), report['original_fixture_sha256'])
-        self.assertEqual(hashlib.sha256(corrected[:start] + corrected[end:]).hexdigest(),
-                         report['extra_view_guard_applicability']['unchanged_non_shape_sha256'])
+        self.assertEqual(hashlib.sha256((corrected[:start] + corrected[end:]).replace(
+            capture['corrected_literal'].encode(), capture['original_literal'].encode())).hexdigest(),
+                         report['extra_view_guard_applicability']['unchanged_source_after_declared_test_deltas_sha256'])
         for path, digest in report['source_sha256'].items():
             self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
         self.assertEqual(report['required_followup']['positive_target_cl_cases'], 12)

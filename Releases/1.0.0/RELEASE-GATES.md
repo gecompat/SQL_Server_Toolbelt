@@ -251,7 +251,7 @@ TLS-Abnahme bleibt getrennt; die optionalen Laufzeitmessungen für ResultTable,
 Base64 und Generate Series sind kein pauschales Releasegate.
 
 Die zusätzliche [Callerrechteprüfung von ResultTable/Error Envelope](TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
-ist nicht abgeschlossen: Drei erste Versuche wurden vollständig bereinigt;
+ist nicht abgeschlossen: Vier erste Versuche wurden vollständig bereinigt;
 die Baseline scheiterte an einer falschen physischen Spalten-ID-Annahme der
 neuen Testfixture. Die korrigierte logische Ordinalprüfung ist bisher nur
 syntaktisch geprüft. Die vollständige neue Matrix samt Breitenkontrolle wartet
