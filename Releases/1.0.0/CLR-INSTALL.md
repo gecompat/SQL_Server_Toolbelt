@@ -150,6 +150,7 @@ benötigte Demodatenbank nach Kontrolle ihres Inhalts über SSMS löschen.
 |---|---|
 | Syntaxfehler an `:` | SQLCMD-Modus im tatsächlich ausgeführten Fenster einschalten. |
 | CLR ist deaktiviert | Mit der Administration die bewusste CLR-Aktivierung abstimmen; keine Sicherheitsoption zur Umgehung abschalten. |
+| `TBX_REGEX_TIMEOUT` | Der Regex-Aufruf wurde am festen Sicherheitsbudget abgebrochen. Eingabe und Pattern prüfen; die [aktuelle Nachprüfung und ihre Grenzen](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/REGEX-TIMEOUT-QUALIFICATION.md) beachten. Ein solcher Fehler ist keine Aufforderung zum Erhöhen des Budgets. |
 | Assembly nicht vertrauenswürdig | Den passenden Trustskript durch das bereits berechtigte administrative Konto ausführen lassen. |
 | Abweichender installierter Hash oder Anwesenheitszustand | Paketprofil und Erst-/Repeatdatei prüfen; für die erste Erprobung eine neue leere Demodatenbank verwenden. |
 | Windows-/UNSAFE-Fehler auf Linux | Das Portable-Profil verwenden; Windows-Provider gehören nicht zu diesem Profil. |

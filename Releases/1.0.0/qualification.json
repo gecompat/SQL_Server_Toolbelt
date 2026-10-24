@@ -3,7 +3,7 @@
   "project_version": "1.0.0",
   "executed_on": "2026-10-22",
   "publication_authorized": false,
-  "product_commit": "a20ede0b8de92203244d9b15d30426bf5f9a8b37",
+  "product_commit": "e3cf6f148d533f0081f1a35797427b691ffd1844",
   "native_package": {
     "method": "Tests/Release/Invoke-StablePackageMatrix.ps1",
     "driver": "Tests/Release/Invoke-StablePackageLab.ps1",
@@ -223,7 +223,7 @@
   },
   "executed_product_commit": "756e7fb0444aedf04949409a8fab2189b9fa890f",
   "applicability_review": {
-    "date": "2026-10-23",
-    "reason": "Only two Preview lifecycle SQL sources changed; stable SQL exports remain byte-identical. Original execution and framework scope retained; current complete/CLR evidence is separate."
+    "date": "2026-10-24",
+    "reason": "Only Preview Regex runtime changed. Stable SQL and other binaries remain byte-identical; original execution and selected-framework scope preserved. Corrected Regex and current complete/CLR evidence are separate."
   }
 }

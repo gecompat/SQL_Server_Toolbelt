@@ -12,6 +12,14 @@ ausführbare API-/Grenzprüfungen und einen PR. Öffentliche SQL-Verträge,
 Modulversionen, Sicherheitsbudgets und Support-Zielumfang bleiben unverändert.
 Veröffentlichung und autonome Weiterentwicklung sind weiterhin nicht freigegeben.
 
+## Spätere Regex-Nachprüfung
+
+Dieser Bericht bewahrt die Ausführung vom 2026-10-23 auf der damaligen
+Produktbasis. Die [Nachprüfung vom 2026-10-24](REGEX-TIMEOUT-QUALIFICATION.md)
+bindet die korrigierte DLL separat: der ursprüngliche Transformationsabschluss
+ist belegt; ein zusätzlicher Capture-Timeout bleibt offen. Die folgenden
+historischen Zahlen werden dadurch nicht rückwirkend verändert.
+
 ## Nachweis und genaue Auswahl
 
 Die [Zuordnung aller 45 Module](EVIDENCE-MAP.md) führt zu ihren kanonischen
@@ -100,8 +108,8 @@ Die feste Liste umfasst 165 Fixturedefinitionen. Jedes eingefrorene Runset
 bindet Payload, kanonisch gestagte Testquellen, Kompositionshelfer,
 synthetische XLSX-Fixtures, Labvertrag/Schema/Zusatzprompt und Methodenbytes.
 Produkt-SQL/DLLs wurden gegen die bereits nativ qualifizierten
-[Gesamtpayloads](complete-qualification.json) und den
-[Produktsnapshot](product-source.json) verglichen und nicht geändert.
+[damaligen Gesamtpayloads](https://github.com/gecompat/SQL_Server_Toolbelt/blob/466d0ca6b52636da715a3c40dcce8ea121606df6/Releases/1.0.0/complete-qualification.json) und den
+[damaligen Produktsnapshot](https://github.com/gecompat/SQL_Server_Toolbelt/blob/466d0ca6b52636da715a3c40dcce8ea121606df6/Releases/1.0.0/product-source.json) verglichen und nicht geändert.
 Methodenrevisionen sind im Gitverlauf und in den tatsächlichen privaten
 Runsets erhalten; die öffentliche Projektion nennt die öffentlichen
 Methodenhashes der akzeptierten vollständigen/partiellen Fälle. Historische
@@ -142,7 +150,7 @@ expliziten booleschen Lab-Trustwert, ohne Transportfallback.
 
 | Gate | Noch erforderlicher Scope / Voraussetzung |
 |---|---|
-| Regex-Grenznachweis | Beschriebener positiver Fixtureabschluss Linux SQL2022/CL150 local; begrenzte Diagnose vor einer begründeten Nachprüfung. |
+| Regex-Grenznachweis | Historischer Transformationsabschluss in der [Nachprüfung](REGEX-TIMEOUT-QUALIFICATION.md) auf der korrigierten DLL belegt; zusätzlicher Capture-Teilnachweis dort weiterhin offen. |
 | Echte Minimalrechte | Getrennte passende Principals und negative Rechtefälle oder separat freigegebener enger Security-Testaufbau. Dbo-Fachfixtures qualifizieren dies nicht. |
 | Serverdateien und Identitäten | ZIP-Files, File-Content und Filesystem-Windows: eigene synthetische serverseitige Dateien, Caller-/ServiceAccount-, NTFS-/Reparse-/Zugriffsfixtures mit geklärter Ownership. |
 | Zweite Session / EventLog | Vorkonfigurierter administrierter Provider; direkte API-, Rollback- und Sessionunabhängigkeitsfälle darüber. Paketinstallation allein genügt nicht. |

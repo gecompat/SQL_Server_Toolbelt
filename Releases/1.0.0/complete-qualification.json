@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0",
   "publication_authorized": false,
-  "date": "2026-10-23",
-  "product_commit": "a20ede0b8de92203244d9b15d30426bf5f9a8b37",
-  "executed_product_commit": "0a2bd2ebacbd4e6148ac4197ca87e2f8cb0a3400",
-  "product_tree_oid": "9d7da5346b39e12536922119581a19208ea698c4",
+  "date": "2026-10-24",
+  "product_commit": "e3cf6f148d533f0081f1a35797427b691ffd1844",
+  "executed_product_commit": "bb379ed4c73172914615fa1aaf6eec49d7b162ba",
+  "product_tree_oid": "4f59388baa28e94636b27b8d34546bf1d99e2855",
   "scope": "FULL_COMPLETE_PACKAGE_LIFECYCLE; not full per-module API/security/recovery qualification",
   "native_cases_passed": 12,
   "deployment_paths_passed": 24,
@@ -136,27 +136,27 @@
     "Portable-local": 40,
     "Portable-central": 40
   },
-  "method": "Tests/Release/Invoke-CompletePackageMatrix.ps1",
+  "method": "Tests/Release/Invoke-CompletePackageLab.ps1",
   "driver": "Tests/Release/Invoke-CompletePackageLab.ps1",
-  "executed_code_commit": "0c2c2690e92683ee8b1856d3d2f2e18c04954123",
+  "executed_code_commit": "bb379ed4c73172914615fa1aaf6eec49d7b162ba",
   "sql_payload_sha256": {
     "Fixtures/Pointer.Security.sql": "86899533da47b32996cedaae72d30dc2db54459d277e3fbd52c2b8ca1ef028da",
-    "SQL/Install-Portable-central.sql": "876de5bc91f87c0d6ed5a01643e3e9f3be78f351604cb991d31cedc547bc15bb",
-    "SQL/Install-Portable-local.sql": "dc106b7faf5cf065b670f56e8a047d7bff6fea6886581b5d7d21c8071df8022e",
-    "SQL/Install-Windows-central.sql": "7eb3f4f1451067c2da72a05ee8fa6b49d4e87940b8df606c2f5a92e256148eb1",
-    "SQL/Install-Windows-local.sql": "4577b3f2773a71960222b02743759c671fae0c3856c212e478c01518256575ea",
-    "SQL/Repeat-Portable-central.sql": "1f8a6e579db8db474fc8f74d6c4a59f7f4c465ce6a9bfd299459e052e0123f07",
-    "SQL/Repeat-Portable-local.sql": "7a4ef2530ac466aeb327963a690b471939198903af4490ed6c98308f360a9c2b",
-    "SQL/Repeat-Windows-central.sql": "fe3bc23cbb2958c82facde1eda6f96f77e9e752addc28fe6688511d741ac9415",
-    "SQL/Repeat-Windows-local.sql": "8230577a1e9fed908cf6771e733db1ab37594b2869a9e21729308b798a581576",
-    "SQL/Trust-Portable-central.sql": "5ec7c9b4154921cd3a27b3cac10d3a81010173f2f1cf4f14732c8f3dde522f08",
-    "SQL/Trust-Portable-local.sql": "5ec7c9b4154921cd3a27b3cac10d3a81010173f2f1cf4f14732c8f3dde522f08",
-    "SQL/Trust-Windows-central.sql": "38885427883e2665d026e5f05433731bb97094fdbb2078198efeff654f18c7d2",
-    "SQL/Trust-Windows-local.sql": "c45bb7d1a59caa926096fdc89b32c4038e15ec60af5ed711a438fc2b4f0a497e",
-    "SQL/Uninstall-Portable-central.sql": "244f7206409c940c85c6a7638750ab3212e070fe5549da38bdfa355a7255dcb8",
-    "SQL/Uninstall-Portable-local.sql": "244f7206409c940c85c6a7638750ab3212e070fe5549da38bdfa355a7255dcb8",
-    "SQL/Uninstall-Windows-central.sql": "f67427299547bf9edf77e2bd6668d82fdbd7a838d6885ad31beac486a7e557c7",
-    "SQL/Uninstall-Windows-local.sql": "15d3e1491d06b30aa06fe5223ad5de83a614b3cf8faf6291b326b3c0765332a0",
+    "SQL/Install-Portable-central.sql": "b1e2a29a77a73c7d98675ebcf3d56560d43a8aa800a7150e4797758c4be3d3de",
+    "SQL/Install-Portable-local.sql": "95ee5211de5c8092d5e242c001d338c176f126edc5d886d759338d77ef5cd3e1",
+    "SQL/Install-Windows-central.sql": "e38d5da22e162549eed292c6a3c9b74a9b269297bb8b4ec44b793d8da6385c7a",
+    "SQL/Install-Windows-local.sql": "db9e7c5d5e02df4a314dd50acdd41310e5c7a4a6fbc545ce590697a1202cd0db",
+    "SQL/Repeat-Portable-central.sql": "fa252801959a12e6982d1bda9f156229e22793d8965c4bef59cd056404a510e5",
+    "SQL/Repeat-Portable-local.sql": "b334f18789f78f11c343fd3bc551875a0d94e79630e8a2b21bc3177b56b94b65",
+    "SQL/Repeat-Windows-central.sql": "416210802d888fb2d72ef1242f97d0344f33847359256950b01d7016c5596a64",
+    "SQL/Repeat-Windows-local.sql": "d684c32abbe0fed444de110b2ace4e2f291deb068e650013e86497c5a5db229a",
+    "SQL/Trust-Portable-central.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Portable-local.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Windows-central.sql": "0788cbd6ca713dc0283a74c1ce4a9e43644961ad04d774ea32fb617bac8086f8",
+    "SQL/Trust-Windows-local.sql": "eeaa11650de3c8c51acf4347ae7228640b91302d67c5ca8ee27d427b53fdcbad",
+    "SQL/Uninstall-Portable-central.sql": "1d9a0dfcf6b6c34545c2605844c9d81fc9740a181855963396ef528df40390c3",
+    "SQL/Uninstall-Portable-local.sql": "1d9a0dfcf6b6c34545c2605844c9d81fc9740a181855963396ef528df40390c3",
+    "SQL/Uninstall-Windows-central.sql": "92224f5c08ef92c506f69bbcb1976bf1e9c45bd697f3a60ce0fa758f866fde7a",
+    "SQL/Uninstall-Windows-local.sql": "c2e5d10a567360dff5fb02a51633a32057fe0cff567954cca35382b070c86170",
     "SQL/UninstallAbsent-Portable-central.sql": "97f394b21a1cd9707c79f544b0b3e227e0f1513f85052ac7496c02761fe6d4fe",
     "SQL/UninstallAbsent-Portable-local.sql": "97f394b21a1cd9707c79f544b0b3e227e0f1513f85052ac7496c02761fe6d4fe",
     "SQL/UninstallAbsent-Windows-central.sql": "650aac63fd0a12c37b38c101a9c217d177a1c1e137d2f610678c0b5365d7e16e",
@@ -179,17 +179,11 @@
     "Tests/Release/prepare_complete_package.py": "b4aed4fe49f29f4cb0a2fdb458e2765683f5641401be888f33923bf923b02764"
   },
   "executed_method_bindings": {
-    "Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py": "e7a01dddf939f28eedc421b8da22395bf4a4c96dc871dffdd7cf109f9254915d",
-    "Scripts/Release/check_clr_builds.py": "4aece76b135c8bbd443bb5a64a9faac3221db2055ee7d75a59ed4b04d654b6d3",
-    "Scripts/Release/prepare_clr_package.py": "3349cfc6313f7743f4102d8baf36a281161b4a739ec711d8cbe7337a38a0ac6d",
-    "Scripts/Release/prepare_release.py": "c9e5306d0216f8e25d9fd56895043c5057faeae8bb61a36d4ba0f7bd2030e2c9",
     "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
     "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a",
     "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
     "Tests/Release/Invoke-CompletePackageLab.ps1": "bdbba1cdb2fd0d2156f8b90975eb3a330bb45e9cde655e78ae4e76a6a937f98c",
-    "Tests/Release/Invoke-CompletePackageMatrix.ps1": "35d66e43c9059334c51a01fc91c6fc7d82ebf0cbe9f62a474a3fb662b8f093c5",
-    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
-    "Tests/Release/prepare_complete_package.py": "b4aed4fe49f29f4cb0a2fdb458e2765683f5641401be888f33923bf923b02764"
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a"
   },
   "assertions": {
     "unknown_consumer_rejections": 24,
@@ -205,9 +199,36 @@
     "uninstall",
     "absent_uninstall_repeat"
   ],
-  "source_archive_git_commit": "5bd70a253f1ef4fcec616039236360971110f001",
-  "native_input_archive_sha256": "42179215c1768609669ad54bafd478495695cdebe2b230127c1931626acd02fc",
-  "history": [
+  "native_input_archive_sha256": "24f770be9930f994141d7d0258fe91c9bc8ee0c014a71be7f1d6cbe00dcf76aa",
+  "cleanup": {
+    "own_database_names_absent": 120,
+    "independent": true,
+    "own_trust_removed": true,
+    "preexisting_trust_preserved": true,
+    "configuration_restored_and_independently_audited": true
+  },
+  "limits": {
+    "attempts_consumed": 40,
+    "maximum_attempts": 48,
+    "maximum_seconds": 21600,
+    "original_start_retained": true,
+    "cost_and_tokens": "UNKNOWN"
+  },
+  "limitations": [
+    "No new full public-API qualification of all 45 modules.",
+    "Minimal rights, file identity/fixtures, worker transport recovery, heap/parallel and authenticated TLS remain separate.",
+    "New SSMS GUI and ODBC helper execution not performed."
+  ],
+  "post_full_preparation_delta": "Final delivery qualification metadata only; all 21 complete SQL/fixture payloads require byte equality to this native input.",
+  "current_applicability_delta": "After execution only the module evidence manifest and generated Markdown changed; runtime/build/test-oracle source bytes unchanged. Current rebuild must deliver byte-identical binaries and SQL.",
+  "execution_dispatch": "Private bounded single-owner loop invokes the unchanged canonical case driver with frozen runsets; matrix orchestration not replayed.",
+  "historical_qualification": "https://github.com/gecompat/SQL_Server_Toolbelt/blob/466d0ca6b52636da715a3c40dcce8ea121606df6/Releases/1.0.0/complete-qualification.json",
+  "matrix_definition": "Tests/Release/Invoke-CompletePackageMatrix.ps1",
+  "candidate_inputs": "Verified previous source archive plus explicitly scoped Regex product changes and reproducible private CLR candidate; canonical complete exporter, candidate intake only.",
+  "historical_base_source_archive_git_commit": "5bd70a253f1ef4fcec616039236360971110f001",
+  "verified_base_source_manifest_source_commit": "4428679cd901a6701d12275386f8d6298eb1dae4",
+  "verified_base_source_archive_sha256": "c29d84ae84afefb655fadc76647dd72ea33cbcaecff9e0bccfe96035b5eb1076",
+  "historical_execution_history": [
     {
       "result": "failed_cleaned",
       "stage": "REPEAT_local",
@@ -226,25 +247,5 @@
       "cases": 12,
       "repeat_and_absent_repeat_qualified": false
     }
-  ],
-  "cleanup": {
-    "own_database_names_absent": 114,
-    "independent": true,
-    "own_trust_removed": true,
-    "preexisting_trust_preserved": true,
-    "configuration_restored_and_independently_audited": true
-  },
-  "limits": {
-    "attempts_consumed": 38,
-    "original_start_retained": true,
-    "maximum_attempts": 42,
-    "maximum_seconds": 14400,
-    "cost_and_tokens": "UNKNOWN"
-  },
-  "limitations": [
-    "No new full public-API qualification of all 45 modules.",
-    "Minimal rights, file identity/fixtures, worker transport recovery, heap/parallel and authenticated TLS remain separate.",
-    "New SSMS GUI and ODBC helper execution not performed."
-  ],
-  "post_full_preparation_delta": "After the full native run, only synthetic product recovery and SUPPORT navigation were added. The standalone CLR native run used the new recovery code. Executed bindings are retained separately; functional SQL/DLL/driver bytes are unchanged."
+  ]
 }

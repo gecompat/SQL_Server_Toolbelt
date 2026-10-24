@@ -54,7 +54,7 @@ qualifizierten SQL-/DLL-Payloads wurden vor der neuen Labwelle verglichen.
 | [string.directional-trim](../../Modules/toolbelt.string.directional-trim/module.yaml) | stable | 5 | 2; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |
 | [string.edit-distance](../../Modules/toolbelt.string.edit-distance/module.yaml) | preview | 3 | 5; ausgewählte Fixtures bestanden | Delta; ausgewählte Fixtures nativ geprüft |
 | [string.phonetic](../../Modules/toolbelt.string.phonetic/module.yaml) | preview | 3 | 3; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |
-| [string.regex](../../Modules/toolbelt.string.regex/module.yaml) | preview | 5 | 8; partiell, Regex-Timeout | Delta; Regex-Teilnachweis |
+| [string.regex](../../Modules/toolbelt.string.regex/module.yaml) | preview | 6 | 8 historische Fixtures partiell; [aktuelle Nachprüfung](REGEX-TIMEOUT-QUALIFICATION.md) separat | Literal-Replace-Grenzen bestanden; Capture-Teilnachweis offen |
 | [string.split-advanced](../../Modules/toolbelt.string.split-advanced/module.yaml) | preview | 3 | 4; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |
 | [string.split-characters](../../Modules/toolbelt.string.split-characters/module.yaml) | stable | 6 | 2; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |
 | [string.text-pairs](../../Modules/toolbelt.string.text-pairs/module.yaml) | preview | 2 | 5; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |
@@ -77,9 +77,10 @@ ausgewählten Fixtures; die kanonischen Manifeststatus bleiben unverändert.
 Bei CSV sind die Millionenzell-, Zeilen- und Spaltengrenzen auf zwei Zielen
 bereits belegt; die pauschale Aussage „alle großen Grenzen offen“ wäre
 falsch. Weitere Ziele und der gemeinsame Default-Bytefall wurden gezielt
-ergänzt und bestanden. Regex bleibt wegen eines unerwarteten intrinsischen
-Timeouts bei Transformations.Contract unter Linux SQL2022/CL150 local
-partiell; die übrigen ausgewählten API-/Metadaten-/Grenzfälle sind belegt.
+ergänzt und bestanden. Der historische Regex-Teilnachweis bleibt erhalten.
+Die [aktuelle Nachprüfung](REGEX-TIMEOUT-QUALIFICATION.md) belegt die
+Literal-Replace-Korrektur und den ursprünglichen Transformationsabschluss
+auf der neuen DLL; ein zusätzlicher Capture-Timeout bleibt offen.
 EventLog-/Edit-Distance-Deploymentänderungen haben bereits die getrennte
 Paket-Lifecycleabnahme bestanden.
 

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-24 – Begrenzte Regex-Timeout-Korrektur
+
+Literal-Replace vermeidet unnötige vollständige LOB-Kopien nach unveränderter
+Validierung und Suche. Sicherheitsbudgets und APIs bleiben gleich. Die
+[Nachprüfung](Releases/1.0.0/REGEX-TIMEOUT-QUALIFICATION.md) bindet den
+reproduzierbaren Build, Frameworkregression, zwölf physische API-/Grenzfälle
+sowie zwölf CLR- und zwölf vollständige Paket-Lifecyclefälle. Der ursprüngliche
+Transformationsabschluss ist belegt; ein zusätzlicher Capture-Timeout bleibt
+ausdrücklich offen. Aktualisierte Kandidaten sind nicht veröffentlicht; die
+autonome Weiterentwicklung bleibt pausiert.
+
 ## 2026-10-23 – Supportziel und korrigierter Paket-Lifecycle
 
 Der [Support-Zielumfang](Releases/1.0.0/SUPPORT.md) für 45 Module mit
