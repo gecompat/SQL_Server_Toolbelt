@@ -426,7 +426,8 @@ class ApiQualificationTests(unittest.TestCase):
         prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
         binary = data[prefix + 'Binaries/Toolbelt.String.Regex.dll']
         self.assertEqual(hashlib.sha256(binary).hexdigest(), report['delivered_regex_binary_sha256'])
-        self.assertEqual(report['product_commit'], self.plan['product_commit'])
+        current_plan = json.loads((ROOT / release.PLAN).read_bytes())
+        self.assertEqual(report['product_commit'], current_plan['product_commit'])
         self.assertTrue(all(report['final_independent_audit'][key] for key in (
             'all_owned_database_names_absent', 'trust_states_restored',
             'current_input_pins_unchanged', 'configuration_restored', 'separate_configuration_audit')))
