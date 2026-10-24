@@ -215,6 +215,19 @@ class ClrPackageTests(unittest.TestCase):
         cls.clr = prepare_clr_package
         cls.package = ROOT / prepare_clr_package.LOCATION
 
+    def test_assembly_line_continuation_preserves_exact_binary_and_other_sql(self):
+        binary = bytes(range(256)) * 48
+        literal = b'0x' + binary.hex().encode('ascii')
+        source = b"-- unveraenderter Kontext\nDECLARE @B varbinary(max)=" + literal + b";\nSELECT 0x1234, N'Contoso';\n"
+        actual = self.clr.format_assembly_literals(source, [{'_bytes': binary}])
+        self.assertLess(max(map(len, actual.splitlines())), 4200)
+        self.assertEqual(actual.replace(b'\\\n', b''), source)
+        self.assertEqual(self.clr.format_assembly_literals(actual, [{'_bytes': binary}]), actual)
+        self.assertEqual(self.clr.format_assembly_literals(source, [{'_bytes': b'other'}]), source)
+        for newline in (b'\n', b'\r\n'):
+            token = actual[actual.index(b'0x'):actual.index(b';')].replace(b'\\\n', b'\\' + newline)
+            self.assertEqual(bytes.fromhex(token[2:].replace(b'\\' + newline, b'').decode('ascii')), binary)
+
     def test_actual_prebuilt_package_and_platform_boundaries(self):
         metadata = self.clr.verify(self.package)
         self.assertEqual(len(metadata['artifacts']), 13)

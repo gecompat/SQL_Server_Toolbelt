@@ -90,7 +90,7 @@ try {
  $control=Open-ReleaseConnection 'master'
  if($AuditOnly){
   $ledger=Get-Content -LiteralPath $journal -Raw|ConvertFrom-Json
-  if($ledger.targetIdentity -cne $targetIdentity -or $ledger.state -cne 'COMPLETE'){throw 'RELEASE_CLR_AUDIT_STATE'}
+  if($ledger.targetIdentity -cne $targetIdentity -or $ledger.state -cnotin @('COMPLETE','FAILED_CLEANED')){throw 'RELEASE_CLR_AUDIT_STATE'}
   foreach($entry in $ledger.databases){
    $r=@(Invoke-ReleaseSql $control 'SELECT DB_ID(@Name) Id;' @{'@Name'=$entry.name} -Rows)
    if($entry.state -cne 'DROPPED' -or $r.Count -ne 1 -or $r[0].Id -isnot [DBNull]){throw 'RELEASE_CLR_AUDIT_DB_PRESENT'}
