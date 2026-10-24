@@ -477,7 +477,14 @@ class ApiQualificationTests(unittest.TestCase):
                 self.assertEqual(current, followup['source_sha256'][path])
                 with zipfile.ZipFile(ROOT / release.ARTIFACTS / (release.NAME + '.zip')) as archive:
                     delivered = archive.read(release.NAME + '/' + path)
-                self.assertEqual(hashlib.sha256(delivered.replace(b'\r\n', b'\n')).hexdigest(), digest)
+                    manifest = json.loads(archive.read(release.NAME + '/PACKAGE-MANIFEST.json'))
+                    bundle = archive.read(release.NAME + '/PREPARATION.bundle')
+                self.assertEqual(hashlib.sha256(delivered.replace(b'\r\n', b'\n')).hexdigest(), current)
+                # Der neue Paketstand liefert den aktuellen Treiber. Der
+                # historische Nachweis bleibt am unveränderten Produktbaum
+                # des mitgelieferten Bundles verifizierbar, auch nach Squash.
+                _, product, _ = release.recovered_snapshot(bundle, manifest['source_commit'], report['product_commit'])
+                self.assertEqual(hashlib.sha256(product[path].replace(b'\r\n', b'\n')).hexdigest(), digest)
             else:
                 self.assertEqual(current, digest)
         data = release.read_zip((ROOT / release.CLR_PACKAGE).read_bytes())
