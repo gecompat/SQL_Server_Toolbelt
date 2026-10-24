@@ -394,7 +394,9 @@
         "core:windows:2022:160",
         "core:windows:2025:150"
       ],
-      "additional_evidence": "Releases/1.0.0/api-qualification.json"
+      "additional_evidence": "Releases/1.0.0/api-qualification.json",
+      "isolated_rights_evidence": "Releases/1.0.0/execution-context-rights-qualification.json",
+      "isolated_rights_scope": "five public APIs, one exact object grant at a time, twelve target/CL cases local/direct central; no cross-database login mapping claim"
     },
     {
       "module_id": "toolbelt.core.generate-series",

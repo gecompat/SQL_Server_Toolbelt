@@ -1,0 +1,266 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-24",
+  "publication_authorized": false,
+  "result": "PASS",
+  "scope": "five unchanged public Execution Context APIs; one exact object grant at a time; local and direct central database context, no lowpriv cross-database login mapping claim",
+  "module_id": "toolbelt.core.execution-context",
+  "module_version": "1.0.0",
+  "product_commit": "becbc2d9fe76339926c1902a930d869949a2bb74",
+  "fixture_execution_source_commit": "c6945e2fb01da0a00bddad4069ed528ef3375297",
+  "public_apis": [
+    {
+      "name": "USP_BeginExecution",
+      "permission": "EXECUTE"
+    },
+    {
+      "name": "USP_SetExecutionContext",
+      "permission": "EXECUTE"
+    },
+    {
+      "name": "USP_EndExecution",
+      "permission": "EXECUTE"
+    },
+    {
+      "name": "TVF_CurrentExecutionContext",
+      "permission": "SELECT"
+    },
+    {
+      "name": "SVF_CurrentExecutionId",
+      "permission": "EXECUTE"
+    }
+  ],
+  "source_sha256": {
+    "Modules/toolbelt.core.execution-context/Source/SVF_CurrentExecutionId.sql": "cf18c7c7963ef2a3daa955ae8d2eaaebe7d9cd4326063a198f6b586e5425f372",
+    "Modules/toolbelt.core.execution-context/Source/TVF_CurrentExecutionContext.sql": "8e879b4c2001683b1db7261e063555226767c04110f953d051e5757fe7c1369a",
+    "Modules/toolbelt.core.execution-context/Source/USP_BeginExecution.sql": "0bda5296677e26424e40e184030c5f511f5391f0b6531c3ff616fb8257e8bdb2",
+    "Modules/toolbelt.core.execution-context/Source/USP_EndExecution.sql": "0af2d75b11e5bb0f4e4c9b5a8c92b33c05792a368b142d5949177fa6a561be15",
+    "Modules/toolbelt.core.execution-context/Source/USP_SetExecutionContext.sql": "e315d831d6e83657187c40424c699cef058f8a0315fcf3d6995c89ed6c74e74d",
+    "Tests/Release/Runtime/ExecutionContext.Rights.sql": "e6da00319728bdf6b6a2508f4a19e040942a1dfe0f8a7478ee45e85a944b68d3",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15"
+  },
+  "qualification_package_sql_sha256": {
+    "Fixtures/Pointer.Security.sql": "86899533da47b32996cedaae72d30dc2db54459d277e3fbd52c2b8ca1ef028da",
+    "SQL/Install-Portable-central.sql": "c18b490b306ba2bd3565ff2c5ac4c6018ee028f6308c7c8d88dd9e57d6c1a14d",
+    "SQL/Install-Portable-local.sql": "c0d672c1ae87fcc126ea45f99d9705079a321f63def208de73bc4f0fa2ee1206",
+    "SQL/Install-Windows-central.sql": "c5c39dae3b7d59f738b71bd96d0eb7a68cb783e6bdf3596770068c56578059b7",
+    "SQL/Install-Windows-local.sql": "4624028561639ce6e33e47d1774450e4855b79726472e6b62dada731bcdb5b91",
+    "SQL/Repeat-Portable-central.sql": "6e3ffe0c26b2fb51a1b2c2942e0d0fe0fbd085d42119507b25a134dacc6cd4f2",
+    "SQL/Repeat-Portable-local.sql": "9784203a8efd2fb4097b070f190e32f0edd63fc8cb659e0922b2e49f3a3b4efa",
+    "SQL/Repeat-Windows-central.sql": "77e7f0af4669c7ec6adddf27c7032fd6098cb48fd4554f4b958c9c2fdf28b125",
+    "SQL/Repeat-Windows-local.sql": "dca245987e3be8cc4358fd5773adedfc3e676090429c719a3040c379647019b6",
+    "SQL/Trust-Portable-central.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Portable-local.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Windows-central.sql": "0788cbd6ca713dc0283a74c1ce4a9e43644961ad04d774ea32fb617bac8086f8",
+    "SQL/Trust-Windows-local.sql": "eeaa11650de3c8c51acf4347ae7228640b91302d67c5ca8ee27d427b53fdcbad",
+    "SQL/Uninstall-Portable-central.sql": "1d9a0dfcf6b6c34545c2605844c9d81fc9740a181855963396ef528df40390c3",
+    "SQL/Uninstall-Portable-local.sql": "1d9a0dfcf6b6c34545c2605844c9d81fc9740a181855963396ef528df40390c3",
+    "SQL/Uninstall-Windows-central.sql": "92224f5c08ef92c506f69bbcb1976bf1e9c45bd697f3a60ce0fa758f866fde7a",
+    "SQL/Uninstall-Windows-local.sql": "c2e5d10a567360dff5fb02a51633a32057fe0cff567954cca35382b070c86170",
+    "SQL/UninstallAbsent-Portable-central.sql": "97f394b21a1cd9707c79f544b0b3e227e0f1513f85052ac7496c02761fe6d4fe",
+    "SQL/UninstallAbsent-Portable-local.sql": "97f394b21a1cd9707c79f544b0b3e227e0f1513f85052ac7496c02761fe6d4fe",
+    "SQL/UninstallAbsent-Windows-central.sql": "650aac63fd0a12c37b38c101a9c217d177a1c1e137d2f610678c0b5365d7e16e",
+    "SQL/UninstallAbsent-Windows-local.sql": "702e0df5a1b91efd5f8f77fe5aae17157c6f8387103651110036334c70bc9415"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "positive_api_scenarios_per_context": 5,
+  "strict_denial_probes_per_context": 30,
+  "positive_api_scenarios": 120,
+  "strict_permission_denial_probes": 720,
+  "expected_denial_sql_number": 229,
+  "phases": [
+    "no grants",
+    "only the current API object grant",
+    "current API object grant revoked"
+  ],
+  "isolation": "every positive API scenario also denies all four other public APIs with SQL229; scalar wrapper succeeds without a direct TVF SELECT grant",
+  "value_oracles": [
+    "explicit root and nested identity/depth",
+    "correlation, actor and tenant set/clear",
+    "nested and final End cleanup",
+    "fixed six-column TVF row and empty context",
+    "fixed scalar identity and NULL on empty context"
+  ],
+  "test_identity": "own database user WITHOUT LOGIN; no role/schema/database/server grants, one public object grant at a time",
+  "session_scope": "requires all six reserved session keys empty initially; clears only those owned keys and removes own user on success or failure",
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-depth",
+      "actual_state": "FAILED_CLEANED",
+      "expected_sql_number": 52095,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-object",
+      "actual_state": "FAILED_CLEANED",
+      "expected_sql_number": 52095,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "limits": {
+    "work_seconds": 300,
+    "cleanup_deadline_seconds": 360,
+    "outer_watchdog_seconds": 400
+  },
+  "functional_transport": {
+    "test_purpose": "Functional",
+    "encrypt_required": true,
+    "explicit_lab_trust_preserved": true,
+    "authenticated_tls_claim": false
+  },
+  "final_independent_audit": {
+    "all_owned_database_names_absent": true,
+    "positive_case_database_names_absent": 36,
+    "positive_case_trust_states_restored": 132,
+    "control_cleanup_separately_verified": true,
+    "configuration_scopes_audited": 6,
+    "temporary_clr_configuration_restored": true,
+    "separate_configuration_audit": true,
+    "fixture_and_input_pins_preserved": true
+  },
+  "product_and_package_payload_changed": false,
+  "module_status_changed": false,
+  "remaining_gates": [
+    "lowpriv cross-database identity mapping",
+    "module resource/parallel/recovery and client gates remain separately scoped",
+    "other modules and final release/publication gates"
+  ],
+  "cost_and_tokens": "UNKNOWN"
+}

@@ -33,7 +33,7 @@ qualifizierten SQL-/DLL-Payloads wurden vor der neuen Labwelle verglichen.
 | [core.error-envelope](../../Modules/toolbelt.core.error-envelope/module.yaml) | stable | 4 | 2; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |
 | [core.event-log](../../Modules/toolbelt.core.event-log/module.yaml) | preview | 4 | keine neue API-Prüfung; Voraussetzungen separat | Delta; Lifecycle geprüft, API-Voraussetzungen separat |
 | [core.execution-cancel](../../Modules/toolbelt.core.execution-cancel/module.yaml) | preview | 3 | 2; ausgewählte Fixtures bestanden | Delta; ausgewählte Fixtures nativ geprüft |
-| [core.execution-context](../../Modules/toolbelt.core.execution-context/module.yaml) | stable | 4 | 2; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |
+| [core.execution-context](../../Modules/toolbelt.core.execution-context/module.yaml) | stable | 4 | 2; ausgewählte Fixtures bestanden; [fünf isolierte Objektrechte](EXECUTION-CONTEXT-RIGHTS-QUALIFICATION.md) separat | keine kanonische Runtimeänderung; lokaler/direkt zentraler Rechtetest bestanden |
 | [core.generate-series](../../Modules/toolbelt.core.generate-series/module.yaml) | stable | 8 | 2; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |
 | [core.result-table](../../Modules/toolbelt.core.result-table/module.yaml) | stable | 9 | 2; ausgewählte Fixtures bestanden | keine kanonische Runtimeänderung |
 | [core.second-session](../../Modules/toolbelt.core.second-session/module.yaml) | preview | 6 | keine neue API-Prüfung; Voraussetzungen separat | Delta; Datei-/Identitätsnachweis offen |
@@ -93,6 +93,11 @@ direkt zentral sind dort separat belegt. Die historische Projektion bleibt
 unverändert; keine vollständige Regex-Modulfreigabe.
 EventLog-/Edit-Distance-Deploymentänderungen haben bereits die getrennte
 Paket-Lifecycleabnahme bestanden.
+
+Die zusätzliche [Execution-Context-Rechteprüfung](EXECUTION-CONTEXT-RIGHTS-QUALIFICATION.md)
+belegt alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
+auf zwölf Ziel-/CL-Kombinationen, lokal und direkt zentral. Sie verändert
+keinen kanonischen Manifeststatus und ersetzt kein CrossDB-Identitätsmapping.
 
 Die übrigen externen Voraussetzungen und die tatsächlichen Ergebnisse stehen
 im [API-Bericht](API-QUALIFICATION.md#verbleibende-voraussetzungen) und im
