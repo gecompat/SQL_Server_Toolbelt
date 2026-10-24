@@ -104,9 +104,12 @@ Windowsidentitäten und Dateirechte. Diese Anleitung erzeugt keine Dateifixtures
 ## Wiederholung, zentrale Installation und Aufräumen
 
 Optional kannst du statt SSMS PowerShell 7 und ein vorhandenes ODBC-`sqlcmd`
-verwenden. Der optionale Helper nutzt Windows-Anmeldung und prüft vor jedem
-Tool-/SQL-Zugriff alle Paketdateien. Die Übergabe an ODBC-`sqlcmd` verwendet
-ausdrücklich UTF-8. Im entpackten Paketroot:
+verwenden. Der optionale Helper prüft vor jedem Tool-/SQL-Zugriff alle
+Paketdateien. Standard ist die Windows-Anmeldung des aufrufenden Kontos.
+Die Übergabe an ODBC-`sqlcmd` verwendet ausdrücklich UTF-8. Bei mehreren
+installierten Versionen wird genau das erste Tool im Suchpfad gewählt;
+`-SqlcmdPath` kann stattdessen einen bestimmten vorhandenen Programmpfad
+festlegen. Im entpackten Paketroot:
 
 ```powershell
 pwsh -File ./Install-ClrPackage.ps1 -ValidateOnly
@@ -115,6 +118,23 @@ pwsh -File ./Install-ClrPackage.ps1 -ServerInstance localhost -Database Toolbelt
 ```
 
 Ersetze Server und Datenbank durch die vereinbarten eigenen Testziele.
+Wenn deine Umgebung ein vorhandenes SQL-Konto verwendet, fordere dessen
+Anmeldedaten interaktiv an und übergib ausdrücklich `-Credential`:
+
+```powershell
+$sqlCredential = Get-Credential -Message 'Vorhandenes SQL-Konto für die Testinstanz'
+./Install-ClrPackage.ps1 -ServerInstance localhost -Database ToolbeltClrDemo `
+  -Profile Windows-local -RegisterExactTrust -Credential $sqlCredential
+```
+
+Führe beide Zeilen in derselben PowerShell-7-Sitzung aus. Trage das Passwort
+nur im Anmeldedialog ein, niemals im Skript, in einer Befehlszeile oder in
+einer Chatnachricht. Der Helper gibt es ausschließlich über `SQLCMDPASSWORD`
+an den gestarteten Kindprozess weiter; das Environment der aufrufenden
+Sitzung bleibt erhalten. Es werden keine Konten oder Rechte angelegt.
+Nach einem Fehler gibt es keinen automatischen Wechsel der Anmeldung,
+des Clientprogramms oder der Verbindungsoptionen.
+
 `-TrustServerCertificate` wird nur bei ausdrücklicher Erlaubnis für die konkrete
 Verbindung ergänzt; Verschlüsselung bleibt aktiviert. Die PowerShell-Option
 `-Action Repeat` wählt die Repeatdatei; für Uninstall ist zusätzlich die
@@ -149,6 +169,7 @@ benötigte Demodatenbank nach Kontrolle ihres Inhalts über SSMS löschen.
 | Meldung oder Beobachtung | Nächster Schritt |
 |---|---|
 | Syntaxfehler an `:` | SQLCMD-Modus im tatsächlich ausgeführten Fenster einschalten. |
+| Windows-Anmeldung oder SSPI scheitert | Das bereits freigegebene Anmeldeverfahren der Umgebung prüfen. Falls ein SQL-Konto vorgesehen ist, in SSMS ausdrücklich SQL-Server-Authentifizierung wählen beziehungsweise dem Helper `-Credential` übergeben. Keine Konten oder Rechte zur Umgehung ändern. |
 | CLR ist deaktiviert | Mit der Administration die bewusste CLR-Aktivierung abstimmen; keine Sicherheitsoption zur Umgehung abschalten. |
 | `TBX_REGEX_TIMEOUT` | Der Regex-Aufruf wurde am festen Sicherheitsbudget abgebrochen. Eingabe und Pattern prüfen; die [aktuelle Nachprüfung und ihre Grenzen](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/REGEX-TIMEOUT-QUALIFICATION.md) beachten. Ein solcher Fehler ist keine Aufforderung zum Erhöhen des Budgets. |
 | Assembly nicht vertrauenswürdig | Den passenden Trustskript durch das bereits berechtigte administrative Konto ausführen lassen. |
