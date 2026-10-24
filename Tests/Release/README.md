@@ -359,7 +359,7 @@ zwei absichtlich verworfene Orakelvarianten und frische unabhängige Audits.
 Produkt- und Paket-SQL-/DLL-Bytes blieben unverändert. Kein neuer CI-Job,
 automatischer Labstart oder Replay einer bereits grünen Vollmatrix.
 
-## ResultTable-/Error-Envelope-Callerprofile: noch nicht qualifiziert
+## ResultTable-/Error-Envelope-Callerprofile prüfen
 
 `Runtime/ResultTable.ErrorEnvelope.Rights.sql` prüft die dokumentierten
 Objektrechtkombinationen mit einem eigenen Benutzer ohne Login und einer
@@ -369,7 +369,12 @@ deren atomare Abweisung sowie direkte und ResultTable-Envelope-Ausgabe.
 Rollen-, Schema-, datenbankweite und Servergrants sind ausgeschlossen.
 
 Das Schemaorakel verwendet logische Spaltenpositionen, keine als fortlaufend
-angenommenen physischen IDs. Der [Diagnosebericht](../../Releases/1.0.0/TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
-erhält alle vier bereinigten Fehlversuche, die genaue Testkorrektur und die
-offene native Nachprüfung. Offline-Syntax und ein grüner Strukturtest schließen
-diesen Pflichtblock nicht. Keine automatische Labaktivierung und kein neuer CI-Job.
+angenommenen physischen IDs. Die direkte Erfassung per INSERT EXEC erwartet
+exakt den dabei sichtbaren Systemtransaktionszustand 1/1. Der
+[Rechtebericht](../../Releases/1.0.0/TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
+bindet die zwölf tatsächlich bestandenen Ziel-/CL-Fälle, die anschließend
+absichtlich verworfene Breitenkontrolle und die unabhängigen Abschlussaudits.
+Vier frühere bereinigte Testfehler bleiben separat erhalten; der unveränderte
+historische Zusatzrecht-Guard wird nicht als neuer Lauf ausgegeben. Offline-
+Syntax und Strukturtests ersetzen keine native Qualifikation. Keine automatische
+Labaktivierung und kein neuer CI-Job; echte CrossDB-Identitäten bleiben separat.

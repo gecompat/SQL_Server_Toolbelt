@@ -40,10 +40,10 @@ sind für alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
 lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.
 Echte CrossDB-Identitätsmappings und andere Modulpflichtfälle bleiben separat.
 
-Die neue [ResultTable-/Error-Envelope-Callerprüfung](TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
-ist nach Korrektur der Testorakel noch nicht nativ qualifiziert. Bereinigte
-Fehlversuche, unveränderte Produktquellen und die nötige Restprüfung sind dort
-getrennt ausgewiesen; dieser Block bleibt vor Veröffentlichung offen.
+Die [ResultTable-/Error-Envelope-Callerprüfung](TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
+hat zwölf Ziel-/CL-Kombinationen lokal und direkt zentral bestanden. Der
+begrenzte Rechtebeleg und die vier früheren bereinigten Testfehler sind getrennt
+ausgewiesen. CrossDB-Identitäten und weitere Releasegates bleiben offen.
 
 Das Gesamt-ZIP enthält zusätzlich den
 [CLR-Installationskandidaten mit fertigen DLLs](CLR-INSTALL.md). Er liefert alle

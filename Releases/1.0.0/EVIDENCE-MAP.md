@@ -105,9 +105,11 @@ im [API-Bericht](API-QUALIFICATION.md#verbleibende-voraussetzungen) und im
 Die Modulmanifeste bleiben die Quelle für modulspezifische Pflichtfälle.
 
 Die zusätzliche [ResultTable-/Error-Envelope-Callerprüfung](TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
-ist nach einem korrigierten Testorakel noch nicht nativ qualifiziert. Die
-bestehenden funktionalen Modulnachweise bleiben in ihrem ursprünglichen Scope;
-vier bereinigte Fehlversuche ersetzen keine neue Callerrechte-Abnahme.
+belegt fünf enge Callerprofile auf zwölf Ziel-/CL-Kombinationen lokal und direkt
+zentral: 120 Profilszenarien und 360 strikte Rechteabweisungen. Die aktuelle
+[Qualifikation](table-envelope-rights-qualification.json) und vier historische
+bereinigte Fehlversuche bleiben getrennt. Bestehende Modulnachweise behalten
+ihren ursprünglichen Scope; keine CrossDB-Identitäts- oder Vollfreigabe.
 
 JSON Core exportiert keine eigenen SQL-Objekte. Seine native API-Einbindung
 erfolgt über Constructors und Schema; eigene Assembly-/Lifecycle- und

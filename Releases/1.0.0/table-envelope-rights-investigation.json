@@ -159,5 +159,7 @@
     "corrected_literal": "AND XactState=1 AND TransactionCount=1",
     "reason": "INSERT EXEC introduces the capturing statement system transaction; the procedure observes1/1 on supported SQL versions, not the outer pre-statement0/0",
     "primary_source": "https://www.sommarskog.se/error_handling/Part2.html#INSERTEXEC"
-  }
+  },
+  "record_role": "historical initial and recovery investigation before corrected matrix; outcomes retained at that execution scope",
+  "followup_qualification": "Releases/1.0.0/table-envelope-rights-qualification.json"
 }
