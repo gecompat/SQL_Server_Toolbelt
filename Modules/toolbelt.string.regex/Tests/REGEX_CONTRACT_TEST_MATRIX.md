@@ -35,6 +35,15 @@ qualifizieren keine neu hinzugefügte Capture-API.
 
 ## R2b-Zusatzscope 1.2.0
 
+Für den R2a-Materialisierungspfad prüft
+`Framework/ReplaceMaterialization.Contract.cs` bytegleiche Ergebnisse und die
+Wiederverwendung bereits validierter vollständiger Strings. Die bestehende
+Framework-Transformationssuite führt ihn zusammen mit den unveränderten
+Restbudget-/Enumerationsprüfungen aus. Occurrence=0, terminale leere Treffer,
+fehlende Occurrence und ungültige Pattern bleiben eigene feste Orakel.
+Die Werte 500/2000 ms, höchstens 250 ms je Suche und 2/16 MiB werden nicht
+erhöht. Dies ist keine Laufzeit- oder SQL-Durchsatzgarantie.
+
 Framework-Build und relationaler Frameworkvertrag am 2026-10-01 PASS;
 keine SQL-SAFE-Evidence allein daraus. Der vollständige Adapter lief am
 2026-10-01 auf SQL Server 2025 Windows/CU8 bei CL150/160/170 und SQL Server

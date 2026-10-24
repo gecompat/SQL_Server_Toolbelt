@@ -34,3 +34,5 @@ $result = $type::RegexSubstring($plain, [Data.SqlTypes.SqlString]::new(''),
     [Data.SqlTypes.SqlInt32]::new(1), [Data.SqlTypes.SqlInt32]::new(4), $flags, $profile)
 if ($result.IsNull -or $result.Value -ne '') { throw 'Empty-Match-Occurrence falsch.' }
 Write-Output 'Framework R2a Restbudget/Enumeration: PASSED'
+
+& (Join-Path $PSScriptRoot 'run-framework-replace-materialization.ps1') -AssemblyPath $AssemblyPath

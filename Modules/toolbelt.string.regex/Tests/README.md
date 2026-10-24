@@ -99,8 +99,16 @@ nach dem aktuellen Releasebuild ausführen. Der gepinnte öffentliche Gitstand
 liefert das unveränderte Vorgängerbinary; vollständige Git-History ist nötig.
 `powershell Tests/Runtime/run-framework-transformations.ps1 -AssemblyPath
 <ReleaseBinary>` qualifiziert Restbudget und Enumeration unter .NET Framework.
+Die gleiche Suite ruft den Materialisierungsvertrag auf: vollständige Bytes,
+vermeidbare Kopien bei No-match/fehlender Occurrence/Gesamtersatz, terminale
+leere Treffer und unveränderte Validierung. Stringreferenzen dienen nur dem
+internen Allokationsnachweis; sie sind keine öffentliche SQL-Garantie.
+Die festen Größen- und Zeitbudgets werden zusätzlich direkt geprüft.
 Diese Nachweise sind keine Last-/Durchsatzzusage. Runtime-Matrix, Upgrade und
 Concurrency werden vom bestehenden Regexadapter ausgeführt.
+
+Die begrenzte Timeout-Untersuchung und ihre Aussagegrenzen stehen im
+[Release-Prüfbericht](../../../Releases/1.0.0/REGEX-TIMEOUT-QUALIFICATION.md).
 
 ## Aktuelle Validierungsevidenz
 
