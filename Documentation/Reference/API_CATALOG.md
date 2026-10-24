@@ -4336,7 +4336,7 @@ Prüft, ob ein regulärer Ausdruck im Text trifft.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [REGEX_FUNCTIONS.md](../../Modules/toolbelt.string.regex/Documentation/REGEX_FUNCTIONS.md).
 
-<!-- Source/Vertrag SHA256: 342d5b9c0cbc51d86fb178975a88f347666721e9ba8abcf11116870055ed17e7 -->
+<!-- Source/Vertrag SHA256: 48c86c05a886d5563ef578e35c3e998c6f3f5084f9710edbc42e264fb0c487ca -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4358,7 +4358,7 @@ Liefert eine UTF-16-Position eines ausgewählten Regex-Treffers.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [REGEX_FUNCTIONS.md](../../Modules/toolbelt.string.regex/Documentation/REGEX_FUNCTIONS.md).
 
-<!-- Source/Vertrag SHA256: 342d5b9c0cbc51d86fb178975a88f347666721e9ba8abcf11116870055ed17e7 -->
+<!-- Source/Vertrag SHA256: 48c86c05a886d5563ef578e35c3e998c6f3f5084f9710edbc42e264fb0c487ca -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
@@ -4383,7 +4383,7 @@ Zählt Regex-Treffer ab der angegebenen Startposition.
 
 Vertrag und Quelle: [RegexFunctions.sql](../../Modules/toolbelt.string.regex/Source/RegexFunctions.sql), [REGEX_FUNCTIONS.md](../../Modules/toolbelt.string.regex/Documentation/REGEX_FUNCTIONS.md).
 
-<!-- Source/Vertrag SHA256: 342d5b9c0cbc51d86fb178975a88f347666721e9ba8abcf11116870055ed17e7 -->
+<!-- Source/Vertrag SHA256: 48c86c05a886d5563ef578e35c3e998c6f3f5084f9710edbc42e264fb0c487ca -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|
