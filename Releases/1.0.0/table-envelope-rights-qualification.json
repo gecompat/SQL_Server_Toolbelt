@@ -1,0 +1,310 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-24",
+  "publication_authorized": false,
+  "result": "PASS",
+  "scope": "five documented ResultTable/ErrorEnvelope caller profiles, own database user WITHOUT LOGIN, local and direct central context; no broad rights or cross-database login mapping claim",
+  "modules": [
+    "toolbelt.core.result-table",
+    "toolbelt.core.error-envelope"
+  ],
+  "product_commit": "becbc2d9fe76339926c1902a930d869949a2bb74",
+  "fixture_execution_source_commit": "f3043136da8f471d017aca9a6b78c8d5cb5da7e5",
+  "source_sha256": {
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.core.error-envelope/Source/USP_CaptureErrorEnvelope.sql": "f2500559dde09354ef3b0a575aac04db5bc4eb5edde7cfb7dce4da3f4094bfcd",
+    "Tests/Release/Runtime/ResultTable.ErrorEnvelope.Rights.sql": "a42a747d892c12c9d4d9e9b276e0bddcd7a64d1208f0807a4ad379d55e59f227",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15"
+  },
+  "qualification_package_sql_sha256": {
+    "Fixtures/Pointer.Security.sql": "86899533da47b32996cedaae72d30dc2db54459d277e3fbd52c2b8ca1ef028da",
+    "SQL/Install-Portable-central.sql": "c18b490b306ba2bd3565ff2c5ac4c6018ee028f6308c7c8d88dd9e57d6c1a14d",
+    "SQL/Install-Portable-local.sql": "c0d672c1ae87fcc126ea45f99d9705079a321f63def208de73bc4f0fa2ee1206",
+    "SQL/Install-Windows-central.sql": "c5c39dae3b7d59f738b71bd96d0eb7a68cb783e6bdf3596770068c56578059b7",
+    "SQL/Install-Windows-local.sql": "4624028561639ce6e33e47d1774450e4855b79726472e6b62dada731bcdb5b91",
+    "SQL/Repeat-Portable-central.sql": "6e3ffe0c26b2fb51a1b2c2942e0d0fe0fbd085d42119507b25a134dacc6cd4f2",
+    "SQL/Repeat-Portable-local.sql": "9784203a8efd2fb4097b070f190e32f0edd63fc8cb659e0922b2e49f3a3b4efa",
+    "SQL/Repeat-Windows-central.sql": "77e7f0af4669c7ec6adddf27c7032fd6098cb48fd4554f4b958c9c2fdf28b125",
+    "SQL/Repeat-Windows-local.sql": "dca245987e3be8cc4358fd5773adedfc3e676090429c719a3040c379647019b6",
+    "SQL/Trust-Portable-central.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Portable-local.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Windows-central.sql": "0788cbd6ca713dc0283a74c1ce4a9e43644961ad04d774ea32fb617bac8086f8",
+    "SQL/Trust-Windows-local.sql": "eeaa11650de3c8c51acf4347ae7228640b91302d67c5ca8ee27d427b53fdcbad",
+    "SQL/Uninstall-Portable-central.sql": "1d9a0dfcf6b6c34545c2605844c9d81fc9740a181855963396ef528df40390c3",
+    "SQL/Uninstall-Portable-local.sql": "1d9a0dfcf6b6c34545c2605844c9d81fc9740a181855963396ef528df40390c3",
+    "SQL/Uninstall-Windows-central.sql": "92224f5c08ef92c506f69bbcb1976bf1e9c45bd697f3a60ce0fa758f866fde7a",
+    "SQL/Uninstall-Windows-local.sql": "c2e5d10a567360dff5fb02a51633a32057fe0cff567954cca35382b070c86170",
+    "SQL/UninstallAbsent-Portable-central.sql": "97f394b21a1cd9707c79f544b0b3e227e0f1513f85052ac7496c02761fe6d4fe",
+    "SQL/UninstallAbsent-Portable-local.sql": "97f394b21a1cd9707c79f544b0b3e227e0f1513f85052ac7496c02761fe6d4fe",
+    "SQL/UninstallAbsent-Windows-central.sql": "650aac63fd0a12c37b38c101a9c217d177a1c1e137d2f610678c0b5365d7e16e",
+    "SQL/UninstallAbsent-Windows-local.sql": "702e0df5a1b91efd5f8f77fe5aae17157c6f8387103651110036334c70bc9415"
+  },
+  "profiles": [
+    {
+      "name": "helper with own temp reference",
+      "rights": [
+        "EXECUTE PrepareResultTable"
+      ]
+    },
+    {
+      "name": "helper with regular reference metadata only",
+      "rights": [
+        "EXECUTE PrepareResultTable",
+        "object VIEW DEFINITION on own reference; no SELECT"
+      ]
+    },
+    {
+      "name": "invisible regular reference rejected atomically",
+      "rights": [
+        "EXECUTE PrepareResultTable"
+      ],
+      "expected_sql_number": 51023
+    },
+    {
+      "name": "direct ErrorEnvelope",
+      "rights": [
+        "EXECUTE CaptureErrorEnvelope"
+      ]
+    },
+    {
+      "name": "ErrorEnvelope ResultTable/KeepData",
+      "rights": [
+        "EXECUTE CaptureErrorEnvelope",
+        "EXECUTE PrepareResultTable"
+      ]
+    }
+  ],
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "independent_cleanup_pin_audit": true
+    }
+  ],
+  "profile_scenarios_passed": 120,
+  "positive_value_profile_scenarios": 96,
+  "atomic_metadata_rejections": 24,
+  "strict_permission_denial_probes": 360,
+  "expected_permission_denial_sql_number": 229,
+  "fixed_oracles": [
+    "same temp object identity, logical column order and exact metadata",
+    "Replace and KeepData values, source data retained",
+    "regular metadata without source SELECT",
+    "SQL51023 preserves target schema/data/identity",
+    "fixed direct and ResultTable envelope values and row counts",
+    "INSERT EXEC system transaction XactState1/TransactionCount1"
+  ],
+  "shape_rejection_control": {
+    "platform": "linux",
+    "sql_version": "2019",
+    "compatibility_level": 150,
+    "context": "local",
+    "executed_after_corrected_baseline_pass": true,
+    "actual_state": "FAILED_CLEANED",
+    "expected_sql_number": 52096,
+    "independent_cleanup_pin_audit": true
+  },
+  "historical_extra_view_guard": {
+    "actual_state": "FAILED_CLEANED",
+    "expected_sql_number": 52096,
+    "execution_scope": "Linux2019/CL150 local before fixture correction",
+    "replayed": false,
+    "applicability": {
+      "change_scope": "Shape string declaration and one later direct-profile capture-context literal only; remaining source bytes unchanged; neither changed SQL fragment executes before the observed extra-view guard",
+      "original_observed_guard": "Nicht exakt die vorgesehene Objektrechtkombination.",
+      "original_error_number": 52096,
+      "stops_before_shape_execution": true,
+      "scope": "historical Linux2019/CL150 local extra-view guard only; no corrected baseline PASS claim",
+      "unchanged_source_after_declared_test_deltas_sha256": "63146ed994d3638f9cd418ae722a7a2084e32404f8a9fb8af1d893848b34dd25"
+    },
+    "limit": "guard unchanged; both changed test SQL literals occur after the observed rejection; not an execution claim for the corrected fixture"
+  },
+  "previous_attempts": [
+    {
+      "role": "rights-01",
+      "actual_state": "FAILED_CLEANED",
+      "original_bytes_preserved_and_reaudited": true,
+      "cleanup_reaudit": true
+    },
+    {
+      "role": "control-wrong-shape",
+      "actual_state": "FAILED_CLEANED",
+      "original_bytes_preserved_and_reaudited": true,
+      "cleanup_reaudit": true
+    },
+    {
+      "role": "control-extra-view",
+      "actual_state": "FAILED_CLEANED",
+      "original_bytes_preserved_and_reaudited": true,
+      "cleanup_reaudit": true
+    },
+    {
+      "role": "rights-02",
+      "actual_state": "FAILED_CLEANED",
+      "original_bytes_preserved_and_reaudited": true,
+      "cleanup_reaudit": true
+    }
+  ],
+  "initial_investigation": "Releases/1.0.0/table-envelope-rights-investigation.json",
+  "final_independent_audit": {
+    "corrected_case_audits": 13,
+    "historical_original_input_and_cleanup_reaudits": 4,
+    "positive_case_database_names_absent": 36,
+    "positive_case_trust_states_restored": 132,
+    "all_scope_database_names_absent": 51,
+    "all_scope_trust_states_restored": 177,
+    "configuration_scopes_audited": 6,
+    "own_configuration_restored": true,
+    "current_and_historical_input_bindings_separated": true
+  },
+  "limits": {
+    "work_seconds": 300,
+    "cleanup_deadline_seconds": 360,
+    "outer_watchdog_seconds": 400
+  },
+  "functional_transport": {
+    "encrypt_required": true,
+    "explicit_lab_trust_preserved": true,
+    "authenticated_tls_claim": false
+  },
+  "runtime_product_sql_dll_changed": false,
+  "module_statuses_changed": false,
+  "remaining_gates": [
+    "true lowpriv cross-database identity mapping",
+    "ResultTable object-page versus canonical-manifest status reconciliation",
+    "other module/resource/parallel/recovery/client and final release/publication gates"
+  ],
+  "cost_and_tokens": "UNKNOWN"
+}

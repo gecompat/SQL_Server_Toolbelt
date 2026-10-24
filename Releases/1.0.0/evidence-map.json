@@ -291,7 +291,9 @@
         "core:windows:2022:160",
         "core:windows:2025:150"
       ],
-      "additional_evidence": "Releases/1.0.0/api-qualification.json"
+      "additional_evidence": "Releases/1.0.0/api-qualification.json",
+      "historical_rights_investigation": "Releases/1.0.0/table-envelope-rights-investigation.json",
+      "additional_rights_evidence": "Releases/1.0.0/table-envelope-rights-qualification.json"
     },
     {
       "module_id": "toolbelt.core.event-log",
@@ -466,7 +468,9 @@
         "core:windows:2022:160",
         "core:windows:2025:150"
       ],
-      "additional_evidence": "Releases/1.0.0/api-qualification.json"
+      "additional_evidence": "Releases/1.0.0/api-qualification.json",
+      "historical_rights_investigation": "Releases/1.0.0/table-envelope-rights-investigation.json",
+      "additional_rights_evidence": "Releases/1.0.0/table-envelope-rights-qualification.json"
     },
     {
       "module_id": "toolbelt.core.second-session",

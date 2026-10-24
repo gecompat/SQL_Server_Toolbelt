@@ -400,6 +400,94 @@ class ApiQualificationTests(unittest.TestCase):
         import prepare_api_qualification
         cls.api = prepare_api_qualification
 
+    def test_table_envelope_qualification_binds_matrix_oracles_and_unchanged_payload(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/table-envelope-rights-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        self.assertFalse(report['publication_authorized'])
+        self.assertFalse(report['runtime_product_sql_dll_changed'])
+        self.assertFalse(report['module_statuses_changed'])
+        plan = json.loads((ROOT / 'Releases/1.0.0/release-plan.json').read_bytes())
+        self.assertEqual(report['product_commit'], plan['product_commit'])
+        expected = {(p, v, cl) for p in ('windows', 'linux') for v, cls in
+                    {'2019': [150], '2022': [150, 160], '2025': [150, 160, 170]}.items() for cl in cls}
+        self.assertEqual(len(report['native_cases']), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_pin_audit'] for c in report['native_cases']))
+        self.assertEqual((report['profile_scenarios_passed'], report['positive_value_profile_scenarios'],
+                          report['atomic_metadata_rejections'], report['strict_permission_denial_probes']),
+                         (120, 96, 24, 360))
+        self.assertEqual(report['expected_permission_denial_sql_number'], 229)
+        self.assertEqual(len(report['profiles']), 5)
+        self.assertEqual(report['profiles'][2]['expected_sql_number'], 51023)
+        control = report['shape_rejection_control']
+        self.assertEqual((control['actual_state'], control['expected_sql_number']), ('FAILED_CLEANED', 52096))
+        self.assertTrue(control['executed_after_corrected_baseline_pass'] and control['independent_cleanup_pin_audit'])
+        historical = report['historical_extra_view_guard']
+        self.assertFalse(historical['replayed'])
+        self.assertEqual((historical['actual_state'], historical['expected_sql_number']), ('FAILED_CLEANED', 52096))
+        investigation = json.loads((ROOT / report['initial_investigation']).read_bytes())
+        self.assertEqual(historical['applicability'], investigation['extra_view_guard_applicability'])
+        self.assertEqual(len(report['previous_attempts']), 4)
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['original_bytes_preserved_and_reaudited']
+                            and c['cleanup_reaudit'] for c in report['previous_attempts']))
+        audit = report['final_independent_audit']
+        self.assertEqual((audit['corrected_case_audits'], audit['historical_original_input_and_cleanup_reaudits'],
+                          audit['configuration_scopes_audited']), (13, 4, 6))
+        self.assertEqual((audit['all_scope_database_names_absent'], audit['all_scope_trust_states_restored']), (51, 177))
+        self.assertTrue(audit['own_configuration_restored'] and audit['current_and_historical_input_bindings_separated'])
+        self.assertEqual(report['limits'], {'work_seconds': 300, 'cleanup_deadline_seconds': 360, 'outer_watchdog_seconds': 400})
+        self.assertTrue(report['functional_transport']['encrypt_required'])
+        self.assertTrue(report['functional_transport']['explicit_lab_trust_preserved'])
+        self.assertFalse(report['functional_transport']['authenticated_tls_claim'])
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+        complete = json.loads((ROOT / 'Releases/1.0.0/complete-qualification.json').read_bytes())
+        self.assertEqual(report['qualification_package_sql_sha256'], complete['sql_payload_sha256'])
+        evidence = json.loads((ROOT / 'Releases/1.0.0/evidence-map.json').read_bytes())
+        for row in evidence['modules']:
+            if row['module_id'] in report['modules']:
+                self.assertEqual(row['additional_rights_evidence'], 'Releases/1.0.0/table-envelope-rights-qualification.json')
+                self.assertEqual(row['historical_rights_investigation'], report['initial_investigation'])
+        self.assertTrue(report['remaining_gates'])
+
+    def test_table_envelope_historical_diagnosis_preserves_original_failed_inputs(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/table-envelope-rights-investigation.json').read_bytes())
+        self.assertIn('historical', report['record_role'])
+        self.assertEqual(report['followup_qualification'], 'Releases/1.0.0/table-envelope-rights-qualification.json')
+        self.assertEqual(report['result'], 'not qualified')
+        self.assertFalse(report['publication_authorized'])
+        self.assertFalse(report['runtime_product_changed'])
+        self.assertFalse(report['module_statuses_changed'])
+        self.assertEqual(report['corrected_native_qualification'], 'not executed')
+        self.assertEqual(report['fully_passed_positive_cases'], 0)
+        self.assertEqual(len(report['attempts']), 4)
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['sql_number'] == 52096
+                            and c['independent_cleanup_and_original_pin_audit'] for c in report['attempts']))
+        self.assertEqual(sum(c['database_names_absent'] for c in report['attempts']), 12)
+        self.assertEqual(sum(c['trust_states_restored'] for c in report['attempts']), 36)
+        corrected = (ROOT / report['fixture_path']).read_bytes()
+        self.assertEqual(hashlib.sha256(corrected).hexdigest(), report['corrected_fixture_sha256'])
+        start = corrected.index(b'DECLARE @Shape nvarchar(max)=')
+        end = corrected.index(b'DECLARE @Profiles table', start)
+        capture = report['capture_context_correction']
+        intermediate = corrected.replace(capture['corrected_literal'].encode(), capture['original_literal'].encode())
+        self.assertEqual(hashlib.sha256(intermediate).hexdigest(), report['intermediate_fixture_sha256'])
+        historical = (corrected[:start] + report['historical_shape_declaration'].encode('utf-8') + corrected[end:]).replace(
+            capture['corrected_literal'].encode(), capture['original_literal'].encode())
+        self.assertNotEqual(corrected, historical)
+        self.assertEqual(hashlib.sha256(historical).hexdigest(), report['original_fixture_sha256'])
+        self.assertEqual(hashlib.sha256((corrected[:start] + corrected[end:]).replace(
+            capture['corrected_literal'].encode(), capture['original_literal'].encode())).hexdigest(),
+                         report['extra_view_guard_applicability']['unchanged_source_after_declared_test_deltas_sha256'])
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+        self.assertEqual(report['required_followup']['positive_target_cl_cases'], 12)
+        self.assertEqual(report['required_followup']['fresh_standalone_oracle_controls'], 1)
+        self.assertTrue(report['known_documentation_gap'])
+
     def test_execution_context_rights_report_binds_isolated_scope_and_current_payload(self):
         import hashlib
         report = json.loads((ROOT / 'Releases/1.0.0/execution-context-rights-qualification.json').read_bytes())

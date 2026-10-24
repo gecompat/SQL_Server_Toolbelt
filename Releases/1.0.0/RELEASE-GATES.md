@@ -250,12 +250,22 @@ Preview ersetzt keine Pflichtprüfung im zugesagten Scope. Authentifizierte
 TLS-Abnahme bleibt getrennt; die optionalen Laufzeitmessungen für ResultTable,
 Base64 und Generate Series sind kein pauschales Releasegate.
 
+Die zusätzliche [Callerrechteprüfung von ResultTable/Error Envelope](TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
+ist für fünf enge Profile auf zwölf Ziel-/CL-Kombinationen lokal und direkt
+zentral abgeschlossen: 120 Profilszenarien und 360 strikte Rechteabweisungen.
+Eine neue Breitenkontrolle wurde nach bestandener Baseline gezielt verworfen.
+Vier frühere bereinigte Testfehler und ihre originalen Eingabebytes bleiben
+historisch erhalten; der Produktcode und die Paket-SQL-/DLL-Bytes blieben gleich.
+Vor Veröffentlichung sind die unterschiedlichen ResultTable-Statusangaben auf
+Objektseite und kanonischem Manifest mit gebundener Paketpflege abzugleichen.
+Bestehende gültige Nachweise werden weder umetikettiert noch pauschal verworfen.
+
 Die verbleibenden Arbeiten sind damit genauer getrennt:
 
 | Punkt | Noch erforderlich | Voraussetzung / Verantwortung |
 |---|---|---|
 | Fachliche Modulabnahme | Nachweiszuordnung aller 45 Module liegt vor. Noch unbelegte API-, Ausgabegrenzen-, Lifecycle-/Upgrade- und Clientfälle je zugesagter Kombination abschließen. Historisches Capture-Timeout-Gate begrenzt angenommen; skalare Rechte-Dokumentation korrigiert und [begrenzt qualifiziert](REGEX-RIGHTS-QUALIFICATION.md). Ausgewählte grüne Fixtures ersetzen keine volle Modulabnahme | Modulverantwortlicher; bestehende unveränderte Nachweise nur in ihrem belegten Scope weiterverwenden |
-| Minimalrechte | Die sechs Regex-Skalarfunktionen und separat alle fünf öffentlichen [Execution-Context-APIs](EXECUTION-CONTEXT-RIGHTS-QUALIFICATION.md) sind lokal und direkt zentral auf jeweils zwölf Ziel-/CL-Kombinationen mit eigenen Benutzern ohne Login geprüft; andere APIs und echte CrossDB-Identitätsmappings bleiben separat | Der ausdrücklich freigegebene enge Datenbank-Testaufbau wurde vollständig bereinigt. Execution Context prüft jeweils nur ein Objektrecht und die Abweisung der vier anderen APIs. Keine Server-Logins oder fremden Rechte; weitere Principals nur mit passender Freigabe |
+| Minimalrechte | Die sechs Regex-Skalarfunktionen, alle fünf öffentlichen [Execution-Context-APIs](EXECUTION-CONTEXT-RIGHTS-QUALIFICATION.md) und fünf [ResultTable-/Error-Envelope-Profile](TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md) sind jeweils lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen mit eigenen Benutzern ohne Login geprüft; andere APIs und echte CrossDB-Identitätsmappings bleiben separat | Der ausdrücklich freigegebene enge Datenbank-Testaufbau wurde vollständig bereinigt. Execution Context prüft jeweils nur ein Objektrecht und die Abweisung der vier anderen APIs. Keine Server-Logins oder fremden Rechte; weitere Principals nur mit passender Freigabe |
 | Datei-/Identitätsmodule | Serverseitige synthetische Datei-, NTFS-/Reparse-/Caller-/ServiceAccount-Fixtures und ihre jeweiligen positiven/negativen Fälle | Bereitgestellte Fixtures/Identitäten mit geklärter Ownership; keine eigenmächtige Änderung der Labinfrastruktur |
 | Provider/Worker und harte Recovery | Erforderliche administrierte Provider-/Workerhostkombinationen und kontrollierter echter Transport-/Hostverlust | Vorkonfigurierte Provider und geeignete gesonderte Recoveryumgebung; laufende mutierende Tests werden nicht als Ersatz hart abgebrochen |
 | Weitere Ressourcen-/Parallelgrenzen | Die modulspezifisch weiterhin verpflichtenden Last-/Heap-/Parallelfälle | Je Modul begrenzter gesonderter Testscope und passende Voraussetzungen; die drei ausdrücklich optionalen Laufzeitmessungen bleiben optional |

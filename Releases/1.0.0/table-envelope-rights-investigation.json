@@ -1,0 +1,165 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-24",
+  "publication_authorized": false,
+  "result": "not qualified",
+  "scope": "ResultTable/ErrorEnvelope caller profiles; test-oracle correction only; corrected fixture not natively executed",
+  "product_commit": "becbc2d9fe76339926c1902a930d869949a2bb74",
+  "runtime_product_changed": false,
+  "module_statuses_changed": false,
+  "attempts": [
+    {
+      "role": "wrong-shape-control",
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "attempted_context": "local",
+      "actual_state": "FAILED_CLEANED",
+      "sql_number": 52096,
+      "completed_fixtures": 0,
+      "independent_cleanup_and_original_pin_audit": true,
+      "database_names_absent": 3,
+      "trust_states_restored": 9
+    },
+    {
+      "role": "extra-view-control",
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "attempted_context": "local",
+      "actual_state": "FAILED_CLEANED",
+      "sql_number": 52096,
+      "completed_fixtures": 0,
+      "independent_cleanup_and_original_pin_audit": true,
+      "database_names_absent": 3,
+      "trust_states_restored": 9
+    },
+    {
+      "role": "baseline",
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "attempted_context": "local",
+      "actual_state": "FAILED_CLEANED",
+      "sql_number": 52096,
+      "completed_fixtures": 0,
+      "independent_cleanup_and_original_pin_audit": true,
+      "database_names_absent": 3,
+      "trust_states_restored": 9
+    },
+    {
+      "role": "logical-ordinal-baseline-before-capture-context-correction",
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "attempted_context": "local",
+      "actual_state": "FAILED_CLEANED",
+      "sql_number": 52096,
+      "completed_fixtures": 0,
+      "independent_cleanup_and_original_pin_audit": true,
+      "database_names_absent": 3,
+      "trust_states_restored": 9
+    }
+  ],
+  "fully_passed_positive_cases": 0,
+  "corrected_native_qualification": "not executed",
+  "original_fixture_execution_source_commit": "f3eadf6a0078dc332e3540cc840dba894aa3d948",
+  "fixture_path": "Tests/Release/Runtime/ResultTable.ErrorEnvelope.Rights.sql",
+  "original_fixture_sha256": "e903fe3af12819b593e985a65cce97769d62b1af024efb11321b8a98108999b1",
+  "corrected_fixture_sha256": "a42a747d892c12c9d4d9e9b276e0bddcd7a64d1208f0807a4ad379d55e59f227",
+  "historical_shape_declaration": "DECLARE @Shape nvarchar(max)=N'\n IF OBJECT_ID(N''tempdb..#ContosoRightsTarget'')<>@Before\n  OR (SELECT COUNT(*) FROM tempdb.sys.columns WITH (NOLOCK) WHERE object_id=@Before)<>3\n  OR (SELECT COUNT(*) FROM tempdb.sys.columns WITH (NOLOCK) WHERE object_id=@Before AND\n   ((column_id=1 AND name=N''Id'' AND system_type_id=TYPE_ID(N''int'') AND is_nullable=0)\n    OR (column_id=2 AND name=N''Label'' AND system_type_id=TYPE_ID(N''nvarchar'') AND max_length=32 AND is_nullable=1 AND collation_name=N''Latin1_General_100_BIN2'')\n    OR (column_id=3 AND name=N''Amount'' AND system_type_id=TYPE_ID(N''decimal'') AND precision=12 AND scale=4 AND is_nullable=1)))<>3\n  THROW 52096,N''Temp-Identitaet oder feste Schemametadaten verletzt.'',3;';\n",
+  "source_sha256": {
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.core.error-envelope/Source/USP_CaptureErrorEnvelope.sql": "f2500559dde09354ef3b0a575aac04db5bc4eb5edde7cfb7dce4da3f4094bfcd",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a"
+  },
+  "diagnosis": "The test assumed absolute physical column_id1/2/3. The existing helper preserves table identity with ADD/DROP and does not reset those IDs. Compare logical row order derived from ORDER BY column_id; retain exact identity/count/type/length/precision/scale/nullability/collation checks.",
+  "official_source": "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-columns-transact-sql",
+  "oracle_control_limit": "The old wrong-shape rejection is not accepted as an independent width-oracle qualification because the baseline failed the same invalid physical-id check. The old extra-view case observed the expected rights guard only; neither proves the corrected complete fixture.",
+  "local_syntax_check": {
+    "tool": "qualified ScriptDom",
+    "versions": [
+      150,
+      160,
+      170
+    ],
+    "resolved_profiles": 5,
+    "outer_profile_and_nested_parses": 27,
+    "sql_execution": false
+  },
+  "final_independent_audit": {
+    "all_owned_database_names_absent": true,
+    "trust_states_restored": true,
+    "activated_configuration_scope_restored_and_audited": true,
+    "other_prepared_configuration_scopes_started": false,
+    "original_input_bytes_retained": true,
+    "all_four_attempts_audited": true
+  },
+  "required_followup": {
+    "positive_target_cl_cases": 12,
+    "fresh_standalone_oracle_controls": 1,
+    "independent_case_cleanup_pin_audits": 13,
+    "platforms": [
+      "windows",
+      "linux"
+    ],
+    "combinations": {
+      "2019": [
+        150
+      ],
+      "2022": [
+        150,
+        160
+      ],
+      "2025": [
+        150,
+        160,
+        170
+      ]
+    },
+    "contexts": [
+      "local",
+      "direct_central"
+    ],
+    "limits": {
+      "work_seconds": 300,
+      "cleanup_deadline_seconds": 360,
+      "outer_watchdog_seconds": 400
+    },
+    "admission": "new finite operational authority for corrected twelve-case matrix and one changed shape rejection control; unchanged extra-view guard proof retains original execution and separately bound applicability; no native retry admitted",
+    "unchanged_extra_view_guard_control_reused": 1
+  },
+  "known_documentation_gap": {
+    "path": "Modules/toolbelt.core.result-table/Documentation/USP_PrepareResultTable.md",
+    "object_page_status": "partially validated",
+    "canonical_module_status": "validated",
+    "action": "reconcile before publication with explicit product/source binding; no status promotion from this failed probe"
+  },
+  "remaining_gates": [
+    "corrected caller-rights qualification",
+    "documentation status reconciliation",
+    "other module and external identity/file/worker/recovery/client gates",
+    "final release and separate publication authority"
+  ],
+  "cost_and_tokens": "UNKNOWN",
+  "extra_view_guard_applicability": {
+    "change_scope": "Shape string declaration and one later direct-profile capture-context literal only; remaining source bytes unchanged; neither changed SQL fragment executes before the observed extra-view guard",
+    "original_observed_guard": "Nicht exakt die vorgesehene Objektrechtkombination.",
+    "original_error_number": 52096,
+    "stops_before_shape_execution": true,
+    "scope": "historical Linux2019/CL150 local extra-view guard only; no corrected baseline PASS claim",
+    "unchanged_source_after_declared_test_deltas_sha256": "63146ed994d3638f9cd418ae722a7a2084e32404f8a9fb8af1d893848b34dd25"
+  },
+  "intermediate_fixture_execution_source_commit": "730acd74a40211b8b034b60735add80f875b1168",
+  "intermediate_fixture_sha256": "9ca73b68d2d92da0f4cc8e569d92738558df798cd701a49485023960fc10c584",
+  "capture_context_correction": {
+    "original_literal": "AND XactState=0 AND TransactionCount=0",
+    "corrected_literal": "AND XactState=1 AND TransactionCount=1",
+    "reason": "INSERT EXEC introduces the capturing statement system transaction; the procedure observes1/1 on supported SQL versions, not the outer pre-statement0/0",
+    "primary_source": "https://www.sommarskog.se/error_handling/Part2.html#INSERTEXEC"
+  },
+  "record_role": "historical initial and recovery investigation before corrected matrix; outcomes retained at that execution scope",
+  "followup_qualification": "Releases/1.0.0/table-envelope-rights-qualification.json"
+}

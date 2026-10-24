@@ -358,3 +358,23 @@ und seine JSON-Projektion binden die tatsächlich abgeschlossene Zwölfermatrix,
 zwei absichtlich verworfene Orakelvarianten und frische unabhängige Audits.
 Produkt- und Paket-SQL-/DLL-Bytes blieben unverändert. Kein neuer CI-Job,
 automatischer Labstart oder Replay einer bereits grünen Vollmatrix.
+
+## ResultTable-/Error-Envelope-Callerprofile prüfen
+
+`Runtime/ResultTable.ErrorEnvelope.Rights.sql` prüft die dokumentierten
+Objektrechtkombinationen mit einem eigenen Benutzer ohne Login und einer
+eigenen synthetischen Referenztabelle innerhalb der markierten Harness-DB.
+Die fünf Profile betreffen Temp-Schema/KeepData, reine Referenz-Metadatensicht,
+deren atomare Abweisung sowie direkte und ResultTable-Envelope-Ausgabe.
+Rollen-, Schema-, datenbankweite und Servergrants sind ausgeschlossen.
+
+Das Schemaorakel verwendet logische Spaltenpositionen, keine als fortlaufend
+angenommenen physischen IDs. Die direkte Erfassung per INSERT EXEC erwartet
+exakt den dabei sichtbaren Systemtransaktionszustand 1/1. Der
+[Rechtebericht](../../Releases/1.0.0/TABLE-ENVELOPE-RIGHTS-INVESTIGATION.md)
+bindet die zwölf tatsächlich bestandenen Ziel-/CL-Fälle, die anschließend
+absichtlich verworfene Breitenkontrolle und die unabhängigen Abschlussaudits.
+Vier frühere bereinigte Testfehler bleiben separat erhalten; der unveränderte
+historische Zusatzrecht-Guard wird nicht als neuer Lauf ausgegeben. Offline-
+Syntax und Strukturtests ersetzen keine native Qualifikation. Keine automatische
+Labaktivierung und kein neuer CI-Job; echte CrossDB-Identitäten bleiben separat.
