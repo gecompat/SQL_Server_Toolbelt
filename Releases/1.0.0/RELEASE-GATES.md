@@ -233,7 +233,8 @@ ließ sich weiterhin nicht reproduzieren. Nach ausdrücklicher Freigabe der
 Abschlussregel ist das historische Timeout-Gate für die exakt gebundene DLL
 mit [dokumentiertem Restrisiko angenommen](CAPTURE-RELEASE-ACCEPTANCE.md).
 Neue Minimalrechtetests lokal/direkt zentral bestanden in zwölf physischen
-Ziel-/CL-Fällen. Die gefundene falsche skalare Rechte-Dokumentation, echte
+Ziel-/CL-Fällen. Die skalare Rechte-Dokumentation ist inzwischen korrigiert
+und [begrenzt qualifiziert](REGEX-RIGHTS-QUALIFICATION.md). Echte
 Lowpriv-CrossDB-Mappings und übrige Modulpflichtfälle bleiben offen.
 
 | Gate | Konkret erforderlich | Abhängigkeit |
