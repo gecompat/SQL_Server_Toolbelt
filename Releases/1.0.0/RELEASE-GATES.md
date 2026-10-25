@@ -294,6 +294,12 @@ ergänzen vier TVFs und Lookup mit Einzelgrants sowie den getrennten
 Lookup-/Helperpfad auf zwölf lokalen/direkt zentralen Ziel-/CL-Kombinationen.
 Großwert-/Konkurrenz-/Lifecycle-, echte CrossDB- und Recoverygates bleiben separat.
 
+Die [Queue-Frontend-Callerrechte](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
+ergänzen sechs Producer-/Status-/Viewprofile auf zwölf Ziel-/CL-Kombinationen.
+Der Legacyproducer braucht zusätzliche Handler-Metadatensicht; die Blockerview
+ist ausschließlich leer geprüft. Sieben andere öffentliche Worker-/Recovery-
+APIs, volle Blocker-/Managed-/Provider- und Recoveryverträge bleiben offen.
+
 Die verbleibenden Arbeiten sind damit genauer getrennt:
 
 | Punkt | Noch erforderlich | Voraussetzung / Verantwortung |
