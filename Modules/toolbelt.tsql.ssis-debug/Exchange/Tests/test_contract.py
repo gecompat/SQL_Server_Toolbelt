@@ -76,18 +76,23 @@ def main():
         iteration_validator=Draft202012Validator(iteration_schema)
         Draft202012Validator.check_schema(iteration_schema)
         scope_validator=Draft202012Validator(json.loads((MODULE/"Contracts/Exchange/SSIS_Object_Identities_V1_2.schema.json").read_text(encoding="utf-8")))
-        def bundle_run(data,iterations=False,scopes=False):
+        pipeline_validator=Draft202012Validator(json.loads((MODULE/"Contracts/Exchange/SSIS_Pipeline_Identities_V1.schema.json").read_text(encoding="utf-8")))
+        def bundle_run(data,iterations=False,scopes=False,pipelines=False):
             path=root/"synthetic.dtsx";path.write_bytes(data)
-            option="--scope-bundle" if scopes else "--iteration-bundle" if iterations else "--bundle"
+            option="--pipeline-bundle" if pipelines else "--scope-bundle" if scopes else "--iteration-bundle" if iterations else "--bundle"
             external=subprocess.run(["dotnet",str(args.host),option,str(path)],capture_output=True,text=True,encoding="utf-8",timeout=40)
             framework=subprocess.run([str(parity),option,str(path)],capture_output=True,text=True,encoding="utf-8",timeout=40)
             check(external.returncode==0 and framework.returncode==0,"both hosts export identity bundle")
             a,b=json.loads(external.stdout),json.loads(framework.stdout)
-            check(set(a)=={"contract","version","model","identities"} and a["contract"]=="ssis-export-bundle" and a["version"]=="1.0.0","closed separate bundle transport")
-            validator.validate(a["model"]);(scope_validator if scopes else iteration_validator if iterations else identity_validator).validate(a["identities"])
+            check(set(a)==({"contract","version","model","identities","pipelineIdentities"} if pipelines else {"contract","version","model","identities"}) and a["contract"]=="ssis-export-bundle" and a["version"]=="1.0.0","closed separate bundle transport")
+            validator.validate(a["model"]);(scope_validator if scopes or pipelines else iteration_validator if iterations else identity_validator).validate(a["identities"])
             check(canonical(a["model"])==canonical(b["model"]) and a["identities"]==b["identities"],"one common identity core on net48 and external host")
             check(a["identities"]["packageSha256"]==hashlib.sha256(data).hexdigest(),"identity sidecar bound to exact source bytes")
             check([n["nodeId"] for n in a["identities"]["objects"]]==[n["id"] for n in a["model"]["nodes"] if n["kind"] in ("PACKAGE","EXECUTABLE")],"same occurrence universe and order")
+            if pipelines:
+                pipeline_validator.validate(a["pipelineIdentities"])
+                check(a["pipelineIdentities"]==b["pipelineIdentities"],"one shared pipeline identity projection")
+                check(a["pipelineIdentities"]["packageSha256"]==hashlib.sha256(data).hexdigest(),"pipeline identities bound to bytes")
             return a
         missing=bundle_run(fixture)
         check(all(n["dtsId"] is None for n in missing["identities"]["objects"]),"missing native IDs stay null")
@@ -124,6 +129,25 @@ def main():
         scoped=bundle_run(ET.tostring(scope_xml,encoding="utf-8",xml_declaration=True),scopes=True)
         eh=scoped["identities"]["objects"][-1]
         check(eh["scopeKind"]=="HANDLER" and eh["parentId"]=="pkg1" and eh["steps"]==[{"text":"\\OnError","counter":False}],"handler role and runtime steps from qualified native declaration")
+        pipeline_xml=ET.fromstring(fixture)
+        pipeline_flow=pipeline_xml.find(f"{DTS}Executables/{DTS}Executable")
+        pipeline_flow.set(DTS+"refId","Package\\SyntheticFlow")
+        aliases={}
+        for component in pipeline_flow.findall(f"{DTS}ObjectData/pipeline/components/component"):
+            old=component.get("refId");new="Package\\SyntheticFlow\\"+component.get("name");aliases[old]=new;component.set("refId",new)
+            for group,tag,role in (("outputs","output","Outputs"),("inputs","input","Inputs")):
+                for port in component.findall(group+"/"+tag):
+                    old=port.get("refId");new=component.get("refId")+"."+role+"["+port.get("name")+"]";aliases[old]=new;port.set("refId",new)
+        for path in pipeline_flow.findall(f"{DTS}ObjectData/pipeline/paths/path"):
+            path.set("refId","Package\\SyntheticFlow.Paths[SyntheticTransfer]");path.set("name","SyntheticTransfer")
+            path.set("startId",aliases[path.get("startId")]);path.set("endId",aliases[path.get("endId")])
+        pipeline_bundle=bundle_run(ET.tostring(pipeline_xml,encoding="utf-8",xml_declaration=True),pipelines=True)
+        identities=pipeline_bundle["pipelineIdentities"]["pipelines"][0]
+        check(identities["nodeId"]=="exe1" and len(identities["components"])==2,"pipeline refers to canonical flow and components")
+        check(identities["paths"][0]["identificationString"]=="Paths[SyntheticSource.SyntheticOutput]" and identities["paths"][0]["name"]=="SyntheticTransfer","SDK identification uses source output rather than display path name")
+        check(any(e["id"]==identities["paths"][0]["edgeId"] and e["kind"]=="PIPELINE_PATH" and e["fromId"]==identities["paths"][0]["fromPortId"] for e in pipeline_bundle["model"]["edges"]),"pipeline path reuses canonical edge and port")
+        altered=copy.deepcopy(pipeline_xml);altered.find(f"{DTS}Executables/{DTS}Executable/{DTS}ObjectData/pipeline/paths/path").set("refId","SyntheticWrongReference")
+        check(bundle_run(ET.tostring(altered,encoding="utf-8",xml_declaration=True),pipelines=True)["pipelineIdentities"]["pipelines"][0]["paths"][0]["profileStatus"]=="UNQUALIFIED","unsupported path syntax never becomes runtime identity")
         identity_xml=ET.fromstring(fixture)
         identity_xml.set(DTS+"DTSID","{11111111-1111-1111-1111-111111111111}")
         identity_exe=identity_xml.find(f"{DTS}Executables/{DTS}Executable")
