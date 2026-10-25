@@ -86,7 +86,7 @@ unveränderte Paketmodell 1.0.0. `identities` folgt dem
 [kanonischen Begleitschema](../Contracts/Exchange/SSIS_Object_Identities_V1.schema.json)
 `ssis-object-identities`, Version `1.0.0`. Es bindet denselben Paketbytehash und
 dasselbe Identitätsprofil an eine geordnete Liste sämtlicher Paket- und
-Executablevorkommen mit `nodeId`, `nodeKind` und `dtsId`.
+Executablevorkommen mit `nodeId`, `nodeKind`, `dtsId` und `packagePath`.
 
 `ExportObjectIdentities` verwendet die bereits materialisierten Definitionen
 des gemeinsamen Kerns. Ausschließlich das namespacequalifizierte Attribut
@@ -94,7 +94,12 @@ des gemeinsamen Kerns. Ausschließlich das namespacequalifizierte Attribut
 Attribut überschreibt es nicht. Eine gültige GUID wird in kleine D-Schreibweise
 normalisiert; fehlende oder ungültige Werte bleiben NULL. Gleiche GUIDs werden
 nicht zusammengeführt. Anzeigenamen, refIds und Zeitnähe erzeugen keine
-Identitätszuordnung. Der Transport besitzt denselben 16-MiB-Ausgangsgrenzwert
+Identitätszuordnung. `packagePath` übernimmt ausschließlich einen beobachteten
+namespacequalifizierten `DTS:refId` mit Root `Package` und weniger als 4000
+Zeichen; der Kern ergänzt nur den führenden Backslash. Andere oder fehlende
+Referenzen bleiben NULL. Namen werden nicht zu Pfaden rekonstruiert. Der Pfad
+ist keine normalisierte Laufzeit- oder Iterationskennung; Analyze kann nur
+eine separat qualifizierte exakte Zuordnung behaupten. Der Transport besitzt denselben 16-MiB-Ausgangsgrenzwert
 wie der Standardhost und führt keine zusätzliche XML-Paketinterpretation ein.
 
 Eine DTSID allein belegt keine Ausführungsrevision. Analyze muss zusätzlich
