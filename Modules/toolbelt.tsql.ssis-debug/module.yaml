@@ -143,3 +143,8 @@ validation_evidence:
 
 # Das externe Modell ist kein zusätzlicher SQL-CLR-Einstieg und kein Linux-CLR-Provider.
 # Die aktuelle Quellenqualifikation ergänzt die historisch gebundenen älteren Nachweise.
+
+  - date: "2026-10-25"
+    workflow: "local: Full12 explizite Windows-Engine-/CL-/Modusmatrix, Full23 und128 gemeinsame Modellgegenproben"
+    scope: "Scope-Identitätskern1.2 aus PR427; je293 Assertions,3516 insgesamt einschließlich isolierter Callerrechte, bestehender Ausgabe-/ID-Grenzen und echtem ausgeliefertem Iterationsbuild-Upgrade. Zwölf positive und fünf korrigierte FAILED_CLEANED-Testadapterversuche unabhängig abschließend auditiert. Grenzen300/360/400 unverändert; Functional Encrypt=True mit explizitem Lab-Trust ohne Fallback. Finales ZIP und Gesamtpaket separat gebunden; Windows-/SSMS-Identität, authentifizierte TLS-, Linux-Host-, SDK-/Ressourcen-/Produktions- und Veröffentlichungsgates bleiben offen. Allgemeine Autonomie pausiert."
+    result: "success"

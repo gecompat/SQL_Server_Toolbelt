@@ -111,17 +111,23 @@ def main(archive_path=None):
                 path = posixpath.normpath(root + '/' + relative)
                 require(path in payload and sha(payload[path]) == expected, 'qualified build source hash')
     allowed = {'Tests/Qualification/Identities.Windows2019-2025.20261025.json':1626,
-               'Tests/Qualification/Iterations.Windows2019-2025.20261025.json':1590}
+               'Tests/Qualification/Iterations.Windows2019-2025.20261025.json':1590,
+               'Tests/Qualification/Release.Windows.CL.20261025.json':3516}
     require(release_pins['qualification_evidence'] in allowed, 'explicit qualification contract')
     qualification_path = ssis + release_pins['qualification_evidence']
     require(manifest['nativeBinaryQualification'] == qualification_path, 'native qualification path')
     require(json.loads(payload[qualification_path]) == json.loads((MODULE / release_pins['qualification_evidence']).read_bytes()),
             'canonical native qualification')
     qualification = json.loads(payload[qualification_path])
-    require(qualification['result'] == 'PASS' and len(qualification['cases']) == 6 and
+    explicit_cl = release_pins['qualification_evidence'] == 'Tests/Qualification/Release.Windows.CL.20261025.json'
+    expected = {(v,cl,m) for v,levels in (('2019',(150,)),('2022',(150,160)),('2025',(150,160,170)))
+                for cl in levels for m in ('local','central')} if explicit_cl else {
+                    (v,m) for v in ('2019','2022','2025') for m in ('local','central')}
+    actual = {(c['sql_version'],c['compatibility_level'],c['deployment_mode']) if explicit_cl else
+              (c['sql_version'],c['deployment_mode']) for c in qualification['cases']}
+    require(qualification['result'] == 'PASS' and len(qualification['cases']) == len(expected) and
             qualification['total_native_assertions'] == allowed[release_pins['qualification_evidence']] and
-            {(c['sql_version'],c['deployment_mode']) for c in qualification['cases']} ==
-            {(v,m) for v in ('2019','2022','2025') for m in ('local','central')} and
+            actual == expected and
             all(c['result'] == 'PASS' for c in qualification['cases']) and
             sha(payload[ssis + 'Artifacts/Toolbelt.Tsql.SsisDebug.dll']).lower() == qualification['qualified_assembly_sha256'] and
             sha(payload[ssis + 'Artifacts/Deploy.WithAssembly.sql']).lower() == qualification['qualified_deploy_sql_sha256'],

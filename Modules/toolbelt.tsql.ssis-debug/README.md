@@ -26,7 +26,7 @@ und die anschließende Installationskontrolle für Parser, ResultTable und
 SSIS-Debug einschließlich des getrennten Assembly-Trust-Opt-ins.
 
 Das [vollständige ZIP-Installationspaket](InstallPackages/README.md) enthält
-den qualifizierten SSIS-Iterationsbuild einschließlich
+den qualifizierten SSIS-Build mit Scope-Identitäten1.2 einschließlich
 passender DLLs, SQL-/PowerShell-Skripte und SSMS-Beispiel zum Testen ohne eigenen
 Build. Der externe Exporthost gehört nicht zu diesem SQL-Installationspaket.
 Build- und Paketnachweise stehen getrennt in der Prüfmatrix.

@@ -236,7 +236,31 @@ Der Benutzer hat am 2026-10-18 die Veröffentlichung mit eingebettetem lokalen
 Parser-Buildpfad abgelehnt und stattdessen Pfadbereinigung und neue Qualifikation
 freigegeben. Die ursprüngliche Nativevidenz wird nicht auf neue Hashes umgedeutet.
 
-## Aktuelles Iterations-Installationspaket
+## Aktuelle Releasequalifikation mit expliziten Compatibility Levels
+
+[Release.Windows.CL.20261025.json](Qualification/Release.Windows.CL.20261025.json)
+bindet den Scope-Identitätskern1.2 aus PR427 an den tatsächlich geprüften Binary.
+Zwölf Windows-Kontexte: SQL2019/CL150, SQL2022/CL150/160 und SQL2025/CL150/160/170,
+jeweils lokal und zentral. Pro Kontext bestehen181 Kern-,61 API-,28 Rechte-/
+Grenzen-,15 Lifecycle- und8 echte Iterationsbuild-Upgrades:3.516 Assertions.
+Der SQL-Generator bleibt Dialekt150; die Datenbank-CLs wurden explizit gesetzt
+und unabhängig ausgelesen. Full23 am finalen Provider und128 externe
+Modellgegenproben ergänzen diesen eng abgegrenzten Nachweis.
+
+Die Rechtefälle verwenden ausschließlich eigene Benutzer ohne Login.
+Help braucht EXECUTE; Vorlage und Analyse brauchen zusätzlich Metadatensicht.
+Die generierten SELECT-Stufen scheitern ohne Quell-SELECT strikt mit SQL229.
+Die bestehende4000-Zeichen-ID-Grenze und atomare Ablehnung übergroßer Pakete
+sind geprüft; Sicherheitsbudgets wurden nicht erhöht. Fünf korrigierte
+Testadapterversuche bleiben FAILED_CLEANED und mitgezählt. Alle zwölf positiven
+und fünf fehlgeschlagenen Fälle haben frische unabhängige Cleanup-/Konfigurationsaudits.
+
+Die endgültige ZIP-Lieferung und das Gesamtpaket erhalten eigene Hashbindungen.
+SSMS-/Windows-Identität, authentifizierte TLS-Verbindung, Linux-Exporthost,
+SSISDB-/SDK-Parität und Produktions-/Ressourcengrenzen bleiben offen.
+Modulstatus und allgemeine Autonomie bleiben unverändert.
+
+## Historisches Iterations-Installationspaket
 
 Die [Paketprojektion](Qualification/Iterations.InstallPackage.20261025.json)
 bindet den endgültigen ZIP-Hash an den Paketquellcommit und die tatsächlich
