@@ -215,7 +215,71 @@ Der Benutzer hat am 2026-10-18 die Veröffentlichung mit eingebettetem lokalen
 Parser-Buildpfad abgelehnt und stattdessen Pfadbereinigung und neue Qualifikation
 freigegeben. Die ursprüngliche Nativevidenz wird nicht auf neue Hashes umgedeutet.
 
-## Neuer gemeinsamer Build: Windows SQL2019/2022 und Upgrade
+## Build mit Objektkennungsexport: Windows SQL2019/2022/2025
+
+Die eigenständige Qualifikation vom 2026-10-25 gilt für den aus PR #411
+gebauten CLR-Kern am Produktquellstand
+`bab9188d0af72c0ca852019ad5bc039070903c94`. Die
+[maschinenlesbare Projektion](Qualification/Identities.Windows2019-2025.20261025.json)
+bindet den tatsächlich ausgeführten Testcommit, Produktquellen, DLL und
+Deployment-SQL. Frühere Nachweise bleiben an ihren ursprünglichen Binaries
+gebunden. Der Releasebuilder erzeugte den neuen Satz zweimal byteidentisch;
+alle 21 Framework-Fälle bestanden am exakt anschließend nativ geladenen Binary.
+Die Assertionzahlen der Tabelle gelten jeweils für einen Modus.
+
+| Engine / eigene Datenbankcollation | Modi | Kern je Modus | API | Lifecycle | SSIS-Buildupgrade | Ergebnis |
+|---|---|---:|---:|---:|---:|---|
+| Windows SQL2019 / BIN2 | local / central | 181 | 61 | 15 | 14 | bestanden |
+| Windows SQL2022 / CS_AS | local / central | 181 | 61 | 15 | 14 | bestanden |
+| Windows SQL2025 / CI_AS_SC_UTF8 | local / central | 181 | 61 | 15 | 14 | bestanden |
+
+Sechs positive Einzelkontexte umfassen insgesamt 1.626 Assertions. Jeder Lauf
+prüft die vollständigen Stufen-, Cache-, API-, ResultTable-, Rechte- und
+Lifecyclefälle sowie Repeat und wiederholten Uninstall. Die Collations sind
+risikobasiert verteilt; die nativen Generatoraufrufe verwenden SQL150. Eine
+kartesische Collation-/Dialektmatrix wird damit nicht behauptet.
+
+Die Upgradefolge verwendet drei unterschiedliche echte SSIS-1.0.0-Binaries:
+ursprünglich ausgelieferter ZIP-Build → zuvor qualifizierter gemeinsamer Kern
+(`e718acc`) → Build mit Objektkennungsexport. Der Runner bindet den mittleren
+Satz zusätzlich an den unten erhaltenen früheren Qualifikationsnachweis.
+Assembly- und öffentliche/interne Prozeduridentitäten bleiben bei beiden
+Austauschschritten erhalten. Die im Originalbuild und im mittleren Build
+jeweils erzeugten JSON-Vorlagen funktionieren am endgültigen öffentlichen
+Einstieg. Es werden keine fiktiven Versionsmarker als Upgradeersatz verwendet.
+
+Für diese Folge ergänzt der bestehende Einzelmodusaufruf den Parameter
+`-SsisIntermediateReleaseDirectory $qualifiedCommonCoreReleaseDirectory`.
+Dieser Pfad enthält den vorab geprüften mittleren Releaseartefaktsatz;
+`-SsisPredecessorReleaseDirectory` verweist auf den ursprünglichen ZIP-Build,
+`-SsisReleaseDirectory` auf den neuen Build. Der neue Runner lehnt fehlende echte
+Vorgänger, abweichende DLL-/Deploymenthashes, falsche Produktbindung und
+abweichende Dependency-Pins vor jeglicher Trust-/SQL-Mutation ab.
+Ohne den zusätzlichen Parameter bleibt die bisherige direkte Upgradefolge erhalten.
+
+In jedem Kontext bestanden außerdem die echten Parser-2.0.0→2.0.1- und
+Table-Clone-4.1.0→4.1.1-Upgrades mit ursprünglicher und aktueller Triggerfixture.
+Die Arbeitsgrenze bleibt 300 Sekunden, die Cleanupdeadline 360 Sekunden ab
+Zielstart und der private äußere Watchdog 400 Sekunden. Kommandogrenzen von
+40/45 Sekunden und Sicherheitsorakel wurden nicht erhöht. Nach jedem Lauf und
+nochmals nach Abschluss bestätigten unabhängige Kontrollverbindungen den
+Cleanup. Alle zwölf eigenen Datenbanknamen waren abwesend, alle 36 relevanten
+Trustzustände wiederhergestellt, sämtliche Konfigurationsbaselines erhalten
+und die eingefrorenen Eingabebytes unverändert. Es gab keine fehlgeschlagenen
+nativen Versuche in dieser Welle.
+
+Die Läufe verwenden `Functional`, erforderliche Verschlüsselung und den
+expliziten booleschen Lab-Trustwert ohne Fallback. Authentifizierte TLS-Abnahme
+bleibt separat `not executed`. Keine Labdetails, Rohlogs oder Restorejournale
+werden veröffentlicht. Produktquellen und öffentlicher SQL-Vertrag wurden
+nicht geändert; der Modulstatus bleibt teilweise validiert und unveröffentlicht.
+
+Das versionierte Installations-ZIP enthält weiterhin den früheren ausgelieferten
+Build und keinen Exporthost. Aktualisierte Paketlieferung, Linux-Hostlauf,
+reale SSISDB-Korrelation, vollständige SDK-/Ressourcen-/Produktionsnachweise
+und abschließende Releasefreigabe gehören nicht zu dieser Qualifikation.
+
+## Historischer gemeinsamer Build: Windows SQL2019/2022 und Upgrade
 
 Die zusätzliche Qualifikation vom 2026-10-25 gilt für den Produktquellstand
 `e718accba206153c7af6aece1bf180cb23a16203`. Sie verwendet denselben SSIS-Binary
@@ -234,8 +298,8 @@ bindet die tatsächlichen Eingaben, Fälle und Ergebnisgrenzen.
 Der später über PR #411 integrierte Objektkennungsexport verändert den
 geteilten CLR-Kern. Die Nachweise hier bleiben am vorigen Binary gebunden;
 sie qualifizieren keinen daraus neu gebauten CLR-Binary. Der Objektkennungsexport
-hat eigene Offlinegegenproben. Vor einer neuen CLR-Lieferung ist deren nativer
-Nachweis getrennt zu erbringen; erfolgreiche alte Läufe werden nicht umetikettiert.
+hat eigene Offlinegegenproben und den oben getrennt dokumentierten nativen
+Nachweis. Die erfolgreichen alten Läufe werden nicht umetikettiert.
 
 Alle vier Fälle bestanden, insgesamt 1.060 Assertions. Der öffentliche
 Generator verwendet dabei SQL150; weitere Dialekte und andere Nachweise
@@ -296,14 +360,16 @@ Datenbanknamen als abwesend, alle 25 geprüften Trustzustände als wiederhergest
 und die Konfigurationsbaselines als erhalten. Originale, Journale und Rohlogs
 bleiben lokal. Produktquellen und der versionierte Installationssatz wurden
 nicht geändert. Das vorhandene ZIP liefert weiterhin den früheren Binary und
-keinen Exporthost. Neuer Paketlieferstand, SQL2025-Upgrade, Linux-Hostlauf und
-weitere Ressourcen-/SDK-/Produktionsaussagen bleiben separat; authentifizierte
+keinen Exporthost. Ein SQL2025-Upgrade war nicht Teil dieses historischen
+Nachweises; der oben dokumentierte neue Build hat einen eigenen Nachweis.
+Neuer Paketlieferstand, Linux-Hostlauf und weitere Ressourcen-/SDK-/
+Produktionsaussagen bleiben separat; authentifizierte
 TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: Invoke-LabContract.ps1 Full je Windows2019/2022 und local/central, echte SSIS-Build-/Parser-/Table-Clone-Upgrades; unabhängige Abschlussaudits`
-- Scope: Produktquellstand e718 vor dem späteren Objektkennungsexport: vier positive native Einzelkontexte mit je181 Kern-,61 API-,15 Lifecycle- und8 SSIS-Buildupgradeassertionen,1060 insgesamt. Tatsächlich ausgelieferter SSIS1.0.0-Binary ersetzt durch den bytegleichen Kandidaten des getrennten SQL2025-Nachweises; Assembly-/Prozeduridentitäten erhalten und alte JSON-Vorlage am neuen Einstieg verwendet. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture bestanden. Ein erster Adapterfehler bleibt FAILED_CLEANED; vier positive und ein historischer frischer Cleanup-/Pin-/Konfigurationsaudit PASS. Testadapter vererbt das300/360-Sekunden-Budget in Einzelmodusaufrufen; bestehende Mehrfachmodus-Kommandogrenzen erhalten, sieben Offlinegegenproben. Funktionales TLS ohne Fallback. Kein neuer SQL2025-Upgrade-, Linux-Host-, SDK-Paritäts-, Produktionslast-, Paketlieferungs- oder Veröffentlichungsnachweis.
+- Nachweis: `local: PR411 CLR-Build, Framework Full21 und Invoke-LabContract.ps1 Full je Windows2019/2022/2025 local/central mit beiden echten SSIS-Upgrades und unabhängigen Audits`
+- Scope: Produktquellstand bab9188 mit Objektkennungsexport aus PR411: sechs positive native Einzelkontexte auf Windows SQL2019/BIN2, SQL2022/CS_AS und SQL2025/CI_AS_SC_UTF8, jeweils local/central, mit je181 Kern-,61 API-,15 Lifecycle- und14 SSIS-Buildupgradeassertionen,1626 insgesamt. Drei unterschiedliche echte SSIS1.0.0-Binaries: ausgelieferter ZIP-Build → qualifizierter gemeinsamer Kern e718 → neuer Build; Assembly-/Prozeduridentitäten bei beiden Upgrades erhalten und beide Vorgänger-JSON-Vorlagen am finalen Einstieg verwendet. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades und beide Triggerfixtures bestanden. Sechs frische Abschlussaudits: zwölf eigene DB-Namen abwesend,36 Trustzustände und Konfigurationsbaselines wiederhergestellt, Pins unverändert. Reproduzierbarer exakter Build und Full21 bestanden. Budgets300/360/400 und40/45 unverändert; Functional mit Encrypt=True und explizitem Lab-Trust ohne Fallback. Keine Übertragung alter Evidenz, kein Linux-Host-, SSISDB-/SDK-Paritäts-, Produktions-, neuer Paketlieferungs- oder Veröffentlichungsnachweis; authentifizierte TLS-Abnahme separat not executed.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
