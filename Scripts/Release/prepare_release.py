@@ -35,6 +35,9 @@ NAME = f"SQL-Server-Toolbelt-{VERSION}-candidate-source"
 ARTIFACTS = f"{DIRECTORY}/Artifacts/"
 CLR_PACKAGE = f"{DIRECTORY}/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Install.zip"
 PRODUCT_SOURCE = f"{DIRECTORY}/product-source.json"
+SSIS_UPDATE = f"{DIRECTORY}/ssis-release-update.json"
+SSIS_CLR_QUALIFICATION = f"{DIRECTORY}/clr-ssis-qualification.json"
+SSIS_BUILD_QUALIFICATION = 'Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Release.Windows.CL.20261025.json'
 MAX_BYTES = 256 * 1024 * 1024
 MAX_FILES = 10000
 
@@ -288,11 +291,66 @@ def validate_plan(files: dict[str, bytes], plan: dict, product_files: dict[str, 
                 {p: b for p, b in product.items() if p.startswith(prefix)}, "Produktinputs gegenüber der qualifizierten Basis geändert.")
     validate_qualification(files, plan)
     if CLR_PACKAGE in files:
-        qualified = json.loads(files[f'{DIRECTORY}/clr-qualification.json'])
-        require(qualified['product_commit'] == plan['product_commit'], 'CLR-Produktbindung veraltet.')
         inner = read_zip(files[CLR_PACKAGE])
         prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
+        metadata = json.loads(inner[prefix + 'CLR-PACKAGE.json'])
+        qualified = json.loads(files[clr_qualification_path(metadata)])
+        require(qualified['product_commit'] == plan['product_commit'], 'CLR-Produktbindung veraltet.')
         validate_clr_qualification({p[len(prefix):]:b for p,b in inner.items()}, qualified, files)
+
+
+def validate_ssis_product_delta(previous: dict[str, bytes], current: dict[str, bytes],
+                                record: dict, build: dict, baseline: dict[str, bytes]) -> set[str]:
+    """Nur SSIS ersetzen; andere Fach-/Deployment-/Workerbytes bleiben gleich.
+
+    Historische Nicht-SSIS-Ausführungen werden damit nicht umetikettiert.
+    Pflege an anderen Tests/Lesepfaden ist ausschließlich gegen den bereits
+    öffentlichen, im Nachweis gebundenen Integrationsvorstand zulässig.
+    """
+    require(record['schema_version'] == '1.0' and record['publication_authorized'] is False,
+            'SSIS-Produktdelta ohne geschlossene Veröffentlichungsgrenze.')
+    prefix = 'Modules/toolbelt.tsql.ssis-debug/'
+    paths = {p for p in set(previous) | set(current) if p.startswith(('Modules/', 'Deployment/', 'Workers/'))}
+    changed = {p for p in paths if previous.get(p) != current.get(p)}
+    maintenance = {
+        'Modules/toolbelt.core.result-table/Tests/Static/validate_contract.py',
+        'Modules/toolbelt.json.pointer/Tests/CI/run_max_workload.py',
+        'Modules/toolbelt.json.pointer/Tests/CI/test_hard_interrupt_recovery.py',
+        'Modules/toolbelt.string.regex/Tests/Static/validate_contract.py',
+        'Workers/ExternalQueue/Tests/CiTarget.Contract.py'}
+    for path in changed:
+        if path.startswith(prefix):
+            continue
+        require((path.endswith(('.md', '.yaml')) or path in maintenance)
+                and current.get(path) == baseline.get(path),
+                'Weitere Fach-/Deployment-/Workeränderung neben dem SSIS-Update.')
+    require(sorted(changed) == record['changed_product_paths'], 'SSIS-Produktdelta driftet.')
+    for files, key in ((previous, 'previous_source_sha256'), (current, 'current_source_sha256')):
+        require(record[key] == {p: sha(files[p]) if p in files else None for p in sorted(changed)},
+                'SSIS-Produktquellhash driftet.')
+    expected = {(v, cl, mode) for v, levels in (('2019', (150,)), ('2022', (150, 160)),
+                ('2025', (150, 160, 170))) for cl in levels for mode in ('local', 'central')}
+    require(build['result'] == 'PASS' and len(build['cases']) == 12
+            and {(c['sql_version'], c['compatibility_level'], c['deployment_mode']) for c in build['cases']} == expected
+            and all(c['result'] == 'PASS' for c in build['cases']), 'SSIS-Abnahme der expliziten CL-/Modusmatrix fehlt.')
+    require(json.loads(current[SSIS_BUILD_QUALIFICATION]) == build
+            and record['build_qualification_sha256'] == sha(current[SSIS_BUILD_QUALIFICATION]), 'SSIS-Buildnachweis driftet.')
+    required = {p for p in current if p.startswith((prefix + 'Clr/', prefix + 'Exchange/Core/'))
+                and p.endswith(('.cs', '.csproj'))}
+    required |= {p for p in current if p.startswith((prefix + 'Source/', prefix + 'Deployment/')) and p.endswith('.sql')}
+    required.add('Modules/toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs')
+    required |= {prefix + 'Contracts/' + p for p in ('Api.json', 'DependencyPins.json', 'ReleaseObjects.1.0.0.json')}
+    require(required <= set(build['native_source_sha256']), 'Transitive SSIS-Produktquellen unvollständig gebunden.')
+    for path in required:
+        require(sha(current[path]) == build['native_source_sha256'][path], 'SSIS-Produktquelle gegenüber nativer Abnahme geändert.')
+    return changed
+
+
+def clr_qualification_path(metadata: dict) -> str:
+    path = metadata.get('qualification_evidence', f'{DIRECTORY}/clr-qualification.json')
+    require(path in (f'{DIRECTORY}/clr-qualification.json', SSIS_CLR_QUALIFICATION),
+            'Unbekannter CLR-Qualifikationsvertrag.')
+    return path
 
 
 def validate_regex_documentation_delta(previous: dict[str, bytes], current: dict[str, bytes]) -> set[str]:

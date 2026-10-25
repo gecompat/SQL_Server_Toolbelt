@@ -42,6 +42,18 @@ class PreparationTests(unittest.TestCase):
         self.assertEqual(self.plan["state"], "prepared_not_published")
         self.assertTrue(all(m["current_release_status"] == "unreleased" for m in self.plan["modules"]))
 
+    def test_external_host_does_not_become_a_thirteenth_sql_clr_provider(self):
+        sys.path.insert(0, str(ROOT / 'Scripts/Release'))
+        import check_clr_builds as builds
+        files = dict(self.files)
+        expected = builds.clr_projects(files)
+        files['Modules/toolbelt.tsql.ssis-debug/Exchange/Host/Toolbelt.Ssis.Export.csproj'] = b'<Project />'
+        files['Modules/toolbelt.tsql.ssis-debug/Tests/Synthetic.csproj'] = b'<Project />'
+        self.assertEqual(builds.clr_projects(files), expected)
+        del files[expected[0]]
+        with self.assertRaises(builds.release.ReleaseError):
+            builds.clr_projects(files)
+
     def test_approved_target_scope_does_not_publish_or_waive_tests(self):
         scope = self.plan['approved_target_scope']
         self.assertEqual(scope['channels'], {'stable': 19, 'preview': 26})
@@ -210,6 +222,69 @@ class PreparationTests(unittest.TestCase):
         with self.assertRaises(release.ReleaseError):
             release.validate_qualification(files, self.plan,
                                           {"Install-Stable-local.sql": b"SELECT 1;", "Install-Stable-central.sql": b"SELECT 1;"})
+
+
+class SsisProductDeltaTests(unittest.TestCase):
+    """Synthetische Validatorinputs, kein behaupteter nativer Qualifikationslauf."""
+    def inputs(self):
+        prefix = 'Modules/toolbelt.tsql.ssis-debug/'
+        previous = {'Modules/toolbelt.synthetic/Source/Test.sql': b'SELECT 1;',
+                    prefix + 'Clr/Core.cs': b'old core', prefix + 'Source/Test.sql': b'SELECT 1;',
+                    'Modules/toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs': b'fixed guard'}
+        for p in ('Api.json', 'DependencyPins.json', 'ReleaseObjects.1.0.0.json'):
+            previous[prefix + 'Contracts/' + p] = b'{}'
+        current = dict(previous)
+        current[prefix + 'Clr/Core.cs'] = b'new qualified core'
+        cases = [{'sql_version': v, 'compatibility_level': cl, 'deployment_mode': mode, 'result': 'PASS'}
+                 for v, levels in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170)))
+                 for cl in levels for mode in ('local', 'central')]
+        build = {'result': 'PASS', 'cases': cases,
+                 'native_source_sha256': {p: release.sha(b) for p, b in current.items()}}
+        current[release.SSIS_BUILD_QUALIFICATION] = release.encoded(build)
+        changed = sorted(p for p in set(previous) | set(current) if previous.get(p) != current.get(p))
+        record = {'schema_version': '1.0', 'publication_authorized': False, 'changed_product_paths': changed,
+                  'previous_source_sha256': {p: release.sha(previous[p]) if p in previous else None for p in changed},
+                  'current_source_sha256': {p: release.sha(current[p]) for p in changed},
+                  'build_qualification_sha256': release.sha(current[release.SSIS_BUILD_QUALIFICATION])}
+        return previous, current, record, build
+
+    def test_ssis_delta_keeps_other_runtime_bytes_and_exact_build_binding(self):
+        old, new, record, build = self.inputs()
+        self.assertEqual(release.validate_ssis_product_delta(old, new, record, build, old),
+                         set(record['changed_product_paths']))
+        for path in ('Modules/toolbelt.synthetic/Source/Test.sql',
+                     'Modules/toolbelt.tsql.ssis-debug/Clr/Core.cs',
+                     'Modules/toolbelt.tsql.ssis-debug/Contracts/DependencyPins.json'):
+            old, new, record, build = self.inputs()
+            new[path] += b'changed'
+            changed = sorted(p for p in set(old) | set(new) if old.get(p) != new.get(p))
+            record['changed_product_paths'] = changed
+            record['previous_source_sha256'] = {p: release.sha(old[p]) if p in old else None for p in changed}
+            record['current_source_sha256'] = {p: release.sha(new[p]) for p in changed}
+            with self.subTest(path=path), self.assertRaises(release.ReleaseError):
+                release.validate_ssis_product_delta(old, new, record, build, old)
+
+    def test_ssis_delta_does_not_accept_partial_matrix_or_publication(self):
+        for mutation in ('missing_case', 'failed_case', 'publication'):
+            old, new, record, build = self.inputs()
+            if mutation == 'missing_case':
+                build['cases'].pop()
+            elif mutation == 'failed_case':
+                build['cases'][0]['result'] = 'not executed'
+            else:
+                record['publication_authorized'] = True
+            new[release.SSIS_BUILD_QUALIFICATION] = release.encoded(build)
+            record['current_source_sha256'][release.SSIS_BUILD_QUALIFICATION] = release.sha(new[release.SSIS_BUILD_QUALIFICATION])
+            record['build_qualification_sha256'] = release.sha(new[release.SSIS_BUILD_QUALIFICATION])
+            with self.subTest(mutation=mutation), self.assertRaises(release.ReleaseError):
+                release.validate_ssis_product_delta(old, new, record, build, old)
+
+    def test_qualification_selection_stays_closed(self):
+        self.assertEqual(release.clr_qualification_path({}), 'Releases/1.0.0/clr-qualification.json')
+        self.assertEqual(release.clr_qualification_path({'qualification_evidence': release.SSIS_CLR_QUALIFICATION}),
+                         release.SSIS_CLR_QUALIFICATION)
+        with self.assertRaises(release.ReleaseError):
+            release.clr_qualification_path({'qualification_evidence': '../unqualified.json'})
 
 
 class ClrPackageTests(unittest.TestCase):
