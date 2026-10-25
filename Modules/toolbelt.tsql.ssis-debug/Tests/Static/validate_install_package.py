@@ -113,7 +113,8 @@ def main(archive_path=None):
     allowed = {'Tests/Qualification/Identities.Windows2019-2025.20261025.json':1626,
                'Tests/Qualification/Iterations.Windows2019-2025.20261025.json':1590,
                'Tests/Qualification/Release.Windows.CL.20261025.json':3516,
-               'Tests/Qualification/Pipeline.Windows.CL.20261025.json':3516}
+               'Tests/Qualification/Pipeline.Windows.CL.20261025.json':3516,
+               'Tests/Qualification/LookupRoles.Windows.CL.20261025.json':3516}
     require(release_pins['qualification_evidence'] in allowed, 'explicit qualification contract')
     qualification_path = ssis + release_pins['qualification_evidence']
     require(manifest['nativeBinaryQualification'] == qualification_path, 'native qualification path')
@@ -122,7 +123,8 @@ def main(archive_path=None):
     qualification = json.loads(payload[qualification_path])
     explicit_cl = release_pins['qualification_evidence'] in (
         'Tests/Qualification/Release.Windows.CL.20261025.json',
-        'Tests/Qualification/Pipeline.Windows.CL.20261025.json')
+        'Tests/Qualification/Pipeline.Windows.CL.20261025.json',
+        'Tests/Qualification/LookupRoles.Windows.CL.20261025.json')
     if explicit_cl:
         require(ssis + 'InstallPackages/README.md' in payload, 'human package navigation missing')
     expected = {(v,cl,m) for v,levels in (('2019',(150,)),('2022',(150,160)),('2025',(150,160,170)))

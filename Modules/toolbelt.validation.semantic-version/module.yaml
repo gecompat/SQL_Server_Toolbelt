@@ -57,7 +57,8 @@ objects:
     visibility: public
 
 permissions_required:
-  - "SELECT oder REFERENCES auf den Functions"
+  - "SELECT auf toolbelt_validation.TVF_ParseSemanticVersion, TVF_CompareSemanticVersion und TVF_SemanticVersionSortKey"
+  - "EXECUTE auf toolbelt_validation.SVF_SemanticVersionSortKey und SVF_CompareSemanticVersion"
   - "DDL-Rechte für Deploy und Uninstall"
 
 collation_contract: "Grammatik und Präzedenz verwenden Latin1_General_100_BIN2 und sind von der Datenbank-Collation unabhängig."

@@ -3,7 +3,7 @@
   "project_version": "1.0.0",
   "state": "prepared_not_published",
   "publication_authorized": false,
-  "product_commit": "7a0e15af84be8ff0874b91f99ac823d7f22429fb",
+  "product_commit": "5f796e599554b55668861ec0dee8d28ae663f082",
   "package_kind": "complete_source_candidate",
   "foundation": {
     "version": "1.25.0",
@@ -92,7 +92,7 @@
         "2022",
         "2025"
       ],
-      "manifest_sha256": "7f97edb71c229d90673a9a928d14f44b8b3fc59c30bed3ebfd0e8d9904e3f62a",
+      "manifest_sha256": "44ab4a7b4fc9720b7d8ea49623611bc6bcff3dfceee10bd6de6479a998269d50",
       "evidence_references": [
         "Modules/toolbelt.conversion.base64/module.yaml",
         "Modules/toolbelt.conversion.base64/README.md",
@@ -113,7 +113,7 @@
         "2022",
         "2025"
       ],
-      "manifest_sha256": "9523d8e7d375c064d9c70726aaddc7bae86264a3997361a1b6f92a17010fffdc",
+      "manifest_sha256": "038df454c1dd9a6abbcdd3b0c4364dc9f0a72dc28db480f309578850d2d86ac4",
       "evidence_references": [
         "Modules/toolbelt.conversion.integer-base/module.yaml",
         "Modules/toolbelt.conversion.integer-base/README.md",
@@ -157,7 +157,7 @@
         "2022",
         "2025"
       ],
-      "manifest_sha256": "821d5920645d301216d8ad7cf08b77b9dc3220e2d80aa9684ed06d8c5c02a380",
+      "manifest_sha256": "a56294ce87c0e91ec4291a6ac663b2c07480e75c6673b86b0bedbab829b22e28",
       "evidence_references": [
         "Modules/toolbelt.conversion.uri-component/module.yaml",
         "Modules/toolbelt.conversion.uri-component/README.md",
@@ -697,7 +697,7 @@
         "2022",
         "2025"
       ],
-      "manifest_sha256": "5d79eec3773e39ee35c38647eaa912fd08494c433ccf88eb8e311cbc84d90c47",
+      "manifest_sha256": "335b37830257c62e2f212585ba13327a1a6bd6963fd7bbb7d8b2609f8cb9a0bf",
       "evidence_references": [
         "Modules/toolbelt.json.schema/module.yaml",
         "Modules/toolbelt.json.schema/README.md"
@@ -738,7 +738,7 @@
         "2022",
         "2025"
       ],
-      "manifest_sha256": "ba6e6facc3155598fa3ba55ebe8225479b94e3b48c4e6d032e83174e8f202207",
+      "manifest_sha256": "41c79c56c290915c2dcaf4e1bab4bdf704375a299752bb3ee09add5cf613066a",
       "evidence_references": [
         "Modules/toolbelt.metadata.identifier/module.yaml",
         "Modules/toolbelt.metadata.identifier/README.md",
@@ -986,7 +986,7 @@
         "2022",
         "2025"
       ],
-      "manifest_sha256": "cf5b5460813bae5fa40d06408c29c6a252a5fac8e6cf934be19ee1c61338d899",
+      "manifest_sha256": "ab519faa5743e872f44e70499ebafcdeeed065e079eec2e95e8d5c518286bf8f",
       "evidence_references": [
         "Modules/toolbelt.tsql.ssis-debug/module.yaml",
         "Modules/toolbelt.tsql.ssis-debug/README.md",
@@ -1007,7 +1007,7 @@
         "2022",
         "2025"
       ],
-      "manifest_sha256": "bc8e2e6c5ed64e3312902bd5b40e632d2800d4e9850e6ff2824851d7c8167949",
+      "manifest_sha256": "423ea97e4a08a9899f788ec65bdd321410c595c1fca87955642ff14be10a4f2f",
       "evidence_references": [
         "Modules/toolbelt.validation.semantic-version/module.yaml",
         "Modules/toolbelt.validation.semantic-version/README.md",
@@ -1066,10 +1066,10 @@
   "product_snapshot": {
     "schema_version": "1.0",
     "kind": "synthetic_product_snapshot",
-    "source_commit": "0d7987e90bc5b82ea55ea4e70fe1470d042cd0f6",
-    "product_commit": "7a0e15af84be8ff0874b91f99ac823d7f22429fb",
-    "base_commit": "8a56ec2a32768670923a2ae1eb0103671199fc52",
-    "tree_oid": "6f42a52ae649b42351ad7a0b6df13b33673b3fd3",
+    "source_commit": "23775b3342f0b9069cd41a283c3adf47bf90dfe3",
+    "product_commit": "5f796e599554b55668861ec0dee8d28ae663f082",
+    "base_commit": "d228163a945678044032d3868dd11425f5f6a457",
+    "tree_oid": "704100a2a4d7d7b78f8b4d856df9205268ac295d",
     "excluded_generated_output_prefixes": [
       "Releases/1.0.0/Artifacts/"
     ]

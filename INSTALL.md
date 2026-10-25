@@ -30,6 +30,9 @@ verwendet PowerShell. [Microsoft beschreibt den integrierten SQLCMD-Modus hier.]
 Wenn dir Serverzugang oder Rechte fehlen, bitte deine Administration um eine
 eigene Testdatenbank beziehungsweise die Installation. Der Toolbelt-Installer
 erteilt keine Rechte und konfiguriert keinen SQL Server.
+Die [Caller-Rechteübersicht](Releases/1.0.0/CALLER-METADATA-UPDATE.md) nennt
+die bereits geprüften einzelnen Aufrufrechte für sechs Module. Diese sind
+von den Installationsrechten getrennt; lass sie bei Bedarf durch die Administration vergeben.
 
 ## 1. Das vorbereitete Paket herunterladen
 

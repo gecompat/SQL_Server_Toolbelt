@@ -3,10 +3,10 @@
   "kind": "ssis_current_delivery",
   "date": "2026-10-25",
   "publication_authorized": false,
-  "product_commit": "7a0e15af84be8ff0874b91f99ac823d7f22429fb",
-  "product_tree_oid": "6f42a52ae649b42351ad7a0b6df13b33673b3fd3",
-  "executed_code_commit": "1a8e8dbbe29d79cede0e42d0c20cef6391c8aa41",
-  "scope": "SSIS-only delivery update; new Windows installation/repeat/consumer/uninstall/absent-repeat; unchanged Portable payload retains original Linux cases",
+  "product_commit": "5f796e599554b55668861ec0dee8d28ae663f082",
+  "product_tree_oid": "704100a2a4d7d7b78f8b4d856df9205268ac295d",
+  "executed_code_commit": "23d3b0f055dc45bdc64e1e9c5577b45fd624a1f9",
+  "scope": "SSIS lookup-role delivery with six exact caller metadata corrections; new Windows installation/repeat/consumer/uninstall/absent-repeat; unchanged Portable payload retains original Linux cases",
   "native_cases_passed": 12,
   "new_native_cases_passed": 6,
   "retained_native_cases": 6,
@@ -283,21 +283,21 @@
   ],
   "previous_qualification_sha256": "d484d87d8e5322b8ab55dbf8ee8901626df7ff4cb066f48b0bdd2dd90486936d",
   "previous_product_commit": "becbc2d9fe76339926c1902a930d869949a2bb74",
-  "ssis_build_qualification_sha256": "2fbcf327bdb56cda6c525242bd707dfab91351a2d6c74d018f9ce38f77e30bff",
-  "native_candidate_sha256": "ca80e167d000b23289ecd54096da2e0d0528446d6f04f843d415ee6426e24aec",
+  "ssis_build_qualification_sha256": "b6d88f62afbba738e7ef758ec171482b129675e6ddb51c1b351ea5592966f254",
+  "native_candidate_sha256": "350390b615ab50e5cde8cb88d2bae9cd74b993810b267e0ad5ea73a55c640524",
   "sql_payload_sha256": {
     "SQL/Install-Portable-central.sql": "09b2f8359bff2262ff20a1716b751887acdc25866d04faca1c814d2912ded8c4",
     "SQL/Install-Portable-local.sql": "c38184a0c179d72ed6b85c009aaa5161c5460fa2b7d491dedc29380212253016",
-    "SQL/Install-Windows-central.sql": "f6590efabfca153da7ee9d5269dbc6bafc836bab792bc49beff87ec6bc8cfc2a",
-    "SQL/Install-Windows-local.sql": "ff68a51ac2eebb07fc9ea6f02343350887aea497972d9eaaac384130500fd43a",
+    "SQL/Install-Windows-central.sql": "4ca6414b1402e27dbcc3d284e50ae1b24e358c369fabdc48cca87be46ad42bdf",
+    "SQL/Install-Windows-local.sql": "ba0ba1297026fbe215ed9c248f5dea6aaed88ee115ff496edef4602bf6720067",
     "SQL/Repeat-Portable-central.sql": "4872dc7140732faedf456b20b67d0fb1431b6898d2e11de015d253d3024b68fc",
     "SQL/Repeat-Portable-local.sql": "a11c382d5d998286ecbef0405070c40e399cbd6e35d2df6f1f9679c641dfd792",
-    "SQL/Repeat-Windows-central.sql": "540bab44b8ac9351798396072ec98f8b760bd16d55b243a4b1ec9c58d0ed110b",
-    "SQL/Repeat-Windows-local.sql": "f7a48afbde011f14e7b6368fffb634e9aed8dfab0879c9cb6f90c6a6ecdda28b",
+    "SQL/Repeat-Windows-central.sql": "c666e039baa14c8bcec00026a1dd733f2b645915f3b217e1a5f8291777c42407",
+    "SQL/Repeat-Windows-local.sql": "c6d914426997ca9e7a8aad544878b163207b54924034d6212d675844d52b7aba",
     "SQL/Trust-Portable-central.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
     "SQL/Trust-Portable-local.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
-    "SQL/Trust-Windows-central.sql": "9dda5d697f9fc61ccd4c2255d7d1f4bd3097a6c2d6089d9664fbe1549c45c891",
-    "SQL/Trust-Windows-local.sql": "1eb114382f0677f5c3bfb36642815c3844916e001ee1651c008a8418c27fa193",
+    "SQL/Trust-Windows-central.sql": "ee4741d409092b4b03b49299f331ad282631952942a45079d0128fb848cf2147",
+    "SQL/Trust-Windows-local.sql": "9e6029e3fb1565d05eac5bfd9f3af9d7aaa4bdb30bbc6ec5c29e7975ea71a29f",
     "SQL/Uninstall-Portable-central.sql": "46e930eec8b5d7c5096b5c9cac193290b2945490f274b1c9d86d63b28e0defd1",
     "SQL/Uninstall-Portable-local.sql": "46e930eec8b5d7c5096b5c9cac193290b2945490f274b1c9d86d63b28e0defd1",
     "SQL/Uninstall-Windows-central.sql": "3862115e827db72753886b40bf29417bab748b4df83e0fff1f592b00f28f254e",
@@ -320,14 +320,14 @@
     "Binaries/Toolbelt.String.Phonetic.dll": "c1155aa10d9fce61ae33cf8e6f6c68528d219db4835d74b3a35e129f851f66e2fca47c99a6f8f74f3d38239f9be84968459366bbfbeb0125c077b61a8d1989e9",
     "Binaries/Toolbelt.String.Regex.dll": "515a52fa8803634f0c8c93a383016195a22f868596d3b361bb00d6f8d6a622b637be76377bf256e6297848b87aae59f5644892ec43c1a0aadb6602d0c0738eb1",
     "Binaries/Toolbelt.Tsql.ScriptParser.dll": "7f34d0472dbe5913c8d019a72b2684d89cb4ca79590b599dd5b06154d6a40c5494334d8f46218e10e9d1bc5db983a8750ba77a685d68865d9bcdf30c3d853506",
-    "Binaries/Toolbelt.Tsql.SsisDebug.dll": "a209a556703d125370794280825575203958b29516f41a65511592df20bbb96353d10df3233a3cd85f7d5595333d469e6f91546fe99c3ea2b27633bbf5d2f6ba"
+    "Binaries/Toolbelt.Tsql.SsisDebug.dll": "0a4191964a731e2f1c1338d6cb5f768923477b0033ea7dd62fe66848e9184fab55ce17dbde2c4d8a766daec84cf0442181bd85adecf2407c9786dcc4ea29dbef"
   },
   "method_bindings": {
-    "Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py": "81f6539e5b0995ba4ca48bb0b401a1ac9ab893db0caab54a23fac0d920802c8a",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py": "290c487cad9f2b864ba4c2c8916603724828088e954578d798f972dfd96cac11",
     "Scripts/Release/Install-ClrPackage.ps1": "d95884cf01b0fccda9b8d2b1725110e56cfd7b30368108e2b1c43c1b555a345d",
     "Scripts/Release/check_clr_builds.py": "986024bd557b6ef48643a2ce86810d2c3b171a1d7cca287da366a8103fccda2f",
     "Scripts/Release/prepare_clr_package.py": "7cacad1b3b96b1b31a748ddebb980862d84658deb24bd50f02ffabf6d09f93ad",
-    "Scripts/Release/prepare_release.py": "c80c61789faf7209ee48512b5080152af24cf934a869a0343c52ff85396039b0",
+    "Scripts/Release/prepare_release.py": "f28024139ce65d707b4fbb76c89db5796f53d2ce678ff923657be3a289c4fd27",
     "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
     "Tests/CI/run-csv-memory-lab.ps1": "e200d4d6fc3ca0ee6fc00f333d67b6a4f8b89652731ca383cece6731b58fa3ff",
     "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
@@ -336,7 +336,8 @@
     "Tests/Release/Invoke-CompletePackageLab.ps1": "bdbba1cdb2fd0d2156f8b90975eb3a330bb45e9cde655e78ae4e76a6a937f98c",
     "Tests/Release/Invoke-CompletePackageMatrix.ps1": "35d66e43c9059334c51a01fc91c6fc7d82ebf0cbe9f62a474a3fb662b8f093c5",
     "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
-    "Tests/Release/prepare_complete_package.py": "3ac025738f80f92c92febee5a1852df1ed90648fb6e98a0a8bd9455abff797d1"
+    "Tests/Release/prepare_complete_package.py": "3ac025738f80f92c92febee5a1852df1ed90648fb6e98a0a8bd9455abff797d1",
+    "Scripts/Release/caller_metadata.py": "ac3063fd295c92597dd52db844e512611f7f935e61355451b4f623265613a584"
   },
   "final_independent_audit": {
     "new_case_audits": 6,
@@ -371,14 +372,5 @@
     "Authenticated TLS",
     "Final publication is not authorized"
   ],
-  "cost_and_tokens": "UNKNOWN",
-  "configuration_recovery": {
-    "cases": 2,
-    "original_wrapper_result": "FAILED_CONFIGURATION_RESTORE_DEFERRED",
-    "native_driver_result": "PASS",
-    "reason": "Concurrent lab consumer; no restore while ownership could conflict",
-    "separate_own_recovery": "PASS",
-    "independent_final_audits": "PASS",
-    "functional_replay": false
-  }
+  "cost_and_tokens": "UNKNOWN"
 }

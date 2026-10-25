@@ -50,7 +50,10 @@ objects:
   - { type: TVF, schema: "toolbelt_conversion", name: "TVF_UriComponentEncodeStatus", visibility: public }
   - { type: TVF, schema: "toolbelt_conversion", name: "TVF_UriComponentDecodeStatus", visibility: public }
 
-permissions_required: ["SELECT oder REFERENCES auf den Functions", "DDL-Rechte für Deploy und Uninstall"]
+permissions_required:
+  - "SELECT auf toolbelt_conversion.TVF_UriComponentEncode, TVF_UriComponentDecode, TVF_UriComponentEncodeStatus und TVF_UriComponentDecodeStatus"
+  - "EXECUTE auf toolbelt_conversion.SVF_UriComponentEncode und SVF_UriComponentDecode"
+  - "DDL-Rechte für Deploy und Uninstall"
 collation_contract: "UTF-8-Konvertierung verwendet Latin1_General_100_BIN2_UTF8; die erzeugte Percent-Darstellung ist ASCII."
 data_type_contract: "Alle öffentlichen APIs akzeptieren und liefern nvarchar(max); Decode ist ein strikter ASCII-URI-Komponentenvertrag."
 help_contract_version: "not applicable"

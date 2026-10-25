@@ -1,6 +1,6 @@
 # Supportumfang von v1.0.0
 
-Die [aktuelle SSIS-Teilqualifikation](SSIS-PIPELINE-QUALIFICATION.md)
+Die [aktuelle SSIS-Teilqualifikation](SSIS-LOOKUP-QUALIFICATION.md)
 aktualisiert den Kandidaten und seine Lieferpakete. Der freigegebene
 Supportzielumfang und die separate Veröffentlichungsgrenze bleiben erhalten.
 

@@ -12,6 +12,7 @@ import unittest
 import warnings
 import zipfile
 import hashlib
+from test_caller_metadata import CallerMetadataTests
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location("prepare_release", ROOT / "Scripts/Release/prepare_release.py")
@@ -29,7 +30,8 @@ def source_fixture_key(module, product):
     # oder Anwendbarkeitsnachweis muss erneut die echten Validatoren durchlaufen.
     paths = (module.ARTIFACTS + module.NAME + '.zip',
              module.ARTIFACTS + module.NAME + '.zip.sha256', module.SSIS_UPDATE,
-             module.DIRECTORY + '/runtime-source-equivalence.json')
+             module.DIRECTORY + '/runtime-source-equivalence.json',
+             module.DIRECTORY + '/caller-metadata-update.json')
     return (str(module.ROOT.resolve()), product, tuple(
         (p, hashlib.sha256((module.ROOT / p).read_bytes()).digest()
          if (module.ROOT / p).is_file() else None) for p in paths))
@@ -251,6 +253,15 @@ class PreparationTests(unittest.TestCase):
     def test_product_and_foundation_bindings(self):
         release.validate_plan(self.files, self.plan)
 
+    def test_supplied_candidate_sources_cannot_hide_behind_valid_disk_package(self):
+        record = json.loads((ROOT / release.SSIS_UPDATE).read_bytes())
+        broken = dict(self.files)
+        path = 'Modules/toolbelt.conversion.base64/module.yaml'
+        broken[path] += b'\nadditional_runtime_contract: true\n'
+        with self.assertRaises(ValueError):
+            release.validate_product_applicability(
+                record['previous_product_commit'], record['current_product_commit'], broken)
+
     def test_missing_local_ssis_commit_uses_only_bound_package_tree(self):
         from unittest.mock import patch
         record = json.loads((ROOT / release.SSIS_UPDATE).read_bytes())
@@ -267,7 +278,8 @@ class PreparationTests(unittest.TestCase):
 
         with patch.object(subprocess, 'run', side_effect=without_local_product):
             with patch.object(release, 'qualification_sources', wraps=original_sources) as sources:
-                release.validate_ssis_product_applicability(previous, current, self.files)
+                ssis_files = original_sources(current)[1]
+                release.validate_ssis_product_applicability(previous, current, ssis_files)
                 self.assertIn(unittest.mock.call(current), sources.call_args_list)
 
             def wrong_tree(product):
@@ -276,7 +288,7 @@ class PreparationTests(unittest.TestCase):
 
             with patch.object(release, 'qualification_sources', side_effect=wrong_tree):
                 with self.assertRaisesRegex(release.ReleaseError, 'Produktbaum driftet'):
-                    release.validate_ssis_product_applicability(previous, current, self.files)
+                    release.validate_ssis_product_applicability(previous, current, ssis_files)
 
             def unavailable_package(product):
                 if product == current:
@@ -495,6 +507,39 @@ class SsisProductDeltaTests(unittest.TestCase):
             record['build_qualification_sha256'] = release.sha(new[release.SSIS_BUILD_QUALIFICATION])
             with self.subTest(mutation=mutation), self.assertRaises(release.ReleaseError):
                 release.validate_ssis_product_delta(old, new, record, build, old)
+
+    def test_caller_metadata_exception_is_exact_inside_ssis_delta(self):
+        for path in release.caller_metadata.PATHS:
+            old, new, record, build = self.inputs()
+            original = release.caller_metadata.historical_manifest(ROOT, path)
+            old[path] = original
+            new[path] = release.caller_metadata.corrected_manifest(path, original)
+            changed = sorted(p for p in old.keys() | new.keys() if old.get(p) != new.get(p))
+            record.update(changed_product_paths=changed,
+                          previous_source_sha256={p: release.sha(old[p]) if p in old else None for p in changed},
+                          current_source_sha256={p: release.sha(new[p]) for p in changed})
+            with self.subTest(path=path):
+                release.validate_ssis_product_delta(old, new, record, build, old)
+                new[path] += b'\nadditional_runtime_contract: true\n'
+                record['current_source_sha256'][path] = release.sha(new[path])
+                with self.assertRaises(ValueError):
+                    release.validate_ssis_product_delta(old, new, record, build, old)
+
+    def test_caller_reading_path_exception_rejects_other_documentation(self):
+        for path in release.caller_metadata.READMES:
+            old, new, record, build = self.inputs()
+            old[path] = release.git('show', release.caller_metadata.BASELINE + ':' + path)
+            new[path] = release.caller_metadata.corrected_readme(path, old[path])
+            changed = sorted(p for p in old.keys() | new.keys() if old.get(p) != new.get(p))
+            record.update(changed_product_paths=changed,
+                          previous_source_sha256={p: release.sha(old[p]) if p in old else None for p in changed},
+                          current_source_sha256={p: release.sha(new[p]) for p in changed})
+            with self.subTest(path=path):
+                release.validate_ssis_product_delta(old, new, record, build, old)
+                new[path] += b'\nUnqualified support assertion.\n'
+                record['current_source_sha256'][path] = release.sha(new[path])
+                with self.assertRaises(release.ReleaseError):
+                    release.validate_ssis_product_delta(old, new, record, build, old)
 
     def test_public_test_maintenance_does_not_authorize_unpublished_or_runtime_changes(self):
         paths = ('Modules/toolbelt.string.edit-distance/Tests/Runtime/Invoke-LabContract.ps1',
@@ -855,7 +900,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertFalse(report['module_statuses_changed'])
         plan = json.loads((ROOT / 'Releases/1.0.0/release-plan.json').read_bytes())
         if report['product_commit'] != plan['product_commit']:
-            release.validate_ssis_product_applicability(report['product_commit'], plan['product_commit'])
+            release.validate_product_applicability(report['product_commit'], plan['product_commit'])
         expected = {(p, v, cl) for p in ('windows', 'linux') for v, cls in
                     {'2019': [150], '2022': [150, 160], '2025': [150, 160, 170]}.items() for cl in cls}
         self.assertEqual(len(report['native_cases']), 12)
@@ -1830,7 +1875,7 @@ class FunctionCallerQualificationTests(unittest.TestCase):
                 self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
                                     and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
                 for source, digest in report['source_sha256'].items():
-                    self.assertEqual(hashlib.sha256((ROOT / source).read_bytes()).hexdigest(), digest, source)
+                    release.caller_metadata.validate_source(ROOT, source, digest)
                 self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-grant'})
                 self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
                                     for c in report['oracle_rejection_controls']))

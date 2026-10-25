@@ -23,6 +23,8 @@ import tempfile
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "Scripts/Release"))
+import caller_metadata
 sys.path.insert(0, str(ROOT / "Tests/Documentation"))
 import validate_documentation as documentation
 
@@ -37,7 +39,7 @@ CLR_PACKAGE = f"{DIRECTORY}/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Instal
 PRODUCT_SOURCE = f"{DIRECTORY}/product-source.json"
 SSIS_UPDATE = f"{DIRECTORY}/ssis-release-update.json"
 SSIS_CLR_QUALIFICATION = f"{DIRECTORY}/clr-ssis-qualification.json"
-SSIS_BUILD_QUALIFICATION = 'Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Pipeline.Windows.CL.20261025.json'
+SSIS_BUILD_QUALIFICATION = 'Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/LookupRoles.Windows.CL.20261025.json'
 MAX_BYTES = 256 * 1024 * 1024
 MAX_FILES = 10000
 
@@ -295,7 +297,7 @@ def validate_plan(files: dict[str, bytes], plan: dict, product_files: dict[str, 
         prefix = 'SQL-Server-Toolbelt-1.0.0-CLR-Install/'
         metadata = json.loads(inner[prefix + 'CLR-PACKAGE.json'])
         qualified = json.loads(files[clr_qualification_path(metadata)])
-        require(qualified['product_commit'] == plan['product_commit'], 'CLR-Produktbindung veraltet.')
+        validate_product_applicability(qualified['product_commit'], plan['product_commit'], files)
         validate_clr_qualification({p[len(prefix):]:b for p,b in inner.items()}, qualified,
                                    clr_qualification_method_sources(qualified))
 
@@ -324,6 +326,13 @@ def validate_ssis_product_delta(previous: dict[str, bytes], current: dict[str, b
         'Workers/ExternalQueue/Tests/CiTarget.Contract.py'}
     for path in changed:
         if path.startswith(prefix):
+            continue
+        if path in caller_metadata.PATHS:
+            caller_metadata.validate_manifest(path, baseline[path], current[path])
+            continue
+        if path in caller_metadata.READMES:
+            require(current[path] == caller_metadata.corrected_readme(path, baseline[path]),
+                    'Caller-Lesepfad außerhalb der exakten Metadatenkorrektur.')
             continue
         require((path.endswith(('.md', '.yaml')) or path in maintenance)
                 and current.get(path) == baseline.get(path),
@@ -365,7 +374,7 @@ def qualification_archive(product: str) -> bytes:
             'Qualifikations-Recoveryarchiv beschädigt.')
     if json.loads(read_zip(data)[NAME + '/PACKAGE-MANIFEST.json'])['product_commit'] == product:
         return data
-    for path in (SSIS_UPDATE, f'{DIRECTORY}/runtime-source-equivalence.json'):
+    for path in (caller_metadata.RECORD, SSIS_UPDATE, f'{DIRECTORY}/runtime-source-equivalence.json'):
         if not (ROOT / path).is_file():
             continue
         record = json.loads((ROOT / path).read_bytes())
@@ -416,13 +425,14 @@ def validate_ssis_product_applicability(previous: str, current: str, current_fil
     validate_ssis_product_delta(old_product, current_files, record, build, baseline)
 
 
-def validate_product_applicability(previous: str, current: str) -> None:
+def validate_product_applicability(previous: str, current: str,
+                                 current_files: dict[str, bytes] | None = None) -> None:
     if previous == current:
         return
     if (ROOT / SSIS_UPDATE).is_file():
         record = json.loads((ROOT / SSIS_UPDATE).read_bytes())
         if record['current_product_commit'] == current:
-            validate_ssis_product_applicability(record['previous_product_commit'], current)
+            validate_ssis_product_applicability(record['previous_product_commit'], current, current_files)
             if previous != record['previous_product_commit']:
                 validate_regex_product_applicability(previous, record['previous_product_commit'])
             return
@@ -515,7 +525,10 @@ def clr_qualification_method_sources(qualification: dict, additional_bindings: d
         require(archive.with_suffix('.zip.sha256').read_text(encoding='ascii').split() == [sha(data), archive.name],
                 'CLR-Methoden-Recoveryarchiv beschädigt.')
         delivered_product = json.loads(read_zip(data)[NAME + '/PACKAGE-MANIFEST.json'])['product_commit']
-        if delivered_product == qualification['product_commit']:
+        caller_path = ROOT / caller_metadata.RECORD
+        caller_record = json.loads(caller_path.read_bytes()) if caller_path.is_file() else {}
+        if (delivered_product == qualification['product_commit']
+                or caller_record.get('previous_product_commit') == qualification['product_commit']):
             sources, product_sources, _ = qualification_sources(qualification['product_commit'])
         else:
             require(json.loads((ROOT / SSIS_CLR_QUALIFICATION).read_bytes()) == qualification
@@ -598,11 +611,7 @@ def validate_qualification(files: dict[str, bytes], plan: dict, exports: dict[st
     require(evidence["publication_authorized"] is False, "Veröffentlichungsgrenze abweichend.")
     methods = files
     if evidence['product_commit'] != plan['product_commit']:
-        require(SSIS_UPDATE in files, 'Qualifikationsbasis ohne gebundenes SSIS-Delta geändert.')
-        record = json.loads(files[SSIS_UPDATE])
-        require(record['previous_product_commit'] == evidence['product_commit']
-                and record['current_product_commit'] == plan['product_commit'], 'Falsche stabile Anwendbarkeitsbasis.')
-        validate_ssis_product_applicability(evidence['product_commit'], plan['product_commit'], files)
+        validate_product_applicability(evidence['product_commit'], plan['product_commit'], files)
         methods, _, _ = qualification_sources(evidence['product_commit'])
     native = evidence["native_package"]
     require(sha(methods[native["driver"]]) == native["driver_sha256"]
