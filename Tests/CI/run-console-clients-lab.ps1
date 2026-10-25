@@ -6,6 +6,9 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
+
 $repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $module = Join-Path $repo 'Modules/toolbelt.core.console-message'
 $parseErrors = $null

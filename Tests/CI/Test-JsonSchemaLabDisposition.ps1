@@ -4,6 +4,9 @@ param([Parameter(Mandatory)][string]$JournalDirectory,
  [Parameter(Mandatory)][string]$OutputDirectory)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
+
 # Frischer read-only Audit: keine Wiederherstellung, kein SQL-/Trust-/Labmutator.
 # Labvertrag/Zugangsdaten bleiben ausschließlich im Speicher. Nur eigene
 # synthetische Abwesenheit und bereits protokollierte exakte Trusttupel prüfen.

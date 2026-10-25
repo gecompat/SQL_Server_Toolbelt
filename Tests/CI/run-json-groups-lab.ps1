@@ -10,6 +10,9 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
+
 $repo=(Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $module=Join-Path $repo 'Modules/toolbelt.json.constructors'
 if([IO.File]::ReadAllText((Join-Path $module 'module.yaml')) -match '(?m)^version: "1\.2\.0"$'){

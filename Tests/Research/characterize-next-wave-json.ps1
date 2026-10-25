@@ -5,6 +5,9 @@
 param([ValidateSet('json-baseline','decimal-range','pointer-policy')][string]$ProbeSet='json-baseline')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot '../CI/LabQualifiedContract.ps1')
+
 $runExit = 0
 # Substantive Assertionfehler dominieren UNKNOWN und fehlende Ausführung.
 function Set-CharacterizationExit {

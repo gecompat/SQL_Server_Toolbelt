@@ -4,6 +4,9 @@ param([ValidateSet('linux','windows')][string]$Platform='linux',
  [string]$LegacyRoot='.runtime/xlsx-zip13-legacy')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot '../../../../Tests/CI/LabQualifiedContract.ps1')
+
 $repoRoot=(Resolve-Path (Join-Path $PSScriptRoot '../../../..')).Path
 $errors=$null;$tokens=$null
 $ast=[Management.Automation.Language.Parser]::ParseFile((Join-Path $repoRoot 'Tests/CI/run-lab-local.ps1'),[ref]$tokens,[ref]$errors)
