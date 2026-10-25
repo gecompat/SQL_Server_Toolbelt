@@ -52,6 +52,8 @@ Ziel-/CL-Fällen. Der neue Labtreiber prüft isolierte SELECT-Profile und eigene
 Trust-/Konfigurationsbereinigung; Produktimplementierung und weitere Modulpflichten
 bleiben separat.
 
+[JSON-Schema-Callerrechte](JSON-SCHEMA-CALLER-PROFILE.md): drei einzelne Objektrechte, zwölf lokale/direkt zentrale Ziel-/CL-Fälle, 168 Rechtezustände und 240 feste Fachfälle. Neuer Labtreiber und SQL-Fixture; keine Produkt- oder Paketänderung. Das pauschale EXECUTE-Manifestlabel bleibt als Paketpflege offen.
+
 Die [Execution-Context-Minimalrechte](EXECUTION-CONTEXT-RIGHTS-QUALIFICATION.md)
 sind für alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
 lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.
