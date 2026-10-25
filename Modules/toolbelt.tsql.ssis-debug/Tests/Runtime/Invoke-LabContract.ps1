@@ -8,6 +8,7 @@ param(
  [string]$PredecessorRoot,
  [string]$SsisPredecessorReleaseDirectory,
  [string]$SsisIntermediateReleaseDirectory,
+ [string]$InstallationPackageRoot,
  [string]$JournalDirectory,
  [string]$ExpectedTargetKey,
  [ValidatePattern('^[0-9A-F]{64}$')][string]$ExpectedContractSha256,
@@ -27,6 +28,18 @@ if($astErrors.Count){throw 'LAB_DISCOVERY_SYNTAX_INVALID'}
 foreach($name in @('Get-EnvironmentVariableValue','Resolve-LabContract','Test-LabTargetReady','Get-LabTargetsForSelector','New-LabConnectionString','Invoke-LabPreflight')){
  $definition=@($ast.FindAll({param($node)$node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name},$true))
  if($definition.Count -ne 1){throw 'LAB_DISCOVERY_NOT_UNIQUE'};. ([scriptblock]::Create($definition[0].Extent.Text))
+}
+if($InstallationPackageRoot){
+ $repoRoot=[IO.Path]::GetFullPath($InstallationPackageRoot)
+ $package=Get-Content -LiteralPath (Join-Path $repoRoot 'PACKAGE-MANIFEST.json') -Raw|ConvertFrom-Json
+ if($package.packageName -cne 'SSIS-Debug-1.0.0-Install-Windows' -or $PredecessorRoot){throw 'SSIS_PACKAGE_SCOPE_INVALID'}
+ foreach($file in $package.files){
+  $path=[IO.Path]::GetFullPath((Join-Path $repoRoot $file.path))
+  if(-not $path.StartsWith($repoRoot+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase) -or
+     (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -cne $file.sha256){throw 'SSIS_PACKAGE_INPUT_CHANGED'}
+ }
+ $moduleRoot=Join-Path $repoRoot 'Modules/toolbelt.tsql.ssis-debug'
+ if($SsisReleaseDirectory -or $ParserReleaseDirectory){throw 'SSIS_PACKAGE_EXTERNAL_RELEASE_NOT_ALLOWED'}
 }
 $ssisNativeScopeClock=[Diagnostics.Stopwatch]::new();$ssisNativeCleanupPhase=$false
 $ssisNativeBoundedInvocation=$Modes.Count -eq 1
@@ -207,6 +220,11 @@ foreach($target in $targets){
      "SSIS_GENUINE_UPGRADE_TRIGGER_PASS Windows $Version $mode"
     }
     $phase=$mode+'-ssis'
+    if($InstallationPackageRoot){
+     $phase=$mode+'-package-fresh-install'
+     & (Join-Path $PSScriptRoot 'Invoke-PackageInstallCases.ps1') -Connection $connection -Mode $mode -Release $ssisRelease -ExpectedHash $qualifiedProvider -Fixture (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx')
+     $journal['packageFreshInstall']='PASS';SaveJournal
+    }
     if($SsisPredecessorReleaseDirectory){
      $phase=$mode+'-ssis-build-upgrade'
      $upgradeArguments=@{Connection=$connection;Mode=$mode;PreviousRelease=$SsisPredecessorReleaseDirectory;CurrentRelease=$ssisRelease;ExpectedOldHash=$oldQualified;ExpectedNewHash=$qualifiedProvider}

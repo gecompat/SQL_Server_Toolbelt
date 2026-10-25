@@ -26,10 +26,10 @@ und die anschließende Installationskontrolle für Parser, ResultTable und
 SSIS-Debug einschließlich des getrennten Assembly-Trust-Opt-ins.
 
 Das [vollständige ZIP-Installationspaket](InstallPackages/README.md) enthält
-den bisherigen qualifizierten Artefaktsatz einschließlich DLLs, SQL-/PowerShell-
-Skripten und SSMS-Beispiel zum Testen ohne eigenen Build. Der neue gemeinsame
-Kern und der Exporthost sind noch nicht in diesem ZIP ausgeliefert; seine
-Buildnachweise stehen getrennt in der Prüfmatrix.
+den qualifizierten SSIS-Build mit Objektkennungsexport aus PR #411 einschließlich
+passender DLLs, SQL-/PowerShell-Skripte und SSMS-Beispiel zum Testen ohne eigenen
+Build. Der externe Exporthost gehört nicht zu diesem SQL-Installationspaket.
+Build- und Paketnachweise stehen getrennt in der Prüfmatrix.
 
 Die Analyse führt keine Quellabfrage und kein SSIS-Paket aus. Für die
 Dependencyprüfung werden ausschließlich Metadaten derselben SQL-Instanz

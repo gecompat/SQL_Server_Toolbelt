@@ -5,11 +5,12 @@ SSIS-Debug **1.0.0**, Script Parser **2.0.1**, die exakt passende Microsoft
 ScriptDom-Assembly aus NuGet **180.117.0** und ResultTable **1.0.0**.
 Es ist ein Entwicklungs-/Testpaket; der Status bleibt `unreleased`.
 
-Der neue gemeinsame Modellkern ist separat auf Windows qualifiziert.
-Dieses Archiv enthält weiterhin den zuvor qualifizierten SSIS-Binary und
-keinen externen Exporthost. Die [aktuellen Buildnachweise](../Tests/README.md)
-ändern den Inhalt dieses ZIPs nicht; ein aktualisierter Lieferstand bleibt
-separat vorzubereiten.
+Dieses Archiv enthält den auf Windows SQL2019/2022/2025 lokal und zentral
+qualifizierten SSIS-Build mit Objektkennungsexport aus PR #411. Es enthält
+keinen externen Exporthost. Die [Prüfmatrix](../Tests/README.md) trennt die
+sechs nativen Buildnachweise von den Prüfungen des entpackten Installationspakets.
+Der PowerShell-Installer verwendet den lokalen Deploymentmodus; die kanonischen
+SQL-Skripte unterstützen zusätzlich den zentralen Modus ohne Synonyme.
 
 ## Download und Installation
 
@@ -41,6 +42,24 @@ installiert die drei aufgeführten Module. Table Clone wird separat aus dem
 zugehörigen Repositorystand aktualisiert, falls es in derselben Datenbank
 vorhanden ist.
 
+## Bestehende Testinstallation aktualisieren
+
+1. Das neue ZIP in ein neues Verzeichnis entpacken und `START-HERE.txt` lesen.
+   Die neue und alte Lieferung nicht dateiweise vermischen.
+2. `Install-Local.ps1 -ValidateOnly` mit denselben Zielangaben wie bei der
+   Erstinstallation ausführen, danach denselben Aufruf ohne `-ValidateOnly`.
+   Die bestehende Testdatenbank wird weiterverwendet. ResultTable und Parser
+   werden wiederholt installiert; die SSIS-Assembly wird ausgetauscht.
+3. `VerifyInstallation.sql` und das SSMS-Beispiel erneut ausführen. Die
+   Versionsnummer bleibt 1.0.0; entscheidend ist der neue exakte Binaryhash.
+
+Die geprüfte Upgradefolge umfasst den ursprünglich ausgelieferten Build und
+den danach qualifizierten gemeinsamen Kern. Bereits vorhandene gemeinsame
+Dependencies und alte Assembly-Trusteinträge werden nicht pauschal entfernt.
+Beim ersten Fehler bricht der Installer ab; erfolgreiche vorherige Schritte
+bleiben bestehen. Die [Installationsanleitung](../Examples/Installation/README.md)
+beschreibt Rechte, Transportwahl und die fünf Installationsschritte.
+
 ## Integrität und Herkunft
 
 Die [SHA-256-Prüfsumme](SSIS-Debug-1.0.0-Install-Windows.zip.sha256) bezieht sich
@@ -56,6 +75,18 @@ Buildsatz übernommen. Der offizielle ScriptDom-Binarypin bleibt unverändert.
 Seine MIT-Lizenz, Microsoft-/ANTLR-Hinweise, NuGet-Metadaten und Herkunft sind
 unter `ThirdParty/ScriptDom-180.117.0/` im ZIP enthalten. Die unveränderte
 Toolbelt-Lizenz liegt im Paketroot als `LICENSE.md`.
+
+Für die optionale Quellprüfung nennt `buildSourceRoots` im Paketmanifest die
+jeweiligen exakten Buildinputs. Die ursprünglichen Parserquellen liegen
+zusätzlich unter `BuildSources/ScriptParser-2.0.1/`; damit bleiben ihre
+manifestgebundenen Zeilenenden neben dem separat gebundenen SSIS-Guard erhalten.
+DLLs, Trustmanifeste und Dependencypins werden nicht umgeschrieben.
+
+`Scripts/New-InstallPackage.py` erstellt den Satz aus einem versionierten
+Quellcommit und ausdrücklich angegebenen qualifizierten Releaseverzeichnissen.
+Es kompiliert nichts. Der zweifache Paketbau verwendet feste ZIP-Metadaten und
+wird auf Bytegleichheit geprüft. Für die Installation ist dieses Werkzeug
+nicht erforderlich.
 
 ## Wartung und Prüfung
 

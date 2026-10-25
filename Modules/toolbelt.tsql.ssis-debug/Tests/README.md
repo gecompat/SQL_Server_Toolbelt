@@ -274,8 +274,8 @@ bleibt separat `not executed`. Keine Labdetails, Rohlogs oder Restorejournale
 werden veröffentlicht. Produktquellen und öffentlicher SQL-Vertrag wurden
 nicht geändert; der Modulstatus bleibt teilweise validiert und unveröffentlicht.
 
-Das versionierte Installations-ZIP enthält weiterhin den früheren ausgelieferten
-Build und keinen Exporthost. Aktualisierte Paketlieferung, Linux-Hostlauf,
+Zum Zeitpunkt dieser Buildqualifikation enthielt das Installations-ZIP noch
+den früheren ausgelieferten Build und keinen Exporthost. Paketlieferung, Linux-Hostlauf,
 reale SSISDB-Korrelation, vollständige SDK-/Ressourcen-/Produktionsnachweise
 und abschließende Releasefreigabe gehören nicht zu dieser Qualifikation.
 
@@ -359,7 +359,7 @@ Vier positive und ein historischer Abschlussaudit bestätigten alle zehn eigenen
 Datenbanknamen als abwesend, alle 25 geprüften Trustzustände als wiederhergestellt
 und die Konfigurationsbaselines als erhalten. Originale, Journale und Rohlogs
 bleiben lokal. Produktquellen und der versionierte Installationssatz wurden
-nicht geändert. Das vorhandene ZIP liefert weiterhin den früheren Binary und
+nicht geändert. Das damalige ZIP lieferte den früheren Binary und
 keinen Exporthost. Ein SQL2025-Upgrade war nicht Teil dieses historischen
 Nachweises; der oben dokumentierte neue Build hat einen eigenen Nachweis.
 Neuer Paketlieferstand, Linux-Hostlauf und weitere Ressourcen-/SDK-/

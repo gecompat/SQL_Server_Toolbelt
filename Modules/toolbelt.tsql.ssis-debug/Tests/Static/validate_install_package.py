@@ -2,6 +2,7 @@
 from collections import Counter
 import hashlib
 import json
+import posixpath
 from pathlib import Path, PurePosixPath
 import stat
 import struct
@@ -48,11 +49,12 @@ def no_codeview(data):
         require(struct.unpack_from("<I", data, position + 12)[0] != 2, "Toolbelt CodeView/PDB data")
 
 
-def main():
-    expected_zip_hash = ARCHIVE.with_suffix(".zip.sha256").read_text(encoding="ascii").split()
-    require(len(expected_zip_hash) == 2 and expected_zip_hash[1] == ARCHIVE.name, "ZIP checksum name")
-    require(sha(ARCHIVE.read_bytes()) == expected_zip_hash[0], "ZIP checksum")
-    with zipfile.ZipFile(ARCHIVE) as archive:
+def main(archive_path=None):
+    archive_path = ARCHIVE if archive_path is None else Path(archive_path)
+    expected_zip_hash = archive_path.with_suffix(".zip.sha256").read_text(encoding="ascii").split()
+    require(len(expected_zip_hash) == 2 and expected_zip_hash[1] == archive_path.name, "ZIP checksum name")
+    require(sha(archive_path.read_bytes()) == expected_zip_hash[0], "ZIP checksum")
+    with zipfile.ZipFile(archive_path) as archive:
         entries = archive.infolist()
         names = [entry.filename for entry in entries]
         require(all(count == 1 for count in Counter(name.casefold() for name in names).values()), "duplicate paths")
@@ -83,6 +85,11 @@ def main():
     require(pins == json.loads((MODULE / "Contracts/DependencyPins.json").read_text(encoding="utf-8-sig")), "current dependency pins")
     parser_manifest = json.loads(payload[parser + "Artifacts/Toolbelt.Tsql.ScriptParser.trust-manifest.json"])
     ssis_manifest = json.loads(payload[ssis + "Artifacts/Toolbelt.Tsql.SsisDebug.trust-manifest.json"])
+    release_pins = json.loads((MODULE / 'Contracts/InstallPackageInputs.json').read_bytes())
+    require(json.loads(payload[ssis + 'Contracts/InstallPackageInputs.json']) == release_pins, 'canonical release manifest pins')
+    require(sha(payload[parser + 'Artifacts/Toolbelt.Tsql.ScriptParser.trust-manifest.json']) == release_pins['parser_release_manifest_sha256'] and
+            sha(payload[ssis + 'Artifacts/Toolbelt.Tsql.SsisDebug.trust-manifest.json']) == release_pins['ssis_release_manifest_sha256'],
+            'original qualified release manifests')
     require(parser_manifest["moduleVersion"] == pins["parserVersion"] == ssis_manifest["parserVersion"] == "2.0.1", "parser version")
     require(ssis_manifest["moduleVersion"] == "1.0.0", "SSIS version")
     require(parser_manifest["sha512"] == ssis_manifest["parserSha512"] == pins["parserSha512"], "parser pin")
@@ -95,6 +102,24 @@ def main():
         require(sha(binary, "sha512") == release["sha512"], "assembly hash")
         no_codeview(binary)
         require(sha(payload[prefix + "Artifacts/Deploy.WithAssembly.sql"]) == release["deploymentArtifactSha256"], "deployment hash")
+        root = manifest['buildSourceRoots'][release['moduleId']]
+        require(root == (prefix.rstrip('/') if prefix == ssis else
+                        'BuildSources/ScriptParser-2.0.1/' + prefix.rstrip('/')), 'exact build source root')
+        for key in ('sourceFiles', 'deploymentFiles', 'deploymentSourceFiles'):
+            for item in release.get(key, []):
+                relative, expected = item.split(':', 1)
+                path = posixpath.normpath(root + '/' + relative)
+                require(path in payload and sha(payload[path]) == expected, 'qualified build source hash')
+    qualification_path = ssis + 'Tests/Qualification/Identities.Windows2019-2025.20261025.json'
+    require(manifest['nativeBinaryQualification'] == qualification_path, 'native qualification path')
+    require(payload[qualification_path] == (MODULE / 'Tests/Qualification/Identities.Windows2019-2025.20261025.json').read_bytes(),
+            'canonical native qualification')
+    qualification = json.loads(payload[qualification_path])
+    require(qualification['result'] == 'PASS' and len(qualification['cases']) == 6 and
+            qualification['total_native_assertions'] == 1626 and
+            sha(payload[ssis + 'Artifacts/Toolbelt.Tsql.SsisDebug.dll']).lower() == qualification['qualified_assembly_sha256'] and
+            sha(payload[ssis + 'Artifacts/Deploy.WithAssembly.sql']).lower() == qualification['qualified_deploy_sql_sha256'],
+            'exact native DLL and deployment qualification')
     require(sha(payload[parser + "Artifacts/Microsoft.SqlServer.TransactSql.ScriptDom.dll"], "sha512") == pins["scriptDomSha512"], "ScriptDom binary")
     for name in [
         "START-HERE.txt", "LICENSE.md", "ThirdParty/ScriptDom-180.117.0/LICENSE",
@@ -112,4 +137,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--archive', type=Path)
+    main(parser.parse_args().archive)

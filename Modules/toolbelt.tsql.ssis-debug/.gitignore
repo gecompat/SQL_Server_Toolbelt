@@ -5,3 +5,13 @@ InstallPackages/*
 !InstallPackages/README.md
 !InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip
 !InstallPackages/SSIS-Debug-1.0.0-Install-Windows.zip.sha256
+!InstallPackages/START-HERE.txt
+!InstallPackages/ThirdParty/
+InstallPackages/ThirdParty/*
+!InstallPackages/ThirdParty/ScriptDom-180.117.0/
+InstallPackages/ThirdParty/ScriptDom-180.117.0/*
+!InstallPackages/ThirdParty/ScriptDom-180.117.0/LICENSE
+!InstallPackages/ThirdParty/ScriptDom-180.117.0/NOTICE.txt
+!InstallPackages/ThirdParty/ScriptDom-180.117.0/ORIGIN.txt
+!InstallPackages/ThirdParty/ScriptDom-180.117.0/package.nuspec
+!InstallPackages/ThirdParty/ScriptDom-180.117.0/README.md
