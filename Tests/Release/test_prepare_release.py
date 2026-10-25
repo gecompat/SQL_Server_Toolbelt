@@ -18,6 +18,14 @@ release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
 
 
+def pre_ssis_delivery_archive():
+    """Historische Fixture-/Manifest-Snapshots behalten ihre ursprüngliche Lieferung."""
+    update = ROOT / release.SSIS_UPDATE
+    if update.is_file():
+        return release.qualification_archive(json.loads(update.read_bytes())['previous_product_commit'])
+    return (ROOT / release.ARTIFACTS / (release.NAME + '.zip')).read_bytes()
+
+
 class PreparationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -1086,7 +1094,7 @@ class ApiQualificationTests(unittest.TestCase):
             self.assertEqual(case['result'], 'partially validated' if case['blocked_fixture_calls'] else 'validated')
         # Auch die damals ausgeführten Fixtures gehören zum gebundenen Snapshot.
         # Neue Testadapter werden separat qualifiziert; die alte Ausführung bleibt unverändert.
-        with zipfile.ZipFile(ROOT / 'Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip') as archive:
+        with zipfile.ZipFile(io.BytesIO(pre_ssis_delivery_archive())) as archive:
             for path, digest in api['fixture_source_sha256'].items():
                 recorded = archive.read('SQL-Server-Toolbelt-1.0.0-candidate-source/' + path).replace(b'\r\n', b'\n')
                 self.assertEqual(hashlib.sha256(recorded).hexdigest(), digest)
@@ -1099,7 +1107,7 @@ class ApiQualificationTests(unittest.TestCase):
         # Die Evidenzzuordnung gehört zum unveränderlichen Kandidatenpaket.
         # Spätere Moduländerungen werden separat qualifiziert und schreiben
         # dessen historische Manifestbindung nicht auf den aktuellen Stand um.
-        with zipfile.ZipFile(ROOT / 'Releases/1.0.0/Artifacts/SQL-Server-Toolbelt-1.0.0-candidate-source.zip') as archive:
+        with zipfile.ZipFile(io.BytesIO(pre_ssis_delivery_archive())) as archive:
             recorded_manifests = {m['manifest']: archive.read('SQL-Server-Toolbelt-1.0.0-candidate-source/' + m['manifest']) for m in report['modules']}
         for m in report['modules']:
             self.assertFalse(m['record_snapshot_is_execution_commit'])

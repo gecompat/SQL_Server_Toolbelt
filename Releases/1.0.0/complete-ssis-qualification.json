@@ -1,0 +1,382 @@
+{
+  "schema_version": "1.0",
+  "kind": "ssis_current_delivery",
+  "date": "2026-10-25",
+  "publication_authorized": false,
+  "product_commit": "fbd20b952f3e8c37ddda56b3d245ce71ce60af6e",
+  "product_tree_oid": "2be6d99a76b28a18195fa145e983194e2eb6a45b",
+  "executed_code_commit": "66ed4fa9d0818d41d736d096a37736028df118d5",
+  "scope": "SSIS-only delivery update; new Windows installation/repeat/consumer/uninstall/absent-repeat; unchanged Portable payload retains original Linux cases",
+  "native_cases_passed": 12,
+  "new_native_cases_passed": 6,
+  "retained_native_cases": 6,
+  "deployment_paths_passed": 24,
+  "new_windows_cases": [
+    {
+      "platform": "Windows",
+      "sql": "2019",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_audit": "PASS"
+    },
+    {
+      "platform": "Windows",
+      "sql": "2022",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_audit": "PASS"
+    },
+    {
+      "platform": "Windows",
+      "sql": "2022",
+      "compatibility_level": 160,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_audit": "PASS"
+    },
+    {
+      "platform": "Windows",
+      "sql": "2025",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_audit": "PASS"
+    },
+    {
+      "platform": "Windows",
+      "sql": "2025",
+      "compatibility_level": 160,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_audit": "PASS"
+    },
+    {
+      "platform": "Windows",
+      "sql": "2025",
+      "compatibility_level": 170,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_audit": "PASS"
+    }
+  ],
+  "retained_linux_cases": [
+    {
+      "platform": "Linux",
+      "sql": "2019",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2022",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2022",
+      "compatibility_level": 160,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2025",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2025",
+      "compatibility_level": 160,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2025",
+      "compatibility_level": 170,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    }
+  ],
+  "matrix": [
+    {
+      "platform": "Linux",
+      "sql": "2019",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2022",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2022",
+      "compatibility_level": 160,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2025",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2025",
+      "compatibility_level": 160,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Linux",
+      "sql": "2025",
+      "compatibility_level": 170,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true
+    },
+    {
+      "platform": "Windows",
+      "sql": "2019",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_audit": "PASS"
+    },
+    {
+      "platform": "Windows",
+      "sql": "2022",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_audit": "PASS"
+    },
+    {
+      "platform": "Windows",
+      "sql": "2022",
+      "compatibility_level": 160,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_audit": "PASS"
+    },
+    {
+      "platform": "Windows",
+      "sql": "2025",
+      "compatibility_level": 150,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_audit": "PASS"
+    },
+    {
+      "platform": "Windows",
+      "sql": "2025",
+      "compatibility_level": 160,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_audit": "PASS"
+    },
+    {
+      "platform": "Windows",
+      "sql": "2025",
+      "compatibility_level": 170,
+      "modes": [
+        "local",
+        "central"
+      ],
+      "consumer": true,
+      "result": "PASS",
+      "independent_audit": "PASS"
+    }
+  ],
+  "previous_qualification_sha256": "0eb0910df4601214e47132c5288488ba4cd7dbec31045e12b5a7cdf9f641ff72",
+  "previous_product_commit": "becbc2d9fe76339926c1902a930d869949a2bb74",
+  "ssis_build_qualification_sha256": "1ff2399ed67d497a93b4a67e3de241f9e7a004cd7282dbc4e53108974913cf61",
+  "native_candidate_sha256": "dfba60f3eca755da63a9588f05867837ee03fb7146f36ab62a0aa684ec3dad59",
+  "sql_payload_sha256": {
+    "SQL/Install-Portable-central.sql": "c18b490b306ba2bd3565ff2c5ac4c6018ee028f6308c7c8d88dd9e57d6c1a14d",
+    "SQL/Install-Portable-local.sql": "c0d672c1ae87fcc126ea45f99d9705079a321f63def208de73bc4f0fa2ee1206",
+    "SQL/Install-Windows-central.sql": "7f49334cda38e31afc027b18cdb0914434ae65eb6be696ca63ec17261a1b037c",
+    "SQL/Install-Windows-local.sql": "acdc053c8b8764c83cc49f7c7a9064ce258aae058bd7a2e9895d7e82c6c70491",
+    "SQL/Repeat-Portable-central.sql": "6e3ffe0c26b2fb51a1b2c2942e0d0fe0fbd085d42119507b25a134dacc6cd4f2",
+    "SQL/Repeat-Portable-local.sql": "9784203a8efd2fb4097b070f190e32f0edd63fc8cb659e0922b2e49f3a3b4efa",
+    "SQL/Repeat-Windows-central.sql": "f5cf83c638bd6de52012d7ba3fc07307b0dc67b9d31e7ded599c0fde5198bf20",
+    "SQL/Repeat-Windows-local.sql": "5ad6c43fc93fe802e596415af35fdc12bdaf531be9e676778edd281e580c994b",
+    "SQL/Trust-Portable-central.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Portable-local.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
+    "SQL/Trust-Windows-central.sql": "23d8ce1e6194a94fde78fb4bf9d74c9755199ef7ca4091afdd3109c0d185cbbd",
+    "SQL/Trust-Windows-local.sql": "330929f908ce091dc170088487f2b5dacc081bba5dab994bbaad041725d057c5",
+    "SQL/Uninstall-Portable-central.sql": "1d9a0dfcf6b6c34545c2605844c9d81fc9740a181855963396ef528df40390c3",
+    "SQL/Uninstall-Portable-local.sql": "1d9a0dfcf6b6c34545c2605844c9d81fc9740a181855963396ef528df40390c3",
+    "SQL/Uninstall-Windows-central.sql": "92224f5c08ef92c506f69bbcb1976bf1e9c45bd697f3a60ce0fa758f866fde7a",
+    "SQL/Uninstall-Windows-local.sql": "c2e5d10a567360dff5fb02a51633a32057fe0cff567954cca35382b070c86170",
+    "SQL/UninstallAbsent-Portable-central.sql": "97f394b21a1cd9707c79f544b0b3e227e0f1513f85052ac7496c02761fe6d4fe",
+    "SQL/UninstallAbsent-Portable-local.sql": "97f394b21a1cd9707c79f544b0b3e227e0f1513f85052ac7496c02761fe6d4fe",
+    "SQL/UninstallAbsent-Windows-central.sql": "650aac63fd0a12c37b38c101a9c217d177a1c1e137d2f610678c0b5365d7e16e",
+    "SQL/UninstallAbsent-Windows-local.sql": "702e0df5a1b91efd5f8f77fe5aae17157c6f8387103651110036334c70bc9415"
+  },
+  "binary_sha512": {
+    "Binaries/Microsoft.SqlServer.TransactSql.ScriptDom.dll": "459e137268a4ca378023cd7e68a04655cec2c19a8d01546e81b1a7abf1fe2f9226a03cc3fa2323081c3c1b05626af988c98527711d577919cf409367f853dac7",
+    "Binaries/Toolbelt.Archive.ZipMemory.dll": "a3185897b72adbaa81c462cabedc6a770ebedf6b123b1f148d8a659b146130d90c163b76840d59aa8148661b00316cd02d8c5c05174e3394659edc53ff9f1894",
+    "Binaries/Toolbelt.File.CsvMemory.dll": "fb4ad8b4d0affff25d660f2231ee3024ad9702d4fbd01769290f2ab65fd1621facf7ef62dc92f4f6175e6db658051e417aa6bb7fb7e48c924f2e9ac61d51f960",
+    "Binaries/Toolbelt.File.XlsxMemory.dll": "afa7709f78447d122bb2b1d7c37668eda31ac82d8bd2d124a36d1d6924d3c2a430ecf5f34afe0b00c622ce1a3c07eb0043e5a5fe559c52fbfa5a0a9121995fb3",
+    "Binaries/Toolbelt.Filesystem.Windows.dll": "c5cb30b58e4a76a10af20c50c593fbe0184963587e02b448c5d2cc3a131a32b6835c0708796b6d2039a5f1d970afd964dedf244bf22a325d8f95db4fa07f0052",
+    "Binaries/Toolbelt.JsonConstructors.dll": "8ab08a17d1be0b861043463e223154dffbed8273bc2c197cd7c8b791c3c06c4af418358e8e743d72068a3a9f726f7f85f50bcfa431df0484202ab562e1edb4bf",
+    "Binaries/Toolbelt.JsonCore.dll": "4680e9d34a0870924b5ca003cc5983882fc8ffb653e702bcc549e5f65dde11934c55ba7b356b519503ac5ce1e2478fe64876fea0295176ff13b5b4a6ab61b894",
+    "Binaries/Toolbelt.JsonSchema.dll": "523b65979267457e8326ed2d5ec96d0309e9e1c7d5a0b2fbc0a3de68dcf7a9bb5a4f9cdda704ee0ba9f19097edbfb66eb8d649c0f2941b4a16adc2880bef880f",
+    "Binaries/Toolbelt.String.EditDistance.dll": "c81e7a841dc0670b850f46d932337f55b6225d2a834d4480ae3d514875b84bf56261ff580df56155a59c0f8a56b6fe54e798d046329f4122e7228467cca90404",
+    "Binaries/Toolbelt.String.Phonetic.dll": "c1155aa10d9fce61ae33cf8e6f6c68528d219db4835d74b3a35e129f851f66e2fca47c99a6f8f74f3d38239f9be84968459366bbfbeb0125c077b61a8d1989e9",
+    "Binaries/Toolbelt.String.Regex.dll": "515a52fa8803634f0c8c93a383016195a22f868596d3b361bb00d6f8d6a622b637be76377bf256e6297848b87aae59f5644892ec43c1a0aadb6602d0c0738eb1",
+    "Binaries/Toolbelt.Tsql.ScriptParser.dll": "7f34d0472dbe5913c8d019a72b2684d89cb4ca79590b599dd5b06154d6a40c5494334d8f46218e10e9d1bc5db983a8750ba77a685d68865d9bcdf30c3d853506",
+    "Binaries/Toolbelt.Tsql.SsisDebug.dll": "fd4279c9454e3727c27c979e08995a4e4d7e39c18c92a665d236f3f4d2bfba6b8b51c571dc0d87ac91c787387e033b97a0477e13f2e36954ce955c17197de4c0"
+  },
+  "method_bindings": {
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py": "9b2cfad49a2e5f985ffe0166b89d02f81ec8c8d444417c38d6369df9aaed6332",
+    "Scripts/Release/Install-ClrPackage.ps1": "d95884cf01b0fccda9b8d2b1725110e56cfd7b30368108e2b1c43c1b555a345d",
+    "Scripts/Release/check_clr_builds.py": "986024bd557b6ef48643a2ce86810d2c3b171a1d7cca287da366a8103fccda2f",
+    "Scripts/Release/prepare_clr_package.py": "7cacad1b3b96b1b31a748ddebb980862d84658deb24bd50f02ffabf6d09f93ad",
+    "Scripts/Release/prepare_release.py": "8597a501c47f32e4b98d06454921b7c8ff6de45e07eda87678e9cedc9d3eb58b",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-ClrPackageLab.ps1": "f5d49ef99ff15499efee3c00bc378dafb6c4383da4eb683e54739bdc9b2e0b9c",
+    "Tests/Release/Invoke-ClrPackageMatrix.ps1": "c71330d986baee828752f5ea6344791c7851e5b90866dc00a8935817550be61f",
+    "Tests/Release/Invoke-CompletePackageLab.ps1": "bdbba1cdb2fd0d2156f8b90975eb3a330bb45e9cde655e78ae4e76a6a937f98c",
+    "Tests/Release/Invoke-CompletePackageMatrix.ps1": "35d66e43c9059334c51a01fc91c6fc7d82ebf0cbe9f62a474a3fb662b8f093c5",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/prepare_complete_package.py": "3ac025738f80f92c92febee5a1852df1ed90648fb6e98a0a8bd9455abff797d1"
+  },
+  "final_independent_audit": {
+    "new_case_audits": 6,
+    "new_owned_database_names_absent": 18,
+    "trust_states_restored": true,
+    "preexisting_trust_preserved": true,
+    "full_configuration_restored": true,
+    "separate_fresh_configuration_audits": 6,
+    "current_pins_unchanged": true
+  },
+  "builds": {
+    "double_build_projects": 12,
+    "delivered_double_build_modules": 10,
+    "other12_delivered_dlls_unchanged": true,
+    "ssis": "Exact new Full12-qualified standalone ZIP binary; no rebuild during packaging"
+  },
+  "functional_transport": {
+    "encrypt_required": true,
+    "explicit_schema_validated_lab_trust": true,
+    "client": "System.Data.SqlClient",
+    "fallback": false,
+    "authenticated_tls": "not executed"
+  },
+  "limits": {
+    "work_seconds": 300,
+    "cleanup_deadline_seconds": 360,
+    "outer_watchdog_seconds": 400
+  },
+  "general_autonomy": "PAUSED",
+  "remaining_gates": [
+    "Module API/security/resource/parallel/recovery gates beyond the explicit SSIS scope",
+    "Windows-authentication and SSMS GUI",
+    "Authenticated TLS",
+    "Final publication is not authorized"
+  ],
+  "cost_and_tokens": "UNKNOWN",
+  "module_profiles": {
+    "Windows-local": 45,
+    "Windows-central": 43,
+    "Portable-local": 40,
+    "Portable-central": 40
+  }
+}
