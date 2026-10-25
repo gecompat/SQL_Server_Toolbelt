@@ -1,5 +1,11 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+## Achter endlicher Release-Rahmen
+
+Direkt am 2026-10-25 erneut autorisiert; vor Entwicklung auf eine PR-Welle, zwei Stunden ab unverändertem Originalstart und höchstens 20 native Versuche inklusive Fehlern/Nachfolgern begrenzt. Sieben frühere Rahmen bleiben unverändert geschlossen. Entwickelt wurden ein Single-DLL-Labtreiber und feste Caller-Fixtures für die einzeln freigegebene USP_CompareTextPairs 1.0.0. Tatsächlich 15 Versuche inklusive eines erhaltenen eigenen Fixturefehlers und zweier gezielt abgewiesener Kontrollen; aktuelle Matrix und sämtliche eigenen Abschlussaudits bestanden. SSIS und der Sechs-Modul-Manifest-/Nachweis-/Paketscope bleiben beim anderen Chat.
+
+[Textpaar-Callerrechte](../Releases/1.0.0/TEXT-PAIRS-CALLER-QUALIFICATION.md): ein EXECUTE-Grant, drei Algorithmen, zwölf lokale/direkt zentrale Ziel-/CL-Fälle, 24 positive Profile und 216 SQL229-Abweisungen. 1008 feste Zeilenorakel und eigene Bereinigung sind belegt; weitergehende Gates bleiben separat.
+
 ## Siebter endlicher Release-Rahmen
 
 Direkt am 2026-10-25 erneut autorisiert; vor Entwicklung auf eine PR-Welle, zwei Stunden ab Originalstart und höchstens 20 native Zielversuche einschließlich Fehlern/Nachfolgern begrenzt. Sechs frühere Rahmen bleiben abgeschlossen und unverändert. Entwickelt und nativ geprüft wurden ein eigener JSON-Schema-Caller-Testtreiber und eine feste SQL-Fixture für die bestehende USP 1.0.1. 14 native Versuche einschließlich zweier gezielt abgewiesener Kontrollen; kein neuer Produktcode. SSIS und fremde Arbeit bleiben ausgenommen.

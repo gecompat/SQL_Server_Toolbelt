@@ -1,0 +1,355 @@
+{
+  "schema_version": "toolbelt-function-caller-qualification/v1",
+  "date": "2026-10-25",
+  "scope": "Existing TextPairs1.0.0 single EXECUTE caller; three algorithms, typed direct/ResultTable output in default installed ownership layout",
+  "result": "PASS",
+  "publication_authorized": false,
+  "product_sql_changed": false,
+  "module_status_changed": false,
+  "package_payload_changed": false,
+  "genuine_crossdb_identity_qualified": false,
+  "authenticated_tls_qualified": false,
+  "execution_source_baseline_commit": "d228163a945678044032d3868dd11425f5f6a457",
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.string.edit-distance": "1.1.0",
+    "toolbelt.string.text-pairs": "1.0.0"
+  },
+  "public_apis": [
+    {
+      "schema": "toolbelt_string",
+      "name": "USP_CompareTextPairs",
+      "permission": "EXECUTE"
+    }
+  ],
+  "separately_denied_objects": [
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_LevenshteinDistance",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_OsaDistance",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_JaroWinklerSimilarity",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_LevenshteinDistanceCore",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_OsaDistanceCore",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_JaroWinklerSimilarityCore",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_core",
+      "name": "USP_PrepareResultTable",
+      "permission": "EXECUTE"
+    }
+  ],
+  "positive_profiles": 24,
+  "strict_sql229_denials": 216,
+  "fixed_value_null_and_shape_oracles": 1008,
+  "composition_order": [
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql",
+    "Tests/Release/Runtime/TextPairs.FunctionCases.sql",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql"
+  ],
+  "composition_separator": "LF",
+  "composition_final_newline": true,
+  "composed_fixture_sha256": "3e1fd4324f7d4eec1d66efa8eef19c4ed5a8eff76d1c0a3a9acc0aa75f90b7d5",
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.core.result-table/module.yaml": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+    "Modules/toolbelt.string.edit-distance/Clr/DistanceKernel.cs": "0027414594aab5dfea22ab613dc26c52bca4882922eebc3bc905e1f40b599cf8",
+    "Modules/toolbelt.string.edit-distance/Clr/DistanceProvider.cs": "53fc1c85c76e57aab8a1ff363c5f17372c582631625c79870345807f7339223d",
+    "Modules/toolbelt.string.edit-distance/Clr/JaroKernel.cs": "14b52a54361f0b7e5c247aeb62b6683c78b91a15794035c382e36ac695908f44",
+    "Modules/toolbelt.string.edit-distance/Clr/JaroProvider.cs": "4615bec4e09d6373e1e097bd2c056aee6109e809ec0a8d6ed78c4dbfeb0d917c",
+    "Modules/toolbelt.string.edit-distance/Clr/Properties/AssemblyInfo.cs": "312dcf9cfdc02a660f29f3d58aa9fd755d42ac02dcaae79a6e2a869b2e3c2b89",
+    "Modules/toolbelt.string.edit-distance/Clr/Toolbelt.String.EditDistance.csproj": "e397cc962dce69cd8542b9a7f2daa0ebab07f52bbb1d9aab17185a2764446aec",
+    "Modules/toolbelt.string.edit-distance/Clr/UnicodeScalar.cs": "f977eb54171a6de3e6194ac94427fde47d0936ccacc45a5456a4bffb69c03965",
+    "Modules/toolbelt.string.edit-distance/Deployment/Add-TrustedAssembly.sql": "7bb6e58cac487d0010a493b275c163df0337c6e7cac72aa52a43d923305922ae",
+    "Modules/toolbelt.string.edit-distance/Deployment/Deploy.sql": "1a0a5ed34d84a4b9e4e432dd2d53975affc4502d4fcd2bdfcca47abf1fe25247",
+    "Modules/toolbelt.string.edit-distance/Deployment/Uninstall.sql": "d66d859f491fd1ea325160825542c1f0ab6852ba439ce5f13f603f326f741412",
+    "Modules/toolbelt.string.edit-distance/Scripts/Invoke-OwnedProcess.ps1": "ff2cce9c0c33335892effac843d90bf2b131b597c68e9514850cc91c80cac993",
+    "Modules/toolbelt.string.edit-distance/Scripts/New-ClrReleaseArtifacts.ps1": "7418b049bec4c7e0785a0427773611c2d37a507c6a53c1ce836a03577b8a84e2",
+    "Modules/toolbelt.string.edit-distance/Scripts/New-LegacyTestArtifacts.ps1": "acae49bd423b32683b5a6ab1b299768454f7daa316f05853a8c177e45ecca747",
+    "Modules/toolbelt.string.edit-distance/Source/EditDistance.sql": "93f3392f2da914a75e5f26aa06af03832e7b64b3293b3ad74e8599716a8d769b",
+    "Modules/toolbelt.string.edit-distance/Source/JaroWinkler.sql": "e4cf8b205034d9bec3f5f16ea29ca23a30f7554d75286bcec575af3becad8390",
+    "Modules/toolbelt.string.edit-distance/module.yaml": "d7c4b70e0c4ae3c6db7a8a31eb69dc85139f0a0b8d96f545f8063a6317bd2238",
+    "Modules/toolbelt.string.text-pairs/Deployment/Deploy.sql": "799cc8648169273b18ca2d4c6fc81f3a982aae84a5162354bc346f60d83f08aa",
+    "Modules/toolbelt.string.text-pairs/Deployment/Uninstall.sql": "28bb0db3939f79f58f985f17e1dda9a9505dec07521e878d6a8df0ca6b13c709",
+    "Modules/toolbelt.string.text-pairs/Source/USP_CompareTextPairs.sql": "536e475a31cc9ee2b7f4ce23817d3d31fe5b0159fafddac47fd8c79b1e9c3929",
+    "Modules/toolbelt.string.text-pairs/module.yaml": "bea5986f10343e72cb24f944d61be35226d615a1cef431cb4f0396f3d16a7b45",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-csv-memory-lab.ps1": "e200d4d6fc3ca0ee6fc00f333d67b6a4f8b89652731ca383cece6731b58fa3ff",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/ClrCaller.Environment.ps1": "c4923c1df11e65264276c52d4e4b7dc57236e3087743e05ba19ae9429215fd3d",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Invoke-TextPairsCallerLab.ps1": "bc9eaec06200bf65b39fd3b75729aa0d94ce979443ffa515ec8f10a16f60b1c7",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql": "ed5cbe66c9fe6a341f56dac5695eb9bca7d797ac68dcf3927a2c3cefd8693de9",
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql": "2251ab3f1d449fecae2d5f8bea80192e4e0437a682af77bd7d615e76e496d3a2",
+    "Tests/Release/Runtime/TextPairs.FunctionCases.sql": "fedfd83d3b7f0f1c8b4e91d9dddda607df159cb0dc29a1f93366829cf325fb00",
+    "Tests/Release/Test-ClrCallerSafety.ps1": "58a06fb8d0b62c3ea6429ccf6f8f97e2ce209e5ca194adf5522d2ca9f48af6c2",
+    "Tests/Release/prepare_function_rights.py": "d4bfa01a9b6a8b8dc70f4b848437f11402ed2e143aa63a0edaa4b5c55b733f4f"
+  },
+  "offline_export_sha256": {
+    "local": "981924137d6991c6cdc17d1642f3d3ec6da969eaa7a1c2e56e5cba2399aa3a62",
+    "central": "2ee79a495cc9fc86df306c7db14070a62d0b6a07457c3ce472fbc2cff61d48a3"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 18,
+      "fixed_value_null_and_shape_oracles": 84,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 18,
+      "fixed_value_null_and_shape_oracles": 84,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 18,
+      "fixed_value_null_and_shape_oracles": 84,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 18,
+      "fixed_value_null_and_shape_oracles": 84,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 18,
+      "fixed_value_null_and_shape_oracles": 84,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 18,
+      "fixed_value_null_and_shape_oracles": 84,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 18,
+      "fixed_value_null_and_shape_oracles": 84,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 18,
+      "fixed_value_null_and_shape_oracles": 84,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 18,
+      "fixed_value_null_and_shape_oracles": 84,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 18,
+      "fixed_value_null_and_shape_oracles": 84,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 18,
+      "fixed_value_null_and_shape_oracles": 84,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 2,
+      "strict_sql229_denials": 18,
+      "fixed_value_null_and_shape_oracles": 84,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "intended_oracle_rejected": true,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-grant",
+      "actual_state": "FAILED_CLEANED",
+      "intended_oracle_rejected": true,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "artifact_origin": {
+    "assemblies": [
+      "Toolbelt_String_EditDistance"
+    ],
+    "historical_reproducible_build_source_commit": "b807deb79e248d3012d140cbac92525212c5dd03",
+    "two_isolated_builds_equal_packaged_binary": true,
+    "complete_current_compile_inputs_equal": true,
+    "unknown_or_rebuilt_binary_used": false,
+    "trust_hashes_published": false
+  },
+  "native_attempts_consumed": 15,
+  "configuration_safety": {
+    "parameter_values_published": false,
+    "strict_security_maintained": true,
+    "no_restart_or_override": true,
+    "no_server_or_login_grants": true,
+    "no_memory_option_writes": true,
+    "genuine_pending_changes_and_foreign_consumers_block_mutation": true,
+    "own_state_restored_or_preexisting_state_preserved": true,
+    "shared_environment_guard_reused_unchanged": true
+  },
+  "final_independent_audit": {
+    "fresh_after_all_consumers": true,
+    "accepted_database_names_absent": 26,
+    "all_database_names_absent": 27,
+    "all_terminal_attempts": 15,
+    "owned_configuration_restoration_verified": true,
+    "owned_trust_entries_absent_and_preexisting_trust_fingerprints_preserved": true,
+    "source_pins_stable": true
+  },
+  "legacy_manifest_permission_wording_pending": false,
+  "remaining_gates": [
+    "Full API/client/lifecycle/boundary/resource and genuine lowpriv CrossDB identity scopes remain separate",
+    "No general heap/parallel/maximum-workload or authenticated TLS qualification",
+    "Package refresh/publication remain separate; no tags"
+  ],
+  "retained_failed_fixture_attempt": {
+    "qualified_as_success": false,
+    "stage": "CONTRACT_local",
+    "reason": "State observation coupled to data-reading predicate; corrected to standalone before/after snapshots preserving the same invariant",
+    "original_runset_and_journal_unchanged": true,
+    "original_executed_case_bytes_preserved": true,
+    "same_digest_original_content_audit_projection_only": true,
+    "independent_cleanup_and_final_audit_passed": true
+  },
+  "algorithms": [
+    "levenshtein",
+    "osa",
+    "jaro-winkler"
+  ],
+  "result_routes": [
+    "typed_insert_exec",
+    "caller_local_result_table"
+  ]
+}

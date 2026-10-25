@@ -4590,7 +4590,7 @@ Begrenzt vergleicht vorhandene lokale Textpaare mit den kanonischen Distanz-/Jar
 
 Vertrag und Quelle: [USP_CompareTextPairs.sql](../../Modules/toolbelt.string.text-pairs/Source/USP_CompareTextPairs.sql), [USP_CompareTextPairs.md](../../Modules/toolbelt.string.text-pairs/Documentation/USP_CompareTextPairs.md).
 
-<!-- Source/Vertrag SHA256: 4e41b5b6077dc215f1a64a218600e3916fbdcb9c7bab9f2dd960d33603fe2e76 -->
+<!-- Source/Vertrag SHA256: 6bdcce2db3d1811527fd76549a7f52b4834f85af685375f4d4d51fc81aecd27b -->
 
 | Parameter | SQL-Typ | Default | Richtung | Erklärung / Werte |
 |---|---|---|---|---|

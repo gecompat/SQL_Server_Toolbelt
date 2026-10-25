@@ -1,5 +1,9 @@
 # Releasevorbereitung prüfen
 
+## Textpaar-Caller mit einzelnem EXECUTE
+
+Der [Textpaarbericht](../../Releases/1.0.0/TEXT-PAIRS-CALLER-QUALIFICATION.md) beschreibt `Invoke-TextPairsCallerLab.ps1`, `Runtime/TextPairs.FunctionCases.sql`, die kanonische Komposition und private Runset-/Pin-/Labfensteranforderungen. Drei Algorithmen werden gegen feste Werte geprüft. Die bestehende Release-Regressionssuite bindet den Bericht; zusätzlich `python -B Tests/Release/test_text_pairs_caller_qualification.py`.
+
 ## JSON-Schema-Caller mit drei Objektrechten
 
 Der [JSON-Schema-Bericht](../../Releases/1.0.0/JSON-SCHEMA-CALLER-PROFILE.md) beschreibt `Invoke-JsonSchemaCallerLab.ps1`, `Runtime/JsonSchema.CallerRights.sql`, das genaue Rechteprofil, private Runset-/Pin-Anforderungen und die separate Offlineprüfung `python -B Tests/Release/test_json_schema_caller_profile.py`. Die vorhandenen gemeinsamen Konfigurations-/Trusthelfer bleiben unverändert. Neue Tests ändern keine Produktfunktion; alle ursprünglichen Nachweise bleiben gebunden.

@@ -1,5 +1,7 @@
 # Paarvergleich – Nachweisstand
 
+Additiver Nachweis 2026-10-25: Die [Callerqualifikation](../../../Releases/1.0.0/TEXT-PAIRS-CALLER-QUALIFICATION.md) belegt zwölf Ziel-/CL-Fälle lokal/direkt zentral mit einem EXECUTE auf der öffentlichen USP, drei Algorithmen und typisiertem direktem/ResultTable-Pfad. Frühere offene Minimalrechteangaben bleiben historisch; weitergehende Runtime-/Lifecycle-/Client-/Ressourcengates bleiben getrennt.
+
 Modul 1.0.0 bleibt `partially validated` und `unreleased`. Der private,
 begrenzte Labadapter bestand folgende ausgewählte Nachweisscopes; tatsächliche
 Receipt-, Journal-, Capture- und Pinprüfungen wurden unabhängig geschlossen:
