@@ -40,6 +40,11 @@ sind für alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
 lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.
 Echte CrossDB-Identitätsmappings und andere Modulpflichtfälle bleiben separat.
 
+Die [Safe-Cast-Callerrechte](SAFE-CAST-RIGHTS-QUALIFICATION.md) sind für alle
+sechs TVFs mit je genau einem SELECT lokal/direkt zentral auf zwölf
+Ziel-/CL-Kombinationen geprüft. Die bestehende volle Funktionsmatrix bleibt
+getrennt; Lifecycle-DDL-Minimalrechte und echte CrossDB-Mappings bleiben offen.
+
 Der [Queue-Autorisierungsvertrag](QUEUE-AUTHORIZATION-QUALIFICATION.md) besteht
 auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral. Er prüft Producer-Policy,
 Handler-Ausführbarkeit, DENY vor Idempotenzauskunft und Callertransaktionsschutz;

@@ -279,6 +279,11 @@ Callertransaktionsschutz sind für die bestehende feste Fixture belegt;
 vollständige API-Minimalrechte, Managed-/Providerparallelität und harte
 Recovery bleiben davon unabhängig offen.
 
+Die [sechs Safe-Cast-Callerprofile](SAFE-CAST-RIGHTS-QUALIFICATION.md) sind
+zusätzlich auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral mit jeweils
+einem einzelnen SELECT geprüft. Die neue Rechtequalifikation ersetzt keine
+Lifecycle-DDL-, echte CrossDB-, harte Recovery- oder Produktionskapazitätsabnahme.
+
 Die verbleibenden Arbeiten sind damit genauer getrennt:
 
 | Punkt | Noch erforderlich | Voraussetzung / Verantwortung |

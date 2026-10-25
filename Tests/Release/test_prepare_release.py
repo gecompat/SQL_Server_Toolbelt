@@ -505,6 +505,35 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(report['required_followup']['fresh_standalone_oracle_controls'], 1)
         self.assertTrue(report['known_documentation_gap'])
 
+    def test_safe_cast_rights_binds_isolated_profiles_and_source_bytes(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/safe-cast-rights-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        for flag in ('publication_authorized', 'module_status_changed', 'product_sources_changed', 'package_payload_changed'):
+            self.assertIs(report[flag], False)
+        self.assertEqual(report['module_versions'], {'toolbelt.conversion.safe-cast': '1.0.0'})
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        self.assertEqual(len(report['native_cases']), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        self.assertEqual(set(report['public_apis']), {'TVF_TryCastBigInt', 'TVF_TryCastDecimal', 'TVF_TryCastDate',
+                                                    'TVF_TryCastDateTime2', 'TVF_TryCastBit', 'TVF_TryCastUniqueIdentifier'})
+        for field, total in [('positive_api_profiles', 144), ('value_cases', 1008), ('strict_sql229_denials', 1008)]:
+            self.assertEqual(report[field], total)
+            self.assertEqual(sum(c[field] for c in report['native_cases']), total)
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        audit = report['final_independent_audit']
+        self.assertEqual((audit['terminal_attempts_audited'], audit['all_attempt_databases_absent']), (14, 26))
+        self.assertTrue(audit['fresh_after_all_consumers'])
+        self.assertFalse(audit['server_configuration_changes'] or audit['assembly_trust_changes'])
+        self.assertTrue(report['remaining_gates'])
+
     def test_queue_authorization_binds_consumed_fixture_and_keeps_scope_narrow(self):
         import hashlib
         import prepare_queue_authorization as queue

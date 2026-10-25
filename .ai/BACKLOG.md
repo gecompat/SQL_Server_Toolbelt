@@ -60,6 +60,25 @@ Vollständige isolierte API-Minimalrechte, echter CrossDB-Kontext und
 Worker-/Recoverygates bleiben separat. Head-/Main-CI und reguläre Integration
 werden im PR nachgewiesen; keine vorweggenommene Vollabnahme oder Veröffentlichung.
 
+### Erweiterung und vierte Welle: Safe-Cast-Callerrechte
+
+Der Benutzer hat die konkrete Rahmenfrage am 2026-10-25 mit „Ja, im erweiterten
+Rahmen autonom fortsetzen“ beantwortet: insgesamt acht PR-Wellen und 100 native
+Zielprüfungen im unveränderten ursprünglichen Achtstundenfenster. Bereits
+verbrauchte Wellen, Fälle und Fehlversuche zählen weiter; kein Budgetneustart,
+keine neue Fachfunktionsfreigabe und keine Übernahme fremder SSIS-Arbeit.
+
+Vor Umsetzung geplant: die fehlenden minimalen Callerrechte der sechs
+Safe-Cast-TVFs mit je genau einem SELECT, festen Wert-/Diagnoseorakeln,
+Grant-/Entzug- und Fremd-API-Abweisungen prüfen. Der
+[Rechtebericht](../Releases/1.0.0/SAFE-CAST-RIGHTS-QUALIFICATION.md) bindet
+zwölf lokale/direkt zentrale Ziel-/CL-Fälle und zwei verworfene Orakelkontrollen.
+Der gemeinsame T-SQL-Testtreiber verwendet die vorhandenen begrenzten Helfer
+und wird in folgenden passenden Wellen wiederverwendet. Kein Produkt-,
+Status-, CLR- oder Serverkonfigurationswechsel; Head-/Main-CI und Integration
+bleiben am jeweiligen PR nachzuweisen. Alle 26 eigenen Datenbanknamen sind
+unabhängig als abwesend geprüft; weitere Lifecycle-/CrossDB-/Recoverygates offen.
+
 ## Autonomer Abschluss von v1.0.0 — 2026-10-24
 
 Der unmittelbare Benutzerauftrag nimmt die zuvor pausierte Releasearbeit

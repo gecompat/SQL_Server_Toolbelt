@@ -6,6 +6,11 @@ kanonischen `validation_evidence`-Einträgen der Modulmanifeste und den
 Beschreibung jedes Nachweises begrenzt seinen Scope; ein aktueller grüner
 Pakettest ersetzt sie nicht. Kein Modul wird hierdurch hochgestuft.
 
+Die [Safe-Cast-Callerrechte vom 2026-10-25](SAFE-CAST-RIGHTS-QUALIFICATION.md)
+ergänzen für die sechs TVFs zwölf lokale/direkt zentrale Ziel-/CL-Fälle mit
+genau einem SELECT und sieben festen Datenorakeln je positivem Profil.
+Historische Manifest-Snapshots und Paketnachweise bleiben unverändert.
+
 Der [Queue-Autorisierungsvertrag vom 2026-10-25](QUEUE-AUTHORIZATION-QUALIFICATION.md)
 ergänzt auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral die Producer-,
 Handler-, DENY-/Idempotenz- und Callertransaktionsprofile. Vollständige isolierte
