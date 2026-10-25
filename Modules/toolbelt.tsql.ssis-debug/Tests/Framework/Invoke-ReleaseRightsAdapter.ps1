@@ -17,6 +17,7 @@ try{
    if($c.Parameters['@PackageBytes'].Value -isnot [byte[]] -or $c.Parameters['@PackageBytes'].SqlValue.Length -ne 3){throw 'SSIS_RIGHTS_ADAPTER_BINARY_TYPE'};$checks++
    if($c.Parameters['@Bindings'].Value -isnot [DBNull] -or -not $c.Parameters['@Bindings'].SqlValue.IsNull){throw 'SSIS_RIGHTS_ADAPTER_NULL'};$checks++
    if($c.Parameters['@CatalogBindings'].Value -isnot [DBNull]){throw 'SSIS_RIGHTS_TEMPLATE_CATALOG_NOT_NULL'};$checks++
+   if($c.Parameters['@InspectStage'].Value -isnot [DBNull]){throw 'SSIS_RIGHTS_TEMPLATE_STAGE_NOT_NULL'};$checks++
    if([bool]$c.Parameters['@Hilfe'].Value -ne $help){throw 'SSIS_RIGHTS_ADAPTER_HELP'};$checks++
    foreach($p in $c.Parameters){[void]$p.SqlValue}
    if($Connection.State -ne 'Closed'){throw 'SSIS_RIGHTS_ADAPTER_OPENED_CONNECTION'};$checks++
@@ -25,6 +26,7 @@ try{
  $c=New-ReleaseRightsCommand -Operation 'explain' -Bindings '{"schemaVersion":1}'
  try{
   if([string]$c.Parameters['@CatalogBindings'].Value -cne $catalog){throw 'SSIS_RIGHTS_EXPLAIN_CATALOG_MISSING'};$checks++
+  if([string]$c.Parameters['@InspectStage'].Value -cne 'all'){throw 'SSIS_RIGHTS_EXPLAIN_STAGE_MISSING'};$checks++
   foreach($p in $c.Parameters){[void]$p.SqlValue}
  }finally{$c.Dispose()}
 }finally{$Connection.Dispose()}

@@ -13,8 +13,8 @@ function Sql([string]$Text){
 }
 function New-ReleaseRightsCommand([string]$Operation,[byte[]]$Bytes=$package,[string]$Bindings,[string]$ResultTable,[bool]$Help=$false,[bool]$Keep=$true){
  $c=$Connection.CreateCommand();$c.CommandTimeout=Get-SsisNativeTimeout 40;$c.CommandType='StoredProcedure';$c.CommandText='toolbelt_tsql.USP_ExplainSsisDataFlow'
- $selectedCatalog=$null;if($Operation -eq 'explain'){$selectedCatalog=$catalog}
- foreach($p in @(@('@Operation',[Data.SqlDbType]::NVarChar,32,$Operation),@('@PackageBytes',[Data.SqlDbType]::VarBinary,-1,$Bytes),@('@Bindings',[Data.SqlDbType]::NVarChar,-1,$Bindings),@('@CatalogBindings',[Data.SqlDbType]::NVarChar,-1,$selectedCatalog),@('@ResultTable',[Data.SqlDbType]::NVarChar,128,$ResultTable))){
+ $selectedCatalog=$null;$selectedStage=$null;if($Operation -eq 'explain'){$selectedCatalog=$catalog;$selectedStage='all'}
+ foreach($p in @(@('@Operation',[Data.SqlDbType]::NVarChar,32,$Operation),@('@PackageBytes',[Data.SqlDbType]::VarBinary,-1,$Bytes),@('@Bindings',[Data.SqlDbType]::NVarChar,-1,$Bindings),@('@CatalogBindings',[Data.SqlDbType]::NVarChar,-1,$selectedCatalog),@('@InspectStage',[Data.SqlDbType]::NVarChar,64,$selectedStage),@('@ResultTable',[Data.SqlDbType]::NVarChar,128,$ResultTable))){
   $v=$c.Parameters.Add($p[0],$p[1],$p[2]);$v.Value=$p[3]
   if($null -eq $p[3] -or ($p[3] -is [string] -and $p[3] -eq '')){$v.Value=[DBNull]::Value}
  }
