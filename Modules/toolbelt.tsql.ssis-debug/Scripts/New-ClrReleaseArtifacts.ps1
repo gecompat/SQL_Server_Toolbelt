@@ -41,7 +41,9 @@ $shared=Join-Path (Split-Path -Parent $moduleRoot) 'toolbelt.tsql.script-parser/
 $sources += @(Get-ChildItem -LiteralPath (Join-Path $moduleRoot 'Exchange/Core') -File -Filter '*.cs' | Sort-Object Name | ForEach-Object {'Exchange/Core/'+$_.Name+':'+(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash})
 $sources += '../toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs:'+(Get-FileHash -LiteralPath $shared -Algorithm SHA256).Hash
 $deployment=@(foreach($folder in @('Contracts','Source','Deployment','Scripts')){
- Get-ChildItem -LiteralPath (Join-Path $moduleRoot $folder) -File | Sort-Object Name | ForEach-Object {$folder+'/'+$_.Name+':'+(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash}
+ # Paketpins binden dieses Manifest erst nach der nativen Qualifikation.
+ # Sie und der reine ZIP-Packer sind keine CLR-/SQL-Deploymentinputs; ihre Aufnahme wäre zyklisch.
+ Get-ChildItem -LiteralPath (Join-Path $moduleRoot $folder) -File | Where-Object {($folder+'/'+$_.Name) -cnotin @('Contracts/InstallPackageInputs.json','Scripts/New-InstallPackage.py')} | Sort-Object Name | ForEach-Object {$folder+'/'+$_.Name+':'+(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash}
 })
 function Expand-Includes([string]$Path){
  $text=Get-Content -LiteralPath $Path -Raw
