@@ -394,6 +394,12 @@ Context, Idempotenz und die gesperrte interne Tabelle. Der
 [Cancellation-Bericht](../../Releases/1.0.0/CANCELLATION-RIGHTS-QUALIFICATION.md)
 grenzt die zwölf Fälle von weiteren Quoten-/Lifecycle-/Recoveryverträgen ab.
 
+`Runtime/Deterministic.Rights.sql` verwendet denselben Treiber für Deterministic
+1.2.0 und ResultTable 1.0.0. Vier SELECT-TVFs und der direkte Lookup-EXECUTE-Pfad
+sind isoliert; das zusätzliche Lookup-/Helperprofil bleibt getrennt. Der
+[Pseudonymisierungsbericht](../../Releases/1.0.0/DETERMINISTIC-RIGHTS-QUALIFICATION.md)
+bindet Festwerte, NULL-/Fehlerfälle, interne Abweisungen und Bereinigung.
+
 ## Queue-Autorisierungsvertrag physisch prüfen
 
 `prepare_queue_authorization.py` bindet den unveränderten kanonischen

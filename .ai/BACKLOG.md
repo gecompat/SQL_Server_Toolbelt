@@ -92,6 +92,17 @@ frische unabhängige Audits aller 26 eigenen Datenbanknamen. Keine Produkt-,
 Status- oder Serverkonfigurationsänderung; übrige Quoten-/Lifecycle-/CrossDB-/
 Recoverygates und aktuelle Head-/Main-CI bleiben getrennt.
 
+### Sechste Welle: Pseudonymisierungs-Callerrechte
+
+Vor Umsetzung geplant: vier bestehende TVFs und Lookup mit getrennten
+Objektrechten, festen synthetischen Werten, NULL-/Konfigurationsfällen und
+gesperrten internen Kernen prüfen; den ResultTable-/Helperpfad gesondert zählen.
+Der [Rechtebericht](../Releases/1.0.0/DETERMINISTIC-RIGHTS-QUALIFICATION.md) bindet
+zwölf lokale/direkt zentrale Fälle, zwei verworfene Orakelkontrollen und frische
+Abwesenheitsaudits aller 26 eigenen Datenbanknamen. Keine Produkt-, Status-,
+Serverkonfigurations- oder Paketänderung; weitere Modul-/CrossDB-/Recoverygates
+und aktuelle Head-/Main-CI bleiben getrennt.
+
 ## Autonomer Abschluss von v1.0.0 — 2026-10-24
 
 Der unmittelbare Benutzerauftrag nimmt die zuvor pausierte Releasearbeit
