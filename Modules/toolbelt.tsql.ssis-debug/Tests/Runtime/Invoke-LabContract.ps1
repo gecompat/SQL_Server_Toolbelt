@@ -9,6 +9,7 @@ param(
  [string]$SsisPredecessorReleaseDirectory,
  [string]$SsisIntermediateReleaseDirectory,
  [string]$InstallationPackageRoot,
+ [string]$PackageSqlcmdPath,
  [string]$JournalDirectory,
  [string]$ExpectedTargetKey,
  [ValidatePattern('^[0-9A-F]{64}$')][string]$ExpectedContractSha256,
@@ -40,6 +41,10 @@ if($InstallationPackageRoot){
  }
  $moduleRoot=Join-Path $repoRoot 'Modules/toolbelt.tsql.ssis-debug'
  if($SsisReleaseDirectory -or $ParserReleaseDirectory){throw 'SSIS_PACKAGE_EXTERNAL_RELEASE_NOT_ALLOWED'}
+}
+if($PackageSqlcmdPath){
+ if(-not $InstallationPackageRoot){throw 'SSIS_PACKAGE_SQLCMD_SCOPE_REQUIRED'}
+ $packageSqlcmd=Get-Command -Name $PackageSqlcmdPath -ErrorAction Stop
 }
 $ssisNativeScopeClock=[Diagnostics.Stopwatch]::new();$ssisNativeCleanupPhase=$false
 $ssisNativeBoundedInvocation=$Modes.Count -eq 1
@@ -80,6 +85,21 @@ function Expand([string]$Path){
 function Batches([Data.SqlClient.SqlConnection]$Connection,[string]$Text,[string]$Mode){
  $sql=[regex]::Replace($Text.Replace('$(DeploymentMode)',$Mode),'(?im)^:On Error exit\s*$','')
  if($sql -match '(?m)^:' -or $sql -match '\$\('){throw 'LAB_UNRESOLVED_SQLCMD'}
+ if($PackageSqlcmdPath){
+  # Explizit gewählter Paketclient, keine Authentifizierungs-/Transportumschaltung nach Fehlern.
+  if(-not $builder.Encrypt){throw 'SSIS_PACKAGE_ENCRYPT_REQUIRED'}
+  $inputFile=Join-Path $journalRoot ('sqlcmd-'+[guid]::NewGuid().ToString('N')+'.sql')
+  [IO.File]::WriteAllText($inputFile,$sql,[Text.UTF8Encoding]::new($false))
+  $arguments=@('-S',$builder.DataSource,'-d',$Connection.Database,'-N','-b','-l','15','-t',[string](Get-SsisNativeTimeout 45),'-f','65001','-i',$inputFile)
+  if($builder.TrustServerCertificate){$arguments+='-C'}
+  $priorPassword=$env:SQLCMDPASSWORD
+  try{
+   if($builder.IntegratedSecurity){$arguments+='-E'}else{$arguments+=@('-U',$builder.UserID);$env:SQLCMDPASSWORD=$builder.Password}
+   & $packageSqlcmd.Source @arguments
+   if($LASTEXITCODE -ne 0){throw 'SSIS_PACKAGE_SQLCMD_FAILED'}
+  }finally{$env:SQLCMDPASSWORD=$priorPassword}
+  return
+ }
  foreach($batch in [regex]::Split($sql,'(?im)^\s*GO\s*(?:--[^\r\n]*)?\r?$')){if(-not [string]::IsNullOrWhiteSpace($batch)){NonQuery $Connection $batch}}
 }
 function VerifyFiles($Manifest,[string]$Root){
