@@ -70,6 +70,19 @@ begrenzt die tatsächliche Matrix und bewahrt alle Vorläufer. Die Tests in
 `test_prepare_release.py` prüfen Komposition, Inputs und Berichtsgrenzen ohne
 Labmutation. Keine neuen Jobs und keine automatische Native-Testausführung.
 
+Die [Series-/Datumsqualifikation](../../Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md)
+verwendet denselben Ablauf mit `Runtime/SeriesDate.FunctionCases.sql` und genau
+ResultTable/GenerateSeries/DateSpine/Truncate1.0.0. Der Legacy-Nullschritt wird
+mit SQL8134 geprüft; er wird nicht mit INVALID der begrenzten Status-TVF
+vertauscht. Die drei ursprünglichen Fixtureversuche bleiben getrennt erhalten.
+
+Die [Utilityqualifikation](../../Releases/1.0.0/UTILITY-CALLER-QUALIFICATION.md)
+verwendet `Runtime/Utility.FunctionCases.sql` mit fünf Utilitymodulen und
+GenerateSeries/ResultTable. Der identische Controller unterscheidet TVF-SELECT
+und Scalar-EXECUTE, direkte Dependencyabweisung und intern erlaubte Ownershipkette.
+Für Sort Keys gelten opake Ordnungs-/Präzedenzorakel statt eines erfundenen
+versionsübergreifenden Binärformats. Keine neuen Jobs oder automatischen Labtests.
+
 ## API- und Grenzqualifikation
 
 `api-qualification-spec.json` benennt die 165 ausgewählten kanonischen

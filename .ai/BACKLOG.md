@@ -37,6 +37,39 @@ Ownerrolle: Releasepflege; Trigger: freier abgestimmter Snapshot-/Paketscope.
 Dies blockiert keine unabhängigen eigenen Callerqualifikationen und ist
 keine neue Funktions- oder Veröffentlichungsfreigabe.
 
+### Zweite Welle im dritten Rahmen: Series-/Datums-Callerprofile
+
+Vor Entwicklung konkretisiert: neun öffentliche TVFs einschließlich der
+begrenzten Series-Status-API und der ohnehin benötigten Truncate-Dependency.
+Der [Callerbericht](../Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md) bindet
+216 Einzelgrantprofile,2.592 SQL229-Abweisungen,96 genaue SQL8134-Kontrollen und
+zwei verworfene Kontrollen auf zwölf lokalen/direkt zentralen Ziel-/CL-Fällen.
+Ein ursprünglicher falscher Legacy-Nullschritt-Sollwert wurde anhand des
+bestehenden Vertrags korrigiert; drei ursprüngliche Versuche/Audits bleiben
+getrennt im Verbrauch. Alle26 aktuellen eigenen Datenbanknamen sind frisch
+unabhängig als abwesend geprüft. Keine Produkt-, Status-, Manifest- oder
+Paketänderung; weitere Last-/Client-/Lifecycle-/CrossDB-/TLS-Gates separat.
+
+### Dritte Welle im dritten Rahmen: native Utility-Callerprofile
+
+Vor Entwicklung konkretisiert:16 öffentliche Funktionen aus BitOperations,
+DirectionalTrim,SplitCharacters,Identifier und SemanticVersion einschließlich
+Status-Split und drei Scalarwrappern. Der [Callerbericht](../Releases/1.0.0/UTILITY-CALLER-QUALIFICATION.md)
+bindet384 Einzelgrantprofile und8.064 SQL229-Abweisungen auf zwölf lokalen/
+direkt zentralen Ziel-/CL-Fällen, zwei verworfene Kontrollen und26 frisch
+unabhängig als abwesend bestätigte Datenbanknamen. Produkt-SQL, Manifeste,
+Modulstatus und Pakete bleiben unverändert.
+
+Die pauschalen Scalarrechte-Angaben von Identifier und SemanticVersion sowie
+der Identifier-Scalarheader ergänzen die oben erfasste Metadatenlücke. Das
+konkrete EXECUTE-Einzelprofil ist nativ belegt; die gebundene Kommentar-/
+Manifest-/Paketkorrektur bleibt bei der Releasepflege, sobald der gemeinsame
+Snapshot-/Paketscope frei und nachvollziehbar gebunden ist.
+
+Der zunächst geprüfte separate Stable-SQL-Herkunftsfix wird hier nicht umgesetzt:
+Der Read-only-Abgleich fand diese Datei bereits im aktiven SSIS-/Gesamtpaket-
+Scope des anderen Chats. Keine konkurrierende Implementierung oder Übernahme.
+
 ## Zweiter endlicher Release-Rahmen — 2026-10-25
 
 Neuer unmittelbarer Benutzerauftrag: verbleibende bereits freigegebene

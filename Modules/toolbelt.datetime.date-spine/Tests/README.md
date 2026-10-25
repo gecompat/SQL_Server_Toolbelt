@@ -1,5 +1,7 @@
 # Date-Spine-Tests
 
+Aktuelle [Series-/Datums-Callerrechte](../../../Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md): neun öffentliche TVFs einschließlich Series-Status und Truncate mit je einem SELECT lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen. Interner Core und Helper sowie andere öffentliche Objekte bleiben direkt unzugänglich. Frühere Voll-, Last-, Client- und Lifecycle-Nachweise behalten ihren eigenen Scope; keine Modulstatusänderung.
+
 - `Static/validate_contract.py` prüft Artefakte, Objektform und Dependency-Marker.
 - `Runtime/DateSpine.Contract.sql` prüft API, Semantik, Grenzen, `DATEFIRST`
   und Skalierung.
