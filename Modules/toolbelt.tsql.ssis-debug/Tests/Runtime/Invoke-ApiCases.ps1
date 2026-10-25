@@ -15,7 +15,7 @@ for($i=0;$i -lt $api.parameters.Count;$i++){
  $p=$api.parameters[$i];$row=$table.Rows[$i]
  Assert ([string]$row.name -ceq $p.name -and [string]$row.TypeName -ceq ($p.type.Split('(')[0]) -and $row.max_length -eq (ExpectedLength $p.type)) 'PARAMETER_NAME_TYPE_ORDER_LENGTH'
 }
-$cmd=$Connection.CreateCommand();$cmd.CommandType='StoredProcedure';$cmd.CommandText='toolbelt_tsql.USP_ExplainSsisDataFlow';$cmd.CommandTimeout=40
+$cmd=$Connection.CreateCommand();$cmd.CommandType='StoredProcedure';$cmd.CommandText='toolbelt_tsql.USP_ExplainSsisDataFlow';$cmd.CommandTimeout=$(if(Get-Command Get-SsisNativeTimeout -ErrorAction SilentlyContinue){Get-SsisNativeTimeout 40}else{40})
 [void]$cmd.Parameters.Add('@PackageBytes',[Data.SqlDbType]::VarBinary,-1);$cmd.Parameters['@PackageBytes'].Value=[IO.File]::ReadAllBytes((Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
 [void]$cmd.Parameters.Add('@Operation',[Data.SqlDbType]::VarChar,32);$cmd.Parameters['@Operation'].Value='bindings-template'
 $reader=$cmd.ExecuteReader()

@@ -8,12 +8,12 @@ if($Connection.State -ne 'Open'){throw 'SSIS_NATIVE_CONNECTION_NOT_OPEN'}
 $moduleRoot=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $script:checks=0
 function Sql([string]$Text){
- $cmd=$Connection.CreateCommand();$cmd.CommandText=$Text;$cmd.CommandTimeout=40
+ $cmd=$Connection.CreateCommand();$cmd.CommandText=$Text;$cmd.CommandTimeout=$(if(Get-Command Get-SsisNativeTimeout -ErrorAction SilentlyContinue){Get-SsisNativeTimeout 40}else{40})
  try{$table=[Data.DataTable]::new();$reader=$cmd.ExecuteReader();try{if($reader.FieldCount -gt 0){$table.Load($reader)}}finally{$reader.Dispose()};return ,$table}finally{$cmd.Dispose()}
 }
 function Check([bool]$Value,[string]$Name){if(-not $Value){throw ('SSIS_NATIVE_ASSERT_'+$Name)};$script:checks++}
 function Explain([byte[]]$Bytes,[string]$Operation='explain',[string]$Bindings,[string]$Catalog,[string]$Target,[string]$Stage,[string]$ResultTable,[bool]$Keep=$false,[bool]$Help=$false,[string]$Policies,[byte]$Debug=0,[string]$Collation,[string]$Procedure='toolbelt_tsql.USP_ExplainSsisDataFlow',[Data.SqlClient.SqlConnection]$Session=$Connection){
- $cmd=$Session.CreateCommand();$cmd.CommandTimeout=40;$cmd.CommandType='StoredProcedure';$cmd.CommandText=$Procedure
+ $cmd=$Session.CreateCommand();$cmd.CommandTimeout=$(if(Get-Command Get-SsisNativeTimeout -ErrorAction SilentlyContinue){Get-SsisNativeTimeout 40}else{40});$cmd.CommandType='StoredProcedure';$cmd.CommandText=$Procedure
  [void]$cmd.Parameters.Add('@PackageBytes',[Data.SqlDbType]::VarBinary,-1);$cmd.Parameters['@PackageBytes'].Value=$Bytes
  foreach($p in @(@('Operation',$Operation,32),@('Bindings',$Bindings,-1),@('CatalogBindings',$Catalog,-1),@('TargetFlow',$Target,64),@('InspectStage',$Stage,64),@('ResultTable',$ResultTable,128),@('LookupPolicies',$Policies,-1),@('ComparisonCollation',$Collation,128))){
   $parameter=$cmd.Parameters.Add('@'+$p[0],[Data.SqlDbType]::NVarChar,[int]$p[2]);$parameter.Value=if($null -eq $p[1] -or [string]$p[1] -eq ''){[DBNull]::Value}else{$p[1]}

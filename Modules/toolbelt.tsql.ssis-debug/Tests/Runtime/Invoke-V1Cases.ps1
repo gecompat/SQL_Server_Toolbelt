@@ -26,7 +26,7 @@ function CacheState([string]$Text){
 # Jede Stage muss ohne vorherige Vorbereitung in einer neuen Sitzung laufen.
 foreach($a in $result.Select("ArtifactKind='StageSql' AND IsExecutable=true")){
  $fresh=([ICloneable]$Connection).Clone();$fresh.Open()
- try{$cmd=$fresh.CreateCommand();$cmd.CommandTimeout=40;$cmd.CommandText=[string]$a.Content;$reader=$cmd.ExecuteReader();$data=[Data.DataTable]::new();try{$data.Load($reader)}finally{$reader.Dispose()};Check ($data.Columns.Count -gt 0) 'STANDALONE_STAGE'}finally{$fresh.Dispose()}
+ try{$cmd=$fresh.CreateCommand();$cmd.CommandTimeout=$(if(Get-Command Get-SsisNativeTimeout -ErrorAction SilentlyContinue){Get-SsisNativeTimeout 40}else{40});$cmd.CommandText=[string]$a.Content;$reader=$cmd.ExecuteReader();$data=[Data.DataTable]::new();try{$data.Load($reader)}finally{$reader.Dispose()};Check ($data.Columns.Count -gt 0) 'STANDALONE_STAGE'}finally{$fresh.Dispose()}
 }
 # Der unveränderte Block verwendet dieselbe Auswahl auch bei geänderter
 # Quelle. Eine irrelevante Split-Schwelle darf den Lookupcache nicht ersetzen.
@@ -179,7 +179,7 @@ Reject {Explain -Bytes $bytes -Bindings '{"schemaVersion":1,"schemaVersion":1}' 
 Reject {Explain -Bytes $bytes -Bindings $bindings -Catalog $catalog -Stage 's9999'} 'unresolved_binding'
 # Eine bereits doomed Callertransaktion bleibt Eigentum des Callers. Help
 # bleibt vorher erreichbar, Fachanalyse lehnt vor jeder Ausgabe/Mutation ab.
-$doom=$Connection.CreateCommand();$doom.CommandTimeout=40
+$doom=$Connection.CreateCommand();$doom.CommandTimeout=$(if(Get-Command Get-SsisNativeTimeout -ErrorAction SilentlyContinue){Get-SsisNativeTimeout 40}else{40})
 $doom.CommandText=@'
 SET NOCOUNT ON;
 CREATE TABLE #V1Doomed(Id int CHECK(Id>0));
