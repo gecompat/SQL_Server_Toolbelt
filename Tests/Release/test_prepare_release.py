@@ -18,6 +18,20 @@ release = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(release)
 
 
+def csv_reader_import_equivalent(path, digest, current, reader):
+    """Enge aktuelle Anwendbarkeit; kein neuer nativer Qualifikationsnachweis."""
+    import hashlib
+    addition = ("# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.\n"
+                ". (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')\n\n").encode('utf-8')
+    return (path == 'Tests/CI/run-csv-memory-lab.ps1'
+            and digest == '2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a'
+            and hashlib.sha256(reader).hexdigest() ==
+            'f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15'
+            and current.count(addition) == 1
+            and b"$ErrorActionPreference='Stop'\n" + addition in current
+            and hashlib.sha256(current.replace(addition, b'', 1)).hexdigest() == digest)
+
+
 class PreparationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -411,6 +425,37 @@ class ClrPackageTests(unittest.TestCase):
 
 
 class ApiQualificationTests(unittest.TestCase):
+    def assert_current_rights_sources(self, report):
+        import hashlib
+        qualification = json.loads((ROOT / 'Releases/1.0.0/clr-qualification.json').read_bytes())
+        historical = release.clr_qualification_method_sources(qualification, report['source_sha256'])
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256(historical[path]).hexdigest(), digest)
+            current = (ROOT / path).read_bytes()
+            if path == 'Tests/CI/run-csv-memory-lab.ps1' and hashlib.sha256(current).hexdigest() != digest:
+                reader = (ROOT / 'Tests/CI/LabQualifiedContract.ps1').read_bytes()
+                self.assertTrue(csv_reader_import_equivalent(path, digest, current, reader),
+                                'CSV-Importdelta oder Reader weicht von der engen Anwendbarkeit ab')
+            else:
+                self.assertEqual(hashlib.sha256(current).hexdigest(), digest)
+
+    def test_csv_import_delta_rejects_unqualified_source_changes(self):
+        path = 'Tests/CI/run-csv-memory-lab.ps1'
+        digest = '2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a'
+        current = (ROOT / path).read_bytes()
+        reader = (ROOT / 'Tests/CI/LabQualifiedContract.ps1').read_bytes()
+        self.assertTrue(csv_reader_import_equivalent(path, digest, current, reader))
+        for changed in (current + b'\n', current.replace(b"'LabQualifiedContract.ps1'", b"'Other.ps1'"),
+                        current.replace(b"$ErrorActionPreference='Stop'", b"$ErrorActionPreference='Continue'"),
+                        current.replace(b". (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')",
+                                        b". (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')\n"
+                                        b". (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')")):
+            with self.subTest(change=changed[:32]):
+                self.assertFalse(csv_reader_import_equivalent(path, digest, changed, reader))
+        self.assertFalse(csv_reader_import_equivalent('Tests/CI/Other.ps1', digest, current, reader))
+        self.assertFalse(csv_reader_import_equivalent(path, '0' * 64, current, reader))
+        self.assertFalse(csv_reader_import_equivalent(path, digest, current, reader + b'\n'))
+
     @classmethod
     def setUpClass(cls):
         sys.path.insert(0, str(ROOT / 'Tests/Release'))
@@ -458,8 +503,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertTrue(report['functional_transport']['encrypt_required'])
         self.assertTrue(report['functional_transport']['explicit_lab_trust_preserved'])
         self.assertFalse(report['functional_transport']['authenticated_tls_claim'])
-        for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+        self.assert_current_rights_sources(report)
         complete = json.loads((ROOT / 'Releases/1.0.0/complete-qualification.json').read_bytes())
         self.assertEqual(report['qualification_package_sql_sha256'], complete['sql_payload_sha256'])
         evidence = json.loads((ROOT / 'Releases/1.0.0/evidence-map.json').read_bytes())
@@ -685,8 +729,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-depth', 'extra-object'})
         self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['expected_sql_number'] == 52095
                             and c['independent_cleanup_and_pin_audit'] for c in report['oracle_rejection_controls']))
-        for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+        self.assert_current_rights_sources(report)
         package = json.loads((ROOT / 'Releases/1.0.0/complete-qualification.json').read_bytes())
         self.assertEqual(report['product_commit'], package['product_commit'])
         self.assertEqual(report['qualification_package_sql_sha256'], package['sql_payload_sha256'])

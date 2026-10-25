@@ -10,6 +10,9 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot '../../../Tests/CI/LabQualifiedContract.ps1')
+
 $ExpectedAssemblySHA512=$ExpectedAssemblySHA512.ToUpperInvariant()
 $ExpectedProviderSHA256=$ExpectedProviderSHA256.ToUpperInvariant()
 $repo=Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $PSScriptRoot))

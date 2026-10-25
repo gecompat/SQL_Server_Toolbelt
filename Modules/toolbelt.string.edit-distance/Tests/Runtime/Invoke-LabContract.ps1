@@ -5,6 +5,9 @@ param([Parameter(Mandatory)][string]$ReleaseRoot,
  [switch]$AllowHashTrustOptIn)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot '../../../../Tests/CI/LabQualifiedContract.ps1')
+
 $repoRoot=(Resolve-Path (Join-Path $PSScriptRoot '../../../..')).Path
 $moduleRoot=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $phase='PREFLIGHT';$journal=$null;$master=$null;$work=$null

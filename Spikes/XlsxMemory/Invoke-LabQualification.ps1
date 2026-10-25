@@ -6,6 +6,9 @@ param([ValidateSet('linux','windows')][string]$Platform = 'linux',
     [switch]$AuthorizePendingMinimumMemory)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot '../../Tests/CI/LabQualifiedContract.ps1')
+
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 # Kanonische Discovery-/Selektor-/Connection-Funktionen übernehmen, ohne den
 # Fullrunner zu initialisieren oder ein Providerfallback zu erfinden.

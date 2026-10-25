@@ -3,6 +3,9 @@ param([ValidateSet('linux','windows')][string]$Platform='linux',
       [ValidateSet('2019','2022','2025')][string]$Version='2019',[string]$Patch='latest')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
+
 $repo=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $errors=$null
 $tree=[Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'run-lab-local.ps1'),[ref]$null,[ref]$errors)

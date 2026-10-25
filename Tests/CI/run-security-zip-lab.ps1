@@ -1,6 +1,9 @@
 [CmdletBinding()]
 param([Parameter(Mandatory)][string]$ReleaseDirectory,[switch]$OptInExactTrust)
 $ErrorActionPreference='Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
+
 Set-StrictMode -Version Latest
 $repo=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 foreach($selection in @(

@@ -12,6 +12,9 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+# Auch isoliert extrahierte Labfunktionen benötigen den gemeinsamen Reader.
+. (Join-Path $PSScriptRoot 'LabQualifiedContract.ps1')
+
 $stage='PREPARATION';$batchIndex=0
 $script:scopeClock=$null;$script:cleanupPhase=$false
 $script:workMilliseconds=300000L;$script:totalMilliseconds=360000L
