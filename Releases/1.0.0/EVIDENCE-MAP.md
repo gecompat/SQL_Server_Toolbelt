@@ -1,5 +1,14 @@
 # Nachweiszuordnung aller 45 Module
 
+Die jüngeren Callerberichte ergänzen diese historische Modulzuordnung:
+[JSON-Pfade](JSON-PATH-CALLER-QUALIFICATION.md),
+[Konsolenausgabe](CONSOLE-CALLER-QUALIFICATION.md),
+[Capability-Katalog](CATALOG-CALLER-QUALIFICATION.md) und
+[JSON Pointer](POINTER-CALLER-QUALIFICATION.md). Ihre jeweils zwölf lokalen/direkt
+zentralen Ziel-/CL-Fälle und engen Rechteprofile sind getrennt gebunden. Sie
+ersetzen weder die ursprüngliche JSON-Projektion noch übrige API-/Lifecycle-,
+Client-, Ressourcen-, Identitäts- oder Veröffentlichungsgates.
+
 Die [eigenständige Stable-SQL-Lieferform](STABLE-SQL-INSTALL.md) bindet ihre
 beiden SQL-Dateien bytegleich an die vorhandene native Paketqualifikation.
 Die neue ZIP-Verpackung ist offline geprüft; weitergehende API-/Modul-, GUI-
@@ -49,8 +58,9 @@ Andere API-/Ressourcen-/Lifecycle- und Paket-/Metadatengates bleiben separat.
 
 Die [ausgewählten Date-Math-Callerprofile](DATE-MATH-HIGHEST-CL-QUALIFICATION.md)
 belegen vier TVFs auf Windows/Linux SQL2019/CL150,SQL2022/CL160 undSQL2025/CL170
-lokal/direkt zentral. Das ist ausdrücklich ein Teilscope: sechs niedrigere
-CL-Kombinationen bleiben not executed;keine volle CL-Matrix- oder Statusaufwertung.
+lokal/direkt zentral als historischen Teilscope. Die [additive Ergänzung](DATE-MATH-CL-COMPLETION.md)
+schließt inzwischen die sechs niedrigeren CL-Fälle mit identischen Inputs; die
+Caller-Matrix umfasst zwölf Fälle. Weitere Modulpflichten und Status bleiben separat.
 
 Die [Pseudonymisierungs-Callerrechte vom 2026-10-25](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 ergänzen fünf isolierte API-Grants und einen gesonderten Lookup-/Helperpfad
