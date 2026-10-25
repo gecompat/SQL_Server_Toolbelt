@@ -36,6 +36,12 @@ alle 165 Gegenproben. Beide Fehler lagen vor nativen SQL-Tests und werden nicht
 als erfolgreiche Testläufe ausgegeben. Orakel und Sicherheitsbudgets wurden
 nicht gelockert.
 
+Die spätere lokale Releaseplanprüfung wies außerdem eine CRLF-Ausfertigung
+des neuen Buildnachweises ab. Git und die qualifizierten Pakete enthielten
+bereits dieselben korrekten LF-Bytes. Der lokale Arbeitsstand wurde exakt aus
+dem versionierten Blob hergestellt; Hashprüfung und Artefakte blieben unverändert.
+Diese Offlinekorrektur löste keine erneute native Ausführung aus.
+
 ## Installation und Upgrade
 
 Das [eigenständige SSIS-ZIP](../../Modules/toolbelt.tsql.ssis-debug/InstallPackages/README.md)
