@@ -6,10 +6,26 @@ mit `Fixtures/build_fixtures.py` erzeugt; keine Kundenpakete oder Runtimewerte.
 
 `Framework/Invoke-Contract.ps1` prüft den exakten ScriptDom-Pin und führt
 isolierte .NET-Framework-Prozesse mit begrenztem Stack und Watchdog aus.
-Profil `Full` umfasst derzeit 21 Kindprozesse: JSON-Grenzen und exakte Werte,
+Profil `Full` umfasst derzeit 23 Kindprozesse: JSON-Grenzen und exakte Werte,
 Format 6/8, Vorlagen-Roundtrip, Source/Union/Derived/Lookup/Split/Destination,
 CTE-Parsecache, blockierte Komponenten, unzulässige SQL-Statements sowie
 Operator-, Struktur-, Kommentar-, Projektions- und Textgrenzen.
+Die zwei zusätzlichen Releaseprozesse prüfen Artefakt-/Diagnose-/Ausgabebytes,
+128 eindeutige Parser-/Katalogaufrufe und das unveränderte kooperative
+30-Sekunden-Budget. Sie öffnen keine SQL-Verbindung. Frühere Full21-Nachweise
+behalten ihre damaligen Inputs und ihren eigenen Umfang.
+
+Für die ausdrückliche CL-Abnahme akzeptiert `Invoke-LabContract.ps1`
+`-CompatibilityLevel 150|160|170` nur soweit die gewählte Engine dies unterstützt.
+Der Adapter setzt und verifiziert den Wert ausschließlich in seinen eigenen
+Test- und Consumerdatenbanken und hält die tatsächlichen Werte privat fest.
+Ohne den Parameter bleibt der bisherige Engine-Default unverändert.
+`-ReleaseRights` verlangt `-Full` und ergänzt einen loginlosen eigenen Caller:
+Help/Vorlage mit EXECUTE, Analyse mit expliziter Metadatensicht ohne Quell-SELECT,
+einzeln verweigerte Rechte mit strikten SQL-Fehlerorakeln sowie Erhalt einer
+befüllten ResultTable bei Überschreitung der Paketbytegrenze. Keine Server-Logins,
+CrossDB-Identitätsverwaltung oder Erweiterung der Funktions-/Sicherheitsbudgets.
+Dies beschreibt den Harness; tatsächliche Ergebnisse werden separat gebunden.
 
 Bestanden: 21 Kindprozesse einschließlich gezielter Reviewregressionen zu
 Lookup-Dezimalprodukt, Textlängen, SUM/AVG/LEN, Integerpräzedenz,

@@ -47,6 +47,8 @@ if ($Profile -eq 'Full') {
     Invoke-Case @('sql-regression', (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
     Invoke-Case @('v1-boundaries', (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
     Invoke-Case @('v1-graph-boundaries', (Join-Path $moduleRoot 'Tests/Fixtures/synthetic-8.dtsx'))
+    Invoke-Case @('release-output-bounds')
+    Invoke-Case @('cooperative-budget')
     foreach ($operators in @(32,128,256,257,258)) { Invoke-Case @('parser-boundary', [string]$operators) }
     foreach ($shape in @('union','nested','unary','boolean','projection','comments','literal')) { Invoke-Case @('parser-shape', $shape) }
 }
