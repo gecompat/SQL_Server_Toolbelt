@@ -13,10 +13,11 @@ internal static class Program
 {
     private static int Main(string[] args)
     {
-        if (args.Length != 1) { Console.Error.WriteLine("Usage: Toolbelt.Ssis.Export <package.dtsx>; JSON on stdout, codes on stderr."); return 2; }
+        bool bundle = args.Length == 2 && args[0] == "--bundle";
+        if (args.Length != 1 && !bundle) { Console.Error.WriteLine("Usage: Toolbelt.Ssis.Export [--bundle] <package.dtsx>; JSON on stdout, codes on stderr."); return 2; }
         try
         {
-            var input = new FileInfo(args[0]);
+            var input = new FileInfo(args[bundle ? 1 : 0]);
             if (!String.Equals(input.Extension, ".dtsx", StringComparison.OrdinalIgnoreCase)) throw new ModelException("UNSUPPORTED_PACKAGE_FORMAT");
             if (input.Length > 16777216) throw new ModelException("LIMIT_EXCEEDED");
             byte[] bytes;
@@ -34,7 +35,12 @@ internal static class Program
             string assembly = Assembly.GetExecutingAssembly().Location;
             string buildHash = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(assembly))).ToLowerInvariant();
             string commit = Assembly.GetExecutingAssembly().GetCustomAttributes<AssemblyMetadataAttribute>().Single(x => x.Key == "SourceCommit").Value;
-            string json = JsonSerializer.Serialize(PackageDocument.Read(bytes).Export("1.0.0", commit, buildHash));
+            var document = PackageDocument.Read(bytes);
+            var model = document.Export("1.0.0", commit, buildHash);
+            object output = bundle ? (object)new System.Collections.Generic.Dictionary<string, object> {
+                { "contract", "ssis-export-bundle" }, { "version", "1.0.0" }, { "model", model }, { "identities", document.ExportObjectIdentities() }
+            } : model;
+            string json = JsonSerializer.Serialize(output);
             if ((long)json.Length * 2 > 16777216) throw new ModelException("LIMIT_EXCEEDED");
             Console.OutputEncoding = new UTF8Encoding(false); Console.Out.Write(json); return 0;
         }

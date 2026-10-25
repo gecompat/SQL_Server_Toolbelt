@@ -64,3 +64,7 @@ authentifizierte TLS-Abnahme bleibt `not executed`.
 - Scope: Gemeinsames typisiertes Paketmodell für Generator und Exporthost; reproduzierbarer CLR-Build,21 Generator-Frameworkfälle und47 gemeinsame Schema-/Modellgegenproben bestanden. Windows SQL2025 lokal und zentral jeweils181 Kern-,61 API- und15 Lifecycleassertionen,514 insgesamt, mit eigenem Cleanup. Funktionales TLS gemäß Labvertrag; authentifizierte TLS-Abnahme, Linux-Hostlauf, SDK-Parität, Vorgängerupgrade für diesen Build und Veröffentlichung separat offen. Historische SQL2019/2022-Nachweise bleiben an ihre ursprünglichen Binaries gebunden.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
+
+Der optionale externe [Begleittransport für native Objektkennungen](Exchange/README.md#native-objektkennungen-als-begleittransport)
+verwendet denselben Paketkern. Er liefert GUIDs für eine separat zu belegende
+Analyze-Korrelation und enthält weder einen Logdecoder noch ein Laufzeiturteil.
