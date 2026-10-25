@@ -1,5 +1,9 @@
 # Queue-Einreihung und Status mit getrennten Callerrechten
 
+> Späterer Nachtrag vom 2026-10-25: Die [Worker-Callerrechte](QUEUE-WORKER-RIGHTS-QUALIFICATION.md)
+> ergänzen sieben Worker-APIs und die befüllte Blockerview. Dieser ursprüngliche
+> Bericht und seine JSON-Projektion bewahren den damaligen begrenzten Umfang.
+
 Stand 2026-10-25. Queue 2.1.0 ist für sechs Producer-/Status-/Viewprofile
 lokal und direkt zentral geprüft. Fünf Profile verwenden je ein Objektrecht.
 Das ältere `USP_EnqueueWork` benötigt zusätzlich ein enges VIEW DEFINITION

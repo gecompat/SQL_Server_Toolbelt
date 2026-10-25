@@ -416,6 +416,13 @@ bei jeweils höchstem CL. Der spätere
 die sechs niedrigeren CL-Kombinationen bei identischen Ausführungsinputs;
 die bereits grünen Fälle und Orakelkontrollen werden nicht wiederholt.
 
+`Runtime/QueueWorker.Rights.sql` prüft sieben direkte unmanaged Worker-APIs
+und eine befüllte Blockerview. Claim benötigt zusätzlich Handler-EXECUTE;
+die feste CLAIM-Policy bleibt separat. Der
+[Worker-Bericht](../../Releases/1.0.0/QUEUE-WORKER-RIGHTS-QUALIFICATION.md)
+bindet Persistenz-/Tokenorakel und Viewzustände, nicht vollständige Resultsets,
+ResultTable-Workerpfade, Managed Admission oder Workerhost-/Providerverhalten.
+
 ## Queue-Autorisierungsvertrag physisch prüfen
 
 `prepare_queue_authorization.py` bindet den unveränderten kanonischen

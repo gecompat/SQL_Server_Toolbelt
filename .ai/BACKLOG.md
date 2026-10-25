@@ -27,6 +27,20 @@ unveränderte Wiederverwendung der früheren sechs Fälle/Orakelkontrollen.
 Damit sind zwölf Callerprofil-Kombinationen belegt; keine Produkt-/Manifest-/
 Status-/Paketänderung. Aktuelle Head-/Main-CI bleiben am PR nachzuweisen.
 
+### Zweite Welle im neuen Rahmen: Queue-Worker-Callerrechte
+
+Vor Umsetzung geplant: sieben bestehende Worker-APIs und die befüllte
+Blockerview getrennt prüfen. Claim erfordert Handler-EXECUTE und feste
+CLAIM-Policy; ein sichtbarer nicht ausführbarer Handler darf keine eigene
+Arbeit reservieren. Vier falsche Token müssen genau scheitern und ihre
+Zeile samt RowVersion erhalten. Eigene Persistenz-/Vieworakel, zwölf lokale/
+direkt zentrale Fälle und zwei verworfene Orakelkontrollen sind im
+[Worker-Bericht](../Releases/1.0.0/QUEUE-WORKER-RIGHTS-QUALIFICATION.md) gebunden.
+Alle 26 eigenen Datenbanknamen sind frisch unabhängig als abwesend geprüft.
+Keine Produkt-/Manifest-/Status-/Paketänderung; ResultTable-/Clientmetadaten-,
+Managed-/Provider-/Workerhost- und übrige Lifecycle-/Recoverygates bleiben separat.
+Head-/Main-CI bleiben am aktuellen PR nachzuweisen.
+
 ## Geordnete autonome Fortsetzung — 2026-10-25
 
 Historischer erster Rahmen: abgeschlossen; weitere Entwicklung ist nur durch
