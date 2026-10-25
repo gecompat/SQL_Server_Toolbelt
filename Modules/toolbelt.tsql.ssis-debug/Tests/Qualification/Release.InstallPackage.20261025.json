@@ -1,0 +1,111 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "result": "PASS",
+  "publication_authorized": false,
+  "scope": "Exact scope-identity1.2 SSIS installation ZIP; extracted ODBC fresh/repeat/uninstall and real shipped iteration upgrade Windows2025 local/central",
+  "package_sha256": "6736e8e942f6b959f7f376dc08e3415bbcf5b3f2d0f4d07093f18c4d0730f9b0",
+  "package_source_commit": "d6208a46a2d9c606bb806d27efe0338de8aa3e64",
+  "native_fixture_execution_commit": "d6208a46a2d9c606bb806d27efe0338de8aa3e64",
+  "native_harness_sha256": "9d688babac282c4bb44c522245910de3d09a1df04ff29706a6085cdff8a79441",
+  "payload_files": 185,
+  "double_package_build_byteidentical": true,
+  "assemblies_rebuilt_for_packaging": false,
+  "qualified_binary_evidence": "Release.Windows.CL.20261025.json",
+  "cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "deployment_mode": "local",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "generator_sql_dialect": 150,
+      "result": "PASS",
+      "assertions": {
+        "package_install": 8,
+        "build_upgrade": 8,
+        "core": 36,
+        "api": 61
+      },
+      "exact_extracted_sql_via_odbc_sqlcmd": true,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "real_shipped_iteration_upgrade": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "deployment_mode": "central",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "generator_sql_dialect": 150,
+      "result": "PASS",
+      "assertions": {
+        "package_install": 8,
+        "build_upgrade": 8,
+        "core": 36,
+        "api": 61
+      },
+      "exact_extracted_sql_via_odbc_sqlcmd": true,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "real_shipped_iteration_upgrade": true,
+      "final_independent_audit": "PASS"
+    }
+  ],
+  "total_new_native_assertions": 226,
+  "upgrade_chain": [
+    "shipped PR425 iteration build1.0.0",
+    "scope-identity1.2 build1.0.0"
+  ],
+  "assembly_and_public_object_ids_preserved": true,
+  "predecessor_json_template_reused": true,
+  "dependency_pins_changed": false,
+  "final_audit": {
+    "case_audits": 2,
+    "owned_database_names_absent": 2,
+    "trust_states_restored": 8,
+    "configuration_baselines_restored": true,
+    "input_pins_unchanged": true,
+    "failed_package_attempts": 0
+  },
+  "whole_ssis_phase": {
+    "build_contexts": 12,
+    "build_assertions": 3516,
+    "package_contexts": 2,
+    "package_assertions": 226,
+    "driver_attempts_including_five_cleaned_adapter_failures_and_two_prior_delivery_cases": 21,
+    "shared_wave_maximum": 36
+  },
+  "offline": {
+    "package_integrity_and_negative_cases": 6,
+    "extracted_validate_only": "PASS; no SQL",
+    "unchanged_installer_oracles": "Prior55 retained only for identical installer source; not replayed"
+  },
+  "functional_transport": {
+    "encrypt_required": true,
+    "explicit_schema_validated_lab_trust": true,
+    "schema_selected_authentication": true,
+    "fallback": false,
+    "deployment_client": "ODBC sqlcmd",
+    "assertion_and_cleanup_client": "System.Data.SqlClient",
+    "authenticated_tls": "not executed"
+  },
+  "limits": {
+    "work_seconds": 300,
+    "cleanup_deadline_seconds": 360,
+    "outer_watchdog_seconds": 400,
+    "maximum_command_seconds": 45
+  },
+  "external_export_host_binary_included": false,
+  "remaining_scope": [
+    "Overall CLR and complete package qualification has its own explicit evidence",
+    "Windows-authentication/SSMS GUI and authenticated TLS",
+    "Linux export-host execution and executable host distribution",
+    "Actual SSISDB correlation, SDK/resource/production claims and final publication"
+  ],
+  "general_autonomy": "PAUSED",
+  "cost_tokens": "UNKNOWN",
+  "superseded_positive_package_cases": {
+    "cases": 2,
+    "zip_sha256": "119f52c6cc09ba35a36e511573744c90b00c11e54dd977369b6ef6b418510a42",
+    "reason": "Missing internal installation overview fixed; two successful earlier cases retained in shared budget, final changed container qualified again."
+  }
+}

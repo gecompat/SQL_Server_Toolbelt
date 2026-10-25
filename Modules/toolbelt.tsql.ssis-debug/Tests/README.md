@@ -255,7 +255,16 @@ sind geprüft; Sicherheitsbudgets wurden nicht erhöht. Fünf korrigierte
 Testadapterversuche bleiben FAILED_CLEANED und mitgezählt. Alle zwölf positiven
 und fünf fehlgeschlagenen Fälle haben frische unabhängige Cleanup-/Konfigurationsaudits.
 
-Die endgültige ZIP-Lieferung und das Gesamtpaket erhalten eigene Hashbindungen.
+Die [aktuelle ZIP-Projektion](Qualification/Release.InstallPackage.20261025.json)
+bindet den finalen185-Dateien-Satz an zwei neue Windows2025-Paketläufe lokal/zentral:
+je8 Neuinstallations-/Repeat-/Uninstall-,8 reale Iterations-Upgrades,36 Kern- und61
+API-Assertions,226 insgesamt. Doppelpaketierung, Integritäts-/Manipulationssuite6,
+zusätzliche fehlende-Paketübersicht-Gegenprobe und extrahiertes ValidateOnly bestehen.
+Eine zuvor fehlende interne Paketübersicht wurde ergänzt; zwei erfolgreiche frühere
+Paketfälle bleiben im gemeinsamen Budget erhalten und wurden für den geänderten
+Container durch zwei weitere erfolgreiche Fälle ergänzt. Der Installer braucht
+weiterhin keinen Build. Der öffentliche Windows-Anmeldeprozess ist damit nicht
+neu abgenommen. Das Gesamtpaket hat eigene Nachweise unter Releases/1.0.0.
 SSMS-/Windows-Identität, authentifizierte TLS-Verbindung, Linux-Exporthost,
 SSISDB-/SDK-Parität und Produktions-/Ressourcengrenzen bleiben offen.
 Modulstatus und allgemeine Autonomie bleiben unverändert.
