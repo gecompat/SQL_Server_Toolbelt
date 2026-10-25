@@ -384,7 +384,7 @@ class ClrPackageTests(unittest.TestCase):
         with zipfile.ZipFile(self.package) as archive:
             prefix=self.clr.PACKAGE+'/'
             payload={p[len(prefix):]:archive.read(p) for p in archive.namelist()}
-        sources={p:(ROOT/p).read_bytes() for p in qualification['method_bindings']}
+        sources=self.clr.release.clr_qualification_method_sources(qualification)
         self.clr.release.validate_clr_qualification(payload,qualification,sources)
         for prefix in ('SQL/','Binaries/'):
             changed=dict(payload)
@@ -396,6 +396,12 @@ class ClrPackageTests(unittest.TestCase):
         changed[next(iter(changed))]+=b'# changed input\n'
         with self.assertRaises(self.clr.release.ReleaseError):
             self.clr.release.validate_clr_qualification(payload,qualification,changed)
+
+    def test_historical_clr_method_recovery_rejects_other_product(self):
+        qualification = json.loads((ROOT / self.clr.QUALIFICATION).read_bytes())
+        qualification['product_commit'] = '0' * 40
+        with self.assertRaisesRegex(self.clr.release.ReleaseError, 'Recoveryprodukt'):
+            self.clr.release.clr_qualification_method_sources(qualification)
 
 
 class ApiQualificationTests(unittest.TestCase):
