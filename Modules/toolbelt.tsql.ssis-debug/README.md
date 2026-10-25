@@ -52,7 +52,9 @@ und Trusteinträge werden beim Uninstall nicht entfernt.
 
 Die begrenzten nativen Fachnachweise umfassen Windows SQL Server 2019/2022/2025
 jeweils lokal und zentral. Die [Prüfmatrix](Tests/README.md) trennt deren
-Buildbindungen und die zusätzlich geprüften echten Upgradepfade. Das Modul
+Buildbindungen und die zusätzlich geprüften echten Upgradepfade. Der Build
+mit Objektkennungsexport aus PR #411 hat einen eigenen Nachweis für alle drei
+Windows-Versionen einschließlich beider Upgradevorgänger. Das Modul
 bleibt unveröffentlicht. Seit der Benutzerklarstellung
 vom 2026-10-16 verwendet sie `TestPurpose=Functional` mit dem ausdrücklich
 gesetzten Trustwert des schema-validierten Labvertrags. Für diese Funktion
@@ -63,8 +65,8 @@ authentifizierte TLS-Abnahme bleibt `not executed`.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: Invoke-LabContract.ps1 Full je Windows2019/2022 und local/central, echte SSIS-Build-/Parser-/Table-Clone-Upgrades; unabhängige Abschlussaudits`
-- Scope: Produktquellstand e718 vor dem späteren Objektkennungsexport: vier positive native Einzelkontexte mit je181 Kern-,61 API-,15 Lifecycle- und8 SSIS-Buildupgradeassertionen,1060 insgesamt. Tatsächlich ausgelieferter SSIS1.0.0-Binary ersetzt durch den bytegleichen Kandidaten des getrennten SQL2025-Nachweises; Assembly-/Prozeduridentitäten erhalten und alte JSON-Vorlage am neuen Einstieg verwendet. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades mit ursprünglicher/aktueller Triggerfixture bestanden. Ein erster Adapterfehler bleibt FAILED_CLEANED; vier positive und ein historischer frischer Cleanup-/Pin-/Konfigurationsaudit PASS. Testadapter vererbt das300/360-Sekunden-Budget in Einzelmodusaufrufen; bestehende Mehrfachmodus-Kommandogrenzen erhalten, sieben Offlinegegenproben. Funktionales TLS ohne Fallback. Kein neuer SQL2025-Upgrade-, Linux-Host-, SDK-Paritäts-, Produktionslast-, Paketlieferungs- oder Veröffentlichungsnachweis.
+- Nachweis: `local: PR411 CLR-Build, Framework Full21 und Invoke-LabContract.ps1 Full je Windows2019/2022/2025 local/central mit beiden echten SSIS-Upgrades und unabhängigen Audits`
+- Scope: Produktquellstand bab9188 mit Objektkennungsexport aus PR411: sechs positive native Einzelkontexte auf Windows SQL2019/BIN2, SQL2022/CS_AS und SQL2025/CI_AS_SC_UTF8, jeweils local/central, mit je181 Kern-,61 API-,15 Lifecycle- und14 SSIS-Buildupgradeassertionen,1626 insgesamt. Drei unterschiedliche echte SSIS1.0.0-Binaries: ausgelieferter ZIP-Build → qualifizierter gemeinsamer Kern e718 → neuer Build; Assembly-/Prozeduridentitäten bei beiden Upgrades erhalten und beide Vorgänger-JSON-Vorlagen am finalen Einstieg verwendet. Echte Parser2.0.0→2.0.1-/TableClone4.1.0→4.1.1-Upgrades und beide Triggerfixtures bestanden. Sechs frische Abschlussaudits: zwölf eigene DB-Namen abwesend,36 Trustzustände und Konfigurationsbaselines wiederhergestellt, Pins unverändert. Reproduzierbarer exakter Build und Full21 bestanden. Budgets300/360/400 und40/45 unverändert; Functional mit Encrypt=True und explizitem Lab-Trust ohne Fallback. Keine Übertragung alter Evidenz, kein Linux-Host-, SSISDB-/SDK-Paritäts-, Produktions-, neuer Paketlieferungs- oder Veröffentlichungsnachweis; authentifizierte TLS-Abnahme separat not executed.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

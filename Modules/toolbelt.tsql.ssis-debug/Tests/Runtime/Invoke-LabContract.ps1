@@ -7,6 +7,7 @@ param(
  [switch]$ApiOnly,
  [string]$PredecessorRoot,
  [string]$SsisPredecessorReleaseDirectory,
+ [string]$SsisIntermediateReleaseDirectory,
  [string]$JournalDirectory,
  [string]$ExpectedTargetKey,
  [ValidatePattern('^[0-9A-F]{64}$')][string]$ExpectedContractSha256,
@@ -93,6 +94,21 @@ if($SsisPredecessorReleaseDirectory){
     (Get-FileHash -LiteralPath (Join-Path $SsisPredecessorReleaseDirectory 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash -cne $ssisOldManifest.deploymentArtifactSha256 -or
     $ssisOldManifest.parserSha512 -cne $manifest.parserSha512 -or $ssisOldManifest.scriptDomSha512 -cne $manifest.scriptDomSha512 -or $oldQualified -ceq $qualifiedProvider){throw 'SSIS_GENUINE_BUILD_PREDECESSOR_INVALID'}
  $trustInputs+=@{File=(Join-Path $SsisPredecessorReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll');Hash=$oldQualified}
+}
+if($SsisIntermediateReleaseDirectory){
+ if(-not $SsisPredecessorReleaseDirectory){throw 'SSIS_INTERMEDIATE_REQUIRES_GENUINE_PREDECESSOR'}
+ $SsisIntermediateReleaseDirectory=[IO.Path]::GetFullPath($SsisIntermediateReleaseDirectory)
+ $intermediate=Get-Content -LiteralPath (Join-Path $SsisIntermediateReleaseDirectory 'Toolbelt.Tsql.SsisDebug.trust-manifest.json') -Raw|ConvertFrom-Json
+ $record=Get-Content -LiteralPath (Join-Path $moduleRoot 'Tests/Qualification/Windows2019-2022.20261025.json') -Raw|ConvertFrom-Json
+ $intermediateHash=(Get-FileHash -LiteralPath (Join-Path $SsisIntermediateReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll') -Algorithm SHA512).Hash
+ $intermediateDeploy=(Get-FileHash -LiteralPath (Join-Path $SsisIntermediateReleaseDirectory 'Deploy.WithAssembly.sql') -Algorithm SHA256).Hash
+ if($record.result -cne 'PASS' -or $record.product_source_commit -cne 'e718accba206153c7af6aece1bf180cb23a16203' -or
+    $intermediate.moduleId -cne 'toolbelt.tsql.ssis-debug' -or $intermediate.moduleVersion -cne '1.0.0' -or
+    $intermediate.sha512 -cne $intermediateHash -or $intermediateHash -ceq $oldQualified -or $intermediateHash -ceq $qualifiedProvider -or
+    (Get-FileHash -LiteralPath (Join-Path $SsisIntermediateReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll') -Algorithm SHA256).Hash.ToLowerInvariant() -cne $record.qualified_assembly_sha256 -or
+    $intermediateDeploy -cne $intermediate.deploymentArtifactSha256 -or $intermediateDeploy.ToLowerInvariant() -cne $record.qualified_deploy_sql_sha256 -or
+    $intermediate.parserSha512 -cne $manifest.parserSha512 -or $intermediate.scriptDomSha512 -cne $manifest.scriptDomSha512){throw 'SSIS_QUALIFIED_INTERMEDIATE_INVALID'}
+ $trustInputs+=@{File=(Join-Path $SsisIntermediateReleaseDirectory 'Toolbelt.Tsql.SsisDebug.dll');Hash=$intermediateHash}
 }
 if($PredecessorRoot){
  $PredecessorRoot=[IO.Path]::GetFullPath($PredecessorRoot)
@@ -193,7 +209,9 @@ foreach($target in $targets){
     $phase=$mode+'-ssis'
     if($SsisPredecessorReleaseDirectory){
      $phase=$mode+'-ssis-build-upgrade'
-     & (Join-Path $PSScriptRoot 'Invoke-SsisBuildUpgradeCases.ps1') -Connection $connection -Mode $mode -PreviousRelease $SsisPredecessorReleaseDirectory -CurrentRelease $ssisRelease -ExpectedOldHash $oldQualified -ExpectedNewHash $qualifiedProvider
+     $upgradeArguments=@{Connection=$connection;Mode=$mode;PreviousRelease=$SsisPredecessorReleaseDirectory;CurrentRelease=$ssisRelease;ExpectedOldHash=$oldQualified;ExpectedNewHash=$qualifiedProvider}
+     if($SsisIntermediateReleaseDirectory){$upgradeArguments.IntermediateRelease=$SsisIntermediateReleaseDirectory;$upgradeArguments.ExpectedIntermediateHash=$intermediateHash}
+     & (Join-Path $PSScriptRoot 'Invoke-SsisBuildUpgradeCases.ps1') @upgradeArguments
      $journal['ssisBuildUpgrade']='PASS';SaveJournal
     }else{Batches $connection ([IO.File]::ReadAllText((Join-Path $ssisRelease 'Deploy.WithAssembly.sql'))) $mode}
     $phase=$mode+'-repeat';Batches $connection ([IO.File]::ReadAllText((Join-Path $ssisRelease 'Deploy.WithAssembly.sql'))) $mode
