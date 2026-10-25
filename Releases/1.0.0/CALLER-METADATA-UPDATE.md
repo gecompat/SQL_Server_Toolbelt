@@ -32,13 +32,16 @@ bleibt unverändert und benötigt weiterhin ein geeignetes Installationskonto.
 Die ursprünglichen drei maschinenlesbaren Callerberichte behalten ihre
 Ausführungspins, Ergebnisse und damaligen offenen Punkte bytegenau.
 [caller-metadata-update.json](caller-metadata-update.json) bindet diese
-historischen Quellen getrennt an die korrigierten Manifeste und den neuen
-Produktsnapshot. Es wird kein alter Test als neuer Lauf ausgegeben.
+historischen Quellen getrennt an die korrigierten Manifeste. Der endgültige
+Produktsnapshot wird mit dem [SSIS-Lookup-Nachweis](SSIS-LOOKUP-QUALIFICATION.md)
+gemeinsam gebunden. Es wird kein alter Test als neuer Lauf ausgegeben.
 
 Der [begrenzte Prüfer](../../Scripts/Release/caller_metadata.py) akzeptiert nur
 die sechs exakt festgelegten Rechtefelder und die ausgewählten Lesepfade.
-Alle anderen Manifestfelder, SQL-, C#-, Deployment-, Worker- und API-Verträge
-bleiben unverändert. Bereits öffentliche Markdownpflege aus dem gebundenen
+Innerhalb dieser sechs Metadatenkorrekturen bleiben alle anderen Manifestfelder,
+SQL-, C#-, Deployment-, Worker- und API-Verträge unverändert. Die zusätzlich
+inzwischen integrierte SSIS-Änderung aus PR #447 wird separat neu qualifiziert;
+ihr neuer Binary wird nicht als unveränderter alter Build dargestellt. Bereits öffentliche Markdownpflege aus dem gebundenen
 Main-Stand darf übernommen werden. Negativkontrollen weisen zusätzliche
 Runtime-, Dependency-, Status-, Vertrags- und Berichtänderungen ab.
 
@@ -65,4 +68,5 @@ Für die Pflege wurden keine zusätzlichen CI-Jobs oder Modellreviewketten
 eingeführt. Die vorhandenen fünf durch Manifeständerungen ausgelösten
 Runtimeworkflows bleiben erhalten; ihre aktuellen Head-/Main-Prüfungen werden
 nicht durch historische Callerbelege ersetzt. Unveränderte lokale native
-Callerfälle und Doppelbuilds werden nach exakter Quellbindung wiederverwendet.
+Callerfälle werden nach exakter Quellbindung wiederverwendet. Der neue SSIS-
+Binary und die betroffenen Paketpfade benötigen ihre neue Build-/Nativeabnahme.
