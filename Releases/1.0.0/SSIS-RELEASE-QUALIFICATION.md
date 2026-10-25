@@ -161,3 +161,9 @@ nicht. Zulässig ist ausschließlich die exakt hashgleiche historische Quelle au
 dem Quellen- oder Produktsnapshot desselben Bundles. Abweichende Bäume, beschädigte
 Pakete und geänderte ausgelieferte Methoden bleiben Fehler. Diese Korrektur ändert
 keine DLL, keinen SQL-Payload und keinen nativen Ausführungsnachweis.
+
+Auch direkte Wiederherstellungen identischer Bundles teilen im Testprozess
+dieselbe geprüfte Fixture. Der Schlüssel bindet zusätzlich Bundlebytes und
+Quell-/Produktcommit; Scope- und Dependencywechsel sowie Fehler bleiben
+Gegenproben. Keine Produktionsfunktion erhält einen Cache; die vollständige
+Suite behält ihre 120-Sekunden-Grenze.

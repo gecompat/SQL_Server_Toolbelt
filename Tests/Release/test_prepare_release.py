@@ -21,6 +21,7 @@ spec.loader.exec_module(release)
 
 _source_fixture_cache = {}
 _archive_fixture_cache = {}
+_snapshot_fixture_cache = {}
 
 
 def source_fixture_key(module, product):
@@ -53,6 +54,27 @@ def share_frozen_source_fixtures(module):
     module.qualification_sources = recover
 
 
+def share_frozen_snapshot_fixtures(module):
+    """Identische Bundlefixtures teilen; die Produktvalidatoren bleiben unverändert."""
+    if getattr(module.recovered_snapshot, '_test_fixture_cache', False):
+        return
+    original = module.recovered_snapshot
+
+    def recover(bundle, commit, product):
+        key = (source_fixture_key(module, product), commit,
+               hashlib.sha256(bundle).digest())
+        if key not in _snapshot_fixture_cache:
+            if len(_snapshot_fixture_cache) >= 4:
+                _snapshot_fixture_cache.pop(next(iter(_snapshot_fixture_cache)))
+            _snapshot_fixture_cache[key] = original(bundle, commit, product)
+        methods, product_files, tree = _snapshot_fixture_cache[key]
+        return dict(methods), dict(product_files), tree
+
+    recover._test_fixture_cache = True
+    module.recovered_snapshot = recover
+
+
+share_frozen_snapshot_fixtures(release)
 share_frozen_source_fixtures(release)
 
 
@@ -69,6 +91,42 @@ def pre_ssis_delivery_archive():
 
 
 class SourceFixtureCacheTests(unittest.TestCase):
+    def test_bundle_fixture_binds_bytes_commits_scope_and_dependencies(self):
+        import tempfile
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory(prefix='bundle-fixture-', dir=ROOT / '.runtime') as temp:
+            fake = SimpleNamespace(ROOT=Path(temp), ARTIFACTS='Artifacts/', NAME='synthetic',
+                                   SSIS_UPDATE='update.json', DIRECTORY='Release')
+            calls = []
+
+            def original(bundle, commit, product):
+                calls.append((bundle, commit, product))
+                if bundle == b'rejected':
+                    raise ValueError('synthetic rejected bundle')
+                return {'method': b'fixed'}, {'product': b'fixed'}, 'tree'
+
+            fake.recovered_snapshot = original
+            share_frozen_snapshot_fixtures(fake)
+            result = fake.recovered_snapshot(b'bundle', 'commit', 'product')
+            result[0]['method'] = result[1]['product'] = b'caller mutation'
+            self.assertEqual(fake.recovered_snapshot(b'bundle', 'commit', 'product'),
+                             ({'method': b'fixed'}, {'product': b'fixed'}, 'tree'))
+            self.assertEqual(len(calls), 1)
+            for args in ((b'changed', 'commit', 'product'), (b'bundle', 'changed', 'product'),
+                         (b'bundle', 'commit', 'changed')):
+                fake.recovered_snapshot(*args)
+            self.assertEqual(len(calls), 4)
+            (fake.ROOT / fake.SSIS_UPDATE).write_bytes(b'changed dependency')
+            fake.recovered_snapshot(b'bundle', 'commit', 'product')
+            self.assertEqual(len(calls), 5)
+            fake.ROOT = fake.ROOT / 'other-scope'
+            fake.recovered_snapshot(b'bundle', 'commit', 'product')
+            self.assertEqual(len(calls), 6)
+            for _ in range(2):
+                with self.assertRaisesRegex(ValueError, 'rejected bundle'):
+                    fake.recovered_snapshot(b'rejected', 'commit', 'product')
+            self.assertEqual(calls[-2:], [(b'rejected', 'commit', 'product')] * 2)
+
     def test_dependency_change_and_rejected_input_never_reuse_a_validation(self):
         import tempfile
         from types import SimpleNamespace
@@ -486,6 +544,7 @@ class ClrPackageTests(unittest.TestCase):
         sys.path.insert(0, str(ROOT / 'Scripts/Release'))
         import prepare_clr_package
         cls.clr = prepare_clr_package
+        share_frozen_snapshot_fixtures(cls.clr.release)
         share_frozen_source_fixtures(cls.clr.release)
         cls.package = ROOT / prepare_clr_package.LOCATION
 

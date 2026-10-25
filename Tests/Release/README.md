@@ -716,3 +716,9 @@ ihrem unveränderten ursprünglichen SHA-256 aus dem Quellen- oder Produktsnapsh
 desselben Bundles gelesen. Änderungen ausgelieferter Installer- oder Methodenbytes
 bleiben durch die bestehenden Paket-Negativtests gesperrt. Der Checkout-Objektstore
 und seine Refs werden bei dieser Prüfung nicht ergänzt oder verändert.
+
+Auch direkte Wiederherstellungen identischer Bundles teilen im Testprozess
+dieselbe geprüfte Fixture. Der Schlüssel bindet zusätzlich Bundlebytes und
+Quell-/Produktcommit; Scope- und Dependencywechsel sowie Fehler bleiben
+Gegenproben. Keine Produktionsfunktion erhält einen Cache; die vollständige
+Suite behält ihre 120-Sekunden-Grenze.
