@@ -288,6 +288,40 @@ class SsisProductDeltaTests(unittest.TestCase):
         with self.assertRaises(release.ReleaseError):
             release.clr_qualification_path({'qualification_evidence': '../unqualified.json'})
 
+    def test_ssis_delivery_requires_new_windows_and_identical_retained_linux_payload(self):
+        import hashlib
+        payload = {'SQL/Install-Portable-local.sql': b'fixed portable SQL',
+                   'Binaries/Toolbelt.Synthetic.dll': b'fixed other binary',
+                   'Binaries/Toolbelt.Tsql.SsisDebug.dll': b'new SSIS binary'}
+        sql = {p: release.sha(b) for p, b in payload.items() if p.startswith('SQL/')}
+        binaries = {p: hashlib.sha512(b).hexdigest() for p, b in payload.items() if p.startswith('Binaries/')}
+        linux = [{'platform': 'Linux', 'sql': '2019', 'compatibility_level': 150}]
+        legacy = release.encoded({'matrix': linux, 'sql_payload_sha256': sql, 'binary_sha512': binaries})
+        build = release.encoded({'qualified_assembly_sha256': release.sha(payload['Binaries/Toolbelt.Tsql.SsisDebug.dll'])})
+        sources = {'Releases/1.0.0/clr-qualification.json': legacy, release.SSIS_BUILD_QUALIFICATION: build}
+        evidence = {'kind': 'ssis_current_delivery', 'publication_authorized': False, 'native_cases_passed': 12,
+                    'previous_qualification_sha256': release.sha(legacy), 'retained_linux_cases': linux,
+                    'ssis_build_qualification_sha256': release.sha(build), 'sql_payload_sha256': sql,
+                    'binary_sha512': binaries, 'method_bindings': {},
+                    'new_windows_cases': [{'sql': v, 'compatibility_level': cl, 'result': 'PASS', 'independent_audit': 'PASS'}
+                        for v, levels in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in levels]}
+        payload['QUALIFICATION.json'] = release.encoded(evidence)
+        release.validate_clr_qualification(payload, evidence, sources)
+        for mutation in ('windows', 'linux', 'portable', 'binary', 'ssis_build'):
+            changed, proof = dict(payload), copy.deepcopy(evidence)
+            if mutation == 'windows':
+                proof['new_windows_cases'].pop()
+            elif mutation == 'linux':
+                proof['retained_linux_cases'] = []
+            elif mutation in ('portable', 'binary'):
+                path = 'SQL/Install-Portable-local.sql' if mutation == 'portable' else 'Binaries/Toolbelt.Synthetic.dll'
+                changed[path] += b'changed'
+            else:
+                proof['ssis_build_qualification_sha256'] = '0' * 64
+            changed['QUALIFICATION.json'] = release.encoded(proof)
+            with self.subTest(mutation=mutation), self.assertRaises(release.ReleaseError):
+                release.validate_clr_qualification(changed, proof, sources)
+
 
 class ClrPackageTests(unittest.TestCase):
     @classmethod
