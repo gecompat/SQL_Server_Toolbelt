@@ -9,6 +9,13 @@ Metadatendeltaprüfung, gekoppelte Lesewege und Paketbindung. Originale native
 Quellpins bleiben erhalten, keine neue SQL-Funktion oder automatische Grants.
 [Nachweis und Grenzen](../Releases/1.0.0/CALLER-METADATA-UPDATE.md).
 
+Die zusätzliche ausdrückliche Freigabe nimmt den Build aus PR #447 und seine
+SSIS-/CLR-/Gesamtpakete in dieselbe Welle auf: ein PR, sechs Stunden ab
+Originalstart und insgesamt höchstens 70 native Versuche einschließlich CI.
+Die [Lookup-Qualifikation](../Releases/1.0.0/SSIS-LOOKUP-QUALIFICATION.md)
+belegt 26 neue native Treiberfälle und die getrennt erhaltenen früheren Nachweise.
+Nach Integration und grüner Main-CI endet diese Welle; keine Veröffentlichung.
+
 
 ## Siebter endlicher Release-Rahmen
 
