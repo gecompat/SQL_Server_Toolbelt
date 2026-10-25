@@ -41,7 +41,7 @@ class PackageIntegrity(unittest.TestCase):
     def test_self_consistent_source_drift(self):
         def mutation(p):
             key='Modules/toolbelt.tsql.script-parser/Clr/PreparseGuardCore.cs'
-            p[key]=p[key].replace(b'\r\n',b'\n')
+            p[key]=(p[key].replace(b'\r\n',b'\n') if b'\r\n' in p[key] else p[key].replace(b'\n',b'\r\n'))
         self.altered(mutation,'qualified build source hash')
 
     def test_self_consistent_manifest_drift(self):
