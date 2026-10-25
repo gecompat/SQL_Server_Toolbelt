@@ -56,7 +56,7 @@ class PackageIntegrity(unittest.TestCase):
 
     def test_noncanonical_evidence(self):
         def mutation(p):
-            key='Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Identities.Windows2019-2025.20261025.json'
+            key=json.loads(p['PACKAGE-MANIFEST.json'])['nativeBinaryQualification']
             data=json.loads(p[key]);data['total_native_assertions']=0;p[key]=json.dumps(data).encode()
         self.altered(mutation,'canonical native qualification')
 

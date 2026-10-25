@@ -41,15 +41,17 @@ lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.
 Echte CrossDB-Identitätsmappings und andere Modulpflichtfälle bleiben separat.
 
 Die [Split-Advanced-Callerrechte](SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
-sind auf allen sechs physischen Versions-/Plattformzielen mit SQL2019 CL150,
-SQL2022 CL160 und SQL2025 CL170 lokal/direkt zentral geprüft. Drei Einzelgrants
-und der Helperpfad bleiben getrennt; sechs niedrigere CL-Kombinationen sind
-in diesem Scope ausdrücklich nicht ausgeführt.
+sind mit dem [ergänzenden CL-Abschluss](SPLIT-ADVANCED-CL-COMPLETION.md)
+lokal/direkt zentral auf allen zwölf Ziel-/CL-Kombinationen belegt: sechs
+neue niedrigere CL-Fälle und sechs unverändert wiederverwendete Fälle.
+Drei Einzelgrants und der Helperpfad bleiben getrennt; weitere Modulpflichtfälle offen.
 
 Die [Queue-Frontend-Callerrechte](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
-ergänzen sechs Producer-/Status-/Viewprofile auf zwölf Ziel-/CL-Kombinationen.
-Der Legacyproducer benötigt zusätzlich enge Handler-Metadatensicht; die
-Blockerview ist nur leer geprüft. Worker-/Recoveryprofile bleiben separat.
+ergänzen sechs Producer-/Status-/Viewprofile. Die
+[Worker-Callerrechte](QUEUE-WORKER-RIGHTS-QUALIFICATION.md) ergänzen sieben
+Worker-APIs und die befüllte Blockerview auf zwölf Ziel-/CL-Kombinationen.
+Damit bestehen direkte Callerprofile aller 13 öffentlichen APIs; Managed-/
+Provider-/ResultTable- und weitere Betriebsvarianten bleiben separat.
 
 Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 sind für fünf Einzelgrantprofile und den getrennten Lookup-/Helperpfad

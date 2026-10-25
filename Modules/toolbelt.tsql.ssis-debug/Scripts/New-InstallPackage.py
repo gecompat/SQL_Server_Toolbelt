@@ -45,10 +45,17 @@ def build(args):
         if p.startswith(prefix + 'ThirdParty/'):
             payload[p[len(prefix):]] = source(p)
     payload['START-HERE.txt'] = source(MODULE + 'InstallPackages/START-HERE.txt').replace(b'@SOURCE_COMMIT@', commit.encode())
-    record_path = MODULE + 'Tests/Qualification/Identities.Windows2019-2025.20261025.json'
-    record = json.loads(source(record_path))
     release_pins = json.loads(source(MODULE + 'Contracts/InstallPackageInputs.json'))
-    require(record['result'] == 'PASS' and len(record['cases']) == 6 and record['total_native_assertions'] == 1626,
+    allowed = {'Tests/Qualification/Identities.Windows2019-2025.20261025.json':1626,
+               'Tests/Qualification/Iterations.Windows2019-2025.20261025.json':1590}
+    evidence = release_pins['qualification_evidence']
+    require(evidence in allowed, 'explicit qualification contract')
+    record_path = MODULE + evidence
+    record = json.loads(source(record_path))
+    require(record['result'] == 'PASS' and len(record['cases']) == 6 and record['total_native_assertions'] == allowed[evidence] and
+            {(c['sql_version'],c['deployment_mode']) for c in record['cases']} ==
+            {(v,m) for v in ('2019','2022','2025') for m in ('local','central')} and
+            all(c['result'] == 'PASS' for c in record['cases']),
             'exact native qualification missing')
     pins = json.loads(source(MODULE + 'Contracts/DependencyPins.json'))
     manifests = {}

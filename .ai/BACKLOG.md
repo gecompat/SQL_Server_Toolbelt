@@ -2,7 +2,49 @@
 
 Nur priorisierte Kandidaten werden hier als konkrete Arbeitspakete geführt. Ein Eintrag ist keine automatische Implementierungszusage; er wird durch ausdrückliche Benutzerfreigabe aktiv.
 
+## Zweiter endlicher Release-Rahmen — 2026-10-25
+
+Neuer unmittelbarer Benutzerauftrag: verbleibende bereits freigegebene
+Releasegates autonom abarbeiten, stündlichen Heartbeat reaktivieren und grüne
+Wellen per PR nach `origin/main` integrieren. SSIS verbleibt beim anderen Chat.
+Vor Entwicklung festgelegter gemeinsamer Rahmen: höchstens vier zusätzliche
+PR-Wellen, vier Stunden ab Auftragsbeginn und 60 zusätzliche native Zielprüfungen
+einschließlich Fehlversuchen/Nachfolgern. Der erste Rahmen mit acht PRs und
+94 Versuchen bleibt abgeschlossen und unverändert. Kosten/Tokens unbekannt;
+ein Owner, keine zusätzlichen Agenten oder CI-Jobs und kein Wiederholen grüner Fälle.
+
+Geplante Reihenfolge: fehlende Split-CL-Rechtefälle; Queue-Workerrechte und
+befüllte Blockerview; kanonische GeoJitter-Verträge auf fehlenden physischen
+Zielen; danach unabhängige nicht-SSIS-Paket-/Dokumentationsgates nach Bindungsprüfung.
+Neue Fachfunktionen, fremde Arbeiten, Labinfrastruktur und Veröffentlichung
+bleiben außerhalb dieser Freigabe. Echte externe Blocker halten unabhängige
+freigegebene Schritte nicht auf.
+
+Erste Welle vor Umsetzung geplant: genau die sechs fehlenden Split-CL-Fälle
+lokal/direkt zentral ausführen. Der [CL-Abschluss](../Releases/1.0.0/SPLIT-ADVANCED-CL-COMPLETION.md)
+bindet sechs neue Fälle, zwölf bereinigte eigene Datenbanken und die
+unveränderte Wiederverwendung der früheren sechs Fälle/Orakelkontrollen.
+Damit sind zwölf Callerprofil-Kombinationen belegt; keine Produkt-/Manifest-/
+Status-/Paketänderung. Aktuelle Head-/Main-CI bleiben am PR nachzuweisen.
+
+### Zweite Welle im neuen Rahmen: Queue-Worker-Callerrechte
+
+Vor Umsetzung geplant: sieben bestehende Worker-APIs und die befüllte
+Blockerview getrennt prüfen. Claim erfordert Handler-EXECUTE und feste
+CLAIM-Policy; ein sichtbarer nicht ausführbarer Handler darf keine eigene
+Arbeit reservieren. Vier falsche Token müssen genau scheitern und ihre
+Zeile samt RowVersion erhalten. Eigene Persistenz-/Vieworakel, zwölf lokale/
+direkt zentrale Fälle und zwei verworfene Orakelkontrollen sind im
+[Worker-Bericht](../Releases/1.0.0/QUEUE-WORKER-RIGHTS-QUALIFICATION.md) gebunden.
+Alle 26 eigenen Datenbanknamen sind frisch unabhängig als abwesend geprüft.
+Keine Produkt-/Manifest-/Status-/Paketänderung; ResultTable-/Clientmetadaten-,
+Managed-/Provider-/Workerhost- und übrige Lifecycle-/Recoverygates bleiben separat.
+Head-/Main-CI bleiben am aktuellen PR nachzuweisen.
+
 ## Geordnete autonome Fortsetzung — 2026-10-25
+
+Historischer erster Rahmen: abgeschlossen; weitere Entwicklung ist nur durch
+den oben getrennten neuen unmittelbaren Auftrag autorisiert.
 
 Direkter Benutzerauftrag: offene Entwicklungen in der besprochenen Reihenfolge
 autonom abarbeiten, bereits freigegebene Arbeiten fortführen, echte Blocker

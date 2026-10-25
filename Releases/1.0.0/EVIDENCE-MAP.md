@@ -6,15 +6,18 @@ kanonischen `validation_evidence`-Einträgen der Modulmanifeste und den
 Beschreibung jedes Nachweises begrenzt seinen Scope; ein aktueller grüner
 Pakettest ersetzt sie nicht. Kein Modul wird hierdurch hochgestuft.
 
-Die [Split-Advanced-Callerrechte vom 2026-10-25](SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
-ergänzen drei Einzelgrants und einen gesonderten Helperpfad auf sechs
-physischen Zielkombinationen bei jeweils höchstem CL. Sechs zusätzliche
-CL-Kombinationen bleiben in diesem Scope `not executed`.
+Die [ursprünglichen Split-Advanced-Callerrechte](SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
+umfassen sechs physische Ziele bei höchstem CL. Der
+[CL-Abschluss vom 2026-10-25](SPLIT-ADVANCED-CL-COMPLETION.md) ergänzt sechs
+niedrigere CL-Fälle bei identischen Ausführungsinputs; zusammen zwölf
+lokale/direkt zentrale Ziel-/CL-Kombinationen genau dieser Callerprofile.
 
 Die [Queue-Frontend-Callerrechte vom 2026-10-25](QUEUE-FRONTEND-RIGHTS-QUALIFICATION.md)
 ergänzen fünf Einzelgrants und einen Legacyproducer mit zusätzlicher
-Handler-Metadatensicht; zwölf lokale/direkt zentrale Ziel-/CL-Kombinationen.
-Leere Blockerview, Workerprofile und die frühere Policyqualifikation bleiben getrennt.
+Handler-Metadatensicht. Die [Worker-Callerrechte](QUEUE-WORKER-RIGHTS-QUALIFICATION.md)
+fügen sieben Worker-APIs und die befüllte Blockerview auf zwölf lokalen/direkt
+zentralen Ziel-/CL-Kombinationen hinzu. Provider-/Managed-/Ausgabevarianten
+und frühere Policyfälle behalten ihren eigenen Scope.
 
 Die [Pseudonymisierungs-Callerrechte vom 2026-10-25](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 ergänzen fünf isolierte API-Grants und einen gesonderten Lookup-/Helperpfad

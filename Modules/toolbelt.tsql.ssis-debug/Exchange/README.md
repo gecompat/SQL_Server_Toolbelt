@@ -21,8 +21,9 @@ verwendet. SQL Server, SQL CLR, ScriptDom und SSIS SDK werden vom Host nicht
 benötigt. Die bestehende SQL-CLR-Fassade bleibt Windows-spezifisch; ihre
 Abhängigkeiten werden durch den externen Host nicht installiert oder geändert.
 Der Host wird derzeit aus den Quellen gebaut. Das bestehende versionierte
-Installations-ZIP enthält den früher qualifizierten CLR-Build und keinen
-Exporthost; es ist kein Liefernachweis für diesen neuen Kern.
+Installations-ZIP enthält den separat qualifizierten CLR-Iterationsbuild,
+aber kein vorbereitetes Exporthost-Programm. Der optionale Sidecartransport
+bleibt ein Hostvertrag; die SQL-Debug-Schnittstelle bleibt unverändert.
 
 ```powershell
 $sourceCommit = git rev-parse HEAD

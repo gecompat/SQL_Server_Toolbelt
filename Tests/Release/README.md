@@ -411,7 +411,17 @@ Bereinigung einschließlich des nicht akzeptierten ersten Fixtureversuchs.
 1.0.0: zwei SELECT-TVFs, direkten USP-EXECUTE-Pfad und separaten Helperpfad.
 Der [Split-Bericht](../../Releases/1.0.0/SPLIT-ADVANCED-RIGHTS-QUALIFICATION.md)
 bindet Originaltokens, Unquote, NULL-/Fehlerfälle und sechs physische Ziele
-bei jeweils höchstem CL; sechs zusätzliche CL-Kombinationen bleiben ungeprüft.
+bei jeweils höchstem CL. Der spätere
+[CL-Abschluss](../../Releases/1.0.0/SPLIT-ADVANCED-CL-COMPLETION.md) ergänzt
+die sechs niedrigeren CL-Kombinationen bei identischen Ausführungsinputs;
+die bereits grünen Fälle und Orakelkontrollen werden nicht wiederholt.
+
+`Runtime/QueueWorker.Rights.sql` prüft sieben direkte unmanaged Worker-APIs
+und eine befüllte Blockerview. Claim benötigt zusätzlich Handler-EXECUTE;
+die feste CLAIM-Policy bleibt separat. Der
+[Worker-Bericht](../../Releases/1.0.0/QUEUE-WORKER-RIGHTS-QUALIFICATION.md)
+bindet Persistenz-/Tokenorakel und Viewzustände, nicht vollständige Resultsets,
+ResultTable-Workerpfade, Managed Admission oder Workerhost-/Providerverhalten.
 
 ## Queue-Autorisierungsvertrag physisch prüfen
 
