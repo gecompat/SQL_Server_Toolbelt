@@ -492,10 +492,10 @@ class ClrPackageTests(unittest.TestCase):
             self.assertEqual(self.clr.verify(path,allow_unqualified_candidate=True)['qualification_state'],'pending')
 
     def test_clr_qualification_rejects_sql_binary_and_method_drift(self):
-        qualification = json.loads((ROOT / self.clr.QUALIFICATION).read_bytes())
         with zipfile.ZipFile(self.package) as archive:
             prefix=self.clr.PACKAGE+'/'
             payload={p[len(prefix):]:archive.read(p) for p in archive.namelist()}
+        qualification = json.loads((ROOT / release.clr_qualification_path(json.loads(payload['CLR-PACKAGE.json']))).read_bytes())
         sources=self.clr.release.clr_qualification_method_sources(qualification)
         self.clr.release.validate_clr_qualification(payload,qualification,sources)
         for prefix in ('SQL/','Binaries/'):
@@ -1177,7 +1177,7 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(binary).hexdigest(), report['delivered_regex_binary_sha256'])
         current_plan = json.loads((ROOT / release.PLAN).read_bytes())
         if report['product_commit'] != current_plan['product_commit']:
-            release.validate_regex_product_applicability(report['product_commit'], current_plan['product_commit'])
+            release.validate_product_applicability(report['product_commit'], current_plan['product_commit'])
         self.assertTrue(all(report['final_independent_audit'][key] for key in (
             'all_owned_database_names_absent', 'trust_states_restored',
             'current_input_pins_unchanged', 'configuration_restored', 'separate_configuration_audit')))
