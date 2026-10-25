@@ -78,6 +78,10 @@ bezeichnet den abgegrenzten Paketsatz, keine zusätzliche allgemeine Supportfrei
    und registriert nur die mitgelieferten exakten Hashes. Bestehende passende
    Trusteinträge werden erhalten. Vorhandene administrative Rechte sind nötig;
    es werden keine Rechte erteilt.
+
+   Die [Caller-Rechteübersicht](https://github.com/gecompat/SQL_Server_Toolbelt/blob/main/Releases/1.0.0/CALLER-METADATA-UPDATE.md)
+   trennt spätere Aufrufrechte von der Installation. JSON Schema benötigt für den
+   geprüften Datenpfad drei einzelne Objektrechte, auch bei direkter Ausgabe.
 5. Öffne `SQL/Install-Windows-local.sql` beziehungsweise
    `SQL/Install-Portable-local.sql` in einem **neuen** Fenster. Wähle oben die
    eigene `ToolbeltClrDemo`, aktiviere erneut den **SQLCMD-Modus**, kontrolliere
