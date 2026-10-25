@@ -1,5 +1,7 @@
 # Releasevorbereitung prüfen
 
+[JSON Pointer mit einzelnem SELECT-Recht](../../Releases/1.0.0/POINTER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
 Die feste `Catalog.FunctionCases.sql` verwendet denselben historischen Composer für die bestehende View: feste Ownerprojektion von fünf Markergruppen, darunter drei synthetische Testgruppen. Das reine SELECT-Callerprofil erlaubt die vertragliche kleinere/leere Metadatensicht und verwirft zusätzliche oder abweichende sichtbare Zeilen. Kein VIEW DEFINITION, keine neue Registry und keine Produktobjektänderung. Die Marker liegen ausschließlich in den eindeutig eigenen, anschließend entfernten Testdatenbanken.
 
 [Capability-Katalog mit einzelnem SELECT-Recht](../../Releases/1.0.0/CATALOG-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 72 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
