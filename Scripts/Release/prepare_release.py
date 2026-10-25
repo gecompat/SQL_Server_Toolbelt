@@ -39,7 +39,7 @@ CLR_PACKAGE = f"{DIRECTORY}/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Instal
 PRODUCT_SOURCE = f"{DIRECTORY}/product-source.json"
 SSIS_UPDATE = f"{DIRECTORY}/ssis-release-update.json"
 SSIS_CLR_QUALIFICATION = f"{DIRECTORY}/clr-ssis-qualification.json"
-SSIS_BUILD_QUALIFICATION = 'Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Pipeline.Windows.CL.20261025.json'
+SSIS_BUILD_QUALIFICATION = 'Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/LookupRoles.Windows.CL.20261025.json'
 MAX_BYTES = 256 * 1024 * 1024
 MAX_FILES = 10000
 
@@ -327,6 +327,13 @@ def validate_ssis_product_delta(previous: dict[str, bytes], current: dict[str, b
     for path in changed:
         if path.startswith(prefix):
             continue
+        if path in caller_metadata.PATHS:
+            caller_metadata.validate_manifest(path, baseline[path], current[path])
+            continue
+        if path in caller_metadata.READMES:
+            require(current[path] == caller_metadata.corrected_readme(path, baseline[path]),
+                    'Caller-Lesepfad außerhalb der exakten Metadatenkorrektur.')
+            continue
         require((path.endswith(('.md', '.yaml')) or path in maintenance)
                 and current.get(path) == baseline.get(path),
                 'Weitere Fach-/Deployment-/Workeränderung neben dem SSIS-Update.')
@@ -418,38 +425,10 @@ def validate_ssis_product_applicability(previous: str, current: str, current_fil
     validate_ssis_product_delta(old_product, current_files, record, build, baseline)
 
 
-def validate_caller_product_applicability(previous: str, current: str,
-                                        current_files: dict[str, bytes] | None = None) -> None:
-    record = json.loads((ROOT / caller_metadata.RECORD).read_bytes())
-    require(record['previous_product_commit'] == previous and record['current_product_commit'] == current,
-            'Caller-Metadaten-Produktbindung driftet.')
-    _, old_product, old_tree = qualification_sources(previous)
-    if current_files is None:
-        _, current_files, current_tree = qualification_sources(current)
-    else:
-        available = subprocess.run(['git', 'cat-file', '-e', current + '^{commit}'],
-                                   cwd=ROOT, capture_output=True).returncode == 0
-        current_tree = (git('rev-parse', current + '^{tree}').decode().strip() if available
-                        else qualification_sources(current)[2])
-    require(old_tree == record['previous_product_tree'] and current_tree == record['current_product_tree'],
-            'Caller-Metadaten-Produktbaum driftet.')
-    _, baseline = snapshot(caller_metadata.BASELINE)
-    caller_metadata.validate_product_delta(old_product, current_files, record, baseline)
-    for path, expected in record['historical_reports_sha256'].items():
-        require(sha(current_files[path]) == expected and current_files[path] == baseline[path],
-                'Originale Caller-Ausführung wurde umgeschrieben.')
-
-
 def validate_product_applicability(previous: str, current: str,
                                  current_files: dict[str, bytes] | None = None) -> None:
     if previous == current:
         return
-    if (ROOT / caller_metadata.RECORD).is_file():
-        record = json.loads((ROOT / caller_metadata.RECORD).read_bytes())
-        if record['current_product_commit'] == current:
-            validate_caller_product_applicability(record['previous_product_commit'], current, current_files)
-            validate_product_applicability(previous, record['previous_product_commit'])
-            return
     if (ROOT / SSIS_UPDATE).is_file():
         record = json.loads((ROOT / SSIS_UPDATE).read_bytes())
         if record['current_product_commit'] == current:

@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "date": "2026-10-25",
   "publication_authorized": false,
-  "kind": "exact_caller_metadata_only",
+  "kind": "exact_caller_metadata_projection",
   "public_baseline_commit": "f6a7daa3a176510d04dc2914c958ca91954e7feb",
   "previous_product_commit": "7a0e15af84be8ff0874b91f99ac823d7f22429fb",
   "previous_product_tree": "6f42a52ae649b42351ad7a0b6df13b33673b3fd3",
@@ -38,12 +38,8 @@
     "Releases/1.0.0/utility-caller-qualification.json": "e2c0c840b41c6961db810db0c21e2ecf104be2e732366f9cbf5986e2d492577b",
     "Releases/1.0.0/json-schema-caller-profile.json": "48326cc25ee911480e238ef2e79e0dbee8df3e5a7fc6ce7a2ea4c6f29684e0fb"
   },
-  "native_replay_performed": false,
   "automatic_grants_added": false,
   "module_statuses_changed": false,
-  "product_sql_or_binary_changed": false,
-  "current_product_commit": "95619cbe2bd7db05b9b6da5d8703e535a611dce7",
-  "current_product_tree": "33cf77d8f99b93c8395228d68cd639de81ab0000",
   "changed_product_paths": [
     "Modules/toolbelt.conversion.base64/README.md",
     "Modules/toolbelt.conversion.base64/module.yaml",
@@ -94,5 +90,10 @@
     "Modules/toolbelt.metadata.identifier/module.yaml": "41c79c56c290915c2dcaf4e1bab4bdf704375a299752bb3ee09add5cf613066a",
     "Modules/toolbelt.validation.semantic-version/README.md": "98b963b960db40831faf736ce4578e487c1dbd80f9b66bc1b7c988d6b6aa08f0",
     "Modules/toolbelt.validation.semantic-version/module.yaml": "423ea97e4a08a9899f788ec65bdd321410c595c1fca87955642ff14be10a4f2f"
-  }
+  },
+  "metadata_preparation_product_commit": "95619cbe2bd7db05b9b6da5d8703e535a611dce7",
+  "metadata_preparation_tree": "33cf77d8f99b93c8395228d68cd639de81ab0000",
+  "combined_ssis_qualification": "Releases/1.0.0/SSIS-LOOKUP-QUALIFICATION.md",
+  "caller_native_replay_performed": false,
+  "metadata_correction_changed_sql_or_binary": false
 }
