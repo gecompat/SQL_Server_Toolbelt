@@ -1,5 +1,7 @@
 # Portable Integer Series
 
+Aktuelle [Series-/Datums-Callerrechte](../../Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md): neun öffentliche TVFs einschließlich Series-Status und Truncate mit je einem SELECT lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen. Interner Core und Helper sowie andere öffentliche Objekte bleiben direkt unzugänglich. Frühere Voll-, Last-, Client- und Lifecycle-Nachweise behalten ihren eigenen Scope; keine Modulstatusänderung.
+
 Lastqualifikation 2026-10-19: Der vollständige Moduladapter einschließlich Pflicht-Lastfall (zehn Millionen Werte mit Anzahl, Eindeutigkeit und Grenzen 1..10000000) bestand auf SQL Server 2025 Linux/latest CL170. Zusammen mit der unveränderten Windows-/Linux-Fachmatrix gilt `validated`; Release bleibt `unreleased`. Optionale Laufzeitmessungen: `not executed`. [Aktuelle Abnahme](../../Tests/V0C_RELEASE_GATE_STATUS.md).
 
 Abnahmeänderung 2026-10-19: Große Lastfälle mit Ergebnisprüfung sind Pflicht; Laufzeitmessungen sind optional und kein Validierungs- oder Release-Gate. Maßgeblich ist [DEC-2026-036](../../Documentation/Architecture/DECISIONS.md#dec-2026-036-verpflichtende-lasttests-und-optionale-laufzeitmessungen). Ältere datierte Aussagen zur verpflichtenden Performance-Abnahme beschreiben den damaligen Vertrag.

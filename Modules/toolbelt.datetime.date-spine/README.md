@@ -1,5 +1,7 @@
 # Relational Date Spine
 
+Aktuelle [Series-/Datums-Callerrechte](../../Releases/1.0.0/SERIES-DATE-CALLER-QUALIFICATION.md): neun öffentliche TVFs einschließlich Series-Status und Truncate mit je einem SELECT lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen. Interner Core und Helper sowie andere öffentliche Objekte bleiben direkt unzugänglich. Frühere Voll-, Last-, Client- und Lifecycle-Nachweise behalten ihren eigenen Scope; keine Modulstatusänderung.
+
 `toolbelt.datetime.date-spine` erzeugt Tages-, ISO-Wochen- und Monatsperioden,
 die einen halboffenen `date`-Bereich schneiden.
 
