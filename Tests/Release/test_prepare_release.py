@@ -295,8 +295,9 @@ class ClrPackageTests(unittest.TestCase):
         self.assertEqual(report['trust'], 'explicit schema-validated Functional Lab value')
         self.assertFalse(report['fallback'])
         self.assertEqual(report['limits'], {'work_seconds': 300, 'cleanup_deadline_seconds': 360, 'outer_watchdog_seconds': 400})
+        sources = self.clr.release.clr_qualification_method_sources(qualification, report['source_sha256'])
         for path, digest in report['source_sha256'].items():
-            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
+            self.assertEqual(hashlib.sha256(sources[path]).hexdigest(), digest)
         expected = {(p, v, cl) for p in ('linux', 'windows')
                     for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
         self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
@@ -396,6 +397,11 @@ class ClrPackageTests(unittest.TestCase):
         changed[next(iter(changed))]+=b'# changed input\n'
         with self.assertRaises(self.clr.release.ReleaseError):
             self.clr.release.validate_clr_qualification(payload,qualification,changed)
+        for name in ('Sources/Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py', 'Install-ClrPackage.ps1'):
+            changed = dict(payload)
+            changed[name] += b'# changed method input\n'
+            with self.subTest(method=name), self.assertRaisesRegex(self.clr.release.ReleaseError, 'Paketmethodenquelle'):
+                self.clr.release.validate_clr_qualification(changed,qualification,sources)
 
     def test_historical_clr_method_recovery_rejects_other_product(self):
         qualification = json.loads((ROOT / self.clr.QUALIFICATION).read_bytes())

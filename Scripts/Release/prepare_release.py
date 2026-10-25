@@ -371,7 +371,7 @@ def validate_regex_product_applicability(previous_product: str, current_product:
         require(record[key] == {p: sha(products[index][0][p]) for p in sorted(changed)}, 'Anwendbarkeitsquellhash driftet.')
 
 
-def clr_qualification_method_sources(qualification: dict) -> dict[str, bytes]:
+def clr_qualification_method_sources(qualification: dict, additional_bindings: dict | None = None) -> dict[str, bytes]:
     """Historische Methoden aus ihrem geprüften Recoverypaket, niemals vom aktuellen Checkout."""
     archive = ROOT / ARTIFACTS / (NAME + '.zip')
     data = archive.read_bytes()
@@ -384,9 +384,13 @@ def clr_qualification_method_sources(qualification: dict) -> dict[str, bytes]:
             'CLR-Methoden-Recoveryprodukt abweichend.')
     sources, _, _ = recovered_snapshot(raw[prefix + 'PREPARATION.bundle'],
                                        manifest['source_commit'], manifest['product_commit'])
-    for path, expected in qualification['method_bindings'].items():
+    bindings = dict(qualification['method_bindings'])
+    for path, expected in (additional_bindings or {}).items():
+        require(path not in bindings or bindings[path] == expected, 'CLR-Methoden-Recoverybindung widersprüchlich.')
+        bindings[path] = expected
+    for path, expected in bindings.items():
         require(path in sources and sha(sources[path]) == expected, 'CLR-Methoden-Recoverybindung veraltet.')
-    return {path:sources[path] for path in qualification['method_bindings']}
+    return {path:sources[path] for path in bindings}
 
 
 def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, sources: dict[str,bytes]) -> None:
@@ -400,6 +404,12 @@ def validate_clr_qualification(payload: dict[str,bytes], qualification: dict, so
             'CLR-Binary gegenüber nativem Nachweis geändert.')
     for path, expected in qualification['method_bindings'].items():
         require(path in sources and sha(sources[path]) == expected, 'CLR-Methodenbindung veraltet.')
+        aliases = ['Sources/' + path]
+        if path == 'Scripts/Release/Install-ClrPackage.ps1':
+            aliases.append('Install-ClrPackage.ps1')
+        for alias in aliases:
+            if alias in payload:
+                require(sha(payload[alias]) == expected, 'CLR-Paketmethodenquelle abweichend.')
 
 
 def validate_qualification(files: dict[str, bytes], plan: dict, exports: dict[str, bytes] | None = None) -> None:
