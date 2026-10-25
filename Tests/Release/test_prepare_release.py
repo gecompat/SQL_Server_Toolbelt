@@ -1246,6 +1246,8 @@ class StableSqlPackageTests(unittest.TestCase):
         package = self.package
         data = (ROOT / package.PACKAGE).read_bytes()
         package.verify(data)
+        with zipfile.ZipFile(io.BytesIO(data)) as archive:
+            self.assertTrue(all(entry.compress_type == zipfile.ZIP_STORED for entry in archive.infolist()))
         self.assertEqual((ROOT / (str(package.PACKAGE) + '.sha256')).read_text().split(),
                          [hashlib.sha256(data).hexdigest(), package.PACKAGE.name])
         manifest = json.loads(self.payload['PACKAGE-MANIFEST.json'])

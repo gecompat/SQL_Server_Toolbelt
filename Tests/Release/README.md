@@ -24,6 +24,8 @@ fehlende/doppelte/Pfad-/Symlink-Einträge, Größenüberschreitungen oder vorhan
 Ausgaben werden abgewiesen. Ein Fehler erfordert Prüfung des betroffenen Inputs;
 keinen Hash anpassen, um eine Abweisung zu umgehen. Erneut in einen neuen
 Ausgabeort bauen. ZIP und Prüfsumme immer gemeinsam aus demselben Stand liefern.
+Die Einträge verwenden ZIP_STORED mit festem Datum und festen Dateiattributen;
+dadurch hängt der exakte Containervergleich nicht von Deflate-/zlib-Versionen ab.
 
 Die Tests in `test_prepare_release.py` prüfen Reproduktion und gezielte Drift.
 Das Manifest unterscheidet heutigen Quellarchivhash und historischen nativen

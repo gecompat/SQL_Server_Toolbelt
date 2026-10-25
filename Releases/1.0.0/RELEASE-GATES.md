@@ -107,7 +107,8 @@ bestehender nativer SQL-Scope, keine neue Gesamtarchiv- oder Modulabnahme.
 
 Deterministische Containerbytes, exakte Dateiliste, Pfad-/Symlink-/Duplikat-
 Abweisung, Größenlimits, unveränderte Lizenz und SQL-Bindung sowie verweigertes
-Überschreiben werden offline geprüft. Installation, GUI, Anmeldung und TLS
+Überschreiben werden offline geprüft. ZIP_STORED mit festen Metadaten vermeidet
+Kompressionsunterschiede zwischen Laufzeitumgebungen. Installation, GUI, Anmeldung und TLS
 wurden für die neue Verpackung nicht erneut nativ ausgeführt. Der eigenständige
 Download erleichtert den vorhandenen SSMS-Weg; keine Produkt-/Manifest-/Status-
 änderung, kein SSIS-/CLR-Paketrefresh und keine Veröffentlichung.

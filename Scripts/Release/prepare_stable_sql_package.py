@@ -106,13 +106,14 @@ def expected_payload(root: Path = ROOT) -> dict[str, bytes]:
 
 def zip_payload(payload: dict[str, bytes]) -> bytes:
     output = io.BytesIO()
-    with zipfile.ZipFile(output, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+    # ZIP_STORED vermeidet unterschiedliche Deflatebytes verschiedener zlib-Versionen.
+    with zipfile.ZipFile(output, 'w', compression=zipfile.ZIP_STORED) as archive:
         for name, data in sorted(payload.items()):
             info = zipfile.ZipInfo(NAME + '/' + name, date_time=(1980, 1, 1, 0, 0, 0))
-            info.compress_type = zipfile.ZIP_DEFLATED
+            info.compress_type = zipfile.ZIP_STORED
             info.create_system = 3
             info.external_attr = (stat.S_IFREG | 0o644) << 16
-            archive.writestr(info, data, compresslevel=9)
+            archive.writestr(info, data)
     return output.getvalue()
 
 
