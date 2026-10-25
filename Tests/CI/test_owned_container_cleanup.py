@@ -63,6 +63,9 @@ cases = (
     ("remove_fail", 1, True),
     ("absent", 0, False),
     ("original_failure", 7, True),
+    ("terminated", 143, True),
+    ("interrupted", 130, True),
+    ("cancellation_escalates", 130, True),
     ("inspect_fail", 1, False),
     ("post_list_fail", 1, True),
     ("remains", 1, True),
@@ -81,6 +84,9 @@ for module in selected:
     except ValueError as exc:
         raise SystemExit(f"OWNED_CLEANUP_TEST_SOURCE_BOUNDARY_INVALID:{module}") from exc
     cleanup_function = source[begin:end]
+    trap_commands = "\n".join(line for line in source[end:].lstrip().splitlines()[:3] if line.startswith("trap "))
+    if "trap 'exit 130' INT" not in trap_commands or "trap 'exit 143' TERM" not in trap_commands:
+        raise SystemExit(f"OWNED_CLEANUP_TEST_SIGNAL_HANDLER_MISSING:{module}")
 
     identity_cases = (
         ("name_replaced", 1, True),
@@ -188,6 +194,7 @@ docker() {{
         return 0
     fi
     if [[ "$1" == container && "$2" == ls ]]; then
+        if [[ "$scenario" == cancellation_escalates ]]; then kill -TERM $$; fi
         if [[ "$#" != 7 || "$3" != --all || "$4" != --filter || "$5" != "name=^/${{container_name}}$" || "$6" != --format || "$7" != '{{{{.Names}}}}' ]]; then invalid_argv; return 2; fi
         list_calls=$((list_calls+1))
         [[ "$scenario" != daemon ]] || return 1
@@ -216,7 +223,7 @@ docker() {{
     elif [[ "$1" == rm ]]; then
         shift
         printf '%s\\n' "$*" >> "$marker_file"
-        if [[ "$#" != 2 || "$1" != -f || "$2" != "$expected_identity" ]]; then invalid_argv; return 2; fi
+        if [[ "$#" != 3 || "$1" != -f || "$2" != --volumes || "$3" != "$expected_identity" ]]; then invalid_argv; return 2; fi
         [[ "$scenario" != remove_fail ]] || return 1
         if [[ "$scenario" != remains ]]; then present=false; fi
     else
@@ -224,7 +231,10 @@ docker() {{
     fi
 }}
 {cleanup_function}
-trap cleanup EXIT
+{trap_commands}
+if [[ "$scenario" == terminated ]]; then kill -TERM $$; fi
+if [[ "$scenario" == interrupted ]]; then kill -INT $$; fi
+if [[ "$scenario" == cancellation_escalates ]]; then kill -INT $$; fi
 if [[ "$scenario" == original_failure || "$scenario" == lab_original_failure || "$scenario" == lab_sql_original_failure || "$scenario" == lab_sql_drop_failure ]]; then exit 7; fi
 exit 0
 """
@@ -247,7 +257,7 @@ exit 0
                 raise SystemExit(f"OWNED_CLEANUP_TEST_EXIT_MISMATCH:{module}:{scenario}")
             if marker_path.exists() != expected_remove:
                 raise SystemExit(f"OWNED_CLEANUP_TEST_REMOVAL_MISMATCH:{module}:{scenario}")
-            if expected_remove and marker_path.read_text(encoding="utf-8").splitlines() != ["-f " + expected_identity]:
+            if expected_remove and marker_path.read_text(encoding="utf-8").splitlines() != ["-f " + ("" if lab_case else "--volumes ") + expected_identity]:
                 raise SystemExit(f"OWNED_CLEANUP_TEST_REMOVAL_TARGET_MISMATCH:{module}:{scenario}")
             expected_inspections = 0 if scenario in {"daemon", "absent"} or lab_case else 1
             inspections = inspect_path.read_text(encoding="utf-8").splitlines() if inspect_path.exists() else []
@@ -257,7 +267,7 @@ exit 0
                 raise SystemExit(f"OWNED_CLEANUP_TEST_REPLACEMENT_MISMATCH:{module}:{scenario}")
             if private_path.exists() != (scenario == "lab_private_remove_fail"):
                 raise SystemExit(f"OWNED_CLEANUP_TEST_PRIVATE_REMAINS:{module}:{scenario}")
-            expected_diagnostic = scenario not in {"owned", "absent", "original_failure"} and not lab_case
+            expected_diagnostic = scenario not in {"owned", "absent", "original_failure", "terminated", "interrupted", "cancellation_escalates"} and not lab_case
             if scenario == "lab_private_remove_fail":
                 expected_diagnostic = True
                 diagnostic = diagnostic.replace("_CI_", "_LAB_")

@@ -1,5 +1,23 @@
 # CI-Testadapter
 
+Flüchtige Runnercontainer werden nach Erfolg, Fehler sowie `INT` und `TERM`
+bereinigt. Die Signalhandler beenden den Test mit 130 beziehungsweise 143;
+der `EXIT`-Cleanup bewahrt diesen ursprünglichen Fehlerstatus. Die Bereinigung
+ignoriert weitere `INT`-/`TERM`-Signale bis zu ihrem Abschluss.
+Die Entfernung verwendet ausschließlich die gemeinsam geprüfte vollständige
+Container-ID und das ursprüngliche Ownerlabel. `--volumes` entfernt dabei
+auch anonyme Volumes dieses Containers. Bind-Mounts und eigenständige benannte
+Labvolumes gehören nicht zu dieser Option und werden nicht pauschal gelöscht.
+Fehlende Daemonsicht oder verbleibende Ressourcen verhindern einen Erfolg.
+
+`python Tests/CI/test_owned_container_cleanup.py` führt die tatsächlichen
+Cleanupfunktionen aller 24 Moduladapter mit synthetischen Dockerantworten aus,
+einschließlich Signalabbruch und fremder Identitäten. Der separate
+`python Tests/CI/test_zip_spike_cleanup.py` prüft dieselben Grenzen am echten
+Workflowblock des ZIP-Spikes. Die Tests starten keine SQL-Instanz. Ein
+unabfangbarer Prozessabbruch oder verlorener Runner kann keinen Shelltrap
+ausführen; diese Grenze wird nicht als erfolgreicher Cleanup ausgewiesen.
+
 Die [Impact- und Aufwandsprüfung vom 2026-10-19](CHANGE_IMPACT_REVIEW_2026-10-19.md)
 dokumentiert gemeinsame Adapter-/Consumer-Abhängigkeiten und offene
 Attestierungsvoraussetzungen. `python -B Tests/CI/validate_lab_selector.py`

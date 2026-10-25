@@ -105,6 +105,22 @@ jobs:
             python3 Tests/CI/test_owned_container_cleanup.py
           fi
 
+      - name: Test disposable ZIP spike cleanup without Docker
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          run_scope=false
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            run_scope=true
+          else
+            scope_result=0
+            git diff --quiet "$BASE_SHA" "$HEAD_SHA" -- Tests/CI/test_zip_spike_cleanup.py .github/workflows/sql-clr-zip-spike.yml .github/workflows/documentation-consistency.yml || scope_result=$?
+            if [ "$scope_result" -eq 1 ]; then run_scope=true; elif [ "$scope_result" -ne 0 ]; then exit "$scope_result"; fi
+          fi
+          if [ "$run_scope" = true ]; then python3 Tests/CI/test_zip_spike_cleanup.py; fi
+
       - name: Test strict Lab driver arguments without Lab access
         shell: pwsh
         env:
