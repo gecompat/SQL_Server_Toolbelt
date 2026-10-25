@@ -1,0 +1,402 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "scope": "Five existing CLR string TVFs with isolated SELECT caller profiles",
+  "result": "PASS",
+  "publication_authorized": false,
+  "product_sql_changed": false,
+  "module_status_changed": false,
+  "package_payload_changed": false,
+  "genuine_crossdb_identity_qualified": false,
+  "authenticated_tls_qualified": false,
+  "execution_source_baseline_commit": "9f77214e30f04ecbfa8ad3523f2d5beae5279984",
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.string.phonetic": "1.0.0",
+    "toolbelt.string.edit-distance": "1.1.0"
+  },
+  "public_apis": [
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_ColognePhonetic",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_DoubleMetaphone",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_LevenshteinDistance",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_OsaDistance",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_JaroWinklerSimilarity",
+      "permission": "SELECT"
+    }
+  ],
+  "separately_denied_objects": [
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_ColognePhoneticCore",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_DoubleMetaphoneCore",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_LevenshteinDistanceCore",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_OsaDistanceCore",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_string",
+      "name": "TVF_JaroWinklerSimilarityCore",
+      "permission": "SELECT"
+    },
+    {
+      "schema": "toolbelt_core",
+      "name": "USP_PrepareResultTable",
+      "permission": "EXECUTE"
+    }
+  ],
+  "positive_profiles": 120,
+  "strict_sql229_denials": 1440,
+  "fixed_value_null_and_shape_oracles": 480,
+  "composition_order": [
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql",
+    "Tests/Release/Runtime/ClrString.FunctionCases.sql",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql"
+  ],
+  "composition_separator": "LF",
+  "composition_final_newline": true,
+  "composed_fixture_sha256": "2bc9f6aeced4dc48f63ce8bf8495f974fa3ff811cb5795cc1bb81cc2f31755f9",
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/module.yaml": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.string.edit-distance/Clr/DistanceKernel.cs": "0027414594aab5dfea22ab613dc26c52bca4882922eebc3bc905e1f40b599cf8",
+    "Modules/toolbelt.string.edit-distance/Clr/DistanceProvider.cs": "53fc1c85c76e57aab8a1ff363c5f17372c582631625c79870345807f7339223d",
+    "Modules/toolbelt.string.edit-distance/Clr/JaroKernel.cs": "14b52a54361f0b7e5c247aeb62b6683c78b91a15794035c382e36ac695908f44",
+    "Modules/toolbelt.string.edit-distance/Clr/JaroProvider.cs": "4615bec4e09d6373e1e097bd2c056aee6109e809ec0a8d6ed78c4dbfeb0d917c",
+    "Modules/toolbelt.string.edit-distance/Clr/Properties/AssemblyInfo.cs": "312dcf9cfdc02a660f29f3d58aa9fd755d42ac02dcaae79a6e2a869b2e3c2b89",
+    "Modules/toolbelt.string.edit-distance/Clr/Toolbelt.String.EditDistance.csproj": "e397cc962dce69cd8542b9a7f2daa0ebab07f52bbb1d9aab17185a2764446aec",
+    "Modules/toolbelt.string.edit-distance/Clr/UnicodeScalar.cs": "f977eb54171a6de3e6194ac94427fde47d0936ccacc45a5456a4bffb69c03965",
+    "Modules/toolbelt.string.edit-distance/Deployment/Add-TrustedAssembly.sql": "7bb6e58cac487d0010a493b275c163df0337c6e7cac72aa52a43d923305922ae",
+    "Modules/toolbelt.string.edit-distance/Deployment/Deploy.sql": "1a0a5ed34d84a4b9e4e432dd2d53975affc4502d4fcd2bdfcca47abf1fe25247",
+    "Modules/toolbelt.string.edit-distance/Deployment/Uninstall.sql": "d66d859f491fd1ea325160825542c1f0ab6852ba439ce5f13f603f326f741412",
+    "Modules/toolbelt.string.edit-distance/module.yaml": "d7c4b70e0c4ae3c6db7a8a31eb69dc85139f0a0b8d96f545f8063a6317bd2238",
+    "Modules/toolbelt.string.edit-distance/Source/EditDistance.sql": "93f3392f2da914a75e5f26aa06af03832e7b64b3293b3ad74e8599716a8d769b",
+    "Modules/toolbelt.string.edit-distance/Source/JaroWinkler.sql": "e4cf8b205034d9bec3f5f16ea29ca23a30f7554d75286bcec575af3becad8390",
+    "Modules/toolbelt.string.phonetic/Clr/CologneKernel.cs": "dee35cf16531b4db38083751203f55e5828f8d1ec91167f13b884e7ca4c367f2",
+    "Modules/toolbelt.string.phonetic/Clr/DoubleMetaphoneKernel.cs": "a363403b796f3899968a87f5917f59ddc4d4e583ed4001388dc3fb625d1897c9",
+    "Modules/toolbelt.string.phonetic/Clr/PhoneticBridge.cs": "3c2a54ef242ee7d380305e2114ff592bad920e7071da72c50e79b65e03cdad03",
+    "Modules/toolbelt.string.phonetic/Clr/PhoneticInput.cs": "8042acf514d74e1337133d843820748eaadf75aaf6848d1ce4caba9839e819b1",
+    "Modules/toolbelt.string.phonetic/Clr/Properties/AssemblyInfo.cs": "5cf8f6cb2a71961e8171cdf2d0fd071917471ad1c615f99ca29a4617c9bda448",
+    "Modules/toolbelt.string.phonetic/Clr/Toolbelt.String.Phonetic.csproj": "4775444996ba98ea6052ebfab362f72d9ed64b27c80eff6379445fd1d990b9f6",
+    "Modules/toolbelt.string.phonetic/Deployment/Add-TrustedAssembly.sql": "e8f106a77016d706d5ce7b4b911b2d537f6b57e6ed0e6241cf9dec770fb4e5a7",
+    "Modules/toolbelt.string.phonetic/Deployment/Deploy.sql": "775c8c0102e59fec7a0a618550856634bb89ba762e550efd283fe71e0d3ceeaf",
+    "Modules/toolbelt.string.phonetic/Deployment/MarkRelease.sql": "f13a2d39c25ebe04774151096d69c83247309c5dfa8ac87d27dc09ebe6043c2e",
+    "Modules/toolbelt.string.phonetic/Deployment/Preflight.sql": "e5c1c96278874c3b7056a92d0f64132053277a89775409c6532bb5b89d88bceb",
+    "Modules/toolbelt.string.phonetic/Deployment/Uninstall.sql": "959a6c37a0fbbe604346135c2520726baa9739f99f9f83bbc7f6c0286dd77b48",
+    "Modules/toolbelt.string.phonetic/module.yaml": "6c089a998710af96cd2c6852f681be343ce2f5eea204e0ac3e54813b635c10e0",
+    "Modules/toolbelt.string.phonetic/Source/TVF_ColognePhonetic.sql": "705010cbdce5e10106db34f14debf50fb0e7debde78d61334c34434ff0e4b601",
+    "Modules/toolbelt.string.phonetic/Source/TVF_ColognePhoneticCore.sql": "6a8a23d7af738eb558268e100d769731c9a9dbc95477bbe55c8463919a4c578d",
+    "Modules/toolbelt.string.phonetic/Source/TVF_DoubleMetaphone.sql": "420a82bc98e62a2f269bec302a7f5b4515db9f743ff94c56b8a451974ce991f5",
+    "Modules/toolbelt.string.phonetic/Source/TVF_DoubleMetaphoneCore.sql": "25f94c672bc01bc9123b6cea8143bfe5da0353a9431fb35a1df3bdfa29f77d76",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-csv-memory-lab.ps1": "e200d4d6fc3ca0ee6fc00f333d67b6a4f8b89652731ca383cece6731b58fa3ff",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/ClrCaller.Environment.ps1": "c4923c1df11e65264276c52d4e4b7dc57236e3087743e05ba19ae9429215fd3d",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-ClrCallerLab.ps1": "a81dc28b23920524f5ee22408a189f2fac4c0d16ca657c38e21e77c115096686",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/prepare_function_rights.py": "d4bfa01a9b6a8b8dc70f4b848437f11402ed2e143aa63a0edaa4b5c55b733f4f",
+    "Tests/Release/Runtime/ClrString.FunctionCases.sql": "64ebe9ca242995ab72a8231b0bc21fedd67d4772b209d0dd408c8518175202a8",
+    "Tests/Release/Runtime/FunctionCaller.Assertions.sql": "ed5cbe66c9fe6a341f56dac5695eb9bca7d797ac68dcf3927a2c3cefd8693de9",
+    "Tests/Release/Runtime/FunctionCaller.Prelude.sql": "2251ab3f1d449fecae2d5f8bea80192e4e0437a682af77bd7d615e76e496d3a2",
+    "Tests/Release/Test-ClrCallerSafety.ps1": "58a06fb8d0b62c3ea6429ccf6f8f97e2ce209e5ca194adf5522d2ca9f48af6c2"
+  },
+  "offline_export_sha256": {
+    "local": "4fad55e876aee4102bff540957819b3a30a0d88877b6126a2cb6f10f624961f1",
+    "central": "ad228159275ba6b2dd15a8eebec47c3290862b0ad12fa8cdfbd62b6dc5e097cc"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 10,
+      "strict_sql229_denials": 120,
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "unchanged-executed-preexisting-clr-path"
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 10,
+      "strict_sql229_denials": 120,
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "current-ownership-guard-and-api"
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 10,
+      "strict_sql229_denials": 120,
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "unchanged-api-cl-case-with-current-master-cleanup-on-same-physical-target"
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 10,
+      "strict_sql229_denials": 120,
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "unchanged-executed-preexisting-clr-path"
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 10,
+      "strict_sql229_denials": 120,
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "unchanged-executed-preexisting-clr-path"
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 10,
+      "strict_sql229_denials": 120,
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "unchanged-executed-preexisting-clr-path"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 10,
+      "strict_sql229_denials": 120,
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "current-ownership-guard-and-api"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 10,
+      "strict_sql229_denials": 120,
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "current-ownership-guard-and-api"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 10,
+      "strict_sql229_denials": 120,
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "unchanged-api-cl-case-with-current-master-cleanup-on-same-physical-target"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 10,
+      "strict_sql229_denials": 120,
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "unchanged-executed-preexisting-clr-path"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 10,
+      "strict_sql229_denials": 120,
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "unchanged-executed-preexisting-clr-path"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_profiles": 10,
+      "strict_sql229_denials": 120,
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "unchanged-executed-preexisting-clr-path"
+    }
+  ],
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "reused-unchanged-preexisting-clr-path"
+    },
+    {
+      "synthetic_fault": "extra-grant",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true,
+      "qualification_origin": "reused-unchanged-preexisting-clr-path"
+    }
+  ],
+  "artifact_origin": {
+    "assemblies": [
+      "Toolbelt_String_Phonetic",
+      "Toolbelt_String_EditDistance"
+    ],
+    "historical_reproducible_build_source_commit": "b807deb79e248d3012d140cbac92525212c5dd03",
+    "two_isolated_builds_equal_packaged_binaries": true,
+    "current_selected_build_inputs_equal": true,
+    "unknown_or_rebuilt_binaries_used": false,
+    "trust_hashes_published": false
+  },
+  "reuse_proof": {
+    "original_environment_bytes_retained_and_original_pin_verified": true,
+    "start_and_restore_preexisting_prefixes_identical": true,
+    "other_executed_runtime_helpers_unchanged": true,
+    "reused_positive_cases": 1,
+    "reused_controls": 2,
+    "original_runsets_and_journals_unchanged": true,
+    "current_scope_independent_audits": true,
+    "changed_safety_tests_are_not_native_runtime_inputs": true,
+    "ownership_guard_tightening": {
+      "current_native_master_scope_targets": 3,
+      "matching_physical_target_and_identical_configuration_snapshots_for_other_cls": true,
+      "master_configuration_scope_independent_of_consumer_database_cl": true,
+      "unchanged_preexisting_early_return_paths": true,
+      "unchanged_dll_sql_fixture_driver_and_query_inputs": true,
+      "older_original_environments_retained_with_exact_pin_matches": true,
+      "source_changes_limited_to_fail_closed_restore_guards_and_own_preparation_normalization": true
+    }
+  },
+  "safe_preflight_stop": {
+    "attempts_consumed": 1,
+    "qualified_as_success": false,
+    "database_trust_and_configuration_mutations": false,
+    "reason": "Documented engine memory-default normalization initially classified as pending; guard refined without changing memory options"
+  },
+  "native_attempts_consumed": 18,
+  "configuration_safety": {
+    "parameter_values_published": false,
+    "strict_security_maintained": true,
+    "no_restart_or_override": true,
+    "no_server_or_login_grants": true,
+    "no_memory_option_writes": true,
+    "genuine_pending_changes_and_foreign_consumers_block_mutation": true,
+    "own_state_restored_or_preexisting_state_preserved": true,
+    "independent_safety_checks": 10
+  },
+  "final_independent_audit": {
+    "accepted_terminal_attempts": 14,
+    "accepted_database_names_absent": 26,
+    "all_terminal_attempts": 18,
+    "all_database_names_absent": 32,
+    "fresh_after_all_consumers": true,
+    "owned_configuration_restoration_verified": true,
+    "owned_trust_entries_removed": true,
+    "preexisting_trust_fingerprints_preserved": true
+  },
+  "legacy_manifest_permission_wording_pending": [],
+  "remaining_gates": [
+    "API/client/lifecycle/resource and real lowpriv CrossDB identity scopes remain separate",
+    "No general heap/parallel/maximum-workload guarantee",
+    "Final package refresh and publication remain separate; no tags"
+  ],
+  "targeted_cleanup_confirmations": {
+    "additional_native_cases_consumed": 3,
+    "purpose": "Changed restoration safety guard on three physical targets requiring owned activation; API consumers and binaries unchanged",
+    "original_passes_retained": true
+  },
+  "audit_diagnostic_history": {
+    "initial_readonly_audit_failures_retained": true,
+    "first_generic_failure_not_reproduced": true,
+    "later_configuration_drift_observed_after_verified_restoration": true,
+    "later_state_overwritten": false,
+    "bounded_readonly_wait_returned_to_original_state": true,
+    "all_current_final_audits_passed": true,
+    "native_qualification_replayed_for_audit_failures": false
+  }
+}
