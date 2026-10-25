@@ -1,5 +1,10 @@
 # Nachweiszuordnung aller 45 Module
 
+Die [eigenständige Stable-SQL-Lieferform](STABLE-SQL-INSTALL.md) bindet ihre
+beiden SQL-Dateien bytegleich an die vorhandene native Paketqualifikation.
+Die neue ZIP-Verpackung ist offline geprüft; weitergehende API-/Modul-, GUI-
+und Identitätsabnahmen werden daraus nicht abgeleitet.
+
 Diese Zuordnung verknüpft den eingefrorenen Releasekandidaten mit den
 kanonischen `validation_evidence`-Einträgen der Modulmanifeste und den
 [zusätzlichen API-/Grenzprüfungen](API-QUALIFICATION.md). Die originale
@@ -18,6 +23,11 @@ Handler-Metadatensicht. Die [Worker-Callerrechte](QUEUE-WORKER-RIGHTS-QUALIFICAT
 fügen sieben Worker-APIs und die befüllte Blockerview auf zwölf lokalen/direkt
 zentralen Ziel-/CL-Kombinationen hinzu. Provider-/Managed-/Ausgabevarianten
 und frühere Policyfälle behalten ihren eigenen Scope.
+
+Die [zusätzliche Geo-SQL-Matrix](GEO-MISSING-TARGETS-QUALIFICATION.md) ergänzt
+acht bisher fehlende Ziel-/CL-Kombinationen lokal/direkt zentral mit unveränderten
+Geo-/Safety-/SQL-Metadatenverträgen. Sie erweitert weder historische
+Client-/Lifecycle-Abnahmen noch den Modulstatus oder die Veröffentlichung.
 
 Die [Pseudonymisierungs-Callerrechte vom 2026-10-25](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 ergänzen fünf isolierte API-Grants und einen gesonderten Lookup-/Helperpfad

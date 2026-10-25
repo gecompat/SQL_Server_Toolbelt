@@ -1,5 +1,39 @@
 # Releasevorbereitung prüfen
 
+## Eigenständiges Stable-SQL-Paket reproduzieren
+
+`Scripts/Release/prepare_stable_sql_package.py` benötigt nur Python3.10+ und die
+versionierten Releaseinputs. Es führt kein SQL, keinen Build und keinen
+Netzwerkaufruf aus. Die bestehende 19-Modul-Kanalzuordnung bleibt maßgeblich.
+
+```powershell
+python -B Scripts/Release/prepare_stable_sql_package.py verify
+# Einen neuen vorhandenen privaten Ordner verwenden; Dateien dürfen nicht existieren:
+python -B Scripts/Release/prepare_stable_sql_package.py build `
+  --output .runtime/stable-sql-new/SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip
+python -B Scripts/Release/prepare_stable_sql_package.py verify `
+  --output .runtime/stable-sql-new/SQL-Server-Toolbelt-1.0.0-Stable-SQL.zip
+```
+
+Das Werkzeug liest nur drei feste Dateinamen aus dem prüfsummenverifizierten
+Quellarchiv und extrahiert nichts. Beide SQL-Hashes müssen exakt zur kanonischen
+nativen Qualifikation passen, die Lizenz zu `LICENSE.md`; hinzu kommen die
+[Paketanleitung](../../Releases/1.0.0/STABLE-SQL-INSTALL.md), Manifest und
+Dateiprüfsummen. Geänderte Herkunftsinputs, Dateien, ZIP-Metadaten, zusätzliche/
+fehlende/doppelte/Pfad-/Symlink-Einträge, Größenüberschreitungen oder vorhandene
+Ausgaben werden abgewiesen. Ein Fehler erfordert Prüfung des betroffenen Inputs;
+keinen Hash anpassen, um eine Abweisung zu umgehen. Erneut in einen neuen
+Ausgabeort bauen. ZIP und Prüfsumme immer gemeinsam aus demselben Stand liefern.
+Die Einträge verwenden ZIP_STORED mit festem Datum und festen Dateiattributen;
+dadurch hängt der exakte Containervergleich nicht von Deflate-/zlib-Versionen ab.
+
+Die Tests in `test_prepare_release.py` prüfen Reproduktion und gezielte Drift.
+Das Manifest unterscheidet heutigen Quellarchivhash und historischen nativen
+Archivhash; nur die exakt gleichen SQL-Payloads übernehmen ihren bisherigen
+12-Fall-Scope. Die neue Verpackung erhält keinen neuen nativen GUI-/Anmeldungs-,
+TLS-, API- oder Lifecycle-Nachweis. Das Gesamtquell-/CLR-/SSIS-Paket wird dabei
+nicht neu gebaut; `prepared_not_published` bleibt verbindlich.
+
 ## API- und Grenzqualifikation
 
 `api-qualification-spec.json` benennt die 165 ausgewählten kanonischen
@@ -422,6 +456,40 @@ die feste CLAIM-Policy bleibt separat. Der
 [Worker-Bericht](../../Releases/1.0.0/QUEUE-WORKER-RIGHTS-QUALIFICATION.md)
 bindet Persistenz-/Tokenorakel und Viewzustände, nicht vollständige Resultsets,
 ResultTable-Workerpfade, Managed Admission oder Workerhost-/Providerverhalten.
+
+## Kanonische Geo-SQL-Verträge auf weiteren Zielen prüfen
+
+`Invoke-GeoContractLab.ps1` verwendet den vorhandenen T-SQL-Treiberfluss für
+Pinprüfung, explizite Functional-Labauswahl, eigene Datenbanken, Objektvergleich
+und unabhängige Cleanupaudits. Ein mechanischer Regressionstest hält diesen
+Fluss bis auf die klar abgegrenzte Geoausführung identisch.
+
+Nur die zusammengesetzte Geo-Fixture nutzt `GeoContract.Execution.ps1` mit
+ExecuteNonQuery und höchstens 120 Sekunden je Batch wie der vorhandene
+Geo-/Translate-Testweg. Restzeit begrenzt jeden Batch zusätzlich; die gesamte
+Arbeitsphase bleibt auf 300 Sekunden begrenzt. Installation, Kontrollabfragen
+und Cleanup behalten ihre vorhandenen 45-Sekunden-Grenzen und eigenen Fristen.
+Das ist ein Funktionsprofil und keine Laufzeitzusage.
+
+Der private Runset verwendet `schema_version = geo-functional-contract/v1`
+und ausschließlich ResultTable 1.0.0 mit Deterministic 1.2.0. Die Fixture wird
+bytegetreu als `b"\nGO\n".join(parts) + b"\n"` aus
+`Runtime/OwnedTsqlScope.Guard.sql`, `GeoJitter.Contract.sql`,
+`GeoJitter.Safety.sql` und `InstalledMetadata.Contract.sql` zusammengesetzt.
+Die drei kanonischen Dateien liegen unter
+`Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/`; keine Orakel
+werden kopiert, umgeschrieben oder partitioniert. Der Guard normalisiert nur
+die Capture-NULL-Defaults und verlangt den eigenen markierten Scope ohne
+Callertransaktion. Payload, Teile, Treiber und Ausführungshilfe werden gepinnt.
+
+`Test-GeoContractHarness.ps1` prüft offline den kanonischen Batchdeckel,
+Restzeit, Ablehnung nach Fristablauf, Fehlerweitergabe und Command-Dispose.
+Ungeklärte oder fremde Bereinigung verhindert weitere Mutation; ein
+fehlgeschlagener Vorläufer wird nicht nachträglich als bestanden dargestellt.
+
+Der [Geo-Ergänzungsbericht](../../Releases/1.0.0/GEO-MISSING-TARGETS-QUALIFICATION.md)
+bindet acht positive Fälle, zwei verworfene Kontrollen, die erhaltenen Vorläufer
+und den bereinigten Installationsfehler mit geprüftem frischem Nachfolger.
 
 ## Queue-Autorisierungsvertrag physisch prüfen
 

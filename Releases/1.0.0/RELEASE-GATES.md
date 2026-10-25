@@ -95,6 +95,24 @@ betroffenen Nachweis. Die Paket-/Negativtests und der vollständige
 Dokumentationsaudit laufen im bestehenden CI; ein grüner Strukturcheck allein
 bestätigt keine native Ausführung. Einzelheiten der Ausführung stehen im PR.
 
+## Eigenständige Stable-SQL-Lieferform
+
+Das neue [SQL-Installationspaket](STABLE-SQL-INSTALL.md) enthält nur die beiden
+qualifizierten Stable-Payloads, unveränderte Lizenz, Anleitung, Herkunftsmanifest
+und Dateiprüfsummen. Der Offlinegenerator prüft das aktuelle Quellarchiv gegen
+seine Prüfsumme und beide SQL-Dateien gegen `qualification.json`. Der heutige
+Quellarchivhash unterscheidet sich vom historischen nativen Archivhash; beide
+SQL-Payloads bleiben exakt gleich. Wiederverwendet wird ausschließlich deren
+bestehender nativer SQL-Scope, keine neue Gesamtarchiv- oder Modulabnahme.
+
+Deterministische Containerbytes, exakte Dateiliste, Pfad-/Symlink-/Duplikat-
+Abweisung, Größenlimits, unveränderte Lizenz und SQL-Bindung sowie verweigertes
+Überschreiben werden offline geprüft. ZIP_STORED mit festen Metadaten vermeidet
+Kompressionsunterschiede zwischen Laufzeitumgebungen. Installation, GUI, Anmeldung und TLS
+wurden für die neue Verpackung nicht erneut nativ ausgeführt. Der eigenständige
+Download erleichtert den vorhandenen SSMS-Weg; keine Produkt-/Manifest-/Status-
+änderung, kein SSIS-/CLR-Paketrefresh und keine Veröffentlichung.
+
 ## Fertige CLR-DLLs und native Paketinstallation
 
 Der anschließende ausdrückliche Benutzerauftrag verlangt fertige DLLs mit
@@ -288,6 +306,11 @@ Die [Cancellation-Callerrechte](CANCELLATION-RIGHTS-QUALIFICATION.md) sind
 ebenfalls für drei isolierte API-Profile auf zwölf Ziel-/CL-Kombinationen
 lokal/direkt zentral geprüft. Das schließt keine Quoten-, Konkurrenz-,
 Retention-, Lifecycle-, CrossDB- oder Recoverygates mit ein.
+
+Die [zusätzliche Geo-SQL-Matrix](GEO-MISSING-TARGETS-QUALIFICATION.md) ergänzt
+acht bisher fehlende Ziel-/CL-Kombinationen lokal/direkt zentral mit unveränderten
+Geo-/Safety-/SQL-Metadatenverträgen. Sie erweitert weder historische
+Client-/Lifecycle-Abnahmen noch den Modulstatus oder die Veröffentlichung.
 
 Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
 ergänzen vier TVFs und Lookup mit Einzelgrants sowie den getrennten

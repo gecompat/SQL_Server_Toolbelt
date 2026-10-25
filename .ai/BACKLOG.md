@@ -41,6 +41,30 @@ Keine Produkt-/Manifest-/Status-/Paketänderung; ResultTable-/Clientmetadaten-,
 Managed-/Provider-/Workerhost- und übrige Lifecycle-/Recoverygates bleiben separat.
 Head-/Main-CI bleiben am aktuellen PR nachzuweisen.
 
+### Dritte Welle im neuen Rahmen: zusätzliche Geo-SQL-Ziele
+
+Vor Umsetzung geplant: unveränderte Geo-/Safety-/SQL-Metadatenverträge auf
+acht fehlenden Ziel-/CL-Kombinationen lokal/direkt zentral. Der
+[Geo-Bericht](../Releases/1.0.0/GEO-MISSING-TARGETS-QUALIFICATION.md) bindet
+8.064 Prioritätsfälle, zwei verworfene Kontrollen, drei erhaltene Vorläufer und
+einen bereinigten Installationsfehler mit erfolgreichem frischem Nachfolger
+nach nachgewiesen geänderter Voraussetzung. Elf frische Audits bestätigen
+alle 19 aktuellen eigenen Datenbanknamen als abwesend. Keine Produkt-/Status-/
+Paketänderung; Client-/Lifecycle-,129-Byte-UDT- und CrossDB/TLS-Gates separat.
+
+### Vierte Welle im neuen Rahmen: eigenständige Stable-SQL-Lieferform
+
+Vor Umsetzung nach Bindungsprüfung geplant: zwei bytegleiche qualifizierte
+SQL-Payloads für genau19 stabile Kandidaten als kleine eigenständige ZIP mit
+unveränderter Lizenz, Anleitung, Manifest und Prüfsummen bereitstellen.
+Die [Installationsanleitung](../Releases/1.0.0/STABLE-SQL-INSTALL.md) und der
+[Offline-Testweg](../Tests/Release/README.md#eigenständiges-stable-sql-paket-reproduzieren)
+trennen aktuelle Quellarchivbindung und historischen nativen SQL-Nachweis.
+Kein SSIS-/CLR-/Gesamtquellpaketrefresh, keine neue SQL-Funktion, native
+Wiederholung, Modulstatus- oder Veröffentlichungsfreigabe. Vorhandene offene
+Fach-, Datei-/Identitäts-, Provider-/Recovery-, CrossDB- und TLS-Gates bleiben
+im Releasebericht; vier eigene PR-Wellen schließen diesen endlichen Rahmen.
+
 ## Geordnete autonome Fortsetzung — 2026-10-25
 
 Historischer erster Rahmen: abgeschlossen; weitere Entwicklung ist nur durch

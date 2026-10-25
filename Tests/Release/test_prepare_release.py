@@ -616,6 +616,59 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(report['required_followup']['fresh_standalone_oracle_controls'], 1)
         self.assertTrue(report['known_documentation_gap'])
 
+    def test_geo_missing_targets_preserves_unpartitioned_canonical_fixtures(self):
+        import hashlib
+        report = json.loads((ROOT / 'Releases/1.0.0/geo-missing-targets-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        self.assertEqual(report['module_versions'], {'toolbelt.core.result-table': '1.0.0', 'toolbelt.pseudonymization.deterministic': '1.2.0'})
+        expected = {('linux', '2022', 150), ('linux', '2022', 160), ('linux', '2025', 150), ('linux', '2025', 160),
+                    ('linux', '2025', 170), ('windows', '2019', 150), ('windows', '2022', 150), ('windows', '2022', 160)}
+        self.assertEqual(len(report['native_cases']), 8)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        self.assertEqual(report['canonical_contract_batches'], 5)
+        self.assertEqual(report['qualified_priority_oracle_rows'], 8064)
+        self.assertEqual(report['execution_profile']['canonical_batch_cap_seconds'], 120)
+        self.assertEqual(report['execution_profile']['overall_work_seconds'], 300)
+        paths = report['composition_order']
+        self.assertEqual(paths, ['Tests/Release/Runtime/OwnedTsqlScope.Guard.sql'] + [
+            'Modules/toolbelt.pseudonymization.deterministic/Tests/Runtime/' + name
+            for name in ('GeoJitter.Contract.sql', 'GeoJitter.Safety.sql', 'InstalledMetadata.Contract.sql')])
+        composed = b'\nGO\n'.join((ROOT / p).read_bytes() for p in paths) + b'\n'
+        self.assertEqual(hashlib.sha256(composed).hexdigest(), report['composed_fixture_sha256'])
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-value', 'extra-object'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        self.assertEqual(report['predecessor_attempts_consumed'], 3)
+        self.assertEqual(report['final_independent_audit']['current_profile_database_names_absent'], 18)
+        for flag in ('publication_authorized', 'product_sources_changed', 'module_status_changed', 'package_payload_changed',
+                     'client_udt_metadata_qualified', 'new_lifecycle_upgrade_qualification', 'exact_129_byte_udt_qualified'):
+            self.assertIs(report[flag], False)
+        self.assertTrue(report['remaining_gates'])
+
+    @unittest.skipUnless(shutil.which('pwsh'), 'PowerShell 7 required for offline Geo execution guards')
+    def test_geo_execution_caps_without_sql_connection(self):
+        result = subprocess.run([shutil.which('pwsh'), '-NoProfile', '-NonInteractive', '-File',
+                                 str(ROOT / 'Tests/Release/Test-GeoContractHarness.ps1')], capture_output=True, timeout=20)
+        self.assertEqual(result.returncode, 0, 'Geo canonical/remaining budget and disposal guards failed')
+
+    def test_geo_entrypoint_preserves_generic_ownership_and_cleanup_flow(self):
+        original = (ROOT / 'Tests/Release/Invoke-TsqlContractLab.ps1').read_text(encoding='utf-8')
+        geo = (ROOT / 'Tests/Release/Invoke-GeoContractLab.ps1').read_text(encoding='utf-8')
+        geo = geo.replace('# Begrenzte kanonische Geo-Funktionsqualifikation; Ownership/Cleanup wie im T-SQL-Treiber.',
+                          '# Begrenzte T-SQL-Rechtequalifikation ohne CLR-/Serverkonfigurationsaenderung.')
+        geo = geo.replace("'geo-functional-contract/v1'", "'tsql-release-contract/v1'")
+        geo = geo.replace("\n  (Join-Path $PSScriptRoot 'GeoContract.Execution.ps1'),", '')
+        geo = geo.replace(" foreach($block in Import-ClrFunctions (Join-Path $PSScriptRoot 'GeoContract.Execution.ps1') @('Invoke-GeoCanonicalBatches')){. $block}\n", '')
+        geo = geo.replace(" if(@($runset.module_versions.PSObject.Properties).Count -ne 2 -or $runset.module_versions.'toolbelt.core.result-table' -cne '1.0.0' -or $runset.module_versions.'toolbelt.pseudonymization.deterministic' -cne '1.2.0'){throw 'GEO_CLOSURE_NOT_AUTHORIZED'}\n", '')
+        geo = geo.replace('Invoke-GeoCanonicalBatches $db ([IO.File]::ReadAllText($runset.fixture))',
+                          'Invoke-ReleaseBatches $db ([IO.File]::ReadAllText($runset.fixture))')
+        geo = geo.replace('PASS GEO_FUNCTIONAL', 'PASS TSQL_CONTRACT_RIGHTS')
+        self.assertEqual(geo, original)
+
     def test_queue_worker_rights_binds_tokens_and_populated_blocker_states(self):
         import hashlib
         report = json.loads((ROOT / 'Releases/1.0.0/queue-worker-rights-qualification.json').read_bytes())
@@ -1289,6 +1342,137 @@ if(-not $caught){throw 'CALLBACK_DEADLINE_LOST'}
         result = subprocess.run(['pwsh', '-NoProfile', '-NonInteractive', '-Command', script], cwd=ROOT, capture_output=True, text=True, timeout=20)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('PASS OFFLINE_API_GUARDS', result.stdout)
+
+
+class StableSqlPackageTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location('stable_sql_package', ROOT / 'Scripts/Release/prepare_stable_sql_package.py')
+        cls.package = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.package)
+        cls.payload = cls.package.expected_payload()
+
+    def test_committed_standalone_zip_and_payload_lineage(self):
+        import hashlib
+        package = self.package
+        data = (ROOT / package.PACKAGE).read_bytes()
+        package.verify(data)
+        with zipfile.ZipFile(io.BytesIO(data)) as archive:
+            self.assertTrue(all(entry.compress_type == zipfile.ZIP_STORED for entry in archive.infolist()))
+        self.assertEqual((ROOT / (str(package.PACKAGE) + '.sha256')).read_text().split(),
+                         [hashlib.sha256(data).hexdigest(), package.PACKAGE.name])
+        manifest = json.loads(self.payload['PACKAGE-MANIFEST.json'])
+        self.assertEqual(len(manifest['stable_candidates']), 19)
+        self.assertEqual(len({m['module_id'] for m in manifest['stable_candidates']}), 19)
+        self.assertTrue(manifest['payload_native_qualification_reused'])
+        self.assertFalse(manifest['standalone_archive_native_execution'])
+        self.assertFalse(manifest['publication_authorized'])
+        self.assertNotEqual(manifest['source_archive_sha256'], manifest['historical_native_archive_sha256'])
+        self.assertEqual(self.payload['LICENSE.md'], (ROOT / 'LICENSE.md').read_bytes())
+
+    def test_deterministic_bytes_and_reject_payload_manifest_guide_license_drift(self):
+        package = self.package
+        self.assertEqual(package.zip_payload(self.payload), package.zip_payload(dict(reversed(list(self.payload.items())))))
+        for name in ('Install-Stable-local.sql', 'Install-Stable-central.sql', 'PACKAGE-MANIFEST.json',
+                     'START-HERE.md', 'LICENSE.md', 'SHA256SUMS'):
+            with self.subTest(name=name):
+                payload = dict(self.payload)
+                payload[name] += b'\n-- synthetic drift\n'
+                with self.assertRaises(ValueError):
+                    package.verify(package.zip_payload(payload))
+
+    def test_reject_path_escape_extra_missing_duplicate_and_symlink_entries(self):
+        package = self.package
+        for name in ('../escape.sql', '/absolute.sql', 'nested/extra.sql', 'foreign.sql'):
+            with self.subTest(name=name):
+                payload = dict(self.payload)
+                payload[name] = b'SELECT 1;'
+                with self.assertRaises(ValueError):
+                    package.verify(package.zip_payload(payload))
+        payload = dict(self.payload)
+        payload.pop('LICENSE.md')
+        with self.assertRaises(ValueError):
+            package.verify(package.zip_payload(payload))
+        for duplicate in (False, True):
+            output = io.BytesIO()
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore', UserWarning)
+                with zipfile.ZipFile(output, 'w') as archive:
+                    for name, data in self.payload.items():
+                        info = zipfile.ZipInfo(package.NAME + '/' + name)
+                        info.create_system = 3
+                        info.external_attr = ((stat.S_IFLNK if name == 'LICENSE.md' and not duplicate else stat.S_IFREG) | 0o644) << 16
+                        archive.writestr(info, data)
+                    if duplicate:
+                        archive.writestr(package.NAME + '/LICENSE.md', b'synthetic duplicate')
+            with self.assertRaises(ValueError):
+                package.verify(output.getvalue())
+
+    def test_reject_changed_source_checksum_qualified_sql_pin_and_license(self):
+        import tempfile
+        package = self.package
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            for path in (package.SOURCE, Path(str(package.SOURCE) + '.sha256'), package.RELEASE / 'release-plan.json',
+                         package.RELEASE / 'qualification.json', package.RELEASE / 'STABLE-SQL-INSTALL.md', Path('LICENSE.md')):
+                target = root / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / path, target)
+            for path in (Path(str(package.SOURCE) + '.sha256'), package.RELEASE / 'qualification.json', Path('LICENSE.md')):
+                original = (root / path).read_bytes()
+                if path.name == 'qualification.json':
+                    document = json.loads(original)
+                    document['native_package']['sql_payload_sha256']['Install-Stable-local.sql'] = '0' * 64
+                    altered = json.dumps(document).encode()
+                else:
+                    altered = b'synthetic drift'
+                (root / path).write_bytes(altered)
+                with self.assertRaises(ValueError):
+                    package.expected_payload(root)
+                (root / path).write_bytes(original)
+
+    def test_no_overwrite_of_zip_or_checksum(self):
+        import tempfile
+        package = self.package
+        data = package.zip_payload(self.payload)
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / 'synthetic.zip'
+            checksum = Path(str(output) + '.sha256')
+            checksum.write_bytes(b'existing checksum')
+            with self.assertRaises(ValueError):
+                package.write_artifacts(output, data)
+            self.assertFalse(output.exists())
+            self.assertEqual(checksum.read_bytes(), b'existing checksum')
+            checksum.unlink()
+            package.write_artifacts(output, data)
+            with self.assertRaises(ValueError):
+                package.write_artifacts(output, b'drift')
+            self.assertEqual(output.read_bytes(), data)
+
+    def test_failed_checksum_write_preserves_intervening_foreign_output_drift(self):
+        import tempfile
+        from unittest.mock import patch
+        package = self.package
+        data = package.zip_payload(self.payload)
+        original_open = Path.open
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / 'synthetic.zip'
+            checksum = Path(str(output) + '.sha256')
+            def fail_checksum(path, *args, **kwargs):
+                if path == checksum:
+                    output.write_bytes(b'synthetic intervening foreign drift')
+                    raise OSError('synthetic checksum write failure')
+                return original_open(path, *args, **kwargs)
+            with patch.object(Path, 'open', fail_checksum):
+                with self.assertRaises(OSError):
+                    package.write_artifacts(output, data)
+            self.assertEqual(output.read_bytes(), b'synthetic intervening foreign drift')
+
+    def test_reject_oversized_zip_entry(self):
+        payload = dict(self.payload)
+        payload['Install-Stable-local.sql'] = b'x' * (self.package.MAX_ENTRY + 1)
+        with self.assertRaises(ValueError):
+            self.package.verify(self.package.zip_payload(payload))
 
 
 if __name__ == "__main__":
