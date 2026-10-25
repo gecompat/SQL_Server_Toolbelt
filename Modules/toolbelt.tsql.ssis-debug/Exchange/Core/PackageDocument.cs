@@ -79,7 +79,7 @@ namespace Toolbelt.Ssis.Exchange
 
         internal sealed class Definition
         {
-            internal XElement Element; internal string Id, Kind, Parent, Name, LegacyScope; internal int Order;
+            internal XElement Element; internal string Id, Kind, Parent, Name, LegacyScope, NativeDtsId; internal int Order;
             internal Dictionary<string, object> Attributes;
             internal Dictionary<string, string> Native, Properties;
             internal string ValueText, VariableDataType, ComponentKind;
@@ -140,6 +140,7 @@ namespace Toolbelt.Ssis.Exchange
                 var legacyOwner = element.Ancestors(Dts + "Executable").FirstOrDefault();
                 item.LegacyScope = legacyOwner == null ? "Package" : Attribute(legacyOwner,"refId");
                 item.Native = new Dictionary<string,string>(StringComparer.Ordinal);
+                item.NativeDtsId = (string)element.Attribute(Dts + "DTSID");
                 foreach (var attribute in element.Attributes().Where(x => x.Name.Namespace == XNamespace.None).Concat(element.Attributes().Where(x => x.Name.Namespace == Dts)))
                     if (!item.Native.ContainsKey(attribute.Name.LocalName)) item.Native.Add(attribute.Name.LocalName, attribute.Value);
                 item.Properties = new Dictionary<string,string>(StringComparer.Ordinal);
@@ -303,6 +304,22 @@ namespace Toolbelt.Ssis.Exchange
                 "profiles", Obj("format", "1.0.0", "components", "1.0.0", "lineage", "1.0.0"), "coverage", modelCoverage,
                 "nodes", definitions.Select(x => (object)Obj("id", x.Id, "kind", x.Kind, "parentId", x.Parent, "name", Text(x.Name), "attributes", x.Attributes)).ToList(),
                 "edges", relationships.Select((x, n) => x.Export(n + 1)).ToList(), "diagnostics", modelDiagnostics);
+        }
+        /// <summary>Native Paket-/Executablekennungen aus denselben Definitionen; keine Namensauflösung oder Laufzeitbehauptung.</summary>
+        public Dictionary<string, object> ExportObjectIdentities()
+        {
+            if (XmlProfile == "UNKNOWN") throw new ModelException("UNSUPPORTED_PACKAGE_FORMAT");
+            Build(); Check();
+            var objects = new List<object>();
+            foreach (var definition in definitions.Where(x => x.Kind == "PACKAGE" || x.Kind == "EXECUTABLE"))
+            {
+                Check(); Guid id;
+                // Ungültige oder fehlende DTSIDs bleiben ungebunden; doppelte GUIDs bleiben getrennte Vorkommen.
+                object nativeId = Guid.TryParse(definition.NativeDtsId, out id) ? (object)id.ToString("D").ToLowerInvariant() : null;
+                objects.Add(Obj("nodeId", definition.Id, "nodeKind", definition.Kind, "dtsId", nativeId));
+            }
+            return Obj("contract", "ssis-object-identities", "version", "1.0.0", "identityProfile", "document-order-v1",
+                "packageSha256", PackageSha256, "objects", objects);
         }
         private static bool IsHex(string value, int length) { return value != null && value.Length == length && value.All(c => c >= '0' && c <= '9' || c >= 'a' && c <= 'f'); }
     }

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2026-10-25 – Native SSIS-Objektkennungen für Analyze
+
+Der externe Exporthost ergänzt den optionalen `--bundle`-Transport. Paketmodell
+und DTSID-Begleitdaten verwenden dieselben bereits materialisierten Definitionen
+des gemeinsamen Kerns. Standardmodell und SQL-Generatorvertrag bleiben erhalten;
+Laufzeitbeobachtung und deren Versionsbindung bleiben bei Analyze. Der Benutzer
+hat die fünf SSIS-Wellen einschließlich dieser notwendigen gemeinsamen
+Identitätszulieferung und regulärer Merges geprüfter Stände ausdrücklich freigegeben.
+Die Runtimequalifikation dieses Kandidaten ist noch offen; keine Veröffentlichung.
+
+
 ## 2026-10-24 – Begrenzte Regex-Timeout-Korrektur
 
 Literal-Replace vermeidet unnötige vollständige LOB-Kopien nach unveränderter

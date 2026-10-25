@@ -33,8 +33,9 @@ dotnet Modules/toolbelt.tsql.ssis-debug/Exchange/Host/bin/Release/net10.0/Toolbe
     Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.dtsx
 ```
 
-Der Host akzeptiert genau einen ausdrücklich übergebenen `.dtsx`-Pfad und
-schreibt ausschließlich das Modell nach stdout. Fehler liefern einen neutralen
+Der Standardaufruf akzeptiert genau einen ausdrücklich übergebenen `.dtsx`-Pfad
+und schreibt ausschließlich das Modell nach stdout. `--bundle` ergänzt einen
+ausdrücklich gewählten Begleittransport; der Standardvertrag bleibt erhalten. Fehler liefern einen neutralen
 Code auf stderr und Exitcode 3 für ungültige oder begrenzte Paketdaten,
 beziehungsweise 4 für einen Hostfehler. Größenprüfungen begrenzen auch eine
 während des Einlesens wachsende Datei. Ein DTD oder externer Resolver wird
@@ -67,6 +68,40 @@ sind im Vertrag vorgesehen, aber in diesem Slice nicht qualifiziert und
 werden nicht ausgegeben. Es gibt keine transitive Closure und keinen
 SSIS-Runtime-Nachbau. Pragmatische Vergleichs- und Cacheentscheidungen des
 SQL-Generators gehören nicht in das neutrale Modell.
+
+## Native Objektkennungen als Begleittransport
+
+Die vierte ausdrücklich freigegebene SSIS-Welle ergänzt `--bundle` für die
+spätere qualifizierte Design-/Laufzeitkorrelation in Analyze. Toolbelt liest
+keine Laufzeitdaten und bewertet keine Ausführung.
+
+```powershell
+dotnet Modules/toolbelt.tsql.ssis-debug/Exchange/Host/bin/Release/net10.0/Toolbelt.Ssis.Export.dll `
+    --bundle Modules/toolbelt.tsql.ssis-debug/Contracts/Exchange/Fixtures/direct-8.dtsx
+```
+
+Der geschlossene Transport `ssis-export-bundle`, Version `1.0.0`, besitzt die
+vier Felder `contract`, `version`, `model` und `identities`. `model` ist das
+unveränderte Paketmodell 1.0.0. `identities` folgt dem
+[kanonischen Begleitschema](../Contracts/Exchange/SSIS_Object_Identities_V1.schema.json)
+`ssis-object-identities`, Version `1.0.0`. Es bindet denselben Paketbytehash und
+dasselbe Identitätsprofil an eine geordnete Liste sämtlicher Paket- und
+Executablevorkommen mit `nodeId`, `nodeKind` und `dtsId`.
+
+`ExportObjectIdentities` verwendet die bereits materialisierten Definitionen
+des gemeinsamen Kerns. Ausschließlich das namespacequalifizierte Attribut
+`DTS:DTSID` wird im bestehenden Buildschritt gelesen. Ein unqualifiziertes
+Attribut überschreibt es nicht. Eine gültige GUID wird in kleine D-Schreibweise
+normalisiert; fehlende oder ungültige Werte bleiben NULL. Gleiche GUIDs werden
+nicht zusammengeführt. Anzeigenamen, refIds und Zeitnähe erzeugen keine
+Identitätszuordnung. Der Transport besitzt denselben 16-MiB-Ausgangsgrenzwert
+wie der Standardhost und führt keine zusätzliche XML-Paketinterpretation ein.
+
+Eine DTSID allein belegt keine Ausführungsrevision. Analyze muss zusätzlich
+den konkreten Producer, das exakte Modell, die Originalpaketbytes und die
+Ausführungsversion unabhängig binden. Bei doppelten Kennungen oder fehlendem
+Versionsbeleg bleibt eine Runtimezuordnung unbewiesen. Der Begleittransport
+ändert weder den SQL-Generatorvertrag noch dessen Typ-/Lineagepflege.
 
 ## Gemeinsame Prüfung
 
