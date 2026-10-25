@@ -13,8 +13,9 @@ internal static class Program
 {
     private static int Main(string[] args)
     {
-        bool bundle = args.Length == 2 && args[0] == "--bundle";
-        if (args.Length != 1 && !bundle) { Console.Error.WriteLine("Usage: Toolbelt.Ssis.Export [--bundle] <package.dtsx>; JSON on stdout, codes on stderr."); return 2; }
+        bool iterations = args.Length == 2 && args[0] == "--iteration-bundle";
+        bool bundle = args.Length == 2 && (args[0] == "--bundle" || iterations);
+        if (args.Length != 1 && !bundle) { Console.Error.WriteLine("Usage: Toolbelt.Ssis.Export [--bundle|--iteration-bundle] <package.dtsx>; JSON on stdout, codes on stderr."); return 2; }
         try
         {
             var input = new FileInfo(args[bundle ? 1 : 0]);
@@ -38,7 +39,7 @@ internal static class Program
             var document = PackageDocument.Read(bytes);
             var model = document.Export("1.0.0", commit, buildHash);
             object output = bundle ? (object)new System.Collections.Generic.Dictionary<string, object> {
-                { "contract", "ssis-export-bundle" }, { "version", "1.0.0" }, { "model", model }, { "identities", document.ExportObjectIdentities() }
+                { "contract", "ssis-export-bundle" }, { "version", "1.0.0" }, { "model", model }, { "identities", document.ExportObjectIdentities(iterations) }
             } : model;
             string json = JsonSerializer.Serialize(output);
             if ((long)json.Length * 2 > 16777216) throw new ModelException("LIMIT_EXCEEDED");

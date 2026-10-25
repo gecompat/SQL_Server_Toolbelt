@@ -71,6 +71,17 @@ SQL-Generators gehören nicht in das neutrale Modell.
 
 ## Native Objektkennungen als Begleittransport
 
+Für iterationsgebundene Ausführungskorrelation stellt `--iteration-bundle`
+denselben Modellvertrag mit einem Identitätssidecar 1.1.0 bereit. Jedes
+Paket-/Executableobjekt besitzt zusätzlich `iterationContainer` als Boolean.
+Der zentrale Klassifikator erkennt ausschließlich `STOCK:FORLOOP` und
+`STOCK:FOREACHLOOP` außerhalb von Ereignishandlern. Andere Typen und reine
+Namensähnlichkeiten erhalten `false`. Das
+[Schema 1.1.0](../Contracts/Exchange/SSIS_Object_Identities_V1_1.schema.json)
+definiert diesen optional gewählten Transport. `--bundle` bleibt bei 1.0.0;
+Modell, Parser und Lineagevertrag bleiben unverändert. Die Kennzeichnung
+beschreibt eine statische Containerrolle und beweist keine Ausführung.
+
 Die vierte ausdrücklich freigegebene SSIS-Welle ergänzt `--bundle` für die
 spätere qualifizierte Design-/Laufzeitkorrelation in Analyze. Toolbelt liest
 keine Laufzeitdaten und bewertet keine Ausführung.
