@@ -1,5 +1,7 @@
 # Nachweiszuordnung aller 45 Module
 
+Die [Providerview-Callerrechte](PROVIDER-CALLER-QUALIFICATION.md) ergänzen zwölf lokale/direkt zentrale Ziel-/CL-Fälle mit einem SELECT und rein synthetischem deaktiviertem Datensatz. Reale Linked-Server-Konfiguration, Loginmapping, RPC und neue Sessions bleiben separat.
+
 Die jüngeren Callerberichte ergänzen diese historische Modulzuordnung:
 [JSON-Pfade](JSON-PATH-CALLER-QUALIFICATION.md),
 [Konsolenausgabe](CONSOLE-CALLER-QUALIFICATION.md),

@@ -1,5 +1,7 @@
 # BACKLOG.md – Priorisierte Arbeitspakete
 
+[Providerview mit einzelnem SELECT-Recht](../Releases/1.0.0/PROVIDER-CALLER-QUALIFICATION.md): 1 APIs, zwölf Fälle lokal/direkt zentral, 24 Einzelgrantprofile und 144 SQL229-Abweisungen. Quelle und feste Orakel sind gebunden; weitere Releasegates bleiben separat.
+
 ## Fünfter endlicher Release-Rahmen
 
 Am 2026-10-25 direkt erneut autorisiert und vor Entwicklung geplant: drei PR-Wellen, drei Stunden und höchstens 52 neue native Zielversuche einschließlich Fehlern und Nachfolgern. Vier frühere Rahmen bleiben abgeschlossen und unverändert. Die nächste Reihenfolge umfasst den vorhandenen JSON-Pointer-Caller, die reine Second-Session-Providerview und Event-Log-Lesen/lokale Retention. Jede Welle wird vor Umsetzung konkret abgegrenzt. Keine Linked-Server-/Infrastrukturverwaltung, keine neue Fachfunktion; SSIS und fremde TLS-Arbeit bleiben ausgenommen.
