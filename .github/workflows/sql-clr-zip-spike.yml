@@ -87,15 +87,34 @@ jobs:
           set -euo pipefail
 
           sqlcmd_path=/opt/mssql-tools18/bin/sqlcmd
-          container_name=toolbelt-sql-clr-zip-spike
+          container_name="toolbelt-sql-clr-zip-spike-${GITHUB_RUN_ID:-$$}-${GITHUB_RUN_ATTEMPT:-1}"
+          container_owner="$(openssl rand -hex 16)"
+          [[ "$container_owner" =~ ^[0-9a-f]{32}$ ]] || exit 1
           database_name=Toolbelt_ClrZipSpike
           spike_root=Spikes/sql-clr-zip-provider
           runtime_artifacts=.runtime/sql-clr-zip-spike
 
           cleanup() {
-            docker rm --force "$container_name" >/dev/null 2>&1 || true
+            local result=$? names="" identity="" cid="" owner="" cleanup_failed=false
+            trap - EXIT
+            trap '' INT TERM
+            if ! names="$(docker container ls --all --filter "name=^/${container_name}$" --format '{{.Names}}')"; then
+              cleanup_failed=true
+            elif [[ -n "$names" ]]; then
+              if [[ "$names" != "$container_name" ]] || ! identity="$(docker inspect --format '{{.Id}} {{ index .Config.Labels "tbx.zip-spike.ci.owner" }}' "$container_name")" || [[ ! "$identity" =~ ^([0-9a-f]{64})\ ([0-9a-f]{32})$ ]]; then
+                cleanup_failed=true
+              else
+                cid="${BASH_REMATCH[1]}"; owner="${BASH_REMATCH[2]}"
+                if [[ "$owner" != "$container_owner" ]] || ! docker rm --force --volumes "$cid" >/dev/null; then cleanup_failed=true; fi
+              fi
+            fi
+            if ! names="$(docker container ls --all --filter "name=^/${container_name}$" --format '{{.Names}}')" || [[ -n "$names" ]]; then cleanup_failed=true; fi
+            if [[ "$cleanup_failed" == true ]]; then echo ZIP_SPIKE_CLEANUP_UNVERIFIED >&2; result=1; fi
+            exit "$result"
           }
           trap cleanup EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
 
           os_version="$(. /etc/os-release && printf '%s' "$VERSION_ID")"
           curl --fail --silent --show-error --location \
@@ -108,6 +127,7 @@ jobs:
 
           sa_password="$(openssl rand -hex 20)Aa1!"
           docker run --detach --name "$container_name" \
+            --label "tbx.zip-spike.ci.owner=$container_owner" \
             --publish 1433:1433 \
             --env ACCEPT_EULA=Y \
             --env MSSQL_SA_PASSWORD="$sa_password" \

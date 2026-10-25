@@ -42,6 +42,7 @@ private_dir="$(mktemp -d)"
 cleanup() {
   local result=$? inspection="" container_id="" owner="" cleanup_verified=true
   trap - EXIT
+  trap '' INT TERM
   # Name und zufaelliger Owner begrenzen den eigenen fluechtigen CI-Scope.
   # ID und Label aus derselben Aufnahme binden rm auch bei Namensaustausch.
   if ! docker container ls --all --filter "name=^/${container_name}$" \
@@ -55,7 +56,7 @@ cleanup() {
       container_id="${BASH_REMATCH[1]}"; owner="${BASH_REMATCH[2]}"
       if [[ "${owner}" != "${container_owner}" ]]; then
         cleanup_verified=false
-      elif ! docker rm -f "${container_id}" >/dev/null 2>&1; then
+      elif ! docker rm -f --volumes "${container_id}" >/dev/null 2>&1; then
         cleanup_verified=false
       fi
     fi
@@ -78,6 +79,8 @@ cleanup() {
   exit "${result}"
 }
 trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 docker run --detach --name "${container}" --label "tbx.deterministic.ci.owner=${container_owner}" \
   --env ACCEPT_EULA=Y --env MSSQL_PID=Developer \
   --env MSSQL_SA_PASSWORD="${password}" --volume "${GITHUB_WORKSPACE:-$(pwd)}:/workspace:ro" \

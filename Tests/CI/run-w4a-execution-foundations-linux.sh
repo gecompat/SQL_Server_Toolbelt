@@ -32,6 +32,7 @@ fi
 cleanup() {
     local result=$? inspection="" container_id="" owner="" cleanup_verified=true
     trap - EXIT
+    trap '' INT TERM
     # Der bestehende Lab-Shim hat keinen Container und behandelt rm als No-op.
     # Seine eigene Datenbankbereinigung bleibt beim separaten Labtreiber.
     if [[ "${TBX_SQL_TARGET:-runner}" == lab ]]; then
@@ -51,7 +52,7 @@ cleanup() {
             container_id="${BASH_REMATCH[1]}"; owner="${BASH_REMATCH[2]}"
             if [[ "${owner}" != "${container_owner}" ]]; then
                 cleanup_verified=false
-            elif ! docker rm -f "${container_id}" >/dev/null 2>&1; then
+            elif ! docker rm -f --volumes "${container_id}" >/dev/null 2>&1; then
                 cleanup_verified=false
             fi
         fi
@@ -75,6 +76,8 @@ cleanup() {
 
 
 trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 docker run -d --name "${container_name}" "${container_options[@]}" -e ACCEPT_EULA=Y -e MSSQL_PID=Developer -e MSSQL_SA_PASSWORD="${sa_password}" -v "${GITHUB_WORKSPACE:-$(pwd)}:/workspace:ro" "${sql_image}" >/dev/null
 sqlcmd_path=""
