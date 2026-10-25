@@ -30,6 +30,19 @@ Datenbanknamen sind frisch unabhängig als abwesend geprüft. Integration und
 aktuelle Head-/Main-CI werden am zugehörigen PR nachgewiesen; kein vorweggenommener
 Merge-, Veröffentlichungs- oder vollständiger Modulabnahmestatus.
 
+### Zweite Welle: ResultTable-Statuslesepfad
+
+Vor Umsetzung geplant: den widersprüchlichen eigenen Validierungsstatus der
+Objektseite entfernen und den Moduleinstieg vor die historische Chronologie
+stellen. Die aktuellen Statuswerte werden weiterhin ausschließlich aus dem
+Manifest abgeleitet; datierte Belege und bisherige Abschnittsanker bleiben
+erhalten. Die Objektseite verweist auf diesen Einstieg und die bestehende
+V0c-Abnahme. Kein Produkt-, Modulstatus-, Manifest- oder Vertragswechsel.
+
+Die historische Paketkopie bleibt unverändert. Eine gebundene Übernahme des
+korrigierten Lesepfads gehört zum finalen Releasekandidaten; diese reine
+Dokumentationswelle behauptet keinen neuen Paket- oder Runtime-Nachweis.
+
 ## Autonomer Abschluss von v1.0.0 — 2026-10-24
 
 Der unmittelbare Benutzerauftrag nimmt die zuvor pausierte Releasearbeit

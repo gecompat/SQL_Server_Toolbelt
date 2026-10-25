@@ -4,7 +4,8 @@
 
 **Version:** `1.0.0`
 
-**Status:** `implemented`; Runtime-Validierung `partially validated`
+**Status:** [Kanonischer Modulstatus und aktuelle Abnahme](../README.md#status).
+Die Objektseite führt keinen eigenen abweichenden Validierungsstatus.
 
 ## Zweck
 
