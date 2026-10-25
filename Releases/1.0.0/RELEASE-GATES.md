@@ -272,6 +272,13 @@ Notwendige Handler-/Policyrechte sind ausdrücklich getrennt. Produktquellen,
 Paketbytes und Modulstatus blieben unverändert; echte CrossDB-Identitäten und
 weitere Policy-/Rollen-/Lifecycleverträge bleiben offen.
 
+Der [Queue-Autorisierungsvertrag vom 2026-10-25](QUEUE-AUTHORIZATION-QUALIFICATION.md)
+ist ebenfalls auf zwölf Ziel-/CL-Kombinationen lokal/direkt zentral geprüft.
+Producer-Policy, ausführbarer Handler, DENY vor Idempotenzauskunft und
+Callertransaktionsschutz sind für die bestehende feste Fixture belegt;
+vollständige API-Minimalrechte, Managed-/Providerparallelität und harte
+Recovery bleiben davon unabhängig offen.
+
 Die verbleibenden Arbeiten sind damit genauer getrennt:
 
 | Punkt | Noch erforderlich | Voraussetzung / Verantwortung |

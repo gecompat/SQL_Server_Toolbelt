@@ -359,6 +359,35 @@ zwei absichtlich verworfene Orakelvarianten und frische unabhängige Audits.
 Produkt- und Paket-SQL-/DLL-Bytes blieben unverändert. Kein neuer CI-Job,
 automatischer Labstart oder Replay einer bereits grünen Vollmatrix.
 
+## Queue-Autorisierungsvertrag physisch prüfen
+
+`prepare_queue_authorization.py` bindet den unveränderten kanonischen
+`Authorization.Contract.sql` an den eigenen markierten Scope und schreibt
+ausschließlich eine neue private SQL-Datei unter `.runtime`. Er setzt den
+NULL-Default der eigenen Capture-Tabelle explizit; die ursprünglichen
+fachlichen Orakel werden nicht verändert. Ein als Alias beziehungsweise
+Reparse Point umgelenktes Runtimeverzeichnis wird vor der Ausgabe abgewiesen.
+
+```powershell
+python Tests/Release/prepare_queue_authorization.py --output .runtime/queue-wave/fixture.sql
+& Tests/Release/Invoke-QueueAuthorizationLab.ps1 -RunsetPath $privateRunset -CaseIndex 0
+# In einem neuen Prozess nach terminalem Fall:
+& Tests/Release/Invoke-QueueAuthorizationLab.ps1 -RunsetPath $privateRunset -CaseIndex 0 -AuditOnly
+```
+
+Das private Runset hat dieselben Felder und Pflichtpins wie der folgende
+Work-Type-Testweg, aber `schema_version=queue-authorization/v1`. Seine
+verbindungslosen lokalen/zentralen Exports enthalten genau ResultTable,
+Work Type und Work Queue. Generator, kanonischer Vertrag und ausgeführte
+Fixturebytes sind ebenfalls gebunden. Der Caller reserviert Originalbudget,
+300/360/400-Sekunden-Grenzen und separaten Audit; vorhandene Journale werden
+nicht erneut ausgeführt. Ein unbekannter Cleanupzustand stoppt Folgeverbraucher.
+
+Der [Qualifikationsbericht](../../Releases/1.0.0/QUEUE-AUTHORIZATION-QUALIFICATION.md)
+und seine JSON-Projektion trennen zwölf bestandene Fälle und zwei verworfene
+Orakelkontrollen. Sie belegen nur den aufgeführten Autorisierungsvertrag,
+keinen vollständigen API-Mindestrechtesatz oder externen Workerbetrieb.
+
 ## Work Type mit getrennten Handler- und Policyrechten prüfen
 
 `Invoke-WorkTypeRightsLab.ps1` prüft die feste `Runtime/WorkType.Rights.sql`

@@ -493,6 +493,73 @@ class ApiQualificationTests(unittest.TestCase):
         self.assertEqual(report['required_followup']['fresh_standalone_oracle_controls'], 1)
         self.assertTrue(report['known_documentation_gap'])
 
+    def test_queue_authorization_binds_consumed_fixture_and_keeps_scope_narrow(self):
+        import hashlib
+        import prepare_queue_authorization as queue
+        report = json.loads((ROOT / 'Releases/1.0.0/queue-authorization-qualification.json').read_bytes())
+        self.assertEqual(report['result'], 'PASS')
+        for flag in ('publication_authorized', 'module_status_changed', 'product_sources_changed', 'package_payload_changed'):
+            self.assertIs(report[flag], False)
+        expected = {(p, v, cl) for p in ('linux', 'windows')
+                    for v, cls in (('2019', (150,)), ('2022', (150, 160)), ('2025', (150, 160, 170))) for cl in cls}
+        self.assertEqual(len(report['native_cases']), 12)
+        self.assertEqual({(c['platform'], c['sql_version'], c['compatibility_level']) for c in report['native_cases']}, expected)
+        self.assertTrue(all(c['result'] == 'PASS' and c['contexts'] == ['local', 'direct_central']
+                            and c['independent_cleanup_and_pin_audit'] for c in report['native_cases']))
+        self.assertEqual(report['qualified_database_contexts'], 24)
+        self.assertEqual(report['expected_strict_denials'], {'51998': 48, '51997': 24})
+        self.assertEqual(report['visible_nonexecutable_handler_empty_claim_contexts'], 24)
+        self.assertEqual(report['executable_handler_positive_claim_contexts'], 24)
+        self.assertEqual(hashlib.sha256(queue.fixture_bytes()).hexdigest(), report['fixture_sha256'])
+        self.assertTrue(report['canonical_contract_unchanged'])
+        self.assertTrue(report['generation_applicability']['fixture_bytes_unchanged'])
+        self.assertFalse(report['generation_applicability']['native_sql_or_harness_changed'])
+        for path, digest in report['source_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest, path)
+        self.assertEqual({c['synthetic_fault'] for c in report['oracle_rejection_controls']}, {'wrong-policy-error', 'wrong-claim-count'})
+        self.assertTrue(all(c['actual_state'] == 'FAILED_CLEANED' and c['independent_cleanup_and_pin_audit']
+                            for c in report['oracle_rejection_controls']))
+        audit = report['final_independent_audit']
+        self.assertEqual((audit['terminal_attempts_audited'], audit['all_attempt_databases_absent']), (14, 26))
+        self.assertTrue(audit['fresh_after_all_consumers'])
+        self.assertFalse(audit['server_configuration_changes'] or audit['assembly_trust_changes'])
+        self.assertTrue(report['remaining_gates'])
+
+    def test_queue_fixture_builder_rejects_runtime_alias_before_resolved_output(self):
+        import tempfile
+        from types import SimpleNamespace
+        from unittest import mock
+        import prepare_queue_authorization as queue
+        with tempfile.TemporaryDirectory() as temp:
+            project = Path(temp) / 'project'
+            runtime = project / '.runtime'
+            runtime.mkdir(parents=True)
+            outside = Path(temp) / 'outside'
+            outside.mkdir()
+            output = outside / 'fixture.sql'
+            resolve = Path.resolve
+            is_symlink = Path.is_symlink
+            lstat = Path.lstat
+            # Die nominelle Runtime verweist nach aussen. Nur der aufgeloeste
+            # Ausgabepfad wuerde die urspruengliche Aliasidentitaet verlieren.
+            def alias_resolution(path, *args, **kwargs):
+                return outside if path == runtime else resolve(path, *args, **kwargs)
+            for style in ('symbolic', 'windows-reparse'):
+                def runtime_alias(path):
+                    return style == 'symbolic' if path == runtime else is_symlink(path)
+                def alias_stat(path, *args, **kwargs):
+                    if path == runtime and style == 'windows-reparse':
+                        return SimpleNamespace(st_file_attributes=0x400)
+                    return lstat(path, *args, **kwargs)
+                with mock.patch.object(queue, 'ROOT', project), \
+                        mock.patch.object(Path, 'resolve', alias_resolution), \
+                        mock.patch.object(Path, 'is_symlink', runtime_alias), \
+                        mock.patch.object(Path, 'lstat', alias_stat), \
+                        mock.patch('sys.argv', ['queue-fixture', '--output', str(output)]):
+                    with self.assertRaisesRegex(SystemExit, 'QUEUE_AUTH_REPARSE_RUNTIME_REJECTED'):
+                        queue.main()
+            self.assertFalse(output.exists())
+
     def test_work_type_rights_preserves_exact_scope_sources_and_failed_controls(self):
         import hashlib
         report = json.loads((ROOT / 'Releases/1.0.0/work-type-rights-qualification.json').read_bytes())
