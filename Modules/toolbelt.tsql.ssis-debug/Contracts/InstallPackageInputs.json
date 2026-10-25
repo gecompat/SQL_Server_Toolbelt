@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "qualification_evidence": "Tests/Qualification/Release.Windows.CL.20261025.json",
-  "ssis_release_manifest_sha256": "A4403D85E368EE19D90CD301CE3D34D95FA9F2679A431C756E486E045699C620",
+  "qualification_evidence": "Tests/Qualification/Pipeline.Windows.CL.20261025.json",
+  "ssis_release_manifest_sha256": "D4AB13154D4EC4D76E555FA66A49780AD28C297615DB09FF0F697FE74A7A1618",
   "parser_release_manifest_sha256": "2A86CED4D1C12F1699DA9A970AFC217E5488C117E7FDF8209DD6CA6543DAA017"
 }

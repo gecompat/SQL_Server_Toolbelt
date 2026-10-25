@@ -37,7 +37,7 @@ CLR_PACKAGE = f"{DIRECTORY}/InstallPackages/SQL-Server-Toolbelt-1.0.0-CLR-Instal
 PRODUCT_SOURCE = f"{DIRECTORY}/product-source.json"
 SSIS_UPDATE = f"{DIRECTORY}/ssis-release-update.json"
 SSIS_CLR_QUALIFICATION = f"{DIRECTORY}/clr-ssis-qualification.json"
-SSIS_BUILD_QUALIFICATION = 'Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Release.Windows.CL.20261025.json'
+SSIS_BUILD_QUALIFICATION = 'Modules/toolbelt.tsql.ssis-debug/Tests/Qualification/Pipeline.Windows.CL.20261025.json'
 MAX_BYTES = 256 * 1024 * 1024
 MAX_FILES = 10000
 
@@ -318,6 +318,9 @@ def validate_ssis_product_delta(previous: dict[str, bytes], current: dict[str, b
         'Modules/toolbelt.json.pointer/Tests/CI/run_max_workload.py',
         'Modules/toolbelt.json.pointer/Tests/CI/test_hard_interrupt_recovery.py',
         'Modules/toolbelt.string.regex/Tests/Static/validate_contract.py',
+        'Modules/toolbelt.string.edit-distance/Tests/Runtime/Invoke-LabContract.ps1',
+        'Modules/toolbelt.file.xlsx-memory/Tests/Runtime/Invoke-LabContract.ps1',
+        'Modules/toolbelt.filesystem.windows/Tests/Invoke-RootRepeatLab.ps1',
         'Workers/ExternalQueue/Tests/CiTarget.Contract.py'}
     for path in changed:
         if path.startswith(prefix):
@@ -403,7 +406,12 @@ def validate_ssis_product_applicability(previous: str, current: str, current_fil
             _, _, current_tree = qualification_sources(current)
     require(old_tree == record['previous_product_tree'] and current_tree == record['current_product_tree'],
             'SSIS-Produktbaum driftet.')
-    _, baseline = snapshot(record['public_baseline_commit'])
+    # Archivherkunft und spätere öffentliche Test-/Dokumentationspflege sind
+    # getrennte Bindungen. Weitere Runtimeänderungen bleiben ausgeschlossen.
+    integration = record.get('public_integration_baseline_commit', record['public_baseline_commit'])
+    require(re.fullmatch(r'[a-f0-9]{40}', integration) is not None,
+            'Öffentliche SSIS-Integrationsbasis fehlt.')
+    _, baseline = snapshot(integration)
     build = json.loads(current_files[SSIS_BUILD_QUALIFICATION])
     validate_ssis_product_delta(old_product, current_files, record, build, baseline)
 

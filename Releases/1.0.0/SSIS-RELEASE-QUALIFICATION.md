@@ -1,5 +1,9 @@
 # SSIS-Teilqualifikation und Paketupdate vom 2026-10-25
 
+Historischer Scope-Identitätsbuild aus PR #442. Der aktuelle Pipelinebuild hat
+einen [eigenen Nachweis](SSIS-PIPELINE-QUALIFICATION.md). Die folgenden Ergebnisse
+behalten ihre damaligen Build-, Paket- und Methodenbindungen.
+
 Status: **im v1.0.0-Kandidaten vorbereitet, nicht veröffentlicht**. Dieses manuell
 freigegebene Arbeitspaket nimmt keine allgemeine autonome Weiterentwicklung auf.
 Die Freigabematrix bleibt bei 19 Stable- und 26 Preview-Kandidaten; SSIS bleibt
@@ -9,7 +13,7 @@ Die Freigabematrix bleibt bei 19 Stable- und 26 Preview-Kandidaten; SSIS bleibt
 
 Der eingefrorene Lieferstand `192e8c424d526d43cfa0db2ca5c4aa0b6c3ef95e` enthält
 den Scope-Identitätskern 1.2 aus PR #427. Die
-[Produktdelta-Bindung](ssis-release-update.json) vergleicht ihn mit der vorherigen
+[Produktdelta-Bindung](https://github.com/gecompat/SQL_Server_Toolbelt/blob/ccedd1143d17e56d3067f72bbb3f622849c4e9a4/Releases/1.0.0/ssis-release-update.json) vergleicht ihn mit der vorherigen
 Gesamtlieferung. Außerhalb SSIS bleiben Runtime-, Deployment- und Workerbytes
 unverändert. Dokumentations-/Manifestpflege und die explizit begrenzten
 Testpflegedateien müssen dem gebundenen öffentlichen Integrationsstand entsprechen.
@@ -44,8 +48,8 @@ alte JSON-Vorlagen bleiben erhalten. Parser-/ScriptDom-Pins sind unverändert.
 
 ## CLR- und Gesamtpaket
 
-[CLR-Nachweis](clr-ssis-qualification.json) und
-[Gesamtpaketnachweis](complete-ssis-qualification.json) unterscheiden ausdrücklich
+[CLR-Nachweis](https://github.com/gecompat/SQL_Server_Toolbelt/blob/ccedd1143d17e56d3067f72bbb3f622849c4e9a4/Releases/1.0.0/clr-ssis-qualification.json) und
+[Gesamtpaketnachweis](https://github.com/gecompat/SQL_Server_Toolbelt/blob/ccedd1143d17e56d3067f72bbb3f622849c4e9a4/Releases/1.0.0/complete-ssis-qualification.json) unterscheiden ausdrücklich
 **je sechs neue Windows-Kontexte** von **je sechs beibehaltenen Linux-Kontexten**.
 Jeder neue Kontext prüft beide Deploymentmodi und eine Consumer-Datenbank,
 inklusive Repeat und zweimaligem Uninstall. Die Gesamtprofile enthalten 45/43

@@ -4,7 +4,7 @@ Status: **Releasevorbereitung, nicht veröffentlicht**. Die Lieferpakete sind an
 ihre dokumentierten Quell- und Prüfstände gebunden. Veröffentlichung, Tag und
 GitHub-Release sind nicht freigegeben.
 
-Die [aktuelle SSIS-Teilqualifikation und Paketbindung](SSIS-RELEASE-QUALIFICATION.md)
+Die [aktuelle SSIS-Teilqualifikation und Paketbindung](SSIS-PIPELINE-QUALIFICATION.md)
 trennt neue Windows-Nachweise von unverändert übernommenen Linux-Payloads und
 nennt die weiterhin offenen Client-, Ressourcen- und Releasegates.
 
@@ -243,7 +243,7 @@ Die gepackten Exports der 19 stabilen Kandidaten bestanden auf zwölf
 Windows-/Linux-/SQL-/CL-Kombinationen Erstinstallation, Wiederholung,
 zentralen Consumer und Uninstall. Der [Gatebericht](RELEASE-GATES.md)
 nennt den exakten Scope, die Eingabebindung und den bereinigten Erstfehler.
-Die [aktuelle CLR- und Gesamtpaketqualifikation](SSIS-RELEASE-QUALIFICATION.md)
+Die [aktuelle CLR- und Gesamtpaketqualifikation](SSIS-PIPELINE-QUALIFICATION.md)
 ergänzt jeweils sechs Windows-Engine-/CL-Kontexte mit lokaler, zentraler und
 Consumer-Installation. Die Windows-Gesamtprofile enthalten 45 beziehungsweise
 43 Module. Unveränderte Linux-Payloads behalten ihre ursprünglichen Nachweise.

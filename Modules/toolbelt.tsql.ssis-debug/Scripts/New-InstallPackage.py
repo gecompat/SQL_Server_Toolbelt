@@ -48,12 +48,14 @@ def build(args):
     release_pins = json.loads(source(MODULE + 'Contracts/InstallPackageInputs.json'))
     allowed = {'Tests/Qualification/Identities.Windows2019-2025.20261025.json':1626,
                'Tests/Qualification/Iterations.Windows2019-2025.20261025.json':1590,
-               'Tests/Qualification/Release.Windows.CL.20261025.json':3516}
+               'Tests/Qualification/Release.Windows.CL.20261025.json':3516,
+               'Tests/Qualification/Pipeline.Windows.CL.20261025.json':3516}
     evidence = release_pins['qualification_evidence']
     require(evidence in allowed, 'explicit qualification contract')
     record_path = MODULE + evidence
     record = json.loads(source(record_path))
-    explicit_cl = evidence == 'Tests/Qualification/Release.Windows.CL.20261025.json'
+    explicit_cl = evidence in ('Tests/Qualification/Release.Windows.CL.20261025.json',
+                               'Tests/Qualification/Pipeline.Windows.CL.20261025.json')
     expected = {(v,cl,m) for v,levels in (('2019',(150,)),('2022',(150,160)),('2025',(150,160,170)))
                 for cl in levels for m in ('local','central')} if explicit_cl else {
                     (v,m) for v in ('2019','2022','2025') for m in ('local','central')}

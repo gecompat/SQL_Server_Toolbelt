@@ -3,7 +3,7 @@
   "project_version": "1.0.0",
   "state": "prepared_not_published",
   "publication_authorized": false,
-  "product_commit": "192e8c424d526d43cfa0db2ca5c4aa0b6c3ef95e",
+  "product_commit": "7a0e15af84be8ff0874b91f99ac823d7f22429fb",
   "package_kind": "complete_source_candidate",
   "foundation": {
     "version": "1.25.0",
@@ -986,7 +986,7 @@
         "2022",
         "2025"
       ],
-      "manifest_sha256": "e0384b3b895be497eda4c33183079eaf5debc7921c915092d63365a7b352f553",
+      "manifest_sha256": "cf5b5460813bae5fa40d06408c29c6a252a5fac8e6cf934be19ee1c61338d899",
       "evidence_references": [
         "Modules/toolbelt.tsql.ssis-debug/module.yaml",
         "Modules/toolbelt.tsql.ssis-debug/README.md",
@@ -1066,10 +1066,10 @@
   "product_snapshot": {
     "schema_version": "1.0",
     "kind": "synthetic_product_snapshot",
-    "source_commit": "5f5c53f775db88f4cb8c57031fb5dcb78d8b1b70",
-    "product_commit": "192e8c424d526d43cfa0db2ca5c4aa0b6c3ef95e",
-    "base_commit": "df435af0c482f4e21bef933df858d93419c391ad",
-    "tree_oid": "d34ad8c02bbec4e392f32945b2b64896dce3b35f",
+    "source_commit": "0d7987e90bc5b82ea55ea4e70fe1470d042cd0f6",
+    "product_commit": "7a0e15af84be8ff0874b91f99ac823d7f22429fb",
+    "base_commit": "8a56ec2a32768670923a2ae1eb0103671199fc52",
+    "tree_oid": "6f42a52ae649b42351ad7a0b6df13b33673b3fd3",
     "excluded_generated_output_prefixes": [
       "Releases/1.0.0/Artifacts/"
     ]

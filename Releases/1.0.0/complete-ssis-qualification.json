@@ -3,9 +3,9 @@
   "kind": "ssis_current_delivery",
   "date": "2026-10-25",
   "publication_authorized": false,
-  "product_commit": "192e8c424d526d43cfa0db2ca5c4aa0b6c3ef95e",
-  "product_tree_oid": "d34ad8c02bbec4e392f32945b2b64896dce3b35f",
-  "executed_code_commit": "66ed4fa9d0818d41d736d096a37736028df118d5",
+  "product_commit": "7a0e15af84be8ff0874b91f99ac823d7f22429fb",
+  "product_tree_oid": "6f42a52ae649b42351ad7a0b6df13b33673b3fd3",
+  "executed_code_commit": "1a8e8dbbe29d79cede0e42d0c20cef6391c8aa41",
   "scope": "SSIS-only delivery update; new Windows installation/repeat/consumer/uninstall/absent-repeat; unchanged Portable payload retains original Linux cases",
   "native_cases_passed": 12,
   "new_native_cases_passed": 6,
@@ -283,21 +283,21 @@
   ],
   "previous_qualification_sha256": "0eb0910df4601214e47132c5288488ba4cd7dbec31045e12b5a7cdf9f641ff72",
   "previous_product_commit": "becbc2d9fe76339926c1902a930d869949a2bb74",
-  "ssis_build_qualification_sha256": "1ff2399ed67d497a93b4a67e3de241f9e7a004cd7282dbc4e53108974913cf61",
-  "native_candidate_sha256": "dfba60f3eca755da63a9588f05867837ee03fb7146f36ab62a0aa684ec3dad59",
+  "ssis_build_qualification_sha256": "2fbcf327bdb56cda6c525242bd707dfab91351a2d6c74d018f9ce38f77e30bff",
+  "native_candidate_sha256": "0e7e7f0deac2b79d50ab0311eca18b5b963169e4597888f532492581673c2309",
   "sql_payload_sha256": {
     "SQL/Install-Portable-central.sql": "c18b490b306ba2bd3565ff2c5ac4c6018ee028f6308c7c8d88dd9e57d6c1a14d",
     "SQL/Install-Portable-local.sql": "c0d672c1ae87fcc126ea45f99d9705079a321f63def208de73bc4f0fa2ee1206",
-    "SQL/Install-Windows-central.sql": "7f49334cda38e31afc027b18cdb0914434ae65eb6be696ca63ec17261a1b037c",
-    "SQL/Install-Windows-local.sql": "acdc053c8b8764c83cc49f7c7a9064ce258aae058bd7a2e9895d7e82c6c70491",
+    "SQL/Install-Windows-central.sql": "fb320034d0aaf503a2df6a1eac858a2f77d6ba9a82a2cf6c47417421e6b4e823",
+    "SQL/Install-Windows-local.sql": "45fa4cb0d21eb738c390c12254dcbc1e77449a3c2bc1eb35bc636b318d7f5482",
     "SQL/Repeat-Portable-central.sql": "6e3ffe0c26b2fb51a1b2c2942e0d0fe0fbd085d42119507b25a134dacc6cd4f2",
     "SQL/Repeat-Portable-local.sql": "9784203a8efd2fb4097b070f190e32f0edd63fc8cb659e0922b2e49f3a3b4efa",
-    "SQL/Repeat-Windows-central.sql": "f5cf83c638bd6de52012d7ba3fc07307b0dc67b9d31e7ded599c0fde5198bf20",
-    "SQL/Repeat-Windows-local.sql": "5ad6c43fc93fe802e596415af35fdc12bdaf531be9e676778edd281e580c994b",
+    "SQL/Repeat-Windows-central.sql": "54f4260a6a31257249a797a92dc93b699149d895bfadfe0912b4a296e274288f",
+    "SQL/Repeat-Windows-local.sql": "f653d622aa86deeb558064e9e8c10ddfe8d36c88f19b24d06958c67e6d2b2777",
     "SQL/Trust-Portable-central.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
     "SQL/Trust-Portable-local.sql": "dd1e43d79c66957f18ac868a60d637a703e5905400749bfff8c14cd77b1a0339",
-    "SQL/Trust-Windows-central.sql": "23d8ce1e6194a94fde78fb4bf9d74c9755199ef7ca4091afdd3109c0d185cbbd",
-    "SQL/Trust-Windows-local.sql": "330929f908ce091dc170088487f2b5dacc081bba5dab994bbaad041725d057c5",
+    "SQL/Trust-Windows-central.sql": "9dda5d697f9fc61ccd4c2255d7d1f4bd3097a6c2d6089d9664fbe1549c45c891",
+    "SQL/Trust-Windows-local.sql": "1eb114382f0677f5c3bfb36642815c3844916e001ee1651c008a8418c27fa193",
     "SQL/Uninstall-Portable-central.sql": "1d9a0dfcf6b6c34545c2605844c9d81fc9740a181855963396ef528df40390c3",
     "SQL/Uninstall-Portable-local.sql": "1d9a0dfcf6b6c34545c2605844c9d81fc9740a181855963396ef528df40390c3",
     "SQL/Uninstall-Windows-central.sql": "92224f5c08ef92c506f69bbcb1976bf1e9c45bd697f3a60ce0fa758f866fde7a",
@@ -320,16 +320,16 @@
     "Binaries/Toolbelt.String.Phonetic.dll": "c1155aa10d9fce61ae33cf8e6f6c68528d219db4835d74b3a35e129f851f66e2fca47c99a6f8f74f3d38239f9be84968459366bbfbeb0125c077b61a8d1989e9",
     "Binaries/Toolbelt.String.Regex.dll": "515a52fa8803634f0c8c93a383016195a22f868596d3b361bb00d6f8d6a622b637be76377bf256e6297848b87aae59f5644892ec43c1a0aadb6602d0c0738eb1",
     "Binaries/Toolbelt.Tsql.ScriptParser.dll": "7f34d0472dbe5913c8d019a72b2684d89cb4ca79590b599dd5b06154d6a40c5494334d8f46218e10e9d1bc5db983a8750ba77a685d68865d9bcdf30c3d853506",
-    "Binaries/Toolbelt.Tsql.SsisDebug.dll": "fd4279c9454e3727c27c979e08995a4e4d7e39c18c92a665d236f3f4d2bfba6b8b51c571dc0d87ac91c787387e033b97a0477e13f2e36954ce955c17197de4c0"
+    "Binaries/Toolbelt.Tsql.SsisDebug.dll": "a209a556703d125370794280825575203958b29516f41a65511592df20bbb96353d10df3233a3cd85f7d5595333d469e6f91546fe99c3ea2b27633bbf5d2f6ba"
   },
   "method_bindings": {
-    "Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py": "9b2cfad49a2e5f985ffe0166b89d02f81ec8c8d444417c38d6369df9aaed6332",
+    "Modules/toolbelt.tsql.ssis-debug/Tests/Static/validate_install_package.py": "81f6539e5b0995ba4ca48bb0b401a1ac9ab893db0caab54a23fac0d920802c8a",
     "Scripts/Release/Install-ClrPackage.ps1": "d95884cf01b0fccda9b8d2b1725110e56cfd7b30368108e2b1c43c1b555a345d",
     "Scripts/Release/check_clr_builds.py": "986024bd557b6ef48643a2ce86810d2c3b171a1d7cca287da366a8103fccda2f",
     "Scripts/Release/prepare_clr_package.py": "7cacad1b3b96b1b31a748ddebb980862d84658deb24bd50f02ffabf6d09f93ad",
-    "Scripts/Release/prepare_release.py": "8597a501c47f32e4b98d06454921b7c8ff6de45e07eda87678e9cedc9d3eb58b",
+    "Scripts/Release/prepare_release.py": "c80c61789faf7209ee48512b5080152af24cf934a869a0343c52ff85396039b0",
     "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
-    "Tests/CI/run-csv-memory-lab.ps1": "2c8772f3cec9390f87d6e941539fc9b0196b235ca8e52de98903ab32d6c4f95a",
+    "Tests/CI/run-csv-memory-lab.ps1": "e200d4d6fc3ca0ee6fc00f333d67b6a4f8b89652731ca383cece6731b58fa3ff",
     "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
     "Tests/Release/Invoke-ClrPackageLab.ps1": "f5d49ef99ff15499efee3c00bc378dafb6c4383da4eb683e54739bdc9b2e0b9c",
     "Tests/Release/Invoke-ClrPackageMatrix.ps1": "c71330d986baee828752f5ea6344791c7851e5b90866dc00a8935817550be61f",
@@ -351,12 +351,7 @@
     "double_build_projects": 12,
     "delivered_double_build_modules": 10,
     "other12_delivered_dlls_unchanged": true,
-    "ssis": "Exact new Full12-qualified standalone ZIP binary; no rebuild during packaging",
-    "original_double_build_source_commit": "66ed4fa9d0818d41d736d096a37736028df118d5",
-    "delivery_double_build_source_commit": "a318669e4d81e027e261707246a4861d9f825027",
-    "both_double_build_waves_byteidentical": true,
-    "prior_delivery_double_build_source_commit": "bba38bf0ef9352eab3cdb5423f4057abbcda1cb8",
-    "all_three_double_build_waves_byteidentical": true
+    "ssis": "Exact new Full12-qualified standalone ZIP binary; no rebuild during packaging"
   },
   "functional_transport": {
     "encrypt_required": true,
@@ -370,7 +365,6 @@
     "cleanup_deadline_seconds": 360,
     "outer_watchdog_seconds": 400
   },
-  "general_autonomy": "PAUSED",
   "remaining_gates": [
     "Module API/security/resource/parallel/recovery gates beyond the explicit SSIS scope",
     "Windows-authentication and SSMS GUI",
@@ -383,8 +377,5 @@
     "Windows-central": 43,
     "Portable-local": 40,
     "Portable-central": 40
-  },
-  "executed_product_commit": "fbd20b952f3e8c37ddda56b3d245ce71ce60af6e",
-  "execution_product_tree_oid": "2be6d99a76b28a18195fa145e983194e2eb6a45b",
-  "current_applicability_delta": "Documentation/generated evidence and comment-only manifest integration after native execution; executable product bytes, SQL payloads, DLLs and executed methods unchanged. Actual execution product and code commit retained."
+  }
 }

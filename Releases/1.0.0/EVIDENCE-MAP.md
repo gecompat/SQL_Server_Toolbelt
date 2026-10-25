@@ -1,6 +1,6 @@
 # Nachweiszuordnung aller 45 Module
 
-Die [SSIS-Qualifikation vom 2026-10-25](SSIS-RELEASE-QUALIFICATION.md) ergänzt
+Die [SSIS-Qualifikation vom 2026-10-25](SSIS-PIPELINE-QUALIFICATION.md) ergänzt
 zwölf explizite Windows-Engine-/CL-/Modusfälle, den finalen Installationssatz und
 je sechs neue Windows-Fälle für CLR- und Gesamtpaket. Historische Manifest-/API-
 Snapshots werden aus ihrer gebundenen früheren Lieferung gelesen. Unveränderte

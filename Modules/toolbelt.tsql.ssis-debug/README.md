@@ -26,7 +26,7 @@ und die anschließende Installationskontrolle für Parser, ResultTable und
 SSIS-Debug einschließlich des getrennten Assembly-Trust-Opt-ins.
 
 Das [vollständige ZIP-Installationspaket](InstallPackages/README.md) enthält
-den qualifizierten SSIS-Build mit Scope-Identitäten1.2 einschließlich
+den qualifizierten SSIS-Build mit gemeinsamem Pipeline-Identitätskern einschließlich
 passender DLLs, SQL-/PowerShell-Skripte und SSMS-Beispiel zum Testen ohne eigenen
 Build. Der externe Exporthost gehört nicht zu diesem SQL-Installationspaket.
 Build- und Paketnachweise stehen getrennt in der Prüfmatrix.
@@ -43,7 +43,8 @@ behauptet. Lookup-Mehrfachtreffer werden über den vollständigen effektiven
 Schlüssel reduziert und in sitzungslokalen Temp-Tabellen für weitere
 Prüfstufen festgehalten. Eine eigene `CleanupSql`-Zeile räumt sie auf.
 
-Installation: Parser 2.0.1 und Result Table 1.0.0 separat installieren, Release
+Optionale Quellinstallation für die Entwicklung: Parser 2.0.1 und Result Table 1.0.0
+separat installieren, Release
 mit `Scripts/New-ClrReleaseArtifacts.ps1` reproduzierbar bauen, den exakten
 Assemblyhash administrativ freigeben und `Artifacts/Deploy.WithAssembly.sql`
 im SQLCMD-Modus mit `DeploymentMode=local` oder `central` ausführen. Der
@@ -52,8 +53,10 @@ und Trusteinträge werden beim Uninstall nicht entfernt.
 
 Die begrenzten nativen Fachnachweise umfassen Windows SQL Server 2019/2022/2025
 jeweils lokal und zentral. Die [Prüfmatrix](Tests/README.md) trennt deren
-Buildbindungen und die zusätzlich geprüften echten Upgradepfade. Der Iterationsbuild hat einen eigenen Nachweis für alle drei Windows-Versionen
-einschließlich Upgrade vom zuvor ausgelieferten #411-Build. Das Modul
+Buildbindungen und die zusätzlich geprüften echten Upgradepfade. Der aktuelle
+Pipeline-Build ist auf allen unterstützten CLs geprüft, einschließlich Upgrade
+vom zuvor ausgelieferten Scope-Identitätsbuild. Frühere Builds behalten ihre
+eigenen datierten Nachweise. Das Modul
 bleibt unveröffentlicht. Seit der Benutzerklarstellung
 vom 2026-10-16 verwendet sie `TestPurpose=Functional` mit dem ausdrücklich
 gesetzten Trustwert des schema-validierten Labvertrags. Für diese Funktion
@@ -64,8 +67,8 @@ authentifizierte TLS-Abnahme bleibt `not executed`.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: finales Scope1.2-ZIP, Doppelpaketierung, Integrität6 plus Navigationsgegenprobe, ValidateOnly und Windows2025 local/central ODBC`
-- Scope: 185-Dateien-Installationssatz mit fertigen qualifizierten Assemblies, ursprünglichen Trustmanifesten und vollständigen Installations-/SSMS-Unterlagen einschließlich interner Paketübersicht. Zwei finale Kontexte mit je113 Assertions,226 insgesamt; reales Iterationsbuild-Upgrade und unabhängige Cleanup-/Pin-/Konfigurationsaudits. Zwei frühere erfolgreiche Paketfälle wegen korrigiertem Dokumentationsumfang behalten und im unveränderten gemeinsamen36er-Rahmen gezählt; fünf bereinigte frühere Testadapterfehlversuche ebenfalls erhalten. SSIS-Phase21 Treiberversuche, Gesamtpaketphase separat. Grenzen300/360/400, Functional Encrypt=True und expliziter Lab-Trust ohne Fallback. Keine Veröffentlichung; allgemeine Autonomie pausiert.
+- Nachweis: `local: Pipeline-ZIP Doppelpaketierung, Integrität 6, ValidateOnly und Windows2025 local/central ODBC`
+- Scope: 189-Dateien-Installationssatz mit fertigen qualifizierten Assemblies und unverändertem Installer. Zwei finale Kontexte mit 226 Assertions für Neuinstallation, Repeat, Uninstall und echtes Upgrade vom ausgelieferten Scope 1.2-Build; zwei frische unabhängige Cleanup-/Pin-/Konfigurationsaudits. Vierzehn erfolgreiche native Treiberversuche im bisherigen SSIS-Teilscope; Gesamtpaket separat. Grenzen 300/360/400 und Functional-Transport unverändert. Keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 

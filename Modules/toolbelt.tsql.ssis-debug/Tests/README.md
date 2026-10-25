@@ -32,7 +32,7 @@ eine längere ID wird vor der SQL-Materialisierung als `resource_limit` abgewies
 Zulässige IDs müssen vollständig erhalten bleiben; eine bereits befüllte
 ResultTable darf durch die Abweisung nicht verändert werden.
 
-Bestanden: 21 Kindprozesse einschließlich gezielter Reviewregressionen zu
+Historischer Full21-Nachweis: 21 Kindprozesse einschließlich gezielter Reviewregressionen zu
 Lookup-Dezimalprodukt, Textlängen, SUM/AVG/LEN, Integerpräzedenz,
 NULLbarkeit und Zeitpräzision, Erhalt von WHERE-Klauseln, Katalogdrift,
 reiner TVF ohne Alias und Unicode-Lookup-Collations. SQL-Vorfilter, JSON,
@@ -569,8 +569,8 @@ TLS-Abnahme und Veröffentlichung sind damit nicht belegt.
 
 <!-- BEGIN GENERATED:MODULE_EVIDENCE -->
 - Datum: `2026-10-25`
-- Nachweis: `local: finales Scope1.2-ZIP, Doppelpaketierung, Integrität6 plus Navigationsgegenprobe, ValidateOnly und Windows2025 local/central ODBC`
-- Scope: 185-Dateien-Installationssatz mit fertigen qualifizierten Assemblies, ursprünglichen Trustmanifesten und vollständigen Installations-/SSMS-Unterlagen einschließlich interner Paketübersicht. Zwei finale Kontexte mit je113 Assertions,226 insgesamt; reales Iterationsbuild-Upgrade und unabhängige Cleanup-/Pin-/Konfigurationsaudits. Zwei frühere erfolgreiche Paketfälle wegen korrigiertem Dokumentationsumfang behalten und im unveränderten gemeinsamen36er-Rahmen gezählt; fünf bereinigte frühere Testadapterfehlversuche ebenfalls erhalten. SSIS-Phase21 Treiberversuche, Gesamtpaketphase separat. Grenzen300/360/400, Functional Encrypt=True und expliziter Lab-Trust ohne Fallback. Keine Veröffentlichung; allgemeine Autonomie pausiert.
+- Nachweis: `local: Pipeline-ZIP Doppelpaketierung, Integrität 6, ValidateOnly und Windows2025 local/central ODBC`
+- Scope: 189-Dateien-Installationssatz mit fertigen qualifizierten Assemblies und unverändertem Installer. Zwei finale Kontexte mit 226 Assertions für Neuinstallation, Repeat, Uninstall und echtes Upgrade vom ausgelieferten Scope 1.2-Build; zwei frische unabhängige Cleanup-/Pin-/Konfigurationsaudits. Vierzehn erfolgreiche native Treiberversuche im bisherigen SSIS-Teilscope; Gesamtpaket separat. Grenzen 300/360/400 und Functional-Transport unverändert. Keine Veröffentlichung.
 - Ergebnis: `success`
 <!-- END GENERATED:MODULE_EVIDENCE -->
 
@@ -587,3 +587,36 @@ Ports und Kanten, den Unterschied zwischen Pfadname und SDK-Identifikationsstrin
 sowie unqualifizierte native Referenzsyntax. Die bestehenden Generatorfälle
 bleiben Regressionen. Diese Prüfung führt weder SSISDB-Pakete noch neue
 CLR-Releaseartefakte aus; die native Analyze-Abnahme bleibt getrennt.
+
+## Gebundener Vorgänger der Pipeline-Folgequalifikation
+
+Der Labrunner akzeptiert mit `-SsisQualifiedPredecessorEvidence` zusätzlich
+`Release.Windows.CL.20261025.json`. Damit kann der tatsächlich ausgelieferte
+Scope-Identitätsbuild als Upgrade-Ausgangspunkt verwendet werden. Originaler
+Quellcommit, DLL- und Deploymenthash sowie Parser-/ScriptDom-Pins bleiben
+verbindlich. Die [neue Buildprojektion](Qualification/Pipeline.Windows.CL.20261025.json)
+bindet zwölf erfolgreich ausgeführte Windows-/CL-/Modusfälle und3516 Assertions
+an den Pipeline-Identitätsbuild. SQL2019 nutzt CL150, SQL2022 CL150/160 und
+SQL2025 CL150/160/170, jeweils lokal und zentral. Hinzu kommen 23 begrenzte
+Frameworkfälle, 147 gemeinsame Modellgegenproben und zwölf unabhängige
+Abschlussaudits. Der historische Scope 1.2-Nachweis bleibt unverändert.
+
+Die zusätzlichen Pipelinefelder stammen aus derselben bereits begrenzten
+XML-/Graphmaterialisierung. Der öffentliche SQL-Einstieg, Parserprofile,
+Katalogzugriffe und Sicherheitsbudgets sind unverändert; der optionale
+Pipelineexport ist weiterhin eine externe Hostoperation. Eine neue
+SQL-Schnittstelle oder SSIS-Runtime wird daraus nicht abgeleitet.
+
+## Aktuelle Pipeline-Paketlieferung
+
+Die [Paketprojektion](Qualification/Pipeline.InstallPackage.20261025.json)
+bindet den finalen ZIP-Hash an zwei neue Windows-SQL2025-Fälle lokal und
+zentral. Die entpackten Installationsskripte wurden mit ODBC-sqlcmd geprüft:
+Neuinstallation, Repeat, Uninstall/Repeat und tatsächliches Scope 1.2→Pipeline-
+Upgrade. Zusammen 226 Assertions; zwei frische unabhängige Abschlussaudits
+bestätigten Cleanup, Inputpins und wiederhergestellte Konfigurationen.
+
+Das ZIP enthält den unveränderlichen Quell-/Anleitungssnapshot seines
+Paketcommits. Die nach der Ausführung ergänzte Paketprojektion steht im
+Repository; sie verändert keine enthaltenen DLL-/SQL-Bytes. Die Prüfung
+ersetzt weder Windows-Anmeldung/SSMS-GUI noch authentifizierte TLS-Abnahme.

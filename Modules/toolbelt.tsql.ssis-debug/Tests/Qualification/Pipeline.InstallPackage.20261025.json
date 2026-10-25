@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "result": "PASS",
+  "publication_authorized": false,
+  "scope": "Exact pipeline-identity shared-core SSIS installation ZIP; extracted ODBC fresh/repeat/uninstall and real shipped scope-build upgrade Windows2025 local/central",
+  "package_sha256": "92b71f15ecec03cc66821697fbe0ab2951561e4ef6948bbebb97f1b105371546",
+  "package_source_commit": "d96c93ec59d878bee47dc42f679ad40eaf986674",
+  "native_fixture_execution_commit": "21224b0337c01c4970a54bd25824ae9b320b9a50",
+  "native_harness_sha256": "37966bc93f74c501a43ce7d680aeb05b68bca221fd43029bab91c632a0c33327",
+  "payload_files": 189,
+  "double_package_build_byteidentical": true,
+  "assemblies_rebuilt_for_packaging": false,
+  "qualified_binary_evidence": "Pipeline.Windows.CL.20261025.json",
+  "cases": [
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "deployment_mode": "local",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "generator_sql_dialect": 150,
+      "result": "PASS",
+      "assertions": {
+        "package_install": 8,
+        "build_upgrade": 8,
+        "core": 36,
+        "api": 61
+      },
+      "exact_extracted_sql_via_odbc_sqlcmd": true,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "real_shipped_scope_build_upgrade": true,
+      "final_independent_audit": "PASS"
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "deployment_mode": "central",
+      "database_collation": "Latin1_General_100_CI_AS_SC_UTF8",
+      "generator_sql_dialect": 150,
+      "result": "PASS",
+      "assertions": {
+        "package_install": 8,
+        "build_upgrade": 8,
+        "core": 36,
+        "api": 61
+      },
+      "exact_extracted_sql_via_odbc_sqlcmd": true,
+      "fresh_repeat_uninstall_and_absent_repeat": true,
+      "real_shipped_scope_build_upgrade": true,
+      "final_independent_audit": "PASS"
+    }
+  ],
+  "total_new_native_assertions": 226,
+  "upgrade_chain": [
+    "shipped PR442 scope-identity1.2 build1.0.0",
+    "pipeline-identity shared-core build1.0.0"
+  ],
+  "assembly_and_public_object_ids_preserved": true,
+  "predecessor_json_template_reused": true,
+  "dependency_pins_changed": false,
+  "final_audit": {
+    "case_audits": 2,
+    "owned_database_names_absent": 2,
+    "trust_states_restored": 8,
+    "configuration_baselines_restored": true,
+    "input_pins_unchanged": true,
+    "failed_package_attempts": 0
+  },
+  "whole_ssis_phase": {
+    "build_contexts": 12,
+    "build_assertions": 3516,
+    "package_contexts": 2,
+    "package_assertions": 226,
+    "driver_attempts": 14,
+    "shared_wave_maximum": 30
+  },
+  "offline": {
+    "package_integrity_and_negative_cases": 6,
+    "extracted_validate_only": "PASS; no SQL",
+    "unchanged_installer_oracles": "Prior55 retained for exact identical installer bytes; not replayed"
+  },
+  "functional_transport": {
+    "encrypt_required": true,
+    "explicit_schema_validated_lab_trust": true,
+    "schema_selected_authentication": true,
+    "fallback": false,
+    "deployment_client": "ODBC sqlcmd",
+    "assertion_and_cleanup_client": "System.Data.SqlClient",
+    "authenticated_tls": "not executed"
+  },
+  "limits": {
+    "work_seconds": 300,
+    "cleanup_deadline_seconds": 360,
+    "outer_watchdog_seconds": 400,
+    "maximum_command_seconds": 45
+  },
+  "external_export_host_binary_included": false,
+  "remaining_scope": [
+    "Overall CLR and complete package qualification has its own explicit evidence",
+    "Windows-authentication/SSMS GUI and authenticated TLS",
+    "Linux export-host execution and executable host distribution",
+    "Separate SSISDB consumer, resource and production scopes",
+    "Final publication is not authorized"
+  ],
+  "cost_tokens": "UNKNOWN"
+}
