@@ -40,6 +40,11 @@ sind für alle fünf öffentlichen APIs mit jeweils einem einzelnen Objektrecht
 lokal und direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft.
 Echte CrossDB-Identitätsmappings und andere Modulpflichtfälle bleiben separat.
 
+Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
+sind für fünf Einzelgrantprofile und den getrennten Lookup-/Helperpfad
+lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen geprüft. Weitere
+Großwert-, Lifecycle- und CrossDB-Verträge behalten ihren eigenen Umfang.
+
 Die [Cancellation-Callerrechte](CANCELLATION-RIGHTS-QUALIFICATION.md) bestehen
 für alle drei APIs mit getrennten EXECUTE-/SELECT-Grants lokal/direkt zentral
 auf zwölf Ziel-/CL-Kombinationen. Quoten-/Konkurrenz-/Lifecycle- und echte

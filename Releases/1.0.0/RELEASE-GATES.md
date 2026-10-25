@@ -289,6 +289,11 @@ ebenfalls für drei isolierte API-Profile auf zwölf Ziel-/CL-Kombinationen
 lokal/direkt zentral geprüft. Das schließt keine Quoten-, Konkurrenz-,
 Retention-, Lifecycle-, CrossDB- oder Recoverygates mit ein.
 
+Die [Pseudonymisierungs-Callerrechte](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
+ergänzen vier TVFs und Lookup mit Einzelgrants sowie den getrennten
+Lookup-/Helperpfad auf zwölf lokalen/direkt zentralen Ziel-/CL-Kombinationen.
+Großwert-/Konkurrenz-/Lifecycle-, echte CrossDB- und Recoverygates bleiben separat.
+
 Die verbleibenden Arbeiten sind damit genauer getrennt:
 
 | Punkt | Noch erforderlich | Voraussetzung / Verantwortung |

@@ -1,0 +1,241 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-10-25",
+  "scope": "Pseudonymization 1.2.0: five isolated public API grants plus a separately identified Lookup/ResultTable helper profile; local/direct central only",
+  "publication_authorized": false,
+  "result": "PASS",
+  "module_versions": {
+    "toolbelt.core.result-table": "1.0.0",
+    "toolbelt.pseudonymization.deterministic": "1.2.0"
+  },
+  "module_status_changed": false,
+  "product_sources_changed": false,
+  "package_payload_changed": false,
+  "execution_source_baseline_commit": "10b9eef655d669bebb9b369f3f014ab02e8a0d85",
+  "public_apis": {
+    "TVF_DeterministicRange": "SELECT",
+    "TVF_DeterministicDateShift": "SELECT",
+    "TVF_DeterministicTranslate": "SELECT",
+    "TVF_DeterministicGeoJitter": "SELECT",
+    "USP_DeterministicLookup": "EXECUTE"
+  },
+  "source_sha256": {
+    "Deployment/Deploy-All.ps1": "cfb2da9b490193f2592b56ad7795c7b304594c3b6846a4b4984e7d219fe3c19b",
+    "Modules/toolbelt.core.result-table/Deployment/Deploy.sql": "db1e1039d4d719f99aecaf64260b9703f56dcda869c4d14015a6c4a875c4d298",
+    "Modules/toolbelt.core.result-table/Deployment/Uninstall.sql": "6b2152a4afbd2b8bfe9ea24dbb41d47901ad8bee9552e575921b9bdd1046a5ca",
+    "Modules/toolbelt.core.result-table/Source/SchemaTrustPreflight.sql": "7da975d4e0b853f0f3dc7de8f842ad1757bfe5e403564ccdef4f70387b125876",
+    "Modules/toolbelt.core.result-table/Source/USP_PrepareResultTable.sql": "a4c79f97472c70cdc1ec0858cf06886fd3ea79d8e63e3c7f77b4403e568514e8",
+    "Modules/toolbelt.core.result-table/module.yaml": "bd656fcfa574ca78f19fbc44fd1700255465dc644f9ea499465b67b956c0c721",
+    "Modules/toolbelt.pseudonymization.deterministic/Deployment/Deploy.sql": "05907ec2cad74234aa37a9dacb8026288fe1a93941061dbe6c3a9acdcd04eeb1",
+    "Modules/toolbelt.pseudonymization.deterministic/Deployment/New-LegacyTestArtifacts.ps1": "a081cc97a5b08f80c4576529def6c0b3e670caefad43e6985d78db44ba42db91",
+    "Modules/toolbelt.pseudonymization.deterministic/Deployment/ReleaseManifest.sql": "f01c1ada396bea9076bb7329e52f27937b04fcc5468d9f0be5feedf0eb02de0e",
+    "Modules/toolbelt.pseudonymization.deterministic/Deployment/Uninstall.sql": "790a37af624537b9237792365241973a15372b8a898c7fa8d1b68956831f0a39",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicGeoJitter.sql": "ce9564cf87a761fef273651a7a45d12865de8b7acc4932f0b609567f3045b284",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/DeterministicTranslate.sql": "ee8578db41f8a4e209b2b0b3da77a35cf124d71fd11f6d9d6b57705ef8c14444",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicDateShift.sql": "48b0db6199bd7843ac09d5b90e82e06a1ace37d6b0c28efe6fd0ab5311b6f9ab",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicIntegerBytes.sql": "bc26259479a5a69b00456a523b451b18115f8094f90a4781a314e23b5de0c8e0",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicRange.sql": "651364a4d2072b7bebb0ba3ffa015d6a5ee3a5db78e46644fc2ecb3b0a0ce49f",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/TVF_DeterministicRangeCore.sql": "1fd5d15be0cd5f815ac7020a522a59ea2492f1fe09663d1b90e25adec126a66f",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookup.sql": "dc35412b57644271b098fd4f581485588e161ba445baebe3f79daa42bdc238b1",
+    "Modules/toolbelt.pseudonymization.deterministic/Source/USP_DeterministicLookupCore.sql": "6167635232dc8d1238bc0cd058094a07fb1bdea4c8f95454d77a39fb1cf1a21b",
+    "Modules/toolbelt.pseudonymization.deterministic/module.yaml": "47ba50cbdfa2d2f8448911043f83fdf61a42acb8f1379da9d55525e82d8498ee",
+    "Tests/CI/LabQualifiedContract.ps1": "f4eee1ff18ef973bee2b870e99928d23d3f4ea3da1b4c628e303b1b9dfc8ab15",
+    "Tests/CI/run-lab-local.ps1": "5bd0f1d0308ec2d0efe9fac9a24d1242f3d7968af1477dee333f3e4483738846",
+    "Tests/Release/Invoke-ApiQualificationLab.ps1": "50c4344d7172f605176f9ff072c046b50501efc08fd7460dc1186cace443f745",
+    "Tests/Release/Invoke-StablePackageLab.ps1": "04c9edeb54b09cca306d007de11b7a01773425ba1ae76f3198ba1e5deb660d6a",
+    "Tests/Release/Invoke-TsqlContractLab.ps1": "7c7a900cdee334db530930ecc024f623b5d7d4dbc2f6badd6834428ef10426ee",
+    "Tests/Release/Runtime/Deterministic.Rights.sql": "f4d261e5e827d0a2a44d67277b038b25a99a7b8915141f0a2ee03cdc64cdc83f"
+  },
+  "offline_export_sha256": {
+    "local": "f567e9af4e9c8e0fcba64c2de36f7f43540180a3a8a9647fe0506c25e8103a0e",
+    "central": "f3f6b6cd09d07b5811371b7d697898425d663eef9ab0dceda92ad92556ad5c49"
+  },
+  "native_cases": [
+    {
+      "platform": "linux",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 118,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 118,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 118,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 118,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 118,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "linux",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 118,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2019",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 118,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 118,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2022",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 118,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 150,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 118,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 160,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 118,
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "platform": "windows",
+      "sql_version": "2025",
+      "compatibility_level": 170,
+      "contexts": [
+        "local",
+        "direct_central"
+      ],
+      "result": "PASS",
+      "positive_api_profiles": 12,
+      "strict_sql229_denials": 118,
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "positive_api_profiles": 144,
+  "single_grant_api_profiles": 120,
+  "lookup_with_helper_profiles": 24,
+  "strict_sql229_denials": 1416,
+  "oracle_rejection_controls": [
+    {
+      "synthetic_fault": "wrong-value",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    },
+    {
+      "synthetic_fault": "extra-object",
+      "actual_state": "FAILED_CLEANED",
+      "independent_cleanup_and_pin_audit": true
+    }
+  ],
+  "final_independent_audit": {
+    "terminal_attempts_audited": 14,
+    "positive_case_databases_absent": 24,
+    "all_attempt_databases_absent": 26,
+    "fresh_after_all_consumers": true,
+    "server_configuration_changes": false,
+    "assembly_trust_changes": false
+  },
+  "remaining_gates": [
+    "Genuine lowpriv CrossDB mappings",
+    "Full large-value, concurrency, lifecycle and resource contracts outside the fixed caller profiles",
+    "Other module/provider and hard recovery gates",
+    "Authenticated TLS, final package refresh and publication authorization"
+  ]
+}

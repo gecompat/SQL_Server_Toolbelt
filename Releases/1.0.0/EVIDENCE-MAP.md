@@ -6,6 +6,10 @@ kanonischen `validation_evidence`-Einträgen der Modulmanifeste und den
 Beschreibung jedes Nachweises begrenzt seinen Scope; ein aktueller grüner
 Pakettest ersetzt sie nicht. Kein Modul wird hierdurch hochgestuft.
 
+Die [Pseudonymisierungs-Callerrechte vom 2026-10-25](DETERMINISTIC-RIGHTS-QUALIFICATION.md)
+ergänzen fünf isolierte API-Grants und einen gesonderten Lookup-/Helperpfad
+lokal/direkt zentral auf zwölf Ziel-/CL-Kombinationen; keine volle Modulabnahme.
+
 Die [Cancellation-Callerrechte vom 2026-10-25](CANCELLATION-RIGHTS-QUALIFICATION.md)
 ergänzen drei isolierte API-Profile lokal/direkt zentral auf zwölf Ziel-/CL-
 Kombinationen. Historische Vollmatrizen, Manifest-Snapshots und weitere
