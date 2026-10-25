@@ -1,9 +1,8 @@
 # SQL Server Toolbelt v1.0.0 vorbereiten
 
-Status: **Releasevorbereitung, nicht veröffentlicht**. Das aktuelle manuell
-freigegebene SSIS-Arbeitspaket qualifiziert den bestehenden Stand und aktualisiert
-die Lieferpakete. Die allgemeine autonome Weiterentwicklung bleibt pausiert.
-Veröffentlichung, Tag und GitHub-Release sind nicht freigegeben.
+Status: **Releasevorbereitung, nicht veröffentlicht**. Die Lieferpakete sind an
+ihre dokumentierten Quell- und Prüfstände gebunden. Veröffentlichung, Tag und
+GitHub-Release sind nicht freigegeben.
 
 Die [aktuelle SSIS-Teilqualifikation und Paketbindung](SSIS-RELEASE-QUALIFICATION.md)
 trennt neue Windows-Nachweise von unverändert übernommenen Linux-Payloads und
@@ -232,10 +231,12 @@ Die gepackten Exports der 19 stabilen Kandidaten bestanden auf zwölf
 Windows-/Linux-/SQL-/CL-Kombinationen Erstinstallation, Wiederholung,
 zentralen Consumer und Uninstall. Der [Gatebericht](RELEASE-GATES.md)
 nennt den exakten Scope, die Eingabebindung und den bereinigten Erstfehler.
-Die Gesamtinstallation aller 45 Module einschließlich Preview und CLR ist
-weiter `not executed`. Bestehende native Modulnachweise bleiben mit ihrem
-dokumentierten Scope verlinkt. Der Pakettest behauptet keine neue Rechte-,
-Speicher-, Parallelitäts-, Recovery- oder TLS-Qualifikation.
+Die [aktuelle CLR- und Gesamtpaketqualifikation](SSIS-RELEASE-QUALIFICATION.md)
+ergänzt jeweils sechs Windows-Engine-/CL-Kontexte mit lokaler, zentraler und
+Consumer-Installation. Die Windows-Gesamtprofile enthalten 45 beziehungsweise
+43 Module. Unveränderte Linux-Payloads behalten ihre ursprünglichen Nachweise.
+Diese Paketprüfungen ersetzen keine noch offenen modulspezifischen Rechte-,
+Speicher-, Parallelitäts-, Recovery- oder TLS-Gates.
 
 ## Vor einer Veröffentlichung
 
