@@ -7,7 +7,7 @@ Die Freigabematrix bleibt bei 19 Stable- und 26 Preview-Kandidaten; SSIS bleibt
 
 ## Geprüfte Lieferung
 
-Der eingefrorene Produktstand `fbd20b952f3e8c37ddda56b3d245ce71ce60af6e` enthält
+Der eingefrorene Lieferstand `765b630f1a5e049827829adfa4a851244a2bd717` enthält
 den Scope-Identitätskern1.2 aus PR427. Die
 [Produktdelta-Bindung](ssis-release-update.json) vergleicht ihn mit der vorherigen
 Gesamtlieferung. Außerhalb SSIS bleiben Runtime-, Deployment- und Workerbytes
@@ -100,3 +100,20 @@ Diese Nachweise schließen den genannten endlichen Lab- und Paketierungsscope.
 Sie stufen keine Module hoch und erklären nicht alle 45 Module für vollständig
 abgenommen. Die [Releasegates](RELEASE-GATES.md) und der [Supportvertrag](SUPPORT.md)
 bleiben maßgeblich. Installation beginnt bei [INSTALL.md](../../INSTALL.md).
+
+
+## Dokumentationsintegration nach den nativen Läufen
+
+Der tatsächliche native Ausführungsstand bleibt
+`fbd20b952f3e8c37ddda56b3d245ce71ce60af6e`, Methodencode `66ed4fa`.
+Zwischen ihm und dem Lieferstand unterscheiden sich innerhalb der Produktpfade
+nur Markdown-Dateien aus inzwischen integrierten Main-Nachweisen. Der
+Produktdelta-Nachweis enthält beide vollständigen Pfad-/Hashmengen; alle anderen
+Produktbytes bleiben gleich. Das ändert keine nativen Ausführungsbehauptungen
+und löst keinen erneuten SQL-Test aus.
+
+Der vorhandene CLR-Packer bindet seinen Buildbericht bewusst an den gesamten
+Modules-/Deployment-Baum. Daher ist nach dieser Dokumentationsintegration ein
+weiterer begrenzter Doppelbau nötig; die alte Buildausführung bleibt erhalten.
+Die Gate wurde nicht abgeschwächt. Das ist ein zusätzlicher Offlineaufwand ohne
+neue Nativefälle, CI-Jobs, Trigger, Reviewketten oder Modellaufrufe.

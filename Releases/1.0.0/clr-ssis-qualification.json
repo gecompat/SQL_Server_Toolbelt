@@ -3,8 +3,8 @@
   "kind": "ssis_current_delivery",
   "date": "2026-10-25",
   "publication_authorized": false,
-  "product_commit": "fbd20b952f3e8c37ddda56b3d245ce71ce60af6e",
-  "product_tree_oid": "2be6d99a76b28a18195fa145e983194e2eb6a45b",
+  "product_commit": "765b630f1a5e049827829adfa4a851244a2bd717",
+  "product_tree_oid": "db0cfdece5098230ef42bcde4e91fc5db91c2aa3",
   "executed_code_commit": "66ed4fa9d0818d41d736d096a37736028df118d5",
   "scope": "SSIS-only delivery update; new Windows installation/repeat/consumer/uninstall/absent-repeat; unchanged Portable payload retains original Linux cases",
   "native_cases_passed": 12,
@@ -372,5 +372,8 @@
     "Authenticated TLS",
     "Final publication is not authorized"
   ],
-  "cost_and_tokens": "UNKNOWN"
+  "cost_and_tokens": "UNKNOWN",
+  "executed_product_commit": "fbd20b952f3e8c37ddda56b3d245ce71ce60af6e",
+  "execution_product_tree_oid": "2be6d99a76b28a18195fa145e983194e2eb6a45b",
+  "current_applicability_delta": "Documentation-only integration after native execution; all non-Markdown product bytes, SQL payloads, DLLs and executed methods unchanged. Original execution product and code commit retained."
 }
